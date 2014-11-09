@@ -21,12 +21,20 @@
 class GameObject : public CPPListNode
 {
 public:
+    char* m_Name; // this is a pointer to the string passed in, not a copy.
+
     ComponentTransform* m_pComponentTransform;
     MyList<ComponentBase*> m_Components; // component system manager is responsible for deleting these components.
 
 public:
     GameObject();
     virtual ~GameObject();
+
+    void SetName(char* name);
+#if MYFW_USING_WX
+    static void StaticFillPropertiesWindow(void* pObjectPtr) { ((GameObject*)pObjectPtr)->FillPropertiesWindow(); }
+    void FillPropertiesWindow();
+#endif //MYFW_USING_WX
 
     ComponentBase* AddNewComponent(ComponentBase* pComponent, ComponentSystemManager* pComponentSystemManager = g_pComponentSystemManager);
     ComponentBase* AddExistingComponent(ComponentBase* pComponent);

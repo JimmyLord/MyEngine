@@ -19,16 +19,51 @@
 
 GameObject::GameObject()
 {
+    m_Name = 0;
+
     m_pComponentTransform = MyNew ComponentTransform( this );
     m_pComponentTransform->Reset();
 
     m_Components.AllocateObjects( 4 ); // hard coded nonsense for now, max of 4 components on a game object.
+
+#if MYFW_USING_WX
+    // Add this game object to the root of the objects tree
+    wxTreeItemId rootid = g_pPanelObjectList->GetTreeRoot();
+    wxTreeItemId gameobjectid = g_pPanelObjectList->AddObject( this, GameObject::StaticFillPropertiesWindow, rootid, m_Name );
+    m_pComponentTransform->AddToObjectsPanel( gameobjectid );
+#endif //MYFW_USING_WX
 }
 
 GameObject::~GameObject()
 {
     SAFE_DELETE( m_pComponentTransform );
+
+#if MYFW_USING_WX
+    if( g_pPanelObjectList )
+    {
+        g_pPanelObjectList->RemoveObject( this );
+    }
+#endif //MYFW_USING_WX
 }
+
+void GameObject::SetName(char* name)
+{
+    m_Name = name;
+
+#if MYFW_USING_WX
+    if( g_pPanelObjectList )
+    {
+        g_pPanelObjectList->RenameObject( this, m_Name );
+    }
+#endif //MYFW_USING_WX
+}
+
+#if MYFW_USING_WX
+void GameObject::FillPropertiesWindow()
+{
+    g_pPanelWatch->ClearAllVariables();
+}
+#endif //MYFW_USING_WX
 
 ComponentBase* GameObject::AddNewComponent(ComponentBase* pComponent, ComponentSystemManager* pComponentSystemManager)
 {
@@ -46,6 +81,13 @@ ComponentBase* GameObject::AddExistingComponent(ComponentBase* pComponent)
     pComponent->Reset();
 
     m_Components.Add( pComponent );
+
+#if MYFW_USING_WX
+    wxTreeItemId gameobjectid = g_pPanelObjectList->FindObject( this );
+
+    wxTreeItemId id;
+    id = g_pPanelObjectList->AddObject( this, GameObject::StaticFillPropertiesWindow, gameobjectid, "component" );
+#endif //MYFW_USING_WX
 
     return pComponent;
 }

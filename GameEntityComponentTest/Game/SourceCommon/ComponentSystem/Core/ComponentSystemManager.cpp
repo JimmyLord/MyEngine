@@ -89,11 +89,11 @@ void ComponentSystemManager::OnDrawFrame()
 {
     for( CPPListNode* node = m_ComponentsRenderable.GetHead(); node != 0; node = node->GetNext() )
     {
-        ComponentBase* pComponent = (ComponentBase*)node;
+        ComponentRenderable* pComponent = (ComponentRenderable*)node;
 
         if( pComponent->m_Type == ComponentType_Renderable )
         {
-            ((ComponentRenderable*)pComponent)->Draw();
+            pComponent->Draw();
         }
     }
 }
@@ -102,11 +102,12 @@ bool ComponentSystemManager::OnTouch(int action, int id, float x, float y, float
 {
     for( CPPListNode* node = m_ComponentsInputHandlers.GetHead(); node != 0; node = node->GetNext() )
     {
-        ComponentBase* pComponent = (ComponentBase*)node;
+        ComponentInputHandler* pComponent = (ComponentInputHandler*)node;
 
         if( pComponent->m_Type == ComponentType_InputHandler )
         {
-            ((ComponentInputHandler*)pComponent)->OnTouch( action, id, x, y, pressure, size );
+            if( pComponent->OnTouch( action, id, x, y, pressure, size ) == true )
+                return true;
         }
     }
 
@@ -117,11 +118,12 @@ bool ComponentSystemManager::OnButtons(GameCoreButtonActions action, GameCoreBut
 {
     for( CPPListNode* node = m_ComponentsInputHandlers.GetHead(); node != 0; node = node->GetNext() )
     {
-        ComponentBase* pComponent = (ComponentBase*)node;
+        ComponentInputHandler* pComponent = (ComponentInputHandler*)node;
 
         if( pComponent->m_Type == ComponentType_InputHandler )
         {
-            ((ComponentInputHandler*)pComponent)->OnButtons( action, id );
+            if( pComponent->OnButtons( action, id ) == true )
+                return true;
         }
     }
 

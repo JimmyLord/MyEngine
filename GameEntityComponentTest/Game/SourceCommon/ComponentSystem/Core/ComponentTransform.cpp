@@ -33,6 +33,21 @@ ComponentTransform::~ComponentTransform()
 {
 }
 
+#if MYFW_USING_WX
+void ComponentTransform::AddToObjectsPanel(wxTreeItemId gameobjectid)
+{
+    wxTreeItemId id = g_pPanelObjectList->AddObject( this, ComponentTransform::StaticFillPropertiesWindow, gameobjectid, "Transform" );
+}
+
+void ComponentTransform::FillPropertiesWindow()
+{
+    g_pPanelWatch->ClearAllVariables();
+    g_pPanelWatch->AddFloat( "x", &m_Transform.m41, -1.0f, 1.0f );
+    g_pPanelWatch->AddFloat( "y", &m_Transform.m42, -1.0f, 1.0f );
+    g_pPanelWatch->AddFloat( "z", &m_Transform.m43, -1.0f, 1.0f );
+}
+#endif //MYFW_USING_WX
+
 void ComponentTransform::Reset()
 {
     ComponentBase::Reset();

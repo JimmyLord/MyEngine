@@ -48,6 +48,7 @@ void GameEntityComponentTest::OneTimeInit()
     // create a player game object and attach a mesh(sprite) component to it.
     {
         pGameObject = m_pComponentSystemManager->CreateGameObject();
+        pGameObject->SetName( "Player Object" );
         pComponentSprite = (ComponentSprite*)pGameObject->AddNewComponent( MyNew ComponentSprite() );
         pComponentSprite->SetShader( m_pShader_White );
         pGameObject->AddNewComponent( MyNew ComponentInputTrackMousePos() );
@@ -56,6 +57,7 @@ void GameEntityComponentTest::OneTimeInit()
     // create a game object and attach a mesh(sprite) component to it.
     {
         pGameObject = m_pComponentSystemManager->CreateGameObject();
+        pGameObject->SetName( "Second Object" );
         pComponentSprite = (ComponentSprite*)pGameObject->AddNewComponent( MyNew ComponentSprite() );
         pComponentSprite->SetShader( m_pShader_White );
     }
