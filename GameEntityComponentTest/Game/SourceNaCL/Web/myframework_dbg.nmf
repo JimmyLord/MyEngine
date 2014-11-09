@@ -1,0 +1,6 @@
+{
+  "program": {
+    "x86-64": {"url": "EntityComponentTest_64_Debug.nexe"},
+    "x86-32": {"url": "EntityComponentTest_x86_Debug.nexe"}
+  }
+}

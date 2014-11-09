@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>IDESourceControlProjectFavoriteDictionaryKey</key>
+	<false/>
+	<key>IDESourceControlProjectIdentifier</key>
+	<string>4EBCC3A5-EC8F-4F79-91F2-946458A27252</string>
+	<key>IDESourceControlProjectName</key>
+	<string>EntityComponentTest</string>
+	<key>IDESourceControlProjectOriginsDictionary</key>
+	<dict>
+		<key>40072E56385CD7EC6867555132063FDB0F54E7B3</key>
+		<string>https://github.com/JimmyLord/MyFramework.git</string>
+		<key>60A5425543EA2D8D2C616E2B41F83C99F735C8EF</key>
+		<string>https://github.com/JimmyLord/ProjectMinimal.git</string>
+	</dict>
+	<key>IDESourceControlProjectPath</key>
+	<string>GameEntityComponentTest/EntityComponentTest.xcworkspace</string>
+	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
+	<dict>
+		<key>40072E56385CD7EC6867555132063FDB0F54E7B3</key>
+		<string>../..Framework/</string>
+		<key>60A5425543EA2D8D2C616E2B41F83C99F735C8EF</key>
+		<string>../..</string>
+	</dict>
+	<key>IDESourceControlProjectURL</key>
+	<string>https://github.com/JimmyLord/ProjectMinimal.git</string>
+	<key>IDESourceControlProjectVersion</key>
+	<integer>111</integer>
+	<key>IDESourceControlProjectWCCIdentifier</key>
+	<string>60A5425543EA2D8D2C616E2B41F83C99F735C8EF</string>
+	<key>IDESourceControlProjectWCConfigurations</key>
+	<array>
+		<dict>
+			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
+			<string>public.vcs.git</string>
+			<key>IDESourceControlWCCIdentifierKey</key>
+			<string>40072E56385CD7EC6867555132063FDB0F54E7B3</string>
+			<key>IDESourceControlWCCName</key>
+			<string>Framework</string>
+		</dict>
+		<dict>
+			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
+			<string>public.vcs.git</string>
+			<key>IDESourceControlWCCIdentifierKey</key>
+			<string>60A5425543EA2D8D2C616E2B41F83C99F735C8EF</string>
+			<key>IDESourceControlWCCName</key>
+			<string>ProjectMinimal</string>
+		</dict>
+	</array>
+</dict>
+</plist>
