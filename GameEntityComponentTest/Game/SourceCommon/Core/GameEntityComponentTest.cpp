@@ -50,7 +50,11 @@ void GameEntityComponentTest::OneTimeInit()
         pGameObject = m_pComponentSystemManager->CreateGameObject();
         pGameObject->SetName( "Player Object" );
         pComponentSprite = (ComponentSprite*)pGameObject->AddNewComponent( MyNew ComponentSprite() );
-        pComponentSprite->SetShader( m_pShader_White );
+        if( pComponentSprite )
+        {
+            pComponentSprite->SetShader( m_pShader_White );
+            pComponentSprite->m_Tint.Set( 255, 0, 0, 255 );
+        }
         pGameObject->AddNewComponent( MyNew ComponentInputTrackMousePos() );
     }
 
@@ -59,7 +63,11 @@ void GameEntityComponentTest::OneTimeInit()
         pGameObject = m_pComponentSystemManager->CreateGameObject();
         pGameObject->SetName( "Second Object" );
         pComponentSprite = (ComponentSprite*)pGameObject->AddNewComponent( MyNew ComponentSprite() );
-        pComponentSprite->SetShader( m_pShader_White );
+        if( pComponentSprite )
+        {
+            pComponentSprite->SetShader( m_pShader_White );
+            pComponentSprite->m_Tint.Set( 0, 0, 255, 255 );
+        }
     }
 }
 

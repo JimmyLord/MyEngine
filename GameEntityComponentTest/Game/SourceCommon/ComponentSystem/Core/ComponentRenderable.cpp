@@ -35,6 +35,18 @@ ComponentRenderable::~ComponentRenderable()
 {
 }
 
+#if MYFW_USING_WX
+void ComponentRenderable::AddToObjectsPanel(wxTreeItemId gameobjectid)
+{
+    wxTreeItemId id = g_pPanelObjectList->AddObject( this, ComponentRenderable::StaticFillPropertiesWindow, 0, gameobjectid, "Renderable" );
+}
+
+void ComponentRenderable::FillPropertiesWindow()
+{
+    g_pPanelWatch->ClearAllVariables();
+}
+#endif //MYFW_USING_WX
+
 void ComponentRenderable::Reset()
 {
     ComponentBase::Reset();
@@ -47,6 +59,10 @@ void ComponentRenderable::SetShader(ShaderGroup* pShader)
     m_pShader = pShader;
 }
 
-//void ComponentRenderable::Draw()
-//{
-//}
+void ComponentRenderable::Draw()
+{
+#if MYFW_USING_WX
+    // ugh, for now... matrix will be dirty when playing with watch window in wx 
+    m_pComponentTransform->UpdateMatrix();
+#endif
+}

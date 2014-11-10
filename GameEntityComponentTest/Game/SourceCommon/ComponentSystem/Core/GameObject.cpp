@@ -29,7 +29,7 @@ GameObject::GameObject()
 #if MYFW_USING_WX
     // Add this game object to the root of the objects tree
     wxTreeItemId rootid = g_pPanelObjectList->GetTreeRoot();
-    wxTreeItemId gameobjectid = g_pPanelObjectList->AddObject( this, GameObject::StaticFillPropertiesWindow, rootid, m_Name );
+    wxTreeItemId gameobjectid = g_pPanelObjectList->AddObject( this, GameObject::StaticOnLeftClick, GameObject::StaticOnRightClick, rootid, m_Name );
     m_pComponentTransform->AddToObjectsPanel( gameobjectid );
 #endif //MYFW_USING_WX
 }
@@ -59,14 +59,54 @@ void GameObject::SetName(char* name)
 }
 
 #if MYFW_USING_WX
-void GameObject::FillPropertiesWindow()
+void GameObject::OnLeftClick()
 {
     g_pPanelWatch->ClearAllVariables();
+}
+
+#define ID_ADD_RENDERER     2001
+#define ID_ADD_INPUT        2002
+
+void GameObject::OnPopupClick(wxEvent &evt)
+{
+    GameObject* pGameObject = (GameObject*)static_cast<wxMenu*>(evt.GetEventObject())->GetClientData();
+    int id = evt.GetId();
+    switch( id )
+    {
+    case ID_ADD_RENDERER:
+        {
+            ComponentSprite* pComponentSprite = (ComponentSprite*)pGameObject->AddNewComponent( MyNew ComponentSprite() );
+            if( pComponentSprite )
+            {
+                pComponentSprite->SetShader( ((GameEntityComponentTest*)g_pGameCore)->m_pShader_White );
+                pComponentSprite->m_Tint.Set( 0, 255, 0, 255 );
+                pComponentSprite->m_Size.Set( 0.2f, 0.3f );
+            }
+        }
+        break;
+
+    case ID_ADD_INPUT:
+        pGameObject->AddNewComponent( MyNew ComponentInputTrackMousePos );
+        break;
+    }
+}
+
+void GameObject::OnRightClick()
+{
+ 	wxMenu mnu;
+    mnu.SetClientData( this );
+ 	mnu.Append( ID_ADD_RENDERER, "Add renderer component" );
+ 	mnu.Append( ID_ADD_INPUT, "Add input component" );
+ 	mnu.Connect( wxEVT_COMMAND_MENU_SELECTED, (wxObjectEventFunction)&GameObject::OnPopupClick );
+ 	g_pPanelWatch->PopupMenu( &mnu );
 }
 #endif //MYFW_USING_WX
 
 ComponentBase* GameObject::AddNewComponent(ComponentBase* pComponent, ComponentSystemManager* pComponentSystemManager)
 {
+    if( m_Components.Count() >= m_Components.Length() )
+        return 0;
+
     assert( pComponentSystemManager );
     pComponentSystemManager->AddComponent( pComponent );
 
@@ -77,6 +117,9 @@ ComponentBase* GameObject::AddNewComponent(ComponentBase* pComponent, ComponentS
 
 ComponentBase* GameObject::AddExistingComponent(ComponentBase* pComponent)
 {
+    if( m_Components.Count() >= m_Components.Length() )
+        return 0;
+
     pComponent->m_pGameObject = this;
     pComponent->Reset();
 
@@ -84,9 +127,7 @@ ComponentBase* GameObject::AddExistingComponent(ComponentBase* pComponent)
 
 #if MYFW_USING_WX
     wxTreeItemId gameobjectid = g_pPanelObjectList->FindObject( this );
-
-    wxTreeItemId id;
-    id = g_pPanelObjectList->AddObject( this, GameObject::StaticFillPropertiesWindow, gameobjectid, "component" );
+    pComponent->AddToObjectsPanel( gameobjectid );
 #endif //MYFW_USING_WX
 
     return pComponent;

@@ -33,6 +33,18 @@ ComponentData::~ComponentData()
 {
 }
 
+#if MYFW_USING_WX
+void ComponentData::AddToObjectsPanel(wxTreeItemId gameobjectid)
+{
+    wxTreeItemId id = g_pPanelObjectList->AddObject( this, ComponentData::StaticFillPropertiesWindow, 0, gameobjectid, "Base component" );
+}
+
+void ComponentData::FillPropertiesWindow()
+{
+    g_pPanelWatch->ClearAllVariables();
+}
+#endif //MYFW_USING_WX
+
 //void ComponentData::Reset()
 //{
 //    ComponentBase::Reset();

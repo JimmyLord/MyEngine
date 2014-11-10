@@ -38,13 +38,14 @@ public:
     ComponentBase(GameObject* owner);
     virtual ~ComponentBase();
 
+    virtual void Reset();
+
+public:
 #if MYFW_USING_WX
     virtual void AddToObjectsPanel(wxTreeItemId gameobjectid);
     static void StaticFillPropertiesWindow(void* pObjectPtr) { ((ComponentBase*)pObjectPtr)->FillPropertiesWindow(); }
     void FillPropertiesWindow();
 #endif //MYFW_USING_WX
-
-    virtual void Reset();
 };
 
 #endif //__ComponentBase_H__

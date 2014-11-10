@@ -24,7 +24,7 @@ class ComponentInputHandler : public ComponentBase
 {
 public:
     ComponentTransform* m_pComponentTransform;
-    
+
 public:
     ComponentInputHandler();
     ComponentInputHandler(GameObject* owner);
@@ -35,6 +35,13 @@ public:
     // will return true if input is used.
     virtual bool OnTouch(int action, int id, float x, float y, float pressure, float size) = 0;
     virtual bool OnButtons(GameCoreButtonActions action, GameCoreButtonIDs id) = 0;
+
+public:
+#if MYFW_USING_WX
+    virtual void AddToObjectsPanel(wxTreeItemId gameobjectid);
+    static void StaticFillPropertiesWindow(void* pObjectPtr) { ((ComponentInputHandler*)pObjectPtr)->FillPropertiesWindow(); }
+    void FillPropertiesWindow();
+#endif //MYFW_USING_WX
 };
 
 #endif //__ComponentInputHandler_H__

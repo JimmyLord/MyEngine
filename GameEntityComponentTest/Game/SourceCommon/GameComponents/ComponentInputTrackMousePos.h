@@ -21,7 +21,7 @@
 class ComponentInputTrackMousePos : public ComponentInputHandler
 {
 public:
-    
+
 public:
     ComponentInputTrackMousePos();
     ComponentInputTrackMousePos(GameObject* owner);
@@ -30,6 +30,13 @@ public:
     // will return true if input is used.
     virtual bool OnTouch(int action, int id, float x, float y, float pressure, float size);
     virtual bool OnButtons(GameCoreButtonActions action, GameCoreButtonIDs id);
+
+public:
+#if MYFW_USING_WX
+    virtual void AddToObjectsPanel(wxTreeItemId gameobjectid);
+    static void StaticFillPropertiesWindow(void* pObjectPtr) { ((ComponentInputTrackMousePos*)pObjectPtr)->FillPropertiesWindow(); }
+    void FillPropertiesWindow();
+#endif //MYFW_USING_WX
 };
 
 #endif //__ComponentInputTrackMousePos_H__

@@ -36,6 +36,24 @@ ComponentSprite::~ComponentSprite()
     SAFE_RELEASE( m_pSprite );
 }
 
+#if MYFW_USING_WX
+void ComponentSprite::AddToObjectsPanel(wxTreeItemId gameobjectid)
+{
+    wxTreeItemId id = g_pPanelObjectList->AddObject( this, ComponentSprite::StaticFillPropertiesWindow, 0, gameobjectid, "Sprite" );
+}
+
+void ComponentSprite::FillPropertiesWindow()
+{
+    g_pPanelWatch->ClearAllVariables();
+    g_pPanelWatch->AddUnsignedChar( "r", &m_Tint.r, 0, 255 );
+    g_pPanelWatch->AddUnsignedChar( "g", &m_Tint.g, 0, 255 );
+    g_pPanelWatch->AddUnsignedChar( "b", &m_Tint.b, 0, 255 );
+    g_pPanelWatch->AddUnsignedChar( "a", &m_Tint.a, 0, 255 );
+    g_pPanelWatch->AddFloat( "width",  &m_Size.x, 0, 2 );
+    g_pPanelWatch->AddFloat( "height", &m_Size.y, 0, 2 );
+}
+#endif //MYFW_USING_WX
+
 void ComponentSprite::Reset()
 {
     ComponentRenderable::Reset();
@@ -43,7 +61,8 @@ void ComponentSprite::Reset()
     if( m_pSprite == 0 )
         m_pSprite = MyNew MySprite();
 
-    m_pSprite->Create( 0.1f, 0.1f, 0, 1, 0, 1, Justify_Center, true );
+    m_Size.Set( 0.1f, 0.1f );
+    m_Tint.Set( 255,255,255,255 );
 }
 
 void ComponentSprite::SetShader(ShaderGroup* pShader)
@@ -55,5 +74,9 @@ void ComponentSprite::SetShader(ShaderGroup* pShader)
 
 void ComponentSprite::Draw()
 {
+    ComponentRenderable::Draw();
+
+    m_pSprite->SetTint( m_Tint );
+    m_pSprite->Create( m_Size.x, m_Size.y, 0, 1, 0, 1, Justify_Center, false );
     m_pSprite->Draw( &m_pComponentTransform->m_Transform );
 }

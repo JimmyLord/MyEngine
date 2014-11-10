@@ -33,6 +33,18 @@ ComponentInputTrackMousePos::~ComponentInputTrackMousePos()
 {
 }
 
+#if MYFW_USING_WX
+void ComponentInputTrackMousePos::AddToObjectsPanel(wxTreeItemId gameobjectid)
+{
+    wxTreeItemId id = g_pPanelObjectList->AddObject( this, ComponentInputTrackMousePos::StaticFillPropertiesWindow, 0, gameobjectid, "InputTrackMousePos" );
+}
+
+void ComponentInputTrackMousePos::FillPropertiesWindow()
+{
+    g_pPanelWatch->ClearAllVariables();
+}
+#endif //MYFW_USING_WX
+
 //void ComponentInputTrackMousePos::Reset()
 //{
 //    ComponentInputHandler::Reset();
@@ -41,10 +53,13 @@ ComponentInputTrackMousePos::~ComponentInputTrackMousePos()
 bool ComponentInputTrackMousePos::OnTouch(int action, int id, float x, float y, float pressure, float size)
 {
     // snap the object to the mouse pos.
-    m_pComponentTransform->m_Transform.m41 = (x / g_pGameCore->m_WindowWidth) * 2 - 1;
-    m_pComponentTransform->m_Transform.m42 = (y / g_pGameCore->m_WindowHeight) * 2 - 1;
+    float clipx = (x / g_pGameCore->m_WindowWidth) * 2 - 1;
+    float clipy = (y / g_pGameCore->m_WindowHeight) * 2 - 1;
 
-    return true;
+    m_pComponentTransform->SetPosition( Vector3( clipx, clipy, 0 ) );
+
+    //return true;
+    return false; // allow other input handlers to use touch messages.
 }
 
 bool ComponentInputTrackMousePos::OnButtons(GameCoreButtonActions action, GameCoreButtonIDs id)

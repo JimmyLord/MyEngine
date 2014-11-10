@@ -18,7 +18,11 @@
 #ifndef __GameObject_H__
 #define __GameObject_H__
 
-class GameObject : public CPPListNode
+class GameObject
+: public CPPListNode
+#if MYFW_USING_WX
+, public wxEvtHandler
+#endif
 {
 public:
     char* m_Name; // this is a pointer to the string passed in, not a copy.
@@ -31,13 +35,18 @@ public:
     virtual ~GameObject();
 
     void SetName(char* name);
-#if MYFW_USING_WX
-    static void StaticFillPropertiesWindow(void* pObjectPtr) { ((GameObject*)pObjectPtr)->FillPropertiesWindow(); }
-    void FillPropertiesWindow();
-#endif //MYFW_USING_WX
 
     ComponentBase* AddNewComponent(ComponentBase* pComponent, ComponentSystemManager* pComponentSystemManager = g_pComponentSystemManager);
     ComponentBase* AddExistingComponent(ComponentBase* pComponent);
+
+public:
+#if MYFW_USING_WX
+    static void StaticOnLeftClick(void* pObjectPtr) { ((GameObject*)pObjectPtr)->OnLeftClick(); }
+    static void StaticOnRightClick(void* pObjectPtr) { ((GameObject*)pObjectPtr)->OnRightClick(); }
+    void OnPopupClick(wxEvent &evt);
+    void OnLeftClick();
+    void OnRightClick();
+#endif //MYFW_USING_WX
 };
 
 #endif //__GameObject_H__

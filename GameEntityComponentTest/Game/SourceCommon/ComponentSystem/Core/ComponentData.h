@@ -28,6 +28,13 @@ public:
     virtual ~ComponentData();
 
     //virtual void Reset();
+
+public:
+#if MYFW_USING_WX
+    virtual void AddToObjectsPanel(wxTreeItemId gameobjectid);
+    static void StaticFillPropertiesWindow(void* pObjectPtr) { ((ComponentData*)pObjectPtr)->FillPropertiesWindow(); }
+    void FillPropertiesWindow();
+#endif //MYFW_USING_WX
 };
 
 #endif //__ComponentData_H__

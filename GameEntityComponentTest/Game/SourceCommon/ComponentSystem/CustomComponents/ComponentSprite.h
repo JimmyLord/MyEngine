@@ -24,6 +24,8 @@ class ComponentSprite : public ComponentRenderable
 {
 public:
     MySprite* m_pSprite;
+    ColorByte m_Tint;
+    Vector2 m_Size;
 
 public:
     ComponentSprite();
@@ -34,6 +36,13 @@ public:
 
     virtual void SetShader(ShaderGroup* pShader);
     virtual void Draw();
+
+public:
+#if MYFW_USING_WX
+    virtual void AddToObjectsPanel(wxTreeItemId gameobjectid);
+    static void StaticFillPropertiesWindow(void* pObjectPtr) { ((ComponentSprite*)pObjectPtr)->FillPropertiesWindow(); }
+    void FillPropertiesWindow();
+#endif //MYFW_USING_WX
 };
 
 #endif //__ComponentSprite_H__

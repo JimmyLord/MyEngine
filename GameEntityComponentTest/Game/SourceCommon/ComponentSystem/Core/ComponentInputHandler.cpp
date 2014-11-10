@@ -33,6 +33,18 @@ ComponentInputHandler::~ComponentInputHandler()
 {
 }
 
+#if MYFW_USING_WX
+void ComponentInputHandler::AddToObjectsPanel(wxTreeItemId gameobjectid)
+{
+    wxTreeItemId id = g_pPanelObjectList->AddObject( this, ComponentInputHandler::StaticFillPropertiesWindow, 0, gameobjectid, "Input handler" );
+}
+
+void ComponentInputHandler::FillPropertiesWindow()
+{
+    g_pPanelWatch->ClearAllVariables();
+}
+#endif //MYFW_USING_WX
+
 void ComponentInputHandler::Reset()
 {
     ComponentBase::Reset();

@@ -33,6 +33,18 @@ ComponentUpdateable::~ComponentUpdateable()
 {
 }
 
+#if MYFW_USING_WX
+void ComponentUpdateable::AddToObjectsPanel(wxTreeItemId gameobjectid)
+{
+    wxTreeItemId id = g_pPanelObjectList->AddObject( this, ComponentUpdateable::StaticFillPropertiesWindow, 0, gameobjectid, "Updateable" );
+}
+
+void ComponentUpdateable::FillPropertiesWindow()
+{
+    g_pPanelWatch->ClearAllVariables();
+}
+#endif //MYFW_USING_WX
+
 void ComponentUpdateable::Reset()
 {
     ComponentBase::Reset();

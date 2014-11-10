@@ -36,7 +36,7 @@ ComponentBase::~ComponentBase()
 #if MYFW_USING_WX
 void ComponentBase::AddToObjectsPanel(wxTreeItemId gameobjectid)
 {
-    wxTreeItemId id = g_pPanelObjectList->AddObject( this, ComponentBase::StaticFillPropertiesWindow, gameobjectid, "base component" );
+    wxTreeItemId id = g_pPanelObjectList->AddObject( this, ComponentBase::StaticFillPropertiesWindow, 0, gameobjectid, "Unknown component" );
 }
 
 void ComponentBase::FillPropertiesWindow()

@@ -36,6 +36,13 @@ public:
 
     virtual void SetShader(ShaderGroup* pShader);
     virtual void Draw() = 0;
+
+public:
+#if MYFW_USING_WX
+    virtual void AddToObjectsPanel(wxTreeItemId gameobjectid);
+    static void StaticFillPropertiesWindow(void* pObjectPtr) { ((ComponentRenderable*)pObjectPtr)->FillPropertiesWindow(); }
+    void FillPropertiesWindow();
+#endif //MYFW_USING_WX
 };
 
 #endif //__ComponentRenderable_H__
