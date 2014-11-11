@@ -1548,15 +1548,17 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='WxRelease|NaCl32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='WxRelease|Emscripten'">true</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="SourceCommon\ComponentSystem\Core\BaseComponents\ComponentData.cpp" />
+    <ClCompile Include="SourceCommon\ComponentSystem\Core\BaseComponents\ComponentInputHandler.cpp" />
+    <ClCompile Include="SourceCommon\ComponentSystem\Core\BaseComponents\ComponentRenderable.cpp" />
+    <ClCompile Include="SourceCommon\ComponentSystem\Core\BaseComponents\ComponentTransform.cpp" />
+    <ClCompile Include="SourceCommon\ComponentSystem\Core\BaseComponents\ComponentUpdateable.cpp" />
     <ClCompile Include="SourceCommon\ComponentSystem\Core\ComponentBase.cpp" />
-    <ClCompile Include="SourceCommon\ComponentSystem\Core\ComponentData.cpp" />
-    <ClCompile Include="SourceCommon\ComponentSystem\Core\ComponentInputHandler.cpp" />
-    <ClCompile Include="SourceCommon\ComponentSystem\Core\ComponentRenderable.cpp" />
-    <ClCompile Include="SourceCommon\ComponentSystem\Core\ComponentUpdateable.cpp" />
     <ClCompile Include="SourceCommon\ComponentSystem\Core\ComponentSystemManager.cpp" />
-    <ClCompile Include="SourceCommon\ComponentSystem\Core\ComponentTransform.cpp" />
+    <ClCompile Include="SourceCommon\ComponentSystem\Core\ComponentTypeManager.cpp" />
     <ClCompile Include="SourceCommon\ComponentSystem\Core\GameObject.cpp" />
     <ClCompile Include="SourceCommon\ComponentSystem\CustomComponents\ComponentSprite.cpp" />
+    <ClCompile Include="SourceCommon\Core\GameComponentTypeManager.cpp" />
     <ClCompile Include="SourceCommon\Core\GameEntityComponentTest.cpp" />
     <ClCompile Include="SourceCommon\GameCommonHeader.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -1584,6 +1586,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|NaCl32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Emscripten'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="SourceCommon\GameComponents\ComponentAIChasePlayer.cpp" />
     <ClCompile Include="SourceCommon\GameComponents\ComponentInputTrackMousePos.cpp" />
     <ClCompile Include="SourceEmscripten\emMain.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug_64|Android'">true</ExcludedFromBuild>
@@ -1867,17 +1870,20 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|NaCl'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='WxRelease|NaCl'">true</ExcludedFromBuild>
     </ClInclude>
+    <ClInclude Include="SourceCommon\ComponentSystem\Core\BaseComponents\ComponentData.h" />
+    <ClInclude Include="SourceCommon\ComponentSystem\Core\BaseComponents\ComponentInputHandler.h" />
+    <ClInclude Include="SourceCommon\ComponentSystem\Core\BaseComponents\ComponentRenderable.h" />
+    <ClInclude Include="SourceCommon\ComponentSystem\Core\BaseComponents\ComponentTransform.h" />
+    <ClInclude Include="SourceCommon\ComponentSystem\Core\BaseComponents\ComponentUpdateable.h" />
     <ClInclude Include="SourceCommon\ComponentSystem\Core\ComponentBase.h" />
-    <ClInclude Include="SourceCommon\ComponentSystem\Core\ComponentData.h" />
-    <ClInclude Include="SourceCommon\ComponentSystem\Core\ComponentInputHandler.h" />
-    <ClInclude Include="SourceCommon\ComponentSystem\Core\ComponentRenderable.h" />
-    <ClInclude Include="SourceCommon\ComponentSystem\Core\ComponentUpdateable.h" />
     <ClInclude Include="SourceCommon\ComponentSystem\Core\ComponentSystemManager.h" />
-    <ClInclude Include="SourceCommon\ComponentSystem\Core\ComponentTransform.h" />
+    <ClInclude Include="SourceCommon\ComponentSystem\Core\ComponentTypeManager.h" />
     <ClInclude Include="SourceCommon\ComponentSystem\Core\GameObject.h" />
     <ClInclude Include="SourceCommon\ComponentSystem\CustomComponents\ComponentSprite.h" />
+    <ClInclude Include="SourceCommon\Core\GameComponentTypeManager.h" />
     <ClInclude Include="SourceCommon\Core\GameEntityComponentTest.h" />
     <ClInclude Include="SourceCommon\GameCommonHeader.h" />
+    <ClInclude Include="SourceCommon\GameComponents\ComponentAIChasePlayer.h" />
     <ClInclude Include="SourceCommon\GameComponents\ComponentInputTrackMousePos.h" />
     <ClInclude Include="SourceEmscripten\esUtil.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug_64|Android'">true</ExcludedFromBuild>

@@ -20,13 +20,13 @@
 ComponentTransform::ComponentTransform()
 : ComponentBase()
 {
-    m_Type = ComponentType_Data;
+    m_BaseType = BaseComponentType_Data;
 }
 
 ComponentTransform::ComponentTransform(GameObject* owner)
 : ComponentBase( owner )
 {
-    m_Type = ComponentType_Data;
+    m_BaseType = BaseComponentType_Data;
 }
 
 ComponentTransform::~ComponentTransform()

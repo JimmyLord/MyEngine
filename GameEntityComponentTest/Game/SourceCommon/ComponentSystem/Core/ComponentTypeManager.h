@@ -15,37 +15,33 @@
 // misrepresented as being the original software.
 // 3. This notice may not be removed or altered from any source distribution.
 
-#ifndef __ComponentBase_H__
-#define __ComponentBase_H__
+#ifndef __ComponentTypeManager_H__
+#define __ComponentTypeManager_H__
 
-enum BaseComponentTypes
+class ComponentBase;
+class ComponentTypeManager;
+
+extern ComponentTypeManager* g_pComponentTypeManager;
+
+struct ComponentTypeInfo
 {
-    BaseComponentType_Data,
-    BaseComponentType_InputHandler,
-    BaseComponentType_Updateable,
-    BaseComponentType_Renderable,
-    BaseComponentType_None,
+    char* category;
+    char* name;
 };
 
-class ComponentBase : public CPPListNode
+class ComponentTypeManager
 {
 public:
-    BaseComponentTypes m_BaseType;
-    GameObject* m_pGameObject;
 
 public:
-    ComponentBase();
-    ComponentBase(GameObject* owner);
-    virtual ~ComponentBase();
+    ComponentTypeManager();
+    virtual ~ComponentTypeManager();
 
-    virtual void Reset();
+    virtual ComponentBase* CreateComponent(int type) = 0;
+    virtual unsigned int GetNumberOfComponentTypes() = 0;
 
-public:
-#if MYFW_USING_WX
-    virtual void AddToObjectsPanel(wxTreeItemId gameobjectid);
-    static void StaticFillPropertiesWindow(void* pObjectPtr) { ((ComponentBase*)pObjectPtr)->FillPropertiesWindow(); }
-    void FillPropertiesWindow();
-#endif //MYFW_USING_WX
+    virtual char* GetTypeCategory(int type) = 0;
+    virtual char* GetTypeName(int type) = 0;
 };
 
-#endif //__ComponentBase_H__
+#endif //__ComponentTypeManager_H__

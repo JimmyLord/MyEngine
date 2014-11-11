@@ -70,6 +70,9 @@
     <Filter Include="Source\Game Components">
       <UniqueIdentifier>{9e3f63e0-dfc4-4329-a691-879d140ac25a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\ComponentSystem\Core Files\Base Components">
+      <UniqueIdentifier>{2cc5bd10-a1a8-4dd8-9a80-811fc7e898ad}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="SourceWindows\WinMain.cpp">
@@ -111,13 +114,7 @@
     <ClCompile Include="SourceCommon\GameComponents\ComponentInputTrackMousePos.cpp">
       <Filter>Source\Game Components</Filter>
     </ClCompile>
-    <ClCompile Include="SourceCommon\ComponentSystem\Core\ComponentBase.cpp">
-      <Filter>Source\ComponentSystem\Core Files</Filter>
-    </ClCompile>
     <ClCompile Include="SourceCommon\ComponentSystem\Core\ComponentSystemManager.cpp">
-      <Filter>Source\ComponentSystem\Core Files</Filter>
-    </ClCompile>
-    <ClCompile Include="SourceCommon\ComponentSystem\Core\ComponentTransform.cpp">
       <Filter>Source\ComponentSystem\Core Files</Filter>
     </ClCompile>
     <ClCompile Include="SourceCommon\ComponentSystem\Core\GameObject.cpp">
@@ -126,17 +123,32 @@
     <ClCompile Include="SourceCommon\ComponentSystem\CustomComponents\ComponentSprite.cpp">
       <Filter>Source\ComponentSystem\Custom Components</Filter>
     </ClCompile>
-    <ClCompile Include="SourceCommon\ComponentSystem\Core\ComponentInputHandler.cpp">
+    <ClCompile Include="SourceCommon\ComponentSystem\Core\ComponentBase.cpp">
       <Filter>Source\ComponentSystem\Core Files</Filter>
     </ClCompile>
-    <ClCompile Include="SourceCommon\ComponentSystem\Core\ComponentRenderable.cpp">
+    <ClCompile Include="SourceCommon\ComponentSystem\Core\BaseComponents\ComponentData.cpp">
+      <Filter>Source\ComponentSystem\Core Files\Base Components</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCommon\ComponentSystem\Core\BaseComponents\ComponentInputHandler.cpp">
+      <Filter>Source\ComponentSystem\Core Files\Base Components</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCommon\ComponentSystem\Core\BaseComponents\ComponentRenderable.cpp">
+      <Filter>Source\ComponentSystem\Core Files\Base Components</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCommon\ComponentSystem\Core\BaseComponents\ComponentTransform.cpp">
+      <Filter>Source\ComponentSystem\Core Files\Base Components</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCommon\ComponentSystem\Core\BaseComponents\ComponentUpdateable.cpp">
+      <Filter>Source\ComponentSystem\Core Files\Base Components</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCommon\ComponentSystem\Core\ComponentTypeManager.cpp">
       <Filter>Source\ComponentSystem\Core Files</Filter>
     </ClCompile>
-    <ClCompile Include="SourceCommon\ComponentSystem\Core\ComponentUpdateable.cpp">
-      <Filter>Source\ComponentSystem\Core Files</Filter>
+    <ClCompile Include="SourceCommon\Core\GameComponentTypeManager.cpp">
+      <Filter>Source\Core Files</Filter>
     </ClCompile>
-    <ClCompile Include="SourceCommon\ComponentSystem\Core\ComponentData.cpp">
-      <Filter>Source\ComponentSystem\Core Files</Filter>
+    <ClCompile Include="SourceCommon\GameComponents\ComponentAIChasePlayer.cpp">
+      <Filter>Source\Game Components</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -179,13 +191,7 @@
     <ClInclude Include="SourceCommon\GameComponents\ComponentInputTrackMousePos.h">
       <Filter>Source\Game Components</Filter>
     </ClInclude>
-    <ClInclude Include="SourceCommon\ComponentSystem\Core\ComponentBase.h">
-      <Filter>Source\ComponentSystem\Core Files</Filter>
-    </ClInclude>
     <ClInclude Include="SourceCommon\ComponentSystem\Core\ComponentSystemManager.h">
-      <Filter>Source\ComponentSystem\Core Files</Filter>
-    </ClInclude>
-    <ClInclude Include="SourceCommon\ComponentSystem\Core\ComponentTransform.h">
       <Filter>Source\ComponentSystem\Core Files</Filter>
     </ClInclude>
     <ClInclude Include="SourceCommon\ComponentSystem\Core\GameObject.h">
@@ -194,17 +200,32 @@
     <ClInclude Include="SourceCommon\ComponentSystem\CustomComponents\ComponentSprite.h">
       <Filter>Source\ComponentSystem\Custom Components</Filter>
     </ClInclude>
-    <ClInclude Include="SourceCommon\ComponentSystem\Core\ComponentInputHandler.h">
+    <ClInclude Include="SourceCommon\ComponentSystem\Core\ComponentBase.h">
       <Filter>Source\ComponentSystem\Core Files</Filter>
     </ClInclude>
-    <ClInclude Include="SourceCommon\ComponentSystem\Core\ComponentRenderable.h">
+    <ClInclude Include="SourceCommon\ComponentSystem\Core\BaseComponents\ComponentData.h">
+      <Filter>Source\ComponentSystem\Core Files\Base Components</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCommon\ComponentSystem\Core\BaseComponents\ComponentInputHandler.h">
+      <Filter>Source\ComponentSystem\Core Files\Base Components</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCommon\ComponentSystem\Core\BaseComponents\ComponentRenderable.h">
+      <Filter>Source\ComponentSystem\Core Files\Base Components</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCommon\ComponentSystem\Core\BaseComponents\ComponentTransform.h">
+      <Filter>Source\ComponentSystem\Core Files\Base Components</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCommon\ComponentSystem\Core\BaseComponents\ComponentUpdateable.h">
+      <Filter>Source\ComponentSystem\Core Files\Base Components</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCommon\ComponentSystem\Core\ComponentTypeManager.h">
       <Filter>Source\ComponentSystem\Core Files</Filter>
     </ClInclude>
-    <ClInclude Include="SourceCommon\ComponentSystem\Core\ComponentUpdateable.h">
-      <Filter>Source\ComponentSystem\Core Files</Filter>
+    <ClInclude Include="SourceCommon\Core\GameComponentTypeManager.h">
+      <Filter>Source\Core Files</Filter>
     </ClInclude>
-    <ClInclude Include="SourceCommon\ComponentSystem\Core\ComponentData.h">
-      <Filter>Source\ComponentSystem\Core Files</Filter>
+    <ClInclude Include="SourceCommon\GameComponents\ComponentAIChasePlayer.h">
+      <Filter>Source\Game Components</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -64,41 +64,41 @@ void GameObject::OnLeftClick()
     g_pPanelWatch->ClearAllVariables();
 }
 
-#define ID_ADD_RENDERER     2001
-#define ID_ADD_INPUT        2002
-
 void GameObject::OnPopupClick(wxEvent &evt)
 {
+    if( m_Components.Count() >= m_Components.Length() )
+        return;
+
     GameObject* pGameObject = (GameObject*)static_cast<wxMenu*>(evt.GetEventObject())->GetClientData();
     int id = evt.GetId();
-    switch( id )
-    {
-    case ID_ADD_RENDERER:
-        {
-            ComponentSprite* pComponentSprite = (ComponentSprite*)pGameObject->AddNewComponent( MyNew ComponentSprite() );
-            if( pComponentSprite )
-            {
-                pComponentSprite->SetShader( ((GameEntityComponentTest*)g_pGameCore)->m_pShader_White );
-                pComponentSprite->m_Tint.Set( 0, 255, 0, 255 );
-                pComponentSprite->m_Size.Set( 0.2f, 0.3f );
-            }
-        }
-        break;
+    ComponentTypes type = (ComponentTypes)id;
 
-    case ID_ADD_INPUT:
-        pGameObject->AddNewComponent( MyNew ComponentInputTrackMousePos );
-        break;
-    }
+    ComponentBase* pComponent = g_pComponentTypeManager->CreateComponent( type );
+    pGameObject->AddNewComponent( pComponent );
 }
 
 void GameObject::OnRightClick()
 {
- 	wxMenu mnu;
-    mnu.SetClientData( this );
- 	mnu.Append( ID_ADD_RENDERER, "Add renderer component" );
- 	mnu.Append( ID_ADD_INPUT, "Add input component" );
- 	mnu.Connect( wxEVT_COMMAND_MENU_SELECTED, (wxObjectEventFunction)&GameObject::OnPopupClick );
- 	g_pPanelWatch->PopupMenu( &mnu );
+ 	wxMenu menu;
+    menu.SetClientData( this );
+
+    wxMenu* categorymenu = 0;
+    char* lastcategory = 0;
+
+    for( unsigned int i=0; i<g_pComponentTypeManager->GetNumberOfComponentTypes(); i++ )
+    {
+        if( lastcategory != g_pComponentTypeManager->GetTypeCategory( i ) )
+        {
+            categorymenu = MyNew wxMenu;
+            menu.AppendSubMenu( categorymenu, g_pComponentTypeManager->GetTypeCategory( i ) );
+        }
+
+        categorymenu->Append( i, g_pComponentTypeManager->GetTypeName( i ) );
+    }
+ 	menu.Connect( wxEVT_COMMAND_MENU_SELECTED, (wxObjectEventFunction)&GameObject::OnPopupClick );
+
+    // blocking call. // should delete all categorymenu's new'd above when done.
+ 	g_pPanelWatch->PopupMenu( &menu );
 }
 #endif //MYFW_USING_WX
 

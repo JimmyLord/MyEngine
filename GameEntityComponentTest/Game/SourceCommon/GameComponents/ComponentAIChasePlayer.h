@@ -15,37 +15,30 @@
 // misrepresented as being the original software.
 // 3. This notice may not be removed or altered from any source distribution.
 
-#ifndef __GameObject_H__
-#define __GameObject_H__
+#ifndef __ComponentAIChasePlayer_H__
+#define __ComponentAIChasePlayer_H__
 
-class GameObject : public CPPListNode
-#if MYFW_USING_WX
-, public wxEvtHandler
-#endif
+class ComponentAIChasePlayer : public ComponentUpdateable
 {
 public:
-    char* m_Name; // this is a pointer to the string passed in, not a copy.
-
     ComponentTransform* m_pComponentTransform;
-    MyList<ComponentBase*> m_Components; // component system manager is responsible for deleting these components.
+    ComponentTransform* m_pPlayerComponentTransform;
 
 public:
-    GameObject();
-    virtual ~GameObject();
+    ComponentAIChasePlayer();
+    ComponentAIChasePlayer(GameObject* owner);
+    virtual ~ComponentAIChasePlayer();
 
-    void SetName(char* name);
+    virtual void Reset();
 
-    ComponentBase* AddNewComponent(ComponentBase* pComponent, ComponentSystemManager* pComponentSystemManager = g_pComponentSystemManager);
-    ComponentBase* AddExistingComponent(ComponentBase* pComponent);
+    virtual void Tick(double TimePassed);
 
 public:
 #if MYFW_USING_WX
-    static void StaticOnLeftClick(void* pObjectPtr) { ((GameObject*)pObjectPtr)->OnLeftClick(); }
-    static void StaticOnRightClick(void* pObjectPtr) { ((GameObject*)pObjectPtr)->OnRightClick(); }
-    void OnPopupClick(wxEvent &evt);
-    void OnLeftClick();
-    void OnRightClick();
+    virtual void AddToObjectsPanel(wxTreeItemId gameobjectid);
+    static void StaticFillPropertiesWindow(void* pObjectPtr) { ((ComponentAIChasePlayer*)pObjectPtr)->FillPropertiesWindow(); }
+    void FillPropertiesWindow();
 #endif //MYFW_USING_WX
 };
 
-#endif //__GameObject_H__
+#endif //__ComponentAIChasePlayer_H__

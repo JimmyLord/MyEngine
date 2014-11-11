@@ -23,7 +23,7 @@ class ComponentTransform : public ComponentBase
 public:
     MyMatrix m_Transform;
 
-protected:
+public:
     Vector3 m_Position;
     Vector3 m_Scale;
     Vector3 m_Rotation;

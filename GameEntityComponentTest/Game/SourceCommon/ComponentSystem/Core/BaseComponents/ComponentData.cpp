@@ -17,47 +17,35 @@
 
 #include "GameCommonHeader.h"
 
-ComponentUpdateable::ComponentUpdateable()
+ComponentData::ComponentData()
 : ComponentBase()
 {
-    m_Type = ComponentType_InputHandler;
+    m_BaseType = BaseComponentType_Data;
 }
 
-ComponentUpdateable::ComponentUpdateable(GameObject* owner)
+ComponentData::ComponentData(GameObject* owner)
 : ComponentBase( owner )
 {
-    m_Type = ComponentType_InputHandler;
+    m_BaseType = BaseComponentType_Data;
 }
 
-ComponentUpdateable::~ComponentUpdateable()
+ComponentData::~ComponentData()
 {
 }
 
 #if MYFW_USING_WX
-void ComponentUpdateable::AddToObjectsPanel(wxTreeItemId gameobjectid)
+void ComponentData::AddToObjectsPanel(wxTreeItemId gameobjectid)
 {
-    wxTreeItemId id = g_pPanelObjectList->AddObject( this, ComponentUpdateable::StaticFillPropertiesWindow, 0, gameobjectid, "Updateable" );
+    wxTreeItemId id = g_pPanelObjectList->AddObject( this, ComponentData::StaticFillPropertiesWindow, 0, gameobjectid, "Base component" );
 }
 
-void ComponentUpdateable::FillPropertiesWindow()
+void ComponentData::FillPropertiesWindow()
 {
     g_pPanelWatch->ClearAllVariables();
 }
 #endif //MYFW_USING_WX
 
-void ComponentUpdateable::Reset()
-{
-    ComponentBase::Reset();
-
-    m_pComponentTransform = m_pGameObject->m_pComponentTransform;    
-}
-
-//bool ComponentUpdateable::OnTouch(int action, int id, float x, float y, float pressure, float size)
+//void ComponentData::Reset()
 //{
-//    return false;
-//}
-//
-//bool ComponentUpdateable::OnButtons(GameCoreButtonActions action, GameCoreButtonIDs id)
-//{
-//    return false;
+//    ComponentBase::Reset();
 //}

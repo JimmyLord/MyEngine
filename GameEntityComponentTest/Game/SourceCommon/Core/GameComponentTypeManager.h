@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2014 Jimmy Lord http://www.flatheadgames.com
+// Copyright (c) 2012-2014 Jimmy Lord http://www.flatheadgames.com
 //
 // This software is provided 'as-is', without any express or implied
 // warranty.  In no event will the authors be held liable for any damages
@@ -15,37 +15,26 @@
 // misrepresented as being the original software.
 // 3. This notice may not be removed or altered from any source distribution.
 
-#ifndef __ComponentBase_H__
-#define __ComponentBase_H__
+#ifndef __GameComponentTypeManager_H__
+#define __GameComponentTypeManager_H__
 
-enum BaseComponentTypes
+class ComponentBase;
+
+enum ComponentTypes
 {
-    BaseComponentType_Data,
-    BaseComponentType_InputHandler,
-    BaseComponentType_Updateable,
-    BaseComponentType_Renderable,
-    BaseComponentType_None,
+    Component_Sprite,
+    Component_InputTrackMousePos,
+    Component_AIChasePlayer,
+    Component_NumComponents,
 };
 
-class ComponentBase : public CPPListNode
+class GameComponentTypeManager : public ComponentTypeManager
 {
 public:
-    BaseComponentTypes m_BaseType;
-    GameObject* m_pGameObject;
-
-public:
-    ComponentBase();
-    ComponentBase(GameObject* owner);
-    virtual ~ComponentBase();
-
-    virtual void Reset();
-
-public:
-#if MYFW_USING_WX
-    virtual void AddToObjectsPanel(wxTreeItemId gameobjectid);
-    static void StaticFillPropertiesWindow(void* pObjectPtr) { ((ComponentBase*)pObjectPtr)->FillPropertiesWindow(); }
-    void FillPropertiesWindow();
-#endif //MYFW_USING_WX
+    virtual ComponentBase* CreateComponent(int type);
+    virtual unsigned int GetNumberOfComponentTypes();
+    virtual char* GetTypeCategory(int type);
+    virtual char* GetTypeName(int type);
 };
 
-#endif //__ComponentBase_H__
+#endif //__ComponentList_H__

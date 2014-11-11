@@ -35,15 +35,17 @@ void GameEntityComponentTest::OneTimeInit()
 {
     GameCore::OneTimeInit();
 
+    GameObject* pPlayer = 0;
     GameObject* pGameObject;
     ComponentSprite* pComponentSprite;
+    ComponentAIChasePlayer* pComponentAIChasePlayer;
 
     // setup our shader.
     m_pShader_White = MyNew ShaderGroup( MyNew Shader_Base(ShaderPass_Main), 0, 0 );
     m_pShader_White->SetFileForAllPasses( "Data/Shaders/Shader_White" );
 
     // Initialize our component system.
-    m_pComponentSystemManager = MyNew ComponentSystemManager;
+    m_pComponentSystemManager = MyNew ComponentSystemManager( MyNew GameComponentTypeManager );
 
     // create a player game object and attach a mesh(sprite) component to it.
     {
@@ -56,9 +58,11 @@ void GameEntityComponentTest::OneTimeInit()
             pComponentSprite->m_Tint.Set( 255, 0, 0, 255 );
         }
         pGameObject->AddNewComponent( MyNew ComponentInputTrackMousePos() );
+
+        pPlayer = pGameObject;
     }
 
-    // create a game object and attach a mesh(sprite) component to it.
+    // create an enemy game object and attach a mesh(sprite) and AI component to it.
     {
         pGameObject = m_pComponentSystemManager->CreateGameObject();
         pGameObject->SetName( "Second Object" );
@@ -67,6 +71,11 @@ void GameEntityComponentTest::OneTimeInit()
         {
             pComponentSprite->SetShader( m_pShader_White );
             pComponentSprite->m_Tint.Set( 0, 0, 255, 255 );
+        }
+        pComponentAIChasePlayer = (ComponentAIChasePlayer*)pGameObject->AddNewComponent( MyNew ComponentAIChasePlayer() );
+        if( pComponentAIChasePlayer )
+        {
+            pComponentAIChasePlayer->m_pPlayerComponentTransform = pPlayer->m_pComponentTransform;
         }
     }
 }

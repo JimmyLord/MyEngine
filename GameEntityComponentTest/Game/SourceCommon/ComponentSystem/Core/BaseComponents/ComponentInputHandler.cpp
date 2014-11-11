@@ -20,13 +20,13 @@
 ComponentInputHandler::ComponentInputHandler()
 : ComponentBase()
 {
-    m_Type = ComponentType_InputHandler;
+    m_BaseType = BaseComponentType_InputHandler;
 }
 
 ComponentInputHandler::ComponentInputHandler(GameObject* owner)
 : ComponentBase( owner )
 {
-    m_Type = ComponentType_InputHandler;
+    m_BaseType = BaseComponentType_InputHandler;
 }
 
 ComponentInputHandler::~ComponentInputHandler()

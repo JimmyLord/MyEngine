@@ -20,13 +20,17 @@
 ComponentInputTrackMousePos::ComponentInputTrackMousePos()
 : ComponentInputHandler()
 {
-    m_Type = ComponentType_InputHandler;
+    m_BaseType = BaseComponentType_InputHandler;
+
+    m_pComponentTransform = 0;
 }
 
 ComponentInputTrackMousePos::ComponentInputTrackMousePos(GameObject* owner)
 : ComponentInputHandler( owner )
 {
-    m_Type = ComponentType_InputHandler;
+    m_BaseType = BaseComponentType_InputHandler;
+
+    m_pComponentTransform = 0;
 }
 
 ComponentInputTrackMousePos::~ComponentInputTrackMousePos()

@@ -22,20 +22,23 @@
 #include "../../Framework/MyFramework/SourceCommon/CommonHeader.h"
 
 // core component system code
+#include "ComponentSystem/Core/ComponentTypeManager.h"
 #include "ComponentSystem/Core/ComponentSystemManager.h"
 #include "ComponentSystem/Core/ComponentBase.h"
-#include "ComponentSystem/Core/ComponentTransform.h"
-#include "ComponentSystem/Core/ComponentData.h"
-#include "ComponentSystem/Core/ComponentInputHandler.h"
-#include "ComponentSystem/Core/ComponentUpdateable.h"
-#include "ComponentSystem/Core/ComponentRenderable.h"
+#include "ComponentSystem/Core/BaseComponents/ComponentTransform.h"
+#include "ComponentSystem/Core/BaseComponents/ComponentData.h"
+#include "ComponentSystem/Core/BaseComponents/ComponentInputHandler.h"
+#include "ComponentSystem/Core/BaseComponents/ComponentUpdateable.h"
+#include "ComponentSystem/Core/BaseComponents/ComponentRenderable.h"
 #include "ComponentSystem/Core/GameObject.h"
 
 // myframework components
+#include "Core/GameComponentTypeManager.h"
 #include "ComponentSystem/CustomComponents/ComponentSprite.h"
 
 // game code
 #include "GameComponents/ComponentInputTrackMousePos.h"
+#include "GameComponents/ComponentAIChasePlayer.h"
 #include "Core/GameEntityComponentTest.h"
 
 #endif //__GameCommonHeader_H__

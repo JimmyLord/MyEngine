@@ -15,33 +15,15 @@
 // misrepresented as being the original software.
 // 3. This notice may not be removed or altered from any source distribution.
 
-#ifndef __ComponentUpdateable_H__
-#define __ComponentUpdateable_H__
+#include "GameCommonHeader.h"
 
-class ComponentTransform;
+ComponentTypeManager* g_pComponentTypeManager = 0;
 
-class ComponentUpdateable : public ComponentBase
+ComponentTypeManager::ComponentTypeManager()
 {
-public:
-    ComponentTransform* m_pComponentTransform;
+    g_pComponentTypeManager = this;
+}
 
-public:
-    ComponentUpdateable();
-    ComponentUpdateable(GameObject* owner);
-    virtual ~ComponentUpdateable();
-
-    virtual void Reset();
-
-    // will return true if input is used.
-    virtual bool OnTouch(int action, int id, float x, float y, float pressure, float size) = 0;
-    virtual bool OnButtons(GameCoreButtonActions action, GameCoreButtonIDs id) = 0;
-
-public:
-#if MYFW_USING_WX
-    virtual void AddToObjectsPanel(wxTreeItemId gameobjectid);
-    static void StaticFillPropertiesWindow(void* pObjectPtr) { ((ComponentUpdateable*)pObjectPtr)->FillPropertiesWindow(); }
-    void FillPropertiesWindow();
-#endif //MYFW_USING_WX
-};
-
-#endif //__ComponentUpdateable_H__
+ComponentTypeManager::~ComponentTypeManager()
+{
+}

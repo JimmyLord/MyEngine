@@ -27,6 +27,7 @@ extern ComponentSystemManager* g_pComponentSystemManager;
 class ComponentSystemManager
 {
 public:
+    ComponentTypeManager* m_pComponentTypeManager;
     CPPListHead m_GameObjects;
 
     // a component can only exist in one of these lists ATM
@@ -36,7 +37,7 @@ public:
     CPPListHead m_ComponentsData;
 
 public:
-    ComponentSystemManager();
+    ComponentSystemManager(ComponentTypeManager* typemanager);
     virtual ~ComponentSystemManager();
 
     GameObject* CreateGameObject();

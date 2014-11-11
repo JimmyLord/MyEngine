@@ -17,52 +17,41 @@
 
 #include "GameCommonHeader.h"
 
-ComponentRenderable::ComponentRenderable()
+ComponentUpdateable::ComponentUpdateable()
 : ComponentBase()
 {
-    m_Type = ComponentType_Renderable;
-
-    m_pShader = 0;
+    m_BaseType = BaseComponentType_InputHandler;
 }
 
-ComponentRenderable::ComponentRenderable(GameObject* owner)
+ComponentUpdateable::ComponentUpdateable(GameObject* owner)
 : ComponentBase( owner )
 {
-    m_Type = ComponentType_Renderable;
+    m_BaseType = BaseComponentType_InputHandler;
 }
 
-ComponentRenderable::~ComponentRenderable()
+ComponentUpdateable::~ComponentUpdateable()
 {
 }
 
 #if MYFW_USING_WX
-void ComponentRenderable::AddToObjectsPanel(wxTreeItemId gameobjectid)
+void ComponentUpdateable::AddToObjectsPanel(wxTreeItemId gameobjectid)
 {
-    wxTreeItemId id = g_pPanelObjectList->AddObject( this, ComponentRenderable::StaticFillPropertiesWindow, 0, gameobjectid, "Renderable" );
+    wxTreeItemId id = g_pPanelObjectList->AddObject( this, ComponentUpdateable::StaticFillPropertiesWindow, 0, gameobjectid, "Updateable" );
 }
 
-void ComponentRenderable::FillPropertiesWindow()
+void ComponentUpdateable::FillPropertiesWindow()
 {
     g_pPanelWatch->ClearAllVariables();
 }
 #endif //MYFW_USING_WX
 
-void ComponentRenderable::Reset()
+void ComponentUpdateable::Reset()
 {
     ComponentBase::Reset();
 
     m_pComponentTransform = m_pGameObject->m_pComponentTransform;    
 }
 
-void ComponentRenderable::SetShader(ShaderGroup* pShader)
-{
-    m_pShader = pShader;
-}
-
-void ComponentRenderable::Draw()
-{
-#if MYFW_USING_WX
-    // ugh, for now... matrix will be dirty when playing with watch window in wx 
-    m_pComponentTransform->UpdateMatrix();
-#endif
-}
+//void ComponentUpdateable::Tick(double TimePassed)
+//{
+//}

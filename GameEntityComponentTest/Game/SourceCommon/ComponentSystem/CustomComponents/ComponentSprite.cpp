@@ -20,7 +20,7 @@
 ComponentSprite::ComponentSprite()
 : ComponentRenderable()
 {
-    m_Type = ComponentType_Renderable;
+    m_BaseType = BaseComponentType_Renderable;
 
     m_pSprite = 0;
 }
@@ -28,7 +28,7 @@ ComponentSprite::ComponentSprite()
 ComponentSprite::ComponentSprite(GameObject* owner)
 : ComponentRenderable( owner )
 {
-    m_Type = ComponentType_Renderable;
+    m_BaseType = BaseComponentType_Renderable;
 }
 
 ComponentSprite::~ComponentSprite()

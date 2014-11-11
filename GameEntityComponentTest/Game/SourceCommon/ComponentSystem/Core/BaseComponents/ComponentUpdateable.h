@@ -15,37 +15,31 @@
 // misrepresented as being the original software.
 // 3. This notice may not be removed or altered from any source distribution.
 
-#include "GameCommonHeader.h"
+#ifndef __ComponentUpdateable_H__
+#define __ComponentUpdateable_H__
 
-ComponentData::ComponentData()
-: ComponentBase()
+class ComponentTransform;
+
+class ComponentUpdateable : public ComponentBase
 {
-    m_Type = ComponentType_Data;
-}
+public:
+    ComponentTransform* m_pComponentTransform;
 
-ComponentData::ComponentData(GameObject* owner)
-: ComponentBase( owner )
-{
-    m_Type = ComponentType_Data;
-}
+public:
+    ComponentUpdateable();
+    ComponentUpdateable(GameObject* owner);
+    virtual ~ComponentUpdateable();
 
-ComponentData::~ComponentData()
-{
-}
+    virtual void Reset();
 
+    virtual void Tick(double TimePassed) = 0;
+
+public:
 #if MYFW_USING_WX
-void ComponentData::AddToObjectsPanel(wxTreeItemId gameobjectid)
-{
-    wxTreeItemId id = g_pPanelObjectList->AddObject( this, ComponentData::StaticFillPropertiesWindow, 0, gameobjectid, "Base component" );
-}
-
-void ComponentData::FillPropertiesWindow()
-{
-    g_pPanelWatch->ClearAllVariables();
-}
+    virtual void AddToObjectsPanel(wxTreeItemId gameobjectid);
+    static void StaticFillPropertiesWindow(void* pObjectPtr) { ((ComponentUpdateable*)pObjectPtr)->FillPropertiesWindow(); }
+    void FillPropertiesWindow();
 #endif //MYFW_USING_WX
+};
 
-//void ComponentData::Reset()
-//{
-//    ComponentBase::Reset();
-//}
+#endif //__ComponentUpdateable_H__

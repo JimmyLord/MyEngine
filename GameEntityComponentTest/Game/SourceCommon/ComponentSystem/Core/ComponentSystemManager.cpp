@@ -19,9 +19,11 @@
 
 ComponentSystemManager* g_pComponentSystemManager = 0;
 
-ComponentSystemManager::ComponentSystemManager()
+ComponentSystemManager::ComponentSystemManager(ComponentTypeManager* typemanager)
 {
     g_pComponentSystemManager = this;
+
+    m_pComponentTypeManager = typemanager;
 }
 
 ComponentSystemManager::~ComponentSystemManager()
@@ -40,6 +42,8 @@ ComponentSystemManager::~ComponentSystemManager()
 
     while( m_ComponentsRenderable.GetHead() )
         delete m_ComponentsRenderable.RemHead();
+
+    SAFE_DELETE( m_pComponentTypeManager );
     
     g_pComponentSystemManager = 0;
 }
@@ -55,25 +59,25 @@ GameObject* ComponentSystemManager::CreateGameObject()
 
 ComponentBase* ComponentSystemManager::AddComponent(ComponentBase* pComponent)
 {
-    switch( pComponent->m_Type )
+    switch( pComponent->m_BaseType )
     {
-    case ComponentType_Data:
+    case BaseComponentType_Data:
         m_ComponentsData.AddTail( pComponent );
         break;
 
-    case ComponentType_InputHandler:
+    case BaseComponentType_InputHandler:
         m_ComponentsInputHandlers.AddTail( pComponent );
         break;
 
-    case ComponentType_Updateable:
+    case BaseComponentType_Updateable:
         m_ComponentsUpdateable.AddTail( pComponent );
         break;
 
-    case ComponentType_Renderable:
+    case BaseComponentType_Renderable:
         m_ComponentsRenderable.AddTail( pComponent );
         break;
 
-    case ComponentType_None:
+    case BaseComponentType_None:
         assert( false ); // shouldn't happen.
         break;
     }
@@ -83,6 +87,15 @@ ComponentBase* ComponentSystemManager::AddComponent(ComponentBase* pComponent)
 
 void ComponentSystemManager::Tick(double TimePassed)
 {
+    for( CPPListNode* node = m_ComponentsUpdateable.GetHead(); node != 0; node = node->GetNext() )
+    {
+        ComponentUpdateable* pComponent = (ComponentUpdateable*)node;
+
+        if( pComponent->m_BaseType == BaseComponentType_Updateable )
+        {
+            pComponent->Tick( TimePassed );
+        }
+    }
 }
 
 void ComponentSystemManager::OnDrawFrame()
@@ -91,7 +104,7 @@ void ComponentSystemManager::OnDrawFrame()
     {
         ComponentRenderable* pComponent = (ComponentRenderable*)node;
 
-        if( pComponent->m_Type == ComponentType_Renderable )
+        if( pComponent->m_BaseType == BaseComponentType_Renderable )
         {
             pComponent->Draw();
         }
@@ -104,7 +117,7 @@ bool ComponentSystemManager::OnTouch(int action, int id, float x, float y, float
     {
         ComponentInputHandler* pComponent = (ComponentInputHandler*)node;
 
-        if( pComponent->m_Type == ComponentType_InputHandler )
+        if( pComponent->m_BaseType == BaseComponentType_InputHandler )
         {
             if( pComponent->OnTouch( action, id, x, y, pressure, size ) == true )
                 return true;
@@ -120,7 +133,7 @@ bool ComponentSystemManager::OnButtons(GameCoreButtonActions action, GameCoreBut
     {
         ComponentInputHandler* pComponent = (ComponentInputHandler*)node;
 
-        if( pComponent->m_Type == ComponentType_InputHandler )
+        if( pComponent->m_BaseType == BaseComponentType_InputHandler )
         {
             if( pComponent->OnButtons( action, id ) == true )
                 return true;
