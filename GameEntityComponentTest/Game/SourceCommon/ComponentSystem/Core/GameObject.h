@@ -47,9 +47,9 @@ public:
     static void StaticOnDrop(void* pObjectPtr) { ((GameObject*)pObjectPtr)->OnDrop(); }
     void OnLeftClick();
     void OnRightClick();
+    void OnPopupClick(wxEvent &evt);
     void OnDrag();
     void OnDrop();
-    void OnPopupClick(wxEvent &evt);
 #endif //MYFW_USING_WX
 };
 

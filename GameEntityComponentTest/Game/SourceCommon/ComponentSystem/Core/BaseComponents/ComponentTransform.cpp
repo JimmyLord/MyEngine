@@ -20,13 +20,13 @@
 ComponentTransform::ComponentTransform()
 : ComponentBase()
 {
-    m_BaseType = BaseComponentType_Data;
+    m_BaseType = BaseComponentType_Transform;
 }
 
 ComponentTransform::ComponentTransform(GameObject* owner)
 : ComponentBase( owner )
 {
-    m_BaseType = BaseComponentType_Data;
+    m_BaseType = BaseComponentType_Transform;
 }
 
 ComponentTransform::~ComponentTransform()
@@ -37,6 +37,7 @@ ComponentTransform::~ComponentTransform()
 void ComponentTransform::AddToObjectsPanel(wxTreeItemId gameobjectid)
 {
     wxTreeItemId id = g_pPanelObjectList->AddObject( this, ComponentTransform::StaticFillPropertiesWindow, ComponentBase::StaticOnRightClick, gameobjectid, "Transform" );
+    g_pPanelObjectList->SetDragAndDropFunctions( this, ComponentBase::StaticOnDrag, ComponentBase::StaticOnDrop );
 }
 
 void ComponentTransform::FillPropertiesWindow()
@@ -53,6 +54,27 @@ void ComponentTransform::FillPropertiesWindow()
     g_pPanelWatch->AddFloat( "rot x", &m_Rotation.x, 0, 360 );
     g_pPanelWatch->AddFloat( "rot y", &m_Rotation.y, 0, 360 );
     g_pPanelWatch->AddFloat( "rot z", &m_Rotation.z, 0, 360 );
+
+    char* desc = "no parent";
+    if( m_pParentTransform )
+        desc = m_pParentTransform->m_pGameObject->m_Name;
+    g_pPanelWatch->AddPointerWithDescription( "Parent transform", m_pParentTransform, desc, this, ComponentTransform::StaticOnNewParentTransformDrop );
+}
+
+void ComponentTransform::OnNewParentTransformDrop()
+{
+    if( g_DragAndDropStruct.m_Type == DragAndDropType_ComponentPointer )
+    {
+        ComponentTransform* pComponent = (ComponentTransform*)g_DragAndDropStruct.m_Value;
+
+        if( pComponent == this )
+            return;
+
+        if( pComponent->m_BaseType == BaseComponentType_Transform )
+        {
+            this->SetParent( pComponent );
+        }
+    }
 }
 #endif //MYFW_USING_WX
 

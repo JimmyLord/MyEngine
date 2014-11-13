@@ -21,6 +21,7 @@
 enum BaseComponentTypes
 {
     BaseComponentType_Data,
+    BaseComponentType_Transform, // special case of a data type.
     BaseComponentType_InputHandler,
     BaseComponentType_Updateable,
     BaseComponentType_Renderable,
@@ -48,9 +49,13 @@ public:
     virtual void AddToObjectsPanel(wxTreeItemId gameobjectid);
     static void StaticOnLeftClick(void* pObjectPtr) { ((ComponentBase*)pObjectPtr)->OnLeftClick(); }
     static void StaticOnRightClick(void* pObjectPtr) { ((ComponentBase*)pObjectPtr)->OnRightClick(); }
+    static void StaticOnDrag(void* pObjectPtr) { ((ComponentBase*)pObjectPtr)->OnDrag(); }
+    static void StaticOnDrop(void* pObjectPtr) { ((ComponentBase*)pObjectPtr)->OnDrop(); }
     void OnLeftClick();
     void OnRightClick();
     void OnPopupClick(wxEvent &evt);
+    void OnDrag();
+    void OnDrop();
 #endif //MYFW_USING_WX
 };
 

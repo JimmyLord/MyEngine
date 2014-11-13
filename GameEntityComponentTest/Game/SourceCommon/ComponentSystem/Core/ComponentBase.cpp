@@ -37,6 +37,7 @@ ComponentBase::~ComponentBase()
 void ComponentBase::AddToObjectsPanel(wxTreeItemId gameobjectid)
 {
     wxTreeItemId id = g_pPanelObjectList->AddObject( this, ComponentBase::StaticOnLeftClick, ComponentBase::StaticOnRightClick, gameobjectid, "Unknown component" );
+    g_pPanelObjectList->SetDragAndDropFunctions( this, ComponentBase::StaticOnDrag, ComponentBase::StaticOnDrop );
 }
 
 void ComponentBase::OnLeftClick()
@@ -64,6 +65,16 @@ void ComponentBase::OnPopupClick(wxEvent &evt)
     {
         g_pComponentSystemManager->DeleteComponent( pComponent );
     }
+}
+
+void ComponentBase::OnDrag()
+{
+    g_DragAndDropStruct.m_Type = DragAndDropType_ComponentPointer;
+    g_DragAndDropStruct.m_Value = this;
+}
+
+void ComponentBase::OnDrop()
+{
 }
 #endif //MYFW_USING_WX
 

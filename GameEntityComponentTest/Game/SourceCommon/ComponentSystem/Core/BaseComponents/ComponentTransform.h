@@ -52,6 +52,8 @@ public:
     virtual void AddToObjectsPanel(wxTreeItemId gameobjectid);
     static void StaticFillPropertiesWindow(void* pObjectPtr) { ((ComponentTransform*)pObjectPtr)->FillPropertiesWindow(); }
     void FillPropertiesWindow();
+    static void StaticOnNewParentTransformDrop(void* pObjectPtr) { ((ComponentTransform*)pObjectPtr)->OnNewParentTransformDrop(); }
+    void OnNewParentTransformDrop();
 #endif //MYFW_USING_WX
 };
 
