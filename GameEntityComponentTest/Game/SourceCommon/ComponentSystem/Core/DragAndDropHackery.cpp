@@ -17,41 +17,4 @@
 
 #include "GameCommonHeader.h"
 
-ComponentUpdateable::ComponentUpdateable()
-: ComponentBase()
-{
-    m_BaseType = BaseComponentType_InputHandler;
-}
-
-ComponentUpdateable::ComponentUpdateable(GameObject* owner)
-: ComponentBase( owner )
-{
-    m_BaseType = BaseComponentType_InputHandler;
-}
-
-ComponentUpdateable::~ComponentUpdateable()
-{
-}
-
-#if MYFW_USING_WX
-void ComponentUpdateable::AddToObjectsPanel(wxTreeItemId gameobjectid)
-{
-    wxTreeItemId id = g_pPanelObjectList->AddObject( this, ComponentUpdateable::StaticFillPropertiesWindow, ComponentBase::StaticOnRightClick, gameobjectid, "Updateable" );
-}
-
-void ComponentUpdateable::FillPropertiesWindow()
-{
-    g_pPanelWatch->ClearAllVariables();
-}
-#endif //MYFW_USING_WX
-
-void ComponentUpdateable::Reset()
-{
-    ComponentBase::Reset();
-
-    m_pComponentTransform = m_pGameObject->m_pComponentTransform;    
-}
-
-//void ComponentUpdateable::Tick(double TimePassed)
-//{
-//}
+DragAndDropStruct g_DragAndDropStruct;

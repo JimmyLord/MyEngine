@@ -23,6 +23,8 @@ class ComponentTransform : public ComponentBase
 public:
     MyMatrix m_Transform;
 
+    ComponentTransform* m_pParentTransform;
+
 public:
     Vector3 m_Position;
     Vector3 m_Scale;
@@ -34,14 +36,16 @@ public:
     virtual ~ComponentTransform();
 
     virtual void Reset();
+    ComponentTransform& ComponentTransform::operator=(const ComponentTransform& other);
 
     // recalculate the matrix each time we set any of the 3 properties. // not efficient
-    void SetPosition(Vector3 pos) { m_Position = pos; UpdateMatrix(); }
-    void SetScale(Vector3 scale)  { m_Scale = scale;  UpdateMatrix(); }
-    void SetRotation(Vector3 rot) { m_Rotation = rot; UpdateMatrix(); }
+    void SetPosition(Vector3 pos);
+    void SetScale(Vector3 scale);
+    void SetRotation(Vector3 rot);
 
-    void UpdateMatrix() { m_Transform.SetSRT( m_Scale, m_Rotation, m_Position ); }
-    MyMatrix* GetMatrix() { return &m_Transform; }
+    void SetParent(ComponentTransform* pNewParent);
+    void UpdateMatrix();
+    MyMatrix* GetMatrix();
 
 public:
 #if MYFW_USING_WX

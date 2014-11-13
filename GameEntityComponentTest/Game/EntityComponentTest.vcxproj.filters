@@ -150,6 +150,9 @@
     <ClCompile Include="SourceCommon\GameComponents\ComponentAIChasePlayer.cpp">
       <Filter>Source\Game Components</Filter>
     </ClCompile>
+    <ClCompile Include="SourceCommon\ComponentSystem\Core\DragAndDropHackery.cpp">
+      <Filter>Source\ComponentSystem\Core Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SourceWindows\WinMain.h">
@@ -226,6 +229,9 @@
     </ClInclude>
     <ClInclude Include="SourceCommon\GameComponents\ComponentAIChasePlayer.h">
       <Filter>Source\Game Components</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCommon\ComponentSystem\Core\DragAndDropHackery.h">
+      <Filter>Source\ComponentSystem\Core Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

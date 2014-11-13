@@ -36,12 +36,34 @@ ComponentBase::~ComponentBase()
 #if MYFW_USING_WX
 void ComponentBase::AddToObjectsPanel(wxTreeItemId gameobjectid)
 {
-    wxTreeItemId id = g_pPanelObjectList->AddObject( this, ComponentBase::StaticFillPropertiesWindow, 0, gameobjectid, "Unknown component" );
+    wxTreeItemId id = g_pPanelObjectList->AddObject( this, ComponentBase::StaticOnLeftClick, ComponentBase::StaticOnRightClick, gameobjectid, "Unknown component" );
 }
 
-void ComponentBase::FillPropertiesWindow()
+void ComponentBase::OnLeftClick()
 {
     g_pPanelWatch->ClearAllVariables();
+}
+
+void ComponentBase::OnRightClick()
+{
+ 	wxMenu menu;
+    menu.SetClientData( this );
+
+    menu.Append( 0, "Delete Component" );
+ 	menu.Connect( wxEVT_COMMAND_MENU_SELECTED, (wxObjectEventFunction)&ComponentBase::OnPopupClick );
+
+    // blocking call. // should delete all categorymenu's new'd above when done.
+ 	g_pPanelWatch->PopupMenu( &menu );
+}
+
+void ComponentBase::OnPopupClick(wxEvent &evt)
+{
+    ComponentBase* pComponent = (ComponentBase*)static_cast<wxMenu*>(evt.GetEventObject())->GetClientData();
+    int id = evt.GetId();
+    if( id == 0 )
+    {
+        g_pComponentSystemManager->DeleteComponent( pComponent );
+    }
 }
 #endif //MYFW_USING_WX
 

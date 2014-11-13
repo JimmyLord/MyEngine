@@ -37,14 +37,19 @@ public:
 
     ComponentBase* AddNewComponent(ComponentBase* pComponent, ComponentSystemManager* pComponentSystemManager = g_pComponentSystemManager);
     ComponentBase* AddExistingComponent(ComponentBase* pComponent);
+    ComponentBase* RemoveComponent(ComponentBase* pComponent);
 
 public:
 #if MYFW_USING_WX
     static void StaticOnLeftClick(void* pObjectPtr) { ((GameObject*)pObjectPtr)->OnLeftClick(); }
     static void StaticOnRightClick(void* pObjectPtr) { ((GameObject*)pObjectPtr)->OnRightClick(); }
-    void OnPopupClick(wxEvent &evt);
+    static void StaticOnDrag(void* pObjectPtr) { ((GameObject*)pObjectPtr)->OnDrag(); }
+    static void StaticOnDrop(void* pObjectPtr) { ((GameObject*)pObjectPtr)->OnDrop(); }
     void OnLeftClick();
     void OnRightClick();
+    void OnDrag();
+    void OnDrop();
+    void OnPopupClick(wxEvent &evt);
 #endif //MYFW_USING_WX
 };
 

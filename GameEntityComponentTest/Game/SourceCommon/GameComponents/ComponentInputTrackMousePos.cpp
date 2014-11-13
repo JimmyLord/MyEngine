@@ -40,7 +40,7 @@ ComponentInputTrackMousePos::~ComponentInputTrackMousePos()
 #if MYFW_USING_WX
 void ComponentInputTrackMousePos::AddToObjectsPanel(wxTreeItemId gameobjectid)
 {
-    wxTreeItemId id = g_pPanelObjectList->AddObject( this, ComponentInputTrackMousePos::StaticFillPropertiesWindow, 0, gameobjectid, "InputTrackMousePos" );
+    wxTreeItemId id = g_pPanelObjectList->AddObject( this, ComponentInputTrackMousePos::StaticFillPropertiesWindow, ComponentBase::StaticOnRightClick, gameobjectid, "InputTrackMousePos" );
 }
 
 void ComponentInputTrackMousePos::FillPropertiesWindow()

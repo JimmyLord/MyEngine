@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2014 Jimmy Lord http://www.flatheadgames.com
+// Copyright (c) 2012-2014 Jimmy Lord http://www.flatheadgames.com
 //
 // This software is provided 'as-is', without any express or implied
 // warranty.  In no event will the authors be held liable for any damages
@@ -15,37 +15,28 @@
 // misrepresented as being the original software.
 // 3. This notice may not be removed or altered from any source distribution.
 
-#include "GameCommonHeader.h"
+#ifndef __DragAndDropHackery_H__
+#define __DragAndDropHackery_H__
 
-ComponentData::ComponentData()
-: ComponentBase()
+// gave up on implementing drag and drop properly in wxWidgets... might revisit someday.
+enum DragAndDropTypes
 {
-    m_BaseType = BaseComponentType_Data;
-}
+    DragAndDropType_NotSet,
+    DragAndDropType_GameObjectPointer,
+    DragAndDropType_ComponentPointer,
+};
 
-ComponentData::ComponentData(GameObject* owner)
-: ComponentBase( owner )
+struct DragAndDropStruct
 {
-    m_BaseType = BaseComponentType_Data;
-}
+    DragAndDropTypes m_Type;
+    void* m_Value;
 
-ComponentData::~ComponentData()
-{
-}
+    void Reset()
+    {
+        m_Type = DragAndDropType_NotSet;
+    }
+};
 
-#if MYFW_USING_WX
-void ComponentData::AddToObjectsPanel(wxTreeItemId gameobjectid)
-{
-    wxTreeItemId id = g_pPanelObjectList->AddObject( this, ComponentData::StaticFillPropertiesWindow, ComponentBase::StaticOnRightClick, gameobjectid, "Base component" );
-}
+extern DragAndDropStruct g_DragAndDropStruct;
 
-void ComponentData::FillPropertiesWindow()
-{
-    g_pPanelWatch->ClearAllVariables();
-}
-#endif //MYFW_USING_WX
-
-//void ComponentData::Reset()
-//{
-//    ComponentBase::Reset();
-//}
+#endif // __DragAndDropHackery_H__

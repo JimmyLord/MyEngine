@@ -42,6 +42,7 @@ public:
 
     GameObject* CreateGameObject();
     ComponentBase* AddComponent(ComponentBase* pComponent);
+    void DeleteComponent(ComponentBase* pComponent);
 
     void Tick(double TimePassed);
     void OnDrawFrame();

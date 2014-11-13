@@ -85,6 +85,22 @@ ComponentBase* ComponentSystemManager::AddComponent(ComponentBase* pComponent)
     return pComponent;
 }
 
+void ComponentSystemManager::DeleteComponent(ComponentBase* pComponent)
+{
+    if( pComponent->m_pGameObject )
+    {
+        pComponent = pComponent->m_pGameObject->RemoveComponent( pComponent );
+        if( pComponent == 0 )
+            return;
+    }
+
+#if MYFW_USING_WX
+    g_pPanelObjectList->RemoveObject( pComponent );
+#endif
+    pComponent->Remove();
+    SAFE_DELETE( pComponent );
+}
+
 void ComponentSystemManager::Tick(double TimePassed)
 {
     for( CPPListNode* node = m_ComponentsUpdateable.GetHead(); node != 0; node = node->GetNext() )

@@ -30,6 +30,7 @@ GameObject::GameObject()
     // Add this game object to the root of the objects tree
     wxTreeItemId rootid = g_pPanelObjectList->GetTreeRoot();
     wxTreeItemId gameobjectid = g_pPanelObjectList->AddObject( this, GameObject::StaticOnLeftClick, GameObject::StaticOnRightClick, rootid, m_Name );
+    g_pPanelObjectList->SetDragAndDropFunctions( this, GameObject::StaticOnDrag, GameObject::StaticOnDrop );
     m_pComponentTransform->AddToObjectsPanel( gameobjectid );
 #endif //MYFW_USING_WX
 }
@@ -64,19 +65,6 @@ void GameObject::OnLeftClick()
     g_pPanelWatch->ClearAllVariables();
 }
 
-void GameObject::OnPopupClick(wxEvent &evt)
-{
-    if( m_Components.Count() >= m_Components.Length() )
-        return;
-
-    GameObject* pGameObject = (GameObject*)static_cast<wxMenu*>(evt.GetEventObject())->GetClientData();
-    int id = evt.GetId();
-    ComponentTypes type = (ComponentTypes)id;
-
-    ComponentBase* pComponent = g_pComponentTypeManager->CreateComponent( type );
-    pGameObject->AddNewComponent( pComponent );
-}
-
 void GameObject::OnRightClick()
 {
  	wxMenu menu;
@@ -99,6 +87,40 @@ void GameObject::OnRightClick()
 
     // blocking call. // should delete all categorymenu's new'd above when done.
  	g_pPanelWatch->PopupMenu( &menu );
+}
+
+void GameObject::OnDrag()
+{
+    g_DragAndDropStruct.m_Type = DragAndDropType_GameObjectPointer;
+    g_DragAndDropStruct.m_Value = this;
+}
+
+void GameObject::OnDrop()
+{
+    if( g_DragAndDropStruct.m_Type == DragAndDropType_GameObjectPointer )
+    {
+        GameObject* pGameObject = (GameObject*)g_DragAndDropStruct.m_Value;
+
+        // for testing, if we drag a game object onto another one, copy the transform component values
+        //*this->m_pComponentTransform = *pGameObject->m_pComponentTransform;
+
+        // parent one transform to another.
+        this->m_pComponentTransform->SetParent( pGameObject->m_pComponentTransform );
+    }
+}
+
+void GameObject::OnPopupClick(wxEvent &evt)
+{
+    GameObject* pGameObject = (GameObject*)static_cast<wxMenu*>(evt.GetEventObject())->GetClientData();
+
+    if( pGameObject->m_Components.Count() >= pGameObject->m_Components.Length() )
+        return;
+
+    int id = evt.GetId();
+    ComponentTypes type = (ComponentTypes)id;
+
+    ComponentBase* pComponent = g_pComponentTypeManager->CreateComponent( type );
+    pGameObject->AddNewComponent( pComponent );
 }
 #endif //MYFW_USING_WX
 
@@ -131,4 +153,18 @@ ComponentBase* GameObject::AddExistingComponent(ComponentBase* pComponent)
 #endif //MYFW_USING_WX
 
     return pComponent;
+}
+
+ComponentBase* GameObject::RemoveComponent(ComponentBase* pComponent)
+{
+    for( unsigned int i=0; i<m_Components.Count(); i++ )
+    {
+        if( m_Components[i] == pComponent )
+        {
+            m_Components.RemoveIndex_MaintainOrder( i );
+            return pComponent;
+        }
+    }
+
+    return 0; // component not found.
 }

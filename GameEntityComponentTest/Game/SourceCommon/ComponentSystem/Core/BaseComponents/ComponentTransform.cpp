@@ -36,7 +36,7 @@ ComponentTransform::~ComponentTransform()
 #if MYFW_USING_WX
 void ComponentTransform::AddToObjectsPanel(wxTreeItemId gameobjectid)
 {
-    wxTreeItemId id = g_pPanelObjectList->AddObject( this, ComponentTransform::StaticFillPropertiesWindow, 0, gameobjectid, "Transform" );
+    wxTreeItemId id = g_pPanelObjectList->AddObject( this, ComponentTransform::StaticFillPropertiesWindow, ComponentBase::StaticOnRightClick, gameobjectid, "Transform" );
 }
 
 void ComponentTransform::FillPropertiesWindow()
@@ -64,4 +64,57 @@ void ComponentTransform::Reset()
     m_Scale.Set( 1,1,1 );
     m_Rotation.Set( 0,0,0 );
     m_Transform.SetIdentity();
+
+    m_pParentTransform = 0;
+}
+
+ComponentTransform& ComponentTransform::operator=(const ComponentTransform& other)
+{
+    this->m_Position = other.m_Position;
+    this->m_Scale = other.m_Scale;
+    this->m_Rotation = other.m_Rotation;
+    this->m_Transform = other.m_Transform;
+
+    return *this;
+}
+
+void ComponentTransform::SetPosition(Vector3 pos)
+{
+    m_Position = pos;
+    UpdateMatrix();
+}
+
+void ComponentTransform::SetScale(Vector3 scale)
+{
+    m_Scale = scale;
+    UpdateMatrix();
+}
+
+void ComponentTransform::SetRotation(Vector3 rot)
+{
+    m_Rotation = rot;
+    UpdateMatrix();
+}
+
+void ComponentTransform::SetParent(ComponentTransform* pNewParent)
+{
+    m_Position = m_Position - pNewParent->m_Position;
+    m_pParentTransform = pNewParent;
+    UpdateMatrix();
+}
+
+void ComponentTransform::UpdateMatrix()
+{
+    m_Transform.SetSRT( m_Scale, m_Rotation, m_Position );
+
+    if( m_pParentTransform )
+    {
+        m_pParentTransform->UpdateMatrix();
+        m_Transform = m_pParentTransform->m_Transform * m_Transform;
+    }
+}
+
+MyMatrix* ComponentTransform::GetMatrix()
+{
+    return &m_Transform;
 }

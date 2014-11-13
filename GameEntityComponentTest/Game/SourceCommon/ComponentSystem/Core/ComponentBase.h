@@ -28,6 +28,9 @@ enum BaseComponentTypes
 };
 
 class ComponentBase : public CPPListNode
+#if MYFW_USING_WX
+, public wxEvtHandler
+#endif
 {
 public:
     BaseComponentTypes m_BaseType;
@@ -43,8 +46,11 @@ public:
 public:
 #if MYFW_USING_WX
     virtual void AddToObjectsPanel(wxTreeItemId gameobjectid);
-    static void StaticFillPropertiesWindow(void* pObjectPtr) { ((ComponentBase*)pObjectPtr)->FillPropertiesWindow(); }
-    void FillPropertiesWindow();
+    static void StaticOnLeftClick(void* pObjectPtr) { ((ComponentBase*)pObjectPtr)->OnLeftClick(); }
+    static void StaticOnRightClick(void* pObjectPtr) { ((ComponentBase*)pObjectPtr)->OnRightClick(); }
+    void OnLeftClick();
+    void OnRightClick();
+    void OnPopupClick(wxEvent &evt);
 #endif //MYFW_USING_WX
 };
 

@@ -38,7 +38,7 @@ ComponentRenderable::~ComponentRenderable()
 #if MYFW_USING_WX
 void ComponentRenderable::AddToObjectsPanel(wxTreeItemId gameobjectid)
 {
-    wxTreeItemId id = g_pPanelObjectList->AddObject( this, ComponentRenderable::StaticFillPropertiesWindow, 0, gameobjectid, "Renderable" );
+    wxTreeItemId id = g_pPanelObjectList->AddObject( this, ComponentRenderable::StaticFillPropertiesWindow, ComponentBase::StaticOnRightClick, gameobjectid, "Renderable" );
 }
 
 void ComponentRenderable::FillPropertiesWindow()
