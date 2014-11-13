@@ -24,6 +24,11 @@ ComponentSystemManager::ComponentSystemManager(ComponentTypeManager* typemanager
     g_pComponentSystemManager = this;
 
     m_pComponentTypeManager = typemanager;
+
+#if MYFW_USING_WX
+    // Add click callbacks to the root of the objects tree
+    g_pPanelObjectList->SetTreeRootData( this, ComponentSystemManager::StaticOnLeftClick, ComponentSystemManager::StaticOnRightClick );
+#endif //MYFW_USING_WX
 }
 
 ComponentSystemManager::~ComponentSystemManager()
@@ -48,6 +53,34 @@ ComponentSystemManager::~ComponentSystemManager()
     g_pComponentSystemManager = 0;
 }
 
+#if MYFW_USING_WX
+void ComponentSystemManager::OnLeftClick()
+{
+    g_pPanelWatch->ClearAllVariables();
+}
+
+void ComponentSystemManager::OnRightClick()
+{
+ 	wxMenu menu;
+    menu.SetClientData( this );
+
+    menu.Append( 0, "Add Game Object" );
+ 	menu.Connect( wxEVT_COMMAND_MENU_SELECTED, (wxObjectEventFunction)&ComponentSystemManager::OnPopupClick );
+
+    // blocking call. // should delete all categorymenu's new'd above when done.
+ 	g_pPanelWatch->PopupMenu( &menu );
+}
+
+void ComponentSystemManager::OnPopupClick(wxEvent &evt)
+{
+    int id = evt.GetId();
+    if( id == 0 )
+    {
+        g_pComponentSystemManager->CreateGameObject();
+    }
+}
+#endif //MYFW_USING_WX
+
 GameObject* ComponentSystemManager::CreateGameObject()
 {
     GameObject* pGameObject = MyNew GameObject;
@@ -55,6 +88,11 @@ GameObject* ComponentSystemManager::CreateGameObject()
     m_GameObjects.AddTail( pGameObject );
 
     return pGameObject;
+}
+
+void ComponentSystemManager::DeleteGameObject(GameObject* pObject)
+{
+    assert( false ); // not done yet.
 }
 
 ComponentBase* ComponentSystemManager::AddComponent(ComponentBase* pComponent)

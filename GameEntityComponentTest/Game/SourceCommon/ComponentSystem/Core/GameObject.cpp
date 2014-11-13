@@ -89,6 +89,20 @@ void GameObject::OnRightClick()
  	g_pPanelWatch->PopupMenu( &menu );
 }
 
+void GameObject::OnPopupClick(wxEvent &evt)
+{
+    GameObject* pGameObject = (GameObject*)static_cast<wxMenu*>(evt.GetEventObject())->GetClientData();
+
+    if( pGameObject->m_Components.Count() >= pGameObject->m_Components.Length() )
+        return;
+
+    int id = evt.GetId();
+    ComponentTypes type = (ComponentTypes)id;
+
+    ComponentBase* pComponent = g_pComponentTypeManager->CreateComponent( type );
+    pGameObject->AddNewComponent( pComponent );
+}
+
 void GameObject::OnDrag()
 {
     g_DragAndDropStruct.m_Type = DragAndDropType_GameObjectPointer;
@@ -107,20 +121,6 @@ void GameObject::OnDrop()
         // parent one transform to another.
         this->m_pComponentTransform->SetParent( pGameObject->m_pComponentTransform );
     }
-}
-
-void GameObject::OnPopupClick(wxEvent &evt)
-{
-    GameObject* pGameObject = (GameObject*)static_cast<wxMenu*>(evt.GetEventObject())->GetClientData();
-
-    if( pGameObject->m_Components.Count() >= pGameObject->m_Components.Length() )
-        return;
-
-    int id = evt.GetId();
-    ComponentTypes type = (ComponentTypes)id;
-
-    ComponentBase* pComponent = g_pComponentTypeManager->CreateComponent( type );
-    pGameObject->AddNewComponent( pComponent );
 }
 #endif //MYFW_USING_WX
 

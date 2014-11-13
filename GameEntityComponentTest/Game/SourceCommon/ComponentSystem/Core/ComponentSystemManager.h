@@ -25,6 +25,9 @@ class ComponentBase;
 extern ComponentSystemManager* g_pComponentSystemManager;
 
 class ComponentSystemManager
+#if MYFW_USING_WX
+: public wxEvtHandler
+#endif
 {
 public:
     ComponentTypeManager* m_pComponentTypeManager;
@@ -41,6 +44,7 @@ public:
     virtual ~ComponentSystemManager();
 
     GameObject* CreateGameObject();
+    void DeleteGameObject(GameObject* pObject);
     ComponentBase* AddComponent(ComponentBase* pComponent);
     void DeleteComponent(ComponentBase* pComponent);
 
@@ -49,6 +53,15 @@ public:
 
     bool OnTouch(int action, int id, float x, float y, float pressure, float size);
     bool OnButtons(GameCoreButtonActions action, GameCoreButtonIDs id);
+
+public:
+#if MYFW_USING_WX
+    static void StaticOnLeftClick(void* pObjectPtr) { ((ComponentSystemManager*)pObjectPtr)->OnLeftClick(); }
+    static void StaticOnRightClick(void* pObjectPtr) { ((ComponentSystemManager*)pObjectPtr)->OnRightClick(); }
+    void OnLeftClick();
+    void OnRightClick();
+    void OnPopupClick(wxEvent &evt);
+#endif //MYFW_USING_WX
 };
 
 #endif //__ComponentSystemManager_H__
