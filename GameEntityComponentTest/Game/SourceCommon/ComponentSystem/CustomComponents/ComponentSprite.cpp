@@ -51,6 +51,24 @@ void ComponentSprite::FillPropertiesWindow()
     g_pPanelWatch->AddUnsignedChar( "a", &m_Tint.a, 0, 255 );
     g_pPanelWatch->AddFloat( "width",  &m_Size.x, 0, 2 );
     g_pPanelWatch->AddFloat( "height", &m_Size.y, 0, 2 );
+
+    const char* desc = "no shader";
+    assert( m_pSprite );
+    if( m_pSprite->m_pShaderGroup )
+        desc = m_pSprite->m_pShaderGroup->GetShader( ShaderPass_Main )->m_pFilename;
+    g_pPanelWatch->AddPointerWithDescription( "Object following", 0, desc, this, ComponentSprite::StaticOnDropShaderGroup );
+}
+
+void ComponentSprite::OnDropShaderGroup()
+{
+    if( g_DragAndDropStruct.m_Type == DragAndDropType_ShaderGroupPointer )
+    {
+        ShaderGroup* pShaderGroup = (ShaderGroup*)g_DragAndDropStruct.m_Value;
+        assert( pShaderGroup );
+        assert( m_pSprite );
+
+        m_pSprite->SetShader( pShaderGroup );
+    }
 }
 #endif //MYFW_USING_WX
 

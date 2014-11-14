@@ -22,7 +22,6 @@
 #include "../../Framework/MyFramework/SourceCommon/CommonHeader.h"
 
 // core component system code
-#include "ComponentSystem/Core/DragAndDropHackery.h"
 #include "ComponentSystem/Core/ComponentTypeManager.h"
 #include "ComponentSystem/Core/ComponentSystemManager.h"
 #include "ComponentSystem/Core/ComponentBase.h"

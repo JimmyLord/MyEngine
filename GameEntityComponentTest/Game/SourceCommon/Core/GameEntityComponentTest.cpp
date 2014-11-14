@@ -41,7 +41,7 @@ void GameEntityComponentTest::OneTimeInit()
     ComponentAIChasePlayer* pComponentAIChasePlayer;
 
     // setup our shader.
-    m_pShader_White = MyNew ShaderGroup( MyNew Shader_Base(ShaderPass_Main), 0, 0 );
+    m_pShader_White = MyNew ShaderGroup( MyNew Shader_Base(ShaderPass_Main), 0, 0, "Vertex Color" );
     m_pShader_White->SetFileForAllPasses( "Data/Shaders/Shader_White" );
 
     // Initialize our component system.
