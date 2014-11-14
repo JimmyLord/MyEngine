@@ -48,6 +48,25 @@ void ComponentAIChasePlayer::AddToObjectsPanel(wxTreeItemId gameobjectid)
 void ComponentAIChasePlayer::FillPropertiesWindow()
 {
     g_pPanelWatch->ClearAllVariables();
+
+    char* desc = "not following";
+    if( m_pPlayerComponentTransform )
+        desc = m_pPlayerComponentTransform->m_pGameObject->m_Name;
+    g_pPanelWatch->AddPointerWithDescription( "Object following", m_pPlayerComponentTransform, desc, this, ComponentAIChasePlayer::StaticOnNewParentTransformDrop );
+}
+
+void ComponentAIChasePlayer::OnNewParentTransformDrop()
+{
+    if( g_DragAndDropStruct.m_Type == DragAndDropType_ComponentPointer )
+    {
+        ComponentTransform* pComponent = (ComponentTransform*)g_DragAndDropStruct.m_Value;
+        assert( pComponent );
+
+        if( pComponent->m_BaseType == BaseComponentType_Transform )
+        {
+            this->m_pPlayerComponentTransform = pComponent;
+        }
+    }
 }
 #endif //MYFW_USING_WX
 
