@@ -123,8 +123,15 @@ cJSON* GameObject::ExportAsJSONObject()
     return gameobject;
 }
 
-void GameObject::ImportFromJSONObject()
+void GameObject::ImportFromJSONObject(cJSON* jsonobj)
 {
+    cJSONExt_GetUnsignedInt( jsonobj, "ID", &m_ID );
+
+    size_t len = cJSONExt_GetStringLength( jsonobj, "Name" );
+    // TODO_GAME: nothing should be freeing this, but it seems it does get freed.(g_pPanelObjectList?)
+    char* namebuffer = MyNew char[len+1];
+    cJSONExt_GetString( jsonobj, "Name", namebuffer, len+1 );
+    SetName( namebuffer );
 }
 
 void GameObject::SetName(char* name)

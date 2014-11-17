@@ -53,6 +53,8 @@ public:
 
     GameObject* CreateGameObject();
     void DeleteGameObject(GameObject* pObject);
+    GameObject* FindGameObjectByID(unsigned int id);
+
     ComponentBase* AddComponent(ComponentBase* pComponent);
     void DeleteComponent(ComponentBase* pComponent);
 

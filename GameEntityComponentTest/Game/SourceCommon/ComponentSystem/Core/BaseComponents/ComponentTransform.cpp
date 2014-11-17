@@ -91,8 +91,19 @@ cJSON* ComponentTransform::ExportAsJSONObject()
     return component;
 }
 
-void ComponentTransform::ImportFromJSONObject()
+void ComponentTransform::ImportFromJSONObject(cJSON* jsonobj)
 {
+    unsigned int parentid = 0;
+    cJSONExt_GetUnsignedInt( jsonobj, "ParentGOID", &parentid );
+    if( parentid != 0 )
+    {
+        GameObject* pParentGameObject = g_pComponentSystemManager->FindGameObjectByID( parentid );
+        m_pParentTransform = pParentGameObject->m_pComponentTransform;
+    }
+
+    cJSONExt_GetFloatArray( jsonobj, "Pos", &m_Position.x, 3 );
+    cJSONExt_GetFloatArray( jsonobj, "Scale", &m_Scale.x, 3 );
+    cJSONExt_GetFloatArray( jsonobj, "Rot", &m_Rotation.x, 3 );
 }
 
 void ComponentTransform::Reset()

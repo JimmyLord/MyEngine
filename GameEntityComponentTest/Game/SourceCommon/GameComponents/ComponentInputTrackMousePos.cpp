@@ -56,7 +56,7 @@ cJSON* ComponentInputTrackMousePos::ExportAsJSONObject()
     return component;
 }
 
-void ComponentInputTrackMousePos::ImportFromJSONObject()
+void ComponentInputTrackMousePos::ImportFromJSONObject(cJSON* jsonobj)
 {
 }
 

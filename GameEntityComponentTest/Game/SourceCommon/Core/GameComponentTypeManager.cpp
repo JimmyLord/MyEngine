@@ -18,7 +18,7 @@
 #include "GameCommonHeader.h"
 
 // sort by category, otherwise right-click menu will have duplicates.
-ComponentTypeInfo g_ComponentTypeInfo[Component_NumComponents] =
+ComponentTypeInfo g_ComponentTypeInfo[Component_NumComponentTypes] =
 {
     { "Renderables",    "Sprite",          },
     { "Input handlers", "Track Mouse",     },
@@ -44,7 +44,7 @@ ComponentBase* GameComponentTypeManager::CreateComponent(int type)
 
 unsigned int GameComponentTypeManager::GetNumberOfComponentTypes()
 {
-    return Component_NumComponents;
+    return Component_NumComponentTypes;
 }
 
 char* GameComponentTypeManager::GetTypeCategory(int type)
@@ -55,4 +55,15 @@ char* GameComponentTypeManager::GetTypeCategory(int type)
 char* GameComponentTypeManager::GetTypeName(int type)
 {
     return g_ComponentTypeInfo[type].name;
+}
+
+int GameComponentTypeManager::GetTypeByName(const char* name)
+{
+    for( int i=0; i<Component_NumComponentTypes; i++ )
+    {
+        if( strcmp( g_ComponentTypeInfo[i].name, name ) == 0 )
+            return i;
+    }
+
+    return -1;
 }

@@ -86,7 +86,7 @@ cJSON* ComponentBase::ExportAsJSONObject()
 {
     cJSON* component = cJSON_CreateObject();
 
-    cJSON_AddNumberToObject( component, "BaseType", m_BaseType );
+    //cJSON_AddNumberToObject( component, "BaseType", m_BaseType );
 
     if( m_Type != -1 )
     {
@@ -104,7 +104,7 @@ cJSON* ComponentBase::ExportAsJSONObject()
     return component;
 }
 
-void ComponentBase::ImportFromJSONObject()
+void ComponentBase::ImportFromJSONObject(cJSON* jsonobj)
 {
 }
 

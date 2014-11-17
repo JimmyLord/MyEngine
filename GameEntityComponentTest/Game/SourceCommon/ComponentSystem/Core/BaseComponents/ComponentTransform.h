@@ -36,7 +36,7 @@ public:
     virtual ~ComponentTransform();
 
     virtual cJSON* ExportAsJSONObject();
-    virtual void ImportFromJSONObject();
+    virtual void ImportFromJSONObject(cJSON* jsonobj);
 
     virtual void Reset();
     ComponentTransform& ComponentTransform::operator=(const ComponentTransform& other);

@@ -88,9 +88,11 @@ char* ComponentSystemManager::SaveSceneToJSON()
 {
     cJSON* root = cJSON_CreateObject();
     cJSON* gameobjectarray = cJSON_CreateArray();
+    cJSON* transformarray = cJSON_CreateArray();
     cJSON* componentarray = cJSON_CreateArray();
 
     cJSON_AddItemToObject( root, "GameObjects", gameobjectarray );
+    cJSON_AddItemToObject( root, "Transforms", transformarray );
     cJSON_AddItemToObject( root, "Components", componentarray );
 
     // add the game objects and their transform components.
@@ -104,7 +106,7 @@ char* ComponentSystemManager::SaveSceneToJSON()
         for( CPPListNode* pNode = m_GameObjects.GetHead(); pNode; pNode = pNode->GetNext() )
         {
             ComponentBase* pComponent = ((GameObject*)pNode)->m_pComponentTransform;
-            cJSON_AddItemToArray( componentarray, pComponent->ExportAsJSONObject() );
+            cJSON_AddItemToArray( transformarray, pComponent->ExportAsJSONObject() );
         }
     }
 
@@ -161,9 +163,68 @@ void ComponentSystemManager::LoadSceneFromJSON(const char* jsonstr)
         return;
 
     cJSON* gameobjectarray = cJSON_GetObjectItem( root, "GameObjects" );
+    cJSON* transformarray = cJSON_GetObjectItem( root, "Transforms" );
     cJSON* componentarray = cJSON_GetObjectItem( root, "Components" );
 
-    //m_NextGameObjectID = idfound + 1;
+    // create/init all the game objects
+    for( int i=0; i<cJSON_GetArraySize( gameobjectarray ); i++ )
+    {
+        cJSON* gameobj = cJSON_GetArrayItem( gameobjectarray, i );
+        
+        GameObject* pGameObject = CreateGameObject();
+        pGameObject->ImportFromJSONObject( gameobj );
+
+        if( pGameObject->m_ID > m_NextGameObjectID )
+            m_NextGameObjectID += 1;
+    }
+
+    // setup all the game object transforms
+    for( int i=0; i<cJSON_GetArraySize( transformarray ); i++ )
+    {
+        cJSON* transformobj = cJSON_GetArrayItem( transformarray, i );
+        
+        unsigned int id = 0;
+        cJSONExt_GetUnsignedInt( transformobj, "GOID", &id );
+        assert( id > 0 );
+
+        GameObject* pGameObject = FindGameObjectByID( id );
+        assert( pGameObject );
+
+        if( pGameObject )
+        {
+            pGameObject->m_ID = id;
+            pGameObject->m_pComponentTransform->ImportFromJSONObject( transformobj );
+
+            if( pGameObject->m_ID >= m_NextGameObjectID )
+                m_NextGameObjectID = id + 1;
+        }
+    }
+
+    // create/init all the other components
+    for( int i=0; i<cJSON_GetArraySize( componentarray ); i++ )
+    {
+        cJSON* componentobj = cJSON_GetArrayItem( componentarray, i );
+        
+        unsigned int id = 0;
+        cJSONExt_GetUnsignedInt( componentobj, "GOID", &id );
+        assert( id > 0 );
+        GameObject* pGameObject = FindGameObjectByID( id );
+        assert( pGameObject );
+
+        cJSON* typeobj = cJSON_GetObjectItem( componentobj, "Type" );
+        assert( typeobj );
+        int type = -1;
+        if( typeobj )
+            type = g_pComponentTypeManager->GetTypeByName( typeobj->valuestring );
+
+        ComponentBase* pComponent = pGameObject->AddNewComponent( type );
+        pComponent->ImportFromJSONObject( componentobj );
+
+        cJSONExt_GetUnsignedInt( componentobj, "ID", &pComponent->m_ID );
+
+        if( pComponent->m_ID >= m_NextComponentID )
+            m_NextComponentID = pComponent->m_ID + 1;
+    }
 
     cJSON_Delete( root );
 }
@@ -232,6 +293,19 @@ void ComponentSystemManager::DeleteGameObject(GameObject* pObject)
 {
     pObject->Remove();
     SAFE_DELETE( pObject );
+}
+
+GameObject* ComponentSystemManager::FindGameObjectByID(unsigned int id)
+{
+    for( CPPListNode* node = m_GameObjects.GetHead(); node != 0; node = node->GetNext() )
+    {
+        GameObject* pGameObject = (GameObject*)node;
+
+        if( pGameObject->m_ID == id )
+            return pGameObject;
+    }
+
+    return 0;
 }
 
 ComponentBase* ComponentSystemManager::AddComponent(ComponentBase* pComponent)

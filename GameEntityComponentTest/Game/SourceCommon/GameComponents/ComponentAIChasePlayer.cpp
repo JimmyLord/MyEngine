@@ -80,8 +80,18 @@ cJSON* ComponentAIChasePlayer::ExportAsJSONObject()
     return component;
 }
 
-void ComponentAIChasePlayer::ImportFromJSONObject()
+void ComponentAIChasePlayer::ImportFromJSONObject(cJSON* jsonobj)
 {
+    unsigned int chasingid = 0;
+    cJSONExt_GetUnsignedInt( jsonobj, "ChasingGOID", &chasingid );
+    if( chasingid != 0 )
+    {
+        GameObject* pGameObject = g_pComponentSystemManager->FindGameObjectByID( chasingid );
+        assert( pGameObject );
+
+        if( pGameObject )
+            m_pPlayerComponentTransform = pGameObject->m_pComponentTransform;
+    }
 }
 
 void ComponentAIChasePlayer::Reset()

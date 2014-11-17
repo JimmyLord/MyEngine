@@ -42,6 +42,8 @@ public:
 
     virtual char* GetTypeCategory(int type) = 0;
     virtual char* GetTypeName(int type) = 0;
+
+    virtual int GetTypeByName(const char* name) = 0;
 };
 
 #endif //__ComponentTypeManager_H__

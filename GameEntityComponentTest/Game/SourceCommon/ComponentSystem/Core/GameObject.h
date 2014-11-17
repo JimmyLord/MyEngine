@@ -35,7 +35,7 @@ public:
     virtual ~GameObject();
 
     cJSON* ExportAsJSONObject();
-    void ImportFromJSONObject();
+    void ImportFromJSONObject(cJSON* jsonobj);
 
     void SetName(char* name);
 

@@ -83,8 +83,12 @@ cJSON* ComponentSprite::ExportAsJSONObject()
     return component;
 }
 
-void ComponentSprite::ImportFromJSONObject()
+void ComponentSprite::ImportFromJSONObject(cJSON* jsonobj)
 {
+    cJSONExt_GetUnsignedCharArray( jsonobj, "Tint", &m_Tint.r, 4 );
+    cJSONExt_GetFloatArray( jsonobj, "Size", &m_Size.x, 2 );
+    
+    //cJSONExt_GetString( jsonobj, "Tint", &m_Tint.r, 4 );
 }
 
 void ComponentSprite::Reset()

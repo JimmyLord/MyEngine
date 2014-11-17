@@ -28,7 +28,7 @@ public:
     virtual ~ComponentInputTrackMousePos();
 
     virtual cJSON* ExportAsJSONObject();
-    virtual void ImportFromJSONObject();
+    virtual void ImportFromJSONObject(cJSON* jsonobj);
 
     //virtual void Reset();
 
