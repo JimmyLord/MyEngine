@@ -72,6 +72,21 @@ void ComponentSprite::OnDropShaderGroup()
 }
 #endif //MYFW_USING_WX
 
+cJSON* ComponentSprite::ExportAsJSONObject()
+{
+    cJSON* component = ComponentBase::ExportAsJSONObject();
+
+    cJSONExt_AddUnsignedCharArrayToObject( component, "Tint", &m_Tint.r, 4 );
+    cJSONExt_AddFloatArrayToObject( component, "Size", &m_Size.x, 2 );
+    cJSON_AddStringToObject( component, "Shader", "save/load not implemented" );
+
+    return component;
+}
+
+void ComponentSprite::ImportFromJSONObject()
+{
+}
+
 void ComponentSprite::Reset()
 {
     ComponentRenderable::Reset();

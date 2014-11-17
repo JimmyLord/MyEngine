@@ -20,12 +20,16 @@
 ComponentBase::ComponentBase()
 : m_BaseType( BaseComponentType_None )
 , m_pGameObject( 0 )
+, m_Type(-1)
+, m_ID(0)
 {
 }
 
 ComponentBase::ComponentBase(GameObject* owner)
 : m_BaseType( BaseComponentType_None )
 , m_pGameObject( owner )
+, m_Type(-1)
+, m_ID(0)
 {
 }
 
@@ -77,6 +81,32 @@ void ComponentBase::OnDrop()
 {
 }
 #endif //MYFW_USING_WX
+
+cJSON* ComponentBase::ExportAsJSONObject()
+{
+    cJSON* component = cJSON_CreateObject();
+
+    cJSON_AddNumberToObject( component, "BaseType", m_BaseType );
+
+    if( m_Type != -1 )
+    {
+        char* componenttypename = g_pComponentTypeManager->GetTypeName( m_Type );
+        assert( componenttypename );
+        if( componenttypename )
+            cJSON_AddStringToObject( component, "Type", componenttypename );
+    }
+
+    if( m_pGameObject )
+        cJSON_AddNumberToObject( component, "GOID", m_pGameObject->m_ID );
+
+    cJSON_AddNumberToObject( component, "ID", m_ID );
+
+    return component;
+}
+
+void ComponentBase::ImportFromJSONObject()
+{
+}
 
 void ComponentBase::Reset()
 {

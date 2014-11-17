@@ -18,6 +18,7 @@
 #include "GameCommonHeader.h"
 #include "../../Framework/MyFramework/SourceWindows/Screenshot.h"
 #include "../../Framework/MyFramework/SourceWindows/MYFWWinMainWx.h"
+#include "Core/GameMainFrame.h"
 
 #define SCREEN_WIDTH    1324
 #define SCREEN_HEIGHT   576
@@ -25,6 +26,11 @@
 void WinMain_CreateGameCore()
 {
     g_pGameCore = MyNew GameEntityComponentTest;
+}
+
+MainFrame* WinMain_CreateMainFrame()
+{
+    return MyNew GameMainFrame;
 }
 
 void WinMain_GetClientSize(int* width, int* height, GLViewTypes* viewtype)

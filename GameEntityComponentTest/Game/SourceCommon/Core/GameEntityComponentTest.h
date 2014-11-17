@@ -23,7 +23,7 @@ class GameEntityComponentTest : public GameCore
 public:
     ComponentSystemManager* m_pComponentSystemManager;
 
-    ShaderGroup* m_pShader_White;
+    ShaderGroup* m_pShader_TintColor;
 
 public:
     GameEntityComponentTest();

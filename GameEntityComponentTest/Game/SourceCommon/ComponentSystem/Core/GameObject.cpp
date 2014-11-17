@@ -19,6 +19,7 @@
 
 GameObject::GameObject()
 {
+    m_ID = 0;
     m_Name = 0;
 
     m_pComponentTransform = MyNew ComponentTransform( this );
@@ -37,25 +38,14 @@ GameObject::GameObject()
 
 GameObject::~GameObject()
 {
-    SAFE_DELETE( m_pComponentTransform );
-
 #if MYFW_USING_WX
     if( g_pPanelObjectList )
     {
+        g_pPanelObjectList->RemoveObject( m_pComponentTransform );
         g_pPanelObjectList->RemoveObject( this );
     }
-#endif //MYFW_USING_WX
-}
 
-void GameObject::SetName(char* name)
-{
-    m_Name = name;
-
-#if MYFW_USING_WX
-    if( g_pPanelObjectList )
-    {
-        g_pPanelObjectList->RenameObject( this, m_Name );
-    }
+    SAFE_DELETE( m_pComponentTransform );
 #endif //MYFW_USING_WX
 }
 
@@ -99,8 +89,7 @@ void GameObject::OnPopupClick(wxEvent &evt)
     int id = evt.GetId();
     ComponentTypes type = (ComponentTypes)id;
 
-    ComponentBase* pComponent = g_pComponentTypeManager->CreateComponent( type );
-    pGameObject->AddNewComponent( pComponent );
+    pGameObject->AddNewComponent( type );
 }
 
 void GameObject::OnDrag()
@@ -124,13 +113,43 @@ void GameObject::OnDrop()
 }
 #endif //MYFW_USING_WX
 
-ComponentBase* GameObject::AddNewComponent(ComponentBase* pComponent, ComponentSystemManager* pComponentSystemManager)
+cJSON* GameObject::ExportAsJSONObject()
+{
+    cJSON* gameobject = cJSON_CreateObject();
+
+    cJSON_AddNumberToObject( gameobject, "ID", m_ID );
+    cJSON_AddStringToObject( gameobject, "Name", m_Name );
+
+    return gameobject;
+}
+
+void GameObject::ImportFromJSONObject()
+{
+}
+
+void GameObject::SetName(char* name)
+{
+    m_Name = name;
+
+#if MYFW_USING_WX
+    if( g_pPanelObjectList )
+    {
+        g_pPanelObjectList->RenameObject( this, m_Name );
+    }
+#endif //MYFW_USING_WX
+}
+
+ComponentBase* GameObject::AddNewComponent(int componenttype, ComponentSystemManager* pComponentSystemManager)
 {
     if( m_Components.Count() >= m_Components.Length() )
         return 0;
 
+    ComponentBase* pComponent = g_pComponentTypeManager->CreateComponent( componenttype );
+
     assert( pComponentSystemManager );
     pComponentSystemManager->AddComponent( pComponent );
+    pComponent->m_ID = pComponentSystemManager->m_NextComponentID;
+    pComponentSystemManager->m_NextComponentID++;
 
     AddExistingComponent( pComponent );
 

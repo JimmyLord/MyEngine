@@ -22,9 +22,9 @@ class ComponentBase;
 
 enum ComponentTypes
 {
-    Component_Sprite,
-    Component_InputTrackMousePos,
-    Component_AIChasePlayer,
+    ComponentType_Sprite,
+    ComponentType_InputTrackMousePos,
+    ComponentType_AIChasePlayer,
     Component_NumComponents,
 };
 

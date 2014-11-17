@@ -24,7 +24,7 @@
 // core component system code
 #include "ComponentSystem/Core/ComponentTypeManager.h"
 #include "ComponentSystem/Core/ComponentSystemManager.h"
-#include "ComponentSystem/Core/ComponentBase.h"
+#include "ComponentSystem/Core/BaseComponents/ComponentBase.h"
 #include "ComponentSystem/Core/BaseComponents/ComponentTransform.h"
 #include "ComponentSystem/Core/BaseComponents/ComponentData.h"
 #include "ComponentSystem/Core/BaseComponents/ComponentInputHandler.h"

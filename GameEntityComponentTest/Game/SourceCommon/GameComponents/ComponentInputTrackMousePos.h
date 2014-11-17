@@ -27,6 +27,11 @@ public:
     ComponentInputTrackMousePos(GameObject* owner);
     virtual ~ComponentInputTrackMousePos();
 
+    virtual cJSON* ExportAsJSONObject();
+    virtual void ImportFromJSONObject();
+
+    //virtual void Reset();
+
     // will return true if input is used.
     virtual bool OnTouch(int action, int id, float x, float y, float pressure, float size);
     virtual bool OnButtons(GameCoreButtonActions action, GameCoreButtonIDs id);

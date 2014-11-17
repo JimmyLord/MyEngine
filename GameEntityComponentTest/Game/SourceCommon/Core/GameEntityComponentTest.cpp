@@ -21,12 +21,12 @@ GameEntityComponentTest::GameEntityComponentTest()
 {
     m_pComponentSystemManager = 0;
 
-    m_pShader_White = 0;
+    m_pShader_TintColor = 0;
 }
 
 GameEntityComponentTest::~GameEntityComponentTest()
 {
-    SAFE_DELETE( m_pShader_White );
+    SAFE_DELETE( m_pShader_TintColor );
 
     SAFE_DELETE( m_pComponentSystemManager );
 }
@@ -41,8 +41,8 @@ void GameEntityComponentTest::OneTimeInit()
     ComponentAIChasePlayer* pComponentAIChasePlayer;
 
     // setup our shader.
-    m_pShader_White = MyNew ShaderGroup( MyNew Shader_Base(ShaderPass_Main), 0, 0, "Vertex Color" );
-    m_pShader_White->SetFileForAllPasses( "Data/Shaders/Shader_White" );
+    m_pShader_TintColor = MyNew ShaderGroup( MyNew Shader_Base(ShaderPass_Main), 0, 0, "Tint Color" );
+    m_pShader_TintColor->SetFileForAllPasses( "Data/Shaders/Shader_TintColor" );
 
     // Initialize our component system.
     m_pComponentSystemManager = MyNew ComponentSystemManager( MyNew GameComponentTypeManager );
@@ -51,13 +51,13 @@ void GameEntityComponentTest::OneTimeInit()
     {
         pGameObject = m_pComponentSystemManager->CreateGameObject();
         pGameObject->SetName( "Player Object" );
-        pComponentSprite = (ComponentSprite*)pGameObject->AddNewComponent( MyNew ComponentSprite() );
+        pComponentSprite = (ComponentSprite*)pGameObject->AddNewComponent( ComponentType_Sprite );
         if( pComponentSprite )
         {
-            pComponentSprite->SetShader( m_pShader_White );
+            pComponentSprite->SetShader( m_pShader_TintColor );
             pComponentSprite->m_Tint.Set( 255, 0, 0, 255 );
         }
-        pGameObject->AddNewComponent( MyNew ComponentInputTrackMousePos() );
+        pGameObject->AddNewComponent( ComponentType_InputTrackMousePos );
 
         pPlayer = pGameObject;
     }
@@ -66,13 +66,13 @@ void GameEntityComponentTest::OneTimeInit()
     {
         pGameObject = m_pComponentSystemManager->CreateGameObject();
         pGameObject->SetName( "Second Object" );
-        pComponentSprite = (ComponentSprite*)pGameObject->AddNewComponent( MyNew ComponentSprite() );
+        pComponentSprite = (ComponentSprite*)pGameObject->AddNewComponent( ComponentType_Sprite );
         if( pComponentSprite )
         {
-            pComponentSprite->SetShader( m_pShader_White );
+            pComponentSprite->SetShader( m_pShader_TintColor );
             pComponentSprite->m_Tint.Set( 0, 0, 255, 255 );
         }
-        pComponentAIChasePlayer = (ComponentAIChasePlayer*)pGameObject->AddNewComponent( MyNew ComponentAIChasePlayer() );
+        pComponentAIChasePlayer = (ComponentAIChasePlayer*)pGameObject->AddNewComponent( ComponentType_AIChasePlayer );
         if( pComponentAIChasePlayer )
         {
             pComponentAIChasePlayer->m_pPlayerComponentTransform = pPlayer->m_pComponentTransform;

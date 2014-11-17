@@ -123,9 +123,6 @@
     <ClCompile Include="SourceCommon\ComponentSystem\CustomComponents\ComponentSprite.cpp">
       <Filter>Source\ComponentSystem\Custom Components</Filter>
     </ClCompile>
-    <ClCompile Include="SourceCommon\ComponentSystem\Core\ComponentBase.cpp">
-      <Filter>Source\ComponentSystem\Core Files</Filter>
-    </ClCompile>
     <ClCompile Include="SourceCommon\ComponentSystem\Core\BaseComponents\ComponentData.cpp">
       <Filter>Source\ComponentSystem\Core Files\Base Components</Filter>
     </ClCompile>
@@ -133,9 +130,6 @@
       <Filter>Source\ComponentSystem\Core Files\Base Components</Filter>
     </ClCompile>
     <ClCompile Include="SourceCommon\ComponentSystem\Core\BaseComponents\ComponentRenderable.cpp">
-      <Filter>Source\ComponentSystem\Core Files\Base Components</Filter>
-    </ClCompile>
-    <ClCompile Include="SourceCommon\ComponentSystem\Core\BaseComponents\ComponentTransform.cpp">
       <Filter>Source\ComponentSystem\Core Files\Base Components</Filter>
     </ClCompile>
     <ClCompile Include="SourceCommon\ComponentSystem\Core\BaseComponents\ComponentUpdateable.cpp">
@@ -149,6 +143,15 @@
     </ClCompile>
     <ClCompile Include="SourceCommon\GameComponents\ComponentAIChasePlayer.cpp">
       <Filter>Source\Game Components</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCommon\ComponentSystem\Core\BaseComponents\ComponentBase.cpp">
+      <Filter>Source\ComponentSystem\Core Files\Base Components</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCommon\ComponentSystem\Core\BaseComponents\ComponentTransform.cpp">
+      <Filter>Source\ComponentSystem\Core Files\Base Components</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCommon\Core\GameMainFrame.cpp">
+      <Filter>Source\Core Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -200,9 +203,6 @@
     <ClInclude Include="SourceCommon\ComponentSystem\CustomComponents\ComponentSprite.h">
       <Filter>Source\ComponentSystem\Custom Components</Filter>
     </ClInclude>
-    <ClInclude Include="SourceCommon\ComponentSystem\Core\ComponentBase.h">
-      <Filter>Source\ComponentSystem\Core Files</Filter>
-    </ClInclude>
     <ClInclude Include="SourceCommon\ComponentSystem\Core\BaseComponents\ComponentData.h">
       <Filter>Source\ComponentSystem\Core Files\Base Components</Filter>
     </ClInclude>
@@ -210,9 +210,6 @@
       <Filter>Source\ComponentSystem\Core Files\Base Components</Filter>
     </ClInclude>
     <ClInclude Include="SourceCommon\ComponentSystem\Core\BaseComponents\ComponentRenderable.h">
-      <Filter>Source\ComponentSystem\Core Files\Base Components</Filter>
-    </ClInclude>
-    <ClInclude Include="SourceCommon\ComponentSystem\Core\BaseComponents\ComponentTransform.h">
       <Filter>Source\ComponentSystem\Core Files\Base Components</Filter>
     </ClInclude>
     <ClInclude Include="SourceCommon\ComponentSystem\Core\BaseComponents\ComponentUpdateable.h">
@@ -226,6 +223,15 @@
     </ClInclude>
     <ClInclude Include="SourceCommon\GameComponents\ComponentAIChasePlayer.h">
       <Filter>Source\Game Components</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCommon\ComponentSystem\Core\BaseComponents\ComponentBase.h">
+      <Filter>Source\ComponentSystem\Core Files\Base Components</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCommon\ComponentSystem\Core\BaseComponents\ComponentTransform.h">
+      <Filter>Source\ComponentSystem\Core Files\Base Components</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCommon\Core\GameMainFrame.h">
+      <Filter>Source\Core Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -292,7 +298,8 @@
     <None Include="SourceEmscripten\httpd_Release.py">
       <Filter>Source - Platform\Source - Emscripten</Filter>
     </None>
-    <None Include="Data\Shaders\Shader_White.glsl">
+    <None Include="..\..\todo.todo" />
+    <None Include="Data\Shaders\Shader_TintColor.glsl">
       <Filter>Data\Shaders</Filter>
     </None>
   </ItemGroup>

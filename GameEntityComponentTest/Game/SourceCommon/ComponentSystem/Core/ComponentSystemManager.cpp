@@ -25,6 +25,9 @@ ComponentSystemManager::ComponentSystemManager(ComponentTypeManager* typemanager
 
     m_pComponentTypeManager = typemanager;
 
+    m_NextGameObjectID = 1;
+    m_NextComponentID = 1;
+
 #if MYFW_USING_WX
     // Add click callbacks to the root of the objects tree
     g_pPanelObjectList->SetTreeRootData( this, ComponentSystemManager::StaticOnLeftClick, ComponentSystemManager::StaticOnRightClick );
@@ -81,9 +84,144 @@ void ComponentSystemManager::OnPopupClick(wxEvent &evt)
 }
 #endif //MYFW_USING_WX
 
+char* ComponentSystemManager::SaveSceneToJSON()
+{
+    cJSON* root = cJSON_CreateObject();
+    cJSON* gameobjectarray = cJSON_CreateArray();
+    cJSON* componentarray = cJSON_CreateArray();
+
+    cJSON_AddItemToObject( root, "GameObjects", gameobjectarray );
+    cJSON_AddItemToObject( root, "Components", componentarray );
+
+    // add the game objects and their transform components.
+    {
+        for( CPPListNode* pNode = m_GameObjects.GetHead(); pNode; pNode = pNode->GetNext() )
+        {
+            GameObject* pGameObject = (GameObject*)pNode;
+            cJSON_AddItemToArray( gameobjectarray, pGameObject->ExportAsJSONObject() );
+        }
+
+        for( CPPListNode* pNode = m_GameObjects.GetHead(); pNode; pNode = pNode->GetNext() )
+        {
+            ComponentBase* pComponent = ((GameObject*)pNode)->m_pComponentTransform;
+            cJSON_AddItemToArray( componentarray, pComponent->ExportAsJSONObject() );
+        }
+    }
+
+    // Add each of the component types
+    {
+        for( CPPListNode* pNode = m_ComponentsInputHandlers.GetHead(); pNode; pNode = pNode->GetNext() )
+        {
+            ComponentBase* pComponent = (ComponentBase*)pNode;
+            cJSON_AddItemToArray( componentarray, pComponent->ExportAsJSONObject() );
+        }
+
+        for( CPPListNode* pNode = m_ComponentsUpdateable.GetHead(); pNode; pNode = pNode->GetNext() )
+        {
+            ComponentBase* pComponent = (ComponentBase*)pNode;
+            cJSON_AddItemToArray( componentarray, pComponent->ExportAsJSONObject() );
+        }
+
+        for( CPPListNode* pNode = m_ComponentsRenderable.GetHead(); pNode; pNode = pNode->GetNext() )
+        {
+            ComponentBase* pComponent = (ComponentBase*)pNode;
+            cJSON_AddItemToArray( componentarray, pComponent->ExportAsJSONObject() );
+        }
+
+        for( CPPListNode* pNode = m_ComponentsData.GetHead(); pNode; pNode = pNode->GetNext() )
+        {
+            ComponentBase* pComponent = (ComponentBase*)pNode;
+            cJSON_AddItemToArray( componentarray, pComponent->ExportAsJSONObject() );
+        }
+    }
+
+    char* savestring = cJSON_Print( root );
+    cJSON_Delete(root);
+
+    FILE* filehandle;
+    errno_t error = fopen_s( &filehandle, "test.scene", "w" );
+    if( filehandle )
+    {
+        fprintf( filehandle, "%s", savestring );
+        fclose( filehandle );
+    }
+
+    free( savestring );
+    return 0;
+}
+
+void ComponentSystemManager::LoadSceneFromJSON(const char* jsonstr)
+{
+    // Clear out the component manager of all components and gameobjects
+    Clear();
+
+    cJSON* root = cJSON_Parse( jsonstr );
+
+    if( root == 0 )
+        return;
+
+    cJSON* gameobjectarray = cJSON_GetObjectItem( root, "GameObjects" );
+    cJSON* componentarray = cJSON_GetObjectItem( root, "Components" );
+
+    //m_NextGameObjectID = idfound + 1;
+
+    cJSON_Delete( root );
+}
+
+void ComponentSystemManager::Clear()
+{
+    m_NextGameObjectID = 1;
+    m_NextComponentID = 1;
+
+    // Remove all components
+    {
+        for( CPPListNode* pNode = m_ComponentsInputHandlers.GetHead(); pNode;  )
+        {
+            ComponentBase* pComponent = (ComponentBase*)pNode;
+            pNode = pNode->GetNext();
+            DeleteComponent( pComponent );
+        }
+
+        for( CPPListNode* pNode = m_ComponentsUpdateable.GetHead(); pNode;  )
+        {
+            ComponentBase* pComponent = (ComponentBase*)pNode;
+            pNode = pNode->GetNext();
+            DeleteComponent( pComponent );
+        }
+
+        for( CPPListNode* pNode = m_ComponentsRenderable.GetHead(); pNode;  )
+        {
+            ComponentBase* pComponent = (ComponentBase*)pNode;
+            pNode = pNode->GetNext();
+            DeleteComponent( pComponent );
+        }
+
+        for( CPPListNode* pNode = m_ComponentsData.GetHead(); pNode;  )
+        {
+            ComponentBase* pComponent = (ComponentBase*)pNode;
+            pNode = pNode->GetNext();
+            DeleteComponent( pComponent );
+        }
+    }
+
+    // delete all game objects.
+    {
+        for( CPPListNode* pNode = m_GameObjects.GetHead(); pNode;  )
+        {
+            GameObject* pGameObject = (GameObject*)pNode;
+
+            pNode = pNode->GetNext();
+
+            DeleteGameObject( pGameObject );
+        }
+    }
+}
+
 GameObject* ComponentSystemManager::CreateGameObject()
 {
     GameObject* pGameObject = MyNew GameObject;
+    pGameObject->m_ID = m_NextGameObjectID;
+    m_NextGameObjectID++;
 
     m_GameObjects.AddTail( pGameObject );
 
@@ -92,7 +230,8 @@ GameObject* ComponentSystemManager::CreateGameObject()
 
 void ComponentSystemManager::DeleteGameObject(GameObject* pObject)
 {
-    assert( false ); // not done yet.
+    pObject->Remove();
+    SAFE_DELETE( pObject );
 }
 
 ComponentBase* ComponentSystemManager::AddComponent(ComponentBase* pComponent)

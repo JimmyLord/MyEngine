@@ -32,6 +32,9 @@ public:
     ComponentSprite(GameObject* owner);
     virtual ~ComponentSprite();
 
+    virtual cJSON* ExportAsJSONObject();
+    virtual void ImportFromJSONObject();
+
     virtual void Reset();
 
     virtual void SetShader(ShaderGroup* pShader);

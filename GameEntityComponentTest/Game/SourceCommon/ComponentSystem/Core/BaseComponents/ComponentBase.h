@@ -35,12 +35,18 @@ class ComponentBase : public CPPListNode
 {
 public:
     BaseComponentTypes m_BaseType;
+    int m_Type;
     GameObject* m_pGameObject;
+
+    unsigned int m_ID;
 
 public:
     ComponentBase();
     ComponentBase(GameObject* owner);
     virtual ~ComponentBase();
+
+    virtual cJSON* ExportAsJSONObject();
+    virtual void ImportFromJSONObject();
 
     virtual void Reset();
 

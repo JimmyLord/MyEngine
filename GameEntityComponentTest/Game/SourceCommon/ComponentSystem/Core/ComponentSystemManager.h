@@ -39,9 +39,17 @@ public:
     CPPListHead m_ComponentsRenderable;
     CPPListHead m_ComponentsData;
 
+    unsigned int m_NextGameObjectID;
+    unsigned int m_NextComponentID;
+
 public:
     ComponentSystemManager(ComponentTypeManager* typemanager);
     virtual ~ComponentSystemManager();
+
+    char* SaveSceneToJSON();
+    void LoadSceneFromJSON(const char* jsonstr);
+
+    void Clear();
 
     GameObject* CreateGameObject();
     void DeleteGameObject(GameObject* pObject);

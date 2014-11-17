@@ -70,6 +70,20 @@ void ComponentAIChasePlayer::OnNewParentTransformDrop()
 }
 #endif //MYFW_USING_WX
 
+cJSON* ComponentAIChasePlayer::ExportAsJSONObject()
+{
+    cJSON* component = ComponentBase::ExportAsJSONObject();
+
+    if( m_pPlayerComponentTransform )
+        cJSON_AddNumberToObject( component, "ChasingGOID", m_pPlayerComponentTransform->m_pGameObject->m_ID );
+
+    return component;
+}
+
+void ComponentAIChasePlayer::ImportFromJSONObject()
+{
+}
+
 void ComponentAIChasePlayer::Reset()
 {
     ComponentUpdateable::Reset();

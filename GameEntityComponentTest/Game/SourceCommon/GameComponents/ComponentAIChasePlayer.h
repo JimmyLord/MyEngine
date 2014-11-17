@@ -29,6 +29,9 @@ public:
     ComponentAIChasePlayer(GameObject* owner);
     virtual ~ComponentAIChasePlayer();
 
+    virtual cJSON* ExportAsJSONObject();
+    virtual void ImportFromJSONObject();
+
     virtual void Reset();
 
     virtual void Tick(double TimePassed);

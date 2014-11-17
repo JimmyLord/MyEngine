@@ -78,6 +78,23 @@ void ComponentTransform::OnNewParentTransformDrop()
 }
 #endif //MYFW_USING_WX
 
+cJSON* ComponentTransform::ExportAsJSONObject()
+{
+    cJSON* component = ComponentBase::ExportAsJSONObject();
+
+    if( m_pParentTransform )
+        cJSON_AddNumberToObject( component, "ParentGOID", m_pParentTransform->m_ID );
+    cJSONExt_AddFloatArrayToObject( component, "Pos", &m_Position.x, 3 );
+    cJSONExt_AddFloatArrayToObject( component, "Scale", &m_Scale.x, 3 );
+    cJSONExt_AddFloatArrayToObject( component, "Rot", &m_Rotation.x, 3 );
+
+    return component;
+}
+
+void ComponentTransform::ImportFromJSONObject()
+{
+}
+
 void ComponentTransform::Reset()
 {
     ComponentBase::Reset();

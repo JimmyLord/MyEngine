@@ -1,5 +1,3 @@
-// Shader_VertexColor.glsl
-
 #ifdef WIN32
 #define lowp
 #define mediump

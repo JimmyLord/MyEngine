@@ -35,6 +35,9 @@ public:
     ComponentTransform(GameObject* owner);
     virtual ~ComponentTransform();
 
+    virtual cJSON* ExportAsJSONObject();
+    virtual void ImportFromJSONObject();
+
     virtual void Reset();
     ComponentTransform& ComponentTransform::operator=(const ComponentTransform& other);
 

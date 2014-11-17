@@ -24,6 +24,7 @@ class GameObject : public CPPListNode
 #endif
 {
 public:
+    unsigned int m_ID;
     char* m_Name; // this is a pointer to the string passed in, not a copy.
 
     ComponentTransform* m_pComponentTransform;
@@ -33,9 +34,12 @@ public:
     GameObject();
     virtual ~GameObject();
 
+    cJSON* ExportAsJSONObject();
+    void ImportFromJSONObject();
+
     void SetName(char* name);
 
-    ComponentBase* AddNewComponent(ComponentBase* pComponent, ComponentSystemManager* pComponentSystemManager = g_pComponentSystemManager);
+    ComponentBase* AddNewComponent(int componenttype, ComponentSystemManager* pComponentSystemManager = g_pComponentSystemManager);
     ComponentBase* AddExistingComponent(ComponentBase* pComponent);
     ComponentBase* RemoveComponent(ComponentBase* pComponent);
 

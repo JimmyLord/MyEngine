@@ -21,21 +21,25 @@
 ComponentTypeInfo g_ComponentTypeInfo[Component_NumComponents] =
 {
     { "Renderables",    "Sprite",          },
-    { "Input handlers", "Track mouse pos", },
+    { "Input handlers", "Track Mouse",     },
     { "AI",             "AI Chase Player", },
 };
 
 ComponentBase* GameComponentTypeManager::CreateComponent(int type)
 {
+    ComponentBase* pComponent;
+
     switch( type )
     {
-    case Component_Sprite:              return MyNew ComponentSprite;
-    case Component_InputTrackMousePos:  return MyNew ComponentInputTrackMousePos;
-    case Component_AIChasePlayer:       return MyNew ComponentAIChasePlayer;
+    case ComponentType_Sprite:              pComponent = MyNew ComponentSprite;             break;
+    case ComponentType_InputTrackMousePos:  pComponent = MyNew ComponentInputTrackMousePos; break;
+    case ComponentType_AIChasePlayer:       pComponent = MyNew ComponentAIChasePlayer;      break;
     }
 
-    assert( false );
-    return 0;
+    assert( pComponent != 0 );
+
+    pComponent->m_Type = type;
+    return pComponent;
 }
 
 unsigned int GameComponentTypeManager::GetNumberOfComponentTypes()
