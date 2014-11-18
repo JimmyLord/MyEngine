@@ -44,9 +44,9 @@ GameObject::~GameObject()
         g_pPanelObjectList->RemoveObject( m_pComponentTransform );
         g_pPanelObjectList->RemoveObject( this );
     }
+#endif //MYFW_USING_WX
 
     SAFE_DELETE( m_pComponentTransform );
-#endif //MYFW_USING_WX
 }
 
 #if MYFW_USING_WX

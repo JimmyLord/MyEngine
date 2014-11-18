@@ -78,7 +78,7 @@ cJSON* ComponentSprite::ExportAsJSONObject()
 
     cJSONExt_AddUnsignedCharArrayToObject( component, "Tint", &m_Tint.r, 4 );
     cJSONExt_AddFloatArrayToObject( component, "Size", &m_Size.x, 2 );
-    cJSON_AddStringToObject( component, "Shader", "save/load not implemented" );
+    cJSON_AddStringToObject( component, "Shader", m_pSprite->m_pShaderGroup->GetName() );
 
     return component;
 }
@@ -88,7 +88,9 @@ void ComponentSprite::ImportFromJSONObject(cJSON* jsonobj)
     cJSONExt_GetUnsignedCharArray( jsonobj, "Tint", &m_Tint.r, 4 );
     cJSONExt_GetFloatArray( jsonobj, "Size", &m_Size.x, 2 );
     
-    //cJSONExt_GetString( jsonobj, "Tint", &m_Tint.r, 4 );
+    cJSON* shaderstringobj = cJSON_GetObjectItem( jsonobj, "Shader" );
+    ShaderGroup* pShaderGroup = g_pShaderGroupManager->FindShaderGroupByName( shaderstringobj->valuestring );
+    m_pSprite->SetShader( pShaderGroup );
 }
 
 void ComponentSprite::Reset()
