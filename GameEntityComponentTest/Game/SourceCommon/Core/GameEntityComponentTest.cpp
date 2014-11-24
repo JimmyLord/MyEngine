@@ -22,13 +22,17 @@ GameEntityComponentTest::GameEntityComponentTest()
     m_pComponentSystemManager = 0;
 
     m_pShader_TintColor = 0;
+    m_pShader_TestNormals = 0;
 }
 
 GameEntityComponentTest::~GameEntityComponentTest()
 {
     SAFE_DELETE( m_pShader_TintColor );
+    SAFE_DELETE( m_pShader_TestNormals );
 
     SAFE_DELETE( m_pComponentSystemManager );
+
+    delete m_pTestOBJMesh;
 }
 
 void GameEntityComponentTest::OneTimeInit()
@@ -40,9 +44,22 @@ void GameEntityComponentTest::OneTimeInit()
     ComponentSprite* pComponentSprite;
     ComponentAIChasePlayer* pComponentAIChasePlayer;
 
-    // setup our shader.
+    m_pTestOBJMesh = MyNew MyMesh;
+    char* PlatformSpecific_LoadFile(const char* filename, int* length = 0, const char* file = __FILE__, unsigned long line = __LINE__);
+    char* objbuffer = PlatformSpecific_LoadFile( "Data/OBJs/cube.obj" );
+    //char* objbuffer = PlatformSpecific_LoadFile( "Data/OBJs/alfa147.obj" );
+    //char* objbuffer = PlatformSpecific_LoadFile( "Data/OBJs/humanoid_tri.obj" );
+    //char* objbuffer = PlatformSpecific_LoadFile( "Data/OBJs/Teapot2.obj" );
+    m_pTestOBJMesh->CreateFromOBJBuffer( objbuffer );
+    delete[] objbuffer;
+
+    glEnable( GL_CULL_FACE );
+
+    // setup our shaders
     m_pShader_TintColor = MyNew ShaderGroup( MyNew Shader_Base(ShaderPass_Main), 0, 0, "Tint Color" );
+    m_pShader_TestNormals = MyNew ShaderGroup( MyNew Shader_Base(ShaderPass_Main), 0, 0, "Test-Normals" );
     m_pShader_TintColor->SetFileForAllPasses( "Data/Shaders/Shader_TintColor" );
+    m_pShader_TestNormals->SetFileForAllPasses( "Data/Shaders/Shader_TestNormals" );
 
     // Initialize our component system.
     m_pComponentSystemManager = MyNew ComponentSystemManager( MyNew GameComponentTypeManager );
@@ -80,9 +97,13 @@ void GameEntityComponentTest::OneTimeInit()
     }
 }
 
+static float totaltimepassed;
+
 void GameEntityComponentTest::Tick(double TimePassed)
 {
     GameCore::Tick( TimePassed );
+
+    totaltimepassed += (float)TimePassed * 180;
 
     // tick all components.
     m_pComponentSystemManager->Tick( TimePassed );
@@ -92,10 +113,27 @@ void GameEntityComponentTest::OnDrawFrame()
 {
     GameCore::OnDrawFrame();
 
+    glClearColor( 0.0f, 0.0f, 0.2f, 1.0f );
     glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
     // draw all components.
     m_pComponentSystemManager->OnDrawFrame();
+
+    // draw obj mesh
+    {
+        MyMatrix matworld;
+        matworld.CreateSRT( 1.0f, Vector3( totaltimepassed, totaltimepassed, 0 ), Vector3( 0, 0, -10 ) );
+
+        MyMatrix matproj;
+        matproj.CreatePerspective( 45, 640.0f/960.0f, 1, 10000 );
+        //matproj.SetOrtho( -2, 2, -2, 2, -2, 2 );
+
+        MyMatrix matfinal = matproj * matworld;
+
+        m_pTestOBJMesh->SetShaderAndTexture( m_pShader_TestNormals, 0 );
+        //m_pTestOBJMesh->SetShaderAndTexture( m_pShader_TintColor, 0 );
+        m_pTestOBJMesh->Draw( &matfinal, 0, 0, 0, 0, 0, 0 );
+    }
 }
 
 void GameEntityComponentTest::OnTouch(int action, int id, float x, float y, float pressure, float size)

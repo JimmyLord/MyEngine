@@ -155,7 +155,7 @@ void ComponentTransform::SetParent(ComponentTransform* pNewParent)
 
 void ComponentTransform::UpdateMatrix()
 {
-    m_Transform.SetSRT( m_Scale, m_Rotation, m_Position );
+    m_Transform.CreateSRT( m_Scale, m_Rotation, m_Position );
 
     if( m_pParentTransform )
     {

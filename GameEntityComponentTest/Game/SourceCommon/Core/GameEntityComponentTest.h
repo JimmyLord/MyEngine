@@ -24,6 +24,9 @@ public:
     ComponentSystemManager* m_pComponentSystemManager;
 
     ShaderGroup* m_pShader_TintColor;
+    ShaderGroup* m_pShader_TestNormals;
+
+    MyMesh* m_pTestOBJMesh;
 
 public:
     GameEntityComponentTest();
