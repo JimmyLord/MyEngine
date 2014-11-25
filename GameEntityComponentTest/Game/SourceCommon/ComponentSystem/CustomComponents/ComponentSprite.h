@@ -38,7 +38,7 @@ public:
     virtual void Reset();
 
     virtual void SetShader(ShaderGroup* pShader);
-    virtual void Draw();
+    virtual void Draw(MyMatrix* pMatViewProj);
 
 public:
 #if MYFW_USING_WX

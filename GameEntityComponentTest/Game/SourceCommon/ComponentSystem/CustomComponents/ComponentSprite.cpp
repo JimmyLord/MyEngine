@@ -100,7 +100,7 @@ void ComponentSprite::Reset()
     if( m_pSprite == 0 )
         m_pSprite = MyNew MySprite();
 
-    m_Size.Set( 0.1f, 0.1f );
+    m_Size.Set( 50.0f, 50.0f );
     m_Tint.Set( 255,255,255,255 );
 }
 
@@ -111,11 +111,12 @@ void ComponentSprite::SetShader(ShaderGroup* pShader)
     m_pSprite->SetShader( pShader );
 }
 
-void ComponentSprite::Draw()
+void ComponentSprite::Draw(MyMatrix* pMatViewProj)
 {
-    ComponentRenderable::Draw();
+    ComponentRenderable::Draw(pMatViewProj);
 
+    m_pSprite->SetPosition( &m_pComponentTransform->m_Transform );
     m_pSprite->SetTint( m_Tint );
     m_pSprite->Create( m_Size.x, m_Size.y, 0, 1, 0, 1, Justify_Center, false );
-    m_pSprite->Draw( &m_pComponentTransform->m_Transform );
+    m_pSprite->Draw( pMatViewProj );
 }

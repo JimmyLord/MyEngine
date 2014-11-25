@@ -1558,6 +1558,8 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='WxRelease|NaCl32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='WxRelease|Emscripten'">true</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="SourceCommon\Camera\Camera2D.cpp" />
+    <ClCompile Include="SourceCommon\Camera\Camera3D.cpp" />
     <ClCompile Include="SourceCommon\ComponentSystem\Core\BaseComponents\ComponentBase.cpp" />
     <ClCompile Include="SourceCommon\ComponentSystem\Core\BaseComponents\ComponentData.cpp" />
     <ClCompile Include="SourceCommon\ComponentSystem\Core\BaseComponents\ComponentInputHandler.cpp" />
@@ -1902,6 +1904,8 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|NaCl'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='WxRelease|NaCl'">true</ExcludedFromBuild>
     </ClInclude>
+    <ClInclude Include="SourceCommon\Camera\Camera2D.h" />
+    <ClInclude Include="SourceCommon\Camera\Camera3D.h" />
     <ClInclude Include="SourceCommon\ComponentSystem\Core\BaseComponents\ComponentBase.h" />
     <ClInclude Include="SourceCommon\ComponentSystem\Core\BaseComponents\ComponentData.h" />
     <ClInclude Include="SourceCommon\ComponentSystem\Core\BaseComponents\ComponentInputHandler.h" />
@@ -2222,6 +2226,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\todo.todo" />
+    <None Include="Data\Shaders\Shader_TestNormals.glsl" />
     <None Include="Data\Shaders\Shader_TintColor.glsl" />
     <None Include="SourceAndroid\AndroidApk\AndroidManifest.xml">
       <SubType>Designer</SubType>

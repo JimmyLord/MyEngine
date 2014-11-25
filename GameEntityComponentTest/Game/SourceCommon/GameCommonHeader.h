@@ -37,6 +37,8 @@
 #include "ComponentSystem/CustomComponents/ComponentSprite.h"
 
 // game code
+#include "Camera/Camera3D.h"
+#include "Camera/Camera2D.h"
 #include "GameComponents/ComponentInputTrackMousePos.h"
 #include "GameComponents/ComponentAIChasePlayer.h"
 #include "Core/GameEntityComponentTest.h"

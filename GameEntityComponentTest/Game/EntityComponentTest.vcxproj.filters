@@ -73,6 +73,9 @@
     <Filter Include="Source\ComponentSystem\Core Files\Base Components">
       <UniqueIdentifier>{2cc5bd10-a1a8-4dd8-9a80-811fc7e898ad}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Camera">
+      <UniqueIdentifier>{2f790bfa-acfa-4f4d-9fb7-6e30e3376aea}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="SourceWindows\WinMain.cpp">
@@ -152,6 +155,12 @@
     </ClCompile>
     <ClCompile Include="SourceCommon\Core\GameMainFrame.cpp">
       <Filter>Source\Core Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCommon\Camera\Camera3D.cpp">
+      <Filter>Source\Camera</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCommon\Camera\Camera2D.cpp">
+      <Filter>Source\Camera</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -233,6 +242,12 @@
     <ClInclude Include="SourceCommon\Core\GameMainFrame.h">
       <Filter>Source\Core Files</Filter>
     </ClInclude>
+    <ClInclude Include="SourceCommon\Camera\Camera3D.h">
+      <Filter>Source\Camera</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCommon\Camera\Camera2D.h">
+      <Filter>Source\Camera</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="SourceNaCL\Web\myframework.js">
@@ -300,6 +315,9 @@
     </None>
     <None Include="..\..\todo.todo" />
     <None Include="Data\Shaders\Shader_TintColor.glsl">
+      <Filter>Data\Shaders</Filter>
+    </None>
+    <None Include="Data\Shaders\Shader_TestNormals.glsl">
       <Filter>Data\Shaders</Filter>
     </None>
   </ItemGroup>

@@ -365,7 +365,7 @@ void ComponentSystemManager::Tick(double TimePassed)
     }
 }
 
-void ComponentSystemManager::OnDrawFrame()
+void ComponentSystemManager::OnDrawFrame(MyMatrix* pMatViewProj)
 {
     for( CPPListNode* node = m_ComponentsRenderable.GetHead(); node != 0; node = node->GetNext() )
     {
@@ -373,7 +373,7 @@ void ComponentSystemManager::OnDrawFrame()
 
         if( pComponent->m_BaseType == BaseComponentType_Renderable )
         {
-            pComponent->Draw();
+            pComponent->Draw(pMatViewProj);
         }
     }
 }

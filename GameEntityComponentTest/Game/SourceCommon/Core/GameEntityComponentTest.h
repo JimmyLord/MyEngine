@@ -26,6 +26,12 @@ public:
     ShaderGroup* m_pShader_TintColor;
     ShaderGroup* m_pShader_TestNormals;
 
+    Camera3D m_Camera3D;
+    Camera2D m_Camera2D;
+
+    float m_GameWidth;
+    float m_GameHeight;
+
     MyMesh* m_pTestOBJMesh;
 
 public:
@@ -34,6 +40,7 @@ public:
 
     virtual void OneTimeInit();
     virtual void Tick(double TimePassed);
+    virtual void OnSurfaceChanged(unsigned int startx, unsigned int starty, unsigned int width, unsigned int height);
     virtual void OnDrawFrame();
 
     virtual void OnTouch(int action, int id, float x, float y, float pressure, float size);

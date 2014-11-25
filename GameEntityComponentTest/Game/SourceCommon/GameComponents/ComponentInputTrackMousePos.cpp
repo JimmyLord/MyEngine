@@ -68,10 +68,7 @@ void ComponentInputTrackMousePos::ImportFromJSONObject(cJSON* jsonobj)
 bool ComponentInputTrackMousePos::OnTouch(int action, int id, float x, float y, float pressure, float size)
 {
     // snap the object to the mouse pos.
-    float clipx = (x / g_pGameCore->m_WindowWidth) * 2 - 1;
-    float clipy = (y / g_pGameCore->m_WindowHeight) * 2 - 1;
-
-    m_pComponentTransform->SetPosition( Vector3( clipx, clipy, 0 ) );
+    m_pComponentTransform->SetPosition( Vector3( x, y, 0 ) );
 
     //return true;
     return false; // allow other input handlers to use touch messages.

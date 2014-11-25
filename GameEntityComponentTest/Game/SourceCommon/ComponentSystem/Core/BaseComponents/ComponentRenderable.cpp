@@ -59,7 +59,7 @@ void ComponentRenderable::SetShader(ShaderGroup* pShader)
     m_pShader = pShader;
 }
 
-void ComponentRenderable::Draw()
+void ComponentRenderable::Draw(MyMatrix* pMatViewProj)
 {
 #if MYFW_USING_WX
     // ugh, for now... matrix will be dirty when playing with watch window in wx 

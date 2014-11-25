@@ -15,34 +15,36 @@
 // misrepresented as being the original software.
 // 3. This notice may not be removed or altered from any source distribution.
 
-#ifndef __ComponentRenderable_H__
-#define __ComponentRenderable_H__
+#ifndef __Camera3D_H__
+#define __Camera3D_H__
 
-class ComponentTransform;
-
-class ComponentRenderable : public ComponentBase
+class Camera3D
 {
 public:
-    ComponentTransform* m_pComponentTransform;
+    float m_WindowAspectRatio;
+    float m_DesiredGameAspectRatio;
+    float m_DesiredHalfVerticalFoV;
+    float m_DesiredHalfHorizontalFoV;
 
-    ShaderGroup* m_pShader; // managed by external forces.
+    Vector3 m_Eye;
+    Vector3 m_Up;
+    Vector3 m_At;
+    float m_Zoom;
+
+public: //protected:
+    MyMatrix m_matView;
+    MyMatrix m_matProj;
+
+    MyMatrix m_matViewProj;
 
 public:
-    ComponentRenderable();
-    ComponentRenderable(GameObject* owner);
-    virtual ~ComponentRenderable();
+    Camera3D();
+    ~Camera3D();
 
-    virtual void Reset();
+    void UpdateMatrices();
 
-    virtual void SetShader(ShaderGroup* pShader);
-    virtual void Draw(MyMatrix* pMatViewProj);
-
-public:
-#if MYFW_USING_WX
-    virtual void AddToObjectsPanel(wxTreeItemId gameobjectid);
-    static void StaticFillPropertiesWindow(void* pObjectPtr) { ((ComponentRenderable*)pObjectPtr)->FillPropertiesWindow(); }
-    void FillPropertiesWindow();
-#endif //MYFW_USING_WX
+    void SetupProjection(float windowaspectratio, float desiredgameaspectratio, float halfyfov);
+    void LookAt(Vector3& eye, Vector3& up, Vector3& at);
 };
 
-#endif //__ComponentRenderable_H__
+#endif //__Camera3D_H__

@@ -59,7 +59,7 @@ public:
     void DeleteComponent(ComponentBase* pComponent);
 
     void Tick(double TimePassed);
-    void OnDrawFrame();
+    void OnDrawFrame(MyMatrix* pMatViewProj);
 
     bool OnTouch(int action, int id, float x, float y, float pressure, float size);
     bool OnButtons(GameCoreButtonActions action, GameCoreButtonIDs id);
