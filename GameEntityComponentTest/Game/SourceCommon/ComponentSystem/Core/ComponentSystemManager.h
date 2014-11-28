@@ -21,6 +21,7 @@
 class ComponentSystemManager;
 class GameObject;
 class ComponentBase;
+class ComponentCamera;
 
 extern ComponentSystemManager* g_pComponentSystemManager;
 
@@ -34,7 +35,8 @@ public:
     CPPListHead m_GameObjects;
 
     // a component can only exist in one of these lists ATM
-    CPPListHead m_ComponentsInputHandlers;
+    CPPListHead m_ComponentsCamera;
+    CPPListHead m_ComponentsInputHandler;
     CPPListHead m_ComponentsUpdateable;
     CPPListHead m_ComponentsRenderable;
     CPPListHead m_ComponentsData;
@@ -54,12 +56,15 @@ public:
     GameObject* CreateGameObject();
     void DeleteGameObject(GameObject* pObject);
     GameObject* FindGameObjectByID(unsigned int id);
+    ComponentCamera* GetFirstCamera();
 
     ComponentBase* AddComponent(ComponentBase* pComponent);
     void DeleteComponent(ComponentBase* pComponent);
 
     void Tick(double TimePassed);
-    void OnDrawFrame(MyMatrix* pMatViewProj);
+    void OnSurfaceChanged(unsigned int startx, unsigned int starty, unsigned int width, unsigned int height, unsigned int desiredaspectwidth, unsigned int desiredaspectheight);
+    void OnDrawFrame();
+    void OnDrawFrame(ComponentCamera* pCamera, MyMatrix* pMatViewProj);
 
     bool OnTouch(int action, int id, float x, float y, float pressure, float size);
     bool OnButtons(GameCoreButtonActions action, GameCoreButtonIDs id);

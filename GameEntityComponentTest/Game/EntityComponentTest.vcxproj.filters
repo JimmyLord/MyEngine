@@ -162,6 +162,9 @@
     <ClCompile Include="SourceCommon\Camera\Camera2D.cpp">
       <Filter>Source\Camera</Filter>
     </ClCompile>
+    <ClCompile Include="SourceCommon\ComponentSystem\Core\BaseComponents\ComponentCamera.cpp">
+      <Filter>Source\ComponentSystem\Core Files\Base Components</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SourceWindows\WinMain.h">
@@ -247,6 +250,9 @@
     </ClInclude>
     <ClInclude Include="SourceCommon\Camera\Camera2D.h">
       <Filter>Source\Camera</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCommon\ComponentSystem\Core\BaseComponents\ComponentCamera.h">
+      <Filter>Source\ComponentSystem\Core Files\Base Components</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -42,8 +42,11 @@ ComponentSystemManager::~ComponentSystemManager()
     while( m_ComponentsData.GetHead() )
         delete m_ComponentsData.RemHead();
 
-    while( m_ComponentsInputHandlers.GetHead() )
-        delete m_ComponentsInputHandlers.RemHead();    
+    while( m_ComponentsCamera.GetHead() )
+        delete m_ComponentsCamera.RemHead();    
+
+    while( m_ComponentsInputHandler.GetHead() )
+        delete m_ComponentsInputHandler.RemHead();    
     
     while( m_ComponentsUpdateable.GetHead() )
         delete m_ComponentsUpdateable.RemHead();
@@ -112,7 +115,13 @@ char* ComponentSystemManager::SaveSceneToJSON()
 
     // Add each of the component types
     {
-        for( CPPListNode* pNode = m_ComponentsInputHandlers.GetHead(); pNode; pNode = pNode->GetNext() )
+        for( CPPListNode* pNode = m_ComponentsCamera.GetHead(); pNode; pNode = pNode->GetNext() )
+        {
+            ComponentBase* pComponent = (ComponentBase*)pNode;
+            cJSON_AddItemToArray( componentarray, pComponent->ExportAsJSONObject() );
+        }
+
+        for( CPPListNode* pNode = m_ComponentsInputHandler.GetHead(); pNode; pNode = pNode->GetNext() )
         {
             ComponentBase* pComponent = (ComponentBase*)pNode;
             cJSON_AddItemToArray( componentarray, pComponent->ExportAsJSONObject() );
@@ -236,7 +245,14 @@ void ComponentSystemManager::Clear()
 
     // Remove all components
     {
-        for( CPPListNode* pNode = m_ComponentsInputHandlers.GetHead(); pNode;  )
+        for( CPPListNode* pNode = m_ComponentsCamera.GetHead(); pNode;  )
+        {
+            ComponentBase* pComponent = (ComponentBase*)pNode;
+            pNode = pNode->GetNext();
+            DeleteComponent( pComponent );
+        }
+
+        for( CPPListNode* pNode = m_ComponentsInputHandler.GetHead(); pNode;  )
         {
             ComponentBase* pComponent = (ComponentBase*)pNode;
             pNode = pNode->GetNext();
@@ -308,6 +324,19 @@ GameObject* ComponentSystemManager::FindGameObjectByID(unsigned int id)
     return 0;
 }
 
+ComponentCamera* ComponentSystemManager::GetFirstCamera()
+{
+    for( CPPListNode* node = m_ComponentsCamera.GetHead(); node != 0; node = node->GetNext() )
+    {
+        ComponentCamera* pCamera = (ComponentCamera*)node;
+        assert( pCamera->m_Type == ComponentType_Camera );
+
+        return pCamera;
+    }
+
+    return 0;
+}
+
 ComponentBase* ComponentSystemManager::AddComponent(ComponentBase* pComponent)
 {
     switch( pComponent->m_BaseType )
@@ -316,8 +345,12 @@ ComponentBase* ComponentSystemManager::AddComponent(ComponentBase* pComponent)
         m_ComponentsData.AddTail( pComponent );
         break;
 
+    case BaseComponentType_Camera:
+        m_ComponentsCamera.AddTail( pComponent );
+        break;
+
     case BaseComponentType_InputHandler:
-        m_ComponentsInputHandlers.AddTail( pComponent );
+        m_ComponentsInputHandler.AddTail( pComponent );
         break;
 
     case BaseComponentType_Updateable:
@@ -354,6 +387,7 @@ void ComponentSystemManager::DeleteComponent(ComponentBase* pComponent)
 
 void ComponentSystemManager::Tick(double TimePassed)
 {
+    // update all game objects.
     for( CPPListNode* node = m_ComponentsUpdateable.GetHead(); node != 0; node = node->GetNext() )
     {
         ComponentUpdateable* pComponent = (ComponentUpdateable*)node;
@@ -363,9 +397,46 @@ void ComponentSystemManager::Tick(double TimePassed)
             pComponent->Tick( TimePassed );
         }
     }
+
+    // update all cameras after game objects are updated.
+    for( CPPListNode* node = m_ComponentsCamera.GetHead(); node != 0; node = node->GetNext() )
+    {
+        ComponentCamera* pComponent = (ComponentCamera*)node;
+
+        if( pComponent->m_BaseType == BaseComponentType_Camera )
+        {
+            pComponent->Tick( TimePassed );
+        }
+    }
 }
 
-void ComponentSystemManager::OnDrawFrame(MyMatrix* pMatViewProj)
+void ComponentSystemManager::OnSurfaceChanged(unsigned int startx, unsigned int starty, unsigned int width, unsigned int height, unsigned int desiredaspectwidth, unsigned int desiredaspectheight)
+{
+    for( CPPListNode* node = m_ComponentsCamera.GetHead(); node != 0; node = node->GetNext() )
+    {
+        ComponentCamera* pComponent = (ComponentCamera*)node;
+
+        if( pComponent->m_BaseType == BaseComponentType_Camera )
+        {
+            pComponent->OnSurfaceChanged( startx, starty, width, height, desiredaspectwidth, desiredaspectheight );
+        }
+    }
+}
+
+void ComponentSystemManager::OnDrawFrame()
+{
+    for( CPPListNode* node = m_ComponentsCamera.GetHead(); node != 0; node = node->GetNext() )
+    {
+        ComponentCamera* pComponent = (ComponentCamera*)node;
+
+        if( pComponent->m_BaseType == BaseComponentType_Camera )
+        {
+            pComponent->OnDrawFrame();
+        }
+    }
+}
+
+void ComponentSystemManager::OnDrawFrame(ComponentCamera* pCamera, MyMatrix* pMatViewProj)
 {
     for( CPPListNode* node = m_ComponentsRenderable.GetHead(); node != 0; node = node->GetNext() )
     {
@@ -373,14 +444,14 @@ void ComponentSystemManager::OnDrawFrame(MyMatrix* pMatViewProj)
 
         if( pComponent->m_BaseType == BaseComponentType_Renderable )
         {
-            pComponent->Draw(pMatViewProj);
+            pComponent->Draw( pMatViewProj );
         }
     }
 }
 
 bool ComponentSystemManager::OnTouch(int action, int id, float x, float y, float pressure, float size)
 {
-    for( CPPListNode* node = m_ComponentsInputHandlers.GetHead(); node != 0; node = node->GetNext() )
+    for( CPPListNode* node = m_ComponentsInputHandler.GetHead(); node != 0; node = node->GetNext() )
     {
         ComponentInputHandler* pComponent = (ComponentInputHandler*)node;
 
@@ -396,7 +467,7 @@ bool ComponentSystemManager::OnTouch(int action, int id, float x, float y, float
 
 bool ComponentSystemManager::OnButtons(GameCoreButtonActions action, GameCoreButtonIDs id)
 {
-    for( CPPListNode* node = m_ComponentsInputHandlers.GetHead(); node != 0; node = node->GetNext() )
+    for( CPPListNode* node = m_ComponentsInputHandler.GetHead(); node != 0; node = node->GetNext() )
     {
         ComponentInputHandler* pComponent = (ComponentInputHandler*)node;
 

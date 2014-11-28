@@ -26,9 +26,6 @@ public:
     ShaderGroup* m_pShader_TintColor;
     ShaderGroup* m_pShader_TestNormals;
 
-    Camera3D m_Camera3D;
-    Camera2D m_Camera2D;
-
     float m_GameWidth;
     float m_GameHeight;
 

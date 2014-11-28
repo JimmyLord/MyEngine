@@ -1561,6 +1561,7 @@
     <ClCompile Include="SourceCommon\Camera\Camera2D.cpp" />
     <ClCompile Include="SourceCommon\Camera\Camera3D.cpp" />
     <ClCompile Include="SourceCommon\ComponentSystem\Core\BaseComponents\ComponentBase.cpp" />
+    <ClCompile Include="SourceCommon\ComponentSystem\Core\BaseComponents\ComponentCamera.cpp" />
     <ClCompile Include="SourceCommon\ComponentSystem\Core\BaseComponents\ComponentData.cpp" />
     <ClCompile Include="SourceCommon\ComponentSystem\Core\BaseComponents\ComponentInputHandler.cpp" />
     <ClCompile Include="SourceCommon\ComponentSystem\Core\BaseComponents\ComponentRenderable.cpp" />
@@ -1907,6 +1908,7 @@
     <ClInclude Include="SourceCommon\Camera\Camera2D.h" />
     <ClInclude Include="SourceCommon\Camera\Camera3D.h" />
     <ClInclude Include="SourceCommon\ComponentSystem\Core\BaseComponents\ComponentBase.h" />
+    <ClInclude Include="SourceCommon\ComponentSystem\Core\BaseComponents\ComponentCamera.h" />
     <ClInclude Include="SourceCommon\ComponentSystem\Core\BaseComponents\ComponentData.h" />
     <ClInclude Include="SourceCommon\ComponentSystem\Core\BaseComponents\ComponentInputHandler.h" />
     <ClInclude Include="SourceCommon\ComponentSystem\Core\BaseComponents\ComponentRenderable.h" />

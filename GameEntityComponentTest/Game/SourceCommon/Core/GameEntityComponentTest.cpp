@@ -46,6 +46,7 @@ void GameEntityComponentTest::OneTimeInit()
 
     GameObject* pPlayer = 0;
     GameObject* pGameObject;
+    ComponentCamera* pComponentCamera;
     ComponentSprite* pComponentSprite;
     ComponentAIChasePlayer* pComponentAIChasePlayer;
 
@@ -69,6 +70,15 @@ void GameEntityComponentTest::OneTimeInit()
     // Initialize our component system.
     m_pComponentSystemManager = MyNew ComponentSystemManager( MyNew GameComponentTypeManager );
 
+    // create a camera
+    {
+        pGameObject = m_pComponentSystemManager->CreateGameObject();
+        pGameObject->SetName( "Camera" );
+        pComponentCamera = (ComponentCamera*)pGameObject->AddNewComponent( ComponentType_Camera );
+        pComponentCamera->SetDesiredAspectRatio( 640, 960 );
+        pComponentCamera->m_Orthographic = true;
+    }
+
     // create a player game object and attach a mesh(sprite) component to it.
     {
         pGameObject = m_pComponentSystemManager->CreateGameObject();
@@ -77,10 +87,11 @@ void GameEntityComponentTest::OneTimeInit()
         if( pComponentSprite )
         {
             pComponentSprite->SetShader( m_pShader_TintColor );
+            pComponentSprite->m_Size.Set( 50.0f, 50.0f );
             pComponentSprite->m_Tint.Set( 255, 0, 0, 255 );
         }
         pGameObject->AddNewComponent( ComponentType_InputTrackMousePos );
-        pGameObject->m_pComponentTransform->SetPosition( Vector3( m_GameWidth/2, m_GameHeight/2, 0 ) );
+        pGameObject->m_pComponentTransform->SetPosition( Vector3( 0, 0, 0 ) );//m_GameWidth/2, m_GameHeight/2, 0 ) );
 
         pPlayer = pGameObject;
     }
@@ -93,6 +104,7 @@ void GameEntityComponentTest::OneTimeInit()
         if( pComponentSprite )
         {
             pComponentSprite->SetShader( m_pShader_TintColor );
+            pComponentSprite->m_Size.Set( 50.0f, 50.0f );
             pComponentSprite->m_Tint.Set( 0, 255, 0, 255 );
         }
         pComponentAIChasePlayer = (ComponentAIChasePlayer*)pGameObject->AddNewComponent( ComponentType_AIChasePlayer );
@@ -111,8 +123,6 @@ void GameEntityComponentTest::Tick(double TimePassed)
 
     totaltimepassed += (float)TimePassed;
 
-    m_Camera3D.LookAt( Vector3( 0, 0, 10 ), Vector3( 0, 1, 0 ), Vector3( 0, 0, 0 ) );
-
     // tick all components.
     m_pComponentSystemManager->Tick( TimePassed );
 }
@@ -129,7 +139,8 @@ void GameEntityComponentTest::OnDrawFrame()
         MyMatrix matworld;
         matworld.CreateSRT( 1.0275f, Vector3( totaltimepassed * 100, totaltimepassed * 100, 0 ), Vector3( 0, 0, -10 ) );
 
-        MyMatrix matfinal = m_Camera3D.m_matViewProj * matworld;
+        ComponentCamera* pCamera = m_pComponentSystemManager->GetFirstCamera();
+        MyMatrix matfinal = pCamera->m_Camera3D.m_matViewProj * matworld;
 
         m_pTestOBJMesh->SetShaderAndTexture( m_pShader_TestNormals, 0 );
         //m_pTestOBJMesh->SetShaderAndTexture( m_pShader_TintColor, 0 );
@@ -137,7 +148,7 @@ void GameEntityComponentTest::OnDrawFrame()
     }
 
     // draw all components.
-    m_pComponentSystemManager->OnDrawFrame( &m_Camera2D.m_matViewProj );
+    m_pComponentSystemManager->OnDrawFrame();
 }
 
 void GameEntityComponentTest::OnTouch(int action, int id, float x, float y, float pressure, float size)
@@ -147,9 +158,12 @@ void GameEntityComponentTest::OnTouch(int action, int id, float x, float y, floa
     // prefer 0,0 at bottom left.
     y = m_WindowHeight - y;
 
-    // convert mouse to x/y in Camera2D space.
-    x = (x - m_Camera2D.m_ScreenOffsetX - m_WindowStartX) / m_Camera2D.m_ScreenWidth * m_GameWidth;
-    y = (y - m_Camera2D.m_ScreenOffsetY - m_WindowStartY) / m_Camera2D.m_ScreenHeight * m_GameHeight;
+    // TODO: get the camera properly.
+    ComponentCamera* pCamera = m_pComponentSystemManager->GetFirstCamera();
+
+    // convert mouse to x/y in Camera2D space. TODO: put this in camera component.
+    x = (x - pCamera->m_Camera2D.m_ScreenOffsetX - m_WindowStartX) / pCamera->m_Camera2D.m_ScreenWidth * m_GameWidth;
+    y = (y - pCamera->m_Camera2D.m_ScreenOffsetY + m_WindowStartY) / pCamera->m_Camera2D.m_ScreenHeight * m_GameHeight;
 
     m_pComponentSystemManager->OnTouch( action, id, x, y, pressure, size );
 }
@@ -177,8 +191,8 @@ void GameEntityComponentTest::OnSurfaceChanged(unsigned int startx, unsigned int
     //}
     //else if( height > width )
     //{
-        m_GameWidth = 640.0f;
-        m_GameHeight = 960.0f;
+    //    m_GameWidth = 640.0f;
+    //    m_GameHeight = 960.0f;
     //}
     //else
     //{
@@ -186,9 +200,11 @@ void GameEntityComponentTest::OnSurfaceChanged(unsigned int startx, unsigned int
     //    m_GameHeight = 640.0f;
     //}
 
-    float gameratio = m_GameWidth / m_GameHeight;
+    //float gameratio = m_GameWidth / m_GameHeight;
 
-    m_Camera3D.SetupProjection( deviceratio, gameratio, 45 );
-    m_Camera2D.Setup( devicewidth, deviceheight, m_GameWidth, m_GameHeight );
-    m_Camera2D.UpdateMatrices();
+    m_GameWidth = 640.0f;
+    m_GameHeight = 960.0f;
+
+    if( m_pComponentSystemManager )
+        m_pComponentSystemManager->OnSurfaceChanged( startx, starty, width, height, m_GameWidth, m_GameHeight );
 }

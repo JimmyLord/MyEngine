@@ -27,6 +27,7 @@
 #include "ComponentSystem/Core/BaseComponents/ComponentBase.h"
 #include "ComponentSystem/Core/BaseComponents/ComponentTransform.h"
 #include "ComponentSystem/Core/BaseComponents/ComponentData.h"
+#include "ComponentSystem/Core/BaseComponents/ComponentCamera.h"
 #include "ComponentSystem/Core/BaseComponents/ComponentInputHandler.h"
 #include "ComponentSystem/Core/BaseComponents/ComponentUpdateable.h"
 #include "ComponentSystem/Core/BaseComponents/ComponentRenderable.h"

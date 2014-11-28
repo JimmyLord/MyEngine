@@ -100,7 +100,7 @@ void ComponentSprite::Reset()
     if( m_pSprite == 0 )
         m_pSprite = MyNew MySprite();
 
-    m_Size.Set( 50.0f, 50.0f );
+    m_Size.Set( 1.0f, 1.0f );
     m_Tint.Set( 255,255,255,255 );
 }
 

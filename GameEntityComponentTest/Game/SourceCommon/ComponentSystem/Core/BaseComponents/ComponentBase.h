@@ -22,6 +22,7 @@ enum BaseComponentTypes
 {
     BaseComponentType_Data,
     BaseComponentType_Transform, // special case of a data type.
+    BaseComponentType_Camera,
     BaseComponentType_InputHandler,
     BaseComponentType_Updateable,
     BaseComponentType_Renderable,
