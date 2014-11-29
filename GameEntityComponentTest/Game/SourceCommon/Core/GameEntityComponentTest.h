@@ -35,7 +35,7 @@ public:
     float m_GameWidth;
     float m_GameHeight;
 
-    MyFileObject* m_pOBJTestFile;
+    MyFileObject* m_pOBJTestFiles[4];
 
     //MyMesh* m_pTestOBJMesh;
 

@@ -88,6 +88,7 @@ void ComponentMesh::OnDropFile()
         if( strcmp( filenameext, ".obj" ) == 0 )
         {
             m_pOBJFile = pFile;
+            m_pMesh->m_NumIndicesToDraw = 0;
         }
     }
 }

@@ -27,7 +27,8 @@ GameEntityComponentTest::GameEntityComponentTest()
     m_GameWidth = 0;
     m_GameHeight = 0;
 
-    m_pOBJTestFile = 0;
+    for( int i=0; i<4; i++ )
+        m_pOBJTestFiles[i] = 0;
 }
 
 GameEntityComponentTest::~GameEntityComponentTest()
@@ -37,7 +38,11 @@ GameEntityComponentTest::~GameEntityComponentTest()
 
     SAFE_DELETE( m_pComponentSystemManager );
 
-    g_pFileManager->FreeFile( m_pOBJTestFile );
+    for( int i=0; i<4; i++ )
+    {
+        if( m_pOBJTestFiles[i] )
+            g_pFileManager->FreeFile( m_pOBJTestFiles[i] );
+    }
 }
 
 void GameEntityComponentTest::OneTimeInit()
@@ -51,7 +56,10 @@ void GameEntityComponentTest::OneTimeInit()
     ComponentMesh* pComponentMesh;
     ComponentAIChasePlayer* pComponentAIChasePlayer;
 
-    m_pOBJTestFile = g_pFileManager->RequestFile( "Data/OBJs/cube.obj" );
+    m_pOBJTestFiles[0] = g_pFileManager->RequestFile( "Data/OBJs/cube.obj" );
+    //m_pOBJTestFiles[1] = g_pFileManager->RequestFile( "Data/OBJs/Teapot.obj" );
+    //m_pOBJTestFiles[2] = g_pFileManager->RequestFile( "Data/OBJs/humanoid_tri.obj" );
+    //m_pOBJTestFiles[3] = g_pFileManager->RequestFile( "Data/OBJs/teapot2.obj" );
 
     glEnable( GL_CULL_FACE );
 
@@ -129,7 +137,7 @@ void GameEntityComponentTest::OneTimeInit()
         if( pComponentMesh )
         {
             pComponentMesh->SetShader( m_pShader_TestNormals );
-            pComponentMesh->m_pOBJFile = m_pOBJTestFile;
+            pComponentMesh->m_pOBJFile = m_pOBJTestFiles[0];
             pComponentMesh->m_LayersThisExistsOn = Layer_MainScene;
         }
     }
@@ -211,5 +219,5 @@ void GameEntityComponentTest::OnSurfaceChanged(unsigned int startx, unsigned int
     m_GameHeight = 960.0f;
 
     if( m_pComponentSystemManager )
-        m_pComponentSystemManager->OnSurfaceChanged( startx, starty, width, height, m_GameWidth, m_GameHeight );
+        m_pComponentSystemManager->OnSurfaceChanged( startx, starty, width, height, (unsigned int)m_GameWidth, (unsigned int)m_GameHeight );
 }
