@@ -18,6 +18,12 @@
 #ifndef __GameEntityComponentTest_H__
 #define __GameEntityComponentTest_H__
 
+enum LayerValues
+{
+    Layer_MainScene = 0x0001,
+    Layer_HUD       = 0x0002,
+};
+
 class GameEntityComponentTest : public GameCore
 {
 public:
@@ -29,7 +35,9 @@ public:
     float m_GameWidth;
     float m_GameHeight;
 
-    MyMesh* m_pTestOBJMesh;
+    MyFileObject* m_pOBJTestFile;
+
+    //MyMesh* m_pTestOBJMesh;
 
 public:
     GameEntityComponentTest();

@@ -36,6 +36,7 @@
 // myframework components
 #include "Core/GameComponentTypeManager.h"
 #include "ComponentSystem/CustomComponents/ComponentSprite.h"
+#include "ComponentSystem/CustomComponents/ComponentMesh.h"
 
 // game code
 #include "Camera/Camera3D.h"

@@ -21,8 +21,6 @@ ComponentCamera::ComponentCamera()
 : ComponentBase()
 {
     m_BaseType = BaseComponentType_Camera;
-
-    m_Orthographic = false;
 }
 
 ComponentCamera::ComponentCamera(GameObject* owner)
@@ -50,6 +48,9 @@ void ComponentCamera::FillPropertiesWindow()
 void ComponentCamera::Reset()
 {
     ComponentBase::Reset();
+
+    m_Orthographic = false;
+    m_LayersToRender = 0xFFFF;
 }
 
 void ComponentCamera::SetDesiredAspectRatio(float width, float height)

@@ -22,6 +22,7 @@ ComponentTypeInfo g_ComponentTypeInfo[Component_NumComponentTypes] =
 {
     { "Camera",         "3D Camera",       },
     { "Renderables",    "Sprite",          },
+    { "Renderables",    "Mesh-OBJ",        },
     { "Input handlers", "Track Mouse",     },
     { "AI",             "AI Chase Player", },
 };
@@ -34,6 +35,7 @@ ComponentBase* GameComponentTypeManager::CreateComponent(int type)
     {
     case ComponentType_Camera:              pComponent = MyNew ComponentCamera;             break;
     case ComponentType_Sprite:              pComponent = MyNew ComponentSprite;             break;
+    case ComponentType_MeshOBJ:             pComponent = MyNew ComponentMesh;               break;
     case ComponentType_InputTrackMousePos:  pComponent = MyNew ComponentInputTrackMousePos; break;
     case ComponentType_AIChasePlayer:       pComponent = MyNew ComponentAIChasePlayer;      break;
     }

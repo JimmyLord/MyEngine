@@ -1570,6 +1570,7 @@
     <ClCompile Include="SourceCommon\ComponentSystem\Core\ComponentSystemManager.cpp" />
     <ClCompile Include="SourceCommon\ComponentSystem\Core\ComponentTypeManager.cpp" />
     <ClCompile Include="SourceCommon\ComponentSystem\Core\GameObject.cpp" />
+    <ClCompile Include="SourceCommon\ComponentSystem\CustomComponents\ComponentMesh.cpp" />
     <ClCompile Include="SourceCommon\ComponentSystem\CustomComponents\ComponentSprite.cpp" />
     <ClCompile Include="SourceCommon\Core\GameComponentTypeManager.cpp" />
     <ClCompile Include="SourceCommon\Core\GameEntityComponentTest.cpp" />
@@ -1917,6 +1918,7 @@
     <ClInclude Include="SourceCommon\ComponentSystem\Core\ComponentSystemManager.h" />
     <ClInclude Include="SourceCommon\ComponentSystem\Core\ComponentTypeManager.h" />
     <ClInclude Include="SourceCommon\ComponentSystem\Core\GameObject.h" />
+    <ClInclude Include="SourceCommon\ComponentSystem\CustomComponents\ComponentMesh.h" />
     <ClInclude Include="SourceCommon\ComponentSystem\CustomComponents\ComponentSprite.h" />
     <ClInclude Include="SourceCommon\Core\GameComponentTypeManager.h" />
     <ClInclude Include="SourceCommon\Core\GameEntityComponentTest.h" />

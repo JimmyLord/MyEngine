@@ -15,48 +15,40 @@
 // misrepresented as being the original software.
 // 3. This notice may not be removed or altered from any source distribution.
 
-#ifndef __ComponentCamera_H__
-#define __ComponentCamera_H__
-
-#include "../../../Camera/Camera2D.h"
-#include "../../../Camera/Camera3D.h"
+#ifndef __ComponentMesh_H__
+#define __ComponentMesh_H__
 
 class ComponentTransform;
 
-class ComponentCamera : public ComponentBase
+class ComponentMesh : public ComponentRenderable
 {
 public:
-    ComponentTransform* m_pComponentTransform;
-
-    bool m_Orthographic;
-
-    float m_DesiredWidth;
-    float m_DesiredHeight;
-
-    Camera2D m_Camera2D;
-    Camera3D m_Camera3D;
-
-    unsigned int m_LayersToRender;
+    MyMesh* m_pMesh;
+    MyFileObject* m_pOBJFile;
 
 public:
-    ComponentCamera();
-    ComponentCamera(GameObject* owner);
-    virtual ~ComponentCamera();
+    ComponentMesh();
+    ComponentMesh(GameObject* owner);
+    virtual ~ComponentMesh();
+
+    virtual cJSON* ExportAsJSONObject();
+    virtual void ImportFromJSONObject(cJSON* jsonobj);
 
     virtual void Reset();
 
-    void SetDesiredAspectRatio(float width, float height);
-
-    void Tick(double TimePassed);
-    void OnSurfaceChanged(unsigned int startx, unsigned int starty, unsigned int width, unsigned int height, unsigned int desiredaspectwidth, unsigned int desiredaspectheight);
-    void OnDrawFrame();
+    virtual void SetShader(ShaderGroup* pShader);
+    virtual void Draw(MyMatrix* pMatViewProj);
 
 public:
 #if MYFW_USING_WX
     virtual void AddToObjectsPanel(wxTreeItemId gameobjectid);
-    static void StaticFillPropertiesWindow(void* pObjectPtr) { ((ComponentCamera*)pObjectPtr)->FillPropertiesWindow(); }
+    static void StaticFillPropertiesWindow(void* pObjectPtr) { ((ComponentMesh*)pObjectPtr)->FillPropertiesWindow(); }
     void FillPropertiesWindow();
+    static void StaticOnDropShaderGroup(void* pObjectPtr) { ((ComponentMesh*)pObjectPtr)->OnDropShaderGroup(); }
+    void OnDropShaderGroup();
+    static void StaticOnDropFile(void* pObjectPtr) { ((ComponentMesh*)pObjectPtr)->OnDropFile(); }
+    void OnDropFile();
 #endif //MYFW_USING_WX
 };
 
-#endif //__ComponentCamera_H__
+#endif //__ComponentMesh_H__

@@ -27,6 +27,8 @@ public:
 
     ShaderGroup* m_pShader; // managed by external forces.
 
+    unsigned int m_LayersThisExistsOn;
+
 public:
     ComponentRenderable();
     ComponentRenderable(GameObject* owner);

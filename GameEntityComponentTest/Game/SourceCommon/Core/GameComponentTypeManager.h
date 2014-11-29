@@ -24,6 +24,7 @@ enum ComponentTypes
 {
     ComponentType_Camera,
     ComponentType_Sprite,
+    ComponentType_MeshOBJ,
     ComponentType_InputTrackMousePos,
     ComponentType_AIChasePlayer,
     Component_NumComponentTypes,

@@ -56,7 +56,7 @@ void ComponentSprite::FillPropertiesWindow()
     assert( m_pSprite );
     if( m_pSprite->m_pShaderGroup )
         desc = m_pSprite->m_pShaderGroup->GetShader( ShaderPass_Main )->m_pFilename;
-    g_pPanelWatch->AddPointerWithDescription( "Object following", 0, desc, this, ComponentSprite::StaticOnDropShaderGroup );
+    g_pPanelWatch->AddPointerWithDescription( "Shader", 0, desc, this, ComponentSprite::StaticOnDropShaderGroup );
 }
 
 void ComponentSprite::OnDropShaderGroup()

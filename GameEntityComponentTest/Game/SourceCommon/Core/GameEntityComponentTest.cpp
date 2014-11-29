@@ -27,7 +27,7 @@ GameEntityComponentTest::GameEntityComponentTest()
     m_GameWidth = 0;
     m_GameHeight = 0;
 
-    m_pTestOBJMesh = 0;
+    m_pOBJTestFile = 0;
 }
 
 GameEntityComponentTest::~GameEntityComponentTest()
@@ -37,7 +37,7 @@ GameEntityComponentTest::~GameEntityComponentTest()
 
     SAFE_DELETE( m_pComponentSystemManager );
 
-    delete m_pTestOBJMesh;
+    g_pFileManager->FreeFile( m_pOBJTestFile );
 }
 
 void GameEntityComponentTest::OneTimeInit()
@@ -48,16 +48,10 @@ void GameEntityComponentTest::OneTimeInit()
     GameObject* pGameObject;
     ComponentCamera* pComponentCamera;
     ComponentSprite* pComponentSprite;
+    ComponentMesh* pComponentMesh;
     ComponentAIChasePlayer* pComponentAIChasePlayer;
 
-    m_pTestOBJMesh = MyNew MyMesh;
-    char* PlatformSpecific_LoadFile(const char* filename, int* length = 0, const char* file = __FILE__, unsigned long line = __LINE__);
-    char* objbuffer = PlatformSpecific_LoadFile( "Data/OBJs/cube.obj" );
-    //char* objbuffer = PlatformSpecific_LoadFile( "Data/OBJs/alfa147.obj" );
-    //char* objbuffer = PlatformSpecific_LoadFile( "Data/OBJs/humanoid_tri.obj" );
-    //char* objbuffer = PlatformSpecific_LoadFile( "Data/OBJs/Teapot2.obj" );
-    m_pTestOBJMesh->CreateFromOBJBuffer( objbuffer );
-    delete[] objbuffer;
+    m_pOBJTestFile = g_pFileManager->RequestFile( "Data/OBJs/cube.obj" );
 
     glEnable( GL_CULL_FACE );
 
@@ -70,13 +64,24 @@ void GameEntityComponentTest::OneTimeInit()
     // Initialize our component system.
     m_pComponentSystemManager = MyNew ComponentSystemManager( MyNew GameComponentTypeManager );
 
-    // create a camera
+    // create a 3D camera, renders first.
     {
         pGameObject = m_pComponentSystemManager->CreateGameObject();
-        pGameObject->SetName( "Camera" );
+        pGameObject->SetName( "Main Camera" );
+        pComponentCamera = (ComponentCamera*)pGameObject->AddNewComponent( ComponentType_Camera );
+        pComponentCamera->SetDesiredAspectRatio( 640, 960 );
+        pComponentCamera->m_Orthographic = false;
+        pComponentCamera->m_LayersToRender = Layer_MainScene;
+    }
+
+    // create a 2D camera, renders after 3d, for hud.
+    {
+        pGameObject = m_pComponentSystemManager->CreateGameObject();
+        pGameObject->SetName( "Hud Camera" );
         pComponentCamera = (ComponentCamera*)pGameObject->AddNewComponent( ComponentType_Camera );
         pComponentCamera->SetDesiredAspectRatio( 640, 960 );
         pComponentCamera->m_Orthographic = true;
+        pComponentCamera->m_LayersToRender = Layer_HUD;
     }
 
     // create a player game object and attach a mesh(sprite) component to it.
@@ -89,6 +94,7 @@ void GameEntityComponentTest::OneTimeInit()
             pComponentSprite->SetShader( m_pShader_TintColor );
             pComponentSprite->m_Size.Set( 50.0f, 50.0f );
             pComponentSprite->m_Tint.Set( 255, 0, 0, 255 );
+            pComponentSprite->m_LayersThisExistsOn = Layer_HUD;
         }
         pGameObject->AddNewComponent( ComponentType_InputTrackMousePos );
         pGameObject->m_pComponentTransform->SetPosition( Vector3( 0, 0, 0 ) );//m_GameWidth/2, m_GameHeight/2, 0 ) );
@@ -106,11 +112,25 @@ void GameEntityComponentTest::OneTimeInit()
             pComponentSprite->SetShader( m_pShader_TintColor );
             pComponentSprite->m_Size.Set( 50.0f, 50.0f );
             pComponentSprite->m_Tint.Set( 0, 255, 0, 255 );
+            pComponentSprite->m_LayersThisExistsOn = Layer_HUD;
         }
         pComponentAIChasePlayer = (ComponentAIChasePlayer*)pGameObject->AddNewComponent( ComponentType_AIChasePlayer );
         if( pComponentAIChasePlayer )
         {
             pComponentAIChasePlayer->m_pPlayerComponentTransform = pPlayer->m_pComponentTransform;
+        }
+    }
+
+    // create a cube in the 3d scene.
+    {
+        pGameObject = m_pComponentSystemManager->CreateGameObject();
+        pGameObject->SetName( "Cube" );
+        pComponentMesh = (ComponentMesh*)pGameObject->AddNewComponent( ComponentType_MeshOBJ );
+        if( pComponentMesh )
+        {
+            pComponentMesh->SetShader( m_pShader_TestNormals );
+            pComponentMesh->m_pOBJFile = m_pOBJTestFile;
+            pComponentMesh->m_LayersThisExistsOn = Layer_MainScene;
         }
     }
 }
@@ -133,19 +153,6 @@ void GameEntityComponentTest::OnDrawFrame()
 
     glClearColor( 0.0f, 0.0f, 0.2f, 1.0f );
     glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
-
-    // test code: draw obj mesh
-    {
-        MyMatrix matworld;
-        matworld.CreateSRT( 1.0275f, Vector3( totaltimepassed * 100, totaltimepassed * 100, 0 ), Vector3( 0, 0, -10 ) );
-
-        ComponentCamera* pCamera = m_pComponentSystemManager->GetFirstCamera();
-        MyMatrix matfinal = pCamera->m_Camera3D.m_matViewProj * matworld;
-
-        m_pTestOBJMesh->SetShaderAndTexture( m_pShader_TestNormals, 0 );
-        //m_pTestOBJMesh->SetShaderAndTexture( m_pShader_TintColor, 0 );
-        m_pTestOBJMesh->Draw( &matfinal, 0, 0, 0, 0, 0, 0 );
-    }
 
     // draw all components.
     m_pComponentSystemManager->OnDrawFrame();
@@ -199,8 +206,6 @@ void GameEntityComponentTest::OnSurfaceChanged(unsigned int startx, unsigned int
     //    m_GameWidth = 640.0f;
     //    m_GameHeight = 640.0f;
     //}
-
-    //float gameratio = m_GameWidth / m_GameHeight;
 
     m_GameWidth = 640.0f;
     m_GameHeight = 960.0f;

@@ -21,8 +21,6 @@ ComponentRenderable::ComponentRenderable()
 : ComponentBase()
 {
     m_BaseType = BaseComponentType_Renderable;
-
-    m_pShader = 0;
 }
 
 ComponentRenderable::ComponentRenderable(GameObject* owner)
@@ -51,7 +49,11 @@ void ComponentRenderable::Reset()
 {
     ComponentBase::Reset();
 
+    assert( m_pGameObject );
+
     m_pComponentTransform = m_pGameObject->m_pComponentTransform;    
+    m_pShader = 0;
+    m_LayersThisExistsOn = 0xFFFF;
 }
 
 void ComponentRenderable::SetShader(ShaderGroup* pShader)

@@ -444,7 +444,10 @@ void ComponentSystemManager::OnDrawFrame(ComponentCamera* pCamera, MyMatrix* pMa
 
         if( pComponent->m_BaseType == BaseComponentType_Renderable )
         {
-            pComponent->Draw( pMatViewProj );
+            if( pComponent->m_LayersThisExistsOn & pCamera->m_LayersToRender )
+            {
+                pComponent->Draw( pMatViewProj );
+            }
         }
     }
 }

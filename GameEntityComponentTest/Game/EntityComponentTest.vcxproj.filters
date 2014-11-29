@@ -165,6 +165,9 @@
     <ClCompile Include="SourceCommon\ComponentSystem\Core\BaseComponents\ComponentCamera.cpp">
       <Filter>Source\ComponentSystem\Core Files\Base Components</Filter>
     </ClCompile>
+    <ClCompile Include="SourceCommon\ComponentSystem\CustomComponents\ComponentMesh.cpp">
+      <Filter>Source\ComponentSystem\Custom Components</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SourceWindows\WinMain.h">
@@ -253,6 +256,9 @@
     </ClInclude>
     <ClInclude Include="SourceCommon\ComponentSystem\Core\BaseComponents\ComponentCamera.h">
       <Filter>Source\ComponentSystem\Core Files\Base Components</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCommon\ComponentSystem\CustomComponents\ComponentMesh.h">
+      <Filter>Source\ComponentSystem\Custom Components</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
