@@ -121,6 +121,6 @@ void ComponentSprite::Draw(MyMatrix* pMatViewProj)
 
     m_pSprite->SetPosition( &m_pComponentTransform->m_Transform );
     m_pSprite->SetTint( m_Tint );
-    m_pSprite->Create( m_Size.x, m_Size.y, 0, 1, 0, 1, Justify_Center, false );
+    m_pSprite->Create( "ComponentSprite", m_Size.x, m_Size.y, 0, 1, 0, 1, Justify_Center, false );
     m_pSprite->Draw( pMatViewProj );
 }

@@ -21,12 +21,16 @@ ComponentCamera::ComponentCamera()
 : ComponentBase()
 {
     m_BaseType = BaseComponentType_Camera;
+
+    m_pComponentTransform = 0;
 }
 
 ComponentCamera::ComponentCamera(GameObject* owner)
 : ComponentBase( owner )
 {
     m_BaseType = BaseComponentType_Camera;
+
+    m_pComponentTransform = 0;
 }
 
 ComponentCamera::~ComponentCamera()
@@ -72,7 +76,13 @@ void ComponentCamera::Reset()
 {
     ComponentBase::Reset();
 
+    m_pComponentTransform = m_pGameObject->m_pComponentTransform;
+
     m_Orthographic = false;
+    
+    m_DesiredWidth = 0;
+    m_DesiredHeight = 0;
+    
     m_LayersToRender = 0xFFFF;
 }
 
@@ -84,7 +94,13 @@ void ComponentCamera::SetDesiredAspectRatio(float width, float height)
 
 void ComponentCamera::Tick(double TimePassed)
 {
-    m_Camera3D.LookAt( Vector3( 0, 0, 10 ), Vector3( 0, 1, 0 ), Vector3( 0, 0, 0 ) );
+    m_pComponentTransform->UpdateMatrix();
+    MyMatrix matView = m_pComponentTransform->m_Transform;
+    matView.Inverse();
+
+    m_Camera3D.m_matView = matView;
+    m_Camera3D.UpdateMatrices();
+    //m_Camera3D.LookAt( Vector3( 0, 0, 10 ), Vector3( 0, 1, 0 ), Vector3( 0, 0, 0 ) );
 }
 
 void ComponentCamera::OnSurfaceChanged(unsigned int startx, unsigned int starty, unsigned int width, unsigned int height, unsigned int desiredaspectwidth, unsigned int desiredaspectheight)

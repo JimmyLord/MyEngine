@@ -50,7 +50,7 @@ void ComponentInputHandler::Reset()
 {
     ComponentBase::Reset();
 
-    m_pComponentTransform = m_pGameObject->m_pComponentTransform;    
+    m_pComponentTransform = m_pGameObject->m_pComponentTransform;
 }
 
 //bool ComponentInputHandler::OnTouch(int action, int id, float x, float y, float pressure, float size)

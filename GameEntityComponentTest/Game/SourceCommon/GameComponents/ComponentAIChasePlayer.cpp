@@ -101,7 +101,7 @@ void ComponentAIChasePlayer::Reset()
 {
     ComponentUpdateable::Reset();
 
-    m_pComponentTransform = m_pGameObject->m_pComponentTransform;    
+    m_pComponentTransform = m_pGameObject->m_pComponentTransform;
 }
 
 void ComponentAIChasePlayer::Tick(double TimePassed)

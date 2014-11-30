@@ -68,7 +68,7 @@ void ComponentRenderable::Reset()
 
     assert( m_pGameObject );
 
-    m_pComponentTransform = m_pGameObject->m_pComponentTransform;    
+    m_pComponentTransform = m_pGameObject->m_pComponentTransform;
     m_pShader = 0;
     m_LayersThisExistsOn = 0xFFFF;
 }

@@ -50,7 +50,7 @@ void ComponentUpdateable::Reset()
 {
     ComponentBase::Reset();
 
-    m_pComponentTransform = m_pGameObject->m_pComponentTransform;    
+    m_pComponentTransform = m_pGameObject->m_pComponentTransform;
 }
 
 //void ComponentUpdateable::Tick(double TimePassed)

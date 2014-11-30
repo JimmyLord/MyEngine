@@ -21,15 +21,15 @@
 class Camera3D
 {
 public:
-    float m_WindowAspectRatio;
-    float m_DesiredGameAspectRatio;
-    float m_DesiredHalfVerticalFoV;
-    float m_DesiredHalfHorizontalFoV;
+    //float m_WindowAspectRatio;
+    //float m_DesiredGameAspectRatio;
+    //float m_DesiredHalfVerticalFoV;
+    //float m_DesiredHalfHorizontalFoV;
 
-    Vector3 m_Eye;
-    Vector3 m_Up;
-    Vector3 m_At;
-    float m_Zoom;
+    //Vector3 m_Eye;
+    //Vector3 m_Up;
+    //Vector3 m_At;
+    //float m_Zoom;
 
 public: //protected:
     MyMatrix m_matView;
