@@ -39,9 +39,10 @@ void ComponentCamera::AddToObjectsPanel(wxTreeItemId gameobjectid)
     wxTreeItemId id = g_pPanelObjectList->AddObject( this, ComponentCamera::StaticFillPropertiesWindow, ComponentBase::StaticOnRightClick, gameobjectid, "Camera" );
 }
 
-void ComponentCamera::FillPropertiesWindow()
+void ComponentCamera::FillPropertiesWindow(bool clear)
 {
-    g_pPanelWatch->ClearAllVariables();
+    if( clear )
+        g_pPanelWatch->ClearAllVariables();
 }
 #endif //MYFW_USING_WX
 

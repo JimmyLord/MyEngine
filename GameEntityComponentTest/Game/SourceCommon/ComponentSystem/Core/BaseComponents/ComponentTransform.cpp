@@ -40,9 +40,11 @@ void ComponentTransform::AddToObjectsPanel(wxTreeItemId gameobjectid)
     g_pPanelObjectList->SetDragAndDropFunctions( this, ComponentBase::StaticOnDrag, ComponentBase::StaticOnDrop );
 }
 
-void ComponentTransform::FillPropertiesWindow()
+void ComponentTransform::FillPropertiesWindow(bool clear)
 {
-    g_pPanelWatch->ClearAllVariables();
+    if( clear )
+        g_pPanelWatch->ClearAllVariables();
+
     g_pPanelWatch->AddFloat( "x", &m_Position.x, -1.0f, 1.0f );
     g_pPanelWatch->AddFloat( "y", &m_Position.y, -1.0f, 1.0f );
     g_pPanelWatch->AddFloat( "z", &m_Position.z, -1.0f, 1.0f );

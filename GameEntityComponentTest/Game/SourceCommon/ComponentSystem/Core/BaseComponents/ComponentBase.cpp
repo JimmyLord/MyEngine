@@ -44,9 +44,10 @@ void ComponentBase::AddToObjectsPanel(wxTreeItemId gameobjectid)
     g_pPanelObjectList->SetDragAndDropFunctions( this, ComponentBase::StaticOnDrag, ComponentBase::StaticOnDrop );
 }
 
-void ComponentBase::OnLeftClick()
+void ComponentBase::OnLeftClick(bool clear)
 {
-    g_pPanelWatch->ClearAllVariables();
+    if( clear )
+        g_pPanelWatch->ClearAllVariables();
 }
 
 void ComponentBase::OnRightClick()

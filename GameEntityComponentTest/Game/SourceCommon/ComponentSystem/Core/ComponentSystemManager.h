@@ -71,9 +71,9 @@ public:
 
 public:
 #if MYFW_USING_WX
-    static void StaticOnLeftClick(void* pObjectPtr) { ((ComponentSystemManager*)pObjectPtr)->OnLeftClick(); }
+    static void StaticOnLeftClick(void* pObjectPtr) { ((ComponentSystemManager*)pObjectPtr)->OnLeftClick(true); }
     static void StaticOnRightClick(void* pObjectPtr) { ((ComponentSystemManager*)pObjectPtr)->OnRightClick(); }
-    void OnLeftClick();
+    void OnLeftClick(bool clear);
     void OnRightClick();
     void OnPopupClick(wxEvent &evt);
 #endif //MYFW_USING_WX

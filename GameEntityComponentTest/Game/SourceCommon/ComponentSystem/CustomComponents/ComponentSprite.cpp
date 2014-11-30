@@ -42,9 +42,11 @@ void ComponentSprite::AddToObjectsPanel(wxTreeItemId gameobjectid)
     wxTreeItemId id = g_pPanelObjectList->AddObject( this, ComponentSprite::StaticFillPropertiesWindow, ComponentBase::StaticOnRightClick, gameobjectid, "Sprite" );
 }
 
-void ComponentSprite::FillPropertiesWindow()
+void ComponentSprite::FillPropertiesWindow(bool clear)
 {
-    g_pPanelWatch->ClearAllVariables();
+    if( clear )
+        g_pPanelWatch->ClearAllVariables();
+
     g_pPanelWatch->AddUnsignedChar( "r", &m_Tint.r, 0, 255 );
     g_pPanelWatch->AddUnsignedChar( "g", &m_Tint.g, 0, 255 );
     g_pPanelWatch->AddUnsignedChar( "b", &m_Tint.b, 0, 255 );

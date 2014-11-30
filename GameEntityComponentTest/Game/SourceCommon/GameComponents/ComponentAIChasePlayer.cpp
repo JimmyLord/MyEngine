@@ -45,9 +45,10 @@ void ComponentAIChasePlayer::AddToObjectsPanel(wxTreeItemId gameobjectid)
     wxTreeItemId id = g_pPanelObjectList->AddObject( this, ComponentAIChasePlayer::StaticFillPropertiesWindow, ComponentBase::StaticOnRightClick, gameobjectid, "AIChasePlayer" );
 }
 
-void ComponentAIChasePlayer::FillPropertiesWindow()
+void ComponentAIChasePlayer::FillPropertiesWindow(bool clear)
 {
-    g_pPanelWatch->ClearAllVariables();
+    if( clear )
+        g_pPanelWatch->ClearAllVariables();
 
     char* desc = "not following";
     if( m_pPlayerComponentTransform )

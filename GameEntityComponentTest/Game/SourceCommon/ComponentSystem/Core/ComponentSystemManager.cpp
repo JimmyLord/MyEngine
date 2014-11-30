@@ -60,9 +60,10 @@ ComponentSystemManager::~ComponentSystemManager()
 }
 
 #if MYFW_USING_WX
-void ComponentSystemManager::OnLeftClick()
+void ComponentSystemManager::OnLeftClick(bool clear)
 {
-    g_pPanelWatch->ClearAllVariables();
+    if( clear )
+        g_pPanelWatch->ClearAllVariables();
 }
 
 void ComponentSystemManager::OnRightClick()

@@ -39,9 +39,10 @@ void ComponentUpdateable::AddToObjectsPanel(wxTreeItemId gameobjectid)
     wxTreeItemId id = g_pPanelObjectList->AddObject( this, ComponentUpdateable::StaticFillPropertiesWindow, ComponentBase::StaticOnRightClick, gameobjectid, "Updateable" );
 }
 
-void ComponentUpdateable::FillPropertiesWindow()
+void ComponentUpdateable::FillPropertiesWindow(bool clear)
 {
-    g_pPanelWatch->ClearAllVariables();
+    if( clear )
+        g_pPanelWatch->ClearAllVariables();
 }
 #endif //MYFW_USING_WX
 

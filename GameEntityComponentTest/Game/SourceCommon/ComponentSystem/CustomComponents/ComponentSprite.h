@@ -43,8 +43,8 @@ public:
 public:
 #if MYFW_USING_WX
     virtual void AddToObjectsPanel(wxTreeItemId gameobjectid);
-    static void StaticFillPropertiesWindow(void* pObjectPtr) { ((ComponentSprite*)pObjectPtr)->FillPropertiesWindow(); }
-    void FillPropertiesWindow();
+    static void StaticFillPropertiesWindow(void* pObjectPtr) { ((ComponentSprite*)pObjectPtr)->FillPropertiesWindow(true); }
+    void FillPropertiesWindow(bool clear);
     static void StaticOnDropShaderGroup(void* pObjectPtr) { ((ComponentSprite*)pObjectPtr)->OnDropShaderGroup(); }
     void OnDropShaderGroup();
 #endif //MYFW_USING_WX

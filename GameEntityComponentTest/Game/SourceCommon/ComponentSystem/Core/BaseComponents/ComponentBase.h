@@ -54,15 +54,16 @@ public:
 public:
 #if MYFW_USING_WX
     virtual void AddToObjectsPanel(wxTreeItemId gameobjectid);
-    static void StaticOnLeftClick(void* pObjectPtr) { ((ComponentBase*)pObjectPtr)->OnLeftClick(); }
+    static void StaticOnLeftClick(void* pObjectPtr) { ((ComponentBase*)pObjectPtr)->OnLeftClick(true); }
     static void StaticOnRightClick(void* pObjectPtr) { ((ComponentBase*)pObjectPtr)->OnRightClick(); }
     static void StaticOnDrag(void* pObjectPtr) { ((ComponentBase*)pObjectPtr)->OnDrag(); }
     static void StaticOnDrop(void* pObjectPtr) { ((ComponentBase*)pObjectPtr)->OnDrop(); }
-    void OnLeftClick();
-    void OnRightClick();
-    void OnPopupClick(wxEvent &evt);
-    void OnDrag();
-    void OnDrop();
+    virtual void OnLeftClick(bool clear);
+    virtual void OnRightClick();
+    virtual void OnPopupClick(wxEvent &evt);
+    virtual void OnDrag();
+    virtual void OnDrop();
+    virtual void FillPropertiesWindow(bool clear) = 0;
 #endif //MYFW_USING_WX
 };
 
