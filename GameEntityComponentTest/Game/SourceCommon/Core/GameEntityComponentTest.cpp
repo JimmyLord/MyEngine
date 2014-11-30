@@ -76,6 +76,7 @@ void GameEntityComponentTest::OneTimeInit()
     {
         pGameObject = m_pComponentSystemManager->CreateGameObject();
         pGameObject->SetName( "Main Camera" );
+        pGameObject->m_pComponentTransform->m_Position.z = 10;
         pComponentCamera = (ComponentCamera*)pGameObject->AddNewComponent( ComponentType_Camera );
         pComponentCamera->SetDesiredAspectRatio( 640, 960 );
         pComponentCamera->m_Orthographic = false;
