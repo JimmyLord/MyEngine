@@ -34,6 +34,9 @@ public:
     ComponentRenderable(GameObject* owner);
     virtual ~ComponentRenderable();
 
+    virtual cJSON* ExportAsJSONObject();
+    virtual void ImportFromJSONObject(cJSON* jsonobj);
+
     virtual void Reset();
 
     virtual void SetShader(ShaderGroup* pShader);

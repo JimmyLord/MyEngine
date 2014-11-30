@@ -46,6 +46,28 @@ void ComponentCamera::FillPropertiesWindow(bool clear)
 }
 #endif //MYFW_USING_WX
 
+cJSON* ComponentCamera::ExportAsJSONObject()
+{
+    cJSON* component = ComponentBase::ExportAsJSONObject();
+
+    cJSON_AddNumberToObject( component, "Ortho", m_Orthographic );
+    cJSON_AddNumberToObject( component, "DWidth", m_DesiredWidth );
+    cJSON_AddNumberToObject( component, "DHeight", m_DesiredHeight );
+    cJSON_AddNumberToObject( component, "Layers", m_LayersToRender );
+
+    return component;
+}
+
+void ComponentCamera::ImportFromJSONObject(cJSON* jsonobj)
+{
+    ComponentBase::ImportFromJSONObject( jsonobj );
+
+    cJSONExt_GetBool( jsonobj, "Ortho", &m_Orthographic );
+    cJSONExt_GetFloat( jsonobj, "DWidth", &m_DesiredWidth );
+    cJSONExt_GetFloat( jsonobj, "DHeight", &m_DesiredHeight );
+    cJSONExt_GetUnsignedInt( jsonobj, "Layers", &m_LayersToRender );
+}
+
 void ComponentCamera::Reset()
 {
     ComponentBase::Reset();

@@ -76,7 +76,7 @@ void ComponentSprite::OnDropShaderGroup()
 
 cJSON* ComponentSprite::ExportAsJSONObject()
 {
-    cJSON* component = ComponentBase::ExportAsJSONObject();
+    cJSON* component = ComponentRenderable::ExportAsJSONObject();
 
     cJSONExt_AddUnsignedCharArrayToObject( component, "Tint", &m_Tint.r, 4 );
     cJSONExt_AddFloatArrayToObject( component, "Size", &m_Size.x, 2 );
@@ -87,6 +87,8 @@ cJSON* ComponentSprite::ExportAsJSONObject()
 
 void ComponentSprite::ImportFromJSONObject(cJSON* jsonobj)
 {
+    ComponentRenderable::ImportFromJSONObject( jsonobj );
+
     cJSONExt_GetUnsignedCharArray( jsonobj, "Tint", &m_Tint.r, 4 );
     cJSONExt_GetFloatArray( jsonobj, "Size", &m_Size.x, 2 );
     

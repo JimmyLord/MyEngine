@@ -46,6 +46,22 @@ void ComponentRenderable::FillPropertiesWindow(bool clear)
 }
 #endif //MYFW_USING_WX
 
+cJSON* ComponentRenderable::ExportAsJSONObject()
+{
+    cJSON* component = ComponentBase::ExportAsJSONObject();
+
+    cJSON_AddNumberToObject( component, "Layers", m_LayersThisExistsOn );
+
+    return component;
+}
+
+void ComponentRenderable::ImportFromJSONObject(cJSON* jsonobj)
+{
+    ComponentBase::ImportFromJSONObject( jsonobj );
+
+    cJSONExt_GetUnsignedInt( jsonobj, "Layers", &m_LayersThisExistsOn );
+}
+
 void ComponentRenderable::Reset()
 {
     ComponentBase::Reset();

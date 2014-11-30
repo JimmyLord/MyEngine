@@ -73,7 +73,7 @@ void ComponentAIChasePlayer::OnNewParentTransformDrop()
 
 cJSON* ComponentAIChasePlayer::ExportAsJSONObject()
 {
-    cJSON* component = ComponentBase::ExportAsJSONObject();
+    cJSON* component = ComponentUpdateable::ExportAsJSONObject();
 
     if( m_pPlayerComponentTransform )
         cJSON_AddNumberToObject( component, "ChasingGOID", m_pPlayerComponentTransform->m_pGameObject->m_ID );
@@ -83,6 +83,8 @@ cJSON* ComponentAIChasePlayer::ExportAsJSONObject()
 
 void ComponentAIChasePlayer::ImportFromJSONObject(cJSON* jsonobj)
 {
+    ComponentUpdateable::ImportFromJSONObject( jsonobj );
+
     unsigned int chasingid = 0;
     cJSONExt_GetUnsignedInt( jsonobj, "ChasingGOID", &chasingid );
     if( chasingid != 0 )

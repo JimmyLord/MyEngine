@@ -72,6 +72,8 @@ void GameMainFrame::OnGameMenu(wxCommandEvent& event)
 
                 delete[] jsonstr;
             }
+
+            m_pGLCanvas->ResizeViewport();
         }
         break;
     }

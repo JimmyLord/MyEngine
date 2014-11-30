@@ -83,7 +83,8 @@ void ComponentSystemManager::OnPopupClick(wxEvent &evt)
     int id = evt.GetId();
     if( id == 0 )
     {
-        g_pComponentSystemManager->CreateGameObject();
+        GameObject* pGameObject = g_pComponentSystemManager->CreateGameObject();
+        pGameObject->SetName( "New Game Object" );
     }
 }
 #endif //MYFW_USING_WX

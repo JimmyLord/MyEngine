@@ -43,6 +43,9 @@ public:
     ComponentCamera(GameObject* owner);
     virtual ~ComponentCamera();
 
+    virtual cJSON* ExportAsJSONObject();
+    virtual void ImportFromJSONObject(cJSON* jsonobj);
+
     virtual void Reset();
 
     void SetDesiredAspectRatio(float width, float height);

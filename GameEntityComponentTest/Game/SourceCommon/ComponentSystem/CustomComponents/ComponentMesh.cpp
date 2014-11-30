@@ -97,7 +97,7 @@ void ComponentMesh::OnDropFile()
 
 cJSON* ComponentMesh::ExportAsJSONObject()
 {
-    cJSON* component = ComponentBase::ExportAsJSONObject();
+    cJSON* component = ComponentRenderable::ExportAsJSONObject();
 
     if( m_pMesh->GetShaderGroup() )
         cJSON_AddStringToObject( component, "Shader", m_pMesh->GetShaderGroup()->GetName() );
@@ -109,6 +109,8 @@ cJSON* ComponentMesh::ExportAsJSONObject()
 
 void ComponentMesh::ImportFromJSONObject(cJSON* jsonobj)
 {
+    ComponentRenderable::ImportFromJSONObject( jsonobj );
+
     cJSON* shaderstringobj = cJSON_GetObjectItem( jsonobj, "Shader" );
     if( shaderstringobj )
     {

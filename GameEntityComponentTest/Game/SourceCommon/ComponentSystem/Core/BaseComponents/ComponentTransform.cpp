@@ -95,6 +95,8 @@ cJSON* ComponentTransform::ExportAsJSONObject()
 
 void ComponentTransform::ImportFromJSONObject(cJSON* jsonobj)
 {
+    ComponentBase::ImportFromJSONObject( jsonobj );
+
     unsigned int parentid = 0;
     cJSONExt_GetUnsignedInt( jsonobj, "ParentGOID", &parentid );
     if( parentid != 0 )

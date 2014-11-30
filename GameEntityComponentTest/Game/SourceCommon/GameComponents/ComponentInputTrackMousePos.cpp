@@ -52,13 +52,14 @@ void ComponentInputTrackMousePos::FillPropertiesWindow(bool clear)
 
 cJSON* ComponentInputTrackMousePos::ExportAsJSONObject()
 {
-    cJSON* component = ComponentBase::ExportAsJSONObject();
+    cJSON* component = ComponentInputHandler::ExportAsJSONObject();
 
     return component;
 }
 
 void ComponentInputTrackMousePos::ImportFromJSONObject(cJSON* jsonobj)
 {
+    ComponentInputHandler::ImportFromJSONObject( jsonobj );
 }
 
 //void ComponentInputTrackMousePos::Reset()
