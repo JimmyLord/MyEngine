@@ -81,6 +81,8 @@ void GameObject::OnRightClick()
         }
 
         categorymenu->Append( i, g_pComponentTypeManager->GetTypeName( i ) );
+
+        lastcategory = g_pComponentTypeManager->GetTypeCategory( i );
     }
  	menu.Connect( wxEVT_COMMAND_MENU_SELECTED, (wxObjectEventFunction)&GameObject::OnPopupClick );
 
