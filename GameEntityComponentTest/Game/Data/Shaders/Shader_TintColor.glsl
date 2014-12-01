@@ -7,8 +7,9 @@ precision mediump float;
 
 #ifdef VertexShader
 
-uniform mat4 u_WorldViewProj;
 attribute vec4 a_Position;
+
+uniform mat4 u_WorldViewProj;
 
 void main()
 {

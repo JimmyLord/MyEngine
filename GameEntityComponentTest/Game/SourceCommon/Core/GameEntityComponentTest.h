@@ -31,11 +31,13 @@ public:
 
     ShaderGroup* m_pShader_TintColor;
     ShaderGroup* m_pShader_TestNormals;
+    ShaderGroup* m_pShader_Texture;
 
     float m_GameWidth;
     float m_GameHeight;
 
     MyFileObject* m_pOBJTestFiles[4];
+    TextureDefinition* m_pTextures[4];
 
     //MyMesh* m_pTestOBJMesh;
 

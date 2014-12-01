@@ -56,15 +56,20 @@ void ComponentMesh::FillPropertiesWindow(bool clear)
     const char* desc = "no shader";
     if( m_pMesh->GetShaderGroup() )
         desc = m_pMesh->GetShaderGroup()->GetShader( ShaderPass_Main )->m_pFilename;
-    g_pPanelWatch->AddPointerWithDescription( "Shader", 0, desc, this, ComponentMesh::StaticOnDropShaderGroup );
+    g_pPanelWatch->AddPointerWithDescription( "Shader", 0, desc, this, ComponentMesh::StaticOnDrop );
 
     desc = "no mesh";
     if( m_pOBJFile )
         desc = m_pOBJFile->m_Filename;
-    g_pPanelWatch->AddPointerWithDescription( "OBJ", 0, desc, this, ComponentMesh::StaticOnDropFile );
+    g_pPanelWatch->AddPointerWithDescription( "OBJ", 0, desc, this, ComponentMesh::StaticOnDrop );
+
+    desc = "no texture";
+    if( m_pMesh->m_pTexture )
+        desc = m_pMesh->m_pTexture->m_Filename;
+    g_pPanelWatch->AddPointerWithDescription( "Texture", 0, desc, this, ComponentMesh::StaticOnDrop );    
 }
 
-void ComponentMesh::OnDropShaderGroup()
+void ComponentMesh::OnDrop()
 {
     if( g_DragAndDropStruct.m_Type == DragAndDropType_ShaderGroupPointer )
     {
@@ -74,10 +79,7 @@ void ComponentMesh::OnDropShaderGroup()
 
         m_pMesh->SetShaderGroup( pShaderGroup );
     }
-}
 
-void ComponentMesh::OnDropFile()
-{
     if( g_DragAndDropStruct.m_Type == DragAndDropType_FileObjectPointer )
     {
         MyFileObject* pFile = (MyFileObject*)g_DragAndDropStruct.m_Value;
@@ -91,6 +93,16 @@ void ComponentMesh::OnDropFile()
             m_pOBJFile = pFile;
             m_pMesh->m_NumIndicesToDraw = 0;
         }
+
+        if( strcmp( filenameext, ".png" ) == 0 )
+        {
+            m_pMesh->m_pTexture = g_pTextureManager->FindTexture( pFile->m_Filename );
+        }
+    }
+
+    if( g_DragAndDropStruct.m_Type == DragAndDropType_TextureDefinitionPointer )
+    {
+        m_pMesh->m_pTexture = (TextureDefinition*)g_DragAndDropStruct.m_Value;
     }
 }
 #endif //MYFW_USING_WX
@@ -103,6 +115,8 @@ cJSON* ComponentMesh::ExportAsJSONObject()
         cJSON_AddStringToObject( component, "Shader", m_pMesh->GetShaderGroup()->GetName() );
     if( m_pOBJFile )
         cJSON_AddStringToObject( component, "OBJ", m_pOBJFile->m_Filename );
+    if( m_pMesh->m_pTexture )
+        cJSON_AddStringToObject( component, "Texture", m_pMesh->m_pTexture->m_Filename );
 
     return component;
 }
@@ -122,6 +136,13 @@ void ComponentMesh::ImportFromJSONObject(cJSON* jsonobj)
     if( objstringobj )
     {
         m_pOBJFile = g_pFileManager->FindFileByName( objstringobj->valuestring );
+        assert( m_pOBJFile );
+    }
+
+    cJSON* texturestringobj = cJSON_GetObjectItem( jsonobj, "Texture" );
+    if( texturestringobj )
+    {
+        m_pMesh->m_pTexture = g_pTextureManager->FindTexture( texturestringobj->valuestring );
         assert( m_pOBJFile );
     }
 }

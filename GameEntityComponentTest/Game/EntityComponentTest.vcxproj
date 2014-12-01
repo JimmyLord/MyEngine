@@ -2231,6 +2231,7 @@
   <ItemGroup>
     <None Include="..\..\todo.todo" />
     <None Include="Data\Shaders\Shader_TestNormals.glsl" />
+    <None Include="Data\Shaders\Shader_Texture.glsl" />
     <None Include="Data\Shaders\Shader_TintColor.glsl" />
     <None Include="SourceAndroid\AndroidApk\AndroidManifest.xml">
       <SubType>Designer</SubType>

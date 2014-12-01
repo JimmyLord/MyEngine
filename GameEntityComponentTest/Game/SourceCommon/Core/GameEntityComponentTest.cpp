@@ -23,18 +23,23 @@ GameEntityComponentTest::GameEntityComponentTest()
 
     m_pShader_TintColor = 0;
     m_pShader_TestNormals = 0;
+    m_pShader_Texture = 0;
 
     m_GameWidth = 0;
     m_GameHeight = 0;
 
     for( int i=0; i<4; i++ )
         m_pOBJTestFiles[i] = 0;
+
+    for( int i=0; i<4; i++ )
+        m_pTextures[i] = 0;
 }
 
 GameEntityComponentTest::~GameEntityComponentTest()
 {
     SAFE_DELETE( m_pShader_TintColor );
     SAFE_DELETE( m_pShader_TestNormals );
+    SAFE_DELETE( m_pShader_Texture );
 
     SAFE_DELETE( m_pComponentSystemManager );
 
@@ -42,6 +47,12 @@ GameEntityComponentTest::~GameEntityComponentTest()
     {
         if( m_pOBJTestFiles[i] )
             g_pFileManager->FreeFile( m_pOBJTestFiles[i] );
+    }
+
+    for( int i=0; i<4; i++ )
+    {
+        if( m_pTextures[i] )
+            SAFE_RELEASE( m_pTextures[i] );
     }
 }
 
@@ -61,13 +72,21 @@ void GameEntityComponentTest::OneTimeInit()
     //m_pOBJTestFiles[2] = g_pFileManager->RequestFile( "Data/OBJs/humanoid_tri.obj" );
     //m_pOBJTestFiles[3] = g_pFileManager->RequestFile( "Data/OBJs/teapot2.obj" );
 
+    //m_pTextures[0] = g_pTextureManager->CreateTexture( "Data/Textures/test1.png", GL_NEAREST, GL_NEAREST, GL_REPEAT, GL_REPEAT );
+    //m_pTextures[1] = g_pTextureManager->CreateTexture( "Data/Textures/test2.png", GL_NEAREST, GL_NEAREST, GL_REPEAT, GL_REPEAT );
+    //m_pTextures[2] = g_pTextureManager->CreateTexture( "Data/Textures/test3.png", GL_NEAREST, GL_NEAREST, GL_REPEAT, GL_REPEAT );
+    //m_pTextures[3] = g_pTextureManager->CreateTexture( "Data/Textures/test4.png", GL_NEAREST, GL_NEAREST, GL_REPEAT, GL_REPEAT );
+
     glEnable( GL_CULL_FACE );
 
     // setup our shaders
     m_pShader_TintColor = MyNew ShaderGroup( MyNew Shader_Base(ShaderPass_Main), 0, 0, "Tint Color" );
     m_pShader_TestNormals = MyNew ShaderGroup( MyNew Shader_Base(ShaderPass_Main), 0, 0, "Test-Normals" );
+    m_pShader_Texture = MyNew ShaderGroup( MyNew Shader_Base(ShaderPass_Main), 0, 0, "Texture" );
+
     m_pShader_TintColor->SetFileForAllPasses( "Data/Shaders/Shader_TintColor" );
     m_pShader_TestNormals->SetFileForAllPasses( "Data/Shaders/Shader_TestNormals" );
+    m_pShader_Texture->SetFileForAllPasses( "Data/Shaders/Shader_Texture" );
 
     // Initialize our component system.
     m_pComponentSystemManager = MyNew ComponentSystemManager( MyNew GameComponentTypeManager );

@@ -105,14 +105,14 @@ void ComponentCamera::Tick(double TimePassed)
 
 void ComponentCamera::OnSurfaceChanged(unsigned int startx, unsigned int starty, unsigned int width, unsigned int height, unsigned int desiredaspectwidth, unsigned int desiredaspectheight)
 {
-    m_DesiredWidth = desiredaspectwidth;
-    m_DesiredHeight = desiredaspectheight;
+    m_DesiredWidth = (float)desiredaspectwidth;
+    m_DesiredHeight = (float)desiredaspectheight;
 
     float deviceratio = (float)width / (float)height;
     float gameratio = m_DesiredWidth / m_DesiredHeight;
 
     m_Camera3D.SetupProjection( deviceratio, gameratio, 45 );
-    m_Camera2D.Setup( width, height, m_DesiredWidth, m_DesiredHeight );
+    m_Camera2D.Setup( (float)width, (float)height, m_DesiredWidth, m_DesiredHeight );
 }
 
 void ComponentCamera::OnDrawFrame()

@@ -332,5 +332,8 @@
     <None Include="Data\Shaders\Shader_TestNormals.glsl">
       <Filter>Data\Shaders</Filter>
     </None>
+    <None Include="Data\Shaders\Shader_Texture.glsl">
+      <Filter>Data\Shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>
