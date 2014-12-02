@@ -25,7 +25,8 @@ public:
 
     ComponentTransform* m_pParentTransform;
 
-public:
+protected:
+    MyMatrix m_LocalTransform;
     Vector3 m_Position;
     Vector3 m_Scale;
     Vector3 m_Rotation;
@@ -46,9 +47,14 @@ public:
     void SetScale(Vector3 scale);
     void SetRotation(Vector3 rot);
 
+    Vector3 GetPosition() { return m_Position; }
+    MyMatrix* GetLocalTransform() { return &m_LocalTransform; }
+    //Vector3 GetScale();
+    //Vector3 GetRotation();
+
     void SetParent(ComponentTransform* pNewParent);
     void UpdateMatrix();
-    MyMatrix* GetMatrix();
+    //MyMatrix* GetMatrix();
 
 public:
 #if MYFW_USING_WX
@@ -57,6 +63,8 @@ public:
     void FillPropertiesWindow(bool clear);
     static void StaticOnNewParentTransformDrop(void* pObjectPtr) { ((ComponentTransform*)pObjectPtr)->OnNewParentTransformDrop(); }
     void OnNewParentTransformDrop();
+    static void StaticOnValueChanged(void* pObjectPtr) { ((ComponentTransform*)pObjectPtr)->OnValueChanged(); }
+    void OnValueChanged();
 #endif //MYFW_USING_WX
 };
 

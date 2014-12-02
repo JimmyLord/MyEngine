@@ -726,8 +726,8 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>pthreadVC2.lib;Ws2_32.lib;SDL_mixer.lib;SDL.lib;Box2D.lib;opengl32.lib;glu32.lib;MyFramework_$(Configuration).lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(SolutionDir)Output\$(PlatformName)\MyFramework\$(Configuration);$(SolutionDir)../Framework/MyFramework/SourceWindows/SDL-1.2.15/lib/x86;$(SolutionDir)../Framework/MyFramework/SourceWindows/SDL_mixer-1.2.12/lib/x86;$(SolutionDir)../Framework/Box2D_v2.2.1/Build/vs2010/bin/$(Configuration);$(SolutionDir)../Framework/MyFramework/SourceWindows/pthreads-w32-2-9-1/lib/x86</AdditionalLibraryDirectories>
+      <AdditionalDependencies>pthreadVC2.lib;Ws2_32.lib;SDL_mixer.lib;SDL.lib;Box2D.lib;opengl32.lib;glu32.lib;MyFramework_$(Configuration).lib;BulletCollision_vs2010_debug.lib;BulletDynamics_vs2010_debug.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)Output\$(PlatformName)\MyFramework\$(Configuration);$(SolutionDir)../Framework/MyFramework/SourceWindows/SDL-1.2.15/lib/x86;$(SolutionDir)../Framework/MyFramework/SourceWindows/SDL_mixer-1.2.12/lib/x86;$(SolutionDir)../Framework/Box2D_v2.2.1/Build/vs2010/bin/$(Configuration);$(SolutionDir)../Framework/MyFramework/SourceWindows/pthreads-w32-2-9-1/lib/x86;$(SolutionDir)../bullet-2.82-r2704/lib/</AdditionalLibraryDirectories>
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
     </Link>
     <Manifest>
@@ -799,8 +799,8 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>pthreadVC2.lib;Ws2_32.lib;SDL_mixer.lib;SDL.lib;Box2D.lib;opengl32.lib;glu32.lib;MyFramework_$(Configuration).lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(SolutionDir)Output\$(PlatformName)\MyFramework\$(Configuration);$(SolutionDir)../Framework/MyFramework/SourceWindows/SDL-1.2.15/lib/x86;$(SolutionDir)../Framework/MyFramework/SourceWindows/SDL_mixer-1.2.12/lib/x86;$(SolutionDir)../Framework/Box2D_v2.2.1/Build/vs2010/bin/Debug;$(SolutionDir)../Framework/MyFramework/SourceWindows/pthreads-w32-2-9-1/lib/x86;$(wxwin)/lib/vc100_dll</AdditionalLibraryDirectories>
+      <AdditionalDependencies>pthreadVC2.lib;Ws2_32.lib;SDL_mixer.lib;SDL.lib;Box2D.lib;opengl32.lib;glu32.lib;MyFramework_$(Configuration).lib;BulletCollision_vs2010_debug.lib;BulletDynamics_vs2010_debug.lib;LinearMath_vs2010_debug.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)Output\$(PlatformName)\MyFramework\$(Configuration);$(SolutionDir)../Framework/MyFramework/SourceWindows/SDL-1.2.15/lib/x86;$(SolutionDir)../Framework/MyFramework/SourceWindows/SDL_mixer-1.2.12/lib/x86;$(SolutionDir)../Framework/Box2D_v2.2.1/Build/vs2010/bin/Debug;$(SolutionDir)../Framework/MyFramework/SourceWindows/pthreads-w32-2-9-1/lib/x86;$(wxwin)/lib/vc100_dll;$(SolutionDir)../bullet-2.82-r2704/lib/</AdditionalLibraryDirectories>
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
     </Link>
   </ItemDefinitionGroup>
@@ -1572,6 +1572,7 @@
     <ClCompile Include="SourceCommon\ComponentSystem\Core\GameObject.cpp" />
     <ClCompile Include="SourceCommon\ComponentSystem\CustomComponents\ComponentMesh.cpp" />
     <ClCompile Include="SourceCommon\ComponentSystem\CustomComponents\ComponentSprite.cpp" />
+    <ClCompile Include="SourceCommon\Core\BulletWorld.cpp" />
     <ClCompile Include="SourceCommon\Core\GameComponentTypeManager.cpp" />
     <ClCompile Include="SourceCommon\Core\GameEntityComponentTest.cpp" />
     <ClCompile Include="SourceCommon\Core\GameMainFrame.cpp">
@@ -1623,6 +1624,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Emscripten'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="SourceCommon\GameComponents\ComponentAIChasePlayer.cpp" />
+    <ClCompile Include="SourceCommon\GameComponents\ComponentCollisionObject.cpp" />
     <ClCompile Include="SourceCommon\GameComponents\ComponentInputTrackMousePos.cpp" />
     <ClCompile Include="SourceEmscripten\emMain.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug_64|Android'">true</ExcludedFromBuild>
@@ -1920,6 +1922,7 @@
     <ClInclude Include="SourceCommon\ComponentSystem\Core\GameObject.h" />
     <ClInclude Include="SourceCommon\ComponentSystem\CustomComponents\ComponentMesh.h" />
     <ClInclude Include="SourceCommon\ComponentSystem\CustomComponents\ComponentSprite.h" />
+    <ClInclude Include="SourceCommon\Core\BulletWorld.h" />
     <ClInclude Include="SourceCommon\Core\GameComponentTypeManager.h" />
     <ClInclude Include="SourceCommon\Core\GameEntityComponentTest.h" />
     <ClInclude Include="SourceCommon\Core\GameMainFrame.h">
@@ -1946,6 +1949,7 @@
     </ClInclude>
     <ClInclude Include="SourceCommon\GameCommonHeader.h" />
     <ClInclude Include="SourceCommon\GameComponents\ComponentAIChasePlayer.h" />
+    <ClInclude Include="SourceCommon\GameComponents\ComponentCollisionObject.h" />
     <ClInclude Include="SourceCommon\GameComponents\ComponentInputTrackMousePos.h" />
     <ClInclude Include="SourceEmscripten\esUtil.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug_64|Android'">true</ExcludedFromBuild>
@@ -2554,6 +2558,40 @@
     <None Include="SourceNaCL\Web\myframework.js" />
     <None Include="SourceNaCL\Web\myframework.nmf" />
     <None Include="SourceNaCL\Web\myframework_dbg.nmf" />
+  </ItemGroup>
+  <ItemGroup>
+    <Object Include="Data\OBJs\cube.obj">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug_64|Android'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Android'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release_64|Android'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Android'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='WxDebug|Android'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='WxRelease|Android'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug_64|Emscripten'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Emscripten'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release_64|Emscripten'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Emscripten'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='WxDebug|Emscripten'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='WxRelease|Emscripten'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug_64|NaCl32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|NaCl32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release_64|NaCl32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|NaCl32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='WxDebug|NaCl32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='WxRelease|NaCl32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug_64|NaCl64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|NaCl64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release_64|NaCl64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|NaCl64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='WxDebug|NaCl64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='WxRelease|NaCl64'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug_64|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release_64|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='WxDebug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='WxRelease|Win32'">true</ExcludedFromBuild>
+    </Object>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -51,6 +51,8 @@ public:
     char* SaveSceneToJSON();
     void LoadSceneFromJSON(const char* jsonstr);
 
+    void SyncAllRigidBodiesToObjectTransforms();
+
     void Clear();
 
     GameObject* CreateGameObject();

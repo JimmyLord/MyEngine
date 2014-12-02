@@ -15,32 +15,33 @@
 // misrepresented as being the original software.
 // 3. This notice may not be removed or altered from any source distribution.
 
-#ifndef __GameComponentTypeManager_H__
-#define __GameComponentTypeManager_H__
+#ifndef __BulletWorld_H__
+#define __BulletWorld_H__
 
-class ComponentBase;
+class BulletWorld;
 
-enum ComponentTypes
-{
-    ComponentType_Camera,
-    ComponentType_Sprite,
-    ComponentType_MeshOBJ,
-    ComponentType_InputTrackMousePos,
-    ComponentType_AIChasePlayer,
-    ComponentType_CollisionObject,
-    Component_NumComponentTypes,
-};
+extern BulletWorld* g_pBulletWorld;
 
-class GameComponentTypeManager : public ComponentTypeManager
+class BulletWorld
 {
 public:
-    virtual ComponentBase* CreateComponent(int type);
-    virtual unsigned int GetNumberOfComponentTypes();
+    btDiscreteDynamicsWorld* m_pDynamicsWorld;
+    btSequentialImpulseConstraintSolver* m_pSolver;
+    btDefaultCollisionConfiguration* m_pCollisionConfiguration;
+    btCollisionDispatcher* m_pDispatcher;
+    btBroadphaseInterface* m_pOverlappingPairCache;
 
-    virtual char* GetTypeCategory(int type);
-    virtual char* GetTypeName(int type);
+    // keep track of the shapes, we release memory at exit.
+    // make sure to re-use collision shapes among rigid bodies whenever possible!
+    btAlignedObjectArray<btCollisionShape*> m_CollisionShapes;
 
-    virtual int GetTypeByName(const char* name);
+public:
+    BulletWorld();
+    ~BulletWorld();
+
+    void CreateWorld();
+    void PhysicsStep();
+    void Cleanup();
 };
 
-#endif //__ComponentList_H__
+#endif __BulletWorld_H__

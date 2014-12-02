@@ -18,6 +18,8 @@
 #ifndef __GameEntityComponentTest_H__
 #define __GameEntityComponentTest_H__
 
+class BulletWorld;
+
 enum LayerValues
 {
     Layer_MainScene = 0x0001,
@@ -28,6 +30,12 @@ class GameEntityComponentTest : public GameCore
 {
 public:
     ComponentSystemManager* m_pComponentSystemManager;
+
+    BulletWorld* m_pBulletWorld;
+
+    bool m_EditorMode;
+
+    double m_TimeSinceLastPhysicsStep;
 
     ShaderGroup* m_pShader_TintColor;
     ShaderGroup* m_pShader_TestNormals;
@@ -52,6 +60,11 @@ public:
 
     virtual void OnTouch(int action, int id, float x, float y, float pressure, float size);
     virtual void OnButtons(GameCoreButtonActions action, GameCoreButtonIDs id);
+    virtual void OnKeyDown(int keycode, int unicodechar);
+    virtual void OnKeyUp(int keycode, int unicodechar);
+
+    void SaveScene();
+    void LoadScene();
 };
 
 #endif //__GameEntityComponentTest_H__

@@ -21,6 +21,14 @@
 // framework code
 #include "../../Framework/MyFramework/SourceCommon/CommonHeader.h"
 
+// bullet
+#pragma warning (disable : 4263)
+#pragma warning (disable : 4264)
+#include "../../bullet-2.82-r2704/src/btBulletDynamicsCommon.h"
+#pragma warning (default : 4263)
+#pragma warning (default : 4264)
+#include "Core/BulletWorld.h"
+
 // core component system code
 #include "ComponentSystem/Core/ComponentTypeManager.h"
 #include "ComponentSystem/Core/ComponentSystemManager.h"
@@ -43,6 +51,7 @@
 #include "Camera/Camera2D.h"
 #include "GameComponents/ComponentInputTrackMousePos.h"
 #include "GameComponents/ComponentAIChasePlayer.h"
+#include "GameComponents/ComponentCollisionObject.h"
 #include "Core/GameEntityComponentTest.h"
 
 #endif //__GameCommonHeader_H__

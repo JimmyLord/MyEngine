@@ -43,38 +43,12 @@ void GameMainFrame::OnGameMenu(wxCommandEvent& event)
     switch( id )
     {
     case myIDGame_SaveScene:
-        g_pComponentSystemManager->SaveSceneToJSON();
+        ((GameEntityComponentTest*)g_pGameCore)->SaveScene();
         break;
 
     case myIDGame_LoadScene:
-        {
-            FILE* filehandle;
-            errno_t err = fopen_s( &filehandle, "test.scene", "rb" );
-
-            char* jsonstr;
-
-            if( filehandle )
-            {
-                fseek( filehandle, 0, SEEK_END );
-                long length = ftell( filehandle );
-                if( length > 0 )
-                {
-                    fseek( filehandle, 0, SEEK_SET );
-
-                    jsonstr = MyNew char[length+1];
-                    fread( jsonstr, length, 1, filehandle );
-                    jsonstr[length] = 0;
-                }
-
-                fclose( filehandle );
-
-                g_pComponentSystemManager->LoadSceneFromJSON( jsonstr );
-
-                delete[] jsonstr;
-            }
-
-            m_pGLCanvas->ResizeViewport();
-        }
+        ((GameEntityComponentTest*)g_pGameCore)->LoadScene();
+        m_pGLCanvas->ResizeViewport();
         break;
     }
 }

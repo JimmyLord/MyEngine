@@ -20,11 +20,12 @@
 // sort by category, otherwise right-click menu will have duplicates.
 ComponentTypeInfo g_ComponentTypeInfo[Component_NumComponentTypes] =
 {
-    { "Camera",         "3D Camera",       },
-    { "Renderables",    "Sprite",          },
-    { "Renderables",    "Mesh-OBJ",        },
-    { "Input handlers", "Track Mouse",     },
-    { "AI",             "AI Chase Player", },
+    { "Camera",         "3D Camera",        },
+    { "Renderables",    "Sprite",           },
+    { "Renderables",    "Mesh-OBJ",         },
+    { "Input handlers", "Track Mouse",      },
+    { "AI",             "AI Chase Player",  },
+    { "Updateables",    "Collision Object", },
 };
 
 ComponentBase* GameComponentTypeManager::CreateComponent(int type)
@@ -38,6 +39,7 @@ ComponentBase* GameComponentTypeManager::CreateComponent(int type)
     case ComponentType_MeshOBJ:             pComponent = MyNew ComponentMesh;               break;
     case ComponentType_InputTrackMousePos:  pComponent = MyNew ComponentInputTrackMousePos; break;
     case ComponentType_AIChasePlayer:       pComponent = MyNew ComponentAIChasePlayer;      break;
+    case ComponentType_CollisionObject:     pComponent = MyNew ComponentCollisionObject;    break;
     }
 
     assert( pComponent != 0 );

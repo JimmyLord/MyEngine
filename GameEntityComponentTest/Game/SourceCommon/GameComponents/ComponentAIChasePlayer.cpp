@@ -112,6 +112,6 @@ void ComponentAIChasePlayer::Tick(double TimePassed)
         return;
     }
 
-    Vector3 posdiff = m_pPlayerComponentTransform->m_Position - m_pComponentTransform->m_Position;
-    m_pComponentTransform->SetPosition( m_pComponentTransform->m_Position + posdiff * (float)TimePassed );
+    Vector3 posdiff = m_pPlayerComponentTransform->GetPosition() - m_pComponentTransform->GetPosition();
+    m_pComponentTransform->SetPosition( m_pComponentTransform->GetPosition() + posdiff * (float)TimePassed );
 }

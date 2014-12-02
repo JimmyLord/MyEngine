@@ -21,6 +21,10 @@ GameEntityComponentTest::GameEntityComponentTest()
 {
     m_pComponentSystemManager = 0;
 
+    m_EditorMode = true;
+
+    m_TimeSinceLastPhysicsStep = 0;
+
     m_pShader_TintColor = 0;
     m_pShader_TestNormals = 0;
     m_pShader_Texture = 0;
@@ -33,6 +37,8 @@ GameEntityComponentTest::GameEntityComponentTest()
 
     for( int i=0; i<4; i++ )
         m_pTextures[i] = 0;
+
+    m_pBulletWorld = MyNew BulletWorld();
 }
 
 GameEntityComponentTest::~GameEntityComponentTest()
@@ -54,6 +60,8 @@ GameEntityComponentTest::~GameEntityComponentTest()
         if( m_pTextures[i] )
             SAFE_RELEASE( m_pTextures[i] );
     }
+
+    SAFE_DELETE( m_pBulletWorld );
 }
 
 void GameEntityComponentTest::OneTimeInit()
@@ -66,6 +74,7 @@ void GameEntityComponentTest::OneTimeInit()
     ComponentSprite* pComponentSprite;
     ComponentMesh* pComponentMesh;
     ComponentAIChasePlayer* pComponentAIChasePlayer;
+    ComponentCollisionObject* pComponentCollisionObject;
 
     m_pOBJTestFiles[0] = g_pFileManager->RequestFile( "Data/OBJs/cube.obj" );
     //m_pOBJTestFiles[1] = g_pFileManager->RequestFile( "Data/OBJs/Teapot.obj" );
@@ -95,7 +104,7 @@ void GameEntityComponentTest::OneTimeInit()
     {
         pGameObject = m_pComponentSystemManager->CreateGameObject();
         pGameObject->SetName( "Main Camera" );
-        pGameObject->m_pComponentTransform->m_Position.z = 10;
+        pGameObject->m_pComponentTransform->SetPosition( Vector3( 0, 0, 10 ) );
         pComponentCamera = (ComponentCamera*)pGameObject->AddNewComponent( ComponentType_Camera );
         pComponentCamera->SetDesiredAspectRatio( 640, 960 );
         pComponentCamera->m_Orthographic = false;
@@ -160,6 +169,7 @@ void GameEntityComponentTest::OneTimeInit()
             pComponentMesh->m_pOBJFile = m_pOBJTestFiles[0];
             pComponentMesh->m_LayersThisExistsOn = Layer_MainScene;
         }
+        pComponentCollisionObject = (ComponentCollisionObject*)pGameObject->AddNewComponent( ComponentType_CollisionObject );
     }
 }
 
@@ -172,7 +182,24 @@ void GameEntityComponentTest::Tick(double TimePassed)
     totaltimepassed += (float)TimePassed;
 
     // tick all components.
-    m_pComponentSystemManager->Tick( TimePassed );
+    if( m_EditorMode )
+        m_pComponentSystemManager->Tick( 0 );
+    else
+    {
+        if( TimePassed != 0 )
+            m_pComponentSystemManager->Tick( TimePassed );
+    }
+
+    if( m_EditorMode == false )
+    {
+        m_TimeSinceLastPhysicsStep += TimePassed;
+        
+        while( m_TimeSinceLastPhysicsStep > 1/60.0f )
+        {
+            m_TimeSinceLastPhysicsStep -= 1/60.0f;
+            m_pBulletWorld->PhysicsStep();
+        }
+    }
 }
 
 void GameEntityComponentTest::OnDrawFrame()
@@ -206,6 +233,76 @@ void GameEntityComponentTest::OnTouch(int action, int id, float x, float y, floa
 void GameEntityComponentTest::OnButtons(GameCoreButtonActions action, GameCoreButtonIDs id)
 {
     GameCore::OnButtons( action, id );
+}
+
+void GameEntityComponentTest::OnKeyDown(int keycode, int unicodechar)
+{
+    if( keycode == ' ' )
+    {
+        if( m_EditorMode ) // if press "Play"
+        {
+            SaveScene();
+            m_EditorMode = false;
+        }
+        else // if press "Stop"
+        {
+            LoadScene();
+            m_EditorMode = true;
+
+            m_pComponentSystemManager->SyncAllRigidBodiesToObjectTransforms();
+        }
+    }
+}
+
+void GameEntityComponentTest::OnKeyUp(int keycode, int unicodechar)
+{
+}
+
+void GameEntityComponentTest::SaveScene()
+{
+    char* savestring = g_pComponentSystemManager->SaveSceneToJSON();
+
+    FILE* filehandle;
+    errno_t error = fopen_s( &filehandle, "test.scene", "w" );
+    if( filehandle )
+    {
+        fprintf( filehandle, "%s", savestring );
+        fclose( filehandle );
+    }
+
+    free( savestring );
+}
+
+void GameEntityComponentTest::LoadScene()
+{
+    FILE* filehandle;
+    errno_t err = fopen_s( &filehandle, "test.scene", "rb" );
+
+    char* jsonstr;
+
+    if( filehandle )
+    {
+        fseek( filehandle, 0, SEEK_END );
+        long length = ftell( filehandle );
+        if( length > 0 )
+        {
+            fseek( filehandle, 0, SEEK_SET );
+
+            jsonstr = MyNew char[length+1];
+            fread( jsonstr, length, 1, filehandle );
+            jsonstr[length] = 0;
+        }
+
+        fclose( filehandle );
+
+        g_pComponentSystemManager->LoadSceneFromJSON( jsonstr );
+
+        delete[] jsonstr;
+    }
+
+    m_EditorMode = true;
+
+    OnSurfaceChanged( m_WindowStartX, m_WindowStartY, m_WindowWidth, m_WindowHeight );
 }
 
 void GameEntityComponentTest::OnSurfaceChanged(unsigned int startx, unsigned int starty, unsigned int width, unsigned int height)

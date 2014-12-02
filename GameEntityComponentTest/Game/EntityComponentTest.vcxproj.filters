@@ -76,6 +76,9 @@
     <Filter Include="Source\Camera">
       <UniqueIdentifier>{2f790bfa-acfa-4f4d-9fb7-6e30e3376aea}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Data\OBJs">
+      <UniqueIdentifier>{552a613a-1035-4538-af32-325ad75aeed7}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="SourceWindows\WinMain.cpp">
@@ -167,6 +170,12 @@
     </ClCompile>
     <ClCompile Include="SourceCommon\ComponentSystem\CustomComponents\ComponentMesh.cpp">
       <Filter>Source\ComponentSystem\Custom Components</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCommon\Core\BulletWorld.cpp">
+      <Filter>Source\Core Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCommon\GameComponents\ComponentCollisionObject.cpp">
+      <Filter>Source\Game Components</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -260,6 +269,12 @@
     <ClInclude Include="SourceCommon\ComponentSystem\CustomComponents\ComponentMesh.h">
       <Filter>Source\ComponentSystem\Custom Components</Filter>
     </ClInclude>
+    <ClInclude Include="SourceCommon\Core\BulletWorld.h">
+      <Filter>Source\Core Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCommon\GameComponents\ComponentCollisionObject.h">
+      <Filter>Source\Game Components</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="SourceNaCL\Web\myframework.js">
@@ -335,5 +350,10 @@
     <None Include="Data\Shaders\Shader_Texture.glsl">
       <Filter>Data\Shaders</Filter>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Object Include="Data\OBJs\cube.obj">
+      <Filter>Data\OBJs</Filter>
+    </Object>
   </ItemGroup>
 </Project>

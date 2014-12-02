@@ -15,32 +15,36 @@
 // misrepresented as being the original software.
 // 3. This notice may not be removed or altered from any source distribution.
 
-#ifndef __GameComponentTypeManager_H__
-#define __GameComponentTypeManager_H__
+#ifndef __ComponentCollisionObject_H__
+#define __ComponentCollisionObject_H__
 
-class ComponentBase;
-
-enum ComponentTypes
-{
-    ComponentType_Camera,
-    ComponentType_Sprite,
-    ComponentType_MeshOBJ,
-    ComponentType_InputTrackMousePos,
-    ComponentType_AIChasePlayer,
-    ComponentType_CollisionObject,
-    Component_NumComponentTypes,
-};
-
-class GameComponentTypeManager : public ComponentTypeManager
+class ComponentCollisionObject : public ComponentUpdateable
 {
 public:
-    virtual ComponentBase* CreateComponent(int type);
-    virtual unsigned int GetNumberOfComponentTypes();
+    ComponentTransform* m_pComponentTransform;
 
-    virtual char* GetTypeCategory(int type);
-    virtual char* GetTypeName(int type);
+    btRigidBody* m_pBody;
 
-    virtual int GetTypeByName(const char* name);
+public:
+    ComponentCollisionObject();
+    ComponentCollisionObject(GameObject* owner);
+    virtual ~ComponentCollisionObject();
+
+    virtual cJSON* ExportAsJSONObject();
+    virtual void ImportFromJSONObject(cJSON* jsonobj);
+
+    virtual void Reset();
+
+    virtual void Tick(double TimePassed);
+
+    void SyncRigidBodyToTransform();
+
+public:
+#if MYFW_USING_WX
+    virtual void AddToObjectsPanel(wxTreeItemId gameobjectid);
+    static void StaticFillPropertiesWindow(void* pObjectPtr) { ((ComponentCollisionObject*)pObjectPtr)->FillPropertiesWindow(true); }
+    void FillPropertiesWindow(bool clear);
+#endif //MYFW_USING_WX
 };
 
-#endif //__ComponentList_H__
+#endif //__ComponentCollisionObject_H__

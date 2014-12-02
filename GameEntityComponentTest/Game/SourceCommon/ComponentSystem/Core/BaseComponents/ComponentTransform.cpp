@@ -45,17 +45,17 @@ void ComponentTransform::FillPropertiesWindow(bool clear)
     if( clear )
         g_pPanelWatch->ClearAllVariables();
 
-    g_pPanelWatch->AddFloat( "x", &m_Position.x, -1.0f, 1.0f );
-    g_pPanelWatch->AddFloat( "y", &m_Position.y, -1.0f, 1.0f );
-    g_pPanelWatch->AddFloat( "z", &m_Position.z, -1.0f, 1.0f );
+    g_pPanelWatch->AddFloat( "x", &m_Position.x, -1.0f, 1.0f, this, ComponentTransform::StaticOnValueChanged );
+    g_pPanelWatch->AddFloat( "y", &m_Position.y, -1.0f, 1.0f, this, ComponentTransform::StaticOnValueChanged );
+    g_pPanelWatch->AddFloat( "z", &m_Position.z, -1.0f, 1.0f, this, ComponentTransform::StaticOnValueChanged );
 
-    g_pPanelWatch->AddFloat( "scale x", &m_Scale.x, 0.0f, 10.0f );
-    g_pPanelWatch->AddFloat( "scale y", &m_Scale.y, 0.0f, 10.0f );
-    g_pPanelWatch->AddFloat( "scale z", &m_Scale.z, 0.0f, 10.0f );
+    g_pPanelWatch->AddFloat( "scale x", &m_Scale.x, 0.0f, 10.0f, this, ComponentTransform::StaticOnValueChanged );
+    g_pPanelWatch->AddFloat( "scale y", &m_Scale.y, 0.0f, 10.0f, this, ComponentTransform::StaticOnValueChanged );
+    g_pPanelWatch->AddFloat( "scale z", &m_Scale.z, 0.0f, 10.0f, this, ComponentTransform::StaticOnValueChanged );
 
-    g_pPanelWatch->AddFloat( "rot x", &m_Rotation.x, 0, 360 );
-    g_pPanelWatch->AddFloat( "rot y", &m_Rotation.y, 0, 360 );
-    g_pPanelWatch->AddFloat( "rot z", &m_Rotation.z, 0, 360 );
+    g_pPanelWatch->AddFloat( "rot x", &m_Rotation.x, 0, 360, this, ComponentTransform::StaticOnValueChanged );
+    g_pPanelWatch->AddFloat( "rot y", &m_Rotation.y, 0, 360, this, ComponentTransform::StaticOnValueChanged );
+    g_pPanelWatch->AddFloat( "rot z", &m_Rotation.z, 0, 360, this, ComponentTransform::StaticOnValueChanged );
 
     char* desc = "no parent";
     if( m_pParentTransform )
@@ -77,6 +77,11 @@ void ComponentTransform::OnNewParentTransformDrop()
             this->SetParent( pComponent );
         }
     }
+}
+
+void ComponentTransform::OnValueChanged()
+{
+    m_LocalTransform.CreateSRT( m_Scale, m_Rotation, m_Position );
 }
 #endif //MYFW_USING_WX
 
@@ -108,26 +113,32 @@ void ComponentTransform::ImportFromJSONObject(cJSON* jsonobj)
     cJSONExt_GetFloatArray( jsonobj, "Pos", &m_Position.x, 3 );
     cJSONExt_GetFloatArray( jsonobj, "Scale", &m_Scale.x, 3 );
     cJSONExt_GetFloatArray( jsonobj, "Rot", &m_Rotation.x, 3 );
+
+    m_LocalTransform.CreateSRT( m_Scale, m_Rotation, m_Position );
 }
 
 void ComponentTransform::Reset()
 {
     ComponentBase::Reset();
 
+    m_Transform.SetIdentity();
+    m_pParentTransform = 0;
+
+    m_LocalTransform.SetIdentity();
     m_Position.Set( 0,0,0 );
     m_Scale.Set( 1,1,1 );
     m_Rotation.Set( 0,0,0 );
-    m_Transform.SetIdentity();
-
-    m_pParentTransform = 0;
 }
 
 ComponentTransform& ComponentTransform::operator=(const ComponentTransform& other)
 {
+    this->m_Transform = other.m_Transform;
+    this->m_pParentTransform = other.m_pParentTransform;
+
+    this->m_LocalTransform = other.m_LocalTransform;
     this->m_Position = other.m_Position;
     this->m_Scale = other.m_Scale;
     this->m_Rotation = other.m_Rotation;
-    this->m_Transform = other.m_Transform;
 
     return *this;
 }
@@ -135,31 +146,31 @@ ComponentTransform& ComponentTransform::operator=(const ComponentTransform& othe
 void ComponentTransform::SetPosition(Vector3 pos)
 {
     m_Position = pos;
-    UpdateMatrix();
+    m_LocalTransform.CreateSRT( m_Scale, m_Rotation, m_Position );
 }
 
 void ComponentTransform::SetScale(Vector3 scale)
 {
     m_Scale = scale;
-    UpdateMatrix();
+    m_LocalTransform.CreateSRT( m_Scale, m_Rotation, m_Position );
 }
 
 void ComponentTransform::SetRotation(Vector3 rot)
 {
     m_Rotation = rot;
-    UpdateMatrix();
+    m_LocalTransform.CreateSRT( m_Scale, m_Rotation, m_Position );
 }
 
 void ComponentTransform::SetParent(ComponentTransform* pNewParent)
 {
     m_Position = m_Position - pNewParent->m_Position;
     m_pParentTransform = pNewParent;
-    UpdateMatrix();
 }
 
 void ComponentTransform::UpdateMatrix()
 {
-    m_Transform.CreateSRT( m_Scale, m_Rotation, m_Position );
+    //m_Transform.CreateSRT( m_Scale, m_Rotation, m_Position );
+    m_Transform = m_LocalTransform;
 
     if( m_pParentTransform )
     {
@@ -168,7 +179,7 @@ void ComponentTransform::UpdateMatrix()
     }
 }
 
-MyMatrix* ComponentTransform::GetMatrix()
-{
-    return &m_Transform;
-}
+//MyMatrix* ComponentTransform::GetMatrix()
+//{
+//    return &m_Transform;
+//}

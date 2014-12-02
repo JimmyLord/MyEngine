@@ -151,16 +151,7 @@ char* ComponentSystemManager::SaveSceneToJSON()
     char* savestring = cJSON_Print( root );
     cJSON_Delete(root);
 
-    FILE* filehandle;
-    errno_t error = fopen_s( &filehandle, "test.scene", "w" );
-    if( filehandle )
-    {
-        fprintf( filehandle, "%s", savestring );
-        fclose( filehandle );
-    }
-
-    free( savestring );
-    return 0;
+    return savestring;
 }
 
 void ComponentSystemManager::LoadSceneFromJSON(const char* jsonstr)
@@ -238,6 +229,21 @@ void ComponentSystemManager::LoadSceneFromJSON(const char* jsonstr)
     }
 
     cJSON_Delete( root );
+
+    SyncAllRigidBodiesToObjectTransforms();
+}
+
+void ComponentSystemManager::SyncAllRigidBodiesToObjectTransforms()
+{
+    for( CPPListNode* pNode = m_ComponentsUpdateable.GetHead(); pNode; pNode = pNode->GetNext() )
+    {
+        if( ((ComponentBase*)pNode)->m_Type == ComponentType_CollisionObject )
+        {
+            ComponentCollisionObject* pComponent = (ComponentCollisionObject*)pNode;
+
+            pComponent->SyncRigidBodyToTransform();
+        }
+    }
 }
 
 void ComponentSystemManager::Clear()
