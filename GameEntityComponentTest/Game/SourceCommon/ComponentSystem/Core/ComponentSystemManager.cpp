@@ -319,6 +319,23 @@ void ComponentSystemManager::DeleteGameObject(GameObject* pObject)
     SAFE_DELETE( pObject );
 }
 
+GameObject* ComponentSystemManager::CopyGameObject(GameObject* pObject)
+{
+    GameObject* pGameObject = CreateGameObject();
+    pGameObject->SetName( "Duplicated Game Object" );
+
+    pGameObject->m_pComponentTransform = pObject->m_pComponentTransform;
+
+    for( unsigned int i=0; i<pObject->m_Components.Count(); i++ )
+    {
+        ComponentBase* pComponent = pGameObject->AddNewComponent( pObject->m_Components[i]->m_Type );
+
+        *pComponent = *pObject->m_Components[i];
+    }
+
+    return pGameObject;
+}
+
 GameObject* ComponentSystemManager::FindGameObjectByID(unsigned int id)
 {
     for( CPPListNode* node = m_GameObjects.GetHead(); node != 0; node = node->GetNext() )
@@ -457,6 +474,24 @@ void ComponentSystemManager::OnDrawFrame(ComponentCamera* pCamera, MyMatrix* pMa
                 pComponent->Draw( pMatViewProj );
             }
         }
+    }
+}
+
+void ComponentSystemManager::OnPlay()
+{
+    for( CPPListNode* node = m_ComponentsUpdateable.GetHead(); node != 0; node = node->GetNext() )
+    {
+        ComponentBase* pComponent = (ComponentBase*)node;
+        pComponent->OnPlay();
+    }
+}
+
+void ComponentSystemManager::OnStop()
+{
+    for( CPPListNode* node = m_ComponentsUpdateable.GetHead(); node != 0; node = node->GetNext() )
+    {
+        ComponentBase* pComponent = (ComponentBase*)node;
+        pComponent->OnStop();
     }
 }
 

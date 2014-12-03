@@ -84,8 +84,11 @@ void GameObject::OnRightClick()
 
         lastcategory = g_pComponentTypeManager->GetTypeCategory( i );
     }
- 	menu.Connect( wxEVT_COMMAND_MENU_SELECTED, (wxObjectEventFunction)&GameObject::OnPopupClick );
+    
+    menu.Append( 1000, "Duplicate GameObject" ); // matches 1000 in OnPopupClick()
 
+    menu.Connect( wxEVT_COMMAND_MENU_SELECTED, (wxObjectEventFunction)&GameObject::OnPopupClick );
+    
     // blocking call. // should delete all categorymenu's new'd above when done.
  	g_pPanelWatch->PopupMenu( &menu );
 }
@@ -97,10 +100,18 @@ void GameObject::OnPopupClick(wxEvent &evt)
     if( pGameObject->m_Components.Count() >= pGameObject->m_Components.Length() )
         return;
 
-    int id = evt.GetId();
-    ComponentTypes type = (ComponentTypes)id;
+    unsigned int id = evt.GetId();
 
-    pGameObject->AddNewComponent( type );
+    if( id < g_pComponentTypeManager->GetNumberOfComponentTypes() )
+    {
+        ComponentTypes type = (ComponentTypes)id;
+
+        pGameObject->AddNewComponent( type );
+    }
+    else if( id == 1000 ) // "Duplicate GameObject"
+    {
+        g_pComponentSystemManager->CopyGameObject( pGameObject );
+    }
 }
 
 void GameObject::OnDrag()

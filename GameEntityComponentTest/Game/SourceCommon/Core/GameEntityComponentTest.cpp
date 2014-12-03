@@ -243,11 +243,13 @@ void GameEntityComponentTest::OnKeyDown(int keycode, int unicodechar)
         {
             SaveScene();
             m_EditorMode = false;
+            m_pComponentSystemManager->OnPlay();
         }
         else // if press "Stop"
         {
             LoadScene();
             m_EditorMode = true;
+            m_pComponentSystemManager->OnStop();
 
             m_pComponentSystemManager->SyncAllRigidBodiesToObjectTransforms();
         }

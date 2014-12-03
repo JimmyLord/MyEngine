@@ -40,7 +40,7 @@ public:
     virtual void ImportFromJSONObject(cJSON* jsonobj);
 
     virtual void Reset();
-    ComponentTransform& ComponentTransform::operator=(const ComponentTransform& other);
+    virtual ComponentBase& operator=(const ComponentBase& other);
 
     // recalculate the matrix each time we set any of the 3 properties. // not efficient
     void SetPosition(Vector3 pos);
@@ -48,9 +48,10 @@ public:
     void SetRotation(Vector3 rot);
 
     Vector3 GetPosition() { return m_Position; }
+    Vector3 GetScale() { return m_Scale; }
+    Vector3 GetRotation() { return m_Rotation; }
+    MyMatrix GetLocalRotPosMatrix();
     MyMatrix* GetLocalTransform() { return &m_LocalTransform; }
-    //Vector3 GetScale();
-    //Vector3 GetRotation();
 
     void SetParent(ComponentTransform* pNewParent);
     void UpdateMatrix();

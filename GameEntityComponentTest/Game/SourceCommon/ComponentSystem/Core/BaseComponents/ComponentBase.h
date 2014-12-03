@@ -50,6 +50,10 @@ public:
     virtual void ImportFromJSONObject(cJSON* jsonobj);
 
     virtual void Reset();
+    virtual ComponentBase& operator=(const ComponentBase& other);
+
+    virtual void OnPlay() {}
+    virtual void OnStop() {}
 
 public:
 #if MYFW_USING_WX

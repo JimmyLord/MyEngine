@@ -130,15 +130,18 @@ void ComponentTransform::Reset()
     m_Rotation.Set( 0,0,0 );
 }
 
-ComponentTransform& ComponentTransform::operator=(const ComponentTransform& other)
+ComponentBase& ComponentTransform::operator=(const ComponentBase& other)
 {
-    this->m_Transform = other.m_Transform;
-    this->m_pParentTransform = other.m_pParentTransform;
+    if( &other == this )
+        return *this;
 
-    this->m_LocalTransform = other.m_LocalTransform;
-    this->m_Position = other.m_Position;
-    this->m_Scale = other.m_Scale;
-    this->m_Rotation = other.m_Rotation;
+    this->m_Transform = ((ComponentTransform&)other).m_Transform;
+    this->m_pParentTransform = ((ComponentTransform&)other).m_pParentTransform;
+
+    this->m_LocalTransform = ((ComponentTransform&)other).m_LocalTransform;
+    this->m_Position = ((ComponentTransform&)other).m_Position;
+    this->m_Scale = ((ComponentTransform&)other).m_Scale;
+    this->m_Rotation = ((ComponentTransform&)other).m_Rotation;
 
     return *this;
 }
@@ -159,6 +162,14 @@ void ComponentTransform::SetRotation(Vector3 rot)
 {
     m_Rotation = rot;
     m_LocalTransform.CreateSRT( m_Scale, m_Rotation, m_Position );
+}
+
+MyMatrix ComponentTransform::GetLocalRotPosMatrix()
+{
+    MyMatrix local;
+    local.CreateSRT( Vector3(1,1,1), m_Rotation, m_Position );
+
+    return local;
 }
 
 void ComponentTransform::SetParent(ComponentTransform* pNewParent)

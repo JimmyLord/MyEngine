@@ -36,6 +36,7 @@ public:
     virtual void ImportFromJSONObject(cJSON* jsonobj);
 
     virtual void Reset();
+    virtual ComponentBase& operator=(const ComponentBase& other);
 
     virtual void SetShader(ShaderGroup* pShader);
     virtual void Draw(MyMatrix* pMatViewProj);

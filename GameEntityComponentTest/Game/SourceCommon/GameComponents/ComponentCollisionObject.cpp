@@ -101,7 +101,12 @@ void ComponentCollisionObject::Reset()
 
         //btVector3 pos(m_pComponentTransform->m_Position.x, m_pComponentTransform->m_Position.y, m_pComponentTransform->m_Position.z );
         //startTransform.setOrigin( pos );
-        startTransform.setFromOpenGLMatrix( &m_pComponentTransform->GetLocalTransform()->m11 );
+        Vector3 localscale = m_pComponentTransform->GetScale();
+        btVector3 scale( localscale.x, localscale.y, localscale.z );
+        colShape->setLocalScaling( scale );
+
+        MyMatrix localmat = m_pComponentTransform->GetLocalRotPosMatrix(); //GetLocalTransform();
+        startTransform.setFromOpenGLMatrix( &localmat.m11 );
 
         // using motionstate is recommended, it provides interpolation capabilities, and only synchronizes 'active' objects
         btDefaultMotionState* myMotionState = new btDefaultMotionState( startTransform );
@@ -110,6 +115,22 @@ void ComponentCollisionObject::Reset()
         
         g_pBulletWorld->m_pDynamicsWorld->addRigidBody( m_pBody );
     }
+}
+
+void ComponentCollisionObject::OnPlay()
+{
+    ComponentUpdateable::OnPlay();
+
+    // set the collision object scale on play, guess this should be set whenever the object is scaled.
+    //   TODO: find a better way to handle the object being scaled in editor.
+    Vector3 localscale = m_pComponentTransform->GetScale();
+    btVector3 scale( localscale.x, localscale.y, localscale.z );
+    m_pBody->getCollisionShape()->setLocalScaling( scale );
+}
+
+void ComponentCollisionObject::OnStop()
+{
+    ComponentUpdateable::OnStop();
 }
 
 void ComponentCollisionObject::Tick(double TimePassed)
@@ -122,10 +143,21 @@ void ComponentCollisionObject::Tick(double TimePassed)
         return;
     }
 
+    MyMatrix* matLocal = m_pComponentTransform->GetLocalTransform();
+
     btTransform transform;
     m_pBody->getMotionState()->getWorldTransform( transform );
+    MyMatrix matRotPos;
+    transform.getOpenGLMatrix( &matLocal->m11 );
 
-    transform.getOpenGLMatrix( &m_pComponentTransform->GetLocalTransform()->m11 );
+    // if the collisionshape is scaled, scale our object to match.
+    btVector3 scale = m_pBody->getCollisionShape()->getLocalScaling();
+    if( scale.x() != 1 || scale.y() != 1 || scale.z() != 1 )
+    {
+        MyMatrix matScale;
+        matScale.CreateScale( scale.x(), scale.y(), scale.z() );
+        *matLocal = *matLocal * matScale;
+    }
 
     //btVector3 pos = transform.getOrigin();
     //btQuaternion rot = transform.getRotation();
@@ -141,7 +173,8 @@ void ComponentCollisionObject::SyncRigidBodyToTransform()
     //btVector3 pos(m_pComponentTransform->m_Position.x, m_pComponentTransform->m_Position.y, m_pComponentTransform->m_Position.z );
     //transform.setIdentity();
     //transform.setOrigin( pos );
-    transform.setFromOpenGLMatrix( &m_pComponentTransform->GetLocalTransform()->m11 );
+    MyMatrix localmat = m_pComponentTransform->GetLocalRotPosMatrix(); //GetLocalTransform();
+    transform.setFromOpenGLMatrix( &localmat.m11 );
 
     m_pBody->getMotionState()->setWorldTransform( transform );
     m_pBody->setWorldTransform( transform );

@@ -35,6 +35,8 @@ public:
 
     virtual void Reset();
 
+    virtual void OnPlay();
+    virtual void OnStop();
     virtual void Tick(double TimePassed);
 
     void SyncRigidBodyToTransform();

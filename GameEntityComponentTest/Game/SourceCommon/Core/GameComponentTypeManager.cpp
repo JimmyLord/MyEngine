@@ -25,7 +25,7 @@ ComponentTypeInfo g_ComponentTypeInfo[Component_NumComponentTypes] =
     { "Renderables",    "Mesh-OBJ",         },
     { "Input handlers", "Track Mouse",      },
     { "AI",             "AI Chase Player",  },
-    { "Updateables",    "Collision Object", },
+    { "Physics",        "Collision Object", },
 };
 
 ComponentBase* GameComponentTypeManager::CreateComponent(int type)

@@ -57,6 +57,8 @@ public:
 
     GameObject* CreateGameObject();
     void DeleteGameObject(GameObject* pObject);
+    GameObject* CopyGameObject(GameObject* pObject);
+
     GameObject* FindGameObjectByID(unsigned int id);
     ComponentCamera* GetFirstCamera();
 
@@ -67,6 +69,9 @@ public:
     void OnSurfaceChanged(unsigned int startx, unsigned int starty, unsigned int width, unsigned int height, unsigned int desiredaspectwidth, unsigned int desiredaspectheight);
     void OnDrawFrame();
     void OnDrawFrame(ComponentCamera* pCamera, MyMatrix* pMatViewProj);
+
+    void OnPlay();
+    void OnStop();
 
     bool OnTouch(int action, int id, float x, float y, float pressure, float size);
     bool OnButtons(GameCoreButtonActions action, GameCoreButtonIDs id);

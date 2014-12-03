@@ -104,6 +104,18 @@ void ComponentAIChasePlayer::Reset()
     m_pComponentTransform = m_pGameObject->m_pComponentTransform;
 }
 
+ComponentBase& ComponentAIChasePlayer::operator=(const ComponentBase& other)
+{
+    if( &other == this )
+        return *this;
+
+    ComponentUpdateable::operator=( ((ComponentAIChasePlayer&)other) );
+
+    this->m_pPlayerComponentTransform = ((ComponentAIChasePlayer&)other).m_pPlayerComponentTransform;
+
+    return *this;
+}
+
 void ComponentAIChasePlayer::Tick(double TimePassed)
 {
     if( m_pComponentTransform == 0 || m_pPlayerComponentTransform == 0 )

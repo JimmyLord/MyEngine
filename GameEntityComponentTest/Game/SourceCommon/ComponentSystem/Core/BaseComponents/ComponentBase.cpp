@@ -112,3 +112,11 @@ void ComponentBase::ImportFromJSONObject(cJSON* jsonobj)
 void ComponentBase::Reset()
 {
 }
+
+ComponentBase& ComponentBase::operator=(const ComponentBase& other)
+{
+    if( &other == this )
+        return *this;
+
+    return *this;
+}
