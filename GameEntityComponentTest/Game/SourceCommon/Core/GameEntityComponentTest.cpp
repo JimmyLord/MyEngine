@@ -220,6 +220,12 @@ void GameEntityComponentTest::OnTouch(int action, int id, float x, float y, floa
     // prefer 0,0 at bottom left.
     y = m_WindowHeight - y;
 
+    if( m_EditorMode )
+    {
+        HandleEditorInput( -1, -1, action, x, y );
+        return;
+    }
+
     // TODO: get the camera properly.
     ComponentCamera* pCamera = m_pComponentSystemManager->GetFirstCamera();
 
@@ -237,13 +243,24 @@ void GameEntityComponentTest::OnButtons(GameCoreButtonActions action, GameCoreBu
 
 void GameEntityComponentTest::OnKeyDown(int keycode, int unicodechar)
 {
-    if( keycode == ' ' )
+    if( m_EditorMode )
     {
-        if( m_EditorMode ) // if press "Play"
+        if( keycode == 'P' ) // if press "Play"
         {
             SaveScene();
             m_EditorMode = false;
             m_pComponentSystemManager->OnPlay();
+            return;
+        }
+
+        HandleEditorInput( 1, keycode, -1, -1, -1 );
+        return;
+    }
+
+    if( keycode == 'P' ) // Play/Stop
+    {
+        if( m_EditorMode ) // if press "Play"
+        {
         }
         else // if press "Stop"
         {
@@ -258,6 +275,101 @@ void GameEntityComponentTest::OnKeyDown(int keycode, int unicodechar)
 
 void GameEntityComponentTest::OnKeyUp(int keycode, int unicodechar)
 {
+    if( m_EditorMode )
+    {
+        HandleEditorInput( 0, keycode, -1, -1, -1 );
+        return;
+    }
+}
+
+void GameEntityComponentTest::HandleEditorInput(int keydown, int keycode, int action, float x, float y)
+{
+#if MYFW_USING_WX
+    if( keycode == MYKEYCODE_LCTRL )
+    {
+        if( keydown == 1 ) m_EditorState.m_ModifierKeyStates |= MODIFIERKEY_Control;
+        if( keydown == 0 ) m_EditorState.m_ModifierKeyStates &= ~MODIFIERKEY_Control;
+    }
+    //if( keycode == MYKEYCODE_LALT )
+    //{
+    //    if( keydown == 1 ) m_EditorState.m_ModifierKeyStates |= MODIFIERKEY_Control;
+    //    if( keydown == 0 ) m_EditorState.m_ModifierKeyStates &= ~MODIFIERKEY_Control;
+    //}
+    if( keycode == MYKEYCODE_LSHIFT )
+    {
+        if( keydown == 1 ) m_EditorState.m_ModifierKeyStates |= MODIFIERKEY_Shift;
+        if( keydown == 0 ) m_EditorState.m_ModifierKeyStates &= ~MODIFIERKEY_Shift;
+    }
+    if( keycode == ' ' )
+    {
+        if( keydown == 1 ) m_EditorState.m_ModifierKeyStates |= MODIFIERKEY_Space;
+        if( keydown == 0 ) m_EditorState.m_ModifierKeyStates &= ~MODIFIERKEY_Space;
+    }
+    if( action != -1 )
+    {
+        if( action == GCBA_Down )
+        {
+            m_EditorState.m_CurrentMousePosition.Set( x, y );
+            m_EditorState.m_LastMousePosition.Set( x, y );
+            m_EditorState.m_ModifierKeyStates |= MODIFIERKEY_LeftMouse;
+        }
+        if( action == GCBA_Up )
+        {
+            m_EditorState.m_CurrentMousePosition.Set( -1, -1 );
+            m_EditorState.m_LastMousePosition.Set( -1, -1 );
+            m_EditorState.m_ModifierKeyStates &= ~MODIFIERKEY_LeftMouse;
+        }
+        if( action == GCBA_Held )
+        {
+            m_EditorState.m_CurrentMousePosition.Set( x, y );
+        }
+    }
+   
+    if( m_EditorState.m_ModifierKeyStates == 0 ) // no modifiers held.
+    {
+        if( action == GCBA_Down )
+        {
+            // find the object we clicked on.
+        }
+    }
+
+    // if control is held, pan the camera around.
+    if( m_EditorState.m_ModifierKeyStates & MODIFIERKEY_LeftMouse )
+    {
+        // TODO: get the camera properly.
+        ComponentCamera* pCamera = m_pComponentSystemManager->GetFirstCamera();
+        MyMatrix* matLocalCamera = pCamera->m_pComponentTransform->GetLocalTransform();
+
+        if( m_EditorState.m_ModifierKeyStates & MODIFIERKEY_Space )
+        {
+            Vector2 dir = m_EditorState.m_CurrentMousePosition - m_EditorState.m_LastMousePosition;
+
+            if( dir.LengthSquared() > 0 )
+                matLocalCamera->TranslatePreRotScale( dir * 0.05f );
+        }
+        else
+        {
+            // rotate the camera around a point 10 units in front of the camera.
+            Vector2 dir = m_EditorState.m_CurrentMousePosition - m_EditorState.m_LastMousePosition;
+
+            if( dir.LengthSquared() > 0 )
+            {
+                matLocalCamera->TranslatePreRotScale( 0, 0, -10 );
+
+                MyMatrix matRotation;
+                matRotation.SetIdentity();
+                matRotation.Rotate( dir.y, 1, 0, 0 );
+                matRotation.Rotate( dir.x, 0, 1, 0 );
+
+                *matLocalCamera = *matLocalCamera * matRotation;
+
+                matLocalCamera->TranslatePreRotScale( 0, 0, 10 );
+            }
+        }
+    }
+
+    m_EditorState.m_LastMousePosition = m_EditorState.m_CurrentMousePosition;
+#endif //MYFW_USING_WX
 }
 
 void GameEntityComponentTest::SaveScene()

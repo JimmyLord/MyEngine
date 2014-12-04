@@ -20,6 +20,32 @@
 
 class BulletWorld;
 
+enum ModifierKeys
+{
+    MODIFIERKEY_Control,
+    MODIFIERKEY_Alt,
+    MODIFIERKEY_Shift,
+    MODIFIERKEY_Space,
+    MODIFIERKEY_LeftMouse,
+    MODIFIERKEY_RightMouse,
+};
+
+struct EditorState
+{
+    int m_ModifierKeyStates;
+    Vector2 m_MouseDownLocation;
+    Vector2 m_LastMousePosition;
+    Vector2 m_CurrentMousePosition;
+
+    EditorState::EditorState()
+    {
+        m_ModifierKeyStates = 0;
+        m_MouseDownLocation.Set( -1, -1 );
+        m_LastMousePosition.Set( -1, -1 );
+        m_CurrentMousePosition.Set( -1, -1 );
+    }
+};
+
 enum LayerValues
 {
     Layer_MainScene = 0x0001,
@@ -34,6 +60,7 @@ public:
     BulletWorld* m_pBulletWorld;
 
     bool m_EditorMode;
+    EditorState m_EditorState;
 
     double m_TimeSinceLastPhysicsStep;
 
@@ -62,6 +89,8 @@ public:
     virtual void OnButtons(GameCoreButtonActions action, GameCoreButtonIDs id);
     virtual void OnKeyDown(int keycode, int unicodechar);
     virtual void OnKeyUp(int keycode, int unicodechar);
+
+    void HandleEditorInput(int keydown, int keycode, int action, float x, float y);
 
     void SaveScene();
     void LoadScene();
