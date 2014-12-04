@@ -51,7 +51,7 @@ public:
     static void StaticOnDrop(void* pObjectPtr) { ((GameObject*)pObjectPtr)->OnDrop(); }
     void OnLeftClick(bool clear);
     void OnRightClick();
-    void OnPopupClick(wxEvent &evt);
+    void OnPopupClick(wxEvent &evt); // used as callback for wxEvtHandler, can't be virtual(will crash, haven't looked into it).
     void OnDrag();
     void OnDrop();
 #endif //MYFW_USING_WX

@@ -82,7 +82,7 @@ public:
     static void StaticOnRightClick(void* pObjectPtr) { ((ComponentSystemManager*)pObjectPtr)->OnRightClick(); }
     void OnLeftClick(bool clear);
     void OnRightClick();
-    void OnPopupClick(wxEvent &evt);
+    void OnPopupClick(wxEvent &evt); // used as callback for wxEvtHandler, can't be virtual(will crash, haven't looked into it).
 #endif //MYFW_USING_WX
 };
 

@@ -90,7 +90,7 @@ void GameObject::OnRightClick()
     menu.Connect( wxEVT_COMMAND_MENU_SELECTED, (wxObjectEventFunction)&GameObject::OnPopupClick );
     
     // blocking call. // should delete all categorymenu's new'd above when done.
- 	g_pPanelWatch->PopupMenu( &menu );
+ 	g_pPanelWatch->PopupMenu( &menu ); // there's no reason this is using g_pPanelWatch other than convenience.
 }
 
 void GameObject::OnPopupClick(wxEvent &evt)

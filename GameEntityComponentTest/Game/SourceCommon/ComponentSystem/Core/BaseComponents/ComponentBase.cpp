@@ -59,7 +59,7 @@ void ComponentBase::OnRightClick()
  	menu.Connect( wxEVT_COMMAND_MENU_SELECTED, (wxObjectEventFunction)&ComponentBase::OnPopupClick );
 
     // blocking call.
-    g_pPanelObjectList->PopupMenu( &menu );
+    g_pPanelWatch->PopupMenu( &menu ); // there's no reason this is using g_pPanelWatch other than convenience.
 }
 
 void ComponentBase::OnPopupClick(wxEvent &evt)

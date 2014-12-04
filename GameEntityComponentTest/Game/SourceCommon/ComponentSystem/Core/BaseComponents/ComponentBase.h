@@ -65,7 +65,7 @@ public:
     static void StaticOnDrop(void* pObjectPtr) { ((ComponentBase*)pObjectPtr)->OnDrop(); }
     virtual void OnLeftClick(bool clear);
     virtual void OnRightClick();
-    virtual void OnPopupClick(wxEvent &evt);
+    void OnPopupClick(wxEvent &evt); // used as callback for wxEvtHandler, can't be virtual(will crash, haven't looked into it).
     virtual void OnDrag();
     virtual void OnDrop();
     virtual void FillPropertiesWindow(bool clear) = 0;

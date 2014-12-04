@@ -75,7 +75,7 @@ void ComponentSystemManager::OnRightClick()
  	menu.Connect( wxEVT_COMMAND_MENU_SELECTED, (wxObjectEventFunction)&ComponentSystemManager::OnPopupClick );
 
     // blocking call. // should delete all categorymenu's new'd above when done.
- 	g_pPanelWatch->PopupMenu( &menu );
+ 	g_pPanelWatch->PopupMenu( &menu ); // there's no reason this is using g_pPanelWatch other than convenience.
 }
 
 void ComponentSystemManager::OnPopupClick(wxEvent &evt)
