@@ -356,12 +356,8 @@ void GameEntityComponentTest::HandleEditorInput(int keydown, int keycode, int ac
             {
                 matLocalCamera->TranslatePreRotScale( 0, 0, -10 );
 
-                MyMatrix matRotation;
-                matRotation.SetIdentity();
-                matRotation.Rotate( dir.y, 1, 0, 0 );
-                matRotation.Rotate( dir.x, 0, 1, 0 );
-
-                *matLocalCamera = *matLocalCamera * matRotation;
+                matLocalCamera->Rotate( dir.y, 1, 0, 0 );
+                matLocalCamera->Rotate( dir.x, 0, 1, 0 );
 
                 matLocalCamera->TranslatePreRotScale( 0, 0, 10 );
             }
