@@ -38,6 +38,8 @@ public:
     virtual void ImportFromJSONObject(cJSON* jsonobj);
 
     virtual void Reset();
+    virtual void CopyFromSameType_Dangerous(ComponentBase* pObject) { *this = (ComponentRenderable&)*pObject; }
+    virtual ComponentRenderable& operator=(const ComponentRenderable& other);
 
     virtual void SetShader(ShaderGroup* pShader);
     virtual void Draw(MyMatrix* pMatViewProj);

@@ -67,6 +67,15 @@ void ComponentInputTrackMousePos::ImportFromJSONObject(cJSON* jsonobj)
 //    ComponentInputHandler::Reset();
 //}
 
+ComponentInputTrackMousePos& ComponentInputTrackMousePos::operator=(const ComponentInputTrackMousePos& other)
+{
+    assert( &other != this );
+
+    ComponentInputHandler::operator=( other );
+
+    return *this;
+}
+
 bool ComponentInputTrackMousePos::OnTouch(int action, int id, float x, float y, float pressure, float size)
 {
     // snap the object to the mouse pos.

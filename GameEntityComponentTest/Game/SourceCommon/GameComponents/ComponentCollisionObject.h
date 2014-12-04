@@ -34,6 +34,8 @@ public:
     virtual void ImportFromJSONObject(cJSON* jsonobj);
 
     virtual void Reset();
+    virtual void CopyFromSameType_Dangerous(ComponentBase* pObject) { *this = (ComponentCollisionObject&)*pObject; }
+    virtual ComponentCollisionObject& operator=(const ComponentCollisionObject& other);
 
     virtual void OnPlay();
     virtual void OnStop();

@@ -104,14 +104,13 @@ void ComponentAIChasePlayer::Reset()
     m_pComponentTransform = m_pGameObject->m_pComponentTransform;
 }
 
-ComponentBase& ComponentAIChasePlayer::operator=(const ComponentBase& other)
+ComponentAIChasePlayer& ComponentAIChasePlayer::operator=(const ComponentAIChasePlayer& other)
 {
-    if( &other == this )
-        return *this;
+    assert( &other != this );
 
-    ComponentUpdateable::operator=( ((ComponentAIChasePlayer&)other) );
+    ComponentUpdateable::operator=( other );
 
-    this->m_pPlayerComponentTransform = ((ComponentAIChasePlayer&)other).m_pPlayerComponentTransform;
+    this->m_pPlayerComponentTransform = other.m_pPlayerComponentTransform;
 
     return *this;
 }

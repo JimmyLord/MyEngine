@@ -73,6 +73,18 @@ void ComponentRenderable::Reset()
     m_LayersThisExistsOn = 0xFFFF;
 }
 
+ComponentRenderable& ComponentRenderable::operator=(const ComponentRenderable& other)
+{
+    assert( &other != this );
+
+    ComponentBase::operator=( other );
+
+    this->m_pShader = other.m_pShader;
+    this->m_LayersThisExistsOn = other.m_LayersThisExistsOn;
+
+    return *this;
+}
+
 void ComponentRenderable::SetShader(ShaderGroup* pShader)
 {
     m_pShader = pShader;

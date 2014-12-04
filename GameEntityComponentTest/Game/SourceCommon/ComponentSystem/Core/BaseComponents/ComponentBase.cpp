@@ -58,8 +58,8 @@ void ComponentBase::OnRightClick()
     menu.Append( 0, "Delete Component" );
  	menu.Connect( wxEVT_COMMAND_MENU_SELECTED, (wxObjectEventFunction)&ComponentBase::OnPopupClick );
 
-    // blocking call. // should delete all categorymenu's new'd above when done.
- 	g_pPanelWatch->PopupMenu( &menu );
+    // blocking call.
+    g_pPanelObjectList->PopupMenu( &menu );
 }
 
 void ComponentBase::OnPopupClick(wxEvent &evt)
@@ -115,8 +115,7 @@ void ComponentBase::Reset()
 
 ComponentBase& ComponentBase::operator=(const ComponentBase& other)
 {
-    if( &other == this )
-        return *this;
+    assert( &other != this );
 
     return *this;
 }

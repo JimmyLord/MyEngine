@@ -117,6 +117,17 @@ void ComponentCollisionObject::Reset()
     }
 }
 
+ComponentCollisionObject& ComponentCollisionObject::operator=(const ComponentCollisionObject& other)
+{
+    assert( &other != this );
+
+    ComponentUpdateable::operator=( other );
+
+    //assert( false ); // TODO: implement me.
+
+    return *this;
+}
+
 void ComponentCollisionObject::OnPlay()
 {
     ComponentUpdateable::OnPlay();

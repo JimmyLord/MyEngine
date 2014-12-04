@@ -31,6 +31,8 @@ public:
     virtual ~ComponentUpdateable();
 
     virtual void Reset();
+    virtual void CopyFromSameType_Dangerous(ComponentBase* pObject) { *this = (ComponentUpdateable&)*pObject; }
+    virtual ComponentUpdateable& operator=(const ComponentUpdateable& other);
 
     virtual void Tick(double TimePassed) = 0;
 

@@ -324,13 +324,13 @@ GameObject* ComponentSystemManager::CopyGameObject(GameObject* pObject)
     GameObject* pGameObject = CreateGameObject();
     pGameObject->SetName( "Duplicated Game Object" );
 
-    pGameObject->m_pComponentTransform = pObject->m_pComponentTransform;
+    *pGameObject->m_pComponentTransform = *pObject->m_pComponentTransform;
 
     for( unsigned int i=0; i<pObject->m_Components.Count(); i++ )
     {
         ComponentBase* pComponent = pGameObject->AddNewComponent( pObject->m_Components[i]->m_Type );
 
-        *pComponent = *pObject->m_Components[i];
+        pComponent->CopyFromSameType_Dangerous( pObject->m_Components[i] );
     }
 
     return pGameObject;

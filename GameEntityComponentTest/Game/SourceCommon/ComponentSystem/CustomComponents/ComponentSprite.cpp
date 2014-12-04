@@ -108,16 +108,15 @@ void ComponentSprite::Reset()
     m_Tint.Set( 255,255,255,255 );
 }
 
-ComponentBase& ComponentSprite::operator=(const ComponentBase& other)
+ComponentSprite& ComponentSprite::operator=(const ComponentSprite& other)
 {
-    if( &other == this )
-        return *this;
+    assert( &other != this );
 
-    ComponentRenderable::operator=( ((ComponentSprite&)other) );
+    ComponentRenderable::operator=( other );
 
-    this->m_Tint = ((ComponentSprite&)other).m_Tint;
-    this->m_Size = ((ComponentSprite&)other).m_Size;
-    this->m_pSprite->m_pShaderGroup = ((ComponentSprite&)other).m_pSprite->m_pShaderGroup;
+    this->m_Tint = other.m_Tint;
+    this->m_Size = other.m_Size;
+    this->m_pSprite->m_pShaderGroup = other.m_pSprite->m_pShaderGroup;
 
     return *this;
 }

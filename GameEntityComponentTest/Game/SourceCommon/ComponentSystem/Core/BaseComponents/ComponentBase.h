@@ -50,6 +50,7 @@ public:
     virtual void ImportFromJSONObject(cJSON* jsonobj);
 
     virtual void Reset();
+    virtual void CopyFromSameType_Dangerous(ComponentBase* pObject) { *this = (ComponentBase&)*pObject; }
     virtual ComponentBase& operator=(const ComponentBase& other);
 
     virtual void OnPlay() {}

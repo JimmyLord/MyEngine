@@ -86,6 +86,22 @@ void ComponentCamera::Reset()
     m_LayersToRender = 0xFFFF;
 }
 
+ComponentCamera& ComponentCamera::operator=(const ComponentCamera& other)
+{
+    assert( &other != this );
+
+    ComponentBase::operator=( other );
+
+    this->m_Orthographic = other.m_Orthographic;
+    
+    this->m_DesiredWidth = other.m_DesiredWidth;
+    this->m_DesiredHeight = other.m_DesiredHeight;
+
+    this->m_LayersToRender = other.m_LayersToRender;
+
+    return *this;
+}
+
 void ComponentCamera::SetDesiredAspectRatio(float width, float height)
 {
     m_DesiredWidth = width;

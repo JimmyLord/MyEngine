@@ -28,6 +28,8 @@ public:
     virtual ~ComponentData();
 
     //virtual void Reset();
+    virtual void CopyFromSameType_Dangerous(ComponentBase* pObject) { *this = (ComponentData&)*pObject; }
+    virtual ComponentData& operator=(const ComponentData& other);
 
 public:
 #if MYFW_USING_WX

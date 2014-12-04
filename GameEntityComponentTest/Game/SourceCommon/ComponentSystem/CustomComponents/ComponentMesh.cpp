@@ -155,6 +155,18 @@ void ComponentMesh::Reset()
         m_pMesh = MyNew MyMesh();
 }
 
+ComponentMesh& ComponentMesh::operator=(const ComponentMesh& other)
+{
+    assert( &other != this );
+
+    ComponentRenderable::operator=( other );
+
+    this->m_pMesh->SetShaderGroup( other.m_pMesh->GetShaderGroup() );
+    this->m_pOBJFile = other.m_pOBJFile;
+
+    return *this;
+}
+
 void ComponentMesh::SetShader(ShaderGroup* pShader)
 {
     ComponentRenderable::SetShader( pShader );

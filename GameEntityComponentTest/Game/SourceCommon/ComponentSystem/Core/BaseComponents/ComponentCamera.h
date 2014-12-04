@@ -47,6 +47,8 @@ public:
     virtual void ImportFromJSONObject(cJSON* jsonobj);
 
     virtual void Reset();
+    virtual void CopyFromSameType_Dangerous(ComponentBase* pObject) { *this = (ComponentCamera&)*pObject; }
+    virtual ComponentCamera& operator=(const ComponentCamera& other);
 
     void SetDesiredAspectRatio(float width, float height);
 

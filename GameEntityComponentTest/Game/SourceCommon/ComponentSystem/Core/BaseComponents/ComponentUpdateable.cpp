@@ -53,6 +53,15 @@ void ComponentUpdateable::Reset()
     m_pComponentTransform = m_pGameObject->m_pComponentTransform;
 }
 
+ComponentUpdateable& ComponentUpdateable::operator=(const ComponentUpdateable& other)
+{
+    assert( &other != this );
+
+    ComponentBase::operator=( other );
+
+    return *this;
+}
+
 //void ComponentUpdateable::Tick(double TimePassed)
 //{
 //}

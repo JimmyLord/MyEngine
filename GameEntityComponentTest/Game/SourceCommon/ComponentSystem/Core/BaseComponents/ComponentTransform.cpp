@@ -130,18 +130,19 @@ void ComponentTransform::Reset()
     m_Rotation.Set( 0,0,0 );
 }
 
-ComponentBase& ComponentTransform::operator=(const ComponentBase& other)
+ComponentTransform& ComponentTransform::operator=(const ComponentTransform& other)
 {
-    if( &other == this )
-        return *this;
+    assert( &other != this );
 
-    this->m_Transform = ((ComponentTransform&)other).m_Transform;
-    this->m_pParentTransform = ((ComponentTransform&)other).m_pParentTransform;
+    ComponentBase::operator=( other );
 
-    this->m_LocalTransform = ((ComponentTransform&)other).m_LocalTransform;
-    this->m_Position = ((ComponentTransform&)other).m_Position;
-    this->m_Scale = ((ComponentTransform&)other).m_Scale;
-    this->m_Rotation = ((ComponentTransform&)other).m_Rotation;
+    this->m_Transform = other.m_Transform;
+    this->m_pParentTransform = other.m_pParentTransform;
+
+    this->m_LocalTransform = other.m_LocalTransform;
+    this->m_Position = other.m_Position;
+    this->m_Scale = other.m_Scale;
+    this->m_Rotation = other.m_Rotation;
 
     return *this;
 }

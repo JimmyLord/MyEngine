@@ -50,3 +50,12 @@ void ComponentData::FillPropertiesWindow(bool clear)
 //{
 //    ComponentBase::Reset();
 //}
+
+ComponentData& ComponentData::operator=(const ComponentData& other)
+{
+    assert( &other != this );
+
+    ComponentBase::operator=( other );
+
+    return *this;
+}

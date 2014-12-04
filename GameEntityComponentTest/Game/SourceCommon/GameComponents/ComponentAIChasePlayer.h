@@ -33,7 +33,8 @@ public:
     virtual void ImportFromJSONObject(cJSON* jsonobj);
 
     virtual void Reset();
-    virtual ComponentBase& operator=(const ComponentBase& other);
+    virtual void CopyFromSameType_Dangerous(ComponentBase* pObject) { *this = (ComponentAIChasePlayer&)*pObject; }
+    virtual ComponentAIChasePlayer& operator=(const ComponentAIChasePlayer& other);
 
     virtual void Tick(double TimePassed);
 

@@ -53,6 +53,15 @@ void ComponentInputHandler::Reset()
     m_pComponentTransform = m_pGameObject->m_pComponentTransform;
 }
 
+ComponentInputHandler& ComponentInputHandler::operator=(const ComponentInputHandler& other)
+{
+    assert( &other != this );
+
+    ComponentBase::operator=( other );
+
+    return *this;
+}
+
 //bool ComponentInputHandler::OnTouch(int action, int id, float x, float y, float pressure, float size)
 //{
 //    return false;

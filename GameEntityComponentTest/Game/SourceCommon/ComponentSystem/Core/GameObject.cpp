@@ -72,6 +72,8 @@ void GameObject::OnRightClick()
     wxMenu* categorymenu = 0;
     char* lastcategory = 0;
 
+    menu.Append( 1000, "Duplicate GameObject" ); // matches 1000 in OnPopupClick()
+
     for( unsigned int i=0; i<g_pComponentTypeManager->GetNumberOfComponentTypes(); i++ )
     {
         if( lastcategory != g_pComponentTypeManager->GetTypeCategory( i ) )
@@ -85,8 +87,6 @@ void GameObject::OnRightClick()
         lastcategory = g_pComponentTypeManager->GetTypeCategory( i );
     }
     
-    menu.Append( 1000, "Duplicate GameObject" ); // matches 1000 in OnPopupClick()
-
     menu.Connect( wxEVT_COMMAND_MENU_SELECTED, (wxObjectEventFunction)&GameObject::OnPopupClick );
     
     // blocking call. // should delete all categorymenu's new'd above when done.

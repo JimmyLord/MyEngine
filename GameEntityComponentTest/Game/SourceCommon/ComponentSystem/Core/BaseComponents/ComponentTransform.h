@@ -40,7 +40,8 @@ public:
     virtual void ImportFromJSONObject(cJSON* jsonobj);
 
     virtual void Reset();
-    virtual ComponentBase& operator=(const ComponentBase& other);
+    virtual void CopyFromSameType_Dangerous(ComponentBase* pObject) { *this = (ComponentTransform&)*pObject; }
+    virtual ComponentTransform& operator=(const ComponentTransform& other);
 
     // recalculate the matrix each time we set any of the 3 properties. // not efficient
     void SetPosition(Vector3 pos);
