@@ -222,7 +222,7 @@ void GameEntityComponentTest::OnTouch(int action, int id, float x, float y, floa
 
     if( m_EditorMode )
     {
-        HandleEditorInput( -1, -1, action, x, y );
+        HandleEditorInput( -1, -1, action, id, x, y, pressure );
         return;
     }
 
@@ -253,7 +253,7 @@ void GameEntityComponentTest::OnKeyDown(int keycode, int unicodechar)
             return;
         }
 
-        HandleEditorInput( 1, keycode, -1, -1, -1 );
+        HandleEditorInput( 1, keycode, -1, -1, -1, -1, -1 );
         return;
     }
 
@@ -277,12 +277,12 @@ void GameEntityComponentTest::OnKeyUp(int keycode, int unicodechar)
 {
     if( m_EditorMode )
     {
-        HandleEditorInput( 0, keycode, -1, -1, -1 );
+        HandleEditorInput( 0, keycode, -1, -1, -1, -1, -1 );
         return;
     }
 }
 
-void GameEntityComponentTest::HandleEditorInput(int keydown, int keycode, int action, float x, float y)
+void GameEntityComponentTest::HandleEditorInput(int keydown, int keycode, int action, int id, float x, float y, float pressure)
 {
 #if MYFW_USING_WX
     if( keycode == MYKEYCODE_LCTRL )
@@ -307,21 +307,40 @@ void GameEntityComponentTest::HandleEditorInput(int keydown, int keycode, int ac
     }
     if( action != -1 )
     {
-        if( action == GCBA_Down )
+        m_EditorState.m_CurrentMousePosition.Set( x, y );
+        //m_EditorState.m_LastMousePosition.Set( x, y );
+
+        if( action == GCBA_Down && id == 0 )
         {
-            m_EditorState.m_CurrentMousePosition.Set( x, y );
-            m_EditorState.m_LastMousePosition.Set( x, y );
+            m_EditorState.m_MouseLeftDownLocation = m_EditorState.m_CurrentMousePosition;
             m_EditorState.m_ModifierKeyStates |= MODIFIERKEY_LeftMouse;
         }
-        if( action == GCBA_Up )
+        if( action == GCBA_Up && id == 0 )
         {
-            m_EditorState.m_CurrentMousePosition.Set( -1, -1 );
-            m_EditorState.m_LastMousePosition.Set( -1, -1 );
+            m_EditorState.m_MouseLeftDownLocation = Vector2( -1, -1 );
             m_EditorState.m_ModifierKeyStates &= ~MODIFIERKEY_LeftMouse;
         }
-        if( action == GCBA_Held )
+
+        if( action == GCBA_Down && id == 1 )
         {
-            m_EditorState.m_CurrentMousePosition.Set( x, y );
+            m_EditorState.m_MouseRightDownLocation = m_EditorState.m_CurrentMousePosition;
+            m_EditorState.m_ModifierKeyStates |= MODIFIERKEY_RightMouse;
+        }
+        if( action == GCBA_Up && id == 1 )
+        {
+            m_EditorState.m_MouseRightDownLocation = Vector2( -1, -1 );
+            m_EditorState.m_ModifierKeyStates &= ~MODIFIERKEY_RightMouse;
+        }
+
+        if( action == GCBA_Down && id == 2 )
+        {
+            m_EditorState.m_MouseMiddleDownLocation = m_EditorState.m_CurrentMousePosition;
+            m_EditorState.m_ModifierKeyStates |= MODIFIERKEY_MiddleMouse;
+        }
+        if( action == GCBA_Up && id == 2 )
+        {
+            m_EditorState.m_MouseMiddleDownLocation = Vector2( -1, -1 );
+            m_EditorState.m_ModifierKeyStates &= ~MODIFIERKEY_MiddleMouse;
         }
     }
    
@@ -333,21 +352,35 @@ void GameEntityComponentTest::HandleEditorInput(int keydown, int keycode, int ac
         }
     }
 
-    // if control is held, pan the camera around.
-    if( m_EditorState.m_ModifierKeyStates & MODIFIERKEY_LeftMouse )
+    // move camera in/out if mousewheel spinning
+    if( action != -1 )
     {
+        unsigned int mods = m_EditorState.m_ModifierKeyStates;
+
         // TODO: get the camera properly.
         ComponentCamera* pCamera = m_pComponentSystemManager->GetFirstCamera();
         MyMatrix* matLocalCamera = pCamera->m_pComponentTransform->GetLocalTransform();
 
-        if( m_EditorState.m_ModifierKeyStates & MODIFIERKEY_Space )
+        if( action == GCBA_Wheel )
+        {
+            // pressure is also mouse wheel movement rate in WX.
+            Vector3 dir = Vector3( 0, 0, 1 ) * -(pressure/abs(pressure));
+
+            if( dir.LengthSquared() > 0 )
+                matLocalCamera->TranslatePreRotScale( dir * 1.5f );
+        }
+
+        // if space is held, left button will pan the camera around.  or just middle button
+        if( ( mods & MODIFIERKEY_LeftMouse && mods & MODIFIERKEY_Space ) ||
+            mods & MODIFIERKEY_MiddleMouse
+          )
         {
             Vector2 dir = m_EditorState.m_CurrentMousePosition - m_EditorState.m_LastMousePosition;
 
             if( dir.LengthSquared() > 0 )
                 matLocalCamera->TranslatePreRotScale( dir * 0.05f );
-        }
-        else
+        }        
+        else if( mods & MODIFIERKEY_LeftMouse ) // if left mouse if down, rotate the camera.
         {
             // rotate the camera around a point 10 units in front of the camera.
             Vector2 dir = m_EditorState.m_CurrentMousePosition - m_EditorState.m_LastMousePosition;

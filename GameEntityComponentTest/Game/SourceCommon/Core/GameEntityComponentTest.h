@@ -22,25 +22,30 @@ class BulletWorld;
 
 enum ModifierKeys
 {
-    MODIFIERKEY_Control,
-    MODIFIERKEY_Alt,
-    MODIFIERKEY_Shift,
-    MODIFIERKEY_Space,
-    MODIFIERKEY_LeftMouse,
-    MODIFIERKEY_RightMouse,
+    MODIFIERKEY_Control     = 0x0001,
+    MODIFIERKEY_Alt         = 0x0002,
+    MODIFIERKEY_Shift       = 0x0004,
+    MODIFIERKEY_Space       = 0x0008,
+    MODIFIERKEY_LeftMouse   = 0x0010,
+    MODIFIERKEY_RightMouse  = 0x0020,
+    MODIFIERKEY_MiddleMouse = 0x0040,
 };
 
 struct EditorState
 {
-    int m_ModifierKeyStates;
-    Vector2 m_MouseDownLocation;
+    unsigned int m_ModifierKeyStates;
+    Vector2 m_MouseLeftDownLocation;
+    Vector2 m_MouseRightDownLocation;
+    Vector2 m_MouseMiddleDownLocation;
     Vector2 m_LastMousePosition;
     Vector2 m_CurrentMousePosition;
 
     EditorState::EditorState()
     {
         m_ModifierKeyStates = 0;
-        m_MouseDownLocation.Set( -1, -1 );
+        m_MouseLeftDownLocation.Set( -1, -1 );
+        m_MouseRightDownLocation.Set( -1, -1 );
+        m_MouseMiddleDownLocation.Set( -1, -1 );
         m_LastMousePosition.Set( -1, -1 );
         m_CurrentMousePosition.Set( -1, -1 );
     }
@@ -90,7 +95,7 @@ public:
     virtual void OnKeyDown(int keycode, int unicodechar);
     virtual void OnKeyUp(int keycode, int unicodechar);
 
-    void HandleEditorInput(int keydown, int keycode, int action, float x, float y);
+    void HandleEditorInput(int keydown, int keycode, int action, int id, float x, float y, float pressure);
 
     void SaveScene();
     void LoadScene();
