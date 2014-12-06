@@ -21,7 +21,11 @@ GameEntityComponentTest::GameEntityComponentTest()
 {
     m_pComponentSystemManager = 0;
 
+#if MYFW_USING_WX
     m_EditorMode = true;
+#else
+    m_EditorMode = false;
+#endif
 
     m_TimeSinceLastPhysicsStep = 0;
 
@@ -171,6 +175,8 @@ void GameEntityComponentTest::OneTimeInit()
         }
         pComponentCollisionObject = (ComponentCollisionObject*)pGameObject->AddNewComponent( ComponentType_CollisionObject );
     }
+
+    OnSurfaceChanged( (unsigned int)m_WindowStartX, (unsigned int)m_WindowStartY, (unsigned int)m_WindowWidth, (unsigned int)m_WindowHeight );
 }
 
 static float totaltimepassed;
@@ -183,7 +189,9 @@ void GameEntityComponentTest::Tick(double TimePassed)
 
     // tick all components.
     if( m_EditorMode )
+    {
         m_pComponentSystemManager->Tick( 0 );
+    }
     else
     {
         if( TimePassed != 0 )
@@ -220,11 +228,17 @@ void GameEntityComponentTest::OnTouch(int action, int id, float x, float y, floa
     // prefer 0,0 at bottom left.
     y = m_WindowHeight - y;
 
+#if MYFW_USING_WX
     if( m_EditorMode )
     {
         HandleEditorInput( -1, -1, action, id, x, y, pressure );
         return;
     }
+#endif
+
+    // mouse moving without button down.
+    if( id == -1 )
+        return;
 
     // TODO: get the camera properly.
     ComponentCamera* pCamera = m_pComponentSystemManager->GetFirstCamera();
@@ -243,6 +257,7 @@ void GameEntityComponentTest::OnButtons(GameCoreButtonActions action, GameCoreBu
 
 void GameEntityComponentTest::OnKeyDown(int keycode, int unicodechar)
 {
+#if MYFW_USING_WX
     if( m_EditorMode )
     {
         if( keycode == 'P' ) // if press "Play"
@@ -271,15 +286,18 @@ void GameEntityComponentTest::OnKeyDown(int keycode, int unicodechar)
             m_pComponentSystemManager->SyncAllRigidBodiesToObjectTransforms();
         }
     }
+#endif
 }
 
 void GameEntityComponentTest::OnKeyUp(int keycode, int unicodechar)
 {
+#if MYFW_USING_WX
     if( m_EditorMode )
     {
         HandleEditorInput( 0, keycode, -1, -1, -1, -1, -1 );
         return;
     }
+#endif
 }
 
 void GameEntityComponentTest::HandleEditorInput(int keydown, int keycode, int action, int id, float x, float y, float pressure)
@@ -443,9 +461,11 @@ void GameEntityComponentTest::LoadScene()
         delete[] jsonstr;
     }
 
+#if MYFW_USING_WX
     m_EditorMode = true;
+#endif
 
-    OnSurfaceChanged( m_WindowStartX, m_WindowStartY, m_WindowWidth, m_WindowHeight );
+    OnSurfaceChanged( (unsigned int)m_WindowStartX, (unsigned int)m_WindowStartY, (unsigned int)m_WindowWidth, (unsigned int)m_WindowHeight );
 }
 
 void GameEntityComponentTest::OnSurfaceChanged(unsigned int startx, unsigned int starty, unsigned int width, unsigned int height)

@@ -24,7 +24,9 @@
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
 {
-    GameCore* pGameCore = new GameEntityComponentTest;
+    MarkAllExistingAllocationsAsStatic();
+
+    GameCore* pGameCore = MyNew GameEntityComponentTest;
 
     return MYFWWinMain( SCREEN_WIDTH, SCREEN_HEIGHT );
 }
