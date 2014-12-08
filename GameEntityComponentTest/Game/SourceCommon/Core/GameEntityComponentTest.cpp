@@ -77,6 +77,7 @@ void GameEntityComponentTest::OneTimeInit()
     ComponentCamera* pComponentCamera;
     ComponentSprite* pComponentSprite;
     ComponentMesh* pComponentMesh;
+    ComponentMeshOBJ* pComponentMeshOBJ;
     ComponentAIChasePlayer* pComponentAIChasePlayer;
     ComponentCollisionObject* pComponentCollisionObject;
 
@@ -91,6 +92,7 @@ void GameEntityComponentTest::OneTimeInit()
     //m_pTextures[3] = g_pTextureManager->CreateTexture( "Data/Textures/test4.png", GL_NEAREST, GL_NEAREST, GL_REPEAT, GL_REPEAT );
 
     glEnable( GL_CULL_FACE );
+    glEnable( GL_DEPTH_TEST );
 
     // setup our shaders
     m_pShader_TintColor = MyNew ShaderGroup( MyNew Shader_Base(ShaderPass_Main), 0, 0, "Tint Color" );
@@ -103,6 +105,22 @@ void GameEntityComponentTest::OneTimeInit()
 
     // Initialize our component system.
     m_pComponentSystemManager = MyNew ComponentSystemManager( MyNew GameComponentTypeManager );
+
+#if MYFW_USING_WX
+    // create a 3D X/Z plane grid
+    {
+        pGameObject = m_pComponentSystemManager->CreateGameObject();
+        pGameObject->SetName( "3D Grid Plane" );
+        pComponentMesh = (ComponentMesh*)pGameObject->AddNewComponent( ComponentType_Mesh );
+        if( pComponentMesh )
+        {
+            pComponentMesh->SetShader( m_pShader_TintColor );
+            pComponentMesh->m_LayersThisExistsOn = Layer_MainScene;
+            pComponentMesh->m_pMesh->m_Tint.Set( 150, 150, 150, 255 );
+        }
+        pComponentCollisionObject = (ComponentCollisionObject*)pGameObject->AddNewComponent( ComponentType_CollisionObject );
+    }
+#endif
 
     // create a 3D camera, renders first.
     {
@@ -166,12 +184,12 @@ void GameEntityComponentTest::OneTimeInit()
     {
         pGameObject = m_pComponentSystemManager->CreateGameObject();
         pGameObject->SetName( "Cube" );
-        pComponentMesh = (ComponentMesh*)pGameObject->AddNewComponent( ComponentType_MeshOBJ );
-        if( pComponentMesh )
+        pComponentMeshOBJ = (ComponentMeshOBJ*)pGameObject->AddNewComponent( ComponentType_MeshOBJ );
+        if( pComponentMeshOBJ )
         {
-            pComponentMesh->SetShader( m_pShader_TestNormals );
-            pComponentMesh->m_pOBJFile = m_pOBJTestFiles[0];
-            pComponentMesh->m_LayersThisExistsOn = Layer_MainScene;
+            pComponentMeshOBJ->SetShader( m_pShader_TestNormals );
+            pComponentMeshOBJ->m_pOBJFile = m_pOBJTestFiles[0];
+            pComponentMeshOBJ->m_LayersThisExistsOn = Layer_MainScene;
         }
         pComponentCollisionObject = (ComponentCollisionObject*)pGameObject->AddNewComponent( ComponentType_CollisionObject );
     }

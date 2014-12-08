@@ -20,10 +20,11 @@
 
 class ComponentBase;
 
-enum ComponentTypes
+enum ComponentTypes // search for ADDING_NEW_ComponentType
 {
     ComponentType_Camera,
     ComponentType_Sprite,
+    ComponentType_Mesh,
     ComponentType_MeshOBJ,
     ComponentType_InputTrackMousePos,
     ComponentType_AIChasePlayer,

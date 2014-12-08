@@ -177,6 +177,9 @@
     <ClCompile Include="SourceCommon\GameComponents\ComponentCollisionObject.cpp">
       <Filter>Source\Game Components</Filter>
     </ClCompile>
+    <ClCompile Include="SourceCommon\ComponentSystem\CustomComponents\ComponentMeshOBJ.cpp">
+      <Filter>Source\ComponentSystem\Custom Components</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SourceWindows\WinMain.h">
@@ -274,6 +277,9 @@
     </ClInclude>
     <ClInclude Include="SourceCommon\GameComponents\ComponentCollisionObject.h">
       <Filter>Source\Game Components</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCommon\ComponentSystem\CustomComponents\ComponentMeshOBJ.h">
+      <Filter>Source\ComponentSystem\Custom Components</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

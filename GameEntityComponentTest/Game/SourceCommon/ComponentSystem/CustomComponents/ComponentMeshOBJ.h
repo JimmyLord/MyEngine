@@ -15,39 +15,38 @@
 // misrepresented as being the original software.
 // 3. This notice may not be removed or altered from any source distribution.
 
-#ifndef __ComponentMesh_H__
-#define __ComponentMesh_H__
+#ifndef __ComponentMeshOBJ_H__
+#define __ComponentMeshOBJ_H__
 
 class ComponentTransform;
 
-class ComponentMesh : public ComponentRenderable
+class ComponentMeshOBJ : public ComponentMesh
 {
 public:
-    MyMesh* m_pMesh;
+    MyFileObject* m_pOBJFile;
 
 public:
-    ComponentMesh();
-    ComponentMesh(GameObject* owner);
-    virtual ~ComponentMesh();
+    ComponentMeshOBJ();
+    ComponentMeshOBJ(GameObject* owner);
+    virtual ~ComponentMeshOBJ();
 
     virtual cJSON* ExportAsJSONObject();
     virtual void ImportFromJSONObject(cJSON* jsonobj);
 
     virtual void Reset();
-    virtual void CopyFromSameType_Dangerous(ComponentBase* pObject) { *this = (ComponentMesh&)*pObject; }
-    virtual ComponentMesh& operator=(const ComponentMesh& other);
+    virtual void CopyFromSameType_Dangerous(ComponentBase* pObject) { *this = (ComponentMeshOBJ&)*pObject; }
+    virtual ComponentMeshOBJ& operator=(const ComponentMeshOBJ& other);
 
-    virtual void SetShader(ShaderGroup* pShader);
     virtual void Draw(MyMatrix* pMatViewProj);
 
 public:
 #if MYFW_USING_WX
     virtual void AddToObjectsPanel(wxTreeItemId gameobjectid);
-    static void StaticFillPropertiesWindow(void* pObjectPtr) { ((ComponentMesh*)pObjectPtr)->FillPropertiesWindow(true); }
+    static void StaticFillPropertiesWindow(void* pObjectPtr) { ((ComponentMeshOBJ*)pObjectPtr)->FillPropertiesWindow(true); }
     void FillPropertiesWindow(bool clear);
-    static void StaticOnDrop(void* pObjectPtr) { ((ComponentMesh*)pObjectPtr)->OnDrop(); }
+    static void StaticOnDrop(void* pObjectPtr) { ((ComponentMeshOBJ*)pObjectPtr)->OnDrop(); }
     void OnDrop();
 #endif //MYFW_USING_WX
 };
 
-#endif //__ComponentMesh_H__
+#endif //__ComponentMeshOBJ_H__

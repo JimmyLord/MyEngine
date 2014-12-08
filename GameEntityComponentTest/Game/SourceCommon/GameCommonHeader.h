@@ -45,6 +45,7 @@
 #include "Core/GameComponentTypeManager.h"
 #include "ComponentSystem/CustomComponents/ComponentSprite.h"
 #include "ComponentSystem/CustomComponents/ComponentMesh.h"
+#include "ComponentSystem/CustomComponents/ComponentMeshOBJ.h"
 
 // game code
 #include "Camera/Camera3D.h"

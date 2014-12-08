@@ -23,7 +23,6 @@ ComponentMesh::ComponentMesh()
     m_BaseType = BaseComponentType_Renderable;
 
     m_pMesh = 0;
-    m_pOBJFile = 0;
 }
 
 ComponentMesh::ComponentMesh(GameObject* owner)
@@ -32,7 +31,6 @@ ComponentMesh::ComponentMesh(GameObject* owner)
     m_BaseType = BaseComponentType_Renderable;
 
     m_pMesh = 0;
-    m_pOBJFile = 0;
 }
 
 ComponentMesh::~ComponentMesh()
@@ -57,11 +55,6 @@ void ComponentMesh::FillPropertiesWindow(bool clear)
     if( m_pMesh->GetShaderGroup() )
         desc = m_pMesh->GetShaderGroup()->GetShader( ShaderPass_Main )->m_pFilename;
     g_pPanelWatch->AddPointerWithDescription( "Shader", 0, desc, this, ComponentMesh::StaticOnDrop );
-
-    desc = "no mesh";
-    if( m_pOBJFile )
-        desc = m_pOBJFile->m_Filename;
-    g_pPanelWatch->AddPointerWithDescription( "OBJ", 0, desc, this, ComponentMesh::StaticOnDrop );
 
     desc = "no texture";
     if( m_pMesh->m_pTexture )
@@ -88,11 +81,6 @@ void ComponentMesh::OnDrop()
 
         int len = strlen( pFile->m_Filename );
         const char* filenameext = &pFile->m_Filename[len-4];
-        if( strcmp( filenameext, ".obj" ) == 0 )
-        {
-            m_pOBJFile = pFile;
-            m_pMesh->m_NumIndicesToDraw = 0;
-        }
 
         if( strcmp( filenameext, ".png" ) == 0 )
         {
@@ -113,8 +101,6 @@ cJSON* ComponentMesh::ExportAsJSONObject()
 
     if( m_pMesh->GetShaderGroup() )
         cJSON_AddStringToObject( component, "Shader", m_pMesh->GetShaderGroup()->GetName() );
-    if( m_pOBJFile )
-        cJSON_AddStringToObject( component, "OBJ", m_pOBJFile->m_Filename );
     if( m_pMesh->m_pTexture )
         cJSON_AddStringToObject( component, "Texture", m_pMesh->m_pTexture->m_Filename );
 
@@ -132,18 +118,10 @@ void ComponentMesh::ImportFromJSONObject(cJSON* jsonobj)
         m_pMesh->SetShaderGroup( pShaderGroup );
     }
 
-    cJSON* objstringobj = cJSON_GetObjectItem( jsonobj, "OBJ" );
-    if( objstringobj )
-    {
-        m_pOBJFile = g_pFileManager->FindFileByName( objstringobj->valuestring );
-        assert( m_pOBJFile );
-    }
-
     cJSON* texturestringobj = cJSON_GetObjectItem( jsonobj, "Texture" );
     if( texturestringobj )
     {
         m_pMesh->m_pTexture = g_pTextureManager->FindTexture( texturestringobj->valuestring );
-        assert( m_pOBJFile );
     }
 }
 
@@ -162,7 +140,6 @@ ComponentMesh& ComponentMesh::operator=(const ComponentMesh& other)
     ComponentRenderable::operator=( other );
 
     this->m_pMesh->SetShaderGroup( other.m_pMesh->GetShaderGroup() );
-    this->m_pOBJFile = other.m_pOBJFile;
 
     return *this;
 }
@@ -178,10 +155,12 @@ void ComponentMesh::Draw(MyMatrix* pMatViewProj)
 {
     ComponentRenderable::Draw(pMatViewProj);
 
-    // TODO: find a better way to handle the creation of a mesh if we pass in an obj file that isn't ready.
-    if( m_pMesh->m_NumIndicesToDraw == 0 && m_pOBJFile && m_pOBJFile->m_FileReady )
+    // TODO: find a better way to handle the creation of a mesh.
+    if( m_pMesh->m_NumIndicesToDraw == 0 )
     {
-        m_pMesh->CreateFromOBJBuffer( m_pOBJFile->m_pBuffer );
+        m_pMesh->CreateEditorLineGridXZ( Vector3(0,0,0), 1, 5 );
+        //m_pMesh->CreateCylinder( 1, 40, 0.9, 1, 0, 1, 0, 1, 0, 1, 0, 1 );
+        //assert( false );
     }
 
     m_pMesh->m_Position = this->m_pComponentTransform->m_Transform;
