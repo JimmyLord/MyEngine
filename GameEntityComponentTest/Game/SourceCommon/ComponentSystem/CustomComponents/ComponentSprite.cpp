@@ -128,9 +128,9 @@ void ComponentSprite::SetShader(ShaderGroup* pShader)
     m_pSprite->SetShader( pShader );
 }
 
-void ComponentSprite::Draw(MyMatrix* pMatViewProj)
+void ComponentSprite::Draw(MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride, int drawcount)
 {
-    ComponentRenderable::Draw(pMatViewProj);
+    ComponentRenderable::Draw( pMatViewProj, pShaderOverride, drawcount );
 
     m_pSprite->SetPosition( &m_pComponentTransform->m_Transform );
     m_pSprite->SetTint( m_Tint );

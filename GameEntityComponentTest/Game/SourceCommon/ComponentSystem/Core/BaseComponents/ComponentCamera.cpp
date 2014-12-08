@@ -136,10 +136,10 @@ void ComponentCamera::OnDrawFrame()
     if( m_Orthographic )
     {
         m_Camera2D.UpdateMatrices();
-        g_pComponentSystemManager->OnDrawFrame( this, &m_Camera2D.m_matViewProj );
+        g_pComponentSystemManager->OnDrawFrame( this, &m_Camera2D.m_matViewProj, 0 );
     }
     else
     {
-        g_pComponentSystemManager->OnDrawFrame( this, &m_Camera3D.m_matViewProj );
+        g_pComponentSystemManager->OnDrawFrame( this, &m_Camera3D.m_matViewProj, 0 );
     }
 }

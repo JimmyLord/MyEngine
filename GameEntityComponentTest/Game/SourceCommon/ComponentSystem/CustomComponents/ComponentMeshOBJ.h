@@ -37,7 +37,7 @@ public:
     virtual void CopyFromSameType_Dangerous(ComponentBase* pObject) { *this = (ComponentMeshOBJ&)*pObject; }
     virtual ComponentMeshOBJ& operator=(const ComponentMeshOBJ& other);
 
-    virtual void Draw(MyMatrix* pMatViewProj);
+    virtual void Draw(MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride = 0, int drawcount = 0);
 
 public:
 #if MYFW_USING_WX

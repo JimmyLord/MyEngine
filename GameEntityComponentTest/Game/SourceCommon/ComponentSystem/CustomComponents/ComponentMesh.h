@@ -38,7 +38,7 @@ public:
     virtual ComponentMesh& operator=(const ComponentMesh& other);
 
     virtual void SetShader(ShaderGroup* pShader);
-    virtual void Draw(MyMatrix* pMatViewProj);
+    virtual void Draw(MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride = 0, int drawcount = 0);
 
 public:
 #if MYFW_USING_WX

@@ -72,12 +72,15 @@ public:
     ShaderGroup* m_pShader_TintColor;
     ShaderGroup* m_pShader_TestNormals;
     ShaderGroup* m_pShader_Texture;
+    ShaderGroup* m_pShader_MousePicker;
 
     float m_GameWidth;
     float m_GameHeight;
 
     MyFileObject* m_pOBJTestFiles[4];
     TextureDefinition* m_pTextures[4];
+
+    FBODefinition* m_pMousePickerFBO;
 
     //MyMesh* m_pTestOBJMesh;
 

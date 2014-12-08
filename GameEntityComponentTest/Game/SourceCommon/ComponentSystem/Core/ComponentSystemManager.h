@@ -68,7 +68,8 @@ public:
     void Tick(double TimePassed);
     void OnSurfaceChanged(unsigned int startx, unsigned int starty, unsigned int width, unsigned int height, unsigned int desiredaspectwidth, unsigned int desiredaspectheight);
     void OnDrawFrame();
-    void OnDrawFrame(ComponentCamera* pCamera, MyMatrix* pMatViewProj);
+    void OnDrawFrame(ComponentCamera* pCamera, MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride);
+    void DrawMousePickerFrame(ComponentCamera* pCamera, MyMatrix* pMatViewProj, ShaderGroup* pShaderGroup);
 
     void OnPlay();
     void OnStop();

@@ -120,7 +120,7 @@ ComponentMeshOBJ& ComponentMeshOBJ::operator=(const ComponentMeshOBJ& other)
     return *this;
 }
 
-void ComponentMeshOBJ::Draw(MyMatrix* pMatViewProj)
+void ComponentMeshOBJ::Draw(MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride, int drawcount)
 {
     if( m_pOBJFile == 0 || m_pOBJFile->m_FileReady == false )
         return;
@@ -131,5 +131,5 @@ void ComponentMeshOBJ::Draw(MyMatrix* pMatViewProj)
         m_pMesh->CreateFromOBJBuffer( m_pOBJFile->m_pBuffer );
     }
 
-    ComponentMesh::Draw( pMatViewProj );
+    ComponentMesh::Draw( pMatViewProj, pShaderOverride, drawcount );
 }

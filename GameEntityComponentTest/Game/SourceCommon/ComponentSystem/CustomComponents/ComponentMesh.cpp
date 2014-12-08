@@ -151,18 +151,18 @@ void ComponentMesh::SetShader(ShaderGroup* pShader)
     m_pMesh->SetShaderGroup( pShader );
 }
 
-void ComponentMesh::Draw(MyMatrix* pMatViewProj)
+void ComponentMesh::Draw(MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride, int drawcount)
 {
-    ComponentRenderable::Draw(pMatViewProj);
+    ComponentRenderable::Draw( pMatViewProj, pShaderOverride, drawcount );
 
     // TODO: find a better way to handle the creation of a mesh.
     if( m_pMesh->m_NumIndicesToDraw == 0 )
     {
-        m_pMesh->CreateEditorLineGridXZ( Vector3(0,0,0), 1, 5 );
+        return;
         //m_pMesh->CreateCylinder( 1, 40, 0.9, 1, 0, 1, 0, 1, 0, 1, 0, 1 );
         //assert( false );
     }
 
     m_pMesh->m_Position = this->m_pComponentTransform->m_Transform;
-    m_pMesh->Draw( pMatViewProj, 0, 0, 0, 0, 0, 0 );
+    m_pMesh->Draw( pMatViewProj, 0, 0, 0, 0, 0, 0, pShaderOverride );
 }

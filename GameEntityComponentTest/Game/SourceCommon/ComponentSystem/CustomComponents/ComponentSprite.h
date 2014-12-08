@@ -40,7 +40,7 @@ public:
     virtual ComponentSprite& operator=(const ComponentSprite& other);
 
     virtual void SetShader(ShaderGroup* pShader);
-    virtual void Draw(MyMatrix* pMatViewProj);
+    virtual void Draw(MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride = 0, int drawcount = 0);
 
 public:
 #if MYFW_USING_WX

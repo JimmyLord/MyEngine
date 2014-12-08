@@ -461,7 +461,7 @@ void ComponentSystemManager::OnDrawFrame()
     }
 }
 
-void ComponentSystemManager::OnDrawFrame(ComponentCamera* pCamera, MyMatrix* pMatViewProj)
+void ComponentSystemManager::OnDrawFrame(ComponentCamera* pCamera, MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride)
 {
     for( CPPListNode* node = m_ComponentsRenderable.GetHead(); node != 0; node = node->GetNext() )
     {
@@ -471,7 +471,37 @@ void ComponentSystemManager::OnDrawFrame(ComponentCamera* pCamera, MyMatrix* pMa
         {
             if( pComponent->m_LayersThisExistsOn & pCamera->m_LayersToRender )
             {
-                pComponent->Draw( pMatViewProj );
+                pComponent->Draw( pMatViewProj, pShaderOverride );
+            }
+        }
+    }
+}
+
+void ComponentSystemManager::DrawMousePickerFrame(ComponentCamera* pCamera, MyMatrix* pMatViewProj, ShaderGroup* pShaderGroup)
+{
+    Shader_Base* pShader = (Shader_Base*)pShaderGroup->GlobalPass();
+    if( pShader->ActivateAndProgramShader() )
+    {
+        for( CPPListNode* node = m_ComponentsRenderable.GetHead(); node != 0; node = node->GetNext() )
+        {
+            ComponentRenderable* pComponent = (ComponentRenderable*)node;
+
+            if( pComponent->m_BaseType == BaseComponentType_Renderable )
+            {
+                if( pComponent->m_LayersThisExistsOn & pCamera->m_LayersToRender )
+                {
+                    ColorByte tint( 0, 0, 0, 0 );
+
+                    unsigned int id = pComponent->m_pGameObject->m_ID;
+
+                    if( 1 )                 tint.r = id%256;
+                    if( id > 256 )          tint.g = (id-256)%256;
+                    if( id > 256*256 )      tint.b = (id-256*256)%256;
+                    if( id > 256*256*256 )  tint.a = (id-256*256*256)%256;
+
+                    pShader->ProgramTint( tint );
+                    pComponent->Draw( pMatViewProj, pShaderGroup );
+                }
             }
         }
     }
