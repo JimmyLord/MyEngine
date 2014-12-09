@@ -45,7 +45,7 @@ GameEntityComponentTest::GameEntityComponentTest()
 
     m_pBulletWorld = MyNew BulletWorld();
 
-    m_pMousePickerFBO = 0;
+    m_EditorState.m_pMousePickerFBO = 0;
 }
 
 GameEntityComponentTest::~GameEntityComponentTest()
@@ -70,8 +70,6 @@ GameEntityComponentTest::~GameEntityComponentTest()
     }
 
     SAFE_DELETE( m_pBulletWorld );
-
-    SAFE_RELEASE( m_pMousePickerFBO );
 }
 
 void GameEntityComponentTest::OneTimeInit()
@@ -97,7 +95,7 @@ void GameEntityComponentTest::OneTimeInit()
     //m_pTextures[2] = g_pTextureManager->CreateTexture( "Data/Textures/test3.png", GL_NEAREST, GL_NEAREST, GL_REPEAT, GL_REPEAT );
     //m_pTextures[3] = g_pTextureManager->CreateTexture( "Data/Textures/test4.png", GL_NEAREST, GL_NEAREST, GL_REPEAT, GL_REPEAT );
 
-    m_pMousePickerFBO = g_pTextureManager->CreateFBO( 0, 0, GL_NEAREST, GL_NEAREST, false, false, false );
+    m_EditorState.m_pMousePickerFBO = g_pTextureManager->CreateFBO( 0, 0, GL_NEAREST, GL_NEAREST, false, false, false );
 
     glEnable( GL_CULL_FACE );
     glEnable( GL_DEPTH_TEST );
@@ -129,7 +127,53 @@ void GameEntityComponentTest::OneTimeInit()
             pComponentMesh->m_pMesh->m_Tint.Set( 150, 150, 150, 255 );
             pComponentMesh->m_pMesh->CreateEditorLineGridXZ( Vector3(0,0,0), 1, 5 );
         }
-        pComponentCollisionObject = (ComponentCollisionObject*)pGameObject->AddNewComponent( ComponentType_CollisionObject );
+    }
+
+    // create a 3d transform widget for each axis.
+    {
+        pGameObject = m_pComponentSystemManager->CreateGameObject();
+        pGameObject->SetName( "3D Transform Widget - x-axis" );
+        pComponentMesh = (ComponentMesh*)pGameObject->AddNewComponent( ComponentType_Mesh );
+        if( pComponentMesh )
+        {
+            pComponentMesh->m_Visible = false;
+            pComponentMesh->SetShader( m_pShader_TintColor );
+            pComponentMesh->m_LayersThisExistsOn = Layer_MainScene;
+            pComponentMesh->m_pMesh->m_Tint.Set( 150, 150, 150, 255 );
+            pComponentMesh->m_pMesh->CreateEditorTransformWidgetAxis( 3, 0.1f, ColorByte(255, 0, 0, 255) );
+        }
+        pGameObject->m_pComponentTransform->SetRotation( Vector3( 0, 90, 0 ) );
+        m_EditorState.m_pTransformWidgets[0] = pGameObject;
+    }
+    {
+        pGameObject = m_pComponentSystemManager->CreateGameObject();
+        pGameObject->SetName( "3D Transform Widget - y-axis" );
+        pComponentMesh = (ComponentMesh*)pGameObject->AddNewComponent( ComponentType_Mesh );
+        if( pComponentMesh )
+        {
+            pComponentMesh->m_Visible = false;
+            pComponentMesh->SetShader( m_pShader_TintColor );
+            pComponentMesh->m_LayersThisExistsOn = Layer_MainScene;
+            pComponentMesh->m_pMesh->m_Tint.Set( 150, 150, 150, 255 );
+            pComponentMesh->m_pMesh->CreateEditorTransformWidgetAxis( 3, 0.1f, ColorByte(0, 255, 0, 255) );
+        }
+        pGameObject->m_pComponentTransform->SetRotation( Vector3( -90, 0, 0 ) );
+        m_EditorState.m_pTransformWidgets[1] = pGameObject;
+    }
+    {
+        pGameObject = m_pComponentSystemManager->CreateGameObject();
+        pGameObject->SetName( "3D Transform Widget - z-axis" );
+        pComponentMesh = (ComponentMesh*)pGameObject->AddNewComponent( ComponentType_Mesh );
+        if( pComponentMesh )
+        {
+            pComponentMesh->m_Visible = false;
+            pComponentMesh->SetShader( m_pShader_TintColor );
+            pComponentMesh->m_LayersThisExistsOn = Layer_MainScene;
+            pComponentMesh->m_pMesh->m_Tint.Set( 150, 150, 150, 255 );
+            pComponentMesh->m_pMesh->CreateEditorTransformWidgetAxis( 3, 0.1f, ColorByte(0, 0, 255, 255) );
+        }
+        pGameObject->m_pComponentTransform->SetRotation( Vector3( 0, 0, 0 ) );
+        m_EditorState.m_pTransformWidgets[2] = pGameObject;
     }
 #endif
 
@@ -220,6 +264,22 @@ void GameEntityComponentTest::Tick(double TimePassed)
     if( m_EditorMode )
     {
         m_pComponentSystemManager->Tick( 0 );
+
+        for( int i=0; i<3; i++ )
+        {
+            ComponentRenderable* pRenderable = (ComponentRenderable*)m_EditorState.m_pTransformWidgets[i]->GetFirstComponentOfBaseType( BaseComponentType_Renderable );
+
+            if( m_EditorState.m_pSelectedGameObject )
+            {
+                pRenderable->m_Visible = true;
+                Vector3 pos = m_EditorState.m_pSelectedGameObject->m_pComponentTransform->GetPosition();
+                m_EditorState.m_pTransformWidgets[i]->m_pComponentTransform->SetPosition( pos );
+            }
+            else
+            {
+                pRenderable->m_Visible = false;
+            }
+        }
     }
     else
     {
@@ -341,17 +401,17 @@ void GameEntityComponentTest::HandleEditorInput(int keydown, int keycode, int ac
         if( keydown == 1 ) m_EditorState.m_ModifierKeyStates |= MODIFIERKEY_Control;
         if( keydown == 0 ) m_EditorState.m_ModifierKeyStates &= ~MODIFIERKEY_Control;
     }
-    //if( keycode == MYKEYCODE_LALT )
+    //else if( keycode == MYKEYCODE_LALT )
     //{
     //    if( keydown == 1 ) m_EditorState.m_ModifierKeyStates |= MODIFIERKEY_Control;
     //    if( keydown == 0 ) m_EditorState.m_ModifierKeyStates &= ~MODIFIERKEY_Control;
     //}
-    if( keycode == MYKEYCODE_LSHIFT )
+    else if( keycode == MYKEYCODE_LSHIFT )
     {
         if( keydown == 1 ) m_EditorState.m_ModifierKeyStates |= MODIFIERKEY_Shift;
         if( keydown == 0 ) m_EditorState.m_ModifierKeyStates &= ~MODIFIERKEY_Shift;
     }
-    if( keycode == ' ' )
+    else if( keycode == ' ' )
     {
         if( keydown == 1 ) m_EditorState.m_ModifierKeyStates |= MODIFIERKEY_Space;
         if( keydown == 0 ) m_EditorState.m_ModifierKeyStates &= ~MODIFIERKEY_Space;
@@ -361,51 +421,39 @@ void GameEntityComponentTest::HandleEditorInput(int keydown, int keycode, int ac
         m_EditorState.m_CurrentMousePosition.Set( x, y );
         //m_EditorState.m_LastMousePosition.Set( x, y );
 
-        if( action == GCBA_Down && id == 0 )
+        if( action == GCBA_Down )
         {
-            m_EditorState.m_MouseLeftDownLocation = m_EditorState.m_CurrentMousePosition;
-            m_EditorState.m_ModifierKeyStates |= MODIFIERKEY_LeftMouse;
-        }
-        if( action == GCBA_Up && id == 0 )
-        {
-            m_EditorState.m_MouseLeftDownLocation = Vector2( -1, -1 );
-            m_EditorState.m_ModifierKeyStates &= ~MODIFIERKEY_LeftMouse;
-        }
-
-        if( action == GCBA_Down && id == 1 )
-        {
-            m_EditorState.m_MouseRightDownLocation = m_EditorState.m_CurrentMousePosition;
-            m_EditorState.m_ModifierKeyStates |= MODIFIERKEY_RightMouse;
-        }
-        if( action == GCBA_Up && id == 1 )
-        {
-            m_EditorState.m_MouseRightDownLocation = Vector2( -1, -1 );
-            m_EditorState.m_ModifierKeyStates &= ~MODIFIERKEY_RightMouse;
-        }
-
-        if( action == GCBA_Down && id == 2 )
-        {
-            m_EditorState.m_MouseMiddleDownLocation = m_EditorState.m_CurrentMousePosition;
-            m_EditorState.m_ModifierKeyStates |= MODIFIERKEY_MiddleMouse;
-        }
-        if( action == GCBA_Up && id == 2 )
-        {
-            m_EditorState.m_MouseMiddleDownLocation = Vector2( -1, -1 );
-            m_EditorState.m_ModifierKeyStates &= ~MODIFIERKEY_MiddleMouse;
+            if( id == 0 )
+            {
+                m_EditorState.m_MouseLeftDownLocation = m_EditorState.m_CurrentMousePosition;
+                m_EditorState.m_ModifierKeyStates |= MODIFIERKEY_LeftMouse;
+            }
+            if( id == 1 )
+            {
+                m_EditorState.m_MouseRightDownLocation = m_EditorState.m_CurrentMousePosition;
+                m_EditorState.m_ModifierKeyStates |= MODIFIERKEY_RightMouse;
+            }
+            if( id == 2 )
+            {
+                m_EditorState.m_MouseMiddleDownLocation = m_EditorState.m_CurrentMousePosition;
+                m_EditorState.m_ModifierKeyStates |= MODIFIERKEY_MiddleMouse;
+            }
         }
     }
    
-    if( m_EditorState.m_ModifierKeyStates == MODIFIERKEY_LeftMouse ) // no modifiers held.
+    if( m_EditorState.m_ModifierKeyStates == MODIFIERKEY_LeftMouse )
     {
-        if( action == GCBA_Down )
+        // select an object when mouse is released and on the same pixel it went down.
+        // TODO: make same "pixel test" a "total travel < small number" test.
+        if( action == GCBA_Up && id == 0 && m_EditorState.m_CurrentMousePosition == m_EditorState.m_MouseLeftDownLocation )
         {
             // find the object we clicked on.
 
             // render the scene to a FBO.
-            m_pMousePickerFBO->Bind();
+            m_EditorState.m_pMousePickerFBO->Bind();
 
             glDisable( GL_SCISSOR_TEST );
-            glViewport( 0, 0, m_pMousePickerFBO->m_Width, m_pMousePickerFBO->m_Height );
+            glViewport( 0, 0, m_EditorState.m_pMousePickerFBO->m_Width, m_EditorState.m_pMousePickerFBO->m_Height );
 
             glClearColor( 0, 0, 0, 0 );
             glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
@@ -421,7 +469,7 @@ void GameEntityComponentTest::HandleEditorInput(int keydown, int keycode, int ac
             unsigned int id = pixel[0] + pixel[1]*256 + pixel[2]*256*256 + pixel[3]*256*256*256;
             LOGInfo( LOGTag, "pixel - %d, %d, %d, %d - id - %d\n", pixel[0], pixel[1], pixel[2], pixel[3], id );
 
-            m_pMousePickerFBO->Unbind();
+            m_EditorState.m_pMousePickerFBO->Unbind();
 
             // reset glViewport and scissor region.
             OnSurfaceChanged( (unsigned int)m_WindowStartX, (unsigned int)m_WindowStartY, (unsigned int)m_WindowWidth, (unsigned int)m_WindowHeight );
@@ -429,6 +477,8 @@ void GameEntityComponentTest::HandleEditorInput(int keydown, int keycode, int ac
             // select the object
             GameObject* pGameObject = m_pComponentSystemManager->FindGameObjectByID( id );
             g_pPanelObjectList->SelectObject( pGameObject );
+
+            m_EditorState.m_pSelectedGameObject = pGameObject;
         }
     }
 
@@ -459,20 +509,50 @@ void GameEntityComponentTest::HandleEditorInput(int keydown, int keycode, int ac
 
             if( dir.LengthSquared() > 0 )
                 matLocalCamera->TranslatePreRotScale( dir * 0.05f );
-        }        
+        }
         else if( mods & MODIFIERKEY_LeftMouse ) // if left mouse if down, rotate the camera.
         {
             // rotate the camera around a point 10 units in front of the camera.
             Vector2 dir = m_EditorState.m_CurrentMousePosition - m_EditorState.m_LastMousePosition;
 
+            float distancefromselectedobject = 0;
+            if( m_EditorState.m_pSelectedGameObject )
+            {
+                distancefromselectedobject = 
+                    ( m_EditorState.m_pSelectedGameObject->m_pComponentTransform->m_Transform.GetTranslation() -
+                    pCamera->m_pComponentTransform->m_Transform.GetTranslation() ).Length();
+            }
+
             if( dir.LengthSquared() > 0 )
             {
-                matLocalCamera->TranslatePreRotScale( 0, 0, -10 );
+                matLocalCamera->TranslatePreRotScale( 0, 0, -distancefromselectedobject );
 
                 matLocalCamera->Rotate( dir.y, 1, 0, 0 );
                 matLocalCamera->Rotate( dir.x, 0, 1, 0 );
 
-                matLocalCamera->TranslatePreRotScale( 0, 0, 10 );
+                matLocalCamera->TranslatePreRotScale( 0, 0, distancefromselectedobject );
+            }
+        }
+    }
+
+    if( action != -1 )
+    {
+        if( action == GCBA_Up )
+        {
+            if( id == 0 )
+            {
+                m_EditorState.m_MouseLeftDownLocation = Vector2( -1, -1 );
+                m_EditorState.m_ModifierKeyStates &= ~MODIFIERKEY_LeftMouse;
+            }
+            else if( id == 1 )
+            {
+                m_EditorState.m_MouseRightDownLocation = Vector2( -1, -1 );
+                m_EditorState.m_ModifierKeyStates &= ~MODIFIERKEY_RightMouse;
+            }
+            else if( id == 2 )
+            {
+                m_EditorState.m_MouseMiddleDownLocation = Vector2( -1, -1 );
+                m_EditorState.m_ModifierKeyStates &= ~MODIFIERKEY_MiddleMouse;
             }
         }
     }
@@ -563,13 +643,13 @@ void GameEntityComponentTest::OnSurfaceChanged(unsigned int startx, unsigned int
     if( m_pComponentSystemManager )
         m_pComponentSystemManager->OnSurfaceChanged( startx, starty, width, height, (unsigned int)m_GameWidth, (unsigned int)m_GameHeight );
 
-    if( m_pMousePickerFBO )
+    if( m_EditorState.m_pMousePickerFBO )
     {
-        if( m_pMousePickerFBO->m_Width != width || m_pMousePickerFBO->m_Height != height )
+        if( m_EditorState.m_pMousePickerFBO->m_Width != width || m_EditorState.m_pMousePickerFBO->m_Height != height )
         {
-            m_pMousePickerFBO->Invalidate( true );
-            m_pMousePickerFBO->Setup( width, height, GL_NEAREST, GL_NEAREST, true, true, false );
-            m_pMousePickerFBO->Create();
+            m_EditorState.m_pMousePickerFBO->Invalidate( true );
+            m_EditorState.m_pMousePickerFBO->Setup( width, height, GL_NEAREST, GL_NEAREST, true, true, false );
+            m_EditorState.m_pMousePickerFBO->Create();
         }
     }
 }

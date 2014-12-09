@@ -50,6 +50,7 @@ cJSON* ComponentRenderable::ExportAsJSONObject()
 {
     cJSON* component = ComponentBase::ExportAsJSONObject();
 
+    cJSON_AddNumberToObject( component, "Visible", m_Visible );
     cJSON_AddNumberToObject( component, "Layers", m_LayersThisExistsOn );
 
     return component;
@@ -59,6 +60,7 @@ void ComponentRenderable::ImportFromJSONObject(cJSON* jsonobj)
 {
     ComponentBase::ImportFromJSONObject( jsonobj );
 
+    cJSONExt_GetBool( jsonobj, "Visible", &m_Visible );
     cJSONExt_GetUnsignedInt( jsonobj, "Layers", &m_LayersThisExistsOn );
 }
 
@@ -70,6 +72,8 @@ void ComponentRenderable::Reset()
 
     m_pComponentTransform = m_pGameObject->m_pComponentTransform;
     m_pShader = 0;
+
+    m_Visible = true;
     m_LayersThisExistsOn = 0xFFFF;
 }
 
@@ -80,6 +84,7 @@ ComponentRenderable& ComponentRenderable::operator=(const ComponentRenderable& o
     ComponentBase::operator=( other );
 
     this->m_pShader = other.m_pShader;
+    this->m_Visible = other.m_Visible;
     this->m_LayersThisExistsOn = other.m_LayersThisExistsOn;
 
     return *this;

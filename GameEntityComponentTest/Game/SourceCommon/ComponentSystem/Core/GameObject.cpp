@@ -216,3 +216,16 @@ ComponentBase* GameObject::RemoveComponent(ComponentBase* pComponent)
 
     return 0; // component not found.
 }
+
+ComponentBase* GameObject::GetFirstComponentOfBaseType(BaseComponentTypes basetype)
+{
+    for( unsigned int i=0; i<m_Components.Count(); i++ )
+    {
+        if( m_Components[i]->m_BaseType == basetype )
+        {
+            return m_Components[i];
+        }
+    }
+
+    return 0; // component not found.
+}

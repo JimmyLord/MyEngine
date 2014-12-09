@@ -27,6 +27,7 @@ public:
 
     ShaderGroup* m_pShader; // managed by external forces.
 
+    bool m_Visible;
     unsigned int m_LayersThisExistsOn;
 
 public:

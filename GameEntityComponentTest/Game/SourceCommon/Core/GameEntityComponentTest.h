@@ -40,6 +40,12 @@ struct EditorState
     Vector2 m_LastMousePosition;
     Vector2 m_CurrentMousePosition;
 
+    FBODefinition* m_pMousePickerFBO;
+
+    GameObject* m_pSelectedGameObject;
+
+    GameObject* m_pTransformWidgets[3];
+
     EditorState::EditorState()
     {
         m_ModifierKeyStates = 0;
@@ -48,6 +54,18 @@ struct EditorState
         m_MouseMiddleDownLocation.Set( -1, -1 );
         m_LastMousePosition.Set( -1, -1 );
         m_CurrentMousePosition.Set( -1, -1 );
+
+        m_pMousePickerFBO = 0;
+
+        m_pSelectedGameObject = 0;
+
+        for( int i=0; i<3; i++ )
+            m_pTransformWidgets[i] = 0;
+    }
+
+    EditorState::~EditorState()
+    {
+        SAFE_RELEASE( m_pMousePickerFBO );
     }
 };
 
@@ -79,10 +97,6 @@ public:
 
     MyFileObject* m_pOBJTestFiles[4];
     TextureDefinition* m_pTextures[4];
-
-    FBODefinition* m_pMousePickerFBO;
-
-    //MyMesh* m_pTestOBJMesh;
 
 public:
     GameEntityComponentTest();

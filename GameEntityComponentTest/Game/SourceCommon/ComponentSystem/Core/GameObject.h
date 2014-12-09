@@ -43,6 +43,8 @@ public:
     ComponentBase* AddExistingComponent(ComponentBase* pComponent);
     ComponentBase* RemoveComponent(ComponentBase* pComponent);
 
+    ComponentBase* GetFirstComponentOfBaseType(BaseComponentTypes basetype);
+
 public:
 #if MYFW_USING_WX
     static void StaticOnLeftClick(void* pObjectPtr) { ((GameObject*)pObjectPtr)->OnLeftClick(true); }

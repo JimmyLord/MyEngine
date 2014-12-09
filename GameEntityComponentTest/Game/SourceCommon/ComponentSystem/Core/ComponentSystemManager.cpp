@@ -471,7 +471,10 @@ void ComponentSystemManager::OnDrawFrame(ComponentCamera* pCamera, MyMatrix* pMa
         {
             if( pComponent->m_LayersThisExistsOn & pCamera->m_LayersToRender )
             {
-                pComponent->Draw( pMatViewProj, pShaderOverride );
+                if( pComponent->m_Visible )
+                {
+                    pComponent->Draw( pMatViewProj, pShaderOverride );
+                }
             }
         }
     }
@@ -500,7 +503,11 @@ void ComponentSystemManager::DrawMousePickerFrame(ComponentCamera* pCamera, MyMa
                     if( id > 256*256*256 )  tint.a = (id-256*256*256)%256;
 
                     pShader->ProgramTint( tint );
-                    pComponent->Draw( pMatViewProj, pShaderGroup );
+
+                    if( pComponent->m_Visible )
+                    {
+                        pComponent->Draw( pMatViewProj, pShaderGroup );
+                    }
                 }
             }
         }
