@@ -31,9 +31,19 @@ enum ModifierKeys
     MODIFIERKEY_MiddleMouse = 0x0040,
 };
 
+enum EditorActionState
+{
+    EDITORACTIONSTATE_None,
+    EDITORACTIONSTATE_TranslateX,
+    EDITORACTIONSTATE_TranslateY,
+    EDITORACTIONSTATE_TranslateZ,
+    EDITORACTIONSTATE_NumStates,
+};
+
 struct EditorState
 {
     unsigned int m_ModifierKeyStates;
+    EditorActionState m_EditorActionState;
     Vector2 m_MouseLeftDownLocation;
     Vector2 m_MouseRightDownLocation;
     Vector2 m_MouseMiddleDownLocation;
@@ -49,6 +59,7 @@ struct EditorState
     EditorState::EditorState()
     {
         m_ModifierKeyStates = 0;
+        m_EditorActionState = EDITORACTIONSTATE_None;
         m_MouseLeftDownLocation.Set( -1, -1 );
         m_MouseRightDownLocation.Set( -1, -1 );
         m_MouseMiddleDownLocation.Set( -1, -1 );
@@ -116,6 +127,8 @@ public:
 
     void SaveScene();
     void LoadScene();
+
+    GameObject* GetObjectAtPixel(unsigned int x, unsigned int y);
 };
 
 #endif //__GameEntityComponentTest_H__

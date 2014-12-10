@@ -441,44 +441,72 @@ void GameEntityComponentTest::HandleEditorInput(int keydown, int keycode, int ac
         }
     }
    
-    if( m_EditorState.m_ModifierKeyStates == MODIFIERKEY_LeftMouse )
+    if( m_EditorState.m_ModifierKeyStates & MODIFIERKEY_LeftMouse )
     {
         // select an object when mouse is released and on the same pixel it went down.
         // TODO: make same "pixel test" a "total travel < small number" test.
         if( action == GCBA_Up && id == 0 && m_EditorState.m_CurrentMousePosition == m_EditorState.m_MouseLeftDownLocation )
         {
             // find the object we clicked on.
+            m_EditorState.m_pSelectedGameObject = GetObjectAtPixel( x, y );
 
-            // render the scene to a FBO.
-            m_EditorState.m_pMousePickerFBO->Bind();
+            // select the object in the object tree.
+            g_pPanelObjectList->SelectObject( m_EditorState.m_pSelectedGameObject );
+        }
 
-            glDisable( GL_SCISSOR_TEST );
-            glViewport( 0, 0, m_EditorState.m_pMousePickerFBO->m_Width, m_EditorState.m_pMousePickerFBO->m_Height );
+        if( action == GCBA_Down && id == 0 )
+        {
+            // find the object we clicked on.
+            GameObject* pObject = GetObjectAtPixel( x, y );
 
-            glClearColor( 0, 0, 0, 0 );
-            glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+            bool selectedwidget = false;
 
-            ComponentCamera* pCamera = m_pComponentSystemManager->GetFirstCamera();
-            MyMatrix* matLocalCamera = pCamera->m_pComponentTransform->GetLocalTransform();
-            m_pComponentSystemManager->DrawMousePickerFrame( pCamera, &pCamera->m_Camera3D.m_matViewProj, m_pShader_MousePicker );
+            // translate to the right.
+            if( pObject == m_EditorState.m_pTransformWidgets[0] )
+            {
+                m_EditorState.m_EditorActionState = EDITORACTIONSTATE_TranslateX;
+                selectedwidget = true;
+            }
+            if( pObject == m_EditorState.m_pTransformWidgets[1] )
+            {
+                m_EditorState.m_EditorActionState = EDITORACTIONSTATE_TranslateY;
+                selectedwidget = true;
+            }
+            if( pObject == m_EditorState.m_pTransformWidgets[2] )
+            {
+                m_EditorState.m_EditorActionState = EDITORACTIONSTATE_TranslateZ;
+                selectedwidget = true;
+            }
 
-            // get a pixel from the FBO.
-            unsigned char pixel[4];
-            glReadPixels( x - m_WindowStartX, y - m_WindowStartY, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, pixel );
+            // if shift is held, make a copy of the object and control that one.
+            if( selectedwidget && m_EditorState.m_ModifierKeyStates & MODIFIERKEY_Shift )
+            {
+                m_EditorState.m_pSelectedGameObject = g_pComponentSystemManager->CopyGameObject( m_EditorState.m_pSelectedGameObject );
+            }
+        }
 
-            unsigned int id = pixel[0] + pixel[1]*256 + pixel[2]*256*256 + pixel[3]*256*256*256;
-            LOGInfo( LOGTag, "pixel - %d, %d, %d, %d - id - %d\n", pixel[0], pixel[1], pixel[2], pixel[3], id );
-
-            m_EditorState.m_pMousePickerFBO->Unbind();
-
-            // reset glViewport and scissor region.
-            OnSurfaceChanged( (unsigned int)m_WindowStartX, (unsigned int)m_WindowStartY, (unsigned int)m_WindowWidth, (unsigned int)m_WindowHeight );
-
-            // select the object
-            GameObject* pGameObject = m_pComponentSystemManager->FindGameObjectByID( id );
-            g_pPanelObjectList->SelectObject( pGameObject );
-
-            m_EditorState.m_pSelectedGameObject = pGameObject;
+        if( m_EditorState.m_pSelectedGameObject )
+        {
+            // todo, rotate the mouse movement with the camera.
+            Vector3 pos = m_EditorState.m_pSelectedGameObject->m_pComponentTransform->GetPosition();
+            if( m_EditorState.m_EditorActionState == EDITORACTIONSTATE_TranslateX )
+            {
+                float diff = m_EditorState.m_CurrentMousePosition.x - m_EditorState.m_LastMousePosition.x;
+                pos.x += diff * 0.05f;
+                m_EditorState.m_pSelectedGameObject->m_pComponentTransform->SetPosition( pos );
+            }
+            if( m_EditorState.m_EditorActionState == EDITORACTIONSTATE_TranslateY )
+            {
+                float diff = m_EditorState.m_CurrentMousePosition.y - m_EditorState.m_LastMousePosition.y;
+                pos.y += diff * 0.05f;
+                m_EditorState.m_pSelectedGameObject->m_pComponentTransform->SetPosition( pos );
+            }
+            if( m_EditorState.m_EditorActionState == EDITORACTIONSTATE_TranslateZ )
+            {
+                float diff = m_EditorState.m_CurrentMousePosition.y - m_EditorState.m_LastMousePosition.y;
+                pos.z -= diff * 0.05f;
+                m_EditorState.m_pSelectedGameObject->m_pComponentTransform->SetPosition( pos );
+            }
         }
     }
 
@@ -510,12 +538,12 @@ void GameEntityComponentTest::HandleEditorInput(int keydown, int keycode, int ac
             if( dir.LengthSquared() > 0 )
                 matLocalCamera->TranslatePreRotScale( dir * 0.05f );
         }
-        else if( mods & MODIFIERKEY_LeftMouse ) // if left mouse if down, rotate the camera.
-        {
+        else if( mods & MODIFIERKEY_LeftMouse && m_EditorState.m_EditorActionState == EDITORACTIONSTATE_None )
+        { // if left mouse if down, rotate the camera.
             // rotate the camera around a point 10 units in front of the camera.
             Vector2 dir = m_EditorState.m_CurrentMousePosition - m_EditorState.m_LastMousePosition;
 
-            float distancefromselectedobject = 0;
+            float distancefromselectedobject = 10;
             if( m_EditorState.m_pSelectedGameObject )
             {
                 distancefromselectedobject = 
@@ -543,6 +571,7 @@ void GameEntityComponentTest::HandleEditorInput(int keydown, int keycode, int ac
             {
                 m_EditorState.m_MouseLeftDownLocation = Vector2( -1, -1 );
                 m_EditorState.m_ModifierKeyStates &= ~MODIFIERKEY_LeftMouse;
+                m_EditorState.m_EditorActionState = EDITORACTIONSTATE_None;
             }
             else if( id == 1 )
             {
@@ -652,4 +681,35 @@ void GameEntityComponentTest::OnSurfaceChanged(unsigned int startx, unsigned int
             m_EditorState.m_pMousePickerFBO->Create();
         }
     }
+}
+
+GameObject* GameEntityComponentTest::GetObjectAtPixel(unsigned int x, unsigned int y)
+{
+    // render the scene to a FBO.
+    m_EditorState.m_pMousePickerFBO->Bind();
+
+    glDisable( GL_SCISSOR_TEST );
+    glViewport( 0, 0, m_EditorState.m_pMousePickerFBO->m_Width, m_EditorState.m_pMousePickerFBO->m_Height );
+
+    glClearColor( 0, 0, 0, 0 );
+    glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+
+    ComponentCamera* pCamera = m_pComponentSystemManager->GetFirstCamera();
+    MyMatrix* matLocalCamera = pCamera->m_pComponentTransform->GetLocalTransform();
+    m_pComponentSystemManager->DrawMousePickerFrame( pCamera, &pCamera->m_Camera3D.m_matViewProj, m_pShader_MousePicker );
+
+    // get a pixel from the FBO.
+    unsigned char pixel[4];
+    glReadPixels( x - m_WindowStartX, y - m_WindowStartY, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, pixel );
+
+    unsigned int id = pixel[0] + pixel[1]*256 + pixel[2]*256*256 + pixel[3]*256*256*256;
+    LOGInfo( LOGTag, "pixel - %d, %d, %d, %d - id - %d\n", pixel[0], pixel[1], pixel[2], pixel[3], id );
+
+    m_EditorState.m_pMousePickerFBO->Unbind();
+
+    // reset glViewport and scissor region.
+    OnSurfaceChanged( (unsigned int)m_WindowStartX, (unsigned int)m_WindowStartY, (unsigned int)m_WindowWidth, (unsigned int)m_WindowHeight );
+
+    GameObject* pGameObject = m_pComponentSystemManager->FindGameObjectByID( id );
+    return pGameObject;
 }
