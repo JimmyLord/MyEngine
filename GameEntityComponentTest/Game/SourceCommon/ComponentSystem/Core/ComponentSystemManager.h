@@ -55,7 +55,7 @@ public:
 
     void Clear();
 
-    GameObject* CreateGameObject();
+    GameObject* CreateGameObject(bool manageobject = true);
     void DeleteGameObject(GameObject* pObject);
     GameObject* CopyGameObject(GameObject* pObject);
 

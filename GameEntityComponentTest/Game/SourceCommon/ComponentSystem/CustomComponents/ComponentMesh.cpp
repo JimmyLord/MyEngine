@@ -41,6 +41,7 @@ ComponentMesh::~ComponentMesh()
 #if MYFW_USING_WX
 void ComponentMesh::AddToObjectsPanel(wxTreeItemId gameobjectid)
 {
+    assert( gameobjectid.IsOk() );
     wxTreeItemId id = g_pPanelObjectList->AddObject( this, ComponentMesh::StaticFillPropertiesWindow, ComponentBase::StaticOnRightClick, gameobjectid, "Mesh" );
 }
 

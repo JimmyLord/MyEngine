@@ -54,6 +54,7 @@ struct EditorState
 
     GameObject* m_pSelectedGameObject;
 
+    GameObject* m_p3DGridPlane;
     GameObject* m_pTransformWidgets[3];
 
     EditorState::EditorState()
@@ -70,6 +71,7 @@ struct EditorState
 
         m_pSelectedGameObject = 0;
 
+        m_p3DGridPlane = 0;
         for( int i=0; i<3; i++ )
             m_pTransformWidgets[i] = 0;
     }

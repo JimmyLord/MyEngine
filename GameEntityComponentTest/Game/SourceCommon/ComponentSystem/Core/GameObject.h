@@ -23,15 +23,17 @@ class GameObject : public CPPListNode
 , public wxEvtHandler
 #endif
 {
+    static const int MAX_COMPONENTS = 4; // todo: fix this hardcodedness
 public:
     unsigned int m_ID;
     char* m_Name; // this is a pointer to the string passed in, not a copy.
+    bool m_Managed;
 
     ComponentTransform* m_pComponentTransform;
     MyList<ComponentBase*> m_Components; // component system manager is responsible for deleting these components.
 
 public:
-    GameObject();
+    GameObject(bool managed);
     virtual ~GameObject();
 
     cJSON* ExportAsJSONObject();

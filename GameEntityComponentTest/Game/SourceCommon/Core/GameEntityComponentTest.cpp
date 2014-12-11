@@ -65,11 +65,16 @@ GameEntityComponentTest::~GameEntityComponentTest()
 
     for( int i=0; i<4; i++ )
     {
-        if( m_pTextures[i] )
-            SAFE_RELEASE( m_pTextures[i] );
+        SAFE_RELEASE( m_pTextures[i] );
     }
 
     SAFE_DELETE( m_pBulletWorld );
+
+    SAFE_DELETE( m_EditorState.m_p3DGridPlane );
+    for( int i=0; i<3; i++ )
+    {
+        SAFE_DELETE( m_EditorState.m_pTransformWidgets[i] );
+    }
 }
 
 void GameEntityComponentTest::OneTimeInit()
@@ -117,21 +122,23 @@ void GameEntityComponentTest::OneTimeInit()
 #if MYFW_USING_WX
     // create a 3D X/Z plane grid
     {
-        pGameObject = m_pComponentSystemManager->CreateGameObject();
+        pGameObject = m_pComponentSystemManager->CreateGameObject( false );
         pGameObject->SetName( "3D Grid Plane" );
         pComponentMesh = (ComponentMesh*)pGameObject->AddNewComponent( ComponentType_Mesh );
         if( pComponentMesh )
         {
+            pComponentMesh->m_Visible = false; // manually drawn when in editor mode.
             pComponentMesh->SetShader( m_pShader_TintColor );
             pComponentMesh->m_LayersThisExistsOn = Layer_MainScene;
             pComponentMesh->m_pMesh->m_Tint.Set( 150, 150, 150, 255 );
             pComponentMesh->m_pMesh->CreateEditorLineGridXZ( Vector3(0,0,0), 1, 5 );
         }
+        m_EditorState.m_p3DGridPlane = pGameObject;
     }
 
     // create a 3d transform widget for each axis.
     {
-        pGameObject = m_pComponentSystemManager->CreateGameObject();
+        pGameObject = m_pComponentSystemManager->CreateGameObject( false );
         pGameObject->SetName( "3D Transform Widget - x-axis" );
         pComponentMesh = (ComponentMesh*)pGameObject->AddNewComponent( ComponentType_Mesh );
         if( pComponentMesh )
@@ -139,14 +146,13 @@ void GameEntityComponentTest::OneTimeInit()
             pComponentMesh->m_Visible = false;
             pComponentMesh->SetShader( m_pShader_TintColor );
             pComponentMesh->m_LayersThisExistsOn = Layer_MainScene;
-            pComponentMesh->m_pMesh->m_Tint.Set( 150, 150, 150, 255 );
-            pComponentMesh->m_pMesh->CreateEditorTransformWidgetAxis( 3, 0.1f, ColorByte(255, 0, 0, 255) );
+            pComponentMesh->m_pMesh->CreateEditorTransformWidgetAxis( 3, 0.1f, ColorByte(255, 100, 100, 255) );
         }
         pGameObject->m_pComponentTransform->SetRotation( Vector3( 0, 90, 0 ) );
         m_EditorState.m_pTransformWidgets[0] = pGameObject;
     }
     {
-        pGameObject = m_pComponentSystemManager->CreateGameObject();
+        pGameObject = m_pComponentSystemManager->CreateGameObject( false );
         pGameObject->SetName( "3D Transform Widget - y-axis" );
         pComponentMesh = (ComponentMesh*)pGameObject->AddNewComponent( ComponentType_Mesh );
         if( pComponentMesh )
@@ -154,14 +160,13 @@ void GameEntityComponentTest::OneTimeInit()
             pComponentMesh->m_Visible = false;
             pComponentMesh->SetShader( m_pShader_TintColor );
             pComponentMesh->m_LayersThisExistsOn = Layer_MainScene;
-            pComponentMesh->m_pMesh->m_Tint.Set( 150, 150, 150, 255 );
-            pComponentMesh->m_pMesh->CreateEditorTransformWidgetAxis( 3, 0.1f, ColorByte(0, 255, 0, 255) );
+            pComponentMesh->m_pMesh->CreateEditorTransformWidgetAxis( 3, 0.1f, ColorByte(100, 255, 100, 255) );
         }
         pGameObject->m_pComponentTransform->SetRotation( Vector3( -90, 0, 0 ) );
         m_EditorState.m_pTransformWidgets[1] = pGameObject;
     }
     {
-        pGameObject = m_pComponentSystemManager->CreateGameObject();
+        pGameObject = m_pComponentSystemManager->CreateGameObject( false );
         pGameObject->SetName( "3D Transform Widget - z-axis" );
         pComponentMesh = (ComponentMesh*)pGameObject->AddNewComponent( ComponentType_Mesh );
         if( pComponentMesh )
@@ -169,8 +174,7 @@ void GameEntityComponentTest::OneTimeInit()
             pComponentMesh->m_Visible = false;
             pComponentMesh->SetShader( m_pShader_TintColor );
             pComponentMesh->m_LayersThisExistsOn = Layer_MainScene;
-            pComponentMesh->m_pMesh->m_Tint.Set( 150, 150, 150, 255 );
-            pComponentMesh->m_pMesh->CreateEditorTransformWidgetAxis( 3, 0.1f, ColorByte(0, 0, 255, 255) );
+            pComponentMesh->m_pMesh->CreateEditorTransformWidgetAxis( 3, 0.1f, ColorByte(100, 100, 255, 255) );
         }
         pGameObject->m_pComponentTransform->SetRotation( Vector3( 0, 0, 0 ) );
         m_EditorState.m_pTransformWidgets[2] = pGameObject;
@@ -271,13 +275,13 @@ void GameEntityComponentTest::Tick(double TimePassed)
 
             if( m_EditorState.m_pSelectedGameObject )
             {
-                pRenderable->m_Visible = true;
+                //pRenderable->m_Visible = true;
                 Vector3 pos = m_EditorState.m_pSelectedGameObject->m_pComponentTransform->GetPosition();
                 m_EditorState.m_pTransformWidgets[i]->m_pComponentTransform->SetPosition( pos );
             }
             else
             {
-                pRenderable->m_Visible = false;
+                //pRenderable->m_Visible = false;
             }
         }
     }
@@ -306,8 +310,34 @@ void GameEntityComponentTest::OnDrawFrame()
     glClearColor( 0.0f, 0.0f, 0.2f, 1.0f );
     glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
+    // draw the 3d grid.
+    if( m_EditorMode )
+    {
+        // TODO: get the camera properly.
+        ComponentCamera* pCamera = m_pComponentSystemManager->GetFirstCamera();
+
+        ComponentRenderable* pRenderable = (ComponentRenderable*)m_EditorState.m_p3DGridPlane->GetFirstComponentOfBaseType( BaseComponentType_Renderable );
+        pRenderable->Draw( &pCamera->m_Camera3D.m_matViewProj );
+    }
+
     // draw all components.
     m_pComponentSystemManager->OnDrawFrame();
+
+    // draw the transform widget in the foreground
+    if( m_EditorMode && m_EditorState.m_pSelectedGameObject )
+    {
+        glClear( GL_DEPTH_BUFFER_BIT );
+
+        // TODO: get the camera properly.
+        ComponentCamera* pCamera = m_pComponentSystemManager->GetFirstCamera();
+
+        for( int i=0; i<3; i++ )
+        {
+            ComponentRenderable* pRenderable = (ComponentRenderable*)m_EditorState.m_pTransformWidgets[i]->GetFirstComponentOfBaseType( BaseComponentType_Renderable );
+            pRenderable->Draw( &pCamera->m_Camera3D.m_matViewProj );
+        }
+    }
+
 
     //ComponentCamera* pCamera = m_pComponentSystemManager->GetFirstCamera();
     //MyMatrix* matLocalCamera = pCamera->m_pComponentTransform->GetLocalTransform();
@@ -374,6 +404,7 @@ void GameEntityComponentTest::OnKeyDown(int keycode, int unicodechar)
         {
             LoadScene();
             m_EditorMode = true;
+            m_EditorState.m_pSelectedGameObject = 0;
             m_pComponentSystemManager->OnStop();
 
             m_pComponentSystemManager->SyncAllRigidBodiesToObjectTransforms();
@@ -698,6 +729,37 @@ GameObject* GameEntityComponentTest::GetObjectAtPixel(unsigned int x, unsigned i
     MyMatrix* matLocalCamera = pCamera->m_pComponentTransform->GetLocalTransform();
     m_pComponentSystemManager->DrawMousePickerFrame( pCamera, &pCamera->m_Camera3D.m_matViewProj, m_pShader_MousePicker );
 
+    // draw the transform widget object into the mouse picker buffer.
+    // todo: clean this up, find better way to draw editor tools in fg/bg... additional layers/cameras
+    if( m_EditorMode && m_EditorState.m_pSelectedGameObject )
+    {
+        Shader_Base* pShader = (Shader_Base*)m_pShader_MousePicker->GlobalPass();
+        if( pShader->ActivateAndProgramShader() )
+        {
+            glClear( GL_DEPTH_BUFFER_BIT );
+
+            for( int i=0; i<3; i++ )
+            {
+                ComponentRenderable* pRenderable = (ComponentRenderable*)m_EditorState.m_pTransformWidgets[i]->GetFirstComponentOfBaseType( BaseComponentType_Renderable );
+
+                ColorByte tint( 0, 0, 0, 0 );
+
+                unsigned int id = pRenderable->m_pGameObject->m_ID;
+
+                if( 1 )                 tint.r = id%256;
+                if( id > 256 )          tint.g = (id-256)%256;
+                if( id > 256*256 )      tint.b = (id-256*256)%256;
+                if( id > 256*256*256 )  tint.a = (id-256*256*256)%256;
+
+                pShader->ProgramTint( tint );
+
+                pRenderable->Draw( &pCamera->m_Camera3D.m_matViewProj, m_pShader_MousePicker );
+            }
+
+            pShader->DeactivateShader();
+        }
+    }
+
     // get a pixel from the FBO.
     unsigned char pixel[4];
     glReadPixels( x - m_WindowStartX, y - m_WindowStartY, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, pixel );
@@ -711,5 +773,17 @@ GameObject* GameEntityComponentTest::GetObjectAtPixel(unsigned int x, unsigned i
     OnSurfaceChanged( (unsigned int)m_WindowStartX, (unsigned int)m_WindowStartY, (unsigned int)m_WindowWidth, (unsigned int)m_WindowHeight );
 
     GameObject* pGameObject = m_pComponentSystemManager->FindGameObjectByID( id );
+
+    // if we didn't click on something, check if it's the transform widget.
+    if( pGameObject == 0 )
+    {
+        for( int i=0; i<3; i++ )
+        {
+            if( m_EditorState.m_pTransformWidgets[i]->m_ID == id )
+            {
+                return m_EditorState.m_pTransformWidgets[i];
+            }
+        }
+    }
     return pGameObject;
 }

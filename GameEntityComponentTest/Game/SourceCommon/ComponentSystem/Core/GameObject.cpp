@@ -17,22 +17,26 @@
 
 #include "GameCommonHeader.h"
 
-GameObject::GameObject()
+GameObject::GameObject(bool managed)
 {
     m_ID = 0;
     m_Name = 0;
+    m_Managed = managed;
 
     m_pComponentTransform = MyNew ComponentTransform( this );
     m_pComponentTransform->Reset();
 
-    m_Components.AllocateObjects( 4 ); // hard coded nonsense for now, max of 4 components on a game object.
+    m_Components.AllocateObjects( MAX_COMPONENTS ); // hard coded nonsense for now, max of 4 components on a game object.
 
 #if MYFW_USING_WX
-    // Add this game object to the root of the objects tree
-    wxTreeItemId rootid = g_pPanelObjectList->GetTreeRoot();
-    wxTreeItemId gameobjectid = g_pPanelObjectList->AddObject( this, GameObject::StaticOnLeftClick, GameObject::StaticOnRightClick, rootid, m_Name );
-    g_pPanelObjectList->SetDragAndDropFunctions( this, GameObject::StaticOnDrag, GameObject::StaticOnDrop );
-    m_pComponentTransform->AddToObjectsPanel( gameobjectid );
+    if( m_Managed )
+    {
+        // Add this game object to the root of the objects tree
+        wxTreeItemId rootid = g_pPanelObjectList->GetTreeRoot();
+        wxTreeItemId gameobjectid = g_pPanelObjectList->AddObject( this, GameObject::StaticOnLeftClick, GameObject::StaticOnRightClick, rootid, m_Name );
+        g_pPanelObjectList->SetDragAndDropFunctions( this, GameObject::StaticOnDrag, GameObject::StaticOnDrop );
+        m_pComponentTransform->AddToObjectsPanel( gameobjectid );
+    }
 #endif //MYFW_USING_WX
 }
 
@@ -47,6 +51,15 @@ GameObject::~GameObject()
 #endif //MYFW_USING_WX
 
     SAFE_DELETE( m_pComponentTransform );
+
+    if( m_Managed == false )
+    {
+        while( m_Components.Count() )
+        {
+            ComponentBase* pComponent = m_Components.RemoveIndex( 0 );
+            delete pComponent;
+        }
+    }
 }
 
 #if MYFW_USING_WX
@@ -176,7 +189,10 @@ ComponentBase* GameObject::AddNewComponent(int componenttype, ComponentSystemMan
     ComponentBase* pComponent = g_pComponentTypeManager->CreateComponent( componenttype );
 
     assert( pComponentSystemManager );
-    pComponentSystemManager->AddComponent( pComponent );
+    if( m_Managed )
+    {
+        pComponentSystemManager->AddComponent( pComponent );
+    }
     pComponent->m_ID = pComponentSystemManager->m_NextComponentID;
     pComponentSystemManager->m_NextComponentID++;
 
@@ -196,8 +212,11 @@ ComponentBase* GameObject::AddExistingComponent(ComponentBase* pComponent)
     m_Components.Add( pComponent );
 
 #if MYFW_USING_WX
-    wxTreeItemId gameobjectid = g_pPanelObjectList->FindObject( this );
-    pComponent->AddToObjectsPanel( gameobjectid );
+    if( m_Managed )
+    {
+        wxTreeItemId gameobjectid = g_pPanelObjectList->FindObject( this );
+        pComponent->AddToObjectsPanel( gameobjectid );
+    }
 #endif //MYFW_USING_WX
 
     return pComponent;

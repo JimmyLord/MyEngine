@@ -302,13 +302,14 @@ void ComponentSystemManager::Clear()
     }
 }
 
-GameObject* ComponentSystemManager::CreateGameObject()
+GameObject* ComponentSystemManager::CreateGameObject(bool manageobject)
 {
-    GameObject* pGameObject = MyNew GameObject;
+    GameObject* pGameObject = MyNew GameObject( manageobject );
     pGameObject->m_ID = m_NextGameObjectID;
     m_NextGameObjectID++;
 
-    m_GameObjects.AddTail( pGameObject );
+    if( manageobject )
+        m_GameObjects.AddTail( pGameObject );
 
     return pGameObject;
 }
@@ -511,6 +512,8 @@ void ComponentSystemManager::DrawMousePickerFrame(ComponentCamera* pCamera, MyMa
                 }
             }
         }
+
+        pShader->DeactivateShader();
     }
 }
 
