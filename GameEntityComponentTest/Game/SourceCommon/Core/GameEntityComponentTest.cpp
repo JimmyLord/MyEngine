@@ -571,25 +571,47 @@ void GameEntityComponentTest::HandleEditorInput(int keydown, int keycode, int ac
         }
         else if( mods & MODIFIERKEY_LeftMouse && m_EditorState.m_EditorActionState == EDITORACTIONSTATE_None )
         { // if left mouse if down, rotate the camera.
-            // rotate the camera around a point 10 units in front of the camera.
+            // rotate the camera around selected object or a point 10 units in front of the camera.
             Vector2 dir = m_EditorState.m_CurrentMousePosition - m_EditorState.m_LastMousePosition;
 
-            float distancefromselectedobject = 10;
+            Vector3 pivot;
+            float distancefrompivot;
+
             if( m_EditorState.m_pSelectedGameObject )
             {
-                distancefromselectedobject = 
-                    ( m_EditorState.m_pSelectedGameObject->m_pComponentTransform->m_Transform.GetTranslation() -
-                    pCamera->m_pComponentTransform->m_Transform.GetTranslation() ).Length();
+                pivot = m_EditorState.m_pSelectedGameObject->m_pComponentTransform->m_Transform.GetTranslation();
+                distancefrompivot = (matLocalCamera->GetTranslation() - pivot).Length();
+            }
+            else
+            {
+                MyMatrix mattemp = *matLocalCamera;
+                mattemp.TranslatePreRotScale( 0, 0, -10 );
+                pivot = mattemp.GetTranslation();
+                distancefrompivot = 10;
             }
 
             if( dir.LengthSquared() > 0 )
             {
-                matLocalCamera->TranslatePreRotScale( 0, 0, -distancefromselectedobject );
+                Vector3 pos = matLocalCamera->GetTranslation();
+                Vector3 angle = pCamera->m_pComponentTransform->GetRotation();
+                angle.y += dir.x;
+                angle.x += dir.y;
+                MyClamp( angle.x, -90.0f, 90.0f );
 
-                matLocalCamera->Rotate( dir.y, 1, 0, 0 );
-                matLocalCamera->Rotate( dir.x, 0, 1, 0 );
+                matLocalCamera->SetIdentity();
+                matLocalCamera->Translate( 0, 0, distancefrompivot );
+                matLocalCamera->Rotate( angle.x, 1, 0, 0 );
+                matLocalCamera->Rotate( angle.y, 0, 1, 0 );
+                matLocalCamera->Translate( pivot );
 
-                matLocalCamera->TranslatePreRotScale( 0, 0, distancefromselectedobject );
+                // pull the pos/angle from the local matrix and update the values for the watch window.
+                {
+                    Vector3 pos = matLocalCamera->GetTranslation();
+                    Vector3 angle = matLocalCamera->GetEulerAngles();
+                    angle *= 180.0f/PI;
+                    pCamera->m_pComponentTransform->SetPosition( pos );
+                    pCamera->m_pComponentTransform->SetRotation( angle );
+                }
             }
         }
     }
