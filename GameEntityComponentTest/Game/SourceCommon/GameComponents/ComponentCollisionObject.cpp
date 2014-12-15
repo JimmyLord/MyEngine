@@ -58,6 +58,8 @@ void ComponentCollisionObject::FillPropertiesWindow(bool clear)
 {
     if( clear )
         g_pPanelWatch->ClearAllVariables();
+
+    g_pPanelWatch->AddFloat( "Mass", &m_Mass, 0, 100 );
 }
 #endif //MYFW_USING_WX
 
@@ -65,12 +67,16 @@ cJSON* ComponentCollisionObject::ExportAsJSONObject()
 {
     cJSON* component = ComponentUpdateable::ExportAsJSONObject();
 
+    cJSON_AddNumberToObject( component, "Mass", m_Mass );
+
     return component;
 }
 
 void ComponentCollisionObject::ImportFromJSONObject(cJSON* jsonobj)
 {
     ComponentUpdateable::ImportFromJSONObject( jsonobj );
+
+    cJSONExt_GetFloat( jsonobj, "Mass", &m_Mass );
 }
 
 void ComponentCollisionObject::Reset()
@@ -79,7 +85,31 @@ void ComponentCollisionObject::Reset()
 
     m_pComponentTransform = m_pGameObject->m_pComponentTransform;
 
-    // create a dynamic rigidbody
+    m_Mass = 0;
+}
+
+ComponentCollisionObject& ComponentCollisionObject::operator=(const ComponentCollisionObject& other)
+{
+    assert( &other != this );
+
+    ComponentUpdateable::operator=( other );
+
+    m_Mass = other.m_Mass;
+
+    return *this;
+}
+
+void ComponentCollisionObject::OnPlay()
+{
+    ComponentUpdateable::OnPlay();
+
+    //// set the collision object scale on play, guess this should be set whenever the object is scaled.
+    ////   TODO: find a better way to handle the object being scaled in editor.
+    //Vector3 localscale = m_pComponentTransform->GetScale();
+    //btVector3 scale( localscale.x, localscale.y, localscale.z );
+    //m_pBody->getCollisionShape()->setLocalScaling( scale );
+
+    // create a rigidbody on start
     if( m_pBody == 0 )
     {
         btCollisionShape* colShape = new btBoxShape( btVector3(1,1,1) ); // half-extents
@@ -90,14 +120,14 @@ void ComponentCollisionObject::Reset()
         btTransform startTransform;
         startTransform.setIdentity();
 
-        btScalar mass( 1.0f );
+        //btScalar mass( 1.0f );
 
         // rigidbody is dynamic if and only if mass is non zero, otherwise static
-        bool isDynamic = (mass != 0.0f);
+        bool isDynamic = (m_Mass != 0.0f);
 
         btVector3 localInertia( 0,0,0 );
         if( isDynamic )
-            colShape->calculateLocalInertia( mass, localInertia );
+            colShape->calculateLocalInertia( m_Mass, localInertia );
 
         //btVector3 pos(m_pComponentTransform->m_Position.x, m_pComponentTransform->m_Position.y, m_pComponentTransform->m_Position.z );
         //startTransform.setOrigin( pos );
@@ -110,38 +140,23 @@ void ComponentCollisionObject::Reset()
 
         // using motionstate is recommended, it provides interpolation capabilities, and only synchronizes 'active' objects
         btDefaultMotionState* myMotionState = new btDefaultMotionState( startTransform );
-        btRigidBody::btRigidBodyConstructionInfo rbInfo( mass, myMotionState, colShape, localInertia );
+        btRigidBody::btRigidBodyConstructionInfo rbInfo( m_Mass, myMotionState, colShape, localInertia );
         m_pBody = new btRigidBody( rbInfo );
         
         g_pBulletWorld->m_pDynamicsWorld->addRigidBody( m_pBody );
     }
 }
 
-ComponentCollisionObject& ComponentCollisionObject::operator=(const ComponentCollisionObject& other)
-{
-    assert( &other != this );
-
-    ComponentUpdateable::operator=( other );
-
-    //assert( false ); // TODO: implement me.
-
-    return *this;
-}
-
-void ComponentCollisionObject::OnPlay()
-{
-    ComponentUpdateable::OnPlay();
-
-    // set the collision object scale on play, guess this should be set whenever the object is scaled.
-    //   TODO: find a better way to handle the object being scaled in editor.
-    Vector3 localscale = m_pComponentTransform->GetScale();
-    btVector3 scale( localscale.x, localscale.y, localscale.z );
-    m_pBody->getCollisionShape()->setLocalScaling( scale );
-}
-
 void ComponentCollisionObject::OnStop()
 {
     ComponentUpdateable::OnStop();
+
+    // shouldn't get hit, all objects are deleted/recreated when gameplay is stopped.
+    if( m_pBody )
+    {
+        g_pBulletWorld->m_pDynamicsWorld->removeRigidBody( m_pBody );
+        SAFE_DELETE( m_pBody );
+    }
 }
 
 void ComponentCollisionObject::Tick(double TimePassed)
@@ -187,11 +202,14 @@ void ComponentCollisionObject::SyncRigidBodyToTransform()
     MyMatrix localmat = m_pComponentTransform->GetLocalRotPosMatrix(); //GetLocalTransform();
     transform.setFromOpenGLMatrix( &localmat.m11 );
 
-    m_pBody->getMotionState()->setWorldTransform( transform );
-    m_pBody->setWorldTransform( transform );
+    if( m_pBody )
+    {
+        m_pBody->getMotionState()->setWorldTransform( transform );
+        m_pBody->setWorldTransform( transform );
 
-    m_pBody->activate( true );
+        m_pBody->activate( true );
 
-    g_pBulletWorld->m_pDynamicsWorld->removeRigidBody( m_pBody );
-    g_pBulletWorld->m_pDynamicsWorld->addRigidBody( m_pBody );
+        g_pBulletWorld->m_pDynamicsWorld->removeRigidBody( m_pBody );
+        g_pBulletWorld->m_pDynamicsWorld->addRigidBody( m_pBody );
+    }
 }

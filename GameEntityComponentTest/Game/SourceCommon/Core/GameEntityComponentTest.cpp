@@ -92,7 +92,9 @@ void GameEntityComponentTest::OneTimeInit()
     GameObject* pGameObject;
     ComponentCamera* pComponentCamera;
     ComponentSprite* pComponentSprite;
+#if MYFW_USING_WX
     ComponentMesh* pComponentMesh;
+#endif
     ComponentMeshOBJ* pComponentMeshOBJ;
     ComponentAIChasePlayer* pComponentAIChasePlayer;
     ComponentCollisionObject* pComponentCollisionObject;
@@ -308,9 +310,30 @@ void GameEntityComponentTest::OneTimeInit()
             pComponentMeshOBJ->m_LayersThisExistsOn = Layer_MainScene;
         }
         pComponentCollisionObject = (ComponentCollisionObject*)pGameObject->AddNewComponent( ComponentType_CollisionObject );
+        pComponentCollisionObject->m_Mass = 1;
+    }
+
+    // create a plane in the 3d scene.
+    {
+        pGameObject = m_pComponentSystemManager->CreateGameObject();
+        pGameObject->SetName( "Plane" );
+        pGameObject->m_pComponentTransform->SetPosition( Vector3( 0, -3, 0 ) );
+        pGameObject->m_pComponentTransform->SetScale( Vector3( 10, 0.1f, 10 ) );
+        pComponentMeshOBJ = (ComponentMeshOBJ*)pGameObject->AddNewComponent( ComponentType_MeshOBJ );
+        if( pComponentMeshOBJ )
+        {
+            pComponentMeshOBJ->SetShader( m_pShader_TintColor );
+            pComponentMeshOBJ->m_pOBJFile = m_pOBJTestFiles[0];
+            pComponentMeshOBJ->m_LayersThisExistsOn = Layer_MainScene;
+        }
+        pComponentCollisionObject = (ComponentCollisionObject*)pGameObject->AddNewComponent( ComponentType_CollisionObject );
     }
 
     OnSurfaceChanged( (unsigned int)m_WindowStartX, (unsigned int)m_WindowStartY, (unsigned int)m_WindowWidth, (unsigned int)m_WindowHeight );
+
+#if !MYFW_USING_WX
+    m_pComponentSystemManager->OnPlay();
+#endif
 }
 
 static float totaltimepassed;
@@ -327,6 +350,7 @@ void GameEntityComponentTest::Tick(double TimePassed)
         if( m_EditorMode )
             m_pComponentSystemManager->Tick( 0 );
 
+#if MYFW_USING_WX
         for( int i=0; i<3; i++ )
         {
             ComponentRenderable* pRenderable = (ComponentRenderable*)m_EditorState.m_pTransformWidgets[i]->GetFirstComponentOfBaseType( BaseComponentType_Renderable );
@@ -342,6 +366,7 @@ void GameEntityComponentTest::Tick(double TimePassed)
                 pRenderable->m_Visible = false;
             }
         }
+#endif
     }
     //else
     {
@@ -368,6 +393,7 @@ void GameEntityComponentTest::OnDrawFrame()
 {
     GameCore::OnDrawFrame();
 
+#if MYFW_USING_WX
     if( g_GLCanvasIDActive == 1 )
     {
         // draw editor camera and editorFG camera
@@ -380,6 +406,7 @@ void GameEntityComponentTest::OnDrawFrame()
         }
     }
     else
+#endif
     {
         // draw all components.
         m_pComponentSystemManager->OnDrawFrame();
@@ -405,12 +432,12 @@ void GameEntityComponentTest::OnTouch(int action, int id, float x, float y, floa
             return;
         }
     }
-#endif
 
     if( g_GLCanvasIDActive != 0 )
     {
         return;
     }
+#endif
 
     // mouse moving without button down.
     if( id == -1 )
@@ -783,11 +810,8 @@ void GameEntityComponentTest::OnSurfaceChanged(unsigned int startx, unsigned int
     // reset the viewport sizes of the game or editor cameras.
     if( m_pComponentSystemManager )
     {
-        if( g_GLCanvasIDActive == 0 )
-        {
-            m_pComponentSystemManager->OnSurfaceChanged( startx, starty, width, height, (unsigned int)m_GameWidth, (unsigned int)m_GameHeight );
-        }
-        else
+#if MYFW_USING_WX
+        if( g_GLCanvasIDActive != 0 )
         {
             for( unsigned int i=0; i<m_EditorState.m_pEditorCamera->m_Components.Count(); i++ )
             {
@@ -809,6 +833,11 @@ void GameEntityComponentTest::OnSurfaceChanged(unsigned int startx, unsigned int
                     m_EditorState.m_pMousePickerFBO->m_Height = height;
                 }
             }
+        }
+        else
+#endif
+        {
+            m_pComponentSystemManager->OnSurfaceChanged( startx, starty, width, height, (unsigned int)m_GameWidth, (unsigned int)m_GameHeight );
         }
     }
 }
@@ -833,7 +862,7 @@ GameObject* GameEntityComponentTest::GetObjectAtPixel(unsigned int x, unsigned i
 
     // get a pixel from the FBO.
     unsigned char pixel[4];
-    glReadPixels( x - m_WindowStartX, y - m_WindowStartY, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, pixel );
+    glReadPixels( x - (unsigned int)m_WindowStartX, y - (unsigned int)m_WindowStartY, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, pixel );
 
     unsigned int id = pixel[0] + pixel[1]*256 + pixel[2]*256*256 + pixel[3]*256*256*256;
     LOGInfo( LOGTag, "pixel - %d, %d, %d, %d - id - %d\n", pixel[0], pixel[1], pixel[2], pixel[3], id );

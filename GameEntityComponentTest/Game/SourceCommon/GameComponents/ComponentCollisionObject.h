@@ -25,6 +25,8 @@ public:
 
     btRigidBody* m_pBody;
 
+    float m_Mass;
+
 public:
     ComponentCollisionObject();
     ComponentCollisionObject(GameObject* owner);
