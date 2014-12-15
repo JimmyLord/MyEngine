@@ -79,6 +79,9 @@ void ComponentCamera::Reset()
     m_pComponentTransform = m_pGameObject->m_pComponentTransform;
 
     m_Orthographic = false;
+
+    m_ClearColorBuffer = true;
+    m_ClearDepthBuffer = true;
     
     m_DesiredWidth = 0;
     m_DesiredHeight = 0;
@@ -186,7 +189,13 @@ void ComponentCamera::OnDrawFrame()
     else
     {
         glClearColor( 0.0f, 0.0f, 0.2f, 1.0f );
-        glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+
+        if( m_ClearColorBuffer && m_ClearDepthBuffer )
+            glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+        else if( m_ClearColorBuffer )
+            glClear( GL_COLOR_BUFFER_BIT );
+        else if( m_ClearDepthBuffer )
+            glClear( GL_DEPTH_BUFFER_BIT );
 
         g_pComponentSystemManager->OnDrawFrame( this, &m_Camera3D.m_matViewProj, 0 );
     }

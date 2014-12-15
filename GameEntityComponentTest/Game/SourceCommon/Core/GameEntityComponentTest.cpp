@@ -166,7 +166,7 @@ void GameEntityComponentTest::OneTimeInit()
         {
             pComponentMesh->m_Visible = true;
             pComponentMesh->SetShader( m_pShader_TintColor );
-            pComponentMesh->m_LayersThisExistsOn = Layer_Editor;
+            pComponentMesh->m_LayersThisExistsOn = Layer_EditorFG;
             pComponentMesh->m_pMesh->CreateEditorTransformWidgetAxis( 3, 0.1f, ColorByte(255, 100, 100, 255) );
         }
         pGameObject->m_pComponentTransform->SetRotation( Vector3( 0, 90, 0 ) );
@@ -183,7 +183,7 @@ void GameEntityComponentTest::OneTimeInit()
         {
             pComponentMesh->m_Visible = true;
             pComponentMesh->SetShader( m_pShader_TintColor );
-            pComponentMesh->m_LayersThisExistsOn = Layer_Editor;
+            pComponentMesh->m_LayersThisExistsOn = Layer_EditorFG;
             pComponentMesh->m_pMesh->CreateEditorTransformWidgetAxis( 3, 0.1f, ColorByte(100, 255, 100, 255) );
         }
         pGameObject->m_pComponentTransform->SetRotation( Vector3( -90, 0, 0 ) );
@@ -200,7 +200,7 @@ void GameEntityComponentTest::OneTimeInit()
         {
             pComponentMesh->m_Visible = true;
             pComponentMesh->SetShader( m_pShader_TintColor );
-            pComponentMesh->m_LayersThisExistsOn = Layer_Editor;
+            pComponentMesh->m_LayersThisExistsOn = Layer_EditorFG;
             pComponentMesh->m_pMesh->CreateEditorTransformWidgetAxis( 3, 0.1f, ColorByte(100, 100, 255, 255) );
         }
         pGameObject->m_pComponentTransform->SetRotation( Vector3( 0, 0, 0 ) );
@@ -215,14 +215,34 @@ void GameEntityComponentTest::OneTimeInit()
         pGameObject = m_pComponentSystemManager->CreateGameObject( false ); // not managed.
         pGameObject->SetName( "Editor Camera" );
         pGameObject->m_pComponentTransform->SetPosition( Vector3( 0, 0, 10 ) );
-        pComponentCamera = (ComponentCamera*)pGameObject->AddNewComponent( ComponentType_Camera );
-        pComponentCamera->SetDesiredAspectRatio( 640, 960 );
-        pComponentCamera->m_Orthographic = false;
-        pComponentCamera->m_LayersToRender = Layer_Editor | Layer_MainScene;
 
-        // add the camera component to the list, but disabled, so it won't render.
-        pComponentCamera->m_Enabled = false;
-        m_pComponentSystemManager->AddComponent( pComponentCamera );
+        // add an editor scene camera
+        {
+            pComponentCamera = (ComponentCamera*)pGameObject->AddNewComponent( ComponentType_Camera );
+            pComponentCamera->SetDesiredAspectRatio( 640, 960 );
+            pComponentCamera->m_Orthographic = false;
+            pComponentCamera->m_LayersToRender = Layer_Editor | Layer_MainScene;
+            pComponentCamera->m_ClearColorBuffer = true;
+            pComponentCamera->m_ClearDepthBuffer = true;
+
+            // add the camera component to the list, but disabled, so it won't render.
+            pComponentCamera->m_Enabled = false;
+            m_pComponentSystemManager->AddComponent( pComponentCamera );
+        }
+
+        // add a foreground camera for the transform widget only ATM.
+        {
+            pComponentCamera = (ComponentCamera*)pGameObject->AddNewComponent( ComponentType_Camera );
+            pComponentCamera->SetDesiredAspectRatio( 640, 960 );
+            pComponentCamera->m_Orthographic = false;
+            pComponentCamera->m_LayersToRender = Layer_EditorFG;
+            pComponentCamera->m_ClearColorBuffer = false;
+            pComponentCamera->m_ClearDepthBuffer = true;
+
+            // add the camera component to the list, but disabled, so it won't render.
+            pComponentCamera->m_Enabled = false;
+            m_pComponentSystemManager->AddComponent( pComponentCamera );
+        }
 
         m_EditorState.m_pEditorCamera = pGameObject;
     }
@@ -348,71 +368,22 @@ void GameEntityComponentTest::OnDrawFrame()
 {
     GameCore::OnDrawFrame();
 
-    //glClearColor( 0.0f, 0.0f, 0.2f, 1.0f );
-    //glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
-
-    //if( g_GLCanvasIDActive == 1 )
-    //{
-    //    ComponentCamera* pCamera = m_EditorState.GetEditorCamera();
-    //    pCamera->m_Enabled = true;
-
-    //    // TODO: get the camera properly.
-    //    pCamera = m_pComponentSystemManager->GetFirstCamera();
-    //    pCamera->m_Enabled = false;
-    //}
-    //else
-    //{
-    //    ComponentCamera* pCamera = m_EditorState.GetEditorCamera();
-    //    pCamera->m_Enabled = false;
-
-    //    // TODO: get the camera properly.
-    //    pCamera = m_pComponentSystemManager->GetFirstCamera();
-    //    pCamera->m_Enabled = true;
-    //}
-
-    // draw the 3d grid.
-    //if( m_EditorMode && g_GLCanvasIDActive == 1 )
-    //{
-    //    ComponentCamera* pCamera = m_EditorState.GetEditorCamera();
-
-    //    ComponentRenderable* pRenderable = (ComponentRenderable*)m_EditorState.m_p3DGridPlane->GetFirstComponentOfBaseType( BaseComponentType_Renderable );
-    //    pRenderable->Draw( &pCamera->m_Camera3D.m_matViewProj );
-    //}
-
     if( g_GLCanvasIDActive == 1 )
     {
-        // draw editor camera
-        ComponentCamera* pCamera = m_EditorState.GetEditorCamera();
-        //pCamera = m_pComponentSystemManager->GetFirstCamera();
-        if( pCamera )
-            pCamera->OnDrawFrame();
-        //pCamera->m_Enabled = false;
-
-        //// draw all other cameras except main cam.
-        //pCamera = m_pComponentSystemManager->GetFirstCamera();
-        //pCamera->m_Enabled = false;
-        //m_pComponentSystemManager->OnDrawFrame();
-        //pCamera->m_Enabled = true;
+        // draw editor camera and editorFG camera
+        for( unsigned int i=0; i<m_EditorState.m_pEditorCamera->m_Components.Count(); i++ )
+        {
+            ComponentCamera* pCamera = dynamic_cast<ComponentCamera*>( m_EditorState.m_pEditorCamera->m_Components[i] );
+            
+            if( pCamera )
+                pCamera->OnDrawFrame();
+        }
     }
     else
     {
         // draw all components.
         m_pComponentSystemManager->OnDrawFrame();
     }
-
-    // draw the transform widget in the foreground
-    //if( m_EditorMode && m_EditorState.m_pSelectedGameObject && g_GLCanvasIDActive == 1 )
-    //{
-    //    glClear( GL_DEPTH_BUFFER_BIT );
-
-    //    ComponentCamera* pCamera = m_EditorState.GetEditorCamera();
-
-    //    for( int i=0; i<3; i++ )
-    //    {
-    //        ComponentRenderable* pRenderable = (ComponentRenderable*)m_EditorState.m_pTransformWidgets[i]->GetFirstComponentOfBaseType( BaseComponentType_Renderable );
-    //        pRenderable->Draw( &pCamera->m_Camera3D.m_matViewProj );
-    //    }
-    //}
 }
 
 void GameEntityComponentTest::OnTouch(int action, int id, float x, float y, float pressure, float size)
@@ -818,8 +789,11 @@ void GameEntityComponentTest::OnSurfaceChanged(unsigned int startx, unsigned int
         }
         else
         {
-            ComponentCamera* pCamera = m_EditorState.GetEditorCamera();
-            pCamera->OnSurfaceChanged( startx, starty, width, height, (unsigned int)m_GameWidth, (unsigned int)m_GameHeight );
+            for( unsigned int i=0; i<m_EditorState.m_pEditorCamera->m_Components.Count(); i++ )
+            {
+                ComponentCamera* pCamera = dynamic_cast<ComponentCamera*>( m_EditorState.m_pEditorCamera->m_Components[i] );
+                pCamera->OnSurfaceChanged( startx, starty, width, height, (unsigned int)m_GameWidth, (unsigned int)m_GameHeight );
+            }
 
             if( m_EditorState.m_pMousePickerFBO )
             {
@@ -850,39 +824,11 @@ GameObject* GameEntityComponentTest::GetObjectAtPixel(unsigned int x, unsigned i
     glClearColor( 0, 0, 0, 0 );
     glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
-    ComponentCamera* pCamera = m_EditorState.GetEditorCamera();
-    MyMatrix* matLocalCamera = pCamera->m_pComponentTransform->GetLocalTransform();
-    m_pComponentSystemManager->DrawMousePickerFrame( pCamera, &pCamera->m_Camera3D.m_matViewProj, m_pShader_MousePicker );
-
-    // draw the transform widget object into the mouse picker buffer.
-    // todo: clean this up, find better way to draw editor tools in fg/bg... additional layers/cameras
-    if( m_EditorMode && m_EditorState.m_pSelectedGameObject )
+    for( unsigned int i=0; i<m_EditorState.m_pEditorCamera->m_Components.Count(); i++ )
     {
-        Shader_Base* pShader = (Shader_Base*)m_pShader_MousePicker->GlobalPass();
-        if( pShader->ActivateAndProgramShader() )
-        {
-            glClear( GL_DEPTH_BUFFER_BIT );
-
-            for( int i=0; i<3; i++ )
-            {
-                ComponentRenderable* pRenderable = (ComponentRenderable*)m_EditorState.m_pTransformWidgets[i]->GetFirstComponentOfBaseType( BaseComponentType_Renderable );
-
-                ColorByte tint( 0, 0, 0, 0 );
-
-                unsigned int id = pRenderable->m_pGameObject->m_ID;
-
-                if( 1 )                 tint.r = id%256;
-                if( id > 256 )          tint.g = (id-256)%256;
-                if( id > 256*256 )      tint.b = (id-256*256)%256;
-                if( id > 256*256*256 )  tint.a = (id-256*256*256)%256;
-
-                pShader->ProgramTint( tint );
-
-                pRenderable->Draw( &pCamera->m_Camera3D.m_matViewProj, m_pShader_MousePicker );
-            }
-
-            pShader->DeactivateShader();
-        }
+        ComponentCamera* pCamera = dynamic_cast<ComponentCamera*>( m_EditorState.m_pEditorCamera->m_Components[i] );
+        m_pComponentSystemManager->DrawMousePickerFrame( pCamera, &pCamera->m_Camera3D.m_matViewProj, m_pShader_MousePicker );
+        glClear( GL_DEPTH_BUFFER_BIT );
     }
 
     // get a pixel from the FBO.
@@ -894,13 +840,11 @@ GameObject* GameEntityComponentTest::GetObjectAtPixel(unsigned int x, unsigned i
 
     m_EditorState.m_pMousePickerFBO->Unbind();
 
-    // reset glViewport and scissor region.
-    OnSurfaceChanged( (unsigned int)pCamera->m_WindowStartX, (unsigned int)pCamera->m_WindowStartY,
-        (unsigned int)pCamera->m_WindowWidth, (unsigned int)pCamera->m_WindowHeight );
-
+    // find the object clicked on.
     GameObject* pGameObject = m_pComponentSystemManager->FindGameObjectByID( id );
 
     // if we didn't click on something, check if it's the transform widget.
+    //   has to be checked manually since they are unmanaged.
     if( pGameObject == 0 )
     {
         for( int i=0; i<3; i++ )
@@ -911,5 +855,6 @@ GameObject* GameEntityComponentTest::GetObjectAtPixel(unsigned int x, unsigned i
             }
         }
     }
+
     return pGameObject;
 }

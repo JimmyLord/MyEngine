@@ -30,6 +30,9 @@ public:
 
     bool m_Orthographic;
 
+    bool m_ClearColorBuffer;
+    bool m_ClearDepthBuffer;
+
     float m_DesiredWidth;
     float m_DesiredHeight;
 

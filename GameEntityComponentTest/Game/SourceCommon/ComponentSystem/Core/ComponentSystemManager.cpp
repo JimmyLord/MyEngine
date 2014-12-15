@@ -375,9 +375,14 @@ ComponentCamera* ComponentSystemManager::GetFirstCamera()
     for( CPPListNode* node = m_ComponentsCamera.GetHead(); node != 0; node = node->GetNext() )
     {
         ComponentCamera* pCamera = (ComponentCamera*)node;
-        assert( pCamera->m_Type == ComponentType_Camera );
 
-        return pCamera;
+        // skip unmanaged cameras. (editor cam)
+        if( pCamera->m_pGameObject->m_Managed == true )
+        {
+            assert( pCamera->m_Type == ComponentType_Camera );
+
+            return pCamera;
+        }
     }
 
     return 0;
