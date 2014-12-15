@@ -183,6 +183,8 @@ void GameObject::SetName(char* name)
 
 ComponentBase* GameObject::AddNewComponent(int componenttype, ComponentSystemManager* pComponentSystemManager)
 {
+    assert( componenttype != -1 );
+
     if( m_Components.Count() >= m_Components.Length() )
         return 0;
 

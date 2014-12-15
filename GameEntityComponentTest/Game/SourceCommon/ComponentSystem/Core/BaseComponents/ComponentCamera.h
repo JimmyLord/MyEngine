@@ -33,6 +33,11 @@ public:
     float m_DesiredWidth;
     float m_DesiredHeight;
 
+    unsigned int m_WindowStartX;
+    unsigned int m_WindowStartY;
+    unsigned int m_WindowWidth;
+    unsigned int m_WindowHeight;
+
     Camera2D m_Camera2D;
     Camera3D m_Camera3D;
 

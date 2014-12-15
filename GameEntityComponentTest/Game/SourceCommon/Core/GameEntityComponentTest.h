@@ -56,6 +56,7 @@ struct EditorState
 
     GameObject* m_p3DGridPlane;
     GameObject* m_pTransformWidgets[3];
+    GameObject* m_pEditorCamera;
 
     EditorState::EditorState()
     {
@@ -80,12 +81,19 @@ struct EditorState
     {
         SAFE_RELEASE( m_pMousePickerFBO );
     }
+
+    ComponentCamera* EditorState::GetEditorCamera()
+    {
+        assert( m_pEditorCamera );
+        return (ComponentCamera*)m_pEditorCamera->GetFirstComponentOfBaseType( BaseComponentType_Camera );
+    }
 };
 
 enum LayerValues
 {
-    Layer_MainScene = 0x0001,
-    Layer_HUD       = 0x0002,
+    Layer_Editor    = 0x0001,
+    Layer_MainScene = 0x0002,
+    Layer_HUD       = 0x0004,
 };
 
 class GameEntityComponentTest : public GameCore

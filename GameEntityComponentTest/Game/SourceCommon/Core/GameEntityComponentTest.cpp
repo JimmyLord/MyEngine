@@ -46,6 +46,13 @@ GameEntityComponentTest::GameEntityComponentTest()
     m_pBulletWorld = MyNew BulletWorld();
 
     m_EditorState.m_pMousePickerFBO = 0;
+
+    m_EditorState.m_p3DGridPlane = 0;
+    for( int i=0; i<3; i++ )
+    {
+        m_EditorState.m_pTransformWidgets[i] = 0;
+    }
+    m_EditorState.m_pEditorCamera = 0;
 }
 
 GameEntityComponentTest::~GameEntityComponentTest()
@@ -54,8 +61,6 @@ GameEntityComponentTest::~GameEntityComponentTest()
     SAFE_DELETE( m_pShader_TestNormals );
     SAFE_DELETE( m_pShader_Texture );
     SAFE_DELETE( m_pShader_MousePicker );
-
-    SAFE_DELETE( m_pComponentSystemManager );
 
     for( int i=0; i<4; i++ )
     {
@@ -68,13 +73,15 @@ GameEntityComponentTest::~GameEntityComponentTest()
         SAFE_RELEASE( m_pTextures[i] );
     }
 
-    SAFE_DELETE( m_pBulletWorld );
-
     SAFE_DELETE( m_EditorState.m_p3DGridPlane );
     for( int i=0; i<3; i++ )
     {
         SAFE_DELETE( m_EditorState.m_pTransformWidgets[i] );
     }
+    SAFE_DELETE( m_EditorState.m_pEditorCamera );
+
+    SAFE_DELETE( m_pComponentSystemManager );
+    SAFE_DELETE( m_pBulletWorld );
 }
 
 void GameEntityComponentTest::OneTimeInit()
@@ -119,69 +126,7 @@ void GameEntityComponentTest::OneTimeInit()
     // Initialize our component system.
     m_pComponentSystemManager = MyNew ComponentSystemManager( MyNew GameComponentTypeManager );
 
-#if MYFW_USING_WX
-    // create a 3D X/Z plane grid
-    {
-        pGameObject = m_pComponentSystemManager->CreateGameObject( false );
-        pGameObject->SetName( "3D Grid Plane" );
-        pComponentMesh = (ComponentMesh*)pGameObject->AddNewComponent( ComponentType_Mesh );
-        if( pComponentMesh )
-        {
-            pComponentMesh->m_Visible = false; // manually drawn when in editor mode.
-            pComponentMesh->SetShader( m_pShader_TintColor );
-            pComponentMesh->m_LayersThisExistsOn = Layer_MainScene;
-            pComponentMesh->m_pMesh->m_Tint.Set( 150, 150, 150, 255 );
-            pComponentMesh->m_pMesh->CreateEditorLineGridXZ( Vector3(0,0,0), 1, 5 );
-        }
-        m_EditorState.m_p3DGridPlane = pGameObject;
-    }
-
-    // create a 3d transform widget for each axis.
-    {
-        pGameObject = m_pComponentSystemManager->CreateGameObject( false );
-        pGameObject->SetName( "3D Transform Widget - x-axis" );
-        pComponentMesh = (ComponentMesh*)pGameObject->AddNewComponent( ComponentType_Mesh );
-        if( pComponentMesh )
-        {
-            pComponentMesh->m_Visible = false;
-            pComponentMesh->SetShader( m_pShader_TintColor );
-            pComponentMesh->m_LayersThisExistsOn = Layer_MainScene;
-            pComponentMesh->m_pMesh->CreateEditorTransformWidgetAxis( 3, 0.1f, ColorByte(255, 100, 100, 255) );
-        }
-        pGameObject->m_pComponentTransform->SetRotation( Vector3( 0, 90, 0 ) );
-        m_EditorState.m_pTransformWidgets[0] = pGameObject;
-    }
-    {
-        pGameObject = m_pComponentSystemManager->CreateGameObject( false );
-        pGameObject->SetName( "3D Transform Widget - y-axis" );
-        pComponentMesh = (ComponentMesh*)pGameObject->AddNewComponent( ComponentType_Mesh );
-        if( pComponentMesh )
-        {
-            pComponentMesh->m_Visible = false;
-            pComponentMesh->SetShader( m_pShader_TintColor );
-            pComponentMesh->m_LayersThisExistsOn = Layer_MainScene;
-            pComponentMesh->m_pMesh->CreateEditorTransformWidgetAxis( 3, 0.1f, ColorByte(100, 255, 100, 255) );
-        }
-        pGameObject->m_pComponentTransform->SetRotation( Vector3( -90, 0, 0 ) );
-        m_EditorState.m_pTransformWidgets[1] = pGameObject;
-    }
-    {
-        pGameObject = m_pComponentSystemManager->CreateGameObject( false );
-        pGameObject->SetName( "3D Transform Widget - z-axis" );
-        pComponentMesh = (ComponentMesh*)pGameObject->AddNewComponent( ComponentType_Mesh );
-        if( pComponentMesh )
-        {
-            pComponentMesh->m_Visible = false;
-            pComponentMesh->SetShader( m_pShader_TintColor );
-            pComponentMesh->m_LayersThisExistsOn = Layer_MainScene;
-            pComponentMesh->m_pMesh->CreateEditorTransformWidgetAxis( 3, 0.1f, ColorByte(100, 100, 255, 255) );
-        }
-        pGameObject->m_pComponentTransform->SetRotation( Vector3( 0, 0, 0 ) );
-        m_EditorState.m_pTransformWidgets[2] = pGameObject;
-    }
-#endif
-
-    // create a 3D camera, renders first.
+    // create a 3D camera, renders first... created first so GetFirstCamera() will get the game cam.
     {
         pGameObject = m_pComponentSystemManager->CreateGameObject();
         pGameObject->SetName( "Main Camera" );
@@ -191,6 +136,98 @@ void GameEntityComponentTest::OneTimeInit()
         pComponentCamera->m_Orthographic = false;
         pComponentCamera->m_LayersToRender = Layer_MainScene;
     }
+
+#if MYFW_USING_WX
+    // create a 3D X/Z plane grid
+    {
+        pGameObject = m_pComponentSystemManager->CreateGameObject( false ); // not managed.
+        pGameObject->SetName( "3D Grid Plane" );
+        pComponentMesh = (ComponentMesh*)pGameObject->AddNewComponent( ComponentType_Mesh );
+        if( pComponentMesh )
+        {
+            pComponentMesh->m_Visible = true; // manually drawn when in editor mode.
+            pComponentMesh->SetShader( m_pShader_TintColor );
+            pComponentMesh->m_LayersThisExistsOn = Layer_Editor;
+            pComponentMesh->m_pMesh->m_Tint.Set( 150, 150, 150, 255 );
+            pComponentMesh->m_pMesh->CreateEditorLineGridXZ( Vector3(0,0,0), 1, 5 );
+        }
+
+        m_pComponentSystemManager->AddComponent( pComponentMesh );
+
+        m_EditorState.m_p3DGridPlane = pGameObject;
+    }
+
+    // create a 3d transform widget for each axis.
+    {
+        pGameObject = m_pComponentSystemManager->CreateGameObject( false ); // not managed.
+        pGameObject->SetName( "3D Transform Widget - x-axis" );
+        pComponentMesh = (ComponentMesh*)pGameObject->AddNewComponent( ComponentType_Mesh );
+        if( pComponentMesh )
+        {
+            pComponentMesh->m_Visible = true;
+            pComponentMesh->SetShader( m_pShader_TintColor );
+            pComponentMesh->m_LayersThisExistsOn = Layer_Editor;
+            pComponentMesh->m_pMesh->CreateEditorTransformWidgetAxis( 3, 0.1f, ColorByte(255, 100, 100, 255) );
+        }
+        pGameObject->m_pComponentTransform->SetRotation( Vector3( 0, 90, 0 ) );
+
+        m_pComponentSystemManager->AddComponent( pComponentMesh );
+
+        m_EditorState.m_pTransformWidgets[0] = pGameObject;
+    }
+    {
+        pGameObject = m_pComponentSystemManager->CreateGameObject( false ); // not managed.
+        pGameObject->SetName( "3D Transform Widget - y-axis" );
+        pComponentMesh = (ComponentMesh*)pGameObject->AddNewComponent( ComponentType_Mesh );
+        if( pComponentMesh )
+        {
+            pComponentMesh->m_Visible = true;
+            pComponentMesh->SetShader( m_pShader_TintColor );
+            pComponentMesh->m_LayersThisExistsOn = Layer_Editor;
+            pComponentMesh->m_pMesh->CreateEditorTransformWidgetAxis( 3, 0.1f, ColorByte(100, 255, 100, 255) );
+        }
+        pGameObject->m_pComponentTransform->SetRotation( Vector3( -90, 0, 0 ) );
+
+        m_pComponentSystemManager->AddComponent( pComponentMesh );
+
+        m_EditorState.m_pTransformWidgets[1] = pGameObject;
+    }
+    {
+        pGameObject = m_pComponentSystemManager->CreateGameObject( false ); // not managed.
+        pGameObject->SetName( "3D Transform Widget - z-axis" );
+        pComponentMesh = (ComponentMesh*)pGameObject->AddNewComponent( ComponentType_Mesh );
+        if( pComponentMesh )
+        {
+            pComponentMesh->m_Visible = true;
+            pComponentMesh->SetShader( m_pShader_TintColor );
+            pComponentMesh->m_LayersThisExistsOn = Layer_Editor;
+            pComponentMesh->m_pMesh->CreateEditorTransformWidgetAxis( 3, 0.1f, ColorByte(100, 100, 255, 255) );
+        }
+        pGameObject->m_pComponentTransform->SetRotation( Vector3( 0, 0, 0 ) );
+
+        m_pComponentSystemManager->AddComponent( pComponentMesh );
+
+        m_EditorState.m_pTransformWidgets[2] = pGameObject;
+    }
+
+    // create a 3D editor camera, renders editor view.
+    {
+        pGameObject = m_pComponentSystemManager->CreateGameObject( false ); // not managed.
+        pGameObject->SetName( "Editor Camera" );
+        pGameObject->m_pComponentTransform->SetPosition( Vector3( 0, 0, 10 ) );
+        pComponentCamera = (ComponentCamera*)pGameObject->AddNewComponent( ComponentType_Camera );
+        pComponentCamera->SetDesiredAspectRatio( 640, 960 );
+        pComponentCamera->m_Orthographic = false;
+        pComponentCamera->m_LayersToRender = Layer_Editor | Layer_MainScene;
+
+        // add the camera component to the list, but disabled, so it won't render.
+        pComponentCamera->m_Enabled = false;
+        m_pComponentSystemManager->AddComponent( pComponentCamera );
+
+        m_EditorState.m_pEditorCamera = pGameObject;
+    }
+    
+#endif
 
     // create a 2D camera, renders after 3d, for hud.
     {
@@ -265,9 +302,10 @@ void GameEntityComponentTest::Tick(double TimePassed)
     totaltimepassed += (float)TimePassed;
 
     // tick all components.
-    if( m_EditorMode )
+    //if( m_EditorMode )
     {
-        m_pComponentSystemManager->Tick( 0 );
+        if( m_EditorMode )
+            m_pComponentSystemManager->Tick( 0 );
 
         for( int i=0; i<3; i++ )
         {
@@ -275,20 +313,23 @@ void GameEntityComponentTest::Tick(double TimePassed)
 
             if( m_EditorState.m_pSelectedGameObject )
             {
-                //pRenderable->m_Visible = true;
+                pRenderable->m_Visible = true;
                 Vector3 pos = m_EditorState.m_pSelectedGameObject->m_pComponentTransform->GetPosition();
                 m_EditorState.m_pTransformWidgets[i]->m_pComponentTransform->SetPosition( pos );
             }
             else
             {
-                //pRenderable->m_Visible = false;
+                pRenderable->m_Visible = false;
             }
         }
     }
-    else
+    //else
     {
-        if( TimePassed != 0 )
-            m_pComponentSystemManager->Tick( TimePassed );
+        if( m_EditorMode == false )
+        {
+            if( TimePassed != 0 )
+                m_pComponentSystemManager->Tick( TimePassed );
+        }
     }
 
     if( m_EditorMode == false )
@@ -307,57 +348,98 @@ void GameEntityComponentTest::OnDrawFrame()
 {
     GameCore::OnDrawFrame();
 
-    glClearColor( 0.0f, 0.0f, 0.2f, 1.0f );
-    glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+    //glClearColor( 0.0f, 0.0f, 0.2f, 1.0f );
+    //glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+
+    //if( g_GLCanvasIDActive == 1 )
+    //{
+    //    ComponentCamera* pCamera = m_EditorState.GetEditorCamera();
+    //    pCamera->m_Enabled = true;
+
+    //    // TODO: get the camera properly.
+    //    pCamera = m_pComponentSystemManager->GetFirstCamera();
+    //    pCamera->m_Enabled = false;
+    //}
+    //else
+    //{
+    //    ComponentCamera* pCamera = m_EditorState.GetEditorCamera();
+    //    pCamera->m_Enabled = false;
+
+    //    // TODO: get the camera properly.
+    //    pCamera = m_pComponentSystemManager->GetFirstCamera();
+    //    pCamera->m_Enabled = true;
+    //}
 
     // draw the 3d grid.
-    if( m_EditorMode )
+    //if( m_EditorMode && g_GLCanvasIDActive == 1 )
+    //{
+    //    ComponentCamera* pCamera = m_EditorState.GetEditorCamera();
+
+    //    ComponentRenderable* pRenderable = (ComponentRenderable*)m_EditorState.m_p3DGridPlane->GetFirstComponentOfBaseType( BaseComponentType_Renderable );
+    //    pRenderable->Draw( &pCamera->m_Camera3D.m_matViewProj );
+    //}
+
+    if( g_GLCanvasIDActive == 1 )
     {
-        // TODO: get the camera properly.
-        ComponentCamera* pCamera = m_pComponentSystemManager->GetFirstCamera();
+        // draw editor camera
+        ComponentCamera* pCamera = m_EditorState.GetEditorCamera();
+        //pCamera = m_pComponentSystemManager->GetFirstCamera();
+        if( pCamera )
+            pCamera->OnDrawFrame();
+        //pCamera->m_Enabled = false;
 
-        ComponentRenderable* pRenderable = (ComponentRenderable*)m_EditorState.m_p3DGridPlane->GetFirstComponentOfBaseType( BaseComponentType_Renderable );
-        pRenderable->Draw( &pCamera->m_Camera3D.m_matViewProj );
+        //// draw all other cameras except main cam.
+        //pCamera = m_pComponentSystemManager->GetFirstCamera();
+        //pCamera->m_Enabled = false;
+        //m_pComponentSystemManager->OnDrawFrame();
+        //pCamera->m_Enabled = true;
     }
-
-    // draw all components.
-    m_pComponentSystemManager->OnDrawFrame();
+    else
+    {
+        // draw all components.
+        m_pComponentSystemManager->OnDrawFrame();
+    }
 
     // draw the transform widget in the foreground
-    if( m_EditorMode && m_EditorState.m_pSelectedGameObject )
-    {
-        glClear( GL_DEPTH_BUFFER_BIT );
+    //if( m_EditorMode && m_EditorState.m_pSelectedGameObject && g_GLCanvasIDActive == 1 )
+    //{
+    //    glClear( GL_DEPTH_BUFFER_BIT );
 
-        // TODO: get the camera properly.
-        ComponentCamera* pCamera = m_pComponentSystemManager->GetFirstCamera();
+    //    ComponentCamera* pCamera = m_EditorState.GetEditorCamera();
 
-        for( int i=0; i<3; i++ )
-        {
-            ComponentRenderable* pRenderable = (ComponentRenderable*)m_EditorState.m_pTransformWidgets[i]->GetFirstComponentOfBaseType( BaseComponentType_Renderable );
-            pRenderable->Draw( &pCamera->m_Camera3D.m_matViewProj );
-        }
-    }
-
-
-    //ComponentCamera* pCamera = m_pComponentSystemManager->GetFirstCamera();
-    //MyMatrix* matLocalCamera = pCamera->m_pComponentTransform->GetLocalTransform();
-    //m_pComponentSystemManager->DrawMousePickerFrame( pCamera, &pCamera->m_Camera3D.m_matViewProj, m_pShader_MousePicker );
+    //    for( int i=0; i<3; i++ )
+    //    {
+    //        ComponentRenderable* pRenderable = (ComponentRenderable*)m_EditorState.m_pTransformWidgets[i]->GetFirstComponentOfBaseType( BaseComponentType_Renderable );
+    //        pRenderable->Draw( &pCamera->m_Camera3D.m_matViewProj );
+    //    }
+    //}
 }
 
 void GameEntityComponentTest::OnTouch(int action, int id, float x, float y, float pressure, float size)
 {
     GameCore::OnTouch( action, id, x, y, pressure, size );
 
-    // prefer 0,0 at bottom left.
-    y = m_WindowHeight - y;
-
 #if MYFW_USING_WX
-    if( m_EditorMode )
+    //if( m_EditorMode )
     {
-        HandleEditorInput( -1, -1, action, id, x, y, pressure );
-        return;
+        if( g_GLCanvasIDActive == 1 )
+        {
+            ComponentCamera* pCamera = m_EditorState.GetEditorCamera();
+
+            // prefer 0,0 at bottom left.
+            y = pCamera->m_WindowHeight - y;
+
+            HandleEditorInput( -1, -1, action, id, x, y, pressure );
+    
+            return;
+        }
     }
 #endif
+
+    if( g_GLCanvasIDActive != 0 )
+    {
+        return;
+    }
 
     // mouse moving without button down.
     if( id == -1 )
@@ -366,9 +448,12 @@ void GameEntityComponentTest::OnTouch(int action, int id, float x, float y, floa
     // TODO: get the camera properly.
     ComponentCamera* pCamera = m_pComponentSystemManager->GetFirstCamera();
 
+    // prefer 0,0 at bottom left.
+    y = pCamera->m_WindowHeight - y;
+
     // convert mouse to x/y in Camera2D space. TODO: put this in camera component.
-    x = (x - pCamera->m_Camera2D.m_ScreenOffsetX - m_WindowStartX) / pCamera->m_Camera2D.m_ScreenWidth * m_GameWidth;
-    y = (y - pCamera->m_Camera2D.m_ScreenOffsetY + m_WindowStartY) / pCamera->m_Camera2D.m_ScreenHeight * m_GameHeight;
+    x = (x - pCamera->m_Camera2D.m_ScreenOffsetX - pCamera->m_WindowStartX) / pCamera->m_Camera2D.m_ScreenWidth * m_GameWidth;
+    y = (y - pCamera->m_Camera2D.m_ScreenOffsetY + pCamera->m_WindowStartY) / pCamera->m_Camera2D.m_ScreenHeight * m_GameHeight;
 
     m_pComponentSystemManager->OnTouch( action, id, x, y, pressure, size );
 }
@@ -416,7 +501,7 @@ void GameEntityComponentTest::OnKeyDown(int keycode, int unicodechar)
 void GameEntityComponentTest::OnKeyUp(int keycode, int unicodechar)
 {
 #if MYFW_USING_WX
-    if( m_EditorMode )
+    if( m_EditorMode && g_GLCanvasIDActive == 1 )
     {
         HandleEditorInput( 0, keycode, -1, -1, -1, -1, -1 );
         return;
@@ -546,8 +631,8 @@ void GameEntityComponentTest::HandleEditorInput(int keydown, int keycode, int ac
     {
         unsigned int mods = m_EditorState.m_ModifierKeyStates;
 
-        // TODO: get the camera properly.
-        ComponentCamera* pCamera = m_pComponentSystemManager->GetFirstCamera();
+        // get the editor camera's local transform.
+        ComponentCamera* pCamera = m_EditorState.GetEditorCamera();
         MyMatrix* matLocalCamera = pCamera->m_pComponentTransform->GetLocalTransform();
 
         if( action == GCBA_Wheel )
@@ -648,7 +733,7 @@ void GameEntityComponentTest::SaveScene()
     char* savestring = g_pComponentSystemManager->SaveSceneToJSON();
 
     FILE* filehandle;
-    errno_t error = fopen_s( &filehandle, "test.scene", "w" );
+    errno_t error = fopen_s( &filehandle, "Data/Scenes/test.scene", "w" );
     if( filehandle )
     {
         fprintf( filehandle, "%s", savestring );
@@ -661,7 +746,7 @@ void GameEntityComponentTest::SaveScene()
 void GameEntityComponentTest::LoadScene()
 {
     FILE* filehandle;
-    errno_t err = fopen_s( &filehandle, "test.scene", "rb" );
+    errno_t err = fopen_s( &filehandle, "Data/Scenes/test.scene", "rb" );
 
     char* jsonstr;
 
@@ -687,6 +772,8 @@ void GameEntityComponentTest::LoadScene()
 
 #if MYFW_USING_WX
     m_EditorMode = true;
+
+    g_pGameMainFrame->ResizeViewport();
 #endif
 
     OnSurfaceChanged( (unsigned int)m_WindowStartX, (unsigned int)m_WindowStartY, (unsigned int)m_WindowWidth, (unsigned int)m_WindowHeight );
@@ -699,9 +786,9 @@ void GameEntityComponentTest::OnSurfaceChanged(unsigned int startx, unsigned int
     if( height == 0 || width == 0 )
         return;
 
-    float devicewidth = m_WindowWidth;
-    float deviceheight = m_WindowHeight;
-    float deviceratio = devicewidth / deviceheight;
+    //float devicewidth = m_WindowWidth;
+    //float deviceheight = m_WindowHeight;
+    //float deviceratio = devicewidth / deviceheight;
 
     //if( width > height )
     //{
@@ -722,16 +809,32 @@ void GameEntityComponentTest::OnSurfaceChanged(unsigned int startx, unsigned int
     m_GameWidth = 640.0f;
     m_GameHeight = 960.0f;
 
+    // reset the viewport sizes of the game or editor cameras.
     if( m_pComponentSystemManager )
-        m_pComponentSystemManager->OnSurfaceChanged( startx, starty, width, height, (unsigned int)m_GameWidth, (unsigned int)m_GameHeight );
-
-    if( m_EditorState.m_pMousePickerFBO )
     {
-        if( m_EditorState.m_pMousePickerFBO->m_Width != width || m_EditorState.m_pMousePickerFBO->m_Height != height )
+        if( g_GLCanvasIDActive == 0 )
         {
-            m_EditorState.m_pMousePickerFBO->Invalidate( true );
-            m_EditorState.m_pMousePickerFBO->Setup( width, height, GL_NEAREST, GL_NEAREST, true, true, false );
-            m_EditorState.m_pMousePickerFBO->Create();
+            m_pComponentSystemManager->OnSurfaceChanged( startx, starty, width, height, (unsigned int)m_GameWidth, (unsigned int)m_GameHeight );
+        }
+        else
+        {
+            ComponentCamera* pCamera = m_EditorState.GetEditorCamera();
+            pCamera->OnSurfaceChanged( startx, starty, width, height, (unsigned int)m_GameWidth, (unsigned int)m_GameHeight );
+
+            if( m_EditorState.m_pMousePickerFBO )
+            {
+                if( m_EditorState.m_pMousePickerFBO->m_TextureWidth < width || m_EditorState.m_pMousePickerFBO->m_TextureHeight < height )
+                {
+                    m_EditorState.m_pMousePickerFBO->Invalidate( true );
+                    m_EditorState.m_pMousePickerFBO->Setup( width, height, GL_NEAREST, GL_NEAREST, true, true, false );
+                    //m_EditorState.m_pMousePickerFBO->Create();
+                }
+                else
+                {
+                    m_EditorState.m_pMousePickerFBO->m_Width = width;
+                    m_EditorState.m_pMousePickerFBO->m_Height = height;
+                }
+            }
         }
     }
 }
@@ -747,7 +850,7 @@ GameObject* GameEntityComponentTest::GetObjectAtPixel(unsigned int x, unsigned i
     glClearColor( 0, 0, 0, 0 );
     glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
-    ComponentCamera* pCamera = m_pComponentSystemManager->GetFirstCamera();
+    ComponentCamera* pCamera = m_EditorState.GetEditorCamera();
     MyMatrix* matLocalCamera = pCamera->m_pComponentTransform->GetLocalTransform();
     m_pComponentSystemManager->DrawMousePickerFrame( pCamera, &pCamera->m_Camera3D.m_matViewProj, m_pShader_MousePicker );
 
@@ -792,7 +895,8 @@ GameObject* GameEntityComponentTest::GetObjectAtPixel(unsigned int x, unsigned i
     m_EditorState.m_pMousePickerFBO->Unbind();
 
     // reset glViewport and scissor region.
-    OnSurfaceChanged( (unsigned int)m_WindowStartX, (unsigned int)m_WindowStartY, (unsigned int)m_WindowWidth, (unsigned int)m_WindowHeight );
+    OnSurfaceChanged( (unsigned int)pCamera->m_WindowStartX, (unsigned int)pCamera->m_WindowStartY,
+        (unsigned int)pCamera->m_WindowWidth, (unsigned int)pCamera->m_WindowHeight );
 
     GameObject* pGameObject = m_pComponentSystemManager->FindGameObjectByID( id );
 

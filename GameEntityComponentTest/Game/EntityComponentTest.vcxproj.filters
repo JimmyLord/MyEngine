@@ -79,6 +79,9 @@
     <Filter Include="Data\OBJs">
       <UniqueIdentifier>{552a613a-1035-4538-af32-325ad75aeed7}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Data\Scenes">
+      <UniqueIdentifier>{fea2206a-db34-451c-8dfa-c26402ff1bc9}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="SourceWindows\WinMain.cpp">
@@ -355,6 +358,9 @@
     </None>
     <None Include="Data\Shaders\Shader_Texture.glsl">
       <Filter>Data\Shaders</Filter>
+    </None>
+    <None Include="Data\Scenes\test.scene">
+      <Filter>Data\Scenes</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

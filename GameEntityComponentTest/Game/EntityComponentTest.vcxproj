@@ -2236,6 +2236,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\todo.todo" />
+    <None Include="Data\Scenes\test.scene" />
     <None Include="Data\Shaders\Shader_TestNormals.glsl" />
     <None Include="Data\Shaders\Shader_Texture.glsl" />
     <None Include="Data\Shaders\Shader_TintColor.glsl" />

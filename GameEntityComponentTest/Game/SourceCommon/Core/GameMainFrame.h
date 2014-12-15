@@ -18,12 +18,21 @@
 #ifndef __GameMainFrame_H__
 #define __GameMainFrame_H__
 
+class GameMainFrame;
+
+extern GameMainFrame* g_pGameMainFrame;
+
 class GameMainFrame : public MainFrame
 {
 public:
+    MainGLCanvas* m_pGLCanvasEditor;
+
+public:
     GameMainFrame();
+    virtual void AddPanes();
 
     void OnGameMenu(wxCommandEvent& event);
+    virtual void ResizeViewport();
 };
 
 #endif __GameMainFrame_H__

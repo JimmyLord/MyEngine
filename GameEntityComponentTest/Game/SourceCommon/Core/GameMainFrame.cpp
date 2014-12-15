@@ -26,14 +26,30 @@ enum GameMenuIDs
     myIDGame_SaveScene,
 };
 
+GameMainFrame* g_pGameMainFrame = 0;
+
 GameMainFrame::GameMainFrame()
 : MainFrame(0)
 {
+    g_pGameMainFrame = this;
+
     m_File->Insert( 0, myIDGame_LoadScene, wxT("&Load Scene") );
     m_File->Insert( 1, myIDGame_SaveScene, wxT("&Save Scene") );
 
     Connect( myIDGame_LoadScene, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(GameMainFrame::OnGameMenu) );
     Connect( myIDGame_SaveScene, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(GameMainFrame::OnGameMenu) );
+}
+
+void GameMainFrame::AddPanes()
+{
+    MainFrame::AddPanes();
+
+    // create the editor opengl canvas
+    int args[] = { WX_GL_RGBA, WX_GL_DOUBLEBUFFER, WX_GL_DEPTH_SIZE, 16, 0 };
+    m_pGLCanvasEditor = MyNew MainGLCanvas( (wxFrame*)this, args, 1, false );
+    //m_pGLCanvasEditor->SetSize( 600, 600 );
+
+    m_AUIManager.AddPane( m_pGLCanvasEditor, wxAuiPaneInfo().Name("GLCanvasEditor").Bottom().Caption("GLCanvasEditor") );//.CaptionVisible(false) );
 }
 
 void GameMainFrame::OnGameMenu(wxCommandEvent& event)
@@ -48,7 +64,14 @@ void GameMainFrame::OnGameMenu(wxCommandEvent& event)
 
     case myIDGame_LoadScene:
         ((GameEntityComponentTest*)g_pGameCore)->LoadScene();
-        m_pGLCanvas->ResizeViewport();
+        ResizeViewport();
         break;
     }
+}
+
+void GameMainFrame::ResizeViewport()
+{
+    MainFrame::ResizeViewport();
+
+    m_pGLCanvasEditor->ResizeViewport();
 }

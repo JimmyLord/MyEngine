@@ -41,6 +41,8 @@ public:
 
     unsigned int m_ID;
 
+    bool m_Enabled;
+
 public:
     ComponentBase();
     ComponentBase(GameObject* owner);

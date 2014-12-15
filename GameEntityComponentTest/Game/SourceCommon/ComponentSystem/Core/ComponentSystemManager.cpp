@@ -115,36 +115,41 @@ char* ComponentSystemManager::SaveSceneToJSON()
         }
     }
 
-    // Add each of the component types
+    // Add each of the component types, don't save components of unmanaged objects
     {
         for( CPPListNode* pNode = m_ComponentsCamera.GetHead(); pNode; pNode = pNode->GetNext() )
         {
             ComponentBase* pComponent = (ComponentBase*)pNode;
-            cJSON_AddItemToArray( componentarray, pComponent->ExportAsJSONObject() );
+            if( pComponent->m_pGameObject->m_Managed )
+                cJSON_AddItemToArray( componentarray, pComponent->ExportAsJSONObject() );
         }
 
         for( CPPListNode* pNode = m_ComponentsInputHandler.GetHead(); pNode; pNode = pNode->GetNext() )
         {
             ComponentBase* pComponent = (ComponentBase*)pNode;
-            cJSON_AddItemToArray( componentarray, pComponent->ExportAsJSONObject() );
+            if( pComponent->m_pGameObject->m_Managed )
+                cJSON_AddItemToArray( componentarray, pComponent->ExportAsJSONObject() );
         }
 
         for( CPPListNode* pNode = m_ComponentsUpdateable.GetHead(); pNode; pNode = pNode->GetNext() )
         {
             ComponentBase* pComponent = (ComponentBase*)pNode;
-            cJSON_AddItemToArray( componentarray, pComponent->ExportAsJSONObject() );
+            if( pComponent->m_pGameObject->m_Managed )
+                cJSON_AddItemToArray( componentarray, pComponent->ExportAsJSONObject() );
         }
 
         for( CPPListNode* pNode = m_ComponentsRenderable.GetHead(); pNode; pNode = pNode->GetNext() )
         {
             ComponentBase* pComponent = (ComponentBase*)pNode;
-            cJSON_AddItemToArray( componentarray, pComponent->ExportAsJSONObject() );
+            if( pComponent->m_pGameObject->m_Managed )
+                cJSON_AddItemToArray( componentarray, pComponent->ExportAsJSONObject() );
         }
 
         for( CPPListNode* pNode = m_ComponentsData.GetHead(); pNode; pNode = pNode->GetNext() )
         {
             ComponentBase* pComponent = (ComponentBase*)pNode;
-            cJSON_AddItemToArray( componentarray, pComponent->ExportAsJSONObject() );
+            if( pComponent->m_pGameObject->m_Managed )
+                cJSON_AddItemToArray( componentarray, pComponent->ExportAsJSONObject() );
         }
     }
 
@@ -157,7 +162,7 @@ char* ComponentSystemManager::SaveSceneToJSON()
 void ComponentSystemManager::LoadSceneFromJSON(const char* jsonstr)
 {
     // Clear out the component manager of all components and gameobjects
-    Clear();
+    Clear( false );
 
     cJSON* root = cJSON_Parse( jsonstr );
 
@@ -219,13 +224,23 @@ void ComponentSystemManager::LoadSceneFromJSON(const char* jsonstr)
         if( typeobj )
             type = g_pComponentTypeManager->GetTypeByName( typeobj->valuestring );
 
-        ComponentBase* pComponent = pGameObject->AddNewComponent( type );
-        pComponent->ImportFromJSONObject( componentobj );
+        if( type == -1 )
+        {
+            LOGError( LOGTag, "Unknown component in scene file: %s\n", typeobj->valuestring );
+#if _DEBUG
+            assert( false );
+#endif
+        }
+        else
+        {
+            ComponentBase* pComponent = pGameObject->AddNewComponent( type );
+            pComponent->ImportFromJSONObject( componentobj );
 
-        cJSONExt_GetUnsignedInt( componentobj, "ID", &pComponent->m_ID );
+            cJSONExt_GetUnsignedInt( componentobj, "ID", &pComponent->m_ID );
 
-        if( pComponent->m_ID >= m_NextComponentID )
-            m_NextComponentID = pComponent->m_ID + 1;
+            if( pComponent->m_ID >= m_NextComponentID )
+                m_NextComponentID = pComponent->m_ID + 1;
+        }
     }
 
     cJSON_Delete( root );
@@ -246,46 +261,51 @@ void ComponentSystemManager::SyncAllRigidBodiesToObjectTransforms()
     }
 }
 
-void ComponentSystemManager::Clear()
+void ComponentSystemManager::Clear(bool clearunmanagedcomponents)
 {
     m_NextGameObjectID = 1;
     m_NextComponentID = 1;
 
-    // Remove all components
+    // Remove all components, except ones attached to unmanaged game objects(if wanted)
     {
         for( CPPListNode* pNode = m_ComponentsCamera.GetHead(); pNode;  )
         {
             ComponentBase* pComponent = (ComponentBase*)pNode;
             pNode = pNode->GetNext();
-            DeleteComponent( pComponent );
+            if( pComponent->m_pGameObject->m_Managed || clearunmanagedcomponents )
+                DeleteComponent( pComponent );
         }
 
         for( CPPListNode* pNode = m_ComponentsInputHandler.GetHead(); pNode;  )
         {
             ComponentBase* pComponent = (ComponentBase*)pNode;
             pNode = pNode->GetNext();
-            DeleteComponent( pComponent );
+            if( pComponent->m_pGameObject->m_Managed || clearunmanagedcomponents )
+                DeleteComponent( pComponent );
         }
 
         for( CPPListNode* pNode = m_ComponentsUpdateable.GetHead(); pNode;  )
         {
             ComponentBase* pComponent = (ComponentBase*)pNode;
             pNode = pNode->GetNext();
-            DeleteComponent( pComponent );
+            if( pComponent->m_pGameObject->m_Managed || clearunmanagedcomponents )
+                DeleteComponent( pComponent );
         }
 
         for( CPPListNode* pNode = m_ComponentsRenderable.GetHead(); pNode;  )
         {
             ComponentBase* pComponent = (ComponentBase*)pNode;
             pNode = pNode->GetNext();
-            DeleteComponent( pComponent );
+            if( pComponent->m_pGameObject->m_Managed || clearunmanagedcomponents )
+                DeleteComponent( pComponent );
         }
 
         for( CPPListNode* pNode = m_ComponentsData.GetHead(); pNode;  )
         {
             ComponentBase* pComponent = (ComponentBase*)pNode;
             pNode = pNode->GetNext();
-            DeleteComponent( pComponent );
+            if( pComponent->m_pGameObject->m_Managed || clearunmanagedcomponents )
+                DeleteComponent( pComponent );
         }
     }
 
@@ -440,11 +460,15 @@ void ComponentSystemManager::OnSurfaceChanged(unsigned int startx, unsigned int 
 {
     for( CPPListNode* node = m_ComponentsCamera.GetHead(); node != 0; node = node->GetNext() )
     {
-        ComponentCamera* pComponent = (ComponentCamera*)node;
+        ComponentCamera* pCamera = (ComponentCamera*)node;
 
-        if( pComponent->m_BaseType == BaseComponentType_Camera )
+        if( pCamera->m_BaseType == BaseComponentType_Camera )
         {
-            pComponent->OnSurfaceChanged( startx, starty, width, height, desiredaspectwidth, desiredaspectheight );
+            // TODO: fix this hack, don't resize unmanaged cams (a.k.a. editor camera)
+            if( pCamera->m_pGameObject->m_Managed == true )
+            {
+                pCamera->OnSurfaceChanged( startx, starty, width, height, desiredaspectwidth, desiredaspectheight );
+            }
         }
     }
 }
@@ -455,7 +479,7 @@ void ComponentSystemManager::OnDrawFrame()
     {
         ComponentCamera* pComponent = (ComponentCamera*)node;
 
-        if( pComponent->m_BaseType == BaseComponentType_Camera )
+        if( pComponent->m_BaseType == BaseComponentType_Camera && pComponent->m_Enabled == true )
         {
             pComponent->OnDrawFrame();
         }

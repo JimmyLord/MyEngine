@@ -84,6 +84,11 @@ void ComponentCamera::Reset()
     m_DesiredHeight = 0;
     
     m_LayersToRender = 0xFFFF;
+
+    m_WindowStartX = 0;
+    m_WindowStartY = 0;
+    m_WindowWidth = 0;
+    m_WindowHeight = 0;
 }
 
 ComponentCamera& ComponentCamera::operator=(const ComponentCamera& other)
@@ -116,7 +121,6 @@ void ComponentCamera::Tick(double TimePassed)
 
     m_Camera3D.m_matView = matView;
     m_Camera3D.UpdateMatrices();
-    //m_Camera3D.LookAt( Vector3( 0, 0, 10 ), Vector3( 0, 1, 0 ), Vector3( 0, 0, 0 ) );
 }
 
 void ComponentCamera::OnSurfaceChanged(unsigned int startx, unsigned int starty, unsigned int width, unsigned int height, unsigned int desiredaspectwidth, unsigned int desiredaspectheight)
@@ -129,10 +133,26 @@ void ComponentCamera::OnSurfaceChanged(unsigned int startx, unsigned int starty,
 
     m_Camera3D.SetupProjection( deviceratio, gameratio, 45 );
     m_Camera2D.Setup( (float)width, (float)height, m_DesiredWidth, m_DesiredHeight );
+
+    m_WindowStartX = startx;
+    m_WindowStartY = starty;
+    m_WindowWidth = width;
+    m_WindowHeight = height;
 }
 
 void ComponentCamera::OnDrawFrame()
 {
+    // only draw to part of the window, but rest with scissor test and glViewPort.
+    if( m_WindowStartX != 0 || m_WindowStartY != 0 )
+    {
+        // scissor test is really only needed for the glClear call.
+        glEnable( GL_SCISSOR_TEST );
+        glScissor( m_WindowStartX, m_WindowStartY, m_WindowWidth, m_WindowHeight );
+    }
+
+    glViewport( m_WindowStartX, m_WindowStartY, m_WindowWidth, m_WindowHeight );
+    checkGlError( "glViewport" );
+
     if( m_Orthographic )
     {
         m_Camera2D.UpdateMatrices();
@@ -140,6 +160,9 @@ void ComponentCamera::OnDrawFrame()
     }
     else
     {
+        glClearColor( 0.0f, 0.0f, 0.2f, 1.0f );
+        glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+
         g_pComponentSystemManager->OnDrawFrame( this, &m_Camera3D.m_matViewProj, 0 );
     }
 }

@@ -20,7 +20,7 @@
 // sort by category, otherwise right-click menu will have duplicates.
 ComponentTypeInfo g_ComponentTypeInfo[Component_NumComponentTypes] = // ADDING_NEW_ComponentType
 {
-    { "Camera",         "3D Camera",        },
+    { "Camera",         "Camera",           },
     { "Renderables",    "Sprite",           },
     { "Renderables",    "Mesh",             },
     { "Renderables",    "Mesh-OBJ",         },
@@ -32,6 +32,8 @@ ComponentTypeInfo g_ComponentTypeInfo[Component_NumComponentTypes] = // ADDING_N
 ComponentBase* GameComponentTypeManager::CreateComponent(int type)
 {
     ComponentBase* pComponent;
+
+    assert( type != -1 );
 
     switch( type ) // ADDING_NEW_ComponentType
     {

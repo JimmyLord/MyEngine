@@ -20,6 +20,10 @@
 
 // framework code
 #include "../../Framework/MyFramework/SourceCommon/CommonHeader.h"
+#if MYFW_USING_WX
+#include "../../Framework/MyFramework/SourceWindows/MYFWWinMainWx.h"
+#include "Core/GameMainFrame.h"
+#endif
 
 // bullet
 #pragma warning (disable : 4263)

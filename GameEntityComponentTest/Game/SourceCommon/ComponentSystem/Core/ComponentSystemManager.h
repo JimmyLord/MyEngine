@@ -53,7 +53,7 @@ public:
 
     void SyncAllRigidBodiesToObjectTransforms();
 
-    void Clear();
+    void Clear(bool clearunmanagedcomponents = true);
 
     GameObject* CreateGameObject(bool manageobject = true);
     void DeleteGameObject(GameObject* pObject);

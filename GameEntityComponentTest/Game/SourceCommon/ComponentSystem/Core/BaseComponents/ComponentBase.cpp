@@ -22,6 +22,7 @@ ComponentBase::ComponentBase()
 , m_pGameObject( 0 )
 , m_Type(-1)
 , m_ID(0)
+, m_Enabled( true )
 {
 }
 
@@ -30,11 +31,15 @@ ComponentBase::ComponentBase(GameObject* owner)
 , m_pGameObject( owner )
 , m_Type(-1)
 , m_ID(0)
+, m_Enabled( true )
 {
 }
 
 ComponentBase::~ComponentBase()
 {
+    // if it's in a list, remove it.
+    if( this->Prev != 0 )
+        Remove();
 }
 
 #if MYFW_USING_WX
