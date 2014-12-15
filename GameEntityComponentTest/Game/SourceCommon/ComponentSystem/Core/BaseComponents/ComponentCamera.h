@@ -43,6 +43,10 @@ public:
 
     unsigned int m_LayersToRender;
 
+#if MYFW_USING_WX
+    unsigned int m_FullClearsRequired;
+#endif
+
 public:
     ComponentCamera();
     ComponentCamera(GameObject* owner);

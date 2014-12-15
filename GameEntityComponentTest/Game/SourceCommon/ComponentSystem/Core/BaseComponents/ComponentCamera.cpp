@@ -89,6 +89,10 @@ void ComponentCamera::Reset()
     m_WindowStartY = 0;
     m_WindowWidth = 0;
     m_WindowHeight = 0;
+
+#if MYFW_USING_WX
+    m_FullClearsRequired = 2;
+#endif
 }
 
 ComponentCamera& ComponentCamera::operator=(const ComponentCamera& other)
@@ -138,16 +142,37 @@ void ComponentCamera::OnSurfaceChanged(unsigned int startx, unsigned int starty,
     m_WindowStartY = starty;
     m_WindowWidth = width;
     m_WindowHeight = height;
+
+#if MYFW_USING_WX
+    m_FullClearsRequired = 2;
+#endif
 }
 
 void ComponentCamera::OnDrawFrame()
 {
+#if MYFW_USING_WX
+    // if we resize the window and we're in a wx build, clear the entire backbuffer for 2 frames.
+    // this is required since we're potentially GL_SCISSOR_TEST'ing an uncleared area.
+    if( m_FullClearsRequired > 0 )
+    {
+        glDisable( GL_SCISSOR_TEST );
+        glClearColor( 0.0f, 0.0f, 0.0f, 1.0f );
+        glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+
+        m_FullClearsRequired--;
+    }
+#endif
+
     // only draw to part of the window, but rest with scissor test and glViewPort.
     if( m_WindowStartX != 0 || m_WindowStartY != 0 )
     {
         // scissor test is really only needed for the glClear call.
         glEnable( GL_SCISSOR_TEST );
         glScissor( m_WindowStartX, m_WindowStartY, m_WindowWidth, m_WindowHeight );
+    }
+    else
+    {
+        glDisable( GL_SCISSOR_TEST );
     }
 
     glViewport( m_WindowStartX, m_WindowStartY, m_WindowWidth, m_WindowHeight );

@@ -47,7 +47,7 @@ void GameMainFrame::AddPanes()
     // create the editor opengl canvas
     int args[] = { WX_GL_RGBA, WX_GL_DOUBLEBUFFER, WX_GL_DEPTH_SIZE, 16, 0 };
     m_pGLCanvasEditor = MyNew MainGLCanvas( (wxFrame*)this, args, 1, false );
-    //m_pGLCanvasEditor->SetSize( 600, 600 );
+    m_pGLCanvasEditor->SetSize( 600, 600 );
 
     m_AUIManager.AddPane( m_pGLCanvasEditor, wxAuiPaneInfo().Name("GLCanvasEditor").Bottom().Caption("GLCanvasEditor") );//.CaptionVisible(false) );
 }
