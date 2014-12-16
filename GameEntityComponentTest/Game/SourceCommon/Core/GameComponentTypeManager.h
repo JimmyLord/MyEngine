@@ -29,6 +29,7 @@ enum ComponentTypes // search for ADDING_NEW_ComponentType
     ComponentType_InputTrackMousePos,
     ComponentType_AIChasePlayer,
     ComponentType_CollisionObject,
+    ComponentType_LuaScript,
     Component_NumComponentTypes,
 };
 

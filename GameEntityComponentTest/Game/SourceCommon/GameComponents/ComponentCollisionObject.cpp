@@ -23,8 +23,6 @@ ComponentCollisionObject::ComponentCollisionObject()
     m_BaseType = BaseComponentType_Updateable;
     m_Type = ComponentType_CollisionObject;
 
-    m_pComponentTransform = 0;
-
     m_pBody = 0;
 }
 
@@ -33,8 +31,6 @@ ComponentCollisionObject::ComponentCollisionObject(GameObject* owner)
 {
     m_BaseType = BaseComponentType_Updateable;
     m_Type = ComponentType_CollisionObject;
-
-    m_pComponentTransform = 0;
 
     m_pBody = 0;
 }
@@ -46,6 +42,13 @@ ComponentCollisionObject::~ComponentCollisionObject()
         g_pBulletWorld->m_pDynamicsWorld->removeRigidBody( m_pBody );
         delete m_pBody;
     }
+}
+
+void ComponentCollisionObject::Reset()
+{
+    ComponentUpdateable::Reset();
+
+    m_Mass = 0;
 }
 
 #if MYFW_USING_WX
@@ -77,15 +80,6 @@ void ComponentCollisionObject::ImportFromJSONObject(cJSON* jsonobj)
     ComponentUpdateable::ImportFromJSONObject( jsonobj );
 
     cJSONExt_GetFloat( jsonobj, "Mass", &m_Mass );
-}
-
-void ComponentCollisionObject::Reset()
-{
-    ComponentUpdateable::Reset();
-
-    m_pComponentTransform = m_pGameObject->m_pComponentTransform;
-
-    m_Mass = 0;
 }
 
 ComponentCollisionObject& ComponentCollisionObject::operator=(const ComponentCollisionObject& other)

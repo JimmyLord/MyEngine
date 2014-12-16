@@ -62,21 +62,21 @@ void BulletWorld::PhysicsStep()
 {
     m_pDynamicsWorld->stepSimulation( 1.0f/60.0f, 10 );
 
-    // print positions of all objects
-    for( int j=m_pDynamicsWorld->getNumCollisionObjects()-1; j>=0; j-- )
-    {
-        btCollisionObject* obj = m_pDynamicsWorld->getCollisionObjectArray()[j];
-        btRigidBody* body = btRigidBody::upcast( obj );
-        if( body && body->getMotionState() )
-        {
-            btTransform trans;
-            body->getMotionState()->getWorldTransform( trans );
-            LOGInfo( LOGTag, "world pos = %f,%f,%f\n",
-                float( trans.getOrigin().getX() ),
-                float( trans.getOrigin().getY() ),
-                float( trans.getOrigin().getZ() ) );
-        }
-    }
+    //// print positions of all objects
+    //for( int j=m_pDynamicsWorld->getNumCollisionObjects()-1; j>=0; j-- )
+    //{
+    //    btCollisionObject* obj = m_pDynamicsWorld->getCollisionObjectArray()[j];
+    //    btRigidBody* body = btRigidBody::upcast( obj );
+    //    if( body && body->getMotionState() )
+    //    {
+    //        btTransform trans;
+    //        body->getMotionState()->getWorldTransform( trans );
+    //        LOGInfo( LOGTag, "world pos = %f,%f,%f\n",
+    //            float( trans.getOrigin().getX() ),
+    //            float( trans.getOrigin().getY() ),
+    //            float( trans.getOrigin().getZ() ) );
+    //    }
+    //}
 }
 
 void BulletWorld::Cleanup()

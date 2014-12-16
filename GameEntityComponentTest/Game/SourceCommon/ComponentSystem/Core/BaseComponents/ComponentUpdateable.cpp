@@ -33,6 +33,13 @@ ComponentUpdateable::~ComponentUpdateable()
 {
 }
 
+void ComponentUpdateable::Reset()
+{
+    ComponentBase::Reset();
+
+    m_pComponentTransform = m_pGameObject->m_pComponentTransform;
+}
+
 #if MYFW_USING_WX
 void ComponentUpdateable::AddToObjectsPanel(wxTreeItemId gameobjectid)
 {
@@ -45,13 +52,6 @@ void ComponentUpdateable::FillPropertiesWindow(bool clear)
         g_pPanelWatch->ClearAllVariables();
 }
 #endif //MYFW_USING_WX
-
-void ComponentUpdateable::Reset()
-{
-    ComponentBase::Reset();
-
-    m_pComponentTransform = m_pGameObject->m_pComponentTransform;
-}
 
 ComponentUpdateable& ComponentUpdateable::operator=(const ComponentUpdateable& other)
 {

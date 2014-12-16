@@ -33,6 +33,14 @@
 #pragma warning (default : 4264)
 #include "Core/BulletWorld.h"
 
+// lua
+extern "C"
+{
+   #include "../../lua/src/lua.h"
+   #include "../../lua/src/lualib.h"
+   #include "../../lua/src/lauxlib.h"
+}
+
 // core component system code
 #include "ComponentSystem/Core/ComponentTypeManager.h"
 #include "ComponentSystem/Core/ComponentSystemManager.h"
@@ -57,6 +65,7 @@
 #include "GameComponents/ComponentInputTrackMousePos.h"
 #include "GameComponents/ComponentAIChasePlayer.h"
 #include "GameComponents/ComponentCollisionObject.h"
+#include "GameComponents/ComponentLuaScript.h"
 #include "Core/GameEntityComponentTest.h"
 
 #endif //__GameCommonHeader_H__

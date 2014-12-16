@@ -21,8 +21,6 @@
 class ComponentCollisionObject : public ComponentUpdateable
 {
 public:
-    ComponentTransform* m_pComponentTransform;
-
     btRigidBody* m_pBody;
 
     float m_Mass;
