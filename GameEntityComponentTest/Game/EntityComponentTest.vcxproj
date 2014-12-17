@@ -2360,6 +2360,23 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\Lua\LuaBridge\detail\CFunctions.h" />
+    <ClInclude Include="..\Lua\LuaBridge\detail\ClassInfo.h" />
+    <ClInclude Include="..\Lua\LuaBridge\detail\Constructor.h" />
+    <ClInclude Include="..\Lua\LuaBridge\detail\dump.h" />
+    <ClInclude Include="..\Lua\LuaBridge\detail\FuncTraits.h" />
+    <ClInclude Include="..\Lua\LuaBridge\detail\Iterator.h" />
+    <ClInclude Include="..\Lua\LuaBridge\detail\LuaException.h" />
+    <ClInclude Include="..\Lua\LuaBridge\detail\LuaHelpers.h" />
+    <ClInclude Include="..\Lua\LuaBridge\detail\LuaRef.h" />
+    <ClInclude Include="..\Lua\LuaBridge\detail\Namespace.h" />
+    <ClInclude Include="..\Lua\LuaBridge\detail\Stack.h" />
+    <ClInclude Include="..\Lua\LuaBridge\detail\TypeList.h" />
+    <ClInclude Include="..\Lua\LuaBridge\detail\TypeTraits.h" />
+    <ClInclude Include="..\Lua\LuaBridge\detail\Userdata.h" />
+    <ClInclude Include="..\Lua\LuaBridge\LuaBridge.h" />
+    <ClInclude Include="..\Lua\LuaBridge\RefCountedObject.h" />
+    <ClInclude Include="..\Lua\LuaBridge\RefCountedPtr.h" />
     <ClInclude Include="..\Lua\src\lapi.h" />
     <ClInclude Include="..\Lua\src\lauxlib.h" />
     <ClInclude Include="..\Lua\src\lcode.h" />
@@ -2746,6 +2763,8 @@
   <ItemGroup>
     <None Include="..\..\todo.todo" />
     <None Include="Data\Scenes\test.scene" />
+    <None Include="Data\Scripts\TestScript.lua" />
+    <None Include="Data\Scripts\TestScript2.lua" />
     <None Include="Data\Shaders\Shader_TestNormals.glsl" />
     <None Include="Data\Shaders\Shader_Texture.glsl" />
     <None Include="Data\Shaders\Shader_TintColor.glsl" />

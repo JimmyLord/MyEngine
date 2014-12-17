@@ -1,18 +1,10 @@
 //
 // Copyright (c) 2014 Jimmy Lord http://www.flatheadgames.com
 //
-// This software is provided 'as-is', without any express or implied
-// warranty.  In no event will the authors be held liable for any damages
-// arising from the use of this software.
-// Permission is granted to anyone to use this software for any purpose,
-// including commercial applications, and to alter it and redistribute it
-// freely, subject to the following restrictions:
-// 1. The origin of this software must not be misrepresented; you must not
-// claim that you wrote the original software. If you use this software
-// in a product, an acknowledgment in the product documentation would be
-// appreciated but is not required.
-// 2. Altered source versions must be plainly marked as such, and must not be
-// misrepresented as being the original software.
+// This software is provided 'as-is', without any express or implied warranty.  In no event will the authors be held liable for any damages arising from the use of this software.
+// Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
+// 1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
+// 2. Altered source versions must be plainly marked as such, and must not be misrepresented as being the original software.
 // 3. This notice may not be removed or altered from any source distribution.
 
 #include "GameCommonHeader.h"
@@ -31,6 +23,31 @@ ComponentTransform::ComponentTransform(GameObject* owner)
 
 ComponentTransform::~ComponentTransform()
 {
+}
+
+void ComponentTransform::Reset()
+{
+    ComponentBase::Reset();
+
+    m_Transform.SetIdentity();
+    m_pParentTransform = 0;
+
+    m_LocalTransform.SetIdentity();
+    m_Position.Set( 0,0,0 );
+    m_Scale.Set( 1,1,1 );
+    m_Rotation.Set( 0,0,0 );
+}
+
+void ComponentTransform::LuaRegister(lua_State* luastate)
+{
+    //ComponentBase::LuaRegister();
+
+    luabridge::getGlobalNamespace( luastate )
+        .beginClass<ComponentTransform>( "Transform" )
+            .addData( "localmatrix", &ComponentTransform::m_LocalTransform )
+            .addFunction( "SetPositionXYZ", &ComponentTransform::SetPositionXYZ )
+            .addFunction( "GetPositionX", &ComponentTransform::GetPositionX )
+        .endClass();
 }
 
 #if MYFW_USING_WX
@@ -117,19 +134,6 @@ void ComponentTransform::ImportFromJSONObject(cJSON* jsonobj)
     m_LocalTransform.CreateSRT( m_Scale, m_Rotation, m_Position );
 }
 
-void ComponentTransform::Reset()
-{
-    ComponentBase::Reset();
-
-    m_Transform.SetIdentity();
-    m_pParentTransform = 0;
-
-    m_LocalTransform.SetIdentity();
-    m_Position.Set( 0,0,0 );
-    m_Scale.Set( 1,1,1 );
-    m_Rotation.Set( 0,0,0 );
-}
-
 ComponentTransform& ComponentTransform::operator=(const ComponentTransform& other)
 {
     assert( &other != this );
@@ -145,6 +149,11 @@ ComponentTransform& ComponentTransform::operator=(const ComponentTransform& othe
     this->m_Rotation = other.m_Rotation;
 
     return *this;
+}
+
+void ComponentTransform::SetPositionXYZ(float x, float y, float z)
+{
+    SetPosition( Vector3( x, y, z ) );
 }
 
 void ComponentTransform::SetPosition(Vector3 pos)

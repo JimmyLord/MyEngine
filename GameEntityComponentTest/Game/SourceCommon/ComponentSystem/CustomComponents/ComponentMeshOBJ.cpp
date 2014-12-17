@@ -37,6 +37,14 @@ ComponentMeshOBJ::~ComponentMeshOBJ()
 {
 }
 
+void ComponentMeshOBJ::Reset()
+{
+    ComponentMesh::Reset();
+
+    if( m_pMesh == 0 )
+        m_pMesh = MyNew MyMesh();
+}
+
 #if MYFW_USING_WX
 void ComponentMeshOBJ::AddToObjectsPanel(wxTreeItemId gameobjectid)
 {
@@ -100,14 +108,6 @@ void ComponentMeshOBJ::ImportFromJSONObject(cJSON* jsonobj)
     }
 }
 
-void ComponentMeshOBJ::Reset()
-{
-    ComponentMesh::Reset();
-
-    if( m_pMesh == 0 )
-        m_pMesh = MyNew MyMesh();
-}
-
 ComponentMeshOBJ& ComponentMeshOBJ::operator=(const ComponentMeshOBJ& other)
 {
     assert( &other != this );
@@ -116,6 +116,8 @@ ComponentMeshOBJ& ComponentMeshOBJ::operator=(const ComponentMeshOBJ& other)
 
     this->m_pMesh->SetShaderGroup( other.m_pMesh->GetShaderGroup() );
     this->m_pOBJFile = other.m_pOBJFile;
+    if( this->m_pOBJFile )
+        this->m_pOBJFile->AddRef();
 
     return *this;
 }

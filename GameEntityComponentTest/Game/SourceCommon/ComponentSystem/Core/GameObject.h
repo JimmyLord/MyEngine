@@ -36,6 +36,8 @@ public:
     GameObject(bool managed);
     virtual ~GameObject();
 
+    void LuaRegister(lua_State* luastate);
+
     cJSON* ExportAsJSONObject();
     void ImportFromJSONObject(cJSON* jsonobj);
 
@@ -46,6 +48,8 @@ public:
     ComponentBase* RemoveComponent(ComponentBase* pComponent);
 
     ComponentBase* GetFirstComponentOfBaseType(BaseComponentTypes basetype);
+
+    ComponentTransform* GetTransform() { return m_pComponentTransform; }
 
 public:
 #if MYFW_USING_WX

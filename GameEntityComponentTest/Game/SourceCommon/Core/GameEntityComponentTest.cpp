@@ -43,6 +43,9 @@ GameEntityComponentTest::GameEntityComponentTest()
     for( int i=0; i<4; i++ )
         m_pTextures[i] = 0;
 
+    for( int i=0; i<4; i++ )
+        m_pScriptFiles[i] = 0;
+
     m_pBulletWorld = MyNew BulletWorld();
 
     m_EditorState.m_pMousePickerFBO = 0;
@@ -73,6 +76,12 @@ GameEntityComponentTest::~GameEntityComponentTest()
         SAFE_RELEASE( m_pTextures[i] );
     }
 
+    for( int i=0; i<4; i++ )
+    {
+        if( m_pScriptFiles[i] )
+            g_pFileManager->FreeFile( m_pScriptFiles[i] );
+    }
+
     SAFE_DELETE( m_EditorState.m_p3DGridPlane );
     for( int i=0; i<3; i++ )
     {
@@ -98,6 +107,7 @@ void GameEntityComponentTest::OneTimeInit()
     ComponentMeshOBJ* pComponentMeshOBJ;
     ComponentAIChasePlayer* pComponentAIChasePlayer;
     ComponentCollisionObject* pComponentCollisionObject;
+    ComponentLuaScript* pComponentLuaScript;
 
     m_pOBJTestFiles[0] = g_pFileManager->RequestFile( "Data/OBJs/cube.obj" );
     //m_pOBJTestFiles[1] = g_pFileManager->RequestFile( "Data/OBJs/Teapot.obj" );
@@ -108,6 +118,11 @@ void GameEntityComponentTest::OneTimeInit()
     //m_pTextures[1] = g_pTextureManager->CreateTexture( "Data/Textures/test2.png", GL_NEAREST, GL_NEAREST, GL_REPEAT, GL_REPEAT );
     //m_pTextures[2] = g_pTextureManager->CreateTexture( "Data/Textures/test3.png", GL_NEAREST, GL_NEAREST, GL_REPEAT, GL_REPEAT );
     //m_pTextures[3] = g_pTextureManager->CreateTexture( "Data/Textures/test4.png", GL_NEAREST, GL_NEAREST, GL_REPEAT, GL_REPEAT );
+
+    m_pScriptFiles[0] = g_pFileManager->RequestFile( "Data/Scripts/TestScript.lua" );
+    m_pScriptFiles[1] = g_pFileManager->RequestFile( "Data/Scripts/TestScript2.lua" );
+    //m_pScriptFiles[2] = g_pFileManager->RequestFile( "Data/Scripts/TestScript.lua" );
+    //m_pScriptFiles[3] = g_pFileManager->RequestFile( "Data/Scripts/TestScript.lua" );
 
     m_EditorState.m_pMousePickerFBO = g_pTextureManager->CreateFBO( 0, 0, GL_NEAREST, GL_NEAREST, false, false, false );
 
@@ -272,6 +287,11 @@ void GameEntityComponentTest::OneTimeInit()
             pComponentSprite->m_Size.Set( 50.0f, 50.0f );
             pComponentSprite->m_Tint.Set( 255, 0, 0, 255 );
             pComponentSprite->m_LayersThisExistsOn = Layer_HUD;
+        }
+        pComponentLuaScript = (ComponentLuaScript*)pGameObject->AddNewComponent( ComponentType_LuaScript );
+        if( pComponentLuaScript )
+        {
+            pComponentLuaScript->m_pScriptFile = m_pScriptFiles[0];
         }
         pGameObject->AddNewComponent( ComponentType_InputTrackMousePos );
         pGameObject->m_pComponentTransform->SetPosition( Vector3( 0, 0, 0 ) );//m_GameWidth/2, m_GameHeight/2, 0 ) );

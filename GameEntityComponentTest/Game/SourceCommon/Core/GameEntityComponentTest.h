@@ -119,6 +119,7 @@ public:
 
     MyFileObject* m_pOBJTestFiles[4];
     TextureDefinition* m_pTextures[4];
+    MyFileObject* m_pScriptFiles[4];
 
 public:
     GameEntityComponentTest();
