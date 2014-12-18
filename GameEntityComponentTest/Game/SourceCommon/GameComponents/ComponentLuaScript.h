@@ -13,9 +13,12 @@
 class ComponentLuaScript : public ComponentUpdateable
 {
 public:
-    lua_State* m_pLuaState;
+    lua_State* m_pLuaState; // a reference to a global lua_State managed elsewhere.
 
     MyFileObject* m_pScriptFile;
+    char m_ScriptName[32];
+
+    bool m_Playing;
 
 public:
     ComponentLuaScript();
@@ -30,6 +33,9 @@ public:
     virtual void Reset();
     virtual void CopyFromSameType_Dangerous(ComponentBase* pObject) { *this = (ComponentLuaScript&)*pObject; }
     virtual ComponentLuaScript& operator=(const ComponentLuaScript& other);
+
+    void LoadScript();
+    void ParseExterns(luabridge::LuaRef LuaObject);
 
     virtual void OnPlay();
     virtual void OnStop();

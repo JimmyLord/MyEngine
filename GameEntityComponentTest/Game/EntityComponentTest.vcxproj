@@ -2080,6 +2080,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release_64|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="SourceCommon\Core\LuaGameState.cpp" />
     <ClCompile Include="SourceCommon\GameCommonHeader.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|NaCl64'">Create</PrecompiledHeader>
@@ -2474,6 +2475,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release_64|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
     </ClInclude>
+    <ClInclude Include="SourceCommon\Core\LuaGameState.h" />
     <ClInclude Include="SourceCommon\GameCommonHeader.h" />
     <ClInclude Include="SourceCommon\GameComponents\ComponentAIChasePlayer.h" />
     <ClInclude Include="SourceCommon\GameComponents\ComponentCollisionObject.h" />
@@ -2763,8 +2765,8 @@
   <ItemGroup>
     <None Include="..\..\todo.todo" />
     <None Include="Data\Scenes\test.scene" />
-    <None Include="Data\Scripts\TestScript.lua" />
-    <None Include="Data\Scripts\TestScript2.lua" />
+    <None Include="Data\Scripts\Player.lua" />
+    <None Include="Data\Scripts\Enemy.lua" />
     <None Include="Data\Shaders\Shader_TestNormals.glsl" />
     <None Include="Data\Shaders\Shader_Texture.glsl" />
     <None Include="Data\Shaders\Shader_TintColor.glsl" />

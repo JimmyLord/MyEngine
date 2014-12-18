@@ -40,13 +40,11 @@ void ComponentTransform::Reset()
 
 void ComponentTransform::LuaRegister(lua_State* luastate)
 {
-    //ComponentBase::LuaRegister();
-
     luabridge::getGlobalNamespace( luastate )
         .beginClass<ComponentTransform>( "Transform" )
             .addData( "localmatrix", &ComponentTransform::m_LocalTransform )
-            .addFunction( "SetPositionXYZ", &ComponentTransform::SetPositionXYZ )
-            .addFunction( "GetPositionX", &ComponentTransform::GetPositionX )
+            .addFunction( "SetPosition", &ComponentTransform::SetPosition )
+            .addFunction( "GetPosition", &ComponentTransform::GetPosition )
         .endClass();
 }
 
@@ -149,11 +147,6 @@ ComponentTransform& ComponentTransform::operator=(const ComponentTransform& othe
     this->m_Rotation = other.m_Rotation;
 
     return *this;
-}
-
-void ComponentTransform::SetPositionXYZ(float x, float y, float z)
-{
-    SetPosition( Vector3( x, y, z ) );
 }
 
 void ComponentTransform::SetPosition(Vector3 pos)

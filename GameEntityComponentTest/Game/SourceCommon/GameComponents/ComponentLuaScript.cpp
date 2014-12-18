@@ -18,6 +18,7 @@ ComponentLuaScript::ComponentLuaScript()
     m_Type = ComponentType_LuaScript;
 
     m_pScriptFile = 0;
+    m_ScriptName[0] = 0;
 }
 
 ComponentLuaScript::ComponentLuaScript(GameObject* owner)
@@ -27,30 +28,20 @@ ComponentLuaScript::ComponentLuaScript(GameObject* owner)
     m_Type = ComponentType_LuaScript;
 
     m_pScriptFile = 0;
+    m_ScriptName[0] = 0;
 }
 
 ComponentLuaScript::~ComponentLuaScript()
 {
-    lua_close( m_pLuaState );
-}
-
-void LUA_LogInfo(const char* str)
-{
-    LOGInfo( LOGTag, str );
 }
 
 void ComponentLuaScript::Reset()
 {
     ComponentUpdateable::Reset();
 
-    // initialize lua state.
-    m_pLuaState = luaL_newstate();
-    luaL_openlibs( m_pLuaState );
+    m_pLuaState = g_pLuaGameState->m_pLuaState;
 
-    luabridge::getGlobalNamespace( m_pLuaState ).addFunction( "LogInfo", LUA_LogInfo );
-
-    m_pGameObject->LuaRegister( m_pLuaState );
-    m_pComponentTransform->LuaRegister( m_pLuaState );
+    m_Playing = false;
 
     //m_Mass = 0;
 }
@@ -70,7 +61,7 @@ void ComponentLuaScript::FillPropertiesWindow(bool clear)
 
     const char* desc = "no script";
     if( m_pScriptFile )
-        desc = m_pScriptFile->m_Filename;
+        desc = m_pScriptFile->m_FullPath;
     g_pPanelWatch->AddPointerWithDescription( "Script", 0, desc, this, ComponentLuaScript::StaticOnDrop );
 }
 
@@ -83,8 +74,8 @@ void ComponentLuaScript::OnDrop()
         MyFileObject* pFile = (MyFileObject*)g_DragAndDropStruct.m_Value;
         assert( pFile );
 
-        int len = strlen( pFile->m_Filename );
-        const char* filenameext = &pFile->m_Filename[len-4];
+        int len = strlen( pFile->m_FullPath );
+        const char* filenameext = &pFile->m_FullPath[len-4];
 
         if( strcmp( filenameext, ".lua" ) == 0 )
         {
@@ -100,7 +91,7 @@ cJSON* ComponentLuaScript::ExportAsJSONObject()
 
     //cJSON_AddNumberToObject( component, "Mass", m_Mass );
     if( m_pScriptFile )
-        cJSON_AddStringToObject( component, "Script", m_pScriptFile->m_Filename );
+        cJSON_AddStringToObject( component, "Script", m_pScriptFile->m_FullPath );
 
     return component;
 }
@@ -132,11 +123,8 @@ ComponentLuaScript& ComponentLuaScript::operator=(const ComponentLuaScript& othe
     return *this;
 }
 
-void ComponentLuaScript::OnPlay()
+void ComponentLuaScript::LoadScript()
 {
-    ComponentUpdateable::OnPlay();
-
-    // TODO: prevent "play" if file is not loaded.
 #if _DEBUG
     m_pScriptFile->m_FileReady = false; // should force a reload, todo: setup a proper way to do this.
 #endif
@@ -148,6 +136,8 @@ void ComponentLuaScript::OnPlay()
     // script is ready, so run it.
     if( m_pScriptFile && m_pScriptFile->m_FileReady )
     {
+        m_ScriptName[0] = 0;
+
         luabridge::setGlobal( m_pLuaState, m_pGameObject, "this" );
 
         // load the string from the file
@@ -157,10 +147,55 @@ void ComponentLuaScript::OnPlay()
             // run the code to do initial parsing
             lua_pcall( m_pLuaState, 0, LUA_MULTRET, 0 );
 
-            // find the OnPlay function and call it.
-            luabridge::LuaRef func = luabridge::getGlobal( m_pLuaState, "OnPlay" );
-            if( func.isFunction() )
-                func();
+            luabridge::LuaRef LuaObject = luabridge::getGlobal( m_pLuaState, m_pScriptFile->m_FilenameWithoutExtension );
+
+            ParseExterns( LuaObject );
+        }
+        else
+        {
+            if( loadretcode == LUA_ERRSYNTAX )
+                LOGInfo( LOGTag, "Lua Syntax error in script: %s\n", m_pScriptFile->m_FilenameWithoutExtension );
+        }
+    }
+}
+
+void ComponentLuaScript::ParseExterns(luabridge::LuaRef LuaObject)
+{
+    luabridge::LuaRef Externs = LuaObject["Externs"];
+    if( Externs.isTable() == true )
+    {
+        int len = Externs.length();
+        for( int i=0; i<len; i++ )
+        {
+            luabridge::LuaRef variablewanted = Externs[i+1];
+
+            luabridge::LuaRef variablename = variablewanted[1];
+            luabridge::LuaRef variabletype = variablewanted[2];
+
+            if( variabletype.tostring() == "Int" )
+                LuaObject[variablename.tostring()] = 400;
+        }
+    }
+}
+
+void ComponentLuaScript::OnPlay()
+{
+    ComponentUpdateable::OnPlay();
+
+    LoadScript();
+
+    // TODO: prevent "play" if file is not loaded.
+    if( m_pScriptFile && m_pScriptFile->m_FileReady )
+    {
+        // find the OnPlay function and call it, look for a table that matched our filename.
+        luabridge::LuaRef LuaObject = luabridge::getGlobal( m_pLuaState, m_pScriptFile->m_FilenameWithoutExtension );
+        if( LuaObject.isNil() == false )
+        {
+            if( LuaObject["OnPlay"].isFunction() )
+            {
+                LuaObject["OnPlay"]();
+                m_Playing = true;
+            }
         }
     }
 }
@@ -169,12 +204,16 @@ void ComponentLuaScript::OnStop()
 {
     ComponentUpdateable::OnStop();
 
-    if( m_pScriptFile && m_pScriptFile->m_FileReady )
+    if( m_Playing )
     {
-        luabridge::LuaRef func = luabridge::getGlobal( m_pLuaState, "OnStop" );
-        if( func.isFunction() )
-            func();
+        luabridge::LuaRef LuaObject = luabridge::getGlobal( m_pLuaState, m_pScriptFile->m_FilenameWithoutExtension );
+        if( LuaObject["OnStop"].isFunction() )
+        {
+            LuaObject["OnStop"]();
+        }
     }
+
+    m_Playing = false;
 }
 
 void ComponentLuaScript::Tick(double TimePassed)
@@ -182,10 +221,14 @@ void ComponentLuaScript::Tick(double TimePassed)
     //ComponentUpdateable::Tick( TimePassed );
 
     // find the Tick function and call it.
-    if( m_pScriptFile && m_pScriptFile->m_FileReady )
+    if( m_Playing )
     {
-        luabridge::LuaRef func = luabridge::getGlobal( m_pLuaState, "Tick" );
-        if( func.isFunction() )
-            func( TimePassed );
+        luabridge::setGlobal( m_pLuaState, m_pGameObject, "this" );
+
+        luabridge::LuaRef LuaObject = luabridge::getGlobal( m_pLuaState, m_pScriptFile->m_FilenameWithoutExtension );
+        if( LuaObject["Tick"].isFunction() )
+        {
+            LuaObject["Tick"]( TimePassed );
+        }
     }
 }

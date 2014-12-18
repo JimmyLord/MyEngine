@@ -41,6 +41,7 @@ extern "C"
     #include "../../lua/src/lauxlib.h"
 }
 #include "../../lua/LuaBridge/LuaBridge.h"
+#include "Core/LuaGameState.h"
 
 // core component system code
 #include "ComponentSystem/Core/ComponentTypeManager.h"

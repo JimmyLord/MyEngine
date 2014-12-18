@@ -28,7 +28,7 @@ public:
     ComponentTransform(GameObject* owner);
     virtual ~ComponentTransform();
 
-    virtual void LuaRegister(lua_State* luastate);
+    static void LuaRegister(lua_State* luastate);
 
     virtual cJSON* ExportAsJSONObject();
     virtual void ImportFromJSONObject(cJSON* jsonobj);
@@ -38,13 +38,11 @@ public:
     virtual ComponentTransform& operator=(const ComponentTransform& other);
 
     // recalculate the matrix each time we set any of the 3 properties. // not efficient
-    void SetPositionXYZ(float x, float y, float z);
     void SetPosition(Vector3 pos);
     void SetScale(Vector3 scale);
     void SetRotation(Vector3 rot);
 
     Vector3 GetPosition() { return m_Position; }
-    float GetPositionX() { return m_Position.x; }
     Vector3 GetScale() { return m_Scale; }
     Vector3 GetRotation() { return m_Rotation; }
     MyMatrix GetLocalRotPosMatrix();

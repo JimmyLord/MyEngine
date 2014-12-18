@@ -36,7 +36,7 @@ public:
     GameObject(bool managed);
     virtual ~GameObject();
 
-    void LuaRegister(lua_State* luastate);
+    static void LuaRegister(lua_State* luastate);
 
     cJSON* ExportAsJSONObject();
     void ImportFromJSONObject(cJSON* jsonobj);

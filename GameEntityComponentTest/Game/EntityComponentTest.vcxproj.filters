@@ -303,6 +303,9 @@
     <ClCompile Include="..\Lua\src\lzio.c">
       <Filter>Lua\src</Filter>
     </ClCompile>
+    <ClCompile Include="SourceCommon\Core\LuaGameState.cpp">
+      <Filter>Source\Core Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SourceWindows\WinMain.h">
@@ -533,6 +536,9 @@
     <ClInclude Include="..\Lua\src\lvm.h">
       <Filter>Lua\src</Filter>
     </ClInclude>
+    <ClInclude Include="SourceCommon\Core\LuaGameState.h">
+      <Filter>Source\Core Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="SourceNaCL\Web\myframework.js">
@@ -611,10 +617,10 @@
     <None Include="Data\Scenes\test.scene">
       <Filter>Data\Scenes</Filter>
     </None>
-    <None Include="Data\Scripts\TestScript.lua">
+    <None Include="Data\Scripts\Player.lua">
       <Filter>Data\Scripts</Filter>
     </None>
-    <None Include="Data\Scripts\TestScript2.lua">
+    <None Include="Data\Scripts\Enemy.lua">
       <Filter>Data\Scripts</Filter>
     </None>
   </ItemGroup>

@@ -1,18 +1,10 @@
 //
 // Copyright (c) 2012-2014 Jimmy Lord http://www.flatheadgames.com
 //
-// This software is provided 'as-is', without any express or implied
-// warranty.  In no event will the authors be held liable for any damages
-// arising from the use of this software.
-// Permission is granted to anyone to use this software for any purpose,
-// including commercial applications, and to alter it and redistribute it
-// freely, subject to the following restrictions:
-// 1. The origin of this software must not be misrepresented; you must not
-// claim that you wrote the original software. If you use this software
-// in a product, an acknowledgment in the product documentation would be
-// appreciated but is not required.
-// 2. Altered source versions must be plainly marked as such, and must not be
-// misrepresented as being the original software.
+// This software is provided 'as-is', without any express or implied warranty.  In no event will the authors be held liable for any damages arising from the use of this software.
+// Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
+// 1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
+// 2. Altered source versions must be plainly marked as such, and must not be misrepresented as being the original software.
 // 3. This notice may not be removed or altered from any source distribution.
 
 #include "GameCommonHeader.h"
@@ -56,10 +48,14 @@ GameEntityComponentTest::GameEntityComponentTest()
         m_EditorState.m_pTransformWidgets[i] = 0;
     }
     m_EditorState.m_pEditorCamera = 0;
+
+    m_pLuaGameState = 0;
 }
 
 GameEntityComponentTest::~GameEntityComponentTest()
 {
+    SAFE_DELETE( m_pLuaGameState );
+
     SAFE_DELETE( m_pShader_TintColor );
     SAFE_DELETE( m_pShader_TestNormals );
     SAFE_DELETE( m_pShader_Texture );
@@ -119,8 +115,8 @@ void GameEntityComponentTest::OneTimeInit()
     //m_pTextures[2] = g_pTextureManager->CreateTexture( "Data/Textures/test3.png", GL_NEAREST, GL_NEAREST, GL_REPEAT, GL_REPEAT );
     //m_pTextures[3] = g_pTextureManager->CreateTexture( "Data/Textures/test4.png", GL_NEAREST, GL_NEAREST, GL_REPEAT, GL_REPEAT );
 
-    m_pScriptFiles[0] = g_pFileManager->RequestFile( "Data/Scripts/TestScript.lua" );
-    m_pScriptFiles[1] = g_pFileManager->RequestFile( "Data/Scripts/TestScript2.lua" );
+    m_pScriptFiles[0] = g_pFileManager->RequestFile( "Data/Scripts/Player.lua" );
+    m_pScriptFiles[1] = g_pFileManager->RequestFile( "Data/Scripts/Enemy.lua" );
     //m_pScriptFiles[2] = g_pFileManager->RequestFile( "Data/Scripts/TestScript.lua" );
     //m_pScriptFiles[3] = g_pFileManager->RequestFile( "Data/Scripts/TestScript.lua" );
 
@@ -142,6 +138,9 @@ void GameEntityComponentTest::OneTimeInit()
 
     // Initialize our component system.
     m_pComponentSystemManager = MyNew ComponentSystemManager( MyNew GameComponentTypeManager );
+
+    // initialize lua state and register any variables needed.
+    m_pLuaGameState = MyNew LuaGameState;
 
     // create a 3D camera, renders first... created first so GetFirstCamera() will get the game cam.
     {
@@ -311,11 +310,16 @@ void GameEntityComponentTest::OneTimeInit()
             pComponentSprite->m_Tint.Set( 0, 255, 0, 255 );
             pComponentSprite->m_LayersThisExistsOn = Layer_HUD;
         }
-        pComponentAIChasePlayer = (ComponentAIChasePlayer*)pGameObject->AddNewComponent( ComponentType_AIChasePlayer );
-        if( pComponentAIChasePlayer )
+        pComponentLuaScript = (ComponentLuaScript*)pGameObject->AddNewComponent( ComponentType_LuaScript );
+        if( pComponentLuaScript )
         {
-            pComponentAIChasePlayer->m_pPlayerComponentTransform = pPlayer->m_pComponentTransform;
+            pComponentLuaScript->m_pScriptFile = m_pScriptFiles[1];
         }
+        //pComponentAIChasePlayer = (ComponentAIChasePlayer*)pGameObject->AddNewComponent( ComponentType_AIChasePlayer );
+        //if( pComponentAIChasePlayer )
+        //{
+        //    pComponentAIChasePlayer->m_pPlayerComponentTransform = pPlayer->m_pComponentTransform;
+        //}
     }
 
     // create a cube in the 3d scene.
@@ -356,13 +360,9 @@ void GameEntityComponentTest::OneTimeInit()
 #endif
 }
 
-static float totaltimepassed;
-
 void GameEntityComponentTest::Tick(double TimePassed)
 {
     GameCore::Tick( TimePassed );
-
-    totaltimepassed += (float)TimePassed;
 
     // tick all components.
     //if( m_EditorMode )

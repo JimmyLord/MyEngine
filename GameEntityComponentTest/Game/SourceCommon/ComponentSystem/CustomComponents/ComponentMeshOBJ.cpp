@@ -60,7 +60,7 @@ void ComponentMeshOBJ::FillPropertiesWindow(bool clear)
 
     const char* desc = "no mesh";
     if( m_pOBJFile )
-        desc = m_pOBJFile->m_Filename;
+        desc = m_pOBJFile->m_FullPath;
     g_pPanelWatch->AddPointerWithDescription( "OBJ", 0, desc, this, ComponentMeshOBJ::StaticOnDrop );
 }
 
@@ -74,8 +74,8 @@ void ComponentMeshOBJ::OnDrop()
         assert( pFile );
         assert( m_pMesh );
 
-        int len = strlen( pFile->m_Filename );
-        const char* filenameext = &pFile->m_Filename[len-4];
+        int len = strlen( pFile->m_FullPath );
+        const char* filenameext = &pFile->m_FullPath[len-4];
 
         if( strcmp( filenameext, ".obj" ) == 0 )
         {
@@ -91,7 +91,7 @@ cJSON* ComponentMeshOBJ::ExportAsJSONObject()
     cJSON* component = ComponentMesh::ExportAsJSONObject();
 
     if( m_pOBJFile )
-        cJSON_AddStringToObject( component, "OBJ", m_pOBJFile->m_Filename );
+        cJSON_AddStringToObject( component, "OBJ", m_pOBJFile->m_FullPath );
 
     return component;
 }

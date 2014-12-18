@@ -80,12 +80,12 @@ void ComponentMesh::OnDrop()
         assert( pFile );
         assert( m_pMesh );
 
-        int len = strlen( pFile->m_Filename );
-        const char* filenameext = &pFile->m_Filename[len-4];
+        int len = strlen( pFile->m_FullPath );
+        const char* filenameext = &pFile->m_FullPath[len-4];
 
         if( strcmp( filenameext, ".png" ) == 0 )
         {
-            m_pMesh->m_pTexture = g_pTextureManager->FindTexture( pFile->m_Filename );
+            m_pMesh->m_pTexture = g_pTextureManager->FindTexture( pFile->m_FullPath );
         }
     }
 

@@ -64,8 +64,6 @@ GameObject::~GameObject()
 
 void GameObject::LuaRegister(lua_State* luastate)
 {
-    //ComponentBase::LuaRegister();
-
     luabridge::getGlobalNamespace( luastate )
         .beginClass<GameObject>( "GameObject" )
             .addData( "ComponentTransform", &GameObject::m_pComponentTransform )
