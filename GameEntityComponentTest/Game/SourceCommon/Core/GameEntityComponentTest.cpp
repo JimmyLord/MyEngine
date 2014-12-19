@@ -292,7 +292,7 @@ void GameEntityComponentTest::OneTimeInit()
         {
             pComponentLuaScript->SetScriptFile( m_pScriptFiles[0] );
         }
-        pGameObject->AddNewComponent( ComponentType_InputTrackMousePos );
+        //pGameObject->AddNewComponent( ComponentType_InputTrackMousePos ); // replace with lua script
         pGameObject->m_pComponentTransform->SetPosition( Vector3( 0, 0, 0 ) );//m_GameWidth/2, m_GameHeight/2, 0 ) );
 
         pPlayer = pGameObject;

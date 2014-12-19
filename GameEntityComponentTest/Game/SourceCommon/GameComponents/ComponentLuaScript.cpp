@@ -308,14 +308,17 @@ void ComponentLuaScript::ParseExterns(luabridge::LuaRef LuaObject)
 
                 pVar->type = ExposedVariableType_Float;
             }
-
-            if( variabletype.tostring() == "GameObject" )
+            else if( variabletype.tostring() == "GameObject" )
             {
                 // if it's a new variable or it changed type, set it to it's initial value.
                 if( pVar->inuse == false || pVar->type != ExposedVariableType_GameObject )
                     pVar->pointer = g_pComponentSystemManager->FindGameObjectByName( variableinitialvalue.tostring().c_str() );
 
                 pVar->type = ExposedVariableType_GameObject;
+            }
+            else
+            {
+                assert( false );
             }
 
             pVar->inuse = true;
@@ -434,4 +437,56 @@ void ComponentLuaScript::Tick(double TimePassed)
             }
         }
     }
+}
+
+bool ComponentLuaScript::OnTouch(int action, int id, float x, float y, float pressure, float size)
+{
+    // find the OnTouch function and call it.
+    if( m_Playing )
+    {
+        luabridge::LuaRef LuaObject = luabridge::getGlobal( m_pLuaState, m_pScriptFile->m_FilenameWithoutExtension );
+
+        // call OnTouch
+        if( LuaObject["OnTouch"].isFunction() )
+        {
+            ProgramVariables( LuaObject );
+            try
+            {
+                if( LuaObject["OnTouch"]( action, id, x, y, pressure, size ) )
+                    return true;
+            }
+            catch( ... )
+            {
+                LOGError( LOGTag, "Script error: OnTouch: %s", m_pScriptFile->m_FilenameWithoutExtension );
+            }
+        }
+    }
+
+    return false;
+}
+
+bool ComponentLuaScript::OnButtons(GameCoreButtonActions action, GameCoreButtonIDs id)
+{
+    // find the OnButtons function and call it.
+    if( m_Playing )
+    {
+        luabridge::LuaRef LuaObject = luabridge::getGlobal( m_pLuaState, m_pScriptFile->m_FilenameWithoutExtension );
+
+        // call OnButtons
+        if( LuaObject["OnButtons"].isFunction() )
+        {
+            ProgramVariables( LuaObject );
+            try
+            {
+                if( LuaObject["OnButtons"]( action, id ) )
+                    return true;
+            }
+            catch( ... )
+            {
+                LOGError( LOGTag, "Script error: OnButtons: %s", m_pScriptFile->m_FilenameWithoutExtension );
+            }
+        }
+    }
+
+    return false;
 }

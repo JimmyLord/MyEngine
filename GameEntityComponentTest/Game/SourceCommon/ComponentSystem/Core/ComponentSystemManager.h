@@ -48,6 +48,8 @@ public:
     ComponentSystemManager(ComponentTypeManager* typemanager);
     virtual ~ComponentSystemManager();
 
+    static void LuaRegister(lua_State* luastate);
+
     char* SaveSceneToJSON();
     void LoadSceneFromJSON(const char* jsonstr);
 

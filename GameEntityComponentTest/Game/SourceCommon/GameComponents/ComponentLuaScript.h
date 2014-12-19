@@ -67,6 +67,9 @@ public:
     virtual void OnStop();
     virtual void Tick(double TimePassed);
 
+    bool OnTouch(int action, int id, float x, float y, float pressure, float size);
+    bool OnButtons(GameCoreButtonActions action, GameCoreButtonIDs id);
+
 public:
 #if MYFW_USING_WX
     virtual void AddToObjectsPanel(wxTreeItemId gameobjectid);

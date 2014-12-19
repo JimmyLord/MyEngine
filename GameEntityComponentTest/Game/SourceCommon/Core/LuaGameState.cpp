@@ -46,8 +46,16 @@ void LuaGameState::RegisterClasses()
             .addFunction( "Add", &Vector3::Add )
             .addFunction( "Sub", &Vector3::Sub )
             .addFunction( "Scale", &Vector3::Scale )
+            .addFunction( "Dot", &Vector3::Dot )
+            .addFunction( "Cross", &Vector3::Cross )
+            .addFunction( "Length", &Vector3::Length )
+            .addFunction( "LengthSquared", &Vector3::LengthSquared )
+            .addFunction( "Normalize", &Vector3::Normalize )
         .endClass();
 
     GameObject::LuaRegister( m_pLuaState );
     ComponentTransform::LuaRegister( m_pLuaState );
+    ComponentSystemManager::LuaRegister( m_pLuaState );
+
+    luabridge::setGlobal( m_pLuaState, g_pComponentSystemManager, "g_pComponentSystemManager" );
 }

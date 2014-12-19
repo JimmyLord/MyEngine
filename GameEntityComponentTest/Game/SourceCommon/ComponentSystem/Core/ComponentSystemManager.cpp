@@ -59,6 +59,17 @@ ComponentSystemManager::~ComponentSystemManager()
     g_pComponentSystemManager = 0;
 }
 
+void ComponentSystemManager::LuaRegister(lua_State* luastate)
+{
+    luabridge::getGlobalNamespace( luastate )
+        .beginClass<ComponentSystemManager>( "ComponentSystemManager" )
+            .addFunction( "CreateGameObject", &ComponentSystemManager::CreateGameObject )
+            .addFunction( "DeleteGameObject", &ComponentSystemManager::DeleteGameObject )
+            .addFunction( "CopyGameObject", &ComponentSystemManager::CopyGameObject )
+            .addFunction( "FindGameObjectByName", &ComponentSystemManager::FindGameObjectByName )
+        .endClass();
+}
+
 #if MYFW_USING_WX
 void ComponentSystemManager::OnLeftClick(bool clear)
 {
@@ -590,6 +601,18 @@ bool ComponentSystemManager::OnTouch(int action, int id, float x, float y, float
         }
     }
 
+    // send input to all the scripts.
+    for( CPPListNode* node = m_ComponentsUpdateable.GetHead(); node != 0; node = node->GetNext() )
+    {
+        ComponentLuaScript* pComponent = dynamic_cast<ComponentLuaScript*>( node );
+
+        if( pComponent )
+        {
+            if( pComponent->OnTouch( action, id, x, y, pressure, size ) == true )
+                return true;
+        }
+    }
+
     return false;
 }
 
@@ -600,6 +623,18 @@ bool ComponentSystemManager::OnButtons(GameCoreButtonActions action, GameCoreBut
         ComponentInputHandler* pComponent = (ComponentInputHandler*)node;
 
         if( pComponent->m_BaseType == BaseComponentType_InputHandler )
+        {
+            if( pComponent->OnButtons( action, id ) == true )
+                return true;
+        }
+    }
+
+    // send input to all the scripts.
+    for( CPPListNode* node = m_ComponentsUpdateable.GetHead(); node != 0; node = node->GetNext() )
+    {
+        ComponentLuaScript* pComponent = dynamic_cast<ComponentLuaScript*>( node );
+
+        if( pComponent )
         {
             if( pComponent->OnButtons( action, id ) == true )
                 return true;

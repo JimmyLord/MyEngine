@@ -9,6 +9,21 @@ Player.OnStop = function ()
 	--LogInfo( "OnStop\n" );
 end
 
+Player.OnTouch = function(action, id, x, y, pressure, size)
+	--LogInfo( "OnTouch\n" );
+	transform = this:GetTransform();
+	pos = transform:GetPosition();
+
+	pos.x = x;
+	pos.y = y;
+
+	transform:SetPosition( pos );
+end
+
+Player.OnButtons = function(action, id)
+	LogInfo( "OnButtons\n" );
+end
+
 Player.Tick = function (timepassed)
 	--LogInfo( "Tick Start\n" );
 
