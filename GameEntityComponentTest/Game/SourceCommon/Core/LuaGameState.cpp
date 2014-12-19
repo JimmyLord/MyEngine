@@ -43,7 +43,9 @@ void LuaGameState::RegisterClasses()
             .addData( "x", &Vector3::x )
             .addData( "y", &Vector3::y )
             .addData( "z", &Vector3::z )
-            //.addFunction( "sub", &Vector3::operator- );
+            .addFunction( "Add", &Vector3::Add )
+            .addFunction( "Sub", &Vector3::Sub )
+            .addFunction( "Scale", &Vector3::Scale )
         .endClass();
 
     GameObject::LuaRegister( m_pLuaState );
