@@ -3,7 +3,9 @@ Enemy = {}
 
 Enemy.Externs =
 {
-	{ "Speed", "Int" },
+	-- name, type, default value
+	{ "Speed", "Float", 1 },
+	{ "ObjectChasing", "GameObject", "Player Object" },
 }
 
 Enemy.OnPlay = function ()
@@ -17,13 +19,18 @@ end
 Enemy.Tick = function (timepassed)
 	--LogInfo( "Tick Start\n" );
 
-	transform = this:GetTransform();
-	pos = transform:GetPosition();
+	local transform = this:GetTransform();
+	local pos = transform:GetPosition();
 
-	--LogInfo( "pos: " .. pos.y .. "\n" );
-	--speed = 100;
-	speed = Enemy.Speed;
-	pos.y = pos.y + timepassed*speed;
+	local posChasing = Enemy.ObjectChasing:GetTransform():GetPosition();
+
+	local speed = Enemy.Speed;
+
+	local diffx = posChasing.x - pos.x;
+	local diffy = posChasing.y - pos.y;
+
+	pos.x = pos.x + diffx * timepassed*speed;
+	pos.y = pos.y + diffy * timepassed*speed;
 	
 	transform:SetPosition( pos );
 	

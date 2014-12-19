@@ -101,7 +101,7 @@ void GameEntityComponentTest::OneTimeInit()
     ComponentMesh* pComponentMesh;
 #endif
     ComponentMeshOBJ* pComponentMeshOBJ;
-    ComponentAIChasePlayer* pComponentAIChasePlayer;
+    //ComponentAIChasePlayer* pComponentAIChasePlayer;
     ComponentCollisionObject* pComponentCollisionObject;
     ComponentLuaScript* pComponentLuaScript;
 
@@ -290,7 +290,7 @@ void GameEntityComponentTest::OneTimeInit()
         pComponentLuaScript = (ComponentLuaScript*)pGameObject->AddNewComponent( ComponentType_LuaScript );
         if( pComponentLuaScript )
         {
-            pComponentLuaScript->m_pScriptFile = m_pScriptFiles[0];
+            pComponentLuaScript->SetScriptFile( m_pScriptFiles[0] );
         }
         pGameObject->AddNewComponent( ComponentType_InputTrackMousePos );
         pGameObject->m_pComponentTransform->SetPosition( Vector3( 0, 0, 0 ) );//m_GameWidth/2, m_GameHeight/2, 0 ) );
@@ -313,7 +313,7 @@ void GameEntityComponentTest::OneTimeInit()
         pComponentLuaScript = (ComponentLuaScript*)pGameObject->AddNewComponent( ComponentType_LuaScript );
         if( pComponentLuaScript )
         {
-            pComponentLuaScript->m_pScriptFile = m_pScriptFiles[1];
+            pComponentLuaScript->SetScriptFile( m_pScriptFiles[1] );
         }
         //pComponentAIChasePlayer = (ComponentAIChasePlayer*)pGameObject->AddNewComponent( ComponentType_AIChasePlayer );
         //if( pComponentAIChasePlayer )
@@ -362,6 +362,9 @@ void GameEntityComponentTest::OneTimeInit()
 
 void GameEntityComponentTest::Tick(double TimePassed)
 {
+    if( TimePassed > 0.2 )
+        TimePassed = 0.2;
+
     GameCore::Tick( TimePassed );
 
     // tick all components.

@@ -60,6 +60,7 @@ public:
     GameObject* CopyGameObject(GameObject* pObject);
 
     GameObject* FindGameObjectByID(unsigned int id);
+    GameObject* FindGameObjectByName(const char* name);
     ComponentCamera* GetFirstCamera();
 
     ComponentBase* AddComponent(ComponentBase* pComponent);

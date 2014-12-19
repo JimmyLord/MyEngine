@@ -370,6 +370,19 @@ GameObject* ComponentSystemManager::FindGameObjectByID(unsigned int id)
     return 0;
 }
 
+GameObject* ComponentSystemManager::FindGameObjectByName(const char* name)
+{
+    for( CPPListNode* node = m_GameObjects.GetHead(); node != 0; node = node->GetNext() )
+    {
+        GameObject* pGameObject = (GameObject*)node;
+
+        if( strcmp( pGameObject->m_Name, name ) == 0 )
+            return pGameObject;
+    }
+
+    return 0;
+}
+
 ComponentCamera* ComponentSystemManager::GetFirstCamera()
 {
     for( CPPListNode* node = m_ComponentsCamera.GetHead(); node != 0; node = node->GetNext() )

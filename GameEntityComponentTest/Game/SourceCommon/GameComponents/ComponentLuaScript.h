@@ -10,15 +10,39 @@
 #ifndef __ComponentLuaScript_H__
 #define __ComponentLuaScript_H__
 
+enum ExposedVariableTypes
+{
+    ExposedVariableType_Unused,
+    ExposedVariableType_Float,
+    ExposedVariableType_GameObject,
+};
+
+struct ExposedVariableDesc
+{
+    std::string name;
+    ExposedVariableTypes type;
+    union
+    {
+        double value;
+        void* pointer;
+    };
+
+    bool inuse; // used internally when reparsing the file.
+};
+
 class ComponentLuaScript : public ComponentUpdateable
 {
+    static const int MAX_EXPOSED_VARS = 4;
+
 public:
     lua_State* m_pLuaState; // a reference to a global lua_State managed elsewhere.
 
-    MyFileObject* m_pScriptFile;
-    char m_ScriptName[32];
-
+protected:
+    bool m_ScriptLoaded;
     bool m_Playing;
+
+    MyFileObject* m_pScriptFile;
+    MyList<ExposedVariableDesc*> m_ExposedVars;
 
 public:
     ComponentLuaScript();
@@ -34,8 +58,10 @@ public:
     virtual void CopyFromSameType_Dangerous(ComponentBase* pObject) { *this = (ComponentLuaScript&)*pObject; }
     virtual ComponentLuaScript& operator=(const ComponentLuaScript& other);
 
+    void SetScriptFile(MyFileObject* script);
     void LoadScript();
     void ParseExterns(luabridge::LuaRef LuaObject);
+    void ProgramVariables(luabridge::LuaRef LuaObject);
 
     virtual void OnPlay();
     virtual void OnStop();
