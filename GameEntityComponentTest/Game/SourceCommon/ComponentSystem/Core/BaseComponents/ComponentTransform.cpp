@@ -72,7 +72,7 @@ void ComponentTransform::FillPropertiesWindow(bool clear)
     g_pPanelWatch->AddFloat( "rot y", &m_Rotation.y, 0, 360, this, ComponentTransform::StaticOnValueChanged );
     g_pPanelWatch->AddFloat( "rot z", &m_Rotation.z, 0, 360, this, ComponentTransform::StaticOnValueChanged );
 
-    char* desc = "no parent";
+    const char* desc = "no parent";
     if( m_pParentTransform )
         desc = m_pParentTransform->m_pGameObject->m_Name;
     g_pPanelWatch->AddPointerWithDescription( "Parent transform", m_pParentTransform, desc, this, ComponentTransform::StaticOnNewParentTransformDrop );

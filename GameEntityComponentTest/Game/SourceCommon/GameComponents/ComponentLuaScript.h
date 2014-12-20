@@ -32,7 +32,7 @@ struct ExposedVariableDesc
 
 class ComponentLuaScript : public ComponentUpdateable
 {
-    static const int MAX_EXPOSED_VARS = 4;
+    static const int MAX_EXPOSED_VARS = 4; // TODO: fix this hardcodedness
 
 public:
     lua_State* m_pLuaState; // a reference to a global lua_State managed elsewhere.
@@ -40,6 +40,7 @@ public:
 protected:
     bool m_ScriptLoaded;
     bool m_Playing;
+    bool m_ShouldBePlayingButIsntBecauseScriptFileWasStillLoading;
 
     MyFileObject* m_pScriptFile;
     MyList<ExposedVariableDesc*> m_ExposedVars;
@@ -67,6 +68,7 @@ public:
     virtual void OnStop();
     virtual void Tick(double TimePassed);
 
+    void OnLoad();
     bool OnTouch(int action, int id, float x, float y, float pressure, float size);
     bool OnButtons(GameCoreButtonActions action, GameCoreButtonIDs id);
 

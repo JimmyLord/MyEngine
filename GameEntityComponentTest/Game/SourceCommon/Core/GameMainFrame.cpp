@@ -24,6 +24,7 @@ enum GameMenuIDs
 {
     myIDGame_LoadScene = myID_NumIDs,
     myIDGame_SaveScene,
+    myIDGame_SaveSceneAs,
 };
 
 GameMainFrame* g_pGameMainFrame = 0;
@@ -33,11 +34,16 @@ GameMainFrame::GameMainFrame()
 {
     g_pGameMainFrame = this;
 
+    m_pGLCanvasEditor = 0;
+    m_CurrentSceneName[0] = 0;
+
     m_File->Insert( 0, myIDGame_LoadScene, wxT("&Load Scene") );
     m_File->Insert( 1, myIDGame_SaveScene, wxT("&Save Scene") );
+    m_File->Insert( 2, myIDGame_SaveScene, wxT("Save Scene &As") );
 
-    Connect( myIDGame_LoadScene, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(GameMainFrame::OnGameMenu) );
-    Connect( myIDGame_SaveScene, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(GameMainFrame::OnGameMenu) );
+    Connect( myIDGame_LoadScene,   wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(GameMainFrame::OnGameMenu) );
+    Connect( myIDGame_SaveScene,   wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(GameMainFrame::OnGameMenu) );
+    Connect( myIDGame_SaveSceneAs, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(GameMainFrame::OnGameMenu) );
 }
 
 void GameMainFrame::AddPanes()
@@ -58,13 +64,17 @@ void GameMainFrame::OnGameMenu(wxCommandEvent& event)
 
     switch( id )
     {
-    case myIDGame_SaveScene:
-        ((GameEntityComponentTest*)g_pGameCore)->SaveScene();
+    case myIDGame_LoadScene:
+        LoadScene();
+        ResizeViewport();
         break;
 
-    case myIDGame_LoadScene:
-        ((GameEntityComponentTest*)g_pGameCore)->LoadScene();
-        ResizeViewport();
+    case myIDGame_SaveScene:
+        SaveScene();
+        break;
+
+    case myIDGame_SaveSceneAs:
+        SaveSceneAs();
         break;
     }
 }
@@ -74,4 +84,59 @@ void GameMainFrame::ResizeViewport()
     MainFrame::ResizeViewport();
 
     m_pGLCanvasEditor->ResizeViewport();
+}
+
+void GameMainFrame::SaveScene()
+{
+    if( m_CurrentSceneName[0] == 0 )
+    {
+        SaveSceneAs();
+    }
+    else
+    {
+        ((GameEntityComponentTest*)g_pGameCore)->SaveScene( m_CurrentSceneName );
+    }
+}
+
+void GameMainFrame::SaveSceneAs()
+{
+    wxFileDialog FileDialog( this, _("Save Scene file"), "", "", "Scene files (*.scene)|*.scene", wxFD_SAVE|wxFD_OVERWRITE_PROMPT);
+    
+    if( FileDialog.ShowModal() == wxID_CANCEL )
+        return;
+    
+    // save the current scene
+    // TODO: having issues with my new/delete overrides, so doing some manual labour, will fail on multibyte names
+    wxString wxpath = FileDialog.GetPath();
+    size_t len = wxpath.length();
+    for( unsigned int i=0; i<len; i++ )
+        m_CurrentSceneName[i] = wxpath[i];
+    m_CurrentSceneName[len] = 0;
+
+    ((GameEntityComponentTest*)g_pGameCore)->SaveScene( m_CurrentSceneName );
+}
+
+void GameMainFrame::LoadScene()
+{
+    //if( scene is dirty )
+    //{
+    //    if (wxMessageBox(_("Current content has not been saved! Proceed?"), _("Please confirm"),
+    //        wxICON_QUESTION | wxYES_NO, this) == wxNO )
+    //    return;
+    //}
+
+    wxFileDialog FileDialog( this, _("Open Scene"), "./Data/Scenes", "", "Scene files (*.scene)|*.scene", wxFD_OPEN|wxFD_FILE_MUST_EXIST );
+    
+    if( FileDialog.ShowModal() == wxID_CANCEL )
+        return;
+    
+    // load the file chosen by the user
+    // TODO: having issues with my new/delete overrides, so doing some manual labour, will fail on multibyte names
+    wxString wxpath = FileDialog.GetPath();
+    size_t len = wxpath.length();
+    for( unsigned int i=0; i<len; i++ )
+        m_CurrentSceneName[i] = wxpath[i];
+    m_CurrentSceneName[len] = 0;
+
+    ((GameEntityComponentTest*)g_pGameCore)->LoadScene( m_CurrentSceneName );
 }

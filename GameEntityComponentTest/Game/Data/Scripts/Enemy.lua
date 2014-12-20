@@ -1,30 +1,32 @@
+-- test Enemy script, chases the player.
 
-Enemy = {}
+Enemy =
+{
 
-Enemy.Externs =
+Externs =
 {
 	-- name, type, initial value
 	{ "Speed", "Float", 1 },
 	{ "ObjectChasing", "GameObject", "Player Object" },
-}
+};
 
-Enemy.OnPlay = function()
+OnPlay = function()
 	--LogInfo( "OnPlay\n" );
-end
+end,
 
-Enemy.OnStop = function()
+OnStop = function()
 	--LogInfo( "OnStop\n" );
-end
+end,
 
-Enemy.OnTouch = function(action, id, x, y, pressure, size)
-	LogInfo( "OnTouch\n" );
-end
+OnTouch = function(action, id, x, y, pressure, size)
+	--LogInfo( "OnTouch\n" );
+end,
 
-Enemy.OnButtons = function(action, id)
-	LogInfo( "OnButtons\n" );
-end
+OnButtons = function(action, id)
+	--LogInfo( "OnButtons\n" );
+end,
 
-Enemy.Tick = function(timepassed)
+Tick = function(timepassed)
 	--LogInfo( "Tick Start\n" );
 
 	local transform = this:GetTransform();
@@ -41,8 +43,10 @@ Enemy.Tick = function(timepassed)
 	
 	--obj = ComponentSystemManager:CreateGameObject( true );
 	--ComponentSystemManager:DeleteGameObject( obj );
-	--ComponentSystemManager:CopyGameObject( this );
+	--ComponentSystemManager:CopyGameObject( this, "Dupe" );
 	--obj = ComponentSystemManager:FindGameObjectByName( "Player Object" );
 
 	--LogInfo( "Tick End\n" );
-end
+end,
+
+}

@@ -50,7 +50,7 @@ void ComponentAIChasePlayer::FillPropertiesWindow(bool clear)
     if( clear )
         g_pPanelWatch->ClearAllVariables();
 
-    char* desc = "not following";
+    const char* desc = "not following";
     if( m_pPlayerComponentTransform )
         desc = m_pPlayerComponentTransform->m_pGameObject->m_Name;
     g_pPanelWatch->AddPointerWithDescription( "Object following", m_pPlayerComponentTransform, desc, this, ComponentAIChasePlayer::StaticOnNewParentTransformDrop );

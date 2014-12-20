@@ -1,15 +1,22 @@
+-- test Player script, moves to where you click.
 
-Player = {}
+Player =
+{
 
-Player.OnPlay = function ()
+OnLoad = function()
+    -- TODO: adds ref each time script is loaded, and nothing removes them.
+	--g_pFileManager:RequestFile( "Data/OBJs/Teapot.obj" );
+end,
+
+OnPlay = function ()
 	--LogInfo( "OnPlay\n" );
-end
+end,
 
-Player.OnStop = function ()
+OnStop = function ()
 	--LogInfo( "OnStop\n" );
-end
+end,
 
-Player.OnTouch = function(action, id, x, y, pressure, size)
+OnTouch = function(action, id, x, y, pressure, size)
 	--LogInfo( "OnTouch\n" );
 	transform = this:GetTransform();
 	pos = transform:GetPosition();
@@ -18,23 +25,24 @@ Player.OnTouch = function(action, id, x, y, pressure, size)
 	pos.y = y;
 
 	transform:SetPosition( pos );
-end
+end,
 
-Player.OnButtons = function(action, id)
-	LogInfo( "OnButtons\n" );
-end
+OnButtons = function(action, id)
+	--LogInfo( "OnButtons\n" );
+end,
 
-Player.Tick = function (timepassed)
+Tick = function (timepassed)
 	--LogInfo( "Tick Start\n" );
 
-	transform = this:GetTransform();
-	pos = transform:GetPosition();
+	--transform = this:GetTransform();
+	--pos = transform:GetPosition();
 
-	--LogInfo( "pos: " .. pos.x .. "\n" );
-	speed = 100;
-	pos.x = pos.x + timepassed*speed;
+	--speed = 100;
+	--pos.x = pos.x + timepassed*speed;
 	
-	transform:SetPosition( pos );
+	--transform:SetPosition( pos );
 	
 	--LogInfo( "Tick End\n" );
-end
+end,
+
+}

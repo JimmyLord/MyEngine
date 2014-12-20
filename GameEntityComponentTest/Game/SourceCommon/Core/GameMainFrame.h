@@ -26,6 +26,7 @@ class GameMainFrame : public MainFrame
 {
 public:
     MainGLCanvas* m_pGLCanvasEditor;
+    char m_CurrentSceneName[MAX_PATH];
 
 public:
     GameMainFrame();
@@ -33,6 +34,10 @@ public:
 
     void OnGameMenu(wxCommandEvent& event);
     virtual void ResizeViewport();
+
+    void SaveScene();
+    void SaveSceneAs();
+    void LoadScene();
 };
 
 #endif __GameMainFrame_H__

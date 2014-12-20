@@ -491,7 +491,7 @@ void GameEntityComponentTest::OnKeyDown(int keycode, int unicodechar)
     {
         if( keycode == 'P' ) // if press "Play"
         {
-            SaveScene();
+            SaveScene( "temp_editor_onplay.scene" );
             m_EditorMode = false;
             m_pComponentSystemManager->OnPlay();
             return;
@@ -508,7 +508,7 @@ void GameEntityComponentTest::OnKeyDown(int keycode, int unicodechar)
         }
         else // if press "Stop"
         {
-            LoadScene();
+            LoadScene( "temp_editor_onplay.scene" );
             m_EditorMode = true;
             m_EditorState.m_pSelectedGameObject = 0;
             m_pComponentSystemManager->OnStop();
@@ -618,7 +618,7 @@ void GameEntityComponentTest::HandleEditorInput(int keydown, int keycode, int ac
             // if shift is held, make a copy of the object and control that one.
             if( selectedwidget && m_EditorState.m_ModifierKeyStates & MODIFIERKEY_Shift )
             {
-                m_EditorState.m_pSelectedGameObject = g_pComponentSystemManager->CopyGameObject( m_EditorState.m_pSelectedGameObject );
+                m_EditorState.m_pSelectedGameObject = g_pComponentSystemManager->CopyGameObject( m_EditorState.m_pSelectedGameObject, "Duplicated Game Object" );
             }
         }
 
@@ -749,12 +749,12 @@ void GameEntityComponentTest::HandleEditorInput(int keydown, int keycode, int ac
 #endif //MYFW_USING_WX
 }
 
-void GameEntityComponentTest::SaveScene()
+void GameEntityComponentTest::SaveScene(const char* fullpath)
 {
     char* savestring = g_pComponentSystemManager->SaveSceneToJSON();
 
     FILE* filehandle;
-    errno_t error = fopen_s( &filehandle, "Data/Scenes/test.scene", "w" );
+    errno_t error = fopen_s( &filehandle, fullpath, "w" );//"Data/Scenes/test.scene", "w" );
     if( filehandle )
     {
         fprintf( filehandle, "%s", savestring );
@@ -764,10 +764,10 @@ void GameEntityComponentTest::SaveScene()
     free( savestring );
 }
 
-void GameEntityComponentTest::LoadScene()
+void GameEntityComponentTest::LoadScene(const char* fullpath)
 {
     FILE* filehandle;
-    errno_t err = fopen_s( &filehandle, "Data/Scenes/test.scene", "rb" );
+    errno_t err = fopen_s( &filehandle, fullpath, "rb" );//"Data/Scenes/test.scene", "rb" );
 
     char* jsonstr;
 

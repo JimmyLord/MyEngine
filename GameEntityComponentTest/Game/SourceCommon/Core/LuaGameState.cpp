@@ -36,8 +36,10 @@ LuaGameState::~LuaGameState()
 
 void LuaGameState::RegisterClasses()
 {
+    // register a loginfo function.
     luabridge::getGlobalNamespace( m_pLuaState ).addFunction( "LogInfo", LUA_LogInfo );
 
+    // register Framework classes.
     luabridge::getGlobalNamespace( m_pLuaState )
         .beginClass<Vector3>( "Vector3" )
             .addData( "x", &Vector3::x )
@@ -53,9 +55,21 @@ void LuaGameState::RegisterClasses()
             .addFunction( "Normalize", &Vector3::Normalize )
         .endClass();
 
+    luabridge::getGlobalNamespace( m_pLuaState )
+        .beginClass<MyFileObject>( "MyFileObject" )
+        .endClass();    
+
+    luabridge::getGlobalNamespace( m_pLuaState )
+        .beginClass<FileManager>( "FileManager" )
+            .addFunction( "RequestFile", &FileManager::RequestFile )
+        .endClass();
+
+    // Have some entity/component classes register themselves.
     GameObject::LuaRegister( m_pLuaState );
     ComponentTransform::LuaRegister( m_pLuaState );
     ComponentSystemManager::LuaRegister( m_pLuaState );
 
+    // register global managers
     luabridge::setGlobal( m_pLuaState, g_pComponentSystemManager, "g_pComponentSystemManager" );
+    luabridge::setGlobal( m_pLuaState, g_pFileManager, "g_pFileManager" );
 }
