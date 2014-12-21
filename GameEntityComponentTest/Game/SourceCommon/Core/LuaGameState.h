@@ -14,6 +14,8 @@ class LuaGameState;
 
 extern LuaGameState* g_pLuaGameState;
 
+void LuaBridgeExt_LogExceptionFormattedForVisualStudioOutputWindow(const char* userdata, const char* fullpath, const char* what);
+
 class LuaGameState
 {
 public:

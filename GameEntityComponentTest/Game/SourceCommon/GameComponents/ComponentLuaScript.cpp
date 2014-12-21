@@ -253,6 +253,15 @@ void ComponentLuaScript::LoadScript()
 
                 if( LuaObject.isTable() )
                 {
+                    // Create a table to store local variables unique to this component.
+                    luabridge::LuaRef datatable = luabridge::newTable( m_pLuaState );
+                    
+                    char gameobjectname[100];
+                    sprintf_s( gameobjectname, 100, "_GameObject_%d", m_pGameObject->m_ID );
+                    luabridge::setGlobal( m_pLuaState, datatable, gameobjectname );
+
+                    datatable["gameobject"] = m_pGameObject;
+
                     ParseExterns( LuaObject );
                     OnLoad();
                 }
@@ -260,10 +269,12 @@ void ComponentLuaScript::LoadScript()
             else
             {
                 if( loadretcode == LUA_ERRRUN )
+                {
                     LOGInfo( LOGTag, "Lua Run error in script: %s\n", m_pScriptFile->m_FilenameWithoutExtension );
+                }
                 else
                 {
-                    assert( false );
+                    assert( false ); // assert until I hit this and deal with it better.
                     LOGInfo( LOGTag, "Lua Run error in script: %s\n", m_pScriptFile->m_FilenameWithoutExtension );
                 }
             }
@@ -367,7 +378,14 @@ void ComponentLuaScript::ParseExterns(luabridge::LuaRef LuaObject)
 void ComponentLuaScript::ProgramVariables(luabridge::LuaRef LuaObject)
 {
     // set "this" to the gameobject holding this component.
-    luabridge::setGlobal( m_pLuaState, m_pGameObject, "this" );
+    //luabridge::setGlobal( m_pLuaState, m_pGameObject, "this" );
+
+    char gameobjectname[100];
+    sprintf_s( gameobjectname, 100, "_GameObject_%d", m_pGameObject->m_ID );
+    luabridge::LuaRef datatable = luabridge::getGlobal( m_pLuaState, gameobjectname );
+    luabridge::setGlobal( m_pLuaState, datatable, "this" );
+
+    // TODO: move these into the "this" datatable
 
     // program the exposed vars
     for( unsigned int i=0; i<m_ExposedVars.Count(); i++ )
@@ -396,9 +414,9 @@ void ComponentLuaScript::OnLoad()
             {
                 LuaObject["OnLoad"]();
             }
-            catch( ... )
+            catch(luabridge::LuaException const& e)
             {
-                LOGError( LOGTag, "Script error: OnLoad: %s\n", m_pScriptFile->m_FilenameWithoutExtension );
+                LuaBridgeExt_LogExceptionFormattedForVisualStudioOutputWindow( "OnLoad", m_pScriptFile->m_FullPath, e.what() );
             }
         }
     }
@@ -446,9 +464,9 @@ void ComponentLuaScript::OnPlay()
                     {
                         LuaObject["OnPlay"]();
                     }
-                    catch( ... )
+                    catch(luabridge::LuaException const& e)
                     {
-                        LOGError( LOGTag, "Script error: OnPlay: %s\n", m_pScriptFile->m_FilenameWithoutExtension );
+                        LuaBridgeExt_LogExceptionFormattedForVisualStudioOutputWindow( "OnPlay", m_pScriptFile->m_FullPath, e.what() );
                     }
                     m_Playing = true;
                 }
@@ -473,9 +491,9 @@ void ComponentLuaScript::OnStop()
             {
                 LuaObject["OnStop"]();
             }
-            catch( ... )
+            catch(luabridge::LuaException const& e)
             {
-                LOGError( LOGTag, "Script error: OnStop: %s\n", m_pScriptFile->m_FilenameWithoutExtension );
+                LuaBridgeExt_LogExceptionFormattedForVisualStudioOutputWindow( "OnStop", m_pScriptFile->m_FullPath, e.what() );
             }
         }
     }
@@ -511,9 +529,9 @@ void ComponentLuaScript::Tick(double TimePassed)
             {
                 LuaObject["Tick"]( TimePassed );
             }
-            catch( ... )
+            catch(luabridge::LuaException const& e)
             {
-                LOGError( LOGTag, "Script error: Tick: %s\n", m_pScriptFile->m_FilenameWithoutExtension );
+                LuaBridgeExt_LogExceptionFormattedForVisualStudioOutputWindow( "Tick", m_pScriptFile->m_FullPath, e.what() );
             }
         }
     }
@@ -535,9 +553,9 @@ bool ComponentLuaScript::OnTouch(int action, int id, float x, float y, float pre
                 if( LuaObject["OnTouch"]( action, id, x, y, pressure, size ) )
                     return true;
             }
-            catch( ... )
+            catch(luabridge::LuaException const& e)
             {
-                LOGError( LOGTag, "Script error: OnTouch: %s\n", m_pScriptFile->m_FilenameWithoutExtension );
+                LuaBridgeExt_LogExceptionFormattedForVisualStudioOutputWindow( "OnTouch", m_pScriptFile->m_FullPath, e.what() );
             }
         }
     }
@@ -561,9 +579,9 @@ bool ComponentLuaScript::OnButtons(GameCoreButtonActions action, GameCoreButtonI
                 if( LuaObject["OnButtons"]( action, id ) )
                     return true;
             }
-            catch( ... )
+            catch(luabridge::LuaException const& e)
             {
-                LOGError( LOGTag, "Script error: OnButtons: %s\n", m_pScriptFile->m_FilenameWithoutExtension );
+                LuaBridgeExt_LogExceptionFormattedForVisualStudioOutputWindow( "OnButtons", m_pScriptFile->m_FullPath, e.what() );
             }
         }
     }

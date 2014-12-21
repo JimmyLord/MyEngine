@@ -18,8 +18,19 @@ end,
 
 OnTouch = function(action, id, x, y, pressure, size)
 	--LogInfo( "OnTouch\n" );
-	transform = this:GetTransform();
+	transform = this.gameobject:GetTransform();
 	pos = transform:GetPosition();
+
+	-- finger down
+	if( action == 0 ) then
+		this.id = this.gameobject.id;
+		LogInfo( "setID: " .. this.id .. "\n" );
+	end
+
+	-- finger up
+	if( action == 1 ) then
+		LogInfo( "ID: " .. this.id .. "\n" );
+	end
 
 	pos.x = x;
 	pos.y = y;
@@ -34,7 +45,7 @@ end,
 Tick = function (timepassed)
 	--LogInfo( "Tick Start\n" );
 
-	--transform = this:GetTransform();
+	--transform = this.gameobject:GetTransform();
 	--pos = transform:GetPosition();
 
 	--speed = 100;

@@ -29,7 +29,7 @@ end,
 Tick = function(timepassed)
 	--LogInfo( "Tick Start\n" );
 
-	local transform = this:GetTransform();
+	local transform = this.gameobject:GetTransform();
 
 	local pos = transform:GetPosition();
 	local posChasing = Enemy.ObjectChasing:GetTransform():GetPosition();
@@ -43,7 +43,7 @@ Tick = function(timepassed)
 	
 	--obj = ComponentSystemManager:CreateGameObject( true );
 	--ComponentSystemManager:DeleteGameObject( obj );
-	--ComponentSystemManager:CopyGameObject( this, "Dupe" );
+	--ComponentSystemManager:CopyGameObject( this.gameobject, "Dupe" );
 	--obj = ComponentSystemManager:FindGameObjectByName( "Player Object" );
 
 	--LogInfo( "Tick End\n" );

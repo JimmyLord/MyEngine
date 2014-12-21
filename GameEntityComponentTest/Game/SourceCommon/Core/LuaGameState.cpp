@@ -16,6 +16,38 @@ void LUA_LogInfo(const char* str)
     LOGInfo( LOGTag, str );
 }
 
+void LuaBridgeExt_LogExceptionFormattedForVisualStudioOutputWindow(const char* userdata, const char* fullpath, const char* what)
+{
+    // 'what' looks like this:
+        //[string "-- test Player script, moves to where you cli..."]:26: no member named 'id'
+
+    // we want this so we can double click and go to line in file:
+        //1>e:\...fullpath...\gamecomponents\componentluascript.cpp(536):
+
+    // far from robust, but find the '26' wrapped in :'s from 'what'.
+    // should work unless error message involved :'s
+    int len = strlen( what );
+    int linenumber = 0;
+    int errori = 0;
+    for( int i=len-1; i>0; i-- )
+    {
+        if( what[i] == ':' )
+        {
+            if( errori == 0 ) // first colon from end.
+            {
+                errori = i+1;
+            }
+            else //if( linenumber == 0 ) // second colon from end.
+            {
+                linenumber = atoi( &what[i+1] );
+                break;
+            }
+        }
+    }
+
+    LOGInfo( LOGTag, "%s(%d): %s: %s - %s\n", fullpath, linenumber, userdata, &what[errori], what );
+}
+
 LuaGameState::LuaGameState()
 {
     g_pLuaGameState = this;

@@ -60,6 +60,7 @@ void GameObject::LuaRegister(lua_State* luastate)
         .beginClass<GameObject>( "GameObject" )
             .addData( "ComponentTransform", &GameObject::m_pComponentTransform )
             .addData( "name", &GameObject::m_Name )
+            .addData( "id", &GameObject::m_ID )            
             .addFunction( "SetName", &GameObject::SetName )
             .addFunction( "GetTransform", &GameObject::GetTransform )
         .endClass();
