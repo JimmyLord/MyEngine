@@ -86,15 +86,15 @@ void ComponentLuaScript::FillPropertiesWindow(bool clear)
 
         if( pVar->type == ExposedVariableType_Float )
         {
-            g_pPanelWatch->AddDouble( pVar->name.c_str(), &pVar->value, 0, 500 );
+            g_pPanelWatch->AddDouble( pVar->name.c_str(), &pVar->value, 0, 500, this, ComponentLuaScript::StaticOnValueChanged );
         }
         else if( pVar->type == ExposedVariableType_GameObject )
         {
-            // TODO: support drag and drop of game objects.
+            // setup name and drag and drop of game objects.
             const char* desc = "no gameobject";
             if( pVar->pointer )
                 desc = ((GameObject*)pVar->pointer)->m_Name;
-            g_pPanelWatch->AddPointerWithDescription( pVar->name.c_str(), pVar->pointer, desc, this, ComponentLuaScript::StaticOnDrop );
+            g_pPanelWatch->AddPointerWithDescription( pVar->name.c_str(), pVar->pointer, desc, this, ComponentLuaScript::StaticOnDrop, ComponentLuaScript::StaticOnValueChanged );
         }
     }
 }
@@ -123,18 +123,18 @@ void ComponentLuaScript::OnDrop()
         int indexoffirstexternvariableinwatch = 1;
         int id = g_DragAndDropStruct.m_ID - indexoffirstexternvariableinwatch;
         
+        // TODO: this will make a mess of memory if different types of objects can be dragged in...
         m_ExposedVars[id]->pointer = pGameObject;
 
         // update the panel so new gameobject name shows up.
-        // TODO: need a cleaner way to do this.
         g_pPanelWatch->m_pVariables[g_DragAndDropStruct.m_ID].m_Description = pGameObject->m_Name;
     }
 }
 
-//void ComponentLuaScript::OnValueChanged()
-//{
-//    
-//}
+void ComponentLuaScript::OnValueChanged()
+{
+    ProgramVariables( m_pLuaState, true );
+}
 #endif //MYFW_USING_WX
 
 cJSON* ComponentLuaScript::ExportAsJSONObject()
@@ -375,28 +375,27 @@ void ComponentLuaScript::ParseExterns(luabridge::LuaRef LuaObject)
     }
 }
 
-void ComponentLuaScript::ProgramVariables(luabridge::LuaRef LuaObject)
+void ComponentLuaScript::ProgramVariables(luabridge::LuaRef LuaObject, bool updateexposedvariables)
 {
-    // set "this" to the gameobject holding this component.
-    //luabridge::setGlobal( m_pLuaState, m_pGameObject, "this" );
-
+    // set "this" to the data table storing this gameobjects script data "_GameObject_<ID>"
     char gameobjectname[100];
     sprintf_s( gameobjectname, 100, "_GameObject_%d", m_pGameObject->m_ID );
     luabridge::LuaRef datatable = luabridge::getGlobal( m_pLuaState, gameobjectname );
     luabridge::setGlobal( m_pLuaState, datatable, "this" );
 
-    // TODO: move these into the "this" datatable
-
-    // program the exposed vars
-    for( unsigned int i=0; i<m_ExposedVars.Count(); i++ )
+    // only program the exposed vars if they change.
+    if( updateexposedvariables )
     {
-        ExposedVariableDesc* pVar = m_ExposedVars[i];
+        for( unsigned int i=0; i<m_ExposedVars.Count(); i++ )
+        {
+            ExposedVariableDesc* pVar = m_ExposedVars[i];
 
-        if( pVar->type == ExposedVariableType_Float )
-            LuaObject[pVar->name] = pVar->value;
+            if( pVar->type == ExposedVariableType_Float )
+                datatable[pVar->name] = pVar->value;
 
-        if( pVar->type == ExposedVariableType_GameObject )
-            LuaObject[pVar->name] = (GameObject*)pVar->pointer;
+            if( pVar->type == ExposedVariableType_GameObject )
+                datatable[pVar->name] = (GameObject*)pVar->pointer;
+        }
     }
 }
 
@@ -459,7 +458,7 @@ void ComponentLuaScript::OnPlay()
             {
                 if( LuaObject["OnPlay"].isFunction() )
                 {
-                    ProgramVariables( LuaObject );
+                    ProgramVariables( LuaObject, true );
                     try
                     {
                         LuaObject["OnPlay"]();
@@ -486,7 +485,7 @@ void ComponentLuaScript::OnStop()
         // call stop
         if( LuaObject["OnStop"].isFunction() )
         {
-            ProgramVariables( LuaObject );
+            ProgramVariables( LuaObject, false );
             try
             {
                 LuaObject["OnStop"]();
@@ -524,7 +523,7 @@ void ComponentLuaScript::Tick(double TimePassed)
         // call tick
         if( LuaObject["Tick"].isFunction() )
         {
-            ProgramVariables( LuaObject );
+            ProgramVariables( LuaObject, false );
             try
             {
                 LuaObject["Tick"]( TimePassed );
@@ -547,7 +546,7 @@ bool ComponentLuaScript::OnTouch(int action, int id, float x, float y, float pre
         // call OnTouch
         if( LuaObject["OnTouch"].isFunction() )
         {
-            ProgramVariables( LuaObject );
+            ProgramVariables( LuaObject, false );
             try
             {
                 if( LuaObject["OnTouch"]( action, id, x, y, pressure, size ) )
@@ -573,7 +572,7 @@ bool ComponentLuaScript::OnButtons(GameCoreButtonActions action, GameCoreButtonI
         // call OnButtons
         if( LuaObject["OnButtons"].isFunction() )
         {
-            ProgramVariables( LuaObject );
+            ProgramVariables( LuaObject, false );
             try
             {
                 if( LuaObject["OnButtons"]( action, id ) )

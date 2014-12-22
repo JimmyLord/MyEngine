@@ -21,7 +21,7 @@ struct ExposedVariableDesc
 {
     std::string name;
     ExposedVariableTypes type;
-    union
+    union // TODO?: make these values shared between c++ and lua so they can be changed/saved more easily.
     {
         double value;
         void* pointer;
@@ -62,7 +62,7 @@ public:
     void SetScriptFile(MyFileObject* script);
     void LoadScript();
     void ParseExterns(luabridge::LuaRef LuaObject);
-    void ProgramVariables(luabridge::LuaRef LuaObject);
+    void ProgramVariables(luabridge::LuaRef LuaObject, bool updateexposedvariables = false);
 
     virtual void OnPlay();
     virtual void OnStop();
@@ -79,6 +79,8 @@ public:
     void FillPropertiesWindow(bool clear);
     static void StaticOnDrop(void* pObjectPtr) { ((ComponentLuaScript*)pObjectPtr)->OnDrop(); }
     void OnDrop();
+    static void StaticOnValueChanged(void* pObjectPtr) { ((ComponentLuaScript*)pObjectPtr)->OnValueChanged(); }
+    void OnValueChanged();
 #endif //MYFW_USING_WX
 };
 

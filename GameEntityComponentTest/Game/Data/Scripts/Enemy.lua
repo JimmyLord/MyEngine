@@ -32,10 +32,10 @@ Tick = function(timepassed)
 	local transform = this.gameobject:GetTransform();
 
 	local pos = transform:GetPosition();
-	local posChasing = Enemy.ObjectChasing:GetTransform():GetPosition();
+	local posChasing = this.ObjectChasing:GetTransform():GetPosition();
 
 	local diff = posChasing:Sub( pos );
-	diff = diff:Scale( timepassed * Enemy.Speed );
+	diff = diff:Scale( timepassed * this.Speed );
 
 	pos = pos:Add( diff );
 

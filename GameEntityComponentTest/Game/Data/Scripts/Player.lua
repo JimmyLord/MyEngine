@@ -23,13 +23,13 @@ OnTouch = function(action, id, x, y, pressure, size)
 
 	-- finger down
 	if( action == 0 ) then
-		this.id = this.gameobject.id;
-		LogInfo( "setID: " .. this.id .. "\n" );
+		--this.id = this.gameobject.id;
+		--LogInfo( "setID: " .. this.id .. "\n" );
 	end
 
 	-- finger up
 	if( action == 1 ) then
-		LogInfo( "ID: " .. this.id .. "\n" );
+		--LogInfo( "ID: " .. this.id .. "\n" );
 	end
 
 	pos.x = x;
