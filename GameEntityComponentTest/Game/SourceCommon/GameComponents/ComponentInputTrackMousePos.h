@@ -24,11 +24,10 @@ public:
 
 public:
     ComponentInputTrackMousePos();
-    ComponentInputTrackMousePos(GameObject* owner);
     virtual ~ComponentInputTrackMousePos();
 
     virtual cJSON* ExportAsJSONObject();
-    virtual void ImportFromJSONObject(cJSON* jsonobj);
+    virtual void ImportFromJSONObject(cJSON* jsonobj, unsigned int sceneid);
 
     //virtual void Reset();
     virtual void CopyFromSameType_Dangerous(ComponentBase* pObject) { *this = (ComponentInputTrackMousePos&)*pObject; }

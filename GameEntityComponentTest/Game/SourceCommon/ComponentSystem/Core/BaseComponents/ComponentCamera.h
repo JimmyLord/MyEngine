@@ -52,11 +52,10 @@ public:
 
 public:
     ComponentCamera();
-    ComponentCamera(GameObject* owner);
     virtual ~ComponentCamera();
 
     virtual cJSON* ExportAsJSONObject();
-    virtual void ImportFromJSONObject(cJSON* jsonobj);
+    virtual void ImportFromJSONObject(cJSON* jsonobj, unsigned int sceneid);
 
     virtual void Reset();
     virtual void CopyFromSameType_Dangerous(ComponentBase* pObject) { *this = (ComponentCamera&)*pObject; }

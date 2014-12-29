@@ -162,11 +162,8 @@ char* ComponentSystemManager::SaveSceneToJSON()
     return savestring;
 }
 
-void ComponentSystemManager::LoadSceneFromJSON(const char* jsonstr)
+void ComponentSystemManager::LoadSceneFromJSON(const char* jsonstr, unsigned int sceneid)
 {
-    // Clear out the component manager of all components and gameobjects
-    Clear( false );
-
     cJSON* root = cJSON_Parse( jsonstr );
 
     if( root == 0 )
@@ -180,11 +177,20 @@ void ComponentSystemManager::LoadSceneFromJSON(const char* jsonstr)
     for( int i=0; i<cJSON_GetArraySize( gameobjectarray ); i++ )
     {
         cJSON* gameobj = cJSON_GetArrayItem( gameobjectarray, i );
-        
-        GameObject* pGameObject = CreateGameObject();
-        pGameObject->ImportFromJSONObject( gameobj );
 
-        if( pGameObject->m_ID > m_NextGameObjectID )
+        unsigned int id;
+        cJSONExt_GetUnsignedInt( gameobj, "ID", &id );
+
+        // find an existing game object with the same id or create a new one.
+        GameObject* pGameObject = FindGameObjectByID( id );
+        if( pGameObject ) { assert( pGameObject->GetSceneID() == sceneid ); } // TODO: get the object from the right scene if multiple scenes are loaded.
+
+        if( pGameObject == 0 )        
+            pGameObject = CreateGameObject();
+
+        pGameObject->ImportFromJSONObject( gameobj, sceneid );
+
+        if( pGameObject->GetID() > m_NextGameObjectID )
             m_NextGameObjectID += 1;
     }
 
@@ -193,20 +199,20 @@ void ComponentSystemManager::LoadSceneFromJSON(const char* jsonstr)
     {
         cJSON* transformobj = cJSON_GetArrayItem( transformarray, i );
         
-        unsigned int id = 0;
-        cJSONExt_GetUnsignedInt( transformobj, "GOID", &id );
-        assert( id > 0 );
+        unsigned int goid = 0;
+        cJSONExt_GetUnsignedInt( transformobj, "GOID", &goid );
+        assert( goid > 0 );
 
-        GameObject* pGameObject = FindGameObjectByID( id );
+        GameObject* pGameObject = FindGameObjectByID( goid );
         assert( pGameObject );
 
         if( pGameObject )
         {
-            pGameObject->m_ID = id;
-            pGameObject->m_pComponentTransform->ImportFromJSONObject( transformobj );
+            pGameObject->SetID( goid );
+            pGameObject->m_pComponentTransform->ImportFromJSONObject( transformobj, sceneid );
 
-            if( pGameObject->m_ID >= m_NextGameObjectID )
-                m_NextGameObjectID = id + 1;
+            if( goid >= m_NextGameObjectID )
+                m_NextGameObjectID = goid + 1;
         }
     }
 
@@ -236,13 +242,20 @@ void ComponentSystemManager::LoadSceneFromJSON(const char* jsonstr)
         }
         else
         {
-            ComponentBase* pComponent = pGameObject->AddNewComponent( type );
-            pComponent->ImportFromJSONObject( componentobj );
+            unsigned int id;
+            cJSONExt_GetUnsignedInt( componentobj, "ID", &id );
 
-            cJSONExt_GetUnsignedInt( componentobj, "ID", &pComponent->m_ID );
+            ComponentBase* pComponent = FindComponentByID( id );
+            if( pComponent ) { assert( pComponent->GetSceneID() == sceneid ); } // TODO: get the object from the right scene if multiple scenes are loaded.
+    
+            if( pComponent == 0 )
+                pComponent = pGameObject->AddNewComponent( type );
 
-            if( pComponent->m_ID >= m_NextComponentID )
-                m_NextComponentID = pComponent->m_ID + 1;
+            pComponent->ImportFromJSONObject( componentobj, sceneid );
+            
+            pComponent->SetID( id );
+            if( id >= m_NextComponentID )
+                m_NextComponentID = id + 1;
         }
     }
 
@@ -264,7 +277,7 @@ void ComponentSystemManager::SyncAllRigidBodiesToObjectTransforms()
     }
 }
 
-void ComponentSystemManager::Clear(bool clearunmanagedcomponents)
+void ComponentSystemManager::Clear(bool clearunmanagedcomponents, unsigned int sceneidtoclear)
 {
     m_NextGameObjectID = 1;
     m_NextComponentID = 1;
@@ -275,40 +288,55 @@ void ComponentSystemManager::Clear(bool clearunmanagedcomponents)
         {
             ComponentBase* pComponent = (ComponentBase*)pNode;
             pNode = pNode->GetNext();
-            if( pComponent->m_pGameObject->m_Managed || clearunmanagedcomponents )
+            if( (pComponent->m_pGameObject->m_Managed || clearunmanagedcomponents) &&
+                (sceneidtoclear == UINT_MAX || pComponent->GetSceneID() == sceneidtoclear) )
+            {
                 DeleteComponent( pComponent );
+            }
         }
 
         for( CPPListNode* pNode = m_ComponentsInputHandler.GetHead(); pNode;  )
         {
             ComponentBase* pComponent = (ComponentBase*)pNode;
             pNode = pNode->GetNext();
-            if( pComponent->m_pGameObject->m_Managed || clearunmanagedcomponents )
+            if( (pComponent->m_pGameObject->m_Managed || clearunmanagedcomponents) &&
+                (sceneidtoclear == UINT_MAX || pComponent->GetSceneID() == sceneidtoclear) )
+            {
                 DeleteComponent( pComponent );
+            }
         }
 
         for( CPPListNode* pNode = m_ComponentsUpdateable.GetHead(); pNode;  )
         {
             ComponentBase* pComponent = (ComponentBase*)pNode;
             pNode = pNode->GetNext();
-            if( pComponent->m_pGameObject->m_Managed || clearunmanagedcomponents )
+            if( (pComponent->m_pGameObject->m_Managed || clearunmanagedcomponents) &&
+                (sceneidtoclear == UINT_MAX || pComponent->GetSceneID() == sceneidtoclear) )
+            {
                 DeleteComponent( pComponent );
+            }
         }
 
         for( CPPListNode* pNode = m_ComponentsRenderable.GetHead(); pNode;  )
         {
             ComponentBase* pComponent = (ComponentBase*)pNode;
             pNode = pNode->GetNext();
-            if( pComponent->m_pGameObject->m_Managed || clearunmanagedcomponents )
+            if( (pComponent->m_pGameObject->m_Managed || clearunmanagedcomponents) &&
+                (sceneidtoclear == UINT_MAX || pComponent->GetSceneID() == sceneidtoclear) )
+            {
                 DeleteComponent( pComponent );
+            }
         }
 
         for( CPPListNode* pNode = m_ComponentsData.GetHead(); pNode;  )
         {
             ComponentBase* pComponent = (ComponentBase*)pNode;
             pNode = pNode->GetNext();
-            if( pComponent->m_pGameObject->m_Managed || clearunmanagedcomponents )
+            if( (pComponent->m_pGameObject->m_Managed || clearunmanagedcomponents) &&
+                (sceneidtoclear == UINT_MAX || pComponent->GetSceneID() == sceneidtoclear) )
+            {
                 DeleteComponent( pComponent );
+            }
         }
     }
 
@@ -320,7 +348,10 @@ void ComponentSystemManager::Clear(bool clearunmanagedcomponents)
 
             pNode = pNode->GetNext();
 
-            DeleteGameObject( pGameObject );
+            if( (sceneidtoclear == UINT_MAX || pGameObject->GetSceneID() == sceneidtoclear) )
+            {
+                DeleteGameObject( pGameObject );
+            }
         }
     }
 }
@@ -328,7 +359,7 @@ void ComponentSystemManager::Clear(bool clearunmanagedcomponents)
 GameObject* ComponentSystemManager::CreateGameObject(bool manageobject)
 {
     GameObject* pGameObject = MyNew GameObject( manageobject );
-    pGameObject->m_ID = m_NextGameObjectID;
+    pGameObject->SetID( m_NextGameObjectID );
     m_NextGameObjectID++;
 
     if( manageobject )
@@ -366,7 +397,7 @@ GameObject* ComponentSystemManager::FindGameObjectByID(unsigned int id)
     {
         GameObject* pGameObject = (GameObject*)node;
 
-        if( pGameObject->m_ID == id )
+        if( pGameObject->GetID() == id )
             return pGameObject;
     }
 
@@ -379,7 +410,7 @@ GameObject* ComponentSystemManager::FindGameObjectByName(const char* name)
     {
         GameObject* pGameObject = (GameObject*)node;
 
-        if( strcmp( pGameObject->m_Name, name ) == 0 )
+        if( strcmp( pGameObject->GetName(), name ) == 0 )
             return pGameObject;
     }
 
@@ -450,6 +481,51 @@ void ComponentSystemManager::DeleteComponent(ComponentBase* pComponent)
 #endif
     pComponent->Remove();
     SAFE_DELETE( pComponent );
+}
+
+ComponentBase* ComponentSystemManager::FindComponentByID(unsigned int id)
+{
+    for( CPPListNode* pNode = m_ComponentsCamera.GetHead(); pNode;  )
+    {
+        ComponentBase* pComponent = (ComponentBase*)pNode;
+        pNode = pNode->GetNext();
+        if( pComponent->GetID() == id )
+            return pComponent;
+    }
+
+    for( CPPListNode* pNode = m_ComponentsInputHandler.GetHead(); pNode;  )
+    {
+        ComponentBase* pComponent = (ComponentBase*)pNode;
+        pNode = pNode->GetNext();
+        if( pComponent->GetID() == id )
+            return pComponent;
+    }
+
+    for( CPPListNode* pNode = m_ComponentsUpdateable.GetHead(); pNode;  )
+    {
+        ComponentBase* pComponent = (ComponentBase*)pNode;
+        pNode = pNode->GetNext();
+        if( pComponent->GetID() == id )
+            return pComponent;
+    }
+
+    for( CPPListNode* pNode = m_ComponentsRenderable.GetHead(); pNode;  )
+    {
+        ComponentBase* pComponent = (ComponentBase*)pNode;
+        pNode = pNode->GetNext();
+        if( pComponent->GetID() == id )
+            return pComponent;
+    }
+
+    for( CPPListNode* pNode = m_ComponentsData.GetHead(); pNode;  )
+    {
+        ComponentBase* pComponent = (ComponentBase*)pNode;
+        pNode = pNode->GetNext();
+        if( pComponent->GetID() == id )
+            return pComponent;
+    }
+
+    return 0;
 }
 
 void ComponentSystemManager::Tick(double TimePassed)
@@ -541,12 +617,12 @@ void ComponentSystemManager::DrawMousePickerFrame(ComponentCamera* pCamera, MyMa
                 {
                     ColorByte tint( 0, 0, 0, 0 );
 
-                    unsigned int id = pComponent->m_pGameObject->m_ID;
+                    unsigned int id = pComponent->m_pGameObject->GetID();
 
                     if( 1 )                 tint.r = id%256;
-                    if( id > 256 )          tint.g = (id-256)%256;
-                    if( id > 256*256 )      tint.b = (id-256*256)%256;
-                    if( id > 256*256*256 )  tint.a = (id-256*256*256)%256;
+                    if( id > 256 )          tint.g = (id>>8)%256;
+                    if( id > 256*256 )      tint.b = (id>>16)%256;
+                    if( id > 256*256*256 )  tint.a = (id>>24)%256;
 
                     pShader->ProgramTint( tint );
 

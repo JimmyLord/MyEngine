@@ -25,14 +25,6 @@ ComponentInputTrackMousePos::ComponentInputTrackMousePos()
     m_pComponentTransform = 0;
 }
 
-ComponentInputTrackMousePos::ComponentInputTrackMousePos(GameObject* owner)
-: ComponentInputHandler( owner )
-{
-    m_BaseType = BaseComponentType_InputHandler;
-
-    m_pComponentTransform = 0;
-}
-
 ComponentInputTrackMousePos::~ComponentInputTrackMousePos()
 {
 }
@@ -57,9 +49,9 @@ cJSON* ComponentInputTrackMousePos::ExportAsJSONObject()
     return component;
 }
 
-void ComponentInputTrackMousePos::ImportFromJSONObject(cJSON* jsonobj)
+void ComponentInputTrackMousePos::ImportFromJSONObject(cJSON* jsonobj, unsigned int sceneid)
 {
-    ComponentInputHandler::ImportFromJSONObject( jsonobj );
+    ComponentInputHandler::ImportFromJSONObject( jsonobj, sceneid );
 }
 
 //void ComponentInputTrackMousePos::Reset()

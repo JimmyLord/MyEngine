@@ -25,12 +25,6 @@ ComponentSprite::ComponentSprite()
     m_pSprite = 0;
 }
 
-ComponentSprite::ComponentSprite(GameObject* owner)
-: ComponentRenderable( owner )
-{
-    m_BaseType = BaseComponentType_Renderable;
-}
-
 ComponentSprite::~ComponentSprite()
 {
     SAFE_RELEASE( m_pSprite );
@@ -85,9 +79,9 @@ cJSON* ComponentSprite::ExportAsJSONObject()
     return component;
 }
 
-void ComponentSprite::ImportFromJSONObject(cJSON* jsonobj)
+void ComponentSprite::ImportFromJSONObject(cJSON* jsonobj, unsigned int sceneid)
 {
-    ComponentRenderable::ImportFromJSONObject( jsonobj );
+    ComponentRenderable::ImportFromJSONObject( jsonobj, sceneid );
 
     cJSONExt_GetUnsignedCharArray( jsonobj, "Tint", &m_Tint.r, 4 );
     cJSONExt_GetFloatArray( jsonobj, "Size", &m_Size.x, 2 );

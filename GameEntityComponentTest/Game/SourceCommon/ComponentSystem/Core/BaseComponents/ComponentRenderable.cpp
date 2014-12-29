@@ -23,12 +23,6 @@ ComponentRenderable::ComponentRenderable()
     m_BaseType = BaseComponentType_Renderable;
 }
 
-ComponentRenderable::ComponentRenderable(GameObject* owner)
-: ComponentBase( owner )
-{
-    m_BaseType = BaseComponentType_Renderable;
-}
-
 ComponentRenderable::~ComponentRenderable()
 {
 }
@@ -56,9 +50,9 @@ cJSON* ComponentRenderable::ExportAsJSONObject()
     return component;
 }
 
-void ComponentRenderable::ImportFromJSONObject(cJSON* jsonobj)
+void ComponentRenderable::ImportFromJSONObject(cJSON* jsonobj, unsigned int sceneid)
 {
-    ComponentBase::ImportFromJSONObject( jsonobj );
+    ComponentBase::ImportFromJSONObject( jsonobj, sceneid );
 
     cJSONExt_GetBool( jsonobj, "Visible", &m_Visible );
     cJSONExt_GetUnsignedInt( jsonobj, "Layers", &m_LayersThisExistsOn );

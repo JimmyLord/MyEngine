@@ -25,14 +25,6 @@ ComponentCamera::ComponentCamera()
     m_pComponentTransform = 0;
 }
 
-ComponentCamera::ComponentCamera(GameObject* owner)
-: ComponentBase( owner )
-{
-    m_BaseType = BaseComponentType_Camera;
-
-    m_pComponentTransform = 0;
-}
-
 ComponentCamera::~ComponentCamera()
 {
 }
@@ -62,9 +54,9 @@ cJSON* ComponentCamera::ExportAsJSONObject()
     return component;
 }
 
-void ComponentCamera::ImportFromJSONObject(cJSON* jsonobj)
+void ComponentCamera::ImportFromJSONObject(cJSON* jsonobj, unsigned int sceneid)
 {
-    ComponentBase::ImportFromJSONObject( jsonobj );
+    ComponentBase::ImportFromJSONObject( jsonobj, sceneid );
 
     cJSONExt_GetBool( jsonobj, "Ortho", &m_Orthographic );
     cJSONExt_GetFloat( jsonobj, "DWidth", &m_DesiredWidth );

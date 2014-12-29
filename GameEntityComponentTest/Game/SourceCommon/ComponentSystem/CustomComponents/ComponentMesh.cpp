@@ -25,14 +25,6 @@ ComponentMesh::ComponentMesh()
     m_pMesh = 0;
 }
 
-ComponentMesh::ComponentMesh(GameObject* owner)
-: ComponentRenderable( owner )
-{
-    m_BaseType = BaseComponentType_Renderable;
-
-    m_pMesh = 0;
-}
-
 ComponentMesh::~ComponentMesh()
 {
     SAFE_DELETE( m_pMesh );
@@ -108,9 +100,9 @@ cJSON* ComponentMesh::ExportAsJSONObject()
     return component;
 }
 
-void ComponentMesh::ImportFromJSONObject(cJSON* jsonobj)
+void ComponentMesh::ImportFromJSONObject(cJSON* jsonobj, unsigned int sceneid)
 {
-    ComponentRenderable::ImportFromJSONObject( jsonobj );
+    ComponentRenderable::ImportFromJSONObject( jsonobj, sceneid );
 
     cJSON* shaderstringobj = cJSON_GetObjectItem( jsonobj, "Shader" );
     if( shaderstringobj )

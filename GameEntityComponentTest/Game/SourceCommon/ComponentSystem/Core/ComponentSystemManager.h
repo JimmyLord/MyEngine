@@ -43,11 +43,11 @@ public:
     static void LuaRegister(lua_State* luastate);
 
     char* SaveSceneToJSON();
-    void LoadSceneFromJSON(const char* jsonstr);
+    void LoadSceneFromJSON(const char* jsonstr, unsigned int sceneid);
 
     void SyncAllRigidBodiesToObjectTransforms();
 
-    void Clear(bool clearunmanagedcomponents = true);
+    void Clear(bool clearunmanagedcomponents = true, unsigned int sceneidtoclear = UINT_MAX);
 
     GameObject* CreateGameObject(bool manageobject = true);
     void DeleteGameObject(GameObject* pObject);
@@ -59,6 +59,8 @@ public:
 
     ComponentBase* AddComponent(ComponentBase* pComponent);
     void DeleteComponent(ComponentBase* pComponent);
+
+    ComponentBase* FindComponentByID(unsigned int id);
 
     void Tick(double TimePassed);
     void OnSurfaceChanged(unsigned int startx, unsigned int starty, unsigned int width, unsigned int height, unsigned int desiredaspectwidth, unsigned int desiredaspectheight);

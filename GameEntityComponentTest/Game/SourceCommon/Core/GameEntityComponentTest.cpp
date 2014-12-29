@@ -106,12 +106,12 @@ void GameEntityComponentTest::OneTimeInit()
     ComponentLuaScript* pComponentLuaScript;
 
     m_pOBJTestFiles[0] = g_pFileManager->RequestFile( "Data/OBJs/cube.obj" );
-    //m_pOBJTestFiles[1] = g_pFileManager->RequestFile( "Data/OBJs/Teapot.obj" );
-    //m_pOBJTestFiles[2] = g_pFileManager->RequestFile( "Data/OBJs/humanoid_tri.obj" );
-    //m_pOBJTestFiles[3] = g_pFileManager->RequestFile( "Data/OBJs/teapot2.obj" );
+    m_pOBJTestFiles[1] = g_pFileManager->RequestFile( "Data/OBJs/Teapot.obj" );
+    m_pOBJTestFiles[2] = g_pFileManager->RequestFile( "Data/OBJs/humanoid_tri.obj" );
+    m_pOBJTestFiles[3] = g_pFileManager->RequestFile( "Data/OBJs/teapot2.obj" );
 
-    //m_pTextures[0] = g_pTextureManager->CreateTexture( "Data/Textures/test1.png", GL_NEAREST, GL_NEAREST, GL_REPEAT, GL_REPEAT );
-    //m_pTextures[1] = g_pTextureManager->CreateTexture( "Data/Textures/test2.png", GL_NEAREST, GL_NEAREST, GL_REPEAT, GL_REPEAT );
+    m_pTextures[0] = g_pTextureManager->CreateTexture( "Data/Textures/test1.png", GL_NEAREST, GL_NEAREST, GL_REPEAT, GL_REPEAT );
+    m_pTextures[1] = g_pTextureManager->CreateTexture( "Data/Textures/test2.png", GL_NEAREST, GL_NEAREST, GL_REPEAT, GL_REPEAT );
     //m_pTextures[2] = g_pTextureManager->CreateTexture( "Data/Textures/test3.png", GL_NEAREST, GL_NEAREST, GL_REPEAT, GL_REPEAT );
     //m_pTextures[3] = g_pTextureManager->CreateTexture( "Data/Textures/test4.png", GL_NEAREST, GL_NEAREST, GL_REPEAT, GL_REPEAT );
 
@@ -508,7 +508,9 @@ void GameEntityComponentTest::OnKeyDown(int keycode, int unicodechar)
         }
         else // if press "Stop"
         {
-            LoadScene( "temp_editor_onplay.scene" );
+            // Clear out the component manager of all components and gameobjects
+            g_pComponentSystemManager->Clear( false, 0 );
+            LoadScene( "temp_editor_onplay.scene", 1 );
             m_EditorMode = true;
             m_EditorState.m_pSelectedGameObject = 0;
             m_pComponentSystemManager->OnStop();
@@ -764,7 +766,7 @@ void GameEntityComponentTest::SaveScene(const char* fullpath)
     free( savestring );
 }
 
-void GameEntityComponentTest::LoadScene(const char* fullpath)
+void GameEntityComponentTest::LoadScene(const char* fullpath, unsigned int sceneid)
 {
     FILE* filehandle;
     errno_t err = fopen_s( &filehandle, fullpath, "rb" );//"Data/Scenes/test.scene", "rb" );
@@ -786,7 +788,7 @@ void GameEntityComponentTest::LoadScene(const char* fullpath)
 
         fclose( filehandle );
 
-        g_pComponentSystemManager->LoadSceneFromJSON( jsonstr );
+        g_pComponentSystemManager->LoadSceneFromJSON( jsonstr, sceneid );
 
         delete[] jsonstr;
     }
@@ -901,7 +903,7 @@ GameObject* GameEntityComponentTest::GetObjectAtPixel(unsigned int x, unsigned i
     {
         for( int i=0; i<3; i++ )
         {
-            if( m_EditorState.m_pTransformWidgets[i]->m_ID == id )
+            if( m_EditorState.m_pTransformWidgets[i]->GetID() == id )
             {
                 return m_EditorState.m_pTransformWidgets[i];
             }

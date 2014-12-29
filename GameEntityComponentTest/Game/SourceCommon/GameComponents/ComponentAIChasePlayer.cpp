@@ -26,15 +26,6 @@ ComponentAIChasePlayer::ComponentAIChasePlayer()
     m_pPlayerComponentTransform = 0;
 }
 
-ComponentAIChasePlayer::ComponentAIChasePlayer(GameObject* owner)
-: ComponentUpdateable( owner )
-{
-    m_BaseType = BaseComponentType_InputHandler;
-
-    m_pComponentTransform = 0;
-    m_pPlayerComponentTransform = 0;
-}
-
 ComponentAIChasePlayer::~ComponentAIChasePlayer()
 {
 }
@@ -52,7 +43,7 @@ void ComponentAIChasePlayer::FillPropertiesWindow(bool clear)
 
     const char* desc = "not following";
     if( m_pPlayerComponentTransform )
-        desc = m_pPlayerComponentTransform->m_pGameObject->m_Name;
+        desc = m_pPlayerComponentTransform->m_pGameObject->GetName();
     g_pPanelWatch->AddPointerWithDescription( "Object following", m_pPlayerComponentTransform, desc, this, ComponentAIChasePlayer::StaticOnNewParentTransformDrop );
 }
 
@@ -76,14 +67,14 @@ cJSON* ComponentAIChasePlayer::ExportAsJSONObject()
     cJSON* component = ComponentUpdateable::ExportAsJSONObject();
 
     if( m_pPlayerComponentTransform )
-        cJSON_AddNumberToObject( component, "ChasingGOID", m_pPlayerComponentTransform->m_pGameObject->m_ID );
+        cJSON_AddNumberToObject( component, "ChasingGOID", m_pPlayerComponentTransform->m_pGameObject->GetID() );
 
     return component;
 }
 
-void ComponentAIChasePlayer::ImportFromJSONObject(cJSON* jsonobj)
+void ComponentAIChasePlayer::ImportFromJSONObject(cJSON* jsonobj, unsigned int sceneid)
 {
-    ComponentUpdateable::ImportFromJSONObject( jsonobj );
+    ComponentUpdateable::ImportFromJSONObject( jsonobj, sceneid );
 
     unsigned int chasingid = 0;
     cJSONExt_GetUnsignedInt( jsonobj, "ChasingGOID", &chasingid );

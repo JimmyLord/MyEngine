@@ -22,17 +22,6 @@ ComponentLuaScript::ComponentLuaScript()
     m_ExposedVars.AllocateObjects( MAX_EXPOSED_VARS ); // hard coded nonsense for now, max of 4 exposed vars in a script.
 }
 
-ComponentLuaScript::ComponentLuaScript(GameObject* owner)
-: ComponentUpdateable( owner )
-{
-    m_BaseType = BaseComponentType_Updateable;
-    m_Type = ComponentType_LuaScript;
-
-    m_pScriptFile = 0;
-
-    m_ExposedVars.AllocateObjects( MAX_EXPOSED_VARS ); // hard coded nonsense for now, max of 4 exposed vars in a script.
-}
-
 ComponentLuaScript::~ComponentLuaScript()
 {
     while( m_ExposedVars.Count() )
@@ -93,7 +82,7 @@ void ComponentLuaScript::FillPropertiesWindow(bool clear)
             // setup name and drag and drop of game objects.
             const char* desc = "no gameobject";
             if( pVar->pointer )
-                desc = ((GameObject*)pVar->pointer)->m_Name;
+                desc = ((GameObject*)pVar->pointer)->GetName();
             g_pPanelWatch->AddPointerWithDescription( pVar->name.c_str(), pVar->pointer, desc, this, ComponentLuaScript::StaticOnDrop, ComponentLuaScript::StaticOnValueChanged );
         }
     }
@@ -127,7 +116,7 @@ void ComponentLuaScript::OnDrop()
         m_ExposedVars[id]->pointer = pGameObject;
 
         // update the panel so new gameobject name shows up.
-        g_pPanelWatch->m_pVariables[g_DragAndDropStruct.m_ID].m_Description = pGameObject->m_Name;
+        g_pPanelWatch->m_pVariables[g_DragAndDropStruct.m_ID].m_Description = pGameObject->GetName();
     }
 }
 
@@ -163,16 +152,16 @@ cJSON* ComponentLuaScript::ExportAsJSONObject()
         }
         else if( pVar->type == ExposedVariableType_GameObject && pVar->pointer )
         {
-            cJSON_AddStringToObject( jsonvar, "Value", ((GameObject*)pVar->pointer)->m_Name );
+            cJSON_AddStringToObject( jsonvar, "Value", ((GameObject*)pVar->pointer)->GetName() );
         }
     }
 
     return component;
 }
 
-void ComponentLuaScript::ImportFromJSONObject(cJSON* jsonobj)
+void ComponentLuaScript::ImportFromJSONObject(cJSON* jsonobj, unsigned int sceneid)
 {
-    ComponentUpdateable::ImportFromJSONObject( jsonobj );
+    ComponentUpdateable::ImportFromJSONObject( jsonobj, sceneid );
 
     cJSON* scriptstringobj = cJSON_GetObjectItem( jsonobj, "Script" );
     if( scriptstringobj )
@@ -257,7 +246,7 @@ void ComponentLuaScript::LoadScript()
                     luabridge::LuaRef datatable = luabridge::newTable( m_pLuaState );
                     
                     char gameobjectname[100];
-                    sprintf_s( gameobjectname, 100, "_GameObject_%d", m_pGameObject->m_ID );
+                    sprintf_s( gameobjectname, 100, "_GameObject_%d", m_pGameObject->GetID() );
                     luabridge::setGlobal( m_pLuaState, datatable, gameobjectname );
 
                     datatable["gameobject"] = m_pGameObject;
@@ -379,7 +368,7 @@ void ComponentLuaScript::ProgramVariables(luabridge::LuaRef LuaObject, bool upda
 {
     // set "this" to the data table storing this gameobjects script data "_GameObject_<ID>"
     char gameobjectname[100];
-    sprintf_s( gameobjectname, 100, "_GameObject_%d", m_pGameObject->m_ID );
+    sprintf_s( gameobjectname, 100, "_GameObject_%d", m_pGameObject->GetID() );
     luabridge::LuaRef datatable = luabridge::getGlobal( m_pLuaState, gameobjectname );
     luabridge::setGlobal( m_pLuaState, datatable, "this" );
 

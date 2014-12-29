@@ -138,5 +138,5 @@ void GameMainFrame::LoadScene()
         m_CurrentSceneName[i] = wxpath[i];
     m_CurrentSceneName[len] = 0;
 
-    ((GameEntityComponentTest*)g_pGameCore)->LoadScene( m_CurrentSceneName );
+    ((GameEntityComponentTest*)g_pGameCore)->LoadScene( m_CurrentSceneName, 1 );
 }

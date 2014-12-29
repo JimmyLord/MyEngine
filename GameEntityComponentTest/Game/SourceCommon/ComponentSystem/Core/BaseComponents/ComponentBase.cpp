@@ -18,17 +18,9 @@
 #include "GameCommonHeader.h"
 
 ComponentBase::ComponentBase()
-: m_BaseType( BaseComponentType_None )
+: m_SceneIDLoadedFrom( 0 )
+, m_BaseType( BaseComponentType_None )
 , m_pGameObject( 0 )
-, m_Type(-1)
-, m_ID(0)
-, m_Enabled( true )
-{
-}
-
-ComponentBase::ComponentBase(GameObject* owner)
-: m_BaseType( BaseComponentType_None )
-, m_pGameObject( owner )
 , m_Type(-1)
 , m_ID(0)
 , m_Enabled( true )
@@ -103,15 +95,16 @@ cJSON* ComponentBase::ExportAsJSONObject()
     }
 
     if( m_pGameObject )
-        cJSON_AddNumberToObject( component, "GOID", m_pGameObject->m_ID );
+        cJSON_AddNumberToObject( component, "GOID", m_pGameObject->GetID() );
 
     cJSON_AddNumberToObject( component, "ID", m_ID );
 
     return component;
 }
 
-void ComponentBase::ImportFromJSONObject(cJSON* jsonobj)
+void ComponentBase::ImportFromJSONObject(cJSON* jsonobj, unsigned int sceneid)
 {
+    cJSONExt_GetUnsignedInt( jsonobj, "ID", &m_ID );
 }
 
 void ComponentBase::Reset()

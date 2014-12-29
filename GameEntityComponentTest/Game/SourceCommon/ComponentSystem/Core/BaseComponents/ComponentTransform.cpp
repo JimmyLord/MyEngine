@@ -15,12 +15,6 @@ ComponentTransform::ComponentTransform()
     m_BaseType = BaseComponentType_Transform;
 }
 
-ComponentTransform::ComponentTransform(GameObject* owner)
-: ComponentBase( owner )
-{
-    m_BaseType = BaseComponentType_Transform;
-}
-
 ComponentTransform::~ComponentTransform()
 {
 }
@@ -74,7 +68,7 @@ void ComponentTransform::FillPropertiesWindow(bool clear)
 
     const char* desc = "no parent";
     if( m_pParentTransform )
-        desc = m_pParentTransform->m_pGameObject->m_Name;
+        desc = m_pParentTransform->m_pGameObject->GetName();
     g_pPanelWatch->AddPointerWithDescription( "Parent transform", m_pParentTransform, desc, this, ComponentTransform::StaticOnNewParentTransformDrop );
 }
 
@@ -113,9 +107,9 @@ cJSON* ComponentTransform::ExportAsJSONObject()
     return component;
 }
 
-void ComponentTransform::ImportFromJSONObject(cJSON* jsonobj)
+void ComponentTransform::ImportFromJSONObject(cJSON* jsonobj, unsigned int sceneid)
 {
-    ComponentBase::ImportFromJSONObject( jsonobj );
+    ComponentBase::ImportFromJSONObject( jsonobj, sceneid );
 
     unsigned int parentid = 0;
     cJSONExt_GetUnsignedInt( jsonobj, "ParentGOID", &parentid );

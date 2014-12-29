@@ -25,13 +25,12 @@ protected:
 
 public:
     ComponentTransform();
-    ComponentTransform(GameObject* owner);
     virtual ~ComponentTransform();
 
     static void LuaRegister(lua_State* luastate);
 
     virtual cJSON* ExportAsJSONObject();
-    virtual void ImportFromJSONObject(cJSON* jsonobj);
+    virtual void ImportFromJSONObject(cJSON* jsonobj, unsigned int sceneid);
 
     virtual void Reset();
     virtual void CopyFromSameType_Dangerous(ComponentBase* pObject) { *this = (ComponentTransform&)*pObject; }

@@ -23,12 +23,6 @@ ComponentData::ComponentData()
     m_BaseType = BaseComponentType_Data;
 }
 
-ComponentData::ComponentData(GameObject* owner)
-: ComponentBase( owner )
-{
-    m_BaseType = BaseComponentType_Data;
-}
-
 ComponentData::~ComponentData()
 {
 }

@@ -27,7 +27,6 @@ public:
 
 public:
     ComponentUpdateable();
-    ComponentUpdateable(GameObject* owner);
     virtual ~ComponentUpdateable();
 
     virtual void Reset();

@@ -11,11 +11,13 @@
 
 GameObject::GameObject(bool managed)
 {
+    m_SceneID = 0;
     m_ID = 0;
     m_Name = 0;
     m_Managed = managed;
 
-    m_pComponentTransform = MyNew ComponentTransform( this );
+    m_pComponentTransform = MyNew ComponentTransform();
+    m_pComponentTransform->m_pGameObject = this;
     m_pComponentTransform->Reset();
 
     m_Components.AllocateObjects( MAX_COMPONENTS ); // hard coded nonsense for now, max of 4 components on a game object.
@@ -162,7 +164,7 @@ cJSON* GameObject::ExportAsJSONObject()
     return gameobject;
 }
 
-void GameObject::ImportFromJSONObject(cJSON* jsonobj)
+void GameObject::ImportFromJSONObject(cJSON* jsonobj, unsigned int sceneid)
 {
     cJSONExt_GetUnsignedInt( jsonobj, "ID", &m_ID );
 
@@ -171,6 +173,17 @@ void GameObject::ImportFromJSONObject(cJSON* jsonobj)
     char* namebuffer = MyNew char[len+1];
     cJSONExt_GetString( jsonobj, "Name", namebuffer, len+1 );
     SetName( namebuffer );
+    SetSceneID( sceneid );
+}
+
+void GameObject::SetSceneID(unsigned int sceneid)
+{
+    m_SceneID = sceneid;
+}
+
+void GameObject::SetID(unsigned int id)
+{
+    m_ID = id;
 }
 
 void GameObject::SetName(const char* name)
@@ -199,7 +212,7 @@ ComponentBase* GameObject::AddNewComponent(int componenttype, ComponentSystemMan
     {
         pComponentSystemManager->AddComponent( pComponent );
     }
-    pComponent->m_ID = pComponentSystemManager->m_NextComponentID;
+    pComponent->SetID( pComponentSystemManager->m_NextComponentID );
     pComponentSystemManager->m_NextComponentID++;
 
     AddExistingComponent( pComponent );

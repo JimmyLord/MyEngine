@@ -26,15 +26,6 @@ ComponentCollisionObject::ComponentCollisionObject()
     m_pBody = 0;
 }
 
-ComponentCollisionObject::ComponentCollisionObject(GameObject* owner)
-: ComponentUpdateable( owner )
-{
-    m_BaseType = BaseComponentType_Updateable;
-    m_Type = ComponentType_CollisionObject;
-
-    m_pBody = 0;
-}
-
 ComponentCollisionObject::~ComponentCollisionObject()
 {
     if( m_pBody )
@@ -75,9 +66,9 @@ cJSON* ComponentCollisionObject::ExportAsJSONObject()
     return component;
 }
 
-void ComponentCollisionObject::ImportFromJSONObject(cJSON* jsonobj)
+void ComponentCollisionObject::ImportFromJSONObject(cJSON* jsonobj, unsigned int sceneid)
 {
-    ComponentUpdateable::ImportFromJSONObject( jsonobj );
+    ComponentUpdateable::ImportFromJSONObject( jsonobj, sceneid );
 
     cJSONExt_GetFloat( jsonobj, "Mass", &m_Mass );
 }

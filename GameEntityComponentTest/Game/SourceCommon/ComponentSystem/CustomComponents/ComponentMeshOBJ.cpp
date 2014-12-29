@@ -25,14 +25,6 @@ ComponentMeshOBJ::ComponentMeshOBJ()
     m_pOBJFile = 0;
 }
 
-ComponentMeshOBJ::ComponentMeshOBJ(GameObject* owner)
-: ComponentMesh( owner )
-{
-    m_BaseType = BaseComponentType_Renderable;
-
-    m_pOBJFile = 0;
-}
-
 ComponentMeshOBJ::~ComponentMeshOBJ()
 {
 }
@@ -96,9 +88,9 @@ cJSON* ComponentMeshOBJ::ExportAsJSONObject()
     return component;
 }
 
-void ComponentMeshOBJ::ImportFromJSONObject(cJSON* jsonobj)
+void ComponentMeshOBJ::ImportFromJSONObject(cJSON* jsonobj, unsigned int sceneid)
 {
-    ComponentMesh::ImportFromJSONObject( jsonobj );
+    ComponentMesh::ImportFromJSONObject( jsonobj, sceneid );
 
     cJSON* objstringobj = cJSON_GetObjectItem( jsonobj, "OBJ" );
     if( objstringobj )

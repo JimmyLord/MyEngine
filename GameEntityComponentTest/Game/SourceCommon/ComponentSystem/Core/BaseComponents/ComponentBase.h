@@ -34,22 +34,23 @@ class ComponentBase : public CPPListNode
 , public wxEvtHandler
 #endif
 {
+protected:
+    unsigned int m_SceneIDLoadedFrom; // 0 for runtime generated.
+    unsigned int m_ID;
+
 public:
     BaseComponentTypes m_BaseType;
     int m_Type;
     GameObject* m_pGameObject;
 
-    unsigned int m_ID;
-
     bool m_Enabled;
 
 public:
     ComponentBase();
-    ComponentBase(GameObject* owner);
     virtual ~ComponentBase();
 
     virtual cJSON* ExportAsJSONObject();
-    virtual void ImportFromJSONObject(cJSON* jsonobj);
+    virtual void ImportFromJSONObject(cJSON* jsonobj, unsigned int sceneid);
 
     virtual void Reset();
     virtual void CopyFromSameType_Dangerous(ComponentBase* pObject) { *this = (ComponentBase&)*pObject; }
@@ -57,6 +58,12 @@ public:
 
     virtual void OnPlay() {}
     virtual void OnStop() {}
+
+    void SetSceneID(unsigned int sceneid) { m_SceneIDLoadedFrom = sceneid; }
+    void SetID(unsigned int id) { m_ID = id; }
+
+    unsigned int GetSceneID() { return m_SceneIDLoadedFrom; }
+    unsigned int GetID() { return m_ID; }
 
 public:
 #if MYFW_USING_WX

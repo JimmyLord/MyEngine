@@ -17,9 +17,12 @@ class GameObject : public CPPListNode
 {
     static const int MAX_COMPONENTS = 4; // TODO: fix this hardcodedness
 
-public:
+protected:
+    unsigned int m_SceneID; // 0 for runtime generated.
     unsigned int m_ID;
     const char* m_Name; // this is a pointer to the string passed in, not a copy.
+
+public:
     bool m_Managed;
 
     ComponentTransform* m_pComponentTransform;
@@ -32,9 +35,15 @@ public:
     static void LuaRegister(lua_State* luastate);
 
     cJSON* ExportAsJSONObject();
-    void ImportFromJSONObject(cJSON* jsonobj);
+    void ImportFromJSONObject(cJSON* jsonobj, unsigned int sceneid);
 
+    void SetSceneID(unsigned int sceneid);
+    void SetID(unsigned int id);
     void SetName(const char* name);
+
+    unsigned int GetSceneID() { return m_SceneID; }
+    unsigned int GetID() { return m_ID; }
+    const char* GetName() { return m_Name; }
 
     ComponentBase* AddNewComponent(int componenttype, ComponentSystemManager* pComponentSystemManager = g_pComponentSystemManager);
     ComponentBase* AddExistingComponent(ComponentBase* pComponent);

@@ -27,11 +27,10 @@ public:
 
 public:
     ComponentMeshOBJ();
-    ComponentMeshOBJ(GameObject* owner);
     virtual ~ComponentMeshOBJ();
 
     virtual cJSON* ExportAsJSONObject();
-    virtual void ImportFromJSONObject(cJSON* jsonobj);
+    virtual void ImportFromJSONObject(cJSON* jsonobj, unsigned int sceneid);
 
     virtual void Reset();
     virtual void CopyFromSameType_Dangerous(ComponentBase* pObject) { *this = (ComponentMeshOBJ&)*pObject; }

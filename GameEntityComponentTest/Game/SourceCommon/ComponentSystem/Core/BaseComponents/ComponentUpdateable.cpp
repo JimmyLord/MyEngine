@@ -20,13 +20,7 @@
 ComponentUpdateable::ComponentUpdateable()
 : ComponentBase()
 {
-    m_BaseType = BaseComponentType_InputHandler;
-}
-
-ComponentUpdateable::ComponentUpdateable(GameObject* owner)
-: ComponentBase( owner )
-{
-    m_BaseType = BaseComponentType_InputHandler;
+    m_BaseType = BaseComponentType_Updateable;
 }
 
 ComponentUpdateable::~ComponentUpdateable()

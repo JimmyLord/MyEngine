@@ -131,7 +131,7 @@ public:
     void HandleEditorInput(int keydown, int keycode, int action, int id, float x, float y, float pressure);
 
     void SaveScene(const char* fullpath);
-    void LoadScene(const char* fullpath);
+    void LoadScene(const char* fullpath, unsigned int sceneid);
 
     GameObject* GetObjectAtPixel(unsigned int x, unsigned int y);
 };

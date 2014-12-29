@@ -27,7 +27,6 @@ public:
 
 public:
     ComponentInputHandler();
-    ComponentInputHandler(GameObject* owner);
     virtual ~ComponentInputHandler();
 
     virtual void Reset();

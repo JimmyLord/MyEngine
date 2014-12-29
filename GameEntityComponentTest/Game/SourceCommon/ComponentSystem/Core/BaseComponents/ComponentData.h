@@ -24,7 +24,6 @@ public:
 
 public:
     ComponentData();
-    ComponentData(GameObject* owner);
     virtual ~ComponentData();
 
     //virtual void Reset();
