@@ -177,11 +177,31 @@ void ComponentLuaScript::ImportFromJSONObject(cJSON* jsonobj, unsigned int scene
     {
         cJSON* jsonvar = cJSON_GetArrayItem( exposedvararray, i );
 
-        ExposedVariableDesc* pVar = MyNew ExposedVariableDesc();
-
         cJSON* obj = cJSON_GetObjectItem( jsonvar, "Name" );
-        if( obj )
-            pVar->name = obj->valuestring;
+        assert( obj );
+        if( obj == 0 )
+            continue;
+
+        // by name, check if the variable is already in our list
+        ExposedVariableDesc* pVar;
+        for( unsigned int i=0; i<m_ExposedVars.Count(); i++ )
+        {
+            assert( m_ExposedVars[i] );
+            if( m_ExposedVars[i]->name == obj->valuestring )
+            {
+                pVar = m_ExposedVars[i];
+                break;
+            }
+        }
+
+        // if not, create and add it.
+        if( pVar == 0 )
+        {
+            pVar = MyNew ExposedVariableDesc();
+            m_ExposedVars.Add( pVar );
+        }
+
+        pVar->name = obj->valuestring;
         cJSONExt_GetInt( jsonvar, "Type", (int*)&pVar->type );
 
         if( pVar->type == ExposedVariableType_Float )
@@ -194,8 +214,6 @@ void ComponentLuaScript::ImportFromJSONObject(cJSON* jsonobj, unsigned int scene
             if( obj )
                 pVar->pointer = g_pComponentSystemManager->FindGameObjectByName( obj->valuestring );
         }
-
-        m_ExposedVars.Add( pVar );
     }
 }
 
