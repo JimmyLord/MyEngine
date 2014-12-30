@@ -20,7 +20,7 @@ class GameObject : public CPPListNode
 protected:
     unsigned int m_SceneID; // 0 for runtime generated.
     unsigned int m_ID;
-    const char* m_Name; // this is a pointer to the string passed in, not a copy.
+    char* m_Name; // this a copy of the string passed in.
 
 public:
     bool m_Managed;

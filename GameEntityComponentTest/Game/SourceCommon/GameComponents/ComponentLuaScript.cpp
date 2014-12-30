@@ -233,11 +233,11 @@ ComponentLuaScript& ComponentLuaScript::operator=(const ComponentLuaScript& othe
 
 void ComponentLuaScript::SetScriptFile(MyFileObject* script)
 {
+    if( script )
+        script->AddRef();
+
     SAFE_RELEASE( m_pScriptFile );
     m_pScriptFile = script;
-
-    if( script )
-        m_pScriptFile->AddRef();
 }
 
 void ComponentLuaScript::LoadScript()

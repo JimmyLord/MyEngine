@@ -46,6 +46,8 @@ GameObject::~GameObject()
 
     SAFE_DELETE( m_pComponentTransform );
 
+    SAFE_DELETE_ARRAY( m_Name );
+
     if( m_Managed == false )
     {
         while( m_Components.Count() )
@@ -168,11 +170,11 @@ void GameObject::ImportFromJSONObject(cJSON* jsonobj, unsigned int sceneid)
 {
     cJSONExt_GetUnsignedInt( jsonobj, "ID", &m_ID );
 
-    size_t len = cJSONExt_GetStringLength( jsonobj, "Name" );
-    // TODO_GAME: nothing should be freeing this, but it seems it does get freed.(g_pPanelObjectList?)
-    char* namebuffer = MyNew char[len+1];
-    cJSONExt_GetString( jsonobj, "Name", namebuffer, len+1 );
-    SetName( namebuffer );
+    cJSON* obj = cJSON_GetObjectItem( jsonobj, "Name" );
+    if( obj )
+    {
+        SetName( obj->valuestring );
+    }
     SetSceneID( sceneid );
 }
 
@@ -188,7 +190,20 @@ void GameObject::SetID(unsigned int id)
 
 void GameObject::SetName(const char* name)
 {
-    m_Name = name;
+    assert( name );
+
+    if( m_Name )
+    {
+        if( strcmp( m_Name, name ) == 0 ) // name hasn't changed.
+            return;
+
+        delete[] m_Name;
+    }
+    
+    size_t len = strlen( name );
+    
+    m_Name = MyNew char[len+1];
+    strcpy_s( m_Name, len+1, name );
 
 #if MYFW_USING_WX
     if( g_pPanelObjectList )
