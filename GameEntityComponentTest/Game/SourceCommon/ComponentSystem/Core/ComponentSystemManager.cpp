@@ -31,6 +31,9 @@ ComponentSystemManager::~ComponentSystemManager()
     while( m_GameObjects.GetHead() )
         delete m_GameObjects.RemHead();
 
+    while( m_Files.GetHead() )
+        delete m_Files.RemHead();
+
     while( m_ComponentsData.GetHead() )
         delete m_ComponentsData.RemHead();
 
@@ -95,13 +98,32 @@ void ComponentSystemManager::OnPopupClick(wxEvent &evt)
 char* ComponentSystemManager::SaveSceneToJSON()
 {
     cJSON* root = cJSON_CreateObject();
+    cJSON* filearray = cJSON_CreateArray();
     cJSON* gameobjectarray = cJSON_CreateArray();
     cJSON* transformarray = cJSON_CreateArray();
     cJSON* componentarray = cJSON_CreateArray();
 
+    cJSON_AddItemToObject( root, "Files", filearray );
     cJSON_AddItemToObject( root, "GameObjects", gameobjectarray );
     cJSON_AddItemToObject( root, "Transforms", transformarray );
     cJSON_AddItemToObject( root, "Components", componentarray );
+
+    // add the files used.
+    {
+        MyFileObject* pFile = g_pFileManager->GetFirstFileLoaded();
+        while( pFile != 0 )
+        {
+            cJSON_AddItemToArray( filearray, cJSON_CreateString( pFile->m_FullPath ) );
+            pFile = (MyFileObject*)pFile->GetNext();
+        }
+
+        pFile = g_pFileManager->GetFirstFileStillLoading();
+        while( pFile != 0 )
+        {
+            cJSON_AddItemToArray( filearray, cJSON_CreateString( pFile->m_FullPath ) );
+            pFile = (MyFileObject*)pFile->GetNext();
+        }
+    }
 
     // add the game objects and their transform components.
     {
@@ -162,6 +184,19 @@ char* ComponentSystemManager::SaveSceneToJSON()
     return savestring;
 }
 
+bool ComponentSystemManager::IsFileUsedByScene(const char* fullpath, unsigned int sceneid)
+{
+    for( CPPListNode* pNode = m_Files.GetHead(); pNode; pNode = pNode->GetNext() )
+    {
+        FileInfo* pFile = (FileInfo*)pNode;
+        
+        if( strcmp( pFile->m_pFile->m_FullPath, fullpath ) == 0 && pFile->m_SceneID == sceneid )
+            return true;
+    }
+
+    return false;
+}
+
 void ComponentSystemManager::LoadSceneFromJSON(const char* jsonstr, unsigned int sceneid)
 {
     cJSON* root = cJSON_Parse( jsonstr );
@@ -169,9 +204,28 @@ void ComponentSystemManager::LoadSceneFromJSON(const char* jsonstr, unsigned int
     if( root == 0 )
         return;
 
+    cJSON* filearray = cJSON_GetObjectItem( root, "Files" );
     cJSON* gameobjectarray = cJSON_GetObjectItem( root, "GameObjects" );
     cJSON* transformarray = cJSON_GetObjectItem( root, "Transforms" );
     cJSON* componentarray = cJSON_GetObjectItem( root, "Components" );
+
+    // request all files used by scene.
+    for( int i=0; i<cJSON_GetArraySize( filearray ); i++ )
+    {
+        cJSON* fileobj = cJSON_GetArrayItem( filearray, i );
+
+        if( IsFileUsedByScene( fileobj->valuestring, sceneid ) == false )
+        {
+            // every scene loaded will add ref's to the file.
+            MyFileObject* pFile = g_pFileManager->RequestFile( fileobj->valuestring );
+
+            // store pFile so we can free it afterwards.
+            FileInfo* pFileInfo = MyNew FileInfo();
+            pFileInfo->m_pFile = pFile;
+            pFileInfo->m_SceneID = sceneid;
+            m_Files.AddTail( pFileInfo );
+        }
+    }
 
     // create/init all the game objects
     for( int i=0; i<cJSON_GetArraySize( gameobjectarray ); i++ )
@@ -277,10 +331,20 @@ void ComponentSystemManager::SyncAllRigidBodiesToObjectTransforms()
     }
 }
 
-void ComponentSystemManager::Clear(bool clearunmanagedcomponents, unsigned int sceneidtoclear)
+void ComponentSystemManager::UnloadScene(bool clearunmanagedcomponents, unsigned int sceneidtoclear)
 {
     m_NextGameObjectID = 1;
     m_NextComponentID = 1;
+
+    // release any file ref's added by this scene.
+    for( CPPListNode* pNode = m_Files.GetHead(); pNode;  )
+    {
+        FileInfo* pFile = (FileInfo*)pNode;
+        pNode = pNode->GetNext();
+
+        if( pFile->m_SceneID == sceneidtoclear || pFile->m_SceneID == UINT_MAX )
+            delete pFile;
+    }
 
     // Remove all components, except ones attached to unmanaged game objects(if wanted)
     {

@@ -14,6 +14,7 @@ class ComponentSystemManager;
 class GameObject;
 class ComponentBase;
 class ComponentCamera;
+class FileInfo; // at bottom of this file.
 
 extern ComponentSystemManager* g_pComponentSystemManager;
 
@@ -26,6 +27,9 @@ public:
     ComponentTypeManager* m_pComponentTypeManager;
     CPPListHead m_GameObjects;
 
+    // List of files used including a scene id
+    CPPListHead m_Files;
+
     // a component can only exist in one of these lists ATM
     CPPListHead m_ComponentsCamera;
     CPPListHead m_ComponentsInputHandler;
@@ -35,6 +39,9 @@ public:
 
     unsigned int m_NextGameObjectID;
     unsigned int m_NextComponentID;
+
+protected:
+    bool IsFileUsedByScene(const char* fullpath, unsigned int sceneid);
 
 public:
     ComponentSystemManager(ComponentTypeManager* typemanager);
@@ -47,7 +54,7 @@ public:
 
     void SyncAllRigidBodiesToObjectTransforms();
 
-    void Clear(bool clearunmanagedcomponents = true, unsigned int sceneidtoclear = UINT_MAX);
+    void UnloadScene(bool clearunmanagedcomponents = true, unsigned int sceneidtoclear = UINT_MAX);
 
     GameObject* CreateGameObject(bool manageobject = true);
     void DeleteGameObject(GameObject* pObject);
@@ -82,6 +89,24 @@ public:
     void OnRightClick();
     void OnPopupClick(wxEvent &evt); // used as callback for wxEvtHandler, can't be virtual(will crash, haven't looked into it).
 #endif //MYFW_USING_WX
+};
+
+class FileInfo : public CPPListNode
+{
+public:
+    FileInfo()
+    {
+        m_pFile = 0;
+        m_SceneID = 0;
+    }
+
+    virtual ~FileInfo()
+    {
+        SAFE_RELEASE( m_pFile );
+    }
+
+    MyFileObject* m_pFile;
+    unsigned int m_SceneID;
 };
 
 #endif //__ComponentSystemManager_H__

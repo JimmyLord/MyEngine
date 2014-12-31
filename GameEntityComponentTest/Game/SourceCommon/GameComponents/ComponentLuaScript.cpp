@@ -173,7 +173,8 @@ void ComponentLuaScript::ImportFromJSONObject(cJSON* jsonobj, unsigned int scene
 
     // load the array of exposed variables
     cJSON* exposedvararray = cJSON_GetObjectItem( jsonobj, "ExposedVars" );
-    for( int i=0; i<cJSON_GetArraySize( exposedvararray ); i++ )
+    int numvars = cJSON_GetArraySize( exposedvararray );
+    for( int i=0; i<numvars; i++ )
     {
         cJSON* jsonvar = cJSON_GetArrayItem( exposedvararray, i );
 
@@ -183,7 +184,7 @@ void ComponentLuaScript::ImportFromJSONObject(cJSON* jsonobj, unsigned int scene
             continue;
 
         // by name, check if the variable is already in our list
-        ExposedVariableDesc* pVar;
+        ExposedVariableDesc* pVar = 0;
         for( unsigned int i=0; i<m_ExposedVars.Count(); i++ )
         {
             assert( m_ExposedVars[i] );

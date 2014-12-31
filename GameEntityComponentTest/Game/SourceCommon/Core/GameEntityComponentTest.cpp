@@ -96,29 +96,29 @@ void GameEntityComponentTest::OneTimeInit()
     GameObject* pPlayer = 0;
     GameObject* pGameObject;
     ComponentCamera* pComponentCamera;
-    ComponentSprite* pComponentSprite;
+    //ComponentSprite* pComponentSprite;
 #if MYFW_USING_WX
     ComponentMesh* pComponentMesh;
 #endif
-    ComponentMeshOBJ* pComponentMeshOBJ;
+    //ComponentMeshOBJ* pComponentMeshOBJ;
     //ComponentAIChasePlayer* pComponentAIChasePlayer;
-    ComponentCollisionObject* pComponentCollisionObject;
-    ComponentLuaScript* pComponentLuaScript;
+    //ComponentCollisionObject* pComponentCollisionObject;
+    //ComponentLuaScript* pComponentLuaScript;
 
-    m_pOBJTestFiles[0] = g_pFileManager->RequestFile( "Data/OBJs/cube.obj" );
-    //m_pOBJTestFiles[1] = g_pFileManager->RequestFile( "Data/OBJs/Teapot.obj" );
-    //m_pOBJTestFiles[2] = g_pFileManager->RequestFile( "Data/OBJs/humanoid_tri.obj" );
-    //m_pOBJTestFiles[3] = g_pFileManager->RequestFile( "Data/OBJs/teapot2.obj" );
+    //m_pOBJTestFiles[0] = g_pFileManager->RequestFile( "Data/OBJs/cube.obj" );
+    ////m_pOBJTestFiles[1] = g_pFileManager->RequestFile( "Data/OBJs/Teapot.obj" );
+    ////m_pOBJTestFiles[2] = g_pFileManager->RequestFile( "Data/OBJs/humanoid_tri.obj" );
+    ////m_pOBJTestFiles[3] = g_pFileManager->RequestFile( "Data/OBJs/teapot2.obj" );
 
-    //m_pTextures[0] = g_pTextureManager->CreateTexture( "Data/Textures/test1.png", GL_NEAREST, GL_NEAREST, GL_REPEAT, GL_REPEAT );
-    //m_pTextures[1] = g_pTextureManager->CreateTexture( "Data/Textures/test2.png", GL_NEAREST, GL_NEAREST, GL_REPEAT, GL_REPEAT );
-    //m_pTextures[2] = g_pTextureManager->CreateTexture( "Data/Textures/test3.png", GL_NEAREST, GL_NEAREST, GL_REPEAT, GL_REPEAT );
-    //m_pTextures[3] = g_pTextureManager->CreateTexture( "Data/Textures/test4.png", GL_NEAREST, GL_NEAREST, GL_REPEAT, GL_REPEAT );
+    ////m_pTextures[0] = g_pTextureManager->CreateTexture( "Data/Textures/test1.png", GL_NEAREST, GL_NEAREST, GL_REPEAT, GL_REPEAT );
+    ////m_pTextures[1] = g_pTextureManager->CreateTexture( "Data/Textures/test2.png", GL_NEAREST, GL_NEAREST, GL_REPEAT, GL_REPEAT );
+    ////m_pTextures[2] = g_pTextureManager->CreateTexture( "Data/Textures/test3.png", GL_NEAREST, GL_NEAREST, GL_REPEAT, GL_REPEAT );
+    ////m_pTextures[3] = g_pTextureManager->CreateTexture( "Data/Textures/test4.png", GL_NEAREST, GL_NEAREST, GL_REPEAT, GL_REPEAT );
 
-    m_pScriptFiles[0] = g_pFileManager->RequestFile( "Data/Scripts/Player.lua" );
-    m_pScriptFiles[1] = g_pFileManager->RequestFile( "Data/Scripts/Enemy.lua" );
-    //m_pScriptFiles[2] = g_pFileManager->RequestFile( "Data/Scripts/TestScript.lua" );
-    //m_pScriptFiles[3] = g_pFileManager->RequestFile( "Data/Scripts/TestScript.lua" );
+    //m_pScriptFiles[0] = g_pFileManager->RequestFile( "Data/Scripts/Player.lua" );
+    //m_pScriptFiles[1] = g_pFileManager->RequestFile( "Data/Scripts/Enemy.lua" );
+    ////m_pScriptFiles[2] = g_pFileManager->RequestFile( "Data/Scripts/TestScript.lua" );
+    ////m_pScriptFiles[3] = g_pFileManager->RequestFile( "Data/Scripts/TestScript.lua" );
 
     m_EditorState.m_pMousePickerFBO = g_pTextureManager->CreateFBO( 0, 0, GL_NEAREST, GL_NEAREST, false, false, false );
 
@@ -280,7 +280,6 @@ void GameEntityComponentTest::OneTimeInit()
 
         m_EditorState.m_pEditorCamera = pGameObject;
     }
-    
 #endif
 
     // create a 2D camera, renders after 3d, for hud.
@@ -296,100 +295,100 @@ void GameEntityComponentTest::OneTimeInit()
         pComponentCamera->m_LayersToRender = Layer_HUD;
     }
 
-    // create a player game object and attach a mesh(sprite) component to it.
-    {
-        pGameObject = m_pComponentSystemManager->CreateGameObject();
-        pGameObject->SetSceneID( 1 );
-        pGameObject->SetName( "Player Object" );
+    //// create a player game object and attach a mesh(sprite) component to it.
+    //{
+    //    pGameObject = m_pComponentSystemManager->CreateGameObject();
+    //    pGameObject->SetSceneID( 1 );
+    //    pGameObject->SetName( "Player Object" );
 
-        pComponentSprite = (ComponentSprite*)pGameObject->AddNewComponent( ComponentType_Sprite );
-        if( pComponentSprite )
-        {
-            pComponentSprite->SetSceneID( 1 );
-            pComponentSprite->SetShader( m_pShader_TintColor );
-            pComponentSprite->m_Size.Set( 50.0f, 50.0f );
-            pComponentSprite->m_Tint.Set( 255, 0, 0, 255 );
-            pComponentSprite->m_LayersThisExistsOn = Layer_HUD;
-        }
-        pComponentLuaScript = (ComponentLuaScript*)pGameObject->AddNewComponent( ComponentType_LuaScript );
-        if( pComponentLuaScript )
-        {
-            pComponentLuaScript->SetSceneID( 1 );
-            pComponentLuaScript->SetScriptFile( m_pScriptFiles[0] );
-        }
-        //pGameObject->AddNewComponent( ComponentType_InputTrackMousePos ); // replace with lua script
-        pGameObject->m_pComponentTransform->SetPosition( Vector3( 0, 0, 0 ) );//m_GameWidth/2, m_GameHeight/2, 0 ) );
+    //    pComponentSprite = (ComponentSprite*)pGameObject->AddNewComponent( ComponentType_Sprite );
+    //    if( pComponentSprite )
+    //    {
+    //        pComponentSprite->SetSceneID( 1 );
+    //        pComponentSprite->SetShader( m_pShader_TintColor );
+    //        pComponentSprite->m_Size.Set( 50.0f, 50.0f );
+    //        pComponentSprite->m_Tint.Set( 255, 0, 0, 255 );
+    //        pComponentSprite->m_LayersThisExistsOn = Layer_HUD;
+    //    }
+    //    pComponentLuaScript = (ComponentLuaScript*)pGameObject->AddNewComponent( ComponentType_LuaScript );
+    //    if( pComponentLuaScript )
+    //    {
+    //        pComponentLuaScript->SetSceneID( 1 );
+    //        pComponentLuaScript->SetScriptFile( m_pScriptFiles[0] );
+    //    }
+    //    //pGameObject->AddNewComponent( ComponentType_InputTrackMousePos ); // replace with lua script
+    //    pGameObject->m_pComponentTransform->SetPosition( Vector3( 0, 0, 0 ) );//m_GameWidth/2, m_GameHeight/2, 0 ) );
 
-        pPlayer = pGameObject;
-    }
+    //    pPlayer = pGameObject;
+    //}
 
-    // create an enemy game object and attach a mesh(sprite) and AI component to it.
-    {
-        pGameObject = m_pComponentSystemManager->CreateGameObject();
-        pGameObject->SetSceneID( 1 );
-        pGameObject->SetName( "Second Object" );
+    //// create an enemy game object and attach a mesh(sprite) and AI component to it.
+    //{
+    //    pGameObject = m_pComponentSystemManager->CreateGameObject();
+    //    pGameObject->SetSceneID( 1 );
+    //    pGameObject->SetName( "Second Object" );
 
-        pComponentSprite = (ComponentSprite*)pGameObject->AddNewComponent( ComponentType_Sprite );
-        if( pComponentSprite )
-        {
-            pComponentSprite->SetSceneID( 1 );
-            pComponentSprite->SetShader( m_pShader_TintColor );
-            pComponentSprite->m_Size.Set( 50.0f, 50.0f );
-            pComponentSprite->m_Tint.Set( 0, 255, 0, 255 );
-            pComponentSprite->m_LayersThisExistsOn = Layer_HUD;
-        }
-        pComponentLuaScript = (ComponentLuaScript*)pGameObject->AddNewComponent( ComponentType_LuaScript );
-        if( pComponentLuaScript )
-        {
-            pComponentLuaScript->SetSceneID( 1 );
-            pComponentLuaScript->SetScriptFile( m_pScriptFiles[1] );
-        }
-        //pComponentAIChasePlayer = (ComponentAIChasePlayer*)pGameObject->AddNewComponent( ComponentType_AIChasePlayer );
-        //if( pComponentAIChasePlayer )
-        //{
-        //    pComponentAIChasePlayer->SetSceneID( 1 );
-        //    pComponentAIChasePlayer->m_pPlayerComponentTransform = pPlayer->m_pComponentTransform;
-        //}
-    }
+    //    pComponentSprite = (ComponentSprite*)pGameObject->AddNewComponent( ComponentType_Sprite );
+    //    if( pComponentSprite )
+    //    {
+    //        pComponentSprite->SetSceneID( 1 );
+    //        pComponentSprite->SetShader( m_pShader_TintColor );
+    //        pComponentSprite->m_Size.Set( 50.0f, 50.0f );
+    //        pComponentSprite->m_Tint.Set( 0, 255, 0, 255 );
+    //        pComponentSprite->m_LayersThisExistsOn = Layer_HUD;
+    //    }
+    //    pComponentLuaScript = (ComponentLuaScript*)pGameObject->AddNewComponent( ComponentType_LuaScript );
+    //    if( pComponentLuaScript )
+    //    {
+    //        pComponentLuaScript->SetSceneID( 1 );
+    //        pComponentLuaScript->SetScriptFile( m_pScriptFiles[1] );
+    //    }
+    //    //pComponentAIChasePlayer = (ComponentAIChasePlayer*)pGameObject->AddNewComponent( ComponentType_AIChasePlayer );
+    //    //if( pComponentAIChasePlayer )
+    //    //{
+    //    //    pComponentAIChasePlayer->SetSceneID( 1 );
+    //    //    pComponentAIChasePlayer->m_pPlayerComponentTransform = pPlayer->m_pComponentTransform;
+    //    //}
+    //}
 
-    // create a cube in the 3d scene.
-    {
-        pGameObject = m_pComponentSystemManager->CreateGameObject();
-        pGameObject->SetSceneID( 1 );
-        pGameObject->SetName( "Cube" );
+    //// create a cube in the 3d scene.
+    //{
+    //    pGameObject = m_pComponentSystemManager->CreateGameObject();
+    //    pGameObject->SetSceneID( 1 );
+    //    pGameObject->SetName( "Cube" );
 
-        pComponentMeshOBJ = (ComponentMeshOBJ*)pGameObject->AddNewComponent( ComponentType_MeshOBJ );
-        if( pComponentMeshOBJ )
-        {
-            pComponentMeshOBJ->SetSceneID( 1 );
-            pComponentMeshOBJ->SetShader( m_pShader_TestNormals );
-            pComponentMeshOBJ->m_pOBJFile = m_pOBJTestFiles[0];
-            pComponentMeshOBJ->m_LayersThisExistsOn = Layer_MainScene;
-        }
-        pComponentCollisionObject = (ComponentCollisionObject*)pGameObject->AddNewComponent( ComponentType_CollisionObject );
-        pComponentCollisionObject->SetSceneID( 1 );
-        pComponentCollisionObject->m_Mass = 1;
-    }
+    //    pComponentMeshOBJ = (ComponentMeshOBJ*)pGameObject->AddNewComponent( ComponentType_MeshOBJ );
+    //    if( pComponentMeshOBJ )
+    //    {
+    //        pComponentMeshOBJ->SetSceneID( 1 );
+    //        pComponentMeshOBJ->SetShader( m_pShader_TestNormals );
+    //        pComponentMeshOBJ->m_pOBJFile = m_pOBJTestFiles[0];
+    //        pComponentMeshOBJ->m_LayersThisExistsOn = Layer_MainScene;
+    //    }
+    //    pComponentCollisionObject = (ComponentCollisionObject*)pGameObject->AddNewComponent( ComponentType_CollisionObject );
+    //    pComponentCollisionObject->SetSceneID( 1 );
+    //    pComponentCollisionObject->m_Mass = 1;
+    //}
 
-    // create a plane in the 3d scene.
-    {
-        pGameObject = m_pComponentSystemManager->CreateGameObject();
-        pGameObject->SetSceneID( 1 );
-        pGameObject->SetName( "Plane" );
-        pGameObject->m_pComponentTransform->SetPosition( Vector3( 0, -3, 0 ) );
-        pGameObject->m_pComponentTransform->SetScale( Vector3( 10, 0.1f, 10 ) );
+    //// create a plane in the 3d scene.
+    //{
+    //    pGameObject = m_pComponentSystemManager->CreateGameObject();
+    //    pGameObject->SetSceneID( 1 );
+    //    pGameObject->SetName( "Plane" );
+    //    pGameObject->m_pComponentTransform->SetPosition( Vector3( 0, -3, 0 ) );
+    //    pGameObject->m_pComponentTransform->SetScale( Vector3( 10, 0.1f, 10 ) );
 
-        pComponentMeshOBJ = (ComponentMeshOBJ*)pGameObject->AddNewComponent( ComponentType_MeshOBJ );
-        if( pComponentMeshOBJ )
-        {
-            pComponentMeshOBJ->SetSceneID( 1 );
-            pComponentMeshOBJ->SetShader( m_pShader_TintColor );
-            pComponentMeshOBJ->m_pOBJFile = m_pOBJTestFiles[0];
-            pComponentMeshOBJ->m_LayersThisExistsOn = Layer_MainScene;
-        }
-        pComponentCollisionObject = (ComponentCollisionObject*)pGameObject->AddNewComponent( ComponentType_CollisionObject );
-        pComponentCollisionObject->SetSceneID( 1 );
-    }
+    //    pComponentMeshOBJ = (ComponentMeshOBJ*)pGameObject->AddNewComponent( ComponentType_MeshOBJ );
+    //    if( pComponentMeshOBJ )
+    //    {
+    //        pComponentMeshOBJ->SetSceneID( 1 );
+    //        pComponentMeshOBJ->SetShader( m_pShader_TintColor );
+    //        pComponentMeshOBJ->m_pOBJFile = m_pOBJTestFiles[0];
+    //        pComponentMeshOBJ->m_LayersThisExistsOn = Layer_MainScene;
+    //    }
+    //    pComponentCollisionObject = (ComponentCollisionObject*)pGameObject->AddNewComponent( ComponentType_CollisionObject );
+    //    pComponentCollisionObject->SetSceneID( 1 );
+    //}
 
     OnSurfaceChanged( (unsigned int)m_WindowStartX, (unsigned int)m_WindowStartY, (unsigned int)m_WindowWidth, (unsigned int)m_WindowHeight );
 
@@ -547,7 +546,7 @@ void GameEntityComponentTest::OnKeyDown(int keycode, int unicodechar)
         else // if press "Stop"
         {
             // Clear out the component manager of all components and gameobjects
-            g_pComponentSystemManager->Clear( false, 0 );
+            g_pComponentSystemManager->UnloadScene( false, 0 );
             LoadScene( "temp_editor_onplay.scene", 1 );
             m_EditorMode = true;
             m_EditorState.m_pSelectedGameObject = 0;
