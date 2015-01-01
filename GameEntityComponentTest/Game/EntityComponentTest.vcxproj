@@ -1160,12 +1160,13 @@
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>pthreadVC2.lib;Ws2_32.lib;SDL_mixer.lib;SDL.lib;Box2D.lib;opengl32.lib;glu32.lib;MyFramework_$(Configuration).lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(SolutionDir)Output\$(PlatformName)\MyFramework\$(Configuration);$(SolutionDir)../Framework/MyFramework/SourceWindows/SDL-1.2.15/lib/x86;$(SolutionDir)../Framework/MyFramework/SourceWindows/SDL_mixer-1.2.12/lib/x86;$(SolutionDir)../Framework/Box2D_v2.2.1/Build/vs2010/bin/Release;$(SolutionDir)../Framework/MyFramework/SourceWindows/pthreads-w32-2-9-1/lib/x86;$(wxwin)/lib/vc100_dll</AdditionalLibraryDirectories>
+      <AdditionalDependencies>pthreadVC2.lib;Ws2_32.lib;SDL_mixer.lib;SDL.lib;Box2D.lib;opengl32.lib;glu32.lib;MyFramework_$(Configuration).lib;BulletCollision_vs2010.lib;BulletDynamics_vs2010.lib;LinearMath_vs2010.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(SolutionDir)Output\$(PlatformName)\MyFramework\$(Configuration);$(SolutionDir)../Framework/MyFramework/SourceWindows/SDL-1.2.15/lib/x86;$(SolutionDir)../Framework/MyFramework/SourceWindows/SDL_mixer-1.2.12/lib/x86;$(SolutionDir)../Framework/Box2D_v2.2.1/Build/vs2010/bin/Release;$(SolutionDir)../Framework/MyFramework/SourceWindows/pthreads-w32-2-9-1/lib/x86;$(wxwin)/lib/vc100_dll;$(SolutionDir)../bullet-2.82-r2704/lib/</AdditionalLibraryDirectories>
       <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
+      <IgnoreSpecificDefaultLibraries>LIBCMT</IgnoreSpecificDefaultLibraries>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='WxRelease|NaCl64'">
