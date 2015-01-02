@@ -20,13 +20,6 @@
 #include "../../Framework/MyFramework/SourceWindows/MYFWWinMainWx.h"
 #include "GameMainFrame.h"
 
-enum GameMenuIDs
-{
-    myIDGame_LoadScene = myID_NumIDs,
-    myIDGame_SaveScene,
-    myIDGame_SaveSceneAs,
-};
-
 GameMainFrame* g_pGameMainFrame = 0;
 
 GameMainFrame::GameMainFrame()
@@ -41,9 +34,15 @@ GameMainFrame::GameMainFrame()
     m_File->Insert( 1, myIDGame_SaveScene, wxT("&Save Scene") );
     m_File->Insert( 2, myIDGame_SaveScene, wxT("Save Scene &As") );
 
+    m_Data = MyNew wxMenu;
+    m_MenuBar->Append( m_Data, wxT("&Data") );
+    m_Data->Append( myIDGame_AddDatafile, wxT("&Load Datafiles") );
+
     Connect( myIDGame_LoadScene,   wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(GameMainFrame::OnGameMenu) );
     Connect( myIDGame_SaveScene,   wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(GameMainFrame::OnGameMenu) );
     Connect( myIDGame_SaveSceneAs, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(GameMainFrame::OnGameMenu) );
+
+    Connect( myIDGame_AddDatafile, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(GameMainFrame::OnGameMenu) );
 }
 
 void GameMainFrame::AddPanes()
@@ -75,6 +74,10 @@ void GameMainFrame::OnGameMenu(wxCommandEvent& event)
 
     case myIDGame_SaveSceneAs:
         SaveSceneAs();
+        break;
+
+    case myIDGame_AddDatafile:
+        AddDatafileToScene();
         break;
     }
 }
@@ -139,4 +142,51 @@ void GameMainFrame::LoadScene()
     m_CurrentSceneName[len] = 0;
 
     ((GameEntityComponentTest*)g_pGameCore)->LoadScene( m_CurrentSceneName, 1 );
+}
+
+void GameMainFrame::AddDatafileToScene()
+{
+    // multiple select file open dialog
+    wxFileDialog FileDialog( this, _("Open Datafile"), "./Data", "", "All files(*.*)|*.*", wxFD_OPEN|wxFD_FILE_MUST_EXIST|wxFD_MULTIPLE );
+    
+    if( FileDialog.ShowModal() == wxID_CANCEL )
+        return;
+    
+    // load the files chosen by the user
+    // TODO: having issues with my new/delete overrides, so doing some manual labour, will fail on multibyte names
+    wxArrayString patharray;
+    FileDialog.GetPaths( patharray );
+
+    char fullpath[MAX_PATH];
+    for( unsigned int filenum=0; filenum<patharray.Count(); filenum++ )
+    {
+        size_t fullpathlen = patharray[filenum].length();
+        for( unsigned int i=0; i<fullpathlen; i++ )
+            fullpath[i] = patharray[filenum][i];
+        fullpath[fullpathlen] = 0;
+
+        char dirpath[MAX_PATH];
+        GetCurrentDirectoryA( MAX_PATH, dirpath );
+
+        // if the datafile is in our working directory, then load it... otherwise TODO: copy it in?
+        size_t dirpathlen = strlen(dirpath);
+        if( strncmp( dirpath, fullpath, dirpathlen ) == 0 )
+        {
+            for( unsigned int i=dirpathlen; i<fullpathlen-1; i++ )
+            {
+                fullpath[i-dirpathlen] = fullpath[i+1];
+                if( fullpath[i-dirpathlen] == '\\' )
+                    fullpath[i-dirpathlen] = '/';
+                fullpath[i-dirpathlen+1] = 0;
+            }
+        }
+        else
+        {
+            // File is not in our working directory.
+            // TODO: copy the file into our data folder?
+            assert( false );
+        }
+
+        ((GameEntityComponentTest*)g_pGameCore)->m_pComponentSystemManager->LoadDatafile( fullpath, 1 );
+    }
 }

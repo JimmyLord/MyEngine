@@ -22,11 +22,21 @@ class GameMainFrame;
 
 extern GameMainFrame* g_pGameMainFrame;
 
+enum GameMenuIDs
+{
+    myIDGame_LoadScene = myID_NumIDs,
+    myIDGame_SaveScene,
+    myIDGame_SaveSceneAs,
+    myIDGame_AddDatafile,
+};
+
 class GameMainFrame : public MainFrame
 {
 public:
     MainGLCanvas* m_pGLCanvasEditor;
     char m_CurrentSceneName[MAX_PATH];
+
+    wxMenu* m_Data;
 
 public:
     GameMainFrame();
@@ -38,6 +48,8 @@ public:
     void SaveScene();
     void SaveSceneAs();
     void LoadScene();
+
+    void AddDatafileToScene();
 };
 
 #endif __GameMainFrame_H__

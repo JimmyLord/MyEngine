@@ -197,6 +197,22 @@ bool ComponentSystemManager::IsFileUsedByScene(const char* fullpath, unsigned in
     return false;
 }
 
+void ComponentSystemManager::LoadDatafile(const char* fullpath, unsigned int sceneid)
+{
+    // if the file is already tagged as being used by this scene, don't request/addref it.
+    if( IsFileUsedByScene( fullpath, sceneid ) == false )
+    {
+        // each scene loaded will add ref's to the file.
+        MyFileObject* pFile = g_pFileManager->RequestFile( fullpath );
+
+        // store pFile so we can free it afterwards.
+        FileInfo* pFileInfo = MyNew FileInfo();
+        pFileInfo->m_pFile = pFile;
+        pFileInfo->m_SceneID = sceneid;
+        m_Files.AddTail( pFileInfo );
+    }
+}
+
 void ComponentSystemManager::LoadSceneFromJSON(const char* jsonstr, unsigned int sceneid)
 {
     cJSON* root = cJSON_Parse( jsonstr );
@@ -214,17 +230,7 @@ void ComponentSystemManager::LoadSceneFromJSON(const char* jsonstr, unsigned int
     {
         cJSON* fileobj = cJSON_GetArrayItem( filearray, i );
 
-        if( IsFileUsedByScene( fileobj->valuestring, sceneid ) == false )
-        {
-            // every scene loaded will add ref's to the file.
-            MyFileObject* pFile = g_pFileManager->RequestFile( fileobj->valuestring );
-
-            // store pFile so we can free it afterwards.
-            FileInfo* pFileInfo = MyNew FileInfo();
-            pFileInfo->m_pFile = pFile;
-            pFileInfo->m_SceneID = sceneid;
-            m_Files.AddTail( pFileInfo );
-        }
+        LoadDatafile( fileobj->valuestring, sceneid );
     }
 
     // create/init all the game objects
