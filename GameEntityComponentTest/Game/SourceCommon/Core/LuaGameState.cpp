@@ -70,6 +70,7 @@ void LuaGameState::RegisterClasses()
 {
     // register a loginfo function.
     luabridge::getGlobalNamespace( m_pLuaState ).addFunction( "LogInfo", LUA_LogInfo );
+    luabridge::getGlobalNamespace( m_pLuaState ).addFunction( "GetSystemTime", MyTime_GetSystemTime );
 
     // register Framework classes.
     luabridge::getGlobalNamespace( m_pLuaState )

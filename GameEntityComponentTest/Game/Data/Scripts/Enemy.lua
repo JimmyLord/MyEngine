@@ -28,6 +28,7 @@ end,
 
 Tick = function(timepassed)
 	--LogInfo( "Tick Start\n" );
+	--LogInfo( "System time: " .. GetSystemTime() .. "\n" );
 
 	local transform = this.gameobject:GetTransform();
 
