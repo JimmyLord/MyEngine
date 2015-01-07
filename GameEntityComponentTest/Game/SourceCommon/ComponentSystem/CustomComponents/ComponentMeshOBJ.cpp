@@ -53,13 +53,11 @@ void ComponentMeshOBJ::FillPropertiesWindow(bool clear)
     const char* desc = "no mesh";
     if( m_pOBJFile )
         desc = m_pOBJFile->m_FullPath;
-    g_pPanelWatch->AddPointerWithDescription( "OBJ", 0, desc, this, ComponentMeshOBJ::StaticOnDrop );
+    g_pPanelWatch->AddPointerWithDescription( "OBJ", 0, desc, this, ComponentMeshOBJ::StaticOnDropOBJ );
 }
 
-void ComponentMeshOBJ::OnDrop()
+void ComponentMeshOBJ::OnDropOBJ()
 {
-    ComponentMesh::OnDrop();
-
     if( g_DragAndDropStruct.m_Type == DragAndDropType_FileObjectPointer )
     {
         MyFileObject* pFile = (MyFileObject*)g_DragAndDropStruct.m_Value;
@@ -74,6 +72,9 @@ void ComponentMeshOBJ::OnDrop()
             m_pOBJFile = pFile;
             m_pMesh->m_NumIndicesToDraw = 0;
         }
+
+        // update the panel so new OBJ name shows up.
+        g_pPanelWatch->m_pVariables[g_DragAndDropStruct.m_ID].m_Description = m_pOBJFile->m_FullPath;
     }
 }
 #endif //MYFW_USING_WX

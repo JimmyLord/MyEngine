@@ -43,8 +43,8 @@ public:
     virtual void AddToObjectsPanel(wxTreeItemId gameobjectid);
     static void StaticFillPropertiesWindow(void* pObjectPtr) { ((ComponentMeshOBJ*)pObjectPtr)->FillPropertiesWindow(true); }
     void FillPropertiesWindow(bool clear);
-    static void StaticOnDrop(void* pObjectPtr) { ((ComponentMeshOBJ*)pObjectPtr)->OnDrop(); }
-    void OnDrop();
+    static void StaticOnDropOBJ(void* pObjectPtr) { ((ComponentMeshOBJ*)pObjectPtr)->OnDropOBJ(); }
+    void OnDropOBJ();
 #endif //MYFW_USING_WX
 };
 

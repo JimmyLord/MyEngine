@@ -658,6 +658,9 @@ void GameEntityComponentTest::HandleEditorInput(int keydown, int keycode, int ac
             if( selectedwidget && m_EditorState.m_ModifierKeyStates & MODIFIERKEY_Shift )
             {
                 m_EditorState.m_pSelectedGameObject = g_pComponentSystemManager->CopyGameObject( m_EditorState.m_pSelectedGameObject, "Duplicated Game Object" );
+
+                // select the object in the object tree.
+                g_pPanelObjectList->SelectObject( m_EditorState.m_pSelectedGameObject );
             }
         }
 

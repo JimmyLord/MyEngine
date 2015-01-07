@@ -47,15 +47,15 @@ void ComponentMesh::FillPropertiesWindow(bool clear)
     const char* desc = "no shader";
     if( m_pMesh->GetShaderGroup() )
         desc = m_pMesh->GetShaderGroup()->GetShader( ShaderPass_Main )->m_pFilename;
-    g_pPanelWatch->AddPointerWithDescription( "Shader", 0, desc, this, ComponentMesh::StaticOnDrop );
+    g_pPanelWatch->AddPointerWithDescription( "Shader", 0, desc, this, ComponentMesh::StaticOnDropShader );
 
     desc = "no texture";
     if( m_pMesh->m_pTexture )
         desc = m_pMesh->m_pTexture->m_Filename;
-    g_pPanelWatch->AddPointerWithDescription( "Texture", 0, desc, this, ComponentMesh::StaticOnDrop );    
+    g_pPanelWatch->AddPointerWithDescription( "Texture", 0, desc, this, ComponentMesh::StaticOnDropTexture );    
 }
 
-void ComponentMesh::OnDrop()
+void ComponentMesh::OnDropShader()
 {
     if( g_DragAndDropStruct.m_Type == DragAndDropType_ShaderGroupPointer )
     {
@@ -64,8 +64,14 @@ void ComponentMesh::OnDrop()
         assert( m_pMesh );
 
         m_pMesh->SetShaderGroup( pShaderGroup );
-    }
 
+        // update the panel so new Shader name shows up.
+        g_pPanelWatch->m_pVariables[g_DragAndDropStruct.m_ID].m_Description = pShaderGroup->GetShader( ShaderPass_Main )->m_pFilename;
+    }
+}
+
+void ComponentMesh::OnDropTexture()
+{
     if( g_DragAndDropStruct.m_Type == DragAndDropType_FileObjectPointer )
     {
         MyFileObject* pFile = (MyFileObject*)g_DragAndDropStruct.m_Value;
@@ -79,11 +85,17 @@ void ComponentMesh::OnDrop()
         {
             m_pMesh->m_pTexture = g_pTextureManager->FindTexture( pFile->m_FullPath );
         }
+
+        // update the panel so new Shader name shows up.
+        g_pPanelWatch->m_pVariables[g_DragAndDropStruct.m_ID].m_Description = m_pMesh->m_pTexture->m_Filename;
     }
 
     if( g_DragAndDropStruct.m_Type == DragAndDropType_TextureDefinitionPointer )
     {
         m_pMesh->m_pTexture = (TextureDefinition*)g_DragAndDropStruct.m_Value;
+
+        // update the panel so new Shader name shows up.
+        g_pPanelWatch->m_pVariables[g_DragAndDropStruct.m_ID].m_Description = m_pMesh->m_pTexture->m_Filename;
     }
 }
 #endif //MYFW_USING_WX
