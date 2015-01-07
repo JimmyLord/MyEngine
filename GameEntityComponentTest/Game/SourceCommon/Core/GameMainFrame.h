@@ -41,13 +41,16 @@ public:
 public:
     GameMainFrame();
     virtual void AddPanes();
+    virtual void OnPostInit();
+    virtual void OnClose();
 
     void OnGameMenu(wxCommandEvent& event);
     virtual void ResizeViewport();
 
     void SaveScene();
     void SaveSceneAs();
-    void LoadScene();
+    void LoadSceneDialog();
+    void LoadScene(const char* scenename);
 
     void AddDatafileToScene();
 };

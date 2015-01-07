@@ -57,6 +57,46 @@ void GameMainFrame::AddPanes()
     m_AUIManager.AddPane( m_pGLCanvasEditor, wxAuiPaneInfo().Name("GLCanvasEditor").Bottom().Caption("GLCanvasEditor") );//.CaptionVisible(false) );
 }
 
+void GameMainFrame::OnPostInit()
+{
+    FILE* file = 0;
+    fopen_s( &file, "EditorPrefs.ini", "rb" );
+    if( file )
+    {
+        char* string = MyNew char[10000];
+        int len = fread( string, 1, 10000, file );
+        string[len] = 0;
+        fclose( file );
+
+        cJSON* pPrefs = cJSON_Parse( string );
+
+        cJSON* pLastScene = cJSON_GetObjectItem( pPrefs, "LastSceneLoaded" );
+
+        LoadScene( pLastScene->valuestring );
+
+        delete[] string;
+    }
+}
+
+void GameMainFrame::OnClose()
+{
+    FILE* file = 0;
+    fopen_s( &file, "EditorPrefs.ini", "wb" );
+    if( file )
+    {
+        cJSON* pPrefs = cJSON_CreateObject();
+
+        cJSON_AddStringToObject( pPrefs, "LastSceneLoaded", m_CurrentSceneName );
+
+        char* string = cJSON_Print( pPrefs );
+
+        fprintf( file, string );
+        fclose( file );
+
+        free( string );
+    }
+}
+
 void GameMainFrame::OnGameMenu(wxCommandEvent& event)
 {
     int id = event.GetId();
@@ -64,7 +104,7 @@ void GameMainFrame::OnGameMenu(wxCommandEvent& event)
     switch( id )
     {
     case myIDGame_LoadScene:
-        LoadScene();
+        LoadSceneDialog();
         ResizeViewport();
         break;
 
@@ -119,7 +159,7 @@ void GameMainFrame::SaveSceneAs()
     ((GameEntityComponentTest*)g_pGameCore)->SaveScene( m_CurrentSceneName );
 }
 
-void GameMainFrame::LoadScene()
+void GameMainFrame::LoadSceneDialog()
 {
     //if( scene is dirty )
     //{
@@ -132,7 +172,7 @@ void GameMainFrame::LoadScene()
     
     if( FileDialog.ShowModal() == wxID_CANCEL )
         return;
-    
+
     // load the file chosen by the user
     // TODO: having issues with my new/delete overrides, so doing some manual labour, will fail on multibyte names
     wxString wxpath = FileDialog.GetPath();
@@ -140,6 +180,15 @@ void GameMainFrame::LoadScene()
     for( unsigned int i=0; i<len; i++ )
         m_CurrentSceneName[i] = wxpath[i];
     m_CurrentSceneName[len] = 0;
+
+    ((GameEntityComponentTest*)g_pGameCore)->LoadScene( m_CurrentSceneName, 1 );
+}
+
+void GameMainFrame::LoadScene(const char* scenename)
+{
+    assert( scenename != 0 );
+
+    strcpy( m_CurrentSceneName, scenename );
 
     ((GameEntityComponentTest*)g_pGameCore)->LoadScene( m_CurrentSceneName, 1 );
 }
