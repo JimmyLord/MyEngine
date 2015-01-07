@@ -234,7 +234,7 @@ void GameEntityComponentTest::OneTimeInit()
             pComponentMesh->m_LayersThisExistsOn = Layer_EditorFG;
             pComponentMesh->m_pMesh->CreateEditorTransformWidgetAxis( 3, 0.1f, ColorByte(100, 100, 255, 255) );
         }
-        pGameObject->m_pComponentTransform->SetRotation( Vector3( 0, 0, 0 ) );
+        pGameObject->m_pComponentTransform->SetRotation( Vector3( 0, 180, 0 ) );
 
         m_pComponentSystemManager->AddComponent( pComponentMesh );
 
@@ -663,25 +663,34 @@ void GameEntityComponentTest::HandleEditorInput(int keydown, int keycode, int ac
 
         if( m_EditorState.m_pSelectedGameObject )
         {
-            // todo, rotate the mouse movement with the camera.
+            // Rotate the mouse movement with the camera.
             Vector3 pos = m_EditorState.m_pSelectedGameObject->m_pComponentTransform->GetPosition();
-            if( m_EditorState.m_EditorActionState == EDITORACTIONSTATE_TranslateX )
+            
+            Vector3 mousedragdir = m_EditorState.m_CurrentMousePosition - m_EditorState.m_LastMousePosition;
+
+            if( mousedragdir.LengthSquared() != 0 )
             {
-                float diff = m_EditorState.m_CurrentMousePosition.x - m_EditorState.m_LastMousePosition.x;
-                pos.x += diff * 0.05f;
-                m_EditorState.m_pSelectedGameObject->m_pComponentTransform->SetPosition( pos );
-            }
-            if( m_EditorState.m_EditorActionState == EDITORACTIONSTATE_TranslateY )
-            {
-                float diff = m_EditorState.m_CurrentMousePosition.y - m_EditorState.m_LastMousePosition.y;
-                pos.y += diff * 0.05f;
-                m_EditorState.m_pSelectedGameObject->m_pComponentTransform->SetPosition( pos );
-            }
-            if( m_EditorState.m_EditorActionState == EDITORACTIONSTATE_TranslateZ )
-            {
-                float diff = m_EditorState.m_CurrentMousePosition.y - m_EditorState.m_LastMousePosition.y;
-                pos.z -= diff * 0.05f;
-                m_EditorState.m_pSelectedGameObject->m_pComponentTransform->SetPosition( pos );
+                ComponentCamera* pCamera = m_EditorState.GetEditorCamera();
+
+                mousedragdir.z = mousedragdir.y;
+                Vector4 newdir = pCamera->m_Camera3D.m_matViewProj * Vector4( mousedragdir, 0 );
+                mousedragdir = newdir.XYZ();
+
+                if( m_EditorState.m_EditorActionState == EDITORACTIONSTATE_TranslateX )
+                {
+                    pos.x += mousedragdir.x * 0.05f;
+                    m_EditorState.m_pSelectedGameObject->m_pComponentTransform->SetPosition( pos );
+                }
+                if( m_EditorState.m_EditorActionState == EDITORACTIONSTATE_TranslateY )
+                {
+                    pos.y += mousedragdir.y * 0.05f;
+                    m_EditorState.m_pSelectedGameObject->m_pComponentTransform->SetPosition( pos );
+                }
+                if( m_EditorState.m_EditorActionState == EDITORACTIONSTATE_TranslateZ )
+                {
+                    pos.z += mousedragdir.z * 0.05f;
+                    m_EditorState.m_pSelectedGameObject->m_pComponentTransform->SetPosition( pos );
+                }
             }
         }
     }
@@ -740,7 +749,7 @@ void GameEntityComponentTest::HandleEditorInput(int keydown, int keycode, int ac
                 Vector3 pos = matLocalCamera->GetTranslation();
                 Vector3 angle = pCamera->m_pComponentTransform->GetRotation();
                 angle.y += dir.x;
-                angle.x += dir.y;
+                angle.x -= dir.y;
                 MyClamp( angle.x, -90.0f, 90.0f );
 
                 matLocalCamera->SetIdentity();
