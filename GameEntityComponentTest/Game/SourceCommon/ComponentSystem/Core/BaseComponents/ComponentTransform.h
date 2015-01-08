@@ -41,9 +41,11 @@ public:
     void SetScale(Vector3 scale);
     void SetRotation(Vector3 rot);
 
-    Vector3 GetPosition() { return m_Position; }
-    Vector3 GetScale() { return m_Scale; }
-    Vector3 GetRotation() { return m_Rotation; }
+    Vector3 GetPosition() { return m_Transform.GetTranslation(); }
+
+    Vector3 GetLocalPosition() { return m_Position; }
+    Vector3 GetLocalScale() { return m_Scale; }
+    Vector3 GetLocalRotation() { return m_Rotation; }
     MyMatrix GetLocalRotPosMatrix();
     MyMatrix* GetLocalTransform() { return &m_LocalTransform; }
 
@@ -56,8 +58,8 @@ public:
     virtual void AddToObjectsPanel(wxTreeItemId gameobjectid);
     static void StaticFillPropertiesWindow(void* pObjectPtr) { ((ComponentTransform*)pObjectPtr)->FillPropertiesWindow(true); }
     void FillPropertiesWindow(bool clear);
-    static void StaticOnNewParentTransformDrop(void* pObjectPtr) { ((ComponentTransform*)pObjectPtr)->OnNewParentTransformDrop(); }
-    void OnNewParentTransformDrop();
+    static void StaticOnDropTransform(void* pObjectPtr) { ((ComponentTransform*)pObjectPtr)->OnDropTransform(); }
+    void OnDropTransform();
     static void StaticOnValueChanged(void* pObjectPtr) { ((ComponentTransform*)pObjectPtr)->OnValueChanged(); }
     void OnValueChanged();
 #endif //MYFW_USING_WX

@@ -657,17 +657,23 @@ void GameEntityComponentTest::HandleEditorInput(int keydown, int keycode, int ac
             // if shift is held, make a copy of the object and control that one.
             if( selectedwidget && m_EditorState.m_ModifierKeyStates & MODIFIERKEY_Shift )
             {
-                m_EditorState.m_pSelectedGameObject = g_pComponentSystemManager->CopyGameObject( m_EditorState.m_pSelectedGameObject, "Duplicated Game Object" );
+                GameObject* pNewObject = g_pComponentSystemManager->CopyGameObject( m_EditorState.m_pSelectedGameObject, "Duplicated Game Object" );
+                if( m_EditorMode )
+                {
+                    pNewObject->SetSceneID( m_EditorState.m_pSelectedGameObject->GetSceneID() );
+                }
+
+                m_EditorState.m_pSelectedGameObject = pNewObject;
 
                 // select the object in the object tree.
-                g_pPanelObjectList->SelectObject( m_EditorState.m_pSelectedGameObject );
+                g_pPanelObjectList->SelectObject( pNewObject );
             }
         }
 
         if( m_EditorState.m_pSelectedGameObject )
         {
             // Rotate the mouse movement with the camera.
-            Vector3 pos = m_EditorState.m_pSelectedGameObject->m_pComponentTransform->GetPosition();
+            Vector3 pos = m_EditorState.m_pSelectedGameObject->m_pComponentTransform->GetLocalPosition();
             
             Vector3 mousedragdir = m_EditorState.m_CurrentMousePosition - m_EditorState.m_LastMousePosition;
 
@@ -698,7 +704,7 @@ void GameEntityComponentTest::HandleEditorInput(int keydown, int keycode, int ac
         }
     }
 
-    // move camera in/out if mousewheel spinning
+    // if mouse message.  down, up or dragging.
     if( action != -1 )
     {
         unsigned int mods = m_EditorState.m_ModifierKeyStates;
@@ -707,6 +713,7 @@ void GameEntityComponentTest::HandleEditorInput(int keydown, int keycode, int ac
         ComponentCamera* pCamera = m_EditorState.GetEditorCamera();
         MyMatrix* matLocalCamera = pCamera->m_pComponentTransform->GetLocalTransform();
 
+        // move camera in/out if mousewheel spinning
         if( action == GCBA_Wheel )
         {
             // pressure is also mouse wheel movement rate in WX.
@@ -726,8 +733,9 @@ void GameEntityComponentTest::HandleEditorInput(int keydown, int keycode, int ac
             if( dir.LengthSquared() > 0 )
                 matLocalCamera->TranslatePreRotScale( dir * 0.05f );
         }
+        // if left mouse if down, rotate the camera.
         else if( mods & MODIFIERKEY_LeftMouse && m_EditorState.m_EditorActionState == EDITORACTIONSTATE_None )
-        { // if left mouse if down, rotate the camera.
+        {
             // rotate the camera around selected object or a point 10 units in front of the camera.
             Vector2 dir = m_EditorState.m_CurrentMousePosition - m_EditorState.m_LastMousePosition;
 
@@ -749,8 +757,10 @@ void GameEntityComponentTest::HandleEditorInput(int keydown, int keycode, int ac
 
             if( dir.LengthSquared() > 0 )
             {
+                //LOGInfo( LOGTag, "dir (%0.2f, %0.2f)\n", dir.x, dir.y );
+
                 Vector3 pos = matLocalCamera->GetTranslation();
-                Vector3 angle = pCamera->m_pComponentTransform->GetRotation();
+                Vector3 angle = pCamera->m_pComponentTransform->GetLocalRotation();
                 angle.y += dir.x;
                 angle.x -= dir.y;
                 MyClamp( angle.x, -90.0f, 90.0f );
@@ -768,6 +778,8 @@ void GameEntityComponentTest::HandleEditorInput(int keydown, int keycode, int ac
                     angle *= 180.0f/PI;
                     pCamera->m_pComponentTransform->SetPosition( pos );
                     pCamera->m_pComponentTransform->SetRotation( angle );
+
+                    //LOGInfo( LOGTag, "cam pos (%0.2f, %0.2f, %0.2f)\n", pos.x, pos.y, pos.z );
                 }
             }
         }
@@ -939,7 +951,7 @@ GameObject* GameEntityComponentTest::GetObjectAtPixel(unsigned int x, unsigned i
     glReadPixels( x - (unsigned int)m_WindowStartX, y - (unsigned int)m_WindowStartY, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, pixel );
 
     unsigned int id = pixel[0] + pixel[1]*256 + pixel[2]*256*256 + pixel[3]*256*256*256;
-    LOGInfo( LOGTag, "pixel - %d, %d, %d, %d - id - %d\n", pixel[0], pixel[1], pixel[2], pixel[3], id );
+    //LOGInfo( LOGTag, "pixel - %d, %d, %d, %d - id - %d\n", pixel[0], pixel[1], pixel[2], pixel[3], id );
 
     m_EditorState.m_pMousePickerFBO->Unbind();
 

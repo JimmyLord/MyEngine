@@ -116,7 +116,7 @@ void ComponentCollisionObject::OnPlay()
 
         //btVector3 pos(m_pComponentTransform->m_Position.x, m_pComponentTransform->m_Position.y, m_pComponentTransform->m_Position.z );
         //startTransform.setOrigin( pos );
-        Vector3 localscale = m_pComponentTransform->GetScale();
+        Vector3 localscale = m_pComponentTransform->GetLocalScale();
         btVector3 scale( localscale.x, localscale.y, localscale.z );
         colShape->setLocalScaling( scale );
 

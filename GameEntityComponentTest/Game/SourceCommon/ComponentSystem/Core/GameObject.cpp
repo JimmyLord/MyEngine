@@ -29,6 +29,7 @@ GameObject::GameObject(bool managed)
         wxTreeItemId rootid = g_pPanelObjectList->GetTreeRoot();
         wxTreeItemId gameobjectid = g_pPanelObjectList->AddObject( this, GameObject::StaticOnLeftClick, GameObject::StaticOnRightClick, rootid, m_Name );
         g_pPanelObjectList->SetDragAndDropFunctions( this, GameObject::StaticOnDrag, GameObject::StaticOnDrop );
+        g_pPanelObjectList->SetLabelEditFunction( this, GameObject::StaticOnLabelEdit );
         m_pComponentTransform->AddToObjectsPanel( gameobjectid );
     }
 #endif //MYFW_USING_WX
@@ -73,6 +74,9 @@ void GameObject::LuaRegister(lua_State* luastate)
 #if MYFW_USING_WX
 void GameObject::OnLeftClick(bool clear)
 {
+    // select this GameObject in the editor window.
+    ((GameEntityComponentTest*)g_pGameCore)->m_EditorState.m_pSelectedGameObject = this;
+
     if( clear )
         g_pPanelWatch->ClearAllVariables();
 
@@ -152,6 +156,17 @@ void GameObject::OnDrop()
 
         // parent one transform to another.
         this->m_pComponentTransform->SetParent( pGameObject->m_pComponentTransform );
+    }
+}
+
+void GameObject::OnLabelEdit()
+{
+    wxString newname = g_pPanelObjectList->GetObjectName( this );
+
+    size_t len = newname.length();
+    if( len > 0 )
+    {
+        SetName( newname );
     }
 }
 #endif //MYFW_USING_WX

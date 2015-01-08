@@ -69,15 +69,25 @@ void ComponentTransform::FillPropertiesWindow(bool clear)
     const char* desc = "no parent";
     if( m_pParentTransform )
         desc = m_pParentTransform->m_pGameObject->GetName();
-    g_pPanelWatch->AddPointerWithDescription( "Parent transform", m_pParentTransform, desc, this, ComponentTransform::StaticOnNewParentTransformDrop );
+    g_pPanelWatch->AddPointerWithDescription( "Parent transform", m_pParentTransform, desc, this, ComponentTransform::StaticOnDropTransform );
 }
 
-void ComponentTransform::OnNewParentTransformDrop()
+void ComponentTransform::OnDropTransform()
 {
+    ComponentTransform* pComponent = 0;
+
     if( g_DragAndDropStruct.m_Type == DragAndDropType_ComponentPointer )
     {
-        ComponentTransform* pComponent = (ComponentTransform*)g_DragAndDropStruct.m_Value;
+        pComponent = (ComponentTransform*)g_DragAndDropStruct.m_Value;
+    }
 
+    if( g_DragAndDropStruct.m_Type == DragAndDropType_GameObjectPointer )
+    {
+        pComponent = ((GameObject*)g_DragAndDropStruct.m_Value)->m_pComponentTransform;
+    }
+
+    if( pComponent )
+    {
         if( pComponent == this )
             return;
 
@@ -85,6 +95,9 @@ void ComponentTransform::OnNewParentTransformDrop()
         {
             this->SetParent( pComponent );
         }
+
+        // update the panel so new OBJ name shows up.
+        g_pPanelWatch->m_pVariables[g_DragAndDropStruct.m_ID].m_Description = m_pParentTransform->m_pGameObject->GetName();
     }
 }
 
