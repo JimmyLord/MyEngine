@@ -424,13 +424,19 @@ void GameEntityComponentTest::Tick(double TimePassed)
                 m_EditorState.m_pTransformWidgets[i]->m_pComponentTransform->SetPosition( pos );
 
                 // rotate the widget.
-                Vector3 rot = m_EditorState.m_pSelectedGameObject->m_pComponentTransform->GetLocalRotation();
+                MyMatrix matrot;
+                matrot.SetIdentity();
                 if( i == 0 )
-                    rot.y += 90;
+                    matrot.Rotate( 90, 0, 1, 0 );
                 if( i == 1 )
-                    rot.x += -90;
+                    matrot.Rotate( -90, 1, 0, 0 );
                 if( i == 2 )
-                    rot.y += 180;
+                    matrot.Rotate( 180, 0, 1, 0 );
+
+                matrot = *m_EditorState.m_pSelectedGameObject->m_pComponentTransform->GetLocalTransform() * matrot;
+
+                Vector3 rot = matrot.GetEulerAngles() * 180.0f/PI;
+
                 m_EditorState.m_pTransformWidgets[i]->m_pComponentTransform->SetRotation( rot );
             }
             else
@@ -936,9 +942,9 @@ void GameEntityComponentTest::OnSurfaceChanged(unsigned int startx, unsigned int
             {
                 if( m_EditorState.m_pMousePickerFBO->m_TextureWidth < width || m_EditorState.m_pMousePickerFBO->m_TextureHeight < height )
                 {
-                    m_EditorState.m_pMousePickerFBO->Invalidate( true );
+                    // the FBO will be recreated during the texturemanager tick.
+                    g_pTextureManager->InvalidateFBO( m_EditorState.m_pMousePickerFBO );
                     m_EditorState.m_pMousePickerFBO->Setup( width, height, GL_NEAREST, GL_NEAREST, true, true, false );
-                    //m_EditorState.m_pMousePickerFBO->Create();
                 }
                 else
                 {
