@@ -418,8 +418,20 @@ void GameEntityComponentTest::Tick(double TimePassed)
             if( m_EditorState.m_pSelectedGameObject )
             {
                 pRenderable->m_Visible = true;
+
+                // move the widget to the object position.
                 Vector3 pos = m_EditorState.m_pSelectedGameObject->m_pComponentTransform->GetPosition();
                 m_EditorState.m_pTransformWidgets[i]->m_pComponentTransform->SetPosition( pos );
+
+                // rotate the widget.
+                Vector3 rot = m_EditorState.m_pSelectedGameObject->m_pComponentTransform->GetLocalRotation();
+                if( i == 0 )
+                    rot.y += 90;
+                if( i == 1 )
+                    rot.x += -90;
+                if( i == 2 )
+                    rot.y += 180;
+                m_EditorState.m_pTransformWidgets[i]->m_pComponentTransform->SetRotation( rot );
             }
             else
             {
@@ -546,7 +558,7 @@ void GameEntityComponentTest::OnKeyDown(int keycode, int unicodechar)
         else // if press "Stop"
         {
             // Clear out the component manager of all components and gameobjects
-            g_pComponentSystemManager->UnloadScene( false, 0 );
+            UnloadScene( 0 ); // unload runtime created objects only.
             LoadScene( "temp_editor_onplay.scene", 1 );
             m_EditorMode = true;
             m_EditorState.m_pSelectedGameObject = 0;
@@ -673,38 +685,42 @@ void GameEntityComponentTest::HandleEditorInput(int keydown, int keycode, int ac
         if( m_EditorState.m_pSelectedGameObject )
         {
             // Rotate the mouse movement with the camera.
-            Vector3 pos = m_EditorState.m_pSelectedGameObject->m_pComponentTransform->GetLocalPosition();
-            
             Vector3 mousedragdir = m_EditorState.m_CurrentMousePosition - m_EditorState.m_LastMousePosition;
 
             if( mousedragdir.LengthSquared() != 0 )
             {
                 ComponentCamera* pCamera = m_EditorState.GetEditorCamera();
 
-                mousedragdir.z = mousedragdir.y;
+                // rotate mouse movement around camera.
                 Vector4 newdir = pCamera->m_Camera3D.m_matViewProj * Vector4( mousedragdir, 0 );
-                mousedragdir = newdir.XYZ();
 
+                // isolate the axis of movement we want based on which translate widget we grabbed.
+                Vector4 movementaxis( 0, 0, 0, 0 );
                 if( m_EditorState.m_EditorActionState == EDITORACTIONSTATE_TranslateX )
                 {
-                    pos.x += mousedragdir.x * 0.05f;
-                    m_EditorState.m_pSelectedGameObject->m_pComponentTransform->SetPosition( pos );
+                    movementaxis.x = newdir.x;
                 }
                 if( m_EditorState.m_EditorActionState == EDITORACTIONSTATE_TranslateY )
                 {
-                    pos.y += mousedragdir.y * 0.05f;
-                    m_EditorState.m_pSelectedGameObject->m_pComponentTransform->SetPosition( pos );
+                    movementaxis.y = newdir.y;
                 }
                 if( m_EditorState.m_EditorActionState == EDITORACTIONSTATE_TranslateZ )
                 {
-                    pos.z += mousedragdir.z * 0.05f;
-                    m_EditorState.m_pSelectedGameObject->m_pComponentTransform->SetPosition( pos );
+                    movementaxis.z = newdir.z;
                 }
+
+                // rotate axis by game object rotation.
+                movementaxis = m_EditorState.m_pSelectedGameObject->m_pComponentTransform->m_Transform * movementaxis;
+
+                // apply the change to the gameobject.
+                Vector3 pos = m_EditorState.m_pSelectedGameObject->m_pComponentTransform->GetLocalPosition();
+                pos += movementaxis.XYZ() * 0.05f;
+                m_EditorState.m_pSelectedGameObject->m_pComponentTransform->SetPosition( pos );
             }
         }
     }
 
-    // if mouse message.  down, up or dragging.
+    // if mouse message. down, up or dragging.
     if( action != -1 )
     {
         unsigned int mods = m_EditorState.m_ModifierKeyStates;
@@ -716,7 +732,7 @@ void GameEntityComponentTest::HandleEditorInput(int keydown, int keycode, int ac
         // move camera in/out if mousewheel spinning
         if( action == GCBA_Wheel )
         {
-            // pressure is also mouse wheel movement rate in WX.
+            // pressure is also mouse wheel movement rate in wx configurations.
             Vector3 dir = Vector3( 0, 0, 1 ) * -(pressure/abs(pressure));
 
             if( dir.LengthSquared() > 0 )
@@ -827,8 +843,19 @@ void GameEntityComponentTest::SaveScene(const char* fullpath)
     free( savestring );
 }
 
+void GameEntityComponentTest::UnloadScene(unsigned int sceneid)
+{
+    // reset the editorstate structure.
+    m_EditorState.UnloadScene();
+
+    g_pComponentSystemManager->UnloadScene( false );
+}
+
 void GameEntityComponentTest::LoadScene(const char* fullpath, unsigned int sceneid)
 {
+    // reset the editorstate structure.
+    m_EditorState.UnloadScene();
+
     FILE* filehandle;
     errno_t err = fopen_s( &filehandle, fullpath, "rb" );//"Data/Scenes/test.scene", "rb" );
 

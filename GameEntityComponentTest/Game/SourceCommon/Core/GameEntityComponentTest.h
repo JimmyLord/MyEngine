@@ -79,6 +79,11 @@ struct EditorState
         assert( m_pEditorCamera );
         return (ComponentCamera*)m_pEditorCamera->GetFirstComponentOfBaseType( BaseComponentType_Camera );
     }
+
+    void EditorState::UnloadScene()
+    {
+        m_pSelectedGameObject = 0;
+    }
 };
 
 enum LayerValues
@@ -131,6 +136,7 @@ public:
     void HandleEditorInput(int keydown, int keycode, int action, int id, float x, float y, float pressure);
 
     void SaveScene(const char* fullpath);
+    void UnloadScene(unsigned int sceneid = UINT_MAX);
     void LoadScene(const char* fullpath, unsigned int sceneid);
 
     GameObject* GetObjectAtPixel(unsigned int x, unsigned int y);

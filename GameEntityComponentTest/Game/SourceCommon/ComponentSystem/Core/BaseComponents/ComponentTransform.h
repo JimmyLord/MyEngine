@@ -21,7 +21,7 @@ protected:
     MyMatrix m_LocalTransform;
     Vector3 m_Position;
     Vector3 m_Scale;
-    Vector3 m_Rotation;
+    Vector3 m_Rotation; // in degrees
 
 public:
     ComponentTransform();

@@ -32,7 +32,7 @@ GameMainFrame::GameMainFrame()
 
     m_File->Insert( 0, myIDGame_LoadScene, wxT("&Load Scene") );
     m_File->Insert( 1, myIDGame_SaveScene, wxT("&Save Scene") );
-    m_File->Insert( 2, myIDGame_SaveScene, wxT("Save Scene &As") );
+    m_File->Insert( 2, myIDGame_SaveSceneAs, wxT("Save Scene &As") );
 
     m_Data = MyNew wxMenu;
     m_MenuBar->Append( m_Data, wxT("&Data") );
@@ -143,20 +143,19 @@ void GameMainFrame::SaveScene()
 
 void GameMainFrame::SaveSceneAs()
 {
-    wxFileDialog FileDialog( this, _("Save Scene file"), "", "", "Scene files (*.scene)|*.scene", wxFD_SAVE|wxFD_OVERWRITE_PROMPT);
+    wxFileDialog FileDialog( this, _("Save Scene file"), "./Data/Scenes", "", "Scene files (*.scene)|*.scene", wxFD_SAVE|wxFD_OVERWRITE_PROMPT);
     
     if( FileDialog.ShowModal() == wxID_CANCEL )
         return;
     
     // save the current scene
-    // TODO: having issues with my new/delete overrides, so doing some manual labour, will fail on multibyte names
+    // TODO: typecasting will likely cause issues with multibyte names
     wxString wxpath = FileDialog.GetPath();
-    size_t len = wxpath.length();
-    for( unsigned int i=0; i<len; i++ )
-        m_CurrentSceneName[i] = wxpath[i];
-    m_CurrentSceneName[len] = 0;
+    sprintf_s( m_CurrentSceneName, 260, "%s", (const char*)wxpath );
 
     ((GameEntityComponentTest*)g_pGameCore)->SaveScene( m_CurrentSceneName );
+
+    this->SetTitle( m_CurrentSceneName );
 }
 
 void GameMainFrame::LoadSceneDialog()
@@ -174,23 +173,23 @@ void GameMainFrame::LoadSceneDialog()
         return;
 
     // load the file chosen by the user
-    // TODO: having issues with my new/delete overrides, so doing some manual labour, will fail on multibyte names
+    // TODO: typecasting will likely cause issues with multibyte names
     wxString wxpath = FileDialog.GetPath();
-    size_t len = wxpath.length();
-    for( unsigned int i=0; i<len; i++ )
-        m_CurrentSceneName[i] = wxpath[i];
-    m_CurrentSceneName[len] = 0;
-
-    ((GameEntityComponentTest*)g_pGameCore)->LoadScene( m_CurrentSceneName, 1 );
+    LoadScene( wxpath );
 }
 
 void GameMainFrame::LoadScene(const char* scenename)
 {
     assert( scenename != 0 );
 
-    strcpy( m_CurrentSceneName, scenename );
+    strcpy_s( m_CurrentSceneName, 260, scenename );
 
+    // clear out the old scene before loading
+    // TODO: make this optional, so we can load multiple scenes at once, also change the '1' in LoadScene to the next available scene id
+    ((GameEntityComponentTest*)g_pGameCore)->UnloadScene();
     ((GameEntityComponentTest*)g_pGameCore)->LoadScene( m_CurrentSceneName, 1 );
+
+    this->SetTitle( m_CurrentSceneName );
 }
 
 void GameMainFrame::AddDatafileToScene()
@@ -202,17 +201,15 @@ void GameMainFrame::AddDatafileToScene()
         return;
     
     // load the files chosen by the user
-    // TODO: having issues with my new/delete overrides, so doing some manual labour, will fail on multibyte names
+    // TODO: typecasting will likely cause issues with multibyte names
     wxArrayString patharray;
     FileDialog.GetPaths( patharray );
 
     char fullpath[MAX_PATH];
     for( unsigned int filenum=0; filenum<patharray.Count(); filenum++ )
     {
-        size_t fullpathlen = patharray[filenum].length();
-        for( unsigned int i=0; i<fullpathlen; i++ )
-            fullpath[i] = patharray[filenum][i];
-        fullpath[fullpathlen] = 0;
+        sprintf_s( fullpath, MAX_PATH, "%s", (const char*)patharray[filenum] );
+        unsigned int fullpathlen = strlen( fullpath );
 
         char dirpath[MAX_PATH];
         GetCurrentDirectoryA( MAX_PATH, dirpath );

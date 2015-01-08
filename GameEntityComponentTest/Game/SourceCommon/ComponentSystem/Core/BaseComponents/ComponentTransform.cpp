@@ -184,8 +184,16 @@ MyMatrix ComponentTransform::GetLocalRotPosMatrix()
 
 void ComponentTransform::SetParent(ComponentTransform* pNewParent)
 {
-    m_Position = m_Position - pNewParent->m_Position;
+    MyMatrix matparent = pNewParent->m_Transform;
+    matparent.Inverse();
+    m_LocalTransform = matparent * m_Transform;
+
     m_pParentTransform = pNewParent;
+
+    UpdateMatrix();
+
+    m_Position = m_LocalTransform.GetTranslation();
+    m_Rotation = m_LocalTransform.GetEulerAngles() * 180.0f/PI;
 }
 
 void ComponentTransform::UpdateMatrix()
