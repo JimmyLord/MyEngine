@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2012-2014 Jimmy Lord http://www.flatheadgames.com
+// Copyright (c) 2012-2015 Jimmy Lord http://www.flatheadgames.com
 //
 // This software is provided 'as-is', without any express or implied warranty.  In no event will the authors be held liable for any damages arising from the use of this software.
 // Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -690,38 +690,90 @@ void GameEntityComponentTest::HandleEditorInput(int keydown, int keycode, int ac
 
         if( m_EditorState.m_pSelectedGameObject )
         {
-            // Rotate the mouse movement with the camera.
+            // check if the mouse moved.
             Vector3 mousedragdir = m_EditorState.m_CurrentMousePosition - m_EditorState.m_LastMousePosition;
 
             if( mousedragdir.LengthSquared() != 0 )
             {
-                ComponentCamera* pCamera = m_EditorState.GetEditorCamera();
-
-                // rotate mouse movement around camera.
-                Vector4 newdir = pCamera->m_Camera3D.m_matViewProj * Vector4( mousedragdir, 0 );
-
-                // isolate the axis of movement we want based on which translate widget we grabbed.
-                Vector4 movementaxis( 0, 0, 0, 0 );
-                if( m_EditorState.m_EditorActionState == EDITORACTIONSTATE_TranslateX )
+                // If the mouse moved, move the object along a plane.
+                if( m_EditorState.m_EditorActionState == EDITORACTIONSTATE_TranslateX ||
+                    m_EditorState.m_EditorActionState == EDITORACTIONSTATE_TranslateY ||
+                    m_EditorState.m_EditorActionState == EDITORACTIONSTATE_TranslateZ ||
+                    m_EditorState.m_EditorActionState == EDITORACTIONSTATE_TranslateXY ||
+                    m_EditorState.m_EditorActionState == EDITORACTIONSTATE_TranslateXZ ||
+                    m_EditorState.m_EditorActionState == EDITORACTIONSTATE_TranslateYZ )
                 {
-                    movementaxis.x = newdir.x;
-                }
-                if( m_EditorState.m_EditorActionState == EDITORACTIONSTATE_TranslateY )
-                {
-                    movementaxis.y = newdir.y;
-                }
-                if( m_EditorState.m_EditorActionState == EDITORACTIONSTATE_TranslateZ )
-                {
-                    movementaxis.z = newdir.z;
-                }
+                    ComponentCamera* pCamera = m_EditorState.GetEditorCamera();
+                    MyMatrix* pObjectTransform = &m_EditorState.m_pSelectedGameObject->m_pComponentTransform->m_Transform;
 
-                // rotate axis by game object rotation.
-                movementaxis = m_EditorState.m_pSelectedGameObject->m_pComponentTransform->m_Transform * movementaxis;
+                    // create a plane based on the axis we want.
+                    Vector3 axisvector;
+                    Plane plane;
+                    {
+                        Vector3 normal;
+                        if( m_EditorState.m_EditorActionState == EDITORACTIONSTATE_TranslateXY ||
+                            m_EditorState.m_EditorActionState == EDITORACTIONSTATE_TranslateX )
+                        {
+                            normal = Vector3(0,0,1);
+                            axisvector = Vector3(1,0,0);
+                        }
+                        else if( m_EditorState.m_EditorActionState == EDITORACTIONSTATE_TranslateXZ ||
+                                 m_EditorState.m_EditorActionState == EDITORACTIONSTATE_TranslateZ )
+                        {
+                            normal = Vector3(0,1,0);
+                            axisvector = Vector3(0,0,1);
+                        }
+                        else if( m_EditorState.m_EditorActionState == EDITORACTIONSTATE_TranslateYZ ||
+                                 m_EditorState.m_EditorActionState == EDITORACTIONSTATE_TranslateY )
+                        {
+                            normal = Vector3(1,0,0);
+                            axisvector = Vector3(0,1,0);
+                        }
 
-                // apply the change to the gameobject.
-                Vector3 pos = m_EditorState.m_pSelectedGameObject->m_pComponentTransform->GetLocalPosition();
-                pos += movementaxis.XYZ() * 0.05f;
-                m_EditorState.m_pSelectedGameObject->m_pComponentTransform->SetPosition( pos );
+                        // transform the normal into the selected objects space.
+                        plane.Set( (*pObjectTransform * Vector4( normal, 0 )).XYZ(), pObjectTransform->GetTranslation() );
+                    }
+                
+                    // create a ray from a mouse click.
+
+                    // Convert mouse coord into clip space.
+                    Vector2 mouseclip;
+                    mouseclip.x = (m_EditorState.m_CurrentMousePosition.x / m_WindowWidth) * 2.0f - 1.0f;
+                    mouseclip.y = (m_EditorState.m_CurrentMousePosition.y / m_WindowHeight) * 2.0f - 1.0f;
+
+                    // Convert the mouse ray into view space from clip space.
+                    MyMatrix invProj = pCamera->m_Camera3D.m_matProj;
+                    invProj.Inverse();
+                    Vector4 rayview = invProj * Vector4( mouseclip, -1, 1 );
+
+                    // Convert the mouse ray into world space from view space.
+                    MyMatrix invView = pCamera->m_Camera3D.m_matView;
+                    invView.Inverse();
+                    Vector3 rayworld = (invView * Vector4( rayview.x, rayview.y, -1, 0 )).XYZ();
+
+                    // define the ray.
+                    Vector3 raystart = pCamera->m_pComponentTransform->GetPosition();
+                    Vector3 rayend = raystart + rayworld * 10000;
+
+                    // find the intersection point of the plane.
+                    Vector3 result;
+                    if( plane.IntersectRay( raystart, rayend, &result ) )
+                    {
+                        // lock to one of the 3 axis.
+                        if( m_EditorState.m_EditorActionState == EDITORACTIONSTATE_TranslateX ||
+                            m_EditorState.m_EditorActionState == EDITORACTIONSTATE_TranslateY ||
+                            m_EditorState.m_EditorActionState == EDITORACTIONSTATE_TranslateZ )
+                        {
+                            axisvector = (*pObjectTransform * Vector4( axisvector, 0 )).XYZ();
+                            axisvector.Normalize();
+                            result -= pObjectTransform->GetTranslation();
+                            result = axisvector * result.Dot( axisvector );
+                            result += pObjectTransform->GetTranslation();
+                        }
+
+                        m_EditorState.m_pSelectedGameObject->m_pComponentTransform->SetPosition( result );
+                    }
+                }
             }
         }
     }

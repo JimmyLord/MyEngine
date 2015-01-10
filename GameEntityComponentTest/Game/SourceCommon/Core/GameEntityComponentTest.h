@@ -29,6 +29,9 @@ enum EditorActionState
     EDITORACTIONSTATE_TranslateX,
     EDITORACTIONSTATE_TranslateY,
     EDITORACTIONSTATE_TranslateZ,
+    EDITORACTIONSTATE_TranslateXY,
+    EDITORACTIONSTATE_TranslateXZ,
+    EDITORACTIONSTATE_TranslateYZ,
     EDITORACTIONSTATE_NumStates,
 };
 
