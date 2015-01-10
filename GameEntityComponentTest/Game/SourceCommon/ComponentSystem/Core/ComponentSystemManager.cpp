@@ -203,7 +203,19 @@ void ComponentSystemManager::LoadDatafile(const char* fullpath, unsigned int sce
     if( IsFileUsedByScene( fullpath, sceneid ) == false )
     {
         // each scene loaded will add ref's to the file.
-        MyFileObject* pFile = g_pFileManager->RequestFile( fullpath );
+        MyFileObject* pFile = 0;
+
+        size_t len = strlen( fullpath );
+        if( strcmp( &fullpath[len-4], ".png" ) == 0 )
+        {
+            TextureDefinition* pTexture = g_pTextureManager->CreateTexture( fullpath );
+            pFile = pTexture->m_pFile;
+            pFile->AddRef();
+        }
+        else
+        {
+            pFile = g_pFileManager->RequestFile( fullpath );
+        }
 
         // store pFile so we can free it afterwards.
         FileInfo* pFileInfo = MyNew FileInfo();
