@@ -120,7 +120,7 @@ void ComponentLuaScript::OnDrop()
     }
 }
 
-void ComponentLuaScript::OnValueChanged()
+void ComponentLuaScript::OnValueChanged(int id)
 {
     ProgramVariables( m_pLuaState, true );
 }

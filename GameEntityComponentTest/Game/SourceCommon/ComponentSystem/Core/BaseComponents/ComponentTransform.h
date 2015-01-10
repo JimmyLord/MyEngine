@@ -55,13 +55,15 @@ public:
 
 public:
 #if MYFW_USING_WX
+    int m_ControlIDTransform;
+
     virtual void AddToObjectsPanel(wxTreeItemId gameobjectid);
     static void StaticFillPropertiesWindow(void* pObjectPtr) { ((ComponentTransform*)pObjectPtr)->FillPropertiesWindow(true); }
     void FillPropertiesWindow(bool clear);
     static void StaticOnDropTransform(void* pObjectPtr) { ((ComponentTransform*)pObjectPtr)->OnDropTransform(); }
     void OnDropTransform();
-    static void StaticOnValueChanged(void* pObjectPtr) { ((ComponentTransform*)pObjectPtr)->OnValueChanged(); }
-    void OnValueChanged();
+    static void StaticOnValueChanged(void* pObjectPtr, int id) { ((ComponentTransform*)pObjectPtr)->OnValueChanged(id); }
+    void OnValueChanged(int id);
 #endif //MYFW_USING_WX
 };
 

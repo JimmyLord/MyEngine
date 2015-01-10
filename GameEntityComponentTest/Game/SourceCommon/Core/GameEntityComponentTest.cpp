@@ -393,6 +393,7 @@ void GameEntityComponentTest::OneTimeInit()
     OnSurfaceChanged( (unsigned int)m_WindowStartX, (unsigned int)m_WindowStartY, (unsigned int)m_WindowWidth, (unsigned int)m_WindowHeight );
 
 #if !MYFW_USING_WX
+    LoadScene( "Data/Scenes/Test.scene", 1 );
     m_pComponentSystemManager->OnPlay();
 #endif
 }

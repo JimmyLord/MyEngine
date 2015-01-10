@@ -66,10 +66,10 @@ void ComponentTransform::FillPropertiesWindow(bool clear)
     g_pPanelWatch->AddFloat( "rot y", &m_Rotation.y, 0, 360, this, ComponentTransform::StaticOnValueChanged );
     g_pPanelWatch->AddFloat( "rot z", &m_Rotation.z, 0, 360, this, ComponentTransform::StaticOnValueChanged );
 
-    const char* desc = "no parent";
+    const char* desc = "none";
     if( m_pParentTransform )
         desc = m_pParentTransform->m_pGameObject->GetName();
-    g_pPanelWatch->AddPointerWithDescription( "Parent transform", m_pParentTransform, desc, this, ComponentTransform::StaticOnDropTransform );
+    m_ControlIDTransform = g_pPanelWatch->AddPointerWithDescription( "Parent transform", m_pParentTransform, desc, this, ComponentTransform::StaticOnDropTransform, ComponentTransform::StaticOnValueChanged );
 }
 
 void ComponentTransform::OnDropTransform()
@@ -101,9 +101,21 @@ void ComponentTransform::OnDropTransform()
     }
 }
 
-void ComponentTransform::OnValueChanged()
+void ComponentTransform::OnValueChanged(int id)
 {
-    m_LocalTransform.CreateSRT( m_Scale, m_Rotation, m_Position );
+    if( id == m_ControlIDTransform )
+    {
+        wxString text = g_pPanelWatch->m_pVariables[m_ControlIDTransform].m_Handle_TextCtrl->GetValue();
+        if( text == "" )
+        {
+            g_pPanelWatch->m_pVariables[m_ControlIDTransform].m_Handle_TextCtrl->SetValue( "none" );
+            this->SetParent( 0 );
+        }
+    }
+    else
+    {
+        m_LocalTransform.CreateSRT( m_Scale, m_Rotation, m_Position );
+    }
 }
 #endif //MYFW_USING_WX
 
@@ -184,11 +196,19 @@ MyMatrix ComponentTransform::GetLocalRotPosMatrix()
 
 void ComponentTransform::SetParent(ComponentTransform* pNewParent)
 {
-    MyMatrix matparent = pNewParent->m_Transform;
-    matparent.Inverse();
-    m_LocalTransform = matparent * m_Transform;
+    if( pNewParent == 0 )
+    {
+        m_LocalTransform = m_Transform;
+        m_pParentTransform = 0;
+    }
+    else
+    {
+        MyMatrix matparent = pNewParent->m_Transform;
+        matparent.Inverse();
+        m_LocalTransform = matparent * m_Transform;
 
-    m_pParentTransform = pNewParent;
+        m_pParentTransform = pNewParent;
+    }
 
     UpdateMatrix();
 
