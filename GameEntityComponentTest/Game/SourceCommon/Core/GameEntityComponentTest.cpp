@@ -293,6 +293,8 @@ void GameEntityComponentTest::OneTimeInit()
         pComponentCamera->SetDesiredAspectRatio( 640, 960 );
         pComponentCamera->m_Orthographic = true;
         pComponentCamera->m_LayersToRender = Layer_HUD;
+        pComponentCamera->m_ClearColorBuffer = false;
+        pComponentCamera->m_ClearDepthBuffer = false;
     }
 
     //// create a player game object and attach a mesh(sprite) component to it.

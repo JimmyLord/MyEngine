@@ -33,13 +33,19 @@ void ComponentCamera::FillPropertiesWindow(bool clear)
         g_pPanelWatch->ClearAllVariables();
 
     g_pPanelWatch->AddBool( "Ortho", &m_Orthographic, 0, 1, this, ComponentCamera::StaticOnValueChanged );
+
     g_pPanelWatch->AddFloat( "Desired width", &m_DesiredWidth, 640, 960, this, ComponentCamera::StaticOnValueChanged );
     g_pPanelWatch->AddFloat( "Desired height", &m_DesiredHeight, 640, 960, this, ComponentCamera::StaticOnValueChanged );
+
+    g_pPanelWatch->AddBool( "ColorBit", &m_ClearColorBuffer, 0, 1, this, ComponentCamera::StaticOnValueChanged );
+    g_pPanelWatch->AddBool( "DepthBit", &m_ClearDepthBuffer, 0, 1, this, ComponentCamera::StaticOnValueChanged );
+
     g_pPanelWatch->AddUnsignedInt( "Layers", &m_LayersToRender, 0, 1, this, ComponentCamera::StaticOnValueChanged );
 }
 
 void ComponentCamera::OnValueChanged(int id)
 {
+    ComputeProjectionMatrices();
     m_FullClearsRequired = 2;
 }
 #endif //MYFW_USING_WX
@@ -49,8 +55,13 @@ cJSON* ComponentCamera::ExportAsJSONObject()
     cJSON* component = ComponentBase::ExportAsJSONObject();
 
     cJSON_AddNumberToObject( component, "Ortho", m_Orthographic );
+
     cJSON_AddNumberToObject( component, "DWidth", m_DesiredWidth );
     cJSON_AddNumberToObject( component, "DHeight", m_DesiredHeight );
+
+    cJSON_AddNumberToObject( component, "ColorBit", m_ClearColorBuffer );
+    cJSON_AddNumberToObject( component, "DepthBit", m_ClearDepthBuffer );
+
     cJSON_AddNumberToObject( component, "Layers", m_LayersToRender );
 
     return component;
@@ -61,8 +72,13 @@ void ComponentCamera::ImportFromJSONObject(cJSON* jsonobj, unsigned int sceneid)
     ComponentBase::ImportFromJSONObject( jsonobj, sceneid );
 
     cJSONExt_GetBool( jsonobj, "Ortho", &m_Orthographic );
+
     cJSONExt_GetFloat( jsonobj, "DWidth", &m_DesiredWidth );
     cJSONExt_GetFloat( jsonobj, "DHeight", &m_DesiredHeight );
+
+    cJSONExt_GetBool( jsonobj, "ColorBit", &m_ClearColorBuffer );
+    cJSONExt_GetBool( jsonobj, "DepthBit", &m_ClearDepthBuffer );
+
     cJSONExt_GetUnsignedInt( jsonobj, "Layers", &m_LayersToRender );
 }
 
@@ -112,6 +128,20 @@ void ComponentCamera::SetDesiredAspectRatio(float width, float height)
 {
     m_DesiredWidth = width;
     m_DesiredHeight = height;
+
+    ComputeProjectionMatrices();
+}
+
+void ComponentCamera::ComputeProjectionMatrices()
+{
+    if( m_WindowHeight == 0 )
+        return;
+
+    float deviceratio = (float)m_WindowWidth / (float)m_WindowHeight;
+    float gameratio = m_DesiredWidth / m_DesiredHeight;
+
+    m_Camera3D.SetupProjection( deviceratio, gameratio, 45 );
+    m_Camera2D.Setup( (float)m_WindowWidth, (float)m_WindowHeight, m_DesiredWidth, m_DesiredHeight );
 }
 
 void ComponentCamera::Tick(double TimePassed)
@@ -120,8 +150,16 @@ void ComponentCamera::Tick(double TimePassed)
     MyMatrix matView = m_pComponentTransform->m_Transform;
     matView.Inverse();
 
-    m_Camera3D.m_matView = matView;
-    m_Camera3D.UpdateMatrices();
+    if( m_Orthographic )
+    {
+        m_Camera2D.m_matView = matView;
+        m_Camera2D.UpdateMatrices();
+    }
+    else
+    {
+        m_Camera3D.m_matView = matView;
+        m_Camera3D.UpdateMatrices();
+    }
 }
 
 void ComponentCamera::OnSurfaceChanged(unsigned int startx, unsigned int starty, unsigned int width, unsigned int height, unsigned int desiredaspectwidth, unsigned int desiredaspectheight)
@@ -129,16 +167,12 @@ void ComponentCamera::OnSurfaceChanged(unsigned int startx, unsigned int starty,
     m_DesiredWidth = (float)desiredaspectwidth;
     m_DesiredHeight = (float)desiredaspectheight;
 
-    float deviceratio = (float)width / (float)height;
-    float gameratio = m_DesiredWidth / m_DesiredHeight;
-
-    m_Camera3D.SetupProjection( deviceratio, gameratio, 45 );
-    m_Camera2D.Setup( (float)width, (float)height, m_DesiredWidth, m_DesiredHeight );
-
     m_WindowStartX = startx;
     m_WindowStartY = starty;
     m_WindowWidth = width;
     m_WindowHeight = height;
+
+    ComputeProjectionMatrices();
 
 #if MYFW_USING_WX
     m_FullClearsRequired = 2;
@@ -175,22 +209,21 @@ void ComponentCamera::OnDrawFrame()
     glViewport( m_WindowStartX, m_WindowStartY, m_WindowWidth, m_WindowHeight );
     checkGlError( "glViewport" );
 
+    glClearColor( 0.0f, 0.0f, 0.2f, 1.0f );
+
+    if( m_ClearColorBuffer && m_ClearDepthBuffer )
+        glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+    else if( m_ClearColorBuffer )
+        glClear( GL_COLOR_BUFFER_BIT );
+    else if( m_ClearDepthBuffer )
+        glClear( GL_DEPTH_BUFFER_BIT );
+
     if( m_Orthographic )
-    {
-        m_Camera2D.UpdateMatrices();
+    {   
         g_pComponentSystemManager->OnDrawFrame( this, &m_Camera2D.m_matViewProj, 0 );
     }
     else
     {
-        glClearColor( 0.0f, 0.0f, 0.2f, 1.0f );
-
-        if( m_ClearColorBuffer && m_ClearDepthBuffer )
-            glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
-        else if( m_ClearColorBuffer )
-            glClear( GL_COLOR_BUFFER_BIT );
-        else if( m_ClearDepthBuffer )
-            glClear( GL_DEPTH_BUFFER_BIT );
-
         g_pComponentSystemManager->OnDrawFrame( this, &m_Camera3D.m_matViewProj, 0 );
     }
 }

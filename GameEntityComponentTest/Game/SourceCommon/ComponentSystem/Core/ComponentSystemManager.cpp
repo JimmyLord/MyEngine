@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2014 Jimmy Lord http://www.flatheadgames.com
+// Copyright (c) 2014-2015 Jimmy Lord http://www.flatheadgames.com
 //
 // This software is provided 'as-is', without any express or implied warranty.  In no event will the authors be held liable for any damages arising from the use of this software.
 // Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -238,11 +238,14 @@ void ComponentSystemManager::LoadSceneFromJSON(const char* jsonstr, unsigned int
     cJSON* componentarray = cJSON_GetObjectItem( root, "Components" );
 
     // request all files used by scene.
-    for( int i=0; i<cJSON_GetArraySize( filearray ); i++ )
+    if( filearray )
     {
-        cJSON* fileobj = cJSON_GetArrayItem( filearray, i );
+        for( int i=0; i<cJSON_GetArraySize( filearray ); i++ )
+        {
+            cJSON* fileobj = cJSON_GetArrayItem( filearray, i );
 
-        LoadDatafile( fileobj->valuestring, sceneid );
+            LoadDatafile( fileobj->valuestring, sceneid );
+        }
     }
 
     // create/init all the game objects

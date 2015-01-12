@@ -1,4 +1,5 @@
 {
+	"Files":	["Data/OBJs/cube.obj", "Data/Scripts/Player.lua", "Data/Scripts/Enemy.lua", "Data/Shaders/Shader_TintColor.glsl", "Data/Shaders/Shader_TestNormals.glsl"],
 	"GameObjects":	[{
 			"ID":	1,
 			"Name":	"Main Camera"
@@ -71,6 +72,8 @@
 			"Ortho":	0,
 			"DWidth":	640,
 			"DHeight":	960,
+			"ColorBit":	1,
+			"DepthBit":	1,
 			"Layers":	4
 		}, {
 			"Type":	"Camera",
@@ -79,6 +82,8 @@
 			"Ortho":	1,
 			"DWidth":	640,
 			"DHeight":	960,
+			"ColorBit":	0,
+			"DepthBit":	0,
 			"Layers":	8
 		}, {
 			"Type":	"Lua Script",
