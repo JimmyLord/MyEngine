@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2012-2014 Jimmy Lord http://www.flatheadgames.com
+// Copyright (c) 2012-2015 Jimmy Lord http://www.flatheadgames.com
 //
 // This software is provided 'as-is', without any express or implied warranty.  In no event will the authors be held liable for any damages arising from the use of this software.
 // Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -50,7 +50,7 @@ struct EditorState
     GameObject* m_pSelectedGameObject;
 
     GameObject* m_p3DGridPlane;
-    GameObject* m_pTransformWidgets[3];
+    GameObject* m_pTransformGizmos[3];
     GameObject* m_pEditorCamera;
 
     EditorState::EditorState()
@@ -69,7 +69,7 @@ struct EditorState
 
         m_p3DGridPlane = 0;
         for( int i=0; i<3; i++ )
-            m_pTransformWidgets[i] = 0;
+            m_pTransformGizmos[i] = 0;
     }
 
     EditorState::~EditorState()

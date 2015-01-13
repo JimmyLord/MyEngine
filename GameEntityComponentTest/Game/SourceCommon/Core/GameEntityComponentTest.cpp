@@ -45,7 +45,7 @@ GameEntityComponentTest::GameEntityComponentTest()
     m_EditorState.m_p3DGridPlane = 0;
     for( int i=0; i<3; i++ )
     {
-        m_EditorState.m_pTransformWidgets[i] = 0;
+        m_EditorState.m_pTransformGizmos[i] = 0;
     }
     m_EditorState.m_pEditorCamera = 0;
 
@@ -81,7 +81,7 @@ GameEntityComponentTest::~GameEntityComponentTest()
     SAFE_DELETE( m_EditorState.m_p3DGridPlane );
     for( int i=0; i<3; i++ )
     {
-        SAFE_DELETE( m_EditorState.m_pTransformWidgets[i] );
+        SAFE_DELETE( m_EditorState.m_pTransformGizmos[i] );
     }
     SAFE_DELETE( m_EditorState.m_pEditorCamera );
 
@@ -179,11 +179,11 @@ void GameEntityComponentTest::OneTimeInit()
         m_EditorState.m_p3DGridPlane = pGameObject;
     }
 
-    // create a 3d transform widget for each axis.
+    // create a 3d transform gizmo for each axis.
     {
         pGameObject = m_pComponentSystemManager->CreateGameObject( false ); // not managed.
         pGameObject->SetSceneID( 99999 );
-        pGameObject->SetName( "3D Transform Widget - x-axis" );
+        pGameObject->SetName( "3D Transform Gizmo - x-axis" );
 
         pComponentMesh = (ComponentMesh*)pGameObject->AddNewComponent( ComponentType_Mesh );
         if( pComponentMesh )
@@ -192,18 +192,18 @@ void GameEntityComponentTest::OneTimeInit()
             pComponentMesh->m_Visible = true;
             pComponentMesh->SetShader( m_pShader_TintColor );
             pComponentMesh->m_LayersThisExistsOn = Layer_EditorFG;
-            pComponentMesh->m_pMesh->CreateEditorTransformWidgetAxis( 3, 0.1f, ColorByte(255, 100, 100, 255) );
+            pComponentMesh->m_pMesh->CreateEditorTransformGizmoAxis( 3, 0.1f, ColorByte(255, 100, 100, 255) );
         }
         pGameObject->m_pComponentTransform->SetRotation( Vector3( 0, 90, 0 ) );
 
         m_pComponentSystemManager->AddComponent( pComponentMesh );
 
-        m_EditorState.m_pTransformWidgets[0] = pGameObject;
+        m_EditorState.m_pTransformGizmos[0] = pGameObject;
     }
     {
         pGameObject = m_pComponentSystemManager->CreateGameObject( false ); // not managed.
         pGameObject->SetSceneID( 99999 );
-        pGameObject->SetName( "3D Transform Widget - y-axis" );
+        pGameObject->SetName( "3D Transform Gizmo - y-axis" );
 
         pComponentMesh = (ComponentMesh*)pGameObject->AddNewComponent( ComponentType_Mesh );
         if( pComponentMesh )
@@ -212,18 +212,18 @@ void GameEntityComponentTest::OneTimeInit()
             pComponentMesh->m_Visible = true;
             pComponentMesh->SetShader( m_pShader_TintColor );
             pComponentMesh->m_LayersThisExistsOn = Layer_EditorFG;
-            pComponentMesh->m_pMesh->CreateEditorTransformWidgetAxis( 3, 0.1f, ColorByte(100, 255, 100, 255) );
+            pComponentMesh->m_pMesh->CreateEditorTransformGizmoAxis( 3, 0.1f, ColorByte(100, 255, 100, 255) );
         }
         pGameObject->m_pComponentTransform->SetRotation( Vector3( -90, 0, 0 ) );
 
         m_pComponentSystemManager->AddComponent( pComponentMesh );
 
-        m_EditorState.m_pTransformWidgets[1] = pGameObject;
+        m_EditorState.m_pTransformGizmos[1] = pGameObject;
     }
     {
         pGameObject = m_pComponentSystemManager->CreateGameObject( false ); // not managed.
         pGameObject->SetSceneID( 99999 );
-        pGameObject->SetName( "3D Transform Widget - z-axis" );
+        pGameObject->SetName( "3D Transform Gizmo - z-axis" );
 
         pComponentMesh = (ComponentMesh*)pGameObject->AddNewComponent( ComponentType_Mesh );
         if( pComponentMesh )
@@ -232,13 +232,13 @@ void GameEntityComponentTest::OneTimeInit()
             pComponentMesh->m_Visible = true;
             pComponentMesh->SetShader( m_pShader_TintColor );
             pComponentMesh->m_LayersThisExistsOn = Layer_EditorFG;
-            pComponentMesh->m_pMesh->CreateEditorTransformWidgetAxis( 3, 0.1f, ColorByte(100, 100, 255, 255) );
+            pComponentMesh->m_pMesh->CreateEditorTransformGizmoAxis( 3, 0.1f, ColorByte(100, 100, 255, 255) );
         }
         pGameObject->m_pComponentTransform->SetRotation( Vector3( 0, 180, 0 ) );
 
         m_pComponentSystemManager->AddComponent( pComponentMesh );
 
-        m_EditorState.m_pTransformWidgets[2] = pGameObject;
+        m_EditorState.m_pTransformGizmos[2] = pGameObject;
     }
 
     // create a 3D editor camera, renders editor view.
@@ -263,7 +263,7 @@ void GameEntityComponentTest::OneTimeInit()
             m_pComponentSystemManager->AddComponent( pComponentCamera );
         }
 
-        // add a foreground camera for the transform widget only ATM.
+        // add a foreground camera for the transform gizmo only ATM.
         {
             pComponentCamera = (ComponentCamera*)pGameObject->AddNewComponent( ComponentType_Camera );
             pComponentCamera->SetSceneID( 1 );
@@ -416,17 +416,17 @@ void GameEntityComponentTest::Tick(double TimePassed)
 #if MYFW_USING_WX
         for( int i=0; i<3; i++ )
         {
-            ComponentRenderable* pRenderable = (ComponentRenderable*)m_EditorState.m_pTransformWidgets[i]->GetFirstComponentOfBaseType( BaseComponentType_Renderable );
+            ComponentRenderable* pRenderable = (ComponentRenderable*)m_EditorState.m_pTransformGizmos[i]->GetFirstComponentOfBaseType( BaseComponentType_Renderable );
 
             if( m_EditorState.m_pSelectedGameObject )
             {
                 pRenderable->m_Visible = true;
 
-                // move the widget to the object position.
+                // move the gizmo to the object position.
                 Vector3 pos = m_EditorState.m_pSelectedGameObject->m_pComponentTransform->GetPosition();
-                m_EditorState.m_pTransformWidgets[i]->m_pComponentTransform->SetPosition( pos );
+                m_EditorState.m_pTransformGizmos[i]->m_pComponentTransform->SetPosition( pos );
 
-                // rotate the widget.
+                // rotate the gizmo.
                 MyMatrix matrot;
                 matrot.SetIdentity();
                 if( i == 0 )
@@ -440,7 +440,7 @@ void GameEntityComponentTest::Tick(double TimePassed)
 
                 Vector3 rot = matrot.GetEulerAngles() * 180.0f/PI;
 
-                m_EditorState.m_pTransformWidgets[i]->m_pComponentTransform->SetRotation( rot );
+                m_EditorState.m_pTransformGizmos[i]->m_pComponentTransform->SetRotation( rot );
             }
             else
             {
@@ -656,27 +656,27 @@ void GameEntityComponentTest::HandleEditorInput(int keydown, int keycode, int ac
             // find the object we clicked on.
             GameObject* pObject = GetObjectAtPixel( x, y );
 
-            bool selectedwidget = false;
+            bool selectedgizmo = false;
 
             // translate to the right.
-            if( pObject == m_EditorState.m_pTransformWidgets[0] )
+            if( pObject == m_EditorState.m_pTransformGizmos[0] )
             {
                 m_EditorState.m_EditorActionState = EDITORACTIONSTATE_TranslateX;
-                selectedwidget = true;
+                selectedgizmo = true;
             }
-            if( pObject == m_EditorState.m_pTransformWidgets[1] )
+            if( pObject == m_EditorState.m_pTransformGizmos[1] )
             {
                 m_EditorState.m_EditorActionState = EDITORACTIONSTATE_TranslateY;
-                selectedwidget = true;
+                selectedgizmo = true;
             }
-            if( pObject == m_EditorState.m_pTransformWidgets[2] )
+            if( pObject == m_EditorState.m_pTransformGizmos[2] )
             {
                 m_EditorState.m_EditorActionState = EDITORACTIONSTATE_TranslateZ;
-                selectedwidget = true;
+                selectedgizmo = true;
             }
 
             // if shift is held, make a copy of the object and control that one.
-            if( selectedwidget && m_EditorState.m_ModifierKeyStates & MODIFIERKEY_Shift )
+            if( selectedgizmo && m_EditorState.m_ModifierKeyStates & MODIFIERKEY_Shift )
             {
                 GameObject* pNewObject = g_pComponentSystemManager->CopyGameObject( m_EditorState.m_pSelectedGameObject, "Duplicated Game Object" );
                 if( m_EditorMode )
@@ -1046,15 +1046,15 @@ GameObject* GameEntityComponentTest::GetObjectAtPixel(unsigned int x, unsigned i
     // find the object clicked on.
     GameObject* pGameObject = m_pComponentSystemManager->FindGameObjectByID( id );
 
-    // if we didn't click on something, check if it's the transform widget.
+    // if we didn't click on something, check if it's the transform gizmo.
     //   has to be checked manually since they are unmanaged.
     if( pGameObject == 0 )
     {
         for( int i=0; i<3; i++ )
         {
-            if( m_EditorState.m_pTransformWidgets[i]->GetID() == id )
+            if( m_EditorState.m_pTransformGizmos[i]->GetID() == id )
             {
-                return m_EditorState.m_pTransformWidgets[i];
+                return m_EditorState.m_pTransformGizmos[i];
             }
         }
     }
