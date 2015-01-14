@@ -436,11 +436,19 @@ void GameEntityComponentTest::Tick(double TimePassed)
                 if( i == 2 )
                     matrot.Rotate( 180, 0, 1, 0 );
 
-                matrot = *m_EditorState.m_pSelectedGameObject->m_pComponentTransform->GetLocalTransform() * matrot;
+                MyMatrix* localtransform = m_EditorState.m_pSelectedGameObject->m_pComponentTransform->GetLocalTransform();
+                MyMatrix matrotobj;
+                matrotobj.SetIdentity();
+                matrotobj.CreateSRT( Vector3(1,1,1), localtransform->GetEulerAngles(), Vector3(0,0,0) );
+
+                matrot = matrotobj * matrot;
 
                 Vector3 rot = matrot.GetEulerAngles() * 180.0f/PI;
 
                 m_EditorState.m_pTransformGizmos[i]->m_pComponentTransform->SetRotation( rot );
+
+                float distance = (m_EditorState.m_pEditorCamera->m_pComponentTransform->GetPosition() - pos).Length();
+                m_EditorState.m_pTransformGizmos[i]->m_pComponentTransform->SetScale( Vector3( distance / 15.0f ) );
             }
             else
             {
@@ -645,10 +653,18 @@ void GameEntityComponentTest::HandleEditorInput(int keydown, int keycode, int ac
         if( action == GCBA_Up && id == 0 && m_EditorState.m_CurrentMousePosition == m_EditorState.m_MouseLeftDownLocation )
         {
             // find the object we clicked on.
-            m_EditorState.m_pSelectedGameObject = GetObjectAtPixel( x, y );
+            GameObject* pObject = GetObjectAtPixel( x, y );
 
-            // select the object in the object tree.
-            g_pPanelObjectList->SelectObject( m_EditorState.m_pSelectedGameObject );
+            // don't select the gizmos. TODO: give object a 'selectable' flag or something.
+            if( pObject != m_EditorState.m_pTransformGizmos[0] &&
+                pObject != m_EditorState.m_pTransformGizmos[1] &&
+                pObject != m_EditorState.m_pTransformGizmos[2] )
+            {
+                m_EditorState.m_pSelectedGameObject = pObject;
+
+                // select the object in the object tree.
+                g_pPanelObjectList->SelectObject( m_EditorState.m_pSelectedGameObject );
+            }
         }
 
         if( action == GCBA_Down && id == 0 )
