@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2014 Jimmy Lord http://www.flatheadgames.com
+// Copyright (c) 2014-2015 Jimmy Lord http://www.flatheadgames.com
 //
 // This software is provided 'as-is', without any express or implied warranty.  In no event will the authors be held liable for any damages arising from the use of this software.
 // Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -44,6 +44,10 @@ GameObject::~GameObject()
         g_pPanelObjectList->RemoveObject( this );
     }
 #endif //MYFW_USING_WX
+
+    // if it's in a list, remove it.
+    if( this->Prev != 0 )
+        Remove();
 
     SAFE_DELETE( m_pComponentTransform );
 
@@ -112,6 +116,8 @@ void GameObject::OnRightClick()
         lastcategory = g_pComponentTypeManager->GetTypeCategory( i );
     }
     
+    menu.Append( 1001, "Delete GameObject" ); // matches 1001 in OnPopupClick()
+
     menu.Connect( wxEVT_COMMAND_MENU_SELECTED, (wxObjectEventFunction)&GameObject::OnPopupClick );
     
     // blocking call. // should delete all categorymenu's new'd above when done.
@@ -131,11 +137,18 @@ void GameObject::OnPopupClick(wxEvent &evt)
     {
         ComponentTypes type = (ComponentTypes)id;
 
-        pGameObject->AddNewComponent( type );
+        if( ((GameEntityComponentTest*)g_pGameCore)->m_EditorMode )
+            pGameObject->AddNewComponent( type, pGameObject->GetSceneID() );
+        else
+            pGameObject->AddNewComponent( type, 0 );
     }
     else if( id == 1000 ) // "Duplicate GameObject"
     {
         g_pComponentSystemManager->CopyGameObject( pGameObject, "Duplicated Game Object" );
+    }
+    else if( id == 1001 ) // "Delete GameObject"
+    {
+        g_pComponentSystemManager->DeleteGameObject( pGameObject, true );
     }
 }
 
@@ -228,7 +241,7 @@ void GameObject::SetName(const char* name)
 #endif //MYFW_USING_WX
 }
 
-ComponentBase* GameObject::AddNewComponent(int componenttype, ComponentSystemManager* pComponentSystemManager)
+ComponentBase* GameObject::AddNewComponent(int componenttype, unsigned int sceneid, ComponentSystemManager* pComponentSystemManager)
 {
     assert( componenttype != -1 );
 
@@ -245,6 +258,9 @@ ComponentBase* GameObject::AddNewComponent(int componenttype, ComponentSystemMan
     pComponent->SetID( pComponentSystemManager->m_NextComponentID );
     pComponentSystemManager->m_NextComponentID++;
 
+    assert( sceneid == 0 || m_SceneID == sceneid );
+    pComponent->SetSceneID( sceneid );
+
     AddExistingComponent( pComponent );
 
     return pComponent;
@@ -259,6 +275,8 @@ ComponentBase* GameObject::AddExistingComponent(ComponentBase* pComponent)
     pComponent->Reset();
 
     m_Components.Add( pComponent );
+
+    assert( pComponent->GetSceneID() == 0 || m_SceneID == pComponent->GetSceneID() );
 
 #if MYFW_USING_WX
     if( m_Managed )

@@ -14,13 +14,28 @@
 
 GameMainFrame* g_pGameMainFrame = 0;
 
+void GameMainFrame_MessageLog(int logtype, const char* tag, const char* message)
+{
+    if( logtype == 1 )
+        g_pGameMainFrame->m_pLogPane->AppendText( "ERROR: " );
+
+    //g_pGameMainFrame->m_pLogPane->AppendText( tag );
+    //g_pGameMainFrame->m_pLogPane->AppendText( " " );
+
+    g_pGameMainFrame->m_pLogPane->AppendText( message );
+}
+
 GameMainFrame::GameMainFrame()
 : MainFrame(0)
 {
     g_pGameMainFrame = this;
 
     m_pGLCanvasEditor = 0;
+    m_pLogPane = 0;
+
     m_CurrentSceneName[0] = 0;
+
+    g_pMessageLogCallbackFunction = GameMainFrame_MessageLog;
 
     m_File->Insert( 0, myIDGame_LoadScene, wxT("&Load Scene") );
     m_File->Insert( 1, myIDGame_SaveScene, wxT("&Save Scene\tCtrl-S") );
@@ -47,6 +62,11 @@ void GameMainFrame::AddPanes()
     m_pGLCanvasEditor->SetSize( 600, 600 );
 
     m_AUIManager.AddPane( m_pGLCanvasEditor, wxAuiPaneInfo().Name("GLCanvasEditor").Bottom().Caption("GLCanvasEditor") );//.CaptionVisible(false) );
+
+    m_pLogPane = new wxTextCtrl( this, -1, wxEmptyString,
+                                 wxDefaultPosition, wxSize(200,150),
+                                 wxTE_READONLY | wxNO_BORDER | wxTE_MULTILINE );
+    m_AUIManager.AddPane( m_pLogPane, wxAuiPaneInfo().Name("Log").Bottom().Caption("Log") );//.CaptionVisible(false) );
 }
 
 void GameMainFrame::OnPostInit()
@@ -129,7 +149,15 @@ void GameMainFrame::SaveScene()
     }
     else
     {
-        ((GameEntityComponentTest*)g_pGameCore)->SaveScene( m_CurrentSceneName );
+        if( ((GameEntityComponentTest*)g_pGameCore)->m_EditorMode == false )
+        {
+            m_pLogPane->AppendText( "Can't save when gameplay is active... use \"Save As\"\n" );
+        }
+        else
+        {
+            m_pLogPane->AppendText( "Saving scene...\n" );
+            ((GameEntityComponentTest*)g_pGameCore)->SaveScene( m_CurrentSceneName );
+        }
     }
 }
 

@@ -149,8 +149,7 @@ void GameEntityComponentTest::OneTimeInit()
         pGameObject->SetName( "Main Camera" );
         pGameObject->m_pComponentTransform->SetPosition( Vector3( 0, 0, 10 ) );
 
-        pComponentCamera = (ComponentCamera*)pGameObject->AddNewComponent( ComponentType_Camera );
-        pComponentCamera->SetSceneID( 1 );
+        pComponentCamera = (ComponentCamera*)pGameObject->AddNewComponent( ComponentType_Camera, 1 );
         pComponentCamera->SetDesiredAspectRatio( 640, 960 );
         pComponentCamera->m_Orthographic = false;
         pComponentCamera->m_LayersToRender = Layer_MainScene;
@@ -163,10 +162,9 @@ void GameEntityComponentTest::OneTimeInit()
         pGameObject->SetSceneID( 99999 );
         pGameObject->SetName( "3D Grid Plane" );
 
-        pComponentMesh = (ComponentMesh*)pGameObject->AddNewComponent( ComponentType_Mesh );
+        pComponentMesh = (ComponentMesh*)pGameObject->AddNewComponent( ComponentType_Mesh, 99999 );
         if( pComponentMesh )
         {
-            pComponentMesh->SetSceneID( 99999 );
             pComponentMesh->m_Visible = true; // manually drawn when in editor mode.
             pComponentMesh->SetShader( m_pShader_TintColor );
             pComponentMesh->m_LayersThisExistsOn = Layer_Editor;
@@ -185,10 +183,9 @@ void GameEntityComponentTest::OneTimeInit()
         pGameObject->SetSceneID( 99999 );
         pGameObject->SetName( "3D Transform Gizmo - x-axis" );
 
-        pComponentMesh = (ComponentMesh*)pGameObject->AddNewComponent( ComponentType_Mesh );
+        pComponentMesh = (ComponentMesh*)pGameObject->AddNewComponent( ComponentType_Mesh, 99999 );
         if( pComponentMesh )
         {
-            pComponentMesh->SetSceneID( 99999 );
             pComponentMesh->m_Visible = true;
             pComponentMesh->SetShader( m_pShader_TintColor );
             pComponentMesh->m_LayersThisExistsOn = Layer_EditorFG;
@@ -205,10 +202,9 @@ void GameEntityComponentTest::OneTimeInit()
         pGameObject->SetSceneID( 99999 );
         pGameObject->SetName( "3D Transform Gizmo - y-axis" );
 
-        pComponentMesh = (ComponentMesh*)pGameObject->AddNewComponent( ComponentType_Mesh );
+        pComponentMesh = (ComponentMesh*)pGameObject->AddNewComponent( ComponentType_Mesh, 99999 );
         if( pComponentMesh )
         {
-            pComponentMesh->SetSceneID( 99999 );
             pComponentMesh->m_Visible = true;
             pComponentMesh->SetShader( m_pShader_TintColor );
             pComponentMesh->m_LayersThisExistsOn = Layer_EditorFG;
@@ -225,10 +221,9 @@ void GameEntityComponentTest::OneTimeInit()
         pGameObject->SetSceneID( 99999 );
         pGameObject->SetName( "3D Transform Gizmo - z-axis" );
 
-        pComponentMesh = (ComponentMesh*)pGameObject->AddNewComponent( ComponentType_Mesh );
+        pComponentMesh = (ComponentMesh*)pGameObject->AddNewComponent( ComponentType_Mesh, 99999 );
         if( pComponentMesh )
         {
-            pComponentMesh->SetSceneID( 99999 );
             pComponentMesh->m_Visible = true;
             pComponentMesh->SetShader( m_pShader_TintColor );
             pComponentMesh->m_LayersThisExistsOn = Layer_EditorFG;
@@ -250,8 +245,7 @@ void GameEntityComponentTest::OneTimeInit()
 
         // add an editor scene camera
         {
-            pComponentCamera = (ComponentCamera*)pGameObject->AddNewComponent( ComponentType_Camera );
-            pComponentCamera->SetSceneID( 1 );
+            pComponentCamera = (ComponentCamera*)pGameObject->AddNewComponent( ComponentType_Camera, 1 );
             pComponentCamera->SetDesiredAspectRatio( 640, 960 );
             pComponentCamera->m_Orthographic = false;
             pComponentCamera->m_LayersToRender = Layer_Editor | Layer_MainScene;
@@ -265,8 +259,7 @@ void GameEntityComponentTest::OneTimeInit()
 
         // add a foreground camera for the transform gizmo only ATM.
         {
-            pComponentCamera = (ComponentCamera*)pGameObject->AddNewComponent( ComponentType_Camera );
-            pComponentCamera->SetSceneID( 1 );
+            pComponentCamera = (ComponentCamera*)pGameObject->AddNewComponent( ComponentType_Camera, 1 );
             pComponentCamera->SetDesiredAspectRatio( 640, 960 );
             pComponentCamera->m_Orthographic = false;
             pComponentCamera->m_LayersToRender = Layer_EditorFG;
@@ -288,8 +281,7 @@ void GameEntityComponentTest::OneTimeInit()
         pGameObject->SetSceneID( 1 );
         pGameObject->SetName( "Hud Camera" );
 
-        pComponentCamera = (ComponentCamera*)pGameObject->AddNewComponent( ComponentType_Camera );
-        pComponentCamera->SetSceneID( 1 );
+        pComponentCamera = (ComponentCamera*)pGameObject->AddNewComponent( ComponentType_Camera, 1 );
         pComponentCamera->SetDesiredAspectRatio( 640, 960 );
         pComponentCamera->m_Orthographic = true;
         pComponentCamera->m_LayersToRender = Layer_HUD;
@@ -925,7 +917,7 @@ void GameEntityComponentTest::UnloadScene(unsigned int sceneid)
     // reset the editorstate structure.
     m_EditorState.UnloadScene();
 
-    g_pComponentSystemManager->UnloadScene( false );
+    g_pComponentSystemManager->UnloadScene( false, sceneid );
 }
 
 void GameEntityComponentTest::LoadScene(const char* fullpath, unsigned int sceneid)

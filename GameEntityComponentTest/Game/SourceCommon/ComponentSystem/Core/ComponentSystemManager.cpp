@@ -324,7 +324,7 @@ void ComponentSystemManager::LoadSceneFromJSON(const char* jsonstr, unsigned int
             if( pComponent ) { assert( pComponent->GetSceneID() == sceneid ); } // TODO: get the object from the right scene if multiple scenes are loaded.
     
             if( pComponent == 0 )
-                pComponent = pGameObject->AddNewComponent( type );
+                pComponent = pGameObject->AddNewComponent( type, sceneid );
 
             pComponent->ImportFromJSONObject( componentobj, sceneid );
             
@@ -435,7 +435,7 @@ void ComponentSystemManager::UnloadScene(bool clearunmanagedcomponents, unsigned
 
             if( (sceneidtoclear == UINT_MAX || pGameObject->GetSceneID() == sceneidtoclear) )
             {
-                DeleteGameObject( pGameObject );
+                DeleteGameObject( pGameObject, true );
             }
         }
     }
@@ -453,9 +453,17 @@ GameObject* ComponentSystemManager::CreateGameObject(bool manageobject)
     return pGameObject;
 }
 
-void ComponentSystemManager::DeleteGameObject(GameObject* pObject)
+void ComponentSystemManager::DeleteGameObject(GameObject* pObject, bool deletecomponents)
 {
-    pObject->Remove();
+    if( deletecomponents )
+    {
+        while( pObject->m_Components.Count() )
+        {
+            ComponentBase* pComponent = pObject->m_Components.RemoveIndex( 0 );
+            delete pComponent;
+        }
+    }
+
     SAFE_DELETE( pObject );
 }
 
@@ -463,12 +471,18 @@ GameObject* ComponentSystemManager::CopyGameObject(GameObject* pObject, const ch
 {
     GameObject* pGameObject = CreateGameObject();
     pGameObject->SetName( newname );
+    pGameObject->SetSceneID( pObject->GetSceneID() );
 
     *pGameObject->m_pComponentTransform = *pObject->m_pComponentTransform;
 
     for( unsigned int i=0; i<pObject->m_Components.Count(); i++ )
     {
-        ComponentBase* pComponent = pGameObject->AddNewComponent( pObject->m_Components[i]->m_Type );
+        ComponentBase* pComponent = 0;
+
+        if( ((GameEntityComponentTest*)g_pGameCore)->m_EditorMode )
+            pComponent = pGameObject->AddNewComponent( pObject->m_Components[i]->m_Type, pGameObject->GetSceneID() );
+        else
+            pComponent = pGameObject->AddNewComponent( pObject->m_Components[i]->m_Type, 0 );
 
         pComponent->CopyFromSameType_Dangerous( pObject->m_Components[i] );
     }
