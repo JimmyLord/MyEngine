@@ -145,6 +145,7 @@ ComponentMesh& ComponentMesh::operator=(const ComponentMesh& other)
     ComponentRenderable::operator=( other );
 
     this->m_pMesh->SetShaderGroup( other.m_pMesh->GetShaderGroup() );
+    this->m_pMesh->m_pTexture = other.m_pMesh->m_pTexture;
 
     return *this;
 }

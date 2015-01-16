@@ -813,7 +813,7 @@ void GameEntityComponentTest::HandleEditorInput(int keydown, int keycode, int ac
             mods & MODIFIERKEY_MiddleMouse
           )
         {
-            Vector2 dir = m_EditorState.m_CurrentMousePosition - m_EditorState.m_LastMousePosition;
+            Vector2 dir = m_EditorState.m_LastMousePosition - m_EditorState.m_CurrentMousePosition;
 
             if( dir.LengthSquared() > 0 )
                 matLocalCamera->TranslatePreRotScale( dir * 0.05f );

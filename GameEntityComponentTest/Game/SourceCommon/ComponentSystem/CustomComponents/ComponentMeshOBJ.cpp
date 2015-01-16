@@ -27,6 +27,7 @@ ComponentMeshOBJ::ComponentMeshOBJ()
 
 ComponentMeshOBJ::~ComponentMeshOBJ()
 {
+    SAFE_RELEASE( m_pOBJFile );
 }
 
 void ComponentMeshOBJ::Reset()
@@ -69,7 +70,7 @@ void ComponentMeshOBJ::OnDropOBJ()
 
         if( strcmp( filenameext, ".obj" ) == 0 )
         {
-            m_pOBJFile = pFile;
+            SetOBJFile( pFile );
             m_pMesh->m_NumIndicesToDraw = 0;
         }
 
@@ -96,8 +97,11 @@ void ComponentMeshOBJ::ImportFromJSONObject(cJSON* jsonobj, unsigned int sceneid
     cJSON* objstringobj = cJSON_GetObjectItem( jsonobj, "OBJ" );
     if( objstringobj )
     {
-        m_pOBJFile = g_pFileManager->FindFileByName( objstringobj->valuestring );
-        assert( m_pOBJFile );
+        MyFileObject* pFile = g_pFileManager->FindFileByName( objstringobj->valuestring );
+        if( pFile )
+        {
+            SetOBJFile( pFile );
+        }
     }
 }
 
@@ -108,11 +112,18 @@ ComponentMeshOBJ& ComponentMeshOBJ::operator=(const ComponentMeshOBJ& other)
     ComponentMesh::operator=( other );
 
     this->m_pMesh->SetShaderGroup( other.m_pMesh->GetShaderGroup() );
-    this->m_pOBJFile = other.m_pOBJFile;
-    if( this->m_pOBJFile )
-        this->m_pOBJFile->AddRef();
+    SetOBJFile( other.m_pOBJFile );
 
     return *this;
+}
+
+void ComponentMeshOBJ::SetOBJFile(MyFileObject* objfile)
+{
+    if( objfile )
+        objfile->AddRef();
+
+    SAFE_RELEASE( m_pOBJFile );
+    m_pOBJFile = objfile;
 }
 
 void ComponentMeshOBJ::Draw(MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride, int drawcount)

@@ -36,6 +36,8 @@ public:
     virtual void CopyFromSameType_Dangerous(ComponentBase* pObject) { *this = (ComponentMeshOBJ&)*pObject; }
     virtual ComponentMeshOBJ& operator=(const ComponentMeshOBJ& other);
 
+    void SetOBJFile(MyFileObject* objfile);
+
     virtual void Draw(MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride = 0, int drawcount = 0);
 
 public:
