@@ -15,7 +15,6 @@ class ComponentTransform;
 class ComponentMeshOBJ : public ComponentMesh
 {
 public:
-    MyFileObject* m_pOBJFile;
 
 public:
     ComponentMeshOBJ();

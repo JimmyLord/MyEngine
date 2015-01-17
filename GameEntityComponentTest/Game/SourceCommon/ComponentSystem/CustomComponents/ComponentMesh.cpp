@@ -140,8 +140,6 @@ void ComponentMesh::Reset()
     ComponentRenderable::Reset();
 
     SAFE_RELEASE( m_pMesh );
-    //if( m_pMesh == 0 )
-    //    m_pMesh = MyNew MyMesh();
 }
 
 ComponentMesh& ComponentMesh::operator=(const ComponentMesh& other)
@@ -177,14 +175,6 @@ void ComponentMesh::SetShader(ShaderGroup* pShader)
 void ComponentMesh::Draw(MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride, int drawcount)
 {
     ComponentRenderable::Draw( pMatViewProj, pShaderOverride, drawcount );
-
-    // TODO: find a better way to handle the creation of a mesh.
-    //if( m_pMesh->m_NumIndicesToDraw == 0 )
-    //{
-    //    return;
-    //    //m_pMesh->CreateCylinder( 1, 40, 0.9, 1, 0, 1, 0, 1, 0, 1, 0, 1 );
-    //    //assert( false );
-    //}
 
     m_pMesh->SetShaderGroup( m_pShaderGroup );
     m_pMesh->m_pTexture = m_pTexture;

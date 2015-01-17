@@ -13,13 +13,10 @@ ComponentMeshOBJ::ComponentMeshOBJ()
 : ComponentMesh()
 {
     m_BaseType = BaseComponentType_Renderable;
-
-    m_pOBJFile = 0;
 }
 
 ComponentMeshOBJ::~ComponentMeshOBJ()
 {
-    SAFE_RELEASE( m_pOBJFile );
 }
 
 void ComponentMeshOBJ::Reset()
@@ -27,8 +24,6 @@ void ComponentMeshOBJ::Reset()
     ComponentMesh::Reset();
 
     SAFE_RELEASE( m_pMesh );
-    //if( m_pMesh == 0 )
-    //    m_pMesh = MyNew MyMesh();
 }
 
 #if MYFW_USING_WX
@@ -45,8 +40,8 @@ void ComponentMeshOBJ::FillPropertiesWindow(bool clear)
     ComponentMesh::FillPropertiesWindow( clear );
 
     const char* desc = "no mesh";
-    if( m_pOBJFile )
-        desc = m_pOBJFile->m_FullPath;
+    if( m_pMesh->m_pSourceFile )
+        desc = m_pMesh->m_pSourceFile->m_FullPath;
     g_pPanelWatch->AddPointerWithDescription( "OBJ", 0, desc, this, ComponentMeshOBJ::StaticOnDropOBJ );
 }
 
@@ -68,7 +63,7 @@ void ComponentMeshOBJ::OnDropOBJ()
         }
 
         // update the panel so new OBJ name shows up.
-        g_pPanelWatch->m_pVariables[g_DragAndDropStruct.m_ID].m_Description = m_pOBJFile->m_FullPath;
+        g_pPanelWatch->m_pVariables[g_DragAndDropStruct.m_ID].m_Description = m_pMesh->m_pSourceFile->m_FullPath;
     }
 }
 #endif //MYFW_USING_WX
@@ -77,8 +72,8 @@ cJSON* ComponentMeshOBJ::ExportAsJSONObject()
 {
     cJSON* component = ComponentMesh::ExportAsJSONObject();
 
-    if( m_pOBJFile )
-        cJSON_AddStringToObject( component, "OBJ", m_pOBJFile->m_FullPath );
+    if( m_pMesh->m_pSourceFile )
+        cJSON_AddStringToObject( component, "OBJ", m_pMesh->m_pSourceFile->m_FullPath );
 
     return component;
 }
@@ -104,9 +99,6 @@ ComponentMeshOBJ& ComponentMeshOBJ::operator=(const ComponentMeshOBJ& other)
     assert( &other != this );
 
     ComponentMesh::operator=( other );
-
-    //this->m_pMesh->SetShaderGroup( other.m_pMesh->GetShaderGroup() );
-    //SetOBJFile( other.m_pOBJFile );
 
     return *this;
 }
