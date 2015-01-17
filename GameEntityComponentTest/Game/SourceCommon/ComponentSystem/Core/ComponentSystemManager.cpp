@@ -222,6 +222,13 @@ void ComponentSystemManager::LoadDatafile(const char* fullpath, unsigned int sce
         pFileInfo->m_pFile = pFile;
         pFileInfo->m_SceneID = sceneid;
         m_Files.AddTail( pFileInfo );
+
+        // if we're loading an .obj file, create a mesh.
+        if( strcmp( pFile->m_ExtensionWithDot, ".obj" ) == 0 )
+        {
+            pFileInfo->m_pMesh = MyNew MyMesh();
+            pFileInfo->m_pMesh->CreateFromOBJFile( pFile );
+        }
     }
 }
 
@@ -357,16 +364,6 @@ void ComponentSystemManager::UnloadScene(bool clearunmanagedcomponents, unsigned
     m_NextGameObjectID = 1;
     m_NextComponentID = 1;
 
-    // release any file ref's added by this scene.
-    for( CPPListNode* pNode = m_Files.GetHead(); pNode;  )
-    {
-        FileInfo* pFile = (FileInfo*)pNode;
-        pNode = pNode->GetNext();
-
-        if( pFile->m_SceneID == sceneidtoclear || pFile->m_SceneID == UINT_MAX )
-            delete pFile;
-    }
-
     // Remove all components, except ones attached to unmanaged game objects(if wanted)
     {
         for( CPPListNode* pNode = m_ComponentsCamera.GetHead(); pNode;  )
@@ -438,6 +435,16 @@ void ComponentSystemManager::UnloadScene(bool clearunmanagedcomponents, unsigned
                 DeleteGameObject( pGameObject, true );
             }
         }
+    }
+
+    // release any file ref's added by this scene.
+    for( CPPListNode* pNode = m_Files.GetHead(); pNode;  )
+    {
+        FileInfo* pFile = (FileInfo*)pNode;
+        pNode = pNode->GetNext();
+
+        if( pFile->m_SceneID == sceneidtoclear || pFile->m_SceneID == UINT_MAX )
+            delete pFile;
     }
 }
 

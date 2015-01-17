@@ -56,10 +56,10 @@ GameEntityComponentTest::~GameEntityComponentTest()
 {
     SAFE_DELETE( m_pLuaGameState );
 
-    SAFE_DELETE( m_pShader_TintColor );
-    SAFE_DELETE( m_pShader_TestNormals );
-    SAFE_DELETE( m_pShader_Texture );
-    SAFE_DELETE( m_pShader_MousePicker );
+    SAFE_RELEASE( m_pShader_TintColor );
+    SAFE_RELEASE( m_pShader_TestNormals );
+    SAFE_RELEASE( m_pShader_Texture );
+    SAFE_RELEASE( m_pShader_MousePicker );
 
     for( int i=0; i<4; i++ )
     {
@@ -168,8 +168,9 @@ void GameEntityComponentTest::OneTimeInit()
             pComponentMesh->m_Visible = true; // manually drawn when in editor mode.
             pComponentMesh->SetShader( m_pShader_TintColor );
             pComponentMesh->m_LayersThisExistsOn = Layer_Editor;
-            pComponentMesh->m_pMesh->m_Tint.Set( 150, 150, 150, 255 );
+            pComponentMesh->m_pMesh = MyNew MyMesh();
             pComponentMesh->m_pMesh->CreateEditorLineGridXZ( Vector3(0,0,0), 1, 5 );
+            pComponentMesh->m_pMesh->m_Tint.Set( 150, 150, 150, 255 );
         }
 
         m_pComponentSystemManager->AddComponent( pComponentMesh );
@@ -189,6 +190,7 @@ void GameEntityComponentTest::OneTimeInit()
             pComponentMesh->m_Visible = true;
             pComponentMesh->SetShader( m_pShader_TintColor );
             pComponentMesh->m_LayersThisExistsOn = Layer_EditorFG;
+            pComponentMesh->m_pMesh = MyNew MyMesh();
             pComponentMesh->m_pMesh->CreateEditorTransformGizmoAxis( 3, 0.1f, ColorByte(255, 100, 100, 255) );
         }
         pGameObject->m_pComponentTransform->SetRotation( Vector3( 0, 90, 0 ) );
@@ -208,6 +210,7 @@ void GameEntityComponentTest::OneTimeInit()
             pComponentMesh->m_Visible = true;
             pComponentMesh->SetShader( m_pShader_TintColor );
             pComponentMesh->m_LayersThisExistsOn = Layer_EditorFG;
+            pComponentMesh->m_pMesh = MyNew MyMesh();
             pComponentMesh->m_pMesh->CreateEditorTransformGizmoAxis( 3, 0.1f, ColorByte(100, 255, 100, 255) );
         }
         pGameObject->m_pComponentTransform->SetRotation( Vector3( -90, 0, 0 ) );
@@ -227,6 +230,7 @@ void GameEntityComponentTest::OneTimeInit()
             pComponentMesh->m_Visible = true;
             pComponentMesh->SetShader( m_pShader_TintColor );
             pComponentMesh->m_LayersThisExistsOn = Layer_EditorFG;
+            pComponentMesh->m_pMesh = MyNew MyMesh();
             pComponentMesh->m_pMesh->CreateEditorTransformGizmoAxis( 3, 0.1f, ColorByte(100, 100, 255, 255) );
         }
         pGameObject->m_pComponentTransform->SetRotation( Vector3( 0, 180, 0 ) );

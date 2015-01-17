@@ -99,15 +99,18 @@ public:
     {
         m_pFile = 0;
         m_SceneID = 0;
+        m_pMesh = 0;
     }
 
     virtual ~FileInfo()
     {
         SAFE_RELEASE( m_pFile );
+        SAFE_RELEASE( m_pMesh );
     }
 
     MyFileObject* m_pFile;
     unsigned int m_SceneID;
+    MyMesh* m_pMesh; // a mesh may have been created alongside the file.
 };
 
 #endif //__ComponentSystemManager_H__
