@@ -26,6 +26,13 @@ ComponentMesh::~ComponentMesh()
     SAFE_RELEASE( m_pTexture );
 }
 
+void ComponentMesh::Reset()
+{
+    ComponentRenderable::Reset();
+
+    SAFE_RELEASE( m_pMesh );
+}
+
 #if MYFW_USING_WX
 void ComponentMesh::AddToObjectsPanel(wxTreeItemId gameobjectid)
 {
@@ -133,13 +140,6 @@ void ComponentMesh::ImportFromJSONObject(cJSON* jsonobj, unsigned int sceneid)
         SAFE_RELEASE( m_pTexture );
         m_pTexture = pTexture;
     }
-}
-
-void ComponentMesh::Reset()
-{
-    ComponentRenderable::Reset();
-
-    SAFE_RELEASE( m_pMesh );
 }
 
 ComponentMesh& ComponentMesh::operator=(const ComponentMesh& other)

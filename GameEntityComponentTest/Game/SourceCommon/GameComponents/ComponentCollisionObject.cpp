@@ -1,21 +1,14 @@
 //
-// Copyright (c) 2014 Jimmy Lord http://www.flatheadgames.com
+// Copyright (c) 2014-2015 Jimmy Lord http://www.flatheadgames.com
 //
-// This software is provided 'as-is', without any express or implied
-// warranty.  In no event will the authors be held liable for any damages
-// arising from the use of this software.
-// Permission is granted to anyone to use this software for any purpose,
-// including commercial applications, and to alter it and redistribute it
-// freely, subject to the following restrictions:
-// 1. The origin of this software must not be misrepresented; you must not
-// claim that you wrote the original software. If you use this software
-// in a product, an acknowledgment in the product documentation would be
-// appreciated but is not required.
-// 2. Altered source versions must be plainly marked as such, and must not be
-// misrepresented as being the original software.
+// This software is provided 'as-is', without any express or implied warranty.  In no event will the authors be held liable for any damages arising from the use of this software.
+// Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
+// 1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
+// 2. Altered source versions must be plainly marked as such, and must not be misrepresented as being the original software.
 // 3. This notice may not be removed or altered from any source distribution.
 
 #include "GameCommonHeader.h"
+#include "BulletCollision/CollisionShapes/btShapeHull.h"
 
 ComponentCollisionObject::ComponentCollisionObject()
 : ComponentUpdateable()
@@ -24,6 +17,8 @@ ComponentCollisionObject::ComponentCollisionObject()
     m_Type = ComponentType_CollisionObject;
 
     m_pBody = 0;
+
+    m_pMesh = 0;
 }
 
 ComponentCollisionObject::~ComponentCollisionObject()
@@ -33,6 +28,8 @@ ComponentCollisionObject::~ComponentCollisionObject()
         g_pBulletWorld->m_pDynamicsWorld->removeRigidBody( m_pBody );
         delete m_pBody;
     }
+
+    SAFE_RELEASE( m_pMesh );
 }
 
 void ComponentCollisionObject::Reset()
@@ -40,6 +37,8 @@ void ComponentCollisionObject::Reset()
     ComponentUpdateable::Reset();
 
     m_Mass = 0;
+
+    SAFE_RELEASE( m_pMesh );
 }
 
 #if MYFW_USING_WX
@@ -54,6 +53,33 @@ void ComponentCollisionObject::FillPropertiesWindow(bool clear)
         g_pPanelWatch->ClearAllVariables();
 
     g_pPanelWatch->AddFloat( "Mass", &m_Mass, 0, 100 );
+
+    const char* desc = "no mesh";
+    if( m_pMesh && m_pMesh->m_pSourceFile )
+        desc = m_pMesh->m_pSourceFile->m_FullPath;
+    g_pPanelWatch->AddPointerWithDescription( "Collision Mesh", 0, desc, this, ComponentCollisionObject::StaticOnDropOBJ );
+}
+
+void ComponentCollisionObject::OnDropOBJ()
+{
+    if( g_DragAndDropStruct.m_Type == DragAndDropType_FileObjectPointer )
+    {
+        MyFileObject* pFile = (MyFileObject*)g_DragAndDropStruct.m_Value;
+        assert( pFile );
+        //assert( m_pMesh );
+
+        int len = strlen( pFile->m_FullPath );
+        const char* filenameext = &pFile->m_FullPath[len-4];
+
+        if( strcmp( filenameext, ".obj" ) == 0 )
+        {
+            MyMesh* pMesh = g_pMeshManager->FindMeshBySourceFile( pFile );
+            SetMesh( pMesh );
+
+            // update the panel so new OBJ name shows up.
+            g_pPanelWatch->m_pVariables[g_DragAndDropStruct.m_ID].m_Description = m_pMesh->m_pSourceFile->m_FullPath;
+        }
+    }
 }
 #endif //MYFW_USING_WX
 
@@ -63,6 +89,9 @@ cJSON* ComponentCollisionObject::ExportAsJSONObject()
 
     cJSON_AddNumberToObject( component, "Mass", m_Mass );
 
+    if( m_pMesh && m_pMesh->m_pSourceFile )
+        cJSON_AddStringToObject( component, "OBJ", m_pMesh->m_pSourceFile->m_FullPath );
+
     return component;
 }
 
@@ -71,6 +100,17 @@ void ComponentCollisionObject::ImportFromJSONObject(cJSON* jsonobj, unsigned int
     ComponentUpdateable::ImportFromJSONObject( jsonobj, sceneid );
 
     cJSONExt_GetFloat( jsonobj, "Mass", &m_Mass );
+
+    cJSON* objstringobj = cJSON_GetObjectItem( jsonobj, "OBJ" );
+    if( objstringobj )
+    {
+        MyFileObject* pFile = g_pFileManager->FindFileByName( objstringobj->valuestring );
+        if( pFile )
+        {
+            MyMesh* pMesh = g_pMeshManager->FindMeshBySourceFile( pFile );
+            SetMesh( pMesh );
+        }
+    }
 }
 
 ComponentCollisionObject& ComponentCollisionObject::operator=(const ComponentCollisionObject& other)
@@ -82,6 +122,15 @@ ComponentCollisionObject& ComponentCollisionObject::operator=(const ComponentCol
     m_Mass = other.m_Mass;
 
     return *this;
+}
+
+void ComponentCollisionObject::SetMesh(MyMesh* pMesh)
+{
+    if( pMesh )
+        pMesh->AddRef();
+
+    SAFE_RELEASE( m_pMesh );
+    m_pMesh = pMesh;
 }
 
 void ComponentCollisionObject::OnPlay()
@@ -97,7 +146,31 @@ void ComponentCollisionObject::OnPlay()
     // create a rigidbody on start
     if( m_pBody == 0 )
     {
-        btCollisionShape* colShape = new btBoxShape( btVector3(1,1,1) ); // half-extents
+        btCollisionShape* colShape;
+        
+        if( m_pMesh )
+        {
+            //btStridingMeshInterface meshinterface;
+            //colShape = new btBvhTriangleMeshShape( meshinterface );
+
+            // TODO: fix this, it assumes position at the start of the vertex format.
+            unsigned int stride = m_pMesh->GetStride();
+            colShape = new btConvexHullShape( (btScalar*)m_pMesh->GetVerts( false ), m_pMesh->GetNumVerts(), stride );
+            ((btConvexHullShape*)colShape)->setMargin( 0.2f );
+
+	        btShapeHull* hull = new btShapeHull( (btConvexShape*)colShape );
+	        btScalar margin = colShape->getMargin();
+	        hull->buildHull(margin);
+            delete colShape;
+
+	        colShape = new btConvexHullShape( (btScalar*)hull->getVertexPointer(), hull->numVertices() );
+            delete hull;
+        }
+        else
+        {
+            colShape = new btBoxShape( btVector3(1,1,1) ); // half-extents
+        }
+
         //btCollisionShape* colShape = new btSphereShape( btScalar(1.0f) );
         g_pBulletWorld->m_CollisionShapes.push_back( colShape );
 

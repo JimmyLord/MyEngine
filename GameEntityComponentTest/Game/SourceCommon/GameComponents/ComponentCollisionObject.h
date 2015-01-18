@@ -25,6 +25,8 @@ public:
 
     float m_Mass;
 
+    MyMesh* m_pMesh;
+
 public:
     ComponentCollisionObject();
     virtual ~ComponentCollisionObject();
@@ -35,6 +37,8 @@ public:
     virtual void Reset();
     virtual void CopyFromSameType_Dangerous(ComponentBase* pObject) { *this = (ComponentCollisionObject&)*pObject; }
     virtual ComponentCollisionObject& operator=(const ComponentCollisionObject& other);
+
+    void SetMesh(MyMesh* pMesh);
 
     virtual void OnPlay();
     virtual void OnStop();
@@ -47,6 +51,8 @@ public:
     virtual void AddToObjectsPanel(wxTreeItemId gameobjectid);
     static void StaticFillPropertiesWindow(void* pObjectPtr) { ((ComponentCollisionObject*)pObjectPtr)->FillPropertiesWindow(true); }
     void FillPropertiesWindow(bool clear);
+    static void StaticOnDropOBJ(void* pObjectPtr) { ((ComponentCollisionObject*)pObjectPtr)->OnDropOBJ(); }
+    void OnDropOBJ();
 #endif //MYFW_USING_WX
 };
 
