@@ -701,6 +701,236 @@ void GameEntityComponentTest::HandleEditorInput(int keydown, int keycode, int ac
                 // select the object in the object tree.
                 g_pPanelObjectList->SelectObject( pNewObject );
             }
+
+            // if we didn't select the gizmo and gameplay is running.
+            if( selectedgizmo == false && m_EditorMode == false )
+            {
+                // check if we selected a physics object then grab it.
+                //if( m_EditorState.m_ModifierKeyStates & MODIFIERKEY_Shift )
+                {
+                    // Get the mouse click ray.
+                    Vector3 raystart, rayend;
+                    GetMouseRay( &raystart, &rayend );
+
+                    btVector3 RayStart( raystart.x, raystart.y, raystart.z );
+                    btVector3 RayEnd( rayend.x, rayend.y, rayend.z );
+
+                    btCollisionWorld::ClosestRayResultCallback rayCallback( RayStart, RayEnd );
+                    g_pBulletWorld->m_pDynamicsWorld->rayTest( RayStart, RayEnd, rayCallback );
+                    if( rayCallback.hasHit() )
+                    {
+                        btVector3 pickPos = rayCallback.m_hitPointWorld;
+
+                        m_EditorState.m_MousePicker_PickedBody = 0;
+
+                        //pickObject( pickPos, rayCallback.m_collisionObject );
+                        btRigidBody* body = (btRigidBody*)btRigidBody::upcast( rayCallback.m_collisionObject );
+                        if( body )
+                        {
+                            // other exclusions?
+                            if( !(body->isStaticObject() || body->isKinematicObject()) )
+                            {
+                                m_EditorState.m_MousePicker_PickedBody = body;
+                                m_EditorState.m_MousePicker_PickedBody->setActivationState( DISABLE_DEACTIVATION );
+
+                                //printf("pickPos=%f,%f,%f\n",pickPos.getX(),pickPos.getY(),pickPos.getZ());
+
+                                btVector3 localPivot = body->getCenterOfMassTransform().inverse() * pickPos;
+
+                                //if( m_EditorState.m_ModifierKeyStates & MODIFIERKEY_Shift ) //(m_modifierKeys & BT_ACTIVE_SHIFT) != 0 )
+                                //{
+                                //    btTransform tr;
+                                //    tr.setIdentity();
+                                //    tr.setOrigin(localPivot);
+                                //    btGeneric6DofConstraint* dof6 = new btGeneric6DofConstraint(*body, tr,false);
+                                //    dof6->setLinearLowerLimit( btVector3(0,0,0) );
+                                //    dof6->setLinearUpperLimit( btVector3(0,0,0) );
+                                //    dof6->setAngularLowerLimit( btVector3(0,0,0) );
+                                //    dof6->setAngularUpperLimit( btVector3(0,0,0) );
+
+                                //    g_pBulletWorld->m_pDynamicsWorld->addConstraint(dof6,true);
+                                //    m_EditorState.m_MousePicker_PickConstraint = dof6;
+
+                                //    dof6->setParam( BT_CONSTRAINT_STOP_CFM, 0.8f, 0 );
+                                //    dof6->setParam( BT_CONSTRAINT_STOP_CFM, 0.8f, 1 );
+                                //    dof6->setParam( BT_CONSTRAINT_STOP_CFM, 0.8f, 2 );
+                                //    dof6->setParam( BT_CONSTRAINT_STOP_CFM, 0.8f, 3 );
+                                //    dof6->setParam( BT_CONSTRAINT_STOP_CFM, 0.8f, 4 );
+                                //    dof6->setParam( BT_CONSTRAINT_STOP_CFM, 0.8f, 5 );
+
+                                //    dof6->setParam( BT_CONSTRAINT_STOP_ERP, 0.1f, 0 );
+                                //    dof6->setParam( BT_CONSTRAINT_STOP_ERP, 0.1f, 1 );
+                                //    dof6->setParam( BT_CONSTRAINT_STOP_ERP, 0.1f, 2 );
+                                //    dof6->setParam( BT_CONSTRAINT_STOP_ERP, 0.1f, 3 );
+                                //    dof6->setParam( BT_CONSTRAINT_STOP_ERP, 0.1f, 4 );
+                                //    dof6->setParam( BT_CONSTRAINT_STOP_ERP, 0.1f, 5 );
+                                //}
+                                //else
+                                {
+                                    btPoint2PointConstraint* p2p = new btPoint2PointConstraint(*body,localPivot);
+                                    g_pBulletWorld->m_pDynamicsWorld->addConstraint(p2p,true);
+                                    m_EditorState.m_MousePicker_PickConstraint = p2p;
+                                    btScalar mousePickClamping = 30.f;
+                                    p2p->m_setting.m_impulseClamp = mousePickClamping;
+                                    //very weak constraint for picking
+                                    p2p->m_setting.m_tau = 0.001f;
+                                    /*
+                                    p2p->setParam(BT_CONSTRAINT_CFM,0.8,0);
+                                    p2p->setParam(BT_CONSTRAINT_CFM,0.8,1);
+                                    p2p->setParam(BT_CONSTRAINT_CFM,0.8,2);
+                                    p2p->setParam(BT_CONSTRAINT_ERP,0.1,0);
+                                    p2p->setParam(BT_CONSTRAINT_ERP,0.1,1);
+                                    p2p->setParam(BT_CONSTRAINT_ERP,0.1,2);
+                                    */
+                                }
+
+                                //save mouse position for dragging
+                            }
+                        }
+
+                        //gOldPickingPos = RayEnd;
+                        //gHitPos = pickPos;
+
+                        m_EditorState.m_MousePicker_OldPickingDist = (pickPos-RayStart).length();
+                        action = -1;
+                    }
+                }
+            }
+        }
+
+        if( action == GCBA_Held && id == 0 )
+        {
+            if( m_EditorState.m_MousePicker_PickConstraint && g_pBulletWorld->m_pDynamicsWorld )
+            {
+                // move the constraint pivot
+                if( m_EditorState.m_MousePicker_PickConstraint->getConstraintType() == D6_CONSTRAINT_TYPE )
+                {
+                    btGeneric6DofConstraint* pickCon = static_cast<btGeneric6DofConstraint*>( m_EditorState.m_MousePicker_PickConstraint );
+                    if( pickCon )
+                    {
+                        //keep it at the same picking distance
+
+                        // Get the mouse click ray.
+                        Vector3 raystart, rayend;
+                        GetMouseRay( &raystart, &rayend );
+
+                        btVector3 newRayTo( rayend.x, rayend.y, rayend.z );
+                        btVector3 rayFrom;
+                        btVector3 oldPivotInB = pickCon->getFrameOffsetA().getOrigin();
+
+                        btVector3 newPivotB;
+                        //if( m_ortho )
+                        //{
+                        //    newPivotB = oldPivotInB;
+                        //    newPivotB.setX(newRayTo.getX());
+                        //    newPivotB.setY(newRayTo.getY());
+                        //}
+                        //else
+                        {
+                            rayFrom = btVector3( raystart.x, raystart.y, raystart.z );
+                            btVector3 dir = newRayTo - rayFrom;
+                            dir.normalize();
+                            dir *= m_EditorState.m_MousePicker_OldPickingDist;
+
+                            newPivotB = rayFrom + dir;
+                        }
+
+                        pickCon->getFrameOffsetA().setOrigin(newPivotB);
+                    }
+                }
+                else
+                {
+                    btPoint2PointConstraint* pickCon = static_cast<btPoint2PointConstraint*>( m_EditorState.m_MousePicker_PickConstraint );
+                    if (pickCon)
+                    {
+                        //keep it at the same picking distance
+
+                        // Get the mouse click ray.
+                        Vector3 raystart, rayend;
+                        GetMouseRay( &raystart, &rayend );
+
+                        btVector3 newRayTo( rayend.x, rayend.y, rayend.z );
+                        btVector3 rayFrom;
+                        btVector3 oldPivotInB = pickCon->getPivotInB();
+                        btVector3 newPivotB;
+                        
+                        //if( m_ortho )
+                        //{
+                        //    newPivotB = oldPivotInB;
+                        //    newPivotB.setX(newRayTo.getX());
+                        //    newPivotB.setY(newRayTo.getY());
+                        //}
+                        //else
+                        {
+                            rayFrom = btVector3( raystart.x, raystart.y, raystart.z );
+                            btVector3 dir = newRayTo - rayFrom;
+                            dir.normalize();
+                            dir *= m_EditorState.m_MousePicker_OldPickingDist;
+
+                            newPivotB = rayFrom + dir;
+                        }
+
+                        pickCon->setPivotB(newPivotB);
+                    }
+                }
+
+                //float dx, dy;
+                //dx = btScalar(x) - m_mouseOldX;
+                //dy = btScalar(y) - m_mouseOldY;
+
+
+                ///only if ALT key is pressed (Maya style)
+                //if (m_modifierKeys& BT_ACTIVE_ALT)
+                //{
+                //    if(m_mouseButtons & 2)
+                //    {
+                //        btVector3 hor = getRayTo(0,0)-getRayTo(1,0);
+                //        btVector3 vert = getRayTo(0,0)-getRayTo(0,1);
+                //        btScalar multiplierX = btScalar(0.001);
+                //        btScalar multiplierY = btScalar(0.001);
+                //        if (m_ortho)
+                //        {
+                //            multiplierX = 1;
+                //            multiplierY = 1;
+                //        }
+
+
+                //        m_cameraTargetPosition += hor* dx * multiplierX;
+                //        m_cameraTargetPosition += vert* dy * multiplierY;
+                //    }
+
+                //    if(m_mouseButtons & (2 << 2) && m_mouseButtons & 1)
+                //    {
+                //    }
+                //    else if(m_mouseButtons & 1) 
+                //    {
+                //        m_azi += dx * btScalar(0.2);
+                //        m_azi = fmodf(m_azi, btScalar(360.f));
+                //        m_ele += dy * btScalar(0.2);
+                //        m_ele = fmodf(m_ele, btScalar(180.f));
+                //    } 
+                //    else if(m_mouseButtons & 4) 
+                //    {
+                //        m_cameraDistance -= dy * btScalar(0.02f);
+                //        if (m_cameraDistance<btScalar(0.1))
+                //            m_cameraDistance = btScalar(0.1);
+
+
+                //    } 
+                //}
+
+
+                //m_mouseOldX = x;
+                //m_mouseOldY = y;
+                //updateCamera();
+
+                action = -1;
+            }
+        }
+
+        if( action == GCBA_Up && id == 0 )
+        {
+            m_EditorState.ClearConstraint();
         }
 
         if( m_EditorState.m_pSelectedGameObject )
@@ -1072,4 +1302,31 @@ GameObject* GameEntityComponentTest::GetObjectAtPixel(unsigned int x, unsigned i
     }
 
     return pGameObject;
+}
+
+void GameEntityComponentTest::GetMouseRay(Vector3* start, Vector3* end)
+{
+    ComponentCamera* pCamera = m_EditorState.GetEditorCamera();
+
+    // Convert mouse coord into clip space.
+    Vector2 mouseclip;
+    mouseclip.x = (m_EditorState.m_CurrentMousePosition.x / m_WindowWidth) * 2.0f - 1.0f;
+    mouseclip.y = (m_EditorState.m_CurrentMousePosition.y / m_WindowHeight) * 2.0f - 1.0f;
+
+    // Convert the mouse ray into view space from clip space.
+    MyMatrix invProj = pCamera->m_Camera3D.m_matProj;
+    invProj.Inverse();
+    Vector4 rayview = invProj * Vector4( mouseclip, -1, 1 );
+
+    // Convert the mouse ray into world space from view space.
+    MyMatrix invView = pCamera->m_Camera3D.m_matView;
+    invView.Inverse();
+    Vector3 rayworld = (invView * Vector4( rayview.x, rayview.y, -1, 0 )).XYZ();
+
+    // define the ray.
+    Vector3 raystart = pCamera->m_pComponentTransform->GetPosition();
+    Vector3 rayend = raystart + rayworld * 10000;
+
+    start->Set( raystart.x, raystart.y, raystart.z );
+    end->Set( rayend.x, rayend.y, rayend.z );
 }

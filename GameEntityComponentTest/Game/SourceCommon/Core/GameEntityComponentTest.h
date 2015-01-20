@@ -53,6 +53,10 @@ struct EditorState
     GameObject* m_pTransformGizmos[3];
     GameObject* m_pEditorCamera;
 
+    btRigidBody* m_MousePicker_PickedBody;
+    btTypedConstraint* m_MousePicker_PickConstraint;
+    btScalar m_MousePicker_OldPickingDist;
+
     EditorState::EditorState()
     {
         m_ModifierKeyStates = 0;
@@ -70,6 +74,10 @@ struct EditorState
         m_p3DGridPlane = 0;
         for( int i=0; i<3; i++ )
             m_pTransformGizmos[i] = 0;
+
+        m_MousePicker_PickedBody = 0;
+        m_MousePicker_PickConstraint = 0;
+        m_MousePicker_OldPickingDist = 0;
     }
 
     EditorState::~EditorState()
@@ -86,6 +94,23 @@ struct EditorState
     void EditorState::UnloadScene()
     {
         m_pSelectedGameObject = 0;
+        ClearConstraint();
+    }
+
+    void EditorState::ClearConstraint()
+    {
+        if( m_MousePicker_PickConstraint && g_pBulletWorld->m_pDynamicsWorld )
+        {
+            g_pBulletWorld->m_pDynamicsWorld->removeConstraint( m_MousePicker_PickConstraint );
+            delete m_MousePicker_PickConstraint;
+            //printf("removed constraint %i",gPickingConstraintId);
+            m_MousePicker_PickConstraint = 0;
+            m_MousePicker_PickedBody->forceActivationState( ACTIVE_TAG );
+            m_MousePicker_PickedBody->setDeactivationTime( 0.0f );
+            m_MousePicker_PickedBody = 0;
+
+            //action = -1;
+        }
     }
 };
 
@@ -143,6 +168,7 @@ public:
     void LoadScene(const char* fullpath, unsigned int sceneid);
 
     GameObject* GetObjectAtPixel(unsigned int x, unsigned int y);
+    void GetMouseRay(Vector3* start, Vector3* end);
 };
 
 #endif //__GameEntityComponentTest_H__
