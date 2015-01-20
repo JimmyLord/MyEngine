@@ -83,8 +83,14 @@ void GameMainFrame::OnPostInit()
         cJSON* pPrefs = cJSON_Parse( string );
 
         cJSON* pLastScene = cJSON_GetObjectItem( pPrefs, "LastSceneLoaded" );
+        if( pLastScene )
+            LoadScene( pLastScene->valuestring );
 
-        LoadScene( pLastScene->valuestring );
+        cJSON* pCam = cJSON_GetObjectItem( pPrefs, "EditorCam" );
+        if( pCam )
+        {
+            ((GameEntityComponentTest*)g_pGameCore)->m_EditorState.GetEditorCamera()->m_pComponentTransform->ImportFromJSONObject( pCam, 1 );
+        }
 
         delete[] string;
     }
@@ -99,6 +105,7 @@ void GameMainFrame::OnClose()
         cJSON* pPrefs = cJSON_CreateObject();
 
         cJSON_AddStringToObject( pPrefs, "LastSceneLoaded", m_CurrentSceneName );
+        cJSON_AddItemToObject( pPrefs, "EditorCam", ((GameEntityComponentTest*)g_pGameCore)->m_EditorState.GetEditorCamera()->m_pComponentTransform->ExportAsJSONObject() );
 
         char* string = cJSON_Print( pPrefs );
 

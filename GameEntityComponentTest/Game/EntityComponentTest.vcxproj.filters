@@ -623,6 +623,7 @@
     <None Include="Data\Scripts\Enemy.lua">
       <Filter>Data\Scripts</Filter>
     </None>
+    <None Include="EditorPrefs.ini" />
   </ItemGroup>
   <ItemGroup>
     <Object Include="Data\OBJs\cube.obj">

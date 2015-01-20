@@ -558,9 +558,6 @@ void GameEntityComponentTest::OnKeyDown(int keycode, int unicodechar)
             m_pComponentSystemManager->OnPlay();
             return;
         }
-
-        HandleEditorInput( 1, keycode, -1, -1, -1, -1, -1 );
-        return;
     }
 
     if( keycode == 'P' ) // Play/Stop
@@ -578,7 +575,14 @@ void GameEntityComponentTest::OnKeyDown(int keycode, int unicodechar)
             m_pComponentSystemManager->OnStop();
 
             m_pComponentSystemManager->SyncAllRigidBodiesToObjectTransforms();
+            return;
         }
+    }
+
+    if( g_GLCanvasIDActive == 1 )
+    {
+        HandleEditorInput( 1, keycode, -1, -1, -1, -1, -1 );
+        return;
     }
 #endif
 }
@@ -586,7 +590,7 @@ void GameEntityComponentTest::OnKeyDown(int keycode, int unicodechar)
 void GameEntityComponentTest::OnKeyUp(int keycode, int unicodechar)
 {
 #if MYFW_USING_WX
-    if( m_EditorMode && g_GLCanvasIDActive == 1 )
+    if( g_GLCanvasIDActive == 1 )
     {
         HandleEditorInput( 0, keycode, -1, -1, -1, -1, -1 );
         return;
@@ -737,35 +741,35 @@ void GameEntityComponentTest::HandleEditorInput(int keydown, int keycode, int ac
 
                                 btVector3 localPivot = body->getCenterOfMassTransform().inverse() * pickPos;
 
-                                //if( m_EditorState.m_ModifierKeyStates & MODIFIERKEY_Shift ) //(m_modifierKeys & BT_ACTIVE_SHIFT) != 0 )
-                                //{
-                                //    btTransform tr;
-                                //    tr.setIdentity();
-                                //    tr.setOrigin(localPivot);
-                                //    btGeneric6DofConstraint* dof6 = new btGeneric6DofConstraint(*body, tr,false);
-                                //    dof6->setLinearLowerLimit( btVector3(0,0,0) );
-                                //    dof6->setLinearUpperLimit( btVector3(0,0,0) );
-                                //    dof6->setAngularLowerLimit( btVector3(0,0,0) );
-                                //    dof6->setAngularUpperLimit( btVector3(0,0,0) );
+                                if( m_EditorState.m_ModifierKeyStates & MODIFIERKEY_Shift ) //(m_modifierKeys & BT_ACTIVE_SHIFT) != 0 )
+                                {
+                                    btTransform tr;
+                                    tr.setIdentity();
+                                    tr.setOrigin(localPivot);
+                                    btGeneric6DofConstraint* dof6 = new btGeneric6DofConstraint(*body, tr,false);
+                                    dof6->setLinearLowerLimit( btVector3(0,0,0) );
+                                    dof6->setLinearUpperLimit( btVector3(0,0,0) );
+                                    dof6->setAngularLowerLimit( btVector3(0,0,0) );
+                                    dof6->setAngularUpperLimit( btVector3(0,0,0) );
 
-                                //    g_pBulletWorld->m_pDynamicsWorld->addConstraint(dof6,true);
-                                //    m_EditorState.m_MousePicker_PickConstraint = dof6;
+                                    g_pBulletWorld->m_pDynamicsWorld->addConstraint(dof6,true);
+                                    m_EditorState.m_MousePicker_PickConstraint = dof6;
 
-                                //    dof6->setParam( BT_CONSTRAINT_STOP_CFM, 0.8f, 0 );
-                                //    dof6->setParam( BT_CONSTRAINT_STOP_CFM, 0.8f, 1 );
-                                //    dof6->setParam( BT_CONSTRAINT_STOP_CFM, 0.8f, 2 );
-                                //    dof6->setParam( BT_CONSTRAINT_STOP_CFM, 0.8f, 3 );
-                                //    dof6->setParam( BT_CONSTRAINT_STOP_CFM, 0.8f, 4 );
-                                //    dof6->setParam( BT_CONSTRAINT_STOP_CFM, 0.8f, 5 );
+                                    dof6->setParam( BT_CONSTRAINT_STOP_CFM, 0.8f, 0 );
+                                    dof6->setParam( BT_CONSTRAINT_STOP_CFM, 0.8f, 1 );
+                                    dof6->setParam( BT_CONSTRAINT_STOP_CFM, 0.8f, 2 );
+                                    dof6->setParam( BT_CONSTRAINT_STOP_CFM, 0.8f, 3 );
+                                    dof6->setParam( BT_CONSTRAINT_STOP_CFM, 0.8f, 4 );
+                                    dof6->setParam( BT_CONSTRAINT_STOP_CFM, 0.8f, 5 );
 
-                                //    dof6->setParam( BT_CONSTRAINT_STOP_ERP, 0.1f, 0 );
-                                //    dof6->setParam( BT_CONSTRAINT_STOP_ERP, 0.1f, 1 );
-                                //    dof6->setParam( BT_CONSTRAINT_STOP_ERP, 0.1f, 2 );
-                                //    dof6->setParam( BT_CONSTRAINT_STOP_ERP, 0.1f, 3 );
-                                //    dof6->setParam( BT_CONSTRAINT_STOP_ERP, 0.1f, 4 );
-                                //    dof6->setParam( BT_CONSTRAINT_STOP_ERP, 0.1f, 5 );
-                                //}
-                                //else
+                                    dof6->setParam( BT_CONSTRAINT_STOP_ERP, 0.1f, 0 );
+                                    dof6->setParam( BT_CONSTRAINT_STOP_ERP, 0.1f, 1 );
+                                    dof6->setParam( BT_CONSTRAINT_STOP_ERP, 0.1f, 2 );
+                                    dof6->setParam( BT_CONSTRAINT_STOP_ERP, 0.1f, 3 );
+                                    dof6->setParam( BT_CONSTRAINT_STOP_ERP, 0.1f, 4 );
+                                    dof6->setParam( BT_CONSTRAINT_STOP_ERP, 0.1f, 5 );
+                                }
+                                else
                                 {
                                     btPoint2PointConstraint* p2p = new btPoint2PointConstraint(*body,localPivot);
                                     g_pBulletWorld->m_pDynamicsWorld->addConstraint(p2p,true);
