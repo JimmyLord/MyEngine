@@ -79,7 +79,11 @@ void GameObject::LuaRegister(lua_State* luastate)
 void GameObject::OnLeftClick(bool clear)
 {
     // select this GameObject in the editor window.
-    ((GameEntityComponentTest*)g_pGameCore)->m_EditorState.m_pSelectedGameObject = this;
+    ((GameEntityComponentTest*)g_pGameCore)->m_EditorState.m_pSelectedObjects.push_back( this );
+
+    // only show properties of the first selected object.
+    if( ((GameEntityComponentTest*)g_pGameCore)->m_EditorState.m_pSelectedObjects.size() > 1 )
+        return;
 
     if( clear )
         g_pPanelWatch->ClearAllVariables();

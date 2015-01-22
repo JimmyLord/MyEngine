@@ -23,97 +23,6 @@ enum ModifierKeys
     MODIFIERKEY_MiddleMouse = 0x0040,
 };
 
-enum EditorActionState
-{
-    EDITORACTIONSTATE_None,
-    EDITORACTIONSTATE_TranslateX,
-    EDITORACTIONSTATE_TranslateY,
-    EDITORACTIONSTATE_TranslateZ,
-    EDITORACTIONSTATE_TranslateXY,
-    EDITORACTIONSTATE_TranslateXZ,
-    EDITORACTIONSTATE_TranslateYZ,
-    EDITORACTIONSTATE_NumStates,
-};
-
-struct EditorState
-{
-    unsigned int m_ModifierKeyStates;
-    EditorActionState m_EditorActionState;
-    Vector2 m_MouseLeftDownLocation;
-    Vector2 m_MouseRightDownLocation;
-    Vector2 m_MouseMiddleDownLocation;
-    Vector2 m_LastMousePosition;
-    Vector2 m_CurrentMousePosition;
-
-    FBODefinition* m_pMousePickerFBO;
-
-    GameObject* m_pSelectedGameObject;
-
-    GameObject* m_p3DGridPlane;
-    GameObject* m_pTransformGizmos[3];
-    GameObject* m_pEditorCamera;
-
-    btRigidBody* m_MousePicker_PickedBody;
-    btTypedConstraint* m_MousePicker_PickConstraint;
-    btScalar m_MousePicker_OldPickingDist;
-
-    EditorState::EditorState()
-    {
-        m_ModifierKeyStates = 0;
-        m_EditorActionState = EDITORACTIONSTATE_None;
-        m_MouseLeftDownLocation.Set( -1, -1 );
-        m_MouseRightDownLocation.Set( -1, -1 );
-        m_MouseMiddleDownLocation.Set( -1, -1 );
-        m_LastMousePosition.Set( -1, -1 );
-        m_CurrentMousePosition.Set( -1, -1 );
-
-        m_pMousePickerFBO = 0;
-
-        m_pSelectedGameObject = 0;
-
-        m_p3DGridPlane = 0;
-        for( int i=0; i<3; i++ )
-            m_pTransformGizmos[i] = 0;
-
-        m_MousePicker_PickedBody = 0;
-        m_MousePicker_PickConstraint = 0;
-        m_MousePicker_OldPickingDist = 0;
-    }
-
-    EditorState::~EditorState()
-    {
-        SAFE_RELEASE( m_pMousePickerFBO );
-    }
-
-    ComponentCamera* EditorState::GetEditorCamera()
-    {
-        assert( m_pEditorCamera );
-        return (ComponentCamera*)m_pEditorCamera->GetFirstComponentOfBaseType( BaseComponentType_Camera );
-    }
-
-    void EditorState::UnloadScene()
-    {
-        m_pSelectedGameObject = 0;
-        ClearConstraint();
-    }
-
-    void EditorState::ClearConstraint()
-    {
-        if( m_MousePicker_PickConstraint && g_pBulletWorld->m_pDynamicsWorld )
-        {
-            g_pBulletWorld->m_pDynamicsWorld->removeConstraint( m_MousePicker_PickConstraint );
-            delete m_MousePicker_PickConstraint;
-            //printf("removed constraint %i",gPickingConstraintId);
-            m_MousePicker_PickConstraint = 0;
-            m_MousePicker_PickedBody->forceActivationState( ACTIVE_TAG );
-            m_MousePicker_PickedBody->setDeactivationTime( 0.0f );
-            m_MousePicker_PickedBody = 0;
-
-            //action = -1;
-        }
-    }
-};
-
 enum LayerValues
 {
     Layer_Editor    = 0x0001,
@@ -131,7 +40,9 @@ public:
     LuaGameState* m_pLuaGameState;
 
     bool m_EditorMode;
+#if MYFW_USING_WX
     EditorState m_EditorState;
+#endif //MYFW_USING_WX
 
     double m_TimeSinceLastPhysicsStep;
 
@@ -168,7 +79,12 @@ public:
     void LoadScene(const char* fullpath, unsigned int sceneid);
 
     GameObject* GetObjectAtPixel(unsigned int x, unsigned int y);
-    void GetMouseRay(Vector3* start, Vector3* end);
+    void GetMouseRay(Vector2 mousepos, Vector3* start, Vector3* end);
+
+#if MYFW_USING_WX
+    static void StaticOnObjectListTreeSelectionChanged(void* pObjectPtr) { ((GameEntityComponentTest*)pObjectPtr)->OnObjectListTreeSelectionChanged(); }
+    void OnObjectListTreeSelectionChanged();
+#endif //MYFW_USING_WX
 };
 
 #endif //__GameEntityComponentTest_H__

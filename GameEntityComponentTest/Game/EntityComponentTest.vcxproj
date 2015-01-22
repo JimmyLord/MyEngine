@@ -2057,6 +2057,7 @@
     <ClCompile Include="SourceCommon\ComponentSystem\CustomComponents\ComponentMeshOBJ.cpp" />
     <ClCompile Include="SourceCommon\ComponentSystem\CustomComponents\ComponentSprite.cpp" />
     <ClCompile Include="SourceCommon\Core\BulletWorld.cpp" />
+    <ClCompile Include="SourceCommon\Core\EditorState.cpp" />
     <ClCompile Include="SourceCommon\Core\GameComponentTypeManager.cpp" />
     <ClCompile Include="SourceCommon\Core\GameEntityComponentTest.cpp" />
     <ClCompile Include="SourceCommon\Core\GameMainFrame.cpp">
@@ -2452,6 +2453,7 @@
     <ClInclude Include="SourceCommon\ComponentSystem\CustomComponents\ComponentMeshOBJ.h" />
     <ClInclude Include="SourceCommon\ComponentSystem\CustomComponents\ComponentSprite.h" />
     <ClInclude Include="SourceCommon\Core\BulletWorld.h" />
+    <ClInclude Include="SourceCommon\Core\EditorState.h" />
     <ClInclude Include="SourceCommon\Core\GameComponentTypeManager.h" />
     <ClInclude Include="SourceCommon\Core\GameEntityComponentTest.h" />
     <ClInclude Include="SourceCommon\Core\GameMainFrame.h">

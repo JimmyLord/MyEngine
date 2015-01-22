@@ -23,6 +23,7 @@
 #if MYFW_USING_WX
 #include "../../Framework/MyFramework/SourceWindows/MYFWWinMainWx.h"
 #include "Core/GameMainFrame.h"
+#include <vector>
 #endif
 
 // bullet
@@ -68,6 +69,7 @@ extern "C"
 #include "GameComponents/ComponentAIChasePlayer.h"
 #include "GameComponents/ComponentCollisionObject.h"
 #include "GameComponents/ComponentLuaScript.h"
+#include "Core/EditorState.h"
 #include "Core/GameEntityComponentTest.h"
 
 #endif //__GameCommonHeader_H__
