@@ -46,9 +46,10 @@ public:
 
     double m_TimeSinceLastPhysicsStep;
 
-    ShaderGroup* m_pShader_TintColor;
-    ShaderGroup* m_pShader_TestNormals;
-    ShaderGroup* m_pShader_Texture;
+    //ShaderGroup* m_pShader_TintColor;
+    //ShaderGroup* m_pShader_TestNormals;
+    //ShaderGroup* m_pShader_Texture;
+    ShaderGroup* m_pShader_TransformGizmo;
     ShaderGroup* m_pShader_MousePicker;
 
     float m_GameWidth;

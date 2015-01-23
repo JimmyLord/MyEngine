@@ -229,6 +229,13 @@ void ComponentSystemManager::LoadDatafile(const char* fullpath, unsigned int sce
             pFileInfo->m_pMesh = MyNew MyMesh();
             pFileInfo->m_pMesh->CreateFromOBJFile( pFile );
         }
+
+        // if we're loading an .glsl file, create a ShaderGroup.
+        if( strcmp( pFile->m_ExtensionWithDot, ".glsl" ) == 0 )
+        {
+            pFileInfo->m_pShaderGroup = MyNew ShaderGroup( MyNew Shader_Base(ShaderPass_Main), 0, 0, pFile->m_FilenameWithoutExtension );
+            pFileInfo->m_pShaderGroup->SetFileForAllPasses( pFile );
+        }
     }
 }
 

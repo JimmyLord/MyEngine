@@ -48,8 +48,8 @@ void ComponentMesh::FillPropertiesWindow(bool clear)
     assert( m_pMesh );
 
     const char* desc = "no shader";
-    if( m_pShaderGroup )
-        desc = m_pShaderGroup->GetShader( ShaderPass_Main )->m_pFilename;
+    if( m_pShaderGroup && m_pShaderGroup->GetShader( ShaderPass_Main )->m_pFile )
+        desc = m_pShaderGroup->GetShader( ShaderPass_Main )->m_pFile->m_FilenameWithoutExtension;
     g_pPanelWatch->AddPointerWithDescription( "Shader", 0, desc, this, ComponentMesh::StaticOnDropShader );
 
     desc = "no texture";
@@ -69,7 +69,7 @@ void ComponentMesh::OnDropShader()
         SetShader( pShaderGroup );
 
         // update the panel so new Shader name shows up.
-        g_pPanelWatch->m_pVariables[g_DragAndDropStruct.m_ID].m_Description = pShaderGroup->GetShader( ShaderPass_Main )->m_pFilename;
+        g_pPanelWatch->m_pVariables[g_DragAndDropStruct.m_ID].m_Description = pShaderGroup->GetShader( ShaderPass_Main )->m_pFile->m_FilenameWithoutExtension;
     }
 }
 
@@ -127,18 +127,24 @@ void ComponentMesh::ImportFromJSONObject(cJSON* jsonobj, unsigned int sceneid)
     if( shaderstringobj )
     {
         ShaderGroup* pShaderGroup = g_pShaderGroupManager->FindShaderGroupByName( shaderstringobj->valuestring );
-        pShaderGroup->AddRef();
-        SAFE_RELEASE( m_pShaderGroup );
-        m_pShaderGroup = pShaderGroup;
+        if( pShaderGroup )
+        {
+            pShaderGroup->AddRef();
+            SAFE_RELEASE( m_pShaderGroup );
+            m_pShaderGroup = pShaderGroup;
+        }
     }
 
     cJSON* texturestringobj = cJSON_GetObjectItem( jsonobj, "Texture" );
     if( texturestringobj )
     {
         TextureDefinition* pTexture = g_pTextureManager->FindTexture( texturestringobj->valuestring );
-        pTexture->AddRef();
-        SAFE_RELEASE( m_pTexture );
-        m_pTexture = pTexture;
+        if( pTexture )
+        {
+            pTexture->AddRef();
+            SAFE_RELEASE( m_pTexture );
+            m_pTexture = pTexture;
+        }
     }
 }
 

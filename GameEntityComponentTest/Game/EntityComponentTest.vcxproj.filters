@@ -630,6 +630,9 @@
       <Filter>Data\Scripts</Filter>
     </None>
     <None Include="EditorPrefs.ini" />
+    <None Include="Data\Shaders\Shader_VertSinY.glsl">
+      <Filter>Data\Shaders</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Object Include="Data\OBJs\cube.obj">

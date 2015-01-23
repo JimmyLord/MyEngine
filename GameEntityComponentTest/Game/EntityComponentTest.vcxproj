@@ -2773,6 +2773,7 @@
     <None Include="Data\Shaders\Shader_TestNormals.glsl" />
     <None Include="Data\Shaders\Shader_Texture.glsl" />
     <None Include="Data\Shaders\Shader_TintColor.glsl" />
+    <None Include="Data\Shaders\Shader_VertSinY.glsl" />
     <None Include="EditorPrefs.ini" />
     <None Include="SourceAndroid\AndroidApk\AndroidManifest.xml">
       <SubType>Designer</SubType>

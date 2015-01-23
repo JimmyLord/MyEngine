@@ -21,9 +21,10 @@ GameEntityComponentTest::GameEntityComponentTest()
 
     m_TimeSinceLastPhysicsStep = 0;
 
-    m_pShader_TintColor = 0;
-    m_pShader_TestNormals = 0;
-    m_pShader_Texture = 0;
+    //m_pShader_TintColor = 0;
+    //m_pShader_TestNormals = 0;
+    //m_pShader_Texture = 0;
+    m_pShader_TransformGizmo = 0;
     m_pShader_MousePicker = 0;
 
     m_GameWidth = 0;
@@ -59,9 +60,10 @@ GameEntityComponentTest::~GameEntityComponentTest()
 {
     SAFE_DELETE( m_pLuaGameState );
 
-    SAFE_RELEASE( m_pShader_TintColor );
-    SAFE_RELEASE( m_pShader_TestNormals );
-    SAFE_RELEASE( m_pShader_Texture );
+    //SAFE_RELEASE( m_pShader_TintColor );
+    //SAFE_RELEASE( m_pShader_TestNormals );
+    //SAFE_RELEASE( m_pShader_Texture );
+    SAFE_RELEASE( m_pShader_TransformGizmo );
     SAFE_RELEASE( m_pShader_MousePicker );
 
     for( int i=0; i<4; i++ )
@@ -129,14 +131,16 @@ void GameEntityComponentTest::OneTimeInit()
     glEnable( GL_DEPTH_TEST );
 
     // setup our shaders
-    m_pShader_TintColor = MyNew ShaderGroup( MyNew Shader_Base(ShaderPass_Main), 0, 0, "Tint Color" );
-    m_pShader_TestNormals = MyNew ShaderGroup( MyNew Shader_Base(ShaderPass_Main), 0, 0, "Test-Normals" );
-    m_pShader_Texture = MyNew ShaderGroup( MyNew Shader_Base(ShaderPass_Main), 0, 0, "Texture" );
-    m_pShader_MousePicker = MyNew ShaderGroup( MyNew Shader_Base(ShaderPass_Main), 0, 0, "Mouse Picker" );
+    //m_pShader_TintColor = MyNew ShaderGroup( MyNew Shader_Base(ShaderPass_Main), 0, 0, "Tint Color" );
+    //m_pShader_TestNormals = MyNew ShaderGroup( MyNew Shader_Base(ShaderPass_Main), 0, 0, "Test-Normals" );
+    //m_pShader_Texture = MyNew ShaderGroup( MyNew Shader_Base(ShaderPass_Main), 0, 0, "Texture" );
+    m_pShader_TransformGizmo = MyNew ShaderGroup( MyNew Shader_Base(ShaderPass_Main), 0, 0, "Editor - Transform Gizmo" );
+    m_pShader_MousePicker = MyNew ShaderGroup( MyNew Shader_Base(ShaderPass_Main), 0, 0, "Editor - Mouse Picker" );
 
-    m_pShader_TintColor->SetFileForAllPasses( "Data/Shaders/Shader_TintColor" );
-    m_pShader_TestNormals->SetFileForAllPasses( "Data/Shaders/Shader_TestNormals" );
-    m_pShader_Texture->SetFileForAllPasses( "Data/Shaders/Shader_Texture" );
+    //m_pShader_TintColor->SetFileForAllPasses( "Data/Shaders/Shader_TintColor" );
+    //m_pShader_TestNormals->SetFileForAllPasses( "Data/Shaders/Shader_TestNormals" );
+    //m_pShader_Texture->SetFileForAllPasses( "Data/Shaders/Shader_Texture" );
+    m_pShader_TransformGizmo->SetFileForAllPasses( "Data/Shaders/Shader_TintColor" );
     m_pShader_MousePicker->SetFileForAllPasses( "Data/Shaders/Shader_TintColor" );
 
     // Initialize our component system.
@@ -169,7 +173,7 @@ void GameEntityComponentTest::OneTimeInit()
         if( pComponentMesh )
         {
             pComponentMesh->m_Visible = true; // manually drawn when in editor mode.
-            pComponentMesh->SetShader( m_pShader_TintColor );
+            pComponentMesh->SetShader( m_pShader_TransformGizmo );
             pComponentMesh->m_LayersThisExistsOn = Layer_Editor;
             pComponentMesh->m_pMesh = MyNew MyMesh();
             pComponentMesh->m_pMesh->CreateEditorLineGridXZ( Vector3(0,0,0), 1, 5 );
@@ -191,7 +195,7 @@ void GameEntityComponentTest::OneTimeInit()
         if( pComponentMesh )
         {
             pComponentMesh->m_Visible = true;
-            pComponentMesh->SetShader( m_pShader_TintColor );
+            pComponentMesh->SetShader( m_pShader_TransformGizmo );
             pComponentMesh->m_LayersThisExistsOn = Layer_EditorFG;
             pComponentMesh->m_pMesh = MyNew MyMesh();
             pComponentMesh->m_pMesh->CreateEditorTransformGizmoAxis( 3, 0.1f, ColorByte(255, 100, 100, 255) );
@@ -211,7 +215,7 @@ void GameEntityComponentTest::OneTimeInit()
         if( pComponentMesh )
         {
             pComponentMesh->m_Visible = true;
-            pComponentMesh->SetShader( m_pShader_TintColor );
+            pComponentMesh->SetShader( m_pShader_TransformGizmo );
             pComponentMesh->m_LayersThisExistsOn = Layer_EditorFG;
             pComponentMesh->m_pMesh = MyNew MyMesh();
             pComponentMesh->m_pMesh->CreateEditorTransformGizmoAxis( 3, 0.1f, ColorByte(100, 255, 100, 255) );
@@ -231,7 +235,7 @@ void GameEntityComponentTest::OneTimeInit()
         if( pComponentMesh )
         {
             pComponentMesh->m_Visible = true;
-            pComponentMesh->SetShader( m_pShader_TintColor );
+            pComponentMesh->SetShader( m_pShader_TransformGizmo );
             pComponentMesh->m_LayersThisExistsOn = Layer_EditorFG;
             pComponentMesh->m_pMesh = MyNew MyMesh();
             pComponentMesh->m_pMesh->CreateEditorTransformGizmoAxis( 3, 0.1f, ColorByte(100, 100, 255, 255) );
