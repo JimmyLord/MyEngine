@@ -309,6 +309,9 @@
     <ClCompile Include="SourceCommon\Core\EditorState.cpp">
       <Filter>Source\Core Files</Filter>
     </ClCompile>
+    <ClCompile Include="SourceCommon\ComponentSystem\CustomComponents\ComponentMeshPlane.cpp">
+      <Filter>Source\ComponentSystem\Custom Components</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SourceWindows\WinMain.h">
@@ -544,6 +547,9 @@
     </ClInclude>
     <ClInclude Include="SourceCommon\Core\EditorState.h">
       <Filter>Source\Core Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCommon\ComponentSystem\CustomComponents\ComponentMeshPlane.h">
+      <Filter>Source\ComponentSystem\Custom Components</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

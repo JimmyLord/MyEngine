@@ -45,7 +45,7 @@ void ComponentMesh::FillPropertiesWindow(bool clear)
     if( clear )
         g_pPanelWatch->ClearAllVariables();
 
-    assert( m_pMesh );
+    //assert( m_pMesh );
 
     const char* desc = "no shader";
     if( m_pShaderGroup && m_pShaderGroup->GetShader( ShaderPass_Main )->m_pFile )
@@ -182,9 +182,12 @@ void ComponentMesh::Draw(MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride, i
 {
     ComponentRenderable::Draw( pMatViewProj, pShaderOverride, drawcount );
 
-    m_pMesh->SetShaderGroup( m_pShaderGroup );
-    m_pMesh->m_pTexture = m_pTexture;
+    if( m_pMesh )
+    {
+        m_pMesh->SetShaderGroup( m_pShaderGroup );
+        m_pMesh->m_pTexture = m_pTexture;
 
-    m_pMesh->m_Position = this->m_pComponentTransform->m_Transform;
-    m_pMesh->Draw( pMatViewProj, 0, 0, 0, 0, 0, 0, pShaderOverride );
+        m_pMesh->m_Position = this->m_pComponentTransform->m_Transform;
+        m_pMesh->Draw( pMatViewProj, 0, 0, 0, 0, 0, 0, pShaderOverride );
+    }
 }

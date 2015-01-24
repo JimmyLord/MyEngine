@@ -1,0 +1,151 @@
+{
+	"Files":	["Data/Shaders/Shader_TintColor.glsl", "Data/OBJs/cube.obj", "Data/Scripts/Player.lua", "Data/Scripts/Enemy.lua", "Data/Shaders/Shader_TestNormals.glsl"],
+	"GameObjects":	[{
+			"ID":	1,
+			"Name":	"Main Camera"
+		}, {
+			"ID":	7,
+			"Name":	"Hud Camera"
+		}, {
+			"ID":	8,
+			"Name":	"Player Object"
+		}, {
+			"ID":	9,
+			"Name":	"Second Object"
+		}, {
+			"ID":	10,
+			"Name":	"Cube"
+		}, {
+			"ID":	11,
+			"Name":	"Plane"
+		}],
+	"Transforms":	[{
+			"GOID":	1,
+			"ID":	0,
+			"Pos":	[0, 0, 10],
+			"Scale":	[1, 1, 1],
+			"Rot":	[0, 0, 0]
+		}, {
+			"GOID":	7,
+			"ID":	0,
+			"Pos":	[0, 0, 0],
+			"Scale":	[1, 1, 1],
+			"Rot":	[0, 0, 0]
+		}, {
+			"GOID":	8,
+			"ID":	0,
+			"Pos":	[0, 0, 0],
+			"Scale":	[1, 1, 1],
+			"Rot":	[0, 0, 0]
+		}, {
+			"GOID":	9,
+			"ID":	0,
+			"Pos":	[0, 0, 0],
+			"Scale":	[1, 1, 1],
+			"Rot":	[0, 0, 0]
+		}, {
+			"GOID":	10,
+			"ID":	0,
+			"Pos":	[-5.034870, 0, 0],
+			"Scale":	[1, 1, 1],
+			"Rot":	[0, 0, 0]
+		}, {
+			"GOID":	11,
+			"ID":	0,
+			"Pos":	[0, 0, 0],
+			"Scale":	[1, 1, 1],
+			"Rot":	[0, 0, 0]
+		}],
+	"Components":	[{
+			"Type":	"Camera",
+			"GOID":	1,
+			"ID":	1,
+			"Ortho":	0,
+			"DWidth":	640,
+			"DHeight":	960,
+			"ColorBit":	1,
+			"DepthBit":	1,
+			"Layers":	4
+		}, {
+			"Type":	"Camera",
+			"GOID":	7,
+			"ID":	8,
+			"Ortho":	1,
+			"DWidth":	640,
+			"DHeight":	960,
+			"ColorBit":	0,
+			"DepthBit":	0,
+			"Layers":	8
+		}, {
+			"Type":	"Lua Script",
+			"GOID":	8,
+			"ID":	10,
+			"Script":	"Data/Scripts/Player.lua",
+			"ExposedVars":	[]
+		}, {
+			"Type":	"Lua Script",
+			"GOID":	9,
+			"ID":	12,
+			"Script":	"Data/Scripts/Enemy.lua",
+			"ExposedVars":	[{
+					"Name":	"Speed",
+					"Type":	1,
+					"Value":	1
+				}, {
+					"Name":	"ObjectChasing",
+					"Type":	2,
+					"Value":	"Player Object"
+				}]
+		}, {
+			"Type":	"Collision Object",
+			"GOID":	10,
+			"ID":	14,
+			"Mass":	1
+		}, {
+			"Type":	"Collision Object",
+			"GOID":	11,
+			"ID":	16,
+			"Mass":	0
+		}, {
+			"Type":	"Sprite",
+			"GOID":	8,
+			"ID":	9,
+			"Visible":	1,
+			"Layers":	8,
+			"Tint":	[255, 0, 0, 255],
+			"Size":	[50, 50],
+			"Shader":	"Shader_TintColor"
+		}, {
+			"Type":	"Sprite",
+			"GOID":	9,
+			"ID":	11,
+			"Visible":	1,
+			"Layers":	8,
+			"Tint":	[0, 255, 0, 255],
+			"Size":	[50, 50],
+			"Shader":	"Shader_TintColor"
+		}, {
+			"Type":	"Mesh-OBJ",
+			"GOID":	10,
+			"ID":	13,
+			"Visible":	1,
+			"Layers":	4,
+			"Shader":	"Shader_TestNormals",
+			"OBJ":	"Data/OBJs/cube.obj"
+		}, {
+			"Type":	"Mesh-Plane",
+			"GOID":	11,
+			"ID":	21,
+			"Visible":	1,
+			"Layers":	65535,
+			"Shader":	"Shader_TintColor",
+			"m_Sizex":	100,
+			"m_Sizey":	100,
+			"VertCountx":	200,
+			"VertCounty":	200,
+			"UVStartx":	0,
+			"UVStarty":	0,
+			"UVRangex":	1,
+			"UVRangey":	1
+		}]
+}
