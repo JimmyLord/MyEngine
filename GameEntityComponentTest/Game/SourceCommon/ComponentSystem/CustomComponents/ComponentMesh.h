@@ -18,6 +18,8 @@ public:
     MyMesh* m_pMesh;
     ShaderGroup* m_pShaderGroup;
     TextureDefinition* m_pTexture;
+    int m_PrimitiveType;
+    int m_PointSize;
 
 public:
     ComponentMesh();

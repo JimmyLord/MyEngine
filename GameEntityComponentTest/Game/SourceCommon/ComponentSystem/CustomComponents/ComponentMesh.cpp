@@ -17,6 +17,9 @@ ComponentMesh::ComponentMesh()
     m_pMesh = 0;
     m_pShaderGroup = 0;
     m_pTexture = 0;
+
+    m_PrimitiveType = GL_TRIANGLES;
+    m_PointSize = 1;
 }
 
 ComponentMesh::~ComponentMesh()
@@ -55,7 +58,10 @@ void ComponentMesh::FillPropertiesWindow(bool clear)
     desc = "no texture";
     if( m_pTexture )
         desc = m_pTexture->m_Filename;
-    g_pPanelWatch->AddPointerWithDescription( "Texture", 0, desc, this, ComponentMesh::StaticOnDropTexture );    
+    g_pPanelWatch->AddPointerWithDescription( "Texture", 0, desc, this, ComponentMesh::StaticOnDropTexture );
+
+    g_pPanelWatch->AddInt( "Primitive Type", &m_PrimitiveType, GL_POINTS, GL_TRIANGLE_FAN );
+    g_pPanelWatch->AddInt( "Point Size", &m_PointSize, 1, 100 );
 }
 
 void ComponentMesh::OnDropShader()
@@ -64,7 +70,7 @@ void ComponentMesh::OnDropShader()
     {
         ShaderGroup* pShaderGroup = (ShaderGroup*)g_DragAndDropStruct.m_Value;
         assert( pShaderGroup );
-        assert( m_pMesh );
+        //assert( m_pMesh );
 
         SetShader( pShaderGroup );
 
@@ -79,7 +85,7 @@ void ComponentMesh::OnDropTexture()
     {
         MyFileObject* pFile = (MyFileObject*)g_DragAndDropStruct.m_Value;
         assert( pFile );
-        assert( m_pMesh );
+        //assert( m_pMesh );
 
         int len = strlen( pFile->m_FullPath );
         const char* filenameext = &pFile->m_FullPath[len-4];
@@ -116,6 +122,9 @@ cJSON* ComponentMesh::ExportAsJSONObject()
     if( m_pTexture )
         cJSON_AddStringToObject( component, "Texture", m_pTexture->m_Filename );
 
+    cJSON_AddNumberToObject( component, "PrimitiveType", m_PrimitiveType );
+    cJSON_AddNumberToObject( component, "PointSize", m_PointSize );
+    
     return component;
 }
 
@@ -146,6 +155,9 @@ void ComponentMesh::ImportFromJSONObject(cJSON* jsonobj, unsigned int sceneid)
             m_pTexture = pTexture;
         }
     }
+
+    cJSONExt_GetInt( jsonobj, "PrimitiveType", &m_PrimitiveType );
+    cJSONExt_GetInt( jsonobj, "PointSize", &m_PointSize );
 }
 
 ComponentMesh& ComponentMesh::operator=(const ComponentMesh& other)
@@ -165,6 +177,9 @@ ComponentMesh& ComponentMesh::operator=(const ComponentMesh& other)
     m_pTexture = other.m_pTexture;
     if( m_pTexture )
         m_pTexture->AddRef();
+
+    m_PrimitiveType = other.m_PrimitiveType;
+    m_PointSize = other.m_PointSize;
 
     return *this;
 }
@@ -186,6 +201,8 @@ void ComponentMesh::Draw(MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride, i
     {
         m_pMesh->SetShaderGroup( m_pShaderGroup );
         m_pMesh->m_pTexture = m_pTexture;
+        m_pMesh->m_PrimitiveType = m_PrimitiveType;
+        m_pMesh->m_PointSize = m_PointSize;
 
         m_pMesh->m_Position = this->m_pComponentTransform->m_Transform;
         m_pMesh->Draw( pMatViewProj, 0, 0, 0, 0, 0, 0, pShaderOverride );
