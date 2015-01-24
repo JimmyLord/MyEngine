@@ -127,9 +127,6 @@ void GameEntityComponentTest::OneTimeInit()
 
     m_EditorState.m_pMousePickerFBO = g_pTextureManager->CreateFBO( 0, 0, GL_NEAREST, GL_NEAREST, false, false, false );
 
-    glEnable( GL_CULL_FACE );
-    glEnable( GL_DEPTH_TEST );
-
     // setup our shaders
     //m_pShader_TintColor = MyNew ShaderGroup( MyNew Shader_Base(ShaderPass_Main), 0, 0, "Tint Color" );
     //m_pShader_TestNormals = MyNew ShaderGroup( MyNew Shader_Base(ShaderPass_Main), 0, 0, "Test-Normals" );
@@ -178,6 +175,7 @@ void GameEntityComponentTest::OneTimeInit()
             pComponentMesh->m_pMesh = MyNew MyMesh();
             pComponentMesh->m_pMesh->CreateEditorLineGridXZ( Vector3(0,0,0), 1, 5 );
             pComponentMesh->m_pMesh->m_Tint.Set( 150, 150, 150, 255 );
+            pComponentMesh->m_PrimitiveType = pComponentMesh->m_pMesh->m_PrimitiveType;
         }
 
         m_pComponentSystemManager->AddComponent( pComponentMesh );
@@ -199,6 +197,7 @@ void GameEntityComponentTest::OneTimeInit()
             pComponentMesh->m_LayersThisExistsOn = Layer_EditorFG;
             pComponentMesh->m_pMesh = MyNew MyMesh();
             pComponentMesh->m_pMesh->CreateEditorTransformGizmoAxis( 3, 0.1f, ColorByte(255, 100, 100, 255) );
+            pComponentMesh->m_PrimitiveType = pComponentMesh->m_pMesh->m_PrimitiveType;
         }
         pGameObject->m_pComponentTransform->SetRotation( Vector3( 0, 90, 0 ) );
 
@@ -219,6 +218,7 @@ void GameEntityComponentTest::OneTimeInit()
             pComponentMesh->m_LayersThisExistsOn = Layer_EditorFG;
             pComponentMesh->m_pMesh = MyNew MyMesh();
             pComponentMesh->m_pMesh->CreateEditorTransformGizmoAxis( 3, 0.1f, ColorByte(100, 255, 100, 255) );
+            pComponentMesh->m_PrimitiveType = pComponentMesh->m_pMesh->m_PrimitiveType;
         }
         pGameObject->m_pComponentTransform->SetRotation( Vector3( -90, 0, 0 ) );
 
@@ -239,6 +239,7 @@ void GameEntityComponentTest::OneTimeInit()
             pComponentMesh->m_LayersThisExistsOn = Layer_EditorFG;
             pComponentMesh->m_pMesh = MyNew MyMesh();
             pComponentMesh->m_pMesh->CreateEditorTransformGizmoAxis( 3, 0.1f, ColorByte(100, 100, 255, 255) );
+            pComponentMesh->m_PrimitiveType = pComponentMesh->m_pMesh->m_PrimitiveType;
         }
         pGameObject->m_pComponentTransform->SetRotation( Vector3( 0, 180, 0 ) );
 
@@ -611,6 +612,10 @@ void GameEntityComponentTest::OnKeyDown(int keycode, int unicodechar)
         HandleEditorInput( 1, keycode, -1, -1, -1, -1, -1 );
         return;
     }
+    else
+    {
+        m_pComponentSystemManager->OnButtons( GCBA_Down, (GameCoreButtonIDs)keycode );
+    }
 #endif
 }
 
@@ -621,6 +626,10 @@ void GameEntityComponentTest::OnKeyUp(int keycode, int unicodechar)
     {
         HandleEditorInput( 0, keycode, -1, -1, -1, -1, -1 );
         return;
+    }
+    else
+    {
+        m_pComponentSystemManager->OnButtons( GCBA_Up, (GameCoreButtonIDs)keycode );
     }
 #endif
 }
@@ -1250,6 +1259,9 @@ void GameEntityComponentTest::LoadScene(const char* fullpath, unsigned int scene
 void GameEntityComponentTest::OnSurfaceChanged(unsigned int startx, unsigned int starty, unsigned int width, unsigned int height)
 {
     GameCore::OnSurfaceChanged( startx, starty, width, height );
+
+    glEnable( GL_CULL_FACE );
+    glEnable( GL_DEPTH_TEST );
 
     if( height == 0 || width == 0 )
         return;

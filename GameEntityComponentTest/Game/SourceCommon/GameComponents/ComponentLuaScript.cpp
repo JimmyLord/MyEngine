@@ -475,8 +475,9 @@ void ComponentLuaScript::OnPlay()
                     {
                         LuaBridgeExt_LogExceptionFormattedForVisualStudioOutputWindow( "OnPlay", m_pScriptFile->m_FullPath, e.what() );
                     }
-                    m_Playing = true;
                 }
+
+                m_Playing = true;
             }
         }
     }
@@ -583,7 +584,9 @@ bool ComponentLuaScript::OnButtons(GameCoreButtonActions action, GameCoreButtonI
             ProgramVariables( LuaObject, false );
             try
             {
-                if( LuaObject["OnButtons"]( action, id ) )
+                int a = action;
+                int i = id;
+                if( LuaObject["OnButtons"]( a, i ) )
                     return true;
             }
             catch(luabridge::LuaException const& e)

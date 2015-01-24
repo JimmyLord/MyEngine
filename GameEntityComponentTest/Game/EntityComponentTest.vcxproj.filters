@@ -642,6 +642,12 @@
     <None Include="Data\Shaders\Shader_Water.glsl">
       <Filter>Data\Shaders</Filter>
     </None>
+    <None Include="Data\Shaders\Shader_Breathe.glsl">
+      <Filter>Data\Shaders</Filter>
+    </None>
+    <None Include="Data\Scripts\GGJPlayer.lua">
+      <Filter>Data\Scripts</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Object Include="Data\OBJs\cube.obj">

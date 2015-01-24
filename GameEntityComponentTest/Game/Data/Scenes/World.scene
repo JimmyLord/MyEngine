@@ -1,17 +1,11 @@
 {
-	"Files":	["Data/Shaders/Shader_TintColor.glsl", "Data/OBJs/cube.obj", "Data/Shaders/Shader_TestNormals.glsl", "Data/OBJs/StumpyMcBumbles.obj", "Data/Shaders/Shader_Water.glsl", "Data/Textures/water.png", "Data/Scripts/Player.lua", "Data/Scripts/Enemy.lua"],
+	"Files":	["Data/Shaders/Shader_TintColor.glsl", "Data/OBJs/cube.obj", "Data/Shaders/Shader_TestNormals.glsl", "Data/OBJs/StumpyMcBumblestein.obj", "Data/Shaders/Shader_Water.glsl", "Data/Textures/water.png", "Data/Scripts/Player.lua", "Data/Scripts/Enemy.lua", "Data/Shaders/Shader_Breathe.glsl", "Data/Scripts/GGJPlayer.lua"],
 	"GameObjects":	[{
 			"ID":	1,
 			"Name":	"Main Camera"
 		}, {
 			"ID":	7,
 			"Name":	"Hud Camera"
-		}, {
-			"ID":	8,
-			"Name":	"Player Object"
-		}, {
-			"ID":	9,
-			"Name":	"Second Object"
 		}, {
 			"ID":	10,
 			"Name":	"Cube"
@@ -30,18 +24,6 @@
 			"Rot":	[0, 0, 0]
 		}, {
 			"GOID":	7,
-			"ID":	0,
-			"Pos":	[0, 0, 0],
-			"Scale":	[1, 1, 1],
-			"Rot":	[0, 0, 0]
-		}, {
-			"GOID":	8,
-			"ID":	0,
-			"Pos":	[0, 0, 0],
-			"Scale":	[1, 1, 1],
-			"Rot":	[0, 0, 0]
-		}, {
-			"GOID":	9,
 			"ID":	0,
 			"Pos":	[0, 0, 0],
 			"Scale":	[1, 1, 1],
@@ -86,26 +68,6 @@
 			"DepthBit":	0,
 			"Layers":	8
 		}, {
-			"Type":	"Lua Script",
-			"GOID":	8,
-			"ID":	10,
-			"Script":	"Data/Scripts/Player.lua",
-			"ExposedVars":	[]
-		}, {
-			"Type":	"Lua Script",
-			"GOID":	9,
-			"ID":	12,
-			"Script":	"Data/Scripts/Enemy.lua",
-			"ExposedVars":	[{
-					"Name":	"Speed",
-					"Type":	1,
-					"Value":	1
-				}, {
-					"Name":	"ObjectChasing",
-					"Type":	2,
-					"Value":	"Player Object"
-				}]
-		}, {
 			"Type":	"Collision Object",
 			"GOID":	10,
 			"ID":	14,
@@ -120,25 +82,13 @@
 			"GOID":	12,
 			"ID":	23,
 			"Mass":	1,
-			"OBJ":	"Data/OBJs/StumpyMcBumbles.obj"
+			"OBJ":	"Data/OBJs/StumpyMcBumblestein.obj"
 		}, {
-			"Type":	"Sprite",
-			"GOID":	8,
-			"ID":	9,
-			"Visible":	1,
-			"Layers":	8,
-			"Tint":	[255, 0, 0, 255],
-			"Size":	[50, 50],
-			"Shader":	"Shader_TintColor"
-		}, {
-			"Type":	"Sprite",
-			"GOID":	9,
-			"ID":	11,
-			"Visible":	1,
-			"Layers":	8,
-			"Tint":	[0, 255, 0, 255],
-			"Size":	[50, 50],
-			"Shader":	"Shader_TintColor"
+			"Type":	"Lua Script",
+			"GOID":	12,
+			"ID":	27,
+			"Script":	"Data/Scripts/GGJPlayer.lua",
+			"ExposedVars":	[]
 		}, {
 			"Type":	"Mesh-OBJ",
 			"GOID":	10,
@@ -173,9 +123,9 @@
 			"ID":	22,
 			"Visible":	1,
 			"Layers":	65535,
-			"Shader":	"Shader_TestNormals",
+			"Shader":	"Shader_Breathe",
 			"PrimitiveType":	0,
 			"PointSize":	8,
-			"OBJ":	"Data/OBJs/StumpyMcBumbles.obj"
+			"OBJ":	"Data/OBJs/StumpyMcBumblestein.obj"
 		}]
 }
