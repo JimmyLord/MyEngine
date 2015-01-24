@@ -196,7 +196,7 @@ MyMatrix ComponentTransform::GetLocalRotPosMatrix()
 
 void ComponentTransform::SetParent(ComponentTransform* pNewParent)
 {
-    if( pNewParent == 0 )
+    if( pNewParent == 0 || pNewParent == this )
     {
         m_LocalTransform = m_Transform;
         m_pParentTransform = 0;
