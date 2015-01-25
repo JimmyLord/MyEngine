@@ -79,8 +79,10 @@ public:
     void UnloadScene(unsigned int sceneid = UINT_MAX);
     void LoadScene(const char* fullpath, unsigned int sceneid);
 
+#if MYFW_USING_WX
     GameObject* GetObjectAtPixel(unsigned int x, unsigned int y);
     void GetMouseRay(Vector2 mousepos, Vector3* start, Vector3* end);
+#endif //MYFW_USING_WX
 
 #if MYFW_USING_WX
     static void StaticOnObjectListTreeSelectionChanged(void* pObjectPtr) { ((GameEntityComponentTest*)pObjectPtr)->OnObjectListTreeSelectionChanged(); }

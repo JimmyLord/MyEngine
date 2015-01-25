@@ -41,6 +41,9 @@ GameEntityComponentTest::GameEntityComponentTest()
 
     m_pBulletWorld = MyNew BulletWorld();
 
+    m_pLuaGameState = 0;
+
+#if MYFW_USING_WX
     m_EditorState.m_pMousePickerFBO = 0;
 
     m_EditorState.m_p3DGridPlane = 0;
@@ -50,10 +53,9 @@ GameEntityComponentTest::GameEntityComponentTest()
     }
     m_EditorState.m_pEditorCamera = 0;
 
-    m_pLuaGameState = 0;
-
     g_pPanelObjectList->m_pCallbackFunctionObject = this;
     g_pPanelObjectList->m_pOnTreeSelectionChangedFunction = StaticOnObjectListTreeSelectionChanged;
+#endif //MYFW_USING_WX
 }
 
 GameEntityComponentTest::~GameEntityComponentTest()
@@ -83,12 +85,14 @@ GameEntityComponentTest::~GameEntityComponentTest()
             g_pFileManager->FreeFile( m_pScriptFiles[i] );
     }
 
+#if MYFW_USING_WX
     SAFE_DELETE( m_EditorState.m_p3DGridPlane );
     for( int i=0; i<3; i++ )
     {
         SAFE_DELETE( m_EditorState.m_pTransformGizmos[i] );
     }
     SAFE_DELETE( m_EditorState.m_pEditorCamera );
+#endif //MYFW_USING_WX
 
     SAFE_DELETE( m_pComponentSystemManager );
     SAFE_DELETE( m_pBulletWorld );
@@ -125,7 +129,9 @@ void GameEntityComponentTest::OneTimeInit()
     ////m_pScriptFiles[2] = g_pFileManager->RequestFile( "Data/Scripts/TestScript.lua" );
     ////m_pScriptFiles[3] = g_pFileManager->RequestFile( "Data/Scripts/TestScript.lua" );
 
+#if MYFW_USING_WX
     m_EditorState.m_pMousePickerFBO = g_pTextureManager->CreateFBO( 0, 0, GL_NEAREST, GL_NEAREST, false, false, false );
+#endif //MYFW_USING_WX
 
     // setup our shaders
     //m_pShader_TintColor = MyNew ShaderGroup( MyNew Shader_Base(ShaderPass_Main), 0, 0, "Tint Color" );
@@ -399,7 +405,7 @@ void GameEntityComponentTest::OneTimeInit()
     OnSurfaceChanged( (unsigned int)m_WindowStartX, (unsigned int)m_WindowStartY, (unsigned int)m_WindowWidth, (unsigned int)m_WindowHeight );
 
 #if !MYFW_USING_WX
-    LoadScene( "Data/Scenes/Test.scene", 1 );
+    LoadScene( "Data/Scenes/World.scene", 1 );
     m_pComponentSystemManager->OnPlay();
 #endif
 }
@@ -613,10 +619,10 @@ void GameEntityComponentTest::OnKeyDown(int keycode, int unicodechar)
         return;
     }
     else
+#endif
     {
         m_pComponentSystemManager->OnButtons( GCBA_Down, (GameCoreButtonIDs)keycode );
     }
-#endif
 }
 
 void GameEntityComponentTest::OnKeyUp(int keycode, int unicodechar)
@@ -628,10 +634,10 @@ void GameEntityComponentTest::OnKeyUp(int keycode, int unicodechar)
         return;
     }
     else
+#endif
     {
         m_pComponentSystemManager->OnButtons( GCBA_Up, (GameCoreButtonIDs)keycode );
     }
-#endif
 }
 
 void GameEntityComponentTest::HandleEditorInput(int keydown, int keycode, int action, int id, float x, float y, float pressure)
@@ -755,7 +761,7 @@ void GameEntityComponentTest::HandleEditorInput(int keydown, int keycode, int ac
                     //m_EditorState.m_pSelectedGameObject = pNewObject;
 
                     // select the object in the object tree.
-                    g_pPanelObjectList->SelectObject( pNewObject );
+                    //g_pPanelObjectList->SelectObject( pNewObject );
                 }
             }
 
@@ -1212,7 +1218,9 @@ void GameEntityComponentTest::SaveScene(const char* fullpath)
 void GameEntityComponentTest::UnloadScene(unsigned int sceneid)
 {
     // reset the editorstate structure.
+#if MYFW_USING_WX
     m_EditorState.UnloadScene();
+#endif //MYFW_USING_WX
 
     g_pComponentSystemManager->UnloadScene( false, sceneid );
 }
@@ -1220,7 +1228,9 @@ void GameEntityComponentTest::UnloadScene(unsigned int sceneid)
 void GameEntityComponentTest::LoadScene(const char* fullpath, unsigned int sceneid)
 {
     // reset the editorstate structure.
+#if MYFW_USING_WX
     m_EditorState.UnloadScene();
+#endif //MYFW_USING_WX
 
     FILE* filehandle;
     errno_t err = fopen_s( &filehandle, fullpath, "rb" );//"Data/Scenes/test.scene", "rb" );
@@ -1324,6 +1334,7 @@ void GameEntityComponentTest::OnSurfaceChanged(unsigned int startx, unsigned int
     }
 }
 
+#if MYFW_USING_WX
 GameObject* GameEntityComponentTest::GetObjectAtPixel(unsigned int x, unsigned int y)
 {
     // render the scene to a FBO.
@@ -1396,6 +1407,7 @@ void GameEntityComponentTest::GetMouseRay(Vector2 mousepos, Vector3* start, Vect
     start->Set( raystart.x, raystart.y, raystart.z );
     end->Set( rayend.x, rayend.y, rayend.z );
 }
+#endif //MYFW_USING_WX
 
 #if MYFW_USING_WX
 void GameEntityComponentTest::OnObjectListTreeSelectionChanged()

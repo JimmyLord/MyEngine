@@ -46,7 +46,6 @@ extern "C"
 #include "ComponentSystem/Core/BaseComponents/ComponentInputHandler.h"
 #include "ComponentSystem/Core/BaseComponents/ComponentUpdateable.h"
 #include "ComponentSystem/Core/BaseComponents/ComponentRenderable.h"
-#include "ComponentSystem/Core/GameObject.h"
 
 // myframework components
 #include "Core/GameComponentTypeManager.h"
@@ -62,6 +61,9 @@ extern "C"
 #include "GameComponents/ComponentAIChasePlayer.h"
 #include "GameComponents/ComponentCollisionObject.h"
 #include "GameComponents/ComponentLuaScript.h"
+
+#include "ComponentSystem/Core/GameObject.h"
+
 #include "Core/EditorState.h"
 #include "Core/GameEntityComponentTest.h"
 

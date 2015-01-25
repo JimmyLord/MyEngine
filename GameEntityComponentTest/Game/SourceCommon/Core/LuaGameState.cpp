@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2014 Jimmy Lord http://www.flatheadgames.com
+// Copyright (c) 2014-2015 Jimmy Lord http://www.flatheadgames.com
 //
 // This software is provided 'as-is', without any express or implied warranty.  In no event will the authors be held liable for any damages arising from the use of this software.
 // Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -75,9 +75,11 @@ void LuaGameState::RegisterClasses()
     // register Framework classes.
     luabridge::getGlobalNamespace( m_pLuaState )
         .beginClass<Vector3>( "Vector3" )
+            .addConstructor<void (*) (float x, float y, float z)>()
             .addData( "x", &Vector3::x )
             .addData( "y", &Vector3::y )
             .addData( "z", &Vector3::z )
+            .addFunction( "Set", &Vector3::Set )
             .addFunction( "Add", &Vector3::Add )
             .addFunction( "Sub", &Vector3::Sub )
             .addFunction( "Scale", &Vector3::Scale )
@@ -101,6 +103,7 @@ void LuaGameState::RegisterClasses()
     GameObject::LuaRegister( m_pLuaState );
     ComponentTransform::LuaRegister( m_pLuaState );
     ComponentSystemManager::LuaRegister( m_pLuaState );
+    ComponentCollisionObject::LuaRegister( m_pLuaState );
 
     // register global managers
     luabridge::setGlobal( m_pLuaState, g_pComponentSystemManager, "g_pComponentSystemManager" );

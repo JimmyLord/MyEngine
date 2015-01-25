@@ -72,6 +72,8 @@ void GameObject::LuaRegister(lua_State* luastate)
             .addData( "id", &GameObject::m_ID )            
             .addFunction( "SetName", &GameObject::SetName )
             .addFunction( "GetTransform", &GameObject::GetTransform )
+            .addFunction( "GetFirstComponentOfBaseType", &GameObject::GetFirstComponentOfBaseType )
+            .addFunction( "GetCollisionObject", &GameObject::GetCollisionObject )
         .endClass();
 }
 
@@ -318,4 +320,18 @@ ComponentBase* GameObject::GetFirstComponentOfBaseType(BaseComponentTypes basety
     }
 
     return 0; // component not found.
+}
+
+ComponentCollisionObject* GameObject::GetCollisionObject()
+{
+    for( unsigned int i=0; i<m_Components.Count(); i++ )
+    {
+        //if( m_Components[i]->m_Type == ComponentType_CollisionObject )
+        {
+            if( dynamic_cast<ComponentCollisionObject*>(m_Components[i]) != 0 )
+                return (ComponentCollisionObject*)m_Components[i];
+        }
+    }
+
+    return 0;
 }

@@ -52,6 +52,7 @@ public:
     ComponentBase* GetFirstComponentOfBaseType(BaseComponentTypes basetype);
 
     ComponentTransform* GetTransform() { return m_pComponentTransform; }
+    ComponentCollisionObject* GetCollisionObject();
 
 public:
 #if MYFW_USING_WX

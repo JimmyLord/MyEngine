@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2014 Jimmy Lord http://www.flatheadgames.com
+// Copyright (c) 2014-2015 Jimmy Lord http://www.flatheadgames.com
 //
 // This software is provided 'as-is', without any express or implied warranty.  In no event will the authors be held liable for any damages arising from the use of this software.
 // Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -124,7 +124,7 @@ cJSON* ComponentTransform::ExportAsJSONObject()
     cJSON* component = ComponentBase::ExportAsJSONObject();
 
     if( m_pParentTransform )
-        cJSON_AddNumberToObject( component, "ParentGOID", m_pParentTransform->m_ID );
+        cJSON_AddNumberToObject( component, "ParentGOID", m_pParentTransform->m_pGameObject->GetID() );
     cJSONExt_AddFloatArrayToObject( component, "Pos", &m_Position.x, 3 );
     cJSONExt_AddFloatArrayToObject( component, "Scale", &m_Scale.x, 3 );
     cJSONExt_AddFloatArrayToObject( component, "Rot", &m_Rotation.x, 3 );

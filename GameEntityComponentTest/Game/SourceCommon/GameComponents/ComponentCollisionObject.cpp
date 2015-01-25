@@ -32,6 +32,15 @@ ComponentCollisionObject::~ComponentCollisionObject()
     SAFE_RELEASE( m_pMesh );
 }
 
+void ComponentCollisionObject::LuaRegister(lua_State* luastate)
+{
+    luabridge::getGlobalNamespace( luastate )
+        .beginClass<ComponentCollisionObject>( "ComponentCollisionObject" )
+            .addData( "mass", &ComponentCollisionObject::m_Mass )            
+            .addFunction( "ApplyForce", &ComponentCollisionObject::ApplyForce )
+        .endClass();
+}
+
 void ComponentCollisionObject::Reset()
 {
     ComponentUpdateable::Reset();
@@ -148,7 +157,7 @@ void ComponentCollisionObject::OnPlay()
     {
         btCollisionShape* colShape;
         
-        if( m_pMesh )
+        if( m_pMesh && m_pMesh->m_MeshReady )
         {
             //btStridingMeshInterface meshinterface;
             //colShape = new btBvhTriangleMeshShape( meshinterface );
@@ -270,4 +279,13 @@ void ComponentCollisionObject::SyncRigidBodyToTransform()
         g_pBulletWorld->m_pDynamicsWorld->removeRigidBody( m_pBody );
         g_pBulletWorld->m_pDynamicsWorld->addRigidBody( m_pBody );
     }
+}
+
+void ComponentCollisionObject::ApplyForce(Vector3 force, Vector3 relpos)
+{
+    btVector3 btforce( force.x, force.y, force.z );
+    btVector3 btrelpos( relpos.x, relpos.y, relpos.z );
+
+    m_pBody->activate();
+    m_pBody->applyForce( btforce, btrelpos );
 }

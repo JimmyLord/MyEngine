@@ -18,8 +18,8 @@ end,
 
 OnTouch = function(action, id, x, y, pressure, size)
 	--LogInfo( "OnTouch\n" );
-	transform = this.gameobject:GetTransform();
-	pos = transform:GetPosition();
+	local transform = this.gameobject:GetTransform();
+	local pos = transform:GetPosition();
 
 	-- finger down
 	if( action == 0 ) then
