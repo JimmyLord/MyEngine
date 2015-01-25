@@ -76,10 +76,19 @@ Tick = function(timepassed)
 		force:Set( 1,0,0 );
 	end
 
+	--if( force:LengthSquared() ~= 0 ) then
+	--	local physicsobject = this.gameobject:GetCollisionObject();
+	--	physicsobject:ApplyForce( force:Scale(10), Vector3(0,0,0) );
+	--end
+
 	if( force:LengthSquared() ~= 0 ) then
-		local physicsobject = this.gameobject:GetCollisionObject();
-		physicsobject:ApplyForce( force:Scale(10), Vector3(0,0,0) );
+		local transform = this.gameobject:GetTransform();
+		local pos = transform:GetPosition();
+
+		pos = pos:Add( force:Scale( timepassed * this.Speed ) );
+		transform:SetPosition( pos );
 	end
+
 end,
 
 }

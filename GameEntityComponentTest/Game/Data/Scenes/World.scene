@@ -1,5 +1,5 @@
 {
-	"Files":	["Data/Shaders/Shader_TintColor.glsl", "Data/OBJs/cube.obj", "Data/Shaders/Shader_TestNormals.glsl", "Data/OBJs/StumpyMcBumblestein.obj", "Data/Shaders/Shader_Water.glsl", "Data/Textures/water.png", "Data/Scripts/Player.lua", "Data/Scripts/Enemy.lua", "Data/Shaders/Shader_Breathe.glsl", "Data/Scripts/GGJPlayer.lua"],
+	"Files":	["Data/OBJs/cube.obj", "Data/Shaders/Shader_TintColor.glsl", "Data/Shaders/Shader_TestNormals.glsl", "Data/OBJs/teapot2.obj", "Data/OBJs/Teapot.obj", "Data/Scripts/Player.lua", "Data/Scripts/Enemy.lua", "Data/Shaders/Shader_VertSinY.glsl", "Data/OBJs/StumpyMcBumblestein.obj", "Data/Shaders/Shader_Water.glsl", "Data/Textures/water.png", "Data/Shaders/Shader_Breathe.glsl", "Data/Scripts/GGJPlayer.lua"],
 	"GameObjects":	[{
 			"ID":	1,
 			"Name":	"Main Camera"
@@ -15,12 +15,14 @@
 		}, {
 			"ID":	12,
 			"Name":	"GermanDude"
+		}, {
+			"ID":	13,
+			"Name":	"Water 2"
 		}],
 	"Transforms":	[{
 			"GOID":	1,
 			"ID":	0,
-			"ParentGOID":	12,
-			"Pos":	[0, 0, 5],
+			"Pos":	[0, 0, 1],
 			"Scale":	[1, 1, 1],
 			"Rot":	[0, 0, 0]
 		}, {
@@ -38,13 +40,19 @@
 		}, {
 			"GOID":	11,
 			"ID":	0,
-			"Pos":	[0, 0, 0],
+			"Pos":	[0, 0, -120],
 			"Scale":	[1, 1, 1],
 			"Rot":	[0, 0, 0]
 		}, {
 			"GOID":	12,
 			"ID":	0,
-			"Pos":	[-0.712402, 1.594993, -10.414847],
+			"Pos":	[0, 0, -1.600000],
+			"Scale":	[0.100000, 0.100000, 0.100000],
+			"Rot":	[0, 0, 0]
+		}, {
+			"GOID":	13,
+			"ID":	0,
+			"Pos":	[0, 0, -20],
 			"Scale":	[1, 1, 1],
 			"Rot":	[0, 0, 0]
 		}],
@@ -67,23 +75,12 @@
 			"DHeight":	960,
 			"ColorBit":	0,
 			"DepthBit":	0,
-			"Layers":	8
+			"Layers":	0
 		}, {
 			"Type":	"Collision Object",
 			"GOID":	10,
 			"ID":	14,
 			"Mass":	0
-		}, {
-			"Type":	"Collision Object",
-			"GOID":	11,
-			"ID":	16,
-			"Mass":	0
-		}, {
-			"Type":	"Collision Object",
-			"GOID":	12,
-			"ID":	23,
-			"Mass":	1,
-			"OBJ":	"Data/OBJs/StumpyMcBumblestein.obj"
 		}, {
 			"Type":	"Lua Script",
 			"GOID":	12,
@@ -92,7 +89,7 @@
 			"ExposedVars":	[{
 					"Name":	"Speed",
 					"Type":	1,
-					"Value":	1
+					"Value":	10
 				}]
 		}, {
 			"Type":	"Mesh-Plane",
@@ -103,15 +100,15 @@
 			"Shader":	"Shader_Water",
 			"Texture":	"Data/Textures/water.png",
 			"PrimitiveType":	0,
-			"PointSize":	1,
-			"m_Sizex":	100,
-			"m_Sizey":	100,
-			"VertCountx":	200,
+			"PointSize":	2,
+			"m_Sizex":	6.280000,
+			"m_Sizey":	160,
+			"VertCountx":	300,
 			"VertCounty":	200,
-			"UVStartx":	0,
+			"UVStartx":	0.500000,
 			"UVStarty":	0,
-			"UVRangex":	10,
-			"UVRangey":	10
+			"UVRangex":	2,
+			"UVRangey":	1
 		}, {
 			"Type":	"Mesh-OBJ",
 			"GOID":	12,
@@ -122,5 +119,23 @@
 			"PrimitiveType":	0,
 			"PointSize":	8,
 			"OBJ":	"Data/OBJs/StumpyMcBumblestein.obj"
+		}, {
+			"Type":	"Mesh-Plane",
+			"GOID":	13,
+			"ID":	31,
+			"Visible":	1,
+			"Layers":	65535,
+			"Shader":	"Shader_Water",
+			"Texture":	"Data/Textures/water.png",
+			"PrimitiveType":	0,
+			"PointSize":	1,
+			"m_Sizex":	6.280000,
+			"m_Sizey":	40,
+			"VertCountx":	300,
+			"VertCounty":	200,
+			"UVStartx":	0,
+			"UVStarty":	0,
+			"UVRangex":	1,
+			"UVRangey":	1
 		}]
 }

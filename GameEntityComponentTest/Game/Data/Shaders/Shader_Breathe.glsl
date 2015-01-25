@@ -14,13 +14,20 @@ uniform float u_Time;
 attribute vec4 a_Position;
 attribute vec4 a_Normal;
 
-uniform mat4 u_WorldViewProj;
+uniform mat4 u_World;
+uniform mat4 u_ViewProj;
 
 void main()
 {
-    gl_Position = u_WorldViewProj * a_Position;
+    //gl_Position = u_WorldViewProj * a_Position;
 
-	gl_Position.y *= 1 + sin( u_Time ) * 0.05;
+	//gl_Position.y *= 1 + sin( u_Time ) * 0.05;
+
+	vec4 newpos = u_World * a_Position;
+	newpos.y = sin( newpos.x );
+	newpos.x = cos( newpos.x );
+
+    gl_Position = u_ViewProj * newpos;
 
 	v_Normal = a_Normal;
 }
