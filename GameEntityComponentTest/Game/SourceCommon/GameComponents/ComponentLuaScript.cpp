@@ -435,7 +435,7 @@ void ComponentLuaScript::OnPlay()
 
 #if _DEBUG && MYFW_USING_WX
     // reload the script when play is hit in debug, for quick script edits.
-    if( m_pScriptFile->m_FileReady == true )
+    if( m_pScriptFile && m_pScriptFile->m_FileReady == true )
     {
         m_ScriptLoaded = false;
         g_pFileManager->ReloadFile( m_pScriptFile );

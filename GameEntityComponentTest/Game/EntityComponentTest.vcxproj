@@ -2780,7 +2780,10 @@
   <ItemGroup>
     <None Include="..\..\todo.todo" />
     <None Include="Data\Scenes\test.scene" />
+    <None Include="Data\Scenes\World.scene" />
+    <None Include="Data\Scripts\GGJEnemy.lua" />
     <None Include="Data\Scripts\GGJPlayer.lua" />
+    <None Include="Data\Scripts\GGJTube.lua" />
     <None Include="Data\Scripts\Player.lua" />
     <None Include="Data\Scripts\Enemy.lua" />
     <None Include="Data\Shaders\Shader_Breathe.glsl" />

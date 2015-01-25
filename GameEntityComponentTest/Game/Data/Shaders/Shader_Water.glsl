@@ -49,18 +49,24 @@ void main()
 	newUV.x += sin( u_Time + gl_FragCoord.y / 40.0 ) * 0.04;
 	newUV.y -= sin( u_Time + gl_FragCoord.x / 44.0 ) * 0.06;
 
-	vec4 color1 = texture2D( u_TextureColor, newUV + u_Time / 20.0 );
-    vec4 color2 = texture2D( u_TextureColor, newUV - vec2( u_Time / 21.0, 0.0 ) );
+	vec4 color1 = texture2D( u_TextureColor, newUV + u_Time / 20.0 - vec2( 0, u_Time * 0.2 ) );
+    vec4 color2 = texture2D( u_TextureColor, newUV - vec2( u_Time / 21.0, 0.0 ) - vec2( 0, u_Time * 0.2 ) );
 
 	//color1 += vec4( 15/255.0, 103/255.0, 227/255.0, 0.0 );
 	//color1 += vec4( 15/255.0, 103/255.0 * (v_Worldpos.z/200.0), 227/255.0, 0.0 );
 	//color1 = vec4( (-v_Worldpos.z + 100)/100.0, -v_Worldpos.z/100.0, v_Worldpos.z + 100, 0.0 );
 	color1 *= 0.2;
 	color1 += vec4(
-		clamp( (-v_Worldpos.z - 0) / 100.0, 0, 1 ),
-		0.0, //(-v_Worldpos.z + 100)/100.0,
-		clamp( (v_Worldpos.z + 10) / 10.0, 0, 1 ) * 2,
-		0.0 );
+		sin( v_Worldpos.z / 50 + u_Time * 0.2 ) / 2.0 + 0.5,
+		sin( -v_Worldpos.z / 100 + u_Time * 0.2 ) / 2.0 + 0.5,
+		sin( v_Worldpos.z / 75 + u_Time * 0.2 ) / 2.0 + 0.5,
+		1
+	);
+	//color1 += vec4(
+	//	clamp( (-v_Worldpos.z - 0) / 100.0, 0, 1 ),
+	//	0.0, //(-v_Worldpos.z + 100)/100.0,
+	//	clamp( (v_Worldpos.z + 10) / 10.0, 0, 1 ) * 2,
+	//	0.0 );
 
 	vec4 color = color1 + color2 * -0.33;
 
