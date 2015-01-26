@@ -19,11 +19,15 @@
 #endif
 
 // bullet
+#if MYFW_WINDOWS
 #pragma warning (disable : 4263)
 #pragma warning (disable : 4264)
-#include "../../bullet-2.82-r2704/src/btBulletDynamicsCommon.h"
+#endif
+#include "../../../bullet-2.82-r2704/src/btBulletDynamicsCommon.h"
+#if MYFW_WINDOWS
 #pragma warning (default : 4263)
 #pragma warning (default : 4264)
+#endif
 #include "Core/BulletWorld.h"
 
 // lua

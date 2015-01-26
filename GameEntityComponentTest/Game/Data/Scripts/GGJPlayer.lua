@@ -24,7 +24,17 @@ OnStop = function()
 end,
 
 OnTouch = function(action, id, x, y, pressure, size)
-	LogInfo( "OnTouch " .. id .. "\n" );
+	-- LogInfo( "OnTouch " .. id .. " " .. action .. " " .. x .. "\n" );
+	helda = false;
+	heldd = false;
+
+	if( action == 2 ) then
+		if( x < 320 ) then
+			helda = true;
+		else
+			heldd = true;
+		end
+	end
 end,
 
 OnButtons = function(action, id)

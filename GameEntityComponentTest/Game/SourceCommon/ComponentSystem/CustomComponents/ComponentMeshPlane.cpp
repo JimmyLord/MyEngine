@@ -117,7 +117,7 @@ void ComponentMeshPlane::CreatePlane()
 
     m_pMesh->m_PrimitiveType = GL_POINTS;
 
-    m_pMesh->CreatePlane( Vector3(-m_Size.x/2, 0, -m_Size.y/2), m_Size, m_VertCount, m_UVStart, m_UVRange );
+    m_pMesh->CreatePlane( Vector3(-m_Size.x/2, 0, -m_Size.y/2), m_Size, m_VertCount, m_UVStart, m_UVRange, false );
 }
 
 void ComponentMeshPlane::Draw(MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride, int drawcount)

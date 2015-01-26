@@ -42,6 +42,7 @@
    
     <initialWindow>
         <systemChrome>none</systemChrome>
+        <autoOrients>true</autoOrients>
         <transparent>false</transparent>
     </initialWindow>
     

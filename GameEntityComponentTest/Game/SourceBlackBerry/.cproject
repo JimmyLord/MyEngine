@@ -1,16 +1,14 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<?fileVersion 4.0.0?>
-
-<cproject storage_type_id="org.eclipse.cdt.core.XmlProjectDescriptionStorage">
+<?fileVersion 4.0.0?><cproject storage_type_id="org.eclipse.cdt.core.XmlProjectDescriptionStorage">
 	<storageModule moduleId="org.eclipse.cdt.core.settings">
 		<cconfiguration id="com.qnx.qcc.configuration.exe.debug.1643476189">
 			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="com.qnx.qcc.configuration.exe.debug.1643476189" moduleId="org.eclipse.cdt.core.settings" name="Device-Debug">
 				<externalSettings/>
 				<extensions>
-					<extension id="com.qnx.tools.ide.qde.core.QDEBynaryParser" point="org.eclipse.cdt.core.BinaryParser"/>
 					<extension id="com.qnx.tools.ide.qde.core.QDELinkerErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GCCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GLDErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="com.qnx.tools.ide.qde.core.QDEBynaryParser" point="org.eclipse.cdt.core.BinaryParser"/>
 				</extensions>
 			</storageModule>
 			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
@@ -29,6 +27,7 @@
 									<listOptionValue builtIn="false" value="../../../../Framework/MyFramework/SourceCommon"/>
 									<listOptionValue builtIn="false" value="../../SourceCommon"/>
 									<listOptionValue builtIn="false" value="../.."/>
+									<listOptionValue builtIn="false" value="../../../../bullet-2.82-r2704/src"/>
 								</option>
 								<option id="com.qnx.qcc.option.compiler.security.80732959" name="Enhanced Security (-fstack-protector-strong)" superClass="com.qnx.qcc.option.compiler.security" value="true" valueType="boolean"/>
 								<option id="com.qnx.qcc.option.compiler.defines.1216223609" name="Defines (-D)" superClass="com.qnx.qcc.option.compiler.defines" valueType="definedSymbols">
@@ -113,8 +112,10 @@
 							<tool id="com.qnx.qcc.tool.archiver.1043265417" name="QCC Archiver" superClass="com.qnx.qcc.tool.archiver.1481168162"/>
 						</toolChain>
 					</folderInfo>
+					<fileInfo id="com.qnx.qcc.configuration.exe.debug.1643476189.1670094227" name="GameMainFrame.h" rcbsApplicability="disable" resourcePath="src/SourceCommon/Core/GameMainFrame.h" toolsToInvoke=""/>
+					<fileInfo id="com.qnx.qcc.configuration.exe.debug.1643476189.591653336" name="EditorState.h" rcbsApplicability="disable" resourcePath="src/SourceCommon/Core/EditorState.h" toolsToInvoke=""/>
 					<sourceEntries>
-						<entry excluding="Framework/LazilySharedGameCode/BitsAndPieces/SpeechBubble.h|Framework/LazilySharedGameCode/BitsAndPieces/SpeechBubble.cpp|Framework/MyFramework/SourceCommon/GraphicsWrappers/DXWrapper.h|Framework/MyFramework/SourceCommon/GraphicsWrappers/DXWrapper.cpp|Framework/MyFramework/SourceWidgets|Framework/MyFramework/SourceEmscripten|Framework/MyFramework/SourceWP8|Framework/MyFramework/SourceCommon/DXWrapper|Framework/MyFramework/SourceCommon/Random/mttest.cpp|Framework/OpenGLTest.sln|Framework/MyFramework/MyFramework.xcodeproj|Framework/MyFramework/SourceBada|Framework/MyFramework/SourceIOS|Framework/Soil/original|Framework/Soil/test_SOIL.cpp|Framework/Box2D_v2.2.1|Framework/Tools|Framework/glfw-2.7.2|Framework/glew-1.7.0|Framework/MyFramework/SourceWindows|Framework/MyFramework/SourceNaCL|Framework/MyFramework/SourceAndroid" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
+						<entry excluding="Lua/src/luac.c|Lua/src/lua.c|SourceCommon/Core/EditorState.h|SourceCommon/Core/EditorState.cpp|SourceCommon/Core/GameMainFrame.h|SourceCommon/Core/GameMainFrame.cpp|Framework/LazilySharedGameCode/BitsAndPieces/SpeechBubble.h|Framework/LazilySharedGameCode/BitsAndPieces/SpeechBubble.cpp|Framework/MyFramework/SourceCommon/GraphicsWrappers/DXWrapper.h|Framework/MyFramework/SourceCommon/GraphicsWrappers/DXWrapper.cpp|Framework/MyFramework/SourceWidgets|Framework/MyFramework/SourceEmscripten|Framework/MyFramework/SourceWP8|Framework/MyFramework/SourceCommon/DXWrapper|Framework/MyFramework/SourceCommon/Random/mttest.cpp|Framework/OpenGLTest.sln|Framework/MyFramework/MyFramework.xcodeproj|Framework/MyFramework/SourceBada|Framework/MyFramework/SourceIOS|Framework/Soil/original|Framework/Soil/test_SOIL.cpp|Framework/Box2D_v2.2.1|Framework/Tools|Framework/glfw-2.7.2|Framework/glew-1.7.0|Framework/MyFramework/SourceWindows|Framework/MyFramework/SourceNaCL|Framework/MyFramework/SourceAndroid" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -124,10 +125,10 @@
 			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="com.qnx.qcc.configuration.exe.release.2128013639" moduleId="org.eclipse.cdt.core.settings" name="Device-Release">
 				<externalSettings/>
 				<extensions>
-					<extension id="com.qnx.tools.ide.qde.core.QDEBynaryParser" point="org.eclipse.cdt.core.BinaryParser"/>
 					<extension id="com.qnx.tools.ide.qde.core.QDELinkerErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GCCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GLDErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="com.qnx.tools.ide.qde.core.QDEBynaryParser" point="org.eclipse.cdt.core.BinaryParser"/>
 				</extensions>
 			</storageModule>
 			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
@@ -145,6 +146,7 @@
 									<listOptionValue builtIn="false" value="../../../../Framework/MyFramework/SourceCommon"/>
 									<listOptionValue builtIn="false" value="../../SourceCommon"/>
 									<listOptionValue builtIn="false" value="../.."/>
+									<listOptionValue builtIn="false" value="../../../../bullet-2.82-r2704/src"/>
 								</option>
 								<option id="com.qnx.qcc.option.compiler.security.539509711" name="Enhanced Security (-fstack-protector-strong)" superClass="com.qnx.qcc.option.compiler.security" value="true" valueType="boolean"/>
 								<option id="com.qnx.qcc.option.compiler.defines.1525164255" name="Defines (-D)" superClass="com.qnx.qcc.option.compiler.defines" valueType="definedSymbols">
@@ -232,8 +234,10 @@
 							<tool id="com.qnx.qcc.tool.archiver.156671283" name="QCC Archiver" superClass="com.qnx.qcc.tool.archiver.1713327155"/>
 						</toolChain>
 					</folderInfo>
+					<fileInfo id="com.qnx.qcc.configuration.exe.release.2128013639.832500245" name="GameMainFrame.h" rcbsApplicability="disable" resourcePath="src/SourceCommon/Core/GameMainFrame.h" toolsToInvoke=""/>
+					<fileInfo id="com.qnx.qcc.configuration.exe.release.2128013639.1195560590" name="EditorState.h" rcbsApplicability="disable" resourcePath="src/SourceCommon/Core/EditorState.h" toolsToInvoke=""/>
 					<sourceEntries>
-						<entry excluding="Framework/LazilySharedGameCode/BitsAndPieces/SpeechBubble.h|Framework/LazilySharedGameCode/BitsAndPieces/SpeechBubble.cpp|Framework/MyFramework/SourceCommon/GraphicsWrappers/DXWrapper.h|Framework/MyFramework/SourceCommon/GraphicsWrappers/DXWrapper.cpp|Framework/MyFramework/SourceWidgets|Framework/MyFramework/SourceEmscripten|Framework/MyFramework/SourceWP8|Framework/MyFramework/SourceCommon/DXWrapper|Framework/MyFramework/SourceCommon/Random/mttest.cpp|Framework/OpenGLTest.sln|Framework/MyFramework/MyFramework.xcodeproj|Framework/MyFramework/SourceBada|Framework/MyFramework/SourceIOS|Framework/Soil/original|Framework/Soil/test_SOIL.cpp|Framework/Box2D_v2.2.1|Framework/Tools|Framework/glfw-2.7.2|Framework/glew-1.7.0|Framework/MyFramework/SourceWindows|Framework/MyFramework/SourceNaCL|Framework/MyFramework/SourceAndroid" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
+						<entry excluding="Lua/src/luac.c|Lua/src/lua.c|SourceCommon/Core/EditorState.h|SourceCommon/Core/EditorState.cpp|SourceCommon/Core/GameMainFrame.h|SourceCommon/Core/GameMainFrame.cpp|Framework/LazilySharedGameCode/BitsAndPieces/SpeechBubble.h|Framework/LazilySharedGameCode/BitsAndPieces/SpeechBubble.cpp|Framework/MyFramework/SourceCommon/GraphicsWrappers/DXWrapper.h|Framework/MyFramework/SourceCommon/GraphicsWrappers/DXWrapper.cpp|Framework/MyFramework/SourceWidgets|Framework/MyFramework/SourceEmscripten|Framework/MyFramework/SourceWP8|Framework/MyFramework/SourceCommon/DXWrapper|Framework/MyFramework/SourceCommon/Random/mttest.cpp|Framework/OpenGLTest.sln|Framework/MyFramework/MyFramework.xcodeproj|Framework/MyFramework/SourceBada|Framework/MyFramework/SourceIOS|Framework/Soil/original|Framework/Soil/test_SOIL.cpp|Framework/Box2D_v2.2.1|Framework/Tools|Framework/glfw-2.7.2|Framework/glew-1.7.0|Framework/MyFramework/SourceWindows|Framework/MyFramework/SourceNaCL|Framework/MyFramework/SourceAndroid" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -243,10 +247,10 @@
 			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="com.qnx.qcc.configuration.exe.profile.1238212533" moduleId="org.eclipse.cdt.core.settings" name="Device-Profile">
 				<externalSettings/>
 				<extensions>
-					<extension id="com.qnx.tools.ide.qde.core.QDEBynaryParser" point="org.eclipse.cdt.core.BinaryParser"/>
 					<extension id="com.qnx.tools.ide.qde.core.QDELinkerErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GCCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GLDErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="com.qnx.tools.ide.qde.core.QDEBynaryParser" point="org.eclipse.cdt.core.BinaryParser"/>
 				</extensions>
 			</storageModule>
 			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
@@ -266,6 +270,7 @@
 									<listOptionValue builtIn="false" value="../../../../Framework/MyFramework/SourceCommon"/>
 									<listOptionValue builtIn="false" value="../../SourceCommon"/>
 									<listOptionValue builtIn="false" value="../.."/>
+									<listOptionValue builtIn="false" value="../../../../bullet-2.82-r2704/src"/>
 								</option>
 								<option id="com.qnx.qcc.option.compiler.security.587566160" name="Enhanced Security (-fstack-protector-strong)" superClass="com.qnx.qcc.option.compiler.security" value="true" valueType="boolean"/>
 								<option id="com.qnx.qcc.option.compiler.defines.793757555" name="Defines (-D)" superClass="com.qnx.qcc.option.compiler.defines" valueType="definedSymbols">
@@ -350,8 +355,10 @@
 							<tool id="com.qnx.qcc.tool.archiver.1071372661" name="QCC Archiver" superClass="com.qnx.qcc.tool.archiver.165275773"/>
 						</toolChain>
 					</folderInfo>
+					<fileInfo id="com.qnx.qcc.configuration.exe.profile.1238212533.439744291" name="GameMainFrame.h" rcbsApplicability="disable" resourcePath="src/SourceCommon/Core/GameMainFrame.h" toolsToInvoke=""/>
+					<fileInfo id="com.qnx.qcc.configuration.exe.profile.1238212533.2120328607" name="EditorState.h" rcbsApplicability="disable" resourcePath="src/SourceCommon/Core/EditorState.h" toolsToInvoke=""/>
 					<sourceEntries>
-						<entry excluding="Framework/LazilySharedGameCode/BitsAndPieces/SpeechBubble.h|Framework/LazilySharedGameCode/BitsAndPieces/SpeechBubble.cpp|Framework/MyFramework/SourceCommon/GraphicsWrappers/DXWrapper.h|Framework/MyFramework/SourceCommon/GraphicsWrappers/DXWrapper.cpp|Framework/MyFramework/SourceWidgets|Framework/MyFramework/SourceEmscripten|Framework/MyFramework/SourceWP8|Framework/MyFramework/SourceCommon/DXWrapper|Framework/MyFramework/SourceCommon/Random/mttest.cpp|Framework/OpenGLTest.sln|Framework/MyFramework/MyFramework.xcodeproj|Framework/MyFramework/SourceBada|Framework/MyFramework/SourceIOS|Framework/Soil/original|Framework/Soil/test_SOIL.cpp|Framework/Box2D_v2.2.1|Framework/Tools|Framework/glfw-2.7.2|Framework/glew-1.7.0|Framework/MyFramework/SourceWindows|Framework/MyFramework/SourceNaCL|Framework/MyFramework/SourceAndroid" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
+						<entry excluding="Lua/src/luac.c|Lua/src/lua.c|SourceCommon/Core/EditorState.h|SourceCommon/Core/EditorState.cpp|SourceCommon/Core/GameMainFrame.h|SourceCommon/Core/GameMainFrame.cpp|Framework/LazilySharedGameCode/BitsAndPieces/SpeechBubble.h|Framework/LazilySharedGameCode/BitsAndPieces/SpeechBubble.cpp|Framework/MyFramework/SourceCommon/GraphicsWrappers/DXWrapper.h|Framework/MyFramework/SourceCommon/GraphicsWrappers/DXWrapper.cpp|Framework/MyFramework/SourceWidgets|Framework/MyFramework/SourceEmscripten|Framework/MyFramework/SourceWP8|Framework/MyFramework/SourceCommon/DXWrapper|Framework/MyFramework/SourceCommon/Random/mttest.cpp|Framework/OpenGLTest.sln|Framework/MyFramework/MyFramework.xcodeproj|Framework/MyFramework/SourceBada|Framework/MyFramework/SourceIOS|Framework/Soil/original|Framework/Soil/test_SOIL.cpp|Framework/Box2D_v2.2.1|Framework/Tools|Framework/glfw-2.7.2|Framework/glew-1.7.0|Framework/MyFramework/SourceWindows|Framework/MyFramework/SourceNaCL|Framework/MyFramework/SourceAndroid" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -361,10 +368,10 @@
 			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="com.qnx.qcc.configuration.exe.profile.coverage.193063636" moduleId="org.eclipse.cdt.core.settings" name="Device-Coverage">
 				<externalSettings/>
 				<extensions>
-					<extension id="com.qnx.tools.ide.qde.core.QDEBynaryParser" point="org.eclipse.cdt.core.BinaryParser"/>
 					<extension id="com.qnx.tools.ide.qde.core.QDELinkerErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GCCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GLDErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="com.qnx.tools.ide.qde.core.QDEBynaryParser" point="org.eclipse.cdt.core.BinaryParser"/>
 				</extensions>
 			</storageModule>
 			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
@@ -384,6 +391,7 @@
 									<listOptionValue builtIn="false" value="../../../../Framework/MyFramework/SourceCommon"/>
 									<listOptionValue builtIn="false" value="../../SourceCommon"/>
 									<listOptionValue builtIn="false" value="../.."/>
+									<listOptionValue builtIn="false" value="../../../../bullet-2.82-r2704/src"/>
 								</option>
 								<option id="com.qnx.qcc.option.compiler.security.1172772731" name="Enhanced Security (-fstack-protector-strong)" superClass="com.qnx.qcc.option.compiler.security" value="true" valueType="boolean"/>
 								<option id="com.qnx.qcc.option.compiler.defines.969364395" name="Defines (-D)" superClass="com.qnx.qcc.option.compiler.defines" valueType="definedSymbols">
@@ -468,8 +476,10 @@
 							<tool id="com.qnx.qcc.tool.archiver.1694341950" name="QCC Archiver" superClass="com.qnx.qcc.tool.archiver.1360117248"/>
 						</toolChain>
 					</folderInfo>
+					<fileInfo id="com.qnx.qcc.configuration.exe.profile.coverage.193063636.538070777" name="GameMainFrame.h" rcbsApplicability="disable" resourcePath="src/SourceCommon/Core/GameMainFrame.h" toolsToInvoke=""/>
+					<fileInfo id="com.qnx.qcc.configuration.exe.profile.coverage.193063636.152200420" name="EditorState.h" rcbsApplicability="disable" resourcePath="src/SourceCommon/Core/EditorState.h" toolsToInvoke=""/>
 					<sourceEntries>
-						<entry excluding="Framework/LazilySharedGameCode/BitsAndPieces/SpeechBubble.h|Framework/LazilySharedGameCode/BitsAndPieces/SpeechBubble.cpp|Framework/MyFramework/SourceCommon/GraphicsWrappers/DXWrapper.h|Framework/MyFramework/SourceCommon/GraphicsWrappers/DXWrapper.cpp|Framework/MyFramework/SourceWidgets|Framework/MyFramework/SourceEmscripten|Framework/MyFramework/SourceWP8|Framework/MyFramework/SourceCommon/DXWrapper|Framework/MyFramework/SourceCommon/Random/mttest.cpp|Framework/OpenGLTest.sln|Framework/MyFramework/MyFramework.xcodeproj|Framework/MyFramework/SourceBada|Framework/MyFramework/SourceIOS|Framework/Soil/original|Framework/Soil/test_SOIL.cpp|Framework/Box2D_v2.2.1|Framework/Tools|Framework/glfw-2.7.2|Framework/glew-1.7.0|Framework/MyFramework/SourceWindows|Framework/MyFramework/SourceNaCL|Framework/MyFramework/SourceAndroid" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
+						<entry excluding="Lua/src/luac.c|Lua/src/lua.c|SourceCommon/Core/EditorState.h|SourceCommon/Core/EditorState.cpp|SourceCommon/Core/GameMainFrame.h|SourceCommon/Core/GameMainFrame.cpp|Framework/LazilySharedGameCode/BitsAndPieces/SpeechBubble.h|Framework/LazilySharedGameCode/BitsAndPieces/SpeechBubble.cpp|Framework/MyFramework/SourceCommon/GraphicsWrappers/DXWrapper.h|Framework/MyFramework/SourceCommon/GraphicsWrappers/DXWrapper.cpp|Framework/MyFramework/SourceWidgets|Framework/MyFramework/SourceEmscripten|Framework/MyFramework/SourceWP8|Framework/MyFramework/SourceCommon/DXWrapper|Framework/MyFramework/SourceCommon/Random/mttest.cpp|Framework/OpenGLTest.sln|Framework/MyFramework/MyFramework.xcodeproj|Framework/MyFramework/SourceBada|Framework/MyFramework/SourceIOS|Framework/Soil/original|Framework/Soil/test_SOIL.cpp|Framework/Box2D_v2.2.1|Framework/Tools|Framework/glfw-2.7.2|Framework/glew-1.7.0|Framework/MyFramework/SourceWindows|Framework/MyFramework/SourceNaCL|Framework/MyFramework/SourceAndroid" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -479,10 +489,10 @@
 			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="com.qnx.qcc.configuration.exe.debug.474373924" moduleId="org.eclipse.cdt.core.settings" name="Simulator-Debug">
 				<externalSettings/>
 				<extensions>
-					<extension id="com.qnx.tools.ide.qde.core.QDEBynaryParser" point="org.eclipse.cdt.core.BinaryParser"/>
 					<extension id="com.qnx.tools.ide.qde.core.QDELinkerErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GCCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GLDErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="com.qnx.tools.ide.qde.core.QDEBynaryParser" point="org.eclipse.cdt.core.BinaryParser"/>
 				</extensions>
 			</storageModule>
 			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
@@ -500,6 +510,7 @@
 									<listOptionValue builtIn="false" value="../../../../Framework/MyFramework/SourceCommon"/>
 									<listOptionValue builtIn="false" value="../../SourceCommon"/>
 									<listOptionValue builtIn="false" value="../.."/>
+									<listOptionValue builtIn="false" value="../../../../bullet-2.82-r2704/src"/>
 								</option>
 								<option id="com.qnx.qcc.option.compiler.security.1520562118" name="Enhanced Security (-fstack-protector-strong)" superClass="com.qnx.qcc.option.compiler.security" value="true" valueType="boolean"/>
 								<option id="com.qnx.qcc.option.compiler.defines.1443052333" name="Defines (-D)" superClass="com.qnx.qcc.option.compiler.defines" valueType="definedSymbols">
@@ -555,8 +566,10 @@
 					<fileInfo id="com.qnx.qcc.configuration.exe.debug.474373924.130312040" name="DXWrapper.h" rcbsApplicability="disable" resourcePath="src/Framework/MyFramework/SourceCommon/GraphicsWrappers/DXWrapper.h" toolsToInvoke=""/>
 					<fileInfo id="com.qnx.qcc.configuration.exe.debug.474373924.1467788587" name="OpenGLTest.sln" rcbsApplicability="disable" resourcePath="src/Framework/OpenGLTest.sln" toolsToInvoke=""/>
 					<fileInfo id="com.qnx.qcc.configuration.exe.debug.474373924.810040159" name="SpeechBubble.h" rcbsApplicability="disable" resourcePath="src/Framework/LazilySharedGameCode/BitsAndPieces/SpeechBubble.h" toolsToInvoke=""/>
+					<fileInfo id="com.qnx.qcc.configuration.exe.debug.474373924.48258382" name="GameMainFrame.h" rcbsApplicability="disable" resourcePath="src/SourceCommon/Core/GameMainFrame.h" toolsToInvoke=""/>
+					<fileInfo id="com.qnx.qcc.configuration.exe.debug.474373924.1592706608" name="EditorState.h" rcbsApplicability="disable" resourcePath="src/SourceCommon/Core/EditorState.h" toolsToInvoke=""/>
 					<sourceEntries>
-						<entry excluding="Framework/LazilySharedGameCode/BitsAndPieces/SpeechBubble.h|Framework/LazilySharedGameCode/BitsAndPieces/SpeechBubble.cpp|Framework/MyFramework/SourceCommon/GraphicsWrappers/DXWrapper.h|Framework/MyFramework/SourceCommon/GraphicsWrappers/DXWrapper.cpp|Framework/MyFramework/SourceWidgets|Framework/MyFramework/SourceEmscripten|Framework/MyFramework/SourceWP8|Framework/MyFramework/SourceCommon/DXWrapper|Framework/OpenGLTest.sln|Framework/MyFramework/MyFramework.xcodeproj|Framework/MyFramework/SourceBada|Framework/MyFramework/SourceIOS|Framework/Soil/original|Framework/Soil/test_SOIL.cpp|Framework/MyFramework/SourceCommon/Random/mttest.cpp|Framework/MyFramework/SourceWindows|Framework/MyFramework/SourceNaCL|Framework/MyFramework/SourceAndroid|Framework/Tools|Framework/glfw-2.7.2|Framework/glew-1.7.0|Framework/Box2D_v2.2.1" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
+						<entry excluding="Lua/src/luac.c|Lua/src/lua.c|SourceCommon/Core/EditorState.h|SourceCommon/Core/EditorState.cpp|SourceCommon/Core/GameMainFrame.h|SourceCommon/Core/GameMainFrame.cpp|Framework/LazilySharedGameCode/BitsAndPieces/SpeechBubble.h|Framework/LazilySharedGameCode/BitsAndPieces/SpeechBubble.cpp|Framework/MyFramework/SourceCommon/GraphicsWrappers/DXWrapper.h|Framework/MyFramework/SourceCommon/GraphicsWrappers/DXWrapper.cpp|Framework/MyFramework/SourceWidgets|Framework/MyFramework/SourceEmscripten|Framework/MyFramework/SourceWP8|Framework/MyFramework/SourceCommon/DXWrapper|Framework/OpenGLTest.sln|Framework/MyFramework/MyFramework.xcodeproj|Framework/MyFramework/SourceBada|Framework/MyFramework/SourceIOS|Framework/Soil/original|Framework/Soil/test_SOIL.cpp|Framework/MyFramework/SourceCommon/Random/mttest.cpp|Framework/MyFramework/SourceWindows|Framework/MyFramework/SourceNaCL|Framework/MyFramework/SourceAndroid|Framework/Tools|Framework/glfw-2.7.2|Framework/glew-1.7.0|Framework/Box2D_v2.2.1" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -566,10 +579,10 @@
 			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="com.qnx.qcc.configuration.exe.profile.1052958192" moduleId="org.eclipse.cdt.core.settings" name="Simulator-Profile">
 				<externalSettings/>
 				<extensions>
-					<extension id="com.qnx.tools.ide.qde.core.QDEBynaryParser" point="org.eclipse.cdt.core.BinaryParser"/>
 					<extension id="com.qnx.tools.ide.qde.core.QDELinkerErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GCCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GLDErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="com.qnx.tools.ide.qde.core.QDEBynaryParser" point="org.eclipse.cdt.core.BinaryParser"/>
 				</extensions>
 			</storageModule>
 			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
@@ -588,6 +601,7 @@
 									<listOptionValue builtIn="false" value="../../../../Framework/MyFramework/SourceCommon"/>
 									<listOptionValue builtIn="false" value="../../SourceCommon"/>
 									<listOptionValue builtIn="false" value="../.."/>
+									<listOptionValue builtIn="false" value="../../../../bullet-2.82-r2704/src"/>
 								</option>
 								<option id="com.qnx.qcc.option.compiler.security.1386714594" name="Enhanced Security (-fstack-protector-strong)" superClass="com.qnx.qcc.option.compiler.security" value="true" valueType="boolean"/>
 								<option id="com.qnx.qcc.option.compiler.defines.183603872" name="Defines (-D)" superClass="com.qnx.qcc.option.compiler.defines" valueType="definedSymbols">
@@ -644,8 +658,10 @@
 					<fileInfo id="com.qnx.qcc.configuration.exe.profile.1052958192.1605512318" name="DXWrapper.h" rcbsApplicability="disable" resourcePath="src/Framework/MyFramework/SourceCommon/GraphicsWrappers/DXWrapper.h" toolsToInvoke=""/>
 					<fileInfo id="com.qnx.qcc.configuration.exe.profile.1052958192.1430698838" name="OpenGLTest.sln" rcbsApplicability="disable" resourcePath="src/Framework/OpenGLTest.sln" toolsToInvoke=""/>
 					<fileInfo id="com.qnx.qcc.configuration.exe.profile.1052958192.902554710" name="SpeechBubble.h" rcbsApplicability="disable" resourcePath="src/Framework/LazilySharedGameCode/BitsAndPieces/SpeechBubble.h" toolsToInvoke=""/>
+					<fileInfo id="com.qnx.qcc.configuration.exe.profile.1052958192.1753549555" name="GameMainFrame.h" rcbsApplicability="disable" resourcePath="src/SourceCommon/Core/GameMainFrame.h" toolsToInvoke=""/>
+					<fileInfo id="com.qnx.qcc.configuration.exe.profile.1052958192.694176736" name="EditorState.h" rcbsApplicability="disable" resourcePath="src/SourceCommon/Core/EditorState.h" toolsToInvoke=""/>
 					<sourceEntries>
-						<entry excluding="Framework/LazilySharedGameCode/BitsAndPieces/SpeechBubble.h|Framework/LazilySharedGameCode/BitsAndPieces/SpeechBubble.cpp|Framework/MyFramework/SourceCommon/GraphicsWrappers/DXWrapper.h|Framework/MyFramework/SourceCommon/GraphicsWrappers/DXWrapper.cpp|Framework/MyFramework/SourceWidgets|Framework/MyFramework/SourceEmscripten|Framework/MyFramework/SourceWP8|Framework/MyFramework/SourceCommon/DXWrapper|Framework/MyFramework/SourceCommon/Random/mttest.cpp|Framework/OpenGLTest.sln|Framework/MyFramework/MyFramework.xcodeproj|Framework/MyFramework/SourceBada|Framework/MyFramework/SourceIOS|Framework/Soil/original|Framework/Soil/test_SOIL.cpp|Framework/Box2D_v2.2.1|Framework/Tools|Framework/glfw-2.7.2|Framework/glew-1.7.0|Framework/MyFramework/SourceWindows|Framework/MyFramework/SourceNaCL|Framework/MyFramework/SourceAndroid" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
+						<entry excluding="Lua/src/luac.c|Lua/src/lua.c|SourceCommon/Core/EditorState.h|SourceCommon/Core/EditorState.cpp|SourceCommon/Core/GameMainFrame.h|SourceCommon/Core/GameMainFrame.cpp|Framework/LazilySharedGameCode/BitsAndPieces/SpeechBubble.h|Framework/LazilySharedGameCode/BitsAndPieces/SpeechBubble.cpp|Framework/MyFramework/SourceCommon/GraphicsWrappers/DXWrapper.h|Framework/MyFramework/SourceCommon/GraphicsWrappers/DXWrapper.cpp|Framework/MyFramework/SourceWidgets|Framework/MyFramework/SourceEmscripten|Framework/MyFramework/SourceWP8|Framework/MyFramework/SourceCommon/DXWrapper|Framework/MyFramework/SourceCommon/Random/mttest.cpp|Framework/OpenGLTest.sln|Framework/MyFramework/MyFramework.xcodeproj|Framework/MyFramework/SourceBada|Framework/MyFramework/SourceIOS|Framework/Soil/original|Framework/Soil/test_SOIL.cpp|Framework/Box2D_v2.2.1|Framework/Tools|Framework/glfw-2.7.2|Framework/glew-1.7.0|Framework/MyFramework/SourceWindows|Framework/MyFramework/SourceNaCL|Framework/MyFramework/SourceAndroid" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -655,10 +671,10 @@
 			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="com.qnx.qcc.configuration.exe.profile.coverage.1287817332" moduleId="org.eclipse.cdt.core.settings" name="Simulator-Coverage">
 				<externalSettings/>
 				<extensions>
-					<extension id="com.qnx.tools.ide.qde.core.QDEBynaryParser" point="org.eclipse.cdt.core.BinaryParser"/>
 					<extension id="com.qnx.tools.ide.qde.core.QDELinkerErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GCCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GLDErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="com.qnx.tools.ide.qde.core.QDEBynaryParser" point="org.eclipse.cdt.core.BinaryParser"/>
 				</extensions>
 			</storageModule>
 			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
@@ -677,6 +693,7 @@
 									<listOptionValue builtIn="false" value="../../../../Framework/MyFramework/SourceCommon"/>
 									<listOptionValue builtIn="false" value="../../SourceCommon"/>
 									<listOptionValue builtIn="false" value="../.."/>
+									<listOptionValue builtIn="false" value="../../../../bullet-2.82-r2704/src"/>
 								</option>
 								<option id="com.qnx.qcc.option.compiler.security.217359300" name="Enhanced Security (-fstack-protector-strong)" superClass="com.qnx.qcc.option.compiler.security" value="true" valueType="boolean"/>
 								<option id="com.qnx.qcc.option.compiler.defines.1685603520" name="Defines (-D)" superClass="com.qnx.qcc.option.compiler.defines" valueType="definedSymbols">
@@ -733,8 +750,10 @@
 					<fileInfo id="com.qnx.qcc.configuration.exe.profile.coverage.1287817332.465951248" name="DXWrapper.h" rcbsApplicability="disable" resourcePath="src/Framework/MyFramework/SourceCommon/GraphicsWrappers/DXWrapper.h" toolsToInvoke=""/>
 					<fileInfo id="com.qnx.qcc.configuration.exe.profile.coverage.1287817332.1511756858" name="OpenGLTest.sln" rcbsApplicability="disable" resourcePath="src/Framework/OpenGLTest.sln" toolsToInvoke=""/>
 					<fileInfo id="com.qnx.qcc.configuration.exe.profile.coverage.1287817332.1235424065" name="SpeechBubble.h" rcbsApplicability="disable" resourcePath="src/Framework/LazilySharedGameCode/BitsAndPieces/SpeechBubble.h" toolsToInvoke=""/>
+					<fileInfo id="com.qnx.qcc.configuration.exe.profile.coverage.1287817332.1050145192" name="GameMainFrame.h" rcbsApplicability="disable" resourcePath="src/SourceCommon/Core/GameMainFrame.h" toolsToInvoke=""/>
+					<fileInfo id="com.qnx.qcc.configuration.exe.profile.coverage.1287817332.286854776" name="EditorState.h" rcbsApplicability="disable" resourcePath="src/SourceCommon/Core/EditorState.h" toolsToInvoke=""/>
 					<sourceEntries>
-						<entry excluding="Framework/LazilySharedGameCode/BitsAndPieces/SpeechBubble.h|Framework/LazilySharedGameCode/BitsAndPieces/SpeechBubble.cpp|Framework/MyFramework/SourceCommon/GraphicsWrappers/DXWrapper.h|Framework/MyFramework/SourceCommon/GraphicsWrappers/DXWrapper.cpp|Framework/MyFramework/SourceWidgets|Framework/MyFramework/SourceEmscripten|Framework/MyFramework/SourceWP8|Framework/MyFramework/SourceCommon/DXWrapper|Framework/MyFramework/SourceCommon/Random/mttest.cpp|Framework/OpenGLTest.sln|Framework/MyFramework/MyFramework.xcodeproj|Framework/MyFramework/SourceBada|Framework/MyFramework/SourceIOS|Framework/Soil/original|Framework/Soil/test_SOIL.cpp|Framework/Box2D_v2.2.1|Framework/Tools|Framework/glfw-2.7.2|Framework/glew-1.7.0|Framework/MyFramework/SourceWindows|Framework/MyFramework/SourceNaCL|Framework/MyFramework/SourceAndroid" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
+						<entry excluding="Lua/src/luac.c|Lua/src/lua.c|SourceCommon/Core/EditorState.h|SourceCommon/Core/EditorState.cpp|SourceCommon/Core/GameMainFrame.h|SourceCommon/Core/GameMainFrame.cpp|Framework/LazilySharedGameCode/BitsAndPieces/SpeechBubble.h|Framework/LazilySharedGameCode/BitsAndPieces/SpeechBubble.cpp|Framework/MyFramework/SourceCommon/GraphicsWrappers/DXWrapper.h|Framework/MyFramework/SourceCommon/GraphicsWrappers/DXWrapper.cpp|Framework/MyFramework/SourceWidgets|Framework/MyFramework/SourceEmscripten|Framework/MyFramework/SourceWP8|Framework/MyFramework/SourceCommon/DXWrapper|Framework/MyFramework/SourceCommon/Random/mttest.cpp|Framework/OpenGLTest.sln|Framework/MyFramework/MyFramework.xcodeproj|Framework/MyFramework/SourceBada|Framework/MyFramework/SourceIOS|Framework/Soil/original|Framework/Soil/test_SOIL.cpp|Framework/Box2D_v2.2.1|Framework/Tools|Framework/glfw-2.7.2|Framework/glew-1.7.0|Framework/MyFramework/SourceWindows|Framework/MyFramework/SourceNaCL|Framework/MyFramework/SourceAndroid" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -744,10 +763,10 @@
 			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="com.qnx.qcc.configuration.exe.debug.1643476189.227623268" moduleId="org.eclipse.cdt.core.settings" name="PlayBook-Debug">
 				<externalSettings/>
 				<extensions>
-					<extension id="com.qnx.tools.ide.qde.core.QDEBynaryParser" point="org.eclipse.cdt.core.BinaryParser"/>
 					<extension id="com.qnx.tools.ide.qde.core.QDELinkerErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GCCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GLDErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="com.qnx.tools.ide.qde.core.QDEBynaryParser" point="org.eclipse.cdt.core.BinaryParser"/>
 				</extensions>
 			</storageModule>
 			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
@@ -766,6 +785,7 @@
 									<listOptionValue builtIn="false" value="../../../../Framework/MyFramework/SourceCommon"/>
 									<listOptionValue builtIn="false" value="../../SourceCommon"/>
 									<listOptionValue builtIn="false" value="../.."/>
+									<listOptionValue builtIn="false" value="../../../../bullet-2.82-r2704/src"/>
 								</option>
 								<option id="com.qnx.qcc.option.compiler.security.1494591015" name="Enhanced Security (-fstack-protector-strong)" superClass="com.qnx.qcc.option.compiler.security" value="true" valueType="boolean"/>
 								<option id="com.qnx.qcc.option.compiler.defines.952974644" name="Defines (-D)" superClass="com.qnx.qcc.option.compiler.defines" valueType="definedSymbols">
@@ -846,8 +866,10 @@
 							<tool id="com.qnx.qcc.tool.archiver.241369452" name="QCC Archiver" superClass="com.qnx.qcc.tool.archiver.529200862"/>
 						</toolChain>
 					</folderInfo>
+					<fileInfo id="com.qnx.qcc.configuration.exe.debug.1643476189.227623268.1470401289" name="GameMainFrame.h" rcbsApplicability="disable" resourcePath="src/SourceCommon/Core/GameMainFrame.h" toolsToInvoke=""/>
+					<fileInfo id="com.qnx.qcc.configuration.exe.debug.1643476189.227623268.354290569" name="EditorState.h" rcbsApplicability="disable" resourcePath="src/SourceCommon/Core/EditorState.h" toolsToInvoke=""/>
 					<sourceEntries>
-						<entry excluding="Framework/LazilySharedGameCode/BitsAndPieces/SpeechBubble.h|Framework/LazilySharedGameCode/BitsAndPieces/SpeechBubble.cpp|Framework/MyFramework/SourceCommon/GraphicsWrappers/DXWrapper.h|Framework/MyFramework/SourceCommon/GraphicsWrappers/DXWrapper.cpp|Framework/MyFramework/SourceWidgets|Framework/MyFramework/SourceEmscripten|Framework/MyFramework/SourceWP8|Framework/MyFramework/SourceCommon/DXWrapper|Framework/MyFramework/SourceCommon/Random/mttest.cpp|Framework/OpenGLTest.sln|Framework/MyFramework/MyFramework.xcodeproj|Framework/MyFramework/SourceBada|Framework/MyFramework/SourceIOS|Framework/Soil/original|Framework/Soil/test_SOIL.cpp|Framework/Box2D_v2.2.1|Framework/Tools|Framework/glfw-2.7.2|Framework/glew-1.7.0|Framework/MyFramework/SourceWindows|Framework/MyFramework/SourceNaCL|Framework/MyFramework/SourceAndroid" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
+						<entry excluding="Lua/src/luac.c|Lua/src/lua.c|SourceCommon/Core/EditorState.h|SourceCommon/Core/EditorState.cpp|SourceCommon/Core/GameMainFrame.h|SourceCommon/Core/GameMainFrame.cpp|Framework/LazilySharedGameCode/BitsAndPieces/SpeechBubble.h|Framework/LazilySharedGameCode/BitsAndPieces/SpeechBubble.cpp|Framework/MyFramework/SourceCommon/GraphicsWrappers/DXWrapper.h|Framework/MyFramework/SourceCommon/GraphicsWrappers/DXWrapper.cpp|Framework/MyFramework/SourceWidgets|Framework/MyFramework/SourceEmscripten|Framework/MyFramework/SourceWP8|Framework/MyFramework/SourceCommon/DXWrapper|Framework/MyFramework/SourceCommon/Random/mttest.cpp|Framework/OpenGLTest.sln|Framework/MyFramework/MyFramework.xcodeproj|Framework/MyFramework/SourceBada|Framework/MyFramework/SourceIOS|Framework/Soil/original|Framework/Soil/test_SOIL.cpp|Framework/Box2D_v2.2.1|Framework/Tools|Framework/glfw-2.7.2|Framework/glew-1.7.0|Framework/MyFramework/SourceWindows|Framework/MyFramework/SourceNaCL|Framework/MyFramework/SourceAndroid" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -857,10 +879,10 @@
 			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="com.qnx.qcc.configuration.exe.release.2128013639.1255616291" moduleId="org.eclipse.cdt.core.settings" name="PlayBook-Release">
 				<externalSettings/>
 				<extensions>
-					<extension id="com.qnx.tools.ide.qde.core.QDEBynaryParser" point="org.eclipse.cdt.core.BinaryParser"/>
 					<extension id="com.qnx.tools.ide.qde.core.QDELinkerErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GCCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GLDErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="com.qnx.tools.ide.qde.core.QDEBynaryParser" point="org.eclipse.cdt.core.BinaryParser"/>
 				</extensions>
 			</storageModule>
 			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
@@ -878,6 +900,7 @@
 									<listOptionValue builtIn="false" value="../../../../Framework/MyFramework/SourceCommon"/>
 									<listOptionValue builtIn="false" value="../../SourceCommon"/>
 									<listOptionValue builtIn="false" value="../.."/>
+									<listOptionValue builtIn="false" value="../../../../bullet-2.82-r2704/src"/>
 								</option>
 								<option id="com.qnx.qcc.option.compiler.security.697990139" name="Enhanced Security (-fstack-protector-strong)" superClass="com.qnx.qcc.option.compiler.security" value="true" valueType="boolean"/>
 								<option id="com.qnx.qcc.option.compiler.defines.1910735288" name="Defines (-D)" superClass="com.qnx.qcc.option.compiler.defines" valueType="definedSymbols">
@@ -961,8 +984,10 @@
 							<tool id="com.qnx.qcc.tool.archiver.1245862172" name="QCC Archiver" superClass="com.qnx.qcc.tool.archiver.914052807"/>
 						</toolChain>
 					</folderInfo>
+					<fileInfo id="com.qnx.qcc.configuration.exe.release.2128013639.1255616291.1333547337" name="GameMainFrame.h" rcbsApplicability="disable" resourcePath="src/SourceCommon/Core/GameMainFrame.h" toolsToInvoke=""/>
+					<fileInfo id="com.qnx.qcc.configuration.exe.release.2128013639.1255616291.644802927" name="EditorState.h" rcbsApplicability="disable" resourcePath="src/SourceCommon/Core/EditorState.h" toolsToInvoke=""/>
 					<sourceEntries>
-						<entry excluding="Framework/LazilySharedGameCode/BitsAndPieces/SpeechBubble.h|Framework/LazilySharedGameCode/BitsAndPieces/SpeechBubble.cpp|Framework/MyFramework/SourceCommon/GraphicsWrappers/DXWrapper.h|Framework/MyFramework/SourceCommon/GraphicsWrappers/DXWrapper.cpp|Framework/MyFramework/SourceWidgets|Framework/MyFramework/SourceEmscripten|Framework/MyFramework/SourceWP8|Framework/MyFramework/SourceCommon/DXWrapper|Framework/MyFramework/SourceCommon/Random/mttest.cpp|Framework/OpenGLTest.sln|Framework/MyFramework/MyFramework.xcodeproj|Framework/MyFramework/SourceBada|Framework/MyFramework/SourceIOS|Framework/Soil/original|Framework/Soil/test_SOIL.cpp|Framework/Box2D_v2.2.1|Framework/Tools|Framework/glfw-2.7.2|Framework/glew-1.7.0|Framework/MyFramework/SourceWindows|Framework/MyFramework/SourceNaCL|Framework/MyFramework/SourceAndroid" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
+						<entry excluding="Lua/src/luac.c|Lua/src/lua.c|SourceCommon/Core/EditorState.h|SourceCommon/Core/EditorState.cpp|SourceCommon/Core/GameMainFrame.h|SourceCommon/Core/GameMainFrame.cpp|Framework/LazilySharedGameCode/BitsAndPieces/SpeechBubble.h|Framework/LazilySharedGameCode/BitsAndPieces/SpeechBubble.cpp|Framework/MyFramework/SourceCommon/GraphicsWrappers/DXWrapper.h|Framework/MyFramework/SourceCommon/GraphicsWrappers/DXWrapper.cpp|Framework/MyFramework/SourceWidgets|Framework/MyFramework/SourceEmscripten|Framework/MyFramework/SourceWP8|Framework/MyFramework/SourceCommon/DXWrapper|Framework/MyFramework/SourceCommon/Random/mttest.cpp|Framework/OpenGLTest.sln|Framework/MyFramework/MyFramework.xcodeproj|Framework/MyFramework/SourceBada|Framework/MyFramework/SourceIOS|Framework/Soil/original|Framework/Soil/test_SOIL.cpp|Framework/Box2D_v2.2.1|Framework/Tools|Framework/glfw-2.7.2|Framework/glew-1.7.0|Framework/MyFramework/SourceWindows|Framework/MyFramework/SourceNaCL|Framework/MyFramework/SourceAndroid" flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="sourcePath" name="src"/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -972,8 +997,34 @@
 	<storageModule moduleId="cdtBuildSystem" version="4.0.0">
 		<project id="EntityComponentTest.null.1653342138" name="EntityComponentTest"/>
 	</storageModule>
-	<storageModule moduleId="refreshScope" versionNumber="1">
-		<resource resourceType="PROJECT" workspacePath="/EntityComponentTest"/>
+	<storageModule moduleId="refreshScope" versionNumber="2">
+		<configuration configurationName="PlayBook-Debug">
+			<resource resourceType="PROJECT" workspacePath="/EntityComponentTest"/>
+		</configuration>
+		<configuration configurationName="Simulator-Profile">
+			<resource resourceType="PROJECT" workspacePath="/EntityComponentTest"/>
+		</configuration>
+		<configuration configurationName="Simulator-Coverage">
+			<resource resourceType="PROJECT" workspacePath="/EntityComponentTest"/>
+		</configuration>
+		<configuration configurationName="Device-Profile">
+			<resource resourceType="PROJECT" workspacePath="/EntityComponentTest"/>
+		</configuration>
+		<configuration configurationName="Device-Debug">
+			<resource resourceType="PROJECT" workspacePath="/EntityComponentTest"/>
+		</configuration>
+		<configuration configurationName="Simulator-Debug">
+			<resource resourceType="PROJECT" workspacePath="/EntityComponentTest"/>
+		</configuration>
+		<configuration configurationName="Device-Release">
+			<resource resourceType="PROJECT" workspacePath="/EntityComponentTest"/>
+		</configuration>
+		<configuration configurationName="Device-Coverage">
+			<resource resourceType="PROJECT" workspacePath="/EntityComponentTest"/>
+		</configuration>
+		<configuration configurationName="PlayBook-Release">
+			<resource resourceType="PROJECT" workspacePath="/EntityComponentTest"/>
+		</configuration>
 	</storageModule>
 	<storageModule moduleId="scannerConfiguration">
 		<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId="com.qnx.tools.ide.qde.managedbuilder.core.qccScannerInfo"/>

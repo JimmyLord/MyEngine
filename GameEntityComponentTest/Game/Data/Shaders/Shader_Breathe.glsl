@@ -16,9 +16,12 @@ attribute vec4 a_Normal;
 
 uniform mat4 u_World;
 uniform mat4 u_ViewProj;
+uniform float u_PointSize;
 
 void main()
 {
+	gl_PointSize = u_PointSize;
+
     //gl_Position = u_WorldViewProj * a_Position;
 
 	//gl_Position.y *= 1 + sin( u_Time ) * 0.05;

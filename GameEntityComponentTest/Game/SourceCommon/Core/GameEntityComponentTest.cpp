@@ -30,14 +30,17 @@ GameEntityComponentTest::GameEntityComponentTest()
     m_GameWidth = 0;
     m_GameHeight = 0;
 
-    for( int i=0; i<4; i++ )
-        m_pOBJTestFiles[i] = 0;
+    //for( int i=0; i<4; i++ )
+    //    m_pOBJTestFiles[i] = 0;
 
-    for( int i=0; i<4; i++ )
-        m_pTextures[i] = 0;
+    //for( int i=0; i<4; i++ )
+    //    m_pTextures[i] = 0;
 
-    for( int i=0; i<4; i++ )
-        m_pScriptFiles[i] = 0;
+    //for( int i=0; i<4; i++ )
+    //    m_pScriptFiles[i] = 0;
+
+    m_pSceneFileToLoad = 0;
+    m_SceneLoaded = false;
 
     m_pBulletWorld = MyNew BulletWorld();
 
@@ -68,22 +71,22 @@ GameEntityComponentTest::~GameEntityComponentTest()
     SAFE_RELEASE( m_pShader_TransformGizmo );
     SAFE_RELEASE( m_pShader_MousePicker );
 
-    for( int i=0; i<4; i++ )
-    {
-        if( m_pOBJTestFiles[i] )
-            g_pFileManager->FreeFile( m_pOBJTestFiles[i] );
-    }
+    //for( int i=0; i<4; i++ )
+    //{
+    //    if( m_pOBJTestFiles[i] )
+    //        g_pFileManager->FreeFile( m_pOBJTestFiles[i] );
+    //}
 
-    for( int i=0; i<4; i++ )
-    {
-        SAFE_RELEASE( m_pTextures[i] );
-    }
+    //for( int i=0; i<4; i++ )
+    //{
+    //    SAFE_RELEASE( m_pTextures[i] );
+    //}
 
-    for( int i=0; i<4; i++ )
-    {
-        if( m_pScriptFiles[i] )
-            g_pFileManager->FreeFile( m_pScriptFiles[i] );
-    }
+    //for( int i=0; i<4; i++ )
+    //{
+    //    if( m_pScriptFiles[i] )
+    //        g_pFileManager->FreeFile( m_pScriptFiles[i] );
+    //}
 
 #if MYFW_USING_WX
     SAFE_DELETE( m_EditorState.m_p3DGridPlane );
@@ -405,8 +408,8 @@ void GameEntityComponentTest::OneTimeInit()
     OnSurfaceChanged( (unsigned int)m_WindowStartX, (unsigned int)m_WindowStartY, (unsigned int)m_WindowWidth, (unsigned int)m_WindowHeight );
 
 #if !MYFW_USING_WX
-    LoadScene( "Data/Scenes/World.scene", 1 );
-    m_pComponentSystemManager->OnPlay();
+    m_pSceneFileToLoad = RequestFile( "Data/Scenes/World.scene" );
+    m_SceneLoaded = false;
 #endif
 }
 
@@ -414,6 +417,15 @@ void GameEntityComponentTest::Tick(double TimePassed)
 {
     if( TimePassed > 0.2 )
         TimePassed = 0.2;
+
+#if !MYFW_USING_WX
+    if( m_SceneLoaded == false && m_pSceneFileToLoad && m_pSceneFileToLoad->m_FileReady )
+    {
+        LoadScene( m_pSceneFileToLoad->m_pBuffer, 1 );
+        m_pComponentSystemManager->OnPlay();
+        SAFE_RELEASE( m_pSceneFileToLoad );
+    }
+#endif
 
     GameCore::Tick( TimePassed );
 
@@ -499,7 +511,7 @@ void GameEntityComponentTest::Tick(double TimePassed)
     if( m_EditorMode == false )
     {
         m_TimeSinceLastPhysicsStep += TimePassed;
-        
+
         while( m_TimeSinceLastPhysicsStep > 1/60.0f )
         {
             m_TimeSinceLastPhysicsStep -= 1/60.0f;
@@ -519,7 +531,7 @@ void GameEntityComponentTest::OnDrawFrame()
         for( unsigned int i=0; i<m_EditorState.m_pEditorCamera->m_Components.Count(); i++ )
         {
             ComponentCamera* pCamera = dynamic_cast<ComponentCamera*>( m_EditorState.m_pEditorCamera->m_Components[i] );
-            
+
             if( pCamera )
                 pCamera->OnDrawFrame();
         }
@@ -547,7 +559,7 @@ void GameEntityComponentTest::OnTouch(int action, int id, float x, float y, floa
             y = pCamera->m_WindowHeight - y;
 
             HandleEditorInput( -1, -1, action, id, x, y, pressure );
-    
+
             return;
         }
     }
@@ -687,7 +699,7 @@ void GameEntityComponentTest::HandleEditorInput(int keydown, int keycode, int ac
             }
         }
     }
-   
+
     if( m_EditorState.m_ModifierKeyStates & MODIFIERKEY_LeftMouse )
     {
         // select an object when mouse is released and on the same pixel it went down.
@@ -701,7 +713,7 @@ void GameEntityComponentTest::HandleEditorInput(int keydown, int keycode, int ac
             if( pObject != m_EditorState.m_pTransformGizmos[0] &&
                 pObject != m_EditorState.m_pTransformGizmos[1] &&
                 pObject != m_EditorState.m_pTransformGizmos[2] )
-            {   
+            {
                 if( pObject == 0 )
                 {
                     m_EditorState.m_pSelectedObjects.clear();
@@ -916,7 +928,7 @@ void GameEntityComponentTest::HandleEditorInput(int keydown, int keycode, int ac
                         btVector3 rayFrom;
                         btVector3 oldPivotInB = pickCon->getPivotInB();
                         btVector3 newPivotB;
-                        
+
                         //if( m_ortho )
                         //{
                         //    newPivotB = oldPivotInB;
@@ -965,21 +977,21 @@ void GameEntityComponentTest::HandleEditorInput(int keydown, int keycode, int ac
                 //    if(m_mouseButtons & (2 << 2) && m_mouseButtons & 1)
                 //    {
                 //    }
-                //    else if(m_mouseButtons & 1) 
+                //    else if(m_mouseButtons & 1)
                 //    {
                 //        m_azi += dx * btScalar(0.2);
                 //        m_azi = fmodf(m_azi, btScalar(360.f));
                 //        m_ele += dy * btScalar(0.2);
                 //        m_ele = fmodf(m_ele, btScalar(180.f));
-                //    } 
-                //    else if(m_mouseButtons & 4) 
+                //    }
+                //    else if(m_mouseButtons & 4)
                 //    {
                 //        m_cameraDistance -= dy * btScalar(0.02f);
                 //        if (m_cameraDistance<btScalar(0.1))
                 //            m_cameraDistance = btScalar(0.1);
 
 
-                //    } 
+                //    }
                 //}
 
 
@@ -1041,7 +1053,7 @@ void GameEntityComponentTest::HandleEditorInput(int keydown, int keycode, int ac
                         // transform the normal into the selected objects space.
                         plane.Set( (*pObjectTransform * Vector4( normal, 0 )).XYZ(), pObjectTransform->GetTranslation() );
                     }
-                
+
                     // Get the mouse click ray... current and last frame.
                     Vector3 currentraystart, currentrayend;
                     GetMouseRay( m_EditorState.m_CurrentMousePosition, &currentraystart, &currentrayend );
@@ -1205,7 +1217,11 @@ void GameEntityComponentTest::SaveScene(const char* fullpath)
     char* savestring = g_pComponentSystemManager->SaveSceneToJSON();
 
     FILE* filehandle;
+#if MYFW_WINDOWS
     errno_t error = fopen_s( &filehandle, fullpath, "w" );//"Data/Scenes/test.scene", "w" );
+#else
+    filehandle = fopen( fullpath, "w" );//"Data/Scenes/test.scene", "w" );
+#endif
     if( filehandle )
     {
         fprintf( filehandle, "%s", savestring );
@@ -1225,15 +1241,15 @@ void GameEntityComponentTest::UnloadScene(unsigned int sceneid)
     g_pComponentSystemManager->UnloadScene( false, sceneid );
 }
 
-void GameEntityComponentTest::LoadScene(const char* fullpath, unsigned int sceneid)
-{
-    // reset the editorstate structure.
 #if MYFW_USING_WX
-    m_EditorState.UnloadScene();
-#endif //MYFW_USING_WX
-
+void GameEntityComponentTest::LoadSceneFromFile(const char* fullpath, unsigned int sceneid)
+{
     FILE* filehandle;
+#if MYFW_WINDOWS
     errno_t err = fopen_s( &filehandle, fullpath, "rb" );//"Data/Scenes/test.scene", "rb" );
+#else
+    filehandle = fopen( fullpath, "rb" );//"Data/Scenes/test.scene", "rb" );
+#endif
 
     char* jsonstr;
 
@@ -1252,10 +1268,21 @@ void GameEntityComponentTest::LoadScene(const char* fullpath, unsigned int scene
 
         fclose( filehandle );
 
-        g_pComponentSystemManager->LoadSceneFromJSON( jsonstr, sceneid );
+        LoadScene( jsonstr, sceneid );
 
         delete[] jsonstr;
     }
+}
+#endif //MYFW_USING_WX
+
+void GameEntityComponentTest::LoadScene(const char* buffer, unsigned int sceneid)
+{
+    // reset the editorstate structure.
+#if MYFW_USING_WX
+    m_EditorState.UnloadScene();
+#endif //MYFW_USING_WX
+
+    g_pComponentSystemManager->LoadSceneFromJSON( buffer, sceneid );
 
 #if MYFW_USING_WX
     m_EditorMode = true;

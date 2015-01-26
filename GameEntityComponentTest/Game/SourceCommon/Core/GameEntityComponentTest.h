@@ -55,9 +55,12 @@ public:
     float m_GameWidth;
     float m_GameHeight;
 
-    MyFileObject* m_pOBJTestFiles[4];
-    TextureDefinition* m_pTextures[4];
-    MyFileObject* m_pScriptFiles[4];
+    //MyFileObject* m_pOBJTestFiles[4];
+    //TextureDefinition* m_pTextures[4];
+    //MyFileObject* m_pScriptFiles[4];
+
+    MyFileObject* m_pSceneFileToLoad;
+    bool m_SceneLoaded;
 
 public:
     GameEntityComponentTest();
@@ -77,7 +80,10 @@ public:
 
     void SaveScene(const char* fullpath);
     void UnloadScene(unsigned int sceneid = UINT_MAX);
-    void LoadScene(const char* fullpath, unsigned int sceneid);
+#if MYFW_USING_WX
+    void LoadSceneFromFile(const char* fullpath, unsigned int sceneid);
+#endif //MYFW_USING_WX
+    void LoadScene(const char* buffer, unsigned int sceneid);
 
 #if MYFW_USING_WX
     GameObject* GetObjectAtPixel(unsigned int x, unsigned int y);

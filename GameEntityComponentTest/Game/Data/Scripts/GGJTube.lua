@@ -19,7 +19,7 @@ OnStop = function()
 end,
 
 OnTouch = function(action, id, x, y, pressure, size)
-	LogInfo( "OnTouch " .. id .. "\n" );
+	-- LogInfo( "OnTouch " .. id .. "\n" );
 end,
 
 OnButtons = function(action, id)
