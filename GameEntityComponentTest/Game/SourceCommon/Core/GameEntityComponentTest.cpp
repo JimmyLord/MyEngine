@@ -615,7 +615,7 @@ void GameEntityComponentTest::OnKeyDown(int keycode, int unicodechar)
         {
             // Clear out the component manager of all components and gameobjects
             UnloadScene( 0 ); // unload runtime created objects only.
-            LoadScene( "temp_editor_onplay.scene", 1 );
+            LoadSceneFromFile( "temp_editor_onplay.scene", 1 );
             m_EditorMode = true;
             m_EditorState.m_pSelectedObjects.clear();
             m_pComponentSystemManager->OnStop();

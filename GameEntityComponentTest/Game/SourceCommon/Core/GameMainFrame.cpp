@@ -214,7 +214,7 @@ void GameMainFrame::LoadScene(const char* scenename)
     // clear out the old scene before loading
     // TODO: make this optional, so we can load multiple scenes at once, also change the '1' in LoadScene to the next available scene id
     ((GameEntityComponentTest*)g_pGameCore)->UnloadScene();
-    ((GameEntityComponentTest*)g_pGameCore)->LoadScene( m_CurrentSceneName, 1 );
+    ((GameEntityComponentTest*)g_pGameCore)->LoadSceneFromFile( m_CurrentSceneName, 1 );
 
     this->SetTitle( m_CurrentSceneName );
 }
