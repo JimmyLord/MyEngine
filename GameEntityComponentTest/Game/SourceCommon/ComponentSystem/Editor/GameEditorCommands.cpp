@@ -10,6 +10,10 @@
 #include "GameCommonHeader.h"
 #include "GameEditorCommands.h"
 
+//====================================================================================================
+// EditorCommand_MoveObjects
+//====================================================================================================
+
 EditorCommand_MoveObjects::EditorCommand_MoveObjects(Vector3 distancemoved, const std::vector<GameObject*> &selectedobjects)
 {
     m_DistanceMoved = distancemoved;
@@ -40,3 +44,34 @@ void EditorCommand_MoveObjects::Undo()
         m_ObjectsMoved[i]->m_pComponentTransform->SetPosition( newpos );
     }
 }
+
+//====================================================================================================
+// EditorCommand_DeleteObject
+//====================================================================================================
+
+EditorCommand_DeleteObject::EditorCommand_DeleteObject(GameObject* objectdeleted)
+{
+    m_ObjectDeleted = objectdeleted;
+    m_DeleteGameObjectWhenDestroyed = false;
+}
+
+EditorCommand_DeleteObject::~EditorCommand_DeleteObject()
+{
+    if( m_DeleteGameObjectWhenDestroyed )
+        g_pComponentSystemManager->DeleteGameObject( m_ObjectDeleted, true );
+}
+
+void EditorCommand_DeleteObject::Do()
+{
+    g_pComponentSystemManager->UnmanageGameObject( m_ObjectDeleted );
+    m_DeleteGameObjectWhenDestroyed = true;
+}
+
+void EditorCommand_DeleteObject::Undo()
+{
+    g_pComponentSystemManager->ManageGameObject( m_ObjectDeleted );
+    m_DeleteGameObjectWhenDestroyed = false;
+}
+
+//====================================================================================================
+//====================================================================================================

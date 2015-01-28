@@ -58,6 +58,8 @@ public:
     void UnloadScene(bool clearunmanagedcomponents = true, unsigned int sceneidtoclear = UINT_MAX);
 
     GameObject* CreateGameObject(bool manageobject = true);
+    void UnmanageGameObject(GameObject* pObject);
+    void ManageGameObject(GameObject* pObject);
     void DeleteGameObject(GameObject* pObject, bool deletecomponents);
     GameObject* CopyGameObject(GameObject* pObject, const char* newname);
 

@@ -14,7 +14,6 @@ GameObject::GameObject(bool managed)
     m_SceneID = 0;
     m_ID = 0;
     m_Name = 0;
-    m_Managed = managed;
 
     m_pComponentTransform = MyNew ComponentTransform();
     m_pComponentTransform->m_pGameObject = this;
@@ -22,28 +21,15 @@ GameObject::GameObject(bool managed)
 
     m_Components.AllocateObjects( MAX_COMPONENTS ); // hard coded nonsense for now, max of 4 components on a game object.
 
-#if MYFW_USING_WX
-    if( m_Managed )
-    {
-        // Add this game object to the root of the objects tree
-        wxTreeItemId rootid = g_pPanelObjectList->GetTreeRoot();
-        wxTreeItemId gameobjectid = g_pPanelObjectList->AddObject( this, GameObject::StaticOnLeftClick, GameObject::StaticOnRightClick, rootid, m_Name );
-        g_pPanelObjectList->SetDragAndDropFunctions( this, GameObject::StaticOnDrag, GameObject::StaticOnDrop );
-        g_pPanelObjectList->SetLabelEditFunction( this, GameObject::StaticOnLabelEdit );
-        m_pComponentTransform->AddToObjectsPanel( gameobjectid );
-    }
-#endif //MYFW_USING_WX
+    m_Managed = false;
+    if( managed )
+        SetManaged( true );
 }
 
 GameObject::~GameObject()
 {
-#if MYFW_USING_WX
-    if( g_pPanelObjectList )
-    {
-        g_pPanelObjectList->RemoveObject( m_pComponentTransform );
-        g_pPanelObjectList->RemoveObject( this );
-    }
-#endif //MYFW_USING_WX
+    if( m_Managed )
+        SetManaged( false );
 
     // if it's in a list, remove it.
     if( this->Prev != 0 )
@@ -154,7 +140,9 @@ void GameObject::OnPopupClick(wxEvent &evt)
     }
     else if( id == 1001 ) // "Delete GameObject"
     {
-        g_pComponentSystemManager->DeleteGameObject( pGameObject, true );
+        g_pGameMainFrame->m_pCommandStack->Do( MyNew EditorCommand_DeleteObject( pGameObject ) );
+
+        //g_pComponentSystemManager->DeleteGameObject( pGameObject, true );
     }
 }
 
@@ -245,6 +233,46 @@ void GameObject::SetName(const char* name)
         g_pPanelObjectList->RenameObject( this, m_Name );
     }
 #endif //MYFW_USING_WX
+}
+
+void GameObject::SetManaged(bool managed)
+{
+    if( m_Managed == false && managed == true )
+    {
+        m_Managed = true;
+#if MYFW_USING_WX
+        if( g_pPanelObjectList )
+        {
+            // Add this game object to the root of the objects tree
+            wxTreeItemId rootid = g_pPanelObjectList->GetTreeRoot();
+            wxTreeItemId gameobjectid = g_pPanelObjectList->AddObject( this, GameObject::StaticOnLeftClick, GameObject::StaticOnRightClick, rootid, m_Name );
+            g_pPanelObjectList->SetDragAndDropFunctions( this, GameObject::StaticOnDrag, GameObject::StaticOnDrop );
+            g_pPanelObjectList->SetLabelEditFunction( this, GameObject::StaticOnLabelEdit );
+            m_pComponentTransform->AddToObjectsPanel( gameobjectid );
+            for( unsigned int i=0; i<m_Components.Count(); i++ )
+            {
+                m_Components[i]->AddToObjectsPanel( gameobjectid );
+            }
+        }
+#endif //MYFW_USING_WX
+        return;
+    }
+    
+    if( m_Managed == true && managed == false )
+    {
+        m_Managed = false;
+#if MYFW_USING_WX
+        if( g_pPanelObjectList )
+        {
+            g_pPanelObjectList->RemoveObject( m_pComponentTransform );
+            g_pPanelObjectList->RemoveObject( this );
+        }
+#endif //MYFW_USING_WX
+        return;
+    }
+
+    // one of the two conditions above should be true.
+    assert( false );
 }
 
 ComponentBase* GameObject::AddNewComponent(int componenttype, unsigned int sceneid, ComponentSystemManager* pComponentSystemManager)

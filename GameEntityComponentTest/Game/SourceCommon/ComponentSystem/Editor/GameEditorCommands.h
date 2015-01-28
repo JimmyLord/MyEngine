@@ -10,6 +10,8 @@
 #ifndef __GameEditorCommands_H__
 #define __GameEditorCommands_H__
 
+//====================================================================================================
+
 class EditorCommand_MoveObjects : public EditorCommand
 {
 protected:
@@ -23,5 +25,28 @@ public:
     virtual void Do();
     virtual void Undo();
 };
+
+//====================================================================================================
+
+class EditorCommand_DeleteObject : public EditorCommand
+{
+protected:
+    // TODO: likely change this whole command to store the full editor state and restore on undo.
+    //       otherwise all references to this object will need to be restored
+
+    // IF this is in undo stack, then this stores the only reference to the deleted object.
+    //                                and the gameobject stores the only references to the components it contained.
+    GameObject* m_ObjectDeleted;
+    bool m_DeleteGameObjectWhenDestroyed;
+
+public:
+    EditorCommand_DeleteObject(GameObject* objectdeleted);
+    virtual ~EditorCommand_DeleteObject();
+
+    virtual void Do();
+    virtual void Undo();
+};
+
+//====================================================================================================
 
 #endif // __CommandStack_H__

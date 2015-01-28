@@ -145,35 +145,35 @@ char* ComponentSystemManager::SaveSceneToJSON()
         for( CPPListNode* pNode = m_ComponentsCamera.GetHead(); pNode; pNode = pNode->GetNext() )
         {
             ComponentBase* pComponent = (ComponentBase*)pNode;
-            if( pComponent->m_pGameObject->m_Managed )
+            if( pComponent->m_pGameObject->IsManaged() )
                 cJSON_AddItemToArray( componentarray, pComponent->ExportAsJSONObject() );
         }
 
         for( CPPListNode* pNode = m_ComponentsInputHandler.GetHead(); pNode; pNode = pNode->GetNext() )
         {
             ComponentBase* pComponent = (ComponentBase*)pNode;
-            if( pComponent->m_pGameObject->m_Managed )
+            if( pComponent->m_pGameObject->IsManaged() )
                 cJSON_AddItemToArray( componentarray, pComponent->ExportAsJSONObject() );
         }
 
         for( CPPListNode* pNode = m_ComponentsUpdateable.GetHead(); pNode; pNode = pNode->GetNext() )
         {
             ComponentBase* pComponent = (ComponentBase*)pNode;
-            if( pComponent->m_pGameObject->m_Managed )
+            if( pComponent->m_pGameObject->IsManaged() )
                 cJSON_AddItemToArray( componentarray, pComponent->ExportAsJSONObject() );
         }
 
         for( CPPListNode* pNode = m_ComponentsRenderable.GetHead(); pNode; pNode = pNode->GetNext() )
         {
             ComponentBase* pComponent = (ComponentBase*)pNode;
-            if( pComponent->m_pGameObject->m_Managed )
+            if( pComponent->m_pGameObject->IsManaged() )
                 cJSON_AddItemToArray( componentarray, pComponent->ExportAsJSONObject() );
         }
 
         for( CPPListNode* pNode = m_ComponentsData.GetHead(); pNode; pNode = pNode->GetNext() )
         {
             ComponentBase* pComponent = (ComponentBase*)pNode;
-            if( pComponent->m_pGameObject->m_Managed )
+            if( pComponent->m_pGameObject->IsManaged() )
                 cJSON_AddItemToArray( componentarray, pComponent->ExportAsJSONObject() );
         }
     }
@@ -377,7 +377,7 @@ void ComponentSystemManager::UnloadScene(bool clearunmanagedcomponents, unsigned
         {
             ComponentBase* pComponent = (ComponentBase*)pNode;
             pNode = pNode->GetNext();
-            if( (pComponent->m_pGameObject->m_Managed || clearunmanagedcomponents) &&
+            if( (pComponent->m_pGameObject->IsManaged() || clearunmanagedcomponents) &&
                 (sceneidtoclear == UINT_MAX || pComponent->GetSceneID() == sceneidtoclear) )
             {
                 DeleteComponent( pComponent );
@@ -388,7 +388,7 @@ void ComponentSystemManager::UnloadScene(bool clearunmanagedcomponents, unsigned
         {
             ComponentBase* pComponent = (ComponentBase*)pNode;
             pNode = pNode->GetNext();
-            if( (pComponent->m_pGameObject->m_Managed || clearunmanagedcomponents) &&
+            if( (pComponent->m_pGameObject->IsManaged() || clearunmanagedcomponents) &&
                 (sceneidtoclear == UINT_MAX || pComponent->GetSceneID() == sceneidtoclear) )
             {
                 DeleteComponent( pComponent );
@@ -399,7 +399,7 @@ void ComponentSystemManager::UnloadScene(bool clearunmanagedcomponents, unsigned
         {
             ComponentBase* pComponent = (ComponentBase*)pNode;
             pNode = pNode->GetNext();
-            if( (pComponent->m_pGameObject->m_Managed || clearunmanagedcomponents) &&
+            if( (pComponent->m_pGameObject->IsManaged() || clearunmanagedcomponents) &&
                 (sceneidtoclear == UINT_MAX || pComponent->GetSceneID() == sceneidtoclear) )
             {
                 DeleteComponent( pComponent );
@@ -410,7 +410,7 @@ void ComponentSystemManager::UnloadScene(bool clearunmanagedcomponents, unsigned
         {
             ComponentBase* pComponent = (ComponentBase*)pNode;
             pNode = pNode->GetNext();
-            if( (pComponent->m_pGameObject->m_Managed || clearunmanagedcomponents) &&
+            if( (pComponent->m_pGameObject->IsManaged() || clearunmanagedcomponents) &&
                 (sceneidtoclear == UINT_MAX || pComponent->GetSceneID() == sceneidtoclear) )
             {
                 DeleteComponent( pComponent );
@@ -421,7 +421,7 @@ void ComponentSystemManager::UnloadScene(bool clearunmanagedcomponents, unsigned
         {
             ComponentBase* pComponent = (ComponentBase*)pNode;
             pNode = pNode->GetNext();
-            if( (pComponent->m_pGameObject->m_Managed || clearunmanagedcomponents) &&
+            if( (pComponent->m_pGameObject->IsManaged() || clearunmanagedcomponents) &&
                 (sceneidtoclear == UINT_MAX || pComponent->GetSceneID() == sceneidtoclear) )
             {
                 DeleteComponent( pComponent );
@@ -465,6 +465,32 @@ GameObject* ComponentSystemManager::CreateGameObject(bool manageobject)
         m_GameObjects.AddTail( pGameObject );
 
     return pGameObject;
+}
+
+void ComponentSystemManager::UnmanageGameObject(GameObject* pObject)
+{
+    assert( pObject && pObject->IsManaged() == true );
+
+    // remove all components from their respective component lists.
+    for( unsigned int i=0; i<pObject->m_Components.Count(); i++ )
+    {
+        pObject->m_Components[i]->Remove();
+    }
+
+    pObject->SetManaged( false );
+}
+
+void ComponentSystemManager::ManageGameObject(GameObject* pObject)
+{
+    assert( pObject && pObject->IsManaged() == false );
+
+    // add all the gameobject's components back into the component lists.
+    for( unsigned int i=0; i<pObject->m_Components.Count(); i++ )
+    {
+        AddComponent( pObject->m_Components[i] );
+    }
+
+    pObject->SetManaged( true );
 }
 
 void ComponentSystemManager::DeleteGameObject(GameObject* pObject, bool deletecomponents)
@@ -537,7 +563,7 @@ ComponentCamera* ComponentSystemManager::GetFirstCamera()
         ComponentCamera* pCamera = (ComponentCamera*)node;
 
         // skip unmanaged cameras. (editor cam)
-        if( pCamera->m_pGameObject->m_Managed == true )
+        if( pCamera->m_pGameObject->IsManaged() == true )
         {
             assert( pCamera->m_Type == ComponentType_Camera );
 
@@ -675,7 +701,7 @@ void ComponentSystemManager::OnSurfaceChanged(unsigned int startx, unsigned int 
         if( pCamera->m_BaseType == BaseComponentType_Camera )
         {
             // TODO: fix this hack, don't resize unmanaged cams (a.k.a. editor camera)
-            if( pCamera->m_pGameObject->m_Managed == true )
+            if( pCamera->m_pGameObject->IsManaged() == true )
             {
                 pCamera->OnSurfaceChanged( startx, starty, width, height, desiredaspectwidth, desiredaspectheight );
             }

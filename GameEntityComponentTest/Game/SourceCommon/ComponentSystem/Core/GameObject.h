@@ -21,10 +21,9 @@ protected:
     unsigned int m_SceneID; // 0 for runtime generated.
     unsigned int m_ID;
     char* m_Name; // this a copy of the string passed in.
-
-public:
     bool m_Managed;
 
+public:
     ComponentTransform* m_pComponentTransform;
     MyList<ComponentBase*> m_Components; // component system manager is responsible for deleting these components.
 
@@ -40,6 +39,8 @@ public:
     void SetSceneID(unsigned int sceneid);
     void SetID(unsigned int id);
     void SetName(const char* name);
+    void SetManaged(bool managed);
+    bool IsManaged() { return m_Managed; }
 
     unsigned int GetSceneID() { return m_SceneID; }
     unsigned int GetID() { return m_ID; }
