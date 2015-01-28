@@ -3,11 +3,6 @@
 GGJPlayer =
 {
 
---local heldw = false;
---local helda = false;
---local helds = false;
---local heldd = false;
-
 Externs =
 {
 	-- name, type, initial value
@@ -25,14 +20,15 @@ end,
 
 OnTouch = function(action, id, x, y, pressure, size)
 	-- LogInfo( "OnTouch " .. id .. " " .. action .. " " .. x .. "\n" );
-	helda = false;
-	heldd = false;
+
+	this.helda = false;
+	this.heldd = false;
 
 	if( action == 2 ) then
 		if( x < 320 ) then
-			helda = true;
+			this.helda = true;
 		else
-			heldd = true;
+			this.heldd = true;
 		end
 	end
 end,
@@ -41,31 +37,31 @@ OnButtons = function(action, id)
 	--key down
 	if( action == 0 ) then
 		if( id == 87 or id == 119 ) then -- w
-			heldw = true;
+			this.heldw = true;
 		end
 		if( id == 65 or id == 97 ) then -- a
-			helda = true;
+			this.helda = true;
 		end
 		if( id == 83 or id == 115 ) then -- s
-			helds = true;
+			this.helds = true;
 		end
 		if( id == 68 or id == 100 ) then -- d
-			heldd = true;
+			this.heldd = true;
 		end
 	end
 	--key up
 	if( action == 1 ) then
 		if( id == 87 or id == 119 ) then -- w
-			heldw = false;
+			this.heldw = false;
 		end
 		if( id == 65 or id == 97 ) then -- a
-			helda = false;
+			this.helda = false;
 		end
 		if( id == 83 or id == 115 ) then -- s
-			helds = false;
+			this.helds = false;
 		end
 		if( id == 68 or id == 100 ) then -- d
-			heldd = false;
+			this.heldd = false;
 		end
 	end
 end,
@@ -73,23 +69,18 @@ end,
 Tick = function(timepassed)
 	local force = Vector3( 0,0,0 );
 
-	if( heldw == true ) then
-		force:Set( 0,0,-1 );
+	if( this.heldw == true ) then
+		force = force:Add( Vector3(0,0,-1) );
 	end
-	if( helda == true ) then
-		force:Set( -1,0,0 );
+	if( this.helda == true ) then
+		force = force:Add( Vector3(-1,0,0) );
 	end
-	if( helds == true ) then
-		force:Set( 0,0,1 );
+	if( this.helds == true ) then
+		force = force:Add( Vector3(0,0,1) );
 	end
-	if( heldd == true ) then
-		force:Set( 1,0,0 );
+	if( this.heldd == true ) then
+		force = force:Add( Vector3(1,0,0) );
 	end
-
-	--if( force:LengthSquared() ~= 0 ) then
-	--	local physicsobject = this.gameobject:GetCollisionObject();
-	--	physicsobject:ApplyForce( force:Scale(10), Vector3(0,0,0) );
-	--end
 
 	if( force:LengthSquared() ~= 0 ) then
 		local transform = this.gameobject:GetTransform();

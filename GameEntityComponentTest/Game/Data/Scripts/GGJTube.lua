@@ -32,8 +32,8 @@ Tick = function(timepassed)
 
 	pos.z = pos.z + timepassed * this.Speed;
 
-	if( pos.z >= 20 ) then
-		pos.z = pos.z - 160;
+	if( pos.z >= 10 ) then
+		pos.z = pos.z - 60;
 	end
 
 	transform:SetPosition( pos );

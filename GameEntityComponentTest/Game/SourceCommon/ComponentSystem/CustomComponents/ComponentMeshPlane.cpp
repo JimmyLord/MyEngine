@@ -115,9 +115,13 @@ void ComponentMeshPlane::CreatePlane()
     if( m_pMesh == 0 )
         m_pMesh = MyNew MyMesh;
 
-    m_pMesh->m_PrimitiveType = GL_POINTS;
+    m_pMesh->m_PrimitiveType = m_PrimitiveType;
 
-    m_pMesh->CreatePlane( Vector3(-m_Size.x/2, 0, -m_Size.y/2), m_Size, m_VertCount, m_UVStart, m_UVRange, false );
+    bool createtriangles = true;
+    if( m_PrimitiveType == GL_POINTS )
+        createtriangles = false;
+
+    m_pMesh->CreatePlane( Vector3(-m_Size.x/2, 0, -m_Size.y/2), m_Size, m_VertCount, m_UVStart, m_UVRange, createtriangles );
 }
 
 void ComponentMeshPlane::Draw(MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride, int drawcount)

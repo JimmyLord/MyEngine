@@ -14,7 +14,7 @@
 			"Name":	"Water"
 		}, {
 			"ID":	12,
-			"Name":	"GermanDude"
+			"Name":	"PlayerShip"
 		}, {
 			"ID":	13,
 			"Name":	"Water 2"
@@ -29,19 +29,19 @@
 			"Name":	"Enemy"
 		}, {
 			"ID":	17,
-			"Name":	"Duplicated Game Object"
+			"Name":	"Enemy2"
 		}, {
 			"ID":	18,
-			"Name":	"Duplicated Game Object"
+			"Name":	"Enemy3"
 		}, {
 			"ID":	19,
-			"Name":	"Duplicated Game Object"
+			"Name":	"Enemy4"
 		}, {
 			"ID":	20,
-			"Name":	"Duplicated Game Object"
+			"Name":	"Enemy5"
 		}, {
 			"ID":	21,
-			"Name":	"Duplicated Game Object"
+			"Name":	"Enemy6"
 		}],
 	"Transforms":	[{
 			"GOID":	1,
@@ -64,7 +64,7 @@
 		}, {
 			"GOID":	11,
 			"ID":	0,
-			"Pos":	[0, 0, -20],
+			"Pos":	[0, 0, -10],
 			"Scale":	[1, 1, 1],
 			"Rot":	[0, 0, 0]
 		}, {
@@ -76,19 +76,19 @@
 		}, {
 			"GOID":	13,
 			"ID":	0,
-			"Pos":	[0, 0, -60],
+			"Pos":	[0, 0, -30],
 			"Scale":	[1, 1, 1],
 			"Rot":	[0, 0, 0]
 		}, {
 			"GOID":	14,
 			"ID":	0,
-			"Pos":	[0, 0, -100],
+			"Pos":	[0, 0, -50],
 			"Scale":	[1, 1, 1],
 			"Rot":	[0, 0, 0]
 		}, {
 			"GOID":	15,
 			"ID":	0,
-			"Pos":	[0, 0, -140],
+			"Pos":	[0, 0, -540],
 			"Scale":	[1, 1, 1],
 			"Rot":	[0, 0, 0]
 		}, {
@@ -195,16 +195,6 @@
 				}]
 		}, {
 			"Type":	"Lua Script",
-			"GOID":	15,
-			"ID":	42,
-			"Script":	"Data/Scripts/GGJTube.lua",
-			"ExposedVars":	[{
-					"Name":	"Speed",
-					"Type":	1,
-					"Value":	4
-				}]
-		}, {
-			"Type":	"Lua Script",
 			"GOID":	16,
 			"ID":	49,
 			"Script":	"Data/Scripts/GGJEnemy.lua",
@@ -274,9 +264,9 @@
 			"PrimitiveType":	0,
 			"PointSize":	2,
 			"m_Sizex":	6.280000,
-			"m_Sizey":	40,
-			"VertCountx":	300,
-			"VertCounty":	200,
+			"m_Sizey":	20,
+			"VertCountx":	100,
+			"VertCounty":	50,
 			"UVStartx":	0,
 			"UVStarty":	0,
 			"UVRangex":	1,
@@ -302,9 +292,9 @@
 			"PrimitiveType":	0,
 			"PointSize":	1,
 			"m_Sizex":	6.280000,
-			"m_Sizey":	40,
-			"VertCountx":	300,
-			"VertCounty":	200,
+			"m_Sizey":	20,
+			"VertCountx":	100,
+			"VertCounty":	50,
 			"UVStartx":	0,
 			"UVStarty":	0,
 			"UVRangex":	1,
@@ -320,9 +310,9 @@
 			"PrimitiveType":	0,
 			"PointSize":	1,
 			"m_Sizex":	6.280000,
-			"m_Sizey":	40,
-			"VertCountx":	300,
-			"VertCounty":	200,
+			"m_Sizey":	20,
+			"VertCountx":	100,
+			"VertCounty":	50,
 			"UVStartx":	0,
 			"UVStarty":	0,
 			"UVRangex":	1,
@@ -335,16 +325,16 @@
 			"Layers":	65535,
 			"Shader":	"Shader_Water",
 			"Texture":	"Data/Textures/water.png",
-			"PrimitiveType":	0,
+			"PrimitiveType":	4,
 			"PointSize":	1,
 			"m_Sizex":	6.280000,
-			"m_Sizey":	40,
-			"VertCountx":	300,
-			"VertCounty":	200,
+			"m_Sizey":	1000,
+			"VertCountx":	40,
+			"VertCounty":	2,
 			"UVStartx":	0,
 			"UVStarty":	0,
 			"UVRangex":	1,
-			"UVRangey":	1
+			"UVRangey":	50
 		}, {
 			"Type":	"Mesh-OBJ",
 			"GOID":	16,
