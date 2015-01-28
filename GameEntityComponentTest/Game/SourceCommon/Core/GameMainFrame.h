@@ -14,12 +14,25 @@ class GameMainFrame;
 
 extern GameMainFrame* g_pGameMainFrame;
 
+enum DefaultPerspectives
+{
+    Perspective_CenterEditor,
+    Perspective_CenterGame,
+    Perspective_CenterSideBySide,
+    Perspective_NumPerspectives,
+};
+
 enum GameMenuIDs
 {
     myIDGame_LoadScene = myID_NumIDs,
     myIDGame_SaveScene,
     myIDGame_SaveSceneAs,
     myIDGame_AddDatafile,
+    myIDGame_EditorPerspectives,
+    myIDGame_GameplayPerspectives,
+    myIDGame_EditorPerspective,
+    myIDGame_GameplayPerspective = myIDGame_EditorPerspective + Perspective_NumPerspectives,
+    // = myIDGame_GameplayPerspective + Perspective_NumPerspectives,
 };
 
 class GameMainFrame : public MainFrame
@@ -27,6 +40,12 @@ class GameMainFrame : public MainFrame
 public:
     MainGLCanvas* m_pGLCanvasEditor;
     wxTextCtrl* m_pLogPane;
+
+    wxMenu* m_EditorPerspectives;
+    wxMenu* m_GameplayPerspectives;
+
+    wxMenuItem* m_EditorPerspectiveOptions[Perspective_NumPerspectives];
+    wxMenuItem* m_GameplayPerspectiveOptions[Perspective_NumPerspectives];
 
     char m_CurrentSceneName[MAX_PATH];
 
@@ -40,6 +59,11 @@ public:
 
     void OnGameMenu(wxCommandEvent& event);
     virtual void ResizeViewport();
+    void SetWindowPerspectiveToDefault();
+    int GetDefaultEditorPerspectiveIndex();
+    int GetDefaultGameplayPerspectiveIndex();
+    void SetDefaultEditorPerspectiveIndex(int index);
+    void SetDefaultGameplayPerspectiveIndex(int index);
 
     void SaveScene();
     void SaveSceneAs();

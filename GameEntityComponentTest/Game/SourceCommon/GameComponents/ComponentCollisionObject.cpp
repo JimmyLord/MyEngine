@@ -236,6 +236,9 @@ void ComponentCollisionObject::Tick(double TimePassed)
         return;
     }
 
+    if( m_pBody == 0 )
+        return;
+
     MyMatrix* matLocal = m_pComponentTransform->GetLocalTransform();
 
     btTransform transform;

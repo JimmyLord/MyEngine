@@ -601,6 +601,7 @@ void GameEntityComponentTest::OnKeyDown(int keycode, int unicodechar)
         {
             SaveScene( "temp_editor_onplay.scene" );
             m_EditorMode = false;
+            g_pGameMainFrame->SetWindowPerspectiveToDefault();
             m_pComponentSystemManager->OnPlay();
             return;
         }
@@ -617,6 +618,7 @@ void GameEntityComponentTest::OnKeyDown(int keycode, int unicodechar)
             UnloadScene( 0 ); // unload runtime created objects only.
             LoadSceneFromFile( "temp_editor_onplay.scene", 1 );
             m_EditorMode = true;
+            g_pGameMainFrame->SetWindowPerspectiveToDefault();
             m_EditorState.m_pSelectedObjects.clear();
             m_pComponentSystemManager->OnStop();
 

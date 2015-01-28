@@ -14,6 +14,20 @@
 
 GameMainFrame* g_pGameMainFrame = 0;
 
+const char* g_DefaultPerspectiveMenuLabels[Perspective_NumPerspectives] =
+{
+    "Center &Editor",
+    "Center &Game",
+    "&Side by Side",
+};
+
+const char* g_DefaultPerspectives[Perspective_NumPerspectives] =
+{
+    "layout2|name=GLCanvas;caption=GLCanvas;state=2099196;dir=4;layer=1;row=0;pos=1;prop=100000;bestw=600;besth=600;minw=-1;minh=-1;maxw=-1;maxh=-1;floatx=-253;floaty=231;floatw=680;floath=748|name=PanelWatch;caption=Watch;state=2099196;dir=2;layer=3;row=0;pos=0;prop=130560;bestw=300;besth=600;minw=-1;minh=-1;maxw=-1;maxh=-1;floatx=1274;floaty=143;floatw=316;floath=632|name=PanelMemory;caption=Memory;state=2099196;dir=2;layer=3;row=0;pos=1;prop=69440;bestw=300;besth=600;minw=-1;minh=-1;maxw=-1;maxh=-1;floatx=1023;floaty=335;floatw=316;floath=632|name=PanelObjectList;caption=Objects;state=2099196;dir=4;layer=1;row=0;pos=0;prop=100000;bestw=300;besth=600;minw=-1;minh=-1;maxw=-1;maxh=-1;floatx=-1;floaty=-1;floatw=-1;floath=-1|name=GLCanvasEditor;caption=GLCanvasEditor;state=2099196;dir=3;layer=0;row=0;pos=0;prop=100000;bestw=600;besth=600;minw=-1;minh=-1;maxw=-1;maxh=-1;floatx=-1;floaty=-1;floatw=-1;floath=-1|name=Log;caption=Log;state=2099196;dir=3;layer=2;row=0;pos=0;prop=100000;bestw=183;besth=150;minw=-1;minh=-1;maxw=-1;maxh=-1;floatx=543;floaty=588;floatw=199;floath=182|dock_size(4,1,0)=302|dock_size(3,0,0)=560|dock_size(3,2,0)=140|dock_size(2,3,0)=321|",
+    "layout2|name=GLCanvas;caption=GLCanvas;state=2099196;dir=3;layer=0;row=0;pos=0;prop=97635;bestw=600;besth=600;minw=-1;minh=-1;maxw=-1;maxh=-1;floatx=451;floaty=186;floatw=616;floath=632|name=PanelWatch;caption=Watch;state=2099196;dir=2;layer=3;row=0;pos=0;prop=113200;bestw=300;besth=600;minw=-1;minh=-1;maxw=-1;maxh=-1;floatx=1274;floaty=143;floatw=316;floath=632|name=PanelMemory;caption=Memory;state=2099196;dir=2;layer=3;row=0;pos=1;prop=86800;bestw=300;besth=600;minw=-1;minh=-1;maxw=-1;maxh=-1;floatx=1023;floaty=335;floatw=316;floath=632|name=PanelObjectList;caption=Objects;state=2099196;dir=4;layer=1;row=0;pos=0;prop=100000;bestw=300;besth=600;minw=-1;minh=-1;maxw=-1;maxh=-1;floatx=-1;floaty=-1;floatw=-1;floath=-1|name=GLCanvasEditor;caption=GLCanvasEditor;state=2099196;dir=4;layer=1;row=0;pos=1;prop=102365;bestw=600;besth=600;minw=-1;minh=-1;maxw=-1;maxh=-1;floatx=-7;floaty=330;floatw=616;floath=632|name=Log;caption=Log;state=2099196;dir=3;layer=2;row=0;pos=0;prop=100000;bestw=183;besth=150;minw=-1;minh=-1;maxw=-1;maxh=-1;floatx=543;floaty=588;floatw=199;floath=182|dock_size(4,1,0)=253|dock_size(3,0,0)=560|dock_size(3,2,0)=140|dock_size(2,3,0)=307|",
+    "layout2|name=GLCanvas;caption=GLCanvas;state=2099196;dir=3;layer=0;row=0;pos=0;prop=97635;bestw=600;besth=600;minw=-1;minh=-1;maxw=-1;maxh=-1;floatx=451;floaty=186;floatw=616;floath=632|name=PanelWatch;caption=Watch;state=2099196;dir=2;layer=3;row=0;pos=0;prop=113200;bestw=300;besth=600;minw=-1;minh=-1;maxw=-1;maxh=-1;floatx=1274;floaty=143;floatw=316;floath=632|name=PanelMemory;caption=Memory;state=2099196;dir=2;layer=3;row=0;pos=1;prop=86800;bestw=300;besth=600;minw=-1;minh=-1;maxw=-1;maxh=-1;floatx=1023;floaty=335;floatw=316;floath=632|name=PanelObjectList;caption=Objects;state=2099196;dir=4;layer=1;row=0;pos=0;prop=100000;bestw=300;besth=600;minw=-1;minh=-1;maxw=-1;maxh=-1;floatx=-1;floaty=-1;floatw=-1;floath=-1|name=GLCanvasEditor;caption=GLCanvasEditor;state=2099196;dir=3;layer=0;row=0;pos=1;prop=102365;bestw=600;besth=600;minw=-1;minh=-1;maxw=-1;maxh=-1;floatx=-1;floaty=-1;floatw=-1;floath=-1|name=Log;caption=Log;state=2099196;dir=3;layer=2;row=0;pos=0;prop=100000;bestw=183;besth=150;minw=-1;minh=-1;maxw=-1;maxh=-1;floatx=543;floaty=588;floatw=199;floath=182|dock_size(4,1,0)=201|dock_size(3,0,0)=560|dock_size(3,2,0)=140|dock_size(2,3,0)=307|",
+};
+
 void GameMainFrame_MessageLog(int logtype, const char* tag, const char* message)
 {
     if( logtype == 1 )
@@ -44,6 +58,26 @@ GameMainFrame::GameMainFrame()
     m_Data = MyNew wxMenu;
     m_MenuBar->Append( m_Data, wxT("&Data") );
     m_Data->Append( myIDGame_AddDatafile, wxT("&Load Datafiles") );
+
+    m_EditorPerspectives = MyNew wxMenu;
+    for( int i=0; i<Perspective_NumPerspectives; i++ )
+    {
+        m_EditorPerspectiveOptions[i] = m_EditorPerspectives->AppendCheckItem( myIDGame_EditorPerspective + i, g_DefaultPerspectiveMenuLabels[i], wxEmptyString );
+        Connect( myIDGame_EditorPerspective + i, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(GameMainFrame::OnGameMenu) );
+    }
+
+    m_GameplayPerspectives = MyNew wxMenu;
+    for( int i=0; i<Perspective_NumPerspectives; i++ )
+    {
+        m_GameplayPerspectiveOptions[i] = m_GameplayPerspectives->AppendCheckItem( myIDGame_GameplayPerspective + i, g_DefaultPerspectiveMenuLabels[i], wxEmptyString );
+        Connect( myIDGame_GameplayPerspective + i, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(GameMainFrame::OnGameMenu) );
+    }
+
+    m_EditorPerspectiveOptions[0]->Check();
+    m_GameplayPerspectiveOptions[0]->Check();
+
+    m_View->Append( myIDGame_EditorPerspectives, "Editor Layouts", m_EditorPerspectives );
+    m_View->Append( myIDGame_GameplayPerspectives, "Gameplay Layouts", m_GameplayPerspectives );
 
     Connect( myIDGame_LoadScene,   wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(GameMainFrame::OnGameMenu) );
     Connect( myIDGame_SaveScene,   wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(GameMainFrame::OnGameMenu) );
@@ -82,15 +116,23 @@ void GameMainFrame::OnPostInit()
 
         cJSON* pPrefs = cJSON_Parse( string );
 
-        cJSON* pLastScene = cJSON_GetObjectItem( pPrefs, "LastSceneLoaded" );
-        if( pLastScene )
-            LoadScene( pLastScene->valuestring );
+        cJSON* obj;
 
-        cJSON* pCam = cJSON_GetObjectItem( pPrefs, "EditorCam" );
-        if( pCam )
-        {
-            ((GameEntityComponentTest*)g_pGameCore)->m_EditorState.GetEditorCamera()->m_pComponentTransform->ImportFromJSONObject( pCam, 1 );
-        }
+        obj = cJSON_GetObjectItem( pPrefs, "LastSceneLoaded" );
+        if( obj )
+            LoadScene( obj->valuestring );
+
+        obj = cJSON_GetObjectItem( pPrefs, "EditorCam" );
+        if( obj )
+            ((GameEntityComponentTest*)g_pGameCore)->m_EditorState.GetEditorCamera()->m_pComponentTransform->ImportFromJSONObject( obj, 1 );
+
+        obj = cJSON_GetObjectItem( pPrefs, "EditorLayout" );
+        if( obj )
+            SetDefaultEditorPerspectiveIndex( obj->valueint );
+
+        obj = cJSON_GetObjectItem( pPrefs, "GameplayLayout" );
+        if( obj )
+            SetDefaultGameplayPerspectiveIndex( obj->valueint );
 
         delete[] string;
     }
@@ -106,6 +148,8 @@ void GameMainFrame::OnClose()
 
         cJSON_AddStringToObject( pPrefs, "LastSceneLoaded", m_CurrentSceneName );
         cJSON_AddItemToObject( pPrefs, "EditorCam", ((GameEntityComponentTest*)g_pGameCore)->m_EditorState.GetEditorCamera()->m_pComponentTransform->ExportAsJSONObject() );
+        cJSON_AddNumberToObject( pPrefs, "EditorLayout", GetDefaultEditorPerspectiveIndex() );
+        cJSON_AddNumberToObject( pPrefs, "GameplayLayout", GetDefaultGameplayPerspectiveIndex() );
 
         char* string = cJSON_Print( pPrefs );
 
@@ -138,6 +182,20 @@ void GameMainFrame::OnGameMenu(wxCommandEvent& event)
     case myIDGame_AddDatafile:
         AddDatafileToScene();
         break;
+
+    case myIDGame_EditorPerspective + 0:
+    case myIDGame_EditorPerspective + 1:
+    case myIDGame_EditorPerspective + 2:
+        SetDefaultEditorPerspectiveIndex( id - myIDGame_EditorPerspective );
+        SetWindowPerspectiveToDefault();
+        break;
+
+    case myIDGame_GameplayPerspective + 0:
+    case myIDGame_GameplayPerspective + 1:
+    case myIDGame_GameplayPerspective + 2:
+        SetDefaultGameplayPerspectiveIndex( id - myIDGame_GameplayPerspective );
+        SetWindowPerspectiveToDefault();
+        break;
     }
 }
 
@@ -146,6 +204,71 @@ void GameMainFrame::ResizeViewport()
     MainFrame::ResizeViewport();
 
     m_pGLCanvasEditor->ResizeViewport();
+}
+
+void GameMainFrame::SetWindowPerspectiveToDefault()
+{
+    int currentperspective;
+    int editor = GetDefaultEditorPerspectiveIndex();
+    int gameplay = GetDefaultGameplayPerspectiveIndex();
+
+    // don't touch anything if both perspectives are the same.
+    if( editor == gameplay )
+        return;
+
+    if( ((GameEntityComponentTest*)g_pGameCore)->m_EditorMode )
+    {
+        currentperspective = editor;
+    }
+    else
+    {
+        currentperspective = gameplay;
+    }
+
+    if( currentperspective != -1 )
+        m_AUIManager.LoadPerspective( g_DefaultPerspectives[currentperspective] );
+}
+
+int GameMainFrame::GetDefaultEditorPerspectiveIndex()
+{
+    for( int i=0; i<Perspective_NumPerspectives; i++ )
+    {
+        if( m_EditorPerspectiveOptions[i]->IsChecked() )
+            return i;
+    }
+
+    assert( false );
+    return -1;
+}
+
+int GameMainFrame::GetDefaultGameplayPerspectiveIndex()
+{
+    for( int i=0; i<Perspective_NumPerspectives; i++ )
+    {
+        if( m_GameplayPerspectiveOptions[i]->IsChecked() )
+            return i;
+    }
+
+    assert( false );
+    return -1;
+}
+
+void GameMainFrame::SetDefaultEditorPerspectiveIndex(int index)
+{
+    for( int i=0; i<Perspective_NumPerspectives; i++ )
+    {
+        m_EditorPerspectiveOptions[i]->Check( false );
+    }
+    m_EditorPerspectiveOptions[index]->Check( true );
+}
+
+void GameMainFrame::SetDefaultGameplayPerspectiveIndex(int index)
+{
+    for( int i=0; i<Perspective_NumPerspectives; i++ )
+    {
+        m_GameplayPerspectiveOptions[i]->Check( false );
+    }
+    m_GameplayPerspectiveOptions[index]->Check( true );
 }
 
 void GameMainFrame::SaveScene()
