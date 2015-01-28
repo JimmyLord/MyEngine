@@ -42,9 +42,13 @@ struct EditorState
     GameObject* m_pTransformGizmos[3];
     GameObject* m_pEditorCamera;
 
+    // for physics "picker", to move physics around in editor view when gameplay is running.
     btRigidBody* m_MousePicker_PickedBody;
     btTypedConstraint* m_MousePicker_PickConstraint;
     btScalar m_MousePicker_OldPickingDist;
+
+    // transform gizmo info, keep track of total distance translated for undo/redo.
+    Vector3 m_DistanceTranslated;
 
 public:
     EditorState();

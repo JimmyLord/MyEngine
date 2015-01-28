@@ -740,6 +740,9 @@ void GameEntityComponentTest::HandleEditorInput(int keydown, int keycode, int ac
             // find the object we clicked on.
             GameObject* pObject = GetObjectAtPixel( x, y );
 
+            // reset mouse movement, so we can undo to this state after mouse goes up.
+            m_EditorState.m_DistanceTranslated.Set( 0, 0, 0 );
+
             bool selectedgizmo = false;
 
             // translate to the right.
@@ -1091,6 +1094,9 @@ void GameEntityComponentTest::HandleEditorInput(int keydown, int keycode, int ac
                         Vector3 diff = currentresult - lastresult;
 
                         // move all of the things.
+                        //g_pGameMainFrame->m_pCommandStack->Do( MyNew EditorCommand_MoveObjects( diff, m_EditorState.m_pSelectedObjects ) );
+                        m_EditorState.m_DistanceTranslated += diff;
+
                         for( unsigned int i=0; i<m_EditorState.m_pSelectedObjects.size(); i++ )
                         {
                             Vector3 pos = m_EditorState.m_pSelectedObjects[i]->m_pComponentTransform->GetPosition();
@@ -1194,6 +1200,12 @@ void GameEntityComponentTest::HandleEditorInput(int keydown, int keycode, int ac
                 m_EditorState.m_MouseLeftDownLocation = Vector2( -1, -1 );
                 m_EditorState.m_ModifierKeyStates &= ~MODIFIERKEY_LeftMouse;
                 m_EditorState.m_EditorActionState = EDITORACTIONSTATE_None;
+
+                // add translation to undo stack, action itself is done each frame.  We only want to undo to last mouse down.
+                if( m_EditorState.m_DistanceTranslated.LengthSquared() != 0 )
+                {
+                    g_pGameMainFrame->m_pCommandStack->Add( MyNew EditorCommand_MoveObjects( m_EditorState.m_DistanceTranslated, m_EditorState.m_pSelectedObjects ) );
+                }
             }
             else if( id == 1 )
             {

@@ -2057,6 +2057,8 @@
     <ClCompile Include="SourceCommon\ComponentSystem\CustomComponents\ComponentMeshOBJ.cpp" />
     <ClCompile Include="SourceCommon\ComponentSystem\CustomComponents\ComponentMeshPlane.cpp" />
     <ClCompile Include="SourceCommon\ComponentSystem\CustomComponents\ComponentSprite.cpp" />
+    <ClCompile Include="SourceCommon\ComponentSystem\Editor\GameCommandStack.cpp" />
+    <ClCompile Include="SourceCommon\ComponentSystem\Editor\GameEditorCommands.cpp" />
     <ClCompile Include="SourceCommon\Core\BulletWorld.cpp" />
     <ClCompile Include="SourceCommon\Core\EditorState.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug_64|Win32'">true</ExcludedFromBuild>
@@ -2459,6 +2461,8 @@
     <ClInclude Include="SourceCommon\ComponentSystem\CustomComponents\ComponentMeshOBJ.h" />
     <ClInclude Include="SourceCommon\ComponentSystem\CustomComponents\ComponentMeshPlane.h" />
     <ClInclude Include="SourceCommon\ComponentSystem\CustomComponents\ComponentSprite.h" />
+    <ClInclude Include="SourceCommon\ComponentSystem\Editor\GameCommandStack.h" />
+    <ClInclude Include="SourceCommon\ComponentSystem\Editor\GameEditorCommands.h" />
     <ClInclude Include="SourceCommon\Core\BulletWorld.h" />
     <ClInclude Include="SourceCommon\Core\EditorState.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug_64|Win32'">true</ExcludedFromBuild>

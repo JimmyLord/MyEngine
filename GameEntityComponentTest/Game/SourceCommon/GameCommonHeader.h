@@ -15,7 +15,8 @@
 #if MYFW_USING_WX
 #include "../../Framework/MyFramework/SourceWindows/MYFWWinMainWx.h"
 #include "Core/GameMainFrame.h"
-#include <vector>
+#include "../../Framework/MyFramework/SourceWidgets/EditorCommands.h"
+#include "../../Framework/MyFramework/SourceWidgets/CommandStack.h"
 #endif
 
 // bullet
@@ -68,7 +69,12 @@ extern "C"
 
 #include "ComponentSystem/Core/GameObject.h"
 
+#if MYFW_USING_WX
 #include "Core/EditorState.h"
+#include "ComponentSystem/Editor/GameCommandStack.h"
+#include "ComponentSystem/Editor/GameEditorCommands.h"
+#endif
+
 #include "Core/GameEntityComponentTest.h"
 
 #endif //__GameCommonHeader_H__

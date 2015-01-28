@@ -97,6 +97,9 @@
     <Filter Include="Lua\src">
       <UniqueIdentifier>{97f8a95b-4dc2-45a5-a92f-b2a35b1295fb}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\ComponentSystem\Editor">
+      <UniqueIdentifier>{23826f0c-8cd4-4b10-a2d4-567f146d1856}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="SourceWindows\WinMain.cpp">
@@ -311,6 +314,12 @@
     </ClCompile>
     <ClCompile Include="SourceCommon\ComponentSystem\CustomComponents\ComponentMeshPlane.cpp">
       <Filter>Source\ComponentSystem\Custom Components</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCommon\ComponentSystem\Editor\GameEditorCommands.cpp">
+      <Filter>Source\ComponentSystem\Editor</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCommon\ComponentSystem\Editor\GameCommandStack.cpp">
+      <Filter>Source\ComponentSystem\Editor</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -550,6 +559,12 @@
     </ClInclude>
     <ClInclude Include="SourceCommon\ComponentSystem\CustomComponents\ComponentMeshPlane.h">
       <Filter>Source\ComponentSystem\Custom Components</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCommon\ComponentSystem\Editor\GameEditorCommands.h">
+      <Filter>Source\ComponentSystem\Editor</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCommon\ComponentSystem\Editor\GameCommandStack.h">
+      <Filter>Source\ComponentSystem\Editor</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

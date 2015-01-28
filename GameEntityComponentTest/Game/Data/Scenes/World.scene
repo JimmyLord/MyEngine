@@ -278,7 +278,7 @@
 			"Visible":	1,
 			"Layers":	65535,
 			"Shader":	"Shader_Breathe",
-			"PrimitiveType":	0,
+			"PrimitiveType":	4,
 			"PointSize":	8,
 			"OBJ":	"Data/OBJs/StumpyMcBumblestein.obj"
 		}, {
@@ -342,7 +342,7 @@
 			"Visible":	1,
 			"Layers":	65535,
 			"Shader":	"Shader_Breathe",
-			"PrimitiveType":	0,
+			"PrimitiveType":	4,
 			"PointSize":	3,
 			"OBJ":	"Data/OBJs/StumpyMcBumblestein.obj"
 		}, {
@@ -352,7 +352,7 @@
 			"Visible":	1,
 			"Layers":	65535,
 			"Shader":	"Shader_Breathe",
-			"PrimitiveType":	0,
+			"PrimitiveType":	4,
 			"PointSize":	3,
 			"OBJ":	"Data/OBJs/StumpyMcBumblestein.obj"
 		}, {
@@ -362,7 +362,7 @@
 			"Visible":	1,
 			"Layers":	65535,
 			"Shader":	"Shader_Breathe",
-			"PrimitiveType":	0,
+			"PrimitiveType":	4,
 			"PointSize":	3,
 			"OBJ":	"Data/OBJs/StumpyMcBumblestein.obj"
 		}, {
@@ -372,7 +372,7 @@
 			"Visible":	1,
 			"Layers":	65535,
 			"Shader":	"Shader_Breathe",
-			"PrimitiveType":	0,
+			"PrimitiveType":	4,
 			"PointSize":	3,
 			"OBJ":	"Data/OBJs/StumpyMcBumblestein.obj"
 		}, {
@@ -382,7 +382,7 @@
 			"Visible":	1,
 			"Layers":	65535,
 			"Shader":	"Shader_Breathe",
-			"PrimitiveType":	0,
+			"PrimitiveType":	4,
 			"PointSize":	3,
 			"OBJ":	"Data/OBJs/StumpyMcBumblestein.obj"
 		}, {
@@ -392,7 +392,7 @@
 			"Visible":	1,
 			"Layers":	65535,
 			"Shader":	"Shader_Breathe",
-			"PrimitiveType":	0,
+			"PrimitiveType":	4,
 			"PointSize":	3,
 			"OBJ":	"Data/OBJs/StumpyMcBumblestein.obj"
 		}]

@@ -25,15 +25,11 @@ void main()
 
 	v_Worldpos = u_World * a_Position;
 
-	vec4 newpos = v_Worldpos;
-	//float d = distance( v_Worldpos.x, mod(u_Time, 6.28) );
-	//d = clamp( d, -1, 1 );
-	//newpos.y += sin( d );
+    //v_Worldpos.y += sin( u_Time + v_Worldpos.x * 12 );
 
-	vec4 wrappedpos = newpos;
-
-	wrappedpos.y = sin( newpos.x ) * (2.0 + newpos.y);
-	wrappedpos.x = cos( newpos.x ) * (2.0 + newpos.y);
+	vec4 wrappedpos = v_Worldpos;
+	wrappedpos.y = sin( v_Worldpos.x ) * (1.0 - v_Worldpos.y * 0.2);
+	wrappedpos.x = cos( v_Worldpos.x ) * (1.0 - v_Worldpos.y * 0.2);
 
     gl_Position = u_ViewProj * wrappedpos;
 
@@ -64,6 +60,9 @@ void main()
 	);
 
 	vec4 color = color1 + color2 * -0.33;
+
+    //if( length( color.xyz ) < 1 )
+    //    color.xyz = normalize( color.xyz );
 
     //vec4 color = texture2D( u_TextureColor, v_UVCoord );
 

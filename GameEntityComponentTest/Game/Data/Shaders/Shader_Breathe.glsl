@@ -26,11 +26,15 @@ void main()
 
 	//gl_Position.y *= 1 + sin( u_Time ) * 0.05;
 
-	vec4 newpos = u_World * a_Position;
-	newpos.y = sin( newpos.x );
-	newpos.x = cos( newpos.x );
+	vec4 worldpos = u_World * a_Position;
 
-    gl_Position = u_ViewProj * newpos;
+    //worldpos.y += sin( u_Time + worldpos.x * 6 );
+
+    vec4 wrappedpos = worldpos;
+	wrappedpos.y = sin( worldpos.x ) * (1.0 - worldpos.y * 0.2);
+	wrappedpos.x = cos( worldpos.x ) * (1.0 - worldpos.y * 0.2);
+
+    gl_Position = u_ViewProj * wrappedpos;
 
 	v_Normal = a_Normal;
 }
