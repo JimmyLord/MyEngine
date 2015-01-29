@@ -71,8 +71,9 @@ extern "C"
 
 #if MYFW_USING_WX
 #include "Core/EditorState.h"
-#include "ComponentSystem/Editor/GameCommandStack.h"
-#include "ComponentSystem/Editor/GameEditorCommands.h"
+#include "Editor/GameCommandStack.h"
+#include "Editor/GameEditorCommands.h"
+#include "Editor/TransformGizmo.h"
 #endif
 
 #include "Core/GameEntityComponentTest.h"

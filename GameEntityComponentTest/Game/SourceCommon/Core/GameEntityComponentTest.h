@@ -39,7 +39,11 @@ public:
     BulletWorld* m_pBulletWorld;
     LuaGameState* m_pLuaGameState;
 
+    TransformGizmo* m_pTransformGizmo;
+
     bool m_EditorMode;
+    bool m_Paused;
+    double m_PauseTimeToAdvance; // advance clock by this much on next tick.
 #if MYFW_USING_WX
     EditorState m_EditorState;
 #endif //MYFW_USING_WX
@@ -67,7 +71,7 @@ public:
     virtual ~GameEntityComponentTest();
 
     virtual void OneTimeInit();
-    virtual void Tick(double TimePassed);
+    virtual double Tick(double TimePassed);
     virtual void OnSurfaceChanged(unsigned int startx, unsigned int starty, unsigned int width, unsigned int height);
     virtual void OnDrawFrame();
 

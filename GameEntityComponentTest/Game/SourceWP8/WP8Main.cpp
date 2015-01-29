@@ -95,7 +95,7 @@ void WP8App::Run()
             //if( m_CoreWindow->Visible == true && g_pGameCore->m_HasFocus == false )
             //    g_pGameCore->OnFocusGained();
 
-            g_pGameCore->Tick( timer->Delta );
+            g_UnpausedTime += g_pGameCore->Tick( timer->Delta );
             g_pGameCore->OnDrawFrame();
 
             m_renderer->Present(); // This call is synchronized to the display frame rate.

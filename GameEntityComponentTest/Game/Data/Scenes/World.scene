@@ -58,8 +58,8 @@
 		}, {
 			"GOID":	10,
 			"ID":	0,
-			"Pos":	[0, 0, 0],
-			"Scale":	[100, 1, 10000],
+			"Pos":	[0, 2, 0],
+			"Scale":	[1, 1, 1],
 			"Rot":	[0, 0, 0]
 		}, {
 			"GOID":	11,
@@ -152,7 +152,8 @@
 			"Type":	"Collision Object",
 			"GOID":	10,
 			"ID":	14,
-			"Mass":	0
+			"Mass":	0,
+			"OBJ":	"Data/OBJs/cube.obj"
 		}, {
 			"Type":	"Lua Script",
 			"GOID":	12,
@@ -395,5 +396,14 @@
 			"PrimitiveType":	4,
 			"PointSize":	3,
 			"OBJ":	"Data/OBJs/StumpyMcBumblestein.obj"
+		}, {
+			"Type":	"Mesh-OBJ",
+			"GOID":	10,
+			"ID":	70,
+			"Visible":	1,
+			"Layers":	65535,
+			"PrimitiveType":	4,
+			"PointSize":	1,
+			"OBJ":	"Data/OBJs/cube.obj"
 		}]
 }

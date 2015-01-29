@@ -44,6 +44,8 @@ GameEntityComponentTest::GameEntityComponentTest()
 
     m_pBulletWorld = MyNew BulletWorld();
 
+    m_pTransformGizmo = MyNew TransformGizmo();
+
     m_pLuaGameState = 0;
 
 #if MYFW_USING_WX
@@ -99,6 +101,8 @@ GameEntityComponentTest::~GameEntityComponentTest()
 
     SAFE_DELETE( m_pComponentSystemManager );
     SAFE_DELETE( m_pBulletWorld );
+
+    SAFE_DELETE( m_pTransformGizmo );
 }
 
 void GameEntityComponentTest::OneTimeInit()
@@ -413,10 +417,12 @@ void GameEntityComponentTest::OneTimeInit()
 #endif
 }
 
-void GameEntityComponentTest::Tick(double TimePassed)
+double GameEntityComponentTest::Tick(double TimePassed)
 {
     if( TimePassed > 0.2 )
         TimePassed = 0.2;
+
+    float TimeUnpaused = TimePassed;
 
 #if !MYFW_USING_WX
     if( m_SceneLoaded == false && m_pSceneFileToLoad && m_pSceneFileToLoad->m_FileReady )
@@ -429,83 +435,21 @@ void GameEntityComponentTest::Tick(double TimePassed)
 
     GameCore::Tick( TimePassed );
 
+#if MYFW_USING_WX
+    m_pTransformGizmo->Tick( TimePassed, &m_EditorState );
+#endif
+
     // tick all components.
-    //if( m_EditorMode )
     {
         if( m_EditorMode )
-            m_pComponentSystemManager->Tick( 0 );
+            TimePassed = 0;
+        
+        if( m_Paused )
+            TimePassed = m_PauseTimeToAdvance;
 
-#if MYFW_USING_WX
-        for( int i=0; i<3; i++ )
-        {
-            ComponentRenderable* pRenderable = (ComponentRenderable*)m_EditorState.m_pTransformGizmos[i]->GetFirstComponentOfBaseType( BaseComponentType_Renderable );
+        m_PauseTimeToAdvance = 0;
 
-            Vector3 ObjectPosition;
-            MyMatrix ObjectTransform;
-
-            if( m_EditorState.m_pSelectedObjects.size() == 1 )
-            {
-                pRenderable->m_Visible = true;
-                ObjectPosition = m_EditorState.m_pSelectedObjects[0]->m_pComponentTransform->GetPosition();
-                ObjectTransform = *m_EditorState.m_pSelectedObjects[0]->m_pComponentTransform->GetLocalTransform();
-            }
-            else if( m_EditorState.m_pSelectedObjects.size() > 1 )
-            {
-                pRenderable->m_Visible = true;
-
-                // find the center point between all selected objects.
-                ObjectPosition.Set( 0, 0, 0 );
-                for( unsigned int i=0; i<m_EditorState.m_pSelectedObjects.size(); i++ )
-                {
-                    ObjectPosition += m_EditorState.m_pSelectedObjects[i]->m_pComponentTransform->GetPosition();
-                }
-                ObjectPosition /= m_EditorState.m_pSelectedObjects.size();
-
-                ObjectTransform.SetIdentity();
-            }
-            else
-            {
-                pRenderable->m_Visible = false;
-            }
-
-            if( pRenderable->m_Visible )
-            {
-                // move the gizmo to the object position.
-                m_EditorState.m_pTransformGizmos[i]->m_pComponentTransform->SetPosition( ObjectPosition );
-
-                // rotate the gizmo.
-                MyMatrix matrot;
-                matrot.SetIdentity();
-                if( i == 0 )
-                    matrot.Rotate( 90, 0, 1, 0 );
-                if( i == 1 )
-                    matrot.Rotate( -90, 1, 0, 0 );
-                if( i == 2 )
-                    matrot.Rotate( 180, 0, 1, 0 );
-
-                MyMatrix matrotobj;
-                matrotobj.SetIdentity();
-                matrotobj.CreateSRT( Vector3(1,1,1), ObjectTransform.GetEulerAngles(), Vector3(0,0,0) );
-
-                matrot = matrotobj * matrot;
-
-                Vector3 rot = matrot.GetEulerAngles() * 180.0f/PI;
-
-                m_EditorState.m_pTransformGizmos[i]->m_pComponentTransform->SetRotation( rot );
-
-                float distance = (m_EditorState.m_pEditorCamera->m_pComponentTransform->GetPosition() - ObjectPosition).Length();
-                m_EditorState.m_pTransformGizmos[i]->m_pComponentTransform->SetScale( Vector3( distance / 15.0f ) );
-            }
-        }
-#endif
-    }
-    //else
-    {
-        if( m_EditorMode == false )
-        {
-            if( TimePassed != 0 )
-                m_pComponentSystemManager->Tick( TimePassed );
-        }
+        m_pComponentSystemManager->Tick( TimePassed );
     }
 
     if( m_EditorMode == false )
@@ -518,6 +462,12 @@ void GameEntityComponentTest::Tick(double TimePassed)
             m_pBulletWorld->PhysicsStep();
         }
     }
+
+    // update the global unpaused time.
+    if( m_EditorMode )
+        return TimeUnpaused;
+    else
+        return TimePassed;
 }
 
 void GameEntityComponentTest::OnDrawFrame()
@@ -597,32 +547,55 @@ void GameEntityComponentTest::OnKeyDown(int keycode, int unicodechar)
 #if MYFW_USING_WX
     if( m_EditorMode )
     {
-        if( keycode == 'P' ) // if press "Play"
+        if( keycode == 'P' ||
+            keycode == '.' || 
+            keycode == '[' || 
+            keycode == ']' ) // if press "Play"
         {
             SaveScene( "temp_editor_onplay.scene" );
             m_EditorMode = false;
+            m_Paused = true;
+            if( keycode == 'P' )
+                m_Paused = false;
             g_pGameMainFrame->SetWindowPerspectiveToDefault();
             m_pComponentSystemManager->OnPlay();
             return;
         }
     }
-
-    if( keycode == 'P' ) // Play/Stop
+    else //if( m_EditorMode == false )
     {
-        if( m_EditorMode ) // if press "Play"
-        {
-        }
-        else // if press "Stop"
+        if( keycode == 'P' ) // if press "Stop"
         {
             // Clear out the component manager of all components and gameobjects
             UnloadScene( 0 ); // unload runtime created objects only.
             LoadSceneFromFile( "temp_editor_onplay.scene", 1 );
             m_EditorMode = true;
+            m_Paused = false;
             g_pGameMainFrame->SetWindowPerspectiveToDefault();
             m_EditorState.m_pSelectedObjects.clear();
             m_pComponentSystemManager->OnStop();
 
             m_pComponentSystemManager->SyncAllRigidBodiesToObjectTransforms();
+            return;
+        }
+
+        if( keycode == '.' )
+        {
+            m_Paused = !m_Paused;
+            return;
+        }
+
+        if( keycode == ']' )
+        {
+            m_Paused = true;
+            m_PauseTimeToAdvance = 1/60.0f;
+            return;
+        }
+
+        if( keycode == '[' )
+        {
+            m_Paused = true;
+            m_PauseTimeToAdvance = 1.0f;
             return;
         }
     }

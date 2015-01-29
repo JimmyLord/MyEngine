@@ -2057,8 +2057,6 @@
     <ClCompile Include="SourceCommon\ComponentSystem\CustomComponents\ComponentMeshOBJ.cpp" />
     <ClCompile Include="SourceCommon\ComponentSystem\CustomComponents\ComponentMeshPlane.cpp" />
     <ClCompile Include="SourceCommon\ComponentSystem\CustomComponents\ComponentSprite.cpp" />
-    <ClCompile Include="SourceCommon\ComponentSystem\Editor\GameCommandStack.cpp" />
-    <ClCompile Include="SourceCommon\ComponentSystem\Editor\GameEditorCommands.cpp" />
     <ClCompile Include="SourceCommon\Core\BulletWorld.cpp" />
     <ClCompile Include="SourceCommon\Core\EditorState.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug_64|Win32'">true</ExcludedFromBuild>
@@ -2091,6 +2089,9 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="SourceCommon\Core\LuaGameState.cpp" />
+    <ClCompile Include="SourceCommon\Editor\GameCommandStack.cpp" />
+    <ClCompile Include="SourceCommon\Editor\GameEditorCommands.cpp" />
+    <ClCompile Include="SourceCommon\Editor\TransformGizmo.cpp" />
     <ClCompile Include="SourceCommon\GameCommonHeader.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|NaCl64'">Create</PrecompiledHeader>
@@ -2461,8 +2462,6 @@
     <ClInclude Include="SourceCommon\ComponentSystem\CustomComponents\ComponentMeshOBJ.h" />
     <ClInclude Include="SourceCommon\ComponentSystem\CustomComponents\ComponentMeshPlane.h" />
     <ClInclude Include="SourceCommon\ComponentSystem\CustomComponents\ComponentSprite.h" />
-    <ClInclude Include="SourceCommon\ComponentSystem\Editor\GameCommandStack.h" />
-    <ClInclude Include="SourceCommon\ComponentSystem\Editor\GameEditorCommands.h" />
     <ClInclude Include="SourceCommon\Core\BulletWorld.h" />
     <ClInclude Include="SourceCommon\Core\EditorState.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug_64|Win32'">true</ExcludedFromBuild>
@@ -2495,6 +2494,9 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
     </ClInclude>
     <ClInclude Include="SourceCommon\Core\LuaGameState.h" />
+    <ClInclude Include="SourceCommon\Editor\GameCommandStack.h" />
+    <ClInclude Include="SourceCommon\Editor\GameEditorCommands.h" />
+    <ClInclude Include="SourceCommon\Editor\TransformGizmo.h" />
     <ClInclude Include="SourceCommon\GameCommonHeader.h" />
     <ClInclude Include="SourceCommon\GameComponents\ComponentAIChasePlayer.h" />
     <ClInclude Include="SourceCommon\GameComponents\ComponentCollisionObject.h" />
