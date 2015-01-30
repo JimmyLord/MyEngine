@@ -30,6 +30,10 @@ void ComponentTransform::Reset()
     m_Position.Set( 0,0,0 );
     m_Scale.Set( 1,1,1 );
     m_Rotation.Set( 0,0,0 );
+
+#if MYFW_USING_WX
+    m_ControlID_ParentTransform = -1;
+#endif //MYFW_USING_WX
 }
 
 void ComponentTransform::LuaRegister(lua_State* luastate)
@@ -69,7 +73,7 @@ void ComponentTransform::FillPropertiesWindow(bool clear)
     const char* desc = "none";
     if( m_pParentTransform )
         desc = m_pParentTransform->m_pGameObject->GetName();
-    m_ControlIDTransform = g_pPanelWatch->AddPointerWithDescription( "Parent transform", m_pParentTransform, desc, this, ComponentTransform::StaticOnDropTransform, ComponentTransform::StaticOnValueChanged );
+    m_ControlID_ParentTransform = g_pPanelWatch->AddPointerWithDescription( "Parent transform", m_pParentTransform, desc, this, ComponentTransform::StaticOnDropTransform, ComponentTransform::StaticOnValueChanged );
 }
 
 void ComponentTransform::OnDropTransform()
@@ -103,12 +107,12 @@ void ComponentTransform::OnDropTransform()
 
 void ComponentTransform::OnValueChanged(int id)
 {
-    if( id == m_ControlIDTransform )
+    if( id != -1 && id == m_ControlID_ParentTransform )
     {
-        wxString text = g_pPanelWatch->m_pVariables[m_ControlIDTransform].m_Handle_TextCtrl->GetValue();
+        wxString text = g_pPanelWatch->m_pVariables[m_ControlID_ParentTransform].m_Handle_TextCtrl->GetValue();
         if( text == "" )
         {
-            g_pPanelWatch->m_pVariables[m_ControlIDTransform].m_Handle_TextCtrl->SetValue( "none" );
+            g_pPanelWatch->m_pVariables[m_ControlID_ParentTransform].m_Handle_TextCtrl->SetValue( "none" );
             this->SetParent( 0 );
         }
     }
