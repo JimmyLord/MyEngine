@@ -55,7 +55,7 @@ public:
 
 public:
 #if MYFW_USING_WX
-    int m_ControlIDTransform;
+    int m_ControlID_ParentTransform;
 
     virtual void AddToObjectsPanel(wxTreeItemId gameobjectid);
     static void StaticFillPropertiesWindow(void* pObjectPtr) { ((ComponentTransform*)pObjectPtr)->FillPropertiesWindow(true); }
