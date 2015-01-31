@@ -59,6 +59,13 @@ GameMainFrame::GameMainFrame()
     m_MenuBar->Append( m_Data, wxT("&Data") );
     m_Data->Append( myIDGame_AddDatafile, wxT("&Load Datafiles") );
 
+    m_Hackery = MyNew wxMenu;
+    m_MenuBar->Append( m_Hackery, wxT("&Hackery") );
+    m_Hackery->Append( myIDGame_RecordMacro, wxT("&Record\tCtrl-R") );
+    m_Hackery->Append( myIDGame_ExecuteMacro, wxT("&Store record and execute\tCtrl-E") );
+
+    m_Hackery_Record_StackDepth = -1;
+
     m_EditorPerspectives = MyNew wxMenu;
     for( int i=0; i<Perspective_NumPerspectives; i++ )
     {
@@ -79,11 +86,14 @@ GameMainFrame::GameMainFrame()
     m_View->Append( myIDGame_EditorPerspectives, "Editor Layouts", m_EditorPerspectives );
     m_View->Append( myIDGame_GameplayPerspectives, "Gameplay Layouts", m_GameplayPerspectives );
 
-    Connect( myIDGame_LoadScene,   wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(GameMainFrame::OnGameMenu) );
-    Connect( myIDGame_SaveScene,   wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(GameMainFrame::OnGameMenu) );
-    Connect( myIDGame_SaveSceneAs, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(GameMainFrame::OnGameMenu) );
+    Connect( myIDGame_LoadScene,    wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(GameMainFrame::OnGameMenu) );
+    Connect( myIDGame_SaveScene,    wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(GameMainFrame::OnGameMenu) );
+    Connect( myIDGame_SaveSceneAs,  wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(GameMainFrame::OnGameMenu) );
 
-    Connect( myIDGame_AddDatafile, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(GameMainFrame::OnGameMenu) );
+    Connect( myIDGame_AddDatafile,  wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(GameMainFrame::OnGameMenu) );
+
+    Connect( myIDGame_RecordMacro,  wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(GameMainFrame::OnGameMenu) );
+    Connect( myIDGame_ExecuteMacro, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(GameMainFrame::OnGameMenu) );
 }
 
 void GameMainFrame::AddPanes()
@@ -181,6 +191,25 @@ void GameMainFrame::OnGameMenu(wxCommandEvent& event)
 
     case myIDGame_AddDatafile:
         AddDatafileToScene();
+        break;
+
+    case myIDGame_RecordMacro:
+        m_Hackery_Record_StackDepth = m_pCommandStack->m_UndoStack.size();
+        break;
+
+    case myIDGame_ExecuteMacro:
+        if( m_Hackery_Record_StackDepth != -1 )
+        {
+            int topdepth = m_pCommandStack->m_UndoStack.size();
+            for( int i=m_Hackery_Record_StackDepth; i<topdepth; i++ )
+            {
+                // need to copy the command.
+                EditorCommand* pCommand = m_pCommandStack->m_UndoStack[i]->Repeat();
+                if( pCommand )
+                    m_pCommandStack->Add( pCommand );
+            }
+            m_Hackery_Record_StackDepth = topdepth;
+        }
         break;
 
     case myIDGame_EditorPerspective + 0:

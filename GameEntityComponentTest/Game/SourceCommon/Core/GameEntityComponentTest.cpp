@@ -689,24 +689,18 @@ void GameEntityComponentTest::HandleEditorInput(int keydown, int keycode, int ac
                 pObject != m_EditorState.m_pTransformGizmos[1] &&
                 pObject != m_EditorState.m_pTransformGizmos[2] )
             {
-                if( pObject == 0 )
-                {
-                    m_EditorState.m_pSelectedObjects.clear();
-                }
-                else if( m_EditorState.IsObjectSelected( pObject ) == false )
-                {
-                    m_EditorState.m_pSelectedObjects.push_back( pObject );
-                }
-
-                // if control isn't held, then deselect other objects first.
+                // if control isn't held, then deselect all objects first.
                 if( (m_EditorState.m_ModifierKeyStates & MODIFIERKEY_Control) == 0 )
                 {
-                    m_EditorState.m_pSelectedObjects.clear();
-                    g_pPanelObjectList->SelectObject( 0 ); // passing in 0 will unselect all items.
+                    m_EditorState.ClearSelectedObjects();
                 }
 
-                // select the object in the object tree.
-                g_pPanelObjectList->SelectObject( pObject ); // passing in 0 will unselect all items.
+                if( pObject && m_EditorState.IsObjectSelected( pObject ) == false )
+                {
+                    m_EditorState.m_pSelectedObjects.push_back( pObject );
+                    // select the object in the object tree.
+                    g_pPanelObjectList->SelectObject( pObject ); // passing in 0 will unselect all items.
+                }
             }
         }
 
@@ -717,6 +711,7 @@ void GameEntityComponentTest::HandleEditorInput(int keydown, int keycode, int ac
 
             // reset mouse movement, so we can undo to this state after mouse goes up.
             m_EditorState.m_DistanceTranslated.Set( 0, 0, 0 );
+            //LOGInfo( LOGTag, "m_EditorState.m_DistanceTranslated.Set zero( %f, %f, %f );\n", m_EditorState.m_DistanceTranslated.x, m_EditorState.m_DistanceTranslated.y, m_EditorState.m_DistanceTranslated.z );
 
             bool selectedgizmo = false;
 
@@ -740,18 +735,19 @@ void GameEntityComponentTest::HandleEditorInput(int keydown, int keycode, int ac
             // if shift is held, make a copy of the object and control that one.
             if( selectedgizmo && m_EditorState.m_ModifierKeyStates & MODIFIERKEY_Shift )
             {
-                for( unsigned int i=0; i<m_EditorState.m_pSelectedObjects.size(); i++ )
+                std::vector<GameObject*> selectedobjects = m_EditorState.m_pSelectedObjects;
+                m_EditorState.ClearSelectedObjects();
+                for( unsigned int i=0; i<selectedobjects.size(); i++ )
                 {
-                    GameObject* pNewObject = g_pComponentSystemManager->CopyGameObject( m_EditorState.m_pSelectedObjects[i], "Duplicated Game Object" );
+                    GameObject* pNewObject = g_pComponentSystemManager->EditorCopyGameObject( selectedobjects[i] );
                     if( m_EditorMode )
                     {
-                        pNewObject->SetSceneID( m_EditorState.m_pSelectedObjects[i]->GetSceneID() );
+                        pNewObject->SetSceneID( selectedobjects[i]->GetSceneID() );
                     }
 
-                    //m_EditorState.m_pSelectedGameObject = pNewObject;
-
+                    m_EditorState.m_pSelectedObjects.push_back( pNewObject );
                     // select the object in the object tree.
-                    //g_pPanelObjectList->SelectObject( pNewObject );
+                    g_pPanelObjectList->SelectObject( pNewObject );
                 }
             }
 
@@ -1071,11 +1067,14 @@ void GameEntityComponentTest::HandleEditorInput(int keydown, int keycode, int ac
                         // move all of the things.
                         //g_pGameMainFrame->m_pCommandStack->Do( MyNew EditorCommand_MoveObjects( diff, m_EditorState.m_pSelectedObjects ) );
                         m_EditorState.m_DistanceTranslated += diff;
+                        //LOGInfo( LOGTag, "m_EditorState.m_DistanceTranslated.Set( %f, %f, %f );", m_EditorState.m_DistanceTranslated.x, m_EditorState.m_DistanceTranslated.y, m_EditorState.m_DistanceTranslated.z );
+                        //LOGInfo( LOGTag, "diff( %f, %f, %f, %d );", diff.x, diff.y, diff.z, m_EditorState.m_pSelectedObjects.size() );
 
                         for( unsigned int i=0; i<m_EditorState.m_pSelectedObjects.size(); i++ )
                         {
                             Vector3 pos = m_EditorState.m_pSelectedObjects[i]->m_pComponentTransform->GetPosition();
                             m_EditorState.m_pSelectedObjects[i]->m_pComponentTransform->SetPosition( pos + diff );
+                            m_EditorState.m_pSelectedObjects[i]->m_pComponentTransform->UpdateMatrix();
                         }
                     }
                 }
@@ -1154,11 +1153,11 @@ void GameEntityComponentTest::HandleEditorInput(int keydown, int keycode, int ac
 
                 // pull the pos/angle from the local matrix and update the values for the watch window.
                 {
-                    Vector3 pos = matLocalCamera->GetTranslation();
-                    Vector3 angle = matLocalCamera->GetEulerAngles();
-                    angle *= 180.0f/PI;
-                    pCamera->m_pComponentTransform->SetPosition( pos );
-                    pCamera->m_pComponentTransform->SetRotation( angle );
+                    pCamera->m_pComponentTransform->UpdatePosAndRotFromLocalMatrix();
+                    //Vector3 pos = matLocalCamera->GetTranslation();
+                    //Vector3 angle = matLocalCamera->GetEulerAngles() * 180.0f/PI;
+                    //pCamera->m_pComponentTransform->SetPosition( pos );
+                    //pCamera->m_pComponentTransform->SetRotation( angle );
 
                     //LOGInfo( LOGTag, "cam pos (%0.2f, %0.2f, %0.2f)\n", pos.x, pos.y, pos.z );
                 }

@@ -246,6 +246,10 @@ void ComponentCollisionObject::Tick(double TimePassed)
     MyMatrix matRotPos;
     transform.getOpenGLMatrix( &matLocal->m11 );
 
+#if MYFW_USING_WX
+    m_pComponentTransform->UpdatePosAndRotFromLocalMatrix();
+#endif
+
     // if the collisionshape is scaled, scale our object to match.
     btVector3 scale = m_pBody->getCollisionShape()->getLocalScaling();
     if( scale.x() != 1 || scale.y() != 1 || scale.z() != 1 )

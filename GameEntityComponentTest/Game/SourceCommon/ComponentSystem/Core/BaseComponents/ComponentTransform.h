@@ -50,6 +50,7 @@ public:
     MyMatrix* GetLocalTransform() { return &m_LocalTransform; }
 
     void SetParent(ComponentTransform* pNewParent);
+    void UpdatePosAndRotFromLocalMatrix();
     void UpdateMatrix();
     //MyMatrix* GetMatrix();
 

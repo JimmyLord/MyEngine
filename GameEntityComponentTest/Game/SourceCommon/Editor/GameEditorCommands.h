@@ -24,6 +24,7 @@ public:
 
     virtual void Do();
     virtual void Undo();
+    virtual EditorCommand* Repeat();
 };
 
 //====================================================================================================
@@ -45,6 +46,31 @@ public:
 
     virtual void Do();
     virtual void Undo();
+    virtual EditorCommand* Repeat();
+};
+
+//====================================================================================================
+
+class EditorCommand_CopyGameObject : public EditorCommand
+{
+protected:
+    // IF this is in redo stack, then m_ObjectCreated stores the only reference to the gameobject.
+    //                                and the gameobject stores the only references to the components it contained.
+
+    // TODO: make this an array, for cases where multiple objects are copied in one action.
+    GameObject* m_ObjectToCopy; // solely for the Repeat() function to repeat.
+    GameObject* m_ObjectCreated;
+    bool m_DeleteGameObjectWhenDestroyed;
+
+public:
+    EditorCommand_CopyGameObject(GameObject* objecttocopy);
+    virtual ~EditorCommand_CopyGameObject();
+
+    virtual void Do();
+    virtual void Undo();
+    virtual EditorCommand* Repeat();
+
+    GameObject* GetCreatedObject() { return m_ObjectCreated; }
 };
 
 //====================================================================================================

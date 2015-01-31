@@ -17,6 +17,9 @@
 EditorCommand_MoveObjects::EditorCommand_MoveObjects(Vector3 distancemoved, const std::vector<GameObject*> &selectedobjects)
 {
     m_DistanceMoved = distancemoved;
+
+    //LOGInfo( LOGTag, "EditorCommand_MoveObjects:: %f,%f,%f\n", m_DistanceMoved.x, m_DistanceMoved.y, m_DistanceMoved.z );
+
     for( unsigned int i=0; i<selectedobjects.size(); i++ )
     {
         m_ObjectsMoved.push_back( selectedobjects[i] );
@@ -33,16 +36,28 @@ void EditorCommand_MoveObjects::Do()
     {
         Vector3 newpos = m_ObjectsMoved[i]->m_pComponentTransform->GetPosition() + m_DistanceMoved;
         m_ObjectsMoved[i]->m_pComponentTransform->SetPosition( newpos );
+        m_ObjectsMoved[i]->m_pComponentTransform->UpdateMatrix();
     }
 }
 
 void EditorCommand_MoveObjects::Undo()
 {
+    //LOGInfo( LOGTag, "EditorCommand_MoveObjects::Undo %f,%f,%f\n", m_DistanceMoved.x, m_DistanceMoved.y, m_DistanceMoved.z );
     for( unsigned int i=0; i<m_ObjectsMoved.size(); i++ )
     {
         Vector3 newpos = m_ObjectsMoved[i]->m_pComponentTransform->GetPosition() - m_DistanceMoved;
         m_ObjectsMoved[i]->m_pComponentTransform->SetPosition( newpos );
+        m_ObjectsMoved[i]->m_pComponentTransform->UpdateMatrix();
     }
+}
+
+EditorCommand* EditorCommand_MoveObjects::Repeat()
+{
+    EditorCommand_MoveObjects* pCommand;
+    pCommand = MyNew EditorCommand_MoveObjects( *this );
+
+    pCommand->Do();
+    return pCommand;
 }
 
 //====================================================================================================
@@ -69,8 +84,74 @@ void EditorCommand_DeleteObject::Do()
 
 void EditorCommand_DeleteObject::Undo()
 {
+    ((GameEntityComponentTest*)g_pGameCore)->m_EditorState.ClearSelectedObjects();
+
     g_pComponentSystemManager->ManageGameObject( m_ObjectDeleted );
     m_DeleteGameObjectWhenDestroyed = false;
+}
+
+EditorCommand* EditorCommand_DeleteObject::Repeat()
+{
+    //EditorCommand_DeleteObject* pCommand;
+    //pCommand = MyNew EditorCommand_DeleteObject( *this );
+
+    //pCommand->Do();
+    //return pCommand;
+    return 0;
+}
+
+//====================================================================================================
+// EditorCommand_CopyGameObject
+//====================================================================================================
+
+EditorCommand_CopyGameObject::EditorCommand_CopyGameObject(GameObject* objecttocopy)
+{
+    m_ObjectToCopy = objecttocopy;
+    m_ObjectCreated = 0;
+    m_DeleteGameObjectWhenDestroyed = false;
+}
+
+EditorCommand_CopyGameObject::~EditorCommand_CopyGameObject()
+{
+    assert( m_ObjectCreated );
+    if( m_DeleteGameObjectWhenDestroyed && m_ObjectCreated )
+        g_pComponentSystemManager->DeleteGameObject( m_ObjectCreated, true );
+}
+
+void EditorCommand_CopyGameObject::Do()
+{
+    if( m_ObjectCreated == 0 )
+    {
+        char newname[50];
+        sprintf_s( newname, 50, "%s - copy", m_ObjectToCopy->GetName() );
+        m_ObjectCreated = g_pComponentSystemManager->CopyGameObject( m_ObjectToCopy, newname );
+    }
+    else
+    {
+        g_pComponentSystemManager->ManageGameObject( m_ObjectCreated );
+    }
+
+    // if done/redone, then object exists in the scene, don't destroy it if undo stack get wiped.
+    m_DeleteGameObjectWhenDestroyed = false;
+}
+
+void EditorCommand_CopyGameObject::Undo()
+{
+    ((GameEntityComponentTest*)g_pGameCore)->m_EditorState.ClearSelectedObjects();
+
+    g_pComponentSystemManager->UnmanageGameObject( m_ObjectCreated );
+
+    // if undone and redo stack gets wiped, then object only exist here, destroy it when this command gets deleted.
+    m_DeleteGameObjectWhenDestroyed = true;
+}
+
+EditorCommand* EditorCommand_CopyGameObject::Repeat()
+{
+    EditorCommand_CopyGameObject* pCommand;
+    pCommand = MyNew EditorCommand_CopyGameObject( m_ObjectToCopy );
+
+    pCommand->Do();
+    return pCommand;
 }
 
 //====================================================================================================

@@ -136,7 +136,7 @@ void GameObject::OnPopupClick(wxEvent &evt)
     }
     else if( id == 1000 ) // "Duplicate GameObject"
     {
-        g_pComponentSystemManager->CopyGameObject( pGameObject, "Duplicated Game Object" );
+        g_pComponentSystemManager->EditorCopyGameObject( pGameObject );
     }
     else if( id == 1001 ) // "Delete GameObject"
     {

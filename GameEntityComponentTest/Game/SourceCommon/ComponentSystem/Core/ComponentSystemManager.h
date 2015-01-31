@@ -61,6 +61,7 @@ public:
     void UnmanageGameObject(GameObject* pObject);
     void ManageGameObject(GameObject* pObject);
     void DeleteGameObject(GameObject* pObject, bool deletecomponents);
+    GameObject* EditorCopyGameObject(GameObject* pObject);
     GameObject* CopyGameObject(GameObject* pObject, const char* newname);
 
     GameObject* FindGameObjectByID(unsigned int id);

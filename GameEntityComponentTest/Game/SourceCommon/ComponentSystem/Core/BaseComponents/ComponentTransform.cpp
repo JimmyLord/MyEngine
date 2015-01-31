@@ -216,6 +216,11 @@ void ComponentTransform::SetParent(ComponentTransform* pNewParent)
 
     UpdateMatrix();
 
+    UpdatePosAndRotFromLocalMatrix();
+}
+
+void ComponentTransform::UpdatePosAndRotFromLocalMatrix()
+{
     m_Position = m_LocalTransform.GetTranslation();
     m_Rotation = m_LocalTransform.GetEulerAngles() * 180.0f/PI;
 }

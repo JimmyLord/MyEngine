@@ -130,13 +130,18 @@ char* ComponentSystemManager::SaveSceneToJSON()
         for( CPPListNode* pNode = m_GameObjects.GetHead(); pNode; pNode = pNode->GetNext() )
         {
             GameObject* pGameObject = (GameObject*)pNode;
-            cJSON_AddItemToArray( gameobjectarray, pGameObject->ExportAsJSONObject() );
+            if( pGameObject->IsManaged() )
+                cJSON_AddItemToArray( gameobjectarray, pGameObject->ExportAsJSONObject() );
         }
 
         for( CPPListNode* pNode = m_GameObjects.GetHead(); pNode; pNode = pNode->GetNext() )
         {
-            ComponentBase* pComponent = ((GameObject*)pNode)->m_pComponentTransform;
-            cJSON_AddItemToArray( transformarray, pComponent->ExportAsJSONObject() );
+            GameObject* pGameObject = (GameObject*)pNode;
+            if( pGameObject->IsManaged() )
+            {
+                ComponentBase* pComponent = pGameObject->m_pComponentTransform;
+                cJSON_AddItemToArray( transformarray, pComponent->ExportAsJSONObject() );
+            }
         }
     }
 
@@ -474,7 +479,10 @@ void ComponentSystemManager::UnmanageGameObject(GameObject* pObject)
     // remove all components from their respective component lists.
     for( unsigned int i=0; i<pObject->m_Components.Count(); i++ )
     {
+        // remove from list and clear CPPListNode prev/next
         pObject->m_Components[i]->Remove();
+        pObject->m_Components[i]->Prev = 0;
+        pObject->m_Components[i]->Next = 0;
     }
 
     pObject->SetManaged( false );
@@ -507,27 +515,36 @@ void ComponentSystemManager::DeleteGameObject(GameObject* pObject, bool deleteco
     SAFE_DELETE( pObject );
 }
 
+GameObject* ComponentSystemManager::EditorCopyGameObject(GameObject* pObject)
+{
+    // add the undo action, don't reperform it, it's done above.
+    EditorCommand_CopyGameObject* pCommand = MyNew EditorCommand_CopyGameObject( pObject );
+    g_pGameMainFrame->m_pCommandStack->Do( pCommand );
+
+    return pCommand->GetCreatedObject();
+}
+
 GameObject* ComponentSystemManager::CopyGameObject(GameObject* pObject, const char* newname)
 {
-    GameObject* pGameObject = CreateGameObject();
-    pGameObject->SetName( newname );
-    pGameObject->SetSceneID( pObject->GetSceneID() );
+    GameObject* pNewObject = CreateGameObject();
+    pNewObject->SetName( newname );
+    pNewObject->SetSceneID( pObject->GetSceneID() );
 
-    *pGameObject->m_pComponentTransform = *pObject->m_pComponentTransform;
+    *pNewObject->m_pComponentTransform = *pObject->m_pComponentTransform;
 
     for( unsigned int i=0; i<pObject->m_Components.Count(); i++ )
     {
         ComponentBase* pComponent = 0;
 
         if( ((GameEntityComponentTest*)g_pGameCore)->m_EditorMode )
-            pComponent = pGameObject->AddNewComponent( pObject->m_Components[i]->m_Type, pGameObject->GetSceneID() );
+            pComponent = pNewObject->AddNewComponent( pObject->m_Components[i]->m_Type, pNewObject->GetSceneID() );
         else
-            pComponent = pGameObject->AddNewComponent( pObject->m_Components[i]->m_Type, 0 );
+            pComponent = pNewObject->AddNewComponent( pObject->m_Components[i]->m_Type, 0 );
 
-        pComponent->CopyFromSameType_Dangerous( pObject->m_Components[i] );
+        pComponent->CopyFromSameType_Dangerous( pObject->m_Components[i] );        
     }
 
-    return pGameObject;
+    return pNewObject;
 }
 
 GameObject* ComponentSystemManager::FindGameObjectByID(unsigned int id)

@@ -61,6 +61,8 @@ public:
     void ClearConstraint();
 
     bool IsObjectSelected(GameObject* pObject);
+
+    void ClearSelectedObjects();
 };
 #endif //MYFW_USING_WX
 

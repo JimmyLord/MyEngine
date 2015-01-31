@@ -76,3 +76,10 @@ bool EditorState::IsObjectSelected(GameObject* pObject)
 
     return false;
 }
+
+void EditorState::ClearSelectedObjects()
+{
+    m_pSelectedObjects.clear();
+
+    g_pPanelObjectList->SelectObject( 0 );
+}

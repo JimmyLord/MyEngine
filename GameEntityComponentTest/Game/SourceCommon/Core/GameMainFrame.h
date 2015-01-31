@@ -28,6 +28,8 @@ enum GameMenuIDs
     myIDGame_SaveScene,
     myIDGame_SaveSceneAs,
     myIDGame_AddDatafile,
+    myIDGame_RecordMacro,
+    myIDGame_ExecuteMacro,
     myIDGame_EditorPerspectives,
     myIDGame_GameplayPerspectives,
     myIDGame_EditorPerspective,
@@ -50,6 +52,9 @@ public:
     char m_CurrentSceneName[MAX_PATH];
 
     wxMenu* m_Data;
+    wxMenu* m_Hackery;
+
+    int m_Hackery_Record_StackDepth;
 
 public:
     GameMainFrame();
