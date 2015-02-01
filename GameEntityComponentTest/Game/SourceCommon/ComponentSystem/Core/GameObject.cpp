@@ -140,9 +140,20 @@ void GameObject::OnPopupClick(wxEvent &evt)
     }
     else if( id == 1001 ) // "Delete GameObject"
     {
-        g_pGameMainFrame->m_pCommandStack->Do( MyNew EditorCommand_DeleteObject( pGameObject ) );
+        EditorState* pEditorState = &((GameEntityComponentTest*)g_pGameCore)->m_EditorState;
 
-        //g_pComponentSystemManager->DeleteGameObject( pGameObject, true );
+        // if the object isn't selected, delete just the one object, otherwise delete all selected objects.
+        if( pEditorState->IsObjectSelected( pGameObject ) )
+        {
+            g_pGameMainFrame->m_pCommandStack->Do( MyNew EditorCommand_DeleteObjects( pEditorState->m_pSelectedObjects ) );
+        }
+        else
+        {
+            // create a temp vector to pass into command.
+            std::vector<GameObject*> gameobjects;
+            gameobjects.push_back( pGameObject );
+            g_pGameMainFrame->m_pCommandStack->Do( MyNew EditorCommand_DeleteObjects( gameobjects ) );
+        }
     }
 }
 

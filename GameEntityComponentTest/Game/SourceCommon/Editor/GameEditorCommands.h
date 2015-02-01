@@ -29,7 +29,7 @@ public:
 
 //====================================================================================================
 
-class EditorCommand_DeleteObject : public EditorCommand
+class EditorCommand_DeleteObjects : public EditorCommand
 {
 protected:
     // TODO: likely change this whole command to store the full editor state and restore on undo.
@@ -37,12 +37,12 @@ protected:
 
     // IF this is in undo stack, then this stores the only reference to the deleted object.
     //                                and the gameobject stores the only references to the components it contained.
-    GameObject* m_ObjectDeleted;
-    bool m_DeleteGameObjectWhenDestroyed;
+    std::vector<GameObject*> m_ObjectsDeleted;
+    bool m_DeleteGameObjectsWhenDestroyed;
 
 public:
-    EditorCommand_DeleteObject(GameObject* objectdeleted);
-    virtual ~EditorCommand_DeleteObject();
+    EditorCommand_DeleteObjects(const std::vector<GameObject*> &selectedobjects);
+    virtual ~EditorCommand_DeleteObjects();
 
     virtual void Do();
     virtual void Undo();

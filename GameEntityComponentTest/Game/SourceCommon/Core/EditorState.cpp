@@ -82,4 +82,5 @@ void EditorState::ClearSelectedObjects()
     m_pSelectedObjects.clear();
 
     g_pPanelObjectList->SelectObject( 0 );
+    g_pPanelWatch->ClearAllVariables();
 }

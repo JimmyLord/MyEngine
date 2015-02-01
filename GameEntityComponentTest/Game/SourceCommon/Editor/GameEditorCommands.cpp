@@ -61,42 +61,56 @@ EditorCommand* EditorCommand_MoveObjects::Repeat()
 }
 
 //====================================================================================================
-// EditorCommand_DeleteObject
+// EditorCommand_DeleteObjects
 //====================================================================================================
 
-EditorCommand_DeleteObject::EditorCommand_DeleteObject(GameObject* objectdeleted)
+EditorCommand_DeleteObjects::EditorCommand_DeleteObjects(const std::vector<GameObject*> &selectedobjects)
 {
-    m_ObjectDeleted = objectdeleted;
-    m_DeleteGameObjectWhenDestroyed = false;
+    for( unsigned int i=0; i<selectedobjects.size(); i++ )
+    {
+        m_ObjectsDeleted.push_back( selectedobjects[i] );
+    }
+
+    m_DeleteGameObjectsWhenDestroyed = false;
 }
 
-EditorCommand_DeleteObject::~EditorCommand_DeleteObject()
+EditorCommand_DeleteObjects::~EditorCommand_DeleteObjects()
 {
-    if( m_DeleteGameObjectWhenDestroyed )
-        g_pComponentSystemManager->DeleteGameObject( m_ObjectDeleted, true );
+    if( m_DeleteGameObjectsWhenDestroyed )
+    {
+        for( unsigned int i=0; i<m_ObjectsDeleted.size(); i++ )
+        {
+            g_pComponentSystemManager->DeleteGameObject( m_ObjectsDeleted[i], true );
+        }
+    }
 }
 
-void EditorCommand_DeleteObject::Do()
-{
-    g_pComponentSystemManager->UnmanageGameObject( m_ObjectDeleted );
-    m_DeleteGameObjectWhenDestroyed = true;
-}
-
-void EditorCommand_DeleteObject::Undo()
+void EditorCommand_DeleteObjects::Do()
 {
     ((GameEntityComponentTest*)g_pGameCore)->m_EditorState.ClearSelectedObjects();
 
-    g_pComponentSystemManager->ManageGameObject( m_ObjectDeleted );
-    m_DeleteGameObjectWhenDestroyed = false;
+    for( unsigned int i=0; i<m_ObjectsDeleted.size(); i++ )
+    {
+        g_pComponentSystemManager->UnmanageGameObject( m_ObjectsDeleted[i] );
+    }
+    m_DeleteGameObjectsWhenDestroyed = true;
 }
 
-EditorCommand* EditorCommand_DeleteObject::Repeat()
+void EditorCommand_DeleteObjects::Undo()
 {
-    //EditorCommand_DeleteObject* pCommand;
-    //pCommand = MyNew EditorCommand_DeleteObject( *this );
+    ((GameEntityComponentTest*)g_pGameCore)->m_EditorState.ClearSelectedObjects();
 
-    //pCommand->Do();
-    //return pCommand;
+    for( unsigned int i=0; i<m_ObjectsDeleted.size(); i++ )
+    {
+        g_pComponentSystemManager->ManageGameObject( m_ObjectsDeleted[i] );
+    }
+    m_DeleteGameObjectsWhenDestroyed = false;
+}
+
+EditorCommand* EditorCommand_DeleteObjects::Repeat()
+{
+    // Do nothing.
+
     return 0;
 }
 
