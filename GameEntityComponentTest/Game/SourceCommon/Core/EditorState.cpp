@@ -46,6 +46,7 @@ ComponentCamera* EditorState::GetEditorCamera()
 void EditorState::UnloadScene()
 {
     m_pSelectedObjects.clear();
+    m_pSelectedComponents.clear();
     //m_pSelectedGameObject = 0;
     ClearConstraint();
 }
@@ -77,9 +78,21 @@ bool EditorState::IsObjectSelected(GameObject* pObject)
     return false;
 }
 
-void EditorState::ClearSelectedObjects()
+bool EditorState::IsComponentSelected(ComponentBase* pComponent)
+{
+    for( unsigned int i=0; i<m_pSelectedComponents.size(); i++ )
+    {
+        if( m_pSelectedComponents[i] == pComponent )
+            return true;
+    }
+
+    return false;
+}
+
+void EditorState::ClearSelectedObjectsAndComponents()
 {
     m_pSelectedObjects.clear();
+    m_pSelectedComponents.clear();
 
     g_pPanelObjectList->SelectObject( 0 );
     g_pPanelWatch->ClearAllVariables();

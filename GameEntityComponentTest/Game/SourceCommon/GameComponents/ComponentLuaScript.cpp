@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2014 Jimmy Lord http://www.flatheadgames.com
+// Copyright (c) 2014-2015 Jimmy Lord http://www.flatheadgames.com
 //
 // This software is provided 'as-is', without any express or implied warranty.  In no event will the authors be held liable for any damages arising from the use of this software.
 // Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -54,13 +54,17 @@ void ComponentLuaScript::Reset()
 #if MYFW_USING_WX
 void ComponentLuaScript::AddToObjectsPanel(wxTreeItemId gameobjectid)
 {
-    wxTreeItemId id = g_pPanelObjectList->AddObject( this, ComponentLuaScript::StaticFillPropertiesWindow, ComponentBase::StaticOnRightClick, gameobjectid, "Lua script" );
+    wxTreeItemId id = g_pPanelObjectList->AddObject( this, ComponentLuaScript::StaticOnLeftClick, ComponentBase::StaticOnRightClick, gameobjectid, "Lua script" );
+}
+
+void ComponentLuaScript::OnLeftClick(bool clear)
+{
+    ComponentBase::OnLeftClick( clear );
 }
 
 void ComponentLuaScript::FillPropertiesWindow(bool clear)
 {
-    if( clear )
-        g_pPanelWatch->ClearAllVariables();
+    ComponentBase::FillPropertiesWindow( clear );
 
     const char* desc = "no script";
     if( m_pScriptFile )

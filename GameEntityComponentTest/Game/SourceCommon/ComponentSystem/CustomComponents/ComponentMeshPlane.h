@@ -38,9 +38,10 @@ public:
 public:
 #if MYFW_USING_WX
     virtual void AddToObjectsPanel(wxTreeItemId gameobjectid);
-    static void StaticFillPropertiesWindow(void* pObjectPtr) { ((ComponentMeshPlane*)pObjectPtr)->FillPropertiesWindow(true); }
-    void FillPropertiesWindow(bool clear);
-    static void StaticOnValueChanged(void* pObjectPtr, int id) { ((ComponentMeshPlane*)pObjectPtr)->OnValueChanged(id); }
+    static void StaticOnLeftClick(void* pObjectPtr) { ((ComponentMeshPlane*)pObjectPtr)->OnLeftClick( true ); }
+    void OnLeftClick(bool clear);
+    virtual void FillPropertiesWindow(bool clear);
+    static void StaticOnValueChanged(void* pObjectPtr, int id) { ((ComponentMeshPlane*)pObjectPtr)->OnValueChanged( id ); }
     void OnValueChanged(int id);
 #endif //MYFW_USING_WX
 };

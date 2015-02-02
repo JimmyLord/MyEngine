@@ -191,7 +191,7 @@ void GameEntityComponentTest::OneTimeInit()
             pComponentMesh->m_PrimitiveType = pComponentMesh->m_pMesh->m_PrimitiveType;
         }
 
-        m_pComponentSystemManager->AddComponent( pComponentMesh );
+        //m_pComponentSystemManager->AddComponent( pComponentMesh );
 
         m_EditorState.m_p3DGridPlane = pGameObject;
     }
@@ -214,7 +214,7 @@ void GameEntityComponentTest::OneTimeInit()
         }
         pGameObject->m_pComponentTransform->SetRotation( Vector3( 0, 90, 0 ) );
 
-        m_pComponentSystemManager->AddComponent( pComponentMesh );
+        //m_pComponentSystemManager->AddComponent( pComponentMesh );
 
         m_EditorState.m_pTransformGizmos[0] = pGameObject;
     }
@@ -235,7 +235,7 @@ void GameEntityComponentTest::OneTimeInit()
         }
         pGameObject->m_pComponentTransform->SetRotation( Vector3( -90, 0, 0 ) );
 
-        m_pComponentSystemManager->AddComponent( pComponentMesh );
+        //m_pComponentSystemManager->AddComponent( pComponentMesh );
 
         m_EditorState.m_pTransformGizmos[1] = pGameObject;
     }
@@ -256,7 +256,7 @@ void GameEntityComponentTest::OneTimeInit()
         }
         pGameObject->m_pComponentTransform->SetRotation( Vector3( 0, 180, 0 ) );
 
-        m_pComponentSystemManager->AddComponent( pComponentMesh );
+        //m_pComponentSystemManager->AddComponent( pComponentMesh );
 
         m_EditorState.m_pTransformGizmos[2] = pGameObject;
     }
@@ -279,7 +279,7 @@ void GameEntityComponentTest::OneTimeInit()
 
             // add the camera component to the list, but disabled, so it won't render.
             pComponentCamera->m_Enabled = false;
-            m_pComponentSystemManager->AddComponent( pComponentCamera );
+            //m_pComponentSystemManager->AddComponent( pComponentCamera );
         }
 
         // add a foreground camera for the transform gizmo only ATM.
@@ -293,7 +293,7 @@ void GameEntityComponentTest::OneTimeInit()
 
             // add the camera component to the list, but disabled, so it won't render.
             pComponentCamera->m_Enabled = false;
-            m_pComponentSystemManager->AddComponent( pComponentCamera );
+            //m_pComponentSystemManager->AddComponent( pComponentCamera );
         }
 
         m_EditorState.m_pEditorCamera = pGameObject;
@@ -422,6 +422,11 @@ double GameEntityComponentTest::Tick(double TimePassed)
     if( TimePassed > 0.2 )
         TimePassed = 0.2;
 
+    //if( TimePassed == 0 && m_EditorMode == false )
+    //    LOGInfo( LOGTag, "Tick: %f\n", TimePassed );
+
+    //LOGInfo( LOGTag, "Tick: %f\n", TimePassed );
+
     float TimeUnpaused = TimePassed;
 
 #if !MYFW_USING_WX
@@ -460,6 +465,7 @@ double GameEntityComponentTest::Tick(double TimePassed)
         {
             m_TimeSinceLastPhysicsStep -= 1/60.0f;
             m_pBulletWorld->PhysicsStep();
+            //LOGInfo( LOGTag, "m_pBulletWorld->PhysicsStep()\n" );
         }
     }
 
@@ -572,7 +578,7 @@ void GameEntityComponentTest::OnKeyDown(int keycode, int unicodechar)
             m_EditorMode = true;
             m_Paused = false;
             g_pGameMainFrame->SetWindowPerspectiveToDefault();
-            m_EditorState.m_pSelectedObjects.clear();
+            m_EditorState.ClearSelectedObjectsAndComponents();
             m_pComponentSystemManager->OnStop();
 
             m_pComponentSystemManager->SyncAllRigidBodiesToObjectTransforms();
@@ -692,7 +698,7 @@ void GameEntityComponentTest::HandleEditorInput(int keydown, int keycode, int ac
                 // if control isn't held, then deselect all objects first.
                 if( (m_EditorState.m_ModifierKeyStates & MODIFIERKEY_Control) == 0 )
                 {
-                    m_EditorState.ClearSelectedObjects();
+                    m_EditorState.ClearSelectedObjectsAndComponents();
                 }
 
                 if( pObject && m_EditorState.IsObjectSelected( pObject ) == false )
@@ -736,7 +742,7 @@ void GameEntityComponentTest::HandleEditorInput(int keydown, int keycode, int ac
             if( selectedgizmo && m_EditorState.m_ModifierKeyStates & MODIFIERKEY_Shift )
             {
                 std::vector<GameObject*> selectedobjects = m_EditorState.m_pSelectedObjects;
-                m_EditorState.ClearSelectedObjects();
+                m_EditorState.ClearSelectedObjectsAndComponents();
                 for( unsigned int i=0; i<selectedobjects.size(); i++ )
                 {
                     GameObject* pNewObject = g_pComponentSystemManager->EditorCopyGameObject( selectedobjects[i] );
@@ -1426,5 +1432,6 @@ void GameEntityComponentTest::GetMouseRay(Vector2 mousepos, Vector3* start, Vect
 void GameEntityComponentTest::OnObjectListTreeSelectionChanged()
 {
     m_EditorState.m_pSelectedObjects.clear();
+    m_EditorState.m_pSelectedComponents.clear();
 }
 #endif //MYFW_USING_WX

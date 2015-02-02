@@ -39,8 +39,9 @@ public:
 public:
 #if MYFW_USING_WX
     virtual void AddToObjectsPanel(wxTreeItemId gameobjectid);
-    static void StaticFillPropertiesWindow(void* pObjectPtr) { ((ComponentRenderable*)pObjectPtr)->FillPropertiesWindow(true); }
-    void FillPropertiesWindow(bool clear);
+    static void StaticOnLeftClick(void* pObjectPtr) { ((ComponentRenderable*)pObjectPtr)->OnLeftClick( true ); }
+    void OnLeftClick(bool clear);
+    virtual void FillPropertiesWindow(bool clear);
 #endif //MYFW_USING_WX
 };
 

@@ -36,7 +36,7 @@ struct EditorState
     FBODefinition* m_pMousePickerFBO;
 
     std::vector<GameObject*> m_pSelectedObjects;
-    //GameObject* m_pSelectedGameObject;
+    std::vector<ComponentBase*> m_pSelectedComponents;
 
     GameObject* m_p3DGridPlane;
     GameObject* m_pTransformGizmos[3];
@@ -61,8 +61,9 @@ public:
     void ClearConstraint();
 
     bool IsObjectSelected(GameObject* pObject);
+    bool IsComponentSelected(ComponentBase* pComponent);
 
-    void ClearSelectedObjects();
+    void ClearSelectedObjectsAndComponents();
 };
 #endif //MYFW_USING_WX
 

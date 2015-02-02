@@ -65,9 +65,10 @@ public:
 public:
 #if MYFW_USING_WX
     virtual void AddToObjectsPanel(wxTreeItemId gameobjectid);
-    static void StaticFillPropertiesWindow(void* pObjectPtr) { ((ComponentCamera*)pObjectPtr)->FillPropertiesWindow(true); }
-    void FillPropertiesWindow(bool clear);
-    static void StaticOnValueChanged(void* pObjectPtr, int id) { ((ComponentCamera*)pObjectPtr)->OnValueChanged(id); }
+    static void StaticOnLeftClick(void* pObjectPtr) { ((ComponentCamera*)pObjectPtr)->OnLeftClick( true ); }
+    void OnLeftClick(bool clear);
+    virtual void FillPropertiesWindow(bool clear);
+    static void StaticOnValueChanged(void* pObjectPtr, int id) { ((ComponentCamera*)pObjectPtr)->OnValueChanged( id ); }
     void OnValueChanged(int id);
 #endif //MYFW_USING_WX
 };

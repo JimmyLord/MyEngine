@@ -87,7 +87,7 @@ EditorCommand_DeleteObjects::~EditorCommand_DeleteObjects()
 
 void EditorCommand_DeleteObjects::Do()
 {
-    ((GameEntityComponentTest*)g_pGameCore)->m_EditorState.ClearSelectedObjects();
+    ((GameEntityComponentTest*)g_pGameCore)->m_EditorState.ClearSelectedObjectsAndComponents();
 
     for( unsigned int i=0; i<m_ObjectsDeleted.size(); i++ )
     {
@@ -98,7 +98,7 @@ void EditorCommand_DeleteObjects::Do()
 
 void EditorCommand_DeleteObjects::Undo()
 {
-    ((GameEntityComponentTest*)g_pGameCore)->m_EditorState.ClearSelectedObjects();
+    ((GameEntityComponentTest*)g_pGameCore)->m_EditorState.ClearSelectedObjectsAndComponents();
 
     for( unsigned int i=0; i<m_ObjectsDeleted.size(); i++ )
     {
@@ -108,6 +108,65 @@ void EditorCommand_DeleteObjects::Undo()
 }
 
 EditorCommand* EditorCommand_DeleteObjects::Repeat()
+{
+    // Do nothing.
+
+    return 0;
+}
+
+//====================================================================================================
+// EditorCommand_DeleteComponents
+//====================================================================================================
+
+EditorCommand_DeleteComponents::EditorCommand_DeleteComponents(const std::vector<ComponentBase*> &selectedcomponents)
+{
+    for( unsigned int i=0; i<selectedcomponents.size(); i++ )
+    {
+        // can't delete an objects transform component.
+        if( selectedcomponents[i]->m_pGameObject &&
+            selectedcomponents[i] == selectedcomponents[i]->m_pGameObject->m_pComponentTransform )
+            assert( false );
+        
+        m_ComponentsDeleted.push_back( selectedcomponents[i] );
+    }
+
+    m_DeleteComponentsWhenDestroyed = false;
+}
+
+EditorCommand_DeleteComponents::~EditorCommand_DeleteComponents()
+{
+    if( m_DeleteComponentsWhenDestroyed )
+    {
+        for( unsigned int i=0; i<m_ComponentsDeleted.size(); i++ )
+        {
+            g_pComponentSystemManager->DeleteComponent( m_ComponentsDeleted[i] );
+        }
+    }
+}
+
+void EditorCommand_DeleteComponents::Do()
+{
+    ((GameEntityComponentTest*)g_pGameCore)->m_EditorState.ClearSelectedObjectsAndComponents();
+
+    for( unsigned int i=0; i<m_ComponentsDeleted.size(); i++ )
+    {
+        m_ComponentsDeleted[i]->m_pGameObject->RemoveComponent( m_ComponentsDeleted[i] );
+    }
+    m_DeleteComponentsWhenDestroyed = true;
+}
+
+void EditorCommand_DeleteComponents::Undo()
+{
+    ((GameEntityComponentTest*)g_pGameCore)->m_EditorState.ClearSelectedObjectsAndComponents();
+
+    for( unsigned int i=0; i<m_ComponentsDeleted.size(); i++ )
+    {
+        m_ComponentsDeleted[i]->m_pGameObject->AddExistingComponent( m_ComponentsDeleted[i], false );
+    }
+    m_DeleteComponentsWhenDestroyed = false;
+}
+
+EditorCommand* EditorCommand_DeleteComponents::Repeat()
 {
     // Do nothing.
 
@@ -151,7 +210,7 @@ void EditorCommand_CopyGameObject::Do()
 
 void EditorCommand_CopyGameObject::Undo()
 {
-    ((GameEntityComponentTest*)g_pGameCore)->m_EditorState.ClearSelectedObjects();
+    ((GameEntityComponentTest*)g_pGameCore)->m_EditorState.ClearSelectedObjectsAndComponents();
 
     g_pComponentSystemManager->UnmanageGameObject( m_ObjectCreated );
 

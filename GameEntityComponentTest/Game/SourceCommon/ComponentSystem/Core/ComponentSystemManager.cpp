@@ -635,7 +635,7 @@ void ComponentSystemManager::DeleteComponent(ComponentBase* pComponent)
 #if MYFW_USING_WX
     g_pPanelObjectList->RemoveObject( pComponent );
 #endif
-    pComponent->Remove();
+
     SAFE_DELETE( pComponent );
 }
 

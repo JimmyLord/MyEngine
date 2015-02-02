@@ -49,14 +49,18 @@ void ComponentTransform::LuaRegister(lua_State* luastate)
 #if MYFW_USING_WX
 void ComponentTransform::AddToObjectsPanel(wxTreeItemId gameobjectid)
 {
-    wxTreeItemId id = g_pPanelObjectList->AddObject( this, ComponentTransform::StaticFillPropertiesWindow, ComponentBase::StaticOnRightClick, gameobjectid, "Transform" );
+    wxTreeItemId id = g_pPanelObjectList->AddObject( this, ComponentTransform::StaticOnLeftClick, ComponentBase::StaticOnRightClick, gameobjectid, "Transform" );
     g_pPanelObjectList->SetDragAndDropFunctions( this, ComponentBase::StaticOnDrag, ComponentBase::StaticOnDrop );
+}
+
+void ComponentTransform::OnLeftClick(bool clear)
+{
+    ComponentBase::OnLeftClick( clear );
 }
 
 void ComponentTransform::FillPropertiesWindow(bool clear)
 {
-    if( clear )
-        g_pPanelWatch->ClearAllVariables();
+    ComponentBase::FillPropertiesWindow( clear );
 
     g_pPanelWatch->AddFloat( "x", &m_Position.x, -1.0f, 1.0f, this, ComponentTransform::StaticOnValueChanged );
     g_pPanelWatch->AddFloat( "y", &m_Position.y, -1.0f, 1.0f, this, ComponentTransform::StaticOnValueChanged );

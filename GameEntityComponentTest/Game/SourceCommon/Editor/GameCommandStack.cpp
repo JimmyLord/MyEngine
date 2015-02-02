@@ -18,5 +18,27 @@ GameCommandStack::~GameCommandStack()
 {
 }
 
-//void GameCommandStack::Undo(unsigned int levels)
-//void GameCommandStack::Redo(unsigned int levels)
+void GameCommandStack::Undo(unsigned int levels)
+{
+    if( ((GameEntityComponentTest*)g_pGameCore)->m_EditorMode )
+        CommandStack::Undo( levels );
+}
+
+void GameCommandStack::Redo(unsigned int levels)
+{
+    if( ((GameEntityComponentTest*)g_pGameCore)->m_EditorMode )
+        CommandStack::Redo( levels );
+}
+
+void GameCommandStack::Do(EditorCommand* pCommand)
+{
+    CommandStack::Do( pCommand );
+}
+
+void GameCommandStack::Add(EditorCommand* pCommand)
+{
+    if( ((GameEntityComponentTest*)g_pGameCore)->m_EditorMode )
+        return CommandStack::Add( pCommand );
+
+    delete pCommand;
+}

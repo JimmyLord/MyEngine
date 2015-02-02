@@ -40,13 +40,17 @@ void ComponentMesh::Reset()
 void ComponentMesh::AddToObjectsPanel(wxTreeItemId gameobjectid)
 {
     assert( gameobjectid.IsOk() );
-    wxTreeItemId id = g_pPanelObjectList->AddObject( this, ComponentMesh::StaticFillPropertiesWindow, ComponentBase::StaticOnRightClick, gameobjectid, "Mesh" );
+    wxTreeItemId id = g_pPanelObjectList->AddObject( this, ComponentMesh::StaticOnLeftClick, ComponentBase::StaticOnRightClick, gameobjectid, "Mesh" );
+}
+
+void ComponentMesh::OnLeftClick(bool clear)
+{
+    ComponentBase::OnLeftClick( clear );
 }
 
 void ComponentMesh::FillPropertiesWindow(bool clear)
 {
-    if( clear )
-        g_pPanelWatch->ClearAllVariables();
+    ComponentBase::FillPropertiesWindow( clear );
 
     //assert( m_pMesh );
 

@@ -98,6 +98,8 @@ GameMainFrame::GameMainFrame()
 
 void GameMainFrame::AddPanes()
 {
+    m_pCommandStack = MyNew GameCommandStack();
+
     MainFrame::AddPanes();
 
     // create the editor opengl canvas

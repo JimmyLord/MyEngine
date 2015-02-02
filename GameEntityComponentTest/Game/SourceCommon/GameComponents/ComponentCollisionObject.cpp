@@ -53,13 +53,17 @@ void ComponentCollisionObject::Reset()
 #if MYFW_USING_WX
 void ComponentCollisionObject::AddToObjectsPanel(wxTreeItemId gameobjectid)
 {
-    wxTreeItemId id = g_pPanelObjectList->AddObject( this, ComponentCollisionObject::StaticFillPropertiesWindow, ComponentBase::StaticOnRightClick, gameobjectid, "Collision object" );
+    wxTreeItemId id = g_pPanelObjectList->AddObject( this, ComponentCollisionObject::StaticOnLeftClick, ComponentBase::StaticOnRightClick, gameobjectid, "Collision object" );
+}
+
+void ComponentCollisionObject::OnLeftClick(bool clear)
+{
+    ComponentBase::OnLeftClick( clear );
 }
 
 void ComponentCollisionObject::FillPropertiesWindow(bool clear)
 {
-    if( clear )
-        g_pPanelWatch->ClearAllVariables();
+    ComponentBase::FillPropertiesWindow( clear );
 
     g_pPanelWatch->AddFloat( "Mass", &m_Mass, 0, 100 );
 

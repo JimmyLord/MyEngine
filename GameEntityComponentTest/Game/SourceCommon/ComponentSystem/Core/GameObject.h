@@ -47,7 +47,7 @@ public:
     const char* GetName() { return m_Name; }
 
     ComponentBase* AddNewComponent(int componenttype, unsigned int sceneid, ComponentSystemManager* pComponentSystemManager = g_pComponentSystemManager);
-    ComponentBase* AddExistingComponent(ComponentBase* pComponent);
+    ComponentBase* AddExistingComponent(ComponentBase* pComponent, bool resetcomponent);
     ComponentBase* RemoveComponent(ComponentBase* pComponent);
 
     ComponentBase* GetFirstComponentOfBaseType(BaseComponentTypes basetype);

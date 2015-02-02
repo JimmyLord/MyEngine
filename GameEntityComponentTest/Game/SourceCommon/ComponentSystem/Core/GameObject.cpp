@@ -306,22 +306,27 @@ ComponentBase* GameObject::AddNewComponent(int componenttype, unsigned int scene
     assert( sceneid == 0 || m_SceneID == sceneid );
     pComponent->SetSceneID( sceneid );
 
-    AddExistingComponent( pComponent );
+    AddExistingComponent( pComponent, true );
 
     return pComponent;
 }
 
-ComponentBase* GameObject::AddExistingComponent(ComponentBase* pComponent)
+ComponentBase* GameObject::AddExistingComponent(ComponentBase* pComponent, bool resetcomponent)
 {
     if( m_Components.Count() >= m_Components.Length() )
         return 0;
 
     pComponent->m_pGameObject = this;
-    pComponent->Reset();
+    if( resetcomponent )
+        pComponent->Reset();
 
     m_Components.Add( pComponent );
 
     assert( pComponent->GetSceneID() == 0 || m_SceneID == pComponent->GetSceneID() );
+
+    // add this to the system managers component list.
+    if( pComponent->Prev == 0 )
+        g_pComponentSystemManager->AddComponent( pComponent );
 
 #if MYFW_USING_WX
     if( m_Managed )
@@ -341,6 +346,20 @@ ComponentBase* GameObject::RemoveComponent(ComponentBase* pComponent)
         if( m_Components[i] == pComponent )
         {
             m_Components.RemoveIndex_MaintainOrder( i );
+            
+            // remove from system managers component list.
+            pComponent->Remove();
+            pComponent->Prev = 0;
+            pComponent->Next = 0;
+
+#if MYFW_USING_WX
+            // remove the component from the object list.
+            if( g_pPanelObjectList )
+            {
+                g_pPanelObjectList->RemoveObject( pComponent );
+            }
+#endif //MYFW_USING_WX
+
             return pComponent;
         }
     }

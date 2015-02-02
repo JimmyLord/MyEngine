@@ -45,8 +45,9 @@ public:
 public:
 #if MYFW_USING_WX
     virtual void AddToObjectsPanel(wxTreeItemId gameobjectid);
-    static void StaticFillPropertiesWindow(void* pObjectPtr) { ((ComponentCollisionObject*)pObjectPtr)->FillPropertiesWindow(true); }
-    void FillPropertiesWindow(bool clear);
+    static void StaticOnLeftClick(void* pObjectPtr) { ((ComponentCollisionObject*)pObjectPtr)->OnLeftClick( true ); }
+    void OnLeftClick(bool clear);
+    virtual void FillPropertiesWindow(bool clear);
     static void StaticOnDropOBJ(void* pObjectPtr) { ((ComponentCollisionObject*)pObjectPtr)->OnDropOBJ(); }
     void OnDropOBJ();
 #endif //MYFW_USING_WX

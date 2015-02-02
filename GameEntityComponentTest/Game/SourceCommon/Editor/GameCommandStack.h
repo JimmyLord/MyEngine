@@ -18,10 +18,11 @@ public:
     GameCommandStack();
     virtual ~GameCommandStack();
 
-    //virtual void Undo(unsigned int levels);
-    //virtual void Redo(unsigned int levels);
+    virtual void Undo(unsigned int levels);
+    virtual void Redo(unsigned int levels);
 
-    //AddCommand_MoveObjects(
+    virtual void Do(EditorCommand* pCommand);
+    virtual void Add(EditorCommand* pCommand);
 };
 
 #endif // __GameCommandStack_H__

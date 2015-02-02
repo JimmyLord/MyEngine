@@ -34,14 +34,16 @@ void ComponentMeshPlane::Reset()
 #if MYFW_USING_WX
 void ComponentMeshPlane::AddToObjectsPanel(wxTreeItemId gameobjectid)
 {
-    wxTreeItemId id = g_pPanelObjectList->AddObject( this, ComponentMeshPlane::StaticFillPropertiesWindow, ComponentBase::StaticOnRightClick, gameobjectid, "MeshPlane" );
+    wxTreeItemId id = g_pPanelObjectList->AddObject( this, ComponentMeshPlane::StaticOnLeftClick, ComponentBase::StaticOnRightClick, gameobjectid, "MeshPlane" );
+}
+
+void ComponentMeshPlane::OnLeftClick(bool clear)
+{
+    ComponentMesh::OnLeftClick( clear );
 }
 
 void ComponentMeshPlane::FillPropertiesWindow(bool clear)
 {
-    if( clear )
-        g_pPanelWatch->ClearAllVariables();
-
     ComponentMesh::FillPropertiesWindow( clear );
 
     g_pPanelWatch->AddFloat( "Size x", &m_Size.x, 0.01f, 1000.0f, this, StaticOnValueChanged );

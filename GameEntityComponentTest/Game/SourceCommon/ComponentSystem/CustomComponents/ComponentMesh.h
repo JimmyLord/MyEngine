@@ -38,8 +38,9 @@ public:
 public:
 #if MYFW_USING_WX
     virtual void AddToObjectsPanel(wxTreeItemId gameobjectid);
-    static void StaticFillPropertiesWindow(void* pObjectPtr) { ((ComponentMesh*)pObjectPtr)->FillPropertiesWindow(true); }
-    void FillPropertiesWindow(bool clear);
+    static void StaticOnLeftClick(void* pObjectPtr) { ((ComponentMesh*)pObjectPtr)->OnLeftClick( true ); }
+    void OnLeftClick(bool clear);
+    virtual void FillPropertiesWindow(bool clear);
     static void StaticOnDropShader(void* pObjectPtr) { ((ComponentMesh*)pObjectPtr)->OnDropShader(); }
     static void StaticOnDropTexture(void* pObjectPtr) { ((ComponentMesh*)pObjectPtr)->OnDropTexture(); }
     void OnDropShader();

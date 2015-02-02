@@ -25,13 +25,17 @@ ComponentSprite::~ComponentSprite()
 #if MYFW_USING_WX
 void ComponentSprite::AddToObjectsPanel(wxTreeItemId gameobjectid)
 {
-    wxTreeItemId id = g_pPanelObjectList->AddObject( this, ComponentSprite::StaticFillPropertiesWindow, ComponentBase::StaticOnRightClick, gameobjectid, "Sprite" );
+    wxTreeItemId id = g_pPanelObjectList->AddObject( this, ComponentSprite::StaticOnLeftClick, ComponentBase::StaticOnRightClick, gameobjectid, "Sprite" );
+}
+
+void ComponentSprite::OnLeftClick(bool clear)
+{
+    ComponentBase::OnLeftClick( clear );
 }
 
 void ComponentSprite::FillPropertiesWindow(bool clear)
 {
-    if( clear )
-        g_pPanelWatch->ClearAllVariables();
+    ComponentBase::FillPropertiesWindow( clear );
 
     g_pPanelWatch->AddUnsignedChar( "r", &m_Tint.r, 0, 255 );
     g_pPanelWatch->AddUnsignedChar( "g", &m_Tint.g, 0, 255 );

@@ -24,13 +24,17 @@ ComponentRenderable::~ComponentRenderable()
 #if MYFW_USING_WX
 void ComponentRenderable::AddToObjectsPanel(wxTreeItemId gameobjectid)
 {
-    wxTreeItemId id = g_pPanelObjectList->AddObject( this, ComponentRenderable::StaticFillPropertiesWindow, ComponentBase::StaticOnRightClick, gameobjectid, "Renderable" );
+    wxTreeItemId id = g_pPanelObjectList->AddObject( this, ComponentRenderable::StaticOnLeftClick, ComponentBase::StaticOnRightClick, gameobjectid, "Renderable" );
+}
+
+void ComponentRenderable::OnLeftClick(bool clear)
+{
+    ComponentBase::OnLeftClick( clear );
 }
 
 void ComponentRenderable::FillPropertiesWindow(bool clear)
 {
-    if( clear )
-        g_pPanelWatch->ClearAllVariables();
+    ComponentBase::FillPropertiesWindow( clear );
 }
 #endif //MYFW_USING_WX
 

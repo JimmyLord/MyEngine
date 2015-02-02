@@ -35,8 +35,13 @@ void ComponentBase::AddToObjectsPanel(wxTreeItemId gameobjectid)
 
 void ComponentBase::OnLeftClick(bool clear)
 {
+    // select this Component in the editor window.
+    ((GameEntityComponentTest*)g_pGameCore)->m_EditorState.m_pSelectedComponents.push_back( this );
+
     if( clear )
         g_pPanelWatch->ClearAllVariables();
+
+    FillPropertiesWindow( clear );
 }
 
 void ComponentBase::OnRightClick()
@@ -44,7 +49,7 @@ void ComponentBase::OnRightClick()
  	wxMenu menu;
     menu.SetClientData( this );
 
-    menu.Append( 0, "Delete Component" );
+    menu.Append( 1000, "Delete Component" );
  	menu.Connect( wxEVT_COMMAND_MENU_SELECTED, (wxObjectEventFunction)&ComponentBase::OnPopupClick );
 
     // blocking call.
@@ -55,9 +60,40 @@ void ComponentBase::OnPopupClick(wxEvent &evt)
 {
     ComponentBase* pComponent = (ComponentBase*)static_cast<wxMenu*>(evt.GetEventObject())->GetClientData();
     int id = evt.GetId();
-    if( id == 0 )
+    if( id == 1000 )
     {
-        g_pComponentSystemManager->DeleteComponent( pComponent );
+        EditorState* pEditorState = &((GameEntityComponentTest*)g_pGameCore)->m_EditorState;
+
+        // deselect all "main" transform components.
+        for( unsigned int i=0; i<pEditorState->m_pSelectedComponents.size(); i++ )
+        {
+            ComponentBase* pSelComp = pEditorState->m_pSelectedComponents[i];
+            if( pSelComp->m_pGameObject && pSelComp == pSelComp->m_pGameObject->m_pComponentTransform )
+            {
+                pEditorState->m_pSelectedComponents[i] = pEditorState->m_pSelectedComponents.back();
+                pEditorState->m_pSelectedComponents.pop_back();
+                i--;
+            }
+        }
+
+        // if anything is still selected, delete it/them.
+        if( pEditorState->m_pSelectedComponents.size() > 0 )
+        {
+            g_pGameMainFrame->m_pCommandStack->Do( MyNew EditorCommand_DeleteComponents( pEditorState->m_pSelectedComponents ) );
+        }
+
+        //// if the object isn't selected, delete just the one object, otherwise delete all selected objects.
+        //if( pEditorState->IsComponentSelected( pComponent ) )
+        //{
+        //    g_pGameMainFrame->m_pCommandStack->Do( MyNew EditorCommand_DeleteComponents( pEditorState->m_pSelectedComponents ) );
+        //}
+        //else
+        //{
+        //    // create a temp vector to pass into command.
+        //    std::vector<ComponentBase*> components;
+        //    components.push_back( pComponent );
+        //    g_pGameMainFrame->m_pCommandStack->Do( MyNew EditorCommand_DeleteComponents( components ) );
+        //}
     }
 }
 

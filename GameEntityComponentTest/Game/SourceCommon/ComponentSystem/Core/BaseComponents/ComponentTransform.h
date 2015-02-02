@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2014 Jimmy Lord http://www.flatheadgames.com
+// Copyright (c) 2014-2015 Jimmy Lord http://www.flatheadgames.com
 //
 // This software is provided 'as-is', without any express or implied warranty.  In no event will the authors be held liable for any damages arising from the use of this software.
 // Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -59,11 +59,12 @@ public:
     int m_ControlID_ParentTransform;
 
     virtual void AddToObjectsPanel(wxTreeItemId gameobjectid);
-    static void StaticFillPropertiesWindow(void* pObjectPtr) { ((ComponentTransform*)pObjectPtr)->FillPropertiesWindow(true); }
-    void FillPropertiesWindow(bool clear);
+    static void StaticOnLeftClick(void* pObjectPtr) { ((ComponentTransform*)pObjectPtr)->OnLeftClick( true ); }
+    void OnLeftClick(bool clear);
+    virtual void FillPropertiesWindow(bool clear);
     static void StaticOnDropTransform(void* pObjectPtr) { ((ComponentTransform*)pObjectPtr)->OnDropTransform(); }
     void OnDropTransform();
-    static void StaticOnValueChanged(void* pObjectPtr, int id) { ((ComponentTransform*)pObjectPtr)->OnValueChanged(id); }
+    static void StaticOnValueChanged(void* pObjectPtr, int id) { ((ComponentTransform*)pObjectPtr)->OnValueChanged( id ); }
     void OnValueChanged(int id);
 #endif //MYFW_USING_WX
 };

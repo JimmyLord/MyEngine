@@ -27,14 +27,16 @@ void ComponentMeshOBJ::Reset()
 #if MYFW_USING_WX
 void ComponentMeshOBJ::AddToObjectsPanel(wxTreeItemId gameobjectid)
 {
-    wxTreeItemId id = g_pPanelObjectList->AddObject( this, ComponentMeshOBJ::StaticFillPropertiesWindow, ComponentBase::StaticOnRightClick, gameobjectid, "MeshOBJ" );
+    wxTreeItemId id = g_pPanelObjectList->AddObject( this, ComponentMeshOBJ::StaticOnLeftClick, ComponentBase::StaticOnRightClick, gameobjectid, "MeshOBJ" );
+}
+
+void ComponentMeshOBJ::OnLeftClick(bool clear)
+{
+    ComponentMesh::OnLeftClick( clear );
 }
 
 void ComponentMeshOBJ::FillPropertiesWindow(bool clear)
 {
-    if( clear )
-        g_pPanelWatch->ClearAllVariables();
-
     ComponentMesh::FillPropertiesWindow( clear );
 
     const char* desc = "no mesh";
