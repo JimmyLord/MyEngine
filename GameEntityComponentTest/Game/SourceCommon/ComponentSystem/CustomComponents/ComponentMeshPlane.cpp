@@ -46,17 +46,13 @@ void ComponentMeshPlane::FillPropertiesWindow(bool clear)
 {
     ComponentMesh::FillPropertiesWindow( clear );
 
-    g_pPanelWatch->AddFloat( "Size x", &m_Size.x, 0.01f, 1000.0f, this, StaticOnValueChanged );
-    g_pPanelWatch->AddFloat( "Size y", &m_Size.y, 0.01f, 1000.0f, this, StaticOnValueChanged );
+    g_pPanelWatch->AddVector2( "Size", &m_Size, 0.01f, 1000.0f, this, StaticOnValueChanged );
 
     g_pPanelWatch->AddInt( "VertCount x", &m_VertCount.x, 2, 1000, this, StaticOnValueChanged );
     g_pPanelWatch->AddInt( "VertCount y", &m_VertCount.y, 2, 1000, this, StaticOnValueChanged );
 
-    g_pPanelWatch->AddFloat( "UVStart x", &m_UVStart.x, -1.0f, 1000.0f, this, StaticOnValueChanged );
-    g_pPanelWatch->AddFloat( "UVStart y", &m_UVStart.y, -1.0f, 1000.0f, this, StaticOnValueChanged );
-
-    g_pPanelWatch->AddFloat( "UVRange x", &m_UVRange.x, -1.0f, 1000.0f, this, StaticOnValueChanged );
-    g_pPanelWatch->AddFloat( "UVRange y", &m_UVRange.y, -1.0f, 1000.0f, this, StaticOnValueChanged );
+    g_pPanelWatch->AddVector2( "UVStart", &m_UVStart, -1.0f, 1000.0f, this, StaticOnValueChanged );
+    g_pPanelWatch->AddVector2( "UVRange", &m_UVRange, -1.0f, 1000.0f, this, StaticOnValueChanged );
 }
 
 void ComponentMeshPlane::OnValueChanged(int id)

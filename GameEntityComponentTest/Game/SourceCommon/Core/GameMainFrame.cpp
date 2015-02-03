@@ -62,7 +62,7 @@ GameMainFrame::GameMainFrame()
     m_Hackery = MyNew wxMenu;
     m_MenuBar->Append( m_Hackery, wxT("&Hackery") );
     m_Hackery->Append( myIDGame_RecordMacro, wxT("&Record\tCtrl-R") );
-    m_Hackery->Append( myIDGame_ExecuteMacro, wxT("&Store record and execute\tCtrl-E") );
+    m_Hackery->Append( myIDGame_ExecuteMacro, wxT("Stop recording and &Execute\tCtrl-E") );
 
     m_Hackery_Record_StackDepth = -1;
 

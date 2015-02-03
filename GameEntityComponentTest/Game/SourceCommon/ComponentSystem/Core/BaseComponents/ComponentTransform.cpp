@@ -62,17 +62,9 @@ void ComponentTransform::FillPropertiesWindow(bool clear)
 {
     ComponentBase::FillPropertiesWindow( clear );
 
-    g_pPanelWatch->AddFloat( "x", &m_Position.x, -1.0f, 1.0f, this, ComponentTransform::StaticOnValueChanged );
-    g_pPanelWatch->AddFloat( "y", &m_Position.y, -1.0f, 1.0f, this, ComponentTransform::StaticOnValueChanged );
-    g_pPanelWatch->AddFloat( "z", &m_Position.z, -1.0f, 1.0f, this, ComponentTransform::StaticOnValueChanged );
-
-    g_pPanelWatch->AddFloat( "scale x", &m_Scale.x, 0.0f, 10.0f, this, ComponentTransform::StaticOnValueChanged );
-    g_pPanelWatch->AddFloat( "scale y", &m_Scale.y, 0.0f, 10.0f, this, ComponentTransform::StaticOnValueChanged );
-    g_pPanelWatch->AddFloat( "scale z", &m_Scale.z, 0.0f, 10.0f, this, ComponentTransform::StaticOnValueChanged );
-
-    g_pPanelWatch->AddFloat( "rot x", &m_Rotation.x, 0, 360, this, ComponentTransform::StaticOnValueChanged );
-    g_pPanelWatch->AddFloat( "rot y", &m_Rotation.y, 0, 360, this, ComponentTransform::StaticOnValueChanged );
-    g_pPanelWatch->AddFloat( "rot z", &m_Rotation.z, 0, 360, this, ComponentTransform::StaticOnValueChanged );
+    g_pPanelWatch->AddVector3( "Pos", &m_Position, -1.0f, 1.0f, this, ComponentTransform::StaticOnValueChanged );
+    g_pPanelWatch->AddVector3( "Scale", &m_Scale, 0.0f, 10.0f, this, ComponentTransform::StaticOnValueChanged );
+    g_pPanelWatch->AddVector3( "Rot", &m_Rotation, 0, 360, this, ComponentTransform::StaticOnValueChanged );
 
     const char* desc = "none";
     if( m_pParentTransform )
