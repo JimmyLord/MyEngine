@@ -10,15 +10,24 @@
 #ifndef __TransformGizmo_H__
 #define __TransformGizmo_H__
 
+class GameEntityComponentTest;
+
 class TransformGizmo
 {
 public:
+    GameObject* m_pTransformGizmos[3];
+
+    int m_SelectedPart;
 
 public:
     TransformGizmo();
     virtual ~TransformGizmo();
 
     virtual void Tick(double TimePassed, EditorState* pEditorState);
+
+    bool HandleInput(GameEntityComponentTest* pGame, int keydown, int keycode, int action, int id, float x, float y, float pressure);
+
+    void ScaleGizmosForMousePickRendering(bool doscale);
 };
 
 #endif // __TransformGizmo_H__

@@ -39,13 +39,11 @@ public:
     BulletWorld* m_pBulletWorld;
     LuaGameState* m_pLuaGameState;
 
-    TransformGizmo* m_pTransformGizmo;
-
     bool m_EditorMode;
     bool m_Paused;
     double m_PauseTimeToAdvance; // advance clock by this much on next tick.
 #if MYFW_USING_WX
-    EditorState m_EditorState;
+    EditorState* m_pEditorState;
 #endif //MYFW_USING_WX
 
     double m_TimeSinceLastPhysicsStep;

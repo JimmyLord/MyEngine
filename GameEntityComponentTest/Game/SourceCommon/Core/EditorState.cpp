@@ -20,12 +20,10 @@ EditorState::EditorState()
     m_CurrentMousePosition.Set( -1, -1 );
 
     m_pMousePickerFBO = 0;
-
-    //m_pSelectedGameObject = 0;
-
     m_p3DGridPlane = 0;
-    for( int i=0; i<3; i++ )
-        m_pTransformGizmos[i] = 0;
+    m_pEditorCamera = 0;
+
+    m_pTransformGizmo = MyNew TransformGizmo();
 
     m_MousePicker_PickedBody = 0;
     m_MousePicker_PickConstraint = 0;
@@ -35,6 +33,10 @@ EditorState::EditorState()
 EditorState::~EditorState()
 {
     SAFE_RELEASE( m_pMousePickerFBO );
+
+    SAFE_DELETE( m_pTransformGizmo );
+    SAFE_DELETE( m_p3DGridPlane );
+    SAFE_DELETE( m_pEditorCamera );
 }
 
 ComponentCamera* EditorState::GetEditorCamera()

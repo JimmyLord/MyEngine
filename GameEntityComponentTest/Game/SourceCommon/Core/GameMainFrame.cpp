@@ -136,7 +136,7 @@ void GameMainFrame::OnPostInit()
 
         obj = cJSON_GetObjectItem( pPrefs, "EditorCam" );
         if( obj )
-            ((GameEntityComponentTest*)g_pGameCore)->m_EditorState.GetEditorCamera()->m_pComponentTransform->ImportFromJSONObject( obj, 1 );
+            ((GameEntityComponentTest*)g_pGameCore)->m_pEditorState->GetEditorCamera()->m_pComponentTransform->ImportFromJSONObject( obj, 1 );
 
         obj = cJSON_GetObjectItem( pPrefs, "EditorLayout" );
         if( obj )
@@ -159,7 +159,7 @@ void GameMainFrame::OnClose()
         cJSON* pPrefs = cJSON_CreateObject();
 
         cJSON_AddStringToObject( pPrefs, "LastSceneLoaded", m_CurrentSceneName );
-        cJSON_AddItemToObject( pPrefs, "EditorCam", ((GameEntityComponentTest*)g_pGameCore)->m_EditorState.GetEditorCamera()->m_pComponentTransform->ExportAsJSONObject() );
+        cJSON_AddItemToObject( pPrefs, "EditorCam", ((GameEntityComponentTest*)g_pGameCore)->m_pEditorState->GetEditorCamera()->m_pComponentTransform->ExportAsJSONObject() );
         cJSON_AddNumberToObject( pPrefs, "EditorLayout", GetDefaultEditorPerspectiveIndex() );
         cJSON_AddNumberToObject( pPrefs, "GameplayLayout", GetDefaultGameplayPerspectiveIndex() );
 

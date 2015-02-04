@@ -44,19 +44,10 @@ GameEntityComponentTest::GameEntityComponentTest()
 
     m_pBulletWorld = MyNew BulletWorld();
 
-    m_pTransformGizmo = MyNew TransformGizmo();
-
     m_pLuaGameState = 0;
 
 #if MYFW_USING_WX
-    m_EditorState.m_pMousePickerFBO = 0;
-
-    m_EditorState.m_p3DGridPlane = 0;
-    for( int i=0; i<3; i++ )
-    {
-        m_EditorState.m_pTransformGizmos[i] = 0;
-    }
-    m_EditorState.m_pEditorCamera = 0;
+    m_pEditorState = MyNew EditorState;
 
     g_pPanelObjectList->m_pCallbackFunctionObject = this;
     g_pPanelObjectList->m_pOnTreeSelectionChangedFunction = StaticOnObjectListTreeSelectionChanged;
@@ -91,18 +82,11 @@ GameEntityComponentTest::~GameEntityComponentTest()
     //}
 
 #if MYFW_USING_WX
-    SAFE_DELETE( m_EditorState.m_p3DGridPlane );
-    for( int i=0; i<3; i++ )
-    {
-        SAFE_DELETE( m_EditorState.m_pTransformGizmos[i] );
-    }
-    SAFE_DELETE( m_EditorState.m_pEditorCamera );
+    SAFE_DELETE( m_pEditorState );
 #endif //MYFW_USING_WX
 
     SAFE_DELETE( m_pComponentSystemManager );
     SAFE_DELETE( m_pBulletWorld );
-
-    SAFE_DELETE( m_pTransformGizmo );
 }
 
 void GameEntityComponentTest::OneTimeInit()
@@ -137,7 +121,7 @@ void GameEntityComponentTest::OneTimeInit()
     ////m_pScriptFiles[3] = g_pFileManager->RequestFile( "Data/Scripts/TestScript.lua" );
 
 #if MYFW_USING_WX
-    m_EditorState.m_pMousePickerFBO = g_pTextureManager->CreateFBO( 0, 0, GL_NEAREST, GL_NEAREST, false, false, false );
+    m_pEditorState->m_pMousePickerFBO = g_pTextureManager->CreateFBO( 0, 0, GL_NEAREST, GL_NEAREST, false, false, false );
 #endif //MYFW_USING_WX
 
     // setup our shaders
@@ -193,7 +177,7 @@ void GameEntityComponentTest::OneTimeInit()
 
         //m_pComponentSystemManager->AddComponent( pComponentMesh );
 
-        m_EditorState.m_p3DGridPlane = pGameObject;
+        m_pEditorState->m_p3DGridPlane = pGameObject;
     }
 
     // create a 3d transform gizmo for each axis.
@@ -216,7 +200,7 @@ void GameEntityComponentTest::OneTimeInit()
 
         //m_pComponentSystemManager->AddComponent( pComponentMesh );
 
-        m_EditorState.m_pTransformGizmos[0] = pGameObject;
+        m_pEditorState->m_pTransformGizmo->m_pTransformGizmos[0] = pGameObject;
     }
     {
         pGameObject = m_pComponentSystemManager->CreateGameObject( false ); // not managed.
@@ -237,7 +221,7 @@ void GameEntityComponentTest::OneTimeInit()
 
         //m_pComponentSystemManager->AddComponent( pComponentMesh );
 
-        m_EditorState.m_pTransformGizmos[1] = pGameObject;
+        m_pEditorState->m_pTransformGizmo->m_pTransformGizmos[1] = pGameObject;
     }
     {
         pGameObject = m_pComponentSystemManager->CreateGameObject( false ); // not managed.
@@ -258,7 +242,7 @@ void GameEntityComponentTest::OneTimeInit()
 
         //m_pComponentSystemManager->AddComponent( pComponentMesh );
 
-        m_EditorState.m_pTransformGizmos[2] = pGameObject;
+        m_pEditorState->m_pTransformGizmo->m_pTransformGizmos[2] = pGameObject;
     }
 
     // create a 3D editor camera, renders editor view.
@@ -296,7 +280,7 @@ void GameEntityComponentTest::OneTimeInit()
             //m_pComponentSystemManager->AddComponent( pComponentCamera );
         }
 
-        m_EditorState.m_pEditorCamera = pGameObject;
+        m_pEditorState->m_pEditorCamera = pGameObject;
     }
 #endif
 
@@ -441,7 +425,7 @@ double GameEntityComponentTest::Tick(double TimePassed)
     GameCore::Tick( TimePassed );
 
 #if MYFW_USING_WX
-    m_pTransformGizmo->Tick( TimePassed, &m_EditorState );
+    m_pEditorState->m_pTransformGizmo->Tick( TimePassed, m_pEditorState );
 #endif
 
     // tick all components.
@@ -484,9 +468,9 @@ void GameEntityComponentTest::OnDrawFrame()
     if( g_GLCanvasIDActive == 1 )
     {
         // draw editor camera and editorFG camera
-        for( unsigned int i=0; i<m_EditorState.m_pEditorCamera->m_Components.Count(); i++ )
+        for( unsigned int i=0; i<m_pEditorState->m_pEditorCamera->m_Components.Count(); i++ )
         {
-            ComponentCamera* pCamera = dynamic_cast<ComponentCamera*>( m_EditorState.m_pEditorCamera->m_Components[i] );
+            ComponentCamera* pCamera = dynamic_cast<ComponentCamera*>( m_pEditorState->m_pEditorCamera->m_Components[i] );
 
             if( pCamera )
                 pCamera->OnDrawFrame();
@@ -509,10 +493,13 @@ void GameEntityComponentTest::OnTouch(int action, int id, float x, float y, floa
     {
         if( g_GLCanvasIDActive == 1 )
         {
-            ComponentCamera* pCamera = m_EditorState.GetEditorCamera();
+            ComponentCamera* pCamera = m_pEditorState->GetEditorCamera();
 
             // prefer 0,0 at bottom left.
             y = pCamera->m_WindowHeight - y;
+
+            if( m_pEditorState->m_pTransformGizmo->HandleInput( this, -1, -1, action, id, x, y, pressure ) )
+                return;
 
             HandleEditorInput( -1, -1, action, id, x, y, pressure );
 
@@ -578,7 +565,7 @@ void GameEntityComponentTest::OnKeyDown(int keycode, int unicodechar)
             m_EditorMode = true;
             m_Paused = false;
             g_pGameMainFrame->SetWindowPerspectiveToDefault();
-            m_EditorState.ClearSelectedObjectsAndComponents();
+            m_pEditorState->ClearSelectedObjectsAndComponents();
             m_pComponentSystemManager->OnStop();
 
             m_pComponentSystemManager->SyncAllRigidBodiesToObjectTransforms();
@@ -638,72 +625,72 @@ void GameEntityComponentTest::HandleEditorInput(int keydown, int keycode, int ac
 #if MYFW_USING_WX
     if( keycode == MYKEYCODE_LCTRL )
     {
-        if( keydown == 1 ) m_EditorState.m_ModifierKeyStates |= MODIFIERKEY_Control;
-        if( keydown == 0 ) m_EditorState.m_ModifierKeyStates &= ~MODIFIERKEY_Control;
+        if( keydown == 1 ) m_pEditorState->m_ModifierKeyStates |= MODIFIERKEY_Control;
+        if( keydown == 0 ) m_pEditorState->m_ModifierKeyStates &= ~MODIFIERKEY_Control;
     }
     //else if( keycode == MYKEYCODE_LALT )
     //{
-    //    if( keydown == 1 ) m_EditorState.m_ModifierKeyStates |= MODIFIERKEY_Alt;
-    //    if( keydown == 0 ) m_EditorState.m_ModifierKeyStates &= ~MODIFIERKEY_Alt;
+    //    if( keydown == 1 ) m_pEditorState->m_ModifierKeyStates |= MODIFIERKEY_Alt;
+    //    if( keydown == 0 ) m_pEditorState->m_ModifierKeyStates &= ~MODIFIERKEY_Alt;
     //}
     else if( keycode == MYKEYCODE_LSHIFT )
     {
-        if( keydown == 1 ) m_EditorState.m_ModifierKeyStates |= MODIFIERKEY_Shift;
-        if( keydown == 0 ) m_EditorState.m_ModifierKeyStates &= ~MODIFIERKEY_Shift;
+        if( keydown == 1 ) m_pEditorState->m_ModifierKeyStates |= MODIFIERKEY_Shift;
+        if( keydown == 0 ) m_pEditorState->m_ModifierKeyStates &= ~MODIFIERKEY_Shift;
     }
     else if( keycode == ' ' )
     {
-        if( keydown == 1 ) m_EditorState.m_ModifierKeyStates |= MODIFIERKEY_Space;
-        if( keydown == 0 ) m_EditorState.m_ModifierKeyStates &= ~MODIFIERKEY_Space;
+        if( keydown == 1 ) m_pEditorState->m_ModifierKeyStates |= MODIFIERKEY_Space;
+        if( keydown == 0 ) m_pEditorState->m_ModifierKeyStates &= ~MODIFIERKEY_Space;
     }
     if( action != -1 )
     {
-        m_EditorState.m_CurrentMousePosition.Set( x, y );
-        //m_EditorState.m_LastMousePosition.Set( x, y );
+        m_pEditorState->m_CurrentMousePosition.Set( x, y );
+        //m_pEditorState->m_LastMousePosition.Set( x, y );
 
         if( action == GCBA_Down )
         {
             if( id == 0 )
             {
-                m_EditorState.m_MouseLeftDownLocation = m_EditorState.m_CurrentMousePosition;
-                m_EditorState.m_ModifierKeyStates |= MODIFIERKEY_LeftMouse;
+                m_pEditorState->m_MouseLeftDownLocation = m_pEditorState->m_CurrentMousePosition;
+                m_pEditorState->m_ModifierKeyStates |= MODIFIERKEY_LeftMouse;
             }
             if( id == 1 )
             {
-                m_EditorState.m_MouseRightDownLocation = m_EditorState.m_CurrentMousePosition;
-                m_EditorState.m_ModifierKeyStates |= MODIFIERKEY_RightMouse;
+                m_pEditorState->m_MouseRightDownLocation = m_pEditorState->m_CurrentMousePosition;
+                m_pEditorState->m_ModifierKeyStates |= MODIFIERKEY_RightMouse;
             }
             if( id == 2 )
             {
-                m_EditorState.m_MouseMiddleDownLocation = m_EditorState.m_CurrentMousePosition;
-                m_EditorState.m_ModifierKeyStates |= MODIFIERKEY_MiddleMouse;
+                m_pEditorState->m_MouseMiddleDownLocation = m_pEditorState->m_CurrentMousePosition;
+                m_pEditorState->m_ModifierKeyStates |= MODIFIERKEY_MiddleMouse;
             }
         }
     }
 
-    if( m_EditorState.m_ModifierKeyStates & MODIFIERKEY_LeftMouse )
+    if( m_pEditorState->m_ModifierKeyStates & MODIFIERKEY_LeftMouse )
     {
         // select an object when mouse is released and on the same pixel it went down.
         // TODO: make same "pixel test" a "total travel < small number" test.
-        if( action == GCBA_Up && id == 0 && m_EditorState.m_CurrentMousePosition == m_EditorState.m_MouseLeftDownLocation )
+        if( action == GCBA_Up && id == 0 && m_pEditorState->m_CurrentMousePosition == m_pEditorState->m_MouseLeftDownLocation )
         {
             // find the object we clicked on.
             GameObject* pObject = GetObjectAtPixel( x, y );
 
             // don't select the gizmos. TODO: give object a 'selectable' flag or something.
-            if( pObject != m_EditorState.m_pTransformGizmos[0] &&
-                pObject != m_EditorState.m_pTransformGizmos[1] &&
-                pObject != m_EditorState.m_pTransformGizmos[2] )
+            if( pObject != m_pEditorState->m_pTransformGizmo->m_pTransformGizmos[0] &&
+                pObject != m_pEditorState->m_pTransformGizmo->m_pTransformGizmos[1] &&
+                pObject != m_pEditorState->m_pTransformGizmo->m_pTransformGizmos[2] )
             {
                 // if control isn't held, then deselect all objects first.
-                if( (m_EditorState.m_ModifierKeyStates & MODIFIERKEY_Control) == 0 )
+                if( (m_pEditorState->m_ModifierKeyStates & MODIFIERKEY_Control) == 0 )
                 {
-                    m_EditorState.ClearSelectedObjectsAndComponents();
+                    m_pEditorState->ClearSelectedObjectsAndComponents();
                 }
 
-                if( pObject && m_EditorState.IsObjectSelected( pObject ) == false )
+                if( pObject && m_pEditorState->IsObjectSelected( pObject ) == false )
                 {
-                    m_EditorState.m_pSelectedObjects.push_back( pObject );
+                    m_pEditorState->m_pSelectedObjects.push_back( pObject );
                     // select the object in the object tree.
                     g_pPanelObjectList->SelectObject( pObject ); // passing in 0 will unselect all items.
                 }
@@ -716,33 +703,33 @@ void GameEntityComponentTest::HandleEditorInput(int keydown, int keycode, int ac
             GameObject* pObject = GetObjectAtPixel( x, y );
 
             // reset mouse movement, so we can undo to this state after mouse goes up.
-            m_EditorState.m_DistanceTranslated.Set( 0, 0, 0 );
-            //LOGInfo( LOGTag, "m_EditorState.m_DistanceTranslated.Set zero( %f, %f, %f );\n", m_EditorState.m_DistanceTranslated.x, m_EditorState.m_DistanceTranslated.y, m_EditorState.m_DistanceTranslated.z );
+            m_pEditorState->m_DistanceTranslated.Set( 0, 0, 0 );
+            //LOGInfo( LOGTag, "m_pEditorState->m_DistanceTranslated.Set zero( %f, %f, %f );\n", m_pEditorState->m_DistanceTranslated.x, m_pEditorState->m_DistanceTranslated.y, m_pEditorState->m_DistanceTranslated.z );
 
             bool selectedgizmo = false;
 
             // translate to the right.
-            if( pObject == m_EditorState.m_pTransformGizmos[0] )
+            if( pObject == m_pEditorState->m_pTransformGizmo->m_pTransformGizmos[0] )
             {
-                m_EditorState.m_EditorActionState = EDITORACTIONSTATE_TranslateX;
+                m_pEditorState->m_EditorActionState = EDITORACTIONSTATE_TranslateX;
                 selectedgizmo = true;
             }
-            if( pObject == m_EditorState.m_pTransformGizmos[1] )
+            if( pObject == m_pEditorState->m_pTransformGizmo->m_pTransformGizmos[1] )
             {
-                m_EditorState.m_EditorActionState = EDITORACTIONSTATE_TranslateY;
+                m_pEditorState->m_EditorActionState = EDITORACTIONSTATE_TranslateY;
                 selectedgizmo = true;
             }
-            if( pObject == m_EditorState.m_pTransformGizmos[2] )
+            if( pObject == m_pEditorState->m_pTransformGizmo->m_pTransformGizmos[2] )
             {
-                m_EditorState.m_EditorActionState = EDITORACTIONSTATE_TranslateZ;
+                m_pEditorState->m_EditorActionState = EDITORACTIONSTATE_TranslateZ;
                 selectedgizmo = true;
             }
 
             // if shift is held, make a copy of the object and control that one.
-            if( selectedgizmo && m_EditorState.m_ModifierKeyStates & MODIFIERKEY_Shift )
+            if( selectedgizmo && m_pEditorState->m_ModifierKeyStates & MODIFIERKEY_Shift )
             {
-                std::vector<GameObject*> selectedobjects = m_EditorState.m_pSelectedObjects;
-                m_EditorState.ClearSelectedObjectsAndComponents();
+                std::vector<GameObject*> selectedobjects = m_pEditorState->m_pSelectedObjects;
+                m_pEditorState->ClearSelectedObjectsAndComponents();
                 for( unsigned int i=0; i<selectedobjects.size(); i++ )
                 {
                     GameObject* pNewObject = g_pComponentSystemManager->EditorCopyGameObject( selectedobjects[i] );
@@ -751,7 +738,7 @@ void GameEntityComponentTest::HandleEditorInput(int keydown, int keycode, int ac
                         pNewObject->SetSceneID( selectedobjects[i]->GetSceneID() );
                     }
 
-                    m_EditorState.m_pSelectedObjects.push_back( pNewObject );
+                    m_pEditorState->m_pSelectedObjects.push_back( pNewObject );
                     // select the object in the object tree.
                     g_pPanelObjectList->SelectObject( pNewObject );
                 }
@@ -761,11 +748,11 @@ void GameEntityComponentTest::HandleEditorInput(int keydown, int keycode, int ac
             if( selectedgizmo == false && m_EditorMode == false )
             {
                 // check if we selected a physics object then grab it.
-                //if( m_EditorState.m_ModifierKeyStates & MODIFIERKEY_Shift )
+                //if( m_pEditorState->m_ModifierKeyStates & MODIFIERKEY_Shift )
                 {
                     // Get the mouse click ray.
                     Vector3 raystart, rayend;
-                    GetMouseRay( m_EditorState.m_CurrentMousePosition, &raystart, &rayend );
+                    GetMouseRay( m_pEditorState->m_CurrentMousePosition, &raystart, &rayend );
 
                     btVector3 RayStart( raystart.x, raystart.y, raystart.z );
                     btVector3 RayEnd( rayend.x, rayend.y, rayend.z );
@@ -776,7 +763,7 @@ void GameEntityComponentTest::HandleEditorInput(int keydown, int keycode, int ac
                     {
                         btVector3 pickPos = rayCallback.m_hitPointWorld;
 
-                        m_EditorState.m_MousePicker_PickedBody = 0;
+                        m_pEditorState->m_MousePicker_PickedBody = 0;
 
                         //pickObject( pickPos, rayCallback.m_collisionObject );
                         btRigidBody* body = (btRigidBody*)btRigidBody::upcast( rayCallback.m_collisionObject );
@@ -785,14 +772,14 @@ void GameEntityComponentTest::HandleEditorInput(int keydown, int keycode, int ac
                             // other exclusions?
                             if( !(body->isStaticObject() || body->isKinematicObject()) )
                             {
-                                m_EditorState.m_MousePicker_PickedBody = body;
-                                m_EditorState.m_MousePicker_PickedBody->setActivationState( DISABLE_DEACTIVATION );
+                                m_pEditorState->m_MousePicker_PickedBody = body;
+                                m_pEditorState->m_MousePicker_PickedBody->setActivationState( DISABLE_DEACTIVATION );
 
                                 //printf("pickPos=%f,%f,%f\n",pickPos.getX(),pickPos.getY(),pickPos.getZ());
 
                                 btVector3 localPivot = body->getCenterOfMassTransform().inverse() * pickPos;
 
-                                if( m_EditorState.m_ModifierKeyStates & MODIFIERKEY_Shift ) //(m_modifierKeys & BT_ACTIVE_SHIFT) != 0 )
+                                if( m_pEditorState->m_ModifierKeyStates & MODIFIERKEY_Shift ) //(m_modifierKeys & BT_ACTIVE_SHIFT) != 0 )
                                 {
                                     btTransform tr;
                                     tr.setIdentity();
@@ -804,7 +791,7 @@ void GameEntityComponentTest::HandleEditorInput(int keydown, int keycode, int ac
                                     dof6->setAngularUpperLimit( btVector3(0,0,0) );
 
                                     g_pBulletWorld->m_pDynamicsWorld->addConstraint(dof6,true);
-                                    m_EditorState.m_MousePicker_PickConstraint = dof6;
+                                    m_pEditorState->m_MousePicker_PickConstraint = dof6;
 
                                     dof6->setParam( BT_CONSTRAINT_STOP_CFM, 0.8f, 0 );
                                     dof6->setParam( BT_CONSTRAINT_STOP_CFM, 0.8f, 1 );
@@ -824,7 +811,7 @@ void GameEntityComponentTest::HandleEditorInput(int keydown, int keycode, int ac
                                 {
                                     btPoint2PointConstraint* p2p = new btPoint2PointConstraint(*body,localPivot);
                                     g_pBulletWorld->m_pDynamicsWorld->addConstraint(p2p,true);
-                                    m_EditorState.m_MousePicker_PickConstraint = p2p;
+                                    m_pEditorState->m_MousePicker_PickConstraint = p2p;
                                     btScalar mousePickClamping = 30.f;
                                     p2p->m_setting.m_impulseClamp = mousePickClamping;
                                     //very weak constraint for picking
@@ -846,7 +833,7 @@ void GameEntityComponentTest::HandleEditorInput(int keydown, int keycode, int ac
                         //gOldPickingPos = RayEnd;
                         //gHitPos = pickPos;
 
-                        m_EditorState.m_MousePicker_OldPickingDist = (pickPos-RayStart).length();
+                        m_pEditorState->m_MousePicker_OldPickingDist = (pickPos-RayStart).length();
                         action = -1;
                     }
                 }
@@ -855,19 +842,19 @@ void GameEntityComponentTest::HandleEditorInput(int keydown, int keycode, int ac
 
         if( action == GCBA_Held && id == 0 )
         {
-            if( m_EditorState.m_MousePicker_PickConstraint && g_pBulletWorld->m_pDynamicsWorld )
+            if( m_pEditorState->m_MousePicker_PickConstraint && g_pBulletWorld->m_pDynamicsWorld )
             {
                 // move the constraint pivot
-                if( m_EditorState.m_MousePicker_PickConstraint->getConstraintType() == D6_CONSTRAINT_TYPE )
+                if( m_pEditorState->m_MousePicker_PickConstraint->getConstraintType() == D6_CONSTRAINT_TYPE )
                 {
-                    btGeneric6DofConstraint* pickCon = static_cast<btGeneric6DofConstraint*>( m_EditorState.m_MousePicker_PickConstraint );
+                    btGeneric6DofConstraint* pickCon = static_cast<btGeneric6DofConstraint*>( m_pEditorState->m_MousePicker_PickConstraint );
                     if( pickCon )
                     {
                         //keep it at the same picking distance
 
                         // Get the mouse click ray.
                         Vector3 raystart, rayend;
-                        GetMouseRay( m_EditorState.m_CurrentMousePosition, &raystart, &rayend );
+                        GetMouseRay( m_pEditorState->m_CurrentMousePosition, &raystart, &rayend );
 
                         btVector3 newRayTo( rayend.x, rayend.y, rayend.z );
                         btVector3 rayFrom;
@@ -885,7 +872,7 @@ void GameEntityComponentTest::HandleEditorInput(int keydown, int keycode, int ac
                             rayFrom = btVector3( raystart.x, raystart.y, raystart.z );
                             btVector3 dir = newRayTo - rayFrom;
                             dir.normalize();
-                            dir *= m_EditorState.m_MousePicker_OldPickingDist;
+                            dir *= m_pEditorState->m_MousePicker_OldPickingDist;
 
                             newPivotB = rayFrom + dir;
                         }
@@ -895,14 +882,14 @@ void GameEntityComponentTest::HandleEditorInput(int keydown, int keycode, int ac
                 }
                 else
                 {
-                    btPoint2PointConstraint* pickCon = static_cast<btPoint2PointConstraint*>( m_EditorState.m_MousePicker_PickConstraint );
+                    btPoint2PointConstraint* pickCon = static_cast<btPoint2PointConstraint*>( m_pEditorState->m_MousePicker_PickConstraint );
                     if (pickCon)
                     {
                         //keep it at the same picking distance
 
                         // Get the mouse click ray.
                         Vector3 raystart, rayend;
-                        GetMouseRay( m_EditorState.m_CurrentMousePosition, &raystart, &rayend );
+                        GetMouseRay( m_pEditorState->m_CurrentMousePosition, &raystart, &rayend );
 
                         btVector3 newRayTo( rayend.x, rayend.y, rayend.z );
                         btVector3 rayFrom;
@@ -920,7 +907,7 @@ void GameEntityComponentTest::HandleEditorInput(int keydown, int keycode, int ac
                             rayFrom = btVector3( raystart.x, raystart.y, raystart.z );
                             btVector3 dir = newRayTo - rayFrom;
                             dir.normalize();
-                            dir *= m_EditorState.m_MousePicker_OldPickingDist;
+                            dir *= m_pEditorState->m_MousePicker_OldPickingDist;
 
                             newPivotB = rayFrom + dir;
                         }
@@ -985,46 +972,46 @@ void GameEntityComponentTest::HandleEditorInput(int keydown, int keycode, int ac
 
         if( action == GCBA_Up && id == 0 )
         {
-            m_EditorState.ClearConstraint();
+            m_pEditorState->ClearConstraint();
         }
 
         // check if the mouse moved.
-        Vector3 mousedragdir = m_EditorState.m_CurrentMousePosition - m_EditorState.m_LastMousePosition;
+        Vector3 mousedragdir = m_pEditorState->m_CurrentMousePosition - m_pEditorState->m_LastMousePosition;
 
         if( mousedragdir.LengthSquared() != 0 )
         {
             // If the mouse moved, move the object along a plane.
-            if( m_EditorState.m_EditorActionState == EDITORACTIONSTATE_TranslateX ||
-                m_EditorState.m_EditorActionState == EDITORACTIONSTATE_TranslateY ||
-                m_EditorState.m_EditorActionState == EDITORACTIONSTATE_TranslateZ ||
-                m_EditorState.m_EditorActionState == EDITORACTIONSTATE_TranslateXY ||
-                m_EditorState.m_EditorActionState == EDITORACTIONSTATE_TranslateXZ ||
-                m_EditorState.m_EditorActionState == EDITORACTIONSTATE_TranslateYZ )
+            if( m_pEditorState->m_EditorActionState == EDITORACTIONSTATE_TranslateX ||
+                m_pEditorState->m_EditorActionState == EDITORACTIONSTATE_TranslateY ||
+                m_pEditorState->m_EditorActionState == EDITORACTIONSTATE_TranslateZ ||
+                m_pEditorState->m_EditorActionState == EDITORACTIONSTATE_TranslateXY ||
+                m_pEditorState->m_EditorActionState == EDITORACTIONSTATE_TranslateXZ ||
+                m_pEditorState->m_EditorActionState == EDITORACTIONSTATE_TranslateYZ )
             {
                 // move all selected objects by the same amount, use object 0 to create a plane.
                 {
-                    ComponentCamera* pCamera = m_EditorState.GetEditorCamera();
-                    MyMatrix* pObjectTransform = &m_EditorState.m_pSelectedObjects[0]->m_pComponentTransform->m_Transform;
+                    ComponentCamera* pCamera = m_pEditorState->GetEditorCamera();
+                    MyMatrix* pObjectTransform = &m_pEditorState->m_pSelectedObjects[0]->m_pComponentTransform->m_Transform;
 
                     // create a plane based on the axis we want.
                     Vector3 axisvector;
                     Plane plane;
                     {
                         Vector3 normal;
-                        if( m_EditorState.m_EditorActionState == EDITORACTIONSTATE_TranslateXY ||
-                            m_EditorState.m_EditorActionState == EDITORACTIONSTATE_TranslateX )
+                        if( m_pEditorState->m_EditorActionState == EDITORACTIONSTATE_TranslateXY ||
+                            m_pEditorState->m_EditorActionState == EDITORACTIONSTATE_TranslateX )
                         {
                             normal = Vector3(0,0,1);
                             axisvector = Vector3(1,0,0);
                         }
-                        else if( m_EditorState.m_EditorActionState == EDITORACTIONSTATE_TranslateXZ ||
-                                 m_EditorState.m_EditorActionState == EDITORACTIONSTATE_TranslateZ )
+                        else if( m_pEditorState->m_EditorActionState == EDITORACTIONSTATE_TranslateXZ ||
+                                 m_pEditorState->m_EditorActionState == EDITORACTIONSTATE_TranslateZ )
                         {
                             normal = Vector3(0,1,0);
                             axisvector = Vector3(0,0,1);
                         }
-                        else if( m_EditorState.m_EditorActionState == EDITORACTIONSTATE_TranslateYZ ||
-                                 m_EditorState.m_EditorActionState == EDITORACTIONSTATE_TranslateY )
+                        else if( m_pEditorState->m_EditorActionState == EDITORACTIONSTATE_TranslateYZ ||
+                                 m_pEditorState->m_EditorActionState == EDITORACTIONSTATE_TranslateY )
                         {
                             normal = Vector3(1,0,0);
                             axisvector = Vector3(0,1,0);
@@ -1036,10 +1023,10 @@ void GameEntityComponentTest::HandleEditorInput(int keydown, int keycode, int ac
 
                     // Get the mouse click ray... current and last frame.
                     Vector3 currentraystart, currentrayend;
-                    GetMouseRay( m_EditorState.m_CurrentMousePosition, &currentraystart, &currentrayend );
+                    GetMouseRay( m_pEditorState->m_CurrentMousePosition, &currentraystart, &currentrayend );
 
                     Vector3 lastraystart, lastrayend;
-                    GetMouseRay( m_EditorState.m_LastMousePosition, &lastraystart, &lastrayend );
+                    GetMouseRay( m_pEditorState->m_LastMousePosition, &lastraystart, &lastrayend );
 
                     // find the intersection point of the plane.
                     Vector3 currentresult;
@@ -1048,9 +1035,9 @@ void GameEntityComponentTest::HandleEditorInput(int keydown, int keycode, int ac
                         plane.IntersectRay( lastraystart, lastrayend, &lastresult ) )
                     {
                         // lock to one of the 3 axis.
-                        if( m_EditorState.m_EditorActionState == EDITORACTIONSTATE_TranslateX ||
-                            m_EditorState.m_EditorActionState == EDITORACTIONSTATE_TranslateY ||
-                            m_EditorState.m_EditorActionState == EDITORACTIONSTATE_TranslateZ )
+                        if( m_pEditorState->m_EditorActionState == EDITORACTIONSTATE_TranslateX ||
+                            m_pEditorState->m_EditorActionState == EDITORACTIONSTATE_TranslateY ||
+                            m_pEditorState->m_EditorActionState == EDITORACTIONSTATE_TranslateZ )
                         {
                             // for current mouse pos
                             axisvector = (*pObjectTransform * Vector4( axisvector, 0 )).XYZ();
@@ -1071,16 +1058,16 @@ void GameEntityComponentTest::HandleEditorInput(int keydown, int keycode, int ac
                         Vector3 diff = currentresult - lastresult;
 
                         // move all of the things.
-                        //g_pGameMainFrame->m_pCommandStack->Do( MyNew EditorCommand_MoveObjects( diff, m_EditorState.m_pSelectedObjects ) );
-                        m_EditorState.m_DistanceTranslated += diff;
-                        //LOGInfo( LOGTag, "m_EditorState.m_DistanceTranslated.Set( %f, %f, %f );", m_EditorState.m_DistanceTranslated.x, m_EditorState.m_DistanceTranslated.y, m_EditorState.m_DistanceTranslated.z );
-                        //LOGInfo( LOGTag, "diff( %f, %f, %f, %d );", diff.x, diff.y, diff.z, m_EditorState.m_pSelectedObjects.size() );
+                        //g_pGameMainFrame->m_pCommandStack->Do( MyNew EditorCommand_MoveObjects( diff, m_pEditorState->m_pSelectedObjects ) );
+                        m_pEditorState->m_DistanceTranslated += diff;
+                        //LOGInfo( LOGTag, "m_pEditorState->m_DistanceTranslated.Set( %f, %f, %f );", m_pEditorState->m_DistanceTranslated.x, m_pEditorState->m_DistanceTranslated.y, m_pEditorState->m_DistanceTranslated.z );
+                        //LOGInfo( LOGTag, "diff( %f, %f, %f, %d );", diff.x, diff.y, diff.z, m_pEditorState->m_pSelectedObjects.size() );
 
-                        for( unsigned int i=0; i<m_EditorState.m_pSelectedObjects.size(); i++ )
+                        for( unsigned int i=0; i<m_pEditorState->m_pSelectedObjects.size(); i++ )
                         {
-                            Vector3 pos = m_EditorState.m_pSelectedObjects[i]->m_pComponentTransform->GetPosition();
-                            m_EditorState.m_pSelectedObjects[i]->m_pComponentTransform->SetPosition( pos + diff );
-                            m_EditorState.m_pSelectedObjects[i]->m_pComponentTransform->UpdateMatrix();
+                            Vector3 pos = m_pEditorState->m_pSelectedObjects[i]->m_pComponentTransform->GetPosition();
+                            m_pEditorState->m_pSelectedObjects[i]->m_pComponentTransform->SetPosition( pos + diff );
+                            m_pEditorState->m_pSelectedObjects[i]->m_pComponentTransform->UpdateMatrix();
                         }
                     }
                 }
@@ -1091,10 +1078,10 @@ void GameEntityComponentTest::HandleEditorInput(int keydown, int keycode, int ac
     // if mouse message. down, up or dragging.
     if( action != -1 )
     {
-        unsigned int mods = m_EditorState.m_ModifierKeyStates;
+        unsigned int mods = m_pEditorState->m_ModifierKeyStates;
 
         // get the editor camera's local transform.
-        ComponentCamera* pCamera = m_EditorState.GetEditorCamera();
+        ComponentCamera* pCamera = m_pEditorState->GetEditorCamera();
         MyMatrix* matLocalCamera = pCamera->m_pComponentTransform->GetLocalTransform();
 
         // move camera in/out if mousewheel spinning
@@ -1112,25 +1099,25 @@ void GameEntityComponentTest::HandleEditorInput(int keydown, int keycode, int ac
             mods & MODIFIERKEY_MiddleMouse
           )
         {
-            Vector2 dir = m_EditorState.m_LastMousePosition - m_EditorState.m_CurrentMousePosition;
+            Vector2 dir = m_pEditorState->m_LastMousePosition - m_pEditorState->m_CurrentMousePosition;
 
             if( dir.LengthSquared() > 0 )
                 matLocalCamera->TranslatePreRotScale( dir * 0.05f );
         }
         // if left mouse if down, rotate the camera.
-        else if( mods & MODIFIERKEY_LeftMouse && m_EditorState.m_EditorActionState == EDITORACTIONSTATE_None )
+        else if( mods & MODIFIERKEY_LeftMouse && m_pEditorState->m_EditorActionState == EDITORACTIONSTATE_None )
         {
             // rotate the camera around selected object or a point 10 units in front of the camera.
-            Vector2 dir = m_EditorState.m_CurrentMousePosition - m_EditorState.m_LastMousePosition;
+            Vector2 dir = m_pEditorState->m_CurrentMousePosition - m_pEditorState->m_LastMousePosition;
 
             Vector3 pivot;
             float distancefrompivot;
 
-            if( m_EditorState.m_pSelectedObjects.size() > 0 && m_EditorState.m_pTransformGizmos[0] )//m_EditorState.m_pSelectedObjects[0] )
+            if( m_pEditorState->m_pSelectedObjects.size() > 0 && m_pEditorState->m_pTransformGizmo->m_pTransformGizmos[0] )//m_pEditorState->m_pSelectedObjects[0] )
             {
                 // pivot around the transform gizmo
-                pivot = m_EditorState.m_pTransformGizmos[0]->m_pComponentTransform->m_Transform.GetTranslation();
-                //m_EditorState.m_pSelectedObjects[0]->m_pComponentTransform->m_Transform.GetTranslation();
+                pivot = m_pEditorState->m_pTransformGizmo->m_pTransformGizmos[0]->m_pComponentTransform->m_Transform.GetTranslation();
+                //m_pEditorState->m_pSelectedObjects[0]->m_pComponentTransform->m_Transform.GetTranslation();
                 distancefrompivot = (matLocalCamera->GetTranslation() - pivot).Length();
             }
             else
@@ -1177,30 +1164,30 @@ void GameEntityComponentTest::HandleEditorInput(int keydown, int keycode, int ac
         {
             if( id == 0 )
             {
-                m_EditorState.m_MouseLeftDownLocation = Vector2( -1, -1 );
-                m_EditorState.m_ModifierKeyStates &= ~MODIFIERKEY_LeftMouse;
-                m_EditorState.m_EditorActionState = EDITORACTIONSTATE_None;
+                m_pEditorState->m_MouseLeftDownLocation = Vector2( -1, -1 );
+                m_pEditorState->m_ModifierKeyStates &= ~MODIFIERKEY_LeftMouse;
+                m_pEditorState->m_EditorActionState = EDITORACTIONSTATE_None;
 
                 // add translation to undo stack, action itself is done each frame.  We only want to undo to last mouse down.
-                if( m_EditorState.m_DistanceTranslated.LengthSquared() != 0 )
+                if( m_pEditorState->m_DistanceTranslated.LengthSquared() != 0 )
                 {
-                    g_pGameMainFrame->m_pCommandStack->Add( MyNew EditorCommand_MoveObjects( m_EditorState.m_DistanceTranslated, m_EditorState.m_pSelectedObjects ) );
+                    g_pGameMainFrame->m_pCommandStack->Add( MyNew EditorCommand_MoveObjects( m_pEditorState->m_DistanceTranslated, m_pEditorState->m_pSelectedObjects ) );
                 }
             }
             else if( id == 1 )
             {
-                m_EditorState.m_MouseRightDownLocation = Vector2( -1, -1 );
-                m_EditorState.m_ModifierKeyStates &= ~MODIFIERKEY_RightMouse;
+                m_pEditorState->m_MouseRightDownLocation = Vector2( -1, -1 );
+                m_pEditorState->m_ModifierKeyStates &= ~MODIFIERKEY_RightMouse;
             }
             else if( id == 2 )
             {
-                m_EditorState.m_MouseMiddleDownLocation = Vector2( -1, -1 );
-                m_EditorState.m_ModifierKeyStates &= ~MODIFIERKEY_MiddleMouse;
+                m_pEditorState->m_MouseMiddleDownLocation = Vector2( -1, -1 );
+                m_pEditorState->m_ModifierKeyStates &= ~MODIFIERKEY_MiddleMouse;
             }
         }
     }
 
-    m_EditorState.m_LastMousePosition = m_EditorState.m_CurrentMousePosition;
+    m_pEditorState->m_LastMousePosition = m_pEditorState->m_CurrentMousePosition;
 #endif //MYFW_USING_WX
 }
 
@@ -1227,7 +1214,7 @@ void GameEntityComponentTest::UnloadScene(unsigned int sceneid)
 {
     // reset the editorstate structure.
 #if MYFW_USING_WX
-    m_EditorState.UnloadScene();
+    m_pEditorState->UnloadScene();
 #endif //MYFW_USING_WX
 
     g_pComponentSystemManager->UnloadScene( false, sceneid );
@@ -1271,7 +1258,7 @@ void GameEntityComponentTest::LoadScene(const char* buffer, unsigned int sceneid
 {
     // reset the editorstate structure.
 #if MYFW_USING_WX
-    m_EditorState.UnloadScene();
+    m_pEditorState->UnloadScene();
 #endif //MYFW_USING_WX
 
     g_pComponentSystemManager->LoadSceneFromJSON( buffer, sceneid );
@@ -1324,24 +1311,24 @@ void GameEntityComponentTest::OnSurfaceChanged(unsigned int startx, unsigned int
 #if MYFW_USING_WX
         if( g_GLCanvasIDActive != 0 )
         {
-            for( unsigned int i=0; i<m_EditorState.m_pEditorCamera->m_Components.Count(); i++ )
+            for( unsigned int i=0; i<m_pEditorState->m_pEditorCamera->m_Components.Count(); i++ )
             {
-                ComponentCamera* pCamera = dynamic_cast<ComponentCamera*>( m_EditorState.m_pEditorCamera->m_Components[i] );
+                ComponentCamera* pCamera = dynamic_cast<ComponentCamera*>( m_pEditorState->m_pEditorCamera->m_Components[i] );
                 pCamera->OnSurfaceChanged( startx, starty, width, height, (unsigned int)m_GameWidth, (unsigned int)m_GameHeight );
             }
 
-            if( m_EditorState.m_pMousePickerFBO )
+            if( m_pEditorState->m_pMousePickerFBO )
             {
-                if( m_EditorState.m_pMousePickerFBO->m_TextureWidth < width || m_EditorState.m_pMousePickerFBO->m_TextureHeight < height )
+                if( m_pEditorState->m_pMousePickerFBO->m_TextureWidth < width || m_pEditorState->m_pMousePickerFBO->m_TextureHeight < height )
                 {
                     // the FBO will be recreated during the texturemanager tick.
-                    g_pTextureManager->InvalidateFBO( m_EditorState.m_pMousePickerFBO );
-                    m_EditorState.m_pMousePickerFBO->Setup( width, height, GL_NEAREST, GL_NEAREST, true, true, false );
+                    g_pTextureManager->InvalidateFBO( m_pEditorState->m_pMousePickerFBO );
+                    m_pEditorState->m_pMousePickerFBO->Setup( width, height, GL_NEAREST, GL_NEAREST, true, true, false );
                 }
                 else
                 {
-                    m_EditorState.m_pMousePickerFBO->m_Width = width;
-                    m_EditorState.m_pMousePickerFBO->m_Height = height;
+                    m_pEditorState->m_pMousePickerFBO->m_Width = width;
+                    m_pEditorState->m_pMousePickerFBO->m_Height = height;
                 }
             }
         }
@@ -1357,20 +1344,24 @@ void GameEntityComponentTest::OnSurfaceChanged(unsigned int startx, unsigned int
 GameObject* GameEntityComponentTest::GetObjectAtPixel(unsigned int x, unsigned int y)
 {
     // render the scene to a FBO.
-    m_EditorState.m_pMousePickerFBO->Bind();
+    m_pEditorState->m_pMousePickerFBO->Bind();
+
+    m_pEditorState->m_pTransformGizmo->ScaleGizmosForMousePickRendering( true );
 
     glDisable( GL_SCISSOR_TEST );
-    glViewport( 0, 0, m_EditorState.m_pMousePickerFBO->m_Width, m_EditorState.m_pMousePickerFBO->m_Height );
+    glViewport( 0, 0, m_pEditorState->m_pMousePickerFBO->m_Width, m_pEditorState->m_pMousePickerFBO->m_Height );
 
     glClearColor( 0, 0, 0, 0 );
     glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
-    for( unsigned int i=0; i<m_EditorState.m_pEditorCamera->m_Components.Count(); i++ )
+    for( unsigned int i=0; i<m_pEditorState->m_pEditorCamera->m_Components.Count(); i++ )
     {
-        ComponentCamera* pCamera = dynamic_cast<ComponentCamera*>( m_EditorState.m_pEditorCamera->m_Components[i] );
+        ComponentCamera* pCamera = dynamic_cast<ComponentCamera*>( m_pEditorState->m_pEditorCamera->m_Components[i] );
         m_pComponentSystemManager->DrawMousePickerFrame( pCamera, &pCamera->m_Camera3D.m_matViewProj, m_pShader_MousePicker );
         glClear( GL_DEPTH_BUFFER_BIT );
     }
+
+    m_pEditorState->m_pTransformGizmo->ScaleGizmosForMousePickRendering( false );
 
     // get a pixel from the FBO.
     unsigned char pixel[4];
@@ -1379,7 +1370,7 @@ GameObject* GameEntityComponentTest::GetObjectAtPixel(unsigned int x, unsigned i
     unsigned int id = pixel[0] + pixel[1]*256 + pixel[2]*256*256 + pixel[3]*256*256*256;
     //LOGInfo( LOGTag, "pixel - %d, %d, %d, %d - id - %d\n", pixel[0], pixel[1], pixel[2], pixel[3], id );
 
-    m_EditorState.m_pMousePickerFBO->Unbind();
+    m_pEditorState->m_pMousePickerFBO->Unbind();
 
     // find the object clicked on.
     GameObject* pGameObject = m_pComponentSystemManager->FindGameObjectByID( id );
@@ -1390,9 +1381,9 @@ GameObject* GameEntityComponentTest::GetObjectAtPixel(unsigned int x, unsigned i
     {
         for( int i=0; i<3; i++ )
         {
-            if( m_EditorState.m_pTransformGizmos[i]->GetID() == id )
+            if( m_pEditorState->m_pTransformGizmo->m_pTransformGizmos[i]->GetID() == id )
             {
-                return m_EditorState.m_pTransformGizmos[i];
+                return m_pEditorState->m_pTransformGizmo->m_pTransformGizmos[i];
             }
         }
     }
@@ -1402,7 +1393,7 @@ GameObject* GameEntityComponentTest::GetObjectAtPixel(unsigned int x, unsigned i
 
 void GameEntityComponentTest::GetMouseRay(Vector2 mousepos, Vector3* start, Vector3* end)
 {
-    ComponentCamera* pCamera = m_EditorState.GetEditorCamera();
+    ComponentCamera* pCamera = m_pEditorState->GetEditorCamera();
 
     // Convert mouse coord into clip space.
     Vector2 mouseclip;
@@ -1431,7 +1422,10 @@ void GameEntityComponentTest::GetMouseRay(Vector2 mousepos, Vector3* start, Vect
 #if MYFW_USING_WX
 void GameEntityComponentTest::OnObjectListTreeSelectionChanged()
 {
-    m_EditorState.m_pSelectedObjects.clear();
-    m_EditorState.m_pSelectedComponents.clear();
+    if( m_pEditorState )
+    {
+        m_pEditorState->m_pSelectedObjects.clear();
+        m_pEditorState->m_pSelectedComponents.clear();
+    }
 }
 #endif //MYFW_USING_WX

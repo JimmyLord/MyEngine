@@ -36,7 +36,7 @@ void ComponentBase::AddToObjectsPanel(wxTreeItemId gameobjectid)
 void ComponentBase::OnLeftClick(bool clear)
 {
     // select this Component in the editor window.
-    ((GameEntityComponentTest*)g_pGameCore)->m_EditorState.m_pSelectedComponents.push_back( this );
+    ((GameEntityComponentTest*)g_pGameCore)->m_pEditorState->m_pSelectedComponents.push_back( this );
 
     if( clear )
         g_pPanelWatch->ClearAllVariables();
@@ -62,7 +62,7 @@ void ComponentBase::OnPopupClick(wxEvent &evt)
     int id = evt.GetId();
     if( id == 1000 )
     {
-        EditorState* pEditorState = &((GameEntityComponentTest*)g_pGameCore)->m_EditorState;
+        EditorState* pEditorState = ((GameEntityComponentTest*)g_pGameCore)->m_pEditorState;
 
         // deselect all "main" transform components.
         for( unsigned int i=0; i<pEditorState->m_pSelectedComponents.size(); i++ )

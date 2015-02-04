@@ -67,10 +67,13 @@ void GameObject::LuaRegister(lua_State* luastate)
 void GameObject::OnLeftClick(bool clear)
 {
     // select this GameObject in the editor window.
-    ((GameEntityComponentTest*)g_pGameCore)->m_EditorState.m_pSelectedObjects.push_back( this );
+    if( ((GameEntityComponentTest*)g_pGameCore)->m_pEditorState == 0 )
+        return;
+
+    ((GameEntityComponentTest*)g_pGameCore)->m_pEditorState->m_pSelectedObjects.push_back( this );
 
     // only show properties of the first selected object.
-    if( ((GameEntityComponentTest*)g_pGameCore)->m_EditorState.m_pSelectedObjects.size() > 1 )
+    if( ((GameEntityComponentTest*)g_pGameCore)->m_pEditorState->m_pSelectedObjects.size() > 1 )
         return;
 
     if( clear )
@@ -140,7 +143,7 @@ void GameObject::OnPopupClick(wxEvent &evt)
     }
     else if( id == 1001 ) // "Delete GameObject"
     {
-        EditorState* pEditorState = &((GameEntityComponentTest*)g_pGameCore)->m_EditorState;
+        EditorState* pEditorState = ((GameEntityComponentTest*)g_pGameCore)->m_pEditorState;
 
         // if the object isn't selected, delete just the one object, otherwise delete all selected objects.
         if( pEditorState->IsObjectSelected( pGameObject ) )

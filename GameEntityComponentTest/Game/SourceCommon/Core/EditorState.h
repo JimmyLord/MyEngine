@@ -10,6 +10,8 @@
 #ifndef __EditorState_H__
 #define __EditorState_H__
 
+class TransformGizmo;
+
 #if MYFW_USING_WX
 enum EditorActionState
 {
@@ -38,8 +40,8 @@ struct EditorState
     std::vector<GameObject*> m_pSelectedObjects;
     std::vector<ComponentBase*> m_pSelectedComponents;
 
+    TransformGizmo* m_pTransformGizmo;
     GameObject* m_p3DGridPlane;
-    GameObject* m_pTransformGizmos[3];
     GameObject* m_pEditorCamera;
 
     // for physics "picker", to move physics around in editor view when gameplay is running.
