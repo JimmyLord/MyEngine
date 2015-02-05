@@ -87,11 +87,11 @@ void TransformGizmo::Tick(double TimePassed, EditorState* pEditorState)
             MyMatrix matrot;
             matrot.SetIdentity();
             if( i == 0 )
-                matrot.Rotate( 90, 0, 1, 0 );
+                matrot.Rotate( 90, 0, 0, 1 );
             if( i == 1 )
-                matrot.Rotate( -90, 1, 0, 0 );
+                matrot.Rotate( 0, 1, 0, 0 );
             if( i == 2 )
-                matrot.Rotate( 180, 0, 1, 0 );
+                matrot.Rotate( -90, 1, 0, 0 );
 
             MyMatrix matrotobj;
             matrotobj.SetIdentity();
@@ -128,7 +128,7 @@ bool TransformGizmo::HandleInput(GameEntityComponentTest* pGame, int keydown, in
 
 void TransformGizmo::ScaleGizmosForMousePickRendering(bool doscale)
 {
-    float scaleamount = 5;
+    float scaleamount = 3;
 
     if( doscale == false )
         scaleamount = 1/scaleamount;
@@ -136,7 +136,7 @@ void TransformGizmo::ScaleGizmosForMousePickRendering(bool doscale)
     for( int i=0; i<3; i++ )
     {
         Vector3 currentscale = m_pTransformGizmos[i]->m_pComponentTransform->GetLocalScale();
-        Vector3 newscale( currentscale.x * scaleamount, currentscale.y * scaleamount, currentscale.z );
+        Vector3 newscale( currentscale.x * scaleamount, currentscale.y, currentscale.z * scaleamount );
         m_pTransformGizmos[i]->m_pComponentTransform->SetScale( newscale );
     }
 }

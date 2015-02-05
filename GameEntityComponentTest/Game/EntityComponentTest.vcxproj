@@ -2053,6 +2053,7 @@
     <ClCompile Include="SourceCommon\ComponentSystem\Core\ComponentSystemManager.cpp" />
     <ClCompile Include="SourceCommon\ComponentSystem\Core\ComponentTypeManager.cpp" />
     <ClCompile Include="SourceCommon\ComponentSystem\Core\GameObject.cpp" />
+    <ClCompile Include="SourceCommon\ComponentSystem\CustomComponents\ComponentLight.cpp" />
     <ClCompile Include="SourceCommon\ComponentSystem\CustomComponents\ComponentMesh.cpp" />
     <ClCompile Include="SourceCommon\ComponentSystem\CustomComponents\ComponentMeshOBJ.cpp" />
     <ClCompile Include="SourceCommon\ComponentSystem\CustomComponents\ComponentMeshPlane.cpp" />
@@ -2458,6 +2459,7 @@
     <ClInclude Include="SourceCommon\ComponentSystem\Core\ComponentSystemManager.h" />
     <ClInclude Include="SourceCommon\ComponentSystem\Core\ComponentTypeManager.h" />
     <ClInclude Include="SourceCommon\ComponentSystem\Core\GameObject.h" />
+    <ClInclude Include="SourceCommon\ComponentSystem\CustomComponents\ComponentLight.h" />
     <ClInclude Include="SourceCommon\ComponentSystem\CustomComponents\ComponentMesh.h" />
     <ClInclude Include="SourceCommon\ComponentSystem\CustomComponents\ComponentMeshOBJ.h" />
     <ClInclude Include="SourceCommon\ComponentSystem\CustomComponents\ComponentMeshPlane.h" />
@@ -2793,6 +2795,7 @@
     <None Include="Data\Scripts\Player.lua" />
     <None Include="Data\Scripts\Enemy.lua" />
     <None Include="Data\Shaders\Shader_Breathe.glsl" />
+    <None Include="Data\Shaders\Shader_TextureLights.glsl" />
     <None Include="Data\Shaders\Shader_TestNormals.glsl" />
     <None Include="Data\Shaders\Shader_Texture.glsl" />
     <None Include="Data\Shaders\Shader_TintColor.glsl" />

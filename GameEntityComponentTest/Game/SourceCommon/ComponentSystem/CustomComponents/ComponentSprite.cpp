@@ -35,7 +35,7 @@ void ComponentSprite::OnLeftClick(bool clear)
 
 void ComponentSprite::FillPropertiesWindow(bool clear)
 {
-    ComponentBase::FillPropertiesWindow( clear );
+    ComponentRenderable::FillPropertiesWindow( clear );
 
     g_pPanelWatch->AddUnsignedChar( "r", &m_Tint.r, 0, 255 );
     g_pPanelWatch->AddUnsignedChar( "g", &m_Tint.g, 0, 255 );

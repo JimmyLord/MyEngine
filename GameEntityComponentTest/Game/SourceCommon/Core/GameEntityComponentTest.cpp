@@ -196,7 +196,7 @@ void GameEntityComponentTest::OneTimeInit()
             pComponentMesh->m_pMesh->CreateEditorTransformGizmoAxis( 3, 0.1f, ColorByte(255, 100, 100, 255) );
             pComponentMesh->m_PrimitiveType = pComponentMesh->m_pMesh->m_PrimitiveType;
         }
-        pGameObject->m_pComponentTransform->SetRotation( Vector3( 0, 90, 0 ) );
+        //pGameObject->m_pComponentTransform->SetRotation( Vector3( 0, 90, 0 ) );
 
         //m_pComponentSystemManager->AddComponent( pComponentMesh );
 
@@ -217,7 +217,7 @@ void GameEntityComponentTest::OneTimeInit()
             pComponentMesh->m_pMesh->CreateEditorTransformGizmoAxis( 3, 0.1f, ColorByte(100, 255, 100, 255) );
             pComponentMesh->m_PrimitiveType = pComponentMesh->m_pMesh->m_PrimitiveType;
         }
-        pGameObject->m_pComponentTransform->SetRotation( Vector3( -90, 0, 0 ) );
+        //pGameObject->m_pComponentTransform->SetRotation( Vector3( 0, 0, 90 ) );
 
         //m_pComponentSystemManager->AddComponent( pComponentMesh );
 
@@ -238,7 +238,7 @@ void GameEntityComponentTest::OneTimeInit()
             pComponentMesh->m_pMesh->CreateEditorTransformGizmoAxis( 3, 0.1f, ColorByte(100, 100, 255, 255) );
             pComponentMesh->m_PrimitiveType = pComponentMesh->m_pMesh->m_PrimitiveType;
         }
-        pGameObject->m_pComponentTransform->SetRotation( Vector3( 0, 180, 0 ) );
+        //pGameObject->m_pComponentTransform->SetRotation( Vector3( -90, 0, 0 ) );
 
         //m_pComponentSystemManager->AddComponent( pComponentMesh );
 

@@ -317,7 +317,7 @@
 			"DHeight":	960,
 			"ColorBit":	1,
 			"DepthBit":	1,
-			"Layers":	4
+			"Layers":	1
 		}, {
 			"Type":	"Camera",
 			"GOID":	7,
@@ -327,7 +327,7 @@
 			"DHeight":	960,
 			"ColorBit":	0,
 			"DepthBit":	0,
-			"Layers":	8
+			"Layers":	2
 		}, {
 			"Type":	"Lua Script",
 			"GOID":	8,
@@ -504,7 +504,7 @@
 			"GOID":	8,
 			"ID":	9,
 			"Visible":	1,
-			"Layers":	8,
+			"Layers":	2,
 			"Tint":	[255, 0, 0, 255],
 			"Size":	[50, 50],
 			"Shader":	"Shader_TintColor"
@@ -513,7 +513,7 @@
 			"GOID":	9,
 			"ID":	11,
 			"Visible":	1,
-			"Layers":	8,
+			"Layers":	2,
 			"Tint":	[0, 255, 0, 255],
 			"Size":	[50, 50],
 			"Shader":	"Shader_TintColor"
@@ -522,7 +522,7 @@
 			"GOID":	10,
 			"ID":	13,
 			"Visible":	1,
-			"Layers":	4,
+			"Layers":	1,
 			"Shader":	"Shader_TestNormals",
 			"OBJ":	"Data/OBJs/teapot2.obj"
 		}, {
@@ -530,7 +530,7 @@
 			"GOID":	11,
 			"ID":	15,
 			"Visible":	1,
-			"Layers":	4,
+			"Layers":	1,
 			"Shader":	"Shader_VertSinY",
 			"OBJ":	"Data/OBJs/cube.obj"
 		}, {
@@ -538,7 +538,7 @@
 			"GOID":	12,
 			"ID":	22,
 			"Visible":	1,
-			"Layers":	4,
+			"Layers":	1,
 			"Shader":	"Shader_TestNormals",
 			"OBJ":	"Data/OBJs/cube.obj"
 		}, {
@@ -546,7 +546,7 @@
 			"GOID":	13,
 			"ID":	24,
 			"Visible":	1,
-			"Layers":	4,
+			"Layers":	1,
 			"Shader":	"Shader_TestNormals",
 			"OBJ":	"Data/OBJs/cube.obj"
 		}, {
@@ -554,7 +554,7 @@
 			"GOID":	14,
 			"ID":	26,
 			"Visible":	1,
-			"Layers":	4,
+			"Layers":	1,
 			"Shader":	"Shader_TestNormals",
 			"OBJ":	"Data/OBJs/cube.obj"
 		}, {
@@ -562,7 +562,7 @@
 			"GOID":	15,
 			"ID":	28,
 			"Visible":	1,
-			"Layers":	4,
+			"Layers":	1,
 			"Shader":	"Shader_TestNormals",
 			"OBJ":	"Data/OBJs/cube.obj"
 		}, {
@@ -570,7 +570,7 @@
 			"GOID":	16,
 			"ID":	30,
 			"Visible":	1,
-			"Layers":	4,
+			"Layers":	1,
 			"Shader":	"Shader_TestNormals",
 			"OBJ":	"Data/OBJs/cube.obj"
 		}, {
@@ -578,7 +578,7 @@
 			"GOID":	17,
 			"ID":	32,
 			"Visible":	1,
-			"Layers":	4,
+			"Layers":	1,
 			"Shader":	"Shader_TestNormals",
 			"OBJ":	"Data/OBJs/cube.obj"
 		}, {
@@ -586,7 +586,7 @@
 			"GOID":	18,
 			"ID":	34,
 			"Visible":	1,
-			"Layers":	4,
+			"Layers":	1,
 			"Shader":	"Shader_TestNormals",
 			"OBJ":	"Data/OBJs/cube.obj"
 		}, {
@@ -594,7 +594,7 @@
 			"GOID":	19,
 			"ID":	36,
 			"Visible":	1,
-			"Layers":	4,
+			"Layers":	1,
 			"Shader":	"Shader_TestNormals",
 			"OBJ":	"Data/OBJs/cube.obj"
 		}, {
@@ -602,7 +602,7 @@
 			"GOID":	20,
 			"ID":	38,
 			"Visible":	1,
-			"Layers":	4,
+			"Layers":	1,
 			"Shader":	"Shader_TestNormals",
 			"OBJ":	"Data/OBJs/cube.obj"
 		}, {
@@ -610,7 +610,7 @@
 			"GOID":	21,
 			"ID":	40,
 			"Visible":	1,
-			"Layers":	4,
+			"Layers":	1,
 			"Shader":	"Shader_TestNormals",
 			"OBJ":	"Data/OBJs/cube.obj"
 		}, {
@@ -618,7 +618,7 @@
 			"GOID":	22,
 			"ID":	42,
 			"Visible":	1,
-			"Layers":	4,
+			"Layers":	1,
 			"Shader":	"Shader_TestNormals",
 			"OBJ":	"Data/OBJs/cube.obj"
 		}, {
@@ -626,7 +626,7 @@
 			"GOID":	23,
 			"ID":	44,
 			"Visible":	1,
-			"Layers":	4,
+			"Layers":	1,
 			"Shader":	"Shader_TestNormals",
 			"OBJ":	"Data/OBJs/cube.obj"
 		}, {
@@ -634,7 +634,7 @@
 			"GOID":	24,
 			"ID":	46,
 			"Visible":	1,
-			"Layers":	4,
+			"Layers":	1,
 			"Shader":	"Shader_TestNormals",
 			"OBJ":	"Data/OBJs/cube.obj"
 		}, {
@@ -642,7 +642,7 @@
 			"GOID":	25,
 			"ID":	48,
 			"Visible":	1,
-			"Layers":	4,
+			"Layers":	1,
 			"Shader":	"Shader_TestNormals",
 			"OBJ":	"Data/OBJs/cube.obj"
 		}, {
@@ -650,7 +650,7 @@
 			"GOID":	26,
 			"ID":	50,
 			"Visible":	1,
-			"Layers":	4,
+			"Layers":	1,
 			"Shader":	"Shader_TestNormals",
 			"OBJ":	"Data/OBJs/cube.obj"
 		}, {
@@ -658,7 +658,7 @@
 			"GOID":	27,
 			"ID":	52,
 			"Visible":	1,
-			"Layers":	4,
+			"Layers":	1,
 			"Shader":	"Shader_TestNormals",
 			"OBJ":	"Data/OBJs/cube.obj"
 		}, {
@@ -666,7 +666,7 @@
 			"GOID":	28,
 			"ID":	54,
 			"Visible":	1,
-			"Layers":	4,
+			"Layers":	1,
 			"Shader":	"Shader_TestNormals",
 			"OBJ":	"Data/OBJs/cube.obj"
 		}, {
@@ -674,7 +674,7 @@
 			"GOID":	29,
 			"ID":	56,
 			"Visible":	1,
-			"Layers":	4,
+			"Layers":	1,
 			"Shader":	"Shader_TestNormals",
 			"OBJ":	"Data/OBJs/cube.obj"
 		}, {
@@ -682,7 +682,7 @@
 			"GOID":	30,
 			"ID":	58,
 			"Visible":	1,
-			"Layers":	4,
+			"Layers":	1,
 			"Shader":	"Shader_TestNormals",
 			"OBJ":	"Data/OBJs/cube.obj"
 		}, {
@@ -690,7 +690,7 @@
 			"GOID":	31,
 			"ID":	60,
 			"Visible":	1,
-			"Layers":	4,
+			"Layers":	1,
 			"Shader":	"Shader_TestNormals",
 			"OBJ":	"Data/OBJs/cube.obj"
 		}, {
@@ -698,7 +698,7 @@
 			"GOID":	32,
 			"ID":	62,
 			"Visible":	1,
-			"Layers":	4,
+			"Layers":	1,
 			"Shader":	"Shader_TestNormals",
 			"OBJ":	"Data/OBJs/cube.obj"
 		}, {
@@ -706,7 +706,7 @@
 			"GOID":	33,
 			"ID":	64,
 			"Visible":	1,
-			"Layers":	4,
+			"Layers":	1,
 			"Shader":	"Shader_TestNormals",
 			"OBJ":	"Data/OBJs/cube.obj"
 		}, {
@@ -714,7 +714,7 @@
 			"GOID":	34,
 			"ID":	66,
 			"Visible":	1,
-			"Layers":	4,
+			"Layers":	1,
 			"Shader":	"Shader_TestNormals",
 			"OBJ":	"Data/OBJs/cube.obj"
 		}, {
@@ -722,7 +722,7 @@
 			"GOID":	35,
 			"ID":	68,
 			"Visible":	1,
-			"Layers":	4,
+			"Layers":	1,
 			"Shader":	"Shader_TestNormals",
 			"OBJ":	"Data/OBJs/cube.obj"
 		}, {
@@ -730,7 +730,7 @@
 			"GOID":	36,
 			"ID":	70,
 			"Visible":	1,
-			"Layers":	4,
+			"Layers":	1,
 			"Shader":	"Shader_TestNormals",
 			"OBJ":	"Data/OBJs/cube.obj"
 		}, {
@@ -738,7 +738,7 @@
 			"GOID":	37,
 			"ID":	72,
 			"Visible":	1,
-			"Layers":	4,
+			"Layers":	1,
 			"Shader":	"Shader_TestNormals",
 			"OBJ":	"Data/OBJs/cube.obj"
 		}, {
@@ -746,7 +746,7 @@
 			"GOID":	38,
 			"ID":	74,
 			"Visible":	1,
-			"Layers":	4,
+			"Layers":	1,
 			"Shader":	"Shader_TestNormals",
 			"OBJ":	"Data/OBJs/cube.obj"
 		}, {
@@ -754,7 +754,7 @@
 			"GOID":	39,
 			"ID":	76,
 			"Visible":	1,
-			"Layers":	4,
+			"Layers":	1,
 			"Shader":	"Shader_TestNormals",
 			"OBJ":	"Data/OBJs/cube.obj"
 		}]

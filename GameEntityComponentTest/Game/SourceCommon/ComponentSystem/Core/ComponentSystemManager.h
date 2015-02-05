@@ -14,6 +14,7 @@ class ComponentSystemManager;
 class GameObject;
 class ComponentBase;
 class ComponentCamera;
+class ComponentLight;
 class FileInfo; // at bottom of this file.
 
 extern ComponentSystemManager* g_pComponentSystemManager;
@@ -67,6 +68,7 @@ public:
     GameObject* FindGameObjectByID(unsigned int id);
     GameObject* FindGameObjectByName(const char* name);
     ComponentCamera* GetFirstCamera();
+    ComponentLight* FindNearestLight(Vector3 pos);
 
     ComponentBase* AddComponent(ComponentBase* pComponent);
     void DeleteComponent(ComponentBase* pComponent);

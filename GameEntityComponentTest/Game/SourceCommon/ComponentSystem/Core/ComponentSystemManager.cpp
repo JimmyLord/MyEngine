@@ -591,6 +591,22 @@ ComponentCamera* ComponentSystemManager::GetFirstCamera()
     return 0;
 }
 
+ComponentLight* ComponentSystemManager::FindNearestLight(Vector3 pos)
+{
+    // TODO: actually find the nearest light, not just the first.
+    for( CPPListNode* node = m_ComponentsData.GetHead(); node != 0; node = node->GetNext() )
+    {
+        ComponentLight* pLight = dynamic_cast<ComponentLight*>( node );
+
+        if( pLight )
+        {
+            return pLight;
+        }
+    }
+
+    return 0;
+}
+
 ComponentBase* ComponentSystemManager::AddComponent(ComponentBase* pComponent)
 {
     switch( pComponent->m_BaseType )

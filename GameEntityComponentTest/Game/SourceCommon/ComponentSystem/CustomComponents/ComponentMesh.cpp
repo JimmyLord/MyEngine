@@ -50,7 +50,7 @@ void ComponentMesh::OnLeftClick(bool clear)
 
 void ComponentMesh::FillPropertiesWindow(bool clear)
 {
-    ComponentBase::FillPropertiesWindow( clear );
+    ComponentRenderable::FillPropertiesWindow( clear );
 
     //assert( m_pMesh );
 
@@ -209,6 +209,28 @@ void ComponentMesh::Draw(MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride, i
         m_pMesh->m_PointSize = m_PointSize;
 
         m_pMesh->m_Position = this->m_pComponentTransform->m_Transform;
-        m_pMesh->Draw( pMatViewProj, 0, 0, 0, 0, 0, 0, pShaderOverride );
+
+        MyLight lights[1];
+        int numlights = 0;
+
+        ComponentLight* pLight = g_pComponentSystemManager->FindNearestLight( m_pComponentTransform->GetPosition() );
+        if( pLight )
+        {
+            pLight->m_pGameObject->m_pComponentTransform->UpdateMatrix();
+
+            lights[0].m_Attenuation = pLight->m_Attenuation;
+            lights[0].m_Position = pLight->m_pGameObject->m_pComponentTransform->GetPosition();
+            lights[0].m_Color = pLight->m_Color;
+            lights[0].m_LightType = LightType_Point;
+            numlights++;
+        }
+
+        Vector3 campos;
+        if( ((GameEntityComponentTest*)g_pGameCore)->m_EditorMode )
+            campos = ((GameEntityComponentTest*)g_pGameCore)->m_pEditorState->GetEditorCamera()->m_pComponentTransform->GetPosition();
+        else
+            campos = g_pComponentSystemManager->GetFirstCamera()->m_pComponentTransform->GetPosition();
+
+        m_pMesh->Draw( pMatViewProj, &campos, lights, numlights, 0, 0, 0, pShaderOverride );
     }
 }

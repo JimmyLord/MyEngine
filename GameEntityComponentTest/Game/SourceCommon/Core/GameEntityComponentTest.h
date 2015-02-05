@@ -25,10 +25,10 @@ enum ModifierKeys
 
 enum LayerValues
 {
-    Layer_Editor    = 0x0001,
-    Layer_EditorFG  = 0x0002,
-    Layer_MainScene = 0x0004,
-    Layer_HUD       = 0x0008,
+    Layer_MainScene = 0x0001,
+    Layer_HUD       = 0x0002,
+    Layer_Editor    = 0x4000,
+    Layer_EditorFG  = 0x8000,
 };
 
 class GameEntityComponentTest : public GameCore

@@ -13,12 +13,22 @@ ComponentRenderable::ComponentRenderable()
 : ComponentBase()
 {
     m_BaseType = BaseComponentType_Renderable;
-
-    //m_pShader = 0;
 }
 
 ComponentRenderable::~ComponentRenderable()
 {
+}
+
+void ComponentRenderable::Reset()
+{
+    ComponentBase::Reset();
+
+    assert( m_pGameObject );
+
+    m_pComponentTransform = m_pGameObject->m_pComponentTransform;
+
+    m_Visible = true;
+    m_LayersThisExistsOn = Layer_MainScene;
 }
 
 #if MYFW_USING_WX
@@ -35,6 +45,8 @@ void ComponentRenderable::OnLeftClick(bool clear)
 void ComponentRenderable::FillPropertiesWindow(bool clear)
 {
     ComponentBase::FillPropertiesWindow( clear );
+
+    g_pPanelWatch->AddUnsignedInt( "Layers", &m_LayersThisExistsOn, 0, 63 );
 }
 #endif //MYFW_USING_WX
 
@@ -54,19 +66,6 @@ void ComponentRenderable::ImportFromJSONObject(cJSON* jsonobj, unsigned int scen
 
     cJSONExt_GetBool( jsonobj, "Visible", &m_Visible );
     cJSONExt_GetUnsignedInt( jsonobj, "Layers", &m_LayersThisExistsOn );
-}
-
-void ComponentRenderable::Reset()
-{
-    ComponentBase::Reset();
-
-    assert( m_pGameObject );
-
-    m_pComponentTransform = m_pGameObject->m_pComponentTransform;
-    //SAFE_RELEASE( m_pShader );
-
-    m_Visible = true;
-    m_LayersThisExistsOn = 0xFFFF;
 }
 
 ComponentRenderable& ComponentRenderable::operator=(const ComponentRenderable& other)

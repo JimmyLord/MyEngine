@@ -1,5 +1,5 @@
 {
-	"Files":	["Data/OBJs/cube.obj", "Data/Scripts/Player.lua", "Data/Scripts/Enemy.lua", "Data/Shaders/Shader_TintColor.glsl", "Data/Shaders/Shader_TestNormals.glsl"],
+	"Files":	["Data/OBJs/cube.obj", "Data/Scripts/Player.lua", "Data/Scripts/Enemy.lua", "Data/Shaders/Shader_TintColor.glsl", "Data/Shaders/Shader_TestNormals.glsl", "Data/Shaders/Shader_TextureLights.glsl", "Data/Textures/WhiteSquare.png"],
 	"GameObjects":	[{
 			"ID":	1,
 			"Name":	"Main Camera"
@@ -18,6 +18,9 @@
 		}, {
 			"ID":	11,
 			"Name":	"Plane"
+		}, {
+			"ID":	12,
+			"Name":	"Light"
 		}],
 	"Transforms":	[{
 			"GOID":	1,
@@ -53,7 +56,13 @@
 			"GOID":	11,
 			"ID":	0,
 			"Pos":	[0, -3, 0],
-			"Scale":	[10, 0.100000, 10],
+			"Scale":	[1, 1, 1],
+			"Rot":	[0, 0, 0]
+		}, {
+			"GOID":	12,
+			"ID":	0,
+			"Pos":	[0, 2.500000, 0],
+			"Scale":	[1, 1, 1],
 			"Rot":	[0, 0, 0]
 		}],
 	"Components":	[{
@@ -65,7 +74,7 @@
 			"DHeight":	960,
 			"ColorBit":	1,
 			"DepthBit":	1,
-			"Layers":	4
+			"Layers":	1
 		}, {
 			"Type":	"Camera",
 			"GOID":	7,
@@ -75,7 +84,7 @@
 			"DHeight":	960,
 			"ColorBit":	0,
 			"DepthBit":	0,
-			"Layers":	8
+			"Layers":	2
 		}, {
 			"Type":	"Lua Script",
 			"GOID":	8,
@@ -111,7 +120,7 @@
 			"GOID":	8,
 			"ID":	9,
 			"Visible":	1,
-			"Layers":	8,
+			"Layers":	2,
 			"Tint":	[255, 0, 0, 255],
 			"Size":	[50, 50],
 			"Shader":	"Shader_TintColor"
@@ -120,7 +129,7 @@
 			"GOID":	9,
 			"ID":	11,
 			"Visible":	1,
-			"Layers":	8,
+			"Layers":	2,
 			"Tint":	[0, 255, 0, 255],
 			"Size":	[50, 50],
 			"Shader":	"Shader_TintColor"
@@ -129,20 +138,35 @@
 			"GOID":	10,
 			"ID":	13,
 			"Visible":	1,
-			"Layers":	4,
-			"Shader":	"Shader_TestNormals",
+			"Layers":	1,
+			"Shader":	"Shader_TextureLights",
+			"Texture":	"Data/Textures/WhiteSquare.png",
 			"PrimitiveType":	4,
 			"PointSize":	1,
 			"OBJ":	"Data/OBJs/cube.obj"
 		}, {
-			"Type":	"Mesh-OBJ",
+			"Type":	"Mesh-Plane",
 			"GOID":	11,
-			"ID":	15,
+			"ID":	22,
 			"Visible":	1,
-			"Layers":	4,
-			"Shader":	"Shader_TintColor",
+			"Layers":	1,
+			"Shader":	"Shader_TextureLights",
+			"Texture":	"Data/Textures/WhiteSquare.png",
 			"PrimitiveType":	4,
 			"PointSize":	1,
-			"OBJ":	"Data/OBJs/cube.obj"
+			"m_Sizex":	20,
+			"m_Sizey":	20,
+			"VertCountx":	2,
+			"VertCounty":	2,
+			"UVStartx":	0,
+			"UVStarty":	0,
+			"UVRangex":	1,
+			"UVRangey":	1
+		}, {
+			"Type":	"Light",
+			"GOID":	12,
+			"ID":	21,
+			"Color":	[0, 1, 0, 1],
+			"Atten":	[1, 0.090800, 0.090800]
 		}]
 }

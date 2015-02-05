@@ -324,6 +324,9 @@
     <ClCompile Include="SourceCommon\Editor\TransformGizmo.cpp">
       <Filter>Source\Editor</Filter>
     </ClCompile>
+    <ClCompile Include="SourceCommon\ComponentSystem\CustomComponents\ComponentLight.cpp">
+      <Filter>Source\ComponentSystem\Custom Components</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SourceWindows\WinMain.h">
@@ -572,6 +575,9 @@
     <ClInclude Include="SourceCommon\Editor\TransformGizmo.h">
       <Filter>Source\Editor</Filter>
     </ClInclude>
+    <ClInclude Include="SourceCommon\ComponentSystem\CustomComponents\ComponentLight.h">
+      <Filter>Source\ComponentSystem\Custom Components</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="SourceNaCL\Web\myframework.js">
@@ -677,6 +683,9 @@
     </None>
     <None Include="Data\Scripts\GGJEnemy.lua">
       <Filter>Data\Scripts</Filter>
+    </None>
+    <None Include="Data\Shaders\Shader_TextureLights.glsl">
+      <Filter>Data\Shaders</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

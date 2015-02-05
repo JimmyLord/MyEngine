@@ -74,7 +74,7 @@
 			"DHeight":	960,
 			"ColorBit":	1,
 			"DepthBit":	1,
-			"Layers":	4
+			"Layers":	1
 		}, {
 			"Type":	"Camera",
 			"GOID":	7,
@@ -84,7 +84,7 @@
 			"DHeight":	960,
 			"ColorBit":	0,
 			"DepthBit":	0,
-			"Layers":	8
+			"Layers":	2
 		}, {
 			"Type":	"Lua Script",
 			"GOID":	8,
@@ -134,7 +134,7 @@
 			"GOID":	8,
 			"ID":	9,
 			"Visible":	1,
-			"Layers":	8,
+			"Layers":	2,
 			"Tint":	[255, 0, 0, 255],
 			"Size":	[50, 50],
 			"Shader":	"Shader_TintColor"
@@ -143,7 +143,7 @@
 			"GOID":	9,
 			"ID":	11,
 			"Visible":	1,
-			"Layers":	8,
+			"Layers":	2,
 			"Tint":	[0, 255, 0, 255],
 			"Size":	[50, 50],
 			"Shader":	"Shader_TintColor"
@@ -152,7 +152,7 @@
 			"GOID":	10,
 			"ID":	13,
 			"Visible":	1,
-			"Layers":	4,
+			"Layers":	1,
 			"Shader":	"Shader_TestNormals",
 			"OBJ":	"Data/OBJs/cube.obj"
 		}, {
@@ -160,7 +160,7 @@
 			"GOID":	11,
 			"ID":	15,
 			"Visible":	1,
-			"Layers":	4,
+			"Layers":	1,
 			"Shader":	"Shader_TintColor",
 			"OBJ":	"Data/OBJs/cube.obj"
 		}, {
@@ -168,7 +168,7 @@
 			"GOID":	12,
 			"ID":	17,
 			"Visible":	1,
-			"Layers":	8,
+			"Layers":	2,
 			"Tint":	[255, 0, 255, 255],
 			"Size":	[50, 50],
 			"Shader":	"Shader_TintColor"
