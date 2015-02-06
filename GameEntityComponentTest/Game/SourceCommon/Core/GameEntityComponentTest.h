@@ -75,10 +75,9 @@ public:
 
     virtual void OnTouch(int action, int id, float x, float y, float pressure, float size);
     virtual void OnButtons(GameCoreButtonActions action, GameCoreButtonIDs id);
-    virtual void OnKeyDown(int keycode, int unicodechar);
-    virtual void OnKeyUp(int keycode, int unicodechar);
+    virtual void OnKey(GameCoreButtonActions action, int keycode, int unicodechar);
 
-    void HandleEditorInput(int keydown, int keycode, int action, int id, float x, float y, float pressure);
+    void HandleEditorInput(int keyaction, int keycode, int mouseaction, int id, float x, float y, float pressure);
 
     void SaveScene(const char* fullpath);
     void UnloadScene(unsigned int sceneid = UINT_MAX);

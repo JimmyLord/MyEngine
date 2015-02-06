@@ -408,10 +408,11 @@ double GameEntityComponentTest::Tick(double TimePassed)
 
     //if( TimePassed == 0 && m_EditorMode == false )
     //    LOGInfo( LOGTag, "Tick: %f\n", TimePassed );
-
     //LOGInfo( LOGTag, "Tick: %f\n", TimePassed );
 
     float TimeUnpaused = TimePassed;
+
+    GameCore::Tick( TimePassed );
 
 #if !MYFW_USING_WX
     if( m_SceneLoaded == false && m_pSceneFileToLoad && m_pSceneFileToLoad->m_FileReady )
@@ -421,8 +422,6 @@ double GameEntityComponentTest::Tick(double TimePassed)
         SAFE_RELEASE( m_pSceneFileToLoad );
     }
 #endif
-
-    GameCore::Tick( TimePassed );
 
 #if MYFW_USING_WX
     m_pEditorState->m_pTransformGizmo->Tick( TimePassed, m_pEditorState );
@@ -535,120 +534,139 @@ void GameEntityComponentTest::OnButtons(GameCoreButtonActions action, GameCoreBu
     GameCore::OnButtons( action, id );
 }
 
-void GameEntityComponentTest::OnKeyDown(int keycode, int unicodechar)
+void GameEntityComponentTest::OnKey(GameCoreButtonActions action, int keycode, int unicodechar)
 {
-#if MYFW_USING_WX
-    if( m_EditorMode )
+    GameCore::OnKey( action, keycode, unicodechar );
+
+    if( action == GCBA_Down )
     {
-        if( keycode == 'P' ||
-            keycode == '.' || 
-            keycode == '[' || 
-            keycode == ']' ) // if press "Play"
+#if MYFW_USING_WX
+        if( m_EditorMode )
         {
-            SaveScene( "temp_editor_onplay.scene" );
-            m_EditorMode = false;
-            m_Paused = true;
-            if( keycode == 'P' )
+            if( keycode == 'P' ||
+                keycode == '.' || 
+                keycode == '[' || 
+                keycode == ']' ) // if press "Play"
+            {
+                SaveScene( "temp_editor_onplay.scene" );
+                m_EditorMode = false;
+                m_Paused = true;
+                if( keycode == 'P' )
+                    m_Paused = false;
+                g_pGameMainFrame->SetWindowPerspectiveToDefault();
+                m_pComponentSystemManager->OnPlay();
+                return;
+            }
+        }
+        else //if( m_EditorMode == false )
+        {
+            if( keycode == 'P' ) // if press "Stop"
+            {
+                // Clear out the component manager of all components and gameobjects
+                UnloadScene( 0 ); // unload runtime created objects only.
+                LoadSceneFromFile( "temp_editor_onplay.scene", 1 );
+                m_EditorMode = true;
                 m_Paused = false;
-            g_pGameMainFrame->SetWindowPerspectiveToDefault();
-            m_pComponentSystemManager->OnPlay();
-            return;
+                g_pGameMainFrame->SetWindowPerspectiveToDefault();
+                m_pEditorState->ClearSelectedObjectsAndComponents();
+                m_pComponentSystemManager->OnStop();
+
+                m_pComponentSystemManager->SyncAllRigidBodiesToObjectTransforms();
+                return;
+            }
+
+            if( keycode == '.' )
+            {
+                m_Paused = !m_Paused;
+                return;
+            }
+
+            if( keycode == ']' )
+            {
+                m_Paused = true;
+                m_PauseTimeToAdvance = 1/60.0f;
+                return;
+            }
+
+            if( keycode == '[' )
+            {
+                m_Paused = true;
+                m_PauseTimeToAdvance = 1.0f;
+                return;
+            }
         }
-    }
-    else //if( m_EditorMode == false )
-    {
-        if( keycode == 'P' ) // if press "Stop"
+
+        if( g_GLCanvasIDActive == 1 )
         {
-            // Clear out the component manager of all components and gameobjects
-            UnloadScene( 0 ); // unload runtime created objects only.
-            LoadSceneFromFile( "temp_editor_onplay.scene", 1 );
-            m_EditorMode = true;
-            m_Paused = false;
-            g_pGameMainFrame->SetWindowPerspectiveToDefault();
-            m_pEditorState->ClearSelectedObjectsAndComponents();
-            m_pComponentSystemManager->OnStop();
-
-            m_pComponentSystemManager->SyncAllRigidBodiesToObjectTransforms();
+            HandleEditorInput( action, keycode, -1, -1, -1, -1, -1 );
             return;
         }
-
-        if( keycode == '.' )
-        {
-            m_Paused = !m_Paused;
-            return;
-        }
-
-        if( keycode == ']' )
-        {
-            m_Paused = true;
-            m_PauseTimeToAdvance = 1/60.0f;
-            return;
-        }
-
-        if( keycode == '[' )
-        {
-            m_Paused = true;
-            m_PauseTimeToAdvance = 1.0f;
-            return;
-        }
-    }
-
-    if( g_GLCanvasIDActive == 1 )
-    {
-        HandleEditorInput( 1, keycode, -1, -1, -1, -1, -1 );
-        return;
-    }
-    else
+        else
 #endif
-    {
-        m_pComponentSystemManager->OnButtons( GCBA_Down, (GameCoreButtonIDs)keycode );
+        {
+            // TODO: hack, need to fix, did this for GGJ to make keys work
+            m_pComponentSystemManager->OnButtons( GCBA_Down, (GameCoreButtonIDs)keycode );
+        }
     }
-}
 
-void GameEntityComponentTest::OnKeyUp(int keycode, int unicodechar)
-{
+    if( action == GCBA_Up )
+    {
 #if MYFW_USING_WX
-    if( g_GLCanvasIDActive == 1 )
-    {
-        HandleEditorInput( 0, keycode, -1, -1, -1, -1, -1 );
-        return;
-    }
-    else
+        if( g_GLCanvasIDActive == 1 )
+        {
+            HandleEditorInput( action, keycode, -1, -1, -1, -1, -1 );
+            return;
+        }
+        else
 #endif
+        {
+            // TODO: hack, need to fix, did this for GGJ to make keys work
+            m_pComponentSystemManager->OnButtons( GCBA_Up, (GameCoreButtonIDs)keycode );
+        }
+    }
+
+    if( action == GCBA_Held )
     {
-        m_pComponentSystemManager->OnButtons( GCBA_Up, (GameCoreButtonIDs)keycode );
+#if MYFW_USING_WX
+        if( g_GLCanvasIDActive == 1 )
+        {
+            HandleEditorInput( action, keycode, -1, -1, -1, -1, -1 );
+            return;
+        }
+        //else
+#endif
     }
 }
 
-void GameEntityComponentTest::HandleEditorInput(int keydown, int keycode, int action, int id, float x, float y, float pressure)
+void GameEntityComponentTest::HandleEditorInput(int keyaction, int keycode, int mouseaction, int id, float x, float y, float pressure)
 {
 #if MYFW_USING_WX
     if( keycode == MYKEYCODE_LCTRL )
     {
-        if( keydown == 1 ) m_pEditorState->m_ModifierKeyStates |= MODIFIERKEY_Control;
-        if( keydown == 0 ) m_pEditorState->m_ModifierKeyStates &= ~MODIFIERKEY_Control;
+        if( keyaction == GCBA_Down ) m_pEditorState->m_ModifierKeyStates |= MODIFIERKEY_Control;
+        if( keyaction == GCBA_Up ) m_pEditorState->m_ModifierKeyStates &= ~MODIFIERKEY_Control;
     }
     //else if( keycode == MYKEYCODE_LALT )
     //{
-    //    if( keydown == 1 ) m_pEditorState->m_ModifierKeyStates |= MODIFIERKEY_Alt;
-    //    if( keydown == 0 ) m_pEditorState->m_ModifierKeyStates &= ~MODIFIERKEY_Alt;
+    //    if( keyaction == GCBA_Down ) m_pEditorState->m_ModifierKeyStates |= MODIFIERKEY_Alt;
+    //    if( keyaction == GCBA_Up ) m_pEditorState->m_ModifierKeyStates &= ~MODIFIERKEY_Alt;
     //}
     else if( keycode == MYKEYCODE_LSHIFT )
     {
-        if( keydown == 1 ) m_pEditorState->m_ModifierKeyStates |= MODIFIERKEY_Shift;
-        if( keydown == 0 ) m_pEditorState->m_ModifierKeyStates &= ~MODIFIERKEY_Shift;
+        if( keyaction == GCBA_Down ) m_pEditorState->m_ModifierKeyStates |= MODIFIERKEY_Shift;
+        if( keyaction == GCBA_Up ) m_pEditorState->m_ModifierKeyStates &= ~MODIFIERKEY_Shift;
     }
     else if( keycode == ' ' )
     {
-        if( keydown == 1 ) m_pEditorState->m_ModifierKeyStates |= MODIFIERKEY_Space;
-        if( keydown == 0 ) m_pEditorState->m_ModifierKeyStates &= ~MODIFIERKEY_Space;
+        if( keyaction == GCBA_Down ) m_pEditorState->m_ModifierKeyStates |= MODIFIERKEY_Space;
+        if( keyaction == GCBA_Up ) m_pEditorState->m_ModifierKeyStates &= ~MODIFIERKEY_Space;
     }
-    if( action != -1 )
+    if( mouseaction != -1 )
     {
         m_pEditorState->m_CurrentMousePosition.Set( x, y );
         //m_pEditorState->m_LastMousePosition.Set( x, y );
 
-        if( action == GCBA_Down )
+        if( mouseaction == GCBA_Down )
         {
             if( id == 0 )
             {
@@ -672,7 +690,7 @@ void GameEntityComponentTest::HandleEditorInput(int keydown, int keycode, int ac
     {
         // select an object when mouse is released and on the same pixel it went down.
         // TODO: make same "pixel test" a "total travel < small number" test.
-        if( action == GCBA_Up && id == 0 && m_pEditorState->m_CurrentMousePosition == m_pEditorState->m_MouseLeftDownLocation )
+        if( mouseaction == GCBA_Up && id == 0 && m_pEditorState->m_CurrentMousePosition == m_pEditorState->m_MouseLeftDownLocation )
         {
             // find the object we clicked on.
             GameObject* pObject = GetObjectAtPixel( x, y );
@@ -697,7 +715,7 @@ void GameEntityComponentTest::HandleEditorInput(int keydown, int keycode, int ac
             }
         }
 
-        if( action == GCBA_Down && id == 0 )
+        if( mouseaction == GCBA_Down && id == 0 )
         {
             // find the object we clicked on.
             GameObject* pObject = GetObjectAtPixel( x, y );
@@ -834,13 +852,13 @@ void GameEntityComponentTest::HandleEditorInput(int keydown, int keycode, int ac
                         //gHitPos = pickPos;
 
                         m_pEditorState->m_MousePicker_OldPickingDist = (pickPos-RayStart).length();
-                        action = -1;
+                        mouseaction = -1;
                     }
                 }
             }
         }
 
-        if( action == GCBA_Held && id == 0 )
+        if( mouseaction == GCBA_Held && id == 0 )
         {
             if( m_pEditorState->m_MousePicker_PickConstraint && g_pBulletWorld->m_pDynamicsWorld )
             {
@@ -966,11 +984,11 @@ void GameEntityComponentTest::HandleEditorInput(int keydown, int keycode, int ac
                 //m_mouseOldY = y;
                 //updateCamera();
 
-                action = -1;
+                mouseaction = -1;
             }
         }
 
-        if( action == GCBA_Up && id == 0 )
+        if( mouseaction == GCBA_Up && id == 0 )
         {
             m_pEditorState->ClearConstraint();
         }
@@ -1076,7 +1094,7 @@ void GameEntityComponentTest::HandleEditorInput(int keydown, int keycode, int ac
     }
 
     // if mouse message. down, up or dragging.
-    if( action != -1 )
+    if( mouseaction != -1 )
     {
         unsigned int mods = m_pEditorState->m_ModifierKeyStates;
 
@@ -1085,13 +1103,14 @@ void GameEntityComponentTest::HandleEditorInput(int keydown, int keycode, int ac
         MyMatrix* matLocalCamera = pCamera->m_pComponentTransform->GetLocalTransform();
 
         // move camera in/out if mousewheel spinning
-        if( action == GCBA_Wheel )
+        if( mouseaction == GCBA_Wheel )
         {
             // pressure is also mouse wheel movement rate in wx configurations.
             Vector3 dir = Vector3( 0, 0, 1 ) * -(pressure/abs(pressure));
+            float speed = 2000.0f;
 
             if( dir.LengthSquared() > 0 )
-                matLocalCamera->TranslatePreRotScale( dir * 1.5f );
+                matLocalCamera->TranslatePreRotScale( dir * speed * m_TimePassedUnpausedLastFrame );
         }
 
         // if space is held, left button will pan the camera around.  or just middle button
@@ -1104,8 +1123,9 @@ void GameEntityComponentTest::HandleEditorInput(int keydown, int keycode, int ac
             if( dir.LengthSquared() > 0 )
                 matLocalCamera->TranslatePreRotScale( dir * 0.05f );
         }
-        // if left mouse if down, rotate the camera.
-        else if( mods & MODIFIERKEY_LeftMouse && m_pEditorState->m_EditorActionState == EDITORACTIONSTATE_None )
+        // if left or right mouse is down, rotate the camera.
+        else if( m_pEditorState->m_EditorActionState == EDITORACTIONSTATE_None &&
+                 ( mods & MODIFIERKEY_LeftMouse || mods & MODIFIERKEY_RightMouse ) )
         {
             // rotate the camera around selected object or a point 10 units in front of the camera.
             Vector2 dir = m_pEditorState->m_CurrentMousePosition - m_pEditorState->m_LastMousePosition;
@@ -1158,9 +1178,31 @@ void GameEntityComponentTest::HandleEditorInput(int keydown, int keycode, int ac
         }
     }
 
-    if( action != -1 )
+    // handle editor keys
+    if( keyaction == GCBA_Held )
     {
-        if( action == GCBA_Up )
+        // get the editor camera's local transform.
+        ComponentCamera* pCamera = m_pEditorState->GetEditorCamera();
+        MyMatrix* matLocalCamera = pCamera->m_pComponentTransform->GetLocalTransform();
+
+        // WASD to move camera
+        Vector3 dir( 0, 0, 0 );
+        if( keycode == 'W' ) dir.z += -1;
+        if( keycode == 'A' ) dir.x += -1;
+        if( keycode == 'S' ) dir.z +=  1;
+        if( keycode == 'D' ) dir.x +=  1;
+        if( keycode == 'Q' ) dir.y +=  1;
+        if( keycode == 'Z' ) dir.y -=  1;
+
+        float speed = 50.0f;
+        if( dir.LengthSquared() > 0 )
+            matLocalCamera->TranslatePreRotScale( dir * speed * m_TimePassedUnpausedLastFrame );
+    }
+
+    // check for mouse ups and clear the states.
+    if( mouseaction != -1 )
+    {
+        if( mouseaction == GCBA_Up )
         {
             if( id == 0 )
             {
