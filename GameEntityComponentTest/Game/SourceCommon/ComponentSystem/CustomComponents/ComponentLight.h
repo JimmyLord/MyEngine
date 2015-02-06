@@ -7,43 +7,33 @@
 // 2. Altered source versions must be plainly marked as such, and must not be misrepresented as being the original software.
 // 3. This notice may not be removed or altered from any source distribution.
 
-#ifndef __ComponentMeshPlane_H__
-#define __ComponentMeshPlane_H__
+#ifndef __ComponentLight_H__
+#define __ComponentLight_H__
 
-class ComponentTransform;
-
-class ComponentMeshPlane : public ComponentMesh
+class ComponentLight : public ComponentData
 {
 public:
-    Vector2 m_Size;
-    Vector2Int m_VertCount;
-    Vector2 m_UVStart;
-    Vector2 m_UVRange;
+    ColorFloat m_Color;
+    Vector3 m_Attenuation;
 
 public:
-    ComponentMeshPlane();
-    virtual ~ComponentMeshPlane();
+    ComponentLight();
+    virtual ~ComponentLight();
 
     virtual cJSON* ExportAsJSONObject();
     virtual void ImportFromJSONObject(cJSON* jsonobj, unsigned int sceneid);
 
     virtual void Reset();
-    virtual void CopyFromSameType_Dangerous(ComponentBase* pObject) { *this = (ComponentMeshPlane&)*pObject; }
-    virtual ComponentMeshPlane& operator=(const ComponentMeshPlane& other);
-
-    void CreatePlane();
-
-    virtual void Draw(MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride = 0, int drawcount = 0);
+    virtual void CopyFromSameType_Dangerous(ComponentBase* pObject) { *this = (ComponentLight&)*pObject; }
+    virtual ComponentLight& operator=(const ComponentLight& other);
 
 public:
 #if MYFW_USING_WX
     virtual void AddToObjectsPanel(wxTreeItemId gameobjectid);
-    static void StaticOnLeftClick(void* pObjectPtr) { ((ComponentMeshPlane*)pObjectPtr)->OnLeftClick( true ); }
+    static void StaticOnLeftClick(void* pObjectPtr) { ((ComponentLight*)pObjectPtr)->OnLeftClick( true ); }
     void OnLeftClick(bool clear);
     virtual void FillPropertiesWindow(bool clear);
-    static void StaticOnValueChanged(void* pObjectPtr, int id, bool finishedchanging) { ((ComponentMeshPlane*)pObjectPtr)->OnValueChanged( id, finishedchanging ); }
-    void OnValueChanged(int id, bool finishedchanging);
 #endif //MYFW_USING_WX
 };
 
-#endif //__ComponentMeshPlane_H__
+#endif //__ComponentLight_H__

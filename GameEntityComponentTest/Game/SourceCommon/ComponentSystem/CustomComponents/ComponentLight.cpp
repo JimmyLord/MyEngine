@@ -1,0 +1,78 @@
+//
+// Copyright (c) 2015 Jimmy Lord http://www.flatheadgames.com
+//
+// This software is provided 'as-is', without any express or implied warranty.  In no event will the authors be held liable for any damages arising from the use of this software.
+// Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
+// 1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
+// 2. Altered source versions must be plainly marked as such, and must not be misrepresented as being the original software.
+// 3. This notice may not be removed or altered from any source distribution.
+
+#include "GameCommonHeader.h"
+
+ComponentLight::ComponentLight()
+: ComponentData()
+{
+    m_BaseType = BaseComponentType_Data;
+}
+
+ComponentLight::~ComponentLight()
+{
+}
+
+#if MYFW_USING_WX
+void ComponentLight::AddToObjectsPanel(wxTreeItemId gameobjectid)
+{
+    wxTreeItemId id = g_pPanelObjectList->AddObject( this, ComponentLight::StaticOnLeftClick, ComponentBase::StaticOnRightClick, gameobjectid, "Light" );
+}
+
+void ComponentLight::OnLeftClick(bool clear)
+{
+    ComponentBase::OnLeftClick( clear );
+}
+
+void ComponentLight::FillPropertiesWindow(bool clear)
+{
+    ComponentData::FillPropertiesWindow( clear );
+
+    g_pPanelWatch->AddColorFloat( "color", &m_Color, 0, 1 );
+    g_pPanelWatch->AddVector3( "atten", &m_Attenuation, -1, 1 );
+}
+#endif //MYFW_USING_WX
+
+cJSON* ComponentLight::ExportAsJSONObject()
+{
+    cJSON* component = ComponentData::ExportAsJSONObject();
+
+    cJSONExt_AddFloatArrayToObject( component, "Color", &m_Color.r, 4 );
+    cJSONExt_AddFloatArrayToObject( component, "Atten", &m_Attenuation.x, 3 );
+
+    return component;
+}
+
+void ComponentLight::ImportFromJSONObject(cJSON* jsonobj, unsigned int sceneid)
+{
+    ComponentData::ImportFromJSONObject( jsonobj, sceneid );
+
+    cJSONExt_GetFloatArray( jsonobj, "Color", &m_Color.r, 4 );
+    cJSONExt_GetFloatArray( jsonobj, "Atten", &m_Attenuation.x, 3 );
+}
+
+void ComponentLight::Reset()
+{
+    ComponentData::Reset();
+
+    m_Color.Set( 0,0,0,0 );
+    m_Attenuation.Set( 0,0,0 );
+}
+
+ComponentLight& ComponentLight::operator=(const ComponentLight& other)
+{
+    assert( &other != this );
+
+    ComponentData::operator=( other );
+
+    this->m_Color = other.m_Color;
+    this->m_Attenuation = other.m_Attenuation;
+
+    return *this;
+}

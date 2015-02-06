@@ -101,7 +101,7 @@ void ComponentTransform::OnDropTransform()
     }
 }
 
-void ComponentTransform::OnValueChanged(int id)
+void ComponentTransform::OnValueChanged(int id, bool finishedchanging)
 {
     if( id != -1 && id == m_ControlID_ParentTransform )
     {

@@ -64,8 +64,8 @@ public:
     virtual void FillPropertiesWindow(bool clear);
     static void StaticOnDropTransform(void* pObjectPtr) { ((ComponentTransform*)pObjectPtr)->OnDropTransform(); }
     void OnDropTransform();
-    static void StaticOnValueChanged(void* pObjectPtr, int id) { ((ComponentTransform*)pObjectPtr)->OnValueChanged( id ); }
-    void OnValueChanged(int id);
+    static void StaticOnValueChanged(void* pObjectPtr, int id, bool finishedchanging) { ((ComponentTransform*)pObjectPtr)->OnValueChanged( id, finishedchanging ); }
+    void OnValueChanged(int id, bool finishedchanging);
 #endif //MYFW_USING_WX
 };
 

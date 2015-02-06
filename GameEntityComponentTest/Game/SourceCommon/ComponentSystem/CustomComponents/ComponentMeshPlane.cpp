@@ -55,9 +55,12 @@ void ComponentMeshPlane::FillPropertiesWindow(bool clear)
     g_pPanelWatch->AddVector2( "UVRange", &m_UVRange, -1.0f, 1000.0f, this, StaticOnValueChanged );
 }
 
-void ComponentMeshPlane::OnValueChanged(int id)
+void ComponentMeshPlane::OnValueChanged(int id, bool finishedchanging)
 {
-    CreatePlane();
+    if( finishedchanging )
+    {
+        CreatePlane();
+    }
 }
 #endif //MYFW_USING_WX
 

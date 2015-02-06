@@ -47,7 +47,7 @@ void ComponentCamera::FillPropertiesWindow(bool clear)
     g_pPanelWatch->AddUnsignedInt( "Layers", &m_LayersToRender, 0, 1, this, ComponentCamera::StaticOnValueChanged );
 }
 
-void ComponentCamera::OnValueChanged(int id)
+void ComponentCamera::OnValueChanged(int id, bool finishedchanging)
 {
     ComputeProjectionMatrices();
     m_FullClearsRequired = 2;
