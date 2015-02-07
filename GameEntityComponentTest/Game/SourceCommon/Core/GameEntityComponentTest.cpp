@@ -1107,7 +1107,9 @@ void GameEntityComponentTest::HandleEditorInput(int keyaction, int keycode, int 
         {
             // pressure is also mouse wheel movement rate in wx configurations.
             Vector3 dir = Vector3( 0, 0, 1 ) * -(pressure/abs(pressure));
-            float speed = 2000.0f;
+            float speed = 600.0f;
+            if( m_pEditorState->m_ModifierKeyStates & MODIFIERKEY_Shift )
+                speed *= 5;
 
             if( dir.LengthSquared() > 0 )
                 matLocalCamera->TranslatePreRotScale( dir * speed * m_TimePassedUnpausedLastFrame );
@@ -1133,7 +1135,7 @@ void GameEntityComponentTest::HandleEditorInput(int keyaction, int keycode, int 
             Vector3 pivot;
             float distancefrompivot;
 
-            if( m_pEditorState->m_pSelectedObjects.size() > 0 && m_pEditorState->m_pTransformGizmo->m_pTransformGizmos[0] )//m_pEditorState->m_pSelectedObjects[0] )
+            if( mods & MODIFIERKEY_LeftMouse && m_pEditorState->m_pSelectedObjects.size() > 0 && m_pEditorState->m_pTransformGizmo->m_pTransformGizmos[0] )//m_pEditorState->m_pSelectedObjects[0] )
             {
                 // pivot around the transform gizmo
                 pivot = m_pEditorState->m_pTransformGizmo->m_pTransformGizmos[0]->m_pComponentTransform->m_Transform.GetTranslation();
@@ -1142,10 +1144,20 @@ void GameEntityComponentTest::HandleEditorInput(int keyaction, int keycode, int 
             }
             else
             {
-                MyMatrix mattemp = *matLocalCamera;
-                mattemp.TranslatePreRotScale( 0, 0, -10 );
-                pivot = mattemp.GetTranslation();
-                distancefrompivot = 10;
+                if( mods & MODIFIERKEY_RightMouse )
+                {
+                    // pivot on the camera, just change rotation.
+                    pivot = matLocalCamera->GetTranslation();
+                    distancefrompivot = 0;
+                }
+                else
+                {
+                    // TODO: try to pivot from distance of object at mouse
+                    MyMatrix mattemp = *matLocalCamera;
+                    mattemp.TranslatePreRotScale( 0, 0, -10 );
+                    pivot = mattemp.GetTranslation();
+                    distancefrompivot = 10;
+                }
             }
 
             if( dir.LengthSquared() > 0 )
@@ -1154,8 +1166,10 @@ void GameEntityComponentTest::HandleEditorInput(int keyaction, int keycode, int 
 
                 Vector3 pos = matLocalCamera->GetTranslation();
                 Vector3 angle = pCamera->m_pComponentTransform->GetLocalRotation();
-                angle.y += dir.x;
-                angle.x -= dir.y;
+                float speed = 200.0f;
+
+                angle.y += dir.x * speed * m_TimePassedUnpausedLastFrame;
+                angle.x -= dir.y * speed * m_TimePassedUnpausedLastFrame;
                 MyClamp( angle.x, -90.0f, 90.0f );
 
                 matLocalCamera->SetIdentity();
@@ -1194,7 +1208,10 @@ void GameEntityComponentTest::HandleEditorInput(int keyaction, int keycode, int 
         if( keycode == 'Q' ) dir.y +=  1;
         if( keycode == 'Z' ) dir.y -=  1;
 
-        float speed = 50.0f;
+        float speed = 7.0f;
+        if( m_pEditorState->m_ModifierKeyStates & MODIFIERKEY_Shift )
+            speed *= 5;
+
         if( dir.LengthSquared() > 0 )
             matLocalCamera->TranslatePreRotScale( dir * speed * m_TimePassedUnpausedLastFrame );
     }

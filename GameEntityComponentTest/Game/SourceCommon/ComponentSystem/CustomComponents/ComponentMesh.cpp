@@ -20,6 +20,8 @@ ComponentMesh::ComponentMesh()
 
     m_PrimitiveType = GL_TRIANGLES;
     m_PointSize = 1;
+
+    m_Shininess = 1;
 }
 
 ComponentMesh::~ComponentMesh()
@@ -66,6 +68,7 @@ void ComponentMesh::FillPropertiesWindow(bool clear)
 
     g_pPanelWatch->AddInt( "Primitive Type", &m_PrimitiveType, GL_POINTS, GL_TRIANGLE_FAN );
     g_pPanelWatch->AddInt( "Point Size", &m_PointSize, 1, 100 );
+    g_pPanelWatch->AddFloat( "Shininess", &m_Shininess, 1, 300 );
 }
 
 void ComponentMesh::OnDropShader()
@@ -128,6 +131,7 @@ cJSON* ComponentMesh::ExportAsJSONObject()
 
     cJSON_AddNumberToObject( component, "PrimitiveType", m_PrimitiveType );
     cJSON_AddNumberToObject( component, "PointSize", m_PointSize );
+    cJSON_AddNumberToObject( component, "Shininess", m_Shininess );
     
     return component;
 }
@@ -162,6 +166,7 @@ void ComponentMesh::ImportFromJSONObject(cJSON* jsonobj, unsigned int sceneid)
 
     cJSONExt_GetInt( jsonobj, "PrimitiveType", &m_PrimitiveType );
     cJSONExt_GetInt( jsonobj, "PointSize", &m_PointSize );
+    cJSONExt_GetFloat( jsonobj, "Shininess", &m_Shininess );
 }
 
 ComponentMesh& ComponentMesh::operator=(const ComponentMesh& other)
@@ -184,6 +189,7 @@ ComponentMesh& ComponentMesh::operator=(const ComponentMesh& other)
 
     m_PrimitiveType = other.m_PrimitiveType;
     m_PointSize = other.m_PointSize;
+    m_Shininess = other.m_Shininess;
 
     return *this;
 }
@@ -207,6 +213,7 @@ void ComponentMesh::Draw(MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride, i
         m_pMesh->m_pTexture = m_pTexture;
         m_pMesh->m_PrimitiveType = m_PrimitiveType;
         m_pMesh->m_PointSize = m_PointSize;
+        m_pMesh->m_Shininess = m_Shininess;
 
         m_pMesh->m_Position = this->m_pComponentTransform->m_Transform;
 

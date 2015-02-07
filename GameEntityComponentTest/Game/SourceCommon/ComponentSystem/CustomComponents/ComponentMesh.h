@@ -20,6 +20,7 @@ public:
     TextureDefinition* m_pTexture;
     int m_PrimitiveType;
     int m_PointSize;
+    float m_Shininess;
 
 public:
     ComponentMesh();

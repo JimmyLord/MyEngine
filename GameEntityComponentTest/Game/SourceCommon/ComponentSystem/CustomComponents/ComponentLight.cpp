@@ -35,7 +35,7 @@ void ComponentLight::FillPropertiesWindow(bool clear)
     ComponentData::FillPropertiesWindow( clear );
 
     g_pPanelWatch->AddColorFloat( "color", &m_Color, 0, 1 );
-    g_pPanelWatch->AddVector3( "atten", &m_Attenuation, -1, 1 );
+    g_pPanelWatch->AddVector3( "atten", &m_Attenuation, 0, 1 );
 }
 #endif //MYFW_USING_WX
 

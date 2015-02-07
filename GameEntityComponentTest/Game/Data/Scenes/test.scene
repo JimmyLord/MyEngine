@@ -143,6 +143,7 @@
 			"Texture":	"Data/Textures/WhiteSquare.png",
 			"PrimitiveType":	4,
 			"PointSize":	1,
+			"Shininess":	200,
 			"OBJ":	"Data/OBJs/cube.obj"
 		}, {
 			"Type":	"Mesh-Plane",
@@ -154,6 +155,7 @@
 			"Texture":	"Data/Textures/WhiteSquare.png",
 			"PrimitiveType":	4,
 			"PointSize":	1,
+			"Shininess":	40,
 			"m_Sizex":	20,
 			"m_Sizey":	20,
 			"VertCountx":	2,
@@ -166,7 +168,7 @@
 			"Type":	"Light",
 			"GOID":	12,
 			"ID":	21,
-			"Color":	[0, 1, 0, 1],
-			"Atten":	[1, 0.090800, 0.090800]
+			"Color":	[0, 0, 1, 1],
+			"Atten":	[1, 0, 0.010000]
 		}]
 }

@@ -64,7 +64,7 @@ public:
 
     void OnGameMenu(wxCommandEvent& event);
     virtual void ResizeViewport();
-    void SetWindowPerspectiveToDefault();
+    void SetWindowPerspectiveToDefault(bool forceswitch = false);
     int GetDefaultEditorPerspectiveIndex();
     int GetDefaultGameplayPerspectiveIndex();
     void SetDefaultEditorPerspectiveIndex(int index);
