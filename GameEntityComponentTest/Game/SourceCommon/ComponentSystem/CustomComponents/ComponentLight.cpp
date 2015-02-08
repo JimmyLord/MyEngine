@@ -13,10 +13,29 @@ ComponentLight::ComponentLight()
 : ComponentData()
 {
     m_BaseType = BaseComponentType_Data;
+
+    m_pLight = 0;
 }
 
 ComponentLight::~ComponentLight()
 {
+    if( m_pLight )
+        g_pLightManager->DestroyLight( m_pLight );
+}
+
+void ComponentLight::Reset()
+{
+    ComponentData::Reset();
+
+    if( m_pLight == 0 )
+    {
+        m_pLight = g_pLightManager->CreateLight();
+        m_pGameObject->m_pComponentTransform->RegisterPositionChangedCallback( this, StaticOnTransformPositionChanged );
+    }
+
+    m_pLight->m_Position = m_pGameObject->m_pComponentTransform->GetPosition();
+    m_pLight->m_Color.Set( 0,0,0,0 );
+    m_pLight->m_Attenuation.Set( 0,0,0 );
 }
 
 #if MYFW_USING_WX
@@ -34,8 +53,8 @@ void ComponentLight::FillPropertiesWindow(bool clear)
 {
     ComponentData::FillPropertiesWindow( clear );
 
-    g_pPanelWatch->AddColorFloat( "color", &m_Color, 0, 1 );
-    g_pPanelWatch->AddVector3( "atten", &m_Attenuation, 0, 1 );
+    g_pPanelWatch->AddColorFloat( "color", &m_pLight->m_Color, 0, 1 );
+    g_pPanelWatch->AddVector3( "atten", &m_pLight->m_Attenuation, 0, 1 );
 }
 #endif //MYFW_USING_WX
 
@@ -43,8 +62,8 @@ cJSON* ComponentLight::ExportAsJSONObject()
 {
     cJSON* component = ComponentData::ExportAsJSONObject();
 
-    cJSONExt_AddFloatArrayToObject( component, "Color", &m_Color.r, 4 );
-    cJSONExt_AddFloatArrayToObject( component, "Atten", &m_Attenuation.x, 3 );
+    cJSONExt_AddFloatArrayToObject( component, "Color", &m_pLight->m_Color.r, 4 );
+    cJSONExt_AddFloatArrayToObject( component, "Atten", &m_pLight->m_Attenuation.x, 3 );
 
     return component;
 }
@@ -53,16 +72,15 @@ void ComponentLight::ImportFromJSONObject(cJSON* jsonobj, unsigned int sceneid)
 {
     ComponentData::ImportFromJSONObject( jsonobj, sceneid );
 
-    cJSONExt_GetFloatArray( jsonobj, "Color", &m_Color.r, 4 );
-    cJSONExt_GetFloatArray( jsonobj, "Atten", &m_Attenuation.x, 3 );
+    cJSONExt_GetFloatArray( jsonobj, "Color", &m_pLight->m_Color.r, 4 );
+    cJSONExt_GetFloatArray( jsonobj, "Atten", &m_pLight->m_Attenuation.x, 3 );
 }
 
-void ComponentLight::Reset()
+void ComponentLight::OnTransformPositionChanged(Vector3& newpos)
 {
-    ComponentData::Reset();
+    assert( m_pLight );
 
-    m_Color.Set( 0,0,0,0 );
-    m_Attenuation.Set( 0,0,0 );
+    m_pLight->m_Position = newpos;
 }
 
 ComponentLight& ComponentLight::operator=(const ComponentLight& other)
@@ -71,8 +89,8 @@ ComponentLight& ComponentLight::operator=(const ComponentLight& other)
 
     ComponentData::operator=( other );
 
-    this->m_Color = other.m_Color;
-    this->m_Attenuation = other.m_Attenuation;
+    this->m_pLight->m_Color = other.m_pLight->m_Color;
+    this->m_pLight->m_Attenuation = other.m_pLight->m_Attenuation;
 
     return *this;
 }

@@ -13,8 +13,7 @@
 class ComponentLight : public ComponentData
 {
 public:
-    ColorFloat m_Color;
-    Vector3 m_Attenuation;
+    MyLight* m_pLight;
 
 public:
     ComponentLight();
@@ -26,6 +25,9 @@ public:
     virtual void Reset();
     virtual void CopyFromSameType_Dangerous(ComponentBase* pObject) { *this = (ComponentLight&)*pObject; }
     virtual ComponentLight& operator=(const ComponentLight& other);
+
+    static void StaticOnTransformPositionChanged(void* pObjectPtr, Vector3& newpos) { ((ComponentLight*)pObjectPtr)->OnTransformPositionChanged( newpos ); }
+    void OnTransformPositionChanged(Vector3& newpos);
 
 public:
 #if MYFW_USING_WX

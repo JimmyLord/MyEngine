@@ -28,6 +28,8 @@ public:
     bool HandleInput(GameEntityComponentTest* pGame, int keydown, int keycode, int action, int id, float x, float y, float pressure);
 
     void ScaleGizmosForMousePickRendering(bool doscale);
+    
+    void TranslateSelectedObjects(GameEntityComponentTest* pGame, EditorState* pEditorState);
 };
 
 #endif // __TransformGizmo_H__

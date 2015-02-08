@@ -217,20 +217,8 @@ void ComponentMesh::Draw(MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride, i
 
         m_pMesh->m_Position = this->m_pComponentTransform->m_Transform;
 
-        MyLight lights[1];
-        int numlights = 0;
-
-        ComponentLight* pLight = g_pComponentSystemManager->FindNearestLight( m_pComponentTransform->GetPosition() );
-        if( pLight )
-        {
-            pLight->m_pGameObject->m_pComponentTransform->UpdateMatrix();
-
-            lights[0].m_Attenuation = pLight->m_Attenuation;
-            lights[0].m_Position = pLight->m_pGameObject->m_pComponentTransform->GetPosition();
-            lights[0].m_Color = pLight->m_Color;
-            lights[0].m_LightType = LightType_Point;
-            numlights++;
-        }
+        MyLight* lights;
+        int numlights = g_pLightManager->FindNearestLights( 4, &lights );
 
         Vector3 campos;
         if( ((GameEntityComponentTest*)g_pGameCore)->m_EditorMode )

@@ -10,14 +10,25 @@
 #ifndef __ComponentTransform_H__
 #define __ComponentTransform_H__
 
+typedef void (*TransformPositionChangedCallbackFunc)(void* obj, Vector3& newpos);
+struct TransformPositionChangedCallbackStruct
+{
+    void* pObj;
+    TransformPositionChangedCallbackFunc pFunc;
+};
+
 class ComponentTransform : public ComponentBase
 {
+    static const int MAX_REGISTERED_CALLBACKS = 1; // TODO: fix this hardcodedness
+
 public:
     MyMatrix m_Transform;
 
     ComponentTransform* m_pParentTransform;
 
 protected:
+    MyList<TransformPositionChangedCallbackStruct> m_pPositionChangedCallbackList;
+
     MyMatrix m_LocalTransform;
     Vector3 m_Position;
     Vector3 m_Scale;
@@ -53,6 +64,9 @@ public:
     void UpdatePosAndRotFromLocalMatrix();
     void UpdateMatrix();
     //MyMatrix* GetMatrix();
+
+    // Callbacks
+    void RegisterPositionChangedCallback(void* pObj, TransformPositionChangedCallbackFunc pCallback);
 
 public:
 #if MYFW_USING_WX

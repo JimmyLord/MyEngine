@@ -68,7 +68,6 @@ public:
     GameObject* FindGameObjectByID(unsigned int id);
     GameObject* FindGameObjectByName(const char* name);
     ComponentCamera* GetFirstCamera();
-    ComponentLight* FindNearestLight(Vector3 pos);
 
     ComponentBase* AddComponent(ComponentBase* pComponent);
     void DeleteComponent(ComponentBase* pComponent);

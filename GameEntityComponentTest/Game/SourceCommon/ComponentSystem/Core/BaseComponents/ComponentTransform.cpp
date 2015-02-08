@@ -13,6 +13,8 @@ ComponentTransform::ComponentTransform()
 : ComponentBase()
 {
     m_BaseType = BaseComponentType_Transform;
+
+    m_pPositionChangedCallbackList.AllocateObjects( MAX_REGISTERED_CALLBACKS );
 }
 
 ComponentTransform::~ComponentTransform()
@@ -115,6 +117,10 @@ void ComponentTransform::OnValueChanged(int id, bool finishedchanging)
     else
     {
         m_LocalTransform.CreateSRT( m_Scale, m_Rotation, m_Position );
+        UpdateMatrix();
+
+        for( unsigned int i=0; i<m_pPositionChangedCallbackList.Count(); i++ )
+            m_pPositionChangedCallbackList[0].pFunc( m_pPositionChangedCallbackList[0].pObj, m_Position );
     }
 }
 #endif //MYFW_USING_WX
@@ -149,6 +155,7 @@ void ComponentTransform::ImportFromJSONObject(cJSON* jsonobj, unsigned int scene
     cJSONExt_GetFloatArray( jsonobj, "Rot", &m_Rotation.x, 3 );
 
     m_LocalTransform.CreateSRT( m_Scale, m_Rotation, m_Position );
+    UpdateMatrix();
 }
 
 ComponentTransform& ComponentTransform::operator=(const ComponentTransform& other)
@@ -172,6 +179,9 @@ void ComponentTransform::SetPosition(Vector3 pos)
 {
     m_Position = pos;
     m_LocalTransform.CreateSRT( m_Scale, m_Rotation, m_Position );
+
+    for( unsigned int i=0; i<m_pPositionChangedCallbackList.Count(); i++ )
+        m_pPositionChangedCallbackList[0].pFunc( m_pPositionChangedCallbackList[0].pObj, m_Position );
 }
 
 void ComponentTransform::SetScale(Vector3 scale)
@@ -237,3 +247,15 @@ void ComponentTransform::UpdateMatrix()
 //{
 //    return &m_Transform;
 //}
+
+void ComponentTransform::RegisterPositionChangedCallback(void* pObj, TransformPositionChangedCallbackFunc pCallback)
+{
+    assert( pCallback != 0 );
+    assert( m_pPositionChangedCallbackList.Count() < MAX_REGISTERED_CALLBACKS );
+
+    TransformPositionChangedCallbackStruct callbackstruct;
+    callbackstruct.pObj = pObj;
+    callbackstruct.pFunc = pCallback;
+
+    m_pPositionChangedCallbackList.Add( callbackstruct );
+}

@@ -998,98 +998,8 @@ void GameEntityComponentTest::HandleEditorInput(int keyaction, int keycode, int 
 
         if( mousedragdir.LengthSquared() != 0 )
         {
-            // If the mouse moved, move the object along a plane.
-            if( m_pEditorState->m_EditorActionState == EDITORACTIONSTATE_TranslateX ||
-                m_pEditorState->m_EditorActionState == EDITORACTIONSTATE_TranslateY ||
-                m_pEditorState->m_EditorActionState == EDITORACTIONSTATE_TranslateZ ||
-                m_pEditorState->m_EditorActionState == EDITORACTIONSTATE_TranslateXY ||
-                m_pEditorState->m_EditorActionState == EDITORACTIONSTATE_TranslateXZ ||
-                m_pEditorState->m_EditorActionState == EDITORACTIONSTATE_TranslateYZ )
-            {
-                // move all selected objects by the same amount, use object 0 to create a plane.
-                {
-                    ComponentCamera* pCamera = m_pEditorState->GetEditorCamera();
-                    MyMatrix* pObjectTransform = &m_pEditorState->m_pSelectedObjects[0]->m_pComponentTransform->m_Transform;
-
-                    // create a plane based on the axis we want.
-                    Vector3 axisvector;
-                    Plane plane;
-                    {
-                        Vector3 normal;
-                        if( m_pEditorState->m_EditorActionState == EDITORACTIONSTATE_TranslateXY ||
-                            m_pEditorState->m_EditorActionState == EDITORACTIONSTATE_TranslateX )
-                        {
-                            normal = Vector3(0,0,1);
-                            axisvector = Vector3(1,0,0);
-                        }
-                        else if( m_pEditorState->m_EditorActionState == EDITORACTIONSTATE_TranslateXZ ||
-                                 m_pEditorState->m_EditorActionState == EDITORACTIONSTATE_TranslateZ )
-                        {
-                            normal = Vector3(0,1,0);
-                            axisvector = Vector3(0,0,1);
-                        }
-                        else if( m_pEditorState->m_EditorActionState == EDITORACTIONSTATE_TranslateYZ ||
-                                 m_pEditorState->m_EditorActionState == EDITORACTIONSTATE_TranslateY )
-                        {
-                            normal = Vector3(1,0,0);
-                            axisvector = Vector3(0,1,0);
-                        }
-
-                        // transform the normal into the selected objects space.
-                        plane.Set( (*pObjectTransform * Vector4( normal, 0 )).XYZ(), pObjectTransform->GetTranslation() );
-                    }
-
-                    // Get the mouse click ray... current and last frame.
-                    Vector3 currentraystart, currentrayend;
-                    GetMouseRay( m_pEditorState->m_CurrentMousePosition, &currentraystart, &currentrayend );
-
-                    Vector3 lastraystart, lastrayend;
-                    GetMouseRay( m_pEditorState->m_LastMousePosition, &lastraystart, &lastrayend );
-
-                    // find the intersection point of the plane.
-                    Vector3 currentresult;
-                    Vector3 lastresult;
-                    if( plane.IntersectRay( currentraystart, currentrayend, &currentresult ) &&
-                        plane.IntersectRay( lastraystart, lastrayend, &lastresult ) )
-                    {
-                        // lock to one of the 3 axis.
-                        if( m_pEditorState->m_EditorActionState == EDITORACTIONSTATE_TranslateX ||
-                            m_pEditorState->m_EditorActionState == EDITORACTIONSTATE_TranslateY ||
-                            m_pEditorState->m_EditorActionState == EDITORACTIONSTATE_TranslateZ )
-                        {
-                            // for current mouse pos
-                            axisvector = (*pObjectTransform * Vector4( axisvector, 0 )).XYZ();
-                            axisvector.Normalize();
-                            currentresult -= pObjectTransform->GetTranslation();
-                            currentresult = axisvector * currentresult.Dot( axisvector );
-                            currentresult += pObjectTransform->GetTranslation();
-
-                            // for last mouse pos
-                            axisvector = (*pObjectTransform * Vector4( axisvector, 0 )).XYZ();
-                            axisvector.Normalize();
-                            lastresult -= pObjectTransform->GetTranslation();
-                            lastresult = axisvector * lastresult.Dot( axisvector );
-                            lastresult += pObjectTransform->GetTranslation();
-                        }
-
-                        // find the diff pos between this frame and last.
-                        Vector3 diff = currentresult - lastresult;
-
-                        // move all of the things.
-                        //g_pGameMainFrame->m_pCommandStack->Do( MyNew EditorCommand_MoveObjects( diff, m_pEditorState->m_pSelectedObjects ) );
-                        m_pEditorState->m_DistanceTranslated += diff;
-                        //LOGInfo( LOGTag, "m_pEditorState->m_DistanceTranslated.Set( %f, %f, %f );", m_pEditorState->m_DistanceTranslated.x, m_pEditorState->m_DistanceTranslated.y, m_pEditorState->m_DistanceTranslated.z );
-                        //LOGInfo( LOGTag, "diff( %f, %f, %f, %d );", diff.x, diff.y, diff.z, m_pEditorState->m_pSelectedObjects.size() );
-
-                        for( unsigned int i=0; i<m_pEditorState->m_pSelectedObjects.size(); i++ )
-                        {
-                            Vector3 pos = m_pEditorState->m_pSelectedObjects[i]->m_pComponentTransform->GetPosition();
-                            m_pEditorState->m_pSelectedObjects[i]->m_pComponentTransform->SetPosition( pos + diff );
-                            m_pEditorState->m_pSelectedObjects[i]->m_pComponentTransform->UpdateMatrix();
-                        }
-                    }
-                }
-            }
+            // If the mouse moved, move the selected objects along a plane or axis
+            m_pEditorState->m_pTransformGizmo->TranslateSelectedObjects( this, m_pEditorState );
         }
     }
 
@@ -1456,8 +1366,8 @@ void GameEntityComponentTest::GetMouseRay(Vector2 mousepos, Vector3* start, Vect
 
     // Convert mouse coord into clip space.
     Vector2 mouseclip;
-    mouseclip.x = (mousepos.x / m_WindowWidth) * 2.0f - 1.0f;
-    mouseclip.y = (mousepos.y / m_WindowHeight) * 2.0f - 1.0f;
+    mouseclip.x = (mousepos.x / pCamera->m_WindowWidth) * 2.0f - 1.0f;
+    mouseclip.y = (mousepos.y / pCamera->m_WindowHeight) * 2.0f - 1.0f;
 
     // Convert the mouse ray into view space from clip space.
     MyMatrix invProj = pCamera->m_Camera3D.m_matProj;
