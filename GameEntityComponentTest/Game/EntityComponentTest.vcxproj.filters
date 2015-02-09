@@ -312,9 +312,6 @@
     <ClCompile Include="SourceCommon\Core\EditorState.cpp">
       <Filter>Source\Core Files</Filter>
     </ClCompile>
-    <ClCompile Include="SourceCommon\ComponentSystem\CustomComponents\ComponentMeshPlane.cpp">
-      <Filter>Source\ComponentSystem\Custom Components</Filter>
-    </ClCompile>
     <ClCompile Include="SourceCommon\Editor\GameCommandStack.cpp">
       <Filter>Source\Editor</Filter>
     </ClCompile>
@@ -325,6 +322,9 @@
       <Filter>Source\Editor</Filter>
     </ClCompile>
     <ClCompile Include="SourceCommon\ComponentSystem\CustomComponents\ComponentLight.cpp">
+      <Filter>Source\ComponentSystem\Custom Components</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCommon\ComponentSystem\CustomComponents\ComponentMeshPrimitive.cpp">
       <Filter>Source\ComponentSystem\Custom Components</Filter>
     </ClCompile>
   </ItemGroup>
@@ -563,9 +563,6 @@
     <ClInclude Include="SourceCommon\Core\EditorState.h">
       <Filter>Source\Core Files</Filter>
     </ClInclude>
-    <ClInclude Include="SourceCommon\ComponentSystem\CustomComponents\ComponentMeshPlane.h">
-      <Filter>Source\ComponentSystem\Custom Components</Filter>
-    </ClInclude>
     <ClInclude Include="SourceCommon\Editor\GameCommandStack.h">
       <Filter>Source\Editor</Filter>
     </ClInclude>
@@ -576,6 +573,9 @@
       <Filter>Source\Editor</Filter>
     </ClInclude>
     <ClInclude Include="SourceCommon\ComponentSystem\CustomComponents\ComponentLight.h">
+      <Filter>Source\ComponentSystem\Custom Components</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCommon\ComponentSystem\CustomComponents\ComponentMeshPrimitive.h">
       <Filter>Source\ComponentSystem\Custom Components</Filter>
     </ClInclude>
   </ItemGroup>

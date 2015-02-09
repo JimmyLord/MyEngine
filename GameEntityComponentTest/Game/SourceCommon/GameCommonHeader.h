@@ -58,7 +58,7 @@ extern "C"
 #include "ComponentSystem/CustomComponents/ComponentSprite.h"
 #include "ComponentSystem/CustomComponents/ComponentMesh.h"
 #include "ComponentSystem/CustomComponents/ComponentMeshOBJ.h"
-#include "ComponentSystem/CustomComponents/ComponentMeshPlane.h"
+#include "ComponentSystem/CustomComponents/ComponentMeshPrimitive.h"
 
 // game code
 #include "Camera/Camera3D.h"

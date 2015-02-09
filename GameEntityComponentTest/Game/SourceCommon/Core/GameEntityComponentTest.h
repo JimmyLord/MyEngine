@@ -48,18 +48,12 @@ public:
 
     double m_TimeSinceLastPhysicsStep;
 
-    //ShaderGroup* m_pShader_TintColor;
-    //ShaderGroup* m_pShader_TestNormals;
-    //ShaderGroup* m_pShader_Texture;
+    MyFileObject* m_pShaderFile_TintColor;
     ShaderGroup* m_pShader_TransformGizmo;
     ShaderGroup* m_pShader_MousePicker;
 
     float m_GameWidth;
     float m_GameHeight;
-
-    //MyFileObject* m_pOBJTestFiles[4];
-    //TextureDefinition* m_pTextures[4];
-    //MyFileObject* m_pScriptFiles[4];
 
     MyFileObject* m_pSceneFileToLoad;
     bool m_SceneLoaded;

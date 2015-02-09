@@ -6,7 +6,7 @@
 precision mediump float;
 #endif
 
-#define NUM_LIGHTS  2
+//#define NUM_LIGHTS  2
 
 #ifdef PassMain
 
@@ -33,10 +33,12 @@ precision mediump float;
 
     uniform vec3 u_CameraPos;
 
+#if NUM_LIGHTS > 0
     uniform vec3 u_LightPos[NUM_LIGHTS];
     //uniform vec3 u_LightDir[NUM_LIGHTS]; // for spot lights.
     uniform vec4 u_LightColor[NUM_LIGHTS];
     uniform vec3 u_LightAttenuation[NUM_LIGHTS];
+#endif
 
     #ifdef VertexShader
 
@@ -67,6 +69,7 @@ precision mediump float;
 
     #ifdef FragmentShader
 
+#if NUM_LIGHTS > 0
         void PointLightContribution(int index, vec3 normalworld, inout vec4 finaldiffuse, inout vec4 finalspecular)
         {
             // Vertex and camera positions in world space.
@@ -99,6 +102,7 @@ precision mediump float;
             specperc = pow( specperc, shininess );
             finalspecular += lightcolor * specperc * attenuation;
         }
+#endif
 
         float CalculateShadowPercentage()
         {
@@ -142,8 +146,10 @@ precision mediump float;
             vec4 finalspecular = vec4(0,0,0,0);
             
             // Add in each light, one by one. // finaldiffuse, finalspecular are inout.
+#if NUM_LIGHTS > 0
             for( int i=0; i<NUM_LIGHTS; i++ )
                 PointLightContribution( i, normalworld, finaldiffuse, finalspecular );
+#endif
 
             // Mix the texture color with the light color.
             vec4 ambdiff = texcolor * v_Color * ( finalambient + finaldiffuse );

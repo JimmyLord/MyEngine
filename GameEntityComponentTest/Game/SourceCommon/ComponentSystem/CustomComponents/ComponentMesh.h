@@ -18,7 +18,7 @@ public:
     MyMesh* m_pMesh;
     ShaderGroup* m_pShaderGroup;
     TextureDefinition* m_pTexture;
-    int m_PrimitiveType;
+    int m_GLPrimitiveType;
     int m_PointSize;
     float m_Shininess;
 

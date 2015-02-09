@@ -18,7 +18,7 @@ ComponentMesh::ComponentMesh()
     m_pShaderGroup = 0;
     m_pTexture = 0;
 
-    m_PrimitiveType = GL_TRIANGLES;
+    m_GLPrimitiveType = GL_TRIANGLES;
     m_PointSize = 1;
 
     m_Shininess = 1;
@@ -66,7 +66,7 @@ void ComponentMesh::FillPropertiesWindow(bool clear)
         desc = m_pTexture->m_Filename;
     g_pPanelWatch->AddPointerWithDescription( "Texture", 0, desc, this, ComponentMesh::StaticOnDropTexture );
 
-    g_pPanelWatch->AddInt( "Primitive Type", &m_PrimitiveType, GL_POINTS, GL_TRIANGLE_FAN );
+    g_pPanelWatch->AddInt( "Primitive Type", &m_GLPrimitiveType, GL_POINTS, GL_TRIANGLE_FAN );
     g_pPanelWatch->AddInt( "Point Size", &m_PointSize, 1, 100 );
     g_pPanelWatch->AddFloat( "Shininess", &m_Shininess, 1, 300 );
 }
@@ -129,7 +129,7 @@ cJSON* ComponentMesh::ExportAsJSONObject()
     if( m_pTexture )
         cJSON_AddStringToObject( component, "Texture", m_pTexture->m_Filename );
 
-    cJSON_AddNumberToObject( component, "PrimitiveType", m_PrimitiveType );
+    cJSON_AddNumberToObject( component, "PrimitiveType", m_GLPrimitiveType );
     cJSON_AddNumberToObject( component, "PointSize", m_PointSize );
     cJSON_AddNumberToObject( component, "Shininess", m_Shininess );
     
@@ -164,7 +164,7 @@ void ComponentMesh::ImportFromJSONObject(cJSON* jsonobj, unsigned int sceneid)
         }
     }
 
-    cJSONExt_GetInt( jsonobj, "PrimitiveType", &m_PrimitiveType );
+    cJSONExt_GetInt( jsonobj, "PrimitiveType", &m_GLPrimitiveType );
     cJSONExt_GetInt( jsonobj, "PointSize", &m_PointSize );
     cJSONExt_GetFloat( jsonobj, "Shininess", &m_Shininess );
 }
@@ -187,7 +187,7 @@ ComponentMesh& ComponentMesh::operator=(const ComponentMesh& other)
     if( m_pTexture )
         m_pTexture->AddRef();
 
-    m_PrimitiveType = other.m_PrimitiveType;
+    m_GLPrimitiveType = other.m_GLPrimitiveType;
     m_PointSize = other.m_PointSize;
     m_Shininess = other.m_Shininess;
 
@@ -211,14 +211,14 @@ void ComponentMesh::Draw(MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride, i
     {
         m_pMesh->SetShaderGroup( m_pShaderGroup );
         m_pMesh->m_pTexture = m_pTexture;
-        m_pMesh->m_PrimitiveType = m_PrimitiveType;
+        m_pMesh->m_PrimitiveType = m_GLPrimitiveType;
         m_pMesh->m_PointSize = m_PointSize;
         m_pMesh->m_Shininess = m_Shininess;
 
         m_pMesh->m_Position = this->m_pComponentTransform->m_Transform;
 
         MyLight* lights;
-        int numlights = g_pLightManager->FindNearestLights( 4, &lights );
+        int numlights = g_pLightManager->FindNearestLights( 4, m_pMesh->m_Position.GetTranslation(), &lights );
 
         Vector3 campos;
         if( ((GameEntityComponentTest*)g_pGameCore)->m_EditorMode )

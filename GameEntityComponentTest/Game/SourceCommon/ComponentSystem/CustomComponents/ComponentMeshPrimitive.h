@@ -7,43 +7,56 @@
 // 2. Altered source versions must be plainly marked as such, and must not be misrepresented as being the original software.
 // 3. This notice may not be removed or altered from any source distribution.
 
-#ifndef __ComponentMeshPlane_H__
-#define __ComponentMeshPlane_H__
+#ifndef __ComponentMeshPrimitive_H__
+#define __ComponentMeshPrimitive_H__
 
 class ComponentTransform;
 
-class ComponentMeshPlane : public ComponentMesh
+enum ComponentMeshPrimitives
+{
+    ComponentMeshPrimitive_Plane,
+    ComponentMeshPrimitive_Icosphere,
+    ComponentMeshPrimitive_Max,
+};
+
+class ComponentMeshPrimitive : public ComponentMesh
 {
 public:
-    Vector2 m_Size;
-    Vector2Int m_VertCount;
-    Vector2 m_UVStart;
-    Vector2 m_UVRange;
+    ComponentMeshPrimitives m_MeshPrimitiveType;
+
+    // Plane
+    Vector2 m_Plane_Size;
+    Vector2Int m_Plane_VertCount;
+    Vector2 m_Plane_UVStart;
+    Vector2 m_Plane_UVRange;
+
+    // Sphere
+    float m_Sphere_Radius;
 
 public:
-    ComponentMeshPlane();
-    virtual ~ComponentMeshPlane();
+    ComponentMeshPrimitive();
+    virtual ~ComponentMeshPrimitive();
 
     virtual cJSON* ExportAsJSONObject();
     virtual void ImportFromJSONObject(cJSON* jsonobj, unsigned int sceneid);
 
     virtual void Reset();
-    virtual void CopyFromSameType_Dangerous(ComponentBase* pObject) { *this = (ComponentMeshPlane&)*pObject; }
-    virtual ComponentMeshPlane& operator=(const ComponentMeshPlane& other);
+    virtual void CopyFromSameType_Dangerous(ComponentBase* pObject) { *this = (ComponentMeshPrimitive&)*pObject; }
+    virtual ComponentMeshPrimitive& operator=(const ComponentMeshPrimitive& other);
 
-    void CreatePlane();
+    void CreatePrimitive();
 
     virtual void Draw(MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride = 0, int drawcount = 0);
 
 public:
 #if MYFW_USING_WX
     virtual void AddToObjectsPanel(wxTreeItemId gameobjectid);
-    static void StaticOnLeftClick(void* pObjectPtr) { ((ComponentMeshPlane*)pObjectPtr)->OnLeftClick( true ); }
+    static void StaticOnLeftClick(void* pObjectPtr) { ((ComponentMeshPrimitive*)pObjectPtr)->OnLeftClick( true ); }
     void OnLeftClick(bool clear);
     virtual void FillPropertiesWindow(bool clear);
-    static void StaticOnValueChanged(void* pObjectPtr, int id, bool finishedchanging) { ((ComponentMeshPlane*)pObjectPtr)->OnValueChanged( id, finishedchanging ); }
+    static void StaticOnValueChanged(void* pObjectPtr, int id, bool finishedchanging) { ((ComponentMeshPrimitive*)pObjectPtr)->OnValueChanged( id, finishedchanging ); }
     void OnValueChanged(int id, bool finishedchanging);
 #endif //MYFW_USING_WX
 };
 
-#endif //__ComponentMeshPlane_H__
+#endif //__ComponentMeshPrimitive_H__

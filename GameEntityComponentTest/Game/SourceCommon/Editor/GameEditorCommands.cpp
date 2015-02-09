@@ -196,8 +196,17 @@ void EditorCommand_CopyGameObject::Do()
     if( m_ObjectCreated == 0 )
     {
         char newname[50];
-        sprintf_s( newname, 50, "%s - copy", m_ObjectToCopy->GetName() );
-        m_ObjectCreated = g_pComponentSystemManager->CopyGameObject( m_ObjectToCopy, newname );
+        const char* oldname = m_ObjectToCopy->GetName();
+        int oldnamelen = strlen( oldname );
+        if( oldnamelen > 7 && strcmp( &oldname[oldnamelen-7], " - copy" ) == 0 )
+        {
+            m_ObjectCreated = g_pComponentSystemManager->CopyGameObject( m_ObjectToCopy, oldname );
+        }
+        else
+        {
+            sprintf_s( newname, 50, "%s - copy", m_ObjectToCopy->GetName() );
+            m_ObjectCreated = g_pComponentSystemManager->CopyGameObject( m_ObjectToCopy, newname );
+        }
     }
     else
     {

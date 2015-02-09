@@ -1,5 +1,5 @@
 {
-	"Files":	["Data/OBJs/cube.obj", "Data/Scripts/Player.lua", "Data/Scripts/Enemy.lua", "Data/Shaders/Shader_TintColor.glsl", "Data/Shaders/Shader_TestNormals.glsl", "Data/Shaders/Shader_TextureLights.glsl", "Data/Textures/WhiteSquare.png"],
+	"Files":	["Data/Shaders/Shader_TintColor.glsl", "Data/OBJs/cube.obj", "Data/Scripts/Player.lua", "Data/Scripts/Enemy.lua", "Data/Shaders/Shader_TestNormals.glsl", "Data/Shaders/Shader_TextureLights.glsl", "Data/Textures/WhiteSquare.png"],
 	"GameObjects":	[{
 			"ID":	1,
 			"Name":	"Main Camera"
@@ -24,6 +24,15 @@
 		}, {
 			"ID":	13,
 			"Name":	"Light - Red"
+		}, {
+			"ID":	14,
+			"Name":	"Light - Green"
+		}, {
+			"ID":	15,
+			"Name":	"Light - Red - copy"
+		}, {
+			"ID":	16,
+			"Name":	"Light - Red - copy"
 		}],
 	"Transforms":	[{
 			"GOID":	1,
@@ -70,7 +79,25 @@
 		}, {
 			"GOID":	13,
 			"ID":	0,
-			"Pos":	[-5, -2.500000, 6],
+			"Pos":	[2.190028, -2.500000, 6],
+			"Scale":	[1, 1, 1],
+			"Rot":	[0, 0, 0]
+		}, {
+			"GOID":	14,
+			"ID":	0,
+			"Pos":	[-2.705945, -1.517002, 5.545629],
+			"Scale":	[1, 1, 1],
+			"Rot":	[0, 0, 0]
+		}, {
+			"GOID":	15,
+			"ID":	0,
+			"Pos":	[-5.994285, -2.500000, 0.137840],
+			"Scale":	[1, 1, 1],
+			"Rot":	[0, 0, 0]
+		}, {
+			"GOID":	16,
+			"ID":	0,
+			"Pos":	[4.814156, -2.500000, 0.137840],
 			"Scale":	[1, 1, 1],
 			"Rot":	[0, 0, 0]
 		}],
@@ -173,7 +200,8 @@
 			"PlaneUVStartx":	0,
 			"PlaneUVStarty":	0,
 			"PlaneUVRangex":	1,
-			"PlaneUVRangey":	1
+			"PlaneUVRangey":	1,
+			"SphereRadius":	1
 		}, {
 			"Type":	"Light",
 			"GOID":	12,
@@ -184,6 +212,24 @@
 			"Type":	"Light",
 			"GOID":	13,
 			"ID":	24,
+			"Color":	[1, 0, 0, 1],
+			"Atten":	[1, 0, 0.010000]
+		}, {
+			"Type":	"Light",
+			"GOID":	14,
+			"ID":	25,
+			"Color":	[0.949020, 1, 0, 1],
+			"Atten":	[1, 0, 0.010000]
+		}, {
+			"Type":	"Light",
+			"GOID":	15,
+			"ID":	26,
+			"Color":	[1, 0, 0, 1],
+			"Atten":	[1, 0, 0.010000]
+		}, {
+			"Type":	"Light",
+			"GOID":	16,
+			"ID":	27,
 			"Color":	[1, 0, 0, 1],
 			"Atten":	[1, 0, 0.010000]
 		}]

@@ -21,23 +21,12 @@ GameEntityComponentTest::GameEntityComponentTest()
 
     m_TimeSinceLastPhysicsStep = 0;
 
-    //m_pShader_TintColor = 0;
-    //m_pShader_TestNormals = 0;
-    //m_pShader_Texture = 0;
+    m_pShaderFile_TintColor = 0;
     m_pShader_TransformGizmo = 0;
     m_pShader_MousePicker = 0;
 
     m_GameWidth = 0;
     m_GameHeight = 0;
-
-    //for( int i=0; i<4; i++ )
-    //    m_pOBJTestFiles[i] = 0;
-
-    //for( int i=0; i<4; i++ )
-    //    m_pTextures[i] = 0;
-
-    //for( int i=0; i<4; i++ )
-    //    m_pScriptFiles[i] = 0;
 
     m_pSceneFileToLoad = 0;
     m_SceneLoaded = false;
@@ -58,28 +47,9 @@ GameEntityComponentTest::~GameEntityComponentTest()
 {
     SAFE_DELETE( m_pLuaGameState );
 
-    //SAFE_RELEASE( m_pShader_TintColor );
-    //SAFE_RELEASE( m_pShader_TestNormals );
-    //SAFE_RELEASE( m_pShader_Texture );
+    g_pFileManager->FreeFile( m_pShaderFile_TintColor );
     SAFE_RELEASE( m_pShader_TransformGizmo );
     SAFE_RELEASE( m_pShader_MousePicker );
-
-    //for( int i=0; i<4; i++ )
-    //{
-    //    if( m_pOBJTestFiles[i] )
-    //        g_pFileManager->FreeFile( m_pOBJTestFiles[i] );
-    //}
-
-    //for( int i=0; i<4; i++ )
-    //{
-    //    SAFE_RELEASE( m_pTextures[i] );
-    //}
-
-    //for( int i=0; i<4; i++ )
-    //{
-    //    if( m_pScriptFiles[i] )
-    //        g_pFileManager->FreeFile( m_pScriptFiles[i] );
-    //}
 
 #if MYFW_USING_WX
     SAFE_DELETE( m_pEditorState );
@@ -125,17 +95,9 @@ void GameEntityComponentTest::OneTimeInit()
 #endif //MYFW_USING_WX
 
     // setup our shaders
-    //m_pShader_TintColor = MyNew ShaderGroup( MyNew Shader_Base(ShaderPass_Main), 0, 0, "Tint Color" );
-    //m_pShader_TestNormals = MyNew ShaderGroup( MyNew Shader_Base(ShaderPass_Main), 0, 0, "Test-Normals" );
-    //m_pShader_Texture = MyNew ShaderGroup( MyNew Shader_Base(ShaderPass_Main), 0, 0, "Texture" );
-    m_pShader_TransformGizmo = MyNew ShaderGroup( MyNew Shader_Base(ShaderPass_Main), 0, 0, "Editor - Transform Gizmo" );
-    m_pShader_MousePicker = MyNew ShaderGroup( MyNew Shader_Base(ShaderPass_Main), 0, 0, "Editor - Mouse Picker" );
-
-    //m_pShader_TintColor->SetFileForAllPasses( "Data/Shaders/Shader_TintColor" );
-    //m_pShader_TestNormals->SetFileForAllPasses( "Data/Shaders/Shader_TestNormals" );
-    //m_pShader_Texture->SetFileForAllPasses( "Data/Shaders/Shader_Texture" );
-    m_pShader_TransformGizmo->SetFileForAllPasses( "Data/Shaders/Shader_TintColor" );
-    m_pShader_MousePicker->SetFileForAllPasses( "Data/Shaders/Shader_TintColor" );
+    m_pShaderFile_TintColor = RequestFile( "Data/Shaders/Shader_TintColor.glsl" );
+    m_pShader_TransformGizmo = MyNew ShaderGroup( m_pShaderFile_TintColor, m_pShaderFile_TintColor->m_FilenameWithoutExtension );
+    m_pShader_MousePicker = MyNew ShaderGroup( m_pShaderFile_TintColor, m_pShaderFile_TintColor->m_FilenameWithoutExtension );
 
     // Initialize our component system.
     m_pComponentSystemManager = MyNew ComponentSystemManager( MyNew GameComponentTypeManager );
@@ -172,7 +134,7 @@ void GameEntityComponentTest::OneTimeInit()
             pComponentMesh->m_pMesh = MyNew MyMesh();
             pComponentMesh->m_pMesh->CreateEditorLineGridXZ( Vector3(0,0,0), 1, 5 );
             pComponentMesh->m_pMesh->m_Tint.Set( 150, 150, 150, 255 );
-            pComponentMesh->m_PrimitiveType = pComponentMesh->m_pMesh->m_PrimitiveType;
+            pComponentMesh->m_GLPrimitiveType = pComponentMesh->m_pMesh->m_PrimitiveType;
         }
 
         //m_pComponentSystemManager->AddComponent( pComponentMesh );
@@ -194,7 +156,7 @@ void GameEntityComponentTest::OneTimeInit()
             pComponentMesh->m_LayersThisExistsOn = Layer_EditorFG;
             pComponentMesh->m_pMesh = MyNew MyMesh();
             pComponentMesh->m_pMesh->CreateEditorTransformGizmoAxis( 3, 0.1f, ColorByte(255, 100, 100, 255) );
-            pComponentMesh->m_PrimitiveType = pComponentMesh->m_pMesh->m_PrimitiveType;
+            pComponentMesh->m_GLPrimitiveType = pComponentMesh->m_pMesh->m_PrimitiveType;
         }
         //pGameObject->m_pComponentTransform->SetRotation( Vector3( 0, 90, 0 ) );
 
@@ -215,7 +177,7 @@ void GameEntityComponentTest::OneTimeInit()
             pComponentMesh->m_LayersThisExistsOn = Layer_EditorFG;
             pComponentMesh->m_pMesh = MyNew MyMesh();
             pComponentMesh->m_pMesh->CreateEditorTransformGizmoAxis( 3, 0.1f, ColorByte(100, 255, 100, 255) );
-            pComponentMesh->m_PrimitiveType = pComponentMesh->m_pMesh->m_PrimitiveType;
+            pComponentMesh->m_GLPrimitiveType = pComponentMesh->m_pMesh->m_PrimitiveType;
         }
         //pGameObject->m_pComponentTransform->SetRotation( Vector3( 0, 0, 90 ) );
 
@@ -236,7 +198,7 @@ void GameEntityComponentTest::OneTimeInit()
             pComponentMesh->m_LayersThisExistsOn = Layer_EditorFG;
             pComponentMesh->m_pMesh = MyNew MyMesh();
             pComponentMesh->m_pMesh->CreateEditorTransformGizmoAxis( 3, 0.1f, ColorByte(100, 100, 255, 255) );
-            pComponentMesh->m_PrimitiveType = pComponentMesh->m_pMesh->m_PrimitiveType;
+            pComponentMesh->m_GLPrimitiveType = pComponentMesh->m_pMesh->m_PrimitiveType;
         }
         //pGameObject->m_pComponentTransform->SetRotation( Vector3( -90, 0, 0 ) );
 
@@ -1087,19 +1049,11 @@ void GameEntityComponentTest::HandleEditorInput(int keyaction, int keycode, int 
                 matLocalCamera->Rotate( angle.x, 1, 0, 0 );
                 matLocalCamera->Rotate( angle.y, 0, 1, 0 );
                 matLocalCamera->Translate( pivot );
-
-                // pull the pos/angle from the local matrix and update the values for the watch window.
-                {
-                    pCamera->m_pComponentTransform->UpdatePosAndRotFromLocalMatrix();
-                    //Vector3 pos = matLocalCamera->GetTranslation();
-                    //Vector3 angle = matLocalCamera->GetEulerAngles() * 180.0f/PI;
-                    //pCamera->m_pComponentTransform->SetPosition( pos );
-                    //pCamera->m_pComponentTransform->SetRotation( angle );
-
-                    //LOGInfo( LOGTag, "cam pos (%0.2f, %0.2f, %0.2f)\n", pos.x, pos.y, pos.z );
-                }
             }
         }
+
+        // pull the pos/angle from the local matrix and update the values for the watch window.
+        pCamera->m_pComponentTransform->UpdatePosAndRotFromLocalMatrix();
     }
 
     // handle editor keys
