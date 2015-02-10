@@ -1884,6 +1884,12 @@
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">TurnOffAllWarnings</WarningLevel>
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxDebug|Win32'">TurnOffAllWarnings</WarningLevel>
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxRelease|Win32'">TurnOffAllWarnings</WarningLevel>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug_64|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release_64|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='WxDebug|Win32'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='WxRelease|Win32'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="..\Lua\src\luac.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='WxDebug|Win32'">NotUsing</PrecompiledHeader>
@@ -2794,6 +2800,8 @@
     <None Include="Data\Scripts\GGJTube.lua" />
     <None Include="Data\Scripts\Player.lua" />
     <None Include="Data\Scripts\Enemy.lua" />
+    <None Include="Data\Shaders\Include_Lights.glsl" />
+    <None Include="Data\Shaders\Include_Lights_Uniforms.glsl" />
     <None Include="Data\Shaders\Shader_Breathe.glsl" />
     <None Include="Data\Shaders\Shader_TextureLights.glsl" />
     <None Include="Data\Shaders\Shader_TestNormals.glsl" />

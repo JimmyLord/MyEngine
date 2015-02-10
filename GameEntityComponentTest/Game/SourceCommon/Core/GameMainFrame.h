@@ -58,6 +58,8 @@ public:
 
 public:
     GameMainFrame();
+    ~GameMainFrame();
+
     virtual void AddPanes();
     virtual void OnPostInit();
     virtual void OnClose();

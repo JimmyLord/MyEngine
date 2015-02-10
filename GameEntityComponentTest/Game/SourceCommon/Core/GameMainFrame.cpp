@@ -96,6 +96,14 @@ GameMainFrame::GameMainFrame()
     Connect( myIDGame_ExecuteMacro, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(GameMainFrame::OnGameMenu) );
 }
 
+GameMainFrame::~GameMainFrame()
+{
+    SAFE_DELETE( m_pCommandStack );
+    SAFE_DELETE( m_pGLCanvasEditor );
+
+    g_pMessageLogCallbackFunction = 0;
+}
+
 void GameMainFrame::AddPanes()
 {
     m_pCommandStack = MyNew GameCommandStack();
@@ -148,6 +156,8 @@ void GameMainFrame::OnPostInit()
 
         extern GLViewTypes g_CurrentGLViewType;
         cJSONExt_GetInt( pPrefs, "GameAspectRatio", (int*)&g_CurrentGLViewType );
+
+        cJSON_Delete( pPrefs );
 
         delete[] string;
     }
