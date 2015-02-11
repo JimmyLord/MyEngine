@@ -430,6 +430,26 @@ double GameEntityComponentTest::Tick(double TimePassed)
         return TimePassed;
 }
 
+void GameEntityComponentTest::OnFocusGained()
+{
+    GameCore::OnFocusGained();
+
+    // reload any files that changed while we were out of focus.
+    int filesupdated = g_pFileManager->ReloadAnyUpdatedFiles();
+
+    if( filesupdated )
+    {
+        g_pShaderManager->InvalidateAllShaders( true );
+        //g_pTextureManager->InvalidateAllTextures( true );
+        //g_pBufferManager->InvalidateAllBuffers( true );
+    }
+}
+
+void GameEntityComponentTest::OnFocusLost()
+{
+    GameCore::OnFocusLost();
+}
+
 void GameEntityComponentTest::OnDrawFrame()
 {
     GameCore::OnDrawFrame();
@@ -528,6 +548,17 @@ void GameEntityComponentTest::OnKey(GameCoreButtonActions action, int keycode, i
             if( keycode == 348 ) // F9
             {
                 m_Debug_DrawMousePickerFBO = !m_Debug_DrawMousePickerFBO;
+            }
+            if( keycode == 344 ) // F5
+            {
+                int filesupdated = g_pFileManager->ReloadAnyUpdatedFiles();
+
+                if( filesupdated )
+                {
+                    g_pShaderManager->InvalidateAllShaders( true );
+                    //g_pTextureManager->InvalidateAllTextures( true );
+                    //g_pBufferManager->InvalidateAllBuffers( true );
+                }
             }
 
             if( keycode == 'P' ||

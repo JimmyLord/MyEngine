@@ -68,6 +68,8 @@ public:
 
     virtual void OneTimeInit();
     virtual double Tick(double TimePassed);
+    virtual void OnFocusGained();
+    virtual void OnFocusLost();
     virtual void OnSurfaceChanged(unsigned int startx, unsigned int starty, unsigned int width, unsigned int height);
     virtual void OnDrawFrame();
 
