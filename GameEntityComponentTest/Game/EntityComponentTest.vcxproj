@@ -2803,6 +2803,7 @@
     <None Include="Data\Shaders\Include_Lights.glsl" />
     <None Include="Data\Shaders\Include_Lights_Uniforms.glsl" />
     <None Include="Data\Shaders\Shader_Breathe.glsl" />
+    <None Include="Data\Shaders\Shader_ClipSpaceTexture.glsl" />
     <None Include="Data\Shaders\Shader_TextureLights.glsl" />
     <None Include="Data\Shaders\Shader_TestNormals.glsl" />
     <None Include="Data\Shaders\Shader_Texture.glsl" />

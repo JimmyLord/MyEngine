@@ -44,13 +44,17 @@ public:
     double m_PauseTimeToAdvance; // advance clock by this much on next tick.
 #if MYFW_USING_WX
     EditorState* m_pEditorState;
+    bool m_Debug_DrawMousePickerFBO;
+    MySprite* m_pDebugQuadSprite;
 #endif //MYFW_USING_WX
 
     double m_TimeSinceLastPhysicsStep;
 
     MyFileObject* m_pShaderFile_TintColor;
+    MyFileObject* m_pShaderFile_ClipSpaceTexture;
     ShaderGroup* m_pShader_TransformGizmo;
     ShaderGroup* m_pShader_MousePicker;
+    ShaderGroup* m_pShader_ClipSpaceTexture;
 
     float m_GameWidth;
     float m_GameHeight;

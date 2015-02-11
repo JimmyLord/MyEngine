@@ -22,8 +22,10 @@ GameEntityComponentTest::GameEntityComponentTest()
     m_TimeSinceLastPhysicsStep = 0;
 
     m_pShaderFile_TintColor = 0;
+    m_pShaderFile_ClipSpaceTexture = 0;
     m_pShader_TransformGizmo = 0;
     m_pShader_MousePicker = 0;
+    m_pShader_ClipSpaceTexture = 0;
 
     m_GameWidth = 0;
     m_GameHeight = 0;
@@ -37,6 +39,8 @@ GameEntityComponentTest::GameEntityComponentTest()
 
 #if MYFW_USING_WX
     m_pEditorState = MyNew EditorState;
+    m_Debug_DrawMousePickerFBO = false;
+    m_pDebugQuadSprite = 0;
 
     g_pPanelObjectList->m_pCallbackFunctionObject = this;
     g_pPanelObjectList->m_pOnTreeSelectionChangedFunction = StaticOnObjectListTreeSelectionChanged;
@@ -48,11 +52,14 @@ GameEntityComponentTest::~GameEntityComponentTest()
     SAFE_DELETE( m_pLuaGameState );
 
     g_pFileManager->FreeFile( m_pShaderFile_TintColor );
+    g_pFileManager->FreeFile( m_pShaderFile_ClipSpaceTexture );
     SAFE_RELEASE( m_pShader_TransformGizmo );
     SAFE_RELEASE( m_pShader_MousePicker );
+    SAFE_RELEASE( m_pShader_ClipSpaceTexture );
 
 #if MYFW_USING_WX
     SAFE_DELETE( m_pEditorState );
+    SAFE_RELEASE( m_pDebugQuadSprite );
 #endif //MYFW_USING_WX
 
     SAFE_DELETE( m_pComponentSystemManager );
@@ -96,8 +103,10 @@ void GameEntityComponentTest::OneTimeInit()
 
     // setup our shaders
     m_pShaderFile_TintColor = RequestFile( "Data/Shaders/Shader_TintColor.glsl" );
+    m_pShaderFile_ClipSpaceTexture = RequestFile( "Data/Shaders/Shader_ClipSpaceTexture.glsl" );
     m_pShader_TransformGizmo = MyNew ShaderGroup( m_pShaderFile_TintColor, m_pShaderFile_TintColor->m_FilenameWithoutExtension );
     m_pShader_MousePicker = MyNew ShaderGroup( m_pShaderFile_TintColor, m_pShaderFile_TintColor->m_FilenameWithoutExtension );
+    m_pShader_ClipSpaceTexture = MyNew ShaderGroup( m_pShaderFile_ClipSpaceTexture, m_pShaderFile_ClipSpaceTexture->m_FilenameWithoutExtension );
 
     // Initialize our component system.
     m_pComponentSystemManager = MyNew ComponentSystemManager( MyNew GameComponentTypeManager );
@@ -443,6 +452,17 @@ void GameEntityComponentTest::OnDrawFrame()
         // draw all components.
         m_pComponentSystemManager->OnDrawFrame();
     }
+
+    // Draw our mouse picker frame over the screen
+    if( m_Debug_DrawMousePickerFBO && g_GLCanvasIDActive == 1 )
+    {
+        if( m_pDebugQuadSprite == 0 )
+            m_pDebugQuadSprite = MyNew MySprite();
+
+        m_pDebugQuadSprite->CreateInPlace( "debug", 0.75f, 0.75f, 0.5f, 0.5f, 0, 1, 1, 0, Justify_Center, false );
+        m_pDebugQuadSprite->SetShaderAndTexture( m_pShader_ClipSpaceTexture, m_pEditorState->m_pMousePickerFBO->m_ColorTextureID );
+        m_pDebugQuadSprite->Draw( 0 );
+    }
 }
 
 void GameEntityComponentTest::OnTouch(int action, int id, float x, float y, float pressure, float size)
@@ -505,6 +525,11 @@ void GameEntityComponentTest::OnKey(GameCoreButtonActions action, int keycode, i
 #if MYFW_USING_WX
         if( m_EditorMode )
         {
+            if( keycode == 348 ) // F9
+            {
+                m_Debug_DrawMousePickerFBO = !m_Debug_DrawMousePickerFBO;
+            }
+
             if( keycode == 'P' ||
                 keycode == '.' || 
                 keycode == '[' || 
@@ -1277,21 +1302,34 @@ GameObject* GameEntityComponentTest::GetObjectAtPixel(unsigned int x, unsigned i
     glClearColor( 0, 0, 0, 0 );
     glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
+    // draw all editor camera components.
+    ComponentCamera* pCamera = 0;
     for( unsigned int i=0; i<m_pEditorState->m_pEditorCamera->m_Components.Count(); i++ )
     {
-        ComponentCamera* pCamera = dynamic_cast<ComponentCamera*>( m_pEditorState->m_pEditorCamera->m_Components[i] );
-        m_pComponentSystemManager->DrawMousePickerFrame( pCamera, &pCamera->m_Camera3D.m_matViewProj, m_pShader_MousePicker );
-        glClear( GL_DEPTH_BUFFER_BIT );
+        pCamera = dynamic_cast<ComponentCamera*>( m_pEditorState->m_pEditorCamera->m_Components[i] );
+        if( pCamera )
+        {
+            m_pComponentSystemManager->DrawMousePickerFrame( pCamera, &pCamera->m_Camera3D.m_matViewProj, m_pShader_MousePicker );
+            glClear( GL_DEPTH_BUFFER_BIT );
+        }
     }
+
+    if( pCamera == 0 )
+        return 0;
 
     m_pEditorState->m_pTransformGizmo->ScaleGizmosForMousePickRendering( false );
 
-    // get a pixel from the FBO.
+    // get a pixel from the FBO... use m_WindowStartX/m_WindowStartY from any camera component.
     unsigned char pixel[4];
-    glReadPixels( x - (unsigned int)m_WindowStartX, y - (unsigned int)m_WindowStartY, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, pixel );
+    glReadPixels( x - (unsigned int)pCamera->m_WindowStartX, y - (unsigned int)pCamera->m_WindowStartY,
+                  1, 1, GL_RGBA, GL_UNSIGNED_BYTE, pixel );
 
     unsigned int id = pixel[0] + pixel[1]*256 + pixel[2]*256*256 + pixel[3]*256*256*256;
+    id /= 641; // 1, 641, 6700417, 4294967297, 
     //LOGInfo( LOGTag, "pixel - %d, %d, %d, %d - id - %d\n", pixel[0], pixel[1], pixel[2], pixel[3], id );
+
+    //if( pixel[0] == 204 )
+    //    int bp = 1;
 
     m_pEditorState->m_pMousePickerFBO->Unbind();
 

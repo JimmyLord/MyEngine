@@ -772,7 +772,7 @@ void ComponentSystemManager::DrawMousePickerFrame(ComponentCamera* pCamera, MyMa
                 {
                     ColorByte tint( 0, 0, 0, 0 );
 
-                    unsigned int id = pComponent->m_pGameObject->GetID();
+                    unsigned int id = pComponent->m_pGameObject->GetID() * 641; // 1, 641, 6700417, 4294967297, 
 
                     if( 1 )                 tint.r = id%256;
                     if( id > 256 )          tint.g = (id>>8)%256;
