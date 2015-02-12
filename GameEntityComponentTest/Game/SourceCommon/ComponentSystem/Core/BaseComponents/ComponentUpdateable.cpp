@@ -9,6 +9,8 @@
 
 #include "GameCommonHeader.h"
 
+bool ComponentUpdateable::m_PanelWatchBlockVisible = true;
+
 ComponentUpdateable::ComponentUpdateable()
 : ComponentBase()
 {
@@ -24,6 +26,10 @@ void ComponentUpdateable::Reset()
     ComponentBase::Reset();
 
     m_pComponentTransform = m_pGameObject->m_pComponentTransform;
+
+#if MYFW_USING_WX
+    m_pPanelWatchBlockVisible = &m_PanelWatchBlockVisible;
+#endif //MYFW_USING_WX
 }
 
 #if MYFW_USING_WX
@@ -39,7 +45,12 @@ void ComponentUpdateable::OnLeftClick(bool clear)
 
 void ComponentUpdateable::FillPropertiesWindow(bool clear)
 {
-    ComponentBase::FillPropertiesWindow( clear );
+    //m_ControlID_ComponentTitleLabel = g_pPanelWatch->AddSpace( "Updateable", this, ComponentBase::StaticOnComponentTitleLabelClicked );
+
+    if( m_PanelWatchBlockVisible )
+    {
+        ComponentBase::FillPropertiesWindow( clear );
+    }
 }
 #endif //MYFW_USING_WX
 

@@ -2793,6 +2793,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\todo.todo" />
+    <None Include="Data\Scenes\LightTest.scene" />
     <None Include="Data\Scenes\test.scene" />
     <None Include="Data\Scenes\World.scene" />
     <None Include="Data\Scripts\GGJEnemy.lua" />

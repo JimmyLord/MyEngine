@@ -9,7 +9,7 @@
 
 #include "GameCommonHeader.h"
 
-//using namespace luabridge;
+bool ComponentLuaScript::m_PanelWatchBlockVisible = true;
 
 ComponentLuaScript::ComponentLuaScript()
 : ComponentUpdateable()
@@ -37,7 +37,7 @@ void ComponentLuaScript::Reset()
 {
     ComponentUpdateable::Reset();
 
-    m_pLuaState = g_pLuaGameState->m_pLuaState;
+    m_pLuaGameState = g_pLuaGameState;
 
     m_ScriptLoaded = false;
     m_Playing = false;
@@ -48,7 +48,11 @@ void ComponentLuaScript::Reset()
         ExposedVariableDesc* pVariable = m_ExposedVars.RemoveIndex( 0 );
         delete pVariable;
     }
-    //m_Mass = 0;
+
+#if MYFW_USING_WX
+    m_pPanelWatchBlockVisible = &m_PanelWatchBlockVisible;
+    m_ControlIDOfFirstExtern = -1;
+#endif //MYFW_USING_WX
 }
 
 #if MYFW_USING_WX
@@ -64,30 +68,35 @@ void ComponentLuaScript::OnLeftClick(bool clear)
 
 void ComponentLuaScript::FillPropertiesWindow(bool clear)
 {
-    ComponentBase::FillPropertiesWindow( clear );
+    m_ControlID_ComponentTitleLabel = g_pPanelWatch->AddSpace( "Lua Script", this, ComponentBase::StaticOnComponentTitleLabelClicked );
 
-    const char* desc = "no script";
-    if( m_pScriptFile )
-        desc = m_pScriptFile->m_FullPath;
-    g_pPanelWatch->AddPointerWithDescription( "Script", 0, desc, this, ComponentLuaScript::StaticOnDrop );
-
-    // warning: if more variables are added above, code in OnDrop() needs to change
-
-    for( unsigned int i=0; i<m_ExposedVars.Count(); i++ )
+    if( m_PanelWatchBlockVisible )
     {
-        ExposedVariableDesc* pVar = m_ExposedVars[i];
+        ComponentBase::FillPropertiesWindow( clear );
 
-        if( pVar->type == ExposedVariableType_Float )
+        const char* desc = "no script";
+        if( m_pScriptFile )
+            desc = m_pScriptFile->m_FullPath;
+        g_pPanelWatch->AddPointerWithDescription( "Script", 0, desc, this, ComponentLuaScript::StaticOnDrop );
+
+        // warning: if more variables are added above, code in OnDrop() needs to change
+
+        for( unsigned int i=0; i<m_ExposedVars.Count(); i++ )
         {
-            g_pPanelWatch->AddDouble( pVar->name.c_str(), &pVar->value, 0, 500, this, ComponentLuaScript::StaticOnValueChanged );
-        }
-        else if( pVar->type == ExposedVariableType_GameObject )
-        {
-            // setup name and drag and drop of game objects.
-            const char* desc = "no gameobject";
-            if( pVar->pointer )
-                desc = ((GameObject*)pVar->pointer)->GetName();
-            g_pPanelWatch->AddPointerWithDescription( pVar->name.c_str(), pVar->pointer, desc, this, ComponentLuaScript::StaticOnDrop, ComponentLuaScript::StaticOnValueChanged );
+            ExposedVariableDesc* pVar = m_ExposedVars[i];
+
+            if( pVar->type == ExposedVariableType_Float )
+            {
+                g_pPanelWatch->AddDouble( pVar->name.c_str(), &pVar->value, 0, 500, this, ComponentLuaScript::StaticOnValueChanged );
+            }
+            else if( pVar->type == ExposedVariableType_GameObject )
+            {
+                // setup name and drag and drop of game objects.
+                const char* desc = "no gameobject";
+                if( pVar->pointer )
+                    desc = ((GameObject*)pVar->pointer)->GetName();
+                g_pPanelWatch->AddPointerWithDescription( pVar->name.c_str(), pVar->pointer, desc, this, ComponentLuaScript::StaticOnDrop, ComponentLuaScript::StaticOnValueChanged );
+            }
         }
     }
 }
@@ -112,9 +121,7 @@ void ComponentLuaScript::OnDrop()
         GameObject* pGameObject = (GameObject*)g_DragAndDropStruct.m_Value;
         assert( pGameObject );
 
-        // warning: the 1 is the number variables in the watch panel before our externs
-        int indexoffirstexternvariableinwatch = 1;
-        int id = g_DragAndDropStruct.m_ID - indexoffirstexternvariableinwatch;
+        int id = g_DragAndDropStruct.m_ID - m_ControlIDOfFirstExtern;
         
         // TODO: this will make a mess of memory if different types of objects can be dragged in...
         m_ExposedVars[id]->pointer = pGameObject;
@@ -126,7 +133,7 @@ void ComponentLuaScript::OnDrop()
 
 void ComponentLuaScript::OnValueChanged(int id, bool finishedchanging)
 {
-    ProgramVariables( m_pLuaState, true );
+    ProgramVariables( m_pLuaGameState->m_pLuaState, true );
 }
 #endif //MYFW_USING_WX
 
@@ -253,24 +260,26 @@ void ComponentLuaScript::LoadScript()
     // script is ready, so run it.
     if( m_pScriptFile->m_FileReady )
     {
+        LOGInfo( LOGTag, "luaL_loadstring: %s\n", m_pScriptFile->m_FilenameWithoutExtension );
+
         // load the string from the file
-        int loadretcode = luaL_loadstring( m_pLuaState, m_pScriptFile->m_pBuffer );
+        int loadretcode = luaL_loadstring( m_pLuaGameState->m_pLuaState, m_pScriptFile->m_pBuffer );
         if( loadretcode == LUA_OK )
         {
             // run the code to do initial parsing
-            int exeretcode = lua_pcall( m_pLuaState, 0, LUA_MULTRET, 0 );
+            int exeretcode = lua_pcall( m_pLuaGameState->m_pLuaState, 0, LUA_MULTRET, 0 );
             if( exeretcode == LUA_OK )
             {
-                luabridge::LuaRef LuaObject = luabridge::getGlobal( m_pLuaState, m_pScriptFile->m_FilenameWithoutExtension );
+                luabridge::LuaRef LuaObject = luabridge::getGlobal( m_pLuaGameState->m_pLuaState, m_pScriptFile->m_FilenameWithoutExtension );
 
                 if( LuaObject.isTable() )
                 {
                     // Create a table to store local variables unique to this component.
-                    luabridge::LuaRef datatable = luabridge::newTable( m_pLuaState );
+                    luabridge::LuaRef datatable = luabridge::newTable( m_pLuaGameState->m_pLuaState );
                     
                     char gameobjectname[100];
                     sprintf_s( gameobjectname, 100, "_GameObject_%d", m_pGameObject->GetID() );
-                    luabridge::setGlobal( m_pLuaState, datatable, gameobjectname );
+                    luabridge::setGlobal( m_pLuaGameState->m_pLuaState, datatable, gameobjectname );
 
                     datatable["gameobject"] = m_pGameObject;
 
@@ -392,8 +401,8 @@ void ComponentLuaScript::ProgramVariables(luabridge::LuaRef LuaObject, bool upda
     // set "this" to the data table storing this gameobjects script data "_GameObject_<ID>"
     char gameobjectname[100];
     sprintf_s( gameobjectname, 100, "_GameObject_%d", m_pGameObject->GetID() );
-    luabridge::LuaRef datatable = luabridge::getGlobal( m_pLuaState, gameobjectname );
-    luabridge::setGlobal( m_pLuaState, datatable, "this" );
+    luabridge::LuaRef datatable = luabridge::getGlobal( m_pLuaGameState->m_pLuaState, gameobjectname );
+    luabridge::setGlobal( m_pLuaGameState->m_pLuaState, datatable, "this" );
 
     // only program the exposed vars if they change.
     if( updateexposedvariables )
@@ -415,7 +424,7 @@ void ComponentLuaScript::OnLoad()
 {
     //if( m_Playing )
     {
-        luabridge::LuaRef LuaObject = luabridge::getGlobal( m_pLuaState, m_pScriptFile->m_FilenameWithoutExtension );
+        luabridge::LuaRef LuaObject = luabridge::getGlobal( m_pLuaGameState->m_pLuaState, m_pScriptFile->m_FilenameWithoutExtension );
         
         // call stop
         if( LuaObject["OnLoad"].isFunction() )
@@ -442,7 +451,7 @@ void ComponentLuaScript::OnPlay()
     if( m_pScriptFile && m_pScriptFile->m_FileReady == true )
     {
         m_ScriptLoaded = false;
-        g_pFileManager->ReloadFile( m_pScriptFile );
+        //g_pFileManager->ReloadFile( m_pScriptFile );
         // hard loop until the filemanager is done loading the file.
         while( m_pScriptFile && m_pScriptFile->m_FileReady == false )
         {
@@ -464,7 +473,7 @@ void ComponentLuaScript::OnPlay()
         else
         {
             // find the OnPlay function and call it, look for a table that matched our filename.
-            luabridge::LuaRef LuaObject = luabridge::getGlobal( m_pLuaState, m_pScriptFile->m_FilenameWithoutExtension );
+            luabridge::LuaRef LuaObject = luabridge::getGlobal( m_pLuaGameState->m_pLuaState, m_pScriptFile->m_FilenameWithoutExtension );
         
             if( LuaObject.isNil() == false )
             {
@@ -491,9 +500,12 @@ void ComponentLuaScript::OnStop()
 {
     ComponentUpdateable::OnStop();
 
+    m_ScriptLoaded = false;
+    LoadScript();
+
     if( m_Playing )
     {
-        luabridge::LuaRef LuaObject = luabridge::getGlobal( m_pLuaState, m_pScriptFile->m_FilenameWithoutExtension );
+        luabridge::LuaRef LuaObject = luabridge::getGlobal( m_pLuaGameState->m_pLuaState, m_pScriptFile->m_FilenameWithoutExtension );
         
         // call stop
         if( LuaObject["OnStop"].isFunction() )
@@ -517,7 +529,7 @@ void ComponentLuaScript::Tick(double TimePassed)
 {
     //ComponentUpdateable::Tick( TimePassed );
 
-    if( m_ScriptLoaded == false )
+    if( m_ScriptLoaded == false && g_pLuaGameState )
     {
         LoadScript();
 
@@ -531,7 +543,7 @@ void ComponentLuaScript::Tick(double TimePassed)
     // find the Tick function and call it.
     if( m_Playing )
     {
-        luabridge::LuaRef LuaObject = luabridge::getGlobal( m_pLuaState, m_pScriptFile->m_FilenameWithoutExtension );
+        luabridge::LuaRef LuaObject = luabridge::getGlobal( m_pLuaGameState->m_pLuaState, m_pScriptFile->m_FilenameWithoutExtension );
 
         // call tick
         if( LuaObject["Tick"].isFunction() )
@@ -554,7 +566,7 @@ bool ComponentLuaScript::OnTouch(int action, int id, float x, float y, float pre
     // find the OnTouch function and call it.
     if( m_Playing )
     {
-        luabridge::LuaRef LuaObject = luabridge::getGlobal( m_pLuaState, m_pScriptFile->m_FilenameWithoutExtension );
+        luabridge::LuaRef LuaObject = luabridge::getGlobal( m_pLuaGameState->m_pLuaState, m_pScriptFile->m_FilenameWithoutExtension );
 
         // call OnTouch
         if( LuaObject["OnTouch"].isFunction() )
@@ -580,7 +592,7 @@ bool ComponentLuaScript::OnButtons(GameCoreButtonActions action, GameCoreButtonI
     // find the OnButtons function and call it.
     if( m_Playing )
     {
-        luabridge::LuaRef LuaObject = luabridge::getGlobal( m_pLuaState, m_pScriptFile->m_FilenameWithoutExtension );
+        luabridge::LuaRef LuaObject = luabridge::getGlobal( m_pLuaGameState->m_pLuaState, m_pScriptFile->m_FilenameWithoutExtension );
 
         // call OnButtons
         if( LuaObject["OnButtons"].isFunction() )

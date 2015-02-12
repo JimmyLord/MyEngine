@@ -9,6 +9,8 @@
 
 #include "GameCommonHeader.h"
 
+bool ComponentMesh::m_PanelWatchBlockVisible = true;
+
 ComponentMesh::ComponentMesh()
 : ComponentRenderable()
 {
@@ -36,6 +38,10 @@ void ComponentMesh::Reset()
     ComponentRenderable::Reset();
 
     SAFE_RELEASE( m_pMesh );
+
+#if MYFW_USING_WX
+    m_pPanelWatchBlockVisible = &m_PanelWatchBlockVisible;
+#endif //MYFW_USING_WX
 }
 
 #if MYFW_USING_WX
@@ -52,23 +58,28 @@ void ComponentMesh::OnLeftClick(bool clear)
 
 void ComponentMesh::FillPropertiesWindow(bool clear)
 {
-    ComponentRenderable::FillPropertiesWindow( clear );
+    //m_ControlID_ComponentTitleLabel = g_pPanelWatch->AddSpace( "Mesh", this, ComponentBase::StaticOnComponentTitleLabelClicked );
 
     //assert( m_pMesh );
 
-    const char* desc = "no shader";
-    if( m_pShaderGroup && m_pShaderGroup->GetShader( ShaderPass_Main )->m_pFile )
-        desc = m_pShaderGroup->GetShader( ShaderPass_Main )->m_pFile->m_FilenameWithoutExtension;
-    g_pPanelWatch->AddPointerWithDescription( "Shader", 0, desc, this, ComponentMesh::StaticOnDropShader );
+    if( m_PanelWatchBlockVisible )
+    {
+        ComponentRenderable::FillPropertiesWindow( clear );
 
-    desc = "no texture";
-    if( m_pTexture )
-        desc = m_pTexture->m_Filename;
-    g_pPanelWatch->AddPointerWithDescription( "Texture", 0, desc, this, ComponentMesh::StaticOnDropTexture );
+        const char* desc = "no shader";
+        if( m_pShaderGroup && m_pShaderGroup->GetShader( ShaderPass_Main )->m_pFile )
+            desc = m_pShaderGroup->GetShader( ShaderPass_Main )->m_pFile->m_FilenameWithoutExtension;
+        g_pPanelWatch->AddPointerWithDescription( "Shader", 0, desc, this, ComponentMesh::StaticOnDropShader );
 
-    g_pPanelWatch->AddInt( "Primitive Type", &m_GLPrimitiveType, GL_POINTS, GL_TRIANGLE_FAN );
-    g_pPanelWatch->AddInt( "Point Size", &m_PointSize, 1, 100 );
-    g_pPanelWatch->AddFloat( "Shininess", &m_Shininess, 1, 300 );
+        desc = "no texture";
+        if( m_pTexture )
+            desc = m_pTexture->m_Filename;
+        g_pPanelWatch->AddPointerWithDescription( "Texture", 0, desc, this, ComponentMesh::StaticOnDropTexture );
+
+        g_pPanelWatch->AddInt( "Primitive Type", &m_GLPrimitiveType, GL_POINTS, GL_TRIANGLE_FAN );
+        g_pPanelWatch->AddInt( "Point Size", &m_PointSize, 1, 100 );
+        g_pPanelWatch->AddFloat( "Shininess", &m_Shininess, 1, 300 );
+    }
 }
 
 void ComponentMesh::OnDropShader()

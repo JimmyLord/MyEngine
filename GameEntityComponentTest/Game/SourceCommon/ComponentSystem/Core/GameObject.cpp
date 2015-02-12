@@ -80,11 +80,9 @@ void GameObject::OnLeftClick(bool clear)
         g_pPanelWatch->ClearAllVariables();
 
     m_pComponentTransform->FillPropertiesWindow( false );
-    //g_pPanelWatch->AddSpace();
     for( unsigned int i=0; i<m_Components.Count(); i++ )
     {
         m_Components[i]->FillPropertiesWindow( false );
-        //g_pPanelWatch->AddSpace();
     }
 }
 

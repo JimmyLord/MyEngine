@@ -9,6 +9,8 @@
 
 #include "GameCommonHeader.h"
 
+bool ComponentMeshOBJ::m_PanelWatchBlockVisible = true;
+
 ComponentMeshOBJ::ComponentMeshOBJ()
 : ComponentMesh()
 {
@@ -22,6 +24,10 @@ ComponentMeshOBJ::~ComponentMeshOBJ()
 void ComponentMeshOBJ::Reset()
 {
     ComponentMesh::Reset();
+
+#if MYFW_USING_WX
+    m_pPanelWatchBlockVisible = &m_PanelWatchBlockVisible;
+#endif //MYFW_USING_WX
 }
 
 #if MYFW_USING_WX
@@ -37,12 +43,17 @@ void ComponentMeshOBJ::OnLeftClick(bool clear)
 
 void ComponentMeshOBJ::FillPropertiesWindow(bool clear)
 {
-    ComponentMesh::FillPropertiesWindow( clear );
+    m_ControlID_ComponentTitleLabel = g_pPanelWatch->AddSpace( "MeshOBJ", this, ComponentBase::StaticOnComponentTitleLabelClicked );
 
-    const char* desc = "no mesh";
-    if( m_pMesh && m_pMesh->m_pSourceFile )
-        desc = m_pMesh->m_pSourceFile->m_FullPath;
-    g_pPanelWatch->AddPointerWithDescription( "OBJ", 0, desc, this, ComponentMeshOBJ::StaticOnDropOBJ );
+    if( m_PanelWatchBlockVisible )
+    {
+        ComponentMesh::FillPropertiesWindow( clear );
+
+        const char* desc = "no mesh";
+        if( m_pMesh && m_pMesh->m_pSourceFile )
+            desc = m_pMesh->m_pSourceFile->m_FullPath;
+        g_pPanelWatch->AddPointerWithDescription( "OBJ", 0, desc, this, ComponentMeshOBJ::StaticOnDropOBJ );
+    }
 }
 
 void ComponentMeshOBJ::OnDropOBJ()

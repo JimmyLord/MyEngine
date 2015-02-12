@@ -9,6 +9,8 @@
 
 #include "GameCommonHeader.h"
 
+bool ComponentCamera::m_PanelWatchBlockVisible = true;
+
 ComponentCamera::ComponentCamera()
 : ComponentBase()
 {
@@ -34,17 +36,22 @@ void ComponentCamera::OnLeftClick(bool clear)
 
 void ComponentCamera::FillPropertiesWindow(bool clear)
 {
-    ComponentBase::FillPropertiesWindow( clear );
+    m_ControlID_ComponentTitleLabel = g_pPanelWatch->AddSpace( "Camera", this, ComponentBase::StaticOnComponentTitleLabelClicked );
 
-    g_pPanelWatch->AddBool( "Ortho", &m_Orthographic, 0, 1, this, ComponentCamera::StaticOnValueChanged );
+    if( m_PanelWatchBlockVisible )
+    {
+        ComponentBase::FillPropertiesWindow( clear );
 
-    g_pPanelWatch->AddFloat( "Desired width", &m_DesiredWidth, 640, 960, this, ComponentCamera::StaticOnValueChanged );
-    g_pPanelWatch->AddFloat( "Desired height", &m_DesiredHeight, 640, 960, this, ComponentCamera::StaticOnValueChanged );
+        g_pPanelWatch->AddBool( "Ortho", &m_Orthographic, 0, 1, this, ComponentCamera::StaticOnValueChanged );
 
-    g_pPanelWatch->AddBool( "ColorBit", &m_ClearColorBuffer, 0, 1, this, ComponentCamera::StaticOnValueChanged );
-    g_pPanelWatch->AddBool( "DepthBit", &m_ClearDepthBuffer, 0, 1, this, ComponentCamera::StaticOnValueChanged );
+        g_pPanelWatch->AddFloat( "Desired width", &m_DesiredWidth, 640, 960, this, ComponentCamera::StaticOnValueChanged );
+        g_pPanelWatch->AddFloat( "Desired height", &m_DesiredHeight, 640, 960, this, ComponentCamera::StaticOnValueChanged );
 
-    g_pPanelWatch->AddUnsignedInt( "Layers", &m_LayersToRender, 0, 1, this, ComponentCamera::StaticOnValueChanged );
+        g_pPanelWatch->AddBool( "ColorBit", &m_ClearColorBuffer, 0, 1, this, ComponentCamera::StaticOnValueChanged );
+        g_pPanelWatch->AddBool( "DepthBit", &m_ClearDepthBuffer, 0, 1, this, ComponentCamera::StaticOnValueChanged );
+
+        g_pPanelWatch->AddUnsignedInt( "Layers", &m_LayersToRender, 0, 1, this, ComponentCamera::StaticOnValueChanged );
+    }
 }
 
 void ComponentCamera::OnValueChanged(int id, bool finishedchanging)
@@ -109,6 +116,7 @@ void ComponentCamera::Reset()
 
 #if MYFW_USING_WX
     m_FullClearsRequired = 2;
+    m_pPanelWatchBlockVisible = &m_PanelWatchBlockVisible;
 #endif
 }
 

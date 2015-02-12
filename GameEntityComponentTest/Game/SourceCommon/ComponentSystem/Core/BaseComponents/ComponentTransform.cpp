@@ -9,6 +9,8 @@
 
 #include "GameCommonHeader.h"
 
+bool ComponentTransform::m_PanelWatchBlockVisible = true;
+
 ComponentTransform::ComponentTransform()
 : ComponentBase()
 {
@@ -35,6 +37,7 @@ void ComponentTransform::Reset()
 
 #if MYFW_USING_WX
     m_ControlID_ParentTransform = -1;
+    m_pPanelWatchBlockVisible = &m_PanelWatchBlockVisible;
 #endif //MYFW_USING_WX
 }
 
@@ -62,16 +65,21 @@ void ComponentTransform::OnLeftClick(bool clear)
 
 void ComponentTransform::FillPropertiesWindow(bool clear)
 {
-    ComponentBase::FillPropertiesWindow( clear );
+    m_ControlID_ComponentTitleLabel = g_pPanelWatch->AddSpace( "Transform", this, ComponentBase::StaticOnComponentTitleLabelClicked );
 
-    const char* desc = "none";
-    if( m_pParentTransform )
-        desc = m_pParentTransform->m_pGameObject->GetName();
-    m_ControlID_ParentTransform = g_pPanelWatch->AddPointerWithDescription( "Parent transform", m_pParentTransform, desc, this, ComponentTransform::StaticOnDropTransform, ComponentTransform::StaticOnValueChanged );
+    if( m_PanelWatchBlockVisible )
+    {
+        ComponentBase::FillPropertiesWindow( clear );
 
-    g_pPanelWatch->AddVector3( "Pos", &m_Position, -1.0f, 1.0f, this, ComponentTransform::StaticOnValueChanged );
-    g_pPanelWatch->AddVector3( "Scale", &m_Scale, 0.0f, 10.0f, this, ComponentTransform::StaticOnValueChanged );
-    g_pPanelWatch->AddVector3( "Rot", &m_Rotation, 0, 360, this, ComponentTransform::StaticOnValueChanged );
+        const char* desc = "none";
+        if( m_pParentTransform )
+            desc = m_pParentTransform->m_pGameObject->GetName();
+        m_ControlID_ParentTransform = g_pPanelWatch->AddPointerWithDescription( "Parent transform", m_pParentTransform, desc, this, ComponentTransform::StaticOnDropTransform, ComponentTransform::StaticOnValueChanged );
+
+        g_pPanelWatch->AddVector3( "Pos", &m_Position, -1.0f, 1.0f, this, ComponentTransform::StaticOnValueChanged );
+        g_pPanelWatch->AddVector3( "Scale", &m_Scale, 0.0f, 10.0f, this, ComponentTransform::StaticOnValueChanged );
+        g_pPanelWatch->AddVector3( "Rot", &m_Rotation, 0, 360, this, ComponentTransform::StaticOnValueChanged );
+    }
 }
 
 void ComponentTransform::OnDropTransform()

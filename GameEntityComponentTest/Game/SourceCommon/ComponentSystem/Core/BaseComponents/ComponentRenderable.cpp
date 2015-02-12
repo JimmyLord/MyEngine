@@ -9,6 +9,8 @@
 
 #include "GameCommonHeader.h"
 
+bool ComponentRenderable::m_PanelWatchBlockVisible = true;
+
 ComponentRenderable::ComponentRenderable()
 : ComponentBase()
 {
@@ -29,6 +31,10 @@ void ComponentRenderable::Reset()
 
     m_Visible = true;
     m_LayersThisExistsOn = Layer_MainScene;
+
+#if MYFW_USING_WX
+    m_pPanelWatchBlockVisible = &m_PanelWatchBlockVisible;
+#endif //MYFW_USING_WX
 }
 
 #if MYFW_USING_WX
@@ -44,9 +50,14 @@ void ComponentRenderable::OnLeftClick(bool clear)
 
 void ComponentRenderable::FillPropertiesWindow(bool clear)
 {
-    ComponentBase::FillPropertiesWindow( clear );
+    //m_ControlID_ComponentTitleLabel = g_pPanelWatch->AddSpace( "Renderable", this, ComponentBase::StaticOnComponentTitleLabelClicked );
 
-    g_pPanelWatch->AddUnsignedInt( "Layers", &m_LayersThisExistsOn, 0, 63 );
+    if( m_PanelWatchBlockVisible )
+    {
+        ComponentBase::FillPropertiesWindow( clear );
+
+        g_pPanelWatch->AddUnsignedInt( "Layers", &m_LayersThisExistsOn, 0, 63 );
+    }
 }
 #endif //MYFW_USING_WX
 

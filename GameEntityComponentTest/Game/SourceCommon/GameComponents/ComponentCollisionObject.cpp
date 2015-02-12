@@ -10,6 +10,8 @@
 #include "GameCommonHeader.h"
 #include "BulletCollision/CollisionShapes/btShapeHull.h"
 
+bool ComponentCollisionObject::m_PanelWatchBlockVisible = true;
+
 ComponentCollisionObject::ComponentCollisionObject()
 : ComponentUpdateable()
 {
@@ -48,6 +50,10 @@ void ComponentCollisionObject::Reset()
     m_Mass = 0;
 
     SAFE_RELEASE( m_pMesh );
+
+#if MYFW_USING_WX
+    m_pPanelWatchBlockVisible = &m_PanelWatchBlockVisible;
+#endif //MYFW_USING_WX
 }
 
 #if MYFW_USING_WX
@@ -63,14 +69,19 @@ void ComponentCollisionObject::OnLeftClick(bool clear)
 
 void ComponentCollisionObject::FillPropertiesWindow(bool clear)
 {
-    ComponentBase::FillPropertiesWindow( clear );
+    m_ControlID_ComponentTitleLabel = g_pPanelWatch->AddSpace( "Collision Object", this, ComponentBase::StaticOnComponentTitleLabelClicked );
 
-    g_pPanelWatch->AddFloat( "Mass", &m_Mass, 0, 100 );
+    if( m_PanelWatchBlockVisible )
+    {
+        ComponentBase::FillPropertiesWindow( clear );
 
-    const char* desc = "no mesh";
-    if( m_pMesh && m_pMesh->m_pSourceFile )
-        desc = m_pMesh->m_pSourceFile->m_FullPath;
-    g_pPanelWatch->AddPointerWithDescription( "Collision Mesh", 0, desc, this, ComponentCollisionObject::StaticOnDropOBJ );
+        g_pPanelWatch->AddFloat( "Mass", &m_Mass, 0, 100 );
+
+        const char* desc = "no mesh";
+        if( m_pMesh && m_pMesh->m_pSourceFile )
+            desc = m_pMesh->m_pSourceFile->m_FullPath;
+        g_pPanelWatch->AddPointerWithDescription( "Collision Mesh", 0, desc, this, ComponentCollisionObject::StaticOnDropOBJ );
+    }
 }
 
 void ComponentCollisionObject::OnDropOBJ()

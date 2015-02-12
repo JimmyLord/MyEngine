@@ -9,6 +9,8 @@
 
 #include "GameCommonHeader.h"
 
+bool ComponentMeshPrimitive::m_PanelWatchBlockVisible = true;
+
 ComponentMeshPrimitive::ComponentMeshPrimitive()
 : ComponentMesh()
 {
@@ -33,6 +35,10 @@ void ComponentMeshPrimitive::Reset()
     m_Sphere_Radius = 1;
 
     //CreatePrimitive();
+
+#if MYFW_USING_WX
+    m_pPanelWatchBlockVisible = &m_PanelWatchBlockVisible;
+#endif //MYFW_USING_WX
 }
 
 #if MYFW_USING_WX
@@ -48,24 +54,29 @@ void ComponentMeshPrimitive::OnLeftClick(bool clear)
 
 void ComponentMeshPrimitive::FillPropertiesWindow(bool clear)
 {
-    ComponentMesh::FillPropertiesWindow( clear );
+    m_ControlID_ComponentTitleLabel = g_pPanelWatch->AddSpace( "Mesh Primitive", this, ComponentBase::StaticOnComponentTitleLabelClicked );
 
-    g_pPanelWatch->AddInt( "MPType", (int*)&m_MeshPrimitiveType, 0, ComponentMeshPrimitive_Max-1, this, StaticOnValueChanged );
-
-    if( m_MeshPrimitiveType == ComponentMeshPrimitive_Plane )
+    if( m_PanelWatchBlockVisible )
     {
-        g_pPanelWatch->AddVector2( "Size", &m_Plane_Size, 0.01f, 1000.0f, this, StaticOnValueChanged );
+        ComponentMesh::FillPropertiesWindow( clear );
 
-        g_pPanelWatch->AddInt( "VertCount x", &m_Plane_VertCount.x, 2, 1000, this, StaticOnValueChanged );
-        g_pPanelWatch->AddInt( "VertCount y", &m_Plane_VertCount.y, 2, 1000, this, StaticOnValueChanged );
+        g_pPanelWatch->AddInt( "MPType", (int*)&m_MeshPrimitiveType, 0, ComponentMeshPrimitive_Max-1, this, StaticOnValueChanged );
 
-        g_pPanelWatch->AddVector2( "UVStart", &m_Plane_UVStart, -1.0f, 1000.0f, this, StaticOnValueChanged );
-        g_pPanelWatch->AddVector2( "UVRange", &m_Plane_UVRange, -1.0f, 1000.0f, this, StaticOnValueChanged );
-    }
+        if( m_MeshPrimitiveType == ComponentMeshPrimitive_Plane )
+        {
+            g_pPanelWatch->AddVector2( "Size", &m_Plane_Size, 0.01f, 1000.0f, this, StaticOnValueChanged );
 
-    if( m_MeshPrimitiveType == ComponentMeshPrimitive_Icosphere )
-    {
-        g_pPanelWatch->AddFloat( "Radius", &m_Sphere_Radius, 0.01f, 100.0f, this, StaticOnValueChanged );
+            g_pPanelWatch->AddInt( "VertCount x", &m_Plane_VertCount.x, 2, 1000, this, StaticOnValueChanged );
+            g_pPanelWatch->AddInt( "VertCount y", &m_Plane_VertCount.y, 2, 1000, this, StaticOnValueChanged );
+
+            g_pPanelWatch->AddVector2( "UVStart", &m_Plane_UVStart, -1.0f, 1000.0f, this, StaticOnValueChanged );
+            g_pPanelWatch->AddVector2( "UVRange", &m_Plane_UVRange, -1.0f, 1000.0f, this, StaticOnValueChanged );
+        }
+
+        if( m_MeshPrimitiveType == ComponentMeshPrimitive_Icosphere )
+        {
+            g_pPanelWatch->AddFloat( "Radius", &m_Sphere_Radius, 0.01f, 100.0f, this, StaticOnValueChanged );
+        }
     }
 }
 

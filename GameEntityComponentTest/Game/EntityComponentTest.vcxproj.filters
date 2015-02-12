@@ -696,6 +696,9 @@
     <None Include="Data\Shaders\Shader_ClipSpaceTexture.glsl">
       <Filter>Data\Shaders</Filter>
     </None>
+    <None Include="Data\Scenes\LightTest.scene">
+      <Filter>Data\Scenes</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Object Include="Data\OBJs\cube.obj">

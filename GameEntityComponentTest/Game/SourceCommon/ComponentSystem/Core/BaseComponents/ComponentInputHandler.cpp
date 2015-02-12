@@ -9,6 +9,8 @@
 
 #include "GameCommonHeader.h"
 
+bool ComponentInputHandler::m_PanelWatchBlockVisible = true;
+
 ComponentInputHandler::ComponentInputHandler()
 : ComponentBase()
 {
@@ -32,7 +34,12 @@ void ComponentInputHandler::OnLeftClick(bool clear)
 
 void ComponentInputHandler::FillPropertiesWindow(bool clear)
 {
-    ComponentBase::FillPropertiesWindow( clear );
+    //m_ControlID_ComponentTitleLabel = g_pPanelWatch->AddSpace( "Input Handler", this, ComponentBase::StaticOnComponentTitleLabelClicked );
+
+    if( m_PanelWatchBlockVisible )
+    {
+        ComponentBase::FillPropertiesWindow( clear );
+    }
 }
 #endif //MYFW_USING_WX
 
@@ -41,6 +48,10 @@ void ComponentInputHandler::Reset()
     ComponentBase::Reset();
 
     m_pComponentTransform = m_pGameObject->m_pComponentTransform;
+
+#if MYFW_USING_WX
+    m_pPanelWatchBlockVisible = &m_PanelWatchBlockVisible;
+#endif //MYFW_USING_WX
 }
 
 ComponentInputHandler& ComponentInputHandler::operator=(const ComponentInputHandler& other)

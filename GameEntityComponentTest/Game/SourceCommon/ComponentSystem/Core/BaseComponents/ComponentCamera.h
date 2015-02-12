@@ -64,6 +64,8 @@ public:
 
 public:
 #if MYFW_USING_WX
+    static bool m_PanelWatchBlockVisible;
+
     virtual void AddToObjectsPanel(wxTreeItemId gameobjectid);
     static void StaticOnLeftClick(void* pObjectPtr) { ((ComponentCamera*)pObjectPtr)->OnLeftClick( true ); }
     void OnLeftClick(bool clear);

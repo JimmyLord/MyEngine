@@ -35,7 +35,7 @@ class ComponentLuaScript : public ComponentUpdateable
     static const int MAX_EXPOSED_VARS = 4; // TODO: fix this hardcodedness
 
 public:
-    lua_State* m_pLuaState; // a reference to a global lua_State managed elsewhere.
+    LuaGameState* m_pLuaGameState; // a reference to a global lua_State managed elsewhere.
 
 protected:
     bool m_ScriptLoaded;
@@ -73,6 +73,9 @@ public:
 
 public:
 #if MYFW_USING_WX
+    static bool m_PanelWatchBlockVisible;
+    int m_ControlIDOfFirstExtern;
+
     virtual void AddToObjectsPanel(wxTreeItemId gameobjectid);
     static void StaticOnLeftClick(void* pObjectPtr) { ((ComponentLuaScript*)pObjectPtr)->OnLeftClick( true ); }
     void OnLeftClick(bool clear);

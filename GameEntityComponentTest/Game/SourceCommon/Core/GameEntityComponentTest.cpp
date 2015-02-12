@@ -587,6 +587,7 @@ void GameEntityComponentTest::OnKey(GameCoreButtonActions action, int keycode, i
                 m_Paused = false;
                 g_pGameMainFrame->SetWindowPerspectiveToDefault();
                 m_pEditorState->ClearSelectedObjectsAndComponents();
+                m_pLuaGameState->Rebuild();
                 m_pComponentSystemManager->OnStop();
 
                 m_pComponentSystemManager->SyncAllRigidBodiesToObjectTransforms();
@@ -1094,7 +1095,9 @@ void GameEntityComponentTest::HandleEditorInput(int keyaction, int keycode, int 
 
                 Vector3 pos = matLocalCamera->GetTranslation();
                 Vector3 angle = pCamera->m_pComponentTransform->GetLocalRotation();
-                float speed = 200.0f;
+                float speed = 600.0f;
+
+                dir.Normalize();
 
                 angle.y += dir.x * speed * m_TimePassedUnpausedLastFrame;
                 angle.x -= dir.y * speed * m_TimePassedUnpausedLastFrame;

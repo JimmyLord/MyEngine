@@ -70,6 +70,7 @@ public:
 
 public:
 #if MYFW_USING_WX
+    static bool m_PanelWatchBlockVisible;
     int m_ControlID_ParentTransform;
 
     virtual void AddToObjectsPanel(wxTreeItemId gameobjectid);

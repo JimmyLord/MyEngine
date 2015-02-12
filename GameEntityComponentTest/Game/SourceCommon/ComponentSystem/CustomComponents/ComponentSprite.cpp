@@ -9,6 +9,8 @@
 
 #include "GameCommonHeader.h"
 
+bool ComponentSprite::m_PanelWatchBlockVisible = true;
+
 ComponentSprite::ComponentSprite()
 : ComponentRenderable()
 {
@@ -35,20 +37,25 @@ void ComponentSprite::OnLeftClick(bool clear)
 
 void ComponentSprite::FillPropertiesWindow(bool clear)
 {
-    ComponentRenderable::FillPropertiesWindow( clear );
+    m_ControlID_ComponentTitleLabel = g_pPanelWatch->AddSpace( "Sprite", this, ComponentBase::StaticOnComponentTitleLabelClicked );
 
-    g_pPanelWatch->AddUnsignedChar( "r", &m_Tint.r, 0, 255 );
-    g_pPanelWatch->AddUnsignedChar( "g", &m_Tint.g, 0, 255 );
-    g_pPanelWatch->AddUnsignedChar( "b", &m_Tint.b, 0, 255 );
-    g_pPanelWatch->AddUnsignedChar( "a", &m_Tint.a, 0, 255 );
-    g_pPanelWatch->AddFloat( "width",  &m_Size.x, 0, 2 );
-    g_pPanelWatch->AddFloat( "height", &m_Size.y, 0, 2 );
+    if( m_PanelWatchBlockVisible )
+    {
+        ComponentRenderable::FillPropertiesWindow( clear );
 
-    const char* desc = "no shader";
-    assert( m_pSprite );
-    if( m_pSprite->m_pShaderGroup && m_pSprite->m_pShaderGroup->GetShader( ShaderPass_Main )->m_pFile )
-        desc = m_pSprite->m_pShaderGroup->GetShader( ShaderPass_Main )->m_pFile->m_FilenameWithoutExtension;
-    g_pPanelWatch->AddPointerWithDescription( "Shader", 0, desc, this, ComponentSprite::StaticOnDropShaderGroup );
+        g_pPanelWatch->AddUnsignedChar( "r", &m_Tint.r, 0, 255 );
+        g_pPanelWatch->AddUnsignedChar( "g", &m_Tint.g, 0, 255 );
+        g_pPanelWatch->AddUnsignedChar( "b", &m_Tint.b, 0, 255 );
+        g_pPanelWatch->AddUnsignedChar( "a", &m_Tint.a, 0, 255 );
+        g_pPanelWatch->AddFloat( "width",  &m_Size.x, 0, 2 );
+        g_pPanelWatch->AddFloat( "height", &m_Size.y, 0, 2 );
+
+        const char* desc = "no shader";
+        assert( m_pSprite );
+        if( m_pSprite->m_pShaderGroup && m_pSprite->m_pShaderGroup->GetShader( ShaderPass_Main )->m_pFile )
+            desc = m_pSprite->m_pShaderGroup->GetShader( ShaderPass_Main )->m_pFile->m_FilenameWithoutExtension;
+        g_pPanelWatch->AddPointerWithDescription( "Shader", 0, desc, this, ComponentSprite::StaticOnDropShaderGroup );
+    }
 }
 
 void ComponentSprite::OnDropShaderGroup()
@@ -96,6 +103,10 @@ void ComponentSprite::Reset()
 
     m_Size.Set( 1.0f, 1.0f );
     m_Tint.Set( 255,255,255,255 );
+
+#if MYFW_USING_WX
+    m_pPanelWatchBlockVisible = &m_PanelWatchBlockVisible;
+#endif //MYFW_USING_WX
 }
 
 ComponentSprite& ComponentSprite::operator=(const ComponentSprite& other)

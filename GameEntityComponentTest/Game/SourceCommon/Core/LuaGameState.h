@@ -25,6 +25,7 @@ public:
     LuaGameState();
     ~LuaGameState();
 
+    void Rebuild();
     void RegisterClasses();
 };
 

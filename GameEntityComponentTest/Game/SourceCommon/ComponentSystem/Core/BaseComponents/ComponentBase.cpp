@@ -26,11 +26,29 @@ ComponentBase::~ComponentBase()
         Remove();
 }
 
+void ComponentBase::Reset()
+{
+    m_ControlID_ComponentTitleLabel = -1;
+    m_pPanelWatchBlockVisible = 0;
+}
+
 #if MYFW_USING_WX
 void ComponentBase::AddToObjectsPanel(wxTreeItemId gameobjectid)
 {
     wxTreeItemId id = g_pPanelObjectList->AddObject( this, ComponentBase::StaticOnLeftClick, ComponentBase::StaticOnRightClick, gameobjectid, "Unknown component" );
     g_pPanelObjectList->SetDragAndDropFunctions( this, ComponentBase::StaticOnDrag, ComponentBase::StaticOnDrop );
+}
+
+void ComponentBase::OnComponentTitleLabelClicked(int id, bool finishedchanging)
+{
+    if( id != -1 && id == m_ControlID_ComponentTitleLabel )
+    {
+        if( m_pPanelWatchBlockVisible )
+        {
+            *m_pPanelWatchBlockVisible = !(*m_pPanelWatchBlockVisible);
+            g_pPanelObjectList->m_PanelWatchNeedsUpdate = true;
+        }
+    }
 }
 
 void ComponentBase::OnLeftClick(bool clear)
@@ -136,10 +154,6 @@ void ComponentBase::ImportFromJSONObject(cJSON* jsonobj, unsigned int sceneid)
 
     assert( m_SceneIDLoadedFrom == 0 || m_SceneIDLoadedFrom == sceneid );
     SetSceneID( sceneid );
-}
-
-void ComponentBase::Reset()
-{
 }
 
 ComponentBase& ComponentBase::operator=(const ComponentBase& other)

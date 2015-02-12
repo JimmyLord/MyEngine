@@ -9,6 +9,8 @@
 
 #include "GameCommonHeader.h"
 
+bool ComponentData::m_PanelWatchBlockVisible = true;
+
 ComponentData::ComponentData()
 : ComponentBase()
 {
@@ -32,14 +34,23 @@ void ComponentData::OnLeftClick(bool clear)
 
 void ComponentData::FillPropertiesWindow(bool clear)
 {
-    ComponentBase::FillPropertiesWindow( clear );
+    //m_ControlID_ComponentTitleLabel = g_pPanelWatch->AddSpace( "Data", this, ComponentBase::StaticOnComponentTitleLabelClicked );
+
+    if( m_PanelWatchBlockVisible )
+    {
+        ComponentBase::FillPropertiesWindow( clear );
+    }
 }
 #endif //MYFW_USING_WX
 
-//void ComponentData::Reset()
-//{
-//    ComponentBase::Reset();
-//}
+void ComponentData::Reset()
+{
+    ComponentBase::Reset();
+
+#if MYFW_USING_WX
+    m_pPanelWatchBlockVisible = &m_PanelWatchBlockVisible;
+#endif //MYFW_USING_WX
+}
 
 ComponentData& ComponentData::operator=(const ComponentData& other)
 {

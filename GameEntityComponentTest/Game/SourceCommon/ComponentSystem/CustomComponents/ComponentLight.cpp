@@ -9,6 +9,8 @@
 
 #include "GameCommonHeader.h"
 
+bool ComponentLight::m_PanelWatchBlockVisible = true;
+
 ComponentLight::ComponentLight()
 : ComponentData()
 {
@@ -36,6 +38,10 @@ void ComponentLight::Reset()
     m_pLight->m_Position = m_pGameObject->m_pComponentTransform->GetPosition();
     m_pLight->m_Color.Set( 0,0,0,0 );
     m_pLight->m_Attenuation.Set( 0,0,0 );
+
+#if MYFW_USING_WX
+    m_pPanelWatchBlockVisible = &m_PanelWatchBlockVisible;
+#endif //MYFW_USING_WX
 }
 
 #if MYFW_USING_WX
@@ -51,10 +57,15 @@ void ComponentLight::OnLeftClick(bool clear)
 
 void ComponentLight::FillPropertiesWindow(bool clear)
 {
-    ComponentData::FillPropertiesWindow( clear );
+    m_ControlID_ComponentTitleLabel = g_pPanelWatch->AddSpace( "Light", this, ComponentBase::StaticOnComponentTitleLabelClicked );
 
-    g_pPanelWatch->AddColorFloat( "color", &m_pLight->m_Color, 0, 1 );
-    g_pPanelWatch->AddVector3( "atten", &m_pLight->m_Attenuation, 0, 1 );
+    if( m_PanelWatchBlockVisible )
+    {
+        ComponentData::FillPropertiesWindow( clear );
+
+        g_pPanelWatch->AddColorFloat( "color", &m_pLight->m_Color, 0, 1 );
+        g_pPanelWatch->AddVector3( "atten", &m_pLight->m_Attenuation, 0, 1 );
+    }
 }
 #endif //MYFW_USING_WX
 

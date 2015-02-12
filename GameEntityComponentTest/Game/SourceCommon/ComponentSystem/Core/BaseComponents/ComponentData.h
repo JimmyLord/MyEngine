@@ -18,12 +18,14 @@ public:
     ComponentData();
     virtual ~ComponentData();
 
-    //virtual void Reset();
+    virtual void Reset();
     virtual void CopyFromSameType_Dangerous(ComponentBase* pObject) { *this = (ComponentData&)*pObject; }
     virtual ComponentData& operator=(const ComponentData& other);
 
 public:
 #if MYFW_USING_WX
+    static bool m_PanelWatchBlockVisible;
+
     virtual void AddToObjectsPanel(wxTreeItemId gameobjectid);
     static void StaticOnLeftClick(void* pObjectPtr) { ((ComponentData*)pObjectPtr)->OnLeftClick( true ); }
     void OnLeftClick(bool clear);

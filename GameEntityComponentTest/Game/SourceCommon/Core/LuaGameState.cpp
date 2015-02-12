@@ -52,10 +52,9 @@ LuaGameState::LuaGameState()
 {
     g_pLuaGameState = this;
 
-    m_pLuaState = luaL_newstate();
-    luaL_openlibs( m_pLuaState );
+    m_pLuaState = 0;
 
-    RegisterClasses();
+    Rebuild();
 }
 
 LuaGameState::~LuaGameState()
@@ -64,6 +63,19 @@ LuaGameState::~LuaGameState()
         g_pLuaGameState = 0;
 
     lua_close( m_pLuaState );
+}
+
+void LuaGameState::Rebuild()
+{
+    if( m_pLuaState != 0 )
+    {
+        lua_close( m_pLuaState );
+    }
+
+    m_pLuaState = luaL_newstate();
+    luaL_openlibs( m_pLuaState );
+
+    RegisterClasses();
 }
 
 void LuaGameState::RegisterClasses()

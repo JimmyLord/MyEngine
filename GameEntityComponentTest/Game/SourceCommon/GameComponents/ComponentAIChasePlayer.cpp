@@ -9,6 +9,8 @@
 
 #include "GameCommonHeader.h"
 
+bool ComponentAIChasePlayer::m_PanelWatchBlockVisible = true;
+
 ComponentAIChasePlayer::ComponentAIChasePlayer()
 : ComponentUpdateable()
 {
@@ -35,12 +37,17 @@ void ComponentAIChasePlayer::OnLeftClick(bool clear)
 
 void ComponentAIChasePlayer::FillPropertiesWindow(bool clear)
 {
-    ComponentBase::FillPropertiesWindow( clear );
+    m_ControlID_ComponentTitleLabel = g_pPanelWatch->AddSpace( "AI Chase Player", this, ComponentBase::StaticOnComponentTitleLabelClicked );
 
-    const char* desc = "not following";
-    if( m_pPlayerComponentTransform )
-        desc = m_pPlayerComponentTransform->m_pGameObject->GetName();
-    g_pPanelWatch->AddPointerWithDescription( "Object following", m_pPlayerComponentTransform, desc, this, ComponentAIChasePlayer::StaticOnNewParentTransformDrop );
+    if( m_PanelWatchBlockVisible )
+    {
+        ComponentBase::FillPropertiesWindow( clear );
+
+        const char* desc = "not following";
+        if( m_pPlayerComponentTransform )
+            desc = m_pPlayerComponentTransform->m_pGameObject->GetName();
+        g_pPanelWatch->AddPointerWithDescription( "Object following", m_pPlayerComponentTransform, desc, this, ComponentAIChasePlayer::StaticOnNewParentTransformDrop );
+    }
 }
 
 void ComponentAIChasePlayer::OnNewParentTransformDrop()
@@ -89,6 +96,10 @@ void ComponentAIChasePlayer::Reset()
     ComponentUpdateable::Reset();
 
     m_pComponentTransform = m_pGameObject->m_pComponentTransform;
+
+#if MYFW_USING_WX
+    m_pPanelWatchBlockVisible = &m_PanelWatchBlockVisible;
+#endif //MYFW_USING_WX
 }
 
 ComponentAIChasePlayer& ComponentAIChasePlayer::operator=(const ComponentAIChasePlayer& other)

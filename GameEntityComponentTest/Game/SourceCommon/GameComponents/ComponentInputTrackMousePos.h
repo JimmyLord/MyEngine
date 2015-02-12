@@ -21,7 +21,7 @@ public:
     virtual cJSON* ExportAsJSONObject();
     virtual void ImportFromJSONObject(cJSON* jsonobj, unsigned int sceneid);
 
-    //virtual void Reset();
+    virtual void Reset();
     virtual void CopyFromSameType_Dangerous(ComponentBase* pObject) { *this = (ComponentInputTrackMousePos&)*pObject; }
     virtual ComponentInputTrackMousePos& operator=(const ComponentInputTrackMousePos& other);
 
@@ -31,6 +31,8 @@ public:
 
 public:
 #if MYFW_USING_WX
+    static bool m_PanelWatchBlockVisible;
+
     virtual void AddToObjectsPanel(wxTreeItemId gameobjectid);
     static void StaticOnLeftClick(void* pObjectPtr) { ((ComponentInputTrackMousePos*)pObjectPtr)->OnLeftClick( true ); }
     void OnLeftClick(bool clear);

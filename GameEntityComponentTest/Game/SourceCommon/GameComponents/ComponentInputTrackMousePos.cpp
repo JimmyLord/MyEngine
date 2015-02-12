@@ -9,6 +9,8 @@
 
 #include "GameCommonHeader.h"
 
+bool ComponentInputTrackMousePos::m_PanelWatchBlockVisible = true;
+
 ComponentInputTrackMousePos::ComponentInputTrackMousePos()
 : ComponentInputHandler()
 {
@@ -34,7 +36,12 @@ void ComponentInputTrackMousePos::OnLeftClick(bool clear)
 
 void ComponentInputTrackMousePos::FillPropertiesWindow(bool clear)
 {
-    ComponentBase::FillPropertiesWindow( clear );
+    m_ControlID_ComponentTitleLabel = g_pPanelWatch->AddSpace( "Input Track Mouse Pos", this, ComponentBase::StaticOnComponentTitleLabelClicked );
+
+    if( m_PanelWatchBlockVisible )
+    {
+        ComponentBase::FillPropertiesWindow( clear );
+    }
 }
 #endif //MYFW_USING_WX
 
@@ -50,10 +57,14 @@ void ComponentInputTrackMousePos::ImportFromJSONObject(cJSON* jsonobj, unsigned 
     ComponentInputHandler::ImportFromJSONObject( jsonobj, sceneid );
 }
 
-//void ComponentInputTrackMousePos::Reset()
-//{
-//    ComponentInputHandler::Reset();
-//}
+void ComponentInputTrackMousePos::Reset()
+{
+    ComponentInputHandler::Reset();
+
+#if MYFW_USING_WX
+    m_pPanelWatchBlockVisible = &m_PanelWatchBlockVisible;
+#endif //MYFW_USING_WX
+}
 
 ComponentInputTrackMousePos& ComponentInputTrackMousePos::operator=(const ComponentInputTrackMousePos& other)
 {
