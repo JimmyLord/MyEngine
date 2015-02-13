@@ -66,6 +66,26 @@ void ComponentSystemManager::LuaRegister(lua_State* luastate)
 }
 
 #if MYFW_USING_WX
+void ComponentSystemManager::OnFileUpdated(MyFileObject* pFile)
+{
+    for( int i=0; i<m_pFileUpdatedCallbackList.size(); i++ )
+    {
+        m_pFileUpdatedCallbackList[i].pFunc( m_pFileUpdatedCallbackList[i].pObj, pFile );
+    }
+}
+
+void ComponentSystemManager::Editor_RegisterFileUpdatedCallback(FileUpdatedCallbackFunction pFunc, void* pObj)
+{
+    assert( pFunc != 0 );
+    assert( pObj != 0 );
+
+    FileUpdatedCallbackStruct callbackstruct;
+    callbackstruct.pFunc = pFunc;
+    callbackstruct.pObj = pObj;
+
+    m_pFileUpdatedCallbackList.push_back( callbackstruct );
+}
+
 void ComponentSystemManager::OnLeftClick(bool clear)
 {
     if( clear )

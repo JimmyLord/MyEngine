@@ -430,12 +430,21 @@ double GameEntityComponentTest::Tick(double TimePassed)
         return TimePassed;
 }
 
+void OnFileUpdated_CallbackFunction(MyFileObject* pFile)
+{
+    int bp = 1;
+
+    g_pComponentSystemManager->OnFileUpdated( pFile );
+
+    // TODO: entitycomponentmanager-> tell all script components file is updated.
+}
+
 void GameEntityComponentTest::OnFocusGained()
 {
     GameCore::OnFocusGained();
 
     // reload any files that changed while we were out of focus.
-    int filesupdated = g_pFileManager->ReloadAnyUpdatedFiles();
+    int filesupdated = g_pFileManager->ReloadAnyUpdatedFiles( OnFileUpdated_CallbackFunction );
 
     if( filesupdated )
     {
@@ -551,7 +560,7 @@ void GameEntityComponentTest::OnKey(GameCoreButtonActions action, int keycode, i
             }
             if( keycode == 344 ) // F5
             {
-                int filesupdated = g_pFileManager->ReloadAnyUpdatedFiles();
+                int filesupdated = g_pFileManager->ReloadAnyUpdatedFiles( OnFileUpdated_CallbackFunction );
 
                 if( filesupdated )
                 {

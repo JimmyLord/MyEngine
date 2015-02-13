@@ -19,10 +19,19 @@ class FileInfo; // at bottom of this file.
 
 extern ComponentSystemManager* g_pComponentSystemManager;
 
+#if MYFW_USING_WX
+typedef void (*FileUpdatedCallbackFunction)(void* obj, MyFileObject* pFile);
+struct FileUpdatedCallbackStruct
+{
+    void* pObj;
+    FileUpdatedCallbackFunction pFunc;
+};
+#endif //MYFW_USING_WX
+
 class ComponentSystemManager
 #if MYFW_USING_WX
 : public wxEvtHandler
-#endif
+#endif //MYFW_USING_WX
 {
 public:
     ComponentTypeManager* m_pComponentTypeManager;
@@ -42,6 +51,10 @@ public:
     unsigned int m_NextComponentID;
 
 protected:
+#if MYFW_USING_WX
+    std::vector<FileUpdatedCallbackStruct> m_pFileUpdatedCallbackList;
+#endif //MYFW_USING_WX
+
     bool IsFileUsedByScene(const char* fullpath, unsigned int sceneid);
 
 public:
@@ -88,6 +101,9 @@ public:
 
 public:
 #if MYFW_USING_WX
+    void OnFileUpdated(MyFileObject* pFile);
+    void Editor_RegisterFileUpdatedCallback(FileUpdatedCallbackFunction pFunc, void* pObj);
+
     static void StaticOnLeftClick(void* pObjectPtr) { ((ComponentSystemManager*)pObjectPtr)->OnLeftClick(true); }
     static void StaticOnRightClick(void* pObjectPtr) { ((ComponentSystemManager*)pObjectPtr)->OnRightClick(); }
     void OnLeftClick(bool clear);

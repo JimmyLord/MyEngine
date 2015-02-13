@@ -20,6 +20,8 @@ ComponentLuaScript::ComponentLuaScript()
     m_pScriptFile = 0;
 
     m_ExposedVars.AllocateObjects( MAX_EXPOSED_VARS ); // hard coded nonsense for now, max of 4 exposed vars in a script.
+
+    g_pComponentSystemManager->Editor_RegisterFileUpdatedCallback( &StaticOnFileUpdated, this );
 }
 
 ComponentLuaScript::~ComponentLuaScript()
@@ -41,6 +43,7 @@ void ComponentLuaScript::Reset()
 
     m_ScriptLoaded = false;
     m_Playing = false;
+    m_ErrorInScript = false;
     m_ShouldBePlayingButIsntBecauseScriptFileWasStillLoading = false;
 
     while( m_ExposedVars.Count() )
@@ -56,6 +59,18 @@ void ComponentLuaScript::Reset()
 }
 
 #if MYFW_USING_WX
+void ComponentLuaScript::OnFileUpdated(MyFileObject* pFile)
+{
+    if( pFile == m_pScriptFile )
+    {
+        m_ScriptLoaded = false;
+        m_ErrorInScript = false;
+
+        if( m_Playing )
+            m_ShouldBePlayingButIsntBecauseScriptFileWasStillLoading = true;
+    }
+}
+
 void ComponentLuaScript::AddToObjectsPanel(wxTreeItemId gameobjectid)
 {
     wxTreeItemId id = g_pPanelObjectList->AddObject( this, ComponentLuaScript::StaticOnLeftClick, ComponentBase::StaticOnRightClick, gameobjectid, "Lua script" );
@@ -422,6 +437,9 @@ void ComponentLuaScript::ProgramVariables(luabridge::LuaRef LuaObject, bool upda
 
 void ComponentLuaScript::OnLoad()
 {
+    if( m_ErrorInScript )
+        return;
+
     //if( m_Playing )
     {
         luabridge::LuaRef LuaObject = luabridge::getGlobal( m_pLuaGameState->m_pLuaState, m_pScriptFile->m_FilenameWithoutExtension );
@@ -436,6 +454,7 @@ void ComponentLuaScript::OnLoad()
             }
             catch(luabridge::LuaException const& e)
             {
+                m_ErrorInScript = true;
                 LuaBridgeExt_LogExceptionFormattedForVisualStudioOutputWindow( "OnLoad", m_pScriptFile->m_FullPath, e.what() );
             }
         }
@@ -446,19 +465,22 @@ void ComponentLuaScript::OnPlay()
 {
     ComponentUpdateable::OnPlay();
 
+    if( m_ErrorInScript )
+        return;
+
 #if _DEBUG && MYFW_USING_WX
     // reload the script when play is hit in debug, for quick script edits.
-    if( m_pScriptFile && m_pScriptFile->m_FileReady == true )
-    {
-        m_ScriptLoaded = false;
-        //g_pFileManager->ReloadFile( m_pScriptFile );
-        // hard loop until the filemanager is done loading the file.
-        while( m_pScriptFile && m_pScriptFile->m_FileReady == false )
-        {
-            g_pFileManager->Tick();
-        }
-        LoadScript();
-    }
+    //if( m_pScriptFile && m_pScriptFile->m_FileReady == true )
+    //{
+    //    m_ScriptLoaded = false;
+    //    //g_pFileManager->ReloadFile( m_pScriptFile );
+    //    // hard loop until the filemanager is done loading the file.
+    //    while( m_pScriptFile && m_pScriptFile->m_FileReady == false )
+    //    {
+    //        g_pFileManager->Tick();
+    //    }
+    //    LoadScript();
+    //}
 #endif
 
     // TODO: prevent "play" if file is not loaded.
@@ -486,6 +508,7 @@ void ComponentLuaScript::OnPlay()
                     }
                     catch(luabridge::LuaException const& e)
                     {
+                        m_ErrorInScript = true;
                         LuaBridgeExt_LogExceptionFormattedForVisualStudioOutputWindow( "OnPlay", m_pScriptFile->m_FullPath, e.what() );
                     }
                 }
@@ -501,9 +524,10 @@ void ComponentLuaScript::OnStop()
     ComponentUpdateable::OnStop();
 
     m_ScriptLoaded = false;
+    m_ErrorInScript = false;
     LoadScript();
 
-    if( m_Playing )
+    if( m_Playing && m_ErrorInScript == false )
     {
         luabridge::LuaRef LuaObject = luabridge::getGlobal( m_pLuaGameState->m_pLuaState, m_pScriptFile->m_FilenameWithoutExtension );
         
@@ -517,6 +541,7 @@ void ComponentLuaScript::OnStop()
             }
             catch(luabridge::LuaException const& e)
             {
+                m_ErrorInScript = true;
                 LuaBridgeExt_LogExceptionFormattedForVisualStudioOutputWindow( "OnStop", m_pScriptFile->m_FullPath, e.what() );
             }
         }
@@ -528,6 +553,9 @@ void ComponentLuaScript::OnStop()
 void ComponentLuaScript::Tick(double TimePassed)
 {
     //ComponentUpdateable::Tick( TimePassed );
+
+    if( m_ErrorInScript )
+        return;
 
     if( m_ScriptLoaded == false && g_pLuaGameState )
     {
@@ -541,7 +569,7 @@ void ComponentLuaScript::Tick(double TimePassed)
     }
 
     // find the Tick function and call it.
-    if( m_Playing )
+    if( m_ScriptLoaded && m_Playing )
     {
         luabridge::LuaRef LuaObject = luabridge::getGlobal( m_pLuaGameState->m_pLuaState, m_pScriptFile->m_FilenameWithoutExtension );
 
@@ -555,6 +583,7 @@ void ComponentLuaScript::Tick(double TimePassed)
             }
             catch(luabridge::LuaException const& e)
             {
+                m_ErrorInScript = true;
                 LuaBridgeExt_LogExceptionFormattedForVisualStudioOutputWindow( "Tick", m_pScriptFile->m_FullPath, e.what() );
             }
         }
@@ -563,6 +592,9 @@ void ComponentLuaScript::Tick(double TimePassed)
 
 bool ComponentLuaScript::OnTouch(int action, int id, float x, float y, float pressure, float size)
 {
+    if( m_ErrorInScript )
+        return false;
+
     // find the OnTouch function and call it.
     if( m_Playing )
     {
@@ -579,6 +611,7 @@ bool ComponentLuaScript::OnTouch(int action, int id, float x, float y, float pre
             }
             catch(luabridge::LuaException const& e)
             {
+                m_ErrorInScript = true;
                 LuaBridgeExt_LogExceptionFormattedForVisualStudioOutputWindow( "OnTouch", m_pScriptFile->m_FullPath, e.what() );
             }
         }
@@ -589,6 +622,9 @@ bool ComponentLuaScript::OnTouch(int action, int id, float x, float y, float pre
 
 bool ComponentLuaScript::OnButtons(GameCoreButtonActions action, GameCoreButtonIDs id)
 {
+    if( m_ErrorInScript )
+        return false;
+
     // find the OnButtons function and call it.
     if( m_Playing )
     {
@@ -607,6 +643,7 @@ bool ComponentLuaScript::OnButtons(GameCoreButtonActions action, GameCoreButtonI
             }
             catch(luabridge::LuaException const& e)
             {
+                m_ErrorInScript = true;
                 LuaBridgeExt_LogExceptionFormattedForVisualStudioOutputWindow( "OnButtons", m_pScriptFile->m_FullPath, e.what() );
             }
         }

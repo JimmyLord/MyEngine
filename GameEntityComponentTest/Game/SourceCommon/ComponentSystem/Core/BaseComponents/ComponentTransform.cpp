@@ -128,7 +128,7 @@ void ComponentTransform::OnValueChanged(int id, bool finishedchanging)
         UpdateMatrix();
 
         for( unsigned int i=0; i<m_pPositionChangedCallbackList.Count(); i++ )
-            m_pPositionChangedCallbackList[0].pFunc( m_pPositionChangedCallbackList[0].pObj, m_Position );
+            m_pPositionChangedCallbackList[i].pFunc( m_pPositionChangedCallbackList[i].pObj, m_Position );
     }
 }
 #endif //MYFW_USING_WX

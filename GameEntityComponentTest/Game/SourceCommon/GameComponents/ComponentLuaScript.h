@@ -40,6 +40,7 @@ public:
 protected:
     bool m_ScriptLoaded;
     bool m_Playing;
+    bool m_ErrorInScript;
     bool m_ShouldBePlayingButIsntBecauseScriptFileWasStillLoading;
 
     MyFileObject* m_pScriptFile;
@@ -73,6 +74,9 @@ public:
 
 public:
 #if MYFW_USING_WX
+    static void StaticOnFileUpdated(void* pObjectPtr, MyFileObject* pFile) { ((ComponentLuaScript*)pObjectPtr)->OnFileUpdated( pFile ); }
+    void OnFileUpdated(MyFileObject* pFile);
+
     static bool m_PanelWatchBlockVisible;
     int m_ControlIDOfFirstExtern;
 
