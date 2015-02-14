@@ -64,6 +64,8 @@ public:
     void ParseExterns(luabridge::LuaRef LuaObject);
     void ProgramVariables(luabridge::LuaRef LuaObject, bool updateexposedvariables = false);
 
+    void HandleLuaError(const char* functionname, const char* errormessage);
+
     virtual void OnPlay();
     virtual void OnStop();
     virtual void Tick(double TimePassed);

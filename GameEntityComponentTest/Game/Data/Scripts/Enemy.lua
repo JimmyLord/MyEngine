@@ -35,9 +35,12 @@ Tick = function(timepassed)
 	local pos = transform:GetPosition();
 	local posChasing = this.ObjectChasing:GetTransform():GetPosition();
 
+	posChasing.x = posChasing.x + math.cos( GetSystemTime() ) * 200;
+	posChasing.y = posChasing.y + math.sin( GetSystemTime() ) * 200;
+	
 	local diff = posChasing:Sub( pos );
 	diff = diff:Scale( timepassed * this.Speed );
-
+	
 	pos = pos:Add( diff );
 
 	transform:SetPosition( pos );

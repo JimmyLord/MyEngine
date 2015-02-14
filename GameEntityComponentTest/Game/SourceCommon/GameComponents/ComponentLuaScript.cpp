@@ -290,13 +290,16 @@ void ComponentLuaScript::LoadScript()
                 if( LuaObject.isTable() )
                 {
                     // Create a table to store local variables unique to this component.
-                    luabridge::LuaRef datatable = luabridge::newTable( m_pLuaGameState->m_pLuaState );
-                    
                     char gameobjectname[100];
                     sprintf_s( gameobjectname, 100, "_GameObject_%d", m_pGameObject->GetID() );
-                    luabridge::setGlobal( m_pLuaGameState->m_pLuaState, datatable, gameobjectname );
+                    luabridge::LuaRef datatable = luabridge::getGlobal( m_pLuaGameState->m_pLuaState, gameobjectname );
 
-                    datatable["gameobject"] = m_pGameObject;
+                    if( datatable.isTable() == false )
+                    {
+                        luabridge::LuaRef newdatatable = luabridge::newTable( m_pLuaGameState->m_pLuaState );
+                        luabridge::setGlobal( m_pLuaGameState->m_pLuaState, newdatatable, gameobjectname );
+                        newdatatable["gameobject"] = m_pGameObject;
+                    }
 
                     ParseExterns( LuaObject );
                     OnLoad();
@@ -304,25 +307,31 @@ void ComponentLuaScript::LoadScript()
             }
             else
             {
-                if( loadretcode == LUA_ERRRUN )
+                if( exeretcode == LUA_ERRRUN )
                 {
-                    LOGInfo( LOGTag, "Lua Run error in script: %s\n", m_pScriptFile->m_FilenameWithoutExtension );
+                    const char* errorstr = lua_tostring( m_pLuaGameState->m_pLuaState, -1 );
+                    HandleLuaError( "LUA_ERRRUN", errorstr );
                 }
                 else
                 {
                     assert( false ); // assert until I hit this and deal with it better.
-                    LOGInfo( LOGTag, "Lua Run error in script: %s\n", m_pScriptFile->m_FilenameWithoutExtension );
+                    const char* errorstr = lua_tostring( m_pLuaGameState->m_pLuaState, -1 );
+                    HandleLuaError( "!LUA_ERRRUN", errorstr );
                 }
             }
         }
         else
         {
             if( loadretcode == LUA_ERRSYNTAX )
-                LOGInfo( LOGTag, "Lua Syntax error in script: %s\n", m_pScriptFile->m_FilenameWithoutExtension );
+            {
+                const char* errorstr = lua_tostring( m_pLuaGameState->m_pLuaState, -1 );
+                HandleLuaError( "LUA_ERRSYNTAX", errorstr );
+            }
             else
             {
                 assert( false );
-                LOGInfo( LOGTag, "Lua Syntax error in script: %s\n", m_pScriptFile->m_FilenameWithoutExtension );
+                const char* errorstr = lua_tostring( m_pLuaGameState->m_pLuaState, -1 );
+                HandleLuaError( "!LUA_ERRSYNTAX", errorstr );
             }
         }
 
@@ -339,6 +348,7 @@ void ComponentLuaScript::ParseExterns(luabridge::LuaRef LuaObject)
     }
 
     luabridge::LuaRef Externs = LuaObject["Externs"];
+
     if( Externs.isTable() == true )
     {
         int len = Externs.length();
@@ -346,11 +356,15 @@ void ComponentLuaScript::ParseExterns(luabridge::LuaRef LuaObject)
         {
             luabridge::LuaRef variabledesc = Externs[i+1];
 
+            //if( variabledesc.isTable() == false )
+            //    return;
+
             luabridge::LuaRef variablename = variabledesc[1];
             luabridge::LuaRef variabletype = variabledesc[2];
             luabridge::LuaRef variableinitialvalue = variabledesc[3];
 
             std::string varname = variablename.tostring();
+            std::string vartype = variabletype.tostring();
 
             ExposedVariableDesc* pVar = 0;
 
@@ -373,7 +387,6 @@ void ComponentLuaScript::ParseExterns(luabridge::LuaRef LuaObject)
             }
 
             pVar->name = varname;
-            std::string vartype = variabletype.tostring();
 
             if( vartype == "Float" )
             {
@@ -435,6 +448,15 @@ void ComponentLuaScript::ProgramVariables(luabridge::LuaRef LuaObject, bool upda
     }
 }
 
+void ComponentLuaScript::HandleLuaError(const char* functionname, const char* errormessage)
+{
+    m_ErrorInScript = true;
+    LuaBridgeExt_LogExceptionFormattedForVisualStudioOutputWindow( functionname, m_pScriptFile->m_FullPath, errormessage );
+
+    // pop the error message off the lua stack
+    lua_pop( m_pLuaGameState->m_pLuaState, 1 );
+}
+
 void ComponentLuaScript::OnLoad()
 {
     if( m_ErrorInScript )
@@ -454,8 +476,7 @@ void ComponentLuaScript::OnLoad()
             }
             catch(luabridge::LuaException const& e)
             {
-                m_ErrorInScript = true;
-                LuaBridgeExt_LogExceptionFormattedForVisualStudioOutputWindow( "OnLoad", m_pScriptFile->m_FullPath, e.what() );
+                HandleLuaError( "OnLoad", e.what() );
             }
         }
     }
@@ -508,8 +529,7 @@ void ComponentLuaScript::OnPlay()
                     }
                     catch(luabridge::LuaException const& e)
                     {
-                        m_ErrorInScript = true;
-                        LuaBridgeExt_LogExceptionFormattedForVisualStudioOutputWindow( "OnPlay", m_pScriptFile->m_FullPath, e.what() );
+                        HandleLuaError( "OnPlay", e.what() );
                     }
                 }
 
@@ -541,8 +561,7 @@ void ComponentLuaScript::OnStop()
             }
             catch(luabridge::LuaException const& e)
             {
-                m_ErrorInScript = true;
-                LuaBridgeExt_LogExceptionFormattedForVisualStudioOutputWindow( "OnStop", m_pScriptFile->m_FullPath, e.what() );
+                HandleLuaError( "OnStop", e.what() );
             }
         }
     }
@@ -583,8 +602,7 @@ void ComponentLuaScript::Tick(double TimePassed)
             }
             catch(luabridge::LuaException const& e)
             {
-                m_ErrorInScript = true;
-                LuaBridgeExt_LogExceptionFormattedForVisualStudioOutputWindow( "Tick", m_pScriptFile->m_FullPath, e.what() );
+                HandleLuaError( "Tick", e.what() );
             }
         }
     }
@@ -611,8 +629,7 @@ bool ComponentLuaScript::OnTouch(int action, int id, float x, float y, float pre
             }
             catch(luabridge::LuaException const& e)
             {
-                m_ErrorInScript = true;
-                LuaBridgeExt_LogExceptionFormattedForVisualStudioOutputWindow( "OnTouch", m_pScriptFile->m_FullPath, e.what() );
+                HandleLuaError( "OnTouch", e.what() );
             }
         }
     }
@@ -643,8 +660,7 @@ bool ComponentLuaScript::OnButtons(GameCoreButtonActions action, GameCoreButtonI
             }
             catch(luabridge::LuaException const& e)
             {
-                m_ErrorInScript = true;
-                LuaBridgeExt_LogExceptionFormattedForVisualStudioOutputWindow( "OnButtons", m_pScriptFile->m_FullPath, e.what() );
+                HandleLuaError( "OnButtons", e.what() );
             }
         }
     }

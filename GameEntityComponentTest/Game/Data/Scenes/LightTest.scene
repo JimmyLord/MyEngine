@@ -20,13 +20,13 @@
 			"Name":	"Plane"
 		}, {
 			"ID":	12,
-			"Name":	"Light - Blue"
+			"Name":	"Light - Green"
 		}, {
 			"ID":	13,
 			"Name":	"Light - Red"
 		}, {
 			"ID":	14,
-			"Name":	"Light - Green"
+			"Name":	"Light - Blue"
 		}, {
 			"ID":	15,
 			"Name":	"Light - Red - copy"
@@ -206,7 +206,7 @@
 			"Type":	"Light",
 			"GOID":	12,
 			"ID":	21,
-			"Color":	[0, 0, 1, 1],
+			"Color":	[0, 1, 0, 1],
 			"Atten":	[1, 0, 0.010000]
 		}, {
 			"Type":	"Light",
@@ -218,7 +218,7 @@
 			"Type":	"Light",
 			"GOID":	14,
 			"ID":	25,
-			"Color":	[0.949020, 1, 0, 1],
+			"Color":	[0, 0, 1, 1],
 			"Atten":	[1, 0, 0.010000]
 		}, {
 			"Type":	"Light",
