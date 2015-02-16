@@ -126,9 +126,70 @@ bool TransformGizmo::HandleInput(GameEntityComponentTest* pGame, int keydown, in
     return false;
 }
 
+void TransformGizmo::CreateAxisObjects(float scale, ShaderGroup* pShader, EditorState* pEditorState)
+{
+    GameObject* pGameObject;
+    ComponentMesh* pComponentMesh;
+
+    {
+        pGameObject = g_pComponentSystemManager->CreateGameObject( false ); // not managed.
+        pGameObject->SetSceneID( 99999 );
+        pGameObject->SetName( "3D Transform Gizmo - x-axis" );
+
+        pComponentMesh = (ComponentMesh*)pGameObject->AddNewComponent( ComponentType_Mesh, 99999 );
+        if( pComponentMesh )
+        {
+            pComponentMesh->m_Visible = true;
+            pComponentMesh->SetShader( pShader );
+            pComponentMesh->m_LayersThisExistsOn = Layer_EditorFG;
+            pComponentMesh->m_pMesh = MyNew MyMesh();
+            pComponentMesh->m_pMesh->CreateEditorTransformGizmoAxis( 3, 0.05f, ColorByte(255, 100, 100, 255) );
+            pComponentMesh->m_GLPrimitiveType = pComponentMesh->m_pMesh->m_PrimitiveType;
+        }
+
+        pEditorState->m_pTransformGizmo->m_pTransformGizmos[0] = pGameObject;
+    }
+    {
+        pGameObject = g_pComponentSystemManager->CreateGameObject( false ); // not managed.
+        pGameObject->SetSceneID( 99999 );
+        pGameObject->SetName( "3D Transform Gizmo - y-axis" );
+
+        pComponentMesh = (ComponentMesh*)pGameObject->AddNewComponent( ComponentType_Mesh, 99999 );
+        if( pComponentMesh )
+        {
+            pComponentMesh->m_Visible = true;
+            pComponentMesh->SetShader( pShader );
+            pComponentMesh->m_LayersThisExistsOn = Layer_EditorFG;
+            pComponentMesh->m_pMesh = MyNew MyMesh();
+            pComponentMesh->m_pMesh->CreateEditorTransformGizmoAxis( 3, 0.05f, ColorByte(100, 255, 100, 255) );
+            pComponentMesh->m_GLPrimitiveType = pComponentMesh->m_pMesh->m_PrimitiveType;
+        }
+
+        pEditorState->m_pTransformGizmo->m_pTransformGizmos[1] = pGameObject;
+    }
+    {
+        pGameObject = g_pComponentSystemManager->CreateGameObject( false ); // not managed.
+        pGameObject->SetSceneID( 99999 );
+        pGameObject->SetName( "3D Transform Gizmo - z-axis" );
+
+        pComponentMesh = (ComponentMesh*)pGameObject->AddNewComponent( ComponentType_Mesh, 99999 );
+        if( pComponentMesh )
+        {
+            pComponentMesh->m_Visible = true;
+            pComponentMesh->SetShader( pShader );
+            pComponentMesh->m_LayersThisExistsOn = Layer_EditorFG;
+            pComponentMesh->m_pMesh = MyNew MyMesh();
+            pComponentMesh->m_pMesh->CreateEditorTransformGizmoAxis( 3, 0.05f, ColorByte(100, 100, 255, 255) );
+            pComponentMesh->m_GLPrimitiveType = pComponentMesh->m_pMesh->m_PrimitiveType;
+        }
+
+        pEditorState->m_pTransformGizmo->m_pTransformGizmos[2] = pGameObject;
+    }
+}
+
 void TransformGizmo::ScaleGizmosForMousePickRendering(bool doscale)
 {
-    float scaleamount = 3;
+    float scaleamount = 7;
 
     if( doscale == false )
         scaleamount = 1/scaleamount;

@@ -27,6 +27,7 @@ public:
 
     bool HandleInput(GameEntityComponentTest* pGame, int keydown, int keycode, int action, int id, float x, float y, float pressure);
 
+    void CreateAxisObjects(float scale, ShaderGroup* pShader, EditorState* pEditorState);
     void ScaleGizmosForMousePickRendering(bool doscale);
     
     void TranslateSelectedObjects(GameEntityComponentTest* pGame, EditorState* pEditorState);

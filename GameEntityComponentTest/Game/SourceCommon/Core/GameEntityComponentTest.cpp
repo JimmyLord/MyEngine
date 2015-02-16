@@ -152,69 +152,7 @@ void GameEntityComponentTest::OneTimeInit()
     }
 
     // create a 3d transform gizmo for each axis.
-    {
-        pGameObject = m_pComponentSystemManager->CreateGameObject( false ); // not managed.
-        pGameObject->SetSceneID( 99999 );
-        pGameObject->SetName( "3D Transform Gizmo - x-axis" );
-
-        pComponentMesh = (ComponentMesh*)pGameObject->AddNewComponent( ComponentType_Mesh, 99999 );
-        if( pComponentMesh )
-        {
-            pComponentMesh->m_Visible = true;
-            pComponentMesh->SetShader( m_pShader_TransformGizmo );
-            pComponentMesh->m_LayersThisExistsOn = Layer_EditorFG;
-            pComponentMesh->m_pMesh = MyNew MyMesh();
-            pComponentMesh->m_pMesh->CreateEditorTransformGizmoAxis( 3, 0.1f, ColorByte(255, 100, 100, 255) );
-            pComponentMesh->m_GLPrimitiveType = pComponentMesh->m_pMesh->m_PrimitiveType;
-        }
-        //pGameObject->m_pComponentTransform->SetRotation( Vector3( 0, 90, 0 ) );
-
-        //m_pComponentSystemManager->AddComponent( pComponentMesh );
-
-        m_pEditorState->m_pTransformGizmo->m_pTransformGizmos[0] = pGameObject;
-    }
-    {
-        pGameObject = m_pComponentSystemManager->CreateGameObject( false ); // not managed.
-        pGameObject->SetSceneID( 99999 );
-        pGameObject->SetName( "3D Transform Gizmo - y-axis" );
-
-        pComponentMesh = (ComponentMesh*)pGameObject->AddNewComponent( ComponentType_Mesh, 99999 );
-        if( pComponentMesh )
-        {
-            pComponentMesh->m_Visible = true;
-            pComponentMesh->SetShader( m_pShader_TransformGizmo );
-            pComponentMesh->m_LayersThisExistsOn = Layer_EditorFG;
-            pComponentMesh->m_pMesh = MyNew MyMesh();
-            pComponentMesh->m_pMesh->CreateEditorTransformGizmoAxis( 3, 0.1f, ColorByte(100, 255, 100, 255) );
-            pComponentMesh->m_GLPrimitiveType = pComponentMesh->m_pMesh->m_PrimitiveType;
-        }
-        //pGameObject->m_pComponentTransform->SetRotation( Vector3( 0, 0, 90 ) );
-
-        //m_pComponentSystemManager->AddComponent( pComponentMesh );
-
-        m_pEditorState->m_pTransformGizmo->m_pTransformGizmos[1] = pGameObject;
-    }
-    {
-        pGameObject = m_pComponentSystemManager->CreateGameObject( false ); // not managed.
-        pGameObject->SetSceneID( 99999 );
-        pGameObject->SetName( "3D Transform Gizmo - z-axis" );
-
-        pComponentMesh = (ComponentMesh*)pGameObject->AddNewComponent( ComponentType_Mesh, 99999 );
-        if( pComponentMesh )
-        {
-            pComponentMesh->m_Visible = true;
-            pComponentMesh->SetShader( m_pShader_TransformGizmo );
-            pComponentMesh->m_LayersThisExistsOn = Layer_EditorFG;
-            pComponentMesh->m_pMesh = MyNew MyMesh();
-            pComponentMesh->m_pMesh->CreateEditorTransformGizmoAxis( 3, 0.1f, ColorByte(100, 100, 255, 255) );
-            pComponentMesh->m_GLPrimitiveType = pComponentMesh->m_pMesh->m_PrimitiveType;
-        }
-        //pGameObject->m_pComponentTransform->SetRotation( Vector3( -90, 0, 0 ) );
-
-        //m_pComponentSystemManager->AddComponent( pComponentMesh );
-
-        m_pEditorState->m_pTransformGizmo->m_pTransformGizmos[2] = pGameObject;
-    }
+    m_pEditorState->m_pTransformGizmo->CreateAxisObjects( 0.03f, m_pShader_TransformGizmo, m_pEditorState );
 
     // create a 3D editor camera, renders editor view.
     {
