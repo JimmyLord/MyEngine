@@ -327,6 +327,9 @@
     <ClCompile Include="SourceCommon\ComponentSystem\CustomComponents\ComponentMeshPrimitive.cpp">
       <Filter>Source\ComponentSystem\Custom Components</Filter>
     </ClCompile>
+    <ClCompile Include="SourceCommon\ComponentSystem\CustomComponents\ComponentParticleEmitter.cpp">
+      <Filter>Source\ComponentSystem\Custom Components</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SourceWindows\WinMain.h">
@@ -578,6 +581,9 @@
     <ClInclude Include="SourceCommon\ComponentSystem\CustomComponents\ComponentMeshPrimitive.h">
       <Filter>Source\ComponentSystem\Custom Components</Filter>
     </ClInclude>
+    <ClInclude Include="SourceCommon\ComponentSystem\CustomComponents\ComponentParticleEmitter.h">
+      <Filter>Source\ComponentSystem\Custom Components</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="SourceNaCL\Web\myframework.js">
@@ -698,6 +704,9 @@
     </None>
     <None Include="Data\Scenes\LightTest.scene">
       <Filter>Data\Scenes</Filter>
+    </None>
+    <None Include="Data\Shaders\Shader_TextureVertexColor.glsl">
+      <Filter>Data\Shaders</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

@@ -2063,6 +2063,7 @@
     <ClCompile Include="SourceCommon\ComponentSystem\CustomComponents\ComponentMesh.cpp" />
     <ClCompile Include="SourceCommon\ComponentSystem\CustomComponents\ComponentMeshOBJ.cpp" />
     <ClCompile Include="SourceCommon\ComponentSystem\CustomComponents\ComponentMeshPrimitive.cpp" />
+    <ClCompile Include="SourceCommon\ComponentSystem\CustomComponents\ComponentParticleEmitter.cpp" />
     <ClCompile Include="SourceCommon\ComponentSystem\CustomComponents\ComponentSprite.cpp" />
     <ClCompile Include="SourceCommon\Core\BulletWorld.cpp" />
     <ClCompile Include="SourceCommon\Core\EditorState.cpp">
@@ -2469,6 +2470,7 @@
     <ClInclude Include="SourceCommon\ComponentSystem\CustomComponents\ComponentMesh.h" />
     <ClInclude Include="SourceCommon\ComponentSystem\CustomComponents\ComponentMeshOBJ.h" />
     <ClInclude Include="SourceCommon\ComponentSystem\CustomComponents\ComponentMeshPrimitive.h" />
+    <ClInclude Include="SourceCommon\ComponentSystem\CustomComponents\ComponentParticleEmitter.h" />
     <ClInclude Include="SourceCommon\ComponentSystem\CustomComponents\ComponentSprite.h" />
     <ClInclude Include="SourceCommon\Core\BulletWorld.h" />
     <ClInclude Include="SourceCommon\Core\EditorState.h">
@@ -2808,6 +2810,7 @@
     <None Include="Data\Shaders\Shader_TextureLights.glsl" />
     <None Include="Data\Shaders\Shader_TestNormals.glsl" />
     <None Include="Data\Shaders\Shader_Texture.glsl" />
+    <None Include="Data\Shaders\Shader_TextureVertexColor.glsl" />
     <None Include="Data\Shaders\Shader_TintColor.glsl" />
     <None Include="Data\Shaders\Shader_VertSinY.glsl" />
     <None Include="Data\Shaders\Shader_Water.glsl" />

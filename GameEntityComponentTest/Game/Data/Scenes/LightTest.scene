@@ -1,5 +1,5 @@
 {
-	"Files":	["Data/Shaders/Shader_TintColor.glsl", "Data/Shaders/Shader_ClipSpaceTexture.glsl", "Data/OBJs/cube.obj", "Data/Shaders/Shader_TestNormals.glsl", "Data/Shaders/Shader_TextureLights.glsl", "Data/Textures/WhiteSquare.png", "Data/Shaders/Include_Lights_Uniforms.glsl", "Data/Shaders/Include_Lights.glsl", "Data/Scripts/Player.lua", "Data/Scripts/Enemy.lua"],
+	"Files":	["Data/Shaders/Shader_TintColor.glsl", "Data/Shaders/Shader_ClipSpaceTexture.glsl", "Data/OBJs/cube.obj", "Data/Shaders/Shader_TestNormals.glsl", "Data/Shaders/Shader_TextureLights.glsl", "Data/Textures/WhiteSquare.png", "Data/Shaders/Include_Lights_Uniforms.glsl", "Data/Shaders/Include_Lights.glsl", "Data/Scripts/Player.lua", "Data/Scripts/Enemy.lua", "Data/Shaders/Shader_TextureVertexColor.glsl"],
 	"GameObjects":	[{
 			"ID":	1,
 			"Name":	"Main Camera"
@@ -202,6 +202,22 @@
 			"PlaneUVRangex":	1,
 			"PlaneUVRangey":	1,
 			"SphereRadius":	1
+		}, {
+			"Type":	"Particle Emitter",
+			"GOID":	14,
+			"ID":	28,
+			"Visible":	1,
+			"Layers":	1,
+			"size":	1,
+			"sizevar":	0.100000,
+			"timetolive":	15,
+			"dir":	[0, 0.500000, 0],
+			"dirvar":	[0.500000, 0.500000, 0.500000],
+			"coloroption":	1,
+			"color1":	[1, 1, 1, 1],
+			"color2":	[0, 0, 0, 1],
+			"Shader":	"Shader_TextureVertexColor",
+			"Texture":	"Data/Textures/WhiteSquare.png"
 		}, {
 			"Type":	"Light",
 			"GOID":	12,

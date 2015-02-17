@@ -38,6 +38,8 @@ void ComponentMesh::Reset()
     ComponentRenderable::Reset();
 
     SAFE_RELEASE( m_pMesh );
+    SAFE_RELEASE( m_pShaderGroup );
+    SAFE_RELEASE( m_pTexture );
 
 #if MYFW_USING_WX
     m_pPanelWatchBlockVisible = &m_PanelWatchBlockVisible;

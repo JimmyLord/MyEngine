@@ -24,6 +24,7 @@ enum ComponentTypes // search for ADDING_NEW_ComponentType
     ComponentType_AIChasePlayer,
     ComponentType_CollisionObject,
     ComponentType_LuaScript,
+    ComponentType_ParticleEmitter,
     Component_NumComponentTypes,
 };
 

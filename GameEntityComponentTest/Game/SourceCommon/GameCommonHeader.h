@@ -52,13 +52,14 @@ extern "C"
 #include "ComponentSystem/Core/BaseComponents/ComponentUpdateable.h"
 #include "ComponentSystem/Core/BaseComponents/ComponentRenderable.h"
 
-// myframework components
+// myframework components // ADDING_NEW_ComponentType
 #include "Core/GameComponentTypeManager.h"
 #include "ComponentSystem/CustomComponents/ComponentLight.h"
 #include "ComponentSystem/CustomComponents/ComponentSprite.h"
 #include "ComponentSystem/CustomComponents/ComponentMesh.h"
 #include "ComponentSystem/CustomComponents/ComponentMeshOBJ.h"
 #include "ComponentSystem/CustomComponents/ComponentMeshPrimitive.h"
+#include "ComponentSystem/CustomComponents/ComponentParticleEmitter.h"
 
 // game code
 #include "Camera/Camera3D.h"
