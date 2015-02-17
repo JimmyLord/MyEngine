@@ -42,7 +42,53 @@ void GameMainFrame_MessageLog(int logtype, const char* tag, const char* message)
 GameMainFrame::GameMainFrame()
 : MainFrame(0)
 {
+}
+
+void GameMainFrame::InitFrame()
+{
     g_pGameMainFrame = this;
+
+    FILE* file = 0;
+    fopen_s( &file, "EditorPrefs.ini", "rb" );
+    if( file )
+    {
+        char* string = MyNew char[10000];
+        int len = fread( string, 1, 10000, file );
+        string[len] = 0;
+        fclose( file );
+
+        m_pEditorPrefs = cJSON_Parse( string );
+        delete[] string;
+
+        if( m_pEditorPrefs )
+        {
+            int windowx = -9999;
+            int windowy = -9999;
+            int clientwidth = 0;
+            int clientheight = 0;
+            bool maximized = false;
+            cJSONExt_GetInt( m_pEditorPrefs, "WindowX", &windowx );
+            cJSONExt_GetInt( m_pEditorPrefs, "WindowY", &windowy );
+            cJSONExt_GetInt( m_pEditorPrefs, "ClientWidth", &clientwidth );
+            cJSONExt_GetInt( m_pEditorPrefs, "ClientHeight", &clientheight );
+            cJSONExt_GetBool( m_pEditorPrefs, "IsMaximized", &maximized );
+
+            if( clientwidth != 0 )
+                m_ClientWidth = clientwidth;
+            if( clientheight != 0 )
+                m_ClientHeight = clientheight;
+
+            if( windowx != -9999 )
+                m_WindowX = windowx;
+                
+            if( windowy != -9999 )
+                m_WindowY = windowy;
+
+            m_Maximized = maximized;
+        }
+    }
+
+    MainFrame::InitFrame();
 
     m_pGLCanvasEditor = 0;
     m_pLogPane = 0;
@@ -125,41 +171,31 @@ void GameMainFrame::AddPanes()
 
 void GameMainFrame::OnPostInit()
 {
-    FILE* file = 0;
-    fopen_s( &file, "EditorPrefs.ini", "rb" );
-    if( file )
+    if( m_pEditorPrefs )
     {
-        char* string = MyNew char[10000];
-        int len = fread( string, 1, 10000, file );
-        string[len] = 0;
-        fclose( file );
-
-        cJSON* pPrefs = cJSON_Parse( string );
-
         cJSON* obj;
 
-        obj = cJSON_GetObjectItem( pPrefs, "LastSceneLoaded" );
+        obj = cJSON_GetObjectItem( m_pEditorPrefs, "LastSceneLoaded" );
         if( obj )
             LoadScene( obj->valuestring );
 
-        obj = cJSON_GetObjectItem( pPrefs, "EditorCam" );
+        obj = cJSON_GetObjectItem( m_pEditorPrefs, "EditorCam" );
         if( obj )
             ((GameEntityComponentTest*)g_pGameCore)->m_pEditorState->GetEditorCamera()->m_pComponentTransform->ImportFromJSONObject( obj, 1 );
 
-        obj = cJSON_GetObjectItem( pPrefs, "EditorLayout" );
+        obj = cJSON_GetObjectItem( m_pEditorPrefs, "EditorLayout" );
         if( obj )
             SetDefaultEditorPerspectiveIndex( obj->valueint );
 
-        obj = cJSON_GetObjectItem( pPrefs, "GameplayLayout" );
+        obj = cJSON_GetObjectItem( m_pEditorPrefs, "GameplayLayout" );
         if( obj )
             SetDefaultGameplayPerspectiveIndex( obj->valueint );
 
         extern GLViewTypes g_CurrentGLViewType;
-        cJSONExt_GetInt( pPrefs, "GameAspectRatio", (int*)&g_CurrentGLViewType );
+        cJSONExt_GetInt( m_pEditorPrefs, "GameAspectRatio", (int*)&g_CurrentGLViewType );
 
-        cJSON_Delete( pPrefs );
-
-        delete[] string;
+        cJSON_Delete( m_pEditorPrefs );
+        m_pEditorPrefs = 0;
     }
 
     m_pGLCanvas->ResizeViewport();
@@ -172,6 +208,12 @@ void GameMainFrame::OnClose()
     if( file )
     {
         cJSON* pPrefs = cJSON_CreateObject();
+
+        cJSON_AddNumberToObject( pPrefs, "WindowX", m_WindowX );
+        cJSON_AddNumberToObject( pPrefs, "WindowY", m_WindowY );
+        cJSON_AddNumberToObject( pPrefs, "ClientWidth", m_ClientWidth );
+        cJSON_AddNumberToObject( pPrefs, "ClientHeight", m_ClientHeight );
+        cJSON_AddNumberToObject( pPrefs, "IsMaximized", m_Maximized );
 
         cJSON_AddStringToObject( pPrefs, "LastSceneLoaded", m_CurrentSceneName );
         cJSON_AddItemToObject( pPrefs, "EditorCam", ((GameEntityComponentTest*)g_pGameCore)->m_pEditorState->GetEditorCamera()->m_pComponentTransform->ExportAsJSONObject() );

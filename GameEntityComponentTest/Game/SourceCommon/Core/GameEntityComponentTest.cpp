@@ -1042,12 +1042,14 @@ void GameEntityComponentTest::HandleEditorInput(int keyaction, int keycode, int 
 
                 Vector3 pos = matLocalCamera->GetTranslation();
                 Vector3 angle = pCamera->m_pComponentTransform->GetLocalRotation();
-                float speed = 600.0f;
+
+                // todo: make this degrees per inch
+                float degreesperpixel = 1.0f;
 
                 dir.Normalize();
 
-                angle.y += dir.x * speed * m_TimePassedUnpausedLastFrame;
-                angle.x -= dir.y * speed * m_TimePassedUnpausedLastFrame;
+                angle.y += dir.x * degreesperpixel;
+                angle.x -= dir.y * degreesperpixel;
                 MyClamp( angle.x, -90.0f, 90.0f );
 
                 matLocalCamera->SetIdentity();

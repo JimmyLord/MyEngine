@@ -54,12 +54,15 @@ public:
     wxMenu* m_Data;
     wxMenu* m_Hackery;
 
+    cJSON* m_pEditorPrefs;
+
     int m_Hackery_Record_StackDepth;
 
 public:
     GameMainFrame();
     ~GameMainFrame();
 
+    virtual void InitFrame();
     virtual void AddPanes();
     virtual void OnPostInit();
     virtual void OnClose();
