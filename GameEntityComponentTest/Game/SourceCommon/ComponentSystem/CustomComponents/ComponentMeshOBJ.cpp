@@ -65,9 +65,18 @@ void ComponentMeshOBJ::OnDropOBJ()
         //assert( m_pMesh );
 
         int len = strlen( pFile->m_FullPath );
-        const char* filenameext = &pFile->m_FullPath[len-4];
+        const char* filenameext = pFile->m_ExtensionWithDot;
 
         if( strcmp( filenameext, ".obj" ) == 0 )
+        {
+            MyMesh* pMesh = g_pMeshManager->FindMeshBySourceFile( pFile );
+            SetMesh( pMesh );
+
+            // update the panel so new OBJ name shows up.
+            g_pPanelWatch->m_pVariables[g_DragAndDropStruct.m_ID].m_Description = m_pMesh->m_pSourceFile->m_FullPath;
+        }
+
+        if( strcmp( filenameext, ".mymesh" ) == 0 )
         {
             MyMesh* pMesh = g_pMeshManager->FindMeshBySourceFile( pFile );
             SetMesh( pMesh );

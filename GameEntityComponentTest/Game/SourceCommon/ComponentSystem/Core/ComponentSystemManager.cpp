@@ -68,7 +68,7 @@ void ComponentSystemManager::LuaRegister(lua_State* luastate)
 #if MYFW_USING_WX
 void ComponentSystemManager::OnFileUpdated(MyFileObject* pFile)
 {
-    for( int i=0; i<m_pFileUpdatedCallbackList.size(); i++ )
+    for( unsigned int i=0; i<m_pFileUpdatedCallbackList.size(); i++ )
     {
         m_pFileUpdatedCallbackList[i].pFunc( m_pFileUpdatedCallbackList[i].pObj, pFile );
     }
@@ -253,6 +253,11 @@ void ComponentSystemManager::LoadDatafile(const char* fullpath, unsigned int sce
         {
             pFileInfo->m_pMesh = MyNew MyMesh();
             pFileInfo->m_pMesh->CreateFromOBJFile( pFile );
+        }
+        if( strcmp( pFile->m_ExtensionWithDot, ".mymesh" ) == 0 )
+        {
+            pFileInfo->m_pMesh = MyNew MyMesh();
+            pFileInfo->m_pMesh->CreateFromMyMeshFile( pFile );
         }
 
         // if we're loading an .glsl file, create a ShaderGroup.

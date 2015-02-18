@@ -1,5 +1,5 @@
 {
-	"Files":	["Data/Shaders/Shader_TintColor.glsl", "Data/Shaders/Shader_ClipSpaceTexture.glsl", "Data/OBJs/cube.obj", "Data/Shaders/Shader_TestNormals.glsl", "Data/Shaders/Shader_TextureLights.glsl", "Data/Textures/WhiteSquare.png", "Data/Shaders/Include_Lights_Uniforms.glsl", "Data/Shaders/Include_Lights.glsl", "Data/Scripts/Player.lua", "Data/Scripts/Enemy.lua", "Data/Shaders/Shader_TextureVertexColor.glsl"],
+	"Files":	["Data/Shaders/Shader_TintColor.glsl", "Data/Shaders/Shader_ClipSpaceTexture.glsl", "Data/OBJs/cube.obj", "Data/Shaders/Shader_TestNormals.glsl", "Data/Shaders/Shader_TextureLights.glsl", "Data/Textures/WhiteSquare.png", "Data/Shaders/Include_Lights_Uniforms.glsl", "Data/Shaders/Include_Lights.glsl", "Data/Scripts/Player.lua", "Data/Scripts/Enemy.lua", "Data/Shaders/Shader_TextureVertexColor.glsl", "Data/Meshes/test.mymesh"],
 	"GameObjects":	[{
 			"ID":	1,
 			"Name":	"Main Camera"
@@ -62,7 +62,7 @@
 			"GOID":	10,
 			"ID":	0,
 			"Pos":	[4.768372e-007, 0, 0],
-			"Scale":	[1, 1, 1],
+			"Scale":	[0.100000, 0.100000, 0.100000],
 			"Rot":	[0, 0, 0]
 		}, {
 			"GOID":	11,
@@ -180,7 +180,7 @@
 			"PrimitiveType":	4,
 			"PointSize":	1,
 			"Shininess":	200,
-			"OBJ":	"Data/OBJs/cube.obj"
+			"OBJ":	"Data/Meshes/test.mymesh"
 		}, {
 			"Type":	"Mesh-Primitive",
 			"GOID":	11,
