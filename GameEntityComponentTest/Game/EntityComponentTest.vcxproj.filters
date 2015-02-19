@@ -708,6 +708,9 @@
     <None Include="Data\Shaders\Shader_TextureVertexColor.glsl">
       <Filter>Data\Shaders</Filter>
     </None>
+    <None Include="Data\Shaders\Shader_BoneAnim.glsl">
+      <Filter>Data\Shaders</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Object Include="Data\OBJs\cube.obj">

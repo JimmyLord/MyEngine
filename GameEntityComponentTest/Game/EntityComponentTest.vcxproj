@@ -2805,6 +2805,7 @@
     <None Include="Data\Scripts\Enemy.lua" />
     <None Include="Data\Shaders\Include_Lights.glsl" />
     <None Include="Data\Shaders\Include_Lights_Uniforms.glsl" />
+    <None Include="Data\Shaders\Shader_BoneAnim.glsl" />
     <None Include="Data\Shaders\Shader_Breathe.glsl" />
     <None Include="Data\Shaders\Shader_ClipSpaceTexture.glsl" />
     <None Include="Data\Shaders\Shader_TextureLights.glsl" />
