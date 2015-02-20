@@ -16,13 +16,22 @@ attribute vec4 a_BoneWeight;
 
 uniform mat4 u_WorldViewProj;
 
+const int MAX_BONES = 100;
+uniform mat4 u_BoneTransforms[MAX_BONES];
+
 void main()
 {
-    vec4 pos = a_Position;
+    mat4 bonetransform;
+    bonetransform  = u_BoneTransforms[a_BoneIndex[0]] * a_BoneWeight[0];
+    bonetransform += u_BoneTransforms[a_BoneIndex[1]] * a_BoneWeight[1];
+    bonetransform += u_BoneTransforms[a_BoneIndex[2]] * a_BoneWeight[2];
+    bonetransform += u_BoneTransforms[a_BoneIndex[3]] * a_BoneWeight[3];
+
+    vec4 pos = bonetransform * a_Position;
 
     gl_Position = u_WorldViewProj * pos;
 
-	v_Normal = a_Normal;
+	v_Normal = bonetransform * vec4( a_Normal.xyz, 0 );
 }
 
 #endif
