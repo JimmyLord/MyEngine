@@ -100,6 +100,9 @@
     <Filter Include="Source\Editor">
       <UniqueIdentifier>{23826f0c-8cd4-4b10-a2d4-567f146d1856}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Data\Shaders\Include">
+      <UniqueIdentifier>{93d0ff57-e2f3-4138-9195-93d0f16862ba}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="SourceWindows\WinMain.cpp">
@@ -693,12 +696,6 @@
     <None Include="Data\Shaders\Shader_TextureLights.glsl">
       <Filter>Data\Shaders</Filter>
     </None>
-    <None Include="Data\Shaders\Include_Lights.glsl">
-      <Filter>Data\Shaders</Filter>
-    </None>
-    <None Include="Data\Shaders\Include_Lights_Uniforms.glsl">
-      <Filter>Data\Shaders</Filter>
-    </None>
     <None Include="Data\Shaders\Shader_ClipSpaceTexture.glsl">
       <Filter>Data\Shaders</Filter>
     </None>
@@ -710,6 +707,18 @@
     </None>
     <None Include="Data\Shaders\Shader_BoneAnim.glsl">
       <Filter>Data\Shaders</Filter>
+    </None>
+    <None Include="Data\Shaders\Include\Bone_AttribsAndUniforms.glsl">
+      <Filter>Data\Shaders\Include</Filter>
+    </None>
+    <None Include="Data\Shaders\Include\Bone_Functions.glsl">
+      <Filter>Data\Shaders\Include</Filter>
+    </None>
+    <None Include="Data\Shaders\Include\Light_Functions.glsl">
+      <Filter>Data\Shaders\Include</Filter>
+    </None>
+    <None Include="Data\Shaders\Include\Light_Uniforms.glsl">
+      <Filter>Data\Shaders\Include</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

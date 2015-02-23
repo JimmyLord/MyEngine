@@ -31,7 +31,7 @@ precision mediump float;
 
     uniform vec3 u_CameraPos;
 
-    #include "Include_Lights_Uniforms.glsl"
+    #include "Include/Light_Uniforms.glsl"
 
     #ifdef VertexShader
 
@@ -62,7 +62,7 @@ precision mediump float;
 
     #ifdef FragmentShader
 
-        #include "Include_Lights.glsl"
+        #include "Include/Light_Functions.glsl"
 
         void main()
         {
