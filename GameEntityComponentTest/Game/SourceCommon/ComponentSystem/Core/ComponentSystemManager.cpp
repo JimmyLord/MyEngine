@@ -17,6 +17,8 @@ ComponentSystemManager::ComponentSystemManager(ComponentTypeManager* typemanager
 
     m_pComponentTypeManager = typemanager;
 
+    m_pComponentTickCallbackList.AllocateObjects( MAX_COMPONENT_TICK_CALLBACKS );
+
     m_NextGameObjectID = 1;
     m_NextComponentID = 1;
 
@@ -50,6 +52,9 @@ ComponentSystemManager::~ComponentSystemManager()
         delete m_ComponentsRenderable.RemHead();
 
     SAFE_DELETE( m_pComponentTypeManager );
+
+    // if a component didn't unregister itself, assert.
+    assert( m_pComponentTickCallbackList.Count() == 0 );
     
     g_pComponentSystemManager = 0;
 }
@@ -721,6 +726,12 @@ void ComponentSystemManager::Tick(double TimePassed)
         }
     }
 
+    // update all components that registered a tick callback
+    for( unsigned int i=0; i<m_pComponentTickCallbackList.Count(); i++ )
+    {
+        m_pComponentTickCallbackList[i].pFunc( m_pComponentTickCallbackList[i].pObj, TimePassed );
+    }
+
     // update all cameras after game objects are updated.
     for( CPPListNode* node = m_ComponentsCamera.GetHead(); node != 0; node = node->GetNext() )
     {
@@ -890,4 +901,29 @@ bool ComponentSystemManager::OnButtons(GameCoreButtonActions action, GameCoreBut
     }
 
     return false;
+}
+
+void ComponentSystemManager::RegisterComponentTickCallback(ComponentTickCallbackFunction pFunc, void* pObj)
+{
+    assert( pFunc != 0 );
+    assert( pObj != 0 );
+    assert( m_pComponentTickCallbackList.Count() < MAX_COMPONENT_TICK_CALLBACKS );
+
+    ComponentTickCallbackStruct callbackstruct;
+    callbackstruct.pObj = pObj;
+    callbackstruct.pFunc = pFunc;
+
+    m_pComponentTickCallbackList.Add( callbackstruct );
+}
+
+void ComponentSystemManager::UnregisterComponentTickCallback(ComponentTickCallbackFunction pFunc, void* pObj)
+{
+    assert( pFunc != 0 );
+    assert( pObj != 0 );
+
+    ComponentTickCallbackStruct callbackstruct;
+    callbackstruct.pObj = pObj;
+    callbackstruct.pFunc = pFunc;
+
+    m_pComponentTickCallbackList.Remove( callbackstruct );
 }

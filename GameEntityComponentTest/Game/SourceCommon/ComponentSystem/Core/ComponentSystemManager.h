@@ -28,6 +28,19 @@ struct FileUpdatedCallbackStruct
 };
 #endif //MYFW_USING_WX
 
+typedef void (*ComponentTickCallbackFunction)(void* obj, double TimePassed);
+struct ComponentTickCallbackStruct
+{
+    void* pObj;
+    ComponentTickCallbackFunction pFunc;
+
+    // == op needed for unregister of callback.
+    inline bool operator ==(const ComponentTickCallbackStruct& o)
+    {
+        return this->pObj == o.pObj && this->pFunc == o.pFunc;
+    }
+};
+
 class ComponentSystemManager
 #if MYFW_USING_WX
 : public wxEvtHandler
@@ -46,6 +59,10 @@ public:
     CPPListHead m_ComponentsUpdateable;
     CPPListHead m_ComponentsRenderable;
     CPPListHead m_ComponentsData;
+
+    // a list of components that want an update call without being in the list above.
+    static const int MAX_COMPONENT_TICK_CALLBACKS = 100; // TODO: fix this hardcodedness
+    MyList<ComponentTickCallbackStruct> m_pComponentTickCallbackList;
 
     unsigned int m_NextGameObjectID;
     unsigned int m_NextComponentID;
@@ -98,6 +115,9 @@ public:
 
     bool OnTouch(int action, int id, float x, float y, float pressure, float size);
     bool OnButtons(GameCoreButtonActions action, GameCoreButtonIDs id);
+
+    void RegisterComponentTickCallback(ComponentTickCallbackFunction pFunc, void* pObj);
+    void UnregisterComponentTickCallback(ComponentTickCallbackFunction pFunc, void* pObj);
 
 public:
 #if MYFW_USING_WX

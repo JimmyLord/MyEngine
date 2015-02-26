@@ -26,6 +26,8 @@ ComponentParticleEmitter::ComponentParticleEmitter()
     m_pParticleRenderer = MyNew ParticleRenderer();
     m_pParticleRenderer->AllocateVertices( 1000, "Particle Renderer" );
 
+    g_pComponentSystemManager->RegisterComponentTickCallback( &StaticTick, this );
+
     m_pShaderGroup = 0;
     m_pTexture = 0;
 }
@@ -38,6 +40,8 @@ ComponentParticleEmitter::~ComponentParticleEmitter()
 
     SAFE_RELEASE( m_pShaderGroup );
     SAFE_RELEASE( m_pTexture );
+
+    g_pComponentSystemManager->UnregisterComponentTickCallback( &StaticTick, this );
 }
 
 void ComponentParticleEmitter::Reset()
@@ -318,6 +322,9 @@ void ComponentParticleEmitter::CreateBurst(int number, Vector3 pos)
 
 void ComponentParticleEmitter::Tick(double TimePassed)
 {
+    // TODO: if we want to share particle renderers, then don't reset like this.
+    m_pParticleRenderer->Reset();
+
     //m_TimeAlive += TimePassed;
 
     for( unsigned int i=0; i<m_Particles.m_ActiveObjects.Count(); i++ )
@@ -357,9 +364,6 @@ void ComponentParticleEmitter::Tick(double TimePassed)
 void ComponentParticleEmitter::Draw(MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride, int drawcount)
 {
     ComponentRenderable::Draw( pMatViewProj, pShaderOverride, drawcount );
-
-    m_pParticleRenderer->Reset();
-    Tick( 1/60.0f );
 
     Vector3 pos = m_pComponentTransform->GetPosition();
     CreateBurst( 1, pos );
