@@ -333,6 +333,9 @@
     <ClCompile Include="SourceCommon\ComponentSystem\CustomComponents\ComponentParticleEmitter.cpp">
       <Filter>Source\ComponentSystem\Custom Components</Filter>
     </ClCompile>
+    <ClCompile Include="SourceCommon\ComponentSystem\CustomComponents\ComponentAnimationPlayer.cpp">
+      <Filter>Source\ComponentSystem\Custom Components</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SourceWindows\WinMain.h">
@@ -585,6 +588,9 @@
       <Filter>Source\ComponentSystem\Custom Components</Filter>
     </ClInclude>
     <ClInclude Include="SourceCommon\ComponentSystem\CustomComponents\ComponentParticleEmitter.h">
+      <Filter>Source\ComponentSystem\Custom Components</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCommon\ComponentSystem\CustomComponents\ComponentAnimationPlayer.h">
       <Filter>Source\ComponentSystem\Custom Components</Filter>
     </ClInclude>
   </ItemGroup>

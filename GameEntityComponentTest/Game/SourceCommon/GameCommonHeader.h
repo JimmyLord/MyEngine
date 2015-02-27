@@ -60,6 +60,7 @@ extern "C"
 #include "ComponentSystem/CustomComponents/ComponentMeshOBJ.h"
 #include "ComponentSystem/CustomComponents/ComponentMeshPrimitive.h"
 #include "ComponentSystem/CustomComponents/ComponentParticleEmitter.h"
+#include "ComponentSystem/CustomComponents/ComponentAnimationPlayer.h"
 
 // game code
 #include "Camera/Camera3D.h"

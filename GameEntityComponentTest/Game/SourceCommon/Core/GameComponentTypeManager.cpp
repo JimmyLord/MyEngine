@@ -23,6 +23,7 @@ ComponentTypeInfo g_ComponentTypeInfo[Component_NumComponentTypes] = // ADDING_N
     { "Physics",        "Collision Object", },
     { "Scripts",        "Lua Script",       },
     { "Particles",      "Particle Emitter", },
+    { "Animation",      "Animation Player", },
 };
 
 ComponentBase* GameComponentTypeManager::CreateComponent(int type)
@@ -44,6 +45,7 @@ ComponentBase* GameComponentTypeManager::CreateComponent(int type)
     case ComponentType_CollisionObject:     pComponent = MyNew ComponentCollisionObject;    break;
     case ComponentType_LuaScript:           pComponent = MyNew ComponentLuaScript;          break;
     case ComponentType_ParticleEmitter:     pComponent = MyNew ComponentParticleEmitter;    break;
+    case ComponentType_AnimationPlayer:     pComponent = MyNew ComponentAnimationPlayer;    break;
     }
 
     assert( pComponent != 0 );

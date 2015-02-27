@@ -387,7 +387,7 @@ ComponentCollisionObject* GameObject::GetCollisionObject()
     {
         //if( m_Components[i]->m_Type == ComponentType_CollisionObject )
         {
-            if( dynamic_cast<ComponentCollisionObject*>(m_Components[i]) != 0 )
+            if( dynamic_cast<ComponentCollisionObject*>( m_Components[i] ) != 0 )
                 return (ComponentCollisionObject*)m_Components[i];
         }
     }
