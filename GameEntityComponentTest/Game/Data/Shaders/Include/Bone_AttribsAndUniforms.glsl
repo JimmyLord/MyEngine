@@ -1,4 +1,4 @@
-#if NUM_INFLUENCE_BONES > 0
+#if NUM_INF_BONES > 0
     const int MAX_BONES = 100;
 
     attribute ivec4 a_BoneIndex;

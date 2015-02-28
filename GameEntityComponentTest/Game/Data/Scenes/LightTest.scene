@@ -1,5 +1,5 @@
 {
-	"Files":	["Data/Shaders/Shader_TintColor.glsl", "Data/Shaders/Shader_ClipSpaceTexture.glsl", "Data/OBJs/cube.obj", "Data/Shaders/Shader_TestNormals.glsl", "Data/Shaders/Shader_TextureLights.glsl", "Data/Textures/WhiteSquare.png", "Data/Shaders/Include_Lights_Uniforms.glsl", "Data/Shaders/Include_Lights.glsl", "Data/Scripts/Player.lua", "Data/Scripts/Enemy.lua", "Data/Shaders/Shader_TextureVertexColor.glsl", "Data/Meshes/test.mymesh", "Data/Shaders/Shader_BoneAnim.glsl"],
+	"Files":	["Data/Shaders/Shader_TintColor.glsl", "Data/Shaders/Shader_ClipSpaceTexture.glsl", "Data/OBJs/cube.obj", "Data/Shaders/Shader_TestNormals.glsl", "Data/Shaders/Shader_TextureLights.glsl", "Data/Textures/WhiteSquare.png", "Data/Scripts/Player.lua", "Data/Scripts/Enemy.lua", "Data/Shaders/Shader_TextureVertexColor.glsl", "Data/Meshes/test.mymesh", "Data/Shaders/Shader_BoneAnim.glsl", "Data/Shaders/Include/Light_Uniforms.glsl", "Data/Shaders/Include/Light_Functions.glsl", "Data/Shaders/Include/Bone_AttribsAndUniforms.glsl", "Data/Shaders/Include/Bone_Functions.glsl", "Data/Shaders/Include_Lights_Uniforms.glsl", "Data/Shaders/Include_Lights.glsl"],
 	"GameObjects":	[{
 			"ID":	1,
 			"Name":	"Main Camera"
@@ -151,6 +151,12 @@
 			"GOID":	11,
 			"ID":	16,
 			"Mass":	0
+		}, {
+			"Type":	"Animation Player",
+			"GOID":	10,
+			"ID":	34,
+			"AnimIndex":	0,
+			"AnimFrame":	0
 		}, {
 			"Type":	"Sprite",
 			"GOID":	8,

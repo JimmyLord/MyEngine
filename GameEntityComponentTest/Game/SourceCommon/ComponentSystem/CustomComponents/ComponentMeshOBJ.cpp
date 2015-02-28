@@ -52,7 +52,7 @@ void ComponentMeshOBJ::FillPropertiesWindow(bool clear)
         const char* desc = "no mesh";
         if( m_pMesh && m_pMesh->m_pSourceFile )
             desc = m_pMesh->m_pSourceFile->m_FullPath;
-        g_pPanelWatch->AddPointerWithDescription( "OBJ", 0, desc, this, ComponentMeshOBJ::StaticOnDropOBJ );
+        g_pPanelWatch->AddPointerWithDescription( "File", 0, desc, this, ComponentMeshOBJ::StaticOnDropOBJ );
     }
 }
 

@@ -9,7 +9,7 @@ varying vec4 v_Normal;
 
 #ifdef VertexShader
 
-#define NUM_INFLUENCE_BONES 4
+//#define NUM_INF_BONES 4
 
 attribute vec4 a_Position;
 attribute vec4 a_Normal;

@@ -77,25 +77,6 @@ void GameEntityComponentTest::OneTimeInit()
 #if MYFW_USING_WX
     ComponentMesh* pComponentMesh;
 #endif
-    //ComponentMeshOBJ* pComponentMeshOBJ;
-    //ComponentAIChasePlayer* pComponentAIChasePlayer;
-    //ComponentCollisionObject* pComponentCollisionObject;
-    //ComponentLuaScript* pComponentLuaScript;
-
-    //m_pOBJTestFiles[0] = g_pFileManager->RequestFile( "Data/OBJs/cube.obj" );
-    ////m_pOBJTestFiles[1] = g_pFileManager->RequestFile( "Data/OBJs/Teapot.obj" );
-    ////m_pOBJTestFiles[2] = g_pFileManager->RequestFile( "Data/OBJs/humanoid_tri.obj" );
-    ////m_pOBJTestFiles[3] = g_pFileManager->RequestFile( "Data/OBJs/teapot2.obj" );
-
-    ////m_pTextures[0] = g_pTextureManager->CreateTexture( "Data/Textures/test1.png", GL_NEAREST, GL_NEAREST, GL_REPEAT, GL_REPEAT );
-    ////m_pTextures[1] = g_pTextureManager->CreateTexture( "Data/Textures/test2.png", GL_NEAREST, GL_NEAREST, GL_REPEAT, GL_REPEAT );
-    ////m_pTextures[2] = g_pTextureManager->CreateTexture( "Data/Textures/test3.png", GL_NEAREST, GL_NEAREST, GL_REPEAT, GL_REPEAT );
-    ////m_pTextures[3] = g_pTextureManager->CreateTexture( "Data/Textures/test4.png", GL_NEAREST, GL_NEAREST, GL_REPEAT, GL_REPEAT );
-
-    //m_pScriptFiles[0] = g_pFileManager->RequestFile( "Data/Scripts/Player.lua" );
-    //m_pScriptFiles[1] = g_pFileManager->RequestFile( "Data/Scripts/Enemy.lua" );
-    ////m_pScriptFiles[2] = g_pFileManager->RequestFile( "Data/Scripts/TestScript.lua" );
-    ////m_pScriptFiles[3] = g_pFileManager->RequestFile( "Data/Scripts/TestScript.lua" );
 
 #if MYFW_USING_WX
     m_pEditorState->m_pMousePickerFBO = g_pTextureManager->CreateFBO( 0, 0, GL_NEAREST, GL_NEAREST, false, false, false );
