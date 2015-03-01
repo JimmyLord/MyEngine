@@ -11,9 +11,16 @@ attribute vec4 a_Position;
 
 uniform mat4 u_WorldViewProj;
 
+#define NO_NORMALS 1
+#include "Include/Bone_AttribsAndUniforms.glsl"
+#include "Include/Bone_Functions.glsl"
+
 void main()
 {
-    gl_Position = u_WorldViewProj * a_Position;
+    vec4 pos;
+    ApplyBoneInfluencesToPositionAttribute( pos );
+
+    gl_Position = u_WorldViewProj * pos;
 }
 
 #endif

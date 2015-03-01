@@ -795,7 +795,9 @@ void ComponentSystemManager::OnDrawFrame(ComponentCamera* pCamera, MyMatrix* pMa
 
 void ComponentSystemManager::DrawMousePickerFrame(ComponentCamera* pCamera, MyMatrix* pMatViewProj, ShaderGroup* pShaderGroup)
 {
-    Shader_Base* pShader = (Shader_Base*)pShaderGroup->GlobalPass();
+    // always use 4 bone version.
+    // TODO: this might fail with 1-3 bones, but works with 0 since bone attribs and uniforms should default to 0.
+    Shader_Base* pShader = (Shader_Base*)pShaderGroup->GlobalPass( 0, 4 );
     if( pShader->ActivateAndProgramShader() )
     {
         for( CPPListNode* node = m_ComponentsRenderable.GetHead(); node != 0; node = node->GetNext() )

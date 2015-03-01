@@ -273,7 +273,7 @@ void ComponentLuaScript::LoadScript()
         return;
 
     // script is ready, so run it.
-    if( m_pScriptFile->m_FileReady )
+    if( m_pScriptFile->m_FileLoadStatus == FileLoadStatus_Success )
     {
         LOGInfo( LOGTag, "luaL_loadstring: %s\n", m_pScriptFile->m_FilenameWithoutExtension );
 
@@ -508,7 +508,7 @@ void ComponentLuaScript::OnPlay()
     //       or test this a bit, Tick will call OnPlay once it's loaded.
     if( m_pScriptFile )
     {
-        if( m_pScriptFile->m_FileReady == false )
+        if( m_pScriptFile->m_FileLoadStatus != FileLoadStatus_Success )
         {
             m_ShouldBePlayingButIsntBecauseScriptFileWasStillLoading = true;
             LOGInfo( LOGTag, "Script warning: OnPlay, script not loaded: %s\n", m_pScriptFile->m_FilenameWithoutExtension );

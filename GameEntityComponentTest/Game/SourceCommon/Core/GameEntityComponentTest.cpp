@@ -37,6 +37,8 @@ GameEntityComponentTest::GameEntityComponentTest()
 
     m_pLuaGameState = 0;
 
+    m_PauseTimeToAdvance = 0;
+
 #if MYFW_USING_WX
     m_pEditorState = MyNew EditorState;
     m_Debug_DrawMousePickerFBO = false;
