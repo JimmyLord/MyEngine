@@ -105,10 +105,12 @@ void ComponentAnimationPlayer::Tick(double TimePassed)
     if( m_pMeshComponent == 0 )
         return;
 
-    if( m_pMeshComponent->m_pMesh == 0 )
+    MyMesh* pMesh = m_pMeshComponent->m_pMesh;
+
+    if( pMesh == 0 )
         return;
 
     m_AnimationTime += TimePassed;
 
-    m_pMeshComponent->m_pMesh->RebuildAnimationMatrices( m_AnimationTime );
+    pMesh->RebuildAnimationMatrices( m_AnimationIndex, m_AnimationTime );
 }
