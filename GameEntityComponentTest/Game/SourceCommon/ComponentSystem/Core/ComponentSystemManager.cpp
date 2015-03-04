@@ -118,6 +118,12 @@ void ComponentSystemManager::OnPopupClick(wxEvent &evt)
         pGameObject->SetName( "New Game Object" );
     }
 }
+
+void ComponentSystemManager::OnMemoryPanelFileSelectedLeftClick()
+{
+    // not sure why I put this in anymore... might be handy later.
+    int bp = 1;
+}
 #endif //MYFW_USING_WX
 
 char* ComponentSystemManager::SaveSceneToJSON()
@@ -245,6 +251,7 @@ void ComponentSystemManager::LoadDatafile(const char* fullpath, unsigned int sce
         else
         {
             pFile = g_pFileManager->RequestFile( fullpath );
+            pFile->SetCustomLeftClickCallback( StaticOnMemoryPanelFileSelectedLeftClick, this );
         }
 
         // store pFile so we can free it afterwards.

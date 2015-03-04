@@ -129,6 +129,9 @@ public:
     void OnLeftClick(bool clear);
     void OnRightClick();
     void OnPopupClick(wxEvent &evt); // used as callback for wxEvtHandler, can't be virtual(will crash, haven't looked into it).
+
+    static void StaticOnMemoryPanelFileSelectedLeftClick(void* pObjectPtr) { ((ComponentSystemManager*)pObjectPtr)->OnMemoryPanelFileSelectedLeftClick(); }
+    void OnMemoryPanelFileSelectedLeftClick();
 #endif //MYFW_USING_WX
 };
 
