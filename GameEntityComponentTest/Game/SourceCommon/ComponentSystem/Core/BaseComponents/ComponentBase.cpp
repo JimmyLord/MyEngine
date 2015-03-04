@@ -46,7 +46,7 @@ void ComponentBase::OnComponentTitleLabelClicked(int id, bool finishedchanging)
         if( m_pPanelWatchBlockVisible )
         {
             *m_pPanelWatchBlockVisible = !(*m_pPanelWatchBlockVisible);
-            g_pPanelObjectList->m_PanelWatchNeedsUpdate = true;
+            g_pPanelWatch->m_NeedsRefresh = true;
         }
     }
 }
