@@ -9,7 +9,9 @@
 
 #include "GameCommonHeader.h"
 
+#if MYFW_USING_WX
 bool ComponentInputHandler::m_PanelWatchBlockVisible = true;
+#endif
 
 ComponentInputHandler::ComponentInputHandler()
 : ComponentBase()

@@ -28,8 +28,10 @@ ComponentBase::~ComponentBase()
 
 void ComponentBase::Reset()
 {
+#if MYFW_USING_WX
     m_ControlID_ComponentTitleLabel = -1;
     m_pPanelWatchBlockVisible = 0;
+#endif
 }
 
 #if MYFW_USING_WX

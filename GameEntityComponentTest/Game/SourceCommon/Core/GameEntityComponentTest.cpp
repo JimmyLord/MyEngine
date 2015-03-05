@@ -302,12 +302,12 @@ double GameEntityComponentTest::Tick(double TimePassed)
     //    LOGInfo( LOGTag, "Tick: %f\n", TimePassed );
     //LOGInfo( LOGTag, "Tick: %f\n", TimePassed );
 
-    float TimeUnpaused = TimePassed;
+    double TimeUnpaused = TimePassed;
 
     GameCore::Tick( TimePassed );
 
 #if !MYFW_USING_WX
-    if( m_SceneLoaded == false && m_pSceneFileToLoad && m_pSceneFileToLoad->m_FileReady )
+    if( m_SceneLoaded == false && m_pSceneFileToLoad && m_pSceneFileToLoad->m_FileLoadStatus == FileLoadStatus_Success )
     {
         LoadScene( m_pSceneFileToLoad->m_pBuffer, 1 );
         m_pComponentSystemManager->OnPlay();
@@ -355,7 +355,9 @@ void OnFileUpdated_CallbackFunction(MyFileObject* pFile)
 {
     int bp = 1;
 
+#if MYFW_USING_WX
     g_pComponentSystemManager->OnFileUpdated( pFile );
+#endif
 
     // TODO: entitycomponentmanager-> tell all script components file is updated.
 }
@@ -404,6 +406,7 @@ void GameEntityComponentTest::OnDrawFrame()
     }
 
     // Draw our mouse picker frame over the screen
+#if MYFW_USING_WX
     if( m_Debug_DrawMousePickerFBO && g_GLCanvasIDActive == 1 )
     {
         if( m_pDebugQuadSprite == 0 )
@@ -413,6 +416,7 @@ void GameEntityComponentTest::OnDrawFrame()
         m_pDebugQuadSprite->SetShaderAndTexture( m_pShader_ClipSpaceTexture, m_pEditorState->m_pMousePickerFBO->m_ColorTextureID );
         m_pDebugQuadSprite->Draw( 0 );
     }
+#endif
 }
 
 void GameEntityComponentTest::OnTouch(int action, int id, float x, float y, float pressure, float size)

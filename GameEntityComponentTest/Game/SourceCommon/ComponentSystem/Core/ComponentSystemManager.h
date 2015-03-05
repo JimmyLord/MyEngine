@@ -92,7 +92,9 @@ public:
     void UnmanageGameObject(GameObject* pObject);
     void ManageGameObject(GameObject* pObject);
     void DeleteGameObject(GameObject* pObject, bool deletecomponents);
+#if MYFW_USING_WX
     GameObject* EditorCopyGameObject(GameObject* pObject);
+#endif
     GameObject* CopyGameObject(GameObject* pObject, const char* newname);
 
     GameObject* FindGameObjectByID(unsigned int id);

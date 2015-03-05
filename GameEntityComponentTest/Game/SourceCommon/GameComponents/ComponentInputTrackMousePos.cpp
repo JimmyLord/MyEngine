@@ -9,7 +9,9 @@
 
 #include "GameCommonHeader.h"
 
+#if MYFW_USING_WX
 bool ComponentInputTrackMousePos::m_PanelWatchBlockVisible = true;
+#endif
 
 ComponentInputTrackMousePos::ComponentInputTrackMousePos()
 : ComponentInputHandler()

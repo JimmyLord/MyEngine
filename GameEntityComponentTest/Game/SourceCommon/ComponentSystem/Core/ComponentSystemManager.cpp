@@ -251,7 +251,9 @@ void ComponentSystemManager::LoadDatafile(const char* fullpath, unsigned int sce
         else
         {
             pFile = g_pFileManager->RequestFile( fullpath );
+#if MYFW_USING_WX
             pFile->SetCustomLeftClickCallback( StaticOnMemoryPanelFileSelectedLeftClick, this );
+#endif
         }
 
         // store pFile so we can free it afterwards.
@@ -551,6 +553,7 @@ void ComponentSystemManager::DeleteGameObject(GameObject* pObject, bool deleteco
     SAFE_DELETE( pObject );
 }
 
+#if MYFW_USING_WX
 GameObject* ComponentSystemManager::EditorCopyGameObject(GameObject* pObject)
 {
     // add the undo action, don't reperform it, it's done above.
@@ -559,6 +562,7 @@ GameObject* ComponentSystemManager::EditorCopyGameObject(GameObject* pObject)
 
     return pCommand->GetCreatedObject();
 }
+#endif
 
 GameObject* ComponentSystemManager::CopyGameObject(GameObject* pObject, const char* newname)
 {

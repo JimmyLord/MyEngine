@@ -9,7 +9,9 @@
 
 #include "GameCommonHeader.h"
 
+#if MYFW_USING_WX
 bool ComponentMesh::m_PanelWatchBlockVisible = true;
+#endif
 
 ComponentMesh::ComponentMesh()
 : ComponentRenderable()
@@ -234,10 +236,16 @@ void ComponentMesh::Draw(MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride, i
         int numlights = g_pLightManager->FindNearestLights( 4, m_pMesh->m_Position.GetTranslation(), &lights );
 
         Vector3 campos;
+#if MYFW_USING_WX
         if( ((GameEntityComponentTest*)g_pGameCore)->m_EditorMode )
+        {
             campos = ((GameEntityComponentTest*)g_pGameCore)->m_pEditorState->GetEditorCamera()->m_pComponentTransform->GetPosition();
+        }
         else
+#endif
+        {
             campos = g_pComponentSystemManager->GetFirstCamera()->m_pComponentTransform->GetPosition();
+        }
 
         m_pMesh->Draw( pMatViewProj, &campos, lights, numlights, 0, 0, 0, pShaderOverride );
     }

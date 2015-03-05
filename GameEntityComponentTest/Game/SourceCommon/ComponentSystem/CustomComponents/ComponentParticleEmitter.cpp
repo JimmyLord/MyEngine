@@ -9,7 +9,9 @@
 
 #include "GameCommonHeader.h"
 
+#if MYFW_USING_WX
 bool ComponentParticleEmitter::m_PanelWatchBlockVisible = true;
+#endif
 
 ComponentParticleEmitter::ComponentParticleEmitter()
 : ComponentRenderable()

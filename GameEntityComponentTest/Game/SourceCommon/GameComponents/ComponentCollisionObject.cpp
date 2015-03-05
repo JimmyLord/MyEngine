@@ -10,7 +10,9 @@
 #include "GameCommonHeader.h"
 #include "BulletCollision/CollisionShapes/btShapeHull.h"
 
+#if MYFW_USING_WX
 bool ComponentCollisionObject::m_PanelWatchBlockVisible = true;
+#endif
 
 ComponentCollisionObject::ComponentCollisionObject()
 : ComponentUpdateable()

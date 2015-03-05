@@ -9,7 +9,9 @@
 
 #include "GameCommonHeader.h"
 
+#if MYFW_USING_WX
 bool ComponentAnimationPlayer::m_PanelWatchBlockVisible = true;
+#endif
 
 ComponentAnimationPlayer::ComponentAnimationPlayer()
 : ComponentUpdateable()
@@ -110,7 +112,7 @@ void ComponentAnimationPlayer::Tick(double TimePassed)
     if( pMesh == 0 )
         return;
 
-    m_AnimationTime += TimePassed;
+    m_AnimationTime += (float)TimePassed;
 
     pMesh->RebuildAnimationMatrices( m_AnimationIndex, m_AnimationTime );
 }

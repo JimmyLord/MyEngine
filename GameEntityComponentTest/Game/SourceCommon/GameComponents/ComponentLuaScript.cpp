@@ -9,7 +9,9 @@
 
 #include "GameCommonHeader.h"
 
+#if MYFW_USING_WX
 bool ComponentLuaScript::m_PanelWatchBlockVisible = true;
+#endif
 
 ComponentLuaScript::ComponentLuaScript()
 : ComponentUpdateable()
@@ -21,7 +23,9 @@ ComponentLuaScript::ComponentLuaScript()
 
     m_ExposedVars.AllocateObjects( MAX_EXPOSED_VARS ); // hard coded nonsense for now, max of 4 exposed vars in a script.
 
+#if MYFW_USING_WX
     g_pComponentSystemManager->Editor_RegisterFileUpdatedCallback( &StaticOnFileUpdated, this );
+#endif
 }
 
 ComponentLuaScript::~ComponentLuaScript()
