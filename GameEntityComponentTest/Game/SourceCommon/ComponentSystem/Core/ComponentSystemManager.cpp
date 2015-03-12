@@ -842,6 +842,19 @@ void ComponentSystemManager::DrawMousePickerFrame(ComponentCamera* pCamera, MyMa
     }
 }
 
+void ComponentSystemManager::DrawSingleObject(MyMatrix* pMatViewProj, GameObject* pObject)
+{
+    for( unsigned int i=0; i<pObject->m_Components.Count(); i++ )
+    {
+        ComponentRenderable* pComponent = dynamic_cast<ComponentRenderable*>( pObject->m_Components[i] );
+
+        if( pComponent )
+        {
+            pComponent->Draw( pMatViewProj );
+        }
+    }
+}
+
 void ComponentSystemManager::OnPlay()
 {
     for( CPPListNode* node = m_ComponentsUpdateable.GetHead(); node != 0; node = node->GetNext() )

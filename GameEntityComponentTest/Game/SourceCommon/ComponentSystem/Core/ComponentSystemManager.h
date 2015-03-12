@@ -123,6 +123,8 @@ public:
 
 public:
 #if MYFW_USING_WX
+    void DrawSingleObject(MyMatrix* pMatViewProj, GameObject* pObject); // used to draw an animated mesh into the debug FBO
+
     void OnFileUpdated(MyFileObject* pFile);
     void Editor_RegisterFileUpdatedCallback(FileUpdatedCallbackFunction pFunc, void* pObj);
 

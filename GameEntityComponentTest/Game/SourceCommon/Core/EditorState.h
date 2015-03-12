@@ -35,6 +35,7 @@ struct EditorState
     Vector2 m_LastMousePosition;
     Vector2 m_CurrentMousePosition;
 
+    FBODefinition* m_pDebugViewFBO; // used to draw the selected animated mesh, more later?
     FBODefinition* m_pMousePickerFBO;
 
     std::vector<GameObject*> m_pSelectedObjects;
@@ -59,6 +60,8 @@ public:
     ComponentCamera* GetEditorCamera();
 
     void UnloadScene();
+
+    void OnSurfaceChanged(unsigned int startx, unsigned int starty, unsigned int width, unsigned int height);
 
     void ClearConstraint();
 

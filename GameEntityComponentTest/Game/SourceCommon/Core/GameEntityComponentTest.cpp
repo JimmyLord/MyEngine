@@ -42,6 +42,7 @@ GameEntityComponentTest::GameEntityComponentTest()
 #if MYFW_USING_WX
     m_pEditorState = MyNew EditorState;
     m_Debug_DrawMousePickerFBO = false;
+    m_Debug_DrawSelectedAnimatedMesh = false;
     m_pDebugQuadSprite = 0;
 
     g_pPanelObjectList->m_pCallbackFunctionObject = this;
@@ -81,6 +82,7 @@ void GameEntityComponentTest::OneTimeInit()
 #endif
 
 #if MYFW_USING_WX
+    m_pEditorState->m_pDebugViewFBO = g_pTextureManager->CreateFBO( 0, 0, GL_NEAREST, GL_NEAREST, false, false, false );
     m_pEditorState->m_pMousePickerFBO = g_pTextureManager->CreateFBO( 0, 0, GL_NEAREST, GL_NEAREST, false, false, false );
 #endif //MYFW_USING_WX
 
@@ -416,6 +418,18 @@ void GameEntityComponentTest::OnDrawFrame()
         m_pDebugQuadSprite->SetShaderAndTexture( m_pShader_ClipSpaceTexture, m_pEditorState->m_pMousePickerFBO->m_ColorTextureID );
         m_pDebugQuadSprite->Draw( 0 );
     }
+
+    if( m_Debug_DrawSelectedAnimatedMesh && g_GLCanvasIDActive == 1 )
+    {
+        RenderSingleObject();
+
+        if( m_pDebugQuadSprite == 0 )
+            m_pDebugQuadSprite = MyNew MySprite();
+
+        m_pDebugQuadSprite->CreateInPlace( "debug", 0.5f, 0.5f, 1.0f, 1.0f, 0, 1, 1, 0, Justify_Center, false );
+        m_pDebugQuadSprite->SetShaderAndTexture( m_pShader_ClipSpaceTexture, m_pEditorState->m_pDebugViewFBO->m_ColorTextureID );
+        m_pDebugQuadSprite->Draw( 0 );
+    }
 #endif
 }
 
@@ -482,6 +496,10 @@ void GameEntityComponentTest::OnKey(GameCoreButtonActions action, int keycode, i
             if( keycode == 348 ) // F9
             {
                 m_Debug_DrawMousePickerFBO = !m_Debug_DrawMousePickerFBO;
+            }
+            if( keycode == 347 ) // F8
+            {
+                m_Debug_DrawSelectedAnimatedMesh = !m_Debug_DrawSelectedAnimatedMesh;
             }
             if( keycode == 344 ) // F5
             {
@@ -1235,20 +1253,7 @@ void GameEntityComponentTest::OnSurfaceChanged(unsigned int startx, unsigned int
                 pCamera->OnSurfaceChanged( startx, starty, width, height, (unsigned int)m_GameWidth, (unsigned int)m_GameHeight );
             }
 
-            if( m_pEditorState->m_pMousePickerFBO )
-            {
-                if( m_pEditorState->m_pMousePickerFBO->m_TextureWidth < width || m_pEditorState->m_pMousePickerFBO->m_TextureHeight < height )
-                {
-                    // the FBO will be recreated during the texturemanager tick.
-                    g_pTextureManager->InvalidateFBO( m_pEditorState->m_pMousePickerFBO );
-                    m_pEditorState->m_pMousePickerFBO->Setup( width, height, GL_NEAREST, GL_NEAREST, true, true, false );
-                }
-                else
-                {
-                    m_pEditorState->m_pMousePickerFBO->m_Width = width;
-                    m_pEditorState->m_pMousePickerFBO->m_Height = height;
-                }
-            }
+            m_pEditorState->OnSurfaceChanged( startx, starty, width, height );
         }
         else
 #endif
@@ -1285,7 +1290,10 @@ GameObject* GameEntityComponentTest::GetObjectAtPixel(unsigned int x, unsigned i
     }
 
     if( pCamera == 0 )
+    {
+        m_pEditorState->m_pMousePickerFBO->Unbind();
         return 0;
+    }
 
     m_pEditorState->m_pTransformGizmo->ScaleGizmosForMousePickRendering( false );
 
@@ -1320,6 +1328,45 @@ GameObject* GameEntityComponentTest::GetObjectAtPixel(unsigned int x, unsigned i
     }
 
     return pGameObject;
+}
+
+void GameEntityComponentTest::RenderSingleObject()
+{
+    // render the scene to a FBO.
+    m_pEditorState->m_pDebugViewFBO->Bind();
+
+    glDisable( GL_SCISSOR_TEST );
+    glViewport( 0, 0, m_pEditorState->m_pMousePickerFBO->m_Width, m_pEditorState->m_pMousePickerFBO->m_Height );
+
+    glClearColor( 0, 0, 0, 0 );
+    glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+
+    // TODO: have the file selecter pick the right game object/mesh
+    GameObject* pObject = m_pComponentSystemManager->FindGameObjectByName( "Cube" );
+
+    // draw all editor camera components.
+    ComponentCamera* pCamera = 0;
+    for( unsigned int i=0; i<m_pEditorState->m_pEditorCamera->m_Components.Count(); i++ )
+    {
+        pCamera = dynamic_cast<ComponentCamera*>( m_pEditorState->m_pEditorCamera->m_Components[i] );
+        if( pCamera )
+        {
+            MyMatrix matView;
+            matView.CreateLookAt( Vector3(0, 15, 15), Vector3(0,1,0), Vector3(0,5,0) );
+
+            MyMatrix matProj;
+            matProj.CreatePerspectiveHFoV( 45, 1, 0.1f, 1000.0f );
+
+            MyMatrix matViewProj = matProj * matView;
+
+            m_pComponentSystemManager->DrawSingleObject( &matViewProj, pObject );
+
+            //m_pComponentSystemManager->DrawSingleObject( &pCamera->m_Camera3D.m_matViewProj, pObject );
+            glClear( GL_DEPTH_BUFFER_BIT );
+        }
+    }
+
+    m_pEditorState->m_pDebugViewFBO->Unbind();
 }
 
 void GameEntityComponentTest::GetMouseRay(Vector2 mousepos, Vector3* start, Vector3* end)

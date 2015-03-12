@@ -19,7 +19,9 @@ EditorState::EditorState()
     m_LastMousePosition.Set( -1, -1 );
     m_CurrentMousePosition.Set( -1, -1 );
 
+    m_pDebugViewFBO = 0;
     m_pMousePickerFBO = 0;
+
     m_p3DGridPlane = 0;
     m_pEditorCamera = 0;
 
@@ -32,6 +34,7 @@ EditorState::EditorState()
 
 EditorState::~EditorState()
 {
+    SAFE_RELEASE( m_pDebugViewFBO );
     SAFE_RELEASE( m_pMousePickerFBO );
 
     SAFE_DELETE( m_pTransformGizmo );
@@ -51,6 +54,39 @@ void EditorState::UnloadScene()
     m_pSelectedComponents.clear();
     //m_pSelectedGameObject = 0;
     ClearConstraint();
+}
+
+void EditorState::OnSurfaceChanged(unsigned int startx, unsigned int starty, unsigned int width, unsigned int height)
+{
+    if( m_pDebugViewFBO )
+    {
+        if( m_pDebugViewFBO->m_TextureWidth < width || m_pDebugViewFBO->m_TextureHeight < height )
+        {
+            // the FBO will be recreated during the texturemanager tick.
+            g_pTextureManager->InvalidateFBO( m_pDebugViewFBO );
+            m_pDebugViewFBO->Setup( width, height, GL_NEAREST, GL_NEAREST, true, true, false );
+        }
+        else
+        {
+            m_pDebugViewFBO->m_Width = width;
+            m_pDebugViewFBO->m_Height = height;
+        }
+    }
+
+    if( m_pMousePickerFBO )
+    {
+        if( m_pMousePickerFBO->m_TextureWidth < width || m_pMousePickerFBO->m_TextureHeight < height )
+        {
+            // the FBO will be recreated during the texturemanager tick.
+            g_pTextureManager->InvalidateFBO( m_pMousePickerFBO );
+            m_pMousePickerFBO->Setup( width, height, GL_NEAREST, GL_NEAREST, true, true, false );
+        }
+        else
+        {
+            m_pMousePickerFBO->m_Width = width;
+            m_pMousePickerFBO->m_Height = height;
+        }
+    }
 }
 
 void EditorState::ClearConstraint()

@@ -45,6 +45,7 @@ public:
 #if MYFW_USING_WX
     EditorState* m_pEditorState;
     bool m_Debug_DrawMousePickerFBO;
+    bool m_Debug_DrawSelectedAnimatedMesh;
     MySprite* m_pDebugQuadSprite;
 #endif //MYFW_USING_WX
 
@@ -87,6 +88,7 @@ public:
     void LoadScene(const char* buffer, unsigned int sceneid);
 
 #if MYFW_USING_WX
+    void RenderSingleObject();
     GameObject* GetObjectAtPixel(unsigned int x, unsigned int y);
     void GetMouseRay(Vector2 mousepos, Vector3* start, Vector3* end);
 #endif //MYFW_USING_WX
