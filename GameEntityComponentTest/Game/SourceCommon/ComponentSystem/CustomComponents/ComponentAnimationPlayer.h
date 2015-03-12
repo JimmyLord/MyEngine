@@ -24,6 +24,8 @@ public:
     ComponentAnimationPlayer();
     virtual ~ComponentAnimationPlayer();
 
+    static void LuaRegister(lua_State* luastate);
+
     virtual cJSON* ExportAsJSONObject();
     virtual void ImportFromJSONObject(cJSON* jsonobj, unsigned int sceneid);
 
@@ -32,6 +34,8 @@ public:
     virtual ComponentAnimationPlayer& operator=(const ComponentAnimationPlayer& other);
 
     virtual void Tick(double TimePassed);
+
+    void SetCurrentAnimation(int anim);
 
 public:
 #if MYFW_USING_WX

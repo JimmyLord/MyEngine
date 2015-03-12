@@ -726,6 +726,9 @@
     <None Include="Data\Shaders\Include\Light_Uniforms.glsl">
       <Filter>Data\Shaders\Include</Filter>
     </None>
+    <None Include="Data\Scripts\SimpleCharacterController.lua">
+      <Filter>Data\Scripts</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Object Include="Data\OBJs\cube.obj">

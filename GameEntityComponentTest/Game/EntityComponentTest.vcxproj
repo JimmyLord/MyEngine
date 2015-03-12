@@ -2835,6 +2835,7 @@
     <None Include="Data\Scripts\GGJTube.lua" />
     <None Include="Data\Scripts\Player.lua" />
     <None Include="Data\Scripts\Enemy.lua" />
+    <None Include="Data\Scripts\SimpleCharacterController.lua" />
     <None Include="Data\Shaders\Include\Bone_AttribsAndUniforms.glsl" />
     <None Include="Data\Shaders\Include\Bone_Functions.glsl" />
     <None Include="Data\Shaders\Include\Light_Functions.glsl" />

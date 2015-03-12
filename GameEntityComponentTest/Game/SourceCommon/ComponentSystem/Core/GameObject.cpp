@@ -59,6 +59,7 @@ void GameObject::LuaRegister(lua_State* luastate)
             .addFunction( "SetName", &GameObject::SetName )
             .addFunction( "GetTransform", &GameObject::GetTransform )
             .addFunction( "GetFirstComponentOfBaseType", &GameObject::GetFirstComponentOfBaseType )
+            .addFunction( "GetAnimationPlayer", &GameObject::GetAnimationPlayer )
             .addFunction( "GetCollisionObject", &GameObject::GetCollisionObject )
         .endClass();
 }
@@ -362,6 +363,19 @@ ComponentBase* GameObject::RemoveComponent(ComponentBase* pComponent)
 #endif //MYFW_USING_WX
 
             return pComponent;
+        }
+    }
+
+    return 0; // component not found.
+}
+
+ComponentAnimationPlayer* GameObject::GetAnimationPlayer()
+{
+    for( unsigned int i=0; i<m_Components.Count(); i++ )
+    {
+        if( dynamic_cast<ComponentAnimationPlayer*>( m_Components[i] ) != 0 )
+        {
+            return (ComponentAnimationPlayer*)m_Components[i];
         }
     }
 

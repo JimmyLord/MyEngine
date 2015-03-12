@@ -118,6 +118,7 @@ void LuaGameState::RegisterClasses()
     ComponentTransform::LuaRegister( m_pLuaState );
     ComponentSystemManager::LuaRegister( m_pLuaState );
     ComponentCollisionObject::LuaRegister( m_pLuaState );
+    ComponentAnimationPlayer::LuaRegister( m_pLuaState );
 
     // register global managers
     luabridge::setGlobal( m_pLuaState, g_pComponentSystemManager, "g_pComponentSystemManager" );

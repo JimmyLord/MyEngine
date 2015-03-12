@@ -55,6 +55,9 @@ public:
     ComponentTransform* GetTransform() { return m_pComponentTransform; }
     ComponentCollisionObject* GetCollisionObject();
 
+    // TODO: find a way to find an arbitrary component type that would be accessible from lua script.
+    ComponentAnimationPlayer* GetAnimationPlayer();
+
 public:
 #if MYFW_USING_WX
     static void StaticOnLeftClick(void* pObjectPtr) { ((GameObject*)pObjectPtr)->OnLeftClick(true); }

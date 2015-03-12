@@ -36,6 +36,15 @@ void ComponentAnimationPlayer::Reset()
     m_AnimationTime = 0;
 }
 
+void ComponentAnimationPlayer::LuaRegister(lua_State* luastate)
+{
+    luabridge::getGlobalNamespace( luastate )
+        .beginClass<ComponentAnimationPlayer>( "AnimationPlayer" )
+            //.addData( "localmatrix", &ComponentAnimationPlayer::m_LocalTransform )
+            .addFunction( "SetCurrentAnimation", &ComponentAnimationPlayer::SetCurrentAnimation )
+        .endClass();
+}
+
 #if MYFW_USING_WX
 void ComponentAnimationPlayer::AddToObjectsPanel(wxTreeItemId gameobjectid)
 {
@@ -56,7 +65,11 @@ void ComponentAnimationPlayer::FillPropertiesWindow(bool clear)
     {
         ComponentUpdateable::FillPropertiesWindow( clear );
 
-        g_pPanelWatch->AddInt( "Animation Index", &m_AnimationIndex, 0, 1 );
+        MyMesh* pMesh = m_pMeshComponent->m_pMesh;
+        if( pMesh == 0 )
+            return;
+
+        g_pPanelWatch->AddInt( "Animation Index", &m_AnimationIndex, 0, pMesh->GetAnimationCount() );
         g_pPanelWatch->AddFloat( "Animation Frame", &m_AnimationTime, 0, 6 );
     }
 }
@@ -115,4 +128,13 @@ void ComponentAnimationPlayer::Tick(double TimePassed)
     m_AnimationTime += (float)TimePassed;
 
     pMesh->RebuildAnimationMatrices( m_AnimationIndex, m_AnimationTime );
+}
+
+void ComponentAnimationPlayer::SetCurrentAnimation(int anim)
+{
+    if( m_pMeshComponent->m_pMesh && anim < m_pMeshComponent->m_pMesh->GetAnimationCount() )
+    {
+        m_AnimationIndex = anim;
+        //m_AnimationTime = 0;
+    }
 }
