@@ -88,7 +88,7 @@ public:
     void LoadScene(const char* buffer, unsigned int sceneid);
 
 #if MYFW_USING_WX
-    void RenderSingleObject();
+    void RenderSingleObject(GameObject* pObject);
     GameObject* GetObjectAtPixel(unsigned int x, unsigned int y);
     void GetMouseRay(Vector2 mousepos, Vector3* start, Vector3* end);
 #endif //MYFW_USING_WX

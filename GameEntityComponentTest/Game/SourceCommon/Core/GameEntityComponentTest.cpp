@@ -421,7 +421,22 @@ void GameEntityComponentTest::OnDrawFrame()
 
     if( m_Debug_DrawSelectedAnimatedMesh && g_GLCanvasIDActive == 1 )
     {
-        RenderSingleObject();
+        // TODO: have the file selecter pick the right game object/mesh
+        GameObject* pObject = m_pComponentSystemManager->FindGameObjectByName( "Cube" );
+
+        ComponentAnimationPlayer* pAnim = pObject->GetAnimationPlayer();
+        
+        int backupindex = pAnim->m_AnimationIndex;
+        float backuptime = pAnim->m_AnimationTime;
+
+        pAnim->m_AnimationIndex = 0;
+        pAnim->m_AnimationTime = MyTime_GetUnpausedTime();
+        pAnim->Tick( 0 );
+        
+        RenderSingleObject( pObject );
+
+        pAnim->m_AnimationIndex = backupindex;
+        pAnim->m_AnimationTime = backuptime;
 
         if( m_pDebugQuadSprite == 0 )
             m_pDebugQuadSprite = MyNew MySprite();
@@ -1330,7 +1345,7 @@ GameObject* GameEntityComponentTest::GetObjectAtPixel(unsigned int x, unsigned i
     return pGameObject;
 }
 
-void GameEntityComponentTest::RenderSingleObject()
+void GameEntityComponentTest::RenderSingleObject(GameObject* pObject)
 {
     // render the scene to a FBO.
     m_pEditorState->m_pDebugViewFBO->Bind();
@@ -1340,9 +1355,6 @@ void GameEntityComponentTest::RenderSingleObject()
 
     glClearColor( 0, 0, 0, 0 );
     glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
-
-    // TODO: have the file selecter pick the right game object/mesh
-    GameObject* pObject = m_pComponentSystemManager->FindGameObjectByName( "Cube" );
 
     // draw all editor camera components.
     ComponentCamera* pCamera = 0;
