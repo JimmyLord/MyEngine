@@ -421,29 +421,35 @@ void GameEntityComponentTest::OnDrawFrame()
 
     if( m_Debug_DrawSelectedAnimatedMesh && g_GLCanvasIDActive == 1 )
     {
-        // TODO: have the file selecter pick the right game object/mesh
-        GameObject* pObject = m_pComponentSystemManager->FindGameObjectByName( "Cube" );
+        if( m_pEditorState->m_pSelectedObjects.size() > 0 )
+        {
+            // TODO: have the file selecter pick the right game object/mesh
+            GameObject* pObject = m_pEditorState->m_pSelectedObjects[0];
 
-        ComponentAnimationPlayer* pAnim = pObject->GetAnimationPlayer();
+            ComponentAnimationPlayer* pAnim = pObject->GetAnimationPlayer();
+
+            if( pAnim )
+            {
+                int backupindex = pAnim->m_AnimationIndex;
+                float backuptime = pAnim->m_AnimationTime;
+
+                pAnim->m_AnimationIndex = 0;
+                pAnim->m_AnimationTime = MyTime_GetUnpausedTime();
+                pAnim->Tick( 0 );
         
-        int backupindex = pAnim->m_AnimationIndex;
-        float backuptime = pAnim->m_AnimationTime;
+                RenderSingleObject( pObject );
 
-        pAnim->m_AnimationIndex = 0;
-        pAnim->m_AnimationTime = MyTime_GetUnpausedTime();
-        pAnim->Tick( 0 );
-        
-        RenderSingleObject( pObject );
+                pAnim->m_AnimationIndex = backupindex;
+                pAnim->m_AnimationTime = backuptime;
 
-        pAnim->m_AnimationIndex = backupindex;
-        pAnim->m_AnimationTime = backuptime;
+                if( m_pDebugQuadSprite == 0 )
+                    m_pDebugQuadSprite = MyNew MySprite();
 
-        if( m_pDebugQuadSprite == 0 )
-            m_pDebugQuadSprite = MyNew MySprite();
-
-        m_pDebugQuadSprite->CreateInPlace( "debug", 0.5f, 0.5f, 1.0f, 1.0f, 0, 1, 1, 0, Justify_Center, false );
-        m_pDebugQuadSprite->SetShaderAndTexture( m_pShader_ClipSpaceTexture, m_pEditorState->m_pDebugViewFBO->m_ColorTextureID );
-        m_pDebugQuadSprite->Draw( 0 );
+                m_pDebugQuadSprite->CreateInPlace( "debug", 0.5f, 0.5f, 1.0f, 1.0f, 0, 1, 1, 0, Justify_Center, false );
+                m_pDebugQuadSprite->SetShaderAndTexture( m_pShader_ClipSpaceTexture, m_pEditorState->m_pDebugViewFBO->m_ColorTextureID );
+                m_pDebugQuadSprite->Draw( 0 );
+            }
+        }
     }
 #endif
 }
@@ -508,14 +514,6 @@ void GameEntityComponentTest::OnKey(GameCoreButtonActions action, int keycode, i
 #if MYFW_USING_WX
         if( m_EditorMode )
         {
-            if( keycode == 348 ) // F9
-            {
-                m_Debug_DrawMousePickerFBO = !m_Debug_DrawMousePickerFBO;
-            }
-            if( keycode == 347 ) // F8
-            {
-                m_Debug_DrawSelectedAnimatedMesh = !m_Debug_DrawSelectedAnimatedMesh;
-            }
             if( keycode == 344 ) // F5
             {
                 int filesupdated = g_pFileManager->ReloadAnyUpdatedFiles( OnFileUpdated_CallbackFunction );
@@ -1373,7 +1371,6 @@ void GameEntityComponentTest::RenderSingleObject(GameObject* pObject)
 
             m_pComponentSystemManager->DrawSingleObject( &matViewProj, pObject );
 
-            //m_pComponentSystemManager->DrawSingleObject( &pCamera->m_Camera3D.m_matViewProj, pObject );
             glClear( GL_DEPTH_BUFFER_BIT );
         }
     }

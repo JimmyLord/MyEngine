@@ -110,6 +110,11 @@ void GameMainFrame::InitFrame()
     m_Hackery->Append( myIDGame_RecordMacro, wxT("&Record\tCtrl-R") );
     m_Hackery->Append( myIDGame_ExecuteMacro, wxT("Stop recording and &Execute\tCtrl-E") );
 
+    m_Debug = MyNew wxMenu;
+    m_MenuBar->Append( m_Debug, wxT("&Debug views") );
+    m_Debug->Append( myIDGame_DebugShowMousePickerFBO, wxT("&Show Mouse Picker FBO\tF9") );
+    m_Debug->Append( myIDGame_DebugShowSelectedAnimatedMesh, wxT("Show &Animated Debug View for Selection\tF8") );
+
     m_Hackery_Record_StackDepth = -1;
 
     m_EditorPerspectives = MyNew wxMenu;
@@ -140,6 +145,9 @@ void GameMainFrame::InitFrame()
 
     Connect( myIDGame_RecordMacro,  wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(GameMainFrame::OnGameMenu) );
     Connect( myIDGame_ExecuteMacro, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(GameMainFrame::OnGameMenu) );
+
+    Connect( myIDGame_DebugShowMousePickerFBO,       wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(GameMainFrame::OnGameMenu) );
+    Connect( myIDGame_DebugShowSelectedAnimatedMesh, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(GameMainFrame::OnGameMenu) );
 }
 
 GameMainFrame::~GameMainFrame()
@@ -285,6 +293,14 @@ void GameMainFrame::OnGameMenu(wxCommandEvent& event)
     case myIDGame_GameplayPerspective + 2:
         SetDefaultGameplayPerspectiveIndex( id - myIDGame_GameplayPerspective );
         SetWindowPerspectiveToDefault( true );
+        break;
+
+    case myIDGame_DebugShowMousePickerFBO:
+        ((GameEntityComponentTest*)g_pGameCore)->m_Debug_DrawMousePickerFBO = !((GameEntityComponentTest*)g_pGameCore)->m_Debug_DrawMousePickerFBO;
+        break;
+
+    case myIDGame_DebugShowSelectedAnimatedMesh:
+        ((GameEntityComponentTest*)g_pGameCore)->m_Debug_DrawSelectedAnimatedMesh = !((GameEntityComponentTest*)g_pGameCore)->m_Debug_DrawSelectedAnimatedMesh;
         break;
     }
 }

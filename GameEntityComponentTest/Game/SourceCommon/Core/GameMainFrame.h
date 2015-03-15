@@ -33,8 +33,11 @@ enum GameMenuIDs
     myIDGame_EditorPerspectives,
     myIDGame_GameplayPerspectives,
     myIDGame_EditorPerspective,
+    // Perspective_NumPerspectives more items here
     myIDGame_GameplayPerspective = myIDGame_EditorPerspective + Perspective_NumPerspectives,
-    // = myIDGame_GameplayPerspective + Perspective_NumPerspectives,
+    // Perspective_NumPerspectives more items here
+    myIDGame_DebugShowMousePickerFBO = myIDGame_GameplayPerspective + Perspective_NumPerspectives,
+    myIDGame_DebugShowSelectedAnimatedMesh,
 };
 
 class GameMainFrame : public MainFrame
@@ -53,6 +56,7 @@ public:
 
     wxMenu* m_Data;
     wxMenu* m_Hackery;
+    wxMenu* m_Debug;
 
     cJSON* m_pEditorPrefs;
 
