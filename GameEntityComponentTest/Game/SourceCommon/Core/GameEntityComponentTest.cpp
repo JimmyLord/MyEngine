@@ -503,6 +503,8 @@ void GameEntityComponentTest::OnTouch(int action, int id, float x, float y, floa
 void GameEntityComponentTest::OnButtons(GameCoreButtonActions action, GameCoreButtonIDs id)
 {
     GameCore::OnButtons( action, id );
+
+    m_pComponentSystemManager->OnButtons( action, id );
 }
 
 void GameEntityComponentTest::OnKey(GameCoreButtonActions action, int keycode, int unicodechar)
@@ -538,6 +540,8 @@ void GameEntityComponentTest::OnKey(GameCoreButtonActions action, int keycode, i
                     m_Paused = false;
                 g_pGameMainFrame->SetWindowPerspectiveToDefault();
                 m_pComponentSystemManager->OnPlay();
+
+                RegisterGameplayButtons();
                 return;
             }
         }
@@ -556,6 +560,8 @@ void GameEntityComponentTest::OnKey(GameCoreButtonActions action, int keycode, i
                 m_pComponentSystemManager->OnStop();
 
                 m_pComponentSystemManager->SyncAllRigidBodiesToObjectTransforms();
+
+                UnregisterGameplayButtons();
                 return;
             }
 
@@ -589,7 +595,7 @@ void GameEntityComponentTest::OnKey(GameCoreButtonActions action, int keycode, i
 #endif
         {
             // TODO: hack, need to fix, did this for GGJ to make keys work
-            m_pComponentSystemManager->OnButtons( GCBA_Down, (GameCoreButtonIDs)keycode );
+            //m_pComponentSystemManager->OnButtons( GCBA_Down, (GameCoreButtonIDs)keycode );
         }
     }
 
@@ -605,7 +611,7 @@ void GameEntityComponentTest::OnKey(GameCoreButtonActions action, int keycode, i
 #endif
         {
             // TODO: hack, need to fix, did this for GGJ to make keys work
-            m_pComponentSystemManager->OnButtons( GCBA_Up, (GameCoreButtonIDs)keycode );
+            //m_pComponentSystemManager->OnButtons( GCBA_Up, (GameCoreButtonIDs)keycode );
         }
     }
 
@@ -619,6 +625,38 @@ void GameEntityComponentTest::OnKey(GameCoreButtonActions action, int keycode, i
         }
         //else
 #endif
+    }
+}
+
+void GameEntityComponentTest::RegisterGameplayButtons()
+{
+    this->m_KeyMappingToButtons['W'] = GCBI_Up;
+    this->m_KeyMappingToButtons['A'] = GCBI_Left;
+    this->m_KeyMappingToButtons['S'] = GCBI_Down;
+    this->m_KeyMappingToButtons['D'] = GCBI_Right;
+
+    this->m_KeyMappingToButtons[MYKEYCODE_UP] = GCBI_Up;
+    this->m_KeyMappingToButtons[MYKEYCODE_LEFT] = GCBI_Left;
+    this->m_KeyMappingToButtons[MYKEYCODE_DOWN] = GCBI_Down;
+    this->m_KeyMappingToButtons[MYKEYCODE_RIGHT] = GCBI_Right;
+
+    this->m_KeyMappingToButtons[MYKEYCODE_ESC] = GCBI_Back;
+    
+    this->m_KeyMappingToButtons['Z'] = GCBI_ButtonA;
+    this->m_KeyMappingToButtons['X'] = GCBI_ButtonB;
+    this->m_KeyMappingToButtons['C'] = GCBI_ButtonC;
+    this->m_KeyMappingToButtons['V'] = GCBI_ButtonD;
+}
+
+void GameEntityComponentTest::UnregisterGameplayButtons()
+{
+    for( int i=0; i<GCBI_NumButtons; i++ )
+        m_ButtonsHeld[i] = false;
+
+    for( int i=0; i<255; i++ )
+    {
+        m_KeysHeld[i] = false;
+        m_KeyMappingToButtons[i] = GCBI_NumButtons;
     }
 }
 

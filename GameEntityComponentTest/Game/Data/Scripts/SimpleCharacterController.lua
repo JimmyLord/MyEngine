@@ -30,6 +30,22 @@ OnTouch = function(action, id, x, y, pressure, size)
 end,
 
 OnButtons = function(action, id)
+	-- LogInfo( "OnButtons " .. id .. "\n" );
+
+	if( action == 0 ) then -- button pressed
+		if( id == 1 ) then -- left
+			LogInfo( "OnButtons - Left pressed " .. id .. "\n" );
+		end
+		if( id == 2 ) then -- right
+			LogInfo( "OnButtons - right pressed " .. id .. "\n" );
+		end
+		if( id == 3 ) then -- up
+			LogInfo( "OnButtons - up pressed " .. id .. "\n" );
+		end
+		if( id == 4 ) then -- down
+			LogInfo( "OnButtons - down pressed " .. id .. "\n" );
+		end
+	end
 end,
 
 Tick = function(timepassed)
