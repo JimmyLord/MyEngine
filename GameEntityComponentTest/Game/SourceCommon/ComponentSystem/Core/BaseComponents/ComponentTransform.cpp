@@ -50,6 +50,8 @@ void ComponentTransform::LuaRegister(lua_State* luastate)
             .addData( "localmatrix", &ComponentTransform::m_LocalTransform )
             .addFunction( "SetPosition", &ComponentTransform::SetPosition )
             .addFunction( "GetPosition", &ComponentTransform::GetPosition )
+            .addFunction( "SetRotation", &ComponentTransform::SetRotation )
+            .addFunction( "GetLocalRotation", &ComponentTransform::GetLocalRotation )
         .endClass();
 }
 

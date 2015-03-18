@@ -2827,6 +2827,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\todo.todo" />
+    <None Include="Data\Scenes\AnimationTest.scene" />
     <None Include="Data\Scenes\LightTest.scene" />
     <None Include="Data\Scenes\test.scene" />
     <None Include="Data\Scenes\World.scene" />

@@ -729,6 +729,9 @@
     <None Include="Data\Scripts\SimpleCharacterController.lua">
       <Filter>Data\Scripts</Filter>
     </None>
+    <None Include="Data\Scenes\AnimationTest.scene">
+      <Filter>Data\Scenes</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Object Include="Data\OBJs\cube.obj">

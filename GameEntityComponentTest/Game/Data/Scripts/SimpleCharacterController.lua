@@ -6,7 +6,7 @@ SimpleCharacterController =
 Externs =
 {
 	-- name, type, initial value
-	{ "Speed", "Float", 1 },
+	{ "Speed", "Float", 10 },
 	{ "Animation", "Float", 1 },
 };
 
@@ -15,6 +15,8 @@ end,
 
 OnPlay = function()
 	-- math.randomseed( os.time() );
+	this.dirx = 0;
+	this.dirz = 0;
 end,
 
 OnStop = function()
@@ -32,18 +34,18 @@ end,
 OnButtons = function(action, id)
 	-- LogInfo( "OnButtons " .. id .. "\n" );
 
-	if( action == 0 ) then -- button pressed
+	if( action == 2 ) then -- button held
 		if( id == 1 ) then -- left
-			LogInfo( "OnButtons - Left pressed " .. id .. "\n" );
+			this.dirx = -1;
 		end
 		if( id == 2 ) then -- right
-			LogInfo( "OnButtons - right pressed " .. id .. "\n" );
+			this.dirx = 1;
 		end
 		if( id == 3 ) then -- up
-			LogInfo( "OnButtons - up pressed " .. id .. "\n" );
+			this.dirz = -1;
 		end
 		if( id == 4 ) then -- down
-			LogInfo( "OnButtons - down pressed " .. id .. "\n" );
+			this.dirz = 1;
 		end
 	end
 end,
@@ -51,7 +53,8 @@ end,
 Tick = function(timepassed)
 	
 	local transform = this.gameobject:GetTransform();
-	-- local pos = transform:GetPosition();
+	local pos = transform:GetPosition();
+	local rot = transform:GetLocalRotation();
 
 	local animplayer = this.gameobject:GetAnimationPlayer();
 
@@ -59,16 +62,21 @@ Tick = function(timepassed)
 		animplayer:SetCurrentAnimation( this.Animation );
 	end
 
-	-- pos.z = pos.z + timepassed * this.Speed;
-	-- 
-	-- if( pos.z >= 20 ) then
-	-- 	pos.z = pos.z - 160;
-	-- 	r = math.random();
-	-- 	pos.x = r * 6.28;
-	-- end
-	-- 
-	-- transform:SetPosition( pos );
+	pos.x = pos.x + this.dirx * timepassed * this.Speed;
+	pos.z = pos.z + this.dirz * timepassed * this.Speed;
 
+	if( this.dirx ~= 0 or this.dirz ~= 0 ) then
+		rot.y = math.atan2( this.dirz, this.dirx ) / math.pi * 180 - 90;
+		this.Animation = 2;
+	else
+		this.Animation = 1;
+	end
+
+	transform:SetPosition( pos );
+	transform:SetRotation( rot );
+
+	this.dirx = 0;
+	this.dirz = 0;
 end,
 
 }

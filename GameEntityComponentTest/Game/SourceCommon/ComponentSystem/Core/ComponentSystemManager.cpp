@@ -726,12 +726,23 @@ ComponentBase* ComponentSystemManager::FindComponentByID(unsigned int id)
 
 void ComponentSystemManager::Tick(double TimePassed)
 {
-    // update all game objects.
+    // update all game objects, scripts first.
     for( CPPListNode* node = m_ComponentsUpdateable.GetHead(); node != 0; node = node->GetNext() )
     {
         ComponentUpdateable* pComponent = (ComponentUpdateable*)node;
 
-        if( pComponent->m_BaseType == BaseComponentType_Updateable )
+        if( pComponent->m_BaseType == BaseComponentType_Updateable && pComponent->m_Type == ComponentType_LuaScript )
+        {
+            pComponent->Tick( TimePassed );
+        }
+    }
+
+    // update all game objects, everything else
+    for( CPPListNode* node = m_ComponentsUpdateable.GetHead(); node != 0; node = node->GetNext() )
+    {
+        ComponentUpdateable* pComponent = (ComponentUpdateable*)node;
+
+        if( pComponent->m_BaseType == BaseComponentType_Updateable && pComponent->m_Type != ComponentType_LuaScript )
         {
             pComponent->Tick( TimePassed );
         }
