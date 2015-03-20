@@ -32,8 +32,15 @@ void ComponentAnimationPlayer::Reset()
 #endif //MYFW_USING_WX
 
     m_pMeshComponent = 0;
+
     m_AnimationIndex = 0;
     m_AnimationTime = 0;
+
+    m_LastAnimationIndex = 0;
+    m_LastAnimationTime = 0;
+
+    m_TransitionTimeLeft = 0;
+    m_TransitionTimeTotal = 0;
 }
 
 void ComponentAnimationPlayer::LuaRegister(lua_State* luastate)
@@ -106,6 +113,12 @@ ComponentAnimationPlayer& ComponentAnimationPlayer::operator=(const ComponentAni
     m_AnimationIndex = other.m_AnimationIndex;
     m_AnimationTime = other.m_AnimationTime;
 
+    m_LastAnimationIndex = other.m_LastAnimationIndex;
+    m_LastAnimationTime = other.m_LastAnimationTime;
+
+    m_TransitionTimeLeft = other.m_TransitionTimeLeft;
+    m_TransitionTimeTotal = other.m_TransitionTimeTotal;
+
     return *this;
 }
 
@@ -129,15 +142,41 @@ void ComponentAnimationPlayer::Tick(double TimePassed)
         return;
 
     m_AnimationTime += (float)TimePassed;
+    m_LastAnimationTime += (float)TimePassed;
+    m_TransitionTimeLeft -= (float)TimePassed;
 
-    pMesh->RebuildAnimationMatrices( m_AnimationIndex, m_AnimationTime );
+    float perc = m_TransitionTimeLeft / m_TransitionTimeTotal;
+    pMesh->RebuildAnimationMatrices( m_AnimationIndex, m_AnimationTime, m_LastAnimationIndex, m_LastAnimationTime, perc );
 }
 
 void ComponentAnimationPlayer::SetCurrentAnimation(int anim)
 {
+    if( anim == m_AnimationIndex )
+        return;
+
     if( m_pMeshComponent->m_pMesh && anim < m_pMeshComponent->m_pMesh->GetAnimationCount() )
     {
+        bool resettransitiontime = true;
+
+        if( anim == m_LastAnimationIndex )
+        {
+            if( m_TransitionTimeLeft > 0 )
+            {
+                m_TransitionTimeLeft = m_TransitionTimeTotal - m_TransitionTimeLeft;
+                resettransitiontime = false;
+            }
+        }
+
+        m_LastAnimationIndex = m_AnimationIndex;
+        m_LastAnimationTime = m_AnimationTime;
+
         m_AnimationIndex = anim;
         //m_AnimationTime = 0;
+
+        if( resettransitiontime )
+        {
+            m_TransitionTimeTotal = 0.5f;
+            m_TransitionTimeLeft = m_TransitionTimeTotal;
+        }
     }
 }

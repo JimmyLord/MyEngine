@@ -20,6 +20,12 @@ public:
     int m_AnimationIndex;
     float m_AnimationTime;
 
+    int m_LastAnimationIndex;
+    float m_LastAnimationTime;
+
+    float m_TransitionTimeLeft;
+    float m_TransitionTimeTotal;
+
 public:
     ComponentAnimationPlayer();
     virtual ~ComponentAnimationPlayer();
