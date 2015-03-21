@@ -12,6 +12,21 @@
 		}, {
 			"ID":	11,
 			"Name":	"Plane"
+		}, {
+			"ID":	12,
+			"Name":	"Light - Green"
+		}, {
+			"ID":	13,
+			"Name":	"Light - Red"
+		}, {
+			"ID":	14,
+			"Name":	"Light - Blue"
+		}, {
+			"ID":	15,
+			"Name":	"Light - Yellow"
+		}, {
+			"ID":	16,
+			"Name":	"Light - Turqoise"
 		}],
 	"Transforms":	[{
 			"GOID":	1,
@@ -35,6 +50,36 @@
 			"GOID":	11,
 			"ID":	0,
 			"Pos":	[0, -3, 0],
+			"Scale":	[1, 1, 1],
+			"Rot":	[0, 0, 0]
+		}, {
+			"GOID":	12,
+			"ID":	0,
+			"Pos":	[0, 1, 0],
+			"Scale":	[1, 1, 1],
+			"Rot":	[0, 0, 0]
+		}, {
+			"GOID":	13,
+			"ID":	0,
+			"Pos":	[-5, 1, -5],
+			"Scale":	[1, 1, 1],
+			"Rot":	[0, 0, 0]
+		}, {
+			"GOID":	14,
+			"ID":	0,
+			"Pos":	[5, 1, 5],
+			"Scale":	[1, 1, 1],
+			"Rot":	[0, 0, 0]
+		}, {
+			"GOID":	15,
+			"ID":	0,
+			"Pos":	[5, 1, -5],
+			"Scale":	[1, 1, 1],
+			"Rot":	[0, 0, 0]
+		}, {
+			"GOID":	16,
+			"ID":	0,
+			"Pos":	[-5, 1, 5],
 			"Scale":	[1, 1, 1],
 			"Rot":	[0, 0, 0]
 		}],
@@ -120,5 +165,35 @@
 			"PlaneUVRangex":	1,
 			"PlaneUVRangey":	1,
 			"SphereRadius":	1
+		}, {
+			"Type":	"Light",
+			"GOID":	12,
+			"ID":	48,
+			"Color":	[0, 1, 0, 0],
+			"Atten":	[0, 0, 0.090800]
+		}, {
+			"Type":	"Light",
+			"GOID":	13,
+			"ID":	49,
+			"Color":	[1, 0, 0, 0],
+			"Atten":	[0, 0, 0.090800]
+		}, {
+			"Type":	"Light",
+			"GOID":	14,
+			"ID":	50,
+			"Color":	[0, 0, 1, 0],
+			"Atten":	[0, 0, 0.090800]
+		}, {
+			"Type":	"Light",
+			"GOID":	15,
+			"ID":	51,
+			"Color":	[1, 1, 0, 0],
+			"Atten":	[0, 0, 0.090800]
+		}, {
+			"Type":	"Light",
+			"GOID":	16,
+			"ID":	52,
+			"Color":	[0, 1, 1, 0],
+			"Atten":	[0, 0, 0.090800]
 		}]
 }

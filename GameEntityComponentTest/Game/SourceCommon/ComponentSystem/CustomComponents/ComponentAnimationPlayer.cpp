@@ -175,7 +175,7 @@ void ComponentAnimationPlayer::SetCurrentAnimation(int anim)
 
         if( resettransitiontime )
         {
-            m_TransitionTimeTotal = 0.5f;
+            m_TransitionTimeTotal = 0.25f;
             m_TransitionTimeLeft = m_TransitionTimeTotal;
         }
     }

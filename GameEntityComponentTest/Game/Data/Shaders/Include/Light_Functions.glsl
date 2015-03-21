@@ -36,18 +36,18 @@ void PointLightContribution(int index, vec3 normalworld, inout vec4 finaldiffuse
 float CalculateShadowPercentage()
 {
 #if ReceiveShadows
-    vec2 shadowcoord = (v_ShadowPos.xy / v_ShadowPos.w) * 0.5 + 0.5;
-    vec4 shadowtex = texture2D( u_ShadowTexture, shadowcoord );
-
-    // Unpack depth float value from rgba.
-    const vec4 bitSh = vec4(1.0/(256.0*256.0*256.0), 1.0/(256.0*256.0), 1.0/256.0, 1.0);
-    float texzdepth = dot( shadowtex, bitSh );
-
-    float bias = 0.01;
-    float projzdepth = ((v_ShadowPos.z-bias)/v_ShadowPos.w) * 0.5 + 0.5;
-
-    if( texzdepth < projzdepth )
-        return 0.5;
+    //vec2 shadowcoord = (v_ShadowPos.xy / v_ShadowPos.w) * 0.5 + 0.5;
+    //vec4 shadowtex = texture2D( u_ShadowTexture, shadowcoord );
+    //
+    //// Unpack depth float value from rgba.
+    //const vec4 bitSh = vec4(1.0/(256.0*256.0*256.0), 1.0/(256.0*256.0), 1.0/256.0, 1.0);
+    //float texzdepth = dot( shadowtex, bitSh );
+    //
+    //float bias = 0.01;
+    //float projzdepth = ((v_ShadowPos.z-bias)/v_ShadowPos.w) * 0.5 + 0.5;
+    //
+    //if( texzdepth < projzdepth )
+    //    return 0.5;
 #endif //ReceiveShadows
 
     return 1.0;
