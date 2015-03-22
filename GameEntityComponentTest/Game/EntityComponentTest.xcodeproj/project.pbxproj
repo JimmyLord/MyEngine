@@ -346,7 +346,7 @@
 				PRODUCT_NAME = EntityComponentTest;
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
 				TARGETED_DEVICE_FAMILY = "1,2";
-				USER_HEADER_SEARCH_PATHS = "./SourceCommon .";
+				USER_HEADER_SEARCH_PATHS = "./SourceCommon . ../../bullet-2.82-r2704/src";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Debug;
@@ -368,7 +368,7 @@
 				PRODUCT_NAME = EntityComponentTest;
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
 				TARGETED_DEVICE_FAMILY = "1,2";
-				USER_HEADER_SEARCH_PATHS = "./SourceCommon .";
+				USER_HEADER_SEARCH_PATHS = "./SourceCommon . ../../bullet-2.82-r2704/src";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Release;

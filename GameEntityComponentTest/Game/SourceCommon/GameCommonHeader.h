@@ -38,6 +38,7 @@ extern "C"
     #include "../../lua/src/lualib.h"
     #include "../../lua/src/lauxlib.h"
 }
+#undef Nil
 #include "../../lua/LuaBridge/LuaBridge.h"
 #include "Core/LuaGameState.h"
 

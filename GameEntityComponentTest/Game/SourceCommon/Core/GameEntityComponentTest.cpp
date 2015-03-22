@@ -73,7 +73,7 @@ void GameEntityComponentTest::OneTimeInit()
 {
     GameCore::OneTimeInit();
 
-    GameObject* pPlayer = 0;
+    //GameObject* pPlayer = 0;
     GameObject* pGameObject;
     ComponentCamera* pComponentCamera;
     //ComponentSprite* pComponentSprite;
@@ -355,7 +355,7 @@ double GameEntityComponentTest::Tick(double TimePassed)
 
 void OnFileUpdated_CallbackFunction(MyFileObject* pFile)
 {
-    int bp = 1;
+    //int bp = 1;
 
 #if MYFW_USING_WX
     g_pComponentSystemManager->OnFileUpdated( pFile );
