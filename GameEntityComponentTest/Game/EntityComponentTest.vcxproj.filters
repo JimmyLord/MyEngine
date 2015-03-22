@@ -732,6 +732,18 @@
     <None Include="Data\Scenes\AnimationTest.scene">
       <Filter>Data\Scenes</Filter>
     </None>
+    <None Include="Data\Shaders\Include\WSVaryings.glsl">
+      <Filter>Data\Shaders\Include</Filter>
+    </None>
+    <None Include="Data\Shaders\Include\WSVaryings_Functions.glsl">
+      <Filter>Data\Shaders\Include</Filter>
+    </None>
+    <None Include="Data\Shaders\Include\LSVaryings.glsl">
+      <Filter>Data\Shaders\Include</Filter>
+    </None>
+    <None Include="Data\Shaders\Include\LSVaryings_Functions.glsl">
+      <Filter>Data\Shaders\Include</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Object Include="Data\OBJs\cube.obj">

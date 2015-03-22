@@ -2,7 +2,7 @@
 
     #if NUM_INF_BONES > 0
 
-        void ApplyBoneInfluencesToPositionAttribute(inout vec4 pos)
+        void ApplyBoneInfluencesToPositionAttribute(vec4 attribpos, out vec4 outpos)
         {
             mat4 bonetransform;
             bonetransform  = u_BoneTransforms[a_BoneIndex[0]] * a_BoneWeight[0];
@@ -14,14 +14,14 @@
             bonetransform += u_BoneTransforms[a_BoneIndex[3]] * a_BoneWeight[3];
         #endif
 
-            pos = bonetransform * a_Position;
+            outpos = bonetransform * attribpos;
         }
 
     #else //NUM_INF_BONES > 0
 
-        void ApplyBoneInfluencesToPositionAttribute(inout vec4 pos)
+        void ApplyBoneInfluencesToPositionAttribute(vec4 attribpos, out vec4 outpos)
         {
-            pos = a_Position;
+            outpos = attribpos;
         }
 
     #endif //NUM_INF_BONES > 0
@@ -30,7 +30,7 @@
 
     #if NUM_INF_BONES > 0
 
-        void ApplyBoneInfluencesToPositionAndNormalAttributes(inout vec4 pos, inout vec4 normal)
+        void ApplyBoneInfluencesToPositionAndNormalAttributes(vec4 attribpos, vec3 attribnormal, out vec4 outpos, out vec3 outnormal)
         {
             mat4 bonetransform;
             bonetransform  = u_BoneTransforms[a_BoneIndex[0]] * a_BoneWeight[0];
@@ -42,16 +42,16 @@
             bonetransform += u_BoneTransforms[a_BoneIndex[3]] * a_BoneWeight[3];
         #endif
 
-            pos = bonetransform * a_Position;
-            normal = bonetransform * vec4( a_Normal.xyz, 0 );
+            outpos = bonetransform * attribpos;
+            outnormal = ( bonetransform * vec4( attribnormal, 0 ) ).xyz;
         }
 
     #else //NUM_INF_BONES > 0
 
-        void ApplyBoneInfluencesToPositionAndNormalAttributes(inout vec4 pos, inout vec4 normal)
+        void ApplyBoneInfluencesToPositionAndNormalAttributes(vec4 attribpos, vec3 attribnormal, out vec4 outpos, out vec3 outnormal)
         {
-            pos = a_Position;
-            normal = a_Normal;
+            outpos = attribpos;
+            outnormal = attribnormal;
         }
 
     #endif //NUM_INF_BONES > 0

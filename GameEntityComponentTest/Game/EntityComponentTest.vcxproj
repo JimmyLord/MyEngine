@@ -2841,6 +2841,10 @@
     <None Include="Data\Shaders\Include\Bone_Functions.glsl" />
     <None Include="Data\Shaders\Include\Light_Functions.glsl" />
     <None Include="Data\Shaders\Include\Light_Uniforms.glsl" />
+    <None Include="Data\Shaders\Include\LSVaryings.glsl" />
+    <None Include="Data\Shaders\Include\LSVaryings_Functions.glsl" />
+    <None Include="Data\Shaders\Include\WSVaryings.glsl" />
+    <None Include="Data\Shaders\Include\WSVaryings_Functions.glsl" />
     <None Include="Data\Shaders\Shader_BoneAnim.glsl" />
     <None Include="Data\Shaders\Shader_Breathe.glsl" />
     <None Include="Data\Shaders\Shader_ClipSpaceTexture.glsl" />

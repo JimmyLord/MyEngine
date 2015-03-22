@@ -19,6 +19,7 @@ enum DefaultPerspectives
     Perspective_CenterEditor,
     Perspective_CenterGame,
     Perspective_CenterSideBySide,
+    Perspective_FullFrameGame,
     Perspective_NumPerspectives,
 };
 

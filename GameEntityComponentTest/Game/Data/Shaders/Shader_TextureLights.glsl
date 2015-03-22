@@ -8,9 +8,9 @@ precision mediump float;
 
 #ifdef PassMain
 
-    varying lowp vec3 v_WSPosition;
+    #include "Include/WSVaryings.glsl"
+
     varying lowp vec2 v_UVCoord;
-    varying lowp vec3 v_WSNormal;
     varying lowp vec4 v_Color;
 #if ReceiveShadows
     varying lowp vec4 v_ShadowPos;
@@ -29,7 +29,7 @@ precision mediump float;
     uniform vec4 u_TextureSpecColor;
     uniform float u_Shininess;
 
-    uniform vec3 u_CameraPos;
+    uniform vec3 u_WSCameraPos;
 
     #include "Include/Light_Uniforms.glsl"
 
@@ -40,20 +40,16 @@ precision mediump float;
         attribute vec3 a_Normal;
         //attribute vec4 a_VertexColor;
 
+        #include "Include/WSVaryings_Functions.glsl"
+
         void main()
         {
-            vec4 LSPosition = a_Position;
-                
-            //LSPosition.y += sin( a_Position.x );
-
-            gl_Position = u_WorldViewProj * LSPosition;
+            gl_Position = u_WorldViewProj * a_Position;
 #if ReceiveShadows
-            v_ShadowPos = u_ShadowLightWVP * LSPosition;
+            v_ShadowPos = u_ShadowLightWVP * a_Position;
 #endif //ReceiveShadows
 
-            v_WSPosition = (u_World * LSPosition).xyz;
-            mat3 normalmatrix = mat3( u_World );
-            v_WSNormal = normalize( normalmatrix * a_Normal );
+            SetWSPositionAndNormalVaryings( u_World, a_Position, a_Normal );
             v_UVCoord = a_UVCoord;
             v_Color = u_TextureTintColor;
         }
@@ -69,11 +65,9 @@ precision mediump float;
             // Get the textures color.
             vec4 texcolor = texture2D( u_TextureColor, v_UVCoord );
 
-            // Calculate the normal vector in world space. normalized in vertex shader
-            //   left this here for future where normal might come from a normal map.
-            vec3 normalworld = v_WSNormal;
-
-            //normalworld = normalize( vec3( -cos( v_WSPosition.x ), 1, 0 ) );
+            // Calculate the normal vector in local space. normalized again since interpolation can/will distort it.
+            //   TODO: handle normal maps.
+            vec3 WSnormal = normalize( v_WSNormal );
 
             // Whether fragment is in shadow or not, return 0.5 if it is, 1.0 if not.
             float shadowperc = CalculateShadowPercentage();
@@ -88,7 +82,7 @@ precision mediump float;
             // Add in each light, one by one. // finaldiffuse, finalspecular are inout.
 #if NUM_LIGHTS > 0
             for( int i=0; i<NUM_LIGHTS; i++ )
-                PointLightContribution( i, normalworld, finaldiffuse, finalspecular );
+                PointLightContribution( i, v_WSPosition.xyz, u_WSCameraPos, WSnormal, u_Shininess, finaldiffuse, finalspecular );
 #endif
 
             // Mix the texture color with the light color.

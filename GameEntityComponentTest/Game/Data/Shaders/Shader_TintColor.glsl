@@ -18,7 +18,7 @@ uniform mat4 u_WorldViewProj;
 void main()
 {
     vec4 pos;
-    ApplyBoneInfluencesToPositionAttribute( pos );
+    ApplyBoneInfluencesToPositionAttribute( a_Position, pos );
 
     gl_Position = u_WorldViewProj * pos;
 }
