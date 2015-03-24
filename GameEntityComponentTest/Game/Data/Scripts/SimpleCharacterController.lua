@@ -18,8 +18,7 @@ OnPlay = function()
 	-- math.randomseed( os.time() );
 
 	-- initialize some local variables
-	this.dirx = 0; -- todo - figure out how to declare a Vector2
-	this.dirz = 0;
+	this.dir = Vector3(0,0,0);
 	this.targetangle = 0;
 end,
 
@@ -35,16 +34,16 @@ OnButtons = function(action, id)
 
 	if( action == 2 ) then -- button held
 		if( id == 1 ) then -- left
-			this.dirx = -1;
+			this.dir.x = -1;
 		end
 		if( id == 2 ) then -- right
-			this.dirx = 1;
+			this.dir.x = 1;
 		end
 		if( id == 3 ) then -- up
-			this.dirz = -1;
+			this.dir.z = -1;
 		end
 		if( id == 4 ) then -- down
-			this.dirz = 1;
+			this.dir.z = 1;
 		end
 	end
 end,
@@ -59,17 +58,17 @@ Tick = function(timepassed)
 	local rot = transform:GetLocalRotation();
 
 	-- play the correct animation and figure out facing direction based on input.
-	if( this.dirx ~= 0 or this.dirz ~= 0 ) then
-		this.targetangle = math.atan2( this.dirz, this.dirx ) / math.pi * 180 - 90;
+	if( this.dir.x ~= 0 or this.dir.z ~= 0 ) then
+		this.targetangle = math.atan2( this.dir.z, this.dir.x ) / math.pi * 180 - 90;
 		this.Animation = 2;
 	else
 		this.Animation = 1;
 	end
 
 	-- move the player
-	-- todo, dirx/dirz should be a vec2 and needs to be normalized
-	pos.x = pos.x + this.dirx * timepassed * this.Speed;
-	pos.z = pos.z + this.dirz * timepassed * this.Speed;
+	this.dir:Normalize(); -- avoid fast diagonals.
+	pos.x = pos.x + this.dir.x * timepassed * this.Speed;
+	pos.z = pos.z + this.dir.z * timepassed * this.Speed;
 
 	-- rotate towards the target angle
 	local anglediff = this.targetangle - rot.y;
@@ -89,8 +88,8 @@ Tick = function(timepassed)
 	end
 
 	-- zero out the input vector
-	this.dirx = 0;
-	this.dirz = 0;
+	this.dir.x = 0;
+	this.dir.z = 0;
 end,
 
 }
