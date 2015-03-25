@@ -29,4 +29,4 @@ public:
     void RegisterClasses();
 };
 
-#endif __LuaGameState_H__
+#endif //__LuaGameState_H__

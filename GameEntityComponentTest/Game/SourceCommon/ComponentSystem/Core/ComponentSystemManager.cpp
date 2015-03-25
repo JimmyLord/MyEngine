@@ -853,6 +853,7 @@ void ComponentSystemManager::DrawMousePickerFrame(ComponentCamera* pCamera, MyMa
     }
 }
 
+#if MYFW_USING_WX
 void ComponentSystemManager::DrawSingleObject(MyMatrix* pMatViewProj, GameObject* pObject)
 {
     for( unsigned int i=0; i<pObject->m_Components.Count(); i++ )
@@ -865,6 +866,7 @@ void ComponentSystemManager::DrawSingleObject(MyMatrix* pMatViewProj, GameObject
         }
     }
 }
+#endif //MYFW_USING_WX
 
 void ComponentSystemManager::OnPlay()
 {

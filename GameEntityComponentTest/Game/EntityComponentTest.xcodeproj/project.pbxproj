@@ -7,12 +7,77 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		040A374B1AC2E5DB00DEC19F /* Data in Resources */ = {isa = PBXBuildFile; fileRef = 040A374A1AC2E5DB00DEC19F /* Data */; };
+		0453575E1AC2E2F80045B173 /* libBulletCollision_xcode4.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0453575B1AC2E2F80045B173 /* libBulletCollision_xcode4.a */; };
+		0453575F1AC2E2F80045B173 /* libBulletDynamics_xcode4.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0453575C1AC2E2F80045B173 /* libBulletDynamics_xcode4.a */; };
+		045357601AC2E2F80045B173 /* libLinearMath_xcode4.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0453575D1AC2E2F80045B173 /* libLinearMath_xcode4.a */; };
+		045357AC1AC2E30D0045B173 /* Camera2D.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 045357631AC2E30D0045B173 /* Camera2D.cpp */; };
+		045357AD1AC2E30D0045B173 /* Camera3D.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 045357651AC2E30D0045B173 /* Camera3D.cpp */; };
+		045357AE1AC2E30D0045B173 /* ComponentBase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0453576A1AC2E30D0045B173 /* ComponentBase.cpp */; };
+		045357AF1AC2E30D0045B173 /* ComponentCamera.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0453576C1AC2E30D0045B173 /* ComponentCamera.cpp */; };
+		045357B01AC2E30D0045B173 /* ComponentData.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0453576E1AC2E30D0045B173 /* ComponentData.cpp */; };
+		045357B11AC2E30D0045B173 /* ComponentInputHandler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 045357701AC2E30D0045B173 /* ComponentInputHandler.cpp */; };
+		045357B21AC2E30D0045B173 /* ComponentRenderable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 045357721AC2E30D0045B173 /* ComponentRenderable.cpp */; };
+		045357B31AC2E30D0045B173 /* ComponentTransform.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 045357741AC2E30D0045B173 /* ComponentTransform.cpp */; };
+		045357B41AC2E30D0045B173 /* ComponentUpdateable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 045357761AC2E30D0045B173 /* ComponentUpdateable.cpp */; };
+		045357B51AC2E30D0045B173 /* ComponentSystemManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 045357781AC2E30D0045B173 /* ComponentSystemManager.cpp */; };
+		045357B61AC2E30D0045B173 /* ComponentTypeManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0453577A1AC2E30D0045B173 /* ComponentTypeManager.cpp */; };
+		045357B71AC2E30D0045B173 /* GameObject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0453577C1AC2E30D0045B173 /* GameObject.cpp */; };
+		045357B81AC2E30D0045B173 /* ComponentAnimationPlayer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0453577F1AC2E30D0045B173 /* ComponentAnimationPlayer.cpp */; };
+		045357B91AC2E30D0045B173 /* ComponentLight.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 045357811AC2E30D0045B173 /* ComponentLight.cpp */; };
+		045357BA1AC2E30D0045B173 /* ComponentMesh.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 045357831AC2E30D0045B173 /* ComponentMesh.cpp */; };
+		045357BB1AC2E30D0045B173 /* ComponentMeshOBJ.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 045357851AC2E30D0045B173 /* ComponentMeshOBJ.cpp */; };
+		045357BC1AC2E30D0045B173 /* ComponentMeshPrimitive.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 045357871AC2E30D0045B173 /* ComponentMeshPrimitive.cpp */; };
+		045357BD1AC2E30D0045B173 /* ComponentParticleEmitter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 045357891AC2E30D0045B173 /* ComponentParticleEmitter.cpp */; };
+		045357BE1AC2E30D0045B173 /* ComponentSprite.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0453578B1AC2E30D0045B173 /* ComponentSprite.cpp */; };
+		045357BF1AC2E30D0045B173 /* BulletWorld.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0453578E1AC2E30D0045B173 /* BulletWorld.cpp */; };
+		045357C11AC2E30D0045B173 /* GameComponentTypeManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 045357921AC2E30D0045B173 /* GameComponentTypeManager.cpp */; };
+		045357C21AC2E30D0045B173 /* GameEntityComponentTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 045357941AC2E30D0045B173 /* GameEntityComponentTest.cpp */; };
+		045357C41AC2E30D0045B173 /* LuaGameState.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 045357981AC2E30D0045B173 /* LuaGameState.cpp */; };
+		045357C81AC2E30D0045B173 /* GameCommonHeader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 045357A11AC2E30D0045B173 /* GameCommonHeader.cpp */; };
+		045357C91AC2E30D0045B173 /* ComponentAIChasePlayer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 045357A41AC2E30D0045B173 /* ComponentAIChasePlayer.cpp */; };
+		045357CA1AC2E30D0045B173 /* ComponentCollisionObject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 045357A61AC2E30D0045B173 /* ComponentCollisionObject.cpp */; };
+		045357CB1AC2E30D0045B173 /* ComponentInputTrackMousePos.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 045357A81AC2E30D0045B173 /* ComponentInputTrackMousePos.cpp */; };
+		045357CC1AC2E30D0045B173 /* ComponentLuaScript.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 045357AA1AC2E30D0045B173 /* ComponentLuaScript.cpp */; };
+		045358201AC2E3EC0045B173 /* README.md in Sources */ = {isa = PBXBuildFile; fileRef = 045357DF1AC2E3EC0045B173 /* README.md */; };
+		045358211AC2E3EC0045B173 /* README in Resources */ = {isa = PBXBuildFile; fileRef = 045357E21AC2E3EC0045B173 /* README */; };
+		045358221AC2E3EC0045B173 /* lapi.c in Sources */ = {isa = PBXBuildFile; fileRef = 045357E41AC2E3EC0045B173 /* lapi.c */; };
+		045358231AC2E3EC0045B173 /* lauxlib.c in Sources */ = {isa = PBXBuildFile; fileRef = 045357E61AC2E3EC0045B173 /* lauxlib.c */; };
+		045358241AC2E3EC0045B173 /* lbaselib.c in Sources */ = {isa = PBXBuildFile; fileRef = 045357E81AC2E3EC0045B173 /* lbaselib.c */; };
+		045358251AC2E3EC0045B173 /* lbitlib.c in Sources */ = {isa = PBXBuildFile; fileRef = 045357E91AC2E3EC0045B173 /* lbitlib.c */; };
+		045358261AC2E3EC0045B173 /* lcode.c in Sources */ = {isa = PBXBuildFile; fileRef = 045357EA1AC2E3EC0045B173 /* lcode.c */; };
+		045358271AC2E3EC0045B173 /* lcorolib.c in Sources */ = {isa = PBXBuildFile; fileRef = 045357EC1AC2E3EC0045B173 /* lcorolib.c */; };
+		045358281AC2E3EC0045B173 /* lctype.c in Sources */ = {isa = PBXBuildFile; fileRef = 045357ED1AC2E3EC0045B173 /* lctype.c */; };
+		045358291AC2E3EC0045B173 /* ldblib.c in Sources */ = {isa = PBXBuildFile; fileRef = 045357EF1AC2E3EC0045B173 /* ldblib.c */; };
+		0453582A1AC2E3EC0045B173 /* ldebug.c in Sources */ = {isa = PBXBuildFile; fileRef = 045357F01AC2E3EC0045B173 /* ldebug.c */; };
+		0453582B1AC2E3EC0045B173 /* ldo.c in Sources */ = {isa = PBXBuildFile; fileRef = 045357F21AC2E3EC0045B173 /* ldo.c */; };
+		0453582C1AC2E3EC0045B173 /* ldump.c in Sources */ = {isa = PBXBuildFile; fileRef = 045357F41AC2E3EC0045B173 /* ldump.c */; };
+		0453582D1AC2E3EC0045B173 /* lfunc.c in Sources */ = {isa = PBXBuildFile; fileRef = 045357F51AC2E3EC0045B173 /* lfunc.c */; };
+		0453582E1AC2E3EC0045B173 /* lgc.c in Sources */ = {isa = PBXBuildFile; fileRef = 045357F71AC2E3EC0045B173 /* lgc.c */; };
+		0453582F1AC2E3EC0045B173 /* linit.c in Sources */ = {isa = PBXBuildFile; fileRef = 045357F91AC2E3EC0045B173 /* linit.c */; };
+		045358301AC2E3EC0045B173 /* liolib.c in Sources */ = {isa = PBXBuildFile; fileRef = 045357FA1AC2E3EC0045B173 /* liolib.c */; };
+		045358311AC2E3EC0045B173 /* llex.c in Sources */ = {isa = PBXBuildFile; fileRef = 045357FB1AC2E3EC0045B173 /* llex.c */; };
+		045358321AC2E3EC0045B173 /* lmathlib.c in Sources */ = {isa = PBXBuildFile; fileRef = 045357FE1AC2E3EC0045B173 /* lmathlib.c */; };
+		045358331AC2E3EC0045B173 /* lmem.c in Sources */ = {isa = PBXBuildFile; fileRef = 045357FF1AC2E3EC0045B173 /* lmem.c */; };
+		045358341AC2E3EC0045B173 /* loadlib.c in Sources */ = {isa = PBXBuildFile; fileRef = 045358011AC2E3EC0045B173 /* loadlib.c */; };
+		045358351AC2E3EC0045B173 /* lobject.c in Sources */ = {isa = PBXBuildFile; fileRef = 045358021AC2E3EC0045B173 /* lobject.c */; };
+		045358361AC2E3EC0045B173 /* lopcodes.c in Sources */ = {isa = PBXBuildFile; fileRef = 045358041AC2E3EC0045B173 /* lopcodes.c */; };
+		045358371AC2E3EC0045B173 /* loslib.c in Sources */ = {isa = PBXBuildFile; fileRef = 045358061AC2E3EC0045B173 /* loslib.c */; };
+		045358381AC2E3EC0045B173 /* lparser.c in Sources */ = {isa = PBXBuildFile; fileRef = 045358071AC2E3EC0045B173 /* lparser.c */; };
+		045358391AC2E3EC0045B173 /* lstate.c in Sources */ = {isa = PBXBuildFile; fileRef = 045358091AC2E3EC0045B173 /* lstate.c */; };
+		0453583A1AC2E3EC0045B173 /* lstring.c in Sources */ = {isa = PBXBuildFile; fileRef = 0453580B1AC2E3EC0045B173 /* lstring.c */; };
+		0453583B1AC2E3EC0045B173 /* lstrlib.c in Sources */ = {isa = PBXBuildFile; fileRef = 0453580D1AC2E3EC0045B173 /* lstrlib.c */; };
+		0453583C1AC2E3EC0045B173 /* ltable.c in Sources */ = {isa = PBXBuildFile; fileRef = 0453580E1AC2E3EC0045B173 /* ltable.c */; };
+		0453583D1AC2E3EC0045B173 /* ltablib.c in Sources */ = {isa = PBXBuildFile; fileRef = 045358101AC2E3EC0045B173 /* ltablib.c */; };
+		0453583E1AC2E3EC0045B173 /* ltm.c in Sources */ = {isa = PBXBuildFile; fileRef = 045358111AC2E3EC0045B173 /* ltm.c */; };
+		045358411AC2E3EC0045B173 /* lundump.c in Sources */ = {isa = PBXBuildFile; fileRef = 045358191AC2E3EC0045B173 /* lundump.c */; };
+		045358421AC2E3EC0045B173 /* lvm.c in Sources */ = {isa = PBXBuildFile; fileRef = 0453581B1AC2E3EC0045B173 /* lvm.c */; };
+		045358431AC2E3EC0045B173 /* lzio.c in Sources */ = {isa = PBXBuildFile; fileRef = 0453581D1AC2E3EC0045B173 /* lzio.c */; };
+		045358441AC2E3EC0045B173 /* Makefile in Sources */ = {isa = PBXBuildFile; fileRef = 0453581F1AC2E3EC0045B173 /* Makefile */; };
 		045EDF1E1A06823C007912CA /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 045EDF1D1A06823C007912CA /* StoreKit.framework */; };
 		A11DC47B160D2EC1006C837D /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A11DC478160D2EC1006C837D /* AudioToolbox.framework */; };
 		A11DC47C160D2EC1006C837D /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A11DC479160D2EC1006C837D /* AVFoundation.framework */; };
 		A11DC47D160D2EC1006C837D /* GameKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A11DC47A160D2EC1006C837D /* GameKit.framework */; };
-		A1D5F60F16DEAAFC00664F71 /* GameEntityComponentTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1D5F5DC16DEAAFC00664F71 /* GameEntityComponentTest.cpp */; };
-		A1D5F61516DEAAFC00664F71 /* GameCommonHeader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = A1D5F5E816DEAAFC00664F71 /* GameCommonHeader.cpp */; };
 		A1D5F62116DEAAFC00664F71 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = A1D5F60316DEAAFC00664F71 /* InfoPlist.strings */; };
 		A1D5F62216DEAAFC00664F71 /* ViewController_iPad.xib in Resources */ = {isa = PBXBuildFile; fileRef = A1D5F60516DEAAFC00664F71 /* ViewController_iPad.xib */; };
 		A1D5F62316DEAAFC00664F71 /* ViewController_iPhone.xib in Resources */ = {isa = PBXBuildFile; fileRef = A1D5F60716DEAAFC00664F71 /* ViewController_iPhone.xib */; };
@@ -27,14 +92,145 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		040A374A1AC2E5DB00DEC19F /* Data */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Data; sourceTree = "<group>"; };
+		0453575B1AC2E2F80045B173 /* libBulletCollision_xcode4.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libBulletCollision_xcode4.a; path = "/Users/jameslord/Projects/ProjectEntityComponentTest/bullet-2.82-r2704/build/xcode4ios/../../lib/libBulletCollision_xcode4.a"; sourceTree = "<absolute>"; };
+		0453575C1AC2E2F80045B173 /* libBulletDynamics_xcode4.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libBulletDynamics_xcode4.a; path = "/Users/jameslord/Projects/ProjectEntityComponentTest/bullet-2.82-r2704/build/xcode4ios/../../lib/libBulletDynamics_xcode4.a"; sourceTree = "<absolute>"; };
+		0453575D1AC2E2F80045B173 /* libLinearMath_xcode4.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libLinearMath_xcode4.a; path = "/Users/jameslord/Projects/ProjectEntityComponentTest/bullet-2.82-r2704/build/xcode4ios/../../lib/libLinearMath_xcode4.a"; sourceTree = "<absolute>"; };
+		045357631AC2E30D0045B173 /* Camera2D.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Camera2D.cpp; sourceTree = "<group>"; };
+		045357641AC2E30D0045B173 /* Camera2D.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Camera2D.h; sourceTree = "<group>"; };
+		045357651AC2E30D0045B173 /* Camera3D.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Camera3D.cpp; sourceTree = "<group>"; };
+		045357661AC2E30D0045B173 /* Camera3D.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Camera3D.h; sourceTree = "<group>"; };
+		0453576A1AC2E30D0045B173 /* ComponentBase.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ComponentBase.cpp; sourceTree = "<group>"; };
+		0453576B1AC2E30D0045B173 /* ComponentBase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ComponentBase.h; sourceTree = "<group>"; };
+		0453576C1AC2E30D0045B173 /* ComponentCamera.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ComponentCamera.cpp; sourceTree = "<group>"; };
+		0453576D1AC2E30D0045B173 /* ComponentCamera.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ComponentCamera.h; sourceTree = "<group>"; };
+		0453576E1AC2E30D0045B173 /* ComponentData.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ComponentData.cpp; sourceTree = "<group>"; };
+		0453576F1AC2E30D0045B173 /* ComponentData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ComponentData.h; sourceTree = "<group>"; };
+		045357701AC2E30D0045B173 /* ComponentInputHandler.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ComponentInputHandler.cpp; sourceTree = "<group>"; };
+		045357711AC2E30D0045B173 /* ComponentInputHandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ComponentInputHandler.h; sourceTree = "<group>"; };
+		045357721AC2E30D0045B173 /* ComponentRenderable.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ComponentRenderable.cpp; sourceTree = "<group>"; };
+		045357731AC2E30D0045B173 /* ComponentRenderable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ComponentRenderable.h; sourceTree = "<group>"; };
+		045357741AC2E30D0045B173 /* ComponentTransform.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ComponentTransform.cpp; sourceTree = "<group>"; };
+		045357751AC2E30D0045B173 /* ComponentTransform.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ComponentTransform.h; sourceTree = "<group>"; };
+		045357761AC2E30D0045B173 /* ComponentUpdateable.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ComponentUpdateable.cpp; sourceTree = "<group>"; };
+		045357771AC2E30D0045B173 /* ComponentUpdateable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ComponentUpdateable.h; sourceTree = "<group>"; };
+		045357781AC2E30D0045B173 /* ComponentSystemManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ComponentSystemManager.cpp; sourceTree = "<group>"; };
+		045357791AC2E30D0045B173 /* ComponentSystemManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ComponentSystemManager.h; sourceTree = "<group>"; };
+		0453577A1AC2E30D0045B173 /* ComponentTypeManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ComponentTypeManager.cpp; sourceTree = "<group>"; };
+		0453577B1AC2E30D0045B173 /* ComponentTypeManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ComponentTypeManager.h; sourceTree = "<group>"; };
+		0453577C1AC2E30D0045B173 /* GameObject.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GameObject.cpp; sourceTree = "<group>"; };
+		0453577D1AC2E30D0045B173 /* GameObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GameObject.h; sourceTree = "<group>"; };
+		0453577F1AC2E30D0045B173 /* ComponentAnimationPlayer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ComponentAnimationPlayer.cpp; sourceTree = "<group>"; };
+		045357801AC2E30D0045B173 /* ComponentAnimationPlayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ComponentAnimationPlayer.h; sourceTree = "<group>"; };
+		045357811AC2E30D0045B173 /* ComponentLight.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ComponentLight.cpp; sourceTree = "<group>"; };
+		045357821AC2E30D0045B173 /* ComponentLight.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ComponentLight.h; sourceTree = "<group>"; };
+		045357831AC2E30D0045B173 /* ComponentMesh.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ComponentMesh.cpp; sourceTree = "<group>"; };
+		045357841AC2E30D0045B173 /* ComponentMesh.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ComponentMesh.h; sourceTree = "<group>"; };
+		045357851AC2E30D0045B173 /* ComponentMeshOBJ.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ComponentMeshOBJ.cpp; sourceTree = "<group>"; };
+		045357861AC2E30D0045B173 /* ComponentMeshOBJ.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ComponentMeshOBJ.h; sourceTree = "<group>"; };
+		045357871AC2E30D0045B173 /* ComponentMeshPrimitive.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ComponentMeshPrimitive.cpp; sourceTree = "<group>"; };
+		045357881AC2E30D0045B173 /* ComponentMeshPrimitive.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ComponentMeshPrimitive.h; sourceTree = "<group>"; };
+		045357891AC2E30D0045B173 /* ComponentParticleEmitter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ComponentParticleEmitter.cpp; sourceTree = "<group>"; };
+		0453578A1AC2E30D0045B173 /* ComponentParticleEmitter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ComponentParticleEmitter.h; sourceTree = "<group>"; };
+		0453578B1AC2E30D0045B173 /* ComponentSprite.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ComponentSprite.cpp; sourceTree = "<group>"; };
+		0453578C1AC2E30D0045B173 /* ComponentSprite.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ComponentSprite.h; sourceTree = "<group>"; };
+		0453578E1AC2E30D0045B173 /* BulletWorld.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BulletWorld.cpp; sourceTree = "<group>"; };
+		0453578F1AC2E30D0045B173 /* BulletWorld.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BulletWorld.h; sourceTree = "<group>"; };
+		045357921AC2E30D0045B173 /* GameComponentTypeManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GameComponentTypeManager.cpp; sourceTree = "<group>"; };
+		045357931AC2E30D0045B173 /* GameComponentTypeManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GameComponentTypeManager.h; sourceTree = "<group>"; };
+		045357941AC2E30D0045B173 /* GameEntityComponentTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GameEntityComponentTest.cpp; sourceTree = "<group>"; };
+		045357951AC2E30D0045B173 /* GameEntityComponentTest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GameEntityComponentTest.h; sourceTree = "<group>"; };
+		045357981AC2E30D0045B173 /* LuaGameState.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = LuaGameState.cpp; sourceTree = "<group>"; };
+		045357991AC2E30D0045B173 /* LuaGameState.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LuaGameState.h; sourceTree = "<group>"; };
+		045357A11AC2E30D0045B173 /* GameCommonHeader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GameCommonHeader.cpp; sourceTree = "<group>"; };
+		045357A21AC2E30D0045B173 /* GameCommonHeader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GameCommonHeader.h; sourceTree = "<group>"; };
+		045357A41AC2E30D0045B173 /* ComponentAIChasePlayer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ComponentAIChasePlayer.cpp; sourceTree = "<group>"; };
+		045357A51AC2E30D0045B173 /* ComponentAIChasePlayer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ComponentAIChasePlayer.h; sourceTree = "<group>"; };
+		045357A61AC2E30D0045B173 /* ComponentCollisionObject.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ComponentCollisionObject.cpp; sourceTree = "<group>"; };
+		045357A71AC2E30D0045B173 /* ComponentCollisionObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ComponentCollisionObject.h; sourceTree = "<group>"; };
+		045357A81AC2E30D0045B173 /* ComponentInputTrackMousePos.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ComponentInputTrackMousePos.cpp; sourceTree = "<group>"; };
+		045357A91AC2E30D0045B173 /* ComponentInputTrackMousePos.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ComponentInputTrackMousePos.h; sourceTree = "<group>"; };
+		045357AA1AC2E30D0045B173 /* ComponentLuaScript.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ComponentLuaScript.cpp; sourceTree = "<group>"; };
+		045357AB1AC2E30D0045B173 /* ComponentLuaScript.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ComponentLuaScript.h; sourceTree = "<group>"; };
+		045357D01AC2E3EC0045B173 /* CFunctions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CFunctions.h; sourceTree = "<group>"; };
+		045357D11AC2E3EC0045B173 /* ClassInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ClassInfo.h; sourceTree = "<group>"; };
+		045357D21AC2E3EC0045B173 /* Constructor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Constructor.h; sourceTree = "<group>"; };
+		045357D31AC2E3EC0045B173 /* dump.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = dump.h; sourceTree = "<group>"; };
+		045357D41AC2E3EC0045B173 /* FuncTraits.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FuncTraits.h; sourceTree = "<group>"; };
+		045357D51AC2E3EC0045B173 /* Iterator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Iterator.h; sourceTree = "<group>"; };
+		045357D61AC2E3EC0045B173 /* LuaException.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LuaException.h; sourceTree = "<group>"; };
+		045357D71AC2E3EC0045B173 /* LuaHelpers.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LuaHelpers.h; sourceTree = "<group>"; };
+		045357D81AC2E3EC0045B173 /* LuaRef.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LuaRef.h; sourceTree = "<group>"; };
+		045357D91AC2E3EC0045B173 /* Namespace.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Namespace.h; sourceTree = "<group>"; };
+		045357DA1AC2E3EC0045B173 /* Stack.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Stack.h; sourceTree = "<group>"; };
+		045357DB1AC2E3EC0045B173 /* TypeList.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TypeList.h; sourceTree = "<group>"; };
+		045357DC1AC2E3EC0045B173 /* TypeTraits.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TypeTraits.h; sourceTree = "<group>"; };
+		045357DD1AC2E3EC0045B173 /* Userdata.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Userdata.h; sourceTree = "<group>"; };
+		045357DE1AC2E3EC0045B173 /* LuaBridge.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LuaBridge.h; sourceTree = "<group>"; };
+		045357DF1AC2E3EC0045B173 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
+		045357E01AC2E3EC0045B173 /* RefCountedObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RefCountedObject.h; sourceTree = "<group>"; };
+		045357E11AC2E3EC0045B173 /* RefCountedPtr.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RefCountedPtr.h; sourceTree = "<group>"; };
+		045357E21AC2E3EC0045B173 /* README */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = README; sourceTree = "<group>"; };
+		045357E41AC2E3EC0045B173 /* lapi.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = lapi.c; sourceTree = "<group>"; };
+		045357E51AC2E3EC0045B173 /* lapi.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lapi.h; sourceTree = "<group>"; };
+		045357E61AC2E3EC0045B173 /* lauxlib.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = lauxlib.c; sourceTree = "<group>"; };
+		045357E71AC2E3EC0045B173 /* lauxlib.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lauxlib.h; sourceTree = "<group>"; };
+		045357E81AC2E3EC0045B173 /* lbaselib.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = lbaselib.c; sourceTree = "<group>"; };
+		045357E91AC2E3EC0045B173 /* lbitlib.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = lbitlib.c; sourceTree = "<group>"; };
+		045357EA1AC2E3EC0045B173 /* lcode.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = lcode.c; sourceTree = "<group>"; };
+		045357EB1AC2E3EC0045B173 /* lcode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lcode.h; sourceTree = "<group>"; };
+		045357EC1AC2E3EC0045B173 /* lcorolib.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = lcorolib.c; sourceTree = "<group>"; };
+		045357ED1AC2E3EC0045B173 /* lctype.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = lctype.c; sourceTree = "<group>"; };
+		045357EE1AC2E3EC0045B173 /* lctype.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lctype.h; sourceTree = "<group>"; };
+		045357EF1AC2E3EC0045B173 /* ldblib.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ldblib.c; sourceTree = "<group>"; };
+		045357F01AC2E3EC0045B173 /* ldebug.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ldebug.c; sourceTree = "<group>"; };
+		045357F11AC2E3EC0045B173 /* ldebug.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ldebug.h; sourceTree = "<group>"; };
+		045357F21AC2E3EC0045B173 /* ldo.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ldo.c; sourceTree = "<group>"; };
+		045357F31AC2E3EC0045B173 /* ldo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ldo.h; sourceTree = "<group>"; };
+		045357F41AC2E3EC0045B173 /* ldump.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ldump.c; sourceTree = "<group>"; };
+		045357F51AC2E3EC0045B173 /* lfunc.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = lfunc.c; sourceTree = "<group>"; };
+		045357F61AC2E3EC0045B173 /* lfunc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lfunc.h; sourceTree = "<group>"; };
+		045357F71AC2E3EC0045B173 /* lgc.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = lgc.c; sourceTree = "<group>"; };
+		045357F81AC2E3EC0045B173 /* lgc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lgc.h; sourceTree = "<group>"; };
+		045357F91AC2E3EC0045B173 /* linit.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = linit.c; sourceTree = "<group>"; };
+		045357FA1AC2E3EC0045B173 /* liolib.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = liolib.c; sourceTree = "<group>"; };
+		045357FB1AC2E3EC0045B173 /* llex.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = llex.c; sourceTree = "<group>"; };
+		045357FC1AC2E3EC0045B173 /* llex.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = llex.h; sourceTree = "<group>"; };
+		045357FD1AC2E3EC0045B173 /* llimits.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = llimits.h; sourceTree = "<group>"; };
+		045357FE1AC2E3EC0045B173 /* lmathlib.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = lmathlib.c; sourceTree = "<group>"; };
+		045357FF1AC2E3EC0045B173 /* lmem.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = lmem.c; sourceTree = "<group>"; };
+		045358001AC2E3EC0045B173 /* lmem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lmem.h; sourceTree = "<group>"; };
+		045358011AC2E3EC0045B173 /* loadlib.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = loadlib.c; sourceTree = "<group>"; };
+		045358021AC2E3EC0045B173 /* lobject.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = lobject.c; sourceTree = "<group>"; };
+		045358031AC2E3EC0045B173 /* lobject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lobject.h; sourceTree = "<group>"; };
+		045358041AC2E3EC0045B173 /* lopcodes.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = lopcodes.c; sourceTree = "<group>"; };
+		045358051AC2E3EC0045B173 /* lopcodes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lopcodes.h; sourceTree = "<group>"; };
+		045358061AC2E3EC0045B173 /* loslib.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = loslib.c; sourceTree = "<group>"; };
+		045358071AC2E3EC0045B173 /* lparser.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = lparser.c; sourceTree = "<group>"; };
+		045358081AC2E3EC0045B173 /* lparser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lparser.h; sourceTree = "<group>"; };
+		045358091AC2E3EC0045B173 /* lstate.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = lstate.c; sourceTree = "<group>"; };
+		0453580A1AC2E3EC0045B173 /* lstate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lstate.h; sourceTree = "<group>"; };
+		0453580B1AC2E3EC0045B173 /* lstring.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = lstring.c; sourceTree = "<group>"; };
+		0453580C1AC2E3EC0045B173 /* lstring.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lstring.h; sourceTree = "<group>"; };
+		0453580D1AC2E3EC0045B173 /* lstrlib.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = lstrlib.c; sourceTree = "<group>"; };
+		0453580E1AC2E3EC0045B173 /* ltable.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ltable.c; sourceTree = "<group>"; };
+		0453580F1AC2E3EC0045B173 /* ltable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ltable.h; sourceTree = "<group>"; };
+		045358101AC2E3EC0045B173 /* ltablib.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ltablib.c; sourceTree = "<group>"; };
+		045358111AC2E3EC0045B173 /* ltm.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = ltm.c; sourceTree = "<group>"; };
+		045358121AC2E3EC0045B173 /* ltm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ltm.h; sourceTree = "<group>"; };
+		045358171AC2E3EC0045B173 /* luaconf.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = luaconf.h; sourceTree = "<group>"; };
+		045358181AC2E3EC0045B173 /* lualib.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lualib.h; sourceTree = "<group>"; };
+		045358191AC2E3EC0045B173 /* lundump.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = lundump.c; sourceTree = "<group>"; };
+		0453581A1AC2E3EC0045B173 /* lundump.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lundump.h; sourceTree = "<group>"; };
+		0453581B1AC2E3EC0045B173 /* lvm.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = lvm.c; sourceTree = "<group>"; };
+		0453581C1AC2E3EC0045B173 /* lvm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lvm.h; sourceTree = "<group>"; };
+		0453581D1AC2E3EC0045B173 /* lzio.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = lzio.c; sourceTree = "<group>"; };
+		0453581E1AC2E3EC0045B173 /* lzio.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lzio.h; sourceTree = "<group>"; };
+		0453581F1AC2E3EC0045B173 /* Makefile */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.make; path = Makefile; sourceTree = "<group>"; };
 		045EDF1D1A06823C007912CA /* StoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = StoreKit.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk/System/Library/Frameworks/StoreKit.framework; sourceTree = DEVELOPER_DIR; };
 		A11DC478160D2EC1006C837D /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
 		A11DC479160D2EC1006C837D /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
 		A11DC47A160D2EC1006C837D /* GameKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GameKit.framework; path = System/Library/Frameworks/GameKit.framework; sourceTree = SDKROOT; };
-		A1D5F5DC16DEAAFC00664F71 /* GameEntityComponentTest.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GameEntityComponentTest.cpp; sourceTree = "<group>"; };
-		A1D5F5DD16DEAAFC00664F71 /* GameEntityComponentTest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GameEntityComponentTest.h; sourceTree = "<group>"; };
-		A1D5F5E816DEAAFC00664F71 /* GameCommonHeader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GameCommonHeader.cpp; sourceTree = "<group>"; };
-		A1D5F5E916DEAAFC00664F71 /* GameCommonHeader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GameCommonHeader.h; sourceTree = "<group>"; };
 		A1D5F60116DEAAFC00664F71 /* EntityComponentTest-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "EntityComponentTest-Info.plist"; sourceTree = "<group>"; };
 		A1D5F60416DEAAFC00664F71 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		A1D5F60616DEAAFC00664F71 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/ViewController_iPad.xib; sourceTree = "<group>"; };
@@ -56,6 +252,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0453575E1AC2E2F80045B173 /* libBulletCollision_xcode4.a in Frameworks */,
+				0453575F1AC2E2F80045B173 /* libBulletDynamics_xcode4.a in Frameworks */,
+				045357601AC2E2F80045B173 /* libLinearMath_xcode4.a in Frameworks */,
 				BF27F4BA1529E957000F8A5F /* OpenAL.framework in Frameworks */,
 				BF71E9B9151B9F94009F0CD9 /* libMyFramework.a in Frameworks */,
 				BF267D03151B68C6009458AE /* UIKit.framework in Frameworks */,
@@ -73,23 +272,230 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		A1D5F5D616DEAAFC00664F71 /* SourceCommon */ = {
+		045357611AC2E30D0045B173 /* SourceCommon */ = {
 			isa = PBXGroup;
 			children = (
-				A1D5F5D716DEAAFC00664F71 /* Core */,
-				A1D5F5E816DEAAFC00664F71 /* GameCommonHeader.cpp */,
-				A1D5F5E916DEAAFC00664F71 /* GameCommonHeader.h */,
+				045357621AC2E30D0045B173 /* Camera */,
+				045357671AC2E30D0045B173 /* ComponentSystem */,
+				0453578D1AC2E30D0045B173 /* Core */,
+				045357A11AC2E30D0045B173 /* GameCommonHeader.cpp */,
+				045357A21AC2E30D0045B173 /* GameCommonHeader.h */,
+				045357A31AC2E30D0045B173 /* GameComponents */,
 			);
 			path = SourceCommon;
 			sourceTree = "<group>";
 		};
-		A1D5F5D716DEAAFC00664F71 /* Core */ = {
+		045357621AC2E30D0045B173 /* Camera */ = {
 			isa = PBXGroup;
 			children = (
-				A1D5F5DC16DEAAFC00664F71 /* GameEntityComponentTest.cpp */,
-				A1D5F5DD16DEAAFC00664F71 /* GameEntityComponentTest.h */,
+				045357631AC2E30D0045B173 /* Camera2D.cpp */,
+				045357641AC2E30D0045B173 /* Camera2D.h */,
+				045357651AC2E30D0045B173 /* Camera3D.cpp */,
+				045357661AC2E30D0045B173 /* Camera3D.h */,
+			);
+			path = Camera;
+			sourceTree = "<group>";
+		};
+		045357671AC2E30D0045B173 /* ComponentSystem */ = {
+			isa = PBXGroup;
+			children = (
+				045357681AC2E30D0045B173 /* Core */,
+				0453577E1AC2E30D0045B173 /* CustomComponents */,
+			);
+			path = ComponentSystem;
+			sourceTree = "<group>";
+		};
+		045357681AC2E30D0045B173 /* Core */ = {
+			isa = PBXGroup;
+			children = (
+				045357691AC2E30D0045B173 /* BaseComponents */,
+				045357781AC2E30D0045B173 /* ComponentSystemManager.cpp */,
+				045357791AC2E30D0045B173 /* ComponentSystemManager.h */,
+				0453577A1AC2E30D0045B173 /* ComponentTypeManager.cpp */,
+				0453577B1AC2E30D0045B173 /* ComponentTypeManager.h */,
+				0453577C1AC2E30D0045B173 /* GameObject.cpp */,
+				0453577D1AC2E30D0045B173 /* GameObject.h */,
 			);
 			path = Core;
+			sourceTree = "<group>";
+		};
+		045357691AC2E30D0045B173 /* BaseComponents */ = {
+			isa = PBXGroup;
+			children = (
+				0453576A1AC2E30D0045B173 /* ComponentBase.cpp */,
+				0453576B1AC2E30D0045B173 /* ComponentBase.h */,
+				0453576C1AC2E30D0045B173 /* ComponentCamera.cpp */,
+				0453576D1AC2E30D0045B173 /* ComponentCamera.h */,
+				0453576E1AC2E30D0045B173 /* ComponentData.cpp */,
+				0453576F1AC2E30D0045B173 /* ComponentData.h */,
+				045357701AC2E30D0045B173 /* ComponentInputHandler.cpp */,
+				045357711AC2E30D0045B173 /* ComponentInputHandler.h */,
+				045357721AC2E30D0045B173 /* ComponentRenderable.cpp */,
+				045357731AC2E30D0045B173 /* ComponentRenderable.h */,
+				045357741AC2E30D0045B173 /* ComponentTransform.cpp */,
+				045357751AC2E30D0045B173 /* ComponentTransform.h */,
+				045357761AC2E30D0045B173 /* ComponentUpdateable.cpp */,
+				045357771AC2E30D0045B173 /* ComponentUpdateable.h */,
+			);
+			path = BaseComponents;
+			sourceTree = "<group>";
+		};
+		0453577E1AC2E30D0045B173 /* CustomComponents */ = {
+			isa = PBXGroup;
+			children = (
+				0453577F1AC2E30D0045B173 /* ComponentAnimationPlayer.cpp */,
+				045357801AC2E30D0045B173 /* ComponentAnimationPlayer.h */,
+				045357811AC2E30D0045B173 /* ComponentLight.cpp */,
+				045357821AC2E30D0045B173 /* ComponentLight.h */,
+				045357831AC2E30D0045B173 /* ComponentMesh.cpp */,
+				045357841AC2E30D0045B173 /* ComponentMesh.h */,
+				045357851AC2E30D0045B173 /* ComponentMeshOBJ.cpp */,
+				045357861AC2E30D0045B173 /* ComponentMeshOBJ.h */,
+				045357871AC2E30D0045B173 /* ComponentMeshPrimitive.cpp */,
+				045357881AC2E30D0045B173 /* ComponentMeshPrimitive.h */,
+				045357891AC2E30D0045B173 /* ComponentParticleEmitter.cpp */,
+				0453578A1AC2E30D0045B173 /* ComponentParticleEmitter.h */,
+				0453578B1AC2E30D0045B173 /* ComponentSprite.cpp */,
+				0453578C1AC2E30D0045B173 /* ComponentSprite.h */,
+			);
+			path = CustomComponents;
+			sourceTree = "<group>";
+		};
+		0453578D1AC2E30D0045B173 /* Core */ = {
+			isa = PBXGroup;
+			children = (
+				0453578E1AC2E30D0045B173 /* BulletWorld.cpp */,
+				0453578F1AC2E30D0045B173 /* BulletWorld.h */,
+				045357921AC2E30D0045B173 /* GameComponentTypeManager.cpp */,
+				045357931AC2E30D0045B173 /* GameComponentTypeManager.h */,
+				045357941AC2E30D0045B173 /* GameEntityComponentTest.cpp */,
+				045357951AC2E30D0045B173 /* GameEntityComponentTest.h */,
+				045357981AC2E30D0045B173 /* LuaGameState.cpp */,
+				045357991AC2E30D0045B173 /* LuaGameState.h */,
+			);
+			path = Core;
+			sourceTree = "<group>";
+		};
+		045357A31AC2E30D0045B173 /* GameComponents */ = {
+			isa = PBXGroup;
+			children = (
+				045357A41AC2E30D0045B173 /* ComponentAIChasePlayer.cpp */,
+				045357A51AC2E30D0045B173 /* ComponentAIChasePlayer.h */,
+				045357A61AC2E30D0045B173 /* ComponentCollisionObject.cpp */,
+				045357A71AC2E30D0045B173 /* ComponentCollisionObject.h */,
+				045357A81AC2E30D0045B173 /* ComponentInputTrackMousePos.cpp */,
+				045357A91AC2E30D0045B173 /* ComponentInputTrackMousePos.h */,
+				045357AA1AC2E30D0045B173 /* ComponentLuaScript.cpp */,
+				045357AB1AC2E30D0045B173 /* ComponentLuaScript.h */,
+			);
+			path = GameComponents;
+			sourceTree = "<group>";
+		};
+		045357CD1AC2E3EC0045B173 /* Lua */ = {
+			isa = PBXGroup;
+			children = (
+				045357CE1AC2E3EC0045B173 /* LuaBridge */,
+				045357E21AC2E3EC0045B173 /* README */,
+				045357E31AC2E3EC0045B173 /* src */,
+			);
+			name = Lua;
+			path = ../Lua;
+			sourceTree = "<group>";
+		};
+		045357CE1AC2E3EC0045B173 /* LuaBridge */ = {
+			isa = PBXGroup;
+			children = (
+				045357CF1AC2E3EC0045B173 /* detail */,
+				045357DE1AC2E3EC0045B173 /* LuaBridge.h */,
+				045357DF1AC2E3EC0045B173 /* README.md */,
+				045357E01AC2E3EC0045B173 /* RefCountedObject.h */,
+				045357E11AC2E3EC0045B173 /* RefCountedPtr.h */,
+			);
+			path = LuaBridge;
+			sourceTree = "<group>";
+		};
+		045357CF1AC2E3EC0045B173 /* detail */ = {
+			isa = PBXGroup;
+			children = (
+				045357D01AC2E3EC0045B173 /* CFunctions.h */,
+				045357D11AC2E3EC0045B173 /* ClassInfo.h */,
+				045357D21AC2E3EC0045B173 /* Constructor.h */,
+				045357D31AC2E3EC0045B173 /* dump.h */,
+				045357D41AC2E3EC0045B173 /* FuncTraits.h */,
+				045357D51AC2E3EC0045B173 /* Iterator.h */,
+				045357D61AC2E3EC0045B173 /* LuaException.h */,
+				045357D71AC2E3EC0045B173 /* LuaHelpers.h */,
+				045357D81AC2E3EC0045B173 /* LuaRef.h */,
+				045357D91AC2E3EC0045B173 /* Namespace.h */,
+				045357DA1AC2E3EC0045B173 /* Stack.h */,
+				045357DB1AC2E3EC0045B173 /* TypeList.h */,
+				045357DC1AC2E3EC0045B173 /* TypeTraits.h */,
+				045357DD1AC2E3EC0045B173 /* Userdata.h */,
+			);
+			path = detail;
+			sourceTree = "<group>";
+		};
+		045357E31AC2E3EC0045B173 /* src */ = {
+			isa = PBXGroup;
+			children = (
+				045357E41AC2E3EC0045B173 /* lapi.c */,
+				045357E51AC2E3EC0045B173 /* lapi.h */,
+				045357E61AC2E3EC0045B173 /* lauxlib.c */,
+				045357E71AC2E3EC0045B173 /* lauxlib.h */,
+				045357E81AC2E3EC0045B173 /* lbaselib.c */,
+				045357E91AC2E3EC0045B173 /* lbitlib.c */,
+				045357EA1AC2E3EC0045B173 /* lcode.c */,
+				045357EB1AC2E3EC0045B173 /* lcode.h */,
+				045357EC1AC2E3EC0045B173 /* lcorolib.c */,
+				045357ED1AC2E3EC0045B173 /* lctype.c */,
+				045357EE1AC2E3EC0045B173 /* lctype.h */,
+				045357EF1AC2E3EC0045B173 /* ldblib.c */,
+				045357F01AC2E3EC0045B173 /* ldebug.c */,
+				045357F11AC2E3EC0045B173 /* ldebug.h */,
+				045357F21AC2E3EC0045B173 /* ldo.c */,
+				045357F31AC2E3EC0045B173 /* ldo.h */,
+				045357F41AC2E3EC0045B173 /* ldump.c */,
+				045357F51AC2E3EC0045B173 /* lfunc.c */,
+				045357F61AC2E3EC0045B173 /* lfunc.h */,
+				045357F71AC2E3EC0045B173 /* lgc.c */,
+				045357F81AC2E3EC0045B173 /* lgc.h */,
+				045357F91AC2E3EC0045B173 /* linit.c */,
+				045357FA1AC2E3EC0045B173 /* liolib.c */,
+				045357FB1AC2E3EC0045B173 /* llex.c */,
+				045357FC1AC2E3EC0045B173 /* llex.h */,
+				045357FD1AC2E3EC0045B173 /* llimits.h */,
+				045357FE1AC2E3EC0045B173 /* lmathlib.c */,
+				045357FF1AC2E3EC0045B173 /* lmem.c */,
+				045358001AC2E3EC0045B173 /* lmem.h */,
+				045358011AC2E3EC0045B173 /* loadlib.c */,
+				045358021AC2E3EC0045B173 /* lobject.c */,
+				045358031AC2E3EC0045B173 /* lobject.h */,
+				045358041AC2E3EC0045B173 /* lopcodes.c */,
+				045358051AC2E3EC0045B173 /* lopcodes.h */,
+				045358061AC2E3EC0045B173 /* loslib.c */,
+				045358071AC2E3EC0045B173 /* lparser.c */,
+				045358081AC2E3EC0045B173 /* lparser.h */,
+				045358091AC2E3EC0045B173 /* lstate.c */,
+				0453580A1AC2E3EC0045B173 /* lstate.h */,
+				0453580B1AC2E3EC0045B173 /* lstring.c */,
+				0453580C1AC2E3EC0045B173 /* lstring.h */,
+				0453580D1AC2E3EC0045B173 /* lstrlib.c */,
+				0453580E1AC2E3EC0045B173 /* ltable.c */,
+				0453580F1AC2E3EC0045B173 /* ltable.h */,
+				045358101AC2E3EC0045B173 /* ltablib.c */,
+				045358111AC2E3EC0045B173 /* ltm.c */,
+				045358121AC2E3EC0045B173 /* ltm.h */,
+				045358171AC2E3EC0045B173 /* luaconf.h */,
+				045358181AC2E3EC0045B173 /* lualib.h */,
+				045358191AC2E3EC0045B173 /* lundump.c */,
+				0453581A1AC2E3EC0045B173 /* lundump.h */,
+				0453581B1AC2E3EC0045B173 /* lvm.c */,
+				0453581C1AC2E3EC0045B173 /* lvm.h */,
+				0453581D1AC2E3EC0045B173 /* lzio.c */,
+				0453581E1AC2E3EC0045B173 /* lzio.h */,
+				0453581F1AC2E3EC0045B173 /* Makefile */,
+			);
+			path = src;
 			sourceTree = "<group>";
 		};
 		A1D5F5FE16DEAAFC00664F71 /* SourceIOS */ = {
@@ -108,7 +514,9 @@
 		BF267CF3151B68C6009458AE = {
 			isa = PBXGroup;
 			children = (
-				A1D5F5D616DEAAFC00664F71 /* SourceCommon */,
+				040A374A1AC2E5DB00DEC19F /* Data */,
+				045357CD1AC2E3EC0045B173 /* Lua */,
+				045357611AC2E30D0045B173 /* SourceCommon */,
 				A1D5F5FE16DEAAFC00664F71 /* SourceIOS */,
 				BF71E9B8151B9F94009F0CD9 /* libMyFramework.a */,
 				BF267D01151B68C6009458AE /* Frameworks */,
@@ -127,6 +535,9 @@
 		BF267D01151B68C6009458AE /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				0453575B1AC2E2F80045B173 /* libBulletCollision_xcode4.a */,
+				0453575C1AC2E2F80045B173 /* libBulletDynamics_xcode4.a */,
+				0453575D1AC2E2F80045B173 /* libLinearMath_xcode4.a */,
 				045EDF1D1A06823C007912CA /* StoreKit.framework */,
 				A11DC478160D2EC1006C837D /* AudioToolbox.framework */,
 				A11DC479160D2EC1006C837D /* AVFoundation.framework */,
@@ -192,7 +603,9 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				045358211AC2E3EC0045B173 /* README in Resources */,
 				A1D5F62116DEAAFC00664F71 /* InfoPlist.strings in Resources */,
+				040A374B1AC2E5DB00DEC19F /* Data in Resources */,
 				A1D5F62216DEAAFC00664F71 /* ViewController_iPad.xib in Resources */,
 				A1D5F62316DEAAFC00664F71 /* ViewController_iPhone.xib in Resources */,
 			);
@@ -221,9 +634,69 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A1D5F60F16DEAAFC00664F71 /* GameEntityComponentTest.cpp in Sources */,
-				A1D5F61516DEAAFC00664F71 /* GameCommonHeader.cpp in Sources */,
+				045357C91AC2E30D0045B173 /* ComponentAIChasePlayer.cpp in Sources */,
+				045357AE1AC2E30D0045B173 /* ComponentBase.cpp in Sources */,
+				0453582E1AC2E3EC0045B173 /* lgc.c in Sources */,
+				045358411AC2E3EC0045B173 /* lundump.c in Sources */,
+				0453583A1AC2E3EC0045B173 /* lstring.c in Sources */,
+				045357AD1AC2E30D0045B173 /* Camera3D.cpp in Sources */,
+				045357CA1AC2E30D0045B173 /* ComponentCollisionObject.cpp in Sources */,
+				0453583E1AC2E3EC0045B173 /* ltm.c in Sources */,
+				0453583D1AC2E3EC0045B173 /* ltablib.c in Sources */,
+				045358441AC2E3EC0045B173 /* Makefile in Sources */,
+				0453583C1AC2E3EC0045B173 /* ltable.c in Sources */,
+				045357BA1AC2E30D0045B173 /* ComponentMesh.cpp in Sources */,
+				045358421AC2E3EC0045B173 /* lvm.c in Sources */,
+				045358241AC2E3EC0045B173 /* lbaselib.c in Sources */,
+				045357C81AC2E30D0045B173 /* GameCommonHeader.cpp in Sources */,
+				045357C11AC2E30D0045B173 /* GameComponentTypeManager.cpp in Sources */,
+				045358301AC2E3EC0045B173 /* liolib.c in Sources */,
+				045358281AC2E3EC0045B173 /* lctype.c in Sources */,
+				045357CB1AC2E30D0045B173 /* ComponentInputTrackMousePos.cpp in Sources */,
+				045357B71AC2E30D0045B173 /* GameObject.cpp in Sources */,
+				045357B81AC2E30D0045B173 /* ComponentAnimationPlayer.cpp in Sources */,
+				045358431AC2E3EC0045B173 /* lzio.c in Sources */,
+				045358391AC2E3EC0045B173 /* lstate.c in Sources */,
+				045357C21AC2E30D0045B173 /* GameEntityComponentTest.cpp in Sources */,
+				045358231AC2E3EC0045B173 /* lauxlib.c in Sources */,
+				045357AF1AC2E30D0045B173 /* ComponentCamera.cpp in Sources */,
+				045358261AC2E3EC0045B173 /* lcode.c in Sources */,
+				045358201AC2E3EC0045B173 /* README.md in Sources */,
+				045357CC1AC2E30D0045B173 /* ComponentLuaScript.cpp in Sources */,
+				0453583B1AC2E3EC0045B173 /* lstrlib.c in Sources */,
+				045357B11AC2E30D0045B173 /* ComponentInputHandler.cpp in Sources */,
+				045357B01AC2E30D0045B173 /* ComponentData.cpp in Sources */,
+				0453582C1AC2E3EC0045B173 /* ldump.c in Sources */,
+				045358351AC2E3EC0045B173 /* lobject.c in Sources */,
+				045358341AC2E3EC0045B173 /* loadlib.c in Sources */,
+				045357B61AC2E30D0045B173 /* ComponentTypeManager.cpp in Sources */,
+				045357C41AC2E30D0045B173 /* LuaGameState.cpp in Sources */,
+				045357AC1AC2E30D0045B173 /* Camera2D.cpp in Sources */,
+				045358361AC2E3EC0045B173 /* lopcodes.c in Sources */,
+				045357BF1AC2E30D0045B173 /* BulletWorld.cpp in Sources */,
+				045358371AC2E3EC0045B173 /* loslib.c in Sources */,
+				045357B41AC2E30D0045B173 /* ComponentUpdateable.cpp in Sources */,
+				045358311AC2E3EC0045B173 /* llex.c in Sources */,
+				0453582A1AC2E3EC0045B173 /* ldebug.c in Sources */,
+				045358381AC2E3EC0045B173 /* lparser.c in Sources */,
+				045358221AC2E3EC0045B173 /* lapi.c in Sources */,
+				045357B91AC2E30D0045B173 /* ComponentLight.cpp in Sources */,
+				045357BC1AC2E30D0045B173 /* ComponentMeshPrimitive.cpp in Sources */,
+				0453582D1AC2E3EC0045B173 /* lfunc.c in Sources */,
+				045358331AC2E3EC0045B173 /* lmem.c in Sources */,
+				0453582B1AC2E3EC0045B173 /* ldo.c in Sources */,
+				045358321AC2E3EC0045B173 /* lmathlib.c in Sources */,
+				045358291AC2E3EC0045B173 /* ldblib.c in Sources */,
+				045357BB1AC2E30D0045B173 /* ComponentMeshOBJ.cpp in Sources */,
+				045357BE1AC2E30D0045B173 /* ComponentSprite.cpp in Sources */,
+				045358251AC2E3EC0045B173 /* lbitlib.c in Sources */,
 				A1D5F62416DEAAFC00664F71 /* main.mm in Sources */,
+				045357B21AC2E30D0045B173 /* ComponentRenderable.cpp in Sources */,
+				045357B51AC2E30D0045B173 /* ComponentSystemManager.cpp in Sources */,
+				0453582F1AC2E3EC0045B173 /* linit.c in Sources */,
+				045358271AC2E3EC0045B173 /* lcorolib.c in Sources */,
+				045357B31AC2E30D0045B173 /* ComponentTransform.cpp in Sources */,
+				045357BD1AC2E30D0045B173 /* ComponentParticleEmitter.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -334,15 +807,16 @@
 			buildSettings = {
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COMPRESS_PNG_FILES = NO;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(DEVELOPER_DIR)/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk/System/Library/Frameworks",
-				);
+				FRAMEWORK_SEARCH_PATHS = "";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "SourceIOS/EntityComponentTest-Prefix.pch";
 				"GCC_THUMB_SUPPORT[arch=armv6]" = "";
 				INFOPLIST_FILE = "SourceIOS/EntityComponentTest-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 4.3;
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"/Users/jameslord/Projects/ProjectEntityComponentTest/bullet-2.82-r2704/build/xcode4ios/../../lib",
+				);
 				PRODUCT_NAME = EntityComponentTest;
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -356,15 +830,16 @@
 			buildSettings = {
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				COMPRESS_PNG_FILES = NO;
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(inherited)",
-					"$(DEVELOPER_DIR)/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk/System/Library/Frameworks",
-				);
+				FRAMEWORK_SEARCH_PATHS = "";
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "SourceIOS/EntityComponentTest-Prefix.pch";
 				"GCC_THUMB_SUPPORT[arch=armv6]" = "";
 				INFOPLIST_FILE = "SourceIOS/EntityComponentTest-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 4.3;
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"/Users/jameslord/Projects/ProjectEntityComponentTest/bullet-2.82-r2704/build/xcode4ios/../../lib",
+				);
 				PRODUCT_NAME = EntityComponentTest;
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
 				TARGETED_DEVICE_FAMILY = "1,2";
