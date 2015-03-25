@@ -2,13 +2,13 @@
 <Workspace
    version = "1.0">
    <FileRef
-      location = "group:Game/../../bullet-2.82-r2704/build/xcode4ios/BulletCollision.xcodeproj">
+      location = "group:../bullet/build/xcode4ios/BulletCollision.xcodeproj">
    </FileRef>
    <FileRef
-      location = "group:Game/../../bullet-2.82-r2704/build/xcode4ios/BulletDynamics.xcodeproj">
+      location = "group:../bullet/build/xcode4ios/BulletDynamics.xcodeproj">
    </FileRef>
    <FileRef
-      location = "group:Game/../../bullet-2.82-r2704/build/xcode4ios/LinearMath.xcodeproj">
+      location = "group:../bullet/build/xcode4ios/LinearMath.xcodeproj">
    </FileRef>
    <FileRef
       location = "group:../Framework/MyFramework/MyFramework.xcodeproj">

@@ -297,6 +297,11 @@ void GameEntityComponentTest::OneTimeInit()
 #endif
 }
 
+bool GameEntityComponentTest::IsReadyToRender()
+{
+    return true;
+}
+
 double GameEntityComponentTest::Tick(double TimePassed)
 {
     if( TimePassed > 0.2 )

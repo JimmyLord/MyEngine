@@ -8,9 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		040A374B1AC2E5DB00DEC19F /* Data in Resources */ = {isa = PBXBuildFile; fileRef = 040A374A1AC2E5DB00DEC19F /* Data */; };
-		0453575E1AC2E2F80045B173 /* libBulletCollision_xcode4.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0453575B1AC2E2F80045B173 /* libBulletCollision_xcode4.a */; };
-		0453575F1AC2E2F80045B173 /* libBulletDynamics_xcode4.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0453575C1AC2E2F80045B173 /* libBulletDynamics_xcode4.a */; };
-		045357601AC2E2F80045B173 /* libLinearMath_xcode4.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 0453575D1AC2E2F80045B173 /* libLinearMath_xcode4.a */; };
 		045357AC1AC2E30D0045B173 /* Camera2D.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 045357631AC2E30D0045B173 /* Camera2D.cpp */; };
 		045357AD1AC2E30D0045B173 /* Camera3D.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 045357651AC2E30D0045B173 /* Camera3D.cpp */; };
 		045357AE1AC2E30D0045B173 /* ComponentBase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0453576A1AC2E30D0045B173 /* ComponentBase.cpp */; };
@@ -39,8 +36,6 @@
 		045357CA1AC2E30D0045B173 /* ComponentCollisionObject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 045357A61AC2E30D0045B173 /* ComponentCollisionObject.cpp */; };
 		045357CB1AC2E30D0045B173 /* ComponentInputTrackMousePos.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 045357A81AC2E30D0045B173 /* ComponentInputTrackMousePos.cpp */; };
 		045357CC1AC2E30D0045B173 /* ComponentLuaScript.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 045357AA1AC2E30D0045B173 /* ComponentLuaScript.cpp */; };
-		045358201AC2E3EC0045B173 /* README.md in Sources */ = {isa = PBXBuildFile; fileRef = 045357DF1AC2E3EC0045B173 /* README.md */; };
-		045358211AC2E3EC0045B173 /* README in Resources */ = {isa = PBXBuildFile; fileRef = 045357E21AC2E3EC0045B173 /* README */; };
 		045358221AC2E3EC0045B173 /* lapi.c in Sources */ = {isa = PBXBuildFile; fileRef = 045357E41AC2E3EC0045B173 /* lapi.c */; };
 		045358231AC2E3EC0045B173 /* lauxlib.c in Sources */ = {isa = PBXBuildFile; fileRef = 045357E61AC2E3EC0045B173 /* lauxlib.c */; };
 		045358241AC2E3EC0045B173 /* lbaselib.c in Sources */ = {isa = PBXBuildFile; fileRef = 045357E81AC2E3EC0045B173 /* lbaselib.c */; };
@@ -73,8 +68,11 @@
 		045358411AC2E3EC0045B173 /* lundump.c in Sources */ = {isa = PBXBuildFile; fileRef = 045358191AC2E3EC0045B173 /* lundump.c */; };
 		045358421AC2E3EC0045B173 /* lvm.c in Sources */ = {isa = PBXBuildFile; fileRef = 0453581B1AC2E3EC0045B173 /* lvm.c */; };
 		045358431AC2E3EC0045B173 /* lzio.c in Sources */ = {isa = PBXBuildFile; fileRef = 0453581D1AC2E3EC0045B173 /* lzio.c */; };
-		045358441AC2E3EC0045B173 /* Makefile in Sources */ = {isa = PBXBuildFile; fileRef = 0453581F1AC2E3EC0045B173 /* Makefile */; };
 		045EDF1E1A06823C007912CA /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 045EDF1D1A06823C007912CA /* StoreKit.framework */; };
+		04FAAC0A1AC2F2EE004572F5 /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 04FAAC091AC2F2EE004572F5 /* Default-568h@2x.png */; };
+		04FAAC0E1AC301A0004572F5 /* libBulletCollision_xcode4.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 04FAAC0B1AC301A0004572F5 /* libBulletCollision_xcode4.a */; };
+		04FAAC0F1AC301A0004572F5 /* libBulletDynamics_xcode4.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 04FAAC0C1AC301A0004572F5 /* libBulletDynamics_xcode4.a */; };
+		04FAAC101AC301A0004572F5 /* libLinearMath_xcode4.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 04FAAC0D1AC301A0004572F5 /* libLinearMath_xcode4.a */; };
 		A11DC47B160D2EC1006C837D /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A11DC478160D2EC1006C837D /* AudioToolbox.framework */; };
 		A11DC47C160D2EC1006C837D /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A11DC479160D2EC1006C837D /* AVFoundation.framework */; };
 		A11DC47D160D2EC1006C837D /* GameKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A11DC47A160D2EC1006C837D /* GameKit.framework */; };
@@ -167,10 +165,8 @@
 		045357DC1AC2E3EC0045B173 /* TypeTraits.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TypeTraits.h; sourceTree = "<group>"; };
 		045357DD1AC2E3EC0045B173 /* Userdata.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Userdata.h; sourceTree = "<group>"; };
 		045357DE1AC2E3EC0045B173 /* LuaBridge.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LuaBridge.h; sourceTree = "<group>"; };
-		045357DF1AC2E3EC0045B173 /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 		045357E01AC2E3EC0045B173 /* RefCountedObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RefCountedObject.h; sourceTree = "<group>"; };
 		045357E11AC2E3EC0045B173 /* RefCountedPtr.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RefCountedPtr.h; sourceTree = "<group>"; };
-		045357E21AC2E3EC0045B173 /* README */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = README; sourceTree = "<group>"; };
 		045357E41AC2E3EC0045B173 /* lapi.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = lapi.c; sourceTree = "<group>"; };
 		045357E51AC2E3EC0045B173 /* lapi.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lapi.h; sourceTree = "<group>"; };
 		045357E61AC2E3EC0045B173 /* lauxlib.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = lauxlib.c; sourceTree = "<group>"; };
@@ -226,8 +222,11 @@
 		0453581C1AC2E3EC0045B173 /* lvm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lvm.h; sourceTree = "<group>"; };
 		0453581D1AC2E3EC0045B173 /* lzio.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = lzio.c; sourceTree = "<group>"; };
 		0453581E1AC2E3EC0045B173 /* lzio.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lzio.h; sourceTree = "<group>"; };
-		0453581F1AC2E3EC0045B173 /* Makefile */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.make; path = Makefile; sourceTree = "<group>"; };
 		045EDF1D1A06823C007912CA /* StoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = StoreKit.framework; path = Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk/System/Library/Frameworks/StoreKit.framework; sourceTree = DEVELOPER_DIR; };
+		04FAAC091AC2F2EE004572F5 /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-568h@2x.png"; sourceTree = "<group>"; };
+		04FAAC0B1AC301A0004572F5 /* libBulletCollision_xcode4.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libBulletCollision_xcode4.a; path = /Users/jameslord/Projects/ProjectEntityComponentTest/bullet/build/xcode4ios/../../lib/libBulletCollision_xcode4.a; sourceTree = "<absolute>"; };
+		04FAAC0C1AC301A0004572F5 /* libBulletDynamics_xcode4.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libBulletDynamics_xcode4.a; path = /Users/jameslord/Projects/ProjectEntityComponentTest/bullet/build/xcode4ios/../../lib/libBulletDynamics_xcode4.a; sourceTree = "<absolute>"; };
+		04FAAC0D1AC301A0004572F5 /* libLinearMath_xcode4.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libLinearMath_xcode4.a; path = /Users/jameslord/Projects/ProjectEntityComponentTest/bullet/build/xcode4ios/../../lib/libLinearMath_xcode4.a; sourceTree = "<absolute>"; };
 		A11DC478160D2EC1006C837D /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = System/Library/Frameworks/AudioToolbox.framework; sourceTree = SDKROOT; };
 		A11DC479160D2EC1006C837D /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
 		A11DC47A160D2EC1006C837D /* GameKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GameKit.framework; path = System/Library/Frameworks/GameKit.framework; sourceTree = SDKROOT; };
@@ -252,9 +251,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				0453575E1AC2E2F80045B173 /* libBulletCollision_xcode4.a in Frameworks */,
-				0453575F1AC2E2F80045B173 /* libBulletDynamics_xcode4.a in Frameworks */,
-				045357601AC2E2F80045B173 /* libLinearMath_xcode4.a in Frameworks */,
+				04FAAC0E1AC301A0004572F5 /* libBulletCollision_xcode4.a in Frameworks */,
+				04FAAC0F1AC301A0004572F5 /* libBulletDynamics_xcode4.a in Frameworks */,
+				04FAAC101AC301A0004572F5 /* libLinearMath_xcode4.a in Frameworks */,
 				BF27F4BA1529E957000F8A5F /* OpenAL.framework in Frameworks */,
 				BF71E9B9151B9F94009F0CD9 /* libMyFramework.a in Frameworks */,
 				BF267D03151B68C6009458AE /* UIKit.framework in Frameworks */,
@@ -395,7 +394,6 @@
 			isa = PBXGroup;
 			children = (
 				045357CE1AC2E3EC0045B173 /* LuaBridge */,
-				045357E21AC2E3EC0045B173 /* README */,
 				045357E31AC2E3EC0045B173 /* src */,
 			);
 			name = Lua;
@@ -407,7 +405,6 @@
 			children = (
 				045357CF1AC2E3EC0045B173 /* detail */,
 				045357DE1AC2E3EC0045B173 /* LuaBridge.h */,
-				045357DF1AC2E3EC0045B173 /* README.md */,
 				045357E01AC2E3EC0045B173 /* RefCountedObject.h */,
 				045357E11AC2E3EC0045B173 /* RefCountedPtr.h */,
 			);
@@ -493,7 +490,6 @@
 				0453581C1AC2E3EC0045B173 /* lvm.h */,
 				0453581D1AC2E3EC0045B173 /* lzio.c */,
 				0453581E1AC2E3EC0045B173 /* lzio.h */,
-				0453581F1AC2E3EC0045B173 /* Makefile */,
 			);
 			path = src;
 			sourceTree = "<group>";
@@ -514,6 +510,7 @@
 		BF267CF3151B68C6009458AE = {
 			isa = PBXGroup;
 			children = (
+				04FAAC091AC2F2EE004572F5 /* Default-568h@2x.png */,
 				040A374A1AC2E5DB00DEC19F /* Data */,
 				045357CD1AC2E3EC0045B173 /* Lua */,
 				045357611AC2E30D0045B173 /* SourceCommon */,
@@ -535,6 +532,9 @@
 		BF267D01151B68C6009458AE /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				04FAAC0B1AC301A0004572F5 /* libBulletCollision_xcode4.a */,
+				04FAAC0C1AC301A0004572F5 /* libBulletDynamics_xcode4.a */,
+				04FAAC0D1AC301A0004572F5 /* libLinearMath_xcode4.a */,
 				0453575B1AC2E2F80045B173 /* libBulletCollision_xcode4.a */,
 				0453575C1AC2E2F80045B173 /* libBulletDynamics_xcode4.a */,
 				0453575D1AC2E2F80045B173 /* libLinearMath_xcode4.a */,
@@ -603,10 +603,10 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				045358211AC2E3EC0045B173 /* README in Resources */,
 				A1D5F62116DEAAFC00664F71 /* InfoPlist.strings in Resources */,
 				040A374B1AC2E5DB00DEC19F /* Data in Resources */,
 				A1D5F62216DEAAFC00664F71 /* ViewController_iPad.xib in Resources */,
+				04FAAC0A1AC2F2EE004572F5 /* Default-568h@2x.png in Resources */,
 				A1D5F62316DEAAFC00664F71 /* ViewController_iPhone.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -643,7 +643,6 @@
 				045357CA1AC2E30D0045B173 /* ComponentCollisionObject.cpp in Sources */,
 				0453583E1AC2E3EC0045B173 /* ltm.c in Sources */,
 				0453583D1AC2E3EC0045B173 /* ltablib.c in Sources */,
-				045358441AC2E3EC0045B173 /* Makefile in Sources */,
 				0453583C1AC2E3EC0045B173 /* ltable.c in Sources */,
 				045357BA1AC2E30D0045B173 /* ComponentMesh.cpp in Sources */,
 				045358421AC2E3EC0045B173 /* lvm.c in Sources */,
@@ -661,7 +660,6 @@
 				045358231AC2E3EC0045B173 /* lauxlib.c in Sources */,
 				045357AF1AC2E30D0045B173 /* ComponentCamera.cpp in Sources */,
 				045358261AC2E3EC0045B173 /* lcode.c in Sources */,
-				045358201AC2E3EC0045B173 /* README.md in Sources */,
 				045357CC1AC2E30D0045B173 /* ComponentLuaScript.cpp in Sources */,
 				0453583B1AC2E3EC0045B173 /* lstrlib.c in Sources */,
 				045357B11AC2E30D0045B173 /* ComponentInputHandler.cpp in Sources */,
@@ -816,6 +814,7 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"/Users/jameslord/Projects/ProjectEntityComponentTest/bullet-2.82-r2704/build/xcode4ios/../../lib",
+					/Users/jameslord/Projects/ProjectEntityComponentTest/bullet/build/xcode4ios/../../lib,
 				);
 				PRODUCT_NAME = EntityComponentTest;
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
@@ -839,6 +838,7 @@
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
 					"/Users/jameslord/Projects/ProjectEntityComponentTest/bullet-2.82-r2704/build/xcode4ios/../../lib",
+					/Users/jameslord/Projects/ProjectEntityComponentTest/bullet/build/xcode4ios/../../lib,
 				);
 				PRODUCT_NAME = EntityComponentTest;
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";

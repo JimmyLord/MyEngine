@@ -25,8 +25,8 @@ extern ComponentTypeManager* g_pComponentTypeManager;
 
 struct ComponentTypeInfo
 {
-    char* category;
-    char* name;
+    const char* category;
+    const char* name;
 };
 
 class ComponentTypeManager
@@ -40,8 +40,8 @@ public:
     virtual ComponentBase* CreateComponent(int type) = 0;
     virtual unsigned int GetNumberOfComponentTypes() = 0;
 
-    virtual char* GetTypeCategory(int type) = 0;
-    virtual char* GetTypeName(int type) = 0;
+    virtual const char* GetTypeCategory(int type) = 0;
+    virtual const char* GetTypeName(int type) = 0;
 
     virtual int GetTypeByName(const char* name) = 0;
 };

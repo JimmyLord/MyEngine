@@ -35,8 +35,8 @@ public:
     virtual ComponentBase* CreateComponent(int type);
     virtual unsigned int GetNumberOfComponentTypes();
 
-    virtual char* GetTypeCategory(int type);
-    virtual char* GetTypeName(int type);
+    virtual const char* GetTypeCategory(int type);
+    virtual const char* GetTypeName(int type);
 
     virtual int GetTypeByName(const char* name);
 };

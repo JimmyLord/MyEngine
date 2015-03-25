@@ -655,6 +655,7 @@ ComponentBase* ComponentSystemManager::AddComponent(ComponentBase* pComponent)
         m_ComponentsRenderable.AddTail( pComponent );
         break;
 
+    case BaseComponentType_Transform:
     case BaseComponentType_None:
         assert( false ); // shouldn't happen.
         break;

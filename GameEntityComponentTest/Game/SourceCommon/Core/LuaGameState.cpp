@@ -26,7 +26,7 @@ void LuaBridgeExt_LogExceptionFormattedForVisualStudioOutputWindow(const char* u
 
     // far from robust, but find the '26' wrapped in :'s from 'what'.
     // should work unless error message involved :'s
-    int len = strlen( what );
+    int len = (int)strlen( what );
     int linenumber = 0;
     int errori = 0;
     for( int i=len-1; i>0; i-- )

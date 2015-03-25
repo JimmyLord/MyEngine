@@ -10,6 +10,8 @@
 	<string>EntityComponentTest</string>
 	<key>IDESourceControlProjectOriginsDictionary</key>
 	<dict>
+		<key>08e121b0-ae19-0410-a57b-3be3395fd4fd++505</key>
+		<string>http://bullet.googlecode.com/svn/trunk</string>
 		<key>40072E56385CD7EC6867555132063FDB0F54E7B3</key>
 		<string>https://github.com/JimmyLord/MyFramework.git</string>
 		<key>60A5425543EA2D8D2C616E2B41F83C99F735C8EF</key>
@@ -21,12 +23,19 @@
 	<string>GameEntityComponentTest/EntityComponentTest.xcworkspace</string>
 	<key>IDESourceControlProjectRelativeInstallPathDictionary</key>
 	<dict>
+		<key>08e121b0-ae19-0410-a57b-3be3395fd4fd++505</key>
+		<string>../../bullet</string>
 		<key>40072E56385CD7EC6867555132063FDB0F54E7B3</key>
 		<string>../../../ProjectMinimalFramework</string>
 		<key>60A5425543EA2D8D2C616E2B41F83C99F735C8EF</key>
 		<string>../../../ProjectMinimal</string>
 		<key>AE66AA562AF81441A17D0F55E98B1F5E9285C362</key>
 		<string>../..</string>
+	</dict>
+	<key>IDESourceControlProjectRepositoryRootDictionary</key>
+	<dict>
+		<key>08e121b0-ae19-0410-a57b-3be3395fd4fd++505</key>
+		<string>http://bullet.googlecode.com/svn</string>
 	</dict>
 	<key>IDESourceControlProjectURL</key>
 	<string>https://github.com/JimmyLord/ProjectEntityComponentTest</string>
@@ -36,6 +45,14 @@
 	<string>AE66AA562AF81441A17D0F55E98B1F5E9285C362</string>
 	<key>IDESourceControlProjectWCConfigurations</key>
 	<array>
+		<dict>
+			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
+			<string>public.vcs.subversion</string>
+			<key>IDESourceControlWCCIdentifierKey</key>
+			<string>08e121b0-ae19-0410-a57b-3be3395fd4fd++505</string>
+			<key>IDESourceControlWCCName</key>
+			<string>bullet</string>
+		</dict>
 		<dict>
 			<key>IDESourceControlRepositoryExtensionIdentifierKey</key>
 			<string>public.vcs.git</string>

@@ -136,7 +136,7 @@ cJSON* ComponentBase::ExportAsJSONObject()
 
     if( m_Type != -1 )
     {
-        char* componenttypename = g_pComponentTypeManager->GetTypeName( m_Type );
+        const char* componenttypename = g_pComponentTypeManager->GetTypeName( m_Type );
         assert( componenttypename );
         if( componenttypename )
             cJSON_AddStringToObject( component, "Type", componenttypename );

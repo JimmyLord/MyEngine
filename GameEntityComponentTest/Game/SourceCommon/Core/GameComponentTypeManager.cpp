@@ -59,12 +59,12 @@ unsigned int GameComponentTypeManager::GetNumberOfComponentTypes()
     return Component_NumComponentTypes;
 }
 
-char* GameComponentTypeManager::GetTypeCategory(int type)
+const char* GameComponentTypeManager::GetTypeCategory(int type)
 {
     return g_ComponentTypeInfo[type].category;
 }
 
-char* GameComponentTypeManager::GetTypeName(int type)
+const char* GameComponentTypeManager::GetTypeName(int type)
 {
     return g_ComponentTypeInfo[type].name;
 }

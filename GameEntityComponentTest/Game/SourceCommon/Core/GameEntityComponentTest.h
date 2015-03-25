@@ -68,6 +68,8 @@ public:
     virtual ~GameEntityComponentTest();
 
     virtual void OneTimeInit();
+    virtual bool IsReadyToRender();
+
     virtual double Tick(double TimePassed);
     virtual void OnFocusGained();
     virtual void OnFocusLost();

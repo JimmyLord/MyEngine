@@ -261,7 +261,10 @@ void ComponentCollisionObject::Tick(double TimePassed)
     btTransform transform;
     m_pBody->getMotionState()->getWorldTransform( transform );
     MyMatrix matRotPos;
-    transform.getOpenGLMatrix( &matLocal->m11 );
+    MyMatrix matBulletGL;
+    transform.getOpenGLMatrix( &matBulletGL.m11 );
+
+    *matLocal = matBulletGL;
 
 #if MYFW_USING_WX
     m_pComponentTransform->UpdatePosAndRotFromLocalMatrix();
