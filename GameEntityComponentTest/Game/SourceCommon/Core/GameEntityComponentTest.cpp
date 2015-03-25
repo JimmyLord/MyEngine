@@ -19,6 +19,8 @@ GameEntityComponentTest::GameEntityComponentTest()
     m_EditorMode = false;
 #endif
 
+    m_Paused = false;
+
     m_TimeSinceLastPhysicsStep = 0;
 
     m_pShaderFile_TintColor = 0;
@@ -290,7 +292,7 @@ void GameEntityComponentTest::OneTimeInit()
     OnSurfaceChanged( (unsigned int)m_WindowStartX, (unsigned int)m_WindowStartY, (unsigned int)m_WindowWidth, (unsigned int)m_WindowHeight );
 
 #if !MYFW_USING_WX
-    m_pSceneFileToLoad = RequestFile( "Data/Scenes/World.scene" );
+    m_pSceneFileToLoad = RequestFile( "Data/Scenes/AnimationTest.scene" );
     m_SceneLoaded = false;
 #endif
 }
