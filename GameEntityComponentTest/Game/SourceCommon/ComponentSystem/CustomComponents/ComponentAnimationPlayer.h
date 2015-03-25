@@ -17,10 +17,10 @@ class ComponentAnimationPlayer : public ComponentUpdateable
 public:
     ComponentMesh* m_pMeshComponent;
 
-    int m_AnimationIndex;
+    unsigned int m_AnimationIndex;
     float m_AnimationTime;
 
-    int m_LastAnimationIndex;
+    unsigned int m_LastAnimationIndex;
     float m_LastAnimationTime;
 
     float m_TransitionTimeLeft;
@@ -41,7 +41,7 @@ public:
 
     virtual void Tick(double TimePassed);
 
-    void SetCurrentAnimation(int anim);
+    void SetCurrentAnimation(unsigned int anim);
 
 public:
 #if MYFW_USING_WX

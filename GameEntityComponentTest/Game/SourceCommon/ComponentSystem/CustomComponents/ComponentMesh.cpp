@@ -230,10 +230,10 @@ void ComponentMesh::Draw(MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride, i
         m_pMesh->m_PointSize = m_PointSize;
         m_pMesh->m_Shininess = m_Shininess;
 
-        m_pMesh->m_Position = this->m_pComponentTransform->m_Transform;
+        m_pMesh->SetTransform( m_pComponentTransform->m_Transform );
 
         MyLight* lights;
-        int numlights = g_pLightManager->FindNearestLights( 4, m_pMesh->m_Position.GetTranslation(), &lights );
+        int numlights = g_pLightManager->FindNearestLights( 4, m_pComponentTransform->m_Transform.GetTranslation(), &lights );
 
         Vector3 campos;
 #if MYFW_USING_WX

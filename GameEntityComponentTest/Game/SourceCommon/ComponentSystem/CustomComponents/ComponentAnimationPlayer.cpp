@@ -78,7 +78,7 @@ void ComponentAnimationPlayer::FillPropertiesWindow(bool clear)
 
         if( pMesh->GetAnimationCount() > 0 )
         {
-            g_pPanelWatch->AddInt( "Animation Index", &m_AnimationIndex, 0, pMesh->GetAnimationCount() );
+            g_pPanelWatch->AddUnsignedInt( "Animation Index", &m_AnimationIndex, 0, pMesh->GetAnimationCount() );
             g_pPanelWatch->AddFloat( "Animation Frame", &m_AnimationTime, 0, 6 );
         }
     }
@@ -100,7 +100,7 @@ void ComponentAnimationPlayer::ImportFromJSONObject(cJSON* jsonobj, unsigned int
 {
     ComponentUpdateable::ImportFromJSONObject( jsonobj, sceneid );
 
-    cJSONExt_GetInt( jsonobj, "AnimIndex", &m_AnimationIndex );
+    cJSONExt_GetUnsignedInt( jsonobj, "AnimIndex", &m_AnimationIndex );
     cJSONExt_GetFloat( jsonobj, "AnimFrame", &m_AnimationTime );
 }
 
@@ -149,7 +149,7 @@ void ComponentAnimationPlayer::Tick(double TimePassed)
     pMesh->RebuildAnimationMatrices( m_AnimationIndex, m_AnimationTime, m_LastAnimationIndex, m_LastAnimationTime, perc );
 }
 
-void ComponentAnimationPlayer::SetCurrentAnimation(int anim)
+void ComponentAnimationPlayer::SetCurrentAnimation(unsigned int anim)
 {
     if( anim == m_AnimationIndex )
         return;
