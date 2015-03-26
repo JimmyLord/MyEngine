@@ -16,11 +16,11 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "EntityComponentTest", "Game
 		{016089D0-2136-4A3D-B08C-5031542BE1D7} = {016089D0-2136-4A3D-B08C-5031542BE1D7}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BulletCollision", "..\bullet-2.82-r2704\build\vs2010\BulletCollision.vcxproj", "{A43E1599-6DF5-3F44-8B0B-DEC8F4DC0C74}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BulletCollision", "..\bullet\build\vs2010\BulletCollision.vcxproj", "{A43E1599-6DF5-3F44-8B0B-DEC8F4DC0C74}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BulletDynamics", "..\bullet-2.82-r2704\build\vs2010\BulletDynamics.vcxproj", "{A7B4F728-CD19-254F-9FCF-A61F9B8780F4}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BulletDynamics", "..\bullet\build\vs2010\BulletDynamics.vcxproj", "{A7B4F728-CD19-254F-9FCF-A61F9B8780F4}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LinearMath", "..\bullet-2.82-r2704\build\vs2010\LinearMath.vcxproj", "{8062A361-D17E-3544-9A57-FC35F4434AEC}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LinearMath", "..\bullet\build\vs2010\LinearMath.vcxproj", "{8062A361-D17E-3544-9A57-FC35F4434AEC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

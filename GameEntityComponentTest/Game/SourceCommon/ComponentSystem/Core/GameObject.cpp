@@ -93,7 +93,7 @@ void GameObject::OnRightClick()
     menu.SetClientData( this );
 
     wxMenu* categorymenu = 0;
-    char* lastcategory = 0;
+    const char* lastcategory = 0;
 
     menu.Append( 1000, "Duplicate GameObject" ); // matches 1000 in OnPopupClick()
 

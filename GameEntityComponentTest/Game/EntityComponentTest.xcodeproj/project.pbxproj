@@ -91,9 +91,9 @@
 
 /* Begin PBXFileReference section */
 		040A374A1AC2E5DB00DEC19F /* Data */ = {isa = PBXFileReference; lastKnownFileType = folder; path = Data; sourceTree = "<group>"; };
-		0453575B1AC2E2F80045B173 /* libBulletCollision_xcode4.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libBulletCollision_xcode4.a; path = "/Users/jameslord/Projects/ProjectEntityComponentTest/bullet-2.82-r2704/build/xcode4ios/../../lib/libBulletCollision_xcode4.a"; sourceTree = "<absolute>"; };
-		0453575C1AC2E2F80045B173 /* libBulletDynamics_xcode4.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libBulletDynamics_xcode4.a; path = "/Users/jameslord/Projects/ProjectEntityComponentTest/bullet-2.82-r2704/build/xcode4ios/../../lib/libBulletDynamics_xcode4.a"; sourceTree = "<absolute>"; };
-		0453575D1AC2E2F80045B173 /* libLinearMath_xcode4.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libLinearMath_xcode4.a; path = "/Users/jameslord/Projects/ProjectEntityComponentTest/bullet-2.82-r2704/build/xcode4ios/../../lib/libLinearMath_xcode4.a"; sourceTree = "<absolute>"; };
+		0453575B1AC2E2F80045B173 /* libBulletCollision_xcode4.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libBulletCollision_xcode4.a; path = "/Users/jameslord/Projects/ProjectEntityComponentTest/bullet/build/xcode4ios/../../lib/libBulletCollision_xcode4.a"; sourceTree = "<absolute>"; };
+		0453575C1AC2E2F80045B173 /* libBulletDynamics_xcode4.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libBulletDynamics_xcode4.a; path = "/Users/jameslord/Projects/ProjectEntityComponentTest/bullet/build/xcode4ios/../../lib/libBulletDynamics_xcode4.a"; sourceTree = "<absolute>"; };
+		0453575D1AC2E2F80045B173 /* libLinearMath_xcode4.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libLinearMath_xcode4.a; path = "/Users/jameslord/Projects/ProjectEntityComponentTest/bullet/build/xcode4ios/../../lib/libLinearMath_xcode4.a"; sourceTree = "<absolute>"; };
 		045357631AC2E30D0045B173 /* Camera2D.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Camera2D.cpp; sourceTree = "<group>"; };
 		045357641AC2E30D0045B173 /* Camera2D.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Camera2D.h; sourceTree = "<group>"; };
 		045357651AC2E30D0045B173 /* Camera3D.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Camera3D.cpp; sourceTree = "<group>"; };
@@ -813,13 +813,13 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 4.3;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"/Users/jameslord/Projects/ProjectEntityComponentTest/bullet-2.82-r2704/build/xcode4ios/../../lib",
+					"/Users/jameslord/Projects/ProjectEntityComponentTest/bullet/build/xcode4ios/../../lib",
 					/Users/jameslord/Projects/ProjectEntityComponentTest/bullet/build/xcode4ios/../../lib,
 				);
 				PRODUCT_NAME = EntityComponentTest;
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
 				TARGETED_DEVICE_FAMILY = "1,2";
-				USER_HEADER_SEARCH_PATHS = "./SourceCommon . ../../bullet-2.82-r2704/src";
+				USER_HEADER_SEARCH_PATHS = "./SourceCommon . ../../bullet/src";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Debug;
@@ -837,13 +837,13 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 4.3;
 				LIBRARY_SEARCH_PATHS = (
 					"$(inherited)",
-					"/Users/jameslord/Projects/ProjectEntityComponentTest/bullet-2.82-r2704/build/xcode4ios/../../lib",
+					"/Users/jameslord/Projects/ProjectEntityComponentTest/bullet/build/xcode4ios/../../lib",
 					/Users/jameslord/Projects/ProjectEntityComponentTest/bullet/build/xcode4ios/../../lib,
 				);
 				PRODUCT_NAME = EntityComponentTest;
 				"PROVISIONING_PROFILE[sdk=iphoneos*]" = "";
 				TARGETED_DEVICE_FAMILY = "1,2";
-				USER_HEADER_SEARCH_PATHS = "./SourceCommon . ../../bullet-2.82-r2704/src";
+				USER_HEADER_SEARCH_PATHS = "./SourceCommon . ../../bullet/src";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Release;
