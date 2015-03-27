@@ -214,6 +214,8 @@ void TransformGizmo::TranslateSelectedObjects(GameEntityComponentTest* pGame, Ed
     {
         // move all selected objects by the same amount, use object 0 to create a plane.
         {
+            //pEditorState->m_EditorActionState = EDITORACTIONSTATE_TranslateYZ;
+
             ComponentCamera* pCamera = pEditorState->GetEditorCamera();
             MyMatrix* pObjectTransform = &pEditorState->m_pSelectedObjects[0]->m_pComponentTransform->m_Transform;
 
@@ -241,8 +243,18 @@ void TransformGizmo::TranslateSelectedObjects(GameEntityComponentTest* pGame, Ed
                     axisvector = Vector3(0,1,0);
                 }
 
-                // transform the normal into the selected objects space.
-                plane.Set( (*pObjectTransform * Vector4( normal, 0 )).XYZ(), pObjectTransform->GetTranslation() );
+                // TODO: support local space translation.
+                if( 1 ) // if( world space translation )
+                {
+                    // create a world space plane.
+                    plane.Set( normal, pObjectTransform->GetTranslation() );
+                }
+                else
+                {
+                    // TODO: support this.
+                    // transform the normal into the selected objects space.
+                    plane.Set( (*pObjectTransform * Vector4( normal, 0 )).XYZ(), pObjectTransform->GetTranslation() );
+                }
             }
 
             // Get the mouse click ray... current and last frame.
@@ -269,30 +281,32 @@ void TransformGizmo::TranslateSelectedObjects(GameEntityComponentTest* pGame, Ed
             if( plane.IntersectRay( currentraystart, currentrayend, &currentresult ) &&
                 plane.IntersectRay( lastraystart, lastrayend, &lastresult ) )
             {
-                // lock to one of the 3 axis.
-                if( pEditorState->m_EditorActionState == EDITORACTIONSTATE_TranslateX ||
-                    pEditorState->m_EditorActionState == EDITORACTIONSTATE_TranslateY ||
-                    pEditorState->m_EditorActionState == EDITORACTIONSTATE_TranslateZ )
-                {
-                    // for current mouse pos
-                    axisvector = (*pObjectTransform * Vector4( axisvector, 0 )).XYZ();
-                    axisvector.Normalize();
-                    currentresult -= pObjectTransform->GetTranslation();
-                    currentresult = axisvector * currentresult.Dot( axisvector );
-                    currentresult += pObjectTransform->GetTranslation();
+                //LOGInfo( LOGTag, "currentresult( %f, %f, %f );", currentresult.x, currentresult.y, currentresult.z );
+                //LOGInfo( LOGTag, "lastresult( %f, %f, %f );", lastresult.x, lastresult.y, lastresult.z );
+                //LOGInfo( LOGTag, "axisvector( %f, %f, %f );\n", axisvector.x, axisvector.y, axisvector.z );
 
-                    // for last mouse pos
-                    axisvector = (*pObjectTransform * Vector4( axisvector, 0 )).XYZ();
-                    axisvector.Normalize();
-                    lastresult -= pObjectTransform->GetTranslation();
-                    lastresult = axisvector * lastresult.Dot( axisvector );
-                    lastresult += pObjectTransform->GetTranslation();
+                // TODO: support local space translation.
+                // lock to one of the 3 axis.
+                if( pEditorState->m_EditorActionState == EDITORACTIONSTATE_TranslateX )
+                {
+                    currentresult.y = currentresult.z = 0;
+                    lastresult.y = lastresult.z = 0;
+                }
+                if( pEditorState->m_EditorActionState == EDITORACTIONSTATE_TranslateY )
+                {
+                    currentresult.x = currentresult.z = 0;
+                    lastresult.x = lastresult.z = 0;
+                }
+                if( pEditorState->m_EditorActionState == EDITORACTIONSTATE_TranslateZ )
+                {
+                    currentresult.x = currentresult.y = 0;
+                    lastresult.x = lastresult.y = 0;
                 }
 
                 // find the diff pos between this frame and last.
                 Vector3 diff = currentresult - lastresult;
 
-                // move all of the things.
+                // move all of the things. // undo is handled by GameEntityComponentTest.cpp when mouse is lifted.
                 //g_pGameMainFrame->m_pCommandStack->Do( MyNew EditorCommand_MoveObjects( diff, pEditorState->m_pSelectedObjects ) );
                 pEditorState->m_DistanceTranslated += diff;
                 //LOGInfo( LOGTag, "pEditorState->m_DistanceTranslated.Set( %f, %f, %f );", pEditorState->m_DistanceTranslated.x, pEditorState->m_DistanceTranslated.y, pEditorState->m_DistanceTranslated.z );
@@ -301,6 +315,8 @@ void TransformGizmo::TranslateSelectedObjects(GameEntityComponentTest* pGame, Ed
                 for( unsigned int i=0; i<pEditorState->m_pSelectedObjects.size(); i++ )
                 {
                     Vector3 pos = pEditorState->m_pSelectedObjects[i]->m_pComponentTransform->GetPosition();
+                    //pos.y = currentresult.y;
+                    //pEditorState->m_pSelectedObjects[i]->m_pComponentTransform->SetPosition( pos );
                     pEditorState->m_pSelectedObjects[i]->m_pComponentTransform->SetPosition( pos + diff );
                     pEditorState->m_pSelectedObjects[i]->m_pComponentTransform->UpdateMatrix();
                 }
