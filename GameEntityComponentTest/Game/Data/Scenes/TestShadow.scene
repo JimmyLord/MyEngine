@@ -97,7 +97,7 @@
 		}, {
 			"GOID":	18,
 			"ID":	0,
-			"Pos":	[-6.772038, 1.631532, 0],
+			"Pos":	[-20, 10, 0],
 			"Scale":	[1, 1, 1],
 			"Rot":	[20, 90, 0]
 		}],
@@ -126,11 +126,11 @@
 			"GOID":	18,
 			"ID":	62,
 			"Ortho":	0,
-			"DWidth":	640,
-			"DHeight":	960,
-			"ColorBit":	0,
+			"DWidth":	512,
+			"DHeight":	512,
+			"ColorBit":	1,
 			"DepthBit":	1,
-			"Layers":	65535
+			"Layers":	1
 		}, {
 			"Type":	"Collision Object",
 			"GOID":	11,

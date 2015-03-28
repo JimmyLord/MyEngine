@@ -91,10 +91,21 @@ void ComponentCameraShadow::Reset()
 
     SAFE_RELEASE( m_pDepthFBO );
 #if MYFW_OPENGLES2
-    m_pDepthFBO = g_pTextureManager->CreateFBO( (int)512, (int)512, GL_LINEAR, GL_LINEAR, true, false, false );
+    m_pDepthFBO = g_pTextureManager->CreateFBO( (int)1024, (int)512, GL_LINEAR, GL_LINEAR, true, false, false );
 #else
-    m_pDepthFBO = g_pTextureManager->CreateFBO( (int)512, (int)512, GL_LINEAR, GL_LINEAR, true, true, false );
+    m_pDepthFBO = g_pTextureManager->CreateFBO( (int)1024, (int)512, GL_LINEAR, GL_LINEAR, true, true, true );
 #endif
+
+    m_DesiredWidth = (float)1024;
+    m_DesiredHeight = (float)1024;
+
+    m_WindowStartX = 0;
+    m_WindowStartY = 0;
+    m_WindowWidth = 1024;
+    m_WindowHeight = 1024;
+
+    ComputeProjectionMatrices();
+    //m_Camera3D.UpdateMatrices();
 }
 
 ComponentCameraShadow& ComponentCameraShadow::operator=(const ComponentCameraShadow& other)
@@ -113,7 +124,9 @@ void ComponentCameraShadow::Tick(double TimePassed)
 
 void ComponentCameraShadow::OnSurfaceChanged(unsigned int startx, unsigned int starty, unsigned int width, unsigned int height, unsigned int desiredaspectwidth, unsigned int desiredaspectheight)
 {
-    ComponentCamera::OnSurfaceChanged( startx, starty, width, height, desiredaspectwidth, desiredaspectheight );
+    // TODO: this gets called if the window is resized, we might want to upres the fbo here.
+
+    //ComponentCamera::OnSurfaceChanged( startx, starty, width, height, desiredaspectwidth, desiredaspectheight );
 }
 
 void ComponentCameraShadow::OnDrawFrame()

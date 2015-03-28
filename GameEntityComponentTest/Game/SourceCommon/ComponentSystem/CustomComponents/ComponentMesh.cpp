@@ -232,8 +232,26 @@ void ComponentMesh::Draw(MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride, i
 
         m_pMesh->SetTransform( m_pComponentTransform->m_Transform );
 
+        // Find nearest lights.
         MyLight* lights;
         int numlights = g_pLightManager->FindNearestLights( 4, m_pComponentTransform->m_Transform.GetTranslation(), &lights );
+
+        // Find nearest shadow map.
+        MyMatrix* pShadowWVP = 0;
+        int shadowtexid = 0;
+        if( g_ActiveShaderPass == ShaderPass_Main )
+        {
+            GameObject* pObject = g_pComponentSystemManager->FindGameObjectByName( "Shadow Light" );
+            if( pObject )
+            {
+                ComponentCameraShadow* pCamera = dynamic_cast<ComponentCameraShadow*>( pObject->GetFirstComponentOfBaseType( BaseComponentType_Camera ) );
+                if( pCamera )
+                {
+                    pShadowWVP = &pCamera->m_Camera3D.m_matViewProj;
+                    shadowtexid = pCamera->m_pDepthFBO->m_ColorTextureID;
+                }
+            }
+        }
 
         Vector3 campos;
 #if MYFW_USING_WX
@@ -247,6 +265,6 @@ void ComponentMesh::Draw(MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride, i
             campos = g_pComponentSystemManager->GetFirstCamera()->m_pComponentTransform->GetPosition();
         }
 
-        m_pMesh->Draw( pMatViewProj, &campos, lights, numlights, 0, 0, 0, pShaderOverride );
+        m_pMesh->Draw( pMatViewProj, &campos, lights, numlights, pShadowWVP, shadowtexid, 0, pShaderOverride );
     }
 }
