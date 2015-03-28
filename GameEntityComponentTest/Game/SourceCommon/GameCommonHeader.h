@@ -56,6 +56,7 @@ extern "C"
 // myframework components // ADDING_NEW_ComponentType
 #include "Core/GameComponentTypeManager.h"
 #include "ComponentSystem/CustomComponents/ComponentLight.h"
+#include "ComponentSystem/CustomComponents/ComponentCameraShadow.h"
 #include "ComponentSystem/CustomComponents/ComponentSprite.h"
 #include "ComponentSystem/CustomComponents/ComponentMesh.h"
 #include "ComponentSystem/CustomComponents/ComponentMeshOBJ.h"

@@ -336,6 +336,9 @@
     <ClCompile Include="SourceCommon\ComponentSystem\CustomComponents\ComponentAnimationPlayer.cpp">
       <Filter>Source\ComponentSystem\Custom Components</Filter>
     </ClCompile>
+    <ClCompile Include="SourceCommon\ComponentSystem\CustomComponents\ComponentCameraShadow.cpp">
+      <Filter>Source\ComponentSystem\Custom Components</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SourceWindows\WinMain.h">
@@ -593,6 +596,9 @@
     <ClInclude Include="SourceCommon\ComponentSystem\CustomComponents\ComponentAnimationPlayer.h">
       <Filter>Source\ComponentSystem\Custom Components</Filter>
     </ClInclude>
+    <ClInclude Include="SourceCommon\ComponentSystem\CustomComponents\ComponentCameraShadow.h">
+      <Filter>Source\ComponentSystem\Custom Components</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="SourceNaCL\Web\myframework.js">
@@ -743,6 +749,9 @@
     </None>
     <None Include="Data\Shaders\Include\LSVaryings_Functions.glsl">
       <Filter>Data\Shaders\Include</Filter>
+    </None>
+    <None Include="Data\Scenes\TestShadow.scene">
+      <Filter>Data\Scenes</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

@@ -20,6 +20,7 @@ enum ComponentTypes // search for ADDING_NEW_ComponentType
     ComponentType_MeshOBJ,
     ComponentType_MeshPrimitive,
     ComponentType_Light,
+    ComponentType_CameraShadow,
     ComponentType_InputTrackMousePos,
     ComponentType_AIChasePlayer,
     ComponentType_CollisionObject,

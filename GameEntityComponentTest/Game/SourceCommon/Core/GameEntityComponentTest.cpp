@@ -433,8 +433,8 @@ void GameEntityComponentTest::OnDrawFrame()
             // TODO: have the file selecter pick the right game object/mesh
             GameObject* pObject = m_pEditorState->m_pSelectedObjects[0];
 
+            // if this has an animation player, render the first animation. generally the full timeline.
             ComponentAnimationPlayer* pAnim = pObject->GetAnimationPlayer();
-
             if( pAnim )
             {
                 int backupindex = pAnim->m_AnimationIndex;
@@ -454,6 +454,18 @@ void GameEntityComponentTest::OnDrawFrame()
 
                 m_pDebugQuadSprite->CreateInPlace( "debug", 0.5f, 0.5f, 1.0f, 1.0f, 0, 1, 1, 0, Justify_Center, false );
                 m_pDebugQuadSprite->SetShaderAndTexture( m_pShader_ClipSpaceTexture, m_pEditorState->m_pDebugViewFBO->m_ColorTextureID );
+                m_pDebugQuadSprite->Draw( 0 );
+            }
+
+            // if it's a shadow cam, render the depth texture
+            ComponentCameraShadow* pCamera = dynamic_cast<ComponentCameraShadow*>( pObject->GetFirstComponentOfBaseType( BaseComponentType_Camera ) );
+            if( pCamera )
+            {
+                if( m_pDebugQuadSprite == 0 )
+                    m_pDebugQuadSprite = MyNew MySprite();
+
+                m_pDebugQuadSprite->CreateInPlace( "debug", 0.5f, 0.5f, 1.0f, 1.0f, 0, 1, 1, 0, Justify_Center, false );
+                m_pDebugQuadSprite->SetShaderAndTexture( m_pShader_ClipSpaceTexture, pCamera->m_pDepthFBO->m_DepthBufferID );
                 m_pDebugQuadSprite->Draw( 0 );
             }
         }

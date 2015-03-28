@@ -2060,6 +2060,7 @@
     <ClCompile Include="SourceCommon\ComponentSystem\Core\ComponentTypeManager.cpp" />
     <ClCompile Include="SourceCommon\ComponentSystem\Core\GameObject.cpp" />
     <ClCompile Include="SourceCommon\ComponentSystem\CustomComponents\ComponentAnimationPlayer.cpp" />
+    <ClCompile Include="SourceCommon\ComponentSystem\CustomComponents\ComponentCameraShadow.cpp" />
     <ClCompile Include="SourceCommon\ComponentSystem\CustomComponents\ComponentLight.cpp" />
     <ClCompile Include="SourceCommon\ComponentSystem\CustomComponents\ComponentMesh.cpp" />
     <ClCompile Include="SourceCommon\ComponentSystem\CustomComponents\ComponentMeshOBJ.cpp" />
@@ -2483,6 +2484,7 @@
     <ClInclude Include="SourceCommon\ComponentSystem\Core\ComponentTypeManager.h" />
     <ClInclude Include="SourceCommon\ComponentSystem\Core\GameObject.h" />
     <ClInclude Include="SourceCommon\ComponentSystem\CustomComponents\ComponentAnimationPlayer.h" />
+    <ClInclude Include="SourceCommon\ComponentSystem\CustomComponents\ComponentCameraShadow.h" />
     <ClInclude Include="SourceCommon\ComponentSystem\CustomComponents\ComponentLight.h" />
     <ClInclude Include="SourceCommon\ComponentSystem\CustomComponents\ComponentMesh.h" />
     <ClInclude Include="SourceCommon\ComponentSystem\CustomComponents\ComponentMeshOBJ.h" />
@@ -2830,6 +2832,7 @@
     <None Include="Data\Scenes\AnimationTest.scene" />
     <None Include="Data\Scenes\LightTest.scene" />
     <None Include="Data\Scenes\test.scene" />
+    <None Include="Data\Scenes\TestShadow.scene" />
     <None Include="Data\Scenes\World.scene" />
     <None Include="Data\Scripts\GGJEnemy.lua" />
     <None Include="Data\Scripts\GGJPlayer.lua" />

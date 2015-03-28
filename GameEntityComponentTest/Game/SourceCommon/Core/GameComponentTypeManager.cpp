@@ -18,6 +18,7 @@ ComponentTypeInfo g_ComponentTypeInfo[Component_NumComponentTypes] = // ADDING_N
     { "Renderables",    "Mesh-OBJ",         },
     { "Renderables",    "Mesh-Primitive",   },
     { "Lighting",       "Light",            },
+    { "Lighting",       "Shadow Dir Light", },
     { "Input handlers", "Track Mouse",      },
     { "AI",             "AI Chase Player",  },
     { "Physics",        "Collision Object", },
@@ -40,6 +41,7 @@ ComponentBase* GameComponentTypeManager::CreateComponent(int type)
     case ComponentType_MeshOBJ:             pComponent = MyNew ComponentMeshOBJ;            break;
     case ComponentType_MeshPrimitive:       pComponent = MyNew ComponentMeshPrimitive;      break;
     case ComponentType_Light:               pComponent = MyNew ComponentLight;              break;
+    case ComponentType_CameraShadow:        pComponent = MyNew ComponentCameraShadow;       break;
     case ComponentType_InputTrackMousePos:  pComponent = MyNew ComponentInputTrackMousePos; break;
     case ComponentType_AIChasePlayer:       pComponent = MyNew ComponentAIChasePlayer;      break;
     case ComponentType_CollisionObject:     pComponent = MyNew ComponentCollisionObject;    break;
