@@ -90,22 +90,13 @@ void ComponentCameraShadow::Reset()
     ComponentCamera::Reset();
 
     SAFE_RELEASE( m_pDepthFBO );
+
+    int texres = 2048;
 #if MYFW_OPENGLES2
-    m_pDepthFBO = g_pTextureManager->CreateFBO( (int)1024, (int)512, GL_LINEAR, GL_LINEAR, true, false, false );
+    m_pDepthFBO = g_pTextureManager->CreateFBO( texres, texres, GL_LINEAR, GL_LINEAR, true, false, false );
 #else
-    m_pDepthFBO = g_pTextureManager->CreateFBO( (int)1024, (int)512, GL_LINEAR, GL_LINEAR, true, true, true );
+    m_pDepthFBO = g_pTextureManager->CreateFBO( texres, texres, GL_LINEAR, GL_LINEAR, true, true, true );
 #endif
-
-    m_DesiredWidth = (float)1024;
-    m_DesiredHeight = (float)1024;
-
-    m_WindowStartX = 0;
-    m_WindowStartY = 0;
-    m_WindowWidth = 1024;
-    m_WindowHeight = 1024;
-
-    ComputeProjectionMatrices();
-    //m_Camera3D.UpdateMatrices();
 }
 
 ComponentCameraShadow& ComponentCameraShadow::operator=(const ComponentCameraShadow& other)
@@ -133,6 +124,18 @@ void ComponentCameraShadow::OnDrawFrame()
 {
     //ComponentCamera::OnDrawFrame();
 
+    {
+        MyMatrix matView = m_pComponentTransform->m_Transform;
+        matView.Inverse();
+
+        MyMatrix matProj;
+        matProj.CreateOrtho( -10, 10, -10, 10, 1, 100 );
+
+        m_matViewProj = matProj * matView;
+    }
+
+    //glCullFace( GL_FRONT );
+
     glDisable( GL_SCISSOR_TEST );
     g_ActiveShaderPass = ShaderPass_ShadowCastRGBA;
 
@@ -148,29 +151,9 @@ void ComponentCameraShadow::OnDrawFrame()
     glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 #endif
 
-    g_pComponentSystemManager->OnDrawFrame( this, &m_Camera3D.m_matViewProj, 0 );
+    g_pComponentSystemManager->OnDrawFrame( this, &m_matViewProj, 0 );
 
     m_pDepthFBO->Unbind();
     g_ActiveShaderPass = ShaderPass_Main;
-
-    //glViewport( m_WindowStartX, m_WindowStartY, m_WindowWidth, m_WindowHeight );
-    //checkGlError( "glViewport" );
-
-    //glClearColor( 0.0f, 0.0f, 0.2f, 1.0f );
-
-    //if( m_ClearColorBuffer && m_ClearDepthBuffer )
-    //    glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
-    //else if( m_ClearColorBuffer )
-    //    glClear( GL_COLOR_BUFFER_BIT );
-    //else if( m_ClearDepthBuffer )
-    //    glClear( GL_DEPTH_BUFFER_BIT );
-
-    //if( m_Orthographic )
-    //{   
-    //    g_pComponentSystemManager->OnDrawFrame( this, &m_Camera2D.m_matViewProj, 0 );
-    //}
-    //else
-    //{
-    //    g_pComponentSystemManager->OnDrawFrame( this, &m_Camera3D.m_matViewProj, 0 );
-    //}
+    //glCullFace( GL_BACK );
 }

@@ -31,16 +31,20 @@ void PointLightContribution(int index, vec3 vertpos, vec3 campos, vec3 normal, f
 float CalculateShadowPercentage()
 {
 #if ReceiveShadows
-    vec2 shadowcoord = (v_ShadowPos.xy / v_ShadowPos.w) * 0.5 + 0.5;
+    vec2 shadowcoord = v_ShadowPos.xy / v_ShadowPos.w;
     vec4 shadowtex = texture2D( u_ShadowTexture, shadowcoord );
     
+    float bias = 0.002;
+    float projzdepth = (v_ShadowPos.z-bias) / v_ShadowPos.w;
+
+#if 1
+    float texzdepth = shadowtex.r;
+#else
     // Unpack depth float value from rgba.
     const vec4 bitSh = vec4(1.0/(256.0*256.0*256.0), 1.0/(256.0*256.0), 1.0/256.0, 1.0);
     float texzdepth = dot( shadowtex, bitSh );
-    
-    float bias = 0.01;
-    float projzdepth = ((v_ShadowPos.z-bias)/v_ShadowPos.w) * 0.5 + 0.5;
-    
+#endif
+        
     if( texzdepth < projzdepth )
         return 0.5;
 #endif //ReceiveShadows

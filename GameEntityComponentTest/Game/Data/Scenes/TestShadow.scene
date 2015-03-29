@@ -33,6 +33,15 @@
 		}, {
 			"ID":	18,
 			"Name":	"Shadow Light"
+		}, {
+			"ID":	19,
+			"Name":	"Wall Left"
+		}, {
+			"ID":	20,
+			"Name":	"Wall Left backface"
+		}, {
+			"ID":	21,
+			"Name":	"Wall Left topface"
 		}],
 	"Transforms":	[{
 			"GOID":	1,
@@ -49,7 +58,7 @@
 		}, {
 			"GOID":	10,
 			"ID":	0,
-			"Pos":	[4.768372e-007, -3, 0.090000],
+			"Pos":	[4.768372e-007, -3.050000, 0.090000],
 			"Scale":	[1, 1, 1],
 			"Rot":	[-90, 0, 0]
 		}, {
@@ -100,6 +109,24 @@
 			"Pos":	[-20, 10, 0],
 			"Scale":	[1, 1, 1],
 			"Rot":	[20, 90, 0]
+		}, {
+			"GOID":	19,
+			"ID":	0,
+			"Pos":	[-10, -10, 0],
+			"Scale":	[1, 1, 1],
+			"Rot":	[0, 0, 90]
+		}, {
+			"GOID":	20,
+			"ID":	0,
+			"Pos":	[-10.999998, -10, 0],
+			"Scale":	[1, 1, 1],
+			"Rot":	[0, 0, -90]
+		}, {
+			"GOID":	21,
+			"ID":	0,
+			"Pos":	[-10.500000, 0, 0],
+			"Scale":	[0.050000, 1, 1],
+			"Rot":	[0, 0, 0]
 		}],
 	"Components":	[{
 			"Type":	"Camera",
@@ -166,6 +193,21 @@
 			"ID":	53,
 			"Mass":	0
 		}, {
+			"Type":	"Collision Object",
+			"GOID":	19,
+			"ID":	75,
+			"Mass":	0
+		}, {
+			"Type":	"Collision Object",
+			"GOID":	20,
+			"ID":	77,
+			"Mass":	0
+		}, {
+			"Type":	"Collision Object",
+			"GOID":	21,
+			"ID":	79,
+			"Mass":	0
+		}, {
 			"Type":	"Mesh-OBJ",
 			"GOID":	10,
 			"ID":	13,
@@ -202,6 +244,69 @@
 			"Type":	"Mesh-Primitive",
 			"GOID":	17,
 			"ID":	54,
+			"Visible":	1,
+			"Layers":	1,
+			"Shader":	"Shader_TextureLights",
+			"Texture":	"Data/Textures/WhiteSquare.png",
+			"PrimitiveType":	4,
+			"PointSize":	1,
+			"Shininess":	40,
+			"MPType":	0,
+			"PlaneSizex":	20,
+			"PlaneSizey":	20,
+			"PlaneVertCountx":	2,
+			"PlaneVertCounty":	2,
+			"PlaneUVStartx":	0,
+			"PlaneUVStarty":	0,
+			"PlaneUVRangex":	1,
+			"PlaneUVRangey":	1,
+			"SphereRadius":	1
+		}, {
+			"Type":	"Mesh-Primitive",
+			"GOID":	19,
+			"ID":	76,
+			"Visible":	1,
+			"Layers":	1,
+			"Shader":	"Shader_TextureLights",
+			"Texture":	"Data/Textures/WhiteSquare.png",
+			"PrimitiveType":	4,
+			"PointSize":	1,
+			"Shininess":	40,
+			"MPType":	0,
+			"PlaneSizex":	20,
+			"PlaneSizey":	20,
+			"PlaneVertCountx":	2,
+			"PlaneVertCounty":	2,
+			"PlaneUVStartx":	0,
+			"PlaneUVStarty":	0,
+			"PlaneUVRangex":	1,
+			"PlaneUVRangey":	1,
+			"SphereRadius":	1
+		}, {
+			"Type":	"Mesh-Primitive",
+			"GOID":	20,
+			"ID":	78,
+			"Visible":	1,
+			"Layers":	1,
+			"Shader":	"Shader_TextureLights",
+			"Texture":	"Data/Textures/WhiteSquare.png",
+			"PrimitiveType":	4,
+			"PointSize":	1,
+			"Shininess":	40,
+			"MPType":	0,
+			"PlaneSizex":	20,
+			"PlaneSizey":	20,
+			"PlaneVertCountx":	2,
+			"PlaneVertCounty":	2,
+			"PlaneUVStartx":	0,
+			"PlaneUVStarty":	0,
+			"PlaneUVRangex":	1,
+			"PlaneUVRangey":	1,
+			"SphereRadius":	1
+		}, {
+			"Type":	"Mesh-Primitive",
+			"GOID":	21,
+			"ID":	80,
 			"Visible":	1,
 			"Layers":	1,
 			"Shader":	"Shader_TextureLights",

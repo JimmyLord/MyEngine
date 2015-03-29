@@ -19,6 +19,7 @@ class ComponentCameraShadow : public ComponentCamera
 {
 public:
     FBODefinition* m_pDepthFBO;
+    MyMatrix m_matViewProj;
 
 public:
     ComponentCameraShadow();

@@ -20,7 +20,7 @@ precision mediump float;
     uniform mat4 u_WorldViewProj;
 
 #if ReceiveShadows
-    uniform mat4 u_ShadowLightWVP;
+    uniform mat4 u_ShadowLightWVPT;
     uniform sampler2D u_ShadowTexture;
 #endif //ReceiveShadows
 
@@ -33,101 +33,105 @@ precision mediump float;
 
     #include "Include/Light_Uniforms.glsl"
 
-    #ifdef VertexShader
+#ifdef VertexShader
 
-        attribute vec4 a_Position;
-        attribute vec2 a_UVCoord;
-        attribute vec3 a_Normal;
-        //attribute vec4 a_VertexColor;
+    attribute vec4 a_Position;
+    attribute vec2 a_UVCoord;
+    attribute vec3 a_Normal;
+    //attribute vec4 a_VertexColor;
 
-        #include "Include/WSVaryings_Functions.glsl"
+    #include "Include/WSVaryings_Functions.glsl"
 
-        void main()
-        {
-            gl_Position = u_WorldViewProj * a_Position;
+    void main()
+    {
+        gl_Position = u_WorldViewProj * a_Position;
 #if ReceiveShadows
-            v_ShadowPos = u_ShadowLightWVP * a_Position;
+        v_ShadowPos = u_ShadowLightWVPT * a_Position;
 #endif //ReceiveShadows
 
-            SetWSPositionAndNormalVaryings( u_World, a_Position, a_Normal );
-            v_UVCoord = a_UVCoord;
-            v_Color = u_TextureTintColor;
-        }
+        SetWSPositionAndNormalVaryings( u_World, a_Position, a_Normal );
+        v_UVCoord = a_UVCoord;
+        v_Color = u_TextureTintColor;
+    }
 
-    #endif //VertexShader
+#endif //VertexShader
 
-    #ifdef FragmentShader
+#ifdef FragmentShader
 
-        #include "Include/Light_Functions.glsl"
+    #include "Include/Light_Functions.glsl"
 
-        void main()
-        {
-            // Get the textures color.
-            vec4 texcolor = texture2D( u_TextureColor, v_UVCoord );
+    void main()
+    {
+        // Get the textures color.
+        vec4 texcolor = texture2D( u_TextureColor, v_UVCoord );
 
-            // Calculate the normal vector in local space. normalized again since interpolation can/will distort it.
-            //   TODO: handle normal maps.
-            vec3 WSnormal = normalize( v_WSNormal );
+        // Calculate the normal vector in local space. normalized again since interpolation can/will distort it.
+        //   TODO: handle normal maps.
+        vec3 WSnormal = normalize( v_WSNormal );
 
-            // Whether fragment is in shadow or not, return 0.5 if it is, 1.0 if not.
-            float shadowperc = CalculateShadowPercentage();
+        // Whether fragment is in shadow or not, return 0.5 if it is, 1.0 if not.
+        float shadowperc = CalculateShadowPercentage();
 
-            // Hardcoded ambient
-            vec4 finalambient = vec4(0.2, 0.2, 0.2, 1.0);
+        // Hardcoded ambient
+        vec4 finalambient = vec4(0.2, 0.2, 0.2, 1.0);
 
-            // Accumulate diffuse and specular color for all lights.
-            vec4 finaldiffuse = vec4(0,0,0,0);
-            vec4 finalspecular = vec4(0,0,0,0);
+        // Accumulate diffuse and specular color for all lights.
+        vec4 finaldiffuse = vec4(0,0,0,0);
+        vec4 finalspecular = vec4(0,0,0,0);
             
-            // Add in each light, one by one. // finaldiffuse, finalspecular are inout.
+        // Add in each light, one by one. // finaldiffuse, finalspecular are inout.
 #if NUM_LIGHTS > 0
-            for( int i=0; i<NUM_LIGHTS; i++ )
-                PointLightContribution( i, v_WSPosition.xyz, u_WSCameraPos, WSnormal, u_Shininess, finaldiffuse, finalspecular );
+        for( int i=0; i<NUM_LIGHTS; i++ )
+            PointLightContribution( i, v_WSPosition.xyz, u_WSCameraPos, WSnormal, u_Shininess, finaldiffuse, finalspecular );
 #endif
 
-            // Mix the texture color with the light color.
-            vec4 ambdiff = texcolor * v_Color * ( finalambient + finaldiffuse );
-            vec4 spec = u_TextureSpecColor * finalspecular;
+        // Mix the texture color with the light color.
+        vec4 ambdiff = texcolor * v_Color * ( finalambient + finaldiffuse );
+        vec4 spec = u_TextureSpecColor * finalspecular;
 
-            // Calculate final color including whether it's in shadow or not.
-            gl_FragColor = ( ambdiff + spec ) * shadowperc;
-            gl_FragColor.a = 1.0;
-        }
+        // Calculate final color including whether it's in shadow or not.
+        gl_FragColor = ( ambdiff + spec ) * shadowperc;
+        gl_FragColor.a = 1.0;
+    }
 
-    #endif //Fragment Shader
+#endif //Fragment Shader
 
 #endif //PassMain
 
 #ifdef PassShadowCastRGB
 
-    #ifdef VertexShader
+#ifdef VertexShader
 
-        uniform mat4 u_WorldViewProj;
+    uniform mat4 u_WorldViewProj;
 
-        attribute vec4 a_Position;
+    attribute vec4 a_Position;
 
-        void main()
-        {
-            gl_Position = u_WorldViewProj * a_Position;
-        }
+    void main()
+    {
+        gl_Position = u_WorldViewProj * a_Position;
+    }
 
-    #endif //VertexShader
+#endif //VertexShader
 
-    #ifdef FragmentShader
+#ifdef FragmentShader
 
-        void main()
-        {
-            float value = gl_FragCoord.z;
+    void main()
+    {
+#if 1
+        gl_FragColor = vec4(1,1,1,1);
+#else
+        float value = gl_FragCoord.z;
 
-            // Pack depth float value into RGBA, for ES 2.0 where depth textures don't exist.
-            const vec4 bitSh = vec4( 256.0*256.0*256.0, 256.0*256.0, 256.0, 1.0 );
-            const vec4 bitMsk = vec4( 0.0, 1.0/256.0, 1.0/256.0, 1.0/256.0 );
-            vec4 res = fract( value * bitSh );
-            res -= res.xxyz * bitMsk;
+        // Pack depth float value into RGBA, for ES 2.0 where depth textures don't exist.
+        const vec4 bitSh = vec4( 256.0*256.0*256.0, 256.0*256.0, 256.0, 1.0 );
+        const vec4 bitMsk = vec4( 0.0, 1.0/256.0, 1.0/256.0, 1.0/256.0 );
+        vec4 res = fract( value * bitSh );
+        res -= res.xxyz * bitMsk;
 
-            gl_FragColor = res;
-        }
+        gl_FragColor = res;
+#endif
+    }
 
-    #endif //Fragment Shader
+#endif //Fragment Shader
 
 #endif //PassShadowCastRGB
