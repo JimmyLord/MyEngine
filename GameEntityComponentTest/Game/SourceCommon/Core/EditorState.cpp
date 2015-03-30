@@ -64,7 +64,7 @@ void EditorState::OnSurfaceChanged(unsigned int startx, unsigned int starty, uns
         {
             // the FBO will be recreated during the texturemanager tick.
             g_pTextureManager->InvalidateFBO( m_pDebugViewFBO );
-            m_pDebugViewFBO->Setup( width, height, GL_NEAREST, GL_NEAREST, true, true, false );
+            m_pDebugViewFBO->Setup( width, height, GL_NEAREST, GL_NEAREST, true, 32, false );
         }
         else
         {
@@ -79,7 +79,7 @@ void EditorState::OnSurfaceChanged(unsigned int startx, unsigned int starty, uns
         {
             // the FBO will be recreated during the texturemanager tick.
             g_pTextureManager->InvalidateFBO( m_pMousePickerFBO );
-            m_pMousePickerFBO->Setup( width, height, GL_NEAREST, GL_NEAREST, true, true, false );
+            m_pMousePickerFBO->Setup( width, height, GL_NEAREST, GL_NEAREST, true, 32, false );
         }
         else
         {

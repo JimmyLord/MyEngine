@@ -93,9 +93,9 @@ void ComponentCameraShadow::Reset()
 
     int texres = 2048;
 #if MYFW_OPENGLES2
-    m_pDepthFBO = g_pTextureManager->CreateFBO( texres, texres, GL_LINEAR, GL_LINEAR, true, false, false );
+    m_pDepthFBO = g_pTextureManager->CreateFBO( texres, texres, GL_LINEAR, GL_LINEAR, true, 0, false );
 #else
-    m_pDepthFBO = g_pTextureManager->CreateFBO( texres, texres, GL_LINEAR, GL_LINEAR, true, true, true );
+    m_pDepthFBO = g_pTextureManager->CreateFBO( texres, texres, GL_LINEAR, GL_LINEAR, true, 32, true );
 #endif
 }
 
