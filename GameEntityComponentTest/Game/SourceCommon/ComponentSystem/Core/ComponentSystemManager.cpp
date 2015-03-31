@@ -233,24 +233,82 @@ bool ComponentSystemManager::IsFileUsedByScene(const char* fullpath, unsigned in
     return false;
 }
 
-void ComponentSystemManager::LoadDatafile(const char* fullpath, unsigned int sceneid)
+void ComponentSystemManager::LoadDatafile(const char* relativepath, unsigned int sceneid)
 {
     // if the file is already tagged as being used by this scene, don't request/addref it.
-    if( IsFileUsedByScene( fullpath, sceneid ) == false )
+    if( IsFileUsedByScene( relativepath, sceneid ) == false )
     {
         // each scene loaded will add ref's to the file.
         MyFileObject* pFile = 0;
 
-        size_t len = strlen( fullpath );
-        if( strcmp( &fullpath[len-4], ".png" ) == 0 )
+        size_t len = strlen( relativepath );
+        
+        // convert any .fbx files into a mymesh and load that.
+        if( len > 4 && strcmp( &relativepath[len-4], ".fbx" ) == 0 )
         {
-            TextureDefinition* pTexture = g_pTextureManager->CreateTexture( fullpath );
+            // run MeshTool to convert the mesh and put the result in "Data/Meshes"
+            const int paramsbuffersize = MAX_PATH * 2 + 50;
+            char params[paramsbuffersize]; // 2 full paths plus a few extra chars
+
+            char workingdir[MAX_PATH];
+            _getcwd( workingdir, MAX_PATH * sizeof(char) );
+
+            char filename[MAX_PATH];
+            for( int i=strlen(relativepath)-1; i>=0; i-- )
+            {
+                if( relativepath[i] == '\\' || relativepath[i] == '/' || i == 0 )
+                {
+                    strcpy_s( filename, MAX_PATH, &relativepath[i+1] );
+                    break;
+                }
+            }
+
+            sprintf_s( params, paramsbuffersize, "-s %s -o Data/Meshes/%s", relativepath, filename );
+
+            LOGInfo( LOGTag, "Converting %s to mymesh %s\n", relativepath, params );
+
+            SHELLEXECUTEINFOA info = {0};
+            info.cbSize = sizeof( SHELLEXECUTEINFOA );
+            info.fMask = SEE_MASK_NOCLOSEPROCESS;
+            info.hwnd = 0;
+            info.lpVerb = 0;
+            info.lpFile = "Tools\\MeshTool.exe";
+            info.lpParameters = params;
+            info.lpDirectory = workingdir;
+            info.nShow = SW_SHOWNOACTIVATE;
+            info.hInstApp = 0;
+
+            if( ShellExecuteExA( &info ) == 0 )
+            //if( ShellExecuteA( 0, "open", "Tools/MeshTool.exe", params, workingdir, SW_SHOWNOACTIVATE ) != 0 )
+            {
+                LOGError( LOGTag, "Something went wrong with conversion\n" );
+            }
+            else
+            {
+                LOGInfo( LOGTag, "Conversion complete\n" );
+
+                // file isn't found by loading code if this sleep isn't here. TODO: find better solution.
+                Sleep( 200 );
+
+                // create a new relative path.
+                char newrelativepath[MAX_PATH];
+                sprintf_s( newrelativepath, MAX_PATH, "Data/Meshes/%s.mymesh", filename );
+                LoadDatafile( newrelativepath, sceneid );
+            }
+
+            return;
+        }
+
+        // load textures differently than other files.
+        if( len > 4 && strcmp( &relativepath[len-4], ".png" ) == 0 )
+        {
+            TextureDefinition* pTexture = g_pTextureManager->CreateTexture( relativepath );
             pFile = pTexture->m_pFile;
             pFile->AddRef();
         }
         else
         {
-            pFile = g_pFileManager->RequestFile( fullpath );
+            pFile = g_pFileManager->RequestFile( relativepath );
 #if MYFW_USING_WX
             pFile->SetCustomLeftClickCallback( StaticOnMemoryPanelFileSelectedLeftClick, this );
 #endif
@@ -262,16 +320,18 @@ void ComponentSystemManager::LoadDatafile(const char* fullpath, unsigned int sce
         pFileInfo->m_SceneID = sceneid;
         m_Files.AddTail( pFileInfo );
 
-        // if we're loading an .obj file, create a mesh.
-        if( strcmp( pFile->m_ExtensionWithDot, ".obj" ) == 0 )
+        // if we're loading a mesh file type, create a mesh.
         {
-            pFileInfo->m_pMesh = MyNew MyMesh();
-            pFileInfo->m_pMesh->CreateFromOBJFile( pFile );
-        }
-        if( strcmp( pFile->m_ExtensionWithDot, ".mymesh" ) == 0 )
-        {
-            pFileInfo->m_pMesh = MyNew MyMesh();
-            pFileInfo->m_pMesh->CreateFromMyMeshFile( pFile );
+            if( strcmp( pFile->m_ExtensionWithDot, ".obj" ) == 0 )
+            {
+                pFileInfo->m_pMesh = MyNew MyMesh();
+                pFileInfo->m_pMesh->CreateFromOBJFile( pFile );
+            }
+            if( strcmp( pFile->m_ExtensionWithDot, ".mymesh" ) == 0 )
+            {
+                pFileInfo->m_pMesh = MyNew MyMesh();
+                pFileInfo->m_pMesh->CreateFromMyMeshFile( pFile );
+            }
         }
 
         // if we're loading an .glsl file, create a ShaderGroup.
@@ -279,6 +339,10 @@ void ComponentSystemManager::LoadDatafile(const char* fullpath, unsigned int sce
         {
             pFileInfo->m_pShaderGroup = MyNew ShaderGroup( pFile, pFile->m_FilenameWithoutExtension );
         }
+    }
+    else
+    {
+        LOGInfo( LOGTag, "%s already in scene\n", relativepath );
     }
 }
 

@@ -81,7 +81,7 @@ public:
     static void LuaRegister(lua_State* luastate);
 
     char* SaveSceneToJSON();
-    void LoadDatafile(const char* fullpath, unsigned int sceneid);
+    void LoadDatafile(const char* relativepath, unsigned int sceneid);
     void LoadSceneFromJSON(const char* jsonstr, unsigned int sceneid);
 
     void SyncAllRigidBodiesToObjectTransforms();

@@ -490,9 +490,12 @@ void GameMainFrame::AddDatafileToScene()
         {
             // File is not in our working directory.
             // TODO: copy the file into our data folder?
-            assert( false );
+            LOGError( LOGTag, "file must be in working directory\n" );
+            //assert( false );
+            return;
         }
 
+        // fullpath is actually a relative path at this point.
         ((GameEntityComponentTest*)g_pGameCore)->m_pComponentSystemManager->LoadDatafile( fullpath, 1 );
     }
 }
