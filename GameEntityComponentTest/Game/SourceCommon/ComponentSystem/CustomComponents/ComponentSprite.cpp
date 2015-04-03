@@ -54,8 +54,9 @@ void ComponentSprite::FillPropertiesWindow(bool clear)
 
         const char* desc = "no shader";
         assert( m_pSprite );
-        if( m_pSprite->m_pShaderGroup && m_pSprite->m_pShaderGroup->GetShader( ShaderPass_Main )->m_pFile )
-            desc = m_pSprite->m_pShaderGroup->GetShader( ShaderPass_Main )->m_pFile->m_FilenameWithoutExtension;
+        ShaderGroup* pShader = m_pSprite->GetShader();
+        if( pShader && pShader->GetShader( ShaderPass_Main )->m_pFile )
+            desc = pShader->GetShader( ShaderPass_Main )->m_pFile->m_FilenameWithoutExtension;
         g_pPanelWatch->AddPointerWithDescription( "Shader", 0, desc, this, ComponentSprite::StaticOnDropShaderGroup );
     }
 }
@@ -79,7 +80,7 @@ cJSON* ComponentSprite::ExportAsJSONObject()
 
     cJSONExt_AddUnsignedCharArrayToObject( component, "Tint", &m_Tint.r, 4 );
     cJSONExt_AddFloatArrayToObject( component, "Size", &m_Size.x, 2 );
-    cJSON_AddStringToObject( component, "Shader", m_pSprite->m_pShaderGroup->GetName() );
+    cJSON_AddStringToObject( component, "Shader", m_pSprite->GetShader()->GetName() );
 
     return component;
 }
@@ -119,7 +120,7 @@ ComponentSprite& ComponentSprite::operator=(const ComponentSprite& other)
 
     this->m_Tint = other.m_Tint;
     this->m_Size = other.m_Size;
-    this->m_pSprite->m_pShaderGroup = other.m_pSprite->m_pShaderGroup;
+    this->m_pSprite->SetShader( other.m_pSprite->GetShader() );
 
     return *this;
 }
