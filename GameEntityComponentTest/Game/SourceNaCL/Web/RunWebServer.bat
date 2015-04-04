@@ -1,2 +1,0 @@
-python httpd.py
-pause

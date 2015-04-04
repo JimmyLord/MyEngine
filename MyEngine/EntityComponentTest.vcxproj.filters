@@ -1,0 +1,624 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Data">
+      <UniqueIdentifier>{a073e61a-cd6c-4710-9be4-fbab75cb839b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>
+      </Extensions>
+    </Filter>
+    <Filter Include="Source - Platform">
+      <UniqueIdentifier>{ea084754-889f-49a7-bafb-52356a55685a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source - Platform\Source - NaCL">
+      <UniqueIdentifier>{2721bf97-177e-4c8c-b05a-dd51ea7e0125}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Core Files">
+      <UniqueIdentifier>{04b87be4-c10b-4886-b392-8ec9a4138392}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source - Platform\Source - IOS">
+      <UniqueIdentifier>{c6c4cfc4-0280-4cee-9972-094ebea07722}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source - Platform\Source - Emscripten">
+      <UniqueIdentifier>{e50c747a-b5d5-47e8-b3b5-b144703add5b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source - Platform\Source - WP8">
+      <UniqueIdentifier>{e5550a78-55dc-4dfe-be19-a1ec884306de}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Data\Shaders">
+      <UniqueIdentifier>{7b555647-c561-4774-9e0b-91c7bb706bb7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\ComponentSystem">
+      <UniqueIdentifier>{d4383dc3-02c6-4f9f-8dbb-16181dfe5c7f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\ComponentSystem\Core Files">
+      <UniqueIdentifier>{799bb80a-88c2-4d12-9fb9-7e1bf9104e8b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\ComponentSystem\Custom Components">
+      <UniqueIdentifier>{caa5d160-e744-4676-9692-fd6be924b3c0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Game Components">
+      <UniqueIdentifier>{9e3f63e0-dfc4-4329-a691-879d140ac25a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\ComponentSystem\Core Files\Base Components">
+      <UniqueIdentifier>{2cc5bd10-a1a8-4dd8-9a80-811fc7e898ad}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Camera">
+      <UniqueIdentifier>{2f790bfa-acfa-4f4d-9fb7-6e30e3376aea}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Data\OBJs">
+      <UniqueIdentifier>{552a613a-1035-4538-af32-325ad75aeed7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Data\Scenes">
+      <UniqueIdentifier>{fea2206a-db34-451c-8dfa-c26402ff1bc9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Lua">
+      <UniqueIdentifier>{04d45a49-4464-45fe-a62e-29c9e60749ee}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Lua\LuaBridge">
+      <UniqueIdentifier>{e84d36e3-31a7-4e85-9856-327133bd99f5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Lua\LuaBridge\detail">
+      <UniqueIdentifier>{9fe0bd82-3630-4426-88e4-f2c500e9ccc7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Data\Scripts">
+      <UniqueIdentifier>{486dccc9-39ee-447e-a618-2c068060fb9c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Lua\src">
+      <UniqueIdentifier>{97f8a95b-4dc2-45a5-a92f-b2a35b1295fb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\Editor">
+      <UniqueIdentifier>{23826f0c-8cd4-4b10-a2d4-567f146d1856}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Data\Shaders\Include">
+      <UniqueIdentifier>{93d0ff57-e2f3-4138-9195-93d0f16862ba}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source - Platform\Source - Windows">
+      <UniqueIdentifier>{a02d5de6-1291-401b-9c89-4e92bba8be9b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source - Platform\Source - BlackBerry">
+      <UniqueIdentifier>{6c5c39b4-90cf-4e96-bd65-d294882b77ea}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source - Platform\Source - Android">
+      <UniqueIdentifier>{ad7656dc-1367-4d8c-8605-0a6a9741b88a}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="SourceCommon\Core\GameEntityComponentTest.cpp">
+      <Filter>Source\Core Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCommon\GameComponents\ComponentInputTrackMousePos.cpp">
+      <Filter>Source\Game Components</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCommon\ComponentSystem\Core\ComponentSystemManager.cpp">
+      <Filter>Source\ComponentSystem\Core Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCommon\ComponentSystem\Core\GameObject.cpp">
+      <Filter>Source\ComponentSystem\Core Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCommon\ComponentSystem\CustomComponents\ComponentSprite.cpp">
+      <Filter>Source\ComponentSystem\Custom Components</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCommon\ComponentSystem\Core\BaseComponents\ComponentData.cpp">
+      <Filter>Source\ComponentSystem\Core Files\Base Components</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCommon\ComponentSystem\Core\BaseComponents\ComponentInputHandler.cpp">
+      <Filter>Source\ComponentSystem\Core Files\Base Components</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCommon\ComponentSystem\Core\BaseComponents\ComponentRenderable.cpp">
+      <Filter>Source\ComponentSystem\Core Files\Base Components</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCommon\ComponentSystem\Core\BaseComponents\ComponentUpdateable.cpp">
+      <Filter>Source\ComponentSystem\Core Files\Base Components</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCommon\ComponentSystem\Core\ComponentTypeManager.cpp">
+      <Filter>Source\ComponentSystem\Core Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCommon\Core\GameComponentTypeManager.cpp">
+      <Filter>Source\Core Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCommon\GameComponents\ComponentAIChasePlayer.cpp">
+      <Filter>Source\Game Components</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCommon\ComponentSystem\Core\BaseComponents\ComponentBase.cpp">
+      <Filter>Source\ComponentSystem\Core Files\Base Components</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCommon\ComponentSystem\Core\BaseComponents\ComponentTransform.cpp">
+      <Filter>Source\ComponentSystem\Core Files\Base Components</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCommon\Core\GameMainFrame.cpp">
+      <Filter>Source\Core Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCommon\Camera\Camera3D.cpp">
+      <Filter>Source\Camera</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCommon\Camera\Camera2D.cpp">
+      <Filter>Source\Camera</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCommon\ComponentSystem\Core\BaseComponents\ComponentCamera.cpp">
+      <Filter>Source\ComponentSystem\Core Files\Base Components</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCommon\ComponentSystem\CustomComponents\ComponentMesh.cpp">
+      <Filter>Source\ComponentSystem\Custom Components</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCommon\Core\BulletWorld.cpp">
+      <Filter>Source\Core Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCommon\GameComponents\ComponentCollisionObject.cpp">
+      <Filter>Source\Game Components</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCommon\ComponentSystem\CustomComponents\ComponentMeshOBJ.cpp">
+      <Filter>Source\ComponentSystem\Custom Components</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCommon\GameComponents\ComponentLuaScript.cpp">
+      <Filter>Source\Game Components</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Lua\src\lapi.c">
+      <Filter>Lua\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Lua\src\lauxlib.c">
+      <Filter>Lua\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Lua\src\lbaselib.c">
+      <Filter>Lua\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Lua\src\lbitlib.c">
+      <Filter>Lua\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Lua\src\lcode.c">
+      <Filter>Lua\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Lua\src\lcorolib.c">
+      <Filter>Lua\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Lua\src\lctype.c">
+      <Filter>Lua\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Lua\src\ldblib.c">
+      <Filter>Lua\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Lua\src\ldebug.c">
+      <Filter>Lua\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Lua\src\ldo.c">
+      <Filter>Lua\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Lua\src\ldump.c">
+      <Filter>Lua\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Lua\src\lfunc.c">
+      <Filter>Lua\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Lua\src\lgc.c">
+      <Filter>Lua\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Lua\src\linit.c">
+      <Filter>Lua\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Lua\src\liolib.c">
+      <Filter>Lua\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Lua\src\llex.c">
+      <Filter>Lua\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Lua\src\lmathlib.c">
+      <Filter>Lua\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Lua\src\lmem.c">
+      <Filter>Lua\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Lua\src\loadlib.c">
+      <Filter>Lua\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Lua\src\lobject.c">
+      <Filter>Lua\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Lua\src\lopcodes.c">
+      <Filter>Lua\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Lua\src\loslib.c">
+      <Filter>Lua\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Lua\src\lparser.c">
+      <Filter>Lua\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Lua\src\lstate.c">
+      <Filter>Lua\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Lua\src\lstring.c">
+      <Filter>Lua\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Lua\src\lstrlib.c">
+      <Filter>Lua\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Lua\src\ltable.c">
+      <Filter>Lua\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Lua\src\ltablib.c">
+      <Filter>Lua\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Lua\src\ltm.c">
+      <Filter>Lua\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Lua\src\lua.c">
+      <Filter>Lua\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Lua\src\luac.c">
+      <Filter>Lua\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Lua\src\lundump.c">
+      <Filter>Lua\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Lua\src\lvm.c">
+      <Filter>Lua\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Lua\src\lzio.c">
+      <Filter>Lua\src</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCommon\Core\LuaGameState.cpp">
+      <Filter>Source\Core Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCommon\Core\EditorState.cpp">
+      <Filter>Source\Core Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCommon\Editor\GameCommandStack.cpp">
+      <Filter>Source\Editor</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCommon\Editor\GameEditorCommands.cpp">
+      <Filter>Source\Editor</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCommon\Editor\TransformGizmo.cpp">
+      <Filter>Source\Editor</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCommon\ComponentSystem\CustomComponents\ComponentLight.cpp">
+      <Filter>Source\ComponentSystem\Custom Components</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCommon\ComponentSystem\CustomComponents\ComponentMeshPrimitive.cpp">
+      <Filter>Source\ComponentSystem\Custom Components</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCommon\ComponentSystem\CustomComponents\ComponentParticleEmitter.cpp">
+      <Filter>Source\ComponentSystem\Custom Components</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCommon\ComponentSystem\CustomComponents\ComponentAnimationPlayer.cpp">
+      <Filter>Source\ComponentSystem\Custom Components</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCommon\ComponentSystem\CustomComponents\ComponentCameraShadow.cpp">
+      <Filter>Source\ComponentSystem\Custom Components</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCommon\EngineCommonHeader.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="SourceCommon\Core\GameEntityComponentTest.h">
+      <Filter>Source\Core Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCommon\GameComponents\ComponentInputTrackMousePos.h">
+      <Filter>Source\Game Components</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCommon\ComponentSystem\Core\ComponentSystemManager.h">
+      <Filter>Source\ComponentSystem\Core Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCommon\ComponentSystem\Core\GameObject.h">
+      <Filter>Source\ComponentSystem\Core Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCommon\ComponentSystem\CustomComponents\ComponentSprite.h">
+      <Filter>Source\ComponentSystem\Custom Components</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCommon\ComponentSystem\Core\BaseComponents\ComponentData.h">
+      <Filter>Source\ComponentSystem\Core Files\Base Components</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCommon\ComponentSystem\Core\BaseComponents\ComponentInputHandler.h">
+      <Filter>Source\ComponentSystem\Core Files\Base Components</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCommon\ComponentSystem\Core\BaseComponents\ComponentRenderable.h">
+      <Filter>Source\ComponentSystem\Core Files\Base Components</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCommon\ComponentSystem\Core\BaseComponents\ComponentUpdateable.h">
+      <Filter>Source\ComponentSystem\Core Files\Base Components</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCommon\ComponentSystem\Core\ComponentTypeManager.h">
+      <Filter>Source\ComponentSystem\Core Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCommon\Core\GameComponentTypeManager.h">
+      <Filter>Source\Core Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCommon\GameComponents\ComponentAIChasePlayer.h">
+      <Filter>Source\Game Components</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCommon\ComponentSystem\Core\BaseComponents\ComponentBase.h">
+      <Filter>Source\ComponentSystem\Core Files\Base Components</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCommon\ComponentSystem\Core\BaseComponents\ComponentTransform.h">
+      <Filter>Source\ComponentSystem\Core Files\Base Components</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCommon\Core\GameMainFrame.h">
+      <Filter>Source\Core Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCommon\Camera\Camera3D.h">
+      <Filter>Source\Camera</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCommon\Camera\Camera2D.h">
+      <Filter>Source\Camera</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCommon\ComponentSystem\Core\BaseComponents\ComponentCamera.h">
+      <Filter>Source\ComponentSystem\Core Files\Base Components</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCommon\ComponentSystem\CustomComponents\ComponentMesh.h">
+      <Filter>Source\ComponentSystem\Custom Components</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCommon\Core\BulletWorld.h">
+      <Filter>Source\Core Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCommon\GameComponents\ComponentCollisionObject.h">
+      <Filter>Source\Game Components</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCommon\ComponentSystem\CustomComponents\ComponentMeshOBJ.h">
+      <Filter>Source\ComponentSystem\Custom Components</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCommon\GameComponents\ComponentLuaScript.h">
+      <Filter>Source\Game Components</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Lua\LuaBridge\LuaBridge.h">
+      <Filter>Lua\LuaBridge</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Lua\LuaBridge\RefCountedObject.h">
+      <Filter>Lua\LuaBridge</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Lua\LuaBridge\RefCountedPtr.h">
+      <Filter>Lua\LuaBridge</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Lua\LuaBridge\detail\CFunctions.h">
+      <Filter>Lua\LuaBridge\detail</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Lua\LuaBridge\detail\ClassInfo.h">
+      <Filter>Lua\LuaBridge\detail</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Lua\LuaBridge\detail\Constructor.h">
+      <Filter>Lua\LuaBridge\detail</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Lua\LuaBridge\detail\dump.h">
+      <Filter>Lua\LuaBridge\detail</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Lua\LuaBridge\detail\FuncTraits.h">
+      <Filter>Lua\LuaBridge\detail</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Lua\LuaBridge\detail\Iterator.h">
+      <Filter>Lua\LuaBridge\detail</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Lua\LuaBridge\detail\LuaException.h">
+      <Filter>Lua\LuaBridge\detail</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Lua\LuaBridge\detail\LuaHelpers.h">
+      <Filter>Lua\LuaBridge\detail</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Lua\LuaBridge\detail\LuaRef.h">
+      <Filter>Lua\LuaBridge\detail</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Lua\LuaBridge\detail\Namespace.h">
+      <Filter>Lua\LuaBridge\detail</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Lua\LuaBridge\detail\Stack.h">
+      <Filter>Lua\LuaBridge\detail</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Lua\LuaBridge\detail\TypeList.h">
+      <Filter>Lua\LuaBridge\detail</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Lua\LuaBridge\detail\TypeTraits.h">
+      <Filter>Lua\LuaBridge\detail</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Lua\LuaBridge\detail\Userdata.h">
+      <Filter>Lua\LuaBridge\detail</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Lua\src\lzio.h">
+      <Filter>Lua\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Lua\src\lapi.h">
+      <Filter>Lua\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Lua\src\lauxlib.h">
+      <Filter>Lua\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Lua\src\lcode.h">
+      <Filter>Lua\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Lua\src\lctype.h">
+      <Filter>Lua\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Lua\src\ldebug.h">
+      <Filter>Lua\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Lua\src\ldo.h">
+      <Filter>Lua\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Lua\src\lfunc.h">
+      <Filter>Lua\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Lua\src\lgc.h">
+      <Filter>Lua\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Lua\src\llex.h">
+      <Filter>Lua\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Lua\src\llimits.h">
+      <Filter>Lua\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Lua\src\lmem.h">
+      <Filter>Lua\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Lua\src\lobject.h">
+      <Filter>Lua\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Lua\src\lopcodes.h">
+      <Filter>Lua\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Lua\src\lparser.h">
+      <Filter>Lua\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Lua\src\lstate.h">
+      <Filter>Lua\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Lua\src\lstring.h">
+      <Filter>Lua\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Lua\src\ltable.h">
+      <Filter>Lua\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Lua\src\ltm.h">
+      <Filter>Lua\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Lua\src\lua.h">
+      <Filter>Lua\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Lua\src\lua.hpp">
+      <Filter>Lua\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Lua\src\luaconf.h">
+      <Filter>Lua\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Lua\src\lualib.h">
+      <Filter>Lua\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Lua\src\lundump.h">
+      <Filter>Lua\src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Lua\src\lvm.h">
+      <Filter>Lua\src</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCommon\Core\LuaGameState.h">
+      <Filter>Source\Core Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCommon\Core\EditorState.h">
+      <Filter>Source\Core Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCommon\Editor\GameCommandStack.h">
+      <Filter>Source\Editor</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCommon\Editor\GameEditorCommands.h">
+      <Filter>Source\Editor</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCommon\Editor\TransformGizmo.h">
+      <Filter>Source\Editor</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCommon\ComponentSystem\CustomComponents\ComponentLight.h">
+      <Filter>Source\ComponentSystem\Custom Components</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCommon\ComponentSystem\CustomComponents\ComponentMeshPrimitive.h">
+      <Filter>Source\ComponentSystem\Custom Components</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCommon\ComponentSystem\CustomComponents\ComponentParticleEmitter.h">
+      <Filter>Source\ComponentSystem\Custom Components</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCommon\ComponentSystem\CustomComponents\ComponentAnimationPlayer.h">
+      <Filter>Source\ComponentSystem\Custom Components</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCommon\ComponentSystem\CustomComponents\ComponentCameraShadow.h">
+      <Filter>Source\ComponentSystem\Custom Components</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCommon\EngineCommonHeader.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\todo.todo" />
+    <None Include="Data\Shaders\Shader_TintColor.glsl">
+      <Filter>Data\Shaders</Filter>
+    </None>
+    <None Include="Data\Shaders\Shader_TestNormals.glsl">
+      <Filter>Data\Shaders</Filter>
+    </None>
+    <None Include="Data\Shaders\Shader_Texture.glsl">
+      <Filter>Data\Shaders</Filter>
+    </None>
+    <None Include="Data\Scenes\test.scene">
+      <Filter>Data\Scenes</Filter>
+    </None>
+    <None Include="Data\Scripts\Player.lua">
+      <Filter>Data\Scripts</Filter>
+    </None>
+    <None Include="Data\Scripts\Enemy.lua">
+      <Filter>Data\Scripts</Filter>
+    </None>
+    <None Include="EditorPrefs.ini" />
+    <None Include="Data\Shaders\Shader_VertSinY.glsl">
+      <Filter>Data\Shaders</Filter>
+    </None>
+    <None Include="Data\Shaders\Shader_Water.glsl">
+      <Filter>Data\Shaders</Filter>
+    </None>
+    <None Include="Data\Shaders\Shader_Breathe.glsl">
+      <Filter>Data\Shaders</Filter>
+    </None>
+    <None Include="Data\Scripts\GGJPlayer.lua">
+      <Filter>Data\Scripts</Filter>
+    </None>
+    <None Include="Data\Scripts\GGJTube.lua">
+      <Filter>Data\Scripts</Filter>
+    </None>
+    <None Include="Data\Scenes\World.scene">
+      <Filter>Data\Scenes</Filter>
+    </None>
+    <None Include="Data\Scripts\GGJEnemy.lua">
+      <Filter>Data\Scripts</Filter>
+    </None>
+    <None Include="Data\Shaders\Shader_TextureLights.glsl">
+      <Filter>Data\Shaders</Filter>
+    </None>
+    <None Include="Data\Shaders\Shader_ClipSpaceTexture.glsl">
+      <Filter>Data\Shaders</Filter>
+    </None>
+    <None Include="Data\Scenes\LightTest.scene">
+      <Filter>Data\Scenes</Filter>
+    </None>
+    <None Include="Data\Shaders\Shader_TextureVertexColor.glsl">
+      <Filter>Data\Shaders</Filter>
+    </None>
+    <None Include="Data\Shaders\Shader_BoneAnim.glsl">
+      <Filter>Data\Shaders</Filter>
+    </None>
+    <None Include="Data\Shaders\Include\Bone_AttribsAndUniforms.glsl">
+      <Filter>Data\Shaders\Include</Filter>
+    </None>
+    <None Include="Data\Shaders\Include\Bone_Functions.glsl">
+      <Filter>Data\Shaders\Include</Filter>
+    </None>
+    <None Include="Data\Shaders\Include\Light_Functions.glsl">
+      <Filter>Data\Shaders\Include</Filter>
+    </None>
+    <None Include="Data\Shaders\Include\Light_Uniforms.glsl">
+      <Filter>Data\Shaders\Include</Filter>
+    </None>
+    <None Include="Data\Scripts\SimpleCharacterController.lua">
+      <Filter>Data\Scripts</Filter>
+    </None>
+    <None Include="Data\Scenes\AnimationTest.scene">
+      <Filter>Data\Scenes</Filter>
+    </None>
+    <None Include="Data\Shaders\Include\WSVaryings.glsl">
+      <Filter>Data\Shaders\Include</Filter>
+    </None>
+    <None Include="Data\Shaders\Include\WSVaryings_Functions.glsl">
+      <Filter>Data\Shaders\Include</Filter>
+    </None>
+    <None Include="Data\Shaders\Include\LSVaryings.glsl">
+      <Filter>Data\Shaders\Include</Filter>
+    </None>
+    <None Include="Data\Shaders\Include\LSVaryings_Functions.glsl">
+      <Filter>Data\Shaders\Include</Filter>
+    </None>
+    <None Include="Data\Scenes\TestShadow.scene">
+      <Filter>Data\Scenes</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Object Include="Data\OBJs\cube.obj">
+      <Filter>Data\OBJs</Filter>
+    </Object>
+  </ItemGroup>
+</Project>
