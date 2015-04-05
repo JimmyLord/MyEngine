@@ -69,6 +69,7 @@ public:
 
     virtual void InitFrame();
     virtual void AddPanes();
+    virtual bool UpdateAUIManagerAndLoadPerspective();
     virtual void OnPostInit();
     virtual void OnClose();
 

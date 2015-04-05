@@ -196,6 +196,19 @@ void GameMainFrame::AddPanes()
     m_AUIManager.AddPane( m_pLogPane, wxAuiPaneInfo().Name("Log").Bottom().Caption("Log") );//.CaptionVisible(false) );
 }
 
+bool GameMainFrame::UpdateAUIManagerAndLoadPerspective()
+{
+    if( MainFrame::UpdateAUIManagerAndLoadPerspective() )
+        return true;
+
+    // layout.ini file not found, use the default editor layout.
+    int currentperspective = GetDefaultEditorPerspectiveIndex();
+    m_AUIManager.LoadPerspective( g_DefaultPerspectives[currentperspective] );
+
+    // say a valid layout was set.
+    return true;
+}
+
 void GameMainFrame::OnPostInit()
 {
     if( m_pEditorPrefs )
