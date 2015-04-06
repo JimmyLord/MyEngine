@@ -9,8 +9,12 @@
 
 #include "EngineCommonHeader.h"
 
-GameEntityComponentTest::GameEntityComponentTest()
+EngineCore* g_pEngineCore = 0;
+
+EngineCore::EngineCore()
 {
+    g_pEngineCore = this;
+
     m_pComponentSystemManager = 0;
 
 #if MYFW_USING_WX
@@ -52,7 +56,7 @@ GameEntityComponentTest::GameEntityComponentTest()
 #endif //MYFW_USING_WX
 }
 
-GameEntityComponentTest::~GameEntityComponentTest()
+EngineCore::~EngineCore()
 {
     SAFE_DELETE( m_pLuaGameState );
 
@@ -71,7 +75,7 @@ GameEntityComponentTest::~GameEntityComponentTest()
     SAFE_DELETE( m_pBulletWorld );
 }
 
-void GameEntityComponentTest::OneTimeInit()
+void EngineCore::OneTimeInit()
 {
     GameCore::OneTimeInit();
 
@@ -96,7 +100,7 @@ void GameEntityComponentTest::OneTimeInit()
     m_pShader_ClipSpaceTexture = MyNew ShaderGroup( m_pShaderFile_ClipSpaceTexture, m_pShaderFile_ClipSpaceTexture->m_FilenameWithoutExtension );
 
     // Initialize our component system.
-    m_pComponentSystemManager = MyNew ComponentSystemManager( MyNew GameComponentTypeManager );
+    m_pComponentSystemManager = MyNew ComponentSystemManager( CreateComponentTypeManager() );
 
     // initialize lua state and register any variables needed.
     m_pLuaGameState = MyNew LuaGameState;
@@ -297,12 +301,12 @@ void GameEntityComponentTest::OneTimeInit()
 #endif
 }
 
-bool GameEntityComponentTest::IsReadyToRender()
+bool EngineCore::IsReadyToRender()
 {
     return true;
 }
 
-double GameEntityComponentTest::Tick(double TimePassed)
+double EngineCore::Tick(double TimePassed)
 {
     if( TimePassed > 0.2 )
         TimePassed = 0.2;
@@ -371,7 +375,7 @@ void OnFileUpdated_CallbackFunction(MyFileObject* pFile)
     // TODO: entitycomponentmanager-> tell all script components file is updated.
 }
 
-void GameEntityComponentTest::OnFocusGained()
+void EngineCore::OnFocusGained()
 {
     GameCore::OnFocusGained();
 
@@ -386,12 +390,12 @@ void GameEntityComponentTest::OnFocusGained()
     }
 }
 
-void GameEntityComponentTest::OnFocusLost()
+void EngineCore::OnFocusLost()
 {
     GameCore::OnFocusLost();
 }
 
-void GameEntityComponentTest::OnDrawFrame()
+void EngineCore::OnDrawFrame()
 {
     GameCore::OnDrawFrame();
 
@@ -473,7 +477,7 @@ void GameEntityComponentTest::OnDrawFrame()
 #endif
 }
 
-void GameEntityComponentTest::OnTouch(int action, int id, float x, float y, float pressure, float size)
+void EngineCore::OnTouch(int action, int id, float x, float y, float pressure, float size)
 {
     GameCore::OnTouch( action, id, x, y, pressure, size );
 
@@ -519,14 +523,14 @@ void GameEntityComponentTest::OnTouch(int action, int id, float x, float y, floa
     m_pComponentSystemManager->OnTouch( action, id, x, y, pressure, size );
 }
 
-void GameEntityComponentTest::OnButtons(GameCoreButtonActions action, GameCoreButtonIDs id)
+void EngineCore::OnButtons(GameCoreButtonActions action, GameCoreButtonIDs id)
 {
     GameCore::OnButtons( action, id );
 
     m_pComponentSystemManager->OnButtons( action, id );
 }
 
-void GameEntityComponentTest::OnKey(GameCoreButtonActions action, int keycode, int unicodechar)
+void EngineCore::OnKey(GameCoreButtonActions action, int keycode, int unicodechar)
 {
     GameCore::OnKey( action, keycode, unicodechar );
 
@@ -647,7 +651,7 @@ void GameEntityComponentTest::OnKey(GameCoreButtonActions action, int keycode, i
     }
 }
 
-void GameEntityComponentTest::RegisterGameplayButtons()
+void EngineCore::RegisterGameplayButtons()
 {
     this->m_KeyMappingToButtons['W'] = GCBI_Up;
     this->m_KeyMappingToButtons['A'] = GCBI_Left;
@@ -667,7 +671,7 @@ void GameEntityComponentTest::RegisterGameplayButtons()
     this->m_KeyMappingToButtons['V'] = GCBI_ButtonD;
 }
 
-void GameEntityComponentTest::UnregisterGameplayButtons()
+void EngineCore::UnregisterGameplayButtons()
 {
     for( int i=0; i<GCBI_NumButtons; i++ )
         m_ButtonsHeld[i] = false;
@@ -679,7 +683,7 @@ void GameEntityComponentTest::UnregisterGameplayButtons()
     }
 }
 
-void GameEntityComponentTest::HandleEditorInput(int keyaction, int keycode, int mouseaction, int id, float x, float y, float pressure)
+void EngineCore::HandleEditorInput(int keyaction, int keycode, int mouseaction, int id, float x, float y, float pressure)
 {
 #if MYFW_USING_WX
     if( keycode == MYKEYCODE_LCTRL )
@@ -1197,7 +1201,7 @@ void GameEntityComponentTest::HandleEditorInput(int keyaction, int keycode, int 
 #endif //MYFW_USING_WX
 }
 
-void GameEntityComponentTest::SaveScene(const char* fullpath)
+void EngineCore::SaveScene(const char* fullpath)
 {
     char* savestring = g_pComponentSystemManager->SaveSceneToJSON();
 
@@ -1216,7 +1220,7 @@ void GameEntityComponentTest::SaveScene(const char* fullpath)
     free( savestring );
 }
 
-void GameEntityComponentTest::UnloadScene(unsigned int sceneid)
+void EngineCore::UnloadScene(unsigned int sceneid)
 {
     // reset the editorstate structure.
 #if MYFW_USING_WX
@@ -1227,7 +1231,7 @@ void GameEntityComponentTest::UnloadScene(unsigned int sceneid)
 }
 
 #if MYFW_USING_WX
-void GameEntityComponentTest::LoadSceneFromFile(const char* fullpath, unsigned int sceneid)
+void EngineCore::LoadSceneFromFile(const char* fullpath, unsigned int sceneid)
 {
     FILE* filehandle;
 #if MYFW_WINDOWS
@@ -1260,7 +1264,7 @@ void GameEntityComponentTest::LoadSceneFromFile(const char* fullpath, unsigned i
 }
 #endif //MYFW_USING_WX
 
-void GameEntityComponentTest::LoadScene(const char* buffer, unsigned int sceneid)
+void EngineCore::LoadScene(const char* buffer, unsigned int sceneid)
 {
     // reset the editorstate structure.
 #if MYFW_USING_WX
@@ -1278,7 +1282,7 @@ void GameEntityComponentTest::LoadScene(const char* buffer, unsigned int sceneid
     OnSurfaceChanged( (unsigned int)m_WindowStartX, (unsigned int)m_WindowStartY, (unsigned int)m_WindowWidth, (unsigned int)m_WindowHeight );
 }
 
-void GameEntityComponentTest::OnSurfaceChanged(unsigned int startx, unsigned int starty, unsigned int width, unsigned int height)
+void EngineCore::OnSurfaceChanged(unsigned int startx, unsigned int starty, unsigned int width, unsigned int height)
 {
     GameCore::OnSurfaceChanged( startx, starty, width, height );
 
@@ -1334,7 +1338,7 @@ void GameEntityComponentTest::OnSurfaceChanged(unsigned int startx, unsigned int
 }
 
 #if MYFW_USING_WX
-GameObject* GameEntityComponentTest::GetObjectAtPixel(unsigned int x, unsigned int y)
+GameObject* EngineCore::GetObjectAtPixel(unsigned int x, unsigned int y)
 {
     // render the scene to a FBO.
     m_pEditorState->m_pMousePickerFBO->Bind();
@@ -1400,7 +1404,7 @@ GameObject* GameEntityComponentTest::GetObjectAtPixel(unsigned int x, unsigned i
     return pGameObject;
 }
 
-void GameEntityComponentTest::RenderSingleObject(GameObject* pObject)
+void EngineCore::RenderSingleObject(GameObject* pObject)
 {
     // render the scene to a FBO.
     m_pEditorState->m_pDebugViewFBO->Bind();
@@ -1435,7 +1439,7 @@ void GameEntityComponentTest::RenderSingleObject(GameObject* pObject)
     m_pEditorState->m_pDebugViewFBO->Unbind();
 }
 
-void GameEntityComponentTest::GetMouseRay(Vector2 mousepos, Vector3* start, Vector3* end)
+void EngineCore::GetMouseRay(Vector2 mousepos, Vector3* start, Vector3* end)
 {
     ComponentCamera* pCamera = m_pEditorState->GetEditorCamera();
 
@@ -1464,7 +1468,7 @@ void GameEntityComponentTest::GetMouseRay(Vector2 mousepos, Vector3* start, Vect
 #endif //MYFW_USING_WX
 
 #if MYFW_USING_WX
-void GameEntityComponentTest::OnObjectListTreeSelectionChanged()
+void EngineCore::OnObjectListTreeSelectionChanged()
 {
     if( m_pEditorState )
     {

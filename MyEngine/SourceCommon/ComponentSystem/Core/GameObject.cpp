@@ -68,13 +68,13 @@ void GameObject::LuaRegister(lua_State* luastate)
 void GameObject::OnLeftClick(bool clear)
 {
     // select this GameObject in the editor window.
-    if( ((GameEntityComponentTest*)g_pGameCore)->m_pEditorState == 0 )
+    if( g_pEngineCore->m_pEditorState == 0 )
         return;
 
-    ((GameEntityComponentTest*)g_pGameCore)->m_pEditorState->m_pSelectedObjects.push_back( this );
+    g_pEngineCore->m_pEditorState->m_pSelectedObjects.push_back( this );
 
     // only show properties of the first selected object.
-    if( ((GameEntityComponentTest*)g_pGameCore)->m_pEditorState->m_pSelectedObjects.size() > 1 )
+    if( g_pEngineCore->m_pEditorState->m_pSelectedObjects.size() > 1 )
         return;
 
     if( clear )
@@ -97,7 +97,8 @@ void GameObject::OnRightClick()
 
     menu.Append( 1000, "Duplicate GameObject" ); // matches 1000 in OnPopupClick()
 
-    for( unsigned int i=0; i<g_pComponentTypeManager->GetNumberOfComponentTypes(); i++ )
+    int numtypes = g_pComponentTypeManager->GetNumberOfComponentTypes();
+    for( unsigned int i=0; i<numtypes; i++ )
     {
         if( lastcategory != g_pComponentTypeManager->GetTypeCategory( i ) )
         {
@@ -129,9 +130,9 @@ void GameObject::OnPopupClick(wxEvent &evt)
 
     if( id < g_pComponentTypeManager->GetNumberOfComponentTypes() )
     {
-        ComponentTypes type = (ComponentTypes)id;
+        int type = id; // could be EngineComponentTypes or GameComponentTypes type.
 
-        if( ((GameEntityComponentTest*)g_pGameCore)->m_EditorMode )
+        if( g_pEngineCore->m_EditorMode )
             pGameObject->AddNewComponent( type, pGameObject->GetSceneID() );
         else
             pGameObject->AddNewComponent( type, 0 );
@@ -142,7 +143,7 @@ void GameObject::OnPopupClick(wxEvent &evt)
     }
     else if( id == 1001 ) // "Delete GameObject"
     {
-        EditorState* pEditorState = ((GameEntityComponentTest*)g_pGameCore)->m_pEditorState;
+        EditorState* pEditorState = g_pEngineCore->m_pEditorState;
 
         // if the object isn't selected, delete just the one object, otherwise delete all selected objects.
         if( pEditorState->IsObjectSelected( pGameObject ) )

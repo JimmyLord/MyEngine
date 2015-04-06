@@ -56,7 +56,7 @@ void ComponentBase::OnComponentTitleLabelClicked(int id, bool finishedchanging)
 void ComponentBase::OnLeftClick(bool clear)
 {
     // select this Component in the editor window.
-    ((GameEntityComponentTest*)g_pGameCore)->m_pEditorState->m_pSelectedComponents.push_back( this );
+    g_pEngineCore->m_pEditorState->m_pSelectedComponents.push_back( this );
 
     if( clear )
         g_pPanelWatch->ClearAllVariables();
@@ -82,7 +82,7 @@ void ComponentBase::OnPopupClick(wxEvent &evt)
     int id = evt.GetId();
     if( id == 1000 )
     {
-        EditorState* pEditorState = ((GameEntityComponentTest*)g_pGameCore)->m_pEditorState;
+        EditorState* pEditorState = g_pEngineCore->m_pEditorState;
 
         // deselect all "main" transform components.
         for( unsigned int i=0; i<pEditorState->m_pSelectedComponents.size(); i++ )

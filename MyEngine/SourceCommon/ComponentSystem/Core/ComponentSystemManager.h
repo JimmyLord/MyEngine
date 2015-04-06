@@ -47,7 +47,7 @@ class ComponentSystemManager
 #endif //MYFW_USING_WX
 {
 public:
-    ComponentTypeManager* m_pComponentTypeManager;
+    ComponentTypeManager* m_pComponentTypeManager; // memory managed, delete this.
     CPPListHead m_GameObjects;
 
     // List of files used including a scene id

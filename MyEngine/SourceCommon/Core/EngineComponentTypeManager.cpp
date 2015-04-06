@@ -10,7 +10,7 @@
 #include "EngineCommonHeader.h"
 
 // sort by category, otherwise right-click menu will have duplicates.
-ComponentTypeInfo g_ComponentTypeInfo[Component_NumComponentTypes] = // ADDING_NEW_ComponentType
+ComponentTypeInfo g_EngineComponentTypeInfo[Component_NumEngineComponentTypes] = // ADDING_NEW_ComponentType
 {
     { "Camera",         "Camera",           },
     { "Renderables",    "Sprite",           },
@@ -19,15 +19,13 @@ ComponentTypeInfo g_ComponentTypeInfo[Component_NumComponentTypes] = // ADDING_N
     { "Renderables",    "Mesh-Primitive",   },
     { "Lighting",       "Light",            },
     { "Lighting",       "Shadow Dir Light", },
-    { "Input handlers", "Track Mouse",      },
-    { "AI",             "AI Chase Player",  },
     { "Physics",        "Collision Object", },
     { "Scripts",        "Lua Script",       },
     { "Particles",      "Particle Emitter", },
     { "Animation",      "Animation Player", },
 };
 
-ComponentBase* GameComponentTypeManager::CreateComponent(int type)
+ComponentBase* EngineComponentTypeManager::CreateComponent(int type)
 {
     ComponentBase* pComponent;
 
@@ -42,8 +40,6 @@ ComponentBase* GameComponentTypeManager::CreateComponent(int type)
     case ComponentType_MeshPrimitive:       pComponent = MyNew ComponentMeshPrimitive;      break;
     case ComponentType_Light:               pComponent = MyNew ComponentLight;              break;
     case ComponentType_CameraShadow:        pComponent = MyNew ComponentCameraShadow;       break;
-    case ComponentType_InputTrackMousePos:  pComponent = MyNew ComponentInputTrackMousePos; break;
-    case ComponentType_AIChasePlayer:       pComponent = MyNew ComponentAIChasePlayer;      break;
     case ComponentType_CollisionObject:     pComponent = MyNew ComponentCollisionObject;    break;
     case ComponentType_LuaScript:           pComponent = MyNew ComponentLuaScript;          break;
     case ComponentType_ParticleEmitter:     pComponent = MyNew ComponentParticleEmitter;    break;
@@ -56,26 +52,27 @@ ComponentBase* GameComponentTypeManager::CreateComponent(int type)
     return pComponent;
 }
 
-unsigned int GameComponentTypeManager::GetNumberOfComponentTypes()
+unsigned int EngineComponentTypeManager::GetNumberOfComponentTypes()
 {
-    return Component_NumComponentTypes;
+    assert( 0 ); // should never reach here, game level type manager should override and provide a proper value.
+    return Component_NumEngineComponentTypes;
 }
 
-const char* GameComponentTypeManager::GetTypeCategory(int type)
+const char* EngineComponentTypeManager::GetTypeCategory(int type)
 {
-    return g_ComponentTypeInfo[type].category;
+    return g_EngineComponentTypeInfo[type].category;
 }
 
-const char* GameComponentTypeManager::GetTypeName(int type)
+const char* EngineComponentTypeManager::GetTypeName(int type)
 {
-    return g_ComponentTypeInfo[type].name;
+    return g_EngineComponentTypeInfo[type].name;
 }
 
-int GameComponentTypeManager::GetTypeByName(const char* name)
+int EngineComponentTypeManager::GetTypeByName(const char* name)
 {
-    for( int i=0; i<Component_NumComponentTypes; i++ )
+    for( int i=0; i<Component_NumEngineComponentTypes; i++ )
     {
-        if( strcmp( g_ComponentTypeInfo[i].name, name ) == 0 )
+        if( strcmp( g_EngineComponentTypeInfo[i].name, name ) == 0 )
             return i;
     }
 

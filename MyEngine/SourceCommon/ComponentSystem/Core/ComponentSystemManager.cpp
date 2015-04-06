@@ -642,7 +642,7 @@ GameObject* ComponentSystemManager::CopyGameObject(GameObject* pObject, const ch
     {
         ComponentBase* pComponent = 0;
 
-        if( ((GameEntityComponentTest*)g_pGameCore)->m_EditorMode )
+        if( g_pEngineCore->m_EditorMode )
             pComponent = pNewObject->AddNewComponent( pObject->m_Components[i]->m_Type, pNewObject->GetSceneID() );
         else
             pComponent = pNewObject->AddNewComponent( pObject->m_Components[i]->m_Type, 0 );

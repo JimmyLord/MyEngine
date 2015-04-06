@@ -221,7 +221,7 @@ void GameMainFrame::OnPostInit()
 
         obj = cJSON_GetObjectItem( m_pEditorPrefs, "EditorCam" );
         if( obj )
-            ((GameEntityComponentTest*)g_pGameCore)->m_pEditorState->GetEditorCamera()->m_pComponentTransform->ImportFromJSONObject( obj, 1 );
+            g_pEngineCore->m_pEditorState->GetEditorCamera()->m_pComponentTransform->ImportFromJSONObject( obj, 1 );
 
         obj = cJSON_GetObjectItem( m_pEditorPrefs, "EditorLayout" );
         if( obj )
@@ -256,7 +256,7 @@ void GameMainFrame::OnClose()
         cJSON_AddNumberToObject( pPrefs, "IsMaximized", m_Maximized );
 
         cJSON_AddStringToObject( pPrefs, "LastSceneLoaded", m_CurrentSceneName );
-        cJSON_AddItemToObject( pPrefs, "EditorCam", ((GameEntityComponentTest*)g_pGameCore)->m_pEditorState->GetEditorCamera()->m_pComponentTransform->ExportAsJSONObject() );
+        cJSON_AddItemToObject( pPrefs, "EditorCam", g_pEngineCore->m_pEditorState->GetEditorCamera()->m_pComponentTransform->ExportAsJSONObject() );
         cJSON_AddNumberToObject( pPrefs, "EditorLayout", GetDefaultEditorPerspectiveIndex() );
         cJSON_AddNumberToObject( pPrefs, "GameplayLayout", GetDefaultGameplayPerspectiveIndex() );
         extern GLViewTypes g_CurrentGLViewType;
@@ -330,11 +330,11 @@ void GameMainFrame::OnGameMenu(wxCommandEvent& event)
         break;
 
     case myIDGame_DebugShowMousePickerFBO:
-        ((GameEntityComponentTest*)g_pGameCore)->m_Debug_DrawMousePickerFBO = !((GameEntityComponentTest*)g_pGameCore)->m_Debug_DrawMousePickerFBO;
+        g_pEngineCore->m_Debug_DrawMousePickerFBO = !g_pEngineCore->m_Debug_DrawMousePickerFBO;
         break;
 
     case myIDGame_DebugShowSelectedAnimatedMesh:
-        ((GameEntityComponentTest*)g_pGameCore)->m_Debug_DrawSelectedAnimatedMesh = !((GameEntityComponentTest*)g_pGameCore)->m_Debug_DrawSelectedAnimatedMesh;
+        g_pEngineCore->m_Debug_DrawSelectedAnimatedMesh = !g_pEngineCore->m_Debug_DrawSelectedAnimatedMesh;
         break;
     }
 }
@@ -356,7 +356,7 @@ void GameMainFrame::SetWindowPerspectiveToDefault(bool forceswitch)
     if( forceswitch == false && editor == gameplay )
         return;
 
-    if( ((GameEntityComponentTest*)g_pGameCore)->m_EditorMode )
+    if( g_pEngineCore->m_EditorMode )
     {
         currentperspective = editor;
     }
@@ -419,14 +419,14 @@ void GameMainFrame::SaveScene()
     }
     else
     {
-        if( ((GameEntityComponentTest*)g_pGameCore)->m_EditorMode == false )
+        if( g_pEngineCore->m_EditorMode == false )
         {
             m_pLogPane->AppendText( "Can't save when gameplay is active... use \"Save As\"\n" );
         }
         else
         {
             m_pLogPane->AppendText( "Saving scene...\n" );
-            ((GameEntityComponentTest*)g_pGameCore)->SaveScene( m_CurrentSceneName );
+            g_pEngineCore->SaveScene( m_CurrentSceneName );
         }
     }
 }
@@ -443,7 +443,7 @@ void GameMainFrame::SaveSceneAs()
     wxString wxpath = FileDialog.GetPath();
     sprintf_s( m_CurrentSceneName, 260, "%s", (const char*)wxpath );
 
-    ((GameEntityComponentTest*)g_pGameCore)->SaveScene( m_CurrentSceneName );
+    g_pEngineCore->SaveScene( m_CurrentSceneName );
 
     this->SetTitle( m_CurrentSceneName );
 }
@@ -476,8 +476,8 @@ void GameMainFrame::LoadScene(const char* scenename)
 
     // clear out the old scene before loading
     // TODO: make this optional, so we can load multiple scenes at once, also change the '1' in LoadScene to the next available scene id
-    ((GameEntityComponentTest*)g_pGameCore)->UnloadScene();
-    ((GameEntityComponentTest*)g_pGameCore)->LoadSceneFromFile( m_CurrentSceneName, 1 );
+    g_pEngineCore->UnloadScene();
+    g_pEngineCore->LoadSceneFromFile( m_CurrentSceneName, 1 );
 
     this->SetTitle( m_CurrentSceneName );
 }
@@ -526,6 +526,6 @@ void GameMainFrame::AddDatafileToScene()
         }
 
         // fullpath is actually a relative path at this point.
-        ((GameEntityComponentTest*)g_pGameCore)->m_pComponentSystemManager->LoadDatafile( fullpath, 1 );
+        g_pEngineCore->m_pComponentSystemManager->LoadDatafile( fullpath, 1 );
     }
 }

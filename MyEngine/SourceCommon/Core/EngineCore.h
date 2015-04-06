@@ -7,10 +7,12 @@
 // 2. Altered source versions must be plainly marked as such, and must not be misrepresented as being the original software.
 // 3. This notice may not be removed or altered from any source distribution.
 
-#ifndef __GameEntityComponentTest_H__
-#define __GameEntityComponentTest_H__
+#ifndef __EngineCore_H__
+#define __EngineCore_H__
 
 class BulletWorld;
+
+extern EngineCore* g_pEngineCore;
 
 enum ModifierKeys
 {
@@ -31,7 +33,7 @@ enum LayerValues
     Layer_EditorFG  = 0x8000,
 };
 
-class GameEntityComponentTest : public GameCore
+class EngineCore : public GameCore
 {
 public:
     ComponentSystemManager* m_pComponentSystemManager;
@@ -64,8 +66,10 @@ public:
     bool m_SceneLoaded;
 
 public:
-    GameEntityComponentTest();
-    virtual ~GameEntityComponentTest();
+    EngineCore();
+    virtual ~EngineCore();
+
+    virtual ComponentTypeManager* CreateComponentTypeManager() = 0;
 
     virtual void OneTimeInit();
     virtual bool IsReadyToRender();
@@ -98,9 +102,9 @@ public:
 #endif //MYFW_USING_WX
 
 #if MYFW_USING_WX
-    static void StaticOnObjectListTreeSelectionChanged(void* pObjectPtr) { ((GameEntityComponentTest*)pObjectPtr)->OnObjectListTreeSelectionChanged(); }
+    static void StaticOnObjectListTreeSelectionChanged(void* pObjectPtr) { ((EngineCore*)pObjectPtr)->OnObjectListTreeSelectionChanged(); }
     void OnObjectListTreeSelectionChanged();
 #endif //MYFW_USING_WX
 };
 
-#endif //__GameEntityComponentTest_H__
+#endif //__EngineCore_H__

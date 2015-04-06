@@ -7,12 +7,12 @@
 // 2. Altered source versions must be plainly marked as such, and must not be misrepresented as being the original software.
 // 3. This notice may not be removed or altered from any source distribution.
 
-#ifndef __GameComponentTypeManager_H__
-#define __GameComponentTypeManager_H__
+#ifndef __EngineComponentTypeManager_H__
+#define __EngineComponentTypeManager_H__
 
 class ComponentBase;
 
-enum ComponentTypes // search for ADDING_NEW_ComponentType
+enum EngineComponentTypes // search for ADDING_NEW_ComponentType
 {
     ComponentType_Camera,
     ComponentType_Sprite,
@@ -21,16 +21,14 @@ enum ComponentTypes // search for ADDING_NEW_ComponentType
     ComponentType_MeshPrimitive,
     ComponentType_Light,
     ComponentType_CameraShadow,
-    ComponentType_InputTrackMousePos,
-    ComponentType_AIChasePlayer,
     ComponentType_CollisionObject,
     ComponentType_LuaScript,
     ComponentType_ParticleEmitter,
     ComponentType_AnimationPlayer,
-    Component_NumComponentTypes,
+    Component_NumEngineComponentTypes,
 };
 
-class GameComponentTypeManager : public ComponentTypeManager
+class EngineComponentTypeManager : public ComponentTypeManager
 {
 public:
     virtual ComponentBase* CreateComponent(int type);
@@ -42,4 +40,4 @@ public:
     virtual int GetTypeByName(const char* name);
 };
 
-#endif //__ComponentList_H__
+#endif //__EngineComponentTypeManager_H__

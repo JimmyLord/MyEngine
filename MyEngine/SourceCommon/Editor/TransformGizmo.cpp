@@ -109,7 +109,7 @@ void TransformGizmo::Tick(double TimePassed, EditorState* pEditorState)
     }
 }
 
-bool TransformGizmo::HandleInput(GameEntityComponentTest* pGame, int keydown, int keycode, int action, int id, float x, float y, float pressure)
+bool TransformGizmo::HandleInput(EngineCore* pGame, int keydown, int keycode, int action, int id, float x, float y, float pressure)
 {
     // find the object we're hovering on
     GameObject* pObject = pGame->GetObjectAtPixel( x, y );
@@ -202,7 +202,7 @@ void TransformGizmo::ScaleGizmosForMousePickRendering(bool doscale)
     }
 }
 
-void TransformGizmo::TranslateSelectedObjects(GameEntityComponentTest* pGame, EditorState* pEditorState)
+void TransformGizmo::TranslateSelectedObjects(EngineCore* pGame, EditorState* pEditorState)
 {
     // move the selected objects along a plane or axis
     if( pEditorState->m_EditorActionState == EDITORACTIONSTATE_TranslateX ||
@@ -306,7 +306,7 @@ void TransformGizmo::TranslateSelectedObjects(GameEntityComponentTest* pGame, Ed
                 // find the diff pos between this frame and last.
                 Vector3 diff = currentresult - lastresult;
 
-                // move all of the things. // undo is handled by GameEntityComponentTest.cpp when mouse is lifted.
+                // move all of the things. // undo is handled by EngineCore.cpp when mouse is lifted.
                 //g_pGameMainFrame->m_pCommandStack->Do( MyNew EditorCommand_MoveObjects( diff, pEditorState->m_pSelectedObjects ) );
                 pEditorState->m_DistanceTranslated += diff;
                 //LOGInfo( LOGTag, "pEditorState->m_DistanceTranslated.Set( %f, %f, %f );", pEditorState->m_DistanceTranslated.x, pEditorState->m_DistanceTranslated.y, pEditorState->m_DistanceTranslated.z );

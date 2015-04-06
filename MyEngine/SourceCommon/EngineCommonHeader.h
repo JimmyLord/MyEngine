@@ -54,7 +54,7 @@ extern "C"
 #include "ComponentSystem/Core/BaseComponents/ComponentRenderable.h"
 
 // myframework components // ADDING_NEW_ComponentType
-#include "Core/GameComponentTypeManager.h"
+#include "Core/EngineComponentTypeManager.h"
 #include "ComponentSystem/CustomComponents/ComponentLight.h"
 #include "ComponentSystem/CustomComponents/ComponentCameraShadow.h"
 #include "ComponentSystem/CustomComponents/ComponentSprite.h"
@@ -63,14 +63,12 @@ extern "C"
 #include "ComponentSystem/CustomComponents/ComponentMeshPrimitive.h"
 #include "ComponentSystem/CustomComponents/ComponentParticleEmitter.h"
 #include "ComponentSystem/CustomComponents/ComponentAnimationPlayer.h"
+#include "ComponentSystem/CustomComponents/ComponentLuaScript.h"
+#include "ComponentSystem/CustomComponents/ComponentCollisionObject.h"
 
 // game code
 #include "Camera/Camera3D.h"
 #include "Camera/Camera2D.h"
-#include "GameComponents/ComponentInputTrackMousePos.h"
-#include "GameComponents/ComponentAIChasePlayer.h"
-#include "GameComponents/ComponentCollisionObject.h"
-#include "GameComponents/ComponentLuaScript.h"
 
 #include "ComponentSystem/Core/GameObject.h"
 
@@ -81,6 +79,6 @@ extern "C"
 #include "Editor/TransformGizmo.h"
 #endif
 
-#include "Core/GameEntityComponentTest.h"
+#include "Core/EngineCore.h"
 
 #endif //__EngineCommonHeader_H__

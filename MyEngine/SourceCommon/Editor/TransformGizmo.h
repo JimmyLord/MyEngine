@@ -10,7 +10,7 @@
 #ifndef __TransformGizmo_H__
 #define __TransformGizmo_H__
 
-class GameEntityComponentTest;
+class EngineCore;
 
 class TransformGizmo
 {
@@ -25,12 +25,12 @@ public:
 
     virtual void Tick(double TimePassed, EditorState* pEditorState);
 
-    bool HandleInput(GameEntityComponentTest* pGame, int keydown, int keycode, int action, int id, float x, float y, float pressure);
+    bool HandleInput(EngineCore* pGame, int keydown, int keycode, int action, int id, float x, float y, float pressure);
 
     void CreateAxisObjects(float scale, ShaderGroup* pShader, EditorState* pEditorState);
     void ScaleGizmosForMousePickRendering(bool doscale);
     
-    void TranslateSelectedObjects(GameEntityComponentTest* pGame, EditorState* pEditorState);
+    void TranslateSelectedObjects(EngineCore* pGame, EditorState* pEditorState);
 };
 
 #endif // __TransformGizmo_H__

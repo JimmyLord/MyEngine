@@ -259,9 +259,9 @@ void ComponentMesh::Draw(MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride, i
 
         Vector3 campos;
 #if MYFW_USING_WX
-        if( ((GameEntityComponentTest*)g_pGameCore)->m_EditorMode )
+        if( g_pEngineCore->m_EditorMode )
         {
-            campos = ((GameEntityComponentTest*)g_pGameCore)->m_pEditorState->GetEditorCamera()->m_pComponentTransform->GetPosition();
+            campos = g_pEngineCore->m_pEditorState->GetEditorCamera()->m_pComponentTransform->GetPosition();
         }
         else
 #endif

@@ -43,9 +43,6 @@
     <Filter Include="Source\ComponentSystem\Custom Components">
       <UniqueIdentifier>{caa5d160-e744-4676-9692-fd6be924b3c0}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Game Components">
-      <UniqueIdentifier>{9e3f63e0-dfc4-4329-a691-879d140ac25a}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\ComponentSystem\Core Files\Base Components">
       <UniqueIdentifier>{2cc5bd10-a1a8-4dd8-9a80-811fc7e898ad}</UniqueIdentifier>
     </Filter>
@@ -90,12 +87,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="SourceCommon\Core\GameEntityComponentTest.cpp">
-      <Filter>Source\Core Files</Filter>
-    </ClCompile>
-    <ClCompile Include="SourceCommon\GameComponents\ComponentInputTrackMousePos.cpp">
-      <Filter>Source\Game Components</Filter>
-    </ClCompile>
     <ClCompile Include="SourceCommon\ComponentSystem\Core\ComponentSystemManager.cpp">
       <Filter>Source\ComponentSystem\Core Files</Filter>
     </ClCompile>
@@ -119,12 +110,6 @@
     </ClCompile>
     <ClCompile Include="SourceCommon\ComponentSystem\Core\ComponentTypeManager.cpp">
       <Filter>Source\ComponentSystem\Core Files</Filter>
-    </ClCompile>
-    <ClCompile Include="SourceCommon\Core\GameComponentTypeManager.cpp">
-      <Filter>Source\Core Files</Filter>
-    </ClCompile>
-    <ClCompile Include="SourceCommon\GameComponents\ComponentAIChasePlayer.cpp">
-      <Filter>Source\Game Components</Filter>
     </ClCompile>
     <ClCompile Include="SourceCommon\ComponentSystem\Core\BaseComponents\ComponentBase.cpp">
       <Filter>Source\ComponentSystem\Core Files\Base Components</Filter>
@@ -150,14 +135,8 @@
     <ClCompile Include="SourceCommon\Core\BulletWorld.cpp">
       <Filter>Source\Core Files</Filter>
     </ClCompile>
-    <ClCompile Include="SourceCommon\GameComponents\ComponentCollisionObject.cpp">
-      <Filter>Source\Game Components</Filter>
-    </ClCompile>
     <ClCompile Include="SourceCommon\ComponentSystem\CustomComponents\ComponentMeshOBJ.cpp">
       <Filter>Source\ComponentSystem\Custom Components</Filter>
-    </ClCompile>
-    <ClCompile Include="SourceCommon\GameComponents\ComponentLuaScript.cpp">
-      <Filter>Source\Game Components</Filter>
     </ClCompile>
     <ClCompile Include="..\Lua\src\lapi.c">
       <Filter>Lua\src</Filter>
@@ -294,14 +273,20 @@
     <ClCompile Include="SourceCommon\EngineCommonHeader.cpp">
       <Filter>Source</Filter>
     </ClCompile>
+    <ClCompile Include="SourceCommon\Core\EngineCore.cpp">
+      <Filter>Source\Core Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCommon\Core\EngineComponentTypeManager.cpp">
+      <Filter>Source\Core Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCommon\ComponentSystem\CustomComponents\ComponentCollisionObject.cpp">
+      <Filter>Source\ComponentSystem\Custom Components</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCommon\ComponentSystem\CustomComponents\ComponentLuaScript.cpp">
+      <Filter>Source\ComponentSystem\Custom Components</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="SourceCommon\Core\GameEntityComponentTest.h">
-      <Filter>Source\Core Files</Filter>
-    </ClInclude>
-    <ClInclude Include="SourceCommon\GameComponents\ComponentInputTrackMousePos.h">
-      <Filter>Source\Game Components</Filter>
-    </ClInclude>
     <ClInclude Include="SourceCommon\ComponentSystem\Core\ComponentSystemManager.h">
       <Filter>Source\ComponentSystem\Core Files</Filter>
     </ClInclude>
@@ -325,12 +310,6 @@
     </ClInclude>
     <ClInclude Include="SourceCommon\ComponentSystem\Core\ComponentTypeManager.h">
       <Filter>Source\ComponentSystem\Core Files</Filter>
-    </ClInclude>
-    <ClInclude Include="SourceCommon\Core\GameComponentTypeManager.h">
-      <Filter>Source\Core Files</Filter>
-    </ClInclude>
-    <ClInclude Include="SourceCommon\GameComponents\ComponentAIChasePlayer.h">
-      <Filter>Source\Game Components</Filter>
     </ClInclude>
     <ClInclude Include="SourceCommon\ComponentSystem\Core\BaseComponents\ComponentBase.h">
       <Filter>Source\ComponentSystem\Core Files\Base Components</Filter>
@@ -356,14 +335,8 @@
     <ClInclude Include="SourceCommon\Core\BulletWorld.h">
       <Filter>Source\Core Files</Filter>
     </ClInclude>
-    <ClInclude Include="SourceCommon\GameComponents\ComponentCollisionObject.h">
-      <Filter>Source\Game Components</Filter>
-    </ClInclude>
     <ClInclude Include="SourceCommon\ComponentSystem\CustomComponents\ComponentMeshOBJ.h">
       <Filter>Source\ComponentSystem\Custom Components</Filter>
-    </ClInclude>
-    <ClInclude Include="SourceCommon\GameComponents\ComponentLuaScript.h">
-      <Filter>Source\Game Components</Filter>
     </ClInclude>
     <ClInclude Include="..\Lua\LuaBridge\LuaBridge.h">
       <Filter>Lua\LuaBridge</Filter>
@@ -523,6 +496,18 @@
     </ClInclude>
     <ClInclude Include="SourceCommon\EngineCommonHeader.h">
       <Filter>Source</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCommon\Core\EngineCore.h">
+      <Filter>Source\Core Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCommon\Core\EngineComponentTypeManager.h">
+      <Filter>Source\Core Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCommon\ComponentSystem\CustomComponents\ComponentCollisionObject.h">
+      <Filter>Source\ComponentSystem\Custom Components</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCommon\ComponentSystem\CustomComponents\ComponentLuaScript.h">
+      <Filter>Source\ComponentSystem\Custom Components</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

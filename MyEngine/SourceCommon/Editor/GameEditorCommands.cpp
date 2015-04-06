@@ -87,7 +87,7 @@ EditorCommand_DeleteObjects::~EditorCommand_DeleteObjects()
 
 void EditorCommand_DeleteObjects::Do()
 {
-    ((GameEntityComponentTest*)g_pGameCore)->m_pEditorState->ClearSelectedObjectsAndComponents();
+    g_pEngineCore->m_pEditorState->ClearSelectedObjectsAndComponents();
 
     for( unsigned int i=0; i<m_ObjectsDeleted.size(); i++ )
     {
@@ -98,7 +98,7 @@ void EditorCommand_DeleteObjects::Do()
 
 void EditorCommand_DeleteObjects::Undo()
 {
-    ((GameEntityComponentTest*)g_pGameCore)->m_pEditorState->ClearSelectedObjectsAndComponents();
+    g_pEngineCore->m_pEditorState->ClearSelectedObjectsAndComponents();
 
     for( unsigned int i=0; i<m_ObjectsDeleted.size(); i++ )
     {
@@ -146,7 +146,7 @@ EditorCommand_DeleteComponents::~EditorCommand_DeleteComponents()
 
 void EditorCommand_DeleteComponents::Do()
 {
-    ((GameEntityComponentTest*)g_pGameCore)->m_pEditorState->ClearSelectedObjectsAndComponents();
+    g_pEngineCore->m_pEditorState->ClearSelectedObjectsAndComponents();
 
     for( unsigned int i=0; i<m_ComponentsDeleted.size(); i++ )
     {
@@ -157,7 +157,7 @@ void EditorCommand_DeleteComponents::Do()
 
 void EditorCommand_DeleteComponents::Undo()
 {
-    ((GameEntityComponentTest*)g_pGameCore)->m_pEditorState->ClearSelectedObjectsAndComponents();
+    g_pEngineCore->m_pEditorState->ClearSelectedObjectsAndComponents();
 
     for( unsigned int i=0; i<m_ComponentsDeleted.size(); i++ )
     {
@@ -219,7 +219,7 @@ void EditorCommand_CopyGameObject::Do()
 
 void EditorCommand_CopyGameObject::Undo()
 {
-    ((GameEntityComponentTest*)g_pGameCore)->m_pEditorState->ClearSelectedObjectsAndComponents();
+    g_pEngineCore->m_pEditorState->ClearSelectedObjectsAndComponents();
 
     g_pComponentSystemManager->UnmanageGameObject( m_ObjectCreated );
 
