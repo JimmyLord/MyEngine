@@ -624,7 +624,7 @@ GameObject* ComponentSystemManager::EditorCopyGameObject(GameObject* pObject)
 {
     // add the undo action, don't reperform it, it's done above.
     EditorCommand_CopyGameObject* pCommand = MyNew EditorCommand_CopyGameObject( pObject );
-    g_pGameMainFrame->m_pCommandStack->Do( pCommand );
+    g_pEngineMainFrame->m_pCommandStack->Do( pCommand );
 
     return pCommand->GetCreatedObject();
 }

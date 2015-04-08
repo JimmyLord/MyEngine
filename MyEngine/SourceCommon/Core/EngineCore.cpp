@@ -561,7 +561,7 @@ void EngineCore::OnKey(GameCoreButtonActions action, int keycode, int unicodecha
                 m_Paused = true;
                 if( keycode == 'P' )
                     m_Paused = false;
-                g_pGameMainFrame->SetWindowPerspectiveToDefault();
+                g_pEngineMainFrame->SetWindowPerspectiveToDefault();
                 m_pComponentSystemManager->OnPlay();
 
                 RegisterGameplayButtons();
@@ -577,7 +577,7 @@ void EngineCore::OnKey(GameCoreButtonActions action, int keycode, int unicodecha
                 LoadSceneFromFile( "temp_editor_onplay.scene", 1 );
                 m_EditorMode = true;
                 m_Paused = false;
-                g_pGameMainFrame->SetWindowPerspectiveToDefault();
+                g_pEngineMainFrame->SetWindowPerspectiveToDefault();
                 m_pEditorState->ClearSelectedObjectsAndComponents();
                 m_pLuaGameState->Rebuild();
                 m_pComponentSystemManager->OnStop();
@@ -1181,7 +1181,7 @@ void EngineCore::HandleEditorInput(int keyaction, int keycode, int mouseaction, 
                 // add translation to undo stack, action itself is done each frame.  We only want to undo to last mouse down.
                 if( m_pEditorState->m_DistanceTranslated.LengthSquared() != 0 )
                 {
-                    g_pGameMainFrame->m_pCommandStack->Add( MyNew EditorCommand_MoveObjects( m_pEditorState->m_DistanceTranslated, m_pEditorState->m_pSelectedObjects ) );
+                    g_pEngineMainFrame->m_pCommandStack->Add( MyNew EditorCommand_MoveObjects( m_pEditorState->m_DistanceTranslated, m_pEditorState->m_pSelectedObjects ) );
                 }
             }
             else if( id == 1 )
@@ -1276,7 +1276,7 @@ void EngineCore::LoadScene(const char* buffer, unsigned int sceneid)
 #if MYFW_USING_WX
     m_EditorMode = true;
 
-    g_pGameMainFrame->ResizeViewport();
+    g_pEngineMainFrame->ResizeViewport();
 #endif
 
     OnSurfaceChanged( (unsigned int)m_WindowStartX, (unsigned int)m_WindowStartY, (unsigned int)m_WindowWidth, (unsigned int)m_WindowHeight );

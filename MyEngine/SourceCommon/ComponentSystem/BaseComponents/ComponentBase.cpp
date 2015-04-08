@@ -99,20 +99,20 @@ void ComponentBase::OnPopupClick(wxEvent &evt)
         // if anything is still selected, delete it/them.
         if( pEditorState->m_pSelectedComponents.size() > 0 )
         {
-            g_pGameMainFrame->m_pCommandStack->Do( MyNew EditorCommand_DeleteComponents( pEditorState->m_pSelectedComponents ) );
+            g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_DeleteComponents( pEditorState->m_pSelectedComponents ) );
         }
 
         //// if the object isn't selected, delete just the one object, otherwise delete all selected objects.
         //if( pEditorState->IsComponentSelected( pComponent ) )
         //{
-        //    g_pGameMainFrame->m_pCommandStack->Do( MyNew EditorCommand_DeleteComponents( pEditorState->m_pSelectedComponents ) );
+        //    g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_DeleteComponents( pEditorState->m_pSelectedComponents ) );
         //}
         //else
         //{
         //    // create a temp vector to pass into command.
         //    std::vector<ComponentBase*> components;
         //    components.push_back( pComponent );
-        //    g_pGameMainFrame->m_pCommandStack->Do( MyNew EditorCommand_DeleteComponents( components ) );
+        //    g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_DeleteComponents( components ) );
         //}
     }
 }

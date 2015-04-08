@@ -37,15 +37,6 @@
     <Filter Include="Source\ComponentSystem">
       <UniqueIdentifier>{d4383dc3-02c6-4f9f-8dbb-16181dfe5c7f}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\ComponentSystem\Core Files">
-      <UniqueIdentifier>{799bb80a-88c2-4d12-9fb9-7e1bf9104e8b}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\ComponentSystem\Custom Components">
-      <UniqueIdentifier>{caa5d160-e744-4676-9692-fd6be924b3c0}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\ComponentSystem\Core Files\Base Components">
-      <UniqueIdentifier>{2cc5bd10-a1a8-4dd8-9a80-811fc7e898ad}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Camera">
       <UniqueIdentifier>{2f790bfa-acfa-4f4d-9fb7-6e30e3376aea}</UniqueIdentifier>
     </Filter>
@@ -85,58 +76,25 @@
     <Filter Include="Source - Platform\Source - Android">
       <UniqueIdentifier>{ad7656dc-1367-4d8c-8605-0a6a9741b88a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\ComponentSystem\Base Components">
+      <UniqueIdentifier>{6c037421-08b1-4900-98b9-a0df05803817}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\ComponentSystem\Framework Components">
+      <UniqueIdentifier>{caa5d160-e744-4676-9692-fd6be924b3c0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\ComponentSystem\Core Files">
+      <UniqueIdentifier>{b95a7673-d27e-4745-a5a9-38c786fb8498}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="SourceCommon\ComponentSystem\Core\ComponentSystemManager.cpp">
-      <Filter>Source\ComponentSystem\Core Files</Filter>
-    </ClCompile>
-    <ClCompile Include="SourceCommon\ComponentSystem\Core\GameObject.cpp">
-      <Filter>Source\ComponentSystem\Core Files</Filter>
-    </ClCompile>
-    <ClCompile Include="SourceCommon\ComponentSystem\CustomComponents\ComponentSprite.cpp">
-      <Filter>Source\ComponentSystem\Custom Components</Filter>
-    </ClCompile>
-    <ClCompile Include="SourceCommon\ComponentSystem\Core\BaseComponents\ComponentData.cpp">
-      <Filter>Source\ComponentSystem\Core Files\Base Components</Filter>
-    </ClCompile>
-    <ClCompile Include="SourceCommon\ComponentSystem\Core\BaseComponents\ComponentInputHandler.cpp">
-      <Filter>Source\ComponentSystem\Core Files\Base Components</Filter>
-    </ClCompile>
-    <ClCompile Include="SourceCommon\ComponentSystem\Core\BaseComponents\ComponentRenderable.cpp">
-      <Filter>Source\ComponentSystem\Core Files\Base Components</Filter>
-    </ClCompile>
-    <ClCompile Include="SourceCommon\ComponentSystem\Core\BaseComponents\ComponentUpdateable.cpp">
-      <Filter>Source\ComponentSystem\Core Files\Base Components</Filter>
-    </ClCompile>
-    <ClCompile Include="SourceCommon\ComponentSystem\Core\ComponentTypeManager.cpp">
-      <Filter>Source\ComponentSystem\Core Files</Filter>
-    </ClCompile>
-    <ClCompile Include="SourceCommon\ComponentSystem\Core\BaseComponents\ComponentBase.cpp">
-      <Filter>Source\ComponentSystem\Core Files\Base Components</Filter>
-    </ClCompile>
-    <ClCompile Include="SourceCommon\ComponentSystem\Core\BaseComponents\ComponentTransform.cpp">
-      <Filter>Source\ComponentSystem\Core Files\Base Components</Filter>
-    </ClCompile>
-    <ClCompile Include="SourceCommon\Core\GameMainFrame.cpp">
-      <Filter>Source\Core Files</Filter>
-    </ClCompile>
     <ClCompile Include="SourceCommon\Camera\Camera3D.cpp">
       <Filter>Source\Camera</Filter>
     </ClCompile>
     <ClCompile Include="SourceCommon\Camera\Camera2D.cpp">
       <Filter>Source\Camera</Filter>
     </ClCompile>
-    <ClCompile Include="SourceCommon\ComponentSystem\Core\BaseComponents\ComponentCamera.cpp">
-      <Filter>Source\ComponentSystem\Core Files\Base Components</Filter>
-    </ClCompile>
-    <ClCompile Include="SourceCommon\ComponentSystem\CustomComponents\ComponentMesh.cpp">
-      <Filter>Source\ComponentSystem\Custom Components</Filter>
-    </ClCompile>
     <ClCompile Include="SourceCommon\Core\BulletWorld.cpp">
       <Filter>Source\Core Files</Filter>
-    </ClCompile>
-    <ClCompile Include="SourceCommon\ComponentSystem\CustomComponents\ComponentMeshOBJ.cpp">
-      <Filter>Source\ComponentSystem\Custom Components</Filter>
     </ClCompile>
     <ClCompile Include="..\Lua\src\lapi.c">
       <Filter>Lua\src</Filter>
@@ -255,21 +213,6 @@
     <ClCompile Include="SourceCommon\Editor\TransformGizmo.cpp">
       <Filter>Source\Editor</Filter>
     </ClCompile>
-    <ClCompile Include="SourceCommon\ComponentSystem\CustomComponents\ComponentLight.cpp">
-      <Filter>Source\ComponentSystem\Custom Components</Filter>
-    </ClCompile>
-    <ClCompile Include="SourceCommon\ComponentSystem\CustomComponents\ComponentMeshPrimitive.cpp">
-      <Filter>Source\ComponentSystem\Custom Components</Filter>
-    </ClCompile>
-    <ClCompile Include="SourceCommon\ComponentSystem\CustomComponents\ComponentParticleEmitter.cpp">
-      <Filter>Source\ComponentSystem\Custom Components</Filter>
-    </ClCompile>
-    <ClCompile Include="SourceCommon\ComponentSystem\CustomComponents\ComponentAnimationPlayer.cpp">
-      <Filter>Source\ComponentSystem\Custom Components</Filter>
-    </ClCompile>
-    <ClCompile Include="SourceCommon\ComponentSystem\CustomComponents\ComponentCameraShadow.cpp">
-      <Filter>Source\ComponentSystem\Custom Components</Filter>
-    </ClCompile>
     <ClCompile Include="SourceCommon\EngineCommonHeader.cpp">
       <Filter>Source</Filter>
     </ClCompile>
@@ -279,64 +222,79 @@
     <ClCompile Include="SourceCommon\Core\EngineComponentTypeManager.cpp">
       <Filter>Source\Core Files</Filter>
     </ClCompile>
-    <ClCompile Include="SourceCommon\ComponentSystem\CustomComponents\ComponentCollisionObject.cpp">
-      <Filter>Source\ComponentSystem\Custom Components</Filter>
+    <ClCompile Include="SourceCommon\Core\EngineMainFrame.cpp">
+      <Filter>Source\Core Files</Filter>
     </ClCompile>
-    <ClCompile Include="SourceCommon\ComponentSystem\CustomComponents\ComponentLuaScript.cpp">
-      <Filter>Source\ComponentSystem\Custom Components</Filter>
+    <ClCompile Include="SourceCommon\ComponentSystem\BaseComponents\ComponentBase.cpp">
+      <Filter>Source\ComponentSystem\Base Components</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCommon\ComponentSystem\BaseComponents\ComponentCamera.cpp">
+      <Filter>Source\ComponentSystem\Base Components</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCommon\ComponentSystem\BaseComponents\ComponentData.cpp">
+      <Filter>Source\ComponentSystem\Base Components</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCommon\ComponentSystem\BaseComponents\ComponentInputHandler.cpp">
+      <Filter>Source\ComponentSystem\Base Components</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCommon\ComponentSystem\BaseComponents\ComponentRenderable.cpp">
+      <Filter>Source\ComponentSystem\Base Components</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCommon\ComponentSystem\BaseComponents\ComponentTransform.cpp">
+      <Filter>Source\ComponentSystem\Base Components</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCommon\ComponentSystem\BaseComponents\ComponentUpdateable.cpp">
+      <Filter>Source\ComponentSystem\Base Components</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCommon\ComponentSystem\FrameworkComponents\ComponentAnimationPlayer.cpp">
+      <Filter>Source\ComponentSystem\Framework Components</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCommon\ComponentSystem\FrameworkComponents\ComponentCameraShadow.cpp">
+      <Filter>Source\ComponentSystem\Framework Components</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCommon\ComponentSystem\FrameworkComponents\ComponentCollisionObject.cpp">
+      <Filter>Source\ComponentSystem\Framework Components</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCommon\ComponentSystem\FrameworkComponents\ComponentLight.cpp">
+      <Filter>Source\ComponentSystem\Framework Components</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCommon\ComponentSystem\FrameworkComponents\ComponentLuaScript.cpp">
+      <Filter>Source\ComponentSystem\Framework Components</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCommon\ComponentSystem\FrameworkComponents\ComponentMesh.cpp">
+      <Filter>Source\ComponentSystem\Framework Components</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCommon\ComponentSystem\FrameworkComponents\ComponentMeshOBJ.cpp">
+      <Filter>Source\ComponentSystem\Framework Components</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCommon\ComponentSystem\FrameworkComponents\ComponentMeshPrimitive.cpp">
+      <Filter>Source\ComponentSystem\Framework Components</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCommon\ComponentSystem\FrameworkComponents\ComponentParticleEmitter.cpp">
+      <Filter>Source\ComponentSystem\Framework Components</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCommon\ComponentSystem\FrameworkComponents\ComponentSprite.cpp">
+      <Filter>Source\ComponentSystem\Framework Components</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCommon\ComponentSystem\Core\ComponentSystemManager.cpp">
+      <Filter>Source\ComponentSystem\Core Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCommon\ComponentSystem\Core\ComponentTypeManager.cpp">
+      <Filter>Source\ComponentSystem\Core Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCommon\ComponentSystem\Core\GameObject.cpp">
+      <Filter>Source\ComponentSystem\Core Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="SourceCommon\ComponentSystem\Core\ComponentSystemManager.h">
-      <Filter>Source\ComponentSystem\Core Files</Filter>
-    </ClInclude>
-    <ClInclude Include="SourceCommon\ComponentSystem\Core\GameObject.h">
-      <Filter>Source\ComponentSystem\Core Files</Filter>
-    </ClInclude>
-    <ClInclude Include="SourceCommon\ComponentSystem\CustomComponents\ComponentSprite.h">
-      <Filter>Source\ComponentSystem\Custom Components</Filter>
-    </ClInclude>
-    <ClInclude Include="SourceCommon\ComponentSystem\Core\BaseComponents\ComponentData.h">
-      <Filter>Source\ComponentSystem\Core Files\Base Components</Filter>
-    </ClInclude>
-    <ClInclude Include="SourceCommon\ComponentSystem\Core\BaseComponents\ComponentInputHandler.h">
-      <Filter>Source\ComponentSystem\Core Files\Base Components</Filter>
-    </ClInclude>
-    <ClInclude Include="SourceCommon\ComponentSystem\Core\BaseComponents\ComponentRenderable.h">
-      <Filter>Source\ComponentSystem\Core Files\Base Components</Filter>
-    </ClInclude>
-    <ClInclude Include="SourceCommon\ComponentSystem\Core\BaseComponents\ComponentUpdateable.h">
-      <Filter>Source\ComponentSystem\Core Files\Base Components</Filter>
-    </ClInclude>
-    <ClInclude Include="SourceCommon\ComponentSystem\Core\ComponentTypeManager.h">
-      <Filter>Source\ComponentSystem\Core Files</Filter>
-    </ClInclude>
-    <ClInclude Include="SourceCommon\ComponentSystem\Core\BaseComponents\ComponentBase.h">
-      <Filter>Source\ComponentSystem\Core Files\Base Components</Filter>
-    </ClInclude>
-    <ClInclude Include="SourceCommon\ComponentSystem\Core\BaseComponents\ComponentTransform.h">
-      <Filter>Source\ComponentSystem\Core Files\Base Components</Filter>
-    </ClInclude>
-    <ClInclude Include="SourceCommon\Core\GameMainFrame.h">
-      <Filter>Source\Core Files</Filter>
-    </ClInclude>
     <ClInclude Include="SourceCommon\Camera\Camera3D.h">
       <Filter>Source\Camera</Filter>
     </ClInclude>
     <ClInclude Include="SourceCommon\Camera\Camera2D.h">
       <Filter>Source\Camera</Filter>
     </ClInclude>
-    <ClInclude Include="SourceCommon\ComponentSystem\Core\BaseComponents\ComponentCamera.h">
-      <Filter>Source\ComponentSystem\Core Files\Base Components</Filter>
-    </ClInclude>
-    <ClInclude Include="SourceCommon\ComponentSystem\CustomComponents\ComponentMesh.h">
-      <Filter>Source\ComponentSystem\Custom Components</Filter>
-    </ClInclude>
     <ClInclude Include="SourceCommon\Core\BulletWorld.h">
       <Filter>Source\Core Files</Filter>
-    </ClInclude>
-    <ClInclude Include="SourceCommon\ComponentSystem\CustomComponents\ComponentMeshOBJ.h">
-      <Filter>Source\ComponentSystem\Custom Components</Filter>
     </ClInclude>
     <ClInclude Include="..\Lua\LuaBridge\LuaBridge.h">
       <Filter>Lua\LuaBridge</Filter>
@@ -479,21 +437,6 @@
     <ClInclude Include="SourceCommon\Editor\TransformGizmo.h">
       <Filter>Source\Editor</Filter>
     </ClInclude>
-    <ClInclude Include="SourceCommon\ComponentSystem\CustomComponents\ComponentLight.h">
-      <Filter>Source\ComponentSystem\Custom Components</Filter>
-    </ClInclude>
-    <ClInclude Include="SourceCommon\ComponentSystem\CustomComponents\ComponentMeshPrimitive.h">
-      <Filter>Source\ComponentSystem\Custom Components</Filter>
-    </ClInclude>
-    <ClInclude Include="SourceCommon\ComponentSystem\CustomComponents\ComponentParticleEmitter.h">
-      <Filter>Source\ComponentSystem\Custom Components</Filter>
-    </ClInclude>
-    <ClInclude Include="SourceCommon\ComponentSystem\CustomComponents\ComponentAnimationPlayer.h">
-      <Filter>Source\ComponentSystem\Custom Components</Filter>
-    </ClInclude>
-    <ClInclude Include="SourceCommon\ComponentSystem\CustomComponents\ComponentCameraShadow.h">
-      <Filter>Source\ComponentSystem\Custom Components</Filter>
-    </ClInclude>
     <ClInclude Include="SourceCommon\EngineCommonHeader.h">
       <Filter>Source</Filter>
     </ClInclude>
@@ -503,15 +446,71 @@
     <ClInclude Include="SourceCommon\Core\EngineComponentTypeManager.h">
       <Filter>Source\Core Files</Filter>
     </ClInclude>
-    <ClInclude Include="SourceCommon\ComponentSystem\CustomComponents\ComponentCollisionObject.h">
-      <Filter>Source\ComponentSystem\Custom Components</Filter>
+    <ClInclude Include="SourceCommon\Core\EngineMainFrame.h">
+      <Filter>Source\Core Files</Filter>
     </ClInclude>
-    <ClInclude Include="SourceCommon\ComponentSystem\CustomComponents\ComponentLuaScript.h">
-      <Filter>Source\ComponentSystem\Custom Components</Filter>
+    <ClInclude Include="SourceCommon\ComponentSystem\BaseComponents\ComponentUpdateable.h">
+      <Filter>Source\ComponentSystem\Base Components</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCommon\ComponentSystem\BaseComponents\ComponentBase.h">
+      <Filter>Source\ComponentSystem\Base Components</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCommon\ComponentSystem\BaseComponents\ComponentCamera.h">
+      <Filter>Source\ComponentSystem\Base Components</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCommon\ComponentSystem\BaseComponents\ComponentData.h">
+      <Filter>Source\ComponentSystem\Base Components</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCommon\ComponentSystem\BaseComponents\ComponentInputHandler.h">
+      <Filter>Source\ComponentSystem\Base Components</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCommon\ComponentSystem\BaseComponents\ComponentRenderable.h">
+      <Filter>Source\ComponentSystem\Base Components</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCommon\ComponentSystem\BaseComponents\ComponentTransform.h">
+      <Filter>Source\ComponentSystem\Base Components</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCommon\ComponentSystem\FrameworkComponents\ComponentAnimationPlayer.h">
+      <Filter>Source\ComponentSystem\Framework Components</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCommon\ComponentSystem\FrameworkComponents\ComponentCameraShadow.h">
+      <Filter>Source\ComponentSystem\Framework Components</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCommon\ComponentSystem\FrameworkComponents\ComponentCollisionObject.h">
+      <Filter>Source\ComponentSystem\Framework Components</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCommon\ComponentSystem\FrameworkComponents\ComponentLight.h">
+      <Filter>Source\ComponentSystem\Framework Components</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCommon\ComponentSystem\FrameworkComponents\ComponentLuaScript.h">
+      <Filter>Source\ComponentSystem\Framework Components</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCommon\ComponentSystem\FrameworkComponents\ComponentMesh.h">
+      <Filter>Source\ComponentSystem\Framework Components</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCommon\ComponentSystem\FrameworkComponents\ComponentMeshOBJ.h">
+      <Filter>Source\ComponentSystem\Framework Components</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCommon\ComponentSystem\FrameworkComponents\ComponentMeshPrimitive.h">
+      <Filter>Source\ComponentSystem\Framework Components</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCommon\ComponentSystem\FrameworkComponents\ComponentParticleEmitter.h">
+      <Filter>Source\ComponentSystem\Framework Components</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCommon\ComponentSystem\FrameworkComponents\ComponentSprite.h">
+      <Filter>Source\ComponentSystem\Framework Components</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCommon\ComponentSystem\Core\ComponentSystemManager.h">
+      <Filter>Source\ComponentSystem\Core Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCommon\ComponentSystem\Core\ComponentTypeManager.h">
+      <Filter>Source\ComponentSystem\Core Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCommon\ComponentSystem\Core\GameObject.h">
+      <Filter>Source\ComponentSystem\Core Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\todo.todo" />
     <None Include="Data\Shaders\Shader_TintColor.glsl">
       <Filter>Data\Shaders</Filter>
     </None>
@@ -530,7 +529,6 @@
     <None Include="Data\Scripts\Enemy.lua">
       <Filter>Data\Scripts</Filter>
     </None>
-    <None Include="EditorPrefs.ini" />
     <None Include="Data\Shaders\Shader_VertSinY.glsl">
       <Filter>Data\Shaders</Filter>
     </None>

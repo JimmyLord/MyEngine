@@ -7,12 +7,12 @@
 // 2. Altered source versions must be plainly marked as such, and must not be misrepresented as being the original software.
 // 3. This notice may not be removed or altered from any source distribution.
 
-#ifndef __GameMainFrame_H__
-#define __GameMainFrame_H__
+#ifndef __EngineMainFrame_H__
+#define __EngineMainFrame_H__
 
-class GameMainFrame;
+class EngineMainFrame;
 
-extern GameMainFrame* g_pGameMainFrame;
+extern EngineMainFrame* g_pEngineMainFrame;
 
 enum DefaultPerspectives
 {
@@ -41,7 +41,7 @@ enum GameMenuIDs
     myIDGame_DebugShowSelectedAnimatedMesh,
 };
 
-class GameMainFrame : public MainFrame
+class EngineMainFrame : public MainFrame
 {
 public:
     MainGLCanvas* m_pGLCanvasEditor;
@@ -64,8 +64,8 @@ public:
     int m_Hackery_Record_StackDepth;
 
 public:
-    GameMainFrame();
-    ~GameMainFrame();
+    EngineMainFrame();
+    ~EngineMainFrame();
 
     virtual void InitFrame();
     virtual void AddPanes();
@@ -89,4 +89,4 @@ public:
     void AddDatafileToScene();
 };
 
-#endif __GameMainFrame_H__
+#endif __EngineMainFrame_H__

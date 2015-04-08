@@ -307,7 +307,7 @@ void TransformGizmo::TranslateSelectedObjects(EngineCore* pGame, EditorState* pE
                 Vector3 diff = currentresult - lastresult;
 
                 // move all of the things. // undo is handled by EngineCore.cpp when mouse is lifted.
-                //g_pGameMainFrame->m_pCommandStack->Do( MyNew EditorCommand_MoveObjects( diff, pEditorState->m_pSelectedObjects ) );
+                //g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_MoveObjects( diff, pEditorState->m_pSelectedObjects ) );
                 pEditorState->m_DistanceTranslated += diff;
                 //LOGInfo( LOGTag, "pEditorState->m_DistanceTranslated.Set( %f, %f, %f );", pEditorState->m_DistanceTranslated.x, pEditorState->m_DistanceTranslated.y, pEditorState->m_DistanceTranslated.z );
                 //LOGInfo( LOGTag, "diff( %f, %f, %f, %d );", diff.x, diff.y, diff.z, pEditorState->m_pSelectedObjects.size() );

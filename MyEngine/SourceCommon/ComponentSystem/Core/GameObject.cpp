@@ -97,7 +97,7 @@ void GameObject::OnRightClick()
 
     menu.Append( 1000, "Duplicate GameObject" ); // matches 1000 in OnPopupClick()
 
-    int numtypes = g_pComponentTypeManager->GetNumberOfComponentTypes();
+    unsigned int numtypes = g_pComponentTypeManager->GetNumberOfComponentTypes();
     for( unsigned int i=0; i<numtypes; i++ )
     {
         if( lastcategory != g_pComponentTypeManager->GetTypeCategory( i ) )
@@ -148,14 +148,14 @@ void GameObject::OnPopupClick(wxEvent &evt)
         // if the object isn't selected, delete just the one object, otherwise delete all selected objects.
         if( pEditorState->IsObjectSelected( pGameObject ) )
         {
-            g_pGameMainFrame->m_pCommandStack->Do( MyNew EditorCommand_DeleteObjects( pEditorState->m_pSelectedObjects ) );
+            g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_DeleteObjects( pEditorState->m_pSelectedObjects ) );
         }
         else
         {
             // create a temp vector to pass into command.
             std::vector<GameObject*> gameobjects;
             gameobjects.push_back( pGameObject );
-            g_pGameMainFrame->m_pCommandStack->Do( MyNew EditorCommand_DeleteObjects( gameobjects ) );
+            g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_DeleteObjects( gameobjects ) );
         }
     }
 }

@@ -10,9 +10,9 @@
 #include "EngineCommonHeader.h"
 
 #include "../../Framework/MyFramework/SourceWindows/MYFWWinMainWx.h"
-#include "GameMainFrame.h"
+#include "EngineMainFrame.h"
 
-GameMainFrame* g_pGameMainFrame = 0;
+EngineMainFrame* g_pEngineMainFrame = 0;
 
 const char* g_DefaultPerspectiveMenuLabels[Perspective_NumPerspectives] =
 {
@@ -30,18 +30,18 @@ const char* g_DefaultPerspectives[Perspective_NumPerspectives] =
     "layout2|name=GLCanvas;caption=GLCanvas;state=2099196;dir=3;layer=0;row=0;pos=0;prop=97635;bestw=600;besth=600;minw=-1;minh=-1;maxw=-1;maxh=-1;floatx=451;floaty=186;floatw=616;floath=632|name=PanelWatch;caption=Watch;state=2099198;dir=2;layer=3;row=0;pos=0;prop=113200;bestw=300;besth=600;minw=-1;minh=-1;maxw=-1;maxh=-1;floatx=1274;floaty=143;floatw=316;floath=632|name=PanelMemory;caption=Memory;state=2099198;dir=2;layer=3;row=0;pos=0;prop=86800;bestw=300;besth=600;minw=-1;minh=-1;maxw=-1;maxh=-1;floatx=1023;floaty=335;floatw=316;floath=632|name=PanelObjectList;caption=Objects;state=2099198;dir=4;layer=1;row=0;pos=0;prop=100000;bestw=300;besth=600;minw=-1;minh=-1;maxw=-1;maxh=-1;floatx=-1;floaty=-1;floatw=-1;floath=-1|name=GLCanvasEditor;caption=GLCanvasEditor;state=2099198;dir=4;layer=1;row=0;pos=0;prop=102365;bestw=600;besth=600;minw=-1;minh=-1;maxw=-1;maxh=-1;floatx=-7;floaty=330;floatw=616;floath=632|name=Log;caption=Log;state=2099198;dir=3;layer=2;row=0;pos=0;prop=100000;bestw=183;besth=150;minw=-1;minh=-1;maxw=-1;maxh=-1;floatx=543;floaty=588;floatw=199;floath=182|dock_size(3,0,0)=1560|",
 };
 
-void GameMainFrame_MessageLog(int logtype, const char* tag, const char* message)
+void EngineMainFrame_MessageLog(int logtype, const char* tag, const char* message)
 {
     if( logtype == 1 )
-        g_pGameMainFrame->m_pLogPane->AppendText( "ERROR: " );
+        g_pEngineMainFrame->m_pLogPane->AppendText( "ERROR: " );
 
-    //g_pGameMainFrame->m_pLogPane->AppendText( tag );
-    //g_pGameMainFrame->m_pLogPane->AppendText( " " );
+    //g_pEngineMainFrame->m_pLogPane->AppendText( tag );
+    //g_pEngineMainFrame->m_pLogPane->AppendText( " " );
 
-    g_pGameMainFrame->m_pLogPane->AppendText( message );
+    g_pEngineMainFrame->m_pLogPane->AppendText( message );
 }
 
-GameMainFrame::GameMainFrame()
+EngineMainFrame::EngineMainFrame()
 : MainFrame(0)
 {
     m_pGLCanvasEditor = 0;
@@ -63,9 +63,9 @@ GameMainFrame::GameMainFrame()
     m_pEditorPrefs = 0;
 }
 
-void GameMainFrame::InitFrame()
+void EngineMainFrame::InitFrame()
 {
-    g_pGameMainFrame = this;
+    g_pEngineMainFrame = this;
 
     FILE* file = 0;
     fopen_s( &file, "EditorPrefs.ini", "rb" );
@@ -114,7 +114,7 @@ void GameMainFrame::InitFrame()
 
     m_CurrentSceneName[0] = 0;
 
-    g_pMessageLogCallbackFunction = GameMainFrame_MessageLog;
+    g_pMessageLogCallbackFunction = EngineMainFrame_MessageLog;
 
     m_File->Insert( 0, myIDGame_LoadScene, wxT("&Load Scene") );
     m_File->Insert( 1, myIDGame_SaveScene, wxT("&Save Scene\tCtrl-S") );
@@ -140,14 +140,14 @@ void GameMainFrame::InitFrame()
     for( int i=0; i<Perspective_NumPerspectives; i++ )
     {
         m_EditorPerspectiveOptions[i] = m_EditorPerspectives->AppendCheckItem( myIDGame_EditorPerspective + i, g_DefaultPerspectiveMenuLabels[i], wxEmptyString );
-        Connect( myIDGame_EditorPerspective + i, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(GameMainFrame::OnGameMenu) );
+        Connect( myIDGame_EditorPerspective + i, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnGameMenu) );
     }
 
     m_GameplayPerspectives = MyNew wxMenu;
     for( int i=0; i<Perspective_NumPerspectives; i++ )
     {
         m_GameplayPerspectiveOptions[i] = m_GameplayPerspectives->AppendCheckItem( myIDGame_GameplayPerspective + i, g_DefaultPerspectiveMenuLabels[i], wxEmptyString );
-        Connect( myIDGame_GameplayPerspective + i, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(GameMainFrame::OnGameMenu) );
+        Connect( myIDGame_GameplayPerspective + i, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnGameMenu) );
     }
 
     m_EditorPerspectiveOptions[0]->Check();
@@ -156,20 +156,20 @@ void GameMainFrame::InitFrame()
     m_View->Append( myIDGame_EditorPerspectives, "Editor Layouts", m_EditorPerspectives );
     m_View->Append( myIDGame_GameplayPerspectives, "Gameplay Layouts", m_GameplayPerspectives );
 
-    Connect( myIDGame_LoadScene,    wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(GameMainFrame::OnGameMenu) );
-    Connect( myIDGame_SaveScene,    wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(GameMainFrame::OnGameMenu) );
-    Connect( myIDGame_SaveSceneAs,  wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(GameMainFrame::OnGameMenu) );
+    Connect( myIDGame_LoadScene,    wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnGameMenu) );
+    Connect( myIDGame_SaveScene,    wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnGameMenu) );
+    Connect( myIDGame_SaveSceneAs,  wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnGameMenu) );
 
-    Connect( myIDGame_AddDatafile,  wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(GameMainFrame::OnGameMenu) );
+    Connect( myIDGame_AddDatafile,  wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnGameMenu) );
 
-    Connect( myIDGame_RecordMacro,  wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(GameMainFrame::OnGameMenu) );
-    Connect( myIDGame_ExecuteMacro, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(GameMainFrame::OnGameMenu) );
+    Connect( myIDGame_RecordMacro,  wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnGameMenu) );
+    Connect( myIDGame_ExecuteMacro, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnGameMenu) );
 
-    Connect( myIDGame_DebugShowMousePickerFBO,       wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(GameMainFrame::OnGameMenu) );
-    Connect( myIDGame_DebugShowSelectedAnimatedMesh, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(GameMainFrame::OnGameMenu) );
+    Connect( myIDGame_DebugShowMousePickerFBO,       wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnGameMenu) );
+    Connect( myIDGame_DebugShowSelectedAnimatedMesh, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnGameMenu) );
 }
 
-GameMainFrame::~GameMainFrame()
+EngineMainFrame::~EngineMainFrame()
 {
     SAFE_DELETE( m_pCommandStack );
     SAFE_DELETE( m_pGLCanvasEditor );
@@ -177,7 +177,7 @@ GameMainFrame::~GameMainFrame()
     g_pMessageLogCallbackFunction = 0;
 }
 
-void GameMainFrame::AddPanes()
+void EngineMainFrame::AddPanes()
 {
     m_pCommandStack = MyNew GameCommandStack();
 
@@ -196,7 +196,7 @@ void GameMainFrame::AddPanes()
     m_AUIManager.AddPane( m_pLogPane, wxAuiPaneInfo().Name("Log").Bottom().Caption("Log") );//.CaptionVisible(false) );
 }
 
-bool GameMainFrame::UpdateAUIManagerAndLoadPerspective()
+bool EngineMainFrame::UpdateAUIManagerAndLoadPerspective()
 {
     if( MainFrame::UpdateAUIManagerAndLoadPerspective() )
         return true;
@@ -209,7 +209,7 @@ bool GameMainFrame::UpdateAUIManagerAndLoadPerspective()
     return true;
 }
 
-void GameMainFrame::OnPostInit()
+void EngineMainFrame::OnPostInit()
 {
     if( m_pEditorPrefs )
     {
@@ -241,7 +241,7 @@ void GameMainFrame::OnPostInit()
     m_pGLCanvas->ResizeViewport();
 }
 
-void GameMainFrame::OnClose()
+void EngineMainFrame::OnClose()
 {
     FILE* file = 0;
     fopen_s( &file, "EditorPrefs.ini", "wb" );
@@ -271,7 +271,7 @@ void GameMainFrame::OnClose()
     }
 }
 
-void GameMainFrame::OnGameMenu(wxCommandEvent& event)
+void EngineMainFrame::OnGameMenu(wxCommandEvent& event)
 {
     int id = event.GetId();
 
@@ -339,14 +339,14 @@ void GameMainFrame::OnGameMenu(wxCommandEvent& event)
     }
 }
 
-void GameMainFrame::ResizeViewport()
+void EngineMainFrame::ResizeViewport()
 {
     MainFrame::ResizeViewport();
 
     m_pGLCanvasEditor->ResizeViewport();
 }
 
-void GameMainFrame::SetWindowPerspectiveToDefault(bool forceswitch)
+void EngineMainFrame::SetWindowPerspectiveToDefault(bool forceswitch)
 {
     int currentperspective;
     int editor = GetDefaultEditorPerspectiveIndex();
@@ -369,7 +369,7 @@ void GameMainFrame::SetWindowPerspectiveToDefault(bool forceswitch)
         m_AUIManager.LoadPerspective( g_DefaultPerspectives[currentperspective] );
 }
 
-int GameMainFrame::GetDefaultEditorPerspectiveIndex()
+int EngineMainFrame::GetDefaultEditorPerspectiveIndex()
 {
     for( int i=0; i<Perspective_NumPerspectives; i++ )
     {
@@ -381,7 +381,7 @@ int GameMainFrame::GetDefaultEditorPerspectiveIndex()
     return -1;
 }
 
-int GameMainFrame::GetDefaultGameplayPerspectiveIndex()
+int EngineMainFrame::GetDefaultGameplayPerspectiveIndex()
 {
     for( int i=0; i<Perspective_NumPerspectives; i++ )
     {
@@ -393,7 +393,7 @@ int GameMainFrame::GetDefaultGameplayPerspectiveIndex()
     return -1;
 }
 
-void GameMainFrame::SetDefaultEditorPerspectiveIndex(int index)
+void EngineMainFrame::SetDefaultEditorPerspectiveIndex(int index)
 {
     for( int i=0; i<Perspective_NumPerspectives; i++ )
     {
@@ -402,7 +402,7 @@ void GameMainFrame::SetDefaultEditorPerspectiveIndex(int index)
     m_EditorPerspectiveOptions[index]->Check( true );
 }
 
-void GameMainFrame::SetDefaultGameplayPerspectiveIndex(int index)
+void EngineMainFrame::SetDefaultGameplayPerspectiveIndex(int index)
 {
     for( int i=0; i<Perspective_NumPerspectives; i++ )
     {
@@ -411,7 +411,7 @@ void GameMainFrame::SetDefaultGameplayPerspectiveIndex(int index)
     m_GameplayPerspectiveOptions[index]->Check( true );
 }
 
-void GameMainFrame::SaveScene()
+void EngineMainFrame::SaveScene()
 {
     if( m_CurrentSceneName[0] == 0 )
     {
@@ -431,7 +431,7 @@ void GameMainFrame::SaveScene()
     }
 }
 
-void GameMainFrame::SaveSceneAs()
+void EngineMainFrame::SaveSceneAs()
 {
     wxFileDialog FileDialog( this, _("Save Scene file"), "./Data/Scenes", "", "Scene files (*.scene)|*.scene", wxFD_SAVE|wxFD_OVERWRITE_PROMPT);
     
@@ -448,7 +448,7 @@ void GameMainFrame::SaveSceneAs()
     this->SetTitle( m_CurrentSceneName );
 }
 
-void GameMainFrame::LoadSceneDialog()
+void EngineMainFrame::LoadSceneDialog()
 {
     //if( scene is dirty )
     //{
@@ -468,7 +468,7 @@ void GameMainFrame::LoadSceneDialog()
     LoadScene( wxpath );
 }
 
-void GameMainFrame::LoadScene(const char* scenename)
+void EngineMainFrame::LoadScene(const char* scenename)
 {
     assert( scenename != 0 );
 
@@ -482,7 +482,7 @@ void GameMainFrame::LoadScene(const char* scenename)
     this->SetTitle( m_CurrentSceneName );
 }
 
-void GameMainFrame::AddDatafileToScene()
+void EngineMainFrame::AddDatafileToScene()
 {
     // multiple select file open dialog
     wxFileDialog FileDialog( this, _("Open Datafile"), "./Data", "", "All files(*.*)|*.*", wxFD_OPEN|wxFD_FILE_MUST_EXIST|wxFD_MULTIPLE );

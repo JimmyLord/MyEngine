@@ -11,6 +11,7 @@
 #define __EngineCore_H__
 
 class BulletWorld;
+class EngineCore;
 
 extern EngineCore* g_pEngineCore;
 
