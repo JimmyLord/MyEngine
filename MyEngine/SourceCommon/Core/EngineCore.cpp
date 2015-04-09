@@ -579,7 +579,6 @@ void EngineCore::OnKey(GameCoreButtonActions action, int keycode, int unicodecha
                 m_Paused = false;
                 g_pEngineMainFrame->SetWindowPerspectiveToDefault();
                 m_pEditorState->ClearSelectedObjectsAndComponents();
-                m_pLuaGameState->Rebuild();
                 m_pComponentSystemManager->OnStop();
 
                 m_pComponentSystemManager->SyncAllRigidBodiesToObjectTransforms();
@@ -1272,6 +1271,7 @@ void EngineCore::LoadScene(const char* buffer, unsigned int sceneid)
 #endif //MYFW_USING_WX
 
     g_pComponentSystemManager->LoadSceneFromJSON( buffer, sceneid );
+    m_pLuaGameState->Rebuild(); // reset the lua state.
 
 #if MYFW_USING_WX
     m_EditorMode = true;
