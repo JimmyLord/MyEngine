@@ -14,6 +14,12 @@
 bool ComponentCollisionObject::m_PanelWatchBlockVisible = true;
 #endif
 
+const char* PhysicsPrimitiveTypeStrings[PhysicsPrimitive_NumTypes] =
+{
+    "Cube",
+    "Mesh",
+};
+
 ComponentCollisionObject::ComponentCollisionObject()
 : ComponentUpdateable()
 {
@@ -22,6 +28,7 @@ ComponentCollisionObject::ComponentCollisionObject()
 
     m_pBody = 0;
 
+    m_PrimitiveType = 0;
     m_pMesh = 0;
 }
 
@@ -50,7 +57,7 @@ void ComponentCollisionObject::Reset()
     ComponentUpdateable::Reset();
 
     m_Mass = 0;
-
+    m_PrimitiveType = PhysicsPrimitiveType_Cube;
     SAFE_RELEASE( m_pMesh );
 
 #if MYFW_USING_WX
@@ -78,6 +85,8 @@ void ComponentCollisionObject::FillPropertiesWindow(bool clear)
         ComponentBase::FillPropertiesWindow( clear );
 
         g_pPanelWatch->AddFloat( "Mass", &m_Mass, 0, 100 );
+
+        g_pPanelWatch->AddEnum( "Primitive Type", &m_PrimitiveType, PhysicsPrimitive_NumTypes, PhysicsPrimitiveTypeStrings );
 
         const char* desc = "no mesh";
         if( m_pMesh && m_pMesh->m_pSourceFile )
@@ -114,6 +123,7 @@ cJSON* ComponentCollisionObject::ExportAsJSONObject()
     cJSON* component = ComponentUpdateable::ExportAsJSONObject();
 
     cJSON_AddNumberToObject( component, "Mass", m_Mass );
+    cJSON_AddNumberToObject( component, "PrimType", m_PrimitiveType );
 
     if( m_pMesh && m_pMesh->m_pSourceFile )
         cJSON_AddStringToObject( component, "OBJ", m_pMesh->m_pSourceFile->m_FullPath );
@@ -126,6 +136,7 @@ void ComponentCollisionObject::ImportFromJSONObject(cJSON* jsonobj, unsigned int
     ComponentUpdateable::ImportFromJSONObject( jsonobj, sceneid );
 
     cJSONExt_GetFloat( jsonobj, "Mass", &m_Mass );
+    cJSONExt_GetInt( jsonobj, "PrimType", &m_PrimitiveType );
 
     cJSON* objstringobj = cJSON_GetObjectItem( jsonobj, "OBJ" );
     if( objstringobj )
@@ -146,6 +157,7 @@ ComponentCollisionObject& ComponentCollisionObject::operator=(const ComponentCol
     ComponentUpdateable::operator=( other );
 
     m_Mass = other.m_Mass;
+    m_PrimitiveType = other.m_PrimitiveType;
 
     return *this;
 }

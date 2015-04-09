@@ -10,6 +10,15 @@
 #ifndef __ComponentCollisionObject_H__
 #define __ComponentCollisionObject_H__
 
+enum PhysicsPrimitiveTypes
+{
+    PhysicsPrimitiveType_Cube,
+    PhysicsPrimitiveType_Mesh,
+    PhysicsPrimitive_NumTypes,
+};
+
+extern const char* PhysicsPrimitiveTypeStrings[PhysicsPrimitive_NumTypes];
+
 class ComponentCollisionObject : public ComponentUpdateable
 {
 public:
@@ -17,6 +26,7 @@ public:
 
     float m_Mass;
 
+    int m_PrimitiveType;
     MyMesh* m_pMesh;
 
 public:

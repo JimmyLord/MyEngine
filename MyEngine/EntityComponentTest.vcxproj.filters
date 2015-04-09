@@ -5,9 +5,6 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Data">
-      <UniqueIdentifier>{a073e61a-cd6c-4710-9be4-fbab75cb839b}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source">
       <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
       <Extensions>
@@ -31,20 +28,11 @@
     <Filter Include="Source - Platform\Source - WP8">
       <UniqueIdentifier>{e5550a78-55dc-4dfe-be19-a1ec884306de}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Data\Shaders">
-      <UniqueIdentifier>{7b555647-c561-4774-9e0b-91c7bb706bb7}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\ComponentSystem">
       <UniqueIdentifier>{d4383dc3-02c6-4f9f-8dbb-16181dfe5c7f}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\Camera">
       <UniqueIdentifier>{2f790bfa-acfa-4f4d-9fb7-6e30e3376aea}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Data\OBJs">
-      <UniqueIdentifier>{552a613a-1035-4538-af32-325ad75aeed7}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Data\Scenes">
-      <UniqueIdentifier>{fea2206a-db34-451c-8dfa-c26402ff1bc9}</UniqueIdentifier>
     </Filter>
     <Filter Include="Lua">
       <UniqueIdentifier>{04d45a49-4464-45fe-a62e-29c9e60749ee}</UniqueIdentifier>
@@ -55,17 +43,11 @@
     <Filter Include="Lua\LuaBridge\detail">
       <UniqueIdentifier>{9fe0bd82-3630-4426-88e4-f2c500e9ccc7}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Data\Scripts">
-      <UniqueIdentifier>{486dccc9-39ee-447e-a618-2c068060fb9c}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Lua\src">
       <UniqueIdentifier>{97f8a95b-4dc2-45a5-a92f-b2a35b1295fb}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\Editor">
       <UniqueIdentifier>{23826f0c-8cd4-4b10-a2d4-567f146d1856}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Data\Shaders\Include">
-      <UniqueIdentifier>{93d0ff57-e2f3-4138-9195-93d0f16862ba}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source - Platform\Source - Windows">
       <UniqueIdentifier>{a02d5de6-1291-401b-9c89-4e92bba8be9b}</UniqueIdentifier>
@@ -509,99 +491,5 @@
     <ClInclude Include="SourceCommon\ComponentSystem\Core\GameObject.h">
       <Filter>Source\ComponentSystem\Core Files</Filter>
     </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Data\Shaders\Shader_TintColor.glsl">
-      <Filter>Data\Shaders</Filter>
-    </None>
-    <None Include="Data\Shaders\Shader_TestNormals.glsl">
-      <Filter>Data\Shaders</Filter>
-    </None>
-    <None Include="Data\Shaders\Shader_Texture.glsl">
-      <Filter>Data\Shaders</Filter>
-    </None>
-    <None Include="Data\Scenes\test.scene">
-      <Filter>Data\Scenes</Filter>
-    </None>
-    <None Include="Data\Scripts\Player.lua">
-      <Filter>Data\Scripts</Filter>
-    </None>
-    <None Include="Data\Scripts\Enemy.lua">
-      <Filter>Data\Scripts</Filter>
-    </None>
-    <None Include="Data\Shaders\Shader_VertSinY.glsl">
-      <Filter>Data\Shaders</Filter>
-    </None>
-    <None Include="Data\Shaders\Shader_Water.glsl">
-      <Filter>Data\Shaders</Filter>
-    </None>
-    <None Include="Data\Shaders\Shader_Breathe.glsl">
-      <Filter>Data\Shaders</Filter>
-    </None>
-    <None Include="Data\Scripts\GGJPlayer.lua">
-      <Filter>Data\Scripts</Filter>
-    </None>
-    <None Include="Data\Scripts\GGJTube.lua">
-      <Filter>Data\Scripts</Filter>
-    </None>
-    <None Include="Data\Scenes\World.scene">
-      <Filter>Data\Scenes</Filter>
-    </None>
-    <None Include="Data\Scripts\GGJEnemy.lua">
-      <Filter>Data\Scripts</Filter>
-    </None>
-    <None Include="Data\Shaders\Shader_TextureLights.glsl">
-      <Filter>Data\Shaders</Filter>
-    </None>
-    <None Include="Data\Shaders\Shader_ClipSpaceTexture.glsl">
-      <Filter>Data\Shaders</Filter>
-    </None>
-    <None Include="Data\Scenes\LightTest.scene">
-      <Filter>Data\Scenes</Filter>
-    </None>
-    <None Include="Data\Shaders\Shader_TextureVertexColor.glsl">
-      <Filter>Data\Shaders</Filter>
-    </None>
-    <None Include="Data\Shaders\Shader_BoneAnim.glsl">
-      <Filter>Data\Shaders</Filter>
-    </None>
-    <None Include="Data\Shaders\Include\Bone_AttribsAndUniforms.glsl">
-      <Filter>Data\Shaders\Include</Filter>
-    </None>
-    <None Include="Data\Shaders\Include\Bone_Functions.glsl">
-      <Filter>Data\Shaders\Include</Filter>
-    </None>
-    <None Include="Data\Shaders\Include\Light_Functions.glsl">
-      <Filter>Data\Shaders\Include</Filter>
-    </None>
-    <None Include="Data\Shaders\Include\Light_Uniforms.glsl">
-      <Filter>Data\Shaders\Include</Filter>
-    </None>
-    <None Include="Data\Scripts\SimpleCharacterController.lua">
-      <Filter>Data\Scripts</Filter>
-    </None>
-    <None Include="Data\Scenes\AnimationTest.scene">
-      <Filter>Data\Scenes</Filter>
-    </None>
-    <None Include="Data\Shaders\Include\WSVaryings.glsl">
-      <Filter>Data\Shaders\Include</Filter>
-    </None>
-    <None Include="Data\Shaders\Include\WSVaryings_Functions.glsl">
-      <Filter>Data\Shaders\Include</Filter>
-    </None>
-    <None Include="Data\Shaders\Include\LSVaryings.glsl">
-      <Filter>Data\Shaders\Include</Filter>
-    </None>
-    <None Include="Data\Shaders\Include\LSVaryings_Functions.glsl">
-      <Filter>Data\Shaders\Include</Filter>
-    </None>
-    <None Include="Data\Scenes\TestShadow.scene">
-      <Filter>Data\Scenes</Filter>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <Object Include="Data\OBJs\cube.obj">
-      <Filter>Data\OBJs</Filter>
-    </Object>
   </ItemGroup>
 </Project>
