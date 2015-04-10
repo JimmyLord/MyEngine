@@ -14,10 +14,11 @@
 bool ComponentCollisionObject::m_PanelWatchBlockVisible = true;
 #endif
 
-const char* PhysicsPrimitiveTypeStrings[PhysicsPrimitive_NumTypes] =
+const char* PhysicsPrimitiveTypeStrings[PhysicsPrimitive_NumTypes] = //ADDING_NEW_PhysicsPrimitiveType
 {
     "Cube",
-    "Mesh",
+    "Sphere",
+    "Convex Hull",
 };
 
 ComponentCollisionObject::ComponentCollisionObject()
@@ -28,7 +29,7 @@ ComponentCollisionObject::ComponentCollisionObject()
 
     m_pBody = 0;
 
-    m_PrimitiveType = 0;
+    m_PrimitiveType = PhysicsPrimitiveType_Cube;
     m_pMesh = 0;
 }
 
@@ -123,8 +124,14 @@ cJSON* ComponentCollisionObject::ExportAsJSONObject()
     cJSON* component = ComponentUpdateable::ExportAsJSONObject();
 
     cJSON_AddNumberToObject( component, "Mass", m_Mass );
-    cJSON_AddNumberToObject( component, "PrimType", m_PrimitiveType );
+    
+    // physics primitive type, stored as string
+    const char* primitivetypename = PhysicsPrimitiveTypeStrings[m_PrimitiveType];
+    assert( primitivetypename );
+    if( primitivetypename )
+        cJSON_AddStringToObject( component, "Primitive", primitivetypename );
 
+    // OBJ filename
     if( m_pMesh && m_pMesh->m_pSourceFile )
         cJSON_AddStringToObject( component, "OBJ", m_pMesh->m_pSourceFile->m_FullPath );
 
@@ -136,8 +143,21 @@ void ComponentCollisionObject::ImportFromJSONObject(cJSON* jsonobj, unsigned int
     ComponentUpdateable::ImportFromJSONObject( jsonobj, sceneid );
 
     cJSONExt_GetFloat( jsonobj, "Mass", &m_Mass );
-    cJSONExt_GetInt( jsonobj, "PrimType", &m_PrimitiveType );
+    
+    // physics primitive type, stored as string
+    cJSON* typeobj = cJSON_GetObjectItem( jsonobj, "Primitive" );
+    assert( typeobj );
+    m_PrimitiveType = PhysicsPrimitiveType_Cube;
+    if( typeobj )
+    {
+        for( int i=0; i<PhysicsPrimitive_NumTypes; i++ )
+        {
+            if( strcmp( PhysicsPrimitiveTypeStrings[i], typeobj->valuestring ) == 0 )
+                m_PrimitiveType = i;
+        }
+    }
 
+    // get the OBJ filename and load the actual file.
     cJSON* objstringobj = cJSON_GetObjectItem( jsonobj, "OBJ" );
     if( objstringobj )
     {
@@ -206,10 +226,16 @@ void ComponentCollisionObject::OnPlay()
         }
         else
         {
-            colShape = new btBoxShape( btVector3(1,1,1) ); // half-extents
+            if( m_PrimitiveType == PhysicsPrimitiveType_Cube )
+            {
+                colShape = new btBoxShape( btVector3(1,1,1) ); // half-extents
+            }
+            else if( m_PrimitiveType == PhysicsPrimitiveType_Sphere )
+            {
+                colShape = new btSphereShape( btScalar(1.0f) );
+            }
         }
 
-        //btCollisionShape* colShape = new btSphereShape( btScalar(1.0f) );
         g_pBulletWorld->m_CollisionShapes.push_back( colShape );
 
         // Create Dynamic Objects

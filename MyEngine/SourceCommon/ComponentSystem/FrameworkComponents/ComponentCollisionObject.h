@@ -10,10 +10,11 @@
 #ifndef __ComponentCollisionObject_H__
 #define __ComponentCollisionObject_H__
 
-enum PhysicsPrimitiveTypes
+enum PhysicsPrimitiveTypes //ADDING_NEW_PhysicsPrimitiveType - order doesn't matter, saved as string.
 {
     PhysicsPrimitiveType_Cube,
-    PhysicsPrimitiveType_Mesh,
+    PhysicsPrimitiveType_Sphere,
+    PhysicsPrimitiveType_ConvexHull,
     PhysicsPrimitive_NumTypes,
 };
 
