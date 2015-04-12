@@ -87,7 +87,7 @@ void ComponentMeshPrimitive::OnValueChanged(int controlid, bool finishedchanging
 {
     if( finishedchanging )
     {
-        //if( id == m_ControlID_MeshPrimitiveType )
+        if( controlid == m_ControlID_MeshPrimitiveType )
         {
             CreatePrimitive();
             g_pPanelWatch->m_NeedsRefresh = true;

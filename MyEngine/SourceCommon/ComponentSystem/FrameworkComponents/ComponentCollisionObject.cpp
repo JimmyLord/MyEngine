@@ -129,7 +129,7 @@ void ComponentCollisionObject::OnValueChanged(int controlid, bool finishedchangi
 {
     if( finishedchanging )
     {
-        //if( id == m_ControlID_PrimitiveType )
+        if( controlid == m_ControlID_PrimitiveType )
         {
             // TODO: rethink this, doesn't need refresh if panel isn't visible.
             g_pPanelWatch->m_NeedsRefresh = true;
