@@ -56,7 +56,7 @@ void ComponentCamera::FillPropertiesWindow(bool clear)
     }
 }
 
-void ComponentCamera::OnValueChanged(int id, bool finishedchanging)
+void ComponentCamera::OnValueChanged(int controlid, bool finishedchanging)
 {
     ComputeProjectionMatrices();
     m_FullClearsRequired = 2;

@@ -88,8 +88,8 @@ public:
     virtual void FillPropertiesWindow(bool clear);
     static void StaticOnDrop(void* pObjectPtr) { ((ComponentLuaScript*)pObjectPtr)->OnDrop(); }
     void OnDrop();
-    static void StaticOnValueChanged(void* pObjectPtr, int id, bool finishedchanging) { ((ComponentLuaScript*)pObjectPtr)->OnValueChanged( id, finishedchanging ); }
-    void OnValueChanged(int id, bool finishedchanging);
+    static void StaticOnValueChanged(void* pObjectPtr, int controlid, bool finishedchanging) { ((ComponentLuaScript*)pObjectPtr)->OnValueChanged( controlid, finishedchanging ); }
+    void OnValueChanged(int controlid, bool finishedchanging);
 #endif //MYFW_USING_WX
 };
 

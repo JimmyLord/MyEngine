@@ -14,6 +14,7 @@ enum PhysicsPrimitiveTypes //ADDING_NEW_PhysicsPrimitiveType - order doesn't mat
 {
     PhysicsPrimitiveType_Cube,
     PhysicsPrimitiveType_Sphere,
+    PhysicsPrimitiveType_StaticPlane,
     PhysicsPrimitiveType_ConvexHull,
     PhysicsPrimitive_NumTypes,
 };
@@ -25,9 +26,10 @@ class ComponentCollisionObject : public ComponentUpdateable
 public:
     btRigidBody* m_pBody;
 
-    float m_Mass;
-
     int m_PrimitiveType;
+
+    float m_Mass;
+    Vector3 m_Scale;
     MyMesh* m_pMesh;
 
 public:
@@ -56,11 +58,14 @@ public:
 public:
 #if MYFW_USING_WX
     static bool m_PanelWatchBlockVisible;
+    int m_ControlID_PrimitiveType;
 
     virtual void AddToObjectsPanel(wxTreeItemId gameobjectid);
     static void StaticOnLeftClick(void* pObjectPtr) { ((ComponentCollisionObject*)pObjectPtr)->OnLeftClick( true ); }
     void OnLeftClick(bool clear);
     virtual void FillPropertiesWindow(bool clear);
+    static void StaticOnValueChanged(void* pObjectPtr, int controlid, bool finishedchanging) { ((ComponentCollisionObject*)pObjectPtr)->OnValueChanged( controlid, finishedchanging ); }
+    void OnValueChanged(int controlid, bool finishedchanging);
     static void StaticOnDropOBJ(void* pObjectPtr) { ((ComponentCollisionObject*)pObjectPtr)->OnDropOBJ(); }
     void OnDropOBJ();
 #endif //MYFW_USING_WX

@@ -40,6 +40,7 @@ void ComponentMeshPrimitive::Reset()
 
 #if MYFW_USING_WX
     m_pPanelWatchBlockVisible = &m_PanelWatchBlockVisible;
+    m_ControlID_MeshPrimitiveType = -1;
 #endif //MYFW_USING_WX
 }
 
@@ -62,7 +63,7 @@ void ComponentMeshPrimitive::FillPropertiesWindow(bool clear)
     {
         ComponentMesh::FillPropertiesWindow( clear );
 
-        g_pPanelWatch->AddInt( "MPType", (int*)&m_MeshPrimitiveType, 0, ComponentMeshPrimitive_Max-1, this, StaticOnValueChanged );
+        m_ControlID_MeshPrimitiveType = g_pPanelWatch->AddInt( "MPType", (int*)&m_MeshPrimitiveType, 0, ComponentMeshPrimitive_Max-1, this, StaticOnValueChanged );
 
         if( m_MeshPrimitiveType == ComponentMeshPrimitive_Plane )
         {
@@ -82,12 +83,15 @@ void ComponentMeshPrimitive::FillPropertiesWindow(bool clear)
     }
 }
 
-void ComponentMeshPrimitive::OnValueChanged(int id, bool finishedchanging)
+void ComponentMeshPrimitive::OnValueChanged(int controlid, bool finishedchanging)
 {
     if( finishedchanging )
     {
-        CreatePrimitive();
-        //FillPropertiesWindow( true );
+        //if( id == m_ControlID_MeshPrimitiveType )
+        {
+            CreatePrimitive();
+            g_pPanelWatch->m_NeedsRefresh = true;
+        }
     }
 }
 #endif //MYFW_USING_WX

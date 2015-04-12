@@ -70,8 +70,8 @@ public:
     static void StaticOnLeftClick(void* pObjectPtr) { ((ComponentCamera*)pObjectPtr)->OnLeftClick( true ); }
     void OnLeftClick(bool clear);
     virtual void FillPropertiesWindow(bool clear);
-    static void StaticOnValueChanged(void* pObjectPtr, int id, bool finishedchanging) { ((ComponentCamera*)pObjectPtr)->OnValueChanged( id, finishedchanging ); }
-    void OnValueChanged(int id, bool finishedchanging);
+    static void StaticOnValueChanged(void* pObjectPtr, int controlid, bool finishedchanging) { ((ComponentCamera*)pObjectPtr)->OnValueChanged( controlid, finishedchanging ); }
+    void OnValueChanged(int controlid, bool finishedchanging);
 #endif //MYFW_USING_WX
 };
 

@@ -63,8 +63,8 @@ public:
     //static bool m_PanelWatchBlockVisible; // each class needs it's own static bool, so if one component of this type is off, they all are.
     bool* m_pPanelWatchBlockVisible; // pointer to the bool above, must be set by each component.
     int m_ControlID_ComponentTitleLabel;
-    static void StaticOnComponentTitleLabelClicked(void* pObjectPtr, int id, bool finishedchanging) { ((ComponentBase*)pObjectPtr)->OnComponentTitleLabelClicked( id, finishedchanging ); }
-    void OnComponentTitleLabelClicked(int id, bool finishedchanging);
+    static void StaticOnComponentTitleLabelClicked(void* pObjectPtr, int controlid, bool finishedchanging) { ((ComponentBase*)pObjectPtr)->OnComponentTitleLabelClicked( controlid, finishedchanging ); }
+    void OnComponentTitleLabelClicked(int controlid, bool finishedchanging);
 
     virtual void AddToObjectsPanel(wxTreeItemId gameobjectid);
     static void StaticOnLeftClick(void* pObjectPtr) { ((ComponentBase*)pObjectPtr)->OnLeftClick( true ); }

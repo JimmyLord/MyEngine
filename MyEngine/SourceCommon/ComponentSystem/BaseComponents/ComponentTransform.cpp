@@ -115,9 +115,9 @@ void ComponentTransform::OnDropTransform()
     }
 }
 
-void ComponentTransform::OnValueChanged(int id, bool finishedchanging)
+void ComponentTransform::OnValueChanged(int controlid, bool finishedchanging)
 {
-    if( id != -1 && id == m_ControlID_ParentTransform )
+    if( controlid != -1 && controlid == m_ControlID_ParentTransform )
     {
         wxString text = g_pPanelWatch->m_pVariables[m_ControlID_ParentTransform].m_Handle_TextCtrl->GetValue();
         if( text == "" )

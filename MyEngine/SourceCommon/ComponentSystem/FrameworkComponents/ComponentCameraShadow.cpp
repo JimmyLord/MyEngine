@@ -48,7 +48,7 @@ void ComponentCameraShadow::FillPropertiesWindow(bool clear)
     }
 }
 
-void ComponentCameraShadow::OnValueChanged(int id, bool finishedchanging)
+void ComponentCameraShadow::OnValueChanged(int controlid, bool finishedchanging)
 {
 }
 #endif //MYFW_USING_WX

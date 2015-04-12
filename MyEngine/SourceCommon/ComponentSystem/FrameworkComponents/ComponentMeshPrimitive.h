@@ -51,13 +51,14 @@ public:
 public:
 #if MYFW_USING_WX
     static bool m_PanelWatchBlockVisible;
+    int m_ControlID_MeshPrimitiveType;
 
     virtual void AddToObjectsPanel(wxTreeItemId gameobjectid);
     static void StaticOnLeftClick(void* pObjectPtr) { ((ComponentMeshPrimitive*)pObjectPtr)->OnLeftClick( true ); }
     void OnLeftClick(bool clear);
     virtual void FillPropertiesWindow(bool clear);
-    static void StaticOnValueChanged(void* pObjectPtr, int id, bool finishedchanging) { ((ComponentMeshPrimitive*)pObjectPtr)->OnValueChanged( id, finishedchanging ); }
-    void OnValueChanged(int id, bool finishedchanging);
+    static void StaticOnValueChanged(void* pObjectPtr, int controlid, bool finishedchanging) { ((ComponentMeshPrimitive*)pObjectPtr)->OnValueChanged( controlid, finishedchanging ); }
+    void OnValueChanged(int controlid, bool finishedchanging);
 #endif //MYFW_USING_WX
 };
 

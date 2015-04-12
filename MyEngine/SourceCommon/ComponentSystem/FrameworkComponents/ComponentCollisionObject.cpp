@@ -18,6 +18,7 @@ const char* PhysicsPrimitiveTypeStrings[PhysicsPrimitive_NumTypes] = //ADDING_NE
 {
     "Cube",
     "Sphere",
+    "Static Plane",
     "Convex Hull",
 };
 
@@ -57,12 +58,15 @@ void ComponentCollisionObject::Reset()
 {
     ComponentUpdateable::Reset();
 
-    m_Mass = 0;
     m_PrimitiveType = PhysicsPrimitiveType_Cube;
+
+    m_Mass = 0;
+    m_Scale.Set( 1,1,1 );
     SAFE_RELEASE( m_pMesh );
 
 #if MYFW_USING_WX
     m_pPanelWatchBlockVisible = &m_PanelWatchBlockVisible;
+    m_ControlID_PrimitiveType = -1;
 #endif //MYFW_USING_WX
 }
 
@@ -87,12 +91,49 @@ void ComponentCollisionObject::FillPropertiesWindow(bool clear)
 
         g_pPanelWatch->AddFloat( "Mass", &m_Mass, 0, 100 );
 
-        g_pPanelWatch->AddEnum( "Primitive Type", &m_PrimitiveType, PhysicsPrimitive_NumTypes, PhysicsPrimitiveTypeStrings );
+        m_ControlID_PrimitiveType = g_pPanelWatch->AddEnum( "Primitive Type", &m_PrimitiveType, PhysicsPrimitive_NumTypes, PhysicsPrimitiveTypeStrings, this, StaticOnValueChanged );
 
-        const char* desc = "no mesh";
-        if( m_pMesh && m_pMesh->m_pSourceFile )
-            desc = m_pMesh->m_pSourceFile->m_FullPath;
-        g_pPanelWatch->AddPointerWithDescription( "Collision Mesh", 0, desc, this, ComponentCollisionObject::StaticOnDropOBJ );
+        switch( m_PrimitiveType )
+        {
+            case PhysicsPrimitiveType_Cube:
+            {
+                g_pPanelWatch->AddVector3( "Scale", &m_Scale, 0, 100 );
+            }
+            break;
+
+            case PhysicsPrimitiveType_Sphere:
+            {
+                g_pPanelWatch->AddFloat( "Scale", &m_Scale.x, 0, 100 );
+            }
+            break;
+
+            case PhysicsPrimitiveType_StaticPlane:
+            {
+                // nothing here, maybe add an pos/rot offset, but ATM uses object transform.
+            }
+            break;
+
+            case PhysicsPrimitiveType_ConvexHull:
+            {
+                const char* desc = "no mesh";
+                if( m_pMesh && m_pMesh->m_pSourceFile )
+                    desc = m_pMesh->m_pSourceFile->m_FullPath;
+                g_pPanelWatch->AddPointerWithDescription( "Collision Mesh", 0, desc, this, ComponentCollisionObject::StaticOnDropOBJ );
+            }
+            break;
+        }
+    }
+}
+
+void ComponentCollisionObject::OnValueChanged(int controlid, bool finishedchanging)
+{
+    if( finishedchanging )
+    {
+        //if( id == m_ControlID_PrimitiveType )
+        {
+            // TODO: rethink this, doesn't need refresh if panel isn't visible.
+            g_pPanelWatch->m_NeedsRefresh = true;
+        }
     }
 }
 
@@ -123,14 +164,15 @@ cJSON* ComponentCollisionObject::ExportAsJSONObject()
 {
     cJSON* component = ComponentUpdateable::ExportAsJSONObject();
 
-    cJSON_AddNumberToObject( component, "Mass", m_Mass );
-    
     // physics primitive type, stored as string
     const char* primitivetypename = PhysicsPrimitiveTypeStrings[m_PrimitiveType];
     assert( primitivetypename );
     if( primitivetypename )
         cJSON_AddStringToObject( component, "Primitive", primitivetypename );
 
+    cJSON_AddNumberToObject( component, "Mass", m_Mass );
+    cJSONExt_AddFloatArrayToObject( component, "Scale", &m_Scale.x, 3 );
+    
     // OBJ filename
     if( m_pMesh && m_pMesh->m_pSourceFile )
         cJSON_AddStringToObject( component, "OBJ", m_pMesh->m_pSourceFile->m_FullPath );
@@ -142,12 +184,9 @@ void ComponentCollisionObject::ImportFromJSONObject(cJSON* jsonobj, unsigned int
 {
     ComponentUpdateable::ImportFromJSONObject( jsonobj, sceneid );
 
-    cJSONExt_GetFloat( jsonobj, "Mass", &m_Mass );
-    
     // physics primitive type, stored as string
     cJSON* typeobj = cJSON_GetObjectItem( jsonobj, "Primitive" );
     assert( typeobj );
-    m_PrimitiveType = PhysicsPrimitiveType_Cube;
     if( typeobj )
     {
         for( int i=0; i<PhysicsPrimitive_NumTypes; i++ )
@@ -156,6 +195,9 @@ void ComponentCollisionObject::ImportFromJSONObject(cJSON* jsonobj, unsigned int
                 m_PrimitiveType = i;
         }
     }
+
+    cJSONExt_GetFloat( jsonobj, "Mass", &m_Mass );
+    cJSONExt_GetFloatArray( jsonobj, "Scale", &m_Scale.x, 3 );
 
     // get the OBJ filename and load the actual file.
     cJSON* objstringobj = cJSON_GetObjectItem( jsonobj, "OBJ" );
@@ -228,11 +270,15 @@ void ComponentCollisionObject::OnPlay()
         {
             if( m_PrimitiveType == PhysicsPrimitiveType_Cube )
             {
-                colShape = new btBoxShape( btVector3(1,1,1) ); // half-extents
+                colShape = new btBoxShape( btVector3(m_Scale.x/2, m_Scale.y/2, m_Scale.z/2) ); // half-extents
             }
             else if( m_PrimitiveType == PhysicsPrimitiveType_Sphere )
             {
-                colShape = new btSphereShape( btScalar(1.0f) );
+                colShape = new btSphereShape( btScalar(m_Scale.x) );
+            }
+            else if( m_PrimitiveType == PhysicsPrimitiveType_StaticPlane )
+            {
+                colShape = new btStaticPlaneShape( btVector3(0,1,0), 0 );
             }
         }
 
