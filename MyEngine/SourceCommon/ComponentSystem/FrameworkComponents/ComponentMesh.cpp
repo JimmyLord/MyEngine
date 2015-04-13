@@ -13,6 +13,17 @@
 bool ComponentMesh::m_PanelWatchBlockVisible = true;
 #endif
 
+const char* OpenGLPrimitiveTypeStrings[7] =
+{
+    "Points",
+    "Lines",
+    "LineLoop",
+    "LineStrip",
+    "Triangles",
+    "TriangleStrip",
+    "TriangleFan",
+};
+
 ComponentMesh::ComponentMesh()
 : ComponentRenderable()
 {
@@ -80,7 +91,7 @@ void ComponentMesh::FillPropertiesWindow(bool clear)
             desc = m_pTexture->m_Filename;
         g_pPanelWatch->AddPointerWithDescription( "Texture", 0, desc, this, ComponentMesh::StaticOnDropTexture );
 
-        g_pPanelWatch->AddInt( "Primitive Type", &m_GLPrimitiveType, GL_POINTS, GL_TRIANGLE_FAN );
+        g_pPanelWatch->AddEnum( "Primitive Type", &m_GLPrimitiveType, 7, OpenGLPrimitiveTypeStrings );
         g_pPanelWatch->AddInt( "Point Size", &m_PointSize, 1, 100 );
         g_pPanelWatch->AddFloat( "Shininess", &m_Shininess, 1, 300 );
     }

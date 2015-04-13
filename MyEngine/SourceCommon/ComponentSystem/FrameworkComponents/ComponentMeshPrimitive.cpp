@@ -13,6 +13,12 @@
 bool ComponentMeshPrimitive::m_PanelWatchBlockVisible = true;
 #endif
 
+const char* ComponentMeshPrimitiveTypeStrings[ComponentMeshPrimitive_NumTypes] =
+{
+    "Plane",
+    "Icosphere",
+};
+
 ComponentMeshPrimitive::ComponentMeshPrimitive()
 : ComponentMesh()
 {
@@ -27,7 +33,7 @@ void ComponentMeshPrimitive::Reset()
 {
     ComponentMesh::Reset();
 
-    m_MeshPrimitiveType = ComponentMeshPrimitive_Max;
+    m_MeshPrimitiveType = ComponentMeshPrimitive_NumTypes;
 
     m_Plane_Size.Set( 10, 10 );
     m_Plane_VertCount.Set( 10, 10 );
@@ -63,7 +69,7 @@ void ComponentMeshPrimitive::FillPropertiesWindow(bool clear)
     {
         ComponentMesh::FillPropertiesWindow( clear );
 
-        m_ControlID_MeshPrimitiveType = g_pPanelWatch->AddInt( "MPType", (int*)&m_MeshPrimitiveType, 0, ComponentMeshPrimitive_Max-1, this, StaticOnValueChanged );
+        m_ControlID_MeshPrimitiveType = g_pPanelWatch->AddEnum( "MPType", (int*)&m_MeshPrimitiveType, ComponentMeshPrimitive_NumTypes, ComponentMeshPrimitiveTypeStrings, this, StaticOnValueChanged );
 
         if( m_MeshPrimitiveType == ComponentMeshPrimitive_Plane )
         {
@@ -162,7 +168,7 @@ ComponentMeshPrimitive& ComponentMeshPrimitive::operator=(const ComponentMeshPri
 
 void ComponentMeshPrimitive::CreatePrimitive()
 {
-    if( m_MeshPrimitiveType < 0 || m_MeshPrimitiveType >= ComponentMeshPrimitive_Max )
+    if( m_MeshPrimitiveType < 0 || m_MeshPrimitiveType >= ComponentMeshPrimitive_NumTypes )
         return;
 
     if( m_pMesh == 0 )

@@ -12,6 +12,8 @@
 
 class ComponentTransform;
 
+extern const char* OpenGLPrimitiveTypeStrings[7];
+
 class ComponentMesh : public ComponentRenderable
 {
 public:

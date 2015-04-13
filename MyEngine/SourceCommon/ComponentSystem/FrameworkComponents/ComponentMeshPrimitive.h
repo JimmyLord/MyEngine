@@ -12,12 +12,14 @@
 
 class ComponentTransform;
 
-enum ComponentMeshPrimitives
+enum ComponentMeshPrimitives // Saved as int, must stay in order.
 {
     ComponentMeshPrimitive_Plane,
     ComponentMeshPrimitive_Icosphere,
-    ComponentMeshPrimitive_Max,
+    ComponentMeshPrimitive_NumTypes,
 };
+
+extern const char* ComponentMeshPrimitiveTypeStrings[ComponentMeshPrimitive_NumTypes];
 
 class ComponentMeshPrimitive : public ComponentMesh
 {
