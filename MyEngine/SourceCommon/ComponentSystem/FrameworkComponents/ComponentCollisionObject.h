@@ -68,6 +68,8 @@ public:
     void OnValueChanged(int controlid, bool finishedchanging);
     static void StaticOnDropOBJ(void* pObjectPtr) { ((ComponentCollisionObject*)pObjectPtr)->OnDropOBJ(); }
     void OnDropOBJ();
+    static void StaticOnTransformPositionChanged(void* pObjectPtr, Vector3& newpos, bool changedbyeditor) { ((ComponentCollisionObject*)pObjectPtr)->OnTransformPositionChanged( newpos, changedbyeditor ); }
+    void OnTransformPositionChanged(Vector3& newpos, bool changedbyeditor);
 #endif //MYFW_USING_WX
 };
 

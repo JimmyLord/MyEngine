@@ -8,34 +8,34 @@
 // 3. This notice may not be removed or altered from any source distribution.
 
 #include "EngineCommonHeader.h"
-#include "GameCommandStack.h"
+#include "EngineCommandStack.h"
 
-GameCommandStack::GameCommandStack()
+EngineCommandStack::EngineCommandStack()
 {
 }
 
-GameCommandStack::~GameCommandStack()
+EngineCommandStack::~EngineCommandStack()
 {
 }
 
-void GameCommandStack::Undo(unsigned int levels)
+void EngineCommandStack::Undo(unsigned int levels)
 {
     if( g_pEngineCore->m_EditorMode )
         CommandStack::Undo( levels );
 }
 
-void GameCommandStack::Redo(unsigned int levels)
+void EngineCommandStack::Redo(unsigned int levels)
 {
     if( g_pEngineCore->m_EditorMode )
         CommandStack::Redo( levels );
 }
 
-void GameCommandStack::Do(EditorCommand* pCommand)
+void EngineCommandStack::Do(EditorCommand* pCommand)
 {
     CommandStack::Do( pCommand );
 }
 
-void GameCommandStack::Add(EditorCommand* pCommand)
+void EngineCommandStack::Add(EditorCommand* pCommand)
 {
     if( g_pEngineCore->m_EditorMode )
         return CommandStack::Add( pCommand );

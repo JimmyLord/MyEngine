@@ -10,7 +10,7 @@
 #ifndef __ComponentTransform_H__
 #define __ComponentTransform_H__
 
-typedef void (*TransformPositionChangedCallbackFunc)(void* obj, Vector3& newpos);
+typedef void (*TransformPositionChangedCallbackFunc)(void* pObjectPtr, Vector3& newpos, bool changedbyeditor);
 struct TransformPositionChangedCallbackStruct
 {
     void* pObj;
@@ -49,6 +49,9 @@ public:
 
     // recalculate the matrix each time we set any of the 3 properties. // not efficient
     void SetPosition(Vector3 pos);
+#if MYFW_USING_WX
+    void SetPositionByEditor(Vector3 pos);
+#endif
     void SetScale(Vector3 scale);
     void SetRotation(Vector3 rot);
 

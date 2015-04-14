@@ -8,7 +8,7 @@
 // 3. This notice may not be removed or altered from any source distribution.
 
 #include "EngineCommonHeader.h"
-#include "GameEditorCommands.h"
+#include "EngineEditorCommands.h"
 
 //====================================================================================================
 // EditorCommand_MoveObjects
@@ -35,7 +35,7 @@ void EditorCommand_MoveObjects::Do()
     for( unsigned int i=0; i<m_ObjectsMoved.size(); i++ )
     {
         Vector3 newpos = m_ObjectsMoved[i]->m_pComponentTransform->GetPosition() + m_DistanceMoved;
-        m_ObjectsMoved[i]->m_pComponentTransform->SetPosition( newpos );
+        m_ObjectsMoved[i]->m_pComponentTransform->SetPositionByEditor( newpos );
         m_ObjectsMoved[i]->m_pComponentTransform->UpdateMatrix();
     }
 }
@@ -46,7 +46,7 @@ void EditorCommand_MoveObjects::Undo()
     for( unsigned int i=0; i<m_ObjectsMoved.size(); i++ )
     {
         Vector3 newpos = m_ObjectsMoved[i]->m_pComponentTransform->GetPosition() - m_DistanceMoved;
-        m_ObjectsMoved[i]->m_pComponentTransform->SetPosition( newpos );
+        m_ObjectsMoved[i]->m_pComponentTransform->SetPositionByEditor( newpos );
         m_ObjectsMoved[i]->m_pComponentTransform->UpdateMatrix();
     }
 }

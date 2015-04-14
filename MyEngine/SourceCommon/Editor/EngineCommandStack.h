@@ -7,16 +7,16 @@
 // 2. Altered source versions must be plainly marked as such, and must not be misrepresented as being the original software.
 // 3. This notice may not be removed or altered from any source distribution.
 
-#ifndef __GameCommandStack_H__
-#define __GameCommandStack_H__
+#ifndef __EngineCommandStack_H__
+#define __EngineCommandStack_H__
 
-class GameCommandStack : public CommandStack
+class EngineCommandStack : public CommandStack
 {
 public:
 
 public:
-    GameCommandStack();
-    virtual ~GameCommandStack();
+    EngineCommandStack();
+    virtual ~EngineCommandStack();
 
     virtual void Undo(unsigned int levels);
     virtual void Redo(unsigned int levels);
@@ -25,4 +25,4 @@ public:
     virtual void Add(EditorCommand* pCommand);
 };
 
-#endif // __GameCommandStack_H__
+#endif // __EngineCommandStack_H__

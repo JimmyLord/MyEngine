@@ -132,7 +132,7 @@ void ComponentTransform::OnValueChanged(int controlid, bool finishedchanging)
         UpdateMatrix();
 
         for( unsigned int i=0; i<m_pPositionChangedCallbackList.Count(); i++ )
-            m_pPositionChangedCallbackList[i].pFunc( m_pPositionChangedCallbackList[i].pObj, m_Position );
+            m_pPositionChangedCallbackList[i].pFunc( m_pPositionChangedCallbackList[i].pObj, m_Position, true );
     }
 }
 #endif //MYFW_USING_WX
@@ -193,8 +193,19 @@ void ComponentTransform::SetPosition(Vector3 pos)
     m_LocalTransform.CreateSRT( m_Scale, m_Rotation, m_Position );
 
     for( unsigned int i=0; i<m_pPositionChangedCallbackList.Count(); i++ )
-        m_pPositionChangedCallbackList[0].pFunc( m_pPositionChangedCallbackList[0].pObj, m_Position );
+        m_pPositionChangedCallbackList[i].pFunc( m_pPositionChangedCallbackList[i].pObj, m_Position, false );
 }
+
+#if MYFW_USING_WX
+void ComponentTransform::SetPositionByEditor(Vector3 pos)
+{
+    m_Position = pos;
+    m_LocalTransform.CreateSRT( m_Scale, m_Rotation, m_Position );
+
+    for( unsigned int i=0; i<m_pPositionChangedCallbackList.Count(); i++ )
+        m_pPositionChangedCallbackList[i].pFunc( m_pPositionChangedCallbackList[i].pObj, m_Position, true );
+}
+#endif
 
 void ComponentTransform::SetScale(Vector3 scale)
 {

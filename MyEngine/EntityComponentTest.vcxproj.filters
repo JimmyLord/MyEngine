@@ -186,12 +186,6 @@
     <ClCompile Include="SourceCommon\Core\EditorState.cpp">
       <Filter>Source\Core Files</Filter>
     </ClCompile>
-    <ClCompile Include="SourceCommon\Editor\GameCommandStack.cpp">
-      <Filter>Source\Editor</Filter>
-    </ClCompile>
-    <ClCompile Include="SourceCommon\Editor\GameEditorCommands.cpp">
-      <Filter>Source\Editor</Filter>
-    </ClCompile>
     <ClCompile Include="SourceCommon\Editor\TransformGizmo.cpp">
       <Filter>Source\Editor</Filter>
     </ClCompile>
@@ -266,6 +260,12 @@
     </ClCompile>
     <ClCompile Include="SourceCommon\ComponentSystem\Core\GameObject.cpp">
       <Filter>Source\ComponentSystem\Core Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCommon\Editor\EngineEditorCommands.cpp">
+      <Filter>Source\Editor</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCommon\Editor\EngineCommandStack.cpp">
+      <Filter>Source\Editor</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -410,12 +410,6 @@
     <ClInclude Include="SourceCommon\Core\EditorState.h">
       <Filter>Source\Core Files</Filter>
     </ClInclude>
-    <ClInclude Include="SourceCommon\Editor\GameCommandStack.h">
-      <Filter>Source\Editor</Filter>
-    </ClInclude>
-    <ClInclude Include="SourceCommon\Editor\GameEditorCommands.h">
-      <Filter>Source\Editor</Filter>
-    </ClInclude>
     <ClInclude Include="SourceCommon\Editor\TransformGizmo.h">
       <Filter>Source\Editor</Filter>
     </ClInclude>
@@ -490,6 +484,12 @@
     </ClInclude>
     <ClInclude Include="SourceCommon\ComponentSystem\Core\GameObject.h">
       <Filter>Source\ComponentSystem\Core Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCommon\Editor\EngineEditorCommands.h">
+      <Filter>Source\Editor</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCommon\Editor\EngineCommandStack.h">
+      <Filter>Source\Editor</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

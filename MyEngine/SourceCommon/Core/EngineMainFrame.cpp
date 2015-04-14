@@ -179,7 +179,7 @@ EngineMainFrame::~EngineMainFrame()
 
 void EngineMainFrame::AddPanes()
 {
-    m_pCommandStack = MyNew GameCommandStack();
+    m_pCommandStack = MyNew EngineCommandStack();
 
     MainFrame::AddPanes();
 

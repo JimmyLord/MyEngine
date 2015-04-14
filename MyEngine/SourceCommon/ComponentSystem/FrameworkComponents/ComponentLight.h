@@ -26,8 +26,8 @@ public:
     virtual void CopyFromSameType_Dangerous(ComponentBase* pObject) { *this = (ComponentLight&)*pObject; }
     virtual ComponentLight& operator=(const ComponentLight& other);
 
-    static void StaticOnTransformPositionChanged(void* pObjectPtr, Vector3& newpos) { ((ComponentLight*)pObjectPtr)->OnTransformPositionChanged( newpos ); }
-    void OnTransformPositionChanged(Vector3& newpos);
+    static void StaticOnTransformPositionChanged(void* pObjectPtr, Vector3& newpos, bool changedbyeditor) { ((ComponentLight*)pObjectPtr)->OnTransformPositionChanged( newpos, changedbyeditor ); }
+    void OnTransformPositionChanged(Vector3& newpos, bool changedbyeditor);
 
 public:
 #if MYFW_USING_WX

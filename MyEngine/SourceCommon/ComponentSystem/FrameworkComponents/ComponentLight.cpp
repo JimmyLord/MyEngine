@@ -89,7 +89,7 @@ void ComponentLight::ImportFromJSONObject(cJSON* jsonobj, unsigned int sceneid)
     cJSONExt_GetFloatArray( jsonobj, "Atten", &m_pLight->m_Attenuation.x, 3 );
 }
 
-void ComponentLight::OnTransformPositionChanged(Vector3& newpos)
+void ComponentLight::OnTransformPositionChanged(Vector3& newpos, bool changedbyeditor)
 {
     assert( m_pLight );
 

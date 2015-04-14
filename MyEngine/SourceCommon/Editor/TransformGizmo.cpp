@@ -317,7 +317,7 @@ void TransformGizmo::TranslateSelectedObjects(EngineCore* pGame, EditorState* pE
                     Vector3 pos = pEditorState->m_pSelectedObjects[i]->m_pComponentTransform->GetPosition();
                     //pos.y = currentresult.y;
                     //pEditorState->m_pSelectedObjects[i]->m_pComponentTransform->SetPosition( pos );
-                    pEditorState->m_pSelectedObjects[i]->m_pComponentTransform->SetPosition( pos + diff );
+                    pEditorState->m_pSelectedObjects[i]->m_pComponentTransform->SetPositionByEditor( pos + diff );
                     pEditorState->m_pSelectedObjects[i]->m_pComponentTransform->UpdateMatrix();
                 }
             }

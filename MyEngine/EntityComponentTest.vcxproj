@@ -2007,13 +2007,13 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="SourceCommon\Core\LuaGameState.cpp" />
-    <ClCompile Include="SourceCommon\Editor\GameCommandStack.cpp">
+    <ClCompile Include="SourceCommon\Editor\EngineCommandStack.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug_64|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release_64|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="SourceCommon\Editor\GameEditorCommands.cpp">
+    <ClCompile Include="SourceCommon\Editor\EngineEditorCommands.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug_64|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release_64|Win32'">true</ExcludedFromBuild>
@@ -2149,13 +2149,13 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
     </ClInclude>
     <ClInclude Include="SourceCommon\Core\LuaGameState.h" />
-    <ClInclude Include="SourceCommon\Editor\GameCommandStack.h">
+    <ClInclude Include="SourceCommon\Editor\EngineCommandStack.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug_64|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release_64|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
     </ClInclude>
-    <ClInclude Include="SourceCommon\Editor\GameEditorCommands.h">
+    <ClInclude Include="SourceCommon\Editor\EngineEditorCommands.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug_64|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release_64|Win32'">true</ExcludedFromBuild>

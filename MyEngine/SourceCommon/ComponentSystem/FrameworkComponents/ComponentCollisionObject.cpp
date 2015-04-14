@@ -67,6 +67,8 @@ void ComponentCollisionObject::Reset()
 #if MYFW_USING_WX
     m_pPanelWatchBlockVisible = &m_PanelWatchBlockVisible;
     m_ControlID_PrimitiveType = -1;
+
+    m_pComponentTransform->RegisterPositionChangedCallback( this, StaticOnTransformPositionChanged );
 #endif //MYFW_USING_WX
 }
 
@@ -157,6 +159,12 @@ void ComponentCollisionObject::OnDropOBJ()
             g_pPanelWatch->m_pVariables[g_DragAndDropStruct.m_ID].m_Description = m_pMesh->m_pSourceFile->m_FullPath;
         }
     }
+}
+
+void ComponentCollisionObject::OnTransformPositionChanged(Vector3& newpos, bool changedbyeditor)
+{
+    if( changedbyeditor )
+        SyncRigidBodyToTransform();
 }
 #endif //MYFW_USING_WX
 
@@ -278,7 +286,8 @@ void ComponentCollisionObject::OnPlay()
             }
             else if( m_PrimitiveType == PhysicsPrimitiveType_StaticPlane )
             {
-                colShape = new btStaticPlaneShape( btVector3(0,1,0), 0 );
+                // plane is flat on x/z and at origin, rigid will have transform to place plane in space.
+                colShape = new btStaticPlaneShape( btVector3(0, 1, 0), 0 );
             }
         }
 
@@ -333,7 +342,6 @@ void ComponentCollisionObject::Tick(double TimePassed)
 
     if( TimePassed == 0 )
     {
-        SyncRigidBodyToTransform();
         return;
     }
 
@@ -371,7 +379,8 @@ void ComponentCollisionObject::Tick(double TimePassed)
 
 void ComponentCollisionObject::SyncRigidBodyToTransform()
 {
-    //m_pComponentTransform->SetPosition( Vector3(2,10,0) );
+    if( m_pBody == 0 )
+        return;
 
     btTransform transform;
     //btVector3 pos(m_pComponentTransform->m_Position.x, m_pComponentTransform->m_Position.y, m_pComponentTransform->m_Position.z );
@@ -380,16 +389,13 @@ void ComponentCollisionObject::SyncRigidBodyToTransform()
     MyMatrix localmat = m_pComponentTransform->GetLocalRotPosMatrix(); //GetLocalTransform();
     transform.setFromOpenGLMatrix( &localmat.m11 );
 
-    if( m_pBody )
-    {
-        m_pBody->getMotionState()->setWorldTransform( transform );
-        m_pBody->setWorldTransform( transform );
+    m_pBody->getMotionState()->setWorldTransform( transform );
+    m_pBody->setWorldTransform( transform );
 
-        m_pBody->activate( true );
+    m_pBody->activate( true );
 
-        g_pBulletWorld->m_pDynamicsWorld->removeRigidBody( m_pBody );
-        g_pBulletWorld->m_pDynamicsWorld->addRigidBody( m_pBody );
-    }
+    g_pBulletWorld->m_pDynamicsWorld->removeRigidBody( m_pBody );
+    g_pBulletWorld->m_pDynamicsWorld->addRigidBody( m_pBody );
 }
 
 void ComponentCollisionObject::ApplyForce(Vector3 force, Vector3 relpos)
