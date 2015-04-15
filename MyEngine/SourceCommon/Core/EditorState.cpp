@@ -9,6 +9,8 @@
 
 #include "EngineCommonHeader.h"
 
+#if MYFW_USING_WX
+
 EditorState::EditorState()
 {
     m_ModifierKeyStates = 0;
@@ -135,3 +137,5 @@ void EditorState::ClearSelectedObjectsAndComponents()
     g_pPanelObjectList->SelectObject( 0 );
     g_pPanelWatch->ClearAllVariables();
 }
+
+#endif //MYFW_USING_WX

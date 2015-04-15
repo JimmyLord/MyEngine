@@ -9,6 +9,8 @@
 
 #include "EngineCommonHeader.h"
 
+#if MYFW_USING_WX
+
 #include "../../Framework/MyFramework/SourceWindows/MYFWWinMainWx.h"
 #include "EngineMainFrame.h"
 
@@ -529,3 +531,5 @@ void EngineMainFrame::AddDatafileToScene()
         g_pEngineCore->m_pComponentSystemManager->LoadDatafile( fullpath, 1 );
     }
 }
+
+#endif //MYFW_USING_WX
