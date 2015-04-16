@@ -194,7 +194,7 @@ void ComponentCollisionObject::ImportFromJSONObject(cJSON* jsonobj, unsigned int
 
     // physics primitive type, stored as string
     cJSON* typeobj = cJSON_GetObjectItem( jsonobj, "Primitive" );
-    assert( typeobj );
+    //assert( typeobj );
     if( typeobj )
     {
         for( int i=0; i<PhysicsPrimitive_NumTypes; i++ )

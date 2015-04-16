@@ -27,7 +27,7 @@ ComponentTypeInfo g_EngineComponentTypeInfo[Component_NumEngineComponentTypes] =
 
 ComponentBase* EngineComponentTypeManager::CreateComponent(int type)
 {
-    ComponentBase* pComponent;
+    ComponentBase* pComponent = 0;
 
     assert( type != -1 );
 
@@ -47,6 +47,8 @@ ComponentBase* EngineComponentTypeManager::CreateComponent(int type)
     }
 
     assert( pComponent != 0 );
+    if( pComponent == 0 )
+        return 0;
 
     pComponent->m_Type = type;
     return pComponent;

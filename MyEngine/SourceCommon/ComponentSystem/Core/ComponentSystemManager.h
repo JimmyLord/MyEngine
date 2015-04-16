@@ -15,7 +15,7 @@ class GameObject;
 class ComponentBase;
 class ComponentCamera;
 class ComponentLight;
-class FileInfo; // at bottom of this file.
+class MyFileInfo; // at bottom of this file.
 
 extern ComponentSystemManager* g_pComponentSystemManager;
 
@@ -139,10 +139,10 @@ public:
 #endif //MYFW_USING_WX
 };
 
-class FileInfo : public CPPListNode
+class MyFileInfo : public CPPListNode
 {
 public:
-    FileInfo()
+    MyFileInfo()
     {
         m_pFile = 0;
         m_SceneID = 0;
@@ -151,7 +151,7 @@ public:
         m_pShaderGroup = 0;
     }
 
-    virtual ~FileInfo()
+    virtual ~MyFileInfo()
     {
         SAFE_RELEASE( m_pFile );
         SAFE_RELEASE( m_pMesh );

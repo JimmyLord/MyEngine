@@ -224,7 +224,7 @@ bool ComponentSystemManager::IsFileUsedByScene(const char* fullpath, unsigned in
 {
     for( CPPListNode* pNode = m_Files.GetHead(); pNode; pNode = pNode->GetNext() )
     {
-        FileInfo* pFile = (FileInfo*)pNode;
+        MyFileInfo* pFile = (MyFileInfo*)pNode;
         
         if( strcmp( pFile->m_pFile->m_FullPath, fullpath ) == 0 && pFile->m_SceneID == sceneid )
             return true;
@@ -317,7 +317,7 @@ void ComponentSystemManager::LoadDatafile(const char* relativepath, unsigned int
         }
 
         // store pFile so we can free it afterwards.
-        FileInfo* pFileInfo = MyNew FileInfo();
+        MyFileInfo* pFileInfo = MyNew MyFileInfo();
         pFileInfo->m_pFile = pFile;
         pFileInfo->m_SceneID = sceneid;
         m_Files.AddTail( pFileInfo );
@@ -556,7 +556,7 @@ void ComponentSystemManager::UnloadScene(bool clearunmanagedcomponents, unsigned
     // release any file ref's added by this scene.
     for( CPPListNode* pNode = m_Files.GetHead(); pNode;  )
     {
-        FileInfo* pFile = (FileInfo*)pNode;
+        MyFileInfo* pFile = (MyFileInfo*)pNode;
         pNode = pNode->GetNext();
 
         if( pFile->m_SceneID == sceneidtoclear || pFile->m_SceneID == UINT_MAX )
