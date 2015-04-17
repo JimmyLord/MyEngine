@@ -1216,7 +1216,7 @@ void EngineCore::SaveScene(const char* fullpath)
         fclose( filehandle );
     }
 
-    free( savestring );
+    cJSONExt_free( savestring );
 }
 
 void EngineCore::UnloadScene(unsigned int sceneid)

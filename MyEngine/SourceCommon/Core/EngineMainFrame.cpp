@@ -46,6 +46,7 @@ void EngineMainFrame_MessageLog(int logtype, const char* tag, const char* messag
 EngineMainFrame::EngineMainFrame()
 : MainFrame(0)
 {
+    m_pCommandStack = 0;
     m_pGLCanvasEditor = 0;
     m_pLogPane = 0;
 
@@ -111,6 +112,7 @@ void EngineMainFrame::InitFrame()
 
     MainFrame::InitFrame();
 
+    m_pCommandStack = 0;
     m_pGLCanvasEditor = 0;
     m_pLogPane = 0;
 
@@ -245,6 +247,9 @@ void EngineMainFrame::OnPostInit()
 
 void EngineMainFrame::OnClose()
 {
+    if( g_pEngineCore == 0 )
+        return;
+
     FILE* file = 0;
     fopen_s( &file, "EditorPrefs.ini", "wb" );
     if( file )
@@ -265,11 +270,12 @@ void EngineMainFrame::OnClose()
         cJSON_AddNumberToObject( pPrefs, "GameAspectRatio", g_CurrentGLViewType );
 
         char* string = cJSON_Print( pPrefs );
+        cJSON_Delete( pPrefs );
 
         fprintf( file, string );
         fclose( file );
 
-        free( string );
+        cJSONExt_free( string );
     }
 }
 
