@@ -7,6 +7,67 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0423AB131AE2FD5F00C1AE29 /* lfunc.c in Sources */ = {isa = PBXBuildFile; fileRef = 044C635C1ADE8B9200BABD53 /* lfunc.c */; };
+		0423AB141AE2FD5F00C1AE29 /* lobject.c in Sources */ = {isa = PBXBuildFile; fileRef = 044C63691ADE8B9200BABD53 /* lobject.c */; };
+		0423AB151AE2FD5F00C1AE29 /* ComponentCameraShadow.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 044C62581ADDE98F00BABD53 /* ComponentCameraShadow.cpp */; };
+		0423AB161AE2FD5F00C1AE29 /* ComponentTransform.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 044C624A1ADDE98F00BABD53 /* ComponentTransform.cpp */; };
+		0423AB171AE2FD5F00C1AE29 /* Camera2D.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 044C623A1ADDE98F00BABD53 /* Camera2D.cpp */; };
+		0423AB181AE2FD5F00C1AE29 /* ComponentLight.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 044C625C1ADDE98F00BABD53 /* ComponentLight.cpp */; };
+		0423AB191AE2FD5F00C1AE29 /* LuaGameState.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 044C62751ADDE98F00BABD53 /* LuaGameState.cpp */; };
+		0423AB1A1AE2FD5F00C1AE29 /* ComponentData.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 044C62441ADDE98F00BABD53 /* ComponentData.cpp */; };
+		0423AB1B1AE2FD5F00C1AE29 /* ldo.c in Sources */ = {isa = PBXBuildFile; fileRef = 044C63591ADE8B9200BABD53 /* ldo.c */; };
+		0423AB1C1AE2FD5F00C1AE29 /* ComponentMeshPrimitive.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 044C62641ADDE98F00BABD53 /* ComponentMeshPrimitive.cpp */; };
+		0423AB1D1AE2FD5F00C1AE29 /* lundump.c in Sources */ = {isa = PBXBuildFile; fileRef = 044C63801ADE8B9200BABD53 /* lundump.c */; };
+		0423AB1E1AE2FD5F00C1AE29 /* ComponentInputHandler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 044C62461ADDE98F00BABD53 /* ComponentInputHandler.cpp */; };
+		0423AB1F1AE2FD5F00C1AE29 /* ComponentRenderable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 044C62481ADDE98F00BABD53 /* ComponentRenderable.cpp */; };
+		0423AB201AE2FD5F00C1AE29 /* ComponentTypeManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 044C62511ADDE98F00BABD53 /* ComponentTypeManager.cpp */; };
+		0423AB211AE2FD5F00C1AE29 /* loslib.c in Sources */ = {isa = PBXBuildFile; fileRef = 044C636D1ADE8B9200BABD53 /* loslib.c */; };
+		0423AB221AE2FD5F00C1AE29 /* lvm.c in Sources */ = {isa = PBXBuildFile; fileRef = 044C63821ADE8B9200BABD53 /* lvm.c */; };
+		0423AB231AE2FD5F00C1AE29 /* lstate.c in Sources */ = {isa = PBXBuildFile; fileRef = 044C63701ADE8B9200BABD53 /* lstate.c */; };
+		0423AB241AE2FD5F00C1AE29 /* ComponentUpdateable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 044C624C1ADDE98F00BABD53 /* ComponentUpdateable.cpp */; };
+		0423AB251AE2FD5F00C1AE29 /* ComponentBase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 044C62401ADDE98F00BABD53 /* ComponentBase.cpp */; };
+		0423AB261AE2FD5F00C1AE29 /* lmathlib.c in Sources */ = {isa = PBXBuildFile; fileRef = 044C63651ADE8B9200BABD53 /* lmathlib.c */; };
+		0423AB271AE2FD5F00C1AE29 /* ltablib.c in Sources */ = {isa = PBXBuildFile; fileRef = 044C63771ADE8B9200BABD53 /* ltablib.c */; };
+		0423AB281AE2FD5F00C1AE29 /* ldblib.c in Sources */ = {isa = PBXBuildFile; fileRef = 044C63561ADE8B9200BABD53 /* ldblib.c */; };
+		0423AB291AE2FD5F00C1AE29 /* ComponentCollisionObject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 044C625A1ADDE98F00BABD53 /* ComponentCollisionObject.cpp */; };
+		0423AB2A1AE2FD5F00C1AE29 /* EngineMainFrame.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 044C62731ADDE98F00BABD53 /* EngineMainFrame.cpp */; };
+		0423AB2B1AE2FD5F00C1AE29 /* lstring.c in Sources */ = {isa = PBXBuildFile; fileRef = 044C63721ADE8B9200BABD53 /* lstring.c */; };
+		0423AB2C1AE2FD5F00C1AE29 /* ltm.c in Sources */ = {isa = PBXBuildFile; fileRef = 044C63781ADE8B9200BABD53 /* ltm.c */; };
+		0423AB2D1AE2FD5F00C1AE29 /* BulletWorld.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 044C626B1ADDE98F00BABD53 /* BulletWorld.cpp */; };
+		0423AB2E1AE2FD5F00C1AE29 /* ComponentSystemManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 044C624F1ADDE98F00BABD53 /* ComponentSystemManager.cpp */; };
+		0423AB2F1AE2FD5F00C1AE29 /* linit.c in Sources */ = {isa = PBXBuildFile; fileRef = 044C63601ADE8B9200BABD53 /* linit.c */; };
+		0423AB301AE2FD5F00C1AE29 /* ltable.c in Sources */ = {isa = PBXBuildFile; fileRef = 044C63751ADE8B9200BABD53 /* ltable.c */; };
+		0423AB311AE2FD5F00C1AE29 /* EditorState.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 044C626D1ADDE98F00BABD53 /* EditorState.cpp */; };
+		0423AB321AE2FD5F00C1AE29 /* liolib.c in Sources */ = {isa = PBXBuildFile; fileRef = 044C63611ADE8B9200BABD53 /* liolib.c */; };
+		0423AB331AE2FD5F00C1AE29 /* lcorolib.c in Sources */ = {isa = PBXBuildFile; fileRef = 044C63531ADE8B9200BABD53 /* lcorolib.c */; };
+		0423AB341AE2FD5F00C1AE29 /* Camera3D.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 044C623C1ADDE98F00BABD53 /* Camera3D.cpp */; };
+		0423AB351AE2FD5F00C1AE29 /* ComponentParticleEmitter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 044C62661ADDE98F00BABD53 /* ComponentParticleEmitter.cpp */; };
+		0423AB361AE2FD5F00C1AE29 /* EngineCore.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 044C62711ADDE98F00BABD53 /* EngineCore.cpp */; };
+		0423AB371AE2FD5F00C1AE29 /* lzio.c in Sources */ = {isa = PBXBuildFile; fileRef = 044C63841ADE8B9200BABD53 /* lzio.c */; };
+		0423AB381AE2FD5F00C1AE29 /* ComponentCamera.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 044C62421ADDE98F00BABD53 /* ComponentCamera.cpp */; };
+		0423AB391AE2FD5F00C1AE29 /* ComponentMesh.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 044C62601ADDE98F00BABD53 /* ComponentMesh.cpp */; };
+		0423AB3A1AE2FD5F00C1AE29 /* lctype.c in Sources */ = {isa = PBXBuildFile; fileRef = 044C63541ADE8B9200BABD53 /* lctype.c */; };
+		0423AB3B1AE2FD5F00C1AE29 /* lstrlib.c in Sources */ = {isa = PBXBuildFile; fileRef = 044C63741ADE8B9200BABD53 /* lstrlib.c */; };
+		0423AB3C1AE2FD5F00C1AE29 /* lgc.c in Sources */ = {isa = PBXBuildFile; fileRef = 044C635E1ADE8B9200BABD53 /* lgc.c */; };
+		0423AB3D1AE2FD5F00C1AE29 /* lbaselib.c in Sources */ = {isa = PBXBuildFile; fileRef = 044C634F1ADE8B9200BABD53 /* lbaselib.c */; };
+		0423AB3E1AE2FD5F00C1AE29 /* ldump.c in Sources */ = {isa = PBXBuildFile; fileRef = 044C635B1ADE8B9200BABD53 /* ldump.c */; };
+		0423AB3F1AE2FD5F00C1AE29 /* llex.c in Sources */ = {isa = PBXBuildFile; fileRef = 044C63621ADE8B9200BABD53 /* llex.c */; };
+		0423AB401AE2FD5F00C1AE29 /* EngineComponentTypeManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 044C626F1ADDE98F00BABD53 /* EngineComponentTypeManager.cpp */; };
+		0423AB411AE2FD5F00C1AE29 /* ComponentAnimationPlayer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 044C62561ADDE98F00BABD53 /* ComponentAnimationPlayer.cpp */; };
+		0423AB421AE2FD5F00C1AE29 /* lapi.c in Sources */ = {isa = PBXBuildFile; fileRef = 044C634B1ADE8B9200BABD53 /* lapi.c */; };
+		0423AB431AE2FD5F00C1AE29 /* EngineCommonHeader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 044C627E1ADDE98F00BABD53 /* EngineCommonHeader.cpp */; };
+		0423AB441AE2FD5F00C1AE29 /* ldebug.c in Sources */ = {isa = PBXBuildFile; fileRef = 044C63571ADE8B9200BABD53 /* ldebug.c */; };
+		0423AB451AE2FD5F00C1AE29 /* lopcodes.c in Sources */ = {isa = PBXBuildFile; fileRef = 044C636B1ADE8B9200BABD53 /* lopcodes.c */; };
+		0423AB461AE2FD5F00C1AE29 /* lcode.c in Sources */ = {isa = PBXBuildFile; fileRef = 044C63511ADE8B9200BABD53 /* lcode.c */; };
+		0423AB471AE2FD5F00C1AE29 /* ComponentMeshOBJ.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 044C62621ADDE98F00BABD53 /* ComponentMeshOBJ.cpp */; };
+		0423AB481AE2FD5F00C1AE29 /* ComponentLuaScript.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 044C625E1ADDE98F00BABD53 /* ComponentLuaScript.cpp */; };
+		0423AB491AE2FD5F00C1AE29 /* lparser.c in Sources */ = {isa = PBXBuildFile; fileRef = 044C636E1ADE8B9200BABD53 /* lparser.c */; };
+		0423AB4A1AE2FD5F00C1AE29 /* ComponentSprite.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 044C62681ADDE98F00BABD53 /* ComponentSprite.cpp */; };
+		0423AB4B1AE2FD5F00C1AE29 /* lbitlib.c in Sources */ = {isa = PBXBuildFile; fileRef = 044C63501ADE8B9200BABD53 /* lbitlib.c */; };
+		0423AB4C1AE2FD5F00C1AE29 /* loadlib.c in Sources */ = {isa = PBXBuildFile; fileRef = 044C63681ADE8B9200BABD53 /* loadlib.c */; };
+		0423AB4D1AE2FD5F00C1AE29 /* lauxlib.c in Sources */ = {isa = PBXBuildFile; fileRef = 044C634D1ADE8B9200BABD53 /* lauxlib.c */; };
+		0423AB4E1AE2FD5F00C1AE29 /* lmem.c in Sources */ = {isa = PBXBuildFile; fileRef = 044C63661ADE8B9200BABD53 /* lmem.c */; };
+		0423AB4F1AE2FD5F00C1AE29 /* GameObject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 044C62531ADDE98F00BABD53 /* GameObject.cpp */; };
 		044C62801ADDE98F00BABD53 /* Camera2D.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 044C623A1ADDE98F00BABD53 /* Camera2D.cpp */; };
 		044C62811ADDE98F00BABD53 /* Camera3D.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 044C623C1ADDE98F00BABD53 /* Camera3D.cpp */; };
 		044C62821ADDE98F00BABD53 /* ComponentBase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 044C62401ADDE98F00BABD53 /* ComponentBase.cpp */; };
@@ -144,6 +205,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		0423AB551AE2FD5F00C1AE29 /* libMyEngine-wx.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libMyEngine-wx.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		044C621E1ADDE85700BABD53 /* libMyEngine-iOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libMyEngine-iOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		044C623A1ADDE98F00BABD53 /* Camera2D.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Camera2D.cpp; sourceTree = "<group>"; };
 		044C623B1ADDE98F00BABD53 /* Camera2D.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Camera2D.h; sourceTree = "<group>"; };
@@ -278,10 +340,17 @@
 		044C63841ADE8B9200BABD53 /* lzio.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = lzio.c; sourceTree = "<group>"; };
 		044C63851ADE8B9200BABD53 /* lzio.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lzio.h; sourceTree = "<group>"; };
 		044C63861ADE8B9200BABD53 /* Makefile */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.make; path = Makefile; sourceTree = "<group>"; };
-		044C63F31ADED35900BABD53 /* libMyEngine-wx.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libMyEngine-wx.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		044C63F31ADED35900BABD53 /* libMyEngine-OSX.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libMyEngine-OSX.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		0423AB501AE2FD5F00C1AE29 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		044C621B1ADDE85700BABD53 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -312,7 +381,8 @@
 			isa = PBXGroup;
 			children = (
 				044C621E1ADDE85700BABD53 /* libMyEngine-iOS.a */,
-				044C63F31ADED35900BABD53 /* libMyEngine-wx.a */,
+				044C63F31ADED35900BABD53 /* libMyEngine-OSX.a */,
+				0423AB551AE2FD5F00C1AE29 /* libMyEngine-wx.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -540,6 +610,13 @@
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
+		0423AB511AE2FD5F00C1AE29 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		044C63F11ADED35900BABD53 /* Headers */ = {
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
@@ -550,6 +627,23 @@
 /* End PBXHeadersBuildPhase section */
 
 /* Begin PBXNativeTarget section */
+		0423AB111AE2FD5F00C1AE29 /* MyEngine-wx */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 0423AB521AE2FD5F00C1AE29 /* Build configuration list for PBXNativeTarget "MyEngine-wx" */;
+			buildPhases = (
+				0423AB121AE2FD5F00C1AE29 /* Sources */,
+				0423AB501AE2FD5F00C1AE29 /* Frameworks */,
+				0423AB511AE2FD5F00C1AE29 /* Headers */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "MyEngine-wx";
+			productName = "MyEngine-OSX";
+			productReference = 0423AB551AE2FD5F00C1AE29 /* libMyEngine-wx.a */;
+			productType = "com.apple.product-type.library.static";
+		};
 		044C621D1ADDE85700BABD53 /* MyEngine-iOS */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 044C62321ADDE85700BABD53 /* Build configuration list for PBXNativeTarget "MyEngine-iOS" */;
@@ -567,9 +661,9 @@
 			productReference = 044C621E1ADDE85700BABD53 /* libMyEngine-iOS.a */;
 			productType = "com.apple.product-type.library.static";
 		};
-		044C63F21ADED35900BABD53 /* MyEngine-wx */ = {
+		044C63F21ADED35900BABD53 /* MyEngine-OSX */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 044C64041ADED35900BABD53 /* Build configuration list for PBXNativeTarget "MyEngine-wx" */;
+			buildConfigurationList = 044C64041ADED35900BABD53 /* Build configuration list for PBXNativeTarget "MyEngine-OSX" */;
 			buildPhases = (
 				044C63EF1ADED35900BABD53 /* Sources */,
 				044C63F01ADED35900BABD53 /* Frameworks */,
@@ -579,9 +673,9 @@
 			);
 			dependencies = (
 			);
-			name = "MyEngine-wx";
-			productName = "MyEngine-wx";
-			productReference = 044C63F31ADED35900BABD53 /* libMyEngine-wx.a */;
+			name = "MyEngine-OSX";
+			productName = "MyEngine-OSX";
+			productReference = 044C63F31ADED35900BABD53 /* libMyEngine-OSX.a */;
 			productType = "com.apple.product-type.library.static";
 		};
 /* End PBXNativeTarget section */
@@ -614,12 +708,81 @@
 			projectRoot = "";
 			targets = (
 				044C621D1ADDE85700BABD53 /* MyEngine-iOS */,
-				044C63F21ADED35900BABD53 /* MyEngine-wx */,
+				044C63F21ADED35900BABD53 /* MyEngine-OSX */,
+				0423AB111AE2FD5F00C1AE29 /* MyEngine-wx */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXSourcesBuildPhase section */
+		0423AB121AE2FD5F00C1AE29 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				0423AB131AE2FD5F00C1AE29 /* lfunc.c in Sources */,
+				0423AB141AE2FD5F00C1AE29 /* lobject.c in Sources */,
+				0423AB151AE2FD5F00C1AE29 /* ComponentCameraShadow.cpp in Sources */,
+				0423AB161AE2FD5F00C1AE29 /* ComponentTransform.cpp in Sources */,
+				0423AB171AE2FD5F00C1AE29 /* Camera2D.cpp in Sources */,
+				0423AB181AE2FD5F00C1AE29 /* ComponentLight.cpp in Sources */,
+				0423AB191AE2FD5F00C1AE29 /* LuaGameState.cpp in Sources */,
+				0423AB1A1AE2FD5F00C1AE29 /* ComponentData.cpp in Sources */,
+				0423AB1B1AE2FD5F00C1AE29 /* ldo.c in Sources */,
+				0423AB1C1AE2FD5F00C1AE29 /* ComponentMeshPrimitive.cpp in Sources */,
+				0423AB1D1AE2FD5F00C1AE29 /* lundump.c in Sources */,
+				0423AB1E1AE2FD5F00C1AE29 /* ComponentInputHandler.cpp in Sources */,
+				0423AB1F1AE2FD5F00C1AE29 /* ComponentRenderable.cpp in Sources */,
+				0423AB201AE2FD5F00C1AE29 /* ComponentTypeManager.cpp in Sources */,
+				0423AB211AE2FD5F00C1AE29 /* loslib.c in Sources */,
+				0423AB221AE2FD5F00C1AE29 /* lvm.c in Sources */,
+				0423AB231AE2FD5F00C1AE29 /* lstate.c in Sources */,
+				0423AB241AE2FD5F00C1AE29 /* ComponentUpdateable.cpp in Sources */,
+				0423AB251AE2FD5F00C1AE29 /* ComponentBase.cpp in Sources */,
+				0423AB261AE2FD5F00C1AE29 /* lmathlib.c in Sources */,
+				0423AB271AE2FD5F00C1AE29 /* ltablib.c in Sources */,
+				0423AB281AE2FD5F00C1AE29 /* ldblib.c in Sources */,
+				0423AB291AE2FD5F00C1AE29 /* ComponentCollisionObject.cpp in Sources */,
+				0423AB2A1AE2FD5F00C1AE29 /* EngineMainFrame.cpp in Sources */,
+				0423AB2B1AE2FD5F00C1AE29 /* lstring.c in Sources */,
+				0423AB2C1AE2FD5F00C1AE29 /* ltm.c in Sources */,
+				0423AB2D1AE2FD5F00C1AE29 /* BulletWorld.cpp in Sources */,
+				0423AB2E1AE2FD5F00C1AE29 /* ComponentSystemManager.cpp in Sources */,
+				0423AB2F1AE2FD5F00C1AE29 /* linit.c in Sources */,
+				0423AB301AE2FD5F00C1AE29 /* ltable.c in Sources */,
+				0423AB311AE2FD5F00C1AE29 /* EditorState.cpp in Sources */,
+				0423AB321AE2FD5F00C1AE29 /* liolib.c in Sources */,
+				0423AB331AE2FD5F00C1AE29 /* lcorolib.c in Sources */,
+				0423AB341AE2FD5F00C1AE29 /* Camera3D.cpp in Sources */,
+				0423AB351AE2FD5F00C1AE29 /* ComponentParticleEmitter.cpp in Sources */,
+				0423AB361AE2FD5F00C1AE29 /* EngineCore.cpp in Sources */,
+				0423AB371AE2FD5F00C1AE29 /* lzio.c in Sources */,
+				0423AB381AE2FD5F00C1AE29 /* ComponentCamera.cpp in Sources */,
+				0423AB391AE2FD5F00C1AE29 /* ComponentMesh.cpp in Sources */,
+				0423AB3A1AE2FD5F00C1AE29 /* lctype.c in Sources */,
+				0423AB3B1AE2FD5F00C1AE29 /* lstrlib.c in Sources */,
+				0423AB3C1AE2FD5F00C1AE29 /* lgc.c in Sources */,
+				0423AB3D1AE2FD5F00C1AE29 /* lbaselib.c in Sources */,
+				0423AB3E1AE2FD5F00C1AE29 /* ldump.c in Sources */,
+				0423AB3F1AE2FD5F00C1AE29 /* llex.c in Sources */,
+				0423AB401AE2FD5F00C1AE29 /* EngineComponentTypeManager.cpp in Sources */,
+				0423AB411AE2FD5F00C1AE29 /* ComponentAnimationPlayer.cpp in Sources */,
+				0423AB421AE2FD5F00C1AE29 /* lapi.c in Sources */,
+				0423AB431AE2FD5F00C1AE29 /* EngineCommonHeader.cpp in Sources */,
+				0423AB441AE2FD5F00C1AE29 /* ldebug.c in Sources */,
+				0423AB451AE2FD5F00C1AE29 /* lopcodes.c in Sources */,
+				0423AB461AE2FD5F00C1AE29 /* lcode.c in Sources */,
+				0423AB471AE2FD5F00C1AE29 /* ComponentMeshOBJ.cpp in Sources */,
+				0423AB481AE2FD5F00C1AE29 /* ComponentLuaScript.cpp in Sources */,
+				0423AB491AE2FD5F00C1AE29 /* lparser.c in Sources */,
+				0423AB4A1AE2FD5F00C1AE29 /* ComponentSprite.cpp in Sources */,
+				0423AB4B1AE2FD5F00C1AE29 /* lbitlib.c in Sources */,
+				0423AB4C1AE2FD5F00C1AE29 /* loadlib.c in Sources */,
+				0423AB4D1AE2FD5F00C1AE29 /* lauxlib.c in Sources */,
+				0423AB4E1AE2FD5F00C1AE29 /* lmem.c in Sources */,
+				0423AB4F1AE2FD5F00C1AE29 /* GameObject.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		044C621A1ADDE85700BABD53 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -759,6 +922,39 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin XCBuildConfiguration section */
+		0423AB531AE2FD5F00C1AE29 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				EXECUTABLE_PREFIX = lib;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"MYFW_OSX=1",
+					"MYFW_USING_WX=1",
+					"$(inherited)",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.10;
+				PRODUCT_NAME = "MyEngine-wx";
+				SDKROOT = macosx;
+				USER_HEADER_SEARCH_PATHS = "$(inherited)";
+			};
+			name = Debug;
+		};
+		0423AB541AE2FD5F00C1AE29 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				EXECUTABLE_PREFIX = lib;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"MYFW_OSX=1",
+					"MYFW_USING_WX=1",
+					"$(inherited)",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 10.10;
+				PRODUCT_NAME = "MyEngine-wx";
+				SDKROOT = macosx;
+				USER_HEADER_SEARCH_PATHS = "$(inherited)";
+			};
+			name = Release;
+		};
 		044C62301ADDE85700BABD53 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -908,6 +1104,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		0423AB521AE2FD5F00C1AE29 /* Build configuration list for PBXNativeTarget "MyEngine-wx" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				0423AB531AE2FD5F00C1AE29 /* Debug */,
+				0423AB541AE2FD5F00C1AE29 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		044C62191ADDE85700BABD53 /* Build configuration list for PBXProject "MyEngine" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
@@ -926,13 +1131,14 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		044C64041ADED35900BABD53 /* Build configuration list for PBXNativeTarget "MyEngine-wx" */ = {
+		044C64041ADED35900BABD53 /* Build configuration list for PBXNativeTarget "MyEngine-OSX" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				044C64051ADED35900BABD53 /* Debug */,
 				044C64061ADED35900BABD53 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
