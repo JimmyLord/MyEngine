@@ -71,11 +71,15 @@ void EngineMainFrame::InitFrame()
     g_pEngineMainFrame = this;
 
     FILE* file = 0;
+#if MYFW_WINDOWS
     fopen_s( &file, "EditorPrefs.ini", "rb" );
+#else
+    file = fopen( "EditorPrefs.ini", "rb" );
+#endif
     if( file )
     {
         char* string = MyNew char[10000];
-        int len = fread( string, 1, 10000, file );
+        size_t len = fread( string, 1, 10000, file );
         string[len] = 0;
         fclose( file );
 
@@ -251,7 +255,11 @@ void EngineMainFrame::OnClose()
         return;
 
     FILE* file = 0;
+#if MYFW_WINDOWS
     fopen_s( &file, "EditorPrefs.ini", "wb" );
+#else
+    file = fopen( "EditorPrefs.ini", "wb" );
+#endif
     if( file )
     {
         cJSON* pPrefs = cJSON_CreateObject();
@@ -272,7 +280,7 @@ void EngineMainFrame::OnClose()
         char* string = cJSON_Print( pPrefs );
         cJSON_Delete( pPrefs );
 
-        fprintf( file, string );
+        fprintf( file, "%s", string );
         fclose( file );
 
         cJSONExt_free( string );
@@ -303,13 +311,13 @@ void EngineMainFrame::OnGameMenu(wxCommandEvent& event)
         break;
 
     case myIDGame_RecordMacro:
-        m_Hackery_Record_StackDepth = m_pCommandStack->m_UndoStack.size();
+        m_Hackery_Record_StackDepth = (int)m_pCommandStack->m_UndoStack.size();
         break;
 
     case myIDGame_ExecuteMacro:
         if( m_Hackery_Record_StackDepth != -1 )
         {
-            int topdepth = m_pCommandStack->m_UndoStack.size();
+            int topdepth = (int)m_pCommandStack->m_UndoStack.size();
             for( int i=m_Hackery_Record_StackDepth; i<topdepth; i++ )
             {
                 // need to copy the command.
@@ -507,13 +515,17 @@ void EngineMainFrame::AddDatafileToScene()
     for( unsigned int filenum=0; filenum<patharray.Count(); filenum++ )
     {
         sprintf_s( fullpath, MAX_PATH, "%s", (const char*)patharray[filenum] );
-        unsigned int fullpathlen = strlen( fullpath );
+        unsigned int fullpathlen = (unsigned int)strlen( fullpath );
 
         char dirpath[MAX_PATH];
+#if MYFW_WINDOWS
         GetCurrentDirectoryA( MAX_PATH, dirpath );
+#else
+        dirpath[0] = 0;
+#endif
 
         // if the datafile is in our working directory, then load it... otherwise TODO: copy it in?
-        size_t dirpathlen = strlen(dirpath);
+        unsigned int dirpathlen = (unsigned int)strlen(dirpath);
         if( strncmp( dirpath, fullpath, dirpathlen ) == 0 )
         {
             for( unsigned int i=dirpathlen; i<fullpathlen-1; i++ )

@@ -26,7 +26,8 @@ ComponentInputHandler::~ComponentInputHandler()
 #if MYFW_USING_WX
 void ComponentInputHandler::AddToObjectsPanel(wxTreeItemId gameobjectid)
 {
-    wxTreeItemId id = g_pPanelObjectList->AddObject( this, ComponentInputHandler::StaticOnLeftClick, ComponentBase::StaticOnRightClick, gameobjectid, "Input handler" );
+    //wxTreeItemId id =
+    g_pPanelObjectList->AddObject( this, ComponentInputHandler::StaticOnLeftClick, ComponentBase::StaticOnRightClick, gameobjectid, "Input handler" );
 }
 
 void ComponentInputHandler::OnLeftClick(bool clear)

@@ -29,7 +29,8 @@ ComponentSprite::~ComponentSprite()
 #if MYFW_USING_WX
 void ComponentSprite::AddToObjectsPanel(wxTreeItemId gameobjectid)
 {
-    wxTreeItemId id = g_pPanelObjectList->AddObject( this, ComponentSprite::StaticOnLeftClick, ComponentBase::StaticOnRightClick, gameobjectid, "Sprite" );
+    //wxTreeItemId id =
+    g_pPanelObjectList->AddObject( this, ComponentSprite::StaticOnLeftClick, ComponentBase::StaticOnRightClick, gameobjectid, "Sprite" );
 }
 
 void ComponentSprite::OnLeftClick(bool clear)

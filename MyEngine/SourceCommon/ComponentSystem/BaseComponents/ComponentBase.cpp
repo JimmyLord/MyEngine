@@ -37,7 +37,8 @@ void ComponentBase::Reset()
 #if MYFW_USING_WX
 void ComponentBase::AddToObjectsPanel(wxTreeItemId gameobjectid)
 {
-    wxTreeItemId id = g_pPanelObjectList->AddObject( this, ComponentBase::StaticOnLeftClick, ComponentBase::StaticOnRightClick, gameobjectid, "Unknown component" );
+    //wxTreeItemId id =
+    g_pPanelObjectList->AddObject( this, ComponentBase::StaticOnLeftClick, ComponentBase::StaticOnRightClick, gameobjectid, "Unknown component" );
     g_pPanelObjectList->SetDragAndDropFunctions( this, ComponentBase::StaticOnDrag, ComponentBase::StaticOnDrop );
 }
 
@@ -78,7 +79,7 @@ void ComponentBase::OnRightClick()
 
 void ComponentBase::OnPopupClick(wxEvent &evt)
 {
-    ComponentBase* pComponent = (ComponentBase*)static_cast<wxMenu*>(evt.GetEventObject())->GetClientData();
+    //ComponentBase* pComponent = (ComponentBase*)static_cast<wxMenu*>(evt.GetEventObject())->GetClientData();
     int id = evt.GetId();
     if( id == 1000 )
     {

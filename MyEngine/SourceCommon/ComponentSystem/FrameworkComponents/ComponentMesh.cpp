@@ -63,7 +63,8 @@ void ComponentMesh::Reset()
 void ComponentMesh::AddToObjectsPanel(wxTreeItemId gameobjectid)
 {
     assert( gameobjectid.IsOk() );
-    wxTreeItemId id = g_pPanelObjectList->AddObject( this, ComponentMesh::StaticOnLeftClick, ComponentBase::StaticOnRightClick, gameobjectid, "Mesh" );
+    //wxTreeItemId id =
+    g_pPanelObjectList->AddObject( this, ComponentMesh::StaticOnLeftClick, ComponentBase::StaticOnRightClick, gameobjectid, "Mesh" );
 }
 
 void ComponentMesh::OnLeftClick(bool clear)
@@ -120,7 +121,7 @@ void ComponentMesh::OnDropTexture()
         assert( pFile );
         //assert( m_pMesh );
 
-        int len = strlen( pFile->m_FullPath );
+        size_t len = strlen( pFile->m_FullPath );
         const char* filenameext = &pFile->m_FullPath[len-4];
 
         if( strcmp( filenameext, ".png" ) == 0 )

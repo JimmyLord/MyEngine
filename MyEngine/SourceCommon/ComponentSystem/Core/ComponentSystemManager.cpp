@@ -122,7 +122,7 @@ void ComponentSystemManager::OnPopupClick(wxEvent &evt)
 void ComponentSystemManager::OnMemoryPanelFileSelectedLeftClick()
 {
     // not sure why I put this in anymore... might be handy later.
-    int bp = 1;
+    //int bp = 1;
 }
 #endif //MYFW_USING_WX
 
@@ -252,10 +252,14 @@ void ComponentSystemManager::LoadDatafile(const char* relativepath, unsigned int
             char params[paramsbuffersize]; // 2 full paths plus a few extra chars
 
             char workingdir[MAX_PATH];
+#if MYFW_WINDOWS
             _getcwd( workingdir, MAX_PATH * sizeof(char) );
+#else
+            getcwd( workingdir, MAX_PATH * sizeof(char) );
+#endif
 
             char filename[MAX_PATH];
-            for( int i=strlen(relativepath)-1; i>=0; i-- )
+            for( int i=(int)strlen(relativepath)-1; i>=0; i-- )
             {
                 if( relativepath[i] == '\\' || relativepath[i] == '/' || i == 0 )
                 {
@@ -268,6 +272,7 @@ void ComponentSystemManager::LoadDatafile(const char* relativepath, unsigned int
 
             LOGInfo( LOGTag, "Converting %s to mymesh %s\n", relativepath, params );
 
+#if MYFW_WINDOWS
             SHELLEXECUTEINFOA info = {0};
             info.cbSize = sizeof( SHELLEXECUTEINFOA );
             info.fMask = SEE_MASK_NOCLOSEPROCESS;
@@ -296,6 +301,9 @@ void ComponentSystemManager::LoadDatafile(const char* relativepath, unsigned int
                 sprintf_s( newrelativepath, MAX_PATH, "Data/Meshes/%s.mymesh", filename );
                 LoadDatafile( newrelativepath, sceneid );
             }
+#else
+            LOGError( LOGTag, "Mesh conversion only works on Windows ATM\n" );
+#endif
 
             return;
         }

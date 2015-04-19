@@ -75,7 +75,8 @@ void ComponentCollisionObject::Reset()
 #if MYFW_USING_WX
 void ComponentCollisionObject::AddToObjectsPanel(wxTreeItemId gameobjectid)
 {
-    wxTreeItemId id = g_pPanelObjectList->AddObject( this, ComponentCollisionObject::StaticOnLeftClick, ComponentBase::StaticOnRightClick, gameobjectid, "Collision object" );
+    //wxTreeItemId id =
+    g_pPanelObjectList->AddObject( this, ComponentCollisionObject::StaticOnLeftClick, ComponentBase::StaticOnRightClick, gameobjectid, "Collision object" );
 }
 
 void ComponentCollisionObject::OnLeftClick(bool clear)
@@ -147,7 +148,7 @@ void ComponentCollisionObject::OnDropOBJ()
         assert( pFile );
         //assert( m_pMesh );
 
-        int len = strlen( pFile->m_FullPath );
+        size_t len = strlen( pFile->m_FullPath );
         const char* filenameext = &pFile->m_FullPath[len-4];
 
         if( strcmp( filenameext, ".obj" ) == 0 )

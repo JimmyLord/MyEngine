@@ -49,7 +49,8 @@ void ComponentLight::Reset()
 #if MYFW_USING_WX
 void ComponentLight::AddToObjectsPanel(wxTreeItemId gameobjectid)
 {
-    wxTreeItemId id = g_pPanelObjectList->AddObject( this, ComponentLight::StaticOnLeftClick, ComponentBase::StaticOnRightClick, gameobjectid, "Light" );
+    //wxTreeItemId id =
+    g_pPanelObjectList->AddObject( this, ComponentLight::StaticOnLeftClick, ComponentBase::StaticOnRightClick, gameobjectid, "Light" );
 }
 
 void ComponentLight::OnLeftClick(bool clear)

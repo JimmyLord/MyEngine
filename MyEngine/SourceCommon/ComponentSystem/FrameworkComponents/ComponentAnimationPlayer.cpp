@@ -56,7 +56,8 @@ void ComponentAnimationPlayer::LuaRegister(lua_State* luastate)
 void ComponentAnimationPlayer::AddToObjectsPanel(wxTreeItemId gameobjectid)
 {
     assert( gameobjectid.IsOk() );
-    wxTreeItemId id = g_pPanelObjectList->AddObject( this, ComponentAnimationPlayer::StaticOnLeftClick, ComponentBase::StaticOnRightClick, gameobjectid, "Animaton Player" );
+    //wxTreeItemId id =
+    g_pPanelObjectList->AddObject( this, ComponentAnimationPlayer::StaticOnLeftClick, ComponentBase::StaticOnRightClick, gameobjectid, "Animaton Player" );
 }
 
 void ComponentAnimationPlayer::OnLeftClick(bool clear)

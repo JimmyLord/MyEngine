@@ -30,7 +30,8 @@ ComponentCameraShadow::~ComponentCameraShadow()
 #if MYFW_USING_WX
 void ComponentCameraShadow::AddToObjectsPanel(wxTreeItemId gameobjectid)
 {
-    wxTreeItemId id = g_pPanelObjectList->AddObject( this, ComponentCameraShadow::StaticOnLeftClick, ComponentCamera::StaticOnRightClick, gameobjectid, "Camera" );
+    //wxTreeItemId id =
+    g_pPanelObjectList->AddObject( this, ComponentCameraShadow::StaticOnLeftClick, ComponentCamera::StaticOnRightClick, gameobjectid, "Camera" );
 }
 
 void ComponentCameraShadow::OnLeftClick(bool clear)

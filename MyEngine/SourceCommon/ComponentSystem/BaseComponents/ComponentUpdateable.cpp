@@ -37,7 +37,8 @@ void ComponentUpdateable::Reset()
 #if MYFW_USING_WX
 void ComponentUpdateable::AddToObjectsPanel(wxTreeItemId gameobjectid)
 {
-    wxTreeItemId id = g_pPanelObjectList->AddObject( this, ComponentUpdateable::StaticOnLeftClick, ComponentBase::StaticOnRightClick, gameobjectid, "Updateable" );
+    //wxTreeItemId id =
+    g_pPanelObjectList->AddObject( this, ComponentUpdateable::StaticOnLeftClick, ComponentBase::StaticOnRightClick, gameobjectid, "Updateable" );
 }
 
 void ComponentUpdateable::OnLeftClick(bool clear)

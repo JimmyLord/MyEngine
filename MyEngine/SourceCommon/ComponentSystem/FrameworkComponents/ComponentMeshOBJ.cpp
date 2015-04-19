@@ -35,7 +35,8 @@ void ComponentMeshOBJ::Reset()
 #if MYFW_USING_WX
 void ComponentMeshOBJ::AddToObjectsPanel(wxTreeItemId gameobjectid)
 {
-    wxTreeItemId id = g_pPanelObjectList->AddObject( this, ComponentMeshOBJ::StaticOnLeftClick, ComponentBase::StaticOnRightClick, gameobjectid, "MeshOBJ" );
+    //wxTreeItemId id =
+    g_pPanelObjectList->AddObject( this, ComponentMeshOBJ::StaticOnLeftClick, ComponentBase::StaticOnRightClick, gameobjectid, "MeshOBJ" );
 }
 
 void ComponentMeshOBJ::OnLeftClick(bool clear)
@@ -66,7 +67,7 @@ void ComponentMeshOBJ::OnDropOBJ()
         assert( pFile );
         //assert( m_pMesh );
 
-        int len = strlen( pFile->m_FullPath );
+        //size_t len = strlen( pFile->m_FullPath );
         const char* filenameext = pFile->m_ExtensionWithDot;
 
         if( strcmp( filenameext, ".obj" ) == 0 )

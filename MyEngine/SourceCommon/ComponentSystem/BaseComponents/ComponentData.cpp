@@ -26,7 +26,8 @@ ComponentData::~ComponentData()
 #if MYFW_USING_WX
 void ComponentData::AddToObjectsPanel(wxTreeItemId gameobjectid)
 {
-    wxTreeItemId id = g_pPanelObjectList->AddObject( this, ComponentData::StaticOnLeftClick, ComponentBase::StaticOnRightClick, gameobjectid, "Base component" );
+    //wxTreeItemId id =
+    g_pPanelObjectList->AddObject( this, ComponentData::StaticOnLeftClick, ComponentBase::StaticOnRightClick, gameobjectid, "Base component" );
 }
 
 void ComponentData::OnLeftClick(bool clear)

@@ -88,7 +88,8 @@ void ComponentParticleEmitter::Reset()
 #if MYFW_USING_WX
 void ComponentParticleEmitter::AddToObjectsPanel(wxTreeItemId gameobjectid)
 {
-    wxTreeItemId id = g_pPanelObjectList->AddObject( this, ComponentParticleEmitter::StaticOnLeftClick, ComponentBase::StaticOnRightClick, gameobjectid, "Particle Emitter" );
+    //wxTreeItemId id =
+    g_pPanelObjectList->AddObject( this, ComponentParticleEmitter::StaticOnLeftClick, ComponentBase::StaticOnRightClick, gameobjectid, "Particle Emitter" );
 }
 
 void ComponentParticleEmitter::OnLeftClick(bool clear)
@@ -148,7 +149,7 @@ void ComponentParticleEmitter::OnDropTexture()
         MyFileObject* pFile = (MyFileObject*)g_DragAndDropStruct.m_Value;
         assert( pFile );
 
-        int len = strlen( pFile->m_FullPath );
+        size_t len = strlen( pFile->m_FullPath );
         const char* filenameext = &pFile->m_FullPath[len-4];
 
         if( strcmp( filenameext, ".png" ) == 0 )

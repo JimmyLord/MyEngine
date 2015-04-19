@@ -190,6 +190,12 @@
 		044C64D91ADED4C900BABD53 /* EngineMainFrame.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 044C62731ADDE98F00BABD53 /* EngineMainFrame.cpp */; };
 		044C64DA1ADED4C900BABD53 /* LuaGameState.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 044C62751ADDE98F00BABD53 /* LuaGameState.cpp */; };
 		044C64DB1ADED4CD00BABD53 /* EngineCommonHeader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 044C627E1ADDE98F00BABD53 /* EngineCommonHeader.cpp */; };
+		04936EF21AE3F1CF00344903 /* EngineCommandStack.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04936EEC1AE3F1CF00344903 /* EngineCommandStack.cpp */; };
+		04936EF31AE3F1CF00344903 /* EngineCommandStack.h in Headers */ = {isa = PBXBuildFile; fileRef = 04936EED1AE3F1CF00344903 /* EngineCommandStack.h */; };
+		04936EF41AE3F1CF00344903 /* EngineEditorCommands.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04936EEE1AE3F1CF00344903 /* EngineEditorCommands.cpp */; };
+		04936EF51AE3F1CF00344903 /* EngineEditorCommands.h in Headers */ = {isa = PBXBuildFile; fileRef = 04936EEF1AE3F1CF00344903 /* EngineEditorCommands.h */; };
+		04936EF61AE3F1CF00344903 /* TransformGizmo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04936EF01AE3F1CF00344903 /* TransformGizmo.cpp */; };
+		04936EF71AE3F1CF00344903 /* TransformGizmo.h in Headers */ = {isa = PBXBuildFile; fileRef = 04936EF11AE3F1CF00344903 /* TransformGizmo.h */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -341,6 +347,12 @@
 		044C63851ADE8B9200BABD53 /* lzio.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lzio.h; sourceTree = "<group>"; };
 		044C63861ADE8B9200BABD53 /* Makefile */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.make; path = Makefile; sourceTree = "<group>"; };
 		044C63F31ADED35900BABD53 /* libMyEngine-OSX.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libMyEngine-OSX.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		04936EEC1AE3F1CF00344903 /* EngineCommandStack.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EngineCommandStack.cpp; sourceTree = "<group>"; };
+		04936EED1AE3F1CF00344903 /* EngineCommandStack.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EngineCommandStack.h; sourceTree = "<group>"; };
+		04936EEE1AE3F1CF00344903 /* EngineEditorCommands.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EngineEditorCommands.cpp; sourceTree = "<group>"; };
+		04936EEF1AE3F1CF00344903 /* EngineEditorCommands.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EngineEditorCommands.h; sourceTree = "<group>"; };
+		04936EF01AE3F1CF00344903 /* TransformGizmo.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TransformGizmo.cpp; sourceTree = "<group>"; };
+		04936EF11AE3F1CF00344903 /* TransformGizmo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TransformGizmo.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -393,6 +405,7 @@
 				044C62391ADDE98F00BABD53 /* Camera */,
 				044C623E1ADDE98F00BABD53 /* ComponentSystem */,
 				044C626A1ADDE98F00BABD53 /* Core */,
+				04936EEB1AE3F1CF00344903 /* Editor */,
 				044C627E1ADDE98F00BABD53 /* EngineCommonHeader.cpp */,
 				044C627F1ADDE98F00BABD53 /* EngineCommonHeader.h */,
 			);
@@ -607,6 +620,19 @@
 			path = src;
 			sourceTree = "<group>";
 		};
+		04936EEB1AE3F1CF00344903 /* Editor */ = {
+			isa = PBXGroup;
+			children = (
+				04936EEC1AE3F1CF00344903 /* EngineCommandStack.cpp */,
+				04936EED1AE3F1CF00344903 /* EngineCommandStack.h */,
+				04936EEE1AE3F1CF00344903 /* EngineEditorCommands.cpp */,
+				04936EEF1AE3F1CF00344903 /* EngineEditorCommands.h */,
+				04936EF01AE3F1CF00344903 /* TransformGizmo.cpp */,
+				04936EF11AE3F1CF00344903 /* TransformGizmo.h */,
+			);
+			path = Editor;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
@@ -614,6 +640,9 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				04936EF31AE3F1CF00344903 /* EngineCommandStack.h in Headers */,
+				04936EF51AE3F1CF00344903 /* EngineEditorCommands.h in Headers */,
+				04936EF71AE3F1CF00344903 /* TransformGizmo.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -723,8 +752,11 @@
 				0423AB141AE2FD5F00C1AE29 /* lobject.c in Sources */,
 				0423AB151AE2FD5F00C1AE29 /* ComponentCameraShadow.cpp in Sources */,
 				0423AB161AE2FD5F00C1AE29 /* ComponentTransform.cpp in Sources */,
+				04936EF21AE3F1CF00344903 /* EngineCommandStack.cpp in Sources */,
+				04936EF61AE3F1CF00344903 /* TransformGizmo.cpp in Sources */,
 				0423AB171AE2FD5F00C1AE29 /* Camera2D.cpp in Sources */,
 				0423AB181AE2FD5F00C1AE29 /* ComponentLight.cpp in Sources */,
+				04936EF41AE3F1CF00344903 /* EngineEditorCommands.cpp in Sources */,
 				0423AB191AE2FD5F00C1AE29 /* LuaGameState.cpp in Sources */,
 				0423AB1A1AE2FD5F00C1AE29 /* ComponentData.cpp in Sources */,
 				0423AB1B1AE2FD5F00C1AE29 /* ldo.c in Sources */,
@@ -929,12 +961,13 @@
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"MYFW_OSX=1",
 					"MYFW_USING_WX=1",
+					__WXOSX_COCOA__,
 					"$(inherited)",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.10;
 				PRODUCT_NAME = "MyEngine-wx";
 				SDKROOT = macosx;
-				USER_HEADER_SEARCH_PATHS = "$(inherited)";
+				USER_HEADER_SEARCH_PATHS = "$(inherited) ../../wxWidgets/include ../../wxWidgets/build-cocoa-debug/lib/wx/include/osx_cocoa-unicode-3.1";
 			};
 			name = Debug;
 		};
@@ -946,12 +979,13 @@
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"MYFW_OSX=1",
 					"MYFW_USING_WX=1",
+					__WXOSX_COCOA__,
 					"$(inherited)",
 				);
 				MACOSX_DEPLOYMENT_TARGET = 10.10;
 				PRODUCT_NAME = "MyEngine-wx";
 				SDKROOT = macosx;
-				USER_HEADER_SEARCH_PATHS = "$(inherited)";
+				USER_HEADER_SEARCH_PATHS = "$(inherited) ../../wxWidgets/include ../../wxWidgets/build-cocoa-debug/lib/wx/include/osx_cocoa-unicode-3.1";
 			};
 			name = Release;
 		};

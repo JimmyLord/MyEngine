@@ -1060,7 +1060,7 @@ void EngineCore::HandleEditorInput(int keyaction, int keycode, int mouseaction, 
         if( mouseaction == GCBA_Wheel )
         {
             // pressure is also mouse wheel movement rate in wx configurations.
-            Vector3 dir = Vector3( 0, 0, 1 ) * -(pressure/abs(pressure));
+            Vector3 dir = Vector3( 0, 0, 1 ) * -(pressure/fabs(pressure));
             float speed = 600.0f;
             if( m_pEditorState->m_ModifierKeyStates & MODIFIERKEY_Shift )
                 speed *= 5;
@@ -1118,7 +1118,7 @@ void EngineCore::HandleEditorInput(int keyaction, int keycode, int mouseaction, 
             {
                 //LOGInfo( LOGTag, "dir (%0.2f, %0.2f)\n", dir.x, dir.y );
 
-                Vector3 pos = matLocalCamera->GetTranslation();
+                //Vector3 pos = matLocalCamera->GetTranslation();
                 Vector3 angle = pCamera->m_pComponentTransform->GetLocalRotation();
 
                 // todo: make this degrees per inch
