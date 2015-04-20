@@ -197,7 +197,7 @@ void EditorCommand_CopyGameObject::Do()
     {
         char newname[50];
         const char* oldname = m_ObjectToCopy->GetName();
-        int oldnamelen = strlen( oldname );
+        int oldnamelen = (int)strlen( oldname );
         if( oldnamelen > 7 && strcmp( &oldname[oldnamelen-7], " - copy" ) == 0 )
         {
             m_ObjectCreated = g_pComponentSystemManager->CopyGameObject( m_ObjectToCopy, oldname );

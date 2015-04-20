@@ -216,7 +216,7 @@ void TransformGizmo::TranslateSelectedObjects(EngineCore* pGame, EditorState* pE
         {
             //pEditorState->m_EditorActionState = EDITORACTIONSTATE_TranslateYZ;
 
-            ComponentCamera* pCamera = pEditorState->GetEditorCamera();
+            //ComponentCamera* pCamera = pEditorState->GetEditorCamera();
             MyMatrix* pObjectTransform = &pEditorState->m_pSelectedObjects[0]->m_pComponentTransform->m_Transform;
 
             // create a plane based on the axis we want.
@@ -249,12 +249,12 @@ void TransformGizmo::TranslateSelectedObjects(EngineCore* pGame, EditorState* pE
                     // create a world space plane.
                     plane.Set( normal, pObjectTransform->GetTranslation() );
                 }
-                else
-                {
-                    // TODO: support this.
-                    // transform the normal into the selected objects space.
-                    plane.Set( (*pObjectTransform * Vector4( normal, 0 )).XYZ(), pObjectTransform->GetTranslation() );
-                }
+//                else
+//                {
+//                    // TODO: support this.
+//                    // transform the normal into the selected objects space.
+//                    plane.Set( (*pObjectTransform * Vector4( normal, 0 )).XYZ(), pObjectTransform->GetTranslation() );
+//                }
             }
 
             // Get the mouse click ray... current and last frame.
