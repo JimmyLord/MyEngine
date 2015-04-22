@@ -56,6 +56,7 @@ extern "C"
 // myframework components // ADDING_NEW_ComponentType
 #include "Core/EngineComponentTypeManager.h"
 #include "ComponentSystem/FrameworkComponents/ComponentLight.h"
+#include "ComponentSystem/FrameworkComponents/ComponentPostEffect.h"
 #include "ComponentSystem/FrameworkComponents/ComponentCameraShadow.h"
 #include "ComponentSystem/FrameworkComponents/ComponentSprite.h"
 #include "ComponentSystem/FrameworkComponents/ComponentMesh.h"

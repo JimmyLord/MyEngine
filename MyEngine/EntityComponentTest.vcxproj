@@ -1974,6 +1974,7 @@
     <ClCompile Include="SourceCommon\ComponentSystem\FrameworkComponents\ComponentMeshOBJ.cpp" />
     <ClCompile Include="SourceCommon\ComponentSystem\FrameworkComponents\ComponentMeshPrimitive.cpp" />
     <ClCompile Include="SourceCommon\ComponentSystem\FrameworkComponents\ComponentParticleEmitter.cpp" />
+    <ClCompile Include="SourceCommon\ComponentSystem\FrameworkComponents\ComponentPostEffect.cpp" />
     <ClCompile Include="SourceCommon\ComponentSystem\FrameworkComponents\ComponentSprite.cpp" />
     <ClCompile Include="SourceCommon\Core\BulletWorld.cpp" />
     <ClCompile Include="SourceCommon\Core\EditorState.cpp">
@@ -2116,6 +2117,7 @@
     <ClInclude Include="SourceCommon\ComponentSystem\FrameworkComponents\ComponentMeshOBJ.h" />
     <ClInclude Include="SourceCommon\ComponentSystem\FrameworkComponents\ComponentMeshPrimitive.h" />
     <ClInclude Include="SourceCommon\ComponentSystem\FrameworkComponents\ComponentParticleEmitter.h" />
+    <ClInclude Include="SourceCommon\ComponentSystem\FrameworkComponents\ComponentPostEffect.h" />
     <ClInclude Include="SourceCommon\ComponentSystem\FrameworkComponents\ComponentSprite.h" />
     <ClInclude Include="SourceCommon\Core\BulletWorld.h" />
     <ClInclude Include="SourceCommon\Core\EditorState.h">

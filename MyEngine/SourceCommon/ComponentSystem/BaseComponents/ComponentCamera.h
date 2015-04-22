@@ -14,6 +14,7 @@
 #include "../../Camera/Camera3D.h"
 
 class ComponentTransform;
+class ComponentPostEffect;
 
 class ComponentCamera : public ComponentBase
 {
@@ -40,9 +41,14 @@ public:
     Camera2D m_Camera2D;
     Camera3D m_Camera3D;
 
+    FBODefinition* m_pPostEffectFBOs[2];
+
 #if MYFW_USING_WX
     unsigned int m_FullClearsRequired;
 #endif
+
+protected:
+    ComponentPostEffect* GetNextPostEffect(ComponentPostEffect* pLastEffect); // pass in 0 to get first effect.
 
 public:
     ComponentCamera();

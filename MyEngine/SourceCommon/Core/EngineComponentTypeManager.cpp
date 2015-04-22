@@ -10,6 +10,7 @@
 #include "EngineCommonHeader.h"
 
 // sort by category, otherwise right-click menu will have duplicates.
+// must be in same order as enum EngineComponentTypes
 ComponentTypeInfo g_EngineComponentTypeInfo[Component_NumEngineComponentTypes] = // ADDING_NEW_ComponentType
 {
     { "Camera",         "Camera",           },
@@ -19,6 +20,7 @@ ComponentTypeInfo g_EngineComponentTypeInfo[Component_NumEngineComponentTypes] =
     { "Renderables",    "Mesh-Primitive",   },
     { "Lighting",       "Light",            },
     { "Lighting",       "Shadow Dir Light", },
+    { "Effects",        "Post Effect Quad", },
     { "Physics",        "Collision Object", },
     { "Scripts",        "Lua Script",       },
     { "Particles",      "Particle Emitter", },
@@ -40,6 +42,7 @@ ComponentBase* EngineComponentTypeManager::CreateComponent(int type)
     case ComponentType_MeshPrimitive:       pComponent = MyNew ComponentMeshPrimitive;      break;
     case ComponentType_Light:               pComponent = MyNew ComponentLight;              break;
     case ComponentType_CameraShadow:        pComponent = MyNew ComponentCameraShadow;       break;
+    case ComponentType_PostEffect:          pComponent = MyNew ComponentPostEffect;         break;
     case ComponentType_CollisionObject:     pComponent = MyNew ComponentCollisionObject;    break;
     case ComponentType_LuaScript:           pComponent = MyNew ComponentLuaScript;          break;
     case ComponentType_ParticleEmitter:     pComponent = MyNew ComponentParticleEmitter;    break;

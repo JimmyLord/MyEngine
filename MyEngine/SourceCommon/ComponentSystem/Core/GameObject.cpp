@@ -396,6 +396,26 @@ ComponentBase* GameObject::GetFirstComponentOfBaseType(BaseComponentTypes basety
     return 0; // component not found.
 }
 
+ComponentBase* GameObject::GetNextComponentOfBaseType(ComponentBase* pLastComponent)
+{
+    assert( pLastComponent != 0 );
+
+    bool foundlast = false;
+    for( unsigned int i=0; i<m_Components.Count(); i++ )
+    {
+        if( pLastComponent == m_Components[i] )
+        {
+            foundlast = true;
+        }
+        else if( foundlast && m_Components[i]->m_BaseType == pLastComponent->m_BaseType )
+        {
+            return m_Components[i];
+        }
+    }
+
+    return 0; // component not found.
+}
+
 ComponentCollisionObject* GameObject::GetCollisionObject()
 {
     for( unsigned int i=0; i<m_Components.Count(); i++ )

@@ -51,6 +51,7 @@ public:
     ComponentBase* RemoveComponent(ComponentBase* pComponent);
 
     ComponentBase* GetFirstComponentOfBaseType(BaseComponentTypes basetype);
+    ComponentBase* GetNextComponentOfBaseType(ComponentBase* pLastComponent);
 
     ComponentTransform* GetTransform() { return m_pComponentTransform; }
     ComponentCollisionObject* GetCollisionObject();

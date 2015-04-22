@@ -267,6 +267,9 @@
     <ClCompile Include="SourceCommon\Editor\EngineCommandStack.cpp">
       <Filter>Source\Editor</Filter>
     </ClCompile>
+    <ClCompile Include="SourceCommon\ComponentSystem\FrameworkComponents\ComponentPostEffect.cpp">
+      <Filter>Source\ComponentSystem\Framework Components</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SourceCommon\Camera\Camera3D.h">
@@ -490,6 +493,9 @@
     </ClInclude>
     <ClInclude Include="SourceCommon\Editor\EngineCommandStack.h">
       <Filter>Source\Editor</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCommon\ComponentSystem\FrameworkComponents\ComponentPostEffect.h">
+      <Filter>Source\ComponentSystem\Framework Components</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

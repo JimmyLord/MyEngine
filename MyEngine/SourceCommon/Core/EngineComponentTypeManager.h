@@ -21,6 +21,7 @@ enum EngineComponentTypes // search for ADDING_NEW_ComponentType
     ComponentType_MeshPrimitive,
     ComponentType_Light,
     ComponentType_CameraShadow,
+    ComponentType_PostEffect,
     ComponentType_CollisionObject,
     ComponentType_LuaScript,
     ComponentType_ParticleEmitter,

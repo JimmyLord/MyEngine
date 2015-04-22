@@ -23,6 +23,8 @@ ComponentCamera::ComponentCamera()
 
 ComponentCamera::~ComponentCamera()
 {
+    SAFE_RELEASE( m_pPostEffectFBOs[0] );
+    SAFE_RELEASE( m_pPostEffectFBOs[1] );
 }
 
 #if MYFW_USING_WX
@@ -117,6 +119,9 @@ void ComponentCamera::Reset()
     m_WindowWidth = 0;
     m_WindowHeight = 0;
 
+    m_pPostEffectFBOs[0] = 0;
+    m_pPostEffectFBOs[1] = 0;
+
 #if MYFW_USING_WX
     m_FullClearsRequired = 2;
     m_pPanelWatchBlockVisible = &m_PanelWatchBlockVisible;
@@ -194,6 +199,30 @@ void ComponentCamera::OnSurfaceChanged(unsigned int startx, unsigned int starty,
 #endif
 }
 
+ComponentPostEffect* ComponentCamera::GetNextPostEffect(ComponentPostEffect* pLastEffect) // pass in 0 to get first effect.
+{
+    ComponentBase* pComponent;
+
+    if( pLastEffect == 0 )
+        pComponent = m_pGameObject->GetFirstComponentOfBaseType( BaseComponentType_Data );
+    else
+        pComponent = m_pGameObject->GetNextComponentOfBaseType( pLastEffect );
+
+    ComponentPostEffect* pPostEffect = 0;
+
+    while( pComponent != 0 )
+    {
+        pPostEffect = dynamic_cast<ComponentPostEffect*>( pComponent );
+        
+        if( pPostEffect && pPostEffect->m_pShaderGroup != 0 )
+            return pPostEffect; // if we found a valid initialized post effect, return it.
+        else
+            pComponent = m_pGameObject->GetNextComponentOfBaseType( pComponent );
+    }
+
+    return 0;
+}
+
 void ComponentCamera::OnDrawFrame()
 {
 #if MYFW_USING_WX
@@ -209,36 +238,99 @@ void ComponentCamera::OnDrawFrame()
     }
 #endif
 
-    // only draw to part of the window, but rest with scissor test and glViewPort.
-    if( m_WindowStartX != 0 || m_WindowStartY != 0 )
+    // if there are any post effect components, render to a texture and pass that into the effect component.
+
+    // Find the first actual ComponentPostEffect.
+    ComponentPostEffect* pPostEffect = GetNextPostEffect( 0 );
+
+    // render the main scene... into a texture if a ComponentPostEffect was found.
     {
-        // scissor test is really only needed for the glClear call.
-        glEnable( GL_SCISSOR_TEST );
-        glScissor( m_WindowStartX, m_WindowStartY, m_WindowWidth, m_WindowHeight );
+        if( pPostEffect )
+        {
+            // if a post effect was found, render to a texture.
+            if( m_pPostEffectFBOs[0] == 0 )
+            {
+                m_pPostEffectFBOs[0] = g_pTextureManager->CreateFBO( m_WindowWidth - m_WindowStartX, m_WindowHeight - m_WindowStartY, GL_NEAREST, GL_NEAREST, true, 32, false );
+            }
+
+            m_pPostEffectFBOs[0]->Bind();
+            glDisable( GL_SCISSOR_TEST );
+            glViewport( 0, 0, m_WindowWidth - m_WindowStartX, m_WindowHeight - m_WindowStartY );
+        }
+        else
+        {
+            // only draw to part of the window, using scissor test and glViewPort.
+            if( m_WindowStartX != 0 || m_WindowStartY != 0 )
+            {
+                // scissor test is really only needed for the glClear call.
+                glEnable( GL_SCISSOR_TEST );
+                glScissor( m_WindowStartX, m_WindowStartY, m_WindowWidth, m_WindowHeight );
+            }
+            else
+            {
+                glDisable( GL_SCISSOR_TEST );
+            }
+
+            glViewport( m_WindowStartX, m_WindowStartY, m_WindowWidth, m_WindowHeight );
+        }
+
+        glClearColor( 0.0f, 0.0f, 0.2f, 1.0f );
+
+        if( m_ClearColorBuffer && m_ClearDepthBuffer )
+            glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+        else if( m_ClearColorBuffer )
+            glClear( GL_COLOR_BUFFER_BIT );
+        else if( m_ClearDepthBuffer )
+            glClear( GL_DEPTH_BUFFER_BIT );
+
+        if( m_Orthographic )
+        {   
+            g_pComponentSystemManager->OnDrawFrame( this, &m_Camera2D.m_matViewProj, 0 );
+        }
+        else
+        {
+            g_pComponentSystemManager->OnDrawFrame( this, &m_Camera3D.m_matViewProj, 0 );
+        }
     }
-    else
+
+    // ping pong between 2 fbos for the remaining post effects, render the final one to screen.
+    int fboindex = 0;
+    while( pPostEffect )
     {
-        glDisable( GL_SCISSOR_TEST );
+        m_pPostEffectFBOs[fboindex]->Unbind();
+
+        ComponentPostEffect* pNextPostEffect = GetNextPostEffect( pPostEffect );
+        assert( pNextPostEffect == 0 ); // TODO: if there's a pNextPostEffect, we need to generate the fbo and test this.
+
+        if( pNextPostEffect )
+        {
+            m_pPostEffectFBOs[!fboindex]->Bind();
+            glDisable( GL_SCISSOR_TEST );
+            glViewport( 0, 0, m_WindowWidth - m_WindowStartX, m_WindowHeight - m_WindowStartY );
+        }
+        else
+        {
+            // only draw to part of the window, using scissor test and glViewPort.
+            if( m_WindowStartX != 0 || m_WindowStartY != 0 )
+            {
+                // scissor test is really only needed for the glClear call.
+                glEnable( GL_SCISSOR_TEST );
+                glScissor( m_WindowStartX, m_WindowStartY, m_WindowWidth, m_WindowHeight );
+            }
+            else
+            {
+                glDisable( GL_SCISSOR_TEST );
+            }
+
+            glViewport( m_WindowStartX, m_WindowStartY, m_WindowWidth, m_WindowHeight );
+            glClearColor( 0.0f, 0.0f, 0.2f, 1.0f );
+            glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+        }
+
+        pPostEffect->Render( m_pPostEffectFBOs[fboindex] );
+
+        fboindex = !fboindex;
+        pPostEffect = pNextPostEffect;
     }
-
-    glViewport( m_WindowStartX, m_WindowStartY, m_WindowWidth, m_WindowHeight );
-    checkGlError( "glViewport" );
-
-    glClearColor( 0.0f, 0.0f, 0.2f, 1.0f );
-
-    if( m_ClearColorBuffer && m_ClearDepthBuffer )
-        glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
-    else if( m_ClearColorBuffer )
-        glClear( GL_COLOR_BUFFER_BIT );
-    else if( m_ClearDepthBuffer )
-        glClear( GL_DEPTH_BUFFER_BIT );
-
-    if( m_Orthographic )
-    {   
-        g_pComponentSystemManager->OnDrawFrame( this, &m_Camera2D.m_matViewProj, 0 );
-    }
-    else
-    {
-        g_pComponentSystemManager->OnDrawFrame( this, &m_Camera3D.m_matViewProj, 0 );
-    }
+    m_pPostEffectFBOs[fboindex]->Unbind();
 }
