@@ -259,7 +259,7 @@ void ComponentCamera::OnDrawFrame()
         }
         else
         {
-            // only draw to part of the window, using scissor test and glViewPort.
+            // only draw to part of the window, using scissor test and glViewport.
             if( m_WindowStartX != 0 || m_WindowStartY != 0 )
             {
                 // scissor test is really only needed for the glClear call.
@@ -297,20 +297,29 @@ void ComponentCamera::OnDrawFrame()
     int fboindex = 0;
     while( pPostEffect )
     {
-        m_pPostEffectFBOs[fboindex]->Unbind();
-
         ComponentPostEffect* pNextPostEffect = GetNextPostEffect( pPostEffect );
-        assert( pNextPostEffect == 0 ); // TODO: if there's a pNextPostEffect, we need to generate the fbo and test this.
 
         if( pNextPostEffect )
         {
+            // if there is a next effect, render into the next unused fbo.
+            if( m_pPostEffectFBOs[!fboindex] == 0 )
+            {
+                m_pPostEffectFBOs[!fboindex] = g_pTextureManager->CreateFBO( m_WindowWidth - m_WindowStartX, m_WindowHeight - m_WindowStartY, GL_NEAREST, GL_NEAREST, true, 32, false );
+            }
+
             m_pPostEffectFBOs[!fboindex]->Bind();
             glDisable( GL_SCISSOR_TEST );
             glViewport( 0, 0, m_WindowWidth - m_WindowStartX, m_WindowHeight - m_WindowStartY );
+
+            glClearColor( 0.0f, 0.0f, 0.2f, 1.0f );
+            glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
         }
         else
         {
-            // only draw to part of the window, using scissor test and glViewPort.
+            // if there isn't another post effect, render to the screen.
+            glBindFramebuffer( GL_FRAMEBUFFER, 0 );
+
+            // only draw to part of the window, using scissor test and glViewport.
             if( m_WindowStartX != 0 || m_WindowStartY != 0 )
             {
                 // scissor test is really only needed for the glClear call.
@@ -332,5 +341,6 @@ void ComponentCamera::OnDrawFrame()
         fboindex = !fboindex;
         pPostEffect = pNextPostEffect;
     }
-    m_pPostEffectFBOs[fboindex]->Unbind();
+
+    glBindFramebuffer( GL_FRAMEBUFFER, 0 );
 }

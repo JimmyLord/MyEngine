@@ -41,7 +41,7 @@ void ComponentPostEffect::OnLeftClick(bool clear)
 
 void ComponentPostEffect::FillPropertiesWindow(bool clear)
 {
-    //m_ControlID_ComponentTitleLabel = g_pPanelWatch->AddSpace( "Post Effect", this, ComponentData::StaticOnComponentTitleLabelClicked );
+    m_ControlID_ComponentTitleLabel = g_pPanelWatch->AddSpace( "Post Effect", this, ComponentData::StaticOnComponentTitleLabelClicked );
 
     if( m_PanelWatchBlockVisible )
     {
@@ -110,6 +110,10 @@ void ComponentPostEffect::Reset()
     m_pFullScreenQuad = MyNew MySprite();
     m_pFullScreenQuad->Create( 2, 2, 0, 1, 1, 0, Justify_Center, false );
     m_pShaderGroup = 0;
+
+#if MYFW_USING_WX
+    m_pPanelWatchBlockVisible = &m_PanelWatchBlockVisible;
+#endif //MYFW_USING_WX
 }
 
 ComponentPostEffect& ComponentPostEffect::operator=(const ComponentPostEffect& other)
