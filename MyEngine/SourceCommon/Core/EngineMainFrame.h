@@ -29,6 +29,11 @@ enum GameMenuIDs
     myIDGame_SaveScene,
     myIDGame_SaveSceneAs,
     myIDGame_AddDatafile,
+    myIDGame_Mode_PlayStop,
+    myIDGame_Mode_Pause,
+    myIDGame_Mode_Advance1Frame,
+    myIDGame_Mode_Advance1Second,
+    //myIDGame_Mode_Stop,
     myIDGame_RecordMacro,
     myIDGame_ExecuteMacro,
     myIDGame_EditorPerspectives,
@@ -55,6 +60,7 @@ public:
 
     char m_CurrentSceneName[MAX_PATH];
 
+    wxMenu* m_PlayPauseStop;
     wxMenu* m_Data;
     wxMenu* m_Hackery;
     wxMenu* m_Debug;

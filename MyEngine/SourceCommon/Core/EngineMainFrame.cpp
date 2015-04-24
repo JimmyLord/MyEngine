@@ -59,6 +59,7 @@ EngineMainFrame::EngineMainFrame()
         m_GameplayPerspectiveOptions[i] = 0;
     }
 
+    m_PlayPauseStop = 0;
     m_Data = 0;
     m_Hackery = 0;
     m_Debug = 0;
@@ -128,6 +129,14 @@ void EngineMainFrame::InitFrame()
     m_File->Insert( 1, myIDGame_SaveScene, wxT("&Save Scene\tCtrl-S") );
     m_File->Insert( 2, myIDGame_SaveSceneAs, wxT("Save Scene &As") );
 
+    m_PlayPauseStop = MyNew wxMenu;
+    m_MenuBar->Append( m_PlayPauseStop, wxT("&Mode") );
+    m_PlayPauseStop->Append( myIDGame_Mode_PlayStop, wxT("&Play/Stop\tCtrl-SPACE") );
+    m_PlayPauseStop->Append( myIDGame_Mode_Pause, wxT("Pause\t.") );
+    m_PlayPauseStop->Append( myIDGame_Mode_Advance1Frame, wxT("Advance 1 Frame\t]") );
+    m_PlayPauseStop->Append( myIDGame_Mode_Advance1Second, wxT("Advance 1 Second\t[") );
+    //m_PlayPauseStop->Append( myIDGame_Mode_Stop, wxT("&Stop\tCtrl-SPACE") );
+
     m_Data = MyNew wxMenu;
     m_MenuBar->Append( m_Data, wxT("&Data") );
     m_Data->Append( myIDGame_AddDatafile, wxT("&Load Datafiles") );
@@ -169,6 +178,12 @@ void EngineMainFrame::InitFrame()
     Connect( myIDGame_SaveSceneAs,  wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnGameMenu) );
 
     Connect( myIDGame_AddDatafile,  wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnGameMenu) );
+
+    Connect( myIDGame_Mode_PlayStop,       wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnGameMenu) );
+    Connect( myIDGame_Mode_Pause,          wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnGameMenu) );
+    Connect( myIDGame_Mode_Advance1Frame,  wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnGameMenu) );
+    Connect( myIDGame_Mode_Advance1Second, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnGameMenu) );
+    //Connect( myIDGame_Mode_Stop,           wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnGameMenu) );
 
     Connect( myIDGame_RecordMacro,  wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnGameMenu) );
     Connect( myIDGame_ExecuteMacro, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnGameMenu) );
@@ -309,6 +324,26 @@ void EngineMainFrame::OnGameMenu(wxCommandEvent& event)
     case myIDGame_AddDatafile:
         AddDatafileToScene();
         break;
+
+    case myIDGame_Mode_PlayStop:
+        g_pEngineCore->OnModeTogglePlayStop();
+        break;
+
+    case myIDGame_Mode_Pause:
+        g_pEngineCore->OnModePause();
+        break;
+
+    case myIDGame_Mode_Advance1Frame:
+        g_pEngineCore->OnModeAdvanceTime( 1/60.0f );
+        break;
+
+    case myIDGame_Mode_Advance1Second:
+        g_pEngineCore->OnModeAdvanceTime( 1.0f );
+        break;
+
+    //case myIDGame_Mode_Stop:
+    //    g_pEngineCore->OnModeTogglePlayStop();
+    //    break;
 
     case myIDGame_RecordMacro:
         m_Hackery_Record_StackDepth = (int)m_pCommandStack->m_UndoStack.size();

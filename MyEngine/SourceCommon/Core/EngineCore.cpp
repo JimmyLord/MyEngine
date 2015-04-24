@@ -550,62 +550,6 @@ void EngineCore::OnKey(GameCoreButtonActions action, int keycode, int unicodecha
                     //g_pBufferManager->InvalidateAllBuffers( true );
                 }
             }
-
-            if( keycode == 'P' ||
-                keycode == '.' || 
-                keycode == '[' || 
-                keycode == ']' ) // if press "Play"
-            {
-                SaveScene( "temp_editor_onplay.scene" );
-                m_EditorMode = false;
-                m_Paused = true;
-                if( keycode == 'P' )
-                    m_Paused = false;
-                g_pEngineMainFrame->SetWindowPerspectiveToDefault();
-                m_pComponentSystemManager->OnPlay();
-
-                RegisterGameplayButtons();
-                return;
-            }
-        }
-        else //if( m_EditorMode == false )
-        {
-            if( keycode == 'P' ) // if press "Stop"
-            {
-                // Clear out the component manager of all components and gameobjects
-                UnloadScene( 0 ); // unload runtime created objects only.
-                LoadSceneFromFile( "temp_editor_onplay.scene", 1 );
-                m_EditorMode = true;
-                m_Paused = false;
-                g_pEngineMainFrame->SetWindowPerspectiveToDefault();
-                m_pEditorState->ClearSelectedObjectsAndComponents();
-                m_pComponentSystemManager->OnStop();
-
-                m_pComponentSystemManager->SyncAllRigidBodiesToObjectTransforms();
-
-                UnregisterGameplayButtons();
-                return;
-            }
-
-            if( keycode == '.' )
-            {
-                m_Paused = !m_Paused;
-                return;
-            }
-
-            if( keycode == ']' )
-            {
-                m_Paused = true;
-                m_PauseTimeToAdvance = 1/60.0f;
-                return;
-            }
-
-            if( keycode == '[' )
-            {
-                m_Paused = true;
-                m_PauseTimeToAdvance = 1.0f;
-                return;
-            }
         }
 
         if( g_GLCanvasIDActive == 1 )
@@ -648,6 +592,69 @@ void EngineCore::OnKey(GameCoreButtonActions action, int keycode, int unicodecha
         //else
 #endif
     }
+}
+
+void EngineCore::OnModeTogglePlayStop()
+{
+    if( m_EditorMode )
+    {
+        OnModePlay();
+    }
+    else
+    {
+        OnModeStop();
+    }
+}
+
+void EngineCore::OnModePlay()
+{
+    if( m_EditorMode )
+    {
+        SaveScene( "temp_editor_onplay.scene" );
+        m_EditorMode = false;
+        m_Paused = false;
+        g_pEngineMainFrame->SetWindowPerspectiveToDefault();
+        m_pComponentSystemManager->OnPlay();
+
+        RegisterGameplayButtons();
+    }
+}
+
+void EngineCore::OnModeStop()
+{
+    if( m_EditorMode == false )
+    {
+        // Clear out the component manager of all components and gameobjects
+        UnloadScene( 0 ); // unload runtime created objects only.
+        LoadSceneFromFile( "temp_editor_onplay.scene", 1 );
+        m_EditorMode = true;
+        m_Paused = false;
+        g_pEngineMainFrame->SetWindowPerspectiveToDefault();
+        m_pEditorState->ClearSelectedObjectsAndComponents();
+        m_pComponentSystemManager->OnStop();
+
+        m_pComponentSystemManager->SyncAllRigidBodiesToObjectTransforms();
+
+        UnregisterGameplayButtons();
+        return;
+    }
+}
+
+void EngineCore::OnModePause()
+{
+    if( m_EditorMode )
+        OnModePlay();
+
+    m_Paused = !m_Paused;
+}
+
+void EngineCore::OnModeAdvanceTime(double time)
+{
+    if( m_EditorMode )
+        OnModePlay();
+
+    m_Paused = true;
+    m_PauseTimeToAdvance = time;
 }
 
 void EngineCore::RegisterGameplayButtons()

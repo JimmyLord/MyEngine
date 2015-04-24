@@ -250,12 +250,15 @@ void ComponentCamera::OnDrawFrame()
             // if a post effect was found, render to a texture.
             if( m_pPostEffectFBOs[0] == 0 )
             {
-                m_pPostEffectFBOs[0] = g_pTextureManager->CreateFBO( m_WindowWidth - m_WindowStartX, m_WindowHeight - m_WindowStartY, GL_NEAREST, GL_NEAREST, true, 32, false );
+                m_pPostEffectFBOs[0] = g_pTextureManager->CreateFBO( m_WindowWidth, m_WindowHeight, GL_NEAREST, GL_NEAREST, true, 32, false );
             }
-
+            else
+            {
+                g_pTextureManager->ReSetupFBO( m_pPostEffectFBOs[0], m_WindowWidth, m_WindowHeight, GL_NEAREST, GL_NEAREST, true, 32, false );
+            }
             m_pPostEffectFBOs[0]->Bind();
             glDisable( GL_SCISSOR_TEST );
-            glViewport( 0, 0, m_WindowWidth - m_WindowStartX, m_WindowHeight - m_WindowStartY );
+            glViewport( 0, 0, m_WindowWidth, m_WindowHeight );
         }
         else
         {
@@ -304,12 +307,16 @@ void ComponentCamera::OnDrawFrame()
             // if there is a next effect, render into the next unused fbo.
             if( m_pPostEffectFBOs[!fboindex] == 0 )
             {
-                m_pPostEffectFBOs[!fboindex] = g_pTextureManager->CreateFBO( m_WindowWidth - m_WindowStartX, m_WindowHeight - m_WindowStartY, GL_NEAREST, GL_NEAREST, true, 32, false );
+                m_pPostEffectFBOs[!fboindex] = g_pTextureManager->CreateFBO( m_WindowWidth, m_WindowHeight, GL_NEAREST, GL_NEAREST, true, 32, false );
             }
-
+            else
+            {
+                g_pTextureManager->ReSetupFBO( m_pPostEffectFBOs[!fboindex], m_WindowWidth, m_WindowHeight, GL_NEAREST, GL_NEAREST, true, 32, false );
+            }
             m_pPostEffectFBOs[!fboindex]->Bind();
+
             glDisable( GL_SCISSOR_TEST );
-            glViewport( 0, 0, m_WindowWidth - m_WindowStartX, m_WindowHeight - m_WindowStartY );
+            glViewport( 0, 0, m_WindowWidth, m_WindowHeight );
 
             glClearColor( 0.0f, 0.0f, 0.2f, 1.0f );
             glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );

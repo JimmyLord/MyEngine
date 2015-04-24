@@ -85,6 +85,12 @@ public:
     virtual void OnButtons(GameCoreButtonActions action, GameCoreButtonIDs id);
     virtual void OnKey(GameCoreButtonActions action, int keycode, int unicodechar);
 
+    void OnModeTogglePlayStop();
+    void OnModePlay();
+    void OnModeStop();
+    void OnModePause();
+    void OnModeAdvanceTime(double time);
+
     void RegisterGameplayButtons();
     void UnregisterGameplayButtons();
     void HandleEditorInput(int keyaction, int keycode, int mouseaction, int id, float x, float y, float pressure);
