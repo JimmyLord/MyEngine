@@ -148,8 +148,15 @@ void ComponentPostEffect::Render(FBODefinition* pFBO)
     if( m_pFullScreenQuad == 0 || m_pShaderGroup == 0 )
         return;
 
-    m_pFullScreenQuad->SetShaderAndTexture( m_pShaderGroup, pFBO->m_ColorTextureID );
+    m_pFullScreenQuad->SetShaderAndTexture( m_pShaderGroup, pFBO->m_pColorTexture );
     m_pFullScreenQuad->Create( 2, 2, 0, (float)pFBO->m_Width/pFBO->m_TextureWidth, (float)pFBO->m_Height/pFBO->m_TextureHeight, 0, Justify_Center, false );
 
-    m_pFullScreenQuad->Draw( 0 );
+    if( m_pFullScreenQuad->Setup( 0 ) )
+    {
+        Shader_Base* pShader = (Shader_Base*)m_pShaderGroup->GlobalPass();
+        pShader->ProgramDepthmap( pFBO->m_pDepthTexture );
+
+        m_pFullScreenQuad->DrawNoSetup();
+        m_pFullScreenQuad->DeactivateShader();
+    }
 }

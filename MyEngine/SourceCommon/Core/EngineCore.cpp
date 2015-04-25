@@ -426,7 +426,7 @@ void EngineCore::OnDrawFrame()
             m_pDebugQuadSprite = MyNew MySprite();
 
         m_pDebugQuadSprite->CreateInPlace( "debug", 0.75f, 0.75f, 0.5f, 0.5f, 0, 1, 1, 0, Justify_Center, false );
-        m_pDebugQuadSprite->SetShaderAndTexture( m_pShader_ClipSpaceTexture, m_pEditorState->m_pMousePickerFBO->m_ColorTextureID );
+        m_pDebugQuadSprite->SetShaderAndTexture( m_pShader_ClipSpaceTexture, m_pEditorState->m_pMousePickerFBO->m_pColorTexture );
         m_pDebugQuadSprite->Draw( 0 );
     }
 
@@ -457,7 +457,7 @@ void EngineCore::OnDrawFrame()
                     m_pDebugQuadSprite = MyNew MySprite();
 
                 m_pDebugQuadSprite->CreateInPlace( "debug", 0.5f, 0.5f, 1.0f, 1.0f, 0, 1, 1, 0, Justify_Center, false );
-                m_pDebugQuadSprite->SetShaderAndTexture( m_pShader_ClipSpaceTexture, m_pEditorState->m_pDebugViewFBO->m_ColorTextureID );
+                m_pDebugQuadSprite->SetShaderAndTexture( m_pShader_ClipSpaceTexture, m_pEditorState->m_pDebugViewFBO->m_pColorTexture );
                 m_pDebugQuadSprite->Draw( 0 );
             }
 
@@ -469,7 +469,7 @@ void EngineCore::OnDrawFrame()
                     m_pDebugQuadSprite = MyNew MySprite();
 
                 m_pDebugQuadSprite->CreateInPlace( "debug", 0.5f, 0.5f, 1.0f, 1.0f, 0, 1, 1, 0, Justify_Center, false );
-                m_pDebugQuadSprite->SetShaderAndTexture( m_pShader_ClipSpaceTexture, pCamera->m_pDepthFBO->m_DepthBufferID );
+                m_pDebugQuadSprite->SetShaderAndTexture( m_pShader_ClipSpaceTexture, pCamera->m_pDepthFBO->m_pDepthTexture );
                 m_pDebugQuadSprite->Draw( 0 );
             }
         }
