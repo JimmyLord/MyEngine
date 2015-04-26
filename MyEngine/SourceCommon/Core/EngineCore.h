@@ -95,6 +95,7 @@ public:
     void UnregisterGameplayButtons();
     void HandleEditorInput(int keyaction, int keycode, int mouseaction, int id, float x, float y, float pressure);
 
+    void CreateDefaultSceneObjects(bool createeditorobjects);
     void SaveScene(const char* fullpath);
     void UnloadScene(unsigned int sceneid = UINT_MAX);
 #if MYFW_USING_WX

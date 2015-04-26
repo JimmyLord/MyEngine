@@ -451,8 +451,8 @@ void ComponentSystemManager::LoadSceneFromJSON(const char* jsonstr, unsigned int
             unsigned int id;
             cJSONExt_GetUnsignedInt( componentobj, "ID", &id );
 
-            ComponentBase* pComponent = FindComponentByID( id );
-            if( pComponent ) { assert( pComponent->GetSceneID() == sceneid ); } // TODO: get the object from the right scene if multiple scenes are loaded.
+            ComponentBase* pComponent = FindComponentByID( id, sceneid );
+            //if( pComponent ) { assert( pComponent->GetSceneID() == sceneid ); } // TODO: get the object from the right scene if multiple scenes are loaded.
     
             if( pComponent == 0 )
                 pComponent = pGameObject->AddNewComponent( type, sceneid );
@@ -754,13 +754,13 @@ void ComponentSystemManager::DeleteComponent(ComponentBase* pComponent)
     SAFE_DELETE( pComponent );
 }
 
-ComponentBase* ComponentSystemManager::FindComponentByID(unsigned int id)
+ComponentBase* ComponentSystemManager::FindComponentByID(unsigned int id, unsigned int sceneid)
 {
     for( CPPListNode* pNode = m_ComponentsCamera.GetHead(); pNode;  )
     {
         ComponentBase* pComponent = (ComponentBase*)pNode;
         pNode = pNode->GetNext();
-        if( pComponent->GetID() == id )
+        if( pComponent->GetID() == id && pComponent->GetSceneID() == sceneid )
             return pComponent;
     }
 
@@ -768,7 +768,7 @@ ComponentBase* ComponentSystemManager::FindComponentByID(unsigned int id)
     {
         ComponentBase* pComponent = (ComponentBase*)pNode;
         pNode = pNode->GetNext();
-        if( pComponent->GetID() == id )
+        if( pComponent->GetID() == id && pComponent->GetSceneID() == sceneid )
             return pComponent;
     }
 
@@ -776,7 +776,7 @@ ComponentBase* ComponentSystemManager::FindComponentByID(unsigned int id)
     {
         ComponentBase* pComponent = (ComponentBase*)pNode;
         pNode = pNode->GetNext();
-        if( pComponent->GetID() == id )
+        if( pComponent->GetID() == id && pComponent->GetSceneID() == sceneid )
             return pComponent;
     }
 
@@ -784,7 +784,7 @@ ComponentBase* ComponentSystemManager::FindComponentByID(unsigned int id)
     {
         ComponentBase* pComponent = (ComponentBase*)pNode;
         pNode = pNode->GetNext();
-        if( pComponent->GetID() == id )
+        if( pComponent->GetID() == id && pComponent->GetSceneID() == sceneid )
             return pComponent;
     }
 
@@ -792,7 +792,7 @@ ComponentBase* ComponentSystemManager::FindComponentByID(unsigned int id)
     {
         ComponentBase* pComponent = (ComponentBase*)pNode;
         pNode = pNode->GetNext();
-        if( pComponent->GetID() == id )
+        if( pComponent->GetID() == id && pComponent->GetSceneID() == sceneid )
             return pComponent;
     }
 

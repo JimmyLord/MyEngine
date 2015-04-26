@@ -25,7 +25,8 @@ enum DefaultPerspectives
 
 enum GameMenuIDs
 {
-    myIDGame_LoadScene = myID_NumIDs,
+    myIDGame_NewScene = myID_NumIDs,
+    myIDGame_LoadScene,
     myIDGame_SaveScene,
     myIDGame_SaveSceneAs,
     myIDGame_AddDatafile,

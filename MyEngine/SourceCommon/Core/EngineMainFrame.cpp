@@ -125,9 +125,10 @@ void EngineMainFrame::InitFrame()
 
     g_pMessageLogCallbackFunction = EngineMainFrame_MessageLog;
 
-    m_File->Insert( 0, myIDGame_LoadScene, wxT("&Load Scene") );
-    m_File->Insert( 1, myIDGame_SaveScene, wxT("&Save Scene\tCtrl-S") );
-    m_File->Insert( 2, myIDGame_SaveSceneAs, wxT("Save Scene &As") );
+    m_File->Insert( 0, myIDGame_NewScene, wxT("&New Scene") );
+    m_File->Insert( 1, myIDGame_LoadScene, wxT("&Load Scene...") );
+    m_File->Insert( 2, myIDGame_SaveScene, wxT("&Save Scene\tCtrl-S") );
+    m_File->Insert( 3, myIDGame_SaveSceneAs, wxT("Save Scene &As...") );
 
     m_PlayPauseStop = MyNew wxMenu;
     m_MenuBar->Append( m_PlayPauseStop, wxT("&Mode") );
@@ -173,6 +174,7 @@ void EngineMainFrame::InitFrame()
     m_View->Append( myIDGame_EditorPerspectives, "Editor Layouts", m_EditorPerspectives );
     m_View->Append( myIDGame_GameplayPerspectives, "Gameplay Layouts", m_GameplayPerspectives );
 
+    Connect( myIDGame_NewScene,     wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnGameMenu) );
     Connect( myIDGame_LoadScene,    wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnGameMenu) );
     Connect( myIDGame_SaveScene,    wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnGameMenu) );
     Connect( myIDGame_SaveSceneAs,  wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnGameMenu) );
@@ -308,6 +310,13 @@ void EngineMainFrame::OnGameMenu(wxCommandEvent& event)
 
     switch( id )
     {
+    case myIDGame_NewScene:
+        g_pEngineCore->UnloadScene();
+        //g_pComponentSystemManager->UnloadScene( true );
+        g_pEngineCore->CreateDefaultSceneObjects( false );
+        ResizeViewport();
+        break;
+
     case myIDGame_LoadScene:
         LoadSceneDialog();
         ResizeViewport();

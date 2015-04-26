@@ -104,7 +104,7 @@ public:
     ComponentBase* AddComponent(ComponentBase* pComponent);
     void DeleteComponent(ComponentBase* pComponent);
 
-    ComponentBase* FindComponentByID(unsigned int id);
+    ComponentBase* FindComponentByID(unsigned int id, unsigned int sceneid = UINT_MAX);
 
     void Tick(double TimePassed);
     void OnSurfaceChanged(unsigned int startx, unsigned int starty, unsigned int width, unsigned int height, unsigned int desiredaspectwidth, unsigned int desiredaspectheight);

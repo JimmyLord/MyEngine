@@ -596,18 +596,22 @@ void ComponentLuaScript::Tick(double TimePassed)
     if( m_ScriptLoaded && m_Playing )
     {
         luabridge::LuaRef LuaObject = luabridge::getGlobal( m_pLuaGameState->m_pLuaState, m_pScriptFile->m_FilenameWithoutExtension );
+        assert( LuaObject.isTable() );
 
-        // call tick
-        if( LuaObject["Tick"].isFunction() )
+        if( LuaObject.isTable() )
         {
-            ProgramVariables( LuaObject, false );
-            try
+            // call tick
+            if( LuaObject["Tick"].isFunction() )
             {
-                LuaObject["Tick"]( TimePassed );
-            }
-            catch(luabridge::LuaException const& e)
-            {
-                HandleLuaError( "Tick", e.what() );
+                ProgramVariables( LuaObject, false );
+                try
+                {
+                    LuaObject["Tick"]( TimePassed );
+                }
+                catch(luabridge::LuaException const& e)
+                {
+                    HandleLuaError( "Tick", e.what() );
+                }
             }
         }
     }

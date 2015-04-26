@@ -79,14 +79,6 @@ void EngineCore::OneTimeInit()
 {
     GameCore::OneTimeInit();
 
-    //GameObject* pPlayer = 0;
-    GameObject* pGameObject;
-    ComponentCamera* pComponentCamera;
-    //ComponentSprite* pComponentSprite;
-#if MYFW_USING_WX
-    ComponentMesh* pComponentMesh;
-#endif
-
 #if MYFW_USING_WX
     m_pEditorState->m_pDebugViewFBO = g_pTextureManager->CreateFBO( 0, 0, GL_NEAREST, GL_NEAREST, false, 0, false );
     m_pEditorState->m_pMousePickerFBO = g_pTextureManager->CreateFBO( 0, 0, GL_NEAREST, GL_NEAREST, false, 0, false );
@@ -105,193 +97,7 @@ void EngineCore::OneTimeInit()
     // initialize lua state and register any variables needed.
     m_pLuaGameState = MyNew LuaGameState;
 
-    // create a 3D camera, renders first... created first so GetFirstCamera() will get the game cam.
-    {
-        pGameObject = m_pComponentSystemManager->CreateGameObject();
-        pGameObject->SetSceneID( 1 );
-        pGameObject->SetName( "Main Camera" );
-        pGameObject->m_pComponentTransform->SetPosition( Vector3( 0, 0, 10 ) );
-
-        pComponentCamera = (ComponentCamera*)pGameObject->AddNewComponent( ComponentType_Camera, 1 );
-        pComponentCamera->SetDesiredAspectRatio( 640, 960 );
-        pComponentCamera->m_Orthographic = false;
-        pComponentCamera->m_LayersToRender = Layer_MainScene;
-    }
-
-#if MYFW_USING_WX
-    // create a 3D X/Z plane grid
-    {
-        pGameObject = m_pComponentSystemManager->CreateGameObject( false ); // not managed.
-        pGameObject->SetSceneID( 99999 );
-        pGameObject->SetName( "3D Grid Plane" );
-
-        pComponentMesh = (ComponentMesh*)pGameObject->AddNewComponent( ComponentType_Mesh, 99999 );
-        if( pComponentMesh )
-        {
-            pComponentMesh->m_Visible = true; // manually drawn when in editor mode.
-            pComponentMesh->SetShader( m_pShader_TransformGizmo );
-            pComponentMesh->m_LayersThisExistsOn = Layer_Editor;
-            pComponentMesh->m_pMesh = MyNew MyMesh();
-            pComponentMesh->m_pMesh->CreateEditorLineGridXZ( Vector3(0,0,0), 1, 5 );
-            pComponentMesh->m_pMesh->m_Tint.Set( 150, 150, 150, 255 );
-            pComponentMesh->m_GLPrimitiveType = pComponentMesh->m_pMesh->m_PrimitiveType;
-        }
-
-        //m_pComponentSystemManager->AddComponent( pComponentMesh );
-
-        m_pEditorState->m_p3DGridPlane = pGameObject;
-    }
-
-    // create a 3d transform gizmo for each axis.
-    m_pEditorState->m_pTransformGizmo->CreateAxisObjects( 0.03f, m_pShader_TransformGizmo, m_pEditorState );
-
-    // create a 3D editor camera, renders editor view.
-    {
-        pGameObject = m_pComponentSystemManager->CreateGameObject( false ); // not managed.
-        pGameObject->SetSceneID( 1 );
-        pGameObject->SetName( "Editor Camera" );
-        pGameObject->m_pComponentTransform->SetPosition( Vector3( 0, 0, 10 ) );
-
-        // add an editor scene camera
-        {
-            pComponentCamera = (ComponentCamera*)pGameObject->AddNewComponent( ComponentType_Camera, 1 );
-            pComponentCamera->SetDesiredAspectRatio( 640, 960 );
-            pComponentCamera->m_Orthographic = false;
-            pComponentCamera->m_LayersToRender = Layer_Editor | Layer_MainScene;
-            pComponentCamera->m_ClearColorBuffer = true;
-            pComponentCamera->m_ClearDepthBuffer = true;
-
-            // add the camera component to the list, but disabled, so it won't render.
-            pComponentCamera->m_Enabled = false;
-            //m_pComponentSystemManager->AddComponent( pComponentCamera );
-        }
-
-        // add a foreground camera for the transform gizmo only ATM.
-        {
-            pComponentCamera = (ComponentCamera*)pGameObject->AddNewComponent( ComponentType_Camera, 1 );
-            pComponentCamera->SetDesiredAspectRatio( 640, 960 );
-            pComponentCamera->m_Orthographic = false;
-            pComponentCamera->m_LayersToRender = Layer_EditorFG;
-            pComponentCamera->m_ClearColorBuffer = false;
-            pComponentCamera->m_ClearDepthBuffer = true;
-
-            // add the camera component to the list, but disabled, so it won't render.
-            pComponentCamera->m_Enabled = false;
-            //m_pComponentSystemManager->AddComponent( pComponentCamera );
-        }
-
-        m_pEditorState->m_pEditorCamera = pGameObject;
-    }
-#endif
-
-    // create a 2D camera, renders after 3d, for hud.
-    {
-        pGameObject = m_pComponentSystemManager->CreateGameObject();
-        pGameObject->SetSceneID( 1 );
-        pGameObject->SetName( "Hud Camera" );
-
-        pComponentCamera = (ComponentCamera*)pGameObject->AddNewComponent( ComponentType_Camera, 1 );
-        pComponentCamera->SetDesiredAspectRatio( 640, 960 );
-        pComponentCamera->m_Orthographic = true;
-        pComponentCamera->m_LayersToRender = Layer_HUD;
-        pComponentCamera->m_ClearColorBuffer = false;
-        pComponentCamera->m_ClearDepthBuffer = false;
-    }
-
-    //// create a player game object and attach a mesh(sprite) component to it.
-    //{
-    //    pGameObject = m_pComponentSystemManager->CreateGameObject();
-    //    pGameObject->SetSceneID( 1 );
-    //    pGameObject->SetName( "Player Object" );
-
-    //    pComponentSprite = (ComponentSprite*)pGameObject->AddNewComponent( ComponentType_Sprite );
-    //    if( pComponentSprite )
-    //    {
-    //        pComponentSprite->SetSceneID( 1 );
-    //        pComponentSprite->SetShader( m_pShader_TintColor );
-    //        pComponentSprite->m_Size.Set( 50.0f, 50.0f );
-    //        pComponentSprite->m_Tint.Set( 255, 0, 0, 255 );
-    //        pComponentSprite->m_LayersThisExistsOn = Layer_HUD;
-    //    }
-    //    pComponentLuaScript = (ComponentLuaScript*)pGameObject->AddNewComponent( ComponentType_LuaScript );
-    //    if( pComponentLuaScript )
-    //    {
-    //        pComponentLuaScript->SetSceneID( 1 );
-    //        pComponentLuaScript->SetScriptFile( m_pScriptFiles[0] );
-    //    }
-    //    //pGameObject->AddNewComponent( ComponentType_InputTrackMousePos ); // replace with lua script
-    //    pGameObject->m_pComponentTransform->SetPosition( Vector3( 0, 0, 0 ) );//m_GameWidth/2, m_GameHeight/2, 0 ) );
-
-    //    pPlayer = pGameObject;
-    //}
-
-    //// create an enemy game object and attach a mesh(sprite) and AI component to it.
-    //{
-    //    pGameObject = m_pComponentSystemManager->CreateGameObject();
-    //    pGameObject->SetSceneID( 1 );
-    //    pGameObject->SetName( "Second Object" );
-
-    //    pComponentSprite = (ComponentSprite*)pGameObject->AddNewComponent( ComponentType_Sprite );
-    //    if( pComponentSprite )
-    //    {
-    //        pComponentSprite->SetSceneID( 1 );
-    //        pComponentSprite->SetShader( m_pShader_TintColor );
-    //        pComponentSprite->m_Size.Set( 50.0f, 50.0f );
-    //        pComponentSprite->m_Tint.Set( 0, 255, 0, 255 );
-    //        pComponentSprite->m_LayersThisExistsOn = Layer_HUD;
-    //    }
-    //    pComponentLuaScript = (ComponentLuaScript*)pGameObject->AddNewComponent( ComponentType_LuaScript );
-    //    if( pComponentLuaScript )
-    //    {
-    //        pComponentLuaScript->SetSceneID( 1 );
-    //        pComponentLuaScript->SetScriptFile( m_pScriptFiles[1] );
-    //    }
-    //    //pComponentAIChasePlayer = (ComponentAIChasePlayer*)pGameObject->AddNewComponent( ComponentType_AIChasePlayer );
-    //    //if( pComponentAIChasePlayer )
-    //    //{
-    //    //    pComponentAIChasePlayer->SetSceneID( 1 );
-    //    //    pComponentAIChasePlayer->m_pPlayerComponentTransform = pPlayer->m_pComponentTransform;
-    //    //}
-    //}
-
-    //// create a cube in the 3d scene.
-    //{
-    //    pGameObject = m_pComponentSystemManager->CreateGameObject();
-    //    pGameObject->SetSceneID( 1 );
-    //    pGameObject->SetName( "Cube" );
-
-    //    pComponentMeshOBJ = (ComponentMeshOBJ*)pGameObject->AddNewComponent( ComponentType_MeshOBJ );
-    //    if( pComponentMeshOBJ )
-    //    {
-    //        pComponentMeshOBJ->SetSceneID( 1 );
-    //        pComponentMeshOBJ->SetShader( m_pShader_TestNormals );
-    //        pComponentMeshOBJ->m_pOBJFile = m_pOBJTestFiles[0];
-    //        pComponentMeshOBJ->m_LayersThisExistsOn = Layer_MainScene;
-    //    }
-    //    pComponentCollisionObject = (ComponentCollisionObject*)pGameObject->AddNewComponent( ComponentType_CollisionObject );
-    //    pComponentCollisionObject->SetSceneID( 1 );
-    //    pComponentCollisionObject->m_Mass = 1;
-    //}
-
-    //// create a plane in the 3d scene.
-    //{
-    //    pGameObject = m_pComponentSystemManager->CreateGameObject();
-    //    pGameObject->SetSceneID( 1 );
-    //    pGameObject->SetName( "Plane" );
-    //    pGameObject->m_pComponentTransform->SetPosition( Vector3( 0, -3, 0 ) );
-    //    pGameObject->m_pComponentTransform->SetScale( Vector3( 10, 0.1f, 10 ) );
-
-    //    pComponentMeshOBJ = (ComponentMeshOBJ*)pGameObject->AddNewComponent( ComponentType_MeshOBJ );
-    //    if( pComponentMeshOBJ )
-    //    {
-    //        pComponentMeshOBJ->SetSceneID( 1 );
-    //        pComponentMeshOBJ->SetShader( m_pShader_TintColor );
-    //        pComponentMeshOBJ->m_pOBJFile = m_pOBJTestFiles[0];
-    //        pComponentMeshOBJ->m_LayersThisExistsOn = Layer_MainScene;
-    //    }
-    //    pComponentCollisionObject = (ComponentCollisionObject*)pGameObject->AddNewComponent( ComponentType_CollisionObject );
-    //    pComponentCollisionObject->SetSceneID( 1 );
-    //}
+    CreateDefaultSceneObjects( true );
 
     OnSurfaceChanged( (unsigned int)m_WindowStartX, (unsigned int)m_WindowStartY, (unsigned int)m_WindowWidth, (unsigned int)m_WindowHeight );
 
@@ -402,13 +208,17 @@ void EngineCore::OnDrawFrame()
 #if MYFW_USING_WX
     if( g_GLCanvasIDActive == 1 )
     {
-        // draw editor camera and editorFG camera
-        for( unsigned int i=0; i<m_pEditorState->m_pEditorCamera->m_Components.Count(); i++ )
+        assert( m_pEditorState->m_pEditorCamera );
+        if( m_pEditorState->m_pEditorCamera )
         {
-            ComponentCamera* pCamera = dynamic_cast<ComponentCamera*>( m_pEditorState->m_pEditorCamera->m_Components[i] );
+            // draw editor camera and editorFG camera
+            for( unsigned int i=0; i<m_pEditorState->m_pEditorCamera->m_Components.Count(); i++ )
+            {
+                ComponentCamera* pCamera = dynamic_cast<ComponentCamera*>( m_pEditorState->m_pEditorCamera->m_Components[i] );
 
-            if( pCamera )
-                pCamera->OnDrawFrame();
+                if( pCamera )
+                    pCamera->OnDrawFrame();
+            }
         }
     }
     else
@@ -625,13 +435,13 @@ void EngineCore::OnModeStop()
     if( m_EditorMode == false )
     {
         // Clear out the component manager of all components and gameobjects
+        m_pComponentSystemManager->OnStop();
         UnloadScene( 0 ); // unload runtime created objects only.
         LoadSceneFromFile( "temp_editor_onplay.scene", 1 );
         m_EditorMode = true;
         m_Paused = false;
         g_pEngineMainFrame->SetWindowPerspectiveToDefault();
         m_pEditorState->ClearSelectedObjectsAndComponents();
-        m_pComponentSystemManager->OnStop();
 
         m_pComponentSystemManager->SyncAllRigidBodiesToObjectTransforms();
 
@@ -1205,6 +1015,210 @@ void EngineCore::HandleEditorInput(int keyaction, int keycode, int mouseaction, 
 
     m_pEditorState->m_LastMousePosition = m_pEditorState->m_CurrentMousePosition;
 #endif //MYFW_USING_WX
+}
+
+void EngineCore::CreateDefaultSceneObjects(bool createeditorobjects)
+{
+    //GameObject* pPlayer = 0;
+    GameObject* pGameObject;
+    ComponentCamera* pComponentCamera;
+    //ComponentSprite* pComponentSprite;
+#if MYFW_USING_WX
+    ComponentMesh* pComponentMesh;
+#endif
+
+    // create a 3D camera, renders first... created first so GetFirstCamera() will get the game cam.
+    {
+        pGameObject = m_pComponentSystemManager->CreateGameObject();
+        pGameObject->SetSceneID( 1 );
+        pGameObject->SetName( "Main Camera" );
+        pGameObject->m_pComponentTransform->SetPosition( Vector3( 0, 0, 10 ) );
+
+        pComponentCamera = (ComponentCamera*)pGameObject->AddNewComponent( ComponentType_Camera, 1 );
+        pComponentCamera->SetDesiredAspectRatio( 640, 960 );
+        pComponentCamera->m_Orthographic = false;
+        pComponentCamera->m_LayersToRender = Layer_MainScene;
+    }
+
+#if MYFW_USING_WX
+    if( createeditorobjects )
+    {
+        // create a 3D X/Z plane grid
+        {
+            pGameObject = m_pComponentSystemManager->CreateGameObject( false ); // not managed.
+            pGameObject->SetSceneID( 99999 );
+            pGameObject->SetName( "3D Grid Plane" );
+
+            pComponentMesh = (ComponentMesh*)pGameObject->AddNewComponent( ComponentType_Mesh, 99999 );
+            if( pComponentMesh )
+            {
+                pComponentMesh->m_Visible = true; // manually drawn when in editor mode.
+                pComponentMesh->SetShader( m_pShader_TransformGizmo );
+                pComponentMesh->m_LayersThisExistsOn = Layer_Editor;
+                pComponentMesh->m_pMesh = MyNew MyMesh();
+                pComponentMesh->m_pMesh->CreateEditorLineGridXZ( Vector3(0,0,0), 1, 5 );
+                pComponentMesh->m_pMesh->m_Tint.Set( 150, 150, 150, 255 );
+                pComponentMesh->m_GLPrimitiveType = pComponentMesh->m_pMesh->m_PrimitiveType;
+            }
+
+            //m_pComponentSystemManager->AddComponent( pComponentMesh );
+
+            assert( m_pEditorState->m_p3DGridPlane == 0 );
+            m_pEditorState->m_p3DGridPlane = pGameObject;
+        }
+
+        // create a 3d transform gizmo for each axis.
+        m_pEditorState->m_pTransformGizmo->CreateAxisObjects( 0.03f, m_pShader_TransformGizmo, m_pEditorState );
+
+        // create a 3D editor camera, renders editor view.
+        {
+            pGameObject = m_pComponentSystemManager->CreateGameObject( false ); // not managed.
+            pGameObject->SetSceneID( 99999 );
+            pGameObject->SetName( "Editor Camera" );
+            pGameObject->m_pComponentTransform->SetPosition( Vector3( 0, 0, 10 ) );
+
+            // add an editor scene camera
+            {
+                pComponentCamera = (ComponentCamera*)pGameObject->AddNewComponent( ComponentType_Camera, 99999 );
+                pComponentCamera->SetDesiredAspectRatio( 640, 960 );
+                pComponentCamera->m_Orthographic = false;
+                pComponentCamera->m_LayersToRender = Layer_Editor | Layer_MainScene;
+                pComponentCamera->m_ClearColorBuffer = true;
+                pComponentCamera->m_ClearDepthBuffer = true;
+
+                // add the camera component to the list, but disabled, so it won't render.
+                pComponentCamera->m_Enabled = false;
+                //m_pComponentSystemManager->AddComponent( pComponentCamera );
+            }
+
+            // add a foreground camera for the transform gizmo only ATM.
+            {
+                pComponentCamera = (ComponentCamera*)pGameObject->AddNewComponent( ComponentType_Camera, 99999 );
+                pComponentCamera->SetDesiredAspectRatio( 640, 960 );
+                pComponentCamera->m_Orthographic = false;
+                pComponentCamera->m_LayersToRender = Layer_EditorFG;
+                pComponentCamera->m_ClearColorBuffer = false;
+                pComponentCamera->m_ClearDepthBuffer = true;
+
+                // add the camera component to the list, but disabled, so it won't render.
+                pComponentCamera->m_Enabled = false;
+                //m_pComponentSystemManager->AddComponent( pComponentCamera );
+            }
+
+            assert( m_pEditorState->m_pEditorCamera == 0 );
+            m_pEditorState->m_pEditorCamera = pGameObject;
+        }
+    }
+#endif
+
+    // create a 2D camera, renders after 3d, for hud.
+    {
+        pGameObject = m_pComponentSystemManager->CreateGameObject();
+        pGameObject->SetSceneID( 1 );
+        pGameObject->SetName( "Hud Camera" );
+
+        pComponentCamera = (ComponentCamera*)pGameObject->AddNewComponent( ComponentType_Camera, 1 );
+        pComponentCamera->SetDesiredAspectRatio( 640, 960 );
+        pComponentCamera->m_Orthographic = true;
+        pComponentCamera->m_LayersToRender = Layer_HUD;
+        pComponentCamera->m_ClearColorBuffer = false;
+        pComponentCamera->m_ClearDepthBuffer = false;
+    }
+
+    //// create a player game object and attach a mesh(sprite) component to it.
+    //{
+    //    pGameObject = m_pComponentSystemManager->CreateGameObject();
+    //    pGameObject->SetSceneID( 1 );
+    //    pGameObject->SetName( "Player Object" );
+
+    //    pComponentSprite = (ComponentSprite*)pGameObject->AddNewComponent( ComponentType_Sprite );
+    //    if( pComponentSprite )
+    //    {
+    //        pComponentSprite->SetSceneID( 1 );
+    //        pComponentSprite->SetShader( m_pShader_TintColor );
+    //        pComponentSprite->m_Size.Set( 50.0f, 50.0f );
+    //        pComponentSprite->m_Tint.Set( 255, 0, 0, 255 );
+    //        pComponentSprite->m_LayersThisExistsOn = Layer_HUD;
+    //    }
+    //    pComponentLuaScript = (ComponentLuaScript*)pGameObject->AddNewComponent( ComponentType_LuaScript );
+    //    if( pComponentLuaScript )
+    //    {
+    //        pComponentLuaScript->SetSceneID( 1 );
+    //        pComponentLuaScript->SetScriptFile( m_pScriptFiles[0] );
+    //    }
+    //    //pGameObject->AddNewComponent( ComponentType_InputTrackMousePos ); // replace with lua script
+    //    pGameObject->m_pComponentTransform->SetPosition( Vector3( 0, 0, 0 ) );//m_GameWidth/2, m_GameHeight/2, 0 ) );
+
+    //    pPlayer = pGameObject;
+    //}
+
+    //// create an enemy game object and attach a mesh(sprite) and AI component to it.
+    //{
+    //    pGameObject = m_pComponentSystemManager->CreateGameObject();
+    //    pGameObject->SetSceneID( 1 );
+    //    pGameObject->SetName( "Second Object" );
+
+    //    pComponentSprite = (ComponentSprite*)pGameObject->AddNewComponent( ComponentType_Sprite );
+    //    if( pComponentSprite )
+    //    {
+    //        pComponentSprite->SetSceneID( 1 );
+    //        pComponentSprite->SetShader( m_pShader_TintColor );
+    //        pComponentSprite->m_Size.Set( 50.0f, 50.0f );
+    //        pComponentSprite->m_Tint.Set( 0, 255, 0, 255 );
+    //        pComponentSprite->m_LayersThisExistsOn = Layer_HUD;
+    //    }
+    //    pComponentLuaScript = (ComponentLuaScript*)pGameObject->AddNewComponent( ComponentType_LuaScript );
+    //    if( pComponentLuaScript )
+    //    {
+    //        pComponentLuaScript->SetSceneID( 1 );
+    //        pComponentLuaScript->SetScriptFile( m_pScriptFiles[1] );
+    //    }
+    //    //pComponentAIChasePlayer = (ComponentAIChasePlayer*)pGameObject->AddNewComponent( ComponentType_AIChasePlayer );
+    //    //if( pComponentAIChasePlayer )
+    //    //{
+    //    //    pComponentAIChasePlayer->SetSceneID( 1 );
+    //    //    pComponentAIChasePlayer->m_pPlayerComponentTransform = pPlayer->m_pComponentTransform;
+    //    //}
+    //}
+
+    //// create a cube in the 3d scene.
+    //{
+    //    pGameObject = m_pComponentSystemManager->CreateGameObject();
+    //    pGameObject->SetSceneID( 1 );
+    //    pGameObject->SetName( "Cube" );
+
+    //    pComponentMeshOBJ = (ComponentMeshOBJ*)pGameObject->AddNewComponent( ComponentType_MeshOBJ );
+    //    if( pComponentMeshOBJ )
+    //    {
+    //        pComponentMeshOBJ->SetSceneID( 1 );
+    //        pComponentMeshOBJ->SetShader( m_pShader_TestNormals );
+    //        pComponentMeshOBJ->m_pOBJFile = m_pOBJTestFiles[0];
+    //        pComponentMeshOBJ->m_LayersThisExistsOn = Layer_MainScene;
+    //    }
+    //    pComponentCollisionObject = (ComponentCollisionObject*)pGameObject->AddNewComponent( ComponentType_CollisionObject );
+    //    pComponentCollisionObject->SetSceneID( 1 );
+    //    pComponentCollisionObject->m_Mass = 1;
+    //}
+
+    //// create a plane in the 3d scene.
+    //{
+    //    pGameObject = m_pComponentSystemManager->CreateGameObject();
+    //    pGameObject->SetSceneID( 1 );
+    //    pGameObject->SetName( "Plane" );
+    //    pGameObject->m_pComponentTransform->SetPosition( Vector3( 0, -3, 0 ) );
+    //    pGameObject->m_pComponentTransform->SetScale( Vector3( 10, 0.1f, 10 ) );
+
+    //    pComponentMeshOBJ = (ComponentMeshOBJ*)pGameObject->AddNewComponent( ComponentType_MeshOBJ );
+    //    if( pComponentMeshOBJ )
+    //    {
+    //        pComponentMeshOBJ->SetSceneID( 1 );
+    //        pComponentMeshOBJ->SetShader( m_pShader_TintColor );
+    //        pComponentMeshOBJ->m_pOBJFile = m_pOBJTestFiles[0];
+    //        pComponentMeshOBJ->m_LayersThisExistsOn = Layer_MainScene;
+    //    }
+    //    pComponentCollisionObject = (ComponentCollisionObject*)pGameObject->AddNewComponent( ComponentType_CollisionObject );
+    //    pComponentCollisionObject->SetSceneID( 1 );
+    //}
 }
 
 void EngineCore::SaveScene(const char* fullpath)
