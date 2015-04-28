@@ -53,24 +53,24 @@ void ComponentSprite::FillPropertiesWindow(bool clear)
         g_pPanelWatch->AddFloat( "width",  &m_Size.x, 0, 2 );
         g_pPanelWatch->AddFloat( "height", &m_Size.y, 0, 2 );
 
-        const char* desc = "no shader";
+        const char* desc = "no material";
         assert( m_pSprite );
-        ShaderGroup* pShader = m_pSprite->GetShader();
-        if( pShader && pShader->GetShader( ShaderPass_Main )->m_pFile )
-            desc = pShader->GetShader( ShaderPass_Main )->m_pFile->m_FilenameWithoutExtension;
-        g_pPanelWatch->AddPointerWithDescription( "Shader", 0, desc, this, ComponentSprite::StaticOnDropShaderGroup );
+        MaterialDefinition* pMaterial = m_pSprite->GetMaterial();
+        if( pMaterial )
+            desc = pMaterial->m_pFile->m_FullPath;
+        g_pPanelWatch->AddPointerWithDescription( "Material", 0, desc, this, ComponentSprite::StaticOnDropMaterial );
     }
 }
 
-void ComponentSprite::OnDropShaderGroup()
+void ComponentSprite::OnDropMaterial()
 {
-    if( g_DragAndDropStruct.m_Type == DragAndDropType_ShaderGroupPointer )
+    if( g_DragAndDropStruct.m_Type == DragAndDropType_MaterialDefinitionPointer )
     {
-        ShaderGroup* pShaderGroup = (ShaderGroup*)g_DragAndDropStruct.m_Value;
-        assert( pShaderGroup );
+        MaterialDefinition* pMaterial = (MaterialDefinition*)g_DragAndDropStruct.m_Value;
+        assert( pMaterial );
         assert( m_pSprite );
 
-        m_pSprite->SetShader( pShaderGroup );
+        m_pSprite->SetMaterial( pMaterial );
     }
 }
 #endif //MYFW_USING_WX
@@ -81,7 +81,7 @@ cJSON* ComponentSprite::ExportAsJSONObject()
 
     cJSONExt_AddUnsignedCharArrayToObject( component, "Tint", &m_Tint.r, 4 );
     cJSONExt_AddFloatArrayToObject( component, "Size", &m_Size.x, 2 );
-    cJSON_AddStringToObject( component, "Shader", m_pSprite->GetShader()->GetName() );
+    cJSON_AddStringToObject( component, "Material", m_pSprite->GetMaterial()->m_pFile->m_FullPath );
 
     return component;
 }
@@ -93,9 +93,9 @@ void ComponentSprite::ImportFromJSONObject(cJSON* jsonobj, unsigned int sceneid)
     cJSONExt_GetUnsignedCharArray( jsonobj, "Tint", &m_Tint.r, 4 );
     cJSONExt_GetFloatArray( jsonobj, "Size", &m_Size.x, 2 );
     
-    cJSON* shaderstringobj = cJSON_GetObjectItem( jsonobj, "Shader" );
-    ShaderGroup* pShaderGroup = g_pShaderGroupManager->FindShaderGroupByName( shaderstringobj->valuestring );
-    m_pSprite->SetShader( pShaderGroup );
+    cJSON* materialobj = cJSON_GetObjectItem( jsonobj, "Material" );
+    MaterialDefinition* pMaterial = g_pMaterialManager->FindMaterialByFilename( materialobj->valuestring );
+    m_pSprite->SetMaterial( pMaterial );
 }
 
 void ComponentSprite::Reset()
@@ -121,16 +121,16 @@ ComponentSprite& ComponentSprite::operator=(const ComponentSprite& other)
 
     this->m_Tint = other.m_Tint;
     this->m_Size = other.m_Size;
-    this->m_pSprite->SetShader( other.m_pSprite->GetShader() );
+    this->m_pSprite->SetMaterial( other.m_pSprite->GetMaterial() );
 
     return *this;
 }
 
-void ComponentSprite::SetShader(ShaderGroup* pShader)
+void ComponentSprite::SetMaterial(MaterialDefinition* pMaterial)
 {
-    ComponentRenderable::SetShader( pShader );
+    ComponentRenderable::SetMaterial( pMaterial );
 
-    m_pSprite->SetShader( pShader );
+    m_pSprite->SetMaterial( pMaterial );
 }
 
 void ComponentSprite::Draw(MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride, int drawcount)

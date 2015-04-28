@@ -30,8 +30,7 @@ ComponentParticleEmitter::ComponentParticleEmitter()
 
     g_pComponentSystemManager->RegisterComponentTickCallback( &StaticTick, this );
 
-    m_pShaderGroup = 0;
-    m_pTexture = 0;
+    m_pMaterial = 0;
 }
 
 ComponentParticleEmitter::~ComponentParticleEmitter()
@@ -40,8 +39,7 @@ ComponentParticleEmitter::~ComponentParticleEmitter()
 
     SAFE_DELETE( m_pParticleRenderer );
 
-    SAFE_RELEASE( m_pShaderGroup );
-    SAFE_RELEASE( m_pTexture );
+    SAFE_RELEASE( m_pMaterial );
 
     g_pComponentSystemManager->UnregisterComponentTickCallback( &StaticTick, this );
 }
@@ -50,8 +48,7 @@ void ComponentParticleEmitter::Reset()
 {
     ComponentRenderable::Reset();
 
-    SAFE_RELEASE( m_pShaderGroup );
-    SAFE_RELEASE( m_pTexture );
+    SAFE_RELEASE( m_pMaterial );
 
     m_TimeTilNextSpawn = 0;
 
@@ -116,61 +113,24 @@ void ComponentParticleEmitter::FillPropertiesWindow(bool clear)
         g_pPanelWatch->AddColorFloat( "color1", &m_Color1, 0, 1 );
         g_pPanelWatch->AddColorFloat( "color2", &m_Color2, 0, 1 );
 
-        const char* desc = "no shader";
-        if( m_pShaderGroup && m_pShaderGroup->GetShader( ShaderPass_Main )->m_pFile )
-            desc = m_pShaderGroup->GetShader( ShaderPass_Main )->m_pFile->m_FilenameWithoutExtension;
-        g_pPanelWatch->AddPointerWithDescription( "Shader", 0, desc, this, ComponentParticleEmitter::StaticOnDropShader );
-
-        desc = "no texture";
-        if( m_pTexture )
-            desc = m_pTexture->m_Filename;
-        g_pPanelWatch->AddPointerWithDescription( "Texture", 0, desc, this, ComponentParticleEmitter::StaticOnDropTexture );
+        const char* desc = "no material";
+        if( m_pMaterial )
+            desc = m_pMaterial->m_pFile->m_FilenameWithoutExtension;
+        g_pPanelWatch->AddPointerWithDescription( "Material", 0, desc, this, ComponentParticleEmitter::StaticOnDropMaterial );
     }
 }
 
-void ComponentParticleEmitter::OnDropShader()
+void ComponentParticleEmitter::OnDropMaterial()
 {
-    if( g_DragAndDropStruct.m_Type == DragAndDropType_ShaderGroupPointer )
+    if( g_DragAndDropStruct.m_Type == DragAndDropType_MaterialDefinitionPointer )
     {
-        ShaderGroup* pShaderGroup = (ShaderGroup*)g_DragAndDropStruct.m_Value;
-        assert( pShaderGroup );
+        MaterialDefinition* pMaterial = (MaterialDefinition*)g_DragAndDropStruct.m_Value;
+        assert( pMaterial );
 
-        SetShader( pShaderGroup );
+        SetMaterial( pMaterial );
 
-        // update the panel so new Shader name shows up.
-        g_pPanelWatch->m_pVariables[g_DragAndDropStruct.m_ID].m_Description = pShaderGroup->GetShader( ShaderPass_Main )->m_pFile->m_FilenameWithoutExtension;
-    }
-}
-
-void ComponentParticleEmitter::OnDropTexture()
-{
-    if( g_DragAndDropStruct.m_Type == DragAndDropType_FileObjectPointer )
-    {
-        MyFileObject* pFile = (MyFileObject*)g_DragAndDropStruct.m_Value;
-        assert( pFile );
-
-        size_t len = strlen( pFile->m_FullPath );
-        const char* filenameext = &pFile->m_FullPath[len-4];
-
-        if( strcmp( filenameext, ".png" ) == 0 )
-        {
-            TextureDefinition* pOldTexture = m_pTexture;
-            m_pTexture = g_pTextureManager->FindTexture( pFile->m_FullPath );
-            SAFE_RELEASE( pOldTexture );
-        }
-
-        // update the panel so new Shader name shows up.
-        g_pPanelWatch->m_pVariables[g_DragAndDropStruct.m_ID].m_Description = m_pTexture->m_Filename;
-    }
-
-    if( g_DragAndDropStruct.m_Type == DragAndDropType_TextureDefinitionPointer )
-    {
-        TextureDefinition* pOldTexture = m_pTexture;
-        m_pTexture = (TextureDefinition*)g_DragAndDropStruct.m_Value;
-        SAFE_RELEASE( pOldTexture );
-
-        // update the panel so new Shader name shows up.
-        g_pPanelWatch->m_pVariables[g_DragAndDropStruct.m_ID].m_Description = m_pTexture->m_Filename;
+        // update the panel so new Material name shows up.
+        g_pPanelWatch->m_pVariables[g_DragAndDropStruct.m_ID].m_Description = pMaterial->m_pFile->m_FilenameWithoutExtension;
     }
 }
 #endif //MYFW_USING_WX
@@ -190,10 +150,8 @@ cJSON* ComponentParticleEmitter::ExportAsJSONObject()
     cJSONExt_AddFloatArrayToObject( component, "color1", &m_Color1.r, 4 );
     cJSONExt_AddFloatArrayToObject( component, "color2", &m_Color2.r, 4 );
 
-    if( m_pShaderGroup )
-        cJSON_AddStringToObject( component, "Shader", m_pShaderGroup->GetName() );
-    if( m_pTexture )
-        cJSON_AddStringToObject( component, "Texture", m_pTexture->m_Filename );
+    if( m_pMaterial )
+        cJSON_AddStringToObject( component, "Material", m_pMaterial->m_pFile->m_FullPath );
 
     return component;
 }
@@ -213,27 +171,15 @@ void ComponentParticleEmitter::ImportFromJSONObject(cJSON* jsonobj, unsigned int
     cJSONExt_GetFloatArray( jsonobj, "color1", &m_Color1.r, 4 );
     cJSONExt_GetFloatArray( jsonobj, "color2", &m_Color2.r, 4 );
 
-    cJSON* shaderstringobj = cJSON_GetObjectItem( jsonobj, "Shader" );
-    if( shaderstringobj )
+    cJSON* materialstringobj = cJSON_GetObjectItem( jsonobj, "Material" );
+    if( materialstringobj )
     {
-        ShaderGroup* pShaderGroup = g_pShaderGroupManager->FindShaderGroupByName( shaderstringobj->valuestring );
-        if( pShaderGroup )
+        MaterialDefinition* pMaterial = g_pMaterialManager->FindMaterialByFilename( materialstringobj->valuestring );
+        if( pMaterial )
         {
-            pShaderGroup->AddRef();
-            SAFE_RELEASE( m_pShaderGroup );
-            m_pShaderGroup = pShaderGroup;
-        }
-    }
-
-    cJSON* texturestringobj = cJSON_GetObjectItem( jsonobj, "Texture" );
-    if( texturestringobj )
-    {
-        TextureDefinition* pTexture = g_pTextureManager->FindTexture( texturestringobj->valuestring );
-        if( pTexture )
-        {
-            pTexture->AddRef();
-            SAFE_RELEASE( m_pTexture );
-            m_pTexture = pTexture;
+            pMaterial->AddRef();
+            SAFE_RELEASE( m_pMaterial );
+            m_pMaterial = pMaterial;
         }
     }
 }
@@ -255,26 +201,22 @@ ComponentParticleEmitter& ComponentParticleEmitter::operator=(const ComponentPar
     this->m_Color1              = other.m_Color1;
     this->m_Color2              = other.m_Color2;
 
-    m_pShaderGroup = other.m_pShaderGroup;
-    if( m_pShaderGroup )
-        m_pShaderGroup->AddRef();
-
-    m_pTexture = other.m_pTexture;
-    if( m_pTexture )
-        m_pTexture->AddRef();
+    m_pMaterial = other.m_pMaterial;
+    if( m_pMaterial )
+        m_pMaterial->AddRef();
 
     return *this;
 }
 
-void ComponentParticleEmitter::SetShader(ShaderGroup* pShader)
+void ComponentParticleEmitter::SetMaterial(MaterialDefinition* pMaterial)
 {
-    ComponentRenderable::SetShader( pShader );
+    ComponentRenderable::SetMaterial( pMaterial );
 
-    pShader->AddRef();
-    SAFE_RELEASE( m_pShaderGroup );
-    m_pShaderGroup = pShader;
+    pMaterial->AddRef();
+    SAFE_RELEASE( m_pMaterial );
+    m_pMaterial = pMaterial;
 
-    m_pParticleRenderer->SetShaderAndTexture( m_pShaderGroup, m_pTexture );
+    m_pParticleRenderer->SetShaderAndTexture( m_pMaterial->m_pShaderGroup, pMaterial->m_pTextureColor );
 }
 
 void ComponentParticleEmitter::CreateBurst(int number, Vector3 pos)
@@ -370,6 +312,6 @@ void ComponentParticleEmitter::Draw(MyMatrix* pMatViewProj, ShaderGroup* pShader
 
     Vector3 pos = m_pComponentTransform->GetPosition();
     CreateBurst( 1, pos );
-    m_pParticleRenderer->SetShaderAndTexture( m_pShaderGroup, m_pTexture );
+    m_pParticleRenderer->SetShaderAndTexture( m_pMaterial->m_pShaderGroup, m_pMaterial->m_pTextureColor );
     m_pParticleRenderer->Draw( pMatViewProj );
 }

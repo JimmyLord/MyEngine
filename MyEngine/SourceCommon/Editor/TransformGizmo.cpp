@@ -31,22 +31,25 @@ void TransformGizmo::Tick(double TimePassed, EditorState* pEditorState)
     // Update transform gizmos
     for( int i=0; i<3; i++ )
     {
+        assert( m_pTransformGizmos[i] );
+
         ComponentRenderable* pRenderable = (ComponentRenderable*)m_pTransformGizmos[i]->GetFirstComponentOfBaseType( BaseComponentType_Renderable );
 
         ComponentMesh* pMesh = dynamic_cast<ComponentMesh*>( pRenderable );
         assert( pMesh );
         if( pMesh )
         {
+            // TODOMaterials: put this back for transform gizmo.
             if( i == 0 )
-                pMesh->m_pMesh->m_Tint.Set( 255, 100, 100, 255 );
+                pMesh->m_pMaterial->m_Tint.Set( 255, 100, 100, 255 );
             if( i == 1 )
-                pMesh->m_pMesh->m_Tint.Set( 100, 255, 100, 255 );
+                pMesh->m_pMaterial->m_Tint.Set( 100, 255, 100, 255 );
             if( i == 2 )
-                pMesh->m_pMesh->m_Tint.Set( 100, 100, 255, 255 );
+                pMesh->m_pMaterial->m_Tint.Set( 100, 100, 255, 255 );
 
             if( i == m_SelectedPart )
             {
-                pMesh->m_pMesh->m_Tint.Set( 255,255,255,255 );
+                pMesh->m_pMaterial->m_Tint.Set( 255,255,255,255 );
             }
         }
 
@@ -126,7 +129,7 @@ bool TransformGizmo::HandleInput(EngineCore* pGame, int keydown, int keycode, in
     return false;
 }
 
-void TransformGizmo::CreateAxisObjects(float scale, ShaderGroup* pShader, EditorState* pEditorState)
+void TransformGizmo::CreateAxisObjects(float scale, MaterialDefinition* pMaterialX, MaterialDefinition* pMaterialY, MaterialDefinition* pMaterialZ, EditorState* pEditorState)
 {
     GameObject* pGameObject;
     ComponentMesh* pComponentMesh;
@@ -140,7 +143,7 @@ void TransformGizmo::CreateAxisObjects(float scale, ShaderGroup* pShader, Editor
         if( pComponentMesh )
         {
             pComponentMesh->m_Visible = true;
-            pComponentMesh->SetShader( pShader );
+            pComponentMesh->SetMaterial( pMaterialX );
             pComponentMesh->m_LayersThisExistsOn = Layer_EditorFG;
             pComponentMesh->m_pMesh = MyNew MyMesh();
             pComponentMesh->m_pMesh->CreateEditorTransformGizmoAxis( 3, 0.05f, ColorByte(255, 100, 100, 255) );
@@ -158,7 +161,7 @@ void TransformGizmo::CreateAxisObjects(float scale, ShaderGroup* pShader, Editor
         if( pComponentMesh )
         {
             pComponentMesh->m_Visible = true;
-            pComponentMesh->SetShader( pShader );
+            pComponentMesh->SetMaterial( pMaterialY );
             pComponentMesh->m_LayersThisExistsOn = Layer_EditorFG;
             pComponentMesh->m_pMesh = MyNew MyMesh();
             pComponentMesh->m_pMesh->CreateEditorTransformGizmoAxis( 3, 0.05f, ColorByte(100, 255, 100, 255) );
@@ -176,7 +179,7 @@ void TransformGizmo::CreateAxisObjects(float scale, ShaderGroup* pShader, Editor
         if( pComponentMesh )
         {
             pComponentMesh->m_Visible = true;
-            pComponentMesh->SetShader( pShader );
+            pComponentMesh->SetMaterial( pMaterialZ );
             pComponentMesh->m_LayersThisExistsOn = Layer_EditorFG;
             pComponentMesh->m_pMesh = MyNew MyMesh();
             pComponentMesh->m_pMesh->CreateEditorTransformGizmoAxis( 3, 0.05f, ColorByte(100, 100, 255, 255) );

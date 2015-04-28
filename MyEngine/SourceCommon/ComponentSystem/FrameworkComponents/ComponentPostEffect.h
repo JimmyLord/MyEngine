@@ -19,7 +19,8 @@ class ComponentPostEffect : public ComponentData
 {
 public:
     MySprite* m_pFullScreenQuad;
-    ShaderGroup* m_pShaderGroup;
+
+    MaterialDefinition* m_pMaterial;
 
 public:
     ComponentPostEffect();
@@ -32,7 +33,7 @@ public:
     virtual void CopyFromSameType_Dangerous(ComponentBase* pObject) { *this = (ComponentPostEffect&)*pObject; }
     virtual ComponentPostEffect& operator=(const ComponentPostEffect& other);
 
-    void SetShader(ShaderGroup* pShader);
+    void SetMaterial(MaterialDefinition* pMaterial);
     void Render(FBODefinition* pFBO);
 
 public:
@@ -43,8 +44,8 @@ public:
     static void StaticOnLeftClick(void* pObjectPtr) { ((ComponentPostEffect*)pObjectPtr)->OnLeftClick( true ); }
     void OnLeftClick(bool clear);
     virtual void FillPropertiesWindow(bool clear);
-    static void StaticOnDropShader(void* pObjectPtr) { ((ComponentPostEffect*)pObjectPtr)->OnDropShader(); }
-    void OnDropShader();
+    static void StaticOnDropMaterial(void* pObjectPtr) { ((ComponentPostEffect*)pObjectPtr)->OnDropMaterial(); }
+    void OnDropMaterial();
     static void StaticOnValueChanged(void* pObjectPtr, int controlid, bool finishedchanging) { ((ComponentPostEffect*)pObjectPtr)->OnValueChanged( controlid, finishedchanging ); }
     void OnValueChanged(int controlid, bool finishedchanging);
 #endif //MYFW_USING_WX

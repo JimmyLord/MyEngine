@@ -311,8 +311,7 @@ void EngineMainFrame::OnGameMenu(wxCommandEvent& event)
     switch( id )
     {
     case myIDGame_NewScene:
-        g_pEngineCore->UnloadScene();
-        //g_pComponentSystemManager->UnloadScene( true );
+        g_pEngineCore->UnloadScene( UINT_MAX, false );
         g_pEngineCore->CreateDefaultSceneObjects( false );
         ResizeViewport();
         break;
@@ -323,10 +322,14 @@ void EngineMainFrame::OnGameMenu(wxCommandEvent& event)
         break;
 
     case myIDGame_SaveScene:
+        g_pMaterialManager->SaveAllMaterials();
+        g_pComponentSystemManager->AddAllMaterialsToFilesList();
         SaveScene();
         break;
 
     case myIDGame_SaveSceneAs:
+        g_pMaterialManager->SaveAllMaterials();
+        g_pComponentSystemManager->AddAllMaterialsToFilesList();
         SaveSceneAs();
         break;
 
@@ -536,7 +539,7 @@ void EngineMainFrame::LoadScene(const char* scenename)
 
     // clear out the old scene before loading
     // TODO: make this optional, so we can load multiple scenes at once, also change the '1' in LoadScene to the next available scene id
-    g_pEngineCore->UnloadScene();
+    g_pEngineCore->UnloadScene( UINT_MAX, false ); // don't unload editor objects.
     g_pEngineCore->LoadSceneFromFile( m_CurrentSceneName, 1 );
 
     this->SetTitle( m_CurrentSceneName );

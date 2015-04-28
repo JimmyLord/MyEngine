@@ -30,7 +30,7 @@ public:
     virtual void CopyFromSameType_Dangerous(ComponentBase* pObject) { *this = (ComponentSprite&)*pObject; }
     virtual ComponentSprite& operator=(const ComponentSprite& other);
 
-    virtual void SetShader(ShaderGroup* pShader);
+    virtual void SetMaterial(MaterialDefinition* pMaterial);
     virtual void Draw(MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride = 0, int drawcount = 0);
 
 public:
@@ -41,8 +41,8 @@ public:
     static void StaticOnLeftClick(void* pObjectPtr) { ((ComponentSprite*)pObjectPtr)->OnLeftClick( true ); }
     void OnLeftClick(bool clear);
     virtual void FillPropertiesWindow(bool clear);
-    static void StaticOnDropShaderGroup(void* pObjectPtr) { ((ComponentSprite*)pObjectPtr)->OnDropShaderGroup(); }
-    void OnDropShaderGroup();
+    static void StaticOnDropMaterial(void* pObjectPtr) { ((ComponentSprite*)pObjectPtr)->OnDropMaterial(); }
+    void OnDropMaterial();
 #endif //MYFW_USING_WX
 };
 

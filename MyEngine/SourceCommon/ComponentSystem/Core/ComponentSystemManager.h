@@ -86,7 +86,9 @@ public:
 
     void SyncAllRigidBodiesToObjectTransforms();
 
-    void UnloadScene(bool clearunmanagedcomponents = true, unsigned int sceneidtoclear = UINT_MAX);
+    // can clear everything except editor objects/components
+    // unmanaged components are mainly editor objects and deleted objects in undo stack of editor... might want to rethink that.
+    void UnloadScene(unsigned int sceneidtoclear = UINT_MAX, bool clearunmanagedcomponents = true);
 
     GameObject* CreateGameObject(bool manageobject = true);
     void UnmanageGameObject(GameObject* pObject);
@@ -110,7 +112,7 @@ public:
     void OnSurfaceChanged(unsigned int startx, unsigned int starty, unsigned int width, unsigned int height, unsigned int desiredaspectwidth, unsigned int desiredaspectheight);
     void OnDrawFrame();
     void OnDrawFrame(ComponentCamera* pCamera, MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride);
-    void DrawMousePickerFrame(ComponentCamera* pCamera, MyMatrix* pMatViewProj, ShaderGroup* pShaderGroup);
+    void DrawMousePickerFrame(ComponentCamera* pCamera, MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride);
 
     void OnPlay();
     void OnStop();
@@ -127,6 +129,7 @@ public:
 
     void OnFileUpdated(MyFileObject* pFile);
     void Editor_RegisterFileUpdatedCallback(FileUpdatedCallbackFunction pFunc, void* pObj);
+    void AddAllMaterialsToFilesList();
 
     static void StaticOnLeftClick(void* pObjectPtr) { ((ComponentSystemManager*)pObjectPtr)->OnLeftClick(true); }
     static void StaticOnRightClick(void* pObjectPtr) { ((ComponentSystemManager*)pObjectPtr)->OnRightClick(); }

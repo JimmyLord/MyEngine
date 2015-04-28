@@ -50,7 +50,7 @@ ComponentCamera* EditorState::GetEditorCamera()
     return (ComponentCamera*)m_pEditorCamera->GetFirstComponentOfBaseType( BaseComponentType_Camera );
 }
 
-void EditorState::UnloadScene()
+void EditorState::UnloadScene(bool cleareditorobjects)
 {
     m_pSelectedObjects.clear();
     m_pSelectedComponents.clear();

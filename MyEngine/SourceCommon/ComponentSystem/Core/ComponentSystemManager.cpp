@@ -91,6 +91,26 @@ void ComponentSystemManager::Editor_RegisterFileUpdatedCallback(FileUpdatedCallb
     m_pFileUpdatedCallbackList.push_back( callbackstruct );
 }
 
+void ComponentSystemManager::AddAllMaterialsToFilesList()
+{
+    for( CPPListNode* pNode = g_pMaterialManager->m_Materials.GetHead(); pNode; pNode = pNode->GetNext() )
+    {
+        MaterialDefinition* pMaterial = (MaterialDefinition*)pNode;
+
+        if( pMaterial->m_pFile )
+        {
+            if( IsFileUsedByScene( pMaterial->m_pFile->m_FullPath, 1 ) == false )
+            {
+                MyFileInfo* pFileInfo = MyNew MyFileInfo();
+                pFileInfo->m_pFile = pMaterial->m_pFile;
+                pMaterial->m_pFile->AddRef();
+                pFileInfo->m_SceneID = 1;
+                m_Files.AddTail( pFileInfo );
+            }
+        }
+    }
+}
+
 void ComponentSystemManager::OnLeftClick(bool clear)
 {
     if( clear )
@@ -349,6 +369,12 @@ void ComponentSystemManager::LoadDatafile(const char* relativepath, unsigned int
         {
             pFileInfo->m_pShaderGroup = MyNew ShaderGroup( pFile, pFile->m_FilenameWithoutExtension );
         }
+
+        // if we're loading an .mymaterial file, create a Material.
+        if( strcmp( pFile->m_ExtensionWithDot, ".mymaterial" ) == 0 )
+        {
+            g_pMaterialManager->CreateMaterial( pFile );
+        }
     }
     else
     {
@@ -483,7 +509,7 @@ void ComponentSystemManager::SyncAllRigidBodiesToObjectTransforms()
     }
 }
 
-void ComponentSystemManager::UnloadScene(bool clearunmanagedcomponents, unsigned int sceneidtoclear)
+void ComponentSystemManager::UnloadScene(unsigned int sceneidtoclear, bool clearunmanagedcomponents)
 {
     m_NextGameObjectID = 1;
     m_NextComponentID = 1;
@@ -499,6 +525,10 @@ void ComponentSystemManager::UnloadScene(bool clearunmanagedcomponents, unsigned
             {
                 DeleteComponent( pComponent );
             }
+            else if( pComponent->GetID() > m_NextComponentID )
+            {
+                m_NextComponentID = pComponent->GetID() + 1;
+            }
         }
 
         for( CPPListNode* pNode = m_ComponentsInputHandler.GetHead(); pNode;  )
@@ -509,6 +539,10 @@ void ComponentSystemManager::UnloadScene(bool clearunmanagedcomponents, unsigned
                 (sceneidtoclear == UINT_MAX || pComponent->GetSceneID() == sceneidtoclear) )
             {
                 DeleteComponent( pComponent );
+            }
+            else if( pComponent->GetID() > m_NextComponentID )
+            {
+                m_NextComponentID = pComponent->GetID() + 1;
             }
         }
 
@@ -521,6 +555,10 @@ void ComponentSystemManager::UnloadScene(bool clearunmanagedcomponents, unsigned
             {
                 DeleteComponent( pComponent );
             }
+            else if( pComponent->GetID() > m_NextComponentID )
+            {
+                m_NextComponentID = pComponent->GetID() + 1;
+            }
         }
 
         for( CPPListNode* pNode = m_ComponentsRenderable.GetHead(); pNode;  )
@@ -531,6 +569,10 @@ void ComponentSystemManager::UnloadScene(bool clearunmanagedcomponents, unsigned
                 (sceneidtoclear == UINT_MAX || pComponent->GetSceneID() == sceneidtoclear) )
             {
                 DeleteComponent( pComponent );
+            }
+            else if( pComponent->GetID() > m_NextComponentID )
+            {
+                m_NextComponentID = pComponent->GetID() + 1;
             }
         }
 
@@ -543,6 +585,10 @@ void ComponentSystemManager::UnloadScene(bool clearunmanagedcomponents, unsigned
             {
                 DeleteComponent( pComponent );
             }
+            else if( pComponent->GetID() > m_NextComponentID )
+            {
+                m_NextComponentID = pComponent->GetID() + 1;
+            }
         }
     }
 
@@ -554,9 +600,14 @@ void ComponentSystemManager::UnloadScene(bool clearunmanagedcomponents, unsigned
 
             pNode = pNode->GetNext();
 
-            if( (sceneidtoclear == UINT_MAX || pGameObject->GetSceneID() == sceneidtoclear) )
+            if( (pGameObject->IsManaged() || clearunmanagedcomponents) &&
+                (sceneidtoclear == UINT_MAX || pGameObject->GetSceneID() == sceneidtoclear) )
             {
                 DeleteGameObject( pGameObject, true );
+            }
+            else if( pGameObject->GetID() > m_NextGameObjectID )
+            {
+                m_NextGameObjectID = pGameObject->GetID() + 1;
             }
         }
     }
@@ -578,7 +629,7 @@ GameObject* ComponentSystemManager::CreateGameObject(bool manageobject)
     pGameObject->SetID( m_NextGameObjectID );
     m_NextGameObjectID++;
 
-    if( manageobject )
+    //if( manageobject )
         m_GameObjects.AddTail( pGameObject );
 
     return pGameObject;
@@ -667,7 +718,7 @@ GameObject* ComponentSystemManager::FindGameObjectByID(unsigned int id)
     {
         GameObject* pGameObject = (GameObject*)node;
 
-        if( pGameObject->GetID() == id )
+        if( pGameObject->IsManaged() && pGameObject->GetID() == id )
             return pGameObject;
     }
 
@@ -890,11 +941,11 @@ void ComponentSystemManager::OnDrawFrame(ComponentCamera* pCamera, MyMatrix* pMa
     }
 }
 
-void ComponentSystemManager::DrawMousePickerFrame(ComponentCamera* pCamera, MyMatrix* pMatViewProj, ShaderGroup* pShaderGroup)
+void ComponentSystemManager::DrawMousePickerFrame(ComponentCamera* pCamera, MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride)
 {
     // always use 4 bone version.
     // TODO: this might fail with 1-3 bones, but works with 0 since bone attribs and uniforms should default to 0.
-    Shader_Base* pShader = (Shader_Base*)pShaderGroup->GlobalPass( 0, 4 );
+    Shader_Base* pShader = (Shader_Base*)pShaderOverride->GlobalPass( 0, 4 );
     if( pShader->ActivateAndProgramShader() )
     {
         for( CPPListNode* node = m_ComponentsRenderable.GetHead(); node != 0; node = node->GetNext() )
@@ -918,7 +969,7 @@ void ComponentSystemManager::DrawMousePickerFrame(ComponentCamera* pCamera, MyMa
 
                     if( pComponent->m_Visible )
                     {
-                        pComponent->Draw( pMatViewProj, pShaderGroup );
+                        pComponent->Draw( pMatViewProj, pShaderOverride );
                     }
                 }
             }

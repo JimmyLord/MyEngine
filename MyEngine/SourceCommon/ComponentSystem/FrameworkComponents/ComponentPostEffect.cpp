@@ -19,13 +19,13 @@ ComponentPostEffect::ComponentPostEffect()
     m_BaseType = BaseComponentType_Data;
 
     m_pFullScreenQuad = 0;
-    m_pShaderGroup = 0;
+    m_pMaterial = 0;
 }
 
 ComponentPostEffect::~ComponentPostEffect()
 {
     SAFE_RELEASE( m_pFullScreenQuad );
-    SAFE_RELEASE( m_pShaderGroup );
+    SAFE_RELEASE( m_pMaterial );
 }
 
 #if MYFW_USING_WX
@@ -47,24 +47,24 @@ void ComponentPostEffect::FillPropertiesWindow(bool clear)
     {
         ComponentData::FillPropertiesWindow( clear );
 
-        const char* desc = "no shader";
-        if( m_pShaderGroup && m_pShaderGroup->GetShader( ShaderPass_Main )->m_pFile )
-            desc = m_pShaderGroup->GetShader( ShaderPass_Main )->m_pFile->m_FilenameWithoutExtension;
-        g_pPanelWatch->AddPointerWithDescription( "Shader", 0, desc, this, ComponentPostEffect::StaticOnDropShader );
+        const char* desc = "no material";
+        if( m_pMaterial )
+            desc = m_pMaterial->m_pFile->m_FilenameWithoutExtension;
+        g_pPanelWatch->AddPointerWithDescription( "Material", 0, desc, this, ComponentPostEffect::StaticOnDropMaterial );
     }
 }
 
-void ComponentPostEffect::OnDropShader()
+void ComponentPostEffect::OnDropMaterial()
 {
-    if( g_DragAndDropStruct.m_Type == DragAndDropType_ShaderGroupPointer )
+    if( g_DragAndDropStruct.m_Type == DragAndDropType_MaterialDefinitionPointer )
     {
-        ShaderGroup* pShaderGroup = (ShaderGroup*)g_DragAndDropStruct.m_Value;
-        assert( pShaderGroup );
+        MaterialDefinition* pMaterial = (MaterialDefinition*)g_DragAndDropStruct.m_Value;
+        assert( pMaterial );
 
-        SetShader( pShaderGroup );
+        SetMaterial( pMaterial );
 
-        // update the panel so new Shader name shows up.
-        g_pPanelWatch->m_pVariables[g_DragAndDropStruct.m_ID].m_Description = pShaderGroup->GetShader( ShaderPass_Main )->m_pFile->m_FilenameWithoutExtension;
+        // update the panel so new Material name shows up.
+        g_pPanelWatch->m_pVariables[g_DragAndDropStruct.m_ID].m_Description = pMaterial->m_pFile->m_FilenameWithoutExtension;
     }
 }
 
@@ -78,8 +78,8 @@ cJSON* ComponentPostEffect::ExportAsJSONObject()
 {
     cJSON* component = ComponentData::ExportAsJSONObject();
 
-    if( m_pShaderGroup )
-        cJSON_AddStringToObject( component, "Shader", m_pShaderGroup->GetName() );
+    if( m_pMaterial )
+        cJSON_AddStringToObject( component, "Material", m_pMaterial->m_pFile->m_FullPath );
 
     return component;
 }
@@ -88,13 +88,13 @@ void ComponentPostEffect::ImportFromJSONObject(cJSON* jsonobj, unsigned int scen
 {
     ComponentData::ImportFromJSONObject( jsonobj, sceneid );
 
-    cJSON* shaderstringobj = cJSON_GetObjectItem( jsonobj, "Shader" );
-    if( shaderstringobj )
+    cJSON* materialstringobj = cJSON_GetObjectItem( jsonobj, "Material" );
+    if( materialstringobj )
     {
-        ShaderGroup* pShaderGroup = g_pShaderGroupManager->FindShaderGroupByName( shaderstringobj->valuestring );
-        if( pShaderGroup )
+        MaterialDefinition* pMaterial = g_pMaterialManager->FindMaterialByFilename( materialstringobj->valuestring );
+        if( pMaterial )
         {
-            SetShader( pShaderGroup );
+            SetMaterial( pMaterial );
         }
     }
 }
@@ -103,13 +103,13 @@ void ComponentPostEffect::Reset()
 {
     ComponentData::Reset();
 
-    // free old quad and shader if needed.
+    // free old quad and material if needed.
     SAFE_RELEASE( m_pFullScreenQuad );
-    SAFE_RELEASE( m_pShaderGroup );
+    SAFE_RELEASE( m_pMaterial );
 
     m_pFullScreenQuad = MyNew MySprite();
     m_pFullScreenQuad->Create( 2, 2, 0, 1, 1, 0, Justify_Center, false );
-    m_pShaderGroup = 0;
+    m_pMaterial = 0;
 
 #if MYFW_USING_WX
     m_pPanelWatchBlockVisible = &m_PanelWatchBlockVisible;
@@ -126,34 +126,36 @@ ComponentPostEffect& ComponentPostEffect::operator=(const ComponentPostEffect& o
     if( m_pFullScreenQuad )
         m_pFullScreenQuad->AddRef();
 
-    m_pShaderGroup = other.m_pShaderGroup;
-    if( m_pShaderGroup )
-        m_pShaderGroup->AddRef();
+    m_pMaterial = other.m_pMaterial;
+    if( m_pMaterial )
+        m_pMaterial->AddRef();
 
     return *this;
 }
 
-void ComponentPostEffect::SetShader(ShaderGroup* pShader)
+void ComponentPostEffect::SetMaterial(MaterialDefinition* pMaterial)
 {
-    pShader->AddRef();
-    SAFE_RELEASE( m_pShaderGroup );
-    m_pShaderGroup = pShader;
+    pMaterial->AddRef();
+    SAFE_RELEASE( m_pMaterial );
+    m_pMaterial = pMaterial;
 }
 
 void ComponentPostEffect::Render(FBODefinition* pFBO)
 {
     assert( m_pFullScreenQuad );
-    assert( m_pShaderGroup );
+    assert( m_pMaterial );
 
-    if( m_pFullScreenQuad == 0 || m_pShaderGroup == 0 )
+    if( m_pFullScreenQuad == 0 || m_pMaterial == 0 )
         return;
 
-    m_pFullScreenQuad->SetShaderAndTexture( m_pShaderGroup, pFBO->m_pColorTexture );
+    m_pMaterial->m_pTextureColor = pFBO->m_pColorTexture;
+
+    m_pFullScreenQuad->SetMaterial( m_pMaterial );
     m_pFullScreenQuad->Create( 2, 2, 0, (float)pFBO->m_Width/pFBO->m_TextureWidth, (float)pFBO->m_Height/pFBO->m_TextureHeight, 0, Justify_Center, false );
 
     if( m_pFullScreenQuad->Setup( 0 ) )
     {
-        Shader_Base* pShader = (Shader_Base*)m_pShaderGroup->GlobalPass();
+        Shader_Base* pShader = (Shader_Base*)m_pMaterial->m_pShaderGroup->GlobalPass();
         pShader->ProgramDepthmap( pFBO->m_pDepthTexture );
 
         m_pFullScreenQuad->DrawNoSetup();

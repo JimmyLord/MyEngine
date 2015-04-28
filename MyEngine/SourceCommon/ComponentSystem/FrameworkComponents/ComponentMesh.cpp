@@ -30,20 +30,16 @@ ComponentMesh::ComponentMesh()
     m_BaseType = BaseComponentType_Renderable;
 
     m_pMesh = 0;
-    m_pShaderGroup = 0;
-    m_pTexture = 0;
+    m_pMaterial = 0;
 
     m_GLPrimitiveType = GL_TRIANGLES;
     m_PointSize = 1;
-
-    m_Shininess = 1;
 }
 
 ComponentMesh::~ComponentMesh()
 {
     SAFE_RELEASE( m_pMesh );
-    SAFE_RELEASE( m_pShaderGroup );
-    SAFE_RELEASE( m_pTexture );
+    SAFE_RELEASE( m_pMaterial );
 }
 
 void ComponentMesh::Reset()
@@ -51,8 +47,7 @@ void ComponentMesh::Reset()
     ComponentRenderable::Reset();
 
     SAFE_RELEASE( m_pMesh );
-    SAFE_RELEASE( m_pShaderGroup );
-    SAFE_RELEASE( m_pTexture );
+    SAFE_RELEASE( m_pMaterial );
 
 #if MYFW_USING_WX
     m_pPanelWatchBlockVisible = &m_PanelWatchBlockVisible;
@@ -82,67 +77,28 @@ void ComponentMesh::FillPropertiesWindow(bool clear)
     {
         ComponentRenderable::FillPropertiesWindow( clear );
 
-        const char* desc = "no shader";
-        if( m_pShaderGroup && m_pShaderGroup->GetShader( ShaderPass_Main )->m_pFile )
-            desc = m_pShaderGroup->GetShader( ShaderPass_Main )->m_pFile->m_FilenameWithoutExtension;
-        g_pPanelWatch->AddPointerWithDescription( "Shader", 0, desc, this, ComponentMesh::StaticOnDropShader );
-
-        desc = "no texture";
-        if( m_pTexture )
-            desc = m_pTexture->m_Filename;
-        g_pPanelWatch->AddPointerWithDescription( "Texture", 0, desc, this, ComponentMesh::StaticOnDropTexture );
+        const char* desc = "no material";
+        if( m_pMaterial )
+            desc = m_pMaterial->GetName();
+        g_pPanelWatch->AddPointerWithDescription( "Material", 0, desc, this, ComponentMesh::StaticOnDropMaterial );
 
         g_pPanelWatch->AddEnum( "Primitive Type", &m_GLPrimitiveType, 7, OpenGLPrimitiveTypeStrings );
         g_pPanelWatch->AddInt( "Point Size", &m_PointSize, 1, 100 );
-        g_pPanelWatch->AddFloat( "Shininess", &m_Shininess, 1, 300 );
     }
 }
 
-void ComponentMesh::OnDropShader()
+void ComponentMesh::OnDropMaterial()
 {
-    if( g_DragAndDropStruct.m_Type == DragAndDropType_ShaderGroupPointer )
+    if( g_DragAndDropStruct.m_Type == DragAndDropType_MaterialDefinitionPointer )
     {
-        ShaderGroup* pShaderGroup = (ShaderGroup*)g_DragAndDropStruct.m_Value;
-        assert( pShaderGroup );
+        MaterialDefinition* pMaterial = (MaterialDefinition*)g_DragAndDropStruct.m_Value;
+        assert( pMaterial );
         //assert( m_pMesh );
 
-        SetShader( pShaderGroup );
+        SetMaterial( pMaterial );
 
-        // update the panel so new Shader name shows up.
-        g_pPanelWatch->m_pVariables[g_DragAndDropStruct.m_ID].m_Description = pShaderGroup->GetShader( ShaderPass_Main )->m_pFile->m_FilenameWithoutExtension;
-    }
-}
-
-void ComponentMesh::OnDropTexture()
-{
-    if( g_DragAndDropStruct.m_Type == DragAndDropType_FileObjectPointer )
-    {
-        MyFileObject* pFile = (MyFileObject*)g_DragAndDropStruct.m_Value;
-        assert( pFile );
-        //assert( m_pMesh );
-
-        size_t len = strlen( pFile->m_FullPath );
-        const char* filenameext = &pFile->m_FullPath[len-4];
-
-        if( strcmp( filenameext, ".png" ) == 0 )
-        {
-            TextureDefinition* pOldTexture = m_pTexture;
-            m_pTexture = g_pTextureManager->FindTexture( pFile->m_FullPath );
-            SAFE_RELEASE( pOldTexture );
-        }
-
-        // update the panel so new Shader name shows up.
-        g_pPanelWatch->m_pVariables[g_DragAndDropStruct.m_ID].m_Description = m_pTexture->m_Filename;
-    }
-
-    if( g_DragAndDropStruct.m_Type == DragAndDropType_TextureDefinitionPointer )
-    {
-        TextureDefinition* pOldTexture = m_pTexture;
-        m_pTexture = (TextureDefinition*)g_DragAndDropStruct.m_Value;
-        SAFE_RELEASE( pOldTexture );
-
-        // update the panel so new Shader name shows up.
-        g_pPanelWatch->m_pVariables[g_DragAndDropStruct.m_ID].m_Description = m_pTexture->m_Filename;
+        // update the panel so new Material name shows up.
+        g_pPanelWatch->m_pVariables[g_DragAndDropStruct.m_ID].m_Description = pMaterial->GetName();
     }
 }
 #endif //MYFW_USING_WX
@@ -151,14 +107,11 @@ cJSON* ComponentMesh::ExportAsJSONObject()
 {
     cJSON* component = ComponentRenderable::ExportAsJSONObject();
 
-    if( m_pShaderGroup )
-        cJSON_AddStringToObject( component, "Shader", m_pShaderGroup->GetName() );
-    if( m_pTexture )
-        cJSON_AddStringToObject( component, "Texture", m_pTexture->m_Filename );
+    if( m_pMaterial )
+        cJSON_AddStringToObject( component, "Material", m_pMaterial->m_pFile->m_FullPath );
 
     cJSON_AddNumberToObject( component, "PrimitiveType", m_GLPrimitiveType );
     cJSON_AddNumberToObject( component, "PointSize", m_PointSize );
-    cJSON_AddNumberToObject( component, "Shininess", m_Shininess );
     
     return component;
 }
@@ -167,33 +120,20 @@ void ComponentMesh::ImportFromJSONObject(cJSON* jsonobj, unsigned int sceneid)
 {
     ComponentRenderable::ImportFromJSONObject( jsonobj, sceneid );
 
-    cJSON* shaderstringobj = cJSON_GetObjectItem( jsonobj, "Shader" );
-    if( shaderstringobj )
+    cJSON* materialstringobj = cJSON_GetObjectItem( jsonobj, "Material" );
+    if( materialstringobj )
     {
-        ShaderGroup* pShaderGroup = g_pShaderGroupManager->FindShaderGroupByName( shaderstringobj->valuestring );
-        if( pShaderGroup )
+        MaterialDefinition* pMaterial = g_pMaterialManager->FindMaterialByFilename( materialstringobj->valuestring );
+        if( pMaterial )
         {
-            pShaderGroup->AddRef();
-            SAFE_RELEASE( m_pShaderGroup );
-            m_pShaderGroup = pShaderGroup;
-        }
-    }
-
-    cJSON* texturestringobj = cJSON_GetObjectItem( jsonobj, "Texture" );
-    if( texturestringobj )
-    {
-        TextureDefinition* pTexture = g_pTextureManager->FindTexture( texturestringobj->valuestring );
-        if( pTexture )
-        {
-            pTexture->AddRef();
-            SAFE_RELEASE( m_pTexture );
-            m_pTexture = pTexture;
+            pMaterial->AddRef();
+            SAFE_RELEASE( m_pMaterial );
+            m_pMaterial = pMaterial;
         }
     }
 
     cJSONExt_GetInt( jsonobj, "PrimitiveType", &m_GLPrimitiveType );
     cJSONExt_GetInt( jsonobj, "PointSize", &m_PointSize );
-    cJSONExt_GetFloat( jsonobj, "Shininess", &m_Shininess );
 }
 
 ComponentMesh& ComponentMesh::operator=(const ComponentMesh& other)
@@ -206,28 +146,23 @@ ComponentMesh& ComponentMesh::operator=(const ComponentMesh& other)
     if( m_pMesh )
         m_pMesh->AddRef();
 
-    m_pShaderGroup = other.m_pShaderGroup;
-    if( m_pShaderGroup )
-        m_pShaderGroup->AddRef();
-
-    m_pTexture = other.m_pTexture;
-    if( m_pTexture )
-        m_pTexture->AddRef();
+    m_pMaterial = other.m_pMaterial;
+    if( m_pMaterial )
+        m_pMaterial->AddRef();
 
     m_GLPrimitiveType = other.m_GLPrimitiveType;
     m_PointSize = other.m_PointSize;
-    m_Shininess = other.m_Shininess;
 
     return *this;
 }
 
-void ComponentMesh::SetShader(ShaderGroup* pShader)
+void ComponentMesh::SetMaterial(MaterialDefinition* pMaterial)
 {
-    ComponentRenderable::SetShader( pShader );
+    ComponentRenderable::SetMaterial( pMaterial );
 
-    pShader->AddRef();
-    SAFE_RELEASE( m_pShaderGroup );
-    m_pShaderGroup = pShader;
+    pMaterial->AddRef();
+    SAFE_RELEASE( m_pMaterial );
+    m_pMaterial = pMaterial;
 }
 
 void ComponentMesh::Draw(MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride, int drawcount)
@@ -236,11 +171,13 @@ void ComponentMesh::Draw(MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride, i
 
     if( m_pMesh )
     {
-        m_pMesh->SetShaderGroup( m_pShaderGroup );
-        m_pMesh->m_pTexture = m_pTexture;
+        // TODOMaterials
+        //m_pMesh->SetShaderGroup( m_pShaderGroup );
+        if( m_pMaterial )
+            m_pMesh->SetMaterial( m_pMaterial );
         m_pMesh->m_PrimitiveType = m_GLPrimitiveType;
         m_pMesh->m_PointSize = m_PointSize;
-        m_pMesh->m_Shininess = m_Shininess;
+        //m_pMesh->m_Shininess = m_Shininess;
 
         m_pMesh->SetTransform( m_pComponentTransform->m_Transform );
 

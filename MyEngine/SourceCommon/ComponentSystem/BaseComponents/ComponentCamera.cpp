@@ -214,7 +214,7 @@ ComponentPostEffect* ComponentCamera::GetNextPostEffect(ComponentPostEffect* pLa
     {
         pPostEffect = dynamic_cast<ComponentPostEffect*>( pComponent );
         
-        if( pPostEffect && pPostEffect->m_pShaderGroup != 0 )
+        if( pPostEffect && pPostEffect->m_pMaterial != 0 )
             return pPostEffect; // if we found a valid initialized post effect, return it.
         else
             pComponent = m_pGameObject->GetNextComponentOfBaseType( pComponent );

@@ -26,8 +26,7 @@ public:
     };
 
 public:
-    ShaderGroup* m_pShaderGroup;
-    TextureDefinition* m_pTexture;
+    MaterialDefinition* m_pMaterial;
 
     // renderers could be shared between emitters, but would make culling harder in future
     ParticleRenderer* m_pParticleRenderer;
@@ -71,7 +70,7 @@ public:
     virtual void CopyFromSameType_Dangerous(ComponentBase* pObject) { *this = (ComponentParticleEmitter&)*pObject; }
     virtual ComponentParticleEmitter& operator=(const ComponentParticleEmitter& other);
 
-    virtual void SetShader(ShaderGroup* pShader);
+    virtual void SetMaterial(MaterialDefinition* pMaterial);
     virtual void Draw(MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride = 0, int drawcount = 0);
 
     // renderables don't get ticked, so we need to register the tick in another list... ugh.
@@ -89,11 +88,8 @@ public:
     void OnLeftClick(bool clear);
     virtual void FillPropertiesWindow(bool clear);
 
-    static void StaticOnDropShader(void* pObjectPtr) { ((ComponentParticleEmitter*)pObjectPtr)->OnDropShader(); }
-    void OnDropShader();
-
-    static void StaticOnDropTexture(void* pObjectPtr) { ((ComponentParticleEmitter*)pObjectPtr)->OnDropTexture(); }
-    void OnDropTexture();
+    static void StaticOnDropMaterial(void* pObjectPtr) { ((ComponentParticleEmitter*)pObjectPtr)->OnDropMaterial(); }
+    void OnDropMaterial();
 #endif //MYFW_USING_WX
 };
 

@@ -18,11 +18,10 @@ class ComponentMesh : public ComponentRenderable
 {
 public:
     MyMesh* m_pMesh;
-    ShaderGroup* m_pShaderGroup;
-    TextureDefinition* m_pTexture;
+
+    MaterialDefinition* m_pMaterial;
     int m_GLPrimitiveType;
     int m_PointSize;
-    float m_Shininess;
 
 public:
     ComponentMesh();
@@ -35,7 +34,7 @@ public:
     virtual void CopyFromSameType_Dangerous(ComponentBase* pObject) { *this = (ComponentMesh&)*pObject; }
     virtual ComponentMesh& operator=(const ComponentMesh& other);
 
-    virtual void SetShader(ShaderGroup* pShader);
+    virtual void SetMaterial(MaterialDefinition* pMaterial);
     virtual void Draw(MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride = 0, int drawcount = 0);
 
 public:
@@ -46,10 +45,8 @@ public:
     static void StaticOnLeftClick(void* pObjectPtr) { ((ComponentMesh*)pObjectPtr)->OnLeftClick( true ); }
     void OnLeftClick(bool clear);
     virtual void FillPropertiesWindow(bool clear);
-    static void StaticOnDropShader(void* pObjectPtr) { ((ComponentMesh*)pObjectPtr)->OnDropShader(); }
-    void OnDropShader();
-    static void StaticOnDropTexture(void* pObjectPtr) { ((ComponentMesh*)pObjectPtr)->OnDropTexture(); }
-    void OnDropTexture();
+    static void StaticOnDropMaterial(void* pObjectPtr) { ((ComponentMesh*)pObjectPtr)->OnDropMaterial(); }
+    void OnDropMaterial();
 #endif //MYFW_USING_WX
 };
 

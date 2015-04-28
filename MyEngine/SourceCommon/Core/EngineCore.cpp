@@ -29,9 +29,14 @@ EngineCore::EngineCore()
 
     m_pShaderFile_TintColor = 0;
     m_pShaderFile_ClipSpaceTexture = 0;
-    m_pShader_TransformGizmo = 0;
-    m_pShader_MousePicker = 0;
+    m_pShader_TintColor = 0;
     m_pShader_ClipSpaceTexture = 0;
+    m_pMaterial_3DGrid = 0;
+    m_pMaterial_TransformGizmoX = 0;
+    m_pMaterial_TransformGizmoY = 0;
+    m_pMaterial_TransformGizmoZ = 0;
+    m_pMaterial_MousePicker = 0;
+    m_pMaterial_ClipSpaceTexture = 0;
 
     m_GameWidth = 0;
     m_GameHeight = 0;
@@ -62,9 +67,14 @@ EngineCore::~EngineCore()
 
     g_pFileManager->FreeFile( m_pShaderFile_TintColor );
     g_pFileManager->FreeFile( m_pShaderFile_ClipSpaceTexture );
-    SAFE_RELEASE( m_pShader_TransformGizmo );
-    SAFE_RELEASE( m_pShader_MousePicker );
+    SAFE_RELEASE( m_pShader_TintColor );
     SAFE_RELEASE( m_pShader_ClipSpaceTexture );
+    SAFE_RELEASE( m_pMaterial_3DGrid );
+    SAFE_RELEASE( m_pMaterial_TransformGizmoX );
+    SAFE_RELEASE( m_pMaterial_TransformGizmoY );
+    SAFE_RELEASE( m_pMaterial_TransformGizmoZ );
+    SAFE_RELEASE( m_pMaterial_MousePicker );
+    SAFE_RELEASE( m_pMaterial_ClipSpaceTexture );
 
 #if MYFW_USING_WX
     SAFE_DELETE( m_pEditorState );
@@ -87,9 +97,14 @@ void EngineCore::OneTimeInit()
     // setup our shaders
     m_pShaderFile_TintColor = RequestFile( "Data/Shaders/Shader_TintColor.glsl" );
     m_pShaderFile_ClipSpaceTexture = RequestFile( "Data/Shaders/Shader_ClipSpaceTexture.glsl" );
-    m_pShader_TransformGizmo = MyNew ShaderGroup( m_pShaderFile_TintColor, m_pShaderFile_TintColor->m_FilenameWithoutExtension );
-    m_pShader_MousePicker = MyNew ShaderGroup( m_pShaderFile_TintColor, m_pShaderFile_TintColor->m_FilenameWithoutExtension );
+    m_pShader_TintColor = MyNew ShaderGroup( m_pShaderFile_TintColor, m_pShaderFile_TintColor->m_FilenameWithoutExtension );
     m_pShader_ClipSpaceTexture = MyNew ShaderGroup( m_pShaderFile_ClipSpaceTexture, m_pShaderFile_ClipSpaceTexture->m_FilenameWithoutExtension );
+    m_pMaterial_3DGrid = MyNew MaterialDefinition( m_pShader_TintColor, ColorByte(128,128,128,255) );
+    m_pMaterial_TransformGizmoX = MyNew MaterialDefinition( m_pShader_TintColor, ColorByte(255,0,0,255) );
+    m_pMaterial_TransformGizmoY = MyNew MaterialDefinition( m_pShader_TintColor, ColorByte(0,255,0,255) );
+    m_pMaterial_TransformGizmoZ = MyNew MaterialDefinition( m_pShader_TintColor, ColorByte(0,0,255,255) );
+    m_pMaterial_MousePicker = MyNew MaterialDefinition( m_pShader_ClipSpaceTexture );
+    m_pMaterial_ClipSpaceTexture = MyNew MaterialDefinition( m_pShader_ClipSpaceTexture );
 
     // Initialize our component system.
     m_pComponentSystemManager = MyNew ComponentSystemManager( CreateComponentTypeManager() );
@@ -236,7 +251,8 @@ void EngineCore::OnDrawFrame()
             m_pDebugQuadSprite = MyNew MySprite();
 
         m_pDebugQuadSprite->CreateInPlace( "debug", 0.75f, 0.75f, 0.5f, 0.5f, 0, 1, 1, 0, Justify_Center, false );
-        m_pDebugQuadSprite->SetShaderAndTexture( m_pShader_ClipSpaceTexture, m_pEditorState->m_pMousePickerFBO->m_pColorTexture );
+        m_pMaterial_MousePicker->m_pTextureColor = m_pEditorState->m_pMousePickerFBO->m_pColorTexture;
+        m_pDebugQuadSprite->SetMaterial( m_pMaterial_MousePicker );
         m_pDebugQuadSprite->Draw( 0 );
     }
 
@@ -267,7 +283,8 @@ void EngineCore::OnDrawFrame()
                     m_pDebugQuadSprite = MyNew MySprite();
 
                 m_pDebugQuadSprite->CreateInPlace( "debug", 0.5f, 0.5f, 1.0f, 1.0f, 0, 1, 1, 0, Justify_Center, false );
-                m_pDebugQuadSprite->SetShaderAndTexture( m_pShader_ClipSpaceTexture, m_pEditorState->m_pDebugViewFBO->m_pColorTexture );
+                m_pMaterial_ClipSpaceTexture->m_pTextureColor = m_pEditorState->m_pDebugViewFBO->m_pColorTexture;
+                m_pDebugQuadSprite->SetMaterial( m_pMaterial_ClipSpaceTexture );
                 m_pDebugQuadSprite->Draw( 0 );
             }
 
@@ -279,7 +296,8 @@ void EngineCore::OnDrawFrame()
                     m_pDebugQuadSprite = MyNew MySprite();
 
                 m_pDebugQuadSprite->CreateInPlace( "debug", 0.5f, 0.5f, 1.0f, 1.0f, 0, 1, 1, 0, Justify_Center, false );
-                m_pDebugQuadSprite->SetShaderAndTexture( m_pShader_ClipSpaceTexture, pCamera->m_pDepthFBO->m_pDepthTexture );
+                m_pMaterial_ClipSpaceTexture->m_pTextureColor = pCamera->m_pDepthFBO->m_pDepthTexture;
+                m_pDebugQuadSprite->SetMaterial( m_pMaterial_ClipSpaceTexture );
                 m_pDebugQuadSprite->Draw( 0 );
             }
         }
@@ -1027,19 +1045,6 @@ void EngineCore::CreateDefaultSceneObjects(bool createeditorobjects)
     ComponentMesh* pComponentMesh;
 #endif
 
-    // create a 3D camera, renders first... created first so GetFirstCamera() will get the game cam.
-    {
-        pGameObject = m_pComponentSystemManager->CreateGameObject();
-        pGameObject->SetSceneID( 1 );
-        pGameObject->SetName( "Main Camera" );
-        pGameObject->m_pComponentTransform->SetPosition( Vector3( 0, 0, 10 ) );
-
-        pComponentCamera = (ComponentCamera*)pGameObject->AddNewComponent( ComponentType_Camera, 1 );
-        pComponentCamera->SetDesiredAspectRatio( 640, 960 );
-        pComponentCamera->m_Orthographic = false;
-        pComponentCamera->m_LayersToRender = Layer_MainScene;
-    }
-
 #if MYFW_USING_WX
     if( createeditorobjects )
     {
@@ -1053,11 +1058,12 @@ void EngineCore::CreateDefaultSceneObjects(bool createeditorobjects)
             if( pComponentMesh )
             {
                 pComponentMesh->m_Visible = true; // manually drawn when in editor mode.
-                pComponentMesh->SetShader( m_pShader_TransformGizmo );
+                pComponentMesh->SetMaterial( m_pMaterial_3DGrid ); //( m_pShader_TransformGizmo );
                 pComponentMesh->m_LayersThisExistsOn = Layer_Editor;
                 pComponentMesh->m_pMesh = MyNew MyMesh();
                 pComponentMesh->m_pMesh->CreateEditorLineGridXZ( Vector3(0,0,0), 1, 5 );
-                pComponentMesh->m_pMesh->m_Tint.Set( 150, 150, 150, 255 );
+                // TODOMaterials: put this back for plane.
+                //pComponentMesh->m_pMesh->m_Tint.Set( 150, 150, 150, 255 );
                 pComponentMesh->m_GLPrimitiveType = pComponentMesh->m_pMesh->m_PrimitiveType;
             }
 
@@ -1068,7 +1074,7 @@ void EngineCore::CreateDefaultSceneObjects(bool createeditorobjects)
         }
 
         // create a 3d transform gizmo for each axis.
-        m_pEditorState->m_pTransformGizmo->CreateAxisObjects( 0.03f, m_pShader_TransformGizmo, m_pEditorState );
+        m_pEditorState->m_pTransformGizmo->CreateAxisObjects( 0.03f, m_pMaterial_TransformGizmoX, m_pMaterial_TransformGizmoY, m_pMaterial_TransformGizmoZ, m_pEditorState );
 
         // create a 3D editor camera, renders editor view.
         {
@@ -1110,6 +1116,19 @@ void EngineCore::CreateDefaultSceneObjects(bool createeditorobjects)
         }
     }
 #endif
+
+    // create a 3D camera, renders first... created first so GetFirstCamera() will get the game cam.
+    {
+        pGameObject = m_pComponentSystemManager->CreateGameObject();
+        pGameObject->SetSceneID( 1 );
+        pGameObject->SetName( "Main Camera" );
+        pGameObject->m_pComponentTransform->SetPosition( Vector3( 0, 0, 10 ) );
+
+        pComponentCamera = (ComponentCamera*)pGameObject->AddNewComponent( ComponentType_Camera, 1 );
+        pComponentCamera->SetDesiredAspectRatio( 640, 960 );
+        pComponentCamera->m_Orthographic = false;
+        pComponentCamera->m_LayersToRender = Layer_MainScene;
+    }
 
     // create a 2D camera, renders after 3d, for hud.
     {
@@ -1240,14 +1259,15 @@ void EngineCore::SaveScene(const char* fullpath)
     cJSONExt_free( savestring );
 }
 
-void EngineCore::UnloadScene(unsigned int sceneid)
+void EngineCore::UnloadScene(unsigned int sceneid, bool cleareditorobjects)
 {
     // reset the editorstate structure.
 #if MYFW_USING_WX
-    m_pEditorState->UnloadScene();
+    g_pEngineMainFrame->m_pCommandStack->ClearStacks();
+    m_pEditorState->UnloadScene( cleareditorobjects );
 #endif //MYFW_USING_WX
 
-    g_pComponentSystemManager->UnloadScene( false, sceneid );
+    g_pComponentSystemManager->UnloadScene( sceneid, false );
 }
 
 #if MYFW_USING_WX
@@ -1288,7 +1308,7 @@ void EngineCore::LoadScene(const char* buffer, unsigned int sceneid)
 {
     // reset the editorstate structure.
 #if MYFW_USING_WX
-    m_pEditorState->UnloadScene();
+    m_pEditorState->UnloadScene( false );
 #endif //MYFW_USING_WX
 
     g_pComponentSystemManager->LoadSceneFromJSON( buffer, sceneid );
@@ -1379,7 +1399,7 @@ GameObject* EngineCore::GetObjectAtPixel(unsigned int x, unsigned int y)
         pCamera = dynamic_cast<ComponentCamera*>( m_pEditorState->m_pEditorCamera->m_Components[i] );
         if( pCamera )
         {
-            m_pComponentSystemManager->DrawMousePickerFrame( pCamera, &pCamera->m_Camera3D.m_matViewProj, m_pShader_MousePicker );
+            m_pComponentSystemManager->DrawMousePickerFrame( pCamera, &pCamera->m_Camera3D.m_matViewProj, m_pShader_TintColor );
             glClear( GL_DEPTH_BUFFER_BIT );
         }
     }

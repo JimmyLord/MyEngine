@@ -88,20 +88,14 @@ ComponentRenderable& ComponentRenderable::operator=(const ComponentRenderable& o
 
     ComponentBase::operator=( other );
 
-    //this->m_pShader = other.m_pShader;
-    //this->m_pShader->AddRef();
-
     this->m_Visible = other.m_Visible;
     this->m_LayersThisExistsOn = other.m_LayersThisExistsOn;
 
     return *this;
 }
 
-void ComponentRenderable::SetShader(ShaderGroup* pShader)
+void ComponentRenderable::SetMaterial(MaterialDefinition* pMaterial)
 {
-    //pShader->AddRef();
-    //SAFE_RELEASE( m_pShader );
-    //m_pShader = pShader;
 }
 
 void ComponentRenderable::Draw(MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride, int drawcount)

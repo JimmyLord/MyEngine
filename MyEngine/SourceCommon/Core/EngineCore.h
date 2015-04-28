@@ -56,9 +56,14 @@ public:
 
     MyFileObject* m_pShaderFile_TintColor;
     MyFileObject* m_pShaderFile_ClipSpaceTexture;
-    ShaderGroup* m_pShader_TransformGizmo;
-    ShaderGroup* m_pShader_MousePicker;
+    ShaderGroup* m_pShader_TintColor;
     ShaderGroup* m_pShader_ClipSpaceTexture;
+    MaterialDefinition* m_pMaterial_3DGrid;
+    MaterialDefinition* m_pMaterial_TransformGizmoX;
+    MaterialDefinition* m_pMaterial_TransformGizmoY;
+    MaterialDefinition* m_pMaterial_TransformGizmoZ;
+    MaterialDefinition* m_pMaterial_MousePicker;
+    MaterialDefinition* m_pMaterial_ClipSpaceTexture;
 
     float m_GameWidth;
     float m_GameHeight;
@@ -97,7 +102,7 @@ public:
 
     void CreateDefaultSceneObjects(bool createeditorobjects);
     void SaveScene(const char* fullpath);
-    void UnloadScene(unsigned int sceneid = UINT_MAX);
+    void UnloadScene(unsigned int sceneid = UINT_MAX, bool cleareditorobjects = false);
 #if MYFW_USING_WX
     void LoadSceneFromFile(const char* fullpath, unsigned int sceneid);
 #endif //MYFW_USING_WX
