@@ -117,7 +117,7 @@ void EngineCore::OneTimeInit()
     OnSurfaceChanged( (unsigned int)m_WindowStartX, (unsigned int)m_WindowStartY, (unsigned int)m_WindowWidth, (unsigned int)m_WindowHeight );
 
 #if !MYFW_USING_WX
-    m_pSceneFileToLoad = RequestFile( "Data/Scenes/AnimationTest.scene" );
+    m_pSceneFileToLoad = RequestFile( "Data/Scenes/TestPhysicsCharacter.scene" );
     m_SceneLoaded = false;
 #endif
 }
@@ -441,7 +441,9 @@ void EngineCore::OnModePlay()
         SaveScene( "temp_editor_onplay.scene" );
         m_EditorMode = false;
         m_Paused = false;
+#if MYFW_USING_WX
         g_pEngineMainFrame->SetWindowPerspectiveToDefault();
+#endif
         m_pComponentSystemManager->OnPlay();
 
         RegisterGameplayButtons();
@@ -455,11 +457,15 @@ void EngineCore::OnModeStop()
         // Clear out the component manager of all components and gameobjects
         m_pComponentSystemManager->OnStop();
         UnloadScene( 0 ); // unload runtime created objects only.
+#if MYFW_USING_WX
         LoadSceneFromFile( "temp_editor_onplay.scene", 1 );
+#endif
         m_EditorMode = true;
         m_Paused = false;
+#if MYFW_USING_WX
         g_pEngineMainFrame->SetWindowPerspectiveToDefault();
         m_pEditorState->ClearSelectedObjectsAndComponents();
+#endif
 
         m_pComponentSystemManager->SyncAllRigidBodiesToObjectTransforms();
 

@@ -180,14 +180,12 @@ void GameObject::OnDrop()
     }
 }
 
-void GameObject::OnLabelEdit()
+void GameObject::OnLabelEdit(wxString newlabel)
 {
-    wxString newname = g_pPanelObjectList->GetObjectName( this );
-
-    size_t len = newname.length();
+    size_t len = newlabel.length();
     if( len > 0 )
     {
-        SetName( newname );
+        SetName( newlabel );
     }
 }
 #endif //MYFW_USING_WX
