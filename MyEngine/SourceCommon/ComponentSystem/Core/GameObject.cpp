@@ -166,7 +166,7 @@ void GameObject::OnDrag()
     g_DragAndDropStruct.m_Value = this;
 }
 
-void GameObject::OnDrop()
+void GameObject::OnDrop(wxCoord x, wxCoord y)
 {
     if( g_DragAndDropStruct.m_Type == DragAndDropType_GameObjectPointer )
     {
@@ -379,6 +379,18 @@ ComponentAnimationPlayer* GameObject::GetAnimationPlayer()
     }
 
     return 0; // component not found.
+}
+
+void GameObject::SetMaterial(MaterialDefinition* pMaterial)
+{
+    for( unsigned int i=0; i<m_Components.Count(); i++ )
+    {
+        if( m_Components[i]->m_BaseType == BaseComponentType_Renderable )
+        {
+            assert( dynamic_cast<ComponentRenderable*>( m_Components[i] ) != 0 );
+            ((ComponentRenderable*)m_Components[i])->SetMaterial( pMaterial );
+        }
+    }
 }
 
 ComponentBase* GameObject::GetFirstComponentOfBaseType(BaseComponentTypes basetype)

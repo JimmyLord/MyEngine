@@ -70,13 +70,13 @@ public:
     static void StaticOnLeftClick(void* pObjectPtr) { ((ComponentBase*)pObjectPtr)->OnLeftClick( true ); }
     static void StaticOnRightClick(void* pObjectPtr) { ((ComponentBase*)pObjectPtr)->OnRightClick(); }
     static void StaticOnDrag(void* pObjectPtr) { ((ComponentBase*)pObjectPtr)->OnDrag(); }
-    static void StaticOnDrop(void* pObjectPtr) { ((ComponentBase*)pObjectPtr)->OnDrop(); }
+    static void StaticOnDrop(void* pObjectPtr, wxCoord x, wxCoord y) { ((ComponentBase*)pObjectPtr)->OnDrop(x, y); }
     virtual void OnLeftClick(bool clear);
     virtual void FillPropertiesWindow(bool clear) {};
     virtual void OnRightClick();
     void OnPopupClick(wxEvent &evt); // used as callback for wxEvtHandler, can't be virtual(will crash, haven't looked into it).
     virtual void OnDrag();
-    virtual void OnDrop();
+    virtual void OnDrop(wxCoord x, wxCoord y);
 #endif //MYFW_USING_WX
 };
 

@@ -86,8 +86,8 @@ public:
     static void StaticOnLeftClick(void* pObjectPtr) { ((ComponentLuaScript*)pObjectPtr)->OnLeftClick( true ); }
     void OnLeftClick(bool clear);
     virtual void FillPropertiesWindow(bool clear);
-    static void StaticOnDrop(void* pObjectPtr) { ((ComponentLuaScript*)pObjectPtr)->OnDrop(); }
-    void OnDrop();
+    static void StaticOnDrop(void* pObjectPtr, wxCoord x, wxCoord y) { ((ComponentLuaScript*)pObjectPtr)->OnDrop(x, y); }
+    void OnDrop(wxCoord x, wxCoord y);
     static void StaticOnValueChanged(void* pObjectPtr, int controlid, bool finishedchanging) { ((ComponentLuaScript*)pObjectPtr)->OnValueChanged( controlid, finishedchanging ); }
     void OnValueChanged(int controlid, bool finishedchanging);
 #endif //MYFW_USING_WX

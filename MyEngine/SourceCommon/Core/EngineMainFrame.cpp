@@ -209,9 +209,17 @@ void EngineMainFrame::AddPanes()
     MainFrame::AddPanes();
 
     // create the editor opengl canvas
-    int args[] = { WX_GL_RGBA, WX_GL_DOUBLEBUFFER, WX_GL_DEPTH_SIZE, 16, 0 };
-    m_pGLCanvasEditor = MyNew MainGLCanvas( (wxFrame*)this, args, 1, false );
-    m_pGLCanvasEditor->SetSize( 600, 600 );
+    {
+        int args[] = { WX_GL_RGBA, WX_GL_DOUBLEBUFFER, WX_GL_DEPTH_SIZE, 16, 0 };
+        m_pGLCanvasEditor = MyNew MainGLCanvas( (wxFrame*)this, args, 1, false );
+        m_pGLCanvasEditor->SetSize( 600, 600 );
+
+        PanelWatchDropTarget* pDropTarget = MyNew PanelWatchDropTarget;
+        pDropTarget->m_pCallbackObj = this;
+        pDropTarget->m_pCallbackFunc = StaticOnDrop;
+
+        m_pGLCanvasEditor->SetDropTarget( pDropTarget );
+    }
 
     m_AUIManager.AddPane( m_pGLCanvasEditor, wxAuiPaneInfo().Name("GLCanvasEditor").Bottom().Caption("GLCanvasEditor") );//.CaptionVisible(false) );
 
@@ -595,6 +603,52 @@ void EngineMainFrame::AddDatafileToScene()
         // fullpath is actually a relative path at this point.
         g_pEngineCore->m_pComponentSystemManager->LoadDatafile( fullpath, 1 );
     }
+}
+
+void EngineMainFrame::OnDrop(wxCoord x, wxCoord y)
+{
+    if( g_DragAndDropStruct.m_Type == DragAndDropType_MaterialDefinitionPointer )
+    {
+        MaterialDefinition* pMaterial = (MaterialDefinition*)g_DragAndDropStruct.m_Value;
+
+        if( pMaterial )
+        {
+            ComponentCamera* pCamera = g_pEngineCore->m_pEditorState->GetEditorCamera();
+
+            // prefer 0,0 at bottom left.
+            y = pCamera->m_WindowHeight - y;
+
+            GameObject* pObject = g_pEngineCore->GetObjectAtPixel( x, y );
+
+            if( pObject )
+                pObject->SetMaterial( pMaterial );
+        }
+    }
+
+    //if( g_DragAndDropStruct.m_Type == DragAndDropType_FileObjectPointer )
+    //{
+    //    MyFileObject* pFile = (MyFileObject*)g_DragAndDropStruct.m_Value;
+    //    assert( pFile );
+
+    //    if( strcmp( pFile->m_ExtensionWithDot, ".lua" ) == 0 )
+    //    {
+    //        SetScriptFile( pFile );
+    //    }
+    //}
+
+    //if( g_DragAndDropStruct.m_Type == DragAndDropType_GameObjectPointer )
+    //{
+    //    GameObject* pGameObject = (GameObject*)g_DragAndDropStruct.m_Value;
+    //    assert( pGameObject );
+
+    //    int id = g_DragAndDropStruct.m_ID - m_ControlIDOfFirstExtern;
+    //    
+    //    // TODO: this will make a mess of memory if different types of objects can be dragged in...
+    //    m_ExposedVars[id]->pointer = pGameObject;
+
+    //    // update the panel so new gameobject name shows up.
+    //    g_pPanelWatch->m_pVariables[g_DragAndDropStruct.m_ID].m_Description = pGameObject->GetName();
+    //}
 }
 
 #endif //MYFW_USING_WX

@@ -120,7 +120,7 @@ void ComponentParticleEmitter::FillPropertiesWindow(bool clear)
     }
 }
 
-void ComponentParticleEmitter::OnDropMaterial()
+void ComponentParticleEmitter::OnDropMaterial(wxCoord x, wxCoord y)
 {
     if( g_DragAndDropStruct.m_Type == DragAndDropType_MaterialDefinitionPointer )
     {

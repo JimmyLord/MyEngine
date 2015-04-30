@@ -88,8 +88,8 @@ public:
     void OnLeftClick(bool clear);
     virtual void FillPropertiesWindow(bool clear);
 
-    static void StaticOnDropMaterial(void* pObjectPtr) { ((ComponentParticleEmitter*)pObjectPtr)->OnDropMaterial(); }
-    void OnDropMaterial();
+    static void StaticOnDropMaterial(void* pObjectPtr, wxCoord x, wxCoord y) { ((ComponentParticleEmitter*)pObjectPtr)->OnDropMaterial(x, y); }
+    void OnDropMaterial(wxCoord x, wxCoord y);
 #endif //MYFW_USING_WX
 };
 

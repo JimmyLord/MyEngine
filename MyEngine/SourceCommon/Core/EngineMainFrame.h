@@ -94,6 +94,9 @@ public:
     void LoadScene(const char* scenename);
 
     void AddDatafileToScene();
+
+    static void StaticOnDrop(void* pObjectPtr, wxCoord x, wxCoord y) { ((EngineMainFrame*)pObjectPtr)->OnDrop(x, y); }
+    void OnDrop(wxCoord x, wxCoord y);
 };
 
 #endif //__EngineMainFrame_H__

@@ -62,7 +62,7 @@ void ComponentSprite::FillPropertiesWindow(bool clear)
     }
 }
 
-void ComponentSprite::OnDropMaterial()
+void ComponentSprite::OnDropMaterial(wxCoord x, wxCoord y)
 {
     if( g_DragAndDropStruct.m_Type == DragAndDropType_MaterialDefinitionPointer )
     {

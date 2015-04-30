@@ -54,7 +54,7 @@ void ComponentPostEffect::FillPropertiesWindow(bool clear)
     }
 }
 
-void ComponentPostEffect::OnDropMaterial()
+void ComponentPostEffect::OnDropMaterial(wxCoord x, wxCoord y)
 {
     if( g_DragAndDropStruct.m_Type == DragAndDropType_MaterialDefinitionPointer )
     {

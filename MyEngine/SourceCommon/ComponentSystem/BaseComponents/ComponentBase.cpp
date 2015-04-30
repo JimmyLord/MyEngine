@@ -124,7 +124,7 @@ void ComponentBase::OnDrag()
     g_DragAndDropStruct.m_Value = this;
 }
 
-void ComponentBase::OnDrop()
+void ComponentBase::OnDrop(wxCoord x, wxCoord y)
 {
 }
 #endif //MYFW_USING_WX

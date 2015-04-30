@@ -39,8 +39,8 @@ public:
     static void StaticOnLeftClick(void* pObjectPtr) { ((ComponentMeshOBJ*)pObjectPtr)->OnLeftClick( true ); }
     void OnLeftClick(bool clear);
     virtual void FillPropertiesWindow(bool clear);
-    static void StaticOnDropOBJ(void* pObjectPtr) { ((ComponentMeshOBJ*)pObjectPtr)->OnDropOBJ(); }
-    void OnDropOBJ();
+    static void StaticOnDropOBJ(void* pObjectPtr, wxCoord x, wxCoord y) { ((ComponentMeshOBJ*)pObjectPtr)->OnDropOBJ(x, y); }
+    void OnDropOBJ(wxCoord x, wxCoord y);
 #endif //MYFW_USING_WX
 };
 

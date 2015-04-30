@@ -87,7 +87,7 @@ void ComponentMesh::FillPropertiesWindow(bool clear)
     }
 }
 
-void ComponentMesh::OnDropMaterial()
+void ComponentMesh::OnDropMaterial(wxCoord x, wxCoord y)
 {
     if( g_DragAndDropStruct.m_Type == DragAndDropType_MaterialDefinitionPointer )
     {

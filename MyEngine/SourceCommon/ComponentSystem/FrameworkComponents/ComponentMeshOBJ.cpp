@@ -59,7 +59,7 @@ void ComponentMeshOBJ::FillPropertiesWindow(bool clear)
     }
 }
 
-void ComponentMeshOBJ::OnDropOBJ()
+void ComponentMeshOBJ::OnDropOBJ(wxCoord x, wxCoord y)
 {
     if( g_DragAndDropStruct.m_Type == DragAndDropType_FileObjectPointer )
     {
