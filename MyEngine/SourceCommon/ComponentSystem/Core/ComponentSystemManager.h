@@ -156,6 +156,8 @@ public:
 
     virtual ~MyFileInfo()
     {
+        this->Remove();
+
         SAFE_RELEASE( m_pFile );
         SAFE_RELEASE( m_pMesh );
         SAFE_RELEASE( m_pShaderGroup );

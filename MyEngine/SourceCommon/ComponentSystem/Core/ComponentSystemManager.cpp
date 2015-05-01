@@ -618,7 +618,7 @@ void ComponentSystemManager::UnloadScene(unsigned int sceneidtoclear, bool clear
         MyFileInfo* pFile = (MyFileInfo*)pNode;
         pNode = pNode->GetNext();
 
-        if( pFile->m_SceneID == sceneidtoclear || pFile->m_SceneID == UINT_MAX )
+        if( (sceneidtoclear == UINT_MAX || pFile->m_SceneID == sceneidtoclear) )
             delete pFile;
     }
 }

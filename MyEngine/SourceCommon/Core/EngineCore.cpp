@@ -1274,6 +1274,8 @@ void EngineCore::UnloadScene(unsigned int sceneid, bool cleareditorobjects)
 #endif //MYFW_USING_WX
 
     g_pComponentSystemManager->UnloadScene( sceneid, false );
+    if( sceneid == UINT_MAX )
+        g_pMaterialManager->FreeAllMaterials();
 }
 
 #if MYFW_USING_WX

@@ -171,13 +171,10 @@ void ComponentMesh::Draw(MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride, i
 
     if( m_pMesh )
     {
-        // TODOMaterials
-        //m_pMesh->SetShaderGroup( m_pShaderGroup );
         if( m_pMaterial )
             m_pMesh->SetMaterial( m_pMaterial );
         m_pMesh->m_PrimitiveType = m_GLPrimitiveType;
         m_pMesh->m_PointSize = m_PointSize;
-        //m_pMesh->m_Shininess = m_Shininess;
 
         m_pMesh->SetTransform( m_pComponentTransform->m_Transform );
 
