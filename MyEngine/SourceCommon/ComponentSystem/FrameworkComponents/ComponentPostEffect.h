@@ -33,7 +33,8 @@ public:
     virtual void CopyFromSameType_Dangerous(ComponentBase* pObject) { *this = (ComponentPostEffect&)*pObject; }
     virtual ComponentPostEffect& operator=(const ComponentPostEffect& other);
 
-    void SetMaterial(MaterialDefinition* pMaterial);
+    virtual MaterialDefinition* GetMaterial() { return m_pMaterial; }
+    virtual void SetMaterial(MaterialDefinition* pMaterial);
     void Render(FBODefinition* pFBO);
 
 public:

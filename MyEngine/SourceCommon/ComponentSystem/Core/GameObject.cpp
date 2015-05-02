@@ -381,6 +381,22 @@ ComponentAnimationPlayer* GameObject::GetAnimationPlayer()
     return 0; // component not found.
 }
 
+// Gets the first material found.
+MaterialDefinition* GameObject::GetMaterial()
+{
+    for( unsigned int i=0; i<m_Components.Count(); i++ )
+    {
+        if( m_Components[i]->m_BaseType == BaseComponentType_Renderable )
+        {
+            assert( dynamic_cast<ComponentRenderable*>( m_Components[i] ) != 0 );
+            return ((ComponentRenderable*)m_Components[i])->GetMaterial();
+        }
+    }
+
+    return 0;
+}
+
+// Set the material on all renderable components attached to this object.
 void GameObject::SetMaterial(MaterialDefinition* pMaterial)
 {
     for( unsigned int i=0; i<m_Components.Count(); i++ )
@@ -389,6 +405,19 @@ void GameObject::SetMaterial(MaterialDefinition* pMaterial)
         {
             assert( dynamic_cast<ComponentRenderable*>( m_Components[i] ) != 0 );
             ((ComponentRenderable*)m_Components[i])->SetMaterial( pMaterial );
+        }
+    }
+}
+
+void GameObject::SetScriptFile(MyFileObject* pFile)
+{
+    for( unsigned int i=0; i<m_Components.Count(); i++ )
+    {
+        if( m_Components[i]->m_BaseType == BaseComponentType_Updateable )
+        {
+            ComponentLuaScript* pLuaComponent = dynamic_cast<ComponentLuaScript*>( m_Components[i] );
+            if( pLuaComponent )
+                pLuaComponent->SetScriptFile( pFile );
         }
     }
 }

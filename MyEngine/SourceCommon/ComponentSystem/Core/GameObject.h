@@ -59,7 +59,10 @@ public:
     // TODO: find a way to find an arbitrary component type that would be accessible from lua script.
     ComponentAnimationPlayer* GetAnimationPlayer();
 
+    MaterialDefinition* GetMaterial();
     void SetMaterial(MaterialDefinition* pMaterial);
+
+    void SetScriptFile(MyFileObject* pFile);
 
 public:
 #if MYFW_USING_WX

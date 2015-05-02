@@ -319,6 +319,7 @@ void EngineMainFrame::OnGameMenu(wxCommandEvent& event)
     switch( id )
     {
     case myIDGame_NewScene:
+        m_CurrentSceneName[0] = 0;
         g_pEngineCore->UnloadScene( UINT_MAX, false );
         g_pEngineCore->CreateDefaultSceneObjects( false );
         ResizeViewport();
@@ -607,34 +608,57 @@ void EngineMainFrame::AddDatafileToScene()
 
 void EngineMainFrame::OnDrop(wxCoord x, wxCoord y)
 {
+    // get the GameObject the mouse was hovering over.
+    ComponentCamera* pCamera = g_pEngineCore->m_pEditorState->GetEditorCamera();
+    y = pCamera->m_WindowHeight - y; // prefer 0,0 at bottom left.
+    GameObject* pObject = g_pEngineCore->GetObjectAtPixel( x, y );
+
     if( g_DragAndDropStruct.m_Type == DragAndDropType_MaterialDefinitionPointer )
     {
         MaterialDefinition* pMaterial = (MaterialDefinition*)g_DragAndDropStruct.m_Value;
 
-        if( pMaterial )
-        {
-            ComponentCamera* pCamera = g_pEngineCore->m_pEditorState->GetEditorCamera();
-
-            // prefer 0,0 at bottom left.
-            y = pCamera->m_WindowHeight - y;
-
-            GameObject* pObject = g_pEngineCore->GetObjectAtPixel( x, y );
-
-            if( pObject )
-                pObject->SetMaterial( pMaterial );
-        }
+        if( pMaterial && pObject )
+            pObject->SetMaterial( pMaterial );
     }
 
-    //if( g_DragAndDropStruct.m_Type == DragAndDropType_FileObjectPointer )
-    //{
-    //    MyFileObject* pFile = (MyFileObject*)g_DragAndDropStruct.m_Value;
-    //    assert( pFile );
+    if( g_DragAndDropStruct.m_Type == DragAndDropType_TextureDefinitionPointer )
+    {
+        TextureDefinition* pTexture = (TextureDefinition*)g_DragAndDropStruct.m_Value;
 
-    //    if( strcmp( pFile->m_ExtensionWithDot, ".lua" ) == 0 )
-    //    {
-    //        SetScriptFile( pFile );
-    //    }
-    //}
+        if( pTexture && pObject && pObject->GetMaterial() )
+            pObject->GetMaterial()->SetTextureColor( pTexture );
+    }
+
+    if( g_DragAndDropStruct.m_Type == DragAndDropType_ShaderGroupPointer )
+    {
+        ShaderGroup* pShader = (ShaderGroup*)g_DragAndDropStruct.m_Value;
+
+        if( pShader && pObject && pObject->GetMaterial() )
+            pObject->GetMaterial()->SetShader( pShader );
+    }
+
+    if( g_DragAndDropStruct.m_Type == DragAndDropType_FileObjectPointer )
+    {
+        MyFileObject* pFile = (MyFileObject*)g_DragAndDropStruct.m_Value;
+        assert( pFile );
+
+        if( pFile && strcmp( pFile->m_ExtensionWithDot, ".lua" ) == 0 )
+        {
+            if( pObject )
+            {
+                pObject->SetScriptFile( pFile );
+            }
+        }
+
+        if( pFile && strcmp( pFile->m_ExtensionWithDot, ".glsl" ) == 0 )
+        {
+            if( pObject && pObject->GetMaterial() )
+            {
+                ShaderGroup* pShader = g_pShaderGroupManager->FindShaderGroupByFile( pFile );
+                pObject->GetMaterial()->SetShader( pShader );
+            }
+        }
+    }
 
     //if( g_DragAndDropStruct.m_Type == DragAndDropType_GameObjectPointer )
     //{
