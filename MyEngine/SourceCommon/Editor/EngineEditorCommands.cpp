@@ -237,4 +237,169 @@ EditorCommand* EditorCommand_CopyGameObject::Repeat()
 }
 
 //====================================================================================================
+// EditorCommand_ChangeAllMaterialsOnGameObject
 //====================================================================================================
+
+EditorCommand_ChangeAllMaterialsOnGameObject::EditorCommand_ChangeAllMaterialsOnGameObject(GameObject* object, MaterialDefinition* material)
+{
+    m_pGameObject = object;
+    m_pNewMaterial = material;
+}
+
+EditorCommand_ChangeAllMaterialsOnGameObject::~EditorCommand_ChangeAllMaterialsOnGameObject()
+{
+}
+
+void EditorCommand_ChangeAllMaterialsOnGameObject::Do()
+{
+    for( unsigned int i=0; i<m_pGameObject->m_Components.Count(); i++ )
+    {
+        ComponentRenderable* pRenderable = dynamic_cast<ComponentRenderable*>( m_pGameObject->m_Components[i] );
+
+        if( pRenderable )
+        {
+            m_ComponentsChanged.push_back( pRenderable );
+            m_OldMaterials.push_back( pRenderable->GetMaterial() );
+        }
+    }
+
+    m_pGameObject->SetMaterial( m_pNewMaterial );
+}
+
+void EditorCommand_ChangeAllMaterialsOnGameObject::Undo()
+{
+    for( unsigned int i=0; i<m_ComponentsChanged.size(); i++ )
+    {
+        ComponentRenderable* pRenderable = dynamic_cast<ComponentRenderable*>( m_ComponentsChanged[i] );
+        assert( pRenderable );
+
+        if( pRenderable )
+        {
+            pRenderable->SetMaterial( m_OldMaterials[i] );
+        }
+    }
+}
+
+EditorCommand* EditorCommand_ChangeAllMaterialsOnGameObject::Repeat()
+{
+    // Do nothing.
+
+    return 0;
+}
+
+//====================================================================================================
+// EditorCommand_ChangeTextureOnMaterial
+//====================================================================================================
+
+EditorCommand_ChangeTextureOnMaterial::EditorCommand_ChangeTextureOnMaterial(MaterialDefinition* material, TextureDefinition* texture)
+{
+    m_pMaterial = material;
+    m_pNewTexture = texture;
+}
+
+EditorCommand_ChangeTextureOnMaterial::~EditorCommand_ChangeTextureOnMaterial()
+{
+}
+
+void EditorCommand_ChangeTextureOnMaterial::Do()
+{
+    m_pOldTexture = m_pMaterial->m_pTextureColor;
+
+    m_pMaterial->SetTextureColor( m_pNewTexture );
+}
+
+void EditorCommand_ChangeTextureOnMaterial::Undo()
+{
+    m_pMaterial->SetTextureColor( m_pOldTexture );
+}
+
+EditorCommand* EditorCommand_ChangeTextureOnMaterial::Repeat()
+{
+    // Do nothing.
+
+    return 0;
+}
+
+//====================================================================================================
+// EditorCommand_ChangeShaderOnMaterial
+//====================================================================================================
+
+EditorCommand_ChangeShaderOnMaterial::EditorCommand_ChangeShaderOnMaterial(MaterialDefinition* material, ShaderGroup* shadergroup)
+{
+    m_pMaterial = material;
+    m_pNewShaderGroup = shadergroup;
+}
+
+EditorCommand_ChangeShaderOnMaterial::~EditorCommand_ChangeShaderOnMaterial()
+{
+}
+
+void EditorCommand_ChangeShaderOnMaterial::Do()
+{
+    m_pOldShaderGroup = m_pMaterial->m_pShaderGroup;
+
+    m_pMaterial->SetShader( m_pNewShaderGroup );
+}
+
+void EditorCommand_ChangeShaderOnMaterial::Undo()
+{
+    m_pMaterial->SetShader( m_pOldShaderGroup );
+}
+
+EditorCommand* EditorCommand_ChangeShaderOnMaterial::Repeat()
+{
+    // Do nothing.
+
+    return 0;
+}
+
+//====================================================================================================
+// EditorCommand_ChangeAllScriptsOnGameObject
+//====================================================================================================
+
+EditorCommand_ChangeAllScriptsOnGameObject::EditorCommand_ChangeAllScriptsOnGameObject(GameObject* object, MyFileObject* scriptfile)
+{
+    m_pGameObject = object;
+    pNewScriptFile = scriptfile;
+}
+
+EditorCommand_ChangeAllScriptsOnGameObject::~EditorCommand_ChangeAllScriptsOnGameObject()
+{
+}
+
+void EditorCommand_ChangeAllScriptsOnGameObject::Do()
+{
+    for( unsigned int i=0; i<m_pGameObject->m_Components.Count(); i++ )
+    {
+        ComponentLuaScript* pLuaComponent = dynamic_cast<ComponentLuaScript*>( m_pGameObject->m_Components[i] );
+
+        if( pLuaComponent )
+        {
+            m_ComponentsChanged.push_back( pLuaComponent );
+            m_OldScriptFiles.push_back( pLuaComponent->GetScriptFile() );
+        }
+    }
+
+    m_pGameObject->SetScriptFile( pNewScriptFile );
+}
+
+void EditorCommand_ChangeAllScriptsOnGameObject::Undo()
+{
+    for( unsigned int i=0; i<m_ComponentsChanged.size(); i++ )
+    {
+        ComponentLuaScript* pLuaComponent = dynamic_cast<ComponentLuaScript*>( m_ComponentsChanged[i] );
+        assert( pLuaComponent );
+
+        if( pLuaComponent )
+        {
+            pLuaComponent->SetScriptFile( m_OldScriptFiles[i] );
+        }
+    }
+}
+
+EditorCommand* EditorCommand_ChangeAllScriptsOnGameObject::Repeat()
+{
+    // Do nothing.
+
+    return 0;
+}

@@ -97,4 +97,82 @@ public:
 
 //====================================================================================================
 
+class EditorCommand_ChangeAllMaterialsOnGameObject : public EditorCommand
+{
+protected:
+    GameObject* m_pGameObject;
+    MaterialDefinition* m_pNewMaterial;
+
+    std::vector<ComponentBase*> m_ComponentsChanged;
+    std::vector<MaterialDefinition*> m_OldMaterials;
+
+public:
+    EditorCommand_ChangeAllMaterialsOnGameObject(GameObject* object, MaterialDefinition* material);
+    virtual ~EditorCommand_ChangeAllMaterialsOnGameObject();
+
+    virtual void Do();
+    virtual void Undo();
+    virtual EditorCommand* Repeat();
+};
+
+//====================================================================================================
+
+class EditorCommand_ChangeTextureOnMaterial : public EditorCommand
+{
+protected:
+    MaterialDefinition* m_pMaterial;
+    TextureDefinition* m_pNewTexture;
+
+    TextureDefinition* m_pOldTexture;
+
+public:
+    EditorCommand_ChangeTextureOnMaterial(MaterialDefinition* material, TextureDefinition* texture);
+    virtual ~EditorCommand_ChangeTextureOnMaterial();
+
+    virtual void Do();
+    virtual void Undo();
+    virtual EditorCommand* Repeat();
+};
+
+//====================================================================================================
+
+class EditorCommand_ChangeShaderOnMaterial : public EditorCommand
+{
+protected:
+    MaterialDefinition* m_pMaterial;
+    ShaderGroup* m_pNewShaderGroup;
+
+    ShaderGroup* m_pOldShaderGroup;
+
+public:
+    EditorCommand_ChangeShaderOnMaterial(MaterialDefinition* material, ShaderGroup* shadergroup);
+    virtual ~EditorCommand_ChangeShaderOnMaterial();
+
+    virtual void Do();
+    virtual void Undo();
+    virtual EditorCommand* Repeat();
+};
+
+//====================================================================================================
+
+class EditorCommand_ChangeAllScriptsOnGameObject : public EditorCommand
+{
+protected:
+    GameObject* m_pGameObject;
+    MyFileObject* pNewScriptFile;
+
+    std::vector<ComponentBase*> m_ComponentsChanged;
+    std::vector<MyFileObject*> m_OldScriptFiles;
+
+public:
+    EditorCommand_ChangeAllScriptsOnGameObject(GameObject* object, MyFileObject* scriptfile);
+    virtual ~EditorCommand_ChangeAllScriptsOnGameObject();
+
+    virtual void Do();
+    virtual void Undo();
+    virtual EditorCommand* Repeat();
+};
+
+//====================================================================================================
+
 #endif // __EngineEditorCommands_H__

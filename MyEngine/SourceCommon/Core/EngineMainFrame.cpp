@@ -618,7 +618,9 @@ void EngineMainFrame::OnDrop(wxCoord x, wxCoord y)
         MaterialDefinition* pMaterial = (MaterialDefinition*)g_DragAndDropStruct.m_Value;
 
         if( pMaterial && pObject )
-            pObject->SetMaterial( pMaterial );
+        {
+            g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_ChangeAllMaterialsOnGameObject( pObject, pMaterial ) );
+        }
     }
 
     if( g_DragAndDropStruct.m_Type == DragAndDropType_TextureDefinitionPointer )
@@ -626,7 +628,9 @@ void EngineMainFrame::OnDrop(wxCoord x, wxCoord y)
         TextureDefinition* pTexture = (TextureDefinition*)g_DragAndDropStruct.m_Value;
 
         if( pTexture && pObject && pObject->GetMaterial() )
-            pObject->GetMaterial()->SetTextureColor( pTexture );
+        {
+            g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_ChangeTextureOnMaterial( pObject->GetMaterial(), pTexture ) );
+        }
     }
 
     if( g_DragAndDropStruct.m_Type == DragAndDropType_ShaderGroupPointer )
@@ -634,7 +638,9 @@ void EngineMainFrame::OnDrop(wxCoord x, wxCoord y)
         ShaderGroup* pShader = (ShaderGroup*)g_DragAndDropStruct.m_Value;
 
         if( pShader && pObject && pObject->GetMaterial() )
-            pObject->GetMaterial()->SetShader( pShader );
+        {
+            g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_ChangeShaderOnMaterial( pObject->GetMaterial(), pShader ) );
+        }
     }
 
     if( g_DragAndDropStruct.m_Type == DragAndDropType_FileObjectPointer )
@@ -646,7 +652,7 @@ void EngineMainFrame::OnDrop(wxCoord x, wxCoord y)
         {
             if( pObject )
             {
-                pObject->SetScriptFile( pFile );
+                g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_ChangeAllScriptsOnGameObject( pObject, pFile ) );
             }
         }
 
@@ -655,7 +661,30 @@ void EngineMainFrame::OnDrop(wxCoord x, wxCoord y)
             if( pObject && pObject->GetMaterial() )
             {
                 ShaderGroup* pShader = g_pShaderGroupManager->FindShaderGroupByFile( pFile );
-                pObject->GetMaterial()->SetShader( pShader );
+                g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_ChangeShaderOnMaterial( pObject->GetMaterial(), pShader ) );
+            }
+        }
+
+        if( pFile && strcmp( pFile->m_ExtensionWithDot, ".obj" ) == 0 )
+        {
+            // TODO: undo/redo
+
+            // create a new gameobject using this obj.
+            MyMesh* pMesh = g_pMeshManager->FindMeshBySourceFile( pFile );
+
+            GameObject* pGameObject = g_pComponentSystemManager->CreateGameObject();
+            pGameObject->SetSceneID( 1 );
+            pGameObject->SetName( "New mesh" );
+            ComponentMeshOBJ* pComponentMeshOBJ = (ComponentMeshOBJ*)pGameObject->AddNewComponent( ComponentType_MeshOBJ, 1 );
+            pComponentMeshOBJ->SetSceneID( 1 );
+            pComponentMeshOBJ->SetMaterial( (MaterialDefinition*)g_pMaterialManager->m_Materials.GetHead() );
+            pComponentMeshOBJ->SetMesh( pMesh );
+            pComponentMeshOBJ->m_LayersThisExistsOn = Layer_MainScene;
+
+            if( pObject && pObject->GetMaterial() )
+            {
+                // place it just above of the object selected otherwise place it at 0,0,0... for now.
+                pGameObject->m_pComponentTransform->SetPosition( pObject->m_pComponentTransform->GetPosition() );
             }
         }
     }

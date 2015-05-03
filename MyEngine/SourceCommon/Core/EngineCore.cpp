@@ -1269,7 +1269,8 @@ void EngineCore::UnloadScene(unsigned int sceneid, bool cleareditorobjects)
 {
     // reset the editorstate structure.
 #if MYFW_USING_WX
-    g_pEngineMainFrame->m_pCommandStack->ClearStacks();
+    if( sceneid != 0 )
+        g_pEngineMainFrame->m_pCommandStack->ClearStacks();
     m_pEditorState->UnloadScene( cleareditorobjects );
 #endif //MYFW_USING_WX
 
