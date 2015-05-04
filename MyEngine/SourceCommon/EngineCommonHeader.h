@@ -78,6 +78,7 @@ extern "C"
 #include "Editor/EngineCommandStack.h"
 #include "Editor/EngineEditorCommands.h"
 #include "Editor/TransformGizmo.h"
+#include "Editor/Dialogs/DialogGridSettings.h"
 #endif
 
 #include "Core/EngineCore.h"

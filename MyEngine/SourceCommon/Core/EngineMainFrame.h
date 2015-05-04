@@ -30,6 +30,8 @@ enum GameMenuIDs
     myIDGame_SaveScene,
     myIDGame_SaveSceneAs,
     myIDGame_AddDatafile,
+    myIDGame_Grid_SnapOnOff,
+    myIDGame_Grid_Settings,
     myIDGame_Mode_PlayStop,
     myIDGame_Mode_Pause,
     myIDGame_Mode_Advance1Frame,
@@ -47,6 +49,11 @@ enum GameMenuIDs
     myIDGame_DebugShowSelectedAnimatedMesh,
 };
 
+struct GridSettings
+{
+    Vector3 stepsize;
+};
+
 class EngineMainFrame : public MainFrame
 {
 public:
@@ -61,12 +68,15 @@ public:
 
     char m_CurrentSceneName[MAX_PATH];
 
+    wxMenu* m_Grid;
     wxMenu* m_PlayPauseStop;
     wxMenu* m_Data;
     wxMenu* m_Hackery;
     wxMenu* m_Debug;
 
     cJSON* m_pEditorPrefs;
+
+    GridSettings m_GridSettings;
 
     int m_Hackery_Record_StackDepth;
 

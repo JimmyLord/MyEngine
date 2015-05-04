@@ -59,12 +59,15 @@ EngineMainFrame::EngineMainFrame()
         m_GameplayPerspectiveOptions[i] = 0;
     }
 
+    m_Grid = 0;
     m_PlayPauseStop = 0;
     m_Data = 0;
     m_Hackery = 0;
     m_Debug = 0;
 
     m_pEditorPrefs = 0;
+
+    m_GridSettings.stepsize.Set( 5, 5, 5 );
 }
 
 void EngineMainFrame::InitFrame()
@@ -130,6 +133,11 @@ void EngineMainFrame::InitFrame()
     m_File->Insert( 2, myIDGame_SaveScene, wxT("&Save Scene\tCtrl-S") );
     m_File->Insert( 3, myIDGame_SaveSceneAs, wxT("Save Scene &As...") );
 
+    m_Grid = MyNew wxMenu;
+    m_MenuBar->Append( m_Grid, wxT("&Grid") );
+    m_Grid->AppendCheckItem( myIDGame_Grid_SnapOnOff, wxT("Grid Snap &On/Off\tCtrl-G") );
+    m_Grid->Append( myIDGame_Grid_Settings, wxT("Grid &Settings\tCtrl-Shift-G") );
+
     m_PlayPauseStop = MyNew wxMenu;
     m_MenuBar->Append( m_PlayPauseStop, wxT("&Mode") );
     m_PlayPauseStop->Append( myIDGame_Mode_PlayStop, wxT("&Play/Stop\tCtrl-SPACE") );
@@ -149,8 +157,8 @@ void EngineMainFrame::InitFrame()
 
     m_Debug = MyNew wxMenu;
     m_MenuBar->Append( m_Debug, wxT("&Debug views") );
-    m_Debug->Append( myIDGame_DebugShowMousePickerFBO, wxT("&Show Mouse Picker FBO\tF9") );
-    m_Debug->Append( myIDGame_DebugShowSelectedAnimatedMesh, wxT("Show &Animated Debug View for Selection\tF8") );
+    m_Debug->AppendCheckItem( myIDGame_DebugShowMousePickerFBO, wxT("&Show Mouse Picker FBO\tF9") );
+    m_Debug->AppendCheckItem( myIDGame_DebugShowSelectedAnimatedMesh, wxT("Show &Animated Debug View for Selection\tF8") );
 
     m_Hackery_Record_StackDepth = -1;
 
@@ -180,6 +188,9 @@ void EngineMainFrame::InitFrame()
     Connect( myIDGame_SaveSceneAs,  wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnGameMenu) );
 
     Connect( myIDGame_AddDatafile,  wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnGameMenu) );
+
+    Connect( myIDGame_Grid_SnapOnOff, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnGameMenu) );
+    Connect( myIDGame_Grid_Settings,  wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnGameMenu) );
 
     Connect( myIDGame_Mode_PlayStop,       wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnGameMenu) );
     Connect( myIDGame_Mode_Pause,          wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnGameMenu) );
@@ -267,11 +278,15 @@ void EngineMainFrame::OnPostInit()
         extern GLViewTypes g_CurrentGLViewType;
         cJSONExt_GetInt( m_pEditorPrefs, "GameAspectRatio", (int*)&g_CurrentGLViewType );
 
+        cJSONExt_GetFloatArray( m_pEditorPrefs, "GridStepSize", &m_GridSettings.stepsize.x, 3 );
+
         cJSON_Delete( m_pEditorPrefs );
         m_pEditorPrefs = 0;
     }
 
     m_pGLCanvas->ResizeViewport();
+
+    UpdateMenuItemStates();
 }
 
 void EngineMainFrame::OnClose()
@@ -302,6 +317,8 @@ void EngineMainFrame::OnClose()
         extern GLViewTypes g_CurrentGLViewType;
         cJSON_AddNumberToObject( pPrefs, "GameAspectRatio", g_CurrentGLViewType );
 
+        cJSONExt_AddFloatArrayToObject( pPrefs, "GridStepSize", &m_GridSettings.stepsize.x, 3 );
+
         char* string = cJSON_Print( pPrefs );
         cJSON_Delete( pPrefs );
 
@@ -319,6 +336,7 @@ void EngineMainFrame::OnGameMenu(wxCommandEvent& event)
     switch( id )
     {
     case myIDGame_NewScene:
+        this->SetTitle( "New scene" );
         m_CurrentSceneName[0] = 0;
         g_pEngineCore->UnloadScene( UINT_MAX, false );
         g_pEngineCore->CreateDefaultSceneObjects( false );
@@ -344,6 +362,20 @@ void EngineMainFrame::OnGameMenu(wxCommandEvent& event)
 
     case myIDGame_AddDatafile:
         AddDatafileToScene();
+        break;
+
+    case myIDGame_Grid_SnapOnOff:
+        break;
+
+    case myIDGame_Grid_Settings:
+        {
+            DialogGridSettings dialog( this, -1, _("Grid Settings"), GetPosition() + wxPoint(60,60), wxSize(200, 200) );
+            dialog.ShowModal();
+            //if( dialog.ShowModal() != wxID_OK )
+            //    LOGInfo( LOGTag, "Cancel Pressed.\n" );
+            //else
+            //    LOGInfo( LOGTag, "OK pressed.\n" );
+        }
         break;
 
     case myIDGame_Mode_PlayStop:

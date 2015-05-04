@@ -67,6 +67,9 @@
     <Filter Include="Source\ComponentSystem\Core Files">
       <UniqueIdentifier>{b95a7673-d27e-4745-a5a9-38c786fb8498}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Editor\Dialogs">
+      <UniqueIdentifier>{1f213d6b-3236-473c-8399-67ae08e140d5}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="SourceCommon\Camera\Camera3D.cpp">
@@ -269,6 +272,9 @@
     </ClCompile>
     <ClCompile Include="SourceCommon\ComponentSystem\FrameworkComponents\ComponentPostEffect.cpp">
       <Filter>Source\ComponentSystem\Framework Components</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCommon\Editor\Dialogs\DialogGridSettings.cpp">
+      <Filter>Source\Editor\Dialogs</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -496,6 +502,9 @@
     </ClInclude>
     <ClInclude Include="SourceCommon\ComponentSystem\FrameworkComponents\ComponentPostEffect.h">
       <Filter>Source\ComponentSystem\Framework Components</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCommon\Editor\Dialogs\DialogGridSettings.h">
+      <Filter>Source\Editor\Dialogs</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

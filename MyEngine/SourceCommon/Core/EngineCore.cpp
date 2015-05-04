@@ -90,8 +90,8 @@ void EngineCore::OneTimeInit()
     GameCore::OneTimeInit();
 
 #if MYFW_USING_WX
-    m_pEditorState->m_pDebugViewFBO = g_pTextureManager->CreateFBO( 0, 0, GL_NEAREST, GL_NEAREST, false, 0, false );
-    m_pEditorState->m_pMousePickerFBO = g_pTextureManager->CreateFBO( 0, 0, GL_NEAREST, GL_NEAREST, false, 0, false );
+    m_pEditorState->m_pDebugViewFBO = g_pTextureManager->CreateFBO( 0, 0, GL_NEAREST, GL_NEAREST, false, 0, false, true );
+    m_pEditorState->m_pMousePickerFBO = g_pTextureManager->CreateFBO( 0, 0, GL_NEAREST, GL_NEAREST, false, 0, false, true );
 #endif //MYFW_USING_WX
 
     // setup our shaders
@@ -1276,7 +1276,10 @@ void EngineCore::UnloadScene(unsigned int sceneid, bool cleareditorobjects)
 
     g_pComponentSystemManager->UnloadScene( sceneid, false );
     if( sceneid == UINT_MAX )
+    {
         g_pMaterialManager->FreeAllMaterials();
+        g_pTextureManager->FreeAllTextures( false );
+    }
 }
 
 #if MYFW_USING_WX
