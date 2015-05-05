@@ -547,6 +547,8 @@ void EngineMainFrame::SaveSceneAs()
     wxString wxpath = FileDialog.GetPath();
     sprintf_s( m_CurrentSceneName, 260, "%s", (const char*)wxpath );
 
+    g_pMaterialManager->SaveAllMaterials();
+    g_pComponentSystemManager->AddAllMaterialsToFilesList();
     g_pEngineCore->SaveScene( m_CurrentSceneName );
 
     this->SetTitle( m_CurrentSceneName );

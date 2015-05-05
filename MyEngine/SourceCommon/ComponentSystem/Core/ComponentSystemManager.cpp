@@ -265,7 +265,10 @@ void ComponentSystemManager::LoadDatafile(const char* relativepath, unsigned int
         
         // convert any .fbx files into a mymesh and load that.
 #if MYFW_USING_WX
-        if( len > 4 && strcmp( &relativepath[len-4], ".fbx" ) == 0 )
+        if( len > 4 &&
+            ( strcmp( &relativepath[len-4], ".fbx" ) == 0 ||
+              strcmp( &relativepath[len-4], ".obj" ) == 0 )
+          )
         {
             // run MeshTool to convert the mesh and put the result in "Data/Meshes"
             const int paramsbuffersize = MAX_PATH * 2 + 50;

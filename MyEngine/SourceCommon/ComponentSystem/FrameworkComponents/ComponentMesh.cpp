@@ -107,7 +107,8 @@ cJSON* ComponentMesh::ExportAsJSONObject()
 {
     cJSON* component = ComponentRenderable::ExportAsJSONObject();
 
-    if( m_pMaterial )
+    assert( m_pMaterial == 0 || m_pMaterial->m_pFile ); // new materials should be saved as files before the state is saved.
+    if( m_pMaterial && m_pMaterial->m_pFile )
         cJSON_AddStringToObject( component, "Material", m_pMaterial->m_pFile->m_FullPath );
 
     cJSON_AddNumberToObject( component, "PrimitiveType", m_GLPrimitiveType );

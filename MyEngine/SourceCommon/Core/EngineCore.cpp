@@ -438,6 +438,8 @@ void EngineCore::OnModePlay()
 {
     if( m_EditorMode )
     {
+        g_pMaterialManager->SaveAllMaterials();
+        g_pComponentSystemManager->AddAllMaterialsToFilesList();
         SaveScene( "temp_editor_onplay.scene" );
         m_EditorMode = false;
         m_Paused = false;
