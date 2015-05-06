@@ -466,6 +466,7 @@ void EngineCore::OnModeStop()
         m_Paused = false;
 #if MYFW_USING_WX
         g_pEngineMainFrame->SetWindowPerspectiveToDefault();
+        m_pEditorState->ClearKeyAndActionStates();
         m_pEditorState->ClearSelectedObjectsAndComponents();
 #endif
 
@@ -910,6 +911,12 @@ void EngineCore::HandleEditorInput(int keyaction, int keycode, int mouseaction, 
 
             if( dir.LengthSquared() > 0 )
                 matLocalCamera->TranslatePreRotScale( dir * speed * m_TimePassedUnpausedLastFrame );
+        }
+
+        // if left mouse down, reset the transform gizmo tool.
+        if( mouseaction == GCBA_Down && id == 0 )
+        {
+            m_pEditorState->m_pTransformGizmo->m_LastIntersectResultIsValid = false;
         }
 
         // if space is held, left button will pan the camera around.  or just middle button

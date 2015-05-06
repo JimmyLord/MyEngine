@@ -51,6 +51,7 @@ enum GameMenuIDs
 
 struct GridSettings
 {
+    bool snapenabled;
     Vector3 stepsize;
 };
 
@@ -74,6 +75,8 @@ public:
     wxMenu* m_Hackery;
     wxMenu* m_Debug;
 
+    wxMenuItem* m_MenuItem_GridSnapEnabled;
+
     cJSON* m_pEditorPrefs;
 
     GridSettings m_GridSettings;
@@ -90,8 +93,11 @@ public:
     virtual void OnPostInit();
     virtual void OnClose();
 
-    void OnGameMenu(wxCommandEvent& event);
     virtual void ResizeViewport();
+
+    virtual void UpdateMenuItemStates();
+
+    void OnGameMenu(wxCommandEvent& event);
     void SetWindowPerspectiveToDefault(bool forceswitch = false);
     int GetDefaultEditorPerspectiveIndex();
     int GetDefaultGameplayPerspectiveIndex();

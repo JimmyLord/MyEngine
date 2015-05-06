@@ -68,6 +68,7 @@ public:
     bool IsObjectSelected(GameObject* pObject);
     bool IsComponentSelected(ComponentBase* pComponent);
 
+    void ClearKeyAndActionStates();
     void ClearSelectedObjectsAndComponents();
 };
 #endif //MYFW_USING_WX

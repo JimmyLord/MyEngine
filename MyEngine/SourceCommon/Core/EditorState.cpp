@@ -129,6 +129,12 @@ bool EditorState::IsComponentSelected(ComponentBase* pComponent)
     return false;
 }
 
+void EditorState::ClearKeyAndActionStates()
+{
+    m_ModifierKeyStates = 0;
+    m_EditorActionState = EDITORACTIONSTATE_None;
+}
+
 void EditorState::ClearSelectedObjectsAndComponents()
 {
     m_pSelectedObjects.clear();

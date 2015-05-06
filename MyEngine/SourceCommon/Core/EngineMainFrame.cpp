@@ -65,8 +65,11 @@ EngineMainFrame::EngineMainFrame()
     m_Hackery = 0;
     m_Debug = 0;
 
+    m_MenuItem_GridSnapEnabled = 0;
+
     m_pEditorPrefs = 0;
 
+    m_GridSettings.snapenabled = false;
     m_GridSettings.stepsize.Set( 5, 5, 5 );
 }
 
@@ -135,7 +138,7 @@ void EngineMainFrame::InitFrame()
 
     m_Grid = MyNew wxMenu;
     m_MenuBar->Append( m_Grid, wxT("&Grid") );
-    m_Grid->AppendCheckItem( myIDGame_Grid_SnapOnOff, wxT("Grid Snap &On/Off\tCtrl-G") );
+    m_MenuItem_GridSnapEnabled = m_Grid->AppendCheckItem( myIDGame_Grid_SnapOnOff, wxT("Grid Snap &On/Off\tCtrl-G") );
     m_Grid->Append( myIDGame_Grid_Settings, wxT("Grid &Settings\tCtrl-Shift-G") );
 
     m_PlayPauseStop = MyNew wxMenu;
@@ -278,6 +281,7 @@ void EngineMainFrame::OnPostInit()
         extern GLViewTypes g_CurrentGLViewType;
         cJSONExt_GetInt( m_pEditorPrefs, "GameAspectRatio", (int*)&g_CurrentGLViewType );
 
+        cJSONExt_GetBool( m_pEditorPrefs, "GridSnapEnabled", &m_GridSettings.snapenabled );
         cJSONExt_GetFloatArray( m_pEditorPrefs, "GridStepSize", &m_GridSettings.stepsize.x, 3 );
 
         cJSON_Delete( m_pEditorPrefs );
@@ -317,6 +321,7 @@ void EngineMainFrame::OnClose()
         extern GLViewTypes g_CurrentGLViewType;
         cJSON_AddNumberToObject( pPrefs, "GameAspectRatio", g_CurrentGLViewType );
 
+        cJSON_AddNumberToObject( pPrefs, "GridSnapEnabled", m_GridSettings.snapenabled );
         cJSONExt_AddFloatArrayToObject( pPrefs, "GridStepSize", &m_GridSettings.stepsize.x, 3 );
 
         char* string = cJSON_Print( pPrefs );
@@ -327,6 +332,21 @@ void EngineMainFrame::OnClose()
 
         cJSONExt_free( string );
     }
+}
+
+void EngineMainFrame::ResizeViewport()
+{
+    MainFrame::ResizeViewport();
+
+    m_pGLCanvasEditor->ResizeViewport();
+}
+
+void EngineMainFrame::UpdateMenuItemStates()
+{
+    MainFrame::UpdateMenuItemStates();
+
+    if( m_GridSettings.snapenabled )
+        m_MenuItem_GridSnapEnabled->Check( m_GridSettings.snapenabled );
 }
 
 void EngineMainFrame::OnGameMenu(wxCommandEvent& event)
@@ -365,10 +385,14 @@ void EngineMainFrame::OnGameMenu(wxCommandEvent& event)
         break;
 
     case myIDGame_Grid_SnapOnOff:
+        m_GridSettings.snapenabled = !m_GridSettings.snapenabled;
         break;
 
     case myIDGame_Grid_Settings:
         {
+            // should be in an "gl frame lost focus" state handling.
+            g_pEngineCore->m_pEditorState->ClearKeyAndActionStates();
+
             DialogGridSettings dialog( this, -1, _("Grid Settings"), GetPosition() + wxPoint(60,60), wxSize(200, 200) );
             dialog.ShowModal();
             //if( dialog.ShowModal() != wxID_OK )
@@ -441,13 +465,6 @@ void EngineMainFrame::OnGameMenu(wxCommandEvent& event)
         g_pEngineCore->m_Debug_DrawSelectedAnimatedMesh = !g_pEngineCore->m_Debug_DrawSelectedAnimatedMesh;
         break;
     }
-}
-
-void EngineMainFrame::ResizeViewport()
-{
-    MainFrame::ResizeViewport();
-
-    m_pGLCanvasEditor->ResizeViewport();
 }
 
 void EngineMainFrame::SetWindowPerspectiveToDefault(bool forceswitch)
@@ -699,7 +716,9 @@ void EngineMainFrame::OnDrop(wxCoord x, wxCoord y)
             }
         }
 
-        if( pFile && strcmp( pFile->m_ExtensionWithDot, ".obj" ) == 0 )
+        if( pFile &&
+            ( strcmp( pFile->m_ExtensionWithDot, ".obj" ) == 0 || strcmp( pFile->m_ExtensionWithDot, ".mymesh" ) == 0 )
+          )
         {
             // TODO: undo/redo
 

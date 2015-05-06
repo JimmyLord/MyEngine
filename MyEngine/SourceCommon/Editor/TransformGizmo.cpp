@@ -16,6 +16,9 @@ TransformGizmo::TransformGizmo()
 
     for( int i=0; i<3; i++ )
         m_pTransformGizmos[i] = 0;
+
+    m_LastIntersectResultIsValid = false;
+    m_LastIntersectResultUsed.Set(0,0,0);
 }
 
 TransformGizmo::~TransformGizmo()
@@ -309,8 +312,37 @@ void TransformGizmo::TranslateSelectedObjects(EngineCore* pGame, EditorState* pE
                 // find the diff pos between this frame and last.
                 Vector3 diff = currentresult - lastresult;
 
+                // if snapping to grid is enabled, then use m_LastIntersectResultUsed instead of last frames result.
+                if( g_pEngineMainFrame->m_GridSettings.snapenabled )
+                {
+                    // snap object 0 to grid, all other will stay relative.
+                    Vector3 pos = pEditorState->m_pSelectedObjects[0]->m_pComponentTransform->GetPosition();
+
+                    if( m_LastIntersectResultIsValid == false )
+                    {
+                        m_LastIntersectResultUsed = lastresult;
+                        m_LastIntersectResultIsValid = true;
+                    }
+
+                    diff = currentresult - m_LastIntersectResultUsed;
+
+                    Vector3 finalpos = pos + diff/2;
+                    Vector3 newfinalpos;
+                    newfinalpos.x = MyRoundToMultipleOf( finalpos.x, g_pEngineMainFrame->m_GridSettings.stepsize.x );
+                    newfinalpos.y = MyRoundToMultipleOf( finalpos.y, g_pEngineMainFrame->m_GridSettings.stepsize.y );
+                    newfinalpos.z = MyRoundToMultipleOf( finalpos.z, g_pEngineMainFrame->m_GridSettings.stepsize.z );
+
+                    diff = newfinalpos - pos;
+
+                    if( diff.x != 0 )
+                        m_LastIntersectResultUsed.x = currentresult.x;
+                    if( diff.y != 0 )
+                        m_LastIntersectResultUsed.y = currentresult.y;
+                    if( diff.z != 0 )
+                        m_LastIntersectResultUsed.z = currentresult.z;
+                }
+
                 // move all of the things. // undo is handled by EngineCore.cpp when mouse is lifted.
-                //g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_MoveObjects( diff, pEditorState->m_pSelectedObjects ) );
                 pEditorState->m_DistanceTranslated += diff;
                 //LOGInfo( LOGTag, "pEditorState->m_DistanceTranslated.Set( %f, %f, %f );", pEditorState->m_DistanceTranslated.x, pEditorState->m_DistanceTranslated.y, pEditorState->m_DistanceTranslated.z );
                 //LOGInfo( LOGTag, "diff( %f, %f, %f, %d );", diff.x, diff.y, diff.z, pEditorState->m_pSelectedObjects.size() );
@@ -320,6 +352,7 @@ void TransformGizmo::TranslateSelectedObjects(EngineCore* pGame, EditorState* pE
                     Vector3 pos = pEditorState->m_pSelectedObjects[i]->m_pComponentTransform->GetPosition();
                     //pos.y = currentresult.y;
                     //pEditorState->m_pSelectedObjects[i]->m_pComponentTransform->SetPosition( pos );
+
                     pEditorState->m_pSelectedObjects[i]->m_pComponentTransform->SetPositionByEditor( pos + diff );
                     pEditorState->m_pSelectedObjects[i]->m_pComponentTransform->UpdateMatrix();
                 }

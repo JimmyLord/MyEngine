@@ -168,12 +168,13 @@ char* ComponentSystemManager::SaveSceneToJSON()
             pFile = (MyFileObject*)pFile->GetNext();
         }
 
-        pFile = g_pFileManager->GetFirstFileStillLoading();
-        while( pFile != 0 )
-        {
-            cJSON_AddItemToArray( filearray, cJSON_CreateString( pFile->m_FullPath ) );
-            pFile = (MyFileObject*)pFile->GetNext();
-        }
+        // don't save files still loading, they can be readded if needed.
+        //pFile = g_pFileManager->GetFirstFileStillLoading();
+        //while( pFile != 0 )
+        //{
+        //    cJSON_AddItemToArray( filearray, cJSON_CreateString( pFile->m_FullPath ) );
+        //    pFile = (MyFileObject*)pFile->GetNext();
+        //}
     }
 
     // add the game objects and their transform components.

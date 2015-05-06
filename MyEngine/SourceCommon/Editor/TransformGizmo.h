@@ -19,6 +19,9 @@ public:
 
     int m_SelectedPart;
 
+    bool m_LastIntersectResultIsValid;
+    Vector3 m_LastIntersectResultUsed;
+
 public:
     TransformGizmo();
     virtual ~TransformGizmo();
