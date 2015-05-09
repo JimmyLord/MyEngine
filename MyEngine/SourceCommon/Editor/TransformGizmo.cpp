@@ -150,7 +150,7 @@ void TransformGizmo::CreateAxisObjects(float scale, MaterialDefinition* pMateria
             pComponentMesh->m_LayersThisExistsOn = Layer_EditorFG;
             pComponentMesh->m_pMesh = MyNew MyMesh();
             pComponentMesh->m_pMesh->CreateEditorTransformGizmoAxis( 3, 0.05f, ColorByte(255, 100, 100, 255) );
-            pComponentMesh->m_GLPrimitiveType = pComponentMesh->m_pMesh->m_PrimitiveType;
+            pComponentMesh->m_GLPrimitiveType = pComponentMesh->m_pMesh->m_SubmeshList[0]->m_PrimitiveType;
         }
 
         pEditorState->m_pTransformGizmo->m_pTransformGizmos[0] = pGameObject;
@@ -168,7 +168,7 @@ void TransformGizmo::CreateAxisObjects(float scale, MaterialDefinition* pMateria
             pComponentMesh->m_LayersThisExistsOn = Layer_EditorFG;
             pComponentMesh->m_pMesh = MyNew MyMesh();
             pComponentMesh->m_pMesh->CreateEditorTransformGizmoAxis( 3, 0.05f, ColorByte(100, 255, 100, 255) );
-            pComponentMesh->m_GLPrimitiveType = pComponentMesh->m_pMesh->m_PrimitiveType;
+            pComponentMesh->m_GLPrimitiveType = pComponentMesh->m_pMesh->m_SubmeshList[0]->m_PrimitiveType;
         }
 
         pEditorState->m_pTransformGizmo->m_pTransformGizmos[1] = pGameObject;
@@ -186,7 +186,7 @@ void TransformGizmo::CreateAxisObjects(float scale, MaterialDefinition* pMateria
             pComponentMesh->m_LayersThisExistsOn = Layer_EditorFG;
             pComponentMesh->m_pMesh = MyNew MyMesh();
             pComponentMesh->m_pMesh->CreateEditorTransformGizmoAxis( 3, 0.05f, ColorByte(100, 100, 255, 255) );
-            pComponentMesh->m_GLPrimitiveType = pComponentMesh->m_pMesh->m_PrimitiveType;
+            pComponentMesh->m_GLPrimitiveType = pComponentMesh->m_pMesh->m_SubmeshList[0]->m_PrimitiveType;
         }
 
         pEditorState->m_pTransformGizmo->m_pTransformGizmos[2] = pGameObject;

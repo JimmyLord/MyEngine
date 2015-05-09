@@ -1079,7 +1079,7 @@ void EngineCore::CreateDefaultSceneObjects(bool createeditorobjects)
                 pComponentMesh->m_pMesh->CreateEditorLineGridXZ( Vector3(0,0,0), 1, 5 );
                 // TODOMaterials: put this back for plane.
                 //pComponentMesh->m_pMesh->m_Tint.Set( 150, 150, 150, 255 );
-                pComponentMesh->m_GLPrimitiveType = pComponentMesh->m_pMesh->m_PrimitiveType;
+                pComponentMesh->m_GLPrimitiveType = pComponentMesh->m_pMesh->m_SubmeshList[0]->m_PrimitiveType;
             }
 
             //m_pComponentSystemManager->AddComponent( pComponentMesh );

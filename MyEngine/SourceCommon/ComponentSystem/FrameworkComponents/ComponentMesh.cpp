@@ -172,10 +172,13 @@ void ComponentMesh::Draw(MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride, i
 
     if( m_pMesh )
     {
-        if( m_pMaterial )
-            m_pMesh->SetMaterial( m_pMaterial );
-        m_pMesh->m_PrimitiveType = m_GLPrimitiveType;
-        m_pMesh->m_PointSize = m_PointSize;
+        if( m_pMesh->m_SubmeshList.Count() > 0 )
+        {
+            if( m_pMaterial )
+                m_pMesh->SetMaterial( m_pMaterial );
+            m_pMesh->m_SubmeshList[0]->m_PrimitiveType = m_GLPrimitiveType;
+            m_pMesh->m_SubmeshList[0]->m_PointSize = m_PointSize;
+        }
 
         m_pMesh->SetTransform( m_pComponentTransform->m_Transform );
 

@@ -94,7 +94,7 @@ void ComponentMeshPrimitive::OnValueChanged(int controlid, bool finishedchanging
 {
     if( finishedchanging )
     {
-        if( controlid == m_ControlID_MeshPrimitiveType )
+        //if( controlid == m_ControlID_MeshPrimitiveType )
         {
             CreatePrimitive();
             g_pPanelWatch->m_NeedsRefresh = true;
@@ -175,7 +175,8 @@ void ComponentMeshPrimitive::CreatePrimitive()
     if( m_pMesh == 0 )
         m_pMesh = MyNew MyMesh;
 
-    m_pMesh->m_PrimitiveType = m_GLPrimitiveType;
+    if( m_pMesh->m_SubmeshList.Count() > 0 )
+        m_pMesh->m_SubmeshList[0]->m_PrimitiveType = m_GLPrimitiveType;
 
     if( m_MeshPrimitiveType == ComponentMeshPrimitive_Plane )
     {
