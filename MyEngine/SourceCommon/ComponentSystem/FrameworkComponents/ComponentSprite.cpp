@@ -81,7 +81,8 @@ cJSON* ComponentSprite::ExportAsJSONObject()
 
     cJSONExt_AddUnsignedCharArrayToObject( component, "Tint", &m_Tint.r, 4 );
     cJSONExt_AddFloatArrayToObject( component, "Size", &m_Size.x, 2 );
-    cJSON_AddStringToObject( component, "Material", m_pSprite->GetMaterial()->m_pFile->m_FullPath );
+    if( m_pSprite->GetMaterial() )
+        cJSON_AddStringToObject( component, "Material", m_pSprite->GetMaterial()->m_pFile->m_FullPath );
 
     return component;
 }
@@ -94,8 +95,11 @@ void ComponentSprite::ImportFromJSONObject(cJSON* jsonobj, unsigned int sceneid)
     cJSONExt_GetFloatArray( jsonobj, "Size", &m_Size.x, 2 );
     
     cJSON* materialobj = cJSON_GetObjectItem( jsonobj, "Material" );
-    MaterialDefinition* pMaterial = g_pMaterialManager->FindMaterialByFilename( materialobj->valuestring );
-    m_pSprite->SetMaterial( pMaterial );
+    if( materialobj )
+    {
+        MaterialDefinition* pMaterial = g_pMaterialManager->FindMaterialByFilename( materialobj->valuestring );
+        m_pSprite->SetMaterial( pMaterial );
+    }
 }
 
 void ComponentSprite::Reset()
