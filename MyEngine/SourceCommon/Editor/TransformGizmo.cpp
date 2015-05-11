@@ -44,15 +44,15 @@ void TransformGizmo::Tick(double TimePassed, EditorState* pEditorState)
         {
             // TODOMaterials: put this back for transform gizmo.
             if( i == 0 )
-                pMesh->m_pMaterial->m_Tint.Set( 255, 100, 100, 255 );
+                pMesh->m_pMaterial->m_ColorDiffuse.Set( 255, 100, 100, 255 );
             if( i == 1 )
-                pMesh->m_pMaterial->m_Tint.Set( 100, 255, 100, 255 );
+                pMesh->m_pMaterial->m_ColorDiffuse.Set( 100, 255, 100, 255 );
             if( i == 2 )
-                pMesh->m_pMaterial->m_Tint.Set( 100, 100, 255, 255 );
+                pMesh->m_pMaterial->m_ColorDiffuse.Set( 100, 100, 255, 255 );
 
             if( i == m_SelectedPart )
             {
-                pMesh->m_pMaterial->m_Tint.Set( 255,255,255,255 );
+                pMesh->m_pMaterial->m_ColorDiffuse.Set( 255,255,255,255 );
             }
         }
 

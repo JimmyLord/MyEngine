@@ -133,6 +133,15 @@ void ComponentMeshOBJ::SetMesh(MyMesh* pMesh)
 
     SAFE_RELEASE( m_pMesh );
     m_pMesh = pMesh;
+
+    if( m_pMaterial == 0 )
+    {
+        if( pMesh->m_MeshReady == false )
+            pMesh->ParseFile();
+
+        if( pMesh->m_MeshReady == true )
+            m_pMaterial = pMesh->m_SubmeshList[0]->m_pMaterial;
+    }
 }
 
 void ComponentMeshOBJ::Draw(MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride, int drawcount)

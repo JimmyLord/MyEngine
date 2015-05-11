@@ -292,7 +292,7 @@ void ComponentSystemManager::LoadDatafile(const char* relativepath, unsigned int
                 }
             }
 
-            sprintf_s( params, paramsbuffersize, "-s %s -o Data/Meshes/%s", relativepath, filename );
+            sprintf_s( params, paramsbuffersize, "-s %s -o Data/Meshes/%s -m Data/Materials", relativepath, filename );
 
             LOGInfo( LOGTag, "Converting %s to mymesh %s\n", relativepath, params );
 
