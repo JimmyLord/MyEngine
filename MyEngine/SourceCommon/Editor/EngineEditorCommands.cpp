@@ -303,7 +303,7 @@ EditorCommand_ChangeTextureOnMaterial::~EditorCommand_ChangeTextureOnMaterial()
 
 void EditorCommand_ChangeTextureOnMaterial::Do()
 {
-    m_pOldTexture = m_pMaterial->m_pTextureColor;
+    m_pOldTexture = m_pMaterial->GetTextureColor();
 
     m_pMaterial->SetTextureColor( m_pNewTexture );
 }
@@ -336,7 +336,7 @@ EditorCommand_ChangeShaderOnMaterial::~EditorCommand_ChangeShaderOnMaterial()
 
 void EditorCommand_ChangeShaderOnMaterial::Do()
 {
-    m_pOldShaderGroup = m_pMaterial->m_pShaderGroup;
+    m_pOldShaderGroup = m_pMaterial->GetShader();
 
     m_pMaterial->SetShader( m_pNewShaderGroup );
 }

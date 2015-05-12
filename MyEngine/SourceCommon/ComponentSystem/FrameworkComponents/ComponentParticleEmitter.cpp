@@ -216,7 +216,7 @@ void ComponentParticleEmitter::SetMaterial(MaterialDefinition* pMaterial)
     SAFE_RELEASE( m_pMaterial );
     m_pMaterial = pMaterial;
 
-    m_pParticleRenderer->SetShaderAndTexture( m_pMaterial->m_pShaderGroup, pMaterial->m_pTextureColor );
+    m_pParticleRenderer->SetShaderAndTexture( m_pMaterial->GetShader(), pMaterial->GetTextureColor() );
 }
 
 void ComponentParticleEmitter::CreateBurst(int number, Vector3 pos)
@@ -312,6 +312,6 @@ void ComponentParticleEmitter::Draw(MyMatrix* pMatViewProj, ShaderGroup* pShader
 
     Vector3 pos = m_pComponentTransform->GetPosition();
     CreateBurst( 1, pos );
-    m_pParticleRenderer->SetShaderAndTexture( m_pMaterial->m_pShaderGroup, m_pMaterial->m_pTextureColor );
+    m_pParticleRenderer->SetShaderAndTexture( m_pMaterial->GetShader(), m_pMaterial->GetTextureColor() );
     m_pParticleRenderer->Draw( pMatViewProj );
 }

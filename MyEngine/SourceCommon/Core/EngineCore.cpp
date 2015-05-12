@@ -95,8 +95,8 @@ void EngineCore::OneTimeInit()
 #endif //MYFW_USING_WX
 
     // setup our shaders
-    m_pShaderFile_TintColor = RequestFile( "Data/Shaders/Shader_TintColor.glsl" );
-    m_pShaderFile_ClipSpaceTexture = RequestFile( "Data/Shaders/Shader_ClipSpaceTexture.glsl" );
+    m_pShaderFile_TintColor = RequestFile( "DataEngine/Shaders/Shader_TintColor.glsl" );
+    m_pShaderFile_ClipSpaceTexture = RequestFile( "DataEngine/Shaders/Shader_ClipSpaceTexture.glsl" );
     m_pShader_TintColor = MyNew ShaderGroup( m_pShaderFile_TintColor, m_pShaderFile_TintColor->m_FilenameWithoutExtension );
     m_pShader_ClipSpaceTexture = MyNew ShaderGroup( m_pShaderFile_ClipSpaceTexture, m_pShaderFile_ClipSpaceTexture->m_FilenameWithoutExtension );
     m_pMaterial_3DGrid = MyNew MaterialDefinition( m_pShader_TintColor, ColorByte(128,128,128,255) );
@@ -251,7 +251,7 @@ void EngineCore::OnDrawFrame()
             m_pDebugQuadSprite = MyNew MySprite();
 
         m_pDebugQuadSprite->CreateInPlace( "debug", 0.75f, 0.75f, 0.5f, 0.5f, 0, 1, 1, 0, Justify_Center, false );
-        m_pMaterial_MousePicker->m_pTextureColor = m_pEditorState->m_pMousePickerFBO->m_pColorTexture;
+        m_pMaterial_MousePicker->SetTextureColor( m_pEditorState->m_pMousePickerFBO->m_pColorTexture );
         m_pDebugQuadSprite->SetMaterial( m_pMaterial_MousePicker );
         m_pDebugQuadSprite->Draw( 0 );
     }
@@ -283,7 +283,7 @@ void EngineCore::OnDrawFrame()
                     m_pDebugQuadSprite = MyNew MySprite();
 
                 m_pDebugQuadSprite->CreateInPlace( "debug", 0.5f, 0.5f, 1.0f, 1.0f, 0, 1, 1, 0, Justify_Center, false );
-                m_pMaterial_ClipSpaceTexture->m_pTextureColor = m_pEditorState->m_pDebugViewFBO->m_pColorTexture;
+                m_pMaterial_ClipSpaceTexture->SetTextureColor( m_pEditorState->m_pDebugViewFBO->m_pColorTexture );
                 m_pDebugQuadSprite->SetMaterial( m_pMaterial_ClipSpaceTexture );
                 m_pDebugQuadSprite->Draw( 0 );
             }
@@ -296,7 +296,7 @@ void EngineCore::OnDrawFrame()
                     m_pDebugQuadSprite = MyNew MySprite();
 
                 m_pDebugQuadSprite->CreateInPlace( "debug", 0.5f, 0.5f, 1.0f, 1.0f, 0, 1, 1, 0, Justify_Center, false );
-                m_pMaterial_ClipSpaceTexture->m_pTextureColor = pCamera->m_pDepthFBO->m_pDepthTexture;
+                m_pMaterial_ClipSpaceTexture->SetTextureColor( pCamera->m_pDepthFBO->m_pDepthTexture );
                 m_pDebugQuadSprite->SetMaterial( m_pMaterial_ClipSpaceTexture );
                 m_pDebugQuadSprite->Draw( 0 );
             }

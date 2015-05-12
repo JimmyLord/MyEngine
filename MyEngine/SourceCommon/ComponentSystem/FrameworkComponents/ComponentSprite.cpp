@@ -56,7 +56,7 @@ void ComponentSprite::FillPropertiesWindow(bool clear)
         const char* desc = "no material";
         assert( m_pSprite );
         MaterialDefinition* pMaterial = m_pSprite->GetMaterial();
-        if( pMaterial )
+        if( pMaterial && pMaterial->m_pFile )
             desc = pMaterial->m_pFile->m_FullPath;
         g_pPanelWatch->AddPointerWithDescription( "Material", 0, desc, this, ComponentSprite::StaticOnDropMaterial );
     }
@@ -81,7 +81,7 @@ cJSON* ComponentSprite::ExportAsJSONObject()
 
     cJSONExt_AddUnsignedCharArrayToObject( component, "Tint", &m_Tint.r, 4 );
     cJSONExt_AddFloatArrayToObject( component, "Size", &m_Size.x, 2 );
-    if( m_pSprite->GetMaterial() )
+    if( m_pSprite->GetMaterial() && m_pSprite->GetMaterial()->m_pFile )
         cJSON_AddStringToObject( component, "Material", m_pSprite->GetMaterial()->m_pFile->m_FullPath );
 
     return component;

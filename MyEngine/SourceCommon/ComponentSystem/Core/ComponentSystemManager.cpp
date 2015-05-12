@@ -164,7 +164,16 @@ char* ComponentSystemManager::SaveSceneToJSON()
         MyFileObject* pFile = g_pFileManager->GetFirstFileLoaded();
         while( pFile != 0 )
         {
+            // skip over shader include files.
+            MyFileObjectShader* pShaderFile = dynamic_cast<MyFileObjectShader*>( pFile );
+            if( pShaderFile && pShaderFile->m_IsAnIncludeFile )
+            {
+                pFile = (MyFileObject*)pFile->GetNext();
+                continue;
+            }
+
             cJSON_AddItemToArray( filearray, cJSON_CreateString( pFile->m_FullPath ) );
+            
             pFile = (MyFileObject*)pFile->GetNext();
         }
 
