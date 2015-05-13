@@ -114,6 +114,7 @@ public:
     void OnDrawFrame(ComponentCamera* pCamera, MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride);
     void DrawMousePickerFrame(ComponentCamera* pCamera, MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride);
 
+    void OnLoad();
     void OnPlay();
     void OnStop();
 

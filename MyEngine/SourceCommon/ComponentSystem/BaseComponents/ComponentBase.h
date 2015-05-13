@@ -48,6 +48,7 @@ public:
     virtual void CopyFromSameType_Dangerous(ComponentBase* pObject) { *this = (ComponentBase&)*pObject; }
     virtual ComponentBase& operator=(const ComponentBase& other);
 
+    virtual void OnLoad() {}
     virtual void OnPlay() {}
     virtual void OnStop() {}
 

@@ -97,8 +97,8 @@ void EngineCore::OneTimeInit()
     // setup our shaders
     m_pShaderFile_TintColor = RequestFile( "DataEngine/Shaders/Shader_TintColor.glsl" );
     m_pShaderFile_ClipSpaceTexture = RequestFile( "DataEngine/Shaders/Shader_ClipSpaceTexture.glsl" );
-    m_pShader_TintColor = MyNew ShaderGroup( m_pShaderFile_TintColor, m_pShaderFile_TintColor->m_FilenameWithoutExtension );
-    m_pShader_ClipSpaceTexture = MyNew ShaderGroup( m_pShaderFile_ClipSpaceTexture, m_pShaderFile_ClipSpaceTexture->m_FilenameWithoutExtension );
+    m_pShader_TintColor = MyNew ShaderGroup( m_pShaderFile_TintColor );
+    m_pShader_ClipSpaceTexture = MyNew ShaderGroup( m_pShaderFile_ClipSpaceTexture );
     m_pMaterial_3DGrid = MyNew MaterialDefinition( m_pShader_TintColor, ColorByte(128,128,128,255) );
     m_pMaterial_TransformGizmoX = MyNew MaterialDefinition( m_pShader_TintColor, ColorByte(255,0,0,255) );
     m_pMaterial_TransformGizmoY = MyNew MaterialDefinition( m_pShader_TintColor, ColorByte(0,255,0,255) );
@@ -438,17 +438,17 @@ void EngineCore::OnModePlay()
 {
     if( m_EditorMode )
     {
+#if MYFW_USING_WX
         g_pMaterialManager->SaveAllMaterials();
         g_pComponentSystemManager->AddAllMaterialsToFilesList();
         SaveScene( "temp_editor_onplay.scene" );
         m_EditorMode = false;
         m_Paused = false;
-#if MYFW_USING_WX
         g_pEngineMainFrame->SetWindowPerspectiveToDefault();
-#endif
         m_pComponentSystemManager->OnPlay();
 
         RegisterGameplayButtons();
+#endif
     }
 }
 
@@ -1334,6 +1334,7 @@ void EngineCore::LoadScene(const char* buffer, unsigned int sceneid)
 
     g_pComponentSystemManager->LoadSceneFromJSON( buffer, sceneid );
     m_pLuaGameState->Rebuild(); // reset the lua state.
+    g_pComponentSystemManager->OnLoad();
 
 #if MYFW_USING_WX
     m_EditorMode = true;

@@ -307,7 +307,7 @@ void ComponentLuaScript::LoadScript()
                     }
 
                     ParseExterns( LuaObject );
-                    OnLoad();
+                    OnScriptLoaded();
                 }
             }
             else
@@ -462,7 +462,7 @@ void ComponentLuaScript::HandleLuaError(const char* functionname, const char* er
     lua_pop( m_pLuaGameState->m_pLuaState, 1 );
 }
 
-void ComponentLuaScript::OnLoad()
+void ComponentLuaScript::OnScriptLoaded()
 {
     if( m_ErrorInScript )
         return;
@@ -485,6 +485,13 @@ void ComponentLuaScript::OnLoad()
             }
         }
     }
+}
+
+void ComponentLuaScript::OnLoad()
+{
+    m_ScriptLoaded = false;
+    m_ErrorInScript = false;
+    LoadScript();
 }
 
 void ComponentLuaScript::OnPlay()
@@ -548,10 +555,6 @@ void ComponentLuaScript::OnStop()
 {
     ComponentUpdateable::OnStop();
 
-    m_ScriptLoaded = false;
-    m_ErrorInScript = false;
-    LoadScript();
-
     if( m_Playing && m_ErrorInScript == false )
     {
         luabridge::LuaRef LuaObject = luabridge::getGlobal( m_pLuaGameState->m_pLuaState, m_pScriptFile->m_FilenameWithoutExtension );
@@ -571,6 +574,9 @@ void ComponentLuaScript::OnStop()
         }
     }
 
+    m_ScriptLoaded = false;
+    m_ErrorInScript = false;
+    //LoadScript();
     m_Playing = false;
 }
 

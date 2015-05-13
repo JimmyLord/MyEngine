@@ -54,7 +54,8 @@ LuaGameState::LuaGameState()
 
     m_pLuaState = 0;
 
-    Rebuild();
+    // don't build on init, Rebuild is called after a scene is loaded.
+    //Rebuild();
 }
 
 LuaGameState::~LuaGameState()

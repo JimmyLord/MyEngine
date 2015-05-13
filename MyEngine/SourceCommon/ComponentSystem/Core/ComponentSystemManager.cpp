@@ -380,7 +380,16 @@ void ComponentSystemManager::LoadDatafile(const char* relativepath, unsigned int
         // if we're loading an .glsl file, create a ShaderGroup.
         if( strcmp( pFile->m_ExtensionWithDot, ".glsl" ) == 0 )
         {
-            pFileInfo->m_pShaderGroup = MyNew ShaderGroup( pFile, pFile->m_FilenameWithoutExtension );
+            ShaderGroup* pShaderGroup = g_pShaderGroupManager->FindShaderGroupByFile( pFile );
+            if( pShaderGroup )
+            {
+                pShaderGroup->AddRef();
+                pFileInfo->m_pShaderGroup = pShaderGroup;
+            }
+            else
+            {
+                pFileInfo->m_pShaderGroup = MyNew ShaderGroup( pFile );
+            }
         }
 
         // if we're loading an .mymaterial file, create a Material.
@@ -1006,6 +1015,15 @@ void ComponentSystemManager::DrawSingleObject(MyMatrix* pMatViewProj, GameObject
     }
 }
 #endif //MYFW_USING_WX
+
+void ComponentSystemManager::OnLoad()
+{
+    for( CPPListNode* node = m_ComponentsUpdateable.GetHead(); node != 0; node = node->GetNext() )
+    {
+        ComponentBase* pComponent = (ComponentBase*)node;
+        pComponent->OnLoad();
+    }
+}
 
 void ComponentSystemManager::OnPlay()
 {

@@ -67,11 +67,12 @@ public:
 
     void HandleLuaError(const char* functionname, const char* errormessage);
 
+    virtual void OnLoad();
     virtual void OnPlay();
     virtual void OnStop();
     virtual void Tick(double TimePassed);
 
-    void OnLoad();
+    void OnScriptLoaded();
     bool OnTouch(int action, int id, float x, float y, float pressure, float size);
     bool OnButtons(GameCoreButtonActions action, GameCoreButtonIDs id);
 
