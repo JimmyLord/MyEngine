@@ -97,8 +97,10 @@ void ComponentSprite::ImportFromJSONObject(cJSON* jsonobj, unsigned int sceneid)
     cJSON* materialobj = cJSON_GetObjectItem( jsonobj, "Material" );
     if( materialobj )
     {
-        MaterialDefinition* pMaterial = g_pMaterialManager->FindMaterialByFilename( materialobj->valuestring );
-        m_pSprite->SetMaterial( pMaterial );
+        MaterialDefinition* pMaterial = g_pMaterialManager->LoadMaterial( materialobj->valuestring );
+        if( pMaterial )
+            m_pSprite->SetMaterial( pMaterial );
+        pMaterial->Release();
     }
 }
 

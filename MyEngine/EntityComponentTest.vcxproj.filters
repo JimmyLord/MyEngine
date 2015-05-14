@@ -276,6 +276,9 @@
     <ClCompile Include="SourceCommon\Editor\Dialogs\DialogGridSettings.cpp">
       <Filter>Source\Editor\Dialogs</Filter>
     </ClCompile>
+    <ClCompile Include="SourceCommon\ComponentSystem\Core\EngineFileManager.cpp">
+      <Filter>Source\ComponentSystem\Core Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SourceCommon\Camera\Camera3D.h">
@@ -505,6 +508,9 @@
     </ClInclude>
     <ClInclude Include="SourceCommon\Editor\Dialogs\DialogGridSettings.h">
       <Filter>Source\Editor\Dialogs</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCommon\ComponentSystem\Core\EngineFileManager.h">
+      <Filter>Source\ComponentSystem\Core Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

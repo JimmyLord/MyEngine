@@ -1964,6 +1964,7 @@
     <ClCompile Include="SourceCommon\ComponentSystem\BaseComponents\ComponentUpdateable.cpp" />
     <ClCompile Include="SourceCommon\ComponentSystem\Core\ComponentSystemManager.cpp" />
     <ClCompile Include="SourceCommon\ComponentSystem\Core\ComponentTypeManager.cpp" />
+    <ClCompile Include="SourceCommon\ComponentSystem\Core\EngineFileManager.cpp" />
     <ClCompile Include="SourceCommon\ComponentSystem\Core\GameObject.cpp" />
     <ClCompile Include="SourceCommon\ComponentSystem\FrameworkComponents\ComponentAnimationPlayer.cpp" />
     <ClCompile Include="SourceCommon\ComponentSystem\FrameworkComponents\ComponentCameraShadow.cpp" />
@@ -2113,6 +2114,7 @@
     <ClInclude Include="SourceCommon\ComponentSystem\BaseComponents\ComponentUpdateable.h" />
     <ClInclude Include="SourceCommon\ComponentSystem\Core\ComponentSystemManager.h" />
     <ClInclude Include="SourceCommon\ComponentSystem\Core\ComponentTypeManager.h" />
+    <ClInclude Include="SourceCommon\ComponentSystem\Core\EngineFileManager.h" />
     <ClInclude Include="SourceCommon\ComponentSystem\Core\GameObject.h" />
     <ClInclude Include="SourceCommon\ComponentSystem\FrameworkComponents\ComponentAnimationPlayer.h" />
     <ClInclude Include="SourceCommon\ComponentSystem\FrameworkComponents\ComponentCameraShadow.h" />

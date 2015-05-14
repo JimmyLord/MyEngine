@@ -91,11 +91,10 @@ void ComponentPostEffect::ImportFromJSONObject(cJSON* jsonobj, unsigned int scen
     cJSON* materialstringobj = cJSON_GetObjectItem( jsonobj, "Material" );
     if( materialstringobj )
     {
-        MaterialDefinition* pMaterial = g_pMaterialManager->FindMaterialByFilename( materialstringobj->valuestring );
+        MaterialDefinition* pMaterial = g_pMaterialManager->LoadMaterial( materialstringobj->valuestring );
         if( pMaterial )
-        {
             SetMaterial( pMaterial );
-        }
+        pMaterial->Release();
     }
 }
 

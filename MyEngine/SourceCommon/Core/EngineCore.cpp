@@ -85,6 +85,14 @@ EngineCore::~EngineCore()
     SAFE_DELETE( m_pBulletWorld );
 }
 
+void EngineCore::InitializeManagers()
+{
+    if( g_pFileManager == 0 )
+        g_pFileManager = MyNew EngineFileManager;
+
+    GameCore::InitializeManagers();
+}
+
 void EngineCore::OneTimeInit()
 {
     GameCore::OneTimeInit();

@@ -174,13 +174,10 @@ void ComponentParticleEmitter::ImportFromJSONObject(cJSON* jsonobj, unsigned int
     cJSON* materialstringobj = cJSON_GetObjectItem( jsonobj, "Material" );
     if( materialstringobj )
     {
-        MaterialDefinition* pMaterial = g_pMaterialManager->FindMaterialByFilename( materialstringobj->valuestring );
+        MaterialDefinition* pMaterial = g_pMaterialManager->LoadMaterial( materialstringobj->valuestring );
         if( pMaterial )
-        {
-            pMaterial->AddRef();
-            SAFE_RELEASE( m_pMaterial );
-            m_pMaterial = pMaterial;
-        }
+            SetMaterial( pMaterial );
+        pMaterial->Release();
     }
 }
 
@@ -309,6 +306,9 @@ void ComponentParticleEmitter::Tick(double TimePassed)
 void ComponentParticleEmitter::Draw(MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride, int drawcount)
 {
     ComponentRenderable::Draw( pMatViewProj, pShaderOverride, drawcount );
+
+    if( m_pMaterial == 0 )
+        return;
 
     Vector3 pos = m_pComponentTransform->GetPosition();
     CreateBurst( 1, pos );

@@ -75,6 +75,8 @@ public:
     EngineCore();
     virtual ~EngineCore();
 
+    virtual void InitializeManagers();
+
     virtual ComponentTypeManager* CreateComponentTypeManager() = 0;
 
     virtual void OneTimeInit();

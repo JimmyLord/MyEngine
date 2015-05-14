@@ -43,6 +43,7 @@ extern "C"
 #include "Core/LuaGameState.h"
 
 // core component system code
+#include "ComponentSystem/Core/EngineFileManager.h"
 #include "ComponentSystem/Core/ComponentTypeManager.h"
 #include "ComponentSystem/Core/ComponentSystemManager.h"
 #include "ComponentSystem/BaseComponents/ComponentBase.h"

@@ -124,13 +124,10 @@ void ComponentMesh::ImportFromJSONObject(cJSON* jsonobj, unsigned int sceneid)
     cJSON* materialstringobj = cJSON_GetObjectItem( jsonobj, "Material" );
     if( materialstringobj )
     {
-        MaterialDefinition* pMaterial = g_pMaterialManager->FindMaterialByFilename( materialstringobj->valuestring );
+        MaterialDefinition* pMaterial = g_pMaterialManager->LoadMaterial( materialstringobj->valuestring );
         if( pMaterial )
-        {
-            pMaterial->AddRef();
-            SAFE_RELEASE( m_pMaterial );
-            m_pMaterial = pMaterial;
-        }
+            SetMaterial( pMaterial );
+        pMaterial->Release();
     }
 
     cJSONExt_GetInt( jsonobj, "PrimitiveType", &m_GLPrimitiveType );

@@ -263,7 +263,7 @@ void ComponentCollisionObject::OnPlay()
             //colShape = new btBvhTriangleMeshShape( meshinterface );
 
             // TODO: fix this, it assumes position at the start of the vertex format.
-            unsigned int stride = m_pMesh->GetStride();
+            unsigned int stride = m_pMesh->GetStride( 0 );
             colShape = new btConvexHullShape( (btScalar*)m_pMesh->GetVerts( false ), m_pMesh->GetNumVerts(), stride );
             ((btConvexHullShape*)colShape)->setMargin( 0.2f );
 

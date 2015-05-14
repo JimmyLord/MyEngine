@@ -395,7 +395,7 @@ void ComponentSystemManager::LoadDatafile(const char* relativepath, unsigned int
         // if we're loading an .mymaterial file, create a Material.
         if( strcmp( pFile->m_ExtensionWithDot, ".mymaterial" ) == 0 )
         {
-            g_pMaterialManager->CreateMaterial( pFile );
+            g_pMaterialManager->LoadMaterial( pFile->m_FullPath );
         }
     }
     else
