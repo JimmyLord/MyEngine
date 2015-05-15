@@ -111,8 +111,8 @@ public:
 
     void AddDatafileToScene();
 
-    static void StaticOnDrop(void* pObjectPtr, wxCoord x, wxCoord y) { ((EngineMainFrame*)pObjectPtr)->OnDrop(x, y); }
-    void OnDrop(wxCoord x, wxCoord y);
+    static void StaticOnDrop(void* pObjectPtr, int controlid, wxCoord x, wxCoord y) { ((EngineMainFrame*)pObjectPtr)->OnDrop(controlid, x, y); }
+    void OnDrop(int controlid, wxCoord x, wxCoord y);
 };
 
 #endif //__EngineMainFrame_H__

@@ -657,7 +657,7 @@ void EngineMainFrame::AddDatafileToScene()
     }
 }
 
-void EngineMainFrame::OnDrop(wxCoord x, wxCoord y)
+void EngineMainFrame::OnDrop(int controlid, wxCoord x, wxCoord y)
 {
     // get the GameObject the mouse was hovering over.
     ComponentCamera* pCamera = g_pEngineCore->m_pEditorState->GetEditorCamera();

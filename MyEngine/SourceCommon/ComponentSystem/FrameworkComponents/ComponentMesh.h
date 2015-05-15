@@ -30,7 +30,7 @@ public:
     virtual ~ComponentMesh();
 
     virtual cJSON* ExportAsJSONObject();
-    virtual void ImportFromJSONObject(cJSON* jsonobj, unsigned int sceneid);
+    virtual void ImportFromJSONObject(cJSON* jComponentMesh, unsigned int sceneid);
 
     virtual void Reset();
     virtual void CopyFromSameType_Dangerous(ComponentBase* pObject) { *this = (ComponentMesh&)*pObject; }
@@ -43,13 +43,14 @@ public:
 public:
 #if MYFW_USING_WX
     static bool m_PanelWatchBlockVisible;
+    int m_ControlID_Material[MAX_SUBMESHES];
 
     virtual void AddToObjectsPanel(wxTreeItemId gameobjectid);
     static void StaticOnLeftClick(void* pObjectPtr) { ((ComponentMesh*)pObjectPtr)->OnLeftClick( true ); }
     void OnLeftClick(bool clear);
     virtual void FillPropertiesWindow(bool clear);
-    static void StaticOnDropMaterial(void* pObjectPtr, wxCoord x, wxCoord y) { ((ComponentMesh*)pObjectPtr)->OnDropMaterial(x, y); }
-    void OnDropMaterial(wxCoord x, wxCoord y);
+    static void StaticOnDropMaterial(void* pObjectPtr, int controlid, wxCoord x, wxCoord y) { ((ComponentMesh*)pObjectPtr)->OnDropMaterial(controlid, x, y); }
+    void OnDropMaterial(int controlid, wxCoord x, wxCoord y);
 #endif //MYFW_USING_WX
 };
 

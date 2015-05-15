@@ -80,8 +80,8 @@ public:
     static void StaticOnLeftClick(void* pObjectPtr) { ((ComponentTransform*)pObjectPtr)->OnLeftClick( true ); }
     void OnLeftClick(bool clear);
     virtual void FillPropertiesWindow(bool clear);
-    static void StaticOnDropTransform(void* pObjectPtr, wxCoord x, wxCoord y) { ((ComponentTransform*)pObjectPtr)->OnDropTransform(x, y); }
-    void OnDropTransform(wxCoord x, wxCoord y);
+    static void StaticOnDropTransform(void* pObjectPtr, int controlid, wxCoord x, wxCoord y) { ((ComponentTransform*)pObjectPtr)->OnDropTransform(controlid, x, y); }
+    void OnDropTransform(int controlid, wxCoord x, wxCoord y);
     static void StaticOnValueChanged(void* pObjectPtr, int controlid, bool finishedchanging) { ((ComponentTransform*)pObjectPtr)->OnValueChanged( controlid, finishedchanging ); }
     void OnValueChanged(int controlid, bool finishedchanging);
 #endif //MYFW_USING_WX

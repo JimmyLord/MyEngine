@@ -166,7 +166,7 @@ void GameObject::OnDrag()
     g_DragAndDropStruct.m_Value = this;
 }
 
-void GameObject::OnDrop(wxCoord x, wxCoord y)
+void GameObject::OnDrop(int controlid, wxCoord x, wxCoord y)
 {
     if( g_DragAndDropStruct.m_Type == DragAndDropType_GameObjectPointer )
     {

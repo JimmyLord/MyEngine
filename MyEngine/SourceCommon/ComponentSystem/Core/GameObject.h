@@ -69,13 +69,13 @@ public:
     static void StaticOnLeftClick(void* pObjectPtr) { ((GameObject*)pObjectPtr)->OnLeftClick(true); }
     static void StaticOnRightClick(void* pObjectPtr) { ((GameObject*)pObjectPtr)->OnRightClick(); }
     static void StaticOnDrag(void* pObjectPtr) { ((GameObject*)pObjectPtr)->OnDrag(); }
-    static void StaticOnDrop(void* pObjectPtr, wxCoord x, wxCoord y) { ((GameObject*)pObjectPtr)->OnDrop(x, y); }
+    static void StaticOnDrop(void* pObjectPtr, int controlid, wxCoord x, wxCoord y) { ((GameObject*)pObjectPtr)->OnDrop(controlid, x, y); }
     static void StaticOnLabelEdit(void* pObjectPtr, wxString newlabel) { ((GameObject*)pObjectPtr)->OnLabelEdit( newlabel ); }
     void OnLeftClick(bool clear);
     void OnRightClick();
     void OnPopupClick(wxEvent &evt); // used as callback for wxEvtHandler, can't be virtual(will crash, haven't looked into it).
     void OnDrag();
-    void OnDrop(wxCoord x, wxCoord y);
+    void OnDrop(int controlid, wxCoord x, wxCoord y);
     void OnLabelEdit(wxString newlabel);
 #endif //MYFW_USING_WX
 };

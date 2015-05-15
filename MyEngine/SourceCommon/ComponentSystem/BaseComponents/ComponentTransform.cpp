@@ -88,7 +88,7 @@ void ComponentTransform::FillPropertiesWindow(bool clear)
     }
 }
 
-void ComponentTransform::OnDropTransform(wxCoord x, wxCoord y)
+void ComponentTransform::OnDropTransform(int controlid, wxCoord x, wxCoord y)
 {
     ComponentTransform* pComponent = 0;
 

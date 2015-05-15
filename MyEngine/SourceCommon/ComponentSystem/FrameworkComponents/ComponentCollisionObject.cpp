@@ -140,7 +140,7 @@ void ComponentCollisionObject::OnValueChanged(int controlid, bool finishedchangi
     }
 }
 
-void ComponentCollisionObject::OnDropOBJ(wxCoord x, wxCoord y)
+void ComponentCollisionObject::OnDropOBJ(int controlid, wxCoord x, wxCoord y)
 {
     if( g_DragAndDropStruct.m_Type == DragAndDropType_FileObjectPointer )
     {

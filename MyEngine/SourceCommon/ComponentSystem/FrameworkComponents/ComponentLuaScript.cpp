@@ -121,9 +121,9 @@ void ComponentLuaScript::FillPropertiesWindow(bool clear)
     }
 }
 
-void ComponentLuaScript::OnDrop(wxCoord x, wxCoord y)
+void ComponentLuaScript::OnDrop(int controlid, wxCoord x, wxCoord y)
 {
-    ComponentUpdateable::OnDrop(x, y);
+    ComponentUpdateable::OnDrop( controlid, x, y );
 
     if( g_DragAndDropStruct.m_Type == DragAndDropType_FileObjectPointer )
     {

@@ -45,8 +45,8 @@ public:
     static void StaticOnLeftClick(void* pObjectPtr) { ((ComponentPostEffect*)pObjectPtr)->OnLeftClick( true ); }
     void OnLeftClick(bool clear);
     virtual void FillPropertiesWindow(bool clear);
-    static void StaticOnDropMaterial(void* pObjectPtr, wxCoord x, wxCoord y) { ((ComponentPostEffect*)pObjectPtr)->OnDropMaterial(x, y); }
-    void OnDropMaterial(wxCoord x, wxCoord y);
+    static void StaticOnDropMaterial(void* pObjectPtr, int controlid, wxCoord x, wxCoord y) { ((ComponentPostEffect*)pObjectPtr)->OnDropMaterial(controlid, x, y); }
+    void OnDropMaterial(int controlid, wxCoord x, wxCoord y);
     static void StaticOnValueChanged(void* pObjectPtr, int controlid, bool finishedchanging) { ((ComponentPostEffect*)pObjectPtr)->OnValueChanged( controlid, finishedchanging ); }
     void OnValueChanged(int controlid, bool finishedchanging);
 #endif //MYFW_USING_WX
