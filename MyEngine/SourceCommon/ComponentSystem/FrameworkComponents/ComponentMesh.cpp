@@ -30,7 +30,9 @@ ComponentMesh::ComponentMesh()
     m_BaseType = BaseComponentType_Renderable;
 
     m_pMesh = 0;
-    m_pMaterial = 0;
+    m_MaterialList.AllocateObjects( MAX_SUBMESHES );
+    for( int i=0; i<MAX_SUBMESHES; i++ )
+        m_MaterialList.Add( 0 );
 
     m_GLPrimitiveType = GL_TRIANGLES;
     m_PointSize = 1;
@@ -39,7 +41,9 @@ ComponentMesh::ComponentMesh()
 ComponentMesh::~ComponentMesh()
 {
     SAFE_RELEASE( m_pMesh );
-    SAFE_RELEASE( m_pMaterial );
+    for( unsigned int i=0; i<m_MaterialList.Count(); i++ )
+        SAFE_RELEASE( m_MaterialList[i] );
+    m_MaterialList.FreeAllInList();
 }
 
 void ComponentMesh::Reset()
@@ -47,7 +51,8 @@ void ComponentMesh::Reset()
     ComponentRenderable::Reset();
 
     SAFE_RELEASE( m_pMesh );
-    SAFE_RELEASE( m_pMaterial );
+    for( unsigned int i=0; i<m_MaterialList.Count(); i++ )
+        SAFE_RELEASE( m_MaterialList[i] );
 
 #if MYFW_USING_WX
     m_pPanelWatchBlockVisible = &m_PanelWatchBlockVisible;
@@ -78,8 +83,8 @@ void ComponentMesh::FillPropertiesWindow(bool clear)
         ComponentRenderable::FillPropertiesWindow( clear );
 
         const char* desc = "no material";
-        if( m_pMaterial )
-            desc = m_pMaterial->GetName();
+        if( m_MaterialList.Count() > 0 )
+            desc = m_MaterialList[0]->GetName();
         g_pPanelWatch->AddPointerWithDescription( "Material", 0, desc, this, ComponentMesh::StaticOnDropMaterial );
 
         g_pPanelWatch->AddEnum( "Primitive Type", &m_GLPrimitiveType, 7, OpenGLPrimitiveTypeStrings );
@@ -93,9 +98,8 @@ void ComponentMesh::OnDropMaterial(wxCoord x, wxCoord y)
     {
         MaterialDefinition* pMaterial = (MaterialDefinition*)g_DragAndDropStruct.m_Value;
         assert( pMaterial );
-        //assert( m_pMesh );
 
-        SetMaterial( pMaterial );
+        SetMaterial( pMaterial, 0 );
 
         // update the panel so new Material name shows up.
         g_pPanelWatch->m_pVariables[g_DragAndDropStruct.m_ID].m_Description = pMaterial->GetName();
@@ -107,9 +111,12 @@ cJSON* ComponentMesh::ExportAsJSONObject()
 {
     cJSON* component = ComponentRenderable::ExportAsJSONObject();
 
-    assert( m_pMaterial == 0 || m_pMaterial->m_pFile ); // new materials should be saved as files before the state is saved.
-    if( m_pMaterial && m_pMaterial->m_pFile )
-        cJSON_AddStringToObject( component, "Material", m_pMaterial->m_pFile->m_FullPath );
+    for( unsigned int i=0; i<m_MaterialList.Count(); i++ )
+    {
+        assert( m_MaterialList[i] == 0 || m_MaterialList[i]->m_pFile ); // new materials should be saved as files before the state is saved.
+        if( m_MaterialList[i] && m_MaterialList[i]->m_pFile )
+            cJSON_AddStringToObject( component, "Material", m_MaterialList[i]->m_pFile->m_FullPath );
+    }
 
     cJSON_AddNumberToObject( component, "PrimitiveType", m_GLPrimitiveType );
     cJSON_AddNumberToObject( component, "PointSize", m_PointSize );
@@ -126,7 +133,7 @@ void ComponentMesh::ImportFromJSONObject(cJSON* jsonobj, unsigned int sceneid)
     {
         MaterialDefinition* pMaterial = g_pMaterialManager->LoadMaterial( materialstringobj->valuestring );
         if( pMaterial )
-            SetMaterial( pMaterial );
+            SetMaterial( pMaterial, 0 );
         pMaterial->Release();
     }
 
@@ -140,13 +147,17 @@ ComponentMesh& ComponentMesh::operator=(const ComponentMesh& other)
 
     ComponentRenderable::operator=( other );
 
+    if( other.m_pMesh )
+        other.m_pMesh->AddRef();
+    SAFE_RELEASE( m_pMesh );
     m_pMesh = other.m_pMesh;
-    if( m_pMesh )
-        m_pMesh->AddRef();
 
-    m_pMaterial = other.m_pMaterial;
-    if( m_pMaterial )
-        m_pMaterial->AddRef();
+    const ComponentMesh* pOther = &other;
+    assert( other.m_MaterialList.Count() == m_MaterialList.Count() );
+    for( unsigned int i=0; i<other.m_MaterialList.Count(); i++ )
+    {
+        SetMaterial( other.m_MaterialList[i], i );
+    }
 
     m_GLPrimitiveType = other.m_GLPrimitiveType;
     m_PointSize = other.m_PointSize;
@@ -154,13 +165,15 @@ ComponentMesh& ComponentMesh::operator=(const ComponentMesh& other)
     return *this;
 }
 
-void ComponentMesh::SetMaterial(MaterialDefinition* pMaterial)
+void ComponentMesh::SetMaterial(MaterialDefinition* pMaterial, int submeshindex)
 {
-    ComponentRenderable::SetMaterial( pMaterial );
+    ComponentRenderable::SetMaterial( pMaterial, submeshindex );
+
+    assert( submeshindex >= 0 && submeshindex < (int)m_MaterialList.Count() );
 
     pMaterial->AddRef();
-    SAFE_RELEASE( m_pMaterial );
-    m_pMaterial = pMaterial;
+    SAFE_RELEASE( m_MaterialList[submeshindex] );
+    m_MaterialList[submeshindex] = pMaterial;
 }
 
 void ComponentMesh::Draw(MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride, int drawcount)
@@ -169,13 +182,15 @@ void ComponentMesh::Draw(MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride, i
 
     if( m_pMesh )
     {
-        if( m_pMesh->m_SubmeshList.Count() > 0 )
+        for( unsigned int i=0; i<m_pMesh->m_SubmeshList.Count(); i++ )
         {
-            if( m_pMaterial )
-                m_pMesh->SetMaterial( m_pMaterial );
-            m_pMesh->m_SubmeshList[0]->m_PrimitiveType = m_GLPrimitiveType;
-            m_pMesh->m_SubmeshList[0]->m_PointSize = m_PointSize;
+            m_pMesh->SetMaterial( m_MaterialList[i], i );
+            m_pMesh->m_SubmeshList[i]->m_PrimitiveType = m_GLPrimitiveType;
+            m_pMesh->m_SubmeshList[i]->m_PointSize = m_PointSize;
         }
+
+        // Temp hack, use material 0 on all submeshes.
+        m_pMesh->SetMaterial( m_MaterialList[0], -1 );
 
         m_pMesh->SetTransform( m_pComponentTransform->m_Transform );
 

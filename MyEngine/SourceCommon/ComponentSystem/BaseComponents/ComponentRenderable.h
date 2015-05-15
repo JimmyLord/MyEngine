@@ -33,8 +33,8 @@ public:
     virtual void CopyFromSameType_Dangerous(ComponentBase* pObject) { *this = (ComponentRenderable&)*pObject; }
     virtual ComponentRenderable& operator=(const ComponentRenderable& other);
 
-    virtual MaterialDefinition* GetMaterial() { return 0; }
-    virtual void SetMaterial(MaterialDefinition* pMaterial);
+    virtual MaterialDefinition* GetMaterial(int submeshindex) { return 0; }
+    virtual void SetMaterial(MaterialDefinition* pMaterial, int submeshindex);
     virtual void Draw(MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride = 0, int drawcount = 0);
 
 public:

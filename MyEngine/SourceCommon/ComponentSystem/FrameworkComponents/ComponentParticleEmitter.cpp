@@ -127,7 +127,7 @@ void ComponentParticleEmitter::OnDropMaterial(wxCoord x, wxCoord y)
         MaterialDefinition* pMaterial = (MaterialDefinition*)g_DragAndDropStruct.m_Value;
         assert( pMaterial );
 
-        SetMaterial( pMaterial );
+        SetMaterial( pMaterial, 0 );
 
         // update the panel so new Material name shows up.
         g_pPanelWatch->m_pVariables[g_DragAndDropStruct.m_ID].m_Description = pMaterial->m_pFile->m_FilenameWithoutExtension;
@@ -176,7 +176,7 @@ void ComponentParticleEmitter::ImportFromJSONObject(cJSON* jsonobj, unsigned int
     {
         MaterialDefinition* pMaterial = g_pMaterialManager->LoadMaterial( materialstringobj->valuestring );
         if( pMaterial )
-            SetMaterial( pMaterial );
+            SetMaterial( pMaterial, 0 );
         pMaterial->Release();
     }
 }
@@ -205,9 +205,9 @@ ComponentParticleEmitter& ComponentParticleEmitter::operator=(const ComponentPar
     return *this;
 }
 
-void ComponentParticleEmitter::SetMaterial(MaterialDefinition* pMaterial)
+void ComponentParticleEmitter::SetMaterial(MaterialDefinition* pMaterial, int submeshindex)
 {
-    ComponentRenderable::SetMaterial( pMaterial );
+    ComponentRenderable::SetMaterial( pMaterial, submeshindex );
 
     pMaterial->AddRef();
     SAFE_RELEASE( m_pMaterial );

@@ -17,6 +17,8 @@ ComponentUpdateable::ComponentUpdateable()
 : ComponentBase()
 {
     m_BaseType = BaseComponentType_Updateable;
+
+    m_pComponentTransform = 0;
 }
 
 ComponentUpdateable::~ComponentUpdateable()

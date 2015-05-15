@@ -132,9 +132,9 @@ ComponentSprite& ComponentSprite::operator=(const ComponentSprite& other)
     return *this;
 }
 
-void ComponentSprite::SetMaterial(MaterialDefinition* pMaterial)
+void ComponentSprite::SetMaterial(MaterialDefinition* pMaterial, int submeshindex)
 {
-    ComponentRenderable::SetMaterial( pMaterial );
+    ComponentRenderable::SetMaterial( pMaterial, 0 );
 
     m_pSprite->SetMaterial( pMaterial );
 }

@@ -1081,7 +1081,7 @@ void EngineCore::CreateDefaultSceneObjects(bool createeditorobjects)
             if( pComponentMesh )
             {
                 pComponentMesh->m_Visible = true; // manually drawn when in editor mode.
-                pComponentMesh->SetMaterial( m_pMaterial_3DGrid ); //( m_pShader_TransformGizmo );
+                pComponentMesh->SetMaterial( m_pMaterial_3DGrid, 0 ); //( m_pShader_TransformGizmo );
                 pComponentMesh->m_LayersThisExistsOn = Layer_Editor;
                 pComponentMesh->m_pMesh = MyNew MyMesh();
                 pComponentMesh->m_pMesh->CreateEditorLineGridXZ( Vector3(0,0,0), 1, 5 );

@@ -42,17 +42,20 @@ void TransformGizmo::Tick(double TimePassed, EditorState* pEditorState)
         assert( pMesh );
         if( pMesh )
         {
-            // TODOMaterials: put this back for transform gizmo.
-            if( i == 0 )
-                pMesh->m_pMaterial->m_ColorDiffuse.Set( 255, 100, 100, 255 );
-            if( i == 1 )
-                pMesh->m_pMaterial->m_ColorDiffuse.Set( 100, 255, 100, 255 );
-            if( i == 2 )
-                pMesh->m_pMaterial->m_ColorDiffuse.Set( 100, 100, 255, 255 );
-
-            if( i == m_SelectedPart )
+            MaterialDefinition* pMaterial = pMesh->GetMaterial( 0 );
+            if( pMaterial )
             {
-                pMesh->m_pMaterial->m_ColorDiffuse.Set( 255,255,255,255 );
+                if( i == 0 )
+                    pMaterial->m_ColorDiffuse.Set( 255, 100, 100, 255 );
+                if( i == 1 )
+                    pMaterial->m_ColorDiffuse.Set( 100, 255, 100, 255 );
+                if( i == 2 )
+                    pMaterial->m_ColorDiffuse.Set( 100, 100, 255, 255 );
+
+                if( i == m_SelectedPart )
+                {
+                    pMaterial->m_ColorDiffuse.Set( 255,255,255,255 );
+                }
             }
         }
 
@@ -146,7 +149,7 @@ void TransformGizmo::CreateAxisObjects(float scale, MaterialDefinition* pMateria
         if( pComponentMesh )
         {
             pComponentMesh->m_Visible = true;
-            pComponentMesh->SetMaterial( pMaterialX );
+            pComponentMesh->SetMaterial( pMaterialX, 0 );
             pComponentMesh->m_LayersThisExistsOn = Layer_EditorFG;
             pComponentMesh->m_pMesh = MyNew MyMesh();
             pComponentMesh->m_pMesh->CreateEditorTransformGizmoAxis( 3, 0.05f, ColorByte(255, 100, 100, 255) );
@@ -164,7 +167,7 @@ void TransformGizmo::CreateAxisObjects(float scale, MaterialDefinition* pMateria
         if( pComponentMesh )
         {
             pComponentMesh->m_Visible = true;
-            pComponentMesh->SetMaterial( pMaterialY );
+            pComponentMesh->SetMaterial( pMaterialY, 0 );
             pComponentMesh->m_LayersThisExistsOn = Layer_EditorFG;
             pComponentMesh->m_pMesh = MyNew MyMesh();
             pComponentMesh->m_pMesh->CreateEditorTransformGizmoAxis( 3, 0.05f, ColorByte(100, 255, 100, 255) );
@@ -182,7 +185,7 @@ void TransformGizmo::CreateAxisObjects(float scale, MaterialDefinition* pMateria
         if( pComponentMesh )
         {
             pComponentMesh->m_Visible = true;
-            pComponentMesh->SetMaterial( pMaterialZ );
+            pComponentMesh->SetMaterial( pMaterialZ, 0 );
             pComponentMesh->m_LayersThisExistsOn = Layer_EditorFG;
             pComponentMesh->m_pMesh = MyNew MyMesh();
             pComponentMesh->m_pMesh->CreateEditorTransformGizmoAxis( 3, 0.05f, ColorByte(100, 100, 255, 255) );

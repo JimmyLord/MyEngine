@@ -16,10 +16,12 @@ extern const char* OpenGLPrimitiveTypeStrings[7];
 
 class ComponentMesh : public ComponentRenderable
 {
+    static const int MAX_SUBMESHES = 4;
+
 public:
     MyMesh* m_pMesh;
 
-    MaterialDefinition* m_pMaterial;
+    MyList<MaterialDefinition*> m_MaterialList;
     int m_GLPrimitiveType;
     int m_PointSize;
 
@@ -34,8 +36,8 @@ public:
     virtual void CopyFromSameType_Dangerous(ComponentBase* pObject) { *this = (ComponentMesh&)*pObject; }
     virtual ComponentMesh& operator=(const ComponentMesh& other);
 
-    virtual MaterialDefinition* GetMaterial() { return m_pMaterial; }
-    virtual void SetMaterial(MaterialDefinition* pMaterial);
+    virtual MaterialDefinition* GetMaterial(int submeshindex) { return m_MaterialList[submeshindex]; }
+    virtual void SetMaterial(MaterialDefinition* pMaterial, int submeshindex);
     virtual void Draw(MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride = 0, int drawcount = 0);
 
 public:

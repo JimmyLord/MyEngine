@@ -259,7 +259,8 @@ void EditorCommand_ChangeAllMaterialsOnGameObject::Do()
         if( pRenderable )
         {
             m_ComponentsChanged.push_back( pRenderable );
-            m_OldMaterials.push_back( pRenderable->GetMaterial() );
+            // TODO: deal with more than just the first submeshes material.
+            m_OldMaterials.push_back( pRenderable->GetMaterial( 0 ) );
         }
     }
 
@@ -275,7 +276,8 @@ void EditorCommand_ChangeAllMaterialsOnGameObject::Undo()
 
         if( pRenderable )
         {
-            pRenderable->SetMaterial( m_OldMaterials[i] );
+            // TODO: deal with more than just the first submeshes material.
+            pRenderable->SetMaterial( m_OldMaterials[i], 0 );
         }
     }
 }

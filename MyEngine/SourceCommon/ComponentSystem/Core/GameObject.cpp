@@ -389,7 +389,7 @@ MaterialDefinition* GameObject::GetMaterial()
         if( m_Components[i]->m_BaseType == BaseComponentType_Renderable )
         {
             assert( dynamic_cast<ComponentRenderable*>( m_Components[i] ) != 0 );
-            return ((ComponentRenderable*)m_Components[i])->GetMaterial();
+            return ((ComponentRenderable*)m_Components[i])->GetMaterial( 0 );
         }
     }
 
@@ -404,7 +404,7 @@ void GameObject::SetMaterial(MaterialDefinition* pMaterial)
         if( m_Components[i]->m_BaseType == BaseComponentType_Renderable )
         {
             assert( dynamic_cast<ComponentRenderable*>( m_Components[i] ) != 0 );
-            ((ComponentRenderable*)m_Components[i])->SetMaterial( pMaterial );
+            ((ComponentRenderable*)m_Components[i])->SetMaterial( pMaterial, 0 );
         }
     }
 }

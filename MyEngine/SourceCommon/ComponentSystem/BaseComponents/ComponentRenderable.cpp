@@ -17,6 +17,8 @@ ComponentRenderable::ComponentRenderable()
 : ComponentBase()
 {
     m_BaseType = BaseComponentType_Renderable;
+
+    m_pComponentTransform = 0;
 }
 
 ComponentRenderable::~ComponentRenderable()
@@ -94,7 +96,7 @@ ComponentRenderable& ComponentRenderable::operator=(const ComponentRenderable& o
     return *this;
 }
 
-void ComponentRenderable::SetMaterial(MaterialDefinition* pMaterial)
+void ComponentRenderable::SetMaterial(MaterialDefinition* pMaterial, int submeshindex)
 {
 }
 

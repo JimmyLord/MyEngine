@@ -17,6 +17,10 @@ ComponentBase::ComponentBase()
 , m_ID(0)
 , m_Enabled( true )
 {
+#if MYFW_USING_WX
+    m_ControlID_ComponentTitleLabel = -1;
+    m_pPanelWatchBlockVisible = 0;
+#endif
 }
 
 ComponentBase::~ComponentBase()

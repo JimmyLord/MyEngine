@@ -17,6 +17,8 @@ ComponentInputHandler::ComponentInputHandler()
 : ComponentBase()
 {
     m_BaseType = BaseComponentType_InputHandler;
+
+    m_pComponentTransform = 0;
 }
 
 ComponentInputHandler::~ComponentInputHandler()

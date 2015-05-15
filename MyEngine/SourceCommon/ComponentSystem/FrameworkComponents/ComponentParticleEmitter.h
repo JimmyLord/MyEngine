@@ -70,8 +70,8 @@ public:
     virtual void CopyFromSameType_Dangerous(ComponentBase* pObject) { *this = (ComponentParticleEmitter&)*pObject; }
     virtual ComponentParticleEmitter& operator=(const ComponentParticleEmitter& other);
 
-    virtual MaterialDefinition* GetMaterial() { return m_pMaterial; }
-    virtual void SetMaterial(MaterialDefinition* pMaterial);
+    virtual MaterialDefinition* GetMaterial(int submeshindex) { return m_pMaterial; }
+    virtual void SetMaterial(MaterialDefinition* pMaterial, int submeshindex);
     virtual void Draw(MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride = 0, int drawcount = 0);
 
     // renderables don't get ticked, so we need to register the tick in another list... ugh.

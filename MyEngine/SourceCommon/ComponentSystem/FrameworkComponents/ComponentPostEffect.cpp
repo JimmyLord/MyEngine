@@ -48,7 +48,7 @@ void ComponentPostEffect::FillPropertiesWindow(bool clear)
         ComponentData::FillPropertiesWindow( clear );
 
         const char* desc = "no material";
-        if( m_pMaterial )
+        if( m_pMaterial && m_pMaterial->m_pFile )
             desc = m_pMaterial->m_pFile->m_FilenameWithoutExtension;
         g_pPanelWatch->AddPointerWithDescription( "Material", 0, desc, this, ComponentPostEffect::StaticOnDropMaterial );
     }
@@ -64,7 +64,8 @@ void ComponentPostEffect::OnDropMaterial(wxCoord x, wxCoord y)
         SetMaterial( pMaterial );
 
         // update the panel so new Material name shows up.
-        g_pPanelWatch->m_pVariables[g_DragAndDropStruct.m_ID].m_Description = pMaterial->m_pFile->m_FilenameWithoutExtension;
+        if( pMaterial->m_pFile )
+            g_pPanelWatch->m_pVariables[g_DragAndDropStruct.m_ID].m_Description = pMaterial->m_pFile->m_FilenameWithoutExtension;
     }
 }
 
