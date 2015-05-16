@@ -1036,7 +1036,7 @@ void EngineCore::HandleEditorInput(int keyaction, int keycode, int mouseaction, 
                 m_pEditorState->m_EditorActionState = EDITORACTIONSTATE_None;
 
                 // add translation to undo stack, action itself is done each frame.  We only want to undo to last mouse down.
-                if( m_pEditorState->m_DistanceTranslated.LengthSquared() != 0 )
+                if( m_pEditorState->m_pSelectedObjects.size() > 0 && m_pEditorState->m_DistanceTranslated.LengthSquared() != 0 )
                 {
                     g_pEngineMainFrame->m_pCommandStack->Add( MyNew EditorCommand_MoveObjects( m_pEditorState->m_DistanceTranslated, m_pEditorState->m_pSelectedObjects ) );
                 }
@@ -1287,7 +1287,10 @@ void EngineCore::UnloadScene(unsigned int sceneid, bool cleareditorobjects)
     // reset the editorstate structure.
 #if MYFW_USING_WX
     if( sceneid != 0 )
+    {
         g_pEngineMainFrame->m_pCommandStack->ClearStacks();
+        g_pEngineMainFrame->m_StackDepthAtLastSave = 0;
+    }
     m_pEditorState->UnloadScene( cleareditorobjects );
 #endif //MYFW_USING_WX
 

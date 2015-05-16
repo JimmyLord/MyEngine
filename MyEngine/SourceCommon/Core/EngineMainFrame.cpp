@@ -50,6 +50,8 @@ EngineMainFrame::EngineMainFrame()
     m_pGLCanvasEditor = 0;
     m_pLogPane = 0;
 
+    m_StackDepthAtLastSave = 0;
+
     m_EditorPerspectives = 0;
     m_GameplayPerspectives = 0;
 
@@ -356,25 +358,51 @@ void EngineMainFrame::OnGameMenu(wxCommandEvent& event)
     switch( id )
     {
     case myIDGame_NewScene:
-        this->SetTitle( "New scene" );
-        m_CurrentSceneName[0] = 0;
-        g_pEngineCore->UnloadScene( UINT_MAX, false );
-        g_pEngineCore->CreateDefaultSceneObjects( false );
-        ResizeViewport();
+        {
+            int answer = wxYES;
+
+            if( m_pCommandStack->m_UndoStack.size() != m_StackDepthAtLastSave )
+            {
+                answer = wxMessageBox( "Some changes aren't saved.\nCreate a new scene?", "Confirm", wxYES_NO, this );
+            }
+
+            if( answer == wxYES )
+            {
+                this->SetTitle( "New scene" );
+                m_CurrentSceneName[0] = 0;
+                g_pEngineCore->UnloadScene( UINT_MAX, false );
+                g_pEngineCore->CreateDefaultSceneObjects( false );
+                ResizeViewport();
+            }
+        }
         break;
 
     case myIDGame_LoadScene:
-        LoadSceneDialog();
-        ResizeViewport();
+        {
+            int answer = wxYES;
+
+            if( m_pCommandStack->m_UndoStack.size() != m_StackDepthAtLastSave )
+            {
+                answer = wxMessageBox( "Some changes aren't saved.\nLoad anyway?", "Confirm", wxYES_NO, this );
+            }
+
+            if( answer == wxYES )
+            {
+                LoadSceneDialog();
+                ResizeViewport();
+            }
+        }
         break;
 
     case myIDGame_SaveScene:
+        m_StackDepthAtLastSave = m_pCommandStack->m_UndoStack.size();
         g_pMaterialManager->SaveAllMaterials();
         g_pComponentSystemManager->AddAllMaterialsToFilesList();
         SaveScene();
         break;
 
     case myIDGame_SaveSceneAs:
+        m_StackDepthAtLastSave = m_pCommandStack->m_UndoStack.size();
         g_pMaterialManager->SaveAllMaterials();
         g_pComponentSystemManager->AddAllMaterialsToFilesList();
         SaveSceneAs();

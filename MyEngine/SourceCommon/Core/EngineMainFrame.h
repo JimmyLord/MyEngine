@@ -61,6 +61,8 @@ public:
     MainGLCanvas* m_pGLCanvasEditor;
     wxTextCtrl* m_pLogPane;
 
+    unsigned int m_StackDepthAtLastSave;
+
     wxMenu* m_EditorPerspectives;
     wxMenu* m_GameplayPerspectives;
 

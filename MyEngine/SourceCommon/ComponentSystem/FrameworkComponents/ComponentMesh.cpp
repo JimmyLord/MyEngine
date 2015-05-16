@@ -171,7 +171,7 @@ void ComponentMesh::ImportFromJSONObject(cJSON* jComponentMesh, unsigned int sce
     {
         int nummaterials = cJSON_GetArraySize( jMaterialArray );
 
-        for( int i=0; i<MAX_SUBMESHES; i++ ) { assert( m_MaterialList[i] == 0 ); }
+        //for( int i=0; i<MAX_SUBMESHES; i++ ) { assert( m_MaterialList[i] == 0 ); }
 
         for( int i=0; i<nummaterials; i++ )
         {
