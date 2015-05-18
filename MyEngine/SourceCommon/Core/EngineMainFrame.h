@@ -93,7 +93,7 @@ public:
     virtual void AddPanes();
     virtual bool UpdateAUIManagerAndLoadPerspective();
     virtual void OnPostInit();
-    virtual void OnClose();
+    virtual bool OnClose();
 
     virtual void ResizeViewport();
 

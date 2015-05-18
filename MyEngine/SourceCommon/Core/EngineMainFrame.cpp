@@ -260,6 +260,8 @@ bool EngineMainFrame::UpdateAUIManagerAndLoadPerspective()
 
 void EngineMainFrame::OnPostInit()
 {
+    MainFrame::OnPostInit();
+
     if( m_pEditorPrefs )
     {
         cJSON* obj;
@@ -295,45 +297,64 @@ void EngineMainFrame::OnPostInit()
     UpdateMenuItemStates();
 }
 
-void EngineMainFrame::OnClose()
+bool EngineMainFrame::OnClose()
 {
-    if( g_pEngineCore == 0 )
-        return;
+    int answer = wxYES;
 
-    FILE* file = 0;
-#if MYFW_WINDOWS
-    fopen_s( &file, "EditorPrefs.ini", "wb" );
-#else
-    file = fopen( "EditorPrefs.ini", "wb" );
-#endif
-    if( file )
+    if( m_pCommandStack->m_UndoStack.size() != m_StackDepthAtLastSave )
     {
-        cJSON* pPrefs = cJSON_CreateObject();
-
-        cJSON_AddNumberToObject( pPrefs, "WindowX", m_WindowX );
-        cJSON_AddNumberToObject( pPrefs, "WindowY", m_WindowY );
-        cJSON_AddNumberToObject( pPrefs, "ClientWidth", m_ClientWidth );
-        cJSON_AddNumberToObject( pPrefs, "ClientHeight", m_ClientHeight );
-        cJSON_AddNumberToObject( pPrefs, "IsMaximized", m_Maximized );
-
-        cJSON_AddStringToObject( pPrefs, "LastSceneLoaded", m_CurrentSceneName );
-        cJSON_AddItemToObject( pPrefs, "EditorCam", g_pEngineCore->m_pEditorState->GetEditorCamera()->m_pComponentTransform->ExportAsJSONObject() );
-        cJSON_AddNumberToObject( pPrefs, "EditorLayout", GetDefaultEditorPerspectiveIndex() );
-        cJSON_AddNumberToObject( pPrefs, "GameplayLayout", GetDefaultGameplayPerspectiveIndex() );
-        extern GLViewTypes g_CurrentGLViewType;
-        cJSON_AddNumberToObject( pPrefs, "GameAspectRatio", g_CurrentGLViewType );
-
-        cJSON_AddNumberToObject( pPrefs, "GridSnapEnabled", m_GridSettings.snapenabled );
-        cJSONExt_AddFloatArrayToObject( pPrefs, "GridStepSize", &m_GridSettings.stepsize.x, 3 );
-
-        char* string = cJSON_Print( pPrefs );
-        cJSON_Delete( pPrefs );
-
-        fprintf( file, "%s", string );
-        fclose( file );
-
-        cJSONExt_free( string );
+        answer = wxMessageBox( "Some changes aren't saved.\nQuit anyway?", "Confirm", wxYES_NO, this );
     }
+
+    if( answer == wxYES )
+    {
+        bool parentwantstoclose = MainFrame::OnClose();
+
+        if( g_pEngineCore == 0 )
+            return parentwantstoclose;
+
+        g_pEngineCore->m_pEditorState->ClearKeyAndActionStates();
+        g_pEngineCore->m_pEditorState->ClearSelectedObjectsAndComponents();
+
+        FILE* file = 0;
+    #if MYFW_WINDOWS
+        fopen_s( &file, "EditorPrefs.ini", "wb" );
+    #else
+        file = fopen( "EditorPrefs.ini", "wb" );
+    #endif
+        if( file )
+        {
+            cJSON* pPrefs = cJSON_CreateObject();
+
+            cJSON_AddNumberToObject( pPrefs, "WindowX", m_WindowX );
+            cJSON_AddNumberToObject( pPrefs, "WindowY", m_WindowY );
+            cJSON_AddNumberToObject( pPrefs, "ClientWidth", m_ClientWidth );
+            cJSON_AddNumberToObject( pPrefs, "ClientHeight", m_ClientHeight );
+            cJSON_AddNumberToObject( pPrefs, "IsMaximized", m_Maximized );
+
+            cJSON_AddStringToObject( pPrefs, "LastSceneLoaded", m_CurrentSceneName );
+            cJSON_AddItemToObject( pPrefs, "EditorCam", g_pEngineCore->m_pEditorState->GetEditorCamera()->m_pComponentTransform->ExportAsJSONObject() );
+            cJSON_AddNumberToObject( pPrefs, "EditorLayout", GetDefaultEditorPerspectiveIndex() );
+            cJSON_AddNumberToObject( pPrefs, "GameplayLayout", GetDefaultGameplayPerspectiveIndex() );
+            extern GLViewTypes g_CurrentGLViewType;
+            cJSON_AddNumberToObject( pPrefs, "GameAspectRatio", g_CurrentGLViewType );
+
+            cJSON_AddNumberToObject( pPrefs, "GridSnapEnabled", m_GridSettings.snapenabled );
+            cJSONExt_AddFloatArrayToObject( pPrefs, "GridStepSize", &m_GridSettings.stepsize.x, 3 );
+
+            char* string = cJSON_Print( pPrefs );
+            cJSON_Delete( pPrefs );
+
+            fprintf( file, "%s", string );
+            fclose( file );
+
+            cJSONExt_free( string );
+        }
+
+        return parentwantstoclose;
+    }
+
+    return false;
 }
 
 void EngineMainFrame::ResizeViewport()
