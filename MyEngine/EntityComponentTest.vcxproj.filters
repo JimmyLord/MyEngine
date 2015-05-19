@@ -279,6 +279,9 @@
     <ClCompile Include="SourceCommon\ComponentSystem\Core\EngineFileManager.cpp">
       <Filter>Source\ComponentSystem\Core Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\Lua\src\lutf8lib.c">
+      <Filter>Lua\src</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SourceCommon\Camera\Camera3D.h">
@@ -511,6 +514,9 @@
     </ClInclude>
     <ClInclude Include="SourceCommon\ComponentSystem\Core\EngineFileManager.h">
       <Filter>Source\ComponentSystem\Core Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Lua\src\lprefix.h">
+      <Filter>Lua\src</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

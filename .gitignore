@@ -25,4 +25,5 @@ xcuserdata
 /GameEntityComponentTest/Game/SourceBlackBerry/PlayBook-*
 /GameEntityComponentTest/Game/SourceBada/.Target*
 /MyLocalInclude.h
-/bullet
+/Bullet/obj
+/Bullet/*.user
