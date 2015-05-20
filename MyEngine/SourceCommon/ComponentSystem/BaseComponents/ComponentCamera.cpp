@@ -16,6 +16,8 @@ bool ComponentCamera::m_PanelWatchBlockVisible = true;
 ComponentCamera::ComponentCamera()
 : ComponentBase()
 {
+    ClassnameSanityCheck();
+
     m_BaseType = BaseComponentType_Camera;
 
     m_pComponentTransform = 0;
@@ -212,7 +214,7 @@ ComponentPostEffect* ComponentCamera::GetNextPostEffect(ComponentPostEffect* pLa
 
     while( pComponent != 0 )
     {
-        pPostEffect = dynamic_cast<ComponentPostEffect*>( pComponent );
+        pPostEffect = pComponent->IsA( "PostEffectComponent" ) ? (ComponentPostEffect*)pComponent : 0;
         
         if( pPostEffect && pPostEffect->m_pMaterial != 0 )
             return pPostEffect; // if we found a valid initialized post effect, return it.

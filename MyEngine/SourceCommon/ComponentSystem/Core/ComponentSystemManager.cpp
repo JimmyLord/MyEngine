@@ -165,11 +165,14 @@ char* ComponentSystemManager::SaveSceneToJSON()
         while( pFile != 0 )
         {
             // skip over shader include files.
-            MyFileObjectShader* pShaderFile = dynamic_cast<MyFileObjectShader*>( pFile );
-            if( pShaderFile && pShaderFile->m_IsAnIncludeFile )
+            if( pFile->IsA( "MyFileShader" ) )
             {
-                pFile = (MyFileObject*)pFile->GetNext();
-                continue;
+                MyFileObjectShader* pShaderFile = (MyFileObjectShader*)pFile;
+                if( pShaderFile && pShaderFile->m_IsAnIncludeFile )
+                {
+                    pFile = (MyFileObject*)pFile->GetNext();
+                    continue;
+                }
             }
 
             cJSON_AddItemToArray( filearray, cJSON_CreateString( pFile->m_FullPath ) );
@@ -1059,7 +1062,7 @@ bool ComponentSystemManager::OnTouch(int action, int id, float x, float y, float
     // send input to all the scripts.
     for( CPPListNode* node = m_ComponentsUpdateable.GetHead(); node != 0; node = node->GetNext() )
     {
-        ComponentLuaScript* pComponent = dynamic_cast<ComponentLuaScript*>( node );
+        ComponentLuaScript* pComponent = ((ComponentBase*)node)->IsA( "LuaScriptComponent" ) ? (ComponentLuaScript*)node : 0;
 
         if( pComponent )
         {
@@ -1087,7 +1090,7 @@ bool ComponentSystemManager::OnButtons(GameCoreButtonActions action, GameCoreBut
     // send input to all the scripts.
     for( CPPListNode* node = m_ComponentsUpdateable.GetHead(); node != 0; node = node->GetNext() )
     {
-        ComponentLuaScript* pComponent = dynamic_cast<ComponentLuaScript*>( node );
+        ComponentLuaScript* pComponent = ((ComponentBase*)node)->IsA( "LuaScriptComponent" ) ? (ComponentLuaScript*)node : 0;
 
         if( pComponent )
         {

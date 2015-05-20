@@ -27,6 +27,8 @@ const char* OpenGLPrimitiveTypeStrings[7] =
 ComponentMesh::ComponentMesh()
 : ComponentRenderable()
 {
+    ClassnameSanityCheck();
+
     m_BaseType = BaseComponentType_Renderable;
 
     m_pMesh = 0;
@@ -251,7 +253,8 @@ void ComponentMesh::Draw(MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride, i
             GameObject* pObject = g_pComponentSystemManager->FindGameObjectByName( "Shadow Light" );
             if( pObject )
             {
-                ComponentCameraShadow* pShadowCam = dynamic_cast<ComponentCameraShadow*>( pObject->GetFirstComponentOfBaseType( BaseComponentType_Camera ) );
+                ComponentBase* pComponent = pObject->GetFirstComponentOfBaseType( BaseComponentType_Camera );
+                ComponentCameraShadow* pShadowCam = pComponent->IsA( "CameraShadowComponent" ) ? (ComponentCameraShadow*)pComponent : 0;
                 if( pShadowCam )
                 {
                     pShadowVP = &pShadowCam->m_matViewProj;

@@ -20,6 +20,7 @@ public:
 public:
     ComponentUpdateable();
     virtual ~ComponentUpdateable();
+    SetClassnameBase( "UpdateableComponent" ); // only first 8 character count.
 
     virtual void Reset();
     virtual void CopyFromSameType_Dangerous(ComponentBase* pObject) { *this = (ComponentUpdateable&)*pObject; }

@@ -372,9 +372,10 @@ ComponentAnimationPlayer* GameObject::GetAnimationPlayer()
 {
     for( unsigned int i=0; i<m_Components.Count(); i++ )
     {
-        if( dynamic_cast<ComponentAnimationPlayer*>( m_Components[i] ) != 0 )
+        ComponentAnimationPlayer* pPlayer = ((ComponentBase*)m_Components[i])->IsA( "AnimPlayerComponent" ) ? (ComponentAnimationPlayer*)m_Components[i] : 0;
+        if( pPlayer != 0 )
         {
-            return (ComponentAnimationPlayer*)m_Components[i];
+            return pPlayer;
         }
     }
 
@@ -388,7 +389,7 @@ MaterialDefinition* GameObject::GetMaterial()
     {
         if( m_Components[i]->m_BaseType == BaseComponentType_Renderable )
         {
-            assert( dynamic_cast<ComponentRenderable*>( m_Components[i] ) != 0 );
+            assert( m_Components[i]->IsA( "RenderableComponent" ) );
             return ((ComponentRenderable*)m_Components[i])->GetMaterial( 0 );
         }
     }
@@ -403,7 +404,7 @@ void GameObject::SetMaterial(MaterialDefinition* pMaterial)
     {
         if( m_Components[i]->m_BaseType == BaseComponentType_Renderable )
         {
-            assert( dynamic_cast<ComponentRenderable*>( m_Components[i] ) != 0 );
+            assert( m_Components[i]->IsA( "RenderableComponent" ) );
             ((ComponentRenderable*)m_Components[i])->SetMaterial( pMaterial, 0 );
         }
     }
@@ -415,7 +416,7 @@ void GameObject::SetScriptFile(MyFileObject* pFile)
     {
         if( m_Components[i]->m_BaseType == BaseComponentType_Updateable )
         {
-            ComponentLuaScript* pLuaComponent = dynamic_cast<ComponentLuaScript*>( m_Components[i] );
+            ComponentLuaScript* pLuaComponent = m_Components[i]->IsA( "LuaScriptComponent" ) ? (ComponentLuaScript*)m_Components[i] : 0;
             if( pLuaComponent )
                 pLuaComponent->SetScriptFile( pFile );
         }
@@ -461,7 +462,7 @@ ComponentCollisionObject* GameObject::GetCollisionObject()
     {
         //if( m_Components[i]->m_Type == ComponentType_CollisionObject )
         {
-            if( dynamic_cast<ComponentCollisionObject*>( m_Components[i] ) != 0 )
+            if( m_Components[i]->IsA( "CollisionComponent" ) )
                 return (ComponentCollisionObject*)m_Components[i];
         }
     }

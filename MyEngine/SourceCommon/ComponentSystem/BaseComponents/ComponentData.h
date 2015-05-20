@@ -17,6 +17,7 @@ public:
 public:
     ComponentData();
     virtual ~ComponentData();
+    SetClassnameBase( "DataComponent" ); // only first 8 character count.
 
     virtual void Reset();
     virtual void CopyFromSameType_Dangerous(ComponentBase* pObject) { *this = (ComponentData&)*pObject; }

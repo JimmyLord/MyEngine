@@ -16,6 +16,8 @@ bool ComponentData::m_PanelWatchBlockVisible = true;
 ComponentData::ComponentData()
 : ComponentBase()
 {
+    ClassnameSanityCheck();
+
     m_BaseType = BaseComponentType_Data;
 }
 

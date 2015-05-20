@@ -16,6 +16,8 @@ bool ComponentAnimationPlayer::m_PanelWatchBlockVisible = true;
 ComponentAnimationPlayer::ComponentAnimationPlayer()
 : ComponentUpdateable()
 {
+    ClassnameSanityCheck();
+
     m_BaseType = BaseComponentType_Updateable;
 }
 
@@ -131,7 +133,7 @@ void ComponentAnimationPlayer::Tick(double TimePassed)
     {
         ComponentBase* pComponent = m_pGameObject->GetFirstComponentOfBaseType( BaseComponentType_Renderable );
         if( pComponent )
-            m_pMeshComponent = dynamic_cast<ComponentMeshOBJ*>( pComponent );
+            m_pMeshComponent = pComponent->IsA( "MeshOBJComponent" ) ? (ComponentMeshOBJ*)pComponent : 0;
     }
 
     if( m_pMeshComponent == 0 )

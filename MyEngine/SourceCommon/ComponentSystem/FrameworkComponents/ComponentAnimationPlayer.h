@@ -29,6 +29,7 @@ public:
 public:
     ComponentAnimationPlayer();
     virtual ~ComponentAnimationPlayer();
+    SetClassnameBase( "AnimPlayerComponent" ); // only first 8 character count.
 
     static void LuaRegister(lua_State* luastate);
 

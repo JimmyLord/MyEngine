@@ -16,6 +16,8 @@ bool ComponentRenderable::m_PanelWatchBlockVisible = true;
 ComponentRenderable::ComponentRenderable()
 : ComponentBase()
 {
+    ClassnameSanityCheck();
+
     m_BaseType = BaseComponentType_Renderable;
 
     m_pComponentTransform = 0;

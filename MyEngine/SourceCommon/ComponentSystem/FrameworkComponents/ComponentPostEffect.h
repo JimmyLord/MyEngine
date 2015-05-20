@@ -25,6 +25,7 @@ public:
 public:
     ComponentPostEffect();
     virtual ~ComponentPostEffect();
+    SetClassnameBase( "PostEffectComponent" ); // only first 8 character count.
 
     virtual cJSON* ExportAsJSONObject();
     virtual void ImportFromJSONObject(cJSON* jsonobj, unsigned int sceneid);

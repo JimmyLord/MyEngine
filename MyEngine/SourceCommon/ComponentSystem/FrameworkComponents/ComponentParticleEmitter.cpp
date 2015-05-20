@@ -16,6 +16,8 @@ bool ComponentParticleEmitter::m_PanelWatchBlockVisible = true;
 ComponentParticleEmitter::ComponentParticleEmitter()
 : ComponentRenderable()
 {
+    ClassnameSanityCheck();
+
     m_BaseType = BaseComponentType_Renderable;
 
     m_Particles.AllocateObjects( 1000 );

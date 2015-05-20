@@ -16,6 +16,8 @@ bool ComponentTransform::m_PanelWatchBlockVisible = true;
 ComponentTransform::ComponentTransform()
 : ComponentBase()
 {
+    ClassnameSanityCheck();
+
     m_BaseType = BaseComponentType_Transform;
 
     m_pPositionChangedCallbackList.AllocateObjects( MAX_REGISTERED_CALLBACKS );

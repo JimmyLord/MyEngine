@@ -25,6 +25,8 @@ const char* PhysicsPrimitiveTypeStrings[PhysicsPrimitive_NumTypes] = //ADDING_NE
 ComponentCollisionObject::ComponentCollisionObject()
 : ComponentUpdateable()
 {
+    ClassnameSanityCheck();
+
     m_BaseType = BaseComponentType_Updateable;
     m_Type = ComponentType_CollisionObject;
 

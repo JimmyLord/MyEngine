@@ -53,6 +53,7 @@ protected:
 public:
     ComponentCamera();
     virtual ~ComponentCamera();
+    SetClassnameBase( "CameraComponent" ); // only first 8 character count.
 
     virtual cJSON* ExportAsJSONObject();
     virtual void ImportFromJSONObject(cJSON* jsonobj, unsigned int sceneid);

@@ -62,6 +62,7 @@ public:
 public:
     ComponentParticleEmitter();
     virtual ~ComponentParticleEmitter();
+    SetClassnameBase( "ParticleEmitterComponent" ); // only first 8 character count.
 
     virtual cJSON* ExportAsJSONObject();
     virtual void ImportFromJSONObject(cJSON* jsonobj, unsigned int sceneid);

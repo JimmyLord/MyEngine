@@ -16,6 +16,8 @@ bool ComponentPostEffect::m_PanelWatchBlockVisible = true;
 ComponentPostEffect::ComponentPostEffect()
 : ComponentData()
 {
+    ClassnameSanityCheck();
+
     m_BaseType = BaseComponentType_Data;
 
     m_pFullScreenQuad = 0;

@@ -16,6 +16,8 @@ bool ComponentMeshOBJ::m_PanelWatchBlockVisible = true;
 ComponentMeshOBJ::ComponentMeshOBJ()
 : ComponentMesh()
 {
+    ClassnameSanityCheck();
+
     m_BaseType = BaseComponentType_Renderable;
 }
 

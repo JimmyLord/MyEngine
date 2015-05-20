@@ -20,6 +20,7 @@ public:
 public:
     ComponentInputHandler();
     virtual ~ComponentInputHandler();
+    SetClassnameBase( "InputHandlerComponent" ); // only first 8 character count.
 
     virtual void Reset();
     virtual void CopyFromSameType_Dangerous(ComponentBase* pObject) { *this = (ComponentInputHandler&)*pObject; }

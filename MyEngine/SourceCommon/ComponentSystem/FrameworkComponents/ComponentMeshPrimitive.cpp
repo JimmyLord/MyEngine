@@ -22,6 +22,8 @@ const char* ComponentMeshPrimitiveTypeStrings[ComponentMeshPrimitive_NumTypes] =
 ComponentMeshPrimitive::ComponentMeshPrimitive()
 : ComponentMesh()
 {
+    ClassnameSanityCheck();
+
     m_BaseType = BaseComponentType_Renderable;
 }
 

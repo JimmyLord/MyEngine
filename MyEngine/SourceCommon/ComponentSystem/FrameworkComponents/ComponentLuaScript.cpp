@@ -16,6 +16,8 @@ bool ComponentLuaScript::m_PanelWatchBlockVisible = true;
 ComponentLuaScript::ComponentLuaScript()
 : ComponentUpdateable()
 {
+    ClassnameSanityCheck();
+
     m_BaseType = BaseComponentType_Updateable;
     m_Type = ComponentType_LuaScript;
 

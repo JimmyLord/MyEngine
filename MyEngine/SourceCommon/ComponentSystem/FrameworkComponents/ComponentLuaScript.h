@@ -49,6 +49,7 @@ protected:
 public:
     ComponentLuaScript();
     virtual ~ComponentLuaScript();
+    SetClassnameBase( "LuaScriptComponent" ); // only first 8 character count.
 
     //virtual void LuaRegister();
 

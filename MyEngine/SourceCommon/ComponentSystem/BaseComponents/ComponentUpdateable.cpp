@@ -16,6 +16,8 @@ bool ComponentUpdateable::m_PanelWatchBlockVisible = true;
 ComponentUpdateable::ComponentUpdateable()
 : ComponentBase()
 {
+    ClassnameSanityCheck();
+
     m_BaseType = BaseComponentType_Updateable;
 
     m_pComponentTransform = 0;

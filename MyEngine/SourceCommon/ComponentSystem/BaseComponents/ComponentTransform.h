@@ -37,6 +37,7 @@ protected:
 public:
     ComponentTransform();
     virtual ~ComponentTransform();
+    SetClassnameBase( "TransformComponent" ); // only first 8 character count.
 
     static void LuaRegister(lua_State* luastate);
 

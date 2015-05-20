@@ -35,6 +35,7 @@ public:
 public:
     ComponentCollisionObject();
     virtual ~ComponentCollisionObject();
+    SetClassnameBase( "CollisionObjectComponent" ); // only first 8 character count.
 
     static void LuaRegister(lua_State* luastate);
 

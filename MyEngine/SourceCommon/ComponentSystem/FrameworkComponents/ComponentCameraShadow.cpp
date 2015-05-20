@@ -16,6 +16,8 @@ bool ComponentCameraShadow::m_PanelWatchBlockVisible = true;
 ComponentCameraShadow::ComponentCameraShadow()
 : ComponentCamera()
 {
+    ClassnameSanityCheck();
+
     m_BaseType = BaseComponentType_Camera;
 
     m_pComponentTransform = 0;

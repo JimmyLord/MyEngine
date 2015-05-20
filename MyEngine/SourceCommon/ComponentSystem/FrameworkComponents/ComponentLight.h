@@ -18,6 +18,7 @@ public:
 public:
     ComponentLight();
     virtual ~ComponentLight();
+    SetClassnameBase( "LightComponent" ); // only first 8 character count.
 
     virtual cJSON* ExportAsJSONObject();
     virtual void ImportFromJSONObject(cJSON* jsonobj, unsigned int sceneid);

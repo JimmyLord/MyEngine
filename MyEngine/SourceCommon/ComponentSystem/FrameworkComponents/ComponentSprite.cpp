@@ -16,6 +16,8 @@ bool ComponentSprite::m_PanelWatchBlockVisible = true;
 ComponentSprite::ComponentSprite()
 : ComponentRenderable()
 {
+    ClassnameSanityCheck();
+
     m_BaseType = BaseComponentType_Renderable;
 
     m_pSprite = 0;

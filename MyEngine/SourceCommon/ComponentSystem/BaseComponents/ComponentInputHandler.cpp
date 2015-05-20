@@ -16,6 +16,8 @@ bool ComponentInputHandler::m_PanelWatchBlockVisible = true;
 ComponentInputHandler::ComponentInputHandler()
 : ComponentBase()
 {
+    ClassnameSanityCheck();
+
     m_BaseType = BaseComponentType_InputHandler;
 
     m_pComponentTransform = 0;
