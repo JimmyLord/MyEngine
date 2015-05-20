@@ -176,7 +176,7 @@ void ComponentTransform::ImportFromJSONObject(cJSON* jsonobj, unsigned int scene
 
 ComponentTransform& ComponentTransform::operator=(const ComponentTransform& other)
 {
-    assert( &other != this );
+    MyAssert( &other != this );
 
     ComponentBase::operator=( other );
 
@@ -277,8 +277,8 @@ void ComponentTransform::UpdateMatrix()
 
 void ComponentTransform::RegisterPositionChangedCallback(void* pObj, TransformPositionChangedCallbackFunc pCallback)
 {
-    assert( pCallback != 0 );
-    assert( m_pPositionChangedCallbackList.Count() < MAX_REGISTERED_CALLBACKS );
+    MyAssert( pCallback != 0 );
+    MyAssert( m_pPositionChangedCallbackList.Count() < MAX_REGISTERED_CALLBACKS );
 
     TransformPositionChangedCallbackStruct callbackstruct;
     callbackstruct.pObj = pObj;

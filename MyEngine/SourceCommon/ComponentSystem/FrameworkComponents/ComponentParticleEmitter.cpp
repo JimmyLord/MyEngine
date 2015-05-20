@@ -127,7 +127,7 @@ void ComponentParticleEmitter::OnDropMaterial(int controlid, wxCoord x, wxCoord 
     if( g_DragAndDropStruct.m_Type == DragAndDropType_MaterialDefinitionPointer )
     {
         MaterialDefinition* pMaterial = (MaterialDefinition*)g_DragAndDropStruct.m_Value;
-        assert( pMaterial );
+        MyAssert( pMaterial );
 
         SetMaterial( pMaterial, 0 );
 
@@ -185,7 +185,7 @@ void ComponentParticleEmitter::ImportFromJSONObject(cJSON* jsonobj, unsigned int
 
 ComponentParticleEmitter& ComponentParticleEmitter::operator=(const ComponentParticleEmitter& other)
 {
-    assert( &other != this );
+    MyAssert( &other != this );
 
     ComponentRenderable::operator=( other );
 

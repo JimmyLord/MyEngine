@@ -63,7 +63,7 @@ void ComponentUpdateable::FillPropertiesWindow(bool clear)
 
 ComponentUpdateable& ComponentUpdateable::operator=(const ComponentUpdateable& other)
 {
-    assert( &other != this );
+    MyAssert( &other != this );
 
     ComponentBase::operator=( other );
 

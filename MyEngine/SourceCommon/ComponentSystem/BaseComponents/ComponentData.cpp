@@ -59,7 +59,7 @@ void ComponentData::Reset()
 
 ComponentData& ComponentData::operator=(const ComponentData& other)
 {
-    assert( &other != this );
+    MyAssert( &other != this );
 
     ComponentBase::operator=( other );
 

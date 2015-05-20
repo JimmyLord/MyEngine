@@ -153,7 +153,7 @@ void ComponentMeshPrimitive::ImportFromJSONObject(cJSON* jsonobj, unsigned int s
 
 ComponentMeshPrimitive& ComponentMeshPrimitive::operator=(const ComponentMeshPrimitive& other)
 {
-    assert( &other != this );
+    MyAssert( &other != this );
 
     ComponentMesh::operator=( other );
 

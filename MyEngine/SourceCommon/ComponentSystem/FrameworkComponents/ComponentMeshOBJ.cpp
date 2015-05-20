@@ -66,8 +66,8 @@ void ComponentMeshOBJ::OnDropOBJ(int controlid, wxCoord x, wxCoord y)
     if( g_DragAndDropStruct.m_Type == DragAndDropType_FileObjectPointer )
     {
         MyFileObject* pFile = (MyFileObject*)g_DragAndDropStruct.m_Value;
-        assert( pFile );
-        //assert( m_pMesh );
+        MyAssert( pFile );
+        //MyAssert( m_pMesh );
 
         //size_t len = strlen( pFile->m_FullPath );
         const char* filenameext = pFile->m_ExtensionWithDot;
@@ -121,7 +121,7 @@ void ComponentMeshOBJ::ImportFromJSONObject(cJSON* jsonobj, unsigned int sceneid
 
 ComponentMeshOBJ& ComponentMeshOBJ::operator=(const ComponentMeshOBJ& other)
 {
-    assert( &other != this );
+    MyAssert( &other != this );
 
     ComponentMesh::operator=( other );
 

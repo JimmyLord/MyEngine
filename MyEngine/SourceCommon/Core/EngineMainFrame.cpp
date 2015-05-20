@@ -547,7 +547,7 @@ int EngineMainFrame::GetDefaultEditorPerspectiveIndex()
             return i;
     }
 
-    assert( false );
+    MyAssert( false );
     return -1;
 }
 
@@ -559,7 +559,7 @@ int EngineMainFrame::GetDefaultGameplayPerspectiveIndex()
             return i;
     }
 
-    assert( false );
+    MyAssert( false );
     return -1;
 }
 
@@ -642,7 +642,7 @@ void EngineMainFrame::LoadSceneDialog()
 
 void EngineMainFrame::LoadScene(const char* scenename)
 {
-    assert( scenename != 0 );
+    MyAssert( scenename != 0 );
 
     strcpy_s( m_CurrentSceneName, 260, scenename );
 
@@ -697,7 +697,7 @@ void EngineMainFrame::AddDatafileToScene()
             // File is not in our working directory.
             // TODO: copy the file into our data folder?
             LOGError( LOGTag, "file must be in working directory\n" );
-            //assert( false );
+            //MyAssert( false );
             return;
         }
 
@@ -746,7 +746,7 @@ void EngineMainFrame::OnDrop(int controlid, wxCoord x, wxCoord y)
     if( g_DragAndDropStruct.m_Type == DragAndDropType_FileObjectPointer )
     {
         MyFileObject* pFile = (MyFileObject*)g_DragAndDropStruct.m_Value;
-        assert( pFile );
+        MyAssert( pFile );
 
         if( pFile && strcmp( pFile->m_ExtensionWithDot, ".lua" ) == 0 )
         {
@@ -794,7 +794,7 @@ void EngineMainFrame::OnDrop(int controlid, wxCoord x, wxCoord y)
     //if( g_DragAndDropStruct.m_Type == DragAndDropType_GameObjectPointer )
     //{
     //    GameObject* pGameObject = (GameObject*)g_DragAndDropStruct.m_Value;
-    //    assert( pGameObject );
+    //    MyAssert( pGameObject );
 
     //    int id = g_DragAndDropStruct.m_ID - m_ControlIDOfFirstExtern;
     //    

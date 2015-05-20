@@ -57,7 +57,7 @@ void ComponentAnimationPlayer::LuaRegister(lua_State* luastate)
 #if MYFW_USING_WX
 void ComponentAnimationPlayer::AddToObjectsPanel(wxTreeItemId gameobjectid)
 {
-    assert( gameobjectid.IsOk() );
+    MyAssert( gameobjectid.IsOk() );
     //wxTreeItemId id =
     g_pPanelObjectList->AddObject( this, ComponentAnimationPlayer::StaticOnLeftClick, ComponentBase::StaticOnRightClick, gameobjectid, "Animaton Player" );
 }
@@ -109,7 +109,7 @@ void ComponentAnimationPlayer::ImportFromJSONObject(cJSON* jsonobj, unsigned int
 
 ComponentAnimationPlayer& ComponentAnimationPlayer::operator=(const ComponentAnimationPlayer& other)
 {
-    assert( &other != this );
+    MyAssert( &other != this );
 
     ComponentUpdateable::operator=( other );
 

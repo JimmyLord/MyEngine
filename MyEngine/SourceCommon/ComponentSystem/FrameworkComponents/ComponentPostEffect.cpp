@@ -61,7 +61,7 @@ void ComponentPostEffect::OnDropMaterial(int controlid, wxCoord x, wxCoord y)
     if( g_DragAndDropStruct.m_Type == DragAndDropType_MaterialDefinitionPointer )
     {
         MaterialDefinition* pMaterial = (MaterialDefinition*)g_DragAndDropStruct.m_Value;
-        assert( pMaterial );
+        MyAssert( pMaterial );
 
         SetMaterial( pMaterial );
 
@@ -120,7 +120,7 @@ void ComponentPostEffect::Reset()
 
 ComponentPostEffect& ComponentPostEffect::operator=(const ComponentPostEffect& other)
 {
-    assert( &other != this );
+    MyAssert( &other != this );
 
     ComponentData::operator=( other );
 
@@ -144,8 +144,8 @@ void ComponentPostEffect::SetMaterial(MaterialDefinition* pMaterial)
 
 void ComponentPostEffect::Render(FBODefinition* pFBO)
 {
-    assert( m_pFullScreenQuad );
-    assert( m_pMaterial );
+    MyAssert( m_pFullScreenQuad );
+    MyAssert( m_pMaterial );
 
     if( m_pFullScreenQuad == 0 || m_pMaterial == 0 )
         return;

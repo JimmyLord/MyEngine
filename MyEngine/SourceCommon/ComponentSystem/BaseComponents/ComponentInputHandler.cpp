@@ -63,7 +63,7 @@ void ComponentInputHandler::Reset()
 
 ComponentInputHandler& ComponentInputHandler::operator=(const ComponentInputHandler& other)
 {
-    assert( &other != this );
+    MyAssert( &other != this );
 
     ComponentBase::operator=( other );
 

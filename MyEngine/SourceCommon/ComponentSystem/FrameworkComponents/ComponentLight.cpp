@@ -94,14 +94,14 @@ void ComponentLight::ImportFromJSONObject(cJSON* jsonobj, unsigned int sceneid)
 
 void ComponentLight::OnTransformPositionChanged(Vector3& newpos, bool changedbyeditor)
 {
-    assert( m_pLight );
+    MyAssert( m_pLight );
 
     m_pLight->m_Position = newpos;
 }
 
 ComponentLight& ComponentLight::operator=(const ComponentLight& other)
 {
-    assert( &other != this );
+    MyAssert( &other != this );
 
     ComponentData::operator=( other );
 

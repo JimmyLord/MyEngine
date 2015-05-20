@@ -46,7 +46,7 @@ EditorState::~EditorState()
 
 ComponentCamera* EditorState::GetEditorCamera()
 {
-    assert( m_pEditorCamera );
+    MyAssert( m_pEditorCamera );
     return (ComponentCamera*)m_pEditorCamera->GetFirstComponentOfBaseType( BaseComponentType_Camera );
 }
 

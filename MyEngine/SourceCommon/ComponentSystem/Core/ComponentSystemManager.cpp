@@ -54,7 +54,7 @@ ComponentSystemManager::~ComponentSystemManager()
     SAFE_DELETE( m_pComponentTypeManager );
 
     // if a component didn't unregister itself, assert.
-    assert( m_pComponentTickCallbackList.Count() == 0 );
+    MyAssert( m_pComponentTickCallbackList.Count() == 0 );
     
     g_pComponentSystemManager = 0;
 }
@@ -81,8 +81,8 @@ void ComponentSystemManager::OnFileUpdated(MyFileObject* pFile)
 
 void ComponentSystemManager::Editor_RegisterFileUpdatedCallback(FileUpdatedCallbackFunction pFunc, void* pObj)
 {
-    assert( pFunc != 0 );
-    assert( pObj != 0 );
+    MyAssert( pFunc != 0 );
+    MyAssert( pObj != 0 );
 
     FileUpdatedCallbackStruct callbackstruct;
     callbackstruct.pFunc = pFunc;
@@ -440,7 +440,7 @@ void ComponentSystemManager::LoadSceneFromJSON(const char* jsonstr, unsigned int
 
         // find an existing game object with the same id or create a new one.
         GameObject* pGameObject = FindGameObjectByID( id );
-        if( pGameObject ) { assert( pGameObject->GetSceneID() == sceneid ); } // TODO: get the object from the right scene if multiple scenes are loaded.
+        if( pGameObject ) { MyAssert( pGameObject->GetSceneID() == sceneid ); } // TODO: get the object from the right scene if multiple scenes are loaded.
 
         if( pGameObject == 0 )        
             pGameObject = CreateGameObject();
@@ -458,10 +458,10 @@ void ComponentSystemManager::LoadSceneFromJSON(const char* jsonstr, unsigned int
         
         unsigned int goid = 0;
         cJSONExt_GetUnsignedInt( transformobj, "GOID", &goid );
-        assert( goid > 0 );
+        MyAssert( goid > 0 );
 
         GameObject* pGameObject = FindGameObjectByID( goid );
-        assert( pGameObject );
+        MyAssert( pGameObject );
 
         if( pGameObject )
         {
@@ -480,12 +480,12 @@ void ComponentSystemManager::LoadSceneFromJSON(const char* jsonstr, unsigned int
         
         unsigned int id = 0;
         cJSONExt_GetUnsignedInt( componentobj, "GOID", &id );
-        assert( id > 0 );
+        MyAssert( id > 0 );
         GameObject* pGameObject = FindGameObjectByID( id );
-        assert( pGameObject );
+        MyAssert( pGameObject );
 
         cJSON* typeobj = cJSON_GetObjectItem( componentobj, "Type" );
-        assert( typeobj );
+        MyAssert( typeobj );
         int type = -1;
         if( typeobj )
             type = g_pComponentTypeManager->GetTypeByName( typeobj->valuestring );
@@ -494,7 +494,7 @@ void ComponentSystemManager::LoadSceneFromJSON(const char* jsonstr, unsigned int
         {
             LOGError( LOGTag, "Unknown component in scene file: %s\n", typeobj->valuestring );
 #if _DEBUG
-            assert( false );
+            MyAssert( false );
 #endif
         }
         else
@@ -503,7 +503,7 @@ void ComponentSystemManager::LoadSceneFromJSON(const char* jsonstr, unsigned int
             cJSONExt_GetUnsignedInt( componentobj, "ID", &id );
 
             ComponentBase* pComponent = FindComponentByID( id, sceneid );
-            //if( pComponent ) { assert( pComponent->GetSceneID() == sceneid ); } // TODO: get the object from the right scene if multiple scenes are loaded.
+            //if( pComponent ) { MyAssert( pComponent->GetSceneID() == sceneid ); } // TODO: get the object from the right scene if multiple scenes are loaded.
     
             if( pComponent == 0 )
                 pComponent = pGameObject->AddNewComponent( type, sceneid );
@@ -662,7 +662,7 @@ GameObject* ComponentSystemManager::CreateGameObject(bool manageobject)
 
 void ComponentSystemManager::UnmanageGameObject(GameObject* pObject)
 {
-    assert( pObject && pObject->IsManaged() == true );
+    MyAssert( pObject && pObject->IsManaged() == true );
 
     // remove all components from their respective component lists.
     for( unsigned int i=0; i<pObject->m_Components.Count(); i++ )
@@ -678,7 +678,7 @@ void ComponentSystemManager::UnmanageGameObject(GameObject* pObject)
 
 void ComponentSystemManager::ManageGameObject(GameObject* pObject)
 {
-    assert( pObject && pObject->IsManaged() == false );
+    MyAssert( pObject && pObject->IsManaged() == false );
 
     // add all the gameobject's components back into the component lists.
     for( unsigned int i=0; i<pObject->m_Components.Count(); i++ )
@@ -772,7 +772,7 @@ ComponentCamera* ComponentSystemManager::GetFirstCamera()
         // skip unmanaged cameras. (editor cam)
         if( pCamera->m_pGameObject->IsManaged() == true )
         {
-            assert( pCamera->m_Type == ComponentType_Camera );
+            MyAssert( pCamera->m_Type == ComponentType_Camera );
 
             return pCamera;
         }
@@ -807,7 +807,7 @@ ComponentBase* ComponentSystemManager::AddComponent(ComponentBase* pComponent)
 
     case BaseComponentType_Transform:
     case BaseComponentType_None:
-        assert( false ); // shouldn't happen.
+        MyAssert( false ); // shouldn't happen.
         break;
     }
 
@@ -1104,9 +1104,9 @@ bool ComponentSystemManager::OnButtons(GameCoreButtonActions action, GameCoreBut
 
 void ComponentSystemManager::RegisterComponentTickCallback(ComponentTickCallbackFunction pFunc, void* pObj)
 {
-    assert( pFunc != 0 );
-    assert( pObj != 0 );
-    assert( m_pComponentTickCallbackList.Count() < MAX_COMPONENT_TICK_CALLBACKS );
+    MyAssert( pFunc != 0 );
+    MyAssert( pObj != 0 );
+    MyAssert( m_pComponentTickCallbackList.Count() < MAX_COMPONENT_TICK_CALLBACKS );
 
     ComponentTickCallbackStruct callbackstruct;
     callbackstruct.pObj = pObj;
@@ -1117,8 +1117,8 @@ void ComponentSystemManager::RegisterComponentTickCallback(ComponentTickCallback
 
 void ComponentSystemManager::UnregisterComponentTickCallback(ComponentTickCallbackFunction pFunc, void* pObj)
 {
-    assert( pFunc != 0 );
-    assert( pObj != 0 );
+    MyAssert( pFunc != 0 );
+    MyAssert( pObj != 0 );
 
     ComponentTickCallbackStruct callbackstruct;
     callbackstruct.pObj = pObj;

@@ -144,7 +144,7 @@ cJSON* ComponentBase::ExportAsJSONObject()
     if( m_Type != -1 )
     {
         const char* componenttypename = g_pComponentTypeManager->GetTypeName( m_Type );
-        assert( componenttypename );
+        MyAssert( componenttypename );
         if( componenttypename )
             cJSON_AddStringToObject( component, "Type", componenttypename );
     }
@@ -161,13 +161,13 @@ void ComponentBase::ImportFromJSONObject(cJSON* jsonobj, unsigned int sceneid)
 {
     cJSONExt_GetUnsignedInt( jsonobj, "ID", &m_ID );
 
-    assert( m_SceneIDLoadedFrom == 0 || m_SceneIDLoadedFrom == sceneid );
+    MyAssert( m_SceneIDLoadedFrom == 0 || m_SceneIDLoadedFrom == sceneid );
     SetSceneID( sceneid );
 }
 
 ComponentBase& ComponentBase::operator=(const ComponentBase& other)
 {
-    assert( &other != this );
+    MyAssert( &other != this );
 
     return *this;
 }

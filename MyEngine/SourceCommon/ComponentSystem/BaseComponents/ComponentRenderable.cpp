@@ -31,7 +31,7 @@ void ComponentRenderable::Reset()
 {
     ComponentBase::Reset();
 
-    assert( m_pGameObject );
+    MyAssert( m_pGameObject );
 
     m_pComponentTransform = m_pGameObject->m_pComponentTransform;
 
@@ -88,7 +88,7 @@ void ComponentRenderable::ImportFromJSONObject(cJSON* jsonobj, unsigned int scen
 
 ComponentRenderable& ComponentRenderable::operator=(const ComponentRenderable& other)
 {
-    assert( &other != this );
+    MyAssert( &other != this );
 
     ComponentBase::operator=( other );
 

@@ -224,7 +224,7 @@ void GameObject::SetID(unsigned int id)
 
 void GameObject::SetName(const char* name)
 {
-    assert( name );
+    MyAssert( name );
 
     if( m_Name )
     {
@@ -284,19 +284,19 @@ void GameObject::SetManaged(bool managed)
     }
 
     // one of the two conditions above should be true.
-    assert( false );
+    MyAssert( false );
 }
 
 ComponentBase* GameObject::AddNewComponent(int componenttype, unsigned int sceneid, ComponentSystemManager* pComponentSystemManager)
 {
-    assert( componenttype != -1 );
+    MyAssert( componenttype != -1 );
 
     if( m_Components.Count() >= m_Components.Length() )
         return 0;
 
     ComponentBase* pComponent = g_pComponentTypeManager->CreateComponent( componenttype );
 
-    assert( pComponentSystemManager );
+    MyAssert( pComponentSystemManager );
     if( m_Managed )
     {
         pComponentSystemManager->AddComponent( pComponent );
@@ -304,7 +304,7 @@ ComponentBase* GameObject::AddNewComponent(int componenttype, unsigned int scene
     pComponent->SetID( pComponentSystemManager->m_NextComponentID );
     pComponentSystemManager->m_NextComponentID++;
 
-    assert( sceneid == 0 || m_SceneID == sceneid );
+    MyAssert( sceneid == 0 || m_SceneID == sceneid );
     pComponent->SetSceneID( sceneid );
 
     AddExistingComponent( pComponent, true );
@@ -323,7 +323,7 @@ ComponentBase* GameObject::AddExistingComponent(ComponentBase* pComponent, bool 
 
     m_Components.Add( pComponent );
 
-    assert( pComponent->GetSceneID() == 0 || m_SceneID == pComponent->GetSceneID() );
+    MyAssert( pComponent->GetSceneID() == 0 || m_SceneID == pComponent->GetSceneID() );
 
     // add this to the system managers component list.
     if( pComponent->Prev == 0 )
@@ -389,7 +389,7 @@ MaterialDefinition* GameObject::GetMaterial()
     {
         if( m_Components[i]->m_BaseType == BaseComponentType_Renderable )
         {
-            assert( m_Components[i]->IsA( "RenderableComponent" ) );
+            MyAssert( m_Components[i]->IsA( "RenderableComponent" ) );
             return ((ComponentRenderable*)m_Components[i])->GetMaterial( 0 );
         }
     }
@@ -404,7 +404,7 @@ void GameObject::SetMaterial(MaterialDefinition* pMaterial)
     {
         if( m_Components[i]->m_BaseType == BaseComponentType_Renderable )
         {
-            assert( m_Components[i]->IsA( "RenderableComponent" ) );
+            MyAssert( m_Components[i]->IsA( "RenderableComponent" ) );
             ((ComponentRenderable*)m_Components[i])->SetMaterial( pMaterial, 0 );
         }
     }
@@ -438,7 +438,7 @@ ComponentBase* GameObject::GetFirstComponentOfBaseType(BaseComponentTypes basety
 
 ComponentBase* GameObject::GetNextComponentOfBaseType(ComponentBase* pLastComponent)
 {
-    assert( pLastComponent != 0 );
+    MyAssert( pLastComponent != 0 );
 
     bool foundlast = false;
     for( unsigned int i=0; i<m_Components.Count(); i++ )

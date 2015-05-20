@@ -132,7 +132,7 @@ void ComponentCamera::Reset()
 
 ComponentCamera& ComponentCamera::operator=(const ComponentCamera& other)
 {
-    assert( &other != this );
+    MyAssert( &other != this );
 
     ComponentBase::operator=( other );
 

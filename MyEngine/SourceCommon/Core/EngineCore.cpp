@@ -105,7 +105,9 @@ void EngineCore::OneTimeInit()
     // setup our shaders
     m_pShaderFile_TintColor = RequestFile( "DataEngine/Shaders/Shader_TintColor.glsl" );
     m_pShaderFile_ClipSpaceTexture = RequestFile( "DataEngine/Shaders/Shader_ClipSpaceTexture.glsl" );
+    LOGInfo( LOGTag, "before MyNew ShaderGroup\n" );
     m_pShader_TintColor = MyNew ShaderGroup( m_pShaderFile_TintColor );
+    LOGInfo( LOGTag, "after MyNew ShaderGroup\n" );
     m_pShader_ClipSpaceTexture = MyNew ShaderGroup( m_pShaderFile_ClipSpaceTexture );
     m_pMaterial_3DGrid = MyNew MaterialDefinition( m_pShader_TintColor, ColorByte(128,128,128,255) );
     m_pMaterial_TransformGizmoX = MyNew MaterialDefinition( m_pShader_TintColor, ColorByte(255,0,0,255) );
@@ -125,7 +127,7 @@ void EngineCore::OneTimeInit()
     OnSurfaceChanged( (unsigned int)m_WindowStartX, (unsigned int)m_WindowStartY, (unsigned int)m_WindowWidth, (unsigned int)m_WindowHeight );
 
 #if !MYFW_USING_WX
-    m_pSceneFileToLoad = RequestFile( "Data/Scenes/TestPhysicsCharacter.scene" );
+    m_pSceneFileToLoad = RequestFile( "Data/Scenes/test.scene" );
     m_SceneLoaded = false;
 #endif
 }
@@ -231,7 +233,7 @@ void EngineCore::OnDrawFrame()
 #if MYFW_USING_WX
     if( g_GLCanvasIDActive == 1 )
     {
-        assert( m_pEditorState->m_pEditorCamera );
+        MyAssert( m_pEditorState->m_pEditorCamera );
         if( m_pEditorState->m_pEditorCamera )
         {
             // draw editor camera and editorFG camera
@@ -1092,7 +1094,7 @@ void EngineCore::CreateDefaultSceneObjects(bool createeditorobjects)
 
             //m_pComponentSystemManager->AddComponent( pComponentMesh );
 
-            assert( m_pEditorState->m_p3DGridPlane == 0 );
+            MyAssert( m_pEditorState->m_p3DGridPlane == 0 );
             m_pEditorState->m_p3DGridPlane = pGameObject;
         }
 
@@ -1134,7 +1136,7 @@ void EngineCore::CreateDefaultSceneObjects(bool createeditorobjects)
                 //m_pComponentSystemManager->AddComponent( pComponentCamera );
             }
 
-            assert( m_pEditorState->m_pEditorCamera == 0 );
+            MyAssert( m_pEditorState->m_pEditorCamera == 0 );
             m_pEditorState->m_pEditorCamera = pGameObject;
         }
     }

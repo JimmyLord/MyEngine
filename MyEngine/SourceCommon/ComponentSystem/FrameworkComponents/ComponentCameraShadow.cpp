@@ -104,7 +104,7 @@ void ComponentCameraShadow::Reset()
 
 ComponentCameraShadow& ComponentCameraShadow::operator=(const ComponentCameraShadow& other)
 {
-    assert( &other != this );
+    MyAssert( &other != this );
 
     ComponentCamera::operator=( other );
 

@@ -125,7 +125,7 @@ EditorCommand_DeleteComponents::EditorCommand_DeleteComponents(const std::vector
         // can't delete an objects transform component.
         if( selectedcomponents[i]->m_pGameObject &&
             selectedcomponents[i] == selectedcomponents[i]->m_pGameObject->m_pComponentTransform )
-            assert( false );
+            MyAssert( false );
         
         m_ComponentsDeleted.push_back( selectedcomponents[i] );
     }
@@ -186,7 +186,7 @@ EditorCommand_CopyGameObject::EditorCommand_CopyGameObject(GameObject* objecttoc
 
 EditorCommand_CopyGameObject::~EditorCommand_CopyGameObject()
 {
-    assert( m_ObjectCreated );
+    MyAssert( m_ObjectCreated );
     if( m_DeleteGameObjectWhenDestroyed && m_ObjectCreated )
         g_pComponentSystemManager->DeleteGameObject( m_ObjectCreated, true );
 }
@@ -272,7 +272,7 @@ void EditorCommand_ChangeAllMaterialsOnGameObject::Undo()
     for( unsigned int i=0; i<m_ComponentsChanged.size(); i++ )
     {
         ComponentRenderable* pRenderable = dynamic_cast<ComponentRenderable*>( m_ComponentsChanged[i] );
-        assert( pRenderable );
+        MyAssert( pRenderable );
 
         if( pRenderable )
         {
@@ -390,7 +390,7 @@ void EditorCommand_ChangeAllScriptsOnGameObject::Undo()
     for( unsigned int i=0; i<m_ComponentsChanged.size(); i++ )
     {
         ComponentLuaScript* pLuaComponent = dynamic_cast<ComponentLuaScript*>( m_ComponentsChanged[i] );
-        assert( pLuaComponent );
+        MyAssert( pLuaComponent );
 
         if( pLuaComponent )
         {

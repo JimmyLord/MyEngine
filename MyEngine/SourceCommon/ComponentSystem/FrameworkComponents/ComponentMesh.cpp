@@ -64,7 +64,7 @@ void ComponentMesh::Reset()
 #if MYFW_USING_WX
 void ComponentMesh::AddToObjectsPanel(wxTreeItemId gameobjectid)
 {
-    assert( gameobjectid.IsOk() );
+    MyAssert( gameobjectid.IsOk() );
     //wxTreeItemId id =
     g_pPanelObjectList->AddObject( this, ComponentMesh::StaticOnLeftClick, ComponentBase::StaticOnRightClick, gameobjectid, "Mesh" );
 }
@@ -78,7 +78,7 @@ void ComponentMesh::FillPropertiesWindow(bool clear)
 {
     //m_ControlID_ComponentTitleLabel = g_pPanelWatch->AddSpace( "Mesh", this, ComponentBase::StaticOnComponentTitleLabelClicked );
 
-    //assert( m_pMesh );
+    //MyAssert( m_pMesh );
 
     if( m_PanelWatchBlockVisible )
     {
@@ -116,7 +116,7 @@ void ComponentMesh::OnDropMaterial(int controlid, wxCoord x, wxCoord y)
         if( materialthatchanged != -1 )
         {
             MaterialDefinition* pMaterial = (MaterialDefinition*)g_DragAndDropStruct.m_Value;
-            assert( pMaterial );
+            MyAssert( pMaterial );
 
             SetMaterial( pMaterial, materialthatchanged );
 
@@ -136,7 +136,7 @@ cJSON* ComponentMesh::ExportAsJSONObject()
 
     for( unsigned int i=0; i<m_MaterialList.Count(); i++ )
     {
-        assert( m_MaterialList[i] == 0 || m_MaterialList[i]->m_pFile ); // new materials should be saved as files before the state is saved.
+        MyAssert( m_MaterialList[i] == 0 || m_MaterialList[i]->m_pFile ); // new materials should be saved as files before the state is saved.
 
         cJSON* jMaterial = 0;
         if( m_MaterialList[i] && m_MaterialList[i]->m_pFile )
@@ -173,7 +173,7 @@ void ComponentMesh::ImportFromJSONObject(cJSON* jComponentMesh, unsigned int sce
     {
         int nummaterials = cJSON_GetArraySize( jMaterialArray );
 
-        //for( int i=0; i<MAX_SUBMESHES; i++ ) { assert( m_MaterialList[i] == 0 ); }
+        //for( int i=0; i<MAX_SUBMESHES; i++ ) { MyAssert( m_MaterialList[i] == 0 ); }
 
         for( int i=0; i<nummaterials; i++ )
         {
@@ -193,7 +193,7 @@ void ComponentMesh::ImportFromJSONObject(cJSON* jComponentMesh, unsigned int sce
 
 ComponentMesh& ComponentMesh::operator=(const ComponentMesh& other)
 {
-    assert( &other != this );
+    MyAssert( &other != this );
 
     ComponentRenderable::operator=( other );
 
@@ -203,7 +203,7 @@ ComponentMesh& ComponentMesh::operator=(const ComponentMesh& other)
     m_pMesh = other.m_pMesh;
 
     const ComponentMesh* pOther = &other;
-    assert( other.m_MaterialList.Count() == m_MaterialList.Count() );
+    MyAssert( other.m_MaterialList.Count() == m_MaterialList.Count() );
     for( unsigned int i=0; i<other.m_MaterialList.Count(); i++ )
     {
         SetMaterial( other.m_MaterialList[i], i );
@@ -219,7 +219,7 @@ void ComponentMesh::SetMaterial(MaterialDefinition* pMaterial, int submeshindex)
 {
     ComponentRenderable::SetMaterial( pMaterial, submeshindex );
 
-    assert( submeshindex >= 0 && submeshindex < (int)m_MaterialList.Count() );
+    MyAssert( submeshindex >= 0 && submeshindex < (int)m_MaterialList.Count() );
 
     pMaterial->AddRef();
     SAFE_RELEASE( m_MaterialList[submeshindex] );

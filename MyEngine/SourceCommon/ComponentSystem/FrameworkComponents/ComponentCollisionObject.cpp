@@ -147,8 +147,8 @@ void ComponentCollisionObject::OnDropOBJ(int controlid, wxCoord x, wxCoord y)
     if( g_DragAndDropStruct.m_Type == DragAndDropType_FileObjectPointer )
     {
         MyFileObject* pFile = (MyFileObject*)g_DragAndDropStruct.m_Value;
-        assert( pFile );
-        //assert( m_pMesh );
+        MyAssert( pFile );
+        //MyAssert( m_pMesh );
 
         size_t len = strlen( pFile->m_FullPath );
         const char* filenameext = &pFile->m_FullPath[len-4];
@@ -177,7 +177,7 @@ cJSON* ComponentCollisionObject::ExportAsJSONObject()
 
     // physics primitive type, stored as string
     const char* primitivetypename = PhysicsPrimitiveTypeStrings[m_PrimitiveType];
-    assert( primitivetypename );
+    MyAssert( primitivetypename );
     if( primitivetypename )
         cJSON_AddStringToObject( component, "Primitive", primitivetypename );
 
@@ -197,7 +197,7 @@ void ComponentCollisionObject::ImportFromJSONObject(cJSON* jsonobj, unsigned int
 
     // physics primitive type, stored as string
     cJSON* typeobj = cJSON_GetObjectItem( jsonobj, "Primitive" );
-    //assert( typeobj );
+    //MyAssert( typeobj );
     if( typeobj )
     {
         for( int i=0; i<PhysicsPrimitive_NumTypes; i++ )
@@ -225,7 +225,7 @@ void ComponentCollisionObject::ImportFromJSONObject(cJSON* jsonobj, unsigned int
 
 ComponentCollisionObject& ComponentCollisionObject::operator=(const ComponentCollisionObject& other)
 {
-    assert( &other != this );
+    MyAssert( &other != this );
 
     ComponentUpdateable::operator=( other );
 

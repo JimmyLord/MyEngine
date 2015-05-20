@@ -34,12 +34,12 @@ void TransformGizmo::Tick(double TimePassed, EditorState* pEditorState)
     // Update transform gizmos
     for( int i=0; i<3; i++ )
     {
-        assert( m_pTransformGizmos[i] );
+        MyAssert( m_pTransformGizmos[i] );
 
         ComponentRenderable* pRenderable = (ComponentRenderable*)m_pTransformGizmos[i]->GetFirstComponentOfBaseType( BaseComponentType_Renderable );
 
         ComponentMesh* pMesh = dynamic_cast<ComponentMesh*>( pRenderable );
-        assert( pMesh );
+        MyAssert( pMesh );
         if( pMesh )
         {
             MaterialDefinition* pMaterial = pMesh->GetMaterial( 0 );

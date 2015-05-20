@@ -130,7 +130,7 @@ void ComponentLuaScript::OnDrop(int controlid, wxCoord x, wxCoord y)
     if( g_DragAndDropStruct.m_Type == DragAndDropType_FileObjectPointer )
     {
         MyFileObject* pFile = (MyFileObject*)g_DragAndDropStruct.m_Value;
-        assert( pFile );
+        MyAssert( pFile );
 
         if( strcmp( pFile->m_ExtensionWithDot, ".lua" ) == 0 )
         {
@@ -141,7 +141,7 @@ void ComponentLuaScript::OnDrop(int controlid, wxCoord x, wxCoord y)
     if( g_DragAndDropStruct.m_Type == DragAndDropType_GameObjectPointer )
     {
         GameObject* pGameObject = (GameObject*)g_DragAndDropStruct.m_Value;
-        assert( pGameObject );
+        MyAssert( pGameObject );
 
         int id = g_DragAndDropStruct.m_ID - m_ControlIDOfFirstExtern;
         
@@ -200,7 +200,7 @@ void ComponentLuaScript::ImportFromJSONObject(cJSON* jsonobj, unsigned int scene
     if( scriptstringobj )
     {
         MyFileObject* pFile = g_pFileManager->FindFileByName( scriptstringobj->valuestring );
-        assert( pFile );
+        MyAssert( pFile );
         SetScriptFile( pFile );
     }
 
@@ -212,7 +212,7 @@ void ComponentLuaScript::ImportFromJSONObject(cJSON* jsonobj, unsigned int scene
         cJSON* jsonvar = cJSON_GetArrayItem( exposedvararray, i );
 
         cJSON* obj = cJSON_GetObjectItem( jsonvar, "Name" );
-        assert( obj );
+        MyAssert( obj );
         if( obj == 0 )
             continue;
 
@@ -220,7 +220,7 @@ void ComponentLuaScript::ImportFromJSONObject(cJSON* jsonobj, unsigned int scene
         ExposedVariableDesc* pVar = 0;
         for( unsigned int i=0; i<m_ExposedVars.Count(); i++ )
         {
-            assert( m_ExposedVars[i] );
+            MyAssert( m_ExposedVars[i] );
             if( m_ExposedVars[i]->name == obj->valuestring )
             {
                 pVar = m_ExposedVars[i];
@@ -253,7 +253,7 @@ void ComponentLuaScript::ImportFromJSONObject(cJSON* jsonobj, unsigned int scene
 
 ComponentLuaScript& ComponentLuaScript::operator=(const ComponentLuaScript& other)
 {
-    assert( &other != this );
+    MyAssert( &other != this );
 
     ComponentUpdateable::operator=( other );
 
@@ -321,7 +321,7 @@ void ComponentLuaScript::LoadScript()
                 }
                 else
                 {
-                    assert( false ); // assert until I hit this and deal with it better.
+                    MyAssert( false ); // assert until I hit this and deal with it better.
                     const char* errorstr = lua_tostring( m_pLuaGameState->m_pLuaState, -1 );
                     HandleLuaError( "!LUA_ERRRUN", errorstr );
                 }
@@ -336,7 +336,7 @@ void ComponentLuaScript::LoadScript()
             }
             else
             {
-                assert( false );
+                MyAssert( false );
                 const char* errorstr = lua_tostring( m_pLuaGameState->m_pLuaState, -1 );
                 HandleLuaError( "!LUA_ERRSYNTAX", errorstr );
             }
@@ -413,7 +413,7 @@ void ComponentLuaScript::ParseExterns(luabridge::LuaRef LuaObject)
             }
             else
             {
-                assert( false );
+                MyAssert( false );
             }
 
             pVar->inuse = true;
@@ -604,7 +604,7 @@ void ComponentLuaScript::Tick(double TimePassed)
     if( m_ScriptLoaded && m_Playing )
     {
         luabridge::LuaRef LuaObject = luabridge::getGlobal( m_pLuaGameState->m_pLuaState, m_pScriptFile->m_FilenameWithoutExtension );
-        assert( LuaObject.isTable() );
+        MyAssert( LuaObject.isTable() );
 
         if( LuaObject.isTable() )
         {

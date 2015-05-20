@@ -56,7 +56,7 @@ void ComponentSprite::FillPropertiesWindow(bool clear)
         g_pPanelWatch->AddFloat( "height", &m_Size.y, 0, 2 );
 
         const char* desc = "no material";
-        assert( m_pSprite );
+        MyAssert( m_pSprite );
         MaterialDefinition* pMaterial = m_pSprite->GetMaterial();
         if( pMaterial && pMaterial->m_pFile )
             desc = pMaterial->m_pFile->m_FullPath;
@@ -69,8 +69,8 @@ void ComponentSprite::OnDropMaterial(int controlid, wxCoord x, wxCoord y)
     if( g_DragAndDropStruct.m_Type == DragAndDropType_MaterialDefinitionPointer )
     {
         MaterialDefinition* pMaterial = (MaterialDefinition*)g_DragAndDropStruct.m_Value;
-        assert( pMaterial );
-        assert( m_pSprite );
+        MyAssert( pMaterial );
+        MyAssert( m_pSprite );
 
         m_pSprite->SetMaterial( pMaterial );
     }
@@ -123,7 +123,7 @@ void ComponentSprite::Reset()
 
 ComponentSprite& ComponentSprite::operator=(const ComponentSprite& other)
 {
-    assert( &other != this );
+    MyAssert( &other != this );
 
     ComponentRenderable::operator=( other );
 

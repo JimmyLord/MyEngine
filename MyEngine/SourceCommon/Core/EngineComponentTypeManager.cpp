@@ -31,7 +31,7 @@ ComponentBase* EngineComponentTypeManager::CreateComponent(int type)
 {
     ComponentBase* pComponent = 0;
 
-    assert( type != -1 );
+    MyAssert( type != -1 );
 
     switch( type ) // ADDING_NEW_ComponentType
     {
@@ -49,7 +49,7 @@ ComponentBase* EngineComponentTypeManager::CreateComponent(int type)
     case ComponentType_AnimationPlayer:     pComponent = MyNew ComponentAnimationPlayer;    break;
     }
 
-    assert( pComponent != 0 );
+    MyAssert( pComponent != 0 );
     if( pComponent == 0 )
         return 0;
 
@@ -59,7 +59,7 @@ ComponentBase* EngineComponentTypeManager::CreateComponent(int type)
 
 unsigned int EngineComponentTypeManager::GetNumberOfComponentTypes()
 {
-    assert( 0 ); // should never reach here, game level type manager should override and provide a proper value.
+    MyAssert( 0 ); // should never reach here, game level type manager should override and provide a proper value.
     return Component_NumEngineComponentTypes;
 }
 
