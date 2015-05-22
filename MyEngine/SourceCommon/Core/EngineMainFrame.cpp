@@ -416,14 +416,14 @@ void EngineMainFrame::OnGameMenu(wxCommandEvent& event)
         break;
 
     case myIDGame_SaveScene:
-        m_StackDepthAtLastSave = m_pCommandStack->m_UndoStack.size();
+        m_StackDepthAtLastSave = (unsigned int)m_pCommandStack->m_UndoStack.size();
         g_pMaterialManager->SaveAllMaterials();
         g_pComponentSystemManager->AddAllMaterialsToFilesList();
         SaveScene();
         break;
 
     case myIDGame_SaveSceneAs:
-        m_StackDepthAtLastSave = m_pCommandStack->m_UndoStack.size();
+        m_StackDepthAtLastSave = (unsigned int)m_pCommandStack->m_UndoStack.size();
         g_pMaterialManager->SaveAllMaterials();
         g_pComponentSystemManager->AddAllMaterialsToFilesList();
         SaveSceneAs();

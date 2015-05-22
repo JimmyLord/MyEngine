@@ -202,7 +202,7 @@ ComponentMesh& ComponentMesh::operator=(const ComponentMesh& other)
     SAFE_RELEASE( m_pMesh );
     m_pMesh = other.m_pMesh;
 
-    const ComponentMesh* pOther = &other;
+    //const ComponentMesh* pOther = &other;
     MyAssert( other.m_MaterialList.Count() == m_MaterialList.Count() );
     for( unsigned int i=0; i<other.m_MaterialList.Count(); i++ )
     {

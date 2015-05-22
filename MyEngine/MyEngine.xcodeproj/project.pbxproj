@@ -190,12 +190,29 @@
 		044C64D91ADED4C900BABD53 /* EngineMainFrame.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 044C62731ADDE98F00BABD53 /* EngineMainFrame.cpp */; };
 		044C64DA1ADED4C900BABD53 /* LuaGameState.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 044C62751ADDE98F00BABD53 /* LuaGameState.cpp */; };
 		044C64DB1ADED4CD00BABD53 /* EngineCommonHeader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 044C627E1ADDE98F00BABD53 /* EngineCommonHeader.cpp */; };
+		048AF0A61AF302BA00EB4FC7 /* ComponentPostEffect.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 048AF0A41AF302BA00EB4FC7 /* ComponentPostEffect.cpp */; };
+		048AF0A71AF302BA00EB4FC7 /* ComponentPostEffect.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 048AF0A41AF302BA00EB4FC7 /* ComponentPostEffect.cpp */; };
+		048AF0A81AF302BA00EB4FC7 /* ComponentPostEffect.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 048AF0A41AF302BA00EB4FC7 /* ComponentPostEffect.cpp */; };
+		048AF0AB1AF302D100EB4FC7 /* ComponentPostEffect.h in Headers */ = {isa = PBXBuildFile; fileRef = 048AF0A51AF302BA00EB4FC7 /* ComponentPostEffect.h */; };
+		048AF0AC1AF302D200EB4FC7 /* ComponentPostEffect.h in Headers */ = {isa = PBXBuildFile; fileRef = 048AF0A51AF302BA00EB4FC7 /* ComponentPostEffect.h */; };
 		04936EF21AE3F1CF00344903 /* EngineCommandStack.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04936EEC1AE3F1CF00344903 /* EngineCommandStack.cpp */; };
 		04936EF31AE3F1CF00344903 /* EngineCommandStack.h in Headers */ = {isa = PBXBuildFile; fileRef = 04936EED1AE3F1CF00344903 /* EngineCommandStack.h */; };
 		04936EF41AE3F1CF00344903 /* EngineEditorCommands.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04936EEE1AE3F1CF00344903 /* EngineEditorCommands.cpp */; };
 		04936EF51AE3F1CF00344903 /* EngineEditorCommands.h in Headers */ = {isa = PBXBuildFile; fileRef = 04936EEF1AE3F1CF00344903 /* EngineEditorCommands.h */; };
 		04936EF61AE3F1CF00344903 /* TransformGizmo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04936EF01AE3F1CF00344903 /* TransformGizmo.cpp */; };
 		04936EF71AE3F1CF00344903 /* TransformGizmo.h in Headers */ = {isa = PBXBuildFile; fileRef = 04936EF11AE3F1CF00344903 /* TransformGizmo.h */; };
+		04B72DF21B0EAC1C00DCB769 /* DialogGridSettings.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04B72DF01B0EAC1C00DCB769 /* DialogGridSettings.cpp */; };
+		04B72DF31B0EAC1C00DCB769 /* DialogGridSettings.h in Headers */ = {isa = PBXBuildFile; fileRef = 04B72DF11B0EAC1C00DCB769 /* DialogGridSettings.h */; };
+		04B72DF61B0EAC4D00DCB769 /* lprefix.h in Headers */ = {isa = PBXBuildFile; fileRef = 04B72DF41B0EAC4D00DCB769 /* lprefix.h */; };
+		04B72DF71B0EAC4D00DCB769 /* lprefix.h in Headers */ = {isa = PBXBuildFile; fileRef = 04B72DF41B0EAC4D00DCB769 /* lprefix.h */; };
+		04B72DF81B0EAC4D00DCB769 /* lutf8lib.c in Sources */ = {isa = PBXBuildFile; fileRef = 04B72DF51B0EAC4D00DCB769 /* lutf8lib.c */; };
+		04B72DF91B0EAC4D00DCB769 /* lutf8lib.c in Sources */ = {isa = PBXBuildFile; fileRef = 04B72DF51B0EAC4D00DCB769 /* lutf8lib.c */; };
+		04B72DFA1B0EAC4D00DCB769 /* lutf8lib.c in Sources */ = {isa = PBXBuildFile; fileRef = 04B72DF51B0EAC4D00DCB769 /* lutf8lib.c */; };
+		04B72DFD1B0EAC7D00DCB769 /* EngineFileManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04B72DFB1B0EAC7D00DCB769 /* EngineFileManager.cpp */; };
+		04B72DFE1B0EAC7D00DCB769 /* EngineFileManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04B72DFB1B0EAC7D00DCB769 /* EngineFileManager.cpp */; };
+		04B72DFF1B0EAC7D00DCB769 /* EngineFileManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04B72DFB1B0EAC7D00DCB769 /* EngineFileManager.cpp */; };
+		04B72E001B0EAC7D00DCB769 /* EngineFileManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 04B72DFC1B0EAC7D00DCB769 /* EngineFileManager.h */; };
+		04B72E011B0EAC7D00DCB769 /* EngineFileManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 04B72DFC1B0EAC7D00DCB769 /* EngineFileManager.h */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -347,12 +364,20 @@
 		044C63851ADE8B9200BABD53 /* lzio.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lzio.h; sourceTree = "<group>"; };
 		044C63861ADE8B9200BABD53 /* Makefile */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.make; path = Makefile; sourceTree = "<group>"; };
 		044C63F31ADED35900BABD53 /* libMyEngine-OSX.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libMyEngine-OSX.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		048AF0A41AF302BA00EB4FC7 /* ComponentPostEffect.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ComponentPostEffect.cpp; sourceTree = "<group>"; };
+		048AF0A51AF302BA00EB4FC7 /* ComponentPostEffect.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ComponentPostEffect.h; sourceTree = "<group>"; };
 		04936EEC1AE3F1CF00344903 /* EngineCommandStack.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EngineCommandStack.cpp; sourceTree = "<group>"; };
 		04936EED1AE3F1CF00344903 /* EngineCommandStack.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EngineCommandStack.h; sourceTree = "<group>"; };
 		04936EEE1AE3F1CF00344903 /* EngineEditorCommands.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EngineEditorCommands.cpp; sourceTree = "<group>"; };
 		04936EEF1AE3F1CF00344903 /* EngineEditorCommands.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EngineEditorCommands.h; sourceTree = "<group>"; };
 		04936EF01AE3F1CF00344903 /* TransformGizmo.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TransformGizmo.cpp; sourceTree = "<group>"; };
 		04936EF11AE3F1CF00344903 /* TransformGizmo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TransformGizmo.h; sourceTree = "<group>"; };
+		04B72DF01B0EAC1C00DCB769 /* DialogGridSettings.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DialogGridSettings.cpp; sourceTree = "<group>"; };
+		04B72DF11B0EAC1C00DCB769 /* DialogGridSettings.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DialogGridSettings.h; sourceTree = "<group>"; };
+		04B72DF41B0EAC4D00DCB769 /* lprefix.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lprefix.h; sourceTree = "<group>"; };
+		04B72DF51B0EAC4D00DCB769 /* lutf8lib.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = lutf8lib.c; sourceTree = "<group>"; };
+		04B72DFB1B0EAC7D00DCB769 /* EngineFileManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EngineFileManager.cpp; sourceTree = "<group>"; };
+		04B72DFC1B0EAC7D00DCB769 /* EngineFileManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EngineFileManager.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -457,6 +482,8 @@
 		044C624E1ADDE98F00BABD53 /* Core */ = {
 			isa = PBXGroup;
 			children = (
+				04B72DFB1B0EAC7D00DCB769 /* EngineFileManager.cpp */,
+				04B72DFC1B0EAC7D00DCB769 /* EngineFileManager.h */,
 				044C624F1ADDE98F00BABD53 /* ComponentSystemManager.cpp */,
 				044C62501ADDE98F00BABD53 /* ComponentSystemManager.h */,
 				044C62511ADDE98F00BABD53 /* ComponentTypeManager.cpp */,
@@ -470,6 +497,8 @@
 		044C62551ADDE98F00BABD53 /* FrameworkComponents */ = {
 			isa = PBXGroup;
 			children = (
+				048AF0A41AF302BA00EB4FC7 /* ComponentPostEffect.cpp */,
+				048AF0A51AF302BA00EB4FC7 /* ComponentPostEffect.h */,
 				044C62561ADDE98F00BABD53 /* ComponentAnimationPlayer.cpp */,
 				044C62571ADDE98F00BABD53 /* ComponentAnimationPlayer.h */,
 				044C62581ADDE98F00BABD53 /* ComponentCameraShadow.cpp */,
@@ -560,6 +589,8 @@
 		044C634A1ADE8B9200BABD53 /* src */ = {
 			isa = PBXGroup;
 			children = (
+				04B72DF41B0EAC4D00DCB769 /* lprefix.h */,
+				04B72DF51B0EAC4D00DCB769 /* lutf8lib.c */,
 				044C634B1ADE8B9200BABD53 /* lapi.c */,
 				044C634C1ADE8B9200BABD53 /* lapi.h */,
 				044C634D1ADE8B9200BABD53 /* lauxlib.c */,
@@ -623,6 +654,7 @@
 		04936EEB1AE3F1CF00344903 /* Editor */ = {
 			isa = PBXGroup;
 			children = (
+				04B72DEF1B0EAC1C00DCB769 /* Dialogs */,
 				04936EEC1AE3F1CF00344903 /* EngineCommandStack.cpp */,
 				04936EED1AE3F1CF00344903 /* EngineCommandStack.h */,
 				04936EEE1AE3F1CF00344903 /* EngineEditorCommands.cpp */,
@@ -633,6 +665,15 @@
 			path = Editor;
 			sourceTree = "<group>";
 		};
+		04B72DEF1B0EAC1C00DCB769 /* Dialogs */ = {
+			isa = PBXGroup;
+			children = (
+				04B72DF01B0EAC1C00DCB769 /* DialogGridSettings.cpp */,
+				04B72DF11B0EAC1C00DCB769 /* DialogGridSettings.h */,
+			);
+			path = Dialogs;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
@@ -641,8 +682,12 @@
 			buildActionMask = 2147483647;
 			files = (
 				04936EF31AE3F1CF00344903 /* EngineCommandStack.h in Headers */,
+				04B72DF71B0EAC4D00DCB769 /* lprefix.h in Headers */,
+				048AF0AC1AF302D200EB4FC7 /* ComponentPostEffect.h in Headers */,
 				04936EF51AE3F1CF00344903 /* EngineEditorCommands.h in Headers */,
+				04B72E011B0EAC7D00DCB769 /* EngineFileManager.h in Headers */,
 				04936EF71AE3F1CF00344903 /* TransformGizmo.h in Headers */,
+				04B72DF31B0EAC1C00DCB769 /* DialogGridSettings.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -650,6 +695,9 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				04B72E001B0EAC7D00DCB769 /* EngineFileManager.h in Headers */,
+				048AF0AB1AF302D100EB4FC7 /* ComponentPostEffect.h in Headers */,
+				04B72DF61B0EAC4D00DCB769 /* lprefix.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -768,6 +816,7 @@
 				0423AB211AE2FD5F00C1AE29 /* loslib.c in Sources */,
 				0423AB221AE2FD5F00C1AE29 /* lvm.c in Sources */,
 				0423AB231AE2FD5F00C1AE29 /* lstate.c in Sources */,
+				04B72DF21B0EAC1C00DCB769 /* DialogGridSettings.cpp in Sources */,
 				0423AB241AE2FD5F00C1AE29 /* ComponentUpdateable.cpp in Sources */,
 				0423AB251AE2FD5F00C1AE29 /* ComponentBase.cpp in Sources */,
 				0423AB261AE2FD5F00C1AE29 /* lmathlib.c in Sources */,
@@ -794,6 +843,7 @@
 				0423AB3B1AE2FD5F00C1AE29 /* lstrlib.c in Sources */,
 				0423AB3C1AE2FD5F00C1AE29 /* lgc.c in Sources */,
 				0423AB3D1AE2FD5F00C1AE29 /* lbaselib.c in Sources */,
+				048AF0A81AF302BA00EB4FC7 /* ComponentPostEffect.cpp in Sources */,
 				0423AB3E1AE2FD5F00C1AE29 /* ldump.c in Sources */,
 				0423AB3F1AE2FD5F00C1AE29 /* llex.c in Sources */,
 				0423AB401AE2FD5F00C1AE29 /* EngineComponentTypeManager.cpp in Sources */,
@@ -801,6 +851,7 @@
 				0423AB421AE2FD5F00C1AE29 /* lapi.c in Sources */,
 				0423AB431AE2FD5F00C1AE29 /* EngineCommonHeader.cpp in Sources */,
 				0423AB441AE2FD5F00C1AE29 /* ldebug.c in Sources */,
+				04B72DFA1B0EAC4D00DCB769 /* lutf8lib.c in Sources */,
 				0423AB451AE2FD5F00C1AE29 /* lopcodes.c in Sources */,
 				0423AB461AE2FD5F00C1AE29 /* lcode.c in Sources */,
 				0423AB471AE2FD5F00C1AE29 /* ComponentMeshOBJ.cpp in Sources */,
@@ -812,6 +863,7 @@
 				0423AB4D1AE2FD5F00C1AE29 /* lauxlib.c in Sources */,
 				0423AB4E1AE2FD5F00C1AE29 /* lmem.c in Sources */,
 				0423AB4F1AE2FD5F00C1AE29 /* GameObject.cpp in Sources */,
+				04B72DFF1B0EAC7D00DCB769 /* EngineFileManager.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -823,6 +875,7 @@
 				044C62891ADDE98F00BABD53 /* ComponentSystemManager.cpp in Sources */,
 				044C63941ADE8B9200BABD53 /* lgc.c in Sources */,
 				044C63A71ADE8B9200BABD53 /* lundump.c in Sources */,
+				04B72DF81B0EAC4D00DCB769 /* lutf8lib.c in Sources */,
 				044C63A01ADE8B9200BABD53 /* lstring.c in Sources */,
 				044C62991ADDE98F00BABD53 /* EngineCore.cpp in Sources */,
 				044C628C1ADDE98F00BABD53 /* ComponentAnimationPlayer.cpp in Sources */,
@@ -841,6 +894,7 @@
 				044C62961ADDE98F00BABD53 /* BulletWorld.cpp in Sources */,
 				044C63A91ADE8B9200BABD53 /* lzio.c in Sources */,
 				044C639F1ADE8B9200BABD53 /* lstate.c in Sources */,
+				04B72DFD1B0EAC7D00DCB769 /* EngineFileManager.cpp in Sources */,
 				044C629A1ADDE98F00BABD53 /* EngineMainFrame.cpp in Sources */,
 				044C63891ADE8B9200BABD53 /* lauxlib.c in Sources */,
 				044C62851ADDE98F00BABD53 /* ComponentInputHandler.cpp in Sources */,
@@ -857,6 +911,7 @@
 				044C628B1ADDE98F00BABD53 /* GameObject.cpp in Sources */,
 				044C639C1ADE8B9200BABD53 /* lopcodes.c in Sources */,
 				044C62921ADDE98F00BABD53 /* ComponentMeshOBJ.cpp in Sources */,
+				048AF0A61AF302BA00EB4FC7 /* ComponentPostEffect.cpp in Sources */,
 				044C639D1ADE8B9200BABD53 /* loslib.c in Sources */,
 				044C62871ADDE98F00BABD53 /* ComponentTransform.cpp in Sources */,
 				044C63971ADE8B9200BABD53 /* llex.c in Sources */,
@@ -891,6 +946,7 @@
 				044C64B21ADED48B00BABD53 /* lobject.c in Sources */,
 				044C64CC1ADED4BC00BABD53 /* ComponentCameraShadow.cpp in Sources */,
 				044C64C61ADED4A900BABD53 /* ComponentTransform.cpp in Sources */,
+				04B72DF91B0EAC4D00DCB769 /* lutf8lib.c in Sources */,
 				044C64BF1ADED49F00BABD53 /* Camera2D.cpp in Sources */,
 				044C64CE1ADED4BC00BABD53 /* ComponentLight.cpp in Sources */,
 				044C64DA1ADED4C900BABD53 /* LuaGameState.cpp in Sources */,
@@ -909,6 +965,7 @@
 				044C64AF1ADED48B00BABD53 /* lmathlib.c in Sources */,
 				044C64BA1ADED48B00BABD53 /* ltablib.c in Sources */,
 				044C64A61ADED48B00BABD53 /* ldblib.c in Sources */,
+				04B72DFE1B0EAC7D00DCB769 /* EngineFileManager.cpp in Sources */,
 				044C64CD1ADED4BC00BABD53 /* ComponentCollisionObject.cpp in Sources */,
 				044C64D91ADED4C900BABD53 /* EngineMainFrame.cpp in Sources */,
 				044C64B71ADED48B00BABD53 /* lstring.c in Sources */,
@@ -925,6 +982,7 @@
 				044C64D81ADED4C900BABD53 /* EngineCore.cpp in Sources */,
 				044C64BE1ADED48B00BABD53 /* lzio.c in Sources */,
 				044C64C21ADED4A900BABD53 /* ComponentCamera.cpp in Sources */,
+				048AF0A71AF302BA00EB4FC7 /* ComponentPostEffect.cpp in Sources */,
 				044C64D01ADED4BC00BABD53 /* ComponentMesh.cpp in Sources */,
 				044C64A51ADED48B00BABD53 /* lctype.c in Sources */,
 				044C64B81ADED48B00BABD53 /* lstrlib.c in Sources */,
