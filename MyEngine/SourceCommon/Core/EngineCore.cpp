@@ -127,7 +127,8 @@ void EngineCore::OneTimeInit()
     OnSurfaceChanged( (unsigned int)m_WindowStartX, (unsigned int)m_WindowStartY, (unsigned int)m_WindowWidth, (unsigned int)m_WindowHeight );
 
 #if !MYFW_USING_WX
-    m_pSceneFileToLoad = RequestFile( "Data/Scenes/test.scene" );
+    //m_pSceneFileToLoad = RequestFile( "Data/Scenes/test.scene" );
+    m_pSceneFileToLoad = RequestFile( "Data/Scenes/TestPhysicsCharacter.scene" );
     m_SceneLoaded = false;
 #endif
 }
@@ -155,6 +156,7 @@ double EngineCore::Tick(double TimePassed)
     {
         LoadScene( m_pSceneFileToLoad->m_pBuffer, 1 );
         m_pComponentSystemManager->OnPlay();
+        RegisterGameplayButtons();
         SAFE_RELEASE( m_pSceneFileToLoad );
     }
 #endif
@@ -511,6 +513,11 @@ void EngineCore::RegisterGameplayButtons()
     this->m_KeyMappingToButtons['S'] = GCBI_Down;
     this->m_KeyMappingToButtons['D'] = GCBI_Right;
 
+    this->m_KeyMappingToButtons['w'] = GCBI_Up;
+    this->m_KeyMappingToButtons['a'] = GCBI_Left;
+    this->m_KeyMappingToButtons['s'] = GCBI_Down;
+    this->m_KeyMappingToButtons['d'] = GCBI_Right;
+
     this->m_KeyMappingToButtons[MYKEYCODE_UP] = GCBI_Up;
     this->m_KeyMappingToButtons[MYKEYCODE_LEFT] = GCBI_Left;
     this->m_KeyMappingToButtons[MYKEYCODE_DOWN] = GCBI_Down;
@@ -522,6 +529,11 @@ void EngineCore::RegisterGameplayButtons()
     this->m_KeyMappingToButtons['X'] = GCBI_ButtonB;
     this->m_KeyMappingToButtons['C'] = GCBI_ButtonC;
     this->m_KeyMappingToButtons['V'] = GCBI_ButtonD;
+
+    this->m_KeyMappingToButtons['z'] = GCBI_ButtonA;
+    this->m_KeyMappingToButtons['x'] = GCBI_ButtonB;
+    this->m_KeyMappingToButtons['c'] = GCBI_ButtonC;
+    this->m_KeyMappingToButtons['v'] = GCBI_ButtonD;
 }
 
 void EngineCore::UnregisterGameplayButtons()
@@ -1271,9 +1283,9 @@ void EngineCore::SaveScene(const char* fullpath)
 
     FILE* filehandle;
 #if MYFW_WINDOWS
-    errno_t error = fopen_s( &filehandle, fullpath, "w" );//"Data/Scenes/test.scene", "w" );
+    errno_t error = fopen_s( &filehandle, fullpath, "w" );
 #else
-    filehandle = fopen( fullpath, "w" );//"Data/Scenes/test.scene", "w" );
+    filehandle = fopen( fullpath, "w" );
 #endif
     if( filehandle )
     {
@@ -1309,9 +1321,9 @@ void EngineCore::LoadSceneFromFile(const char* fullpath, unsigned int sceneid)
 {
     FILE* filehandle;
 #if MYFW_WINDOWS
-    errno_t err = fopen_s( &filehandle, fullpath, "rb" );//"Data/Scenes/test.scene", "rb" );
+    errno_t err = fopen_s( &filehandle, fullpath, "rb" );
 #else
-    filehandle = fopen( fullpath, "rb" );//"Data/Scenes/test.scene", "rb" );
+    filehandle = fopen( fullpath, "rb" );
 #endif
 
     char* jsonstr;
