@@ -212,6 +212,8 @@ void EngineCore::OnFocusGained()
 {
     GameCore::OnFocusGained();
 
+    m_pEditorState->ClearKeyAndActionStates();
+
     // reload any files that changed while we were out of focus.
     int filesupdated = g_pFileManager->ReloadAnyUpdatedFiles( OnFileUpdated_CallbackFunction );
 
@@ -556,11 +558,11 @@ void EngineCore::HandleEditorInput(int keyaction, int keycode, int mouseaction, 
         if( keyaction == GCBA_Down ) m_pEditorState->m_ModifierKeyStates |= MODIFIERKEY_Control;
         if( keyaction == GCBA_Up ) m_pEditorState->m_ModifierKeyStates &= ~MODIFIERKEY_Control;
     }
-    //else if( keycode == MYKEYCODE_LALT )
-    //{
-    //    if( keyaction == GCBA_Down ) m_pEditorState->m_ModifierKeyStates |= MODIFIERKEY_Alt;
-    //    if( keyaction == GCBA_Up ) m_pEditorState->m_ModifierKeyStates &= ~MODIFIERKEY_Alt;
-    //}
+    else if( keycode == MYKEYCODE_LALT )
+    {
+        if( keyaction == GCBA_Down ) m_pEditorState->m_ModifierKeyStates |= MODIFIERKEY_Alt;
+        if( keyaction == GCBA_Up ) m_pEditorState->m_ModifierKeyStates &= ~MODIFIERKEY_Alt;
+    }
     else if( keycode == MYKEYCODE_LSHIFT )
     {
         if( keyaction == GCBA_Down ) m_pEditorState->m_ModifierKeyStates |= MODIFIERKEY_Shift;
@@ -598,12 +600,20 @@ void EngineCore::HandleEditorInput(int keyaction, int keycode, int mouseaction, 
 
     if( m_pEditorState->m_ModifierKeyStates & MODIFIERKEY_LeftMouse )
     {
+        if( mouseaction == GCBA_Down && id == 0 )
+        {
+            m_pEditorState->m_EditorActionState = EDITORACTIONSTATE_GroupSelectingObjects;
+            GetObjectAtPixel( 0, 0, true );
+        }
+
         // select an object when mouse is released and on the same pixel it went down.
         // TODO: make same "pixel test" a "total travel < small number" test.
         if( mouseaction == GCBA_Up && id == 0 && m_pEditorState->m_CurrentMousePosition == m_pEditorState->m_MouseLeftDownLocation )
         {
+            m_pEditorState->m_EditorActionState = EDITORACTIONSTATE_GroupSelectingObjects;
+
             // find the object we clicked on.
-            GameObject* pObject = GetObjectAtPixel( x, y );
+            GameObject* pObject = GetObjectAtPixel( x, y, true );
 
             // don't select the gizmos. TODO: give object a 'selectable' flag or something.
             if( pObject != m_pEditorState->m_pTransformGizmo->m_pTransformGizmos[0] &&
@@ -628,7 +638,7 @@ void EngineCore::HandleEditorInput(int keyaction, int keycode, int mouseaction, 
         if( mouseaction == GCBA_Down && id == 0 )
         {
             // find the object we clicked on.
-            GameObject* pObject = GetObjectAtPixel( x, y );
+            GameObject* pObject = GetObjectAtPixel( x, y, true );
 
             // reset mouse movement, so we can undo to this state after mouse goes up.
             m_pEditorState->m_DistanceTranslated.Set( 0, 0, 0 );
@@ -770,6 +780,7 @@ void EngineCore::HandleEditorInput(int keyaction, int keycode, int mouseaction, 
 
         if( mouseaction == GCBA_Held && id == 0 )
         {
+            // gameplay is running and we picked up a physics object in the editor view, so move it around.
             if( m_pEditorState->m_MousePicker_PickConstraint && g_pBulletWorld->m_pDynamicsWorld )
             {
                 // move the constraint pivot
@@ -942,18 +953,41 @@ void EngineCore::HandleEditorInput(int keyaction, int keycode, int mouseaction, 
         }
 
         // if space is held, left button will pan the camera around.  or just middle button
-        if( ( mods & MODIFIERKEY_LeftMouse && mods & MODIFIERKEY_Space ) ||
-            mods & MODIFIERKEY_MiddleMouse
-          )
+        if( ( (mods & MODIFIERKEY_LeftMouse) && (mods & MODIFIERKEY_Space) ) || (mods & MODIFIERKEY_MiddleMouse) )
         {
             Vector2 dir = m_pEditorState->m_LastMousePosition - m_pEditorState->m_CurrentMousePosition;
 
             if( dir.LengthSquared() > 0 )
                 matLocalCamera->TranslatePreRotScale( dir * 0.05f );
         }
+        else if( mouseaction == GCBA_Held &&
+                 m_pEditorState->m_EditorActionState == EDITORACTIONSTATE_GroupSelectingObjects &&
+                 (mods & MODIFIERKEY_LeftMouse) )
+        {
+            // TODO: draw a box in the foreground.
+            //int smallerx = m_pEditorState->m_CurrentMousePosition.x > m_pEditorState->m_MouseLeftDownLocation.x ? m_pEditorState->m_MouseLeftDownLocation.x : m_pEditorState->m_CurrentMousePosition.x;
+            //int biggerx = m_pEditorState->m_CurrentMousePosition.x < m_pEditorState->m_MouseLeftDownLocation.x ? m_pEditorState->m_MouseLeftDownLocation.x : m_pEditorState->m_CurrentMousePosition.x;
+
+            //int smallery = m_pEditorState->m_CurrentMousePosition.y > m_pEditorState->m_MouseLeftDownLocation.y ? m_pEditorState->m_MouseLeftDownLocation.y : m_pEditorState->m_CurrentMousePosition.y;
+            //int biggery = m_pEditorState->m_CurrentMousePosition.y < m_pEditorState->m_MouseLeftDownLocation.y ? m_pEditorState->m_MouseLeftDownLocation.y : m_pEditorState->m_CurrentMousePosition.y;
+
+            //LOGInfo( LOGTag, "group selecting: %d,%d  %d,%d\n", smallerx, smallery, biggerx, biggery );
+
+            //m_pEditorState->ClearSelectedObjectsAndComponents();
+            //for( int y=smallery; y<biggery; y++ )
+            //{
+            //    for( int x=smallerx; x<biggerx; x++ )
+            //    {
+            //        GameObject* pObject = GetObjectAtPixel( x, y, false );
+            //        if( pObject )
+            //            g_pPanelObjectList->SelectObject( pObject ); // passing in 0 will unselect all items.
+            //    }
+            //}
+        }
         // if left or right mouse is down, rotate the camera.
         else if( m_pEditorState->m_EditorActionState == EDITORACTIONSTATE_None &&
-                 ( mods & MODIFIERKEY_LeftMouse || mods & MODIFIERKEY_RightMouse ) )
+                 //( (mods & MODIFIERKEY_LeftMouse) || (mods & MODIFIERKEY_RightMouse) ) )
+                 (mods & MODIFIERKEY_RightMouse) )
         {
             // rotate the camera around selected object or a point 10 units in front of the camera.
             Vector2 dir = m_pEditorState->m_CurrentMousePosition - m_pEditorState->m_LastMousePosition;
@@ -961,7 +995,8 @@ void EngineCore::HandleEditorInput(int keyaction, int keycode, int mouseaction, 
             Vector3 pivot;
             float distancefrompivot;
 
-            if( mods & MODIFIERKEY_LeftMouse && m_pEditorState->m_pSelectedObjects.size() > 0 && m_pEditorState->m_pTransformGizmo->m_pTransformGizmos[0] )//m_pEditorState->m_pSelectedObjects[0] )
+            //if( mods & MODIFIERKEY_LeftMouse && m_pEditorState->m_pSelectedObjects.size() > 0 && m_pEditorState->m_pTransformGizmo->m_pTransformGizmos[0] )//m_pEditorState->m_pSelectedObjects[0] )
+            if( mods & MODIFIERKEY_Alt && m_pEditorState->m_pSelectedObjects.size() > 0 && m_pEditorState->m_pTransformGizmo->m_pTransformGizmos[0] )
             {
                 // pivot around the transform gizmo
                 pivot = m_pEditorState->m_pTransformGizmo->m_pTransformGizmos[0]->m_pComponentTransform->m_Transform.GetTranslation();
@@ -1045,6 +1080,13 @@ void EngineCore::HandleEditorInput(int keyaction, int keycode, int mouseaction, 
         {
             if( id == 0 )
             {
+                // when mouse up, select all object in the box.
+                if( m_pEditorState->m_EditorActionState == EDITORACTIONSTATE_GroupSelectingObjects )
+                {
+                    SelectObjectsInRectangle( m_pEditorState->m_CurrentMousePosition.x, m_pEditorState->m_CurrentMousePosition.y,
+                                              m_pEditorState->m_MouseLeftDownLocation.x, m_pEditorState->m_MouseLeftDownLocation.y );
+                }
+
                 m_pEditorState->m_MouseLeftDownLocation = Vector2( -1, -1 );
                 m_pEditorState->m_ModifierKeyStates &= ~MODIFIERKEY_LeftMouse;
                 m_pEditorState->m_EditorActionState = EDITORACTIONSTATE_None;
@@ -1426,38 +1468,49 @@ void EngineCore::OnSurfaceChanged(unsigned int startx, unsigned int starty, unsi
 }
 
 #if MYFW_USING_WX
-GameObject* EngineCore::GetObjectAtPixel(unsigned int x, unsigned int y)
+GameObject* EngineCore::GetObjectAtPixel(unsigned int x, unsigned int y, bool createnewbitmap)
 {
-    // render the scene to a FBO.
+    // bind our FBO so we can render the scene to it, or sample from it.
     m_pEditorState->m_pMousePickerFBO->Bind();
 
-    m_pEditorState->m_pTransformGizmo->ScaleGizmosForMousePickRendering( true );
+    if( createnewbitmap )
+    {
+        m_pEditorState->m_pTransformGizmo->ScaleGizmosForMousePickRendering( true );
 
-    glDisable( GL_SCISSOR_TEST );
-    glViewport( 0, 0, m_pEditorState->m_pMousePickerFBO->m_Width, m_pEditorState->m_pMousePickerFBO->m_Height );
+        glDisable( GL_SCISSOR_TEST );
+        glViewport( 0, 0, m_pEditorState->m_pMousePickerFBO->m_Width, m_pEditorState->m_pMousePickerFBO->m_Height );
 
-    glClearColor( 0, 0, 0, 0 );
-    glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+        glClearColor( 0, 0, 0, 0 );
+        glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
-    // draw all editor camera components.
+        // draw all editor camera components.
+        ComponentCamera* pCamera = 0;
+        for( unsigned int i=0; i<m_pEditorState->m_pEditorCamera->m_Components.Count(); i++ )
+        {
+            pCamera = dynamic_cast<ComponentCamera*>( m_pEditorState->m_pEditorCamera->m_Components[i] );
+            if( pCamera )
+            {
+                m_pComponentSystemManager->DrawMousePickerFrame( pCamera, &pCamera->m_Camera3D.m_matViewProj, m_pShader_TintColor );
+                glClear( GL_DEPTH_BUFFER_BIT );
+            }
+        }
+
+        if( pCamera == 0 )
+        {
+            m_pEditorState->m_pMousePickerFBO->Unbind();
+            return 0;
+        }
+
+        m_pEditorState->m_pTransformGizmo->ScaleGizmosForMousePickRendering( false );
+    }
+
+    // Find the first camera again.
     ComponentCamera* pCamera = 0;
     for( unsigned int i=0; i<m_pEditorState->m_pEditorCamera->m_Components.Count(); i++ )
     {
         pCamera = dynamic_cast<ComponentCamera*>( m_pEditorState->m_pEditorCamera->m_Components[i] );
-        if( pCamera )
-        {
-            m_pComponentSystemManager->DrawMousePickerFrame( pCamera, &pCamera->m_Camera3D.m_matViewProj, m_pShader_TintColor );
-            glClear( GL_DEPTH_BUFFER_BIT );
-        }
+        break;
     }
-
-    if( pCamera == 0 )
-    {
-        m_pEditorState->m_pMousePickerFBO->Unbind();
-        return 0;
-    }
-
-    m_pEditorState->m_pTransformGizmo->ScaleGizmosForMousePickRendering( false );
 
     // get a pixel from the FBO... use m_WindowStartX/m_WindowStartY from any camera component.
     unsigned char pixel[4];
@@ -1490,6 +1543,32 @@ GameObject* EngineCore::GetObjectAtPixel(unsigned int x, unsigned int y)
     }
 
     return pGameObject;
+}
+
+void EngineCore::SelectObjectsInRectangle(unsigned int sx, unsigned int sy, unsigned int ex, unsigned int ey)
+{
+    int smallerx = sx > ex ? ex : sx;
+    int biggerx = sx < ex ? ex : sx;
+
+    int smallery = sy > ey ? ey : sy;
+    int biggery = sy < ey ? ey : sy;
+
+    //LOGInfo( LOGTag, "group selecting: %d,%d  %d,%d\n", smallerx, smallery, biggerx, biggery );
+
+    // render to the FBO.
+    GetObjectAtPixel( 0, 0, true );
+
+    m_pEditorState->ClearSelectedObjectsAndComponents();
+    for( int y=smallery; y<biggery; y++ )
+    {
+        for( int x=smallerx; x<biggerx; x++ )
+        {
+            // TODO: read a whole block from the fbo, rather than one pixel at a time.
+            GameObject* pObject = GetObjectAtPixel( x, y, false ); // just sample, don't render.
+            if( pObject )
+                g_pPanelObjectList->SelectObject( pObject ); // passing in 0 will unselect all items.
+        }
+    }
 }
 
 void EngineCore::RenderSingleObject(GameObject* pObject)

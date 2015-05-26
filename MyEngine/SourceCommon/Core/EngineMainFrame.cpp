@@ -711,7 +711,7 @@ void EngineMainFrame::OnDrop(int controlid, wxCoord x, wxCoord y)
     // get the GameObject the mouse was hovering over.
     ComponentCamera* pCamera = g_pEngineCore->m_pEditorState->GetEditorCamera();
     y = pCamera->m_WindowHeight - y; // prefer 0,0 at bottom left.
-    GameObject* pObject = g_pEngineCore->GetObjectAtPixel( x, y );
+    GameObject* pObject = g_pEngineCore->GetObjectAtPixel( x, y, true );
 
     if( g_DragAndDropStruct.m_Type == DragAndDropType_MaterialDefinitionPointer )
     {

@@ -112,7 +112,8 @@ public:
 
 #if MYFW_USING_WX
     void RenderSingleObject(GameObject* pObject);
-    GameObject* GetObjectAtPixel(unsigned int x, unsigned int y);
+    GameObject* GetObjectAtPixel(unsigned int x, unsigned int y, bool createnewbitmap);
+    void SelectObjectsInRectangle(unsigned int sx, unsigned int sy, unsigned int ex, unsigned int ey);
     void GetMouseRay(Vector2 mousepos, Vector3* start, Vector3* end);
 #endif //MYFW_USING_WX
 

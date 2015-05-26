@@ -121,7 +121,7 @@ void TransformGizmo::Tick(double TimePassed, EditorState* pEditorState)
 bool TransformGizmo::HandleInput(EngineCore* pGame, int keydown, int keycode, int action, int id, float x, float y, float pressure)
 {
     // find the object we're hovering on
-    GameObject* pObject = pGame->GetObjectAtPixel( x, y );
+    GameObject* pObject = pGame->GetObjectAtPixel( x, y, true );
 
     m_SelectedPart = -1;
 

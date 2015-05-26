@@ -22,6 +22,7 @@ enum EditorActionState
     EDITORACTIONSTATE_TranslateXY,
     EDITORACTIONSTATE_TranslateXZ,
     EDITORACTIONSTATE_TranslateYZ,
+    EDITORACTIONSTATE_GroupSelectingObjects,
     EDITORACTIONSTATE_NumStates,
 };
 
