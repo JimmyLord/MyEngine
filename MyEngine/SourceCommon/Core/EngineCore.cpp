@@ -58,7 +58,6 @@ EngineCore::EngineCore()
 
     g_pPanelObjectList->m_pCallbackFunctionObject = this;
     g_pPanelObjectList->m_pOnTreeSelectionChangedFunction = StaticOnObjectListTreeSelectionChanged;
-    h_ClearSelectedObjectsWhenTreeChanges = true;
 #endif //MYFW_USING_WX
 }
 
@@ -1083,8 +1082,8 @@ void EngineCore::HandleEditorInput(int keyaction, int keycode, int mouseaction, 
                 // when mouse up, select all object in the box.
                 if( m_pEditorState->m_EditorActionState == EDITORACTIONSTATE_GroupSelectingObjects )
                 {
-                    SelectObjectsInRectangle( m_pEditorState->m_CurrentMousePosition.x, m_pEditorState->m_CurrentMousePosition.y,
-                                              m_pEditorState->m_MouseLeftDownLocation.x, m_pEditorState->m_MouseLeftDownLocation.y );
+                    SelectObjectsInRectangle( m_pEditorState->m_MouseLeftDownLocation.x, m_pEditorState->m_MouseLeftDownLocation.y,
+                                              m_pEditorState->m_CurrentMousePosition.x, m_pEditorState->m_CurrentMousePosition.y );
                 }
 
                 m_pEditorState->m_MouseLeftDownLocation = Vector2( -1, -1 );
@@ -1588,12 +1587,31 @@ void EngineCore::SelectObjectsInRectangle(unsigned int sx, unsigned int sy, unsi
     glReadPixels( 0, 0, fbowidth, fboheight, GL_RGBA, GL_UNSIGNED_BYTE, pixels );
     m_pEditorState->m_pMousePickerFBO->Unbind();
 
+    bool controlheld = m_pEditorState->m_ModifierKeyStates & MODIFIERKEY_Control ? true : false;
+
     // if user isn't holding control, then clear objects and items selected in tree.
-    if( (m_pEditorState->m_ModifierKeyStates & MODIFIERKEY_Control) == 0 )
+    if( controlheld == false )
         m_pEditorState->ClearSelectedObjectsAndComponents();
 
-    // potentially about to multi-select, so don't allow tree callbacks to clear selected items.
-    h_ClearSelectedObjectsWhenTreeChanges = false;
+    // potentially about to multi-select, so disable tree callbacks.
+    g_pPanelObjectList->m_UpdatePanelWatchOnSelection = false;
+
+    //unsigned int pixelsbeingtested = (biggerx - smallerx) * (biggery - smallery);
+
+    // check whether or not the first object clicked on was selected, we only care if control is held.
+    bool firstobjectwasselected = false;
+    if( controlheld )
+    {
+        unsigned int offset = (sy*fbowidth + sx)*4;
+        unsigned int id = pixels[offset+0] + pixels[offset+1]*256 + pixels[offset+2]*256*256 + pixels[offset+3]*256*256*256;
+        id /= 641; // 1, 641, 6700417, 4294967297, 
+
+        // if the object's not already selected, select it.
+        GameObject* pObject = m_pComponentSystemManager->FindGameObjectByID( id );
+
+        if( pObject && m_pEditorState->IsGameObjectSelected( pObject ) )
+            firstobjectwasselected = true;
+    }
 
     for( int y=smallery; y<=biggery; y++ )
     {
@@ -1605,19 +1623,39 @@ void EngineCore::SelectObjectsInRectangle(unsigned int sx, unsigned int sy, unsi
 
             // if the object's not already selected, select it.
             GameObject* pObject = m_pComponentSystemManager->FindGameObjectByID( id );
-            if( pObject && m_pEditorState->IsObjectSelected( pObject ) == false )
-            {
-                //m_pEditorState->m_pSelectedObjects.push_back( pObject );
 
-                // select the object in the object tree.
-                g_pPanelObjectList->SelectObject( pObject );
+            if( pObject )
+            {
+                bool objectselected = m_pEditorState->IsGameObjectSelected( pObject );
+
+                // if we're selecting objects, then select the unselected objects.
+                if( firstobjectwasselected == false )
+                {
+                    if( objectselected == false )
+                    {
+                        // select the object
+                        m_pEditorState->SelectGameObject( pObject );
+
+                        // select the object in the object tree.
+                        g_pPanelObjectList->SelectObject( pObject );
+                    }
+                }
+                else if( controlheld ) // if the first object was already selected, deselect all dragged if control is held.
+                {
+                    if( objectselected == true )
+                    {
+                        m_pEditorState->UnselectGameObject( pObject );
+                        g_pPanelObjectList->UnselectObject( pObject );
+                    }
+                }
             }
         }
     }
 
-    LOGInfo( LOGTag, "Done selecting objects.\n" );
+    g_pPanelObjectList->m_UpdatePanelWatchOnSelection = true;
+    g_pPanelObjectList->UpdatePanelWatchWithSelectedItems(); // will reset and update m_pEditorState->m_pSelectedObjects
 
-    h_ClearSelectedObjectsWhenTreeChanges = true;
+    //LOGInfo( LOGTag, "Done selecting objects.\n" );
 
     delete[] pixels;
 }
@@ -1688,7 +1726,7 @@ void EngineCore::GetMouseRay(Vector2 mousepos, Vector3* start, Vector3* end)
 #if MYFW_USING_WX
 void EngineCore::OnObjectListTreeSelectionChanged()
 {
-    if( m_pEditorState )//&& h_ClearSelectedObjectsWhenTreeChanges )
+    if( m_pEditorState )
     {
         //LOGInfo( LOGTag, "Clearing Selected Objects\n" );
         m_pEditorState->m_pSelectedObjects.clear();

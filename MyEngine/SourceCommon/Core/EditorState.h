@@ -66,7 +66,10 @@ public:
 
     void ClearConstraint();
 
-    bool IsObjectSelected(GameObject* pObject);
+    void SelectGameObject(GameObject* pObject);
+    void UnselectGameObject(GameObject* pObject);
+    bool IsGameObjectSelected(GameObject* pObject);
+
     bool IsComponentSelected(ComponentBase* pComponent);
 
     void ClearKeyAndActionStates();

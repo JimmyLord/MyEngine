@@ -107,7 +107,17 @@ void EditorState::ClearConstraint()
     }
 }
 
-bool EditorState::IsObjectSelected(GameObject* pObject)
+void EditorState::SelectGameObject(GameObject* pObject)
+{
+    m_pSelectedObjects.push_back( pObject );
+}
+
+void EditorState::UnselectGameObject(GameObject* pObject)
+{
+    m_pSelectedObjects.erase( std::remove( m_pSelectedObjects.begin(), m_pSelectedObjects.end(), pObject ) );
+}
+
+bool EditorState::IsGameObjectSelected(GameObject* pObject)
 {
     if( std::find( m_pSelectedObjects.begin(), m_pSelectedObjects.end(), pObject ) != m_pSelectedObjects.end() )
         return true;

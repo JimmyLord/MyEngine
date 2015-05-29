@@ -121,7 +121,6 @@ public:
 #if MYFW_USING_WX
     static void StaticOnObjectListTreeSelectionChanged(void* pObjectPtr) { ((EngineCore*)pObjectPtr)->OnObjectListTreeSelectionChanged(); }
     void OnObjectListTreeSelectionChanged();
-    bool h_ClearSelectedObjectsWhenTreeChanges; // true by default.
 #endif //MYFW_USING_WX
 };
 

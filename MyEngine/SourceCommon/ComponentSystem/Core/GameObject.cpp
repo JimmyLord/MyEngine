@@ -71,7 +71,7 @@ void GameObject::OnLeftClick(unsigned int count, bool clear)
     if( g_pEngineCore->m_pEditorState == 0 )
         return;
 
-    if( g_pEngineCore->m_pEditorState->IsObjectSelected( this ) == false )
+    if( g_pEngineCore->m_pEditorState->IsGameObjectSelected( this ) == false )
         g_pEngineCore->m_pEditorState->m_pSelectedObjects.push_back( this );
 
     //LOGInfo( LOGTag, "Selected objects: %d\n", g_pEngineCore->m_pEditorState->m_pSelectedObjects.size() );
@@ -149,7 +149,7 @@ void GameObject::OnPopupClick(wxEvent &evt)
         EditorState* pEditorState = g_pEngineCore->m_pEditorState;
 
         // if the object isn't selected, delete just the one object, otherwise delete all selected objects.
-        if( pEditorState->IsObjectSelected( pGameObject ) )
+        if( pEditorState->IsGameObjectSelected( pGameObject ) )
         {
             g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_DeleteObjects( pEditorState->m_pSelectedObjects ) );
         }
