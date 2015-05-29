@@ -86,8 +86,8 @@ public:
     static bool m_PanelWatchBlockVisible;
 
     virtual void AddToObjectsPanel(wxTreeItemId gameobjectid);
-    static void StaticOnLeftClick(void* pObjectPtr) { ((ComponentParticleEmitter*)pObjectPtr)->OnLeftClick( true ); }
-    void OnLeftClick(bool clear);
+    static void StaticOnLeftClick(void* pObjectPtr, unsigned int count) { ((ComponentParticleEmitter*)pObjectPtr)->OnLeftClick( count, true ); }
+    void OnLeftClick(unsigned int count, bool clear);
     virtual void FillPropertiesWindow(bool clear);
 
     static void StaticOnDropMaterial(void* pObjectPtr, int controlid, wxCoord x, wxCoord y) { ((ComponentParticleEmitter*)pObjectPtr)->OnDropMaterial(controlid, x, y); }

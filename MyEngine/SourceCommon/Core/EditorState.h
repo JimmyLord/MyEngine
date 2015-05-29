@@ -71,6 +71,8 @@ public:
 
     void ClearKeyAndActionStates();
     void ClearSelectedObjectsAndComponents();
+
+    //void SyncFromObjectPanelSelectedItems();
 };
 #endif //MYFW_USING_WX
 

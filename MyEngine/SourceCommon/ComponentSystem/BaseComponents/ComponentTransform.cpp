@@ -66,9 +66,9 @@ void ComponentTransform::AddToObjectsPanel(wxTreeItemId gameobjectid)
     g_pPanelObjectList->SetDragAndDropFunctions( this, ComponentBase::StaticOnDrag, ComponentBase::StaticOnDrop );
 }
 
-void ComponentTransform::OnLeftClick(bool clear)
+void ComponentTransform::OnLeftClick(unsigned int count, bool clear)
 {
-    ComponentBase::OnLeftClick( clear );
+    ComponentBase::OnLeftClick( count, clear );
 }
 
 void ComponentTransform::FillPropertiesWindow(bool clear)

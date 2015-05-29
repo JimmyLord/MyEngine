@@ -69,9 +69,9 @@ void ComponentMesh::AddToObjectsPanel(wxTreeItemId gameobjectid)
     g_pPanelObjectList->AddObject( this, ComponentMesh::StaticOnLeftClick, ComponentBase::StaticOnRightClick, gameobjectid, "Mesh" );
 }
 
-void ComponentMesh::OnLeftClick(bool clear)
+void ComponentMesh::OnLeftClick(unsigned int count, bool clear)
 {
-    ComponentBase::OnLeftClick( clear );
+    ComponentBase::OnLeftClick( count, clear );
 }
 
 void ComponentMesh::FillPropertiesWindow(bool clear)

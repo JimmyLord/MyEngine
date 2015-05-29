@@ -37,8 +37,8 @@ public:
     static bool m_PanelWatchBlockVisible;
 
     virtual void AddToObjectsPanel(wxTreeItemId gameobjectid);
-    static void StaticOnLeftClick(void* pObjectPtr) { ((ComponentMeshOBJ*)pObjectPtr)->OnLeftClick( true ); }
-    void OnLeftClick(bool clear);
+    static void StaticOnLeftClick(void* pObjectPtr, unsigned int count) { ((ComponentMeshOBJ*)pObjectPtr)->OnLeftClick( count, true ); }
+    void OnLeftClick(unsigned int count, bool clear);
     virtual void FillPropertiesWindow(bool clear);
     static void StaticOnDropOBJ(void* pObjectPtr, int controlid, wxCoord x, wxCoord y) { ((ComponentMeshOBJ*)pObjectPtr)->OnDropOBJ(controlid, x, y); }
     void OnDropOBJ(int controlid, wxCoord x, wxCoord y);

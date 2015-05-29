@@ -86,8 +86,8 @@ public:
     int m_ControlIDOfFirstExtern;
 
     virtual void AddToObjectsPanel(wxTreeItemId gameobjectid);
-    static void StaticOnLeftClick(void* pObjectPtr) { ((ComponentLuaScript*)pObjectPtr)->OnLeftClick( true ); }
-    void OnLeftClick(bool clear);
+    static void StaticOnLeftClick(void* pObjectPtr, unsigned int count) { ((ComponentLuaScript*)pObjectPtr)->OnLeftClick( count, true ); }
+    void OnLeftClick(unsigned int count, bool clear);
     virtual void FillPropertiesWindow(bool clear);
     static void StaticOnDrop(void* pObjectPtr, int controlid, wxCoord x, wxCoord y) { ((ComponentLuaScript*)pObjectPtr)->OnDrop(controlid, x, y); }
     void OnDrop(int controlid, wxCoord x, wxCoord y);

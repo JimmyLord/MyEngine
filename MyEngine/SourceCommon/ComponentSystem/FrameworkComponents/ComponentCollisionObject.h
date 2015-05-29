@@ -62,8 +62,8 @@ public:
     int m_ControlID_PrimitiveType;
 
     virtual void AddToObjectsPanel(wxTreeItemId gameobjectid);
-    static void StaticOnLeftClick(void* pObjectPtr) { ((ComponentCollisionObject*)pObjectPtr)->OnLeftClick( true ); }
-    void OnLeftClick(bool clear);
+    static void StaticOnLeftClick(void* pObjectPtr, unsigned int count) { ((ComponentCollisionObject*)pObjectPtr)->OnLeftClick( count, true ); }
+    void OnLeftClick(unsigned int count, bool clear);
     virtual void FillPropertiesWindow(bool clear);
     static void StaticOnValueChanged(void* pObjectPtr, int controlid, bool finishedchanging) { ((ComponentCollisionObject*)pObjectPtr)->OnValueChanged( controlid, finishedchanging ); }
     void OnValueChanged(int controlid, bool finishedchanging);

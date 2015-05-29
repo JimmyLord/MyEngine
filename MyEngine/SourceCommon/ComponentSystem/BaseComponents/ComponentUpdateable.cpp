@@ -45,9 +45,9 @@ void ComponentUpdateable::AddToObjectsPanel(wxTreeItemId gameobjectid)
     g_pPanelObjectList->AddObject( this, ComponentUpdateable::StaticOnLeftClick, ComponentBase::StaticOnRightClick, gameobjectid, "Updateable" );
 }
 
-void ComponentUpdateable::OnLeftClick(bool clear)
+void ComponentUpdateable::OnLeftClick(unsigned int count, bool clear)
 {
-    ComponentBase::OnLeftClick( clear );
+    ComponentBase::OnLeftClick( count, clear );
 }
 
 void ComponentUpdateable::FillPropertiesWindow(bool clear)

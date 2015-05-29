@@ -57,8 +57,8 @@ public:
     int m_ControlID_MeshPrimitiveType;
 
     virtual void AddToObjectsPanel(wxTreeItemId gameobjectid);
-    static void StaticOnLeftClick(void* pObjectPtr) { ((ComponentMeshPrimitive*)pObjectPtr)->OnLeftClick( true ); }
-    void OnLeftClick(bool clear);
+    static void StaticOnLeftClick(void* pObjectPtr, unsigned int count) { ((ComponentMeshPrimitive*)pObjectPtr)->OnLeftClick( count, true ); }
+    void OnLeftClick(unsigned int count, bool clear);
     virtual void FillPropertiesWindow(bool clear);
     static void StaticOnValueChanged(void* pObjectPtr, int controlid, bool finishedchanging) { ((ComponentMeshPrimitive*)pObjectPtr)->OnValueChanged( controlid, finishedchanging ); }
     void OnValueChanged(int controlid, bool finishedchanging);

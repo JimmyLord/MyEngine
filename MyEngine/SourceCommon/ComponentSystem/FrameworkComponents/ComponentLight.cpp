@@ -55,9 +55,9 @@ void ComponentLight::AddToObjectsPanel(wxTreeItemId gameobjectid)
     g_pPanelObjectList->AddObject( this, ComponentLight::StaticOnLeftClick, ComponentBase::StaticOnRightClick, gameobjectid, "Light" );
 }
 
-void ComponentLight::OnLeftClick(bool clear)
+void ComponentLight::OnLeftClick(unsigned int count, bool clear)
 {
-    ComponentBase::OnLeftClick( clear );
+    ComponentBase::OnLeftClick( count, clear );
 }
 
 void ComponentLight::FillPropertiesWindow(bool clear)

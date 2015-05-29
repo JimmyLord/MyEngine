@@ -132,9 +132,9 @@ public:
     void Editor_RegisterFileUpdatedCallback(FileUpdatedCallbackFunction pFunc, void* pObj);
     void AddAllMaterialsToFilesList();
 
-    static void StaticOnLeftClick(void* pObjectPtr) { ((ComponentSystemManager*)pObjectPtr)->OnLeftClick(true); }
+    static void StaticOnLeftClick(void* pObjectPtr, unsigned int count) { ((ComponentSystemManager*)pObjectPtr)->OnLeftClick( count, true ); }
     static void StaticOnRightClick(void* pObjectPtr) { ((ComponentSystemManager*)pObjectPtr)->OnRightClick(); }
-    void OnLeftClick(bool clear);
+    void OnLeftClick(unsigned int count, bool clear);
     void OnRightClick();
     void OnPopupClick(wxEvent &evt); // used as callback for wxEvtHandler, can't be virtual(will crash, haven't looked into it).
 

@@ -112,6 +112,7 @@ public:
 
 #if MYFW_USING_WX
     void RenderSingleObject(GameObject* pObject);
+    void RenderObjectIDsToFBO();
     GameObject* GetObjectAtPixel(unsigned int x, unsigned int y, bool createnewbitmap);
     void SelectObjectsInRectangle(unsigned int sx, unsigned int sy, unsigned int ex, unsigned int ey);
     void GetMouseRay(Vector2 mousepos, Vector3* start, Vector3* end);
@@ -120,6 +121,7 @@ public:
 #if MYFW_USING_WX
     static void StaticOnObjectListTreeSelectionChanged(void* pObjectPtr) { ((EngineCore*)pObjectPtr)->OnObjectListTreeSelectionChanged(); }
     void OnObjectListTreeSelectionChanged();
+    bool h_ClearSelectedObjectsWhenTreeChanges; // true by default.
 #endif //MYFW_USING_WX
 };
 

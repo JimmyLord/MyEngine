@@ -78,8 +78,8 @@ public:
     int m_ControlID_ParentTransform;
 
     virtual void AddToObjectsPanel(wxTreeItemId gameobjectid);
-    static void StaticOnLeftClick(void* pObjectPtr) { ((ComponentTransform*)pObjectPtr)->OnLeftClick( true ); }
-    void OnLeftClick(bool clear);
+    static void StaticOnLeftClick(void* pObjectPtr, unsigned int count) { ((ComponentTransform*)pObjectPtr)->OnLeftClick( count, true ); }
+    void OnLeftClick(unsigned int count, bool clear);
     virtual void FillPropertiesWindow(bool clear);
     static void StaticOnDropTransform(void* pObjectPtr, int controlid, wxCoord x, wxCoord y) { ((ComponentTransform*)pObjectPtr)->OnDropTransform(controlid, x, y); }
     void OnDropTransform(int controlid, wxCoord x, wxCoord y);

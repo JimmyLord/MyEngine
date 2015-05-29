@@ -34,9 +34,9 @@ void ComponentInputHandler::AddToObjectsPanel(wxTreeItemId gameobjectid)
     g_pPanelObjectList->AddObject( this, ComponentInputHandler::StaticOnLeftClick, ComponentBase::StaticOnRightClick, gameobjectid, "Input handler" );
 }
 
-void ComponentInputHandler::OnLeftClick(bool clear)
+void ComponentInputHandler::OnLeftClick(unsigned int count, bool clear)
 {
-    ComponentBase::OnLeftClick( clear );
+    ComponentBase::OnLeftClick( count, clear );
 }
 
 void ComponentInputHandler::FillPropertiesWindow(bool clear)

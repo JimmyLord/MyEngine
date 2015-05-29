@@ -83,9 +83,9 @@ void ComponentLuaScript::AddToObjectsPanel(wxTreeItemId gameobjectid)
     g_pPanelObjectList->AddObject( this, ComponentLuaScript::StaticOnLeftClick, ComponentBase::StaticOnRightClick, gameobjectid, "Lua script" );
 }
 
-void ComponentLuaScript::OnLeftClick(bool clear)
+void ComponentLuaScript::OnLeftClick(unsigned int count, bool clear)
 {
-    ComponentBase::OnLeftClick( clear );
+    ComponentBase::OnLeftClick( count, clear );
 }
 
 void ComponentLuaScript::FillPropertiesWindow(bool clear)

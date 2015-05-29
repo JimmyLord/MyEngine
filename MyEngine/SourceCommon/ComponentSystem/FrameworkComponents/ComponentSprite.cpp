@@ -35,9 +35,9 @@ void ComponentSprite::AddToObjectsPanel(wxTreeItemId gameobjectid)
     g_pPanelObjectList->AddObject( this, ComponentSprite::StaticOnLeftClick, ComponentBase::StaticOnRightClick, gameobjectid, "Sprite" );
 }
 
-void ComponentSprite::OnLeftClick(bool clear)
+void ComponentSprite::OnLeftClick(unsigned int count, bool clear)
 {
-    ComponentBase::OnLeftClick( clear );
+    ComponentBase::OnLeftClick( count, clear );
 }
 
 void ComponentSprite::FillPropertiesWindow(bool clear)

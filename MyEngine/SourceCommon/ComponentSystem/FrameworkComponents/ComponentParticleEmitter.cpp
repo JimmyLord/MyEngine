@@ -91,9 +91,9 @@ void ComponentParticleEmitter::AddToObjectsPanel(wxTreeItemId gameobjectid)
     g_pPanelObjectList->AddObject( this, ComponentParticleEmitter::StaticOnLeftClick, ComponentBase::StaticOnRightClick, gameobjectid, "Particle Emitter" );
 }
 
-void ComponentParticleEmitter::OnLeftClick(bool clear)
+void ComponentParticleEmitter::OnLeftClick(unsigned int count, bool clear)
 {
-    ComponentBase::OnLeftClick( clear );
+    ComponentBase::OnLeftClick( count, clear );
 }
 
 void ComponentParticleEmitter::FillPropertiesWindow(bool clear)

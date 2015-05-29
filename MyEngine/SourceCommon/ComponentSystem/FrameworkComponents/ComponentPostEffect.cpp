@@ -36,9 +36,9 @@ void ComponentPostEffect::AddToObjectsPanel(wxTreeItemId gameobjectid)
     g_pPanelObjectList->AddObject( this, ComponentPostEffect::StaticOnLeftClick, ComponentData::StaticOnRightClick, gameobjectid, "Post Effect" );
 }
 
-void ComponentPostEffect::OnLeftClick(bool clear)
+void ComponentPostEffect::OnLeftClick(unsigned int count, bool clear)
 {
-    ComponentData::OnLeftClick( clear );
+    ComponentData::OnLeftClick( count, clear );
 }
 
 void ComponentPostEffect::FillPropertiesWindow(bool clear)

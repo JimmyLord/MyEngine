@@ -65,13 +65,16 @@ void GameObject::LuaRegister(lua_State* luastate)
 }
 
 #if MYFW_USING_WX
-void GameObject::OnLeftClick(bool clear)
+void GameObject::OnLeftClick(unsigned int count, bool clear)
 {
     // select this GameObject in the editor window.
     if( g_pEngineCore->m_pEditorState == 0 )
         return;
 
-    g_pEngineCore->m_pEditorState->m_pSelectedObjects.push_back( this );
+    if( g_pEngineCore->m_pEditorState->IsObjectSelected( this ) == false )
+        g_pEngineCore->m_pEditorState->m_pSelectedObjects.push_back( this );
+
+    //LOGInfo( LOGTag, "Selected objects: %d\n", g_pEngineCore->m_pEditorState->m_pSelectedObjects.size() );
 
     // only show properties of the first selected object.
     if( g_pEngineCore->m_pEditorState->m_pSelectedObjects.size() > 1 )

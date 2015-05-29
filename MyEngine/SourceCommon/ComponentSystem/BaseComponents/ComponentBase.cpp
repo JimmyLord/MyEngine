@@ -60,7 +60,7 @@ void ComponentBase::OnComponentTitleLabelClicked(int id, bool finishedchanging)
     }
 }
 
-void ComponentBase::OnLeftClick(bool clear)
+void ComponentBase::OnLeftClick(unsigned int count, bool clear)
 {
     // select this Component in the editor window.
     g_pEngineCore->m_pEditorState->m_pSelectedComponents.push_back( this );

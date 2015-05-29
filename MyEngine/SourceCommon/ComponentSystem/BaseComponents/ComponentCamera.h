@@ -74,8 +74,8 @@ public:
     static bool m_PanelWatchBlockVisible;
 
     virtual void AddToObjectsPanel(wxTreeItemId gameobjectid);
-    static void StaticOnLeftClick(void* pObjectPtr) { ((ComponentCamera*)pObjectPtr)->OnLeftClick( true ); }
-    void OnLeftClick(bool clear);
+    static void StaticOnLeftClick(void* pObjectPtr, unsigned int count) { ((ComponentCamera*)pObjectPtr)->OnLeftClick( count, true ); }
+    void OnLeftClick(unsigned int count, bool clear);
     virtual void FillPropertiesWindow(bool clear);
     static void StaticOnValueChanged(void* pObjectPtr, int controlid, bool finishedchanging) { ((ComponentCamera*)pObjectPtr)->OnValueChanged( controlid, finishedchanging ); }
     void OnValueChanged(int controlid, bool finishedchanging);

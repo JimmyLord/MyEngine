@@ -111,7 +111,7 @@ void ComponentSystemManager::AddAllMaterialsToFilesList()
     }
 }
 
-void ComponentSystemManager::OnLeftClick(bool clear)
+void ComponentSystemManager::OnLeftClick(unsigned int count, bool clear)
 {
     if( clear )
         g_pPanelWatch->ClearAllVariables();

@@ -32,9 +32,9 @@ void ComponentData::AddToObjectsPanel(wxTreeItemId gameobjectid)
     g_pPanelObjectList->AddObject( this, ComponentData::StaticOnLeftClick, ComponentBase::StaticOnRightClick, gameobjectid, "Base component" );
 }
 
-void ComponentData::OnLeftClick(bool clear)
+void ComponentData::OnLeftClick(unsigned int count, bool clear)
 {
-    ComponentBase::OnLeftClick( clear );
+    ComponentBase::OnLeftClick( count, clear );
 }
 
 void ComponentData::FillPropertiesWindow(bool clear)

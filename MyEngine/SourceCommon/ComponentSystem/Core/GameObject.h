@@ -66,12 +66,12 @@ public:
 
 public:
 #if MYFW_USING_WX
-    static void StaticOnLeftClick(void* pObjectPtr) { ((GameObject*)pObjectPtr)->OnLeftClick(true); }
+    static void StaticOnLeftClick(void* pObjectPtr, unsigned int count) { ((GameObject*)pObjectPtr)->OnLeftClick( count, true ); }
     static void StaticOnRightClick(void* pObjectPtr) { ((GameObject*)pObjectPtr)->OnRightClick(); }
     static void StaticOnDrag(void* pObjectPtr) { ((GameObject*)pObjectPtr)->OnDrag(); }
     static void StaticOnDrop(void* pObjectPtr, int controlid, wxCoord x, wxCoord y) { ((GameObject*)pObjectPtr)->OnDrop(controlid, x, y); }
     static void StaticOnLabelEdit(void* pObjectPtr, wxString newlabel) { ((GameObject*)pObjectPtr)->OnLabelEdit( newlabel ); }
-    void OnLeftClick(bool clear);
+    void OnLeftClick(unsigned int count, bool clear);
     void OnRightClick();
     void OnPopupClick(wxEvent &evt); // used as callback for wxEvtHandler, can't be virtual(will crash, haven't looked into it).
     void OnDrag();

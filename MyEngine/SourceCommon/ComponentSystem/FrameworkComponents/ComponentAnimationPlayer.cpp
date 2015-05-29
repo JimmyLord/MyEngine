@@ -62,9 +62,9 @@ void ComponentAnimationPlayer::AddToObjectsPanel(wxTreeItemId gameobjectid)
     g_pPanelObjectList->AddObject( this, ComponentAnimationPlayer::StaticOnLeftClick, ComponentBase::StaticOnRightClick, gameobjectid, "Animaton Player" );
 }
 
-void ComponentAnimationPlayer::OnLeftClick(bool clear)
+void ComponentAnimationPlayer::OnLeftClick(unsigned int count, bool clear)
 {
-    ComponentBase::OnLeftClick( clear );
+    ComponentBase::OnLeftClick( count, clear );
 }
 
 void ComponentAnimationPlayer::FillPropertiesWindow(bool clear)

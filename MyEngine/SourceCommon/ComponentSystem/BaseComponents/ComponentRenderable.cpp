@@ -50,9 +50,9 @@ void ComponentRenderable::AddToObjectsPanel(wxTreeItemId gameobjectid)
     g_pPanelObjectList->AddObject( this, ComponentRenderable::StaticOnLeftClick, ComponentBase::StaticOnRightClick, gameobjectid, "Renderable" );
 }
 
-void ComponentRenderable::OnLeftClick(bool clear)
+void ComponentRenderable::OnLeftClick(unsigned int count, bool clear)
 {
-    ComponentBase::OnLeftClick( clear );
+    ComponentBase::OnLeftClick( count, clear );
 }
 
 void ComponentRenderable::FillPropertiesWindow(bool clear)

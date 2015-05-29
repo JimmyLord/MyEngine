@@ -36,9 +36,9 @@ void ComponentCameraShadow::AddToObjectsPanel(wxTreeItemId gameobjectid)
     g_pPanelObjectList->AddObject( this, ComponentCameraShadow::StaticOnLeftClick, ComponentCamera::StaticOnRightClick, gameobjectid, "Camera" );
 }
 
-void ComponentCameraShadow::OnLeftClick(bool clear)
+void ComponentCameraShadow::OnLeftClick(unsigned int count, bool clear)
 {
-    ComponentCamera::OnLeftClick( clear );
+    ComponentCamera::OnLeftClick( count, clear );
 }
 
 void ComponentCameraShadow::FillPropertiesWindow(bool clear)

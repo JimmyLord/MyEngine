@@ -81,9 +81,9 @@ void ComponentCollisionObject::AddToObjectsPanel(wxTreeItemId gameobjectid)
     g_pPanelObjectList->AddObject( this, ComponentCollisionObject::StaticOnLeftClick, ComponentBase::StaticOnRightClick, gameobjectid, "Collision object" );
 }
 
-void ComponentCollisionObject::OnLeftClick(bool clear)
+void ComponentCollisionObject::OnLeftClick(unsigned int count, bool clear)
 {
-    ComponentBase::OnLeftClick( clear );
+    ComponentBase::OnLeftClick( count, clear );
 }
 
 void ComponentCollisionObject::FillPropertiesWindow(bool clear)

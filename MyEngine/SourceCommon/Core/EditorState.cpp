@@ -109,11 +109,8 @@ void EditorState::ClearConstraint()
 
 bool EditorState::IsObjectSelected(GameObject* pObject)
 {
-    for( unsigned int i=0; i<m_pSelectedObjects.size(); i++ )
-    {
-        if( m_pSelectedObjects[i] == pObject )
-            return true;
-    }
+    if( std::find( m_pSelectedObjects.begin(), m_pSelectedObjects.end(), pObject ) != m_pSelectedObjects.end() )
+        return true;
 
     return false;
 }
@@ -143,5 +140,24 @@ void EditorState::ClearSelectedObjectsAndComponents()
     g_pPanelObjectList->SelectObject( 0 );
     g_pPanelWatch->ClearAllVariables();
 }
+
+// can't really do it this way since the tree can contain different types of objects.
+//void EditorState::SyncFromObjectPanelSelectedItems()
+//{
+//    wxArrayTreeItemIds selecteditems;
+//    unsigned int numselected = (unsigned int)g_pPanelObjectList->m_pTree_Objects->GetSelections( selecteditems );
+//
+//    m_pSelectedObjects.clear();
+//    m_pSelectedComponents.clear();
+//
+//    for( unsigned int i=0; i<numselected; i++ )
+//    {
+//        wxTreeItemId id = selecteditems[i].GetID();
+//        TreeItemDataGenericObjectInfo* pData = (TreeItemDataGenericObjectInfo*)g_pPanelObjectList->m_pTree_Objects->GetItemData( id );
+//
+//        if( dynamic_cast<GameObject*>( pData->m_pObject ) != 0 )
+//            m_pSelectedObjects.push_back( (GameObject*)pData->m_pObject );
+//    }
+//}
 
 #endif //MYFW_USING_WX

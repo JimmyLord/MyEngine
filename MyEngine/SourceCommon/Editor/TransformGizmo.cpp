@@ -213,6 +213,9 @@ void TransformGizmo::ScaleGizmosForMousePickRendering(bool doscale)
 
 void TransformGizmo::TranslateSelectedObjects(EngineCore* pGame, EditorState* pEditorState)
 {
+    if( pEditorState->m_pSelectedObjects.size() == 0 )
+        return;
+
     // move the selected objects along a plane or axis
     if( pEditorState->m_EditorActionState == EDITORACTIONSTATE_TranslateX ||
         pEditorState->m_EditorActionState == EDITORACTIONSTATE_TranslateY ||
