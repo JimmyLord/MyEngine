@@ -13,18 +13,19 @@
 // must be in same order as enum EngineComponentTypes
 ComponentTypeInfo g_EngineComponentTypeInfo[Component_NumEngineComponentTypes] = // ADDING_NEW_ComponentType
 {
-    { "Camera",         "Camera",           },
-    { "Renderables",    "Sprite",           },
-    { "Renderables",    "Mesh",             },
-    { "Renderables",    "Mesh-OBJ",         },
-    { "Renderables",    "Mesh-Primitive",   },
-    { "Lighting",       "Light",            },
-    { "Lighting",       "Shadow Dir Light", },
-    { "Effects",        "Post Effect Quad", },
-    { "Physics",        "Collision Object", },
-    { "Scripts",        "Lua Script",       },
-    { "Particles",      "Particle Emitter", },
-    { "Animation",      "Animation Player", },
+    { "Camera",         "Camera",           },  //ComponentType_Camera,
+    { "Renderables",    "Sprite",           },  //ComponentType_Sprite,
+    { "Renderables",    "Mesh",             },  //ComponentType_Mesh,
+    { "Renderables",    "Mesh-OBJ",         },  //ComponentType_MeshOBJ,
+    { "Renderables",    "Mesh-Primitive",   },  //ComponentType_MeshPrimitive,
+    { "Lighting",       "Light",            },  //ComponentType_Light,
+    { "Lighting",       "Shadow Dir Light", },  //ComponentType_CameraShadow,
+    { "Effects",        "Post Effect Quad", },  //ComponentType_PostEffect,
+    { "Physics",        "Collision Object", },  //ComponentType_CollisionObject,
+    { "Scripts",        "Lua Script",       },  //ComponentType_LuaScript,
+    { "Particles",      "Particle Emitter", },  //ComponentType_ParticleEmitter,
+    { "Animation",      "Animation Player", },  //ComponentType_AnimationPlayer,
+    { "Menus",          "Menu Page",        },  //ComponentType_MenuPage,
 };
 
 ComponentBase* EngineComponentTypeManager::CreateComponent(int type)
@@ -47,6 +48,7 @@ ComponentBase* EngineComponentTypeManager::CreateComponent(int type)
     case ComponentType_LuaScript:           pComponent = MyNew ComponentLuaScript;          break;
     case ComponentType_ParticleEmitter:     pComponent = MyNew ComponentParticleEmitter;    break;
     case ComponentType_AnimationPlayer:     pComponent = MyNew ComponentAnimationPlayer;    break;
+    case ComponentType_MenuPage:            pComponent = MyNew ComponentMenuPage;           break;
     }
 
     MyAssert( pComponent != 0 );

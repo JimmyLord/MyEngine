@@ -51,6 +51,9 @@ ComponentSystemManager::~ComponentSystemManager()
     while( m_ComponentsRenderable.GetHead() )
         delete m_ComponentsRenderable.RemHead();
 
+    while( m_ComponentsMenuPage.GetHead() )
+        delete m_ComponentsMenuPage.RemHead();
+
     SAFE_DELETE( m_pComponentTypeManager );
 
     // if a component didn't unregister itself, assert.
@@ -240,6 +243,13 @@ char* ComponentSystemManager::SaveSceneToJSON()
         }
 
         for( CPPListNode* pNode = m_ComponentsData.GetHead(); pNode; pNode = pNode->GetNext() )
+        {
+            ComponentBase* pComponent = (ComponentBase*)pNode;
+            if( pComponent->m_pGameObject->IsManaged() )
+                cJSON_AddItemToArray( componentarray, pComponent->ExportAsJSONObject() );
+        }
+
+        for( CPPListNode* pNode = m_ComponentsMenuPage.GetHead(); pNode; pNode = pNode->GetNext() )
         {
             ComponentBase* pComponent = (ComponentBase*)pNode;
             if( pComponent->m_pGameObject->IsManaged() )
@@ -615,6 +625,21 @@ void ComponentSystemManager::UnloadScene(unsigned int sceneidtoclear, bool clear
                 m_NextComponentID = pComponent->GetID() + 1;
             }
         }
+
+        for( CPPListNode* pNode = m_ComponentsMenuPage.GetHead(); pNode;  )
+        {
+            ComponentBase* pComponent = (ComponentBase*)pNode;
+            pNode = pNode->GetNext();
+            if( (pComponent->m_pGameObject->IsManaged() || clearunmanagedcomponents) &&
+                (sceneidtoclear == UINT_MAX || pComponent->GetSceneID() == sceneidtoclear) )
+            {
+                DeleteComponent( pComponent );
+            }
+            else if( pComponent->GetID() > m_NextComponentID )
+            {
+                m_NextComponentID = pComponent->GetID() + 1;
+            }
+        }
     }
 
     // delete all game objects.
@@ -805,6 +830,10 @@ ComponentBase* ComponentSystemManager::AddComponent(ComponentBase* pComponent)
         m_ComponentsRenderable.AddTail( pComponent );
         break;
 
+    case BaseComponentType_MenuPage:
+        m_ComponentsMenuPage.AddTail( pComponent );
+        break;
+
     case BaseComponentType_Transform:
     case BaseComponentType_None:
         MyAssert( false ); // shouldn't happen.
@@ -872,12 +901,30 @@ ComponentBase* ComponentSystemManager::FindComponentByID(unsigned int id, unsign
             return pComponent;
     }
 
+    for( CPPListNode* pNode = m_ComponentsMenuPage.GetHead(); pNode;  )
+    {
+        ComponentBase* pComponent = (ComponentBase*)pNode;
+        pNode = pNode->GetNext();
+        if( pComponent->GetID() == id && pComponent->GetSceneID() == sceneid )
+            return pComponent;
+    }
+
     return 0;
 }
 
 void ComponentSystemManager::Tick(double TimePassed)
 {
-    // update all game objects, scripts first.
+    // update all Components:
+
+    // Menu pages first.
+    for( CPPListNode* node = m_ComponentsMenuPage.GetHead(); node != 0; node = node->GetNext() )
+    {
+        ComponentMenuPage* pComponent = (ComponentMenuPage*)node;
+
+        pComponent->Tick( TimePassed );
+    }
+
+    // then all scripts.
     for( CPPListNode* node = m_ComponentsUpdateable.GetHead(); node != 0; node = node->GetNext() )
     {
         ComponentUpdateable* pComponent = (ComponentUpdateable*)node;
@@ -888,7 +935,7 @@ void ComponentSystemManager::Tick(double TimePassed)
         }
     }
 
-    // update all game objects, everything else
+    // then all other "Updateables".
     for( CPPListNode* node = m_ComponentsUpdateable.GetHead(); node != 0; node = node->GetNext() )
     {
         ComponentUpdateable* pComponent = (ComponentUpdateable*)node;
@@ -899,7 +946,7 @@ void ComponentSystemManager::Tick(double TimePassed)
         }
     }
 
-    // update all components that registered a tick callback
+    // update all components that registered a tick callback.
     for( unsigned int i=0; i<m_pComponentTickCallbackList.Count(); i++ )
     {
         m_pComponentTickCallbackList[i].pFunc( m_pComponentTickCallbackList[i].pObj, TimePassed );
@@ -961,6 +1008,21 @@ void ComponentSystemManager::OnDrawFrame(ComponentCamera* pCamera, MyMatrix* pMa
                 {
                     pComponent->Draw( pMatViewProj, pShaderOverride );
                 }
+            }
+        }
+    }
+
+    // For now, draw menu pages over the main scene.
+    // TODO: potentially draw solids before scene, transparents after.
+    for( CPPListNode* node = m_ComponentsMenuPage.GetHead(); node != 0; node = node->GetNext() )
+    {
+        ComponentMenuPage* pComponent = (ComponentMenuPage*)node;
+
+        //if( pComponent->m_BaseType == BaseComponentType_MenuPage )
+        {
+            //if( pComponent->m_Visible )
+            {
+                pComponent->Draw();
             }
         }
     }
@@ -1048,6 +1110,19 @@ void ComponentSystemManager::OnStop()
 
 bool ComponentSystemManager::OnTouch(int action, int id, float x, float y, float pressure, float size)
 {
+    // Menu pages get first crack at input.
+    for( CPPListNode* node = m_ComponentsMenuPage.GetHead(); node != 0; node = node->GetNext() )
+    {
+        ComponentMenuPage* pComponent = (ComponentMenuPage*)node;
+
+        //if( pComponent->m_BaseType == BaseComponentType_MenuPage )
+        {
+            if( pComponent->OnTouch( action, id, x, y, pressure, size ) == true )
+                return true;
+        }
+    }
+
+    // then regular scene input handlers.
     for( CPPListNode* node = m_ComponentsInputHandler.GetHead(); node != 0; node = node->GetNext() )
     {
         ComponentInputHandler* pComponent = (ComponentInputHandler*)node;
@@ -1059,7 +1134,7 @@ bool ComponentSystemManager::OnTouch(int action, int id, float x, float y, float
         }
     }
 
-    // send input to all the scripts.
+    // then send input to all the scripts.
     for( CPPListNode* node = m_ComponentsUpdateable.GetHead(); node != 0; node = node->GetNext() )
     {
         ComponentLuaScript* pComponent = ((ComponentBase*)node)->IsA( "LuaScriptComponent" ) ? (ComponentLuaScript*)node : 0;
@@ -1076,6 +1151,19 @@ bool ComponentSystemManager::OnTouch(int action, int id, float x, float y, float
 
 bool ComponentSystemManager::OnButtons(GameCoreButtonActions action, GameCoreButtonIDs id)
 {
+    // Menu pages get first crack at input.
+    for( CPPListNode* node = m_ComponentsMenuPage.GetHead(); node != 0; node = node->GetNext() )
+    {
+        ComponentMenuPage* pComponent = (ComponentMenuPage*)node;
+
+        //if( pComponent->m_BaseType == BaseComponentType_MenuPage )
+        {
+            if( pComponent->OnButtons( action, id ) == true )
+                return true;
+        }
+    }
+
+    // then regular scene input handlers.
     for( CPPListNode* node = m_ComponentsInputHandler.GetHead(); node != 0; node = node->GetNext() )
     {
         ComponentInputHandler* pComponent = (ComponentInputHandler*)node;
@@ -1087,7 +1175,7 @@ bool ComponentSystemManager::OnButtons(GameCoreButtonActions action, GameCoreBut
         }
     }
 
-    // send input to all the scripts.
+    // then send input to all the scripts.
     for( CPPListNode* node = m_ComponentsUpdateable.GetHead(); node != 0; node = node->GetNext() )
     {
         ComponentLuaScript* pComponent = ((ComponentBase*)node)->IsA( "LuaScriptComponent" ) ? (ComponentLuaScript*)node : 0;

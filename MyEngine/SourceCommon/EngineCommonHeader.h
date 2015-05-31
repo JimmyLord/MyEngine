@@ -53,6 +53,7 @@ extern "C"
 #include "ComponentSystem/BaseComponents/ComponentInputHandler.h"
 #include "ComponentSystem/BaseComponents/ComponentUpdateable.h"
 #include "ComponentSystem/BaseComponents/ComponentRenderable.h"
+#include "ComponentSystem/BaseComponents/ComponentMenuPage.h"
 
 // myframework components // ADDING_NEW_ComponentType
 #include "Core/EngineComponentTypeManager.h"

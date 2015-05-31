@@ -26,6 +26,7 @@ enum EngineComponentTypes // search for ADDING_NEW_ComponentType
     ComponentType_LuaScript,
     ComponentType_ParticleEmitter,
     ComponentType_AnimationPlayer,
+    ComponentType_MenuPage,
     Component_NumEngineComponentTypes,
 };
 

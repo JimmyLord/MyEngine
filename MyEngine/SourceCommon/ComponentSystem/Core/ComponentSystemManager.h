@@ -59,6 +59,7 @@ public:
     CPPListHead m_ComponentsUpdateable;
     CPPListHead m_ComponentsRenderable;
     CPPListHead m_ComponentsData;
+    CPPListHead m_ComponentsMenuPage;
 
     // a list of components that want an update call without being in the list above.
     static const int MAX_COMPONENT_TICK_CALLBACKS = 100; // TODO: fix this hardcodedness

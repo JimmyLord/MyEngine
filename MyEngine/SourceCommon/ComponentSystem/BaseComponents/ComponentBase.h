@@ -18,6 +18,7 @@ enum BaseComponentTypes
     BaseComponentType_InputHandler,
     BaseComponentType_Updateable,
     BaseComponentType_Renderable,
+    BaseComponentType_MenuPage, // not crazy about approach, but will handle input/update/render and have camera info.
     BaseComponentType_None,
 };
 
