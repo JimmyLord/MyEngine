@@ -10,16 +10,18 @@
 #ifndef __ComponentBase_H__
 #define __ComponentBase_H__
 
+class GameObject;
+
 enum BaseComponentTypes
 {
     BaseComponentType_Data,
-    BaseComponentType_Transform, // special case of a data type.
     BaseComponentType_Camera,
     BaseComponentType_InputHandler,
     BaseComponentType_Updateable,
     BaseComponentType_Renderable,
-    BaseComponentType_MenuPage, // not crazy about approach, but will handle input/update/render and have camera info.
+    BaseComponentType_MenuPage, // not crazy about approach, but will handle input/update/render.
     BaseComponentType_None,
+    BaseComponentType_NumTypes = BaseComponentType_None
 };
 
 class ComponentBase : public CPPListNode
@@ -70,15 +72,20 @@ public:
     void OnComponentTitleLabelClicked(int controlid, bool finishedchanging);
 
     virtual void AddToObjectsPanel(wxTreeItemId gameobjectid);
+
     static void StaticOnLeftClick(void* pObjectPtr, unsigned int count) { ((ComponentBase*)pObjectPtr)->OnLeftClick( count, true ); }
-    static void StaticOnRightClick(void* pObjectPtr) { ((ComponentBase*)pObjectPtr)->OnRightClick(); }
-    static void StaticOnDrag(void* pObjectPtr) { ((ComponentBase*)pObjectPtr)->OnDrag(); }
-    static void StaticOnDrop(void* pObjectPtr, int controlid, wxCoord x, wxCoord y) { ((ComponentBase*)pObjectPtr)->OnDrop(controlid, x, y); }
     virtual void OnLeftClick(unsigned int count, bool clear);
     virtual void FillPropertiesWindow(bool clear) {};
+
+    static void StaticOnRightClick(void* pObjectPtr) { ((ComponentBase*)pObjectPtr)->OnRightClick(); }
     virtual void OnRightClick();
+    virtual void AppendItemsToRightClickMenu(wxMenu* pMenu);
     void OnPopupClick(wxEvent &evt); // used as callback for wxEvtHandler, can't be virtual(will crash, haven't looked into it).
+
+    static void StaticOnDrag(void* pObjectPtr) { ((ComponentBase*)pObjectPtr)->OnDrag(); }
     virtual void OnDrag();
+
+    static void StaticOnDrop(void* pObjectPtr, int controlid, wxCoord x, wxCoord y) { ((ComponentBase*)pObjectPtr)->OnDrop(controlid, x, y); }
     virtual void OnDrop(int controlid, wxCoord x, wxCoord y);
 #endif //MYFW_USING_WX
 };

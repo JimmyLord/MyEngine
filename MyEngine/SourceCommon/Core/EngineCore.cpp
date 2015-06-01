@@ -83,6 +83,8 @@ EngineCore::~EngineCore()
 
     SAFE_DELETE( m_pComponentSystemManager );
     SAFE_DELETE( m_pBulletWorld );
+
+    SAFE_DELETE( g_pRTQGlobals );
 }
 
 void EngineCore::InitializeManagers()
@@ -91,6 +93,9 @@ void EngineCore::InitializeManagers()
         g_pFileManager = MyNew EngineFileManager;
 
     GameCore::InitializeManagers();
+
+    if( g_pRTQGlobals == 0 )
+        g_pRTQGlobals = MyNew RenderTextQuickGlobals;
 }
 
 void EngineCore::OneTimeInit()

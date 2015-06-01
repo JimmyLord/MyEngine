@@ -36,23 +36,11 @@ ComponentSystemManager::~ComponentSystemManager()
     while( m_Files.GetHead() )
         delete m_Files.RemHead();
 
-    while( m_ComponentsData.GetHead() )
-        delete m_ComponentsData.RemHead();
-
-    while( m_ComponentsCamera.GetHead() )
-        delete m_ComponentsCamera.RemHead();    
-
-    while( m_ComponentsInputHandler.GetHead() )
-        delete m_ComponentsInputHandler.RemHead();    
-    
-    while( m_ComponentsUpdateable.GetHead() )
-        delete m_ComponentsUpdateable.RemHead();
-
-    while( m_ComponentsRenderable.GetHead() )
-        delete m_ComponentsRenderable.RemHead();
-
-    while( m_ComponentsMenuPage.GetHead() )
-        delete m_ComponentsMenuPage.RemHead();
+    for( unsigned int i=0; i<BaseComponentType_NumTypes; i++ )
+    {
+        while( m_Components[i].GetHead() )
+            delete m_Components[i].RemHead();
+    }
 
     SAFE_DELETE( m_pComponentTypeManager );
 
@@ -214,46 +202,14 @@ char* ComponentSystemManager::SaveSceneToJSON()
 
     // Add each of the component types, don't save components of unmanaged objects
     {
-        for( CPPListNode* pNode = m_ComponentsCamera.GetHead(); pNode; pNode = pNode->GetNext() )
+        for( unsigned int i=0; i<BaseComponentType_NumTypes; i++ )
         {
-            ComponentBase* pComponent = (ComponentBase*)pNode;
-            if( pComponent->m_pGameObject->IsManaged() )
-                cJSON_AddItemToArray( componentarray, pComponent->ExportAsJSONObject() );
-        }
-
-        for( CPPListNode* pNode = m_ComponentsInputHandler.GetHead(); pNode; pNode = pNode->GetNext() )
-        {
-            ComponentBase* pComponent = (ComponentBase*)pNode;
-            if( pComponent->m_pGameObject->IsManaged() )
-                cJSON_AddItemToArray( componentarray, pComponent->ExportAsJSONObject() );
-        }
-
-        for( CPPListNode* pNode = m_ComponentsUpdateable.GetHead(); pNode; pNode = pNode->GetNext() )
-        {
-            ComponentBase* pComponent = (ComponentBase*)pNode;
-            if( pComponent->m_pGameObject->IsManaged() )
-                cJSON_AddItemToArray( componentarray, pComponent->ExportAsJSONObject() );
-        }
-
-        for( CPPListNode* pNode = m_ComponentsRenderable.GetHead(); pNode; pNode = pNode->GetNext() )
-        {
-            ComponentBase* pComponent = (ComponentBase*)pNode;
-            if( pComponent->m_pGameObject->IsManaged() )
-                cJSON_AddItemToArray( componentarray, pComponent->ExportAsJSONObject() );
-        }
-
-        for( CPPListNode* pNode = m_ComponentsData.GetHead(); pNode; pNode = pNode->GetNext() )
-        {
-            ComponentBase* pComponent = (ComponentBase*)pNode;
-            if( pComponent->m_pGameObject->IsManaged() )
-                cJSON_AddItemToArray( componentarray, pComponent->ExportAsJSONObject() );
-        }
-
-        for( CPPListNode* pNode = m_ComponentsMenuPage.GetHead(); pNode; pNode = pNode->GetNext() )
-        {
-            ComponentBase* pComponent = (ComponentBase*)pNode;
-            if( pComponent->m_pGameObject->IsManaged() )
-                cJSON_AddItemToArray( componentarray, pComponent->ExportAsJSONObject() );
+            for( CPPListNode* pNode = m_Components[i].GetHead(); pNode; pNode = pNode->GetNext() )
+            {
+                ComponentBase* pComponent = (ComponentBase*)pNode;
+                if( pComponent->m_pGameObject->IsManaged() )
+                    cJSON_AddItemToArray( componentarray, pComponent->ExportAsJSONObject() );
+            }
         }
     }
 
@@ -533,7 +489,7 @@ void ComponentSystemManager::LoadSceneFromJSON(const char* jsonstr, unsigned int
 
 void ComponentSystemManager::SyncAllRigidBodiesToObjectTransforms()
 {
-    for( CPPListNode* pNode = m_ComponentsUpdateable.GetHead(); pNode; pNode = pNode->GetNext() )
+    for( CPPListNode* pNode = m_Components[BaseComponentType_Updateable].GetHead(); pNode; pNode = pNode->GetNext() )
     {
         if( ((ComponentBase*)pNode)->m_Type == ComponentType_CollisionObject )
         {
@@ -551,93 +507,21 @@ void ComponentSystemManager::UnloadScene(unsigned int sceneidtoclear, bool clear
 
     // Remove all components, except ones attached to unmanaged game objects(if wanted)
     {
-        for( CPPListNode* pNode = m_ComponentsCamera.GetHead(); pNode;  )
+        for( unsigned int i=0; i<BaseComponentType_NumTypes; i++ )
         {
-            ComponentBase* pComponent = (ComponentBase*)pNode;
-            pNode = pNode->GetNext();
-            if( (pComponent->m_pGameObject->IsManaged() || clearunmanagedcomponents) &&
-                (sceneidtoclear == UINT_MAX || pComponent->GetSceneID() == sceneidtoclear) )
+            for( CPPListNode* pNode = m_Components[i].GetHead(); pNode;  )
             {
-                DeleteComponent( pComponent );
-            }
-            else if( pComponent->GetID() > m_NextComponentID )
-            {
-                m_NextComponentID = pComponent->GetID() + 1;
-            }
-        }
-
-        for( CPPListNode* pNode = m_ComponentsInputHandler.GetHead(); pNode;  )
-        {
-            ComponentBase* pComponent = (ComponentBase*)pNode;
-            pNode = pNode->GetNext();
-            if( (pComponent->m_pGameObject->IsManaged() || clearunmanagedcomponents) &&
-                (sceneidtoclear == UINT_MAX || pComponent->GetSceneID() == sceneidtoclear) )
-            {
-                DeleteComponent( pComponent );
-            }
-            else if( pComponent->GetID() > m_NextComponentID )
-            {
-                m_NextComponentID = pComponent->GetID() + 1;
-            }
-        }
-
-        for( CPPListNode* pNode = m_ComponentsUpdateable.GetHead(); pNode;  )
-        {
-            ComponentBase* pComponent = (ComponentBase*)pNode;
-            pNode = pNode->GetNext();
-            if( (pComponent->m_pGameObject->IsManaged() || clearunmanagedcomponents) &&
-                (sceneidtoclear == UINT_MAX || pComponent->GetSceneID() == sceneidtoclear) )
-            {
-                DeleteComponent( pComponent );
-            }
-            else if( pComponent->GetID() > m_NextComponentID )
-            {
-                m_NextComponentID = pComponent->GetID() + 1;
-            }
-        }
-
-        for( CPPListNode* pNode = m_ComponentsRenderable.GetHead(); pNode;  )
-        {
-            ComponentBase* pComponent = (ComponentBase*)pNode;
-            pNode = pNode->GetNext();
-            if( (pComponent->m_pGameObject->IsManaged() || clearunmanagedcomponents) &&
-                (sceneidtoclear == UINT_MAX || pComponent->GetSceneID() == sceneidtoclear) )
-            {
-                DeleteComponent( pComponent );
-            }
-            else if( pComponent->GetID() > m_NextComponentID )
-            {
-                m_NextComponentID = pComponent->GetID() + 1;
-            }
-        }
-
-        for( CPPListNode* pNode = m_ComponentsData.GetHead(); pNode;  )
-        {
-            ComponentBase* pComponent = (ComponentBase*)pNode;
-            pNode = pNode->GetNext();
-            if( (pComponent->m_pGameObject->IsManaged() || clearunmanagedcomponents) &&
-                (sceneidtoclear == UINT_MAX || pComponent->GetSceneID() == sceneidtoclear) )
-            {
-                DeleteComponent( pComponent );
-            }
-            else if( pComponent->GetID() > m_NextComponentID )
-            {
-                m_NextComponentID = pComponent->GetID() + 1;
-            }
-        }
-
-        for( CPPListNode* pNode = m_ComponentsMenuPage.GetHead(); pNode;  )
-        {
-            ComponentBase* pComponent = (ComponentBase*)pNode;
-            pNode = pNode->GetNext();
-            if( (pComponent->m_pGameObject->IsManaged() || clearunmanagedcomponents) &&
-                (sceneidtoclear == UINT_MAX || pComponent->GetSceneID() == sceneidtoclear) )
-            {
-                DeleteComponent( pComponent );
-            }
-            else if( pComponent->GetID() > m_NextComponentID )
-            {
-                m_NextComponentID = pComponent->GetID() + 1;
+                ComponentBase* pComponent = (ComponentBase*)pNode;
+                pNode = pNode->GetNext();
+                if( (pComponent->m_pGameObject->IsManaged() || clearunmanagedcomponents) &&
+                    (sceneidtoclear == UINT_MAX || pComponent->GetSceneID() == sceneidtoclear) )
+                {
+                    DeleteComponent( pComponent );
+                }
+                else if( pComponent->GetID() > m_NextComponentID )
+                {
+                    m_NextComponentID = pComponent->GetID() + 1;
+                }
             }
         }
     }
@@ -790,7 +674,7 @@ GameObject* ComponentSystemManager::FindGameObjectByName(const char* name)
 
 ComponentCamera* ComponentSystemManager::GetFirstCamera()
 {
-    for( CPPListNode* node = m_ComponentsCamera.GetHead(); node != 0; node = node->GetNext() )
+    for( CPPListNode* node = m_Components[BaseComponentType_Camera].GetHead(); node != 0; node = node->GetNext() )
     {
         ComponentCamera* pCamera = (ComponentCamera*)node;
 
@@ -806,39 +690,44 @@ ComponentCamera* ComponentSystemManager::GetFirstCamera()
     return 0;
 }
 
+ComponentBase* ComponentSystemManager::GetFirstComponentOfType(const char* type)
+{
+    for( unsigned int i=0; i<BaseComponentType_NumTypes; i++ )
+    {
+        for( CPPListNode* node = m_Components[i].GetHead(); node != 0; node = node->GetNext() )
+        {
+            if( ((ComponentBase*)node)->IsA( type ) )
+                return (ComponentBase*)node;
+        }
+    }
+
+    return 0; // component not found.
+}
+
+ComponentBase* ComponentSystemManager::GetNextComponentOfType(ComponentBase* pLastComponent)
+{
+    MyAssert( pLastComponent != 0 );
+
+    for( unsigned int i=0; i<BaseComponentType_NumTypes; i++ )
+    {
+        bool foundlast = false;
+        for( CPPListNode* node = m_Components[i].GetHead(); node != 0; node = node->GetNext() )
+        {
+            if( pLastComponent == node )
+                foundlast = true;
+            else if( foundlast && ((ComponentBase*)node)->IsA( pLastComponent->GetClassname() ) )
+                return (ComponentBase*)node;
+        }
+    }
+
+    return 0; // component not found.
+}
+
 ComponentBase* ComponentSystemManager::AddComponent(ComponentBase* pComponent)
 {
-    switch( pComponent->m_BaseType )
-    {
-    case BaseComponentType_Data:
-        m_ComponentsData.AddTail( pComponent );
-        break;
+    MyAssert( pComponent->m_BaseType >= 0 && pComponent->m_BaseType < BaseComponentType_NumTypes ); // shouldn't happen.
 
-    case BaseComponentType_Camera:
-        m_ComponentsCamera.AddTail( pComponent );
-        break;
-
-    case BaseComponentType_InputHandler:
-        m_ComponentsInputHandler.AddTail( pComponent );
-        break;
-
-    case BaseComponentType_Updateable:
-        m_ComponentsUpdateable.AddTail( pComponent );
-        break;
-
-    case BaseComponentType_Renderable:
-        m_ComponentsRenderable.AddTail( pComponent );
-        break;
-
-    case BaseComponentType_MenuPage:
-        m_ComponentsMenuPage.AddTail( pComponent );
-        break;
-
-    case BaseComponentType_Transform:
-    case BaseComponentType_None:
-        MyAssert( false ); // shouldn't happen.
-        break;
-    }
+    m_Components[pComponent->m_BaseType].AddTail( pComponent );
 
     return pComponent;
 }
@@ -861,52 +750,15 @@ void ComponentSystemManager::DeleteComponent(ComponentBase* pComponent)
 
 ComponentBase* ComponentSystemManager::FindComponentByID(unsigned int id, unsigned int sceneid)
 {
-    for( CPPListNode* pNode = m_ComponentsCamera.GetHead(); pNode;  )
+    for( unsigned int i=0; i<BaseComponentType_NumTypes; i++ )
     {
-        ComponentBase* pComponent = (ComponentBase*)pNode;
-        pNode = pNode->GetNext();
-        if( pComponent->GetID() == id && pComponent->GetSceneID() == sceneid )
-            return pComponent;
-    }
-
-    for( CPPListNode* pNode = m_ComponentsInputHandler.GetHead(); pNode;  )
-    {
-        ComponentBase* pComponent = (ComponentBase*)pNode;
-        pNode = pNode->GetNext();
-        if( pComponent->GetID() == id && pComponent->GetSceneID() == sceneid )
-            return pComponent;
-    }
-
-    for( CPPListNode* pNode = m_ComponentsUpdateable.GetHead(); pNode;  )
-    {
-        ComponentBase* pComponent = (ComponentBase*)pNode;
-        pNode = pNode->GetNext();
-        if( pComponent->GetID() == id && pComponent->GetSceneID() == sceneid )
-            return pComponent;
-    }
-
-    for( CPPListNode* pNode = m_ComponentsRenderable.GetHead(); pNode;  )
-    {
-        ComponentBase* pComponent = (ComponentBase*)pNode;
-        pNode = pNode->GetNext();
-        if( pComponent->GetID() == id && pComponent->GetSceneID() == sceneid )
-            return pComponent;
-    }
-
-    for( CPPListNode* pNode = m_ComponentsData.GetHead(); pNode;  )
-    {
-        ComponentBase* pComponent = (ComponentBase*)pNode;
-        pNode = pNode->GetNext();
-        if( pComponent->GetID() == id && pComponent->GetSceneID() == sceneid )
-            return pComponent;
-    }
-
-    for( CPPListNode* pNode = m_ComponentsMenuPage.GetHead(); pNode;  )
-    {
-        ComponentBase* pComponent = (ComponentBase*)pNode;
-        pNode = pNode->GetNext();
-        if( pComponent->GetID() == id && pComponent->GetSceneID() == sceneid )
-            return pComponent;
+        for( CPPListNode* pNode = m_Components[i].GetHead(); pNode;  )
+        {
+            ComponentBase* pComponent = (ComponentBase*)pNode;
+            pNode = pNode->GetNext();
+            if( pComponent->GetID() == id && pComponent->GetSceneID() == sceneid )
+                return pComponent;
+        }
     }
 
     return 0;
@@ -917,7 +769,7 @@ void ComponentSystemManager::Tick(double TimePassed)
     // update all Components:
 
     // Menu pages first.
-    for( CPPListNode* node = m_ComponentsMenuPage.GetHead(); node != 0; node = node->GetNext() )
+    for( CPPListNode* node = m_Components[BaseComponentType_MenuPage].GetHead(); node != 0; node = node->GetNext() )
     {
         ComponentMenuPage* pComponent = (ComponentMenuPage*)node;
 
@@ -925,7 +777,7 @@ void ComponentSystemManager::Tick(double TimePassed)
     }
 
     // then all scripts.
-    for( CPPListNode* node = m_ComponentsUpdateable.GetHead(); node != 0; node = node->GetNext() )
+    for( CPPListNode* node = m_Components[BaseComponentType_Updateable].GetHead(); node != 0; node = node->GetNext() )
     {
         ComponentUpdateable* pComponent = (ComponentUpdateable*)node;
 
@@ -936,7 +788,7 @@ void ComponentSystemManager::Tick(double TimePassed)
     }
 
     // then all other "Updateables".
-    for( CPPListNode* node = m_ComponentsUpdateable.GetHead(); node != 0; node = node->GetNext() )
+    for( CPPListNode* node = m_Components[BaseComponentType_Updateable].GetHead(); node != 0; node = node->GetNext() )
     {
         ComponentUpdateable* pComponent = (ComponentUpdateable*)node;
 
@@ -953,7 +805,7 @@ void ComponentSystemManager::Tick(double TimePassed)
     }
 
     // update all cameras after game objects are updated.
-    for( CPPListNode* node = m_ComponentsCamera.GetHead(); node != 0; node = node->GetNext() )
+    for( CPPListNode* node = m_Components[BaseComponentType_Camera].GetHead(); node != 0; node = node->GetNext() )
     {
         ComponentCamera* pComponent = (ComponentCamera*)node;
 
@@ -966,7 +818,7 @@ void ComponentSystemManager::Tick(double TimePassed)
 
 void ComponentSystemManager::OnSurfaceChanged(unsigned int startx, unsigned int starty, unsigned int width, unsigned int height, unsigned int desiredaspectwidth, unsigned int desiredaspectheight)
 {
-    for( CPPListNode* node = m_ComponentsCamera.GetHead(); node != 0; node = node->GetNext() )
+    for( CPPListNode* node = m_Components[BaseComponentType_Camera].GetHead(); node != 0; node = node->GetNext() )
     {
         ComponentCamera* pCamera = (ComponentCamera*)node;
 
@@ -983,7 +835,7 @@ void ComponentSystemManager::OnSurfaceChanged(unsigned int startx, unsigned int 
 
 void ComponentSystemManager::OnDrawFrame()
 {
-    for( CPPListNode* node = m_ComponentsCamera.GetHead(); node != 0; node = node->GetNext() )
+    for( CPPListNode* node = m_Components[BaseComponentType_Camera].GetHead(); node != 0; node = node->GetNext() )
     {
         ComponentCamera* pComponent = (ComponentCamera*)node;
 
@@ -996,7 +848,7 @@ void ComponentSystemManager::OnDrawFrame()
 
 void ComponentSystemManager::OnDrawFrame(ComponentCamera* pCamera, MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride)
 {
-    for( CPPListNode* node = m_ComponentsRenderable.GetHead(); node != 0; node = node->GetNext() )
+    for( CPPListNode* node = m_Components[BaseComponentType_Renderable].GetHead(); node != 0; node = node->GetNext() )
     {
         ComponentRenderable* pComponent = (ComponentRenderable*)node;
 
@@ -1014,7 +866,7 @@ void ComponentSystemManager::OnDrawFrame(ComponentCamera* pCamera, MyMatrix* pMa
 
     // For now, draw menu pages over the main scene.
     // TODO: potentially draw solids before scene, transparents after.
-    for( CPPListNode* node = m_ComponentsMenuPage.GetHead(); node != 0; node = node->GetNext() )
+    for( CPPListNode* node = m_Components[BaseComponentType_MenuPage].GetHead(); node != 0; node = node->GetNext() )
     {
         ComponentMenuPage* pComponent = (ComponentMenuPage*)node;
 
@@ -1035,7 +887,7 @@ void ComponentSystemManager::DrawMousePickerFrame(ComponentCamera* pCamera, MyMa
     Shader_Base* pShader = (Shader_Base*)pShaderOverride->GlobalPass( 0, 4 );
     if( pShader->ActivateAndProgramShader() )
     {
-        for( CPPListNode* node = m_ComponentsRenderable.GetHead(); node != 0; node = node->GetNext() )
+        for( CPPListNode* node = m_Components[BaseComponentType_Renderable].GetHead(); node != 0; node = node->GetNext() )
         {
             ComponentRenderable* pComponent = (ComponentRenderable*)node;
 
@@ -1083,7 +935,7 @@ void ComponentSystemManager::DrawSingleObject(MyMatrix* pMatViewProj, GameObject
 
 void ComponentSystemManager::OnLoad()
 {
-    for( CPPListNode* node = m_ComponentsUpdateable.GetHead(); node != 0; node = node->GetNext() )
+    for( CPPListNode* node = m_Components[BaseComponentType_Updateable].GetHead(); node != 0; node = node->GetNext() )
     {
         ComponentBase* pComponent = (ComponentBase*)node;
         pComponent->OnLoad();
@@ -1092,7 +944,7 @@ void ComponentSystemManager::OnLoad()
 
 void ComponentSystemManager::OnPlay()
 {
-    for( CPPListNode* node = m_ComponentsUpdateable.GetHead(); node != 0; node = node->GetNext() )
+    for( CPPListNode* node = m_Components[BaseComponentType_Updateable].GetHead(); node != 0; node = node->GetNext() )
     {
         ComponentBase* pComponent = (ComponentBase*)node;
         pComponent->OnPlay();
@@ -1101,7 +953,7 @@ void ComponentSystemManager::OnPlay()
 
 void ComponentSystemManager::OnStop()
 {
-    for( CPPListNode* node = m_ComponentsUpdateable.GetHead(); node != 0; node = node->GetNext() )
+    for( CPPListNode* node = m_Components[BaseComponentType_Updateable].GetHead(); node != 0; node = node->GetNext() )
     {
         ComponentBase* pComponent = (ComponentBase*)node;
         pComponent->OnStop();
@@ -1111,7 +963,7 @@ void ComponentSystemManager::OnStop()
 bool ComponentSystemManager::OnTouch(int action, int id, float x, float y, float pressure, float size)
 {
     // Menu pages get first crack at input.
-    for( CPPListNode* node = m_ComponentsMenuPage.GetHead(); node != 0; node = node->GetNext() )
+    for( CPPListNode* node = m_Components[BaseComponentType_MenuPage].GetHead(); node != 0; node = node->GetNext() )
     {
         ComponentMenuPage* pComponent = (ComponentMenuPage*)node;
 
@@ -1123,7 +975,7 @@ bool ComponentSystemManager::OnTouch(int action, int id, float x, float y, float
     }
 
     // then regular scene input handlers.
-    for( CPPListNode* node = m_ComponentsInputHandler.GetHead(); node != 0; node = node->GetNext() )
+    for( CPPListNode* node = m_Components[BaseComponentType_InputHandler].GetHead(); node != 0; node = node->GetNext() )
     {
         ComponentInputHandler* pComponent = (ComponentInputHandler*)node;
 
@@ -1135,7 +987,7 @@ bool ComponentSystemManager::OnTouch(int action, int id, float x, float y, float
     }
 
     // then send input to all the scripts.
-    for( CPPListNode* node = m_ComponentsUpdateable.GetHead(); node != 0; node = node->GetNext() )
+    for( CPPListNode* node = m_Components[BaseComponentType_Updateable].GetHead(); node != 0; node = node->GetNext() )
     {
         ComponentLuaScript* pComponent = ((ComponentBase*)node)->IsA( "LuaScriptComponent" ) ? (ComponentLuaScript*)node : 0;
 
@@ -1152,7 +1004,7 @@ bool ComponentSystemManager::OnTouch(int action, int id, float x, float y, float
 bool ComponentSystemManager::OnButtons(GameCoreButtonActions action, GameCoreButtonIDs id)
 {
     // Menu pages get first crack at input.
-    for( CPPListNode* node = m_ComponentsMenuPage.GetHead(); node != 0; node = node->GetNext() )
+    for( CPPListNode* node = m_Components[BaseComponentType_MenuPage].GetHead(); node != 0; node = node->GetNext() )
     {
         ComponentMenuPage* pComponent = (ComponentMenuPage*)node;
 
@@ -1164,7 +1016,7 @@ bool ComponentSystemManager::OnButtons(GameCoreButtonActions action, GameCoreBut
     }
 
     // then regular scene input handlers.
-    for( CPPListNode* node = m_ComponentsInputHandler.GetHead(); node != 0; node = node->GetNext() )
+    for( CPPListNode* node = m_Components[BaseComponentType_InputHandler].GetHead(); node != 0; node = node->GetNext() )
     {
         ComponentInputHandler* pComponent = (ComponentInputHandler*)node;
 
@@ -1176,7 +1028,7 @@ bool ComponentSystemManager::OnButtons(GameCoreButtonActions action, GameCoreBut
     }
 
     // then send input to all the scripts.
-    for( CPPListNode* node = m_ComponentsUpdateable.GetHead(); node != 0; node = node->GetNext() )
+    for( CPPListNode* node = m_Components[BaseComponentType_Updateable].GetHead(); node != 0; node = node->GetNext() )
     {
         ComponentLuaScript* pComponent = ((ComponentBase*)node)->IsA( "LuaScriptComponent" ) ? (ComponentLuaScript*)node : 0;
 

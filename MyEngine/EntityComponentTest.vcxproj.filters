@@ -70,6 +70,15 @@
     <Filter Include="Source\Editor\Dialogs">
       <UniqueIdentifier>{1f213d6b-3236-473c-8399-67ae08e140d5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\SharedGameCode">
+      <UniqueIdentifier>{b5f70ac6-679c-454d-b225-440f90e1c5a4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\SharedGameCode\Menus">
+      <UniqueIdentifier>{54a1fda2-a8d2-4f5a-a24c-72389155ecb8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source\SharedGameCode\Core">
+      <UniqueIdentifier>{1094f882-23c8-4f1d-ae4c-1f5cfe7a49d8}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="SourceCommon\Camera\Camera3D.cpp">
@@ -284,6 +293,45 @@
     </ClCompile>
     <ClCompile Include="SourceCommon\ComponentSystem\BaseComponents\ComponentMenuPage.cpp">
       <Filter>Source\ComponentSystem\Base Components</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SharedGameCode\Menus\MenuButton.cpp">
+      <Filter>Source\SharedGameCode\Menus</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SharedGameCode\Menus\MenuCheckBox.cpp">
+      <Filter>Source\SharedGameCode\Menus</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SharedGameCode\Menus\MenuDraggableButton.cpp">
+      <Filter>Source\SharedGameCode\Menus</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SharedGameCode\Menus\MenuInputBox.cpp">
+      <Filter>Source\SharedGameCode\Menus</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SharedGameCode\Menus\MenuItem.cpp">
+      <Filter>Source\SharedGameCode\Menus</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SharedGameCode\Menus\MenuScrollBox.cpp">
+      <Filter>Source\SharedGameCode\Menus</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SharedGameCode\Menus\MenuScrollingText.cpp">
+      <Filter>Source\SharedGameCode\Menus</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SharedGameCode\Menus\MenuSlider.cpp">
+      <Filter>Source\SharedGameCode\Menus</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SharedGameCode\Menus\MenuSprite.cpp">
+      <Filter>Source\SharedGameCode\Menus</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SharedGameCode\Menus\MenuText.cpp">
+      <Filter>Source\SharedGameCode\Menus</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SharedGameCode\Core\RenderTextQuick.cpp">
+      <Filter>Source\SharedGameCode\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SharedGameCode\Core\MeshShapes.cpp">
+      <Filter>Source\SharedGameCode\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SharedGameCode\Menus\LanguageTable.cpp">
+      <Filter>Source\SharedGameCode\Menus</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -523,6 +571,45 @@
     </ClInclude>
     <ClInclude Include="SourceCommon\ComponentSystem\BaseComponents\ComponentMenuPage.h">
       <Filter>Source\ComponentSystem\Base Components</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\SharedGameCode\Menus\MenuButton.h">
+      <Filter>Source\SharedGameCode\Menus</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\SharedGameCode\Menus\MenuCheckBox.h">
+      <Filter>Source\SharedGameCode\Menus</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\SharedGameCode\Menus\MenuDraggableButton.h">
+      <Filter>Source\SharedGameCode\Menus</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\SharedGameCode\Menus\MenuInputBox.h">
+      <Filter>Source\SharedGameCode\Menus</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\SharedGameCode\Menus\MenuItem.h">
+      <Filter>Source\SharedGameCode\Menus</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\SharedGameCode\Menus\MenuScrollBox.h">
+      <Filter>Source\SharedGameCode\Menus</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\SharedGameCode\Menus\MenuScrollingText.h">
+      <Filter>Source\SharedGameCode\Menus</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\SharedGameCode\Menus\MenuSlider.h">
+      <Filter>Source\SharedGameCode\Menus</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\SharedGameCode\Menus\MenuSprite.h">
+      <Filter>Source\SharedGameCode\Menus</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\SharedGameCode\Menus\MenuText.h">
+      <Filter>Source\SharedGameCode\Menus</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\SharedGameCode\Core\RenderTextQuick.h">
+      <Filter>Source\SharedGameCode\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\SharedGameCode\Core\MeshShapes.h">
+      <Filter>Source\SharedGameCode\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\SharedGameCode\Menus\LanguageTable.h">
+      <Filter>Source\SharedGameCode\Menus</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -45,8 +45,8 @@ extern "C"
 // core component system code
 #include "ComponentSystem/Core/EngineFileManager.h"
 #include "ComponentSystem/Core/ComponentTypeManager.h"
-#include "ComponentSystem/Core/ComponentSystemManager.h"
 #include "ComponentSystem/BaseComponents/ComponentBase.h"
+#include "ComponentSystem/Core/ComponentSystemManager.h"
 #include "ComponentSystem/BaseComponents/ComponentTransform.h"
 #include "ComponentSystem/BaseComponents/ComponentData.h"
 #include "ComponentSystem/BaseComponents/ComponentCamera.h"
@@ -74,6 +74,16 @@ extern "C"
 #include "Camera/Camera2D.h"
 
 #include "ComponentSystem/Core/GameObject.h"
+
+#include "../../SharedGameCode/Core/RenderTextQuick.h"
+#include "../../SharedGameCode/Menus/MenuItem.h"
+#include "../../SharedGameCode/Core/MeshShapes.h"
+
+#include "../../SharedGameCode/Menus/LanguageTable.h"
+#include "../../SharedGameCode/Menus/MenuButton.h"
+#include "../../SharedGameCode/Menus/MenuCheckBox.h"
+#include "../../SharedGameCode/Menus/MenuSprite.h"
+#include "../../SharedGameCode/Menus/MenuText.h"
 
 #if MYFW_USING_WX
 #include "Core/EditorState.h"

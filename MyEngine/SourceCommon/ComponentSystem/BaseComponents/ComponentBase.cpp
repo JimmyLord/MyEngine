@@ -76,11 +76,16 @@ void ComponentBase::OnRightClick()
  	wxMenu menu;
     menu.SetClientData( this );
 
-    menu.Append( 1000, "Delete Component" );
- 	menu.Connect( wxEVT_COMMAND_MENU_SELECTED, (wxObjectEventFunction)&ComponentBase::OnPopupClick );
+    AppendItemsToRightClickMenu( &menu );
 
     // blocking call.
     g_pPanelWatch->PopupMenu( &menu ); // there's no reason this is using g_pPanelWatch other than convenience.
+}
+
+void ComponentBase::AppendItemsToRightClickMenu(wxMenu* pMenu)
+{
+    pMenu->Append( 1000, "Delete Component" );
+ 	pMenu->Connect( wxEVT_COMMAND_MENU_SELECTED, (wxObjectEventFunction)&ComponentBase::OnPopupClick );
 }
 
 void ComponentBase::OnPopupClick(wxEvent &evt)

@@ -41,6 +41,11 @@ struct ComponentTickCallbackStruct
     }
 };
 
+enum ComponentListTypes
+{
+
+};
+
 class ComponentSystemManager
 #if MYFW_USING_WX
 : public wxEvtHandler
@@ -54,12 +59,7 @@ public:
     CPPListHead m_Files;
 
     // a component can only exist in one of these lists ATM
-    CPPListHead m_ComponentsCamera;
-    CPPListHead m_ComponentsInputHandler;
-    CPPListHead m_ComponentsUpdateable;
-    CPPListHead m_ComponentsRenderable;
-    CPPListHead m_ComponentsData;
-    CPPListHead m_ComponentsMenuPage;
+    CPPListHead m_Components[BaseComponentType_NumTypes];
 
     // a list of components that want an update call without being in the list above.
     static const int MAX_COMPONENT_TICK_CALLBACKS = 100; // TODO: fix this hardcodedness
@@ -103,6 +103,8 @@ public:
     GameObject* FindGameObjectByID(unsigned int id);
     GameObject* FindGameObjectByName(const char* name);
     ComponentCamera* GetFirstCamera();
+    ComponentBase* GetFirstComponentOfType(const char* type);
+    ComponentBase* GetNextComponentOfType(ComponentBase* pLastComponent);
 
     ComponentBase* AddComponent(ComponentBase* pComponent);
     void DeleteComponent(ComponentBase* pComponent);

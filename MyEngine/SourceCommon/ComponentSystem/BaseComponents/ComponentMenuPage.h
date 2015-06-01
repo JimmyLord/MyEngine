@@ -11,11 +11,20 @@
 #define __ComponentMenuPage_H__
 
 class ComponentTransform;
+class MenuItem;
 
 class ComponentMenuPage : public ComponentBase
 {
+    static const int MAX_MENUITEMS = 128;
+
+protected:
+    unsigned int m_MenuItemsUsed;
+    MenuItem* m_pMenuItems[MAX_MENUITEMS];
+    MenuItem* m_pMenuItemHeld;
+
 public:
     ComponentTransform* m_pComponentTransform;
+    ComponentCamera* m_pCamera;
 
 public:
     ComponentMenuPage();
@@ -38,9 +47,18 @@ public:
     static bool m_PanelWatchBlockVisible;
 
     virtual void AddToObjectsPanel(wxTreeItemId gameobjectid);
+
     static void StaticOnLeftClick(void* pObjectPtr, unsigned int count) { ((ComponentMenuPage*)pObjectPtr)->OnLeftClick( count, true ); }
     void OnLeftClick(unsigned int count, bool clear);
     virtual void FillPropertiesWindow(bool clear);
+
+    static void StaticOnRightClick(void* pObjectPtr) { ((ComponentMenuPage*)pObjectPtr)->OnRightClick(); }
+    //virtual void OnRightClick();
+    virtual void AppendItemsToRightClickMenu(wxMenu* pMenu);
+    void OnPopupClick(wxEvent &evt);
+
+    static void StaticOnMenuItemDeleted(void* pObjectPtr, MenuItem* pMenuItem) { ((ComponentMenuPage*)pObjectPtr)->OnMenuItemDeleted( pMenuItem ); }
+    void OnMenuItemDeleted(MenuItem* pMenuItem);
 #endif //MYFW_USING_WX
 };
 

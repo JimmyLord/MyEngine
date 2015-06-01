@@ -18,7 +18,7 @@ ComponentTransform::ComponentTransform()
 {
     ClassnameSanityCheck();
 
-    m_BaseType = BaseComponentType_Transform;
+    m_BaseType = BaseComponentType_Data;
 
     m_pPositionChangedCallbackList.AllocateObjects( MAX_REGISTERED_CALLBACKS );
 }
@@ -109,7 +109,7 @@ void ComponentTransform::OnDropTransform(int controlid, wxCoord x, wxCoord y)
         if( pComponent == this )
             return;
 
-        if( pComponent->m_BaseType == BaseComponentType_Transform )
+        if( pComponent->IsA( "TransformComponent" ) )
         {
             this->SetParent( pComponent );
         }
