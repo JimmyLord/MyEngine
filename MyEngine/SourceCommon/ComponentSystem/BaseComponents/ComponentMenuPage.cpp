@@ -29,6 +29,13 @@ ComponentMenuPage::ComponentMenuPage()
         m_pMenuItems[i] = 0;
     }
     m_pMenuItemHeld = 0;
+
+    m_pMenuLayoutFile = 0;
+
+#if MYFW_USING_WX
+    m_ControlID_Filename = -1;
+    h_RenameInProgress = false;
+#endif
 }
 
 ComponentMenuPage::~ComponentMenuPage()
@@ -64,6 +71,77 @@ void ComponentMenuPage::Reset()
 }
 
 #if MYFW_USING_WX
+void ComponentMenuPage::SaveMenuPageToDisk(const char* fullpath)
+{
+    FILE* pFile = 0;
+    fopen_s( &pFile, fullpath, "wb" );
+    if( pFile == 0 )
+    {
+        // TODO: handle creation of folders if user types in something that doesn't exist.
+        LOGError( LOGTag, "Menu file failed to save: %s - folder doesn't exist?\n", fullpath );
+        return;
+    }
+
+    fwrite( "test", 4, 1, pFile );
+
+    fclose( pFile );
+}
+
+void ComponentMenuPage::RenameMenuPage(const char* newfullpath)
+{
+    if( h_RenameInProgress )
+        return;
+
+    // if the filename didn't change, return.
+    if( m_pMenuLayoutFile != 0 && strcmp( newfullpath, m_pMenuLayoutFile->m_FullPath ) == 0 )
+        return;
+
+    // if new file exists load it, otherwise delete this file, save as the new name and load it.
+    if( m_pMenuLayoutFile != 0 )
+    {
+        // filename changed, delete the old file, save the new one and 
+        if( m_pMenuLayoutFile->GetRefCount() == 1 )
+        {
+            LOGInfo( LOGTag, "Renaming menu file from %s to %s, file is not be deleted from disk.\n", m_pMenuLayoutFile->m_FullPath, newfullpath );
+
+            m_pMenuLayoutFile->Release();
+                    
+            // TODO: all ref's are gone, delete the old file from disk.
+        }
+        else
+        {
+            m_pMenuLayoutFile->Release();
+        }
+    }
+
+    if( newfullpath[0] != 0 )
+    {
+        if( g_pFileManager->DoesFileExist( newfullpath ) )
+        {
+            // launching this messagebox causes a change focus message on the editbox, causing OnValueChanged to get call again, avoiding issue with this hack.
+            h_RenameInProgress = true;
+
+            int answer = wxMessageBox( "File already exists.\nDiscard changes and Load it?", "Confirm", wxYES_NO, g_pEngineMainFrame );
+
+            if( answer == wxYES )
+            {
+                ClearAllMenuItems();
+                m_pMenuLayoutFile = g_pFileManager->RequestFile( newfullpath );
+            }
+        }
+        else
+        {
+            // save as new name
+            SaveMenuPageToDisk( newfullpath );
+
+            // request the file, so it's part of the scene.
+            m_pMenuLayoutFile = g_pFileManager->RequestFile( newfullpath );
+        }
+    }
+
+    h_RenameInProgress = false;
+}
+
 void ComponentMenuPage::AddToObjectsPanel(wxTreeItemId gameobjectid)
 {
     //wxTreeItemId id =
@@ -82,6 +160,11 @@ void ComponentMenuPage::FillPropertiesWindow(bool clear)
     if( m_PanelWatchBlockVisible )
     {
         ComponentBase::FillPropertiesWindow( clear );
+
+        if( m_pMenuLayoutFile )
+            m_ControlID_Filename = g_pPanelWatch->AddPointerWithDescription( "Menu file", m_pMenuLayoutFile, m_pMenuLayoutFile->m_FullPath, this, 0, ComponentMenuPage::StaticOnValueChanged );
+        else
+            m_ControlID_Filename = g_pPanelWatch->AddPointerWithDescription( "Menu file", m_pMenuLayoutFile, "no file", this, 0, ComponentMenuPage::StaticOnValueChanged );
     }
 }
 
@@ -133,6 +216,19 @@ void ComponentMenuPage::OnPopupClick(wxEvent &evt)
         pSprite->Create( "MenuSprite Sprite", 1, 1, 0, 1, 0, 1, Justify_Center, false );
         pMenuItem->SetSprites( pSprite, pSprite );
         pSprite->Release();
+    }
+}
+
+void ComponentMenuPage::OnValueChanged(int controlid, bool finishedchanging)
+{
+    if( finishedchanging && controlid == m_ControlID_Filename )
+    {
+        wxString newfullpath = g_pPanelWatch->m_pVariables[controlid].m_Handle_TextCtrl->GetValue();
+        RenameMenuPage( newfullpath );
+        if( m_pMenuLayoutFile )
+            g_pPanelWatch->m_pVariables[controlid].m_Handle_TextCtrl->SetValue( m_pMenuLayoutFile->m_FullPath );
+        else
+            g_pPanelWatch->m_pVariables[controlid].m_Handle_TextCtrl->SetValue( "no file" );
     }
 }
 
@@ -210,4 +306,14 @@ void ComponentMenuPage::Draw()
             m_pMenuItems[i]->Draw( &m_pCamera->m_Camera2D.m_matViewProj );
         }
     }
+}
+
+void ComponentMenuPage::ClearAllMenuItems()
+{
+    for( unsigned int i=0; i<m_MenuItemsUsed; i++ )
+    {
+        g_pPanelObjectList->RemoveObject( m_pMenuItems[i] );
+        SAFE_DELETE( m_pMenuItems[i] );
+    }
+    m_MenuItemsUsed = 0;
 }

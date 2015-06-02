@@ -16,6 +16,7 @@ class MenuItem;
 class ComponentMenuPage : public ComponentBase
 {
     static const int MAX_MENUITEMS = 128;
+    static const int MAX_MENU_NAME_LEN = 32;
 
 protected:
     unsigned int m_MenuItemsUsed;
@@ -25,6 +26,8 @@ protected:
 public:
     ComponentTransform* m_pComponentTransform;
     ComponentCamera* m_pCamera;
+
+    MyFileObject* m_pMenuLayoutFile;
 
 public:
     ComponentMenuPage();
@@ -42,9 +45,17 @@ public:
     virtual void Tick(double TimePassed);
     virtual void Draw();
 
+    void ClearAllMenuItems();
+
 public:
 #if MYFW_USING_WX
+    int m_ControlID_Filename;
+    bool h_RenameInProgress;
+
     static bool m_PanelWatchBlockVisible;
+
+    void SaveMenuPageToDisk(const char* fullpath);
+    void RenameMenuPage(const char* newfullpath);
 
     virtual void AddToObjectsPanel(wxTreeItemId gameobjectid);
 
@@ -56,6 +67,9 @@ public:
     //virtual void OnRightClick();
     virtual void AppendItemsToRightClickMenu(wxMenu* pMenu);
     void OnPopupClick(wxEvent &evt);
+
+    static void StaticOnValueChanged(void* pObjectPtr, int controlid, bool finishedchanging) { ((ComponentMenuPage*)pObjectPtr)->OnValueChanged( controlid, finishedchanging ); }
+    void OnValueChanged(int controlid, bool finishedchanging);
 
     static void StaticOnMenuItemDeleted(void* pObjectPtr, MenuItem* pMenuItem) { ((ComponentMenuPage*)pObjectPtr)->OnMenuItemDeleted( pMenuItem ); }
     void OnMenuItemDeleted(MenuItem* pMenuItem);

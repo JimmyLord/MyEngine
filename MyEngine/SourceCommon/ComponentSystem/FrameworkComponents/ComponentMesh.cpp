@@ -221,7 +221,8 @@ void ComponentMesh::SetMaterial(MaterialDefinition* pMaterial, int submeshindex)
 
     MyAssert( submeshindex >= 0 && submeshindex < (int)m_MaterialList.Count() );
 
-    pMaterial->AddRef();
+    if( pMaterial )
+        pMaterial->AddRef();
     SAFE_RELEASE( m_MaterialList[submeshindex] );
     m_MaterialList[submeshindex] = pMaterial;
 }

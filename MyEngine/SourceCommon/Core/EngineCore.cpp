@@ -63,6 +63,8 @@ EngineCore::EngineCore()
 
 EngineCore::~EngineCore()
 {
+    SAFE_DELETE( g_pRTQGlobals );
+
     SAFE_DELETE( m_pLuaGameState );
 
     g_pFileManager->FreeFile( m_pShaderFile_TintColor );
@@ -83,8 +85,6 @@ EngineCore::~EngineCore()
 
     SAFE_DELETE( m_pComponentSystemManager );
     SAFE_DELETE( m_pBulletWorld );
-
-    SAFE_DELETE( g_pRTQGlobals );
 }
 
 void EngineCore::InitializeManagers()
@@ -1357,6 +1357,9 @@ void EngineCore::UnloadScene(unsigned int sceneid, bool cleareditorobjects)
     g_pComponentSystemManager->UnloadScene( sceneid, false );
     if( sceneid == UINT_MAX )
     {
+        // temp code while RTQGlobals is a thing.
+        SAFE_RELEASE( g_pRTQGlobals->m_pMaterial );
+
         g_pMaterialManager->FreeAllMaterials();
         g_pTextureManager->FreeAllTextures( false );
     }
