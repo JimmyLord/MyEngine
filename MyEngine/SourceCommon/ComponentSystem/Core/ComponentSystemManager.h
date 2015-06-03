@@ -156,6 +156,7 @@ public:
 
         m_pMesh = 0;
         m_pShaderGroup = 0;
+        m_pMaterial = 0;
     }
 
     virtual ~MyFileInfo()
@@ -165,6 +166,7 @@ public:
         SAFE_RELEASE( m_pFile );
         SAFE_RELEASE( m_pMesh );
         SAFE_RELEASE( m_pShaderGroup );
+        SAFE_RELEASE( m_pMaterial );
     }
 
     MyFileObject* m_pFile;
@@ -172,6 +174,7 @@ public:
 
     MyMesh* m_pMesh; // a mesh may have been created alongside the file.
     ShaderGroup* m_pShaderGroup; // a shadergroup may have been created alongside the file.
+    MaterialDefinition* m_pMaterial; //a material may have been created alongside the file.
 };
 
 #endif //__ComponentSystemManager_H__

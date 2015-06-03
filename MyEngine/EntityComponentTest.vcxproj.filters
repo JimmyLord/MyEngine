@@ -333,6 +333,9 @@
     <ClCompile Include="..\..\SharedGameCode\Menus\LanguageTable.cpp">
       <Filter>Source\SharedGameCode\Menus</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\SharedGameCode\Menus\Menu_Helpers.cpp">
+      <Filter>Source\SharedGameCode\Menus</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SourceCommon\Camera\Camera3D.h">
@@ -609,6 +612,9 @@
       <Filter>Source\SharedGameCode\Core</Filter>
     </ClInclude>
     <ClInclude Include="..\..\SharedGameCode\Menus\LanguageTable.h">
+      <Filter>Source\SharedGameCode\Menus</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\SharedGameCode\Menus\Menu_Helpers.h">
       <Filter>Source\SharedGameCode\Menus</Filter>
     </ClInclude>
   </ItemGroup>

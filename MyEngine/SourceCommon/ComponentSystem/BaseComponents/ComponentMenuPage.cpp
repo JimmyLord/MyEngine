@@ -23,8 +23,10 @@ ComponentMenuPage::ComponentMenuPage()
     m_pComponentTransform = 0;
     m_pCamera = 0;
 
+    m_MenuItemsCreated = false;
+
     m_MenuItemsUsed = 0;
-    for( unsigned int i=0; i<MAX_MENUITEMS; i++ )
+    for( unsigned int i=0; i<MAX_MENU_ITEMS; i++ )
     {
         m_pMenuItems[i] = 0;
     }
@@ -40,11 +42,13 @@ ComponentMenuPage::ComponentMenuPage()
 
 ComponentMenuPage::~ComponentMenuPage()
 {
+    SAFE_RELEASE( m_pMenuLayoutFile );
+
     for( unsigned int i=0; i<m_MenuItemsUsed; i++ )
     {
         SAFE_DELETE( m_pMenuItems[i] );
     }
-    for( unsigned int i=m_MenuItemsUsed; i<MAX_MENUITEMS; i++ )
+    for( unsigned int i=m_MenuItemsUsed; i<MAX_MENU_ITEMS; i++ )
     {
         MyAssert( m_pMenuItems[i] == 0 );
     }
@@ -73,6 +77,8 @@ void ComponentMenuPage::Reset()
 #if MYFW_USING_WX
 void ComponentMenuPage::SaveMenuPageToDisk(const char* fullpath)
 {
+    LOGInfo( LOGTag, "Saving Menu File: %s\n", fullpath );
+
     FILE* pFile = 0;
     fopen_s( &pFile, fullpath, "wb" );
     if( pFile == 0 )
@@ -82,16 +88,19 @@ void ComponentMenuPage::SaveMenuPageToDisk(const char* fullpath)
         return;
     }
 
-    fwrite( "test", 4, 1, pFile );
+    cJSON* jMenuItems = Menu_ImportExport::ExportMenuLayout( m_pMenuItems, m_MenuItemsUsed );
+    
+    char* string = cJSON_Print( jMenuItems );
+    cJSON_Delete( jMenuItems );
 
+    fprintf( pFile, "%s", string );
     fclose( pFile );
+
+    cJSONExt_free( string );
 }
 
 void ComponentMenuPage::RenameMenuPage(const char* newfullpath)
 {
-    if( h_RenameInProgress )
-        return;
-
     // if the filename didn't change, return.
     if( m_pMenuLayoutFile != 0 && strcmp( newfullpath, m_pMenuLayoutFile->m_FullPath ) == 0 )
         return;
@@ -121,7 +130,7 @@ void ComponentMenuPage::RenameMenuPage(const char* newfullpath)
             // launching this messagebox causes a change focus message on the editbox, causing OnValueChanged to get call again, avoiding issue with this hack.
             h_RenameInProgress = true;
 
-            int answer = wxMessageBox( "File already exists.\nDiscard changes and Load it?", "Confirm", wxYES_NO, g_pEngineMainFrame );
+            int answer = wxMessageBox( "File already exists.\nDiscard changes and Load it?", "Menu Load Confirm", wxYES_NO, g_pEngineMainFrame );
 
             if( answer == wxYES )
             {
@@ -133,10 +142,10 @@ void ComponentMenuPage::RenameMenuPage(const char* newfullpath)
         {
             // save as new name
             SaveMenuPageToDisk( newfullpath );
-
-            // request the file, so it's part of the scene.
-            m_pMenuLayoutFile = g_pFileManager->RequestFile( newfullpath );
         }
+
+        // request the file, so it's part of the scene.
+        m_pMenuLayoutFile = g_pFileManager->RequestFile( newfullpath );
     }
 
     h_RenameInProgress = false;
@@ -198,10 +207,10 @@ void ComponentMenuPage::OnPopupClick(wxEvent &evt)
         g_pPanelObjectList->AddObject( pMenuItem, MenuButton::StaticFillPropertiesWindow, MenuItem::StaticOnRightClick, componentID, "Button" );
         pMenuItem->RegisterMenuItemDeletedCallback( pComponent, StaticOnMenuItemDeleted );
 
-        MySprite* pSprite = MyNew MySprite();
-        pSprite->Create( "MenuButton Sprite", 1, 1, 0, 1, 0, 1, Justify_Center, false );
-        pMenuItem->SetSprites( pSprite, pSprite, pSprite, 0, 0 );
-        pSprite->Release();
+        //MySprite* pSprite = MyNew MySprite();
+        //pSprite->Create( "MenuButton Sprite", 1, 1, 0, 1, 0, 1, Justify_Center, false );
+        //pMenuItem->SetSprites( pSprite, pSprite, pSprite, pSprite, pSprite );
+        //pSprite->Release();
     }
 
     if( id == 2001 )
@@ -209,13 +218,13 @@ void ComponentMenuPage::OnPopupClick(wxEvent &evt)
         MenuSprite* pMenuItem = MyNew MenuSprite();
         pComponent->m_pMenuItems[pComponent->m_MenuItemsUsed] = pMenuItem;
         pComponent->m_MenuItemsUsed++;
-        g_pPanelObjectList->AddObject( pMenuItem, MenuButton::StaticFillPropertiesWindow, MenuItem::StaticOnRightClick, componentID, "Sprite" );
+        g_pPanelObjectList->AddObject( pMenuItem, MenuSprite::StaticFillPropertiesWindow, MenuItem::StaticOnRightClick, componentID, "Sprite" );
         pMenuItem->RegisterMenuItemDeletedCallback( pComponent, StaticOnMenuItemDeleted );
 
-        MySprite* pSprite = MyNew MySprite();
-        pSprite->Create( "MenuSprite Sprite", 1, 1, 0, 1, 0, 1, Justify_Center, false );
-        pMenuItem->SetSprites( pSprite, pSprite );
-        pSprite->Release();
+        //MySprite* pSprite = MyNew MySprite();
+        //pSprite->Create( "MenuSprite Sprite", 1, 1, 0, 1, 0, 1, Justify_Center, false );
+        //pMenuItem->SetSprites( pSprite, pSprite );
+        //pSprite->Release();
     }
 }
 
@@ -223,12 +232,20 @@ void ComponentMenuPage::OnValueChanged(int controlid, bool finishedchanging)
 {
     if( finishedchanging && controlid == m_ControlID_Filename )
     {
-        wxString newfullpath = g_pPanelWatch->m_pVariables[controlid].m_Handle_TextCtrl->GetValue();
-        RenameMenuPage( newfullpath );
-        if( m_pMenuLayoutFile )
-            g_pPanelWatch->m_pVariables[controlid].m_Handle_TextCtrl->SetValue( m_pMenuLayoutFile->m_FullPath );
-        else
-            g_pPanelWatch->m_pVariables[controlid].m_Handle_TextCtrl->SetValue( "no file" );
+        if( h_RenameInProgress == false )
+        {
+            wxString newfullpath = g_pPanelWatch->m_pVariables[controlid].m_Handle_TextCtrl->GetValue();
+            g_pPanelWatch->ChangeDescriptionForPointerWithDescription( controlid, newfullpath );
+            RenameMenuPage( newfullpath );
+            if( m_pMenuLayoutFile )
+            {
+                g_pPanelWatch->ChangeDescriptionForPointerWithDescription( controlid, m_pMenuLayoutFile->m_FullPath );
+            }
+            else
+            {
+                g_pPanelWatch->ChangeDescriptionForPointerWithDescription( controlid, "no file" );
+            }
+        }
     }
 }
 
@@ -262,6 +279,28 @@ void ComponentMenuPage::OnMenuItemDeleted(MenuItem* pMenuItem)
 }
 #endif //MYFW_USING_WX
 
+cJSON* ComponentMenuPage::ExportAsJSONObject()
+{
+    // Scene is saving so also save menu file to disk.
+    SaveMenuPageToDisk( m_pMenuLayoutFile->m_FullPath );
+
+    cJSON* jComponent = ComponentBase::ExportAsJSONObject();
+
+    if( m_pMenuLayoutFile )
+        cJSON_AddStringToObject( jComponent, "MenuFile", m_pMenuLayoutFile->m_FullPath );
+    
+    return jComponent;
+}
+
+void ComponentMenuPage::ImportFromJSONObject(cJSON* jComponent, unsigned int sceneid)
+{
+    ComponentBase::ImportFromJSONObject( jComponent, sceneid );
+
+    cJSON* jFilename = cJSON_GetObjectItem( jComponent, "MenuFile" );
+    if( jFilename )
+        m_pMenuLayoutFile = g_pFileManager->RequestFile( jFilename->valuestring );
+}
+
 ComponentMenuPage& ComponentMenuPage::operator=(const ComponentMenuPage& other)
 {
     MyAssert( &other != this );
@@ -285,6 +324,25 @@ bool ComponentMenuPage::OnButtons(GameCoreButtonActions action, GameCoreButtonID
 
 void ComponentMenuPage::Tick(double TimePassed)
 {
+#if MYFW_USING_WX
+    if( m_MenuItemsCreated == false )
+    {
+        if( m_pMenuLayoutFile && m_pMenuLayoutFile->m_FileLoadStatus == FileLoadStatus_Success )
+        {
+            ClearAllMenuItems();
+            m_MenuItemsUsed = Menu_ImportExport::ImportMenuLayout( m_pMenuLayoutFile->m_pBuffer, m_pMenuItems, MAX_MENU_ITEMS );
+
+            wxTreeItemId componentID = g_pPanelObjectList->FindObject( this );    
+            for( unsigned int i=0; i<m_MenuItemsUsed; i++ )
+            {
+                g_pPanelObjectList->AddObject( m_pMenuItems[i], MenuButton::StaticFillPropertiesWindow, MenuItem::StaticOnRightClick, componentID, "Button" );
+            }
+
+            m_MenuItemsCreated = true;
+        }
+    }
+#endif
+
     for( unsigned int i=0; i<m_MenuItemsUsed; i++ )
     {
         if( m_pMenuItems[i] )

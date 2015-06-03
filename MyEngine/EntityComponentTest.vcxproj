@@ -1170,6 +1170,7 @@
     <ClCompile Include="..\..\SharedGameCode\Menus\MenuSlider.cpp" />
     <ClCompile Include="..\..\SharedGameCode\Menus\MenuSprite.cpp" />
     <ClCompile Include="..\..\SharedGameCode\Menus\MenuText.cpp" />
+    <ClCompile Include="..\..\SharedGameCode\Menus\Menu_Helpers.cpp" />
     <ClCompile Include="..\Lua\src\lapi.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='WxDebug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='WxDebug|x64'">NotUsing</PrecompiledHeader>
@@ -1942,6 +1943,7 @@
     <ClInclude Include="..\..\SharedGameCode\Menus\MenuSlider.h" />
     <ClInclude Include="..\..\SharedGameCode\Menus\MenuSprite.h" />
     <ClInclude Include="..\..\SharedGameCode\Menus\MenuText.h" />
+    <ClInclude Include="..\..\SharedGameCode\Menus\Menu_Helpers.h" />
     <ClInclude Include="..\Lua\LuaBridge\detail\CFunctions.h" />
     <ClInclude Include="..\Lua\LuaBridge\detail\ClassInfo.h" />
     <ClInclude Include="..\Lua\LuaBridge\detail\Constructor.h" />

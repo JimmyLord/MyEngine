@@ -96,8 +96,10 @@ void ComponentPostEffect::ImportFromJSONObject(cJSON* jsonobj, unsigned int scen
     {
         MaterialDefinition* pMaterial = g_pMaterialManager->LoadMaterial( materialstringobj->valuestring );
         if( pMaterial )
+        {
             SetMaterial( pMaterial );
-        pMaterial->Release();
+            pMaterial->Release();
+        }
     }
 }
 

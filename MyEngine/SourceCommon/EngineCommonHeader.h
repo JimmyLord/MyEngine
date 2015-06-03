@@ -85,6 +85,8 @@ extern "C"
 #include "../../SharedGameCode/Menus/MenuSprite.h"
 #include "../../SharedGameCode/Menus/MenuText.h"
 
+#include "../../SharedGameCode/Menus/Menu_Helpers.h"
+
 #if MYFW_USING_WX
 #include "Core/EditorState.h"
 #include "Editor/EngineCommandStack.h"

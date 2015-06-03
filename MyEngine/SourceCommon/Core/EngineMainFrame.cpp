@@ -146,9 +146,9 @@ void EngineMainFrame::InitFrame()
     m_PlayPauseStop = MyNew wxMenu;
     m_MenuBar->Append( m_PlayPauseStop, wxT("&Mode") );
     m_PlayPauseStop->Append( myIDGame_Mode_PlayStop, wxT("&Play/Stop\tCtrl-SPACE") );
-    m_PlayPauseStop->Append( myIDGame_Mode_Pause, wxT("Pause\t.") );
-    m_PlayPauseStop->Append( myIDGame_Mode_Advance1Frame, wxT("Advance 1 Frame\t]") );
-    m_PlayPauseStop->Append( myIDGame_Mode_Advance1Second, wxT("Advance 1 Second\t[") );
+    m_PlayPauseStop->Append( myIDGame_Mode_Pause, wxT("Pause\tCtrl-.") );
+    m_PlayPauseStop->Append( myIDGame_Mode_Advance1Frame, wxT("Advance 1 Frame\tCtrl-]") );
+    m_PlayPauseStop->Append( myIDGame_Mode_Advance1Second, wxT("Advance 1 Second\tCtrl-[") );
     //m_PlayPauseStop->Append( myIDGame_Mode_Stop, wxT("&Stop\tCtrl-SPACE") );
 
     m_Data = MyNew wxMenu;

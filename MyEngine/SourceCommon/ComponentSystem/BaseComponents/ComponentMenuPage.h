@@ -15,24 +15,29 @@ class MenuItem;
 
 class ComponentMenuPage : public ComponentBase
 {
-    static const int MAX_MENUITEMS = 128;
+    static const int MAX_MENU_ITEMS = 128;
     static const int MAX_MENU_NAME_LEN = 32;
 
 protected:
+    MyFileObject* m_pMenuLayoutFile;
+
+    bool m_MenuItemsCreated;
+
     unsigned int m_MenuItemsUsed;
-    MenuItem* m_pMenuItems[MAX_MENUITEMS];
+    MenuItem* m_pMenuItems[MAX_MENU_ITEMS];
     MenuItem* m_pMenuItemHeld;
 
 public:
     ComponentTransform* m_pComponentTransform;
     ComponentCamera* m_pCamera;
 
-    MyFileObject* m_pMenuLayoutFile;
-
 public:
     ComponentMenuPage();
     virtual ~ComponentMenuPage();
     SetClassnameBase( "MenuPageComponent" ); // only first 8 character count.
+
+    virtual cJSON* ExportAsJSONObject();
+    virtual void ImportFromJSONObject(cJSON* jComponent, unsigned int sceneid);
 
     virtual void Reset();
     virtual void CopyFromSameType_Dangerous(ComponentBase* pObject) { *this = (ComponentMenuPage&)*pObject; }
