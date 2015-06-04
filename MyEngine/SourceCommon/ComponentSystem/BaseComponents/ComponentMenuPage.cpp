@@ -60,6 +60,12 @@ void ComponentMenuPage::Reset()
 
     m_pComponentTransform = m_pGameObject->m_pComponentTransform;
 
+    m_Visible = true;
+    m_LayersThisExistsOn = Layer_HUD;
+
+    SAFE_RELEASE( m_pMenuLayoutFile );
+    m_MenuItemsCreated = false;
+
     // find the first ortho cam component in the scene, settle for a perspective if that's all there is.
     m_pCamera = (ComponentCamera*)g_pComponentSystemManager->GetFirstComponentOfType( "CameraComponent" );
     MyAssert( m_pCamera->IsA( "CameraComponent" ) );
@@ -101,6 +107,8 @@ void ComponentMenuPage::SaveMenuPageToDisk(const char* fullpath)
 
 void ComponentMenuPage::RenameMenuPage(const char* newfullpath)
 {
+    // TODO: clicking on the filename box should pop up a file-open dialog, instead of this mess.
+
     // if the filename didn't change, return.
     if( m_pMenuLayoutFile != 0 && strcmp( newfullpath, m_pMenuLayoutFile->m_FullPath ) == 0 )
         return;
@@ -123,6 +131,7 @@ void ComponentMenuPage::RenameMenuPage(const char* newfullpath)
         }
     }
 
+    // if a new file is requested, either create it or load it.
     if( newfullpath[0] != 0 )
     {
         if( g_pFileManager->DoesFileExist( newfullpath ) )
@@ -132,20 +141,32 @@ void ComponentMenuPage::RenameMenuPage(const char* newfullpath)
 
             int answer = wxMessageBox( "File already exists.\nDiscard changes and Load it?", "Menu Load Confirm", wxYES_NO, g_pEngineMainFrame );
 
+            // destroy the current menu items and load the new menu page.
             if( answer == wxYES )
             {
                 ClearAllMenuItems();
-                m_pMenuLayoutFile = g_pFileManager->RequestFile( newfullpath );
+                MyFileObject* pFile = g_pFileManager->RequestFile( newfullpath );
+                SetMenuLayoutFile( pFile );
+                pFile->Release();
+                m_MenuItemsCreated = false;
+                return; // new file was loaded and menu items from that file will be created in Tick.
             }
-        }
-        else
-        {
-            // save as new name
-            SaveMenuPageToDisk( newfullpath );
+
+            // the file existed, so load it up and associate it with this menupage, but don't save over it unless scene is saved.
+            //   the user might have just typed the wrong name.
+            MyFileObject* pFile = g_pFileManager->RequestFile( newfullpath );
+            SetMenuLayoutFile( pFile );
+            pFile->Release();
+            return;
         }
 
+        // the file didn't exist, so save as new name
+        SaveMenuPageToDisk( newfullpath );
+
         // request the file, so it's part of the scene.
-        m_pMenuLayoutFile = g_pFileManager->RequestFile( newfullpath );
+        MyFileObject* pFile = g_pFileManager->RequestFile( newfullpath );
+        SetMenuLayoutFile( pFile );
+        pFile->Release();
     }
 
     h_RenameInProgress = false;
@@ -169,6 +190,9 @@ void ComponentMenuPage::FillPropertiesWindow(bool clear)
     if( m_PanelWatchBlockVisible )
     {
         ComponentBase::FillPropertiesWindow( clear );
+
+        g_pPanelWatch->AddBool( "Visible", &m_Visible, 0, 1 );
+        g_pPanelWatch->AddUnsignedInt( "Layers", &m_LayersThisExistsOn, 0, 63 );
 
         if( m_pMenuLayoutFile )
             m_ControlID_Filename = g_pPanelWatch->AddPointerWithDescription( "Menu file", m_pMenuLayoutFile, m_pMenuLayoutFile->m_FullPath, this, 0, ComponentMenuPage::StaticOnValueChanged );
@@ -286,6 +310,9 @@ cJSON* ComponentMenuPage::ExportAsJSONObject()
 
     cJSON* jComponent = ComponentBase::ExportAsJSONObject();
 
+    cJSON_AddNumberToObject( jComponent, "Visible", m_Visible );
+    cJSON_AddNumberToObject( jComponent, "Layers", m_LayersThisExistsOn );
+
     if( m_pMenuLayoutFile )
         cJSON_AddStringToObject( jComponent, "MenuFile", m_pMenuLayoutFile->m_FullPath );
     
@@ -296,9 +323,12 @@ void ComponentMenuPage::ImportFromJSONObject(cJSON* jComponent, unsigned int sce
 {
     ComponentBase::ImportFromJSONObject( jComponent, sceneid );
 
+    cJSONExt_GetBool( jComponent, "Visible", &m_Visible );
+    cJSONExt_GetUnsignedInt( jComponent, "Layers", &m_LayersThisExistsOn );
+
     cJSON* jFilename = cJSON_GetObjectItem( jComponent, "MenuFile" );
     if( jFilename )
-        m_pMenuLayoutFile = g_pFileManager->RequestFile( jFilename->valuestring );
+        SetMenuLayoutFile( g_pFileManager->RequestFile( jFilename->valuestring ) );
 }
 
 ComponentMenuPage& ComponentMenuPage::operator=(const ComponentMenuPage& other)
@@ -307,12 +337,82 @@ ComponentMenuPage& ComponentMenuPage::operator=(const ComponentMenuPage& other)
 
     ComponentBase::operator=( other );
 
+    this->m_Visible = other.m_Visible;
+    this->m_LayersThisExistsOn = other.m_LayersThisExistsOn;
+
+    SetMenuLayoutFile( other.m_pMenuLayoutFile );
+
     return *this;
 }
 
 // will return true if input is used.
 bool ComponentMenuPage::OnTouch(int action, int id, float x, float y, float pressure, float size)
 {
+    switch( action )
+    {
+    case GCBA_Down: // new finger down
+        {
+            //g_Fingers[id].set( x, y, id );
+
+            // hold down the first button we collide with.
+            for( int i=m_MenuItemsUsed-1; i>=0; i-- )
+            {
+                if( m_pMenuItems[i] )
+                {
+                    if( m_pMenuItems[i]->HoldOnCollision( id, x, y, true ) )
+                        return true;
+                }
+            }
+        }
+        break;
+
+    case GCBA_Held: // any finger might have moved
+        {
+            int fingerindex = id; //-1;
+
+            //for( int i=0; i<10; i++ )
+            //{
+            //    if( g_Fingers[i].id == id )
+            //        fingerindex = i;
+            //}
+
+            if( fingerindex != -1 )
+            {
+                //g_Fingers[fingerindex].set( x, y, id );
+
+                //BasicMenuHandleHeldFunc( fingerindex, x, y );
+                if( fingerindex == -1 )
+                    return false;
+
+                for( int i=m_MenuItemsUsed-1; i>=0; i-- )
+                {
+                    if( m_pMenuItems[i] )
+                    {
+                        m_pMenuItems[i]->ReleaseOnNoCollision( fingerindex, x, y );
+                    }
+                }
+            }
+        }
+        break;
+
+    case GCBA_Up: // any finger up
+        {
+            //g_Fingers[id].reset();
+
+            for( int i=m_MenuItemsUsed-1; i>=0; i-- )
+            {
+                if( m_pMenuItems[i] )
+                {
+                    int action = m_pMenuItems[i]->TriggerOnCollision( id, x, y, true );
+
+                    if( action != -1 )//&& OnMenuAction( action ) )
+                        return true;
+                }
+            }
+        }
+        break;
+    }
+
     return false;
 }
 
@@ -357,6 +457,7 @@ void ComponentMenuPage::Draw()
     if( m_pCamera == 0 )
         return;
 
+    glDisable( GL_DEPTH_TEST );
     for( unsigned int i=0; i<m_MenuItemsUsed; i++ )
     {
         if( m_pMenuItems[i] )
@@ -364,6 +465,7 @@ void ComponentMenuPage::Draw()
             m_pMenuItems[i]->Draw( &m_pCamera->m_Camera2D.m_matViewProj );
         }
     }
+    glEnable( GL_DEPTH_TEST );
 }
 
 void ComponentMenuPage::ClearAllMenuItems()
@@ -374,4 +476,12 @@ void ComponentMenuPage::ClearAllMenuItems()
         SAFE_DELETE( m_pMenuItems[i] );
     }
     m_MenuItemsUsed = 0;
+}
+
+void ComponentMenuPage::SetMenuLayoutFile(MyFileObject* pFile)
+{
+    if( pFile )
+        pFile->AddRef();
+    SAFE_RELEASE( m_pMenuLayoutFile );
+    m_pMenuLayoutFile = pFile;
 }

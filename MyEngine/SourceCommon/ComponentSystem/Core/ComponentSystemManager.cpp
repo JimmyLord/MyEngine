@@ -773,7 +773,10 @@ void ComponentSystemManager::Tick(double TimePassed)
     {
         ComponentMenuPage* pComponent = (ComponentMenuPage*)node;
 
-        pComponent->Tick( TimePassed );
+        //if( pComponent->m_Visible ) // TODO: add an "only tick if visible" flag.
+        {
+            pComponent->Tick( TimePassed );
+        }
     }
 
     // then all scripts.
@@ -870,9 +873,9 @@ void ComponentSystemManager::OnDrawFrame(ComponentCamera* pCamera, MyMatrix* pMa
     {
         ComponentMenuPage* pComponent = (ComponentMenuPage*)node;
 
-        //if( pComponent->m_BaseType == BaseComponentType_MenuPage )
+        if( pComponent->m_LayersThisExistsOn & pCamera->m_LayersToRender )
         {
-            //if( pComponent->m_Visible )
+            if( pComponent->m_Visible )
             {
                 pComponent->Draw();
             }
@@ -967,7 +970,7 @@ bool ComponentSystemManager::OnTouch(int action, int id, float x, float y, float
     {
         ComponentMenuPage* pComponent = (ComponentMenuPage*)node;
 
-        //if( pComponent->m_BaseType == BaseComponentType_MenuPage )
+        if( pComponent->m_Visible )
         {
             if( pComponent->OnTouch( action, id, x, y, pressure, size ) == true )
                 return true;
@@ -1008,7 +1011,7 @@ bool ComponentSystemManager::OnButtons(GameCoreButtonActions action, GameCoreBut
     {
         ComponentMenuPage* pComponent = (ComponentMenuPage*)node;
 
-        //if( pComponent->m_BaseType == BaseComponentType_MenuPage )
+        if( pComponent->m_Visible )
         {
             if( pComponent->OnButtons( action, id ) == true )
                 return true;

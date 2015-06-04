@@ -31,6 +31,9 @@ public:
     ComponentTransform* m_pComponentTransform;
     ComponentCamera* m_pCamera;
 
+    bool m_Visible;
+    unsigned int m_LayersThisExistsOn;
+
 public:
     ComponentMenuPage();
     virtual ~ComponentMenuPage();
@@ -51,6 +54,7 @@ public:
     virtual void Draw();
 
     void ClearAllMenuItems();
+    void SetMenuLayoutFile(MyFileObject* pFile);
 
 public:
 #if MYFW_USING_WX
