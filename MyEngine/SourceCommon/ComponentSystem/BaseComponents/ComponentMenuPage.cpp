@@ -21,7 +21,8 @@ ComponentMenuPage::ComponentMenuPage()
     m_BaseType = BaseComponentType_MenuPage;
 
     m_pComponentTransform = 0;
-    m_pCamera = 0;
+    m_pComponentCamera = 0;
+    m_pComponentLuaScript = 0;
 
     m_MenuItemsCreated = false;
 
@@ -67,13 +68,15 @@ void ComponentMenuPage::Reset()
     m_MenuItemsCreated = false;
 
     // find the first ortho cam component in the scene, settle for a perspective if that's all there is.
-    m_pCamera = (ComponentCamera*)g_pComponentSystemManager->GetFirstComponentOfType( "CameraComponent" );
-    MyAssert( m_pCamera->IsA( "CameraComponent" ) );
-    while( m_pCamera != 0 && m_pCamera->m_Orthographic == false )
+    m_pComponentCamera = (ComponentCamera*)g_pComponentSystemManager->GetFirstComponentOfType( "CameraComponent" );
+    MyAssert( m_pComponentCamera->IsA( "CameraComponent" ) );
+    while( m_pComponentCamera != 0 && m_pComponentCamera->m_Orthographic == false )
     {
-        m_pCamera = (ComponentCamera*)g_pComponentSystemManager->GetNextComponentOfType( m_pCamera );
-        MyAssert( m_pCamera == 0 || m_pCamera->IsA( "CameraComponent" ) );
+        m_pComponentCamera = (ComponentCamera*)g_pComponentSystemManager->GetNextComponentOfType( m_pComponentCamera );
+        MyAssert( m_pComponentCamera == 0 || m_pComponentCamera->IsA( "CameraComponent" ) );
     }
+
+    m_pComponentLuaScript = 0;
 
 #if MYFW_USING_WX
     m_pPanelWatchBlockVisible = &m_PanelWatchBlockVisible;
@@ -194,6 +197,11 @@ void ComponentMenuPage::FillPropertiesWindow(bool clear)
         g_pPanelWatch->AddBool( "Visible", &m_Visible, 0, 1 );
         g_pPanelWatch->AddUnsignedInt( "Layers", &m_LayersThisExistsOn, 0, 63 );
 
+        const char* desc = "none";
+        if( m_pComponentCamera )
+            desc = m_pComponentCamera->m_pGameObject->GetName();
+        m_ControlID_ComponentCamera = g_pPanelWatch->AddPointerWithDescription( "Camera Component", m_pComponentCamera, desc, this, ComponentMenuPage::StaticOnDropComponent, ComponentMenuPage::StaticOnValueChanged );
+
         if( m_pMenuLayoutFile )
             m_ControlID_Filename = g_pPanelWatch->AddPointerWithDescription( "Menu file", m_pMenuLayoutFile, m_pMenuLayoutFile->m_FullPath, this, 0, ComponentMenuPage::StaticOnValueChanged );
         else
@@ -301,6 +309,39 @@ void ComponentMenuPage::OnMenuItemDeleted(MenuItem* pMenuItem)
 
     MyAssert( found );
 }
+
+void ComponentMenuPage::OnDropComponent(int controlid, wxCoord x, wxCoord y)
+{
+    ComponentBase* pComponent = 0;
+
+    if( controlid == m_ControlID_ComponentCamera )
+    {
+        if( g_DragAndDropStruct.m_Type == DragAndDropType_ComponentPointer )
+        {
+            pComponent = (ComponentBase*)g_DragAndDropStruct.m_Value;
+        }
+
+        if( g_DragAndDropStruct.m_Type == DragAndDropType_GameObjectPointer )
+        {
+            pComponent = ((GameObject*)g_DragAndDropStruct.m_Value)->GetFirstComponentOfBaseType( BaseComponentType_Camera );
+        }
+
+        if( pComponent && pComponent != this )
+        {
+            if( pComponent->IsA( "CameraComponent" ) )
+            {
+                assert( dynamic_cast<ComponentCamera*>( pComponent ) );
+                m_pComponentCamera = dynamic_cast<ComponentCamera*>( pComponent );
+            }
+
+            // update the panel so new OBJ name shows up.
+            if( m_pComponentCamera )
+                g_pPanelWatch->ChangeDescriptionForPointerWithDescription( controlid, m_pComponentCamera->m_pGameObject->GetName() );
+            else
+                g_pPanelWatch->ChangeDescriptionForPointerWithDescription( controlid, "none" );
+        }
+    }
+}
 #endif //MYFW_USING_WX
 
 cJSON* ComponentMenuPage::ExportAsJSONObject()
@@ -328,7 +369,11 @@ void ComponentMenuPage::ImportFromJSONObject(cJSON* jComponent, unsigned int sce
 
     cJSON* jFilename = cJSON_GetObjectItem( jComponent, "MenuFile" );
     if( jFilename )
-        SetMenuLayoutFile( g_pFileManager->RequestFile( jFilename->valuestring ) );
+    {
+        MyFileObject* pFile = g_pFileManager->RequestFile( jFilename->valuestring ); // will add ref.
+        SetMenuLayoutFile( pFile ); // will add ref.
+        pFile->Release();
+    }
 }
 
 ComponentMenuPage& ComponentMenuPage::operator=(const ComponentMenuPage& other)
@@ -343,6 +388,27 @@ ComponentMenuPage& ComponentMenuPage::operator=(const ComponentMenuPage& other)
     SetMenuLayoutFile( other.m_pMenuLayoutFile );
 
     return *this;
+}
+
+void ComponentMenuPage::FindLuaScriptComponentPointer()
+{
+    // if we don't have a luascript, find the first one attached to this gameobject
+    if( m_pComponentLuaScript == 0 )
+    {
+        m_pComponentLuaScript = (ComponentLuaScript*)m_pGameObject->GetFirstComponentOfType( "LuaScriptComponent" );
+    }
+}
+
+void ComponentMenuPage::OnLoad()
+{
+    // if we don't have a luascript, find the first one attached to this gameobject
+    FindLuaScriptComponentPointer();
+}
+
+void ComponentMenuPage::OnPlay()
+{
+    // if we don't have a luascript, find the first one attached to this gameobject
+    FindLuaScriptComponentPointer();
 }
 
 // will return true if input is used.
@@ -403,10 +469,22 @@ bool ComponentMenuPage::OnTouch(int action, int id, float x, float y, float pres
             {
                 if( m_pMenuItems[i] )
                 {
-                    int action = m_pMenuItems[i]->TriggerOnCollision( id, x, y, true );
+                    const char* action = m_pMenuItems[i]->TriggerOnCollision( id, x, y, true );
 
-                    if( action != -1 )//&& OnMenuAction( action ) )
+                    if( action != 0 )//&& OnMenuAction( action ) )
+                    {
+#if MYFW_USING_WX
+                        // in editor, there's a chance the script component was created and not associated with this object.
+                        FindLuaScriptComponentPointer();
+#endif
+                        if( m_pComponentLuaScript )
+                        {
+                            m_pComponentLuaScript->CallFunction( action );//"PressedMenuButton" );
+                            return true;
+                        }
+
                         return true;
+                    }
                 }
             }
         }
@@ -443,6 +521,7 @@ void ComponentMenuPage::Tick(double TimePassed)
     }
 #endif
 
+    // Tick all the menu items.
     for( unsigned int i=0; i<m_MenuItemsUsed; i++ )
     {
         if( m_pMenuItems[i] )
@@ -454,7 +533,7 @@ void ComponentMenuPage::Tick(double TimePassed)
 
 void ComponentMenuPage::Draw()
 {
-    if( m_pCamera == 0 )
+    if( m_pComponentCamera == 0 )
         return;
 
     glDisable( GL_DEPTH_TEST );
@@ -462,7 +541,7 @@ void ComponentMenuPage::Draw()
     {
         if( m_pMenuItems[i] )
         {
-            m_pMenuItems[i]->Draw( &m_pCamera->m_Camera2D.m_matViewProj );
+            m_pMenuItems[i]->Draw( &m_pComponentCamera->m_Camera2D.m_matViewProj );
         }
     }
     glEnable( GL_DEPTH_TEST );

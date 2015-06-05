@@ -77,6 +77,8 @@ public:
     bool OnTouch(int action, int id, float x, float y, float pressure, float size);
     bool OnButtons(GameCoreButtonActions action, GameCoreButtonIDs id);
 
+    void CallFunction(const char* pFuncName);
+
 public:
 #if MYFW_USING_WX
     static void StaticOnFileUpdated(void* pObjectPtr, MyFileObject* pFile) { ((ComponentLuaScript*)pObjectPtr)->OnFileUpdated( pFile ); }

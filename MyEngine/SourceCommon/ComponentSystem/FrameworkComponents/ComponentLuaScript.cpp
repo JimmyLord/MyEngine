@@ -684,3 +684,32 @@ bool ComponentLuaScript::OnButtons(GameCoreButtonActions action, GameCoreButtonI
 
     return false;
 }
+
+void ComponentLuaScript::CallFunction(const char* pFuncName)
+{
+    if( m_ErrorInScript )
+        return;
+
+    // find the function and call it.
+    if( m_Playing )
+    {
+        luabridge::LuaRef LuaObject = luabridge::getGlobal( m_pLuaGameState->m_pLuaState, m_pScriptFile->m_FilenameWithoutExtension );
+
+        // call OnButtons
+        if( LuaObject[pFuncName].isFunction() )
+        {
+            ProgramVariables( LuaObject, false );
+            try
+            {
+                if( LuaObject[pFuncName]() )
+                    return;
+            }
+            catch(luabridge::LuaException const& e)
+            {
+                HandleLuaError( pFuncName, e.what() );
+            }
+        }
+    }
+
+    return;
+}

@@ -11,6 +11,8 @@
 #define __ComponentMenuPage_H__
 
 class ComponentTransform;
+class ComponentCamera;
+class ComponentLuaScript;
 class MenuItem;
 
 class ComponentMenuPage : public ComponentBase
@@ -29,7 +31,8 @@ protected:
 
 public:
     ComponentTransform* m_pComponentTransform;
-    ComponentCamera* m_pCamera;
+    ComponentCamera* m_pComponentCamera;
+    ComponentLuaScript* m_pComponentLuaScript;
 
     bool m_Visible;
     unsigned int m_LayersThisExistsOn;
@@ -46,6 +49,11 @@ public:
     virtual void CopyFromSameType_Dangerous(ComponentBase* pObject) { *this = (ComponentMenuPage&)*pObject; }
     virtual ComponentMenuPage& operator=(const ComponentMenuPage& other);
 
+    void FindLuaScriptComponentPointer();
+    virtual void OnLoad();
+    virtual void OnPlay();
+    //virtual void OnStop();
+
     // will return true if input is used.
     virtual bool OnTouch(int action, int id, float x, float y, float pressure, float size);
     virtual bool OnButtons(GameCoreButtonActions action, GameCoreButtonIDs id);
@@ -59,6 +67,7 @@ public:
 public:
 #if MYFW_USING_WX
     int m_ControlID_Filename;
+    int m_ControlID_ComponentCamera;
     bool h_RenameInProgress;
 
     static bool m_PanelWatchBlockVisible;
@@ -82,6 +91,9 @@ public:
 
     static void StaticOnMenuItemDeleted(void* pObjectPtr, MenuItem* pMenuItem) { ((ComponentMenuPage*)pObjectPtr)->OnMenuItemDeleted( pMenuItem ); }
     void OnMenuItemDeleted(MenuItem* pMenuItem);
+
+    static void StaticOnDropComponent(void* pObjectPtr, int controlid, wxCoord x, wxCoord y) { ((ComponentMenuPage*)pObjectPtr)->OnDropComponent(controlid, x, y); }
+    void OnDropComponent(int controlid, wxCoord x, wxCoord y);
 #endif //MYFW_USING_WX
 };
 
