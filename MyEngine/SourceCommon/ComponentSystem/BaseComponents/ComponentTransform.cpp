@@ -25,6 +25,7 @@ ComponentTransform::ComponentTransform()
 
 ComponentTransform::~ComponentTransform()
 {
+    m_pPositionChangedCallbackList.FreeAllInList();
 }
 
 void ComponentTransform::Reset()

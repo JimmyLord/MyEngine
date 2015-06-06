@@ -143,6 +143,10 @@ public:
 
     static void StaticOnMemoryPanelFileSelectedLeftClick(void* pObjectPtr) { ((ComponentSystemManager*)pObjectPtr)->OnMemoryPanelFileSelectedLeftClick(); }
     void OnMemoryPanelFileSelectedLeftClick();
+
+    static void StaticOnMaterialCreated(void* pObjectPtr, MaterialDefinition* pMaterial) { ((ComponentSystemManager*)pObjectPtr)->OnMaterialCreated( pMaterial ); }
+    void OnMaterialCreated(MaterialDefinition* pMaterial);
+
 #endif //MYFW_USING_WX
 };
 

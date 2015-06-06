@@ -19,6 +19,8 @@ ComponentSystemManager::ComponentSystemManager(ComponentTypeManager* typemanager
 
     m_pComponentTickCallbackList.AllocateObjects( MAX_COMPONENT_TICK_CALLBACKS );
 
+    g_pMaterialManager->RegisterMaterialCreatedCallback( this, StaticOnMaterialCreated );
+
     m_NextGameObjectID = 1;
     m_NextComponentID = 1;
 
@@ -93,8 +95,13 @@ void ComponentSystemManager::AddAllMaterialsToFilesList()
             if( IsFileUsedByScene( pMaterial->m_pFile->m_FullPath, 1 ) == false )
             {
                 MyFileInfo* pFileInfo = MyNew MyFileInfo();
+                
                 pFileInfo->m_pFile = pMaterial->m_pFile;
                 pMaterial->m_pFile->AddRef();
+
+                pFileInfo->m_pMaterial = pMaterial;
+                pMaterial->AddRef();
+
                 pFileInfo->m_SceneID = 1;
                 m_Files.AddTail( pFileInfo );
             }
@@ -134,6 +141,21 @@ void ComponentSystemManager::OnMemoryPanelFileSelectedLeftClick()
 {
     // not sure why I put this in anymore... might be handy later.
     //int bp = 1;
+}
+
+void ComponentSystemManager::OnMaterialCreated(MaterialDefinition* pMaterial)
+{
+    MyAssert( pMaterial );
+
+    // if this material doesn't have a file and it has a name, then save it.
+    if( pMaterial && pMaterial->m_pFile == 0 && pMaterial->m_Name[0] != 0 )
+    {
+        int oldrefcount = pMaterial->GetRefCount();
+
+        g_pMaterialManager->SaveAllMaterials();
+        AddAllMaterialsToFilesList();
+        pMaterial->Release(); // ref should have been added by AddAllMaterialsToFilesList().
+    }
 }
 #endif //MYFW_USING_WX
 
