@@ -537,6 +537,8 @@ void ComponentMenuPage::Draw()
         return;
 
     glDisable( GL_DEPTH_TEST );
+    glEnable( GL_BLEND );
+    glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
     for( unsigned int i=0; i<m_MenuItemsUsed; i++ )
     {
         if( m_pMenuItems[i] )
@@ -544,6 +546,7 @@ void ComponentMenuPage::Draw()
             m_pMenuItems[i]->Draw( &m_pComponentCamera->m_Camera2D.m_matViewProj );
         }
     }
+    glDisable( GL_BLEND );
     glEnable( GL_DEPTH_TEST );
 }
 
