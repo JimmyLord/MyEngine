@@ -1,3 +1,5 @@
+#define BLENDING On
+
 #ifdef WIN32
 #define lowp
 #define mediump
