@@ -213,10 +213,13 @@ void ComponentMenuPage::AppendItemsToRightClickMenu(wxMenu* pMenu)
 {
     ComponentBase::AppendItemsToRightClickMenu( pMenu );
 
-    pMenu->Append( 2000, "Add Button" );
+    pMenu->Append( RightClick_AddButton, "Add Button" );
  	pMenu->Connect( wxEVT_COMMAND_MENU_SELECTED, (wxObjectEventFunction)&ComponentMenuPage::OnPopupClick );
 
-    pMenu->Append( 2001, "Add Sprite" );
+    pMenu->Append( RightClick_AddSprite, "Add Sprite" );
+ 	pMenu->Connect( wxEVT_COMMAND_MENU_SELECTED, (wxObjectEventFunction)&ComponentMenuPage::OnPopupClick );
+
+    pMenu->Append( RightClick_AddText, "Add Text" );
  	pMenu->Connect( wxEVT_COMMAND_MENU_SELECTED, (wxObjectEventFunction)&ComponentMenuPage::OnPopupClick );
 }
 
@@ -230,7 +233,7 @@ void ComponentMenuPage::OnPopupClick(wxEvent &evt)
     wxTreeItemId componentID = g_pPanelObjectList->FindObject( pComponent );    
 
     int id = evt.GetId();
-    if( id == 2000 )
+    if( id == RightClick_AddButton )
     {
         MenuButton* pMenuItem = MyNew MenuButton( 100 );
         pMenuItem->SetString( "Test Button" );
@@ -238,25 +241,24 @@ void ComponentMenuPage::OnPopupClick(wxEvent &evt)
         pComponent->m_MenuItemsUsed++;
         g_pPanelObjectList->AddObject( pMenuItem, MenuButton::StaticFillPropertiesWindow, MenuItem::StaticOnRightClick, componentID, "Button" );
         pMenuItem->RegisterMenuItemDeletedCallback( pComponent, StaticOnMenuItemDeleted );
-
-        //MySprite* pSprite = MyNew MySprite();
-        //pSprite->Create( "MenuButton Sprite", 1, 1, 0, 1, 0, 1, Justify_Center, false );
-        //pMenuItem->SetSprites( pSprite, pSprite, pSprite, pSprite, pSprite );
-        //pSprite->Release();
     }
 
-    if( id == 2001 )
+    if( id == RightClick_AddSprite )
     {
         MenuSprite* pMenuItem = MyNew MenuSprite();
         pComponent->m_pMenuItems[pComponent->m_MenuItemsUsed] = pMenuItem;
         pComponent->m_MenuItemsUsed++;
         g_pPanelObjectList->AddObject( pMenuItem, MenuSprite::StaticFillPropertiesWindow, MenuItem::StaticOnRightClick, componentID, "Sprite" );
         pMenuItem->RegisterMenuItemDeletedCallback( pComponent, StaticOnMenuItemDeleted );
+    }
 
-        //MySprite* pSprite = MyNew MySprite();
-        //pSprite->Create( "MenuSprite Sprite", 1, 1, 0, 1, 0, 1, Justify_Center, false );
-        //pMenuItem->SetSprites( pSprite, pSprite );
-        //pSprite->Release();
+    if( id == RightClick_AddText )
+    {
+        MenuText* pMenuItem = MyNew MenuText();
+        pComponent->m_pMenuItems[pComponent->m_MenuItemsUsed] = pMenuItem;
+        pComponent->m_MenuItemsUsed++;
+        g_pPanelObjectList->AddObject( pMenuItem, MenuText::StaticFillPropertiesWindow, MenuItem::StaticOnRightClick, componentID, "Text" );
+        pMenuItem->RegisterMenuItemDeletedCallback( pComponent, StaticOnMenuItemDeleted );
     }
 }
 
@@ -513,7 +515,29 @@ void ComponentMenuPage::Tick(double TimePassed)
             wxTreeItemId componentID = g_pPanelObjectList->FindObject( this );    
             for( unsigned int i=0; i<m_MenuItemsUsed; i++ )
             {
-                g_pPanelObjectList->AddObject( m_pMenuItems[i], MenuButton::StaticFillPropertiesWindow, MenuItem::StaticOnRightClick, componentID, "Button" );
+                switch( m_pMenuItems[i]->m_MenuItemType )
+                {
+                case MIT_Sprite:
+                    g_pPanelObjectList->AddObject( m_pMenuItems[i], MenuSprite::StaticFillPropertiesWindow, MenuItem::StaticOnRightClick, componentID, "Sprite" );
+                    break;
+
+                case MIT_Text:
+                    g_pPanelObjectList->AddObject( m_pMenuItems[i], MenuText::StaticFillPropertiesWindow, MenuItem::StaticOnRightClick, componentID, "Text" );
+                    break;
+
+                case MIT_Button:
+                    g_pPanelObjectList->AddObject( m_pMenuItems[i], MenuButton::StaticFillPropertiesWindow, MenuItem::StaticOnRightClick, componentID, "Button" );
+                    break;
+
+                case MIT_Base:
+                case MIT_ScrollBox:
+                case MIT_ScrollingText:
+                case MIT_InputBox:
+                case MIT_CheckBox:
+                case MIT_NumMenuItemTypes:
+                default:
+                    MyAssert( false );
+                }
             }
 
             m_MenuItemsCreated = true;

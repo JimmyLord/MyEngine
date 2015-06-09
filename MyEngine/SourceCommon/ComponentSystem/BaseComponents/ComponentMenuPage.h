@@ -66,6 +66,13 @@ public:
 
 public:
 #if MYFW_USING_WX
+    enum RightClickOptions
+    {
+        RightClick_AddButton = 2000,
+        RightClick_AddSprite,
+        RightClick_AddText,
+    };
+
     int m_ControlID_Filename;
     int m_ControlID_ComponentCamera;
     bool h_RenameInProgress;
