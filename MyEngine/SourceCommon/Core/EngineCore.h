@@ -108,7 +108,7 @@ public:
 #if MYFW_USING_WX
     void LoadSceneFromFile(const char* fullpath, unsigned int sceneid);
 #endif //MYFW_USING_WX
-    void LoadScene(const char* buffer, unsigned int sceneid);
+    void LoadScene(const char* scenename, const char* buffer, unsigned int sceneid);
 
 #if MYFW_USING_WX
     void RenderSingleObject(GameObject* pObject);

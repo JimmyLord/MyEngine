@@ -45,6 +45,7 @@ extern "C"
 // core component system code
 #include "ComponentSystem/Core/EngineFileManager.h"
 #include "ComponentSystem/Core/ComponentTypeManager.h"
+#include "ComponentSystem/Core/SceneHandler.h"
 #include "ComponentSystem/BaseComponents/ComponentBase.h"
 #include "ComponentSystem/Core/ComponentSystemManager.h"
 #include "ComponentSystem/BaseComponents/ComponentTransform.h"

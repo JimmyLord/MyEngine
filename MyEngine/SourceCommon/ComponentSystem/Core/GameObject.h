@@ -28,7 +28,7 @@ public:
     MyList<ComponentBase*> m_Components; // component system manager is responsible for deleting these components.
 
 public:
-    GameObject(bool managed);
+    GameObject(bool managed, int sceneid);
     virtual ~GameObject();
 
     static void LuaRegister(lua_State* luastate);

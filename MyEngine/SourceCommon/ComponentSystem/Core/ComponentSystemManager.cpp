@@ -16,6 +16,7 @@ ComponentSystemManager::ComponentSystemManager(ComponentTypeManager* typemanager
     g_pComponentSystemManager = this;
 
     m_pComponentTypeManager = typemanager;
+    m_pSceneHandler = MyNew SceneHandler();
 
     m_pComponentTickCallbackList.AllocateObjects( MAX_COMPONENT_TICK_CALLBACKS );
 
@@ -27,6 +28,11 @@ ComponentSystemManager::ComponentSystemManager(ComponentTypeManager* typemanager
 #if MYFW_USING_WX
     // Add click callbacks to the root of the objects tree
     g_pPanelObjectList->SetTreeRootData( this, ComponentSystemManager::StaticOnLeftClick, ComponentSystemManager::StaticOnRightClick );
+
+    wxTreeItemId rootid = g_pPanelObjectList->GetTreeRoot();
+    wxTreeItemId treesceneid = g_pPanelObjectList->AddObject( m_pSceneHandler, SceneHandler::StaticOnLeftClick, SceneHandler::StaticOnRightClick, rootid, "Unmanaged" );
+    m_pSceneIDToSceneTreeIDMap[0].sceneid = treesceneid;
+    m_pSceneIDToSceneTreeIDMap[0].fullpath[0] = 0;
 #endif //MYFW_USING_WX
 }
 
@@ -44,6 +50,7 @@ ComponentSystemManager::~ComponentSystemManager()
             delete m_Components[i].RemHead();
     }
 
+    SAFE_DELETE( m_pSceneHandler );
     SAFE_DELETE( m_pComponentTypeManager );
 
     // if a component didn't unregister itself, assert.
@@ -395,7 +402,7 @@ void ComponentSystemManager::LoadDatafile(const char* relativepath, unsigned int
     }
 }
 
-void ComponentSystemManager::LoadSceneFromJSON(const char* jsonstr, unsigned int sceneid)
+void ComponentSystemManager::LoadSceneFromJSON(const char* scenename, const char* jsonstr, unsigned int sceneid)
 {
     cJSON* root = cJSON_Parse( jsonstr );
 
@@ -406,6 +413,12 @@ void ComponentSystemManager::LoadSceneFromJSON(const char* jsonstr, unsigned int
     cJSON* gameobjectarray = cJSON_GetObjectItem( root, "GameObjects" );
     cJSON* transformarray = cJSON_GetObjectItem( root, "Transforms" );
     cJSON* componentarray = cJSON_GetObjectItem( root, "Components" );
+
+#if MYFW_USING_WX
+    wxTreeItemId rootid = g_pPanelObjectList->GetTreeRoot();
+    wxTreeItemId treesceneid = g_pPanelObjectList->AddObject( m_pSceneHandler, SceneHandler::StaticOnLeftClick, SceneHandler::StaticOnRightClick, rootid, scenename );
+    m_pSceneIDToSceneTreeIDMap[sceneid].sceneid = treesceneid;
+#endif //MYFW_USING_WX
 
     // request all files used by scene.
     if( filearray )
@@ -431,7 +444,7 @@ void ComponentSystemManager::LoadSceneFromJSON(const char* jsonstr, unsigned int
         if( pGameObject ) { MyAssert( pGameObject->GetSceneID() == sceneid ); } // TODO: get the object from the right scene if multiple scenes are loaded.
 
         if( pGameObject == 0 )        
-            pGameObject = CreateGameObject();
+            pGameObject = CreateGameObject( true, sceneid );
 
         pGameObject->ImportFromJSONObject( gameobj, sceneid );
 
@@ -579,9 +592,9 @@ void ComponentSystemManager::UnloadScene(unsigned int sceneidtoclear, bool clear
     }
 }
 
-GameObject* ComponentSystemManager::CreateGameObject(bool manageobject)
+GameObject* ComponentSystemManager::CreateGameObject(bool manageobject, int sceneid)
 {
-    GameObject* pGameObject = MyNew GameObject( manageobject );
+    GameObject* pGameObject = MyNew GameObject( manageobject, sceneid );
     pGameObject->SetID( m_NextGameObjectID );
     m_NextGameObjectID++;
 
@@ -647,9 +660,9 @@ GameObject* ComponentSystemManager::EditorCopyGameObject(GameObject* pObject)
 
 GameObject* ComponentSystemManager::CopyGameObject(GameObject* pObject, const char* newname)
 {
-    GameObject* pNewObject = CreateGameObject();
+    GameObject* pNewObject = CreateGameObject( true, pObject->GetSceneID() );
     pNewObject->SetName( newname );
-    pNewObject->SetSceneID( pObject->GetSceneID() );
+    //pNewObject->SetSceneID( pObject->GetSceneID() );
 
     *pNewObject->m_pComponentTransform = *pObject->m_pComponentTransform;
 
@@ -944,6 +957,11 @@ void ComponentSystemManager::DrawMousePickerFrame(ComponentCamera* pCamera, MyMa
 }
 
 #if MYFW_USING_WX
+SceneInfo* ComponentSystemManager::GetSceneInfo(int sceneid)
+{
+    return &m_pSceneIDToSceneTreeIDMap[sceneid];
+}
+
 void ComponentSystemManager::DrawSingleObject(MyMatrix* pMatViewProj, GameObject* pObject)
 {
     for( unsigned int i=0; i<pObject->m_Components.Count(); i++ )

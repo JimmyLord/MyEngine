@@ -11,6 +11,7 @@
 #define __ComponentSystemManager_H__
 
 class ComponentSystemManager;
+class SceneHandler;
 class GameObject;
 class ComponentBase;
 class ComponentCamera;
@@ -55,6 +56,8 @@ public:
     ComponentTypeManager* m_pComponentTypeManager; // memory managed, delete this.
     CPPListHead m_GameObjects;
 
+    SceneHandler* m_pSceneHandler;
+
     // List of files used including a scene id
     CPPListHead m_Files;
 
@@ -83,7 +86,7 @@ public:
 
     char* SaveSceneToJSON();
     void LoadDatafile(const char* relativepath, unsigned int sceneid);
-    void LoadSceneFromJSON(const char* jsonstr, unsigned int sceneid);
+    void LoadSceneFromJSON(const char* scenename, const char* jsonstr, unsigned int sceneid);
 
     void SyncAllRigidBodiesToObjectTransforms();
 
@@ -91,7 +94,7 @@ public:
     // unmanaged components are mainly editor objects and deleted objects in undo stack of editor... might want to rethink that.
     void UnloadScene(unsigned int sceneidtoclear = UINT_MAX, bool clearunmanagedcomponents = true);
 
-    GameObject* CreateGameObject(bool manageobject = true);
+    GameObject* CreateGameObject(bool manageobject = true, int sceneid = 0);
     void UnmanageGameObject(GameObject* pObject);
     void ManageGameObject(GameObject* pObject);
     void DeleteGameObject(GameObject* pObject, bool deletecomponents);
@@ -129,6 +132,10 @@ public:
 
 public:
 #if MYFW_USING_WX
+    std::map<int, SceneInfo> m_pSceneIDToSceneTreeIDMap;
+    wxTreeItemId GetTreeIDForScene(int sceneid) { return m_pSceneIDToSceneTreeIDMap[sceneid].sceneid; }
+    SceneInfo* GetSceneInfo(int sceneid);
+
     void DrawSingleObject(MyMatrix* pMatViewProj, GameObject* pObject); // used to draw an animated mesh into the debug FBO
 
     void OnFileUpdated(MyFileObject* pFile);
@@ -146,7 +153,6 @@ public:
 
     static void StaticOnMaterialCreated(void* pObjectPtr, MaterialDefinition* pMaterial) { ((ComponentSystemManager*)pObjectPtr)->OnMaterialCreated( pMaterial ); }
     void OnMaterialCreated(MaterialDefinition* pMaterial);
-
 #endif //MYFW_USING_WX
 };
 

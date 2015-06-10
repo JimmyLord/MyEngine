@@ -159,7 +159,7 @@ double EngineCore::Tick(double TimePassed)
 #if !MYFW_USING_WX
     if( m_SceneLoaded == false && m_pSceneFileToLoad && m_pSceneFileToLoad->m_FileLoadStatus == FileLoadStatus_Success )
     {
-        LoadScene( m_pSceneFileToLoad->m_pBuffer, 1 );
+        LoadScene( 0, m_pSceneFileToLoad->m_pBuffer, 1 );
         m_pComponentSystemManager->OnPlay();
         RegisterGameplayButtons();
         SAFE_RELEASE( m_pSceneFileToLoad );
@@ -1355,6 +1355,34 @@ void EngineCore::UnloadScene(unsigned int sceneid, bool cleareditorobjects)
 #endif //MYFW_USING_WX
 
     g_pComponentSystemManager->UnloadScene( sceneid, false );
+
+#if MYFW_USING_WX
+    // erase the scene node from the object list tree.
+    if( sceneid == UINT_MAX )
+    {
+        typedef std::map<int, SceneInfo>::iterator it_type;
+        for( it_type iterator = g_pComponentSystemManager->m_pSceneIDToSceneTreeIDMap.begin(); iterator != g_pComponentSystemManager->m_pSceneIDToSceneTreeIDMap.end(); )
+        {
+            if( iterator->first != 0 && iterator->second.sceneid.IsOk() )
+            {
+                g_pPanelObjectList->m_pTree_Objects->Delete( iterator->second.sceneid );
+                g_pComponentSystemManager->m_pSceneIDToSceneTreeIDMap.erase( iterator++ );
+            }
+            else
+            {
+                iterator++;
+            }
+        }
+    }
+    else
+    {
+        SceneInfo* pSceneInfo = g_pComponentSystemManager->GetSceneInfo( sceneid );
+        if( pSceneInfo && pSceneInfo->sceneid.IsOk() )
+            g_pPanelObjectList->m_pTree_Objects->Delete( pSceneInfo->sceneid );
+        g_pComponentSystemManager->m_pSceneIDToSceneTreeIDMap.erase( sceneid );
+    }
+#endif
+
     if( sceneid == UINT_MAX )
     {
         // temp code while RTQGlobals is a thing.
@@ -1392,21 +1420,31 @@ void EngineCore::LoadSceneFromFile(const char* fullpath, unsigned int sceneid)
 
         fclose( filehandle );
 
-        LoadScene( jsonstr, sceneid );
+        const char* filenamestart;
+        int i;
+        for( i=strlen(fullpath)-1; i>=0; i-- )
+        {
+            if( fullpath[i] == '\\' || fullpath[i] == '/' )
+                break;
+        }
+        filenamestart = &fullpath[i+1];
+
+        LoadScene( filenamestart, jsonstr, sceneid );
+        strcpy_s( g_pComponentSystemManager->m_pSceneIDToSceneTreeIDMap[sceneid].fullpath, MAX_PATH, fullpath );
 
         delete[] jsonstr;
     }
 }
 #endif //MYFW_USING_WX
 
-void EngineCore::LoadScene(const char* buffer, unsigned int sceneid)
+void EngineCore::LoadScene(const char* scenename, const char* buffer, unsigned int sceneid)
 {
     // reset the editorstate structure.
 #if MYFW_USING_WX
     m_pEditorState->UnloadScene( false );
 #endif //MYFW_USING_WX
 
-    g_pComponentSystemManager->LoadSceneFromJSON( buffer, sceneid );
+    g_pComponentSystemManager->LoadSceneFromJSON( scenename, buffer, sceneid );
     m_pLuaGameState->Rebuild(); // reset the lua state.
     g_pComponentSystemManager->OnLoad();
 

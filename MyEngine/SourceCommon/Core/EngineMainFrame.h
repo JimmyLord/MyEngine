@@ -69,7 +69,7 @@ public:
     wxMenuItem* m_EditorPerspectiveOptions[Perspective_NumPerspectives];
     wxMenuItem* m_GameplayPerspectiveOptions[Perspective_NumPerspectives];
 
-    char m_CurrentSceneName[MAX_PATH];
+    //char m_CurrentSceneName[MAX_PATH];
 
     wxMenu* m_Grid;
     wxMenu* m_PlayPauseStop;

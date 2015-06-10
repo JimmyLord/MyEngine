@@ -336,6 +336,9 @@
     <ClCompile Include="..\..\SharedGameCode\Menus\Menu_Helpers.cpp">
       <Filter>Source\SharedGameCode\Menus</Filter>
     </ClCompile>
+    <ClCompile Include="SourceCommon\ComponentSystem\Core\SceneHandler.cpp">
+      <Filter>Source\ComponentSystem\Core Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SourceCommon\Camera\Camera3D.h">
@@ -616,6 +619,9 @@
     </ClInclude>
     <ClInclude Include="..\..\SharedGameCode\Menus\Menu_Helpers.h">
       <Filter>Source\SharedGameCode\Menus</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCommon\ComponentSystem\Core\SceneHandler.h">
+      <Filter>Source\ComponentSystem\Core Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

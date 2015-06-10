@@ -129,7 +129,7 @@ void EngineMainFrame::InitFrame()
     m_pGLCanvasEditor = 0;
     m_pLogPane = 0;
 
-    m_CurrentSceneName[0] = 0;
+    //m_CurrentSceneName[0] = 0;
 
     g_pMessageLogCallbackFunction = EngineMainFrame_MessageLog;
 
@@ -332,7 +332,7 @@ bool EngineMainFrame::OnClose()
             cJSON_AddNumberToObject( pPrefs, "ClientHeight", m_ClientHeight );
             cJSON_AddNumberToObject( pPrefs, "IsMaximized", m_Maximized );
 
-            cJSON_AddStringToObject( pPrefs, "LastSceneLoaded", m_CurrentSceneName );
+            cJSON_AddStringToObject( pPrefs, "LastSceneLoaded", g_pComponentSystemManager->GetSceneInfo( 1 )->fullpath );
             cJSON_AddItemToObject( pPrefs, "EditorCam", g_pEngineCore->m_pEditorState->GetEditorCamera()->m_pComponentTransform->ExportAsJSONObject() );
             cJSON_AddNumberToObject( pPrefs, "EditorLayout", GetDefaultEditorPerspectiveIndex() );
             cJSON_AddNumberToObject( pPrefs, "GameplayLayout", GetDefaultGameplayPerspectiveIndex() );
@@ -390,8 +390,8 @@ void EngineMainFrame::OnGameMenu(wxCommandEvent& event)
             if( answer == wxYES )
             {
                 this->SetTitle( "New scene" );
-                m_CurrentSceneName[0] = 0;
                 g_pEngineCore->UnloadScene( UINT_MAX, false );
+                g_pComponentSystemManager->GetSceneInfo( 1 )->fullpath[0] = 0;
                 g_pEngineCore->CreateDefaultSceneObjects( false );
                 ResizeViewport();
             }
@@ -583,7 +583,7 @@ void EngineMainFrame::SetDefaultGameplayPerspectiveIndex(int index)
 
 void EngineMainFrame::SaveScene()
 {
-    if( m_CurrentSceneName[0] == 0 )
+    if( g_pComponentSystemManager->GetSceneInfo( 1 )->fullpath[0] == 0 )
     {
         SaveSceneAs();
     }
@@ -591,12 +591,12 @@ void EngineMainFrame::SaveScene()
     {
         if( g_pEngineCore->m_EditorMode == false )
         {
-            m_pLogPane->AppendText( "Can't save when gameplay is active... use \"Save As\"\n" );
+            LOGInfo( LOGTag, "Can't save when gameplay is active... use \"Save As\"\n" );
         }
         else
         {
-            m_pLogPane->AppendText( "Saving scene...\n" );
-            g_pEngineCore->SaveScene( m_CurrentSceneName );
+            LOGInfo( LOGTag, "Saving scene... %s\n", g_pComponentSystemManager->GetSceneInfo( 1 )->fullpath );
+            g_pEngineCore->SaveScene( g_pComponentSystemManager->GetSceneInfo( 1 )->fullpath );
         }
     }
 }
@@ -611,13 +611,13 @@ void EngineMainFrame::SaveSceneAs()
     // save the current scene
     // TODO: typecasting will likely cause issues with multibyte names
     wxString wxpath = FileDialog.GetPath();
-    sprintf_s( m_CurrentSceneName, 260, "%s", (const char*)wxpath );
+    sprintf_s( g_pComponentSystemManager->GetSceneInfo( 1 )->fullpath, 260, "%s", (const char*)wxpath );
 
     g_pMaterialManager->SaveAllMaterials();
     g_pComponentSystemManager->AddAllMaterialsToFilesList();
-    g_pEngineCore->SaveScene( m_CurrentSceneName );
+    g_pEngineCore->SaveScene( g_pComponentSystemManager->GetSceneInfo( 1 )->fullpath );
 
-    this->SetTitle( m_CurrentSceneName );
+    this->SetTitle( g_pComponentSystemManager->GetSceneInfo( 1 )->fullpath );
 }
 
 void EngineMainFrame::LoadSceneDialog()
@@ -644,14 +644,14 @@ void EngineMainFrame::LoadScene(const char* scenename)
 {
     MyAssert( scenename != 0 );
 
-    strcpy_s( m_CurrentSceneName, 260, scenename );
+    //strcpy_s( m_CurrentSceneName, 260, scenename );
 
     // clear out the old scene before loading
     // TODO: make this optional, so we can load multiple scenes at once, also change the '1' in LoadScene to the next available scene id
     g_pEngineCore->UnloadScene( UINT_MAX, false ); // don't unload editor objects.
-    g_pEngineCore->LoadSceneFromFile( m_CurrentSceneName, 1 );
+    g_pEngineCore->LoadSceneFromFile( scenename, 1 );
 
-    this->SetTitle( m_CurrentSceneName );
+    this->SetTitle( g_pComponentSystemManager->GetSceneInfo( 1 )->fullpath );
 }
 
 void EngineMainFrame::AddDatafileToScene()
@@ -774,8 +774,8 @@ void EngineMainFrame::OnDrop(int controlid, wxCoord x, wxCoord y)
             // create a new gameobject using this obj.
             MyMesh* pMesh = g_pMeshManager->FindMeshBySourceFile( pFile );
 
-            GameObject* pGameObject = g_pComponentSystemManager->CreateGameObject();
-            pGameObject->SetSceneID( 1 );
+            GameObject* pGameObject = g_pComponentSystemManager->CreateGameObject( true, 1 );
+            //pGameObject->SetSceneID( 1 );
             pGameObject->SetName( "New mesh" );
             ComponentMeshOBJ* pComponentMeshOBJ = (ComponentMeshOBJ*)pGameObject->AddNewComponent( ComponentType_MeshOBJ, 1 );
             pComponentMeshOBJ->SetSceneID( 1 );

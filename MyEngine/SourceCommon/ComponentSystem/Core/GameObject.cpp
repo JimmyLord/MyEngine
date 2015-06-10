@@ -9,9 +9,9 @@
 
 #include "EngineCommonHeader.h"
 
-GameObject::GameObject(bool managed)
+GameObject::GameObject(bool managed, int sceneid)
 {
-    m_SceneID = 0;
+    m_SceneID = sceneid;
     m_ID = 0;
     m_Name = 0;
 
@@ -218,6 +218,8 @@ void GameObject::ImportFromJSONObject(cJSON* jsonobj, unsigned int sceneid)
 void GameObject::SetSceneID(unsigned int sceneid)
 {
     m_SceneID = sceneid;
+
+    // TODO: in wx change the tree to match the new sceneid.
 }
 
 void GameObject::SetID(unsigned int id)
@@ -259,7 +261,8 @@ void GameObject::SetManaged(bool managed)
         if( g_pPanelObjectList )
         {
             // Add this game object to the root of the objects tree
-            wxTreeItemId rootid = g_pPanelObjectList->GetTreeRoot();
+            //wxTreeItemId rootid = g_pPanelObjectList->GetTreeRoot();
+            wxTreeItemId rootid = g_pComponentSystemManager->GetTreeIDForScene( m_SceneID );
             wxTreeItemId gameobjectid = g_pPanelObjectList->AddObject( this, GameObject::StaticOnLeftClick, GameObject::StaticOnRightClick, rootid, m_Name );
             g_pPanelObjectList->SetDragAndDropFunctions( this, GameObject::StaticOnDrag, GameObject::StaticOnDrop );
             g_pPanelObjectList->SetLabelEditFunction( this, GameObject::StaticOnLabelEdit );
