@@ -105,9 +105,9 @@ void ComponentMeshPrimitive::OnValueChanged(int controlid, bool finishedchanging
 }
 #endif //MYFW_USING_WX
 
-cJSON* ComponentMeshPrimitive::ExportAsJSONObject()
+cJSON* ComponentMeshPrimitive::ExportAsJSONObject(bool savesceneid)
 {
-    cJSON* component = ComponentMesh::ExportAsJSONObject();
+    cJSON* component = ComponentMesh::ExportAsJSONObject( savesceneid );
 
     cJSON_AddNumberToObject( component, "MPType", m_MeshPrimitiveType );
 

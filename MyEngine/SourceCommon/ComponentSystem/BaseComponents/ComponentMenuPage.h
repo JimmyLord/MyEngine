@@ -42,7 +42,7 @@ public:
     virtual ~ComponentMenuPage();
     SetClassnameBase( "MenuPageComponent" ); // only first 8 character count.
 
-    virtual cJSON* ExportAsJSONObject();
+    virtual cJSON* ExportAsJSONObject(bool savesceneid);
     virtual void ImportFromJSONObject(cJSON* jComponent, unsigned int sceneid);
 
     virtual void Reset();

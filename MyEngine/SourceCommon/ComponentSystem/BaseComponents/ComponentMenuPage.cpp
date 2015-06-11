@@ -346,12 +346,12 @@ void ComponentMenuPage::OnDropComponent(int controlid, wxCoord x, wxCoord y)
 }
 #endif //MYFW_USING_WX
 
-cJSON* ComponentMenuPage::ExportAsJSONObject()
+cJSON* ComponentMenuPage::ExportAsJSONObject(bool savesceneid)
 {
     // Scene is saving so also save menu file to disk.
     SaveMenuPageToDisk( m_pMenuLayoutFile->m_FullPath );
 
-    cJSON* jComponent = ComponentBase::ExportAsJSONObject();
+    cJSON* jComponent = ComponentBase::ExportAsJSONObject( savesceneid );
 
     cJSON_AddNumberToObject( jComponent, "Visible", m_Visible );
     cJSON_AddNumberToObject( jComponent, "Layers", m_LayersThisExistsOn );

@@ -127,9 +127,9 @@ void ComponentMesh::OnDropMaterial(int controlid, wxCoord x, wxCoord y)
 }
 #endif //MYFW_USING_WX
 
-cJSON* ComponentMesh::ExportAsJSONObject()
+cJSON* ComponentMesh::ExportAsJSONObject(bool savesceneid)
 {
-    cJSON* jComponent = ComponentRenderable::ExportAsJSONObject();
+    cJSON* jComponent = ComponentRenderable::ExportAsJSONObject( savesceneid );
 
     cJSON* jMaterialArray = cJSON_CreateArray();
     cJSON_AddItemToObject( jComponent, "Materials", jMaterialArray );

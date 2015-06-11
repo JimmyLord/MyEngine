@@ -159,9 +159,9 @@ void ComponentLuaScript::OnValueChanged(int controlid, bool finishedchanging)
 }
 #endif //MYFW_USING_WX
 
-cJSON* ComponentLuaScript::ExportAsJSONObject()
+cJSON* ComponentLuaScript::ExportAsJSONObject(bool savesceneid)
 {
-    cJSON* component = ComponentUpdateable::ExportAsJSONObject();
+    cJSON* component = ComponentUpdateable::ExportAsJSONObject( savesceneid );
 
     if( m_pScriptFile )
         cJSON_AddStringToObject( component, "Script", m_pScriptFile->m_FullPath );

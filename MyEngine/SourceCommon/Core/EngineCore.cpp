@@ -460,7 +460,7 @@ void EngineCore::OnModePlay()
 #if MYFW_USING_WX
         g_pMaterialManager->SaveAllMaterials();
         g_pComponentSystemManager->AddAllMaterialsToFilesList();
-        SaveScene( "temp_editor_onplay.scene" );
+        Editor_QuickSaveScene( "temp_editor_onplay.scene" );
         m_EditorMode = false;
         m_Paused = false;
         g_pEngineMainFrame->SetWindowPerspectiveToDefault();
@@ -479,7 +479,8 @@ void EngineCore::OnModeStop()
         m_pComponentSystemManager->OnStop();
         UnloadScene( 0 ); // unload runtime created objects only.
 #if MYFW_USING_WX
-        LoadSceneFromFile( "temp_editor_onplay.scene", 1 );
+        Editor_QuickLoadScene( "temp_editor_onplay.scene" );
+        //LoadSceneFromFile( "temp_editor_onplay.scene", 1 );
 #endif
         m_EditorMode = true;
         m_Paused = false;
@@ -1323,9 +1324,9 @@ void EngineCore::CreateDefaultSceneObjects(bool createeditorobjects)
     //}
 }
 
-void EngineCore::SaveScene(const char* fullpath)
+void EngineCore::SaveScene(const char* fullpath, unsigned int sceneid)
 {
-    char* savestring = g_pComponentSystemManager->SaveSceneToJSON();
+    char* savestring = g_pComponentSystemManager->SaveSceneToJSON( sceneid );
 
     FILE* filehandle;
 #if MYFW_WINDOWS
@@ -1431,6 +1432,58 @@ void EngineCore::LoadSceneFromFile(const char* fullpath, unsigned int sceneid)
 
         LoadScene( filenamestart, jsonstr, sceneid );
         strcpy_s( g_pComponentSystemManager->m_pSceneIDToSceneTreeIDMap[sceneid].fullpath, MAX_PATH, fullpath );
+
+        delete[] jsonstr;
+    }
+}
+
+void EngineCore::Editor_QuickSaveScene(const char* fullpath)
+{
+    char* savestring = g_pComponentSystemManager->SaveSceneToJSON( UINT_MAX );
+
+    FILE* filehandle;
+#if MYFW_WINDOWS
+    errno_t error = fopen_s( &filehandle, fullpath, "w" );
+#else
+    filehandle = fopen( fullpath, "w" );
+#endif
+
+    if( filehandle )
+    {
+        fprintf( filehandle, "%s", savestring );
+        fclose( filehandle );
+    }
+
+    cJSONExt_free( savestring );
+}
+
+void EngineCore::Editor_QuickLoadScene(const char* fullpath)
+{
+    FILE* filehandle;
+#if MYFW_WINDOWS
+    errno_t err = fopen_s( &filehandle, fullpath, "rb" );
+#else
+    filehandle = fopen( fullpath, "rb" );
+#endif
+
+    char* jsonstr;
+
+    if( filehandle )
+    {
+        fseek( filehandle, 0, SEEK_END );
+        long length = ftell( filehandle );
+        if( length > 0 )
+        {
+            fseek( filehandle, 0, SEEK_SET );
+
+            jsonstr = MyNew char[length+1];
+            fread( jsonstr, length, 1, filehandle );
+            jsonstr[length] = 0;
+        }
+
+        fclose( filehandle );
+
+        LoadScene( fullpath, jsonstr, UINT_MAX );
 
         delete[] jsonstr;
     }
@@ -1579,8 +1632,11 @@ GameObject* EngineCore::GetObjectAtPixel(unsigned int x, unsigned int y, bool cr
     id /= 641; // 1, 641, 6700417, 4294967297, 
     //LOGInfo( LOGTag, "pixel - %d, %d, %d, %d - id - %d\n", pixel[0], pixel[1], pixel[2], pixel[3], id );
 
+    unsigned int sceneid = id / 100000;
+    id = id % 100000;
+
     // find the object clicked on.
-    GameObject* pGameObject = m_pComponentSystemManager->FindGameObjectByID( id );
+    GameObject* pGameObject = m_pComponentSystemManager->FindGameObjectByID( sceneid, id );
 
     // if we didn't click on something, check if it's the transform gizmo.
     //   has to be checked manually since they are unmanaged.
@@ -1652,8 +1708,11 @@ void EngineCore::SelectObjectsInRectangle(unsigned int sx, unsigned int sy, unsi
         unsigned int id = pixels[offset+0] + pixels[offset+1]*256 + pixels[offset+2]*256*256 + pixels[offset+3]*256*256*256;
         id /= 641; // 1, 641, 6700417, 4294967297, 
 
+        unsigned int sceneid = id / 100000;
+        id = id % 100000;
+
         // if the object's not already selected, select it.
-        GameObject* pObject = m_pComponentSystemManager->FindGameObjectByID( id );
+        GameObject* pObject = m_pComponentSystemManager->FindGameObjectByID( sceneid, id );
 
         if( pObject && m_pEditorState->IsGameObjectSelected( pObject ) )
             firstobjectwasselected = true;
@@ -1667,8 +1726,11 @@ void EngineCore::SelectObjectsInRectangle(unsigned int sx, unsigned int sy, unsi
             unsigned int id = pixels[offset+0] + pixels[offset+1]*256 + pixels[offset+2]*256*256 + pixels[offset+3]*256*256*256;
             id /= 641; // 1, 641, 6700417, 4294967297, 
 
+            unsigned int sceneid = id / 100000;
+            id = id % 100000;
+
             // if the object's not already selected, select it.
-            GameObject* pObject = m_pComponentSystemManager->FindGameObjectByID( id );
+            GameObject* pObject = m_pComponentSystemManager->FindGameObjectByID( sceneid, id );
 
             if( pObject )
             {

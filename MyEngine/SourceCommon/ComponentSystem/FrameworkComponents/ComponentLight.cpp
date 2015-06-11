@@ -74,9 +74,9 @@ void ComponentLight::FillPropertiesWindow(bool clear)
 }
 #endif //MYFW_USING_WX
 
-cJSON* ComponentLight::ExportAsJSONObject()
+cJSON* ComponentLight::ExportAsJSONObject(bool savesceneid)
 {
-    cJSON* component = ComponentData::ExportAsJSONObject();
+    cJSON* component = ComponentData::ExportAsJSONObject( savesceneid );
 
     cJSONExt_AddFloatArrayToObject( component, "Color", &m_pLight->m_Color.r, 4 );
     cJSONExt_AddFloatArrayToObject( component, "Atten", &m_pLight->m_Attenuation.x, 3 );

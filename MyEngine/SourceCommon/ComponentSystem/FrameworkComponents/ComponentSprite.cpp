@@ -77,9 +77,9 @@ void ComponentSprite::OnDropMaterial(int controlid, wxCoord x, wxCoord y)
 }
 #endif //MYFW_USING_WX
 
-cJSON* ComponentSprite::ExportAsJSONObject()
+cJSON* ComponentSprite::ExportAsJSONObject(bool savesceneid)
 {
-    cJSON* component = ComponentRenderable::ExportAsJSONObject();
+    cJSON* component = ComponentRenderable::ExportAsJSONObject( savesceneid );
 
     cJSONExt_AddUnsignedCharArrayToObject( component, "Tint", &m_Tint.r, 4 );
     cJSONExt_AddFloatArrayToObject( component, "Size", &m_Size.x, 2 );

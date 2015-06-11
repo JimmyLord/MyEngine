@@ -103,10 +103,12 @@ public:
     void HandleEditorInput(int keyaction, int keycode, int mouseaction, int id, float x, float y, float pressure);
 
     void CreateDefaultSceneObjects(bool createeditorobjects);
-    void SaveScene(const char* fullpath);
+    void SaveScene(const char* fullpath, unsigned int sceneid);
     void UnloadScene(unsigned int sceneid = UINT_MAX, bool cleareditorobjects = false);
 #if MYFW_USING_WX
     void LoadSceneFromFile(const char* fullpath, unsigned int sceneid);
+    void Editor_QuickSaveScene(const char* fullpath);
+    void Editor_QuickLoadScene(const char* fullpath);
 #endif //MYFW_USING_WX
     void LoadScene(const char* scenename, const char* buffer, unsigned int sceneid);
 

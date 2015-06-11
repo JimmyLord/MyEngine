@@ -56,8 +56,6 @@ public:
     ComponentTypeManager* m_pComponentTypeManager; // memory managed, delete this.
     CPPListHead m_GameObjects;
 
-    SceneHandler* m_pSceneHandler;
-
     // List of files used including a scene id
     CPPListHead m_Files;
 
@@ -84,7 +82,7 @@ public:
 
     static void LuaRegister(lua_State* luastate);
 
-    char* SaveSceneToJSON();
+    char* SaveSceneToJSON(unsigned int sceneid);
     void LoadDatafile(const char* relativepath, unsigned int sceneid);
     void LoadSceneFromJSON(const char* scenename, const char* jsonstr, unsigned int sceneid);
 
@@ -103,7 +101,7 @@ public:
 #endif
     GameObject* CopyGameObject(GameObject* pObject, const char* newname);
 
-    GameObject* FindGameObjectByID(unsigned int id);
+    GameObject* FindGameObjectByID(unsigned int sceneid, unsigned int goid);
     GameObject* FindGameObjectByName(const char* name);
     ComponentCamera* GetFirstCamera();
     ComponentBase* GetFirstComponentOfType(const char* type);
@@ -130,12 +128,18 @@ public:
     void RegisterComponentTickCallback(ComponentTickCallbackFunction pFunc, void* pObj);
     void UnregisterComponentTickCallback(ComponentTickCallbackFunction pFunc, void* pObj);
 
-public:
+    // Scene management
+    unsigned int m_NextSceneID;
+    unsigned int GetNextSceneID() { return m_NextSceneID++; }
 #if MYFW_USING_WX
+    SceneHandler* m_pSceneHandler;
     std::map<int, SceneInfo> m_pSceneIDToSceneTreeIDMap;
     wxTreeItemId GetTreeIDForScene(int sceneid) { return m_pSceneIDToSceneTreeIDMap[sceneid].sceneid; }
     SceneInfo* GetSceneInfo(int sceneid);
+#endif
 
+public:
+#if MYFW_USING_WX
     void DrawSingleObject(MyMatrix* pMatViewProj, GameObject* pObject); // used to draw an animated mesh into the debug FBO
 
     void OnFileUpdated(MyFileObject* pFile);
@@ -166,6 +170,7 @@ public:
 
         m_pMesh = 0;
         m_pShaderGroup = 0;
+        m_pTexture = 0;
         m_pMaterial = 0;
     }
 
@@ -176,6 +181,7 @@ public:
         SAFE_RELEASE( m_pFile );
         SAFE_RELEASE( m_pMesh );
         SAFE_RELEASE( m_pShaderGroup );
+        SAFE_RELEASE( m_pTexture );
         SAFE_RELEASE( m_pMaterial );
     }
 
@@ -184,6 +190,7 @@ public:
 
     MyMesh* m_pMesh; // a mesh may have been created alongside the file.
     ShaderGroup* m_pShaderGroup; // a shadergroup may have been created alongside the file.
+    TextureDefinition* m_pTexture; //a texture may have been created alongside the file.
     MaterialDefinition* m_pMaterial; //a material may have been created alongside the file.
 };
 

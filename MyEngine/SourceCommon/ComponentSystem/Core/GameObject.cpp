@@ -193,9 +193,12 @@ void GameObject::OnLabelEdit(wxString newlabel)
 }
 #endif //MYFW_USING_WX
 
-cJSON* GameObject::ExportAsJSONObject()
+cJSON* GameObject::ExportAsJSONObject(bool savesceneid)
 {
     cJSON* gameobject = cJSON_CreateObject();
+
+    if( savesceneid )
+        cJSON_AddNumberToObject( gameobject, "SceneID", m_SceneID );
 
     cJSON_AddNumberToObject( gameobject, "ID", m_ID );
     cJSON_AddStringToObject( gameobject, "Name", m_Name );

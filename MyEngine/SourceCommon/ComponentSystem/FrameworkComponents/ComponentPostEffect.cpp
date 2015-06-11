@@ -77,9 +77,9 @@ void ComponentPostEffect::OnValueChanged(int controlid, bool finishedchanging)
 }
 #endif //MYFW_USING_WX
 
-cJSON* ComponentPostEffect::ExportAsJSONObject()
+cJSON* ComponentPostEffect::ExportAsJSONObject(bool savesceneid)
 {
-    cJSON* component = ComponentData::ExportAsJSONObject();
+    cJSON* component = ComponentData::ExportAsJSONObject( savesceneid );
 
     if( m_pMaterial )
         cJSON_AddStringToObject( component, "Material", m_pMaterial->m_pFile->m_FullPath );

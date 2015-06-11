@@ -140,11 +140,14 @@ void ComponentBase::OnDrop(int controlid, wxCoord x, wxCoord y)
 }
 #endif //MYFW_USING_WX
 
-cJSON* ComponentBase::ExportAsJSONObject()
+cJSON* ComponentBase::ExportAsJSONObject(bool savesceneid)
 {
     cJSON* component = cJSON_CreateObject();
 
     //cJSON_AddNumberToObject( component, "BaseType", m_BaseType );
+
+    if( savesceneid )
+        cJSON_AddNumberToObject( component, "SceneID", m_SceneIDLoadedFrom );
 
     if( m_Type != -1 )
     {

@@ -40,7 +40,7 @@ public:
     virtual ~ComponentMeshPrimitive();
     SetClassnameBase( "MeshPrimitiveComponent" ); // only first 8 character count.
 
-    virtual cJSON* ExportAsJSONObject();
+    virtual cJSON* ExportAsJSONObject(bool savesceneid);
     virtual void ImportFromJSONObject(cJSON* jsonobj, unsigned int sceneid);
 
     virtual void Reset();

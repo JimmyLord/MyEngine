@@ -135,8 +135,9 @@ void EngineMainFrame::InitFrame()
 
     m_File->Insert( 0, myIDGame_NewScene, wxT("&New Scene") );
     m_File->Insert( 1, myIDGame_LoadScene, wxT("&Load Scene...") );
-    m_File->Insert( 2, myIDGame_SaveScene, wxT("&Save Scene\tCtrl-S") );
-    m_File->Insert( 3, myIDGame_SaveSceneAs, wxT("Save Scene &As...") );
+    m_File->Insert( 2, myIDGame_LoadAdditionalScene, wxT("&Load Additional Scene...") );
+    m_File->Insert( 3, myIDGame_SaveScene, wxT("&Save Scene\tCtrl-S") );
+    m_File->Insert( 4, myIDGame_SaveSceneAs, wxT("Save Scene &As...") );
 
     m_Grid = MyNew wxMenu;
     m_MenuBar->Append( m_Grid, wxT("&Grid") );
@@ -189,6 +190,7 @@ void EngineMainFrame::InitFrame()
 
     Connect( myIDGame_NewScene,     wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnGameMenu) );
     Connect( myIDGame_LoadScene,    wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnGameMenu) );
+    Connect( myIDGame_LoadAdditionalScene,    wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnGameMenu) );
     Connect( myIDGame_SaveScene,    wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnGameMenu) );
     Connect( myIDGame_SaveSceneAs,  wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnGameMenu) );
 
@@ -268,7 +270,7 @@ void EngineMainFrame::OnPostInit()
 
         obj = cJSON_GetObjectItem( m_pEditorPrefs, "LastSceneLoaded" );
         if( obj )
-            LoadScene( obj->valuestring );
+            LoadScene( obj->valuestring, true );
 
         obj = cJSON_GetObjectItem( m_pEditorPrefs, "EditorCam" );
         if( obj )
@@ -333,7 +335,7 @@ bool EngineMainFrame::OnClose()
             cJSON_AddNumberToObject( pPrefs, "IsMaximized", m_Maximized );
 
             cJSON_AddStringToObject( pPrefs, "LastSceneLoaded", g_pComponentSystemManager->GetSceneInfo( 1 )->fullpath );
-            cJSON_AddItemToObject( pPrefs, "EditorCam", g_pEngineCore->m_pEditorState->GetEditorCamera()->m_pComponentTransform->ExportAsJSONObject() );
+            cJSON_AddItemToObject( pPrefs, "EditorCam", g_pEngineCore->m_pEditorState->GetEditorCamera()->m_pComponentTransform->ExportAsJSONObject( false ) );
             cJSON_AddNumberToObject( pPrefs, "EditorLayout", GetDefaultEditorPerspectiveIndex() );
             cJSON_AddNumberToObject( pPrefs, "GameplayLayout", GetDefaultGameplayPerspectiveIndex() );
             extern GLViewTypes g_CurrentGLViewType;
@@ -409,9 +411,16 @@ void EngineMainFrame::OnGameMenu(wxCommandEvent& event)
 
             if( answer == wxYES )
             {
-                LoadSceneDialog();
+                LoadSceneDialog( true );
                 ResizeViewport();
             }
+        }
+        break;
+
+    case myIDGame_LoadAdditionalScene:
+        {
+            LoadSceneDialog( false );
+            ResizeViewport();
         }
         break;
 
@@ -595,8 +604,15 @@ void EngineMainFrame::SaveScene()
         }
         else
         {
-            LOGInfo( LOGTag, "Saving scene... %s\n", g_pComponentSystemManager->GetSceneInfo( 1 )->fullpath );
-            g_pEngineCore->SaveScene( g_pComponentSystemManager->GetSceneInfo( 1 )->fullpath );
+            typedef std::map<int, SceneInfo>::iterator it_type;
+            for( it_type iterator = g_pComponentSystemManager->m_pSceneIDToSceneTreeIDMap.begin(); iterator != g_pComponentSystemManager->m_pSceneIDToSceneTreeIDMap.end(); iterator++ )
+            {
+                unsigned int sceneid = iterator->first;
+                SceneInfo* pSceneInfo = &iterator->second;
+
+                LOGInfo( LOGTag, "Saving scene... %s\n", pSceneInfo->fullpath );
+                g_pEngineCore->SaveScene( pSceneInfo->fullpath, sceneid );
+            }
         }
     }
 }
@@ -615,12 +631,12 @@ void EngineMainFrame::SaveSceneAs()
 
     g_pMaterialManager->SaveAllMaterials();
     g_pComponentSystemManager->AddAllMaterialsToFilesList();
-    g_pEngineCore->SaveScene( g_pComponentSystemManager->GetSceneInfo( 1 )->fullpath );
+    g_pEngineCore->SaveScene( g_pComponentSystemManager->GetSceneInfo( 1 )->fullpath, 1 );
 
     this->SetTitle( g_pComponentSystemManager->GetSceneInfo( 1 )->fullpath );
 }
 
-void EngineMainFrame::LoadSceneDialog()
+void EngineMainFrame::LoadSceneDialog(bool unloadscenes)
 {
     //if( scene is dirty )
     //{
@@ -637,10 +653,10 @@ void EngineMainFrame::LoadSceneDialog()
     // load the file chosen by the user
     // TODO: typecasting will likely cause issues with multibyte names
     wxString wxpath = FileDialog.GetPath();
-    LoadScene( wxpath );
+    LoadScene( wxpath, unloadscenes );
 }
 
-void EngineMainFrame::LoadScene(const char* scenename)
+void EngineMainFrame::LoadScene(const char* scenename, bool unloadscenes)
 {
     MyAssert( scenename != 0 );
 
@@ -648,10 +664,12 @@ void EngineMainFrame::LoadScene(const char* scenename)
 
     // clear out the old scene before loading
     // TODO: make this optional, so we can load multiple scenes at once, also change the '1' in LoadScene to the next available scene id
-    g_pEngineCore->UnloadScene( UINT_MAX, false ); // don't unload editor objects.
-    g_pEngineCore->LoadSceneFromFile( scenename, 1 );
+    if( unloadscenes )
+        g_pEngineCore->UnloadScene( UINT_MAX, false ); // don't unload editor objects.
+    unsigned int sceneid = g_pComponentSystemManager->GetNextSceneID();
+    g_pEngineCore->LoadSceneFromFile( scenename, sceneid );
 
-    this->SetTitle( g_pComponentSystemManager->GetSceneInfo( 1 )->fullpath );
+    this->SetTitle( g_pComponentSystemManager->GetSceneInfo( sceneid )->fullpath );
 }
 
 void EngineMainFrame::AddDatafileToScene()

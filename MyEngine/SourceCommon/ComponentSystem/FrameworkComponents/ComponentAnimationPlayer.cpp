@@ -89,9 +89,9 @@ void ComponentAnimationPlayer::FillPropertiesWindow(bool clear)
 
 #endif //MYFW_USING_WX
 
-cJSON* ComponentAnimationPlayer::ExportAsJSONObject()
+cJSON* ComponentAnimationPlayer::ExportAsJSONObject(bool savesceneid)
 {
-    cJSON* component = ComponentUpdateable::ExportAsJSONObject();
+    cJSON* component = ComponentUpdateable::ExportAsJSONObject( savesceneid );
 
     cJSON_AddNumberToObject( component, "AnimIndex", m_AnimationIndex );
     cJSON_AddNumberToObject( component, "AnimFrame", m_AnimationTime );

@@ -142,9 +142,9 @@ void ComponentTransform::OnValueChanged(int controlid, bool finishedchanging)
 }
 #endif //MYFW_USING_WX
 
-cJSON* ComponentTransform::ExportAsJSONObject()
+cJSON* ComponentTransform::ExportAsJSONObject(bool savesceneid)
 {
-    cJSON* component = ComponentBase::ExportAsJSONObject();
+    cJSON* component = ComponentBase::ExportAsJSONObject( savesceneid );
 
     if( m_pParentTransform )
         cJSON_AddNumberToObject( component, "ParentGOID", m_pParentTransform->m_pGameObject->GetID() );
@@ -163,7 +163,7 @@ void ComponentTransform::ImportFromJSONObject(cJSON* jsonobj, unsigned int scene
     cJSONExt_GetUnsignedInt( jsonobj, "ParentGOID", &parentid );
     if( parentid != 0 )
     {
-        GameObject* pParentGameObject = g_pComponentSystemManager->FindGameObjectByID( parentid );
+        GameObject* pParentGameObject = g_pComponentSystemManager->FindGameObjectByID( sceneid, parentid );
         m_pParentTransform = pParentGameObject->m_pComponentTransform;
     }
 

@@ -69,9 +69,9 @@ void ComponentRenderable::FillPropertiesWindow(bool clear)
 }
 #endif //MYFW_USING_WX
 
-cJSON* ComponentRenderable::ExportAsJSONObject()
+cJSON* ComponentRenderable::ExportAsJSONObject(bool savesceneid)
 {
-    cJSON* component = ComponentBase::ExportAsJSONObject();
+    cJSON* component = ComponentBase::ExportAsJSONObject( savesceneid );
 
     cJSON_AddNumberToObject( component, "Visible", m_Visible );
     cJSON_AddNumberToObject( component, "Layers", m_LayersThisExistsOn );

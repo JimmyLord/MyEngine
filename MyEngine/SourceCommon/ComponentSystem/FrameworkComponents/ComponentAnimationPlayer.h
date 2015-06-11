@@ -33,7 +33,7 @@ public:
 
     static void LuaRegister(lua_State* luastate);
 
-    virtual cJSON* ExportAsJSONObject();
+    virtual cJSON* ExportAsJSONObject(bool savesceneid);
     virtual void ImportFromJSONObject(cJSON* jsonobj, unsigned int sceneid);
 
     virtual void Reset();

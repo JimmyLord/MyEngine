@@ -27,6 +27,7 @@ enum GameMenuIDs
 {
     myIDGame_NewScene = myID_NumIDs,
     myIDGame_LoadScene,
+    myIDGame_LoadAdditionalScene,
     myIDGame_SaveScene,
     myIDGame_SaveSceneAs,
     myIDGame_AddDatafile,
@@ -108,8 +109,8 @@ public:
 
     void SaveScene();
     void SaveSceneAs();
-    void LoadSceneDialog();
-    void LoadScene(const char* scenename);
+    void LoadSceneDialog(bool unloadscenes);
+    void LoadScene(const char* scenename, bool unloadscenes);
 
     void AddDatafileToScene();
 

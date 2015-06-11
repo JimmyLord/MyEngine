@@ -137,9 +137,9 @@ void ComponentParticleEmitter::OnDropMaterial(int controlid, wxCoord x, wxCoord 
 }
 #endif //MYFW_USING_WX
 
-cJSON* ComponentParticleEmitter::ExportAsJSONObject()
+cJSON* ComponentParticleEmitter::ExportAsJSONObject(bool savesceneid)
 {
-    cJSON* component = ComponentRenderable::ExportAsJSONObject();
+    cJSON* component = ComponentRenderable::ExportAsJSONObject( savesceneid );
 
     cJSON_AddNumberToObject( component, "size", m_Size );
     cJSON_AddNumberToObject( component, "sizevar", m_SizeVariation );

@@ -25,6 +25,8 @@ ComponentSystemManager::ComponentSystemManager(ComponentTypeManager* typemanager
     m_NextGameObjectID = 1;
     m_NextComponentID = 1;
 
+    m_NextSceneID = 1;
+
 #if MYFW_USING_WX
     // Add click callbacks to the root of the objects tree
     g_pPanelObjectList->SetTreeRootData( this, ComponentSystemManager::StaticOnLeftClick, ComponentSystemManager::StaticOnRightClick );
@@ -166,7 +168,7 @@ void ComponentSystemManager::OnMaterialCreated(MaterialDefinition* pMaterial)
 }
 #endif //MYFW_USING_WX
 
-char* ComponentSystemManager::SaveSceneToJSON()
+char* ComponentSystemManager::SaveSceneToJSON(unsigned int sceneid)
 {
     cJSON* root = cJSON_CreateObject();
     cJSON* filearray = cJSON_CreateArray();
@@ -178,6 +180,8 @@ char* ComponentSystemManager::SaveSceneToJSON()
     cJSON_AddItemToObject( root, "GameObjects", gameobjectarray );
     cJSON_AddItemToObject( root, "Transforms", transformarray );
     cJSON_AddItemToObject( root, "Components", componentarray );
+
+    bool savingallscenes = (sceneid == UINT_MAX);
 
     // add the files used.
     {
@@ -214,17 +218,23 @@ char* ComponentSystemManager::SaveSceneToJSON()
         for( CPPListNode* pNode = m_GameObjects.GetHead(); pNode; pNode = pNode->GetNext() )
         {
             GameObject* pGameObject = (GameObject*)pNode;
-            if( pGameObject->IsManaged() )
-                cJSON_AddItemToArray( gameobjectarray, pGameObject->ExportAsJSONObject() );
+            if( pGameObject->IsManaged() &&
+                ( pGameObject->GetSceneID() == sceneid || savingallscenes )
+              )
+            {
+                cJSON_AddItemToArray( gameobjectarray, pGameObject->ExportAsJSONObject( savingallscenes ) );
+            }
         }
 
         for( CPPListNode* pNode = m_GameObjects.GetHead(); pNode; pNode = pNode->GetNext() )
         {
             GameObject* pGameObject = (GameObject*)pNode;
-            if( pGameObject->IsManaged() )
+            if( pGameObject->IsManaged() &&
+                ( pGameObject->GetSceneID() == sceneid || savingallscenes )
+              )
             {
                 ComponentBase* pComponent = pGameObject->m_pComponentTransform;
-                cJSON_AddItemToArray( transformarray, pComponent->ExportAsJSONObject() );
+                cJSON_AddItemToArray( transformarray, pComponent->ExportAsJSONObject( savingallscenes ) );
             }
         }
     }
@@ -236,8 +246,12 @@ char* ComponentSystemManager::SaveSceneToJSON()
             for( CPPListNode* pNode = m_Components[i].GetHead(); pNode; pNode = pNode->GetNext() )
             {
                 ComponentBase* pComponent = (ComponentBase*)pNode;
-                if( pComponent->m_pGameObject->IsManaged() )
-                    cJSON_AddItemToArray( componentarray, pComponent->ExportAsJSONObject() );
+                if( pComponent->m_pGameObject->IsManaged() &&
+                    ( pComponent->m_pGameObject->GetSceneID() == sceneid || savingallscenes )
+                  )
+                {
+                    cJSON_AddItemToArray( componentarray, pComponent->ExportAsJSONObject( savingallscenes ) );
+                }
             }
         }
     }
@@ -340,10 +354,12 @@ void ComponentSystemManager::LoadDatafile(const char* relativepath, unsigned int
         }
 #endif //MYFW_USING_WX
 
+        TextureDefinition* pTexture = 0;
+
         // load textures differently than other files.
         if( len > 4 && strcmp( &relativepath[len-4], ".png" ) == 0 )
         {
-            TextureDefinition* pTexture = g_pTextureManager->CreateTexture( relativepath );
+            pTexture = g_pTextureManager->CreateTexture( relativepath );
             pFile = pTexture->m_pFile;
             pFile->AddRef();
         }
@@ -358,6 +374,7 @@ void ComponentSystemManager::LoadDatafile(const char* relativepath, unsigned int
         // store pFile so we can free it afterwards.
         MyFileInfo* pFileInfo = MyNew MyFileInfo();
         pFileInfo->m_pFile = pFile;
+        pFileInfo->m_pTexture = pTexture;
         pFileInfo->m_SceneID = sceneid;
         m_Files.AddTail( pFileInfo );
 
@@ -415,13 +432,16 @@ void ComponentSystemManager::LoadSceneFromJSON(const char* scenename, const char
     cJSON* componentarray = cJSON_GetObjectItem( root, "Components" );
 
 #if MYFW_USING_WX
-    wxTreeItemId rootid = g_pPanelObjectList->GetTreeRoot();
-    wxTreeItemId treesceneid = g_pPanelObjectList->AddObject( m_pSceneHandler, SceneHandler::StaticOnLeftClick, SceneHandler::StaticOnRightClick, rootid, scenename );
-    m_pSceneIDToSceneTreeIDMap[sceneid].sceneid = treesceneid;
+    if( sceneid != UINT_MAX )
+    {
+        wxTreeItemId rootid = g_pPanelObjectList->GetTreeRoot();
+        wxTreeItemId treesceneid = g_pPanelObjectList->AddObject( m_pSceneHandler, SceneHandler::StaticOnLeftClick, SceneHandler::StaticOnRightClick, rootid, scenename );
+        m_pSceneIDToSceneTreeIDMap[sceneid].sceneid = treesceneid;
+    }
 #endif //MYFW_USING_WX
 
     // request all files used by scene.
-    if( filearray )
+    if( filearray && sceneid != UINT_MAX )
     {
         for( int i=0; i<cJSON_GetArraySize( filearray ); i++ )
         {
@@ -431,16 +451,21 @@ void ComponentSystemManager::LoadSceneFromJSON(const char* scenename, const char
         }
     }
 
+    bool getsceneidfromeachobject = (sceneid == UINT_MAX);
+
     // create/init all the game objects
     for( int i=0; i<cJSON_GetArraySize( gameobjectarray ); i++ )
     {
         cJSON* gameobj = cJSON_GetArrayItem( gameobjectarray, i );
 
+        if( getsceneidfromeachobject )
+            cJSONExt_GetUnsignedInt( gameobj, "SceneID", &sceneid );
+
         unsigned int id;
         cJSONExt_GetUnsignedInt( gameobj, "ID", &id );
 
         // find an existing game object with the same id or create a new one.
-        GameObject* pGameObject = FindGameObjectByID( id );
+        GameObject* pGameObject = FindGameObjectByID( sceneid, id );
         if( pGameObject ) { MyAssert( pGameObject->GetSceneID() == sceneid ); } // TODO: get the object from the right scene if multiple scenes are loaded.
 
         if( pGameObject == 0 )        
@@ -457,11 +482,14 @@ void ComponentSystemManager::LoadSceneFromJSON(const char* scenename, const char
     {
         cJSON* transformobj = cJSON_GetArrayItem( transformarray, i );
         
+        if( getsceneidfromeachobject )
+            cJSONExt_GetUnsignedInt( transformobj, "SceneID", &sceneid );
+
         unsigned int goid = 0;
         cJSONExt_GetUnsignedInt( transformobj, "GOID", &goid );
         MyAssert( goid > 0 );
 
-        GameObject* pGameObject = FindGameObjectByID( goid );
+        GameObject* pGameObject = FindGameObjectByID( sceneid, goid );
         MyAssert( pGameObject );
 
         if( pGameObject )
@@ -479,10 +507,13 @@ void ComponentSystemManager::LoadSceneFromJSON(const char* scenename, const char
     {
         cJSON* componentobj = cJSON_GetArrayItem( componentarray, i );
         
+        if( getsceneidfromeachobject )
+            cJSONExt_GetUnsignedInt( componentobj, "SceneID", &sceneid );
+
         unsigned int id = 0;
         cJSONExt_GetUnsignedInt( componentobj, "GOID", &id );
         MyAssert( id > 0 );
-        GameObject* pGameObject = FindGameObjectByID( id );
+        GameObject* pGameObject = FindGameObjectByID( sceneid, id );
         MyAssert( pGameObject );
 
         cJSON* typeobj = cJSON_GetObjectItem( componentobj, "Type" );
@@ -681,13 +712,13 @@ GameObject* ComponentSystemManager::CopyGameObject(GameObject* pObject, const ch
     return pNewObject;
 }
 
-GameObject* ComponentSystemManager::FindGameObjectByID(unsigned int id)
+GameObject* ComponentSystemManager::FindGameObjectByID(unsigned int sceneid, unsigned int goid)
 {
     for( CPPListNode* node = m_GameObjects.GetHead(); node != 0; node = node->GetNext() )
     {
         GameObject* pGameObject = (GameObject*)node;
 
-        if( pGameObject->IsManaged() && pGameObject->GetID() == id )
+        if( pGameObject->IsManaged() && pGameObject->GetSceneID() == sceneid && pGameObject->GetID() == goid )
             return pGameObject;
     }
 
@@ -935,7 +966,10 @@ void ComponentSystemManager::DrawMousePickerFrame(ComponentCamera* pCamera, MyMa
                 {
                     ColorByte tint( 0, 0, 0, 0 );
 
-                    unsigned int id = pComponent->m_pGameObject->GetID() * 641; // 1, 641, 6700417, 4294967297, 
+                    unsigned int sceneid = pComponent->m_pGameObject->GetSceneID();
+                    unsigned int id = pComponent->m_pGameObject->GetID();
+                    
+                    id = (sceneid * 100000 + id) * 641; // 1, 641, 6700417, 4294967297, 
 
                     if( 1 )                 tint.r = id%256;
                     if( id > 256 )          tint.g = (id>>8)%256;
