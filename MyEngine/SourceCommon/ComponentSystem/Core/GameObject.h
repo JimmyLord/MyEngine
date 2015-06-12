@@ -70,7 +70,7 @@ public:
 public:
 #if MYFW_USING_WX
     static void StaticOnLeftClick(void* pObjectPtr, unsigned int count) { ((GameObject*)pObjectPtr)->OnLeftClick( count, true ); }
-    static void StaticOnRightClick(void* pObjectPtr) { ((GameObject*)pObjectPtr)->OnRightClick(); }
+    static void StaticOnRightClick(void* pObjectPtr, wxTreeItemId id) { ((GameObject*)pObjectPtr)->OnRightClick(); }
     static void StaticOnDrag(void* pObjectPtr) { ((GameObject*)pObjectPtr)->OnDrag(); }
     static void StaticOnDrop(void* pObjectPtr, int controlid, wxCoord x, wxCoord y) { ((GameObject*)pObjectPtr)->OnDrop(controlid, x, y); }
     static void StaticOnLabelEdit(void* pObjectPtr, wxString newlabel) { ((GameObject*)pObjectPtr)->OnLabelEdit( newlabel ); }

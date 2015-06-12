@@ -22,12 +22,47 @@ void SceneHandler::OnLeftClick(unsigned int count, bool clear)
 {
 }
 
-void SceneHandler::OnRightClick()
+void SceneHandler::OnRightClick(wxTreeItemId id)
 {
+ 	wxMenu menu;
+    menu.SetClientData( this );
+
+    MyAssert( id.IsOk() );
+    wxString itemname = g_pPanelObjectList->m_pTree_Objects->GetItemText( id );
+    
+    m_SceneIDBeingAffected = g_pComponentSystemManager->GetSceneIDFromSceneTreeID( id );
+    
+    menu.Append( RightClick_AddGameObject, "Add Game Object" );
+    menu.Connect( wxEVT_COMMAND_MENU_SELECTED, (wxObjectEventFunction)&SceneHandler::OnPopupClick );
+
+    menu.Append( RightClick_UnloadScene, "Unload scene" );
+ 	menu.Connect( wxEVT_COMMAND_MENU_SELECTED, (wxObjectEventFunction)&SceneHandler::OnPopupClick );
+
+    // blocking call.
+    g_pPanelWatch->PopupMenu( &menu ); // there's no reason this is using g_pPanelWatch other than convenience.
 }
 
 void SceneHandler::OnPopupClick(wxEvent &evt)
 {
+    SceneHandler* pSceneHandler = (SceneHandler*)static_cast<wxMenu*>(evt.GetEventObject())->GetClientData();
+
+    int id = evt.GetId();
+    switch( id )
+    {
+    case RightClick_UnloadScene:
+        {
+            g_pComponentSystemManager->UnloadScene( pSceneHandler->m_SceneIDBeingAffected );
+        }
+        break;
+
+    case RightClick_AddGameObject:
+        {
+            GameObject* pGameObject = g_pComponentSystemManager->CreateGameObject();
+            pGameObject->SetSceneID( pSceneHandler->m_SceneIDBeingAffected );
+            pGameObject->SetName( "New Game Object" );
+        }
+        break;
+    }
 }
 
 void SceneHandler::OnDrag()

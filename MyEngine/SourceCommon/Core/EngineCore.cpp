@@ -475,15 +475,20 @@ void EngineCore::OnModeStop()
 {
     if( m_EditorMode == false )
     {
-        // Clear out the component manager of all components and gameobjects
+        // Call OnStop() for all components.
         m_pComponentSystemManager->OnStop();
-        UnloadScene( 0 ); // unload runtime created objects only.
+
+        // Unload all runtime created objects.
+        UnloadScene( 0, false );
+
 #if MYFW_USING_WX
         Editor_QuickLoadScene( "temp_editor_onplay.scene" );
         //LoadSceneFromFile( "temp_editor_onplay.scene", 1 );
 #endif
+
         m_EditorMode = true;
         m_Paused = false;
+
 #if MYFW_USING_WX
         g_pEngineMainFrame->SetWindowPerspectiveToDefault();
         m_pEditorState->ClearKeyAndActionStates();
@@ -1356,33 +1361,6 @@ void EngineCore::UnloadScene(unsigned int sceneid, bool cleareditorobjects)
 #endif //MYFW_USING_WX
 
     g_pComponentSystemManager->UnloadScene( sceneid, false );
-
-#if MYFW_USING_WX
-    // erase the scene node from the object list tree.
-    if( sceneid == UINT_MAX )
-    {
-        typedef std::map<int, SceneInfo>::iterator it_type;
-        for( it_type iterator = g_pComponentSystemManager->m_pSceneIDToSceneTreeIDMap.begin(); iterator != g_pComponentSystemManager->m_pSceneIDToSceneTreeIDMap.end(); )
-        {
-            if( iterator->first != 0 && iterator->second.sceneid.IsOk() )
-            {
-                g_pPanelObjectList->m_pTree_Objects->Delete( iterator->second.sceneid );
-                g_pComponentSystemManager->m_pSceneIDToSceneTreeIDMap.erase( iterator++ );
-            }
-            else
-            {
-                iterator++;
-            }
-        }
-    }
-    else
-    {
-        SceneInfo* pSceneInfo = g_pComponentSystemManager->GetSceneInfo( sceneid );
-        if( pSceneInfo && pSceneInfo->sceneid.IsOk() )
-            g_pPanelObjectList->m_pTree_Objects->Delete( pSceneInfo->sceneid );
-        g_pComponentSystemManager->m_pSceneIDToSceneTreeIDMap.erase( sceneid );
-    }
-#endif
 
     if( sceneid == UINT_MAX )
     {

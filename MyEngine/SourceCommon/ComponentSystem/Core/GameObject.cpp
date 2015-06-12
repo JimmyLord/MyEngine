@@ -220,9 +220,34 @@ void GameObject::ImportFromJSONObject(cJSON* jsonobj, unsigned int sceneid)
 
 void GameObject::SetSceneID(unsigned int sceneid)
 {
+    if( m_SceneID == sceneid )
+        return;
+
+#if MYFW_USING_WX
+    MyAssert( g_pPanelObjectList );
+
+    // Remove this object from the object tree.
+    g_pPanelObjectList->RemoveObject( m_pComponentTransform );
+    g_pPanelObjectList->RemoveObject( this );
+#endif
+
     m_SceneID = sceneid;
 
-    // TODO: in wx change the tree to match the new sceneid.
+#if MYFW_USING_WX
+    // Add this game object to the root of the objects tree
+    wxTreeItemId rootid = g_pComponentSystemManager->GetTreeIDForScene( m_SceneID );
+    if( rootid.IsOk() )
+    {
+        wxTreeItemId gameobjectid = g_pPanelObjectList->AddObject( this, GameObject::StaticOnLeftClick, GameObject::StaticOnRightClick, rootid, m_Name );
+        g_pPanelObjectList->SetDragAndDropFunctions( this, GameObject::StaticOnDrag, GameObject::StaticOnDrop );
+        g_pPanelObjectList->SetLabelEditFunction( this, GameObject::StaticOnLabelEdit );
+        m_pComponentTransform->AddToObjectsPanel( gameobjectid );
+        for( unsigned int i=0; i<m_Components.Count(); i++ )
+        {
+            m_Components[i]->AddToObjectsPanel( gameobjectid );
+        }
+    }
+#endif
 }
 
 void GameObject::SetID(unsigned int id)
@@ -266,6 +291,7 @@ void GameObject::SetManaged(bool managed)
             // Add this game object to the root of the objects tree
             //wxTreeItemId rootid = g_pPanelObjectList->GetTreeRoot();
             wxTreeItemId rootid = g_pComponentSystemManager->GetTreeIDForScene( m_SceneID );
+            MyAssert( rootid.IsOk() );
             wxTreeItemId gameobjectid = g_pPanelObjectList->AddObject( this, GameObject::StaticOnLeftClick, GameObject::StaticOnRightClick, rootid, m_Name );
             g_pPanelObjectList->SetDragAndDropFunctions( this, GameObject::StaticOnDrag, GameObject::StaticOnDrop );
             g_pPanelObjectList->SetLabelEditFunction( this, GameObject::StaticOnLabelEdit );
@@ -342,7 +368,8 @@ ComponentBase* GameObject::AddExistingComponent(ComponentBase* pComponent, bool 
     if( m_Managed )
     {
         wxTreeItemId gameobjectid = g_pPanelObjectList->FindObject( this );
-        pComponent->AddToObjectsPanel( gameobjectid );
+        if( gameobjectid.IsOk() )
+            pComponent->AddToObjectsPanel( gameobjectid );
     }
 #endif //MYFW_USING_WX
 

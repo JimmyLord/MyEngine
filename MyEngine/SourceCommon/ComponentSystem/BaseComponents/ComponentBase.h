@@ -77,7 +77,7 @@ public:
     virtual void OnLeftClick(unsigned int count, bool clear);
     virtual void FillPropertiesWindow(bool clear) {};
 
-    static void StaticOnRightClick(void* pObjectPtr) { ((ComponentBase*)pObjectPtr)->OnRightClick(); }
+    static void StaticOnRightClick(void* pObjectPtr, wxTreeItemId id) { ((ComponentBase*)pObjectPtr)->OnRightClick(); }
     virtual void OnRightClick();
     virtual void AppendItemsToRightClickMenu(wxMenu* pMenu);
     void OnPopupClick(wxEvent &evt); // used as callback for wxEvtHandler, can't be virtual(will crash, haven't looked into it).

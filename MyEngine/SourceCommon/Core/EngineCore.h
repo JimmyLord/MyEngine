@@ -104,7 +104,7 @@ public:
 
     void CreateDefaultSceneObjects(bool createeditorobjects);
     void SaveScene(const char* fullpath, unsigned int sceneid);
-    void UnloadScene(unsigned int sceneid = UINT_MAX, bool cleareditorobjects = false);
+    void UnloadScene(unsigned int sceneid, bool cleareditorobjects);
 #if MYFW_USING_WX
     void LoadSceneFromFile(const char* fullpath, unsigned int sceneid);
     void Editor_QuickSaveScene(const char* fullpath);

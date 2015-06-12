@@ -32,8 +32,8 @@ ComponentSystemManager::ComponentSystemManager(ComponentTypeManager* typemanager
     g_pPanelObjectList->SetTreeRootData( this, ComponentSystemManager::StaticOnLeftClick, ComponentSystemManager::StaticOnRightClick );
 
     wxTreeItemId rootid = g_pPanelObjectList->GetTreeRoot();
-    wxTreeItemId treesceneid = g_pPanelObjectList->AddObject( m_pSceneHandler, SceneHandler::StaticOnLeftClick, SceneHandler::StaticOnRightClick, rootid, "Unmanaged" );
-    m_pSceneIDToSceneTreeIDMap[0].sceneid = treesceneid;
+    wxTreeItemId treeid = g_pPanelObjectList->AddObject( m_pSceneHandler, SceneHandler::StaticOnLeftClick, SceneHandler::StaticOnRightClick, rootid, "Unmanaged" );
+    m_pSceneIDToSceneTreeIDMap[0].treeid = treeid;
     m_pSceneIDToSceneTreeIDMap[0].fullpath[0] = 0;
 #endif //MYFW_USING_WX
 }
@@ -126,24 +126,24 @@ void ComponentSystemManager::OnLeftClick(unsigned int count, bool clear)
 
 void ComponentSystemManager::OnRightClick()
 {
- 	wxMenu menu;
-    menu.SetClientData( this );
+    //wxMenu menu;
+    //menu.SetClientData( this );
 
-    menu.Append( 0, "Add Game Object" );
- 	menu.Connect( wxEVT_COMMAND_MENU_SELECTED, (wxObjectEventFunction)&ComponentSystemManager::OnPopupClick );
+    //menu.Append( 1000, "Add Game Object" );
+    //menu.Connect( wxEVT_COMMAND_MENU_SELECTED, (wxObjectEventFunction)&ComponentSystemManager::OnPopupClick );
 
-    // blocking call. // should delete all categorymenu's new'd above when done.
- 	g_pPanelWatch->PopupMenu( &menu ); // there's no reason this is using g_pPanelWatch other than convenience.
+    //// blocking call. // should delete all categorymenu's new'd above when done.
+    //g_pPanelWatch->PopupMenu( &menu ); // there's no reason this is using g_pPanelWatch other than convenience.
 }
 
 void ComponentSystemManager::OnPopupClick(wxEvent &evt)
 {
-    int id = evt.GetId();
-    if( id == 0 )
-    {
-        GameObject* pGameObject = g_pComponentSystemManager->CreateGameObject();
-        pGameObject->SetName( "New Game Object" );
-    }
+    //int id = evt.GetId();
+    //if( id == 1000 )
+    //{
+    //    GameObject* pGameObject = g_pComponentSystemManager->CreateGameObject();
+    //    pGameObject->SetName( "New Game Object" );
+    //}
 }
 
 void ComponentSystemManager::OnMemoryPanelFileSelectedLeftClick()
@@ -435,8 +435,8 @@ void ComponentSystemManager::LoadSceneFromJSON(const char* scenename, const char
     if( sceneid != UINT_MAX )
     {
         wxTreeItemId rootid = g_pPanelObjectList->GetTreeRoot();
-        wxTreeItemId treesceneid = g_pPanelObjectList->AddObject( m_pSceneHandler, SceneHandler::StaticOnLeftClick, SceneHandler::StaticOnRightClick, rootid, scenename );
-        m_pSceneIDToSceneTreeIDMap[sceneid].sceneid = treesceneid;
+        wxTreeItemId treeid = g_pPanelObjectList->AddObject( m_pSceneHandler, SceneHandler::StaticOnLeftClick, SceneHandler::StaticOnRightClick, rootid, scenename );
+        m_pSceneIDToSceneTreeIDMap[sceneid].treeid = treeid;
     }
 #endif //MYFW_USING_WX
 
@@ -621,6 +621,36 @@ void ComponentSystemManager::UnloadScene(unsigned int sceneidtoclear, bool clear
         if( (sceneidtoclear == UINT_MAX || pFile->m_SceneID == sceneidtoclear) )
             delete pFile;
     }
+
+#if MYFW_USING_WX
+    // erase the scene node from the object list tree.
+    if( sceneidtoclear == UINT_MAX )
+    {
+        typedef std::map<int, SceneInfo>::iterator it_type;
+        for( it_type iterator = g_pComponentSystemManager->m_pSceneIDToSceneTreeIDMap.begin(); iterator != g_pComponentSystemManager->m_pSceneIDToSceneTreeIDMap.end(); )
+        {
+            unsigned int sceneid = iterator->first;
+            SceneInfo* pSceneInfo = &iterator->second;
+
+            if( sceneid != 0 && pSceneInfo->treeid.IsOk() ) // don't clear the "Unmanaged" label.
+            {
+                g_pPanelObjectList->m_pTree_Objects->Delete( pSceneInfo->treeid );
+                g_pComponentSystemManager->m_pSceneIDToSceneTreeIDMap.erase( iterator++ );
+            }
+            else
+            {
+                iterator++;
+            }
+        }
+    }
+    else if( sceneidtoclear != 0 ) // don't clear the "Unmanaged" label.
+    {
+        SceneInfo* pSceneInfo = g_pComponentSystemManager->GetSceneInfo( sceneidtoclear );
+        if( pSceneInfo && pSceneInfo->treeid.IsOk() )
+            g_pPanelObjectList->m_pTree_Objects->Delete( pSceneInfo->treeid );
+        g_pComponentSystemManager->m_pSceneIDToSceneTreeIDMap.erase( sceneidtoclear );
+    }
+#endif
 }
 
 GameObject* ComponentSystemManager::CreateGameObject(bool manageobject, int sceneid)
@@ -991,6 +1021,27 @@ void ComponentSystemManager::DrawMousePickerFrame(ComponentCamera* pCamera, MyMa
 }
 
 #if MYFW_USING_WX
+wxTreeItemId ComponentSystemManager::GetTreeIDForScene(int sceneid)
+{
+    return m_pSceneIDToSceneTreeIDMap[sceneid].treeid;
+}
+
+unsigned int ComponentSystemManager::GetSceneIDFromSceneTreeID(wxTreeItemId treeid)
+{
+    typedef std::map<int, SceneInfo>::iterator it_type;
+    for( it_type iterator = g_pComponentSystemManager->m_pSceneIDToSceneTreeIDMap.begin(); iterator != g_pComponentSystemManager->m_pSceneIDToSceneTreeIDMap.end(); iterator++ )
+    {
+        unsigned int sceneid = iterator->first;
+        SceneInfo* pSceneInfo = &iterator->second;
+
+        if( pSceneInfo->treeid == treeid )
+            return sceneid;
+    }
+
+    MyAssert( false ); // treeid not found, it should be.
+    return -1;
+}
+
 SceneInfo* ComponentSystemManager::GetSceneInfo(int sceneid)
 {
     return &m_pSceneIDToSceneTreeIDMap[sceneid];

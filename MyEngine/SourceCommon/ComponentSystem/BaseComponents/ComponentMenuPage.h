@@ -88,7 +88,7 @@ public:
     void OnLeftClick(unsigned int count, bool clear);
     virtual void FillPropertiesWindow(bool clear);
 
-    static void StaticOnRightClick(void* pObjectPtr) { ((ComponentMenuPage*)pObjectPtr)->OnRightClick(); }
+    static void StaticOnRightClick(void* pObjectPtr, wxTreeItemId id) { ((ComponentMenuPage*)pObjectPtr)->OnRightClick(); }
     //virtual void OnRightClick();
     virtual void AppendItemsToRightClickMenu(wxMenu* pMenu);
     void OnPopupClick(wxEvent &evt);

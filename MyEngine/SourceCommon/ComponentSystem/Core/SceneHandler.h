@@ -12,7 +12,7 @@
 
 struct SceneInfo
 {
-    wxTreeItemId sceneid;
+    wxTreeItemId treeid;
     char fullpath[MAX_PATH];
 };
 
@@ -22,6 +22,7 @@ class SceneHandler
 #endif
 {
 protected:
+    unsigned int m_SceneIDBeingAffected;
 
 public:
     SceneHandler();
@@ -29,11 +30,17 @@ public:
 
 public:
 #if MYFW_USING_WX
+    enum RightClickOptions
+    {
+        RightClick_UnloadScene = 1000,
+        RightClick_AddGameObject = 1001,
+    };
+
     static void StaticOnLeftClick(void* pObjectPtr, unsigned int count) { ((SceneHandler*)pObjectPtr)->OnLeftClick( count, true ); }
     void OnLeftClick(unsigned int count, bool clear);
 
-    static void StaticOnRightClick(void* pObjectPtr) { ((SceneHandler*)pObjectPtr)->OnRightClick(); }
-    void OnRightClick();
+    static void StaticOnRightClick(void* pObjectPtr, wxTreeItemId id) { ((SceneHandler*)pObjectPtr)->OnRightClick( id ); }
+    void OnRightClick(wxTreeItemId id);
     void OnPopupClick(wxEvent &evt); // used as callback for wxEvtHandler, can't be virtual(will crash, haven't looked into it).
 
     static void StaticOnDrag(void* pObjectPtr) { ((SceneHandler*)pObjectPtr)->OnDrag(); }

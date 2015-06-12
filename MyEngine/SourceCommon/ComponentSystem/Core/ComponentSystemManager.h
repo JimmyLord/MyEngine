@@ -134,7 +134,8 @@ public:
 #if MYFW_USING_WX
     SceneHandler* m_pSceneHandler;
     std::map<int, SceneInfo> m_pSceneIDToSceneTreeIDMap;
-    wxTreeItemId GetTreeIDForScene(int sceneid) { return m_pSceneIDToSceneTreeIDMap[sceneid].sceneid; }
+    wxTreeItemId GetTreeIDForScene(int sceneid);
+    unsigned int GetSceneIDFromSceneTreeID(wxTreeItemId treeid);
     SceneInfo* GetSceneInfo(int sceneid);
 #endif
 
@@ -147,7 +148,7 @@ public:
     void AddAllMaterialsToFilesList();
 
     static void StaticOnLeftClick(void* pObjectPtr, unsigned int count) { ((ComponentSystemManager*)pObjectPtr)->OnLeftClick( count, true ); }
-    static void StaticOnRightClick(void* pObjectPtr) { ((ComponentSystemManager*)pObjectPtr)->OnRightClick(); }
+    static void StaticOnRightClick(void* pObjectPtr, wxTreeItemId id) { ((ComponentSystemManager*)pObjectPtr)->OnRightClick(); }
     void OnLeftClick(unsigned int count, bool clear);
     void OnRightClick();
     void OnPopupClick(wxEvent &evt); // used as callback for wxEvtHandler, can't be virtual(will crash, haven't looked into it).
