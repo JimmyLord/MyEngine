@@ -37,6 +37,9 @@ enum LayerValues
 class EngineCore : public GameCore
 {
 public:
+    static const int ENGINE_SCENE_ID = 9999;
+
+public:
     ComponentSystemManager* m_pComponentSystemManager;
 
     BulletWorld* m_pBulletWorld;

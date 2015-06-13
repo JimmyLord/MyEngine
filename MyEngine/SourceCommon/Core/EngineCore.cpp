@@ -1140,10 +1140,10 @@ void EngineCore::CreateDefaultSceneObjects(bool createeditorobjects)
         // create a 3D X/Z plane grid
         {
             pGameObject = m_pComponentSystemManager->CreateGameObject( false ); // not managed.
-            pGameObject->SetSceneID( 99999 );
+            pGameObject->SetSceneID( ENGINE_SCENE_ID );
             pGameObject->SetName( "3D Grid Plane" );
 
-            pComponentMesh = (ComponentMesh*)pGameObject->AddNewComponent( ComponentType_Mesh, 99999 );
+            pComponentMesh = (ComponentMesh*)pGameObject->AddNewComponent( ComponentType_Mesh, ENGINE_SCENE_ID );
             if( pComponentMesh )
             {
                 pComponentMesh->m_Visible = true; // manually drawn when in editor mode.
@@ -1163,18 +1163,18 @@ void EngineCore::CreateDefaultSceneObjects(bool createeditorobjects)
         }
 
         // create a 3d transform gizmo for each axis.
-        m_pEditorState->m_pTransformGizmo->CreateAxisObjects( 0.03f, m_pMaterial_TransformGizmoX, m_pMaterial_TransformGizmoY, m_pMaterial_TransformGizmoZ, m_pEditorState );
+        m_pEditorState->m_pTransformGizmo->CreateAxisObjects( ENGINE_SCENE_ID, 0.03f, m_pMaterial_TransformGizmoX, m_pMaterial_TransformGizmoY, m_pMaterial_TransformGizmoZ, m_pEditorState );
 
         // create a 3D editor camera, renders editor view.
         {
             pGameObject = m_pComponentSystemManager->CreateGameObject( false ); // not managed.
-            pGameObject->SetSceneID( 99999 );
+            pGameObject->SetSceneID( ENGINE_SCENE_ID );
             pGameObject->SetName( "Editor Camera" );
             pGameObject->m_pComponentTransform->SetPosition( Vector3( 0, 0, 10 ) );
 
             // add an editor scene camera
             {
-                pComponentCamera = (ComponentCamera*)pGameObject->AddNewComponent( ComponentType_Camera, 99999 );
+                pComponentCamera = (ComponentCamera*)pGameObject->AddNewComponent( ComponentType_Camera, ENGINE_SCENE_ID );
                 pComponentCamera->SetDesiredAspectRatio( 640, 960 );
                 pComponentCamera->m_Orthographic = false;
                 pComponentCamera->m_LayersToRender = Layer_Editor | Layer_MainScene;
@@ -1188,7 +1188,7 @@ void EngineCore::CreateDefaultSceneObjects(bool createeditorobjects)
 
             // add a foreground camera for the transform gizmo only ATM.
             {
-                pComponentCamera = (ComponentCamera*)pGameObject->AddNewComponent( ComponentType_Camera, 99999 );
+                pComponentCamera = (ComponentCamera*)pGameObject->AddNewComponent( ComponentType_Camera, ENGINE_SCENE_ID );
                 pComponentCamera->SetDesiredAspectRatio( 640, 960 );
                 pComponentCamera->m_Orthographic = false;
                 pComponentCamera->m_LayersToRender = Layer_EditorFG;
@@ -1606,8 +1606,8 @@ GameObject* EngineCore::GetObjectAtPixel(unsigned int x, unsigned int y, bool cr
                   1, 1, GL_RGBA, GL_UNSIGNED_BYTE, pixel );
     m_pEditorState->m_pMousePickerFBO->Unbind();
 
-    unsigned int id = pixel[0] + pixel[1]*256 + pixel[2]*256*256 + pixel[3]*256*256*256;
-    id /= 641; // 1, 641, 6700417, 4294967297, 
+    uint64_t id = pixel[0] + pixel[1]*256 + pixel[2]*256*256 + pixel[3]*256*256*256;
+    id = (((uint64_t)UINT_MAX+1) * (id % 641) + id) / 641; // 1, 641, 6700417, 4294967297, 
     //LOGInfo( LOGTag, "pixel - %d, %d, %d, %d - id - %d\n", pixel[0], pixel[1], pixel[2], pixel[3], id );
 
     unsigned int sceneid = id / 100000;
@@ -1683,8 +1683,8 @@ void EngineCore::SelectObjectsInRectangle(unsigned int sx, unsigned int sy, unsi
     if( controlheld )
     {
         unsigned int offset = (sy*fbowidth + sx)*4;
-        unsigned int id = pixels[offset+0] + pixels[offset+1]*256 + pixels[offset+2]*256*256 + pixels[offset+3]*256*256*256;
-        id /= 641; // 1, 641, 6700417, 4294967297, 
+        unsigned long long id = pixels[offset+0] + pixels[offset+1]*256 + pixels[offset+2]*256*256 + pixels[offset+3]*256*256*256;
+        id = (((uint64_t)UINT_MAX+1) * (id % 641) + id) / 641; // 1, 641, 6700417, 4294967297, 
 
         unsigned int sceneid = id / 100000;
         id = id % 100000;
@@ -1701,8 +1701,8 @@ void EngineCore::SelectObjectsInRectangle(unsigned int sx, unsigned int sy, unsi
         for( int x=smallerx; x<=biggerx; x++ )
         {
             unsigned int offset = (y*fbowidth + x)*4;
-            unsigned int id = pixels[offset+0] + pixels[offset+1]*256 + pixels[offset+2]*256*256 + pixels[offset+3]*256*256*256;
-            id /= 641; // 1, 641, 6700417, 4294967297, 
+            unsigned long long id = pixels[offset+0] + pixels[offset+1]*256 + pixels[offset+2]*256*256 + pixels[offset+3]*256*256*256;
+            id = (((uint64_t)UINT_MAX+1) * (id % 641) + id) / 641; // 1, 641, 6700417, 4294967297, 
 
             unsigned int sceneid = id / 100000;
             id = id % 100000;

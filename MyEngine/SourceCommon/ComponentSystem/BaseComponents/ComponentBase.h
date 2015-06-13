@@ -73,7 +73,7 @@ public:
 
     virtual void AddToObjectsPanel(wxTreeItemId gameobjectid);
 
-    static void StaticOnLeftClick(void* pObjectPtr, unsigned int count) { ((ComponentBase*)pObjectPtr)->OnLeftClick( count, true ); }
+    static void StaticOnLeftClick(void* pObjectPtr, wxTreeItemId id, unsigned int count) { ((ComponentBase*)pObjectPtr)->OnLeftClick( count, true ); }
     virtual void OnLeftClick(unsigned int count, bool clear);
     virtual void FillPropertiesWindow(bool clear) {};
 
@@ -85,7 +85,7 @@ public:
     static void StaticOnDrag(void* pObjectPtr) { ((ComponentBase*)pObjectPtr)->OnDrag(); }
     virtual void OnDrag();
 
-    static void StaticOnDrop(void* pObjectPtr, int controlid, wxCoord x, wxCoord y) { ((ComponentBase*)pObjectPtr)->OnDrop(controlid, x, y); }
+    static void StaticOnDrop(void* pObjectPtr, wxTreeItemId id, int controlid, wxCoord x, wxCoord y) { ((ComponentBase*)pObjectPtr)->OnDrop(controlid, x, y); }
     virtual void OnDrop(int controlid, wxCoord x, wxCoord y);
 #endif //MYFW_USING_WX
 };

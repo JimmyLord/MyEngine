@@ -33,6 +33,7 @@ ComponentSystemManager::ComponentSystemManager(ComponentTypeManager* typemanager
 
     wxTreeItemId rootid = g_pPanelObjectList->GetTreeRoot();
     wxTreeItemId treeid = g_pPanelObjectList->AddObject( m_pSceneHandler, SceneHandler::StaticOnLeftClick, SceneHandler::StaticOnRightClick, rootid, "Unmanaged" );
+    g_pPanelObjectList->SetDragAndDropFunctions( treeid, SceneHandler::StaticOnDrag, SceneHandler::StaticOnDrop );
     m_pSceneIDToSceneTreeIDMap[0].treeid = treeid;
     m_pSceneIDToSceneTreeIDMap[0].fullpath[0] = 0;
 #endif //MYFW_USING_WX
@@ -436,6 +437,7 @@ void ComponentSystemManager::LoadSceneFromJSON(const char* scenename, const char
     {
         wxTreeItemId rootid = g_pPanelObjectList->GetTreeRoot();
         wxTreeItemId treeid = g_pPanelObjectList->AddObject( m_pSceneHandler, SceneHandler::StaticOnLeftClick, SceneHandler::StaticOnRightClick, rootid, scenename );
+        g_pPanelObjectList->SetDragAndDropFunctions( treeid, SceneHandler::StaticOnDrag, SceneHandler::StaticOnDrop );
         m_pSceneIDToSceneTreeIDMap[sceneid].treeid = treeid;
     }
 #endif //MYFW_USING_WX

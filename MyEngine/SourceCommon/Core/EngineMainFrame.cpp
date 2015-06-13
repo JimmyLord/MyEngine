@@ -435,7 +435,7 @@ void EngineMainFrame::OnGameMenu(wxCommandEvent& event)
         m_StackDepthAtLastSave = (unsigned int)m_pCommandStack->m_UndoStack.size();
         g_pMaterialManager->SaveAllMaterials();
         g_pComponentSystemManager->AddAllMaterialsToFilesList();
-        SaveSceneAs();
+        SaveSceneAs( 1 );
         break;
 
     case myIDGame_AddDatafile:
@@ -592,32 +592,35 @@ void EngineMainFrame::SetDefaultGameplayPerspectiveIndex(int index)
 
 void EngineMainFrame::SaveScene()
 {
-    if( g_pComponentSystemManager->GetSceneInfo( 1 )->fullpath[0] == 0 )
+    if( g_pEngineCore->m_EditorMode == false )
     {
-        SaveSceneAs();
+        LOGInfo( LOGTag, "Can't save when gameplay is active... use \"Save As\"\n" );
     }
     else
     {
-        if( g_pEngineCore->m_EditorMode == false )
+        typedef std::map<int, SceneInfo>::iterator it_type;
+        for( it_type iterator = g_pComponentSystemManager->m_pSceneIDToSceneTreeIDMap.begin(); iterator != g_pComponentSystemManager->m_pSceneIDToSceneTreeIDMap.end(); iterator++ )
         {
-            LOGInfo( LOGTag, "Can't save when gameplay is active... use \"Save As\"\n" );
-        }
-        else
-        {
-            typedef std::map<int, SceneInfo>::iterator it_type;
-            for( it_type iterator = g_pComponentSystemManager->m_pSceneIDToSceneTreeIDMap.begin(); iterator != g_pComponentSystemManager->m_pSceneIDToSceneTreeIDMap.end(); iterator++ )
-            {
-                unsigned int sceneid = iterator->first;
-                SceneInfo* pSceneInfo = &iterator->second;
+            unsigned int sceneid = iterator->first;
+            SceneInfo* pSceneInfo = &iterator->second;
 
-                LOGInfo( LOGTag, "Saving scene... %s\n", pSceneInfo->fullpath );
-                g_pEngineCore->SaveScene( pSceneInfo->fullpath, sceneid );
+            if( sceneid != 0 && sceneid != EngineCore::ENGINE_SCENE_ID )
+            {
+                if( g_pComponentSystemManager->GetSceneInfo( sceneid )->fullpath[0] == 0 )
+                {
+                    SaveSceneAs( sceneid );
+                }
+                else
+                {
+                    LOGInfo( LOGTag, "Saving scene... %s\n", pSceneInfo->fullpath );
+                    g_pEngineCore->SaveScene( pSceneInfo->fullpath, sceneid );
+                }
             }
         }
     }
 }
 
-void EngineMainFrame::SaveSceneAs()
+void EngineMainFrame::SaveSceneAs(unsigned int sceneid)
 {
     wxFileDialog FileDialog( this, _("Save Scene file"), "./Data/Scenes", "", "Scene files (*.scene)|*.scene", wxFD_SAVE|wxFD_OVERWRITE_PROMPT);
     
@@ -627,13 +630,13 @@ void EngineMainFrame::SaveSceneAs()
     // save the current scene
     // TODO: typecasting will likely cause issues with multibyte names
     wxString wxpath = FileDialog.GetPath();
-    sprintf_s( g_pComponentSystemManager->GetSceneInfo( 1 )->fullpath, 260, "%s", (const char*)wxpath );
+    sprintf_s( g_pComponentSystemManager->GetSceneInfo( sceneid )->fullpath, 260, "%s", (const char*)wxpath );
 
     g_pMaterialManager->SaveAllMaterials();
     g_pComponentSystemManager->AddAllMaterialsToFilesList();
-    g_pEngineCore->SaveScene( g_pComponentSystemManager->GetSceneInfo( 1 )->fullpath, 1 );
+    g_pEngineCore->SaveScene( g_pComponentSystemManager->GetSceneInfo( sceneid )->fullpath, sceneid );
 
-    this->SetTitle( g_pComponentSystemManager->GetSceneInfo( 1 )->fullpath );
+    this->SetTitle( g_pComponentSystemManager->GetSceneInfo( sceneid )->fullpath );
 }
 
 void EngineMainFrame::LoadSceneDialog(bool unloadscenes)

@@ -14,6 +14,11 @@ struct SceneInfo
 {
     wxTreeItemId treeid;
     char fullpath[MAX_PATH];
+
+    SceneInfo::SceneInfo()
+    {
+        fullpath[0] = 0;
+    }
 };
 
 class SceneHandler
@@ -36,8 +41,9 @@ public:
         RightClick_AddGameObject = 1001,
     };
 
-    static void StaticOnLeftClick(void* pObjectPtr, unsigned int count) { ((SceneHandler*)pObjectPtr)->OnLeftClick( count, true ); }
-    void OnLeftClick(unsigned int count, bool clear);
+    // Object panel callbacks.
+    static void StaticOnLeftClick(void* pObjectPtr, wxTreeItemId id, unsigned int count) { ((SceneHandler*)pObjectPtr)->OnLeftClick( id, count, true ); }
+    void OnLeftClick(wxTreeItemId id, unsigned int count, bool clear);
 
     static void StaticOnRightClick(void* pObjectPtr, wxTreeItemId id) { ((SceneHandler*)pObjectPtr)->OnRightClick( id ); }
     void OnRightClick(wxTreeItemId id);
@@ -46,11 +52,11 @@ public:
     static void StaticOnDrag(void* pObjectPtr) { ((SceneHandler*)pObjectPtr)->OnDrag(); }
     void OnDrag();
 
-    static void StaticOnDrop(void* pObjectPtr, int controlid, wxCoord x, wxCoord y) { ((SceneHandler*)pObjectPtr)->OnDrop(controlid, x, y); }
-    void OnDrop(int controlid, wxCoord x, wxCoord y);
+    static void StaticOnDrop(void* pObjectPtr, wxTreeItemId id, int controlid, wxCoord x, wxCoord y) { ((SceneHandler*)pObjectPtr)->OnDrop(id, controlid, x, y); }
+    void OnDrop(wxTreeItemId id, int controlid, wxCoord x, wxCoord y);
 
-    static void StaticOnLabelEdit(void* pObjectPtr, wxString newlabel) { ((SceneHandler*)pObjectPtr)->OnLabelEdit( newlabel ); }
-    void OnLabelEdit(wxString newlabel);
+    static void StaticOnLabelEdit(void* pObjectPtr, wxTreeItemId id, wxString newlabel) { ((SceneHandler*)pObjectPtr)->OnLabelEdit( id, newlabel ); }
+    void OnLabelEdit(wxTreeItemId id, wxString newlabel);
 #endif //MYFW_USING_WX
 };
 

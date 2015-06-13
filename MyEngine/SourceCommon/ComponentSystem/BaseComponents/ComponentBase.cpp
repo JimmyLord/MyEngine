@@ -43,9 +43,8 @@ void ComponentBase::Reset()
 #if MYFW_USING_WX
 void ComponentBase::AddToObjectsPanel(wxTreeItemId gameobjectid)
 {
-    //wxTreeItemId id =
-    g_pPanelObjectList->AddObject( this, ComponentBase::StaticOnLeftClick, ComponentBase::StaticOnRightClick, gameobjectid, "Unknown component" );
-    g_pPanelObjectList->SetDragAndDropFunctions( this, ComponentBase::StaticOnDrag, ComponentBase::StaticOnDrop );
+    wxTreeItemId id = g_pPanelObjectList->AddObject( this, ComponentBase::StaticOnLeftClick, ComponentBase::StaticOnRightClick, gameobjectid, "Unknown component" );
+    g_pPanelObjectList->SetDragAndDropFunctions( id, ComponentBase::StaticOnDrag, ComponentBase::StaticOnDrop );
 }
 
 void ComponentBase::OnComponentTitleLabelClicked(int id, bool finishedchanging)

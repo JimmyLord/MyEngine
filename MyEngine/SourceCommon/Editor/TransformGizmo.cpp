@@ -135,17 +135,17 @@ bool TransformGizmo::HandleInput(EngineCore* pGame, int keydown, int keycode, in
     return false;
 }
 
-void TransformGizmo::CreateAxisObjects(float scale, MaterialDefinition* pMaterialX, MaterialDefinition* pMaterialY, MaterialDefinition* pMaterialZ, EditorState* pEditorState)
+void TransformGizmo::CreateAxisObjects(unsigned int sceneid, float scale, MaterialDefinition* pMaterialX, MaterialDefinition* pMaterialY, MaterialDefinition* pMaterialZ, EditorState* pEditorState)
 {
     GameObject* pGameObject;
     ComponentMesh* pComponentMesh;
 
     {
         pGameObject = g_pComponentSystemManager->CreateGameObject( false ); // not managed.
-        pGameObject->SetSceneID( 99999 );
+        pGameObject->SetSceneID( sceneid );
         pGameObject->SetName( "3D Transform Gizmo - x-axis" );
 
-        pComponentMesh = (ComponentMesh*)pGameObject->AddNewComponent( ComponentType_Mesh, 99999 );
+        pComponentMesh = (ComponentMesh*)pGameObject->AddNewComponent( ComponentType_Mesh, sceneid );
         if( pComponentMesh )
         {
             pComponentMesh->m_Visible = true;
@@ -160,10 +160,10 @@ void TransformGizmo::CreateAxisObjects(float scale, MaterialDefinition* pMateria
     }
     {
         pGameObject = g_pComponentSystemManager->CreateGameObject( false ); // not managed.
-        pGameObject->SetSceneID( 99999 );
+        pGameObject->SetSceneID( sceneid );
         pGameObject->SetName( "3D Transform Gizmo - y-axis" );
 
-        pComponentMesh = (ComponentMesh*)pGameObject->AddNewComponent( ComponentType_Mesh, 99999 );
+        pComponentMesh = (ComponentMesh*)pGameObject->AddNewComponent( ComponentType_Mesh, sceneid );
         if( pComponentMesh )
         {
             pComponentMesh->m_Visible = true;
@@ -178,10 +178,10 @@ void TransformGizmo::CreateAxisObjects(float scale, MaterialDefinition* pMateria
     }
     {
         pGameObject = g_pComponentSystemManager->CreateGameObject( false ); // not managed.
-        pGameObject->SetSceneID( 99999 );
+        pGameObject->SetSceneID( sceneid );
         pGameObject->SetName( "3D Transform Gizmo - z-axis" );
 
-        pComponentMesh = (ComponentMesh*)pGameObject->AddNewComponent( ComponentType_Mesh, 99999 );
+        pComponentMesh = (ComponentMesh*)pGameObject->AddNewComponent( ComponentType_Mesh, sceneid );
         if( pComponentMesh )
         {
             pComponentMesh->m_Visible = true;

@@ -30,7 +30,7 @@ public:
 
     bool HandleInput(EngineCore* pGame, int keydown, int keycode, int action, int id, float x, float y, float pressure);
 
-    void CreateAxisObjects(float scale, MaterialDefinition* pMaterialX, MaterialDefinition* pMaterialY, MaterialDefinition* pMaterialZ, EditorState* pEditorState);
+    void CreateAxisObjects(unsigned int sceneid, float scale, MaterialDefinition* pMaterialX, MaterialDefinition* pMaterialY, MaterialDefinition* pMaterialZ, EditorState* pEditorState);
     void ScaleGizmosForMousePickRendering(bool doscale);
     
     void TranslateSelectedObjects(EngineCore* pGame, EditorState* pEditorState);

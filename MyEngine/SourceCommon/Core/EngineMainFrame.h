@@ -108,7 +108,7 @@ public:
     void SetDefaultGameplayPerspectiveIndex(int index);
 
     void SaveScene();
-    void SaveSceneAs();
+    void SaveSceneAs(unsigned int sceneid);
     void LoadSceneDialog(bool unloadscenes);
     void LoadScene(const char* scenename, bool unloadscenes);
 

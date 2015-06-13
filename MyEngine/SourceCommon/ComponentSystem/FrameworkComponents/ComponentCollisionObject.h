@@ -61,14 +61,19 @@ public:
     static bool m_PanelWatchBlockVisible;
     int m_ControlID_PrimitiveType;
 
+    // Object panel callbacks.
     virtual void AddToObjectsPanel(wxTreeItemId gameobjectid);
-    static void StaticOnLeftClick(void* pObjectPtr, unsigned int count) { ((ComponentCollisionObject*)pObjectPtr)->OnLeftClick( count, true ); }
+    static void StaticOnLeftClick(void* pObjectPtr, wxTreeItemId id, unsigned int count) { ((ComponentCollisionObject*)pObjectPtr)->OnLeftClick( count, true ); }
     void OnLeftClick(unsigned int count, bool clear);
     virtual void FillPropertiesWindow(bool clear);
+
+    // Watch panel callbacks.
     static void StaticOnValueChanged(void* pObjectPtr, int controlid, bool finishedchanging) { ((ComponentCollisionObject*)pObjectPtr)->OnValueChanged( controlid, finishedchanging ); }
     void OnValueChanged(int controlid, bool finishedchanging);
+
     static void StaticOnDropOBJ(void* pObjectPtr, int controlid, wxCoord x, wxCoord y) { ((ComponentCollisionObject*)pObjectPtr)->OnDropOBJ(controlid, x, y); }
     void OnDropOBJ(int controlid, wxCoord x, wxCoord y);
+
     static void StaticOnTransformPositionChanged(void* pObjectPtr, Vector3& newpos, bool changedbyeditor) { ((ComponentCollisionObject*)pObjectPtr)->OnTransformPositionChanged( newpos, changedbyeditor ); }
     void OnTransformPositionChanged(Vector3& newpos, bool changedbyeditor);
 #endif //MYFW_USING_WX

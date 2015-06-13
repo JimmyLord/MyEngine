@@ -185,6 +185,7 @@ cJSON* ComponentLuaScript::ExportAsJSONObject(bool savesceneid)
         }
         else if( pVar->type == ExposedVariableType_GameObject && pVar->pointer )
         {
+            // TODO: find a way to uniquely identify a game object...
             cJSON_AddStringToObject( jsonvar, "Value", ((GameObject*)pVar->pointer)->GetName() );
         }
     }

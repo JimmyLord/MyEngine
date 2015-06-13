@@ -239,8 +239,8 @@ void GameObject::SetSceneID(unsigned int sceneid)
     if( rootid.IsOk() )
     {
         wxTreeItemId gameobjectid = g_pPanelObjectList->AddObject( this, GameObject::StaticOnLeftClick, GameObject::StaticOnRightClick, rootid, m_Name );
-        g_pPanelObjectList->SetDragAndDropFunctions( this, GameObject::StaticOnDrag, GameObject::StaticOnDrop );
-        g_pPanelObjectList->SetLabelEditFunction( this, GameObject::StaticOnLabelEdit );
+        g_pPanelObjectList->SetDragAndDropFunctions( gameobjectid, GameObject::StaticOnDrag, GameObject::StaticOnDrop );
+        g_pPanelObjectList->SetLabelEditFunction( gameobjectid, GameObject::StaticOnLabelEdit );
         m_pComponentTransform->AddToObjectsPanel( gameobjectid );
         for( unsigned int i=0; i<m_Components.Count(); i++ )
         {
@@ -293,8 +293,8 @@ void GameObject::SetManaged(bool managed)
             wxTreeItemId rootid = g_pComponentSystemManager->GetTreeIDForScene( m_SceneID );
             MyAssert( rootid.IsOk() );
             wxTreeItemId gameobjectid = g_pPanelObjectList->AddObject( this, GameObject::StaticOnLeftClick, GameObject::StaticOnRightClick, rootid, m_Name );
-            g_pPanelObjectList->SetDragAndDropFunctions( this, GameObject::StaticOnDrag, GameObject::StaticOnDrop );
-            g_pPanelObjectList->SetLabelEditFunction( this, GameObject::StaticOnLabelEdit );
+            g_pPanelObjectList->SetDragAndDropFunctions( gameobjectid, GameObject::StaticOnDrag, GameObject::StaticOnDrop );
+            g_pPanelObjectList->SetLabelEditFunction( gameobjectid, GameObject::StaticOnLabelEdit );
             m_pComponentTransform->AddToObjectsPanel( gameobjectid );
             for( unsigned int i=0; i<m_Components.Count(); i++ )
             {

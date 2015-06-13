@@ -18,7 +18,7 @@ SceneHandler::~SceneHandler()
 }
 
 #if MYFW_USING_WX
-void SceneHandler::OnLeftClick(unsigned int count, bool clear)
+void SceneHandler::OnLeftClick(wxTreeItemId id, unsigned int count, bool clear)
 {
 }
 
@@ -69,11 +69,19 @@ void SceneHandler::OnDrag()
 {
 }
 
-void SceneHandler::OnDrop(int controlid, wxCoord x, wxCoord y)
+void SceneHandler::OnDrop(wxTreeItemId id, int controlid, wxCoord x, wxCoord y)
 {
+    if( g_DragAndDropStruct.m_Type == DragAndDropType_GameObjectPointer )
+    {
+        GameObject* pGameObject = (GameObject*)g_DragAndDropStruct.m_Value;
+
+        unsigned int sceneid = g_pComponentSystemManager->GetSceneIDFromSceneTreeID( id );
+
+        pGameObject->SetSceneID( sceneid );
+    }
 }
 
-void SceneHandler::OnLabelEdit(wxString newlabel)
+void SceneHandler::OnLabelEdit(wxTreeItemId id, wxString newlabel)
 {
 }
 #endif //MYFW_USING_WX
