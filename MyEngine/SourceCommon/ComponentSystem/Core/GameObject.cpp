@@ -218,6 +218,22 @@ void GameObject::ImportFromJSONObject(cJSON* jsonobj, unsigned int sceneid)
     SetSceneID( sceneid );
 }
 
+cJSON* GameObject::ExportReferenceAsJSONObject(unsigned int refsceneid)
+{
+    // see ComponentSystemManager::FindGameObjectByJSONRef
+
+    cJSON* gameobjectref = cJSON_CreateObject();
+
+    if( refsceneid != m_SceneID )
+    {
+        cJSON_AddStringToObject( gameobjectref, "Scene", g_pComponentSystemManager->GetSceneInfo( m_SceneID )->fullpath );
+    }
+
+    cJSON_AddNumberToObject( gameobjectref, "GOID", m_ID );
+
+    return gameobjectref;
+}
+
 void GameObject::SetSceneID(unsigned int sceneid)
 {
     if( m_SceneID == sceneid )
@@ -336,8 +352,8 @@ ComponentBase* GameObject::AddNewComponent(int componenttype, unsigned int scene
     {
         pComponentSystemManager->AddComponent( pComponent );
     }
-    pComponent->SetID( pComponentSystemManager->m_NextComponentID );
-    pComponentSystemManager->m_NextComponentID++;
+    pComponent->SetID( pComponentSystemManager->m_pSceneInfoMap[sceneid].m_NextComponentID );
+    pComponentSystemManager->m_pSceneInfoMap[sceneid].m_NextComponentID++;
 
     MyAssert( sceneid == 0 || m_SceneID == sceneid );
     pComponent->SetSceneID( sceneid );

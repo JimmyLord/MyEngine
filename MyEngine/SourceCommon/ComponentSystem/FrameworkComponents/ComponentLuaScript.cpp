@@ -185,8 +185,11 @@ cJSON* ComponentLuaScript::ExportAsJSONObject(bool savesceneid)
         }
         else if( pVar->type == ExposedVariableType_GameObject && pVar->pointer )
         {
+            cJSON* gameobjectref = ((GameObject*)pVar->pointer)->ExportReferenceAsJSONObject( m_SceneIDLoadedFrom );
+            cJSON_AddItemToObject( jsonvar, "Value", gameobjectref );
+
             // TODO: find a way to uniquely identify a game object...
-            cJSON_AddStringToObject( jsonvar, "Value", ((GameObject*)pVar->pointer)->GetName() );
+            //cJSON_AddStringToObject( jsonvar, "Value", ((GameObject*)pVar->pointer)->GetName() );
         }
     }
 
@@ -247,7 +250,10 @@ void ComponentLuaScript::ImportFromJSONObject(cJSON* jsonobj, unsigned int scene
         {
             cJSON* obj = cJSON_GetObjectItem( jsonvar, "Value" );
             if( obj )
-                pVar->pointer = g_pComponentSystemManager->FindGameObjectByName( obj->valuestring );
+            {
+                pVar->pointer = g_pComponentSystemManager->FindGameObjectByJSONRef( obj );
+                //pVar->pointer = g_pComponentSystemManager->FindGameObjectByName( obj->valuestring );
+            }
         }
     }
 }

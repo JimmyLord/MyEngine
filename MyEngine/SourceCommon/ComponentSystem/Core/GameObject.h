@@ -35,6 +35,7 @@ public:
 
     cJSON* ExportAsJSONObject(bool savesceneid);
     void ImportFromJSONObject(cJSON* jsonobj, unsigned int sceneid);
+    cJSON* ExportReferenceAsJSONObject(unsigned int refsceneid);
 
     void SetSceneID(unsigned int sceneid);
     void SetID(unsigned int id);

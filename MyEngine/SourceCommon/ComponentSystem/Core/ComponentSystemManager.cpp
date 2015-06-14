@@ -22,9 +22,6 @@ ComponentSystemManager::ComponentSystemManager(ComponentTypeManager* typemanager
 
     g_pMaterialManager->RegisterMaterialCreatedCallback( this, StaticOnMaterialCreated );
 
-    m_NextGameObjectID = 1;
-    m_NextComponentID = 1;
-
     m_NextSceneID = 1;
 
 #if MYFW_USING_WX
@@ -34,8 +31,8 @@ ComponentSystemManager::ComponentSystemManager(ComponentTypeManager* typemanager
     wxTreeItemId rootid = g_pPanelObjectList->GetTreeRoot();
     wxTreeItemId treeid = g_pPanelObjectList->AddObject( m_pSceneHandler, SceneHandler::StaticOnLeftClick, SceneHandler::StaticOnRightClick, rootid, "Unmanaged" );
     g_pPanelObjectList->SetDragAndDropFunctions( treeid, SceneHandler::StaticOnDrag, SceneHandler::StaticOnDrop );
-    m_pSceneIDToSceneTreeIDMap[0].treeid = treeid;
-    m_pSceneIDToSceneTreeIDMap[0].fullpath[0] = 0;
+    m_pSceneInfoMap[0].treeid = treeid;
+    m_pSceneInfoMap[0].fullpath[0] = 0;
 #endif //MYFW_USING_WX
 }
 
@@ -438,7 +435,7 @@ void ComponentSystemManager::LoadSceneFromJSON(const char* scenename, const char
         wxTreeItemId rootid = g_pPanelObjectList->GetTreeRoot();
         wxTreeItemId treeid = g_pPanelObjectList->AddObject( m_pSceneHandler, SceneHandler::StaticOnLeftClick, SceneHandler::StaticOnRightClick, rootid, scenename );
         g_pPanelObjectList->SetDragAndDropFunctions( treeid, SceneHandler::StaticOnDrag, SceneHandler::StaticOnDrop );
-        m_pSceneIDToSceneTreeIDMap[sceneid].treeid = treeid;
+        m_pSceneInfoMap[sceneid].treeid = treeid;
     }
 #endif //MYFW_USING_WX
 
@@ -475,8 +472,8 @@ void ComponentSystemManager::LoadSceneFromJSON(const char* scenename, const char
 
         pGameObject->ImportFromJSONObject( gameobj, sceneid );
 
-        if( pGameObject->GetID() > m_NextGameObjectID )
-            m_NextGameObjectID += 1;
+        if( pGameObject->GetID() > m_pSceneInfoMap[sceneid].m_NextGameObjectID )
+            m_pSceneInfoMap[sceneid].m_NextGameObjectID = pGameObject->GetID() + 1;
     }
 
     // setup all the game object transforms
@@ -499,8 +496,8 @@ void ComponentSystemManager::LoadSceneFromJSON(const char* scenename, const char
             pGameObject->SetID( goid );
             pGameObject->m_pComponentTransform->ImportFromJSONObject( transformobj, sceneid );
 
-            if( goid >= m_NextGameObjectID )
-                m_NextGameObjectID = goid + 1;
+            if( goid >= m_pSceneInfoMap[sceneid].m_NextGameObjectID )
+                m_pSceneInfoMap[sceneid].m_NextGameObjectID = goid + 1;
         }
     }
 
@@ -545,8 +542,8 @@ void ComponentSystemManager::LoadSceneFromJSON(const char* scenename, const char
             pComponent->ImportFromJSONObject( componentobj, sceneid );
             
             pComponent->SetID( id );
-            if( id >= m_NextComponentID )
-                m_NextComponentID = id + 1;
+            if( id >= m_pSceneInfoMap[sceneid].m_NextComponentID )
+                m_pSceneInfoMap[sceneid].m_NextComponentID = id + 1;
         }
     }
 
@@ -570,9 +567,6 @@ void ComponentSystemManager::SyncAllRigidBodiesToObjectTransforms()
 
 void ComponentSystemManager::UnloadScene(unsigned int sceneidtoclear, bool clearunmanagedcomponents)
 {
-    m_NextGameObjectID = 1;
-    m_NextComponentID = 1;
-
     // Remove all components, except ones attached to unmanaged game objects(if wanted)
     {
         for( unsigned int i=0; i<BaseComponentType_NumTypes; i++ )
@@ -580,15 +574,21 @@ void ComponentSystemManager::UnloadScene(unsigned int sceneidtoclear, bool clear
             for( CPPListNode* pNode = m_Components[i].GetHead(); pNode;  )
             {
                 ComponentBase* pComponent = (ComponentBase*)pNode;
+                
                 pNode = pNode->GetNext();
+
+                unsigned int sceneid = pComponent->GetSceneID();
+
                 if( (pComponent->m_pGameObject->IsManaged() || clearunmanagedcomponents) &&
-                    (sceneidtoclear == UINT_MAX || pComponent->GetSceneID() == sceneidtoclear) )
+                    (sceneidtoclear == UINT_MAX || sceneid == sceneidtoclear) )
                 {
                     DeleteComponent( pComponent );
                 }
-                else if( pComponent->GetID() > m_NextComponentID )
+                else if( pComponent->GetID() > m_pSceneInfoMap[sceneid].m_NextComponentID )
                 {
-                    m_NextComponentID = pComponent->GetID() + 1;
+                    // not sure how this could happen.
+                    MyAssert( false );
+                    m_pSceneInfoMap[sceneid].m_NextComponentID = pComponent->GetID() + 1;
                 }
             }
         }
@@ -602,14 +602,16 @@ void ComponentSystemManager::UnloadScene(unsigned int sceneidtoclear, bool clear
 
             pNode = pNode->GetNext();
 
+            unsigned int sceneid = pGameObject->GetSceneID();
+
             if( (pGameObject->IsManaged() || clearunmanagedcomponents) &&
-                (sceneidtoclear == UINT_MAX || pGameObject->GetSceneID() == sceneidtoclear) )
+                (sceneidtoclear == UINT_MAX || sceneid == sceneidtoclear) )
             {
                 DeleteGameObject( pGameObject, true );
             }
-            else if( pGameObject->GetID() > m_NextGameObjectID )
+            else if( pGameObject->GetID() > m_pSceneInfoMap[sceneid].m_NextGameObjectID )
             {
-                m_NextGameObjectID = pGameObject->GetID() + 1;
+                m_pSceneInfoMap[sceneid].m_NextGameObjectID = pGameObject->GetID() + 1;
             }
         }
     }
@@ -629,7 +631,7 @@ void ComponentSystemManager::UnloadScene(unsigned int sceneidtoclear, bool clear
     if( sceneidtoclear == UINT_MAX )
     {
         typedef std::map<int, SceneInfo>::iterator it_type;
-        for( it_type iterator = g_pComponentSystemManager->m_pSceneIDToSceneTreeIDMap.begin(); iterator != g_pComponentSystemManager->m_pSceneIDToSceneTreeIDMap.end(); )
+        for( it_type iterator = m_pSceneInfoMap.begin(); iterator != m_pSceneInfoMap.end(); )
         {
             unsigned int sceneid = iterator->first;
             SceneInfo* pSceneInfo = &iterator->second;
@@ -637,7 +639,7 @@ void ComponentSystemManager::UnloadScene(unsigned int sceneidtoclear, bool clear
             if( sceneid != 0 && pSceneInfo->treeid.IsOk() ) // don't clear the "Unmanaged" label.
             {
                 g_pPanelObjectList->m_pTree_Objects->Delete( pSceneInfo->treeid );
-                g_pComponentSystemManager->m_pSceneIDToSceneTreeIDMap.erase( iterator++ );
+                m_pSceneInfoMap.erase( iterator++ );
             }
             else
             {
@@ -647,10 +649,10 @@ void ComponentSystemManager::UnloadScene(unsigned int sceneidtoclear, bool clear
     }
     else if( sceneidtoclear != 0 ) // don't clear the "Unmanaged" label.
     {
-        SceneInfo* pSceneInfo = g_pComponentSystemManager->GetSceneInfo( sceneidtoclear );
+        SceneInfo* pSceneInfo = GetSceneInfo( sceneidtoclear );
         if( pSceneInfo && pSceneInfo->treeid.IsOk() )
             g_pPanelObjectList->m_pTree_Objects->Delete( pSceneInfo->treeid );
-        g_pComponentSystemManager->m_pSceneIDToSceneTreeIDMap.erase( sceneidtoclear );
+        m_pSceneInfoMap.erase( sceneidtoclear );
     }
 #endif
 }
@@ -658,8 +660,8 @@ void ComponentSystemManager::UnloadScene(unsigned int sceneidtoclear, bool clear
 GameObject* ComponentSystemManager::CreateGameObject(bool manageobject, int sceneid)
 {
     GameObject* pGameObject = MyNew GameObject( manageobject, sceneid );
-    pGameObject->SetID( m_NextGameObjectID );
-    m_NextGameObjectID++;
+    pGameObject->SetID( m_pSceneInfoMap[sceneid].m_NextGameObjectID );
+    m_pSceneInfoMap[sceneid].m_NextGameObjectID++;
 
     //if( manageobject )
         m_GameObjects.AddTail( pGameObject );
@@ -764,6 +766,35 @@ GameObject* ComponentSystemManager::FindGameObjectByName(const char* name)
         GameObject* pGameObject = (GameObject*)node;
 
         if( strcmp( pGameObject->GetName(), name ) == 0 )
+            return pGameObject;
+    }
+
+    return 0;
+}
+
+GameObject* ComponentSystemManager::FindGameObjectByJSONRef(cJSON* pJSONGameObjectRef)
+{
+    // see GameObject::ExportReferenceAsJSONObject
+
+    cJSON* jScenePath = cJSON_GetObjectItem( pJSONGameObjectRef, "Scene" );
+    unsigned int sceneid = -2;
+    if( jScenePath )
+    {
+        sceneid = GetSceneIDFromFullpath( jScenePath->valuestring );
+        if( sceneid == -1 )
+            return 0; // scene isn't loaded, so object can't be found.
+        //TODO: saving will throw all reference info away and piss people off :)
+    }
+
+    unsigned int goid = -1;
+    cJSONExt_GetUnsignedInt( pJSONGameObjectRef, "GOID", &goid );
+    MyAssert( goid != -1 );
+
+    for( CPPListNode* node = m_GameObjects.GetHead(); node != 0; node = node->GetNext() )
+    {
+        GameObject* pGameObject = (GameObject*)node;
+
+        if( (sceneid == -2 || pGameObject->GetSceneID() == sceneid) && pGameObject->GetID() == goid )
             return pGameObject;
     }
 
@@ -1025,13 +1056,29 @@ void ComponentSystemManager::DrawMousePickerFrame(ComponentCamera* pCamera, MyMa
 #if MYFW_USING_WX
 wxTreeItemId ComponentSystemManager::GetTreeIDForScene(int sceneid)
 {
-    return m_pSceneIDToSceneTreeIDMap[sceneid].treeid;
+    return m_pSceneInfoMap[sceneid].treeid;
+}
+
+unsigned int ComponentSystemManager::GetSceneIDFromFullpath(const char* fullpath)
+{
+    typedef std::map<int, SceneInfo>::iterator it_type;
+    for( it_type iterator = m_pSceneInfoMap.begin(); iterator != m_pSceneInfoMap.end(); iterator++ )
+    {
+        unsigned int sceneid = iterator->first;
+        SceneInfo* pSceneInfo = &iterator->second;
+
+        if( strcmp( pSceneInfo->fullpath, fullpath ) == 0 )
+            return sceneid;
+    }
+
+    MyAssert( false ); // fullpath not found, that's fine when used from gameobject loading.
+    return -1;
 }
 
 unsigned int ComponentSystemManager::GetSceneIDFromSceneTreeID(wxTreeItemId treeid)
 {
     typedef std::map<int, SceneInfo>::iterator it_type;
-    for( it_type iterator = g_pComponentSystemManager->m_pSceneIDToSceneTreeIDMap.begin(); iterator != g_pComponentSystemManager->m_pSceneIDToSceneTreeIDMap.end(); iterator++ )
+    for( it_type iterator = m_pSceneInfoMap.begin(); iterator != m_pSceneInfoMap.end(); iterator++ )
     {
         unsigned int sceneid = iterator->first;
         SceneInfo* pSceneInfo = &iterator->second;
@@ -1046,7 +1093,7 @@ unsigned int ComponentSystemManager::GetSceneIDFromSceneTreeID(wxTreeItemId tree
 
 SceneInfo* ComponentSystemManager::GetSceneInfo(int sceneid)
 {
-    return &m_pSceneIDToSceneTreeIDMap[sceneid];
+    return &m_pSceneInfoMap[sceneid];
 }
 
 void ComponentSystemManager::DrawSingleObject(MyMatrix* pMatViewProj, GameObject* pObject)

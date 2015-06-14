@@ -14,10 +14,15 @@ struct SceneInfo
 {
     wxTreeItemId treeid;
     char fullpath[MAX_PATH];
+    unsigned int m_NextGameObjectID;
+    unsigned int m_NextComponentID;
 
     SceneInfo::SceneInfo()
     {
         fullpath[0] = 0;
+
+        m_NextGameObjectID = 1;
+        m_NextComponentID = 1;
     }
 };
 

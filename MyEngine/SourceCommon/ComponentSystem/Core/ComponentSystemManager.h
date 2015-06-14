@@ -42,11 +42,6 @@ struct ComponentTickCallbackStruct
     }
 };
 
-enum ComponentListTypes
-{
-
-};
-
 class ComponentSystemManager
 #if MYFW_USING_WX
 : public wxEvtHandler
@@ -65,9 +60,6 @@ public:
     // a list of components that want an update call without being in the list above.
     static const int MAX_COMPONENT_TICK_CALLBACKS = 100; // TODO: fix this hardcodedness
     MyList<ComponentTickCallbackStruct> m_pComponentTickCallbackList;
-
-    unsigned int m_NextGameObjectID;
-    unsigned int m_NextComponentID;
 
 protected:
 #if MYFW_USING_WX
@@ -103,6 +95,7 @@ public:
 
     GameObject* FindGameObjectByID(unsigned int sceneid, unsigned int goid);
     GameObject* FindGameObjectByName(const char* name);
+    GameObject* FindGameObjectByJSONRef(cJSON* pJSONGameObjectRef);
     ComponentCamera* GetFirstCamera();
     ComponentBase* GetFirstComponentOfType(const char* type);
     ComponentBase* GetNextComponentOfType(ComponentBase* pLastComponent);
@@ -133,8 +126,9 @@ public:
     unsigned int GetNextSceneID() { return m_NextSceneID++; }
 #if MYFW_USING_WX
     SceneHandler* m_pSceneHandler;
-    std::map<int, SceneInfo> m_pSceneIDToSceneTreeIDMap;
+    std::map<int, SceneInfo> m_pSceneInfoMap;
     wxTreeItemId GetTreeIDForScene(int sceneid);
+    unsigned int GetSceneIDFromFullpath(const char* fullpath);
     unsigned int GetSceneIDFromSceneTreeID(wxTreeItemId treeid);
     SceneInfo* GetSceneInfo(int sceneid);
 #endif

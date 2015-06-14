@@ -1409,7 +1409,7 @@ void EngineCore::LoadSceneFromFile(const char* fullpath, unsigned int sceneid)
         filenamestart = &fullpath[i+1];
 
         LoadScene( filenamestart, jsonstr, sceneid );
-        strcpy_s( g_pComponentSystemManager->m_pSceneIDToSceneTreeIDMap[sceneid].fullpath, MAX_PATH, fullpath );
+        strcpy_s( g_pComponentSystemManager->m_pSceneInfoMap[sceneid].fullpath, MAX_PATH, fullpath );
 
         delete[] jsonstr;
     }

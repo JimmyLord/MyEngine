@@ -599,7 +599,7 @@ void EngineMainFrame::SaveScene()
     else
     {
         typedef std::map<int, SceneInfo>::iterator it_type;
-        for( it_type iterator = g_pComponentSystemManager->m_pSceneIDToSceneTreeIDMap.begin(); iterator != g_pComponentSystemManager->m_pSceneIDToSceneTreeIDMap.end(); iterator++ )
+        for( it_type iterator = g_pComponentSystemManager->m_pSceneInfoMap.begin(); iterator != g_pComponentSystemManager->m_pSceneInfoMap.end(); iterator++ )
         {
             unsigned int sceneid = iterator->first;
             SceneInfo* pSceneInfo = &iterator->second;
