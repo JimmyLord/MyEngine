@@ -11,6 +11,8 @@
 
 GameObject::GameObject(bool managed, int sceneid)
 {
+    ClassnameSanityCheck();
+
     m_SceneID = sceneid;
     m_ID = 0;
     m_Name = 0;
@@ -28,6 +30,8 @@ GameObject::GameObject(bool managed, int sceneid)
 
 GameObject::~GameObject()
 {
+    NotifyOthersThisWasDeleted();
+
     if( m_Managed )
         SetManaged( false );
 
@@ -152,6 +156,8 @@ void GameObject::OnPopupClick(wxEvent &evt)
         if( pEditorState->IsGameObjectSelected( pGameObject ) )
         {
             g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_DeleteObjects( pEditorState->m_pSelectedObjects ) );
+
+            pGameObject->NotifyOthersThisWasDeleted();
         }
         else
         {
@@ -547,4 +553,59 @@ ComponentCollisionObject* GameObject::GetCollisionObject()
     }
 
     return 0;
+}
+
+void GameObject::RegisterOnDeleteCallback(void* pObj, GameObjectDeletedCallbackFunc pCallback)
+{
+    MyAssert( pCallback != 0 );
+
+//#if _DEBUG
+    // Make sure the same callback isn't being registered.
+    for( CPPListNode* pNode = m_pOnDeleteCallbacks.GetHead(); pNode; pNode = pNode->GetNext() )
+    {
+        GameObjectDeletedCallbackStruct* pCallbackStruct = (GameObjectDeletedCallbackStruct*)pNode;
+        //MyAssert( pCallbackStruct->pObj != pObj && pCallbackStruct->pFunc != pCallback );
+        if( pCallbackStruct->pObj != pObj && pCallbackStruct->pFunc != pCallback )
+            return;
+    }
+//#endif
+
+    // TODO: pool callback structures.
+    GameObjectDeletedCallbackStruct* pCallbackStruct = MyNew GameObjectDeletedCallbackStruct;
+    pCallbackStruct->pObj = pObj;
+    pCallbackStruct->pFunc = pCallback;
+
+    m_pOnDeleteCallbacks.AddTail( pCallbackStruct );
+}
+
+void GameObject::UnregisterOnDeleteCallback(void* pObj, GameObjectDeletedCallbackFunc pCallback)
+{
+    for( CPPListNode* pNode = m_pOnDeleteCallbacks.GetHead(); pNode; pNode = pNode->GetNext() )
+    {
+        GameObjectDeletedCallbackStruct* pCallbackStruct = (GameObjectDeletedCallbackStruct*)pNode;
+        if( pCallbackStruct->pObj == pObj && pCallbackStruct->pFunc == pCallback )
+        {
+            pCallbackStruct->Remove();
+            delete pCallbackStruct;
+            return;
+        }
+    }
+
+    MyAssert( false );
+}
+
+void GameObject::NotifyOthersThisWasDeleted()
+{
+    for( CPPListNode* pNode = m_pOnDeleteCallbacks.GetHead(); pNode; )
+    {
+        CPPListNode* pNextNode = pNode->GetNext();
+
+        GameObjectDeletedCallbackStruct* pCallbackStruct = (GameObjectDeletedCallbackStruct*)pNode;
+        pCallbackStruct->pFunc( pCallbackStruct->pObj, this );
+
+        pCallbackStruct->Remove();
+        delete pCallbackStruct;
+
+        pNode = pNextNode;
+    }
 }

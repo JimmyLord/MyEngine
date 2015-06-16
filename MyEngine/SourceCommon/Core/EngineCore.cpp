@@ -1739,7 +1739,7 @@ void EngineCore::SelectObjectsInRectangle(unsigned int sx, unsigned int sy, unsi
     }
 
     g_pPanelObjectList->m_UpdatePanelWatchOnSelection = true;
-    g_pPanelObjectList->UpdatePanelWatchWithSelectedItems(); // will reset and update m_pEditorState->m_pSelectedObjects
+    UpdatePanelWatchWithSelectedItems(); // will reset and update m_pEditorState->m_pSelectedObjects
 
     //LOGInfo( LOGTag, "Done selecting objects.\n" );
 

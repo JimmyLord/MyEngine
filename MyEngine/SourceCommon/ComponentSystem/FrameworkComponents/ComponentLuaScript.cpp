@@ -35,6 +35,11 @@ ComponentLuaScript::~ComponentLuaScript()
     while( m_ExposedVars.Count() )
     {
         ExposedVariableDesc* pVariable = m_ExposedVars.RemoveIndex( 0 );
+
+        // unregister gameobject deleted callback, if we registered one.
+        if( pVariable->type == ExposedVariableType_GameObject && pVariable->pointer )
+            ((GameObject*)pVariable->pointer)->UnregisterOnDeleteCallback( this, StaticOnGameObjectDeleted );
+
         delete pVariable;
     }
 
@@ -92,6 +97,8 @@ void ComponentLuaScript::FillPropertiesWindow(bool clear)
 {
     m_ControlID_ComponentTitleLabel = g_pPanelWatch->AddSpace( "Lua Script", this, ComponentBase::StaticOnComponentTitleLabelClicked );
 
+    m_ControlIDOfFirstExtern = -1;
+
     if( m_PanelWatchBlockVisible )
     {
         ComponentBase::FillPropertiesWindow( clear );
@@ -105,11 +112,13 @@ void ComponentLuaScript::FillPropertiesWindow(bool clear)
 
         for( unsigned int i=0; i<m_ExposedVars.Count(); i++ )
         {
+            int id = -1;
+
             ExposedVariableDesc* pVar = m_ExposedVars[i];
 
             if( pVar->type == ExposedVariableType_Float )
             {
-                g_pPanelWatch->AddDouble( pVar->name.c_str(), &pVar->value, 0, 500, this, ComponentLuaScript::StaticOnValueChanged );
+                id = g_pPanelWatch->AddDouble( pVar->name.c_str(), &pVar->value, 0, 500, this, ComponentLuaScript::StaticOnValueChanged );
             }
             else if( pVar->type == ExposedVariableType_GameObject )
             {
@@ -117,8 +126,11 @@ void ComponentLuaScript::FillPropertiesWindow(bool clear)
                 const char* desc = "no gameobject";
                 if( pVar->pointer )
                     desc = ((GameObject*)pVar->pointer)->GetName();
-                g_pPanelWatch->AddPointerWithDescription( pVar->name.c_str(), pVar->pointer, desc, this, ComponentLuaScript::StaticOnDrop, ComponentLuaScript::StaticOnValueChanged );
+                id = g_pPanelWatch->AddPointerWithDescription( pVar->name.c_str(), pVar->pointer, desc, this, ComponentLuaScript::StaticOnDrop, ComponentLuaScript::StaticOnValueChanged );
             }
+
+            if( m_ControlIDOfFirstExtern == -1 )
+                m_ControlIDOfFirstExtern = id;
         }
     }
 }
@@ -143,13 +155,28 @@ void ComponentLuaScript::OnDrop(int controlid, wxCoord x, wxCoord y)
         GameObject* pGameObject = (GameObject*)g_DragAndDropStruct.m_Value;
         MyAssert( pGameObject );
 
-        int id = g_DragAndDropStruct.m_ID - m_ControlIDOfFirstExtern;
+        MyAssert( m_ControlIDOfFirstExtern != -1 );
+        if( m_ControlIDOfFirstExtern != -1 )
+        {
+            int id = g_DragAndDropStruct.m_ID - m_ControlIDOfFirstExtern;
         
-        // TODO: this will make a mess of memory if different types of objects can be dragged in...
-        m_ExposedVars[id]->pointer = pGameObject;
+            MyAssert( id < (int)m_ExposedVars.Count() );
+            if( id < (int)m_ExposedVars.Count() )
+            {
+                // TODO: assert that this is a gameobject, although it shouldn't be possible.
+                MyAssert( pGameObject->GetClassname() == "GameObject" );
+        
+                // unregister the old gameobject.
+                if( m_ExposedVars[id]->pointer )
+                    ((GameObject*)m_ExposedVars[id]->pointer)->UnregisterOnDeleteCallback( this, StaticOnGameObjectDeleted );
 
-        // update the panel so new gameobject name shows up.
-        g_pPanelWatch->m_pVariables[g_DragAndDropStruct.m_ID].m_Description = pGameObject->GetName();
+                m_ExposedVars[id]->pointer = pGameObject;
+                ((GameObject*)m_ExposedVars[id]->pointer)->RegisterOnDeleteCallback( this, StaticOnGameObjectDeleted );
+
+                // update the panel so new gameobject name shows up.
+                g_pPanelWatch->m_pVariables[g_DragAndDropStruct.m_ID].m_Description = pGameObject->GetName();
+            }
+        }
     }
 }
 
@@ -252,6 +279,7 @@ void ComponentLuaScript::ImportFromJSONObject(cJSON* jsonobj, unsigned int scene
             if( obj )
             {
                 pVar->pointer = g_pComponentSystemManager->FindGameObjectByJSONRef( obj );
+                ((GameObject*)pVar->pointer)->RegisterOnDeleteCallback( this, StaticOnGameObjectDeleted );
                 //pVar->pointer = g_pComponentSystemManager->FindGameObjectByName( obj->valuestring );
             }
         }
@@ -414,8 +442,10 @@ void ComponentLuaScript::ParseExterns(luabridge::LuaRef LuaObject)
             {
                 // if it's a new variable or it changed type, set it to it's initial value.
                 if( pVar->inuse == false || pVar->type != ExposedVariableType_GameObject )
+                {
                     pVar->pointer = g_pComponentSystemManager->FindGameObjectByName( variableinitialvalue.tostring().c_str() );
-
+                    ((GameObject*)pVar->pointer)->RegisterOnDeleteCallback( this, StaticOnGameObjectDeleted );
+                }
                 pVar->type = ExposedVariableType_GameObject;
             }
             else
@@ -719,4 +749,21 @@ void ComponentLuaScript::CallFunction(const char* pFuncName)
     }
 
     return;
+}
+
+void ComponentLuaScript::OnGameObjectDeleted(GameObject* pGameObject)
+{
+    for( unsigned int i=0; i<m_ExposedVars.Count(); i++ )
+    {
+        ExposedVariableDesc* pVar = m_ExposedVars[i];
+
+        if( pVar->type == ExposedVariableType_GameObject )
+        {
+            if( pVar->pointer == pGameObject )
+            {
+                // TODO: do this through an EditorCommand for undo/redo.
+                pVar->pointer = 0;
+            }
+        }
+    }
 }

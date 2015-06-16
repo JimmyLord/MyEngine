@@ -10,6 +10,13 @@
 #ifndef __GameObject_H__
 #define __GameObject_H__
 
+typedef void (*GameObjectDeletedCallbackFunc)(void* pObjectPtr, GameObject* pGameObject);
+struct GameObjectDeletedCallbackStruct : CPPListNode
+{
+    void* pObj;
+    GameObjectDeletedCallbackFunc pFunc;
+};
+
 class GameObject : public CPPListNode
 #if MYFW_USING_WX
 , public wxEvtHandler
@@ -23,6 +30,11 @@ protected:
     char* m_Name; // this a copy of the string passed in.
     bool m_Managed;
 
+    CPPListHead m_pOnDeleteCallbacks;
+
+protected:
+    void NotifyOthersThisWasDeleted();
+
 public:
     ComponentTransform* m_pComponentTransform;
     MyList<ComponentBase*> m_Components; // component system manager is responsible for deleting these components.
@@ -30,6 +42,7 @@ public:
 public:
     GameObject(bool managed, int sceneid);
     virtual ~GameObject();
+    SetClassnameBase( "GameObject" ); // only first 8 character count.
 
     static void LuaRegister(lua_State* luastate);
 
@@ -67,6 +80,10 @@ public:
     void SetMaterial(MaterialDefinition* pMaterial);
 
     void SetScriptFile(MyFileObject* pFile);
+
+    // Callbacks
+    void RegisterOnDeleteCallback(void* pObj, GameObjectDeletedCallbackFunc pCallback);
+    void UnregisterOnDeleteCallback(void* pObj, GameObjectDeletedCallbackFunc pCallback);
 
 public:
 #if MYFW_USING_WX

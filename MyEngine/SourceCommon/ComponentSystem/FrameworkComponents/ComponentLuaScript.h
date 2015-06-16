@@ -79,6 +79,10 @@ public:
 
     void CallFunction(const char* pFuncName);
 
+    // GameObject callbacks.
+    static void StaticOnGameObjectDeleted(void* pObjectPtr, GameObject* pGameObject) { ((ComponentLuaScript*)pObjectPtr)->OnGameObjectDeleted( pGameObject ); }
+    void OnGameObjectDeleted(GameObject* pGameObject);
+
 public:
 #if MYFW_USING_WX
     static void StaticOnFileUpdated(void* pObjectPtr, MyFileObject* pFile) { ((ComponentLuaScript*)pObjectPtr)->OnFileUpdated( pFile ); }
