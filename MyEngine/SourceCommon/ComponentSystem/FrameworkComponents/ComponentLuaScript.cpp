@@ -762,7 +762,14 @@ void ComponentLuaScript::OnGameObjectDeleted(GameObject* pGameObject)
             if( pVar->pointer == pGameObject )
             {
                 // TODO: do this through an EditorCommand for undo/redo.
+#if MYFW_USING_WX
+                g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_PanelWatchPointerChanged(
+                    0,
+                    PanelWatchType_PointerWithDesc, &pVar->pointer, -1,
+                    ComponentLuaScript::StaticOnValueChanged, this ), true );
+#else
                 pVar->pointer = 0;
+#endif
             }
         }
     }
