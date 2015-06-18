@@ -77,6 +77,8 @@ public:
     static bool m_PanelWatchBlockVisible;
     int m_ControlID_ParentTransform;
 
+    bool IsAnyParentInList(std::vector<GameObject*>& gameobjects);
+
     virtual void AddToObjectsPanel(wxTreeItemId gameobjectid);
     
     // Object panel callbacks.

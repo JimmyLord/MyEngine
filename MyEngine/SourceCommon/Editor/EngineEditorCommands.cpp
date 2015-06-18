@@ -14,7 +14,7 @@
 // EditorCommand_MoveObjects
 //====================================================================================================
 
-EditorCommand_MoveObjects::EditorCommand_MoveObjects(Vector3 distancemoved, const std::vector<GameObject*> &selectedobjects)
+EditorCommand_MoveObjects::EditorCommand_MoveObjects(Vector3 distancemoved, const std::vector<GameObject*>& selectedobjects)
 {
     m_DistanceMoved = distancemoved;
 
@@ -64,7 +64,7 @@ EditorCommand* EditorCommand_MoveObjects::Repeat()
 // EditorCommand_DeleteObjects
 //====================================================================================================
 
-EditorCommand_DeleteObjects::EditorCommand_DeleteObjects(const std::vector<GameObject*> &selectedobjects)
+EditorCommand_DeleteObjects::EditorCommand_DeleteObjects(const std::vector<GameObject*>& selectedobjects)
 {
     for( unsigned int i=0; i<selectedobjects.size(); i++ )
     {
@@ -118,7 +118,7 @@ EditorCommand* EditorCommand_DeleteObjects::Repeat()
 // EditorCommand_DeleteComponents
 //====================================================================================================
 
-EditorCommand_DeleteComponents::EditorCommand_DeleteComponents(const std::vector<ComponentBase*> &selectedcomponents)
+EditorCommand_DeleteComponents::EditorCommand_DeleteComponents(const std::vector<ComponentBase*>& selectedcomponents)
 {
     for( unsigned int i=0; i<selectedcomponents.size(); i++ )
     {

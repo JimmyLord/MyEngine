@@ -164,7 +164,7 @@ void ComponentLuaScript::OnDrop(int controlid, wxCoord x, wxCoord y)
             if( id < (int)m_ExposedVars.Count() )
             {
                 // TODO: assert that this is a gameobject, although it shouldn't be possible.
-                MyAssert( pGameObject->GetClassname() == "GameObject" );
+                MyAssert( pGameObject->IsA( "GameObject" ) );
         
                 // unregister the old gameobject.
                 if( m_ExposedVars[id]->pointer )
@@ -761,15 +761,16 @@ void ComponentLuaScript::OnGameObjectDeleted(GameObject* pGameObject)
         {
             if( pVar->pointer == pGameObject )
             {
-                // TODO: do this through an EditorCommand for undo/redo.
 #if MYFW_USING_WX
-                g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_PanelWatchPointerChanged(
-                    0,
-                    PanelWatchType_PointerWithDesc, &pVar->pointer, -1,
-                    ComponentLuaScript::StaticOnValueChanged, this ), true );
-#else
-                pVar->pointer = 0;
+                if( g_pEngineMainFrame->m_pCommandStack )
+                {
+                    g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_PanelWatchPointerChanged(
+                        0,
+                        PanelWatchType_PointerWithDesc, &pVar->pointer, -1,
+                        ComponentLuaScript::StaticOnValueChanged, this ), true );
+                }
 #endif
+                pVar->pointer = 0;
             }
         }
     }

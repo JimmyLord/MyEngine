@@ -19,7 +19,7 @@ protected:
     std::vector<GameObject*> m_ObjectsMoved;
 
 public:
-    EditorCommand_MoveObjects(Vector3 distancemoved, const std::vector<GameObject*> &selectedobjects);
+    EditorCommand_MoveObjects(Vector3 distancemoved, const std::vector<GameObject*>& selectedobjects);
     virtual ~EditorCommand_MoveObjects();
 
     virtual void Do();
@@ -41,7 +41,7 @@ protected:
     bool m_DeleteGameObjectsWhenDestroyed;
 
 public:
-    EditorCommand_DeleteObjects(const std::vector<GameObject*> &selectedobjects);
+    EditorCommand_DeleteObjects(const std::vector<GameObject*>& selectedobjects);
     virtual ~EditorCommand_DeleteObjects();
 
     virtual void Do();
@@ -63,7 +63,7 @@ protected:
     bool m_DeleteComponentsWhenDestroyed;
 
 public:
-    EditorCommand_DeleteComponents(const std::vector<ComponentBase*> &selectedcomponents);
+    EditorCommand_DeleteComponents(const std::vector<ComponentBase*>& selectedcomponents);
     virtual ~EditorCommand_DeleteComponents();
 
     virtual void Do();

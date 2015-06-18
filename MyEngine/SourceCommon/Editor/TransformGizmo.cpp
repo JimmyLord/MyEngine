@@ -352,7 +352,7 @@ void TransformGizmo::TranslateSelectedObjects(EngineCore* pGame, EditorState* pE
                         m_LastIntersectResultUsed.z = currentresult.z;
                 }
 
-                // move all of the things. // undo is handled by EngineCore.cpp when mouse is lifted.
+                // GIZMOTRANSLATE: move all of the things. // undo is handled by EngineCore.cpp when mouse is lifted.
                 pEditorState->m_DistanceTranslated += diff;
                 //LOGInfo( LOGTag, "pEditorState->m_DistanceTranslated.Set( %f, %f, %f );", pEditorState->m_DistanceTranslated.x, pEditorState->m_DistanceTranslated.y, pEditorState->m_DistanceTranslated.z );
                 //LOGInfo( LOGTag, "diff( %f, %f, %f, %d );", diff.x, diff.y, diff.z, pEditorState->m_pSelectedObjects.size() );
@@ -361,13 +361,14 @@ void TransformGizmo::TranslateSelectedObjects(EngineCore* pGame, EditorState* pE
                 {
                     ComponentTransform* pTransform = pEditorState->m_pSelectedObjects[i]->m_pComponentTransform;
 
-                    Vector3 pos = pTransform->GetLocalTransform()->GetTranslation();
-                    //Vector3 pos = pTransform->GetPosition();
-                    //pos.y = currentresult.y;
-                    //pEditorState->m_pSelectedObjects[i]->m_pComponentTransform->SetPosition( pos );
+                    // if this object has a selected parent, don't move it, only move the parent.
+                    if( pTransform->IsAnyParentInList( pEditorState->m_pSelectedObjects ) == false )
+                    {
+                        Vector3 pos = pTransform->GetLocalTransform()->GetTranslation();
 
-                    pTransform->SetPositionByEditor( pos + diff );
-                    pTransform->UpdateMatrix();
+                        pTransform->SetPositionByEditor( pos + diff );
+                        pTransform->UpdateMatrix();
+                    }
                 }
             }
         }

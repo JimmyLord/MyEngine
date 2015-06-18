@@ -1103,10 +1103,26 @@ void EngineCore::HandleEditorInput(int keyaction, int keycode, int mouseaction, 
                 m_pEditorState->m_ModifierKeyStates &= ~MODIFIERKEY_LeftMouse;
                 m_pEditorState->m_EditorActionState = EDITORACTIONSTATE_None;
 
-                // add translation to undo stack, action itself is done each frame.  We only want to undo to last mouse down.
+                // GIZMOTRANSLATE: add translation to undo stack, action itself is done each frame.  We only want to undo to last mouse down.
                 if( m_pEditorState->m_pSelectedObjects.size() > 0 && m_pEditorState->m_DistanceTranslated.LengthSquared() != 0 )
                 {
-                    g_pEngineMainFrame->m_pCommandStack->Add( MyNew EditorCommand_MoveObjects( m_pEditorState->m_DistanceTranslated, m_pEditorState->m_pSelectedObjects ) );
+                    // Create a new list of selected objects, don't include objects that have parents that are selected.
+                    std::vector<GameObject*> selectedobjects;
+                    for( unsigned int i=0; i<m_pEditorState->m_pSelectedObjects.size(); i++ )
+                    {
+                        ComponentTransform* pTransform = m_pEditorState->m_pSelectedObjects[i]->m_pComponentTransform;
+
+                        // if this object has a selected parent, don't move it, only move the parent.
+                        if( pTransform->IsAnyParentInList( m_pEditorState->m_pSelectedObjects ) == false )
+                        {
+                            selectedobjects.push_back( m_pEditorState->m_pSelectedObjects[i] );
+                        }
+                    }
+
+                    if( selectedobjects.size() > 0 )
+                    {
+                        g_pEngineMainFrame->m_pCommandStack->Add( MyNew EditorCommand_MoveObjects( m_pEditorState->m_DistanceTranslated, selectedobjects ) );
+                    }
                 }
             }
             else if( id == 1 )
