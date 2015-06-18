@@ -21,13 +21,13 @@
 
 // bullet
 #if MYFW_WINDOWS
-#pragma warning (disable : 4263)
-#pragma warning (disable : 4264)
+#pragma warning( push )
+#pragma warning( disable : 4263 )
+#pragma warning( disable : 4264 )
 #endif
 #include "../../../bullet3/src/btBulletDynamicsCommon.h"
 #if MYFW_WINDOWS
-#pragma warning (default : 4263)
-#pragma warning (default : 4264)
+#pragma warning( pop )
 #endif
 #include "Core/BulletWorld.h"
 

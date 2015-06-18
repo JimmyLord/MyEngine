@@ -63,7 +63,8 @@ LuaGameState::~LuaGameState()
     if( g_pLuaGameState == this )
         g_pLuaGameState = 0;
 
-    lua_close( m_pLuaState );
+    if( m_pLuaState )
+        lua_close( m_pLuaState );
 }
 
 void LuaGameState::Rebuild()

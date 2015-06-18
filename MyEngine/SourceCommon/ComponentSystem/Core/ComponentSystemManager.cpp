@@ -16,11 +16,15 @@ ComponentSystemManager::ComponentSystemManager(ComponentTypeManager* typemanager
     g_pComponentSystemManager = this;
 
     m_pComponentTypeManager = typemanager;
+#if MYFW_USING_WX
     m_pSceneHandler = MyNew SceneHandler();
+#endif
 
     m_pComponentTickCallbackList.AllocateObjects( MAX_COMPONENT_TICK_CALLBACKS );
 
+#if MYFW_USING_WX
     g_pMaterialManager->RegisterMaterialCreatedCallback( this, StaticOnMaterialCreated );
+#endif
 
     m_NextSceneID = 1;
 
@@ -50,7 +54,9 @@ ComponentSystemManager::~ComponentSystemManager()
             delete m_Components[i].RemHead();
     }
 
+#if MYFW_USING_WX
     SAFE_DELETE( m_pSceneHandler );
+#endif
     SAFE_DELETE( m_pComponentTypeManager );
 
     // if a component didn't unregister itself, assert.
@@ -1053,7 +1059,28 @@ void ComponentSystemManager::DrawMousePickerFrame(ComponentCamera* pCamera, MyMa
     }
 }
 
-#if MYFW_USING_WX
+#if MYFW_USING_WX == 0
+SceneInfo* ComponentSystemManager::GetSceneInfo(int sceneid)
+{
+    MyAssert( sceneid >= 0 && sceneid < 10 );
+    return &m_pSceneInfoMap[sceneid];
+}
+
+unsigned int ComponentSystemManager::GetSceneIDFromFullpath(const char* fullpath)
+{
+    for( int i=0; i<10; i++ )
+    {
+        unsigned int sceneid = i;
+        SceneInfo* pSceneInfo = &m_pSceneInfoMap[i];
+
+        if( strcmp( pSceneInfo->fullpath, fullpath ) == 0 )
+            return sceneid;
+    }
+
+    MyAssert( false ); // fullpath not found, that's fine when used from gameobject loading.
+    return -1;
+}
+#else
 wxTreeItemId ComponentSystemManager::GetTreeIDForScene(int sceneid)
 {
     return m_pSceneInfoMap[sceneid].treeid;

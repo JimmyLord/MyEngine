@@ -217,7 +217,9 @@ void EngineCore::OnFocusGained()
 {
     GameCore::OnFocusGained();
 
+#if MYFW_USING_WX
     m_pEditorState->ClearKeyAndActionStates();
+#endif
 
     // reload any files that changed while we were out of focus.
     int filesupdated = g_pFileManager->ReloadAnyUpdatedFiles( OnFileUpdated_CallbackFunction );
@@ -290,7 +292,7 @@ void EngineCore::OnDrawFrame()
                 float backuptime = pAnim->m_AnimationTime;
 
                 pAnim->m_AnimationIndex = 0;
-                pAnim->m_AnimationTime = MyTime_GetUnpausedTime();
+                pAnim->m_AnimationTime = (float)MyTime_GetUnpausedTime();
                 pAnim->Tick( 0 );
         
                 RenderSingleObject( pObject );
@@ -648,7 +650,7 @@ void EngineCore::HandleEditorInput(int keyaction, int keycode, int mouseaction, 
         if( mouseaction == GCBA_Down && id == 0 )
         {
             // find the object we clicked on.
-            GameObject* pObject = GetObjectAtPixel( x, y, true );
+            GameObject* pObject = GetObjectAtPixel( (unsigned int)x, (unsigned int)y, true );
 
             // reset mouse movement, so we can undo to this state after mouse goes up.
             m_pEditorState->m_DistanceTranslated.Set( 0, 0, 0 );
@@ -1093,8 +1095,8 @@ void EngineCore::HandleEditorInput(int keyaction, int keycode, int mouseaction, 
                 // when mouse up, select all object in the box.
                 if( m_pEditorState->m_EditorActionState == EDITORACTIONSTATE_GroupSelectingObjects )
                 {
-                    SelectObjectsInRectangle( m_pEditorState->m_MouseLeftDownLocation.x, m_pEditorState->m_MouseLeftDownLocation.y,
-                                              m_pEditorState->m_CurrentMousePosition.x, m_pEditorState->m_CurrentMousePosition.y );
+                    SelectObjectsInRectangle( (unsigned int)m_pEditorState->m_MouseLeftDownLocation.x, (unsigned int)m_pEditorState->m_MouseLeftDownLocation.y,
+                                              (unsigned int)m_pEditorState->m_CurrentMousePosition.x, (unsigned int)m_pEditorState->m_CurrentMousePosition.y );
                 }
 
                 m_pEditorState->m_MouseLeftDownLocation = Vector2( -1, -1 );
@@ -1610,11 +1612,11 @@ GameObject* EngineCore::GetObjectAtPixel(unsigned int x, unsigned int y, bool cr
     id = (((uint64_t)UINT_MAX+1) * (id % 641) + id) / 641; // 1, 641, 6700417, 4294967297, 
     //LOGInfo( LOGTag, "pixel - %d, %d, %d, %d - id - %d\n", pixel[0], pixel[1], pixel[2], pixel[3], id );
 
-    unsigned int sceneid = id / 100000;
+    unsigned int sceneid = (unsigned int)(id / 100000);
     id = id % 100000;
 
     // find the object clicked on.
-    GameObject* pGameObject = m_pComponentSystemManager->FindGameObjectByID( sceneid, id );
+    GameObject* pGameObject = m_pComponentSystemManager->FindGameObjectByID( sceneid, (unsigned int)id );
 
     // if we didn't click on something, check if it's the transform gizmo.
     //   has to be checked manually since they are unmanaged.
@@ -1686,11 +1688,11 @@ void EngineCore::SelectObjectsInRectangle(unsigned int sx, unsigned int sy, unsi
         unsigned long long id = pixels[offset+0] + pixels[offset+1]*256 + pixels[offset+2]*256*256 + pixels[offset+3]*256*256*256;
         id = (((uint64_t)UINT_MAX+1) * (id % 641) + id) / 641; // 1, 641, 6700417, 4294967297, 
 
-        unsigned int sceneid = id / 100000;
+        unsigned int sceneid = (unsigned int)id / 100000;
         id = id % 100000;
 
         // if the object's not already selected, select it.
-        GameObject* pObject = m_pComponentSystemManager->FindGameObjectByID( sceneid, id );
+        GameObject* pObject = m_pComponentSystemManager->FindGameObjectByID( sceneid, (unsigned int)id );
 
         if( pObject && m_pEditorState->IsGameObjectSelected( pObject ) )
             firstobjectwasselected = true;
@@ -1704,11 +1706,11 @@ void EngineCore::SelectObjectsInRectangle(unsigned int sx, unsigned int sy, unsi
             unsigned long long id = pixels[offset+0] + pixels[offset+1]*256 + pixels[offset+2]*256*256 + pixels[offset+3]*256*256*256;
             id = (((uint64_t)UINT_MAX+1) * (id % 641) + id) / 641; // 1, 641, 6700417, 4294967297, 
 
-            unsigned int sceneid = id / 100000;
+            unsigned int sceneid = (unsigned int)id / 100000;
             id = id % 100000;
 
             // if the object's not already selected, select it.
-            GameObject* pObject = m_pComponentSystemManager->FindGameObjectByID( sceneid, id );
+            GameObject* pObject = m_pComponentSystemManager->FindGameObjectByID( sceneid, (unsigned int)id );
 
             if( pObject )
             {

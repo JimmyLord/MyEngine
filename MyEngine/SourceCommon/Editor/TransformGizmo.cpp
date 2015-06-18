@@ -78,7 +78,7 @@ void TransformGizmo::Tick(double TimePassed, EditorState* pEditorState)
             {
                 ObjectPosition += pEditorState->m_pSelectedObjects[i]->m_pComponentTransform->GetPosition();
             }
-            ObjectPosition /= pEditorState->m_pSelectedObjects.size();
+            ObjectPosition /= (float)pEditorState->m_pSelectedObjects.size();
 
             ObjectTransform.SetIdentity();
         }
@@ -120,8 +120,12 @@ void TransformGizmo::Tick(double TimePassed, EditorState* pEditorState)
 
 bool TransformGizmo::HandleInput(EngineCore* pGame, int keydown, int keycode, int action, int id, float x, float y, float pressure)
 {
+    MyAssert( x >= 0 && y >= 0 );
+    if( x < 0 || y < 0 )
+        return false;
+
     // find the object we're hovering on
-    GameObject* pObject = pGame->GetObjectAtPixel( x, y, true );
+    GameObject* pObject = pGame->GetObjectAtPixel( (unsigned int)x, (unsigned int)y, true );
 
     m_SelectedPart = -1;
 

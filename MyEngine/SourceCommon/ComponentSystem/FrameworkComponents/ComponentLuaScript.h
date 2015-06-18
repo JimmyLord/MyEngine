@@ -58,7 +58,7 @@ public:
 
     virtual void Reset();
     virtual void CopyFromSameType_Dangerous(ComponentBase* pObject) { *this = (ComponentLuaScript&)*pObject; }
-    virtual ComponentLuaScript& operator=(const ComponentLuaScript& other);
+    ComponentLuaScript& operator=(const ComponentLuaScript& other);
 
     MyFileObject* GetScriptFile() { return m_pScriptFile; }
     void SetScriptFile(MyFileObject* script);

@@ -32,7 +32,7 @@ public:
 
     virtual void Reset();
     virtual void CopyFromSameType_Dangerous(ComponentBase* pObject) { *this = (ComponentPostEffect&)*pObject; }
-    virtual ComponentPostEffect& operator=(const ComponentPostEffect& other);
+    ComponentPostEffect& operator=(const ComponentPostEffect& other);
 
     virtual MaterialDefinition* GetMaterial() { return m_pMaterial; }
     virtual void SetMaterial(MaterialDefinition* pMaterial);

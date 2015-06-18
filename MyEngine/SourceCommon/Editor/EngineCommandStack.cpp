@@ -30,15 +30,15 @@ void EngineCommandStack::Redo(unsigned int levels)
         CommandStack::Redo( levels );
 }
 
-void EngineCommandStack::Do(EditorCommand* pCommand)
+void EngineCommandStack::Do(EditorCommand* pCommand, bool linktoprevious)
 {
-    CommandStack::Do( pCommand );
+    CommandStack::Do( pCommand, linktoprevious );
 }
 
-void EngineCommandStack::Add(EditorCommand* pCommand)
+void EngineCommandStack::Add(EditorCommand* pCommand, bool linktoprevious)
 {
     if( g_pEngineCore->m_EditorMode )
-        return CommandStack::Add( pCommand );
+        return CommandStack::Add( pCommand, linktoprevious );
 
     delete pCommand;
 }

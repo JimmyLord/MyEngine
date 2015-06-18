@@ -25,7 +25,7 @@ public:
 
     virtual void Reset();
     virtual void CopyFromSameType_Dangerous(ComponentBase* pObject) { *this = (ComponentLight&)*pObject; }
-    virtual ComponentLight& operator=(const ComponentLight& other);
+    ComponentLight& operator=(const ComponentLight& other);
 
     static void StaticOnTransformPositionChanged(void* pObjectPtr, Vector3& newpos, bool changedbyeditor) { ((ComponentLight*)pObjectPtr)->OnTransformPositionChanged( newpos, changedbyeditor ); }
     void OnTransformPositionChanged(Vector3& newpos, bool changedbyeditor);

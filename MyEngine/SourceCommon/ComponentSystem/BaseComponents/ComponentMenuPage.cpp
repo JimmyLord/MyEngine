@@ -348,6 +348,7 @@ void ComponentMenuPage::OnDropComponent(int controlid, wxCoord x, wxCoord y)
 
 cJSON* ComponentMenuPage::ExportAsJSONObject(bool savesceneid)
 {
+#if MYFW_USING_WX
     // Scene is saving so also save menu file to disk.
     SaveMenuPageToDisk( m_pMenuLayoutFile->m_FullPath );
 
@@ -360,6 +361,10 @@ cJSON* ComponentMenuPage::ExportAsJSONObject(bool savesceneid)
         cJSON_AddStringToObject( jComponent, "MenuFile", m_pMenuLayoutFile->m_FullPath );
     
     return jComponent;
+#else
+    MyAssert( false ); // no saving menus in runtime.
+    return 0;
+#endif //MYFW_USING_WX
 }
 
 void ComponentMenuPage::ImportFromJSONObject(cJSON* jComponent, unsigned int sceneid)
@@ -575,7 +580,10 @@ void ComponentMenuPage::ClearAllMenuItems()
 {
     for( unsigned int i=0; i<m_MenuItemsUsed; i++ )
     {
+#if MYFW_USING_WX
         g_pPanelObjectList->RemoveObject( m_pMenuItems[i] );
+#endif //MYFW_USING_WX
+
         SAFE_DELETE( m_pMenuItems[i] );
     }
     m_MenuItemsUsed = 0;

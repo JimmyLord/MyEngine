@@ -44,7 +44,7 @@ public:
 
     virtual void Reset();
     virtual void CopyFromSameType_Dangerous(ComponentBase* pObject) { *this = (ComponentCollisionObject&)*pObject; }
-    virtual ComponentCollisionObject& operator=(const ComponentCollisionObject& other);
+    ComponentCollisionObject& operator=(const ComponentCollisionObject& other);
 
     void SetMesh(MyMesh* pMesh);
 

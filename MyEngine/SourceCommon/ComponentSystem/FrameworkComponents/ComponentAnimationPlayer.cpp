@@ -81,7 +81,7 @@ void ComponentAnimationPlayer::FillPropertiesWindow(bool clear)
 
         if( pMesh->GetAnimationCount() > 0 )
         {
-            g_pPanelWatch->AddUnsignedInt( "Animation Index", &m_AnimationIndex, 0, pMesh->GetAnimationCount() );
+            g_pPanelWatch->AddUnsignedInt( "Animation Index", &m_AnimationIndex, 0, (float)pMesh->GetAnimationCount() );
             g_pPanelWatch->AddFloat( "Animation Frame", &m_AnimationTime, 0, 6 );
         }
     }

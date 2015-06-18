@@ -32,7 +32,7 @@ public:
 
     virtual void Reset();
     virtual void CopyFromSameType_Dangerous(ComponentBase* pObject) { *this = (ComponentRenderable&)*pObject; }
-    virtual ComponentRenderable& operator=(const ComponentRenderable& other);
+    ComponentRenderable& operator=(const ComponentRenderable& other);
 
     virtual MaterialDefinition* GetMaterial(int submeshindex) { return 0; }
     virtual void SetMaterial(MaterialDefinition* pMaterial, int submeshindex);

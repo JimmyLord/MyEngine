@@ -24,7 +24,7 @@ public:
 
     virtual void Reset();
     virtual void CopyFromSameType_Dangerous(ComponentBase* pObject) { *this = (ComponentInputHandler&)*pObject; }
-    virtual ComponentInputHandler& operator=(const ComponentInputHandler& other);
+    ComponentInputHandler& operator=(const ComponentInputHandler& other);
 
     // will return true if input is used.
     virtual bool OnTouch(int action, int id, float x, float y, float pressure, float size) = 0;

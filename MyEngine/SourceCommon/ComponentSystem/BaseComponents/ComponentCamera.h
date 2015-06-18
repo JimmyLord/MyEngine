@@ -60,7 +60,7 @@ public:
 
     virtual void Reset();
     virtual void CopyFromSameType_Dangerous(ComponentBase* pObject) { *this = (ComponentCamera&)*pObject; }
-    virtual ComponentCamera& operator=(const ComponentCamera& other);
+    ComponentCamera& operator=(const ComponentCamera& other);
 
     void SetDesiredAspectRatio(float width, float height);
     void ComputeProjectionMatrices();

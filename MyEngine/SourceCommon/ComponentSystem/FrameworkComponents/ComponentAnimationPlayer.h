@@ -38,7 +38,7 @@ public:
 
     virtual void Reset();
     virtual void CopyFromSameType_Dangerous(ComponentBase* pObject) { *this = (ComponentAnimationPlayer&)*pObject; }
-    virtual ComponentAnimationPlayer& operator=(const ComponentAnimationPlayer& other);
+    ComponentAnimationPlayer& operator=(const ComponentAnimationPlayer& other);
 
     virtual void Tick(double TimePassed);
 

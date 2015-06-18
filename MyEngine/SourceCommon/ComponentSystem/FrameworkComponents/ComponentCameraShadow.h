@@ -31,7 +31,7 @@ public:
 
     virtual void Reset();
     virtual void CopyFromSameType_Dangerous(ComponentBase* pObject) { *this = (ComponentCameraShadow&)*pObject; }
-    virtual ComponentCameraShadow& operator=(const ComponentCameraShadow& other);
+    ComponentCameraShadow& operator=(const ComponentCameraShadow& other);
 
     virtual void Tick(double TimePassed);
     virtual void OnSurfaceChanged(unsigned int startx, unsigned int starty, unsigned int width, unsigned int height, unsigned int desiredaspectwidth, unsigned int desiredaspectheight);

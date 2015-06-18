@@ -12,7 +12,9 @@
 
 struct SceneInfo
 {
+#if MYFW_USING_WX
     wxTreeItemId treeid;
+#endif
     char fullpath[MAX_PATH];
     unsigned int m_NextGameObjectID;
     unsigned int m_NextComponentID;
