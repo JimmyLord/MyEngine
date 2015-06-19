@@ -34,6 +34,7 @@ const char* g_DefaultPerspectives[Perspective_NumPerspectives] =
 
 void EngineMainFrame_MessageLog(int logtype, const char* tag, const char* message)
 {
+    // TODO: writing to "g_pEngineMainFrame->m_pLogPane" only works from main thread, will assert otherwise.  fix me. 
     if( logtype == 1 )
         g_pEngineMainFrame->m_pLogPane->AppendText( "ERROR: " );
 

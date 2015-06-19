@@ -27,7 +27,7 @@ ComponentParticleEmitter::ComponentParticleEmitter()
         m_Particles.AddInactiveObject( pObj );
     }
 
-    m_pParticleRenderer = MyNew ParticleRenderer();
+    m_pParticleRenderer = MyNew ParticleRenderer( false );
     m_pParticleRenderer->AllocateVertices( 1000, "Particle Renderer" );
 
     g_pComponentSystemManager->RegisterComponentTickCallback( &StaticTick, this );
@@ -211,11 +211,15 @@ void ComponentParticleEmitter::SetMaterial(MaterialDefinition* pMaterial, int su
 {
     ComponentRenderable::SetMaterial( pMaterial, submeshindex );
 
-    pMaterial->AddRef();
+    if( pMaterial )
+        pMaterial->AddRef();
     SAFE_RELEASE( m_pMaterial );
     m_pMaterial = pMaterial;
 
-    m_pParticleRenderer->SetShaderAndTexture( m_pMaterial->GetShader(), pMaterial->GetTextureColor() );
+    if( m_pMaterial )
+    {
+        m_pParticleRenderer->SetShaderAndTexture( m_pMaterial->GetShader(), pMaterial->GetTextureColor() );
+    }
 }
 
 void ComponentParticleEmitter::CreateBurst(int number, Vector3 pos)

@@ -55,6 +55,7 @@ EngineCore::EngineCore()
     m_Debug_DrawMousePickerFBO = false;
     m_Debug_DrawSelectedAnimatedMesh = false;
     m_pDebugQuadSprite = 0;
+    m_FreeAllMaterialsAndTexturesWhenUnloadingScene = false;
 
     g_pPanelObjectList->m_pCallbackFunctionObject = this;
     g_pPanelObjectList->m_pOnTreeSelectionChangedFunction = StaticOnObjectListTreeSelectionChanged;
@@ -110,9 +111,7 @@ void EngineCore::OneTimeInit()
     // setup our shaders
     m_pShaderFile_TintColor = RequestFile( "DataEngine/Shaders/Shader_TintColor.glsl" );
     m_pShaderFile_ClipSpaceTexture = RequestFile( "DataEngine/Shaders/Shader_ClipSpaceTexture.glsl" );
-    LOGInfo( LOGTag, "before MyNew ShaderGroup\n" );
     m_pShader_TintColor = MyNew ShaderGroup( m_pShaderFile_TintColor );
-    LOGInfo( LOGTag, "after MyNew ShaderGroup\n" );
     m_pShader_ClipSpaceTexture = MyNew ShaderGroup( m_pShaderFile_ClipSpaceTexture );
     m_pMaterial_3DGrid = MyNew MaterialDefinition( m_pShader_TintColor, ColorByte(128,128,128,255) );
     m_pMaterial_TransformGizmoX = MyNew MaterialDefinition( m_pShader_TintColor, ColorByte(255,0,0,255) );
@@ -130,12 +129,6 @@ void EngineCore::OneTimeInit()
     CreateDefaultSceneObjects( true );
 
     OnSurfaceChanged( (unsigned int)m_WindowStartX, (unsigned int)m_WindowStartY, (unsigned int)m_WindowWidth, (unsigned int)m_WindowHeight );
-
-#if !MYFW_USING_WX
-    //m_pSceneFileToLoad = RequestFile( "Data/Scenes/test.scene" );
-    m_pSceneFileToLoad = RequestFile( "Data/Scenes/TestPhysicsCharacter.scene" );
-    m_SceneLoaded = false;
-#endif
 }
 
 bool EngineCore::IsReadyToRender()
@@ -269,7 +262,7 @@ void EngineCore::OnDrawFrame()
     if( m_Debug_DrawMousePickerFBO && g_GLCanvasIDActive == 1 )
     {
         if( m_pDebugQuadSprite == 0 )
-            m_pDebugQuadSprite = MyNew MySprite();
+            m_pDebugQuadSprite = MyNew MySprite( false );
 
         m_pDebugQuadSprite->CreateInPlace( "debug", 0.75f, 0.75f, 0.5f, 0.5f, 0, 1, 1, 0, Justify_Center, false );
         m_pMaterial_MousePicker->SetTextureColor( m_pEditorState->m_pMousePickerFBO->m_pColorTexture );
@@ -301,7 +294,7 @@ void EngineCore::OnDrawFrame()
                 pAnim->m_AnimationTime = backuptime;
 
                 if( m_pDebugQuadSprite == 0 )
-                    m_pDebugQuadSprite = MyNew MySprite();
+                    m_pDebugQuadSprite = MyNew MySprite( false );
 
                 m_pDebugQuadSprite->CreateInPlace( "debug", 0.5f, 0.5f, 1.0f, 1.0f, 0, 1, 1, 0, Justify_Center, false );
                 m_pMaterial_ClipSpaceTexture->SetTextureColor( m_pEditorState->m_pDebugViewFBO->m_pColorTexture );
@@ -314,7 +307,7 @@ void EngineCore::OnDrawFrame()
             if( pCamera )
             {
                 if( m_pDebugQuadSprite == 0 )
-                    m_pDebugQuadSprite = MyNew MySprite();
+                    m_pDebugQuadSprite = MyNew MySprite( false );
 
                 m_pDebugQuadSprite->CreateInPlace( "debug", 0.5f, 0.5f, 1.0f, 1.0f, 0, 1, 1, 0, Justify_Center, false );
                 m_pMaterial_ClipSpaceTexture->SetTextureColor( pCamera->m_pDepthFBO->m_pDepthTexture );
@@ -361,6 +354,8 @@ void EngineCore::OnTouch(int action, int id, float x, float y, float pressure, f
 
     // TODO: get the camera properly.
     ComponentCamera* pCamera = m_pComponentSystemManager->GetFirstCamera();
+    if( pCamera == 0 )
+        return;
 
     // prefer 0,0 at bottom left.
     y = pCamera->m_WindowHeight - y;
@@ -1380,7 +1375,7 @@ void EngineCore::UnloadScene(unsigned int sceneid, bool cleareditorobjects)
 
     g_pComponentSystemManager->UnloadScene( sceneid, false );
 
-    if( sceneid == UINT_MAX )
+    if( sceneid == UINT_MAX && m_FreeAllMaterialsAndTexturesWhenUnloadingScene )
     {
         // temp code while RTQGlobals is a thing.
         SAFE_RELEASE( g_pRTQGlobals->m_pMaterial );

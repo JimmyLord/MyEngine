@@ -53,6 +53,7 @@ public:
     bool m_Debug_DrawMousePickerFBO;
     bool m_Debug_DrawSelectedAnimatedMesh;
     MySprite* m_pDebugQuadSprite;
+    bool m_FreeAllMaterialsAndTexturesWhenUnloadingScene;
 #endif //MYFW_USING_WX
 
     double m_TimeSinceLastPhysicsStep;

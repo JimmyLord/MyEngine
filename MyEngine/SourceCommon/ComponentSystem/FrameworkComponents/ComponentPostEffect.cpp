@@ -111,7 +111,7 @@ void ComponentPostEffect::Reset()
     SAFE_RELEASE( m_pFullScreenQuad );
     SAFE_RELEASE( m_pMaterial );
 
-    m_pFullScreenQuad = MyNew MySprite();
+    m_pFullScreenQuad = MyNew MySprite( false );
     m_pFullScreenQuad->Create( 2, 2, 0, 1, 1, 0, Justify_Center, false );
     m_pMaterial = 0;
 

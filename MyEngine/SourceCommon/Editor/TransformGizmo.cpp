@@ -120,7 +120,7 @@ void TransformGizmo::Tick(double TimePassed, EditorState* pEditorState)
 
 bool TransformGizmo::HandleInput(EngineCore* pGame, int keydown, int keycode, int action, int id, float x, float y, float pressure)
 {
-    MyAssert( x >= 0 && y >= 0 );
+    //MyAssert( x >= 0 && y >= 0 );
     if( x < 0 || y < 0 )
         return false;
 
