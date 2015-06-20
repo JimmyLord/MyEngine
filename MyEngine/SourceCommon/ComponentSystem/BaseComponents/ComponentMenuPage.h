@@ -15,6 +15,8 @@ class ComponentCamera;
 class ComponentLuaScript;
 class MenuItem;
 
+#define LEGACYHACK 1
+
 class ComponentMenuPage : public ComponentBase
 {
     static const int MAX_MENU_ITEMS = 128;
@@ -28,6 +30,11 @@ protected:
     unsigned int m_MenuItemsUsed;
     MenuItem* m_pMenuItems[MAX_MENU_ITEMS];
     MenuItem* m_pMenuItemHeld;
+
+    cJSON* m_MenuLayouts;
+    cJSON* m_CurrentLayout;
+    unsigned int m_CurrentWidth;
+    unsigned int m_CurrentHeight;
 
 public:
     ComponentTransform* m_pComponentTransform;
@@ -59,7 +66,11 @@ public:
     virtual bool OnButtons(GameCoreButtonActions action, GameCoreButtonIDs id);
 
     virtual void Tick(double TimePassed);
+    virtual void OnSurfaceChanged(unsigned int startx, unsigned int starty, unsigned int width, unsigned int height, unsigned int desiredaspectwidth, unsigned int desiredaspectheight);
     virtual void Draw();
+
+    void LoadLayoutBasedOnCurrentAspectRatio();
+    void UpdateLayout(cJSON* layout);
 
     void ClearAllMenuItems();
     void SetMenuLayoutFile(MyFileObject* pFile);
@@ -79,8 +90,15 @@ public:
 
     static bool m_PanelWatchBlockVisible;
 
+#if LEGACYHACK
+    void LEGACYHACK_GrabMenuItemPointersFromCurrentScreen();
+#endif //LEGACYHACK
+
     void SaveMenuPageToDisk(const char* fullpath);
     void RenameMenuPage(const char* newfullpath);
+
+    void SaveCurrentLayoutToJSON();
+    cJSON* SaveLayoutToJSON(const char* layoutname);
 
     virtual void AddToObjectsPanel(wxTreeItemId gameobjectid);
 

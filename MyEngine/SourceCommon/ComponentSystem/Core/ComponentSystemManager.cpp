@@ -438,10 +438,7 @@ void ComponentSystemManager::LoadSceneFromJSON(const char* scenename, const char
 #if MYFW_USING_WX
     if( sceneid != UINT_MAX )
     {
-        wxTreeItemId rootid = g_pPanelObjectList->GetTreeRoot();
-        wxTreeItemId treeid = g_pPanelObjectList->AddObject( m_pSceneHandler, SceneHandler::StaticOnLeftClick, SceneHandler::StaticOnRightClick, rootid, scenename );
-        g_pPanelObjectList->SetDragAndDropFunctions( treeid, SceneHandler::StaticOnDrag, SceneHandler::StaticOnDrop );
-        m_pSceneInfoMap[sceneid].treeid = treeid;
+        CreateNewScene( scenename, sceneid );
     }
 #endif //MYFW_USING_WX
 
@@ -969,6 +966,14 @@ void ComponentSystemManager::OnSurfaceChanged(unsigned int startx, unsigned int 
             }
         }
     }
+
+    // For now, tell menu pages that the aspect ratio changed.
+    for( CPPListNode* node = m_Components[BaseComponentType_MenuPage].GetHead(); node != 0; node = node->GetNext() )
+    {
+        ComponentMenuPage* pComponent = (ComponentMenuPage*)node;
+
+        pComponent->OnSurfaceChanged( startx, starty, width, height, desiredaspectwidth, desiredaspectheight );
+    }
 }
 
 void ComponentSystemManager::OnDrawFrame()
@@ -1081,6 +1086,16 @@ unsigned int ComponentSystemManager::GetSceneIDFromFullpath(const char* fullpath
     return -1;
 }
 #else
+void ComponentSystemManager::CreateNewScene(const char* scenename, unsigned int sceneid)
+{
+    MyAssert( m_pSceneInfoMap[sceneid].treeid.IsOk() == false );
+
+    wxTreeItemId rootid = g_pPanelObjectList->GetTreeRoot();
+    wxTreeItemId treeid = g_pPanelObjectList->AddObject( m_pSceneHandler, SceneHandler::StaticOnLeftClick, SceneHandler::StaticOnRightClick, rootid, scenename );
+    g_pPanelObjectList->SetDragAndDropFunctions( treeid, SceneHandler::StaticOnDrag, SceneHandler::StaticOnDrop );
+    m_pSceneInfoMap[sceneid].treeid = treeid;
+}
+
 wxTreeItemId ComponentSystemManager::GetTreeIDForScene(int sceneid)
 {
     return m_pSceneInfoMap[sceneid].treeid;

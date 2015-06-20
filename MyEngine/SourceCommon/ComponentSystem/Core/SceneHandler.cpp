@@ -9,6 +9,26 @@
 
 #include "EngineCommonHeader.h"
 
+void SceneInfo::ChangePath(const char* newfullpath)
+{
+    sprintf_s( fullpath, MAX_PATH, "%s", newfullpath ); 
+#if MYFW_USING_WX
+    if( treeid.IsOk() )
+    {
+        const char* filenamestart;
+        int i;
+        for( i=strlen(newfullpath)-1; i>=0; i-- )
+        {
+            if( newfullpath[i] == '\\' || newfullpath[i] == '/' )
+                break;
+        }
+        filenamestart = &newfullpath[i+1];
+
+        g_pPanelObjectList->RenameObject( treeid, filenamestart );
+    }
+#endif //MYFW_USING_WX
+}
+
 SceneHandler::SceneHandler()
 {
 }

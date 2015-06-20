@@ -9,6 +9,11 @@
 
 #include "EngineCommonHeader.h"
 
+#if LEGACYHACK
+#include "../../SharedGameCode/Screens/ScreenManager.h"
+#include "../../SharedGameCode/Screens/Screen_Base.h"
+#endif //LEGACYHACK
+
 #if MYFW_USING_WX
 bool ComponentMenuPage::m_PanelWatchBlockVisible = true;
 #endif
@@ -35,6 +40,11 @@ ComponentMenuPage::ComponentMenuPage()
 
     m_pMenuLayoutFile = 0;
 
+    m_MenuLayouts = cJSON_CreateObject();
+    m_CurrentLayout = 0;
+    m_CurrentWidth = 0;
+    m_CurrentHeight = 0;
+
 #if MYFW_USING_WX
     m_ControlID_Filename = -1;
     h_RenameInProgress = false;
@@ -53,6 +63,8 @@ ComponentMenuPage::~ComponentMenuPage()
     {
         MyAssert( m_pMenuItems[i] == 0 );
     }
+
+    cJSON_Delete( m_MenuLayouts );
 }
 
 void ComponentMenuPage::Reset()
@@ -84,6 +96,31 @@ void ComponentMenuPage::Reset()
 }
 
 #if MYFW_USING_WX
+
+#if LEGACYHACK
+void ComponentMenuPage::LEGACYHACK_GrabMenuItemPointersFromCurrentScreen()
+{
+    Screen_Base* pScreen = g_pScreenManager->GetTopScreen();
+    if( pScreen )
+    {
+        for( int i=0; i<MAX_MENUITEMS; i++ )
+        {
+            m_pMenuItems[m_MenuItemsUsed] = pScreen->GetMenuItem( i );
+            if( m_pMenuItems[m_MenuItemsUsed] )
+            {
+                if( m_pMenuItems[m_MenuItemsUsed]->m_MenuItemType == MIT_Button )
+                {
+                    MenuButton* pButton = (MenuButton*)m_pMenuItems[m_MenuItemsUsed];
+                    sprintf_s( pButton->m_ButtonAction, 32, "%d", (int)pButton->m_ButtonAction[0] );
+                    int bp = 1;
+                }
+                m_MenuItemsUsed++;
+            }
+        }
+    }
+}
+#endif //LEGACYHACK
+
 void ComponentMenuPage::SaveMenuPageToDisk(const char* fullpath)
 {
     LOGInfo( LOGTag, "Saving Menu File: %s\n", fullpath );
@@ -97,7 +134,8 @@ void ComponentMenuPage::SaveMenuPageToDisk(const char* fullpath)
         return;
     }
 
-    cJSON* jMenuItems = Menu_ImportExport::ExportMenuLayout( m_pMenuItems, m_MenuItemsUsed );
+    //cJSON* jMenuItems = Menu_ImportExport::ExportMenuLayout( m_pMenuItems, m_MenuItemsUsed );
+    cJSON* jMenuItems = m_MenuLayouts;
     
     char* string = cJSON_Print( jMenuItems );
     cJSON_Delete( jMenuItems );
@@ -175,6 +213,41 @@ void ComponentMenuPage::RenameMenuPage(const char* newfullpath)
     h_RenameInProgress = false;
 }
 
+void ComponentMenuPage::SaveCurrentLayoutToJSON()
+{
+    if( m_CurrentWidth != 0 && m_CurrentHeight != 0 )
+    {
+        if( m_CurrentWidth == m_CurrentHeight )
+        {
+            m_CurrentLayout = SaveLayoutToJSON( "Square" );
+        }
+        else if( m_CurrentWidth < m_CurrentHeight )
+        {
+            m_CurrentLayout = SaveLayoutToJSON( "Tall" );
+        }
+        else
+        {
+            m_CurrentLayout = SaveLayoutToJSON( "Wide" );
+            m_CurrentLayout = SaveLayoutToJSON( "Wide" );
+        }
+    }
+}
+
+cJSON* ComponentMenuPage::SaveLayoutToJSON(const char* layoutname)
+{
+    cJSON* layout = cJSON_GetObjectItem( m_MenuLayouts, layoutname );
+    if( layout )
+        cJSON_DeleteItemFromObject( m_MenuLayouts, layoutname );
+
+    if( m_MenuItemsUsed > 0 )
+    {
+        layout = Menu_ImportExport::ExportMenuLayout( m_pMenuItems, m_MenuItemsUsed );
+        cJSON_AddItemToObject( m_MenuLayouts, layoutname, layout );
+    }
+
+    return layout;
+}
+
 void ComponentMenuPage::AddToObjectsPanel(wxTreeItemId gameobjectid)
 {
     //wxTreeItemId id =
@@ -221,6 +294,11 @@ void ComponentMenuPage::AppendItemsToRightClickMenu(wxMenu* pMenu)
 
     pMenu->Append( RightClick_AddText, "Add Text" );
  	pMenu->Connect( wxEVT_COMMAND_MENU_SELECTED, (wxObjectEventFunction)&ComponentMenuPage::OnPopupClick );
+
+#if LEGACYHACK
+    pMenu->Append( 9876, "Grab menu item pointers from current screen" );
+ 	pMenu->Connect( wxEVT_COMMAND_MENU_SELECTED, (wxObjectEventFunction)&ComponentMenuPage::OnPopupClick );
+#endif
 }
 
 void ComponentMenuPage::OnPopupClick(wxEvent &evt)
@@ -260,6 +338,19 @@ void ComponentMenuPage::OnPopupClick(wxEvent &evt)
         g_pPanelObjectList->AddObject( pMenuItem, MenuText::StaticFillPropertiesWindow, MenuItem::StaticOnRightClick, componentID, "Text" );
         pMenuItem->RegisterMenuItemDeletedCallback( pComponent, StaticOnMenuItemDeleted );
     }
+
+#if LEGACYHACK
+    if( id == 9876 )
+    {
+        pComponent->LEGACYHACK_GrabMenuItemPointersFromCurrentScreen();
+        //pComponent->SaveMenuPageToDisk( "Data/Menus/LegacyHackMenuPage.menu" );
+        pComponent->SaveCurrentLayoutToJSON();
+        pComponent->m_MenuItemsUsed = 0; // wipe old menu pointers, "screen_base" object should still have them
+        for( unsigned int i=0; i<MAX_MENU_ITEMS; i++ )
+            pComponent->m_pMenuItems[i] = 0;
+        pComponent->UpdateLayout( pComponent->m_CurrentLayout );
+    }
+#endif
 }
 
 void ComponentMenuPage::OnValueChanged(int controlid, bool finishedchanging)
@@ -350,7 +441,24 @@ cJSON* ComponentMenuPage::ExportAsJSONObject(bool savesceneid)
 {
 #if MYFW_USING_WX
     // Scene is saving so also save menu file to disk.
-    SaveMenuPageToDisk( m_pMenuLayoutFile->m_FullPath );
+    if( m_pMenuLayoutFile == 0 )
+    {
+        wxFileDialog FileDialog( g_pEngineMainFrame, _("Save Menu file"), "./Data/Menus", "", "Menu files (*.menu)|*.menu", wxFD_SAVE|wxFD_OVERWRITE_PROMPT);
+    
+        if( FileDialog.ShowModal() != wxID_CANCEL )
+        {
+            wxString wxpath = FileDialog.GetPath();
+            char fullpath[MAX_PATH];
+            sprintf_s( fullpath, MAX_PATH, "%s", (const char*)wxpath );
+            const char* relativepath = g_pEngineMainFrame->GetRelativePath( fullpath );
+            m_pMenuLayoutFile = g_pFileManager->RequestFile( relativepath );
+        }
+    }
+
+    if( m_pMenuLayoutFile )
+        SaveMenuPageToDisk( m_pMenuLayoutFile->m_FullPath );
+    else
+        LOGError( LOGTag, "MENU FILE NOT SAVED!\n" );
 
     cJSON* jComponent = ComponentBase::ExportAsJSONObject( savesceneid );
 
@@ -514,36 +622,9 @@ void ComponentMenuPage::Tick(double TimePassed)
     {
         if( m_pMenuLayoutFile && m_pMenuLayoutFile->m_FileLoadStatus == FileLoadStatus_Success )
         {
-            ClearAllMenuItems();
-            m_MenuItemsUsed = Menu_ImportExport::ImportMenuLayout( m_pMenuLayoutFile->m_pBuffer, m_pMenuItems, MAX_MENU_ITEMS );
+            m_MenuLayouts = cJSON_Parse( m_pMenuLayoutFile->m_pBuffer );
 
-            wxTreeItemId componentID = g_pPanelObjectList->FindObject( this );    
-            for( unsigned int i=0; i<m_MenuItemsUsed; i++ )
-            {
-                switch( m_pMenuItems[i]->m_MenuItemType )
-                {
-                case MIT_Sprite:
-                    g_pPanelObjectList->AddObject( m_pMenuItems[i], MenuSprite::StaticFillPropertiesWindow, MenuItem::StaticOnRightClick, componentID, "Sprite" );
-                    break;
-
-                case MIT_Text:
-                    g_pPanelObjectList->AddObject( m_pMenuItems[i], MenuText::StaticFillPropertiesWindow, MenuItem::StaticOnRightClick, componentID, "Text" );
-                    break;
-
-                case MIT_Button:
-                    g_pPanelObjectList->AddObject( m_pMenuItems[i], MenuButton::StaticFillPropertiesWindow, MenuItem::StaticOnRightClick, componentID, "Button" );
-                    break;
-
-                case MIT_Base:
-                case MIT_ScrollBox:
-                case MIT_ScrollingText:
-                case MIT_InputBox:
-                case MIT_CheckBox:
-                case MIT_NumMenuItemTypes:
-                default:
-                    MyAssert( false );
-                }
-            }
+            LoadLayoutBasedOnCurrentAspectRatio();
 
             m_MenuItemsCreated = true;
         }
@@ -556,6 +637,77 @@ void ComponentMenuPage::Tick(double TimePassed)
         if( m_pMenuItems[i] )
         {
             m_pMenuItems[i]->Tick( TimePassed );
+        }
+    }
+}
+
+void ComponentMenuPage::OnSurfaceChanged(unsigned int startx, unsigned int starty, unsigned int width, unsigned int height, unsigned int desiredaspectwidth, unsigned int desiredaspectheight)
+{
+    if( m_CurrentWidth != 0 && m_CurrentHeight != 0 )
+    {
+        if( m_MenuItemsCreated == true )
+            SaveCurrentLayoutToJSON();
+    }
+
+    m_CurrentWidth = desiredaspectwidth;
+    m_CurrentHeight = desiredaspectheight;
+
+    LoadLayoutBasedOnCurrentAspectRatio();
+}
+
+void ComponentMenuPage::LoadLayoutBasedOnCurrentAspectRatio()
+{
+    cJSON* obj = 0;
+
+    if( m_CurrentWidth == m_CurrentHeight )
+    {
+        obj = cJSON_GetObjectItem( m_MenuLayouts, "Square" );
+    }
+    else if( m_CurrentWidth < m_CurrentHeight )
+    {
+        obj = cJSON_GetObjectItem( m_MenuLayouts, "Tall" );
+    }
+    else
+    {
+        obj = cJSON_GetObjectItem( m_MenuLayouts, "Wide" );
+    }
+
+    if( obj != 0 )
+        UpdateLayout( obj );
+}
+
+void ComponentMenuPage::UpdateLayout(cJSON* layout)
+{
+    m_CurrentLayout = layout;
+
+    ClearAllMenuItems();
+    m_MenuItemsUsed = Menu_ImportExport::ImportMenuLayout( m_CurrentLayout, m_pMenuItems, MAX_MENU_ITEMS );
+
+    wxTreeItemId componentID = g_pPanelObjectList->FindObject( this );    
+    for( unsigned int i=0; i<m_MenuItemsUsed; i++ )
+    {
+        switch( m_pMenuItems[i]->m_MenuItemType )
+        {
+        case MIT_Sprite:
+            g_pPanelObjectList->AddObject( m_pMenuItems[i], MenuSprite::StaticFillPropertiesWindow, MenuItem::StaticOnRightClick, componentID, "Sprite" );
+            break;
+
+        case MIT_Text:
+            g_pPanelObjectList->AddObject( m_pMenuItems[i], MenuText::StaticFillPropertiesWindow, MenuItem::StaticOnRightClick, componentID, "Text" );
+            break;
+
+        case MIT_Button:
+            g_pPanelObjectList->AddObject( m_pMenuItems[i], MenuButton::StaticFillPropertiesWindow, MenuItem::StaticOnRightClick, componentID, "Button" );
+            break;
+
+        case MIT_Base:
+        case MIT_ScrollBox:
+        case MIT_ScrollingText:
+        case MIT_InputBox:
+        case MIT_CheckBox:
+        case MIT_NumMenuItemTypes:
+        default:
+            MyAssert( false );
         }
     }
 }

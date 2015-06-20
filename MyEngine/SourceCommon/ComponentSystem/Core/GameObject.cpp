@@ -18,6 +18,7 @@ GameObject::GameObject(bool managed, int sceneid)
     m_Name = 0;
 
     m_pComponentTransform = MyNew ComponentTransform();
+    m_pComponentTransform->SetSceneID( sceneid );
     m_pComponentTransform->m_pGameObject = this;
     m_pComponentTransform->Reset();
 

@@ -126,6 +126,10 @@ void EngineCore::OneTimeInit()
     // initialize lua state and register any variables needed.
     m_pLuaGameState = MyNew LuaGameState;
 
+#if MYFW_USING_WX
+    m_pComponentSystemManager->CreateNewScene( "Unsaved.scene", 1 );
+#endif //MYFW_USING_WX
+
     CreateDefaultSceneObjects( true );
 
     OnSurfaceChanged( (unsigned int)m_WindowStartX, (unsigned int)m_WindowStartY, (unsigned int)m_WindowWidth, (unsigned int)m_WindowHeight );
@@ -1221,8 +1225,7 @@ void EngineCore::CreateDefaultSceneObjects(bool createeditorobjects)
 
     // create a 3D camera, renders first... created first so GetFirstCamera() will get the game cam.
     {
-        pGameObject = m_pComponentSystemManager->CreateGameObject();
-        pGameObject->SetSceneID( 1 );
+        pGameObject = m_pComponentSystemManager->CreateGameObject( true, 1 );
         pGameObject->SetName( "Main Camera" );
         pGameObject->m_pComponentTransform->SetPosition( Vector3( 0, 0, 10 ) );
 
@@ -1234,8 +1237,7 @@ void EngineCore::CreateDefaultSceneObjects(bool createeditorobjects)
 
     // create a 2D camera, renders after 3d, for hud.
     {
-        pGameObject = m_pComponentSystemManager->CreateGameObject();
-        pGameObject->SetSceneID( 1 );
+        pGameObject = m_pComponentSystemManager->CreateGameObject( true, 1 );
         pGameObject->SetName( "Hud Camera" );
 
         pComponentCamera = (ComponentCamera*)pGameObject->AddNewComponent( ComponentType_Camera, 1 );

@@ -394,6 +394,7 @@ void EngineMainFrame::OnGameMenu(wxCommandEvent& event)
             {
                 this->SetTitle( "New scene" );
                 g_pEngineCore->UnloadScene( UINT_MAX, false );
+                g_pComponentSystemManager->CreateNewScene( "Unsaved.scene", 1 );
                 g_pComponentSystemManager->GetSceneInfo( 1 )->fullpath[0] = 0;
                 g_pEngineCore->CreateDefaultSceneObjects( false );
                 ResizeViewport();
@@ -631,7 +632,8 @@ void EngineMainFrame::SaveSceneAs(unsigned int sceneid)
     // save the current scene
     // TODO: typecasting will likely cause issues with multibyte names
     wxString wxpath = FileDialog.GetPath();
-    sprintf_s( g_pComponentSystemManager->GetSceneInfo( sceneid )->fullpath, 260, "%s", (const char*)wxpath );
+    g_pComponentSystemManager->GetSceneInfo( sceneid )->ChangePath( (const char*)wxpath );
+    //sprintf_s( g_pComponentSystemManager->GetSceneInfo( sceneid )->fullpath, 260, "%s", (const char*)wxpath );
 
     g_pMaterialManager->SaveAllMaterials();
     g_pComponentSystemManager->AddAllMaterialsToFilesList();
@@ -676,6 +678,34 @@ void EngineMainFrame::LoadScene(const char* scenename, bool unloadscenes)
     this->SetTitle( g_pComponentSystemManager->GetSceneInfo( sceneid )->fullpath );
 }
 
+// will replace backslashes with forward slashes in fullpath
+// will return 0 if path is not relative.
+const char* EngineMainFrame::GetRelativePath(char* fullpath)
+{
+    char workingdir[MAX_PATH];
+#if MYFW_WINDOWS
+    GetCurrentDirectoryA( MAX_PATH, workingdir );
+#else
+    workingdir[0] = 0;
+#endif
+
+    unsigned int workingdirpathlen = (unsigned int)strlen( workingdir );
+    unsigned int fullpathlen = (unsigned int)strlen( fullpath );
+
+    if( strncmp( workingdir, fullpath, workingdirpathlen ) == 0 )
+    {
+        for( unsigned int i=workingdirpathlen+1; i<fullpathlen-1; i++ )
+        {
+            if( fullpath[i] == '\\' )
+                fullpath[i] = '/';
+        }
+
+        return &fullpath[workingdirpathlen+1];
+    }
+
+    return 0;
+}
+
 void EngineMainFrame::AddDatafileToScene()
 {
     // multiple select file open dialog
@@ -693,28 +723,10 @@ void EngineMainFrame::AddDatafileToScene()
     for( unsigned int filenum=0; filenum<patharray.Count(); filenum++ )
     {
         sprintf_s( fullpath, MAX_PATH, "%s", (const char*)patharray[filenum] );
-        unsigned int fullpathlen = (unsigned int)strlen( fullpath );
-
-        char dirpath[MAX_PATH];
-#if MYFW_WINDOWS
-        GetCurrentDirectoryA( MAX_PATH, dirpath );
-#else
-        dirpath[0] = 0;
-#endif
 
         // if the datafile is in our working directory, then load it... otherwise TODO: copy it in?
-        unsigned int dirpathlen = (unsigned int)strlen(dirpath);
-        if( strncmp( dirpath, fullpath, dirpathlen ) == 0 )
-        {
-            for( unsigned int i=dirpathlen; i<fullpathlen-1; i++ )
-            {
-                fullpath[i-dirpathlen] = fullpath[i+1];
-                if( fullpath[i-dirpathlen] == '\\' )
-                    fullpath[i-dirpathlen] = '/';
-                fullpath[i-dirpathlen+1] = 0;
-            }
-        }
-        else
+        const char* relativepath = GetRelativePath( fullpath );
+        if( relativepath == 0 )
         {
             // File is not in our working directory.
             // TODO: copy the file into our data folder?
@@ -724,7 +736,7 @@ void EngineMainFrame::AddDatafileToScene()
         }
 
         // fullpath is actually a relative path at this point.
-        g_pEngineCore->m_pComponentSystemManager->LoadDatafile( fullpath, 1 );
+        g_pEngineCore->m_pComponentSystemManager->LoadDatafile( relativepath, 1 );
     }
 }
 

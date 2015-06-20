@@ -12,6 +12,7 @@
 
 struct SceneInfo
 {
+public:
 #if MYFW_USING_WX
     wxTreeItemId treeid;
 #endif
@@ -19,6 +20,7 @@ struct SceneInfo
     unsigned int m_NextGameObjectID;
     unsigned int m_NextComponentID;
 
+public:
     SceneInfo::SceneInfo()
     {
         fullpath[0] = 0;
@@ -26,6 +28,8 @@ struct SceneInfo
         m_NextGameObjectID = 1;
         m_NextComponentID = 1;
     }
+
+    void ChangePath(const char* newfullpath);
 };
 
 class SceneHandler

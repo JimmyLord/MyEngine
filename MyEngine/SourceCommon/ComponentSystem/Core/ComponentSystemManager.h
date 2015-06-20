@@ -128,6 +128,7 @@ public:
     unsigned int GetSceneIDFromFullpath(const char* fullpath);
 #if MYFW_USING_WX
     SceneHandler* m_pSceneHandler;
+    void CreateNewScene(const char* scenename, unsigned int sceneid);
     wxTreeItemId GetTreeIDForScene(int sceneid);
     unsigned int GetSceneIDFromSceneTreeID(wxTreeItemId treeid);
     std::map<int, SceneInfo> m_pSceneInfoMap;
