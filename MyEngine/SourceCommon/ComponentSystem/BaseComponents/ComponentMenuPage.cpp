@@ -40,10 +40,13 @@ ComponentMenuPage::ComponentMenuPage()
 
     m_pMenuLayoutFile = 0;
 
-    m_MenuLayouts = cJSON_CreateObject();
+    m_MenuLayouts = 0;
     m_CurrentLayout = 0;
     m_CurrentWidth = 0;
     m_CurrentHeight = 0;
+
+    m_MenuPageActionCallbackStruct.pFunc = 0;
+    m_MenuPageActionCallbackStruct.pObj = 0;
 
 #if MYFW_USING_WX
     m_ControlID_Filename = -1;
@@ -138,7 +141,7 @@ void ComponentMenuPage::SaveMenuPageToDisk(const char* fullpath)
     cJSON* jMenuItems = m_MenuLayouts;
     
     char* string = cJSON_Print( jMenuItems );
-    cJSON_Delete( jMenuItems );
+    //cJSON_Delete( jMenuItems );
 
     fprintf( pFile, "%s", string );
     fclose( pFile );
@@ -342,6 +345,7 @@ void ComponentMenuPage::OnPopupClick(wxEvent &evt)
 #if LEGACYHACK
     if( id == 9876 )
     {
+        pComponent->ClearAllMenuItems();
         pComponent->LEGACYHACK_GrabMenuItemPointersFromCurrentScreen();
         //pComponent->SaveMenuPageToDisk( "Data/Menus/LegacyHackMenuPage.menu" );
         pComponent->SaveCurrentLayoutToJSON();
@@ -588,6 +592,10 @@ bool ComponentMenuPage::OnTouch(int action, int id, float x, float y, float pres
 
                     if( action != 0 )//&& OnMenuAction( action ) )
                     {
+                        if( m_MenuPageActionCallbackStruct.pFunc )
+                        {
+                            m_MenuPageActionCallbackStruct.pFunc( m_MenuPageActionCallbackStruct.pObj, action, m_pMenuItems[i] );
+                        }
 #if MYFW_USING_WX
                         // in editor, there's a chance the script component was created and not associated with this object.
                         FindLuaScriptComponentPointer();
@@ -622,7 +630,10 @@ void ComponentMenuPage::Tick(double TimePassed)
     {
         if( m_pMenuLayoutFile && m_pMenuLayoutFile->m_FileLoadStatus == FileLoadStatus_Success )
         {
+            MyAssert( m_MenuLayouts == 0 );
             m_MenuLayouts = cJSON_Parse( m_pMenuLayoutFile->m_pBuffer );
+            if( m_MenuLayouts == 0 )
+                m_MenuLayouts = cJSON_CreateObject();
 
             LoadLayoutBasedOnCurrentAspectRatio();
 
@@ -649,14 +660,17 @@ void ComponentMenuPage::OnSurfaceChanged(unsigned int startx, unsigned int start
             SaveCurrentLayoutToJSON();
     }
 
-    m_CurrentWidth = desiredaspectwidth;
-    m_CurrentHeight = desiredaspectheight;
+    m_CurrentWidth = width;//desiredaspectwidth;
+    m_CurrentHeight = height;//desiredaspectheight;
 
     LoadLayoutBasedOnCurrentAspectRatio();
 }
 
 void ComponentMenuPage::LoadLayoutBasedOnCurrentAspectRatio()
 {
+    if( m_MenuLayouts == 0 )
+        return;
+
     cJSON* obj = 0;
 
     if( m_CurrentWidth == m_CurrentHeight )
@@ -747,4 +761,10 @@ void ComponentMenuPage::SetMenuLayoutFile(MyFileObject* pFile)
         pFile->AddRef();
     SAFE_RELEASE( m_pMenuLayoutFile );
     m_pMenuLayoutFile = pFile;
+}
+
+void ComponentMenuPage::RegisterMenuPageActionCallback(void* pObj, MenuPageActionCallbackFunc pFunc)
+{
+    m_MenuPageActionCallbackStruct.pFunc = pFunc;
+    m_MenuPageActionCallbackStruct.pObj = pObj;
 }

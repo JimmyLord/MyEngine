@@ -1533,8 +1533,8 @@ void EngineCore::OnSurfaceChanged(unsigned int startx, unsigned int starty, unsi
     //    m_GameHeight = 640.0f;
     //}
 
-    m_GameWidth = 640.0f;
-    m_GameHeight = 960.0f;
+    //m_GameWidth = 640.0f;
+    //m_GameHeight = 960.0f;
 
     // reset the viewport sizes of the game or editor cameras.
     if( m_pComponentSystemManager )

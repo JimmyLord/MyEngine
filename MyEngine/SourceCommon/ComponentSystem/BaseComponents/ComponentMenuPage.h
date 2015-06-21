@@ -17,6 +17,13 @@ class MenuItem;
 
 #define LEGACYHACK 1
 
+typedef void (*MenuPageActionCallbackFunc)(void* pObjectPtr, const char* action, MenuItem* pMenuItem);
+struct MenuPageActionCallbackStruct
+{
+    void* pObj;
+    MenuPageActionCallbackFunc pFunc;
+};
+
 class ComponentMenuPage : public ComponentBase
 {
     static const int MAX_MENU_ITEMS = 128;
@@ -35,6 +42,8 @@ protected:
     cJSON* m_CurrentLayout;
     unsigned int m_CurrentWidth;
     unsigned int m_CurrentHeight;
+
+    MenuPageActionCallbackStruct m_MenuPageActionCallbackStruct;
 
 public:
     ComponentTransform* m_pComponentTransform;
@@ -74,6 +83,10 @@ public:
 
     void ClearAllMenuItems();
     void SetMenuLayoutFile(MyFileObject* pFile);
+
+    MenuItem* GetMenuItem(unsigned int index) { return m_pMenuItems[index]; }
+
+    void RegisterMenuPageActionCallback(void* pObj, MenuPageActionCallbackFunc pFunc);
 
 public:
 #if MYFW_USING_WX
