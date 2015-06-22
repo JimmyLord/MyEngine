@@ -255,6 +255,7 @@ void GameObject::SetSceneID(unsigned int sceneid)
 #endif
 
     m_SceneID = sceneid;
+    m_ID = g_pComponentSystemManager->GetNextGameObjectIDAndIncrement( sceneid );
 
 #if MYFW_USING_WX
     // Add this game object to the root of the objects tree

@@ -88,6 +88,8 @@ public:
 
     void RegisterMenuPageActionCallback(void* pObj, MenuPageActionCallbackFunc pFunc);
 
+    void SetVisible(bool visible) { m_Visible = visible; }
+
 public:
 #if MYFW_USING_WX
     enum RightClickOptions

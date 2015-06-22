@@ -474,9 +474,10 @@ void ComponentSystemManager::LoadSceneFromJSON(const char* scenename, const char
             pGameObject = CreateGameObject( true, sceneid );
 
         pGameObject->ImportFromJSONObject( gameobj, sceneid );
-
-        if( pGameObject->GetID() > m_pSceneInfoMap[sceneid].m_NextGameObjectID )
-            m_pSceneInfoMap[sceneid].m_NextGameObjectID = pGameObject->GetID() + 1;
+        
+        unsigned int gameobjectid = pGameObject->GetID();
+        if( gameobjectid > m_pSceneInfoMap[sceneid].m_NextGameObjectID )
+            m_pSceneInfoMap[sceneid].m_NextGameObjectID = gameobjectid + 1;
     }
 
     // setup all the game object transforms
@@ -606,15 +607,16 @@ void ComponentSystemManager::UnloadScene(unsigned int sceneidtoclear, bool clear
             pNode = pNode->GetNext();
 
             unsigned int sceneid = pGameObject->GetSceneID();
+            unsigned int gameobjectid = pGameObject->GetID();
 
             if( (pGameObject->IsManaged() || clearunmanagedcomponents) &&
                 (sceneidtoclear == UINT_MAX || sceneid == sceneidtoclear) )
             {
                 DeleteGameObject( pGameObject, true );
             }
-            else if( pGameObject->GetID() > m_pSceneInfoMap[sceneid].m_NextGameObjectID )
+            else if( gameobjectid > m_pSceneInfoMap[sceneid].m_NextGameObjectID )
             {
-                m_pSceneInfoMap[sceneid].m_NextGameObjectID = pGameObject->GetID() + 1;
+                m_pSceneInfoMap[sceneid].m_NextGameObjectID = gameobjectid + 1;
             }
         }
     }
@@ -730,7 +732,6 @@ GameObject* ComponentSystemManager::CopyGameObject(GameObject* pObject, const ch
 {
     GameObject* pNewObject = CreateGameObject( true, pObject->GetSceneID() );
     pNewObject->SetName( newname );
-    //pNewObject->SetSceneID( pObject->GetSceneID() );
 
     *pNewObject->m_pComponentTransform = *pObject->m_pComponentTransform;
 
@@ -747,6 +748,18 @@ GameObject* ComponentSystemManager::CopyGameObject(GameObject* pObject, const ch
     }
 
     return pNewObject;
+}
+
+unsigned int ComponentSystemManager::GetNextGameObjectIDAndIncrement(unsigned int sceneid)
+{
+    SceneInfo* pSceneInfo = g_pComponentSystemManager->GetSceneInfo( sceneid );
+    
+    MyAssert( pSceneInfo );
+    if( pSceneInfo == 0 )
+        return -1; // we have problems if this happens.
+
+    pSceneInfo->m_NextGameObjectID = pSceneInfo->m_NextGameObjectID + 1;
+    return pSceneInfo->m_NextGameObjectID-1;
 }
 
 GameObject* ComponentSystemManager::FindGameObjectByID(unsigned int sceneid, unsigned int goid)

@@ -77,8 +77,7 @@ void SceneHandler::OnPopupClick(wxEvent &evt)
 
     case RightClick_AddGameObject:
         {
-            GameObject* pGameObject = g_pComponentSystemManager->CreateGameObject();
-            pGameObject->SetSceneID( pSceneHandler->m_SceneIDBeingAffected );
+            GameObject* pGameObject = g_pComponentSystemManager->CreateGameObject( true, pSceneHandler->m_SceneIDBeingAffected );
             pGameObject->SetName( "New Game Object" );
         }
         break;

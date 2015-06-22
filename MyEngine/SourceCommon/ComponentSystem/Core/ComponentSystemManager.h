@@ -93,6 +93,8 @@ public:
 #endif
     GameObject* CopyGameObject(GameObject* pObject, const char* newname);
 
+    unsigned int GetNextGameObjectIDAndIncrement(unsigned int sceneid);
+
     GameObject* FindGameObjectByID(unsigned int sceneid, unsigned int goid);
     GameObject* FindGameObjectByName(const char* name);
     GameObject* FindGameObjectByJSONRef(cJSON* pJSONGameObjectRef);

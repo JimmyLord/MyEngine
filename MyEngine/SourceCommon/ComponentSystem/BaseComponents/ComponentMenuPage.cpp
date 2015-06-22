@@ -12,6 +12,7 @@
 #if LEGACYHACK
 #include "../../SharedGameCode/Screens/ScreenManager.h"
 #include "../../SharedGameCode/Screens/Screen_Base.h"
+#include "../../SharedGameCode/Menus/MenuScrollBox.h"
 #endif //LEGACYHACK
 
 #if MYFW_USING_WX
@@ -111,13 +112,35 @@ void ComponentMenuPage::LEGACYHACK_GrabMenuItemPointersFromCurrentScreen()
             m_pMenuItems[m_MenuItemsUsed] = pScreen->GetMenuItem( i );
             if( m_pMenuItems[m_MenuItemsUsed] )
             {
-                if( m_pMenuItems[m_MenuItemsUsed]->m_MenuItemType == MIT_Button )
+                // Bring in the scrollbox menu items as static items in the menu page.
+                if( m_pMenuItems[m_MenuItemsUsed]->m_MenuItemType == MIT_ScrollBox )
                 {
-                    MenuButton* pButton = (MenuButton*)m_pMenuItems[m_MenuItemsUsed];
-                    sprintf_s( pButton->m_ButtonAction, 32, "%d", (int)pButton->m_ButtonAction[0] );
-                    int bp = 1;
+                    MenuScrollBox* pScrollBox = (MenuScrollBox*)m_pMenuItems[m_MenuItemsUsed];
+                    for( int i=0; i<pScrollBox->m_NumMenuItems; i++ )
+                    {
+                        m_pMenuItems[m_MenuItemsUsed] = pScrollBox->GetMenuItem( i );
+                        if( m_pMenuItems[m_MenuItemsUsed] )
+                        {
+                            if( m_pMenuItems[m_MenuItemsUsed]->m_MenuItemType == MIT_Button )
+                            {
+                                MenuButton* pButton = (MenuButton*)m_pMenuItems[m_MenuItemsUsed];
+                                sprintf_s( pButton->m_ButtonAction, 32, "%d", (int)pButton->m_ButtonAction[0] );
+                                int bp = 1;
+                            }
+                            m_MenuItemsUsed++;
+                        }
+                    }
                 }
-                m_MenuItemsUsed++;
+                else
+                {
+                    if( m_pMenuItems[m_MenuItemsUsed]->m_MenuItemType == MIT_Button )
+                    {
+                        MenuButton* pButton = (MenuButton*)m_pMenuItems[m_MenuItemsUsed];
+                        sprintf_s( pButton->m_ButtonAction, 32, "%d", (int)pButton->m_ButtonAction[0] );
+                        int bp = 1;
+                    }
+                    m_MenuItemsUsed++;
+                }
             }
         }
     }
@@ -714,10 +737,13 @@ void ComponentMenuPage::UpdateLayout(cJSON* layout)
             g_pPanelObjectList->AddObject( m_pMenuItems[i], MenuButton::StaticFillPropertiesWindow, MenuItem::StaticOnRightClick, componentID, "Button" );
             break;
 
+        case MIT_InputBox:
+            g_pPanelObjectList->AddObject( m_pMenuItems[i], MenuButton::StaticFillPropertiesWindow, MenuItem::StaticOnRightClick, componentID, "InputBox" );
+            break;
+
         case MIT_Base:
         case MIT_ScrollBox:
         case MIT_ScrollingText:
-        case MIT_InputBox:
         case MIT_CheckBox:
         case MIT_NumMenuItemTypes:
         default:
