@@ -648,7 +648,6 @@ bool ComponentMenuPage::OnButtons(GameCoreButtonActions action, GameCoreButtonID
 
 void ComponentMenuPage::Tick(double TimePassed)
 {
-#if MYFW_USING_WX
     if( m_MenuItemsCreated == false )
     {
         if( m_pMenuLayoutFile && m_pMenuLayoutFile->m_FileLoadStatus == FileLoadStatus_Success )
@@ -663,7 +662,6 @@ void ComponentMenuPage::Tick(double TimePassed)
             m_MenuItemsCreated = true;
         }
     }
-#endif
 
     // Tick all the menu items.
     for( unsigned int i=0; i<m_MenuItemsUsed; i++ )
@@ -677,11 +675,13 @@ void ComponentMenuPage::Tick(double TimePassed)
 
 void ComponentMenuPage::OnSurfaceChanged(unsigned int startx, unsigned int starty, unsigned int width, unsigned int height, unsigned int desiredaspectwidth, unsigned int desiredaspectheight)
 {
+#if MYFW_USING_WX
     if( m_CurrentWidth != 0 && m_CurrentHeight != 0 )
     {
         if( m_MenuItemsCreated == true )
             SaveCurrentLayoutToJSON();
     }
+#endif //MYFW_USING_WX
 
     m_CurrentWidth = width;//desiredaspectwidth;
     m_CurrentHeight = height;//desiredaspectheight;
@@ -720,6 +720,7 @@ void ComponentMenuPage::UpdateLayout(cJSON* layout)
     ClearAllMenuItems();
     m_MenuItemsUsed = Menu_ImportExport::ImportMenuLayout( m_CurrentLayout, m_pMenuItems, MAX_MENU_ITEMS );
 
+#if MYFW_USING_WX
     wxTreeItemId componentID = g_pPanelObjectList->FindObject( this );    
     for( unsigned int i=0; i<m_MenuItemsUsed; i++ )
     {
@@ -741,15 +742,19 @@ void ComponentMenuPage::UpdateLayout(cJSON* layout)
             g_pPanelObjectList->AddObject( m_pMenuItems[i], MenuButton::StaticFillPropertiesWindow, MenuItem::StaticOnRightClick, componentID, "InputBox" );
             break;
 
+        case MIT_ScrollingText:
+            g_pPanelObjectList->AddObject( m_pMenuItems[i], MenuButton::StaticFillPropertiesWindow, MenuItem::StaticOnRightClick, componentID, "ScrollingText" );
+            break;
+
         case MIT_Base:
         case MIT_ScrollBox:
-        case MIT_ScrollingText:
         case MIT_CheckBox:
         case MIT_NumMenuItemTypes:
         default:
             MyAssert( false );
         }
     }
+#endif //MYFW_USING_WX
 }
 
 void ComponentMenuPage::Draw()

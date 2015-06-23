@@ -86,6 +86,7 @@ extern "C"
 #include "../../SharedGameCode/Menus/MenuSprite.h"
 #include "../../SharedGameCode/Menus/MenuText.h"
 #include "../../SharedGameCode/Menus/MenuInputBox.h"
+#include "../../SharedGameCode/Menus/MenuScrollingText.h"
 
 #include "../../SharedGameCode/Menus/Menu_Helpers.h"
 
