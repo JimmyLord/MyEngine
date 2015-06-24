@@ -10,6 +10,7 @@
 #ifndef __ComponentMenuPage_H__
 #define __ComponentMenuPage_H__
 
+class ComponentMenuPage;
 class ComponentTransform;
 class ComponentCamera;
 class ComponentLuaScript;
@@ -17,11 +18,18 @@ class MenuItem;
 
 #define LEGACYHACK 1
 
-typedef void (*MenuPageActionCallbackFunc)(void* pObjectPtr, const char* action, MenuItem* pMenuItem);
+typedef void (*MenuPageActionCallbackFunc)(void* pObjectPtr, ComponentMenuPage* pPage, const char* action, MenuItem* pMenuItem);
 struct MenuPageActionCallbackStruct
 {
     void* pObj;
     MenuPageActionCallbackFunc pFunc;
+};
+
+typedef void (*MenuPageVisibleCallbackFunc)(void* pObjectPtr, bool visible);
+struct MenuPageVisibleCallbackStruct
+{
+    void* pObj;
+    MenuPageVisibleCallbackFunc pFunc;
 };
 
 class ComponentMenuPage : public ComponentBase
@@ -44,6 +52,7 @@ protected:
     unsigned int m_CurrentHeight;
 
     MenuPageActionCallbackStruct m_MenuPageActionCallbackStruct;
+    MenuPageVisibleCallbackStruct m_MenuPageVisibleCallbackStruct;
 
 public:
     ComponentTransform* m_pComponentTransform;
@@ -87,8 +96,9 @@ public:
     MenuItem* GetMenuItem(unsigned int index) { return m_pMenuItems[index]; }
 
     void RegisterMenuPageActionCallback(void* pObj, MenuPageActionCallbackFunc pFunc);
+    void RegisterMenuPageVisibleCallback(void* pObj, MenuPageVisibleCallbackFunc pFunc);
 
-    void SetVisible(bool visible) { m_Visible = visible; }
+    void SetVisible(bool visible);
 
 public:
 #if MYFW_USING_WX

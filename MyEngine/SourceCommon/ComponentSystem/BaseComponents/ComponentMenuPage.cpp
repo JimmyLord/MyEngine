@@ -49,6 +49,9 @@ ComponentMenuPage::ComponentMenuPage()
     m_MenuPageActionCallbackStruct.pFunc = 0;
     m_MenuPageActionCallbackStruct.pObj = 0;
 
+    m_MenuPageVisibleCallbackStruct.pFunc = 0;
+    m_MenuPageVisibleCallbackStruct.pObj = 0;
+
 #if MYFW_USING_WX
     m_ControlID_Filename = -1;
     h_RenameInProgress = false;
@@ -617,7 +620,7 @@ bool ComponentMenuPage::OnTouch(int action, int id, float x, float y, float pres
                     {
                         if( m_MenuPageActionCallbackStruct.pFunc )
                         {
-                            m_MenuPageActionCallbackStruct.pFunc( m_MenuPageActionCallbackStruct.pObj, action, m_pMenuItems[i] );
+                            m_MenuPageActionCallbackStruct.pFunc( m_MenuPageActionCallbackStruct.pObj, this, action, m_pMenuItems[i] );
                         }
 #if MYFW_USING_WX
                         // in editor, there's a chance the script component was created and not associated with this object.
@@ -798,4 +801,23 @@ void ComponentMenuPage::RegisterMenuPageActionCallback(void* pObj, MenuPageActio
 {
     m_MenuPageActionCallbackStruct.pFunc = pFunc;
     m_MenuPageActionCallbackStruct.pObj = pObj;
+}
+
+void ComponentMenuPage::RegisterMenuPageVisibleCallback(void* pObj, MenuPageVisibleCallbackFunc pFunc)
+{
+    m_MenuPageVisibleCallbackStruct.pFunc = pFunc;
+    m_MenuPageVisibleCallbackStruct.pObj = pObj;
+}
+
+void ComponentMenuPage::SetVisible(bool visible)
+{
+    if( m_Visible == visible )
+        return;
+
+    m_Visible = visible;
+
+    if( m_MenuPageVisibleCallbackStruct.pFunc )
+    {
+        m_MenuPageVisibleCallbackStruct.pFunc( m_MenuPageVisibleCallbackStruct.pObj, visible );
+    }
 }
