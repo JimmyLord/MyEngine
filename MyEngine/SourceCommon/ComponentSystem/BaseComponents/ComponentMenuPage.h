@@ -15,6 +15,7 @@ class ComponentTransform;
 class ComponentCamera;
 class ComponentLuaScript;
 class MenuItem;
+class MenuInputBox;
 
 #define LEGACYHACK 1
 
@@ -25,7 +26,7 @@ struct MenuPageActionCallbackStruct
     MenuPageActionCallbackFunc pFunc;
 };
 
-typedef void (*MenuPageVisibleCallbackFunc)(void* pObjectPtr, bool visible);
+typedef void (*MenuPageVisibleCallbackFunc)(void* pObjectPtr, ComponentMenuPage* pPage, bool visible);
 struct MenuPageVisibleCallbackStruct
 {
     void* pObj;
@@ -41,6 +42,8 @@ protected:
     MyFileObject* m_pMenuLayoutFile;
 
     bool m_MenuItemsCreated;
+
+    MenuInputBox* m_pInputBoxWithKeyboardFocus;
 
     unsigned int m_MenuItemsUsed;
     MenuItem* m_pMenuItems[MAX_MENU_ITEMS];
@@ -82,6 +85,7 @@ public:
     // will return true if input is used.
     virtual bool OnTouch(int action, int id, float x, float y, float pressure, float size);
     virtual bool OnButtons(GameCoreButtonActions action, GameCoreButtonIDs id);
+    virtual bool OnKeys(GameCoreButtonActions action, int keycode, int unicodechar);
 
     virtual void Tick(double TimePassed);
     virtual void OnSurfaceChanged(unsigned int startx, unsigned int starty, unsigned int width, unsigned int height, unsigned int desiredaspectwidth, unsigned int desiredaspectheight);
@@ -94,6 +98,7 @@ public:
     void SetMenuLayoutFile(MyFileObject* pFile);
 
     MenuItem* GetMenuItem(unsigned int index) { return m_pMenuItems[index]; }
+    MenuItem* GetMenuItemByName(const char* name);
 
     void RegisterMenuPageActionCallback(void* pObj, MenuPageActionCallbackFunc pFunc);
     void RegisterMenuPageVisibleCallback(void* pObj, MenuPageVisibleCallbackFunc pFunc);

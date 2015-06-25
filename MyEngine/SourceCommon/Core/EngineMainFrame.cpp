@@ -211,6 +211,16 @@ void EngineMainFrame::InitFrame()
 
     Connect( myIDGame_DebugShowMousePickerFBO,       wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnGameMenu) );
     Connect( myIDGame_DebugShowSelectedAnimatedMesh, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnGameMenu) );
+
+    if( m_pEditorPrefs )
+    {
+        int layouteditor = 0;
+        int layoutgameplay = 0;
+        cJSONExt_GetInt( m_pEditorPrefs, "EditorLayout", &layouteditor );
+        cJSONExt_GetInt( m_pEditorPrefs, "GameplayLayout", &layoutgameplay );
+        SetDefaultEditorPerspectiveIndex( layouteditor );
+        SetDefaultGameplayPerspectiveIndex( layoutgameplay );
+    }
 }
 
 EngineMainFrame::~EngineMainFrame()
@@ -276,14 +286,6 @@ void EngineMainFrame::OnPostInit()
         obj = cJSON_GetObjectItem( m_pEditorPrefs, "EditorCam" );
         if( obj )
             g_pEngineCore->m_pEditorState->GetEditorCamera()->m_pComponentTransform->ImportFromJSONObject( obj, 1 );
-
-        obj = cJSON_GetObjectItem( m_pEditorPrefs, "EditorLayout" );
-        if( obj )
-            SetDefaultEditorPerspectiveIndex( obj->valueint );
-
-        obj = cJSON_GetObjectItem( m_pEditorPrefs, "GameplayLayout" );
-        if( obj )
-            SetDefaultGameplayPerspectiveIndex( obj->valueint );
 
         extern GLViewTypes g_CurrentGLViewType;
         cJSONExt_GetInt( m_pEditorPrefs, "GameAspectRatio", (int*)&g_CurrentGLViewType );

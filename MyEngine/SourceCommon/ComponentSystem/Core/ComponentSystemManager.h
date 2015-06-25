@@ -119,6 +119,7 @@ public:
 
     bool OnTouch(int action, int id, float x, float y, float pressure, float size);
     bool OnButtons(GameCoreButtonActions action, GameCoreButtonIDs id);
+    bool OnKeys(GameCoreButtonActions action, int keycode, int unicodechar);
 
     void RegisterComponentTickCallback(ComponentTickCallbackFunction pFunc, void* pObj);
     void UnregisterComponentTickCallback(ComponentTickCallbackFunction pFunc, void* pObj);

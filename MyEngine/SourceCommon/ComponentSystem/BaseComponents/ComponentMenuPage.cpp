@@ -32,6 +32,8 @@ ComponentMenuPage::ComponentMenuPage()
 
     m_MenuItemsCreated = false;
 
+    m_pInputBoxWithKeyboardFocus = 0;
+
     m_MenuItemsUsed = 0;
     for( unsigned int i=0; i<MAX_MENU_ITEMS; i++ )
     {
@@ -430,6 +432,9 @@ void ComponentMenuPage::OnMenuItemDeleted(MenuItem* pMenuItem)
         m_MenuItemsUsed -= 1;
     }
 
+    if( pMenuItem == m_pInputBoxWithKeyboardFocus )
+        m_pInputBoxWithKeyboardFocus = 0;
+
     MyAssert( found );
 }
 
@@ -616,6 +621,10 @@ bool ComponentMenuPage::OnTouch(int action, int id, float x, float y, float pres
                 {
                     const char* action = m_pMenuItems[i]->TriggerOnCollision( id, x, y, true );
 
+                    // set this menu item as the selected input box.
+                    if( m_pMenuItems[i]->m_MenuItemType == MIT_InputBox )
+                        m_pInputBoxWithKeyboardFocus = (MenuInputBox*)m_pMenuItems[i];
+
                     if( action != 0 )//&& OnMenuAction( action ) )
                     {
                         if( m_MenuPageActionCallbackStruct.pFunc )
@@ -646,6 +655,25 @@ bool ComponentMenuPage::OnTouch(int action, int id, float x, float y, float pres
 // will return true if input is used.
 bool ComponentMenuPage::OnButtons(GameCoreButtonActions action, GameCoreButtonIDs id)
 {
+    return false;
+}
+
+// will return true if input is used.
+bool ComponentMenuPage::OnKeys(GameCoreButtonActions action, int keycode, int unicodechar)
+{
+    //if( Screen_Base::OnKeyDown( keycode, unicodechar ) )
+    //    return true;
+
+    //LOGInfo( LOGTag, "Screen_PlayerCreation::OnKeyDown %p\n", m_pInputBoxWithKeyboardFocus );
+
+    if( action == GCBA_Down )
+    {
+        if( m_pInputBoxWithKeyboardFocus )
+        {
+            return m_pInputBoxWithKeyboardFocus->OnKeyDown( keycode, unicodechar );
+        }
+    }
+
     return false;
 }
 
@@ -690,6 +718,12 @@ void ComponentMenuPage::OnSurfaceChanged(unsigned int startx, unsigned int start
     m_CurrentHeight = height;//desiredaspectheight;
 
     LoadLayoutBasedOnCurrentAspectRatio();
+    // since we reloaded all items, trigger the onvisible callback.
+    if( m_Visible )
+    {
+        m_Visible = false;
+        SetVisible( true );
+    }
 }
 
 void ComponentMenuPage::LoadLayoutBasedOnCurrentAspectRatio()
@@ -714,6 +748,14 @@ void ComponentMenuPage::LoadLayoutBasedOnCurrentAspectRatio()
 
     if( obj != 0 )
         UpdateLayout( obj );
+
+    // grab the first input box, if there is one and set it as focused.
+    for( unsigned int i=0; i<m_MenuItemsUsed; i++ )
+    {
+        MyAssert( m_pMenuItems[i] );
+        if( m_pMenuItems[i] && m_pMenuItems[i]->m_MenuItemType == MIT_InputBox )
+            m_pInputBoxWithKeyboardFocus = (MenuInputBox*)m_pMenuItems[i];
+    }
 }
 
 void ComponentMenuPage::UpdateLayout(cJSON* layout)
@@ -787,6 +829,7 @@ void ComponentMenuPage::ClearAllMenuItems()
         SAFE_DELETE( m_pMenuItems[i] );
     }
     m_MenuItemsUsed = 0;
+    m_pInputBoxWithKeyboardFocus = 0;
 }
 
 void ComponentMenuPage::SetMenuLayoutFile(MyFileObject* pFile)
@@ -795,6 +838,19 @@ void ComponentMenuPage::SetMenuLayoutFile(MyFileObject* pFile)
         pFile->AddRef();
     SAFE_RELEASE( m_pMenuLayoutFile );
     m_pMenuLayoutFile = pFile;
+}
+
+MenuItem* ComponentMenuPage::GetMenuItemByName(const char* name)
+{
+    for( int i=0; i<MAX_MENU_ITEMS; i++ )
+    {
+        if( m_pMenuItems[i] && strcmp( m_pMenuItems[i]->m_Name, name ) == 0 )
+        {
+            return m_pMenuItems[i];
+        }
+    }
+
+    return 0;
 }
 
 void ComponentMenuPage::RegisterMenuPageActionCallback(void* pObj, MenuPageActionCallbackFunc pFunc)
@@ -818,6 +874,6 @@ void ComponentMenuPage::SetVisible(bool visible)
 
     if( m_MenuPageVisibleCallbackStruct.pFunc )
     {
-        m_MenuPageVisibleCallbackStruct.pFunc( m_MenuPageVisibleCallbackStruct.pObj, visible );
+        m_MenuPageVisibleCallbackStruct.pFunc( m_MenuPageVisibleCallbackStruct.pObj, this, visible );
     }
 }

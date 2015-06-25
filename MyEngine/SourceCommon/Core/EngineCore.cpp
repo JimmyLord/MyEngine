@@ -408,8 +408,8 @@ void EngineCore::OnKey(GameCoreButtonActions action, int keycode, int unicodecha
         else
 #endif
         {
-            // TODO: hack, need to fix, did this for GGJ to make keys work
-            //m_pComponentSystemManager->OnButtons( GCBA_Down, (GameCoreButtonIDs)keycode );
+            if( m_pComponentSystemManager->OnKeys( GCBA_Down, keycode, unicodechar ) )
+                return;
         }
     }
 
@@ -424,8 +424,8 @@ void EngineCore::OnKey(GameCoreButtonActions action, int keycode, int unicodecha
         else
 #endif
         {
-            // TODO: hack, need to fix, did this for GGJ to make keys work
-            //m_pComponentSystemManager->OnButtons( GCBA_Up, (GameCoreButtonIDs)keycode );
+            if( m_pComponentSystemManager->OnKeys( GCBA_Up, keycode, unicodechar ) )
+                return;
         }
     }
 

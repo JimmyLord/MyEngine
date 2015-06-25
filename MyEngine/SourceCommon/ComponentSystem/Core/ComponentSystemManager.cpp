@@ -1274,6 +1274,47 @@ bool ComponentSystemManager::OnButtons(GameCoreButtonActions action, GameCoreBut
     return false;
 }
 
+bool ComponentSystemManager::OnKeys(GameCoreButtonActions action, int keycode, int unicodechar)
+{
+    // Menu pages get first crack at input.
+    for( CPPListNode* node = m_Components[BaseComponentType_MenuPage].GetHead(); node != 0; node = node->GetNext() )
+    {
+        ComponentMenuPage* pComponent = (ComponentMenuPage*)node;
+
+        if( pComponent->m_Visible )
+        {
+            if( pComponent->OnKeys( action, keycode, unicodechar ) == true )
+                return true;
+        }
+    }
+
+    // then regular scene input handlers.
+    for( CPPListNode* node = m_Components[BaseComponentType_InputHandler].GetHead(); node != 0; node = node->GetNext() )
+    {
+        ComponentInputHandler* pComponent = (ComponentInputHandler*)node;
+
+        if( pComponent->m_BaseType == BaseComponentType_InputHandler )
+        {
+            if( pComponent->OnKeys( action, keycode, unicodechar ) == true )
+                return true;
+        }
+    }
+
+    //// then send input to all the scripts.
+    //for( CPPListNode* node = m_Components[BaseComponentType_Updateable].GetHead(); node != 0; node = node->GetNext() )
+    //{
+    //    ComponentLuaScript* pComponent = ((ComponentBase*)node)->IsA( "LuaScriptComponent" ) ? (ComponentLuaScript*)node : 0;
+
+    //    if( pComponent )
+    //    {
+    //        if( pComponent->OnKeys( action, keycode, unicodechar ) == true )
+    //            return true;
+    //    }
+    //}
+
+    return false;
+}
+
 void ComponentSystemManager::RegisterComponentTickCallback(ComponentTickCallbackFunction pFunc, void* pObj)
 {
     MyAssert( pFunc != 0 );
