@@ -31,6 +31,7 @@ ComponentMenuPage::ComponentMenuPage()
     m_pComponentLuaScript = 0;
 
     m_MenuItemsCreated = false;
+    m_LayoutChanged = false;
 
     m_pInputBoxWithKeyboardFocus = 0;
 
@@ -87,6 +88,7 @@ void ComponentMenuPage::Reset()
 
     SAFE_RELEASE( m_pMenuLayoutFile );
     m_MenuItemsCreated = false;
+    m_LayoutChanged = false;
 
     // find the first ortho cam component in the scene, settle for a perspective if that's all there is.
     m_pComponentCamera = (ComponentCamera*)g_pComponentSystemManager->GetFirstComponentOfType( "CameraComponent" );
@@ -709,20 +711,27 @@ void ComponentMenuPage::OnSurfaceChanged(unsigned int startx, unsigned int start
 #if MYFW_USING_WX
     if( m_CurrentWidth != 0 && m_CurrentHeight != 0 )
     {
-        if( m_MenuItemsCreated == true )
-            SaveCurrentLayoutToJSON();
+        if( m_Visible )
+        {
+            if( m_MenuItemsCreated == true )
+                SaveCurrentLayoutToJSON();
+        }
     }
 #endif //MYFW_USING_WX
 
     m_CurrentWidth = width;//desiredaspectwidth;
     m_CurrentHeight = height;//desiredaspectheight;
 
-    LoadLayoutBasedOnCurrentAspectRatio();
     // since we reloaded all items, trigger the onvisible callback.
     if( m_Visible )
     {
+        LoadLayoutBasedOnCurrentAspectRatio();
         m_Visible = false;
         SetVisible( true );
+    }
+    else
+    {
+        m_LayoutChanged = true;
     }
 }
 
@@ -869,6 +878,12 @@ void ComponentMenuPage::SetVisible(bool visible)
 {
     if( m_Visible == visible )
         return;
+
+    if( visible == true && m_LayoutChanged )
+    {
+        // recreate all the menu items
+        LoadLayoutBasedOnCurrentAspectRatio();
+    }
 
     m_Visible = visible;
 

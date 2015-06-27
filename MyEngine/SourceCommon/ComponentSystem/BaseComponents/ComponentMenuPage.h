@@ -42,6 +42,7 @@ protected:
     MyFileObject* m_pMenuLayoutFile;
 
     bool m_MenuItemsCreated;
+    bool m_LayoutChanged;
 
     MenuInputBox* m_pInputBoxWithKeyboardFocus;
 
@@ -99,6 +100,8 @@ public:
 
     MenuItem* GetMenuItem(unsigned int index) { return m_pMenuItems[index]; }
     MenuItem* GetMenuItemByName(const char* name);
+
+    unsigned int GetNumMenuItemsUsed() { return m_MenuItemsUsed; }
 
     void RegisterMenuPageActionCallback(void* pObj, MenuPageActionCallbackFunc pFunc);
     void RegisterMenuPageVisibleCallback(void* pObj, MenuPageVisibleCallbackFunc pFunc);
