@@ -20,8 +20,6 @@ ComponentSystemManager::ComponentSystemManager(ComponentTypeManager* typemanager
     m_pSceneHandler = MyNew SceneHandler();
 #endif
 
-    m_pComponentTickCallbackList.AllocateObjects( MAX_COMPONENT_TICK_CALLBACKS );
-
 #if MYFW_USING_WX
     g_pMaterialManager->RegisterMaterialCreatedCallback( this, StaticOnMaterialCreated );
 #endif
@@ -60,7 +58,7 @@ ComponentSystemManager::~ComponentSystemManager()
     SAFE_DELETE( m_pComponentTypeManager );
 
     // if a component didn't unregister itself, assert.
-    MyAssert( m_pComponentTickCallbackList.Count() == 0 );
+    MyAssert( m_pComponentCallbackList_Tick.GetHead() == 0 );
     
     g_pComponentSystemManager = 0;
 }
@@ -947,9 +945,11 @@ void ComponentSystemManager::Tick(double TimePassed)
     }
 
     // update all components that registered a tick callback.
-    for( unsigned int i=0; i<m_pComponentTickCallbackList.Count(); i++ )
+    for( CPPListNode* pNode = m_pComponentCallbackList_Tick.HeadNode.Next; pNode->Next; pNode = pNode->Next )
     {
-        m_pComponentTickCallbackList[i].pFunc( m_pComponentTickCallbackList[i].pObj, TimePassed );
+        ComponentTickCallbackStruct* pCallbackStruct = (ComponentTickCallbackStruct*)pNode;
+
+        pCallbackStruct->pFunc( pCallbackStruct->pObj, TimePassed );
     }
 
     // update all cameras after game objects are updated.
@@ -1315,27 +1315,12 @@ bool ComponentSystemManager::OnKeys(GameCoreButtonActions action, int keycode, i
     return false;
 }
 
-void ComponentSystemManager::RegisterComponentTickCallback(ComponentTickCallbackFunction pFunc, void* pObj)
+void ComponentSystemManager::RegisterComponentCallback_Tick(ComponentTickCallbackStruct* pCallbackStruct)
 {
-    MyAssert( pFunc != 0 );
-    MyAssert( pObj != 0 );
-    MyAssert( m_pComponentTickCallbackList.Count() < MAX_COMPONENT_TICK_CALLBACKS );
-
-    ComponentTickCallbackStruct callbackstruct;
-    callbackstruct.pObj = pObj;
-    callbackstruct.pFunc = pFunc;
-
-    m_pComponentTickCallbackList.Add( callbackstruct );
+    m_pComponentCallbackList_Tick.AddTail( pCallbackStruct );
 }
 
-void ComponentSystemManager::UnregisterComponentTickCallback(ComponentTickCallbackFunction pFunc, void* pObj)
+void ComponentSystemManager::UnregisterComponentCallback_Tick(ComponentTickCallbackStruct* pCallbackStruct)
 {
-    MyAssert( pFunc != 0 );
-    MyAssert( pObj != 0 );
-
-    ComponentTickCallbackStruct callbackstruct;
-    callbackstruct.pObj = pObj;
-    callbackstruct.pFunc = pFunc;
-
-    m_pComponentTickCallbackList.Remove( callbackstruct );
+    pCallbackStruct->Remove();
 }

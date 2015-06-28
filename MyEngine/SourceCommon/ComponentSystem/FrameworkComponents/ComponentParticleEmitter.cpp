@@ -30,7 +30,8 @@ ComponentParticleEmitter::ComponentParticleEmitter()
     m_pParticleRenderer = MyNew ParticleRenderer( false );
     m_pParticleRenderer->AllocateVertices( 1000, "Particle Renderer" );
 
-    g_pComponentSystemManager->RegisterComponentTickCallback( &StaticTick, this );
+    // Register callbacks.
+    MYFW_REGISTER_COMPONENT_CALLBACK( Tick );
 
     m_pMaterial = 0;
 }
@@ -43,7 +44,8 @@ ComponentParticleEmitter::~ComponentParticleEmitter()
 
     SAFE_RELEASE( m_pMaterial );
 
-    g_pComponentSystemManager->UnregisterComponentTickCallback( &StaticTick, this );
+    // Unregister callbacks.
+    MYFW_UNREGISTER_COMPONENT_CALLBACK( Tick );
 }
 
 void ComponentParticleEmitter::Reset()
@@ -268,7 +270,7 @@ void ComponentParticleEmitter::CreateBurst(int number, Vector3 pos)
     }
 }
 
-void ComponentParticleEmitter::Tick(double TimePassed)
+void ComponentParticleEmitter::Callback_Tick(double TimePassed)
 {
     // TODO: if we want to share particle renderers, then don't reset like this.
     m_pParticleRenderer->Reset();

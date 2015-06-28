@@ -30,7 +30,7 @@ struct FileUpdatedCallbackStruct
 #endif //MYFW_USING_WX
 
 typedef void (*ComponentTickCallbackFunction)(void* obj, double TimePassed);
-struct ComponentTickCallbackStruct
+struct ComponentTickCallbackStruct : public CPPListNode
 {
     void* pObj;
     ComponentTickCallbackFunction pFunc;
@@ -41,6 +41,19 @@ struct ComponentTickCallbackStruct
         return this->pObj == o.pObj && this->pFunc == o.pFunc;
     }
 };
+
+#define MYFW_DECLARE_COMPONENT_CALLBACK_TICK(ComponentClass) \
+    ComponentTickCallbackStruct m_CallbackStruct_Tick; \
+    static void StaticCallback_Tick(void* pObjectPtr, double TimePassed) { ((ComponentClass*)pObjectPtr)->Callback_Tick( TimePassed ); } \
+    void Callback_Tick(double TimePassed); \
+
+#define MYFW_REGISTER_COMPONENT_CALLBACK(CallbackType) \
+    m_CallbackStruct_##CallbackType.pObj = this; \
+    m_CallbackStruct_##CallbackType.pFunc = &StaticCallback_##CallbackType; \
+    g_pComponentSystemManager->RegisterComponentCallback_##CallbackType( &m_CallbackStruct_##CallbackType );
+
+#define MYFW_UNREGISTER_COMPONENT_CALLBACK(CallbackType) \
+    g_pComponentSystemManager->UnregisterComponentCallback_##CallbackType( &m_CallbackStruct_##CallbackType );
 
 class ComponentSystemManager
 #if MYFW_USING_WX
@@ -58,8 +71,7 @@ public:
     CPPListHead m_Components[BaseComponentType_NumTypes];
 
     // a list of components that want an update call without being in the list above.
-    static const int MAX_COMPONENT_TICK_CALLBACKS = 100; // TODO: fix this hardcodedness
-    MyList<ComponentTickCallbackStruct> m_pComponentTickCallbackList;
+    CPPListHead m_pComponentCallbackList_Tick;
 
 protected:
 #if MYFW_USING_WX
@@ -121,8 +133,8 @@ public:
     bool OnButtons(GameCoreButtonActions action, GameCoreButtonIDs id);
     bool OnKeys(GameCoreButtonActions action, int keycode, int unicodechar);
 
-    void RegisterComponentTickCallback(ComponentTickCallbackFunction pFunc, void* pObj);
-    void UnregisterComponentTickCallback(ComponentTickCallbackFunction pFunc, void* pObj);
+    void RegisterComponentCallback_Tick(ComponentTickCallbackStruct* pCallbackStruct);
+    void UnregisterComponentCallback_Tick(ComponentTickCallbackStruct* pCallbackStruct);
 
     // Scene management
     unsigned int m_NextSceneID;

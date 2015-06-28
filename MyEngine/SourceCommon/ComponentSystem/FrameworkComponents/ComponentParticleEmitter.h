@@ -75,9 +75,8 @@ public:
     virtual void SetMaterial(MaterialDefinition* pMaterial, int submeshindex);
     virtual void Draw(MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride = 0, int drawcount = 0);
 
-    // renderables don't get ticked, so we need to register the tick in another list... ugh.
-    static void StaticTick(void* pObjectPtr, double TimePassed) { ((ComponentParticleEmitter*)pObjectPtr)->Tick( TimePassed ); }
-    void Tick(double TimePassed);
+    // renderables don't get ticked, so we need to register the tick in another list.
+    MYFW_DECLARE_COMPONENT_CALLBACK_TICK( ComponentParticleEmitter ); // Callback_Tick
 
     void CreateBurst(int number, Vector3 pos);
 
