@@ -75,10 +75,11 @@ public:
     virtual void SetMaterial(MaterialDefinition* pMaterial, int submeshindex);
     virtual void Draw(MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride = 0, int drawcount = 0);
 
-    // renderables don't get ticked, so we need to register the tick in another list.
-    MYFW_DECLARE_COMPONENT_CALLBACK_TICK( ComponentParticleEmitter ); // Callback_Tick
-
     void CreateBurst(int number, Vector3 pos);
+
+protected:
+    // Callback functions for various events.
+    MYFW_DECLARE_COMPONENT_CALLBACK_TICK( ComponentParticleEmitter ); // Callback_Tick
 
 public:
 #if MYFW_USING_WX

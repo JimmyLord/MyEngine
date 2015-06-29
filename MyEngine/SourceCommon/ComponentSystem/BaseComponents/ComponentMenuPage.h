@@ -83,15 +83,6 @@ public:
     virtual void OnPlay();
     //virtual void OnStop();
 
-    // will return true if input is used.
-    virtual bool OnTouch(int action, int id, float x, float y, float pressure, float size);
-    virtual bool OnButtons(GameCoreButtonActions action, GameCoreButtonIDs id);
-    virtual bool OnKeys(GameCoreButtonActions action, int keycode, int unicodechar);
-
-    virtual void Tick(double TimePassed);
-    virtual void OnSurfaceChanged(unsigned int startx, unsigned int starty, unsigned int width, unsigned int height, unsigned int desiredaspectwidth, unsigned int desiredaspectheight);
-    virtual void Draw();
-
     void LoadLayoutBasedOnCurrentAspectRatio();
     void UpdateLayout(cJSON* layout);
 
@@ -107,6 +98,15 @@ public:
     void RegisterMenuPageVisibleCallback(void* pObj, MenuPageVisibleCallbackFunc pFunc);
 
     void SetVisible(bool visible);
+
+protected:
+    // Callback functions for various events.
+    MYFW_DECLARE_COMPONENT_CALLBACK_TICK( ComponentMenuPage ); // Callback_Tick
+    MYFW_DECLARE_COMPONENT_CALLBACK_ONSURFACECHANGED( ComponentMenuPage ); // Callback_OnSurfaceChanged
+    MYFW_DECLARE_COMPONENT_CALLBACK_DRAW( ComponentMenuPage ); // Callback_Draw
+    MYFW_DECLARE_COMPONENT_CALLBACK_ONTOUCH( ComponentMenuPage ); // Callback_OnTouch
+    MYFW_DECLARE_COMPONENT_CALLBACK_ONBUTTONS( ComponentMenuPage ); // Callback_OnButtons
+    MYFW_DECLARE_COMPONENT_CALLBACK_ONKEYS( ComponentMenuPage ); // Callback_OnKeys
 
 public:
 #if MYFW_USING_WX

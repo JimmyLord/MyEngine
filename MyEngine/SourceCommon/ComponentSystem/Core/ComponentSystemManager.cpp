@@ -57,11 +57,34 @@ ComponentSystemManager::~ComponentSystemManager()
 #endif
     SAFE_DELETE( m_pComponentTypeManager );
 
-    // if a component didn't unregister itself, assert.
+    // if a component didn't unregister its callbacks, assert.
     MyAssert( m_pComponentCallbackList_Tick.GetHead() == 0 );
+    MyAssert( m_pComponentCallbackList_OnSurfaceChanged.GetHead() == 0 );
+    MyAssert( m_pComponentCallbackList_Draw.GetHead() == 0 );
+    MyAssert( m_pComponentCallbackList_OnTouch.GetHead() == 0 );
+    MyAssert( m_pComponentCallbackList_OnButtons.GetHead() == 0 );
+    MyAssert( m_pComponentCallbackList_OnKeys.GetHead() == 0 );
     
     g_pComponentSystemManager = 0;
 }
+
+// TODO: put in some sort of priority/sorting system for callbacks.
+#define MYFW_COMPONENTSYSTEMMANAGER_IMPLEMENT_CALLBACK_REGISTER_FUNCTIONS(CallbackType) \
+    void ComponentSystemManager::RegisterComponentCallback_##CallbackType(ComponentCallbackStruct_##CallbackType* pCallbackStruct) \
+    { \
+        m_pComponentCallbackList_##CallbackType.AddTail( pCallbackStruct ); \
+    } \
+    void ComponentSystemManager::UnregisterComponentCallback_##CallbackType(ComponentCallbackStruct_##CallbackType* pCallbackStruct) \
+    { \
+        pCallbackStruct->Remove(); \
+    }
+
+MYFW_COMPONENTSYSTEMMANAGER_IMPLEMENT_CALLBACK_REGISTER_FUNCTIONS( Tick );
+MYFW_COMPONENTSYSTEMMANAGER_IMPLEMENT_CALLBACK_REGISTER_FUNCTIONS( OnSurfaceChanged );
+MYFW_COMPONENTSYSTEMMANAGER_IMPLEMENT_CALLBACK_REGISTER_FUNCTIONS( Draw );
+MYFW_COMPONENTSYSTEMMANAGER_IMPLEMENT_CALLBACK_REGISTER_FUNCTIONS( OnTouch );
+MYFW_COMPONENTSYSTEMMANAGER_IMPLEMENT_CALLBACK_REGISTER_FUNCTIONS( OnButtons );
+MYFW_COMPONENTSYSTEMMANAGER_IMPLEMENT_CALLBACK_REGISTER_FUNCTIONS( OnKeys );
 
 void ComponentSystemManager::LuaRegister(lua_State* luastate)
 {
@@ -911,18 +934,7 @@ void ComponentSystemManager::Tick(double TimePassed)
 {
     // update all Components:
 
-    // Menu pages first.
-    for( CPPListNode* node = m_Components[BaseComponentType_MenuPage].GetHead(); node != 0; node = node->GetNext() )
-    {
-        ComponentMenuPage* pComponent = (ComponentMenuPage*)node;
-
-        //if( pComponent->m_Visible ) // TODO: add an "only tick if visible" flag.
-        {
-            pComponent->Tick( TimePassed );
-        }
-    }
-
-    // then all scripts.
+    // all scripts.
     for( CPPListNode* node = m_Components[BaseComponentType_Updateable].GetHead(); node != 0; node = node->GetNext() )
     {
         ComponentUpdateable* pComponent = (ComponentUpdateable*)node;
@@ -947,7 +959,7 @@ void ComponentSystemManager::Tick(double TimePassed)
     // update all components that registered a tick callback.
     for( CPPListNode* pNode = m_pComponentCallbackList_Tick.HeadNode.Next; pNode->Next; pNode = pNode->Next )
     {
-        ComponentTickCallbackStruct* pCallbackStruct = (ComponentTickCallbackStruct*)pNode;
+        ComponentCallbackStruct_Tick* pCallbackStruct = (ComponentCallbackStruct_Tick*)pNode;
 
         pCallbackStruct->pFunc( pCallbackStruct->pObj, TimePassed );
     }
@@ -980,12 +992,20 @@ void ComponentSystemManager::OnSurfaceChanged(unsigned int startx, unsigned int 
         }
     }
 
-    // For now, tell menu pages that the aspect ratio changed.
-    for( CPPListNode* node = m_Components[BaseComponentType_MenuPage].GetHead(); node != 0; node = node->GetNext() )
-    {
-        ComponentMenuPage* pComponent = (ComponentMenuPage*)node;
+    //// For now, tell menu pages that the aspect ratio changed.
+    //for( CPPListNode* node = m_Components[BaseComponentType_MenuPage].GetHead(); node != 0; node = node->GetNext() )
+    //{
+    //    ComponentMenuPage* pComponent = (ComponentMenuPage*)node;
 
-        pComponent->OnSurfaceChanged( startx, starty, width, height, desiredaspectwidth, desiredaspectheight );
+    //    pComponent->OnSurfaceChanged( startx, starty, width, height, desiredaspectwidth, desiredaspectheight );
+    //}
+
+    // notify all components that registered a callback of a change to the surfaces/aspect ratio.
+    for( CPPListNode* pNode = m_pComponentCallbackList_OnSurfaceChanged.HeadNode.Next; pNode->Next; pNode = pNode->Next )
+    {
+        ComponentCallbackStruct_OnSurfaceChanged* pCallbackStruct = (ComponentCallbackStruct_OnSurfaceChanged*)pNode;
+
+        pCallbackStruct->pFunc( pCallbackStruct->pObj, startx, starty, width, height, desiredaspectwidth, desiredaspectheight );
     }
 }
 
@@ -1020,19 +1040,12 @@ void ComponentSystemManager::OnDrawFrame(ComponentCamera* pCamera, MyMatrix* pMa
         }
     }
 
-    // For now, draw menu pages over the main scene.
-    // TODO: potentially draw solids before scene, transparents after.
-    for( CPPListNode* node = m_Components[BaseComponentType_MenuPage].GetHead(); node != 0; node = node->GetNext() )
+    // draw all components that registered a callback.
+    for( CPPListNode* pNode = m_pComponentCallbackList_Draw.HeadNode.Next; pNode->Next; pNode = pNode->Next )
     {
-        ComponentMenuPage* pComponent = (ComponentMenuPage*)node;
+        ComponentCallbackStruct_Draw* pCallbackStruct = (ComponentCallbackStruct_Draw*)pNode;
 
-        if( pComponent->m_LayersThisExistsOn & pCamera->m_LayersToRender )
-        {
-            if( pComponent->m_Visible )
-            {
-                pComponent->Draw();
-            }
-        }
+        pCallbackStruct->pFunc( pCallbackStruct->pObj, pCamera, pMatViewProj, pShaderOverride );
     }
 }
 
@@ -1194,16 +1207,12 @@ void ComponentSystemManager::OnStop()
 
 bool ComponentSystemManager::OnTouch(int action, int id, float x, float y, float pressure, float size)
 {
-    // Menu pages get first crack at input.
-    for( CPPListNode* node = m_Components[BaseComponentType_MenuPage].GetHead(); node != 0; node = node->GetNext() )
+    // send touch events to all components that registered a callback.
+    for( CPPListNode* pNode = m_pComponentCallbackList_OnTouch.HeadNode.Next; pNode->Next; pNode = pNode->Next )
     {
-        ComponentMenuPage* pComponent = (ComponentMenuPage*)node;
+        ComponentCallbackStruct_OnTouch* pCallbackStruct = (ComponentCallbackStruct_OnTouch*)pNode;
 
-        if( pComponent->m_Visible )
-        {
-            if( pComponent->OnTouch( action, id, x, y, pressure, size ) == true )
-                return true;
-        }
+        pCallbackStruct->pFunc( pCallbackStruct->pObj, action, id, x, y, pressure, size );
     }
 
     // then regular scene input handlers.
@@ -1235,16 +1244,12 @@ bool ComponentSystemManager::OnTouch(int action, int id, float x, float y, float
 
 bool ComponentSystemManager::OnButtons(GameCoreButtonActions action, GameCoreButtonIDs id)
 {
-    // Menu pages get first crack at input.
-    for( CPPListNode* node = m_Components[BaseComponentType_MenuPage].GetHead(); node != 0; node = node->GetNext() )
+    // send button events to all components that registered a callback.
+    for( CPPListNode* pNode = m_pComponentCallbackList_OnButtons.HeadNode.Next; pNode->Next; pNode = pNode->Next )
     {
-        ComponentMenuPage* pComponent = (ComponentMenuPage*)node;
+        ComponentCallbackStruct_OnButtons* pCallbackStruct = (ComponentCallbackStruct_OnButtons*)pNode;
 
-        if( pComponent->m_Visible )
-        {
-            if( pComponent->OnButtons( action, id ) == true )
-                return true;
-        }
+        pCallbackStruct->pFunc( pCallbackStruct->pObj, action, id );
     }
 
     // then regular scene input handlers.
@@ -1276,16 +1281,12 @@ bool ComponentSystemManager::OnButtons(GameCoreButtonActions action, GameCoreBut
 
 bool ComponentSystemManager::OnKeys(GameCoreButtonActions action, int keycode, int unicodechar)
 {
-    // Menu pages get first crack at input.
-    for( CPPListNode* node = m_Components[BaseComponentType_MenuPage].GetHead(); node != 0; node = node->GetNext() )
+    // send keyboard events to all components that registered a callback.
+    for( CPPListNode* pNode = m_pComponentCallbackList_OnKeys.HeadNode.Next; pNode->Next; pNode = pNode->Next )
     {
-        ComponentMenuPage* pComponent = (ComponentMenuPage*)node;
+        ComponentCallbackStruct_OnKeys* pCallbackStruct = (ComponentCallbackStruct_OnKeys*)pNode;
 
-        if( pComponent->m_Visible )
-        {
-            if( pComponent->OnKeys( action, keycode, unicodechar ) == true )
-                return true;
-        }
+        pCallbackStruct->pFunc( pCallbackStruct->pObj, action, keycode, unicodechar );
     }
 
     // then regular scene input handlers.
@@ -1313,14 +1314,4 @@ bool ComponentSystemManager::OnKeys(GameCoreButtonActions action, int keycode, i
     //}
 
     return false;
-}
-
-void ComponentSystemManager::RegisterComponentCallback_Tick(ComponentTickCallbackStruct* pCallbackStruct)
-{
-    m_pComponentCallbackList_Tick.AddTail( pCallbackStruct );
-}
-
-void ComponentSystemManager::UnregisterComponentCallback_Tick(ComponentTickCallbackStruct* pCallbackStruct)
-{
-    pCallbackStruct->Remove();
 }

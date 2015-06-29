@@ -55,6 +55,14 @@ ComponentMenuPage::ComponentMenuPage()
     m_MenuPageVisibleCallbackStruct.pFunc = 0;
     m_MenuPageVisibleCallbackStruct.pObj = 0;
 
+    // Register callbacks.
+    MYFW_REGISTER_COMPONENT_CALLBACK( Tick );
+    MYFW_REGISTER_COMPONENT_CALLBACK( OnSurfaceChanged );
+    MYFW_REGISTER_COMPONENT_CALLBACK( Draw );
+    MYFW_REGISTER_COMPONENT_CALLBACK( OnTouch );
+    MYFW_REGISTER_COMPONENT_CALLBACK( OnButtons );
+    MYFW_REGISTER_COMPONENT_CALLBACK( OnKeys );
+
 #if MYFW_USING_WX
     m_ControlID_Filename = -1;
     h_RenameInProgress = false;
@@ -75,6 +83,14 @@ ComponentMenuPage::~ComponentMenuPage()
     }
 
     cJSON_Delete( m_MenuLayouts );
+
+    // Unregister callbacks.
+    MYFW_UNREGISTER_COMPONENT_CALLBACK( Tick );
+    MYFW_UNREGISTER_COMPONENT_CALLBACK( OnSurfaceChanged );
+    MYFW_UNREGISTER_COMPONENT_CALLBACK( Draw );
+    MYFW_UNREGISTER_COMPONENT_CALLBACK( OnTouch );
+    MYFW_UNREGISTER_COMPONENT_CALLBACK( OnButtons );
+    MYFW_UNREGISTER_COMPONENT_CALLBACK( OnKeys );
 }
 
 void ComponentMenuPage::Reset()
@@ -564,8 +580,13 @@ void ComponentMenuPage::OnPlay()
 }
 
 // will return true if input is used.
-bool ComponentMenuPage::OnTouch(int action, int id, float x, float y, float pressure, float size)
+bool ComponentMenuPage::Callback_OnTouch(int action, int id, float x, float y, float pressure, float size)
 {
+    if( m_Visible == false )
+        return false;
+
+    //ComponentBase::Callback_OnTouch( action, id, x, y, pressure, size );
+
     switch( action )
     {
     case GCBA_Down: // new finger down
@@ -655,14 +676,24 @@ bool ComponentMenuPage::OnTouch(int action, int id, float x, float y, float pres
 }
 
 // will return true if input is used.
-bool ComponentMenuPage::OnButtons(GameCoreButtonActions action, GameCoreButtonIDs id)
+bool ComponentMenuPage::Callback_OnButtons(GameCoreButtonActions action, GameCoreButtonIDs id)
 {
+    if( m_Visible == false )
+        return false;
+
+    //ComponentBase::Callback_OnButtons( action, id );
+
     return false;
 }
 
 // will return true if input is used.
-bool ComponentMenuPage::OnKeys(GameCoreButtonActions action, int keycode, int unicodechar)
+bool ComponentMenuPage::Callback_OnKeys(GameCoreButtonActions action, int keycode, int unicodechar)
 {
+    if( m_Visible == false )
+        return false;
+
+    //ComponentBase::Callback_OnButtons( action, keycode, unicodechar );
+
     //if( Screen_Base::OnKeyDown( keycode, unicodechar ) )
     //    return true;
 
@@ -679,8 +710,10 @@ bool ComponentMenuPage::OnKeys(GameCoreButtonActions action, int keycode, int un
     return false;
 }
 
-void ComponentMenuPage::Tick(double TimePassed)
+void ComponentMenuPage::Callback_Tick(double TimePassed)
 {
+    //ComponentBase::Callback_Tick( TimePassed );
+
     if( m_MenuItemsCreated == false )
     {
         if( m_pMenuLayoutFile && m_pMenuLayoutFile->m_FileLoadStatus == FileLoadStatus_Success )
@@ -706,8 +739,10 @@ void ComponentMenuPage::Tick(double TimePassed)
     }
 }
 
-void ComponentMenuPage::OnSurfaceChanged(unsigned int startx, unsigned int starty, unsigned int width, unsigned int height, unsigned int desiredaspectwidth, unsigned int desiredaspectheight)
+void ComponentMenuPage::Callback_OnSurfaceChanged(unsigned int startx, unsigned int starty, unsigned int width, unsigned int height, unsigned int desiredaspectwidth, unsigned int desiredaspectheight)
 {
+    //ComponentBase::Callback_OnSurfaceChanged( TimePassed );
+
 #if MYFW_USING_WX
     if( m_CurrentWidth != 0 && m_CurrentHeight != 0 )
     {
@@ -811,8 +846,13 @@ void ComponentMenuPage::UpdateLayout(cJSON* layout)
 #endif //MYFW_USING_WX
 }
 
-void ComponentMenuPage::Draw()
+void ComponentMenuPage::Callback_Draw(ComponentCamera* pCamera, MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride)
 {
+    //ComponentBase::Callback_Draw( pCamera, pMatViewProj, pShaderOverride );
+
+    if( m_Visible == false || (m_LayersThisExistsOn & pCamera->m_LayersToRender) == 0 )
+        return;
+
     if( m_pComponentCamera == 0 )
         return;
 

@@ -29,24 +29,21 @@ struct FileUpdatedCallbackStruct
 };
 #endif //MYFW_USING_WX
 
-typedef void (*ComponentTickCallbackFunction)(void* obj, double TimePassed);
-struct ComponentTickCallbackStruct : public CPPListNode
-{
-    void* pObj;
-    ComponentTickCallbackFunction pFunc;
+// Define structures to hold callback funcs and objects.
+#define MYFW_COMPONENTSYSTEMMANAGER_DEFINE_CALLBACK_STRUCT(CallbackType) \
+    struct ComponentCallbackStruct_##CallbackType : public CPPListNode \
+    { \
+        void* pObj; \
+        ComponentCallbackFunction_##CallbackType pFunc; \
+    };
 
-    // == op needed for unregister of callback.
-    inline bool operator ==(const ComponentTickCallbackStruct& o)
-    {
-        return this->pObj == o.pObj && this->pFunc == o.pFunc;
-    }
-};
+// Callback registration function macros.
+#define MYFW_COMPONENTSYSTEMMANAGER_DECLARE_CALLBACK_REGISTER_FUNCTIONS(CallbackType) \
+    CPPListHead m_pComponentCallbackList_##CallbackType; \
+    void RegisterComponentCallback_##CallbackType(ComponentCallbackStruct_##CallbackType* pCallbackStruct); \
+    void UnregisterComponentCallback_##CallbackType(ComponentCallbackStruct_##CallbackType* pCallbackStruct);
 
-#define MYFW_DECLARE_COMPONENT_CALLBACK_TICK(ComponentClass) \
-    ComponentTickCallbackStruct m_CallbackStruct_Tick; \
-    static void StaticCallback_Tick(void* pObjectPtr, double TimePassed) { ((ComponentClass*)pObjectPtr)->Callback_Tick( TimePassed ); } \
-    void Callback_Tick(double TimePassed); \
-
+// Register/Unregister component callback macros - used by components.
 #define MYFW_REGISTER_COMPONENT_CALLBACK(CallbackType) \
     m_CallbackStruct_##CallbackType.pObj = this; \
     m_CallbackStruct_##CallbackType.pFunc = &StaticCallback_##CallbackType; \
@@ -54,6 +51,52 @@ struct ComponentTickCallbackStruct : public CPPListNode
 
 #define MYFW_UNREGISTER_COMPONENT_CALLBACK(CallbackType) \
     g_pComponentSystemManager->UnregisterComponentCallback_##CallbackType( &m_CallbackStruct_##CallbackType );
+
+// Declare callback objects/functions - used by components.
+#define MYFW_DECLARE_COMPONENT_CALLBACK_TICK(ComponentClass) \
+    ComponentCallbackStruct_Tick m_CallbackStruct_Tick; \
+    static void StaticCallback_Tick(void* pObjectPtr, double TimePassed) { ((ComponentClass*)pObjectPtr)->Callback_Tick( TimePassed ); } \
+    void Callback_Tick(double TimePassed);
+
+#define MYFW_DECLARE_COMPONENT_CALLBACK_ONSURFACECHANGED(ComponentClass) \
+    ComponentCallbackStruct_OnSurfaceChanged m_CallbackStruct_OnSurfaceChanged; \
+    static void StaticCallback_OnSurfaceChanged(void* pObjectPtr, unsigned int startx, unsigned int starty, unsigned int width, unsigned int height, unsigned int desiredaspectwidth, unsigned int desiredaspectheight) { ((ComponentClass*)pObjectPtr)->Callback_OnSurfaceChanged( startx, starty, width, height, desiredaspectwidth, desiredaspectheight ); } \
+    void Callback_OnSurfaceChanged(unsigned int startx, unsigned int starty, unsigned int width, unsigned int height, unsigned int desiredaspectwidth, unsigned int desiredaspectheight);
+
+#define MYFW_DECLARE_COMPONENT_CALLBACK_DRAW(ComponentClass) \
+    ComponentCallbackStruct_Draw m_CallbackStruct_Draw; \
+    static void StaticCallback_Draw(void* pObjectPtr, ComponentCamera* pCamera, MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride) { ((ComponentClass*)pObjectPtr)->Callback_Draw( pCamera, pMatViewProj, pShaderOverride ); } \
+    void Callback_Draw(ComponentCamera* pCamera, MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride);
+
+#define MYFW_DECLARE_COMPONENT_CALLBACK_ONTOUCH(ComponentClass) \
+    ComponentCallbackStruct_OnTouch m_CallbackStruct_OnTouch; \
+    static bool StaticCallback_OnTouch(void* pObjectPtr, int action, int id, float x, float y, float pressure, float size) { return ((ComponentClass*)pObjectPtr)->Callback_OnTouch( action, id, x, y, pressure, size ); } \
+    bool Callback_OnTouch(int action, int id, float x, float y, float pressure, float size);
+
+#define MYFW_DECLARE_COMPONENT_CALLBACK_ONBUTTONS(ComponentClass) \
+    ComponentCallbackStruct_OnButtons m_CallbackStruct_OnButtons; \
+    static bool StaticCallback_OnButtons(void* pObjectPtr, GameCoreButtonActions action, GameCoreButtonIDs id) { return ((ComponentClass*)pObjectPtr)->Callback_OnButtons( action, id ); } \
+    bool Callback_OnButtons(GameCoreButtonActions action, GameCoreButtonIDs id);
+
+#define MYFW_DECLARE_COMPONENT_CALLBACK_ONKEYS(ComponentClass) \
+    ComponentCallbackStruct_OnKeys m_CallbackStruct_OnKeys; \
+    static bool StaticCallback_OnKeys(void* pObjectPtr, GameCoreButtonActions action, int keycode, int unicodechar) { return ((ComponentClass*)pObjectPtr)->Callback_OnKeys( action, keycode, unicodechar ); } \
+    bool Callback_OnKeys(GameCoreButtonActions action, int keycode, int unicodechar);
+
+// Callback function prototypes and structs.
+typedef void (*ComponentCallbackFunction_Tick)(void* obj, double TimePassed);
+typedef void (*ComponentCallbackFunction_OnSurfaceChanged)(void* obj, unsigned int startx, unsigned int starty, unsigned int width, unsigned int height, unsigned int desiredaspectwidth, unsigned int desiredaspectheight);
+typedef void (*ComponentCallbackFunction_Draw)(void* obj, ComponentCamera* pCamera, MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride);
+typedef bool (*ComponentCallbackFunction_OnTouch)(void* obj, int action, int id, float x, float y, float pressure, float size);
+typedef bool (*ComponentCallbackFunction_OnButtons)(void* obj, GameCoreButtonActions action, GameCoreButtonIDs id);
+typedef bool (*ComponentCallbackFunction_OnKeys)(void* obj, GameCoreButtonActions action, int keycode, int unicodechar);
+
+MYFW_COMPONENTSYSTEMMANAGER_DEFINE_CALLBACK_STRUCT( Tick );
+MYFW_COMPONENTSYSTEMMANAGER_DEFINE_CALLBACK_STRUCT( OnSurfaceChanged );
+MYFW_COMPONENTSYSTEMMANAGER_DEFINE_CALLBACK_STRUCT( Draw );
+MYFW_COMPONENTSYSTEMMANAGER_DEFINE_CALLBACK_STRUCT( OnTouch );
+MYFW_COMPONENTSYSTEMMANAGER_DEFINE_CALLBACK_STRUCT( OnButtons );
+MYFW_COMPONENTSYSTEMMANAGER_DEFINE_CALLBACK_STRUCT( OnKeys );
 
 class ComponentSystemManager
 #if MYFW_USING_WX
@@ -69,9 +112,6 @@ public:
 
     // a component can only exist in one of these lists ATM
     CPPListHead m_Components[BaseComponentType_NumTypes];
-
-    // a list of components that want an update call without being in the list above.
-    CPPListHead m_pComponentCallbackList_Tick;
 
 protected:
 #if MYFW_USING_WX
@@ -119,11 +159,11 @@ public:
 
     ComponentBase* FindComponentByID(unsigned int id, unsigned int sceneid = UINT_MAX);
 
+    // Main events, most should call component callbacks.
     void Tick(double TimePassed);
     void OnSurfaceChanged(unsigned int startx, unsigned int starty, unsigned int width, unsigned int height, unsigned int desiredaspectwidth, unsigned int desiredaspectheight);
     void OnDrawFrame();
     void OnDrawFrame(ComponentCamera* pCamera, MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride);
-    void DrawMousePickerFrame(ComponentCamera* pCamera, MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride);
 
     void OnLoad();
     void OnPlay();
@@ -133,10 +173,18 @@ public:
     bool OnButtons(GameCoreButtonActions action, GameCoreButtonIDs id);
     bool OnKeys(GameCoreButtonActions action, int keycode, int unicodechar);
 
-    void RegisterComponentCallback_Tick(ComponentTickCallbackStruct* pCallbackStruct);
-    void UnregisterComponentCallback_Tick(ComponentTickCallbackStruct* pCallbackStruct);
+    // Callback helpers.
+    MYFW_COMPONENTSYSTEMMANAGER_DECLARE_CALLBACK_REGISTER_FUNCTIONS( Tick );
+    MYFW_COMPONENTSYSTEMMANAGER_DECLARE_CALLBACK_REGISTER_FUNCTIONS( OnSurfaceChanged );
+    MYFW_COMPONENTSYSTEMMANAGER_DECLARE_CALLBACK_REGISTER_FUNCTIONS( Draw );
+    MYFW_COMPONENTSYSTEMMANAGER_DECLARE_CALLBACK_REGISTER_FUNCTIONS( OnTouch );
+    MYFW_COMPONENTSYSTEMMANAGER_DECLARE_CALLBACK_REGISTER_FUNCTIONS( OnButtons );
+    MYFW_COMPONENTSYSTEMMANAGER_DECLARE_CALLBACK_REGISTER_FUNCTIONS( OnKeys );
 
-    // Scene management
+    // Other utility functions.
+    void DrawMousePickerFrame(ComponentCamera* pCamera, MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride);
+
+    // Scene management.
     unsigned int m_NextSceneID;
     unsigned int GetNextSceneID() { return m_NextSceneID++; }
     SceneInfo* GetSceneInfo(int sceneid);
