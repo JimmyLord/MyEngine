@@ -117,6 +117,8 @@ public:
     void LoadScene(const char* scenename, const char* buffer, unsigned int sceneid);
 
 #if MYFW_USING_WX
+    void Editor_OnSurfaceChanged(unsigned int startx, unsigned int starty, unsigned int width, unsigned int height);
+
     void RenderSingleObject(GameObject* pObject);
     void RenderObjectIDsToFBO();
     GameObject* GetObjectAtPixel(unsigned int x, unsigned int y, bool createnewbitmap);

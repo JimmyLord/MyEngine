@@ -754,8 +754,8 @@ void ComponentMenuPage::Callback_OnSurfaceChanged(unsigned int startx, unsigned 
     }
 #endif //MYFW_USING_WX
 
-    m_CurrentWidth = width;//desiredaspectwidth;
-    m_CurrentHeight = height;//desiredaspectheight;
+    m_CurrentWidth = m_pComponentCamera->m_WindowWidth; //width;//desiredaspectwidth;
+    m_CurrentHeight = m_pComponentCamera->m_WindowHeight; //height;//desiredaspectheight;
 
     // since we reloaded all items, trigger the onvisible callback.
     if( m_Visible )

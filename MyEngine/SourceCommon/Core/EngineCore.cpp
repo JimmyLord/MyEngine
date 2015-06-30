@@ -1500,7 +1500,22 @@ void EngineCore::LoadScene(const char* scenename, const char* buffer, unsigned i
     g_pEngineMainFrame->ResizeViewport();
 #endif
 
-    OnSurfaceChanged( (unsigned int)m_WindowStartX, (unsigned int)m_WindowStartY, (unsigned int)m_WindowWidth, (unsigned int)m_WindowHeight );
+    //OnSurfaceChanged( (unsigned int)m_WindowStartX, (unsigned int)m_WindowStartY, (unsigned int)m_WindowWidth, (unsigned int)m_WindowHeight );
+}
+
+void EngineCore::Editor_OnSurfaceChanged(unsigned int startx, unsigned int starty, unsigned int width, unsigned int height)
+{
+    MyAssert( g_GLCanvasIDActive != 0 );
+    //if( g_GLCanvasIDActive != 0 )
+    {
+        for( unsigned int i=0; i<m_pEditorState->m_pEditorCamera->m_Components.Count(); i++ )
+        {
+            ComponentCamera* pCamera = dynamic_cast<ComponentCamera*>( m_pEditorState->m_pEditorCamera->m_Components[i] );
+            pCamera->OnSurfaceChanged( startx, starty, width, height, (unsigned int)m_GameWidth, (unsigned int)m_GameHeight );
+        }
+
+        m_pEditorState->OnSurfaceChanged( startx, starty, width, height );
+    }
 }
 
 void EngineCore::OnSurfaceChanged(unsigned int startx, unsigned int starty, unsigned int width, unsigned int height)
@@ -1540,17 +1555,7 @@ void EngineCore::OnSurfaceChanged(unsigned int startx, unsigned int starty, unsi
     if( m_pComponentSystemManager )
     {
 #if MYFW_USING_WX
-        if( g_GLCanvasIDActive != 0 )
-        {
-            for( unsigned int i=0; i<m_pEditorState->m_pEditorCamera->m_Components.Count(); i++ )
-            {
-                ComponentCamera* pCamera = dynamic_cast<ComponentCamera*>( m_pEditorState->m_pEditorCamera->m_Components[i] );
-                pCamera->OnSurfaceChanged( startx, starty, width, height, (unsigned int)m_GameWidth, (unsigned int)m_GameHeight );
-            }
-
-            m_pEditorState->OnSurfaceChanged( startx, starty, width, height );
-        }
-        else
+        MyAssert( g_GLCanvasIDActive == 0 );
 #endif
         {
             m_pComponentSystemManager->OnSurfaceChanged( startx, starty, width, height, (unsigned int)m_GameWidth, (unsigned int)m_GameHeight );
