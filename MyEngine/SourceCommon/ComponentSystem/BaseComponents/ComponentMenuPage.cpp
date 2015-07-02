@@ -174,6 +174,8 @@ void ComponentMenuPage::SaveMenuPageToDisk(const char* fullpath)
 {
     LOGInfo( LOGTag, "Saving Menu File: %s\n", fullpath );
 
+    SaveCurrentLayoutToJSON();
+
     FILE* pFile = 0;
     fopen_s( &pFile, fullpath, "wb" );
     if( pFile == 0 )
@@ -266,35 +268,36 @@ void ComponentMenuPage::SaveCurrentLayoutToJSON()
 {
     if( m_CurrentWidth != 0 && m_CurrentHeight != 0 )
     {
-        if( m_CurrentWidth == m_CurrentHeight )
+        cJSON* square = cJSON_DetachItemFromObject( m_MenuLayouts, "Square" );
+        cJSON* tall = cJSON_DetachItemFromObject( m_MenuLayouts, "Tall" );
+        cJSON* wide = cJSON_DetachItemFromObject( m_MenuLayouts, "Wide" );
+
+        if( m_MenuItemsUsed > 0 )
         {
-            m_CurrentLayout = SaveLayoutToJSON( "Square" );
+            if( m_CurrentWidth == m_CurrentHeight )
+            {
+                if( square )
+                    cJSON_Delete( square );
+                square = Menu_ImportExport::ExportMenuLayout( m_pMenuItems, m_MenuItemsUsed );
+            }
+            else if( m_CurrentWidth < m_CurrentHeight )
+            {
+                if( tall )
+                    cJSON_Delete( tall );
+                tall = Menu_ImportExport::ExportMenuLayout( m_pMenuItems, m_MenuItemsUsed );
+            }
+            else
+            {
+                if( wide )
+                    cJSON_Delete( wide );
+                wide = Menu_ImportExport::ExportMenuLayout( m_pMenuItems, m_MenuItemsUsed );
+            }
         }
-        else if( m_CurrentWidth < m_CurrentHeight )
-        {
-            m_CurrentLayout = SaveLayoutToJSON( "Tall" );
-        }
-        else
-        {
-            m_CurrentLayout = SaveLayoutToJSON( "Wide" );
-            m_CurrentLayout = SaveLayoutToJSON( "Wide" );
-        }
+
+        cJSON_AddItemToObject( m_MenuLayouts, "Wide", wide );
+        cJSON_AddItemToObject( m_MenuLayouts, "Tall", tall );
+        cJSON_AddItemToObject( m_MenuLayouts, "Square", square );
     }
-}
-
-cJSON* ComponentMenuPage::SaveLayoutToJSON(const char* layoutname)
-{
-    cJSON* layout = cJSON_GetObjectItem( m_MenuLayouts, layoutname );
-    if( layout )
-        cJSON_DeleteItemFromObject( m_MenuLayouts, layoutname );
-
-    if( m_MenuItemsUsed > 0 )
-    {
-        layout = Menu_ImportExport::ExportMenuLayout( m_pMenuItems, m_MenuItemsUsed );
-        cJSON_AddItemToObject( m_MenuLayouts, layoutname, layout );
-    }
-
-    return layout;
 }
 
 void ComponentMenuPage::AddToObjectsPanel(wxTreeItemId gameobjectid)
@@ -816,23 +819,38 @@ void ComponentMenuPage::UpdateLayout(cJSON* layout)
         switch( m_pMenuItems[i]->m_MenuItemType )
         {
         case MIT_Sprite:
-            g_pPanelObjectList->AddObject( m_pMenuItems[i], MenuSprite::StaticFillPropertiesWindow, MenuItem::StaticOnRightClick, componentID, "Sprite" );
+            {
+                wxTreeItemId treeid = g_pPanelObjectList->AddObject( m_pMenuItems[i], MenuSprite::StaticFillPropertiesWindow, MenuItem::StaticOnRightClick, componentID, m_pMenuItems[i]->m_Name );
+                g_pPanelObjectList->SetLabelEditFunction( treeid, MenuItem::StaticOnLabelEdit );
+            }
             break;
 
         case MIT_Text:
-            g_pPanelObjectList->AddObject( m_pMenuItems[i], MenuText::StaticFillPropertiesWindow, MenuItem::StaticOnRightClick, componentID, "Text" );
+            {
+                wxTreeItemId treeid = g_pPanelObjectList->AddObject( m_pMenuItems[i], MenuText::StaticFillPropertiesWindow, MenuItem::StaticOnRightClick, componentID, m_pMenuItems[i]->m_Name );
+                g_pPanelObjectList->SetLabelEditFunction( treeid, MenuItem::StaticOnLabelEdit );
+            }
             break;
 
         case MIT_Button:
-            g_pPanelObjectList->AddObject( m_pMenuItems[i], MenuButton::StaticFillPropertiesWindow, MenuItem::StaticOnRightClick, componentID, "Button" );
+            {
+                wxTreeItemId treeid = g_pPanelObjectList->AddObject( m_pMenuItems[i], MenuButton::StaticFillPropertiesWindow, MenuItem::StaticOnRightClick, componentID, m_pMenuItems[i]->m_Name );
+                g_pPanelObjectList->SetLabelEditFunction( treeid, MenuItem::StaticOnLabelEdit );
+            }
             break;
 
         case MIT_InputBox:
-            g_pPanelObjectList->AddObject( m_pMenuItems[i], MenuButton::StaticFillPropertiesWindow, MenuItem::StaticOnRightClick, componentID, "InputBox" );
+            {
+                wxTreeItemId treeid = g_pPanelObjectList->AddObject( m_pMenuItems[i], MenuButton::StaticFillPropertiesWindow, MenuItem::StaticOnRightClick, componentID, m_pMenuItems[i]->m_Name );
+                g_pPanelObjectList->SetLabelEditFunction( treeid, MenuItem::StaticOnLabelEdit );
+            }
             break;
 
         case MIT_ScrollingText:
-            g_pPanelObjectList->AddObject( m_pMenuItems[i], MenuButton::StaticFillPropertiesWindow, MenuItem::StaticOnRightClick, componentID, "ScrollingText" );
+            {
+                wxTreeItemId treeid = g_pPanelObjectList->AddObject( m_pMenuItems[i], MenuButton::StaticFillPropertiesWindow, MenuItem::StaticOnRightClick, componentID, m_pMenuItems[i]->m_Name );
+                g_pPanelObjectList->SetLabelEditFunction( treeid, MenuItem::StaticOnLabelEdit );
+            }
             break;
 
         case MIT_Base:
