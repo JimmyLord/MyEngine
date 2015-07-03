@@ -294,9 +294,12 @@ void ComponentMenuPage::SaveCurrentLayoutToJSON()
             }
         }
 
-        cJSON_AddItemToObject( m_MenuLayouts, "Wide", wide );
-        cJSON_AddItemToObject( m_MenuLayouts, "Tall", tall );
-        cJSON_AddItemToObject( m_MenuLayouts, "Square", square );
+        if( wide )
+            cJSON_AddItemToObject( m_MenuLayouts, "Wide", wide );
+        if( tall )
+            cJSON_AddItemToObject( m_MenuLayouts, "Tall", tall );
+        if( square )
+            cJSON_AddItemToObject( m_MenuLayouts, "Square", square );
     }
 }
 
@@ -347,6 +350,9 @@ void ComponentMenuPage::AppendItemsToRightClickMenu(wxMenu* pMenu)
     pMenu->Append( RightClick_AddText, "Add Text" );
  	pMenu->Connect( wxEVT_COMMAND_MENU_SELECTED, (wxObjectEventFunction)&ComponentMenuPage::OnPopupClick );
 
+    pMenu->Append( RightClick_ForceReload, "Force Reload" );
+ 	pMenu->Connect( wxEVT_COMMAND_MENU_SELECTED, (wxObjectEventFunction)&ComponentMenuPage::OnPopupClick );
+
 #if LEGACYHACK
     pMenu->Append( 9876, "Grab menu item pointers from current screen" );
  	pMenu->Connect( wxEVT_COMMAND_MENU_SELECTED, (wxObjectEventFunction)&ComponentMenuPage::OnPopupClick );
@@ -389,6 +395,11 @@ void ComponentMenuPage::OnPopupClick(wxEvent &evt)
         pComponent->m_MenuItemsUsed++;
         g_pPanelObjectList->AddObject( pMenuItem, MenuText::StaticFillPropertiesWindow, MenuItem::StaticOnRightClick, componentID, "Text" );
         pMenuItem->RegisterMenuItemDeletedCallback( pComponent, StaticOnMenuItemDeleted );
+    }
+
+    if( id == RightClick_ForceReload )
+    {
+        pComponent->LoadLayoutBasedOnCurrentAspectRatio();
     }
 
 #if LEGACYHACK
@@ -655,7 +666,8 @@ bool ComponentMenuPage::Callback_OnTouch(int action, int id, float x, float y, f
                     {
                         if( m_MenuPageActionCallbackStruct.pFunc )
                         {
-                            m_MenuPageActionCallbackStruct.pFunc( m_MenuPageActionCallbackStruct.pObj, this, action, m_pMenuItems[i] );
+                            if( m_MenuPageActionCallbackStruct.pFunc( m_MenuPageActionCallbackStruct.pObj, this, action, m_pMenuItems[i] ) )
+                                return true;
                         }
 #if MYFW_USING_WX
                         // in editor, there's a chance the script component was created and not associated with this object.
@@ -727,8 +739,6 @@ void ComponentMenuPage::Callback_Tick(double TimePassed)
                 m_MenuLayouts = cJSON_CreateObject();
 
             LoadLayoutBasedOnCurrentAspectRatio();
-
-            m_MenuItemsCreated = true;
         }
     }
 
@@ -746,37 +756,44 @@ void ComponentMenuPage::Callback_OnSurfaceChanged(unsigned int startx, unsigned 
 {
     //ComponentBase::Callback_OnSurfaceChanged( TimePassed );
 
+    // if the aspect ratio didn't change, return;
+    if( m_CurrentWidth == m_pComponentCamera->m_WindowWidth &&
+        m_CurrentHeight == m_pComponentCamera->m_WindowHeight )
+    {
+        m_LayoutChanged = false;
+        return;
+    }
+
+    m_LayoutChanged = true;
+
 #if MYFW_USING_WX
+    // if we have a valid layout, save it.
     if( m_CurrentWidth != 0 && m_CurrentHeight != 0 )
     {
-        if( m_Visible )
-        {
-            if( m_MenuItemsCreated == true )
-                SaveCurrentLayoutToJSON();
-        }
+        if( m_MenuItemsCreated == true )
+            SaveCurrentLayoutToJSON();
     }
 #endif //MYFW_USING_WX
 
-    m_CurrentWidth = m_pComponentCamera->m_WindowWidth; //width;//desiredaspectwidth;
-    m_CurrentHeight = m_pComponentCamera->m_WindowHeight; //height;//desiredaspectheight;
+    // if the page isn't visible, don't do anything, items will get created in correct layout when made visible.
+    if( m_Visible == false )
+        return;
 
-    // since we reloaded all items, trigger the onvisible callback.
-    if( m_Visible )
-    {
-        LoadLayoutBasedOnCurrentAspectRatio();
-        m_Visible = false;
-        SetVisible( true );
-    }
-    else
-    {
-        m_LayoutChanged = true;
-    }
+    m_CurrentWidth = m_pComponentCamera->m_WindowWidth;
+    m_CurrentHeight = m_pComponentCamera->m_WindowHeight;
+
+    // trigger the onvisible callback, this will reload the layout.
+    m_Visible = false;
+    SetVisible( true );
 }
 
 void ComponentMenuPage::LoadLayoutBasedOnCurrentAspectRatio()
 {
     if( m_MenuLayouts == 0 )
         return;
+
+    m_CurrentWidth = m_pComponentCamera->m_WindowWidth;
+    m_CurrentHeight = m_pComponentCamera->m_WindowHeight;
 
     cJSON* obj = 0;
 
@@ -793,6 +810,21 @@ void ComponentMenuPage::LoadLayoutBasedOnCurrentAspectRatio()
         obj = cJSON_GetObjectItem( m_MenuLayouts, "Wide" );
     }
 
+#if MYFW_USING_WX
+    if( m_CurrentWidth == m_CurrentHeight )
+    {
+        g_pPanelObjectList->RenameObject( this, "Menu Page - Square" );
+    }
+    else if( m_CurrentWidth < m_CurrentHeight )
+    {
+        g_pPanelObjectList->RenameObject( this, "Menu Page - Tall" );
+    }
+    else
+    {
+        g_pPanelObjectList->RenameObject( this, "Menu Page - Wide" );
+    }
+#endif //MYFW_USING_WX
+
     if( obj != 0 )
         UpdateLayout( obj );
 
@@ -803,6 +835,17 @@ void ComponentMenuPage::LoadLayoutBasedOnCurrentAspectRatio()
         if( m_pMenuItems[i] && m_pMenuItems[i]->m_MenuItemType == MIT_InputBox )
             m_pInputBoxWithKeyboardFocus = (MenuInputBox*)m_pMenuItems[i];
     }
+
+    m_MenuItemsCreated = true;
+
+#if MYFW_USING_WX
+    if( g_pPanelObjectList->IsObjectSelected( this ) )
+    {
+        //g_pPanelObjectList->SelectObject( 0 );
+        wxTreeItemId id = g_pPanelObjectList->FindObject( this );
+        g_pPanelObjectList->m_pTree_Objects->Expand( id );
+    }
+#endif //MYFW_USING_WX
 }
 
 void ComponentMenuPage::UpdateLayout(cJSON* layout)
@@ -887,6 +930,20 @@ void ComponentMenuPage::Callback_Draw(ComponentCamera* pCamera, MyMatrix* pMatVi
 
 void ComponentMenuPage::ClearAllMenuItems()
 {
+    // if a menu item is selected, select the menu page.
+#if MYFW_USING_WX
+    for( unsigned int i=0; i<m_MenuItemsUsed; i++ )
+    {
+        if( g_pPanelObjectList->IsObjectSelected( m_pMenuItems[i] ) )
+        {
+            g_pPanelObjectList->SelectObject( 0 );
+            g_pPanelObjectList->SelectObject( this );
+            wxTreeItemId id = g_pPanelObjectList->FindObject( this );
+            g_pPanelObjectList->m_pTree_Objects->Collapse( id );
+        }
+    }
+#endif //MYFW_USING_WX
+
     for( unsigned int i=0; i<m_MenuItemsUsed; i++ )
     {
 #if MYFW_USING_WX
@@ -944,6 +1001,7 @@ void ComponentMenuPage::SetVisible(bool visible)
     }
 
     m_Visible = visible;
+    m_LayoutChanged = false;
 
     if( m_MenuPageVisibleCallbackStruct.pFunc )
     {

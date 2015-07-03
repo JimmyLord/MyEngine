@@ -146,7 +146,7 @@ void ComponentTransform::OnValueChanged(int controlid, bool finishedchanging)
         wxString text = g_pPanelWatch->m_pVariables[m_ControlID_ParentTransform].m_Handle_TextCtrl->GetValue();
         if( text == "" )
         {
-            g_pPanelWatch->m_pVariables[m_ControlID_ParentTransform].m_Handle_TextCtrl->SetValue( "none" );
+            g_pPanelWatch->ChangeDescriptionForPointerWithDescription( m_ControlID_ParentTransform, "none" );
             this->SetParent( 0 );
         }
     }

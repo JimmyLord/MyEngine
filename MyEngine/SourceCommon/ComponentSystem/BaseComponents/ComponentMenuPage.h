@@ -19,7 +19,7 @@ class MenuInputBox;
 
 #define LEGACYHACK 1
 
-typedef void (*MenuPageActionCallbackFunc)(void* pObjectPtr, ComponentMenuPage* pPage, const char* action, MenuItem* pMenuItem);
+typedef bool (*MenuPageActionCallbackFunc)(void* pObjectPtr, ComponentMenuPage* pPage, const char* action, MenuItem* pMenuItem);
 struct MenuPageActionCallbackStruct
 {
     void* pObj;
@@ -115,6 +115,7 @@ public:
         RightClick_AddButton = 2000,
         RightClick_AddSprite,
         RightClick_AddText,
+        RightClick_ForceReload,
     };
 
     int m_ControlID_Filename;
