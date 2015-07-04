@@ -323,9 +323,10 @@ void EngineCore::OnDrawFrame()
 #endif
 }
 
-void EngineCore::OnTouch(int action, int id, float x, float y, float pressure, float size)
+bool EngineCore::OnTouch(int action, int id, float x, float y, float pressure, float size)
 {
-    GameCore::OnTouch( action, id, x, y, pressure, size );
+    if( GameCore::OnTouch( action, id, x, y, pressure, size ) )
+        return true;
 
 #if MYFW_USING_WX
     //if( m_EditorMode )
@@ -338,28 +339,29 @@ void EngineCore::OnTouch(int action, int id, float x, float y, float pressure, f
             y = pCamera->m_WindowHeight - y;
 
             if( m_pEditorState->m_pTransformGizmo->HandleInput( this, -1, -1, action, id, x, y, pressure ) )
-                return;
+                return true;
 
-            HandleEditorInput( -1, -1, action, id, x, y, pressure );
+            if( HandleEditorInput( -1, -1, action, id, x, y, pressure ) )
+                return true;
 
-            return;
+            return false;
         }
     }
 
     if( g_GLCanvasIDActive != 0 )
     {
-        return;
+        return false;
     }
 #endif
 
     // mouse moving without button down.
     if( id == -1 )
-        return;
+        return false;
 
     // TODO: get the camera properly.
     ComponentCamera* pCamera = m_pComponentSystemManager->GetFirstCamera();
     if( pCamera == 0 )
-        return;
+        return false;
 
     // prefer 0,0 at bottom left.
     y = pCamera->m_WindowHeight - y;
@@ -368,19 +370,20 @@ void EngineCore::OnTouch(int action, int id, float x, float y, float pressure, f
     x = (x - pCamera->m_Camera2D.m_ScreenOffsetX - pCamera->m_WindowStartX) / pCamera->m_Camera2D.m_ScreenWidth * m_GameWidth;
     y = (y - pCamera->m_Camera2D.m_ScreenOffsetY + pCamera->m_WindowStartY) / pCamera->m_Camera2D.m_ScreenHeight * m_GameHeight;
 
-    m_pComponentSystemManager->OnTouch( action, id, x, y, pressure, size );
+    return m_pComponentSystemManager->OnTouch( action, id, x, y, pressure, size );
 }
 
-void EngineCore::OnButtons(GameCoreButtonActions action, GameCoreButtonIDs id)
+bool EngineCore::OnButtons(GameCoreButtonActions action, GameCoreButtonIDs id)
 {
     GameCore::OnButtons( action, id );
 
-    m_pComponentSystemManager->OnButtons( action, id );
+    return m_pComponentSystemManager->OnButtons( action, id );
 }
 
-void EngineCore::OnKey(GameCoreButtonActions action, int keycode, int unicodechar)
+bool EngineCore::OnKeys(GameCoreButtonActions action, int keycode, int unicodechar)
 {
-    GameCore::OnKey( action, keycode, unicodechar );
+    if( GameCore::OnKeys( action, keycode, unicodechar ) )
+        return true;
 
     if( action == GCBA_Down )
     {
@@ -402,14 +405,16 @@ void EngineCore::OnKey(GameCoreButtonActions action, int keycode, int unicodecha
 
         if( g_GLCanvasIDActive == 1 )
         {
-            HandleEditorInput( action, keycode, -1, -1, -1, -1, -1 );
-            return;
+            if( HandleEditorInput( action, keycode, -1, -1, -1, -1, -1 ) )
+                return true;
+
+            return false;
         }
         else
 #endif
         {
             if( m_pComponentSystemManager->OnKeys( GCBA_Down, keycode, unicodechar ) )
-                return;
+                return true;
         }
     }
 
@@ -418,14 +423,16 @@ void EngineCore::OnKey(GameCoreButtonActions action, int keycode, int unicodecha
 #if MYFW_USING_WX
         if( g_GLCanvasIDActive == 1 )
         {
-            HandleEditorInput( action, keycode, -1, -1, -1, -1, -1 );
-            return;
+            if( HandleEditorInput( action, keycode, -1, -1, -1, -1, -1 ) )
+                return true;
+
+            return false;
         }
         else
 #endif
         {
             if( m_pComponentSystemManager->OnKeys( GCBA_Up, keycode, unicodechar ) )
-                return;
+                return true;
         }
     }
 
@@ -434,12 +441,16 @@ void EngineCore::OnKey(GameCoreButtonActions action, int keycode, int unicodecha
 #if MYFW_USING_WX
         if( g_GLCanvasIDActive == 1 )
         {
-            HandleEditorInput( action, keycode, -1, -1, -1, -1, -1 );
-            return;
+            if( HandleEditorInput( action, keycode, -1, -1, -1, -1, -1 ) )
+                return true;
+
+            return false;
         }
         //else
 #endif
     }
+
+    return false;
 }
 
 void EngineCore::OnModeTogglePlayStop()
@@ -562,7 +573,7 @@ void EngineCore::UnregisterGameplayButtons()
     }
 }
 
-void EngineCore::HandleEditorInput(int keyaction, int keycode, int mouseaction, int id, float x, float y, float pressure)
+bool EngineCore::HandleEditorInput(int keyaction, int keycode, int mouseaction, int id, float x, float y, float pressure)
 {
 #if MYFW_USING_WX
     if( keycode == MYKEYCODE_LCTRL )
@@ -1139,6 +1150,8 @@ void EngineCore::HandleEditorInput(int keyaction, int keycode, int mouseaction, 
 
     m_pEditorState->m_LastMousePosition = m_pEditorState->m_CurrentMousePosition;
 #endif //MYFW_USING_WX
+
+    return false;
 }
 
 void EngineCore::CreateDefaultSceneObjects(bool createeditorobjects)

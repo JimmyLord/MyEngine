@@ -1212,7 +1212,8 @@ bool ComponentSystemManager::OnTouch(int action, int id, float x, float y, float
     {
         ComponentCallbackStruct_OnTouch* pCallbackStruct = (ComponentCallbackStruct_OnTouch*)pNode;
 
-        pCallbackStruct->pFunc( pCallbackStruct->pObj, action, id, x, y, pressure, size );
+        if( pCallbackStruct->pFunc( pCallbackStruct->pObj, action, id, x, y, pressure, size ) )
+            return true;
     }
 
     // then regular scene input handlers.
@@ -1249,7 +1250,8 @@ bool ComponentSystemManager::OnButtons(GameCoreButtonActions action, GameCoreBut
     {
         ComponentCallbackStruct_OnButtons* pCallbackStruct = (ComponentCallbackStruct_OnButtons*)pNode;
 
-        pCallbackStruct->pFunc( pCallbackStruct->pObj, action, id );
+        if( pCallbackStruct->pFunc( pCallbackStruct->pObj, action, id ) )
+            return true;
     }
 
     // then regular scene input handlers.
@@ -1286,7 +1288,8 @@ bool ComponentSystemManager::OnKeys(GameCoreButtonActions action, int keycode, i
     {
         ComponentCallbackStruct_OnKeys* pCallbackStruct = (ComponentCallbackStruct_OnKeys*)pNode;
 
-        pCallbackStruct->pFunc( pCallbackStruct->pObj, action, keycode, unicodechar );
+        if( pCallbackStruct->pFunc( pCallbackStruct->pObj, action, keycode, unicodechar ) )
+            return true;
     }
 
     // then regular scene input handlers.
