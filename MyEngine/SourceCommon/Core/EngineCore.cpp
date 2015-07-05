@@ -205,6 +205,12 @@ void OnFileUpdated_CallbackFunction(MyFileObject* pFile)
 
 #if MYFW_USING_WX
     g_pComponentSystemManager->OnFileUpdated( pFile );
+
+    if( strcmp( pFile->m_ExtensionWithDot, ".mymaterial" ) == 0 )
+    {
+        MaterialDefinition* pMaterial = g_pMaterialManager->FindMaterialByFilename( pFile->m_FullPath );
+        g_pMaterialManager->ReloadMaterial( pMaterial );
+    }
 #endif
 
     // TODO: entitycomponentmanager-> tell all script components file is updated.
@@ -1516,6 +1522,7 @@ void EngineCore::LoadScene(const char* scenename, const char* buffer, unsigned i
     //OnSurfaceChanged( (unsigned int)m_WindowStartX, (unsigned int)m_WindowStartY, (unsigned int)m_WindowWidth, (unsigned int)m_WindowHeight );
 }
 
+#if MYFW_USING_WX
 void EngineCore::Editor_OnSurfaceChanged(unsigned int startx, unsigned int starty, unsigned int width, unsigned int height)
 {
     MyAssert( g_GLCanvasIDActive != 0 );
@@ -1530,6 +1537,7 @@ void EngineCore::Editor_OnSurfaceChanged(unsigned int startx, unsigned int start
         m_pEditorState->OnSurfaceChanged( startx, starty, width, height );
     }
 }
+#endif //MYFW_USING_WX
 
 void EngineCore::OnSurfaceChanged(unsigned int startx, unsigned int starty, unsigned int width, unsigned int height)
 {
