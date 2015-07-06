@@ -63,6 +63,8 @@ ComponentMenuPage::ComponentMenuPage()
     MYFW_REGISTER_COMPONENT_CALLBACK( OnButtons );
     MYFW_REGISTER_COMPONENT_CALLBACK( OnKeys );
 
+    m_ExtentsSetWhenLoaded = false;
+
 #if MYFW_USING_WX
     m_ControlID_Filename = -1;
     h_RenameInProgress = false;
@@ -266,11 +268,22 @@ void ComponentMenuPage::RenameMenuPage(const char* newfullpath)
 
 void ComponentMenuPage::SaveCurrentLayoutToJSON()
 {
+    if( m_MenuLayouts == 0 )
+        return;
+
     if( m_CurrentWidth != 0 && m_CurrentHeight != 0 )
     {
         cJSON* square = cJSON_DetachItemFromObject( m_MenuLayouts, "Square" );
         cJSON* tall = cJSON_DetachItemFromObject( m_MenuLayouts, "Tall" );
         cJSON* wide = cJSON_DetachItemFromObject( m_MenuLayouts, "Wide" );
+
+        if( m_ExtentsSetWhenLoaded == false )
+        {
+            m_ExtentsBLTRWhenPageLoaded.x = m_pComponentCamera->m_Camera2D.m_OrthoBottom;
+            m_ExtentsBLTRWhenPageLoaded.y = m_pComponentCamera->m_Camera2D.m_OrthoLeft;
+            m_ExtentsBLTRWhenPageLoaded.z = m_pComponentCamera->m_Camera2D.m_OrthoTop;
+            m_ExtentsBLTRWhenPageLoaded.w = m_pComponentCamera->m_Camera2D.m_OrthoRight;
+        }
 
         if( m_MenuItemsUsed > 0 )
         {
@@ -278,19 +291,19 @@ void ComponentMenuPage::SaveCurrentLayoutToJSON()
             {
                 if( square )
                     cJSON_Delete( square );
-                square = Menu_ImportExport::ExportMenuLayout( m_pMenuItems, m_MenuItemsUsed );
+                square = Menu_ImportExport::ExportMenuLayout( m_pMenuItems, m_MenuItemsUsed, m_ExtentsBLTRWhenPageLoaded );
             }
             else if( m_CurrentWidth < m_CurrentHeight )
             {
                 if( tall )
                     cJSON_Delete( tall );
-                tall = Menu_ImportExport::ExportMenuLayout( m_pMenuItems, m_MenuItemsUsed );
+                tall = Menu_ImportExport::ExportMenuLayout( m_pMenuItems, m_MenuItemsUsed, m_ExtentsBLTRWhenPageLoaded );
             }
             else
             {
                 if( wide )
                     cJSON_Delete( wide );
-                wide = Menu_ImportExport::ExportMenuLayout( m_pMenuItems, m_MenuItemsUsed );
+                wide = Menu_ImportExport::ExportMenuLayout( m_pMenuItems, m_MenuItemsUsed, m_ExtentsBLTRWhenPageLoaded );
             }
         }
 
@@ -850,15 +863,29 @@ void ComponentMenuPage::LoadLayoutBasedOnCurrentAspectRatio()
 
 void ComponentMenuPage::UpdateLayout(cJSON* layout)
 {
+    m_ExtentsBLTRWhenPageLoaded.x = m_pComponentCamera->m_Camera2D.m_OrthoBottom;
+    m_ExtentsBLTRWhenPageLoaded.y = m_pComponentCamera->m_Camera2D.m_OrthoLeft;
+    m_ExtentsBLTRWhenPageLoaded.z = m_pComponentCamera->m_Camera2D.m_OrthoTop;
+    m_ExtentsBLTRWhenPageLoaded.w = m_pComponentCamera->m_Camera2D.m_OrthoRight;
+    m_ExtentsSetWhenLoaded = true;
+
     m_CurrentLayout = layout;
 
     ClearAllMenuItems();
-    m_MenuItemsUsed = Menu_ImportExport::ImportMenuLayout( m_CurrentLayout, m_pMenuItems, MAX_MENU_ITEMS );
+    m_MenuItemsUsed = Menu_ImportExport::ImportMenuLayout( m_CurrentLayout, m_pMenuItems, MAX_MENU_ITEMS, m_ExtentsBLTRWhenPageLoaded );
 
-#if MYFW_USING_WX
-    wxTreeItemId componentID = g_pPanelObjectList->FindObject( this );    
     for( unsigned int i=0; i<m_MenuItemsUsed; i++ )
     {
+        m_pMenuItems[i]->m_pMenuPage = this;
+    }
+
+#if MYFW_USING_WX
+    wxTreeItemId componentID = g_pPanelObjectList->FindObject( this );
+
+    for( unsigned int i=0; i<m_MenuItemsUsed; i++ )
+    {
+        m_pMenuItems[i]->m_pMenuPage = this;
+
         switch( m_pMenuItems[i]->m_MenuItemType )
         {
         case MIT_Sprite:
@@ -973,6 +1000,16 @@ MenuItem* ComponentMenuPage::GetMenuItemByName(const char* name)
             return m_pMenuItems[i];
         }
     }
+
+    return 0;
+}
+
+MenuButton* ComponentMenuPage::GetMenuButton(unsigned int index)
+{
+    MyAssert( m_pMenuItems[index] && m_pMenuItems[index]->m_MenuItemType == MIT_Button );
+    
+    if( m_pMenuItems[index] && m_pMenuItems[index]->m_MenuItemType == MIT_Button )
+        return (MenuButton*)m_pMenuItems[index];
 
     return 0;
 }

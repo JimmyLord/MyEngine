@@ -102,7 +102,7 @@ public:
     static void StaticOnDrop(void* pObjectPtr, int controlid, wxCoord x, wxCoord y) { ((ComponentLuaScript*)pObjectPtr)->OnDrop(controlid, x, y); }
     void OnDrop(int controlid, wxCoord x, wxCoord y);
     
-    static void StaticOnValueChanged(void* pObjectPtr, int controlid, bool finishedchanging) { ((ComponentLuaScript*)pObjectPtr)->OnValueChanged( controlid, finishedchanging ); }
+    static void StaticOnValueChanged(void* pObjectPtr, int controlid, bool finishedchanging, double oldvalue) { ((ComponentLuaScript*)pObjectPtr)->OnValueChanged( controlid, finishedchanging ); }
     void OnValueChanged(int controlid, bool finishedchanging);
 #endif //MYFW_USING_WX
 };

@@ -16,6 +16,7 @@ class ComponentCamera;
 class ComponentLuaScript;
 class MenuItem;
 class MenuInputBox;
+class MenuButton;
 
 #define LEGACYHACK 1
 
@@ -55,6 +56,9 @@ protected:
     unsigned int m_CurrentWidth;
     unsigned int m_CurrentHeight;
 
+    Vector4 m_ExtentsBLTRWhenPageLoaded;
+    bool m_ExtentsSetWhenLoaded;
+
     MenuPageActionCallbackStruct m_MenuPageActionCallbackStruct;
     MenuPageVisibleCallbackStruct m_MenuPageVisibleCallbackStruct;
 
@@ -91,6 +95,7 @@ public:
 
     MenuItem* GetMenuItem(unsigned int index) { return m_pMenuItems[index]; }
     MenuItem* GetMenuItemByName(const char* name);
+    MenuButton* GetMenuButton(unsigned int index);
 
     unsigned int GetNumMenuItemsUsed() { return m_MenuItemsUsed; }
 
@@ -147,7 +152,7 @@ public:
     void OnPopupClick(wxEvent &evt);
 
     // Watch panel callbacks.
-    static void StaticOnValueChanged(void* pObjectPtr, int controlid, bool finishedchanging) { ((ComponentMenuPage*)pObjectPtr)->OnValueChanged( controlid, finishedchanging ); }
+    static void StaticOnValueChanged(void* pObjectPtr, int controlid, bool finishedchanging, double oldvalue) { ((ComponentMenuPage*)pObjectPtr)->OnValueChanged( controlid, finishedchanging ); }
     void OnValueChanged(int controlid, bool finishedchanging);
 
     static void StaticOnMenuItemDeleted(void* pObjectPtr, MenuItem* pMenuItem) { ((ComponentMenuPage*)pObjectPtr)->OnMenuItemDeleted( pMenuItem ); }

@@ -90,7 +90,7 @@ public:
     static void StaticOnDropTransform(void* pObjectPtr, int controlid, wxCoord x, wxCoord y) { ((ComponentTransform*)pObjectPtr)->OnDropTransform(controlid, x, y); }
     void OnDropTransform(int controlid, wxCoord x, wxCoord y);
 
-    static void StaticOnValueChanged(void* pObjectPtr, int controlid, bool finishedchanging) { ((ComponentTransform*)pObjectPtr)->OnValueChanged( controlid, finishedchanging ); }
+    static void StaticOnValueChanged(void* pObjectPtr, int controlid, bool finishedchanging, double oldvalue) { ((ComponentTransform*)pObjectPtr)->OnValueChanged( controlid, finishedchanging ); }
     void OnValueChanged(int controlid, bool finishedchanging);
 #endif //MYFW_USING_WX
 };

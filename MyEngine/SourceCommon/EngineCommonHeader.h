@@ -10,6 +10,8 @@
 #ifndef __EngineCommonHeader_H__
 #define __EngineCommonHeader_H__
 
+#define MYFW_USING_MYENGINE 1
+
 // framework code
 #include "../../Framework/MyFramework/SourceCommon/CommonHeader.h"
 #if MYFW_USING_WX
