@@ -270,7 +270,7 @@ void ComponentParticleEmitter::CreateBurst(int number, Vector3 pos)
     }
 }
 
-void ComponentParticleEmitter::Callback_Tick(double TimePassed)
+void ComponentParticleEmitter::TickCallback(double TimePassed)
 {
     // TODO: if we want to share particle renderers, then don't reset like this.
     m_pParticleRenderer->Reset();

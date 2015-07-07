@@ -79,7 +79,7 @@ public:
 
 protected:
     // Callback functions for various events.
-    MYFW_DECLARE_COMPONENT_CALLBACK_TICK( ComponentParticleEmitter ); // Callback_Tick
+    MYFW_DECLARE_COMPONENT_CALLBACK_TICK( ComponentParticleEmitter ); // TickCallback
 
 public:
 #if MYFW_USING_WX

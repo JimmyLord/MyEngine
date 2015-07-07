@@ -33,6 +33,7 @@ ComponentMenuPage::ComponentMenuPage()
     m_MenuItemsCreated = false;
     m_LayoutChanged = false;
 
+    m_InputEnabled = true;
     m_pInputBoxWithKeyboardFocus = 0;
 
     m_MenuItemsUsed = 0;
@@ -103,6 +104,8 @@ void ComponentMenuPage::Reset()
 
     m_Visible = true;
     m_LayersThisExistsOn = Layer_HUD;
+
+    m_InputEnabled = true;
 
     SAFE_RELEASE( m_pMenuLayoutFile );
     m_MenuItemsCreated = false;
@@ -336,6 +339,8 @@ void ComponentMenuPage::FillPropertiesWindow(bool clear)
         ComponentBase::FillPropertiesWindow( clear );
 
         g_pPanelWatch->AddBool( "Visible", &m_Visible, 0, 1 );
+        g_pPanelWatch->AddBool( "Input Enabled", &m_InputEnabled, 0, 1 );
+        
         g_pPanelWatch->AddUnsignedInt( "Layers", &m_LayersThisExistsOn, 0, 63 );
 
         const char* desc = "none";
@@ -543,6 +548,8 @@ cJSON* ComponentMenuPage::ExportAsJSONObject(bool savesceneid)
     cJSON* jComponent = ComponentBase::ExportAsJSONObject( savesceneid );
 
     cJSON_AddNumberToObject( jComponent, "Visible", m_Visible );
+    cJSON_AddNumberToObject( jComponent, "InputEnabled", m_InputEnabled );
+    
     cJSON_AddNumberToObject( jComponent, "Layers", m_LayersThisExistsOn );
 
     if( m_pMenuLayoutFile )
@@ -560,6 +567,7 @@ void ComponentMenuPage::ImportFromJSONObject(cJSON* jComponent, unsigned int sce
     ComponentBase::ImportFromJSONObject( jComponent, sceneid );
 
     cJSONExt_GetBool( jComponent, "Visible", &m_Visible );
+    cJSONExt_GetBool( jComponent, "InputEnabled", &m_InputEnabled );
     cJSONExt_GetUnsignedInt( jComponent, "Layers", &m_LayersThisExistsOn );
 
     cJSON* jFilename = cJSON_GetObjectItem( jComponent, "MenuFile" );
@@ -578,6 +586,7 @@ ComponentMenuPage& ComponentMenuPage::operator=(const ComponentMenuPage& other)
     ComponentBase::operator=( other );
 
     this->m_Visible = other.m_Visible;
+    this->m_InputEnabled = other.m_InputEnabled;
     this->m_LayersThisExistsOn = other.m_LayersThisExistsOn;
 
     SetMenuLayoutFile( other.m_pMenuLayoutFile );
@@ -607,12 +616,12 @@ void ComponentMenuPage::OnPlay()
 }
 
 // will return true if input is used.
-bool ComponentMenuPage::Callback_OnTouch(int action, int id, float x, float y, float pressure, float size)
+bool ComponentMenuPage::OnTouchCallback(int action, int id, float x, float y, float pressure, float size)
 {
-    if( m_Visible == false )
+    if( m_Visible == false || m_InputEnabled == false )
         return false;
 
-    //ComponentBase::Callback_OnTouch( action, id, x, y, pressure, size );
+    //ComponentBase::OnTouchCallback( action, id, x, y, pressure, size );
 
     switch( action )
     {
@@ -704,23 +713,23 @@ bool ComponentMenuPage::Callback_OnTouch(int action, int id, float x, float y, f
 }
 
 // will return true if input is used.
-bool ComponentMenuPage::Callback_OnButtons(GameCoreButtonActions action, GameCoreButtonIDs id)
+bool ComponentMenuPage::OnButtonsCallback(GameCoreButtonActions action, GameCoreButtonIDs id)
 {
-    if( m_Visible == false )
+    if( m_Visible == false || m_InputEnabled == false )
         return false;
 
-    //ComponentBase::Callback_OnButtons( action, id );
+    //ComponentBase::OnButtonsCallback( action, id );
 
     return false;
 }
 
 // will return true if input is used.
-bool ComponentMenuPage::Callback_OnKeys(GameCoreButtonActions action, int keycode, int unicodechar)
+bool ComponentMenuPage::OnKeysCallback(GameCoreButtonActions action, int keycode, int unicodechar)
 {
-    if( m_Visible == false )
+    if( m_Visible == false || m_InputEnabled == false )
         return false;
 
-    //ComponentBase::Callback_OnButtons( action, keycode, unicodechar );
+    //ComponentBase::OnKeysCallback( action, keycode, unicodechar );
 
     //if( Screen_Base::OnKeyDown( keycode, unicodechar ) )
     //    return true;
@@ -738,9 +747,9 @@ bool ComponentMenuPage::Callback_OnKeys(GameCoreButtonActions action, int keycod
     return false;
 }
 
-void ComponentMenuPage::Callback_Tick(double TimePassed)
+void ComponentMenuPage::TickCallback(double TimePassed)
 {
-    //ComponentBase::Callback_Tick( TimePassed );
+    //ComponentBase::TickCallback( TimePassed );
 
     if( m_MenuItemsCreated == false )
     {
@@ -765,9 +774,9 @@ void ComponentMenuPage::Callback_Tick(double TimePassed)
     }
 }
 
-void ComponentMenuPage::Callback_OnSurfaceChanged(unsigned int startx, unsigned int starty, unsigned int width, unsigned int height, unsigned int desiredaspectwidth, unsigned int desiredaspectheight)
+void ComponentMenuPage::OnSurfaceChangedCallback(unsigned int startx, unsigned int starty, unsigned int width, unsigned int height, unsigned int desiredaspectwidth, unsigned int desiredaspectheight)
 {
-    //ComponentBase::Callback_OnSurfaceChanged( TimePassed );
+    //ComponentBase::OnSurfaceChangedCallback( TimePassed );
 
     // if the aspect ratio didn't change, return;
     if( m_CurrentWidth == m_pComponentCamera->m_WindowWidth &&
@@ -934,9 +943,9 @@ void ComponentMenuPage::UpdateLayout(cJSON* layout)
 #endif //MYFW_USING_WX
 }
 
-void ComponentMenuPage::Callback_Draw(ComponentCamera* pCamera, MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride)
+void ComponentMenuPage::DrawCallback(ComponentCamera* pCamera, MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride)
 {
-    //ComponentBase::Callback_Draw( pCamera, pMatViewProj, pShaderOverride );
+    //ComponentBase::DrawCallback( pCamera, pMatViewProj, pShaderOverride );
 
     if( m_Visible == false || (m_LayersThisExistsOn & pCamera->m_LayersToRender) == 0 )
         return;
@@ -1010,6 +1019,22 @@ MenuButton* ComponentMenuPage::GetMenuButton(unsigned int index)
     
     if( m_pMenuItems[index] && m_pMenuItems[index]->m_MenuItemType == MIT_Button )
         return (MenuButton*)m_pMenuItems[index];
+
+    return 0;
+}
+
+MenuButton* ComponentMenuPage::GetMenuButtonByName(const char* name)
+{
+    for( int i=0; i<MAX_MENU_ITEMS; i++ )
+    {
+        if( m_pMenuItems[i] && strcmp( m_pMenuItems[i]->m_Name, name ) == 0 )
+        {
+            MyAssert( m_pMenuItems[i] && m_pMenuItems[i]->m_MenuItemType == MIT_Button );
+    
+            if( m_pMenuItems[i] && m_pMenuItems[i]->m_MenuItemType == MIT_Button )
+                return (MenuButton*)m_pMenuItems[i];
+        }
+    }
 
     return 0;
 }

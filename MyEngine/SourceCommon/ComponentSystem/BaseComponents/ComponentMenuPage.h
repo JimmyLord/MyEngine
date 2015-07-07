@@ -45,6 +45,7 @@ protected:
     bool m_MenuItemsCreated;
     bool m_LayoutChanged;
 
+    bool m_InputEnabled;
     MenuInputBox* m_pInputBoxWithKeyboardFocus;
 
     unsigned int m_MenuItemsUsed;
@@ -96,6 +97,7 @@ public:
     MenuItem* GetMenuItem(unsigned int index) { return m_pMenuItems[index]; }
     MenuItem* GetMenuItemByName(const char* name);
     MenuButton* GetMenuButton(unsigned int index);
+    MenuButton* GetMenuButtonByName(const char* name);
 
     unsigned int GetNumMenuItemsUsed() { return m_MenuItemsUsed; }
 
@@ -106,12 +108,12 @@ public:
 
 protected:
     // Callback functions for various events.
-    MYFW_DECLARE_COMPONENT_CALLBACK_TICK( ComponentMenuPage ); // Callback_Tick
-    MYFW_DECLARE_COMPONENT_CALLBACK_ONSURFACECHANGED( ComponentMenuPage ); // Callback_OnSurfaceChanged
-    MYFW_DECLARE_COMPONENT_CALLBACK_DRAW( ComponentMenuPage ); // Callback_Draw
-    MYFW_DECLARE_COMPONENT_CALLBACK_ONTOUCH( ComponentMenuPage ); // Callback_OnTouch
-    MYFW_DECLARE_COMPONENT_CALLBACK_ONBUTTONS( ComponentMenuPage ); // Callback_OnButtons
-    MYFW_DECLARE_COMPONENT_CALLBACK_ONKEYS( ComponentMenuPage ); // Callback_OnKeys
+    MYFW_DECLARE_COMPONENT_CALLBACK_TICK( ComponentMenuPage ); // TickCallback
+    MYFW_DECLARE_COMPONENT_CALLBACK_ONSURFACECHANGED( ComponentMenuPage ); // OnSurfaceChangedCallback
+    MYFW_DECLARE_COMPONENT_CALLBACK_DRAW( ComponentMenuPage ); // DrawCallback
+    MYFW_DECLARE_COMPONENT_CALLBACK_ONTOUCH( ComponentMenuPage ); // OnTouchCallback
+    MYFW_DECLARE_COMPONENT_CALLBACK_ONBUTTONS( ComponentMenuPage ); // OnButtonsCallback
+    MYFW_DECLARE_COMPONENT_CALLBACK_ONKEYS( ComponentMenuPage ); // OnKeysCallback
 
 public:
 #if MYFW_USING_WX
