@@ -224,7 +224,9 @@ char* ComponentSystemManager::SaveSceneToJSON(unsigned int sceneid)
                 }
             }
 
-            cJSON_AddItemToArray( filearray, cJSON_CreateString( pFile->m_FullPath ) );
+            cJSON* jFile = cJSON_CreateObject();
+            cJSON_AddItemToObject( jFile, "Path", cJSON_CreateString( pFile->m_FullPath ) );
+            cJSON_AddItemToArray( filearray, jFile );
             
             pFile = (MyFileObject*)pFile->GetNext();
         }
@@ -468,9 +470,20 @@ void ComponentSystemManager::LoadSceneFromJSON(const char* scenename, const char
     {
         for( int i=0; i<cJSON_GetArraySize( filearray ); i++ )
         {
-            cJSON* fileobj = cJSON_GetArrayItem( filearray, i );
+            cJSON* jFile = cJSON_GetArrayItem( filearray, i );
 
-            LoadDatafile( fileobj->valuestring, sceneid );
+            if( jFile->valuestring != 0 )
+            {
+                LoadDatafile( jFile->valuestring, sceneid );
+            }
+            else
+            {
+                cJSON* jPath = cJSON_GetObjectItem( jFile, "Path" );
+                if( jPath )
+                {
+                    LoadDatafile( jPath->valuestring, sceneid );
+                }
+            }
         }
     }
 
