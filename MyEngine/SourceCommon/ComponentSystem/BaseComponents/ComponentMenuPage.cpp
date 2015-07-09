@@ -321,8 +321,8 @@ void ComponentMenuPage::SaveCurrentLayoutToJSON()
 
 void ComponentMenuPage::AddToObjectsPanel(wxTreeItemId gameobjectid)
 {
-    //wxTreeItemId id =
-    g_pPanelObjectList->AddObject( this, ComponentMenuPage::StaticOnLeftClick, ComponentBase::StaticOnRightClick, gameobjectid, "Menu Page" );
+    wxTreeItemId treeid = g_pPanelObjectList->AddObject( this, ComponentMenuPage::StaticOnLeftClick, ComponentBase::StaticOnRightClick, gameobjectid, "Menu Page" );
+    g_pPanelObjectList->SetDragAndDropFunctions( treeid, 0, ComponentMenuPage::StaticOnDropMenuItemOnMenuPage );
 }
 
 void ComponentMenuPage::OnLeftClick(unsigned int count, bool clear)
@@ -368,10 +368,19 @@ void ComponentMenuPage::AppendItemsToRightClickMenu(wxMenu* pMenu)
     pMenu->Append( RightClick_AddText, "Add Text" );
  	pMenu->Connect( wxEVT_COMMAND_MENU_SELECTED, (wxObjectEventFunction)&ComponentMenuPage::OnPopupClick );
 
+    pMenu->AppendSeparator();
+
     pMenu->Append( RightClick_ForceReload, "Force Reload" );
  	pMenu->Connect( wxEVT_COMMAND_MENU_SELECTED, (wxObjectEventFunction)&ComponentMenuPage::OnPopupClick );
 
+    pMenu->AppendSeparator();
+
+    pMenu->Append( RightClick_CopyToOtherLayouts, "Copy unique items to other layouts" );
+ 	pMenu->Connect( wxEVT_COMMAND_MENU_SELECTED, (wxObjectEventFunction)&ComponentMenuPage::OnPopupClick );
+
 #if LEGACYHACK
+    pMenu->AppendSeparator();
+
     pMenu->Append( 9876, "Grab menu item pointers from current screen" );
  	pMenu->Connect( wxEVT_COMMAND_MENU_SELECTED, (wxObjectEventFunction)&ComponentMenuPage::OnPopupClick );
 #endif
@@ -384,40 +393,15 @@ void ComponentMenuPage::OnPopupClick(wxEvent &evt)
     ComponentMenuPage* pComponent = (ComponentMenuPage*)static_cast<wxMenu*>(evt.GetEventObject())->GetClientData();
     MyAssert( pComponent->IsA( "MenuPageComponent" ) );
 
-    wxTreeItemId componentID = g_pPanelObjectList->FindObject( pComponent );    
-
     int id = evt.GetId();
-    if( id == RightClick_AddButton )
-    {
-        MenuButton* pMenuItem = MyNew MenuButton( 100 );
-        pMenuItem->SetString( "Test Button" );
-        pComponent->m_pMenuItems[pComponent->m_MenuItemsUsed] = pMenuItem;
-        pComponent->m_MenuItemsUsed++;
-        g_pPanelObjectList->AddObject( pMenuItem, MenuButton::StaticFillPropertiesWindow, MenuItem::StaticOnRightClick, componentID, "Button" );
-        pMenuItem->RegisterMenuItemDeletedCallback( pComponent, StaticOnMenuItemDeleted );
-    }
 
-    if( id == RightClick_AddSprite )
+    switch( id )
     {
-        MenuSprite* pMenuItem = MyNew MenuSprite();
-        pComponent->m_pMenuItems[pComponent->m_MenuItemsUsed] = pMenuItem;
-        pComponent->m_MenuItemsUsed++;
-        g_pPanelObjectList->AddObject( pMenuItem, MenuSprite::StaticFillPropertiesWindow, MenuItem::StaticOnRightClick, componentID, "Sprite" );
-        pMenuItem->RegisterMenuItemDeletedCallback( pComponent, StaticOnMenuItemDeleted );
-    }
-
-    if( id == RightClick_AddText )
-    {
-        MenuText* pMenuItem = MyNew MenuText();
-        pComponent->m_pMenuItems[pComponent->m_MenuItemsUsed] = pMenuItem;
-        pComponent->m_MenuItemsUsed++;
-        g_pPanelObjectList->AddObject( pMenuItem, MenuText::StaticFillPropertiesWindow, MenuItem::StaticOnRightClick, componentID, "Text" );
-        pMenuItem->RegisterMenuItemDeletedCallback( pComponent, StaticOnMenuItemDeleted );
-    }
-
-    if( id == RightClick_ForceReload )
-    {
-        pComponent->LoadLayoutBasedOnCurrentAspectRatio();
+    case RightClick_AddButton:          pComponent->AddNewMenuItemToTree( MIT_Button );     break;
+    case RightClick_AddSprite:          pComponent->AddNewMenuItemToTree( MIT_Sprite );     break;
+    case RightClick_AddText:            pComponent->AddNewMenuItemToTree( MIT_Text );       break;
+    case RightClick_ForceReload:        pComponent->LoadLayoutBasedOnCurrentAspectRatio();  break;
+    case RightClick_CopyToOtherLayouts: pComponent->CopyUniqueItemsToOtherLayouts();        break;
     }
 
 #if LEGACYHACK
@@ -433,6 +417,53 @@ void ComponentMenuPage::OnPopupClick(wxEvent &evt)
         pComponent->UpdateLayout( pComponent->m_CurrentLayout );
     }
 #endif
+}
+
+void ComponentMenuPage::AddNewMenuItemToTree(int type)
+{
+    MenuItem* pMenuItem = 0;
+    PanelObjectListCallbackLeftClick pLeftClickFunc = 0;
+    const char* desc = 0;
+
+    if( type == MIT_Button )
+    {
+        pMenuItem = MyNew MenuButton( 100 );
+        ((MenuButton*)pMenuItem)->SetString( "Test Button" );
+        pLeftClickFunc = MenuButton::StaticFillPropertiesWindow;
+        desc = "Button";
+    }
+    else if( type == MIT_Sprite )
+    {
+        pMenuItem = MyNew MenuSprite();
+        pLeftClickFunc = MenuSprite::StaticFillPropertiesWindow;
+        desc = "Sprite";
+    }
+    else if( type == MIT_Text )
+    {
+        pMenuItem = MyNew MenuText();
+        pLeftClickFunc = MenuText::StaticFillPropertiesWindow;
+        desc = "Text";
+    }
+
+    MyAssert( pMenuItem != 0 );
+    if( pMenuItem == 0 )
+        return;
+
+    wxTreeItemId componentID = g_pPanelObjectList->FindObject( this );
+
+    m_pMenuItems[m_MenuItemsUsed] = pMenuItem;
+    m_MenuItemsUsed++;
+
+    wxTreeItemId treeid = g_pPanelObjectList->AddObject( pMenuItem, pLeftClickFunc, MenuItem::StaticOnRightClick, componentID, desc );
+    g_pPanelObjectList->SetLabelEditFunction( treeid, MenuItem::StaticOnLabelEdit );
+    g_pPanelObjectList->SetDragAndDropFunctions( treeid, MenuItem::StaticOnDrag, ComponentMenuPage::StaticOnDropMenuItemOnMenuItem );
+    g_pPanelObjectList->SetCustomObjectForCallback_Drop( treeid, this );
+    pMenuItem->RegisterMenuItemDeletedCallback( this, StaticOnMenuItemDeleted );
+}
+
+void ComponentMenuPage::CopyUniqueItemsToOtherLayouts()
+{
+    //m_MenuLayouts
 }
 
 void ComponentMenuPage::OnValueChanged(int controlid, bool finishedchanging)
@@ -520,6 +551,74 @@ void ComponentMenuPage::OnDropComponent(int controlid, wxCoord x, wxCoord y)
         }
     }
 }
+
+MYFW_PANELOBJECTLIST_DECLARE_CALLBACK_ONDROP(OnDropMenuItemOnMenuItem, ComponentMenuPage)
+{
+    if( g_DragAndDropStruct.m_Type == DragAndDropType_MenuItem )
+    {
+        MenuItem* pMenuItemDropped = (MenuItem*)g_DragAndDropStruct.m_Value;
+        MenuItem* pMenuItemDroppedOn = (MenuItem*)g_pPanelObjectList->GetObject( id );
+
+        // place MenuItem dropped after the one is was dropped on.
+        unsigned int iDropped;
+        for( iDropped=0; iDropped<m_MenuItemsUsed; iDropped++ )
+        {
+            if( m_pMenuItems[iDropped] == pMenuItemDropped )
+                break;
+        }
+
+        unsigned int iDroppedOn;
+        for( iDroppedOn=0; iDroppedOn<m_MenuItemsUsed; iDroppedOn++ )
+        {
+            if( m_pMenuItems[iDroppedOn] == pMenuItemDroppedOn )
+                break;
+        }
+
+        if( iDropped < iDroppedOn ) // dragged an item from above, so shift all items up.
+        {
+            for( unsigned int i=iDropped; i<iDroppedOn; i++ )
+            {
+                m_pMenuItems[i] = m_pMenuItems[i+1];
+            }
+            m_pMenuItems[iDroppedOn] = pMenuItemDropped;
+        }
+        else // dragged an item from below, so shift all items down.
+        {
+            for( unsigned int i=iDropped; i>iDroppedOn+1; i-- )
+            {
+                m_pMenuItems[i] = m_pMenuItems[i-1];
+            }
+            m_pMenuItems[iDroppedOn+1] = pMenuItemDropped;
+        }
+
+        g_pPanelObjectList->Tree_MoveObject( this, pMenuItemDropped, pMenuItemDroppedOn );
+    }
+}
+
+MYFW_PANELOBJECTLIST_DECLARE_CALLBACK_ONDROP(OnDropMenuItemOnMenuPage, ComponentMenuPage)
+{
+    if( g_DragAndDropStruct.m_Type == DragAndDropType_MenuItem )
+    {
+        MenuItem* pMenuItemDropped = (MenuItem*)g_DragAndDropStruct.m_Value;
+
+        unsigned int iDropped;
+        for( iDropped=0; iDropped<m_MenuItemsUsed; iDropped++ )
+        {
+            if( m_pMenuItems[iDropped] == pMenuItemDropped )
+                break;
+        }
+
+        // place MenuItem dropped at start of list.
+        for( unsigned int i=iDropped; i>0; i-- )
+        {
+            m_pMenuItems[i] = m_pMenuItems[i-1];
+        }
+
+        m_pMenuItems[0] = pMenuItemDropped;
+        g_pPanelObjectList->Tree_MoveObject( this, pMenuItemDropped, 0 );
+    }
+}
+
 #endif //MYFW_USING_WX
 
 cJSON* ComponentMenuPage::ExportAsJSONObject(bool savesceneid)
@@ -901,6 +1000,8 @@ void ComponentMenuPage::UpdateLayout(cJSON* layout)
             {
                 wxTreeItemId treeid = g_pPanelObjectList->AddObject( m_pMenuItems[i], MenuSprite::StaticFillPropertiesWindow, MenuItem::StaticOnRightClick, componentID, m_pMenuItems[i]->m_Name );
                 g_pPanelObjectList->SetLabelEditFunction( treeid, MenuItem::StaticOnLabelEdit );
+                g_pPanelObjectList->SetDragAndDropFunctions( treeid, MenuItem::StaticOnDrag, ComponentMenuPage::StaticOnDropMenuItemOnMenuItem );
+                g_pPanelObjectList->SetCustomObjectForCallback_Drop( treeid, this );
             }
             break;
 
@@ -908,6 +1009,8 @@ void ComponentMenuPage::UpdateLayout(cJSON* layout)
             {
                 wxTreeItemId treeid = g_pPanelObjectList->AddObject( m_pMenuItems[i], MenuText::StaticFillPropertiesWindow, MenuItem::StaticOnRightClick, componentID, m_pMenuItems[i]->m_Name );
                 g_pPanelObjectList->SetLabelEditFunction( treeid, MenuItem::StaticOnLabelEdit );
+                g_pPanelObjectList->SetDragAndDropFunctions( treeid, MenuItem::StaticOnDrag, ComponentMenuPage::StaticOnDropMenuItemOnMenuItem );
+                g_pPanelObjectList->SetCustomObjectForCallback_Drop( treeid, this );
             }
             break;
 
@@ -915,6 +1018,8 @@ void ComponentMenuPage::UpdateLayout(cJSON* layout)
             {
                 wxTreeItemId treeid = g_pPanelObjectList->AddObject( m_pMenuItems[i], MenuButton::StaticFillPropertiesWindow, MenuItem::StaticOnRightClick, componentID, m_pMenuItems[i]->m_Name );
                 g_pPanelObjectList->SetLabelEditFunction( treeid, MenuItem::StaticOnLabelEdit );
+                g_pPanelObjectList->SetDragAndDropFunctions( treeid, MenuItem::StaticOnDrag, ComponentMenuPage::StaticOnDropMenuItemOnMenuItem );
+                g_pPanelObjectList->SetCustomObjectForCallback_Drop( treeid, this );
             }
             break;
 
@@ -922,6 +1027,8 @@ void ComponentMenuPage::UpdateLayout(cJSON* layout)
             {
                 wxTreeItemId treeid = g_pPanelObjectList->AddObject( m_pMenuItems[i], MenuButton::StaticFillPropertiesWindow, MenuItem::StaticOnRightClick, componentID, m_pMenuItems[i]->m_Name );
                 g_pPanelObjectList->SetLabelEditFunction( treeid, MenuItem::StaticOnLabelEdit );
+                g_pPanelObjectList->SetDragAndDropFunctions( treeid, MenuItem::StaticOnDrag, ComponentMenuPage::StaticOnDropMenuItemOnMenuItem );
+                g_pPanelObjectList->SetCustomObjectForCallback_Drop( treeid, this );
             }
             break;
 
@@ -929,6 +1036,8 @@ void ComponentMenuPage::UpdateLayout(cJSON* layout)
             {
                 wxTreeItemId treeid = g_pPanelObjectList->AddObject( m_pMenuItems[i], MenuButton::StaticFillPropertiesWindow, MenuItem::StaticOnRightClick, componentID, m_pMenuItems[i]->m_Name );
                 g_pPanelObjectList->SetLabelEditFunction( treeid, MenuItem::StaticOnLabelEdit );
+                g_pPanelObjectList->SetDragAndDropFunctions( treeid, MenuItem::StaticOnDrag, ComponentMenuPage::StaticOnDropMenuItemOnMenuItem );
+                g_pPanelObjectList->SetCustomObjectForCallback_Drop( treeid, this );
             }
             break;
 

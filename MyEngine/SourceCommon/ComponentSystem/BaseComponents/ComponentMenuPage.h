@@ -123,6 +123,7 @@ public:
         RightClick_AddSprite,
         RightClick_AddText,
         RightClick_ForceReload,
+        RightClick_CopyToOtherLayouts,
     };
 
     int m_ControlID_Filename;
@@ -153,6 +154,9 @@ public:
     virtual void AppendItemsToRightClickMenu(wxMenu* pMenu);
     void OnPopupClick(wxEvent &evt);
 
+    void AddNewMenuItemToTree(int type);
+    void CopyUniqueItemsToOtherLayouts();
+
     // Watch panel callbacks.
     static void StaticOnValueChanged(void* pObjectPtr, int controlid, bool finishedchanging, double oldvalue) { ((ComponentMenuPage*)pObjectPtr)->OnValueChanged( controlid, finishedchanging ); }
     void OnValueChanged(int controlid, bool finishedchanging);
@@ -162,6 +166,10 @@ public:
 
     static void StaticOnDropComponent(void* pObjectPtr, int controlid, wxCoord x, wxCoord y) { ((ComponentMenuPage*)pObjectPtr)->OnDropComponent(controlid, x, y); }
     void OnDropComponent(int controlid, wxCoord x, wxCoord y);
+
+    // Object panel callbacks for menu items in our list.
+    MYFW_PANELOBJECTLIST_DEFINE_CALLBACK_ONDROP(OnDropMenuItemOnMenuItem, ComponentMenuPage);
+    MYFW_PANELOBJECTLIST_DEFINE_CALLBACK_ONDROP(OnDropMenuItemOnMenuPage, ComponentMenuPage);
 #endif //MYFW_USING_WX
 };
 
