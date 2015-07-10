@@ -463,7 +463,71 @@ void ComponentMenuPage::AddNewMenuItemToTree(int type)
 
 void ComponentMenuPage::CopyUniqueItemsToOtherLayouts()
 {
-    //m_MenuLayouts
+    SaveCurrentLayoutToJSON();
+
+    cJSON* jLayout = 0;
+    cJSON* jOtherLayouts[2];
+
+    if( m_CurrentWidth == m_CurrentHeight )
+    {
+        jLayout = cJSON_GetObjectItem( m_MenuLayouts, "Square" );
+        jOtherLayouts[0] = cJSON_GetObjectItem( m_MenuLayouts, "Tall" );
+        jOtherLayouts[1] = cJSON_GetObjectItem( m_MenuLayouts, "Wide" );
+    }
+    else if( m_CurrentWidth < m_CurrentHeight )
+    {
+        jLayout = cJSON_GetObjectItem( m_MenuLayouts, "Tall" );
+        jOtherLayouts[0] = cJSON_GetObjectItem( m_MenuLayouts, "Square" );
+        jOtherLayouts[1] = cJSON_GetObjectItem( m_MenuLayouts, "Wide" );
+    }
+    else
+    {
+        jLayout = cJSON_GetObjectItem( m_MenuLayouts, "Wide" );
+        jOtherLayouts[0] = cJSON_GetObjectItem( m_MenuLayouts, "Square" );
+        jOtherLayouts[1] = cJSON_GetObjectItem( m_MenuLayouts, "Tall" );
+    }
+
+    unsigned int numitems = cJSON_GetArraySize( jLayout );
+    
+    // loop through the other 2 layouts.
+    for( int otherlayout=0; otherlayout<2; otherlayout++ )
+    {
+        cJSON* jOtherLayout = jOtherLayouts[otherlayout];
+
+        unsigned int numotheritems = cJSON_GetArraySize( jOtherLayout );
+
+        // loop through all the numitems in the current layout.
+        for( unsigned int i=0; i<numitems; i++ )
+        {
+            cJSON* jMenuItem = cJSON_GetArrayItem( jLayout, i );
+
+            char name[MenuItem::MAX_MENUITEM_NAME_LENGTH];
+            cJSONExt_GetString( jMenuItem, "Name", name, MenuItem::MAX_MENUITEM_NAME_LENGTH );
+
+            bool found = false;
+
+            // for each item, check if that item exists in the other layout, based on the items name.
+            for( unsigned int otheri=0; otheri<numotheritems; otheri++ )
+            {
+                cJSON* jOtherMenuItem = cJSON_GetArrayItem( jOtherLayout, otheri );
+
+                char othername[MenuItem::MAX_MENUITEM_NAME_LENGTH];
+                cJSONExt_GetString( jOtherMenuItem, "Name", othername, MenuItem::MAX_MENUITEM_NAME_LENGTH );
+
+                if( strcmp( name, othername ) == 0 )
+                {
+                    found = true;
+                    break;
+                }
+            }
+
+            if( found == false )
+            {
+                cJSON* jDuplicate = cJSON_Duplicate( jMenuItem, 1 );
+                cJSON_AddItemToArray( jOtherLayout, jDuplicate );
+            }
+        }
+    }
 }
 
 void ComponentMenuPage::OnValueChanged(int controlid, bool finishedchanging)
