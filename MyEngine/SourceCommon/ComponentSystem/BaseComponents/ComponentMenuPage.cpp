@@ -56,6 +56,9 @@ ComponentMenuPage::ComponentMenuPage()
     m_MenuPageVisibleCallbackStruct.pFunc = 0;
     m_MenuPageVisibleCallbackStruct.pObj = 0;
 
+    // Runtime vars
+    m_ItemSelected = -1;
+
     // Register callbacks.
     MYFW_REGISTER_COMPONENT_CALLBACK( Tick );
     MYFW_REGISTER_COMPONENT_CALLBACK( OnSurfaceChanged );
@@ -65,6 +68,11 @@ ComponentMenuPage::ComponentMenuPage()
     MYFW_REGISTER_COMPONENT_CALLBACK( OnKeys );
 
     m_ExtentsSetWhenLoaded = false;
+
+    for( int i=0; i<3; i++ )
+    {
+        m_ButtonActions[i][0] = 0;
+    }
 
 #if MYFW_USING_WX
     m_ControlID_Filename = -1;
@@ -352,6 +360,10 @@ void ComponentMenuPage::FillPropertiesWindow(bool clear)
             m_ControlID_Filename = g_pPanelWatch->AddPointerWithDescription( "Menu file", m_pMenuLayoutFile, m_pMenuLayoutFile->m_FullPath, this, 0, ComponentMenuPage::StaticOnValueChanged );
         else
             m_ControlID_Filename = g_pPanelWatch->AddPointerWithDescription( "Menu file", m_pMenuLayoutFile, "no file", this, 0, ComponentMenuPage::StaticOnValueChanged );
+
+        g_pPanelWatch->AddString( "ActionB", &m_ButtonActions[0][0], MAX_BUTTON_ACTION_LENGTH );
+        g_pPanelWatch->AddString( "ActionC", &m_ButtonActions[1][0], MAX_BUTTON_ACTION_LENGTH );
+        g_pPanelWatch->AddString( "ActionD", &m_ButtonActions[2][0], MAX_BUTTON_ACTION_LENGTH );
     }
 }
 
@@ -449,10 +461,17 @@ void ComponentMenuPage::AddNewMenuItemToTree(int type)
     if( pMenuItem == 0 )
         return;
 
-    wxTreeItemId componentID = g_pPanelObjectList->FindObject( this );
-
     m_pMenuItems[m_MenuItemsUsed] = pMenuItem;
     m_MenuItemsUsed++;
+
+    AddMenuItemToTree( m_MenuItemsUsed-1, pLeftClickFunc, desc );
+}
+
+void ComponentMenuPage::AddMenuItemToTree(unsigned int index, PanelObjectListCallbackLeftClick pLeftClickFunc, const char* desc)
+{
+    MenuItem* pMenuItem = m_pMenuItems[index];
+
+    wxTreeItemId componentID = g_pPanelObjectList->FindObject( this );
 
     wxTreeItemId treeid = g_pPanelObjectList->AddObject( pMenuItem, pLeftClickFunc, MenuItem::StaticOnRightClick, componentID, desc );
     g_pPanelObjectList->SetLabelEditFunction( treeid, MenuItem::StaticOnLabelEdit );
@@ -718,6 +737,10 @@ cJSON* ComponentMenuPage::ExportAsJSONObject(bool savesceneid)
     if( m_pMenuLayoutFile )
         cJSON_AddStringToObject( jComponent, "MenuFile", m_pMenuLayoutFile->m_FullPath );
     
+    if( m_ButtonActions[0][0] != 0 ) cJSON_AddStringToObject( jComponent, "ActionButtonB", m_ButtonActions[0] );
+    if( m_ButtonActions[1][0] != 0 ) cJSON_AddStringToObject( jComponent, "ActionButtonC", m_ButtonActions[1] );
+    if( m_ButtonActions[2][0] != 0 ) cJSON_AddStringToObject( jComponent, "ActionButtonD", m_ButtonActions[2] );
+
     return jComponent;
 #else
     MyAssert( false ); // no saving menus in runtime.
@@ -740,6 +763,10 @@ void ComponentMenuPage::ImportFromJSONObject(cJSON* jComponent, unsigned int sce
         SetMenuLayoutFile( pFile ); // will add ref.
         pFile->Release();
     }
+
+    cJSONExt_GetString( jComponent, "ActionButtonB", m_ButtonActions[0], MAX_BUTTON_ACTION_LENGTH );
+    cJSONExt_GetString( jComponent, "ActionButtonC", m_ButtonActions[1], MAX_BUTTON_ACTION_LENGTH );
+    cJSONExt_GetString( jComponent, "ActionButtonD", m_ButtonActions[2], MAX_BUTTON_ACTION_LENGTH );
 }
 
 ComponentMenuPage& ComponentMenuPage::operator=(const ComponentMenuPage& other)
@@ -751,6 +778,11 @@ ComponentMenuPage& ComponentMenuPage::operator=(const ComponentMenuPage& other)
     this->m_Visible = other.m_Visible;
     this->m_InputEnabled = other.m_InputEnabled;
     this->m_LayersThisExistsOn = other.m_LayersThisExistsOn;
+
+    for( int i=0; i<3; i++ )
+    {
+        strcpy_s( m_ButtonActions[i], MAX_BUTTON_ACTION_LENGTH, other.m_ButtonActions[i] );
+    }
 
     SetMenuLayoutFile( other.m_pMenuLayoutFile );
 
@@ -849,22 +881,8 @@ bool ComponentMenuPage::OnTouchCallback(int action, int id, float x, float y, fl
 
                     if( action != 0 )//&& OnMenuAction( action ) )
                     {
-                        if( m_MenuPageActionCallbackStruct.pFunc )
-                        {
-                            if( m_MenuPageActionCallbackStruct.pFunc( m_MenuPageActionCallbackStruct.pObj, this, action, m_pMenuItems[i] ) )
-                                return true;
-                        }
-#if MYFW_USING_WX
-                        // in editor, there's a chance the script component was created and not associated with this object.
-                        FindLuaScriptComponentPointer();
-#endif
-                        if( m_pComponentLuaScript )
-                        {
-                            m_pComponentLuaScript->CallFunction( action );//"PressedMenuButton" );
+                        if( ExecuteAction( action, m_pMenuItems[i] ) )
                             return true;
-                        }
-
-                        return true;
                     }
                 }
             }
@@ -882,6 +900,103 @@ bool ComponentMenuPage::OnButtonsCallback(GameCoreButtonActions action, GameCore
         return false;
 
     //ComponentBase::OnButtonsCallback( action, id );
+
+    // deal with navigation controls.  up/down/left/right
+    int dirtocheckx = 0;
+    int dirtochecky = 0;
+
+    if( action == GCBA_Down )
+    {
+        if( id == GCBI_Up )    dirtochecky = 1;
+        if( id == GCBI_Down )  dirtochecky = -1;
+        if( id == GCBI_Right ) dirtocheckx = 1;
+        if( id == GCBI_Left )  dirtocheckx = -1;
+    }
+
+    if( dirtocheckx != 0 || dirtochecky != 0 )
+    {
+        //if( m_Selector_Visible == false ) { m_Selector_Visible = true; /*return true;*/ }
+
+        Vector2 currentposition( -1, 9999 ); // spot at the top left.
+        if( m_ItemSelected != -1 )
+        {
+            MenuItem* pItem = GetMenuItem( m_ItemSelected );
+            currentposition = pItem->m_Position;
+        }
+
+        int nearestindex = -1;
+
+        float nearestdistance = 999999;
+
+        for( unsigned int i=0; i<m_MenuItemsUsed; i++ )
+        {
+            MenuItem* pItem = GetMenuItem( i );
+            Vector2 position2nditem = pItem->m_Position;
+
+            if( pItem->m_Visible == false || pItem->m_Navigable == false )
+                continue;
+
+            float distx = fabs( currentposition.x - position2nditem.x );
+            float disty = fabs( currentposition.y - position2nditem.y );
+            if( dirtocheckx ) distx /= 2.5f;
+            if( dirtochecky ) disty /= 2.5f;
+
+            float distance = sqrt( distx*distx + disty*disty );
+
+            if( distance > 0 && distance < nearestdistance )
+            {
+                if( dirtochecky != 0 ) // up or down // 1 or -1
+                {
+                    // if the item is in the correct hemisphere, pick the nearest.
+                    if( currentposition.y * dirtochecky < position2nditem.y * dirtochecky )
+                    {
+                        nearestdistance = distance;
+                        nearestindex = i;
+                    }
+                }
+                else //if( dirtocheckx != 0 ) // right or left // 1 or -1
+                {
+                    // if the item is in the correct hemisphere, pick the nearest.
+                    if( currentposition.x * dirtocheckx < position2nditem.x * dirtocheckx )
+                    {
+                        nearestdistance = distance;
+                        nearestindex = i;
+                    }
+                }
+            }
+        }
+
+        if( nearestindex != -1 )
+        {
+            m_ItemSelected = nearestindex;
+            //LOGInfo( LOGTag, "SelectedItem: %d\n", m_ItemSelected );
+        }
+    }
+    else
+    {
+        if( action == GCBA_Down )
+        {
+            if( id == GCBI_ButtonA )
+            {
+                if( m_ItemSelected != -1 )
+                {
+                    // set this menu item as the selected input box.
+                    if( m_pMenuItems[m_ItemSelected]->m_MenuItemType == MIT_InputBox )
+                        m_pInputBoxWithKeyboardFocus = (MenuInputBox*)m_pMenuItems[m_ItemSelected];
+
+                    if( m_pMenuItems[m_ItemSelected]->m_MenuItemType == MIT_Button )
+                    {
+                        if( ExecuteAction( ((MenuButton*)m_pMenuItems[m_ItemSelected])->m_ButtonAction, m_pMenuItems[m_ItemSelected] ) )
+                            return true;
+                    }
+                }
+            }
+
+            if( id == GCBI_ButtonB ) if( ExecuteAction( m_ButtonActions[0], 0 ) ) return true;
+            if( id == GCBI_ButtonC ) if( ExecuteAction( m_ButtonActions[1], 0 ) ) return true;
+            if( id == GCBI_ButtonD ) if( ExecuteAction( m_ButtonActions[2], 0 ) ) return true;
+        }
+    }
 
     return false;
 }
@@ -1062,46 +1177,21 @@ void ComponentMenuPage::UpdateLayout(cJSON* layout)
         {
         case MIT_Sprite:
             {
-                wxTreeItemId treeid = g_pPanelObjectList->AddObject( m_pMenuItems[i], MenuSprite::StaticFillPropertiesWindow, MenuItem::StaticOnRightClick, componentID, m_pMenuItems[i]->m_Name );
-                g_pPanelObjectList->SetLabelEditFunction( treeid, MenuItem::StaticOnLabelEdit );
-                g_pPanelObjectList->SetDragAndDropFunctions( treeid, MenuItem::StaticOnDrag, ComponentMenuPage::StaticOnDropMenuItemOnMenuItem );
-                g_pPanelObjectList->SetCustomObjectForCallback_Drop( treeid, this );
+                AddMenuItemToTree( i, MenuSprite::StaticFillPropertiesWindow, m_pMenuItems[i]->m_Name );
             }
             break;
 
         case MIT_Text:
             {
-                wxTreeItemId treeid = g_pPanelObjectList->AddObject( m_pMenuItems[i], MenuText::StaticFillPropertiesWindow, MenuItem::StaticOnRightClick, componentID, m_pMenuItems[i]->m_Name );
-                g_pPanelObjectList->SetLabelEditFunction( treeid, MenuItem::StaticOnLabelEdit );
-                g_pPanelObjectList->SetDragAndDropFunctions( treeid, MenuItem::StaticOnDrag, ComponentMenuPage::StaticOnDropMenuItemOnMenuItem );
-                g_pPanelObjectList->SetCustomObjectForCallback_Drop( treeid, this );
+                AddMenuItemToTree( i, MenuText::StaticFillPropertiesWindow, m_pMenuItems[i]->m_Name );
             }
             break;
 
         case MIT_Button:
-            {
-                wxTreeItemId treeid = g_pPanelObjectList->AddObject( m_pMenuItems[i], MenuButton::StaticFillPropertiesWindow, MenuItem::StaticOnRightClick, componentID, m_pMenuItems[i]->m_Name );
-                g_pPanelObjectList->SetLabelEditFunction( treeid, MenuItem::StaticOnLabelEdit );
-                g_pPanelObjectList->SetDragAndDropFunctions( treeid, MenuItem::StaticOnDrag, ComponentMenuPage::StaticOnDropMenuItemOnMenuItem );
-                g_pPanelObjectList->SetCustomObjectForCallback_Drop( treeid, this );
-            }
-            break;
-
         case MIT_InputBox:
-            {
-                wxTreeItemId treeid = g_pPanelObjectList->AddObject( m_pMenuItems[i], MenuButton::StaticFillPropertiesWindow, MenuItem::StaticOnRightClick, componentID, m_pMenuItems[i]->m_Name );
-                g_pPanelObjectList->SetLabelEditFunction( treeid, MenuItem::StaticOnLabelEdit );
-                g_pPanelObjectList->SetDragAndDropFunctions( treeid, MenuItem::StaticOnDrag, ComponentMenuPage::StaticOnDropMenuItemOnMenuItem );
-                g_pPanelObjectList->SetCustomObjectForCallback_Drop( treeid, this );
-            }
-            break;
-
         case MIT_ScrollingText:
             {
-                wxTreeItemId treeid = g_pPanelObjectList->AddObject( m_pMenuItems[i], MenuButton::StaticFillPropertiesWindow, MenuItem::StaticOnRightClick, componentID, m_pMenuItems[i]->m_Name );
-                g_pPanelObjectList->SetLabelEditFunction( treeid, MenuItem::StaticOnLabelEdit );
-                g_pPanelObjectList->SetDragAndDropFunctions( treeid, MenuItem::StaticOnDrag, ComponentMenuPage::StaticOnDropMenuItemOnMenuItem );
-                g_pPanelObjectList->SetCustomObjectForCallback_Drop( treeid, this );
+                AddMenuItemToTree( i, MenuButton::StaticFillPropertiesWindow, m_pMenuItems[i]->m_Name );
             }
             break;
 
@@ -1125,6 +1215,29 @@ void ComponentMenuPage::DrawCallback(ComponentCamera* pCamera, MyMatrix* pMatVie
 
     if( m_pComponentCamera == 0 )
         return;
+
+    // deal with cursor
+    {
+        MenuItem* pCursor = GetMenuItemByName( "Cursor" );
+        if( pCursor && pCursor->m_MenuItemType == MIT_Sprite )
+        {
+            if( m_ItemSelected == -1 )
+            {
+                pCursor->SetVisible( false );
+            }
+            else
+            {
+                pCursor->SetVisible( true );
+                
+                MenuItem* pItem = m_pMenuItems[m_ItemSelected];
+
+                pCursor->SetPosition( pItem->m_Position.x, pItem->m_Position.y );
+            }
+
+            //Vector2 bgsize = pCursor->GetBGSize();
+            //pCursor->SetPositionAndSize( pCursor->m_Position.x, pCursor->m_Position.y, bgsize.x + 6, bgsize.y + 6 );
+        }
+    }
 
     glDisable( GL_DEPTH_TEST );
     for( unsigned int i=0; i<m_MenuItemsUsed; i++ )
@@ -1242,4 +1355,31 @@ void ComponentMenuPage::SetVisible(bool visible)
     {
         m_MenuPageVisibleCallbackStruct.pFunc( m_MenuPageVisibleCallbackStruct.pObj, this, visible );
     }
+
+    // if the currently selected item is disabled, reset the selected item.
+    if( m_ItemSelected != -1 && m_pMenuItems[m_ItemSelected] && m_pMenuItems[m_ItemSelected]->m_Enabled == false )
+        m_ItemSelected = -1;
+}
+
+bool ComponentMenuPage::ExecuteAction(const char* action, MenuItem* pItem)
+{
+    if( action != 0 )
+    {
+        if( m_MenuPageActionCallbackStruct.pFunc )
+        {
+            if( m_MenuPageActionCallbackStruct.pFunc( m_MenuPageActionCallbackStruct.pObj, this, action, pItem ) )
+                return true;
+        }
+#if MYFW_USING_WX
+        // in editor, there's a chance the script component was created and not associated with this object.
+        FindLuaScriptComponentPointer();
+#endif
+        if( m_pComponentLuaScript )
+        {
+            m_pComponentLuaScript->CallFunction( action );
+            return true;
+        }
+    }
+
+    return false;
 }

@@ -38,6 +38,7 @@ class ComponentMenuPage : public ComponentBase
 {
     static const int MAX_MENU_ITEMS = 128;
     static const int MAX_MENU_NAME_LEN = 32;
+    static const int MAX_BUTTON_ACTION_LENGTH = 32;
 
 protected:
     MyFileObject* m_pMenuLayoutFile;
@@ -52,6 +53,8 @@ protected:
     MenuItem* m_pMenuItems[MAX_MENU_ITEMS];
     MenuItem* m_pMenuItemHeld;
 
+    char m_ButtonActions[3][MAX_BUTTON_ACTION_LENGTH]; // for buttons B/C/D
+
     cJSON* m_MenuLayouts;
     cJSON* m_CurrentLayout;
     unsigned int m_CurrentWidth;
@@ -62,6 +65,9 @@ protected:
 
     MenuPageActionCallbackStruct m_MenuPageActionCallbackStruct;
     MenuPageVisibleCallbackStruct m_MenuPageVisibleCallbackStruct;
+
+    // Runtime vars
+    unsigned int m_ItemSelected;
 
 public:
     ComponentTransform* m_pComponentTransform;
@@ -105,6 +111,8 @@ public:
     void RegisterMenuPageVisibleCallback(void* pObj, MenuPageVisibleCallbackFunc pFunc);
 
     void SetVisible(bool visible);
+
+    bool ExecuteAction(const char* action, MenuItem* pItem);
 
 protected:
     // Callback functions for various events.
@@ -155,6 +163,7 @@ public:
     void OnPopupClick(wxEvent &evt);
 
     void AddNewMenuItemToTree(int type);
+    void AddMenuItemToTree(unsigned int index, PanelObjectListCallbackLeftClick pLeftClickFunc, const char* desc);
     void CopyUniqueItemsToOtherLayouts();
 
     // Watch panel callbacks.
