@@ -56,6 +56,9 @@ ComponentMenuPage::ComponentMenuPage()
     m_MenuPageVisibleCallbackStruct.pFunc = 0;
     m_MenuPageVisibleCallbackStruct.pObj = 0;
 
+    m_MenuPageTickCallbackStruct.pFunc = 0;
+    m_MenuPageTickCallbackStruct.pObj = 0;
+
     // Runtime vars
     m_ItemSelected = -1;
 
@@ -1029,6 +1032,11 @@ void ComponentMenuPage::TickCallback(double TimePassed)
 {
     //ComponentBase::TickCallback( TimePassed );
 
+    if( m_MenuPageTickCallbackStruct.pFunc )
+    {
+        m_MenuPageTickCallbackStruct.pFunc( m_MenuPageTickCallbackStruct.pObj, this, TimePassed );
+    }
+
     if( m_MenuItemsCreated == false )
     {
         if( m_pMenuLayoutFile && m_pMenuLayoutFile->m_FileLoadStatus == FileLoadStatus_Success )
@@ -1335,6 +1343,12 @@ void ComponentMenuPage::RegisterMenuPageVisibleCallback(void* pObj, MenuPageVisi
 {
     m_MenuPageVisibleCallbackStruct.pFunc = pFunc;
     m_MenuPageVisibleCallbackStruct.pObj = pObj;
+}
+
+void ComponentMenuPage::RegisterMenuPageTickCallback(void* pObj, MenuPageTickCallbackFunc pFunc)
+{
+    m_MenuPageTickCallbackStruct.pFunc = pFunc;
+    m_MenuPageTickCallbackStruct.pObj = pObj;
 }
 
 void ComponentMenuPage::SetVisible(bool visible)

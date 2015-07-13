@@ -34,6 +34,13 @@ struct MenuPageVisibleCallbackStruct
     MenuPageVisibleCallbackFunc pFunc;
 };
 
+typedef void (*MenuPageTickCallbackFunc)(void* pObjectPtr, ComponentMenuPage* pPage, double TimePassed);
+struct MenuPageTickCallbackStruct
+{
+    void* pObj;
+    MenuPageTickCallbackFunc pFunc;
+};
+
 class ComponentMenuPage : public ComponentBase
 {
     static const int MAX_MENU_ITEMS = 128;
@@ -65,6 +72,7 @@ protected:
 
     MenuPageActionCallbackStruct m_MenuPageActionCallbackStruct;
     MenuPageVisibleCallbackStruct m_MenuPageVisibleCallbackStruct;
+    MenuPageTickCallbackStruct m_MenuPageTickCallbackStruct;
 
     // Runtime vars
     unsigned int m_ItemSelected;
@@ -109,6 +117,7 @@ public:
 
     void RegisterMenuPageActionCallback(void* pObj, MenuPageActionCallbackFunc pFunc);
     void RegisterMenuPageVisibleCallback(void* pObj, MenuPageVisibleCallbackFunc pFunc);
+    void RegisterMenuPageTickCallback(void* pObj, MenuPageTickCallbackFunc pFunc);
 
     void SetVisible(bool visible);
 
