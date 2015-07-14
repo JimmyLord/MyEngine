@@ -1866,6 +1866,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="SourceCommon\Core\InputFinger.cpp" />
     <ClCompile Include="SourceCommon\Core\LuaGameState.cpp" />
     <ClCompile Include="SourceCommon\Editor\Dialogs\DialogGridSettings.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
@@ -2037,6 +2038,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClInclude>
+    <ClInclude Include="SourceCommon\Core\InputFinger.h" />
     <ClInclude Include="SourceCommon\Core\LuaGameState.h" />
     <ClInclude Include="SourceCommon\Editor\Dialogs\DialogGridSettings.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>

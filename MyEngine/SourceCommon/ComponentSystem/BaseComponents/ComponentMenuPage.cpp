@@ -59,6 +59,15 @@ ComponentMenuPage::ComponentMenuPage()
     m_MenuPageTickCallbackStruct.pFunc = 0;
     m_MenuPageTickCallbackStruct.pObj = 0;
 
+    m_MenuPageOnTouchCallbackStruct.pFunc = 0;
+    m_MenuPageOnTouchCallbackStruct.pObj = 0;
+
+    m_MenuPageOnButtonsCallbackStruct.pFunc = 0;
+    m_MenuPageOnButtonsCallbackStruct.pObj = 0;
+
+    m_MenuPageOnKeysCallbackStruct.pFunc = 0;
+    m_MenuPageOnKeysCallbackStruct.pObj = 0;
+
     // Runtime vars
     m_ItemSelected = -1;
 
@@ -76,6 +85,8 @@ ComponentMenuPage::ComponentMenuPage()
     {
         m_ButtonActions[i][0] = 0;
     }
+
+    m_RelativeCursorSize.Set( 0, 0 );
 
 #if MYFW_USING_WX
     m_ControlID_Filename = -1;
@@ -364,9 +375,11 @@ void ComponentMenuPage::FillPropertiesWindow(bool clear)
         else
             m_ControlID_Filename = g_pPanelWatch->AddPointerWithDescription( "Menu file", m_pMenuLayoutFile, "no file", this, 0, ComponentMenuPage::StaticOnValueChanged );
 
-        g_pPanelWatch->AddString( "ActionB", &m_ButtonActions[0][0], MAX_BUTTON_ACTION_LENGTH );
-        g_pPanelWatch->AddString( "ActionC", &m_ButtonActions[1][0], MAX_BUTTON_ACTION_LENGTH );
-        g_pPanelWatch->AddString( "ActionD", &m_ButtonActions[2][0], MAX_BUTTON_ACTION_LENGTH );
+        g_pPanelWatch->AddString( "Action B", &m_ButtonActions[0][0], MAX_BUTTON_ACTION_LENGTH );
+        g_pPanelWatch->AddString( "Action C", &m_ButtonActions[1][0], MAX_BUTTON_ACTION_LENGTH );
+        g_pPanelWatch->AddString( "Action D", &m_ButtonActions[2][0], MAX_BUTTON_ACTION_LENGTH );
+
+        g_pPanelWatch->Add2Floats( "Cursor Size", "x", "y", &m_RelativeCursorSize.x, &m_RelativeCursorSize.y, -10, 10 );
     }
 }
 
@@ -744,6 +757,9 @@ cJSON* ComponentMenuPage::ExportAsJSONObject(bool savesceneid)
     if( m_ButtonActions[1][0] != 0 ) cJSON_AddStringToObject( jComponent, "ActionButtonC", m_ButtonActions[1] );
     if( m_ButtonActions[2][0] != 0 ) cJSON_AddStringToObject( jComponent, "ActionButtonD", m_ButtonActions[2] );
 
+    if( m_RelativeCursorSize.x != 0 || m_RelativeCursorSize.y != 0 )
+        cJSONExt_AddFloatArrayToObject( jComponent, "RelativeCursorSize", &m_RelativeCursorSize.x, 2 );
+
     return jComponent;
 #else
     MyAssert( false ); // no saving menus in runtime.
@@ -770,6 +786,8 @@ void ComponentMenuPage::ImportFromJSONObject(cJSON* jComponent, unsigned int sce
     cJSONExt_GetString( jComponent, "ActionButtonB", m_ButtonActions[0], MAX_BUTTON_ACTION_LENGTH );
     cJSONExt_GetString( jComponent, "ActionButtonC", m_ButtonActions[1], MAX_BUTTON_ACTION_LENGTH );
     cJSONExt_GetString( jComponent, "ActionButtonD", m_ButtonActions[2], MAX_BUTTON_ACTION_LENGTH );
+
+    cJSONExt_GetFloatArray( jComponent, "RelativeCursorSize", &m_RelativeCursorSize.x, 2 );
 }
 
 ComponentMenuPage& ComponentMenuPage::operator=(const ComponentMenuPage& other)
@@ -820,6 +838,22 @@ bool ComponentMenuPage::OnTouchCallback(int action, int id, float x, float y, fl
         return false;
 
     //ComponentBase::OnTouchCallback( action, id, x, y, pressure, size );
+
+    if( m_MenuPageOnTouchCallbackStruct.pFunc )
+    {
+        m_MenuPageOnTouchCallbackStruct.pFunc( m_MenuPageOnTouchCallbackStruct.pObj, this, action, id, x, y, pressure, size );
+    }
+
+    for( int i=m_MenuItemsUsed-1; i>=0; i-- )
+    {
+        if( m_pMenuItems[i]->m_MenuItemType == MIT_ScrollBox ||
+            m_pMenuItems[i]->m_MenuItemType == MIT_ScrollingText )
+        {
+            MenuScrollBox* pScrollBox = (MenuScrollBox*)m_pMenuItems[i];
+            if( pScrollBox->OnTouch( action, id, x, y, pressure, size ) )
+                return true;
+        }
+    }
 
     switch( action )
     {
@@ -903,6 +937,11 @@ bool ComponentMenuPage::OnButtonsCallback(GameCoreButtonActions action, GameCore
         return false;
 
     //ComponentBase::OnButtonsCallback( action, id );
+
+    if( m_MenuPageOnButtonsCallbackStruct.pFunc )
+    {
+        m_MenuPageOnButtonsCallbackStruct.pFunc( m_MenuPageOnButtonsCallbackStruct.pObj, this, action, id );
+    }
 
     // deal with navigation controls.  up/down/left/right
     int dirtocheckx = 0;
@@ -1016,6 +1055,11 @@ bool ComponentMenuPage::OnKeysCallback(GameCoreButtonActions action, int keycode
     //    return true;
 
     //LOGInfo( LOGTag, "Screen_PlayerCreation::OnKeyDown %p\n", m_pInputBoxWithKeyboardFocus );
+
+    if( m_MenuPageOnKeysCallbackStruct.pFunc )
+    {
+        m_MenuPageOnKeysCallbackStruct.pFunc( m_MenuPageOnKeysCallbackStruct.pObj, this, action, keycode, unicodechar );
+    }
 
     if( action == GCBA_Down )
     {
@@ -1197,9 +1241,14 @@ void ComponentMenuPage::UpdateLayout(cJSON* layout)
 
         case MIT_Button:
         case MIT_InputBox:
-        case MIT_ScrollingText:
             {
                 AddMenuItemToTree( i, MenuButton::StaticFillPropertiesWindow, m_pMenuItems[i]->m_Name );
+            }
+            break;
+
+        case MIT_ScrollingText:
+            {
+                AddMenuItemToTree( i, MenuScrollingText::StaticFillPropertiesWindow, m_pMenuItems[i]->m_Name );
             }
             break;
 
@@ -1239,11 +1288,19 @@ void ComponentMenuPage::DrawCallback(ComponentCamera* pCamera, MyMatrix* pMatVie
                 
                 MenuItem* pItem = m_pMenuItems[m_ItemSelected];
 
-                pCursor->SetPosition( pItem->m_Position.x, pItem->m_Position.y );
-            }
+                if( pItem )
+                {
+                    pCursor->SetPosition( pItem->m_Position.x, pItem->m_Position.y );
 
-            //Vector2 bgsize = pCursor->GetBGSize();
-            //pCursor->SetPositionAndSize( pCursor->m_Position.x, pCursor->m_Position.y, bgsize.x + 6, bgsize.y + 6 );
+                    // make the cursor match the size of the menu item if wanted.
+                    if( m_RelativeCursorSize.x != 0 || m_RelativeCursorSize.y != 0 )
+                    {
+                        Vector2 menuitemsize = pItem->GetSize();
+                        menuitemsize += m_RelativeCursorSize;
+                        pCursor->SetSize( menuitemsize.x, menuitemsize.y );
+                    }
+                }
+            }
         }
     }
 
@@ -1333,6 +1390,32 @@ MenuButton* ComponentMenuPage::GetMenuButtonByName(const char* name)
     return 0;
 }
 
+void ComponentMenuPage::SetSelectedItemByName(const char* name)
+{
+    int i;
+    for( i=0; i<MAX_MENU_ITEMS; i++ )
+    {
+        if( m_pMenuItems[i] && strcmp( m_pMenuItems[i]->m_Name, name ) == 0 )
+        {
+            MyAssert( m_pMenuItems[i] && m_pMenuItems[i]->m_MenuItemType == MIT_Button );
+    
+            if( m_pMenuItems[i] && m_pMenuItems[i]->m_MenuItemType == MIT_Button )
+                break;
+        }
+    }
+
+    if( i < MAX_MENU_ITEMS )
+        m_ItemSelected = i;
+}
+
+MenuItem* ComponentMenuPage::GetSelectedItem()
+{
+    if( m_ItemSelected == -1 )
+        return 0;
+    
+    return m_pMenuItems[m_ItemSelected];
+}
+
 void ComponentMenuPage::RegisterMenuPageActionCallback(void* pObj, MenuPageActionCallbackFunc pFunc)
 {
     m_MenuPageActionCallbackStruct.pFunc = pFunc;
@@ -1349,6 +1432,24 @@ void ComponentMenuPage::RegisterMenuPageTickCallback(void* pObj, MenuPageTickCal
 {
     m_MenuPageTickCallbackStruct.pFunc = pFunc;
     m_MenuPageTickCallbackStruct.pObj = pObj;
+}
+
+void ComponentMenuPage::RegisterMenuPageOnTouchCallback(void* pObj, MenuPageOnTouchCallbackFunc pFunc)
+{
+    m_MenuPageOnTouchCallbackStruct.pFunc = pFunc;
+    m_MenuPageOnTouchCallbackStruct.pObj = pObj;
+}
+
+void ComponentMenuPage::RegisterMenuPageOnButtonsCallback(void* pObj, MenuPageOnButtonsCallbackFunc pFunc)
+{
+    m_MenuPageOnButtonsCallbackStruct.pFunc = pFunc;
+    m_MenuPageOnButtonsCallbackStruct.pObj = pObj;
+}
+
+void ComponentMenuPage::RegisterMenuPageOnKeysCallback(void* pObj, MenuPageOnKeysCallbackFunc pFunc)
+{
+    m_MenuPageOnKeysCallbackStruct.pFunc = pFunc;
+    m_MenuPageOnKeysCallbackStruct.pObj = pObj;
 }
 
 void ComponentMenuPage::SetVisible(bool visible)

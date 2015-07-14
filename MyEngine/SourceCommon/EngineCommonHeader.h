@@ -75,6 +75,7 @@ extern "C"
 // misc engine code
 #include "Camera/Camera3D.h"
 #include "Camera/Camera2D.h"
+#include "Core/InputFinger.h"
 
 #include "ComponentSystem/Core/GameObject.h"
 
