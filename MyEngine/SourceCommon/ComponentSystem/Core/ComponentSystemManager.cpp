@@ -1062,6 +1062,16 @@ void ComponentSystemManager::OnDrawFrame(ComponentCamera* pCamera, MyMatrix* pMa
     }
 }
 
+void ComponentSystemManager::MoveInputHandlersToFront(CPPListNode* pOnTouch, CPPListNode* pOnButtons, CPPListNode* pOnKeys)
+{
+    if( pOnTouch )
+        m_pComponentCallbackList_OnTouch.MoveHead( pOnTouch );
+    if( pOnButtons )
+        m_pComponentCallbackList_OnButtons.MoveHead( pOnButtons );
+    if( pOnKeys )
+        m_pComponentCallbackList_OnKeys.MoveHead( pOnKeys );
+}
+
 void ComponentSystemManager::DrawMousePickerFrame(ComponentCamera* pCamera, MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride)
 {
     // always use 4 bone version.

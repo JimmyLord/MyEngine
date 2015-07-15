@@ -151,6 +151,7 @@ public:
     void RegisterMenuPageOnKeysCallback(void* pObj, MenuPageOnKeysCallbackFunc pFunc);
 
     void SetVisible(bool visible);
+    void SetInputEnabled(bool inputenabled);
 
     bool ExecuteAction(const char* action, MenuItem* pItem);
 

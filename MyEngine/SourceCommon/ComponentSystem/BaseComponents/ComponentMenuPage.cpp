@@ -841,7 +841,8 @@ bool ComponentMenuPage::OnTouchCallback(int action, int id, float x, float y, fl
 
     if( m_MenuPageOnTouchCallbackStruct.pFunc )
     {
-        m_MenuPageOnTouchCallbackStruct.pFunc( m_MenuPageOnTouchCallbackStruct.pObj, this, action, id, x, y, pressure, size );
+        if( m_MenuPageOnTouchCallbackStruct.pFunc( m_MenuPageOnTouchCallbackStruct.pObj, this, action, id, x, y, pressure, size ) )
+            return true;
     }
 
     for( int i=m_MenuItemsUsed-1; i>=0; i-- )
@@ -1474,6 +1475,17 @@ void ComponentMenuPage::SetVisible(bool visible)
     // if the currently selected item is disabled, reset the selected item.
     if( m_ItemSelected != -1 && m_pMenuItems[m_ItemSelected] && m_pMenuItems[m_ItemSelected]->m_Enabled == false )
         m_ItemSelected = -1;
+
+    // move all input callbacks for this menu page to the front of the list, to give it top priority.
+    if( visible == true )
+    {
+        g_pComponentSystemManager->MoveInputHandlersToFront( &m_CallbackStruct_OnTouch, &m_CallbackStruct_OnButtons, &m_CallbackStruct_OnKeys );
+    }
+}
+
+void ComponentMenuPage::SetInputEnabled(bool inputenabled)
+{
+    m_InputEnabled = inputenabled;
 }
 
 bool ComponentMenuPage::ExecuteAction(const char* action, MenuItem* pItem)
