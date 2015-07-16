@@ -59,6 +59,9 @@ ComponentMenuPage::ComponentMenuPage()
     m_MenuPageTickCallbackStruct.pFunc = 0;
     m_MenuPageTickCallbackStruct.pObj = 0;
 
+    m_MenuPageDrawCallbackStruct.pFunc = 0;
+    m_MenuPageDrawCallbackStruct.pObj = 0;
+
     m_MenuPageOnTouchCallbackStruct.pFunc = 0;
     m_MenuPageOnTouchCallbackStruct.pObj = 0;
 
@@ -1314,6 +1317,11 @@ void ComponentMenuPage::DrawCallback(ComponentCamera* pCamera, MyMatrix* pMatVie
         }
     }
     glEnable( GL_DEPTH_TEST );
+
+    if( m_MenuPageDrawCallbackStruct.pFunc )
+    {
+        m_MenuPageDrawCallbackStruct.pFunc( m_MenuPageDrawCallbackStruct.pObj, this, pCamera, pMatViewProj, pShaderOverride );
+    }
 }
 
 void ComponentMenuPage::ClearAllMenuItems()
@@ -1433,6 +1441,12 @@ void ComponentMenuPage::RegisterMenuPageTickCallback(void* pObj, MenuPageTickCal
 {
     m_MenuPageTickCallbackStruct.pFunc = pFunc;
     m_MenuPageTickCallbackStruct.pObj = pObj;
+}
+
+void ComponentMenuPage::RegisterMenuPageDrawCallback(void* pObj, MenuPageDrawCallbackFunc pFunc)
+{
+    m_MenuPageDrawCallbackStruct.pFunc = pFunc;
+    m_MenuPageDrawCallbackStruct.pObj = pObj;
 }
 
 void ComponentMenuPage::RegisterMenuPageOnTouchCallback(void* pObj, MenuPageOnTouchCallbackFunc pFunc)

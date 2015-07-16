@@ -41,6 +41,13 @@ struct MenuPageTickCallbackStruct
     MenuPageTickCallbackFunc pFunc;
 };
 
+typedef void (*MenuPageDrawCallbackFunc)(void* pObjectPtr, ComponentMenuPage* pPage, ComponentCamera* pCamera, MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride);
+struct MenuPageDrawCallbackStruct
+{
+    void* pObj;
+    MenuPageDrawCallbackFunc pFunc;
+};
+
 typedef bool (*MenuPageOnTouchCallbackFunc)(void* pObjectPtr, ComponentMenuPage* pPage, int action, int id, float x, float y, float pressure, float size);
 struct MenuPageOnTouchCallbackStruct
 {
@@ -95,6 +102,7 @@ protected:
     MenuPageActionCallbackStruct m_MenuPageActionCallbackStruct;
     MenuPageVisibleCallbackStruct m_MenuPageVisibleCallbackStruct;
     MenuPageTickCallbackStruct m_MenuPageTickCallbackStruct;
+    MenuPageDrawCallbackStruct m_MenuPageDrawCallbackStruct;
     MenuPageOnTouchCallbackStruct m_MenuPageOnTouchCallbackStruct;
     MenuPageOnButtonsCallbackStruct m_MenuPageOnButtonsCallbackStruct;
     MenuPageOnKeysCallbackStruct m_MenuPageOnKeysCallbackStruct;
@@ -146,6 +154,7 @@ public:
     void RegisterMenuPageActionCallback(void* pObj, MenuPageActionCallbackFunc pFunc);
     void RegisterMenuPageVisibleCallback(void* pObj, MenuPageVisibleCallbackFunc pFunc);
     void RegisterMenuPageTickCallback(void* pObj, MenuPageTickCallbackFunc pFunc);
+    void RegisterMenuPageDrawCallback(void* pObj, MenuPageDrawCallbackFunc pFunc);
     void RegisterMenuPageOnTouchCallback(void* pObj, MenuPageOnTouchCallbackFunc pFunc);
     void RegisterMenuPageOnButtonsCallback(void* pObj, MenuPageOnButtonsCallbackFunc pFunc);
     void RegisterMenuPageOnKeysCallback(void* pObj, MenuPageOnKeysCallbackFunc pFunc);
