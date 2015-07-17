@@ -450,7 +450,7 @@ void ComponentMenuPage::OnPopupClick(wxEvent &evt)
 #endif
 }
 
-void ComponentMenuPage::AddNewMenuItemToTree(int type)
+MenuItem* ComponentMenuPage::AddNewMenuItemToTree(int type)
 {
     MenuItem* pMenuItem = 0;
     PanelObjectListCallbackLeftClick pLeftClickFunc = 0;
@@ -478,12 +478,14 @@ void ComponentMenuPage::AddNewMenuItemToTree(int type)
 
     MyAssert( pMenuItem != 0 );
     if( pMenuItem == 0 )
-        return;
+        return 0;
 
     m_pMenuItems[m_MenuItemsUsed] = pMenuItem;
     m_MenuItemsUsed++;
 
     AddMenuItemToTree( m_MenuItemsUsed-1, pLeftClickFunc, desc );
+
+    return pMenuItem;
 }
 
 void ComponentMenuPage::AddMenuItemToTree(unsigned int index, PanelObjectListCallbackLeftClick pLeftClickFunc, const char* desc)
@@ -492,9 +494,10 @@ void ComponentMenuPage::AddMenuItemToTree(unsigned int index, PanelObjectListCal
 
     wxTreeItemId componentID = g_pPanelObjectList->FindObject( this );
 
-    wxTreeItemId treeid = g_pPanelObjectList->AddObject( pMenuItem, pLeftClickFunc, MenuItem::StaticOnRightClick, componentID, desc );
+    wxTreeItemId treeid = g_pPanelObjectList->AddObject( pMenuItem, pLeftClickFunc, StaticOnMenuItemRightClick, componentID, desc );
     g_pPanelObjectList->SetLabelEditFunction( treeid, MenuItem::StaticOnLabelEdit );
     g_pPanelObjectList->SetDragAndDropFunctions( treeid, MenuItem::StaticOnDrag, ComponentMenuPage::StaticOnDropMenuItemOnMenuItem );
+    g_pPanelObjectList->SetCustomObjectForCallback_RightClick( treeid, this );
     g_pPanelObjectList->SetCustomObjectForCallback_Drop( treeid, this );
     pMenuItem->RegisterMenuItemDeletedCallback( this, StaticOnMenuItemDeleted );
 }
@@ -718,6 +721,65 @@ MYFW_PANELOBJECTLIST_DECLARE_CALLBACK_ONDROP(OnDropMenuItemOnMenuPage, Component
 
         m_pMenuItems[0] = pMenuItemDropped;
         g_pPanelObjectList->Tree_MoveObject( this, pMenuItemDropped, 0 );
+    }
+}
+
+void ComponentMenuPage::OnMenuItemRightClick(wxTreeItemId id)
+{
+ 	wxMenu menu;
+    menu.SetClientData( &m_MenuPageEventHandlerForMenuItems );
+
+    m_MenuPageEventHandlerForMenuItems.pMenuPageSelected = this;
+    m_MenuPageEventHandlerForMenuItems.pMenuItemSelected = (MenuItem*)g_pPanelObjectList->GetObject( id );
+
+    menu.Append( 1000, "Delete Menu Item" );
+ 	menu.Connect( wxEVT_COMMAND_MENU_SELECTED, (wxObjectEventFunction)&ComponentMenuPageEventHandlerForMenuItems::OnPopupClick );
+
+    menu.Append( 1001, "Copy Menu Item" );
+ 	menu.Connect( wxEVT_COMMAND_MENU_SELECTED, (wxObjectEventFunction)&ComponentMenuPageEventHandlerForMenuItems::OnPopupClick );
+
+    // blocking call.
+    g_pPanelWatch->PopupMenu( &menu ); // there's no reason this is using g_pPanelWatch other than convenience.
+}
+
+void ComponentMenuPageEventHandlerForMenuItems::OnPopupClick(wxEvent &evt)
+{
+    ComponentMenuPageEventHandlerForMenuItems* pEvtHandler = (ComponentMenuPageEventHandlerForMenuItems*)static_cast<wxMenu*>(evt.GetEventObject())->GetClientData();
+    ComponentMenuPage* pMenuPage = pEvtHandler->pMenuPageSelected;
+    MenuItem* pMenuItem = pEvtHandler->pMenuItemSelected;
+
+    int id = evt.GetId();
+    if( id == 1000 )
+    {
+        MyAssert( pMenuItem != 0 );
+        if( pMenuItem && pMenuItem->m_MenuItemDeletedCallbackStruct.pFunc )
+            pMenuItem->m_MenuItemDeletedCallbackStruct.pFunc( pMenuItem->m_MenuItemDeletedCallbackStruct.pObj, pMenuItem );
+    }
+
+    if( id == 1001 )
+    {
+        MyAssert( pMenuPage != 0 && pMenuItem != 0 );
+        if( pMenuPage != 0 && pMenuItem != 0 )
+        {
+            MenuItem* pNewMenuItem = 0;
+
+            if( pMenuItem->m_MenuItemType == MIT_Button )
+            {
+                pNewMenuItem = pMenuPage->AddNewMenuItemToTree( MIT_Button );
+                *(MenuButton*)pNewMenuItem = *(MenuButton*)pMenuItem;
+                pNewMenuItem->SetPosition( pNewMenuItem->m_Position.x + 20, pNewMenuItem->m_Position.y + 20 );
+            }
+            if( pMenuItem->m_MenuItemType == MIT_Sprite )
+            {
+                pNewMenuItem = pMenuPage->AddNewMenuItemToTree( MIT_Sprite );
+                *(MenuSprite*)pNewMenuItem = *(MenuSprite*)pMenuItem;
+            }
+            if( pMenuItem->m_MenuItemType == MIT_Text )
+            {
+                pNewMenuItem = pMenuPage->AddNewMenuItemToTree( MIT_Text );
+                *(MenuText*)pNewMenuItem = *(MenuText*)pMenuItem;
+            }
+        }
     }
 }
 

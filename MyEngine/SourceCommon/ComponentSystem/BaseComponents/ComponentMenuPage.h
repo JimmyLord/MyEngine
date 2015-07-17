@@ -69,6 +69,18 @@ struct MenuPageOnKeysCallbackStruct
     MenuPageOnKeysCallbackFunc pFunc;
 };
 
+#if MYFW_USING_WX
+class ComponentMenuPageEventHandlerForMenuItems : public wxEvtHandler
+{
+public:
+    MenuItem* pMenuItemSelected;
+    ComponentMenuPage* pMenuPageSelected;
+
+public:
+    void OnPopupClick(wxEvent &evt);
+};
+#endif
+
 class ComponentMenuPage : public ComponentBase
 {
     static const int MAX_MENU_ITEMS = 128;
@@ -207,12 +219,12 @@ public:
     void OnLeftClick(unsigned int count, bool clear);
     virtual void FillPropertiesWindow(bool clear);
 
-    static void StaticOnRightClick(void* pObjectPtr, wxTreeItemId id) { ((ComponentMenuPage*)pObjectPtr)->OnRightClick(); }
+    //static void StaticOnRightClick(void* pObjectPtr, wxTreeItemId id) { ((ComponentMenuPage*)pObjectPtr)->OnRightClick(); }
     //virtual void OnRightClick();
     virtual void AppendItemsToRightClickMenu(wxMenu* pMenu);
     void OnPopupClick(wxEvent &evt);
 
-    void AddNewMenuItemToTree(int type);
+    MenuItem* AddNewMenuItemToTree(int type);
     void AddMenuItemToTree(unsigned int index, PanelObjectListCallbackLeftClick pLeftClickFunc, const char* desc);
     void CopyUniqueItemsToOtherLayouts();
 
@@ -229,6 +241,10 @@ public:
     // Object panel callbacks for menu items in our list.
     MYFW_PANELOBJECTLIST_DEFINE_CALLBACK_ONDROP(OnDropMenuItemOnMenuItem, ComponentMenuPage);
     MYFW_PANELOBJECTLIST_DEFINE_CALLBACK_ONDROP(OnDropMenuItemOnMenuPage, ComponentMenuPage);
+
+    ComponentMenuPageEventHandlerForMenuItems m_MenuPageEventHandlerForMenuItems;
+    static void StaticOnMenuItemRightClick(void* pObjectPtr, wxTreeItemId id) { ((ComponentMenuPage*)pObjectPtr)->OnMenuItemRightClick( id ); }
+    virtual void OnMenuItemRightClick(wxTreeItemId id);
 #endif //MYFW_USING_WX
 };
 
