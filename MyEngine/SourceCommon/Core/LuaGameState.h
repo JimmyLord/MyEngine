@@ -23,10 +23,10 @@ public:
 
 public:
     LuaGameState();
-    ~LuaGameState();
+    virtual ~LuaGameState();
 
-    void Rebuild();
-    void RegisterClasses();
+    virtual void Rebuild();
+    virtual void RegisterClasses();
 };
 
 #endif //__LuaGameState_H__

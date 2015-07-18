@@ -1006,7 +1006,8 @@ bool ComponentMenuPage::OnButtonsCallback(GameCoreButtonActions action, GameCore
 
     if( m_MenuPageOnButtonsCallbackStruct.pFunc )
     {
-        m_MenuPageOnButtonsCallbackStruct.pFunc( m_MenuPageOnButtonsCallbackStruct.pObj, this, action, id );
+        if( m_MenuPageOnButtonsCallbackStruct.pFunc( m_MenuPageOnButtonsCallbackStruct.pObj, this, action, id ) )
+            return true;
     }
 
     // deal with navigation controls.  up/down/left/right
@@ -1079,6 +1080,8 @@ bool ComponentMenuPage::OnButtonsCallback(GameCoreButtonActions action, GameCore
             m_ItemSelected = nearestindex;
             //LOGInfo( LOGTag, "SelectedItem: %d\n", m_ItemSelected );
         }
+
+        return true;
     }
     else
     {

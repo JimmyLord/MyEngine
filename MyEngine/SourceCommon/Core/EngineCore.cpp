@@ -22,6 +22,7 @@ EngineCore::EngineCore()
 #else
     m_EditorMode = false;
 #endif
+    m_AllowGameToRunInEditorMode = false;
 
     m_Paused = false;
 
@@ -124,7 +125,7 @@ void EngineCore::OneTimeInit()
     m_pComponentSystemManager = MyNew ComponentSystemManager( CreateComponentTypeManager() );
 
     // initialize lua state and register any variables needed.
-    m_pLuaGameState = MyNew LuaGameState;
+    m_pLuaGameState = CreateLuaGameState();
 
 #if MYFW_USING_WX
     m_pComponentSystemManager->CreateNewScene( "Unsaved.scene", 1 );
@@ -169,7 +170,7 @@ double EngineCore::Tick(double TimePassed)
 
     // tick all components.
     {
-        if( m_EditorMode )
+        if( m_EditorMode && m_AllowGameToRunInEditorMode == false )
             TimePassed = 0;
         
         if( m_Paused )
@@ -180,7 +181,7 @@ double EngineCore::Tick(double TimePassed)
         m_pComponentSystemManager->Tick( TimePassed );
     }
 
-    if( m_EditorMode == false )
+    if( m_EditorMode == false || m_AllowGameToRunInEditorMode )
     {
         m_TimeSinceLastPhysicsStep += TimePassed;
 
@@ -193,7 +194,7 @@ double EngineCore::Tick(double TimePassed)
     }
 
     // update the global unpaused time.
-    if( m_EditorMode )
+    if( m_EditorMode && m_AllowGameToRunInEditorMode == false )
         return TimeUnpaused;
     else
         return TimePassed;

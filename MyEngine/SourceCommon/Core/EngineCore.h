@@ -46,6 +46,7 @@ public:
     LuaGameState* m_pLuaGameState;
 
     bool m_EditorMode;
+    bool m_AllowGameToRunInEditorMode;
     bool m_Paused;
     double m_PauseTimeToAdvance; // advance clock by this much on next tick.
 #if MYFW_USING_WX
@@ -82,6 +83,7 @@ public:
     virtual void InitializeManagers();
 
     virtual ComponentTypeManager* CreateComponentTypeManager() = 0;
+    virtual LuaGameState* CreateLuaGameState() { return MyNew LuaGameState; }
 
     virtual void OneTimeInit();
     virtual bool IsReadyToRender();
@@ -96,14 +98,14 @@ public:
     virtual bool OnButtons(GameCoreButtonActions action, GameCoreButtonIDs id);
     virtual bool OnKeys(GameCoreButtonActions action, int keycode, int unicodechar);
 
-    void OnModeTogglePlayStop();
-    void OnModePlay();
-    void OnModeStop();
-    void OnModePause();
-    void OnModeAdvanceTime(double time);
+    virtual void OnModeTogglePlayStop();
+    virtual void OnModePlay();
+    virtual void OnModeStop();
+    virtual void OnModePause();
+    virtual void OnModeAdvanceTime(double time);
 
-    void RegisterGameplayButtons();
-    void UnregisterGameplayButtons();
+    virtual void RegisterGameplayButtons();
+    virtual void UnregisterGameplayButtons();
     bool HandleEditorInput(int keyaction, int keycode, int mouseaction, int id, float x, float y, float pressure);
 
     void CreateDefaultSceneObjects(bool createeditorobjects);

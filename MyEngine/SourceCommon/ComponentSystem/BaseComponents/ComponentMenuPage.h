@@ -18,7 +18,7 @@ class MenuItem;
 class MenuInputBox;
 class MenuButton;
 
-#define LEGACYHACK 1
+#define LEGACYHACK 0
 
 typedef bool (*MenuPageActionCallbackFunc)(void* pObjectPtr, ComponentMenuPage* pPage, const char* action, MenuItem* pMenuItem);
 struct MenuPageActionCallbackStruct
