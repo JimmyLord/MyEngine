@@ -118,7 +118,7 @@ protected:
     std::vector<FileUpdatedCallbackStruct> m_pFileUpdatedCallbackList;
 #endif //MYFW_USING_WX
 
-    bool IsFileUsedByScene(const char* fullpath, unsigned int sceneid);
+    MyFileObject* GetFileObjectIfUsedByScene(const char* fullpath, unsigned int sceneid);
 
 public:
     ComponentSystemManager(ComponentTypeManager* typemanager);
@@ -127,7 +127,7 @@ public:
     static void LuaRegister(lua_State* luastate);
 
     char* SaveSceneToJSON(unsigned int sceneid);
-    void LoadDatafile(const char* relativepath, unsigned int sceneid);
+    MyFileObject* LoadDatafile(const char* relativepath, unsigned int sceneid);
     void LoadSceneFromJSON(const char* scenename, const char* jsonstr, unsigned int sceneid);
 
     void SyncAllRigidBodiesToObjectTransforms();

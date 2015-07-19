@@ -126,7 +126,7 @@ void ComponentSystemManager::AddAllMaterialsToFilesList()
 
         if( pMaterial->m_pFile )
         {
-            if( IsFileUsedByScene( pMaterial->m_pFile->m_FullPath, 1 ) == false )
+            if( GetFileObjectIfUsedByScene( pMaterial->m_pFile->m_FullPath, 1 ) == 0 )
             {
                 MyFileInfo* pFileInfo = MyNew MyFileInfo();
                 
@@ -289,27 +289,31 @@ char* ComponentSystemManager::SaveSceneToJSON(unsigned int sceneid)
     return savestring;
 }
 
-bool ComponentSystemManager::IsFileUsedByScene(const char* fullpath, unsigned int sceneid)
+MyFileObject* ComponentSystemManager::GetFileObjectIfUsedByScene(const char* fullpath, unsigned int sceneid)
 {
     for( CPPListNode* pNode = m_Files.GetHead(); pNode; pNode = pNode->GetNext() )
     {
-        MyFileInfo* pFile = (MyFileInfo*)pNode;
+        MyFileInfo* pFileInfo = (MyFileInfo*)pNode;
         
-        if( strcmp( pFile->m_pFile->m_FullPath, fullpath ) == 0 && pFile->m_SceneID == sceneid )
-            return true;
+        if( strcmp( pFileInfo->m_pFile->m_FullPath, fullpath ) == 0 && pFileInfo->m_SceneID == sceneid )
+            return pFileInfo->m_pFile;
     }
 
-    return false;
+    return 0;
 }
 
-void ComponentSystemManager::LoadDatafile(const char* relativepath, unsigned int sceneid)
+MyFileObject* ComponentSystemManager::LoadDatafile(const char* relativepath, unsigned int sceneid)
 {
-    // if the file is already tagged as being used by this scene, don't request/addref it.
-    if( IsFileUsedByScene( relativepath, sceneid ) == false )
-    {
-        // each scene loaded will add ref's to the file.
-        MyFileObject* pFile = 0;
+    // each scene loaded will add ref's to the file.
+    MyFileObject* pFile = GetFileObjectIfUsedByScene( relativepath, sceneid );
 
+    // if the file is already tagged as being used by this scene, don't request/addref it.
+    if( pFile != 0 )
+    {
+        LOGInfo( LOGTag, "%s already in scene\n", relativepath );
+    }
+    else
+    {
         size_t len = strlen( relativepath );
         
         // convert any .fbx files into a mymesh and load that.
@@ -371,13 +375,14 @@ void ComponentSystemManager::LoadDatafile(const char* relativepath, unsigned int
                 // create a new relative path.
                 char newrelativepath[MAX_PATH];
                 sprintf_s( newrelativepath, MAX_PATH, "Data/Meshes/%s.mymesh", filename );
-                LoadDatafile( newrelativepath, sceneid );
+
+                pFile = LoadDatafile( newrelativepath, sceneid );
             }
 #else
             LOGError( LOGTag, "Mesh conversion only works on Windows ATM\n" );
 #endif
 
-            return;
+            return pFile;
         }
 #endif //MYFW_USING_WX
 
@@ -440,10 +445,8 @@ void ComponentSystemManager::LoadDatafile(const char* relativepath, unsigned int
             pFileInfo->m_pMaterial = g_pMaterialManager->LoadMaterial( pFile->m_FullPath );
         }
     }
-    else
-    {
-        LOGInfo( LOGTag, "%s already in scene\n", relativepath );
-    }
+
+    return pFile;
 }
 
 void ComponentSystemManager::LoadSceneFromJSON(const char* scenename, const char* jsonstr, unsigned int sceneid)

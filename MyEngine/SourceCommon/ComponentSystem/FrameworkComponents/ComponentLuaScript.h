@@ -85,6 +85,15 @@ public:
 
 public:
 #if MYFW_USING_WX
+    enum RightClickOptions
+    {
+        RightClick_CreateNewScriptFile = 2000,
+    };
+
+    int m_ControlID_Script;
+
+    void CreateNewScriptFile();
+
     static void StaticOnFileUpdated(void* pObjectPtr, MyFileObject* pFile) { ((ComponentLuaScript*)pObjectPtr)->OnFileUpdated( pFile ); }
     void OnFileUpdated(MyFileObject* pFile);
 
@@ -97,6 +106,9 @@ public:
     static void StaticOnLeftClick(void* pObjectPtr, wxTreeItemId id, unsigned int count) { ((ComponentLuaScript*)pObjectPtr)->OnLeftClick( count, true ); }
     void OnLeftClick(unsigned int count, bool clear);
     virtual void FillPropertiesWindow(bool clear);
+
+    virtual void AppendItemsToRightClickMenu(wxMenu* pMenu);
+    void OnPopupClick(wxEvent &evt);
 
     // Watch panel callbacks.
     static void StaticOnDrop(void* pObjectPtr, int controlid, wxCoord x, wxCoord y) { ((ComponentLuaScript*)pObjectPtr)->OnDrop(controlid, x, y); }

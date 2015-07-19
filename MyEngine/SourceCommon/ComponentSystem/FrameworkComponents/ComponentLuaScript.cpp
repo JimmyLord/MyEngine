@@ -70,6 +70,94 @@ void ComponentLuaScript::Reset()
 }
 
 #if MYFW_USING_WX
+void ComponentLuaScript::CreateNewScriptFile()
+{
+    //if( m_pScriptFile == 0 )
+    {
+        // generally offer to create scripts in Scripts folder.
+        wxString initialpath = "./Data/Scripts";
+
+        bool ismenuactionscript = false;
+
+        // if a menupage component is attached to this game objects, then offer to make the file in the menus folder.
+        if( m_pGameObject->GetFirstComponentOfType( "MenuPageComponent" ) != 0 )
+        {
+            ismenuactionscript = true;
+            initialpath = "./Data/Menus";
+        }
+
+        wxFileDialog FileDialog( g_pEngineMainFrame, _("Create Lua script file"), initialpath, "", "Lua script files (*.lua)|*.lua", wxFD_SAVE|wxFD_OVERWRITE_PROMPT);
+    
+        if( FileDialog.ShowModal() != wxID_CANCEL )
+        {
+            wxString wxpath = FileDialog.GetPath();
+            char fullpath[MAX_PATH];
+            sprintf_s( fullpath, MAX_PATH, "%s", (const char*)wxpath );
+            const char* relativepath = g_pEngineMainFrame->GetRelativePath( fullpath );
+
+            MyFileObject* pScriptFile = g_pComponentSystemManager->LoadDatafile( relativepath, m_pGameObject->GetSceneID() );
+            SetScriptFile( pScriptFile );
+
+            // update the panel so new filename shows up. // TODO: this won't refresh lua variables, so maybe refresh the whole watch panel.
+            g_pPanelWatch->m_pVariables[m_ControlID_Script].m_Description = m_pScriptFile->m_FullPath;
+
+            // TODO: create a template file.
+            {
+                FILE* file;
+                fopen_s( &file, fullpath, "wb" );
+
+                if( file )
+                {
+                    if( ismenuactionscript )
+                    {
+                        fprintf( file, "-- Menu Action File\n" );
+                        fprintf( file, "\n" );
+                        fprintf( file, "%s =\n", m_pScriptFile->m_FilenameWithoutExtension );
+                        fprintf( file, "{\n" );
+                        fprintf( file, "\n" );
+                        fprintf( file, "--MenuItemAction = function()\n" );
+                        fprintf( file, "-- 	--LogInfo( \"MenuItemAction was called\\n\" );\n" );
+                        fprintf( file, "--end,\n" );
+                        fprintf( file, "\n" );
+                        fprintf( file, "}\n" );
+                    }
+                    else
+                    {
+                        fprintf( file, "-- %s Script\n", m_pScriptFile->m_FilenameWithoutExtension );
+                        fprintf( file, "\n" );
+                        fprintf( file, "%s =\n", m_pScriptFile->m_FilenameWithoutExtension );
+                        fprintf( file, "{\n" );
+                        fprintf( file, "\n" );
+                        fprintf( file, "OnLoad = function()\n" );
+                        fprintf( file, "end\n" );
+                        fprintf( file, "\n" );
+                        fprintf( file, "OnPlay = function ()\n" );
+                        fprintf( file, "end\n" );
+                        fprintf( file, "\n" );
+                        fprintf( file, "OnStop = function ()\n" );
+                        fprintf( file, "end\n" );
+                        fprintf( file, "\n" );
+                        fprintf( file, "OnTouch = function(action, id, x, y, pressure, size)\n" );
+                        fprintf( file, "end\n" );
+                        fprintf( file, "\n" );
+                        fprintf( file, "OnButtons = function(action, id)\n" );
+                        fprintf( file, "end\n" );
+                        fprintf( file, "\n" );
+                        fprintf( file, "Tick = function (timepassed)\n" );
+                        fprintf( file, "end\n" );
+                        fprintf( file, "\n" );
+                        fprintf( file, "}\n" );
+                    }
+
+                    fclose( file );
+                }
+            }
+
+            m_pScriptFile->OSLaunchFile( true );
+        }
+    }
+}
+
 void ComponentLuaScript::OnFileUpdated(MyFileObject* pFile)
 {
     if( pFile == m_pScriptFile )
@@ -106,7 +194,7 @@ void ComponentLuaScript::FillPropertiesWindow(bool clear)
         const char* desc = "no script";
         if( m_pScriptFile )
             desc = m_pScriptFile->m_FullPath;
-        g_pPanelWatch->AddPointerWithDescription( "Script", 0, desc, this, ComponentLuaScript::StaticOnDrop );
+        m_ControlID_Script = g_pPanelWatch->AddPointerWithDescription( "Script", 0, desc, this, ComponentLuaScript::StaticOnDrop );
 
         // warning: if more variables are added above, code in OnDrop() needs to change
 
@@ -135,6 +223,29 @@ void ComponentLuaScript::FillPropertiesWindow(bool clear)
     }
 }
 
+void ComponentLuaScript::AppendItemsToRightClickMenu(wxMenu* pMenu)
+{
+    ComponentBase::AppendItemsToRightClickMenu( pMenu );
+
+    pMenu->Append( RightClick_CreateNewScriptFile, "Create new script" );
+ 	pMenu->Connect( wxEVT_COMMAND_MENU_SELECTED, (wxObjectEventFunction)&ComponentLuaScript::OnPopupClick );
+}
+
+void ComponentLuaScript::OnPopupClick(wxEvent &evt)
+{
+    ComponentBase::OnPopupClick( evt );
+
+    ComponentLuaScript* pComponent = (ComponentLuaScript*)static_cast<wxMenu*>(evt.GetEventObject())->GetClientData();
+    MyAssert( pComponent->IsA( "LuaScriptComponent" ) );
+
+    int id = evt.GetId();
+
+    switch( id )
+    {
+    case RightClick_CreateNewScriptFile:    pComponent->CreateNewScriptFile();     break;
+    }
+}
+
 void ComponentLuaScript::OnDrop(int controlid, wxCoord x, wxCoord y)
 {
     ComponentUpdateable::OnDrop( controlid, x, y );
@@ -147,6 +258,9 @@ void ComponentLuaScript::OnDrop(int controlid, wxCoord x, wxCoord y)
         if( strcmp( pFile->m_ExtensionWithDot, ".lua" ) == 0 )
         {
             SetScriptFile( pFile );
+
+            // update the panel so new filename shows up. // TODO: this won't refresh lua variables, so maybe refresh the whole watch panel.
+            g_pPanelWatch->m_pVariables[m_ControlID_Script].m_Description = m_pScriptFile->m_FullPath;
         }
     }
 
