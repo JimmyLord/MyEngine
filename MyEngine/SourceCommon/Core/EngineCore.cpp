@@ -133,7 +133,7 @@ void EngineCore::OneTimeInit()
 
     CreateDefaultSceneObjects( true );
 
-    OnSurfaceChanged( (unsigned int)m_WindowStartX, (unsigned int)m_WindowStartY, (unsigned int)m_WindowWidth, (unsigned int)m_WindowHeight );
+    //OnSurfaceChanged( (unsigned int)m_WindowStartX, (unsigned int)m_WindowStartY, (unsigned int)m_WindowWidth, (unsigned int)m_WindowHeight );
 }
 
 bool EngineCore::IsReadyToRender()
@@ -1529,19 +1529,30 @@ void EngineCore::Editor_OnSurfaceChanged(unsigned int startx, unsigned int start
     MyAssert( g_GLCanvasIDActive != 0 );
     //if( g_GLCanvasIDActive != 0 )
     {
-        for( unsigned int i=0; i<m_pEditorState->m_pEditorCamera->m_Components.Count(); i++ )
+        if( m_pEditorState->m_pEditorCamera )
         {
-            ComponentCamera* pCamera = dynamic_cast<ComponentCamera*>( m_pEditorState->m_pEditorCamera->m_Components[i] );
-            pCamera->OnSurfaceChanged( startx, starty, width, height, (unsigned int)m_GameWidth, (unsigned int)m_GameHeight );
-        }
+            for( unsigned int i=0; i<m_pEditorState->m_pEditorCamera->m_Components.Count(); i++ )
+            {
+                ComponentCamera* pCamera = dynamic_cast<ComponentCamera*>( m_pEditorState->m_pEditorCamera->m_Components[i] );
+                pCamera->OnSurfaceChanged( startx, starty, width, height, (unsigned int)m_GameWidth, (unsigned int)m_GameHeight );
+            }
 
-        m_pEditorState->OnSurfaceChanged( startx, starty, width, height );
+            m_pEditorState->OnSurfaceChanged( startx, starty, width, height );
+        }
     }
 }
 #endif //MYFW_USING_WX
 
 void EngineCore::OnSurfaceChanged(unsigned int startx, unsigned int starty, unsigned int width, unsigned int height)
 {
+#if MYFW_USING_WX
+    if( g_GLCanvasIDActive == 1 )
+    {
+        Editor_OnSurfaceChanged( startx, starty, width, height );
+        return;
+    }
+#endif //MYFW_USING_WX
+
     GameCore::OnSurfaceChanged( startx, starty, width, height );
 
     glEnable( GL_CULL_FACE );
