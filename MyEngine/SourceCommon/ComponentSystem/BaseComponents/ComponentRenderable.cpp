@@ -110,3 +110,11 @@ void ComponentRenderable::Draw(MyMatrix* pMatViewProj, ShaderGroup* pShaderOverr
     m_pComponentTransform->UpdateMatrix();
 #endif
 }
+
+bool ComponentRenderable::IsVisible()
+{
+    if( m_pGameObject->IsEnabled() == false )
+        return false;
+
+    return m_Visible;
+}

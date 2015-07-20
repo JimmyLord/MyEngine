@@ -76,7 +76,8 @@ ComponentSystemManager::~ComponentSystemManager()
     } \
     void ComponentSystemManager::UnregisterComponentCallback_##CallbackType(ComponentCallbackStruct_##CallbackType* pCallbackStruct) \
     { \
-        pCallbackStruct->Remove(); \
+        if( pCallbackStruct->Prev ) \
+            pCallbackStruct->Remove(); \
     }
 
 MYFW_COMPONENTSYSTEMMANAGER_IMPLEMENT_CALLBACK_REGISTER_FUNCTIONS( Tick );
@@ -1031,7 +1032,7 @@ void ComponentSystemManager::OnDrawFrame()
     {
         ComponentCamera* pComponent = (ComponentCamera*)node;
 
-        if( pComponent->m_BaseType == BaseComponentType_Camera && pComponent->m_Enabled == true )
+        if( pComponent->m_BaseType == BaseComponentType_Camera && pComponent->IsEnabled() == true )
         {
             pComponent->OnDrawFrame();
         }
@@ -1048,7 +1049,7 @@ void ComponentSystemManager::OnDrawFrame(ComponentCamera* pCamera, MyMatrix* pMa
         {
             if( pComponent->m_LayersThisExistsOn & pCamera->m_LayersToRender )
             {
-                if( pComponent->m_Visible )
+                if( pComponent->IsVisible() )
                 {
                     pComponent->Draw( pMatViewProj, pShaderOverride );
                 }
@@ -1104,7 +1105,7 @@ void ComponentSystemManager::DrawMousePickerFrame(ComponentCamera* pCamera, MyMa
 
                     pShader->ProgramTint( tint );
 
-                    if( pComponent->m_Visible )
+                    if( pComponent->IsVisible() )
                     {
                         pComponent->Draw( pMatViewProj, pShaderOverride );
                     }
@@ -1206,10 +1207,13 @@ void ComponentSystemManager::DrawSingleObject(MyMatrix* pMatViewProj, GameObject
 
 void ComponentSystemManager::OnLoad()
 {
-    for( CPPListNode* node = m_Components[BaseComponentType_Updateable].GetHead(); node != 0; node = node->GetNext() )
+    for( unsigned int i=0; i<BaseComponentType_NumTypes; i++ )
     {
-        ComponentBase* pComponent = (ComponentBase*)node;
-        pComponent->OnLoad();
+        for( CPPListNode* node = m_Components[i].GetHead(); node != 0; node = node->GetNext() )
+        {
+            ComponentBase* pComponent = (ComponentBase*)node;
+            pComponent->OnLoad();
+        }
     }
 }
 

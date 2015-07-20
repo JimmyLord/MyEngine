@@ -47,6 +47,9 @@ public:
     virtual void CopyFromSameType_Dangerous(ComponentBase* pObject) { *this = (ComponentMeshPrimitive&)*pObject; }
     virtual ComponentMeshPrimitive& operator=(const ComponentMeshPrimitive& other);
 
+    virtual void RegisterCallbacks() {} // TODO: change this component to use callbacks.
+    virtual void UnregisterCallbacks() {} // TODO: change this component to use callbacks.
+
     void CreatePrimitive();
 
     virtual void Draw(MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride = 0, int drawcount = 0);

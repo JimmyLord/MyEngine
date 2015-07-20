@@ -40,6 +40,19 @@ void ComponentBase::Reset()
 #endif
 }
 
+void ComponentBase::SetEnabled(bool enabled)
+{
+    if( m_Enabled == enabled )
+        return;
+
+    m_Enabled = enabled;
+
+    if( enabled )
+        RegisterCallbacks();
+    else
+        UnregisterCallbacks();
+}
+
 #if MYFW_USING_WX
 void ComponentBase::AddToObjectsPanel(wxTreeItemId gameobjectid)
 {
@@ -177,4 +190,12 @@ ComponentBase& ComponentBase::operator=(const ComponentBase& other)
     MyAssert( &other != this );
 
     return *this;
+}
+
+void ComponentBase::OnLoad()
+{
+    if( m_Enabled )
+        RegisterCallbacks();
+    else
+        UnregisterCallbacks();
 }

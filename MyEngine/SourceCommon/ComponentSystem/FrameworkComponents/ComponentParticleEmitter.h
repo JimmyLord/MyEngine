@@ -71,6 +71,9 @@ public:
     virtual void CopyFromSameType_Dangerous(ComponentBase* pObject) { *this = (ComponentParticleEmitter&)*pObject; }
     virtual ComponentParticleEmitter& operator=(const ComponentParticleEmitter& other);
 
+    virtual void RegisterCallbacks();
+    virtual void UnregisterCallbacks();
+
     virtual MaterialDefinition* GetMaterial(int submeshindex) { return m_pMaterial; }
     virtual void SetMaterial(MaterialDefinition* pMaterial, int submeshindex);
     virtual void Draw(MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride = 0, int drawcount = 0);

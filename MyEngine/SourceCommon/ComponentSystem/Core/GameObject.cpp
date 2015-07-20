@@ -13,6 +13,7 @@ GameObject::GameObject(bool managed, int sceneid)
 {
     ClassnameSanityCheck();
 
+    m_Enabled = true;
     m_SceneID = sceneid;
     m_ID = 0;
     m_Name = 0;
@@ -61,6 +62,7 @@ void GameObject::LuaRegister(lua_State* luastate)
             .addData( "ComponentTransform", &GameObject::m_pComponentTransform )
             .addData( "name", &GameObject::m_Name )
             .addData( "id", &GameObject::m_ID )            
+            .addFunction( "SetEnabled", &GameObject::SetEnabled )
             .addFunction( "SetName", &GameObject::SetName )
             .addFunction( "GetTransform", &GameObject::GetTransform )
             .addFunction( "GetFirstComponentOfBaseType", &GameObject::GetFirstComponentOfBaseType )
@@ -70,6 +72,12 @@ void GameObject::LuaRegister(lua_State* luastate)
 }
 
 #if MYFW_USING_WX
+void GameObject::OnTitleLabelClicked(int controlid, bool finishedchanging)
+{
+    SetEnabled( !m_Enabled );
+    g_pPanelWatch->m_NeedsRefresh = true;
+}
+
 void GameObject::OnLeftClick(unsigned int count, bool clear)
 {
     // select this GameObject in the editor window.
@@ -87,6 +95,18 @@ void GameObject::OnLeftClick(unsigned int count, bool clear)
 
     if( clear )
         g_pPanelWatch->ClearAllVariables();
+
+    // show the gameobject name and an enabled checkbox.
+    if( m_Enabled )
+    {
+        g_pPanelWatch->AddSpace( m_Name, this, GameObject::StaticOnTitleLabelClicked );
+    }
+    else
+    {
+        char tempname[100];
+        snprintf_s( tempname, 100, "** DISABLED ** %s ** DISABLED **", m_Name );
+        g_pPanelWatch->AddSpace( tempname, this, GameObject::StaticOnTitleLabelClicked );
+    }
 
     m_pComponentTransform->FillPropertiesWindow( false );
     for( unsigned int i=0; i<m_Components.Count(); i++ )
@@ -202,22 +222,27 @@ void GameObject::OnLabelEdit(wxString newlabel)
 
 cJSON* GameObject::ExportAsJSONObject(bool savesceneid)
 {
-    cJSON* gameobject = cJSON_CreateObject();
+    cJSON* jGameObject = cJSON_CreateObject();
+
+    if( m_Enabled == false )
+        cJSON_AddNumberToObject( jGameObject, "Enabled", m_Enabled );
 
     if( savesceneid )
-        cJSON_AddNumberToObject( gameobject, "SceneID", m_SceneID );
+        cJSON_AddNumberToObject( jGameObject, "SceneID", m_SceneID );
 
-    cJSON_AddNumberToObject( gameobject, "ID", m_ID );
-    cJSON_AddStringToObject( gameobject, "Name", m_Name );
+    cJSON_AddNumberToObject( jGameObject, "ID", m_ID );
+    cJSON_AddStringToObject( jGameObject, "Name", m_Name );
 
-    return gameobject;
+    return jGameObject;
 }
 
-void GameObject::ImportFromJSONObject(cJSON* jsonobj, unsigned int sceneid)
+void GameObject::ImportFromJSONObject(cJSON* jGameObject, unsigned int sceneid)
 {
-    cJSONExt_GetUnsignedInt( jsonobj, "ID", &m_ID );
+    cJSONExt_GetBool( jGameObject, "Enabled", &m_Enabled );
 
-    cJSON* obj = cJSON_GetObjectItem( jsonobj, "Name" );
+    cJSONExt_GetUnsignedInt( jGameObject, "ID", &m_ID );
+
+    cJSON* obj = cJSON_GetObjectItem( jGameObject, "Name" );
     if( obj )
     {
         SetName( obj->valuestring );
@@ -239,6 +264,23 @@ cJSON* GameObject::ExportReferenceAsJSONObject(unsigned int refsceneid)
     cJSON_AddNumberToObject( gameobjectref, "GOID", m_ID );
 
     return gameobjectref;
+}
+
+void GameObject::SetEnabled(bool enabled)
+{
+    if( m_Enabled == enabled )
+        return;
+
+    m_Enabled = enabled;
+
+    // loop through all components and unregister their callbacks.
+    for( unsigned int i=0; i<m_Components.Count(); i++ )
+    {
+        if( m_Enabled )
+            m_Components[i]->RegisterCallbacks();
+        else
+            m_Components[i]->UnregisterCallbacks();
+    }
 }
 
 void GameObject::SetSceneID(unsigned int sceneid)

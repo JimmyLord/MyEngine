@@ -25,6 +25,7 @@ class GameObject : public CPPListNode
     static const int MAX_COMPONENTS = 4; // TODO: fix this hardcodedness
 
 protected:
+    bool m_Enabled;
     unsigned int m_SceneID; // 0 for runtime generated.
     unsigned int m_ID;
     char* m_Name; // this a copy of the string passed in.
@@ -47,15 +48,17 @@ public:
     static void LuaRegister(lua_State* luastate);
 
     cJSON* ExportAsJSONObject(bool savesceneid);
-    void ImportFromJSONObject(cJSON* jsonobj, unsigned int sceneid);
+    void ImportFromJSONObject(cJSON* jGameObject, unsigned int sceneid);
     cJSON* ExportReferenceAsJSONObject(unsigned int refsceneid);
 
+    void SetEnabled(bool enabled);
     void SetSceneID(unsigned int sceneid);
     void SetID(unsigned int id);
     void SetName(const char* name);
     void SetManaged(bool managed);
     bool IsManaged() { return m_Managed; }
 
+    bool IsEnabled() { return m_Enabled; }
     unsigned int GetSceneID() { return m_SceneID; }
     unsigned int GetID() { return m_ID; }
     const char* GetName() { return m_Name; }
@@ -87,6 +90,9 @@ public:
 
 public:
 #if MYFW_USING_WX
+    static void StaticOnTitleLabelClicked(void* pObjectPtr, int controlid, bool finishedchanging, double oldvalue) { ((GameObject*)pObjectPtr)->OnTitleLabelClicked( controlid, finishedchanging ); }
+    void OnTitleLabelClicked(int controlid, bool finishedchanging);
+
     static void StaticOnLeftClick(void* pObjectPtr, wxTreeItemId id, unsigned int count) { ((GameObject*)pObjectPtr)->OnLeftClick( count, true ); }
     void OnLeftClick(unsigned int count, bool clear);
 

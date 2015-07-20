@@ -30,9 +30,6 @@ ComponentParticleEmitter::ComponentParticleEmitter()
     m_pParticleRenderer = MyNew ParticleRenderer( false );
     m_pParticleRenderer->AllocateVertices( 1000, "Particle Renderer" );
 
-    // Register callbacks.
-    MYFW_REGISTER_COMPONENT_CALLBACK( Tick );
-
     m_pMaterial = 0;
 }
 
@@ -43,9 +40,6 @@ ComponentParticleEmitter::~ComponentParticleEmitter()
     SAFE_DELETE( m_pParticleRenderer );
 
     SAFE_RELEASE( m_pMaterial );
-
-    // Unregister callbacks.
-    MYFW_UNREGISTER_COMPONENT_CALLBACK( Tick );
 }
 
 void ComponentParticleEmitter::Reset()
@@ -207,6 +201,19 @@ ComponentParticleEmitter& ComponentParticleEmitter::operator=(const ComponentPar
         m_pMaterial->AddRef();
 
     return *this;
+}
+
+void ComponentParticleEmitter::RegisterCallbacks()
+{
+    if( m_Enabled )
+    {
+        MYFW_REGISTER_COMPONENT_CALLBACK( Tick );
+    }
+}
+
+void ComponentParticleEmitter::UnregisterCallbacks()
+{
+    MYFW_UNREGISTER_COMPONENT_CALLBACK( Tick );
 }
 
 void ComponentParticleEmitter::SetMaterial(MaterialDefinition* pMaterial, int submeshindex)

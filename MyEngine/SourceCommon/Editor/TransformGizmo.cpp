@@ -64,13 +64,13 @@ void TransformGizmo::Tick(double TimePassed, EditorState* pEditorState)
 
         if( pEditorState->m_pSelectedObjects.size() == 1 )
         {
-            pRenderable->m_Visible = true;
+            pRenderable->SetVisible( true );
             ObjectPosition = pEditorState->m_pSelectedObjects[0]->m_pComponentTransform->GetPosition();
             ObjectTransform = *pEditorState->m_pSelectedObjects[0]->m_pComponentTransform->GetLocalTransform();
         }
         else if( pEditorState->m_pSelectedObjects.size() > 1 )
         {
-            pRenderable->m_Visible = true;
+            pRenderable->SetVisible( true );
 
             // find the center point between all selected objects.
             ObjectPosition.Set( 0, 0, 0 );
@@ -84,10 +84,10 @@ void TransformGizmo::Tick(double TimePassed, EditorState* pEditorState)
         }
         else
         {
-            pRenderable->m_Visible = false;
+            pRenderable->SetVisible( false );
         }
 
-        if( pRenderable->m_Visible )
+        if( pRenderable->IsVisible() )
         {
             // move the gizmo to the object position.
             m_pTransformGizmos[i]->m_pComponentTransform->SetPosition( ObjectPosition );
@@ -152,7 +152,7 @@ void TransformGizmo::CreateAxisObjects(unsigned int sceneid, float scale, Materi
         pComponentMesh = (ComponentMesh*)pGameObject->AddNewComponent( ComponentType_Mesh, sceneid );
         if( pComponentMesh )
         {
-            pComponentMesh->m_Visible = true;
+            pComponentMesh->SetVisible( true );
             pComponentMesh->SetMaterial( pMaterialX, 0 );
             pComponentMesh->m_LayersThisExistsOn = Layer_EditorFG;
             pComponentMesh->m_pMesh = MyNew MyMesh();
@@ -170,7 +170,7 @@ void TransformGizmo::CreateAxisObjects(unsigned int sceneid, float scale, Materi
         pComponentMesh = (ComponentMesh*)pGameObject->AddNewComponent( ComponentType_Mesh, sceneid );
         if( pComponentMesh )
         {
-            pComponentMesh->m_Visible = true;
+            pComponentMesh->SetVisible( true );
             pComponentMesh->SetMaterial( pMaterialY, 0 );
             pComponentMesh->m_LayersThisExistsOn = Layer_EditorFG;
             pComponentMesh->m_pMesh = MyNew MyMesh();
@@ -188,7 +188,7 @@ void TransformGizmo::CreateAxisObjects(unsigned int sceneid, float scale, Materi
         pComponentMesh = (ComponentMesh*)pGameObject->AddNewComponent( ComponentType_Mesh, sceneid );
         if( pComponentMesh )
         {
-            pComponentMesh->m_Visible = true;
+            pComponentMesh->SetVisible( true );
             pComponentMesh->SetMaterial( pMaterialZ, 0 );
             pComponentMesh->m_LayersThisExistsOn = Layer_EditorFG;
             pComponentMesh->m_pMesh = MyNew MyMesh();

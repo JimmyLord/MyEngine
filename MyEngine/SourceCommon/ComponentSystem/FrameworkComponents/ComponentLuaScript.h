@@ -60,6 +60,9 @@ public:
     virtual void CopyFromSameType_Dangerous(ComponentBase* pObject) { *this = (ComponentLuaScript&)*pObject; }
     ComponentLuaScript& operator=(const ComponentLuaScript& other);
 
+    virtual void RegisterCallbacks() {} // TODO: change this component to use callbacks.
+    virtual void UnregisterCallbacks() {} // TODO: change this component to use callbacks.
+
     MyFileObject* GetScriptFile() { return m_pScriptFile; }
     void SetScriptFile(MyFileObject* script);
     void LoadScript();
@@ -77,6 +80,7 @@ public:
     bool OnTouch(int action, int id, float x, float y, float pressure, float size);
     bool OnButtons(GameCoreButtonActions action, GameCoreButtonIDs id);
 
+    luabridge::LuaRef* PrepFunctionToBeCalled(const char* pFuncName);
     void CallFunction(const char* pFuncName);
 
     // GameObject callbacks.

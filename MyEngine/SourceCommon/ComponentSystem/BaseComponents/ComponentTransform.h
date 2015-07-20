@@ -48,6 +48,9 @@ public:
     virtual void CopyFromSameType_Dangerous(ComponentBase* pObject) { *this = (ComponentTransform&)*pObject; }
     ComponentTransform& operator=(const ComponentTransform& other);
 
+    virtual void RegisterCallbacks() {} // TODO: change this component to use callbacks.
+    virtual void UnregisterCallbacks() {} // TODO: change this component to use callbacks.
+
     // recalculate the matrix each time we set any of the 3 properties. // not efficient
     void SetPosition(Vector3 pos);
 #if MYFW_USING_WX

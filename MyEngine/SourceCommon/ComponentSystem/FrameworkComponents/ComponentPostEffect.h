@@ -34,6 +34,9 @@ public:
     virtual void CopyFromSameType_Dangerous(ComponentBase* pObject) { *this = (ComponentPostEffect&)*pObject; }
     ComponentPostEffect& operator=(const ComponentPostEffect& other);
 
+    virtual void RegisterCallbacks() {} // TODO: change this component to use callbacks.
+    virtual void UnregisterCallbacks() {} // TODO: change this component to use callbacks.
+
     virtual MaterialDefinition* GetMaterial() { return m_pMaterial; }
     virtual void SetMaterial(MaterialDefinition* pMaterial);
     void Render(FBODefinition* pFBO);

@@ -90,6 +90,8 @@ class ComponentMenuPage : public ComponentBase
 protected:
     MyFileObject* m_pMenuLayoutFile;
 
+    bool m_Visible;
+
     bool m_MenuItemsCreated;
     bool m_LayoutChanged;
 
@@ -127,7 +129,6 @@ public:
     ComponentCamera* m_pComponentCamera;
     ComponentLuaScript* m_pComponentLuaScript;
 
-    bool m_Visible;
     unsigned int m_LayersThisExistsOn;
 
 public:
@@ -142,10 +143,15 @@ public:
     virtual void CopyFromSameType_Dangerous(ComponentBase* pObject) { *this = (ComponentMenuPage&)*pObject; }
     virtual ComponentMenuPage& operator=(const ComponentMenuPage& other);
 
+    virtual void RegisterCallbacks();
+    virtual void UnregisterCallbacks();
+
     void FindLuaScriptComponentPointer();
     virtual void OnLoad();
     virtual void OnPlay();
     //virtual void OnStop();
+
+    virtual void SetEnabled(bool enabled);
 
     void LoadLayoutBasedOnCurrentAspectRatio();
     void UpdateLayout(cJSON* layout);
@@ -172,6 +178,7 @@ public:
     void RegisterMenuPageOnKeysCallback(void* pObj, MenuPageOnKeysCallbackFunc pFunc);
 
     void SetVisible(bool visible);
+    bool IsVisible();
     void SetInputEnabled(bool inputenabled);
 
     bool ExecuteAction(const char* action, MenuItem* pItem);

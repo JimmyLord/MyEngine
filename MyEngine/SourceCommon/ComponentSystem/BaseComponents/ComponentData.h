@@ -23,6 +23,9 @@ public:
     virtual void CopyFromSameType_Dangerous(ComponentBase* pObject) { *this = (ComponentData&)*pObject; }
     ComponentData& operator=(const ComponentData& other);
 
+    virtual void RegisterCallbacks() {} // TODO: change this component to use callbacks.
+    virtual void UnregisterCallbacks() {} // TODO: change this component to use callbacks.
+
 public:
 #if MYFW_USING_WX
     static bool m_PanelWatchBlockVisible;

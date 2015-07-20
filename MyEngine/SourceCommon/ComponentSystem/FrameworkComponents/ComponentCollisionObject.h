@@ -46,6 +46,9 @@ public:
     virtual void CopyFromSameType_Dangerous(ComponentBase* pObject) { *this = (ComponentCollisionObject&)*pObject; }
     ComponentCollisionObject& operator=(const ComponentCollisionObject& other);
 
+    virtual void RegisterCallbacks() {} // TODO: change this component to use callbacks.
+    virtual void UnregisterCallbacks() {} // TODO: change this component to use callbacks.
+
     void SetMesh(MyMesh* pMesh);
 
     virtual void OnPlay();

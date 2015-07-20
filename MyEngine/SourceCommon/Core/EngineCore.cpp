@@ -1183,7 +1183,7 @@ void EngineCore::CreateDefaultSceneObjects(bool createeditorobjects)
             pComponentMesh = (ComponentMesh*)pGameObject->AddNewComponent( ComponentType_Mesh, ENGINE_SCENE_ID );
             if( pComponentMesh )
             {
-                pComponentMesh->m_Visible = true; // manually drawn when in editor mode.
+                pComponentMesh->SetVisible( true ); // manually drawn when in editor mode.
                 pComponentMesh->SetMaterial( m_pMaterial_3DGrid, 0 ); //( m_pShader_TransformGizmo );
                 pComponentMesh->m_LayersThisExistsOn = Layer_Editor;
                 pComponentMesh->m_pMesh = MyNew MyMesh();
@@ -1219,7 +1219,7 @@ void EngineCore::CreateDefaultSceneObjects(bool createeditorobjects)
                 pComponentCamera->m_ClearDepthBuffer = true;
 
                 // add the camera component to the list, but disabled, so it won't render.
-                pComponentCamera->m_Enabled = false;
+                pComponentCamera->SetEnabled( false );
                 //m_pComponentSystemManager->AddComponent( pComponentCamera );
             }
 
@@ -1233,7 +1233,7 @@ void EngineCore::CreateDefaultSceneObjects(bool createeditorobjects)
                 pComponentCamera->m_ClearDepthBuffer = true;
 
                 // add the camera component to the list, but disabled, so it won't render.
-                pComponentCamera->m_Enabled = false;
+                pComponentCamera->SetEnabled( false );
                 //m_pComponentSystemManager->AddComponent( pComponentCamera );
             }
 

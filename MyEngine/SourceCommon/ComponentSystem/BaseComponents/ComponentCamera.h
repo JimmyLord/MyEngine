@@ -62,6 +62,9 @@ public:
     virtual void CopyFromSameType_Dangerous(ComponentBase* pObject) { *this = (ComponentCamera&)*pObject; }
     ComponentCamera& operator=(const ComponentCamera& other);
 
+    virtual void RegisterCallbacks() {} // TODO: change this component to use callbacks.
+    virtual void UnregisterCallbacks() {} // TODO: change this component to use callbacks.
+
     void SetDesiredAspectRatio(float width, float height);
     void ComputeProjectionMatrices();
 

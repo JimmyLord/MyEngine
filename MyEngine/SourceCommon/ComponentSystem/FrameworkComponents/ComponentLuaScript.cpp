@@ -642,6 +642,8 @@ void ComponentLuaScript::OnScriptLoaded()
 
 void ComponentLuaScript::OnLoad()
 {
+    ComponentUpdateable::OnLoad();
+
     m_ScriptLoaded = false;
     m_ErrorInScript = false;
     LoadScript();
@@ -846,7 +848,7 @@ void ComponentLuaScript::CallFunction(const char* pFuncName)
     {
         luabridge::LuaRef LuaObject = luabridge::getGlobal( m_pLuaGameState->m_pLuaState, m_pScriptFile->m_FilenameWithoutExtension );
 
-        // call OnButtons
+        // call pFuncName
         if( LuaObject[pFuncName].isFunction() )
         {
             ProgramVariables( LuaObject, false );

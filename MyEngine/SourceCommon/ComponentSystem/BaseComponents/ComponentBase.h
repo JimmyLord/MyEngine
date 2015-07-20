@@ -30,6 +30,7 @@ class ComponentBase : public CPPListNode
 #endif
 {
 protected:
+    bool m_Enabled;
     unsigned int m_SceneIDLoadedFrom; // 0 for runtime generated.
     unsigned int m_ID;
 
@@ -37,8 +38,6 @@ public:
     BaseComponentTypes m_BaseType;
     int m_Type;
     GameObject* m_pGameObject;
-
-    bool m_Enabled;
 
 public:
     ComponentBase();
@@ -52,13 +51,18 @@ public:
     virtual void CopyFromSameType_Dangerous(ComponentBase* pObject) { *this = (ComponentBase&)*pObject; }
     ComponentBase& operator=(const ComponentBase& other);
 
-    virtual void OnLoad() {}
+    virtual void RegisterCallbacks() {}
+    virtual void UnregisterCallbacks() {}
+
+    virtual void OnLoad();
     virtual void OnPlay() {}
     virtual void OnStop() {}
 
+    virtual void SetEnabled(bool enabled);
     void SetSceneID(unsigned int sceneid) { m_SceneIDLoadedFrom = sceneid; }
     void SetID(unsigned int id) { m_ID = id; }
 
+    bool IsEnabled() { return m_Enabled; }
     unsigned int GetSceneID() { return m_SceneIDLoadedFrom; }
     unsigned int GetID() { return m_ID; }
 

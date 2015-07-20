@@ -14,12 +14,14 @@ class ComponentTransform;
 
 class ComponentRenderable : public ComponentBase
 {
+protected:
+    bool m_Visible;
+
 public:
     ComponentTransform* m_pComponentTransform;
 
     //ShaderGroup* m_pShader; // managed by external forces.
 
-    bool m_Visible;
     unsigned int m_LayersThisExistsOn;
 
 public:
@@ -34,9 +36,15 @@ public:
     virtual void CopyFromSameType_Dangerous(ComponentBase* pObject) { *this = (ComponentRenderable&)*pObject; }
     ComponentRenderable& operator=(const ComponentRenderable& other);
 
+    virtual void RegisterCallbacks() {} // TODO: change this component to use callbacks.
+    virtual void UnregisterCallbacks() {} // TODO: change this component to use callbacks.
+
     virtual MaterialDefinition* GetMaterial(int submeshindex) { return 0; }
     virtual void SetMaterial(MaterialDefinition* pMaterial, int submeshindex);
     virtual void Draw(MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride = 0, int drawcount = 0);
+
+    void SetVisible(bool visible) { m_Visible = visible; }
+    bool IsVisible();
 
 public:
 #if MYFW_USING_WX

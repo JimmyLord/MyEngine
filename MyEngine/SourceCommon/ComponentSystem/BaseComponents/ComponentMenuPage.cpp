@@ -74,14 +74,6 @@ ComponentMenuPage::ComponentMenuPage()
     // Runtime vars
     m_ItemSelected = -1;
 
-    // Register callbacks.
-    MYFW_REGISTER_COMPONENT_CALLBACK( Tick );
-    MYFW_REGISTER_COMPONENT_CALLBACK( OnSurfaceChanged );
-    MYFW_REGISTER_COMPONENT_CALLBACK( Draw );
-    MYFW_REGISTER_COMPONENT_CALLBACK( OnTouch );
-    MYFW_REGISTER_COMPONENT_CALLBACK( OnButtons );
-    MYFW_REGISTER_COMPONENT_CALLBACK( OnKeys );
-
     m_ExtentsSetWhenLoaded = false;
 
     for( int i=0; i<3; i++ )
@@ -111,14 +103,6 @@ ComponentMenuPage::~ComponentMenuPage()
     }
 
     cJSON_Delete( m_MenuLayouts );
-
-    // Unregister callbacks.
-    MYFW_UNREGISTER_COMPONENT_CALLBACK( Tick );
-    MYFW_UNREGISTER_COMPONENT_CALLBACK( OnSurfaceChanged );
-    MYFW_UNREGISTER_COMPONENT_CALLBACK( Draw );
-    MYFW_UNREGISTER_COMPONENT_CALLBACK( OnTouch );
-    MYFW_UNREGISTER_COMPONENT_CALLBACK( OnButtons );
-    MYFW_UNREGISTER_COMPONENT_CALLBACK( OnKeys );
 }
 
 void ComponentMenuPage::Reset()
@@ -875,6 +859,29 @@ ComponentMenuPage& ComponentMenuPage::operator=(const ComponentMenuPage& other)
     return *this;
 }
 
+void ComponentMenuPage::RegisterCallbacks()
+{
+    if( m_Enabled )
+    {
+        MYFW_REGISTER_COMPONENT_CALLBACK( Tick );
+        MYFW_REGISTER_COMPONENT_CALLBACK( OnSurfaceChanged );
+        MYFW_REGISTER_COMPONENT_CALLBACK( Draw );
+        MYFW_REGISTER_COMPONENT_CALLBACK( OnTouch );
+        MYFW_REGISTER_COMPONENT_CALLBACK( OnButtons );
+        MYFW_REGISTER_COMPONENT_CALLBACK( OnKeys );
+    }
+}
+
+void ComponentMenuPage::UnregisterCallbacks()
+{
+    MYFW_UNREGISTER_COMPONENT_CALLBACK( Tick );
+    MYFW_UNREGISTER_COMPONENT_CALLBACK( OnSurfaceChanged );
+    MYFW_UNREGISTER_COMPONENT_CALLBACK( Draw );
+    MYFW_UNREGISTER_COMPONENT_CALLBACK( OnTouch );
+    MYFW_UNREGISTER_COMPONENT_CALLBACK( OnButtons );
+    MYFW_UNREGISTER_COMPONENT_CALLBACK( OnKeys );
+}
+
 void ComponentMenuPage::FindLuaScriptComponentPointer()
 {
     // if we don't have a luascript, find the first one attached to this gameobject
@@ -886,14 +893,33 @@ void ComponentMenuPage::FindLuaScriptComponentPointer()
 
 void ComponentMenuPage::OnLoad()
 {
+    ComponentBase::OnLoad();
+
     // if we don't have a luascript, find the first one attached to this gameobject
     FindLuaScriptComponentPointer();
 }
 
 void ComponentMenuPage::OnPlay()
 {
+    ComponentBase::OnPlay();
+
     // if we don't have a luascript, find the first one attached to this gameobject
     FindLuaScriptComponentPointer();
+}
+
+void ComponentMenuPage::SetEnabled(bool enabled)
+{
+    if( m_Enabled == enabled )
+        return;
+
+    ComponentBase::SetEnabled( enabled );
+
+    // if this is newly enabled, trigger the visible callback.
+    if( m_Enabled == true )
+    {
+        m_Visible = false;
+        SetVisible( true );
+    }
 }
 
 // will return true if input is used.
@@ -1559,7 +1585,24 @@ void ComponentMenuPage::SetVisible(bool visible)
     if( visible == true )
     {
         g_pComponentSystemManager->MoveInputHandlersToFront( &m_CallbackStruct_OnTouch, &m_CallbackStruct_OnButtons, &m_CallbackStruct_OnKeys );
+
+#if MYFW_USING_WX
+        // in editor, there's a chance the script component was created and not associated with this object.
+        FindLuaScriptComponentPointer();
+#endif
+        if( m_pComponentLuaScript )
+        {
+            m_pComponentLuaScript->CallFunction( "OnVisible" );
+        }
     }
+}
+
+bool ComponentMenuPage::IsVisible()
+{
+    if( m_pGameObject->IsEnabled() == false )
+        return false;
+
+    return m_Visible;
 }
 
 void ComponentMenuPage::SetInputEnabled(bool inputenabled)

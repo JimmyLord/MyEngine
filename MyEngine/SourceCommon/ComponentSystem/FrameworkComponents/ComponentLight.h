@@ -27,6 +27,9 @@ public:
     virtual void CopyFromSameType_Dangerous(ComponentBase* pObject) { *this = (ComponentLight&)*pObject; }
     ComponentLight& operator=(const ComponentLight& other);
 
+    virtual void RegisterCallbacks() {} // TODO: change this component to use callbacks.
+    virtual void UnregisterCallbacks() {} // TODO: change this component to use callbacks.
+
     static void StaticOnTransformPositionChanged(void* pObjectPtr, Vector3& newpos, bool changedbyeditor) { ((ComponentLight*)pObjectPtr)->OnTransformPositionChanged( newpos, changedbyeditor ); }
     void OnTransformPositionChanged(Vector3& newpos, bool changedbyeditor);
 

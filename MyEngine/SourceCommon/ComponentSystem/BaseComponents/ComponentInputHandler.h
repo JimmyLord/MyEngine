@@ -26,6 +26,9 @@ public:
     virtual void CopyFromSameType_Dangerous(ComponentBase* pObject) { *this = (ComponentInputHandler&)*pObject; }
     ComponentInputHandler& operator=(const ComponentInputHandler& other);
 
+    virtual void RegisterCallbacks() {} // TODO: change this component to use callbacks.
+    virtual void UnregisterCallbacks() {} // TODO: change this component to use callbacks.
+
     // will return true if input is used.
     virtual bool OnTouch(int action, int id, float x, float y, float pressure, float size) = 0;
     virtual bool OnButtons(GameCoreButtonActions action, GameCoreButtonIDs id) = 0;

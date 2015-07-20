@@ -40,6 +40,9 @@ public:
     virtual void CopyFromSameType_Dangerous(ComponentBase* pObject) { *this = (ComponentAnimationPlayer&)*pObject; }
     ComponentAnimationPlayer& operator=(const ComponentAnimationPlayer& other);
 
+    virtual void RegisterCallbacks() {} // TODO: change this component to use callbacks.
+    virtual void UnregisterCallbacks() {} // TODO: change this component to use callbacks.
+
     virtual void Tick(double TimePassed);
 
     void SetCurrentAnimation(unsigned int anim);
