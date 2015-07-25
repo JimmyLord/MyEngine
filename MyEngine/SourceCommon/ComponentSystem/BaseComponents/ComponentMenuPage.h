@@ -181,6 +181,7 @@ public:
     bool IsVisible();
     void SetInputEnabled(bool inputenabled);
 
+    void CreateMenuItems();
     bool ExecuteAction(const char* action, MenuItem* pItem);
 
 protected:

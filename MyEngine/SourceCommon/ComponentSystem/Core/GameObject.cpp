@@ -238,8 +238,6 @@ cJSON* GameObject::ExportAsJSONObject(bool savesceneid)
 
 void GameObject::ImportFromJSONObject(cJSON* jGameObject, unsigned int sceneid)
 {
-    cJSONExt_GetBool( jGameObject, "Enabled", &m_Enabled );
-
     cJSONExt_GetUnsignedInt( jGameObject, "ID", &m_ID );
 
     cJSON* obj = cJSON_GetObjectItem( jGameObject, "Name" );
@@ -248,6 +246,10 @@ void GameObject::ImportFromJSONObject(cJSON* jGameObject, unsigned int sceneid)
         SetName( obj->valuestring );
     }
     SetSceneID( sceneid );
+
+    bool enabled = true;
+    cJSONExt_GetBool( jGameObject, "Enabled", &enabled );
+    SetEnabled( enabled );
 }
 
 cJSON* GameObject::ExportReferenceAsJSONObject(unsigned int refsceneid)

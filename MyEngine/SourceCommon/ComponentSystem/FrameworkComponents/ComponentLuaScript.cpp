@@ -115,9 +115,12 @@ void ComponentLuaScript::CreateNewScriptFile()
                         fprintf( file, "%s =\n", m_pScriptFile->m_FilenameWithoutExtension );
                         fprintf( file, "{\n" );
                         fprintf( file, "\n" );
-                        fprintf( file, "--MenuItemAction = function()\n" );
-                        fprintf( file, "-- 	--LogInfo( \"MenuItemAction was called\\n\" );\n" );
-                        fprintf( file, "--end,\n" );
+                        fprintf( file, "OnVisible = function(visible)\n" );
+                        fprintf( file, "end\n" );
+                        fprintf( file, "\n" );
+                        fprintf( file, "OnAction = function(action)\n" );
+                        fprintf( file, "--LogInfo( \"OnAction was called: \" .. action .. \"\\n\" );\n" );
+                        fprintf( file, "end\n" );
                         fprintf( file, "\n" );
                         fprintf( file, "}\n" );
                     }
@@ -836,35 +839,6 @@ bool ComponentLuaScript::OnButtons(GameCoreButtonActions action, GameCoreButtonI
     }
 
     return false;
-}
-
-void ComponentLuaScript::CallFunction(const char* pFuncName)
-{
-    if( m_ErrorInScript )
-        return;
-
-    // find the function and call it.
-    if( m_Playing )
-    {
-        luabridge::LuaRef LuaObject = luabridge::getGlobal( m_pLuaGameState->m_pLuaState, m_pScriptFile->m_FilenameWithoutExtension );
-
-        // call pFuncName
-        if( LuaObject[pFuncName].isFunction() )
-        {
-            ProgramVariables( LuaObject, false );
-            try
-            {
-                if( LuaObject[pFuncName]() )
-                    return;
-            }
-            catch(luabridge::LuaException const& e)
-            {
-                HandleLuaError( pFuncName, e.what() );
-            }
-        }
-    }
-
-    return;
 }
 
 void ComponentLuaScript::OnGameObjectDeleted(GameObject* pGameObject)

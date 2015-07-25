@@ -1167,15 +1167,8 @@ bool ComponentMenuPage::OnKeysCallback(GameCoreButtonActions action, int keycode
     return false;
 }
 
-void ComponentMenuPage::TickCallback(double TimePassed)
+void ComponentMenuPage::CreateMenuItems()
 {
-    //ComponentBase::TickCallback( TimePassed );
-
-    if( m_MenuPageTickCallbackStruct.pFunc )
-    {
-        m_MenuPageTickCallbackStruct.pFunc( m_MenuPageTickCallbackStruct.pObj, this, TimePassed );
-    }
-
     if( m_MenuItemsCreated == false )
     {
         if( m_pMenuLayoutFile && m_pMenuLayoutFile->m_FileLoadStatus == FileLoadStatus_Success )
@@ -1187,6 +1180,21 @@ void ComponentMenuPage::TickCallback(double TimePassed)
 
             LoadLayoutBasedOnCurrentAspectRatio();
         }
+    }
+}
+
+void ComponentMenuPage::TickCallback(double TimePassed)
+{
+    //ComponentBase::TickCallback( TimePassed );
+
+    if( m_MenuPageTickCallbackStruct.pFunc )
+    {
+        m_MenuPageTickCallbackStruct.pFunc( m_MenuPageTickCallbackStruct.pObj, this, TimePassed );
+    }
+
+    if( m_MenuItemsCreated == false )
+    {
+        CreateMenuItems(); // create menu items if they haven't been already.
     }
 
     // Tick all the menu items.
@@ -1563,6 +1571,11 @@ void ComponentMenuPage::SetVisible(bool visible)
     if( m_Visible == visible )
         return;
 
+    if( m_MenuItemsCreated == false )
+    {
+        CreateMenuItems(); // create menu items if they haven't been already.
+    }
+
     if( visible == true && m_LayoutChanged )
     {
         // recreate all the menu items
@@ -1625,7 +1638,7 @@ bool ComponentMenuPage::ExecuteAction(const char* action, MenuItem* pItem)
 #endif
         if( m_pComponentLuaScript )
         {
-            m_pComponentLuaScript->CallFunction( action );
+            m_pComponentLuaScript->CallFunction( "OnAction", action );
             return true;
         }
     }

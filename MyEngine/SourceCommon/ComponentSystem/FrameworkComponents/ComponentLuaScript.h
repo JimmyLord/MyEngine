@@ -80,9 +80,6 @@ public:
     bool OnTouch(int action, int id, float x, float y, float pressure, float size);
     bool OnButtons(GameCoreButtonActions action, GameCoreButtonIDs id);
 
-    luabridge::LuaRef* PrepFunctionToBeCalled(const char* pFuncName);
-    void CallFunction(const char* pFuncName);
-
     // GameObject callbacks.
     static void StaticOnGameObjectDeleted(void* pObjectPtr, GameObject* pGameObject) { ((ComponentLuaScript*)pObjectPtr)->OnGameObjectDeleted( pGameObject ); }
     void OnGameObjectDeleted(GameObject* pGameObject);
@@ -121,6 +118,56 @@ public:
     static void StaticOnValueChanged(void* pObjectPtr, int controlid, bool finishedchanging, double oldvalue) { ((ComponentLuaScript*)pObjectPtr)->OnValueChanged( controlid, finishedchanging ); }
     void OnValueChanged(int controlid, bool finishedchanging);
 #endif //MYFW_USING_WX
+
+public:
+    void CallFunction(const char* pFuncName)
+    {
+        if( m_ErrorInScript ) return;
+        if( m_Playing == false ) return;
+
+        // find the function and call it.
+        luabridge::LuaRef LuaObject = luabridge::getGlobal( m_pLuaGameState->m_pLuaState, m_pScriptFile->m_FilenameWithoutExtension );
+
+        // call pFuncName
+        if( LuaObject[pFuncName].isFunction() == false ) return;
+
+        ProgramVariables( LuaObject, false );
+        try { if( LuaObject[pFuncName]() ) return; }
+        catch(luabridge::LuaException const& e) { HandleLuaError( pFuncName, e.what() ); }
+    }
+
+    template <class P1> void CallFunction(const char* pFuncName, P1 p1)
+    {
+        if( m_ErrorInScript ) return;
+        if( m_Playing == false ) return;
+
+        // find the function and call it.
+        luabridge::LuaRef LuaObject = luabridge::getGlobal( m_pLuaGameState->m_pLuaState, m_pScriptFile->m_FilenameWithoutExtension );
+
+        // call pFuncName
+        if( LuaObject[pFuncName].isFunction() == false ) return;
+
+        ProgramVariables( LuaObject, false );
+        try { if( LuaObject[pFuncName]( p1 ) ) return; }
+        catch(luabridge::LuaException const& e) { HandleLuaError( pFuncName, e.what() ); }
+    }
+
+    template <class P1, class P2, class P3, class P4, class P5, class P6, class P7, class P8>
+    void CallFunction(const char* pFuncName, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6, P7 p7, P8 p8)
+    {
+        if( m_ErrorInScript ) return;
+        if( m_Playing == false ) return;
+
+        // find the function and call it.
+        luabridge::LuaRef LuaObject = luabridge::getGlobal( m_pLuaGameState->m_pLuaState, m_pScriptFile->m_FilenameWithoutExtension );
+
+        // call pFuncName
+        if( LuaObject[pFuncName].isFunction() == false ) return;
+
+        ProgramVariables( LuaObject, false );
+        try { if( LuaObject[pFuncName]( p1, p2, p3, p4, p5, p6, p7, p8 ) ) return; }
+        catch(luabridge::LuaException const& e) { HandleLuaError( pFuncName, e.what() ); }
+    }
 };
 
 #endif //__ComponentLuaScript_H__
