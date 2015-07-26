@@ -28,10 +28,11 @@ enum ModifierKeys
 
 enum LayerValues
 {
-    Layer_MainScene = 0x0001,
-    Layer_HUD       = 0x0002,
-    Layer_Editor    = 0x4000,
-    Layer_EditorFG  = 0x8000,
+    Layer_MainScene             = 0x0001,
+    Layer_HUD                   = 0x0002,
+    Layer_Editor                = 0x2000,
+    Layer_EditorUnselectable    = 0x4000,
+    Layer_EditorFG              = 0x8000,
 };
 
 class EngineCore : public GameCore
