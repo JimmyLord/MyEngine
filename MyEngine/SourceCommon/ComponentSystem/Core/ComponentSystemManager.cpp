@@ -1090,8 +1090,8 @@ void ComponentSystemManager::DrawMousePickerFrame(ComponentCamera* pCamera, MyMa
             if( pComponent->m_BaseType == BaseComponentType_Renderable )
             {
                 if( pComponent->IsVisible() &&
-                    (pComponent->m_LayersThisExistsOn & pCamera->m_LayersToRender) &&
-                    (pComponent->m_LayersThisExistsOn & Layer_EditorUnselectable != 0) )
+                    (pComponent->m_LayersThisExistsOn & pCamera->m_LayersToRender) != 0 &&
+                    (pComponent->m_LayersThisExistsOn & Layer_EditorUnselectable) == 0 )
                 {
                     ColorByte tint( 0, 0, 0, 0 );
 
