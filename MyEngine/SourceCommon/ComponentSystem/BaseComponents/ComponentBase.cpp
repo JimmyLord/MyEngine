@@ -194,7 +194,7 @@ ComponentBase& ComponentBase::operator=(const ComponentBase& other)
 
 void ComponentBase::OnLoad()
 {
-    if( m_Enabled )
+    if( m_Enabled && m_pGameObject && m_pGameObject->IsEnabled() )
         RegisterCallbacks();
     else
         UnregisterCallbacks();
