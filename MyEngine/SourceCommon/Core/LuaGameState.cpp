@@ -132,10 +132,18 @@ void LuaGameState::RegisterClasses()
 
     // Have some entity/component classes register themselves.
     GameObject::LuaRegister( m_pLuaState );
+    ComponentBase::LuaRegister( m_pLuaState );
+    ComponentMenuPage::LuaRegister( m_pLuaState );
     ComponentTransform::LuaRegister( m_pLuaState );
     ComponentSystemManager::LuaRegister( m_pLuaState );
     ComponentCollisionObject::LuaRegister( m_pLuaState );
     ComponentAnimationPlayer::LuaRegister( m_pLuaState );
+
+    // Register the MenuItem types.
+    MenuItem::LuaRegister( m_pLuaState );
+    MenuButton::LuaRegister( m_pLuaState );
+    MenuSprite::LuaRegister( m_pLuaState );
+    MenuText::LuaRegister( m_pLuaState );
 
     // register global managers
     luabridge::setGlobal( m_pLuaState, g_pComponentSystemManager, "g_pComponentSystemManager" );

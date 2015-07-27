@@ -44,6 +44,8 @@ public:
     virtual ~ComponentBase();
     SetClassnameBase( "BaseComponent" ); // only first 8 character count.
 
+    static void LuaRegister(lua_State* luastate);
+
     virtual cJSON* ExportAsJSONObject(bool savesceneid);
     virtual void ImportFromJSONObject(cJSON* jsonobj, unsigned int sceneid);
 
@@ -57,6 +59,8 @@ public:
     virtual void OnLoad();
     virtual void OnPlay() {}
     virtual void OnStop() {}
+    virtual void OnGameObjectEnabled();
+    virtual void OnGameObjectDisabled();
 
     virtual void SetEnabled(bool enabled);
     void SetSceneID(unsigned int sceneid) { m_SceneIDLoadedFrom = sceneid; }

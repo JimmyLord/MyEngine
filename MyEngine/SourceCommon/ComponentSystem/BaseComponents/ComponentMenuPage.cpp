@@ -136,6 +136,30 @@ void ComponentMenuPage::Reset()
 #endif //MYFW_USING_WX
 }
 
+ComponentMenuPage* CastAs_ComponentMenuPage(ComponentBase* pComponent)
+{
+    return (ComponentMenuPage*)pComponent;
+}
+
+void ComponentMenuPage::LuaRegister(lua_State* luastate)
+{
+    luabridge::getGlobalNamespace( luastate ).addFunction( "CastAs_ComponentMenuPage", CastAs_ComponentMenuPage );
+
+    luabridge::getGlobalNamespace( luastate )
+        .beginClass<ComponentMenuPage>( "ComponentMenuPage" )
+            //.addData( "localmatrix", &ComponentMenuPage::m_LocalTransform )
+            
+            .addFunction( "GetMenuItemByName", &ComponentMenuPage::GetMenuItemByName )
+            .addFunction( "IsEnabled", &ComponentMenuPage::IsEnabled )
+            
+            .addFunction( "SetSceneID", &ComponentMenuPage::SetSceneID )
+            .addFunction( "GetSceneID", &ComponentMenuPage::GetSceneID )
+            
+            .addFunction( "SetID", &ComponentMenuPage::SetID )
+            .addFunction( "GetID", &ComponentMenuPage::GetID )
+        .endClass();
+}
+
 #if MYFW_USING_WX
 
 #if LEGACYHACK
@@ -186,6 +210,9 @@ void ComponentMenuPage::LEGACYHACK_GrabMenuItemPointersFromCurrentScreen()
 
 void ComponentMenuPage::SaveMenuPageToDisk(const char* fullpath)
 {
+    if( m_MenuLayouts == 0 )
+        return;
+
     LOGInfo( LOGTag, "Saving Menu File: %s\n", fullpath );
 
     SaveCurrentLayoutToJSON();
@@ -907,6 +934,20 @@ void ComponentMenuPage::OnPlay()
     FindLuaScriptComponentPointer();
 }
 
+void ComponentMenuPage::OnGameObjectEnabled()
+{
+    ComponentBase::OnGameObjectEnabled();
+
+    ShowPage();
+}
+
+void ComponentMenuPage::OnGameObjectDisabled()
+{
+    ComponentBase::OnGameObjectDisabled();
+
+    HidePage();
+}
+
 void ComponentMenuPage::SetEnabled(bool enabled)
 {
     if( m_Enabled == enabled )
@@ -1597,16 +1638,7 @@ void ComponentMenuPage::SetVisible(bool visible)
     // move all input callbacks for this menu page to the front of the list, to give it top priority.
     if( visible == true )
     {
-        g_pComponentSystemManager->MoveInputHandlersToFront( &m_CallbackStruct_OnTouch, &m_CallbackStruct_OnButtons, &m_CallbackStruct_OnKeys );
-
-#if MYFW_USING_WX
-        // in editor, there's a chance the script component was created and not associated with this object.
-        FindLuaScriptComponentPointer();
-#endif
-        if( m_pComponentLuaScript )
-        {
-            m_pComponentLuaScript->CallFunction( "OnVisible" );
-        }
+        ShowPage();
     }
 }
 
@@ -1644,4 +1676,22 @@ bool ComponentMenuPage::ExecuteAction(const char* action, MenuItem* pItem)
     }
 
     return false;
+}
+
+void ComponentMenuPage::ShowPage()
+{
+    g_pComponentSystemManager->MoveInputHandlersToFront( &m_CallbackStruct_OnTouch, &m_CallbackStruct_OnButtons, &m_CallbackStruct_OnKeys );
+
+#if MYFW_USING_WX
+    // in editor, there's a chance the script component was created and not associated with this object.
+    FindLuaScriptComponentPointer();
+#endif
+    if( m_pComponentLuaScript )
+    {
+        m_pComponentLuaScript->CallFunction( "OnVisible" );
+    }
+}
+
+void ComponentMenuPage::HidePage()
+{
 }

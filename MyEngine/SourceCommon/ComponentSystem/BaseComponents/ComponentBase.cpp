@@ -40,6 +40,23 @@ void ComponentBase::Reset()
 #endif
 }
 
+void ComponentBase::LuaRegister(lua_State* luastate)
+{
+    luabridge::getGlobalNamespace( luastate )
+        .beginClass<ComponentBase>( "ComponentBase" )
+            //.addData( "localmatrix", &ComponentBase::m_LocalTransform )
+            
+            .addFunction( "SetEnabled", &ComponentBase::SetEnabled )
+            .addFunction( "IsEnabled", &ComponentBase::IsEnabled )
+            
+            .addFunction( "SetSceneID", &ComponentBase::SetSceneID )
+            .addFunction( "GetSceneID", &ComponentBase::GetSceneID )
+            
+            .addFunction( "SetID", &ComponentBase::SetID )
+            .addFunction( "GetID", &ComponentBase::GetID )
+        .endClass();
+}
+
 void ComponentBase::SetEnabled(bool enabled)
 {
     if( m_Enabled == enabled )
@@ -198,4 +215,15 @@ void ComponentBase::OnLoad()
         RegisterCallbacks();
     else
         UnregisterCallbacks();
+}
+
+void ComponentBase::OnGameObjectEnabled()
+{
+    if( m_Enabled )
+        RegisterCallbacks();
+}
+
+void ComponentBase::OnGameObjectDisabled()
+{
+    UnregisterCallbacks();
 }

@@ -48,7 +48,7 @@ void ComponentAnimationPlayer::Reset()
 void ComponentAnimationPlayer::LuaRegister(lua_State* luastate)
 {
     luabridge::getGlobalNamespace( luastate )
-        .beginClass<ComponentAnimationPlayer>( "AnimationPlayer" )
+        .beginClass<ComponentAnimationPlayer>( "ComponentAnimationPlayer" )
             //.addData( "localmatrix", &ComponentAnimationPlayer::m_LocalTransform )
             .addFunction( "SetCurrentAnimation", &ComponentAnimationPlayer::SetCurrentAnimation )
         .endClass();

@@ -49,7 +49,7 @@ void ComponentTransform::Reset()
 void ComponentTransform::LuaRegister(lua_State* luastate)
 {
     luabridge::getGlobalNamespace( luastate )
-        .beginClass<ComponentTransform>( "Transform" )
+        .beginClass<ComponentTransform>( "ComponentTransform" )
             .addData( "localmatrix", &ComponentTransform::m_LocalTransform )
             .addFunction( "SetPosition", &ComponentTransform::SetPosition )
             .addFunction( "GetPosition", &ComponentTransform::GetPosition )

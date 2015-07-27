@@ -50,6 +50,7 @@ GameObject::~GameObject()
         while( m_Components.Count() )
         {
             ComponentBase* pComponent = m_Components.RemoveIndex( 0 );
+            pComponent->SetEnabled( false );
             delete pComponent;
         }
     }
@@ -66,6 +67,7 @@ void GameObject::LuaRegister(lua_State* luastate)
             .addFunction( "SetName", &GameObject::SetName )
             .addFunction( "GetTransform", &GameObject::GetTransform )
             .addFunction( "GetFirstComponentOfBaseType", &GameObject::GetFirstComponentOfBaseType )
+            .addFunction( "GetFirstComponentOfType", &GameObject::GetFirstComponentOfType )
             .addFunction( "GetAnimationPlayer", &GameObject::GetAnimationPlayer )
             .addFunction( "GetCollisionObject", &GameObject::GetCollisionObject )
         .endClass();
@@ -279,9 +281,9 @@ void GameObject::SetEnabled(bool enabled)
     for( unsigned int i=0; i<m_Components.Count(); i++ )
     {
         if( m_Enabled )
-            m_Components[i]->RegisterCallbacks();
+            m_Components[i]->OnGameObjectEnabled();
         else
-            m_Components[i]->UnregisterCallbacks();
+            m_Components[i]->OnGameObjectDisabled();
     }
 }
 

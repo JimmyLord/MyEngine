@@ -136,6 +136,8 @@ public:
     virtual ~ComponentMenuPage();
     SetClassnameBase( "MenuPageComponent" ); // only first 8 character count.
 
+    static void LuaRegister(lua_State* luastate);
+
     virtual cJSON* ExportAsJSONObject(bool savesceneid);
     virtual void ImportFromJSONObject(cJSON* jComponent, unsigned int sceneid);
 
@@ -150,6 +152,8 @@ public:
     virtual void OnLoad();
     virtual void OnPlay();
     //virtual void OnStop();
+    virtual void OnGameObjectEnabled();
+    virtual void OnGameObjectDisabled();
 
     virtual void SetEnabled(bool enabled);
 
@@ -183,6 +187,9 @@ public:
 
     void CreateMenuItems();
     bool ExecuteAction(const char* action, MenuItem* pItem);
+
+    void ShowPage();
+    void HidePage();
 
 protected:
     // Callback functions for various events.

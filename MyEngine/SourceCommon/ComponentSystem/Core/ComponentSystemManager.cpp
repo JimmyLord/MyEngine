@@ -748,6 +748,7 @@ void ComponentSystemManager::DeleteGameObject(GameObject* pObject, bool deleteco
         while( pObject->m_Components.Count() )
         {
             ComponentBase* pComponent = pObject->m_Components.RemoveIndex( 0 );
+            pComponent->SetEnabled( false );
             delete pComponent;
         }
     }
@@ -928,6 +929,7 @@ void ComponentSystemManager::DeleteComponent(ComponentBase* pComponent)
     g_pPanelObjectList->RemoveObject( pComponent );
 #endif
 
+    pComponent->SetEnabled( false );
     SAFE_DELETE( pComponent );
 }
 
