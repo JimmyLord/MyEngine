@@ -70,7 +70,7 @@ public:
 
         if( tracktravel )
         {
-            float travel = abs(currx-initx) + abs(curry-inity);
+            float travel = fabs(currx-initx) + fabs(curry-inity);
             if( travel > furthesttravel )
                 furthesttravel = travel;
         }

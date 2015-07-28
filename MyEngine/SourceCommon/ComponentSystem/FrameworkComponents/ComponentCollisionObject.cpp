@@ -351,10 +351,15 @@ void ComponentCollisionObject::Tick(double TimePassed)
     if( m_pBody == 0 )
         return;
 
+    // TODO: MotionStates are coming up 0 on the mac, test on pc.
+    btMotionState* pMotionState = m_pBody->getMotionState();
+    if( pMotionState == 0 )
+        return;
+
     MyMatrix* matLocal = m_pComponentTransform->GetLocalTransform();
 
     btTransform transform;
-    m_pBody->getMotionState()->getWorldTransform( transform );
+    pMotionState->getWorldTransform( transform );
     MyMatrix matRotPos;
     MyMatrix matBulletGL;
     transform.getOpenGLMatrix( &matBulletGL.m11 );

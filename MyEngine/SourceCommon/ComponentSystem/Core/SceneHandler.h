@@ -21,7 +21,7 @@ public:
     unsigned int m_NextComponentID;
 
 public:
-    SceneInfo::SceneInfo()
+    SceneInfo()
     {
         fullpath[0] = 0;
 

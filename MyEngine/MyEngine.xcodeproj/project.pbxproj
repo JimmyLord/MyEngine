@@ -10,22 +10,16 @@
 		0423AB131AE2FD5F00C1AE29 /* lfunc.c in Sources */ = {isa = PBXBuildFile; fileRef = 044C635C1ADE8B9200BABD53 /* lfunc.c */; };
 		0423AB141AE2FD5F00C1AE29 /* lobject.c in Sources */ = {isa = PBXBuildFile; fileRef = 044C63691ADE8B9200BABD53 /* lobject.c */; };
 		0423AB151AE2FD5F00C1AE29 /* ComponentCameraShadow.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 044C62581ADDE98F00BABD53 /* ComponentCameraShadow.cpp */; };
-		0423AB161AE2FD5F00C1AE29 /* ComponentTransform.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 044C624A1ADDE98F00BABD53 /* ComponentTransform.cpp */; };
 		0423AB171AE2FD5F00C1AE29 /* Camera2D.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 044C623A1ADDE98F00BABD53 /* Camera2D.cpp */; };
 		0423AB181AE2FD5F00C1AE29 /* ComponentLight.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 044C625C1ADDE98F00BABD53 /* ComponentLight.cpp */; };
 		0423AB191AE2FD5F00C1AE29 /* LuaGameState.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 044C62751ADDE98F00BABD53 /* LuaGameState.cpp */; };
-		0423AB1A1AE2FD5F00C1AE29 /* ComponentData.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 044C62441ADDE98F00BABD53 /* ComponentData.cpp */; };
 		0423AB1B1AE2FD5F00C1AE29 /* ldo.c in Sources */ = {isa = PBXBuildFile; fileRef = 044C63591ADE8B9200BABD53 /* ldo.c */; };
 		0423AB1C1AE2FD5F00C1AE29 /* ComponentMeshPrimitive.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 044C62641ADDE98F00BABD53 /* ComponentMeshPrimitive.cpp */; };
 		0423AB1D1AE2FD5F00C1AE29 /* lundump.c in Sources */ = {isa = PBXBuildFile; fileRef = 044C63801ADE8B9200BABD53 /* lundump.c */; };
-		0423AB1E1AE2FD5F00C1AE29 /* ComponentInputHandler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 044C62461ADDE98F00BABD53 /* ComponentInputHandler.cpp */; };
-		0423AB1F1AE2FD5F00C1AE29 /* ComponentRenderable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 044C62481ADDE98F00BABD53 /* ComponentRenderable.cpp */; };
 		0423AB201AE2FD5F00C1AE29 /* ComponentTypeManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 044C62511ADDE98F00BABD53 /* ComponentTypeManager.cpp */; };
 		0423AB211AE2FD5F00C1AE29 /* loslib.c in Sources */ = {isa = PBXBuildFile; fileRef = 044C636D1ADE8B9200BABD53 /* loslib.c */; };
 		0423AB221AE2FD5F00C1AE29 /* lvm.c in Sources */ = {isa = PBXBuildFile; fileRef = 044C63821ADE8B9200BABD53 /* lvm.c */; };
 		0423AB231AE2FD5F00C1AE29 /* lstate.c in Sources */ = {isa = PBXBuildFile; fileRef = 044C63701ADE8B9200BABD53 /* lstate.c */; };
-		0423AB241AE2FD5F00C1AE29 /* ComponentUpdateable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 044C624C1ADDE98F00BABD53 /* ComponentUpdateable.cpp */; };
-		0423AB251AE2FD5F00C1AE29 /* ComponentBase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 044C62401ADDE98F00BABD53 /* ComponentBase.cpp */; };
 		0423AB261AE2FD5F00C1AE29 /* lmathlib.c in Sources */ = {isa = PBXBuildFile; fileRef = 044C63651ADE8B9200BABD53 /* lmathlib.c */; };
 		0423AB271AE2FD5F00C1AE29 /* ltablib.c in Sources */ = {isa = PBXBuildFile; fileRef = 044C63771ADE8B9200BABD53 /* ltablib.c */; };
 		0423AB281AE2FD5F00C1AE29 /* ldblib.c in Sources */ = {isa = PBXBuildFile; fileRef = 044C63561ADE8B9200BABD53 /* ldblib.c */; };
@@ -44,7 +38,6 @@
 		0423AB351AE2FD5F00C1AE29 /* ComponentParticleEmitter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 044C62661ADDE98F00BABD53 /* ComponentParticleEmitter.cpp */; };
 		0423AB361AE2FD5F00C1AE29 /* EngineCore.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 044C62711ADDE98F00BABD53 /* EngineCore.cpp */; };
 		0423AB371AE2FD5F00C1AE29 /* lzio.c in Sources */ = {isa = PBXBuildFile; fileRef = 044C63841ADE8B9200BABD53 /* lzio.c */; };
-		0423AB381AE2FD5F00C1AE29 /* ComponentCamera.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 044C62421ADDE98F00BABD53 /* ComponentCamera.cpp */; };
 		0423AB391AE2FD5F00C1AE29 /* ComponentMesh.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 044C62601ADDE98F00BABD53 /* ComponentMesh.cpp */; };
 		0423AB3A1AE2FD5F00C1AE29 /* lctype.c in Sources */ = {isa = PBXBuildFile; fileRef = 044C63541ADE8B9200BABD53 /* lctype.c */; };
 		0423AB3B1AE2FD5F00C1AE29 /* lstrlib.c in Sources */ = {isa = PBXBuildFile; fileRef = 044C63741ADE8B9200BABD53 /* lstrlib.c */; };
@@ -70,13 +63,6 @@
 		0423AB4F1AE2FD5F00C1AE29 /* GameObject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 044C62531ADDE98F00BABD53 /* GameObject.cpp */; };
 		044C62801ADDE98F00BABD53 /* Camera2D.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 044C623A1ADDE98F00BABD53 /* Camera2D.cpp */; };
 		044C62811ADDE98F00BABD53 /* Camera3D.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 044C623C1ADDE98F00BABD53 /* Camera3D.cpp */; };
-		044C62821ADDE98F00BABD53 /* ComponentBase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 044C62401ADDE98F00BABD53 /* ComponentBase.cpp */; };
-		044C62831ADDE98F00BABD53 /* ComponentCamera.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 044C62421ADDE98F00BABD53 /* ComponentCamera.cpp */; };
-		044C62841ADDE98F00BABD53 /* ComponentData.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 044C62441ADDE98F00BABD53 /* ComponentData.cpp */; };
-		044C62851ADDE98F00BABD53 /* ComponentInputHandler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 044C62461ADDE98F00BABD53 /* ComponentInputHandler.cpp */; };
-		044C62861ADDE98F00BABD53 /* ComponentRenderable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 044C62481ADDE98F00BABD53 /* ComponentRenderable.cpp */; };
-		044C62871ADDE98F00BABD53 /* ComponentTransform.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 044C624A1ADDE98F00BABD53 /* ComponentTransform.cpp */; };
-		044C62881ADDE98F00BABD53 /* ComponentUpdateable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 044C624C1ADDE98F00BABD53 /* ComponentUpdateable.cpp */; };
 		044C62891ADDE98F00BABD53 /* ComponentSystemManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 044C624F1ADDE98F00BABD53 /* ComponentSystemManager.cpp */; };
 		044C628A1ADDE98F00BABD53 /* ComponentTypeManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 044C62511ADDE98F00BABD53 /* ComponentTypeManager.cpp */; };
 		044C628B1ADDE98F00BABD53 /* GameObject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 044C62531ADDE98F00BABD53 /* GameObject.cpp */; };
@@ -163,13 +149,6 @@
 		044C64BE1ADED48B00BABD53 /* lzio.c in Sources */ = {isa = PBXBuildFile; fileRef = 044C63841ADE8B9200BABD53 /* lzio.c */; };
 		044C64BF1ADED49F00BABD53 /* Camera2D.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 044C623A1ADDE98F00BABD53 /* Camera2D.cpp */; };
 		044C64C01ADED49F00BABD53 /* Camera3D.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 044C623C1ADDE98F00BABD53 /* Camera3D.cpp */; };
-		044C64C11ADED4A900BABD53 /* ComponentBase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 044C62401ADDE98F00BABD53 /* ComponentBase.cpp */; };
-		044C64C21ADED4A900BABD53 /* ComponentCamera.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 044C62421ADDE98F00BABD53 /* ComponentCamera.cpp */; };
-		044C64C31ADED4A900BABD53 /* ComponentData.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 044C62441ADDE98F00BABD53 /* ComponentData.cpp */; };
-		044C64C41ADED4A900BABD53 /* ComponentInputHandler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 044C62461ADDE98F00BABD53 /* ComponentInputHandler.cpp */; };
-		044C64C51ADED4A900BABD53 /* ComponentRenderable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 044C62481ADDE98F00BABD53 /* ComponentRenderable.cpp */; };
-		044C64C61ADED4A900BABD53 /* ComponentTransform.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 044C624A1ADDE98F00BABD53 /* ComponentTransform.cpp */; };
-		044C64C71ADED4A900BABD53 /* ComponentUpdateable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 044C624C1ADDE98F00BABD53 /* ComponentUpdateable.cpp */; };
 		044C64C81ADED4AF00BABD53 /* ComponentSystemManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 044C624F1ADDE98F00BABD53 /* ComponentSystemManager.cpp */; };
 		044C64C91ADED4AF00BABD53 /* ComponentTypeManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 044C62511ADDE98F00BABD53 /* ComponentTypeManager.cpp */; };
 		044C64CA1ADED4AF00BABD53 /* GameObject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 044C62531ADDE98F00BABD53 /* GameObject.cpp */; };
@@ -201,6 +180,121 @@
 		04936EF51AE3F1CF00344903 /* EngineEditorCommands.h in Headers */ = {isa = PBXBuildFile; fileRef = 04936EEF1AE3F1CF00344903 /* EngineEditorCommands.h */; };
 		04936EF61AE3F1CF00344903 /* TransformGizmo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04936EF01AE3F1CF00344903 /* TransformGizmo.cpp */; };
 		04936EF71AE3F1CF00344903 /* TransformGizmo.h in Headers */ = {isa = PBXBuildFile; fileRef = 04936EF11AE3F1CF00344903 /* TransformGizmo.h */; };
+		04AA9ADE1B6731B800FBC03D /* MeshShapes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04AA9A8F1B6731B800FBC03D /* MeshShapes.cpp */; };
+		04AA9ADF1B6731B800FBC03D /* MeshShapes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04AA9A8F1B6731B800FBC03D /* MeshShapes.cpp */; };
+		04AA9AE01B6731B800FBC03D /* MeshShapes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04AA9A8F1B6731B800FBC03D /* MeshShapes.cpp */; };
+		04AA9AE11B6731B800FBC03D /* MeshShapes.h in Headers */ = {isa = PBXBuildFile; fileRef = 04AA9A901B6731B800FBC03D /* MeshShapes.h */; };
+		04AA9AE21B6731B800FBC03D /* MeshShapes.h in Headers */ = {isa = PBXBuildFile; fileRef = 04AA9A901B6731B800FBC03D /* MeshShapes.h */; };
+		04AA9AE31B6731B800FBC03D /* RenderTextQuick.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04AA9A911B6731B800FBC03D /* RenderTextQuick.cpp */; };
+		04AA9AE41B6731B800FBC03D /* RenderTextQuick.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04AA9A911B6731B800FBC03D /* RenderTextQuick.cpp */; };
+		04AA9AE51B6731B800FBC03D /* RenderTextQuick.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04AA9A911B6731B800FBC03D /* RenderTextQuick.cpp */; };
+		04AA9AE61B6731B800FBC03D /* RenderTextQuick.h in Headers */ = {isa = PBXBuildFile; fileRef = 04AA9A921B6731B800FBC03D /* RenderTextQuick.h */; };
+		04AA9AE71B6731B800FBC03D /* RenderTextQuick.h in Headers */ = {isa = PBXBuildFile; fileRef = 04AA9A921B6731B800FBC03D /* RenderTextQuick.h */; };
+		04AA9B101B6731B800FBC03D /* LanguageTable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04AA9AA61B6731B800FBC03D /* LanguageTable.cpp */; };
+		04AA9B111B6731B800FBC03D /* LanguageTable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04AA9AA61B6731B800FBC03D /* LanguageTable.cpp */; };
+		04AA9B121B6731B800FBC03D /* LanguageTable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04AA9AA61B6731B800FBC03D /* LanguageTable.cpp */; };
+		04AA9B131B6731B800FBC03D /* LanguageTable.h in Headers */ = {isa = PBXBuildFile; fileRef = 04AA9AA71B6731B800FBC03D /* LanguageTable.h */; };
+		04AA9B141B6731B800FBC03D /* LanguageTable.h in Headers */ = {isa = PBXBuildFile; fileRef = 04AA9AA71B6731B800FBC03D /* LanguageTable.h */; };
+		04AA9B151B6731B800FBC03D /* Menu_Helpers.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04AA9AA81B6731B800FBC03D /* Menu_Helpers.cpp */; };
+		04AA9B161B6731B800FBC03D /* Menu_Helpers.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04AA9AA81B6731B800FBC03D /* Menu_Helpers.cpp */; };
+		04AA9B171B6731B800FBC03D /* Menu_Helpers.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04AA9AA81B6731B800FBC03D /* Menu_Helpers.cpp */; };
+		04AA9B181B6731B800FBC03D /* Menu_Helpers.h in Headers */ = {isa = PBXBuildFile; fileRef = 04AA9AA91B6731B800FBC03D /* Menu_Helpers.h */; };
+		04AA9B191B6731B800FBC03D /* Menu_Helpers.h in Headers */ = {isa = PBXBuildFile; fileRef = 04AA9AA91B6731B800FBC03D /* Menu_Helpers.h */; };
+		04AA9B1A1B6731B800FBC03D /* MenuButton.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04AA9AAA1B6731B800FBC03D /* MenuButton.cpp */; };
+		04AA9B1B1B6731B800FBC03D /* MenuButton.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04AA9AAA1B6731B800FBC03D /* MenuButton.cpp */; };
+		04AA9B1C1B6731B800FBC03D /* MenuButton.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04AA9AAA1B6731B800FBC03D /* MenuButton.cpp */; };
+		04AA9B1D1B6731B800FBC03D /* MenuButton.h in Headers */ = {isa = PBXBuildFile; fileRef = 04AA9AAB1B6731B800FBC03D /* MenuButton.h */; };
+		04AA9B1E1B6731B800FBC03D /* MenuButton.h in Headers */ = {isa = PBXBuildFile; fileRef = 04AA9AAB1B6731B800FBC03D /* MenuButton.h */; };
+		04AA9B1F1B6731B800FBC03D /* MenuCheckBox.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04AA9AAC1B6731B800FBC03D /* MenuCheckBox.cpp */; };
+		04AA9B201B6731B800FBC03D /* MenuCheckBox.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04AA9AAC1B6731B800FBC03D /* MenuCheckBox.cpp */; };
+		04AA9B211B6731B800FBC03D /* MenuCheckBox.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04AA9AAC1B6731B800FBC03D /* MenuCheckBox.cpp */; };
+		04AA9B221B6731B800FBC03D /* MenuCheckBox.h in Headers */ = {isa = PBXBuildFile; fileRef = 04AA9AAD1B6731B800FBC03D /* MenuCheckBox.h */; };
+		04AA9B231B6731B800FBC03D /* MenuCheckBox.h in Headers */ = {isa = PBXBuildFile; fileRef = 04AA9AAD1B6731B800FBC03D /* MenuCheckBox.h */; };
+		04AA9B241B6731B800FBC03D /* MenuDraggableButton.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04AA9AAE1B6731B800FBC03D /* MenuDraggableButton.cpp */; };
+		04AA9B251B6731B800FBC03D /* MenuDraggableButton.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04AA9AAE1B6731B800FBC03D /* MenuDraggableButton.cpp */; };
+		04AA9B261B6731B800FBC03D /* MenuDraggableButton.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04AA9AAE1B6731B800FBC03D /* MenuDraggableButton.cpp */; };
+		04AA9B271B6731B800FBC03D /* MenuDraggableButton.h in Headers */ = {isa = PBXBuildFile; fileRef = 04AA9AAF1B6731B800FBC03D /* MenuDraggableButton.h */; };
+		04AA9B281B6731B800FBC03D /* MenuDraggableButton.h in Headers */ = {isa = PBXBuildFile; fileRef = 04AA9AAF1B6731B800FBC03D /* MenuDraggableButton.h */; };
+		04AA9B291B6731B800FBC03D /* MenuInputBox.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04AA9AB01B6731B800FBC03D /* MenuInputBox.cpp */; };
+		04AA9B2A1B6731B800FBC03D /* MenuInputBox.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04AA9AB01B6731B800FBC03D /* MenuInputBox.cpp */; };
+		04AA9B2B1B6731B800FBC03D /* MenuInputBox.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04AA9AB01B6731B800FBC03D /* MenuInputBox.cpp */; };
+		04AA9B2C1B6731B800FBC03D /* MenuInputBox.h in Headers */ = {isa = PBXBuildFile; fileRef = 04AA9AB11B6731B800FBC03D /* MenuInputBox.h */; };
+		04AA9B2D1B6731B800FBC03D /* MenuInputBox.h in Headers */ = {isa = PBXBuildFile; fileRef = 04AA9AB11B6731B800FBC03D /* MenuInputBox.h */; };
+		04AA9B2E1B6731B800FBC03D /* MenuItem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04AA9AB21B6731B800FBC03D /* MenuItem.cpp */; };
+		04AA9B2F1B6731B800FBC03D /* MenuItem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04AA9AB21B6731B800FBC03D /* MenuItem.cpp */; };
+		04AA9B301B6731B800FBC03D /* MenuItem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04AA9AB21B6731B800FBC03D /* MenuItem.cpp */; };
+		04AA9B311B6731B800FBC03D /* MenuItem.h in Headers */ = {isa = PBXBuildFile; fileRef = 04AA9AB31B6731B800FBC03D /* MenuItem.h */; };
+		04AA9B321B6731B800FBC03D /* MenuItem.h in Headers */ = {isa = PBXBuildFile; fileRef = 04AA9AB31B6731B800FBC03D /* MenuItem.h */; };
+		04AA9B331B6731B800FBC03D /* MenuScrollBox.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04AA9AB41B6731B800FBC03D /* MenuScrollBox.cpp */; };
+		04AA9B341B6731B800FBC03D /* MenuScrollBox.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04AA9AB41B6731B800FBC03D /* MenuScrollBox.cpp */; };
+		04AA9B351B6731B800FBC03D /* MenuScrollBox.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04AA9AB41B6731B800FBC03D /* MenuScrollBox.cpp */; };
+		04AA9B361B6731B800FBC03D /* MenuScrollBox.h in Headers */ = {isa = PBXBuildFile; fileRef = 04AA9AB51B6731B800FBC03D /* MenuScrollBox.h */; };
+		04AA9B371B6731B800FBC03D /* MenuScrollBox.h in Headers */ = {isa = PBXBuildFile; fileRef = 04AA9AB51B6731B800FBC03D /* MenuScrollBox.h */; };
+		04AA9B381B6731B800FBC03D /* MenuScrollingText.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04AA9AB61B6731B800FBC03D /* MenuScrollingText.cpp */; };
+		04AA9B391B6731B800FBC03D /* MenuScrollingText.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04AA9AB61B6731B800FBC03D /* MenuScrollingText.cpp */; };
+		04AA9B3A1B6731B800FBC03D /* MenuScrollingText.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04AA9AB61B6731B800FBC03D /* MenuScrollingText.cpp */; };
+		04AA9B3B1B6731B800FBC03D /* MenuScrollingText.h in Headers */ = {isa = PBXBuildFile; fileRef = 04AA9AB71B6731B800FBC03D /* MenuScrollingText.h */; };
+		04AA9B3C1B6731B800FBC03D /* MenuScrollingText.h in Headers */ = {isa = PBXBuildFile; fileRef = 04AA9AB71B6731B800FBC03D /* MenuScrollingText.h */; };
+		04AA9B3D1B6731B800FBC03D /* MenuSlider.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04AA9AB81B6731B800FBC03D /* MenuSlider.cpp */; };
+		04AA9B3E1B6731B800FBC03D /* MenuSlider.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04AA9AB81B6731B800FBC03D /* MenuSlider.cpp */; };
+		04AA9B3F1B6731B800FBC03D /* MenuSlider.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04AA9AB81B6731B800FBC03D /* MenuSlider.cpp */; };
+		04AA9B401B6731B800FBC03D /* MenuSlider.h in Headers */ = {isa = PBXBuildFile; fileRef = 04AA9AB91B6731B800FBC03D /* MenuSlider.h */; };
+		04AA9B411B6731B800FBC03D /* MenuSlider.h in Headers */ = {isa = PBXBuildFile; fileRef = 04AA9AB91B6731B800FBC03D /* MenuSlider.h */; };
+		04AA9B421B6731B800FBC03D /* MenuSprite.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04AA9ABA1B6731B800FBC03D /* MenuSprite.cpp */; };
+		04AA9B431B6731B800FBC03D /* MenuSprite.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04AA9ABA1B6731B800FBC03D /* MenuSprite.cpp */; };
+		04AA9B441B6731B800FBC03D /* MenuSprite.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04AA9ABA1B6731B800FBC03D /* MenuSprite.cpp */; };
+		04AA9B451B6731B800FBC03D /* MenuSprite.h in Headers */ = {isa = PBXBuildFile; fileRef = 04AA9ABB1B6731B800FBC03D /* MenuSprite.h */; };
+		04AA9B461B6731B800FBC03D /* MenuSprite.h in Headers */ = {isa = PBXBuildFile; fileRef = 04AA9ABB1B6731B800FBC03D /* MenuSprite.h */; };
+		04AA9B471B6731B800FBC03D /* MenuText.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04AA9ABC1B6731B800FBC03D /* MenuText.cpp */; };
+		04AA9B481B6731B800FBC03D /* MenuText.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04AA9ABC1B6731B800FBC03D /* MenuText.cpp */; };
+		04AA9B491B6731B800FBC03D /* MenuText.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04AA9ABC1B6731B800FBC03D /* MenuText.cpp */; };
+		04AA9B4A1B6731B800FBC03D /* MenuText.h in Headers */ = {isa = PBXBuildFile; fileRef = 04AA9ABD1B6731B800FBC03D /* MenuText.h */; };
+		04AA9B4B1B6731B800FBC03D /* MenuText.h in Headers */ = {isa = PBXBuildFile; fileRef = 04AA9ABD1B6731B800FBC03D /* MenuText.h */; };
+		04AA9B9F1B67370F00FBC03D /* ComponentBase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04AA9B8F1B67370F00FBC03D /* ComponentBase.cpp */; };
+		04AA9BA01B67370F00FBC03D /* ComponentBase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04AA9B8F1B67370F00FBC03D /* ComponentBase.cpp */; };
+		04AA9BA11B67370F00FBC03D /* ComponentBase.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04AA9B8F1B67370F00FBC03D /* ComponentBase.cpp */; };
+		04AA9BA21B67370F00FBC03D /* ComponentBase.h in Headers */ = {isa = PBXBuildFile; fileRef = 04AA9B901B67370F00FBC03D /* ComponentBase.h */; };
+		04AA9BA31B67370F00FBC03D /* ComponentBase.h in Headers */ = {isa = PBXBuildFile; fileRef = 04AA9B901B67370F00FBC03D /* ComponentBase.h */; };
+		04AA9BA41B67370F00FBC03D /* ComponentCamera.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04AA9B911B67370F00FBC03D /* ComponentCamera.cpp */; };
+		04AA9BA51B67370F00FBC03D /* ComponentCamera.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04AA9B911B67370F00FBC03D /* ComponentCamera.cpp */; };
+		04AA9BA61B67370F00FBC03D /* ComponentCamera.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04AA9B911B67370F00FBC03D /* ComponentCamera.cpp */; };
+		04AA9BA71B67370F00FBC03D /* ComponentCamera.h in Headers */ = {isa = PBXBuildFile; fileRef = 04AA9B921B67370F00FBC03D /* ComponentCamera.h */; };
+		04AA9BA81B67370F00FBC03D /* ComponentCamera.h in Headers */ = {isa = PBXBuildFile; fileRef = 04AA9B921B67370F00FBC03D /* ComponentCamera.h */; };
+		04AA9BA91B67370F00FBC03D /* ComponentData.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04AA9B931B67370F00FBC03D /* ComponentData.cpp */; };
+		04AA9BAA1B67370F00FBC03D /* ComponentData.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04AA9B931B67370F00FBC03D /* ComponentData.cpp */; };
+		04AA9BAB1B67370F00FBC03D /* ComponentData.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04AA9B931B67370F00FBC03D /* ComponentData.cpp */; };
+		04AA9BAC1B67370F00FBC03D /* ComponentData.h in Headers */ = {isa = PBXBuildFile; fileRef = 04AA9B941B67370F00FBC03D /* ComponentData.h */; };
+		04AA9BAD1B67370F00FBC03D /* ComponentData.h in Headers */ = {isa = PBXBuildFile; fileRef = 04AA9B941B67370F00FBC03D /* ComponentData.h */; };
+		04AA9BAE1B67370F00FBC03D /* ComponentInputHandler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04AA9B951B67370F00FBC03D /* ComponentInputHandler.cpp */; };
+		04AA9BAF1B67370F00FBC03D /* ComponentInputHandler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04AA9B951B67370F00FBC03D /* ComponentInputHandler.cpp */; };
+		04AA9BB01B67370F00FBC03D /* ComponentInputHandler.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04AA9B951B67370F00FBC03D /* ComponentInputHandler.cpp */; };
+		04AA9BB11B67370F00FBC03D /* ComponentInputHandler.h in Headers */ = {isa = PBXBuildFile; fileRef = 04AA9B961B67370F00FBC03D /* ComponentInputHandler.h */; };
+		04AA9BB21B67370F00FBC03D /* ComponentInputHandler.h in Headers */ = {isa = PBXBuildFile; fileRef = 04AA9B961B67370F00FBC03D /* ComponentInputHandler.h */; };
+		04AA9BB31B67370F00FBC03D /* ComponentMenuPage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04AA9B971B67370F00FBC03D /* ComponentMenuPage.cpp */; };
+		04AA9BB41B67370F00FBC03D /* ComponentMenuPage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04AA9B971B67370F00FBC03D /* ComponentMenuPage.cpp */; };
+		04AA9BB51B67370F00FBC03D /* ComponentMenuPage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04AA9B971B67370F00FBC03D /* ComponentMenuPage.cpp */; };
+		04AA9BB61B67370F00FBC03D /* ComponentMenuPage.h in Headers */ = {isa = PBXBuildFile; fileRef = 04AA9B981B67370F00FBC03D /* ComponentMenuPage.h */; };
+		04AA9BB71B67370F00FBC03D /* ComponentMenuPage.h in Headers */ = {isa = PBXBuildFile; fileRef = 04AA9B981B67370F00FBC03D /* ComponentMenuPage.h */; };
+		04AA9BB81B67370F00FBC03D /* ComponentRenderable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04AA9B991B67370F00FBC03D /* ComponentRenderable.cpp */; };
+		04AA9BB91B67370F00FBC03D /* ComponentRenderable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04AA9B991B67370F00FBC03D /* ComponentRenderable.cpp */; };
+		04AA9BBA1B67370F00FBC03D /* ComponentRenderable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04AA9B991B67370F00FBC03D /* ComponentRenderable.cpp */; };
+		04AA9BBB1B67370F00FBC03D /* ComponentRenderable.h in Headers */ = {isa = PBXBuildFile; fileRef = 04AA9B9A1B67370F00FBC03D /* ComponentRenderable.h */; };
+		04AA9BBC1B67370F00FBC03D /* ComponentRenderable.h in Headers */ = {isa = PBXBuildFile; fileRef = 04AA9B9A1B67370F00FBC03D /* ComponentRenderable.h */; };
+		04AA9BBD1B67370F00FBC03D /* ComponentTransform.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04AA9B9B1B67370F00FBC03D /* ComponentTransform.cpp */; };
+		04AA9BBE1B67370F00FBC03D /* ComponentTransform.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04AA9B9B1B67370F00FBC03D /* ComponentTransform.cpp */; };
+		04AA9BBF1B67370F00FBC03D /* ComponentTransform.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04AA9B9B1B67370F00FBC03D /* ComponentTransform.cpp */; };
+		04AA9BC01B67370F00FBC03D /* ComponentTransform.h in Headers */ = {isa = PBXBuildFile; fileRef = 04AA9B9C1B67370F00FBC03D /* ComponentTransform.h */; };
+		04AA9BC11B67370F00FBC03D /* ComponentTransform.h in Headers */ = {isa = PBXBuildFile; fileRef = 04AA9B9C1B67370F00FBC03D /* ComponentTransform.h */; };
+		04AA9BC21B67370F00FBC03D /* ComponentUpdateable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04AA9B9D1B67370F00FBC03D /* ComponentUpdateable.cpp */; };
+		04AA9BC31B67370F00FBC03D /* ComponentUpdateable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04AA9B9D1B67370F00FBC03D /* ComponentUpdateable.cpp */; };
+		04AA9BC41B67370F00FBC03D /* ComponentUpdateable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04AA9B9D1B67370F00FBC03D /* ComponentUpdateable.cpp */; };
+		04AA9BC51B67370F00FBC03D /* ComponentUpdateable.h in Headers */ = {isa = PBXBuildFile; fileRef = 04AA9B9E1B67370F00FBC03D /* ComponentUpdateable.h */; };
+		04AA9BC61B67370F00FBC03D /* ComponentUpdateable.h in Headers */ = {isa = PBXBuildFile; fileRef = 04AA9B9E1B67370F00FBC03D /* ComponentUpdateable.h */; };
+		04AA9BD11B67387C00FBC03D /* InputFinger.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04AA9BCF1B67387C00FBC03D /* InputFinger.cpp */; };
+		04AA9BD21B67387C00FBC03D /* InputFinger.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04AA9BCF1B67387C00FBC03D /* InputFinger.cpp */; };
+		04AA9BD31B67387C00FBC03D /* InputFinger.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04AA9BCF1B67387C00FBC03D /* InputFinger.cpp */; };
+		04AA9BD41B67387C00FBC03D /* InputFinger.h in Headers */ = {isa = PBXBuildFile; fileRef = 04AA9BD01B67387C00FBC03D /* InputFinger.h */; };
+		04AA9BD51B67387C00FBC03D /* InputFinger.h in Headers */ = {isa = PBXBuildFile; fileRef = 04AA9BD01B67387C00FBC03D /* InputFinger.h */; };
 		04B72DF21B0EAC1C00DCB769 /* DialogGridSettings.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04B72DF01B0EAC1C00DCB769 /* DialogGridSettings.cpp */; };
 		04B72DF31B0EAC1C00DCB769 /* DialogGridSettings.h in Headers */ = {isa = PBXBuildFile; fileRef = 04B72DF11B0EAC1C00DCB769 /* DialogGridSettings.h */; };
 		04B72DF61B0EAC4D00DCB769 /* lprefix.h in Headers */ = {isa = PBXBuildFile; fileRef = 04B72DF41B0EAC4D00DCB769 /* lprefix.h */; };
@@ -234,20 +328,6 @@
 		044C623B1ADDE98F00BABD53 /* Camera2D.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Camera2D.h; sourceTree = "<group>"; };
 		044C623C1ADDE98F00BABD53 /* Camera3D.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Camera3D.cpp; sourceTree = "<group>"; };
 		044C623D1ADDE98F00BABD53 /* Camera3D.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Camera3D.h; sourceTree = "<group>"; };
-		044C62401ADDE98F00BABD53 /* ComponentBase.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ComponentBase.cpp; sourceTree = "<group>"; };
-		044C62411ADDE98F00BABD53 /* ComponentBase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ComponentBase.h; sourceTree = "<group>"; };
-		044C62421ADDE98F00BABD53 /* ComponentCamera.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ComponentCamera.cpp; sourceTree = "<group>"; };
-		044C62431ADDE98F00BABD53 /* ComponentCamera.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ComponentCamera.h; sourceTree = "<group>"; };
-		044C62441ADDE98F00BABD53 /* ComponentData.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ComponentData.cpp; sourceTree = "<group>"; };
-		044C62451ADDE98F00BABD53 /* ComponentData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ComponentData.h; sourceTree = "<group>"; };
-		044C62461ADDE98F00BABD53 /* ComponentInputHandler.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ComponentInputHandler.cpp; sourceTree = "<group>"; };
-		044C62471ADDE98F00BABD53 /* ComponentInputHandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ComponentInputHandler.h; sourceTree = "<group>"; };
-		044C62481ADDE98F00BABD53 /* ComponentRenderable.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ComponentRenderable.cpp; sourceTree = "<group>"; };
-		044C62491ADDE98F00BABD53 /* ComponentRenderable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ComponentRenderable.h; sourceTree = "<group>"; };
-		044C624A1ADDE98F00BABD53 /* ComponentTransform.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ComponentTransform.cpp; sourceTree = "<group>"; };
-		044C624B1ADDE98F00BABD53 /* ComponentTransform.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ComponentTransform.h; sourceTree = "<group>"; };
-		044C624C1ADDE98F00BABD53 /* ComponentUpdateable.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ComponentUpdateable.cpp; sourceTree = "<group>"; };
-		044C624D1ADDE98F00BABD53 /* ComponentUpdateable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ComponentUpdateable.h; sourceTree = "<group>"; };
 		044C624F1ADDE98F00BABD53 /* ComponentSystemManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ComponentSystemManager.cpp; sourceTree = "<group>"; };
 		044C62501ADDE98F00BABD53 /* ComponentSystemManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ComponentSystemManager.h; sourceTree = "<group>"; };
 		044C62511ADDE98F00BABD53 /* ComponentTypeManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ComponentTypeManager.cpp; sourceTree = "<group>"; };
@@ -372,6 +452,52 @@
 		04936EEF1AE3F1CF00344903 /* EngineEditorCommands.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EngineEditorCommands.h; sourceTree = "<group>"; };
 		04936EF01AE3F1CF00344903 /* TransformGizmo.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TransformGizmo.cpp; sourceTree = "<group>"; };
 		04936EF11AE3F1CF00344903 /* TransformGizmo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TransformGizmo.h; sourceTree = "<group>"; };
+		04AA9A8F1B6731B800FBC03D /* MeshShapes.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MeshShapes.cpp; sourceTree = "<group>"; };
+		04AA9A901B6731B800FBC03D /* MeshShapes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MeshShapes.h; sourceTree = "<group>"; };
+		04AA9A911B6731B800FBC03D /* RenderTextQuick.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RenderTextQuick.cpp; sourceTree = "<group>"; };
+		04AA9A921B6731B800FBC03D /* RenderTextQuick.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RenderTextQuick.h; sourceTree = "<group>"; };
+		04AA9AA61B6731B800FBC03D /* LanguageTable.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = LanguageTable.cpp; sourceTree = "<group>"; };
+		04AA9AA71B6731B800FBC03D /* LanguageTable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LanguageTable.h; sourceTree = "<group>"; };
+		04AA9AA81B6731B800FBC03D /* Menu_Helpers.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Menu_Helpers.cpp; sourceTree = "<group>"; };
+		04AA9AA91B6731B800FBC03D /* Menu_Helpers.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Menu_Helpers.h; sourceTree = "<group>"; };
+		04AA9AAA1B6731B800FBC03D /* MenuButton.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MenuButton.cpp; sourceTree = "<group>"; };
+		04AA9AAB1B6731B800FBC03D /* MenuButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MenuButton.h; sourceTree = "<group>"; };
+		04AA9AAC1B6731B800FBC03D /* MenuCheckBox.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MenuCheckBox.cpp; sourceTree = "<group>"; };
+		04AA9AAD1B6731B800FBC03D /* MenuCheckBox.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MenuCheckBox.h; sourceTree = "<group>"; };
+		04AA9AAE1B6731B800FBC03D /* MenuDraggableButton.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MenuDraggableButton.cpp; sourceTree = "<group>"; };
+		04AA9AAF1B6731B800FBC03D /* MenuDraggableButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MenuDraggableButton.h; sourceTree = "<group>"; };
+		04AA9AB01B6731B800FBC03D /* MenuInputBox.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MenuInputBox.cpp; sourceTree = "<group>"; };
+		04AA9AB11B6731B800FBC03D /* MenuInputBox.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MenuInputBox.h; sourceTree = "<group>"; };
+		04AA9AB21B6731B800FBC03D /* MenuItem.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MenuItem.cpp; sourceTree = "<group>"; };
+		04AA9AB31B6731B800FBC03D /* MenuItem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MenuItem.h; sourceTree = "<group>"; };
+		04AA9AB41B6731B800FBC03D /* MenuScrollBox.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MenuScrollBox.cpp; sourceTree = "<group>"; };
+		04AA9AB51B6731B800FBC03D /* MenuScrollBox.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MenuScrollBox.h; sourceTree = "<group>"; };
+		04AA9AB61B6731B800FBC03D /* MenuScrollingText.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MenuScrollingText.cpp; sourceTree = "<group>"; };
+		04AA9AB71B6731B800FBC03D /* MenuScrollingText.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MenuScrollingText.h; sourceTree = "<group>"; };
+		04AA9AB81B6731B800FBC03D /* MenuSlider.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MenuSlider.cpp; sourceTree = "<group>"; };
+		04AA9AB91B6731B800FBC03D /* MenuSlider.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MenuSlider.h; sourceTree = "<group>"; };
+		04AA9ABA1B6731B800FBC03D /* MenuSprite.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MenuSprite.cpp; sourceTree = "<group>"; };
+		04AA9ABB1B6731B800FBC03D /* MenuSprite.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MenuSprite.h; sourceTree = "<group>"; };
+		04AA9ABC1B6731B800FBC03D /* MenuText.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MenuText.cpp; sourceTree = "<group>"; };
+		04AA9ABD1B6731B800FBC03D /* MenuText.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MenuText.h; sourceTree = "<group>"; };
+		04AA9B8F1B67370F00FBC03D /* ComponentBase.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ComponentBase.cpp; sourceTree = "<group>"; };
+		04AA9B901B67370F00FBC03D /* ComponentBase.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ComponentBase.h; sourceTree = "<group>"; };
+		04AA9B911B67370F00FBC03D /* ComponentCamera.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ComponentCamera.cpp; sourceTree = "<group>"; };
+		04AA9B921B67370F00FBC03D /* ComponentCamera.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ComponentCamera.h; sourceTree = "<group>"; };
+		04AA9B931B67370F00FBC03D /* ComponentData.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ComponentData.cpp; sourceTree = "<group>"; };
+		04AA9B941B67370F00FBC03D /* ComponentData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ComponentData.h; sourceTree = "<group>"; };
+		04AA9B951B67370F00FBC03D /* ComponentInputHandler.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ComponentInputHandler.cpp; sourceTree = "<group>"; };
+		04AA9B961B67370F00FBC03D /* ComponentInputHandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ComponentInputHandler.h; sourceTree = "<group>"; };
+		04AA9B971B67370F00FBC03D /* ComponentMenuPage.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ComponentMenuPage.cpp; sourceTree = "<group>"; };
+		04AA9B981B67370F00FBC03D /* ComponentMenuPage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ComponentMenuPage.h; sourceTree = "<group>"; };
+		04AA9B991B67370F00FBC03D /* ComponentRenderable.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ComponentRenderable.cpp; sourceTree = "<group>"; };
+		04AA9B9A1B67370F00FBC03D /* ComponentRenderable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ComponentRenderable.h; sourceTree = "<group>"; };
+		04AA9B9B1B67370F00FBC03D /* ComponentTransform.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ComponentTransform.cpp; sourceTree = "<group>"; };
+		04AA9B9C1B67370F00FBC03D /* ComponentTransform.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ComponentTransform.h; sourceTree = "<group>"; };
+		04AA9B9D1B67370F00FBC03D /* ComponentUpdateable.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ComponentUpdateable.cpp; sourceTree = "<group>"; };
+		04AA9B9E1B67370F00FBC03D /* ComponentUpdateable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ComponentUpdateable.h; sourceTree = "<group>"; };
+		04AA9BCF1B67387C00FBC03D /* InputFinger.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = InputFinger.cpp; path = ../../../../../ProjectInfiniteDungNew/Engine/MyEngine/SourceCommon/Core/InputFinger.cpp; sourceTree = "<group>"; };
+		04AA9BD01B67387C00FBC03D /* InputFinger.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = InputFinger.h; path = ../../../../../ProjectInfiniteDungNew/Engine/MyEngine/SourceCommon/Core/InputFinger.h; sourceTree = "<group>"; };
 		04B72DF01B0EAC1C00DCB769 /* DialogGridSettings.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DialogGridSettings.cpp; sourceTree = "<group>"; };
 		04B72DF11B0EAC1C00DCB769 /* DialogGridSettings.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DialogGridSettings.h; sourceTree = "<group>"; };
 		04B72DF41B0EAC4D00DCB769 /* lprefix.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lprefix.h; sourceTree = "<group>"; };
@@ -408,6 +534,7 @@
 		044C62151ADDE85700BABD53 = {
 			isa = PBXGroup;
 			children = (
+				04AA9AC41B6731B800FBC03D /* SharedGameCode */,
 				044C63341ADE8B9200BABD53 /* Lua */,
 				044C62381ADDE98F00BABD53 /* SourceCommon */,
 				044C621F1ADDE85700BABD53 /* Products */,
@@ -451,32 +578,11 @@
 		044C623E1ADDE98F00BABD53 /* ComponentSystem */ = {
 			isa = PBXGroup;
 			children = (
-				044C623F1ADDE98F00BABD53 /* BaseComponents */,
+				04AA9B8E1B67370F00FBC03D /* BaseComponents */,
 				044C624E1ADDE98F00BABD53 /* Core */,
 				044C62551ADDE98F00BABD53 /* FrameworkComponents */,
 			);
 			path = ComponentSystem;
-			sourceTree = "<group>";
-		};
-		044C623F1ADDE98F00BABD53 /* BaseComponents */ = {
-			isa = PBXGroup;
-			children = (
-				044C62401ADDE98F00BABD53 /* ComponentBase.cpp */,
-				044C62411ADDE98F00BABD53 /* ComponentBase.h */,
-				044C62421ADDE98F00BABD53 /* ComponentCamera.cpp */,
-				044C62431ADDE98F00BABD53 /* ComponentCamera.h */,
-				044C62441ADDE98F00BABD53 /* ComponentData.cpp */,
-				044C62451ADDE98F00BABD53 /* ComponentData.h */,
-				044C62461ADDE98F00BABD53 /* ComponentInputHandler.cpp */,
-				044C62471ADDE98F00BABD53 /* ComponentInputHandler.h */,
-				044C62481ADDE98F00BABD53 /* ComponentRenderable.cpp */,
-				044C62491ADDE98F00BABD53 /* ComponentRenderable.h */,
-				044C624A1ADDE98F00BABD53 /* ComponentTransform.cpp */,
-				044C624B1ADDE98F00BABD53 /* ComponentTransform.h */,
-				044C624C1ADDE98F00BABD53 /* ComponentUpdateable.cpp */,
-				044C624D1ADDE98F00BABD53 /* ComponentUpdateable.h */,
-			);
-			path = BaseComponents;
 			sourceTree = "<group>";
 		};
 		044C624E1ADDE98F00BABD53 /* Core */ = {
@@ -536,6 +642,8 @@
 				044C62721ADDE98F00BABD53 /* EngineCore.h */,
 				044C62731ADDE98F00BABD53 /* EngineMainFrame.cpp */,
 				044C62741ADDE98F00BABD53 /* EngineMainFrame.h */,
+				04AA9BCF1B67387C00FBC03D /* InputFinger.cpp */,
+				04AA9BD01B67387C00FBC03D /* InputFinger.h */,
 				044C62751ADDE98F00BABD53 /* LuaGameState.cpp */,
 				044C62761ADDE98F00BABD53 /* LuaGameState.h */,
 			);
@@ -665,6 +773,82 @@
 			path = Editor;
 			sourceTree = "<group>";
 		};
+		04AA9A931B6731B800FBC03D /* Core */ = {
+			isa = PBXGroup;
+			children = (
+				04AA9A8F1B6731B800FBC03D /* MeshShapes.cpp */,
+				04AA9A901B6731B800FBC03D /* MeshShapes.h */,
+				04AA9A911B6731B800FBC03D /* RenderTextQuick.cpp */,
+				04AA9A921B6731B800FBC03D /* RenderTextQuick.h */,
+			);
+			path = Core;
+			sourceTree = "<group>";
+		};
+		04AA9ABE1B6731B800FBC03D /* Menus */ = {
+			isa = PBXGroup;
+			children = (
+				04AA9AA61B6731B800FBC03D /* LanguageTable.cpp */,
+				04AA9AA71B6731B800FBC03D /* LanguageTable.h */,
+				04AA9AA81B6731B800FBC03D /* Menu_Helpers.cpp */,
+				04AA9AA91B6731B800FBC03D /* Menu_Helpers.h */,
+				04AA9AAA1B6731B800FBC03D /* MenuButton.cpp */,
+				04AA9AAB1B6731B800FBC03D /* MenuButton.h */,
+				04AA9AAC1B6731B800FBC03D /* MenuCheckBox.cpp */,
+				04AA9AAD1B6731B800FBC03D /* MenuCheckBox.h */,
+				04AA9AAE1B6731B800FBC03D /* MenuDraggableButton.cpp */,
+				04AA9AAF1B6731B800FBC03D /* MenuDraggableButton.h */,
+				04AA9AB01B6731B800FBC03D /* MenuInputBox.cpp */,
+				04AA9AB11B6731B800FBC03D /* MenuInputBox.h */,
+				04AA9AB21B6731B800FBC03D /* MenuItem.cpp */,
+				04AA9AB31B6731B800FBC03D /* MenuItem.h */,
+				04AA9AB41B6731B800FBC03D /* MenuScrollBox.cpp */,
+				04AA9AB51B6731B800FBC03D /* MenuScrollBox.h */,
+				04AA9AB61B6731B800FBC03D /* MenuScrollingText.cpp */,
+				04AA9AB71B6731B800FBC03D /* MenuScrollingText.h */,
+				04AA9AB81B6731B800FBC03D /* MenuSlider.cpp */,
+				04AA9AB91B6731B800FBC03D /* MenuSlider.h */,
+				04AA9ABA1B6731B800FBC03D /* MenuSprite.cpp */,
+				04AA9ABB1B6731B800FBC03D /* MenuSprite.h */,
+				04AA9ABC1B6731B800FBC03D /* MenuText.cpp */,
+				04AA9ABD1B6731B800FBC03D /* MenuText.h */,
+			);
+			path = Menus;
+			sourceTree = "<group>";
+		};
+		04AA9AC41B6731B800FBC03D /* SharedGameCode */ = {
+			isa = PBXGroup;
+			children = (
+				04AA9A931B6731B800FBC03D /* Core */,
+				04AA9ABE1B6731B800FBC03D /* Menus */,
+			);
+			name = SharedGameCode;
+			path = /Users/jameslord/Projects/ProjectEngineEmpty/GameEmptyReplaceMe/Game/../../../ProjectInfiniteDungNew/SharedGameCode;
+			sourceTree = "<absolute>";
+		};
+		04AA9B8E1B67370F00FBC03D /* BaseComponents */ = {
+			isa = PBXGroup;
+			children = (
+				04AA9B8F1B67370F00FBC03D /* ComponentBase.cpp */,
+				04AA9B901B67370F00FBC03D /* ComponentBase.h */,
+				04AA9B911B67370F00FBC03D /* ComponentCamera.cpp */,
+				04AA9B921B67370F00FBC03D /* ComponentCamera.h */,
+				04AA9B931B67370F00FBC03D /* ComponentData.cpp */,
+				04AA9B941B67370F00FBC03D /* ComponentData.h */,
+				04AA9B951B67370F00FBC03D /* ComponentInputHandler.cpp */,
+				04AA9B961B67370F00FBC03D /* ComponentInputHandler.h */,
+				04AA9B971B67370F00FBC03D /* ComponentMenuPage.cpp */,
+				04AA9B981B67370F00FBC03D /* ComponentMenuPage.h */,
+				04AA9B991B67370F00FBC03D /* ComponentRenderable.cpp */,
+				04AA9B9A1B67370F00FBC03D /* ComponentRenderable.h */,
+				04AA9B9B1B67370F00FBC03D /* ComponentTransform.cpp */,
+				04AA9B9C1B67370F00FBC03D /* ComponentTransform.h */,
+				04AA9B9D1B67370F00FBC03D /* ComponentUpdateable.cpp */,
+				04AA9B9E1B67370F00FBC03D /* ComponentUpdateable.h */,
+			);
+			name = BaseComponents;
+			path = ../../../../../ProjectInfiniteDungNew/Engine/MyEngine/SourceCommon/ComponentSystem/BaseComponents;
+			sourceTree = "<group>";
+		};
 		04B72DEF1B0EAC1C00DCB769 /* Dialogs */ = {
 			isa = PBXGroup;
 			children = (
@@ -681,13 +865,36 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				04AA9B2D1B6731B800FBC03D /* MenuInputBox.h in Headers */,
 				04936EF31AE3F1CF00344903 /* EngineCommandStack.h in Headers */,
+				04AA9BBC1B67370F00FBC03D /* ComponentRenderable.h in Headers */,
+				04AA9BC61B67370F00FBC03D /* ComponentUpdateable.h in Headers */,
+				04AA9B4B1B6731B800FBC03D /* MenuText.h in Headers */,
 				04B72DF71B0EAC4D00DCB769 /* lprefix.h in Headers */,
 				048AF0AC1AF302D200EB4FC7 /* ComponentPostEffect.h in Headers */,
+				04AA9B141B6731B800FBC03D /* LanguageTable.h in Headers */,
+				04AA9B3C1B6731B800FBC03D /* MenuScrollingText.h in Headers */,
+				04AA9BB21B67370F00FBC03D /* ComponentInputHandler.h in Headers */,
 				04936EF51AE3F1CF00344903 /* EngineEditorCommands.h in Headers */,
+				04AA9BA81B67370F00FBC03D /* ComponentCamera.h in Headers */,
+				04AA9AE71B6731B800FBC03D /* RenderTextQuick.h in Headers */,
+				04AA9BAD1B67370F00FBC03D /* ComponentData.h in Headers */,
+				04AA9B191B6731B800FBC03D /* Menu_Helpers.h in Headers */,
+				04AA9B461B6731B800FBC03D /* MenuSprite.h in Headers */,
+				04AA9BD51B67387C00FBC03D /* InputFinger.h in Headers */,
 				04B72E011B0EAC7D00DCB769 /* EngineFileManager.h in Headers */,
+				04AA9B321B6731B800FBC03D /* MenuItem.h in Headers */,
+				04AA9B371B6731B800FBC03D /* MenuScrollBox.h in Headers */,
 				04936EF71AE3F1CF00344903 /* TransformGizmo.h in Headers */,
+				04AA9BA31B67370F00FBC03D /* ComponentBase.h in Headers */,
 				04B72DF31B0EAC1C00DCB769 /* DialogGridSettings.h in Headers */,
+				04AA9BC11B67370F00FBC03D /* ComponentTransform.h in Headers */,
+				04AA9B1E1B6731B800FBC03D /* MenuButton.h in Headers */,
+				04AA9B281B6731B800FBC03D /* MenuDraggableButton.h in Headers */,
+				04AA9BB71B67370F00FBC03D /* ComponentMenuPage.h in Headers */,
+				04AA9B411B6731B800FBC03D /* MenuSlider.h in Headers */,
+				04AA9AE21B6731B800FBC03D /* MeshShapes.h in Headers */,
+				04AA9B231B6731B800FBC03D /* MenuCheckBox.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -695,9 +902,32 @@
 			isa = PBXHeadersBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				04AA9B271B6731B800FBC03D /* MenuDraggableButton.h in Headers */,
+				04AA9BA21B67370F00FBC03D /* ComponentBase.h in Headers */,
+				04AA9BA71B67370F00FBC03D /* ComponentCamera.h in Headers */,
+				04AA9B401B6731B800FBC03D /* MenuSlider.h in Headers */,
+				04AA9B2C1B6731B800FBC03D /* MenuInputBox.h in Headers */,
+				04AA9B4A1B6731B800FBC03D /* MenuText.h in Headers */,
+				04AA9B1D1B6731B800FBC03D /* MenuButton.h in Headers */,
+				04AA9B181B6731B800FBC03D /* Menu_Helpers.h in Headers */,
+				04AA9BB61B67370F00FBC03D /* ComponentMenuPage.h in Headers */,
+				04AA9BC01B67370F00FBC03D /* ComponentTransform.h in Headers */,
+				04AA9B451B6731B800FBC03D /* MenuSprite.h in Headers */,
+				04AA9AE61B6731B800FBC03D /* RenderTextQuick.h in Headers */,
+				04AA9BB11B67370F00FBC03D /* ComponentInputHandler.h in Headers */,
 				04B72E001B0EAC7D00DCB769 /* EngineFileManager.h in Headers */,
+				04AA9BD41B67387C00FBC03D /* InputFinger.h in Headers */,
+				04AA9B361B6731B800FBC03D /* MenuScrollBox.h in Headers */,
+				04AA9AE11B6731B800FBC03D /* MeshShapes.h in Headers */,
+				04AA9B311B6731B800FBC03D /* MenuItem.h in Headers */,
 				048AF0AB1AF302D100EB4FC7 /* ComponentPostEffect.h in Headers */,
+				04AA9B221B6731B800FBC03D /* MenuCheckBox.h in Headers */,
 				04B72DF61B0EAC4D00DCB769 /* lprefix.h in Headers */,
+				04AA9BC51B67370F00FBC03D /* ComponentUpdateable.h in Headers */,
+				04AA9B131B6731B800FBC03D /* LanguageTable.h in Headers */,
+				04AA9BAC1B67370F00FBC03D /* ComponentData.h in Headers */,
+				04AA9B3B1B6731B800FBC03D /* MenuScrollingText.h in Headers */,
+				04AA9BBB1B67370F00FBC03D /* ComponentRenderable.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -797,39 +1027,48 @@
 			buildActionMask = 2147483647;
 			files = (
 				0423AB131AE2FD5F00C1AE29 /* lfunc.c in Sources */,
+				04AA9BBA1B67370F00FBC03D /* ComponentRenderable.cpp in Sources */,
+				04AA9BBF1B67370F00FBC03D /* ComponentTransform.cpp in Sources */,
 				0423AB141AE2FD5F00C1AE29 /* lobject.c in Sources */,
 				0423AB151AE2FD5F00C1AE29 /* ComponentCameraShadow.cpp in Sources */,
-				0423AB161AE2FD5F00C1AE29 /* ComponentTransform.cpp in Sources */,
 				04936EF21AE3F1CF00344903 /* EngineCommandStack.cpp in Sources */,
 				04936EF61AE3F1CF00344903 /* TransformGizmo.cpp in Sources */,
 				0423AB171AE2FD5F00C1AE29 /* Camera2D.cpp in Sources */,
 				0423AB181AE2FD5F00C1AE29 /* ComponentLight.cpp in Sources */,
 				04936EF41AE3F1CF00344903 /* EngineEditorCommands.cpp in Sources */,
+				04AA9B1C1B6731B800FBC03D /* MenuButton.cpp in Sources */,
+				04AA9B441B6731B800FBC03D /* MenuSprite.cpp in Sources */,
 				0423AB191AE2FD5F00C1AE29 /* LuaGameState.cpp in Sources */,
-				0423AB1A1AE2FD5F00C1AE29 /* ComponentData.cpp in Sources */,
 				0423AB1B1AE2FD5F00C1AE29 /* ldo.c in Sources */,
 				0423AB1C1AE2FD5F00C1AE29 /* ComponentMeshPrimitive.cpp in Sources */,
 				0423AB1D1AE2FD5F00C1AE29 /* lundump.c in Sources */,
-				0423AB1E1AE2FD5F00C1AE29 /* ComponentInputHandler.cpp in Sources */,
-				0423AB1F1AE2FD5F00C1AE29 /* ComponentRenderable.cpp in Sources */,
 				0423AB201AE2FD5F00C1AE29 /* ComponentTypeManager.cpp in Sources */,
 				0423AB211AE2FD5F00C1AE29 /* loslib.c in Sources */,
 				0423AB221AE2FD5F00C1AE29 /* lvm.c in Sources */,
+				04AA9B3F1B6731B800FBC03D /* MenuSlider.cpp in Sources */,
+				04AA9AE51B6731B800FBC03D /* RenderTextQuick.cpp in Sources */,
+				04AA9B211B6731B800FBC03D /* MenuCheckBox.cpp in Sources */,
+				04AA9AE01B6731B800FBC03D /* MeshShapes.cpp in Sources */,
+				04AA9B3A1B6731B800FBC03D /* MenuScrollingText.cpp in Sources */,
 				0423AB231AE2FD5F00C1AE29 /* lstate.c in Sources */,
 				04B72DF21B0EAC1C00DCB769 /* DialogGridSettings.cpp in Sources */,
-				0423AB241AE2FD5F00C1AE29 /* ComponentUpdateable.cpp in Sources */,
-				0423AB251AE2FD5F00C1AE29 /* ComponentBase.cpp in Sources */,
+				04AA9BA11B67370F00FBC03D /* ComponentBase.cpp in Sources */,
+				04AA9BD31B67387C00FBC03D /* InputFinger.cpp in Sources */,
 				0423AB261AE2FD5F00C1AE29 /* lmathlib.c in Sources */,
 				0423AB271AE2FD5F00C1AE29 /* ltablib.c in Sources */,
 				0423AB281AE2FD5F00C1AE29 /* ldblib.c in Sources */,
 				0423AB291AE2FD5F00C1AE29 /* ComponentCollisionObject.cpp in Sources */,
+				04AA9B261B6731B800FBC03D /* MenuDraggableButton.cpp in Sources */,
 				0423AB2A1AE2FD5F00C1AE29 /* EngineMainFrame.cpp in Sources */,
 				0423AB2B1AE2FD5F00C1AE29 /* lstring.c in Sources */,
 				0423AB2C1AE2FD5F00C1AE29 /* ltm.c in Sources */,
 				0423AB2D1AE2FD5F00C1AE29 /* BulletWorld.cpp in Sources */,
 				0423AB2E1AE2FD5F00C1AE29 /* ComponentSystemManager.cpp in Sources */,
 				0423AB2F1AE2FD5F00C1AE29 /* linit.c in Sources */,
+				04AA9BA61B67370F00FBC03D /* ComponentCamera.cpp in Sources */,
 				0423AB301AE2FD5F00C1AE29 /* ltable.c in Sources */,
+				04AA9B491B6731B800FBC03D /* MenuText.cpp in Sources */,
+				04AA9BC41B67370F00FBC03D /* ComponentUpdateable.cpp in Sources */,
 				0423AB311AE2FD5F00C1AE29 /* EditorState.cpp in Sources */,
 				0423AB321AE2FD5F00C1AE29 /* liolib.c in Sources */,
 				0423AB331AE2FD5F00C1AE29 /* lcorolib.c in Sources */,
@@ -837,7 +1076,7 @@
 				0423AB351AE2FD5F00C1AE29 /* ComponentParticleEmitter.cpp in Sources */,
 				0423AB361AE2FD5F00C1AE29 /* EngineCore.cpp in Sources */,
 				0423AB371AE2FD5F00C1AE29 /* lzio.c in Sources */,
-				0423AB381AE2FD5F00C1AE29 /* ComponentCamera.cpp in Sources */,
+				04AA9B2B1B6731B800FBC03D /* MenuInputBox.cpp in Sources */,
 				0423AB391AE2FD5F00C1AE29 /* ComponentMesh.cpp in Sources */,
 				0423AB3A1AE2FD5F00C1AE29 /* lctype.c in Sources */,
 				0423AB3B1AE2FD5F00C1AE29 /* lstrlib.c in Sources */,
@@ -847,19 +1086,26 @@
 				0423AB3E1AE2FD5F00C1AE29 /* ldump.c in Sources */,
 				0423AB3F1AE2FD5F00C1AE29 /* llex.c in Sources */,
 				0423AB401AE2FD5F00C1AE29 /* EngineComponentTypeManager.cpp in Sources */,
+				04AA9B301B6731B800FBC03D /* MenuItem.cpp in Sources */,
+				04AA9BAB1B67370F00FBC03D /* ComponentData.cpp in Sources */,
 				0423AB411AE2FD5F00C1AE29 /* ComponentAnimationPlayer.cpp in Sources */,
 				0423AB421AE2FD5F00C1AE29 /* lapi.c in Sources */,
 				0423AB431AE2FD5F00C1AE29 /* EngineCommonHeader.cpp in Sources */,
 				0423AB441AE2FD5F00C1AE29 /* ldebug.c in Sources */,
 				04B72DFA1B0EAC4D00DCB769 /* lutf8lib.c in Sources */,
+				04AA9B171B6731B800FBC03D /* Menu_Helpers.cpp in Sources */,
 				0423AB451AE2FD5F00C1AE29 /* lopcodes.c in Sources */,
 				0423AB461AE2FD5F00C1AE29 /* lcode.c in Sources */,
+				04AA9B351B6731B800FBC03D /* MenuScrollBox.cpp in Sources */,
 				0423AB471AE2FD5F00C1AE29 /* ComponentMeshOBJ.cpp in Sources */,
 				0423AB481AE2FD5F00C1AE29 /* ComponentLuaScript.cpp in Sources */,
 				0423AB491AE2FD5F00C1AE29 /* lparser.c in Sources */,
 				0423AB4A1AE2FD5F00C1AE29 /* ComponentSprite.cpp in Sources */,
+				04AA9BB01B67370F00FBC03D /* ComponentInputHandler.cpp in Sources */,
+				04AA9B121B6731B800FBC03D /* LanguageTable.cpp in Sources */,
 				0423AB4B1AE2FD5F00C1AE29 /* lbitlib.c in Sources */,
 				0423AB4C1AE2FD5F00C1AE29 /* loadlib.c in Sources */,
+				04AA9BB51B67370F00FBC03D /* ComponentMenuPage.cpp in Sources */,
 				0423AB4D1AE2FD5F00C1AE29 /* lauxlib.c in Sources */,
 				0423AB4E1AE2FD5F00C1AE29 /* lmem.c in Sources */,
 				0423AB4F1AE2FD5F00C1AE29 /* GameObject.cpp in Sources */,
@@ -874,30 +1120,38 @@
 				044C62931ADDE98F00BABD53 /* ComponentMeshPrimitive.cpp in Sources */,
 				044C62891ADDE98F00BABD53 /* ComponentSystemManager.cpp in Sources */,
 				044C63941ADE8B9200BABD53 /* lgc.c in Sources */,
+				04AA9B3D1B6731B800FBC03D /* MenuSlider.cpp in Sources */,
 				044C63A71ADE8B9200BABD53 /* lundump.c in Sources */,
 				04B72DF81B0EAC4D00DCB769 /* lutf8lib.c in Sources */,
+				04AA9BAE1B67370F00FBC03D /* ComponentInputHandler.cpp in Sources */,
 				044C63A01ADE8B9200BABD53 /* lstring.c in Sources */,
+				04AA9B151B6731B800FBC03D /* Menu_Helpers.cpp in Sources */,
+				04AA9B9F1B67370F00FBC03D /* ComponentBase.cpp in Sources */,
+				04AA9B241B6731B800FBC03D /* MenuDraggableButton.cpp in Sources */,
+				04AA9B331B6731B800FBC03D /* MenuScrollBox.cpp in Sources */,
 				044C62991ADDE98F00BABD53 /* EngineCore.cpp in Sources */,
 				044C628C1ADDE98F00BABD53 /* ComponentAnimationPlayer.cpp in Sources */,
 				044C63A41ADE8B9200BABD53 /* ltm.c in Sources */,
 				044C63A31ADE8B9200BABD53 /* ltablib.c in Sources */,
 				044C63A21ADE8B9200BABD53 /* ltable.c in Sources */,
 				044C628D1ADDE98F00BABD53 /* ComponentCameraShadow.cpp in Sources */,
+				04AA9AE31B6731B800FBC03D /* RenderTextQuick.cpp in Sources */,
 				044C63A81ADE8B9200BABD53 /* lvm.c in Sources */,
 				044C638A1ADE8B9200BABD53 /* lbaselib.c in Sources */,
-				044C62831ADDE98F00BABD53 /* ComponentCamera.cpp in Sources */,
 				044C62801ADDE98F00BABD53 /* Camera2D.cpp in Sources */,
 				044C63961ADE8B9200BABD53 /* liolib.c in Sources */,
 				044C638E1ADE8B9200BABD53 /* lctype.c in Sources */,
-				044C62841ADDE98F00BABD53 /* ComponentData.cpp in Sources */,
-				044C62881ADDE98F00BABD53 /* ComponentUpdateable.cpp in Sources */,
+				04AA9B1F1B6731B800FBC03D /* MenuCheckBox.cpp in Sources */,
 				044C62961ADDE98F00BABD53 /* BulletWorld.cpp in Sources */,
 				044C63A91ADE8B9200BABD53 /* lzio.c in Sources */,
 				044C639F1ADE8B9200BABD53 /* lstate.c in Sources */,
+				04AA9BA91B67370F00FBC03D /* ComponentData.cpp in Sources */,
+				04AA9ADE1B6731B800FBC03D /* MeshShapes.cpp in Sources */,
 				04B72DFD1B0EAC7D00DCB769 /* EngineFileManager.cpp in Sources */,
+				04AA9BB31B67370F00FBC03D /* ComponentMenuPage.cpp in Sources */,
 				044C629A1ADDE98F00BABD53 /* EngineMainFrame.cpp in Sources */,
 				044C63891ADE8B9200BABD53 /* lauxlib.c in Sources */,
-				044C62851ADDE98F00BABD53 /* ComponentInputHandler.cpp in Sources */,
+				04AA9BB81B67370F00FBC03D /* ComponentRenderable.cpp in Sources */,
 				044C638C1ADE8B9200BABD53 /* lcode.c in Sources */,
 				044C62911ADDE98F00BABD53 /* ComponentMesh.cpp in Sources */,
 				044C63A11ADE8B9200BABD53 /* lstrlib.c in Sources */,
@@ -907,20 +1161,25 @@
 				044C639B1ADE8B9200BABD53 /* lobject.c in Sources */,
 				044C639A1ADE8B9200BABD53 /* loadlib.c in Sources */,
 				044C62811ADDE98F00BABD53 /* Camera3D.cpp in Sources */,
-				044C62821ADDE98F00BABD53 /* ComponentBase.cpp in Sources */,
 				044C628B1ADDE98F00BABD53 /* GameObject.cpp in Sources */,
+				04AA9B2E1B6731B800FBC03D /* MenuItem.cpp in Sources */,
+				04AA9B381B6731B800FBC03D /* MenuScrollingText.cpp in Sources */,
 				044C639C1ADE8B9200BABD53 /* lopcodes.c in Sources */,
 				044C62921ADDE98F00BABD53 /* ComponentMeshOBJ.cpp in Sources */,
 				048AF0A61AF302BA00EB4FC7 /* ComponentPostEffect.cpp in Sources */,
 				044C639D1ADE8B9200BABD53 /* loslib.c in Sources */,
-				044C62871ADDE98F00BABD53 /* ComponentTransform.cpp in Sources */,
+				04AA9B421B6731B800FBC03D /* MenuSprite.cpp in Sources */,
+				04AA9B291B6731B800FBC03D /* MenuInputBox.cpp in Sources */,
 				044C63971ADE8B9200BABD53 /* llex.c in Sources */,
 				044C63901ADE8B9200BABD53 /* ldebug.c in Sources */,
 				044C639E1ADE8B9200BABD53 /* lparser.c in Sources */,
 				044C63881ADE8B9200BABD53 /* lapi.c in Sources */,
+				04AA9BC21B67370F00FBC03D /* ComponentUpdateable.cpp in Sources */,
 				044C62971ADDE98F00BABD53 /* EditorState.cpp in Sources */,
 				044C628A1ADDE98F00BABD53 /* ComponentTypeManager.cpp in Sources */,
+				04AA9BA41B67370F00FBC03D /* ComponentCamera.cpp in Sources */,
 				044C63931ADE8B9200BABD53 /* lfunc.c in Sources */,
+				04AA9B1A1B6731B800FBC03D /* MenuButton.cpp in Sources */,
 				044C63991ADE8B9200BABD53 /* lmem.c in Sources */,
 				044C63911ADE8B9200BABD53 /* ldo.c in Sources */,
 				044C63981ADE8B9200BABD53 /* lmathlib.c in Sources */,
@@ -933,8 +1192,11 @@
 				044C62901ADDE98F00BABD53 /* ComponentLuaScript.cpp in Sources */,
 				044C63951ADE8B9200BABD53 /* linit.c in Sources */,
 				044C638D1ADE8B9200BABD53 /* lcorolib.c in Sources */,
+				04AA9BD11B67387C00FBC03D /* InputFinger.cpp in Sources */,
+				04AA9BBD1B67370F00FBC03D /* ComponentTransform.cpp in Sources */,
 				044C629B1ADDE98F00BABD53 /* LuaGameState.cpp in Sources */,
-				044C62861ADDE98F00BABD53 /* ComponentRenderable.cpp in Sources */,
+				04AA9B101B6731B800FBC03D /* LanguageTable.cpp in Sources */,
+				04AA9B471B6731B800FBC03D /* MenuText.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -945,32 +1207,38 @@
 				044C64AA1ADED48B00BABD53 /* lfunc.c in Sources */,
 				044C64B21ADED48B00BABD53 /* lobject.c in Sources */,
 				044C64CC1ADED4BC00BABD53 /* ComponentCameraShadow.cpp in Sources */,
-				044C64C61ADED4A900BABD53 /* ComponentTransform.cpp in Sources */,
+				04AA9B3E1B6731B800FBC03D /* MenuSlider.cpp in Sources */,
 				04B72DF91B0EAC4D00DCB769 /* lutf8lib.c in Sources */,
 				044C64BF1ADED49F00BABD53 /* Camera2D.cpp in Sources */,
+				04AA9BAF1B67370F00FBC03D /* ComponentInputHandler.cpp in Sources */,
+				04AA9B161B6731B800FBC03D /* Menu_Helpers.cpp in Sources */,
+				04AA9B251B6731B800FBC03D /* MenuDraggableButton.cpp in Sources */,
+				04AA9BA01B67370F00FBC03D /* ComponentBase.cpp in Sources */,
+				04AA9B341B6731B800FBC03D /* MenuScrollBox.cpp in Sources */,
 				044C64CE1ADED4BC00BABD53 /* ComponentLight.cpp in Sources */,
 				044C64DA1ADED4C900BABD53 /* LuaGameState.cpp in Sources */,
-				044C64C31ADED4A900BABD53 /* ComponentData.cpp in Sources */,
 				044C64A81ADED48B00BABD53 /* ldo.c in Sources */,
 				044C64D21ADED4BC00BABD53 /* ComponentMeshPrimitive.cpp in Sources */,
 				044C64BC1ADED48B00BABD53 /* lundump.c in Sources */,
-				044C64C41ADED4A900BABD53 /* ComponentInputHandler.cpp in Sources */,
-				044C64C51ADED4A900BABD53 /* ComponentRenderable.cpp in Sources */,
+				04AA9AE41B6731B800FBC03D /* RenderTextQuick.cpp in Sources */,
 				044C64C91ADED4AF00BABD53 /* ComponentTypeManager.cpp in Sources */,
 				044C64B41ADED48B00BABD53 /* loslib.c in Sources */,
 				044C64BD1ADED48B00BABD53 /* lvm.c in Sources */,
 				044C64B61ADED48B00BABD53 /* lstate.c in Sources */,
-				044C64C71ADED4A900BABD53 /* ComponentUpdateable.cpp in Sources */,
-				044C64C11ADED4A900BABD53 /* ComponentBase.cpp in Sources */,
+				04AA9B201B6731B800FBC03D /* MenuCheckBox.cpp in Sources */,
 				044C64AF1ADED48B00BABD53 /* lmathlib.c in Sources */,
 				044C64BA1ADED48B00BABD53 /* ltablib.c in Sources */,
 				044C64A61ADED48B00BABD53 /* ldblib.c in Sources */,
+				04AA9ADF1B6731B800FBC03D /* MeshShapes.cpp in Sources */,
 				04B72DFE1B0EAC7D00DCB769 /* EngineFileManager.cpp in Sources */,
 				044C64CD1ADED4BC00BABD53 /* ComponentCollisionObject.cpp in Sources */,
+				04AA9BAA1B67370F00FBC03D /* ComponentData.cpp in Sources */,
 				044C64D91ADED4C900BABD53 /* EngineMainFrame.cpp in Sources */,
 				044C64B71ADED48B00BABD53 /* lstring.c in Sources */,
+				04AA9BB41B67370F00FBC03D /* ComponentMenuPage.cpp in Sources */,
 				044C64BB1ADED48B00BABD53 /* ltm.c in Sources */,
 				044C64D51ADED4C900BABD53 /* BulletWorld.cpp in Sources */,
+				04AA9BB91B67370F00FBC03D /* ComponentRenderable.cpp in Sources */,
 				044C64C81ADED4AF00BABD53 /* ComponentSystemManager.cpp in Sources */,
 				044C64AC1ADED48B00BABD53 /* linit.c in Sources */,
 				044C64B91ADED48B00BABD53 /* ltable.c in Sources */,
@@ -980,18 +1248,24 @@
 				044C64C01ADED49F00BABD53 /* Camera3D.cpp in Sources */,
 				044C64D31ADED4BC00BABD53 /* ComponentParticleEmitter.cpp in Sources */,
 				044C64D81ADED4C900BABD53 /* EngineCore.cpp in Sources */,
+				04AA9B2F1B6731B800FBC03D /* MenuItem.cpp in Sources */,
+				04AA9B391B6731B800FBC03D /* MenuScrollingText.cpp in Sources */,
 				044C64BE1ADED48B00BABD53 /* lzio.c in Sources */,
-				044C64C21ADED4A900BABD53 /* ComponentCamera.cpp in Sources */,
 				048AF0A71AF302BA00EB4FC7 /* ComponentPostEffect.cpp in Sources */,
 				044C64D01ADED4BC00BABD53 /* ComponentMesh.cpp in Sources */,
+				04AA9B431B6731B800FBC03D /* MenuSprite.cpp in Sources */,
+				04AA9B2A1B6731B800FBC03D /* MenuInputBox.cpp in Sources */,
 				044C64A51ADED48B00BABD53 /* lctype.c in Sources */,
 				044C64B81ADED48B00BABD53 /* lstrlib.c in Sources */,
 				044C64AB1ADED48B00BABD53 /* lgc.c in Sources */,
 				044C64A11ADED48B00BABD53 /* lbaselib.c in Sources */,
 				044C64A91ADED48B00BABD53 /* ldump.c in Sources */,
 				044C64AE1ADED48B00BABD53 /* llex.c in Sources */,
+				04AA9BC31B67370F00FBC03D /* ComponentUpdateable.cpp in Sources */,
 				044C64D71ADED4C900BABD53 /* EngineComponentTypeManager.cpp in Sources */,
 				044C64CB1ADED4BC00BABD53 /* ComponentAnimationPlayer.cpp in Sources */,
+				04AA9BA51B67370F00FBC03D /* ComponentCamera.cpp in Sources */,
+				04AA9B1B1B6731B800FBC03D /* MenuButton.cpp in Sources */,
 				044C649F1ADED48B00BABD53 /* lapi.c in Sources */,
 				044C64DB1ADED4CD00BABD53 /* EngineCommonHeader.cpp in Sources */,
 				044C64A71ADED48B00BABD53 /* ldebug.c in Sources */,
@@ -1005,6 +1279,10 @@
 				044C64B11ADED48B00BABD53 /* loadlib.c in Sources */,
 				044C64A01ADED48B00BABD53 /* lauxlib.c in Sources */,
 				044C64B01ADED48B00BABD53 /* lmem.c in Sources */,
+				04AA9BD21B67387C00FBC03D /* InputFinger.cpp in Sources */,
+				04AA9BBE1B67370F00FBC03D /* ComponentTransform.cpp in Sources */,
+				04AA9B111B6731B800FBC03D /* LanguageTable.cpp in Sources */,
+				04AA9B481B6731B800FBC03D /* MenuText.cpp in Sources */,
 				044C64CA1ADED4AF00BABD53 /* GameObject.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1070,6 +1348,8 @@
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"DEBUG=1",
 					"_DEBUG=1",
+					"PCHFILE=\"EngineCommonHeader.h\"",
+					"MYFW_USING_MYENGINE=1",
 				);
 				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
@@ -1105,6 +1385,10 @@
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"PCHFILE=\"EngineCommonHeader.h\"",
+					"MYFW_USING_MYENGINE=1",
+				);
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
 				GCC_WARN_UNDECLARED_SELECTOR = YES;
