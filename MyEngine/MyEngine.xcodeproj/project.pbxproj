@@ -991,7 +991,7 @@
 		044C62161ADDE85700BABD53 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0620;
+				LastUpgradeCheck = 0630;
 				ORGANIZATIONNAME = Me;
 				TargetAttributes = {
 					044C621D1ADDE85700BABD53 = {
@@ -1293,6 +1293,7 @@
 		0423AB531AE2FD5F00C1AE29 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
 				EXECUTABLE_PREFIX = lib;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"MYFW_OSX=1",
@@ -1310,6 +1311,7 @@
 		0423AB541AE2FD5F00C1AE29 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				EXECUTABLE_PREFIX = lib;
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -1362,7 +1364,7 @@
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
-				USER_HEADER_SEARCH_PATHS = ". ../../bullet/src";
+				USER_HEADER_SEARCH_PATHS = "./SourceCommon . ../../bullet/src";
 			};
 			name = Debug;
 		};
@@ -1398,7 +1400,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 8.2;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = iphoneos;
-				USER_HEADER_SEARCH_PATHS = ". ../../bullet/src";
+				USER_HEADER_SEARCH_PATHS = "./SourceCommon . ../../bullet/src";
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;
@@ -1441,6 +1443,7 @@
 		044C64051ADED35900BABD53 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
 				EXECUTABLE_PREFIX = lib;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"MYFW_OSX=1",
@@ -1456,6 +1459,7 @@
 		044C64061ADED35900BABD53 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				EXECUTABLE_PREFIX = lib;
 				GCC_PREPROCESSOR_DEFINITIONS = (
