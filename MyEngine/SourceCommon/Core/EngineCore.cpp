@@ -1514,6 +1514,9 @@ void EngineCore::LoadScene(const char* scenename, const char* buffer, unsigned i
     m_pLuaGameState->Rebuild(); // reset the lua state.
     g_pComponentSystemManager->OnLoad();
 
+    // Tell all the cameras loaded in the scene the dimensions of the window. // TODO: move this into camera's onload.
+    OnSurfaceChanged( (unsigned int)m_WindowStartX, (unsigned int)m_WindowStartY, (unsigned int)m_WindowWidth, (unsigned int)m_WindowHeight );
+
     if( m_AllowGameToRunInEditorMode )
     {
         m_pComponentSystemManager->OnPlay();
@@ -1524,8 +1527,6 @@ void EngineCore::LoadScene(const char* scenename, const char* buffer, unsigned i
 
     g_pEngineMainFrame->ResizeViewport();
 #endif
-
-    //OnSurfaceChanged( (unsigned int)m_WindowStartX, (unsigned int)m_WindowStartY, (unsigned int)m_WindowWidth, (unsigned int)m_WindowHeight );
 }
 
 #if MYFW_USING_WX

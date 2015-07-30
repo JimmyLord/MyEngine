@@ -31,7 +31,6 @@ ComponentMenuPage::ComponentMenuPage()
     m_pComponentLuaScript = 0;
 
     m_MenuItemsCreated = false;
-    m_LayoutChanged = false;
 
     m_InputEnabled = true;
     m_pInputBoxWithKeyboardFocus = 0;
@@ -118,7 +117,6 @@ void ComponentMenuPage::Reset()
 
     SAFE_RELEASE( m_pMenuLayoutFile );
     m_MenuItemsCreated = false;
-    m_LayoutChanged = false;
 
     // find the first ortho cam component in the scene, settle for a perspective if that's all there is.
     m_pComponentCamera = (ComponentCamera*)g_pComponentSystemManager->GetFirstComponentOfType( "CameraComponent" );
@@ -1256,11 +1254,8 @@ void ComponentMenuPage::OnSurfaceChangedCallback(unsigned int startx, unsigned i
     if( m_CurrentWidth == m_pComponentCamera->m_WindowWidth &&
         m_CurrentHeight == m_pComponentCamera->m_WindowHeight )
     {
-        m_LayoutChanged = false;
         return;
     }
-
-    m_LayoutChanged = true;
 
 #if MYFW_USING_WX
     // if we have a valid layout, save it.
@@ -1275,8 +1270,8 @@ void ComponentMenuPage::OnSurfaceChangedCallback(unsigned int startx, unsigned i
     if( m_Visible == false )
         return;
 
-    m_CurrentWidth = m_pComponentCamera->m_WindowWidth;
-    m_CurrentHeight = m_pComponentCamera->m_WindowHeight;
+    //m_CurrentWidth = m_pComponentCamera->m_WindowWidth;
+    //m_CurrentHeight = m_pComponentCamera->m_WindowHeight;
 
     // trigger the onvisible callback, this will reload the layout.
     m_Visible = false;
@@ -1290,6 +1285,8 @@ void ComponentMenuPage::LoadLayoutBasedOnCurrentAspectRatio()
 
     m_CurrentWidth = m_pComponentCamera->m_WindowWidth;
     m_CurrentHeight = m_pComponentCamera->m_WindowHeight;
+
+    MyAssert( m_CurrentWidth != 0 && m_CurrentHeight != 0 );
 
     cJSON* obj = 0;
 
@@ -1619,8 +1616,6 @@ void ComponentMenuPage::SetVisible(bool visible)
     {
         ShowPage();
     }
-
-    m_LayoutChanged = false;
 }
 
 bool ComponentMenuPage::IsVisible()
@@ -1666,7 +1661,17 @@ void ComponentMenuPage::ShowPage()
         CreateMenuItems(); // create menu items if they haven't been already.
     }
 
-    if( m_Visible == true && m_LayoutChanged )
+    bool layoutchanged = false;
+
+    if( m_CurrentWidth != m_pComponentCamera->m_WindowWidth ||
+        m_CurrentHeight != m_pComponentCamera->m_WindowHeight )
+    {
+        m_CurrentWidth = m_pComponentCamera->m_WindowWidth;
+        m_CurrentHeight = m_pComponentCamera->m_WindowHeight;
+        layoutchanged = true;
+    }
+
+    if( m_Visible == true && layoutchanged )
     {
         // recreate all the menu items
         LoadLayoutBasedOnCurrentAspectRatio();

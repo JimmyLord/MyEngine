@@ -93,7 +93,6 @@ protected:
     bool m_Visible;
 
     bool m_MenuItemsCreated;
-    bool m_LayoutChanged;
 
     bool m_InputEnabled;
     MenuInputBox* m_pInputBoxWithKeyboardFocus;
