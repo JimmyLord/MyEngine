@@ -1514,6 +1514,11 @@ void EngineCore::LoadScene(const char* scenename, const char* buffer, unsigned i
     m_pLuaGameState->Rebuild(); // reset the lua state.
     g_pComponentSystemManager->OnLoad();
 
+    if( m_AllowGameToRunInEditorMode )
+    {
+        m_pComponentSystemManager->OnPlay();
+    }
+
 #if MYFW_USING_WX
     m_EditorMode = true;
 

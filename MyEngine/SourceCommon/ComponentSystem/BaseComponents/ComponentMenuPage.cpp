@@ -1612,34 +1612,15 @@ void ComponentMenuPage::SetVisible(bool visible)
     if( m_Visible == visible )
         return;
 
-    if( m_MenuItemsCreated == false )
-    {
-        CreateMenuItems(); // create menu items if they haven't been already.
-    }
-
-    if( visible == true && m_LayoutChanged )
-    {
-        // recreate all the menu items
-        LoadLayoutBasedOnCurrentAspectRatio();
-    }
-
     m_Visible = visible;
-    m_LayoutChanged = false;
-
-    if( m_MenuPageVisibleCallbackStruct.pFunc )
-    {
-        m_MenuPageVisibleCallbackStruct.pFunc( m_MenuPageVisibleCallbackStruct.pObj, this, visible );
-    }
-
-    // if the currently selected item is disabled, reset the selected item.
-    if( m_ItemSelected != -1 && m_pMenuItems[m_ItemSelected] && m_pMenuItems[m_ItemSelected]->m_Enabled == false )
-        m_ItemSelected = -1;
 
     // move all input callbacks for this menu page to the front of the list, to give it top priority.
     if( visible == true )
     {
         ShowPage();
     }
+
+    m_LayoutChanged = false;
 }
 
 bool ComponentMenuPage::IsVisible()
@@ -1680,7 +1661,27 @@ bool ComponentMenuPage::ExecuteAction(const char* action, MenuItem* pItem)
 
 void ComponentMenuPage::ShowPage()
 {
+    if( m_MenuItemsCreated == false )
+    {
+        CreateMenuItems(); // create menu items if they haven't been already.
+    }
+
+    if( m_Visible == true && m_LayoutChanged )
+    {
+        // recreate all the menu items
+        LoadLayoutBasedOnCurrentAspectRatio();
+    }
+
     g_pComponentSystemManager->MoveInputHandlersToFront( &m_CallbackStruct_OnTouch, &m_CallbackStruct_OnButtons, &m_CallbackStruct_OnKeys );
+
+    if( m_MenuPageVisibleCallbackStruct.pFunc )
+    {
+        m_MenuPageVisibleCallbackStruct.pFunc( m_MenuPageVisibleCallbackStruct.pObj, this, true );
+    }
+
+    // if the currently selected item is disabled, reset the selected item.
+    if( m_ItemSelected != -1 && m_pMenuItems[m_ItemSelected] && m_pMenuItems[m_ItemSelected]->m_Enabled == false )
+        m_ItemSelected = -1;
 
 #if MYFW_USING_WX
     // in editor, there's a chance the script component was created and not associated with this object.
@@ -1694,4 +1695,8 @@ void ComponentMenuPage::ShowPage()
 
 void ComponentMenuPage::HidePage()
 {
+    if( m_MenuPageVisibleCallbackStruct.pFunc )
+    {
+        m_MenuPageVisibleCallbackStruct.pFunc( m_MenuPageVisibleCallbackStruct.pObj, this, false );
+    }
 }
