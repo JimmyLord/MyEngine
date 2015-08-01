@@ -41,6 +41,7 @@ GameObject::~GameObject()
     if( this->Prev != 0 )
         Remove();
 
+    m_pComponentTransform->SetEnabled( false );
     SAFE_DELETE( m_pComponentTransform );
 
     SAFE_DELETE_ARRAY( m_Name );
