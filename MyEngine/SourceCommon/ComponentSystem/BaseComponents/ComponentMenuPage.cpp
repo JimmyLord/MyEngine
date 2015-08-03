@@ -1234,6 +1234,9 @@ void ComponentMenuPage::TickCallback(double TimePassed)
     if( m_MenuItemsCreated == false )
     {
         CreateMenuItems(); // create menu items if they haven't been already.
+
+        if( m_Enabled && m_Visible )
+            ShowPage();
     }
 
     // Tick all the menu items.
