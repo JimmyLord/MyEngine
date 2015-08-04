@@ -1510,17 +1510,14 @@ void EngineCore::LoadScene(const char* scenename, const char* buffer, unsigned i
     m_pEditorState->UnloadScene( false );
 #endif //MYFW_USING_WX
 
-    g_pComponentSystemManager->LoadSceneFromJSON( scenename, buffer, sceneid );
     m_pLuaGameState->Rebuild(); // reset the lua state.
-    g_pComponentSystemManager->OnLoad();
+    g_pComponentSystemManager->LoadSceneFromJSON( scenename, buffer, sceneid );
 
     // Tell all the cameras loaded in the scene the dimensions of the window. // TODO: move this into camera's onload.
     OnSurfaceChanged( (unsigned int)m_WindowStartX, (unsigned int)m_WindowStartY, (unsigned int)m_WindowWidth, (unsigned int)m_WindowHeight );
 
-    if( m_AllowGameToRunInEditorMode )
-    {
-        m_pComponentSystemManager->OnPlay();
-    }
+    // Finish loading, calls onload and onplay.
+    g_pComponentSystemManager->FinishLoading( true, m_AllowGameToRunInEditorMode );
 
 #if MYFW_USING_WX
     m_EditorMode = true;

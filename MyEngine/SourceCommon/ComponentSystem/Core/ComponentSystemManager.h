@@ -113,6 +113,9 @@ public:
     // a component can only exist in one of these lists ATM
     CPPListHead m_Components[BaseComponentType_NumTypes];
 
+    bool m_WaitingForFilesToFinishLoading;
+    bool m_StartGamePlayWhenDoneLoading;
+
 protected:
 #if MYFW_USING_WX
     std::vector<FileUpdatedCallbackStruct> m_pFileUpdatedCallbackList;
@@ -129,6 +132,7 @@ public:
     char* SaveSceneToJSON(unsigned int sceneid);
     MyFileObject* LoadDatafile(const char* relativepath, unsigned int sceneid);
     void LoadSceneFromJSON(const char* scenename, const char* jsonstr, unsigned int sceneid);
+    void FinishLoading(bool lockwhileloading, bool playwhenfinishedloading);
 
     void SyncAllRigidBodiesToObjectTransforms();
 
@@ -220,6 +224,8 @@ public:
 
     static void StaticOnMaterialCreated(void* pObjectPtr, MaterialDefinition* pMaterial) { ((ComponentSystemManager*)pObjectPtr)->OnMaterialCreated( pMaterial ); }
     void OnMaterialCreated(MaterialDefinition* pMaterial);
+
+    void MoveAllFilesNeededForLoadingScreenToStartOfFileList();
 #endif //MYFW_USING_WX
 };
 

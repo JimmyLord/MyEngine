@@ -26,6 +26,9 @@ ComponentSystemManager::ComponentSystemManager(ComponentTypeManager* typemanager
 
     m_NextSceneID = 1;
 
+    m_WaitingForFilesToFinishLoading = false;
+    m_StartGamePlayWhenDoneLoading = false;
+
 #if MYFW_USING_WX
     // Add click callbacks to the root of the objects tree
     g_pPanelObjectList->SetTreeRootData( this, ComponentSystemManager::StaticOnLeftClick, ComponentSystemManager::StaticOnRightClick );
@@ -194,6 +197,42 @@ void ComponentSystemManager::OnMaterialCreated(MaterialDefinition* pMaterial)
 }
 #endif //MYFW_USING_WX
 
+void ComponentSystemManager::MoveAllFilesNeededForLoadingScreenToStartOfFileList()
+{
+    for( CPPListNode* pNode = m_GameObjects.GetHead(); pNode; pNode = pNode->GetNext() )
+    {
+        GameObject* pGameObject = (GameObject*)pNode;
+
+        if( strncmp( pGameObject->GetName(), "Load", 4 ) == 0 )
+        {
+            for( unsigned int i=0; i<pGameObject->m_Components.Count(); i++ )
+            {
+                ComponentBase* pComponent = pGameObject->m_Components[i];
+
+                // move sprite material files to front of list.
+                if( pComponent->IsA( "SpriteComponent" ) )
+                {
+                    MySprite* pSprite = ((ComponentSprite*)pComponent)->m_pSprite;
+                    if( pSprite && pSprite->GetMaterial() )
+                    {
+                        pSprite->GetMaterial()->MoveAssociatedFilesToFrontOfFileList();
+                    }
+                }
+
+                // move lua scripts to front of list.
+                if( pComponent->IsA( "LuaScriptComponent" ) )
+                {
+                    MyFileObject* pScriptFile = ((ComponentLuaScript*)pComponent)->GetScriptFile();
+                    if( pScriptFile )
+                    {
+                        g_pFileManager->MoveFileToFrontOfFileLoadedList( pScriptFile );
+                    }
+                }
+            }
+        }
+    }
+}
+
 char* ComponentSystemManager::SaveSceneToJSON(unsigned int sceneid)
 {
     cJSON* root = cJSON_CreateObject();
@@ -208,6 +247,11 @@ char* ComponentSystemManager::SaveSceneToJSON(unsigned int sceneid)
     cJSON_AddItemToObject( root, "Components", componentarray );
 
     bool savingallscenes = (sceneid == UINT_MAX);
+
+    // move files used by gameobjects that start with "Load" to front of file list.
+    {
+        MoveAllFilesNeededForLoadingScreenToStartOfFileList();
+    }
 
     // add the files used.
     {
@@ -594,6 +638,34 @@ void ComponentSystemManager::LoadSceneFromJSON(const char* scenename, const char
     SyncAllRigidBodiesToObjectTransforms();
 }
 
+void ComponentSystemManager::FinishLoading(bool lockwhileloading, bool playwhenfinishedloading)
+{
+    m_StartGamePlayWhenDoneLoading = playwhenfinishedloading;
+    m_WaitingForFilesToFinishLoading = lockwhileloading;
+
+    if( lockwhileloading )
+    {
+        for( CPPListNode* pNode = m_Files.GetHead(); pNode; pNode = pNode->GetNext() )
+        {
+            MyFileInfo* pFileInfo = (MyFileInfo*)pNode;
+
+            MyAssert( pFileInfo && pFileInfo->m_pFile );
+            if( pFileInfo->m_pFile->m_FileLoadStatus == FileLoadStatus_Loading )
+                return;
+        }
+
+        m_WaitingForFilesToFinishLoading = false;
+    }
+
+    OnLoad();
+
+    if( playwhenfinishedloading )
+    {
+        OnPlay();
+        m_StartGamePlayWhenDoneLoading = false;
+    }
+}
+
 void ComponentSystemManager::SyncAllRigidBodiesToObjectTransforms()
 {
     for( CPPListNode* pNode = m_Components[BaseComponentType_Updateable].GetHead(); pNode; pNode = pNode->GetNext() )
@@ -951,6 +1023,11 @@ ComponentBase* ComponentSystemManager::FindComponentByID(unsigned int id, unsign
 
 void ComponentSystemManager::Tick(double TimePassed)
 {
+    if( m_WaitingForFilesToFinishLoading )
+    {
+        FinishLoading( true, m_StartGamePlayWhenDoneLoading );
+    }
+
     // update all Components:
 
     // all scripts.
