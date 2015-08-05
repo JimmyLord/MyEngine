@@ -121,6 +121,24 @@ void ComponentSprite::Reset()
 #endif //MYFW_USING_WX
 }
 
+ComponentSprite* CastAs_ComponentSprite(ComponentBase* pComponent)
+{
+    MyAssert( pComponent->IsA( "SpriteComponent" ) );
+    return (ComponentSprite*)pComponent;
+}
+
+void ComponentSprite::LuaRegister(lua_State* luastate)
+{
+    luabridge::getGlobalNamespace( luastate ).addFunction( "CastAs_ComponentSprite", CastAs_ComponentSprite );
+
+    luabridge::getGlobalNamespace( luastate )
+        .beginClass<ComponentSprite>( "ComponentSprite" )
+            //.addData( "localmatrix", &ComponentSprite::m_LocalTransform )
+            
+            .addFunction( "GetSprite", &ComponentSprite::GetSprite )
+        .endClass();
+}
+
 ComponentSprite& ComponentSprite::operator=(const ComponentSprite& other)
 {
     MyAssert( &other != this );

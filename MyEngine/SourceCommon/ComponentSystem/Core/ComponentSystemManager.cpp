@@ -1300,7 +1300,11 @@ void ComponentSystemManager::OnPlay()
     for( CPPListNode* node = m_Components[BaseComponentType_Updateable].GetHead(); node != 0; node = node->GetNext() )
     {
         ComponentBase* pComponent = (ComponentBase*)node;
-        pComponent->OnPlay();
+
+        MyAssert( pComponent->IsEnabled() == true );
+        
+        if( pComponent->m_pGameObject->IsEnabled() == true )
+            pComponent->OnPlay();
     }
 }
 

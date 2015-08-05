@@ -122,6 +122,11 @@ void LuaGameState::RegisterClasses()
         .endClass();
 
     luabridge::getGlobalNamespace( m_pLuaState )
+        .beginClass<MySprite>( "MySprite" )
+            .addFunction( "SetZRotation", &MySprite::SetZRotation )
+        .endClass();    
+
+    luabridge::getGlobalNamespace( m_pLuaState )
         .beginClass<MyFileObject>( "MyFileObject" )
         .endClass();    
 
@@ -138,6 +143,7 @@ void LuaGameState::RegisterClasses()
     ComponentSystemManager::LuaRegister( m_pLuaState );
     ComponentCollisionObject::LuaRegister( m_pLuaState );
     ComponentAnimationPlayer::LuaRegister( m_pLuaState );
+    ComponentSprite::LuaRegister( m_pLuaState );
 
     // Register the MenuItem types.
     MenuItem::LuaRegister( m_pLuaState );

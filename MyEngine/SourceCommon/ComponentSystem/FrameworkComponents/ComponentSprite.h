@@ -24,6 +24,8 @@ public:
     virtual ~ComponentSprite();
     SetClassnameBase( "SpriteComponent" ); // only first 8 character count.
 
+    static void LuaRegister(lua_State* luastate);
+
     virtual cJSON* ExportAsJSONObject(bool savesceneid);
     virtual void ImportFromJSONObject(cJSON* jsonobj, unsigned int sceneid);
 
@@ -37,6 +39,9 @@ public:
     virtual MaterialDefinition* GetMaterial(int submeshindex) { if( m_pSprite ) return m_pSprite->GetMaterial(); return 0; }
     virtual void SetMaterial(MaterialDefinition* pMaterial, int submeshindex);
     virtual void Draw(MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride = 0, int drawcount = 0);
+
+public:
+    MySprite* GetSprite() { return m_pSprite; }
 
 public:
 #if MYFW_USING_WX

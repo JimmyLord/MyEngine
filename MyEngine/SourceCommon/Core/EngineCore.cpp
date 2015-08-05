@@ -1517,7 +1517,7 @@ void EngineCore::LoadScene(const char* scenename, const char* buffer, unsigned i
     OnSurfaceChanged( (unsigned int)m_WindowStartX, (unsigned int)m_WindowStartY, (unsigned int)m_WindowWidth, (unsigned int)m_WindowHeight );
 
     // Finish loading, calls onload and onplay.
-    g_pComponentSystemManager->FinishLoading( true, m_AllowGameToRunInEditorMode );
+    g_pComponentSystemManager->FinishLoading( false, m_AllowGameToRunInEditorMode );
 
 #if MYFW_USING_WX
     m_EditorMode = true;

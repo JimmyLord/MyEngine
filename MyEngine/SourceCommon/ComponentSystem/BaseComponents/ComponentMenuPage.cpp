@@ -136,6 +136,7 @@ void ComponentMenuPage::Reset()
 
 ComponentMenuPage* CastAs_ComponentMenuPage(ComponentBase* pComponent)
 {
+    MyAssert( pComponent->IsA( "MenuPageComponent" ) );
     return (ComponentMenuPage*)pComponent;
 }
 
@@ -156,6 +157,26 @@ void ComponentMenuPage::LuaRegister(lua_State* luastate)
             .addFunction( "SetID", &ComponentMenuPage::SetID )
             .addFunction( "GetID", &ComponentMenuPage::GetID )
         .endClass();
+}
+
+ComponentMenuPage& ComponentMenuPage::operator=(const ComponentMenuPage& other)
+{
+    MyAssert( &other != this );
+
+    ComponentBase::operator=( other );
+
+    this->m_Visible = other.m_Visible;
+    this->m_InputEnabled = other.m_InputEnabled;
+    this->m_LayersThisExistsOn = other.m_LayersThisExistsOn;
+
+    for( int i=0; i<3; i++ )
+    {
+        strcpy_s( m_ButtonActions[i], MAX_BUTTON_ACTION_LENGTH, other.m_ButtonActions[i] );
+    }
+
+    SetMenuLayoutFile( other.m_pMenuLayoutFile );
+
+    return *this;
 }
 
 #if MYFW_USING_WX
@@ -864,26 +885,6 @@ void ComponentMenuPage::ImportFromJSONObject(cJSON* jComponent, unsigned int sce
     cJSONExt_GetFloatArray( jComponent, "RelativeCursorSize", &m_RelativeCursorSize.x, 2 );
 }
 
-ComponentMenuPage& ComponentMenuPage::operator=(const ComponentMenuPage& other)
-{
-    MyAssert( &other != this );
-
-    ComponentBase::operator=( other );
-
-    this->m_Visible = other.m_Visible;
-    this->m_InputEnabled = other.m_InputEnabled;
-    this->m_LayersThisExistsOn = other.m_LayersThisExistsOn;
-
-    for( int i=0; i<3; i++ )
-    {
-        strcpy_s( m_ButtonActions[i], MAX_BUTTON_ACTION_LENGTH, other.m_ButtonActions[i] );
-    }
-
-    SetMenuLayoutFile( other.m_pMenuLayoutFile );
-
-    return *this;
-}
-
 void ComponentMenuPage::RegisterCallbacks()
 {
     if( m_Enabled )
@@ -1235,7 +1236,7 @@ void ComponentMenuPage::TickCallback(double TimePassed)
     {
         CreateMenuItems(); // create menu items if they haven't been already.
 
-        if( m_Enabled && m_Visible )
+        if( m_MenuItemsCreated && m_Enabled && m_Visible )
             ShowPage();
     }
 
