@@ -1294,15 +1294,18 @@ void ComponentMenuPage::LoadLayoutBasedOnCurrentAspectRatio()
 
     cJSON* obj = 0;
 
-    if( m_CurrentWidth == m_CurrentHeight )
-    {
+    // pick the correct layout, or the first if the correct one doesn't exist.
+    //if( m_CurrentWidth == m_CurrentHeight )
+    //{
         obj = cJSON_GetObjectItem( m_MenuLayouts, "Square" );
-    }
-    else if( m_CurrentWidth < m_CurrentHeight )
+    //}
+    
+    if( obj == 0 || m_CurrentWidth < m_CurrentHeight )
     {
         obj = cJSON_GetObjectItem( m_MenuLayouts, "Tall" );
     }
-    else
+    
+    if( obj == 0 || m_CurrentHeight < m_CurrentWidth )
     {
         obj = cJSON_GetObjectItem( m_MenuLayouts, "Wide" );
     }

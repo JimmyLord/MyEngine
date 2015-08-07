@@ -129,6 +129,7 @@ public:
 
     static void LuaRegister(lua_State* luastate);
 
+    void MoveAllFilesNeededForLoadingScreenToStartOfFileList();
     char* SaveSceneToJSON(unsigned int sceneid);
     MyFileObject* LoadDatafile(const char* relativepath, unsigned int sceneid);
     void LoadSceneFromJSON(const char* scenename, const char* jsonstr, unsigned int sceneid);
@@ -224,8 +225,6 @@ public:
 
     static void StaticOnMaterialCreated(void* pObjectPtr, MaterialDefinition* pMaterial) { ((ComponentSystemManager*)pObjectPtr)->OnMaterialCreated( pMaterial ); }
     void OnMaterialCreated(MaterialDefinition* pMaterial);
-
-    void MoveAllFilesNeededForLoadingScreenToStartOfFileList();
 #endif //MYFW_USING_WX
 };
 
