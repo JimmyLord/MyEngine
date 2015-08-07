@@ -116,7 +116,7 @@ void ComponentLuaScript::CreateNewScriptFile()
                         fprintf( file, "{\n" );
                         fprintf( file, "\n" );
                         fprintf( file, "OnVisible = function(visible)\n" );
-                        fprintf( file, "end\n" );
+                        fprintf( file, "end,\n" );
                         fprintf( file, "\n" );
                         fprintf( file, "OnAction = function(action)\n" );
                         fprintf( file, "--LogInfo( \"OnAction was called: \" .. action .. \"\\n\" );\n" );
@@ -738,6 +738,17 @@ void ComponentLuaScript::OnStop()
     m_Playing = false;
 }
 
+void ComponentLuaScript::OnGameObjectEnabled()
+{
+    ComponentBase::OnGameObjectEnabled();
+    OnPlay();
+}
+
+void ComponentLuaScript::OnGameObjectDisabled()
+{
+    ComponentBase::OnGameObjectDisabled();
+}
+
 void ComponentLuaScript::Tick(double TimePassed)
 {
     //ComponentUpdateable::Tick( TimePassed );
@@ -749,7 +760,7 @@ void ComponentLuaScript::Tick(double TimePassed)
     {
         LoadScript();
 
-        if( m_ShouldBePlayingButIsntBecauseScriptFileWasStillLoading )
+        if( m_ScriptLoaded && m_ShouldBePlayingButIsntBecauseScriptFileWasStillLoading )
         {
             m_ShouldBePlayingButIsntBecauseScriptFileWasStillLoading = false;
             OnPlay();

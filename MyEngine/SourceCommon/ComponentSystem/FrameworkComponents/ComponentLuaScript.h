@@ -74,6 +74,8 @@ public:
     virtual void OnLoad();
     virtual void OnPlay();
     virtual void OnStop();
+    virtual void OnGameObjectEnabled();
+    virtual void OnGameObjectDisabled();
     virtual void Tick(double TimePassed);
 
     void OnScriptLoaded();
@@ -83,6 +85,8 @@ public:
     // GameObject callbacks.
     static void StaticOnGameObjectDeleted(void* pObjectPtr, GameObject* pGameObject) { ((ComponentLuaScript*)pObjectPtr)->OnGameObjectDeleted( pGameObject ); }
     void OnGameObjectDeleted(GameObject* pGameObject);
+
+    bool IsScriptLoaded() { return m_ScriptLoaded; }
 
 public:
 #if MYFW_USING_WX

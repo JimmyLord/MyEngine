@@ -1234,9 +1234,10 @@ void ComponentMenuPage::TickCallback(double TimePassed)
 
     if( m_MenuItemsCreated == false )
     {
-        CreateMenuItems(); // create menu items if they haven't been already.
+        //CreateMenuItems(); // create menu items if they haven't been already.
 
-        if( m_MenuItemsCreated && m_Enabled && m_Visible )
+        //if( m_MenuItemsCreated && m_Enabled && m_Visible )
+        if( m_Enabled && m_Visible )
             ShowPage();
     }
 
@@ -1663,10 +1664,14 @@ bool ComponentMenuPage::ExecuteAction(const char* action, MenuItem* pItem)
 
 void ComponentMenuPage::ShowPage()
 {
-    if( m_MenuItemsCreated == false )
-    {
-        CreateMenuItems(); // create menu items if they haven't been already.
-    }
+#if MYFW_USING_WX
+    // in editor, there's a chance the script component was created and not associated with this object.
+    FindLuaScriptComponentPointer();
+#endif
+
+    // don't allow menu page to be shown until the script is loaded.
+    if( m_pComponentLuaScript && m_pComponentLuaScript->IsScriptLoaded() == false )
+        return;
 
     bool layoutchanged = false;
 
@@ -1678,10 +1683,16 @@ void ComponentMenuPage::ShowPage()
         layoutchanged = true;
     }
 
-    if( m_Visible == true && layoutchanged )
+    if( m_MenuItemsCreated == false )
     {
-        // recreate all the menu items
-        LoadLayoutBasedOnCurrentAspectRatio();
+        // create menu items if they haven't been already.
+        CreateMenuItems();
+    }
+    else
+    {
+        // recreate all the menu items if the layout had changed.
+        if( m_Visible == true && layoutchanged )
+            LoadLayoutBasedOnCurrentAspectRatio();
     }
 
     g_pComponentSystemManager->MoveInputHandlersToFront( &m_CallbackStruct_OnTouch, &m_CallbackStruct_OnButtons, &m_CallbackStruct_OnKeys );
@@ -1695,10 +1706,6 @@ void ComponentMenuPage::ShowPage()
     if( m_ItemSelected != -1 && m_pMenuItems[m_ItemSelected] && m_pMenuItems[m_ItemSelected]->m_Enabled == false )
         m_ItemSelected = -1;
 
-#if MYFW_USING_WX
-    // in editor, there's a chance the script component was created and not associated with this object.
-    FindLuaScriptComponentPointer();
-#endif
     if( m_pComponentLuaScript )
     {
         m_pComponentLuaScript->CallFunction( "OnVisible" );

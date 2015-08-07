@@ -158,7 +158,7 @@ double EngineCore::Tick(double TimePassed)
     if( m_SceneLoaded == false && m_pSceneFileToLoad && m_pSceneFileToLoad->m_FileLoadStatus == FileLoadStatus_Success )
     {
         LoadScene( 0, m_pSceneFileToLoad->m_pBuffer, 1 );
-        m_pComponentSystemManager->OnPlay();
+        //m_pComponentSystemManager->OnPlay();
         RegisterGameplayButtons();
         SAFE_RELEASE( m_pSceneFileToLoad );
     }
