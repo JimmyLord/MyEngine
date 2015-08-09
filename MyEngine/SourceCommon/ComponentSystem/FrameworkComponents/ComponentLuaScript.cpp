@@ -858,6 +858,7 @@ void ComponentLuaScript::OnGameObjectDeleted(GameObject* pGameObject)
     {
         ExposedVariableDesc* pVar = m_ExposedVars[i];
 
+        // if any of our variables is a gameobject, clear it if that gameobject was deleted.
         if( pVar->type == ExposedVariableType_GameObject )
         {
             if( pVar->pointer == pGameObject )

@@ -67,13 +67,17 @@ public:
     MyMatrix GetLocalRotPosMatrix();
     MyMatrix* GetLocalTransform() { return &m_LocalTransform; }
 
-    void SetParent(ComponentTransform* pNewParent);
+    void SetParent(ComponentTransform* pNewParent, bool unregisterondeletecallback = true);
     void UpdatePosAndRotFromLocalMatrix();
     void UpdateMatrix();
     //MyMatrix* GetMatrix();
 
     // Callbacks
     void RegisterPositionChangedCallback(void* pObj, TransformPositionChangedCallbackFunc pCallback);
+
+    // GameObject callbacks.
+    static void StaticOnGameObjectDeleted(void* pObjectPtr, GameObject* pGameObject) { ((ComponentTransform*)pObjectPtr)->OnGameObjectDeleted( pGameObject ); }
+    void OnGameObjectDeleted(GameObject* pGameObject);
 
 public:
 #if MYFW_USING_WX
