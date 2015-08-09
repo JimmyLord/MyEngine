@@ -76,6 +76,14 @@ EngineMainFrame::EngineMainFrame()
     m_GridSettings.stepsize.Set( 5, 5, 5 );
 }
 
+EngineMainFrame::~EngineMainFrame()
+{
+    SAFE_DELETE( m_pCommandStack );
+    SAFE_DELETE( m_pGLCanvasEditor );
+
+    g_pMessageLogCallbackFunction = 0;
+}
+
 void EngineMainFrame::InitFrame()
 {
     g_pEngineMainFrame = this;
@@ -134,83 +142,83 @@ void EngineMainFrame::InitFrame()
 
     g_pMessageLogCallbackFunction = EngineMainFrame_MessageLog;
 
-    m_File->Insert( 0, myIDGame_NewScene, wxT("&New Scene") );
-    m_File->Insert( 1, myIDGame_LoadScene, wxT("&Load Scene...") );
-    m_File->Insert( 2, myIDGame_LoadAdditionalScene, wxT("&Load Additional Scene...") );
-    m_File->Insert( 3, myIDGame_SaveScene, wxT("&Save Scene\tCtrl-S") );
-    m_File->Insert( 4, myIDGame_SaveSceneAs, wxT("Save Scene &As...") );
+    m_File->Insert( 0, myIDEngine_NewScene, wxT("&New Scene") );
+    m_File->Insert( 1, myIDEngine_LoadScene, wxT("&Load Scene...") );
+    m_File->Insert( 2, myIDEngine_LoadAdditionalScene, wxT("&Load Additional Scene...") );
+    m_File->Insert( 3, myIDEngine_SaveScene, wxT("&Save Scene\tCtrl-S") );
+    m_File->Insert( 4, myIDEngine_SaveSceneAs, wxT("Save Scene &As...") );
 
     m_Grid = MyNew wxMenu;
     m_MenuBar->Append( m_Grid, wxT("&Grid") );
-    m_MenuItem_GridSnapEnabled = m_Grid->AppendCheckItem( myIDGame_Grid_SnapOnOff, wxT("Grid Snap &On/Off\tCtrl-G") );
-    m_Grid->Append( myIDGame_Grid_Settings, wxT("Grid &Settings\tCtrl-Shift-G") );
+    m_MenuItem_GridSnapEnabled = m_Grid->AppendCheckItem( myIDEngine_Grid_SnapOnOff, wxT("Grid Snap &On/Off\tCtrl-G") );
+    m_Grid->Append( myIDEngine_Grid_Settings, wxT("Grid &Settings\tCtrl-Shift-G") );
 
     m_PlayPauseStop = MyNew wxMenu;
     m_MenuBar->Append( m_PlayPauseStop, wxT("&Mode") );
-    m_PlayPauseStop->Append( myIDGame_Mode_PlayStop, wxT("&Play/Stop\tCtrl-SPACE") );
-    m_PlayPauseStop->Append( myIDGame_Mode_Pause, wxT("Pause\tCtrl-.") );
-    m_PlayPauseStop->Append( myIDGame_Mode_Advance1Frame, wxT("Advance 1 Frame\tCtrl-]") );
-    m_PlayPauseStop->Append( myIDGame_Mode_Advance1Second, wxT("Advance 1 Second\tCtrl-[") );
-    //m_PlayPauseStop->Append( myIDGame_Mode_Stop, wxT("&Stop\tCtrl-SPACE") );
+    m_PlayPauseStop->Append( myIDEngine_Mode_PlayStop, wxT("&Play/Stop\tCtrl-SPACE") );
+    m_PlayPauseStop->Append( myIDEngine_Mode_Pause, wxT("Pause\tCtrl-.") );
+    m_PlayPauseStop->Append( myIDEngine_Mode_Advance1Frame, wxT("Advance 1 Frame\tCtrl-]") );
+    m_PlayPauseStop->Append( myIDEngine_Mode_Advance1Second, wxT("Advance 1 Second\tCtrl-[") );
+    //m_PlayPauseStop->Append( myIDEngine_Mode_Stop, wxT("&Stop\tCtrl-SPACE") );
 
     m_Data = MyNew wxMenu;
     m_MenuBar->Append( m_Data, wxT("&Data") );
-    m_Data->Append( myIDGame_AddDatafile, wxT("&Load Datafiles") );
+    m_Data->Append( myIDEngine_AddDatafile, wxT("&Load Datafiles") );
 
     m_Hackery = MyNew wxMenu;
     m_MenuBar->Append( m_Hackery, wxT("&Hackery") );
-    m_Hackery->Append( myIDGame_RecordMacro, wxT("&Record\tCtrl-R") );
-    m_Hackery->Append( myIDGame_ExecuteMacro, wxT("Stop recording and &Execute\tCtrl-E") );
+    m_Hackery->Append( myIDEngine_RecordMacro, wxT("&Record\tCtrl-R") );
+    m_Hackery->Append( myIDEngine_ExecuteMacro, wxT("Stop recording and &Execute\tCtrl-E") );
 
     m_Debug = MyNew wxMenu;
     m_MenuBar->Append( m_Debug, wxT("&Debug views") );
-    m_Debug->AppendCheckItem( myIDGame_DebugShowMousePickerFBO, wxT("&Show Mouse Picker FBO\tF9") );
-    m_Debug->AppendCheckItem( myIDGame_DebugShowSelectedAnimatedMesh, wxT("Show &Animated Debug View for Selection\tF8") );
+    m_Debug->AppendCheckItem( myIDEngine_DebugShowMousePickerFBO, wxT("&Show Mouse Picker FBO\tF9") );
+    m_Debug->AppendCheckItem( myIDEngine_DebugShowSelectedAnimatedMesh, wxT("Show &Animated Debug View for Selection\tF8") );
 
     m_Hackery_Record_StackDepth = -1;
 
     m_EditorPerspectives = MyNew wxMenu;
     for( int i=0; i<Perspective_NumPerspectives; i++ )
     {
-        m_EditorPerspectiveOptions[i] = m_EditorPerspectives->AppendCheckItem( myIDGame_EditorPerspective + i, g_DefaultPerspectiveMenuLabels[i], wxEmptyString );
-        Connect( myIDGame_EditorPerspective + i, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnGameMenu) );
+        m_EditorPerspectiveOptions[i] = m_EditorPerspectives->AppendCheckItem( myIDEngine_EditorPerspective + i, g_DefaultPerspectiveMenuLabels[i], wxEmptyString );
+        Connect( myIDEngine_EditorPerspective + i, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );
     }
 
     m_GameplayPerspectives = MyNew wxMenu;
     for( int i=0; i<Perspective_NumPerspectives; i++ )
     {
-        m_GameplayPerspectiveOptions[i] = m_GameplayPerspectives->AppendCheckItem( myIDGame_GameplayPerspective + i, g_DefaultPerspectiveMenuLabels[i], wxEmptyString );
-        Connect( myIDGame_GameplayPerspective + i, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnGameMenu) );
+        m_GameplayPerspectiveOptions[i] = m_GameplayPerspectives->AppendCheckItem( myIDEngine_GameplayPerspective + i, g_DefaultPerspectiveMenuLabels[i], wxEmptyString );
+        Connect( myIDEngine_GameplayPerspective + i, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );
     }
 
     m_EditorPerspectiveOptions[0]->Check();
     m_GameplayPerspectiveOptions[0]->Check();
 
-    m_View->Append( myIDGame_EditorPerspectives, "Editor Layouts", m_EditorPerspectives );
-    m_View->Append( myIDGame_GameplayPerspectives, "Gameplay Layouts", m_GameplayPerspectives );
+    m_View->Append( myIDEngine_EditorPerspectives, "Editor Layouts", m_EditorPerspectives );
+    m_View->Append( myIDEngine_GameplayPerspectives, "Gameplay Layouts", m_GameplayPerspectives );
 
-    Connect( myIDGame_NewScene,     wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnGameMenu) );
-    Connect( myIDGame_LoadScene,    wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnGameMenu) );
-    Connect( myIDGame_LoadAdditionalScene,    wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnGameMenu) );
-    Connect( myIDGame_SaveScene,    wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnGameMenu) );
-    Connect( myIDGame_SaveSceneAs,  wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnGameMenu) );
+    Connect( myIDEngine_NewScene,     wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );
+    Connect( myIDEngine_LoadScene,    wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );
+    Connect( myIDEngine_LoadAdditionalScene,    wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );
+    Connect( myIDEngine_SaveScene,    wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );
+    Connect( myIDEngine_SaveSceneAs,  wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );
 
-    Connect( myIDGame_AddDatafile,  wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnGameMenu) );
+    Connect( myIDEngine_AddDatafile,  wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );
 
-    Connect( myIDGame_Grid_SnapOnOff, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnGameMenu) );
-    Connect( myIDGame_Grid_Settings,  wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnGameMenu) );
+    Connect( myIDEngine_Grid_SnapOnOff, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );
+    Connect( myIDEngine_Grid_Settings,  wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );
 
-    Connect( myIDGame_Mode_PlayStop,       wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnGameMenu) );
-    Connect( myIDGame_Mode_Pause,          wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnGameMenu) );
-    Connect( myIDGame_Mode_Advance1Frame,  wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnGameMenu) );
-    Connect( myIDGame_Mode_Advance1Second, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnGameMenu) );
-    //Connect( myIDGame_Mode_Stop,           wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnGameMenu) );
+    Connect( myIDEngine_Mode_PlayStop,       wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );
+    Connect( myIDEngine_Mode_Pause,          wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );
+    Connect( myIDEngine_Mode_Advance1Frame,  wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );
+    Connect( myIDEngine_Mode_Advance1Second, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );
+    //Connect( myIDEngine_Mode_Stop,           wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );
 
-    Connect( myIDGame_RecordMacro,  wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnGameMenu) );
-    Connect( myIDGame_ExecuteMacro, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnGameMenu) );
+    Connect( myIDEngine_RecordMacro,  wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );
+    Connect( myIDEngine_ExecuteMacro, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );
 
-    Connect( myIDGame_DebugShowMousePickerFBO,       wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnGameMenu) );
-    Connect( myIDGame_DebugShowSelectedAnimatedMesh, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnGameMenu) );
+    Connect( myIDEngine_DebugShowMousePickerFBO,       wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );
+    Connect( myIDEngine_DebugShowSelectedAnimatedMesh, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );
 
     if( m_pEditorPrefs )
     {
@@ -221,14 +229,6 @@ void EngineMainFrame::InitFrame()
         SetDefaultEditorPerspectiveIndex( layouteditor );
         SetDefaultGameplayPerspectiveIndex( layoutgameplay );
     }
-}
-
-EngineMainFrame::~EngineMainFrame()
-{
-    SAFE_DELETE( m_pCommandStack );
-    SAFE_DELETE( m_pGLCanvasEditor );
-
-    g_pMessageLogCallbackFunction = 0;
 }
 
 void EngineMainFrame::AddPanes()
@@ -377,13 +377,13 @@ void EngineMainFrame::UpdateMenuItemStates()
         m_MenuItem_GridSnapEnabled->Check( m_GridSettings.snapenabled );
 }
 
-void EngineMainFrame::OnGameMenu(wxCommandEvent& event)
+void EngineMainFrame::OnMenu_Engine(wxCommandEvent& event)
 {
     int id = event.GetId();
 
     switch( id )
     {
-    case myIDGame_NewScene:
+    case myIDEngine_NewScene:
         {
             int answer = wxYES;
 
@@ -404,7 +404,7 @@ void EngineMainFrame::OnGameMenu(wxCommandEvent& event)
         }
         break;
 
-    case myIDGame_LoadScene:
+    case myIDEngine_LoadScene:
         {
             int answer = wxYES;
 
@@ -421,36 +421,36 @@ void EngineMainFrame::OnGameMenu(wxCommandEvent& event)
         }
         break;
 
-    case myIDGame_LoadAdditionalScene:
+    case myIDEngine_LoadAdditionalScene:
         {
             LoadSceneDialog( false );
             ResizeViewport();
         }
         break;
 
-    case myIDGame_SaveScene:
+    case myIDEngine_SaveScene:
         m_StackDepthAtLastSave = (unsigned int)m_pCommandStack->m_UndoStack.size();
         g_pMaterialManager->SaveAllMaterials();
         g_pComponentSystemManager->AddAllMaterialsToFilesList();
         SaveScene();
         break;
 
-    case myIDGame_SaveSceneAs:
+    case myIDEngine_SaveSceneAs:
         m_StackDepthAtLastSave = (unsigned int)m_pCommandStack->m_UndoStack.size();
         g_pMaterialManager->SaveAllMaterials();
         g_pComponentSystemManager->AddAllMaterialsToFilesList();
         SaveSceneAs( 1 );
         break;
 
-    case myIDGame_AddDatafile:
+    case myIDEngine_AddDatafile:
         AddDatafileToScene();
         break;
 
-    case myIDGame_Grid_SnapOnOff:
+    case myIDEngine_Grid_SnapOnOff:
         m_GridSettings.snapenabled = !m_GridSettings.snapenabled;
         break;
 
-    case myIDGame_Grid_Settings:
+    case myIDEngine_Grid_Settings:
         {
             // should be in an "gl frame lost focus" state handling.
             g_pEngineCore->m_pEditorState->ClearKeyAndActionStates();
@@ -464,31 +464,31 @@ void EngineMainFrame::OnGameMenu(wxCommandEvent& event)
         }
         break;
 
-    case myIDGame_Mode_PlayStop:
+    case myIDEngine_Mode_PlayStop:
         g_pEngineCore->OnModeTogglePlayStop();
         break;
 
-    case myIDGame_Mode_Pause:
+    case myIDEngine_Mode_Pause:
         g_pEngineCore->OnModePause();
         break;
 
-    case myIDGame_Mode_Advance1Frame:
+    case myIDEngine_Mode_Advance1Frame:
         g_pEngineCore->OnModeAdvanceTime( 1/60.0f );
         break;
 
-    case myIDGame_Mode_Advance1Second:
+    case myIDEngine_Mode_Advance1Second:
         g_pEngineCore->OnModeAdvanceTime( 1.0f );
         break;
 
-    //case myIDGame_Mode_Stop:
+    //case myIDEngine_Mode_Stop:
     //    g_pEngineCore->OnModeTogglePlayStop();
     //    break;
 
-    case myIDGame_RecordMacro:
+    case myIDEngine_RecordMacro:
         m_Hackery_Record_StackDepth = (int)m_pCommandStack->m_UndoStack.size();
         break;
 
-    case myIDGame_ExecuteMacro:
+    case myIDEngine_ExecuteMacro:
         if( m_Hackery_Record_StackDepth != -1 )
         {
             int topdepth = (int)m_pCommandStack->m_UndoStack.size();
@@ -503,27 +503,27 @@ void EngineMainFrame::OnGameMenu(wxCommandEvent& event)
         }
         break;
 
-    case myIDGame_EditorPerspective + 0:
-    case myIDGame_EditorPerspective + 1:
-    case myIDGame_EditorPerspective + 2:
-    case myIDGame_EditorPerspective + 3:
-        SetDefaultEditorPerspectiveIndex( id - myIDGame_EditorPerspective );
+    case myIDEngine_EditorPerspective + 0:
+    case myIDEngine_EditorPerspective + 1:
+    case myIDEngine_EditorPerspective + 2:
+    case myIDEngine_EditorPerspective + 3:
+        SetDefaultEditorPerspectiveIndex( id - myIDEngine_EditorPerspective );
         SetWindowPerspectiveToDefault( true );
         break;
 
-    case myIDGame_GameplayPerspective + 0:
-    case myIDGame_GameplayPerspective + 1:
-    case myIDGame_GameplayPerspective + 2:
-    case myIDGame_GameplayPerspective + 3:
-        SetDefaultGameplayPerspectiveIndex( id - myIDGame_GameplayPerspective );
+    case myIDEngine_GameplayPerspective + 0:
+    case myIDEngine_GameplayPerspective + 1:
+    case myIDEngine_GameplayPerspective + 2:
+    case myIDEngine_GameplayPerspective + 3:
+        SetDefaultGameplayPerspectiveIndex( id - myIDEngine_GameplayPerspective );
         SetWindowPerspectiveToDefault( true );
         break;
 
-    case myIDGame_DebugShowMousePickerFBO:
+    case myIDEngine_DebugShowMousePickerFBO:
         g_pEngineCore->m_Debug_DrawMousePickerFBO = !g_pEngineCore->m_Debug_DrawMousePickerFBO;
         break;
 
-    case myIDGame_DebugShowSelectedAnimatedMesh:
+    case myIDEngine_DebugShowSelectedAnimatedMesh:
         g_pEngineCore->m_Debug_DrawSelectedAnimatedMesh = !g_pEngineCore->m_Debug_DrawSelectedAnimatedMesh;
         break;
     }

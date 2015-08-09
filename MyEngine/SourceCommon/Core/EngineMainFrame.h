@@ -23,31 +23,32 @@ enum DefaultPerspectives
     Perspective_NumPerspectives,
 };
 
-enum GameMenuIDs
+enum EngineMenuIDs
 {
-    myIDGame_NewScene = myID_NumIDs,
-    myIDGame_LoadScene,
-    myIDGame_LoadAdditionalScene,
-    myIDGame_SaveScene,
-    myIDGame_SaveSceneAs,
-    myIDGame_AddDatafile,
-    myIDGame_Grid_SnapOnOff,
-    myIDGame_Grid_Settings,
-    myIDGame_Mode_PlayStop,
-    myIDGame_Mode_Pause,
-    myIDGame_Mode_Advance1Frame,
-    myIDGame_Mode_Advance1Second,
-    //myIDGame_Mode_Stop,
-    myIDGame_RecordMacro,
-    myIDGame_ExecuteMacro,
-    myIDGame_EditorPerspectives,
-    myIDGame_GameplayPerspectives,
-    myIDGame_EditorPerspective,
+    myIDEngine_NewScene = myID_LastID,
+    myIDEngine_LoadScene,
+    myIDEngine_LoadAdditionalScene,
+    myIDEngine_SaveScene,
+    myIDEngine_SaveSceneAs,
+    myIDEngine_AddDatafile,
+    myIDEngine_Grid_SnapOnOff,
+    myIDEngine_Grid_Settings,
+    myIDEngine_Mode_PlayStop,
+    myIDEngine_Mode_Pause,
+    myIDEngine_Mode_Advance1Frame,
+    myIDEngine_Mode_Advance1Second,
+    //myIDEngine_Mode_Stop,
+    myIDEngine_RecordMacro,
+    myIDEngine_ExecuteMacro,
+    myIDEngine_EditorPerspectives,
+    myIDEngine_GameplayPerspectives,
+    myIDEngine_EditorPerspective,
     // Perspective_NumPerspectives more items here
-    myIDGame_GameplayPerspective = myIDGame_EditorPerspective + Perspective_NumPerspectives,
+    myIDEngine_GameplayPerspective = myIDEngine_EditorPerspective + Perspective_NumPerspectives,
     // Perspective_NumPerspectives more items here
-    myIDGame_DebugShowMousePickerFBO = myIDGame_GameplayPerspective + Perspective_NumPerspectives,
-    myIDGame_DebugShowSelectedAnimatedMesh,
+    myIDEngine_DebugShowMousePickerFBO = myIDEngine_GameplayPerspective + Perspective_NumPerspectives,
+    myIDEngine_DebugShowSelectedAnimatedMesh,
+    myIDEngine_LastID,
 };
 
 struct GridSettings
@@ -100,7 +101,7 @@ public:
 
     virtual void UpdateMenuItemStates();
 
-    void OnGameMenu(wxCommandEvent& event);
+    void OnMenu_Engine(wxCommandEvent& event);
     void SetWindowPerspectiveToDefault(bool forceswitch = false);
     int GetDefaultEditorPerspectiveIndex();
     int GetDefaultGameplayPerspectiveIndex();
