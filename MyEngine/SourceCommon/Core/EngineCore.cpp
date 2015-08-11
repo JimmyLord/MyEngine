@@ -330,6 +330,11 @@ void EngineCore::OnDrawFrame()
 #endif
 }
 
+void EngineCore::OnFileRenamed(char* fullpathbefore, char* fullpathafter)
+{
+    g_pComponentSystemManager->OnFileRenamed( fullpathbefore, fullpathafter );
+}
+
 bool EngineCore::OnTouch(int action, int id, float x, float y, float pressure, float size)
 {
     if( GameCore::OnTouch( action, id, x, y, pressure, size ) )

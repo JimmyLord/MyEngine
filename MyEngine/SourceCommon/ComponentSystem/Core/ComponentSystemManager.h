@@ -169,6 +169,7 @@ public:
     void OnSurfaceChanged(unsigned int startx, unsigned int starty, unsigned int width, unsigned int height, unsigned int desiredaspectwidth, unsigned int desiredaspectheight);
     void OnDrawFrame();
     void OnDrawFrame(ComponentCamera* pCamera, MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride);
+    void OnFileRenamed(char* fullpathbefore, char* fullpathafter);
 
     void OnLoad();
     void OnPlay();

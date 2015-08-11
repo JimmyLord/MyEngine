@@ -1145,6 +1145,10 @@ void ComponentSystemManager::OnDrawFrame(ComponentCamera* pCamera, MyMatrix* pMa
     }
 }
 
+void ComponentSystemManager::OnFileRenamed(char* fullpathbefore, char* fullpathafter)
+{
+}
+
 void ComponentSystemManager::MoveInputHandlersToFront(CPPListNode* pOnTouch, CPPListNode* pOnButtons, CPPListNode* pOnKeys)
 {
     if( pOnTouch )

@@ -94,6 +94,7 @@ public:
     virtual void OnFocusLost();
     virtual void OnSurfaceChanged(unsigned int startx, unsigned int starty, unsigned int width, unsigned int height);
     virtual void OnDrawFrame();
+    virtual void OnFileRenamed(char* fullpathbefore, char* fullpathafter);
 
     virtual bool OnTouch(int action, int id, float x, float y, float pressure, float size);
     virtual bool OnButtons(GameCoreButtonActions action, GameCoreButtonIDs id);
