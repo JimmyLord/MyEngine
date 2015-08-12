@@ -67,6 +67,7 @@ ComponentSystemManager::~ComponentSystemManager()
     MyAssert( m_pComponentCallbackList_OnTouch.GetHead() == 0 );
     MyAssert( m_pComponentCallbackList_OnButtons.GetHead() == 0 );
     MyAssert( m_pComponentCallbackList_OnKeys.GetHead() == 0 );
+    MyAssert( m_pComponentCallbackList_OnFileRenamed.GetHead() == 0 );
     
     g_pComponentSystemManager = 0;
 }
@@ -89,6 +90,7 @@ MYFW_COMPONENTSYSTEMMANAGER_IMPLEMENT_CALLBACK_REGISTER_FUNCTIONS( Draw );
 MYFW_COMPONENTSYSTEMMANAGER_IMPLEMENT_CALLBACK_REGISTER_FUNCTIONS( OnTouch );
 MYFW_COMPONENTSYSTEMMANAGER_IMPLEMENT_CALLBACK_REGISTER_FUNCTIONS( OnButtons );
 MYFW_COMPONENTSYSTEMMANAGER_IMPLEMENT_CALLBACK_REGISTER_FUNCTIONS( OnKeys );
+MYFW_COMPONENTSYSTEMMANAGER_IMPLEMENT_CALLBACK_REGISTER_FUNCTIONS( OnFileRenamed );
 
 void ComponentSystemManager::LuaRegister(lua_State* luastate)
 {
@@ -1145,8 +1147,15 @@ void ComponentSystemManager::OnDrawFrame(ComponentCamera* pCamera, MyMatrix* pMa
     }
 }
 
-void ComponentSystemManager::OnFileRenamed(char* fullpathbefore, char* fullpathafter)
+void ComponentSystemManager::OnFileRenamed(const char* fullpathbefore, const char* fullpathafter)
 {
+    // TODO: call all components that registered a callback.
+    for( CPPListNode* pNode = m_pComponentCallbackList_OnFileRenamed.HeadNode.Next; pNode->Next; pNode = pNode->Next )
+    {
+        ComponentCallbackStruct_OnFileRenamed* pCallbackStruct = (ComponentCallbackStruct_OnFileRenamed*)pNode;
+
+        pCallbackStruct->pFunc( pCallbackStruct->pObj, fullpathbefore, fullpathafter );
+    }
 }
 
 void ComponentSystemManager::MoveInputHandlersToFront(CPPListNode* pOnTouch, CPPListNode* pOnButtons, CPPListNode* pOnKeys)

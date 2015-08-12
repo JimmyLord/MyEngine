@@ -895,6 +895,7 @@ void ComponentMenuPage::RegisterCallbacks()
         MYFW_REGISTER_COMPONENT_CALLBACK( OnTouch );
         MYFW_REGISTER_COMPONENT_CALLBACK( OnButtons );
         MYFW_REGISTER_COMPONENT_CALLBACK( OnKeys );
+        MYFW_REGISTER_COMPONENT_CALLBACK( OnFileRenamed );
     }
 }
 
@@ -906,6 +907,7 @@ void ComponentMenuPage::UnregisterCallbacks()
     MYFW_UNREGISTER_COMPONENT_CALLBACK( OnTouch );
     MYFW_UNREGISTER_COMPONENT_CALLBACK( OnButtons );
     MYFW_UNREGISTER_COMPONENT_CALLBACK( OnKeys );
+    MYFW_UNREGISTER_COMPONENT_CALLBACK( OnFileRenamed );
 }
 
 void ComponentMenuPage::FindLuaScriptComponentPointer()
@@ -1205,6 +1207,40 @@ bool ComponentMenuPage::OnKeysCallback(GameCoreButtonActions action, int keycode
     }
 
     return false;
+}
+
+// if any of the materials used for any of the unloaded menu pages has been renamed, then fix the reference.
+void ComponentMenuPage::OnFileRenamedCallback(const char* fullpathbefore, const char* fullpathafter)
+{
+    if( m_MenuLayouts == 0 )
+    {
+        if( m_pMenuLayoutFile && m_pMenuLayoutFile->m_FileLoadStatus == FileLoadStatus_Success )
+        {
+            MyAssert( m_MenuLayouts == 0 );
+            m_MenuLayouts = cJSON_Parse( m_pMenuLayoutFile->m_pBuffer );
+        }
+    }
+
+    if( m_MenuLayouts )
+    {
+        RenameFileInJSONObject( m_MenuLayouts, fullpathbefore, fullpathafter );
+    }
+}
+
+void ComponentMenuPage::RenameFileInJSONObject(cJSON* jObject, const char* fullpathbefore, const char* fullpathafter)
+{
+    MyAssert( jObject );
+
+    if( jObject->child )
+        RenameFileInJSONObject( jObject->child, fullpathbefore, fullpathafter );
+
+    if( jObject->valuestring && strcmp( jObject->valuestring, fullpathbefore ) == 0 )
+    {
+        cJSONExt_ReplaceStringInJSONObject( jObject, fullpathafter );
+    }
+
+    if( jObject->next )
+        RenameFileInJSONObject( jObject->next, fullpathbefore, fullpathafter );
 }
 
 void ComponentMenuPage::CreateMenuItems()

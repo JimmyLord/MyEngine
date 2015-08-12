@@ -83,6 +83,11 @@ struct FileUpdatedCallbackStruct
     static bool StaticCallback_OnKeys(void* pObjectPtr, GameCoreButtonActions action, int keycode, int unicodechar) { return ((ComponentClass*)pObjectPtr)->OnKeysCallback( action, keycode, unicodechar ); } \
     bool OnKeysCallback(GameCoreButtonActions action, int keycode, int unicodechar);
 
+#define MYFW_DECLARE_COMPONENT_CALLBACK_ONFILERENAMED(ComponentClass) \
+    ComponentCallbackStruct_OnFileRenamed m_CallbackStruct_OnFileRenamed; \
+    static void StaticCallback_OnFileRenamed(void* pObjectPtr, const char* fullpathbefore, const char* fullpathafter) { ((ComponentClass*)pObjectPtr)->OnFileRenamedCallback( fullpathbefore, fullpathafter ); } \
+    void OnFileRenamedCallback(const char* fullpathbefore, const char* fullpathafter);
+
 // Callback function prototypes and structs.
 typedef void (*ComponentCallbackFunction_Tick)(void* obj, double TimePassed);
 typedef void (*ComponentCallbackFunction_OnSurfaceChanged)(void* obj, unsigned int startx, unsigned int starty, unsigned int width, unsigned int height, unsigned int desiredaspectwidth, unsigned int desiredaspectheight);
@@ -90,6 +95,7 @@ typedef void (*ComponentCallbackFunction_Draw)(void* obj, ComponentCamera* pCame
 typedef bool (*ComponentCallbackFunction_OnTouch)(void* obj, int action, int id, float x, float y, float pressure, float size);
 typedef bool (*ComponentCallbackFunction_OnButtons)(void* obj, GameCoreButtonActions action, GameCoreButtonIDs id);
 typedef bool (*ComponentCallbackFunction_OnKeys)(void* obj, GameCoreButtonActions action, int keycode, int unicodechar);
+typedef void (*ComponentCallbackFunction_OnFileRenamed)(void* obj, const char* fullpathbefore, const char* fullpathafter);
 
 MYFW_COMPONENTSYSTEMMANAGER_DEFINE_CALLBACK_STRUCT( Tick );
 MYFW_COMPONENTSYSTEMMANAGER_DEFINE_CALLBACK_STRUCT( OnSurfaceChanged );
@@ -97,6 +103,7 @@ MYFW_COMPONENTSYSTEMMANAGER_DEFINE_CALLBACK_STRUCT( Draw );
 MYFW_COMPONENTSYSTEMMANAGER_DEFINE_CALLBACK_STRUCT( OnTouch );
 MYFW_COMPONENTSYSTEMMANAGER_DEFINE_CALLBACK_STRUCT( OnButtons );
 MYFW_COMPONENTSYSTEMMANAGER_DEFINE_CALLBACK_STRUCT( OnKeys );
+MYFW_COMPONENTSYSTEMMANAGER_DEFINE_CALLBACK_STRUCT( OnFileRenamed );
 
 class ComponentSystemManager
 #if MYFW_USING_WX
@@ -169,7 +176,7 @@ public:
     void OnSurfaceChanged(unsigned int startx, unsigned int starty, unsigned int width, unsigned int height, unsigned int desiredaspectwidth, unsigned int desiredaspectheight);
     void OnDrawFrame();
     void OnDrawFrame(ComponentCamera* pCamera, MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride);
-    void OnFileRenamed(char* fullpathbefore, char* fullpathafter);
+    void OnFileRenamed(const char* fullpathbefore, const char* fullpathafter);
 
     void OnLoad();
     void OnPlay();
@@ -186,6 +193,7 @@ public:
     MYFW_COMPONENTSYSTEMMANAGER_DECLARE_CALLBACK_REGISTER_FUNCTIONS( OnTouch );
     MYFW_COMPONENTSYSTEMMANAGER_DECLARE_CALLBACK_REGISTER_FUNCTIONS( OnButtons );
     MYFW_COMPONENTSYSTEMMANAGER_DECLARE_CALLBACK_REGISTER_FUNCTIONS( OnKeys );
+    MYFW_COMPONENTSYSTEMMANAGER_DECLARE_CALLBACK_REGISTER_FUNCTIONS( OnFileRenamed );
 
     void MoveInputHandlersToFront(CPPListNode* pOnTouch, CPPListNode* pOnButtons, CPPListNode* pOnKeys);
 

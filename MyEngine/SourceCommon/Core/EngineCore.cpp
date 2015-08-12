@@ -330,7 +330,7 @@ void EngineCore::OnDrawFrame()
 #endif
 }
 
-void EngineCore::OnFileRenamed(char* fullpathbefore, char* fullpathafter)
+void EngineCore::OnFileRenamed(const char* fullpathbefore, const char* fullpathafter)
 {
     g_pComponentSystemManager->OnFileRenamed( fullpathbefore, fullpathafter );
 }

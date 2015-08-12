@@ -184,6 +184,8 @@ public:
     bool IsVisible();
     void SetInputEnabled(bool inputenabled);
 
+    void RenameFileInJSONObject(cJSON* jObject, const char* fullpathbefore, const char* fullpathafter);
+
     void CreateMenuItems();
     bool ExecuteAction(const char* action, MenuItem* pItem);
 
@@ -198,6 +200,7 @@ protected:
     MYFW_DECLARE_COMPONENT_CALLBACK_ONTOUCH( ComponentMenuPage ); // OnTouchCallback
     MYFW_DECLARE_COMPONENT_CALLBACK_ONBUTTONS( ComponentMenuPage ); // OnButtonsCallback
     MYFW_DECLARE_COMPONENT_CALLBACK_ONKEYS( ComponentMenuPage ); // OnKeysCallback
+    MYFW_DECLARE_COMPONENT_CALLBACK_ONFILERENAMED( ComponentMenuPage ); // OnFileRenamedCallback
 
 public:
 #if MYFW_USING_WX
