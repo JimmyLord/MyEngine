@@ -57,6 +57,8 @@ EngineCore::EngineCore()
     m_Debug_DrawSelectedAnimatedMesh = false;
     m_pDebugQuadSprite = 0;
     m_FreeAllMaterialsAndTexturesWhenUnloadingScene = false;
+    m_pDebugFont = 0;
+    m_pDebugTextMesh = 0;
 
     g_pPanelObjectList->m_pCallbackFunctionObject = this;
     g_pPanelObjectList->m_pOnTreeSelectionChangedFunction = StaticOnObjectListTreeSelectionChanged;
@@ -83,6 +85,8 @@ EngineCore::~EngineCore()
 #if MYFW_USING_WX
     SAFE_DELETE( m_pEditorState );
     SAFE_RELEASE( m_pDebugQuadSprite );
+    SAFE_RELEASE( m_pDebugFont );
+    SAFE_RELEASE( m_pDebugTextMesh );
 #endif //MYFW_USING_WX
 
     SAFE_DELETE( m_pComponentSystemManager );
@@ -107,6 +111,16 @@ void EngineCore::OneTimeInit()
 #if MYFW_USING_WX
     m_pEditorState->m_pDebugViewFBO = g_pTextureManager->CreateFBO( 0, 0, GL_NEAREST, GL_NEAREST, false, 0, false, true );
     m_pEditorState->m_pMousePickerFBO = g_pTextureManager->CreateFBO( 0, 0, GL_NEAREST, GL_NEAREST, false, 0, false, true );
+
+    if( m_pDebugFont == 0 )
+    {
+        m_pDebugFont = g_pFontManager->CreateFont( "DataEngine/Fonts/Nevis60.fnt" );
+    }
+
+    if( m_pDebugTextMesh == 0 )
+    {
+        m_pDebugTextMesh = MyNew MyMeshText( 100, m_pDebugFont );
+    }
 #endif //MYFW_USING_WX
 
     // setup our shaders
@@ -328,6 +342,24 @@ void EngineCore::OnDrawFrame()
         }
     }
 #endif
+
+    if( m_pDebugTextMesh )
+    {
+        if( m_pDebugTextMesh->GetMaterial( 0 ) == 0 )
+        {
+            MaterialDefinition* pMaterial = g_pMaterialManager->FindMaterialByFilename( "Data/Materials/Nevis60.mymaterial" );
+            m_pDebugTextMesh->SetMaterial( pMaterial, 0 );
+        }
+
+        //m_pDebugTextMesh->CreateStringWhite( false, 15, 640, 480, Justify_TopRight, Vector2(0,0), "GLStats - buffers(%0.2fM) - draws(%d) - fps(%d)", g_pBufferManager->CalculateTotalMemoryUsedByBuffers()/1000000.0f, g_GLStats.m_NumDrawCallsLastFrame, "98765" );
+        m_pDebugTextMesh->CreateStringWhite( false, 15, m_WindowStartX+m_WindowWidth, m_WindowStartY+m_WindowHeight, Justify_TopRight, Vector2(0,0),
+                                             "GLStats - draws(%d) - fps(%d)", g_GLStats.m_NumDrawCallsLastFrame, "98765" );
+        MyMatrix mat;        
+        mat.CreateOrtho( m_WindowStartX, m_WindowStartX+m_WindowWidth, m_WindowStartY, m_WindowStartY+m_WindowHeight, 1, -1 );
+        glDisable( GL_DEPTH_TEST );
+        m_pDebugTextMesh->Draw( &mat, 0,0,0,0,0,0,0 );
+        glEnable( GL_DEPTH_TEST );
+    }
 }
 
 void EngineCore::OnFileRenamed(const char* fullpathbefore, const char* fullpathafter)

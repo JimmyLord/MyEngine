@@ -55,6 +55,8 @@ public:
     bool m_Debug_DrawMousePickerFBO;
     bool m_Debug_DrawSelectedAnimatedMesh;
     MySprite* m_pDebugQuadSprite;
+    FontDefinition* m_pDebugFont;
+    MyMeshText* m_pDebugTextMesh; // DEBUG_HACK_SHOWGLSTATS
 #endif //MYFW_USING_WX
     bool m_FreeAllMaterialsAndTexturesWhenUnloadingScene;
 
