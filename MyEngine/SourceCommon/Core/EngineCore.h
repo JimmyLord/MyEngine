@@ -50,10 +50,14 @@ public:
     bool m_AllowGameToRunInEditorMode;
     bool m_Paused;
     double m_PauseTimeToAdvance; // advance clock by this much on next tick.
+
+    float m_DebugFPS;
+
 #if MYFW_USING_WX
     EditorState* m_pEditorState;
     bool m_Debug_DrawMousePickerFBO;
     bool m_Debug_DrawSelectedAnimatedMesh;
+    bool m_Debug_DrawGLStats;
     MySprite* m_pDebugQuadSprite;
     FontDefinition* m_pDebugFont;
     MyMeshText* m_pDebugTextMesh; // DEBUG_HACK_SHOWGLSTATS
@@ -95,7 +99,7 @@ public:
     virtual void OnFocusGained();
     virtual void OnFocusLost();
     virtual void OnSurfaceChanged(unsigned int startx, unsigned int starty, unsigned int width, unsigned int height);
-    virtual void OnDrawFrame();
+    virtual void OnDrawFrame(unsigned int canvasid);
     virtual void OnFileRenamed(const char* fullpathbefore, const char* fullpathafter);
 
     virtual bool OnTouch(int action, int id, float x, float y, float pressure, float size);

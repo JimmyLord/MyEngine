@@ -48,6 +48,7 @@ enum EngineMenuIDs
     // Perspective_NumPerspectives more items here
     myIDEngine_DebugShowMousePickerFBO = myIDEngine_GameplayPerspective + Perspective_NumPerspectives,
     myIDEngine_DebugShowSelectedAnimatedMesh,
+    myIDEngine_DebugShowGLStats,
     myIDEngine_LastID,
 };
 

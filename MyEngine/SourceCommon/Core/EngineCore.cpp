@@ -55,6 +55,7 @@ EngineCore::EngineCore()
     m_pEditorState = MyNew EditorState;
     m_Debug_DrawMousePickerFBO = false;
     m_Debug_DrawSelectedAnimatedMesh = false;
+    m_Debug_DrawGLStats = false;
     m_pDebugQuadSprite = 0;
     m_FreeAllMaterialsAndTexturesWhenUnloadingScene = false;
     m_pDebugFont = 0;
@@ -157,6 +158,20 @@ bool EngineCore::IsReadyToRender()
 
 double EngineCore::Tick(double TimePassed)
 {
+    {
+        static int numframes = 0;
+        static double totaltime = 0;
+
+        totaltime += TimePassed;
+        numframes++;
+        if( totaltime > 1 )
+        {
+            m_DebugFPS = (float)(numframes / totaltime);
+            numframes = 0;
+            totaltime = 0;
+        }
+    }
+
     if( TimePassed > 0.2 )
         TimePassed = 0.2;
 
@@ -255,9 +270,9 @@ void EngineCore::OnFocusLost()
     GameCore::OnFocusLost();
 }
 
-void EngineCore::OnDrawFrame()
+void EngineCore::OnDrawFrame(unsigned int canvasid)
 {
-    GameCore::OnDrawFrame();
+    GameCore::OnDrawFrame( canvasid );
 
 #if MYFW_USING_WX
     if( g_GLCanvasIDActive == 1 )
@@ -343,7 +358,7 @@ void EngineCore::OnDrawFrame()
     }
 #endif
 
-    if( m_pDebugTextMesh )
+    if( m_Debug_DrawGLStats && m_pDebugTextMesh )// && g_GLCanvasIDActive == 1 )
     {
         if( m_pDebugTextMesh->GetMaterial( 0 ) == 0 )
         {
@@ -351,9 +366,10 @@ void EngineCore::OnDrawFrame()
             m_pDebugTextMesh->SetMaterial( pMaterial, 0 );
         }
 
-        //m_pDebugTextMesh->CreateStringWhite( false, 15, 640, 480, Justify_TopRight, Vector2(0,0), "GLStats - buffers(%0.2fM) - draws(%d) - fps(%d)", g_pBufferManager->CalculateTotalMemoryUsedByBuffers()/1000000.0f, g_GLStats.m_NumDrawCallsLastFrame, "98765" );
+        //m_pDebugTextMesh->CreateStringWhite( false, 15, m_WindowStartX+m_WindowWidth, m_WindowStartY+m_WindowHeight, Justify_TopRight, Vector2(0,0),
+        //                                     "GLStats - buffers(%0.2fM) - draws(%d) - fps(%d)", g_pBufferManager->CalculateTotalMemoryUsedByBuffers()/1000000.0f, g_GLStats.GetNumDrawCallsLastFrameForCurrentCanvasID(), (int)m_DebugFPS );
         m_pDebugTextMesh->CreateStringWhite( false, 15, m_WindowStartX+m_WindowWidth, m_WindowStartY+m_WindowHeight, Justify_TopRight, Vector2(0,0),
-                                             "GLStats - draws(%d) - fps(%d)", g_GLStats.m_NumDrawCallsLastFrame, "98765" );
+            "GLStats - draws(%d) - fps(%d)", g_GLStats.GetNumDrawCallsLastFrameForCurrentCanvasID(), (int)m_DebugFPS );
         MyMatrix mat;        
         mat.CreateOrtho( m_WindowStartX, m_WindowStartX+m_WindowWidth, m_WindowStartY, m_WindowStartY+m_WindowHeight, 1, -1 );
         glDisable( GL_DEPTH_TEST );
