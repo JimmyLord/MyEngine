@@ -20,12 +20,20 @@ ComponentTransform::ComponentTransform()
 
     m_BaseType = BaseComponentType_Data;
 
+    m_pParentTransform = 0;
+
     m_pPositionChangedCallbackList.AllocateObjects( MAX_REGISTERED_CALLBACKS );
 }
 
 ComponentTransform::~ComponentTransform()
 {
     m_pPositionChangedCallbackList.FreeAllInList();
+
+    // if we had an parent transform, stop it's gameobject from reporting it's deletion.
+    if( m_pParentTransform != 0 )
+    {
+        m_pParentTransform->m_pGameObject->UnregisterOnDeleteCallback( this, StaticOnGameObjectDeleted );
+    }
 }
 
 void ComponentTransform::Reset()
@@ -183,7 +191,9 @@ void ComponentTransform::ImportFromJSONObject(cJSON* jsonobj, unsigned int scene
     if( parentid != 0 )
     {
         GameObject* pParentGameObject = g_pComponentSystemManager->FindGameObjectByID( sceneid, parentid );
-        m_pParentTransform = pParentGameObject->m_pComponentTransform;
+        MyAssert( pParentGameObject );
+        if( pParentGameObject )
+            SetParent( pParentGameObject->m_pComponentTransform );
     }
 
     cJSONExt_GetFloatArray( jsonobj, "Pos", &m_Position.x, 3 );
@@ -251,8 +261,14 @@ MyMatrix ComponentTransform::GetLocalRotPosMatrix()
     return local;
 }
 
-void ComponentTransform::SetParent(ComponentTransform* pNewParent)
+void ComponentTransform::SetParent(ComponentTransform* pNewParent, bool unregisterondeletecallback)
 {
+    // if we had an old parent, stop it's gameobject from reporting it's deletion.
+    if( m_pParentTransform != 0 && unregisterondeletecallback )
+    {
+        m_pParentTransform->m_pGameObject->UnregisterOnDeleteCallback( this, StaticOnGameObjectDeleted );
+    }
+
     if( pNewParent == 0 || pNewParent == this )
     {
         m_LocalTransform = m_Transform;
@@ -265,6 +281,9 @@ void ComponentTransform::SetParent(ComponentTransform* pNewParent)
         m_LocalTransform = matparent * m_Transform;
 
         m_pParentTransform = pNewParent;
+
+        // register this component with the gameobject of the parent to notify us of it's deletion.
+        m_pParentTransform->m_pGameObject->RegisterOnDeleteCallback( this, StaticOnGameObjectDeleted );
     }
 
     UpdateMatrix();
@@ -305,4 +324,15 @@ void ComponentTransform::RegisterPositionChangedCallback(void* pObj, TransformPo
     callbackstruct.pFunc = pCallback;
 
     m_pPositionChangedCallbackList.Add( callbackstruct );
+}
+
+void ComponentTransform::OnGameObjectDeleted(GameObject* pGameObject)
+{
+    // if our parent was deleted, clear the pointer.
+    MyAssert( m_pParentTransform == pGameObject->m_pComponentTransform ); // the callback should have only been registered if needed.
+    if( m_pParentTransform == pGameObject->m_pComponentTransform )
+    {
+        // we're in the callback, so don't unregister the callback.
+        SetParent( 0, false );
+    }
 }

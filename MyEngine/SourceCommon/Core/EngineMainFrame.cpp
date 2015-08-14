@@ -324,11 +324,11 @@ bool EngineMainFrame::OnClose()
         g_pEngineCore->m_pEditorState->ClearSelectedObjectsAndComponents();
 
         FILE* file = 0;
-    #if MYFW_WINDOWS
+#if MYFW_WINDOWS
         fopen_s( &file, "EditorPrefs.ini", "wb" );
-    #else
+#else
         file = fopen( "EditorPrefs.ini", "wb" );
-    #endif
+#endif
         if( file )
         {
             cJSON* pPrefs = cJSON_CreateObject();
@@ -674,12 +674,16 @@ void EngineMainFrame::LoadScene(const char* scenename, bool unloadscenes)
 {
     MyAssert( scenename != 0 );
 
-    //strcpy_s( m_CurrentSceneName, 260, scenename );
-
-    // clear out the old scene before loading
-    // TODO: make this optional, so we can load multiple scenes at once, also change the '1' in LoadScene to the next available scene id
+    // clear out the old scene before loading.
     if( unloadscenes )
+    {
+        // if we're unloading the old scene(s), clear all selected items.
+        g_pEngineCore->m_pEditorState->ClearKeyAndActionStates();
+        g_pEngineCore->m_pEditorState->ClearSelectedObjectsAndComponents();
+
         g_pEngineCore->UnloadScene( UINT_MAX, false ); // don't unload editor objects.
+    }
+
     unsigned int sceneid = g_pComponentSystemManager->GetNextSceneID();
     g_pEngineCore->LoadSceneFromFile( scenename, sceneid );
 
