@@ -128,6 +128,7 @@ protected:
     std::vector<FileUpdatedCallbackStruct> m_pFileUpdatedCallbackList;
 #endif //MYFW_USING_WX
 
+    MyFileInfo* GetFileInfoIfUsedByScene(const char* fullpath, unsigned int sceneid);
     MyFileObject* GetFileObjectIfUsedByScene(const char* fullpath, unsigned int sceneid);
 
 public:
@@ -138,7 +139,7 @@ public:
 
     void MoveAllFilesNeededForLoadingScreenToStartOfFileList();
     char* SaveSceneToJSON(unsigned int sceneid);
-    MyFileObject* LoadDatafile(const char* relativepath, unsigned int sceneid);
+    MyFileObject* LoadDatafile(const char* relativepath, unsigned int sceneid, const char* fullsourcefilepath);
     void LoadSceneFromJSON(const char* scenename, const char* jsonstr, unsigned int sceneid);
     void FinishLoading(bool lockwhileloading, bool playwhenfinishedloading);
 
@@ -243,6 +244,7 @@ public:
     MyFileInfo()
     {
         m_pFile = 0;
+        m_SourceFileFullPath[0] = 0; // store the source file (fbx, obj, etc) that the data file was converted from.
         m_SceneID = 0;
 
         m_pMesh = 0;
@@ -263,6 +265,7 @@ public:
     }
 
     MyFileObject* m_pFile;
+    char m_SourceFileFullPath[MAX_PATH];
     unsigned int m_SceneID;
 
     MyMesh* m_pMesh; // a mesh may have been created alongside the file.

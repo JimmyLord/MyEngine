@@ -747,8 +747,7 @@ void EngineMainFrame::AddDatafileToScene()
             return;
         }
 
-        // fullpath is actually a relative path at this point.
-        g_pEngineCore->m_pComponentSystemManager->LoadDatafile( relativepath, 1 );
+        g_pEngineCore->m_pComponentSystemManager->LoadDatafile( relativepath, 1, (const char*)patharray[filenum] );
     }
 }
 

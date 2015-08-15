@@ -362,8 +362,13 @@ void EngineCore::OnDrawFrame(unsigned int canvasid)
     {
         if( m_pDebugTextMesh->GetMaterial( 0 ) == 0 )
         {
-            MaterialDefinition* pMaterial = g_pMaterialManager->FindMaterialByFilename( "Data/Materials/Nevis60.mymaterial" );
-            m_pDebugTextMesh->SetMaterial( pMaterial, 0 );
+            MaterialDefinition* pMaterial = g_pMaterialManager->LoadMaterial( "DataEngine/Materials/Nevis60.mymaterial" );
+            MyAssert( pMaterial );
+            if( pMaterial )
+            {
+                m_pDebugTextMesh->SetMaterial( pMaterial, 0 );
+                pMaterial->Release();
+            }
         }
 
         //m_pDebugTextMesh->CreateStringWhite( false, 15, m_WindowStartX+m_WindowWidth, m_WindowStartY+m_WindowHeight, Justify_TopRight, Vector2(0,0),

@@ -274,6 +274,14 @@ char* ComponentSystemManager::SaveSceneToJSON(unsigned int sceneid)
             cJSON* jFile = cJSON_CreateObject();
             cJSON_AddItemToObject( jFile, "Path", cJSON_CreateString( pFile->m_FullPath ) );
             cJSON_AddItemToArray( filearray, jFile );
+
+            // Find the MyFileInfo object and save the source path if there is one.
+            // TODO: this may fail if the file is loaded by multiple scenes.
+            MyFileInfo* pFileInfo = GetFileInfoIfUsedByScene( pFile->m_FullPath, -1 );
+            if( pFileInfo && pFileInfo->m_SourceFileFullPath[0] != 0 )
+            {
+                cJSON_AddItemToObject( jFile, "SourcePath", cJSON_CreateString( pFileInfo->m_SourceFileFullPath ) );
+            }
             
             pFile = (MyFileObject*)pFile->GetNext();
         }
@@ -336,21 +344,33 @@ char* ComponentSystemManager::SaveSceneToJSON(unsigned int sceneid)
     return savestring;
 }
 
-MyFileObject* ComponentSystemManager::GetFileObjectIfUsedByScene(const char* fullpath, unsigned int sceneid)
+MyFileInfo* ComponentSystemManager::GetFileInfoIfUsedByScene(const char* fullpath, unsigned int sceneid)
 {
     for( CPPListNode* pNode = m_Files.GetHead(); pNode; pNode = pNode->GetNext() )
     {
         MyFileInfo* pFileInfo = (MyFileInfo*)pNode;
-        
-        if( strcmp( pFileInfo->m_pFile->m_FullPath, fullpath ) == 0 && pFileInfo->m_SceneID == sceneid )
-            return pFileInfo->m_pFile;
+
+        if( strcmp( pFileInfo->m_pFile->m_FullPath, fullpath ) == 0 && (sceneid == -1 || pFileInfo->m_SceneID == sceneid) )
+            return pFileInfo;
     }
 
     return 0;
 }
 
-MyFileObject* ComponentSystemManager::LoadDatafile(const char* relativepath, unsigned int sceneid)
+MyFileObject* ComponentSystemManager::GetFileObjectIfUsedByScene(const char* fullpath, unsigned int sceneid)
 {
+    MyFileInfo* pFileInfo = GetFileInfoIfUsedByScene( fullpath, sceneid );
+
+    if( pFileInfo )
+        return pFileInfo->m_pFile;
+
+    return 0;
+}
+
+MyFileObject* ComponentSystemManager::LoadDatafile(const char* relativepath, unsigned int sceneid, const char* fullsourcefilepath)
+{
+    MyAssert( relativepath );
+
     // each scene loaded will add ref's to the file.
     MyFileObject* pFile = GetFileObjectIfUsedByScene( relativepath, sceneid );
 
@@ -361,13 +381,16 @@ MyFileObject* ComponentSystemManager::LoadDatafile(const char* relativepath, uns
     }
     else
     {
-        size_t len = strlen( relativepath );
+        size_t fulllen = 0;
+        if( fullsourcefilepath )
+            fulllen = strlen( fullsourcefilepath );
+        size_t rellen = strlen( relativepath );
         
         // convert any .fbx files into a mymesh and load that.
 #if MYFW_USING_WX
-        if( len > 4 &&
-            ( strcmp( &relativepath[len-4], ".fbx" ) == 0 ||
-              strcmp( &relativepath[len-4], ".obj" ) == 0 )
+        if( rellen > 4 &&
+            ( strcmp( &relativepath[rellen-4], ".fbx" ) == 0 ||
+              strcmp( &relativepath[rellen-4], ".obj" ) == 0 )
           )
         {
             // run MeshTool to convert the mesh and put the result in "Data/Meshes"
@@ -423,7 +446,7 @@ MyFileObject* ComponentSystemManager::LoadDatafile(const char* relativepath, uns
                 char newrelativepath[MAX_PATH];
                 sprintf_s( newrelativepath, MAX_PATH, "Data/Meshes/%s.mymesh", filename );
 
-                pFile = LoadDatafile( newrelativepath, sceneid );
+                pFile = LoadDatafile( newrelativepath, sceneid, fullsourcefilepath );
             }
 #else
             LOGError( LOGTag, "Mesh conversion only works on Windows ATM\n" );
@@ -436,7 +459,7 @@ MyFileObject* ComponentSystemManager::LoadDatafile(const char* relativepath, uns
         TextureDefinition* pTexture = 0;
 
         // load textures differently than other files.
-        if( len > 4 && strcmp( &relativepath[len-4], ".png" ) == 0 )
+        if( rellen > 4 && strcmp( &relativepath[rellen-4], ".png" ) == 0 )
         {
             pTexture = g_pTextureManager->CreateTexture( relativepath );
             pFile = pTexture->m_pFile;
@@ -456,6 +479,14 @@ MyFileObject* ComponentSystemManager::LoadDatafile(const char* relativepath, uns
         pFileInfo->m_pTexture = pTexture;
         pFileInfo->m_SceneID = sceneid;
         m_Files.AddTail( pFileInfo );
+
+        // if the extension of the source file is different than that of the file we're loading,
+        //  then store the source file path in the fileobject, so we can detect/reconvert if that file changes.
+        if( rellen > 4 && fulllen > 4 &&
+            ( strcmp( &relativepath[rellen-4], &fullsourcefilepath[fulllen-4] ) != 0 ) )
+        {
+            strcpy_s( pFileInfo->m_SourceFileFullPath, MAX_PATH, fullsourcefilepath );
+        }
 
         // if we're loading a mesh file type, create a mesh.
         {
@@ -524,14 +555,25 @@ void ComponentSystemManager::LoadSceneFromJSON(const char* scenename, const char
 
             if( jFile->valuestring != 0 )
             {
-                LoadDatafile( jFile->valuestring, sceneid );
+                LoadDatafile( jFile->valuestring, sceneid, 0 );
             }
             else
             {
                 cJSON* jPath = cJSON_GetObjectItem( jFile, "Path" );
                 if( jPath )
                 {
-                    LoadDatafile( jPath->valuestring, sceneid );
+                    LoadDatafile( jPath->valuestring, sceneid, 0 );
+
+                    MyFileInfo* pFileInfo = GetFileInfoIfUsedByScene( jPath->valuestring, sceneid );
+                    MyAssert( pFileInfo );
+                    if( pFileInfo )
+                    {
+                        cJSON* jSourcePath = cJSON_GetObjectItem( jFile, "SourcePath" );
+                        if( jSourcePath )
+                        {
+                            strcpy_s( pFileInfo->m_SourceFileFullPath, MAX_PATH, jSourcePath->valuestring );
+                        }
+                    }
                 }
             }
         }

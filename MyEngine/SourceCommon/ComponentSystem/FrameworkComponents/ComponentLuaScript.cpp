@@ -95,7 +95,7 @@ void ComponentLuaScript::CreateNewScriptFile()
             sprintf_s( fullpath, MAX_PATH, "%s", (const char*)wxpath );
             const char* relativepath = g_pEngineMainFrame->GetRelativePath( fullpath );
 
-            MyFileObject* pScriptFile = g_pComponentSystemManager->LoadDatafile( relativepath, m_pGameObject->GetSceneID() );
+            MyFileObject* pScriptFile = g_pComponentSystemManager->LoadDatafile( relativepath, m_pGameObject->GetSceneID(), 0 );
             SetScriptFile( pScriptFile );
 
             // update the panel so new filename shows up. // TODO: this won't refresh lua variables, so maybe refresh the whole watch panel.
