@@ -20,7 +20,7 @@ class MenuButton;
 
 #define LEGACYHACK 0
 
-typedef bool (*MenuPageActionCallbackFunc)(void* pObjectPtr, ComponentMenuPage* pPage, const char* action, MenuItem* pMenuItem);
+typedef bool (*MenuPageActionCallbackFunc)(void* pObjectPtr, ComponentMenuPage* pPage, const char* function, const char* action, MenuItem* pMenuItem);
 struct MenuPageActionCallbackStruct
 {
     void* pObj;
@@ -187,7 +187,7 @@ public:
     void RenameFileInJSONObject(cJSON* jObject, const char* fullpathbefore, const char* fullpathafter);
 
     void CreateMenuItems();
-    bool ExecuteAction(const char* action, MenuItem* pItem);
+    bool ExecuteAction(const char* function, const char* action, MenuItem* pItem);
 
     void ShowPage();
     void HidePage();
@@ -210,6 +210,7 @@ public:
         RightClick_AddSprite,
         RightClick_AddText,
         RightClick_ForceReload,
+        RightClick_SavePage,
         RightClick_CopyToOtherLayouts,
     };
 
@@ -224,6 +225,7 @@ public:
 #endif //LEGACYHACK
 
     void SaveMenuPageToDisk(const char* fullpath);
+    void SaveMenuPageToDisk();
     void RenameMenuPage(const char* newfullpath);
 
     void SaveCurrentLayoutToJSON();

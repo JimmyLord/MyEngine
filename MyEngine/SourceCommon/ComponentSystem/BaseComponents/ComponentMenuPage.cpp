@@ -227,6 +227,29 @@ void ComponentMenuPage::LEGACYHACK_GrabMenuItemPointersFromCurrentScreen()
 }
 #endif //LEGACYHACK
 
+void ComponentMenuPage::SaveMenuPageToDisk()
+{
+    // Scene is saving so also save menu file to disk.
+    if( m_pMenuLayoutFile == 0 )
+    {
+        wxFileDialog FileDialog( g_pEngineMainFrame, _("Save Menu file"), "./Data/Menus", "", "Menu files (*.menu)|*.menu", wxFD_SAVE|wxFD_OVERWRITE_PROMPT);
+    
+        if( FileDialog.ShowModal() != wxID_CANCEL )
+        {
+            wxString wxpath = FileDialog.GetPath();
+            char fullpath[MAX_PATH];
+            sprintf_s( fullpath, MAX_PATH, "%s", (const char*)wxpath );
+            const char* relativepath = g_pEngineMainFrame->GetRelativePath( fullpath );
+            m_pMenuLayoutFile = g_pFileManager->RequestFile( relativepath );
+        }
+    }
+
+    if( m_pMenuLayoutFile )
+        SaveMenuPageToDisk( m_pMenuLayoutFile->m_FullPath );
+    else
+        LOGError( LOGTag, "MENU FILE NOT SAVED!\n" );
+}
+
 void ComponentMenuPage::SaveMenuPageToDisk(const char* fullpath)
 {
     if( m_MenuLayouts == 0 )
@@ -434,6 +457,9 @@ void ComponentMenuPage::AppendItemsToRightClickMenu(wxMenu* pMenu)
     pMenu->Append( RightClick_ForceReload, "Force Reload" );
  	pMenu->Connect( wxEVT_COMMAND_MENU_SELECTED, (wxObjectEventFunction)&ComponentMenuPage::OnPopupClick );
 
+    pMenu->Append( RightClick_SavePage, "Save Page" );
+ 	pMenu->Connect( wxEVT_COMMAND_MENU_SELECTED, (wxObjectEventFunction)&ComponentMenuPage::OnPopupClick );
+
     pMenu->AppendSeparator();
 
     pMenu->Append( RightClick_CopyToOtherLayouts, "Copy unique items to other layouts" );
@@ -462,6 +488,7 @@ void ComponentMenuPage::OnPopupClick(wxEvent &evt)
     case RightClick_AddSprite:          pComponent->AddNewMenuItemToTree( MIT_Sprite );     break;
     case RightClick_AddText:            pComponent->AddNewMenuItemToTree( MIT_Text );       break;
     case RightClick_ForceReload:        pComponent->LoadLayoutBasedOnCurrentAspectRatio();  break;
+    case RightClick_SavePage:           pComponent->SaveMenuPageToDisk();                   break;
     case RightClick_CopyToOtherLayouts: pComponent->CopyUniqueItemsToOtherLayouts();        break;
     }
 
@@ -818,25 +845,7 @@ void ComponentMenuPageEventHandlerForMenuItems::OnPopupClick(wxEvent &evt)
 cJSON* ComponentMenuPage::ExportAsJSONObject(bool savesceneid)
 {
 #if MYFW_USING_WX
-    // Scene is saving so also save menu file to disk.
-    if( m_pMenuLayoutFile == 0 )
-    {
-        wxFileDialog FileDialog( g_pEngineMainFrame, _("Save Menu file"), "./Data/Menus", "", "Menu files (*.menu)|*.menu", wxFD_SAVE|wxFD_OVERWRITE_PROMPT);
-    
-        if( FileDialog.ShowModal() != wxID_CANCEL )
-        {
-            wxString wxpath = FileDialog.GetPath();
-            char fullpath[MAX_PATH];
-            sprintf_s( fullpath, MAX_PATH, "%s", (const char*)wxpath );
-            const char* relativepath = g_pEngineMainFrame->GetRelativePath( fullpath );
-            m_pMenuLayoutFile = g_pFileManager->RequestFile( relativepath );
-        }
-    }
-
-    if( m_pMenuLayoutFile )
-        SaveMenuPageToDisk( m_pMenuLayoutFile->m_FullPath );
-    else
-        LOGError( LOGTag, "MENU FILE NOT SAVED!\n" );
+    SaveMenuPageToDisk();
 
     cJSON* jComponent = ComponentBase::ExportAsJSONObject( savesceneid );
 
@@ -1029,7 +1038,22 @@ bool ComponentMenuPage::OnTouchCallback(int action, int id, float x, float y, fl
                 {
                     if( m_pMenuItems[i] )
                     {
-                        m_pMenuItems[i]->ReleaseOnNoCollision( fingerindex, x, y );
+                        if( m_pMenuItems[i]->ReleaseOnNoCollision( fingerindex, x, y ) )
+                        {
+                            // finger is further down than when it was on the button.
+                            if( y < GetMenuItem(i)->m_Position.y )
+                            {
+                                if( GetMenuItem(i)->m_MenuItemType == MIT_Button )
+                                {
+                                    const char* action = GetMenuButton(i)->m_ButtonAction;
+                                    if( action != 0 )
+                                    {
+                                        if( ExecuteAction( "OnSwipeDown", action, m_pMenuItems[i] ) )
+                                            return true;
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -1052,7 +1076,7 @@ bool ComponentMenuPage::OnTouchCallback(int action, int id, float x, float y, fl
 
                     if( action != 0 )//&& OnMenuAction( action ) )
                     {
-                        if( ExecuteAction( action, m_pMenuItems[i] ) )
+                        if( ExecuteAction( "OnAction", action, m_pMenuItems[i] ) )
                             return true;
                     }
                 }
@@ -1165,15 +1189,15 @@ bool ComponentMenuPage::OnButtonsCallback(GameCoreButtonActions action, GameCore
 
                     if( m_pMenuItems[m_ItemSelected]->m_MenuItemType == MIT_Button )
                     {
-                        if( ExecuteAction( ((MenuButton*)m_pMenuItems[m_ItemSelected])->m_ButtonAction, m_pMenuItems[m_ItemSelected] ) )
+                        if( ExecuteAction( "OnAction", ((MenuButton*)m_pMenuItems[m_ItemSelected])->m_ButtonAction, m_pMenuItems[m_ItemSelected] ) )
                             return true;
                     }
                 }
             }
 
-            if( id == GCBI_ButtonB ) if( ExecuteAction( m_ButtonActions[0], 0 ) ) return true;
-            if( id == GCBI_ButtonC ) if( ExecuteAction( m_ButtonActions[1], 0 ) ) return true;
-            if( id == GCBI_ButtonD ) if( ExecuteAction( m_ButtonActions[2], 0 ) ) return true;
+            if( id == GCBI_ButtonB ) if( ExecuteAction( "OnAction", m_ButtonActions[0], 0 ) ) return true;
+            if( id == GCBI_ButtonC ) if( ExecuteAction( "OnAction", m_ButtonActions[1], 0 ) ) return true;
+            if( id == GCBI_ButtonD ) if( ExecuteAction( "OnAction", m_ButtonActions[2], 0 ) ) return true;
         }
     }
 
@@ -1675,13 +1699,13 @@ void ComponentMenuPage::SetInputEnabled(bool inputenabled)
     m_InputEnabled = inputenabled;
 }
 
-bool ComponentMenuPage::ExecuteAction(const char* action, MenuItem* pItem)
+bool ComponentMenuPage::ExecuteAction(const char* function, const char* action, MenuItem* pItem)
 {
     if( action != 0 )
     {
         if( m_MenuPageActionCallbackStruct.pFunc )
         {
-            if( m_MenuPageActionCallbackStruct.pFunc( m_MenuPageActionCallbackStruct.pObj, this, action, pItem ) )
+            if( m_MenuPageActionCallbackStruct.pFunc( m_MenuPageActionCallbackStruct.pObj, this, function, action, pItem ) )
                 return true;
         }
 #if MYFW_USING_WX
@@ -1690,7 +1714,7 @@ bool ComponentMenuPage::ExecuteAction(const char* action, MenuItem* pItem)
 #endif
         if( m_pComponentLuaScript )
         {
-            m_pComponentLuaScript->CallFunction( "OnAction", action );
+            m_pComponentLuaScript->CallFunction( function, action );
             return true;
         }
     }
