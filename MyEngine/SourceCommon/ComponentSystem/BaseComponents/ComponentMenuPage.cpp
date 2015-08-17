@@ -987,16 +987,16 @@ bool ComponentMenuPage::OnTouchCallback(int action, int id, float x, float y, fl
             return true;
     }
 
-    for( int i=m_MenuItemsUsed-1; i>=0; i-- )
-    {
-        if( m_pMenuItems[i]->m_MenuItemType == MIT_ScrollBox ||
-            m_pMenuItems[i]->m_MenuItemType == MIT_ScrollingText )
-        {
-            MenuScrollBox* pScrollBox = (MenuScrollBox*)m_pMenuItems[i];
-            if( pScrollBox->OnTouch( action, id, x, y, pressure, size ) )
-                return true;
-        }
-    }
+    //for( int i=m_MenuItemsUsed-1; i>=0; i-- )
+    //{
+    //    if( m_pMenuItems[i]->m_MenuItemType == MIT_ScrollBox ||
+    //        m_pMenuItems[i]->m_MenuItemType == MIT_ScrollingText )
+    //    {
+    //        MenuScrollBox* pScrollBox = (MenuScrollBox*)m_pMenuItems[i];
+    //        if( pScrollBox->OnTouch( action, id, x, y, pressure, size ) )
+    //            return true;
+    //    }
+    //}
 
     switch( action )
     {
@@ -1009,8 +1009,17 @@ bool ComponentMenuPage::OnTouchCallback(int action, int id, float x, float y, fl
             {
                 if( m_pMenuItems[i] )
                 {
-                    if( m_pMenuItems[i]->HoldOnCollision( id, x, y, true ) )
-                        return true;
+                    if( m_pMenuItems[i]->m_MenuItemType == MIT_ScrollBox || m_pMenuItems[i]->m_MenuItemType == MIT_ScrollingText )
+                    {
+                        MenuScrollBox* pScrollBox = (MenuScrollBox*)m_pMenuItems[i];
+                        if( pScrollBox->OnTouch( action, id, x, y, pressure, size ) )
+                            return true;
+                    }
+                    else
+                    {
+                        if( m_pMenuItems[i]->HoldOnCollision( id, x, y, true ) )
+                            return true;
+                    }
                 }
             }
         }
@@ -1038,18 +1047,27 @@ bool ComponentMenuPage::OnTouchCallback(int action, int id, float x, float y, fl
                 {
                     if( m_pMenuItems[i] )
                     {
-                        if( m_pMenuItems[i]->ReleaseOnNoCollision( fingerindex, x, y ) )
+                        if( m_pMenuItems[i]->m_MenuItemType == MIT_ScrollBox || m_pMenuItems[i]->m_MenuItemType == MIT_ScrollingText )
                         {
-                            // finger is further down than when it was on the button.
-                            if( y < GetMenuItem(i)->m_Position.y )
+                            MenuScrollBox* pScrollBox = (MenuScrollBox*)m_pMenuItems[i];
+                            if( pScrollBox->OnTouch( action, id, x, y, pressure, size ) )
+                                return true;
+                        }
+                        else
+                        {
+                            if( m_pMenuItems[i]->ReleaseOnNoCollision( fingerindex, x, y ) )
                             {
-                                if( GetMenuItem(i)->m_MenuItemType == MIT_Button )
+                                // finger is further down than when it was on the button.
+                                if( y < GetMenuItem(i)->m_Position.y )
                                 {
-                                    const char* action = GetMenuButton(i)->m_ButtonAction;
-                                    if( action != 0 )
+                                    if( GetMenuItem(i)->m_MenuItemType == MIT_Button )
                                     {
-                                        if( ExecuteAction( "OnSwipeDown", action, m_pMenuItems[i] ) )
-                                            return true;
+                                        const char* action = GetMenuButton(i)->m_ButtonAction;
+                                        if( action != 0 )
+                                        {
+                                            if( ExecuteAction( "OnSwipeDown", action, m_pMenuItems[i] ) )
+                                                return true;
+                                        }
                                     }
                                 }
                             }
@@ -1068,16 +1086,25 @@ bool ComponentMenuPage::OnTouchCallback(int action, int id, float x, float y, fl
             {
                 if( m_pMenuItems[i] )
                 {
-                    const char* action = m_pMenuItems[i]->TriggerOnCollision( id, x, y, true );
-
-                    // set this menu item as the selected input box.
-                    if( m_pMenuItems[i]->m_MenuItemType == MIT_InputBox )
-                        m_pInputBoxWithKeyboardFocus = (MenuInputBox*)m_pMenuItems[i];
-
-                    if( action != 0 )//&& OnMenuAction( action ) )
+                    if( m_pMenuItems[i]->m_MenuItemType == MIT_ScrollBox || m_pMenuItems[i]->m_MenuItemType == MIT_ScrollingText )
                     {
-                        if( ExecuteAction( "OnAction", action, m_pMenuItems[i] ) )
+                        MenuScrollBox* pScrollBox = (MenuScrollBox*)m_pMenuItems[i];
+                        if( pScrollBox->OnTouch( action, id, x, y, pressure, size ) )
                             return true;
+                    }
+                    else
+                    {
+                        const char* action = m_pMenuItems[i]->TriggerOnCollision( id, x, y, true );
+
+                        // set this menu item as the selected input box.
+                        if( m_pMenuItems[i]->m_MenuItemType == MIT_InputBox )
+                            m_pInputBoxWithKeyboardFocus = (MenuInputBox*)m_pMenuItems[i];
+
+                        if( action != 0 )//&& OnMenuAction( action ) )
+                        {
+                            if( ExecuteAction( "OnAction", action, m_pMenuItems[i] ) )
+                                return true;
+                        }
                     }
                 }
             }
@@ -1105,6 +1132,9 @@ bool ComponentMenuPage::OnButtonsCallback(GameCoreButtonActions action, GameCore
     // deal with navigation controls.  up/down/left/right
     int dirtocheckx = 0;
     int dirtochecky = 0;
+
+    if( action == GCBA_Held || action == GCBA_Up )
+        return true;
 
     if( action == GCBA_Down )
     {
@@ -1697,6 +1727,14 @@ bool ComponentMenuPage::IsVisible()
 void ComponentMenuPage::SetInputEnabled(bool inputenabled)
 {
     m_InputEnabled = inputenabled;
+}
+
+bool ComponentMenuPage::IsOnTop()
+{
+    if( g_pComponentSystemManager->m_pComponentCallbackList_OnButtons.GetHead() == &m_CallbackStruct_OnButtons )
+        return true;
+
+    return false;
 }
 
 bool ComponentMenuPage::ExecuteAction(const char* function, const char* action, MenuItem* pItem)
