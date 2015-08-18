@@ -615,6 +615,8 @@ void EngineCore::RegisterGameplayButtons()
 
     this->m_KeyMappingToButtons[MYKEYCODE_ESC] = GCBI_Back;
     
+    this->m_KeyMappingToButtons[MYKEYCODE_ENTER] = GCBI_ButtonA;
+
     this->m_KeyMappingToButtons['Z'] = GCBI_ButtonA;
     this->m_KeyMappingToButtons['X'] = GCBI_ButtonB;
     this->m_KeyMappingToButtons['C'] = GCBI_ButtonC;

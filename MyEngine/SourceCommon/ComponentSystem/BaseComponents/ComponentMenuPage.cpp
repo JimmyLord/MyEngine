@@ -721,6 +721,9 @@ MYFW_PANELOBJECTLIST_DECLARE_CALLBACK_ONDROP(OnDropMenuItemOnMenuItem, Component
         MenuItem* pMenuItemDropped = (MenuItem*)g_DragAndDropStruct.m_Value;
         MenuItem* pMenuItemDroppedOn = (MenuItem*)g_pPanelObjectList->GetObject( id );
 
+        if( pMenuItemDropped == pMenuItemDroppedOn )
+            return;
+
         // place MenuItem dropped after the one is was dropped on.
         unsigned int iDropped;
         for( iDropped=0; iDropped<m_MenuItemsUsed; iDropped++ )
@@ -762,6 +765,9 @@ MYFW_PANELOBJECTLIST_DECLARE_CALLBACK_ONDROP(OnDropMenuItemOnMenuPage, Component
     if( g_DragAndDropStruct.m_Type == DragAndDropType_MenuItem )
     {
         MenuItem* pMenuItemDropped = (MenuItem*)g_DragAndDropStruct.m_Value;
+
+        if( m_pMenuItems[0] == pMenuItemDropped )
+            return;
 
         unsigned int iDropped;
         for( iDropped=0; iDropped<m_MenuItemsUsed; iDropped++ )
@@ -1634,6 +1640,17 @@ MenuButton* ComponentMenuPage::GetMenuButtonByName(const char* name)
     return 0;
 }
 
+void ComponentMenuPage::SetCursorVisible(bool visible)
+{
+    MenuItem* pCursor = GetMenuItemByName( "Cursor" );
+    if( pCursor && pCursor->m_MenuItemType == MIT_Sprite )
+    {
+        if( visible == false )
+            m_ItemSelected = -1;
+        pCursor->SetVisible( visible );
+    }
+}
+
 void ComponentMenuPage::SetSelectedItemByName(const char* name)
 {
     int i;
@@ -1727,6 +1744,14 @@ bool ComponentMenuPage::IsVisible()
 void ComponentMenuPage::SetInputEnabled(bool inputenabled)
 {
     m_InputEnabled = inputenabled;
+}
+
+bool ComponentMenuPage::IsInputEnabled()
+{
+    if( m_pGameObject->IsEnabled() == false )
+        return false;
+
+    return m_InputEnabled;
 }
 
 bool ComponentMenuPage::IsOnTop()

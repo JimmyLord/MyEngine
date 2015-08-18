@@ -705,6 +705,7 @@ void ComponentSystemManager::FinishLoading(bool lockwhileloading, bool playwhenf
 
     if( playwhenfinishedloading )
     {
+        g_pEngineCore->RegisterGameplayButtons();
         OnPlay();
         m_StartGamePlayWhenDoneLoading = false;
     }

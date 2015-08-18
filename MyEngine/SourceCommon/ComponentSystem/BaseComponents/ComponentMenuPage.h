@@ -167,6 +167,7 @@ public:
     MenuButton* GetMenuButton(unsigned int index);
     MenuButton* GetMenuButtonByName(const char* name);
 
+    void SetCursorVisible(bool visible);
     void SetSelectedItemByName(const char* name);
     MenuItem* GetSelectedItem();
 
@@ -183,6 +184,7 @@ public:
     void SetVisible(bool visible);
     bool IsVisible();
     void SetInputEnabled(bool inputenabled);
+    bool IsInputEnabled();
     bool IsOnTop(); // tests if input handlers are at the front of the componentsystemmanager's callback list.
 
     void RenameFileInJSONObject(cJSON* jObject, const char* fullpathbefore, const char* fullpathafter);
