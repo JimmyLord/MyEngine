@@ -51,6 +51,8 @@ public:
     bool m_Paused;
     double m_PauseTimeToAdvance; // advance clock by this much on next tick.
 
+    Vector2 m_LastMousePos;
+
     float m_DebugFPS;
 
 #if MYFW_USING_WX

@@ -51,6 +51,8 @@ EngineCore::EngineCore()
 
     m_PauseTimeToAdvance = 0;
 
+    m_LastMousePos.Set( -1, -1 );
+
 #if MYFW_USING_WX
     m_pEditorState = MyNew EditorState;
     m_Debug_DrawMousePickerFBO = false;
@@ -434,6 +436,8 @@ bool EngineCore::OnTouch(int action, int id, float x, float y, float pressure, f
     // convert mouse to x/y in Camera2D space. TODO: put this in camera component.
     x = (x - pCamera->m_Camera2D.m_ScreenOffsetX - pCamera->m_WindowStartX) / pCamera->m_Camera2D.m_ScreenWidth * m_GameWidth;
     y = (y - pCamera->m_Camera2D.m_ScreenOffsetY + pCamera->m_WindowStartY) / pCamera->m_Camera2D.m_ScreenHeight * m_GameHeight;
+
+    m_LastMousePos.Set( x, y );
 
     return m_pComponentSystemManager->OnTouch( action, id, x, y, pressure, size );
 }

@@ -1063,15 +1063,37 @@ bool ComponentMenuPage::OnTouchCallback(int action, int id, float x, float y, fl
                         {
                             if( m_pMenuItems[i]->ReleaseOnNoCollision( fingerindex, x, y ) )
                             {
-                                // finger is further down than when it was on the button.
-                                if( y < GetMenuItem(i)->m_Position.y )
+                                if( GetMenuItem(i)->m_MenuItemType == MIT_Button )
                                 {
-                                    if( GetMenuItem(i)->m_MenuItemType == MIT_Button )
+                                    const char* action = GetMenuButton(i)->m_ButtonAction;
+                                    if( action != 0 )
                                     {
-                                        const char* action = GetMenuButton(i)->m_ButtonAction;
-                                        if( action != 0 )
+                                        // menu items was dragged in any direction.
+                                        if( ExecuteAction( "OnDrag", action, m_pMenuItems[i] ) )
+                                            return true;
+
+                                        // finger is further down than when it was on the button.
+                                        if( y < GetMenuItem(i)->m_Position.y )
                                         {
                                             if( ExecuteAction( "OnSwipeDown", action, m_pMenuItems[i] ) )
+                                                return true;
+                                        }
+                                        // finger is further down than when it was on the button.
+                                        if( y > GetMenuItem(i)->m_Position.y )
+                                        {
+                                            if( ExecuteAction( "OnSwipeUp", action, m_pMenuItems[i] ) )
+                                                return true;
+                                        }
+                                        // finger is further down than when it was on the button.
+                                        if( x > GetMenuItem(i)->m_Position.x )
+                                        {
+                                            if( ExecuteAction( "OnSwipeRight", action, m_pMenuItems[i] ) )
+                                                return true;
+                                        }
+                                        // finger is further down than when it was on the button.
+                                        if( x < GetMenuItem(i)->m_Position.x )
+                                        {
+                                            if( ExecuteAction( "OnSwipeLeft", action, m_pMenuItems[i] ) )
                                                 return true;
                                         }
                                     }
@@ -1114,6 +1136,9 @@ bool ComponentMenuPage::OnTouchCallback(int action, int id, float x, float y, fl
                     }
                 }
             }
+
+            if( ExecuteAction( "OnCancelled", "", 0 ) )
+                return true;
         }
         break;
     }
@@ -1523,7 +1548,7 @@ void ComponentMenuPage::DrawCallback(ComponentCamera* pCamera, MyMatrix* pMatVie
         MenuItem* pCursor = GetMenuItemByName( "Cursor" );
         if( pCursor && pCursor->m_MenuItemType == MIT_Sprite )
         {
-            if( m_ItemSelected == -1 )
+            if( m_ItemSelected == -1 || m_InputEnabled == false )
             {
                 pCursor->SetVisible( false );
             }
@@ -1535,6 +1560,22 @@ void ComponentMenuPage::DrawCallback(ComponentCamera* pCamera, MyMatrix* pMatVie
 
                 if( pItem )
                 {
+                    if( pItem->m_Visible == false || pItem->m_Navigable == false )
+                    {
+                        m_ItemSelected = -1;
+
+                        for( unsigned int i=0; i<m_MenuItemsUsed; i++ )
+                        {
+                            pItem = GetMenuItem( i );
+
+                            if( pItem->m_Visible == false || pItem->m_Navigable == false )
+                                continue;
+
+                            m_ItemSelected = i;
+                            break;
+                        }
+                    }
+
                     pCursor->SetPosition( pItem->m_Position.x, pItem->m_Position.y );
 
                     // make the cursor match the size of the menu item if wanted.
@@ -1777,8 +1818,8 @@ bool ComponentMenuPage::ExecuteAction(const char* function, const char* action, 
 #endif
         if( m_pComponentLuaScript )
         {
-            m_pComponentLuaScript->CallFunction( function, action );
-            return true;
+            if( m_pComponentLuaScript->CallFunction( function, action ) )
+                return true;
         }
     }
 
