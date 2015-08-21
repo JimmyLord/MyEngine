@@ -29,7 +29,7 @@ ComponentData::~ComponentData()
 void ComponentData::AddToObjectsPanel(wxTreeItemId gameobjectid)
 {
     //wxTreeItemId id =
-    g_pPanelObjectList->AddObject( this, ComponentData::StaticOnLeftClick, ComponentBase::StaticOnRightClick, gameobjectid, "Base component" );
+    g_pPanelObjectList->AddObject( this, ComponentData::StaticOnLeftClick, ComponentBase::StaticOnRightClick, gameobjectid, "Data component" );
 }
 
 void ComponentData::OnLeftClick(unsigned int count, bool clear)

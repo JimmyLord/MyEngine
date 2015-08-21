@@ -1076,22 +1076,22 @@ void ComponentSystemManager::Tick(double TimePassed)
     // update all Components:
 
     // all scripts.
-    for( CPPListNode* node = m_Components[BaseComponentType_Updateable].GetHead(); node != 0; node = node->GetNext() )
-    {
-        ComponentUpdateable* pComponent = (ComponentUpdateable*)node;
+    //for( CPPListNode* node = m_Components[BaseComponentType_Updateable].GetHead(); node != 0; node = node->GetNext() )
+    //{
+    //    ComponentUpdateable* pComponent = (ComponentUpdateable*)node;
 
-        if( pComponent->m_BaseType == BaseComponentType_Updateable && pComponent->m_Type == ComponentType_LuaScript )
-        {
-            pComponent->Tick( TimePassed );
-        }
-    }
+    //    if( pComponent->m_BaseType == BaseComponentType_Updateable && pComponent->m_Type == ComponentType_LuaScript )
+    //    {
+    //        pComponent->Tick( TimePassed );
+    //    }
+    //}
 
     // then all other "Updateables".
     for( CPPListNode* node = m_Components[BaseComponentType_Updateable].GetHead(); node != 0; node = node->GetNext() )
     {
         ComponentUpdateable* pComponent = (ComponentUpdateable*)node;
 
-        if( pComponent->m_BaseType == BaseComponentType_Updateable && pComponent->m_Type != ComponentType_LuaScript )
+        if( pComponent->m_BaseType == BaseComponentType_Updateable ) //&& pComponent->m_Type != ComponentType_LuaScript )
         {
             pComponent->Tick( TimePassed );
         }
@@ -1396,17 +1396,17 @@ bool ComponentSystemManager::OnTouch(int action, int id, float x, float y, float
         }
     }
 
-    // then send input to all the scripts.
-    for( CPPListNode* node = m_Components[BaseComponentType_Updateable].GetHead(); node != 0; node = node->GetNext() )
-    {
-        ComponentLuaScript* pComponent = ((ComponentBase*)node)->IsA( "LuaScriptComponent" ) ? (ComponentLuaScript*)node : 0;
+    //// then send input to all the scripts.
+    //for( CPPListNode* node = m_Components[BaseComponentType_Updateable].GetHead(); node != 0; node = node->GetNext() )
+    //{
+    //    ComponentLuaScript* pComponent = ((ComponentBase*)node)->IsA( "LuaScriptComponent" ) ? (ComponentLuaScript*)node : 0;
 
-        if( pComponent )
-        {
-            if( pComponent->OnTouch( action, id, x, y, pressure, size ) == true )
-                return true;
-        }
-    }
+    //    if( pComponent )
+    //    {
+    //        if( pComponent->OnTouch( action, id, x, y, pressure, size ) == true )
+    //            return true;
+    //    }
+    //}
 
     return false;
 }
@@ -1434,17 +1434,17 @@ bool ComponentSystemManager::OnButtons(GameCoreButtonActions action, GameCoreBut
         }
     }
 
-    // then send input to all the scripts.
-    for( CPPListNode* node = m_Components[BaseComponentType_Updateable].GetHead(); node != 0; node = node->GetNext() )
-    {
-        ComponentLuaScript* pComponent = ((ComponentBase*)node)->IsA( "LuaScriptComponent" ) ? (ComponentLuaScript*)node : 0;
+    //// then send input to all the scripts.
+    //for( CPPListNode* node = m_Components[BaseComponentType_Updateable].GetHead(); node != 0; node = node->GetNext() )
+    //{
+    //    ComponentLuaScript* pComponent = ((ComponentBase*)node)->IsA( "LuaScriptComponent" ) ? (ComponentLuaScript*)node : 0;
 
-        if( pComponent )
-        {
-            if( pComponent->OnButtons( action, id ) == true )
-                return true;
-        }
-    }
+    //    if( pComponent )
+    //    {
+    //        if( pComponent->OnButtons( action, id ) == true )
+    //            return true;
+    //    }
+    //}
 
     return false;
 }

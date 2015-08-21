@@ -417,6 +417,29 @@ ComponentLuaScript& ComponentLuaScript::operator=(const ComponentLuaScript& othe
     return *this;
 }
 
+void ComponentLuaScript::RegisterCallbacks()
+{
+    if( m_Enabled )
+    {
+        MYFW_REGISTER_COMPONENT_CALLBACK( Tick );
+        //MYFW_REGISTER_COMPONENT_CALLBACK( OnSurfaceChanged );
+        //MYFW_REGISTER_COMPONENT_CALLBACK( Draw );
+        MYFW_REGISTER_COMPONENT_CALLBACK( OnTouch );
+        MYFW_REGISTER_COMPONENT_CALLBACK( OnButtons );
+        //MYFW_REGISTER_COMPONENT_CALLBACK( OnKeys );
+    }
+}
+
+void ComponentLuaScript::UnregisterCallbacks()
+{
+    MYFW_UNREGISTER_COMPONENT_CALLBACK( Tick );
+    //MYFW_UNREGISTER_COMPONENT_CALLBACK( OnSurfaceChanged );
+    //MYFW_UNREGISTER_COMPONENT_CALLBACK( Draw );
+    MYFW_UNREGISTER_COMPONENT_CALLBACK( OnTouch );
+    MYFW_UNREGISTER_COMPONENT_CALLBACK( OnButtons );
+    //MYFW_UNREGISTER_COMPONENT_CALLBACK( OnKeys );
+}
+
 void ComponentLuaScript::SetScriptFile(MyFileObject* script)
 {
     if( script )
@@ -749,8 +772,9 @@ void ComponentLuaScript::OnGameObjectDisabled()
     ComponentBase::OnGameObjectDisabled();
 }
 
-void ComponentLuaScript::Tick(double TimePassed)
+void ComponentLuaScript::TickCallback(double TimePassed)
 {
+    //ComponentBase::TickCallback( TimePassed );
     //ComponentUpdateable::Tick( TimePassed );
 
     if( m_ErrorInScript )
@@ -759,12 +783,12 @@ void ComponentLuaScript::Tick(double TimePassed)
     if( m_ScriptLoaded == false && g_pLuaGameState )
     {
         LoadScript();
+    }
 
-        if( m_ScriptLoaded && m_ShouldBePlayingButIsntBecauseScriptFileWasStillLoading )
-        {
-            m_ShouldBePlayingButIsntBecauseScriptFileWasStillLoading = false;
-            OnPlay();
-        }
+    if( m_ScriptLoaded && m_ShouldBePlayingButIsntBecauseScriptFileWasStillLoading )
+    {
+        m_ShouldBePlayingButIsntBecauseScriptFileWasStillLoading = false;
+        OnPlay();
     }
 
     // find the Tick function and call it.
@@ -792,8 +816,10 @@ void ComponentLuaScript::Tick(double TimePassed)
     }
 }
 
-bool ComponentLuaScript::OnTouch(int action, int id, float x, float y, float pressure, float size)
+bool ComponentLuaScript::OnTouchCallback(int action, int id, float x, float y, float pressure, float size)
 {
+    //ComponentBase::OnTouchCallback( action, id, x, y, pressure, size );
+
     if( m_ErrorInScript )
         return false;
 
@@ -821,8 +847,10 @@ bool ComponentLuaScript::OnTouch(int action, int id, float x, float y, float pre
     return false;
 }
 
-bool ComponentLuaScript::OnButtons(GameCoreButtonActions action, GameCoreButtonIDs id)
+bool ComponentLuaScript::OnButtonsCallback(GameCoreButtonActions action, GameCoreButtonIDs id)
 {
+    //ComponentBase::OnButtonsCallback( action, id );
+
     if( m_ErrorInScript )
         return false;
 

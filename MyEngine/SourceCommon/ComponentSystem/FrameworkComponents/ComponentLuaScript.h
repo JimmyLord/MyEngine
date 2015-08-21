@@ -60,8 +60,8 @@ public:
     virtual void CopyFromSameType_Dangerous(ComponentBase* pObject) { *this = (ComponentLuaScript&)*pObject; }
     ComponentLuaScript& operator=(const ComponentLuaScript& other);
 
-    virtual void RegisterCallbacks() {} // TODO: change this component to use callbacks.
-    virtual void UnregisterCallbacks() {} // TODO: change this component to use callbacks.
+    virtual void RegisterCallbacks();
+    virtual void UnregisterCallbacks();
 
     MyFileObject* GetScriptFile() { return m_pScriptFile; }
     void SetScriptFile(MyFileObject* script);
@@ -76,17 +76,26 @@ public:
     virtual void OnStop();
     virtual void OnGameObjectEnabled();
     virtual void OnGameObjectDisabled();
-    virtual void Tick(double TimePassed);
+    virtual void Tick(double TimePassed) {} // TODO: remove when clearing these out from ComponentUpdatable
 
     void OnScriptLoaded();
-    bool OnTouch(int action, int id, float x, float y, float pressure, float size);
-    bool OnButtons(GameCoreButtonActions action, GameCoreButtonIDs id);
+    bool OnTouch(int action, int id, float x, float y, float pressure, float size) {} // TODO: remove when clearing these out from ComponentUpdatable
+    bool OnButtons(GameCoreButtonActions action, GameCoreButtonIDs id) {} // TODO: remove when clearing these out from ComponentUpdatable
 
     // GameObject callbacks.
     static void StaticOnGameObjectDeleted(void* pObjectPtr, GameObject* pGameObject) { ((ComponentLuaScript*)pObjectPtr)->OnGameObjectDeleted( pGameObject ); }
     void OnGameObjectDeleted(GameObject* pGameObject);
 
     bool IsScriptLoaded() { return m_ScriptLoaded; }
+
+protected:
+    // Callback functions for various events.
+    MYFW_DECLARE_COMPONENT_CALLBACK_TICK( ComponentLuaScript ); // TickCallback
+    //MYFW_DECLARE_COMPONENT_CALLBACK_ONSURFACECHANGED( ComponentLuaScript ); // OnSurfaceChangedCallback
+    //MYFW_DECLARE_COMPONENT_CALLBACK_DRAW( ComponentLuaScript ); // DrawCallback
+    MYFW_DECLARE_COMPONENT_CALLBACK_ONTOUCH( ComponentLuaScript ); // OnTouchCallback
+    MYFW_DECLARE_COMPONENT_CALLBACK_ONBUTTONS( ComponentLuaScript ); // OnButtonsCallback
+    //MYFW_DECLARE_COMPONENT_CALLBACK_ONKEYS( ComponentLuaScript ); // OnKeysCallback
 
 public:
 #if MYFW_USING_WX

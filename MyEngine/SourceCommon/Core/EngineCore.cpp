@@ -203,7 +203,7 @@ double EngineCore::Tick(double TimePassed)
     {
         if( m_EditorMode && m_AllowGameToRunInEditorMode == false )
             TimePassed = 0;
-        
+
         if( m_Paused )
             TimePassed = m_PauseTimeToAdvance;
 
@@ -329,7 +329,7 @@ void EngineCore::OnDrawFrame(unsigned int canvasid)
                 pAnim->m_AnimationIndex = 0;
                 pAnim->m_AnimationTime = (float)MyTime_GetUnpausedTime();
                 pAnim->Tick( 0 );
-        
+
                 RenderSingleObject( pObject );
 
                 pAnim->m_AnimationIndex = backupindex;
@@ -358,7 +358,6 @@ void EngineCore::OnDrawFrame(unsigned int canvasid)
             }
         }
     }
-#endif
 
     if( m_Debug_DrawGLStats && m_pDebugTextMesh )// && g_GLCanvasIDActive == 1 )
     {
@@ -377,12 +376,13 @@ void EngineCore::OnDrawFrame(unsigned int canvasid)
         //                                     "GLStats - buffers(%0.2fM) - draws(%d) - fps(%d)", g_pBufferManager->CalculateTotalMemoryUsedByBuffers()/1000000.0f, g_GLStats.GetNumDrawCallsLastFrameForCurrentCanvasID(), (int)m_DebugFPS );
         m_pDebugTextMesh->CreateStringWhite( false, 15, m_WindowStartX+m_WindowWidth, m_WindowStartY+m_WindowHeight, Justify_TopRight, Vector2(0,0),
             "GLStats - draws(%d) - fps(%d)", g_GLStats.GetNumDrawCallsLastFrameForCurrentCanvasID(), (int)m_DebugFPS );
-        MyMatrix mat;        
+        MyMatrix mat;
         mat.CreateOrtho( m_WindowStartX, m_WindowStartX+m_WindowWidth, m_WindowStartY, m_WindowStartY+m_WindowHeight, 1, -1 );
         glDisable( GL_DEPTH_TEST );
         m_pDebugTextMesh->Draw( &mat, 0,0,0,0,0,0,0 );
         glEnable( GL_DEPTH_TEST );
     }
+#endif
 }
 
 void EngineCore::OnFileRenamed(const char* fullpathbefore, const char* fullpathafter)
@@ -618,7 +618,7 @@ void EngineCore::RegisterGameplayButtons()
     this->m_KeyMappingToButtons[MYKEYCODE_RIGHT] = GCBI_Right;
 
     this->m_KeyMappingToButtons[MYKEYCODE_ESC] = GCBI_Back;
-    
+
     this->m_KeyMappingToButtons[MYKEYCODE_ENTER] = GCBI_ButtonA;
 
     this->m_KeyMappingToButtons['Z'] = GCBI_ButtonA;
@@ -1727,7 +1727,7 @@ GameObject* EngineCore::GetObjectAtPixel(unsigned int x, unsigned int y, bool cr
     m_pEditorState->m_pMousePickerFBO->Unbind();
 
     uint64_t id = pixel[0] + pixel[1]*256 + pixel[2]*256*256 + pixel[3]*256*256*256;
-    id = (((uint64_t)UINT_MAX+1) * (id % 641) + id) / 641; // 1, 641, 6700417, 4294967297, 
+    id = (((uint64_t)UINT_MAX+1) * (id % 641) + id) / 641; // 1, 641, 6700417, 4294967297,
     //LOGInfo( LOGTag, "pixel - %d, %d, %d, %d - id - %d\n", pixel[0], pixel[1], pixel[2], pixel[3], id );
 
     unsigned int sceneid = (unsigned int)(id / 100000);
@@ -1804,7 +1804,7 @@ void EngineCore::SelectObjectsInRectangle(unsigned int sx, unsigned int sy, unsi
     {
         unsigned int offset = (sy*fbowidth + sx)*4;
         unsigned long long id = pixels[offset+0] + pixels[offset+1]*256 + pixels[offset+2]*256*256 + pixels[offset+3]*256*256*256;
-        id = (((uint64_t)UINT_MAX+1) * (id % 641) + id) / 641; // 1, 641, 6700417, 4294967297, 
+        id = (((uint64_t)UINT_MAX+1) * (id % 641) + id) / 641; // 1, 641, 6700417, 4294967297,
 
         unsigned int sceneid = (unsigned int)id / 100000;
         id = id % 100000;
@@ -1822,7 +1822,7 @@ void EngineCore::SelectObjectsInRectangle(unsigned int sx, unsigned int sy, unsi
         {
             unsigned int offset = (y*fbowidth + x)*4;
             unsigned long long id = pixels[offset+0] + pixels[offset+1]*256 + pixels[offset+2]*256*256 + pixels[offset+3]*256*256*256;
-            id = (((uint64_t)UINT_MAX+1) * (id % 641) + id) / 641; // 1, 641, 6700417, 4294967297, 
+            id = (((uint64_t)UINT_MAX+1) * (id % 641) + id) / 641; // 1, 641, 6700417, 4294967297,
 
             unsigned int sceneid = (unsigned int)id / 100000;
             id = id % 100000;
