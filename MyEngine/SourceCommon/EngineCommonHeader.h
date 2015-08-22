@@ -24,8 +24,10 @@
 // bullet
 #if MYFW_WINDOWS
 #pragma warning( push )
+#pragma warning( disable : 4244 )
 #pragma warning( disable : 4263 )
 #pragma warning( disable : 4264 )
+#pragma warning( disable : 4640 )
 #endif
 #include "../../../bullet3/src/btBulletDynamicsCommon.h"
 #if MYFW_WINDOWS
@@ -41,7 +43,10 @@ extern "C"
     #include "../../lua/src/lauxlib.h"
 }
 #undef Nil
+#pragma warning( push )
+#pragma warning( disable : 4640 )
 #include "../../lua/LuaBridge/LuaBridge.h"
+#pragma warning( pop )
 #include "Core/LuaGameState.h"
 
 // core component system code

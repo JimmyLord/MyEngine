@@ -34,9 +34,6 @@ GameObject::~GameObject()
 {
     NotifyOthersThisWasDeleted();
 
-    if( m_Managed )
-        SetManaged( false );
-
     // if it's in a list, remove it.
     if( this->Prev != 0 )
         Remove();
@@ -46,6 +43,7 @@ GameObject::~GameObject()
 
     SAFE_DELETE_ARRAY( m_Name );
 
+    // if this object is managed, the ComponentSystemManager will delete the components.
     if( m_Managed == false )
     {
         while( m_Components.Count() )
@@ -55,6 +53,9 @@ GameObject::~GameObject()
             delete pComponent;
         }
     }
+
+    if( m_Managed )
+        SetManaged( false );
 }
 
 void GameObject::LuaRegister(lua_State* luastate)
@@ -353,10 +354,15 @@ void GameObject::SetName(const char* name)
 
 void GameObject::SetManaged(bool managed)
 {
-    if( m_Managed == false && managed == true )
-    {
-        m_Managed = true;
+    MyAssert( m_Managed != managed );
+    if( m_Managed == managed )
+        return;
+
+    m_Managed = managed;
+
 #if MYFW_USING_WX
+    if( m_Managed == true )
+    {
         if( g_pPanelObjectList )
         {
             // Add this game object to the root of the objects tree
@@ -372,25 +378,18 @@ void GameObject::SetManaged(bool managed)
                 m_Components[i]->AddToObjectsPanel( gameobjectid );
             }
         }
-#endif //MYFW_USING_WX
         return;
     }
-    
-    if( m_Managed == true && managed == false )
+    else
     {
-        m_Managed = false;
-#if MYFW_USING_WX
         if( g_pPanelObjectList )
         {
             g_pPanelObjectList->RemoveObject( m_pComponentTransform );
             g_pPanelObjectList->RemoveObject( this );
         }
-#endif //MYFW_USING_WX
         return;
     }
-
-    // one of the two conditions above should be true.
-    MyAssert( false );
+#endif //MYFW_USING_WX
 }
 
 ComponentBase* GameObject::AddNewComponent(int componenttype, unsigned int sceneid, ComponentSystemManager* pComponentSystemManager)

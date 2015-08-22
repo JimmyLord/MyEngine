@@ -27,7 +27,7 @@ ComponentBase::ComponentBase()
 
 ComponentBase::~ComponentBase()
 {
-    // Component must be disabled so they unregister their callbacks.
+    // Components must be disabled before being deleted, so they unregister their callbacks.
     MyAssert( m_Enabled == false );
 
     // if it's in a list, remove it.

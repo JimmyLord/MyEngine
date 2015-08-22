@@ -192,6 +192,8 @@ public:
     void CreateMenuItems();
     bool ExecuteAction(const char* function, const char* action, MenuItem* pItem);
 
+    void ResetSelectedItemToDefault();
+
     void ShowPage();
     void HidePage();
 

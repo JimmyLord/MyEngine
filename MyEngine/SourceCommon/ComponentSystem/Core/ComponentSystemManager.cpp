@@ -52,7 +52,12 @@ ComponentSystemManager::~ComponentSystemManager()
     for( unsigned int i=0; i<BaseComponentType_NumTypes; i++ )
     {
         while( m_Components[i].GetHead() )
+        {
+            ComponentBase* pComponent = (ComponentBase*)m_Components[i].GetHead();
+            pComponent->SetEnabled( false );
+
             delete m_Components[i].RemHead();
+        }
     }
 
 #if MYFW_USING_WX

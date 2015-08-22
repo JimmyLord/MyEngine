@@ -1562,18 +1562,7 @@ void ComponentMenuPage::DrawCallback(ComponentCamera* pCamera, MyMatrix* pMatVie
                 {
                     if( pItem->m_Visible == false || pItem->m_Navigable == false )
                     {
-                        m_ItemSelected = -1;
-
-                        for( unsigned int i=0; i<m_MenuItemsUsed; i++ )
-                        {
-                            pItem = GetMenuItem( i );
-
-                            if( pItem->m_Visible == false || pItem->m_Navigable == false )
-                                continue;
-
-                            m_ItemSelected = i;
-                            break;
-                        }
+                        ResetSelectedItemToDefault();
                     }
 
                     pCursor->SetPosition( pItem->m_Position.x, pItem->m_Position.y );
@@ -1826,6 +1815,21 @@ bool ComponentMenuPage::ExecuteAction(const char* function, const char* action, 
     return false;
 }
 
+void ComponentMenuPage::ResetSelectedItemToDefault()
+{
+    for( unsigned int i=0; i<m_MenuItemsUsed; i++ )
+    {
+        MenuItem* pItem = GetMenuItem( i );
+
+        MyAssert( pItem );
+        if( pItem == 0 || pItem->m_Visible == false || pItem->m_Navigable == false )
+            continue;
+
+        m_ItemSelected = i;
+        break;
+    }
+}
+
 void ComponentMenuPage::ShowPage()
 {
 #if MYFW_USING_WX
@@ -1869,6 +1873,11 @@ void ComponentMenuPage::ShowPage()
     // if the currently selected item is disabled, reset the selected item.
     if( m_ItemSelected != -1 && m_pMenuItems[m_ItemSelected] && m_pMenuItems[m_ItemSelected]->m_Enabled == false )
         m_ItemSelected = -1;
+
+    if( m_ItemSelected == -1 && g_pEngineCore->m_LastInputMethodUsed != InputMethod_Touch )
+    {
+        ResetSelectedItemToDefault();
+    }
 
     if( m_pComponentLuaScript )
     {

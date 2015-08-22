@@ -701,6 +701,11 @@ void ComponentLuaScript::OnPlay()
     //       or test this a bit, Tick will call OnPlay once it's loaded.
     if( m_pScriptFile )
     {
+        if( m_ScriptLoaded == false )
+        {
+            LoadScript();
+        }
+
         if( m_pScriptFile->m_FileLoadStatus != FileLoadStatus_Success )
         {
             m_ShouldBePlayingButIsntBecauseScriptFileWasStillLoading = true;
