@@ -1594,14 +1594,17 @@ void EngineCore::LoadScene(const char* scenename, const char* buffer, unsigned i
 void EngineCore::Editor_OnSurfaceChanged(unsigned int startx, unsigned int starty, unsigned int width, unsigned int height)
 {
     MyAssert( g_GLCanvasIDActive != 0 );
-    //if( g_GLCanvasIDActive != 0 )
+
+    if( g_GLCanvasIDActive != 0 )
     {
         if( m_pEditorState->m_pEditorCamera )
         {
             for( unsigned int i=0; i<m_pEditorState->m_pEditorCamera->m_Components.Count(); i++ )
             {
                 ComponentCamera* pCamera = dynamic_cast<ComponentCamera*>( m_pEditorState->m_pEditorCamera->m_Components[i] );
-                pCamera->OnSurfaceChanged( startx, starty, width, height, (unsigned int)m_GameWidth, (unsigned int)m_GameHeight );
+                MyAssert( pCamera != 0 );
+                if( pCamera )
+                    pCamera->OnSurfaceChanged( startx, starty, width, height, (unsigned int)m_GameWidth, (unsigned int)m_GameHeight );
             }
 
             m_pEditorState->OnSurfaceChanged( startx, starty, width, height );
