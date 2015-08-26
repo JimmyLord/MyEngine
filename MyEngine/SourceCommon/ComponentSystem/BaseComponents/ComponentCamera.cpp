@@ -227,6 +227,20 @@ ComponentPostEffect* ComponentCamera::GetNextPostEffect(ComponentPostEffect* pLa
 
 void ComponentCamera::OnDrawFrame()
 {
+    //int currentframebuffer;
+    //glGetIntegerv( GL_FRAMEBUFFER_BINDING, &currentframebuffer );
+ 
+    //MyBindFramebuffer( GL_FRAMEBUFFER, 0, m_WindowWidth, m_WindowHeight );
+    g_GLStats.m_CurrentFramebufferWidth = m_WindowWidth;
+    g_GLStats.m_CurrentFramebufferHeight = m_WindowHeight;
+
+    //int fbo;
+    //glGetIntegerv( GL_FRAMEBUFFER_BINDING, &fbo );
+
+    //if( fbo != 0 )
+    //    int bp = 1;
+    ////MyBindFramebuffer( GL_FRAMEBUFFER, 0 );
+
 #if MYFW_USING_WX
     // if we resize the window and we're in a wx build, clear the entire backbuffer for 2 frames.
     // this is required since we're potentially GL_SCISSOR_TEST'ing an uncleared area.
@@ -258,7 +272,7 @@ void ComponentCamera::OnDrawFrame()
             {
                 g_pTextureManager->ReSetupFBO( m_pPostEffectFBOs[0], m_WindowWidth, m_WindowHeight, GL_NEAREST, GL_NEAREST, true, 32, false );
             }
-            m_pPostEffectFBOs[0]->Bind();
+            m_pPostEffectFBOs[0]->Bind( false );
             glDisable( GL_SCISSOR_TEST );
             glViewport( 0, 0, m_WindowWidth, m_WindowHeight );
         }
@@ -274,6 +288,7 @@ void ComponentCamera::OnDrawFrame()
             else
             {
                 glDisable( GL_SCISSOR_TEST );
+                glScissor( m_WindowStartX, m_WindowStartY, m_WindowWidth, m_WindowHeight );
             }
 
             glViewport( m_WindowStartX, m_WindowStartY, m_WindowWidth, m_WindowHeight );
@@ -315,7 +330,7 @@ void ComponentCamera::OnDrawFrame()
             {
                 g_pTextureManager->ReSetupFBO( m_pPostEffectFBOs[!fboindex], m_WindowWidth, m_WindowHeight, GL_NEAREST, GL_NEAREST, true, 32, false );
             }
-            m_pPostEffectFBOs[!fboindex]->Bind();
+            m_pPostEffectFBOs[!fboindex]->Bind( false );
 
             glDisable( GL_SCISSOR_TEST );
             glViewport( 0, 0, m_WindowWidth, m_WindowHeight );
@@ -326,7 +341,7 @@ void ComponentCamera::OnDrawFrame()
         else
         {
             // if there isn't another post effect, render to the screen.
-            glBindFramebuffer( GL_FRAMEBUFFER, 0 );
+            MyBindFramebuffer( GL_FRAMEBUFFER, 0, m_WindowWidth, m_WindowHeight );
 
             // only draw to part of the window, using scissor test and glViewport.
             if( m_WindowStartX != 0 || m_WindowStartY != 0 )
@@ -351,5 +366,5 @@ void ComponentCamera::OnDrawFrame()
         pPostEffect = pNextPostEffect;
     }
 
-    glBindFramebuffer( GL_FRAMEBUFFER, 0 );
+    MyBindFramebuffer( GL_FRAMEBUFFER, 0, m_WindowWidth, m_WindowHeight );
 }

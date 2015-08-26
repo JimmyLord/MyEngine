@@ -142,7 +142,7 @@ void ComponentCameraShadow::OnDrawFrame()
     glDisable( GL_SCISSOR_TEST );
     g_ActiveShaderPass = ShaderPass_ShadowCastRGBA;
 
-    m_pDepthFBO->Bind();
+    m_pDepthFBO->Bind( false );
     glViewport( 0, 0, m_pDepthFBO->m_Width, m_pDepthFBO->m_Height );
 
 #if MYFW_OPENGLES2
@@ -156,7 +156,7 @@ void ComponentCameraShadow::OnDrawFrame()
 
     g_pComponentSystemManager->OnDrawFrame( this, &m_matViewProj, 0 );
 
-    m_pDepthFBO->Unbind();
+    m_pDepthFBO->Unbind( false );
     g_ActiveShaderPass = ShaderPass_Main;
     //glCullFace( GL_BACK );
 }

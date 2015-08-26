@@ -1669,8 +1669,11 @@ void EngineCore::OnSurfaceChanged(unsigned int startx, unsigned int starty, unsi
 #if MYFW_USING_WX
 void EngineCore::RenderObjectIDsToFBO()
 {
+    if( m_pEditorState->m_pMousePickerFBO->m_FullyLoaded == false )
+        return;
+
     // bind our FBO so we can render the scene to it.
-    m_pEditorState->m_pMousePickerFBO->Bind();
+    m_pEditorState->m_pMousePickerFBO->Bind( true );
 
     m_pEditorState->m_pTransformGizmo->ScaleGizmosForMousePickRendering( true );
 
@@ -1692,24 +1695,23 @@ void EngineCore::RenderObjectIDsToFBO()
         }
     }
 
-    if( pCamera == 0 )
-    {
-        m_pEditorState->m_pMousePickerFBO->Unbind();
-        return;
-    }
+    m_pEditorState->m_pMousePickerFBO->Unbind( true );
 
     m_pEditorState->m_pTransformGizmo->ScaleGizmosForMousePickRendering( false );
 }
 
 GameObject* EngineCore::GetObjectAtPixel(unsigned int x, unsigned int y, bool createnewbitmap)
 {
+    if( m_pEditorState->m_pMousePickerFBO->m_FullyLoaded == false )
+        return 0;
+
     if( createnewbitmap )
     {
         RenderObjectIDsToFBO();
     }
 
     // bind our FBO so we can render sample from it.
-    m_pEditorState->m_pMousePickerFBO->Bind();
+    m_pEditorState->m_pMousePickerFBO->Bind( true );
 
     // Find the first camera again.
     ComponentCamera* pCamera = 0;
@@ -1727,7 +1729,6 @@ GameObject* EngineCore::GetObjectAtPixel(unsigned int x, unsigned int y, bool cr
     unsigned char pixel[4];
     glReadPixels( x - (unsigned int)pCamera->m_WindowStartX, y - (unsigned int)pCamera->m_WindowStartY,
                   1, 1, GL_RGBA, GL_UNSIGNED_BYTE, pixel );
-    m_pEditorState->m_pMousePickerFBO->Unbind();
 
     uint64_t id = pixel[0] + pixel[1]*256 + pixel[2]*256*256 + pixel[3]*256*256*256;
     id = (((uint64_t)UINT_MAX+1) * (id % 641) + id) / 641; // 1, 641, 6700417, 4294967297,
@@ -1752,6 +1753,8 @@ GameObject* EngineCore::GetObjectAtPixel(unsigned int x, unsigned int y, bool cr
         }
     }
 
+    m_pEditorState->m_pMousePickerFBO->Unbind( true );
+
     return pGameObject;
 }
 
@@ -1769,7 +1772,7 @@ void EngineCore::SelectObjectsInRectangle(unsigned int sx, unsigned int sy, unsi
     RenderObjectIDsToFBO();
 
     // bind our FBO so we can sample from it.
-    m_pEditorState->m_pMousePickerFBO->Bind();
+    m_pEditorState->m_pMousePickerFBO->Bind( true );
 
     // Find the first camera again.
     ComponentCamera* pCamera = 0;
@@ -1788,7 +1791,7 @@ void EngineCore::SelectObjectsInRectangle(unsigned int sx, unsigned int sy, unsi
     unsigned int fboheight = m_pEditorState->m_pMousePickerFBO->m_Height;
     unsigned char* pixels = MyNew unsigned char[fbowidth * fboheight * 4];
     glReadPixels( 0, 0, fbowidth, fboheight, GL_RGBA, GL_UNSIGNED_BYTE, pixels );
-    m_pEditorState->m_pMousePickerFBO->Unbind();
+    m_pEditorState->m_pMousePickerFBO->Unbind( true );
 
     bool controlheld = m_pEditorState->m_ModifierKeyStates & MODIFIERKEY_Control ? true : false;
 
@@ -1872,7 +1875,7 @@ void EngineCore::SelectObjectsInRectangle(unsigned int sx, unsigned int sy, unsi
 void EngineCore::RenderSingleObject(GameObject* pObject)
 {
     // render the scene to a FBO.
-    m_pEditorState->m_pDebugViewFBO->Bind();
+    m_pEditorState->m_pDebugViewFBO->Bind( true );
 
     glDisable( GL_SCISSOR_TEST );
     glViewport( 0, 0, m_pEditorState->m_pMousePickerFBO->m_Width, m_pEditorState->m_pMousePickerFBO->m_Height );
@@ -1901,7 +1904,7 @@ void EngineCore::RenderSingleObject(GameObject* pObject)
         }
     }
 
-    m_pEditorState->m_pDebugViewFBO->Unbind();
+    m_pEditorState->m_pDebugViewFBO->Unbind( true );
 }
 
 void EngineCore::GetMouseRay(Vector2 mousepos, Vector3* start, Vector3* end)
