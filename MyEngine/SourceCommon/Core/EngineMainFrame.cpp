@@ -275,6 +275,9 @@ bool EngineMainFrame::UpdateAUIManagerAndLoadPerspective()
 
 void EngineMainFrame::OnPostInit()
 {
+    if( g_pEngineCore == 0 )
+        return;
+
     MainFrame::OnPostInit();
 
     if( m_pEditorPrefs )
@@ -672,6 +675,9 @@ void EngineMainFrame::LoadSceneDialog(bool unloadscenes)
 
 void EngineMainFrame::LoadScene(const char* scenename, bool unloadscenes)
 {
+    if( g_pEngineCore == 0 )
+        return;
+
     MyAssert( scenename != 0 );
 
     // clear out the old scene before loading.
