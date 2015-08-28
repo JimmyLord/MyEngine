@@ -205,7 +205,7 @@ ComponentParticleEmitter& ComponentParticleEmitter::operator=(const ComponentPar
 
 void ComponentParticleEmitter::RegisterCallbacks()
 {
-    if( m_Enabled )
+    if( m_Enabled && m_CallbacksRegistered == false )
     {
         m_CallbacksRegistered = true;
 
@@ -215,9 +215,12 @@ void ComponentParticleEmitter::RegisterCallbacks()
 
 void ComponentParticleEmitter::UnregisterCallbacks()
 {
-    MYFW_UNREGISTER_COMPONENT_CALLBACK( Tick );
+    if( m_CallbacksRegistered == true )
+    {
+        MYFW_UNREGISTER_COMPONENT_CALLBACK( Tick );
 
-    m_CallbacksRegistered = false;
+        m_CallbacksRegistered = false;
+    }
 }
 
 void ComponentParticleEmitter::SetMaterial(MaterialDefinition* pMaterial, int submeshindex)

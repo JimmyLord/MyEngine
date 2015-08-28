@@ -419,7 +419,7 @@ ComponentLuaScript& ComponentLuaScript::operator=(const ComponentLuaScript& othe
 
 void ComponentLuaScript::RegisterCallbacks()
 {
-    if( m_Enabled )
+    if( m_Enabled && m_CallbacksRegistered == false )
     {
         m_CallbacksRegistered = true;
 
@@ -434,14 +434,17 @@ void ComponentLuaScript::RegisterCallbacks()
 
 void ComponentLuaScript::UnregisterCallbacks()
 {
-    MYFW_UNREGISTER_COMPONENT_CALLBACK( Tick );
-    //MYFW_UNREGISTER_COMPONENT_CALLBACK( OnSurfaceChanged );
-    //MYFW_UNREGISTER_COMPONENT_CALLBACK( Draw );
-    MYFW_UNREGISTER_COMPONENT_CALLBACK( OnTouch );
-    MYFW_UNREGISTER_COMPONENT_CALLBACK( OnButtons );
-    //MYFW_UNREGISTER_COMPONENT_CALLBACK( OnKeys );
+    if( m_CallbacksRegistered == true )
+    {
+        MYFW_UNREGISTER_COMPONENT_CALLBACK( Tick );
+        //MYFW_UNREGISTER_COMPONENT_CALLBACK( OnSurfaceChanged );
+        //MYFW_UNREGISTER_COMPONENT_CALLBACK( Draw );
+        MYFW_UNREGISTER_COMPONENT_CALLBACK( OnTouch );
+        MYFW_UNREGISTER_COMPONENT_CALLBACK( OnButtons );
+        //MYFW_UNREGISTER_COMPONENT_CALLBACK( OnKeys );
 
-    m_CallbacksRegistered = false;
+        m_CallbacksRegistered = false;
+    }
 }
 
 void ComponentLuaScript::SetScriptFile(MyFileObject* script)

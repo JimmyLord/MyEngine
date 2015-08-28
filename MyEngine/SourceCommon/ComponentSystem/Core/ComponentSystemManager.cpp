@@ -716,9 +716,7 @@ void ComponentSystemManager::LoadSceneFromJSON(const char* scenename, const char
         if( type == -1 )
         {
             LOGError( LOGTag, "Unknown component in scene file: %s\n", typeobj->valuestring );
-#if _DEBUG
             MyAssert( false );
-#endif
         }
         else
         {
@@ -831,7 +829,7 @@ void ComponentSystemManager::UnloadScene(unsigned int sceneidtoclear, bool clear
             {
                 DeleteGameObject( pGameObject, true );
             }
-            else if( gameobjectid > m_pSceneInfoMap[sceneid].m_NextGameObjectID )
+            else if( sceneid == sceneidtoclear && gameobjectid > m_pSceneInfoMap[sceneid].m_NextGameObjectID )
             {
                 m_pSceneInfoMap[sceneid].m_NextGameObjectID = gameobjectid + 1;
             }

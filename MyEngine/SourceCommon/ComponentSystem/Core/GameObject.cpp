@@ -279,7 +279,7 @@ void GameObject::SetEnabled(bool enabled)
 
     m_Enabled = enabled;
 
-    // loop through all components and unregister their callbacks.
+    // loop through all components and register/unregister their callbacks.
     for( unsigned int i=0; i<m_Components.Count(); i++ )
     {
         if( m_Enabled )

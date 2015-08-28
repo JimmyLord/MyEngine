@@ -902,7 +902,7 @@ void ComponentMenuPage::ImportFromJSONObject(cJSON* jComponent, unsigned int sce
 
 void ComponentMenuPage::RegisterCallbacks()
 {
-    if( m_Enabled )
+    if( m_Enabled && m_CallbacksRegistered == false )
     {
         m_CallbacksRegistered = true;
 
@@ -918,15 +918,18 @@ void ComponentMenuPage::RegisterCallbacks()
 
 void ComponentMenuPage::UnregisterCallbacks()
 {
-    MYFW_UNREGISTER_COMPONENT_CALLBACK( Tick );
-    MYFW_UNREGISTER_COMPONENT_CALLBACK( OnSurfaceChanged );
-    MYFW_UNREGISTER_COMPONENT_CALLBACK( Draw );
-    MYFW_UNREGISTER_COMPONENT_CALLBACK( OnTouch );
-    MYFW_UNREGISTER_COMPONENT_CALLBACK( OnButtons );
-    MYFW_UNREGISTER_COMPONENT_CALLBACK( OnKeys );
-    MYFW_UNREGISTER_COMPONENT_CALLBACK( OnFileRenamed );
+    if( m_CallbacksRegistered == true )
+    {
+        MYFW_UNREGISTER_COMPONENT_CALLBACK( Tick );
+        MYFW_UNREGISTER_COMPONENT_CALLBACK( OnSurfaceChanged );
+        MYFW_UNREGISTER_COMPONENT_CALLBACK( Draw );
+        MYFW_UNREGISTER_COMPONENT_CALLBACK( OnTouch );
+        MYFW_UNREGISTER_COMPONENT_CALLBACK( OnButtons );
+        MYFW_UNREGISTER_COMPONENT_CALLBACK( OnKeys );
+        MYFW_UNREGISTER_COMPONENT_CALLBACK( OnFileRenamed );
 
-    m_CallbacksRegistered = false;
+        m_CallbacksRegistered = false;
+    }
 }
 
 void ComponentMenuPage::FindLuaScriptComponentPointer()
