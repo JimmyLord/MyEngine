@@ -23,12 +23,15 @@ ComponentBase::ComponentBase()
     m_ControlID_ComponentTitleLabel = -1;
     m_pPanelWatchBlockVisible = 0;
 #endif
+
+    m_CallbacksRegistered = false;
 }
 
 ComponentBase::~ComponentBase()
 {
     // Components must be disabled before being deleted, so they unregister their callbacks.
     MyAssert( m_Enabled == false );
+    MyAssert( m_CallbacksRegistered == false );
 
     // if it's in a list, remove it.
     if( this->Prev != 0 )

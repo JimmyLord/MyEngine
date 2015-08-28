@@ -118,7 +118,8 @@ public:
     virtual void UnregisterGameplayButtons();
     bool HandleEditorInput(int keyaction, int keycode, int mouseaction, int id, float x, float y, float pressure);
 
-    void CreateDefaultSceneObjects(bool createeditorobjects);
+    void CreateDefaultEditorSceneObjects();
+    void CreateDefaultSceneObjects();
     void SaveScene(const char* fullpath, unsigned int sceneid);
     void UnloadScene(unsigned int sceneid, bool cleareditorobjects);
 #if MYFW_USING_WX

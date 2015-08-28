@@ -145,10 +145,11 @@ void EngineCore::OneTimeInit()
     m_pLuaGameState = CreateLuaGameState();
 
 #if MYFW_USING_WX
-    m_pComponentSystemManager->CreateNewScene( "Unsaved.scene", 1 );
+//    m_pComponentSystemManager->CreateNewScene( "Unsaved.scene", 1 );
+    CreateDefaultEditorSceneObjects();
 #endif //MYFW_USING_WX
 
-    CreateDefaultSceneObjects( true );
+//    CreateDefaultSceneObjects();
 
     //OnSurfaceChanged( (unsigned int)m_WindowStartX, (unsigned int)m_WindowStartY, (unsigned int)m_WindowWidth, (unsigned int)m_WindowHeight );
 }
@@ -1225,7 +1226,83 @@ bool EngineCore::HandleEditorInput(int keyaction, int keycode, int mouseaction, 
     return false;
 }
 
-void EngineCore::CreateDefaultSceneObjects(bool createeditorobjects)
+void EngineCore::CreateDefaultEditorSceneObjects()
+{
+#if MYFW_USING_WX
+    GameObject* pGameObject;
+    ComponentCamera* pComponentCamera;
+    ComponentMesh* pComponentMesh;
+
+    // create a 3D X/Z plane grid
+    {
+        pGameObject = m_pComponentSystemManager->CreateGameObject( false ); // not managed.
+        pGameObject->SetSceneID( ENGINE_SCENE_ID );
+        pGameObject->SetName( "3D Grid Plane" );
+
+        pComponentMesh = (ComponentMesh*)pGameObject->AddNewComponent( ComponentType_Mesh, ENGINE_SCENE_ID );
+        if( pComponentMesh )
+        {
+            pComponentMesh->SetVisible( true ); // manually drawn when in editor mode.
+            pComponentMesh->SetMaterial( m_pMaterial_3DGrid, 0 ); //( m_pShader_TransformGizmo );
+            pComponentMesh->m_LayersThisExistsOn = Layer_Editor | Layer_EditorUnselectable;
+            pComponentMesh->m_pMesh = MyNew MyMesh();
+            pComponentMesh->m_pMesh->CreateEditorLineGridXZ( Vector3(0,0,0), 1, 5 );
+            // TODOMaterials: put this back for plane.
+            //pComponentMesh->m_pMesh->m_Tint.Set( 150, 150, 150, 255 );
+            pComponentMesh->m_GLPrimitiveType = pComponentMesh->m_pMesh->m_SubmeshList[0]->m_PrimitiveType;
+        }
+
+        //m_pComponentSystemManager->AddComponent( pComponentMesh );
+
+        MyAssert( m_pEditorState->m_p3DGridPlane == 0 );
+        m_pEditorState->m_p3DGridPlane = pGameObject;
+    }
+
+    // create a 3d transform gizmo for each axis.
+    m_pEditorState->m_pTransformGizmo->CreateAxisObjects( ENGINE_SCENE_ID, 0.03f, m_pMaterial_TransformGizmoX, m_pMaterial_TransformGizmoY, m_pMaterial_TransformGizmoZ, m_pEditorState );
+
+    // create a 3D editor camera, renders editor view.
+    {
+        pGameObject = m_pComponentSystemManager->CreateGameObject( false ); // not managed.
+        pGameObject->SetSceneID( ENGINE_SCENE_ID );
+        pGameObject->SetName( "Editor Camera" );
+        pGameObject->m_pComponentTransform->SetPosition( Vector3( 0, 0, 10 ) );
+
+        // add an editor scene camera
+        {
+            pComponentCamera = (ComponentCamera*)pGameObject->AddNewComponent( ComponentType_Camera, ENGINE_SCENE_ID );
+            pComponentCamera->SetDesiredAspectRatio( 640, 960 );
+            pComponentCamera->m_Orthographic = false;
+            pComponentCamera->m_LayersToRender = Layer_Editor | Layer_MainScene;
+            pComponentCamera->m_ClearColorBuffer = true;
+            pComponentCamera->m_ClearDepthBuffer = true;
+
+            // add the camera component to the list, but disabled, so it won't render.
+            pComponentCamera->SetEnabled( false );
+            //m_pComponentSystemManager->AddComponent( pComponentCamera );
+        }
+
+        // add a foreground camera for the transform gizmo only ATM.
+        {
+            pComponentCamera = (ComponentCamera*)pGameObject->AddNewComponent( ComponentType_Camera, ENGINE_SCENE_ID );
+            pComponentCamera->SetDesiredAspectRatio( 640, 960 );
+            pComponentCamera->m_Orthographic = false;
+            pComponentCamera->m_LayersToRender = Layer_EditorFG;
+            pComponentCamera->m_ClearColorBuffer = false;
+            pComponentCamera->m_ClearDepthBuffer = true;
+
+            // add the camera component to the list, but disabled, so it won't render.
+            pComponentCamera->SetEnabled( false );
+            //m_pComponentSystemManager->AddComponent( pComponentCamera );
+        }
+
+        MyAssert( m_pEditorState->m_pEditorCamera == 0 );
+        m_pEditorState->m_pEditorCamera = pGameObject;
+    }
+#endif
+}
+
+void EngineCore::CreateDefaultSceneObjects()
 {
     //GameObject* pPlayer = 0;
     GameObject* pGameObject;
@@ -1233,78 +1310,6 @@ void EngineCore::CreateDefaultSceneObjects(bool createeditorobjects)
     //ComponentSprite* pComponentSprite;
 #if MYFW_USING_WX
     ComponentMesh* pComponentMesh;
-#endif
-
-#if MYFW_USING_WX
-    if( createeditorobjects )
-    {
-        // create a 3D X/Z plane grid
-        {
-            pGameObject = m_pComponentSystemManager->CreateGameObject( false ); // not managed.
-            pGameObject->SetSceneID( ENGINE_SCENE_ID );
-            pGameObject->SetName( "3D Grid Plane" );
-
-            pComponentMesh = (ComponentMesh*)pGameObject->AddNewComponent( ComponentType_Mesh, ENGINE_SCENE_ID );
-            if( pComponentMesh )
-            {
-                pComponentMesh->SetVisible( true ); // manually drawn when in editor mode.
-                pComponentMesh->SetMaterial( m_pMaterial_3DGrid, 0 ); //( m_pShader_TransformGizmo );
-                pComponentMesh->m_LayersThisExistsOn = Layer_Editor | Layer_EditorUnselectable;
-                pComponentMesh->m_pMesh = MyNew MyMesh();
-                pComponentMesh->m_pMesh->CreateEditorLineGridXZ( Vector3(0,0,0), 1, 5 );
-                // TODOMaterials: put this back for plane.
-                //pComponentMesh->m_pMesh->m_Tint.Set( 150, 150, 150, 255 );
-                pComponentMesh->m_GLPrimitiveType = pComponentMesh->m_pMesh->m_SubmeshList[0]->m_PrimitiveType;
-            }
-
-            //m_pComponentSystemManager->AddComponent( pComponentMesh );
-
-            MyAssert( m_pEditorState->m_p3DGridPlane == 0 );
-            m_pEditorState->m_p3DGridPlane = pGameObject;
-        }
-
-        // create a 3d transform gizmo for each axis.
-        m_pEditorState->m_pTransformGizmo->CreateAxisObjects( ENGINE_SCENE_ID, 0.03f, m_pMaterial_TransformGizmoX, m_pMaterial_TransformGizmoY, m_pMaterial_TransformGizmoZ, m_pEditorState );
-
-        // create a 3D editor camera, renders editor view.
-        {
-            pGameObject = m_pComponentSystemManager->CreateGameObject( false ); // not managed.
-            pGameObject->SetSceneID( ENGINE_SCENE_ID );
-            pGameObject->SetName( "Editor Camera" );
-            pGameObject->m_pComponentTransform->SetPosition( Vector3( 0, 0, 10 ) );
-
-            // add an editor scene camera
-            {
-                pComponentCamera = (ComponentCamera*)pGameObject->AddNewComponent( ComponentType_Camera, ENGINE_SCENE_ID );
-                pComponentCamera->SetDesiredAspectRatio( 640, 960 );
-                pComponentCamera->m_Orthographic = false;
-                pComponentCamera->m_LayersToRender = Layer_Editor | Layer_MainScene;
-                pComponentCamera->m_ClearColorBuffer = true;
-                pComponentCamera->m_ClearDepthBuffer = true;
-
-                // add the camera component to the list, but disabled, so it won't render.
-                pComponentCamera->SetEnabled( false );
-                //m_pComponentSystemManager->AddComponent( pComponentCamera );
-            }
-
-            // add a foreground camera for the transform gizmo only ATM.
-            {
-                pComponentCamera = (ComponentCamera*)pGameObject->AddNewComponent( ComponentType_Camera, ENGINE_SCENE_ID );
-                pComponentCamera->SetDesiredAspectRatio( 640, 960 );
-                pComponentCamera->m_Orthographic = false;
-                pComponentCamera->m_LayersToRender = Layer_EditorFG;
-                pComponentCamera->m_ClearColorBuffer = false;
-                pComponentCamera->m_ClearDepthBuffer = true;
-
-                // add the camera component to the list, but disabled, so it won't render.
-                pComponentCamera->SetEnabled( false );
-                //m_pComponentSystemManager->AddComponent( pComponentCamera );
-            }
-
-            MyAssert( m_pEditorState->m_pEditorCamera == 0 );
-            m_pEditorState->m_pEditorCamera = pGameObject;
-        }
-    }
 #endif
 
     // create a 3D camera, renders first... created first so GetFirstCamera() will get the game cam.
@@ -1456,7 +1461,7 @@ void EngineCore::UnloadScene(unsigned int sceneid, bool cleareditorobjects)
         g_pEngineMainFrame->m_pCommandStack->ClearStacks();
         g_pEngineMainFrame->m_StackDepthAtLastSave = 0;
     }
-    m_pEditorState->UnloadScene( cleareditorobjects );
+    m_pEditorState->ClearEditorState();
 #endif //MYFW_USING_WX
 
     g_pComponentSystemManager->UnloadScene( sceneid, false );
@@ -1466,8 +1471,9 @@ void EngineCore::UnloadScene(unsigned int sceneid, bool cleareditorobjects)
         // temp code while RTQGlobals is a thing.
         SAFE_RELEASE( g_pRTQGlobals->m_pMaterial );
 
-        g_pMaterialManager->FreeAllMaterials();
-        g_pTextureManager->FreeAllTextures( false );
+        //g_pComponentSystemManager->FreeAllDataFiles();
+        //g_pMaterialManager->FreeAllMaterials();
+        //g_pTextureManager->FreeAllTextures( false );
     }
 }
 
@@ -1571,7 +1577,7 @@ void EngineCore::LoadScene(const char* scenename, const char* buffer, unsigned i
 {
     // reset the editorstate structure.
 #if MYFW_USING_WX
-    m_pEditorState->UnloadScene( false );
+    m_pEditorState->ClearEditorState();
 #endif //MYFW_USING_WX
 
     m_pLuaGameState->Rebuild(); // reset the lua state.

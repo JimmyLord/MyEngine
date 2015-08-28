@@ -904,6 +904,8 @@ void ComponentMenuPage::RegisterCallbacks()
 {
     if( m_Enabled )
     {
+        m_CallbacksRegistered = true;
+
         MYFW_REGISTER_COMPONENT_CALLBACK( Tick );
         MYFW_REGISTER_COMPONENT_CALLBACK( OnSurfaceChanged );
         MYFW_REGISTER_COMPONENT_CALLBACK( Draw );
@@ -923,6 +925,8 @@ void ComponentMenuPage::UnregisterCallbacks()
     MYFW_UNREGISTER_COMPONENT_CALLBACK( OnButtons );
     MYFW_UNREGISTER_COMPONENT_CALLBACK( OnKeys );
     MYFW_UNREGISTER_COMPONENT_CALLBACK( OnFileRenamed );
+
+    m_CallbacksRegistered = false;
 }
 
 void ComponentMenuPage::FindLuaScriptComponentPointer()

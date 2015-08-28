@@ -280,13 +280,18 @@ void EngineMainFrame::OnPostInit()
 
     MainFrame::OnPostInit();
 
+    bool sceneloaded = false;
+
     if( m_pEditorPrefs )
     {
         cJSON* obj;
 
         obj = cJSON_GetObjectItem( m_pEditorPrefs, "LastSceneLoaded" );
         if( obj )
-            LoadScene( obj->valuestring, true );
+        {
+            LoadScene( obj->valuestring, false ); // this is only parsed on startup, so no need to unload scene.
+            sceneloaded = true;
+        }
 
         obj = cJSON_GetObjectItem( m_pEditorPrefs, "EditorCam" );
         if( obj )
@@ -300,6 +305,12 @@ void EngineMainFrame::OnPostInit()
 
         cJSON_Delete( m_pEditorPrefs );
         m_pEditorPrefs = 0;
+    }
+
+    if( sceneloaded == false )
+    {
+        g_pComponentSystemManager->CreateNewScene( "Unsaved.scene", 1 );
+        g_pEngineCore->CreateDefaultSceneObjects();
     }
 
     m_pGLCanvas->ResizeViewport();
@@ -403,7 +414,7 @@ void EngineMainFrame::OnMenu_Engine(wxCommandEvent& event)
                 g_pEngineCore->UnloadScene( UINT_MAX, false );
                 g_pComponentSystemManager->CreateNewScene( "Unsaved.scene", 1 );
                 g_pComponentSystemManager->GetSceneInfo( 1 )->fullpath[0] = 0;
-                g_pEngineCore->CreateDefaultSceneObjects( false );
+                g_pEngineCore->CreateDefaultSceneObjects();
                 ResizeViewport();
             }
         }

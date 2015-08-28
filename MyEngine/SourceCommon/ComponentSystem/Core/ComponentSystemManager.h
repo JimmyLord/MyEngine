@@ -138,8 +138,12 @@ public:
     static void LuaRegister(lua_State* luastate);
 
     void MoveAllFilesNeededForLoadingScreenToStartOfFileList();
+    void AddListOfFilesUsedToJSONObject(unsigned int sceneid, cJSON* filearray);
     char* SaveSceneToJSON(unsigned int sceneid);
+    
     MyFileObject* LoadDatafile(const char* relativepath, unsigned int sceneid, const char* fullsourcefilepath);
+    void FreeAllDataFiles(unsigned int sceneidtoclear);
+
     void LoadSceneFromJSON(const char* scenename, const char* jsonstr, unsigned int sceneid);
     void FinishLoading(bool lockwhileloading, bool playwhenfinishedloading);
 

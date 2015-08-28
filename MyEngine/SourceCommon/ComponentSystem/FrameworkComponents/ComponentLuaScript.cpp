@@ -421,6 +421,8 @@ void ComponentLuaScript::RegisterCallbacks()
 {
     if( m_Enabled )
     {
+        m_CallbacksRegistered = true;
+
         MYFW_REGISTER_COMPONENT_CALLBACK( Tick );
         //MYFW_REGISTER_COMPONENT_CALLBACK( OnSurfaceChanged );
         //MYFW_REGISTER_COMPONENT_CALLBACK( Draw );
@@ -438,6 +440,8 @@ void ComponentLuaScript::UnregisterCallbacks()
     MYFW_UNREGISTER_COMPONENT_CALLBACK( OnTouch );
     MYFW_UNREGISTER_COMPONENT_CALLBACK( OnButtons );
     //MYFW_UNREGISTER_COMPONENT_CALLBACK( OnKeys );
+
+    m_CallbacksRegistered = false;
 }
 
 void ComponentLuaScript::SetScriptFile(MyFileObject* script)

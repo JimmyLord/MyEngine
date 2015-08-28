@@ -277,7 +277,11 @@ void ComponentMesh::Draw(MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride, i
         else
 #endif
         {
-            campos = g_pComponentSystemManager->GetFirstCamera()->m_pComponentTransform->GetPosition();
+            ComponentCamera* pCamera = g_pComponentSystemManager->GetFirstCamera();
+            if( pCamera )
+                campos = g_pComponentSystemManager->GetFirstCamera()->m_pComponentTransform->GetPosition();
+            else
+                campos.Set( 0, 0, 0 );
         }
 
         m_pMesh->Draw( pMatViewProj, &campos, lights, numlights, pShadowVP, pShadowTex, 0, pShaderOverride );

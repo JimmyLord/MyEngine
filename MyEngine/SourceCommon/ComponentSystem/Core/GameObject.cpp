@@ -613,7 +613,7 @@ void GameObject::RegisterOnDeleteCallback(void* pObj, GameObjectDeletedCallbackF
     {
         GameObjectDeletedCallbackStruct* pCallbackStruct = (GameObjectDeletedCallbackStruct*)pNode;
         //MyAssert( pCallbackStruct->pObj != pObj && pCallbackStruct->pFunc != pCallback );
-        if( pCallbackStruct->pObj != pObj && pCallbackStruct->pFunc != pCallback )
+        if( pCallbackStruct->pObj == pObj && pCallbackStruct->pFunc == pCallback )
             return;
     }
 //#endif

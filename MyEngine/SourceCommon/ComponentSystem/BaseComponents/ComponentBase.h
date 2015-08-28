@@ -53,6 +53,7 @@ public:
     virtual void CopyFromSameType_Dangerous(ComponentBase* pObject) { *this = (ComponentBase&)*pObject; }
     ComponentBase& operator=(const ComponentBase& other);
 
+    bool m_CallbacksRegistered;
     virtual void RegisterCallbacks() {}
     virtual void UnregisterCallbacks() {}
 

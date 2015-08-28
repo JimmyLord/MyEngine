@@ -81,6 +81,7 @@ ComponentSystemManager::~ComponentSystemManager()
 #define MYFW_COMPONENTSYSTEMMANAGER_IMPLEMENT_CALLBACK_REGISTER_FUNCTIONS(CallbackType) \
     void ComponentSystemManager::RegisterComponentCallback_##CallbackType(ComponentCallbackStruct_##CallbackType* pCallbackStruct) \
     { \
+        MyAssert( pCallbackStruct->pFunc != 0 && pCallbackStruct->pObj != 0 ); \
         m_pComponentCallbackList_##CallbackType.AddTail( pCallbackStruct ); \
     } \
     void ComponentSystemManager::UnregisterComponentCallback_##CallbackType(ComponentCallbackStruct_##CallbackType* pCallbackStruct) \
@@ -240,6 +241,87 @@ void ComponentSystemManager::MoveAllFilesNeededForLoadingScreenToStartOfFileList
     }
 }
 
+void ComponentSystemManager::AddListOfFilesUsedToJSONObject(unsigned int sceneid, cJSON* filearray)
+{
+    // TODO: there are currently many ways a file can be loaded into a secondary scene without being in this list.
+    //       need to adjust code in various components to account for this.
+
+    for( CPPListNode* pNode = m_Files.GetHead(); pNode; pNode = pNode->GetNext() )
+    {
+        MyFileInfo* pFileInfo = (MyFileInfo*)pNode;
+        
+        MyAssert( pFileInfo );
+        if( pFileInfo == 0 )
+            continue;
+
+        if( pFileInfo->m_SceneID != sceneid )
+            continue;
+        
+        MyFileObject* pFile = pFileInfo->m_pFile;
+        if( pFile != 0 )
+        {
+            // skip over shader include files.
+            if( pFile->IsA( "MyFileShader" ) )
+            {
+                MyFileObjectShader* pShaderFile = (MyFileObjectShader*)pFile;
+                if( pShaderFile && pShaderFile->m_IsAnIncludeFile )
+                {
+                    MyAssert( false ); // shader include files shouldn't be in the file list.
+                    continue;
+                }
+            }
+
+            cJSON* jFile = cJSON_CreateObject();
+            cJSON_AddItemToObject( jFile, "Path", cJSON_CreateString( pFile->m_FullPath ) );
+            cJSON_AddItemToArray( filearray, jFile );
+
+            // Save the source path if there is one.
+            if( pFileInfo->m_SourceFileFullPath[0] != 0 )
+            {
+                cJSON_AddItemToObject( jFile, "SourcePath", cJSON_CreateString( pFileInfo->m_SourceFileFullPath ) );
+            }
+        }
+    }
+
+    // Only save files used by this scene.
+    //MyFileObject* pFile = g_pFileManager->GetFirstFileLoaded();
+    //while( pFile != 0 )
+    //{
+    //    // skip over shader include files.
+    //    if( pFile->IsA( "MyFileShader" ) )
+    //    {
+    //        MyFileObjectShader* pShaderFile = (MyFileObjectShader*)pFile;
+    //        if( pShaderFile && pShaderFile->m_IsAnIncludeFile )
+    //        {
+    //            pFile = (MyFileObject*)pFile->GetNext();
+    //            continue;
+    //        }
+    //    }
+
+    //    cJSON* jFile = cJSON_CreateObject();
+    //    cJSON_AddItemToObject( jFile, "Path", cJSON_CreateString( pFile->m_FullPath ) );
+    //    cJSON_AddItemToArray( filearray, jFile );
+
+    //    // Find the MyFileInfo object and save the source path if there is one.
+    //    // TODO: this may fail if the file is loaded by multiple scenes.
+    //    MyFileInfo* pFileInfo = GetFileInfoIfUsedByScene( pFile->m_FullPath, -1 );
+    //    if( pFileInfo && pFileInfo->m_SourceFileFullPath[0] != 0 )
+    //    {
+    //        cJSON_AddItemToObject( jFile, "SourcePath", cJSON_CreateString( pFileInfo->m_SourceFileFullPath ) );
+    //    }
+
+    //    pFile = (MyFileObject*)pFile->GetNext();
+    //}
+
+    //// don't save files still loading, they can be readded if needed.
+    ////pFile = g_pFileManager->GetFirstFileStillLoading();
+    ////while( pFile != 0 )
+    ////{
+    ////    cJSON_AddItemToArray( filearray, cJSON_CreateString( pFile->m_FullPath ) );
+    ////    pFile = (MyFileObject*)pFile->GetNext();
+    ////}
+}
+
 char* ComponentSystemManager::SaveSceneToJSON(unsigned int sceneid)
 {
     cJSON* root = cJSON_CreateObject();
@@ -261,44 +343,7 @@ char* ComponentSystemManager::SaveSceneToJSON(unsigned int sceneid)
     }
 
     // add the files used.
-    {
-        MyFileObject* pFile = g_pFileManager->GetFirstFileLoaded();
-        while( pFile != 0 )
-        {
-            // skip over shader include files.
-            if( pFile->IsA( "MyFileShader" ) )
-            {
-                MyFileObjectShader* pShaderFile = (MyFileObjectShader*)pFile;
-                if( pShaderFile && pShaderFile->m_IsAnIncludeFile )
-                {
-                    pFile = (MyFileObject*)pFile->GetNext();
-                    continue;
-                }
-            }
-
-            cJSON* jFile = cJSON_CreateObject();
-            cJSON_AddItemToObject( jFile, "Path", cJSON_CreateString( pFile->m_FullPath ) );
-            cJSON_AddItemToArray( filearray, jFile );
-
-            // Find the MyFileInfo object and save the source path if there is one.
-            // TODO: this may fail if the file is loaded by multiple scenes.
-            MyFileInfo* pFileInfo = GetFileInfoIfUsedByScene( pFile->m_FullPath, -1 );
-            if( pFileInfo && pFileInfo->m_SourceFileFullPath[0] != 0 )
-            {
-                cJSON_AddItemToObject( jFile, "SourcePath", cJSON_CreateString( pFileInfo->m_SourceFileFullPath ) );
-            }
-            
-            pFile = (MyFileObject*)pFile->GetNext();
-        }
-
-        // don't save files still loading, they can be readded if needed.
-        //pFile = g_pFileManager->GetFirstFileStillLoading();
-        //while( pFile != 0 )
-        //{
-        //    cJSON_AddItemToArray( filearray, cJSON_CreateString( pFile->m_FullPath ) );
-        //    pFile = (MyFileObject*)pFile->GetNext();
-        //}
-    }
+    AddListOfFilesUsedToJSONObject( sceneid, filearray );
 
     // add the game objects and their transform components.
     {
@@ -530,6 +575,18 @@ MyFileObject* ComponentSystemManager::LoadDatafile(const char* relativepath, uns
     }
 
     return pFile;
+}
+
+void ComponentSystemManager::FreeAllDataFiles(unsigned int sceneidtoclear)
+{
+    for( CPPListNode* pNode = m_Files.GetHead(); pNode;  )
+    {
+        MyFileInfo* pFile = (MyFileInfo*)pNode;
+        pNode = pNode->GetNext();
+
+        if( sceneidtoclear == UINT_MAX || pFile->m_SceneID == sceneidtoclear )
+            delete pFile;
+    }
 }
 
 void ComponentSystemManager::LoadSceneFromJSON(const char* scenename, const char* jsonstr, unsigned int sceneid)
@@ -782,14 +839,7 @@ void ComponentSystemManager::UnloadScene(unsigned int sceneidtoclear, bool clear
     }
 
     // release any file ref's added by this scene.
-    for( CPPListNode* pNode = m_Files.GetHead(); pNode;  )
-    {
-        MyFileInfo* pFile = (MyFileInfo*)pNode;
-        pNode = pNode->GetNext();
-
-        if( (sceneidtoclear == UINT_MAX || pFile->m_SceneID == sceneidtoclear) )
-            delete pFile;
-    }
+    FreeAllDataFiles( sceneidtoclear );
 
 #if MYFW_USING_WX
     // erase the scene node from the object list tree.
@@ -1106,6 +1156,7 @@ void ComponentSystemManager::Tick(double TimePassed)
     for( CPPListNode* pNode = m_pComponentCallbackList_Tick.HeadNode.Next; pNode->Next; pNode = pNode->Next )
     {
         ComponentCallbackStruct_Tick* pCallbackStruct = (ComponentCallbackStruct_Tick*)pNode;
+        MyAssert( pCallbackStruct->pFunc != 0 );
 
         pCallbackStruct->pFunc( pCallbackStruct->pObj, TimePassed );
     }
