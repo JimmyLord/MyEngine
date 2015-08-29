@@ -1309,7 +1309,7 @@ void EngineCore::CreateDefaultSceneObjects()
     ComponentCamera* pComponentCamera;
     //ComponentSprite* pComponentSprite;
 #if MYFW_USING_WX
-    ComponentMesh* pComponentMesh;
+    //ComponentMesh* pComponentMesh;
 #endif
 
     // create a 3D camera, renders first... created first so GetFirstCamera() will get the game cam.
@@ -1754,7 +1754,7 @@ GameObject* EngineCore::GetObjectAtPixel(unsigned int x, unsigned int y, bool cr
         {
             if( m_pEditorState->m_pTransformGizmo->m_pTransformGizmos[i]->GetID() == id )
             {
-                return m_pEditorState->m_pTransformGizmo->m_pTransformGizmos[i];
+                pGameObject = m_pEditorState->m_pTransformGizmo->m_pTransformGizmos[i];
             }
         }
     }
