@@ -168,6 +168,7 @@ public:
     MenuButton* GetMenuButtonByName(const char* name);
 
     void SetCursorVisible(bool visible);
+    void SetSelectedItemByIndex(int index);
     void SetSelectedItemByName(const char* name);
     MenuItem* GetSelectedItem();
 
@@ -192,7 +193,7 @@ public:
     void CreateMenuItems();
     bool ExecuteAction(const char* function, const char* action, MenuItem* pItem);
 
-    void ResetSelectedItemToDefault();
+    MenuItem* ResetSelectedItemToDefault();
 
     void ShowPage();
     void HidePage();

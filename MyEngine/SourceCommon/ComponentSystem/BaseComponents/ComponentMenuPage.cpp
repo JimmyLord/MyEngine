@@ -1569,17 +1569,23 @@ void ComponentMenuPage::DrawCallback(ComponentCamera* pCamera, MyMatrix* pMatVie
                 {
                     if( pItem->m_Visible == false || pItem->m_Navigable == false )
                     {
-                        ResetSelectedItemToDefault();
+                        pItem = ResetSelectedItemToDefault();
                     }
+                }
 
-                    pCursor->SetPosition( pItem->m_Position.x, pItem->m_Position.y );
-
-                    // make the cursor match the size of the menu item if wanted.
-                    if( m_RelativeCursorSize.x != 0 || m_RelativeCursorSize.y != 0 )
+                if( pItem )
+                {
+                    if( pItem->m_Visible && pItem->m_Navigable )
                     {
-                        Vector2 menuitemsize = pItem->GetSize();
-                        menuitemsize += m_RelativeCursorSize;
-                        pCursor->SetSize( menuitemsize.x, menuitemsize.y );
+                        pCursor->SetPosition( pItem->m_Position.x, pItem->m_Position.y );
+
+                        // make the cursor match the size of the menu item if wanted.
+                        if( m_RelativeCursorSize.x != 0 || m_RelativeCursorSize.y != 0 )
+                        {
+                            Vector2 menuitemsize = pItem->GetSize();
+                            menuitemsize += m_RelativeCursorSize;
+                            pCursor->SetSize( menuitemsize.x, menuitemsize.y );
+                        }
                     }
                 }
             }
@@ -1688,6 +1694,14 @@ void ComponentMenuPage::SetCursorVisible(bool visible)
     }
 }
 
+void ComponentMenuPage::SetSelectedItemByIndex(int index)
+{
+    MyAssert( index >= 0 && index < MAX_MENU_ITEMS );
+
+    if( index >= 0 && index < MAX_MENU_ITEMS )
+        m_ItemSelected = index;
+}
+
 void ComponentMenuPage::SetSelectedItemByName(const char* name)
 {
     int i;
@@ -1702,8 +1716,7 @@ void ComponentMenuPage::SetSelectedItemByName(const char* name)
         }
     }
 
-    if( i < MAX_MENU_ITEMS )
-        m_ItemSelected = i;
+    SetSelectedItemByIndex( i );
 }
 
 MenuItem* ComponentMenuPage::GetSelectedItem()
@@ -1822,8 +1835,10 @@ bool ComponentMenuPage::ExecuteAction(const char* function, const char* action, 
     return false;
 }
 
-void ComponentMenuPage::ResetSelectedItemToDefault()
+MenuItem* ComponentMenuPage::ResetSelectedItemToDefault()
 {
+    m_ItemSelected = -1;
+
     for( unsigned int i=0; i<m_MenuItemsUsed; i++ )
     {
         MenuItem* pItem = GetMenuItem( i );
@@ -1833,8 +1848,10 @@ void ComponentMenuPage::ResetSelectedItemToDefault()
             continue;
 
         m_ItemSelected = i;
-        break;
+        return pItem;
     }
+
+    return 0;
 }
 
 void ComponentMenuPage::ShowPage()
