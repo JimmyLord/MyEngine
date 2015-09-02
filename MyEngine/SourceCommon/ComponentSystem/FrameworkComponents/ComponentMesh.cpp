@@ -97,8 +97,23 @@ void ComponentMesh::FillPropertiesWindow(bool clear)
             m_ControlID_Material[i] = g_pPanelWatch->AddPointerWithDescription( label, 0, desc, this, ComponentMesh::StaticOnDropMaterial );
         }
 
-        g_pPanelWatch->AddEnum( "Primitive Type", &m_GLPrimitiveType, 7, OpenGLPrimitiveTypeStrings );
-        g_pPanelWatch->AddInt( "Point Size", &m_PointSize, 1, 100 );
+        g_pPanelWatch->AddEnum( "Primitive Type", &m_GLPrimitiveType, 7, OpenGLPrimitiveTypeStrings, this, StaticOnValueChanged );
+
+        if( m_GLPrimitiveType == GL_POINTS )
+        {
+            g_pPanelWatch->AddInt( "Point Size", &m_PointSize, 1, 100 );
+        }
+    }
+}
+
+void ComponentMesh::OnValueChanged(int controlid, bool finishedchanging)
+{
+    if( finishedchanging )
+    {
+        //if( controlid == m_ControlID_PrimitiveType )
+        {
+            g_pPanelWatch->m_NeedsRefresh = true;
+        }
     }
 }
 
