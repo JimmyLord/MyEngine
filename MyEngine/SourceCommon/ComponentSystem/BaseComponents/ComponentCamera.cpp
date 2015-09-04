@@ -57,7 +57,7 @@ void ComponentCamera::FillPropertiesWindow(bool clear)
         g_pPanelWatch->AddBool( "ColorBit", &m_ClearColorBuffer, 0, 1, this, ComponentCamera::StaticOnValueChanged );
         g_pPanelWatch->AddBool( "DepthBit", &m_ClearDepthBuffer, 0, 1, this, ComponentCamera::StaticOnValueChanged );
 
-        g_pPanelWatch->AddUnsignedInt( "Layers", &m_LayersToRender, 0, 1, this, ComponentCamera::StaticOnValueChanged );
+        g_pPanelWatch->AddUnsignedInt( "Layers", &m_LayersToRender, 0, 65535, this, ComponentCamera::StaticOnValueChanged );
     }
 }
 

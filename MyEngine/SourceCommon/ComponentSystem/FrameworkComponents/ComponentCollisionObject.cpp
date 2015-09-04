@@ -94,7 +94,7 @@ void ComponentCollisionObject::FillPropertiesWindow(bool clear)
     {
         ComponentBase::FillPropertiesWindow( clear );
 
-        g_pPanelWatch->AddFloat( "Mass", &m_Mass, 0, 100 );
+        g_pPanelWatch->AddFloat( "Mass", &m_Mass, 0, 100000 );
 
         m_ControlID_PrimitiveType = g_pPanelWatch->AddEnum( "Primitive Type", &m_PrimitiveType, PhysicsPrimitive_NumTypes, PhysicsPrimitiveTypeStrings, this, StaticOnValueChanged );
 
@@ -102,13 +102,13 @@ void ComponentCollisionObject::FillPropertiesWindow(bool clear)
         {
             case PhysicsPrimitiveType_Cube:
             {
-                g_pPanelWatch->AddVector3( "Scale", &m_Scale, 0, 100 );
+                g_pPanelWatch->AddVector3( "Scale", &m_Scale, 0, 0 );
             }
             break;
 
             case PhysicsPrimitiveType_Sphere:
             {
-                g_pPanelWatch->AddFloat( "Scale", &m_Scale.x, 0, 100 );
+                g_pPanelWatch->AddFloat( "Scale", &m_Scale.x, 0, 0 );
             }
             break;
 

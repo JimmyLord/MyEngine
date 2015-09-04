@@ -112,9 +112,9 @@ void ComponentTransform::FillPropertiesWindow(bool clear)
             desc = m_pParentTransform->m_pGameObject->GetName();
         m_ControlID_ParentTransform = g_pPanelWatch->AddPointerWithDescription( "Parent transform", m_pParentTransform, desc, this, ComponentTransform::StaticOnDropTransform, ComponentTransform::StaticOnValueChanged );
 
-        g_pPanelWatch->AddVector3( "Pos", &m_Position, -1.0f, 1.0f, this, ComponentTransform::StaticOnValueChanged );
-        g_pPanelWatch->AddVector3( "Scale", &m_Scale, 0.0f, 10.0f, this, ComponentTransform::StaticOnValueChanged );
-        g_pPanelWatch->AddVector3( "Rot", &m_Rotation, 0, 360, this, ComponentTransform::StaticOnValueChanged );
+        g_pPanelWatch->AddVector3( "Pos", &m_Position, 0.0f, 0.0f, this, ComponentTransform::StaticOnValueChanged );
+        g_pPanelWatch->AddVector3( "Scale", &m_Scale, 0.0f, 0.0f, this, ComponentTransform::StaticOnValueChanged );
+        g_pPanelWatch->AddVector3( "Rot", &m_Rotation, 0, 0, this, ComponentTransform::StaticOnValueChanged );
     }
 }
 

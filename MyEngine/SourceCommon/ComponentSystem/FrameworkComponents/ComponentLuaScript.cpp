@@ -209,7 +209,7 @@ void ComponentLuaScript::FillPropertiesWindow(bool clear)
 
             if( pVar->type == ExposedVariableType_Float )
             {
-                id = g_pPanelWatch->AddDouble( pVar->name.c_str(), &pVar->value, 0, 500, this, ComponentLuaScript::StaticOnValueChanged );
+                id = g_pPanelWatch->AddDouble( pVar->name.c_str(), &pVar->value, 0, 0, this, ComponentLuaScript::StaticOnValueChanged );
             }
             else if( pVar->type == ExposedVariableType_GameObject )
             {

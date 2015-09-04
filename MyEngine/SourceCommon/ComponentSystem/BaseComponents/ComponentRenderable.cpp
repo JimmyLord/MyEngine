@@ -64,7 +64,7 @@ void ComponentRenderable::FillPropertiesWindow(bool clear)
         ComponentBase::FillPropertiesWindow( clear );
 
         g_pPanelWatch->AddBool( "Visible", &m_Visible, 0, 1 );
-        g_pPanelWatch->AddUnsignedInt( "Layers", &m_LayersThisExistsOn, 0, 63 );
+        g_pPanelWatch->AddUnsignedInt( "Layers", &m_LayersThisExistsOn, 0, 65535 );
     }
 }
 #endif //MYFW_USING_WX

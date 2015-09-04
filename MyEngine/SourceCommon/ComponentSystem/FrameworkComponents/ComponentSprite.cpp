@@ -52,8 +52,8 @@ void ComponentSprite::FillPropertiesWindow(bool clear)
         g_pPanelWatch->AddUnsignedChar( "g", &m_Tint.g, 0, 255 );
         g_pPanelWatch->AddUnsignedChar( "b", &m_Tint.b, 0, 255 );
         g_pPanelWatch->AddUnsignedChar( "a", &m_Tint.a, 0, 255 );
-        g_pPanelWatch->AddFloat( "width",  &m_Size.x, 0, 2 );
-        g_pPanelWatch->AddFloat( "height", &m_Size.y, 0, 2 );
+        g_pPanelWatch->AddFloat( "width",  &m_Size.x, 0, 0 );
+        g_pPanelWatch->AddFloat( "height", &m_Size.y, 0, 0 );
 
         const char* desc = "no material";
         MyAssert( m_pSprite );

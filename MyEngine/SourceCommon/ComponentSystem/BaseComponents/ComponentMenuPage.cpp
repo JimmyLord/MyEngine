@@ -419,7 +419,7 @@ void ComponentMenuPage::FillPropertiesWindow(bool clear)
         g_pPanelWatch->AddBool( "Visible", &m_Visible, 0, 1 );
         g_pPanelWatch->AddBool( "Input Enabled", &m_InputEnabled, 0, 1 );
         
-        g_pPanelWatch->AddUnsignedInt( "Layers", &m_LayersThisExistsOn, 0, 63 );
+        g_pPanelWatch->AddUnsignedInt( "Layers", &m_LayersThisExistsOn, 0, 65535 );
 
         const char* desc = "none";
         if( m_pComponentCamera )
@@ -435,7 +435,7 @@ void ComponentMenuPage::FillPropertiesWindow(bool clear)
         g_pPanelWatch->AddString( "Action C", &m_ButtonActions[1][0], MAX_BUTTON_ACTION_LENGTH );
         g_pPanelWatch->AddString( "Action D", &m_ButtonActions[2][0], MAX_BUTTON_ACTION_LENGTH );
 
-        g_pPanelWatch->Add2Floats( "Cursor Size", "x", "y", &m_RelativeCursorSize.x, &m_RelativeCursorSize.y, -10, 10 );
+        g_pPanelWatch->Add2Floats( "Cursor Size", "x", "y", &m_RelativeCursorSize.x, &m_RelativeCursorSize.y, 0, 0 );
     }
 }
 

@@ -100,11 +100,11 @@ void ComponentParticleEmitter::FillPropertiesWindow(bool clear)
     {
         ComponentRenderable::FillPropertiesWindow( clear );
 
-        g_pPanelWatch->AddFloat( "size", &m_Size, 0, 1 );
-        g_pPanelWatch->AddFloat( "sizevariation", &m_SizeVariation, 0, 1 );
-        g_pPanelWatch->AddFloat( "timetolive", &m_TimeToLive, 0.01f, 5 );
+        g_pPanelWatch->AddFloat( "size", &m_Size, 0, 0 );
+        g_pPanelWatch->AddFloat( "sizevariation", &m_SizeVariation, 0, 0 );
+        g_pPanelWatch->AddFloat( "timetolive", &m_TimeToLive, 0.01f, 5000 );
         g_pPanelWatch->AddVector3( "dir", &m_Dir, -1, 1 );
-        g_pPanelWatch->AddVector3( "dirvariation", &m_DirVariation, 0, 1 );
+        g_pPanelWatch->AddVector3( "dirvariation", &m_DirVariation, -1, 1 );
 
         g_pPanelWatch->AddBool( "usecolorsasoptions", &m_UseColorsAsOptions, 0, 1 );
 
