@@ -24,12 +24,20 @@ const char* g_DefaultPerspectiveMenuLabels[Perspective_NumPerspectives] =
     "&Full Frame Game",
 };
 
-const char* g_DefaultPerspectives[Perspective_NumPerspectives] =
+char* g_DefaultPerspectives[Perspective_NumPerspectives] =
 {
     "layout2|name=GLCanvas;caption=Game;state=2099196;dir=4;layer=1;row=0;pos=1;prop=100000;bestw=600;besth=600;minw=-1;minh=-1;maxw=-1;maxh=-1;floatx=-253;floaty=231;floatw=680;floath=748|name=PanelWatch;caption=Watch;state=2099196;dir=2;layer=3;row=0;pos=0;prop=130560;bestw=300;besth=600;minw=-1;minh=-1;maxw=-1;maxh=-1;floatx=1274;floaty=143;floatw=316;floath=632|name=PanelMemory;caption=Memory;state=2099196;dir=2;layer=3;row=0;pos=1;prop=69440;bestw=300;besth=600;minw=-1;minh=-1;maxw=-1;maxh=-1;floatx=1023;floaty=335;floatw=316;floath=632|name=PanelObjectList;caption=Objects;state=2099196;dir=4;layer=1;row=0;pos=0;prop=100000;bestw=300;besth=600;minw=-1;minh=-1;maxw=-1;maxh=-1;floatx=-1;floaty=-1;floatw=-1;floath=-1|name=GLCanvasEditor;caption=Editor;state=2099196;dir=3;layer=0;row=0;pos=0;prop=100000;bestw=600;besth=600;minw=-1;minh=-1;maxw=-1;maxh=-1;floatx=-1;floaty=-1;floatw=-1;floath=-1|name=Log;caption=Log;state=2099196;dir=3;layer=2;row=0;pos=0;prop=100000;bestw=183;besth=150;minw=-1;minh=-1;maxw=-1;maxh=-1;floatx=543;floaty=588;floatw=199;floath=182|dock_size(4,1,0)=302|dock_size(3,0,0)=1560|dock_size(3,2,0)=140|dock_size(2,3,0)=321|",
     "layout2|name=GLCanvas;caption=Game;state=2099196;dir=3;layer=0;row=0;pos=0;prop=97635;bestw=600;besth=600;minw=-1;minh=-1;maxw=-1;maxh=-1;floatx=451;floaty=186;floatw=616;floath=632|name=PanelWatch;caption=Watch;state=2099196;dir=2;layer=3;row=0;pos=0;prop=113200;bestw=300;besth=600;minw=-1;minh=-1;maxw=-1;maxh=-1;floatx=1274;floaty=143;floatw=316;floath=632|name=PanelMemory;caption=Memory;state=2099196;dir=2;layer=3;row=0;pos=1;prop=86800;bestw=300;besth=600;minw=-1;minh=-1;maxw=-1;maxh=-1;floatx=1023;floaty=335;floatw=316;floath=632|name=PanelObjectList;caption=Objects;state=2099196;dir=4;layer=1;row=0;pos=0;prop=100000;bestw=300;besth=600;minw=-1;minh=-1;maxw=-1;maxh=-1;floatx=-1;floaty=-1;floatw=-1;floath=-1|name=GLCanvasEditor;caption=Editor;state=2099196;dir=4;layer=1;row=0;pos=1;prop=102365;bestw=600;besth=600;minw=-1;minh=-1;maxw=-1;maxh=-1;floatx=-7;floaty=330;floatw=616;floath=632|name=Log;caption=Log;state=2099196;dir=3;layer=2;row=0;pos=0;prop=100000;bestw=183;besth=150;minw=-1;minh=-1;maxw=-1;maxh=-1;floatx=543;floaty=588;floatw=199;floath=182|dock_size(4,1,0)=253|dock_size(3,0,0)=1560|dock_size(3,2,0)=140|dock_size(2,3,0)=307|",
     "layout2|name=GLCanvas;caption=Game;state=2099196;dir=3;layer=0;row=0;pos=0;prop=97635;bestw=600;besth=600;minw=-1;minh=-1;maxw=-1;maxh=-1;floatx=451;floaty=186;floatw=616;floath=632|name=PanelWatch;caption=Watch;state=2099196;dir=2;layer=3;row=0;pos=0;prop=113200;bestw=300;besth=600;minw=-1;minh=-1;maxw=-1;maxh=-1;floatx=1274;floaty=143;floatw=316;floath=632|name=PanelMemory;caption=Memory;state=2099196;dir=2;layer=3;row=0;pos=1;prop=86800;bestw=300;besth=600;minw=-1;minh=-1;maxw=-1;maxh=-1;floatx=1023;floaty=335;floatw=316;floath=632|name=PanelObjectList;caption=Objects;state=2099196;dir=4;layer=1;row=0;pos=0;prop=100000;bestw=300;besth=600;minw=-1;minh=-1;maxw=-1;maxh=-1;floatx=-1;floaty=-1;floatw=-1;floath=-1|name=GLCanvasEditor;caption=Editor;state=2099196;dir=3;layer=0;row=0;pos=1;prop=102365;bestw=600;besth=600;minw=-1;minh=-1;maxw=-1;maxh=-1;floatx=-1;floaty=-1;floatw=-1;floath=-1|name=Log;caption=Log;state=2099196;dir=3;layer=2;row=0;pos=0;prop=100000;bestw=183;besth=150;minw=-1;minh=-1;maxw=-1;maxh=-1;floatx=543;floaty=588;floatw=199;floath=182|dock_size(4,1,0)=201|dock_size(3,0,0)=1560|dock_size(3,2,0)=140|dock_size(2,3,0)=307|",
     "layout2|name=GLCanvas;caption=Game;state=2099196;dir=3;layer=0;row=0;pos=0;prop=97635;bestw=600;besth=600;minw=-1;minh=-1;maxw=-1;maxh=-1;floatx=451;floaty=186;floatw=616;floath=632|name=PanelWatch;caption=Watch;state=2099198;dir=2;layer=3;row=0;pos=0;prop=113200;bestw=300;besth=600;minw=-1;minh=-1;maxw=-1;maxh=-1;floatx=1274;floaty=143;floatw=316;floath=632|name=PanelMemory;caption=Memory;state=2099198;dir=2;layer=3;row=0;pos=0;prop=86800;bestw=300;besth=600;minw=-1;minh=-1;maxw=-1;maxh=-1;floatx=1023;floaty=335;floatw=316;floath=632|name=PanelObjectList;caption=Objects;state=2099198;dir=4;layer=1;row=0;pos=0;prop=100000;bestw=300;besth=600;minw=-1;minh=-1;maxw=-1;maxh=-1;floatx=-1;floaty=-1;floatw=-1;floath=-1|name=GLCanvasEditor;caption=Editor;state=2099198;dir=4;layer=1;row=0;pos=0;prop=102365;bestw=600;besth=600;minw=-1;minh=-1;maxw=-1;maxh=-1;floatx=-7;floaty=330;floatw=616;floath=632|name=Log;caption=Log;state=2099198;dir=3;layer=2;row=0;pos=0;prop=100000;bestw=183;besth=150;minw=-1;minh=-1;maxw=-1;maxh=-1;floatx=543;floaty=588;floatw=199;floath=182|dock_size(3,0,0)=1560|",
+};
+
+char* g_SavedPerspectives[Perspective_NumPerspectives] =
+{
+    g_DefaultPerspectives[0],
+    g_DefaultPerspectives[1],
+    g_DefaultPerspectives[2],
+    g_DefaultPerspectives[3],
 };
 
 void EngineMainFrame_MessageLog(int logtype, const char* tag, const char* message)
@@ -81,6 +89,12 @@ EngineMainFrame::~EngineMainFrame()
     SAFE_DELETE( m_pCommandStack );
     SAFE_DELETE( m_pGLCanvasEditor );
 
+    for( int i=0; i<4; i++ )
+    {
+        if( g_SavedPerspectives[i] != g_DefaultPerspectives[i] )
+            delete[] g_SavedPerspectives[i];
+    }
+
     g_pMessageLogCallbackFunction = 0;
 }
 
@@ -106,6 +120,22 @@ void EngineMainFrame::InitFrame()
 
         if( m_pEditorPrefs )
         {
+            // load any customized layouts.
+            for( int i=0; i<4; i++ )
+            {
+                MyAssert( g_SavedPerspectives[i] == g_DefaultPerspectives[i] );
+
+                char name[10];
+                sprintf_s( name, 10, "Layout%d", i );
+                cJSON* layout = cJSON_GetObjectItem( m_pEditorPrefs, name );
+                if( layout )
+                {
+                    int len = strlen( layout->valuestring );
+                    g_SavedPerspectives[i] = MyNew char[len+1];
+                    strcpy_s( g_SavedPerspectives[i], len+1, layout->valuestring );
+                }
+            }
+
             int windowx = -9999;
             int windowy = -9999;
             int clientwidth = 0;
@@ -177,6 +207,11 @@ void EngineMainFrame::InitFrame()
     m_Debug->AppendCheckItem( myIDEngine_DebugShowGLStats, wxT("Show &GL Stats\tShift-F9") );
 
     m_Hackery_Record_StackDepth = -1;
+
+    // Override these menu options from the main frame,
+    Connect( myID_SavePerspective, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );
+    Connect( myID_LoadPerspective, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );
+    Connect( myID_ResetPerspective, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );
 
     m_EditorPerspectives = MyNew wxMenu;
     for( int i=0; i<Perspective_NumPerspectives; i++ )
@@ -262,12 +297,13 @@ void EngineMainFrame::AddPanes()
 
 bool EngineMainFrame::UpdateAUIManagerAndLoadPerspective()
 {
-    if( MainFrame::UpdateAUIManagerAndLoadPerspective() )
-        return true;
+    // try to load current perspective from layout.ini
+    //if( MainFrame::UpdateAUIManagerAndLoadPerspective() )
+    //    return true;
 
     // layout.ini file not found, use the default editor layout.
     int currentperspective = GetDefaultEditorPerspectiveIndex();
-    m_AUIManager.LoadPerspective( g_DefaultPerspectives[currentperspective] );
+    m_AUIManager.LoadPerspective( g_SavedPerspectives[currentperspective] );
 
     // say a valid layout was set.
     return true;
@@ -346,6 +382,17 @@ bool EngineMainFrame::OnClose()
         if( file )
         {
             cJSON* pPrefs = cJSON_CreateObject();
+
+            // Save Layout strings.
+            for( int i=0; i<4; i++ )
+            {
+                if( g_SavedPerspectives[i] != g_DefaultPerspectives[i] )
+                {
+                    char name[10];
+                    sprintf_s( name, 10, "Layout%d", i );
+                    cJSON_AddStringToObject( pPrefs, name, g_SavedPerspectives[i] );
+                }
+            }
 
             cJSON_AddNumberToObject( pPrefs, "WindowX", m_WindowX );
             cJSON_AddNumberToObject( pPrefs, "WindowY", m_WindowY );
@@ -519,12 +566,46 @@ void EngineMainFrame::OnMenu_Engine(wxCommandEvent& event)
         }
         break;
 
+    case myID_SavePerspective:
+        {
+            int currentperspective = GetCurrentPerspectiveIndex();
+
+            if( g_SavedPerspectives[currentperspective] != g_DefaultPerspectives[currentperspective] )
+                delete[] g_SavedPerspectives[currentperspective];
+
+            wxString wxPerspective = m_AUIManager.SavePerspective();
+            int len = wxPerspective.Length();
+            g_SavedPerspectives[currentperspective] = MyNew char[len+1];
+            strcpy_s( g_SavedPerspectives[currentperspective], len+1, wxPerspective.c_str() );
+        }
+        break;
+
+    case myID_LoadPerspective:
+        {
+            int currentperspective = GetCurrentPerspectiveIndex();
+            m_AUIManager.LoadPerspective( g_SavedPerspectives[currentperspective] );
+        }
+        break;
+
+    case myID_ResetPerspective:
+        {
+            int currentperspective = GetCurrentPerspectiveIndex();
+
+            if( g_SavedPerspectives[currentperspective] != g_DefaultPerspectives[currentperspective] )
+                delete[] g_SavedPerspectives[currentperspective];
+
+            g_SavedPerspectives[currentperspective] = g_DefaultPerspectives[currentperspective];
+            m_AUIManager.LoadPerspective( g_SavedPerspectives[currentperspective] );
+        }
+        break;
+
     case myIDEngine_EditorPerspective + 0:
     case myIDEngine_EditorPerspective + 1:
     case myIDEngine_EditorPerspective + 2:
     case myIDEngine_EditorPerspective + 3:
         SetDefaultEditorPerspectiveIndex( id - myIDEngine_EditorPerspective );
-        SetWindowPerspectiveToDefault( true );
+        if( g_pEngineCore->m_EditorMode == true )
+            SetWindowPerspectiveToDefault( true );
         break;
 
     case myIDEngine_GameplayPerspective + 0:
@@ -532,7 +613,8 @@ void EngineMainFrame::OnMenu_Engine(wxCommandEvent& event)
     case myIDEngine_GameplayPerspective + 2:
     case myIDEngine_GameplayPerspective + 3:
         SetDefaultGameplayPerspectiveIndex( id - myIDEngine_GameplayPerspective );
-        SetWindowPerspectiveToDefault( true );
+        if( g_pEngineCore->m_EditorMode == false )
+            SetWindowPerspectiveToDefault( true );
         break;
 
     case myIDEngine_DebugShowMousePickerFBO:
@@ -551,13 +633,24 @@ void EngineMainFrame::OnMenu_Engine(wxCommandEvent& event)
 
 void EngineMainFrame::SetWindowPerspectiveToDefault(bool forceswitch)
 {
-    int currentperspective;
     int editor = GetDefaultEditorPerspectiveIndex();
     int gameplay = GetDefaultGameplayPerspectiveIndex();
 
     // don't touch anything if both perspectives are the same.
     if( forceswitch == false && editor == gameplay )
         return;
+
+    int currentperspective = GetCurrentPerspectiveIndex();
+
+    if( currentperspective != -1 )
+        m_AUIManager.LoadPerspective( g_SavedPerspectives[currentperspective] );
+}
+
+int EngineMainFrame::GetCurrentPerspectiveIndex()
+{
+    int currentperspective;
+    int editor = GetDefaultEditorPerspectiveIndex();
+    int gameplay = GetDefaultGameplayPerspectiveIndex();
 
     if( g_pEngineCore->m_EditorMode )
     {
@@ -568,8 +661,7 @@ void EngineMainFrame::SetWindowPerspectiveToDefault(bool forceswitch)
         currentperspective = gameplay;
     }
 
-    if( currentperspective != -1 )
-        m_AUIManager.LoadPerspective( g_DefaultPerspectives[currentperspective] );
+    return currentperspective;
 }
 
 int EngineMainFrame::GetDefaultEditorPerspectiveIndex()

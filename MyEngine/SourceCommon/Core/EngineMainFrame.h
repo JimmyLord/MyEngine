@@ -104,6 +104,7 @@ public:
 
     void OnMenu_Engine(wxCommandEvent& event);
     void SetWindowPerspectiveToDefault(bool forceswitch = false);
+    int GetCurrentPerspectiveIndex();
     int GetDefaultEditorPerspectiveIndex();
     int GetDefaultGameplayPerspectiveIndex();
     void SetDefaultEditorPerspectiveIndex(int index);
