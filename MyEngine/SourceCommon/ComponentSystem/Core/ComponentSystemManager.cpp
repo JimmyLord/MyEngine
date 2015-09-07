@@ -656,7 +656,7 @@ void ComponentSystemManager::LoadSceneFromJSON(const char* scenename, const char
 
         // find an existing game object with the same id or create a new one.
         GameObject* pGameObject = FindGameObjectByID( sceneid, id );
-        if( pGameObject ) { MyAssert( pGameObject->GetSceneID() == sceneid ); } // TODO: get the object from the right scene if multiple scenes are loaded.
+        if( pGameObject ) { MyAssert( pGameObject->GetSceneID() == sceneid ); }
 
         if( pGameObject == 0 )        
             pGameObject = CreateGameObject( true, sceneid );
@@ -724,7 +724,7 @@ void ComponentSystemManager::LoadSceneFromJSON(const char* scenename, const char
             cJSONExt_GetUnsignedInt( componentobj, "ID", &id );
 
             ComponentBase* pComponent = FindComponentByID( id, sceneid );
-            //if( pComponent ) { MyAssert( pComponent->GetSceneID() == sceneid ); } // TODO: get the object from the right scene if multiple scenes are loaded.
+            if( pComponent ) { MyAssert( pComponent->GetSceneID() == sceneid ); }
     
             if( pComponent == 0 )
                 pComponent = pGameObject->AddNewComponent( type, sceneid );
@@ -1246,7 +1246,7 @@ void ComponentSystemManager::OnDrawFrame(ComponentCamera* pCamera, MyMatrix* pMa
 
 void ComponentSystemManager::OnFileRenamed(const char* fullpathbefore, const char* fullpathafter)
 {
-    // TODO: call all components that registered a callback.
+    // call all components that registered a callback.
     for( CPPListNode* pNode = m_pComponentCallbackList_OnFileRenamed.HeadNode.Next; pNode->Next; pNode = pNode->Next )
     {
         ComponentCallbackStruct_OnFileRenamed* pCallbackStruct = (ComponentCallbackStruct_OnFileRenamed*)pNode;
