@@ -59,8 +59,11 @@ public:
     EditorState* m_pEditorState;
     bool m_Debug_DrawMousePickerFBO;
     bool m_Debug_DrawSelectedAnimatedMesh;
+    bool m_Debug_DrawSelectedMaterial;
     bool m_Debug_DrawGLStats;
+    MyFileObject* m_pSphereMeshFile;
     MySprite* m_pDebugQuadSprite;
+    MyMesh* m_pMaterialBallMesh;
     FontDefinition* m_pDebugFont;
     MyMeshText* m_pDebugTextMesh; // DEBUG_HACK_SHOWGLSTATS
 #endif //MYFW_USING_WX

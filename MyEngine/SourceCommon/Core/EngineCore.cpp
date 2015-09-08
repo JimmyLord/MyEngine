@@ -57,8 +57,11 @@ EngineCore::EngineCore()
     m_pEditorState = MyNew EditorState;
     m_Debug_DrawMousePickerFBO = false;
     m_Debug_DrawSelectedAnimatedMesh = false;
+    m_Debug_DrawSelectedMaterial = false;
     m_Debug_DrawGLStats = false;
+    m_pSphereMeshFile = 0;
     m_pDebugQuadSprite = 0;
+    m_pMaterialBallMesh = 0;
     m_FreeAllMaterialsAndTexturesWhenUnloadingScene = false;
     m_pDebugFont = 0;
     m_pDebugTextMesh = 0;
@@ -87,7 +90,9 @@ EngineCore::~EngineCore()
 
 #if MYFW_USING_WX
     SAFE_DELETE( m_pEditorState );
+    SAFE_RELEASE( m_pSphereMeshFile );
     SAFE_RELEASE( m_pDebugQuadSprite );
+    SAFE_RELEASE( m_pMaterialBallMesh );
     SAFE_RELEASE( m_pDebugFont );
     SAFE_RELEASE( m_pDebugTextMesh );
 #endif //MYFW_USING_WX
@@ -278,6 +283,7 @@ void EngineCore::OnDrawFrame(unsigned int canvasid)
     GameCore::OnDrawFrame( canvasid );
 
 #if MYFW_USING_WX
+    ComponentCamera* pEditorCamera = 0;
     if( g_GLCanvasIDActive == 1 )
     {
         MyAssert( m_pEditorState->m_pEditorCamera );
@@ -286,10 +292,10 @@ void EngineCore::OnDrawFrame(unsigned int canvasid)
             // draw editor camera and editorFG camera
             for( unsigned int i=0; i<m_pEditorState->m_pEditorCamera->m_Components.Count(); i++ )
             {
-                ComponentCamera* pCamera = dynamic_cast<ComponentCamera*>( m_pEditorState->m_pEditorCamera->m_Components[i] );
+                pEditorCamera = dynamic_cast<ComponentCamera*>( m_pEditorState->m_pEditorCamera->m_Components[i] );
 
-                if( pCamera )
-                    pCamera->OnDrawFrame();
+                if( pEditorCamera )
+                    pEditorCamera->OnDrawFrame();
             }
         }
     }
@@ -357,6 +363,64 @@ void EngineCore::OnDrawFrame(unsigned int canvasid)
                 m_pDebugQuadSprite->SetMaterial( m_pMaterial_ClipSpaceTexture );
                 m_pDebugQuadSprite->Draw( 0 );
             }
+        }
+    }
+
+    if( /*m_Debug_DrawSelectedMaterial &&*/ g_GLCanvasIDActive == 1 )
+    {
+        MaterialDefinition* pMaterial = g_pPanelMemory->GetSelectedMaterial();
+
+        if( pMaterial && pEditorCamera )
+        {
+            if( m_pMaterialBallMesh == 0 )
+            {
+                m_pMaterialBallMesh = MyNew MyMesh();
+                m_pSphereMeshFile = RequestFile( "DataEngine/Meshes/sphere.obj.mymesh" );
+            }
+
+            if( m_pMaterialBallMesh && m_pMaterialBallMesh->m_MeshReady == false )
+            {
+                if( m_pSphereMeshFile->m_FileLoadStatus == FileLoadStatus_Success )
+                {
+                    m_pMaterialBallMesh->CreateFromMyMeshFile( m_pSphereMeshFile );
+                }
+            }
+
+            if( m_pMaterialBallMesh && m_pMaterialBallMesh->m_MeshReady )
+            {
+                m_pEditorState->m_pDebugViewFBO->Bind( true );
+
+                glDisable( GL_SCISSOR_TEST );
+                glViewport( 0, 0, m_pEditorState->m_pMousePickerFBO->m_Width, m_pEditorState->m_pMousePickerFBO->m_Height );
+
+                glClearColor( 0, 0, 0, 0 );
+                glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+
+                m_pMaterialBallMesh->SetMaterial( pMaterial, 0 );
+
+                MyMatrix matview;
+                matview.SetIdentity();
+                matview.Translate( 0, 0, -4 );
+
+                float aspect = (float)pEditorCamera->m_WindowWidth / pEditorCamera->m_WindowHeight;
+                MyMatrix matproj;
+                matproj.CreatePerspectiveVFoV( 45, aspect, 0.01f, 100 );
+
+                MyMatrix matviewproj = matproj * matview;
+                m_pMaterialBallMesh->Draw( &matviewproj, 0, 0, 0, 0, 0, 0, 0 );
+
+                m_pEditorState->m_pDebugViewFBO->Unbind( true );
+            }
+
+            if( m_pDebugQuadSprite == 0 )
+                m_pDebugQuadSprite = MyNew MySprite( false );
+
+            float u = (float)m_pEditorState->m_pMousePickerFBO->m_Width / m_pEditorState->m_pMousePickerFBO->m_TextureWidth;
+            float v = (float)m_pEditorState->m_pMousePickerFBO->m_Height / m_pEditorState->m_pMousePickerFBO->m_TextureHeight;
+            m_pDebugQuadSprite->CreateInPlace( "debug", 0.5f, 0.5f, 1.0f, 1.0f, 0, u, v, 0, Justify_Center, false );
+            m_pMaterial_ClipSpaceTexture->SetTextureColor( m_pEditorState->m_pDebugViewFBO->m_pColorTexture );
+            m_pDebugQuadSprite->SetMaterial( m_pMaterial_ClipSpaceTexture );
+            m_pDebugQuadSprite->Draw( 0 );
         }
     }
 
