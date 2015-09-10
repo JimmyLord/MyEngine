@@ -400,7 +400,11 @@ void EngineCore::OnDrawFrame(unsigned int canvasid)
 
                 MyMatrix matview;
                 matview.SetIdentity();
+#if MYFW_RIGHTHANDED
                 matview.Translate( 0, 0, -4 );
+#else
+                matview.Translate( 0, 0, 4 );
+#endif
 
                 float aspect = (float)pEditorCamera->m_WindowWidth / pEditorCamera->m_WindowHeight;
                 MyMatrix matproj;
@@ -1173,7 +1177,11 @@ bool EngineCore::HandleEditorInput(int keyaction, int keycode, int mouseaction, 
                 {
                     // TODO: try to pivot from distance of object at mouse
                     MyMatrix mattemp = *matLocalCamera;
+#if MYFW_RIGHTHANDED
                     mattemp.TranslatePreRotScale( 0, 0, -10 );
+#else
+                    mattemp.TranslatePreRotScale( 0, 0, 10 );
+#endif
                     pivot = mattemp.GetTranslation();
                     distancefrompivot = 10;
                 }
@@ -1191,8 +1199,13 @@ bool EngineCore::HandleEditorInput(int keyaction, int keycode, int mouseaction, 
 
                 dir.Normalize();
 
+#if MYFW_RIGHTHANDED
                 angle.y += dir.x * degreesperpixel;
                 angle.x -= dir.y * degreesperpixel;
+#else
+                angle.y -= dir.x * degreesperpixel;
+                angle.x += dir.y * degreesperpixel;
+#endif
                 MyClamp( angle.x, -90.0f, 90.0f );
 
                 matLocalCamera->SetIdentity();
@@ -1330,7 +1343,11 @@ void EngineCore::CreateDefaultEditorSceneObjects()
         pGameObject = m_pComponentSystemManager->CreateGameObject( false ); // not managed.
         pGameObject->SetSceneID( ENGINE_SCENE_ID );
         pGameObject->SetName( "Editor Camera" );
+#if MYFW_RIGHTHANDED
         pGameObject->m_pComponentTransform->SetPosition( Vector3( 0, 0, 10 ) );
+#else
+        pGameObject->m_pComponentTransform->SetPosition( Vector3( 0, 0, -10 ) );
+#endif
 
         // add an editor scene camera
         {
@@ -1380,7 +1397,11 @@ void EngineCore::CreateDefaultSceneObjects()
     {
         pGameObject = m_pComponentSystemManager->CreateGameObject( true, 1 );
         pGameObject->SetName( "Main Camera" );
+#if MYFW_RIGHTHANDED
         pGameObject->m_pComponentTransform->SetPosition( Vector3( 0, 0, 10 ) );
+#else
+        pGameObject->m_pComponentTransform->SetPosition( Vector3( 0, 0, -10 ) );
+#endif
 
         pComponentCamera = (ComponentCamera*)pGameObject->AddNewComponent( ComponentType_Camera, 1 );
         pComponentCamera->SetDesiredAspectRatio( 640, 960 );
@@ -1700,6 +1721,9 @@ void EngineCore::OnSurfaceChanged(unsigned int startx, unsigned int starty, unsi
     GameCore::OnSurfaceChanged( startx, starty, width, height );
 
     glEnable( GL_CULL_FACE );
+#if !MYFW_RIGHTHANDED
+    glFrontFace( GL_CW );
+#endif
     glEnable( GL_DEPTH_TEST );
 
     if( height == 0 || width == 0 )
@@ -1998,7 +2022,11 @@ void EngineCore::GetMouseRay(Vector2 mousepos, Vector3* start, Vector3* end)
     // Convert the mouse ray into world space from view space.
     MyMatrix invView = pCamera->m_Camera3D.m_matView;
     invView.Inverse();
+#if MYFW_RIGHTHANDED
     Vector3 rayworld = (invView * Vector4( rayview.x, rayview.y, -1, 0 )).XYZ();
+#else
+    Vector3 rayworld = (invView * Vector4( rayview.x, rayview.y, 1, 0 )).XYZ();
+#endif
 
     // define the ray.
     Vector3 raystart = pCamera->m_pComponentTransform->GetPosition();
