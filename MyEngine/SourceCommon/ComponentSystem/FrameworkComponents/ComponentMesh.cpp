@@ -84,17 +84,20 @@ void ComponentMesh::FillPropertiesWindow(bool clear)
     {
         ComponentRenderable::FillPropertiesWindow( clear );
 
-        for( unsigned int i=0; i<m_pMesh->m_SubmeshList.Count(); i++ )
+        if( m_pMesh )
         {
-            const char* desc = "no material";
+            for( unsigned int i=0; i<m_pMesh->m_SubmeshList.Count(); i++ )
+            {
+                const char* desc = "no material";
 
-            char label[20];
-            sprintf_s( label, 20, "Material %d", i );
+                char label[20];
+                sprintf_s( label, 20, "Material %d", i );
 
-            if( m_MaterialList[i] != 0 )
-                desc = m_MaterialList[i]->GetName();
+                if( m_MaterialList[i] != 0 )
+                    desc = m_MaterialList[i]->GetName();
 
-            m_ControlID_Material[i] = g_pPanelWatch->AddPointerWithDescription( label, 0, desc, this, ComponentMesh::StaticOnDropMaterial );
+                m_ControlID_Material[i] = g_pPanelWatch->AddPointerWithDescription( label, 0, desc, this, ComponentMesh::StaticOnDropMaterial );
+            }
         }
 
         g_pPanelWatch->AddEnum( "Primitive Type", &m_GLPrimitiveType, 7, OpenGLPrimitiveTypeStrings, this, StaticOnValueChanged );

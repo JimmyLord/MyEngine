@@ -89,6 +89,8 @@ void ComponentMeshOBJ::OnDropOBJ(int controlid, wxCoord x, wxCoord y)
             // update the panel so new OBJ name shows up.
             g_pPanelWatch->m_pVariables[g_DragAndDropStruct.m_ID].m_Description = m_pMesh->m_pSourceFile->m_FullPath;
         }
+
+        g_pPanelWatch->m_NeedsRefresh = true;
     }
 }
 #endif //MYFW_USING_WX

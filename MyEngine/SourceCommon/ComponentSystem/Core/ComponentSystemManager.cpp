@@ -929,7 +929,6 @@ void ComponentSystemManager::DeleteGameObject(GameObject* pObject, bool deleteco
 #if MYFW_USING_WX
 GameObject* ComponentSystemManager::EditorCopyGameObject(GameObject* pObject)
 {
-    // add the undo action, don't reperform it, it's done above.
     EditorCommand_CopyGameObject* pCommand = MyNew EditorCommand_CopyGameObject( pObject );
     g_pEngineMainFrame->m_pCommandStack->Do( pCommand );
 

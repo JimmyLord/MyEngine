@@ -13,6 +13,8 @@ GameObject::GameObject(bool managed, int sceneid)
 {
     ClassnameSanityCheck();
 
+    m_pGameObjectThisInheritsFrom = 0;
+
     m_Enabled = true;
     m_SceneID = sceneid;
     m_ID = 0;
@@ -101,16 +103,22 @@ void GameObject::OnLeftClick(unsigned int count, bool clear)
         g_pPanelWatch->ClearAllVariables();
 
     // show the gameobject name and an enabled checkbox.
+    char tempname[100];
     if( m_Enabled )
     {
-        g_pPanelWatch->AddSpace( m_Name, this, GameObject::StaticOnTitleLabelClicked );
+        if( m_pGameObjectThisInheritsFrom == 0 )
+            snprintf_s( tempname, 100, "%s", m_Name );
+        else
+            snprintf_s( tempname, 100, "%s (%s)", m_Name, m_pGameObjectThisInheritsFrom->m_Name );
     }
     else
     {
-        char tempname[100];
-        snprintf_s( tempname, 100, "** DISABLED ** %s ** DISABLED **", m_Name );
-        g_pPanelWatch->AddSpace( tempname, this, GameObject::StaticOnTitleLabelClicked );
+        if( m_pGameObjectThisInheritsFrom == 0 )
+            snprintf_s( tempname, 100, "** DISABLED ** %s ** DISABLED **", m_Name );
+        else
+            snprintf_s( tempname, 100, "** DISABLED ** %s (%s) ** DISABLED **", m_Name, m_pGameObjectThisInheritsFrom->m_Name );
     }
+    g_pPanelWatch->AddSpace( tempname, this, GameObject::StaticOnTitleLabelClicked );
 
     m_pComponentTransform->FillPropertiesWindow( false );
     for( unsigned int i=0; i<m_Components.Count(); i++ )
@@ -127,7 +135,15 @@ void GameObject::OnRightClick()
     wxMenu* categorymenu = 0;
     const char* lastcategory = 0;
 
-    menu.Append( 1000, "Duplicate GameObject" ); // matches 1000 in OnPopupClick()
+    // if there are ever more than 1000 component types?!? increase the RightClick_* initial value in header.
+    MyAssert( g_pComponentTypeManager->GetNumberOfComponentTypes() < RightClick_DuplicateGameObject );
+
+    menu.Append( RightClick_DuplicateGameObject, "Duplicate GameObject" );
+    menu.Append( RightClick_CreateChild, "Create Child GameObject" );
+    if( m_pGameObjectThisInheritsFrom )
+    {
+        menu.Append( RightClick_ClearParent, "Clear Parent" );
+    }
 
     unsigned int numtypes = g_pComponentTypeManager->GetNumberOfComponentTypes();
     for( unsigned int i=0; i<numtypes; i++ )
@@ -143,7 +159,7 @@ void GameObject::OnRightClick()
         lastcategory = g_pComponentTypeManager->GetTypeCategory( i );
     }
     
-    menu.Append( 1001, "Delete GameObject" ); // matches 1001 in OnPopupClick()
+    menu.Append( RightClick_DeleteGameObject, "Delete GameObject" );
 
     menu.Connect( wxEVT_COMMAND_MENU_SELECTED, (wxObjectEventFunction)&GameObject::OnPopupClick );
     
@@ -169,11 +185,20 @@ void GameObject::OnPopupClick(wxEvent &evt)
         else
             pGameObject->AddNewComponent( type, 0 );
     }
-    else if( id == 1000 ) // "Duplicate GameObject"
+    else if( id == RightClick_DuplicateGameObject )
     {
         g_pComponentSystemManager->EditorCopyGameObject( pGameObject );
     }
-    else if( id == 1001 ) // "Delete GameObject"
+    else if( id == RightClick_CreateChild )
+    {
+        GameObject* pNewObject = g_pComponentSystemManager->EditorCopyGameObject( pGameObject );
+        pNewObject->m_pGameObjectThisInheritsFrom = pGameObject;
+    }
+    else if( id == RightClick_ClearParent )
+    {
+        m_pGameObjectThisInheritsFrom = 0;
+    }
+    else if( id == RightClick_DeleteGameObject )
     {
         EditorState* pEditorState = g_pEngineCore->m_pEditorState;
 
@@ -228,6 +253,9 @@ cJSON* GameObject::ExportAsJSONObject(bool savesceneid)
 {
     cJSON* jGameObject = cJSON_CreateObject();
 
+    if( m_pGameObjectThisInheritsFrom )
+        cJSON_AddItemToObject( jGameObject, "ParentGO", m_pGameObjectThisInheritsFrom->ExportReferenceAsJSONObject( m_SceneID ) );
+
     if( m_Enabled == false )
         cJSON_AddNumberToObject( jGameObject, "Enabled", m_Enabled );
 
@@ -242,9 +270,20 @@ cJSON* GameObject::ExportAsJSONObject(bool savesceneid)
 
 void GameObject::ImportFromJSONObject(cJSON* jGameObject, unsigned int sceneid)
 {
+    cJSON* obj;
+
+    obj = cJSON_GetObjectItem( jGameObject, "ParentGO" );
+    if( obj )
+    {
+        m_pGameObjectThisInheritsFrom = g_pComponentSystemManager->FindGameObjectByJSONRef( obj );
+
+        // if this trips, then other object might be loaded after this or come from another scene that isn't loaded.
+        MyAssert( m_pGameObjectThisInheritsFrom != 0 );
+    }
+
     cJSONExt_GetUnsignedInt( jGameObject, "ID", &m_ID );
 
-    cJSON* obj = cJSON_GetObjectItem( jGameObject, "Name" );
+    obj = cJSON_GetObjectItem( jGameObject, "Name" );
     if( obj )
     {
         SetName( obj->valuestring );

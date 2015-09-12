@@ -25,6 +25,8 @@ class GameObject : public CPPListNode
     static const int MAX_COMPONENTS = 4; // TODO: fix this hardcodedness
 
 protected:
+    GameObject* m_pGameObjectThisInheritsFrom; // if set, only differing values get saved.
+
     bool m_Enabled;
     unsigned int m_SceneID; // 0 for runtime generated.
     unsigned int m_ID;
@@ -90,6 +92,14 @@ public:
 
 public:
 #if MYFW_USING_WX
+    enum RightClickOptions
+    {
+        RightClick_DuplicateGameObject = 1000,
+        RightClick_CreateChild,
+        RightClick_ClearParent,
+        RightClick_DeleteGameObject,
+    };
+
     static void StaticOnTitleLabelClicked(void* pObjectPtr, int controlid, bool finishedchanging, double oldvalue) { ((GameObject*)pObjectPtr)->OnTitleLabelClicked( controlid, finishedchanging ); }
     void OnTitleLabelClicked(int controlid, bool finishedchanging);
 
