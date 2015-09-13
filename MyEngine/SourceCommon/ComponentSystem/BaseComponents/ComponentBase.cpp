@@ -36,6 +36,10 @@ ComponentBase::~ComponentBase()
     // if it's in a list, remove it.
     if( this->Prev != 0 )
         Remove();
+
+#if MYFW_USING_WX
+    ClearAllVariables();
+#endif
 }
 
 void ComponentBase::Reset()
@@ -74,6 +78,51 @@ void ComponentBase::SetEnabled(bool enabled)
         RegisterCallbacks();
     else
         UnregisterCallbacks();
+}
+
+CPPListHead ComponentBase::m_ComponentVariableList;
+
+void ComponentBase::ClearAllVariables()
+{
+    while( CPPListNode* pNode = m_ComponentVariableList.GetHead() )
+    {
+        ComponentVariable* pVariable = (ComponentVariable*)pNode;
+        pVariable->Remove();
+        delete pVariable;
+    }
+}
+
+void ComponentBase::AddVariable(const char* label, ComponentVariableTypes type, size_t offset)
+{
+    ComponentVariable* pVariable = MyNew ComponentVariable( label, type, offset );
+    m_ComponentVariableList.AddTail( pVariable );
+}
+
+void ComponentBase::ImportVariablesFromJSON(cJSON* jsonobj)
+{
+    for( CPPListNode* pNode = m_ComponentVariableList.GetHead(); pNode; pNode = pNode->GetNext() )
+    {
+        ComponentVariable* pVar = (ComponentVariable*)pNode;
+
+        if( pVar->m_Offset != -1 )
+        {
+            if( pVar->m_Type == ComponentVariableType_Vector3 )
+            {
+                cJSONExt_GetFloatArray( jsonobj, pVar->m_Label, (float*)((char*)this + pVar->m_Offset), 3 );
+            }
+
+            if( pVar->m_Type == ComponentVariableType_GameObjectPtr )
+            {
+                unsigned int parentid = 0;
+                cJSONExt_GetUnsignedInt( jsonobj, pVar->m_Label, &parentid );
+                if( parentid != 0 )
+                {
+                    GameObject* pParentGameObject = g_pComponentSystemManager->FindGameObjectByID( m_SceneIDLoadedFrom, parentid );
+                    *(GameObject**)((char*)this + pVar->m_Offset) = pParentGameObject;
+                }
+            }
+        }
+    }
 }
 
 #if MYFW_USING_WX

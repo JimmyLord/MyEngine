@@ -17,9 +17,11 @@ ComponentTransform::ComponentTransform()
 : ComponentBase()
 {
     ClassnameSanityCheck();
+    RegisterVariables( this );
 
     m_BaseType = BaseComponentType_Data;
 
+    m_pParentGameObject = 0;
     m_pParentTransform = 0;
 
     m_pPositionChangedCallbackList.AllocateObjects( MAX_REGISTERED_CALLBACKS );
@@ -32,15 +34,24 @@ ComponentTransform::~ComponentTransform()
     // if we had an parent transform, stop it's gameobject from reporting it's deletion.
     if( m_pParentTransform != 0 )
     {
+        MyAssert( m_pParentGameObject == m_pParentTransform->m_pGameObject );
         m_pParentTransform->m_pGameObject->UnregisterOnDeleteCallback( this, StaticOnGameObjectDeleted );
     }
 }
 
 void ComponentTransform::Reset()
 {
+    // if we had an parent transform, stop it's gameobject from reporting it's deletion.
+    if( m_pParentTransform != 0 )
+    {
+        MyAssert( m_pParentGameObject == m_pParentTransform->m_pGameObject );
+        m_pParentTransform->m_pGameObject->UnregisterOnDeleteCallback( this, StaticOnGameObjectDeleted );
+    }
+
     ComponentBase::Reset();
 
     m_Transform.SetIdentity();
+    m_pParentGameObject = 0;
     m_pParentTransform = 0;
 
     m_LocalTransform.SetIdentity();
@@ -52,6 +63,33 @@ void ComponentTransform::Reset()
     m_ControlID_ParentTransform = -1;
     m_pPanelWatchBlockVisible = &m_PanelWatchBlockVisible;
 #endif //MYFW_USING_WX
+}
+
+// a simple runtime version of offsetof, should be safe with non-POD types, I think.
+int MyOffsetOf(void* pObject, void* pMember)
+{
+    return (char*)pMember - (char*)pObject;
+}
+
+void ComponentTransform::RegisterVariables(ComponentTransform* pThis)
+{
+    if( m_ComponentVariableList.GetHead() != 0 )
+        return;
+
+    // just want to make sure these are the same on all compilers.  They should be since this is a simple class.
+    MyAssert( offsetof( ComponentTransform, m_pParentGameObject ) == MyOffsetOf( pThis, &pThis->m_pParentGameObject ) );
+    MyAssert( offsetof( ComponentTransform, m_Position )          == MyOffsetOf( pThis, &pThis->m_Position )          );
+    MyAssert( offsetof( ComponentTransform, m_Scale )             == MyOffsetOf( pThis, &pThis->m_Scale )             );
+    MyAssert( offsetof( ComponentTransform, m_Rotation )          == MyOffsetOf( pThis, &pThis->m_Rotation )          );
+
+    //AddVariable( "ParentGOID",  ComponentVariableType_GameObjectPtr,    offsetof( ComponentTransform, m_pParentGameObject ) );
+    //AddVariable( "Pos",         ComponentVariableType_Vector3,          offsetof( ComponentTransform, m_Position )          );
+    //AddVariable( "Scale",       ComponentVariableType_Vector3,          offsetof( ComponentTransform, m_Scale )             );
+    //AddVariable( "Rot",         ComponentVariableType_Vector3,          offsetof( ComponentTransform, m_Rotation )          );
+    AddVariable( "ParentGOID",  ComponentVariableType_GameObjectPtr,    MyOffsetOf( pThis, &pThis->m_pParentGameObject ) );
+    AddVariable( "Pos",         ComponentVariableType_Vector3,          MyOffsetOf( pThis, &pThis->m_Position )          );
+    AddVariable( "Scale",       ComponentVariableType_Vector3,          MyOffsetOf( pThis, &pThis->m_Scale )             );
+    AddVariable( "Rot",         ComponentVariableType_Vector3,          MyOffsetOf( pThis, &pThis->m_Rotation )          );
 }
 
 void ComponentTransform::LuaRegister(lua_State* luastate)
@@ -109,7 +147,10 @@ void ComponentTransform::FillPropertiesWindow(bool clear)
 
         const char* desc = "none";
         if( m_pParentTransform )
+        {
+            MyAssert( m_pParentGameObject == m_pParentTransform->m_pGameObject );
             desc = m_pParentTransform->m_pGameObject->GetName();
+        }
         m_ControlID_ParentTransform = g_pPanelWatch->AddPointerWithDescription( "Parent transform", m_pParentTransform, desc, this, ComponentTransform::StaticOnDropTransform, ComponentTransform::StaticOnValueChanged );
 
         g_pPanelWatch->AddVector3( "Pos", &m_Position, 0.0f, 0.0f, this, ComponentTransform::StaticOnValueChanged );
@@ -173,11 +214,36 @@ cJSON* ComponentTransform::ExportAsJSONObject(bool savesceneid)
 {
     cJSON* component = ComponentBase::ExportAsJSONObject( savesceneid );
 
-    if( m_pParentTransform )
-        cJSON_AddNumberToObject( component, "ParentGOID", m_pParentTransform->m_pGameObject->GetID() );
-    cJSONExt_AddFloatArrayToObject( component, "Pos", &m_Position.x, 3 );
-    cJSONExt_AddFloatArrayToObject( component, "Scale", &m_Scale.x, 3 );
-    cJSONExt_AddFloatArrayToObject( component, "Rot", &m_Rotation.x, 3 );
+    //if( m_pParentTransform )
+    //{
+    //    MyAssert( m_pParentGameObject == m_pParentTransform->m_pGameObject );
+    //    cJSON_AddNumberToObject( component, "ParentGOID", m_pParentTransform->m_pGameObject->GetID() );
+    //}
+    //cJSONExt_AddFloatArrayToObject( component, "Pos", &m_Position.x, 3 );
+    //cJSONExt_AddFloatArrayToObject( component, "Scale", &m_Scale.x, 3 );
+    //cJSONExt_AddFloatArrayToObject( component, "Rot", &m_Rotation.x, 3 );
+
+    for( CPPListNode* pNode = m_ComponentVariableList.GetHead(); pNode; pNode = pNode->GetNext() )
+    {
+        ComponentVariable* pVar = (ComponentVariable*)pNode;
+
+        if( pVar->m_Offset != -1 )
+        {
+            if( pVar->m_Type == ComponentVariableType_Vector3 )
+            {
+                cJSONExt_AddFloatArrayToObject( component, pVar->m_Label, (float*)((char*)this + pVar->m_Offset), 3 );
+            }
+
+            if( pVar->m_Type == ComponentVariableType_GameObjectPtr )
+            {
+                GameObject* pParentGameObject = *(GameObject**)((char*)this + pVar->m_Offset);
+                if( pParentGameObject )
+                {
+                    cJSON_AddNumberToObject( component, pVar->m_Label, pParentGameObject->GetID() );
+                }
+            }
+        }
+    }
 
     return component;
 }
@@ -186,19 +252,29 @@ void ComponentTransform::ImportFromJSONObject(cJSON* jsonobj, unsigned int scene
 {
     ComponentBase::ImportFromJSONObject( jsonobj, sceneid );
 
-    unsigned int parentid = 0;
-    cJSONExt_GetUnsignedInt( jsonobj, "ParentGOID", &parentid );
-    if( parentid != 0 )
-    {
-        GameObject* pParentGameObject = g_pComponentSystemManager->FindGameObjectByID( sceneid, parentid );
-        MyAssert( pParentGameObject );
-        if( pParentGameObject )
-            SetParent( pParentGameObject->m_pComponentTransform );
-    }
+    //unsigned int parentid = 0;
+    //cJSONExt_GetUnsignedInt( jsonobj, "ParentGOID", &parentid );
+    //if( parentid != 0 )
+    //{
+    //    GameObject* pParentGameObject = g_pComponentSystemManager->FindGameObjectByID( sceneid, parentid );
+    //    MyAssert( pParentGameObject );
+    //    if( pParentGameObject )
+    //        SetParent( pParentGameObject->m_pComponentTransform );
+    //}
 
-    cJSONExt_GetFloatArray( jsonobj, "Pos", &m_Position.x, 3 );
-    cJSONExt_GetFloatArray( jsonobj, "Scale", &m_Scale.x, 3 );
-    cJSONExt_GetFloatArray( jsonobj, "Rot", &m_Rotation.x, 3 );
+    //cJSONExt_GetFloatArray( jsonobj, "Pos", &m_Position.x, 3 );
+    //cJSONExt_GetFloatArray( jsonobj, "Scale", &m_Scale.x, 3 );
+    //cJSONExt_GetFloatArray( jsonobj, "Rot", &m_Rotation.x, 3 );
+
+    //AddVariable( "ParentGOID",  ComponentVariableType_GameObject,   -1                                                  );
+    //AddVariable( "Pos",         ComponentVariableType_Vector3,      offsetof( ComponentTransform, m_Position )          );
+    //AddVariable( "Scale",       ComponentVariableType_Vector3,      offsetof( ComponentTransform, m_Scale )             );
+    //AddVariable( "Rot",         ComponentVariableType_Vector3,      offsetof( ComponentTransform, m_Rotation )          );
+
+    ImportVariablesFromJSON( jsonobj );
+
+    if( m_pParentGameObject )
+        SetParent( m_pParentGameObject->m_pComponentTransform );
 
     m_LocalTransform.CreateSRT( m_Scale, m_Rotation, m_Position );
     UpdateMatrix();
@@ -211,6 +287,7 @@ ComponentTransform& ComponentTransform::operator=(const ComponentTransform& othe
     ComponentBase::operator=( other );
 
     this->m_Transform = other.m_Transform;
+    this->m_pParentGameObject = other.m_pParentGameObject;
     this->m_pParentTransform = other.m_pParentTransform;
 
     this->m_LocalTransform = other.m_LocalTransform;
@@ -272,6 +349,7 @@ void ComponentTransform::SetParent(ComponentTransform* pNewParent, bool unregist
     if( pNewParent == 0 || pNewParent == this )
     {
         m_LocalTransform = m_Transform;
+        m_pParentGameObject = 0;
         m_pParentTransform = 0;
     }
     else
@@ -280,6 +358,7 @@ void ComponentTransform::SetParent(ComponentTransform* pNewParent, bool unregist
         matparent.Inverse();
         m_LocalTransform = matparent * m_Transform;
 
+        m_pParentGameObject = pNewParent->m_pGameObject;
         m_pParentTransform = pNewParent;
 
         // register this component with the gameobject of the parent to notify us of it's deletion.

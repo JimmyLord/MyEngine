@@ -395,7 +395,7 @@ void ComponentLuaScript::ImportFromJSONObject(cJSON* jsonobj, unsigned int scene
             cJSON* obj = cJSON_GetObjectItem( jsonvar, "Value" );
             if( obj )
             {
-                pVar->pointer = g_pComponentSystemManager->FindGameObjectByJSONRef( obj );
+                pVar->pointer = g_pComponentSystemManager->FindGameObjectByJSONRef( obj, m_pGameObject->GetSceneID() );
                 ((GameObject*)pVar->pointer)->RegisterOnDeleteCallback( this, StaticOnGameObjectDeleted );
                 //pVar->pointer = g_pComponentSystemManager->FindGameObjectByName( obj->valuestring );
             }

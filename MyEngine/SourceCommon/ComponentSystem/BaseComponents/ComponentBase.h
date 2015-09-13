@@ -24,6 +24,42 @@ enum BaseComponentTypes
     BaseComponentType_NumTypes = BaseComponentType_None
 };
 
+enum ComponentVariableTypes
+{
+    ComponentVariableType_Int,
+    ComponentVariableType_UnsignedInt,
+    ComponentVariableType_Char,
+    ComponentVariableType_UnsignedChar,
+    ComponentVariableType_Bool,
+    ComponentVariableType_Float,
+    ComponentVariableType_Double,
+    ComponentVariableType_ColorFloat,
+    ComponentVariableType_ColorByte,
+
+    ComponentVariableType_Vector3,
+
+    ComponentVariableType_GameObjectPtr,
+    ComponentVariableType_ComponentPtr,
+
+    ComponentVariableType_NumTypes,
+};
+
+class ComponentVariable : public CPPListNode
+{
+public:
+    const char* m_Label;
+    ComponentVariableTypes m_Type;
+    size_t m_Offset; // offset into class of the variable.
+
+public:
+    ComponentVariable(const char* label, ComponentVariableTypes type, size_t offset)
+    {
+        m_Label = label;
+        m_Type = type;
+        m_Offset = offset;
+    }
+};
+
 class ComponentBase : public CPPListNode
 #if MYFW_USING_WX
 , public wxEvtHandler
@@ -71,8 +107,14 @@ public:
     unsigned int GetSceneID() { return m_SceneIDLoadedFrom; }
     unsigned int GetID() { return m_ID; }
 
-public:
+protected:
+    static CPPListHead m_ComponentVariableList; // ComponentVariable type
+    static void ClearAllVariables();
+    static void AddVariable(const char* label, ComponentVariableTypes type, size_t offset);
+    void ImportVariablesFromJSON(cJSON* jsonobj);
+
 #if MYFW_USING_WX
+public:
     // to show/hide the components controls in watch panel
     //static bool m_PanelWatchBlockVisible; // each class needs it's own static bool, so if one component of this type is off, they all are.
     bool* m_pPanelWatchBlockVisible; // pointer to the bool above, must be set by each component.

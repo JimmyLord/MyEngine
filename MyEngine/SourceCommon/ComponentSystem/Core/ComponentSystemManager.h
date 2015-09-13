@@ -166,7 +166,7 @@ public:
 
     GameObject* FindGameObjectByID(unsigned int sceneid, unsigned int goid);
     GameObject* FindGameObjectByName(const char* name);
-    GameObject* FindGameObjectByJSONRef(cJSON* pJSONGameObjectRef);
+    GameObject* FindGameObjectByJSONRef(cJSON* pJSONGameObjectRef, unsigned int defaultsceneid);
     ComponentCamera* GetFirstCamera();
     ComponentBase* GetFirstComponentOfType(const char* type);
     ComponentBase* GetNextComponentOfType(ComponentBase* pLastComponent);

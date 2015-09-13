@@ -24,6 +24,7 @@ class ComponentTransform : public ComponentBase
 public:
     MyMatrix m_Transform;
 
+    GameObject* m_pParentGameObject;
     ComponentTransform* m_pParentTransform;
 
 protected:
@@ -39,6 +40,7 @@ public:
     virtual ~ComponentTransform();
     SetClassnameBase( "TransformComponent" ); // only first 8 character count.
 
+    static void RegisterVariables(ComponentTransform* pThis);
     static void LuaRegister(lua_State* luastate);
 
     virtual cJSON* ExportAsJSONObject(bool savesceneid);

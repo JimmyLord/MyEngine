@@ -275,7 +275,7 @@ void GameObject::ImportFromJSONObject(cJSON* jGameObject, unsigned int sceneid)
     obj = cJSON_GetObjectItem( jGameObject, "ParentGO" );
     if( obj )
     {
-        m_pGameObjectThisInheritsFrom = g_pComponentSystemManager->FindGameObjectByJSONRef( obj );
+        m_pGameObjectThisInheritsFrom = g_pComponentSystemManager->FindGameObjectByJSONRef( obj, m_SceneID );
 
         // if this trips, then other object might be loaded after this or come from another scene that isn't loaded.
         MyAssert( m_pGameObjectThisInheritsFrom != 0 );

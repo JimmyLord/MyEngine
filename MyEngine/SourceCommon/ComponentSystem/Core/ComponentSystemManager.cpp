@@ -996,12 +996,12 @@ GameObject* ComponentSystemManager::FindGameObjectByName(const char* name)
     return 0;
 }
 
-GameObject* ComponentSystemManager::FindGameObjectByJSONRef(cJSON* pJSONGameObjectRef)
+GameObject* ComponentSystemManager::FindGameObjectByJSONRef(cJSON* pJSONGameObjectRef, unsigned int defaultsceneid)
 {
     // see GameObject::ExportReferenceAsJSONObject
 
     cJSON* jScenePath = cJSON_GetObjectItem( pJSONGameObjectRef, "Scene" );
-    unsigned int sceneid = -2;
+    unsigned int sceneid = defaultsceneid;
     if( jScenePath )
     {
         sceneid = GetSceneIDFromFullpath( jScenePath->valuestring );
@@ -1018,7 +1018,7 @@ GameObject* ComponentSystemManager::FindGameObjectByJSONRef(cJSON* pJSONGameObje
     {
         GameObject* pGameObject = (GameObject*)node;
 
-        if( (sceneid == -2 || pGameObject->GetSceneID() == sceneid) && pGameObject->GetID() == goid )
+        if( pGameObject->GetSceneID() == sceneid && pGameObject->GetID() == goid )
             return pGameObject;
     }
 
