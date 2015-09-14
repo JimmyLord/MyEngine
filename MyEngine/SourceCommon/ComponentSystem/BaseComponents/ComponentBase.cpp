@@ -92,17 +92,25 @@ void ComponentBase::ClearAllVariables()
     }
 }
 
-void ComponentBase::AddVariable(const char* label, ComponentVariableTypes type, size_t offset)
+void ComponentBase::AddVariable(const char* label, ComponentVariableTypes type, size_t offset, bool saveload, bool displayinwatch, const char* watchlabel)
 {
-    ComponentVariable* pVariable = MyNew ComponentVariable( label, type, offset );
+    ComponentVariable* pVariable = MyNew ComponentVariable( label, type, offset, saveload, displayinwatch, watchlabel );
     m_ComponentVariableList.AddTail( pVariable );
 }
 
-void ComponentBase::ImportVariablesFromJSON(cJSON* jsonobj)
+void ComponentBase::ImportVariablesFromJSON(cJSON* jsonobj, const char* singlelabeltoimport)
 {
     for( CPPListNode* pNode = m_ComponentVariableList.GetHead(); pNode; pNode = pNode->GetNext() )
     {
         ComponentVariable* pVar = (ComponentVariable*)pNode;
+        MyAssert( pVar );
+
+        if( pVar->m_SaveLoad == false )
+            continue;
+
+        // if we are looking for a single label to import, check if this is it.
+        if( singlelabeltoimport != 0 && strcmp( singlelabeltoimport, pVar->m_Label ) != 0 )
+            continue;
 
         if( pVar->m_Offset != -1 )
         {

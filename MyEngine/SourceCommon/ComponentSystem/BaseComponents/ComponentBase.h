@@ -50,13 +50,19 @@ public:
     const char* m_Label;
     ComponentVariableTypes m_Type;
     size_t m_Offset; // offset into class of the variable.
+    bool m_SaveLoad;
+    bool m_DisplayInWatch;
+    const char* m_WatchLabel; // if 0 will use m_Label if needed.
 
 public:
-    ComponentVariable(const char* label, ComponentVariableTypes type, size_t offset)
+    ComponentVariable(const char* label, ComponentVariableTypes type, size_t offset, bool saveload, bool displayinwatch, const char* watchlabel)
     {
         m_Label = label;
         m_Type = type;
         m_Offset = offset;
+        m_SaveLoad = saveload;
+        m_DisplayInWatch = displayinwatch;
+        m_WatchLabel = watchlabel;
     }
 };
 
@@ -110,8 +116,8 @@ public:
 protected:
     static CPPListHead m_ComponentVariableList; // ComponentVariable type
     static void ClearAllVariables();
-    static void AddVariable(const char* label, ComponentVariableTypes type, size_t offset);
-    void ImportVariablesFromJSON(cJSON* jsonobj);
+    static void AddVariable(const char* label, ComponentVariableTypes type, size_t offset, bool saveload, bool displayinwatch, const char* watchlabel);
+    void ImportVariablesFromJSON(cJSON* jsonobj, const char* singlelabeltoimport = 0);
 
 #if MYFW_USING_WX
 public:
