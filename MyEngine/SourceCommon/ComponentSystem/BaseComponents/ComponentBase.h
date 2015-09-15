@@ -53,9 +53,11 @@ public:
     bool m_SaveLoad;
     bool m_DisplayInWatch;
     const char* m_WatchLabel; // if 0 will use m_Label if needed.
+    PanelWatchCallbackValueChanged m_pOnValueChangedCallbackFunc;
+    int m_ControlID;
 
 public:
-    ComponentVariable(const char* label, ComponentVariableTypes type, size_t offset, bool saveload, bool displayinwatch, const char* watchlabel)
+    ComponentVariable(const char* label, ComponentVariableTypes type, size_t offset, bool saveload, bool displayinwatch, const char* watchlabel, PanelWatchCallbackValueChanged pOnValueChangedCallBackFunc)
     {
         m_Label = label;
         m_Type = type;
@@ -63,6 +65,10 @@ public:
         m_SaveLoad = saveload;
         m_DisplayInWatch = displayinwatch;
         m_WatchLabel = watchlabel;
+        if( m_WatchLabel == 0 )
+            m_WatchLabel = label;
+        m_pOnValueChangedCallbackFunc = pOnValueChangedCallBackFunc;
+        m_ControlID = -1;
     }
 };
 
@@ -116,19 +122,23 @@ public:
 protected:
     static CPPListHead m_ComponentVariableList; // ComponentVariable type
     static void ClearAllVariables();
-    static void AddVariable(const char* label, ComponentVariableTypes type, size_t offset, bool saveload, bool displayinwatch, const char* watchlabel);
+    static void AddVariable(const char* label, ComponentVariableTypes type, size_t offset, bool saveload, bool displayinwatch, const char* watchlabel, PanelWatchCallbackValueChanged pOnValueChangedCallBackFunc);
     void ImportVariablesFromJSON(cJSON* jsonobj, const char* singlelabeltoimport = 0);
 
 #if MYFW_USING_WX
 public:
+    virtual void AddToObjectsPanel(wxTreeItemId gameobjectid);
+
+    // if any variables value changed, then react.
+    static void StaticOnValueChanged(void* pObjectPtr, int controlid, bool finishedchanging, double oldvalue) { ((ComponentBase*)pObjectPtr)->OnValueChanged( controlid, finishedchanging, oldvalue ); }
+    void OnValueChanged(int controlid, bool finishedchanging, double oldvalue);
+
     // to show/hide the components controls in watch panel
     //static bool m_PanelWatchBlockVisible; // each class needs it's own static bool, so if one component of this type is off, they all are.
     bool* m_pPanelWatchBlockVisible; // pointer to the bool above, must be set by each component.
     int m_ControlID_ComponentTitleLabel;
     static void StaticOnComponentTitleLabelClicked(void* pObjectPtr, int controlid, bool finishedchanging, double oldvalue) { ((ComponentBase*)pObjectPtr)->OnComponentTitleLabelClicked( controlid, finishedchanging ); }
     void OnComponentTitleLabelClicked(int controlid, bool finishedchanging);
-
-    virtual void AddToObjectsPanel(wxTreeItemId gameobjectid);
 
     static void StaticOnLeftClick(void* pObjectPtr, wxTreeItemId id, unsigned int count) { ((ComponentBase*)pObjectPtr)->OnLeftClick( count, true ); }
     virtual void OnLeftClick(unsigned int count, bool clear);

@@ -92,9 +92,9 @@ void ComponentBase::ClearAllVariables()
     }
 }
 
-void ComponentBase::AddVariable(const char* label, ComponentVariableTypes type, size_t offset, bool saveload, bool displayinwatch, const char* watchlabel)
+void ComponentBase::AddVariable(const char* label, ComponentVariableTypes type, size_t offset, bool saveload, bool displayinwatch, const char* watchlabel, PanelWatchCallbackValueChanged pOnValueChangedCallBackFunc)
 {
-    ComponentVariable* pVariable = MyNew ComponentVariable( label, type, offset, saveload, displayinwatch, watchlabel );
+    ComponentVariable* pVariable = MyNew ComponentVariable( label, type, offset, saveload, displayinwatch, watchlabel, pOnValueChangedCallBackFunc );
     m_ComponentVariableList.AddTail( pVariable );
 }
 
@@ -138,6 +138,65 @@ void ComponentBase::AddToObjectsPanel(wxTreeItemId gameobjectid)
 {
     wxTreeItemId id = g_pPanelObjectList->AddObject( this, ComponentBase::StaticOnLeftClick, ComponentBase::StaticOnRightClick, gameobjectid, "Unknown component" );
     g_pPanelObjectList->SetDragAndDropFunctions( id, ComponentBase::StaticOnDrag, ComponentBase::StaticOnDrop );
+}
+
+void ComponentBase::OnValueChanged(int controlid, bool finishedchanging, double oldvalue)
+{
+    for( CPPListNode* pNode = m_ComponentVariableList.GetHead(); pNode; pNode = pNode->GetNext() )
+    {
+        ComponentVariable* pVar = (ComponentVariable*)pNode;
+        MyAssert( pVar );
+
+        if( pVar->m_ControlID == controlid ||
+            (pVar->m_Type == ComponentVariableType_Vector3 && (pVar->m_ControlID+1 == controlid || pVar->m_ControlID+2 == controlid) )
+          )
+        {
+            pVar->m_pOnValueChangedCallbackFunc( this, controlid, finishedchanging, oldvalue );
+
+            // find children of this gameobject and change their values as well, if their value matches the old value.
+            for( CPPListNode* pCompNode = g_pComponentSystemManager->m_GameObjects.GetHead(); pCompNode; pCompNode = pCompNode->GetNext() )
+            {
+                GameObject* pGameObject = (GameObject*)pCompNode;
+
+                if( pGameObject->GetGameObjectThisInheritsFrom() == this->m_pGameObject )
+                {
+                    // Found a game object, now find the matching component on it.
+                    for( unsigned int i=0; i<pGameObject->m_Components.Count()+1; i++ )
+                    {
+                        ComponentBase* pComponent;
+
+                        if( i == 0 )
+                            pComponent = pGameObject->m_pComponentTransform;
+                        else
+                            pComponent = pGameObject->m_Components[i-1];
+
+                        const char* pThisCompClassName = GetClassname();
+                        const char* pOtherCompClassName = pComponent->GetClassname();
+
+                        if( strcmp( pThisCompClassName, pOtherCompClassName ) == 0 )
+                        {
+                            // TODO: this will fail if multiple of the same component are on an object.
+
+                            // Found the matching component, now compare the variable.
+                            if( pVar->m_Type == ComponentVariableType_Vector3 )
+                            {
+                                // figure out which component of a multi-component control(e.g. vector3) this is.
+                                int controlcomponent = controlid - pVar->m_ControlID;
+
+                                int offset = pVar->m_Offset + controlcomponent*4;
+
+                                if( *(float*)((char*)pComponent + offset) == oldvalue )
+                                {
+                                    *(float*)((char*)pComponent + offset) = *(float*)((char*)this + offset);
+                                    pVar->m_pOnValueChangedCallbackFunc( pComponent, controlid, finishedchanging, oldvalue );
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
 
 void ComponentBase::OnComponentTitleLabelClicked(int id, bool finishedchanging)

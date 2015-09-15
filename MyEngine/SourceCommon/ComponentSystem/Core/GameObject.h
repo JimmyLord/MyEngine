@@ -25,7 +25,7 @@ class GameObject : public CPPListNode
     static const int MAX_COMPONENTS = 4; // TODO: fix this hardcodedness
 
 protected:
-    GameObject* m_pGameObjectThisInheritsFrom; // if set, only differing values get saved.
+    GameObject* m_pGameObjectThisInheritsFrom; // if set, any changes to the parent will be reflected in this object.
 
     bool m_Enabled;
     unsigned int m_SceneID; // 0 for runtime generated.
@@ -46,6 +46,8 @@ public:
     GameObject(bool managed, int sceneid);
     virtual ~GameObject();
     SetClassnameBase( "GameObject" ); // only first 8 character count.
+
+    GameObject* GetGameObjectThisInheritsFrom() { return m_pGameObjectThisInheritsFrom; }
 
     static void LuaRegister(lua_State* luastate);
 
