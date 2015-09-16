@@ -84,7 +84,7 @@ public:
 public:
 #if MYFW_USING_WX
     static bool m_PanelWatchBlockVisible;
-    int m_ControlID_ParentTransform;
+    //int m_ControlID_ParentTransform;
 
     bool IsAnyParentInList(std::vector<GameObject*>& gameobjects);
 
@@ -96,11 +96,11 @@ public:
     virtual void FillPropertiesWindow(bool clear);
 
     // Watch panel callbacks.
-    static void StaticOnDropTransform(void* pObjectPtr, int controlid, wxCoord x, wxCoord y) { ((ComponentTransform*)pObjectPtr)->OnDropTransform(controlid, x, y); }
-    void OnDropTransform(int controlid, wxCoord x, wxCoord y);
+    static void StaticOnDropTransform(void* pObjectPtr, ComponentVariable* pVar, wxCoord x, wxCoord y) { ((ComponentTransform*)pObjectPtr)->OnDropTransform(pVar, x, y); }
+    void OnDropTransform(ComponentVariable* pVar, wxCoord x, wxCoord y);
 
-    static void StaticOnValueChanged(void* pObjectPtr, int controlid, bool finishedchanging, double oldvalue) { ((ComponentTransform*)pObjectPtr)->OnValueChanged( controlid, finishedchanging ); }
-    void OnValueChanged(int controlid, bool finishedchanging);
+    static void StaticOnValueChanged(void* pObjectPtr, ComponentVariable* pVar, bool finishedchanging, double oldvalue) { ((ComponentTransform*)pObjectPtr)->OnValueChanged( pVar, finishedchanging ); }
+    void OnValueChanged(ComponentVariable* pVar, bool finishedchanging);
 #endif //MYFW_USING_WX
 };
 

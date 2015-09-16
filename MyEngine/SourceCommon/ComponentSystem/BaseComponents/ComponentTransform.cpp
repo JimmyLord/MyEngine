@@ -60,13 +60,13 @@ void ComponentTransform::Reset()
     m_Rotation.Set( 0,0,0 );
 
 #if MYFW_USING_WX
-    m_ControlID_ParentTransform = -1;
+    //m_ControlID_ParentTransform = -1;
     m_pPanelWatchBlockVisible = &m_PanelWatchBlockVisible;
 #endif //MYFW_USING_WX
 }
 
 // a simple runtime version of offsetof, should be safe with non-POD types, I think.
-int MyOffsetOf(void* pObject, void* pMember)
+size_t MyOffsetOf(void* pObject, void* pMember)
 {
     return (char*)pMember - (char*)pObject;
 }
@@ -88,11 +88,11 @@ void ComponentTransform::RegisterVariables(ComponentTransform* pThis)
     //AddVariable( "Scale",       ComponentVariableType_Vector3,          offsetof( ComponentTransform, m_Scale )             );
     //AddVariable( "Rot",         ComponentVariableType_Vector3,          offsetof( ComponentTransform, m_Rotation )          );
 
-    AddVariable( "ParentGOID",      ComponentVariableType_GameObjectPtr,    MyOffsetOf( pThis, &pThis->m_pParentGameObject ), true,  false, 0,                  ComponentTransform::StaticOnValueChanged );
-    AddVariable( "ParentTransform", ComponentVariableType_ComponentPtr,     MyOffsetOf( pThis, &pThis->m_pParentTransform ),  false,  true, "Parent Transform", ComponentTransform::StaticOnValueChanged );
-    AddVariable( "Pos",             ComponentVariableType_Vector3,          MyOffsetOf( pThis, &pThis->m_Position ),          true,   true, 0,                  ComponentTransform::StaticOnValueChanged );
-    AddVariable( "Scale",           ComponentVariableType_Vector3,          MyOffsetOf( pThis, &pThis->m_Scale ),             true,   true, 0,                  ComponentTransform::StaticOnValueChanged );
-    AddVariable( "Rot",             ComponentVariableType_Vector3,          MyOffsetOf( pThis, &pThis->m_Rotation ),          true,   true, 0,                  ComponentTransform::StaticOnValueChanged );
+    AddVariable( "ParentGOID",      ComponentVariableType_GameObjectPtr,    MyOffsetOf( pThis, &pThis->m_pParentGameObject ), true,  false, 0,                  ComponentTransform::StaticOnValueChanged, ComponentTransform::StaticOnDropTransform, 0 );
+    AddVariable( "ParentTransform", ComponentVariableType_ComponentPtr,     MyOffsetOf( pThis, &pThis->m_pParentTransform ),  false,  true, "Parent Transform", ComponentTransform::StaticOnValueChanged,                                         0, 0 );
+    AddVariable( "Pos",             ComponentVariableType_Vector3,          MyOffsetOf( pThis, &pThis->m_Position ),          true,   true, 0,                  ComponentTransform::StaticOnValueChanged,                                         0, 0 );
+    AddVariable( "Scale",           ComponentVariableType_Vector3,          MyOffsetOf( pThis, &pThis->m_Scale ),             true,   true, 0,                  ComponentTransform::StaticOnValueChanged,                                         0, 0 );
+    AddVariable( "Rot",             ComponentVariableType_Vector3,          MyOffsetOf( pThis, &pThis->m_Rotation ),          true,   true, 0,                  ComponentTransform::StaticOnValueChanged,                                         0, 0 );
 }
 
 void ComponentTransform::LuaRegister(lua_State* luastate)
@@ -160,44 +160,11 @@ void ComponentTransform::FillPropertiesWindow(bool clear)
         //g_pPanelWatch->AddVector3( "Scale", &m_Scale, 0.0f, 0.0f, this, ComponentTransform::StaticOnValueChanged );
         //g_pPanelWatch->AddVector3( "Rot", &m_Rotation, 0, 0, this, ComponentTransform::StaticOnValueChanged );
 
-        for( CPPListNode* pNode = m_ComponentVariableList.GetHead(); pNode; pNode = pNode->GetNext() )
-        {
-            ComponentVariable* pVar = (ComponentVariable*)pNode;
-            MyAssert( pVar );
-
-            if( pVar->m_DisplayInWatch == false )
-                continue;
-
-            if( pVar->m_Offset != -1 )
-            {
-                if( pVar->m_Type == ComponentVariableType_Vector3 )
-                {
-                    //g_pPanelWatch->AddVector3( pVar->m_WatchLabel, (Vector3*)((char*)this + pVar->m_Offset), 0.0f, 0.0f, this, ComponentTransform::StaticOnValueChanged );
-                    pVar->m_ControlID = g_pPanelWatch->AddVector3( pVar->m_WatchLabel, (Vector3*)((char*)this + pVar->m_Offset), 0.0f, 0.0f, this, ComponentBase::StaticOnValueChanged );
-                }
-
-                if( pVar->m_Type == ComponentVariableType_GameObjectPtr )
-                {
-                }
-
-                if( pVar->m_Type == ComponentVariableType_ComponentPtr )
-                {
-                    ComponentTransform* pTransformComponent = *(ComponentTransform**)((char*)this + pVar->m_Offset);
-
-                    const char* desc = "none";
-                    if( pTransformComponent )
-                    {
-                        desc = pTransformComponent->m_pGameObject->GetName();
-                    }
-
-                    m_ControlID_ParentTransform = g_pPanelWatch->AddPointerWithDescription( pVar->m_WatchLabel, pTransformComponent, desc, this, ComponentTransform::StaticOnDropTransform, ComponentTransform::StaticOnValueChanged );
-                }
-            }
-        }
+        FillPropertiesWindowWithVariables();
     }
 }
 
-void ComponentTransform::OnDropTransform(int controlid, wxCoord x, wxCoord y)
+void ComponentTransform::OnDropTransform(ComponentVariable* pVar, wxCoord x, wxCoord y)
 {
     ComponentTransform* pComponent = 0;
 
@@ -226,14 +193,16 @@ void ComponentTransform::OnDropTransform(int controlid, wxCoord x, wxCoord y)
     }
 }
 
-void ComponentTransform::OnValueChanged(int controlid, bool finishedchanging)
+void ComponentTransform::OnValueChanged(ComponentVariable* pVar, bool finishedchanging)
 {
-    if( controlid != -1 && controlid == m_ControlID_ParentTransform )
+    if( pVar->m_Offset == MyOffsetOf( this, &m_pParentTransform ) )
     {
-        wxString text = g_pPanelWatch->m_pVariables[m_ControlID_ParentTransform].m_Handle_TextCtrl->GetValue();
+        MyAssert( pVar->m_ControlID != -1 );
+
+        wxString text = g_pPanelWatch->m_pVariables[pVar->m_ControlID].m_Handle_TextCtrl->GetValue();
         if( text == "" )
         {
-            g_pPanelWatch->ChangeDescriptionForPointerWithDescription( m_ControlID_ParentTransform, "none" );
+            g_pPanelWatch->ChangeDescriptionForPointerWithDescription( pVar->m_ControlID, "none" );
             this->SetParent( 0 );
         }
     }
@@ -250,63 +219,16 @@ void ComponentTransform::OnValueChanged(int controlid, bool finishedchanging)
 
 cJSON* ComponentTransform::ExportAsJSONObject(bool savesceneid)
 {
-    cJSON* component = ComponentBase::ExportAsJSONObject( savesceneid );
+    cJSON* jComponent = ComponentBase::ExportAsJSONObject( savesceneid );
 
-    //if( m_pParentTransform )
-    //{
-    //    MyAssert( m_pParentGameObject == m_pParentTransform->m_pGameObject );
-    //    cJSON_AddNumberToObject( component, "ParentGOID", m_pParentTransform->m_pGameObject->GetID() );
-    //}
-    //cJSONExt_AddFloatArrayToObject( component, "Pos", &m_Position.x, 3 );
-    //cJSONExt_AddFloatArrayToObject( component, "Scale", &m_Scale.x, 3 );
-    //cJSONExt_AddFloatArrayToObject( component, "Rot", &m_Rotation.x, 3 );
+    ExportVariablesToJSON( jComponent );
 
-    for( CPPListNode* pNode = m_ComponentVariableList.GetHead(); pNode; pNode = pNode->GetNext() )
-    {
-        ComponentVariable* pVar = (ComponentVariable*)pNode;
-        MyAssert( pVar );
-
-        if( pVar->m_SaveLoad == false )
-            continue;
-
-        if( pVar->m_Offset != -1 )
-        {
-            if( pVar->m_Type == ComponentVariableType_Vector3 )
-            {
-                cJSONExt_AddFloatArrayToObject( component, pVar->m_Label, (float*)((char*)this + pVar->m_Offset), 3 );
-            }
-
-            if( pVar->m_Type == ComponentVariableType_GameObjectPtr )
-            {
-                GameObject* pParentGameObject = *(GameObject**)((char*)this + pVar->m_Offset);
-                if( pParentGameObject )
-                {
-                    cJSON_AddNumberToObject( component, pVar->m_Label, pParentGameObject->GetID() );
-                }
-            }
-        }
-    }
-
-    return component;
+    return jComponent;
 }
 
 void ComponentTransform::ImportFromJSONObject(cJSON* jsonobj, unsigned int sceneid)
 {
     ComponentBase::ImportFromJSONObject( jsonobj, sceneid );
-
-    //unsigned int parentid = 0;
-    //cJSONExt_GetUnsignedInt( jsonobj, "ParentGOID", &parentid );
-    //if( parentid != 0 )
-    //{
-    //    GameObject* pParentGameObject = g_pComponentSystemManager->FindGameObjectByID( sceneid, parentid );
-    //    MyAssert( pParentGameObject );
-    //    if( pParentGameObject )
-    //        SetParent( pParentGameObject->m_pComponentTransform );
-    //}
-
-    //cJSONExt_GetFloatArray( jsonobj, "Pos", &m_Position.x, 3 );
-    //cJSONExt_GetFloatArray( jsonobj, "Scale", &m_Scale.x, 3 );
-    //cJSONExt_GetFloatArray( jsonobj, "Rot", &m_Rotation.x, 3 );
 
     // import the parent goid, set the parent, then import the rest.
     ImportVariablesFromJSON( jsonobj, "ParentGOID" );

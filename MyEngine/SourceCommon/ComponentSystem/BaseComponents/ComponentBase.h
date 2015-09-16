@@ -44,6 +44,11 @@ enum ComponentVariableTypes
     ComponentVariableType_NumTypes,
 };
 
+class ComponentVariable;
+typedef void (*ComponentVariableCallback)(void*, ComponentVariable* pVar);
+typedef void (*ComponentVariableCallbackDropTarget)(void* pObjectPtr, ComponentVariable* pVar, wxCoord x, wxCoord y);
+typedef void (*ComponentVariableCallbackValueChanged)(void* pObjectPtr, ComponentVariable* pVar, bool finishedchanging, double oldvalue);
+
 class ComponentVariable : public CPPListNode
 {
 public:
@@ -53,11 +58,13 @@ public:
     bool m_SaveLoad;
     bool m_DisplayInWatch;
     const char* m_WatchLabel; // if 0 will use m_Label if needed.
-    PanelWatchCallbackValueChanged m_pOnValueChangedCallbackFunc;
+    ComponentVariableCallbackDropTarget m_pOnDropCallbackFunc;
+    ComponentVariableCallback m_pOnButtonPressedCallbackFunc;
+    ComponentVariableCallbackValueChanged m_pOnValueChangedCallbackFunc;
     int m_ControlID;
 
 public:
-    ComponentVariable(const char* label, ComponentVariableTypes type, size_t offset, bool saveload, bool displayinwatch, const char* watchlabel, PanelWatchCallbackValueChanged pOnValueChangedCallBackFunc)
+    ComponentVariable(const char* label, ComponentVariableTypes type, size_t offset, bool saveload, bool displayinwatch, const char* watchlabel, ComponentVariableCallbackValueChanged pOnValueChangedCallBackFunc, ComponentVariableCallbackDropTarget pOnDropCallBackFunc, ComponentVariableCallback pOnButtonPressedCallBackFunc)
     {
         m_Label = label;
         m_Type = type;
@@ -67,6 +74,8 @@ public:
         m_WatchLabel = watchlabel;
         if( m_WatchLabel == 0 )
             m_WatchLabel = label;
+        m_pOnDropCallbackFunc = pOnDropCallBackFunc;
+        m_pOnButtonPressedCallbackFunc = pOnButtonPressedCallBackFunc;
         m_pOnValueChangedCallbackFunc = pOnValueChangedCallBackFunc;
         m_ControlID = -1;
     }
@@ -122,7 +131,9 @@ public:
 protected:
     static CPPListHead m_ComponentVariableList; // ComponentVariable type
     static void ClearAllVariables();
-    static void AddVariable(const char* label, ComponentVariableTypes type, size_t offset, bool saveload, bool displayinwatch, const char* watchlabel, PanelWatchCallbackValueChanged pOnValueChangedCallBackFunc);
+    static void AddVariable(const char* label, ComponentVariableTypes type, size_t offset, bool saveload, bool displayinwatch, const char* watchlabel, ComponentVariableCallbackValueChanged pOnValueChangedCallBackFunc, ComponentVariableCallbackDropTarget pOnDropCallBackFunc, ComponentVariableCallback pOnButtonPressedCallBackFunc);
+    void FillPropertiesWindowWithVariables();
+    void ExportVariablesToJSON(cJSON* jComponent);
     void ImportVariablesFromJSON(cJSON* jsonobj, const char* singlelabeltoimport = 0);
 
 #if MYFW_USING_WX
@@ -130,8 +141,11 @@ public:
     virtual void AddToObjectsPanel(wxTreeItemId gameobjectid);
 
     // if any variables value changed, then react.
-    static void StaticOnValueChanged(void* pObjectPtr, int controlid, bool finishedchanging, double oldvalue) { ((ComponentBase*)pObjectPtr)->OnValueChanged( controlid, finishedchanging, oldvalue ); }
-    void OnValueChanged(int controlid, bool finishedchanging, double oldvalue);
+    static void StaticOnValueChangedVariable(void* pObjectPtr, int controlid, bool finishedchanging, double oldvalue) { ((ComponentBase*)pObjectPtr)->OnValueChangedVariable( controlid, finishedchanging, oldvalue ); }
+    void OnValueChangedVariable(int controlid, bool finishedchanging, double oldvalue);
+
+    static void StaticOnDropVariable(void* pObjectPtr, int controlid, wxCoord x, wxCoord y) { ((ComponentBase*)pObjectPtr)->OnDropVariable(controlid, x, y); }
+    void OnDropVariable(int controlid, wxCoord x, wxCoord y);
 
     // to show/hide the components controls in watch panel
     //static bool m_PanelWatchBlockVisible; // each class needs it's own static bool, so if one component of this type is off, they all are.

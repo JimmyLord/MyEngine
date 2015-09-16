@@ -92,10 +92,76 @@ void ComponentBase::ClearAllVariables()
     }
 }
 
-void ComponentBase::AddVariable(const char* label, ComponentVariableTypes type, size_t offset, bool saveload, bool displayinwatch, const char* watchlabel, PanelWatchCallbackValueChanged pOnValueChangedCallBackFunc)
+void ComponentBase::AddVariable(const char* label, ComponentVariableTypes type, size_t offset, bool saveload, bool displayinwatch, const char* watchlabel, ComponentVariableCallbackValueChanged pOnValueChangedCallBackFunc, ComponentVariableCallbackDropTarget pOnDropCallBackFunc, ComponentVariableCallback pOnButtonPressedCallBackFunc)
 {
-    ComponentVariable* pVariable = MyNew ComponentVariable( label, type, offset, saveload, displayinwatch, watchlabel, pOnValueChangedCallBackFunc );
+    ComponentVariable* pVariable = MyNew ComponentVariable( label, type, offset, saveload, displayinwatch, watchlabel, pOnValueChangedCallBackFunc, pOnDropCallBackFunc, pOnButtonPressedCallBackFunc );
     m_ComponentVariableList.AddTail( pVariable );
+}
+
+void ComponentBase::FillPropertiesWindowWithVariables()
+{
+    for( CPPListNode* pNode = m_ComponentVariableList.GetHead(); pNode; pNode = pNode->GetNext() )
+    {
+        ComponentVariable* pVar = (ComponentVariable*)pNode;
+        MyAssert( pVar );
+
+        if( pVar->m_DisplayInWatch == false )
+            continue;
+
+        if( pVar->m_Offset != -1 )
+        {
+            if( pVar->m_Type == ComponentVariableType_Vector3 )
+            {
+                pVar->m_ControlID = g_pPanelWatch->AddVector3( pVar->m_WatchLabel, (Vector3*)((char*)this + pVar->m_Offset), 0.0f, 0.0f, this, ComponentBase::StaticOnValueChangedVariable );
+            }
+
+            if( pVar->m_Type == ComponentVariableType_GameObjectPtr )
+            {
+            }
+
+            if( pVar->m_Type == ComponentVariableType_ComponentPtr )
+            {
+                ComponentTransform* pTransformComponent = *(ComponentTransform**)((char*)this + pVar->m_Offset);
+
+                const char* desc = "none";
+                if( pTransformComponent )
+                {
+                    desc = pTransformComponent->m_pGameObject->GetName();
+                }
+
+                pVar->m_ControlID = g_pPanelWatch->AddPointerWithDescription( pVar->m_WatchLabel, pTransformComponent, desc, this, ComponentBase::StaticOnDropVariable, ComponentBase::StaticOnValueChangedVariable );
+            }
+        }
+    }
+}
+
+void ComponentBase::ExportVariablesToJSON(cJSON* jComponent)
+{
+    for( CPPListNode* pNode = m_ComponentVariableList.GetHead(); pNode; pNode = pNode->GetNext() )
+    {
+        ComponentVariable* pVar = (ComponentVariable*)pNode;
+        MyAssert( pVar );
+
+        if( pVar->m_SaveLoad == false )
+            continue;
+
+        if( pVar->m_Offset != -1 )
+        {
+            if( pVar->m_Type == ComponentVariableType_Vector3 )
+            {
+                cJSONExt_AddFloatArrayToObject( jComponent, pVar->m_Label, (float*)((char*)this + pVar->m_Offset), 3 );
+            }
+
+            if( pVar->m_Type == ComponentVariableType_GameObjectPtr )
+            {
+                GameObject* pParentGameObject = *(GameObject**)((char*)this + pVar->m_Offset);
+                if( pParentGameObject )
+                {
+                    cJSON_AddNumberToObject( jComponent, pVar->m_Label, pParentGameObject->GetID() );
+                }
+            }
+        }
+    }
 }
 
 void ComponentBase::ImportVariablesFromJSON(cJSON* jsonobj, const char* singlelabeltoimport)
@@ -140,7 +206,7 @@ void ComponentBase::AddToObjectsPanel(wxTreeItemId gameobjectid)
     g_pPanelObjectList->SetDragAndDropFunctions( id, ComponentBase::StaticOnDrag, ComponentBase::StaticOnDrop );
 }
 
-void ComponentBase::OnValueChanged(int controlid, bool finishedchanging, double oldvalue)
+void ComponentBase::OnValueChangedVariable(int controlid, bool finishedchanging, double oldvalue)
 {
     for( CPPListNode* pNode = m_ComponentVariableList.GetHead(); pNode; pNode = pNode->GetNext() )
     {
@@ -151,7 +217,7 @@ void ComponentBase::OnValueChanged(int controlid, bool finishedchanging, double 
             (pVar->m_Type == ComponentVariableType_Vector3 && (pVar->m_ControlID+1 == controlid || pVar->m_ControlID+2 == controlid) )
           )
         {
-            pVar->m_pOnValueChangedCallbackFunc( this, controlid, finishedchanging, oldvalue );
+            pVar->m_pOnValueChangedCallbackFunc( this, pVar, finishedchanging, oldvalue );
 
             // find children of this gameobject and change their values as well, if their value matches the old value.
             for( CPPListNode* pCompNode = g_pComponentSystemManager->m_GameObjects.GetHead(); pCompNode; pCompNode = pCompNode->GetNext() )
@@ -188,13 +254,31 @@ void ComponentBase::OnValueChanged(int controlid, bool finishedchanging, double 
                                 if( *(float*)((char*)pComponent + offset) == oldvalue )
                                 {
                                     *(float*)((char*)pComponent + offset) = *(float*)((char*)this + offset);
-                                    pVar->m_pOnValueChangedCallbackFunc( pComponent, controlid, finishedchanging, oldvalue );
+                                    pVar->m_pOnValueChangedCallbackFunc( pComponent, pVar, finishedchanging, oldvalue );
                                 }
                             }
                         }
                     }
                 }
             }
+        }
+    }
+}
+
+void ComponentBase::OnDropVariable(int controlid, wxCoord x, wxCoord y)
+{
+    for( CPPListNode* pNode = m_ComponentVariableList.GetHead(); pNode; pNode = pNode->GetNext() )
+    {
+        ComponentVariable* pVar = (ComponentVariable*)pNode;
+        MyAssert( pVar );
+
+        if( pVar->m_ControlID == controlid ||
+            (pVar->m_Type == ComponentVariableType_Vector3 && (pVar->m_ControlID+1 == controlid || pVar->m_ControlID+2 == controlid) )
+          )
+        {
+            pVar->m_pOnDropCallbackFunc( this, pVar, x, y );
+
+            // TODO: propagate change down to child objects...
         }
     }
 }
