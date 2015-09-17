@@ -46,7 +46,7 @@ enum ComponentVariableTypes
 
 class ComponentVariable;
 typedef void (*ComponentVariableCallback)(void*, ComponentVariable* pVar);
-typedef void (*ComponentVariableCallbackDropTarget)(void* pObjectPtr, ComponentVariable* pVar, wxCoord x, wxCoord y);
+typedef void* (*ComponentVariableCallbackDropTarget)(void* pObjectPtr, ComponentVariable* pVar, wxCoord x, wxCoord y);
 typedef void (*ComponentVariableCallbackValueChanged)(void* pObjectPtr, ComponentVariable* pVar, bool finishedchanging, double oldvalue);
 
 class ComponentVariable : public CPPListNode

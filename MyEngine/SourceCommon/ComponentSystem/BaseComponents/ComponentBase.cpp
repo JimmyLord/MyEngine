@@ -276,7 +276,7 @@ void ComponentBase::OnDropVariable(int controlid, wxCoord x, wxCoord y)
             (pVar->m_Type == ComponentVariableType_Vector3 && (pVar->m_ControlID+1 == controlid || pVar->m_ControlID+2 == controlid) )
           )
         {
-            pVar->m_pOnDropCallbackFunc( this, pVar, x, y );
+            void* oldvalue = pVar->m_pOnDropCallbackFunc( this, pVar, x, y );
 
             // TODO: propagate change down to child objects...
         }

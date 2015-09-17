@@ -164,8 +164,10 @@ void ComponentTransform::FillPropertiesWindow(bool clear)
     }
 }
 
-void ComponentTransform::OnDropTransform(ComponentVariable* pVar, wxCoord x, wxCoord y)
+void* ComponentTransform::OnDropTransform(ComponentVariable* pVar, wxCoord x, wxCoord y)
 {
+    void* oldvalue = 0;
+
     ComponentTransform* pComponent = 0;
 
     if( g_DragAndDropStruct.m_Type == DragAndDropType_ComponentPointer )
@@ -181,16 +183,19 @@ void ComponentTransform::OnDropTransform(ComponentVariable* pVar, wxCoord x, wxC
     if( pComponent )
     {
         if( pComponent == this )
-            return;
+            return 0;
 
         if( pComponent->IsA( "TransformComponent" ) )
         {
+            oldvalue = this->m_pParentTransform;
             this->SetParent( pComponent );
         }
 
         // update the panel so new OBJ name shows up.
         g_pPanelWatch->m_pVariables[g_DragAndDropStruct.m_ID].m_Description = m_pParentTransform->m_pGameObject->GetName();
     }
+
+    return oldvalue;
 }
 
 void ComponentTransform::OnValueChanged(ComponentVariable* pVar, bool finishedchanging)

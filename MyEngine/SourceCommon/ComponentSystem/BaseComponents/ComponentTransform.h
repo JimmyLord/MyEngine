@@ -95,9 +95,9 @@ public:
     void OnLeftClick(unsigned int count, bool clear);
     virtual void FillPropertiesWindow(bool clear);
 
-    // Watch panel callbacks.
-    static void StaticOnDropTransform(void* pObjectPtr, ComponentVariable* pVar, wxCoord x, wxCoord y) { ((ComponentTransform*)pObjectPtr)->OnDropTransform(pVar, x, y); }
-    void OnDropTransform(ComponentVariable* pVar, wxCoord x, wxCoord y);
+    // Watch panel/Component variable callbacks.
+    static void* StaticOnDropTransform(void* pObjectPtr, ComponentVariable* pVar, wxCoord x, wxCoord y) { return ((ComponentTransform*)pObjectPtr)->OnDropTransform(pVar, x, y); }
+    void* OnDropTransform(ComponentVariable* pVar, wxCoord x, wxCoord y);
 
     static void StaticOnValueChanged(void* pObjectPtr, ComponentVariable* pVar, bool finishedchanging, double oldvalue) { ((ComponentTransform*)pObjectPtr)->OnValueChanged( pVar, finishedchanging ); }
     void OnValueChanged(ComponentVariable* pVar, bool finishedchanging);
