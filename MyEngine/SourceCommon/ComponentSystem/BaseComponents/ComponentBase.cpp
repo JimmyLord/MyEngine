@@ -276,9 +276,57 @@ void ComponentBase::OnDropVariable(int controlid, wxCoord x, wxCoord y)
             (pVar->m_Type == ComponentVariableType_Vector3 && (pVar->m_ControlID+1 == controlid || pVar->m_ControlID+2 == controlid) )
           )
         {
+            // OnDropCallback will grab the new value from g_DragAndDropStruct
+            if( pVar->m_pOnDropCallbackFunc == 0 )
+                return;
+
             void* oldvalue = pVar->m_pOnDropCallbackFunc( this, pVar, x, y );
 
             // TODO: propagate change down to child objects...
+            for( CPPListNode* pCompNode = g_pComponentSystemManager->m_GameObjects.GetHead(); pCompNode; pCompNode = pCompNode->GetNext() )
+            {
+                GameObject* pGameObject = (GameObject*)pCompNode;
+
+                if( pGameObject->GetGameObjectThisInheritsFrom() == this->m_pGameObject )
+                {
+                    // Found a game object, now find the matching component on it.
+                    for( unsigned int i=0; i<pGameObject->m_Components.Count()+1; i++ )
+                    {
+                        ComponentBase* pComponent;
+
+                        if( i == 0 )
+                            pComponent = pGameObject->m_pComponentTransform;
+                        else
+                            pComponent = pGameObject->m_Components[i-1];
+
+                        const char* pThisCompClassName = GetClassname();
+                        const char* pOtherCompClassName = pComponent->GetClassname();
+
+                        if( strcmp( pThisCompClassName, pOtherCompClassName ) == 0 )
+                        {
+                            // TODO: this will fail if multiple of the same component are on an object.
+
+                            // Found the matching component, now compare the variable.
+                            if( pVar->m_Type == ComponentVariableType_Vector3 )
+                            {
+                                MyAssert( false ); // not drag/dropping Vector3's ATM.
+                            }
+
+                            if( pVar->m_Type == ComponentVariableType_ComponentPtr )
+                            {
+                                int offset = pVar->m_Offset;
+
+                                if( (ComponentBase*)*((char*)pComponent + offset) == oldvalue )
+                                {
+                                    // OnDropCallback will grab the new value from g_DragAndDropStruct
+                                    void* oldvalue2 = pVar->m_pOnDropCallbackFunc( pComponent, pVar, x, y );
+                                    MyAssert( oldvalue2 == oldvalue );
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 }
