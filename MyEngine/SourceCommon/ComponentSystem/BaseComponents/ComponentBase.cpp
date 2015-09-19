@@ -217,7 +217,7 @@ void ComponentBase::OnValueChangedVariable(int controlid, bool finishedchanging,
             (pVar->m_Type == ComponentVariableType_Vector3 && (pVar->m_ControlID+1 == controlid || pVar->m_ControlID+2 == controlid) )
           )
         {
-            pVar->m_pOnValueChangedCallbackFunc( this, pVar, finishedchanging, oldvalue );
+            void* oldobjectvalue = pVar->m_pOnValueChangedCallbackFunc( this, pVar, finishedchanging, oldvalue );
 
             // find children of this gameobject and change their values as well, if their value matches the old value.
             for( CPPListNode* pCompNode = g_pComponentSystemManager->m_GameObjects.GetHead(); pCompNode; pCompNode = pCompNode->GetNext() )
@@ -256,6 +256,17 @@ void ComponentBase::OnValueChangedVariable(int controlid, bool finishedchanging,
                                     *(float*)((char*)pComponent + offset) = *(float*)((char*)this + offset);
                                     pVar->m_pOnValueChangedCallbackFunc( pComponent, pVar, finishedchanging, oldvalue );
                                 }
+                            }
+
+                            if( pVar->m_Type == ComponentVariableType_ComponentPtr )
+                            {
+                                int offset = pVar->m_Offset;
+
+                                if( (ComponentBase*)*(int*)((char*)pComponent + pVar->m_Offset) == oldobjectvalue )
+                                {
+                                    void* oldobjectvalue2 = pVar->m_pOnValueChangedCallbackFunc( pComponent, pVar, finishedchanging, oldvalue );
+                                    MyAssert( oldobjectvalue2 == oldobjectvalue );
+                                }                                
                             }
                         }
                     }

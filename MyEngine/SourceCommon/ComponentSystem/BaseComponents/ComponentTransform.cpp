@@ -198,16 +198,19 @@ void* ComponentTransform::OnDropTransform(ComponentVariable* pVar, wxCoord x, wx
     return oldvalue;
 }
 
-void ComponentTransform::OnValueChanged(ComponentVariable* pVar, bool finishedchanging)
+void* ComponentTransform::OnValueChanged(ComponentVariable* pVar, bool finishedchanging)
 {
+    void* oldvalue = 0;
+
     if( pVar->m_Offset == MyOffsetOf( this, &m_pParentTransform ) )
     {
         MyAssert( pVar->m_ControlID != -1 );
 
         wxString text = g_pPanelWatch->m_pVariables[pVar->m_ControlID].m_Handle_TextCtrl->GetValue();
-        if( text == "" )
+        if( text == "" || text == "none" )
         {
             g_pPanelWatch->ChangeDescriptionForPointerWithDescription( pVar->m_ControlID, "none" );
+            oldvalue = this->m_pParentTransform;
             this->SetParent( 0 );
         }
     }
@@ -219,6 +222,8 @@ void ComponentTransform::OnValueChanged(ComponentVariable* pVar, bool finishedch
         for( unsigned int i=0; i<m_pPositionChangedCallbackList.Count(); i++ )
             m_pPositionChangedCallbackList[i].pFunc( m_pPositionChangedCallbackList[i].pObj, m_Position, true );
     }
+
+    return oldvalue;
 }
 #endif //MYFW_USING_WX
 
