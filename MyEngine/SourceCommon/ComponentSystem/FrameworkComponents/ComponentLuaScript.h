@@ -32,6 +32,9 @@ struct ExposedVariableDesc
 
 class ComponentLuaScript : public ComponentUpdateable
 {
+    // Component Variable List
+    MYFW_COMPONENT_DECLARE_VARIABLE_LIST( ComponentLuaScript );
+
     static const int MAX_EXPOSED_VARS = 4; // TODO: fix this hardcodedness
 
 public:
@@ -51,6 +54,7 @@ public:
     virtual ~ComponentLuaScript();
     SetClassnameBase( "LuaScriptComponent" ); // only first 8 character count.
 
+    static void RegisterVariables(ComponentLuaScript* pThis);
     //virtual void LuaRegister();
 
     virtual cJSON* ExportAsJSONObject(bool savesceneid);
@@ -123,6 +127,13 @@ public:
 
     virtual void AppendItemsToRightClickMenu(wxMenu* pMenu);
     void OnPopupClick(wxEvent &evt);
+
+    // Component variable callbacks.
+    static void* StaticOnDropCV(void* pObjectPtr, ComponentVariable* pVar, wxCoord x, wxCoord y) { return ((ComponentLuaScript*)pObjectPtr)->OnDropCV(pVar, x, y); }
+    void* OnDropCV(ComponentVariable* pVar, wxCoord x, wxCoord y);
+
+    static void* StaticOnValueChangedCV(void* pObjectPtr, ComponentVariable* pVar, bool finishedchanging, double oldvalue) { return ((ComponentLuaScript*)pObjectPtr)->OnValueChangedCV( pVar, finishedchanging ); }
+    void* OnValueChangedCV(ComponentVariable* pVar, bool finishedchanging);
 
     // Watch panel callbacks.
     static void StaticOnDrop(void* pObjectPtr, int controlid, wxCoord x, wxCoord y) { ((ComponentLuaScript*)pObjectPtr)->OnDrop(controlid, x, y); }

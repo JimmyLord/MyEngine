@@ -26,20 +26,21 @@ enum BaseComponentTypes
 
 enum ComponentVariableTypes
 {
-    ComponentVariableType_Int,
-    ComponentVariableType_UnsignedInt,
-    ComponentVariableType_Char,
-    ComponentVariableType_UnsignedChar,
-    ComponentVariableType_Bool,
-    ComponentVariableType_Float,
-    ComponentVariableType_Double,
-    ComponentVariableType_ColorFloat,
-    ComponentVariableType_ColorByte,
+    //ComponentVariableType_Int,
+    //ComponentVariableType_UnsignedInt,
+    //ComponentVariableType_Char,
+    //ComponentVariableType_UnsignedChar,
+    //ComponentVariableType_Bool,
+    //ComponentVariableType_Float,
+    //ComponentVariableType_Double,
+    //ComponentVariableType_ColorFloat,
+    //ComponentVariableType_ColorByte,
 
     ComponentVariableType_Vector3,
 
     ComponentVariableType_GameObjectPtr,
     ComponentVariableType_ComponentPtr,
+    ComponentVariableType_FilePtr,
 
     ComponentVariableType_NumTypes,
 };
@@ -80,6 +81,24 @@ public:
         m_ControlID = -1;
     }
 };
+
+#define MYFW_COMPONENT_DECLARE_VARIABLE_LIST(ComponentName) \
+    static CPPListHead m_ComponentVariableList_##ComponentName; /* ComponentVariable type */ \
+    static int m_ComponentVariableListRefCount_##ComponentName; \
+    static void ClearAllVariables() { m_ComponentVariableListRefCount_##ComponentName--; if( m_ComponentVariableListRefCount_##ComponentName == 0 ) ClearAllVariables_Base( &m_ComponentVariableList_##ComponentName ); } \
+    static void AddVariable(const char* label, ComponentVariableTypes type, size_t offset, bool saveload, bool displayinwatch, const char* watchlabel, ComponentVariableCallbackValueChanged pOnValueChangedCallBackFunc, ComponentVariableCallbackDropTarget pOnDropCallBackFunc, ComponentVariableCallback pOnButtonPressedCallBackFunc) \
+    { AddVariable_Base( &m_ComponentVariableList_##ComponentName, label, type, offset, saveload, displayinwatch, watchlabel, pOnValueChangedCallBackFunc, pOnDropCallBackFunc, pOnButtonPressedCallBackFunc ); } \
+    static bool ComponentVariablesHaveBeenRegistered() \
+    { \
+        if( m_ComponentVariableList_##ComponentName.GetHead() == 0 ) m_ComponentVariableListRefCount_##ComponentName = 0; \
+        m_ComponentVariableListRefCount_##ComponentName++; \
+        return (m_ComponentVariableListRefCount_##ComponentName != 1); \
+    } \
+    virtual CPPListHead* GetComponentVariableList() { return &m_ComponentVariableList_##ComponentName; }
+
+#define MYFW_COMPONENT_IMPLEMENT_VARIABLE_LIST(ComponentName) \
+    CPPListHead ComponentName::m_ComponentVariableList_##ComponentName; \
+    int ComponentName::m_ComponentVariableListRefCount_##ComponentName;
 
 class ComponentBase : public CPPListNode
 #if MYFW_USING_WX
@@ -129,9 +148,10 @@ public:
     unsigned int GetID() { return m_ID; }
 
 protected:
-    static CPPListHead m_ComponentVariableList; // ComponentVariable type
-    static void ClearAllVariables();
-    static void AddVariable(const char* label, ComponentVariableTypes type, size_t offset, bool saveload, bool displayinwatch, const char* watchlabel, ComponentVariableCallbackValueChanged pOnValueChangedCallBackFunc, ComponentVariableCallbackDropTarget pOnDropCallBackFunc, ComponentVariableCallback pOnButtonPressedCallBackFunc);
+    //static CPPListHead m_ComponentVariableList; // ComponentVariable type
+    static void ClearAllVariables_Base(CPPListHead* pComponentVariableList);
+    static void AddVariable_Base(CPPListHead* pComponentVariableList, const char* label, ComponentVariableTypes type, size_t offset, bool saveload, bool displayinwatch, const char* watchlabel, ComponentVariableCallbackValueChanged pOnValueChangedCallBackFunc, ComponentVariableCallbackDropTarget pOnDropCallBackFunc, ComponentVariableCallback pOnButtonPressedCallBackFunc);
+    virtual CPPListHead* GetComponentVariableList() { MyAssert( false ); return 0; } // = 0; TODO: make this pure virual once MYFW_COMPONENT_DECLARE_VARIABLE_LIST and MYFW_COMPONENT_IMPLEMENT_VARIABLE_LIST are in each component
     void FillPropertiesWindowWithVariables();
     void ExportVariablesToJSON(cJSON* jComponent);
     void ImportVariablesFromJSON(cJSON* jsonobj, const char* singlelabeltoimport = 0);

@@ -37,9 +37,7 @@ ComponentBase::~ComponentBase()
     if( this->Prev != 0 )
         Remove();
 
-#if MYFW_USING_WX
-    ClearAllVariables();
-#endif
+//    ClearAllVariables_Base( GetComponentVariableList() );
 }
 
 void ComponentBase::Reset()
@@ -80,11 +78,11 @@ void ComponentBase::SetEnabled(bool enabled)
         UnregisterCallbacks();
 }
 
-CPPListHead ComponentBase::m_ComponentVariableList;
+//CPPListHead ComponentBase::m_ComponentVariableList;
 
-void ComponentBase::ClearAllVariables()
+void ComponentBase::ClearAllVariables_Base(CPPListHead* pComponentVariableList)
 {
-    while( CPPListNode* pNode = m_ComponentVariableList.GetHead() )
+    while( CPPListNode* pNode = pComponentVariableList->GetHead() )
     {
         ComponentVariable* pVariable = (ComponentVariable*)pNode;
         pVariable->Remove();
@@ -92,15 +90,15 @@ void ComponentBase::ClearAllVariables()
     }
 }
 
-void ComponentBase::AddVariable(const char* label, ComponentVariableTypes type, size_t offset, bool saveload, bool displayinwatch, const char* watchlabel, ComponentVariableCallbackValueChanged pOnValueChangedCallBackFunc, ComponentVariableCallbackDropTarget pOnDropCallBackFunc, ComponentVariableCallback pOnButtonPressedCallBackFunc)
+void ComponentBase::AddVariable_Base(CPPListHead* pComponentVariableList, const char* label, ComponentVariableTypes type, size_t offset, bool saveload, bool displayinwatch, const char* watchlabel, ComponentVariableCallbackValueChanged pOnValueChangedCallBackFunc, ComponentVariableCallbackDropTarget pOnDropCallBackFunc, ComponentVariableCallback pOnButtonPressedCallBackFunc)
 {
     ComponentVariable* pVariable = MyNew ComponentVariable( label, type, offset, saveload, displayinwatch, watchlabel, pOnValueChangedCallBackFunc, pOnDropCallBackFunc, pOnButtonPressedCallBackFunc );
-    m_ComponentVariableList.AddTail( pVariable );
+    pComponentVariableList->AddTail( pVariable );
 }
 
 void ComponentBase::FillPropertiesWindowWithVariables()
 {
-    for( CPPListNode* pNode = m_ComponentVariableList.GetHead(); pNode; pNode = pNode->GetNext() )
+    for( CPPListNode* pNode = GetComponentVariableList()->GetHead(); pNode; pNode = pNode->GetNext() )
     {
         ComponentVariable* pVar = (ComponentVariable*)pNode;
         MyAssert( pVar );
@@ -131,13 +129,26 @@ void ComponentBase::FillPropertiesWindowWithVariables()
 
                 pVar->m_ControlID = g_pPanelWatch->AddPointerWithDescription( pVar->m_WatchLabel, pTransformComponent, desc, this, ComponentBase::StaticOnDropVariable, ComponentBase::StaticOnValueChangedVariable );
             }
+
+            if( pVar->m_Type == ComponentVariableType_FilePtr )
+            {
+                MyFileObject* pFile = *(MyFileObject**)((char*)this + pVar->m_Offset);
+
+                const char* desc = "none";
+                if( pFile )
+                {
+                    desc = pFile->m_FullPath;
+                }
+
+                pVar->m_ControlID = g_pPanelWatch->AddPointerWithDescription( pVar->m_WatchLabel, pFile, desc, this, ComponentBase::StaticOnDropVariable, ComponentBase::StaticOnValueChangedVariable );
+            }
         }
     }
 }
 
 void ComponentBase::ExportVariablesToJSON(cJSON* jComponent)
 {
-    for( CPPListNode* pNode = m_ComponentVariableList.GetHead(); pNode; pNode = pNode->GetNext() )
+    for( CPPListNode* pNode = GetComponentVariableList()->GetHead(); pNode; pNode = pNode->GetNext() )
     {
         ComponentVariable* pVar = (ComponentVariable*)pNode;
         MyAssert( pVar );
@@ -166,7 +177,7 @@ void ComponentBase::ExportVariablesToJSON(cJSON* jComponent)
 
 void ComponentBase::ImportVariablesFromJSON(cJSON* jsonobj, const char* singlelabeltoimport)
 {
-    for( CPPListNode* pNode = m_ComponentVariableList.GetHead(); pNode; pNode = pNode->GetNext() )
+    for( CPPListNode* pNode = GetComponentVariableList()->GetHead(); pNode; pNode = pNode->GetNext() )
     {
         ComponentVariable* pVar = (ComponentVariable*)pNode;
         MyAssert( pVar );
@@ -208,7 +219,7 @@ void ComponentBase::AddToObjectsPanel(wxTreeItemId gameobjectid)
 
 void ComponentBase::OnValueChangedVariable(int controlid, bool finishedchanging, double oldvalue)
 {
-    for( CPPListNode* pNode = m_ComponentVariableList.GetHead(); pNode; pNode = pNode->GetNext() )
+    for( CPPListNode* pNode = GetComponentVariableList()->GetHead(); pNode; pNode = pNode->GetNext() )
     {
         ComponentVariable* pVar = (ComponentVariable*)pNode;
         MyAssert( pVar );
@@ -278,7 +289,7 @@ void ComponentBase::OnValueChangedVariable(int controlid, bool finishedchanging,
 
 void ComponentBase::OnDropVariable(int controlid, wxCoord x, wxCoord y)
 {
-    for( CPPListNode* pNode = m_ComponentVariableList.GetHead(); pNode; pNode = pNode->GetNext() )
+    for( CPPListNode* pNode = GetComponentVariableList()->GetHead(); pNode; pNode = pNode->GetNext() )
     {
         ComponentVariable* pVar = (ComponentVariable*)pNode;
         MyAssert( pVar );

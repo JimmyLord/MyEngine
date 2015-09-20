@@ -13,6 +13,9 @@
 bool ComponentTransform::m_PanelWatchBlockVisible = true;
 #endif
 
+// Component Variable List
+MYFW_COMPONENT_IMPLEMENT_VARIABLE_LIST( ComponentTransform );
+
 ComponentTransform::ComponentTransform()
 : ComponentBase()
 {
@@ -29,6 +32,8 @@ ComponentTransform::ComponentTransform()
 
 ComponentTransform::~ComponentTransform()
 {
+    ClearAllVariables();
+
     m_pPositionChangedCallbackList.FreeAllInList();
 
     // if we had an parent transform, stop it's gameobject from reporting it's deletion.
@@ -65,15 +70,9 @@ void ComponentTransform::Reset()
 #endif //MYFW_USING_WX
 }
 
-// a simple runtime version of offsetof, should be safe with non-POD types, I think.
-size_t MyOffsetOf(void* pObject, void* pMember)
-{
-    return (char*)pMember - (char*)pObject;
-}
-
 void ComponentTransform::RegisterVariables(ComponentTransform* pThis)
 {
-    if( m_ComponentVariableList.GetHead() != 0 )
+    if( ComponentVariablesHaveBeenRegistered() )
         return;
 
     // just want to make sure these are the same on all compilers.  They should be since this is a simple class.

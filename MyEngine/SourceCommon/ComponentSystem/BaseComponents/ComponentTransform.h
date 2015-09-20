@@ -19,6 +19,9 @@ struct TransformPositionChangedCallbackStruct
 
 class ComponentTransform : public ComponentBase
 {
+    // Component Variable List
+    MYFW_COMPONENT_DECLARE_VARIABLE_LIST( ComponentTransform );
+
     static const int MAX_REGISTERED_CALLBACKS = 1; // TODO: fix this hardcodedness
 
 public:
@@ -95,7 +98,7 @@ public:
     void OnLeftClick(unsigned int count, bool clear);
     virtual void FillPropertiesWindow(bool clear);
 
-    // Watch panel/Component variable callbacks.
+    // Component variable callbacks.
     static void* StaticOnDropTransform(void* pObjectPtr, ComponentVariable* pVar, wxCoord x, wxCoord y) { return ((ComponentTransform*)pObjectPtr)->OnDropTransform(pVar, x, y); }
     void* OnDropTransform(ComponentVariable* pVar, wxCoord x, wxCoord y);
 

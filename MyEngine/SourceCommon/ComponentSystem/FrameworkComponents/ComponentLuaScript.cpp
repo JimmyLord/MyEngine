@@ -13,10 +13,14 @@
 bool ComponentLuaScript::m_PanelWatchBlockVisible = true;
 #endif
 
+// Component Variable List
+MYFW_COMPONENT_IMPLEMENT_VARIABLE_LIST( ComponentLuaScript );
+
 ComponentLuaScript::ComponentLuaScript()
 : ComponentUpdateable()
 {
     ClassnameSanityCheck();
+    RegisterVariables( this );
 
     m_BaseType = BaseComponentType_Updateable;
     m_Type = ComponentType_LuaScript;
@@ -32,6 +36,8 @@ ComponentLuaScript::ComponentLuaScript()
 
 ComponentLuaScript::~ComponentLuaScript()
 {
+    ClearAllVariables();
+
     while( m_ExposedVars.Count() )
     {
         ExposedVariableDesc* pVariable = m_ExposedVars.RemoveIndex( 0 );
@@ -67,6 +73,30 @@ void ComponentLuaScript::Reset()
     m_pPanelWatchBlockVisible = &m_PanelWatchBlockVisible;
     m_ControlIDOfFirstExtern = -1;
 #endif //MYFW_USING_WX
+}
+
+void ComponentLuaScript::RegisterVariables(ComponentLuaScript* pThis)
+{
+    if( ComponentVariablesHaveBeenRegistered() )
+        return;
+
+    //// just want to make sure these are the same on all compilers.  They should be since this is a simple class.
+    //MyAssert( offsetof( ComponentTransform, m_pParentGameObject ) == MyOffsetOf( pThis, &pThis->m_pParentGameObject ) );
+    //MyAssert( offsetof( ComponentTransform, m_pParentTransform )  == MyOffsetOf( pThis, &pThis->m_pParentTransform )  );
+    //MyAssert( offsetof( ComponentTransform, m_Position )          == MyOffsetOf( pThis, &pThis->m_Position )          );
+    //MyAssert( offsetof( ComponentTransform, m_Scale )             == MyOffsetOf( pThis, &pThis->m_Scale )             );
+    //MyAssert( offsetof( ComponentTransform, m_Rotation )          == MyOffsetOf( pThis, &pThis->m_Rotation )          );
+
+    ////AddVariable( "ParentGOID",  ComponentVariableType_GameObjectPtr,    offsetof( ComponentTransform, m_pParentGameObject ) );
+    ////AddVariable( "Pos",         ComponentVariableType_Vector3,          offsetof( ComponentTransform, m_Position )          );
+    ////AddVariable( "Scale",       ComponentVariableType_Vector3,          offsetof( ComponentTransform, m_Scale )             );
+    ////AddVariable( "Rot",         ComponentVariableType_Vector3,          offsetof( ComponentTransform, m_Rotation )          );
+
+    AddVariable( "Script",          ComponentVariableType_FilePtr,          MyOffsetOf( pThis, &pThis->m_pScriptFile ),       true,   true, 0,                  ComponentLuaScript::StaticOnValueChangedCV,                                       0, 0 );
+    //AddVariable( "ParentTransform", ComponentVariableType_ComponentPtr,     MyOffsetOf( pThis, &pThis->m_pParentTransform ),  false,  true, "Parent Transform", ComponentTransform::StaticOnValueChanged, ComponentTransform::StaticOnDropTransform, 0 );
+    //AddVariable( "Pos",             ComponentVariableType_Vector3,          MyOffsetOf( pThis, &pThis->m_Position ),          true,   true, 0,                  ComponentTransform::StaticOnValueChanged,                                         0, 0 );
+    //AddVariable( "Scale",           ComponentVariableType_Vector3,          MyOffsetOf( pThis, &pThis->m_Scale ),             true,   true, 0,                  ComponentTransform::StaticOnValueChanged,                                         0, 0 );
+    //AddVariable( "Rot",             ComponentVariableType_Vector3,          MyOffsetOf( pThis, &pThis->m_Rotation ),          true,   true, 0,                  ComponentTransform::StaticOnValueChanged,                                         0, 0 );
 }
 
 #if MYFW_USING_WX
@@ -194,12 +224,12 @@ void ComponentLuaScript::FillPropertiesWindow(bool clear)
     {
         ComponentBase::FillPropertiesWindow( clear );
 
-        const char* desc = "no script";
-        if( m_pScriptFile )
-            desc = m_pScriptFile->m_FullPath;
-        m_ControlID_Script = g_pPanelWatch->AddPointerWithDescription( "Script", 0, desc, this, ComponentLuaScript::StaticOnDrop );
+        FillPropertiesWindowWithVariables();
 
-        // warning: if more variables are added above, code in OnDrop() needs to change
+        //const char* desc = "no script";
+        //if( m_pScriptFile )
+        //    desc = m_pScriptFile->m_FullPath;
+        //m_ControlID_Script = g_pPanelWatch->AddPointerWithDescription( "Script", 0, desc, this, ComponentLuaScript::StaticOnDrop );
 
         for( unsigned int i=0; i<m_ExposedVars.Count(); i++ )
         {
@@ -247,6 +277,57 @@ void ComponentLuaScript::OnPopupClick(wxEvent &evt)
     {
     case RightClick_CreateNewScriptFile:    pComponent->CreateNewScriptFile();     break;
     }
+}
+
+void* ComponentLuaScript::OnDropCV(ComponentVariable* pVar, wxCoord x, wxCoord y)
+{
+    void* oldvalue = 0;
+
+    if( g_DragAndDropStruct.m_Type == DragAndDropType_FileObjectPointer )
+    {
+        MyFileObject* pFile = (MyFileObject*)g_DragAndDropStruct.m_Value;
+        MyAssert( pFile );
+
+        if( strcmp( pFile->m_ExtensionWithDot, ".lua" ) == 0 )
+        {
+            oldvalue = pFile;
+            SetScriptFile( pFile );
+
+            // update the panel so new filename shows up. // TODO: this won't refresh lua variables, so maybe refresh the whole watch panel.
+            g_pPanelWatch->m_pVariables[pVar->m_ControlID].m_Description = m_pScriptFile->m_FullPath;
+        }
+    }
+
+    return oldvalue;
+}
+
+void* ComponentLuaScript::OnValueChangedCV(ComponentVariable* pVar, bool finishedchanging)
+{
+    MyAssert( false );
+    void* oldvalue = 0;
+
+    //if( pVar->m_Offset == MyOffsetOf( this, &m_pParentTransform ) )
+    //{
+    //    MyAssert( pVar->m_ControlID != -1 );
+
+    //    wxString text = g_pPanelWatch->m_pVariables[pVar->m_ControlID].m_Handle_TextCtrl->GetValue();
+    //    if( text == "" || text == "none" )
+    //    {
+    //        g_pPanelWatch->ChangeDescriptionForPointerWithDescription( pVar->m_ControlID, "none" );
+    //        oldvalue = this->m_pParentTransform;
+    //        this->SetParent( 0 );
+    //    }
+    //}
+    //else
+    //{
+    //    m_LocalTransform.CreateSRT( m_Scale, m_Rotation, m_Position );
+    //    UpdateMatrix();
+
+    //    for( unsigned int i=0; i<m_pPositionChangedCallbackList.Count(); i++ )
+    //        m_pPositionChangedCallbackList[i].pFunc( m_pPositionChangedCallbackList[i].pObj, m_Position, true );
+    //}
+
+    return oldvalue;
 }
 
 void ComponentLuaScript::OnDrop(int controlid, wxCoord x, wxCoord y)
