@@ -210,6 +210,20 @@ void ComponentBase::ImportVariablesFromJSON(cJSON* jsonobj, const char* singlela
     }
 }
 
+int ComponentBase::FindVariablesControlIDByLabel(const char* label)
+{
+    for( CPPListNode* pNode = GetComponentVariableList()->GetHead(); pNode; pNode = pNode->GetNext() )
+    {
+        ComponentVariable* pVar = (ComponentVariable*)pNode;
+        MyAssert( pVar );
+
+        if( strcmp( pVar->m_Label, label ) == 0 )
+            return pVar->m_ControlID;
+    }
+
+    return -1;
+}
+
 #if MYFW_USING_WX
 void ComponentBase::AddToObjectsPanel(wxTreeItemId gameobjectid)
 {
@@ -273,7 +287,7 @@ void ComponentBase::OnValueChangedVariable(int controlid, bool finishedchanging,
                             {
                                 int offset = pVar->m_Offset;
 
-                                if( (ComponentBase*)*(int*)((char*)pComponent + pVar->m_Offset) == oldobjectvalue )
+                                if( *(ComponentBase**)((char*)pComponent + pVar->m_Offset) == oldobjectvalue )
                                 {
                                     void* oldobjectvalue2 = pVar->m_pOnValueChangedCallbackFunc( pComponent, pVar, finishedchanging, oldvalue );
                                     MyAssert( oldobjectvalue2 == oldobjectvalue );
@@ -334,11 +348,12 @@ void ComponentBase::OnDropVariable(int controlid, wxCoord x, wxCoord y)
                                 MyAssert( false ); // not drag/dropping Vector3's ATM.
                             }
 
-                            if( pVar->m_Type == ComponentVariableType_ComponentPtr )
+                            if( pVar->m_Type == ComponentVariableType_ComponentPtr ||
+                                pVar->m_Type == ComponentVariableType_FilePtr )
                             {
                                 int offset = pVar->m_Offset;
 
-                                if( (ComponentBase*)*((char*)pComponent + offset) == oldvalue )
+                                if( *(ComponentBase**)((char*)pComponent + offset) == oldvalue )
                                 {
                                     // OnDropCallback will grab the new value from g_DragAndDropStruct
                                     void* oldvalue2 = pVar->m_pOnDropCallbackFunc( pComponent, pVar, x, y );

@@ -36,6 +36,8 @@ GameObject::~GameObject()
 {
     NotifyOthersThisWasDeleted();
 
+    MyAssert( m_pOnDeleteCallbacks.GetHead() == 0 );
+
     // if it's in a list, remove it.
     if( this->Prev != 0 )
         Remove();

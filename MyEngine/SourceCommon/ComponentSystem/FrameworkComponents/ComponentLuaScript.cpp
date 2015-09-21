@@ -19,8 +19,9 @@ MYFW_COMPONENT_IMPLEMENT_VARIABLE_LIST( ComponentLuaScript );
 ComponentLuaScript::ComponentLuaScript()
 : ComponentUpdateable()
 {
+    MYFW_COMPONENT_VARIABLE_LIST_CONSTRUCTOR();
+
     ClassnameSanityCheck();
-    RegisterVariables( this );
 
     m_BaseType = BaseComponentType_Updateable;
     m_Type = ComponentType_LuaScript;
@@ -36,7 +37,7 @@ ComponentLuaScript::ComponentLuaScript()
 
 ComponentLuaScript::~ComponentLuaScript()
 {
-    ClearAllVariables();
+    MYFW_COMPONENT_VARIABLE_LIST_DESTRUCTOR();
 
     while( m_ExposedVars.Count() )
     {
@@ -50,6 +51,14 @@ ComponentLuaScript::~ComponentLuaScript()
     }
 
     SAFE_RELEASE( m_pScriptFile );
+}
+
+void ComponentLuaScript::RegisterVariables(ComponentLuaScript* pThis) //_VARIABLE_LIST
+{
+    // just want to make sure these are the same on all compilers.  They should be since this is a simple class.
+    MyAssert( offsetof( ComponentLuaScript, m_pScriptFile ) == MyOffsetOf( pThis, &pThis->m_pScriptFile ) );
+
+    AddVariable( "Script", ComponentVariableType_FilePtr, MyOffsetOf( pThis, &pThis->m_pScriptFile ), true, true, 0, ComponentLuaScript::StaticOnValueChangedCV, ComponentLuaScript::StaticOnDropCV, 0 );
 }
 
 void ComponentLuaScript::Reset()
@@ -73,30 +82,6 @@ void ComponentLuaScript::Reset()
     m_pPanelWatchBlockVisible = &m_PanelWatchBlockVisible;
     m_ControlIDOfFirstExtern = -1;
 #endif //MYFW_USING_WX
-}
-
-void ComponentLuaScript::RegisterVariables(ComponentLuaScript* pThis)
-{
-    if( ComponentVariablesHaveBeenRegistered() )
-        return;
-
-    //// just want to make sure these are the same on all compilers.  They should be since this is a simple class.
-    //MyAssert( offsetof( ComponentTransform, m_pParentGameObject ) == MyOffsetOf( pThis, &pThis->m_pParentGameObject ) );
-    //MyAssert( offsetof( ComponentTransform, m_pParentTransform )  == MyOffsetOf( pThis, &pThis->m_pParentTransform )  );
-    //MyAssert( offsetof( ComponentTransform, m_Position )          == MyOffsetOf( pThis, &pThis->m_Position )          );
-    //MyAssert( offsetof( ComponentTransform, m_Scale )             == MyOffsetOf( pThis, &pThis->m_Scale )             );
-    //MyAssert( offsetof( ComponentTransform, m_Rotation )          == MyOffsetOf( pThis, &pThis->m_Rotation )          );
-
-    ////AddVariable( "ParentGOID",  ComponentVariableType_GameObjectPtr,    offsetof( ComponentTransform, m_pParentGameObject ) );
-    ////AddVariable( "Pos",         ComponentVariableType_Vector3,          offsetof( ComponentTransform, m_Position )          );
-    ////AddVariable( "Scale",       ComponentVariableType_Vector3,          offsetof( ComponentTransform, m_Scale )             );
-    ////AddVariable( "Rot",         ComponentVariableType_Vector3,          offsetof( ComponentTransform, m_Rotation )          );
-
-    AddVariable( "Script",          ComponentVariableType_FilePtr,          MyOffsetOf( pThis, &pThis->m_pScriptFile ),       true,   true, 0,                  ComponentLuaScript::StaticOnValueChangedCV,                                       0, 0 );
-    //AddVariable( "ParentTransform", ComponentVariableType_ComponentPtr,     MyOffsetOf( pThis, &pThis->m_pParentTransform ),  false,  true, "Parent Transform", ComponentTransform::StaticOnValueChanged, ComponentTransform::StaticOnDropTransform, 0 );
-    //AddVariable( "Pos",             ComponentVariableType_Vector3,          MyOffsetOf( pThis, &pThis->m_Position ),          true,   true, 0,                  ComponentTransform::StaticOnValueChanged,                                         0, 0 );
-    //AddVariable( "Scale",           ComponentVariableType_Vector3,          MyOffsetOf( pThis, &pThis->m_Scale ),             true,   true, 0,                  ComponentTransform::StaticOnValueChanged,                                         0, 0 );
-    //AddVariable( "Rot",             ComponentVariableType_Vector3,          MyOffsetOf( pThis, &pThis->m_Rotation ),          true,   true, 0,                  ComponentTransform::StaticOnValueChanged,                                         0, 0 );
 }
 
 #if MYFW_USING_WX
@@ -129,7 +114,8 @@ void ComponentLuaScript::CreateNewScriptFile()
             SetScriptFile( pScriptFile );
 
             // update the panel so new filename shows up. // TODO: this won't refresh lua variables, so maybe refresh the whole watch panel.
-            g_pPanelWatch->m_pVariables[m_ControlID_Script].m_Description = m_pScriptFile->m_FullPath;
+            int scriptcontrolid = FindVariablesControlIDByLabel( "Script" );
+            g_pPanelWatch->m_pVariables[scriptcontrolid].m_Description = m_pScriptFile->m_FullPath;
 
             // TODO: create a template file.
             {
@@ -252,6 +238,8 @@ void ComponentLuaScript::FillPropertiesWindow(bool clear)
 
             if( m_ControlIDOfFirstExtern == -1 )
                 m_ControlIDOfFirstExtern = id;
+
+            pVar->controlID = id;
         }
     }
 }
@@ -290,10 +278,11 @@ void* ComponentLuaScript::OnDropCV(ComponentVariable* pVar, wxCoord x, wxCoord y
 
         if( strcmp( pFile->m_ExtensionWithDot, ".lua" ) == 0 )
         {
-            oldvalue = pFile;
+            oldvalue = m_pScriptFile;
             SetScriptFile( pFile );
 
-            // update the panel so new filename shows up. // TODO: this won't refresh lua variables, so maybe refresh the whole watch panel.
+            // update the panel so new filename shows up.
+            // TODO: this won't refresh lua variables, so maybe refresh the whole watch panel.
             g_pPanelWatch->m_pVariables[pVar->m_ControlID].m_Description = m_pScriptFile->m_FullPath;
         }
     }
@@ -303,35 +292,26 @@ void* ComponentLuaScript::OnDropCV(ComponentVariable* pVar, wxCoord x, wxCoord y
 
 void* ComponentLuaScript::OnValueChangedCV(ComponentVariable* pVar, bool finishedchanging)
 {
-    MyAssert( false );
     void* oldvalue = 0;
 
-    //if( pVar->m_Offset == MyOffsetOf( this, &m_pParentTransform ) )
-    //{
-    //    MyAssert( pVar->m_ControlID != -1 );
-
-    //    wxString text = g_pPanelWatch->m_pVariables[pVar->m_ControlID].m_Handle_TextCtrl->GetValue();
-    //    if( text == "" || text == "none" )
-    //    {
-    //        g_pPanelWatch->ChangeDescriptionForPointerWithDescription( pVar->m_ControlID, "none" );
-    //        oldvalue = this->m_pParentTransform;
-    //        this->SetParent( 0 );
-    //    }
-    //}
-    //else
-    //{
-    //    m_LocalTransform.CreateSRT( m_Scale, m_Rotation, m_Position );
-    //    UpdateMatrix();
-
-    //    for( unsigned int i=0; i<m_pPositionChangedCallbackList.Count(); i++ )
-    //        m_pPositionChangedCallbackList[i].pFunc( m_pPositionChangedCallbackList[i].pObj, m_Position, true );
-    //}
+    if( strcmp( pVar->m_Label, "Script" ) == 0 )
+    {
+        wxString text = g_pPanelWatch->m_pVariables[pVar->m_ControlID].m_Handle_TextCtrl->GetValue();
+        if( text == "" || text == "none" || text == "no script" )
+        {
+            g_pPanelWatch->ChangeDescriptionForPointerWithDescription( pVar->m_ControlID, "no script" );
+            oldvalue = m_pScriptFile;
+            this->SetScriptFile( 0 );
+        }
+    }
 
     return oldvalue;
 }
 
-void ComponentLuaScript::OnDrop(int controlid, wxCoord x, wxCoord y)
+void* ComponentLuaScript::ProcessOnDrop(int controlid, wxCoord x, wxCoord y)
 {
+    void* oldpointer = 0;
+
     ComponentUpdateable::OnDrop( controlid, x, y );
 
     if( g_DragAndDropStruct.m_Type == DragAndDropType_FileObjectPointer )
@@ -341,10 +321,12 @@ void ComponentLuaScript::OnDrop(int controlid, wxCoord x, wxCoord y)
 
         if( strcmp( pFile->m_ExtensionWithDot, ".lua" ) == 0 )
         {
+            oldpointer = m_pScriptFile;
             SetScriptFile( pFile );
 
             // update the panel so new filename shows up. // TODO: this won't refresh lua variables, so maybe refresh the whole watch panel.
-            g_pPanelWatch->m_pVariables[m_ControlID_Script].m_Description = m_pScriptFile->m_FullPath;
+            int scriptcontrolid = FindVariablesControlIDByLabel( "Script" );
+            g_pPanelWatch->m_pVariables[scriptcontrolid].m_Description = m_pScriptFile->m_FullPath;
         }
     }
 
@@ -361,13 +343,13 @@ void ComponentLuaScript::OnDrop(int controlid, wxCoord x, wxCoord y)
             MyAssert( id < (int)m_ExposedVars.Count() );
             if( id < (int)m_ExposedVars.Count() )
             {
-                // TODO: assert that this is a gameobject, although it shouldn't be possible.
                 MyAssert( pGameObject->IsA( "GameObject" ) );
         
                 // unregister the old gameobject.
                 if( m_ExposedVars[id]->pointer )
                     ((GameObject*)m_ExposedVars[id]->pointer)->UnregisterOnDeleteCallback( this, StaticOnGameObjectDeleted );
 
+                oldpointer = m_ExposedVars[id]->pointer;
                 m_ExposedVars[id]->pointer = pGameObject;
                 ((GameObject*)m_ExposedVars[id]->pointer)->RegisterOnDeleteCallback( this, StaticOnGameObjectDeleted );
 
@@ -376,11 +358,116 @@ void ComponentLuaScript::OnDrop(int controlid, wxCoord x, wxCoord y)
             }
         }
     }
+
+    return oldpointer;
 }
 
-void ComponentLuaScript::OnValueChanged(int controlid, bool finishedchanging)
+void ComponentLuaScript::OnDrop(int controlid, wxCoord x, wxCoord y)
 {
+    void* oldpointer = ProcessOnDrop( controlid, x, y );
+
+    UpdateChildrenWithNewValue( controlid, true, 0, oldpointer );
+}
+
+void ComponentLuaScript::OnValueChanged(int controlid, bool finishedchanging, double oldvalue)
+{
+    if( m_ControlIDOfFirstExtern != -1 )
+    {
+        int id = controlid - m_ControlIDOfFirstExtern;
+        
+        MyAssert( id < (int)m_ExposedVars.Count() );
+        if( id < (int)m_ExposedVars.Count() )
+        {
+            if( m_ExposedVars[id]->type == ExposedVariableType_GameObject )
+            {
+                ExposedVariableDesc* pVariable = m_ExposedVars[id];
+                GameObject* pGameObject = (GameObject*)pVariable->pointer;
+
+                MyAssert( pGameObject->IsA( "GameObject" ) );
+
+                wxString text = g_pPanelWatch->m_pVariables[controlid].m_Handle_TextCtrl->GetValue();
+                if( text == "" || text == "none" || text == "no gameobject" )
+                {
+                    g_pPanelWatch->ChangeDescriptionForPointerWithDescription( controlid, "no gameobject" );
+
+                    // unregister gameobject deleted callback, if we registered one.
+                    if( pVariable->type == ExposedVariableType_GameObject && pGameObject )
+                        pGameObject->UnregisterOnDeleteCallback( this, StaticOnGameObjectDeleted );
+
+                    void* oldpointer = m_ExposedVars[id]->pointer;
+
+                    m_ExposedVars[id]->pointer = 0;
+
+                    UpdateChildrenWithNewValue( controlid, true, 0, oldpointer );
+                }
+            }
+        }
+    }
+
     ProgramVariables( m_pLuaGameState->m_pLuaState, true );
+
+    UpdateChildrenWithNewValue( controlid, finishedchanging, oldvalue, 0 );
+}
+
+void ComponentLuaScript::UpdateChildrenWithNewValue(int controlid, bool finishedchanging, double oldvalue, void* oldpointer)
+{
+    // find children of this gameobject and change their vars if needed.
+    for( unsigned int varindex=0; varindex<m_ExposedVars.Count(); varindex++ )
+    {
+        ExposedVariableDesc* pVar = (ExposedVariableDesc*)m_ExposedVars[varindex];
+        MyAssert( pVar );
+
+        if( pVar->controlID == controlid )
+        {
+            // find children of this gameobject and change their values as well, if their value matches the old value.
+            for( CPPListNode* pCompNode = g_pComponentSystemManager->m_GameObjects.GetHead(); pCompNode; pCompNode = pCompNode->GetNext() )
+            {
+                GameObject* pGameObject = (GameObject*)pCompNode;
+
+                if( pGameObject->GetGameObjectThisInheritsFrom() == this->m_pGameObject )
+                {
+                    // Found a game object, now find the matching component on it.
+                    for( unsigned int i=0; i<pGameObject->m_Components.Count(); i++ )
+                    {
+                        ComponentLuaScript* pOtherLuaScript = (ComponentLuaScript*)pGameObject->m_Components[i];
+
+                        const char* pThisCompClassName = GetClassname();
+                        const char* pOtherCompClassName = pOtherLuaScript->GetClassname();
+
+                        // TODO: this will fail if multiple of the same component are on an object.
+                        if( strcmp( pThisCompClassName, pOtherCompClassName ) == 0 )
+                        {
+                            // Found the matching component, now compare the variable.
+                            if( pVar->type == ExposedVariableType_Float )
+                            {
+                                if( pOtherLuaScript->m_ExposedVars[varindex]->value == oldvalue )
+                                {
+                                    pOtherLuaScript->m_ExposedVars[varindex]->value = pVar->value;
+                                    pOtherLuaScript->OnValueChanged( controlid, finishedchanging, oldvalue );
+                                    ProgramVariables( m_pLuaGameState->m_pLuaState, true );
+
+                                    pOtherLuaScript->UpdateChildrenWithNewValue( controlid, finishedchanging, oldvalue, oldpointer );
+                                }
+                            }
+
+                            if( pVar->type == ExposedVariableType_GameObject )
+                            {
+                                if( pOtherLuaScript->m_ExposedVars[varindex]->pointer == oldpointer )
+                                {
+                                    pOtherLuaScript->m_ExposedVars[varindex]->pointer = pVar->pointer;
+                                    if( pVar->pointer )
+                                        ((GameObject*)pVar->pointer)->RegisterOnDeleteCallback( pOtherLuaScript, StaticOnGameObjectDeleted );
+                                    ProgramVariables( m_pLuaGameState->m_pLuaState, true );
+
+                                    pOtherLuaScript->UpdateChildrenWithNewValue( controlid, finishedchanging, oldvalue, oldpointer );
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
 #endif //MYFW_USING_WX
 
@@ -672,7 +759,8 @@ void ComponentLuaScript::ParseExterns(luabridge::LuaRef LuaObject)
                 if( pVar->inuse == false || pVar->type != ExposedVariableType_GameObject )
                 {
                     pVar->pointer = g_pComponentSystemManager->FindGameObjectByName( variableinitialvalue.tostring().c_str() );
-                    ((GameObject*)pVar->pointer)->RegisterOnDeleteCallback( this, StaticOnGameObjectDeleted );
+                    if( pVar->pointer )
+                        ((GameObject*)pVar->pointer)->RegisterOnDeleteCallback( this, StaticOnGameObjectDeleted );
                 }
                 pVar->type = ExposedVariableType_GameObject;
             }

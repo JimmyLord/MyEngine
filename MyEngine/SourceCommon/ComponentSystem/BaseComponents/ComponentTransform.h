@@ -19,6 +19,7 @@ struct TransformPositionChangedCallbackStruct
 
 class ComponentTransform : public ComponentBase
 {
+private:
     // Component Variable List
     MYFW_COMPONENT_DECLARE_VARIABLE_LIST( ComponentTransform );
 
@@ -43,7 +44,6 @@ public:
     virtual ~ComponentTransform();
     SetClassnameBase( "TransformComponent" ); // only first 8 character count.
 
-    static void RegisterVariables(ComponentTransform* pThis);
     static void LuaRegister(lua_State* luastate);
 
     virtual cJSON* ExportAsJSONObject(bool savesceneid);

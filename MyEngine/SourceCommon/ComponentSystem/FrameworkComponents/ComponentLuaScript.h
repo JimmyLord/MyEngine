@@ -28,10 +28,21 @@ struct ExposedVariableDesc
     };
 
     bool inuse; // used internally when reparsing the file.
+    int controlID;
+
+    ExposedVariableDesc()
+    {
+        name = "";
+        type = ExposedVariableType_Unused;
+        value = 0;
+        inuse = false;
+        controlID = -1;
+    }
 };
 
 class ComponentLuaScript : public ComponentUpdateable
 {
+private:
     // Component Variable List
     MYFW_COMPONENT_DECLARE_VARIABLE_LIST( ComponentLuaScript );
 
@@ -54,7 +65,6 @@ public:
     virtual ~ComponentLuaScript();
     SetClassnameBase( "LuaScriptComponent" ); // only first 8 character count.
 
-    static void RegisterVariables(ComponentLuaScript* pThis);
     //virtual void LuaRegister();
 
     virtual cJSON* ExportAsJSONObject(bool savesceneid);
@@ -108,8 +118,6 @@ public:
         RightClick_CreateNewScriptFile = 2000,
     };
 
-    int m_ControlID_Script;
-
     void CreateNewScriptFile();
 
     static void StaticOnFileUpdated(void* pObjectPtr, MyFileObject* pFile) { ((ComponentLuaScript*)pObjectPtr)->OnFileUpdated( pFile ); }
@@ -138,9 +146,12 @@ public:
     // Watch panel callbacks.
     static void StaticOnDrop(void* pObjectPtr, int controlid, wxCoord x, wxCoord y) { ((ComponentLuaScript*)pObjectPtr)->OnDrop(controlid, x, y); }
     void OnDrop(int controlid, wxCoord x, wxCoord y);
+    void* ProcessOnDrop(int controlid, wxCoord x, wxCoord y);
     
-    static void StaticOnValueChanged(void* pObjectPtr, int controlid, bool finishedchanging, double oldvalue) { ((ComponentLuaScript*)pObjectPtr)->OnValueChanged( controlid, finishedchanging ); }
-    void OnValueChanged(int controlid, bool finishedchanging);
+    static void StaticOnValueChanged(void* pObjectPtr, int controlid, bool finishedchanging, double oldvalue) { ((ComponentLuaScript*)pObjectPtr)->OnValueChanged( controlid, finishedchanging, oldvalue ); }
+    void OnValueChanged(int controlid, bool finishedchanging, double oldvalue);
+
+    void UpdateChildrenWithNewValue(int controlid, bool finishedchanging, double oldvalue, void* oldpointer);
 #endif //MYFW_USING_WX
 
 public:

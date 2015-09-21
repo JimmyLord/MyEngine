@@ -12,6 +12,10 @@
 
 class ComponentLight : public ComponentData
 {
+private:
+    // Component Variable List
+    MYFW_COMPONENT_DECLARE_VARIABLE_LIST( ComponentLight );
+
 public:
     MyLight* m_pLight;
 

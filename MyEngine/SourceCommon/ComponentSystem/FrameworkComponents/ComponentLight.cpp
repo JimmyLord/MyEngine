@@ -13,9 +13,14 @@
 bool ComponentLight::m_PanelWatchBlockVisible = true;
 #endif
 
+// Component Variable List
+MYFW_COMPONENT_IMPLEMENT_VARIABLE_LIST( ComponentLight );
+
 ComponentLight::ComponentLight()
 : ComponentData()
 {
+    MYFW_COMPONENT_VARIABLE_LIST_CONSTRUCTOR();
+
     ClassnameSanityCheck();
 
     m_BaseType = BaseComponentType_Data;
@@ -25,8 +30,18 @@ ComponentLight::ComponentLight()
 
 ComponentLight::~ComponentLight()
 {
+    MYFW_COMPONENT_VARIABLE_LIST_DESTRUCTOR();
+
     if( m_pLight )
         g_pLightManager->DestroyLight( m_pLight );
+}
+
+void ComponentLight::RegisterVariables(ComponentLight* pThis) //_VARIABLE_LIST
+{
+    // just want to make sure these are the same on all compilers.  They should be since this is a simple class.
+    //MyAssert( offsetof( ComponentLight, m_pScriptFile ) == MyOffsetOf( pThis, &pThis->m_pScriptFile ) );
+
+    //AddVariable( "Script", ComponentVariableType_FilePtr, MyOffsetOf( pThis, &pThis->m_pScriptFile ), true, true, 0, ComponentLuaScript::StaticOnValueChangedCV, ComponentLuaScript::StaticOnDropCV, 0 );
 }
 
 void ComponentLight::Reset()

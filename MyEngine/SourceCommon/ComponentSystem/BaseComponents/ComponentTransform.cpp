@@ -19,8 +19,9 @@ MYFW_COMPONENT_IMPLEMENT_VARIABLE_LIST( ComponentTransform );
 ComponentTransform::ComponentTransform()
 : ComponentBase()
 {
+    MYFW_COMPONENT_VARIABLE_LIST_CONSTRUCTOR();
+
     ClassnameSanityCheck();
-    RegisterVariables( this );
 
     m_BaseType = BaseComponentType_Data;
 
@@ -32,7 +33,7 @@ ComponentTransform::ComponentTransform()
 
 ComponentTransform::~ComponentTransform()
 {
-    ClearAllVariables();
+    MYFW_COMPONENT_VARIABLE_LIST_DESTRUCTOR();
 
     m_pPositionChangedCallbackList.FreeAllInList();
 
@@ -42,6 +43,22 @@ ComponentTransform::~ComponentTransform()
         MyAssert( m_pParentGameObject == m_pParentTransform->m_pGameObject );
         m_pParentTransform->m_pGameObject->UnregisterOnDeleteCallback( this, StaticOnGameObjectDeleted );
     }
+}
+
+void ComponentTransform::RegisterVariables(ComponentTransform* pThis) //_VARIABLE_LIST
+{
+    // just want to make sure these are the same on all compilers.  They should be since this is a simple class.
+    MyAssert( offsetof( ComponentTransform, m_pParentGameObject ) == MyOffsetOf( pThis, &pThis->m_pParentGameObject ) );
+    MyAssert( offsetof( ComponentTransform, m_pParentTransform )  == MyOffsetOf( pThis, &pThis->m_pParentTransform )  );
+    MyAssert( offsetof( ComponentTransform, m_Position )          == MyOffsetOf( pThis, &pThis->m_Position )          );
+    MyAssert( offsetof( ComponentTransform, m_Scale )             == MyOffsetOf( pThis, &pThis->m_Scale )             );
+    MyAssert( offsetof( ComponentTransform, m_Rotation )          == MyOffsetOf( pThis, &pThis->m_Rotation )          );
+
+    AddVariable( "ParentGOID",      ComponentVariableType_GameObjectPtr,    MyOffsetOf( pThis, &pThis->m_pParentGameObject ), true,  false, 0,                  ComponentTransform::StaticOnValueChanged,                                         0, 0 );
+    AddVariable( "ParentTransform", ComponentVariableType_ComponentPtr,     MyOffsetOf( pThis, &pThis->m_pParentTransform ),  false,  true, "Parent Transform", ComponentTransform::StaticOnValueChanged, ComponentTransform::StaticOnDropTransform, 0 );
+    AddVariable( "Pos",             ComponentVariableType_Vector3,          MyOffsetOf( pThis, &pThis->m_Position ),          true,   true, 0,                  ComponentTransform::StaticOnValueChanged,                                         0, 0 );
+    AddVariable( "Scale",           ComponentVariableType_Vector3,          MyOffsetOf( pThis, &pThis->m_Scale ),             true,   true, 0,                  ComponentTransform::StaticOnValueChanged,                                         0, 0 );
+    AddVariable( "Rot",             ComponentVariableType_Vector3,          MyOffsetOf( pThis, &pThis->m_Rotation ),          true,   true, 0,                  ComponentTransform::StaticOnValueChanged,                                         0, 0 );
 }
 
 void ComponentTransform::Reset()
@@ -68,30 +85,6 @@ void ComponentTransform::Reset()
     //m_ControlID_ParentTransform = -1;
     m_pPanelWatchBlockVisible = &m_PanelWatchBlockVisible;
 #endif //MYFW_USING_WX
-}
-
-void ComponentTransform::RegisterVariables(ComponentTransform* pThis)
-{
-    if( ComponentVariablesHaveBeenRegistered() )
-        return;
-
-    // just want to make sure these are the same on all compilers.  They should be since this is a simple class.
-    MyAssert( offsetof( ComponentTransform, m_pParentGameObject ) == MyOffsetOf( pThis, &pThis->m_pParentGameObject ) );
-    MyAssert( offsetof( ComponentTransform, m_pParentTransform )  == MyOffsetOf( pThis, &pThis->m_pParentTransform )  );
-    MyAssert( offsetof( ComponentTransform, m_Position )          == MyOffsetOf( pThis, &pThis->m_Position )          );
-    MyAssert( offsetof( ComponentTransform, m_Scale )             == MyOffsetOf( pThis, &pThis->m_Scale )             );
-    MyAssert( offsetof( ComponentTransform, m_Rotation )          == MyOffsetOf( pThis, &pThis->m_Rotation )          );
-
-    //AddVariable( "ParentGOID",  ComponentVariableType_GameObjectPtr,    offsetof( ComponentTransform, m_pParentGameObject ) );
-    //AddVariable( "Pos",         ComponentVariableType_Vector3,          offsetof( ComponentTransform, m_Position )          );
-    //AddVariable( "Scale",       ComponentVariableType_Vector3,          offsetof( ComponentTransform, m_Scale )             );
-    //AddVariable( "Rot",         ComponentVariableType_Vector3,          offsetof( ComponentTransform, m_Rotation )          );
-
-    AddVariable( "ParentGOID",      ComponentVariableType_GameObjectPtr,    MyOffsetOf( pThis, &pThis->m_pParentGameObject ), true,  false, 0,                  ComponentTransform::StaticOnValueChanged,                                         0, 0 );
-    AddVariable( "ParentTransform", ComponentVariableType_ComponentPtr,     MyOffsetOf( pThis, &pThis->m_pParentTransform ),  false,  true, "Parent Transform", ComponentTransform::StaticOnValueChanged, ComponentTransform::StaticOnDropTransform, 0 );
-    AddVariable( "Pos",             ComponentVariableType_Vector3,          MyOffsetOf( pThis, &pThis->m_Position ),          true,   true, 0,                  ComponentTransform::StaticOnValueChanged,                                         0, 0 );
-    AddVariable( "Scale",           ComponentVariableType_Vector3,          MyOffsetOf( pThis, &pThis->m_Scale ),             true,   true, 0,                  ComponentTransform::StaticOnValueChanged,                                         0, 0 );
-    AddVariable( "Rot",             ComponentVariableType_Vector3,          MyOffsetOf( pThis, &pThis->m_Rotation ),          true,   true, 0,                  ComponentTransform::StaticOnValueChanged,                                         0, 0 );
 }
 
 void ComponentTransform::LuaRegister(lua_State* luastate)

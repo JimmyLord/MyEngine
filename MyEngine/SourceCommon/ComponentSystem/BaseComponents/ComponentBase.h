@@ -85,6 +85,7 @@ public:
 #define MYFW_COMPONENT_DECLARE_VARIABLE_LIST(ComponentName) \
     static CPPListHead m_ComponentVariableList_##ComponentName; /* ComponentVariable type */ \
     static int m_ComponentVariableListRefCount_##ComponentName; \
+    static void RegisterVariables(##ComponentName* pThis); \
     static void ClearAllVariables() { m_ComponentVariableListRefCount_##ComponentName--; if( m_ComponentVariableListRefCount_##ComponentName == 0 ) ClearAllVariables_Base( &m_ComponentVariableList_##ComponentName ); } \
     static void AddVariable(const char* label, ComponentVariableTypes type, size_t offset, bool saveload, bool displayinwatch, const char* watchlabel, ComponentVariableCallbackValueChanged pOnValueChangedCallBackFunc, ComponentVariableCallbackDropTarget pOnDropCallBackFunc, ComponentVariableCallback pOnButtonPressedCallBackFunc) \
     { AddVariable_Base( &m_ComponentVariableList_##ComponentName, label, type, offset, saveload, displayinwatch, watchlabel, pOnValueChangedCallBackFunc, pOnDropCallBackFunc, pOnButtonPressedCallBackFunc ); } \
@@ -99,6 +100,12 @@ public:
 #define MYFW_COMPONENT_IMPLEMENT_VARIABLE_LIST(ComponentName) \
     CPPListHead ComponentName::m_ComponentVariableList_##ComponentName; \
     int ComponentName::m_ComponentVariableListRefCount_##ComponentName;
+
+#define MYFW_COMPONENT_VARIABLE_LIST_CONSTRUCTOR() \
+    if( ComponentVariablesHaveBeenRegistered() == false ) RegisterVariables( this );
+
+#define MYFW_COMPONENT_VARIABLE_LIST_DESTRUCTOR() \
+    ClearAllVariables();
 
 class ComponentBase : public CPPListNode
 #if MYFW_USING_WX
@@ -155,6 +162,7 @@ protected:
     void FillPropertiesWindowWithVariables();
     void ExportVariablesToJSON(cJSON* jComponent);
     void ImportVariablesFromJSON(cJSON* jsonobj, const char* singlelabeltoimport = 0);
+    int FindVariablesControlIDByLabel(const char* label);
 
 #if MYFW_USING_WX
 public:
