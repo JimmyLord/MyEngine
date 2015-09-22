@@ -82,10 +82,11 @@ protected:
     // TODO: make this an array, for cases where multiple objects are copied in one action.
     GameObject* m_ObjectToCopy; // solely for the Repeat() function to repeat.
     GameObject* m_ObjectCreated;
+    bool m_NewObjectInheritsFromOld;
     bool m_DeleteGameObjectWhenDestroyed;
 
 public:
-    EditorCommand_CopyGameObject(GameObject* objecttocopy);
+    EditorCommand_CopyGameObject(GameObject* objecttocopy, bool NewObjectInheritsFromOld);
     virtual ~EditorCommand_CopyGameObject();
 
     virtual void Do();

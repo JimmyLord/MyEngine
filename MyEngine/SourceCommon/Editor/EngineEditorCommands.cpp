@@ -177,11 +177,12 @@ EditorCommand* EditorCommand_DeleteComponents::Repeat()
 // EditorCommand_CopyGameObject
 //====================================================================================================
 
-EditorCommand_CopyGameObject::EditorCommand_CopyGameObject(GameObject* objecttocopy)
+EditorCommand_CopyGameObject::EditorCommand_CopyGameObject(GameObject* objecttocopy, bool NewObjectInheritsFromOld)
 {
     m_ObjectToCopy = objecttocopy;
     m_ObjectCreated = 0;
     m_DeleteGameObjectWhenDestroyed = false;
+    m_NewObjectInheritsFromOld = NewObjectInheritsFromOld;
 }
 
 EditorCommand_CopyGameObject::~EditorCommand_CopyGameObject()
@@ -198,13 +199,21 @@ void EditorCommand_CopyGameObject::Do()
         char newname[50];
         const char* oldname = m_ObjectToCopy->GetName();
         int oldnamelen = (int)strlen( oldname );
-        if( oldnamelen > 7 && strcmp( &oldname[oldnamelen-7], " - copy" ) == 0 )
+        if( m_NewObjectInheritsFromOld == false ) // if making a copy
         {
-            m_ObjectCreated = g_pComponentSystemManager->CopyGameObject( m_ObjectToCopy, oldname );
+            if( oldnamelen > 7 && strcmp( &oldname[oldnamelen-7], " - copy" ) == 0 )
+            {
+                m_ObjectCreated = g_pComponentSystemManager->CopyGameObject( m_ObjectToCopy, oldname );
+            }
+            else
+            {
+                sprintf_s( newname, 50, "%s - copy", m_ObjectToCopy->GetName() );
+                m_ObjectCreated = g_pComponentSystemManager->CopyGameObject( m_ObjectToCopy, newname );
+            }
         }
-        else
+        else // if making a child object
         {
-            sprintf_s( newname, 50, "%s - copy", m_ObjectToCopy->GetName() );
+            sprintf_s( newname, 50, "%s - child", m_ObjectToCopy->GetName() );
             m_ObjectCreated = g_pComponentSystemManager->CopyGameObject( m_ObjectToCopy, newname );
         }
     }
@@ -230,7 +239,7 @@ void EditorCommand_CopyGameObject::Undo()
 EditorCommand* EditorCommand_CopyGameObject::Repeat()
 {
     EditorCommand_CopyGameObject* pCommand;
-    pCommand = MyNew EditorCommand_CopyGameObject( m_ObjectToCopy );
+    pCommand = MyNew EditorCommand_CopyGameObject( m_ObjectToCopy, m_NewObjectInheritsFromOld );
 
     pCommand->Do();
     return pCommand;

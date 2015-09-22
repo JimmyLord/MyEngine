@@ -832,7 +832,7 @@ bool EngineCore::HandleEditorInput(int keyaction, int keycode, int mouseaction, 
                 m_pEditorState->ClearSelectedObjectsAndComponents();
                 for( unsigned int i=0; i<selectedobjects.size(); i++ )
                 {
-                    GameObject* pNewObject = g_pComponentSystemManager->EditorCopyGameObject( selectedobjects[i] );
+                    GameObject* pNewObject = g_pComponentSystemManager->EditorCopyGameObject( selectedobjects[i], false );
                     if( m_EditorMode )
                     {
                         pNewObject->SetSceneID( selectedobjects[i]->GetSceneID() );

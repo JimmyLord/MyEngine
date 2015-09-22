@@ -189,11 +189,11 @@ void GameObject::OnPopupClick(wxEvent &evt)
     }
     else if( id == RightClick_DuplicateGameObject )
     {
-        g_pComponentSystemManager->EditorCopyGameObject( pGameObject );
+        g_pComponentSystemManager->EditorCopyGameObject( pGameObject, false );
     }
     else if( id == RightClick_CreateChild )
     {
-        GameObject* pNewObject = g_pComponentSystemManager->EditorCopyGameObject( pGameObject );
+        GameObject* pNewObject = g_pComponentSystemManager->EditorCopyGameObject( pGameObject, true );
         pNewObject->m_pGameObjectThisInheritsFrom = pGameObject;
     }
     else if( id == RightClick_ClearParent )

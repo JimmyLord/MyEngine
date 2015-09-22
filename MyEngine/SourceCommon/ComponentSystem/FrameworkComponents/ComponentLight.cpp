@@ -38,10 +38,15 @@ ComponentLight::~ComponentLight()
 
 void ComponentLight::RegisterVariables(ComponentLight* pThis) //_VARIABLE_LIST
 {
+    // TODO: lights don't do inheritance ATM since all vars are indirectly stored in a light object outside the class (m_pLight).
+
     // just want to make sure these are the same on all compilers.  They should be since this is a simple class.
     //MyAssert( offsetof( ComponentLight, m_pScriptFile ) == MyOffsetOf( pThis, &pThis->m_pScriptFile ) );
 
     //AddVariable( "Script", ComponentVariableType_FilePtr, MyOffsetOf( pThis, &pThis->m_pScriptFile ), true, true, 0, ComponentLuaScript::StaticOnValueChangedCV, ComponentLuaScript::StaticOnDropCV, 0 );
+
+    //cJSONExt_AddFloatArrayToObject( jComponent, "Color", &m_pLight->m_Color.r, 4 );
+    //cJSONExt_AddFloatArrayToObject( jComponent, "Atten", &m_pLight->m_Attenuation.x, 3 );
 }
 
 void ComponentLight::Reset()
@@ -83,6 +88,8 @@ void ComponentLight::FillPropertiesWindow(bool clear)
     {
         ComponentData::FillPropertiesWindow( clear );
 
+        FillPropertiesWindowWithVariables(); //_VARIABLE_LIST
+
         g_pPanelWatch->AddColorFloat( "color", &m_pLight->m_Color, 0, 1 );
         g_pPanelWatch->AddVector3( "atten", &m_pLight->m_Attenuation, 0, 1 );
     }
@@ -91,17 +98,21 @@ void ComponentLight::FillPropertiesWindow(bool clear)
 
 cJSON* ComponentLight::ExportAsJSONObject(bool savesceneid)
 {
-    cJSON* component = ComponentData::ExportAsJSONObject( savesceneid );
+    cJSON* jComponent = ComponentData::ExportAsJSONObject( savesceneid );
 
-    cJSONExt_AddFloatArrayToObject( component, "Color", &m_pLight->m_Color.r, 4 );
-    cJSONExt_AddFloatArrayToObject( component, "Atten", &m_pLight->m_Attenuation.x, 3 );
+    ExportVariablesToJSON( jComponent ); //_VARIABLE_LIST
 
-    return component;
+    cJSONExt_AddFloatArrayToObject( jComponent, "Color", &m_pLight->m_Color.r, 4 );
+    cJSONExt_AddFloatArrayToObject( jComponent, "Atten", &m_pLight->m_Attenuation.x, 3 );
+
+    return jComponent;
 }
 
 void ComponentLight::ImportFromJSONObject(cJSON* jsonobj, unsigned int sceneid)
 {
     ComponentData::ImportFromJSONObject( jsonobj, sceneid );
+
+    ImportVariablesFromJSON( jsonobj ); //_VARIABLE_LIST
 
     cJSONExt_GetFloatArray( jsonobj, "Color", &m_pLight->m_Color.r, 4 );
     cJSONExt_GetFloatArray( jsonobj, "Atten", &m_pLight->m_Attenuation.x, 3 );

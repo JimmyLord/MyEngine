@@ -192,10 +192,10 @@ public:
     void OnPopupClick(wxEvent &evt); // used as callback for wxEvtHandler, can't be virtual(will crash, haven't looked into it).
 
     static void StaticOnDrag(void* pObjectPtr) { ((ComponentBase*)pObjectPtr)->OnDrag(); }
-    virtual void OnDrag();
+    void OnDrag();
 
     static void StaticOnDrop(void* pObjectPtr, wxTreeItemId id, int controlid, wxCoord x, wxCoord y) { ((ComponentBase*)pObjectPtr)->OnDrop(controlid, x, y); }
-    virtual void OnDrop(int controlid, wxCoord x, wxCoord y);
+    void OnDrop(int controlid, wxCoord x, wxCoord y);
 #endif //MYFW_USING_WX
 };
 

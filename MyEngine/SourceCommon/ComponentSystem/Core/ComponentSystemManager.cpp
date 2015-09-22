@@ -927,9 +927,9 @@ void ComponentSystemManager::DeleteGameObject(GameObject* pObject, bool deleteco
 }
 
 #if MYFW_USING_WX
-GameObject* ComponentSystemManager::EditorCopyGameObject(GameObject* pObject)
+GameObject* ComponentSystemManager::EditorCopyGameObject(GameObject* pObject, bool NewObjectInheritsFromOld)
 {
-    EditorCommand_CopyGameObject* pCommand = MyNew EditorCommand_CopyGameObject( pObject );
+    EditorCommand_CopyGameObject* pCommand = MyNew EditorCommand_CopyGameObject( pObject, NewObjectInheritsFromOld );
     g_pEngineMainFrame->m_pCommandStack->Do( pCommand );
 
     return pCommand->GetCreatedObject();

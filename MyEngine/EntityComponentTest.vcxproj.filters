@@ -342,6 +342,9 @@
     <ClCompile Include="SourceCommon\Core\InputFinger.cpp">
       <Filter>Source\Core Files</Filter>
     </ClCompile>
+    <ClCompile Include="SourceCommon\ComponentSystem\ComponentTemplate.cpp">
+      <Filter>Source\ComponentSystem</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SourceCommon\Camera\Camera3D.h">
@@ -628,6 +631,9 @@
     </ClInclude>
     <ClInclude Include="SourceCommon\Core\InputFinger.h">
       <Filter>Source\Core Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCommon\ComponentSystem\ComponentTemplate.h">
+      <Filter>Source\ComponentSystem</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

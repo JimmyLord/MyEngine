@@ -152,7 +152,7 @@ void ComponentTransform::FillPropertiesWindow(bool clear)
         //g_pPanelWatch->AddVector3( "Scale", &m_Scale, 0.0f, 0.0f, this, ComponentTransform::StaticOnValueChanged );
         //g_pPanelWatch->AddVector3( "Rot", &m_Rotation, 0, 0, this, ComponentTransform::StaticOnValueChanged );
 
-        FillPropertiesWindowWithVariables();
+        FillPropertiesWindowWithVariables(); //_VARIABLE_LIST
     }
 }
 
@@ -223,7 +223,7 @@ cJSON* ComponentTransform::ExportAsJSONObject(bool savesceneid)
 {
     cJSON* jComponent = ComponentBase::ExportAsJSONObject( savesceneid );
 
-    ExportVariablesToJSON( jComponent );
+    ExportVariablesToJSON( jComponent ); //_VARIABLE_LIST
 
     return jComponent;
 }
@@ -237,7 +237,7 @@ void ComponentTransform::ImportFromJSONObject(cJSON* jsonobj, unsigned int scene
     if( m_pParentGameObject )
         SetParent( m_pParentGameObject->m_pComponentTransform );
 
-    ImportVariablesFromJSON( jsonobj );
+    ImportVariablesFromJSON( jsonobj ); //_VARIABLE_LIST
 
     m_LocalTransform.CreateSRT( m_Scale, m_Rotation, m_Position );
     UpdateMatrix();

@@ -158,7 +158,7 @@ public:
     void ManageGameObject(GameObject* pObject);
     void DeleteGameObject(GameObject* pObject, bool deletecomponents);
 #if MYFW_USING_WX
-    GameObject* EditorCopyGameObject(GameObject* pObject);
+    GameObject* EditorCopyGameObject(GameObject* pObject, bool NewObjectInheritsFromOld);
 #endif
     GameObject* CopyGameObject(GameObject* pObject, const char* newname);
 
