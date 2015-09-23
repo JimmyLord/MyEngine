@@ -13,9 +13,14 @@
 bool ComponentSprite::m_PanelWatchBlockVisible = true;
 #endif
 
+// Component Variable List
+MYFW_COMPONENT_IMPLEMENT_VARIABLE_LIST( ComponentSprite );
+
 ComponentSprite::ComponentSprite()
 : ComponentRenderable()
 {
+    MYFW_COMPONENT_VARIABLE_LIST_CONSTRUCTOR();
+
     ClassnameSanityCheck();
 
     m_BaseType = BaseComponentType_Renderable;
@@ -25,85 +30,19 @@ ComponentSprite::ComponentSprite()
 
 ComponentSprite::~ComponentSprite()
 {
+    MYFW_COMPONENT_VARIABLE_LIST_DESTRUCTOR();
+
     SAFE_RELEASE( m_pSprite );
 }
 
-#if MYFW_USING_WX
-void ComponentSprite::AddToObjectsPanel(wxTreeItemId gameobjectid)
+void ComponentSprite::RegisterVariables(ComponentSprite* pThis) //_VARIABLE_LIST
 {
-    //wxTreeItemId id =
-    g_pPanelObjectList->AddObject( this, ComponentSprite::StaticOnLeftClick, ComponentBase::StaticOnRightClick, gameobjectid, "Sprite" );
-}
+    AddVariable( "Tint",     ComponentVariableType_ColorByte, MyOffsetOf( pThis, &pThis->m_Tint ),  true,  true, 0, ComponentSprite::StaticOnValueChanged, ComponentSprite::StaticOnDrop, 0 );
+    AddVariable( "Size",     ComponentVariableType_Vector2,   MyOffsetOf( pThis, &pThis->m_Size ),  true,  true, 0, ComponentSprite::StaticOnValueChanged, ComponentSprite::StaticOnDrop, 0 );
+    AddVariablePointer( "Material",                                                                 true,  true, 0, ComponentSprite::StaticOnValueChanged, ComponentSprite::StaticOnDrop, 0, ComponentSprite::StaticGetPointerValue, ComponentSprite::StaticGetPointerDesc );
 
-void ComponentSprite::OnLeftClick(unsigned int count, bool clear)
-{
-    ComponentBase::OnLeftClick( count, clear );
-}
-
-void ComponentSprite::FillPropertiesWindow(bool clear)
-{
-    m_ControlID_ComponentTitleLabel = g_pPanelWatch->AddSpace( "Sprite", this, ComponentBase::StaticOnComponentTitleLabelClicked );
-
-    if( m_PanelWatchBlockVisible )
-    {
-        ComponentRenderable::FillPropertiesWindow( clear );
-
-        g_pPanelWatch->AddUnsignedChar( "r", &m_Tint.r, 0, 255 );
-        g_pPanelWatch->AddUnsignedChar( "g", &m_Tint.g, 0, 255 );
-        g_pPanelWatch->AddUnsignedChar( "b", &m_Tint.b, 0, 255 );
-        g_pPanelWatch->AddUnsignedChar( "a", &m_Tint.a, 0, 255 );
-        g_pPanelWatch->AddFloat( "width",  &m_Size.x, 0, 0 );
-        g_pPanelWatch->AddFloat( "height", &m_Size.y, 0, 0 );
-
-        const char* desc = "no material";
-        MyAssert( m_pSprite );
-        MaterialDefinition* pMaterial = m_pSprite->GetMaterial();
-        if( pMaterial && pMaterial->m_pFile )
-            desc = pMaterial->m_pFile->m_FullPath;
-        g_pPanelWatch->AddPointerWithDescription( "Material", 0, desc, this, ComponentSprite::StaticOnDropMaterial );
-    }
-}
-
-void ComponentSprite::OnDropMaterial(int controlid, wxCoord x, wxCoord y)
-{
-    if( g_DragAndDropStruct.m_Type == DragAndDropType_MaterialDefinitionPointer )
-    {
-        MaterialDefinition* pMaterial = (MaterialDefinition*)g_DragAndDropStruct.m_Value;
-        MyAssert( pMaterial );
-        MyAssert( m_pSprite );
-
-        m_pSprite->SetMaterial( pMaterial );
-    }
-}
-#endif //MYFW_USING_WX
-
-cJSON* ComponentSprite::ExportAsJSONObject(bool savesceneid)
-{
-    cJSON* component = ComponentRenderable::ExportAsJSONObject( savesceneid );
-
-    cJSONExt_AddUnsignedCharArrayToObject( component, "Tint", &m_Tint.r, 4 );
-    cJSONExt_AddFloatArrayToObject( component, "Size", &m_Size.x, 2 );
-    if( m_pSprite->GetMaterial() && m_pSprite->GetMaterial()->m_pFile )
-        cJSON_AddStringToObject( component, "Material", m_pSprite->GetMaterial()->m_pFile->m_FullPath );
-
-    return component;
-}
-
-void ComponentSprite::ImportFromJSONObject(cJSON* jsonobj, unsigned int sceneid)
-{
-    ComponentRenderable::ImportFromJSONObject( jsonobj, sceneid );
-
-    cJSONExt_GetUnsignedCharArray( jsonobj, "Tint", &m_Tint.r, 4 );
-    cJSONExt_GetFloatArray( jsonobj, "Size", &m_Size.x, 2 );
-    
-    cJSON* materialobj = cJSON_GetObjectItem( jsonobj, "Material" );
-    if( materialobj )
-    {
-        MaterialDefinition* pMaterial = g_pMaterialManager->LoadMaterial( materialobj->valuestring );
-        if( pMaterial )
-            m_pSprite->SetMaterial( pMaterial );
-        pMaterial->Release();
-    }
+    //if( m_pSprite->GetMaterial() && m_pSprite->GetMaterial()->m_pFile )
+    //    cJSON_AddStringToObject( jComponent, "Material", m_pSprite->GetMaterial()->m_pFile->m_FullPath );
 }
 
 void ComponentSprite::Reset()
@@ -119,6 +58,182 @@ void ComponentSprite::Reset()
 #if MYFW_USING_WX
     m_pPanelWatchBlockVisible = &m_PanelWatchBlockVisible;
 #endif //MYFW_USING_WX
+}
+
+void* ComponentSprite::GetPointerValue(ComponentVariable* pVar)
+{
+    if( strcmp( pVar->m_Label, "Material" ) == 0 )
+    {
+        if( m_pSprite )
+            return m_pSprite->GetMaterial();
+    }
+
+    return 0;
+}
+
+const char* ComponentSprite::GetPointerDesc(ComponentVariable* pVar)
+{
+    int bp = 1;
+    if( strcmp( pVar->m_Label, "Material" ) == 0 )
+    {
+        MyAssert( m_pSprite );
+        MaterialDefinition* pMaterial = m_pSprite->GetMaterial();
+        if( pMaterial && pMaterial->m_pFile )
+            return pMaterial->m_pFile->m_FullPath;
+    }
+    //cJSON* materialobj = cJSON_GetObjectItem( jsonobj, "Material" );
+    //if( materialobj )
+    //{
+    //    MaterialDefinition* pMaterial = g_pMaterialManager->LoadMaterial( materialobj->valuestring );
+    //    if( pMaterial )
+    //        m_pSprite->SetMaterial( pMaterial );
+    //    pMaterial->Release();
+    //}
+
+    return "fix me";
+}
+
+#if MYFW_USING_WX
+void ComponentSprite::AddToObjectsPanel(wxTreeItemId gameobjectid)
+{
+    //wxTreeItemId id =
+    g_pPanelObjectList->AddObject( this, ComponentSprite::StaticOnLeftClick, ComponentBase::StaticOnRightClick, gameobjectid, "Sprite" );
+}
+
+void ComponentSprite::OnLeftClick(unsigned int count, bool clear)
+{
+    ComponentRenderable::OnLeftClick( count, clear );
+}
+
+void ComponentSprite::FillPropertiesWindow(bool clear)
+{
+    m_ControlID_ComponentTitleLabel = g_pPanelWatch->AddSpace( "Sprite", this, ComponentBase::StaticOnComponentTitleLabelClicked );
+
+    if( m_PanelWatchBlockVisible )
+    {
+        ComponentRenderable::FillPropertiesWindow( clear );
+
+        FillPropertiesWindowWithVariables(); //_VARIABLE_LIST
+
+        //g_pPanelWatch->AddUnsignedChar( "r", &m_Tint.r, 0, 255 );
+        //g_pPanelWatch->AddUnsignedChar( "g", &m_Tint.g, 0, 255 );
+        //g_pPanelWatch->AddUnsignedChar( "b", &m_Tint.b, 0, 255 );
+        //g_pPanelWatch->AddUnsignedChar( "a", &m_Tint.a, 0, 255 );
+        //g_pPanelWatch->AddFloat( "width",  &m_Size.x, 0, 0 );
+        //g_pPanelWatch->AddFloat( "height", &m_Size.y, 0, 0 );
+
+        //const char* desc = "no material";
+        //MyAssert( m_pSprite );
+        //MaterialDefinition* pMaterial = m_pSprite->GetMaterial();
+        //if( pMaterial && pMaterial->m_pFile )
+        //    desc = pMaterial->m_pFile->m_FullPath;
+        //g_pPanelWatch->AddPointerWithDescription( "Material", 0, desc, this, ComponentSprite::StaticOnDropMaterial );
+    }
+}
+
+void* ComponentSprite::OnDrop(ComponentVariable* pVar, wxCoord x, wxCoord y)
+{
+    void* oldvalue = 0;
+
+    if( g_DragAndDropStruct.m_Type == DragAndDropType_ComponentPointer )
+    {
+        (ComponentBase*)g_DragAndDropStruct.m_Value;
+    }
+
+    if( g_DragAndDropStruct.m_Type == DragAndDropType_GameObjectPointer )
+    {
+        (GameObject*)g_DragAndDropStruct.m_Value;
+    }
+
+    if( g_DragAndDropStruct.m_Type == DragAndDropType_MaterialDefinitionPointer )
+    {
+        MaterialDefinition* pMaterial = (MaterialDefinition*)g_DragAndDropStruct.m_Value;
+        MyAssert( pMaterial );
+        MyAssert( m_pSprite );
+
+        oldvalue = m_pSprite->GetMaterial();
+        m_pSprite->SetMaterial( pMaterial );
+    }
+
+    return oldvalue;
+}
+
+void* ComponentSprite::OnValueChanged(ComponentVariable* pVar, bool finishedchanging)
+{
+    void* oldvalue = 0;
+
+    //if( pVar->m_Offset == MyOffsetOf( this, &m_SampleVector3 ) )
+    //{
+    //    MyAssert( pVar->m_ControlID != -1 );
+    //}
+
+    return oldvalue;
+}
+#endif //MYFW_USING_WX
+
+cJSON* ComponentSprite::ExportAsJSONObject(bool savesceneid)
+{
+    cJSON* jComponent = ComponentRenderable::ExportAsJSONObject( savesceneid );
+
+    ExportVariablesToJSON( jComponent ); //_VARIABLE_LIST
+
+    cJSONExt_AddUnsignedCharArrayToObject( jComponent, "Tint", &m_Tint.r, 4 );
+    cJSONExt_AddFloatArrayToObject( jComponent, "Size", &m_Size.x, 2 );
+    if( m_pSprite->GetMaterial() && m_pSprite->GetMaterial()->m_pFile )
+        cJSON_AddStringToObject( jComponent, "Material", m_pSprite->GetMaterial()->m_pFile->m_FullPath );
+
+    return jComponent;
+}
+
+void ComponentSprite::ImportFromJSONObject(cJSON* jsonobj, unsigned int sceneid)
+{
+    ComponentRenderable::ImportFromJSONObject( jsonobj, sceneid );
+
+    ImportVariablesFromJSON( jsonobj ); //_VARIABLE_LIST
+
+    cJSONExt_GetUnsignedCharArray( jsonobj, "Tint", &m_Tint.r, 4 );
+    cJSONExt_GetFloatArray( jsonobj, "Size", &m_Size.x, 2 );
+    
+    cJSON* materialobj = cJSON_GetObjectItem( jsonobj, "Material" );
+    if( materialobj )
+    {
+        MaterialDefinition* pMaterial = g_pMaterialManager->LoadMaterial( materialobj->valuestring );
+        if( pMaterial )
+            m_pSprite->SetMaterial( pMaterial );
+        pMaterial->Release();
+    }
+}
+
+void ComponentSprite::RegisterCallbacks()
+{
+    if( m_Enabled && m_CallbacksRegistered == false )
+    {
+        m_CallbacksRegistered = true;
+
+        //MYFW_REGISTER_COMPONENT_CALLBACK( Tick );
+        //MYFW_REGISTER_COMPONENT_CALLBACK( OnSurfaceChanged );
+        //MYFW_REGISTER_COMPONENT_CALLBACK( Draw );
+        //MYFW_REGISTER_COMPONENT_CALLBACK( OnTouch );
+        //MYFW_REGISTER_COMPONENT_CALLBACK( OnButtons );
+        //MYFW_REGISTER_COMPONENT_CALLBACK( OnKeys );
+        //MYFW_REGISTER_COMPONENT_CALLBACK( OnFileRenamed );
+    }
+}
+
+void ComponentSprite::UnregisterCallbacks()
+{
+    if( m_CallbacksRegistered == true )
+    {
+        //MYFW_UNREGISTER_COMPONENT_CALLBACK( Tick );
+        //MYFW_UNREGISTER_COMPONENT_CALLBACK( OnSurfaceChanged );
+        //MYFW_UNREGISTER_COMPONENT_CALLBACK( Draw );
+        //MYFW_UNREGISTER_COMPONENT_CALLBACK( OnTouch );
+        //MYFW_UNREGISTER_COMPONENT_CALLBACK( OnButtons );
+        //MYFW_UNREGISTER_COMPONENT_CALLBACK( OnKeys );
+        //MYFW_UNREGISTER_COMPONENT_CALLBACK( OnFileRenamed );
+
+        m_CallbacksRegistered = false;
+    }
 }
 
 ComponentSprite* CastAs_ComponentSprite(ComponentBase* pComponent)
@@ -145,6 +260,7 @@ ComponentSprite& ComponentSprite::operator=(const ComponentSprite& other)
 
     ComponentRenderable::operator=( other );
 
+    // TODO: replace this with a CopyComponentVariablesFromOtherObject... or something similar.
     this->m_Tint = other.m_Tint;
     this->m_Size = other.m_Size;
     this->m_pSprite->SetMaterial( other.m_pSprite->GetMaterial() );

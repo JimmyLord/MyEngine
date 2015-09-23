@@ -34,13 +34,16 @@ enum ComponentVariableTypes
     //ComponentVariableType_Float,
     //ComponentVariableType_Double,
     //ComponentVariableType_ColorFloat,
-    //ComponentVariableType_ColorByte,
+    ComponentVariableType_ColorByte,
 
+    ComponentVariableType_Vector2,
     ComponentVariableType_Vector3,
 
     ComponentVariableType_GameObjectPtr,
     ComponentVariableType_ComponentPtr,
     ComponentVariableType_FilePtr,
+
+    ComponentVariableType_PointerIndirect,
 
     ComponentVariableType_NumTypes,
 };
@@ -49,6 +52,8 @@ class ComponentVariable;
 typedef void (*ComponentVariableCallback)(void*, ComponentVariable* pVar);
 typedef void* (*ComponentVariableCallbackDropTarget)(void* pObjectPtr, ComponentVariable* pVar, wxCoord x, wxCoord y);
 typedef void* (*ComponentVariableCallbackValueChanged)(void* pObjectPtr, ComponentVariable* pVar, bool finishedchanging, double oldvalue);
+typedef void* (*ComponentVariableCallbackPointer)(void*, ComponentVariable* pVar);
+typedef const char* (*ComponentVariableCallbackPointerDesc)(void*, ComponentVariable* pVar);
 
 class ComponentVariable : public CPPListNode
 {
@@ -62,10 +67,15 @@ public:
     ComponentVariableCallbackDropTarget m_pOnDropCallbackFunc;
     ComponentVariableCallback m_pOnButtonPressedCallbackFunc;
     ComponentVariableCallbackValueChanged m_pOnValueChangedCallbackFunc;
+    ComponentVariableCallbackPointer m_pGetPointerValueCallBackFunc;
+    ComponentVariableCallbackPointerDesc m_pGetPointerDescCallBackFunc;
     int m_ControlID;
 
 public:
-    ComponentVariable(const char* label, ComponentVariableTypes type, size_t offset, bool saveload, bool displayinwatch, const char* watchlabel, ComponentVariableCallbackValueChanged pOnValueChangedCallBackFunc, ComponentVariableCallbackDropTarget pOnDropCallBackFunc, ComponentVariableCallback pOnButtonPressedCallBackFunc)
+    ComponentVariable(const char* label, ComponentVariableTypes type, size_t offset, bool saveload, bool displayinwatch,
+        const char* watchlabel, ComponentVariableCallbackValueChanged pOnValueChangedCallBackFunc,
+        ComponentVariableCallbackDropTarget pOnDropCallBackFunc, ComponentVariableCallback pOnButtonPressedCallBackFunc,
+        ComponentVariableCallbackPointer pGetPointerValueCallBackFunc, ComponentVariableCallbackPointerDesc pGetPointerDescCallBackFunc)
     {
         m_Label = label;
         m_Type = type;
@@ -78,6 +88,8 @@ public:
         m_pOnDropCallbackFunc = pOnDropCallBackFunc;
         m_pOnButtonPressedCallbackFunc = pOnButtonPressedCallBackFunc;
         m_pOnValueChangedCallbackFunc = pOnValueChangedCallBackFunc;
+        m_pGetPointerValueCallBackFunc = pGetPointerValueCallBackFunc;
+        m_pGetPointerDescCallBackFunc = pGetPointerDescCallBackFunc;
         m_ControlID = -1;
     }
 };
@@ -89,6 +101,8 @@ public:
     static void ClearAllVariables() { m_ComponentVariableListRefCount_##ComponentName--; if( m_ComponentVariableListRefCount_##ComponentName == 0 ) ClearAllVariables_Base( &m_ComponentVariableList_##ComponentName ); } \
     static void AddVariable(const char* label, ComponentVariableTypes type, size_t offset, bool saveload, bool displayinwatch, const char* watchlabel, ComponentVariableCallbackValueChanged pOnValueChangedCallBackFunc, ComponentVariableCallbackDropTarget pOnDropCallBackFunc, ComponentVariableCallback pOnButtonPressedCallBackFunc) \
     { AddVariable_Base( &m_ComponentVariableList_##ComponentName, label, type, offset, saveload, displayinwatch, watchlabel, pOnValueChangedCallBackFunc, pOnDropCallBackFunc, pOnButtonPressedCallBackFunc ); } \
+    static void AddVariablePointer(const char* label, bool saveload, bool displayinwatch, const char* watchlabel, ComponentVariableCallbackValueChanged pOnValueChangedCallBackFunc, ComponentVariableCallbackDropTarget pOnDropCallBackFunc, ComponentVariableCallback pOnButtonPressedCallBackFunc, ComponentVariableCallbackPointer pGetPointerValueCallBackFunc, ComponentVariableCallbackPointerDesc pGetPointerDescCallBackFunc) \
+    { AddVariablePointer_Base( &m_ComponentVariableList_##ComponentName, label, saveload, displayinwatch, watchlabel, pOnValueChangedCallBackFunc, pOnDropCallBackFunc, pOnButtonPressedCallBackFunc, pGetPointerValueCallBackFunc, pGetPointerDescCallBackFunc ); } \
     static bool ComponentVariablesHaveBeenRegistered() \
     { \
         if( m_ComponentVariableList_##ComponentName.GetHead() == 0 ) m_ComponentVariableListRefCount_##ComponentName = 0; \
@@ -158,6 +172,7 @@ protected:
     //static CPPListHead m_ComponentVariableList; // ComponentVariable type
     static void ClearAllVariables_Base(CPPListHead* pComponentVariableList);
     static void AddVariable_Base(CPPListHead* pComponentVariableList, const char* label, ComponentVariableTypes type, size_t offset, bool saveload, bool displayinwatch, const char* watchlabel, ComponentVariableCallbackValueChanged pOnValueChangedCallBackFunc, ComponentVariableCallbackDropTarget pOnDropCallBackFunc, ComponentVariableCallback pOnButtonPressedCallBackFunc);
+    static void AddVariablePointer_Base(CPPListHead* pComponentVariableList, const char* label, bool saveload, bool displayinwatch, const char* watchlabel, ComponentVariableCallbackValueChanged pOnValueChangedCallBackFunc, ComponentVariableCallbackDropTarget pOnDropCallBackFunc, ComponentVariableCallback pOnButtonPressedCallBackFunc, ComponentVariableCallbackPointer pGetPointerValueCallBackFunc, ComponentVariableCallbackPointerDesc pGetPointerDescCallBackFunc);
     virtual CPPListHead* GetComponentVariableList() { MyAssert( false ); return 0; } // = 0; TODO: make this pure virual once MYFW_COMPONENT_DECLARE_VARIABLE_LIST and MYFW_COMPONENT_IMPLEMENT_VARIABLE_LIST are in each component
     void FillPropertiesWindowWithVariables();
     void ExportVariablesToJSON(cJSON* jComponent);

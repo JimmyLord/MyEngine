@@ -92,7 +92,16 @@ void ComponentBase::ClearAllVariables_Base(CPPListHead* pComponentVariableList)
 
 void ComponentBase::AddVariable_Base(CPPListHead* pComponentVariableList, const char* label, ComponentVariableTypes type, size_t offset, bool saveload, bool displayinwatch, const char* watchlabel, ComponentVariableCallbackValueChanged pOnValueChangedCallBackFunc, ComponentVariableCallbackDropTarget pOnDropCallBackFunc, ComponentVariableCallback pOnButtonPressedCallBackFunc)
 {
-    ComponentVariable* pVariable = MyNew ComponentVariable( label, type, offset, saveload, displayinwatch, watchlabel, pOnValueChangedCallBackFunc, pOnDropCallBackFunc, pOnButtonPressedCallBackFunc );
+    ComponentVariable* pVariable = MyNew ComponentVariable( label, type, offset, saveload, displayinwatch,
+        watchlabel, pOnValueChangedCallBackFunc, pOnDropCallBackFunc, pOnButtonPressedCallBackFunc, 0, 0 );
+    pComponentVariableList->AddTail( pVariable );
+}
+
+void ComponentBase::AddVariablePointer_Base(CPPListHead* pComponentVariableList, const char* label, bool saveload, bool displayinwatch, const char* watchlabel, ComponentVariableCallbackValueChanged pOnValueChangedCallBackFunc, ComponentVariableCallbackDropTarget pOnDropCallBackFunc, ComponentVariableCallback pOnButtonPressedCallBackFunc, ComponentVariableCallbackPointer pGetPointerValueCallBackFunc, ComponentVariableCallbackPointerDesc pGetPointerDescCallBackFunc)
+{
+    ComponentVariable* pVariable = MyNew ComponentVariable( label, ComponentVariableType_PointerIndirect, -1, saveload, displayinwatch,
+        watchlabel, pOnValueChangedCallBackFunc, pOnDropCallBackFunc, pOnButtonPressedCallBackFunc,
+        pGetPointerValueCallBackFunc, pGetPointerDescCallBackFunc );
     pComponentVariableList->AddTail( pVariable );
 }
 
@@ -106,41 +115,66 @@ void ComponentBase::FillPropertiesWindowWithVariables()
         if( pVar->m_DisplayInWatch == false )
             continue;
 
-        if( pVar->m_Offset != -1 )
+        //if( pVar->m_Offset != -1 )
         {
-            if( pVar->m_Type == ComponentVariableType_Vector3 )
+            switch( pVar->m_Type )
             {
+            case ComponentVariableType_ColorByte:
+                pVar->m_ControlID = g_pPanelWatch->AddColorByte( pVar->m_WatchLabel, (ColorByte*)((char*)this + pVar->m_Offset), 0.0f, 0.0f, this, ComponentBase::StaticOnValueChangedVariable );
+                break;
+
+            case ComponentVariableType_Vector2:
+                pVar->m_ControlID = g_pPanelWatch->AddVector2( pVar->m_WatchLabel, (Vector2*)((char*)this + pVar->m_Offset), 0.0f, 0.0f, this, ComponentBase::StaticOnValueChangedVariable );
+                break;
+
+            case ComponentVariableType_Vector3:
                 pVar->m_ControlID = g_pPanelWatch->AddVector3( pVar->m_WatchLabel, (Vector3*)((char*)this + pVar->m_Offset), 0.0f, 0.0f, this, ComponentBase::StaticOnValueChangedVariable );
-            }
+                break;
 
-            if( pVar->m_Type == ComponentVariableType_GameObjectPtr )
-            {
-            }
+            case ComponentVariableType_GameObjectPtr:
+                MyAssert( false );
+                break;
 
-            if( pVar->m_Type == ComponentVariableType_ComponentPtr )
-            {
-                ComponentTransform* pTransformComponent = *(ComponentTransform**)((char*)this + pVar->m_Offset);
-
-                const char* desc = "none";
-                if( pTransformComponent )
+            case ComponentVariableType_ComponentPtr:
                 {
-                    desc = pTransformComponent->m_pGameObject->GetName();
+                    ComponentTransform* pTransformComponent = *(ComponentTransform**)((char*)this + pVar->m_Offset);
+
+                    const char* desc = "none";
+                    if( pTransformComponent )
+                    {
+                        desc = pTransformComponent->m_pGameObject->GetName();
+                    }
+
+                    pVar->m_ControlID = g_pPanelWatch->AddPointerWithDescription( pVar->m_WatchLabel, pTransformComponent, desc, this, ComponentBase::StaticOnDropVariable, ComponentBase::StaticOnValueChangedVariable );
                 }
+                break;
 
-                pVar->m_ControlID = g_pPanelWatch->AddPointerWithDescription( pVar->m_WatchLabel, pTransformComponent, desc, this, ComponentBase::StaticOnDropVariable, ComponentBase::StaticOnValueChangedVariable );
-            }
-
-            if( pVar->m_Type == ComponentVariableType_FilePtr )
-            {
-                MyFileObject* pFile = *(MyFileObject**)((char*)this + pVar->m_Offset);
-
-                const char* desc = "none";
-                if( pFile )
+            case ComponentVariableType_FilePtr:
                 {
-                    desc = pFile->m_FullPath;
-                }
+                    MyFileObject* pFile = *(MyFileObject**)((char*)this + pVar->m_Offset);
 
-                pVar->m_ControlID = g_pPanelWatch->AddPointerWithDescription( pVar->m_WatchLabel, pFile, desc, this, ComponentBase::StaticOnDropVariable, ComponentBase::StaticOnValueChangedVariable );
+                    const char* desc = "none";
+                    if( pFile )
+                    {
+                        desc = pFile->m_FullPath;
+                    }
+
+                    pVar->m_ControlID = g_pPanelWatch->AddPointerWithDescription( pVar->m_WatchLabel, pFile, desc, this, ComponentBase::StaticOnDropVariable, ComponentBase::StaticOnValueChangedVariable );
+                }
+                break;
+
+            case ComponentVariableType_PointerIndirect:
+                {
+                    void* pPtr = pVar->m_pGetPointerValueCallBackFunc( this, pVar );
+                    const char* pDesc = pVar->m_pGetPointerDescCallBackFunc( this, pVar );
+                    pVar->m_ControlID = g_pPanelWatch->AddPointerWithDescription( pVar->m_WatchLabel, pPtr, pDesc, this, ComponentBase::StaticOnDropVariable, ComponentBase::StaticOnValueChangedVariable );
+                }
+                break;
+
+            case ComponentVariableType_NumTypes:
+            default:
+                MyAssert( false );
+                break;
             }
         }
     }

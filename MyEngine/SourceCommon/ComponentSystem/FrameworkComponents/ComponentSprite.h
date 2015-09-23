@@ -14,6 +14,10 @@ class ComponentTransform;
 
 class ComponentSprite : public ComponentRenderable
 {
+private:
+    // Component Variable List
+    MYFW_COMPONENT_DECLARE_VARIABLE_LIST( ComponentSprite );
+
 public:
     MySprite* m_pSprite;
     ColorByte m_Tint;
@@ -33,8 +37,8 @@ public:
     virtual void CopyFromSameType_Dangerous(ComponentBase* pObject) { *this = (ComponentSprite&)*pObject; }
     ComponentSprite& operator=(const ComponentSprite& other);
 
-    virtual void RegisterCallbacks() {} // TODO: change this component to use callbacks.
-    virtual void UnregisterCallbacks() {} // TODO: change this component to use callbacks.
+    virtual void RegisterCallbacks();
+    virtual void UnregisterCallbacks();
 
     virtual MaterialDefinition* GetMaterial(int submeshindex) { if( m_pSprite ) return m_pSprite->GetMaterial(); return 0; }
     virtual void SetMaterial(MaterialDefinition* pMaterial, int submeshindex);
@@ -43,20 +47,30 @@ public:
 public:
     MySprite* GetSprite() { return m_pSprite; }
 
+    // Runtime component variable callbacks.
+    static void* StaticGetPointerValue(void* pObjectPtr, ComponentVariable* pVar) { return ((ComponentSprite*)pObjectPtr)->GetPointerValue(pVar); }
+    void* GetPointerValue(ComponentVariable* pVar);
+
+    static const char* StaticGetPointerDesc(void* pObjectPtr, ComponentVariable* pVar) { return ((ComponentSprite*)pObjectPtr)->GetPointerDesc( pVar ); }
+    const char* GetPointerDesc(ComponentVariable* pVar);
+
 public:
 #if MYFW_USING_WX
     static bool m_PanelWatchBlockVisible;
 
     virtual void AddToObjectsPanel(wxTreeItemId gameobjectid);
-    
+
     // Object panel callbacks.
     static void StaticOnLeftClick(void* pObjectPtr, wxTreeItemId id, unsigned int count) { ((ComponentSprite*)pObjectPtr)->OnLeftClick( count, true ); }
     void OnLeftClick(unsigned int count, bool clear);
     virtual void FillPropertiesWindow(bool clear);
-    
-    // Watch panel callbacks.
-    static void StaticOnDropMaterial(void* pObjectPtr, int controlid, wxCoord x, wxCoord y) { ((ComponentSprite*)pObjectPtr)->OnDropMaterial(controlid, x, y); }
-    void OnDropMaterial(int controlid, wxCoord x, wxCoord y);
+
+    // Component variable callbacks.
+    static void* StaticOnDrop(void* pObjectPtr, ComponentVariable* pVar, wxCoord x, wxCoord y) { return ((ComponentSprite*)pObjectPtr)->OnDrop(pVar, x, y); }
+    void* OnDrop(ComponentVariable* pVar, wxCoord x, wxCoord y);
+
+    static void* StaticOnValueChanged(void* pObjectPtr, ComponentVariable* pVar, bool finishedchanging, double oldvalue) { return ((ComponentSprite*)pObjectPtr)->OnValueChanged( pVar, finishedchanging ); }
+    void* OnValueChanged(ComponentVariable* pVar, bool finishedchanging);
 #endif //MYFW_USING_WX
 };
 
