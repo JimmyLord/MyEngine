@@ -54,6 +54,9 @@ public:
     static const char* StaticGetPointerDesc(void* pObjectPtr, ComponentVariable* pVar) { return ((ComponentSprite*)pObjectPtr)->GetPointerDesc( pVar ); }
     const char* GetPointerDesc(ComponentVariable* pVar);
 
+    static void StaticSetPointerDesc(void* pObjectPtr, ComponentVariable* pVar, const char* newdesc) { return ((ComponentSprite*)pObjectPtr)->SetPointerDesc( pVar, newdesc ); }
+    void SetPointerDesc(ComponentVariable* pVar, const char* newdesc);
+
 public:
 #if MYFW_USING_WX
     static bool m_PanelWatchBlockVisible;

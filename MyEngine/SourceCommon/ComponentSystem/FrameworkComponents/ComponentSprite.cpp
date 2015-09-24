@@ -39,10 +39,7 @@ void ComponentSprite::RegisterVariables(ComponentSprite* pThis) //_VARIABLE_LIST
 {
     AddVariable( "Tint",     ComponentVariableType_ColorByte, MyOffsetOf( pThis, &pThis->m_Tint ),  true,  true, 0, ComponentSprite::StaticOnValueChanged, ComponentSprite::StaticOnDrop, 0 );
     AddVariable( "Size",     ComponentVariableType_Vector2,   MyOffsetOf( pThis, &pThis->m_Size ),  true,  true, 0, ComponentSprite::StaticOnValueChanged, ComponentSprite::StaticOnDrop, 0 );
-    AddVariablePointer( "Material",                                                                 true,  true, 0, ComponentSprite::StaticOnValueChanged, ComponentSprite::StaticOnDrop, 0, ComponentSprite::StaticGetPointerValue, ComponentSprite::StaticGetPointerDesc );
-
-    //if( m_pSprite->GetMaterial() && m_pSprite->GetMaterial()->m_pFile )
-    //    cJSON_AddStringToObject( jComponent, "Material", m_pSprite->GetMaterial()->m_pFile->m_FullPath );
+    AddVariablePointer( "Material",                                                                 true,  true, 0, ComponentSprite::StaticOnValueChanged, ComponentSprite::StaticOnDrop, 0, ComponentSprite::StaticGetPointerValue, ComponentSprite::StaticGetPointerDesc, ComponentSprite::StaticSetPointerDesc );
 }
 
 void ComponentSprite::Reset()
@@ -73,7 +70,6 @@ void* ComponentSprite::GetPointerValue(ComponentVariable* pVar)
 
 const char* ComponentSprite::GetPointerDesc(ComponentVariable* pVar)
 {
-    int bp = 1;
     if( strcmp( pVar->m_Label, "Material" ) == 0 )
     {
         MyAssert( m_pSprite );
@@ -81,16 +77,23 @@ const char* ComponentSprite::GetPointerDesc(ComponentVariable* pVar)
         if( pMaterial && pMaterial->m_pFile )
             return pMaterial->m_pFile->m_FullPath;
     }
-    //cJSON* materialobj = cJSON_GetObjectItem( jsonobj, "Material" );
-    //if( materialobj )
-    //{
-    //    MaterialDefinition* pMaterial = g_pMaterialManager->LoadMaterial( materialobj->valuestring );
-    //    if( pMaterial )
-    //        m_pSprite->SetMaterial( pMaterial );
-    //    pMaterial->Release();
-    //}
 
     return "fix me";
+}
+
+void ComponentSprite::SetPointerDesc(ComponentVariable* pVar, const char* newdesc)
+{
+    if( strcmp( pVar->m_Label, "Material" ) == 0 )
+    {
+        MyAssert( newdesc );
+        if( newdesc )
+        {
+            MaterialDefinition* pMaterial = g_pMaterialManager->LoadMaterial( newdesc );
+            if( pMaterial )
+                m_pSprite->SetMaterial( pMaterial );
+            pMaterial->Release();
+        }
+    }
 }
 
 #if MYFW_USING_WX
@@ -114,36 +117,12 @@ void ComponentSprite::FillPropertiesWindow(bool clear)
         ComponentRenderable::FillPropertiesWindow( clear );
 
         FillPropertiesWindowWithVariables(); //_VARIABLE_LIST
-
-        //g_pPanelWatch->AddUnsignedChar( "r", &m_Tint.r, 0, 255 );
-        //g_pPanelWatch->AddUnsignedChar( "g", &m_Tint.g, 0, 255 );
-        //g_pPanelWatch->AddUnsignedChar( "b", &m_Tint.b, 0, 255 );
-        //g_pPanelWatch->AddUnsignedChar( "a", &m_Tint.a, 0, 255 );
-        //g_pPanelWatch->AddFloat( "width",  &m_Size.x, 0, 0 );
-        //g_pPanelWatch->AddFloat( "height", &m_Size.y, 0, 0 );
-
-        //const char* desc = "no material";
-        //MyAssert( m_pSprite );
-        //MaterialDefinition* pMaterial = m_pSprite->GetMaterial();
-        //if( pMaterial && pMaterial->m_pFile )
-        //    desc = pMaterial->m_pFile->m_FullPath;
-        //g_pPanelWatch->AddPointerWithDescription( "Material", 0, desc, this, ComponentSprite::StaticOnDropMaterial );
     }
 }
 
 void* ComponentSprite::OnDrop(ComponentVariable* pVar, wxCoord x, wxCoord y)
 {
     void* oldvalue = 0;
-
-    if( g_DragAndDropStruct.m_Type == DragAndDropType_ComponentPointer )
-    {
-        (ComponentBase*)g_DragAndDropStruct.m_Value;
-    }
-
-    if( g_DragAndDropStruct.m_Type == DragAndDropType_GameObjectPointer )
-    {
-        (GameObject*)g_DragAndDropStruct.m_Value;
-    }
 
     if( g_DragAndDropStruct.m_Type == DragAndDropType_MaterialDefinitionPointer )
     {
@@ -153,6 +132,8 @@ void* ComponentSprite::OnDrop(ComponentVariable* pVar, wxCoord x, wxCoord y)
 
         oldvalue = m_pSprite->GetMaterial();
         m_pSprite->SetMaterial( pMaterial );
+
+        g_pPanelWatch->m_NeedsRefresh = true;
     }
 
     return oldvalue;
@@ -177,11 +158,6 @@ cJSON* ComponentSprite::ExportAsJSONObject(bool savesceneid)
 
     ExportVariablesToJSON( jComponent ); //_VARIABLE_LIST
 
-    cJSONExt_AddUnsignedCharArrayToObject( jComponent, "Tint", &m_Tint.r, 4 );
-    cJSONExt_AddFloatArrayToObject( jComponent, "Size", &m_Size.x, 2 );
-    if( m_pSprite->GetMaterial() && m_pSprite->GetMaterial()->m_pFile )
-        cJSON_AddStringToObject( jComponent, "Material", m_pSprite->GetMaterial()->m_pFile->m_FullPath );
-
     return jComponent;
 }
 
@@ -190,18 +166,6 @@ void ComponentSprite::ImportFromJSONObject(cJSON* jsonobj, unsigned int sceneid)
     ComponentRenderable::ImportFromJSONObject( jsonobj, sceneid );
 
     ImportVariablesFromJSON( jsonobj ); //_VARIABLE_LIST
-
-    cJSONExt_GetUnsignedCharArray( jsonobj, "Tint", &m_Tint.r, 4 );
-    cJSONExt_GetFloatArray( jsonobj, "Size", &m_Size.x, 2 );
-    
-    cJSON* materialobj = cJSON_GetObjectItem( jsonobj, "Material" );
-    if( materialobj )
-    {
-        MaterialDefinition* pMaterial = g_pMaterialManager->LoadMaterial( materialobj->valuestring );
-        if( pMaterial )
-            m_pSprite->SetMaterial( pMaterial );
-        pMaterial->Release();
-    }
 }
 
 void ComponentSprite::RegisterCallbacks()

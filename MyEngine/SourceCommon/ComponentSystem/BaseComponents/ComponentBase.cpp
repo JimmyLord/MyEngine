@@ -93,15 +93,15 @@ void ComponentBase::ClearAllVariables_Base(CPPListHead* pComponentVariableList)
 void ComponentBase::AddVariable_Base(CPPListHead* pComponentVariableList, const char* label, ComponentVariableTypes type, size_t offset, bool saveload, bool displayinwatch, const char* watchlabel, ComponentVariableCallbackValueChanged pOnValueChangedCallBackFunc, ComponentVariableCallbackDropTarget pOnDropCallBackFunc, ComponentVariableCallback pOnButtonPressedCallBackFunc)
 {
     ComponentVariable* pVariable = MyNew ComponentVariable( label, type, offset, saveload, displayinwatch,
-        watchlabel, pOnValueChangedCallBackFunc, pOnDropCallBackFunc, pOnButtonPressedCallBackFunc, 0, 0 );
+        watchlabel, pOnValueChangedCallBackFunc, pOnDropCallBackFunc, pOnButtonPressedCallBackFunc, 0, 0, 0 );
     pComponentVariableList->AddTail( pVariable );
 }
 
-void ComponentBase::AddVariablePointer_Base(CPPListHead* pComponentVariableList, const char* label, bool saveload, bool displayinwatch, const char* watchlabel, ComponentVariableCallbackValueChanged pOnValueChangedCallBackFunc, ComponentVariableCallbackDropTarget pOnDropCallBackFunc, ComponentVariableCallback pOnButtonPressedCallBackFunc, ComponentVariableCallbackPointer pGetPointerValueCallBackFunc, ComponentVariableCallbackPointerDesc pGetPointerDescCallBackFunc)
+void ComponentBase::AddVariablePointer_Base(CPPListHead* pComponentVariableList, const char* label, bool saveload, bool displayinwatch, const char* watchlabel, ComponentVariableCallbackValueChanged pOnValueChangedCallBackFunc, ComponentVariableCallbackDropTarget pOnDropCallBackFunc, ComponentVariableCallback pOnButtonPressedCallBackFunc, ComponentVariableCallbackPointer pGetPointerValueCallBackFunc, ComponentVariableCallbackGetPointerDesc pGetPointerDescCallBackFunc, ComponentVariableCallbackSetPointerDesc pSetPointerDescCallBackFunc)
 {
     ComponentVariable* pVariable = MyNew ComponentVariable( label, ComponentVariableType_PointerIndirect, -1, saveload, displayinwatch,
         watchlabel, pOnValueChangedCallBackFunc, pOnDropCallBackFunc, pOnButtonPressedCallBackFunc,
-        pGetPointerValueCallBackFunc, pGetPointerDescCallBackFunc );
+        pGetPointerValueCallBackFunc, pGetPointerDescCallBackFunc, pSetPointerDescCallBackFunc );
     pComponentVariableList->AddTail( pVariable );
 }
 
@@ -190,20 +190,47 @@ void ComponentBase::ExportVariablesToJSON(cJSON* jComponent)
         if( pVar->m_SaveLoad == false )
             continue;
 
-        if( pVar->m_Offset != -1 )
+        //if( pVar->m_Offset != -1 )
         {
-            if( pVar->m_Type == ComponentVariableType_Vector3 )
+            switch( pVar->m_Type )
             {
-                cJSONExt_AddFloatArrayToObject( jComponent, pVar->m_Label, (float*)((char*)this + pVar->m_Offset), 3 );
-            }
+            case ComponentVariableType_ComponentPtr:
+            case ComponentVariableType_FilePtr:
+                MyAssert( false );
+                break;
 
-            if( pVar->m_Type == ComponentVariableType_GameObjectPtr )
-            {
-                GameObject* pParentGameObject = *(GameObject**)((char*)this + pVar->m_Offset);
-                if( pParentGameObject )
+            case ComponentVariableType_ColorByte:
+                cJSONExt_AddUnsignedCharArrayToObject( jComponent, pVar->m_Label, (unsigned char*)((char*)this + pVar->m_Offset), 4 );
+                break;
+
+            case ComponentVariableType_Vector2:
+                cJSONExt_AddFloatArrayToObject( jComponent, pVar->m_Label, (float*)((char*)this + pVar->m_Offset), 2 );
+                break;
+
+            case ComponentVariableType_Vector3:
+                cJSONExt_AddFloatArrayToObject( jComponent, pVar->m_Label, (float*)((char*)this + pVar->m_Offset), 3 );
+                break;
+
+            case ComponentVariableType_GameObjectPtr:
                 {
-                    cJSON_AddNumberToObject( jComponent, pVar->m_Label, pParentGameObject->GetID() );
+                    GameObject* pParentGameObject = *(GameObject**)((char*)this + pVar->m_Offset);
+                    if( pParentGameObject )
+                    {
+                        cJSON_AddNumberToObject( jComponent, pVar->m_Label, pParentGameObject->GetID() );
+                    }
                 }
+                break;
+
+            case ComponentVariableType_PointerIndirect:
+                MyAssert( pVar->m_pGetPointerDescCallBackFunc );
+                if( pVar->m_pGetPointerDescCallBackFunc )
+                    cJSON_AddStringToObject( jComponent, pVar->m_Label, pVar->m_pGetPointerDescCallBackFunc( this, pVar ) );
+                break;
+
+            case ComponentVariableType_NumTypes:
+            default:
+                MyAssert( false );
+                break;
             }
         }
     }
@@ -223,22 +250,54 @@ void ComponentBase::ImportVariablesFromJSON(cJSON* jsonobj, const char* singlela
         if( singlelabeltoimport != 0 && strcmp( singlelabeltoimport, pVar->m_Label ) != 0 )
             continue;
 
-        if( pVar->m_Offset != -1 )
+        //if( pVar->m_Offset != -1 )
         {
-            if( pVar->m_Type == ComponentVariableType_Vector3 )
+            switch( pVar->m_Type )
             {
-                cJSONExt_GetFloatArray( jsonobj, pVar->m_Label, (float*)((char*)this + pVar->m_Offset), 3 );
-            }
+            case ComponentVariableType_ComponentPtr:
+            case ComponentVariableType_FilePtr:
+                MyAssert( false );
+                break;
 
-            if( pVar->m_Type == ComponentVariableType_GameObjectPtr )
-            {
-                unsigned int parentid = 0;
-                cJSONExt_GetUnsignedInt( jsonobj, pVar->m_Label, &parentid );
-                if( parentid != 0 )
+            case ComponentVariableType_ColorByte:
+                cJSONExt_GetUnsignedCharArray( jsonobj, pVar->m_Label, (unsigned char*)((char*)this + pVar->m_Offset), 4 );
+                break;
+
+            case ComponentVariableType_Vector2:
+                cJSONExt_GetFloatArray( jsonobj, pVar->m_Label, (float*)((char*)this + pVar->m_Offset), 2 );
+                break;
+
+            case ComponentVariableType_Vector3:
+                cJSONExt_GetFloatArray( jsonobj, pVar->m_Label, (float*)((char*)this + pVar->m_Offset), 3 );
+                break;
+
+            case ComponentVariableType_GameObjectPtr:
                 {
-                    GameObject* pParentGameObject = g_pComponentSystemManager->FindGameObjectByID( m_SceneIDLoadedFrom, parentid );
-                    *(GameObject**)((char*)this + pVar->m_Offset) = pParentGameObject;
+                    unsigned int parentid = 0;
+                    cJSONExt_GetUnsignedInt( jsonobj, pVar->m_Label, &parentid );
+                    if( parentid != 0 )
+                    {
+                        GameObject* pParentGameObject = g_pComponentSystemManager->FindGameObjectByID( m_SceneIDLoadedFrom, parentid );
+                        *(GameObject**)((char*)this + pVar->m_Offset) = pParentGameObject;
+                    }
                 }
+                break;
+
+            case ComponentVariableType_PointerIndirect:
+                MyAssert( pVar->m_pSetPointerDescCallBackFunc );
+                if( pVar->m_pSetPointerDescCallBackFunc )
+                {
+                    cJSON* obj = cJSON_GetObjectItem( jsonobj, pVar->m_Label );
+                    MyAssert( obj );
+                    if( obj )
+                        pVar->m_pSetPointerDescCallBackFunc( this, pVar, obj->valuestring );
+                }
+                break;
+
+            case ComponentVariableType_NumTypes:
+            default:
+                MyAssert( false );
+                break;
             }
         }
     }
@@ -273,7 +332,8 @@ void ComponentBase::OnValueChangedVariable(int controlid, bool finishedchanging,
         MyAssert( pVar );
 
         if( pVar->m_ControlID == controlid ||
-            (pVar->m_Type == ComponentVariableType_Vector3 && (pVar->m_ControlID+1 == controlid || pVar->m_ControlID+2 == controlid) )
+            (pVar->m_Type == ComponentVariableType_Vector3 && (pVar->m_ControlID+1 == controlid || pVar->m_ControlID+2 == controlid) ) ||
+            (pVar->m_Type == ComponentVariableType_Vector2 && (pVar->m_ControlID+1 == controlid) )
           )
         {
             void* oldobjectvalue = pVar->m_pOnValueChangedCallbackFunc( this, pVar, finishedchanging, oldvalue );
@@ -303,29 +363,55 @@ void ComponentBase::OnValueChangedVariable(int controlid, bool finishedchanging,
                             // TODO: this will fail if multiple of the same component are on an object.
 
                             // Found the matching component, now compare the variable.
-                            if( pVar->m_Type == ComponentVariableType_Vector3 )
+                            switch( pVar->m_Type )
                             {
-                                // figure out which component of a multi-component control(e.g. vector3) this is.
-                                int controlcomponent = controlid - pVar->m_ControlID;
+                            case ComponentVariableType_GameObjectPtr:
+                            case ComponentVariableType_FilePtr:
+                                MyAssert( false );
+                                break;
 
-                                int offset = pVar->m_Offset + controlcomponent*4;
+                            case ComponentVariableType_ColorByte:
+                                // TODO: changing color in panel watch doesn't call OnValueChanged
+                                MyAssert( false );
+                                break;
 
-                                if( *(float*)((char*)pComponent + offset) == oldvalue )
+                            case ComponentVariableType_Vector2:
+                            case ComponentVariableType_Vector3:
                                 {
-                                    *(float*)((char*)pComponent + offset) = *(float*)((char*)this + offset);
-                                    pVar->m_pOnValueChangedCallbackFunc( pComponent, pVar, finishedchanging, oldvalue );
+                                    // figure out which component of a multi-component control(e.g. vector3) this is.
+                                    int controlcomponent = controlid - pVar->m_ControlID;
+
+                                    int offset = pVar->m_Offset + controlcomponent*4;
+
+                                    if( *(float*)((char*)pComponent + offset) == oldvalue )
+                                    {
+                                        *(float*)((char*)pComponent + offset) = *(float*)((char*)this + offset);
+                                        pVar->m_pOnValueChangedCallbackFunc( pComponent, pVar, finishedchanging, oldvalue );
+                                    }
                                 }
-                            }
+                                break;
 
-                            if( pVar->m_Type == ComponentVariableType_ComponentPtr )
-                            {
-                                int offset = pVar->m_Offset;
-
-                                if( *(ComponentBase**)((char*)pComponent + pVar->m_Offset) == oldobjectvalue )
+                            case ComponentVariableType_ComponentPtr:
                                 {
-                                    void* oldobjectvalue2 = pVar->m_pOnValueChangedCallbackFunc( pComponent, pVar, finishedchanging, oldvalue );
-                                    MyAssert( oldobjectvalue2 == oldobjectvalue );
-                                }                                
+                                    int offset = pVar->m_Offset;
+
+                                    if( *(ComponentBase**)((char*)pComponent + pVar->m_Offset) == oldobjectvalue )
+                                    {
+                                        void* oldobjectvalue2 = pVar->m_pOnValueChangedCallbackFunc( pComponent, pVar, finishedchanging, oldvalue );
+                                        MyAssert( oldobjectvalue2 == oldobjectvalue );
+                                    }                                
+                                }
+                                break;
+
+                            case ComponentVariableType_PointerIndirect:
+                                // TODO: support typing a new description for this type
+                                MyAssert( false );
+                                break;
+
+                            case ComponentVariableType_NumTypes:
+                            default:
+                                MyAssert( false );
+                                break;
                             }
                         }
                     }
@@ -377,22 +463,49 @@ void ComponentBase::OnDropVariable(int controlid, wxCoord x, wxCoord y)
                             // TODO: this will fail if multiple of the same component are on an object.
 
                             // Found the matching component, now compare the variable.
-                            if( pVar->m_Type == ComponentVariableType_Vector3 )
+                            switch( pVar->m_Type )
                             {
-                                MyAssert( false ); // not drag/dropping Vector3's ATM.
-                            }
+                            case ComponentVariableType_GameObjectPtr:
+                                MyAssert( false );
+                                break;
 
-                            if( pVar->m_Type == ComponentVariableType_ComponentPtr ||
-                                pVar->m_Type == ComponentVariableType_FilePtr )
-                            {
-                                int offset = pVar->m_Offset;
+                            case ComponentVariableType_ColorByte:
+                            case ComponentVariableType_Vector2:
+                            case ComponentVariableType_Vector3:
+                                MyAssert( false ); // not drag/dropping these types ATM.
+                                break;
 
-                                if( *(ComponentBase**)((char*)pComponent + offset) == oldvalue )
+                            case ComponentVariableType_ComponentPtr:
+                            case ComponentVariableType_FilePtr:
                                 {
-                                    // OnDropCallback will grab the new value from g_DragAndDropStruct
-                                    void* oldvalue2 = pVar->m_pOnDropCallbackFunc( pComponent, pVar, x, y );
-                                    MyAssert( oldvalue2 == oldvalue );
+                                    int offset = pVar->m_Offset;
+
+                                    if( *(ComponentBase**)((char*)pComponent + offset) == oldvalue )
+                                    {
+                                        // OnDropCallback will grab the new value from g_DragAndDropStruct
+                                        void* oldvalue2 = pVar->m_pOnDropCallbackFunc( pComponent, pVar, x, y );
+                                        MyAssert( oldvalue2 == oldvalue );
+                                    }
                                 }
+                                break;
+
+                            case ComponentVariableType_PointerIndirect:
+                                {
+                                    int offset = pVar->m_Offset;
+
+                                    if( pVar->m_pGetPointerValueCallBackFunc( pComponent, pVar ) == oldvalue )
+                                    {
+                                        // OnDropCallback will grab the new value from g_DragAndDropStruct
+                                        void* oldvalue2 = pVar->m_pOnDropCallbackFunc( pComponent, pVar, x, y );
+                                        MyAssert( oldvalue2 == oldvalue );
+                                    }
+                                }
+                                break;
+
+                            case ComponentVariableType_NumTypes:
+                            default:
+                                MyAssert( false );
+                                break;
                             }
                         }
                     }

@@ -577,10 +577,11 @@ ComponentLuaScript& ComponentLuaScript::operator=(const ComponentLuaScript& othe
 
     ComponentUpdateable::operator=( other );
 
-    //m_Mass = other.m_Mass;
     this->m_pScriptFile = other.m_pScriptFile;
     if( this->m_pScriptFile )
         this->m_pScriptFile->AddRef();
+
+    // TODO: ComponentLuaScript::operator=: externed variable values are not being copied.
 
     return *this;
 }
