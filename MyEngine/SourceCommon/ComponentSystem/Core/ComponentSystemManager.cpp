@@ -953,7 +953,9 @@ GameObject* ComponentSystemManager::CopyGameObject(GameObject* pObject, const ch
         else
             pComponent = pNewObject->AddNewComponent( pObject->m_Components[i]->m_Type, 0 );
 
-        pComponent->CopyFromSameType_Dangerous( pObject->m_Components[i] );        
+        pComponent->CopyFromSameType_Dangerous( pObject->m_Components[i] );
+
+        pComponent->OnLoad();
     }
 
     return pNewObject;

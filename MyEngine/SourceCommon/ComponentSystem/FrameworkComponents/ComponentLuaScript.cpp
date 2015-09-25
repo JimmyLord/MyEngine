@@ -579,9 +579,29 @@ ComponentLuaScript& ComponentLuaScript::operator=(const ComponentLuaScript& othe
 
     this->m_pScriptFile = other.m_pScriptFile;
     if( this->m_pScriptFile )
+    {
         this->m_pScriptFile->AddRef();
 
-    // TODO: ComponentLuaScript::operator=: externed variable values are not being copied.
+        // load the script and copy externed variable values
+        LoadScript();
+
+        for( unsigned int i=0; i<m_ExposedVars.Count(); i++ )
+        {
+            ExposedVariableDesc* pVar = m_ExposedVars[i];
+            ExposedVariableDesc* pOtherVar = other.m_ExposedVars[i];            
+
+            if( pVar->type == ExposedVariableType_Float )
+                pVar->value = pOtherVar->value;
+
+            if( pVar->type == ExposedVariableType_GameObject )
+                pVar->pointer = pOtherVar->pointer;
+
+            if( pVar->pointer )
+                ((GameObject*)pVar->pointer)->RegisterOnDeleteCallback( this, StaticOnGameObjectDeleted );
+        }
+
+        ProgramVariables( m_pLuaGameState->m_pLuaState, true );
+    }
 
     return *this;
 }
