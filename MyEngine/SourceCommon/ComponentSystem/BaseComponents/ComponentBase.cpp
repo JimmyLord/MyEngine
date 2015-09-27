@@ -333,7 +333,8 @@ void ComponentBase::OnValueChangedVariable(int controlid, bool finishedchanging,
 
         if( pVar->m_ControlID == controlid ||
             (pVar->m_Type == ComponentVariableType_Vector3 && (pVar->m_ControlID+1 == controlid || pVar->m_ControlID+2 == controlid) ) ||
-            (pVar->m_Type == ComponentVariableType_Vector2 && (pVar->m_ControlID+1 == controlid) )
+            (pVar->m_Type == ComponentVariableType_Vector2 && (pVar->m_ControlID+1 == controlid) ) ||
+            (pVar->m_Type == ComponentVariableType_ColorByte && (pVar->m_ControlID+1 == controlid) )
           )
         {
             void* oldobjectvalue = pVar->m_pOnValueChangedCallbackFunc( this, pVar, finishedchanging, oldvalue );
@@ -371,8 +372,33 @@ void ComponentBase::OnValueChangedVariable(int controlid, bool finishedchanging,
                                 break;
 
                             case ComponentVariableType_ColorByte:
-                                // TODO: changing color in panel watch doesn't call OnValueChanged
-                                MyAssert( false );
+                                {
+                                    int controlcomponent = controlid - pVar->m_ControlID;
+
+                                    if( controlcomponent == 0 )
+                                    {
+                                        int offset = pVar->m_Offset;
+                                        ColorByte* oldcolor = (ColorByte*)*(int*)&oldvalue;
+                                        ColorByte* childcolor = (ColorByte*)((char*)pComponent + offset);
+
+                                        if( *childcolor == *oldcolor )
+                                        {
+                                            ColorByte* newcolor = (ColorByte*)((char*)this + offset);
+                                            *childcolor = *newcolor;
+                                            pVar->m_pOnValueChangedCallbackFunc( pComponent, pVar, finishedchanging, oldvalue );
+                                        }
+                                    }
+                                    else
+                                    {
+                                        int offset = pVar->m_Offset + sizeof(unsigned char)*3; // offset of the alpha in ColorByte
+
+                                        if( *(unsigned char*)((char*)pComponent + offset) == oldvalue )
+                                        {
+                                            *(unsigned char*)((char*)pComponent + offset) = *(unsigned char*)((char*)this + offset);
+                                            pVar->m_pOnValueChangedCallbackFunc( pComponent, pVar, finishedchanging, oldvalue );
+                                        }
+                                    }
+                                }
                                 break;
 
                             case ComponentVariableType_Vector2:
