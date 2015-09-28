@@ -430,8 +430,15 @@ void ComponentBase::OnValueChangedVariable(int controlid, bool finishedchanging,
                                 break;
 
                             case ComponentVariableType_PointerIndirect:
-                                // TODO: support typing a new description for this type
-                                MyAssert( false );
+                                {
+                                    int offset = pVar->m_Offset;
+
+                                    if( pVar->m_pGetPointerValueCallBackFunc( pComponent, pVar ) == oldobjectvalue )
+                                    {
+                                        void* oldobjectvalue2 = pVar->m_pOnValueChangedCallbackFunc( pComponent, pVar, finishedchanging, oldvalue );
+                                        MyAssert( oldobjectvalue2 == oldobjectvalue );
+                                    }                                
+                                }
                                 break;
 
                             case ComponentVariableType_NumTypes:
@@ -464,7 +471,7 @@ void ComponentBase::OnDropVariable(int controlid, wxCoord x, wxCoord y)
 
             void* oldvalue = pVar->m_pOnDropCallbackFunc( this, pVar, x, y );
 
-            // TODO: propagate change down to child objects...
+            // propagate change down to child objects...
             for( CPPListNode* pCompNode = g_pComponentSystemManager->m_GameObjects.GetHead(); pCompNode; pCompNode = pCompNode->GetNext() )
             {
                 GameObject* pGameObject = (GameObject*)pCompNode;

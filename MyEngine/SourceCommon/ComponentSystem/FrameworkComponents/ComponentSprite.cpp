@@ -143,10 +143,19 @@ void* ComponentSprite::OnValueChanged(ComponentVariable* pVar, bool finishedchan
 {
     void* oldvalue = 0;
 
-    //if( pVar->m_Offset == MyOffsetOf( this, &m_SampleVector3 ) )
-    //{
-    //    MyAssert( pVar->m_ControlID != -1 );
-    //}
+    if( strcmp( pVar->m_Label, "Material" ) == 0 )
+    {
+        MyAssert( pVar->m_ControlID != -1 );
+
+        wxString text = g_pPanelWatch->m_pVariables[pVar->m_ControlID].m_Handle_TextCtrl->GetValue();
+        if( text == "" || text == "none" )
+        {
+            g_pPanelWatch->ChangeDescriptionForPointerWithDescription( pVar->m_ControlID, "none" );
+
+            oldvalue = m_pSprite->GetMaterial();
+            m_pSprite->SetMaterial( 0 );
+        }
+    }
 
     return oldvalue;
 }
