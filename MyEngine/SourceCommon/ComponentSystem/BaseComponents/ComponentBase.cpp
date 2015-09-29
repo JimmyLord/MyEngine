@@ -326,6 +326,36 @@ void ComponentBase::AddToObjectsPanel(wxTreeItemId gameobjectid)
 
 void ComponentBase::OnValueChangedVariable(int controlid, bool finishedchanging, double oldvalue)
 {
+    ComponentVariable* pVar = FindComponentVariableForControl( controlid );
+
+    if( pVar )
+    {
+        void* oldpointer = pVar->m_pOnValueChangedCallbackFunc( this, pVar, finishedchanging, oldvalue );
+
+        UpdateChildrenWithNewValue( false, pVar, controlid, true, oldvalue, oldpointer, -1, -1 );
+    }
+}
+
+void ComponentBase::OnDropVariable(int controlid, wxCoord x, wxCoord y)
+{
+    void* oldpointer = 0;
+
+    ComponentVariable* pVar = FindComponentVariableForControl( controlid );
+
+    if( pVar )
+    {
+        // OnDropCallback will grab the new value from g_DragAndDropStruct
+        if( pVar->m_pOnDropCallbackFunc == 0 )
+            return;
+
+        oldpointer = pVar->m_pOnDropCallbackFunc( this, pVar, x, y );
+
+        UpdateChildrenWithNewValue( true, pVar, controlid, true, 0, oldpointer, x, y );
+    }
+}
+
+ComponentVariable* ComponentBase::FindComponentVariableForControl(int controlid)
+{
     for( CPPListNode* pNode = GetComponentVariableList()->GetHead(); pNode; pNode = pNode->GetNext() )
     {
         ComponentVariable* pVar = (ComponentVariable*)pNode;
@@ -337,210 +367,163 @@ void ComponentBase::OnValueChangedVariable(int controlid, bool finishedchanging,
             (pVar->m_Type == ComponentVariableType_ColorByte && (pVar->m_ControlID+1 == controlid) )
           )
         {
-            void* oldobjectvalue = pVar->m_pOnValueChangedCallbackFunc( this, pVar, finishedchanging, oldvalue );
-
-            // find children of this gameobject and change their values as well, if their value matches the old value.
-            for( CPPListNode* pCompNode = g_pComponentSystemManager->m_GameObjects.GetHead(); pCompNode; pCompNode = pCompNode->GetNext() )
-            {
-                GameObject* pGameObject = (GameObject*)pCompNode;
-
-                if( pGameObject->GetGameObjectThisInheritsFrom() == this->m_pGameObject )
-                {
-                    // Found a game object, now find the matching component on it.
-                    for( unsigned int i=0; i<pGameObject->m_Components.Count()+1; i++ )
-                    {
-                        ComponentBase* pComponent;
-
-                        if( i == 0 )
-                            pComponent = pGameObject->m_pComponentTransform;
-                        else
-                            pComponent = pGameObject->m_Components[i-1];
-
-                        const char* pThisCompClassName = GetClassname();
-                        const char* pOtherCompClassName = pComponent->GetClassname();
-
-                        if( strcmp( pThisCompClassName, pOtherCompClassName ) == 0 )
-                        {
-                            // TODO: this will fail if multiple of the same component are on an object.
-
-                            // Found the matching component, now compare the variable.
-                            switch( pVar->m_Type )
-                            {
-                            case ComponentVariableType_GameObjectPtr:
-                            case ComponentVariableType_FilePtr:
-                                MyAssert( false );
-                                break;
-
-                            case ComponentVariableType_ColorByte:
-                                {
-                                    int controlcomponent = controlid - pVar->m_ControlID;
-
-                                    if( controlcomponent == 0 )
-                                    {
-                                        int offset = pVar->m_Offset;
-                                        ColorByte* oldcolor = (ColorByte*)*(int*)&oldvalue;
-                                        ColorByte* childcolor = (ColorByte*)((char*)pComponent + offset);
-
-                                        if( *childcolor == *oldcolor )
-                                        {
-                                            ColorByte* newcolor = (ColorByte*)((char*)this + offset);
-                                            *childcolor = *newcolor;
-                                            pVar->m_pOnValueChangedCallbackFunc( pComponent, pVar, finishedchanging, oldvalue );
-                                        }
-                                    }
-                                    else
-                                    {
-                                        int offset = pVar->m_Offset + sizeof(unsigned char)*3; // offset of the alpha in ColorByte
-
-                                        if( *(unsigned char*)((char*)pComponent + offset) == oldvalue )
-                                        {
-                                            *(unsigned char*)((char*)pComponent + offset) = *(unsigned char*)((char*)this + offset);
-                                            pVar->m_pOnValueChangedCallbackFunc( pComponent, pVar, finishedchanging, oldvalue );
-                                        }
-                                    }
-                                }
-                                break;
-
-                            case ComponentVariableType_Vector2:
-                            case ComponentVariableType_Vector3:
-                                {
-                                    // figure out which component of a multi-component control(e.g. vector3) this is.
-                                    int controlcomponent = controlid - pVar->m_ControlID;
-
-                                    int offset = pVar->m_Offset + controlcomponent*4;
-
-                                    if( *(float*)((char*)pComponent + offset) == oldvalue )
-                                    {
-                                        *(float*)((char*)pComponent + offset) = *(float*)((char*)this + offset);
-                                        pVar->m_pOnValueChangedCallbackFunc( pComponent, pVar, finishedchanging, oldvalue );
-                                    }
-                                }
-                                break;
-
-                            case ComponentVariableType_ComponentPtr:
-                                {
-                                    int offset = pVar->m_Offset;
-
-                                    if( *(ComponentBase**)((char*)pComponent + pVar->m_Offset) == oldobjectvalue )
-                                    {
-                                        void* oldobjectvalue2 = pVar->m_pOnValueChangedCallbackFunc( pComponent, pVar, finishedchanging, oldvalue );
-                                        MyAssert( oldobjectvalue2 == oldobjectvalue );
-                                    }                                
-                                }
-                                break;
-
-                            case ComponentVariableType_PointerIndirect:
-                                {
-                                    int offset = pVar->m_Offset;
-
-                                    if( pVar->m_pGetPointerValueCallBackFunc( pComponent, pVar ) == oldobjectvalue )
-                                    {
-                                        void* oldobjectvalue2 = pVar->m_pOnValueChangedCallbackFunc( pComponent, pVar, finishedchanging, oldvalue );
-                                        MyAssert( oldobjectvalue2 == oldobjectvalue );
-                                    }                                
-                                }
-                                break;
-
-                            case ComponentVariableType_NumTypes:
-                            default:
-                                MyAssert( false );
-                                break;
-                            }
-                        }
-                    }
-                }
-            }
+            return pVar;
         }
     }
+
+    return 0;
 }
 
-void ComponentBase::OnDropVariable(int controlid, wxCoord x, wxCoord y)
+void ComponentBase::UpdateChildrenWithNewValue(bool fromdraganddrop, ComponentVariable* pVar, int controlid, bool finishedchanging, double oldvalue, void* oldpointer, wxCoord x, wxCoord y)
 {
-    for( CPPListNode* pNode = GetComponentVariableList()->GetHead(); pNode; pNode = pNode->GetNext() )
+    // find children of this gameobject and change their values as well, if their value matches the old value.
+    for( CPPListNode* pCompNode = g_pComponentSystemManager->m_GameObjects.GetHead(); pCompNode; pCompNode = pCompNode->GetNext() )
     {
-        ComponentVariable* pVar = (ComponentVariable*)pNode;
-        MyAssert( pVar );
+        GameObject* pGameObject = (GameObject*)pCompNode;
 
-        if( pVar->m_ControlID == controlid ||
-            (pVar->m_Type == ComponentVariableType_Vector3 && (pVar->m_ControlID+1 == controlid || pVar->m_ControlID+2 == controlid) )
-          )
+        if( pGameObject->GetGameObjectThisInheritsFrom() == this->m_pGameObject )
         {
-            // OnDropCallback will grab the new value from g_DragAndDropStruct
-            if( pVar->m_pOnDropCallbackFunc == 0 )
-                return;
-
-            void* oldvalue = pVar->m_pOnDropCallbackFunc( this, pVar, x, y );
-
-            // propagate change down to child objects...
-            for( CPPListNode* pCompNode = g_pComponentSystemManager->m_GameObjects.GetHead(); pCompNode; pCompNode = pCompNode->GetNext() )
+            // Found a game object, now find the matching component on it.
+            for( unsigned int i=0; i<pGameObject->m_Components.Count()+1; i++ )
             {
-                GameObject* pGameObject = (GameObject*)pCompNode;
+                ComponentBase* pComponent;
 
-                if( pGameObject->GetGameObjectThisInheritsFrom() == this->m_pGameObject )
+                if( i == 0 )
+                    pComponent = pGameObject->m_pComponentTransform;
+                else
+                    pComponent = pGameObject->m_Components[i-1];
+
+                const char* pThisCompClassName = GetClassname();
+                const char* pOtherCompClassName = pComponent->GetClassname();
+
+                if( strcmp( pThisCompClassName, pOtherCompClassName ) == 0 )
                 {
-                    // Found a game object, now find the matching component on it.
-                    for( unsigned int i=0; i<pGameObject->m_Components.Count()+1; i++ )
+                    // TODO: this will fail if multiple of the same component are on an object.
+
+                    // Found the matching component, now compare the variable.
+                    switch( pVar->m_Type )
                     {
-                        ComponentBase* pComponent;
+                    case ComponentVariableType_GameObjectPtr:
+                        MyAssert( false );
+                        break;
 
-                        if( i == 0 )
-                            pComponent = pGameObject->m_pComponentTransform;
-                        else
-                            pComponent = pGameObject->m_Components[i-1];
+                    case ComponentVariableType_Vector2:
+                    case ComponentVariableType_Vector3:
+                        MyAssert( fromdraganddrop == false ); // not drag/dropping these types ATM.
 
-                        const char* pThisCompClassName = GetClassname();
-                        const char* pOtherCompClassName = pComponent->GetClassname();
-
-                        if( strcmp( pThisCompClassName, pOtherCompClassName ) == 0 )
+                        if( fromdraganddrop == false )
                         {
-                            // TODO: this will fail if multiple of the same component are on an object.
+                            // figure out which component of a multi-component control(e.g. vector3) this is.
+                            int controlcomponent = controlid - pVar->m_ControlID;
 
-                            // Found the matching component, now compare the variable.
-                            switch( pVar->m_Type )
+                            int offset = pVar->m_Offset + controlcomponent*4;
+
+                            if( *(float*)((char*)pComponent + offset) == oldvalue )
                             {
-                            case ComponentVariableType_GameObjectPtr:
-                                MyAssert( false );
-                                break;
-
-                            case ComponentVariableType_ColorByte:
-                            case ComponentVariableType_Vector2:
-                            case ComponentVariableType_Vector3:
-                                MyAssert( false ); // not drag/dropping these types ATM.
-                                break;
-
-                            case ComponentVariableType_ComponentPtr:
-                            case ComponentVariableType_FilePtr:
-                                {
-                                    int offset = pVar->m_Offset;
-
-                                    if( *(ComponentBase**)((char*)pComponent + offset) == oldvalue )
-                                    {
-                                        // OnDropCallback will grab the new value from g_DragAndDropStruct
-                                        void* oldvalue2 = pVar->m_pOnDropCallbackFunc( pComponent, pVar, x, y );
-                                        MyAssert( oldvalue2 == oldvalue );
-                                    }
-                                }
-                                break;
-
-                            case ComponentVariableType_PointerIndirect:
-                                {
-                                    int offset = pVar->m_Offset;
-
-                                    if( pVar->m_pGetPointerValueCallBackFunc( pComponent, pVar ) == oldvalue )
-                                    {
-                                        // OnDropCallback will grab the new value from g_DragAndDropStruct
-                                        void* oldvalue2 = pVar->m_pOnDropCallbackFunc( pComponent, pVar, x, y );
-                                        MyAssert( oldvalue2 == oldvalue );
-                                    }
-                                }
-                                break;
-
-                            case ComponentVariableType_NumTypes:
-                            default:
-                                MyAssert( false );
-                                break;
+                                *(float*)((char*)pComponent + offset) = *(float*)((char*)this + offset);
+                                pVar->m_pOnValueChangedCallbackFunc( pComponent, pVar, finishedchanging, oldvalue );
                             }
+
+                            pComponent->UpdateChildrenWithNewValue( fromdraganddrop, pVar, controlid, true, oldvalue, oldpointer, x, y );
                         }
+                        break;
+
+                    case ComponentVariableType_ColorByte:
+                        MyAssert( fromdraganddrop == false ); // not drag/dropping these types ATM.
+
+                        if( fromdraganddrop == false )
+                        {
+                            int controlcomponent = controlid - pVar->m_ControlID;
+
+                            if( controlcomponent == 0 )
+                            {
+                                int offset = pVar->m_Offset;
+                                ColorByte* oldcolor = (ColorByte*)*(int*)&oldvalue;
+                                ColorByte* childcolor = (ColorByte*)((char*)pComponent + offset);
+
+                                if( *childcolor == *oldcolor )
+                                {
+                                    ColorByte* newcolor = (ColorByte*)((char*)this + offset);
+                                    *childcolor = *newcolor;
+                                    pVar->m_pOnValueChangedCallbackFunc( pComponent, pVar, finishedchanging, oldvalue );
+                                }
+                            }
+                            else
+                            {
+                                int offset = pVar->m_Offset + sizeof(unsigned char)*3; // offset of the alpha in ColorByte
+
+                                if( *(unsigned char*)((char*)pComponent + offset) == oldvalue )
+                                {
+                                    *(unsigned char*)((char*)pComponent + offset) = *(unsigned char*)((char*)this + offset);
+                                    pVar->m_pOnValueChangedCallbackFunc( pComponent, pVar, finishedchanging, oldvalue );
+                                }
+                            }
+
+                            pComponent->UpdateChildrenWithNewValue( fromdraganddrop, pVar, controlid, true, oldvalue, oldpointer, x, y );
+                        }
+                        break;
+
+                    case ComponentVariableType_FilePtr:
+                    case ComponentVariableType_ComponentPtr:
+                        {
+                            if( fromdraganddrop )
+                            {
+                                int offset = pVar->m_Offset;
+
+                                if( *(ComponentBase**)((char*)pComponent + offset) == oldpointer )
+                                {
+                                    // OnDropCallback will grab the new value from g_DragAndDropStruct
+                                    void* oldpointer2 = pVar->m_pOnDropCallbackFunc( pComponent, pVar, x, y );
+                                    MyAssert( oldpointer2 == oldpointer );
+                                }
+                            }
+                            else
+                            {
+                                int offset = pVar->m_Offset;
+
+                                if( *(ComponentBase**)((char*)pComponent + pVar->m_Offset) == oldpointer )
+                                {
+                                    void* oldpointer2 = pVar->m_pOnValueChangedCallbackFunc( pComponent, pVar, finishedchanging, oldvalue );
+                                    MyAssert( oldpointer2 == oldpointer );
+                                }                                
+                            }
+
+                            pComponent->UpdateChildrenWithNewValue( fromdraganddrop, pVar, controlid, true, oldvalue, oldpointer, x, y );
+                        }
+                        break;
+
+                    case ComponentVariableType_PointerIndirect:
+                        {
+                            if( fromdraganddrop )
+                            {
+                                int offset = pVar->m_Offset;
+
+                                if( pVar->m_pGetPointerValueCallBackFunc( pComponent, pVar ) == oldpointer )
+                                {
+                                    // OnDropCallback will grab the new value from g_DragAndDropStruct
+                                    void* oldpointer2 = pVar->m_pOnDropCallbackFunc( pComponent, pVar, x, y );
+                                    MyAssert( oldpointer2 == oldpointer );
+                                }
+                            }
+                            else
+                            {
+                                int offset = pVar->m_Offset;
+
+                                if( pVar->m_pGetPointerValueCallBackFunc( pComponent, pVar ) == oldpointer )
+                                {
+                                    void* oldpointer2 = pVar->m_pOnValueChangedCallbackFunc( pComponent, pVar, finishedchanging, oldvalue );
+                                    MyAssert( oldpointer2 == oldpointer );
+                                }
+                            }
+
+                            pComponent->UpdateChildrenWithNewValue( fromdraganddrop, pVar, controlid, true, oldvalue, oldpointer, x, y );
+                        }
+                        break;
+
+                    case ComponentVariableType_NumTypes:
+                    default:
+                        MyAssert( false );
+                        break;
                     }
                 }
             }

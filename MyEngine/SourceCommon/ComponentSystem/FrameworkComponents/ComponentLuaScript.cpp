@@ -399,6 +399,8 @@ void ComponentLuaScript::OnValueChanged(int controlid, bool finishedchanging, do
                     m_ExposedVars[id]->pointer = 0;
 
                     UpdateChildrenWithNewValue( controlid, true, 0, oldpointer );
+                    ProgramVariables( m_pLuaGameState->m_pLuaState, true );
+                    return;
                 }
             }
         }
