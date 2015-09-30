@@ -15,14 +15,15 @@ class ComponentTransform;
 class ComponentRenderable : public ComponentBase
 {
 protected:
+    // Component Variable List
+    MYFW_COMPONENT_DECLARE_VARIABLE_LIST( ComponentRenderable );
+
+protected:
     bool m_Visible;
+    unsigned int m_LayersThisExistsOn;
 
 public:
     ComponentTransform* m_pComponentTransform;
-
-    //ShaderGroup* m_pShader; // managed by external forces.
-
-    unsigned int m_LayersThisExistsOn;
 
 public:
     ComponentRenderable();
@@ -46,14 +47,27 @@ public:
     void SetVisible(bool visible) { m_Visible = visible; }
     bool IsVisible();
 
+    void SetLayersThisExistsOn(unsigned int layers) { m_LayersThisExistsOn = layers; }
+    unsigned int GetLayersThisExistsOn() { return m_LayersThisExistsOn; }
+    bool ExistsOnLayer(unsigned int layer) { return (m_LayersThisExistsOn & layer) ? true : false; }
+
 public:
 #if MYFW_USING_WX
     static bool m_PanelWatchBlockVisible;
 
     virtual void AddToObjectsPanel(wxTreeItemId gameobjectid);
+
+    // Object panel callbacks.
     static void StaticOnLeftClick(void* pObjectPtr, wxTreeItemId id, unsigned int count) { ((ComponentRenderable*)pObjectPtr)->OnLeftClick( count, true ); }
     void OnLeftClick(unsigned int count, bool clear);
-    virtual void FillPropertiesWindow(bool clear);
+    virtual void FillPropertiesWindow(bool clear, bool addcomponentvariables = false);
+
+    // Component variable callbacks. //_VARIABLE_LIST
+    //static void* StaticOnDrop(void* pObjectPtr, ComponentVariable* pVar, wxCoord x, wxCoord y) { return ((ComponentRenderable*)pObjectPtr)->OnDrop(pVar, x, y); }
+    //void* OnDrop(ComponentVariable* pVar, wxCoord x, wxCoord y);
+
+    //static void* StaticOnValueChanged(void* pObjectPtr, ComponentVariable* pVar, bool finishedchanging, double oldvalue) { return ((ComponentRenderable*)pObjectPtr)->OnValueChanged( pVar, finishedchanging ); }
+    //void* OnValueChanged(ComponentVariable* pVar, bool finishedchanging);
 #endif //MYFW_USING_WX
 };
 

@@ -37,7 +37,7 @@ void ComponentData::OnLeftClick(unsigned int count, bool clear)
     ComponentBase::OnLeftClick( count, clear );
 }
 
-void ComponentData::FillPropertiesWindow(bool clear)
+void ComponentData::FillPropertiesWindow(bool clear, bool addcomponentvariables)
 {
     //m_ControlID_ComponentTitleLabel = g_pPanelWatch->AddSpace( "Data", this, ComponentBase::StaticOnComponentTitleLabelClicked );
 

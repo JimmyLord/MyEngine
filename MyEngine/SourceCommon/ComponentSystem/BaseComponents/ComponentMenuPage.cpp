@@ -408,7 +408,7 @@ void ComponentMenuPage::OnLeftClick(unsigned int count, bool clear)
     ComponentBase::OnLeftClick( count, clear );
 }
 
-void ComponentMenuPage::FillPropertiesWindow(bool clear)
+void ComponentMenuPage::FillPropertiesWindow(bool clear, bool addcomponentvariables)
 {
     m_ControlID_ComponentTitleLabel = g_pPanelWatch->AddSpace( "Menu Page", this, ComponentBase::StaticOnComponentTitleLabelClicked );
 

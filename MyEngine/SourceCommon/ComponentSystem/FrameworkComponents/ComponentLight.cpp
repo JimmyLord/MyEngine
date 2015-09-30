@@ -36,14 +36,14 @@ ComponentLight::~ComponentLight()
         g_pLightManager->DestroyLight( m_pLight );
 }
 
-void ComponentLight::RegisterVariables(ComponentLight* pThis) //_VARIABLE_LIST
+void ComponentLight::RegisterVariables(CPPListHead* pList, ComponentLight* pThis) //_VARIABLE_LIST
 {
     // TODO: lights don't do inheritance ATM since all vars are indirectly stored in a light object outside the class (m_pLight).
 
     // just want to make sure these are the same on all compilers.  They should be since this is a simple class.
     //MyAssert( offsetof( ComponentLight, m_pScriptFile ) == MyOffsetOf( pThis, &pThis->m_pScriptFile ) );
 
-    //AddVariable( "Script", ComponentVariableType_FilePtr, MyOffsetOf( pThis, &pThis->m_pScriptFile ), true, true, 0, ComponentLuaScript::StaticOnValueChangedCV, ComponentLuaScript::StaticOnDropCV, 0 );
+    //AddVariable( pList, "Script", ComponentVariableType_FilePtr, MyOffsetOf( pThis, &pThis->m_pScriptFile ), true, true, 0, ComponentLuaScript::StaticOnValueChangedCV, ComponentLuaScript::StaticOnDropCV, 0 );
 
     //cJSONExt_AddFloatArrayToObject( jComponent, "Color", &m_pLight->m_Color.r, 4 );
     //cJSONExt_AddFloatArrayToObject( jComponent, "Atten", &m_pLight->m_Attenuation.x, 3 );
@@ -80,7 +80,7 @@ void ComponentLight::OnLeftClick(unsigned int count, bool clear)
     ComponentBase::OnLeftClick( count, clear );
 }
 
-void ComponentLight::FillPropertiesWindow(bool clear)
+void ComponentLight::FillPropertiesWindow(bool clear, bool addcomponentvariables)
 {
     m_ControlID_ComponentTitleLabel = g_pPanelWatch->AddSpace( "Light", this, ComponentBase::StaticOnComponentTitleLabelClicked );
 
@@ -88,7 +88,8 @@ void ComponentLight::FillPropertiesWindow(bool clear)
     {
         ComponentData::FillPropertiesWindow( clear );
 
-        FillPropertiesWindowWithVariables(); //_VARIABLE_LIST
+        if( addcomponentvariables )
+            FillPropertiesWindowWithVariables(); //_VARIABLE_LIST
 
         g_pPanelWatch->AddColorFloat( "color", &m_pLight->m_Color, 0, 1 );
         g_pPanelWatch->AddVector3( "atten", &m_pLight->m_Attenuation, 0, 1 );

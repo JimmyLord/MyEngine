@@ -13,9 +13,14 @@
 bool ComponentRenderable::m_PanelWatchBlockVisible = true;
 #endif
 
+// Component Variable List
+MYFW_COMPONENT_IMPLEMENT_VARIABLE_LIST( ComponentRenderable ); //_VARIABLE_LIST
+
 ComponentRenderable::ComponentRenderable()
 : ComponentBase()
 {
+    MYFW_COMPONENT_VARIABLE_LIST_CONSTRUCTOR(); //_VARIABLE_LIST
+
     ClassnameSanityCheck();
 
     m_BaseType = BaseComponentType_Renderable;
@@ -25,6 +30,13 @@ ComponentRenderable::ComponentRenderable()
 
 ComponentRenderable::~ComponentRenderable()
 {
+    MYFW_COMPONENT_VARIABLE_LIST_DESTRUCTOR(); //_VARIABLE_LIST
+}
+
+void ComponentRenderable::RegisterVariables(CPPListHead* pList, ComponentRenderable* pThis) //_VARIABLE_LIST
+{
+    AddVariable( pList, "Visible",     ComponentVariableType_Bool,         MyOffsetOf( pThis, &pThis->m_Visible ),             true,  true, 0, 0, 0, 0 ); //ComponentRenderable::StaticOnValueChanged, ComponentRenderable::StaticOnDrop, 0 );
+    AddVariable( pList, "Layers",      ComponentVariableType_UnsignedInt,  MyOffsetOf( pThis, &pThis->m_LayersThisExistsOn ),  true,  true, 0, 0, 0, 0 ); //ComponentRenderable::StaticOnValueChanged, ComponentRenderable::StaticOnDrop, 0 );
 }
 
 void ComponentRenderable::Reset()
@@ -55,7 +67,7 @@ void ComponentRenderable::OnLeftClick(unsigned int count, bool clear)
     ComponentBase::OnLeftClick( count, clear );
 }
 
-void ComponentRenderable::FillPropertiesWindow(bool clear)
+void ComponentRenderable::FillPropertiesWindow(bool clear, bool addcomponentvariables)
 {
     //m_ControlID_ComponentTitleLabel = g_pPanelWatch->AddSpace( "Renderable", this, ComponentBase::StaticOnComponentTitleLabelClicked );
 
@@ -63,29 +75,80 @@ void ComponentRenderable::FillPropertiesWindow(bool clear)
     {
         ComponentBase::FillPropertiesWindow( clear );
 
-        g_pPanelWatch->AddBool( "Visible", &m_Visible, 0, 1 );
-        g_pPanelWatch->AddUnsignedInt( "Layers", &m_LayersThisExistsOn, 0, 65535 );
+        if( addcomponentvariables )
+            FillPropertiesWindowWithVariables(); //_VARIABLE_LIST
+
+        //g_pPanelWatch->AddBool( "Visible", &m_Visible, 0, 1 );
+        //g_pPanelWatch->AddUnsignedInt( "Layers", &m_LayersThisExistsOn, 0, 65535 );
     }
 }
+
+//void* ComponentSprite::OnDrop(ComponentVariable* pVar, wxCoord x, wxCoord y)
+//{
+//    void* oldvalue = 0;
+//    return oldvalue;
+//}
+//
+//void* ComponentRenderable::OnValueChanged(ComponentVariable* pVar, bool finishedchanging)
+//{
+//    void* oldvalue = 0;
+//    return oldvalue;
+//}
 #endif //MYFW_USING_WX
 
 cJSON* ComponentRenderable::ExportAsJSONObject(bool savesceneid)
 {
-    cJSON* component = ComponentBase::ExportAsJSONObject( savesceneid );
+    cJSON* jComponent = ComponentBase::ExportAsJSONObject( savesceneid );
 
-    cJSON_AddNumberToObject( component, "Visible", m_Visible );
-    cJSON_AddNumberToObject( component, "Layers", m_LayersThisExistsOn );
+    ExportVariablesToJSON( jComponent ); //_VARIABLE_LIST
 
-    return component;
+    //cJSON_AddNumberToObject( jComponent, "Visible", m_Visible );
+    //cJSON_AddNumberToObject( jComponent, "Layers", m_LayersThisExistsOn );
+
+    return jComponent;
 }
 
 void ComponentRenderable::ImportFromJSONObject(cJSON* jsonobj, unsigned int sceneid)
 {
     ComponentBase::ImportFromJSONObject( jsonobj, sceneid );
 
-    cJSONExt_GetBool( jsonobj, "Visible", &m_Visible );
-    cJSONExt_GetUnsignedInt( jsonobj, "Layers", &m_LayersThisExistsOn );
+    ImportVariablesFromJSON( jsonobj ); //_VARIABLE_LIST
+
+    //cJSONExt_GetBool( jsonobj, "Visible", &m_Visible );
+    //cJSONExt_GetUnsignedInt( jsonobj, "Layers", &m_LayersThisExistsOn );
 }
+
+//void ComponentRenderable::RegisterCallbacks()
+//{
+//    if( m_Enabled && m_CallbacksRegistered == false )
+//    {
+//        m_CallbacksRegistered = true;
+//
+//        //MYFW_REGISTER_COMPONENT_CALLBACK( Tick );
+//        //MYFW_REGISTER_COMPONENT_CALLBACK( OnSurfaceChanged );
+//        //MYFW_REGISTER_COMPONENT_CALLBACK( Draw );
+//        //MYFW_REGISTER_COMPONENT_CALLBACK( OnTouch );
+//        //MYFW_REGISTER_COMPONENT_CALLBACK( OnButtons );
+//        //MYFW_REGISTER_COMPONENT_CALLBACK( OnKeys );
+//        //MYFW_REGISTER_COMPONENT_CALLBACK( OnFileRenamed );
+//    }
+//}
+//
+//void ComponentRenderable::UnregisterCallbacks()
+//{
+//    if( m_CallbacksRegistered == true )
+//    {
+//        //MYFW_UNREGISTER_COMPONENT_CALLBACK( Tick );
+//        //MYFW_UNREGISTER_COMPONENT_CALLBACK( OnSurfaceChanged );
+//        //MYFW_UNREGISTER_COMPONENT_CALLBACK( Draw );
+//        //MYFW_UNREGISTER_COMPONENT_CALLBACK( OnTouch );
+//        //MYFW_UNREGISTER_COMPONENT_CALLBACK( OnButtons );
+//        //MYFW_UNREGISTER_COMPONENT_CALLBACK( OnKeys );
+//        //MYFW_UNREGISTER_COMPONENT_CALLBACK( OnFileRenamed );
+//
+//        m_CallbacksRegistered = false;
+//    }
+//}
 
 ComponentRenderable& ComponentRenderable::operator=(const ComponentRenderable& other)
 {

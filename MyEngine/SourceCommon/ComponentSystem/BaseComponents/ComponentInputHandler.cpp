@@ -39,7 +39,7 @@ void ComponentInputHandler::OnLeftClick(unsigned int count, bool clear)
     ComponentBase::OnLeftClick( count, clear );
 }
 
-void ComponentInputHandler::FillPropertiesWindow(bool clear)
+void ComponentInputHandler::FillPropertiesWindow(bool clear, bool addcomponentvariables)
 {
     //m_ControlID_ComponentTitleLabel = g_pPanelWatch->AddSpace( "Input Handler", this, ComponentBase::StaticOnComponentTitleLabelClicked );
 

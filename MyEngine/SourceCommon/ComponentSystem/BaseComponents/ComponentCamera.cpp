@@ -41,7 +41,7 @@ void ComponentCamera::OnLeftClick(unsigned int count, bool clear)
     ComponentBase::OnLeftClick( count, clear );
 }
 
-void ComponentCamera::FillPropertiesWindow(bool clear)
+void ComponentCamera::FillPropertiesWindow(bool clear, bool addcomponentvariables)
 {
     m_ControlID_ComponentTitleLabel = g_pPanelWatch->AddSpace( "Camera", this, ComponentBase::StaticOnComponentTitleLabelClicked );
 

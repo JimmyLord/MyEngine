@@ -46,7 +46,7 @@ void ComponentMeshOBJ::OnLeftClick(unsigned int count, bool clear)
     ComponentMesh::OnLeftClick( count, clear );
 }
 
-void ComponentMeshOBJ::FillPropertiesWindow(bool clear)
+void ComponentMeshOBJ::FillPropertiesWindow(bool clear, bool addcomponentvariables)
 {
     m_ControlID_ComponentTitleLabel = g_pPanelWatch->AddSpace( "MeshOBJ", this, ComponentBase::StaticOnComponentTitleLabelClicked );
 

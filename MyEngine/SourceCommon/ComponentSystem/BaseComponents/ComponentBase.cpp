@@ -119,6 +119,23 @@ void ComponentBase::FillPropertiesWindowWithVariables()
         {
             switch( pVar->m_Type )
             {
+            //ComponentVariableType_Int,
+
+            case ComponentVariableType_UnsignedInt:
+                pVar->m_ControlID = g_pPanelWatch->AddUnsignedInt( pVar->m_WatchLabel, (unsigned int*)((char*)this + pVar->m_Offset), 0, 65535, this, ComponentBase::StaticOnValueChangedVariable );
+                break;
+
+            //ComponentVariableType_Char,
+            //ComponentVariableType_UnsignedChar,
+
+            case ComponentVariableType_Bool:
+                pVar->m_ControlID = g_pPanelWatch->AddBool( pVar->m_WatchLabel, (bool*)((char*)this + pVar->m_Offset), 0, 1, this, ComponentBase::StaticOnValueChangedVariable );
+                break;
+
+            //ComponentVariableType_Float,
+            //ComponentVariableType_Double,
+            //ComponentVariableType_ColorFloat,
+
             case ComponentVariableType_ColorByte:
                 pVar->m_ControlID = g_pPanelWatch->AddColorByte( pVar->m_WatchLabel, (ColorByte*)((char*)this + pVar->m_Offset), 0.0f, 0.0f, this, ComponentBase::StaticOnValueChangedVariable );
                 break;
@@ -194,10 +211,22 @@ void ComponentBase::ExportVariablesToJSON(cJSON* jComponent)
         {
             switch( pVar->m_Type )
             {
-            case ComponentVariableType_ComponentPtr:
-            case ComponentVariableType_FilePtr:
-                MyAssert( false );
+            //ComponentVariableType_Int,
+
+            case ComponentVariableType_UnsignedInt:
+                cJSON_AddNumberToObject( jComponent, pVar->m_Label, *(int*)((char*)this + pVar->m_Offset) );
                 break;
+
+            //ComponentVariableType_Char,
+            //ComponentVariableType_UnsignedChar,
+
+            case ComponentVariableType_Bool:
+                cJSON_AddNumberToObject( jComponent, pVar->m_Label, *(bool*)((char*)this + pVar->m_Offset) );
+                break;
+
+            //ComponentVariableType_Float,
+            //ComponentVariableType_Double,
+            //ComponentVariableType_ColorFloat,
 
             case ComponentVariableType_ColorByte:
                 cJSONExt_AddUnsignedCharArrayToObject( jComponent, pVar->m_Label, (unsigned char*)((char*)this + pVar->m_Offset), 4 );
@@ -219,6 +248,11 @@ void ComponentBase::ExportVariablesToJSON(cJSON* jComponent)
                         cJSON_AddNumberToObject( jComponent, pVar->m_Label, pParentGameObject->GetID() );
                     }
                 }
+                break;
+
+            case ComponentVariableType_ComponentPtr:
+            case ComponentVariableType_FilePtr:
+                MyAssert( false );
                 break;
 
             case ComponentVariableType_PointerIndirect:
@@ -254,10 +288,22 @@ void ComponentBase::ImportVariablesFromJSON(cJSON* jsonobj, const char* singlela
         {
             switch( pVar->m_Type )
             {
-            case ComponentVariableType_ComponentPtr:
-            case ComponentVariableType_FilePtr:
-                MyAssert( false );
+            //ComponentVariableType_Int,
+
+            case ComponentVariableType_UnsignedInt:
+                cJSONExt_GetUnsignedInt( jsonobj, pVar->m_Label, (unsigned int*)((char*)this + pVar->m_Offset) );
                 break;
+
+            //ComponentVariableType_Char,
+            //ComponentVariableType_UnsignedChar,
+
+            case ComponentVariableType_Bool:
+                cJSONExt_GetBool( jsonobj, pVar->m_Label, (bool*)((char*)this + pVar->m_Offset) );
+                break;
+
+            //ComponentVariableType_Float,
+            //ComponentVariableType_Double,
+            //ComponentVariableType_ColorFloat,
 
             case ComponentVariableType_ColorByte:
                 cJSONExt_GetUnsignedCharArray( jsonobj, pVar->m_Label, (unsigned char*)((char*)this + pVar->m_Offset), 4 );
@@ -281,6 +327,11 @@ void ComponentBase::ImportVariablesFromJSON(cJSON* jsonobj, const char* singlela
                         *(GameObject**)((char*)this + pVar->m_Offset) = pParentGameObject;
                     }
                 }
+                break;
+
+            case ComponentVariableType_ComponentPtr:
+            case ComponentVariableType_FilePtr:
+                MyAssert( false );
                 break;
 
             case ComponentVariableType_PointerIndirect:
@@ -330,7 +381,10 @@ void ComponentBase::OnValueChangedVariable(int controlid, bool finishedchanging,
 
     if( pVar )
     {
-        void* oldpointer = pVar->m_pOnValueChangedCallbackFunc( this, pVar, finishedchanging, oldvalue );
+        void* oldpointer = 0;
+
+        if( pVar->m_pOnValueChangedCallbackFunc )
+            oldpointer = pVar->m_pOnValueChangedCallbackFunc( this, pVar, finishedchanging, oldvalue );
 
         UpdateChildrenWithNewValue( false, pVar, controlid, true, oldvalue, oldpointer, -1, -1 );
     }
@@ -338,18 +392,16 @@ void ComponentBase::OnValueChangedVariable(int controlid, bool finishedchanging,
 
 void ComponentBase::OnDropVariable(int controlid, wxCoord x, wxCoord y)
 {
-    void* oldpointer = 0;
-
     ComponentVariable* pVar = FindComponentVariableForControl( controlid );
 
     if( pVar )
     {
+        void* oldpointer = 0;
+
+        if( pVar->m_pOnDropCallbackFunc )
+            oldpointer = pVar->m_pOnDropCallbackFunc( this, pVar, x, y );
+
         // OnDropCallback will grab the new value from g_DragAndDropStruct
-        if( pVar->m_pOnDropCallbackFunc == 0 )
-            return;
-
-        oldpointer = pVar->m_pOnDropCallbackFunc( this, pVar, x, y );
-
         UpdateChildrenWithNewValue( true, pVar, controlid, true, 0, oldpointer, x, y );
     }
 }
@@ -403,30 +455,50 @@ void ComponentBase::UpdateChildrenWithNewValue(bool fromdraganddrop, ComponentVa
                     // Found the matching component, now compare the variable.
                     switch( pVar->m_Type )
                     {
-                    case ComponentVariableType_GameObjectPtr:
-                        MyAssert( false );
-                        break;
+                    //ComponentVariableType_Int,
 
-                    case ComponentVariableType_Vector2:
-                    case ComponentVariableType_Vector3:
+                    case ComponentVariableType_UnsignedInt:
                         MyAssert( fromdraganddrop == false ); // not drag/dropping these types ATM.
 
                         if( fromdraganddrop == false )
                         {
-                            // figure out which component of a multi-component control(e.g. vector3) this is.
-                            int controlcomponent = controlid - pVar->m_ControlID;
+                            int offset = pVar->m_Offset;
 
-                            int offset = pVar->m_Offset + controlcomponent*4;
-
-                            if( *(float*)((char*)pComponent + offset) == oldvalue )
+                            if( *(unsigned int*)((char*)pComponent + offset) == oldvalue )
                             {
-                                *(float*)((char*)pComponent + offset) = *(float*)((char*)this + offset);
-                                pVar->m_pOnValueChangedCallbackFunc( pComponent, pVar, finishedchanging, oldvalue );
+                                *(unsigned int*)((char*)pComponent + offset) = *(unsigned int*)((char*)this + offset);
+                                if( pVar->m_pOnValueChangedCallbackFunc )
+                                    pVar->m_pOnValueChangedCallbackFunc( pComponent, pVar, finishedchanging, oldvalue );
                             }
 
                             pComponent->UpdateChildrenWithNewValue( fromdraganddrop, pVar, controlid, true, oldvalue, oldpointer, x, y );
                         }
                         break;
+
+                    //ComponentVariableType_Char,
+                    //ComponentVariableType_UnsignedChar,
+
+                    case ComponentVariableType_Bool:
+                        MyAssert( fromdraganddrop == false ); // not drag/dropping these types ATM.
+
+                        if( fromdraganddrop == false )
+                        {
+                            int offset = pVar->m_Offset;
+
+                            if( *(bool*)((char*)pComponent + offset) == oldvalue )
+                            {
+                                *(bool*)((char*)pComponent + offset) = *(bool*)((char*)this + offset);
+                                if( pVar->m_pOnValueChangedCallbackFunc )
+                                    pVar->m_pOnValueChangedCallbackFunc( pComponent, pVar, finishedchanging, oldvalue );
+                            }
+
+                            pComponent->UpdateChildrenWithNewValue( fromdraganddrop, pVar, controlid, true, oldvalue, oldpointer, x, y );
+                        }
+                        break;
+
+                    //ComponentVariableType_Float,
+                    //ComponentVariableType_Double,
+                    //ComponentVariableType_ColorFloat,
 
                     case ComponentVariableType_ColorByte:
                         MyAssert( fromdraganddrop == false ); // not drag/dropping these types ATM.
@@ -445,7 +517,8 @@ void ComponentBase::UpdateChildrenWithNewValue(bool fromdraganddrop, ComponentVa
                                 {
                                     ColorByte* newcolor = (ColorByte*)((char*)this + offset);
                                     *childcolor = *newcolor;
-                                    pVar->m_pOnValueChangedCallbackFunc( pComponent, pVar, finishedchanging, oldvalue );
+                                    if( pVar->m_pOnValueChangedCallbackFunc )
+                                        pVar->m_pOnValueChangedCallbackFunc( pComponent, pVar, finishedchanging, oldvalue );
                                 }
                             }
                             else
@@ -455,12 +528,39 @@ void ComponentBase::UpdateChildrenWithNewValue(bool fromdraganddrop, ComponentVa
                                 if( *(unsigned char*)((char*)pComponent + offset) == oldvalue )
                                 {
                                     *(unsigned char*)((char*)pComponent + offset) = *(unsigned char*)((char*)this + offset);
-                                    pVar->m_pOnValueChangedCallbackFunc( pComponent, pVar, finishedchanging, oldvalue );
+                                    if( pVar->m_pOnValueChangedCallbackFunc )
+                                        pVar->m_pOnValueChangedCallbackFunc( pComponent, pVar, finishedchanging, oldvalue );
                                 }
                             }
 
                             pComponent->UpdateChildrenWithNewValue( fromdraganddrop, pVar, controlid, true, oldvalue, oldpointer, x, y );
                         }
+                        break;
+
+                    case ComponentVariableType_Vector2:
+                    case ComponentVariableType_Vector3:
+                        MyAssert( fromdraganddrop == false ); // not drag/dropping these types ATM.
+
+                        if( fromdraganddrop == false )
+                        {
+                            // figure out which component of a multi-component control(e.g. vector3) this is.
+                            int controlcomponent = controlid - pVar->m_ControlID;
+
+                            int offset = pVar->m_Offset + controlcomponent*4;
+
+                            if( *(float*)((char*)pComponent + offset) == oldvalue )
+                            {
+                                *(float*)((char*)pComponent + offset) = *(float*)((char*)this + offset);
+                                if( pVar->m_pOnValueChangedCallbackFunc )
+                                    pVar->m_pOnValueChangedCallbackFunc( pComponent, pVar, finishedchanging, oldvalue );
+                            }
+
+                            pComponent->UpdateChildrenWithNewValue( fromdraganddrop, pVar, controlid, true, oldvalue, oldpointer, x, y );
+                        }
+                        break;
+
+                    case ComponentVariableType_GameObjectPtr:
+                        MyAssert( false );
                         break;
 
                     case ComponentVariableType_FilePtr:
@@ -473,8 +573,12 @@ void ComponentBase::UpdateChildrenWithNewValue(bool fromdraganddrop, ComponentVa
                                 if( *(ComponentBase**)((char*)pComponent + offset) == oldpointer )
                                 {
                                     // OnDropCallback will grab the new value from g_DragAndDropStruct
-                                    void* oldpointer2 = pVar->m_pOnDropCallbackFunc( pComponent, pVar, x, y );
-                                    MyAssert( oldpointer2 == oldpointer );
+                                    MyAssert( pVar->m_pOnDropCallbackFunc );
+                                    if( pVar->m_pOnDropCallbackFunc )
+                                    {
+                                        void* oldpointer2 = pVar->m_pOnDropCallbackFunc( pComponent, pVar, x, y );
+                                        MyAssert( oldpointer2 == oldpointer );
+                                    }
                                 }
                             }
                             else
@@ -483,8 +587,12 @@ void ComponentBase::UpdateChildrenWithNewValue(bool fromdraganddrop, ComponentVa
 
                                 if( *(ComponentBase**)((char*)pComponent + pVar->m_Offset) == oldpointer )
                                 {
-                                    void* oldpointer2 = pVar->m_pOnValueChangedCallbackFunc( pComponent, pVar, finishedchanging, oldvalue );
-                                    MyAssert( oldpointer2 == oldpointer );
+                                    MyAssert( pVar->m_pOnValueChangedCallbackFunc );
+                                    if( pVar->m_pOnValueChangedCallbackFunc )
+                                    {
+                                        void* oldpointer2 = pVar->m_pOnValueChangedCallbackFunc( pComponent, pVar, finishedchanging, oldvalue );
+                                        MyAssert( oldpointer2 == oldpointer );
+                                    }
                                 }                                
                             }
 
@@ -501,8 +609,12 @@ void ComponentBase::UpdateChildrenWithNewValue(bool fromdraganddrop, ComponentVa
                                 if( pVar->m_pGetPointerValueCallBackFunc( pComponent, pVar ) == oldpointer )
                                 {
                                     // OnDropCallback will grab the new value from g_DragAndDropStruct
-                                    void* oldpointer2 = pVar->m_pOnDropCallbackFunc( pComponent, pVar, x, y );
-                                    MyAssert( oldpointer2 == oldpointer );
+                                    MyAssert( pVar->m_pOnDropCallbackFunc );
+                                    if( pVar->m_pOnDropCallbackFunc )
+                                    {
+                                        void* oldpointer2 = pVar->m_pOnDropCallbackFunc( pComponent, pVar, x, y );
+                                        MyAssert( oldpointer2 == oldpointer );
+                                    }
                                 }
                             }
                             else
@@ -511,8 +623,12 @@ void ComponentBase::UpdateChildrenWithNewValue(bool fromdraganddrop, ComponentVa
 
                                 if( pVar->m_pGetPointerValueCallBackFunc( pComponent, pVar ) == oldpointer )
                                 {
-                                    void* oldpointer2 = pVar->m_pOnValueChangedCallbackFunc( pComponent, pVar, finishedchanging, oldvalue );
-                                    MyAssert( oldpointer2 == oldpointer );
+                                    MyAssert( pVar->m_pOnValueChangedCallbackFunc );
+                                    if( pVar->m_pOnValueChangedCallbackFunc )
+                                    {
+                                        void* oldpointer2 = pVar->m_pOnValueChangedCallbackFunc( pComponent, pVar, finishedchanging, oldvalue );
+                                        MyAssert( oldpointer2 == oldpointer );
+                                    }
                                 }
                             }
 

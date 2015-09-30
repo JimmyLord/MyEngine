@@ -41,7 +41,7 @@ void ComponentCameraShadow::OnLeftClick(unsigned int count, bool clear)
     ComponentCamera::OnLeftClick( count, clear );
 }
 
-void ComponentCameraShadow::FillPropertiesWindow(bool clear)
+void ComponentCameraShadow::FillPropertiesWindow(bool clear, bool addcomponentvariables)
 {
     m_ControlID_ComponentTitleLabel = g_pPanelWatch->AddSpace( "CameraShadow", this, ComponentCamera::StaticOnComponentTitleLabelClicked );
 

@@ -86,7 +86,7 @@ void ComponentCollisionObject::OnLeftClick(unsigned int count, bool clear)
     ComponentBase::OnLeftClick( count, clear );
 }
 
-void ComponentCollisionObject::FillPropertiesWindow(bool clear)
+void ComponentCollisionObject::FillPropertiesWindow(bool clear, bool addcomponentvariables)
 {
     m_ControlID_ComponentTitleLabel = g_pPanelWatch->AddSpace( "Collision Object", this, ComponentBase::StaticOnComponentTitleLabelClicked );
 

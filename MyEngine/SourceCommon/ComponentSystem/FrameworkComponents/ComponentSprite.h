@@ -16,7 +16,7 @@ class ComponentSprite : public ComponentRenderable
 {
 private:
     // Component Variable List
-    MYFW_COMPONENT_DECLARE_VARIABLE_LIST( ComponentSprite );
+    MYFW_COMPONENT_DECLARE_VARIABLE_LIST( ComponentSprite ); //_VARIABLE_LIST
 
 public:
     MySprite* m_pSprite;
@@ -47,7 +47,7 @@ public:
 public:
     MySprite* GetSprite() { return m_pSprite; }
 
-    // Runtime component variable callbacks.
+    // Runtime component variable callbacks. //_VARIABLE_LIST
     static void* StaticGetPointerValue(void* pObjectPtr, ComponentVariable* pVar) { return ((ComponentSprite*)pObjectPtr)->GetPointerValue(pVar); }
     void* GetPointerValue(ComponentVariable* pVar);
 
@@ -66,9 +66,9 @@ public:
     // Object panel callbacks.
     static void StaticOnLeftClick(void* pObjectPtr, wxTreeItemId id, unsigned int count) { ((ComponentSprite*)pObjectPtr)->OnLeftClick( count, true ); }
     void OnLeftClick(unsigned int count, bool clear);
-    virtual void FillPropertiesWindow(bool clear);
+    virtual void FillPropertiesWindow(bool clear, bool addcomponentvariables = false);
 
-    // Component variable callbacks.
+    // Component variable callbacks. //_VARIABLE_LIST
     static void* StaticOnDrop(void* pObjectPtr, ComponentVariable* pVar, wxCoord x, wxCoord y) { return ((ComponentSprite*)pObjectPtr)->OnDrop(pVar, x, y); }
     void* OnDrop(ComponentVariable* pVar, wxCoord x, wxCoord y);
 

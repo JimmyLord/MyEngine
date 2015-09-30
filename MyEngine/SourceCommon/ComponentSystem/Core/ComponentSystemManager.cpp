@@ -1227,7 +1227,7 @@ void ComponentSystemManager::OnDrawFrame(ComponentCamera* pCamera, MyMatrix* pMa
 
         if( pComponent->m_BaseType == BaseComponentType_Renderable )
         {
-            if( pComponent->m_LayersThisExistsOn & pCamera->m_LayersToRender )
+            if( pComponent->ExistsOnLayer( pCamera->m_LayersToRender ) )
             {
                 if( pComponent->IsVisible() )
                 {
@@ -1281,8 +1281,8 @@ void ComponentSystemManager::DrawMousePickerFrame(ComponentCamera* pCamera, MyMa
             if( pComponent->m_BaseType == BaseComponentType_Renderable )
             {
                 if( pComponent->IsVisible() &&
-                    (pComponent->m_LayersThisExistsOn & pCamera->m_LayersToRender) != 0 &&
-                    (pComponent->m_LayersThisExistsOn & Layer_EditorUnselectable) == 0 )
+                    pComponent->ExistsOnLayer( pCamera->m_LayersToRender ) != 0 &&
+                    pComponent->ExistsOnLayer( Layer_EditorUnselectable ) == 0 )
                 {
                     ColorByte tint( 0, 0, 0, 0 );
 

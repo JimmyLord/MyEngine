@@ -64,7 +64,7 @@ void ComponentMeshPrimitive::OnLeftClick(unsigned int count, bool clear)
     ComponentMesh::OnLeftClick( count, clear );
 }
 
-void ComponentMeshPrimitive::FillPropertiesWindow(bool clear)
+void ComponentMeshPrimitive::FillPropertiesWindow(bool clear, bool addcomponentvariables)
 {
     m_ControlID_ComponentTitleLabel = g_pPanelWatch->AddSpace( "Mesh Primitive", this, ComponentBase::StaticOnComponentTitleLabelClicked );
 

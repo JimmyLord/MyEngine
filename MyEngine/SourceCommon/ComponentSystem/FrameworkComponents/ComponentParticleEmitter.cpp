@@ -92,7 +92,7 @@ void ComponentParticleEmitter::OnLeftClick(unsigned int count, bool clear)
     ComponentBase::OnLeftClick( count, clear );
 }
 
-void ComponentParticleEmitter::FillPropertiesWindow(bool clear)
+void ComponentParticleEmitter::FillPropertiesWindow(bool clear, bool addcomponentvariables)
 {
     m_ControlID_ComponentTitleLabel = g_pPanelWatch->AddSpace( "Particle Emitter", this, ComponentBase::StaticOnComponentTitleLabelClicked );
 

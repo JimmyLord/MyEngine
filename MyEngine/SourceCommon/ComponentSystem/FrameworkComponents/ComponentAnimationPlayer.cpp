@@ -67,7 +67,7 @@ void ComponentAnimationPlayer::OnLeftClick(unsigned int count, bool clear)
     ComponentBase::OnLeftClick( count, clear );
 }
 
-void ComponentAnimationPlayer::FillPropertiesWindow(bool clear)
+void ComponentAnimationPlayer::FillPropertiesWindow(bool clear, bool addcomponentvariables)
 {
     m_ControlID_ComponentTitleLabel = g_pPanelWatch->AddSpace( "Animation Player", this, ComponentBase::StaticOnComponentTitleLabelClicked );
 

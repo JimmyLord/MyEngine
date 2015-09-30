@@ -50,7 +50,7 @@ void ComponentUpdateable::OnLeftClick(unsigned int count, bool clear)
     ComponentBase::OnLeftClick( count, clear );
 }
 
-void ComponentUpdateable::FillPropertiesWindow(bool clear)
+void ComponentUpdateable::FillPropertiesWindow(bool clear, bool addcomponentvariables)
 {
     //m_ControlID_ComponentTitleLabel = g_pPanelWatch->AddSpace( "Updateable", this, ComponentBase::StaticOnComponentTitleLabelClicked );
 

@@ -935,7 +935,7 @@ void EngineMainFrame::OnDrop(int controlid, wxCoord x, wxCoord y)
             pComponentMeshOBJ->SetSceneID( 1 );
             pComponentMeshOBJ->SetMaterial( (MaterialDefinition*)g_pMaterialManager->m_Materials.GetHead(), 0 );
             pComponentMeshOBJ->SetMesh( pMesh );
-            pComponentMeshOBJ->m_LayersThisExistsOn = Layer_MainScene;
+            pComponentMeshOBJ->SetLayersThisExistsOn( Layer_MainScene );
 
             if( pObject && pObject->GetMaterial() )
             {

@@ -27,10 +27,10 @@ enum BaseComponentTypes
 enum ComponentVariableTypes
 {
     //ComponentVariableType_Int,
-    //ComponentVariableType_UnsignedInt,
+    ComponentVariableType_UnsignedInt,
     //ComponentVariableType_Char,
     //ComponentVariableType_UnsignedChar,
-    //ComponentVariableType_Bool,
+    ComponentVariableType_Bool,
     //ComponentVariableType_Float,
     //ComponentVariableType_Double,
     //ComponentVariableType_ColorFloat,
@@ -101,12 +101,12 @@ public:
 #define MYFW_COMPONENT_DECLARE_VARIABLE_LIST(ComponentName) \
     static CPPListHead m_ComponentVariableList_##ComponentName; /* ComponentVariable type */ \
     static int m_ComponentVariableListRefCount_##ComponentName; \
-    static void RegisterVariables(##ComponentName* pThis); \
+    static void RegisterVariables(CPPListHead* pList, ##ComponentName* pThis); \
     static void ClearAllVariables() { m_ComponentVariableListRefCount_##ComponentName--; if( m_ComponentVariableListRefCount_##ComponentName == 0 ) ClearAllVariables_Base( &m_ComponentVariableList_##ComponentName ); } \
-    static void AddVariable(const char* label, ComponentVariableTypes type, size_t offset, bool saveload, bool displayinwatch, const char* watchlabel, ComponentVariableCallbackValueChanged pOnValueChangedCallBackFunc, ComponentVariableCallbackDropTarget pOnDropCallBackFunc, ComponentVariableCallback pOnButtonPressedCallBackFunc) \
-    { AddVariable_Base( &m_ComponentVariableList_##ComponentName, label, type, offset, saveload, displayinwatch, watchlabel, pOnValueChangedCallBackFunc, pOnDropCallBackFunc, pOnButtonPressedCallBackFunc ); } \
-    static void AddVariablePointer(const char* label, bool saveload, bool displayinwatch, const char* watchlabel, ComponentVariableCallbackValueChanged pOnValueChangedCallBackFunc, ComponentVariableCallbackDropTarget pOnDropCallBackFunc, ComponentVariableCallback pOnButtonPressedCallBackFunc, ComponentVariableCallbackPointer pGetPointerValueCallBackFunc, ComponentVariableCallbackGetPointerDesc pGetPointerDescCallBackFunc, ComponentVariableCallbackSetPointerDesc pSetPointerDescCallBackFunc) \
-    { AddVariablePointer_Base( &m_ComponentVariableList_##ComponentName, label, saveload, displayinwatch, watchlabel, pOnValueChangedCallBackFunc, pOnDropCallBackFunc, pOnButtonPressedCallBackFunc, pGetPointerValueCallBackFunc, pGetPointerDescCallBackFunc, pSetPointerDescCallBackFunc ); } \
+    static void AddVariable(CPPListHead* pList, const char* label, ComponentVariableTypes type, size_t offset, bool saveload, bool displayinwatch, const char* watchlabel, ComponentVariableCallbackValueChanged pOnValueChangedCallBackFunc, ComponentVariableCallbackDropTarget pOnDropCallBackFunc, ComponentVariableCallback pOnButtonPressedCallBackFunc) \
+    { AddVariable_Base( pList, label, type, offset, saveload, displayinwatch, watchlabel, pOnValueChangedCallBackFunc, pOnDropCallBackFunc, pOnButtonPressedCallBackFunc ); } \
+    static void AddVariablePointer(CPPListHead* pList, const char* label, bool saveload, bool displayinwatch, const char* watchlabel, ComponentVariableCallbackValueChanged pOnValueChangedCallBackFunc, ComponentVariableCallbackDropTarget pOnDropCallBackFunc, ComponentVariableCallback pOnButtonPressedCallBackFunc, ComponentVariableCallbackPointer pGetPointerValueCallBackFunc, ComponentVariableCallbackGetPointerDesc pGetPointerDescCallBackFunc, ComponentVariableCallbackSetPointerDesc pSetPointerDescCallBackFunc) \
+    { AddVariablePointer_Base( pList, label, saveload, displayinwatch, watchlabel, pOnValueChangedCallBackFunc, pOnDropCallBackFunc, pOnButtonPressedCallBackFunc, pGetPointerValueCallBackFunc, pGetPointerDescCallBackFunc, pSetPointerDescCallBackFunc ); } \
     static bool ComponentVariablesHaveBeenRegistered() \
     { \
         if( m_ComponentVariableList_##ComponentName.GetHead() == 0 ) m_ComponentVariableListRefCount_##ComponentName = 0; \
@@ -120,7 +120,7 @@ public:
     int ComponentName::m_ComponentVariableListRefCount_##ComponentName;
 
 #define MYFW_COMPONENT_VARIABLE_LIST_CONSTRUCTOR() \
-    if( ComponentVariablesHaveBeenRegistered() == false ) RegisterVariables( this );
+    if( ComponentVariablesHaveBeenRegistered() == false ) RegisterVariables( GetComponentVariableList(), this );
 
 #define MYFW_COMPONENT_VARIABLE_LIST_DESTRUCTOR() \
     ClearAllVariables();
@@ -208,7 +208,7 @@ public:
     // Object panel callbacks.
     static void StaticOnLeftClick(void* pObjectPtr, wxTreeItemId id, unsigned int count) { ((ComponentBase*)pObjectPtr)->OnLeftClick( count, true ); }
     virtual void OnLeftClick(unsigned int count, bool clear);
-    virtual void FillPropertiesWindow(bool clear) {};
+    virtual void FillPropertiesWindow(bool clear, bool addcomponentvariables = false) {};
 
     static void StaticOnRightClick(void* pObjectPtr, wxTreeItemId id) { ((ComponentBase*)pObjectPtr)->OnRightClick(); }
     virtual void OnRightClick();

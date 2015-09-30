@@ -122,10 +122,10 @@ void GameObject::OnLeftClick(unsigned int count, bool clear)
     }
     g_pPanelWatch->AddSpace( tempname, this, GameObject::StaticOnTitleLabelClicked );
 
-    m_pComponentTransform->FillPropertiesWindow( false );
+    m_pComponentTransform->FillPropertiesWindow( false, true );
     for( unsigned int i=0; i<m_Components.Count(); i++ )
     {
-        m_Components[i]->FillPropertiesWindow( false );
+        m_Components[i]->FillPropertiesWindow( false, true );
     }
 }
 

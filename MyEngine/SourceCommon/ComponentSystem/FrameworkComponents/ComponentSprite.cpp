@@ -14,12 +14,12 @@ bool ComponentSprite::m_PanelWatchBlockVisible = true;
 #endif
 
 // Component Variable List
-MYFW_COMPONENT_IMPLEMENT_VARIABLE_LIST( ComponentSprite );
+MYFW_COMPONENT_IMPLEMENT_VARIABLE_LIST( ComponentSprite ); //_VARIABLE_LIST
 
 ComponentSprite::ComponentSprite()
 : ComponentRenderable()
 {
-    MYFW_COMPONENT_VARIABLE_LIST_CONSTRUCTOR();
+    MYFW_COMPONENT_VARIABLE_LIST_CONSTRUCTOR(); //_VARIABLE_LIST
 
     ClassnameSanityCheck();
 
@@ -30,16 +30,18 @@ ComponentSprite::ComponentSprite()
 
 ComponentSprite::~ComponentSprite()
 {
-    MYFW_COMPONENT_VARIABLE_LIST_DESTRUCTOR();
+    MYFW_COMPONENT_VARIABLE_LIST_DESTRUCTOR(); //_VARIABLE_LIST
 
     SAFE_RELEASE( m_pSprite );
 }
 
-void ComponentSprite::RegisterVariables(ComponentSprite* pThis) //_VARIABLE_LIST
+void ComponentSprite::RegisterVariables(CPPListHead* pList, ComponentSprite* pThis) //_VARIABLE_LIST
 {
-    AddVariable( "Tint",     ComponentVariableType_ColorByte, MyOffsetOf( pThis, &pThis->m_Tint ),  true,  true, 0, ComponentSprite::StaticOnValueChanged, ComponentSprite::StaticOnDrop, 0 );
-    AddVariable( "Size",     ComponentVariableType_Vector2,   MyOffsetOf( pThis, &pThis->m_Size ),  true,  true, 0, ComponentSprite::StaticOnValueChanged, ComponentSprite::StaticOnDrop, 0 );
-    AddVariablePointer( "Material",                                                                 true,  true, 0, ComponentSprite::StaticOnValueChanged, ComponentSprite::StaticOnDrop, 0, ComponentSprite::StaticGetPointerValue, ComponentSprite::StaticGetPointerDesc, ComponentSprite::StaticSetPointerDesc );
+    ComponentRenderable::RegisterVariables( pList, pThis );
+
+    AddVariable( pList, "Tint",     ComponentVariableType_ColorByte, MyOffsetOf( pThis, &pThis->m_Tint ),  true,  true, 0, ComponentSprite::StaticOnValueChanged, ComponentSprite::StaticOnDrop, 0 );
+    AddVariable( pList, "Size",     ComponentVariableType_Vector2,   MyOffsetOf( pThis, &pThis->m_Size ),  true,  true, 0, ComponentSprite::StaticOnValueChanged, ComponentSprite::StaticOnDrop, 0 );
+    AddVariablePointer( pList, "Material",                                                                 true,  true, 0, ComponentSprite::StaticOnValueChanged, ComponentSprite::StaticOnDrop, 0, ComponentSprite::StaticGetPointerValue, ComponentSprite::StaticGetPointerDesc, ComponentSprite::StaticSetPointerDesc );
 }
 
 void ComponentSprite::Reset()
@@ -57,7 +59,7 @@ void ComponentSprite::Reset()
 #endif //MYFW_USING_WX
 }
 
-void* ComponentSprite::GetPointerValue(ComponentVariable* pVar)
+void* ComponentSprite::GetPointerValue(ComponentVariable* pVar) //_VARIABLE_LIST
 {
     if( strcmp( pVar->m_Label, "Material" ) == 0 )
     {
@@ -68,7 +70,7 @@ void* ComponentSprite::GetPointerValue(ComponentVariable* pVar)
     return 0;
 }
 
-const char* ComponentSprite::GetPointerDesc(ComponentVariable* pVar)
+const char* ComponentSprite::GetPointerDesc(ComponentVariable* pVar) //_VARIABLE_LIST
 {
     if( strcmp( pVar->m_Label, "Material" ) == 0 )
     {
@@ -81,7 +83,7 @@ const char* ComponentSprite::GetPointerDesc(ComponentVariable* pVar)
     return "fix me";
 }
 
-void ComponentSprite::SetPointerDesc(ComponentVariable* pVar, const char* newdesc)
+void ComponentSprite::SetPointerDesc(ComponentVariable* pVar, const char* newdesc) //_VARIABLE_LIST
 {
     if( strcmp( pVar->m_Label, "Material" ) == 0 )
     {
@@ -108,7 +110,7 @@ void ComponentSprite::OnLeftClick(unsigned int count, bool clear)
     ComponentRenderable::OnLeftClick( count, clear );
 }
 
-void ComponentSprite::FillPropertiesWindow(bool clear)
+void ComponentSprite::FillPropertiesWindow(bool clear, bool addcomponentvariables)
 {
     m_ControlID_ComponentTitleLabel = g_pPanelWatch->AddSpace( "Sprite", this, ComponentBase::StaticOnComponentTitleLabelClicked );
 
@@ -116,7 +118,8 @@ void ComponentSprite::FillPropertiesWindow(bool clear)
     {
         ComponentRenderable::FillPropertiesWindow( clear );
 
-        FillPropertiesWindowWithVariables(); //_VARIABLE_LIST
+        if( addcomponentvariables )
+            FillPropertiesWindowWithVariables(); //_VARIABLE_LIST
     }
 }
 

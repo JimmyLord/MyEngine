@@ -14,12 +14,12 @@ bool ComponentLuaScript::m_PanelWatchBlockVisible = true;
 #endif
 
 // Component Variable List
-MYFW_COMPONENT_IMPLEMENT_VARIABLE_LIST( ComponentLuaScript );
+MYFW_COMPONENT_IMPLEMENT_VARIABLE_LIST( ComponentLuaScript ); //_VARIABLE_LIST
 
 ComponentLuaScript::ComponentLuaScript()
 : ComponentUpdateable()
 {
-    MYFW_COMPONENT_VARIABLE_LIST_CONSTRUCTOR();
+    MYFW_COMPONENT_VARIABLE_LIST_CONSTRUCTOR(); //_VARIABLE_LIST
 
     ClassnameSanityCheck();
 
@@ -37,7 +37,7 @@ ComponentLuaScript::ComponentLuaScript()
 
 ComponentLuaScript::~ComponentLuaScript()
 {
-    MYFW_COMPONENT_VARIABLE_LIST_DESTRUCTOR();
+    MYFW_COMPONENT_VARIABLE_LIST_DESTRUCTOR(); //_VARIABLE_LIST
 
     while( m_ExposedVars.Count() )
     {
@@ -53,12 +53,12 @@ ComponentLuaScript::~ComponentLuaScript()
     SAFE_RELEASE( m_pScriptFile );
 }
 
-void ComponentLuaScript::RegisterVariables(ComponentLuaScript* pThis) //_VARIABLE_LIST
+void ComponentLuaScript::RegisterVariables(CPPListHead* pList, ComponentLuaScript* pThis) //_VARIABLE_LIST
 {
     // just want to make sure these are the same on all compilers.  They should be since this is a simple class.
     MyAssert( offsetof( ComponentLuaScript, m_pScriptFile ) == MyOffsetOf( pThis, &pThis->m_pScriptFile ) );
 
-    AddVariable( "Script", ComponentVariableType_FilePtr, MyOffsetOf( pThis, &pThis->m_pScriptFile ), true, true, 0, ComponentLuaScript::StaticOnValueChangedCV, ComponentLuaScript::StaticOnDropCV, 0 );
+    AddVariable( pList, "Script", ComponentVariableType_FilePtr, MyOffsetOf( pThis, &pThis->m_pScriptFile ), true, true, 0, ComponentLuaScript::StaticOnValueChangedCV, ComponentLuaScript::StaticOnDropCV, 0 );
 }
 
 void ComponentLuaScript::Reset()
@@ -200,7 +200,7 @@ void ComponentLuaScript::OnLeftClick(unsigned int count, bool clear)
     ComponentBase::OnLeftClick( count, clear );
 }
 
-void ComponentLuaScript::FillPropertiesWindow(bool clear)
+void ComponentLuaScript::FillPropertiesWindow(bool clear, bool addcomponentvariables)
 {
     m_ControlID_ComponentTitleLabel = g_pPanelWatch->AddSpace( "Lua Script", this, ComponentBase::StaticOnComponentTitleLabelClicked );
 
@@ -210,7 +210,8 @@ void ComponentLuaScript::FillPropertiesWindow(bool clear)
     {
         ComponentBase::FillPropertiesWindow( clear );
 
-        FillPropertiesWindowWithVariables();
+        if( addcomponentvariables )
+            FillPropertiesWindowWithVariables(); //_VARIABLE_LIST
 
         //const char* desc = "no script";
         //if( m_pScriptFile )

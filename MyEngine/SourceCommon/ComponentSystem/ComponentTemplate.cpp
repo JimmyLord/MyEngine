@@ -14,12 +14,12 @@ bool ComponentTemplate::m_PanelWatchBlockVisible = true;
 #endif
 
 // Component Variable List
-MYFW_COMPONENT_IMPLEMENT_VARIABLE_LIST( ComponentTemplate );
+MYFW_COMPONENT_IMPLEMENT_VARIABLE_LIST( ComponentTemplate ); //_VARIABLE_LIST
 
 ComponentTemplate::ComponentTemplate()
 : ComponentBase()
 {
-    MYFW_COMPONENT_VARIABLE_LIST_CONSTRUCTOR();
+    MYFW_COMPONENT_VARIABLE_LIST_CONSTRUCTOR(); //_VARIABLE_LIST
 
     ClassnameSanityCheck();
 
@@ -30,15 +30,15 @@ ComponentTemplate::ComponentTemplate()
 
 ComponentTemplate::~ComponentTemplate()
 {
-    MYFW_COMPONENT_VARIABLE_LIST_DESTRUCTOR();
+    MYFW_COMPONENT_VARIABLE_LIST_DESTRUCTOR(); //_VARIABLE_LIST
 }
 
-void ComponentTemplate::RegisterVariables(ComponentTemplate* pThis) //_VARIABLE_LIST
+void ComponentTemplate::RegisterVariables(CPPListHead* pList, ComponentTemplate* pThis) //_VARIABLE_LIST
 {
     // just want to make sure these are the same on all compilers.  They should be since this is a simple class.
     MyAssert( offsetof( ComponentTemplate, m_SampleVector3 ) == MyOffsetOf( pThis, &pThis->m_SampleVector3 ) );
 
-    AddVariable( "SampleFloat", ComponentVariableType_Vector3, MyOffsetOf( pThis, &pThis->m_SampleVector3 ), true, true, 0, ComponentTemplate::StaticOnValueChanged, ComponentTemplate::StaticOnDrop, 0 );
+    AddVariable( pList, "SampleFloat", ComponentVariableType_Vector3, MyOffsetOf( pThis, &pThis->m_SampleVector3 ), true, true, 0, ComponentTemplate::StaticOnValueChanged, ComponentTemplate::StaticOnDrop, 0 );
 }
 
 void ComponentTemplate::Reset()
@@ -64,7 +64,7 @@ void ComponentTemplate::OnLeftClick(unsigned int count, bool clear)
     ComponentBase::OnLeftClick( count, clear );
 }
 
-void ComponentTemplate::FillPropertiesWindow(bool clear)
+void ComponentTemplate::FillPropertiesWindow(bool clear, bool addcomponentvariables)
 {
     m_ControlID_ComponentTitleLabel = g_pPanelWatch->AddSpace( "Template", this, ComponentBase::StaticOnComponentTitleLabelClicked );
 

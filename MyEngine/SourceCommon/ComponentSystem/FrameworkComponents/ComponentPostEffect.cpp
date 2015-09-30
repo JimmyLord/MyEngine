@@ -41,7 +41,7 @@ void ComponentPostEffect::OnLeftClick(unsigned int count, bool clear)
     ComponentData::OnLeftClick( count, clear );
 }
 
-void ComponentPostEffect::FillPropertiesWindow(bool clear)
+void ComponentPostEffect::FillPropertiesWindow(bool clear, bool addcomponentvariables)
 {
     m_ControlID_ComponentTitleLabel = g_pPanelWatch->AddSpace( "Post Effect", this, ComponentData::StaticOnComponentTitleLabelClicked );
 
