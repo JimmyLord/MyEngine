@@ -72,6 +72,7 @@ public:
     ComponentVariableCallbackGetPointerDesc m_pGetPointerDescCallBackFunc;
     ComponentVariableCallbackSetPointerDesc m_pSetPointerDescCallBackFunc;
     int m_ControlID;
+    int m_Index; // convenience, used when setting divorces status.
 
 public:
     ComponentVariable(const char* label, ComponentVariableTypes type, size_t offset, bool saveload, bool displayinwatch,
@@ -95,6 +96,7 @@ public:
         m_pGetPointerDescCallBackFunc = pGetPointerDescCallBackFunc;
         m_pSetPointerDescCallBackFunc = pSetPointerDescCallBackFunc;
         m_ControlID = -1;
+        m_Index = -1;
     }
 };
 
@@ -124,6 +126,18 @@ public:
 
 #define MYFW_COMPONENT_VARIABLE_LIST_DESTRUCTOR() \
     ClearAllVariables();
+
+#if MYFW_USING_WX
+class ComponentBaseEventHandlerForComponentVariables : public wxEvtHandler
+{
+public:
+    ComponentBase* pComponent;
+    ComponentVariable* pVar;
+
+public:
+    void OnPopupClick(wxEvent &evt);
+};
+#endif
 
 class ComponentBase : public CPPListNode
 #if MYFW_USING_WX
@@ -173,7 +187,6 @@ public:
     unsigned int GetID() { return m_ID; }
 
 protected:
-    //static CPPListHead m_ComponentVariableList; // ComponentVariable type
     static void ClearAllVariables_Base(CPPListHead* pComponentVariableList);
     static void AddVariable_Base(CPPListHead* pComponentVariableList, const char* label, ComponentVariableTypes type, size_t offset, bool saveload, bool displayinwatch, const char* watchlabel, ComponentVariableCallbackValueChanged pOnValueChangedCallBackFunc, ComponentVariableCallbackDropTarget pOnDropCallBackFunc, ComponentVariableCallback pOnButtonPressedCallBackFunc);
     static void AddVariablePointer_Base(CPPListHead* pComponentVariableList, const char* label, bool saveload, bool displayinwatch, const char* watchlabel, ComponentVariableCallbackValueChanged pOnValueChangedCallBackFunc, ComponentVariableCallbackDropTarget pOnDropCallBackFunc, ComponentVariableCallback pOnButtonPressedCallBackFunc, ComponentVariableCallbackPointer pGetPointerValueCallBackFunc, ComponentVariableCallbackGetPointerDesc pGetPointerDescCallBackFunc, ComponentVariableCallbackSetPointerDesc pSetPointerDescCallBackFunc);
@@ -185,7 +198,19 @@ protected:
 
 #if MYFW_USING_WX
 public:
+    enum RightClickOptions
+    {
+        RightClick_DivorceVariable = 1000,
+        RightClick_MarryVariable,
+    };
+
     virtual void AddToObjectsPanel(wxTreeItemId gameobjectid);
+
+    // an unsigned int of all divorced components variables, only maintained in editor builds.
+    unsigned int m_DivorcedVariables;
+    bool IsDivorced(int index);
+    void SetDivorced(int index, bool divorced);
+    bool DoesVariableMatchParent(int controlid, ComponentVariable* pVar);
 
     // Watch panel callbacks for component variables.
     // if any variables value changed, then react.
@@ -194,6 +219,10 @@ public:
 
     static void StaticOnDropVariable(void* pObjectPtr, int controlid, wxCoord x, wxCoord y) { ((ComponentBase*)pObjectPtr)->OnDropVariable(controlid, x, y); }
     void OnDropVariable(int controlid, wxCoord x, wxCoord y);
+
+    ComponentBaseEventHandlerForComponentVariables m_ComponentBaseEventHandlerForComponentVariables;
+    static void StaticOnRightClick(void* pObjectPtr, int controlid) { ((ComponentBase*)pObjectPtr)->OnRightClick(controlid); }
+    void OnRightClick(int controlid);
 
     ComponentVariable* FindComponentVariableForControl(int controlid);
     void UpdateChildrenWithNewValue(bool fromdraganddrop, ComponentVariable* pVar, int controlid, bool finishedchanging, double oldvalue, void* oldpointer, wxCoord x, wxCoord y);
