@@ -226,6 +226,7 @@ public:
 
     ComponentVariable* FindComponentVariableForControl(int controlid);
     void UpdateChildrenWithNewValue(bool fromdraganddrop, ComponentVariable* pVar, int controlid, bool finishedchanging, double oldvalue, void* oldpointer, wxCoord x, wxCoord y);
+    void CopyValueFromParent(ComponentVariable* pVar);
 
     // to show/hide the components controls in watch panel
     //static bool m_PanelWatchBlockVisible; // each class needs it's own static bool, so if one component of this type is off, they all are.

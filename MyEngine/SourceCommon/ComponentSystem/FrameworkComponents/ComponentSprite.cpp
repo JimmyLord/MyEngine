@@ -78,6 +78,8 @@ const char* ComponentSprite::GetPointerDesc(ComponentVariable* pVar) //_VARIABLE
         MaterialDefinition* pMaterial = m_pSprite->GetMaterial();
         if( pMaterial && pMaterial->m_pFile )
             return pMaterial->m_pFile->m_FullPath;
+        else
+            return "none";
     }
 
     return "fix me";

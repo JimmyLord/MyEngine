@@ -207,6 +207,12 @@ void ComponentBase::FillPropertiesWindowWithVariables()
                 MyAssert( false );
                 break;
             }
+
+            if( IsDivorced( pVar->m_Index ) )
+            {
+                g_pPanelWatch->ChangeStaticTextFontStyle( pVar->m_ControlID, wxFONTSTYLE_ITALIC, wxFONTWEIGHT_BOLD );
+                g_pPanelWatch->ChangeStaticTextBGColor( pVar->m_ControlID, wxColour( 255, 200, 200, 255 ) );
+            }
         }
     }
 }
@@ -444,23 +450,23 @@ bool ComponentBase::DoesVariableMatchParent(int controlid, ComponentVariable* pV
             switch( pVar->m_Type )
             {
             //ComponentVariableType_Int,
-            //    return *(int*)((char*)pOtherComponent + offset) == *(int*)((char*)this + offset);
+            //    return *(int*)((char*)this + offset) == *(int*)((char*)pOtherComponent + offset);
 
             case ComponentVariableType_UnsignedInt:
-                return *(unsigned int*)((char*)pOtherComponent + offset) == *(unsigned int*)((char*)this + offset);
+                return *(unsigned int*)((char*)this + offset) == *(unsigned int*)((char*)pOtherComponent + offset);
 
             //ComponentVariableType_Char,
-            //    return *(char*)((char*)pOtherComponent + offset) == *(char*)((char*)this + offset);
+            //    return *(char*)((char*)this + offset) == *(char*)((char*)pOtherComponent + offset);
             //ComponentVariableType_UnsignedChar,
-            //    return *(unsigned char*)((char*)pOtherComponent + offset) == *(unsigned char*)((char*)this + offset);
+            //    return *(unsigned char*)((char*)this + offset) == *(unsigned char*)((char*)pOtherComponent + offset);
 
             case ComponentVariableType_Bool:
-                return *(bool*)((char*)pOtherComponent + offset) == *(bool*)((char*)this + offset);
+                return *(bool*)((char*)this + offset) == *(bool*)((char*)pOtherComponent + offset);
 
             //ComponentVariableType_Float,
-            //    return *(float*)((char*)pOtherComponent + offset) == *(float*)((char*)this + offset);
+            //    return *(float*)((char*)this + offset) == *(float*)((char*)pOtherComponent + offset);
             //ComponentVariableType_Double,
-            //    return *(double*)((char*)pOtherComponent + offset) == *(double*)((char*)this + offset);
+            //    return *(double*)((char*)this + offset) == *(double*)((char*)pOtherComponent + offset);
 
             //ComponentVariableType_ColorFloat,
 
@@ -475,14 +481,14 @@ bool ComponentBase::DoesVariableMatchParent(int controlid, ComponentVariable* pV
                 else
                 {
                     offset += sizeof(unsigned char)*3; // offset of the alpha in ColorByte
-                    return *(unsigned char*)((char*)pOtherComponent + offset) == *(unsigned char*)((char*)this + offset);
+                    return *(unsigned char*)((char*)this + offset) == *(unsigned char*)((char*)pOtherComponent + offset);
                 }
                 break;
 
             case ComponentVariableType_Vector2:
             case ComponentVariableType_Vector3:
                 offset += controlcomponent*4;
-                return *(float*)((char*)pOtherComponent + offset) == *(float*)((char*)this + offset);
+                return *(float*)((char*)this + offset) == *(float*)((char*)pOtherComponent + offset);
 
             case ComponentVariableType_GameObjectPtr:
                 MyAssert( false );
@@ -490,10 +496,10 @@ bool ComponentBase::DoesVariableMatchParent(int controlid, ComponentVariable* pV
 
             case ComponentVariableType_FilePtr:
             case ComponentVariableType_ComponentPtr:
-                return *(ComponentBase**)((char*)pOtherComponent + offset) == *(ComponentBase**)((char*)this + offset);
+                return *(ComponentBase**)((char*)this + offset) == *(ComponentBase**)((char*)pOtherComponent + offset);
 
             case ComponentVariableType_PointerIndirect:
-                return pVar->m_pGetPointerValueCallBackFunc( pOtherComponent, pVar ) == pVar->m_pGetPointerValueCallBackFunc( this, pVar );
+                return pVar->m_pGetPointerValueCallBackFunc( this, pVar ) == pVar->m_pGetPointerValueCallBackFunc( pOtherComponent, pVar );
                 break;
 
             case ComponentVariableType_NumTypes:
@@ -519,11 +525,16 @@ void ComponentBase::OnValueChangedVariable(int controlid, bool finishedchanging,
         if( pVar->m_pOnValueChangedCallbackFunc )
             oldpointer = pVar->m_pOnValueChangedCallbackFunc( this, pVar, finishedchanging, oldvalue );
 
-        // divorce the child value from it's parent, if it no longer matches.
-        if( DoesVariableMatchParent( controlid, pVar ) == false ) // returns true if no parent was found.
+        if( m_pGameObject && m_pGameObject->GetGameObjectThisInheritsFrom() )
         {
-            // if the variable no longer matches the parent, then divorce it.
-            SetDivorced( pVar->m_Index, true );
+            // divorce the child value from it's parent, if it no longer matches.
+            if( DoesVariableMatchParent( controlid, pVar ) == false ) // returns true if no parent was found.
+            {
+                // if the variable no longer matches the parent, then divorce it.
+                SetDivorced( pVar->m_Index, true );
+                g_pPanelWatch->ChangeStaticTextFontStyle( pVar->m_ControlID, wxFONTSTYLE_ITALIC, wxFONTWEIGHT_BOLD );
+                g_pPanelWatch->ChangeStaticTextBGColor( pVar->m_ControlID, wxColour( 255, 200, 200, 255 ) );
+            }
         }
 
         UpdateChildrenWithNewValue( false, pVar, controlid, true, oldvalue, oldpointer, -1, -1 );
@@ -541,11 +552,16 @@ void ComponentBase::OnDropVariable(int controlid, wxCoord x, wxCoord y)
         if( pVar->m_pOnDropCallbackFunc )
             oldpointer = pVar->m_pOnDropCallbackFunc( this, pVar, x, y );
 
-        // divorce the child value from it's parent, if it no longer matches.
-        if( DoesVariableMatchParent( controlid, pVar ) == false ) // returns true if no parent was found.
+        if( m_pGameObject && m_pGameObject->GetGameObjectThisInheritsFrom() )
         {
-            // if the variable no longer matches the parent, then divorce it.
-            SetDivorced( pVar->m_Index, true );
+            // divorce the child value from it's parent, if it no longer matches.
+            if( DoesVariableMatchParent( controlid, pVar ) == false ) // returns true if no parent was found.
+            {
+                // if the variable no longer matches the parent, then divorce it.
+                SetDivorced( pVar->m_Index, true );
+                g_pPanelWatch->ChangeStaticTextFontStyle( pVar->m_ControlID, wxFONTSTYLE_ITALIC, wxFONTWEIGHT_BOLD );
+                g_pPanelWatch->ChangeStaticTextBGColor( pVar->m_ControlID, wxColour( 255, 200, 200, 255 ) );
+            }
         }
 
         // OnDropCallback will grab the new value from g_DragAndDropStruct
@@ -592,15 +608,162 @@ void ComponentBaseEventHandlerForComponentVariables::OnPopupClick(wxEvent &evt)
     case ComponentBase::RightClick_DivorceVariable:
         {
             pComponent->SetDivorced( pVar->m_Index, true );
+            g_pPanelWatch->ChangeStaticTextFontStyle( pVar->m_ControlID, wxFONTSTYLE_ITALIC, wxFONTWEIGHT_BOLD );
+            g_pPanelWatch->ChangeStaticTextBGColor( pVar->m_ControlID, wxColour( 255, 200, 200, 255 ) );
         }
         break;
 
     case ComponentBase::RightClick_MarryVariable:
         {
             pComponent->SetDivorced( pVar->m_Index, false );
-            // TODO: change the value of this object to match the parent.
+            g_pPanelWatch->ChangeStaticTextFontStyle( pVar->m_ControlID, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL );
+            g_pPanelWatch->ChangeStaticTextBGColor( pVar->m_ControlID, wxNullColour );
+            
+            // TODO: change the value of this variable to match the parent.
+            pComponent->CopyValueFromParent( pVar );
         }
         break;
+    }
+}
+
+void ComponentBase::CopyValueFromParent(ComponentVariable* pVar)
+{
+    MyAssert( m_pGameObject );
+    MyAssert( m_pGameObject->GetGameObjectThisInheritsFrom() );
+
+    GameObject* pParentGO = m_pGameObject->GetGameObjectThisInheritsFrom();
+    if( pParentGO == 0 )
+        return;
+    
+    // Found a game object, now find the matching component on it.
+    for( unsigned int i=0; i<pParentGO->m_Components.Count()+1; i++ )
+    {
+        ComponentBase* pOtherComponent;
+
+        if( i == 0 )
+            pOtherComponent = pParentGO->m_pComponentTransform;
+        else
+            pOtherComponent = pParentGO->m_Components[i-1];
+
+        const char* pThisCompClassName = GetClassname();
+        const char* pOtherCompClassName = pOtherComponent->GetClassname();
+
+        if( strcmp( pThisCompClassName, pOtherCompClassName ) == 0 )
+        {
+            int offset = pVar->m_Offset;
+
+            switch( pVar->m_Type )
+            {
+            //ComponentVariableType_Int,
+            //    *(int*)((char*)this + offset) = *(int*)((char*)pOtherComponent + offset);
+            //    break;
+
+            case ComponentVariableType_UnsignedInt:
+                {
+                    unsigned int oldvalue = *(unsigned int*)((char*)this + offset);
+                    *(unsigned int*)((char*)this + offset) = *(unsigned int*)((char*)pOtherComponent + offset);
+                    // notify component it's children that the value changed.
+                    OnValueChangedVariable( pVar->m_ControlID, true, oldvalue );
+                }
+                break;
+
+            //ComponentVariableType_Char,
+            //    *(char*)((char*)this + offset) = *(char*)((char*)pOtherComponent + offset);
+            //    break;
+
+            //ComponentVariableType_UnsignedChar,
+            //    *(unsigned char*)((char*)this + offset) = *(unsigned char*)((char*)pOtherComponent + offset);
+            //    break;
+
+            case ComponentVariableType_Bool:
+                {
+                    unsigned int oldvalue = *(char*)((char*)this + offset);
+                    *(bool*)((char*)this + offset) = *(bool*)((char*)pOtherComponent + offset);
+                    // notify component it's children that the value changed.
+                    OnValueChangedVariable( pVar->m_ControlID, true, oldvalue );
+                }                
+                break;
+
+            //ComponentVariableType_Float,
+            //    *(float*)((char*)this + offset) = *(float*)((char*)pOtherComponent + offset);
+            //    break;
+            //ComponentVariableType_Double,
+            //    *(double*)((char*)this + offset) = *(double*)((char*)pOtherComponent + offset);
+            //    break;
+
+            //ComponentVariableType_ColorFloat,
+            //    break;
+
+            case ComponentVariableType_ColorByte:
+                {
+                    ColorByte* thiscolor = (ColorByte*)((char*)this + offset);
+                    ColorByte* parentcolor = (ColorByte*)((char*)pOtherComponent + offset);
+
+                    ColorByte oldcolor = *thiscolor;
+                    *thiscolor = *parentcolor;
+
+                    // store the old color in a local var.
+                    // send the pointer to that var via callback in the double.
+                    // TODO: make 64-bit friendly, along with potentially a lot of other things.
+                    double oldvalue;
+                    *(int*)&oldvalue = (int)&oldcolor;
+
+                    // notify component it's children that the value changed.
+                    OnValueChangedVariable( pVar->m_ControlID, true, oldvalue );
+                }                
+                break;
+
+            case ComponentVariableType_Vector2:
+                {
+                    Vector2 oldvalue = *(Vector2*)((char*)this + offset);
+                    *(Vector2*)((char*)this + offset) = *(Vector2*)((char*)pOtherComponent + offset);
+                    // notify component it's children that the value changed.
+                    OnValueChangedVariable( pVar->m_ControlID+0, true, oldvalue.x );
+                    OnValueChangedVariable( pVar->m_ControlID+1, true, oldvalue.y );
+                }
+                break;
+
+            case ComponentVariableType_Vector3:
+                {
+                    Vector3 oldvalue = *(Vector3*)((char*)this + offset);
+                    *(Vector3*)((char*)this + offset) = *(Vector3*)((char*)pOtherComponent + offset);
+                    // notify component it's children that the value changed.
+                    OnValueChangedVariable( pVar->m_ControlID+0, true, oldvalue.x );
+                    OnValueChangedVariable( pVar->m_ControlID+1, true, oldvalue.y );
+                    OnValueChangedVariable( pVar->m_ControlID+2, true, oldvalue.z );
+                }
+                break;
+
+            case ComponentVariableType_GameObjectPtr:
+                *(GameObject**)((char*)this + offset) = *(GameObject**)((char*)pOtherComponent + offset);
+                OnValueChangedVariable( pVar->m_ControlID, true, 0 );
+                break;
+
+            case ComponentVariableType_FilePtr:
+                *(MyFileObject**)((char*)this + offset) = *(MyFileObject**)((char*)pOtherComponent + offset);
+                OnValueChangedVariable( pVar->m_ControlID, true, 0 );
+                break;
+
+            case ComponentVariableType_ComponentPtr:
+                *(ComponentBase**)((char*)this + offset) = *(ComponentBase**)((char*)pOtherComponent + offset);
+                OnValueChangedVariable( pVar->m_ControlID, true, 0 );
+                break;
+
+            case ComponentVariableType_PointerIndirect:
+                {
+                    void* pPtr = pVar->m_pGetPointerValueCallBackFunc( pOtherComponent, pVar );
+                    //pVar->m_pSetPointerValueCallBackFunc( this, pVar, pPtr );
+                    MyAssert( false );
+                    OnValueChangedVariable( pVar->m_ControlID, true, 0 );
+                }
+                break;
+
+            case ComponentVariableType_NumTypes:
+            default:
+                MyAssert( false );
+                break;
+            }
+        }
     }
 }
 
