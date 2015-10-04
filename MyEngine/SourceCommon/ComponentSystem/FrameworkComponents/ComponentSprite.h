@@ -51,6 +51,9 @@ public:
     static void* StaticGetPointerValue(void* pObjectPtr, ComponentVariable* pVar) { return ((ComponentSprite*)pObjectPtr)->GetPointerValue(pVar); }
     void* GetPointerValue(ComponentVariable* pVar);
 
+    static void StaticSetPointerValue(void* pObjectPtr, ComponentVariable* pVar, void* newvalue) { return ((ComponentSprite*)pObjectPtr)->SetPointerValue(pVar, newvalue); }
+    void SetPointerValue(ComponentVariable* pVar, void* newvalue);
+
     static const char* StaticGetPointerDesc(void* pObjectPtr, ComponentVariable* pVar) { return ((ComponentSprite*)pObjectPtr)->GetPointerDesc( pVar ); }
     const char* GetPointerDesc(ComponentVariable* pVar);
 

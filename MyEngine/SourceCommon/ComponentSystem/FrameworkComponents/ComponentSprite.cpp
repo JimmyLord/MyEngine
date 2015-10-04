@@ -41,7 +41,7 @@ void ComponentSprite::RegisterVariables(CPPListHead* pList, ComponentSprite* pTh
 
     AddVariable( pList, "Tint",     ComponentVariableType_ColorByte, MyOffsetOf( pThis, &pThis->m_Tint ),  true,  true, 0, ComponentSprite::StaticOnValueChanged, ComponentSprite::StaticOnDrop, 0 );
     AddVariable( pList, "Size",     ComponentVariableType_Vector2,   MyOffsetOf( pThis, &pThis->m_Size ),  true,  true, 0, ComponentSprite::StaticOnValueChanged, ComponentSprite::StaticOnDrop, 0 );
-    AddVariablePointer( pList, "Material",                                                                 true,  true, 0, ComponentSprite::StaticOnValueChanged, ComponentSprite::StaticOnDrop, 0, ComponentSprite::StaticGetPointerValue, ComponentSprite::StaticGetPointerDesc, ComponentSprite::StaticSetPointerDesc );
+    AddVariablePointer( pList, "Material",                                                                 true,  true, 0, ComponentSprite::StaticOnValueChanged, ComponentSprite::StaticOnDrop, 0, ComponentSprite::StaticGetPointerValue, ComponentSprite::StaticSetPointerValue, ComponentSprite::StaticGetPointerDesc, ComponentSprite::StaticSetPointerDesc );
 }
 
 void ComponentSprite::Reset()
@@ -68,6 +68,15 @@ void* ComponentSprite::GetPointerValue(ComponentVariable* pVar) //_VARIABLE_LIST
     }
 
     return 0;
+}
+
+void ComponentSprite::SetPointerValue(ComponentVariable* pVar, void* newvalue)
+{
+    if( strcmp( pVar->m_Label, "Material" ) == 0 )
+    {
+        if( m_pSprite )
+            return m_pSprite->SetMaterial( (MaterialDefinition*)newvalue );
+    }
 }
 
 const char* ComponentSprite::GetPointerDesc(ComponentVariable* pVar) //_VARIABLE_LIST
