@@ -48,6 +48,7 @@ public:
     SetClassnameBase( "GameObject" ); // only first 8 character count.
 
     GameObject* GetGameObjectThisInheritsFrom() { return m_pGameObjectThisInheritsFrom; }
+    void SetGameObjectThisInheritsFrom(GameObject* pObj) { m_pGameObjectThisInheritsFrom = pObj; }
 
     static void LuaRegister(lua_State* luastate);
 

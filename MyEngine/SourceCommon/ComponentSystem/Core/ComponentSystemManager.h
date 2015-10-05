@@ -141,7 +141,8 @@ public:
     void AddListOfFilesUsedToJSONObject(unsigned int sceneid, cJSON* filearray);
     char* SaveSceneToJSON(unsigned int sceneid);
     
-    MyFileObject* LoadDatafile(const char* relativepath, unsigned int sceneid, const char* fullsourcefilepath);
+    MyFileObject* LoadDataFile(const char* relativepath, unsigned int sceneid, const char* fullsourcefilepath);
+    MyFileObject* ImportDataFile(unsigned int sceneid, const char* fullsourcefilepath);
     void FreeAllDataFiles(unsigned int sceneidtoclear);
 
     void LoadSceneFromJSON(const char* scenename, const char* jsonstr, unsigned int sceneid);
@@ -224,6 +225,7 @@ public:
 #if MYFW_USING_WX
     void DrawSingleObject(MyMatrix* pMatViewProj, GameObject* pObject); // used to draw an animated mesh into the debug FBO
 
+    void CheckForUpdatedDataSourceFiles(bool initialcheck);
     void OnFileUpdated(MyFileObject* pFile);
     void Editor_RegisterFileUpdatedCallback(FileUpdatedCallbackFunction pFunc, void* pObj);
     void AddAllMaterialsToFilesList();
@@ -245,6 +247,18 @@ public:
 class MyFileInfo : public CPPListNode
 {
 public:
+    MyFileObject* m_pFile;
+    char m_SourceFileFullPath[MAX_PATH];
+    unsigned int m_SceneID;
+
+    MyMesh* m_pMesh; // a mesh may have been created alongside the file.
+    ShaderGroup* m_pShaderGroup; // a shadergroup may have been created alongside the file.
+    TextureDefinition* m_pTexture; //a texture may have been created alongside the file.
+    MaterialDefinition* m_pMaterial; //a material may have been created alongside the file.
+
+    bool m_DidInitialCheckIfSourceFileWasUpdated;
+
+public:
     MyFileInfo()
     {
         m_pFile = 0;
@@ -255,6 +269,8 @@ public:
         m_pShaderGroup = 0;
         m_pTexture = 0;
         m_pMaterial = 0;
+
+        m_DidInitialCheckIfSourceFileWasUpdated = false;
     }
 
     virtual ~MyFileInfo()
@@ -267,15 +283,6 @@ public:
         SAFE_RELEASE( m_pTexture );
         SAFE_RELEASE( m_pMaterial );
     }
-
-    MyFileObject* m_pFile;
-    char m_SourceFileFullPath[MAX_PATH];
-    unsigned int m_SceneID;
-
-    MyMesh* m_pMesh; // a mesh may have been created alongside the file.
-    ShaderGroup* m_pShaderGroup; // a shadergroup may have been created alongside the file.
-    TextureDefinition* m_pTexture; //a texture may have been created alongside the file.
-    MaterialDefinition* m_pMaterial; //a material may have been created alongside the file.
 };
 
 #endif //__ComponentSystemManager_H__

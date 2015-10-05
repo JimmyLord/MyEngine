@@ -856,7 +856,7 @@ void EngineMainFrame::AddDatafileToScene()
             return;
         }
 
-        g_pEngineCore->m_pComponentSystemManager->LoadDatafile( relativepath, 1, (const char*)patharray[filenum] );
+        g_pEngineCore->m_pComponentSystemManager->LoadDataFile( relativepath, 1, (const char*)patharray[filenum] );
     }
 }
 

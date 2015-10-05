@@ -111,6 +111,39 @@ void ComponentSystemManager::LuaRegister(lua_State* luastate)
 }
 
 #if MYFW_USING_WX
+void ComponentSystemManager::CheckForUpdatedDataSourceFiles(bool initialcheck)
+{
+    for( CPPListNode* pNode = m_Files.GetHead(); pNode; pNode = pNode->GetNext() )
+    {
+        MyFileInfo* pFileInfo = (MyFileInfo*)pNode;
+
+        if( (initialcheck == false || pFileInfo->m_DidInitialCheckIfSourceFileWasUpdated == false) && // haven't done initial check
+            pFileInfo->m_pFile->m_FileLastWriteTime.dwHighDateTime != 0 && // converted file has been loaded
+            pFileInfo->m_SourceFileFullPath[0] != 0 )                      // we have a source file
+        {
+#if MYFW_WINDOWS
+            WIN32_FIND_DATAA data;
+            memset( &data, 0, sizeof( data ) );
+
+            HANDLE handle = FindFirstFileA( pFileInfo->m_SourceFileFullPath, &data );
+            if( handle != INVALID_HANDLE_VALUE )
+                FindClose( handle );
+
+            // if the source file is newer than the data file, reimport it.
+            if( data.ftLastWriteTime.dwHighDateTime > pFileInfo->m_pFile->m_FileLastWriteTime.dwHighDateTime ||
+                ( data.ftLastWriteTime.dwHighDateTime == pFileInfo->m_pFile->m_FileLastWriteTime.dwHighDateTime &&
+                  data.ftLastWriteTime.dwLowDateTime > pFileInfo->m_pFile->m_FileLastWriteTime.dwLowDateTime ) )
+            {
+                ImportDataFile( pFileInfo->m_SceneID, pFileInfo->m_SourceFileFullPath );
+                bool updated = true;
+            }
+
+            pFileInfo->m_DidInitialCheckIfSourceFileWasUpdated = true;
+        }
+#endif
+    }
+}
+
 void ComponentSystemManager::OnFileUpdated(MyFileObject* pFile)
 {
     for( unsigned int i=0; i<m_pFileUpdatedCallbackList.size(); i++ )
@@ -418,7 +451,7 @@ MyFileObject* ComponentSystemManager::GetFileObjectIfUsedByScene(const char* ful
     return 0;
 }
 
-MyFileObject* ComponentSystemManager::LoadDatafile(const char* relativepath, unsigned int sceneid, const char* fullsourcefilepath)
+MyFileObject* ComponentSystemManager::LoadDataFile(const char* relativepath, unsigned int sceneid, const char* fullsourcefilepath)
 {
     MyAssert( relativepath );
 
@@ -428,7 +461,9 @@ MyFileObject* ComponentSystemManager::LoadDatafile(const char* relativepath, uns
     // if the file is already tagged as being used by this scene, don't request/addref it.
     if( pFile != 0 )
     {
-        LOGInfo( LOGTag, "%s already in scene\n", relativepath );
+        LOGInfo( LOGTag, "%s already in scene, reloading\n", relativepath );
+        g_pFileManager->ReloadFile( pFile );
+        OnFileUpdated_CallbackFunction( pFile );
     }
     else
     {
@@ -436,77 +471,17 @@ MyFileObject* ComponentSystemManager::LoadDatafile(const char* relativepath, uns
         if( fullsourcefilepath )
             fulllen = strlen( fullsourcefilepath );
         size_t rellen = strlen( relativepath );
-        
-        // convert any .fbx files into a mymesh and load that.
+
 #if MYFW_USING_WX
-        if( rellen > 4 &&
-            ( strcmp( &relativepath[rellen-4], ".fbx" ) == 0 ||
-              strcmp( &relativepath[rellen-4], ".obj" ) == 0 )
-          )
+        if( fullsourcefilepath )
         {
-            // run MeshTool to convert the mesh and put the result in "Data/Meshes"
-            const int paramsbuffersize = MAX_PATH * 2 + 50;
-            char params[paramsbuffersize]; // 2 full paths plus a few extra chars
+            MyFileObject* pFile = ImportDataFile( sceneid, fullsourcefilepath );
 
-            char workingdir[MAX_PATH];
-#if MYFW_WINDOWS
-            _getcwd( workingdir, MAX_PATH * sizeof(char) );
-#else
-            getcwd( workingdir, MAX_PATH * sizeof(char) );
-#endif
-
-            char filename[MAX_PATH];
-            for( int i=(int)strlen(relativepath)-1; i>=0; i-- )
-            {
-                if( relativepath[i] == '\\' || relativepath[i] == '/' || i == 0 )
-                {
-                    strcpy_s( filename, MAX_PATH, &relativepath[i+1] );
-                    break;
-                }
-            }
-
-            sprintf_s( params, paramsbuffersize, "-s %s -o Data/Meshes/%s -m Data/Materials", relativepath, filename );
-
-            LOGInfo( LOGTag, "Converting %s to mymesh %s\n", relativepath, params );
-
-#if MYFW_WINDOWS
-            SHELLEXECUTEINFOA info = {0};
-            info.cbSize = sizeof( SHELLEXECUTEINFOA );
-            info.fMask = SEE_MASK_NOCLOSEPROCESS;
-            info.hwnd = 0;
-            info.lpVerb = 0;
-            info.lpFile = "Tools\\MeshTool.exe";
-            info.lpParameters = params;
-            info.lpDirectory = workingdir;
-            info.nShow = SW_SHOWNOACTIVATE;
-            info.hInstApp = 0;
-
-            if( ShellExecuteExA( &info ) == 0 )
-            //if( ShellExecuteA( 0, "open", "Tools/MeshTool.exe", params, workingdir, SW_SHOWNOACTIVATE ) != 0 )
-            {
-                LOGError( LOGTag, "Something went wrong with conversion\n" );
-            }
-            else
-            {
-                LOGInfo( LOGTag, "Conversion complete\n" );
-
-                // file isn't found by loading code if this sleep isn't here. TODO: find better solution.
-                Sleep( 200 );
-
-                // create a new relative path.
-                char newrelativepath[MAX_PATH];
-                sprintf_s( newrelativepath, MAX_PATH, "Data/Meshes/%s.mymesh", filename );
-
-                pFile = LoadDatafile( newrelativepath, sceneid, fullsourcefilepath );
-            }
-#else
-            LOGError( LOGTag, "Mesh conversion only works on Windows ATM\n" );
-#endif
-
-            return pFile;
+            if( pFile )
+                return pFile;
         }
-#endif //MYFW_USING_WX
-
+#endif
+        
         TextureDefinition* pTexture = 0;
 
         // load textures differently than other files.
@@ -578,6 +553,89 @@ MyFileObject* ComponentSystemManager::LoadDatafile(const char* relativepath, uns
     return pFile;
 }
 
+#if MYFW_USING_WX
+MyFileObject* ComponentSystemManager::ImportDataFile(unsigned int sceneid, const char* fullsourcefilepath)
+{
+    MyAssert( fullsourcefilepath );
+    if( fullsourcefilepath == 0 )
+        return 0;
+
+    //const char* relativepath = g_pEngineMainFrame->GetRelativePath( fullsourcefilepath );
+    //size_t rellen = strlen( relativepath );
+
+    size_t fulllen = 0;
+    fulllen = strlen( fullsourcefilepath );
+
+    // convert any .fbx files into a mymesh and load that.
+    if( ( fulllen > 4 && strcmp( &fullsourcefilepath[fulllen-4], ".fbx" ) == 0 ) ||
+        ( fulllen > 4 && strcmp( &fullsourcefilepath[fulllen-4], ".obj" ) == 0 ) ||
+        ( fulllen > 6 && strcmp( &fullsourcefilepath[fulllen-6], ".blend" ) == 0 )
+      )
+    {
+        // run MeshTool to convert the mesh and put the result in "Data/Meshes"
+        const int paramsbuffersize = MAX_PATH * 2 + 50;
+        char params[paramsbuffersize]; // 2 full paths plus a few extra chars
+
+        char workingdir[MAX_PATH];
+#if MYFW_WINDOWS
+        _getcwd( workingdir, MAX_PATH * sizeof(char) );
+#else
+        getcwd( workingdir, MAX_PATH * sizeof(char) );
+#endif
+
+        char filename[MAX_PATH];
+        for( int i=(int)strlen(fullsourcefilepath)-1; i>=0; i-- )
+        {
+            if( fullsourcefilepath[i] == '\\' || fullsourcefilepath[i] == '/' || i == 0 )
+            {
+                strcpy_s( filename, MAX_PATH, &fullsourcefilepath[i+1] );
+                break;
+            }
+        }
+
+        sprintf_s( params, paramsbuffersize, "-s %s -o Data/Meshes/%s -m Data/Materials", fullsourcefilepath, filename );
+
+        LOGInfo( LOGTag, "Converting %s to mymesh %s\n", fullsourcefilepath, params );
+
+#if MYFW_WINDOWS
+        SHELLEXECUTEINFOA info = {0};
+        info.cbSize = sizeof( SHELLEXECUTEINFOA );
+        info.fMask = SEE_MASK_NOASYNC; //SEE_MASK_NOCLOSEPROCESS;
+        info.hwnd = 0;
+        info.lpVerb = 0;
+        info.lpFile = "Tools\\MeshTool.exe";
+        info.lpParameters = params;
+        info.lpDirectory = workingdir;
+        info.nShow = SW_SHOWNOACTIVATE;
+        info.hInstApp = 0;
+
+        if( ShellExecuteExA( &info ) == 0 )
+        //if( ShellExecuteA( 0, "open", "Tools/MeshTool.exe", params, workingdir, SW_SHOWNOACTIVATE ) != 0 )
+        {
+            LOGError( LOGTag, "Something went wrong with conversion\n" );
+        }
+        else
+        {
+            LOGInfo( LOGTag, "Conversion complete\n" );
+
+            // file isn't found by loading code if this sleep isn't here. TODO: find better solution.
+            Sleep( 500 );
+
+            // create a new relative path.
+            char newrelativepath[MAX_PATH];
+            sprintf_s( newrelativepath, MAX_PATH, "Data/Meshes/%s.mymesh", filename );
+
+            return LoadDataFile( newrelativepath, sceneid, fullsourcefilepath );
+        }
+#else
+        LOGError( LOGTag, "Mesh conversion only works on Windows ATM\n" );
+#endif
+    }
+
+    return 0;
+}
+#endif //MYFW_USING_WX
+
 void ComponentSystemManager::FreeAllDataFiles(unsigned int sceneidtoclear)
 {
     for( CPPListNode* pNode = m_Files.GetHead(); pNode;  )
@@ -618,14 +676,14 @@ void ComponentSystemManager::LoadSceneFromJSON(const char* scenename, const char
 
             if( jFile->valuestring != 0 )
             {
-                LoadDatafile( jFile->valuestring, sceneid, 0 );
+                LoadDataFile( jFile->valuestring, sceneid, 0 );
             }
             else
             {
                 cJSON* jPath = cJSON_GetObjectItem( jFile, "Path" );
                 if( jPath )
                 {
-                    LoadDatafile( jPath->valuestring, sceneid, 0 );
+                    LoadDataFile( jPath->valuestring, sceneid, 0 );
 
                     MyFileInfo* pFileInfo = GetFileInfoIfUsedByScene( jPath->valuestring, sceneid );
                     MyAssert( pFileInfo );
@@ -942,6 +1000,8 @@ GameObject* ComponentSystemManager::CopyGameObject(GameObject* pObject, const ch
     GameObject* pNewObject = CreateGameObject( true, pObject->GetSceneID() );
     pNewObject->SetName( newname );
 
+    pNewObject->SetGameObjectThisInheritsFrom( pObject->GetGameObjectThisInheritsFrom() );
+
     *pNewObject->m_pComponentTransform = *pObject->m_pComponentTransform;
 
     for( unsigned int i=0; i<pObject->m_Components.Count(); i++ )
@@ -1127,6 +1187,10 @@ void ComponentSystemManager::Tick(double TimePassed)
     {
         FinishLoading( true, m_StartGamePlayWhenDoneLoading );
     }
+
+#if MYFW_USING_WX
+    CheckForUpdatedDataSourceFiles( true );
+#endif
 
     // update all Components:
 

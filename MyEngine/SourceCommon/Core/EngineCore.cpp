@@ -239,8 +239,6 @@ double EngineCore::Tick(double TimePassed)
 
 void OnFileUpdated_CallbackFunction(MyFileObject* pFile)
 {
-    //int bp = 1;
-
 #if MYFW_USING_WX
     g_pComponentSystemManager->OnFileUpdated( pFile );
 
@@ -248,6 +246,13 @@ void OnFileUpdated_CallbackFunction(MyFileObject* pFile)
     {
         MaterialDefinition* pMaterial = g_pMaterialManager->FindMaterialByFilename( pFile->m_FullPath );
         g_pMaterialManager->ReloadMaterial( pMaterial );
+    }
+
+    if( strcmp( pFile->m_ExtensionWithDot, ".mymesh" ) == 0 )
+    {
+        MyMesh* pMesh = g_pMeshManager->FindMeshBySourceFile( pFile );
+        // clear out the old mesh and load in the new one.
+        pMesh->Clear();
     }
 #endif
 
@@ -261,6 +266,9 @@ void EngineCore::OnFocusGained()
 #if MYFW_USING_WX
     m_pEditorState->ClearKeyAndActionStates();
 #endif
+
+    // check if any of the "source" files, like .fbx's were updated, they aren't loaded by FileManager so wouldn't be detected there.
+    g_pComponentSystemManager->CheckForUpdatedDataSourceFiles( false );
 
     // reload any files that changed while we were out of focus.
     int filesupdated = g_pFileManager->ReloadAnyUpdatedFiles( OnFileUpdated_CallbackFunction );
@@ -1099,7 +1107,11 @@ bool EngineCore::HandleEditorInput(int keyaction, int keycode, int mouseaction, 
         if( mouseaction == GCBA_Wheel )
         {
             // pressure is also mouse wheel movement rate in wx configurations.
+#if MYFW_RIGHTHANDED
             Vector3 dir = Vector3( 0, 0, 1 ) * -(pressure/fabs(pressure));
+#else
+            Vector3 dir = Vector3( 0, 0, 1 ) * (pressure/fabs(pressure));
+#endif
             float speed = 600.0f;
             if( m_pEditorState->m_ModifierKeyStates & MODIFIERKEY_Shift )
                 speed *= 5;
@@ -1209,7 +1221,11 @@ bool EngineCore::HandleEditorInput(int keyaction, int keycode, int mouseaction, 
                 MyClamp( angle.x, -90.0f, 90.0f );
 
                 matLocalCamera->SetIdentity();
+#if MYFW_RIGHTHANDED
                 matLocalCamera->Translate( 0, 0, distancefrompivot );
+#else
+                matLocalCamera->Translate( 0, 0, -distancefrompivot );
+#endif
                 matLocalCamera->Rotate( angle.x, 1, 0, 0 );
                 matLocalCamera->Rotate( angle.y, 0, 1, 0 );
                 matLocalCamera->Translate( pivot );

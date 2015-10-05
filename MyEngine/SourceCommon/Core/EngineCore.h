@@ -35,6 +35,8 @@ enum LayerValues
     Layer_EditorFG              = 0x8000,
 };
 
+extern void OnFileUpdated_CallbackFunction(MyFileObject* pFile);
+
 class EngineCore : public GameCore
 {
 public:
