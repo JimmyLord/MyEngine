@@ -141,7 +141,7 @@ public:
     void AddListOfFilesUsedToJSONObject(unsigned int sceneid, cJSON* filearray);
     char* SaveSceneToJSON(unsigned int sceneid);
     
-    MyFileObject* LoadDataFile(const char* relativepath, unsigned int sceneid, const char* fullsourcefilepath);
+    MyFileObject* LoadDataFile(const char* relativepath, unsigned int sceneid, const char* fullsourcefilepath, bool convertifrequired = true);
     MyFileObject* ImportDataFile(unsigned int sceneid, const char* fullsourcefilepath);
     void FreeAllDataFiles(unsigned int sceneidtoclear);
 

@@ -451,7 +451,7 @@ MyFileObject* ComponentSystemManager::GetFileObjectIfUsedByScene(const char* ful
     return 0;
 }
 
-MyFileObject* ComponentSystemManager::LoadDataFile(const char* relativepath, unsigned int sceneid, const char* fullsourcefilepath)
+MyFileObject* ComponentSystemManager::LoadDataFile(const char* relativepath, unsigned int sceneid, const char* fullsourcefilepath, bool convertifrequired)
 {
     MyAssert( relativepath );
 
@@ -473,7 +473,7 @@ MyFileObject* ComponentSystemManager::LoadDataFile(const char* relativepath, uns
         size_t rellen = strlen( relativepath );
 
 #if MYFW_USING_WX
-        if( fullsourcefilepath )
+        if( convertifrequired && fullsourcefilepath )
         {
             MyFileObject* pFile = ImportDataFile( sceneid, fullsourcefilepath );
 
@@ -625,7 +625,7 @@ MyFileObject* ComponentSystemManager::ImportDataFile(unsigned int sceneid, const
             char newrelativepath[MAX_PATH];
             sprintf_s( newrelativepath, MAX_PATH, "Data/Meshes/%s.mymesh", filename );
 
-            return LoadDataFile( newrelativepath, sceneid, fullsourcefilepath );
+            return LoadDataFile( newrelativepath, sceneid, fullsourcefilepath, false );
         }
 #else
         LOGError( LOGTag, "Mesh conversion only works on Windows ATM\n" );
