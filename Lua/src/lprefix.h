@@ -8,13 +8,6 @@
 #define lprefix_h
 
 
-// My hack to define l_getlocaledecpoint for android // Jimmy
-#if MYFW_ANDROID
-#define l_getlocaledecpoint() ('.')
-#endif //MYFW_ANDROID
-
-
-
 /*
 ** Allows POSIX/XSI stuff
 */

@@ -56,6 +56,8 @@ public:
     Vector2 m_LastMousePos;
 
     float m_DebugFPS;
+    int m_LuaMemoryUsedLastFrame;
+    int m_LuaMemoryUsedThisFrame;
 
 #if MYFW_USING_WX
     EditorState* m_pEditorState;

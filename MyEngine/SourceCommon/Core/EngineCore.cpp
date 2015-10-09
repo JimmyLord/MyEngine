@@ -69,6 +69,10 @@ EngineCore::EngineCore()
     g_pPanelObjectList->m_pCallbackFunctionObject = this;
     g_pPanelObjectList->m_pOnTreeSelectionChangedFunction = StaticOnObjectListTreeSelectionChanged;
 #endif //MYFW_USING_WX
+
+    m_DebugFPS = 0;
+    m_LuaMemoryUsedLastFrame = 0;
+    m_LuaMemoryUsedThisFrame = 0;
 }
 
 EngineCore::~EngineCore()
@@ -229,6 +233,11 @@ double EngineCore::Tick(double TimePassed)
             //LOGInfo( LOGTag, "m_pBulletWorld->PhysicsStep()\n" );
         }
     }
+
+    int luamemcountk = lua_gc( g_pLuaGameState->m_pLuaState, LUA_GCCOUNT, 0 );
+    int luamemcountb = lua_gc( g_pLuaGameState->m_pLuaState, LUA_GCCOUNTB, 0 );
+    m_LuaMemoryUsedLastFrame = m_LuaMemoryUsedThisFrame;
+    m_LuaMemoryUsedThisFrame = luamemcountk*1024 + luamemcountb;
 
     // update the global unpaused time.
     if( m_EditorMode && m_AllowGameToRunInEditorMode == false )
@@ -451,8 +460,28 @@ void EngineCore::OnDrawFrame(unsigned int canvasid)
 
         //m_pDebugTextMesh->CreateStringWhite( false, 15, m_WindowStartX+m_WindowWidth, m_WindowStartY+m_WindowHeight, Justify_TopRight, Vector2(0,0),
         //                                     "GLStats - buffers(%0.2fM) - draws(%d) - fps(%d)", g_pBufferManager->CalculateTotalMemoryUsedByBuffers()/1000000.0f, g_GLStats.GetNumDrawCallsLastFrameForCurrentCanvasID(), (int)m_DebugFPS );
-        m_pDebugTextMesh->CreateStringWhite( false, 15, m_WindowStartX+m_WindowWidth, m_WindowStartY+m_WindowHeight, Justify_TopRight, Vector2(0,0),
-            "GLStats - draws(%d) - fps(%d)", g_GLStats.GetNumDrawCallsLastFrameForCurrentCanvasID(), (int)m_DebugFPS );
+        m_pDebugTextMesh->CreateStringWhite( false, 10, m_WindowStartX+m_WindowWidth, m_WindowStartY+m_WindowHeight, Justify_TopRight, Vector2(0,0),
+            "GL - draws(%d) - fps(%d)", g_GLStats.GetNumDrawCallsLastFrameForCurrentCanvasID(), (int)m_DebugFPS );
+
+        {
+            int megs = m_LuaMemoryUsedThisFrame/1000000;
+            int kilos = (m_LuaMemoryUsedThisFrame - megs)/1000;
+            int bytes = m_LuaMemoryUsedThisFrame%1000;
+
+            int change = m_LuaMemoryUsedThisFrame - m_LuaMemoryUsedLastFrame;
+
+            if( megs == 0 )
+            {
+                m_pDebugTextMesh->CreateStringWhite( true, 10, m_WindowStartX+m_WindowWidth, m_WindowStartY+m_WindowHeight-10, Justify_TopRight, Vector2(0,0),
+                    "Lua - memory(%d,%03d) - (%d)", kilos, bytes, change );
+            }
+            else
+            {
+                m_pDebugTextMesh->CreateStringWhite( true, 10, m_WindowStartX+m_WindowWidth, m_WindowStartY+m_WindowHeight-10, Justify_TopRight, Vector2(0,0),
+                    "Lua - memory(%d,%03d,%03d) - (%d)", megs, kilos, bytes, change );
+            }
+        }
+
         MyMatrix mat;
         mat.CreateOrtho( m_WindowStartX, m_WindowStartX+m_WindowWidth, m_WindowStartY, m_WindowStartY+m_WindowHeight, 1, -1 );
         glDisable( GL_DEPTH_TEST );

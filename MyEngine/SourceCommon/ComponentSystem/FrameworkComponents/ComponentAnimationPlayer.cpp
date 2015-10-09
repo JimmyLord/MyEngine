@@ -75,6 +75,15 @@ void ComponentAnimationPlayer::FillPropertiesWindow(bool clear, bool addcomponen
     {
         ComponentUpdateable::FillPropertiesWindow( clear );
 
+        if( m_pMeshComponent == 0 )
+        {
+            ComponentBase* pComponent = m_pGameObject->GetFirstComponentOfBaseType( BaseComponentType_Renderable );
+            if( pComponent )
+                m_pMeshComponent = pComponent->IsA( "MeshOBJComponent" ) ? (ComponentMeshOBJ*)pComponent : 0;
+        }
+        if( m_pMeshComponent == 0 )
+            return;
+
         MyMesh* pMesh = m_pMeshComponent->m_pMesh;
         if( pMesh == 0 )
             return;
@@ -148,7 +157,9 @@ void ComponentAnimationPlayer::Tick(double TimePassed)
     m_LastAnimationTime += (float)TimePassed;
     m_TransitionTimeLeft -= (float)TimePassed;
 
-    float perc = m_TransitionTimeLeft / m_TransitionTimeTotal;
+    float perc = 0;
+    if( m_TransitionTimeTotal != 0 )
+        perc = m_TransitionTimeLeft / m_TransitionTimeTotal;
     pMesh->RebuildAnimationMatrices( m_AnimationIndex, m_AnimationTime, m_LastAnimationIndex, m_LastAnimationTime, perc );
 }
 
