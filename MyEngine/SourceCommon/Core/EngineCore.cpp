@@ -234,10 +234,13 @@ double EngineCore::Tick(double TimePassed)
         }
     }
 
-    int luamemcountk = lua_gc( g_pLuaGameState->m_pLuaState, LUA_GCCOUNT, 0 );
-    int luamemcountb = lua_gc( g_pLuaGameState->m_pLuaState, LUA_GCCOUNTB, 0 );
-    m_LuaMemoryUsedLastFrame = m_LuaMemoryUsedThisFrame;
-    m_LuaMemoryUsedThisFrame = luamemcountk*1024 + luamemcountb;
+    if( g_pLuaGameState && g_pLuaGameState->m_pLuaState )
+    {
+        int luamemcountk = lua_gc( g_pLuaGameState->m_pLuaState, LUA_GCCOUNT, 0 );
+        int luamemcountb = lua_gc( g_pLuaGameState->m_pLuaState, LUA_GCCOUNTB, 0 );
+        m_LuaMemoryUsedLastFrame = m_LuaMemoryUsedThisFrame;
+        m_LuaMemoryUsedThisFrame = luamemcountk*1024 + luamemcountb;
+    }
 
     // update the global unpaused time.
     if( m_EditorMode && m_AllowGameToRunInEditorMode == false )
