@@ -173,13 +173,13 @@ void GameObject::OnPopupClick(wxEvent &evt)
 {
     GameObject* pGameObject = (GameObject*)static_cast<wxMenu*>(evt.GetEventObject())->GetClientData();
 
-    if( pGameObject->m_Components.Count() >= pGameObject->m_Components.Length() )
-        return;
-
     unsigned int id = evt.GetId();
 
     if( id < g_pComponentTypeManager->GetNumberOfComponentTypes() )
     {
+        if( pGameObject->m_Components.Count() >= pGameObject->m_Components.Length() )
+            return;
+
         int type = id; // could be EngineComponentTypes or GameComponentTypes type.
 
         if( g_pEngineCore->m_EditorMode )
@@ -469,6 +469,9 @@ ComponentBase* GameObject::AddExistingComponent(ComponentBase* pComponent, bool 
 
     m_Components.Add( pComponent );
 
+    // register this components callbacks.
+    pComponent->RegisterCallbacks();
+
     MyAssert( pComponent->GetSceneID() == 0 || m_SceneID == pComponent->GetSceneID() );
 
     // add this to the system managers component list.
@@ -494,6 +497,9 @@ ComponentBase* GameObject::RemoveComponent(ComponentBase* pComponent)
         if( m_Components[i] == pComponent )
         {
             m_Components.RemoveIndex_MaintainOrder( i );
+
+            // unregister all this components callbacks.
+            pComponent->UnregisterCallbacks();
             
             // remove from system managers component list.
             pComponent->Remove();
