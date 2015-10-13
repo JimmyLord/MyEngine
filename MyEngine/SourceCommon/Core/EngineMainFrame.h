@@ -116,6 +116,7 @@ public:
     void LoadScene(const char* scenename, bool unloadscenes);
 
     const char* GetRelativePath(char* fullpath); // will replace backslashes with forward slashes in fullpath
+    const char* GetRelativePath(const char* fullpath);
     void AddDatafileToScene();
 
     static void StaticOnDrop(void* pObjectPtr, int controlid, wxCoord x, wxCoord y) { ((EngineMainFrame*)pObjectPtr)->OnDrop(controlid, x, y); }

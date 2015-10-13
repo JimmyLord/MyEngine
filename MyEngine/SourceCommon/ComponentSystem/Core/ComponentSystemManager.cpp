@@ -511,7 +511,19 @@ MyFileObject* ComponentSystemManager::LoadDataFile(const char* relativepath, uns
         if( rellen > 4 && fulllen > 4 &&
             ( strcmp( &relativepath[rellen-4], &fullsourcefilepath[fulllen-4] ) != 0 ) )
         {
-            strcpy_s( pFileInfo->m_SourceFileFullPath, MAX_PATH, fullsourcefilepath );
+            const char* relativepath = g_pEngineMainFrame->GetRelativePath( fullsourcefilepath );
+
+            // store the relative path if the file is relative... otherwise store the full path.
+            if( relativepath == 0 )
+                strcpy_s( pFileInfo->m_SourceFileFullPath, MAX_PATH, fullsourcefilepath );
+            else
+                strcpy_s( pFileInfo->m_SourceFileFullPath, MAX_PATH, relativepath );
+
+            for( unsigned int i=0; i<strlen(pFileInfo->m_SourceFileFullPath); i++ )
+            {
+                if( pFileInfo->m_SourceFileFullPath[i] == '\\' )
+                    pFileInfo->m_SourceFileFullPath[i] = '/';
+            }
         }
 
         // if we're loading a mesh file type, create a mesh.
@@ -908,9 +920,11 @@ void ComponentSystemManager::UnloadScene(unsigned int sceneidtoclear, bool clear
             unsigned int sceneid = iterator->first;
             SceneInfo* pSceneInfo = &iterator->second;
 
-            if( sceneid != 0 && pSceneInfo->treeid.IsOk() ) // don't clear the "Unmanaged" label.
+            if( sceneid != 0 && sceneid != EngineCore::ENGINE_SCENE_ID ) // don't clear the "Unmanaged" or ENGINE_SCENE_ID scenes
             {
-                g_pPanelObjectList->m_pTree_Objects->Delete( pSceneInfo->treeid );
+                MyAssert( pSceneInfo->treeid.IsOk() );
+                if( pSceneInfo->treeid.IsOk() )
+                    g_pPanelObjectList->m_pTree_Objects->Delete( pSceneInfo->treeid );
                 m_pSceneInfoMap.erase( iterator++ );
             }
             else
@@ -932,8 +946,8 @@ void ComponentSystemManager::UnloadScene(unsigned int sceneidtoclear, bool clear
 GameObject* ComponentSystemManager::CreateGameObject(bool manageobject, int sceneid)
 {
     GameObject* pGameObject = MyNew GameObject( manageobject, sceneid );
-    pGameObject->SetID( m_pSceneInfoMap[sceneid].m_NextGameObjectID );
-    m_pSceneInfoMap[sceneid].m_NextGameObjectID++;
+    unsigned int id = GetNextGameObjectIDAndIncrement( sceneid );
+    pGameObject->SetID( id );
 
     //if( manageobject )
         m_GameObjects.AddTail( pGameObject );
@@ -1027,10 +1041,22 @@ unsigned int ComponentSystemManager::GetNextGameObjectIDAndIncrement(unsigned in
     
     MyAssert( pSceneInfo );
     if( pSceneInfo == 0 )
-        return -1; // we have problems if this happens.
+        return 0; // we have problems if this happens.
 
-    pSceneInfo->m_NextGameObjectID = pSceneInfo->m_NextGameObjectID + 1;
+    pSceneInfo->m_NextGameObjectID++;
     return pSceneInfo->m_NextGameObjectID-1;
+}
+
+unsigned int ComponentSystemManager::GetNextComponentIDAndIncrement(unsigned int sceneid)
+{
+    SceneInfo* pSceneInfo = g_pComponentSystemManager->GetSceneInfo( sceneid );
+    
+    MyAssert( pSceneInfo );
+    if( pSceneInfo == 0 )
+        return 0; // we have problems if this happens.
+
+    pSceneInfo->m_NextComponentID++;
+    return pSceneInfo->m_NextComponentID-1;
 }
 
 GameObject* ComponentSystemManager::FindGameObjectByID(unsigned int sceneid, unsigned int goid)
@@ -1152,9 +1178,7 @@ void ComponentSystemManager::DeleteComponent(ComponentBase* pComponent)
 {
     if( pComponent->m_pGameObject )
     {
-        pComponent = pComponent->m_pGameObject->RemoveComponent( pComponent );
-        if( pComponent == 0 )
-            return;
+        pComponent->m_pGameObject->RemoveComponent( pComponent );
     }
 
 #if MYFW_USING_WX
@@ -1371,7 +1395,7 @@ void ComponentSystemManager::DrawMousePickerFrame(ComponentCamera* pCamera, MyMa
     }
 }
 
-#if MYFW_USING_WX == 0
+#if !MYFW_USING_WX
 SceneInfo* ComponentSystemManager::GetSceneInfo(int sceneid)
 {
     MyAssert( sceneid >= 0 && sceneid < 10 );

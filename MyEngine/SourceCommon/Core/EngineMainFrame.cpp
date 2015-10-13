@@ -323,7 +323,7 @@ void EngineMainFrame::OnPostInit()
         cJSON* obj;
 
         obj = cJSON_GetObjectItem( m_pEditorPrefs, "LastSceneLoaded" );
-        if( obj )
+        if( obj && obj->valuestring[0] != 0 )
         {
             LoadScene( obj->valuestring, false ); // this is only parsed on startup, so no need to unload scene.
             sceneloaded = true;
@@ -331,7 +331,7 @@ void EngineMainFrame::OnPostInit()
 
         obj = cJSON_GetObjectItem( m_pEditorPrefs, "EditorCam" );
         if( obj )
-            g_pEngineCore->m_pEditorState->GetEditorCamera()->m_pComponentTransform->ImportFromJSONObject( obj, 1 );
+            g_pEngineCore->m_pEditorState->GetEditorCamera()->m_pComponentTransform->ImportFromJSONObject( obj, EngineCore::ENGINE_SCENE_ID );
 
         extern GLViewTypes g_CurrentGLViewType;
         cJSONExt_GetInt( m_pEditorPrefs, "GameAspectRatio", (int*)&g_CurrentGLViewType );
@@ -400,7 +400,11 @@ bool EngineMainFrame::OnClose()
             cJSON_AddNumberToObject( pPrefs, "ClientHeight", m_ClientHeight );
             cJSON_AddNumberToObject( pPrefs, "IsMaximized", m_Maximized );
 
-            cJSON_AddStringToObject( pPrefs, "LastSceneLoaded", g_pComponentSystemManager->GetSceneInfo( 1 )->fullpath );
+            const char* relativepath = g_pEngineMainFrame->GetRelativePath( g_pComponentSystemManager->GetSceneInfo( 1 )->fullpath );
+            if( relativepath )
+                cJSON_AddStringToObject( pPrefs, "LastSceneLoaded", relativepath );
+            else
+                cJSON_AddStringToObject( pPrefs, "LastSceneLoaded", g_pComponentSystemManager->GetSceneInfo( 1 )->fullpath );
             cJSON_AddItemToObject( pPrefs, "EditorCam", g_pEngineCore->m_pEditorState->GetEditorCamera()->m_pComponentTransform->ExportAsJSONObject( false ) );
             cJSON_AddNumberToObject( pPrefs, "EditorLayout", GetDefaultEditorPerspectiveIndex() );
             cJSON_AddNumberToObject( pPrefs, "GameplayLayout", GetDefaultGameplayPerspectiveIndex() );
@@ -786,6 +790,9 @@ void EngineMainFrame::LoadScene(const char* scenename, bool unloadscenes)
     // clear out the old scene before loading.
     if( unloadscenes )
     {
+        // Reset the scene counter, so the new "first" scene loaded will be 1.
+        g_pComponentSystemManager->ResetSceneIDCounter();
+
         // if we're unloading the old scene(s), clear all selected items.
         g_pEngineCore->m_pEditorState->ClearKeyAndActionStates();
         g_pEngineCore->m_pEditorState->ClearSelectedObjectsAndComponents();
@@ -821,6 +828,26 @@ const char* EngineMainFrame::GetRelativePath(char* fullpath)
                 fullpath[i] = '/';
         }
 
+        return &fullpath[workingdirpathlen+1];
+    }
+
+    return 0;
+}
+
+const char* EngineMainFrame::GetRelativePath(const char* fullpath)
+{
+    char workingdir[MAX_PATH];
+#if MYFW_WINDOWS
+    GetCurrentDirectoryA( MAX_PATH, workingdir );
+#else
+    workingdir[0] = 0;
+#endif
+
+    unsigned int workingdirpathlen = (unsigned int)strlen( workingdir );
+    unsigned int fullpathlen = (unsigned int)strlen( fullpath );
+
+    if( strncmp( workingdir, fullpath, workingdirpathlen ) == 0 )
+    {
         return &fullpath[workingdirpathlen+1];
     }
 
@@ -929,7 +956,6 @@ void EngineMainFrame::OnDrop(int controlid, wxCoord x, wxCoord y)
             MyMesh* pMesh = g_pMeshManager->FindMeshBySourceFile( pFile );
 
             GameObject* pGameObject = g_pComponentSystemManager->CreateGameObject( true, 1 );
-            //pGameObject->SetSceneID( 1 );
             pGameObject->SetName( "New mesh" );
             ComponentMeshOBJ* pComponentMeshOBJ = (ComponentMeshOBJ*)pGameObject->AddNewComponent( ComponentType_MeshOBJ, 1 );
             pComponentMeshOBJ->SetSceneID( 1 );

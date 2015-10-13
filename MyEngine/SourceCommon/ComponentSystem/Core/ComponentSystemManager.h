@@ -164,6 +164,7 @@ public:
     GameObject* CopyGameObject(GameObject* pObject, const char* newname);
 
     unsigned int GetNextGameObjectIDAndIncrement(unsigned int sceneid);
+    unsigned int GetNextComponentIDAndIncrement(unsigned int sceneid);
 
     GameObject* FindGameObjectByID(unsigned int sceneid, unsigned int goid);
     GameObject* FindGameObjectByName(const char* name);
@@ -209,6 +210,7 @@ public:
     // Scene management.
     unsigned int m_NextSceneID;
     unsigned int GetNextSceneID() { return m_NextSceneID++; }
+    void ResetSceneIDCounter() { m_NextSceneID = 1; }
     SceneInfo* GetSceneInfo(int sceneid);
     unsigned int GetSceneIDFromFullpath(const char* fullpath);
 #if MYFW_USING_WX

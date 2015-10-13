@@ -145,8 +145,7 @@ void TransformGizmo::CreateAxisObjects(unsigned int sceneid, float scale, Materi
     ComponentMesh* pComponentMesh;
 
     {
-        pGameObject = g_pComponentSystemManager->CreateGameObject( false ); // not managed.
-        pGameObject->SetSceneID( sceneid );
+        pGameObject = g_pComponentSystemManager->CreateGameObject( false, sceneid ); // not managed.
         pGameObject->SetName( "3D Transform Gizmo - x-axis" );
 
         pComponentMesh = (ComponentMesh*)pGameObject->AddNewComponent( ComponentType_Mesh, sceneid );
@@ -163,8 +162,7 @@ void TransformGizmo::CreateAxisObjects(unsigned int sceneid, float scale, Materi
         pEditorState->m_pTransformGizmo->m_pTransformGizmos[0] = pGameObject;
     }
     {
-        pGameObject = g_pComponentSystemManager->CreateGameObject( false ); // not managed.
-        pGameObject->SetSceneID( sceneid );
+        pGameObject = g_pComponentSystemManager->CreateGameObject( false, sceneid ); // not managed.
         pGameObject->SetName( "3D Transform Gizmo - y-axis" );
 
         pComponentMesh = (ComponentMesh*)pGameObject->AddNewComponent( ComponentType_Mesh, sceneid );
@@ -181,8 +179,7 @@ void TransformGizmo::CreateAxisObjects(unsigned int sceneid, float scale, Materi
         pEditorState->m_pTransformGizmo->m_pTransformGizmos[1] = pGameObject;
     }
     {
-        pGameObject = g_pComponentSystemManager->CreateGameObject( false ); // not managed.
-        pGameObject->SetSceneID( sceneid );
+        pGameObject = g_pComponentSystemManager->CreateGameObject( false, sceneid ); // not managed.
         pGameObject->SetName( "3D Transform Gizmo - z-axis" );
 
         pComponentMesh = (ComponentMesh*)pGameObject->AddNewComponent( ComponentType_Mesh, sceneid );

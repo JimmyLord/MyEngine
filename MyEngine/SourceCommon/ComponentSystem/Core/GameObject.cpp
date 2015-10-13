@@ -447,8 +447,8 @@ ComponentBase* GameObject::AddNewComponent(int componenttype, unsigned int scene
     {
         pComponentSystemManager->AddComponent( pComponent );
     }
-    pComponent->SetID( pComponentSystemManager->m_pSceneInfoMap[sceneid].m_NextComponentID );
-    pComponentSystemManager->m_pSceneInfoMap[sceneid].m_NextComponentID++;
+    unsigned int id = pComponentSystemManager->GetNextComponentIDAndIncrement( sceneid );
+    pComponent->SetID( id );
 
     MyAssert( sceneid == 0 || m_SceneID == sceneid );
     pComponent->SetSceneID( sceneid );

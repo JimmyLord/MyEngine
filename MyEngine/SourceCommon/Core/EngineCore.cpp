@@ -1360,8 +1360,7 @@ void EngineCore::CreateDefaultEditorSceneObjects()
 
     // create a 3D X/Z plane grid
     {
-        pGameObject = m_pComponentSystemManager->CreateGameObject( false ); // not managed.
-        pGameObject->SetSceneID( ENGINE_SCENE_ID );
+        pGameObject = m_pComponentSystemManager->CreateGameObject( false, ENGINE_SCENE_ID ); // not managed.
         pGameObject->SetName( "3D Grid Plane" );
 
         pComponentMesh = (ComponentMesh*)pGameObject->AddNewComponent( ComponentType_Mesh, ENGINE_SCENE_ID );
@@ -1388,8 +1387,7 @@ void EngineCore::CreateDefaultEditorSceneObjects()
 
     // create a 3D editor camera, renders editor view.
     {
-        pGameObject = m_pComponentSystemManager->CreateGameObject( false ); // not managed.
-        pGameObject->SetSceneID( ENGINE_SCENE_ID );
+        pGameObject = m_pComponentSystemManager->CreateGameObject( false, ENGINE_SCENE_ID ); // not managed.
         pGameObject->SetName( "Editor Camera" );
 #if MYFW_RIGHTHANDED
         pGameObject->m_pComponentTransform->SetPosition( Vector3( 0, 0, 10 ) );
@@ -1433,13 +1431,8 @@ void EngineCore::CreateDefaultEditorSceneObjects()
 
 void EngineCore::CreateDefaultSceneObjects()
 {
-    //GameObject* pPlayer = 0;
     GameObject* pGameObject;
     ComponentCamera* pComponentCamera;
-    //ComponentSprite* pComponentSprite;
-#if MYFW_USING_WX
-    //ComponentMesh* pComponentMesh;
-#endif
 
     // create a 3D camera, renders first... created first so GetFirstCamera() will get the game cam.
     {
@@ -1469,101 +1462,6 @@ void EngineCore::CreateDefaultSceneObjects()
         pComponentCamera->m_ClearColorBuffer = false;
         pComponentCamera->m_ClearDepthBuffer = false;
     }
-
-    //// create a player game object and attach a mesh(sprite) component to it.
-    //{
-    //    pGameObject = m_pComponentSystemManager->CreateGameObject();
-    //    pGameObject->SetSceneID( 1 );
-    //    pGameObject->SetName( "Player Object" );
-
-    //    pComponentSprite = (ComponentSprite*)pGameObject->AddNewComponent( ComponentType_Sprite );
-    //    if( pComponentSprite )
-    //    {
-    //        pComponentSprite->SetSceneID( 1 );
-    //        pComponentSprite->SetShader( m_pShader_TintColor );
-    //        pComponentSprite->m_Size.Set( 50.0f, 50.0f );
-    //        pComponentSprite->m_Tint.Set( 255, 0, 0, 255 );
-    //        pComponentSprite->m_LayersThisExistsOn = Layer_HUD;
-    //    }
-    //    pComponentLuaScript = (ComponentLuaScript*)pGameObject->AddNewComponent( ComponentType_LuaScript );
-    //    if( pComponentLuaScript )
-    //    {
-    //        pComponentLuaScript->SetSceneID( 1 );
-    //        pComponentLuaScript->SetScriptFile( m_pScriptFiles[0] );
-    //    }
-    //    //pGameObject->AddNewComponent( ComponentType_InputTrackMousePos ); // replace with lua script
-    //    pGameObject->m_pComponentTransform->SetPosition( Vector3( 0, 0, 0 ) );//m_GameWidth/2, m_GameHeight/2, 0 ) );
-
-    //    pPlayer = pGameObject;
-    //}
-
-    //// create an enemy game object and attach a mesh(sprite) and AI component to it.
-    //{
-    //    pGameObject = m_pComponentSystemManager->CreateGameObject();
-    //    pGameObject->SetSceneID( 1 );
-    //    pGameObject->SetName( "Second Object" );
-
-    //    pComponentSprite = (ComponentSprite*)pGameObject->AddNewComponent( ComponentType_Sprite );
-    //    if( pComponentSprite )
-    //    {
-    //        pComponentSprite->SetSceneID( 1 );
-    //        pComponentSprite->SetShader( m_pShader_TintColor );
-    //        pComponentSprite->m_Size.Set( 50.0f, 50.0f );
-    //        pComponentSprite->m_Tint.Set( 0, 255, 0, 255 );
-    //        pComponentSprite->m_LayersThisExistsOn = Layer_HUD;
-    //    }
-    //    pComponentLuaScript = (ComponentLuaScript*)pGameObject->AddNewComponent( ComponentType_LuaScript );
-    //    if( pComponentLuaScript )
-    //    {
-    //        pComponentLuaScript->SetSceneID( 1 );
-    //        pComponentLuaScript->SetScriptFile( m_pScriptFiles[1] );
-    //    }
-    //    //pComponentAIChasePlayer = (ComponentAIChasePlayer*)pGameObject->AddNewComponent( ComponentType_AIChasePlayer );
-    //    //if( pComponentAIChasePlayer )
-    //    //{
-    //    //    pComponentAIChasePlayer->SetSceneID( 1 );
-    //    //    pComponentAIChasePlayer->m_pPlayerComponentTransform = pPlayer->m_pComponentTransform;
-    //    //}
-    //}
-
-    //// create a cube in the 3d scene.
-    //{
-    //    pGameObject = m_pComponentSystemManager->CreateGameObject();
-    //    pGameObject->SetSceneID( 1 );
-    //    pGameObject->SetName( "Cube" );
-
-    //    pComponentMeshOBJ = (ComponentMeshOBJ*)pGameObject->AddNewComponent( ComponentType_MeshOBJ );
-    //    if( pComponentMeshOBJ )
-    //    {
-    //        pComponentMeshOBJ->SetSceneID( 1 );
-    //        pComponentMeshOBJ->SetShader( m_pShader_TestNormals );
-    //        pComponentMeshOBJ->m_pOBJFile = m_pOBJTestFiles[0];
-    //        pComponentMeshOBJ->m_LayersThisExistsOn = Layer_MainScene;
-    //    }
-    //    pComponentCollisionObject = (ComponentCollisionObject*)pGameObject->AddNewComponent( ComponentType_CollisionObject );
-    //    pComponentCollisionObject->SetSceneID( 1 );
-    //    pComponentCollisionObject->m_Mass = 1;
-    //}
-
-    //// create a plane in the 3d scene.
-    //{
-    //    pGameObject = m_pComponentSystemManager->CreateGameObject();
-    //    pGameObject->SetSceneID( 1 );
-    //    pGameObject->SetName( "Plane" );
-    //    pGameObject->m_pComponentTransform->SetPosition( Vector3( 0, -3, 0 ) );
-    //    pGameObject->m_pComponentTransform->SetScale( Vector3( 10, 0.1f, 10 ) );
-
-    //    pComponentMeshOBJ = (ComponentMeshOBJ*)pGameObject->AddNewComponent( ComponentType_MeshOBJ );
-    //    if( pComponentMeshOBJ )
-    //    {
-    //        pComponentMeshOBJ->SetSceneID( 1 );
-    //        pComponentMeshOBJ->SetShader( m_pShader_TintColor );
-    //        pComponentMeshOBJ->m_pOBJFile = m_pOBJTestFiles[0];
-    //        pComponentMeshOBJ->m_LayersThisExistsOn = Layer_MainScene;
-    //    }
-    //    pComponentCollisionObject = (ComponentCollisionObject*)pGameObject->AddNewComponent( ComponentType_CollisionObject );
-    //    pComponentCollisionObject->SetSceneID( 1 );
-    //}
 }
 
 void EngineCore::SaveScene(const char* fullpath, unsigned int sceneid)
