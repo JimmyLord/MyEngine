@@ -60,8 +60,8 @@ void ComponentLight::Reset()
     }
 
     m_pLight->m_Position = m_pGameObject->m_pComponentTransform->GetPosition();
-    m_pLight->m_Color.Set( 0,0,0,0 );
-    m_pLight->m_Attenuation.Set( 0,0,0 );
+    m_pLight->m_Color.Set( 1, 1, 1, 1 );
+    m_pLight->m_Attenuation.Set( 0, 0, 0.09f );
 
 #if MYFW_USING_WX
     m_pPanelWatchBlockVisible = &m_PanelWatchBlockVisible;
@@ -91,8 +91,11 @@ void ComponentLight::FillPropertiesWindow(bool clear, bool addcomponentvariables
         if( addcomponentvariables )
             FillPropertiesWindowWithVariables(); //_VARIABLE_LIST
 
-        g_pPanelWatch->AddColorFloat( "color", &m_pLight->m_Color, 0, 1 );
-        g_pPanelWatch->AddVector3( "atten", &m_pLight->m_Attenuation, 0, 1 );
+        if( m_pLight )
+        {
+            g_pPanelWatch->AddColorFloat( "color", &m_pLight->m_Color, 0, 1 );
+            g_pPanelWatch->AddVector3( "atten", &m_pLight->m_Attenuation, 0, 1 );
+        }
     }
 }
 #endif //MYFW_USING_WX
@@ -136,4 +139,20 @@ ComponentLight& ComponentLight::operator=(const ComponentLight& other)
     this->m_pLight->m_Attenuation = other.m_pLight->m_Attenuation;
 
     return *this;
+}
+
+void ComponentLight::OnGameObjectEnabled()
+{
+    ComponentBase::OnGameObjectEnabled();
+
+    if( m_pLight )
+        g_pLightManager->SetLightEnabled( m_pLight, true );
+}
+
+void ComponentLight::OnGameObjectDisabled()
+{
+    ComponentBase::OnGameObjectDisabled();
+
+    if( m_pLight )
+        g_pLightManager->SetLightEnabled( m_pLight, false );
 }
