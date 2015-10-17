@@ -294,6 +294,11 @@ void ComponentTransform::SetRotation(Vector3 rot)
     m_LocalTransform.CreateSRT( m_Scale, m_Rotation, m_Position );
 }
 
+void ComponentTransform::SetLocalTransform(MyMatrix* mat)
+{
+    m_LocalTransform = *mat;
+}
+
 MyMatrix ComponentTransform::GetLocalRotPosMatrix()
 {
     MyMatrix local;

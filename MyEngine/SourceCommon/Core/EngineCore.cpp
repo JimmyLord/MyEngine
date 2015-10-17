@@ -207,6 +207,7 @@ double EngineCore::Tick(double TimePassed)
 
 #if MYFW_USING_WX
     m_pEditorState->m_pTransformGizmo->Tick( TimePassed, m_pEditorState );
+    m_pEditorState->UpdateCamera( TimePassed );
 #endif
 
     // tick all components.
@@ -1290,6 +1291,23 @@ bool EngineCore::HandleEditorInput(int keyaction, int keycode, int mouseaction, 
 
         if( dir.LengthSquared() > 0 )
             matLocalCamera->TranslatePreRotScale( dir * speed * m_TimePassedUnpausedLastFrame );
+    }
+
+    if( keyaction == GCBA_Up )
+    {
+        // Lock to current object, 
+        if( keycode == 'L' )
+        {
+            if( m_pEditorState->m_CameraState == EditorCameraState_Default && m_pEditorState->m_pSelectedObjects.size() > 0 )
+            {
+                GameObject* pSelectedObject = m_pEditorState->m_pSelectedObjects[0];
+                m_pEditorState->LockCameraToGameObject( pSelectedObject );
+            }
+            else
+            {
+                m_pEditorState->LockCameraToGameObject( 0 );
+            }
+        }
     }
 
     // check for mouse ups and clear the states.

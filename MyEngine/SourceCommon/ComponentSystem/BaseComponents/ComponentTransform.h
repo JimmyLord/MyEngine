@@ -63,6 +63,7 @@ public:
 #endif
     void SetScale(Vector3 scale);
     void SetRotation(Vector3 rot);
+    void SetLocalTransform(MyMatrix* mat);
 
     Vector3 GetPosition() { return m_Transform.GetTranslation(); }
 

@@ -26,6 +26,13 @@ enum EditorActionState
     EDITORACTIONSTATE_NumStates,
 };
 
+enum EditorCameraState
+{
+    EditorCameraState_Default,
+    EditorCameraState_LockedToObject,
+    EditorCameraState_NumStates,
+};
+
 struct EditorState
 {
     unsigned int m_ModifierKeyStates;
@@ -54,6 +61,11 @@ struct EditorState
     // transform gizmo info, keep track of total distance translated for undo/redo.
     Vector3 m_DistanceTranslated;
 
+    // camera state
+    EditorCameraState m_CameraState;
+    GameObject* m_pGameObjectCameraIsFollowing;
+    MyMatrix m_OffsetFromObject;
+
 public:
     EditorState();
     ~EditorState();
@@ -74,6 +86,9 @@ public:
 
     void ClearKeyAndActionStates();
     void ClearSelectedObjectsAndComponents();
+
+    void LockCameraToGameObject(GameObject* pGameObject);
+    void UpdateCamera(double TimePassed);
 
     //void SyncFromObjectPanelSelectedItems();
 };

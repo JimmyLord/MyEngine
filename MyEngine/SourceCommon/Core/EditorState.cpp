@@ -151,6 +151,38 @@ void EditorState::ClearSelectedObjectsAndComponents()
     g_pPanelWatch->ClearAllVariables();
 }
 
+void EditorState::LockCameraToGameObject(GameObject* pGameObject)
+{
+    if( pGameObject == 0 )
+    {
+        m_CameraState = EditorCameraState_Default;
+    }
+    else
+    {
+        m_CameraState = EditorCameraState_LockedToObject;
+        m_pGameObjectCameraIsFollowing = pGameObject;
+        MyMatrix GOTransform = *m_pGameObjectCameraIsFollowing->m_pComponentTransform->GetLocalTransform();
+        GOTransform.Inverse();
+        MyMatrix CamTransform = *m_pEditorCamera->m_pComponentTransform->GetLocalTransform();
+        m_OffsetFromObject = CamTransform * GOTransform;
+    }
+}
+
+void EditorState::UpdateCamera(double TimePassed)
+{
+    if( m_CameraState == EditorCameraState_LockedToObject )
+    {
+        MyAssert( m_pGameObjectCameraIsFollowing );
+
+        if( m_pGameObjectCameraIsFollowing )
+        {
+            MyMatrix* pGOTransform = m_pGameObjectCameraIsFollowing->m_pComponentTransform->GetLocalTransform();
+            MyMatrix newtransform = m_OffsetFromObject * *pGOTransform;
+            m_pEditorCamera->m_pComponentTransform->SetLocalTransform( &newtransform );
+        }
+    }
+}
+
 // can't really do it this way since the tree can contain different types of objects.
 //void EditorState::SyncFromObjectPanelSelectedItems()
 //{
