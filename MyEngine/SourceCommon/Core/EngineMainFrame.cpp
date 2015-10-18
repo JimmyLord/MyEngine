@@ -637,6 +637,31 @@ void EngineMainFrame::OnMenu_Engine(wxCommandEvent& event)
 
 void EngineMainFrame::SetWindowPerspectiveToDefault(bool forceswitch)
 {
+    // change menubar color scheme when in gameplay mode
+    {
+        wxColour bgcolour = m_MenuBar->GetBackgroundColour();
+        if( g_pEngineCore->m_EditorMode )
+        {
+            //m_pGLCanvasEditor->SetBackgroundColour( wxColour( 240, 240, 240, 255 ) );
+            //m_pGLCanvasEditor->Refresh();
+            this->SetBackgroundColour( wxColour( 240, 240, 240, 255 ) );
+            this->Refresh();
+            //m_MenuBar->SetBackgroundColour( wxColour( 240, 240, 240, 255 ) );
+            //m_MenuBar->Refresh();            
+        }
+        else
+        {
+            //m_pGLCanvasEditor
+            //m_pGLCanvasEditor->SetBackgroundColour( wxColour( 50, 50, 50, 255 ) );
+            //m_pGLCanvasEditor->Refresh();
+            this->SetBackgroundColour( wxColour( 150, 150, 150, 255 ) );
+            this->Refresh();
+            //m_MenuBar->SetBackgroundColour( wxColour( 50, 50, 50, 255 ) );
+            //m_MenuBar->Refresh();
+        }
+    }
+
+    // change the window layout
     int editor = GetDefaultEditorPerspectiveIndex();
     int gameplay = GetDefaultGameplayPerspectiveIndex();
 

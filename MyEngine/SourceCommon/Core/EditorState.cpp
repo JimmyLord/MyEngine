@@ -32,6 +32,12 @@ EditorState::EditorState()
     m_MousePicker_PickedBody = 0;
     m_MousePicker_PickConstraint = 0;
     m_MousePicker_OldPickingDist = 0;
+
+    m_DistanceTranslated = 0;
+
+    m_CameraState = EditorCameraState_Default;
+    m_pGameObjectCameraIsFollowing = 0;
+    m_OffsetFromObject.SetIdentity();
 }
 
 EditorState::~EditorState()
@@ -156,15 +162,28 @@ void EditorState::LockCameraToGameObject(GameObject* pGameObject)
     if( pGameObject == 0 )
     {
         m_CameraState = EditorCameraState_Default;
+
+        LOGInfo( LOGTag, "Unlocked camera\n" );
     }
     else
     {
         m_CameraState = EditorCameraState_LockedToObject;
         m_pGameObjectCameraIsFollowing = pGameObject;
+
         MyMatrix GOTransform = *m_pGameObjectCameraIsFollowing->m_pComponentTransform->GetLocalTransform();
         GOTransform.Inverse();
         MyMatrix CamTransform = *m_pEditorCamera->m_pComponentTransform->GetLocalTransform();
-        m_OffsetFromObject = CamTransform * GOTransform;
+
+        m_OffsetFromObject = GOTransform * CamTransform;
+
+        LOGInfo( LOGTag, "Locked camera to %s\n", pGameObject->GetName() );
+
+        //Vector3 offsetpos = m_OffsetFromObject.GetTranslation();
+        //Vector3 offsetrot = m_OffsetFromObject.GetEulerAngles();
+
+        //LOGInfo( LOGTag, "Lock: (%0.0f,%0.0f,%0.0f) (%0.2f,%0.2f,%0.2f)\n",
+        //         offsetpos.x, offsetpos.y, offsetpos.z,
+        //         offsetrot.x, offsetrot.y, offsetrot.z );
     }
 }
 
@@ -176,8 +195,11 @@ void EditorState::UpdateCamera(double TimePassed)
 
         if( m_pGameObjectCameraIsFollowing )
         {
-            MyMatrix* pGOTransform = m_pGameObjectCameraIsFollowing->m_pComponentTransform->GetLocalTransform();
-            MyMatrix newtransform = m_OffsetFromObject * *pGOTransform;
+            m_pGameObjectCameraIsFollowing->m_pComponentTransform->UpdateMatrix();
+
+            MyMatrix GOTransform = *m_pGameObjectCameraIsFollowing->m_pComponentTransform->GetLocalTransform();
+            MyMatrix newtransform = GOTransform * m_OffsetFromObject;
+
             m_pEditorCamera->m_pComponentTransform->SetLocalTransform( &newtransform );
         }
     }
