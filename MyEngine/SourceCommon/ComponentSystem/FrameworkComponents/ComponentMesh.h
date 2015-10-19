@@ -16,12 +16,17 @@ extern const char* OpenGLPrimitiveTypeStrings[7];
 
 class ComponentMesh : public ComponentRenderable
 {
+private:
+    // Component Variable List
+    MYFW_COMPONENT_DECLARE_VARIABLE_LIST( ComponentMesh ); //_VARIABLE_LIST
+
+public:
     static const int MAX_SUBMESHES = 4;
 
 public:
     MyMesh* m_pMesh;
 
-    MyList<MaterialDefinition*> m_MaterialList;
+    MaterialDefinition* m_MaterialList[MAX_SUBMESHES];
     int m_GLPrimitiveType;
     int m_PointSize;
 
@@ -29,6 +34,8 @@ public:
     ComponentMesh();
     virtual ~ComponentMesh();
     SetClassnameBase( "MeshComponent" ); // only first 8 character count.
+
+    static void LuaRegister(lua_State* luastate);
 
     virtual cJSON* ExportAsJSONObject(bool savesceneid);
     virtual void ImportFromJSONObject(cJSON* jComponentMesh, unsigned int sceneid);
@@ -45,6 +52,20 @@ public:
     virtual void Draw(MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride = 0, int drawcount = 0);
 
 public:
+    //// Runtime component variable callbacks. //_VARIABLE_LIST
+    //static void* StaticGetPointerValue(void* pObjectPtr, ComponentVariable* pVar) { return ((ComponentSprite*)pObjectPtr)->GetPointerValue(pVar); }
+    //void* GetPointerValue(ComponentVariable* pVar);
+
+    //static void StaticSetPointerValue(void* pObjectPtr, ComponentVariable* pVar, void* newvalue) { return ((ComponentSprite*)pObjectPtr)->SetPointerValue(pVar, newvalue); }
+    //void SetPointerValue(ComponentVariable* pVar, void* newvalue);
+
+    //static const char* StaticGetPointerDesc(void* pObjectPtr, ComponentVariable* pVar) { return ((ComponentSprite*)pObjectPtr)->GetPointerDesc( pVar ); }
+    //const char* GetPointerDesc(ComponentVariable* pVar);
+
+    //static void StaticSetPointerDesc(void* pObjectPtr, ComponentVariable* pVar, const char* newdesc) { return ((ComponentSprite*)pObjectPtr)->SetPointerDesc( pVar, newdesc ); }
+    //void SetPointerDesc(ComponentVariable* pVar, const char* newdesc);
+
+public:
 #if MYFW_USING_WX
     static bool m_PanelWatchBlockVisible;
     int m_ControlID_Material[MAX_SUBMESHES];
@@ -56,12 +77,12 @@ public:
     void OnLeftClick(unsigned int count, bool clear);
     virtual void FillPropertiesWindow(bool clear, bool addcomponentvariables = false);
     
-    // Watch panel callbacks.
-    static void StaticOnValueChanged(void* pObjectPtr, int controlid, bool finishedchanging, double oldvalue) { ((ComponentMesh*)pObjectPtr)->OnValueChanged( controlid, finishedchanging ); }
-    void OnValueChanged(int controlid, bool finishedchanging);
+    // Component variable callbacks. //_VARIABLE_LIST
+    static void* StaticOnDropMaterial(void* pObjectPtr, ComponentVariable* pVar, wxCoord x, wxCoord y) { return ((ComponentMesh*)pObjectPtr)->OnDropMaterial(pVar, x, y); }
+    void* OnDropMaterial(ComponentVariable* pVar, wxCoord x, wxCoord y);
 
-    static void StaticOnDropMaterial(void* pObjectPtr, int controlid, wxCoord x, wxCoord y) { ((ComponentMesh*)pObjectPtr)->OnDropMaterial(controlid, x, y); }
-    void OnDropMaterial(int controlid, wxCoord x, wxCoord y);
+    static void* StaticOnValueChanged(void* pObjectPtr, ComponentVariable* pVar, bool finishedchanging, double oldvalue) { return ((ComponentMesh*)pObjectPtr)->OnValueChanged( pVar, finishedchanging ); }
+    void* OnValueChanged(ComponentVariable* pVar, bool finishedchanging);
 #endif //MYFW_USING_WX
 };
 

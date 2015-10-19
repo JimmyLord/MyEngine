@@ -144,6 +144,7 @@ void LuaGameState::RegisterClasses()
     ComponentCollisionObject::LuaRegister( m_pLuaState );
     ComponentAnimationPlayer::LuaRegister( m_pLuaState );
     ComponentSprite::LuaRegister( m_pLuaState );
+    ComponentMesh::LuaRegister( m_pLuaState );
 
     // Register the MenuItem types.
     MenuItem::LuaRegister( m_pLuaState );

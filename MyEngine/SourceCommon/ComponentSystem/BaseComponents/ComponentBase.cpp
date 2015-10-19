@@ -194,6 +194,18 @@ void ComponentBase::FillPropertiesWindowWithVariables()
                 }
                 break;
 
+            case ComponentVariableType_MaterialPtr:
+                {
+                    MaterialDefinition* pMaterial = *(MaterialDefinition**)((char*)this + pVar->m_Offset);
+
+                    const char* desc = "no material";
+                    if( pMaterial != 0 )
+                        desc = pMaterial->GetName();
+
+                    pVar->m_ControlID = g_pPanelWatch->AddPointerWithDescription( pVar->m_WatchLabel, pMaterial, desc, this, ComponentBase::StaticOnDropVariable, ComponentBase::StaticOnValueChangedVariable, ComponentBase::StaticOnRightClick );
+                }
+                break;
+
             case ComponentVariableType_PointerIndirect:
                 {
                     void* pPtr = pVar->m_pGetPointerValueCallBackFunc( this, pVar );
@@ -272,6 +284,7 @@ void ComponentBase::ExportVariablesToJSON(cJSON* jComponent)
 
             case ComponentVariableType_ComponentPtr:
             case ComponentVariableType_FilePtr:
+            case ComponentVariableType_MaterialPtr:
                 MyAssert( false );
                 break;
 
@@ -351,6 +364,7 @@ void ComponentBase::ImportVariablesFromJSON(cJSON* jsonobj, const char* singlela
 
             case ComponentVariableType_ComponentPtr:
             case ComponentVariableType_FilePtr:
+            case ComponentVariableType_MaterialPtr:
                 MyAssert( false );
                 break;
 
@@ -496,7 +510,8 @@ bool ComponentBase::DoesVariableMatchParent(int controlid, ComponentVariable* pV
 
             case ComponentVariableType_FilePtr:
             case ComponentVariableType_ComponentPtr:
-                return *(ComponentBase**)((char*)this + offset) == *(ComponentBase**)((char*)pOtherComponent + offset);
+            case ComponentVariableType_MaterialPtr:
+                return *(void**)((char*)this + offset) == *(void**)((char*)pOtherComponent + offset);
 
             case ComponentVariableType_PointerIndirect:
                 return pVar->m_pGetPointerValueCallBackFunc( this, pVar ) == pVar->m_pGetPointerValueCallBackFunc( pOtherComponent, pVar );
@@ -787,6 +802,13 @@ void ComponentBase::CopyValueFromParent(ComponentVariable* pVar)
                 // TODO: add to undo stack
                 break;
 
+            case ComponentVariableType_MaterialPtr:
+                g_DragAndDropStruct.m_ID = pVar->m_ControlID;
+                g_DragAndDropStruct.m_Type = DragAndDropType_FileObjectPointer;
+                g_DragAndDropStruct.m_Value = *(void**)((char*)pOtherComponent + offset);
+                OnDropVariable( pVar->m_ControlID, 0, 0 );
+                break;
+
             case ComponentVariableType_ComponentPtr:
                 //*(ComponentBase**)((char*)this + offset) = *(ComponentBase**)((char*)pOtherComponent + offset);
                 g_DragAndDropStruct.m_ID = pVar->m_ControlID;
@@ -983,12 +1005,13 @@ void ComponentBase::UpdateChildrenWithNewValue(bool fromdraganddrop, ComponentVa
 
                     case ComponentVariableType_FilePtr:
                     case ComponentVariableType_ComponentPtr:
+                    case ComponentVariableType_MaterialPtr:
                         {
                             if( fromdraganddrop )
                             {
                                 int offset = pVar->m_Offset;
 
-                                if( *(ComponentBase**)((char*)pChildComponent + offset) == oldpointer )
+                                if( *(void**)((char*)pChildComponent + offset) == oldpointer )
                                 {
                                     // OnDropCallback will grab the new value from g_DragAndDropStruct
                                     MyAssert( pVar->m_pOnDropCallbackFunc );
@@ -1003,7 +1026,7 @@ void ComponentBase::UpdateChildrenWithNewValue(bool fromdraganddrop, ComponentVa
                             {
                                 int offset = pVar->m_Offset;
 
-                                if( *(ComponentBase**)((char*)pChildComponent + pVar->m_Offset) == oldpointer )
+                                if( *(void**)((char*)pChildComponent + pVar->m_Offset) == oldpointer )
                                 {
                                     MyAssert( pVar->m_pOnValueChangedCallbackFunc );
                                     if( pVar->m_pOnValueChangedCallbackFunc )

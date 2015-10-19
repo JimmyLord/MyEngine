@@ -42,6 +42,7 @@ enum ComponentVariableTypes
     ComponentVariableType_GameObjectPtr,
     ComponentVariableType_ComponentPtr,
     ComponentVariableType_FilePtr,
+    ComponentVariableType_MaterialPtr,
 
     ComponentVariableType_PointerIndirect,
 

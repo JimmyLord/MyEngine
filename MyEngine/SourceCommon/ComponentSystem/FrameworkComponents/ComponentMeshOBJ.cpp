@@ -52,7 +52,7 @@ void ComponentMeshOBJ::FillPropertiesWindow(bool clear, bool addcomponentvariabl
 
     if( m_PanelWatchBlockVisible )
     {
-        ComponentMesh::FillPropertiesWindow( clear );
+        ComponentMesh::FillPropertiesWindow( clear, true );
 
         const char* desc = "no mesh";
         if( m_pMesh && m_pMesh->m_pSourceFile )
@@ -138,13 +138,25 @@ void ComponentMeshOBJ::SetMesh(MyMesh* pMesh)
     SAFE_RELEASE( m_pMesh );
     m_pMesh = pMesh;
 
-    if( m_MaterialList.Count() == 0 )
+    if( pMesh )
     {
+        // parse the mesh file in case this is the first instance of it.
         if( pMesh->m_MeshReady == false )
             pMesh->ParseFile();
 
+        // if we didn't already have a material set for any submesh, use the default material from the new mesh's submesh.
+        // TODO: this doesn't happen elsewhere if the mesh isn't ready because the file was still loading.
         if( pMesh->m_MeshReady == true )
-            m_MaterialList[0] = pMesh->m_SubmeshList[0]->GetMaterial();
+        {
+            for( int i=0; i<MAX_SUBMESHES; i++ )
+            {
+                if( pMesh->m_SubmeshList[i] )
+                    SetMaterial( pMesh->m_SubmeshList[i]->GetMaterial(), i );
+                // decided to leave it without clearing the material if the new mesh doesn't have as many submeshes.
+                //else
+                //    SetMaterial( 0, i ); // clear the material if the new mesh doesn't have as many submeshes.
+            }
+        }
     }
 }
 
