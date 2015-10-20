@@ -65,9 +65,8 @@ void ComponentMesh::RegisterVariables(CPPListHead* pList, ComponentMesh* pThis) 
                      false,  true, 0, ComponentMesh::StaticOnValueChanged, ComponentMesh::StaticOnDropMaterial, 0 );
     }
 
-    //AddVariable( pList, "Tint",     ComponentVariableType_ColorByte, MyOffsetOf( pThis, &pThis->m_Tint ),  true,  true, 0, ComponentMesh::StaticOnValueChanged, ComponentMesh::StaticOnDrop, 0 );
-    //AddVariable( pList, "Size",     ComponentVariableType_Vector2,   MyOffsetOf( pThis, &pThis->m_Size ),  true,  true, 0, ComponentMesh::StaticOnValueChanged, ComponentMesh::StaticOnDrop, 0 );
-    //AddVariablePointer( pList, "Material",                                                                 true,  true, 0, ComponentMesh::StaticOnValueChanged, ComponentMesh::StaticOnDrop, 0, ComponentMesh::StaticGetPointerValue, ComponentMesh::StaticSetPointerValue, ComponentMesh::StaticGetPointerDesc, ComponentMesh::StaticSetPointerDesc );
+    AddVariableEnum( pList, "PrimitiveType", MyOffsetOf( pThis, &pThis->m_GLPrimitiveType ),  true,  true, "Primitive Type", 7, OpenGLPrimitiveTypeStrings, ComponentMesh::StaticOnValueChanged, 0, 0 );
+    AddVariable( pList, "PointSize", ComponentVariableType_Int, MyOffsetOf( pThis, &pThis->m_PointSize ),  true,  true, "Point Size", ComponentMesh::StaticOnValueChanged, 0, 0 );
 }
 
 void ComponentMesh::Reset()
@@ -283,8 +282,8 @@ cJSON* ComponentMesh::ExportAsJSONObject(bool savesceneid)
             cJSON_AddItemToArray( jMaterialArray, jMaterial );
     }
 
-    cJSON_AddNumberToObject( jComponent, "PrimitiveType", m_GLPrimitiveType );
-    cJSON_AddNumberToObject( jComponent, "PointSize", m_PointSize );
+    //cJSON_AddNumberToObject( jComponent, "PrimitiveType", m_GLPrimitiveType );
+    //cJSON_AddNumberToObject( jComponent, "PointSize", m_PointSize );
     
     ExportVariablesToJSON( jComponent ); //_VARIABLE_LIST
 
@@ -326,8 +325,8 @@ void ComponentMesh::ImportFromJSONObject(cJSON* jComponentMesh, unsigned int sce
         }
     }
 
-    cJSONExt_GetInt( jComponentMesh, "PrimitiveType", &m_GLPrimitiveType );
-    cJSONExt_GetInt( jComponentMesh, "PointSize", &m_PointSize );
+    //cJSONExt_GetInt( jComponentMesh, "PrimitiveType", &m_GLPrimitiveType );
+    //cJSONExt_GetInt( jComponentMesh, "PointSize", &m_PointSize );
 
     ImportVariablesFromJSON( jComponentMesh ); //_VARIABLE_LIST
 }

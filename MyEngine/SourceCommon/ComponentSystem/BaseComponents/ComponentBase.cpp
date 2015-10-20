@@ -92,7 +92,7 @@ void ComponentBase::ClearAllVariables_Base(CPPListHead* pComponentVariableList)
     }
 }
 
-void ComponentBase::AddVariable_Base(CPPListHead* pComponentVariableList, const char* label, ComponentVariableTypes type, size_t offset, bool saveload, bool displayinwatch, const char* watchlabel, ComponentVariableCallbackValueChanged pOnValueChangedCallBackFunc, ComponentVariableCallbackDropTarget pOnDropCallBackFunc, ComponentVariableCallback pOnButtonPressedCallBackFunc)
+ComponentVariable* ComponentBase::AddVariable_Base(CPPListHead* pComponentVariableList, const char* label, ComponentVariableTypes type, size_t offset, bool saveload, bool displayinwatch, const char* watchlabel, ComponentVariableCallbackValueChanged pOnValueChangedCallBackFunc, ComponentVariableCallbackDropTarget pOnDropCallBackFunc, ComponentVariableCallback pOnButtonPressedCallBackFunc)
 {
     ComponentVariable* pVariable = MyNew ComponentVariable( label, type, offset, saveload, displayinwatch,
         watchlabel, pOnValueChangedCallBackFunc, pOnDropCallBackFunc, pOnButtonPressedCallBackFunc, 0, 0, 0, 0 );
@@ -103,9 +103,11 @@ void ComponentBase::AddVariable_Base(CPPListHead* pComponentVariableList, const 
         pVariable->m_Index = ((ComponentVariable*)pComponentVariableList->GetTail())->m_Index + 1;
 
     pComponentVariableList->AddTail( pVariable );
+
+    return pVariable;
 }
 
-void ComponentBase::AddVariablePointer_Base(CPPListHead* pComponentVariableList, const char* label, bool saveload, bool displayinwatch, const char* watchlabel, ComponentVariableCallbackValueChanged pOnValueChangedCallBackFunc, ComponentVariableCallbackDropTarget pOnDropCallBackFunc, ComponentVariableCallback pOnButtonPressedCallBackFunc, ComponentVariableCallbackGetPointerValue pGetPointerValueCallBackFunc, ComponentVariableCallbackSetPointerValue pSetPointerValueCallBackFunc, ComponentVariableCallbackGetPointerDesc pGetPointerDescCallBackFunc, ComponentVariableCallbackSetPointerDesc pSetPointerDescCallBackFunc)
+ComponentVariable* ComponentBase::AddVariablePointer_Base(CPPListHead* pComponentVariableList, const char* label, bool saveload, bool displayinwatch, const char* watchlabel, ComponentVariableCallbackValueChanged pOnValueChangedCallBackFunc, ComponentVariableCallbackDropTarget pOnDropCallBackFunc, ComponentVariableCallback pOnButtonPressedCallBackFunc, ComponentVariableCallbackGetPointerValue pGetPointerValueCallBackFunc, ComponentVariableCallbackSetPointerValue pSetPointerValueCallBackFunc, ComponentVariableCallbackGetPointerDesc pGetPointerDescCallBackFunc, ComponentVariableCallbackSetPointerDesc pSetPointerDescCallBackFunc)
 {
     ComponentVariable* pVariable = MyNew ComponentVariable( label, ComponentVariableType_PointerIndirect, -1, saveload, displayinwatch,
         watchlabel, pOnValueChangedCallBackFunc, pOnDropCallBackFunc, pOnButtonPressedCallBackFunc,
@@ -117,6 +119,19 @@ void ComponentBase::AddVariablePointer_Base(CPPListHead* pComponentVariableList,
         pVariable->m_Index = ((ComponentVariable*)pComponentVariableList->GetTail())->m_Index + 1;
 
     pComponentVariableList->AddTail( pVariable );
+
+    return pVariable;
+}
+
+ComponentVariable* ComponentBase::AddVariableEnum_Base(CPPListHead* pComponentVariableList, const char* label, size_t offset, bool saveload, bool displayinwatch, const char* watchlabel, int numenums, const char** ppStrings, ComponentVariableCallbackValueChanged pOnValueChangedCallBackFunc, ComponentVariableCallbackDropTarget pOnDropCallBackFunc, ComponentVariableCallback pOnButtonPressedCallBackFunc)
+{
+    ComponentVariable* pVariable = AddVariable_Base( pComponentVariableList, label, ComponentVariableType_Enum, offset, saveload, displayinwatch,
+        watchlabel, pOnValueChangedCallBackFunc, pOnDropCallBackFunc, pOnButtonPressedCallBackFunc );
+    
+    pVariable->m_NumEnumStrings = numenums;
+    pVariable->m_ppEnumStrings = ppStrings;
+
+    return pVariable;
 }
 
 void ComponentBase::FillPropertiesWindowWithVariables()
@@ -133,7 +148,13 @@ void ComponentBase::FillPropertiesWindowWithVariables()
         {
             switch( pVar->m_Type )
             {
-            //ComponentVariableType_Int,
+            case ComponentVariableType_Int:
+                pVar->m_ControlID = g_pPanelWatch->AddInt( pVar->m_WatchLabel, (int*)((char*)this + pVar->m_Offset), -65535, 65535, this, ComponentBase::StaticOnValueChangedVariable, ComponentBase::StaticOnRightClick );
+                break;
+
+            case ComponentVariableType_Enum:
+                pVar->m_ControlID = g_pPanelWatch->AddEnum( pVar->m_WatchLabel, (int*)((char*)this + pVar->m_Offset), pVar->m_NumEnumStrings, pVar->m_ppEnumStrings, this, ComponentBase::StaticOnValueChangedVariable );
+                break;
 
             case ComponentVariableType_UnsignedInt:
                 pVar->m_ControlID = g_pPanelWatch->AddUnsignedInt( pVar->m_WatchLabel, (unsigned int*)((char*)this + pVar->m_Offset), 0, 65535, this, ComponentBase::StaticOnValueChangedVariable, ComponentBase::StaticOnRightClick );
@@ -243,10 +264,13 @@ void ComponentBase::ExportVariablesToJSON(cJSON* jComponent)
         {
             switch( pVar->m_Type )
             {
-            //ComponentVariableType_Int,
+            case ComponentVariableType_Int:
+            case ComponentVariableType_Enum:
+                cJSON_AddNumberToObject( jComponent, pVar->m_Label, *(int*)((char*)this + pVar->m_Offset) );
+                break;
 
             case ComponentVariableType_UnsignedInt:
-                cJSON_AddNumberToObject( jComponent, pVar->m_Label, *(int*)((char*)this + pVar->m_Offset) );
+                cJSON_AddNumberToObject( jComponent, pVar->m_Label, *(unsigned int*)((char*)this + pVar->m_Offset) );
                 break;
 
             //ComponentVariableType_Char,
@@ -321,7 +345,10 @@ void ComponentBase::ImportVariablesFromJSON(cJSON* jsonobj, const char* singlela
         {
             switch( pVar->m_Type )
             {
-            //ComponentVariableType_Int,
+            case ComponentVariableType_Int:
+            case ComponentVariableType_Enum:
+                cJSONExt_GetInt( jsonobj, pVar->m_Label, (int*)((char*)this + pVar->m_Offset) );
+                break;
 
             case ComponentVariableType_UnsignedInt:
                 cJSONExt_GetUnsignedInt( jsonobj, pVar->m_Label, (unsigned int*)((char*)this + pVar->m_Offset) );
@@ -463,8 +490,9 @@ bool ComponentBase::DoesVariableMatchParent(int controlid, ComponentVariable* pV
 
             switch( pVar->m_Type )
             {
-            //ComponentVariableType_Int,
-            //    return *(int*)((char*)this + offset) == *(int*)((char*)pOtherComponent + offset);
+            case ComponentVariableType_Int:
+            case ComponentVariableType_Enum:
+                return *(int*)((char*)this + offset) == *(int*)((char*)pOtherComponent + offset);
 
             case ComponentVariableType_UnsignedInt:
                 return *(unsigned int*)((char*)this + offset) == *(unsigned int*)((char*)pOtherComponent + offset);
@@ -669,9 +697,21 @@ void ComponentBase::CopyValueFromParent(ComponentVariable* pVar)
 
             switch( pVar->m_Type )
             {
-            //ComponentVariableType_Int,
-            //    *(int*)((char*)this + offset) = *(int*)((char*)pOtherComponent + offset);
-            //    break;
+            case ComponentVariableType_Int:
+            case ComponentVariableType_Enum:
+                {
+                    int oldvalue = *(int*)((char*)this + offset);
+                    int newvalue = *(int*)((char*)pOtherComponent + offset);
+                    *(int*)((char*)this + offset) = *(int*)((char*)pOtherComponent + offset);
+
+                    // notify component it's children that the value changed.
+                    OnValueChangedVariable( pVar->m_ControlID, true, oldvalue );
+
+                    g_pEngineMainFrame->m_pCommandStack->Add( MyNew EditorCommand_PanelWatchNumberValueChanged(
+                        newvalue - oldvalue, PanelWatchType_Int, ((char*)this + offset), pVar->m_ControlID,
+                        g_pPanelWatch->m_pVariables[pVar->m_ControlID].m_pOnValueChangedCallbackFunc, g_pPanelWatch->m_pVariables[pVar->m_ControlID].m_pCallbackObj ) );
+                }
+                break;
 
             case ComponentVariableType_UnsignedInt:
                 {
@@ -689,11 +729,9 @@ void ComponentBase::CopyValueFromParent(ComponentVariable* pVar)
                 break;
 
             //ComponentVariableType_Char,
-            //    *(char*)((char*)this + offset) = *(char*)((char*)pOtherComponent + offset);
             //    break;
 
             //ComponentVariableType_UnsignedChar,
-            //    *(unsigned char*)((char*)this + offset) = *(unsigned char*)((char*)pOtherComponent + offset);
             //    break;
 
             case ComponentVariableType_Bool:
@@ -712,10 +750,8 @@ void ComponentBase::CopyValueFromParent(ComponentVariable* pVar)
                 break;
 
             //ComponentVariableType_Float,
-            //    *(float*)((char*)this + offset) = *(float*)((char*)pOtherComponent + offset);
             //    break;
             //ComponentVariableType_Double,
-            //    *(double*)((char*)this + offset) = *(double*)((char*)pOtherComponent + offset);
             //    break;
 
             //ComponentVariableType_ColorFloat,
@@ -892,7 +928,23 @@ void ComponentBase::UpdateChildrenWithNewValue(bool fromdraganddrop, ComponentVa
                     // Found the matching component, now compare the variable.
                     switch( pVar->m_Type )
                     {
-                    //ComponentVariableType_Int,
+                    case ComponentVariableType_Int:
+                    case ComponentVariableType_Enum:
+                        MyAssert( fromdraganddrop == false ); // not drag/dropping these types ATM.
+
+                        if( fromdraganddrop == false )
+                        {
+                            int offset = pVar->m_Offset;
+
+                            if( *(int*)((char*)pChildComponent + offset) == oldvalue )
+                            {
+                                *(int*)((char*)pChildComponent + offset) = *(int*)((char*)this + offset);
+                                if( pVar->m_pOnValueChangedCallbackFunc )
+                                    pVar->m_pOnValueChangedCallbackFunc( pChildComponent, pVar, finishedchanging, oldvalue );
+                            }
+
+                            pChildComponent->UpdateChildrenWithNewValue( fromdraganddrop, pVar, controlid, true, oldvalue, oldpointer, x, y, newpointer );
+                        }
 
                     case ComponentVariableType_UnsignedInt:
                         MyAssert( fromdraganddrop == false ); // not drag/dropping these types ATM.
