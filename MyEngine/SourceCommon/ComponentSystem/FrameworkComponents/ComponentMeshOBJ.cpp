@@ -150,11 +150,16 @@ void ComponentMeshOBJ::SetMesh(MyMesh* pMesh)
         {
             for( int i=0; i<MAX_SUBMESHES; i++ )
             {
-                if( pMesh->m_SubmeshList[i] )
+                if( i < pMesh->m_SubmeshList.Count() )
+                {
+                    MyAssert( pMesh->m_SubmeshList[i] );
                     SetMaterial( pMesh->m_SubmeshList[i]->GetMaterial(), i );
+                }
                 // decided to leave it without clearing the material if the new mesh doesn't have as many submeshes.
                 //else
+                //{
                 //    SetMaterial( 0, i ); // clear the material if the new mesh doesn't have as many submeshes.
+                //}
             }
         }
     }

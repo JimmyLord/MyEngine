@@ -68,7 +68,6 @@ public:
 public:
 #if MYFW_USING_WX
     static bool m_PanelWatchBlockVisible;
-    int m_ControlID_Material[MAX_SUBMESHES];
 
     virtual void AddToObjectsPanel(wxTreeItemId gameobjectid);
     

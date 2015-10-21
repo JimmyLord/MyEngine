@@ -11,6 +11,8 @@
 
 #if MYFW_USING_WX
 bool ComponentMesh::m_PanelWatchBlockVisible = true;
+
+static const char* g_MaterialLabels[] = { "Material1", "Material2", "Material3", "Material4" };
 #endif
 
 const char* OpenGLPrimitiveTypeStrings[7] =
@@ -60,8 +62,7 @@ void ComponentMesh::RegisterVariables(CPPListHead* pList, ComponentMesh* pThis) 
     for( int i=0; i<MAX_SUBMESHES; i++ )
     {
         MyAssert( MAX_SUBMESHES == 4 );
-        const char* names[] = { "Material1", "Material2", "Material3", "Material4" };
-        AddVariable( pList, names[i], ComponentVariableType_MaterialPtr, MyOffsetOf( pThis, &pThis->m_MaterialList[i] ),
+        AddVariable( pList, g_MaterialLabels[i], ComponentVariableType_MaterialPtr, MyOffsetOf( pThis, &pThis->m_MaterialList[i] ),
                      false,  true, 0, ComponentMesh::StaticOnValueChanged, ComponentMesh::StaticOnDropMaterial, 0 );
     }
 
@@ -152,46 +153,15 @@ void ComponentMesh::OnLeftClick(unsigned int count, bool clear)
 void ComponentMesh::FillPropertiesWindow(bool clear, bool addcomponentvariables)
 {
     //m_ControlID_ComponentTitleLabel = g_pPanelWatch->AddSpace( "Mesh", this, ComponentBase::StaticOnComponentTitleLabelClicked );
-
     //MyAssert( m_pMesh );
 
     if( m_PanelWatchBlockVisible )
     {
         ComponentRenderable::FillPropertiesWindow( clear );
 
-        //if( m_pMesh )
-        //{
-        //    for( unsigned int i=0; i<m_pMesh->m_SubmeshList.Count(); i++ )
-        //    {
-        //        const char* desc = "no material";
-
-        //        char label[20];
-        //        sprintf_s( label, 20, "Material %d", i );
-
-        //        if( m_MaterialList[i] != 0 )
-        //            desc = m_MaterialList[i]->GetName();
-
-        //        m_ControlID_Material[i] = g_pPanelWatch->AddPointerWithDescription( label, 0, desc, this, ComponentMesh::StaticOnDropMaterial );
-        //    }
-        //}
-
-        //g_pPanelWatch->AddEnum( "Primitive Type", &m_GLPrimitiveType, 7, OpenGLPrimitiveTypeStrings, this, StaticOnValueChanged );
-
-        //if( m_GLPrimitiveType == GL_POINTS )
-        //{
-        //    g_pPanelWatch->AddInt( "Point Size", &m_PointSize, 1, 100 );
-        //}
-
         if( addcomponentvariables )
         {
             FillPropertiesWindowWithVariables(); //_VARIABLE_LIST
-
-            for( int i=0; i<MAX_SUBMESHES; i++ )
-            {
-                char tempname[15];
-                sprintf_s( tempname, 15, "Material%d", i+1 );
-                m_ControlID_Material[i] = FindVariablesControlIDByLabel( tempname );
-            }
         }
     }
 }
@@ -207,7 +177,7 @@ void* ComponentMesh::OnValueChanged(ComponentVariable* pVar, bool finishedchangi
             int materialthatchanged = -1;
             for( int i=0; i<MAX_SUBMESHES; i++ )
             {
-                if( pVar->m_ControlID == m_ControlID_Material[i] )
+                if( pVar->m_Label == g_MaterialLabels[i] )
                     materialthatchanged = i;
             }
 
@@ -241,7 +211,7 @@ void* ComponentMesh::OnDropMaterial(ComponentVariable* pVar, wxCoord x, wxCoord 
         int materialthatchanged = -1;
         for( int i=0; i<MAX_SUBMESHES; i++ )
         {
-            if( pVar->m_ControlID == m_ControlID_Material[i] )
+            if( pVar->m_Label == g_MaterialLabels[i] )
                 materialthatchanged = i;
         }
 

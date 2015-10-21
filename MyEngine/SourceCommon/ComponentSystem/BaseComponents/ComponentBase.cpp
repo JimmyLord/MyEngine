@@ -840,7 +840,7 @@ void ComponentBase::CopyValueFromParent(ComponentVariable* pVar)
 
             case ComponentVariableType_MaterialPtr:
                 g_DragAndDropStruct.m_ID = pVar->m_ControlID;
-                g_DragAndDropStruct.m_Type = DragAndDropType_FileObjectPointer;
+                g_DragAndDropStruct.m_Type = DragAndDropType_MaterialDefinitionPointer;
                 g_DragAndDropStruct.m_Value = *(void**)((char*)pOtherComponent + offset);
                 OnDropVariable( pVar->m_ControlID, 0, 0 );
                 break;

@@ -70,6 +70,9 @@ public:
     bool m_SaveLoad;
     bool m_DisplayInWatch;
     const char* m_WatchLabel; // if 0 will use m_Label if needed.
+    int m_NumEnumStrings;
+    const char** m_ppEnumStrings;
+
     ComponentVariableCallbackDropTarget m_pOnDropCallbackFunc;
     ComponentVariableCallback m_pOnButtonPressedCallbackFunc;
     ComponentVariableCallbackValueChanged m_pOnValueChangedCallbackFunc;
@@ -77,9 +80,8 @@ public:
     ComponentVariableCallbackSetPointerValue m_pSetPointerValueCallBackFunc;
     ComponentVariableCallbackGetPointerDesc m_pGetPointerDescCallBackFunc;
     ComponentVariableCallbackSetPointerDesc m_pSetPointerDescCallBackFunc;
+
     int m_ControlID;
-    int m_NumEnumStrings;
-    const char** m_ppEnumStrings;
     int m_Index; // convenience, used when setting divorces status.
 
 public:
@@ -97,6 +99,9 @@ public:
         m_WatchLabel = watchlabel;
         if( m_WatchLabel == 0 )
             m_WatchLabel = label;
+        m_NumEnumStrings = 0;
+        m_ppEnumStrings = 0;
+
         m_pOnDropCallbackFunc = pOnDropCallBackFunc;
         m_pOnButtonPressedCallbackFunc = pOnButtonPressedCallBackFunc;
         m_pOnValueChangedCallbackFunc = pOnValueChangedCallBackFunc;
@@ -104,6 +109,7 @@ public:
         m_pSetPointerValueCallBackFunc = pSetPointerValueCallBackFunc;
         m_pGetPointerDescCallBackFunc = pGetPointerDescCallBackFunc;
         m_pSetPointerDescCallBackFunc = pSetPointerDescCallBackFunc;
+
         m_ControlID = -1;
         m_Index = -1;
     }
