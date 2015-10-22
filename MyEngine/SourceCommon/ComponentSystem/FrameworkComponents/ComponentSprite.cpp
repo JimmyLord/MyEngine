@@ -179,7 +179,7 @@ cJSON* ComponentSprite::ExportAsJSONObject(bool savesceneid)
 {
     cJSON* jComponent = ComponentRenderable::ExportAsJSONObject( savesceneid );
 
-    ExportVariablesToJSON( jComponent ); //_VARIABLE_LIST
+    //ExportVariablesToJSON( jComponent ); //_VARIABLE_LIST
 
     return jComponent;
 }
@@ -188,7 +188,7 @@ void ComponentSprite::ImportFromJSONObject(cJSON* jsonobj, unsigned int sceneid)
 {
     ComponentRenderable::ImportFromJSONObject( jsonobj, sceneid );
 
-    ImportVariablesFromJSON( jsonobj ); //_VARIABLE_LIST
+    //ImportVariablesFromJSON( jsonobj ); //_VARIABLE_LIST
 }
 
 void ComponentSprite::RegisterCallbacks()

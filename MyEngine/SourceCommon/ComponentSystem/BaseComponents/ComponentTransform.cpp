@@ -224,7 +224,7 @@ cJSON* ComponentTransform::ExportAsJSONObject(bool savesceneid)
 {
     cJSON* jComponent = ComponentBase::ExportAsJSONObject( savesceneid );
 
-    ExportVariablesToJSON( jComponent ); //_VARIABLE_LIST
+    //ExportVariablesToJSON( jComponent ); //_VARIABLE_LIST
 
     return jComponent;
 }
@@ -238,7 +238,7 @@ void ComponentTransform::ImportFromJSONObject(cJSON* jsonobj, unsigned int scene
     if( m_pParentGameObject )
         SetParent( m_pParentGameObject->m_pComponentTransform );
 
-    ImportVariablesFromJSON( jsonobj ); //_VARIABLE_LIST
+    //ImportVariablesFromJSON( jsonobj ); //_VARIABLE_LIST
 
     m_LocalTransform.CreateSRT( m_Scale, m_Rotation, m_Position );
     UpdateMatrix();

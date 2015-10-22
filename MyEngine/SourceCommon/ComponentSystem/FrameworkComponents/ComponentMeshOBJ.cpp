@@ -13,9 +13,14 @@
 bool ComponentMeshOBJ::m_PanelWatchBlockVisible = true;
 #endif
 
+// Component Variable List
+MYFW_COMPONENT_IMPLEMENT_VARIABLE_LIST( ComponentMeshOBJ ); //_VARIABLE_LIST
+
 ComponentMeshOBJ::ComponentMeshOBJ()
 : ComponentMesh()
 {
+    MYFW_COMPONENT_VARIABLE_LIST_CONSTRUCTOR(); //_VARIABLE_LIST
+
     ClassnameSanityCheck();
 
     m_BaseType = BaseComponentType_Renderable;
@@ -23,6 +28,16 @@ ComponentMeshOBJ::ComponentMeshOBJ()
 
 ComponentMeshOBJ::~ComponentMeshOBJ()
 {
+    MYFW_COMPONENT_VARIABLE_LIST_DESTRUCTOR(); //_VARIABLE_LIST
+}
+
+void ComponentMeshOBJ::RegisterVariables(CPPListHead* pList, ComponentMeshOBJ* pThis) //_VARIABLE_LIST
+{
+    ComponentMesh::RegisterVariables( pList, pThis );
+
+    //AddVariablePointer( pList, "Material", true, true, 0, ComponentMeshOBJ::StaticOnValueChanged, ComponentMeshOBJ::StaticOnDrop, 0, ComponentMeshOBJ::StaticGetPointerValue, ComponentMeshOBJ::StaticSetPointerValue, ComponentMeshOBJ::StaticGetPointerDesc, ComponentMeshOBJ::StaticSetPointerDesc );
+    AddVariablePointer( pList, "OBJ", true, true, "File", 0, ComponentMeshOBJ::StaticOnDropOBJ, 0, ComponentMeshOBJ::StaticGetPointerValue, ComponentMeshOBJ::StaticSetPointerValue, ComponentMeshOBJ::StaticGetPointerDesc, ComponentMeshOBJ::StaticSetPointerDesc );
+    //AddVariable( pList, "File", ComponentVariableType_FilePtr, MyOffsetOf( pThis, &pThis->m_pScriptFile ), false, true, 0, ComponentMeshOBJ::StaticOnValueChangedCV, ComponentMeshOBJ::StaticOnDropCV, 0 );
 }
 
 void ComponentMeshOBJ::Reset()
@@ -32,6 +47,58 @@ void ComponentMeshOBJ::Reset()
 #if MYFW_USING_WX
     m_pPanelWatchBlockVisible = &m_PanelWatchBlockVisible;
 #endif //MYFW_USING_WX
+}
+
+void* ComponentMeshOBJ::GetPointerValue(ComponentVariable* pVar) //_VARIABLE_LIST
+{
+    if( strcmp( pVar->m_Label, "OBJ" ) == 0 )
+    {
+        if( m_pMesh )
+            return m_pMesh->m_pSourceFile;
+    }
+
+    return 0;
+}
+
+void ComponentMeshOBJ::SetPointerValue(ComponentVariable* pVar, void* newvalue)
+{
+    if( strcmp( pVar->m_Label, "OBJ" ) == 0 )
+    {
+        MyMesh* pMesh = g_pMeshManager->FindMeshBySourceFile( (MyFileObject*)newvalue );
+        SetMesh( pMesh );
+    }
+}
+
+const char* ComponentMeshOBJ::GetPointerDesc(ComponentVariable* pVar) //_VARIABLE_LIST
+{
+    if( strcmp( pVar->m_Label, "OBJ" ) == 0 )
+    {
+        MyAssert( m_pMesh );
+        MyFileObject* pFile = m_pMesh->m_pSourceFile;
+        if( pFile )
+            return pFile->m_FullPath;
+        else
+            return "none";
+    }
+
+    return "fix me";
+}
+
+void ComponentMeshOBJ::SetPointerDesc(ComponentVariable* pVar, const char* newdesc) //_VARIABLE_LIST
+{
+    if( strcmp( pVar->m_Label, "OBJ" ) == 0 )
+    {
+        MyAssert( newdesc );
+        if( newdesc )
+        {
+            MyFileObject* pFile = g_pFileManager->FindFileByName( newdesc );
+            if( pFile )
+            {
+                MyMesh* pMesh = g_pMeshManager->FindMeshBySourceFile( pFile );
+                SetMesh( pMesh );
+            }
+        }
+    }
 }
 
 #if MYFW_USING_WX
@@ -52,17 +119,24 @@ void ComponentMeshOBJ::FillPropertiesWindow(bool clear, bool addcomponentvariabl
 
     if( m_PanelWatchBlockVisible )
     {
-        ComponentMesh::FillPropertiesWindow( clear, true );
+        ComponentMesh::FillPropertiesWindow( clear );
 
-        const char* desc = "no mesh";
-        if( m_pMesh && m_pMesh->m_pSourceFile )
-            desc = m_pMesh->m_pSourceFile->m_FullPath;
-        g_pPanelWatch->AddPointerWithDescription( "File", 0, desc, this, ComponentMeshOBJ::StaticOnDropOBJ );
+        //const char* desc = "no mesh";
+        //if( m_pMesh && m_pMesh->m_pSourceFile )
+        //    desc = m_pMesh->m_pSourceFile->m_FullPath;
+        //g_pPanelWatch->AddPointerWithDescription( "File", 0, desc, this, ComponentMeshOBJ::StaticOnDropOBJ );
+
+        if( addcomponentvariables )
+        {
+            FillPropertiesWindowWithVariables(); //_VARIABLE_LIST
+        }
     }
 }
 
-void ComponentMeshOBJ::OnDropOBJ(int controlid, wxCoord x, wxCoord y)
+void* ComponentMeshOBJ::OnDropOBJ(ComponentVariable* pVar, wxCoord x, wxCoord y)
 {
+    void* oldvalue = 0;
+
     if( g_DragAndDropStruct.m_Type == DragAndDropType_FileObjectPointer )
     {
         MyFileObject* pFile = (MyFileObject*)g_DragAndDropStruct.m_Value;
@@ -74,6 +148,8 @@ void ComponentMeshOBJ::OnDropOBJ(int controlid, wxCoord x, wxCoord y)
 
         if( strcmp( filenameext, ".obj" ) == 0 )
         {
+            oldvalue = m_pMesh->m_pSourceFile;
+
             MyMesh* pMesh = g_pMeshManager->FindMeshBySourceFile( pFile );
             SetMesh( pMesh );
 
@@ -83,6 +159,8 @@ void ComponentMeshOBJ::OnDropOBJ(int controlid, wxCoord x, wxCoord y)
 
         if( strcmp( filenameext, ".mymesh" ) == 0 )
         {
+            oldvalue = m_pMesh->m_pSourceFile;
+
             MyMesh* pMesh = g_pMeshManager->FindMeshBySourceFile( pFile );
             SetMesh( pMesh );
 
@@ -92,6 +170,8 @@ void ComponentMeshOBJ::OnDropOBJ(int controlid, wxCoord x, wxCoord y)
 
         g_pPanelWatch->m_NeedsRefresh = true;
     }
+
+    return oldvalue;
 }
 #endif //MYFW_USING_WX
 
@@ -99,8 +179,8 @@ cJSON* ComponentMeshOBJ::ExportAsJSONObject(bool savesceneid)
 {
     cJSON* component = ComponentMesh::ExportAsJSONObject( savesceneid );
 
-    if( m_pMesh && m_pMesh->m_pSourceFile )
-        cJSON_AddStringToObject( component, "OBJ", m_pMesh->m_pSourceFile->m_FullPath );
+    //if( m_pMesh && m_pMesh->m_pSourceFile )
+    //    cJSON_AddStringToObject( component, "OBJ", m_pMesh->m_pSourceFile->m_FullPath );
 
     return component;
 }
@@ -109,16 +189,16 @@ void ComponentMeshOBJ::ImportFromJSONObject(cJSON* jsonobj, unsigned int sceneid
 {
     ComponentMesh::ImportFromJSONObject( jsonobj, sceneid );
 
-    cJSON* objstringobj = cJSON_GetObjectItem( jsonobj, "OBJ" );
-    if( objstringobj )
-    {
-        MyFileObject* pFile = g_pFileManager->FindFileByName( objstringobj->valuestring );
-        if( pFile )
-        {
-            MyMesh* pMesh = g_pMeshManager->FindMeshBySourceFile( pFile );
-            SetMesh( pMesh );
-        }
-    }
+    //cJSON* objstringobj = cJSON_GetObjectItem( jsonobj, "OBJ" );
+    //if( objstringobj )
+    //{
+    //    MyFileObject* pFile = g_pFileManager->FindFileByName( objstringobj->valuestring );
+    //    if( pFile )
+    //    {
+    //        MyMesh* pMesh = g_pMeshManager->FindMeshBySourceFile( pFile );
+    //        SetMesh( pMesh );
+    //    }
+    //}
 }
 
 ComponentMeshOBJ& ComponentMeshOBJ::operator=(const ComponentMeshOBJ& other)
@@ -148,12 +228,17 @@ void ComponentMeshOBJ::SetMesh(MyMesh* pMesh)
         // TODO: this doesn't happen elsewhere if the mesh isn't ready because the file was still loading.
         if( pMesh->m_MeshReady == true )
         {
-            for( int i=0; i<MAX_SUBMESHES; i++ )
+            for( unsigned int i=0; i<MAX_SUBMESHES; i++ )
             {
-                if( i < pMesh->m_SubmeshList.Count() )
+                if( m_MaterialList[i] == 0 ) // if we don't already have a material set:
                 {
-                    MyAssert( pMesh->m_SubmeshList[i] );
-                    SetMaterial( pMesh->m_SubmeshList[i]->GetMaterial(), i );
+                    if( i < pMesh->m_SubmeshList.Count() ) // check if the new mesh has a known material and set it:
+                    {
+                        MyAssert( pMesh->m_SubmeshList[i] );
+                        MaterialDefinition* pMaterial = pMesh->m_SubmeshList[i]->GetMaterial();
+                        if( pMaterial )
+                            SetMaterial( pMaterial, i );
+                    }
                 }
                 // decided to leave it without clearing the material if the new mesh doesn't have as many submeshes.
                 //else

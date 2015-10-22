@@ -469,7 +469,7 @@ void EngineCore::OnDrawFrame(unsigned int canvasid)
 
         {
             int megs = m_LuaMemoryUsedThisFrame/1000000;
-            int kilos = (m_LuaMemoryUsedThisFrame - megs)/1000;
+            int kilos = (m_LuaMemoryUsedThisFrame - megs*1000000)/1000;
             int bytes = m_LuaMemoryUsedThisFrame%1000;
 
             int change = m_LuaMemoryUsedThisFrame - m_LuaMemoryUsedLastFrame;

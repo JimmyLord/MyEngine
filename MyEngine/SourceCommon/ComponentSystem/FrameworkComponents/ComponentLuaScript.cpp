@@ -58,7 +58,8 @@ void ComponentLuaScript::RegisterVariables(CPPListHead* pList, ComponentLuaScrip
     // just want to make sure these are the same on all compilers.  They should be since this is a simple class.
     MyAssert( offsetof( ComponentLuaScript, m_pScriptFile ) == MyOffsetOf( pThis, &pThis->m_pScriptFile ) );
 
-    AddVariable( pList, "Script", ComponentVariableType_FilePtr, MyOffsetOf( pThis, &pThis->m_pScriptFile ), true, true, 0, ComponentLuaScript::StaticOnValueChangedCV, ComponentLuaScript::StaticOnDropCV, 0 );
+    // script is not automatically saved/loaded
+    AddVariable( pList, "Script", ComponentVariableType_FilePtr, MyOffsetOf( pThis, &pThis->m_pScriptFile ), false, true, 0, ComponentLuaScript::StaticOnValueChangedCV, ComponentLuaScript::StaticOnDropCV, 0 );
 }
 
 void ComponentLuaScript::Reset()
@@ -513,7 +514,7 @@ cJSON* ComponentLuaScript::ExportAsJSONObject(bool savesceneid)
 
 void ComponentLuaScript::ImportFromJSONObject(cJSON* jsonobj, unsigned int sceneid)
 {
-    ComponentUpdateable::ImportFromJSONObject( jsonobj, sceneid );
+    //ComponentUpdateable::ImportFromJSONObject( jsonobj, sceneid );
 
     cJSON* scriptstringobj = cJSON_GetObjectItem( jsonobj, "Script" );
     if( scriptstringobj )

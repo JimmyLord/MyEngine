@@ -61,6 +61,7 @@ void ComponentMesh::RegisterVariables(CPPListHead* pList, ComponentMesh* pThis) 
 
     for( int i=0; i<MAX_SUBMESHES; i++ )
     {
+        // materials are not automatically saved/loaded
         MyAssert( MAX_SUBMESHES == 4 );
         AddVariable( pList, g_MaterialLabels[i], ComponentVariableType_MaterialPtr, MyOffsetOf( pThis, &pThis->m_MaterialList[i] ),
                      false,  true, 0, ComponentMesh::StaticOnValueChanged, ComponentMesh::StaticOnDropMaterial, 0 );
@@ -86,56 +87,6 @@ void ComponentMesh::Reset()
 void ComponentMesh::LuaRegister(lua_State* luastate)
 {
 }
-
-//void* ComponentMesh::GetPointerValue(ComponentVariable* pVar) //_VARIABLE_LIST
-//{
-//    if( strcmp( pVar->m_Label, "Material" ) == 0 )
-//    {
-//        if( m_pMesh )
-//            return GetMaterial( 0 );
-//    }
-//
-//    return 0;
-//}
-//
-//void ComponentMesh::SetPointerValue(ComponentVariable* pVar, void* newvalue)
-//{
-//    if( strcmp( pVar->m_Label, "Material" ) == 0 )
-//    {
-//        if( m_pSprite )
-//            return m_pSprite->SetMaterial( (MaterialDefinition*)newvalue );
-//    }
-//}
-//
-//const char* ComponentMesh::GetPointerDesc(ComponentVariable* pVar) //_VARIABLE_LIST
-//{
-//    if( strcmp( pVar->m_Label, "Material" ) == 0 )
-//    {
-//        MyAssert( m_pSprite );
-//        MaterialDefinition* pMaterial = m_pSprite->GetMaterial();
-//        if( pMaterial && pMaterial->m_pFile )
-//            return pMaterial->m_pFile->m_FullPath;
-//        else
-//            return "none";
-//    }
-//
-//    return "fix me";
-//}
-//
-//void ComponentMesh::SetPointerDesc(ComponentVariable* pVar, const char* newdesc) //_VARIABLE_LIST
-//{
-//    if( strcmp( pVar->m_Label, "Material" ) == 0 )
-//    {
-//        MyAssert( newdesc );
-//        if( newdesc )
-//        {
-//            MaterialDefinition* pMaterial = g_pMaterialManager->LoadMaterial( newdesc );
-//            if( pMaterial )
-//                m_pSprite->SetMaterial( pMaterial );
-//            pMaterial->Release();
-//        }
-//    }
-//}
 
 #if MYFW_USING_WX
 void ComponentMesh::AddToObjectsPanel(wxTreeItemId gameobjectid)
@@ -255,7 +206,8 @@ cJSON* ComponentMesh::ExportAsJSONObject(bool savesceneid)
     //cJSON_AddNumberToObject( jComponent, "PrimitiveType", m_GLPrimitiveType );
     //cJSON_AddNumberToObject( jComponent, "PointSize", m_PointSize );
     
-    ExportVariablesToJSON( jComponent ); //_VARIABLE_LIST
+    // called in ComponentBase::ExportAsJSONObject
+    //ExportVariablesToJSON( jComponent ); //_VARIABLE_LIST
 
     return jComponent;
 }

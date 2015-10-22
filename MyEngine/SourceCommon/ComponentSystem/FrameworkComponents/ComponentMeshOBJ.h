@@ -14,7 +14,9 @@ class ComponentTransform;
 
 class ComponentMeshOBJ : public ComponentMesh
 {
-public:
+protected:
+    // Component Variable List
+    MYFW_COMPONENT_DECLARE_VARIABLE_LIST( ComponentMeshOBJ ); //_VARIABLE_LIST
 
 public:
     ComponentMeshOBJ();
@@ -31,9 +33,23 @@ public:
     virtual void RegisterCallbacks() {} // TODO: change this component to use callbacks.
     virtual void UnregisterCallbacks() {} // TODO: change this component to use callbacks.
 
+    virtual void Draw(MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride = 0, int drawcount = 0);
+
+public:
     void SetMesh(MyMesh* pMesh);
 
-    virtual void Draw(MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride = 0, int drawcount = 0);
+    // Runtime component variable callbacks. //_VARIABLE_LIST
+    static void* StaticGetPointerValue(void* pObjectPtr, ComponentVariable* pVar) { return ((ComponentMeshOBJ*)pObjectPtr)->GetPointerValue(pVar); }
+    void* GetPointerValue(ComponentVariable* pVar);
+
+    static void StaticSetPointerValue(void* pObjectPtr, ComponentVariable* pVar, void* newvalue) { return ((ComponentMeshOBJ*)pObjectPtr)->SetPointerValue(pVar, newvalue); }
+    void SetPointerValue(ComponentVariable* pVar, void* newvalue);
+
+    static const char* StaticGetPointerDesc(void* pObjectPtr, ComponentVariable* pVar) { return ((ComponentMeshOBJ*)pObjectPtr)->GetPointerDesc( pVar ); }
+    const char* GetPointerDesc(ComponentVariable* pVar);
+
+    static void StaticSetPointerDesc(void* pObjectPtr, ComponentVariable* pVar, const char* newdesc) { return ((ComponentMeshOBJ*)pObjectPtr)->SetPointerDesc( pVar, newdesc ); }
+    void SetPointerDesc(ComponentVariable* pVar, const char* newdesc);
 
 public:
 #if MYFW_USING_WX
@@ -46,9 +62,9 @@ public:
     void OnLeftClick(unsigned int count, bool clear);
     virtual void FillPropertiesWindow(bool clear, bool addcomponentvariables = false);
     
-    // Watch panel callbacks.
-    static void StaticOnDropOBJ(void* pObjectPtr, int controlid, wxCoord x, wxCoord y) { ((ComponentMeshOBJ*)pObjectPtr)->OnDropOBJ(controlid, x, y); }
-    void OnDropOBJ(int controlid, wxCoord x, wxCoord y);
+    // Component variable callbacks. //_VARIABLE_LIST
+    static void* StaticOnDropOBJ(void* pObjectPtr, ComponentVariable* pVar, wxCoord x, wxCoord y) { return ((ComponentMeshOBJ*)pObjectPtr)->OnDropOBJ(pVar, x, y); }
+    void* OnDropOBJ(ComponentVariable* pVar, wxCoord x, wxCoord y);
 #endif //MYFW_USING_WX
 };
 

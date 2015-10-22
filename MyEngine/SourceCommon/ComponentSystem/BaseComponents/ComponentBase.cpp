@@ -252,6 +252,10 @@ void ComponentBase::FillPropertiesWindowWithVariables()
 
 void ComponentBase::ExportVariablesToJSON(cJSON* jComponent)
 {
+    // TODO: remove this once GetComponentVariableList() is pure virtual
+    if( GetComponentVariableList() == 0 )
+        return;
+
     for( CPPListNode* pNode = GetComponentVariableList()->GetHead(); pNode; pNode = pNode->GetNext() )
     {
         ComponentVariable* pVar = (ComponentVariable*)pNode;
@@ -329,6 +333,10 @@ void ComponentBase::ExportVariablesToJSON(cJSON* jComponent)
 
 void ComponentBase::ImportVariablesFromJSON(cJSON* jsonobj, const char* singlelabeltoimport)
 {
+    // TODO: remove this once GetComponentVariableList() is pure virtual
+    if( GetComponentVariableList() == 0 )
+        return;
+
     for( CPPListNode* pNode = GetComponentVariableList()->GetHead(); pNode; pNode = pNode->GetNext() )
     {
         ComponentVariable* pVar = (ComponentVariable*)pNode;
@@ -1243,31 +1251,33 @@ void ComponentBase::OnDrop(int controlid, wxCoord x, wxCoord y)
 
 cJSON* ComponentBase::ExportAsJSONObject(bool savesceneid)
 {
-    cJSON* component = cJSON_CreateObject();
+    cJSON* jComponent = cJSON_CreateObject();
 
-    //cJSON_AddNumberToObject( component, "BaseType", m_BaseType );
+    //cJSON_AddNumberToObject( jComponent, "BaseType", m_BaseType );
 
     if( savesceneid )
-        cJSON_AddNumberToObject( component, "SceneID", m_SceneIDLoadedFrom );
+        cJSON_AddNumberToObject( jComponent, "SceneID", m_SceneIDLoadedFrom );
 
     if( m_Type != -1 )
     {
         const char* componenttypename = g_pComponentTypeManager->GetTypeName( m_Type );
         MyAssert( componenttypename );
         if( componenttypename )
-            cJSON_AddStringToObject( component, "Type", componenttypename );
+            cJSON_AddStringToObject( jComponent, "Type", componenttypename );
     }
 
     if( m_pGameObject )
-        cJSON_AddNumberToObject( component, "GOID", m_pGameObject->GetID() );
+        cJSON_AddNumberToObject( jComponent, "GOID", m_pGameObject->GetID() );
 
-    cJSON_AddNumberToObject( component, "ID", m_ID );
+    cJSON_AddNumberToObject( jComponent, "ID", m_ID );
 
     // TODO: this will break if more variables are added to a component or it's parents.
-    if( m_pGameObject && m_pGameObject->GetGameObjectThisInheritsFrom() != 0 )
-        cJSON_AddNumberToObject( component, "Divorced", m_DivorcedVariables );
+    if( m_pGameObject && m_pGameObject->GetGameObjectThisInheritsFrom() != 0 && m_DivorcedVariables != 0 )
+        cJSON_AddNumberToObject( jComponent, "Divorced", m_DivorcedVariables );
 
-    return component;
+    ExportVariablesToJSON( jComponent ); //_VARIABLE_LIST
+
+    return jComponent;
 }
 
 void ComponentBase::ImportFromJSONObject(cJSON* jsonobj, unsigned int sceneid)
@@ -1279,6 +1289,8 @@ void ComponentBase::ImportFromJSONObject(cJSON* jsonobj, unsigned int sceneid)
 
     // TODO: this will break if more variables are added to a component or it's parents.
     cJSONExt_GetUnsignedInt( jsonobj, "Divorced", &m_DivorcedVariables );
+
+    ImportVariablesFromJSON( jsonobj ); //_VARIABLE_LIST
 }
 
 ComponentBase& ComponentBase::operator=(const ComponentBase& other)

@@ -100,8 +100,6 @@ cJSON* ComponentRenderable::ExportAsJSONObject(bool savesceneid)
 {
     cJSON* jComponent = ComponentBase::ExportAsJSONObject( savesceneid );
 
-    ExportVariablesToJSON( jComponent ); //_VARIABLE_LIST
-
     //cJSON_AddNumberToObject( jComponent, "Visible", m_Visible );
     //cJSON_AddNumberToObject( jComponent, "Layers", m_LayersThisExistsOn );
 
@@ -112,7 +110,7 @@ void ComponentRenderable::ImportFromJSONObject(cJSON* jsonobj, unsigned int scen
 {
     ComponentBase::ImportFromJSONObject( jsonobj, sceneid );
 
-    ImportVariablesFromJSON( jsonobj ); //_VARIABLE_LIST
+    //ImportVariablesFromJSON( jsonobj ); //_VARIABLE_LIST
 
     //cJSONExt_GetBool( jsonobj, "Visible", &m_Visible );
     //cJSONExt_GetUnsignedInt( jsonobj, "Layers", &m_LayersThisExistsOn );

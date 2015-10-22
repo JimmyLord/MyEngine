@@ -16,7 +16,7 @@ extern const char* OpenGLPrimitiveTypeStrings[7];
 
 class ComponentMesh : public ComponentRenderable
 {
-private:
+protected:
     // Component Variable List
     MYFW_COMPONENT_DECLARE_VARIABLE_LIST( ComponentMesh ); //_VARIABLE_LIST
 
@@ -50,20 +50,6 @@ public:
     virtual MaterialDefinition* GetMaterial(int submeshindex) { return m_MaterialList[submeshindex]; }
     virtual void SetMaterial(MaterialDefinition* pMaterial, int submeshindex);
     virtual void Draw(MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride = 0, int drawcount = 0);
-
-public:
-    //// Runtime component variable callbacks. //_VARIABLE_LIST
-    //static void* StaticGetPointerValue(void* pObjectPtr, ComponentVariable* pVar) { return ((ComponentSprite*)pObjectPtr)->GetPointerValue(pVar); }
-    //void* GetPointerValue(ComponentVariable* pVar);
-
-    //static void StaticSetPointerValue(void* pObjectPtr, ComponentVariable* pVar, void* newvalue) { return ((ComponentSprite*)pObjectPtr)->SetPointerValue(pVar, newvalue); }
-    //void SetPointerValue(ComponentVariable* pVar, void* newvalue);
-
-    //static const char* StaticGetPointerDesc(void* pObjectPtr, ComponentVariable* pVar) { return ((ComponentSprite*)pObjectPtr)->GetPointerDesc( pVar ); }
-    //const char* GetPointerDesc(ComponentVariable* pVar);
-
-    //static void StaticSetPointerDesc(void* pObjectPtr, ComponentVariable* pVar, const char* newdesc) { return ((ComponentSprite*)pObjectPtr)->SetPointerDesc( pVar, newdesc ); }
-    //void SetPointerDesc(ComponentVariable* pVar, const char* newdesc);
 
 public:
 #if MYFW_USING_WX

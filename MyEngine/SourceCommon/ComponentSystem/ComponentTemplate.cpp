@@ -106,21 +106,21 @@ void* ComponentTemplate::OnValueChanged(ComponentVariable* pVar, bool finishedch
 }
 #endif //MYFW_USING_WX
 
-cJSON* ComponentTemplate::ExportAsJSONObject(bool savesceneid)
-{
-    cJSON* jComponent = ComponentBase::ExportAsJSONObject( savesceneid );
-
-    ExportVariablesToJSON( jComponent ); //_VARIABLE_LIST
-
-    return jComponent;
-}
-
-void ComponentTemplate::ImportFromJSONObject(cJSON* jsonobj, unsigned int sceneid)
-{
-    ComponentBase::ImportFromJSONObject( jsonobj, sceneid );
-
-    ImportVariablesFromJSON( jsonobj ); //_VARIABLE_LIST
-}
+//cJSON* ComponentTemplate::ExportAsJSONObject(bool savesceneid)
+//{
+//    cJSON* jComponent = ComponentBase::ExportAsJSONObject( savesceneid );
+//
+//    //ExportVariablesToJSON( jComponent ); //_VARIABLE_LIST
+//
+//    return jComponent;
+//}
+//
+//void ComponentTemplate::ImportFromJSONObject(cJSON* jsonobj, unsigned int sceneid)
+//{
+//    ComponentBase::ImportFromJSONObject( jsonobj, sceneid );
+//
+//    //ImportVariablesFromJSON( jsonobj ); //_VARIABLE_LIST
+//}
 
 void ComponentTemplate::RegisterCallbacks()
 {
