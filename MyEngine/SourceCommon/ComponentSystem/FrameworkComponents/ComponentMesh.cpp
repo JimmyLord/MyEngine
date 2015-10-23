@@ -63,12 +63,30 @@ void ComponentMesh::RegisterVariables(CPPListHead* pList, ComponentMesh* pThis) 
     {
         // materials are not automatically saved/loaded
         MyAssert( MAX_SUBMESHES == 4 );
-        AddVariable( pList, g_MaterialLabels[i], ComponentVariableType_MaterialPtr, MyOffsetOf( pThis, &pThis->m_MaterialList[i] ),
-                     false,  true, 0, ComponentMesh::StaticOnValueChanged, ComponentMesh::StaticOnDropMaterial, 0 );
+        ComponentVariable* pVar = AddVariable( pList, g_MaterialLabels[i], ComponentVariableType_MaterialPtr,
+                                               MyOffsetOf( pThis, &pThis->m_MaterialList[i] ), false, true, 
+                                               0, ComponentMesh::StaticOnValueChanged, ComponentMesh::StaticOnDropMaterial, 0 );
+
+        pVar->AddCallback_ShouldVariableBeAdded( pThis, (ComponentVariableCallback_ShouldVariableBeAdded)(&ComponentMesh::ShouldVariableBeAddedToWatchPanel) );
     }
 
     AddVariableEnum( pList, "PrimitiveType", MyOffsetOf( pThis, &pThis->m_GLPrimitiveType ),  true,  true, "Primitive Type", 7, OpenGLPrimitiveTypeStrings, ComponentMesh::StaticOnValueChanged, 0, 0 );
     AddVariable( pList, "PointSize", ComponentVariableType_Int, MyOffsetOf( pThis, &pThis->m_PointSize ),  true,  true, "Point Size", ComponentMesh::StaticOnValueChanged, 0, 0 );
+}
+
+bool ComponentMesh::ShouldVariableBeAddedToWatchPanel(ComponentVariable* pVar)
+{
+    for( unsigned int i=0; i<MAX_SUBMESHES; i++ )
+    {
+        // only show enough material variables for the number of submeshes in the mesh.
+        if( pVar->m_Label == g_MaterialLabels[i] )
+        {
+            if( i >= m_pMesh->m_SubmeshList.Count() )
+                return false;
+        }
+    }
+
+    return true;
 }
 
 void ComponentMesh::Reset()

@@ -61,6 +61,8 @@ typedef void (*ComponentVariableCallbackSetPointerValue)(void*, ComponentVariabl
 typedef const char* (*ComponentVariableCallbackGetPointerDesc)(void*, ComponentVariable* pVar);
 typedef void (*ComponentVariableCallbackSetPointerDesc)(void*, ComponentVariable* pVar, const char* newdesc);
 
+typedef bool (ComponentBase::*ComponentVariableCallback_ShouldVariableBeAdded)(ComponentVariable* pVar);
+
 class ComponentVariable : public CPPListNode
 {
 public:
@@ -72,6 +74,7 @@ public:
     const char* m_WatchLabel; // if 0 will use m_Label if needed.
     int m_NumEnumStrings;
     const char** m_ppEnumStrings;
+    ComponentBase* m_pComponentObject;
 
     ComponentVariableCallbackDropTarget m_pOnDropCallbackFunc;
     ComponentVariableCallback m_pOnButtonPressedCallbackFunc;
@@ -80,6 +83,7 @@ public:
     ComponentVariableCallbackSetPointerValue m_pSetPointerValueCallBackFunc;
     ComponentVariableCallbackGetPointerDesc m_pGetPointerDescCallBackFunc;
     ComponentVariableCallbackSetPointerDesc m_pSetPointerDescCallBackFunc;
+    ComponentVariableCallback_ShouldVariableBeAdded m_pShouldVariableBeAddedCallbackFunc;
 
     int m_ControlID;
     int m_Index; // convenience, used when setting divorces status.
@@ -102,6 +106,8 @@ public:
         m_NumEnumStrings = 0;
         m_ppEnumStrings = 0;
 
+        m_pComponentObject = 0;
+
         m_pOnDropCallbackFunc = pOnDropCallBackFunc;
         m_pOnButtonPressedCallbackFunc = pOnButtonPressedCallBackFunc;
         m_pOnValueChangedCallbackFunc = pOnValueChangedCallBackFunc;
@@ -110,8 +116,16 @@ public:
         m_pGetPointerDescCallBackFunc = pGetPointerDescCallBackFunc;
         m_pSetPointerDescCallBackFunc = pSetPointerDescCallBackFunc;
 
+        m_pShouldVariableBeAddedCallbackFunc = 0;
+
         m_ControlID = -1;
         m_Index = -1;
+    }
+
+    void AddCallback_ShouldVariableBeAdded(ComponentBase* pComponentObject, ComponentVariableCallback_ShouldVariableBeAdded pFunc)
+    {
+        m_pComponentObject = pComponentObject;
+        m_pShouldVariableBeAddedCallbackFunc = pFunc;
     }
 };
 
@@ -210,6 +224,7 @@ protected:
     static ComponentVariable* AddVariableEnum_Base(CPPListHead* pComponentVariableList, const char* label, size_t offset, bool saveload, bool displayinwatch, const char* watchlabel, int numenums, const char** ppStrings, ComponentVariableCallbackValueChanged pOnValueChangedCallBackFunc, ComponentVariableCallbackDropTarget pOnDropCallBackFunc, ComponentVariableCallback pOnButtonPressedCallBackFunc);
     virtual CPPListHead* GetComponentVariableList() { /*MyAssert( false );*/ return 0; } // = 0; TODO: make this pure virual once MYFW_COMPONENT_DECLARE_VARIABLE_LIST and MYFW_COMPONENT_IMPLEMENT_VARIABLE_LIST are in each component
     void FillPropertiesWindowWithVariables();
+    void AddVariableToPropertiesWindow(ComponentVariable* pVar);
     void ExportVariablesToJSON(cJSON* jComponent);
     void ImportVariablesFromJSON(cJSON* jsonobj, const char* singlelabeltoimport = 0);
     int FindVariablesControlIDByLabel(const char* label);
@@ -222,6 +237,7 @@ public:
         RightClick_MarryVariable,
     };
 
+    //virtual bool ShouldVariableBeAddedToWatchPanel(ComponentVariable* pVar) { return true; }
     virtual void AddToObjectsPanel(wxTreeItemId gameobjectid);
 
     // an unsigned int of all divorced components variables, only maintained in editor builds.

@@ -55,6 +55,7 @@ public:
 #if MYFW_USING_WX
     static bool m_PanelWatchBlockVisible;
 
+    virtual bool ShouldVariableBeAddedToWatchPanel(ComponentVariable* pVar);
     virtual void AddToObjectsPanel(wxTreeItemId gameobjectid);
     
     // Object panel callbacks.

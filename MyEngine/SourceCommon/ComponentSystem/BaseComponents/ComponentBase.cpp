@@ -141,111 +141,123 @@ void ComponentBase::FillPropertiesWindowWithVariables()
         ComponentVariable* pVar = (ComponentVariable*)pNode;
         MyAssert( pVar );
 
-        if( pVar->m_DisplayInWatch == false )
-            continue;
+        AddVariableToPropertiesWindow( pVar );
+    }
+}
 
-        //if( pVar->m_Offset != -1 )
+void ComponentBase::AddVariableToPropertiesWindow(ComponentVariable* pVar)
+{
+    if( pVar->m_DisplayInWatch == false )
+        return;
+
+    if( pVar->m_pShouldVariableBeAddedCallbackFunc )
+    {
+        ComponentVariableCallback_ShouldVariableBeAdded func = pVar->m_pShouldVariableBeAddedCallbackFunc;
+        if( (pVar->m_pComponentObject->*func)( pVar ) == false )
+            return;
+    }
+
+    //if( pVar->m_Offset != -1 )
+    {
+        switch( pVar->m_Type )
         {
-            switch( pVar->m_Type )
+        case ComponentVariableType_Int:
+            pVar->m_ControlID = g_pPanelWatch->AddInt( pVar->m_WatchLabel, (int*)((char*)this + pVar->m_Offset), -65535, 65535, this, ComponentBase::StaticOnValueChangedVariable, ComponentBase::StaticOnRightClick );
+            break;
+
+        case ComponentVariableType_Enum:
+            pVar->m_ControlID = g_pPanelWatch->AddEnum( pVar->m_WatchLabel, (int*)((char*)this + pVar->m_Offset), pVar->m_NumEnumStrings, pVar->m_ppEnumStrings, this, ComponentBase::StaticOnValueChangedVariable );
+            break;
+
+        case ComponentVariableType_UnsignedInt:
+            pVar->m_ControlID = g_pPanelWatch->AddUnsignedInt( pVar->m_WatchLabel, (unsigned int*)((char*)this + pVar->m_Offset), 0, 65535, this, ComponentBase::StaticOnValueChangedVariable, ComponentBase::StaticOnRightClick );
+            break;
+
+        //ComponentVariableType_Char,
+        //ComponentVariableType_UnsignedChar,
+
+        case ComponentVariableType_Bool:
+            pVar->m_ControlID = g_pPanelWatch->AddBool( pVar->m_WatchLabel, (bool*)((char*)this + pVar->m_Offset), 0, 1, this, ComponentBase::StaticOnValueChangedVariable, ComponentBase::StaticOnRightClick );
+            break;
+
+        //ComponentVariableType_Float,
+        //ComponentVariableType_Double,
+        //ComponentVariableType_ColorFloat,
+
+        case ComponentVariableType_ColorByte:
+            pVar->m_ControlID = g_pPanelWatch->AddColorByte( pVar->m_WatchLabel, (ColorByte*)((char*)this + pVar->m_Offset), 0.0f, 0.0f, this, ComponentBase::StaticOnValueChangedVariable, ComponentBase::StaticOnRightClick );
+            break;
+
+        case ComponentVariableType_Vector2:
+            pVar->m_ControlID = g_pPanelWatch->AddVector2( pVar->m_WatchLabel, (Vector2*)((char*)this + pVar->m_Offset), 0.0f, 0.0f, this, ComponentBase::StaticOnValueChangedVariable, ComponentBase::StaticOnRightClick );
+            break;
+
+        case ComponentVariableType_Vector3:
+            pVar->m_ControlID = g_pPanelWatch->AddVector3( pVar->m_WatchLabel, (Vector3*)((char*)this + pVar->m_Offset), 0.0f, 0.0f, this, ComponentBase::StaticOnValueChangedVariable, ComponentBase::StaticOnRightClick );
+            break;
+
+        case ComponentVariableType_GameObjectPtr:
+            MyAssert( false );
+            break;
+
+        case ComponentVariableType_ComponentPtr:
             {
-            case ComponentVariableType_Int:
-                pVar->m_ControlID = g_pPanelWatch->AddInt( pVar->m_WatchLabel, (int*)((char*)this + pVar->m_Offset), -65535, 65535, this, ComponentBase::StaticOnValueChangedVariable, ComponentBase::StaticOnRightClick );
-                break;
+                ComponentTransform* pTransformComponent = *(ComponentTransform**)((char*)this + pVar->m_Offset);
 
-            case ComponentVariableType_Enum:
-                pVar->m_ControlID = g_pPanelWatch->AddEnum( pVar->m_WatchLabel, (int*)((char*)this + pVar->m_Offset), pVar->m_NumEnumStrings, pVar->m_ppEnumStrings, this, ComponentBase::StaticOnValueChangedVariable );
-                break;
-
-            case ComponentVariableType_UnsignedInt:
-                pVar->m_ControlID = g_pPanelWatch->AddUnsignedInt( pVar->m_WatchLabel, (unsigned int*)((char*)this + pVar->m_Offset), 0, 65535, this, ComponentBase::StaticOnValueChangedVariable, ComponentBase::StaticOnRightClick );
-                break;
-
-            //ComponentVariableType_Char,
-            //ComponentVariableType_UnsignedChar,
-
-            case ComponentVariableType_Bool:
-                pVar->m_ControlID = g_pPanelWatch->AddBool( pVar->m_WatchLabel, (bool*)((char*)this + pVar->m_Offset), 0, 1, this, ComponentBase::StaticOnValueChangedVariable, ComponentBase::StaticOnRightClick );
-                break;
-
-            //ComponentVariableType_Float,
-            //ComponentVariableType_Double,
-            //ComponentVariableType_ColorFloat,
-
-            case ComponentVariableType_ColorByte:
-                pVar->m_ControlID = g_pPanelWatch->AddColorByte( pVar->m_WatchLabel, (ColorByte*)((char*)this + pVar->m_Offset), 0.0f, 0.0f, this, ComponentBase::StaticOnValueChangedVariable, ComponentBase::StaticOnRightClick );
-                break;
-
-            case ComponentVariableType_Vector2:
-                pVar->m_ControlID = g_pPanelWatch->AddVector2( pVar->m_WatchLabel, (Vector2*)((char*)this + pVar->m_Offset), 0.0f, 0.0f, this, ComponentBase::StaticOnValueChangedVariable, ComponentBase::StaticOnRightClick );
-                break;
-
-            case ComponentVariableType_Vector3:
-                pVar->m_ControlID = g_pPanelWatch->AddVector3( pVar->m_WatchLabel, (Vector3*)((char*)this + pVar->m_Offset), 0.0f, 0.0f, this, ComponentBase::StaticOnValueChangedVariable, ComponentBase::StaticOnRightClick );
-                break;
-
-            case ComponentVariableType_GameObjectPtr:
-                MyAssert( false );
-                break;
-
-            case ComponentVariableType_ComponentPtr:
+                const char* desc = "none";
+                if( pTransformComponent )
                 {
-                    ComponentTransform* pTransformComponent = *(ComponentTransform**)((char*)this + pVar->m_Offset);
-
-                    const char* desc = "none";
-                    if( pTransformComponent )
-                    {
-                        desc = pTransformComponent->m_pGameObject->GetName();
-                    }
-
-                    pVar->m_ControlID = g_pPanelWatch->AddPointerWithDescription( pVar->m_WatchLabel, pTransformComponent, desc, this, ComponentBase::StaticOnDropVariable, ComponentBase::StaticOnValueChangedVariable, ComponentBase::StaticOnRightClick );
+                    desc = pTransformComponent->m_pGameObject->GetName();
                 }
-                break;
 
-            case ComponentVariableType_FilePtr:
-                {
-                    MyFileObject* pFile = *(MyFileObject**)((char*)this + pVar->m_Offset);
-
-                    const char* desc = "none";
-                    if( pFile )
-                    {
-                        desc = pFile->m_FullPath;
-                    }
-
-                    pVar->m_ControlID = g_pPanelWatch->AddPointerWithDescription( pVar->m_WatchLabel, pFile, desc, this, ComponentBase::StaticOnDropVariable, ComponentBase::StaticOnValueChangedVariable, ComponentBase::StaticOnRightClick );
-                }
-                break;
-
-            case ComponentVariableType_MaterialPtr:
-                {
-                    MaterialDefinition* pMaterial = *(MaterialDefinition**)((char*)this + pVar->m_Offset);
-
-                    const char* desc = "no material";
-                    if( pMaterial != 0 )
-                        desc = pMaterial->GetName();
-
-                    pVar->m_ControlID = g_pPanelWatch->AddPointerWithDescription( pVar->m_WatchLabel, pMaterial, desc, this, ComponentBase::StaticOnDropVariable, ComponentBase::StaticOnValueChangedVariable, ComponentBase::StaticOnRightClick );
-                }
-                break;
-
-            case ComponentVariableType_PointerIndirect:
-                {
-                    void* pPtr = pVar->m_pGetPointerValueCallBackFunc( this, pVar );
-                    const char* pDesc = pVar->m_pGetPointerDescCallBackFunc( this, pVar );
-                    pVar->m_ControlID = g_pPanelWatch->AddPointerWithDescription( pVar->m_WatchLabel, pPtr, pDesc, this, ComponentBase::StaticOnDropVariable, ComponentBase::StaticOnValueChangedVariable, ComponentBase::StaticOnRightClick );
-                }
-                break;
-
-            case ComponentVariableType_NumTypes:
-            default:
-                MyAssert( false );
-                break;
+                pVar->m_ControlID = g_pPanelWatch->AddPointerWithDescription( pVar->m_WatchLabel, pTransformComponent, desc, this, ComponentBase::StaticOnDropVariable, ComponentBase::StaticOnValueChangedVariable, ComponentBase::StaticOnRightClick );
             }
+            break;
 
-            if( IsDivorced( pVar->m_Index ) )
+        case ComponentVariableType_FilePtr:
             {
-                g_pPanelWatch->ChangeStaticTextFontStyle( pVar->m_ControlID, wxFONTSTYLE_ITALIC, wxFONTWEIGHT_BOLD );
-                g_pPanelWatch->ChangeStaticTextBGColor( pVar->m_ControlID, wxColour( 255, 200, 200, 255 ) );
+                MyFileObject* pFile = *(MyFileObject**)((char*)this + pVar->m_Offset);
+
+                const char* desc = "none";
+                if( pFile )
+                {
+                    desc = pFile->m_FullPath;
+                }
+
+                pVar->m_ControlID = g_pPanelWatch->AddPointerWithDescription( pVar->m_WatchLabel, pFile, desc, this, ComponentBase::StaticOnDropVariable, ComponentBase::StaticOnValueChangedVariable, ComponentBase::StaticOnRightClick );
             }
+            break;
+
+        case ComponentVariableType_MaterialPtr:
+            {
+                MaterialDefinition* pMaterial = *(MaterialDefinition**)((char*)this + pVar->m_Offset);
+
+                const char* desc = "no material";
+                if( pMaterial != 0 )
+                    desc = pMaterial->GetName();
+
+                pVar->m_ControlID = g_pPanelWatch->AddPointerWithDescription( pVar->m_WatchLabel, pMaterial, desc, this, ComponentBase::StaticOnDropVariable, ComponentBase::StaticOnValueChangedVariable, ComponentBase::StaticOnRightClick );
+            }
+            break;
+
+        case ComponentVariableType_PointerIndirect:
+            {
+                void* pPtr = pVar->m_pGetPointerValueCallBackFunc( this, pVar );
+                const char* pDesc = pVar->m_pGetPointerDescCallBackFunc( this, pVar );
+                pVar->m_ControlID = g_pPanelWatch->AddPointerWithDescription( pVar->m_WatchLabel, pPtr, pDesc, this, ComponentBase::StaticOnDropVariable, ComponentBase::StaticOnValueChangedVariable, ComponentBase::StaticOnRightClick );
+            }
+            break;
+
+        case ComponentVariableType_NumTypes:
+        default:
+            MyAssert( false );
+            break;
+        }
+
+        if( IsDivorced( pVar->m_Index ) )
+        {
+            g_pPanelWatch->ChangeStaticTextFontStyle( pVar->m_ControlID, wxFONTSTYLE_ITALIC, wxFONTWEIGHT_BOLD );
+            g_pPanelWatch->ChangeStaticTextBGColor( pVar->m_ControlID, wxColour( 255, 200, 200, 255 ) );
         }
     }
 }
