@@ -154,7 +154,10 @@ void ComponentBase::AddVariableToPropertiesWindow(ComponentVariable* pVar)
     {
         ComponentVariableCallback_ShouldVariableBeAdded func = pVar->m_pShouldVariableBeAddedCallbackFunc;
         if( (pVar->m_pComponentObject->*func)( pVar ) == false )
+        {
+            pVar->m_ControlID = -10; // less than -4 since vec4's add 3 in FindComponentVariableForControl()
             return;
+        }
     }
 
     //if( pVar->m_Offset != -1 )
@@ -180,8 +183,11 @@ void ComponentBase::AddVariableToPropertiesWindow(ComponentVariable* pVar)
             pVar->m_ControlID = g_pPanelWatch->AddBool( pVar->m_WatchLabel, (bool*)((char*)this + pVar->m_Offset), 0, 1, this, ComponentBase::StaticOnValueChangedVariable, ComponentBase::StaticOnRightClick );
             break;
 
-        //ComponentVariableType_Float,
-        //ComponentVariableType_Double,
+        case ComponentVariableType_Float:
+            pVar->m_ControlID = g_pPanelWatch->AddFloat( pVar->m_WatchLabel, (float*)((char*)this + pVar->m_Offset), 0, 0, this, ComponentBase::StaticOnValueChangedVariable, ComponentBase::StaticOnRightClick );
+            break;
+
+            //ComponentVariableType_Double,
         //ComponentVariableType_ColorFloat,
 
         case ComponentVariableType_ColorByte:
@@ -296,7 +302,10 @@ void ComponentBase::ExportVariablesToJSON(cJSON* jComponent)
                 cJSON_AddNumberToObject( jComponent, pVar->m_Label, *(bool*)((char*)this + pVar->m_Offset) );
                 break;
 
-            //ComponentVariableType_Float,
+            case ComponentVariableType_Float:
+                cJSON_AddNumberToObject( jComponent, pVar->m_Label, *(float*)((char*)this + pVar->m_Offset) );
+                break;
+
             //ComponentVariableType_Double,
             //ComponentVariableType_ColorFloat,
 
@@ -381,7 +390,10 @@ void ComponentBase::ImportVariablesFromJSON(cJSON* jsonobj, const char* singlela
                 cJSONExt_GetBool( jsonobj, pVar->m_Label, (bool*)((char*)this + pVar->m_Offset) );
                 break;
 
-            //ComponentVariableType_Float,
+            case ComponentVariableType_Float:
+                cJSONExt_GetFloat( jsonobj, pVar->m_Label, (float*)((char*)this + pVar->m_Offset) );
+                break;
+
             //ComponentVariableType_Double,
             //ComponentVariableType_ColorFloat,
 
@@ -525,8 +537,9 @@ bool ComponentBase::DoesVariableMatchParent(int controlid, ComponentVariable* pV
             case ComponentVariableType_Bool:
                 return *(bool*)((char*)this + offset) == *(bool*)((char*)pOtherComponent + offset);
 
-            //ComponentVariableType_Float,
-            //    return *(float*)((char*)this + offset) == *(float*)((char*)pOtherComponent + offset);
+            case ComponentVariableType_Float:
+                return *(float*)((char*)this + offset) == *(float*)((char*)pOtherComponent + offset);
+
             //ComponentVariableType_Double,
             //    return *(double*)((char*)this + offset) == *(double*)((char*)pOtherComponent + offset);
 
@@ -756,8 +769,8 @@ void ComponentBase::CopyValueFromParent(ComponentVariable* pVar)
 
             case ComponentVariableType_Bool:
                 {
-                    unsigned int oldvalue = *(char*)((char*)this + offset);
-                    unsigned int newvalue = *(char*)((char*)pOtherComponent + offset);
+                    bool oldvalue = *(bool*)((char*)this + offset);
+                    bool newvalue = *(bool*)((char*)pOtherComponent + offset);
                     *(bool*)((char*)this + offset) = *(bool*)((char*)pOtherComponent + offset);
 
                     // notify component it's children that the value changed.
@@ -769,8 +782,21 @@ void ComponentBase::CopyValueFromParent(ComponentVariable* pVar)
                 }
                 break;
 
-            //ComponentVariableType_Float,
-            //    break;
+            case ComponentVariableType_Float:
+                {
+                    float oldvalue = *(float*)((char*)this + offset);
+                    float newvalue = *(float*)((char*)pOtherComponent + offset);
+                    *(float*)((char*)this + offset) = *(float*)((char*)pOtherComponent + offset);
+
+                    // notify component it's children that the value changed.
+                    OnValueChangedVariable( pVar->m_ControlID, true, oldvalue );
+
+                    g_pEngineMainFrame->m_pCommandStack->Add( MyNew EditorCommand_PanelWatchNumberValueChanged(
+                        newvalue - oldvalue, PanelWatchType_Float, ((char*)this + offset), pVar->m_ControlID,
+                        g_pPanelWatch->m_pVariables[pVar->m_ControlID].m_pOnValueChangedCallbackFunc, g_pPanelWatch->m_pVariables[pVar->m_ControlID].m_pCallbackObj ) );
+                }
+                break;
+
             //ComponentVariableType_Double,
             //    break;
 
@@ -965,6 +991,7 @@ void ComponentBase::UpdateChildrenWithNewValue(bool fromdraganddrop, ComponentVa
 
                             pChildComponent->UpdateChildrenWithNewValue( fromdraganddrop, pVar, controlid, true, oldvalue, oldpointer, x, y, newpointer );
                         }
+                        break;
 
                     case ComponentVariableType_UnsignedInt:
                         MyAssert( fromdraganddrop == false ); // not drag/dropping these types ATM.
@@ -1005,7 +1032,24 @@ void ComponentBase::UpdateChildrenWithNewValue(bool fromdraganddrop, ComponentVa
                         }
                         break;
 
-                    //ComponentVariableType_Float,
+                    case ComponentVariableType_Float:
+                        MyAssert( fromdraganddrop == false ); // not drag/dropping these types ATM.
+
+                        if( fromdraganddrop == false )
+                        {
+                            int offset = pVar->m_Offset;
+
+                            if( *(float*)((char*)pChildComponent + offset) == oldvalue )
+                            {
+                                *(float*)((char*)pChildComponent + offset) = *(float*)((char*)this + offset);
+                                if( pVar->m_pOnValueChangedCallbackFunc )
+                                    pVar->m_pOnValueChangedCallbackFunc( pChildComponent, pVar, finishedchanging, oldvalue );
+                            }
+
+                            pChildComponent->UpdateChildrenWithNewValue( fromdraganddrop, pVar, controlid, true, oldvalue, oldpointer, x, y, newpointer );
+                        }
+                        break;
+
                     //ComponentVariableType_Double,
                     //ComponentVariableType_ColorFloat,
 

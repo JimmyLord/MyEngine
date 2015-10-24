@@ -35,9 +35,7 @@ void ComponentMeshOBJ::RegisterVariables(CPPListHead* pList, ComponentMeshOBJ* p
 {
     ComponentMesh::RegisterVariables( pList, pThis );
 
-    //AddVariablePointer( pList, "Material", true, true, 0, ComponentMeshOBJ::StaticOnValueChanged, ComponentMeshOBJ::StaticOnDrop, 0, ComponentMeshOBJ::StaticGetPointerValue, ComponentMeshOBJ::StaticSetPointerValue, ComponentMeshOBJ::StaticGetPointerDesc, ComponentMeshOBJ::StaticSetPointerDesc );
     AddVariablePointer( pList, "OBJ", true, true, "File", 0, ComponentMeshOBJ::StaticOnDropOBJ, 0, ComponentMeshOBJ::StaticGetPointerValue, ComponentMeshOBJ::StaticSetPointerValue, ComponentMeshOBJ::StaticGetPointerDesc, ComponentMeshOBJ::StaticSetPointerDesc );
-    //AddVariable( pList, "File", ComponentVariableType_FilePtr, MyOffsetOf( pThis, &pThis->m_pScriptFile ), false, true, 0, ComponentMeshOBJ::StaticOnValueChangedCV, ComponentMeshOBJ::StaticOnDropCV, 0 );
 }
 
 void ComponentMeshOBJ::Reset()
@@ -60,7 +58,7 @@ void* ComponentMeshOBJ::GetPointerValue(ComponentVariable* pVar) //_VARIABLE_LIS
     return 0;
 }
 
-void ComponentMeshOBJ::SetPointerValue(ComponentVariable* pVar, void* newvalue)
+void ComponentMeshOBJ::SetPointerValue(ComponentVariable* pVar, void* newvalue) //_VARIABLE_LIST
 {
     if( strcmp( pVar->m_Label, "OBJ" ) == 0 )
     {

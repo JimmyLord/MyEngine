@@ -13,6 +13,9 @@
 bool ComponentMeshPrimitive::m_PanelWatchBlockVisible = true;
 #endif
 
+// Component Variable List
+MYFW_COMPONENT_IMPLEMENT_VARIABLE_LIST( ComponentMeshPrimitive ); //_VARIABLE_LIST
+
 const char* ComponentMeshPrimitiveTypeStrings[ComponentMeshPrimitive_NumTypes] =
 {
     "Plane",
@@ -22,6 +25,8 @@ const char* ComponentMeshPrimitiveTypeStrings[ComponentMeshPrimitive_NumTypes] =
 ComponentMeshPrimitive::ComponentMeshPrimitive()
 : ComponentMesh()
 {
+    MYFW_COMPONENT_VARIABLE_LIST_CONSTRUCTOR(); //_VARIABLE_LIST
+
     ClassnameSanityCheck();
 
     m_BaseType = BaseComponentType_Renderable;
@@ -29,6 +34,35 @@ ComponentMeshPrimitive::ComponentMeshPrimitive()
 
 ComponentMeshPrimitive::~ComponentMeshPrimitive()
 {
+    MYFW_COMPONENT_VARIABLE_LIST_DESTRUCTOR(); //_VARIABLE_LIST
+}
+
+void ComponentMeshPrimitive::RegisterVariables(CPPListHead* pList, ComponentMeshPrimitive* pThis) //_VARIABLE_LIST
+{
+    ComponentMesh::RegisterVariables( pList, pThis );
+
+    ComponentVariable* pVar = 0;
+
+    pVar = AddVariableEnum( pList, "MPType", MyOffsetOf( pThis, &pThis->m_MeshPrimitiveType ), true, true, 0, ComponentMeshPrimitive_NumTypes, ComponentMeshPrimitiveTypeStrings, ComponentMeshPrimitive::StaticOnValueChanged, 0, 0 );
+    pVar->AddCallback_ShouldVariableBeAdded( pThis, (ComponentVariableCallback_ShouldVariableBeAdded)(&ComponentMeshPrimitive::ShouldVariableBeAddedToWatchPanel) );
+
+    pVar = AddVariable( pList, "PlaneSize", ComponentVariableType_Vector2, MyOffsetOf( pThis, &pThis->m_Plane_Size ), true, true, "Size", ComponentMeshPrimitive::StaticOnValueChanged, 0, 0 );
+    pVar->AddCallback_ShouldVariableBeAdded( pThis, (ComponentVariableCallback_ShouldVariableBeAdded)(&ComponentMeshPrimitive::ShouldVariableBeAddedToWatchPanel) );
+
+    pVar = AddVariable( pList, "PlaneVertCountx", ComponentVariableType_Int, MyOffsetOf( pThis, &pThis->m_Plane_VertCount.x ), true, true, "VertCount X", ComponentMeshPrimitive::StaticOnValueChanged, 0, 0 );
+    pVar->AddCallback_ShouldVariableBeAdded( pThis, (ComponentVariableCallback_ShouldVariableBeAdded)(&ComponentMeshPrimitive::ShouldVariableBeAddedToWatchPanel) );
+
+    pVar = AddVariable( pList, "PlaneVertCounty", ComponentVariableType_Int, MyOffsetOf( pThis, &pThis->m_Plane_VertCount.y ), true, true, "VertCount Y", ComponentMeshPrimitive::StaticOnValueChanged, 0, 0 );
+    pVar->AddCallback_ShouldVariableBeAdded( pThis, (ComponentVariableCallback_ShouldVariableBeAdded)(&ComponentMeshPrimitive::ShouldVariableBeAddedToWatchPanel) );
+
+    pVar = AddVariable( pList, "PlaneUVStart", ComponentVariableType_Vector2, MyOffsetOf( pThis, &pThis->m_Plane_UVStart ), true, true, "UVStart", ComponentMeshPrimitive::StaticOnValueChanged, 0, 0 );
+    pVar->AddCallback_ShouldVariableBeAdded( pThis, (ComponentVariableCallback_ShouldVariableBeAdded)(&ComponentMeshPrimitive::ShouldVariableBeAddedToWatchPanel) );
+
+    pVar = AddVariable( pList, "PlaneUVRange", ComponentVariableType_Vector2, MyOffsetOf( pThis, &pThis->m_Plane_UVRange ), true, true, "UVRange", ComponentMeshPrimitive::StaticOnValueChanged, 0, 0 );
+    pVar->AddCallback_ShouldVariableBeAdded( pThis, (ComponentVariableCallback_ShouldVariableBeAdded)(&ComponentMeshPrimitive::ShouldVariableBeAddedToWatchPanel) );
+
+    pVar = AddVariable( pList, "SphereRadius", ComponentVariableType_Float, MyOffsetOf( pThis, &pThis->m_Sphere_Radius ), true, true, "Radius", ComponentMeshPrimitive::StaticOnValueChanged, 0, 0 );
+    pVar->AddCallback_ShouldVariableBeAdded( pThis, (ComponentVariableCallback_ShouldVariableBeAdded)(&ComponentMeshPrimitive::ShouldVariableBeAddedToWatchPanel) );
 }
 
 void ComponentMeshPrimitive::Reset()
@@ -72,27 +106,39 @@ void ComponentMeshPrimitive::FillPropertiesWindow(bool clear, bool addcomponentv
     {
         ComponentMesh::FillPropertiesWindow( clear );
 
-        m_ControlID_MeshPrimitiveType = g_pPanelWatch->AddEnum( "MPType", (int*)&m_MeshPrimitiveType, ComponentMeshPrimitive_NumTypes, ComponentMeshPrimitiveTypeStrings, this, StaticOnValueChanged );
-
-        if( m_MeshPrimitiveType == ComponentMeshPrimitive_Plane )
+        if( addcomponentvariables )
         {
-            g_pPanelWatch->AddVector2( "Size", &m_Plane_Size, 0.01f, 1000.0f, this, StaticOnValueChanged );
-
-            g_pPanelWatch->AddInt( "VertCount x", &m_Plane_VertCount.x, 2, 1000, this, StaticOnValueChanged );
-            g_pPanelWatch->AddInt( "VertCount y", &m_Plane_VertCount.y, 2, 1000, this, StaticOnValueChanged );
-
-            g_pPanelWatch->AddVector2( "UVStart", &m_Plane_UVStart, -1.0f, 1000.0f, this, StaticOnValueChanged );
-            g_pPanelWatch->AddVector2( "UVRange", &m_Plane_UVRange, -1.0f, 1000.0f, this, StaticOnValueChanged );
-        }
-
-        if( m_MeshPrimitiveType == ComponentMeshPrimitive_Icosphere )
-        {
-            g_pPanelWatch->AddFloat( "Radius", &m_Sphere_Radius, 0.01f, 100.0f, this, StaticOnValueChanged );
+            FillPropertiesWindowWithVariables(); //_VARIABLE_LIST
         }
     }
 }
 
-void ComponentMeshPrimitive::OnValueChanged(int controlid, bool finishedchanging)
+bool ComponentMeshPrimitive::ShouldVariableBeAddedToWatchPanel(ComponentVariable* pVar)
+{
+    if( m_MeshPrimitiveType == ComponentMeshPrimitive_Plane )
+    {
+        if( strcmp( pVar->m_Label, "PlaneSize" ) == 0 )          return true;
+        if( strcmp( pVar->m_Label, "PlaneVertCountx" ) == 0 )    return true;
+        if( strcmp( pVar->m_Label, "PlaneVertCounty" ) == 0 )    return true;
+        if( strcmp( pVar->m_Label, "PlaneUVStart" ) == 0 )       return true;
+        if( strcmp( pVar->m_Label, "PlaneUVRange" ) == 0 )       return true;
+        if( strcmp( pVar->m_Label, "SphereRadius" ) == 0 )       return false;
+    }
+
+    if( m_MeshPrimitiveType == ComponentMeshPrimitive_Icosphere )
+    {
+        if( strcmp( pVar->m_Label, "PlaneSize" ) == 0 )          return false;
+        if( strcmp( pVar->m_Label, "PlaneVertCountx" ) == 0 )    return false;
+        if( strcmp( pVar->m_Label, "PlaneVertCounty" ) == 0 )    return false;
+        if( strcmp( pVar->m_Label, "PlaneUVStart" ) == 0 )       return false;
+        if( strcmp( pVar->m_Label, "PlaneUVRange" ) == 0 )       return false;
+        if( strcmp( pVar->m_Label, "SphereRadius" ) == 0 )       return true;
+    }
+
+    return ComponentMesh::ShouldVariableBeAddedToWatchPanel( pVar );
+}
+
+void* ComponentMeshPrimitive::OnValueChanged(ComponentVariable* pVar, bool finishedchanging, double oldvalue)
 {
     if( finishedchanging )
     {
@@ -102,28 +148,14 @@ void ComponentMeshPrimitive::OnValueChanged(int controlid, bool finishedchanging
             g_pPanelWatch->m_NeedsRefresh = true;
         }
     }
+
+    return 0;
 }
 #endif //MYFW_USING_WX
 
 cJSON* ComponentMeshPrimitive::ExportAsJSONObject(bool savesceneid)
 {
     cJSON* component = ComponentMesh::ExportAsJSONObject( savesceneid );
-
-    cJSON_AddNumberToObject( component, "MPType", m_MeshPrimitiveType );
-
-    cJSON_AddNumberToObject( component, "PlaneSizex", m_Plane_Size.x );
-    cJSON_AddNumberToObject( component, "PlaneSizey", m_Plane_Size.y );
-
-    cJSON_AddNumberToObject( component, "PlaneVertCountx", m_Plane_VertCount.x );
-    cJSON_AddNumberToObject( component, "PlaneVertCounty", m_Plane_VertCount.y );
-
-    cJSON_AddNumberToObject( component, "PlaneUVStartx", m_Plane_UVStart.x );
-    cJSON_AddNumberToObject( component, "PlaneUVStarty", m_Plane_UVStart.y );
-
-    cJSON_AddNumberToObject( component, "PlaneUVRangex", m_Plane_UVRange.x );
-    cJSON_AddNumberToObject( component, "PlaneUVRangey", m_Plane_UVRange.y );
-
-    cJSON_AddNumberToObject( component, "SphereRadius", m_Sphere_Radius );    
 
     return component;
 }
@@ -132,21 +164,13 @@ void ComponentMeshPrimitive::ImportFromJSONObject(cJSON* jsonobj, unsigned int s
 {
     ComponentMesh::ImportFromJSONObject( jsonobj, sceneid );
 
-    cJSONExt_GetInt( jsonobj, "MPType", (int*)&m_MeshPrimitiveType );
-
+    // for compatibility with old files, now saved as Vector2s
     cJSONExt_GetFloat( jsonobj, "PlaneSizex", &m_Plane_Size.x );
     cJSONExt_GetFloat( jsonobj, "PlaneSizey", &m_Plane_Size.y );
-
-    cJSONExt_GetInt( jsonobj, "PlaneVertCountx", &m_Plane_VertCount.x );
-    cJSONExt_GetInt( jsonobj, "PlaneVertCounty", &m_Plane_VertCount.y );
-
     cJSONExt_GetFloat( jsonobj, "PlaneUVStartx", &m_Plane_UVStart.x );
     cJSONExt_GetFloat( jsonobj, "PlaneUVStarty", &m_Plane_UVStart.y );
-
     cJSONExt_GetFloat( jsonobj, "PlaneUVRangex", &m_Plane_UVRange.x );
     cJSONExt_GetFloat( jsonobj, "PlaneUVRangey", &m_Plane_UVRange.y );
-
-    cJSONExt_GetFloat( jsonobj, "SphereRadius", &m_Sphere_Radius );
 
     CreatePrimitive();
 }

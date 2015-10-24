@@ -23,6 +23,10 @@ extern const char* ComponentMeshPrimitiveTypeStrings[ComponentMeshPrimitive_NumT
 
 class ComponentMeshPrimitive : public ComponentMesh
 {
+protected:
+    // Component Variable List
+    MYFW_COMPONENT_DECLARE_VARIABLE_LIST( ComponentMeshPrimitive ); //_VARIABLE_LIST
+
 public:
     ComponentMeshPrimitives m_MeshPrimitiveType;
 
@@ -60,11 +64,16 @@ public:
     int m_ControlID_MeshPrimitiveType;
 
     virtual void AddToObjectsPanel(wxTreeItemId gameobjectid);
+
+    // Object panel callbacks.
     static void StaticOnLeftClick(void* pObjectPtr, wxTreeItemId id, unsigned int count) { ((ComponentMeshPrimitive*)pObjectPtr)->OnLeftClick( count, true ); }
     void OnLeftClick(unsigned int count, bool clear);
     virtual void FillPropertiesWindow(bool clear, bool addcomponentvariables = false);
-    static void StaticOnValueChanged(void* pObjectPtr, int controlid, bool finishedchanging, double oldvalue) { ((ComponentMeshPrimitive*)pObjectPtr)->OnValueChanged( controlid, finishedchanging ); }
-    void OnValueChanged(int controlid, bool finishedchanging);
+    virtual bool ShouldVariableBeAddedToWatchPanel(ComponentVariable* pVar);
+
+    // Component variable callbacks. //_VARIABLE_LIST
+    static void* StaticOnValueChanged(void* pObjectPtr, ComponentVariable* pVar, bool finishedchanging, double oldvalue) { return ((ComponentMeshPrimitive*)pObjectPtr)->OnValueChanged( pVar, finishedchanging, oldvalue ); }
+    void* OnValueChanged(ComponentVariable* pVar, bool finishedchanging, double oldvalue);
 #endif //MYFW_USING_WX
 };
 

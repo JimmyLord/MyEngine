@@ -74,21 +74,6 @@ void ComponentMesh::RegisterVariables(CPPListHead* pList, ComponentMesh* pThis) 
     AddVariable( pList, "PointSize", ComponentVariableType_Int, MyOffsetOf( pThis, &pThis->m_PointSize ),  true,  true, "Point Size", ComponentMesh::StaticOnValueChanged, 0, 0 );
 }
 
-bool ComponentMesh::ShouldVariableBeAddedToWatchPanel(ComponentVariable* pVar)
-{
-    for( unsigned int i=0; i<MAX_SUBMESHES; i++ )
-    {
-        // only show enough material variables for the number of submeshes in the mesh.
-        if( pVar->m_Label == g_MaterialLabels[i] )
-        {
-            if( i >= m_pMesh->m_SubmeshList.Count() )
-                return false;
-        }
-    }
-
-    return true;
-}
-
 void ComponentMesh::Reset()
 {
     ComponentRenderable::Reset();
@@ -133,6 +118,21 @@ void ComponentMesh::FillPropertiesWindow(bool clear, bool addcomponentvariables)
             FillPropertiesWindowWithVariables(); //_VARIABLE_LIST
         }
     }
+}
+
+bool ComponentMesh::ShouldVariableBeAddedToWatchPanel(ComponentVariable* pVar)
+{
+    for( unsigned int i=0; i<MAX_SUBMESHES; i++ )
+    {
+        // only show enough material variables for the number of submeshes in the mesh.
+        if( pVar->m_Label == g_MaterialLabels[i] )
+        {
+            if( m_pMesh == 0 || i >= m_pMesh->m_SubmeshList.Count() )
+                return false;
+        }
+    }
+
+    return true;
 }
 
 void* ComponentMesh::OnValueChanged(ComponentVariable* pVar, bool finishedchanging)

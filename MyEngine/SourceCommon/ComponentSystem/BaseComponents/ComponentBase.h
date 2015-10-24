@@ -32,7 +32,7 @@ enum ComponentVariableTypes
     //ComponentVariableType_Char,
     //ComponentVariableType_UnsignedChar,
     ComponentVariableType_Bool,
-    //ComponentVariableType_Float,
+    ComponentVariableType_Float,
     //ComponentVariableType_Double,
     //ComponentVariableType_ColorFloat,
     ComponentVariableType_ColorByte,
