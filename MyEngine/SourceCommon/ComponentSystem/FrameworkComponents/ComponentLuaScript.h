@@ -137,11 +137,8 @@ public:
     void OnPopupClick(wxEvent &evt);
 
     // Component variable callbacks.
-    static void* StaticOnDropCV(void* pObjectPtr, ComponentVariable* pVar, wxCoord x, wxCoord y) { return ((ComponentLuaScript*)pObjectPtr)->OnDropCV(pVar, x, y); }
     void* OnDropCV(ComponentVariable* pVar, wxCoord x, wxCoord y);
-
-    static void* StaticOnValueChangedCV(void* pObjectPtr, ComponentVariable* pVar, bool finishedchanging, double oldvalue) { return ((ComponentLuaScript*)pObjectPtr)->OnValueChangedCV( pVar, finishedchanging ); }
-    void* OnValueChangedCV(ComponentVariable* pVar, bool finishedchanging);
+    void* OnValueChangedCV(ComponentVariable* pVar, bool finishedchanging, double oldvalue);
 
     // Watch panel callbacks.
     static void StaticOnDrop(void* pObjectPtr, int controlid, wxCoord x, wxCoord y) { ((ComponentLuaScript*)pObjectPtr)->OnDrop(controlid, x, y); }

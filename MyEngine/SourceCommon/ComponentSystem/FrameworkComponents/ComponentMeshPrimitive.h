@@ -72,7 +72,6 @@ public:
     virtual bool ShouldVariableBeAddedToWatchPanel(ComponentVariable* pVar);
 
     // Component variable callbacks. //_VARIABLE_LIST
-    static void* StaticOnValueChanged(void* pObjectPtr, ComponentVariable* pVar, bool finishedchanging, double oldvalue) { return ((ComponentMeshPrimitive*)pObjectPtr)->OnValueChanged( pVar, finishedchanging, oldvalue ); }
     void* OnValueChanged(ComponentVariable* pVar, bool finishedchanging, double oldvalue);
 #endif //MYFW_USING_WX
 };

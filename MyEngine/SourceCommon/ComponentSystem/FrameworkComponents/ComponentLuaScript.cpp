@@ -59,7 +59,7 @@ void ComponentLuaScript::RegisterVariables(CPPListHead* pList, ComponentLuaScrip
     MyAssert( offsetof( ComponentLuaScript, m_pScriptFile ) == MyOffsetOf( pThis, &pThis->m_pScriptFile ) );
 
     // script is not automatically saved/loaded
-    AddVariable( pList, "Script", ComponentVariableType_FilePtr, MyOffsetOf( pThis, &pThis->m_pScriptFile ), false, true, 0, ComponentLuaScript::StaticOnValueChangedCV, ComponentLuaScript::StaticOnDropCV, 0 );
+    AddVariable( pList, "Script", ComponentVariableType_FilePtr, MyOffsetOf( pThis, &pThis->m_pScriptFile ), false, true, 0, (CVarFunc_ValueChanged)&ComponentLuaScript::OnValueChangedCV, (CVarFunc_DropTarget)&ComponentLuaScript::OnDropCV, 0 );
 }
 
 void ComponentLuaScript::Reset()
@@ -292,9 +292,9 @@ void* ComponentLuaScript::OnDropCV(ComponentVariable* pVar, wxCoord x, wxCoord y
     return oldvalue;
 }
 
-void* ComponentLuaScript::OnValueChangedCV(ComponentVariable* pVar, bool finishedchanging)
+void* ComponentLuaScript::OnValueChangedCV(ComponentVariable* pVar, bool finishedchanging, double oldvalue)
 {
-    void* oldvalue = 0;
+    void* oldpointer = 0;
 
     if( strcmp( pVar->m_Label, "Script" ) == 0 )
     {
@@ -302,12 +302,12 @@ void* ComponentLuaScript::OnValueChangedCV(ComponentVariable* pVar, bool finishe
         if( text == "" || text == "none" || text == "no script" )
         {
             g_pPanelWatch->ChangeDescriptionForPointerWithDescription( pVar->m_ControlID, "no script" );
-            oldvalue = m_pScriptFile;
+            oldpointer = m_pScriptFile;
             this->SetScriptFile( 0 );
         }
     }
 
-    return oldvalue;
+    return oldpointer;
 }
 
 void* ComponentLuaScript::ProcessOnDrop(int controlid, wxCoord x, wxCoord y)

@@ -39,9 +39,9 @@ void ComponentSprite::RegisterVariables(CPPListHead* pList, ComponentSprite* pTh
 {
     ComponentRenderable::RegisterVariables( pList, pThis );
 
-    AddVariable( pList, "Tint",     ComponentVariableType_ColorByte, MyOffsetOf( pThis, &pThis->m_Tint ),  true,  true, 0, ComponentSprite::StaticOnValueChanged, ComponentSprite::StaticOnDrop, 0 );
-    AddVariable( pList, "Size",     ComponentVariableType_Vector2,   MyOffsetOf( pThis, &pThis->m_Size ),  true,  true, 0, ComponentSprite::StaticOnValueChanged, ComponentSprite::StaticOnDrop, 0 );
-    AddVariablePointer( pList, "Material",                                                                 true,  true, 0, ComponentSprite::StaticOnValueChanged, ComponentSprite::StaticOnDrop, 0, ComponentSprite::StaticGetPointerValue, ComponentSprite::StaticSetPointerValue, ComponentSprite::StaticGetPointerDesc, ComponentSprite::StaticSetPointerDesc );
+    AddVariable( pList, "Tint",     ComponentVariableType_ColorByte, MyOffsetOf( pThis, &pThis->m_Tint ),  true,  true, 0, (CVarFunc_ValueChanged)&ComponentSprite::OnValueChanged, (CVarFunc_DropTarget)&ComponentSprite::OnDrop, 0 );
+    AddVariable( pList, "Size",     ComponentVariableType_Vector2,   MyOffsetOf( pThis, &pThis->m_Size ),  true,  true, 0, (CVarFunc_ValueChanged)&ComponentSprite::OnValueChanged, (CVarFunc_DropTarget)&ComponentSprite::OnDrop, 0 );
+    AddVariablePointer( pList, "Material",                                                                 true,  true, 0, (CVarFunc_ValueChanged)&ComponentSprite::OnValueChanged, (CVarFunc_DropTarget)&ComponentSprite::OnDrop, 0, (CVarFunc_GetPointerValue)&ComponentSprite::GetPointerValue, (CVarFunc_SetPointerValue)&ComponentSprite::SetPointerValue, (CVarFunc_GetPointerDesc)&ComponentSprite::GetPointerDesc, (CVarFunc_SetPointerDesc)&ComponentSprite::SetPointerDesc );
 }
 
 void ComponentSprite::Reset()
@@ -153,9 +153,9 @@ void* ComponentSprite::OnDrop(ComponentVariable* pVar, wxCoord x, wxCoord y)
     return oldvalue;
 }
 
-void* ComponentSprite::OnValueChanged(ComponentVariable* pVar, bool finishedchanging)
+void* ComponentSprite::OnValueChanged(ComponentVariable* pVar, bool finishedchanging, double oldvalue)
 {
-    void* oldvalue = 0;
+    void* oldpointer = 0;
 
     if( strcmp( pVar->m_Label, "Material" ) == 0 )
     {
@@ -166,12 +166,12 @@ void* ComponentSprite::OnValueChanged(ComponentVariable* pVar, bool finishedchan
         {
             g_pPanelWatch->ChangeDescriptionForPointerWithDescription( pVar->m_ControlID, "none" );
 
-            oldvalue = m_pSprite->GetMaterial();
+            oldpointer = m_pSprite->GetMaterial();
             m_pSprite->SetMaterial( 0 );
         }
     }
 
-    return oldvalue;
+    return oldpointer;
 }
 #endif //MYFW_USING_WX
 

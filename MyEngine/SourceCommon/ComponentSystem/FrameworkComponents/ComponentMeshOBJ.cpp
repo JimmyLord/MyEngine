@@ -35,7 +35,7 @@ void ComponentMeshOBJ::RegisterVariables(CPPListHead* pList, ComponentMeshOBJ* p
 {
     ComponentMesh::RegisterVariables( pList, pThis );
 
-    AddVariablePointer( pList, "OBJ", true, true, "File", 0, ComponentMeshOBJ::StaticOnDropOBJ, 0, ComponentMeshOBJ::StaticGetPointerValue, ComponentMeshOBJ::StaticSetPointerValue, ComponentMeshOBJ::StaticGetPointerDesc, ComponentMeshOBJ::StaticSetPointerDesc );
+    AddVariablePointer( pList, "OBJ", true, true, "File", 0, (CVarFunc_DropTarget)&ComponentMeshOBJ::OnDropOBJ, 0, (CVarFunc_GetPointerValue)&ComponentMeshOBJ::GetPointerValue, (CVarFunc_SetPointerValue)&ComponentMeshOBJ::SetPointerValue, (CVarFunc_GetPointerDesc)&ComponentMeshOBJ::GetPointerDesc, (CVarFunc_SetPointerDesc)&ComponentMeshOBJ::SetPointerDesc );
 }
 
 void ComponentMeshOBJ::Reset()

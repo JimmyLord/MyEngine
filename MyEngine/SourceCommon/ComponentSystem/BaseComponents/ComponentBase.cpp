@@ -92,7 +92,7 @@ void ComponentBase::ClearAllVariables_Base(CPPListHead* pComponentVariableList)
     }
 }
 
-ComponentVariable* ComponentBase::AddVariable_Base(CPPListHead* pComponentVariableList, const char* label, ComponentVariableTypes type, size_t offset, bool saveload, bool displayinwatch, const char* watchlabel, ComponentVariableCallbackValueChanged pOnValueChangedCallBackFunc, ComponentVariableCallbackDropTarget pOnDropCallBackFunc, ComponentVariableCallback pOnButtonPressedCallBackFunc)
+ComponentVariable* ComponentBase::AddVariable_Base(CPPListHead* pComponentVariableList, const char* label, ComponentVariableTypes type, size_t offset, bool saveload, bool displayinwatch, const char* watchlabel, CVarFunc_ValueChanged pOnValueChangedCallBackFunc, CVarFunc_DropTarget pOnDropCallBackFunc, CVarFunc pOnButtonPressedCallBackFunc)
 {
     ComponentVariable* pVariable = MyNew ComponentVariable( label, type, offset, saveload, displayinwatch,
         watchlabel, pOnValueChangedCallBackFunc, pOnDropCallBackFunc, pOnButtonPressedCallBackFunc, 0, 0, 0, 0 );
@@ -107,7 +107,7 @@ ComponentVariable* ComponentBase::AddVariable_Base(CPPListHead* pComponentVariab
     return pVariable;
 }
 
-ComponentVariable* ComponentBase::AddVariablePointer_Base(CPPListHead* pComponentVariableList, const char* label, bool saveload, bool displayinwatch, const char* watchlabel, ComponentVariableCallbackValueChanged pOnValueChangedCallBackFunc, ComponentVariableCallbackDropTarget pOnDropCallBackFunc, ComponentVariableCallback pOnButtonPressedCallBackFunc, ComponentVariableCallbackGetPointerValue pGetPointerValueCallBackFunc, ComponentVariableCallbackSetPointerValue pSetPointerValueCallBackFunc, ComponentVariableCallbackGetPointerDesc pGetPointerDescCallBackFunc, ComponentVariableCallbackSetPointerDesc pSetPointerDescCallBackFunc)
+ComponentVariable* ComponentBase::AddVariablePointer_Base(CPPListHead* pComponentVariableList, const char* label, bool saveload, bool displayinwatch, const char* watchlabel, CVarFunc_ValueChanged pOnValueChangedCallBackFunc, CVarFunc_DropTarget pOnDropCallBackFunc, CVarFunc pOnButtonPressedCallBackFunc, CVarFunc_GetPointerValue pGetPointerValueCallBackFunc, CVarFunc_SetPointerValue pSetPointerValueCallBackFunc, CVarFunc_GetPointerDesc pGetPointerDescCallBackFunc, CVarFunc_SetPointerDesc pSetPointerDescCallBackFunc)
 {
     ComponentVariable* pVariable = MyNew ComponentVariable( label, ComponentVariableType_PointerIndirect, -1, saveload, displayinwatch,
         watchlabel, pOnValueChangedCallBackFunc, pOnDropCallBackFunc, pOnButtonPressedCallBackFunc,
@@ -123,7 +123,7 @@ ComponentVariable* ComponentBase::AddVariablePointer_Base(CPPListHead* pComponen
     return pVariable;
 }
 
-ComponentVariable* ComponentBase::AddVariableEnum_Base(CPPListHead* pComponentVariableList, const char* label, size_t offset, bool saveload, bool displayinwatch, const char* watchlabel, int numenums, const char** ppStrings, ComponentVariableCallbackValueChanged pOnValueChangedCallBackFunc, ComponentVariableCallbackDropTarget pOnDropCallBackFunc, ComponentVariableCallback pOnButtonPressedCallBackFunc)
+ComponentVariable* ComponentBase::AddVariableEnum_Base(CPPListHead* pComponentVariableList, const char* label, size_t offset, bool saveload, bool displayinwatch, const char* watchlabel, int numenums, const char** ppStrings, CVarFunc_ValueChanged pOnValueChangedCallBackFunc, CVarFunc_DropTarget pOnDropCallBackFunc, CVarFunc pOnButtonPressedCallBackFunc)
 {
     ComponentVariable* pVariable = AddVariable_Base( pComponentVariableList, label, ComponentVariableType_Enum, offset, saveload, displayinwatch,
         watchlabel, pOnValueChangedCallBackFunc, pOnDropCallBackFunc, pOnButtonPressedCallBackFunc );
@@ -152,8 +152,9 @@ void ComponentBase::AddVariableToPropertiesWindow(ComponentVariable* pVar)
 
     if( pVar->m_pShouldVariableBeAddedCallbackFunc )
     {
-        ComponentVariableCallback_ShouldVariableBeAdded func = pVar->m_pShouldVariableBeAddedCallbackFunc;
-        if( (pVar->m_pComponentObject->*func)( pVar ) == false )
+        //CVarFunc_ShouldVariableBeAdded func = pVar->m_pShouldVariableBeAddedCallbackFunc;
+        //if( (pVar->m_pComponentObject->*func)( pVar ) == false )
+        if( (this->*pVar->m_pShouldVariableBeAddedCallbackFunc)( pVar ) == false )
         {
             pVar->m_ControlID = -10; // less than -4 since vec4's add 3 in FindComponentVariableForControl()
             return;
@@ -248,8 +249,8 @@ void ComponentBase::AddVariableToPropertiesWindow(ComponentVariable* pVar)
 
         case ComponentVariableType_PointerIndirect:
             {
-                void* pPtr = pVar->m_pGetPointerValueCallBackFunc( this, pVar );
-                const char* pDesc = pVar->m_pGetPointerDescCallBackFunc( this, pVar );
+                void* pPtr = (this->*pVar->m_pGetPointerValueCallBackFunc)( pVar );
+                const char* pDesc = (this->*pVar->m_pGetPointerDescCallBackFunc)( pVar );
                 pVar->m_ControlID = g_pPanelWatch->AddPointerWithDescription( pVar->m_WatchLabel, pPtr, pDesc, this, ComponentBase::StaticOnDropVariable, ComponentBase::StaticOnValueChangedVariable, ComponentBase::StaticOnRightClick );
             }
             break;
@@ -340,7 +341,7 @@ void ComponentBase::ExportVariablesToJSON(cJSON* jComponent)
             case ComponentVariableType_PointerIndirect:
                 MyAssert( pVar->m_pGetPointerDescCallBackFunc );
                 if( pVar->m_pGetPointerDescCallBackFunc )
-                    cJSON_AddStringToObject( jComponent, pVar->m_Label, pVar->m_pGetPointerDescCallBackFunc( this, pVar ) );
+                    cJSON_AddStringToObject( jComponent, pVar->m_Label, (this->*pVar->m_pGetPointerDescCallBackFunc)( pVar ) );
                 break;
 
             case ComponentVariableType_NumTypes:
@@ -434,7 +435,7 @@ void ComponentBase::ImportVariablesFromJSON(cJSON* jsonobj, const char* singlela
                     cJSON* obj = cJSON_GetObjectItem( jsonobj, pVar->m_Label );
                     MyAssert( obj );
                     if( obj )
-                        pVar->m_pSetPointerDescCallBackFunc( this, pVar, obj->valuestring );
+                        (this->*pVar->m_pSetPointerDescCallBackFunc)( pVar, obj->valuestring );
                 }
                 break;
 
@@ -575,7 +576,7 @@ bool ComponentBase::DoesVariableMatchParent(int controlid, ComponentVariable* pV
                 return *(void**)((char*)this + offset) == *(void**)((char*)pOtherComponent + offset);
 
             case ComponentVariableType_PointerIndirect:
-                return pVar->m_pGetPointerValueCallBackFunc( this, pVar ) == pVar->m_pGetPointerValueCallBackFunc( pOtherComponent, pVar );
+                return (this->*pVar->m_pGetPointerValueCallBackFunc)( pVar ) == (pOtherComponent->*pVar->m_pGetPointerValueCallBackFunc)( pVar );
                 break;
 
             case ComponentVariableType_NumTypes:
@@ -599,7 +600,7 @@ void ComponentBase::OnValueChangedVariable(int controlid, bool finishedchanging,
         void* oldpointer = 0;
 
         if( pVar->m_pOnValueChangedCallbackFunc )
-            oldpointer = pVar->m_pOnValueChangedCallbackFunc( this, pVar, finishedchanging, oldvalue );
+            oldpointer = (this->*pVar->m_pOnValueChangedCallbackFunc)( pVar, finishedchanging, oldvalue );
 
         if( m_pGameObject && m_pGameObject->GetGameObjectThisInheritsFrom() )
         {
@@ -626,7 +627,7 @@ void ComponentBase::OnDropVariable(int controlid, wxCoord x, wxCoord y)
         void* oldpointer = 0;
 
         if( pVar->m_pOnDropCallbackFunc )
-            oldpointer = pVar->m_pOnDropCallbackFunc( this, pVar, x, y );
+            oldpointer = (this->*pVar->m_pOnDropCallbackFunc)( pVar, x, y );
 
         if( m_pGameObject && m_pGameObject->GetGameObjectThisInheritsFrom() )
         {
@@ -902,12 +903,12 @@ void ComponentBase::CopyValueFromParent(ComponentVariable* pVar)
 
             case ComponentVariableType_PointerIndirect:
                 {
-                    void* pOldValue = pVar->m_pGetPointerValueCallBackFunc( this, pVar );
-                    void* pParentValue = pVar->m_pGetPointerValueCallBackFunc( pOtherComponent, pVar );
+                    void* pOldValue = (this->*pVar->m_pGetPointerValueCallBackFunc)( pVar );
+                    void* pParentValue = (pOtherComponent->*pVar->m_pGetPointerValueCallBackFunc)( pVar );
                     pOtherComponent->UpdateChildrenWithNewValue( false, pVar, pVar->m_ControlID, false, 0, pOldValue, 0, 0, pParentValue );
                     
                     // manually update the description field for this variable after the new value was propogated down to children.
-                    const char* pParentDesc = pVar->m_pGetPointerDescCallBackFunc( pOtherComponent, pVar );
+                    const char* pParentDesc = (pOtherComponent->*pVar->m_pGetPointerDescCallBackFunc)( pVar );
                     g_pPanelWatch->ChangeDescriptionForPointerWithDescription( pVar->m_ControlID, pParentDesc );
                 }
                 // TODO: add to undo stack
@@ -986,7 +987,7 @@ void ComponentBase::UpdateChildrenWithNewValue(bool fromdraganddrop, ComponentVa
                             {
                                 *(int*)((char*)pChildComponent + offset) = *(int*)((char*)this + offset);
                                 if( pVar->m_pOnValueChangedCallbackFunc )
-                                    pVar->m_pOnValueChangedCallbackFunc( pChildComponent, pVar, finishedchanging, oldvalue );
+                                    (pChildComponent->*pVar->m_pOnValueChangedCallbackFunc)( pVar, finishedchanging, oldvalue );
                             }
 
                             pChildComponent->UpdateChildrenWithNewValue( fromdraganddrop, pVar, controlid, true, oldvalue, oldpointer, x, y, newpointer );
@@ -1004,7 +1005,7 @@ void ComponentBase::UpdateChildrenWithNewValue(bool fromdraganddrop, ComponentVa
                             {
                                 *(unsigned int*)((char*)pChildComponent + offset) = *(unsigned int*)((char*)this + offset);
                                 if( pVar->m_pOnValueChangedCallbackFunc )
-                                    pVar->m_pOnValueChangedCallbackFunc( pChildComponent, pVar, finishedchanging, oldvalue );
+                                    (pChildComponent->*pVar->m_pOnValueChangedCallbackFunc)( pVar, finishedchanging, oldvalue );
                             }
 
                             pChildComponent->UpdateChildrenWithNewValue( fromdraganddrop, pVar, controlid, true, oldvalue, oldpointer, x, y, newpointer );
@@ -1025,7 +1026,7 @@ void ComponentBase::UpdateChildrenWithNewValue(bool fromdraganddrop, ComponentVa
                             {
                                 *(bool*)((char*)pChildComponent + offset) = *(bool*)((char*)this + offset);
                                 if( pVar->m_pOnValueChangedCallbackFunc )
-                                    pVar->m_pOnValueChangedCallbackFunc( pChildComponent, pVar, finishedchanging, oldvalue );
+                                    (pChildComponent->*pVar->m_pOnValueChangedCallbackFunc)( pVar, finishedchanging, oldvalue );
                             }
 
                             pChildComponent->UpdateChildrenWithNewValue( fromdraganddrop, pVar, controlid, true, oldvalue, oldpointer, x, y, newpointer );
@@ -1043,7 +1044,7 @@ void ComponentBase::UpdateChildrenWithNewValue(bool fromdraganddrop, ComponentVa
                             {
                                 *(float*)((char*)pChildComponent + offset) = *(float*)((char*)this + offset);
                                 if( pVar->m_pOnValueChangedCallbackFunc )
-                                    pVar->m_pOnValueChangedCallbackFunc( pChildComponent, pVar, finishedchanging, oldvalue );
+                                    (pChildComponent->*pVar->m_pOnValueChangedCallbackFunc)( pVar, finishedchanging, oldvalue );
                             }
 
                             pChildComponent->UpdateChildrenWithNewValue( fromdraganddrop, pVar, controlid, true, oldvalue, oldpointer, x, y, newpointer );
@@ -1073,7 +1074,7 @@ void ComponentBase::UpdateChildrenWithNewValue(bool fromdraganddrop, ComponentVa
                                         ColorByte* newcolor = (ColorByte*)((char*)this + offset);
                                         *childcolor = *newcolor;
                                         if( pVar->m_pOnValueChangedCallbackFunc )
-                                            pVar->m_pOnValueChangedCallbackFunc( pChildComponent, pVar, finishedchanging, oldvalue );
+                                            (pChildComponent->*pVar->m_pOnValueChangedCallbackFunc)( pVar, finishedchanging, oldvalue );
                                     }
                                 }
                             }
@@ -1085,7 +1086,7 @@ void ComponentBase::UpdateChildrenWithNewValue(bool fromdraganddrop, ComponentVa
                                 {
                                     *(unsigned char*)((char*)pChildComponent + offset) = *(unsigned char*)((char*)this + offset);
                                     if( pVar->m_pOnValueChangedCallbackFunc )
-                                        pVar->m_pOnValueChangedCallbackFunc( pChildComponent, pVar, finishedchanging, oldvalue );
+                                        (pChildComponent->*pVar->m_pOnValueChangedCallbackFunc)( pVar, finishedchanging, oldvalue );
                                 }
                             }
 
@@ -1108,7 +1109,7 @@ void ComponentBase::UpdateChildrenWithNewValue(bool fromdraganddrop, ComponentVa
                             {
                                 *(float*)((char*)pChildComponent + offset) = *(float*)((char*)this + offset);
                                 if( pVar->m_pOnValueChangedCallbackFunc )
-                                    pVar->m_pOnValueChangedCallbackFunc( pChildComponent, pVar, finishedchanging, oldvalue );
+                                    (pChildComponent->*pVar->m_pOnValueChangedCallbackFunc)( pVar, finishedchanging, oldvalue );
                             }
 
                             pChildComponent->UpdateChildrenWithNewValue( fromdraganddrop, pVar, controlid, true, oldvalue, oldpointer, x, y, newpointer );
@@ -1133,7 +1134,7 @@ void ComponentBase::UpdateChildrenWithNewValue(bool fromdraganddrop, ComponentVa
                                     MyAssert( pVar->m_pOnDropCallbackFunc );
                                     if( pVar->m_pOnDropCallbackFunc )
                                     {
-                                        void* oldpointer2 = pVar->m_pOnDropCallbackFunc( pChildComponent, pVar, x, y );
+                                        void* oldpointer2 = (pChildComponent->*pVar->m_pOnDropCallbackFunc)( pVar, x, y );
                                         MyAssert( oldpointer2 == oldpointer );
                                     }
                                 }
@@ -1147,7 +1148,7 @@ void ComponentBase::UpdateChildrenWithNewValue(bool fromdraganddrop, ComponentVa
                                     MyAssert( pVar->m_pOnValueChangedCallbackFunc );
                                     if( pVar->m_pOnValueChangedCallbackFunc )
                                     {
-                                        void* oldpointer2 = pVar->m_pOnValueChangedCallbackFunc( pChildComponent, pVar, finishedchanging, oldvalue );
+                                        void* oldpointer2 = (pChildComponent->*pVar->m_pOnValueChangedCallbackFunc)( pVar, finishedchanging, oldvalue );
                                         MyAssert( oldpointer2 == oldpointer );
                                     }
                                 }                                
@@ -1163,36 +1164,36 @@ void ComponentBase::UpdateChildrenWithNewValue(bool fromdraganddrop, ComponentVa
                             {
                                 int offset = pVar->m_Offset;
 
-                                if( pVar->m_pGetPointerValueCallBackFunc( pChildComponent, pVar ) == oldpointer )
+                                if( (pChildComponent->*pVar->m_pGetPointerValueCallBackFunc)( pVar ) == oldpointer )
                                 {
                                     // OnDropCallback will grab the new value from g_DragAndDropStruct
                                     MyAssert( pVar->m_pOnDropCallbackFunc );
                                     if( pVar->m_pOnDropCallbackFunc )
                                     {
-                                        void* oldpointer2 = pVar->m_pOnDropCallbackFunc( pChildComponent, pVar, x, y );
+                                        void* oldpointer2 = (pChildComponent->*pVar->m_pOnDropCallbackFunc)( pVar, x, y );
                                         MyAssert( oldpointer2 == oldpointer );
                                     }
                                 }
                             }
                             else if( newpointer )
                             {
-                                if( pVar->m_pGetPointerValueCallBackFunc( pChildComponent, pVar ) == oldpointer )
+                                if( (pChildComponent->*pVar->m_pGetPointerValueCallBackFunc)( pVar ) == oldpointer )
                                 {
                                     MyAssert( pVar->m_pSetPointerValueCallBackFunc );
                                     if( pVar->m_pSetPointerValueCallBackFunc )
                                     {
-                                        pVar->m_pSetPointerValueCallBackFunc( pChildComponent, pVar, newpointer );
+                                        (pChildComponent->*pVar->m_pSetPointerValueCallBackFunc)( pVar, newpointer );
                                     }
                                 }
                             }
                             else
                             {
-                                if( pVar->m_pGetPointerValueCallBackFunc( pChildComponent, pVar ) == oldpointer )
+                                if( (pChildComponent->*pVar->m_pGetPointerValueCallBackFunc)( pVar ) == oldpointer )
                                 {
                                     MyAssert( pVar->m_pOnValueChangedCallbackFunc );
                                     if( pVar->m_pOnValueChangedCallbackFunc )
                                     {
-                                        void* oldpointer2 = pVar->m_pOnValueChangedCallbackFunc( pChildComponent, pVar, finishedchanging, oldvalue );
+                                        void* oldpointer2 = (pChildComponent->*pVar->m_pOnValueChangedCallbackFunc)( pVar, finishedchanging, oldvalue );
                                         MyAssert( oldpointer2 == oldpointer );
                                     }
                                 }

@@ -38,7 +38,7 @@ void ComponentTemplate::RegisterVariables(CPPListHead* pList, ComponentTemplate*
     // just want to make sure these are the same on all compilers.  They should be since this is a simple class.
     MyAssert( offsetof( ComponentTemplate, m_SampleVector3 ) == MyOffsetOf( pThis, &pThis->m_SampleVector3 ) );
 
-    AddVariable( pList, "SampleFloat", ComponentVariableType_Vector3, MyOffsetOf( pThis, &pThis->m_SampleVector3 ), true, true, 0, ComponentTemplate::StaticOnValueChanged, ComponentTemplate::StaticOnDrop, 0 );
+    AddVariable( pList, "SampleFloat", ComponentVariableType_Vector3, MyOffsetOf( pThis, &pThis->m_SampleVector3 ), true, true, 0, (CVarFunc_ValueChanged)&ComponentTemplate::OnValueChanged, (CVarFunc_DropTarget)&ComponentTemplate::OnDrop, 0 );
 }
 
 void ComponentTemplate::Reset()
@@ -93,16 +93,16 @@ void* ComponentTemplate::OnDrop(ComponentVariable* pVar, wxCoord x, wxCoord y)
     return oldvalue;
 }
 
-void* ComponentTemplate::OnValueChanged(ComponentVariable* pVar, bool finishedchanging)
+void* ComponentTemplate::OnValueChanged(ComponentVariable* pVar, bool finishedchanging, double oldvalue)
 {
-    void* oldvalue = 0;
+    void* oldpointer = 0;
 
     if( pVar->m_Offset == MyOffsetOf( this, &m_SampleVector3 ) )
     {
         MyAssert( pVar->m_ControlID != -1 );
     }
 
-    return oldvalue;
+    return oldpointer;
 }
 #endif //MYFW_USING_WX
 

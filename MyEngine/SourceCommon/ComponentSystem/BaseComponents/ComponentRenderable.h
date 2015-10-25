@@ -63,11 +63,8 @@ public:
     virtual void FillPropertiesWindow(bool clear, bool addcomponentvariables = false);
 
     // Component variable callbacks. //_VARIABLE_LIST
-    //static void* StaticOnDrop(void* pObjectPtr, ComponentVariable* pVar, wxCoord x, wxCoord y) { return ((ComponentRenderable*)pObjectPtr)->OnDrop(pVar, x, y); }
     //void* OnDrop(ComponentVariable* pVar, wxCoord x, wxCoord y);
-
-    //static void* StaticOnValueChanged(void* pObjectPtr, ComponentVariable* pVar, bool finishedchanging, double oldvalue) { return ((ComponentRenderable*)pObjectPtr)->OnValueChanged( pVar, finishedchanging ); }
-    //void* OnValueChanged(ComponentVariable* pVar, bool finishedchanging);
+    //void* OnValueChanged(ComponentVariable* pVar, bool finishedchanging, double oldvalue);
 #endif //MYFW_USING_WX
 };
 

@@ -39,16 +39,16 @@ public:
     void SetMesh(MyMesh* pMesh);
 
     // Runtime component variable callbacks. //_VARIABLE_LIST
-    static void* StaticGetPointerValue(void* pObjectPtr, ComponentVariable* pVar) { return ((ComponentMeshOBJ*)pObjectPtr)->GetPointerValue(pVar); }
+    //static void* StaticGetPointerValue(void* pObjectPtr, ComponentVariable* pVar) { return ((ComponentMeshOBJ*)pObjectPtr)->GetPointerValue(pVar); }
     void* GetPointerValue(ComponentVariable* pVar);
 
-    static void StaticSetPointerValue(void* pObjectPtr, ComponentVariable* pVar, void* newvalue) { return ((ComponentMeshOBJ*)pObjectPtr)->SetPointerValue(pVar, newvalue); }
+    //static void StaticSetPointerValue(void* pObjectPtr, ComponentVariable* pVar, void* newvalue) { return ((ComponentMeshOBJ*)pObjectPtr)->SetPointerValue(pVar, newvalue); }
     void SetPointerValue(ComponentVariable* pVar, void* newvalue);
 
-    static const char* StaticGetPointerDesc(void* pObjectPtr, ComponentVariable* pVar) { return ((ComponentMeshOBJ*)pObjectPtr)->GetPointerDesc( pVar ); }
+    //static const char* StaticGetPointerDesc(void* pObjectPtr, ComponentVariable* pVar) { return ((ComponentMeshOBJ*)pObjectPtr)->GetPointerDesc( pVar ); }
     const char* GetPointerDesc(ComponentVariable* pVar);
 
-    static void StaticSetPointerDesc(void* pObjectPtr, ComponentVariable* pVar, const char* newdesc) { return ((ComponentMeshOBJ*)pObjectPtr)->SetPointerDesc( pVar, newdesc ); }
+    //static void StaticSetPointerDesc(void* pObjectPtr, ComponentVariable* pVar, const char* newdesc) { return ((ComponentMeshOBJ*)pObjectPtr)->SetPointerDesc( pVar, newdesc ); }
     void SetPointerDesc(ComponentVariable* pVar, const char* newdesc);
 
 public:
@@ -63,7 +63,6 @@ public:
     virtual void FillPropertiesWindow(bool clear, bool addcomponentvariables = false);
     
     // Component variable callbacks. //_VARIABLE_LIST
-    static void* StaticOnDropOBJ(void* pObjectPtr, ComponentVariable* pVar, wxCoord x, wxCoord y) { return ((ComponentMeshOBJ*)pObjectPtr)->OnDropOBJ(pVar, x, y); }
     void* OnDropOBJ(ComponentVariable* pVar, wxCoord x, wxCoord y);
 #endif //MYFW_USING_WX
 };

@@ -65,13 +65,13 @@ void ComponentMesh::RegisterVariables(CPPListHead* pList, ComponentMesh* pThis) 
         MyAssert( MAX_SUBMESHES == 4 );
         ComponentVariable* pVar = AddVariable( pList, g_MaterialLabels[i], ComponentVariableType_MaterialPtr,
                                                MyOffsetOf( pThis, &pThis->m_MaterialList[i] ), false, true, 
-                                               0, ComponentMesh::StaticOnValueChanged, ComponentMesh::StaticOnDropMaterial, 0 );
+                                               0, (CVarFunc_ValueChanged)&ComponentMesh::OnValueChanged, (CVarFunc_DropTarget)&ComponentMesh::OnDropMaterial, 0 );
 
-        pVar->AddCallback_ShouldVariableBeAdded( pThis, (ComponentVariableCallback_ShouldVariableBeAdded)(&ComponentMesh::ShouldVariableBeAddedToWatchPanel) );
+        pVar->AddCallback_ShouldVariableBeAdded( (CVarFunc_ShouldVariableBeAdded)(&ComponentMesh::ShouldVariableBeAddedToWatchPanel) );
     }
 
-    AddVariableEnum( pList, "PrimitiveType", MyOffsetOf( pThis, &pThis->m_GLPrimitiveType ),  true,  true, "Primitive Type", 7, OpenGLPrimitiveTypeStrings, ComponentMesh::StaticOnValueChanged, 0, 0 );
-    AddVariable( pList, "PointSize", ComponentVariableType_Int, MyOffsetOf( pThis, &pThis->m_PointSize ),  true,  true, "Point Size", ComponentMesh::StaticOnValueChanged, 0, 0 );
+    AddVariableEnum( pList, "PrimitiveType", MyOffsetOf( pThis, &pThis->m_GLPrimitiveType ),  true,  true, "Primitive Type", 7, OpenGLPrimitiveTypeStrings, (CVarFunc_ValueChanged)&ComponentMesh::OnValueChanged, 0, 0 );
+    AddVariable( pList, "PointSize", ComponentVariableType_Int, MyOffsetOf( pThis, &pThis->m_PointSize ),  true,  true, "Point Size", (CVarFunc_ValueChanged)&ComponentMesh::OnValueChanged, 0, 0 );
 }
 
 void ComponentMesh::Reset()
@@ -135,9 +135,9 @@ bool ComponentMesh::ShouldVariableBeAddedToWatchPanel(ComponentVariable* pVar)
     return true;
 }
 
-void* ComponentMesh::OnValueChanged(ComponentVariable* pVar, bool finishedchanging)
+void* ComponentMesh::OnValueChanged(ComponentVariable* pVar, bool finishedchanging, double oldvalue)
 {
-    void* oldvalue = 0;
+    void* oldpointer = 0;
 
     if( finishedchanging )
     {
@@ -157,7 +157,7 @@ void* ComponentMesh::OnValueChanged(ComponentVariable* pVar, bool finishedchangi
             {
                 g_pPanelWatch->ChangeDescriptionForPointerWithDescription( pVar->m_ControlID, "none" );
 
-                oldvalue = GetMaterial( materialthatchanged );
+                oldpointer = GetMaterial( materialthatchanged );
                 SetMaterial( 0, materialthatchanged );
             }
         }
@@ -168,7 +168,7 @@ void* ComponentMesh::OnValueChanged(ComponentVariable* pVar, bool finishedchangi
         }
     }
 
-    return oldvalue;
+    return oldpointer;
 }
 
 void* ComponentMesh::OnDropMaterial(ComponentVariable* pVar, wxCoord x, wxCoord y)
