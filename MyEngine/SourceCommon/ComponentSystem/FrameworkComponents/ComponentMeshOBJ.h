@@ -30,10 +30,18 @@ public:
     virtual void CopyFromSameType_Dangerous(ComponentBase* pObject) { *this = (ComponentMeshOBJ&)*pObject; }
     virtual ComponentMeshOBJ& operator=(const ComponentMeshOBJ& other);
 
-    virtual void RegisterCallbacks() {} // TODO: change this component to use callbacks.
-    virtual void UnregisterCallbacks() {} // TODO: change this component to use callbacks.
+    virtual void RegisterCallbacks();
+    virtual void UnregisterCallbacks();
 
-    virtual void Draw(MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride = 0, int drawcount = 0);
+protected:
+    // Callback functions for various events.
+    //MYFW_DECLARE_COMPONENT_CALLBACK_TICK( ComponentMeshOBJ ); // TickCallback
+    //MYFW_DECLARE_COMPONENT_CALLBACK_ONSURFACECHANGED( ComponentMeshOBJ ); // OnSurfaceChangedCallback
+    MYFW_DECLARE_COMPONENT_CALLBACK_DRAW( ComponentMeshOBJ ); // DrawCallback
+    //MYFW_DECLARE_COMPONENT_CALLBACK_ONTOUCH( ComponentMeshOBJ ); // OnTouchCallback
+    //MYFW_DECLARE_COMPONENT_CALLBACK_ONBUTTONS( ComponentMeshOBJ ); // OnButtonsCallback
+    //MYFW_DECLARE_COMPONENT_CALLBACK_ONKEYS( ComponentMeshOBJ ); // OnKeysCallback
+    //MYFW_DECLARE_COMPONENT_CALLBACK_ONFILERENAMED( ComponentMeshOBJ ); // OnFileRenamedCallback
 
 public:
     void SetMesh(MyMesh* pMesh);

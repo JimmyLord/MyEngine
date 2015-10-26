@@ -41,28 +41,18 @@ void ComponentMeshPrimitive::RegisterVariables(CPPListHead* pList, ComponentMesh
 {
     ComponentMesh::RegisterVariables( pList, pThis );
 
-    ComponentVariable* pVar = 0;
+    ComponentVariable* pVars[7];
 
-    pVar = AddVariableEnum( pList, "MPType", MyOffsetOf( pThis, &pThis->m_MeshPrimitiveType ), true, true, 0, ComponentMeshPrimitive_NumTypes, ComponentMeshPrimitiveTypeStrings, (CVarFunc_ValueChanged)&ComponentMeshPrimitive::OnValueChanged, 0, 0 );
-    pVar->AddCallback_ShouldVariableBeAdded( (CVarFunc_ShouldVariableBeAdded)(&ComponentMeshPrimitive::ShouldVariableBeAddedToWatchPanel) );
+    pVars[0] = AddVariableEnum( pList, "MPType", MyOffsetOf( pThis, &pThis->m_MeshPrimitiveType ), true, true, 0, ComponentMeshPrimitive_NumTypes, ComponentMeshPrimitiveTypeStrings, (CVarFunc_ValueChanged)&ComponentMeshPrimitive::OnValueChanged, 0, 0 );
+    pVars[1] = AddVariable( pList, "PlaneSize", ComponentVariableType_Vector2, MyOffsetOf( pThis, &pThis->m_Plane_Size ), true, true, "Size", (CVarFunc_ValueChanged)&ComponentMeshPrimitive::OnValueChanged, 0, 0 );
+    pVars[2] = AddVariable( pList, "PlaneVertCountx", ComponentVariableType_Int, MyOffsetOf( pThis, &pThis->m_Plane_VertCount.x ), true, true, "VertCount X", (CVarFunc_ValueChanged)&ComponentMeshPrimitive::OnValueChanged, 0, 0 );
+    pVars[3] = AddVariable( pList, "PlaneVertCounty", ComponentVariableType_Int, MyOffsetOf( pThis, &pThis->m_Plane_VertCount.y ), true, true, "VertCount Y", (CVarFunc_ValueChanged)&ComponentMeshPrimitive::OnValueChanged, 0, 0 );
+    pVars[4] = AddVariable( pList, "PlaneUVStart", ComponentVariableType_Vector2, MyOffsetOf( pThis, &pThis->m_Plane_UVStart ), true, true, "UVStart", (CVarFunc_ValueChanged)&ComponentMeshPrimitive::OnValueChanged, 0, 0 );
+    pVars[5] = AddVariable( pList, "PlaneUVRange", ComponentVariableType_Vector2, MyOffsetOf( pThis, &pThis->m_Plane_UVRange ), true, true, "UVRange", (CVarFunc_ValueChanged)&ComponentMeshPrimitive::OnValueChanged, 0, 0 );
+    pVars[6] = AddVariable( pList, "SphereRadius", ComponentVariableType_Float, MyOffsetOf( pThis, &pThis->m_Sphere_Radius ), true, true, "Radius", (CVarFunc_ValueChanged)&ComponentMeshPrimitive::OnValueChanged, 0, 0 );
 
-    pVar = AddVariable( pList, "PlaneSize", ComponentVariableType_Vector2, MyOffsetOf( pThis, &pThis->m_Plane_Size ), true, true, "Size", (CVarFunc_ValueChanged)&ComponentMeshPrimitive::OnValueChanged, 0, 0 );
-    pVar->AddCallback_ShouldVariableBeAdded( (CVarFunc_ShouldVariableBeAdded)(&ComponentMeshPrimitive::ShouldVariableBeAddedToWatchPanel) );
-
-    pVar = AddVariable( pList, "PlaneVertCountx", ComponentVariableType_Int, MyOffsetOf( pThis, &pThis->m_Plane_VertCount.x ), true, true, "VertCount X", (CVarFunc_ValueChanged)&ComponentMeshPrimitive::OnValueChanged, 0, 0 );
-    pVar->AddCallback_ShouldVariableBeAdded( (CVarFunc_ShouldVariableBeAdded)(&ComponentMeshPrimitive::ShouldVariableBeAddedToWatchPanel) );
-
-    pVar = AddVariable( pList, "PlaneVertCounty", ComponentVariableType_Int, MyOffsetOf( pThis, &pThis->m_Plane_VertCount.y ), true, true, "VertCount Y", (CVarFunc_ValueChanged)&ComponentMeshPrimitive::OnValueChanged, 0, 0 );
-    pVar->AddCallback_ShouldVariableBeAdded( (CVarFunc_ShouldVariableBeAdded)(&ComponentMeshPrimitive::ShouldVariableBeAddedToWatchPanel) );
-
-    pVar = AddVariable( pList, "PlaneUVStart", ComponentVariableType_Vector2, MyOffsetOf( pThis, &pThis->m_Plane_UVStart ), true, true, "UVStart", (CVarFunc_ValueChanged)&ComponentMeshPrimitive::OnValueChanged, 0, 0 );
-    pVar->AddCallback_ShouldVariableBeAdded( (CVarFunc_ShouldVariableBeAdded)(&ComponentMeshPrimitive::ShouldVariableBeAddedToWatchPanel) );
-
-    pVar = AddVariable( pList, "PlaneUVRange", ComponentVariableType_Vector2, MyOffsetOf( pThis, &pThis->m_Plane_UVRange ), true, true, "UVRange", (CVarFunc_ValueChanged)&ComponentMeshPrimitive::OnValueChanged, 0, 0 );
-    pVar->AddCallback_ShouldVariableBeAdded( (CVarFunc_ShouldVariableBeAdded)(&ComponentMeshPrimitive::ShouldVariableBeAddedToWatchPanel) );
-
-    pVar = AddVariable( pList, "SphereRadius", ComponentVariableType_Float, MyOffsetOf( pThis, &pThis->m_Sphere_Radius ), true, true, "Radius", (CVarFunc_ValueChanged)&ComponentMeshPrimitive::OnValueChanged, 0, 0 );
-    pVar->AddCallback_ShouldVariableBeAdded( (CVarFunc_ShouldVariableBeAdded)(&ComponentMeshPrimitive::ShouldVariableBeAddedToWatchPanel) );
+    for( int i=0; i<7; i++ )
+        pVars[i]->AddCallback_ShouldVariableBeAdded( (CVarFunc_ShouldVariableBeAdded)(&ComponentMeshPrimitive::ShouldVariableBeAddedToWatchPanel) );
 }
 
 void ComponentMeshPrimitive::Reset()
@@ -195,6 +185,38 @@ ComponentMeshPrimitive& ComponentMeshPrimitive::operator=(const ComponentMeshPri
     return *this;
 }
 
+void ComponentMeshPrimitive::RegisterCallbacks()
+{
+    if( m_Enabled && m_CallbacksRegistered == false )
+    {
+        m_CallbacksRegistered = true;
+
+        //MYFW_REGISTER_COMPONENT_CALLBACK( Tick );
+        //MYFW_REGISTER_COMPONENT_CALLBACK( OnSurfaceChanged );
+        MYFW_REGISTER_COMPONENT_CALLBACK( Draw );
+        //MYFW_REGISTER_COMPONENT_CALLBACK( OnTouch );
+        //MYFW_REGISTER_COMPONENT_CALLBACK( OnButtons );
+        //MYFW_REGISTER_COMPONENT_CALLBACK( OnKeys );
+        //MYFW_REGISTER_COMPONENT_CALLBACK( OnFileRenamed );
+    }
+}
+
+void ComponentMeshPrimitive::UnregisterCallbacks()
+{
+    if( m_CallbacksRegistered == true )
+    {
+        //MYFW_UNREGISTER_COMPONENT_CALLBACK( Tick );
+        //MYFW_UNREGISTER_COMPONENT_CALLBACK( OnSurfaceChanged );
+        MYFW_UNREGISTER_COMPONENT_CALLBACK( Draw );
+        //MYFW_UNREGISTER_COMPONENT_CALLBACK( OnTouch );
+        //MYFW_UNREGISTER_COMPONENT_CALLBACK( OnButtons );
+        //MYFW_UNREGISTER_COMPONENT_CALLBACK( OnKeys );
+        //MYFW_UNREGISTER_COMPONENT_CALLBACK( OnFileRenamed );
+
+        m_CallbacksRegistered = false;
+    }
+}
+
 void ComponentMeshPrimitive::CreatePrimitive()
 {
     if( m_MeshPrimitiveType < 0 || m_MeshPrimitiveType >= ComponentMeshPrimitive_NumTypes )
@@ -220,7 +242,7 @@ void ComponentMeshPrimitive::CreatePrimitive()
     }
 }
 
-void ComponentMeshPrimitive::Draw(MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride, int drawcount)
+void ComponentMeshPrimitive::DrawCallback(ComponentCamera* pCamera, MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride)
 {
-    ComponentMesh::Draw( pMatViewProj, pShaderOverride, drawcount );
+    ComponentMesh::DrawCallback( pCamera, pMatViewProj, pShaderOverride );
 }

@@ -44,6 +44,12 @@ void ComponentSprite::RegisterVariables(CPPListHead* pList, ComponentSprite* pTh
     AddVariablePointer( pList, "Material",                                                                 true,  true, 0, (CVarFunc_ValueChanged)&ComponentSprite::OnValueChanged, (CVarFunc_DropTarget)&ComponentSprite::OnDrop, 0, (CVarFunc_GetPointerValue)&ComponentSprite::GetPointerValue, (CVarFunc_SetPointerValue)&ComponentSprite::SetPointerValue, (CVarFunc_GetPointerDesc)&ComponentSprite::GetPointerDesc, (CVarFunc_SetPointerDesc)&ComponentSprite::SetPointerDesc );
 }
 
+ComponentSprite* CastAs_ComponentSprite(ComponentBase* pComponent)
+{
+    MyAssert( pComponent->IsA( "SpriteComponent" ) );
+    return (ComponentSprite*)pComponent;
+}
+
 void ComponentSprite::Reset()
 {
     ComponentRenderable::Reset();
@@ -57,6 +63,18 @@ void ComponentSprite::Reset()
 #if MYFW_USING_WX
     m_pPanelWatchBlockVisible = &m_PanelWatchBlockVisible;
 #endif //MYFW_USING_WX
+}
+
+void ComponentSprite::LuaRegister(lua_State* luastate)
+{
+    luabridge::getGlobalNamespace( luastate ).addFunction( "CastAs_ComponentSprite", CastAs_ComponentSprite );
+
+    luabridge::getGlobalNamespace( luastate )
+        .beginClass<ComponentSprite>( "ComponentSprite" )
+            //.addData( "localmatrix", &ComponentSprite::m_LocalTransform )
+            
+            .addFunction( "GetSprite", &ComponentSprite::GetSprite )
+        .endClass();
 }
 
 void* ComponentSprite::GetPointerValue(ComponentVariable* pVar) //_VARIABLE_LIST
@@ -191,56 +209,6 @@ void ComponentSprite::ImportFromJSONObject(cJSON* jsonobj, unsigned int sceneid)
     //ImportVariablesFromJSON( jsonobj ); //_VARIABLE_LIST
 }
 
-void ComponentSprite::RegisterCallbacks()
-{
-    if( m_Enabled && m_CallbacksRegistered == false )
-    {
-        m_CallbacksRegistered = true;
-
-        //MYFW_REGISTER_COMPONENT_CALLBACK( Tick );
-        //MYFW_REGISTER_COMPONENT_CALLBACK( OnSurfaceChanged );
-        //MYFW_REGISTER_COMPONENT_CALLBACK( Draw );
-        //MYFW_REGISTER_COMPONENT_CALLBACK( OnTouch );
-        //MYFW_REGISTER_COMPONENT_CALLBACK( OnButtons );
-        //MYFW_REGISTER_COMPONENT_CALLBACK( OnKeys );
-        //MYFW_REGISTER_COMPONENT_CALLBACK( OnFileRenamed );
-    }
-}
-
-void ComponentSprite::UnregisterCallbacks()
-{
-    if( m_CallbacksRegistered == true )
-    {
-        //MYFW_UNREGISTER_COMPONENT_CALLBACK( Tick );
-        //MYFW_UNREGISTER_COMPONENT_CALLBACK( OnSurfaceChanged );
-        //MYFW_UNREGISTER_COMPONENT_CALLBACK( Draw );
-        //MYFW_UNREGISTER_COMPONENT_CALLBACK( OnTouch );
-        //MYFW_UNREGISTER_COMPONENT_CALLBACK( OnButtons );
-        //MYFW_UNREGISTER_COMPONENT_CALLBACK( OnKeys );
-        //MYFW_UNREGISTER_COMPONENT_CALLBACK( OnFileRenamed );
-
-        m_CallbacksRegistered = false;
-    }
-}
-
-ComponentSprite* CastAs_ComponentSprite(ComponentBase* pComponent)
-{
-    MyAssert( pComponent->IsA( "SpriteComponent" ) );
-    return (ComponentSprite*)pComponent;
-}
-
-void ComponentSprite::LuaRegister(lua_State* luastate)
-{
-    luabridge::getGlobalNamespace( luastate ).addFunction( "CastAs_ComponentSprite", CastAs_ComponentSprite );
-
-    luabridge::getGlobalNamespace( luastate )
-        .beginClass<ComponentSprite>( "ComponentSprite" )
-            //.addData( "localmatrix", &ComponentSprite::m_LocalTransform )
-            
-            .addFunction( "GetSprite", &ComponentSprite::GetSprite )
-        .endClass();
-}
-
 ComponentSprite& ComponentSprite::operator=(const ComponentSprite& other)
 {
     MyAssert( &other != this );
@@ -255,6 +223,38 @@ ComponentSprite& ComponentSprite::operator=(const ComponentSprite& other)
     return *this;
 }
 
+void ComponentSprite::RegisterCallbacks()
+{
+    if( m_Enabled && m_CallbacksRegistered == false )
+    {
+        m_CallbacksRegistered = true;
+
+        //MYFW_REGISTER_COMPONENT_CALLBACK( Tick );
+        //MYFW_REGISTER_COMPONENT_CALLBACK( OnSurfaceChanged );
+        MYFW_REGISTER_COMPONENT_CALLBACK( Draw );
+        //MYFW_REGISTER_COMPONENT_CALLBACK( OnTouch );
+        //MYFW_REGISTER_COMPONENT_CALLBACK( OnButtons );
+        //MYFW_REGISTER_COMPONENT_CALLBACK( OnKeys );
+        //MYFW_REGISTER_COMPONENT_CALLBACK( OnFileRenamed );
+    }
+}
+
+void ComponentSprite::UnregisterCallbacks()
+{
+    if( m_CallbacksRegistered == true )
+    {
+        //MYFW_UNREGISTER_COMPONENT_CALLBACK( Tick );
+        //MYFW_UNREGISTER_COMPONENT_CALLBACK( OnSurfaceChanged );
+        MYFW_UNREGISTER_COMPONENT_CALLBACK( Draw );
+        //MYFW_UNREGISTER_COMPONENT_CALLBACK( OnTouch );
+        //MYFW_UNREGISTER_COMPONENT_CALLBACK( OnButtons );
+        //MYFW_UNREGISTER_COMPONENT_CALLBACK( OnKeys );
+        //MYFW_UNREGISTER_COMPONENT_CALLBACK( OnFileRenamed );
+
+        m_CallbacksRegistered = false;
+    }
+}
+
 void ComponentSprite::SetMaterial(MaterialDefinition* pMaterial, int submeshindex)
 {
     ComponentRenderable::SetMaterial( pMaterial, 0 );
@@ -262,10 +262,8 @@ void ComponentSprite::SetMaterial(MaterialDefinition* pMaterial, int submeshinde
     m_pSprite->SetMaterial( pMaterial );
 }
 
-void ComponentSprite::Draw(MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride, int drawcount)
+void ComponentSprite::DrawCallback(ComponentCamera* pCamera, MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride)
 {
-    ComponentRenderable::Draw( pMatViewProj, pShaderOverride, drawcount );
-
     m_pSprite->SetPosition( &m_pComponentTransform->m_Transform );
     m_pSprite->SetTint( m_Tint );
     m_pSprite->Create( "ComponentSprite", m_Size.x, m_Size.y, 0, 1, 0, 1, Justify_Center, false );

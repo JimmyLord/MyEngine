@@ -210,6 +210,12 @@ void ComponentParticleEmitter::RegisterCallbacks()
         m_CallbacksRegistered = true;
 
         MYFW_REGISTER_COMPONENT_CALLBACK( Tick );
+        //MYFW_REGISTER_COMPONENT_CALLBACK( OnSurfaceChanged );
+        MYFW_REGISTER_COMPONENT_CALLBACK( Draw );
+        //MYFW_REGISTER_COMPONENT_CALLBACK( OnTouch );
+        //MYFW_REGISTER_COMPONENT_CALLBACK( OnButtons );
+        //MYFW_REGISTER_COMPONENT_CALLBACK( OnKeys );
+        //MYFW_REGISTER_COMPONENT_CALLBACK( OnFileRenamed );
     }
 }
 
@@ -218,6 +224,12 @@ void ComponentParticleEmitter::UnregisterCallbacks()
     if( m_CallbacksRegistered == true )
     {
         MYFW_UNREGISTER_COMPONENT_CALLBACK( Tick );
+        //MYFW_UNREGISTER_COMPONENT_CALLBACK( OnSurfaceChanged );
+        MYFW_UNREGISTER_COMPONENT_CALLBACK( Draw );
+        //MYFW_UNREGISTER_COMPONENT_CALLBACK( OnTouch );
+        //MYFW_UNREGISTER_COMPONENT_CALLBACK( OnButtons );
+        //MYFW_UNREGISTER_COMPONENT_CALLBACK( OnKeys );
+        //MYFW_UNREGISTER_COMPONENT_CALLBACK( OnFileRenamed );
 
         m_CallbacksRegistered = false;
     }
@@ -322,9 +334,9 @@ void ComponentParticleEmitter::TickCallback(double TimePassed)
     }
 }
 
-void ComponentParticleEmitter::Draw(MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride, int drawcount)
+void ComponentParticleEmitter::DrawCallback(ComponentCamera* pCamera, MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride)
 {
-    ComponentRenderable::Draw( pMatViewProj, pShaderOverride, drawcount );
+    ComponentRenderable::Draw( pMatViewProj, pShaderOverride, 0 );
 
     if( m_pMaterial == 0 )
         return;

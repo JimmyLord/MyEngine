@@ -208,6 +208,38 @@ ComponentMeshOBJ& ComponentMeshOBJ::operator=(const ComponentMeshOBJ& other)
     return *this;
 }
 
+void ComponentMeshOBJ::RegisterCallbacks()
+{
+    if( m_Enabled && m_CallbacksRegistered == false )
+    {
+        m_CallbacksRegistered = true;
+
+        //MYFW_REGISTER_COMPONENT_CALLBACK( Tick );
+        //MYFW_REGISTER_COMPONENT_CALLBACK( OnSurfaceChanged );
+        MYFW_REGISTER_COMPONENT_CALLBACK( Draw );
+        //MYFW_REGISTER_COMPONENT_CALLBACK( OnTouch );
+        //MYFW_REGISTER_COMPONENT_CALLBACK( OnButtons );
+        //MYFW_REGISTER_COMPONENT_CALLBACK( OnKeys );
+        //MYFW_REGISTER_COMPONENT_CALLBACK( OnFileRenamed );
+    }
+}
+
+void ComponentMeshOBJ::UnregisterCallbacks()
+{
+    if( m_CallbacksRegistered == true )
+    {
+        //MYFW_UNREGISTER_COMPONENT_CALLBACK( Tick );
+        //MYFW_UNREGISTER_COMPONENT_CALLBACK( OnSurfaceChanged );
+        MYFW_UNREGISTER_COMPONENT_CALLBACK( Draw );
+        //MYFW_UNREGISTER_COMPONENT_CALLBACK( OnTouch );
+        //MYFW_UNREGISTER_COMPONENT_CALLBACK( OnButtons );
+        //MYFW_UNREGISTER_COMPONENT_CALLBACK( OnKeys );
+        //MYFW_UNREGISTER_COMPONENT_CALLBACK( OnFileRenamed );
+
+        m_CallbacksRegistered = false;
+    }
+}
+
 void ComponentMeshOBJ::SetMesh(MyMesh* pMesh)
 {
     if( pMesh )
@@ -248,7 +280,7 @@ void ComponentMeshOBJ::SetMesh(MyMesh* pMesh)
     }
 }
 
-void ComponentMeshOBJ::Draw(MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride, int drawcount)
+void ComponentMeshOBJ::DrawCallback(ComponentCamera* pCamera, MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride)
 {
-    ComponentMesh::Draw( pMatViewProj, pShaderOverride, drawcount );
+    ComponentMesh::DrawCallback( pCamera, pMatViewProj, pShaderOverride );
 }

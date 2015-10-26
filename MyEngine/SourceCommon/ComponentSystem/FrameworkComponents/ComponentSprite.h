@@ -42,7 +42,16 @@ public:
 
     virtual MaterialDefinition* GetMaterial(int submeshindex) { if( m_pSprite ) return m_pSprite->GetMaterial(); return 0; }
     virtual void SetMaterial(MaterialDefinition* pMaterial, int submeshindex);
-    virtual void Draw(MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride = 0, int drawcount = 0);
+
+protected:
+    // Callback functions for various events.
+    //MYFW_DECLARE_COMPONENT_CALLBACK_TICK( ComponentSprite ); // TickCallback
+    //MYFW_DECLARE_COMPONENT_CALLBACK_ONSURFACECHANGED( ComponentSprite ); // OnSurfaceChangedCallback
+    MYFW_DECLARE_COMPONENT_CALLBACK_DRAW( ComponentSprite ); // DrawCallback
+    //MYFW_DECLARE_COMPONENT_CALLBACK_ONTOUCH( ComponentSprite ); // OnTouchCallback
+    //MYFW_DECLARE_COMPONENT_CALLBACK_ONBUTTONS( ComponentSprite ); // OnButtonsCallback
+    //MYFW_DECLARE_COMPONENT_CALLBACK_ONKEYS( ComponentSprite ); // OnKeysCallback
+    //MYFW_DECLARE_COMPONENT_CALLBACK_ONFILERENAMED( ComponentSprite ); // OnFileRenamedCallback
 
 public:
     MySprite* GetSprite() { return m_pSprite; }

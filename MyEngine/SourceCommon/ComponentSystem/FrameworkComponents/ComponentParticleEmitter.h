@@ -76,9 +76,18 @@ public:
 
     virtual MaterialDefinition* GetMaterial(int submeshindex) { return m_pMaterial; }
     virtual void SetMaterial(MaterialDefinition* pMaterial, int submeshindex);
-    virtual void Draw(MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride = 0, int drawcount = 0);
 
     void CreateBurst(int number, Vector3 pos);
+
+protected:
+    // Callback functions for various events.
+    //MYFW_DECLARE_COMPONENT_CALLBACK_TICK( ComponentParticleEmitter ); // TickCallback
+    //MYFW_DECLARE_COMPONENT_CALLBACK_ONSURFACECHANGED( ComponentParticleEmitter ); // OnSurfaceChangedCallback
+    MYFW_DECLARE_COMPONENT_CALLBACK_DRAW( ComponentParticleEmitter ); // DrawCallback
+    //MYFW_DECLARE_COMPONENT_CALLBACK_ONTOUCH( ComponentParticleEmitter ); // OnTouchCallback
+    //MYFW_DECLARE_COMPONENT_CALLBACK_ONBUTTONS( ComponentParticleEmitter ); // OnButtonsCallback
+    //MYFW_DECLARE_COMPONENT_CALLBACK_ONKEYS( ComponentParticleEmitter ); // OnKeysCallback
+    //MYFW_DECLARE_COMPONENT_CALLBACK_ONFILERENAMED( ComponentParticleEmitter ); // OnFileRenamedCallback
 
 protected:
     // Callback functions for various events.

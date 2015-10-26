@@ -116,6 +116,18 @@ void ComponentRenderable::ImportFromJSONObject(cJSON* jsonobj, unsigned int scen
     //cJSONExt_GetUnsignedInt( jsonobj, "Layers", &m_LayersThisExistsOn );
 }
 
+ComponentRenderable& ComponentRenderable::operator=(const ComponentRenderable& other)
+{
+    MyAssert( &other != this );
+
+    ComponentBase::operator=( other );
+
+    this->m_Visible = other.m_Visible;
+    this->m_LayersThisExistsOn = other.m_LayersThisExistsOn;
+
+    return *this;
+}
+
 //void ComponentRenderable::RegisterCallbacks()
 //{
 //    if( m_Enabled && m_CallbacksRegistered == false )
@@ -147,18 +159,6 @@ void ComponentRenderable::ImportFromJSONObject(cJSON* jsonobj, unsigned int scen
 //        m_CallbacksRegistered = false;
 //    }
 //}
-
-ComponentRenderable& ComponentRenderable::operator=(const ComponentRenderable& other)
-{
-    MyAssert( &other != this );
-
-    ComponentBase::operator=( other );
-
-    this->m_Visible = other.m_Visible;
-    this->m_LayersThisExistsOn = other.m_LayersThisExistsOn;
-
-    return *this;
-}
 
 void ComponentRenderable::SetMaterial(MaterialDefinition* pMaterial, int submeshindex)
 {

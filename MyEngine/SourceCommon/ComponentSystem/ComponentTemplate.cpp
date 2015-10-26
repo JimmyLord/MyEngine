@@ -122,6 +122,18 @@ void* ComponentTemplate::OnValueChanged(ComponentVariable* pVar, bool finishedch
 //    //ImportVariablesFromJSON( jsonobj ); //_VARIABLE_LIST
 //}
 
+ComponentTemplate& ComponentTemplate::operator=(const ComponentTemplate& other)
+{
+    MyAssert( &other != this );
+
+    ComponentBase::operator=( other );
+
+    // TODO: replace this with a CopyComponentVariablesFromOtherObject... or something similar.
+    m_SampleVector3 = other.m_SampleVector3;
+
+    return *this;
+}
+
 void ComponentTemplate::RegisterCallbacks()
 {
     if( m_Enabled && m_CallbacksRegistered == false )
@@ -152,16 +164,4 @@ void ComponentTemplate::UnregisterCallbacks()
 
         m_CallbacksRegistered = false;
     }
-}
-
-ComponentTemplate& ComponentTemplate::operator=(const ComponentTemplate& other)
-{
-    MyAssert( &other != this );
-
-    ComponentBase::operator=( other );
-
-    // TODO: replace this with a CopyComponentVariablesFromOtherObject... or something similar.
-    m_SampleVector3 = other.m_SampleVector3;
-
-    return *this;
 }

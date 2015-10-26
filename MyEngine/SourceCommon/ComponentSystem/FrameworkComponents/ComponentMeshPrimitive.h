@@ -51,12 +51,20 @@ public:
     virtual void CopyFromSameType_Dangerous(ComponentBase* pObject) { *this = (ComponentMeshPrimitive&)*pObject; }
     virtual ComponentMeshPrimitive& operator=(const ComponentMeshPrimitive& other);
 
-    virtual void RegisterCallbacks() {} // TODO: change this component to use callbacks.
-    virtual void UnregisterCallbacks() {} // TODO: change this component to use callbacks.
+    virtual void RegisterCallbacks();
+    virtual void UnregisterCallbacks();
 
     void CreatePrimitive();
 
-    virtual void Draw(MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride = 0, int drawcount = 0);
+protected:
+    // Callback functions for various events.
+    //MYFW_DECLARE_COMPONENT_CALLBACK_TICK( ComponentMeshPrimitive ); // TickCallback
+    //MYFW_DECLARE_COMPONENT_CALLBACK_ONSURFACECHANGED( ComponentMeshPrimitive ); // OnSurfaceChangedCallback
+    MYFW_DECLARE_COMPONENT_CALLBACK_DRAW( ComponentMeshPrimitive ); // DrawCallback
+    //MYFW_DECLARE_COMPONENT_CALLBACK_ONTOUCH( ComponentMeshPrimitive ); // OnTouchCallback
+    //MYFW_DECLARE_COMPONENT_CALLBACK_ONBUTTONS( ComponentMeshPrimitive ); // OnButtonsCallback
+    //MYFW_DECLARE_COMPONENT_CALLBACK_ONKEYS( ComponentMeshPrimitive ); // OnKeysCallback
+    //MYFW_DECLARE_COMPONENT_CALLBACK_ONFILERENAMED( ComponentMeshPrimitive ); // OnFileRenamedCallback
 
 public:
 #if MYFW_USING_WX

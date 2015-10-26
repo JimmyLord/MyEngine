@@ -47,15 +47,6 @@ ComponentCollisionObject::~ComponentCollisionObject()
     SAFE_RELEASE( m_pMesh );
 }
 
-void ComponentCollisionObject::LuaRegister(lua_State* luastate)
-{
-    luabridge::getGlobalNamespace( luastate )
-        .beginClass<ComponentCollisionObject>( "ComponentCollisionObject" )
-            .addData( "mass", &ComponentCollisionObject::m_Mass )            
-            .addFunction( "ApplyForce", &ComponentCollisionObject::ApplyForce )
-        .endClass();
-}
-
 void ComponentCollisionObject::Reset()
 {
     ComponentUpdateable::Reset();
@@ -72,6 +63,15 @@ void ComponentCollisionObject::Reset()
 
     m_pComponentTransform->RegisterPositionChangedCallback( this, StaticOnTransformPositionChanged );
 #endif //MYFW_USING_WX
+}
+
+void ComponentCollisionObject::LuaRegister(lua_State* luastate)
+{
+    luabridge::getGlobalNamespace( luastate )
+        .beginClass<ComponentCollisionObject>( "ComponentCollisionObject" )
+            .addData( "mass", &ComponentCollisionObject::m_Mass )            
+            .addFunction( "ApplyForce", &ComponentCollisionObject::ApplyForce )
+        .endClass();
 }
 
 #if MYFW_USING_WX

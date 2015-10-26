@@ -295,6 +295,38 @@ ComponentMesh& ComponentMesh::operator=(const ComponentMesh& other)
     return *this;
 }
 
+void ComponentMesh::RegisterCallbacks()
+{
+    if( m_Enabled && m_CallbacksRegistered == false )
+    {
+        m_CallbacksRegistered = true;
+
+        //MYFW_REGISTER_COMPONENT_CALLBACK( Tick );
+        //MYFW_REGISTER_COMPONENT_CALLBACK( OnSurfaceChanged );
+        MYFW_REGISTER_COMPONENT_CALLBACK( Draw );
+        //MYFW_REGISTER_COMPONENT_CALLBACK( OnTouch );
+        //MYFW_REGISTER_COMPONENT_CALLBACK( OnButtons );
+        //MYFW_REGISTER_COMPONENT_CALLBACK( OnKeys );
+        //MYFW_REGISTER_COMPONENT_CALLBACK( OnFileRenamed );
+    }
+}
+
+void ComponentMesh::UnregisterCallbacks()
+{
+    if( m_CallbacksRegistered == true )
+    {
+        //MYFW_UNREGISTER_COMPONENT_CALLBACK( Tick );
+        //MYFW_UNREGISTER_COMPONENT_CALLBACK( OnSurfaceChanged );
+        MYFW_UNREGISTER_COMPONENT_CALLBACK( Draw );
+        //MYFW_UNREGISTER_COMPONENT_CALLBACK( OnTouch );
+        //MYFW_UNREGISTER_COMPONENT_CALLBACK( OnButtons );
+        //MYFW_UNREGISTER_COMPONENT_CALLBACK( OnKeys );
+        //MYFW_UNREGISTER_COMPONENT_CALLBACK( OnFileRenamed );
+
+        m_CallbacksRegistered = false;
+    }
+}
+
 void ComponentMesh::SetMaterial(MaterialDefinition* pMaterial, int submeshindex)
 {
     ComponentRenderable::SetMaterial( pMaterial, submeshindex );
@@ -307,9 +339,9 @@ void ComponentMesh::SetMaterial(MaterialDefinition* pMaterial, int submeshindex)
     m_MaterialList[submeshindex] = pMaterial;
 }
 
-void ComponentMesh::Draw(MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride, int drawcount)
+void ComponentMesh::DrawCallback(ComponentCamera* pCamera, MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride)
 {
-    ComponentRenderable::Draw( pMatViewProj, pShaderOverride, drawcount );
+    ComponentRenderable::Draw( pMatViewProj, pShaderOverride, 0 );
 
     if( m_pMesh )
     {

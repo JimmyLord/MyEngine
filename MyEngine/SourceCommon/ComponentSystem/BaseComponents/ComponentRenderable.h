@@ -42,7 +42,7 @@ public:
 
     virtual MaterialDefinition* GetMaterial(int submeshindex) { return 0; }
     virtual void SetMaterial(MaterialDefinition* pMaterial, int submeshindex);
-    virtual void Draw(MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride = 0, int drawcount = 0);
+    void Draw(MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride = 0, int drawcount = 0);
 
     void SetVisible(bool visible) { m_Visible = visible; }
     bool IsVisible();
