@@ -209,13 +209,13 @@ void ComponentParticleEmitter::RegisterCallbacks()
     {
         m_CallbacksRegistered = true;
 
-        MYFW_REGISTER_COMPONENT_CALLBACK( Tick );
-        //MYFW_REGISTER_COMPONENT_CALLBACK( OnSurfaceChanged );
-        MYFW_REGISTER_COMPONENT_CALLBACK( Draw );
-        //MYFW_REGISTER_COMPONENT_CALLBACK( OnTouch );
-        //MYFW_REGISTER_COMPONENT_CALLBACK( OnButtons );
-        //MYFW_REGISTER_COMPONENT_CALLBACK( OnKeys );
-        //MYFW_REGISTER_COMPONENT_CALLBACK( OnFileRenamed );
+        MYFW_REGISTER_COMPONENT_CALLBACK( ComponentParticleEmitter, Tick );
+        //MYFW_REGISTER_COMPONENT_CALLBACK( ComponentParticleEmitter, OnSurfaceChanged );
+        MYFW_REGISTER_COMPONENT_CALLBACK( ComponentParticleEmitter, Draw );
+        //MYFW_REGISTER_COMPONENT_CALLBACK( ComponentParticleEmitter, OnTouch );
+        //MYFW_REGISTER_COMPONENT_CALLBACK( ComponentParticleEmitter, OnButtons );
+        //MYFW_REGISTER_COMPONENT_CALLBACK( ComponentParticleEmitter, OnKeys );
+        //MYFW_REGISTER_COMPONENT_CALLBACK( ComponentParticleEmitter, OnFileRenamed );
     }
 }
 

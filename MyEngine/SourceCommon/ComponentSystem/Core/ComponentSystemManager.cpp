@@ -1246,7 +1246,7 @@ void ComponentSystemManager::Tick(double TimePassed)
         ComponentCallbackStruct_Tick* pCallbackStruct = (ComponentCallbackStruct_Tick*)pNode;
         MyAssert( pCallbackStruct->pFunc != 0 );
 
-        pCallbackStruct->pFunc( pCallbackStruct->pObj, TimePassed );
+        (pCallbackStruct->pObj->*pCallbackStruct->pFunc)( TimePassed );
     }
 
     // update all cameras after game objects are updated.
@@ -1290,7 +1290,7 @@ void ComponentSystemManager::OnSurfaceChanged(unsigned int startx, unsigned int 
     {
         ComponentCallbackStruct_OnSurfaceChanged* pCallbackStruct = (ComponentCallbackStruct_OnSurfaceChanged*)pNode;
 
-        pCallbackStruct->pFunc( pCallbackStruct->pObj, startx, starty, width, height, desiredaspectwidth, desiredaspectheight );
+        (pCallbackStruct->pObj->*pCallbackStruct->pFunc)( startx, starty, width, height, desiredaspectwidth, desiredaspectheight );
     }
 }
 
@@ -1329,8 +1329,17 @@ void ComponentSystemManager::OnDrawFrame(ComponentCamera* pCamera, MyMatrix* pMa
     for( CPPListNode* pNode = m_pComponentCallbackList_Draw.HeadNode.Next; pNode->Next; pNode = pNode->Next )
     {
         ComponentCallbackStruct_Draw* pCallbackStruct = (ComponentCallbackStruct_Draw*)pNode;
+        ComponentRenderable* pComponent = (ComponentRenderable*)pCallbackStruct->pObj;
 
-        pCallbackStruct->pFunc( pCallbackStruct->pObj, pCamera, pMatViewProj, pShaderOverride );
+        MyAssert( pComponent->m_BaseType == BaseComponentType_Renderable );
+
+        if( pComponent->ExistsOnLayer( pCamera->m_LayersToRender ) )
+        {
+            if( pComponent->IsVisible() )
+            {
+                (pCallbackStruct->pObj->*pCallbackStruct->pFunc)( pCamera, pMatViewProj, pShaderOverride );
+            }
+        }
     }
 }
 
@@ -1341,7 +1350,7 @@ void ComponentSystemManager::OnFileRenamed(const char* fullpathbefore, const cha
     {
         ComponentCallbackStruct_OnFileRenamed* pCallbackStruct = (ComponentCallbackStruct_OnFileRenamed*)pNode;
 
-        pCallbackStruct->pFunc( pCallbackStruct->pObj, fullpathbefore, fullpathafter );
+        (pCallbackStruct->pObj->*pCallbackStruct->pFunc)( fullpathbefore, fullpathafter );
     }
 }
 
@@ -1391,7 +1400,7 @@ void ComponentSystemManager::DrawMousePickerFrame(ComponentCamera* pCamera, MyMa
                     pShader->ProgramTint( tint );
 
                     //pComponent->Draw( pMatViewProj, pShaderOverride );
-                    pCallbackStruct->pFunc( pCallbackStruct->pObj, pCamera, pMatViewProj, pShaderOverride );
+                    (pCallbackStruct->pObj->*pCallbackStruct->pFunc)( pCamera, pMatViewProj, pShaderOverride );
                 }
             }
         }
@@ -1529,7 +1538,7 @@ bool ComponentSystemManager::OnTouch(int action, int id, float x, float y, float
     {
         ComponentCallbackStruct_OnTouch* pCallbackStruct = (ComponentCallbackStruct_OnTouch*)pNode;
 
-        if( pCallbackStruct->pFunc( pCallbackStruct->pObj, action, id, x, y, pressure, size ) )
+        if( (pCallbackStruct->pObj->*pCallbackStruct->pFunc)( action, id, x, y, pressure, size ) )
             return true;
     }
 
@@ -1567,7 +1576,7 @@ bool ComponentSystemManager::OnButtons(GameCoreButtonActions action, GameCoreBut
     {
         ComponentCallbackStruct_OnButtons* pCallbackStruct = (ComponentCallbackStruct_OnButtons*)pNode;
 
-        if( pCallbackStruct->pFunc( pCallbackStruct->pObj, action, id ) )
+        if( (pCallbackStruct->pObj->*pCallbackStruct->pFunc)( action, id ) )
             return true;
     }
 
@@ -1605,7 +1614,7 @@ bool ComponentSystemManager::OnKeys(GameCoreButtonActions action, int keycode, i
     {
         ComponentCallbackStruct_OnKeys* pCallbackStruct = (ComponentCallbackStruct_OnKeys*)pNode;
 
-        if( pCallbackStruct->pFunc( pCallbackStruct->pObj, action, keycode, unicodechar ) )
+        if( (pCallbackStruct->pObj->*pCallbackStruct->pFunc)( action, keycode, unicodechar ) )
             return true;
     }
 

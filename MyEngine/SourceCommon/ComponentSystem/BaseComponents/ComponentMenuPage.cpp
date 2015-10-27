@@ -186,13 +186,13 @@ void ComponentMenuPage::RegisterCallbacks()
     {
         m_CallbacksRegistered = true;
 
-        MYFW_REGISTER_COMPONENT_CALLBACK( Tick );
-        MYFW_REGISTER_COMPONENT_CALLBACK( OnSurfaceChanged );
-        MYFW_REGISTER_COMPONENT_CALLBACK( Draw );
-        MYFW_REGISTER_COMPONENT_CALLBACK( OnTouch );
-        MYFW_REGISTER_COMPONENT_CALLBACK( OnButtons );
-        MYFW_REGISTER_COMPONENT_CALLBACK( OnKeys );
-        MYFW_REGISTER_COMPONENT_CALLBACK( OnFileRenamed );
+        MYFW_REGISTER_COMPONENT_CALLBACK( ComponentMenuPage, Tick );
+        MYFW_REGISTER_COMPONENT_CALLBACK( ComponentMenuPage, OnSurfaceChanged );
+        MYFW_REGISTER_COMPONENT_CALLBACK( ComponentMenuPage, Draw );
+        MYFW_REGISTER_COMPONENT_CALLBACK( ComponentMenuPage, OnTouch );
+        MYFW_REGISTER_COMPONENT_CALLBACK( ComponentMenuPage, OnButtons );
+        MYFW_REGISTER_COMPONENT_CALLBACK( ComponentMenuPage, OnKeys );
+        MYFW_REGISTER_COMPONENT_CALLBACK( ComponentMenuPage, OnFileRenamed );
     }
 }
 

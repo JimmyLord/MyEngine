@@ -104,12 +104,13 @@ public:
 
 protected:
     // Callback functions for various events.
-    MYFW_DECLARE_COMPONENT_CALLBACK_TICK( ComponentLuaScript ); // TickCallback
-    //MYFW_DECLARE_COMPONENT_CALLBACK_ONSURFACECHANGED( ComponentLuaScript ); // OnSurfaceChangedCallback
-    //MYFW_DECLARE_COMPONENT_CALLBACK_DRAW( ComponentLuaScript ); // DrawCallback
-    MYFW_DECLARE_COMPONENT_CALLBACK_ONTOUCH( ComponentLuaScript ); // OnTouchCallback
-    MYFW_DECLARE_COMPONENT_CALLBACK_ONBUTTONS( ComponentLuaScript ); // OnButtonsCallback
-    //MYFW_DECLARE_COMPONENT_CALLBACK_ONKEYS( ComponentLuaScript ); // OnKeysCallback
+    MYFW_DECLARE_COMPONENT_CALLBACK_TICK(); // TickCallback
+    //MYFW_DECLARE_COMPONENT_CALLBACK_ONSURFACECHANGED(); // OnSurfaceChangedCallback
+    //MYFW_DECLARE_COMPONENT_CALLBACK_DRAW(); // DrawCallback
+    MYFW_DECLARE_COMPONENT_CALLBACK_ONTOUCH(); // OnTouchCallback
+    MYFW_DECLARE_COMPONENT_CALLBACK_ONBUTTONS(); // OnButtonsCallback
+    //MYFW_DECLARE_COMPONENT_CALLBACK_ONKEYS(); // OnKeysCallback
+    //MYFW_DECLARE_COMPONENT_CALLBACK_ONFILERENAMED(); // OnFileRenamedCallback
 
 public:
 #if MYFW_USING_WX

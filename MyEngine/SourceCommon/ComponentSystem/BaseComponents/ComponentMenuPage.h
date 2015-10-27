@@ -200,13 +200,13 @@ public:
 
 protected:
     // Callback functions for various events.
-    MYFW_DECLARE_COMPONENT_CALLBACK_TICK( ComponentMenuPage ); // TickCallback
-    MYFW_DECLARE_COMPONENT_CALLBACK_ONSURFACECHANGED( ComponentMenuPage ); // OnSurfaceChangedCallback
-    MYFW_DECLARE_COMPONENT_CALLBACK_DRAW( ComponentMenuPage ); // DrawCallback
-    MYFW_DECLARE_COMPONENT_CALLBACK_ONTOUCH( ComponentMenuPage ); // OnTouchCallback
-    MYFW_DECLARE_COMPONENT_CALLBACK_ONBUTTONS( ComponentMenuPage ); // OnButtonsCallback
-    MYFW_DECLARE_COMPONENT_CALLBACK_ONKEYS( ComponentMenuPage ); // OnKeysCallback
-    MYFW_DECLARE_COMPONENT_CALLBACK_ONFILERENAMED( ComponentMenuPage ); // OnFileRenamedCallback
+    MYFW_DECLARE_COMPONENT_CALLBACK_TICK(); // TickCallback
+    MYFW_DECLARE_COMPONENT_CALLBACK_ONSURFACECHANGED(); // OnSurfaceChangedCallback
+    MYFW_DECLARE_COMPONENT_CALLBACK_DRAW(); // DrawCallback
+    MYFW_DECLARE_COMPONENT_CALLBACK_ONTOUCH(); // OnTouchCallback
+    MYFW_DECLARE_COMPONENT_CALLBACK_ONBUTTONS(); // OnButtonsCallback
+    MYFW_DECLARE_COMPONENT_CALLBACK_ONKEYS(); // OnKeysCallback
+    MYFW_DECLARE_COMPONENT_CALLBACK_ONFILERENAMED(); // OnFileRenamedCallback
 
 public:
 #if MYFW_USING_WX

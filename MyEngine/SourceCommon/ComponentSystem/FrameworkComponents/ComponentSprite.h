@@ -45,13 +45,13 @@ public:
 
 protected:
     // Callback functions for various events.
-    //MYFW_DECLARE_COMPONENT_CALLBACK_TICK( ComponentSprite ); // TickCallback
-    //MYFW_DECLARE_COMPONENT_CALLBACK_ONSURFACECHANGED( ComponentSprite ); // OnSurfaceChangedCallback
-    MYFW_DECLARE_COMPONENT_CALLBACK_DRAW( ComponentSprite ); // DrawCallback
-    //MYFW_DECLARE_COMPONENT_CALLBACK_ONTOUCH( ComponentSprite ); // OnTouchCallback
-    //MYFW_DECLARE_COMPONENT_CALLBACK_ONBUTTONS( ComponentSprite ); // OnButtonsCallback
-    //MYFW_DECLARE_COMPONENT_CALLBACK_ONKEYS( ComponentSprite ); // OnKeysCallback
-    //MYFW_DECLARE_COMPONENT_CALLBACK_ONFILERENAMED( ComponentSprite ); // OnFileRenamedCallback
+    //MYFW_DECLARE_COMPONENT_CALLBACK_TICK(); // TickCallback
+    //MYFW_DECLARE_COMPONENT_CALLBACK_ONSURFACECHANGED(); // OnSurfaceChangedCallback
+    MYFW_DECLARE_COMPONENT_CALLBACK_DRAW(); // DrawCallback
+    //MYFW_DECLARE_COMPONENT_CALLBACK_ONTOUCH(); // OnTouchCallback
+    //MYFW_DECLARE_COMPONENT_CALLBACK_ONBUTTONS(); // OnButtonsCallback
+    //MYFW_DECLARE_COMPONENT_CALLBACK_ONKEYS(); // OnKeysCallback
+    //MYFW_DECLARE_COMPONENT_CALLBACK_ONFILERENAMED(); // OnFileRenamedCallback
 
 public:
     MySprite* GetSprite() { return m_pSprite; }

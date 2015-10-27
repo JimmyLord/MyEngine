@@ -214,13 +214,13 @@ void ComponentMeshOBJ::RegisterCallbacks()
     {
         m_CallbacksRegistered = true;
 
-        //MYFW_REGISTER_COMPONENT_CALLBACK( Tick );
-        //MYFW_REGISTER_COMPONENT_CALLBACK( OnSurfaceChanged );
-        MYFW_REGISTER_COMPONENT_CALLBACK( Draw );
-        //MYFW_REGISTER_COMPONENT_CALLBACK( OnTouch );
-        //MYFW_REGISTER_COMPONENT_CALLBACK( OnButtons );
-        //MYFW_REGISTER_COMPONENT_CALLBACK( OnKeys );
-        //MYFW_REGISTER_COMPONENT_CALLBACK( OnFileRenamed );
+        //MYFW_REGISTER_COMPONENT_CALLBACK( ComponentMeshOBJ, Tick );
+        //MYFW_REGISTER_COMPONENT_CALLBACK( ComponentMeshOBJ, OnSurfaceChanged );
+        MYFW_REGISTER_COMPONENT_CALLBACK( ComponentMeshOBJ, Draw );
+        //MYFW_REGISTER_COMPONENT_CALLBACK( ComponentMeshOBJ, OnTouch );
+        //MYFW_REGISTER_COMPONENT_CALLBACK( ComponentMeshOBJ, OnButtons );
+        //MYFW_REGISTER_COMPONENT_CALLBACK( ComponentMeshOBJ, OnKeys );
+        //MYFW_REGISTER_COMPONENT_CALLBACK( ComponentMeshOBJ, OnFileRenamed );
     }
 }
 

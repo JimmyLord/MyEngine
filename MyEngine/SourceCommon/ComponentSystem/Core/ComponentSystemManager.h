@@ -18,6 +18,8 @@ class ComponentCamera;
 class ComponentLight;
 class MyFileInfo; // at bottom of this file.
 
+//#include "../BaseComponents/ComponentBase.h"
+
 extern ComponentSystemManager* g_pComponentSystemManager;
 
 #if MYFW_USING_WX
@@ -33,8 +35,8 @@ struct FileUpdatedCallbackStruct
 #define MYFW_COMPONENTSYSTEMMANAGER_DEFINE_CALLBACK_STRUCT(CallbackType) \
     struct ComponentCallbackStruct_##CallbackType : public CPPListNode \
     { \
-        void* pObj; \
-        ComponentCallbackFunction_##CallbackType pFunc; \
+        ComponentBase* pObj; \
+        ComponentCallbackFunc_##CallbackType pFunc; \
     };
 
 // Callback registration function macros.
@@ -44,58 +46,51 @@ struct FileUpdatedCallbackStruct
     void UnregisterComponentCallback_##CallbackType(ComponentCallbackStruct_##CallbackType* pCallbackStruct);
 
 // Register/Unregister component callback macros - used by components.
-#define MYFW_REGISTER_COMPONENT_CALLBACK(CallbackType) \
+#define MYFW_REGISTER_COMPONENT_CALLBACK(ComponentClass, CallbackType) \
     m_CallbackStruct_##CallbackType.pObj = this; \
-    m_CallbackStruct_##CallbackType.pFunc = &StaticCallback_##CallbackType; \
+    m_CallbackStruct_##CallbackType.pFunc = (ComponentCallbackFunc_##CallbackType)&ComponentClass::CallbackType##Callback; \
     g_pComponentSystemManager->RegisterComponentCallback_##CallbackType( &m_CallbackStruct_##CallbackType );
 
 #define MYFW_UNREGISTER_COMPONENT_CALLBACK(CallbackType) \
     g_pComponentSystemManager->UnregisterComponentCallback_##CallbackType( &m_CallbackStruct_##CallbackType );
 
 // Declare callback objects/functions - used by components.
-#define MYFW_DECLARE_COMPONENT_CALLBACK_TICK(ComponentClass) \
+#define MYFW_DECLARE_COMPONENT_CALLBACK_TICK() \
     ComponentCallbackStruct_Tick m_CallbackStruct_Tick; \
-    static void StaticCallback_Tick(void* pObjectPtr, double TimePassed) { ((ComponentClass*)pObjectPtr)->TickCallback( TimePassed ); } \
     void TickCallback(double TimePassed);
 
-#define MYFW_DECLARE_COMPONENT_CALLBACK_ONSURFACECHANGED(ComponentClass) \
+#define MYFW_DECLARE_COMPONENT_CALLBACK_ONSURFACECHANGED() \
     ComponentCallbackStruct_OnSurfaceChanged m_CallbackStruct_OnSurfaceChanged; \
-    static void StaticCallback_OnSurfaceChanged(void* pObjectPtr, unsigned int startx, unsigned int starty, unsigned int width, unsigned int height, unsigned int desiredaspectwidth, unsigned int desiredaspectheight) { ((ComponentClass*)pObjectPtr)->OnSurfaceChangedCallback( startx, starty, width, height, desiredaspectwidth, desiredaspectheight ); } \
     void OnSurfaceChangedCallback(unsigned int startx, unsigned int starty, unsigned int width, unsigned int height, unsigned int desiredaspectwidth, unsigned int desiredaspectheight);
 
-#define MYFW_DECLARE_COMPONENT_CALLBACK_DRAW(ComponentClass) \
+#define MYFW_DECLARE_COMPONENT_CALLBACK_DRAW() \
     ComponentCallbackStruct_Draw m_CallbackStruct_Draw; \
-    static void StaticCallback_Draw(void* pObjectPtr, ComponentCamera* pCamera, MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride) { ((ComponentClass*)pObjectPtr)->DrawCallback( pCamera, pMatViewProj, pShaderOverride ); } \
     void DrawCallback(ComponentCamera* pCamera, MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride);
 
-#define MYFW_DECLARE_COMPONENT_CALLBACK_ONTOUCH(ComponentClass) \
+#define MYFW_DECLARE_COMPONENT_CALLBACK_ONTOUCH() \
     ComponentCallbackStruct_OnTouch m_CallbackStruct_OnTouch; \
-    static bool StaticCallback_OnTouch(void* pObjectPtr, int action, int id, float x, float y, float pressure, float size) { return ((ComponentClass*)pObjectPtr)->OnTouchCallback( action, id, x, y, pressure, size ); } \
     bool OnTouchCallback(int action, int id, float x, float y, float pressure, float size);
 
-#define MYFW_DECLARE_COMPONENT_CALLBACK_ONBUTTONS(ComponentClass) \
+#define MYFW_DECLARE_COMPONENT_CALLBACK_ONBUTTONS() \
     ComponentCallbackStruct_OnButtons m_CallbackStruct_OnButtons; \
-    static bool StaticCallback_OnButtons(void* pObjectPtr, GameCoreButtonActions action, GameCoreButtonIDs id) { return ((ComponentClass*)pObjectPtr)->OnButtonsCallback( action, id ); } \
     bool OnButtonsCallback(GameCoreButtonActions action, GameCoreButtonIDs id);
 
-#define MYFW_DECLARE_COMPONENT_CALLBACK_ONKEYS(ComponentClass) \
+#define MYFW_DECLARE_COMPONENT_CALLBACK_ONKEYS() \
     ComponentCallbackStruct_OnKeys m_CallbackStruct_OnKeys; \
-    static bool StaticCallback_OnKeys(void* pObjectPtr, GameCoreButtonActions action, int keycode, int unicodechar) { return ((ComponentClass*)pObjectPtr)->OnKeysCallback( action, keycode, unicodechar ); } \
     bool OnKeysCallback(GameCoreButtonActions action, int keycode, int unicodechar);
 
-#define MYFW_DECLARE_COMPONENT_CALLBACK_ONFILERENAMED(ComponentClass) \
+#define MYFW_DECLARE_COMPONENT_CALLBACK_ONFILERENAMED() \
     ComponentCallbackStruct_OnFileRenamed m_CallbackStruct_OnFileRenamed; \
-    static void StaticCallback_OnFileRenamed(void* pObjectPtr, const char* fullpathbefore, const char* fullpathafter) { ((ComponentClass*)pObjectPtr)->OnFileRenamedCallback( fullpathbefore, fullpathafter ); } \
     void OnFileRenamedCallback(const char* fullpathbefore, const char* fullpathafter);
 
 // Callback function prototypes and structs.
-typedef void (*ComponentCallbackFunction_Tick)(void* obj, double TimePassed);
-typedef void (*ComponentCallbackFunction_OnSurfaceChanged)(void* obj, unsigned int startx, unsigned int starty, unsigned int width, unsigned int height, unsigned int desiredaspectwidth, unsigned int desiredaspectheight);
-typedef void (*ComponentCallbackFunction_Draw)(void* obj, ComponentCamera* pCamera, MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride);
-typedef bool (*ComponentCallbackFunction_OnTouch)(void* obj, int action, int id, float x, float y, float pressure, float size);
-typedef bool (*ComponentCallbackFunction_OnButtons)(void* obj, GameCoreButtonActions action, GameCoreButtonIDs id);
-typedef bool (*ComponentCallbackFunction_OnKeys)(void* obj, GameCoreButtonActions action, int keycode, int unicodechar);
-typedef void (*ComponentCallbackFunction_OnFileRenamed)(void* obj, const char* fullpathbefore, const char* fullpathafter);
+typedef void (ComponentBase::*ComponentCallbackFunc_Tick)(double TimePassed);
+typedef void (ComponentBase::*ComponentCallbackFunc_OnSurfaceChanged)(unsigned int startx, unsigned int starty, unsigned int width, unsigned int height, unsigned int desiredaspectwidth, unsigned int desiredaspectheight);
+typedef void (ComponentBase::*ComponentCallbackFunc_Draw)(ComponentCamera* pCamera, MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride);
+typedef bool (ComponentBase::*ComponentCallbackFunc_OnTouch)(int action, int id, float x, float y, float pressure, float size);
+typedef bool (ComponentBase::*ComponentCallbackFunc_OnButtons)(GameCoreButtonActions action, GameCoreButtonIDs id);
+typedef bool (ComponentBase::*ComponentCallbackFunc_OnKeys)(GameCoreButtonActions action, int keycode, int unicodechar);
+typedef void (ComponentBase::*ComponentCallbackFunc_OnFileRenamed)(const char* fullpathbefore, const char* fullpathafter);
 
 MYFW_COMPONENTSYSTEMMANAGER_DEFINE_CALLBACK_STRUCT( Tick );
 MYFW_COMPONENTSYSTEMMANAGER_DEFINE_CALLBACK_STRUCT( OnSurfaceChanged );

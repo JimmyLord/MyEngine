@@ -128,7 +128,7 @@ public:
 #define MYFW_COMPONENT_DECLARE_VARIABLE_LIST(ComponentName) \
     static CPPListHead m_ComponentVariableList_##ComponentName; /* ComponentVariable type */ \
     static int m_ComponentVariableListRefCount_##ComponentName; \
-    static void RegisterVariables(CPPListHead* pList, ##ComponentName* pThis); \
+    static void RegisterVariables(CPPListHead* pList, ComponentName* pThis); \
     static void ClearAllVariables() { m_ComponentVariableListRefCount_##ComponentName--; if( m_ComponentVariableListRefCount_##ComponentName == 0 ) ClearAllVariables_Base( &m_ComponentVariableList_##ComponentName ); } \
     static ComponentVariable* AddVariable(CPPListHead* pList, const char* label, ComponentVariableTypes type, size_t offset, bool saveload, bool displayinwatch, const char* watchlabel, CVarFunc_ValueChanged pOnValueChangedCallBackFunc, CVarFunc_DropTarget pOnDropCallBackFunc, CVarFunc pOnButtonPressedCallBackFunc) \
     { return AddVariable_Base( pList, label, type, offset, saveload, displayinwatch, watchlabel, pOnValueChangedCallBackFunc, pOnDropCallBackFunc, pOnButtonPressedCallBackFunc ); } \
@@ -162,6 +162,11 @@ public:
     ComponentVariable* pVar;
 
 public:
+    ComponentBaseEventHandlerForComponentVariables()
+    {
+        pComponent = 0;
+        pVar = 0;
+    };
     void OnPopupClick(wxEvent &evt);
 };
 #endif

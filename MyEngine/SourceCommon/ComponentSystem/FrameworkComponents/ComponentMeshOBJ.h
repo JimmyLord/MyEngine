@@ -35,13 +35,13 @@ public:
 
 protected:
     // Callback functions for various events.
-    //MYFW_DECLARE_COMPONENT_CALLBACK_TICK( ComponentMeshOBJ ); // TickCallback
-    //MYFW_DECLARE_COMPONENT_CALLBACK_ONSURFACECHANGED( ComponentMeshOBJ ); // OnSurfaceChangedCallback
-    MYFW_DECLARE_COMPONENT_CALLBACK_DRAW( ComponentMeshOBJ ); // DrawCallback
-    //MYFW_DECLARE_COMPONENT_CALLBACK_ONTOUCH( ComponentMeshOBJ ); // OnTouchCallback
-    //MYFW_DECLARE_COMPONENT_CALLBACK_ONBUTTONS( ComponentMeshOBJ ); // OnButtonsCallback
-    //MYFW_DECLARE_COMPONENT_CALLBACK_ONKEYS( ComponentMeshOBJ ); // OnKeysCallback
-    //MYFW_DECLARE_COMPONENT_CALLBACK_ONFILERENAMED( ComponentMeshOBJ ); // OnFileRenamedCallback
+    //MYFW_DECLARE_COMPONENT_CALLBACK_TICK(); // TickCallback
+    //MYFW_DECLARE_COMPONENT_CALLBACK_ONSURFACECHANGED(); // OnSurfaceChangedCallback
+    MYFW_DECLARE_COMPONENT_CALLBACK_DRAW(); // DrawCallback
+    //MYFW_DECLARE_COMPONENT_CALLBACK_ONTOUCH(); // OnTouchCallback
+    //MYFW_DECLARE_COMPONENT_CALLBACK_ONBUTTONS(); // OnButtonsCallback
+    //MYFW_DECLARE_COMPONENT_CALLBACK_ONKEYS(); // OnKeysCallback
+    //MYFW_DECLARE_COMPONENT_CALLBACK_ONFILERENAMED(); // OnFileRenamedCallback
 
 public:
     void SetMesh(MyMesh* pMesh);

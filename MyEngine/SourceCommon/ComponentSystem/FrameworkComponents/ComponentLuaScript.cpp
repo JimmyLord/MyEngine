@@ -616,12 +616,12 @@ void ComponentLuaScript::RegisterCallbacks()
     {
         m_CallbacksRegistered = true;
 
-        MYFW_REGISTER_COMPONENT_CALLBACK( Tick );
-        //MYFW_REGISTER_COMPONENT_CALLBACK( OnSurfaceChanged );
-        //MYFW_REGISTER_COMPONENT_CALLBACK( Draw );
-        MYFW_REGISTER_COMPONENT_CALLBACK( OnTouch );
-        MYFW_REGISTER_COMPONENT_CALLBACK( OnButtons );
-        //MYFW_REGISTER_COMPONENT_CALLBACK( OnKeys );
+        MYFW_REGISTER_COMPONENT_CALLBACK( ComponentLuaScript, Tick );
+        //MYFW_REGISTER_COMPONENT_CALLBACK( ComponentLuaScript, OnSurfaceChanged );
+        //MYFW_REGISTER_COMPONENT_CALLBACK( ComponentLuaScript, Draw );
+        MYFW_REGISTER_COMPONENT_CALLBACK( ComponentLuaScript, OnTouch );
+        MYFW_REGISTER_COMPONENT_CALLBACK( ComponentLuaScript, OnButtons );
+        //MYFW_REGISTER_COMPONENT_CALLBACK( ComponentLuaScript, OnKeys );
     }
 }
 

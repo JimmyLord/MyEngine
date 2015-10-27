@@ -58,13 +58,13 @@ public:
 
 protected:
     // Callback functions for various events.
-    //MYFW_DECLARE_COMPONENT_CALLBACK_TICK( ComponentMeshPrimitive ); // TickCallback
-    //MYFW_DECLARE_COMPONENT_CALLBACK_ONSURFACECHANGED( ComponentMeshPrimitive ); // OnSurfaceChangedCallback
-    MYFW_DECLARE_COMPONENT_CALLBACK_DRAW( ComponentMeshPrimitive ); // DrawCallback
-    //MYFW_DECLARE_COMPONENT_CALLBACK_ONTOUCH( ComponentMeshPrimitive ); // OnTouchCallback
-    //MYFW_DECLARE_COMPONENT_CALLBACK_ONBUTTONS( ComponentMeshPrimitive ); // OnButtonsCallback
-    //MYFW_DECLARE_COMPONENT_CALLBACK_ONKEYS( ComponentMeshPrimitive ); // OnKeysCallback
-    //MYFW_DECLARE_COMPONENT_CALLBACK_ONFILERENAMED( ComponentMeshPrimitive ); // OnFileRenamedCallback
+    //MYFW_DECLARE_COMPONENT_CALLBACK_TICK(); // TickCallback
+    //MYFW_DECLARE_COMPONENT_CALLBACK_ONSURFACECHANGED(); // OnSurfaceChangedCallback
+    MYFW_DECLARE_COMPONENT_CALLBACK_DRAW(); // DrawCallback
+    //MYFW_DECLARE_COMPONENT_CALLBACK_ONTOUCH(); // OnTouchCallback
+    //MYFW_DECLARE_COMPONENT_CALLBACK_ONBUTTONS(); // OnButtonsCallback
+    //MYFW_DECLARE_COMPONENT_CALLBACK_ONKEYS(); // OnKeysCallback
+    //MYFW_DECLARE_COMPONENT_CALLBACK_ONFILERENAMED(); // OnFileRenamedCallback
 
 public:
 #if MYFW_USING_WX
