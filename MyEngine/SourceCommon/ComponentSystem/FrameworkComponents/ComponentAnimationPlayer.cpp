@@ -67,11 +67,11 @@ void ComponentAnimationPlayer::OnLeftClick(unsigned int count, bool clear)
     ComponentBase::OnLeftClick( count, clear );
 }
 
-void ComponentAnimationPlayer::FillPropertiesWindow(bool clear, bool addcomponentvariables)
+void ComponentAnimationPlayer::FillPropertiesWindow(bool clear, bool addcomponentvariables, bool ignoreblockvisibleflag)
 {
     m_ControlID_ComponentTitleLabel = g_pPanelWatch->AddSpace( "Animation Player", this, ComponentBase::StaticOnComponentTitleLabelClicked );
 
-    if( m_PanelWatchBlockVisible )
+    if( m_PanelWatchBlockVisible && ignoreblockvisibleflag == false )
     {
         ComponentUpdateable::FillPropertiesWindow( clear );
 

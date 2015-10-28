@@ -39,11 +39,11 @@ void ComponentInputHandler::OnLeftClick(unsigned int count, bool clear)
     ComponentBase::OnLeftClick( count, clear );
 }
 
-void ComponentInputHandler::FillPropertiesWindow(bool clear, bool addcomponentvariables)
+void ComponentInputHandler::FillPropertiesWindow(bool clear, bool addcomponentvariables, bool ignoreblockvisibleflag)
 {
     //m_ControlID_ComponentTitleLabel = g_pPanelWatch->AddSpace( "Input Handler", this, ComponentBase::StaticOnComponentTitleLabelClicked );
 
-    if( m_PanelWatchBlockVisible )
+    if( m_PanelWatchBlockVisible && ignoreblockvisibleflag == false )
     {
         ComponentBase::FillPropertiesWindow( clear );
     }

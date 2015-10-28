@@ -88,11 +88,11 @@ void ComponentMeshPrimitive::OnLeftClick(unsigned int count, bool clear)
     ComponentMesh::OnLeftClick( count, clear );
 }
 
-void ComponentMeshPrimitive::FillPropertiesWindow(bool clear, bool addcomponentvariables)
+void ComponentMeshPrimitive::FillPropertiesWindow(bool clear, bool addcomponentvariables, bool ignoreblockvisibleflag)
 {
     m_ControlID_ComponentTitleLabel = g_pPanelWatch->AddSpace( "Mesh Primitive", this, ComponentBase::StaticOnComponentTitleLabelClicked );
 
-    if( m_PanelWatchBlockVisible )
+    if( m_PanelWatchBlockVisible && ignoreblockvisibleflag == false )
     {
         ComponentMesh::FillPropertiesWindow( clear );
 

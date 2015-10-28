@@ -201,13 +201,13 @@ void ComponentLuaScript::OnLeftClick(unsigned int count, bool clear)
     ComponentBase::OnLeftClick( count, clear );
 }
 
-void ComponentLuaScript::FillPropertiesWindow(bool clear, bool addcomponentvariables)
+void ComponentLuaScript::FillPropertiesWindow(bool clear, bool addcomponentvariables, bool ignoreblockvisibleflag)
 {
     m_ControlID_ComponentTitleLabel = g_pPanelWatch->AddSpace( "Lua Script", this, ComponentBase::StaticOnComponentTitleLabelClicked );
 
     m_ControlIDOfFirstExtern = -1;
 
-    if( m_PanelWatchBlockVisible )
+    if( m_PanelWatchBlockVisible && ignoreblockvisibleflag == false )
     {
         ComponentBase::FillPropertiesWindow( clear );
 

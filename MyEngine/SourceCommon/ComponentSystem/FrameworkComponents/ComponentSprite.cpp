@@ -139,11 +139,11 @@ void ComponentSprite::OnLeftClick(unsigned int count, bool clear)
     ComponentRenderable::OnLeftClick( count, clear );
 }
 
-void ComponentSprite::FillPropertiesWindow(bool clear, bool addcomponentvariables)
+void ComponentSprite::FillPropertiesWindow(bool clear, bool addcomponentvariables, bool ignoreblockvisibleflag)
 {
     m_ControlID_ComponentTitleLabel = g_pPanelWatch->AddSpace( "Sprite", this, ComponentBase::StaticOnComponentTitleLabelClicked );
 
-    if( m_PanelWatchBlockVisible )
+    if( m_PanelWatchBlockVisible && ignoreblockvisibleflag == false )
     {
         ComponentRenderable::FillPropertiesWindow( clear );
 

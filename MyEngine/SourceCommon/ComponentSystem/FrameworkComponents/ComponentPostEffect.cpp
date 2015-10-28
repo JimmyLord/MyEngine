@@ -41,11 +41,11 @@ void ComponentPostEffect::OnLeftClick(unsigned int count, bool clear)
     ComponentData::OnLeftClick( count, clear );
 }
 
-void ComponentPostEffect::FillPropertiesWindow(bool clear, bool addcomponentvariables)
+void ComponentPostEffect::FillPropertiesWindow(bool clear, bool addcomponentvariables, bool ignoreblockvisibleflag)
 {
     m_ControlID_ComponentTitleLabel = g_pPanelWatch->AddSpace( "Post Effect", this, ComponentData::StaticOnComponentTitleLabelClicked );
 
-    if( m_PanelWatchBlockVisible )
+    if( m_PanelWatchBlockVisible && ignoreblockvisibleflag == false )
     {
         ComponentData::FillPropertiesWindow( clear );
 

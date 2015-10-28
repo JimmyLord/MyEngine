@@ -1234,7 +1234,7 @@ void ComponentBase::OnLeftClick(unsigned int count, bool clear)
     if( clear )
         g_pPanelWatch->ClearAllVariables();
 
-    FillPropertiesWindow( clear );
+    FillPropertiesWindow( clear, true, true );
 }
 
 void ComponentBase::OnRightClick()

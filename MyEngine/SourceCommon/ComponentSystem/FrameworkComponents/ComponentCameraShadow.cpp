@@ -41,11 +41,11 @@ void ComponentCameraShadow::OnLeftClick(unsigned int count, bool clear)
     ComponentCamera::OnLeftClick( count, clear );
 }
 
-void ComponentCameraShadow::FillPropertiesWindow(bool clear, bool addcomponentvariables)
+void ComponentCameraShadow::FillPropertiesWindow(bool clear, bool addcomponentvariables, bool ignoreblockvisibleflag)
 {
     m_ControlID_ComponentTitleLabel = g_pPanelWatch->AddSpace( "CameraShadow", this, ComponentCamera::StaticOnComponentTitleLabelClicked );
 
-    if( m_PanelWatchBlockVisible )
+    if( m_PanelWatchBlockVisible && ignoreblockvisibleflag == false )
     {
         ComponentCamera::FillPropertiesWindow( clear );
     }

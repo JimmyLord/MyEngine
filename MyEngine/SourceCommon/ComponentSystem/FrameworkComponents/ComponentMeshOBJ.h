@@ -68,7 +68,7 @@ public:
     // Object panel callbacks.
     static void StaticOnLeftClick(void* pObjectPtr, wxTreeItemId id, unsigned int count) { ((ComponentMeshOBJ*)pObjectPtr)->OnLeftClick( count, true ); }
     void OnLeftClick(unsigned int count, bool clear);
-    virtual void FillPropertiesWindow(bool clear, bool addcomponentvariables = false);
+    virtual void FillPropertiesWindow(bool clear, bool addcomponentvariables = false, bool ignoreblockvisibleflag = false);
     
     // Component variable callbacks. //_VARIABLE_LIST
     void* OnDropOBJ(ComponentVariable* pVar, wxCoord x, wxCoord y);
