@@ -42,11 +42,6 @@ GameObject::~GameObject()
     if( this->Prev != 0 )
         Remove();
 
-    m_pComponentTransform->SetEnabled( false );
-    SAFE_DELETE( m_pComponentTransform );
-
-    SAFE_DELETE_ARRAY( m_Name );
-
     // if this object is managed, the ComponentSystemManager will delete the components.
     if( m_Managed == false )
     {
@@ -60,6 +55,11 @@ GameObject::~GameObject()
 
     if( m_Managed )
         SetManaged( false );
+
+    m_pComponentTransform->SetEnabled( false );
+    SAFE_DELETE( m_pComponentTransform );
+
+    SAFE_DELETE_ARRAY( m_Name );
 }
 
 void GameObject::LuaRegister(lua_State* luastate)

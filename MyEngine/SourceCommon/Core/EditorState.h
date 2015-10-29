@@ -72,7 +72,7 @@ public:
 
     ComponentCamera* GetEditorCamera();
 
-    void ClearEditorState();
+    void ClearEditorState(bool clearselectedobjectandcomponents = true);
 
     void OnSurfaceChanged(unsigned int startx, unsigned int starty, unsigned int width, unsigned int height);
 

@@ -986,11 +986,26 @@ void ComponentSystemManager::ManageGameObject(GameObject* pObject)
 
 void ComponentSystemManager::DeleteGameObject(GameObject* pObject, bool deletecomponents)
 {
+#if MYFW_USING_WX
+    if( g_pEngineCore->m_pEditorState->IsGameObjectSelected( pObject ) )
+    {
+        g_pEngineCore->m_pEditorState->ClearSelectedObjectsAndComponents();
+    }
+#endif
+
     if( deletecomponents )
     {
         while( pObject->m_Components.Count() )
         {
             ComponentBase* pComponent = pObject->m_Components.RemoveIndex( 0 );
+
+#if MYFW_USING_WX
+            if( g_pEngineCore->m_pEditorState->IsComponentSelected( pComponent ) )
+            {
+                g_pEngineCore->m_pEditorState->ClearSelectedObjectsAndComponents();
+            }
+#endif
+
             pComponent->SetEnabled( false );
             delete pComponent;
         }

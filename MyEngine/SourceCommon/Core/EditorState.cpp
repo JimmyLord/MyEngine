@@ -56,10 +56,13 @@ ComponentCamera* EditorState::GetEditorCamera()
     return (ComponentCamera*)m_pEditorCamera->GetFirstComponentOfBaseType( BaseComponentType_Camera );
 }
 
-void EditorState::ClearEditorState()
+void EditorState::ClearEditorState(bool clearselectedobjectandcomponents)
 {
-    m_pSelectedObjects.clear();
-    m_pSelectedComponents.clear();
+    if( clearselectedobjectandcomponents )
+    {
+        m_pSelectedObjects.clear();
+        m_pSelectedComponents.clear();
+    }
 
     ClearConstraint();
 }

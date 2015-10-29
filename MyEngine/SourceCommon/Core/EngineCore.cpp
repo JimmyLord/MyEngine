@@ -683,7 +683,7 @@ void EngineCore::OnModeStop()
 #if MYFW_USING_WX
         g_pEngineMainFrame->SetWindowPerspectiveToDefault();
         m_pEditorState->ClearKeyAndActionStates();
-        m_pEditorState->ClearSelectedObjectsAndComponents();
+        //m_pEditorState->ClearSelectedObjectsAndComponents();
 #endif
 
         m_pComponentSystemManager->SyncAllRigidBodiesToObjectTransforms();
@@ -1510,7 +1510,7 @@ void EngineCore::UnloadScene(unsigned int sceneid, bool cleareditorobjects)
         g_pEngineMainFrame->m_pCommandStack->ClearStacks();
         g_pEngineMainFrame->m_StackDepthAtLastSave = 0;
     }
-    m_pEditorState->ClearEditorState();
+    m_pEditorState->ClearEditorState( false );
 #endif //MYFW_USING_WX
 
     g_pComponentSystemManager->UnloadScene( sceneid, false );
@@ -1626,7 +1626,7 @@ void EngineCore::LoadScene(const char* scenename, const char* buffer, unsigned i
 {
     // reset the editorstate structure.
 #if MYFW_USING_WX
-    m_pEditorState->ClearEditorState();
+    m_pEditorState->ClearEditorState( false );
 #endif //MYFW_USING_WX
 
     m_pLuaGameState->Rebuild(); // reset the lua state.
