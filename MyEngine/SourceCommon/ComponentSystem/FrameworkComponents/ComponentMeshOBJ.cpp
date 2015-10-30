@@ -35,7 +35,7 @@ void ComponentMeshOBJ::RegisterVariables(CPPListHead* pList, ComponentMeshOBJ* p
 {
     ComponentMesh::RegisterVariables( pList, pThis );
 
-    AddVariablePointer( pList, "OBJ", true, true, "File", 0, (CVarFunc_DropTarget)&ComponentMeshOBJ::OnDropOBJ, 0, (CVarFunc_GetPointerValue)&ComponentMeshOBJ::GetPointerValue, (CVarFunc_SetPointerValue)&ComponentMeshOBJ::SetPointerValue, (CVarFunc_GetPointerDesc)&ComponentMeshOBJ::GetPointerDesc, (CVarFunc_SetPointerDesc)&ComponentMeshOBJ::SetPointerDesc );
+    AddVariablePointer( pList, "OBJ", true, true, "File", (CVarFunc_ValueChanged)&ComponentMeshOBJ::OnValueChanged, (CVarFunc_DropTarget)&ComponentMeshOBJ::OnDropOBJ, 0, (CVarFunc_GetPointerValue)&ComponentMeshOBJ::GetPointerValue, (CVarFunc_SetPointerValue)&ComponentMeshOBJ::SetPointerValue, (CVarFunc_GetPointerDesc)&ComponentMeshOBJ::GetPointerDesc, (CVarFunc_SetPointerDesc)&ComponentMeshOBJ::SetPointerDesc );
 }
 
 void ComponentMeshOBJ::Reset()
@@ -131,9 +131,34 @@ void ComponentMeshOBJ::FillPropertiesWindow(bool clear, bool addcomponentvariabl
     }
 }
 
+void* ComponentMeshOBJ::OnValueChanged(ComponentVariable* pVar, bool finishedchanging, double oldvalue)
+{
+    void* oldpointer = 0;
+
+    if( finishedchanging )
+    {
+        if( strcmp( pVar->m_Label, "OBJ" ) == 0 )
+        {
+            MyAssert( pVar->m_ControlID != -1 );
+
+            wxString text = g_pPanelWatch->m_pVariables[pVar->m_ControlID].m_Handle_TextCtrl->GetValue();
+            if( text == "" || text == "none" )
+            {
+                g_pPanelWatch->ChangeDescriptionForPointerWithDescription( pVar->m_ControlID, "none" );
+
+                if( m_pMesh )
+                    oldpointer = m_pMesh->m_pSourceFile;
+                SetMesh( 0 );
+            }
+        }
+    }
+
+    return oldpointer;
+}
+
 void* ComponentMeshOBJ::OnDropOBJ(ComponentVariable* pVar, wxCoord x, wxCoord y)
 {
-    void* oldvalue = 0;
+    void* oldpointer = 0;
 
     if( g_DragAndDropStruct.m_Type == DragAndDropType_FileObjectPointer )
     {
@@ -146,7 +171,8 @@ void* ComponentMeshOBJ::OnDropOBJ(ComponentVariable* pVar, wxCoord x, wxCoord y)
 
         if( strcmp( filenameext, ".obj" ) == 0 )
         {
-            oldvalue = m_pMesh->m_pSourceFile;
+            if( m_pMesh )
+                oldpointer = m_pMesh->m_pSourceFile;
 
             MyMesh* pMesh = g_pMeshManager->FindMeshBySourceFile( pFile );
             SetMesh( pMesh );
@@ -157,7 +183,8 @@ void* ComponentMeshOBJ::OnDropOBJ(ComponentVariable* pVar, wxCoord x, wxCoord y)
 
         if( strcmp( filenameext, ".mymesh" ) == 0 )
         {
-            oldvalue = m_pMesh->m_pSourceFile;
+            if( m_pMesh )
+                oldpointer = m_pMesh->m_pSourceFile;
 
             MyMesh* pMesh = g_pMeshManager->FindMeshBySourceFile( pFile );
             SetMesh( pMesh );
@@ -169,7 +196,7 @@ void* ComponentMeshOBJ::OnDropOBJ(ComponentVariable* pVar, wxCoord x, wxCoord y)
         g_pPanelWatch->m_NeedsRefresh = true;
     }
 
-    return oldvalue;
+    return oldpointer;
 }
 #endif //MYFW_USING_WX
 

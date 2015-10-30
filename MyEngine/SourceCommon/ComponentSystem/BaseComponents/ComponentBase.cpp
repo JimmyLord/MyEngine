@@ -614,7 +614,7 @@ void ComponentBase::OnValueChangedVariable(int controlid, bool finishedchanging,
             }
         }
 
-        UpdateChildrenWithNewValue( false, pVar, controlid, true, oldvalue, oldpointer, -1, -1, 0 );
+        UpdateChildrenWithNewValue( false, pVar, controlid, finishedchanging, oldvalue, oldpointer, -1, -1, 0 );
     }
 }
 
@@ -905,7 +905,7 @@ void ComponentBase::CopyValueFromParent(ComponentVariable* pVar)
                 {
                     void* pOldValue = (this->*pVar->m_pGetPointerValueCallBackFunc)( pVar );
                     void* pParentValue = (pOtherComponent->*pVar->m_pGetPointerValueCallBackFunc)( pVar );
-                    pOtherComponent->UpdateChildrenWithNewValue( false, pVar, pVar->m_ControlID, false, 0, pOldValue, 0, 0, pParentValue );
+                    pOtherComponent->UpdateChildrenWithNewValue( false, pVar, pVar->m_ControlID, true, 0, pOldValue, 0, 0, pParentValue );
                     
                     // manually update the description field for this variable after the new value was propogated down to children.
                     const char* pParentDesc = (pOtherComponent->*pVar->m_pGetPointerDescCallBackFunc)( pVar );
@@ -983,14 +983,15 @@ void ComponentBase::UpdateChildrenWithNewValue(bool fromdraganddrop, ComponentVa
                         {
                             int offset = pVar->m_Offset;
 
-                            if( *(int*)((char*)pChildComponent + offset) == oldvalue )
+                            // old method of comparing values //if( *(int*)((char*)pChildComponent + offset) == oldvalue )
+                            if( pChildComponent->IsDivorced( pVar->m_Index ) == false )
                             {
                                 *(int*)((char*)pChildComponent + offset) = *(int*)((char*)this + offset);
                                 if( pVar->m_pOnValueChangedCallbackFunc )
                                     (pChildComponent->*pVar->m_pOnValueChangedCallbackFunc)( pVar, finishedchanging, oldvalue );
                             }
 
-                            pChildComponent->UpdateChildrenWithNewValue( fromdraganddrop, pVar, controlid, true, oldvalue, oldpointer, x, y, newpointer );
+                            pChildComponent->UpdateChildrenWithNewValue( fromdraganddrop, pVar, controlid, finishedchanging, oldvalue, oldpointer, x, y, newpointer );
                         }
                         break;
 
@@ -1001,14 +1002,15 @@ void ComponentBase::UpdateChildrenWithNewValue(bool fromdraganddrop, ComponentVa
                         {
                             int offset = pVar->m_Offset;
 
-                            if( *(unsigned int*)((char*)pChildComponent + offset) == oldvalue )
+                            // old method of comparing values //if( *(unsigned int*)((char*)pChildComponent + offset) == oldvalue )
+                            if( pChildComponent->IsDivorced( pVar->m_Index ) == false )
                             {
                                 *(unsigned int*)((char*)pChildComponent + offset) = *(unsigned int*)((char*)this + offset);
                                 if( pVar->m_pOnValueChangedCallbackFunc )
                                     (pChildComponent->*pVar->m_pOnValueChangedCallbackFunc)( pVar, finishedchanging, oldvalue );
                             }
 
-                            pChildComponent->UpdateChildrenWithNewValue( fromdraganddrop, pVar, controlid, true, oldvalue, oldpointer, x, y, newpointer );
+                            pChildComponent->UpdateChildrenWithNewValue( fromdraganddrop, pVar, controlid, finishedchanging, oldvalue, oldpointer, x, y, newpointer );
                         }
                         break;
 
@@ -1022,14 +1024,15 @@ void ComponentBase::UpdateChildrenWithNewValue(bool fromdraganddrop, ComponentVa
                         {
                             int offset = pVar->m_Offset;
 
-                            if( *(bool*)((char*)pChildComponent + offset) == fequal( oldvalue, 1 ) ? true : false )
+                            // old method of comparing values //if( *(bool*)((char*)pChildComponent + offset) == fequal( oldvalue, 1 ) ? true : false )
+                            if( pChildComponent->IsDivorced( pVar->m_Index ) == false )
                             {
                                 *(bool*)((char*)pChildComponent + offset) = *(bool*)((char*)this + offset);
                                 if( pVar->m_pOnValueChangedCallbackFunc )
                                     (pChildComponent->*pVar->m_pOnValueChangedCallbackFunc)( pVar, finishedchanging, oldvalue );
                             }
 
-                            pChildComponent->UpdateChildrenWithNewValue( fromdraganddrop, pVar, controlid, true, oldvalue, oldpointer, x, y, newpointer );
+                            pChildComponent->UpdateChildrenWithNewValue( fromdraganddrop, pVar, controlid, finishedchanging, oldvalue, oldpointer, x, y, newpointer );
                         }
                         break;
 
@@ -1040,14 +1043,15 @@ void ComponentBase::UpdateChildrenWithNewValue(bool fromdraganddrop, ComponentVa
                         {
                             int offset = pVar->m_Offset;
 
-                            if( *(float*)((char*)pChildComponent + offset) == oldvalue )
+                            // old method of comparing values //if( *(float*)((char*)pChildComponent + offset) == oldvalue )
+                            if( pChildComponent->IsDivorced( pVar->m_Index ) == false )
                             {
                                 *(float*)((char*)pChildComponent + offset) = *(float*)((char*)this + offset);
                                 if( pVar->m_pOnValueChangedCallbackFunc )
                                     (pChildComponent->*pVar->m_pOnValueChangedCallbackFunc)( pVar, finishedchanging, oldvalue );
                             }
 
-                            pChildComponent->UpdateChildrenWithNewValue( fromdraganddrop, pVar, controlid, true, oldvalue, oldpointer, x, y, newpointer );
+                            pChildComponent->UpdateChildrenWithNewValue( fromdraganddrop, pVar, controlid, finishedchanging, oldvalue, oldpointer, x, y, newpointer );
                         }
                         break;
 
@@ -1069,7 +1073,8 @@ void ComponentBase::UpdateChildrenWithNewValue(bool fromdraganddrop, ComponentVa
                                     ColorByte* oldcolor = (ColorByte*)*(int*)&oldvalue;
                                     ColorByte* childcolor = (ColorByte*)((char*)pChildComponent + offset);
 
-                                    if( *childcolor == *oldcolor )
+                                    // old method of comparing values //if( *childcolor == *oldcolor )
+                                    if( pChildComponent->IsDivorced( pVar->m_Index ) == false )
                                     {
                                         ColorByte* newcolor = (ColorByte*)((char*)this + offset);
                                         *childcolor = *newcolor;
@@ -1082,7 +1087,8 @@ void ComponentBase::UpdateChildrenWithNewValue(bool fromdraganddrop, ComponentVa
                             {
                                 int offset = pVar->m_Offset + sizeof(unsigned char)*3; // offset of the alpha in ColorByte
 
-                                if( *(unsigned char*)((char*)pChildComponent + offset) == oldvalue )
+                                // old method of comparing values //if( *(unsigned char*)((char*)pChildComponent + offset) == oldvalue )
+                                if( pChildComponent->IsDivorced( pVar->m_Index + 3 ) == false )
                                 {
                                     *(unsigned char*)((char*)pChildComponent + offset) = *(unsigned char*)((char*)this + offset);
                                     if( pVar->m_pOnValueChangedCallbackFunc )
@@ -1090,7 +1096,7 @@ void ComponentBase::UpdateChildrenWithNewValue(bool fromdraganddrop, ComponentVa
                                 }
                             }
 
-                            pChildComponent->UpdateChildrenWithNewValue( fromdraganddrop, pVar, controlid, true, oldvalue, oldpointer, x, y, newpointer );
+                            pChildComponent->UpdateChildrenWithNewValue( fromdraganddrop, pVar, controlid, finishedchanging, oldvalue, oldpointer, x, y, newpointer );
                         }
                         break;
 
@@ -1105,14 +1111,15 @@ void ComponentBase::UpdateChildrenWithNewValue(bool fromdraganddrop, ComponentVa
 
                             int offset = pVar->m_Offset + controlcomponent*4;
 
-                            if( *(float*)((char*)pChildComponent + offset) == oldvalue )
+                            // old method of comparing values //if( *(float*)((char*)pChildComponent + offset) == oldvalue )
+                            if( pChildComponent->IsDivorced( pVar->m_Index + controlcomponent ) == false )
                             {
                                 *(float*)((char*)pChildComponent + offset) = *(float*)((char*)this + offset);
                                 if( pVar->m_pOnValueChangedCallbackFunc )
                                     (pChildComponent->*pVar->m_pOnValueChangedCallbackFunc)( pVar, finishedchanging, oldvalue );
                             }
 
-                            pChildComponent->UpdateChildrenWithNewValue( fromdraganddrop, pVar, controlid, true, oldvalue, oldpointer, x, y, newpointer );
+                            pChildComponent->UpdateChildrenWithNewValue( fromdraganddrop, pVar, controlid, finishedchanging, oldvalue, oldpointer, x, y, newpointer );
                         }
                         break;
 
@@ -1128,7 +1135,8 @@ void ComponentBase::UpdateChildrenWithNewValue(bool fromdraganddrop, ComponentVa
                             {
                                 int offset = pVar->m_Offset;
 
-                                if( *(void**)((char*)pChildComponent + offset) == oldpointer )
+                                // old method of comparing values //if( *(void**)((char*)pChildComponent + offset) == oldpointer )
+                                if( pChildComponent->IsDivorced( pVar->m_Index ) == false )
                                 {
                                     // OnDropCallback will grab the new value from g_DragAndDropStruct
                                     MyAssert( pVar->m_pOnDropCallbackFunc );
@@ -1143,7 +1151,8 @@ void ComponentBase::UpdateChildrenWithNewValue(bool fromdraganddrop, ComponentVa
                             {
                                 int offset = pVar->m_Offset;
 
-                                if( *(void**)((char*)pChildComponent + pVar->m_Offset) == oldpointer )
+                                // old method of comparing values //if( *(void**)((char*)pChildComponent + pVar->m_Offset) == oldpointer )
+                                if( pChildComponent->IsDivorced( pVar->m_Index ) == false )
                                 {
                                     MyAssert( pVar->m_pOnValueChangedCallbackFunc );
                                     if( pVar->m_pOnValueChangedCallbackFunc )
@@ -1154,7 +1163,7 @@ void ComponentBase::UpdateChildrenWithNewValue(bool fromdraganddrop, ComponentVa
                                 }                                
                             }
 
-                            pChildComponent->UpdateChildrenWithNewValue( fromdraganddrop, pVar, controlid, true, oldvalue, oldpointer, x, y, newpointer );
+                            pChildComponent->UpdateChildrenWithNewValue( fromdraganddrop, pVar, controlid, finishedchanging, oldvalue, oldpointer, x, y, newpointer );
                         }
                         break;
 
@@ -1164,7 +1173,8 @@ void ComponentBase::UpdateChildrenWithNewValue(bool fromdraganddrop, ComponentVa
                             {
                                 int offset = pVar->m_Offset;
 
-                                if( (pChildComponent->*pVar->m_pGetPointerValueCallBackFunc)( pVar ) == oldpointer )
+                                // old method of comparing values //if( (pChildComponent->*pVar->m_pGetPointerValueCallBackFunc)( pVar ) == oldpointer )
+                                if( pChildComponent->IsDivorced( pVar->m_Index ) == false )
                                 {
                                     // OnDropCallback will grab the new value from g_DragAndDropStruct
                                     MyAssert( pVar->m_pOnDropCallbackFunc );
@@ -1177,7 +1187,8 @@ void ComponentBase::UpdateChildrenWithNewValue(bool fromdraganddrop, ComponentVa
                             }
                             else if( newpointer )
                             {
-                                if( (pChildComponent->*pVar->m_pGetPointerValueCallBackFunc)( pVar ) == oldpointer )
+                                // old method of comparing values //if( (pChildComponent->*pVar->m_pGetPointerValueCallBackFunc)( pVar ) == oldpointer )
+                                if( pChildComponent->IsDivorced( pVar->m_Index ) == false )
                                 {
                                     MyAssert( pVar->m_pSetPointerValueCallBackFunc );
                                     if( pVar->m_pSetPointerValueCallBackFunc )
@@ -1188,7 +1199,8 @@ void ComponentBase::UpdateChildrenWithNewValue(bool fromdraganddrop, ComponentVa
                             }
                             else
                             {
-                                if( (pChildComponent->*pVar->m_pGetPointerValueCallBackFunc)( pVar ) == oldpointer )
+                                // old method of comparing values //if( (pChildComponent->*pVar->m_pGetPointerValueCallBackFunc)( pVar ) == oldpointer )
+                                if( pChildComponent->IsDivorced( pVar->m_Index ) == false )
                                 {
                                     MyAssert( pVar->m_pOnValueChangedCallbackFunc );
                                     if( pVar->m_pOnValueChangedCallbackFunc )
@@ -1199,7 +1211,7 @@ void ComponentBase::UpdateChildrenWithNewValue(bool fromdraganddrop, ComponentVa
                                 }
                             }
 
-                            pChildComponent->UpdateChildrenWithNewValue( fromdraganddrop, pVar, controlid, true, oldvalue, oldpointer, x, y, newpointer );
+                            pChildComponent->UpdateChildrenWithNewValue( fromdraganddrop, pVar, controlid, finishedchanging, oldvalue, oldpointer, x, y, newpointer );
                         }
                         break;
 

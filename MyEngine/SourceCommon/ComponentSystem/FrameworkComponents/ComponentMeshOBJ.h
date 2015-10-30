@@ -71,6 +71,7 @@ public:
     virtual void FillPropertiesWindow(bool clear, bool addcomponentvariables = false, bool ignoreblockvisibleflag = false);
     
     // Component variable callbacks. //_VARIABLE_LIST
+    void* OnValueChanged(ComponentVariable* pVar, bool finishedchanging, double oldvalue);
     void* OnDropOBJ(ComponentVariable* pVar, wxCoord x, wxCoord y);
 #endif //MYFW_USING_WX
 };
