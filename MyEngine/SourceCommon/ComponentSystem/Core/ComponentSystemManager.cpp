@@ -511,7 +511,7 @@ MyFileObject* ComponentSystemManager::LoadDataFile(const char* relativepath, uns
         if( rellen > 4 && fulllen > 4 &&
             ( strcmp( &relativepath[rellen-4], &fullsourcefilepath[fulllen-4] ) != 0 ) )
         {
-            const char* relativepath = g_pEngineMainFrame->GetRelativePath( fullsourcefilepath );
+            const char* relativepath = GetRelativePath( fullsourcefilepath );
 
             // store the relative path if the file is relative... otherwise store the full path.
             if( relativepath == 0 )
@@ -572,7 +572,7 @@ MyFileObject* ComponentSystemManager::ImportDataFile(unsigned int sceneid, const
     if( fullsourcefilepath == 0 )
         return 0;
 
-    //const char* relativepath = g_pEngineMainFrame->GetRelativePath( fullsourcefilepath );
+    //const char* relativepath = GetRelativePath( fullsourcefilepath );
     //size_t rellen = strlen( relativepath );
 
     size_t fulllen = 0;

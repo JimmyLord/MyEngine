@@ -38,7 +38,7 @@ void ComponentTemplate::RegisterVariables(CPPListHead* pList, ComponentTemplate*
     // just want to make sure these are the same on all compilers.  They should be since this is a simple class.
     MyAssert( offsetof( ComponentTemplate, m_SampleVector3 ) == MyOffsetOf( pThis, &pThis->m_SampleVector3 ) );
 
-    AddVariable( pList, "SampleFloat", ComponentVariableType_Vector3, MyOffsetOf( pThis, &pThis->m_SampleVector3 ), true, true, 0, (CVarFunc_ValueChanged)&ComponentTemplate::OnValueChanged, (CVarFunc_DropTarget)&ComponentTemplate::OnDrop, 0 );
+    AddVar( pList, "SampleFloat", ComponentVariableType_Vector3, MyOffsetOf( pThis, &pThis->m_SampleVector3 ), true, true, 0, (CVarFunc_ValueChanged)&ComponentTemplate::OnValueChanged, (CVarFunc_DropTarget)&ComponentTemplate::OnDrop, 0 );
 }
 
 void ComponentTemplate::Reset()

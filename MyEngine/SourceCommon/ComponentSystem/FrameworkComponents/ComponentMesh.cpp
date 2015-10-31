@@ -11,9 +11,9 @@
 
 #if MYFW_USING_WX
 bool ComponentMesh::m_PanelWatchBlockVisible = true;
+#endif
 
 static const char* g_MaterialLabels[] = { "Material1", "Material2", "Material3", "Material4" };
-#endif
 
 const char* OpenGLPrimitiveTypeStrings[7] =
 {
@@ -63,15 +63,17 @@ void ComponentMesh::RegisterVariables(CPPListHead* pList, ComponentMesh* pThis) 
     {
         // materials are not automatically saved/loaded
         MyAssert( MAX_SUBMESHES == 4 );
-        ComponentVariable* pVar = AddVariable( pList, g_MaterialLabels[i], ComponentVariableType_MaterialPtr,
+        ComponentVariable* pVar = AddVar( pList, g_MaterialLabels[i], ComponentVariableType_MaterialPtr,
                                                MyOffsetOf( pThis, &pThis->m_MaterialList[i] ), false, true, 
                                                0, (CVarFunc_ValueChanged)&ComponentMesh::OnValueChanged, (CVarFunc_DropTarget)&ComponentMesh::OnDropMaterial, 0 );
 
+#if MYFW_USING_WX
         pVar->AddCallback_ShouldVariableBeAdded( (CVarFunc_ShouldVariableBeAdded)(&ComponentMesh::ShouldVariableBeAddedToWatchPanel) );
+#endif
     }
 
-    AddVariableEnum( pList, "PrimitiveType", MyOffsetOf( pThis, &pThis->m_GLPrimitiveType ),  true,  true, "Primitive Type", 7, OpenGLPrimitiveTypeStrings, (CVarFunc_ValueChanged)&ComponentMesh::OnValueChanged, 0, 0 );
-    AddVariable( pList, "PointSize", ComponentVariableType_Int, MyOffsetOf( pThis, &pThis->m_PointSize ),  true,  true, "Point Size", (CVarFunc_ValueChanged)&ComponentMesh::OnValueChanged, 0, 0 );
+    AddVarEnum( pList, "PrimitiveType", MyOffsetOf( pThis, &pThis->m_GLPrimitiveType ),  true,  true, "Primitive Type", 7, OpenGLPrimitiveTypeStrings, (CVarFunc_ValueChanged)&ComponentMesh::OnValueChanged, 0, 0 );
+    AddVar( pList, "PointSize", ComponentVariableType_Int, MyOffsetOf( pThis, &pThis->m_PointSize ),  true,  true, "Point Size", (CVarFunc_ValueChanged)&ComponentMesh::OnValueChanged, 0, 0 );
 }
 
 void ComponentMesh::Reset()

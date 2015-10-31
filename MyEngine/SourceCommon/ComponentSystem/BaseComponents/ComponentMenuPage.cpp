@@ -20,11 +20,11 @@ bool ComponentMenuPage::m_PanelWatchBlockVisible = true;
 #endif
 
 ComponentMenuPage::ComponentMenuPage()
-: ComponentBase()
+: ComponentRenderable()
 {
     ClassnameSanityCheck();
 
-    m_BaseType = BaseComponentType_MenuPage;
+    m_BaseType = BaseComponentType_Renderable;
 
     m_pComponentTransform = 0;
     m_pComponentCamera = 0;
@@ -106,11 +106,10 @@ ComponentMenuPage::~ComponentMenuPage()
 
 void ComponentMenuPage::Reset()
 {
-    ComponentBase::Reset();
+    ComponentRenderable::Reset();
 
     m_pComponentTransform = m_pGameObject->m_pComponentTransform;
 
-    m_Visible = true;
     m_LayersThisExistsOn = Layer_HUD;
 
     m_InputEnabled = true;
@@ -163,9 +162,8 @@ ComponentMenuPage& ComponentMenuPage::operator=(const ComponentMenuPage& other)
 {
     MyAssert( &other != this );
 
-    ComponentBase::operator=( other );
+    ComponentRenderable::operator=( other );
 
-    this->m_Visible = other.m_Visible;
     this->m_InputEnabled = other.m_InputEnabled;
     this->m_LayersThisExistsOn = other.m_LayersThisExistsOn;
 
@@ -272,7 +270,7 @@ void ComponentMenuPage::SaveMenuPageToDisk()
             wxString wxpath = FileDialog.GetPath();
             char fullpath[MAX_PATH];
             sprintf_s( fullpath, MAX_PATH, "%s", (const char*)wxpath );
-            const char* relativepath = g_pEngineMainFrame->GetRelativePath( fullpath );
+            const char* relativepath = GetRelativePath( fullpath );
             m_pMenuLayoutFile = g_pFileManager->RequestFile( relativepath );
         }
     }
@@ -447,9 +445,8 @@ void ComponentMenuPage::FillPropertiesWindow(bool clear, bool addcomponentvariab
 
     if( m_PanelWatchBlockVisible && ignoreblockvisibleflag == false )
     {
-        ComponentBase::FillPropertiesWindow( clear );
+        ComponentRenderable::FillPropertiesWindow( clear, true );
 
-        g_pPanelWatch->AddBool( "Visible", &m_Visible, 0, 1 );
         g_pPanelWatch->AddBool( "Input Enabled", &m_InputEnabled, 0, 1 );
         
         g_pPanelWatch->AddUnsignedInt( "Layers", &m_LayersThisExistsOn, 0, 65535 );
@@ -474,7 +471,7 @@ void ComponentMenuPage::FillPropertiesWindow(bool clear, bool addcomponentvariab
 
 void ComponentMenuPage::AppendItemsToRightClickMenu(wxMenu* pMenu)
 {
-    ComponentBase::AppendItemsToRightClickMenu( pMenu );
+    ComponentRenderable::AppendItemsToRightClickMenu( pMenu );
 
     pMenu->Append( RightClick_AddButton, "Add Button" );
  	pMenu->Connect( wxEVT_COMMAND_MENU_SELECTED, (wxObjectEventFunction)&ComponentMenuPage::OnPopupClick );
@@ -508,7 +505,7 @@ void ComponentMenuPage::AppendItemsToRightClickMenu(wxMenu* pMenu)
 
 void ComponentMenuPage::OnPopupClick(wxEvent &evt)
 {
-    ComponentBase::OnPopupClick( evt );
+    ComponentRenderable::OnPopupClick( evt );
 
     ComponentMenuPage* pComponent = (ComponentMenuPage*)static_cast<wxMenu*>(evt.GetEventObject())->GetClientData();
     MyAssert( pComponent->IsA( "MenuPageComponent" ) );
@@ -886,9 +883,8 @@ cJSON* ComponentMenuPage::ExportAsJSONObject(bool savesceneid)
 #if MYFW_USING_WX
     SaveMenuPageToDisk();
 
-    cJSON* jComponent = ComponentBase::ExportAsJSONObject( savesceneid );
+    cJSON* jComponent = ComponentRenderable::ExportAsJSONObject( savesceneid );
 
-    cJSON_AddNumberToObject( jComponent, "Visible", m_Visible );
     cJSON_AddNumberToObject( jComponent, "InputEnabled", m_InputEnabled );
     
     cJSON_AddNumberToObject( jComponent, "Layers", m_LayersThisExistsOn );
@@ -912,9 +908,8 @@ cJSON* ComponentMenuPage::ExportAsJSONObject(bool savesceneid)
 
 void ComponentMenuPage::ImportFromJSONObject(cJSON* jComponent, unsigned int sceneid)
 {
-    ComponentBase::ImportFromJSONObject( jComponent, sceneid );
+    ComponentRenderable::ImportFromJSONObject( jComponent, sceneid );
 
-    cJSONExt_GetBool( jComponent, "Visible", &m_Visible );
     cJSONExt_GetBool( jComponent, "InputEnabled", &m_InputEnabled );
     cJSONExt_GetUnsignedInt( jComponent, "Layers", &m_LayersThisExistsOn );
 
@@ -944,7 +939,7 @@ void ComponentMenuPage::FindLuaScriptComponentPointer()
 
 void ComponentMenuPage::OnLoad()
 {
-    ComponentBase::OnLoad();
+    ComponentRenderable::OnLoad();
 
     // if we don't have a luascript, find the first one attached to this gameobject
     FindLuaScriptComponentPointer();
@@ -952,7 +947,7 @@ void ComponentMenuPage::OnLoad()
 
 void ComponentMenuPage::OnPlay()
 {
-    ComponentBase::OnPlay();
+    ComponentRenderable::OnPlay();
 
     // if we don't have a luascript, find the first one attached to this gameobject
     FindLuaScriptComponentPointer();
@@ -960,14 +955,14 @@ void ComponentMenuPage::OnPlay()
 
 void ComponentMenuPage::OnGameObjectEnabled()
 {
-    ComponentBase::OnGameObjectEnabled();
+    ComponentRenderable::OnGameObjectEnabled();
 
     ShowPage();
 }
 
 void ComponentMenuPage::OnGameObjectDisabled()
 {
-    ComponentBase::OnGameObjectDisabled();
+    ComponentRenderable::OnGameObjectDisabled();
 
     HidePage();
 }
@@ -977,7 +972,7 @@ void ComponentMenuPage::SetEnabled(bool enabled)
     if( m_Enabled == enabled )
         return;
 
-    ComponentBase::SetEnabled( enabled );
+    ComponentRenderable::SetEnabled( enabled );
 
     // if this is newly enabled, trigger the visible callback.
     if( m_Enabled == true )
@@ -993,7 +988,7 @@ bool ComponentMenuPage::OnTouchCallback(int action, int id, float x, float y, fl
     if( m_Visible == false || m_InputEnabled == false )
         return false;
 
-    //ComponentBase::OnTouchCallback( action, id, x, y, pressure, size );
+    //ComponentRenderable::OnTouchCallback( action, id, x, y, pressure, size );
 
     if( m_MenuPageOnTouchCallbackStruct.pFunc )
     {
@@ -1160,7 +1155,7 @@ bool ComponentMenuPage::OnButtonsCallback(GameCoreButtonActions action, GameCore
     if( m_Visible == false || m_InputEnabled == false )
         return false;
 
-    //ComponentBase::OnButtonsCallback( action, id );
+    //ComponentRenderable::OnButtonsCallback( action, id );
 
     if( m_MenuPageOnButtonsCallbackStruct.pFunc )
     {
@@ -1279,7 +1274,7 @@ bool ComponentMenuPage::OnKeysCallback(GameCoreButtonActions action, int keycode
     if( m_Visible == false || m_InputEnabled == false )
         return false;
 
-    //ComponentBase::OnKeysCallback( action, keycode, unicodechar );
+    //ComponentRenderable::OnKeysCallback( action, keycode, unicodechar );
 
     //if( Screen_Base::OnKeyDown( keycode, unicodechar ) )
     //    return true;
@@ -1354,7 +1349,7 @@ void ComponentMenuPage::CreateMenuItems()
 
 void ComponentMenuPage::TickCallback(double TimePassed)
 {
-    //ComponentBase::TickCallback( TimePassed );
+    //ComponentRenderable::TickCallback( TimePassed );
 
     if( m_MenuPageTickCallbackStruct.pFunc )
     {
@@ -1382,7 +1377,7 @@ void ComponentMenuPage::TickCallback(double TimePassed)
 
 void ComponentMenuPage::OnSurfaceChangedCallback(unsigned int startx, unsigned int starty, unsigned int width, unsigned int height, unsigned int desiredaspectwidth, unsigned int desiredaspectheight)
 {
-    //ComponentBase::OnSurfaceChangedCallback( TimePassed );
+    //ComponentRenderable::OnSurfaceChangedCallback( TimePassed );
 
     // if the aspect ratio didn't change, return;
     if( m_CurrentWidth == m_pComponentCamera->m_WindowWidth &&
@@ -1543,7 +1538,7 @@ void ComponentMenuPage::UpdateLayout(cJSON* layout)
 
 void ComponentMenuPage::DrawCallback(ComponentCamera* pCamera, MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride)
 {
-    //ComponentBase::DrawCallback( pCamera, pMatViewProj, pShaderOverride );
+    //ComponentRenderable::DrawCallback( pCamera, pMatViewProj, pShaderOverride );
 
     if( m_Visible == false || (m_LayersThisExistsOn & pCamera->m_LayersToRender) == 0 )
         return;
@@ -1775,7 +1770,7 @@ void ComponentMenuPage::SetVisible(bool visible)
     if( m_Visible == visible )
         return;
 
-    m_Visible = visible;
+    ComponentRenderable::SetVisible( visible );
 
     // move all input callbacks for this menu page to the front of the list, to give it top priority.
     if( visible == true )
@@ -1789,7 +1784,7 @@ bool ComponentMenuPage::IsVisible()
     if( m_pGameObject->IsEnabled() == false )
         return false;
 
-    return m_Visible;
+    return ComponentRenderable::IsVisible();
 }
 
 void ComponentMenuPage::SetInputEnabled(bool inputenabled)

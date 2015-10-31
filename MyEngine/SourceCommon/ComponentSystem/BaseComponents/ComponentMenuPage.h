@@ -81,7 +81,7 @@ public:
 };
 #endif
 
-class ComponentMenuPage : public ComponentBase
+class ComponentMenuPage : public ComponentRenderable
 {
     static const int MAX_MENU_ITEMS = 128;
     static const int MAX_MENU_NAME_LEN = 32;
@@ -89,8 +89,6 @@ class ComponentMenuPage : public ComponentBase
 
 protected:
     MyFileObject* m_pMenuLayoutFile;
-
-    bool m_Visible;
 
     bool m_MenuItemsCreated;
 
@@ -182,8 +180,8 @@ public:
     void RegisterMenuPageOnButtonsCallback(void* pObj, MenuPageOnButtonsCallbackFunc pFunc);
     void RegisterMenuPageOnKeysCallback(void* pObj, MenuPageOnKeysCallbackFunc pFunc);
 
-    void SetVisible(bool visible);
-    bool IsVisible();
+    virtual void SetVisible(bool visible);
+    virtual bool IsVisible();
     void SetInputEnabled(bool inputenabled);
     bool IsInputEnabled();
     bool IsOnTop(); // tests if input handlers are at the front of the componentsystemmanager's callback list.

@@ -51,6 +51,11 @@ enum ComponentVariableTypes
 };
 
 class ComponentVariable;
+
+#if !MYFW_USING_WX
+#define wxCoord float
+#endif //MYFW_USING_WX
+
 typedef void (ComponentBase::*CVarFunc)(ComponentVariable* pVar);
 typedef void* (ComponentBase::*CVarFunc_DropTarget)(ComponentVariable* pVar, wxCoord x, wxCoord y);
 typedef void* (ComponentBase::*CVarFunc_ValueChanged)(ComponentVariable* pVar, bool finishedchanging, double oldvalue);
@@ -75,24 +80,26 @@ public:
     int m_NumEnumStrings;
     const char** m_ppEnumStrings;
 
+#if MYFW_USING_WX
     CVarFunc_DropTarget m_pOnDropCallbackFunc;
     CVarFunc m_pOnButtonPressedCallbackFunc;
     CVarFunc_ValueChanged m_pOnValueChangedCallbackFunc;
+    CVarFunc_ShouldVariableBeAdded m_pShouldVariableBeAddedCallbackFunc;
+#endif //MYFW_USING_WX
+
     CVarFunc_GetPointerValue m_pGetPointerValueCallBackFunc;
     CVarFunc_SetPointerValue m_pSetPointerValueCallBackFunc;
     CVarFunc_GetPointerDesc m_pGetPointerDescCallBackFunc;
     CVarFunc_SetPointerDesc m_pSetPointerDescCallBackFunc;
-    CVarFunc_ShouldVariableBeAdded m_pShouldVariableBeAddedCallbackFunc;
 
     int m_ControlID;
     int m_Index; // convenience, used when setting divorces status.
 
 public:
-    ComponentVariable(const char* label, ComponentVariableTypes type, size_t offset, bool saveload, bool displayinwatch,
-        const char* watchlabel, CVarFunc_ValueChanged pOnValueChangedCallBackFunc,
-        CVarFunc_DropTarget pOnDropCallBackFunc, CVarFunc pOnButtonPressedCallBackFunc,
+    ComponentVariable(const char* label, ComponentVariableTypes type, size_t offset, bool saveload, bool displayinwatch, const char* watchlabel,
         CVarFunc_GetPointerValue pGetPointerValueCallBackFunc, CVarFunc_SetPointerValue pSetPointerValueCallBackFunc,
-        CVarFunc_GetPointerDesc pGetPointerDescCallBackFunc, CVarFunc_SetPointerDesc pSetPointerDescCallBackFunc)
+        CVarFunc_GetPointerDesc pGetPointerDescCallBackFunc, CVarFunc_SetPointerDesc pSetPointerDescCallBackFunc,
+        CVarFunc_ValueChanged pOnValueChangedCallBackFunc, CVarFunc_DropTarget pOnDropCallBackFunc, CVarFunc pOnButtonPressedCallBackFunc )
     {
         m_Label = label;
         m_Type = type;
@@ -105,25 +112,40 @@ public:
         m_NumEnumStrings = 0;
         m_ppEnumStrings = 0;
 
+#if MYFW_USING_WX
         m_pOnDropCallbackFunc = pOnDropCallBackFunc;
         m_pOnButtonPressedCallbackFunc = pOnButtonPressedCallBackFunc;
         m_pOnValueChangedCallbackFunc = pOnValueChangedCallBackFunc;
+
+        m_pShouldVariableBeAddedCallbackFunc = 0;
+#endif //MYFW_USING_WX
+
         m_pGetPointerValueCallBackFunc = pGetPointerValueCallBackFunc;
         m_pSetPointerValueCallBackFunc = pSetPointerValueCallBackFunc;
         m_pGetPointerDescCallBackFunc = pGetPointerDescCallBackFunc;
         m_pSetPointerDescCallBackFunc = pSetPointerDescCallBackFunc;
 
-        m_pShouldVariableBeAddedCallbackFunc = 0;
-
         m_ControlID = -1;
         m_Index = -1;
     }
 
+#if MYFW_USING_WX
     void AddCallback_ShouldVariableBeAdded(CVarFunc_ShouldVariableBeAdded pFunc)
     {
         m_pShouldVariableBeAddedCallbackFunc = pFunc;
     }
+#endif //MYFW_USING_WX
 };
+
+#if MYFW_USING_WX
+#define AddVar(a,b,c,d,e,f,g, h,i,j) AddVariable(a,b,c,d,e,f,g, h,i,j);
+#define AddVarPointer(a,b,c,d,e,f,g,h,i, j,k,l) AddVariablePointer(a,b,c,d,e,f,g,h,i, j,k,l);
+#define AddVarEnum(a,b,c,d,e,f,g,h, i,j,k) AddVariableEnum(a,b,c,d,e,f,g,h, i,j,k);
+#else
+#define AddVar(a,b,c,d,e,f,g, ...) AddVariable(a,b,c,d,e,f,g, 0,0,0);
+#define AddVarPointer(a,b,c,d,e,f,g,h,i, ...) AddVariablePointer(a,b,c,d,e,f,g,h,i, 0,0,0);
+#define AddVarEnum(a,b,c,d,e,f,g,h, ...) AddVariableEnum(a,b,c,d,e,f,g,h, 0,0,0);
+#endif
 
 #define MYFW_COMPONENT_DECLARE_VARIABLE_LIST(ComponentName) \
     static CPPListHead m_ComponentVariableList_##ComponentName; /* ComponentVariable type */ \
@@ -132,8 +154,8 @@ public:
     static void ClearAllVariables() { m_ComponentVariableListRefCount_##ComponentName--; if( m_ComponentVariableListRefCount_##ComponentName == 0 ) ClearAllVariables_Base( &m_ComponentVariableList_##ComponentName ); } \
     static ComponentVariable* AddVariable(CPPListHead* pList, const char* label, ComponentVariableTypes type, size_t offset, bool saveload, bool displayinwatch, const char* watchlabel, CVarFunc_ValueChanged pOnValueChangedCallBackFunc, CVarFunc_DropTarget pOnDropCallBackFunc, CVarFunc pOnButtonPressedCallBackFunc) \
     { return AddVariable_Base( pList, label, type, offset, saveload, displayinwatch, watchlabel, pOnValueChangedCallBackFunc, pOnDropCallBackFunc, pOnButtonPressedCallBackFunc ); } \
-    static ComponentVariable* AddVariablePointer(CPPListHead* pList, const char* label, bool saveload, bool displayinwatch, const char* watchlabel, CVarFunc_ValueChanged pOnValueChangedCallBackFunc, CVarFunc_DropTarget pOnDropCallBackFunc, CVarFunc pOnButtonPressedCallBackFunc, CVarFunc_GetPointerValue pGetPointerValueCallBackFunc, CVarFunc_SetPointerValue pSetPointerValueCallBackFunc, CVarFunc_GetPointerDesc pGetPointerDescCallBackFunc, CVarFunc_SetPointerDesc pSetPointerDescCallBackFunc) \
-    { return AddVariablePointer_Base( pList, label, saveload, displayinwatch, watchlabel, pOnValueChangedCallBackFunc, pOnDropCallBackFunc, pOnButtonPressedCallBackFunc, pGetPointerValueCallBackFunc, pSetPointerValueCallBackFunc, pGetPointerDescCallBackFunc, pSetPointerDescCallBackFunc ); } \
+    static ComponentVariable* AddVariablePointer(CPPListHead* pList, const char* label, bool saveload, bool displayinwatch, const char* watchlabel, CVarFunc_GetPointerValue pGetPointerValueCallBackFunc, CVarFunc_SetPointerValue pSetPointerValueCallBackFunc, CVarFunc_GetPointerDesc pGetPointerDescCallBackFunc, CVarFunc_SetPointerDesc pSetPointerDescCallBackFunc, CVarFunc_ValueChanged pOnValueChangedCallBackFunc, CVarFunc_DropTarget pOnDropCallBackFunc, CVarFunc pOnButtonPressedCallBackFunc) \
+    { return AddVariablePointer_Base( pList, label, saveload, displayinwatch, watchlabel, pGetPointerValueCallBackFunc, pSetPointerValueCallBackFunc, pGetPointerDescCallBackFunc, pSetPointerDescCallBackFunc, pOnValueChangedCallBackFunc, pOnDropCallBackFunc, pOnButtonPressedCallBackFunc ); } \
     static ComponentVariable* AddVariableEnum(CPPListHead* pList, const char* label, size_t offset, bool saveload, bool displayinwatch, const char* watchlabel, int numenums, const char** ppStrings, CVarFunc_ValueChanged pOnValueChangedCallBackFunc, CVarFunc_DropTarget pOnDropCallBackFunc, CVarFunc pOnButtonPressedCallBackFunc) \
     { return AddVariableEnum_Base( pList, label, offset, saveload, displayinwatch, watchlabel, numenums, ppStrings, pOnValueChangedCallBackFunc, pOnDropCallBackFunc, pOnButtonPressedCallBackFunc ); } \
     static bool ComponentVariablesHaveBeenRegistered() \
@@ -181,6 +203,9 @@ protected:
     unsigned int m_SceneIDLoadedFrom; // 0 for runtime generated.
     unsigned int m_ID;
 
+    // an unsigned int of all divorced components variables, only maintained in editor builds.
+    unsigned int m_DivorcedVariables; // moved outside USING_WX block to allow load/save in game mode.
+
 public:
     BaseComponentTypes m_BaseType;
     int m_Type;
@@ -221,14 +246,16 @@ public:
 protected:
     static void ClearAllVariables_Base(CPPListHead* pComponentVariableList);
     static ComponentVariable* AddVariable_Base(CPPListHead* pComponentVariableList, const char* label, ComponentVariableTypes type, size_t offset, bool saveload, bool displayinwatch, const char* watchlabel, CVarFunc_ValueChanged pOnValueChangedCallBackFunc, CVarFunc_DropTarget pOnDropCallBackFunc, CVarFunc pOnButtonPressedCallBackFunc);
-    static ComponentVariable* AddVariablePointer_Base(CPPListHead* pComponentVariableList, const char* label, bool saveload, bool displayinwatch, const char* watchlabel, CVarFunc_ValueChanged pOnValueChangedCallBackFunc, CVarFunc_DropTarget pOnDropCallBackFunc, CVarFunc pOnButtonPressedCallBackFunc, CVarFunc_GetPointerValue pGetPointerValueCallBackFunc, CVarFunc_SetPointerValue pSetPointerValueCallBackFunc, CVarFunc_GetPointerDesc pGetPointerDescCallBackFunc, CVarFunc_SetPointerDesc pSetPointerDescCallBackFunc);
+    static ComponentVariable* AddVariablePointer_Base(CPPListHead* pComponentVariableList, const char* label, bool saveload, bool displayinwatch, const char* watchlabel, CVarFunc_GetPointerValue pGetPointerValueCallBackFunc, CVarFunc_SetPointerValue pSetPointerValueCallBackFunc, CVarFunc_GetPointerDesc pGetPointerDescCallBackFunc, CVarFunc_SetPointerDesc pSetPointerDescCallBackFunc, CVarFunc_ValueChanged pOnValueChangedCallBackFunc, CVarFunc_DropTarget pOnDropCallBackFunc, CVarFunc pOnButtonPressedCallBackFunc);
     static ComponentVariable* AddVariableEnum_Base(CPPListHead* pComponentVariableList, const char* label, size_t offset, bool saveload, bool displayinwatch, const char* watchlabel, int numenums, const char** ppStrings, CVarFunc_ValueChanged pOnValueChangedCallBackFunc, CVarFunc_DropTarget pOnDropCallBackFunc, CVarFunc pOnButtonPressedCallBackFunc);
     virtual CPPListHead* GetComponentVariableList() { /*MyAssert( false );*/ return 0; } // = 0; TODO: make this pure virual once MYFW_COMPONENT_DECLARE_VARIABLE_LIST and MYFW_COMPONENT_IMPLEMENT_VARIABLE_LIST are in each component
+#if MYFW_USING_WX
     void FillPropertiesWindowWithVariables();
     void AddVariableToPropertiesWindow(ComponentVariable* pVar);
+    int FindVariablesControlIDByLabel(const char* label);
+#endif
     void ExportVariablesToJSON(cJSON* jComponent);
     void ImportVariablesFromJSON(cJSON* jsonobj, const char* singlelabeltoimport = 0);
-    int FindVariablesControlIDByLabel(const char* label);
 
 #if MYFW_USING_WX
 public:
@@ -242,7 +269,7 @@ public:
     virtual void AddToObjectsPanel(wxTreeItemId gameobjectid);
 
     // an unsigned int of all divorced components variables, only maintained in editor builds.
-    unsigned int m_DivorcedVariables;
+    //unsigned int m_DivorcedVariables; // moved outside USING_WX block to allow load/save in game mode.
     bool IsDivorced(int index);
     void SetDivorced(int index, bool divorced);
     bool DoesVariableMatchParent(int controlid, ComponentVariable* pVar);

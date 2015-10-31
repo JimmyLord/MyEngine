@@ -94,8 +94,8 @@ void ComponentBase::ClearAllVariables_Base(CPPListHead* pComponentVariableList)
 
 ComponentVariable* ComponentBase::AddVariable_Base(CPPListHead* pComponentVariableList, const char* label, ComponentVariableTypes type, size_t offset, bool saveload, bool displayinwatch, const char* watchlabel, CVarFunc_ValueChanged pOnValueChangedCallBackFunc, CVarFunc_DropTarget pOnDropCallBackFunc, CVarFunc pOnButtonPressedCallBackFunc)
 {
-    ComponentVariable* pVariable = MyNew ComponentVariable( label, type, offset, saveload, displayinwatch,
-        watchlabel, pOnValueChangedCallBackFunc, pOnDropCallBackFunc, pOnButtonPressedCallBackFunc, 0, 0, 0, 0 );
+    ComponentVariable* pVariable = MyNew ComponentVariable( label, type, offset, saveload, displayinwatch, watchlabel,
+        0, 0, 0, 0, pOnValueChangedCallBackFunc, pOnDropCallBackFunc, pOnButtonPressedCallBackFunc );
     
     if( pComponentVariableList->GetTail() == 0 )
         pVariable->m_Index = 0;
@@ -107,11 +107,11 @@ ComponentVariable* ComponentBase::AddVariable_Base(CPPListHead* pComponentVariab
     return pVariable;
 }
 
-ComponentVariable* ComponentBase::AddVariablePointer_Base(CPPListHead* pComponentVariableList, const char* label, bool saveload, bool displayinwatch, const char* watchlabel, CVarFunc_ValueChanged pOnValueChangedCallBackFunc, CVarFunc_DropTarget pOnDropCallBackFunc, CVarFunc pOnButtonPressedCallBackFunc, CVarFunc_GetPointerValue pGetPointerValueCallBackFunc, CVarFunc_SetPointerValue pSetPointerValueCallBackFunc, CVarFunc_GetPointerDesc pGetPointerDescCallBackFunc, CVarFunc_SetPointerDesc pSetPointerDescCallBackFunc)
+ComponentVariable* ComponentBase::AddVariablePointer_Base(CPPListHead* pComponentVariableList, const char* label, bool saveload, bool displayinwatch, const char* watchlabel, CVarFunc_GetPointerValue pGetPointerValueCallBackFunc, CVarFunc_SetPointerValue pSetPointerValueCallBackFunc, CVarFunc_GetPointerDesc pGetPointerDescCallBackFunc, CVarFunc_SetPointerDesc pSetPointerDescCallBackFunc, CVarFunc_ValueChanged pOnValueChangedCallBackFunc, CVarFunc_DropTarget pOnDropCallBackFunc, CVarFunc pOnButtonPressedCallBackFunc)
 {
-    ComponentVariable* pVariable = MyNew ComponentVariable( label, ComponentVariableType_PointerIndirect, -1, saveload, displayinwatch,
-        watchlabel, pOnValueChangedCallBackFunc, pOnDropCallBackFunc, pOnButtonPressedCallBackFunc,
-        pGetPointerValueCallBackFunc, pSetPointerValueCallBackFunc, pGetPointerDescCallBackFunc, pSetPointerDescCallBackFunc );
+    ComponentVariable* pVariable = MyNew ComponentVariable( label, ComponentVariableType_PointerIndirect, -1, saveload, displayinwatch, watchlabel,
+        pGetPointerValueCallBackFunc, pSetPointerValueCallBackFunc, pGetPointerDescCallBackFunc, pSetPointerDescCallBackFunc,
+        pOnValueChangedCallBackFunc, pOnDropCallBackFunc, pOnButtonPressedCallBackFunc );
 
     if( pComponentVariableList->GetTail() == 0 )
         pVariable->m_Index = 0;
@@ -134,6 +134,7 @@ ComponentVariable* ComponentBase::AddVariableEnum_Base(CPPListHead* pComponentVa
     return pVariable;
 }
 
+#if MYFW_USING_WX
 void ComponentBase::FillPropertiesWindowWithVariables()
 {
     for( CPPListNode* pNode = GetComponentVariableList()->GetHead(); pNode; pNode = pNode->GetNext() )
@@ -268,6 +269,21 @@ void ComponentBase::AddVariableToPropertiesWindow(ComponentVariable* pVar)
         }
     }
 }
+
+int ComponentBase::FindVariablesControlIDByLabel(const char* label)
+{
+    for( CPPListNode* pNode = GetComponentVariableList()->GetHead(); pNode; pNode = pNode->GetNext() )
+    {
+        ComponentVariable* pVar = (ComponentVariable*)pNode;
+        MyAssert( pVar );
+
+        if( strcmp( pVar->m_Label, label ) == 0 )
+            return pVar->m_ControlID;
+    }
+
+    return -1;
+}
+#endif //MYFW_USING_WX
 
 void ComponentBase::ExportVariablesToJSON(cJSON* jComponent)
 {
@@ -446,20 +462,6 @@ void ComponentBase::ImportVariablesFromJSON(cJSON* jsonobj, const char* singlela
             }
         }
     }
-}
-
-int ComponentBase::FindVariablesControlIDByLabel(const char* label)
-{
-    for( CPPListNode* pNode = GetComponentVariableList()->GetHead(); pNode; pNode = pNode->GetNext() )
-    {
-        ComponentVariable* pVar = (ComponentVariable*)pNode;
-        MyAssert( pVar );
-
-        if( strcmp( pVar->m_Label, label ) == 0 )
-            return pVar->m_ControlID;
-    }
-
-    return -1;
 }
 
 #if MYFW_USING_WX

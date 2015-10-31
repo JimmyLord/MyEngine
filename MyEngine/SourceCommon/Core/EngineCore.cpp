@@ -278,10 +278,10 @@ void EngineCore::OnFocusGained()
 
 #if MYFW_USING_WX
     m_pEditorState->ClearKeyAndActionStates();
-#endif
 
     // check if any of the "source" files, like .fbx's were updated, they aren't loaded by FileManager so wouldn't be detected there.
     g_pComponentSystemManager->CheckForUpdatedDataSourceFiles( false );
+#endif
 
     // reload any files that changed while we were out of focus.
     int filesupdated = g_pFileManager->ReloadAnyUpdatedFiles( OnFileUpdated_CallbackFunction );

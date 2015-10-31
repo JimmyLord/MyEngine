@@ -59,7 +59,7 @@ void ComponentLuaScript::RegisterVariables(CPPListHead* pList, ComponentLuaScrip
     MyAssert( offsetof( ComponentLuaScript, m_pScriptFile ) == MyOffsetOf( pThis, &pThis->m_pScriptFile ) );
 
     // script is not automatically saved/loaded
-    AddVariable( pList, "Script", ComponentVariableType_FilePtr, MyOffsetOf( pThis, &pThis->m_pScriptFile ), false, true, 0, (CVarFunc_ValueChanged)&ComponentLuaScript::OnValueChangedCV, (CVarFunc_DropTarget)&ComponentLuaScript::OnDropCV, 0 );
+    AddVar( pList, "Script", ComponentVariableType_FilePtr, MyOffsetOf( pThis, &pThis->m_pScriptFile ), false, true, 0, (CVarFunc_ValueChanged)&ComponentLuaScript::OnValueChangedCV, (CVarFunc_DropTarget)&ComponentLuaScript::OnDropCV, 0 );
 }
 
 void ComponentLuaScript::Reset()
@@ -109,7 +109,7 @@ void ComponentLuaScript::CreateNewScriptFile()
             wxString wxpath = FileDialog.GetPath();
             char fullpath[MAX_PATH];
             sprintf_s( fullpath, MAX_PATH, "%s", (const char*)wxpath );
-            const char* relativepath = g_pEngineMainFrame->GetRelativePath( fullpath );
+            const char* relativepath = GetRelativePath( fullpath );
 
             MyFileObject* pScriptFile = g_pComponentSystemManager->LoadDataFile( relativepath, m_pGameObject->GetSceneID(), 0 );
             SetScriptFile( pScriptFile );

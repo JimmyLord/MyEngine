@@ -43,16 +43,18 @@ void ComponentMeshPrimitive::RegisterVariables(CPPListHead* pList, ComponentMesh
 
     ComponentVariable* pVars[7];
 
-    pVars[0] = AddVariableEnum( pList, "MPType", MyOffsetOf( pThis, &pThis->m_MeshPrimitiveType ), true, true, 0, ComponentMeshPrimitive_NumTypes, ComponentMeshPrimitiveTypeStrings, (CVarFunc_ValueChanged)&ComponentMeshPrimitive::OnValueChanged, 0, 0 );
-    pVars[1] = AddVariable( pList, "PlaneSize", ComponentVariableType_Vector2, MyOffsetOf( pThis, &pThis->m_Plane_Size ), true, true, "Size", (CVarFunc_ValueChanged)&ComponentMeshPrimitive::OnValueChanged, 0, 0 );
-    pVars[2] = AddVariable( pList, "PlaneVertCountx", ComponentVariableType_Int, MyOffsetOf( pThis, &pThis->m_Plane_VertCount.x ), true, true, "VertCount X", (CVarFunc_ValueChanged)&ComponentMeshPrimitive::OnValueChanged, 0, 0 );
-    pVars[3] = AddVariable( pList, "PlaneVertCounty", ComponentVariableType_Int, MyOffsetOf( pThis, &pThis->m_Plane_VertCount.y ), true, true, "VertCount Y", (CVarFunc_ValueChanged)&ComponentMeshPrimitive::OnValueChanged, 0, 0 );
-    pVars[4] = AddVariable( pList, "PlaneUVStart", ComponentVariableType_Vector2, MyOffsetOf( pThis, &pThis->m_Plane_UVStart ), true, true, "UVStart", (CVarFunc_ValueChanged)&ComponentMeshPrimitive::OnValueChanged, 0, 0 );
-    pVars[5] = AddVariable( pList, "PlaneUVRange", ComponentVariableType_Vector2, MyOffsetOf( pThis, &pThis->m_Plane_UVRange ), true, true, "UVRange", (CVarFunc_ValueChanged)&ComponentMeshPrimitive::OnValueChanged, 0, 0 );
-    pVars[6] = AddVariable( pList, "SphereRadius", ComponentVariableType_Float, MyOffsetOf( pThis, &pThis->m_Sphere_Radius ), true, true, "Radius", (CVarFunc_ValueChanged)&ComponentMeshPrimitive::OnValueChanged, 0, 0 );
+    pVars[0] = AddVarEnum( pList, "MPType", MyOffsetOf( pThis, &pThis->m_MeshPrimitiveType ), true, true, 0, ComponentMeshPrimitive_NumTypes, ComponentMeshPrimitiveTypeStrings, (CVarFunc_ValueChanged)&ComponentMeshPrimitive::OnValueChanged, 0, 0 );
+    pVars[1] = AddVar( pList, "PlaneSize", ComponentVariableType_Vector2, MyOffsetOf( pThis, &pThis->m_Plane_Size ), true, true, "Size", (CVarFunc_ValueChanged)&ComponentMeshPrimitive::OnValueChanged, 0, 0 );
+    pVars[2] = AddVar( pList, "PlaneVertCountx", ComponentVariableType_Int, MyOffsetOf( pThis, &pThis->m_Plane_VertCount.x ), true, true, "VertCount X", (CVarFunc_ValueChanged)&ComponentMeshPrimitive::OnValueChanged, 0, 0 );
+    pVars[3] = AddVar( pList, "PlaneVertCounty", ComponentVariableType_Int, MyOffsetOf( pThis, &pThis->m_Plane_VertCount.y ), true, true, "VertCount Y", (CVarFunc_ValueChanged)&ComponentMeshPrimitive::OnValueChanged, 0, 0 );
+    pVars[4] = AddVar( pList, "PlaneUVStart", ComponentVariableType_Vector2, MyOffsetOf( pThis, &pThis->m_Plane_UVStart ), true, true, "UVStart", (CVarFunc_ValueChanged)&ComponentMeshPrimitive::OnValueChanged, 0, 0 );
+    pVars[5] = AddVar( pList, "PlaneUVRange", ComponentVariableType_Vector2, MyOffsetOf( pThis, &pThis->m_Plane_UVRange ), true, true, "UVRange", (CVarFunc_ValueChanged)&ComponentMeshPrimitive::OnValueChanged, 0, 0 );
+    pVars[6] = AddVar( pList, "SphereRadius", ComponentVariableType_Float, MyOffsetOf( pThis, &pThis->m_Sphere_Radius ), true, true, "Radius", (CVarFunc_ValueChanged)&ComponentMeshPrimitive::OnValueChanged, 0, 0 );
 
+#if MYFW_USING_WX
     for( int i=0; i<7; i++ )
         pVars[i]->AddCallback_ShouldVariableBeAdded( (CVarFunc_ShouldVariableBeAdded)(&ComponentMeshPrimitive::ShouldVariableBeAddedToWatchPanel) );
+#endif //MYFW_USING_WX
 }
 
 void ComponentMeshPrimitive::Reset()

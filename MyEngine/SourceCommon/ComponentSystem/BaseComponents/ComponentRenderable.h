@@ -44,8 +44,8 @@ public:
     virtual void SetMaterial(MaterialDefinition* pMaterial, int submeshindex);
     void Draw(MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride = 0, int drawcount = 0);
 
-    void SetVisible(bool visible) { m_Visible = visible; }
-    bool IsVisible();
+    virtual void SetVisible(bool visible) { m_Visible = visible; }
+    virtual bool IsVisible();
 
     void SetLayersThisExistsOn(unsigned int layers) { m_LayersThisExistsOn = layers; }
     unsigned int GetLayersThisExistsOn() { return m_LayersThisExistsOn; }
