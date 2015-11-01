@@ -84,7 +84,13 @@ void* ComponentSprite::GetPointerValue(ComponentVariable* pVar) //_VARIABLE_LIST
     if( strcmp( pVar->m_Label, "Material" ) == 0 )
     {
         if( m_pSprite )
-            return m_pSprite->GetMaterial();
+        {
+            if( m_pSprite->GetMaterial() )
+            {
+                if( m_pSprite->GetMaterial()->m_pFile )
+                    return m_pSprite->GetMaterial();
+            }
+        }
     }
 
     return 0;

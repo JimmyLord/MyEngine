@@ -356,8 +356,11 @@ void ComponentBase::ExportVariablesToJSON(cJSON* jComponent)
 
             case ComponentVariableType_PointerIndirect:
                 MyAssert( pVar->m_pGetPointerDescCallBackFunc );
-                if( pVar->m_pGetPointerDescCallBackFunc )
-                    cJSON_AddStringToObject( jComponent, pVar->m_Label, (this->*pVar->m_pGetPointerDescCallBackFunc)( pVar ) );
+                if( pVar->m_pGetPointerValueCallBackFunc && pVar->m_pGetPointerDescCallBackFunc )
+                {
+                    if( (this->*pVar->m_pGetPointerValueCallBackFunc)( pVar ) )
+                        cJSON_AddStringToObject( jComponent, pVar->m_Label, (this->*pVar->m_pGetPointerDescCallBackFunc)( pVar ) );
+                }
                 break;
 
             case ComponentVariableType_NumTypes:
@@ -449,7 +452,6 @@ void ComponentBase::ImportVariablesFromJSON(cJSON* jsonobj, const char* singlela
                 if( pVar->m_pSetPointerDescCallBackFunc )
                 {
                     cJSON* obj = cJSON_GetObjectItem( jsonobj, pVar->m_Label );
-                    MyAssert( obj );
                     if( obj )
                         (this->*pVar->m_pSetPointerDescCallBackFunc)( pVar, obj->valuestring );
                 }
