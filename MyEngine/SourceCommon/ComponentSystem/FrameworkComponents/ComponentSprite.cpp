@@ -237,10 +237,6 @@ void ComponentSprite::RegisterCallbacks()
     {
         m_CallbacksRegistered = true;
 
-        m_CallbackStruct_Draw.pObj = this; \
-        m_CallbackStruct_Draw.pFunc = (ComponentCallbackFunc_Draw)&ComponentSprite::DrawCallback; \
-        g_pComponentSystemManager->RegisterComponentCallback_Draw( &m_CallbackStruct_Draw );
-
         //MYFW_REGISTER_COMPONENT_CALLBACK( Tick );
         //MYFW_REGISTER_COMPONENT_CALLBACK( OnSurfaceChanged );
         MYFW_REGISTER_COMPONENT_CALLBACK( ComponentSprite, Draw );
