@@ -90,7 +90,7 @@ void ComponentCollisionObject::FillPropertiesWindow(bool clear, bool addcomponen
 {
     m_ControlID_ComponentTitleLabel = g_pPanelWatch->AddSpace( "Collision Object", this, ComponentBase::StaticOnComponentTitleLabelClicked );
 
-    if( m_PanelWatchBlockVisible && ignoreblockvisibleflag == false )
+    if( m_PanelWatchBlockVisible || ignoreblockvisibleflag == true )
     {
         ComponentBase::FillPropertiesWindow( clear );
 

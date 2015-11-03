@@ -177,7 +177,6 @@ ComponentMenuPage& ComponentMenuPage::operator=(const ComponentMenuPage& other)
     return *this;
 }
 
-
 void ComponentMenuPage::RegisterCallbacks()
 {
     if( m_Enabled && m_CallbacksRegistered == false )
@@ -443,7 +442,7 @@ void ComponentMenuPage::FillPropertiesWindow(bool clear, bool addcomponentvariab
 {
     m_ControlID_ComponentTitleLabel = g_pPanelWatch->AddSpace( "Menu Page", this, ComponentBase::StaticOnComponentTitleLabelClicked );
 
-    if( m_PanelWatchBlockVisible && ignoreblockvisibleflag == false )
+    if( m_PanelWatchBlockVisible || ignoreblockvisibleflag == true )
     {
         ComponentRenderable::FillPropertiesWindow( clear, true );
 

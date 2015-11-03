@@ -84,7 +84,7 @@ void ComponentLight::FillPropertiesWindow(bool clear, bool addcomponentvariables
 {
     m_ControlID_ComponentTitleLabel = g_pPanelWatch->AddSpace( "Light", this, ComponentBase::StaticOnComponentTitleLabelClicked );
 
-    if( m_PanelWatchBlockVisible && ignoreblockvisibleflag == false )
+    if( m_PanelWatchBlockVisible || ignoreblockvisibleflag == true )
     {
         ComponentData::FillPropertiesWindow( clear );
 

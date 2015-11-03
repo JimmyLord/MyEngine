@@ -94,7 +94,7 @@ void ComponentMeshPrimitive::FillPropertiesWindow(bool clear, bool addcomponentv
 {
     m_ControlID_ComponentTitleLabel = g_pPanelWatch->AddSpace( "Mesh Primitive", this, ComponentBase::StaticOnComponentTitleLabelClicked );
 
-    if( m_PanelWatchBlockVisible && ignoreblockvisibleflag == false )
+    if( m_PanelWatchBlockVisible || ignoreblockvisibleflag == true )
     {
         ComponentMesh::FillPropertiesWindow( clear );
 

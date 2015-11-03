@@ -43,7 +43,7 @@ void ComponentInputHandler::FillPropertiesWindow(bool clear, bool addcomponentva
 {
     //m_ControlID_ComponentTitleLabel = g_pPanelWatch->AddSpace( "Input Handler", this, ComponentBase::StaticOnComponentTitleLabelClicked );
 
-    if( m_PanelWatchBlockVisible && ignoreblockvisibleflag == false )
+    if( m_PanelWatchBlockVisible || ignoreblockvisibleflag == true )
     {
         ComponentBase::FillPropertiesWindow( clear );
     }

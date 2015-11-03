@@ -117,7 +117,7 @@ void ComponentMeshOBJ::FillPropertiesWindow(bool clear, bool addcomponentvariabl
 {
     m_ControlID_ComponentTitleLabel = g_pPanelWatch->AddSpace( "MeshOBJ", this, ComponentBase::StaticOnComponentTitleLabelClicked );
 
-    if( m_PanelWatchBlockVisible && ignoreblockvisibleflag == false )
+    if( m_PanelWatchBlockVisible || ignoreblockvisibleflag == true )
     {
         ComponentMesh::FillPropertiesWindow( clear );
 

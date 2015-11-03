@@ -71,7 +71,7 @@ void ComponentAnimationPlayer::FillPropertiesWindow(bool clear, bool addcomponen
 {
     m_ControlID_ComponentTitleLabel = g_pPanelWatch->AddSpace( "Animation Player", this, ComponentBase::StaticOnComponentTitleLabelClicked );
 
-    if( m_PanelWatchBlockVisible && ignoreblockvisibleflag == false )
+    if( m_PanelWatchBlockVisible || ignoreblockvisibleflag == true )
     {
         ComponentUpdateable::FillPropertiesWindow( clear );
 

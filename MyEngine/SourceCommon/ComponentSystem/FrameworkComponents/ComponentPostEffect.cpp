@@ -45,7 +45,7 @@ void ComponentPostEffect::FillPropertiesWindow(bool clear, bool addcomponentvari
 {
     m_ControlID_ComponentTitleLabel = g_pPanelWatch->AddSpace( "Post Effect", this, ComponentData::StaticOnComponentTitleLabelClicked );
 
-    if( m_PanelWatchBlockVisible && ignoreblockvisibleflag == false )
+    if( m_PanelWatchBlockVisible || ignoreblockvisibleflag == true )
     {
         ComponentData::FillPropertiesWindow( clear );
 

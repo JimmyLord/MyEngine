@@ -54,7 +54,7 @@ void ComponentUpdateable::FillPropertiesWindow(bool clear, bool addcomponentvari
 {
     //m_ControlID_ComponentTitleLabel = g_pPanelWatch->AddSpace( "Updateable", this, ComponentBase::StaticOnComponentTitleLabelClicked );
 
-    if( m_PanelWatchBlockVisible && ignoreblockvisibleflag == false )
+    if( m_PanelWatchBlockVisible || ignoreblockvisibleflag == true )
     {
         ComponentBase::FillPropertiesWindow( clear );
     }

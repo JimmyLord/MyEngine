@@ -96,7 +96,7 @@ void ComponentParticleEmitter::FillPropertiesWindow(bool clear, bool addcomponen
 {
     m_ControlID_ComponentTitleLabel = g_pPanelWatch->AddSpace( "Particle Emitter", this, ComponentBase::StaticOnComponentTitleLabelClicked );
 
-    if( m_PanelWatchBlockVisible && ignoreblockvisibleflag == false )
+    if( m_PanelWatchBlockVisible || ignoreblockvisibleflag == true )
     {
         ComponentRenderable::FillPropertiesWindow( clear );
 

@@ -207,7 +207,7 @@ void ComponentLuaScript::FillPropertiesWindow(bool clear, bool addcomponentvaria
 
     m_ControlIDOfFirstExtern = -1;
 
-    if( m_PanelWatchBlockVisible && ignoreblockvisibleflag == false )
+    if( m_PanelWatchBlockVisible || ignoreblockvisibleflag == true )
     {
         ComponentBase::FillPropertiesWindow( clear );
 

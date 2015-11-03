@@ -45,7 +45,7 @@ void ComponentCameraShadow::FillPropertiesWindow(bool clear, bool addcomponentva
 {
     m_ControlID_ComponentTitleLabel = g_pPanelWatch->AddSpace( "CameraShadow", this, ComponentCamera::StaticOnComponentTitleLabelClicked );
 
-    if( m_PanelWatchBlockVisible && ignoreblockvisibleflag == false )
+    if( m_PanelWatchBlockVisible || ignoreblockvisibleflag == true )
     {
         ComponentCamera::FillPropertiesWindow( clear );
     }

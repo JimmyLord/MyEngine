@@ -151,7 +151,7 @@ void ComponentSprite::FillPropertiesWindow(bool clear, bool addcomponentvariable
 {
     m_ControlID_ComponentTitleLabel = g_pPanelWatch->AddSpace( "Sprite", this, ComponentBase::StaticOnComponentTitleLabelClicked );
 
-    if( m_PanelWatchBlockVisible && ignoreblockvisibleflag == false )
+    if( m_PanelWatchBlockVisible || ignoreblockvisibleflag == true )
     {
         ComponentRenderable::FillPropertiesWindow( clear );
 
