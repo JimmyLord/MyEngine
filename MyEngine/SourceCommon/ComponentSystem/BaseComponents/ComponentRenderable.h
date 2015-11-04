@@ -49,7 +49,7 @@ public:
 
     void SetLayersThisExistsOn(unsigned int layers) { m_LayersThisExistsOn = layers; }
     unsigned int GetLayersThisExistsOn() { return m_LayersThisExistsOn; }
-    bool ExistsOnLayer(unsigned int layer) { return (m_LayersThisExistsOn & layer) ? true : false; }
+    virtual bool ExistsOnLayer(unsigned int layerflags) { return (m_LayersThisExistsOn & layerflags) ? true : false; }
 
 public:
 #if MYFW_USING_WX

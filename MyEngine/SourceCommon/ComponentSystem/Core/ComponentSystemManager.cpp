@@ -1324,29 +1324,11 @@ void ComponentSystemManager::OnDrawFrame()
 
 void ComponentSystemManager::OnDrawFrame(ComponentCamera* pCamera, MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride)
 {
-    //for( CPPListNode* node = m_Components[BaseComponentType_Renderable].GetHead(); node != 0; node = node->GetNext() )
-    //{
-    //    ComponentRenderable* pComponent = (ComponentRenderable*)node;
-
-    //    if( pComponent->m_BaseType == BaseComponentType_Renderable )
-    //    {
-    //        if( pComponent->ExistsOnLayer( pCamera->m_LayersToRender ) )
-    //        {
-    //            if( pComponent->IsVisible() )
-    //            {
-    //                pComponent->Draw( pMatViewProj, pShaderOverride );
-    //            }
-    //        }
-    //    }
-    //}
-
     // draw all components that registered a callback.
     for( CPPListNode* pNode = m_pComponentCallbackList_Draw.HeadNode.Next; pNode->Next; pNode = pNode->Next )
     {
         ComponentCallbackStruct_Draw* pCallbackStruct = (ComponentCallbackStruct_Draw*)pNode;
-        ComponentRenderable* pComponent = (ComponentRenderable*)pCallbackStruct->pObj;
-
-        MyAssert( pComponent->m_BaseType == BaseComponentType_Renderable );
+        ComponentBase* pComponent = (ComponentBase*)pCallbackStruct->pObj;
 
         if( pComponent->ExistsOnLayer( pCamera->m_LayersToRender ) )
         {
@@ -1391,10 +1373,8 @@ void ComponentSystemManager::DrawMousePickerFrame(ComponentCamera* pCamera, MyMa
         {
             ComponentCallbackStruct_Draw* pCallbackStruct = (ComponentCallbackStruct_Draw*)pNode;
 
-            ComponentRenderable* pComponent = (ComponentRenderable*)pCallbackStruct->pObj;
+            ComponentBase* pComponent = (ComponentBase*)pCallbackStruct->pObj;
 
-            MyAssert( pComponent->m_BaseType == BaseComponentType_Renderable );
-            if( pComponent->m_BaseType == BaseComponentType_Renderable )
             {
                 if( pComponent->IsVisible() &&
                     pComponent->ExistsOnLayer( pCamera->m_LayersToRender ) != 0 &&
@@ -1414,7 +1394,6 @@ void ComponentSystemManager::DrawMousePickerFrame(ComponentCamera* pCamera, MyMa
 
                     pShader->ProgramTint( tint );
 
-                    //pComponent->Draw( pMatViewProj, pShaderOverride );
                     (pCallbackStruct->pObj->*pCallbackStruct->pFunc)( pCamera, pMatViewProj, pShaderOverride );
                 }
             }

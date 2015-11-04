@@ -54,7 +54,7 @@ EngineCore::EngineCore()
     m_LastMousePos.Set( -1, -1 );
 
 #if MYFW_USING_WX
-    m_pEditorState = MyNew EditorState;
+    m_pEditorState = 0;
     m_Debug_DrawMousePickerFBO = false;
     m_Debug_DrawSelectedAnimatedMesh = false;
     m_Debug_DrawSelectedMaterial = false;
@@ -121,6 +121,8 @@ void EngineCore::OneTimeInit()
     GameCore::OneTimeInit();
 
 #if MYFW_USING_WX
+    m_pEditorState = MyNew EditorState;
+
     m_pEditorState->m_pDebugViewFBO = g_pTextureManager->CreateFBO( 0, 0, GL_NEAREST, GL_NEAREST, false, 0, false, true );
     m_pEditorState->m_pMousePickerFBO = g_pTextureManager->CreateFBO( 0, 0, GL_NEAREST, GL_NEAREST, false, 0, false, true );
 
@@ -1656,7 +1658,7 @@ void EngineCore::Editor_OnSurfaceChanged(unsigned int startx, unsigned int start
 
     if( g_GLCanvasIDActive != 0 )
     {
-        if( m_pEditorState->m_pEditorCamera )
+        if( m_pEditorState && m_pEditorState->m_pEditorCamera )
         {
             for( unsigned int i=0; i<m_pEditorState->m_pEditorCamera->m_Components.Count(); i++ )
             {

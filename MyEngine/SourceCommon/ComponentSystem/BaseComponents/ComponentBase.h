@@ -243,6 +243,10 @@ public:
     unsigned int GetSceneID() { return m_SceneIDLoadedFrom; }
     unsigned int GetID() { return m_ID; }
 
+    // pre-DrawCallback functions
+    virtual bool IsVisible() { return true; }
+    virtual bool ExistsOnLayer(unsigned int layerflags) { return true; }
+
 protected:
     static void ClearAllVariables_Base(CPPListHead* pComponentVariableList);
     static ComponentVariable* AddVariable_Base(CPPListHead* pComponentVariableList, const char* label, ComponentVariableTypes type, size_t offset, bool saveload, bool displayinwatch, const char* watchlabel, CVarFunc_ValueChanged pOnValueChangedCallBackFunc, CVarFunc_DropTarget pOnDropCallBackFunc, CVarFunc pOnButtonPressedCallBackFunc);

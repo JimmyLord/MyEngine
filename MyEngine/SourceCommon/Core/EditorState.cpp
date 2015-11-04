@@ -38,6 +38,37 @@ EditorState::EditorState()
     m_CameraState = EditorCameraState_Default;
     m_pGameObjectCameraIsFollowing = 0;
     m_OffsetFromObject.SetIdentity();
+
+    for( int i=0; i<EditorIcon_NumIcons; i++ )
+    {
+        m_pEditorIcons[i] = MyNew MySprite( true );
+
+        MaterialDefinition* pMaterial = m_pEditorIcons[i]->GetMaterial();
+
+        pMaterial->SetBlendType( MaterialBlendType_On );
+
+        TextureDefinition* pTexture = g_pTextureManager->CreateTexture( "DataEngine/Textures/IconLight.png" );
+        pMaterial->SetTextureColor( pTexture );
+
+        ShaderGroup* pShaderGroup = g_pShaderGroupManager->FindShaderGroupByFilename( "DataEngine/Shaders/Shader_Texture.glsl" );
+        if( pShaderGroup != 0 )
+        {
+            pMaterial->SetShader( pShaderGroup );
+        }
+        else
+        {
+            MyFileObject* pFile = g_pFileManager->RequestFile( "DataEngine/Shaders/Shader_Texture.glsl" );
+            MyAssert( pFile->IsA( "MyFileShader" ) );
+            if( pFile->IsA( "MyFileShader" ) )
+            {
+                MyFileObjectShader* pShaderFile = (MyFileObjectShader*)pFile;
+                pShaderGroup = MyNew ShaderGroup( pShaderFile );
+                pMaterial->SetShader( pShaderGroup );
+                pShaderGroup->Release();
+            }
+            pFile->Release();
+        }
+    }
 }
 
 EditorState::~EditorState()
@@ -48,6 +79,11 @@ EditorState::~EditorState()
     SAFE_DELETE( m_pTransformGizmo );
     SAFE_DELETE( m_p3DGridPlane );
     SAFE_DELETE( m_pEditorCamera );
+
+    for( int i=0; i<EditorIcon_NumIcons; i++ )
+    {
+        SAFE_RELEASE( m_pEditorIcons[i] );
+    }
 }
 
 ComponentCamera* EditorState::GetEditorCamera()

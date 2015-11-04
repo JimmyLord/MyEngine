@@ -141,6 +141,42 @@ ComponentLight& ComponentLight::operator=(const ComponentLight& other)
     return *this;
 }
 
+void ComponentLight::RegisterCallbacks()
+{
+    if( m_Enabled && m_CallbacksRegistered == false )
+    {
+        m_CallbacksRegistered = true;
+
+        //MYFW_REGISTER_COMPONENT_CALLBACK( ComponentLight, Tick );
+        //MYFW_REGISTER_COMPONENT_CALLBACK( ComponentLight, OnSurfaceChanged );
+#if MYFW_USING_WX
+        MYFW_REGISTER_COMPONENT_CALLBACK( ComponentLight, Draw );
+#endif //MYFW_USING_WX
+        //MYFW_REGISTER_COMPONENT_CALLBACK( ComponentLight, OnTouch );
+        //MYFW_REGISTER_COMPONENT_CALLBACK( ComponentLight, OnButtons );
+        //MYFW_REGISTER_COMPONENT_CALLBACK( ComponentLight, OnKeys );
+        //MYFW_REGISTER_COMPONENT_CALLBACK( ComponentLight, OnFileRenamed );
+    }
+}
+
+void ComponentLight::UnregisterCallbacks()
+{
+    if( m_CallbacksRegistered == true )
+    {
+        //MYFW_UNREGISTER_COMPONENT_CALLBACK( Tick );
+        //MYFW_UNREGISTER_COMPONENT_CALLBACK( OnSurfaceChanged );
+#if MYFW_USING_WX
+        MYFW_UNREGISTER_COMPONENT_CALLBACK( Draw );
+#endif //MYFW_USING_WX
+        //MYFW_UNREGISTER_COMPONENT_CALLBACK( OnTouch );
+        //MYFW_UNREGISTER_COMPONENT_CALLBACK( OnButtons );
+        //MYFW_UNREGISTER_COMPONENT_CALLBACK( OnKeys );
+        //MYFW_UNREGISTER_COMPONENT_CALLBACK( OnFileRenamed );
+
+        m_CallbacksRegistered = false;
+    }
+}
+
 void ComponentLight::OnGameObjectEnabled()
 {
     ComponentBase::OnGameObjectEnabled();
@@ -156,3 +192,36 @@ void ComponentLight::OnGameObjectDisabled()
     if( m_pLight )
         g_pLightManager->SetLightEnabled( m_pLight, false );
 }
+
+
+bool ComponentLight::IsVisible()
+{
+    return true;
+}
+
+bool ComponentLight::ExistsOnLayer(unsigned int layerflags)
+{
+    if( layerflags & Layer_EditorFG )
+        return true;
+    
+    return false;
+}
+
+#if MYFW_USING_WX
+void ComponentLight::DrawCallback(ComponentCamera* pCamera, MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride)
+{
+    MySprite* pSprite = g_pEngineCore->m_pEditorState->m_pEditorIcons[EditorIcon_Light];
+
+    if( pSprite == 0 || m_pGameObject == 0 || m_pGameObject->m_pComponentTransform == 0 )
+        return;
+
+    ComponentTransform* pComponentTransform = m_pGameObject->m_pComponentTransform;
+
+    Vector2 size( 1, 1 );
+
+    pSprite->SetPosition( &pComponentTransform->m_Transform );
+    pSprite->SetTint( ColorByte(255,255,255,255) );
+    pSprite->Create( "ComponentSprite", size.x, size.y, 0, 1, 0, 1, Justify_Center, false );
+    pSprite->Draw( pMatViewProj, pShaderOverride );
+}
+#endif

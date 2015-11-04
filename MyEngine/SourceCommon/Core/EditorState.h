@@ -33,6 +33,13 @@ enum EditorCameraState
     EditorCameraState_NumStates,
 };
 
+enum EditorIcons
+{
+    EditorIcon_Light,
+    EditorIcon_Camera,
+    EditorIcon_NumIcons,
+};
+
 struct EditorState
 {
     unsigned int m_ModifierKeyStates;
@@ -65,6 +72,9 @@ struct EditorState
     EditorCameraState m_CameraState;
     GameObject* m_pGameObjectCameraIsFollowing;
     MyMatrix m_OffsetFromObject;
+
+    // icons for various editor objects.  lights, cameras, etc...
+    MySprite* m_pEditorIcons[EditorIcon_NumIcons];
 
 public:
     EditorState();
