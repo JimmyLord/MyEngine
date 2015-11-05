@@ -50,14 +50,14 @@ EditorState::EditorState()
         TextureDefinition* pTexture = g_pTextureManager->CreateTexture( "DataEngine/Textures/IconLight.png" );
         pMaterial->SetTextureColor( pTexture );
 
-        ShaderGroup* pShaderGroup = g_pShaderGroupManager->FindShaderGroupByFilename( "DataEngine/Shaders/Shader_Texture.glsl" );
+        ShaderGroup* pShaderGroup = g_pShaderGroupManager->FindShaderGroupByFilename( "DataEngine/Shaders/Shader_TextureTint.glsl" );
         if( pShaderGroup != 0 )
         {
             pMaterial->SetShader( pShaderGroup );
         }
         else
         {
-            MyFileObject* pFile = g_pFileManager->RequestFile( "DataEngine/Shaders/Shader_Texture.glsl" );
+            MyFileObject* pFile = g_pFileManager->RequestFile( "DataEngine/Shaders/Shader_TextureTint.glsl" );
             MyAssert( pFile->IsA( "MyFileShader" ) );
             if( pFile->IsA( "MyFileShader" ) )
             {

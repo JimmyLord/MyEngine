@@ -220,7 +220,7 @@ void ComponentLight::DrawCallback(ComponentCamera* pCamera, MyMatrix* pMatViewPr
     Vector2 size( 1, 1 );
 
     pSprite->SetPosition( &pComponentTransform->m_Transform );
-    pSprite->SetTint( ColorByte(255,255,255,255) );
+    pSprite->GetMaterial()->m_ColorDiffuse = m_pLight->m_Color.AsColorByte();
     pSprite->Create( "ComponentSprite", size.x, size.y, 0, 1, 0, 1, Justify_Center, false );
     pSprite->Draw( pMatViewProj, pShaderOverride );
 }
