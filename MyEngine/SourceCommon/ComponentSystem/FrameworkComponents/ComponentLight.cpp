@@ -219,7 +219,12 @@ void ComponentLight::DrawCallback(ComponentCamera* pCamera, MyMatrix* pMatViewPr
 
     Vector2 size( 1, 1 );
 
-    pSprite->SetPosition( &pComponentTransform->m_Transform );
+    // TODO: provide a non-view lookat matrix function.
+    MyMatrix transform;
+    transform.CreateLookAt( m_pLight->m_Position, Vector3(0,1,0), pCamera->m_pComponentTransform->GetPosition() );
+    transform.Inverse();
+    pSprite->SetPosition( &transform );
+
     pSprite->GetMaterial()->m_ColorDiffuse = m_pLight->m_Color.AsColorByte();
     pSprite->Create( "ComponentSprite", size.x, size.y, 0, 1, 0, 1, Justify_Center, false );
     pSprite->Draw( pMatViewProj, pShaderOverride );
