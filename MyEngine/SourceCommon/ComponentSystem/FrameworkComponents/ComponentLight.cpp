@@ -219,14 +219,18 @@ void ComponentLight::DrawCallback(ComponentCamera* pCamera, MyMatrix* pMatViewPr
 
     Vector2 size( 1, 1 );
 
-    // TODO: provide a non-view lookat matrix function.
+    // Make the light sprite face the camera.
     MyMatrix transform;
-    transform.CreateLookAt( m_pLight->m_Position, Vector3(0,1,0), pCamera->m_pComponentTransform->GetPosition() );
-    transform.Inverse();
+    MyMatrix* pCameraTransform = pCamera->m_pComponentTransform->GetLocalTransform();
+    transform.CreateLookAtWorld( m_pLight->m_Position, pCameraTransform->GetUp(), pCamera->m_pComponentTransform->GetPosition() );
     pSprite->SetPosition( &transform );
 
+    // Set the sprite color
     pSprite->GetMaterial()->m_ColorDiffuse = m_pLight->m_Color.AsColorByte();
-    pSprite->Create( "ComponentSprite", size.x, size.y, 0, 1, 0, 1, Justify_Center, false );
+    
+    // TODO: don't create the sprite every time it's drawn, create once in editorstate and scale it.
+    pSprite->Create( "ComponentSprite", size.x, size.y, 0, 1, 0, 1, Justify_Center, false, true );
+    
     pSprite->Draw( pMatViewProj, pShaderOverride );
 }
 #endif

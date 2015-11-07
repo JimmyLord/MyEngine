@@ -1955,7 +1955,7 @@ void EngineCore::RenderSingleObject(GameObject* pObject)
         if( pCamera )
         {
             MyMatrix matView;
-            matView.CreateLookAt( Vector3(0, 15, 15), Vector3(0,1,0), Vector3(0,5,0) );
+            matView.CreateLookAtView( Vector3(0, 15, 15), Vector3(0,1,0), Vector3(0,5,0) );
 
             MyMatrix matProj;
             matProj.CreatePerspectiveHFoV( 45, 1, 0.1f, 1000.0f );

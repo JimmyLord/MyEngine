@@ -62,11 +62,7 @@ void Camera3D::SetupProjection(float windowaspectratio, float desiredgameaspectr
 
 void Camera3D::LookAt(Vector3& eye, Vector3& up, Vector3& at)
 {
-    //m_Eye = eye;
-    //m_Up = up;
-    //m_At = at;
-
-    m_matView.CreateLookAt( eye, up, at );
+    m_matView.CreateLookAtView( eye, up, at );
 
     UpdateMatrices();
 }
