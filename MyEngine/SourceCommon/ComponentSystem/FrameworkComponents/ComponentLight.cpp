@@ -211,25 +211,24 @@ bool ComponentLight::ExistsOnLayer(unsigned int layerflags)
 void ComponentLight::DrawCallback(ComponentCamera* pCamera, MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride)
 {
     MySprite* pSprite = g_pEngineCore->m_pEditorState->m_pEditorIcons[EditorIcon_Light];
-
-    if( pSprite == 0 || m_pGameObject == 0 || m_pGameObject->m_pComponentTransform == 0 )
+    if( pSprite == 0 )
         return;
-
-    ComponentTransform* pComponentTransform = m_pGameObject->m_pComponentTransform;
 
     Vector2 size( 1, 1 );
 
-    // Make the light sprite face the camera.
-    MyMatrix transform;
+    // Scale and make the lightbulb sprite face the camera.
     MyMatrix* pCameraTransform = pCamera->m_pComponentTransform->GetLocalTransform();
-    transform.CreateLookAtWorld( m_pLight->m_Position, pCameraTransform->GetUp(), pCamera->m_pComponentTransform->GetPosition() );
+
+    MyMatrix scale;
+    MyMatrix rotpos;
+    scale.CreateScale( size );
+    rotpos.CreateLookAtWorld( m_pLight->m_Position, pCameraTransform->GetUp(), pCamera->m_pComponentTransform->GetPosition() );
+
+    MyMatrix transform = rotpos * scale;
     pSprite->SetPosition( &transform );
 
     // Set the sprite color
     pSprite->GetMaterial()->m_ColorDiffuse = m_pLight->m_Color.AsColorByte();
-    
-    // TODO: don't create the sprite every time it's drawn, create once in editorstate and scale it.
-    pSprite->Create( "ComponentSprite", size.x, size.y, 0, 1, 0, 1, Justify_Center, false, true );
     
     pSprite->Draw( pMatViewProj, pShaderOverride );
 }

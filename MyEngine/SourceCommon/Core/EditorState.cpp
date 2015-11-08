@@ -41,7 +41,9 @@ EditorState::EditorState()
 
     for( int i=0; i<EditorIcon_NumIcons; i++ )
     {
+        // create all icons as 2x2 sprites, with center pivots. Sprites are facing positive z-axis.
         m_pEditorIcons[i] = MyNew MySprite( true );
+        m_pEditorIcons[i]->Create( "EditorIcon", 1, 1, 0, 1, 0, 1, Justify_Center, false, true );
 
         MaterialDefinition* pMaterial = m_pEditorIcons[i]->GetMaterial();
 
