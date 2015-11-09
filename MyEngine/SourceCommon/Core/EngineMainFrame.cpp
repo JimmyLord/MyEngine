@@ -77,8 +77,11 @@ EngineMainFrame::EngineMainFrame()
     m_Debug = 0;
 
     m_MenuItem_GridSnapEnabled = 0;
+    m_MenuItem_ShowEditorIcons = 0;
 
     m_pEditorPrefs = 0;
+
+    m_ShowEditorIcons = true;
 
     m_GridSettings.snapenabled = false;
     m_GridSettings.stepsize.Set( 5, 5, 5 );
@@ -141,6 +144,7 @@ void EngineMainFrame::InitFrame()
             int clientwidth = 0;
             int clientheight = 0;
             bool maximized = false;
+            bool showicons = false;
             cJSONExt_GetInt( m_pEditorPrefs, "WindowX", &windowx );
             cJSONExt_GetInt( m_pEditorPrefs, "WindowY", &windowy );
             cJSONExt_GetInt( m_pEditorPrefs, "ClientWidth", &clientwidth );
@@ -209,29 +213,31 @@ void EngineMainFrame::InitFrame()
     m_Hackery_Record_StackDepth = -1;
 
     // Override these menu options from the main frame,
-    Connect( myID_SavePerspective, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );
-    Connect( myID_LoadPerspective, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );
-    Connect( myID_ResetPerspective, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );
+    Connect( myID_View_SavePerspective, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );
+    Connect( myID_View_LoadPerspective, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );
+    Connect( myID_View_ResetPerspective, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );
 
     m_EditorPerspectives = MyNew wxMenu;
     for( int i=0; i<Perspective_NumPerspectives; i++ )
     {
-        m_EditorPerspectiveOptions[i] = m_EditorPerspectives->AppendCheckItem( myIDEngine_EditorPerspective + i, g_DefaultPerspectiveMenuLabels[i], wxEmptyString );
-        Connect( myIDEngine_EditorPerspective + i, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );
+        m_EditorPerspectiveOptions[i] = m_EditorPerspectives->AppendCheckItem( myIDEngine_View_EditorPerspective + i, g_DefaultPerspectiveMenuLabels[i], wxEmptyString );
+        Connect( myIDEngine_View_EditorPerspective + i, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );
     }
 
     m_GameplayPerspectives = MyNew wxMenu;
     for( int i=0; i<Perspective_NumPerspectives; i++ )
     {
-        m_GameplayPerspectiveOptions[i] = m_GameplayPerspectives->AppendCheckItem( myIDEngine_GameplayPerspective + i, g_DefaultPerspectiveMenuLabels[i], wxEmptyString );
-        Connect( myIDEngine_GameplayPerspective + i, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );
+        m_GameplayPerspectiveOptions[i] = m_GameplayPerspectives->AppendCheckItem( myIDEngine_View_GameplayPerspective + i, g_DefaultPerspectiveMenuLabels[i], wxEmptyString );
+        Connect( myIDEngine_View_GameplayPerspective + i, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );
     }
 
     m_EditorPerspectiveOptions[0]->Check();
     m_GameplayPerspectiveOptions[0]->Check();
 
-    m_View->Append( myIDEngine_EditorPerspectives, "Editor Layouts", m_EditorPerspectives );
-    m_View->Append( myIDEngine_GameplayPerspectives, "Gameplay Layouts", m_GameplayPerspectives );
+    m_View->Append( myIDEngine_View_EditorPerspectives, "Editor Layouts", m_EditorPerspectives );
+    m_View->Append( myIDEngine_View_GameplayPerspectives, "Gameplay Layouts", m_GameplayPerspectives );
+
+    m_MenuItem_ShowEditorIcons = m_View->AppendCheckItem( myIDEngine_View_ShowEditorIcons, wxT("Show &Editor Icons\tShift-F7") );
 
     Connect( myIDEngine_NewScene,     wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );
     Connect( myIDEngine_LoadScene,    wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );
@@ -253,9 +259,11 @@ void EngineMainFrame::InitFrame()
     Connect( myIDEngine_RecordMacro,  wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );
     Connect( myIDEngine_ExecuteMacro, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );
 
+    Connect( myIDEngine_View_ShowEditorIcons, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );
+
     Connect( myIDEngine_DebugShowMousePickerFBO,       wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );
     Connect( myIDEngine_DebugShowSelectedAnimatedMesh, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );
-    Connect( myIDEngine_DebugShowGLStats,              wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );    
+    Connect( myIDEngine_DebugShowGLStats,              wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );
 
     if( m_pEditorPrefs )
     {
@@ -266,6 +274,8 @@ void EngineMainFrame::InitFrame()
         SetDefaultEditorPerspectiveIndex( layouteditor );
         SetDefaultGameplayPerspectiveIndex( layoutgameplay );
     }
+
+    UpdateMenuItemStates();
 }
 
 void EngineMainFrame::AddPanes()
@@ -336,6 +346,8 @@ void EngineMainFrame::OnPostInit()
         extern GLViewTypes g_CurrentGLViewType;
         cJSONExt_GetInt( m_pEditorPrefs, "GameAspectRatio", (int*)&g_CurrentGLViewType );
 
+        cJSONExt_GetBool( m_pEditorPrefs, "ShowIcons", &m_ShowEditorIcons );
+
         cJSONExt_GetBool( m_pEditorPrefs, "GridSnapEnabled", &m_GridSettings.snapenabled );
         cJSONExt_GetFloatArray( m_pEditorPrefs, "GridStepSize", &m_GridSettings.stepsize.x, 3 );
 
@@ -399,6 +411,7 @@ bool EngineMainFrame::OnClose()
             cJSON_AddNumberToObject( pPrefs, "ClientWidth", m_ClientWidth );
             cJSON_AddNumberToObject( pPrefs, "ClientHeight", m_ClientHeight );
             cJSON_AddNumberToObject( pPrefs, "IsMaximized", m_Maximized );
+            cJSON_AddNumberToObject( pPrefs, "ShowIcons", m_ShowEditorIcons );
 
             const char* relativepath = GetRelativePath( g_pComponentSystemManager->GetSceneInfo( 1 )->fullpath );
             if( relativepath )
@@ -440,8 +453,11 @@ void EngineMainFrame::UpdateMenuItemStates()
 {
     MainFrame::UpdateMenuItemStates();
 
-    if( m_GridSettings.snapenabled )
+    if( m_MenuItem_GridSnapEnabled )
         m_MenuItem_GridSnapEnabled->Check( m_GridSettings.snapenabled );
+
+    if( m_MenuItem_ShowEditorIcons )
+        m_MenuItem_ShowEditorIcons->Check( m_ShowEditorIcons );
 }
 
 void EngineMainFrame::OnMenu_Engine(wxCommandEvent& event)
@@ -570,7 +586,7 @@ void EngineMainFrame::OnMenu_Engine(wxCommandEvent& event)
         }
         break;
 
-    case myID_SavePerspective:
+    case myID_View_SavePerspective:
         {
             int currentperspective = GetCurrentPerspectiveIndex();
 
@@ -584,14 +600,14 @@ void EngineMainFrame::OnMenu_Engine(wxCommandEvent& event)
         }
         break;
 
-    case myID_LoadPerspective:
+    case myID_View_LoadPerspective:
         {
             int currentperspective = GetCurrentPerspectiveIndex();
             m_AUIManager.LoadPerspective( g_SavedPerspectives[currentperspective] );
         }
         break;
 
-    case myID_ResetPerspective:
+    case myID_View_ResetPerspective:
         {
             int currentperspective = GetCurrentPerspectiveIndex();
 
@@ -603,22 +619,28 @@ void EngineMainFrame::OnMenu_Engine(wxCommandEvent& event)
         }
         break;
 
-    case myIDEngine_EditorPerspective + 0:
-    case myIDEngine_EditorPerspective + 1:
-    case myIDEngine_EditorPerspective + 2:
-    case myIDEngine_EditorPerspective + 3:
-        SetDefaultEditorPerspectiveIndex( id - myIDEngine_EditorPerspective );
+    case myIDEngine_View_EditorPerspective + 0:
+    case myIDEngine_View_EditorPerspective + 1:
+    case myIDEngine_View_EditorPerspective + 2:
+    case myIDEngine_View_EditorPerspective + 3:
+        SetDefaultEditorPerspectiveIndex( id - myIDEngine_View_EditorPerspective );
         if( g_pEngineCore->m_EditorMode == true )
             SetWindowPerspectiveToDefault( true );
         break;
 
-    case myIDEngine_GameplayPerspective + 0:
-    case myIDEngine_GameplayPerspective + 1:
-    case myIDEngine_GameplayPerspective + 2:
-    case myIDEngine_GameplayPerspective + 3:
-        SetDefaultGameplayPerspectiveIndex( id - myIDEngine_GameplayPerspective );
+    case myIDEngine_View_GameplayPerspective + 0:
+    case myIDEngine_View_GameplayPerspective + 1:
+    case myIDEngine_View_GameplayPerspective + 2:
+    case myIDEngine_View_GameplayPerspective + 3:
+        SetDefaultGameplayPerspectiveIndex( id - myIDEngine_View_GameplayPerspective );
         if( g_pEngineCore->m_EditorMode == false )
             SetWindowPerspectiveToDefault( true );
+        break;
+
+    case myIDEngine_View_ShowEditorIcons:
+        {
+            m_ShowEditorIcons = !m_ShowEditorIcons;
+        }
         break;
 
     case myIDEngine_DebugShowMousePickerFBO:

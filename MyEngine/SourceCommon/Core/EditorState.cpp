@@ -51,6 +51,7 @@ EditorState::EditorState()
 
         TextureDefinition* pTexture = g_pTextureManager->CreateTexture( "DataEngine/Textures/IconLight.png" );
         pMaterial->SetTextureColor( pTexture );
+        pTexture->Release();
 
         ShaderGroup* pShaderGroup = g_pShaderGroupManager->FindShaderGroupByFilename( "DataEngine/Shaders/Shader_TextureTint.glsl" );
         if( pShaderGroup != 0 )

@@ -40,13 +40,14 @@ enum EngineMenuIDs
     //myIDEngine_Mode_Stop,
     myIDEngine_RecordMacro,
     myIDEngine_ExecuteMacro,
-    myIDEngine_EditorPerspectives,
-    myIDEngine_GameplayPerspectives,
-    myIDEngine_EditorPerspective,
+    myIDEngine_View_EditorPerspectives,
+    myIDEngine_View_GameplayPerspectives,
+    myIDEngine_View_EditorPerspective,
     // Perspective_NumPerspectives more items here
-    myIDEngine_GameplayPerspective = myIDEngine_EditorPerspective + Perspective_NumPerspectives,
+    myIDEngine_View_GameplayPerspective = myIDEngine_View_EditorPerspective + Perspective_NumPerspectives,
     // Perspective_NumPerspectives more items here
-    myIDEngine_DebugShowMousePickerFBO = myIDEngine_GameplayPerspective + Perspective_NumPerspectives,
+    myIDEngine_View_ShowEditorIcons = myIDEngine_View_GameplayPerspective + Perspective_NumPerspectives,
+    myIDEngine_DebugShowMousePickerFBO,
     myIDEngine_DebugShowSelectedAnimatedMesh,
     myIDEngine_DebugShowGLStats,
     myIDEngine_LastID,
@@ -81,9 +82,12 @@ public:
     wxMenu* m_Debug;
 
     wxMenuItem* m_MenuItem_GridSnapEnabled;
+    wxMenuItem* m_MenuItem_ShowEditorIcons;
 
     cJSON* m_pEditorPrefs;
 
+    // Editor preferences
+    bool m_ShowEditorIcons;
     GridSettings m_GridSettings;
 
     int m_Hackery_Record_StackDepth;
