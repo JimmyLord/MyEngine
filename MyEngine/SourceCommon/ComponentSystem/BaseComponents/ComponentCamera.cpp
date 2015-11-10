@@ -146,6 +146,42 @@ ComponentCamera& ComponentCamera::operator=(const ComponentCamera& other)
     return *this;
 }
 
+void ComponentCamera::RegisterCallbacks()
+{
+    if( m_Enabled && m_CallbacksRegistered == false )
+    {
+        m_CallbacksRegistered = true;
+
+        //MYFW_REGISTER_COMPONENT_CALLBACK( ComponentCamera, Tick );
+        //MYFW_REGISTER_COMPONENT_CALLBACK( ComponentCamera, OnSurfaceChanged );
+#if MYFW_USING_WX
+        MYFW_REGISTER_COMPONENT_CALLBACK( ComponentCamera, Draw );
+#endif //MYFW_USING_WX
+        //MYFW_REGISTER_COMPONENT_CALLBACK( ComponentCamera, OnTouch );
+        //MYFW_REGISTER_COMPONENT_CALLBACK( ComponentCamera, OnButtons );
+        //MYFW_REGISTER_COMPONENT_CALLBACK( ComponentCamera, OnKeys );
+        //MYFW_REGISTER_COMPONENT_CALLBACK( ComponentCamera, OnFileRenamed );
+    }
+}
+
+void ComponentCamera::UnregisterCallbacks()
+{
+    if( m_CallbacksRegistered == true )
+    {
+        //MYFW_UNREGISTER_COMPONENT_CALLBACK( Tick );
+        //MYFW_UNREGISTER_COMPONENT_CALLBACK( OnSurfaceChanged );
+#if MYFW_USING_WX
+        MYFW_UNREGISTER_COMPONENT_CALLBACK( Draw );
+#endif //MYFW_USING_WX
+        //MYFW_UNREGISTER_COMPONENT_CALLBACK( OnTouch );
+        //MYFW_UNREGISTER_COMPONENT_CALLBACK( OnButtons );
+        //MYFW_UNREGISTER_COMPONENT_CALLBACK( OnKeys );
+        //MYFW_UNREGISTER_COMPONENT_CALLBACK( OnFileRenamed );
+
+        m_CallbacksRegistered = false;
+    }
+}
+
 void ComponentCamera::SetDesiredAspectRatio(float width, float height)
 {
     m_DesiredWidth = width;
@@ -368,3 +404,44 @@ void ComponentCamera::OnDrawFrame()
 
     MyBindFramebuffer( GL_FRAMEBUFFER, 0, m_WindowWidth, m_WindowHeight );
 }
+
+bool ComponentCamera::IsVisible()
+{
+    return true;
+}
+
+bool ComponentCamera::ExistsOnLayer(unsigned int layerflags)
+{
+    if( layerflags & Layer_EditorFG )
+        return true;
+    
+    return false;
+}
+
+#if MYFW_USING_WX
+void ComponentCamera::DrawCallback(ComponentCamera* pCamera, MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride)
+{
+    if( g_pEngineMainFrame->m_ShowEditorIcons == false )
+        return;
+
+    MySprite* pSprite = g_pEngineCore->m_pEditorState->m_pEditorIcons[EditorIcon_Camera];
+    if( pSprite == 0 )
+        return;
+
+    // Set the sprite color
+    pSprite->GetMaterial()->m_ColorDiffuse = ColorByte( 255, 255, 255, 255 );
+
+    // make the sprite face the same direction as the camera.
+    MyMatrix rot90;
+    rot90.SetIdentity();
+    rot90.Rotate( -90, 0, 1, 0 );
+    
+    MyMatrix transform = *m_pComponentTransform->GetLocalTransform() * rot90;
+    pSprite->SetPosition( &transform );
+    
+    // disable culling, so we see the camera from both sides.
+    glDisable( GL_CULL_FACE );
+    pSprite->Draw( pMatViewProj, pShaderOverride );
+    glEnable( GL_CULL_FACE );
+}
+#endif

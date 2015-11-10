@@ -11,6 +11,12 @@
 
 #if MYFW_USING_WX
 
+const char* EditorIconFilenames[EditorIcon_NumIcons] =
+{
+    "DataEngine/Textures/IconLight.png",
+    "DataEngine/Textures/IconCamera.png"
+};
+
 EditorState::EditorState()
 {
     m_ModifierKeyStates = 0;
@@ -41,7 +47,7 @@ EditorState::EditorState()
 
     for( int i=0; i<EditorIcon_NumIcons; i++ )
     {
-        // create all icons as 2x2 sprites, with center pivots. Sprites are facing positive z-axis.
+        // create all icons as 1x1 sprites, with center pivots. Sprites are facing positive z-axis.
         m_pEditorIcons[i] = MyNew MySprite( true );
         m_pEditorIcons[i]->Create( "EditorIcon", 1, 1, 0, 1, 0, 1, Justify_Center, false, true );
 
@@ -49,7 +55,7 @@ EditorState::EditorState()
 
         pMaterial->SetBlendType( MaterialBlendType_On );
 
-        TextureDefinition* pTexture = g_pTextureManager->CreateTexture( "DataEngine/Textures/IconLight.png" );
+        TextureDefinition* pTexture = g_pTextureManager->CreateTexture( EditorIconFilenames[i] );
         pMaterial->SetTextureColor( pTexture );
         pTexture->Release();
 

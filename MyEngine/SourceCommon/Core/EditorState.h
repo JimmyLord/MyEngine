@@ -40,6 +40,8 @@ enum EditorIcons
     EditorIcon_NumIcons,
 };
 
+extern const char* EditorIconFilenames[EditorIcon_NumIcons];
+
 struct EditorState
 {
     unsigned int m_ModifierKeyStates;

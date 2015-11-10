@@ -62,8 +62,8 @@ public:
     virtual void CopyFromSameType_Dangerous(ComponentBase* pObject) { *this = (ComponentCamera&)*pObject; }
     ComponentCamera& operator=(const ComponentCamera& other);
 
-    virtual void RegisterCallbacks() {} // TODO: change this component to use callbacks.
-    virtual void UnregisterCallbacks() {} // TODO: change this component to use callbacks.
+    virtual void RegisterCallbacks();
+    virtual void UnregisterCallbacks();
 
     void SetDesiredAspectRatio(float width, float height);
     void ComputeProjectionMatrices();
@@ -71,6 +71,22 @@ public:
     virtual void Tick(double TimePassed);
     virtual void OnSurfaceChanged(unsigned int startx, unsigned int starty, unsigned int width, unsigned int height, unsigned int desiredaspectwidth, unsigned int desiredaspectheight);
     virtual void OnDrawFrame();
+
+    // pre-DrawCallback functions
+    virtual bool IsVisible();
+    virtual bool ExistsOnLayer(unsigned int layerflags);
+
+protected:
+    // Callback functions for various events.
+    //MYFW_DECLARE_COMPONENT_CALLBACK_TICK(); // TickCallback
+    //MYFW_DECLARE_COMPONENT_CALLBACK_ONSURFACECHANGED(); // OnSurfaceChangedCallback
+#if MYFW_USING_WX
+    MYFW_DECLARE_COMPONENT_CALLBACK_DRAW(); // DrawCallback
+#endif //MYFW_USING_WX
+    //MYFW_DECLARE_COMPONENT_CALLBACK_ONTOUCH(); // OnTouchCallback
+    //MYFW_DECLARE_COMPONENT_CALLBACK_ONBUTTONS(); // OnButtonsCallback
+    //MYFW_DECLARE_COMPONENT_CALLBACK_ONKEYS(); // OnKeysCallback
+    //MYFW_DECLARE_COMPONENT_CALLBACK_ONFILERENAMED(); // OnFileRenamedCallback
 
 public:
 #if MYFW_USING_WX
