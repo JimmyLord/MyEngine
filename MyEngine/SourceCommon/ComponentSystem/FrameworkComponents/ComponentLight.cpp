@@ -232,6 +232,7 @@ void ComponentLight::DrawCallback(ComponentCamera* pCamera, MyMatrix* pMatViewPr
 
     // Set the sprite color
     pSprite->GetMaterial()->m_ColorDiffuse = m_pLight->m_Color.AsColorByte();
+    pSprite->GetMaterial()->m_ColorDiffuse.a = 255;
     
     pSprite->Draw( pMatViewProj, pShaderOverride );
 }
