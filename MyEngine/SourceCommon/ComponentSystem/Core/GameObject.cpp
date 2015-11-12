@@ -320,13 +320,29 @@ void GameObject::SetEnabled(bool enabled)
 
     m_Enabled = enabled;
 
+    if( m_Enabled )
+        RegisterAllComponentCallbacks( false );
+    else
+        UnregisterAllComponentCallbacks( false );
+}
+
+void GameObject::RegisterAllComponentCallbacks(bool ignoreenabledflag)
+{
     // loop through all components and register/unregister their callbacks.
     for( unsigned int i=0; i<m_Components.Count(); i++ )
     {
-        if( m_Enabled )
-            m_Components[i]->OnGameObjectEnabled();
-        else
-            m_Components[i]->OnGameObjectDisabled();
+        if( m_Enabled || ignoreenabledflag )
+            m_Components[i]->RegisterCallbacks();
+    }
+}
+
+void GameObject::UnregisterAllComponentCallbacks(bool ignoreenabledflag)
+{
+    // loop through all components and register/unregister their callbacks.
+    for( unsigned int i=0; i<m_Components.Count(); i++ )
+    {
+        if( m_Enabled || ignoreenabledflag )
+            m_Components[i]->UnregisterCallbacks();
     }
 }
 

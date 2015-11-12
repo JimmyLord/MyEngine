@@ -57,6 +57,8 @@ public:
     cJSON* ExportReferenceAsJSONObject(unsigned int refsceneid);
 
     void SetEnabled(bool enabled);
+    void RegisterAllComponentCallbacks(bool ignoreenabledflag);
+    void UnregisterAllComponentCallbacks(bool ignoreenabledflag);
     void SetSceneID(unsigned int sceneid);
     void SetID(unsigned int id);
     void SetName(const char* name);
