@@ -272,6 +272,8 @@ void ComponentSprite::SetMaterial(MaterialDefinition* pMaterial, int submeshinde
 
 void ComponentSprite::DrawCallback(ComponentCamera* pCamera, MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride)
 {
+    ComponentRenderable::Draw( pMatViewProj, pShaderOverride, 0 );
+
     m_pSprite->SetPosition( &m_pComponentTransform->m_Transform );
     m_pSprite->SetTint( m_Tint );
     m_pSprite->Create( "ComponentSprite", m_Size.x, m_Size.y, 0, 1, 0, 1, Justify_Center, false );

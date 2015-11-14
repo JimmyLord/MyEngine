@@ -73,7 +73,10 @@ const char* ComponentMeshOBJ::GetPointerDesc(ComponentVariable* pVar) //_VARIABL
 {
     if( strcmp( pVar->m_Label, "OBJ" ) == 0 )
     {
-        MyAssert( m_pMesh );
+        //MyAssert( m_pMesh );
+        if( m_pMesh == 0 )
+            return "none";
+
         MyFileObject* pFile = m_pMesh->m_pSourceFile;
         if( pFile )
             return pFile->m_FullPath;

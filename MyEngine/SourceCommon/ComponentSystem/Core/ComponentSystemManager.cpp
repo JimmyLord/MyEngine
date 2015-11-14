@@ -495,7 +495,8 @@ MyFileObject* ComponentSystemManager::LoadDataFile(const char* relativepath, uns
         {
             pFile = g_pFileManager->RequestFile( relativepath );
 #if MYFW_USING_WX
-            pFile->SetCustomLeftClickCallback( StaticOnMemoryPanelFileSelectedLeftClick, this );
+            // TODO: wasn't used and causes a crash in release mode... look into it.
+            //pFile->SetCustomLeftClickCallback( StaticOnMemoryPanelFileSelectedLeftClick, this );
 #endif
         }
 

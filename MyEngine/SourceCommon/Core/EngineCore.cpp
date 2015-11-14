@@ -257,6 +257,8 @@ void OnFileUpdated_CallbackFunction(MyFileObject* pFile)
 #if MYFW_USING_WX
     g_pComponentSystemManager->OnFileUpdated( pFile );
 
+    LOGInfo( LOGTag, "OnFileUpdated_CallbackFunction pFile = %s\n", pFile->m_FullPath );
+
     if( strcmp( pFile->m_ExtensionWithDot, ".mymaterial" ) == 0 )
     {
         MaterialDefinition* pMaterial = g_pMaterialManager->FindMaterialByFilename( pFile->m_FullPath );
