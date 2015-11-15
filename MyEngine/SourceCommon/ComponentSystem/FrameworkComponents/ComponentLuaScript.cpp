@@ -519,7 +519,7 @@ void ComponentLuaScript::ImportFromJSONObject(cJSON* jsonobj, unsigned int scene
     cJSON* scriptstringobj = cJSON_GetObjectItem( jsonobj, "Script" );
     if( scriptstringobj )
     {
-        MyFileObject* pFile = g_pFileManager->FindFileByName( scriptstringobj->valuestring );
+        MyFileObject* pFile = g_pFileManager->RequestFile( scriptstringobj->valuestring );
         MyAssert( pFile );
         SetScriptFile( pFile );
     }

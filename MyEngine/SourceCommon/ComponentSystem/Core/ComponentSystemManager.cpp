@@ -316,44 +316,6 @@ void ComponentSystemManager::AddListOfFilesUsedToJSONObject(unsigned int sceneid
             }
         }
     }
-
-    // Only save files used by this scene.
-    //MyFileObject* pFile = g_pFileManager->GetFirstFileLoaded();
-    //while( pFile != 0 )
-    //{
-    //    // skip over shader include files.
-    //    if( pFile->IsA( "MyFileShader" ) )
-    //    {
-    //        MyFileObjectShader* pShaderFile = (MyFileObjectShader*)pFile;
-    //        if( pShaderFile && pShaderFile->m_IsAnIncludeFile )
-    //        {
-    //            pFile = (MyFileObject*)pFile->GetNext();
-    //            continue;
-    //        }
-    //    }
-
-    //    cJSON* jFile = cJSON_CreateObject();
-    //    cJSON_AddItemToObject( jFile, "Path", cJSON_CreateString( pFile->m_FullPath ) );
-    //    cJSON_AddItemToArray( filearray, jFile );
-
-    //    // Find the MyFileInfo object and save the source path if there is one.
-    //    // TODO: this may fail if the file is loaded by multiple scenes.
-    //    MyFileInfo* pFileInfo = GetFileInfoIfUsedByScene( pFile->m_FullPath, -1 );
-    //    if( pFileInfo && pFileInfo->m_SourceFileFullPath[0] != 0 )
-    //    {
-    //        cJSON_AddItemToObject( jFile, "SourcePath", cJSON_CreateString( pFileInfo->m_SourceFileFullPath ) );
-    //    }
-
-    //    pFile = (MyFileObject*)pFile->GetNext();
-    //}
-
-    //// don't save files still loading, they can be readded if needed.
-    ////pFile = g_pFileManager->GetFirstFileStillLoading();
-    ////while( pFile != 0 )
-    ////{
-    ////    cJSON_AddItemToArray( filearray, cJSON_CreateString( pFile->m_FullPath ) );
-    ////    pFile = (MyFileObject*)pFile->GetNext();
-    ////}
 }
 
 char* ComponentSystemManager::SaveSceneToJSON(unsigned int sceneid)

@@ -94,10 +94,15 @@ void ComponentMeshOBJ::SetPointerDesc(ComponentVariable* pVar, const char* newde
         MyAssert( newdesc );
         if( newdesc )
         {
-            MyFileObject* pFile = g_pFileManager->FindFileByName( newdesc );
+            MyFileObject* pFile = g_pFileManager->RequestFile( newdesc );
             if( pFile )
             {
                 MyMesh* pMesh = g_pMeshManager->FindMeshBySourceFile( pFile );
+                if( pMesh == 0 )
+                {
+                    pMesh = MyNew MyMesh();
+                    pMesh->CreateFromOBJFile( pFile );
+                }
                 SetMesh( pMesh );
             }
         }
