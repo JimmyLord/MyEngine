@@ -109,7 +109,7 @@ public:
     ComponentTypeManager* m_pComponentTypeManager; // memory managed, delete this.
     CPPListHead m_GameObjects;
 
-    // List of files used including a scene id
+    // List of files used including a scene id and the source file (if applicable)
     CPPListHead m_Files;
 
     // a component can only exist in one of these lists ATM
@@ -136,6 +136,7 @@ public:
     void AddListOfFilesUsedToJSONObject(unsigned int sceneid, cJSON* filearray);
     char* SaveSceneToJSON(unsigned int sceneid);
     
+    MyFileInfo* AddToFileList(MyFileObject* pFile, MyMesh* pMesh, ShaderGroup* pShaderGroup, TextureDefinition* pTexture, MaterialDefinition* pMaterial, unsigned int sceneid);
     MyFileObject* LoadDataFile(const char* relativepath, unsigned int sceneid, const char* fullsourcefilepath, bool convertifrequired = true);
     MyFileObject* ImportDataFile(unsigned int sceneid, const char* fullsourcefilepath);
     void FreeAllDataFiles(unsigned int sceneidtoclear);

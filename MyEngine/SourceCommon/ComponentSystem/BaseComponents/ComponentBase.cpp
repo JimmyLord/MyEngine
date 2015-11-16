@@ -656,21 +656,29 @@ void ComponentBase::OnRightClick(int controlid)
     if( pVar == 0 )
         return;
 
+    // the only right-click options involve this components gameobject having a parent, so quick early if it doesn't
+    if( m_pGameObject->GetGameObjectThisInheritsFrom() == 0 )
+        return;
+
     wxMenu menu;
     menu.SetClientData( &m_ComponentBaseEventHandlerForComponentVariables );
 
     m_ComponentBaseEventHandlerForComponentVariables.pComponent = this;
     m_ComponentBaseEventHandlerForComponentVariables.pVar = pVar;
     
-    if( IsDivorced( pVar->m_Index ) == false )
+    // if this game object inherits from another, right-clicking a variable will offer divorce/marry options.
+    if( m_pGameObject->GetGameObjectThisInheritsFrom() )
     {
-        menu.Append( RightClick_DivorceVariable, "Divorce value from parent" );
- 	    menu.Connect( wxEVT_COMMAND_MENU_SELECTED, (wxObjectEventFunction)&ComponentBaseEventHandlerForComponentVariables::OnPopupClick );
-    }
-    else
-    {
-        menu.Append( RightClick_MarryVariable, "Reset value to parent" );
- 	    menu.Connect( wxEVT_COMMAND_MENU_SELECTED, (wxObjectEventFunction)&ComponentBaseEventHandlerForComponentVariables::OnPopupClick );
+        if( IsDivorced( pVar->m_Index ) == false )
+        {
+            menu.Append( RightClick_DivorceVariable, "Divorce value from parent" );
+ 	        menu.Connect( wxEVT_COMMAND_MENU_SELECTED, (wxObjectEventFunction)&ComponentBaseEventHandlerForComponentVariables::OnPopupClick );
+        }
+        else
+        {
+            menu.Append( RightClick_MarryVariable, "Reset value to parent" );
+ 	        menu.Connect( wxEVT_COMMAND_MENU_SELECTED, (wxObjectEventFunction)&ComponentBaseEventHandlerForComponentVariables::OnPopupClick );
+        }
     }
 
     // blocking call.

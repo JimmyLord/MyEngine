@@ -654,7 +654,7 @@ void EngineCore::OnModePlay()
     {
 #if MYFW_USING_WX
         g_pMaterialManager->SaveAllMaterials();
-        g_pComponentSystemManager->AddAllMaterialsToFilesList();
+        //g_pComponentSystemManager->AddAllMaterialsToFilesList();
         Editor_QuickSaveScene( "temp_editor_onplay.scene" );
         m_EditorMode = false;
         m_Paused = false;
@@ -1787,7 +1787,7 @@ GameObject* EngineCore::GetObjectAtPixel(unsigned int x, unsigned int y, bool cr
         break;
     }
 
-    assert( pCamera );
+    MyAssert( pCamera );
     if( pCamera == 0 )
         return 0;
 
@@ -1848,7 +1848,7 @@ void EngineCore::SelectObjectsInRectangle(unsigned int sx, unsigned int sy, unsi
         break;
     }
 
-    assert( pCamera );
+    MyAssert( pCamera );
     if( pCamera == 0 )
         return;
 

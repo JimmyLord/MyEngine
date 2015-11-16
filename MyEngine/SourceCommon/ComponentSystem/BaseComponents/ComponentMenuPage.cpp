@@ -730,7 +730,7 @@ void ComponentMenuPage::OnDropComponent(int controlid, wxCoord x, wxCoord y)
         {
             if( pComponent->IsA( "CameraComponent" ) )
             {
-                assert( dynamic_cast<ComponentCamera*>( pComponent ) );
+                MyAssert( dynamic_cast<ComponentCamera*>( pComponent ) );
                 m_pComponentCamera = dynamic_cast<ComponentCamera*>( pComponent );
             }
 

@@ -21,7 +21,7 @@ void ClearAllFingers()
 
 void ClearFinger(int index)
 {
-    assert( index >= 0 && index < MAX_FINGERS );
+    MyAssert( index >= 0 && index < MAX_FINGERS );
 
     g_Fingers[index].reset();
 }

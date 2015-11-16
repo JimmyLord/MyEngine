@@ -514,14 +514,14 @@ void EngineMainFrame::OnMenu_Engine(wxCommandEvent& event)
     case myIDEngine_SaveScene:
         m_StackDepthAtLastSave = (unsigned int)m_pCommandStack->m_UndoStack.size();
         g_pMaterialManager->SaveAllMaterials();
-        g_pComponentSystemManager->AddAllMaterialsToFilesList();
+        //g_pComponentSystemManager->AddAllMaterialsToFilesList();
         SaveScene();
         break;
 
     case myIDEngine_SaveSceneAs:
         m_StackDepthAtLastSave = (unsigned int)m_pCommandStack->m_UndoStack.size();
         g_pMaterialManager->SaveAllMaterials();
-        g_pComponentSystemManager->AddAllMaterialsToFilesList();
+        //g_pComponentSystemManager->AddAllMaterialsToFilesList();
         SaveSceneAs( 1 );
         break;
 
@@ -801,7 +801,7 @@ void EngineMainFrame::SaveSceneAs(unsigned int sceneid)
     //sprintf_s( g_pComponentSystemManager->GetSceneInfo( sceneid )->fullpath, 260, "%s", (const char*)wxpath );
 
     g_pMaterialManager->SaveAllMaterials();
-    g_pComponentSystemManager->AddAllMaterialsToFilesList();
+    //g_pComponentSystemManager->AddAllMaterialsToFilesList();
     g_pEngineCore->SaveScene( g_pComponentSystemManager->GetSceneInfo( sceneid )->fullpath, sceneid );
 
     this->SetTitle( g_pComponentSystemManager->GetSceneInfo( sceneid )->fullpath );

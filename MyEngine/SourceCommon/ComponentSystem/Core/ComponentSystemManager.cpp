@@ -166,24 +166,23 @@ void ComponentSystemManager::Editor_RegisterFileUpdatedCallback(FileUpdatedCallb
 
 void ComponentSystemManager::AddAllMaterialsToFilesList()
 {
+    // This function shouldn't be called anymore, materials will still load on demand, but must be manually added to file list.
+    MyAssert( false );
+
     for( CPPListNode* pNode = g_pMaterialManager->m_Materials.GetHead(); pNode; pNode = pNode->GetNext() )
     {
         MaterialDefinition* pMaterial = (MaterialDefinition*)pNode;
 
         if( pMaterial->m_pFile )
         {
-            if( GetFileObjectIfUsedByScene( pMaterial->m_pFile->m_FullPath, 1 ) == 0 )
+            // TODO: fix this, shouldn't assume this is scene 1.
+            int sceneid = 1;
+
+            if( GetFileObjectIfUsedByScene( pMaterial->m_pFile->m_FullPath, sceneid ) == 0 )
             {
-                MyFileInfo* pFileInfo = MyNew MyFileInfo();
-                
-                pFileInfo->m_pFile = pMaterial->m_pFile;
+                MyFileInfo* pFileInfo = AddToFileList( pMaterial->m_pFile, 0, 0, 0, pMaterial, sceneid );
                 pMaterial->m_pFile->AddRef();
-
-                pFileInfo->m_pMaterial = pMaterial;
                 pMaterial->AddRef();
-
-                pFileInfo->m_SceneID = 1;
-                m_Files.AddTail( pFileInfo );
             }
         }
     }
@@ -230,11 +229,11 @@ void ComponentSystemManager::OnMaterialCreated(MaterialDefinition* pMaterial)
     // if this material doesn't have a file and it has a name, then save it.
     if( pMaterial && pMaterial->m_pFile == 0 && pMaterial->m_Name[0] != 0 )
     {
-        int oldrefcount = pMaterial->GetRefCount();
+        //int oldrefcount = pMaterial->GetRefCount();
 
         g_pMaterialManager->SaveAllMaterials();
-        AddAllMaterialsToFilesList();
-        pMaterial->Release(); // ref should have been added by AddAllMaterialsToFilesList().
+        //AddAllMaterialsToFilesList();
+        //pMaterial->Release(); // ref should have been added by AddAllMaterialsToFilesList().
     }
 }
 #endif //MYFW_USING_WX
@@ -413,6 +412,21 @@ MyFileObject* ComponentSystemManager::GetFileObjectIfUsedByScene(const char* ful
     return 0;
 }
 
+MyFileInfo* ComponentSystemManager::AddToFileList(MyFileObject* pFile, MyMesh* pMesh, ShaderGroup* pShaderGroup, TextureDefinition* pTexture, MaterialDefinition* pMaterial, unsigned int sceneid)
+{
+    // store pFile so we can free it afterwards.
+    MyFileInfo* pFileInfo = MyNew MyFileInfo();
+    pFileInfo->m_pFile = pFile;
+    pFileInfo->m_pMesh = pMesh;
+    pFileInfo->m_pShaderGroup = pShaderGroup;
+    pFileInfo->m_pMaterial = pMaterial;
+    pFileInfo->m_pTexture = pTexture;
+    pFileInfo->m_SceneID = sceneid;
+    m_Files.AddTail( pFileInfo );
+
+    return pFileInfo;
+}
+
 MyFileObject* ComponentSystemManager::LoadDataFile(const char* relativepath, unsigned int sceneid, const char* fullsourcefilepath, bool convertifrequired)
 {
     MyAssert( relativepath );
@@ -463,11 +477,7 @@ MyFileObject* ComponentSystemManager::LoadDataFile(const char* relativepath, uns
         }
 
         // store pFile so we can free it afterwards.
-        MyFileInfo* pFileInfo = MyNew MyFileInfo();
-        pFileInfo->m_pFile = pFile;
-        pFileInfo->m_pTexture = pTexture;
-        pFileInfo->m_SceneID = sceneid;
-        m_Files.AddTail( pFileInfo );
+        MyFileInfo* pFileInfo = AddToFileList( pFile, 0, 0, pTexture, 0, sceneid );
 
         // if the extension of the source file is different than that of the file we're loading,
         //  then store the source file path in the fileobject, so we can detect/reconvert if that file changes.
