@@ -521,7 +521,11 @@ void ComponentLuaScript::ImportFromJSONObject(cJSON* jsonobj, unsigned int scene
     {
         MyFileObject* pFile = g_pFileManager->RequestFile( scriptstringobj->valuestring );
         MyAssert( pFile );
-        SetScriptFile( pFile );
+        if( pFile )
+        {
+            SetScriptFile( pFile );
+            pFile->Release(); // free ref added by RequestFile
+        }
     }
 
     // load the array of exposed variables

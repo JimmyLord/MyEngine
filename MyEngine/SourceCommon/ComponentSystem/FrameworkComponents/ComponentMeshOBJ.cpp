@@ -94,16 +94,22 @@ void ComponentMeshOBJ::SetPointerDesc(ComponentVariable* pVar, const char* newde
         MyAssert( newdesc );
         if( newdesc )
         {
-            MyFileObject* pFile = g_pFileManager->RequestFile( newdesc );
+            MyFileObject* pFile = g_pFileManager->RequestFile( newdesc ); // adds a ref
             if( pFile )
             {
-                MyMesh* pMesh = g_pMeshManager->FindMeshBySourceFile( pFile );
+                MyMesh* pMesh = g_pMeshManager->FindMeshBySourceFile( pFile ); // doesn't add a ref
                 if( pMesh == 0 )
                 {
                     pMesh = MyNew MyMesh();
                     pMesh->CreateFromOBJFile( pFile );
+                    SetMesh( pMesh );
+                    pMesh->Release();
                 }
-                SetMesh( pMesh );
+                else
+                {
+                    SetMesh( pMesh );
+                }
+                pFile->Release(); // free ref from RequestFile
             }
         }
     }

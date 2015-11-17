@@ -43,6 +43,10 @@
         #endif
 
             outpos = bonetransform * attribpos;
+
+            //mat4 invtransposebonetransform = transpose( inverse( bonetransform ) );
+            //outnormal = ( invtransposebonetransform * vec4( attribnormal, 0 ) ).xyz;
+
             outnormal = ( bonetransform * vec4( attribnormal, 0 ) ).xyz;
         }
 

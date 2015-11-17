@@ -1,7 +1,8 @@
 #if NUM_LIGHTS > 0
-void PointLightContribution(int index, vec3 vertpos, vec3 campos, vec3 normal, float shininess, inout vec4 finaldiffuse, inout vec4 finalspecular)
+void PointLightContribution(int index, vec4 vertpos4, vec3 campos, vec3 normal, float shininess, inout vec4 finaldiffuse, inout vec4 finalspecular)
 {
-    // vert, cam, normal and light positions are in local space.
+    // vert, cam, normal and light positions are in world space.
+    vec3 vertpos = vertpos4.xyz / vertpos4.w;
 
     // Light properties
     vec3 lightpos = u_LightPos[index];
