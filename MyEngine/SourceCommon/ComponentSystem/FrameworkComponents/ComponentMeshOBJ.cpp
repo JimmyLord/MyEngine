@@ -101,7 +101,14 @@ void ComponentMeshOBJ::SetPointerDesc(ComponentVariable* pVar, const char* newde
                 if( pMesh == 0 )
                 {
                     pMesh = MyNew MyMesh();
-                    pMesh->CreateFromOBJFile( pFile );
+                    if( strcmp( pFile->m_ExtensionWithDot, ".obj" ) == 0 )
+                    {
+                        pMesh->CreateFromOBJFile( pFile );
+                    }
+                    if( strcmp( pFile->m_ExtensionWithDot, ".mymesh" ) == 0 )
+                    {
+                        pMesh->CreateFromMyMeshFile( pFile );
+                    }
                     SetMesh( pMesh );
                     pMesh->Release();
                 }

@@ -373,7 +373,7 @@ void ComponentLuaScript::OnDrop(int controlid, wxCoord x, wxCoord y)
 
 void ComponentLuaScript::OnValueChanged(int controlid, bool finishedchanging, double oldvalue)
 {
-    if( m_ControlIDOfFirstExtern != -1 )
+    if( controlid != -1 && m_ControlIDOfFirstExtern != -1 )
     {
         int id = controlid - m_ControlIDOfFirstExtern;
         

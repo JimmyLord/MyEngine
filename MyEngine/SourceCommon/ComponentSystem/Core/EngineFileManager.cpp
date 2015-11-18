@@ -20,6 +20,13 @@ EngineFileManager::~EngineFileManager()
 
 MyFileObject* EngineFileManager::RequestFile(const char* filename)
 {
+    MyAssert( filename != 0 );
+    if( filename == 0 )
+        return 0;
+    MyAssert( filename[0] != 0 );
+    if( filename[0] == 0 )
+        return 0;
+
     MyFileObject* pFile = FileManager::RequestFile( filename );
     
     return pFile;
