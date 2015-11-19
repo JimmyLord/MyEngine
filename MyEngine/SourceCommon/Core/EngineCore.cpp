@@ -1149,7 +1149,7 @@ bool EngineCore::HandleEditorInput(int keyaction, int keycode, int mouseaction, 
 #else
             Vector3 dir = Vector3( 0, 0, 1 ) * (pressure/fabs(pressure));
 #endif
-            float speed = 600.0f;
+            float speed = 100.0f;
             if( m_pEditorState->m_ModifierKeyStates & MODIFIERKEY_Shift )
                 speed *= 5;
 
@@ -1282,9 +1282,9 @@ bool EngineCore::HandleEditorInput(int keyaction, int keycode, int mouseaction, 
 
         // WASD to move camera
         Vector3 dir( 0, 0, 0 );
-        if( keycode == 'W' ) dir.z += -1;
+        if( keycode == 'W' ) dir.z +=  1;
         if( keycode == 'A' ) dir.x += -1;
-        if( keycode == 'S' ) dir.z +=  1;
+        if( keycode == 'S' ) dir.z += -1;
         if( keycode == 'D' ) dir.x +=  1;
         if( keycode == 'Q' ) dir.y +=  1;
         if( keycode == 'Z' ) dir.y -=  1;

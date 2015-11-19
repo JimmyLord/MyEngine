@@ -54,7 +54,7 @@ void ComponentParticleEmitter::Reset()
 
     m_BurstTimeLeft = m_BurstDuration;
     
-    m_SpawnTime = 0.1f;
+    m_SpawnTime = 1/60.0f;
     m_SpawnTimeVariation = 0.1f;
     m_Center = Vector2( 320.0f, 800.0f );
     m_CenterVariation = Vector2( 1, 1 );
@@ -103,6 +103,7 @@ void ComponentParticleEmitter::FillPropertiesWindow(bool clear, bool addcomponen
         g_pPanelWatch->AddFloat( "size", &m_Size, 0, 0 );
         g_pPanelWatch->AddFloat( "sizevariation", &m_SizeVariation, 0, 0 );
         g_pPanelWatch->AddFloat( "timetolive", &m_TimeToLive, 0.01f, 5000 );
+        g_pPanelWatch->AddVector2( "center variation", &m_CenterVariation, 0, 20 );
         g_pPanelWatch->AddVector3( "dir", &m_Dir, -1, 1 );
         g_pPanelWatch->AddVector3( "dirvariation", &m_DirVariation, -1, 1 );
 
@@ -140,6 +141,7 @@ cJSON* ComponentParticleEmitter::ExportAsJSONObject(bool savesceneid)
     cJSON_AddNumberToObject( component, "size", m_Size );
     cJSON_AddNumberToObject( component, "sizevar", m_SizeVariation );
     cJSON_AddNumberToObject( component, "timetolive", m_TimeToLive );
+    cJSONExt_AddFloatArrayToObject( component, "centervar", &m_CenterVariation.x, 2 );
     cJSONExt_AddFloatArrayToObject( component, "dir", &m_Dir.x, 3 );
     cJSONExt_AddFloatArrayToObject( component, "dirvar", &m_DirVariation.x, 3 );
 
@@ -161,6 +163,7 @@ void ComponentParticleEmitter::ImportFromJSONObject(cJSON* jsonobj, unsigned int
     cJSONExt_GetFloat( jsonobj, "size", &m_Size );
     cJSONExt_GetFloat( jsonobj, "sizevar", &m_SizeVariation );
     cJSONExt_GetFloat( jsonobj, "timetolive", &m_TimeToLive );
+    cJSONExt_GetFloatArray( jsonobj, "centervar", &m_CenterVariation.x, 2 );
     cJSONExt_GetFloatArray( jsonobj, "dir", &m_Dir.x, 3 );
     cJSONExt_GetFloatArray( jsonobj, "dirvar", &m_DirVariation.x, 3 );
 
@@ -258,9 +261,9 @@ void ComponentParticleEmitter::CreateBurst(int number, Vector3 pos)
         {
             pParticle->pos = pos;
             if( m_CenterVariation.x != 0 )
-                pParticle->pos.x += (rand()%(int)m_CenterVariation.x - m_CenterVariation.x/2);
+                pParticle->pos.x += (rand()%(int)(m_CenterVariation.x*10000))/10000.0f - m_CenterVariation.x/2;
             if( m_CenterVariation.y != 0 )
-                pParticle->pos.y += (rand()%(int)m_CenterVariation.y - m_CenterVariation.y/2);
+                pParticle->pos.y += (rand()%(int)(m_CenterVariation.y*10000))/10000.0f - m_CenterVariation.y/2;
             pParticle->size = m_Size + (rand()%10000)/10000.0f * m_SizeVariation;
 
             if( m_UseColorsAsOptions )
@@ -332,6 +335,14 @@ void ComponentParticleEmitter::TickCallback(double TimePassed)
         if( size > 0 )            
             m_pParticleRenderer->AddPoint( pParticle->pos, 0, color, size );
     }
+
+    m_TimeTilNextSpawn -= TimePassed;
+    if( m_TimeTilNextSpawn < 0 )
+    {
+        Vector3 pos = m_pComponentTransform->GetPosition();
+        CreateBurst( 1, pos );
+        m_TimeTilNextSpawn = m_SpawnTime;
+    }
 }
 
 void ComponentParticleEmitter::DrawCallback(ComponentCamera* pCamera, MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride)
@@ -341,8 +352,6 @@ void ComponentParticleEmitter::DrawCallback(ComponentCamera* pCamera, MyMatrix* 
     if( m_pMaterial == 0 )
         return;
 
-    Vector3 pos = m_pComponentTransform->GetPosition();
-    CreateBurst( 1, pos );
     m_pParticleRenderer->SetMaterial( m_pMaterial );
     m_pParticleRenderer->Draw( pMatViewProj );
 }
