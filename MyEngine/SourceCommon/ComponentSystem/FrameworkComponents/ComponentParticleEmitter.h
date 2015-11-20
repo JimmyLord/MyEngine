@@ -31,6 +31,9 @@ public:
     // renderers could be shared between emitters, but would make culling harder in future
     ParticleRenderer* m_pParticleRenderer;
 
+    bool m_RunInEditor;
+    //bool m_RunWhenPaused;
+
     MyActivePool<Particle*> m_Particles;
 
     float m_TimeTilNextSpawn;

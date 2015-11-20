@@ -46,6 +46,8 @@ void ComponentParticleEmitter::Reset()
 {
     ComponentRenderable::Reset();
 
+    m_RunInEditor = false;
+
     SAFE_RELEASE( m_pMaterial );
 
     m_TimeTilNextSpawn = 0;
@@ -100,6 +102,8 @@ void ComponentParticleEmitter::FillPropertiesWindow(bool clear, bool addcomponen
     {
         ComponentRenderable::FillPropertiesWindow( clear );
 
+        g_pPanelWatch->AddBool( "Run in editor", &m_RunInEditor, 0, 1 );
+
         g_pPanelWatch->AddFloat( "size", &m_Size, 0, 0 );
         g_pPanelWatch->AddFloat( "sizevariation", &m_SizeVariation, 0, 0 );
         g_pPanelWatch->AddFloat( "timetolive", &m_TimeToLive, 0.01f, 5000 );
@@ -138,6 +142,8 @@ cJSON* ComponentParticleEmitter::ExportAsJSONObject(bool savesceneid)
 {
     cJSON* component = ComponentRenderable::ExportAsJSONObject( savesceneid );
 
+    cJSON_AddNumberToObject( component, "RunInEditor", m_RunInEditor );
+
     cJSON_AddNumberToObject( component, "size", m_Size );
     cJSON_AddNumberToObject( component, "sizevar", m_SizeVariation );
     cJSON_AddNumberToObject( component, "timetolive", m_TimeToLive );
@@ -159,6 +165,8 @@ cJSON* ComponentParticleEmitter::ExportAsJSONObject(bool savesceneid)
 void ComponentParticleEmitter::ImportFromJSONObject(cJSON* jsonobj, unsigned int sceneid)
 {
     ComponentRenderable::ImportFromJSONObject( jsonobj, sceneid );
+
+    cJSONExt_GetBool( jsonobj, "RunInEditor", &m_RunInEditor );
 
     cJSONExt_GetFloat( jsonobj, "size", &m_Size );
     cJSONExt_GetFloat( jsonobj, "sizevar", &m_SizeVariation );
@@ -298,6 +306,9 @@ void ComponentParticleEmitter::CreateBurst(int number, Vector3 pos)
 
 void ComponentParticleEmitter::TickCallback(double TimePassed)
 {
+    if( m_RunInEditor )
+        TimePassed = g_pGameCore->m_TimePassedUnpausedLastFrame;
+
     // TODO: if we want to share particle renderers, then don't reset like this.
     m_pParticleRenderer->Reset();
 
@@ -336,7 +347,7 @@ void ComponentParticleEmitter::TickCallback(double TimePassed)
             m_pParticleRenderer->AddPoint( pParticle->pos, 0, color, size );
     }
 
-    m_TimeTilNextSpawn -= TimePassed;
+    m_TimeTilNextSpawn -= (float)TimePassed;
     if( m_TimeTilNextSpawn < 0 )
     {
         Vector3 pos = m_pComponentTransform->GetPosition();

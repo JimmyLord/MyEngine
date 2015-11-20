@@ -92,6 +92,7 @@ void EditorCommand_DeleteObjects::Do()
     for( unsigned int i=0; i<m_ObjectsDeleted.size(); i++ )
     {
         m_ObjectsDeleted[i]->UnregisterAllComponentCallbacks( true );
+        m_ObjectsDeleted[i]->SetEnabled( false );
         g_pComponentSystemManager->UnmanageGameObject( m_ObjectsDeleted[i] );
     }
     m_DeleteGameObjectsWhenDestroyed = true;
@@ -104,6 +105,7 @@ void EditorCommand_DeleteObjects::Undo()
     for( unsigned int i=0; i<m_ObjectsDeleted.size(); i++ )
     {
         g_pComponentSystemManager->ManageGameObject( m_ObjectsDeleted[i] );
+        m_ObjectsDeleted[i]->SetEnabled( true );
         m_ObjectsDeleted[i]->RegisterAllComponentCallbacks( false );
     }
     m_DeleteGameObjectsWhenDestroyed = false;
