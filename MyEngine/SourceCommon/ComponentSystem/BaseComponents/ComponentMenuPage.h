@@ -131,7 +131,7 @@ public:
 public:
     ComponentMenuPage();
     virtual ~ComponentMenuPage();
-    SetClassnameBase( "MenuPageComponent" ); // only first 8 character count.
+    SetClassnameWithParent( "MenuPageComponent", ComponentRenderable ); // only first 8 character count.
 
     static void LuaRegister(lua_State* luastate);
 

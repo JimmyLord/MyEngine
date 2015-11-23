@@ -26,7 +26,7 @@ public:
 public:
     ComponentSprite();
     virtual ~ComponentSprite();
-    SetClassnameBase( "SpriteComponent" ); // only first 8 character count.
+    SetClassnameWithParent( "SpriteComponent", ComponentRenderable ); // only first 8 character count.
 
     static void LuaRegister(lua_State* luastate);
 

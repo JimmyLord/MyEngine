@@ -42,7 +42,7 @@ public:
 public:
     ComponentMeshPrimitive();
     virtual ~ComponentMeshPrimitive();
-    SetClassnameBase( "MeshPrimitiveComponent" ); // only first 8 character count.
+    SetClassnameWithParent( "MeshPrimitiveComponent", ComponentRenderable ); // only first 8 character count.
 
     virtual cJSON* ExportAsJSONObject(bool savesceneid);
     virtual void ImportFromJSONObject(cJSON* jsonobj, unsigned int sceneid);

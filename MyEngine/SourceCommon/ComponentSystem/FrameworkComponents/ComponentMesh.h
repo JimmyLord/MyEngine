@@ -33,7 +33,7 @@ public:
 public:
     ComponentMesh();
     virtual ~ComponentMesh();
-    SetClassnameBase( "MeshComponent" ); // only first 8 character count.
+    SetClassnameWithParent( "MeshComponent", ComponentRenderable ); // only first 8 character count.
 
     static void LuaRegister(lua_State* luastate);
 
