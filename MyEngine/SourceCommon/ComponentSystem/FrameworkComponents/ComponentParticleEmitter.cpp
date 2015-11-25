@@ -68,6 +68,7 @@ void ComponentParticleEmitter::Reset()
     
     m_SpawnTime = 1/60.0f;
     m_SpawnTimeVariation = 0.1f;
+    m_InitialOffset.Set( 0, 0, 0 );
     m_Center = Vector2( 320.0f, 800.0f );
     m_CenterVariation = Vector2( 1, 1 );
     m_InitialSpeedBoost = 1;
@@ -114,6 +115,7 @@ void ComponentParticleEmitter::FillPropertiesWindow(bool clear, bool addcomponen
 
         g_pPanelWatch->AddBool( "Run in editor", &m_RunInEditor, 0, 1 );
 
+        g_pPanelWatch->AddVector3( "Offset", &m_InitialOffset, 0, 0 );
         g_pPanelWatch->AddFloat( "size", &m_Size, 0, 0 );
         g_pPanelWatch->AddFloat( "sizevariation", &m_SizeVariation, 0, 0 );
         g_pPanelWatch->AddFloat( "timetolive", &m_TimeToLive, 0.01f, 5000 );
@@ -154,6 +156,7 @@ cJSON* ComponentParticleEmitter::ExportAsJSONObject(bool savesceneid)
 
     cJSON_AddNumberToObject( component, "RunInEditor", m_RunInEditor );
 
+    cJSONExt_AddFloatArrayToObject( component, "offset", &m_InitialOffset.x, 3 );
     cJSON_AddNumberToObject( component, "size", m_Size );
     cJSON_AddNumberToObject( component, "sizevar", m_SizeVariation );
     cJSON_AddNumberToObject( component, "timetolive", m_TimeToLive );
@@ -178,6 +181,7 @@ void ComponentParticleEmitter::ImportFromJSONObject(cJSON* jsonobj, unsigned int
 
     cJSONExt_GetBool( jsonobj, "RunInEditor", &m_RunInEditor );
 
+    cJSONExt_GetFloatArray( jsonobj, "offset", &m_InitialOffset.x, 3 );
     cJSONExt_GetFloat( jsonobj, "size", &m_Size );
     cJSONExt_GetFloat( jsonobj, "sizevar", &m_SizeVariation );
     cJSONExt_GetFloat( jsonobj, "timetolive", &m_TimeToLive );
@@ -277,7 +281,7 @@ void ComponentParticleEmitter::CreateBurst(int number, Vector3 pos)
         Particle* pParticle = m_Particles.MakeObjectActive();
         if( pParticle )
         {
-            pParticle->pos = pos;
+            pParticle->pos = pos + m_InitialOffset;
             if( m_CenterVariation.x != 0 )
                 pParticle->pos.x += (rand()%(int)(m_CenterVariation.x*10000))/10000.0f - m_CenterVariation.x/2;
             if( m_CenterVariation.y != 0 )

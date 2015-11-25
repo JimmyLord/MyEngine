@@ -44,6 +44,7 @@ public:
     float m_SpawnTime;
     float m_SpawnTimeVariation;
     float m_InitialSpeedBoost;
+    Vector3 m_InitialOffset;
     Vector2 m_Center;
     Vector2 m_CenterVariation;
     float m_Size;
