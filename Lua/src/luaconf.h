@@ -8,6 +8,10 @@
 #ifndef luaconf_h
 #define luaconf_h
 
+#if MYFW_ANDROID
+#define log2(x) (log(x) / log(2))
+#endif
+
 #include <limits.h>
 #include <stddef.h>
 
@@ -637,7 +641,7 @@
 ** macro must include header 'locale.h'.)
 */
 #if !defined(lua_getlocaledecpoint)
-#define lua_getlocaledecpoint()		(localeconv()->decimal_point[0])
+#define lua_getlocaledecpoint()		('.') //(localeconv()->decimal_point[0])
 #endif
 
 /* }================================================================== */

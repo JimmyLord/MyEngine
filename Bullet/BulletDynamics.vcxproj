@@ -91,7 +91,7 @@
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)Output\Intermediate\$(PlatformName)\$(TargetName)\$(Configuration)\</IntDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Android'">$(SolutionDir)Output\Intermediate\$(PlatformName)\$(TargetName)\$(Configuration)\</IntDir>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ProjectName)_$(Configuration)</TargetName>
-    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|Android'">BulletDynamics_vs2010</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|Android'">$(ProjectName)</TargetName>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\bullet3\bin\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">obj\x64\Release\BulletDynamics\</IntDir>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">BulletDynamics_vs2010_x64_release</TargetName>
@@ -100,7 +100,7 @@
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)Output\Intermediate\$(PlatformName)\$(TargetName)\$(Configuration)\</IntDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Android'">$(SolutionDir)Output\Intermediate\$(PlatformName)\$(TargetName)\$(Configuration)\</IntDir>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProjectName)_$(Configuration)</TargetName>
-    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|Android'">BulletDynamics_vs2010_debug</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|Android'">$(ProjectName)</TargetName>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\bullet3\bin\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">obj\x64\Debug\BulletDynamics\</IntDir>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">BulletDynamics_vs2010_x64_debug</TargetName>
@@ -142,7 +142,6 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Android'">
     <ClCompile>
-      <AdditionalOptions>/MP %(AdditionalOptions)</AdditionalOptions>
       <Optimization>Full</Optimization>
       <AdditionalIncludeDirectories>..\..\bullet3\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>

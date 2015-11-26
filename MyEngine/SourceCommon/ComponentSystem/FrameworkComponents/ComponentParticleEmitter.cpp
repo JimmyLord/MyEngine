@@ -13,8 +13,6 @@
 bool ComponentParticleEmitter::m_PanelWatchBlockVisible = true;
 #endif
 
-#define MYFW_USEINSTANCEDPARTICLES  1
-
 ComponentParticleEmitter::ComponentParticleEmitter()
 : ComponentRenderable()
 {
@@ -29,16 +27,17 @@ ComponentParticleEmitter::ComponentParticleEmitter()
         m_Particles.AddInactiveObject( pObj );
     }
 
-    if( MYFW_USEINSTANCEDPARTICLES )
+#if MYFW_USEINSTANCEDPARTICLES
     {
         m_pParticleRenderer = MyNew ParticleRendererInstanced( false );
         m_pParticleRenderer->AllocateVertices( 1000, "Particle Renderer Instanced" );
     }
-    else
+#else
     {
         m_pParticleRenderer = MyNew ParticleRenderer( false );
         m_pParticleRenderer->AllocateVertices( 1000, "Particle Renderer" );
     }
+#endif
 
     m_pMaterial = 0;
 }

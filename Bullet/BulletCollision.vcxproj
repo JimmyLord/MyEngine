@@ -91,7 +91,7 @@
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)Output\Intermediate\$(PlatformName)\$(TargetName)\$(Configuration)\</IntDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Android'">$(SolutionDir)Output\Intermediate\$(PlatformName)\$(TargetName)\$(Configuration)\</IntDir>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ProjectName)_$(Configuration)</TargetName>
-    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|Android'">$(ProjectName)_$(Configuration)</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|Android'">$(ProjectName)</TargetName>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)Output\$(PlatformName)\$(TargetName)\$(Configuration)\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(SolutionDir)Output\Intermediate\$(PlatformName)\$(TargetName)\$(Configuration)\</IntDir>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(ProjectName)_$(Configuration)</TargetName>
@@ -100,7 +100,7 @@
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)Output\Intermediate\$(PlatformName)\$(TargetName)\$(Configuration)\</IntDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Android'">$(SolutionDir)Output\Intermediate\$(PlatformName)\$(TargetName)\$(Configuration)\</IntDir>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProjectName)_$(Configuration)</TargetName>
-    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|Android'">$(ProjectName)_$(Configuration)</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|Android'">$(ProjectName)</TargetName>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)Output\$(PlatformName)\$(TargetName)\$(Configuration)\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)Output\Intermediate\$(PlatformName)\$(TargetName)\$(Configuration)\</IntDir>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(ProjectName)_$(Configuration)</TargetName>
@@ -142,7 +142,8 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Android'">
     <ClCompile>
-      <AdditionalOptions>/MP %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalOptions>
+      </AdditionalOptions>
       <Optimization>Full</Optimization>
       <AdditionalIncludeDirectories>..\..\bullet3\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>
@@ -255,6 +256,8 @@
       <ProgramDataBaseFileName>$(OutDir)BulletCollision_vs2010_debug.pdb</ProgramDataBaseFileName>
       <GccExceptionHandling>true</GccExceptionHandling>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <AdditionalOptions>
+      </AdditionalOptions>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>_DEBUG=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
