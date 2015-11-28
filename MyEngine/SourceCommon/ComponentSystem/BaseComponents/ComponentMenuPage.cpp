@@ -344,10 +344,13 @@ void ComponentMenuPage::RenameMenuPage(const char* newfullpath)
             // launching this messagebox causes a change focus message on the editbox, causing OnValueChanged to get call again, avoiding issue with this hack.
             h_RenameInProgress = true;
 
-            int answer = wxMessageBox( "File already exists.\nDiscard changes and Load it?", "Menu Load Confirm", wxYES_NO, g_pEngineMainFrame );
+            //int answer = wxMessageBox( "File already exists.\nDiscard changes and Load it?", "Menu Load Confirm", wxYES_NO, g_pEngineMainFrame );
+            wxMessageDialog dlg( g_pEngineMainFrame, "File already exists.\nDiscard local changes and Load it?", "Menu Load Confirm", wxYES_NO ); //| wxNO_DEFAULT );
+            dlg.SetYesNoLabels( "Load/Lose local changes", "Ignore file" );
+            int answer = dlg.ShowModal();
 
             // destroy the current menu items and load the new menu page.
-            if( answer == wxYES )
+            if( answer == wxID_YES )
             {
                 ClearAllMenuItems();
                 MyFileObject* pFile = g_pFileManager->RequestFile( newfullpath );

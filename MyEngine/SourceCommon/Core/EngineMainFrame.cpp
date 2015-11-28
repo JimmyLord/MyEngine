@@ -368,14 +368,17 @@ void EngineMainFrame::OnPostInit()
 
 bool EngineMainFrame::OnClose()
 {
-    int answer = wxYES;
+    int answer = wxID_YES;
 
     if( m_pCommandStack->m_UndoStack.size() != m_StackDepthAtLastSave )
     {
-        answer = wxMessageBox( "Some changes aren't saved.\nQuit anyway?", "Confirm", wxYES_NO, this );
+        //answer = wxMessageBox( "Some changes aren't saved.\nQuit anyway?", "Confirm", wxYES_NO, this );
+        wxMessageDialog dlg( this, "Some changes aren't saved.\nQuit anyway?", "Confirm", wxYES_NO | wxNO_DEFAULT );
+        dlg.SetYesNoLabels( "Quit/Lose changes", "Return to editor" );
+        answer = dlg.ShowModal();
     }
 
-    if( answer == wxYES )
+    if( answer == wxID_YES )
     {
         bool parentwantstoclose = MainFrame::OnClose();
 
@@ -468,14 +471,17 @@ void EngineMainFrame::OnMenu_Engine(wxCommandEvent& event)
     {
     case myIDEngine_NewScene:
         {
-            int answer = wxYES;
+            int answer = wxID_YES;
 
             if( m_pCommandStack->m_UndoStack.size() != m_StackDepthAtLastSave )
             {
-                answer = wxMessageBox( "Some changes aren't saved.\nCreate a new scene?", "Confirm", wxYES_NO, this );
+                //answer = wxMessageBox( "Some changes aren't saved.\nCreate a new scene?", "Confirm", wxYES_NO, this );
+                wxMessageDialog dlg( g_pEngineMainFrame, "Some changes aren't saved.\nCreate a new scene?", "Confirm", wxYES_NO | wxNO_DEFAULT );
+                dlg.SetYesNoLabels( "New scene/Lose changes", "Return to editor" );
+                answer = dlg.ShowModal();
             }
 
-            if( answer == wxYES )
+            if( answer == wxID_YES )
             {
                 this->SetTitle( "New scene" );
                 g_pEngineCore->UnloadScene( UINT_MAX, false );
@@ -489,14 +495,17 @@ void EngineMainFrame::OnMenu_Engine(wxCommandEvent& event)
 
     case myIDEngine_LoadScene:
         {
-            int answer = wxYES;
+            int answer = wxID_YES;
 
             if( m_pCommandStack->m_UndoStack.size() != m_StackDepthAtLastSave )
             {
-                answer = wxMessageBox( "Some changes aren't saved.\nLoad anyway?", "Confirm", wxYES_NO, this );
+                //answer = wxMessageBox( "Some changes aren't saved.\nLoad anyway?", "Confirm", wxYES_NO, this );
+                wxMessageDialog dlg( g_pEngineMainFrame, "Some changes aren't saved.\nLoad anyway?", "Confirm", wxYES_NO | wxNO_DEFAULT );
+                dlg.SetYesNoLabels( "Load/Lose changes", "Return to editor" );
+                answer = dlg.ShowModal();
             }
 
-            if( answer == wxYES )
+            if( answer == wxID_YES )
             {
                 LoadSceneDialog( true );
                 ResizeViewport();
