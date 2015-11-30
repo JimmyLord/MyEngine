@@ -93,8 +93,8 @@ public:
     virtual void Tick(double TimePassed) {} // TODO: remove when clearing these out from ComponentUpdatable
 
     void OnScriptLoaded();
-    bool OnTouch(int action, int id, float x, float y, float pressure, float size) {} // TODO: remove when clearing these out from ComponentUpdatable
-    bool OnButtons(GameCoreButtonActions action, GameCoreButtonIDs id) {} // TODO: remove when clearing these out from ComponentUpdatable
+    bool OnTouch(int action, int id, float x, float y, float pressure, float size) { return false; } // TODO: remove when clearing these out from ComponentUpdatable
+    bool OnButtons(GameCoreButtonActions action, GameCoreButtonIDs id) { return false; } // TODO: remove when clearing these out from ComponentUpdatable
 
     // GameObject callbacks.
     static void StaticOnGameObjectDeleted(void* pObjectPtr, GameObject* pGameObject) { ((ComponentLuaScript*)pObjectPtr)->OnGameObjectDeleted( pGameObject ); }

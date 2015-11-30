@@ -36,7 +36,13 @@ ComponentTemplate::~ComponentTemplate()
 void ComponentTemplate::RegisterVariables(CPPListHead* pList, ComponentTemplate* pThis) //_VARIABLE_LIST
 {
     // just want to make sure these are the same on all compilers.  They should be since this is a simple class.
+#if MYFW_IOS || MYFW_OSX || MYFW_NACL
+#pragma GCC diagnostic ignored "-Winvalid-offsetof"
+#endif
     MyAssert( offsetof( ComponentTemplate, m_SampleVector3 ) == MyOffsetOf( pThis, &pThis->m_SampleVector3 ) );
+#if MYFW_IOS || MYFW_OSX
+#pragma GCC diagnostic default "-Winvalid-offsetof"
+#endif
 
     AddVar( pList, "SampleFloat", ComponentVariableType_Vector3, MyOffsetOf( pThis, &pThis->m_SampleVector3 ), true, true, 0, (CVarFunc_ValueChanged)&ComponentTemplate::OnValueChanged, (CVarFunc_DropTarget)&ComponentTemplate::OnDrop, 0 );
 }
