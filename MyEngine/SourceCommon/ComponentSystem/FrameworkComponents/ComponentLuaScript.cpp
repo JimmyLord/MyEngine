@@ -9,6 +9,8 @@
 
 #include "EngineCommonHeader.h"
 
+#if MYFW_USING_LUA
+
 #if MYFW_USING_WX
 bool ComponentLuaScript::m_PanelWatchBlockVisible = true;
 #endif
@@ -1121,3 +1123,5 @@ void ComponentLuaScript::OnGameObjectDeleted(GameObject* pGameObject)
         }
     }
 }
+
+#endif //MYFW_USING_LUA

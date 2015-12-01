@@ -9,6 +9,8 @@
 
 #include "EngineCommonHeader.h"
 
+#if MYFW_USING_LUA
+
 LuaGameState* g_pLuaGameState = 0;
 
 void LUA_LogInfo(const char* str)
@@ -156,3 +158,5 @@ void LuaGameState::RegisterClasses()
     luabridge::setGlobal( m_pLuaState, g_pComponentSystemManager, "g_pComponentSystemManager" );
     luabridge::setGlobal( m_pLuaState, g_pFileManager, "g_pFileManager" );
 }
+
+#endif //MYFW_USING_LUA
