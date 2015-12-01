@@ -130,7 +130,9 @@ public:
     ComponentSystemManager(ComponentTypeManager* typemanager);
     virtual ~ComponentSystemManager();
 
+#if MYFW_USING_LUA
     static void LuaRegister(lua_State* luastate);
+#endif //MYFW_USING_LUA
 
     void MoveAllFilesNeededForLoadingScreenToStartOfFileList();
     void AddListOfFilesUsedToJSONObject(unsigned int sceneid, cJSON* filearray);

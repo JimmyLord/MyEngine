@@ -12,6 +12,12 @@
 
 #define MYFW_USING_MYENGINE 1
 
+#if MYFW_NACL
+#define MYFW_USING_LUA 0
+#else
+#define MYFW_USING_LUA 1
+#endif
+
 // framework code
 #include "../../Framework/MyFramework/SourceCommon/CommonHeader.h"
 #if MYFW_USING_WX
@@ -36,6 +42,7 @@
 #include "Core/BulletWorld.h"
 
 // lua
+#if MYFW_USING_LUA
 extern "C"
 {
     #include "../../lua/src/lua.h"
@@ -48,6 +55,7 @@ extern "C"
 #include "../../lua/LuaBridge/LuaBridge.h"
 #pragma warning( pop )
 #include "Core/LuaGameState.h"
+#endif //MYFW_USING_LUA
 
 // core component system code
 #include "ComponentSystem/Core/EngineFileManager.h"
@@ -75,7 +83,9 @@ extern "C"
 #include "ComponentSystem/FrameworkComponents/ComponentMeshPrimitive.h"
 #include "ComponentSystem/FrameworkComponents/ComponentParticleEmitter.h"
 #include "ComponentSystem/FrameworkComponents/ComponentAnimationPlayer.h"
+#if MYFW_USING_LUA
 #include "ComponentSystem/FrameworkComponents/ComponentLuaScript.h"
+#endif //MYFW_USING_LUA
 #include "ComponentSystem/FrameworkComponents/ComponentCollisionObject.h"
 
 // misc engine code

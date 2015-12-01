@@ -99,6 +99,7 @@ MYFW_COMPONENTSYSTEMMANAGER_IMPLEMENT_CALLBACK_REGISTER_FUNCTIONS( OnButtons );
 MYFW_COMPONENTSYSTEMMANAGER_IMPLEMENT_CALLBACK_REGISTER_FUNCTIONS( OnKeys );
 MYFW_COMPONENTSYSTEMMANAGER_IMPLEMENT_CALLBACK_REGISTER_FUNCTIONS( OnFileRenamed );
 
+#if MYFW_USING_LUA
 void ComponentSystemManager::LuaRegister(lua_State* luastate)
 {
     luabridge::getGlobalNamespace( luastate )
@@ -109,6 +110,7 @@ void ComponentSystemManager::LuaRegister(lua_State* luastate)
             .addFunction( "FindGameObjectByName", &ComponentSystemManager::FindGameObjectByName )
         .endClass();
 }
+#endif //MYFW_USING_LUA
 
 #if MYFW_USING_WX
 void ComponentSystemManager::CheckForUpdatedDataSourceFiles(bool initialcheck)
@@ -260,6 +262,7 @@ void ComponentSystemManager::MoveAllFilesNeededForLoadingScreenToStartOfFileList
                     }
                 }
 
+#if MYFW_USING_LUA
                 // move lua scripts to front of list.
                 if( pComponent->IsA( "LuaScriptComponent" ) )
                 {
@@ -269,6 +272,7 @@ void ComponentSystemManager::MoveAllFilesNeededForLoadingScreenToStartOfFileList
                         g_pFileManager->MoveFileToFrontOfFileLoadedList( pScriptFile );
                     }
                 }
+#endif //MYFW_USING_LUA
             }
         }
     }

@@ -46,7 +46,9 @@ public:
     ComponentSystemManager* m_pComponentSystemManager;
 
     BulletWorld* m_pBulletWorld;
+#if MYFW_USING_LUA
     LuaGameState* m_pLuaGameState;
+#endif //MYFW_USING_LUA
 
     bool m_EditorMode;
     bool m_AllowGameToRunInEditorMode;
@@ -99,7 +101,9 @@ public:
     virtual void InitializeManagers();
 
     virtual ComponentTypeManager* CreateComponentTypeManager() = 0;
+#if MYFW_USING_LUA
     virtual LuaGameState* CreateLuaGameState() { return MyNew LuaGameState; }
+#endif //MYFW_USING_LUA
 
     virtual void OneTimeInit();
     virtual bool IsReadyToRender();

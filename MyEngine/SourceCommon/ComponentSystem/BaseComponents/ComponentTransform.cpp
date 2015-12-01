@@ -93,6 +93,7 @@ void ComponentTransform::Reset()
 #endif //MYFW_USING_WX
 }
 
+#if MYFW_USING_LUA
 void ComponentTransform::LuaRegister(lua_State* luastate)
 {
     luabridge::getGlobalNamespace( luastate )
@@ -104,6 +105,7 @@ void ComponentTransform::LuaRegister(lua_State* luastate)
             .addFunction( "GetLocalRotation", &ComponentTransform::GetLocalRotation )
         .endClass();
 }
+#endif //MYFW_USING_LUA
 
 #if MYFW_USING_WX
 bool ComponentTransform::IsAnyParentInList(std::vector<GameObject*>& gameobjects)

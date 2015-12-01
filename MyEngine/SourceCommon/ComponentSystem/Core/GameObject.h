@@ -50,7 +50,9 @@ public:
     GameObject* GetGameObjectThisInheritsFrom() { return m_pGameObjectThisInheritsFrom; }
     void SetGameObjectThisInheritsFrom(GameObject* pObj) { m_pGameObjectThisInheritsFrom = pObj; }
 
+#if MYFW_USING_LUA
     static void LuaRegister(lua_State* luastate);
+#endif //MYFW_USING_LUA
 
     cJSON* ExportAsJSONObject(bool savesceneid);
     void ImportFromJSONObject(cJSON* jGameObject, unsigned int sceneid);

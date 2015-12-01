@@ -47,7 +47,9 @@ EngineCore::EngineCore()
 
     m_pBulletWorld = MyNew BulletWorld();
 
+#if MYFW_USING_LUA
     m_pLuaGameState = 0;
+#endif //MYFW_USING_LUA
 
     m_PauseTimeToAdvance = 0;
 
@@ -79,7 +81,9 @@ EngineCore::~EngineCore()
 {
     SAFE_DELETE( g_pRTQGlobals );
 
+#if MYFW_USING_LUA
     SAFE_DELETE( m_pLuaGameState );
+#endif //MYFW_USING_LUA
 
     g_pFileManager->FreeFile( m_pShaderFile_TintColor );
     g_pFileManager->FreeFile( m_pShaderFile_ClipSpaceTexture );
@@ -153,7 +157,9 @@ void EngineCore::OneTimeInit()
     m_pComponentSystemManager = MyNew ComponentSystemManager( CreateComponentTypeManager() );
 
     // initialize lua state and register any variables needed.
+#if MYFW_USING_LUA
     m_pLuaGameState = CreateLuaGameState();
+#endif //MYFW_USING_LUA
 
 #if MYFW_USING_WX
 //    m_pComponentSystemManager->CreateNewScene( "Unsaved.scene", 1 );
@@ -237,6 +243,7 @@ double EngineCore::Tick(double TimePassed)
         }
     }
 
+#if MYFW_USING_LUA
     if( g_pLuaGameState && g_pLuaGameState->m_pLuaState )
     {
         int luamemcountk = lua_gc( g_pLuaGameState->m_pLuaState, LUA_GCCOUNT, 0 );
@@ -244,6 +251,7 @@ double EngineCore::Tick(double TimePassed)
         m_LuaMemoryUsedLastFrame = m_LuaMemoryUsedThisFrame;
         m_LuaMemoryUsedThisFrame = luamemcountk*1024 + luamemcountb;
     }
+#endif
 
     // update the global unpaused time.
     if( m_EditorMode && m_AllowGameToRunInEditorMode == false )
@@ -1633,7 +1641,9 @@ void EngineCore::LoadScene(const char* scenename, const char* buffer, unsigned i
     m_pEditorState->ClearEditorState( false );
 #endif //MYFW_USING_WX
 
+#if MYFW_USING_LUA
     m_pLuaGameState->Rebuild(); // reset the lua state.
+#endif //MYFW_USING_LUA
     g_pComponentSystemManager->LoadSceneFromJSON( scenename, buffer, sceneid );
 
     // Tell all the cameras loaded in the scene the dimensions of the window. // TODO: move this into camera's onload.

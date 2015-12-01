@@ -65,6 +65,7 @@ void ComponentCollisionObject::Reset()
 #endif //MYFW_USING_WX
 }
 
+#if MYFW_USING_LUA
 void ComponentCollisionObject::LuaRegister(lua_State* luastate)
 {
     luabridge::getGlobalNamespace( luastate )
@@ -73,6 +74,7 @@ void ComponentCollisionObject::LuaRegister(lua_State* luastate)
             .addFunction( "ApplyForce", &ComponentCollisionObject::ApplyForce )
         .endClass();
 }
+#endif //MYFW_USING_LUA
 
 #if MYFW_USING_WX
 void ComponentCollisionObject::AddToObjectsPanel(wxTreeItemId gameobjectid)

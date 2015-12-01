@@ -67,6 +67,7 @@ void ComponentSprite::Reset()
 #endif //MYFW_USING_WX
 }
 
+#if MYFW_USING_LUA
 void ComponentSprite::LuaRegister(lua_State* luastate)
 {
     luabridge::getGlobalNamespace( luastate ).addFunction( "CastAs_ComponentSprite", CastAs_ComponentSprite );
@@ -78,6 +79,7 @@ void ComponentSprite::LuaRegister(lua_State* luastate)
             .addFunction( "GetSprite", &ComponentSprite::GetSprite )
         .endClass();
 }
+#endif //MYFW_USING_LUA
 
 void* ComponentSprite::GetPointerValue(ComponentVariable* pVar) //_VARIABLE_LIST
 {

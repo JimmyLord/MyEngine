@@ -31,7 +31,9 @@ public:
     virtual ~ComponentAnimationPlayer();
     SetClassnameBase( "AnimPlayerComponent" ); // only first 8 character count.
 
+#if MYFW_USING_LUA
     static void LuaRegister(lua_State* luastate);
+#endif //MYFW_USING_LUA
 
     virtual cJSON* ExportAsJSONObject(bool savesceneid);
     virtual void ImportFromJSONObject(cJSON* jsonobj, unsigned int sceneid);

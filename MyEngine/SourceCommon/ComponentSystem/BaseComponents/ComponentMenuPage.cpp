@@ -139,6 +139,7 @@ ComponentMenuPage* CastAs_ComponentMenuPage(ComponentBase* pComponent)
     return (ComponentMenuPage*)pComponent;
 }
 
+#if MYFW_USING_LUA
 void ComponentMenuPage::LuaRegister(lua_State* luastate)
 {
     luabridge::getGlobalNamespace( luastate ).addFunction( "CastAs_ComponentMenuPage", CastAs_ComponentMenuPage );
@@ -157,6 +158,7 @@ void ComponentMenuPage::LuaRegister(lua_State* luastate)
             .addFunction( "GetID", &ComponentMenuPage::GetID )
         .endClass();
 }
+#endif //MYFW_USING_LUA
 
 ComponentMenuPage& ComponentMenuPage::operator=(const ComponentMenuPage& other)
 {
@@ -1819,6 +1821,7 @@ bool ComponentMenuPage::ExecuteAction(const char* function, const char* action, 
             if( m_MenuPageActionCallbackStruct.pFunc( m_MenuPageActionCallbackStruct.pObj, this, function, action, pItem ) )
                 return true;
         }
+#if MYFW_USING_LUA
 #if MYFW_USING_WX
         // in editor, there's a chance the script component was created and not associated with this object.
         FindLuaScriptComponentPointer();
@@ -1828,6 +1831,7 @@ bool ComponentMenuPage::ExecuteAction(const char* function, const char* action, 
             if( m_pComponentLuaScript->CallFunction( function, action ) )
                 return true;
         }
+#endif //MYFW_USING_LUA
     }
 
     return false;
@@ -1860,8 +1864,10 @@ void ComponentMenuPage::ShowPage()
 #endif
 
     // don't allow menu page to be shown until the script is loaded.
+#if MYFW_USING_LUA
     if( m_pComponentLuaScript && m_pComponentLuaScript->IsScriptLoaded() == false )
         return;
+#endif //MYFW_USING_LUA
 
     bool layoutchanged = false;
 
@@ -1901,10 +1907,12 @@ void ComponentMenuPage::ShowPage()
         ResetSelectedItemToDefault();
     }
 
+#if MYFW_USING_LUA
     if( m_pComponentLuaScript )
     {
         m_pComponentLuaScript->CallFunction( "OnVisible" );
     }
+#endif //MYFW_USING_LUA
 }
 
 void ComponentMenuPage::HidePage()

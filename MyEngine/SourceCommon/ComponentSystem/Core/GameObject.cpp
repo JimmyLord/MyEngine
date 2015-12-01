@@ -62,6 +62,7 @@ GameObject::~GameObject()
     SAFE_DELETE_ARRAY( m_Name );
 }
 
+#if MYFW_USING_LUA
 void GameObject::LuaRegister(lua_State* luastate)
 {
     luabridge::getGlobalNamespace( luastate )
@@ -78,6 +79,7 @@ void GameObject::LuaRegister(lua_State* luastate)
             .addFunction( "GetCollisionObject", &GameObject::GetCollisionObject )
         .endClass();
 }
+#endif //MYFW_USING_LUA
 
 #if MYFW_USING_WX
 void GameObject::OnTitleLabelClicked(int controlid, bool finishedchanging)
@@ -595,9 +597,11 @@ void GameObject::SetScriptFile(MyFileObject* pFile)
     {
         if( m_Components[i]->m_BaseType == BaseComponentType_Updateable )
         {
+#if MYFW_USING_LUA
             ComponentLuaScript* pLuaComponent = m_Components[i]->IsA( "LuaScriptComponent" ) ? (ComponentLuaScript*)m_Components[i] : 0;
             if( pLuaComponent )
                 pLuaComponent->SetScriptFile( pFile );
+#endif //MYFW_USING_LUA
         }
     }
 }

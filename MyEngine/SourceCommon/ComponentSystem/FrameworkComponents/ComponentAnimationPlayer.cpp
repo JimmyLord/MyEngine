@@ -45,6 +45,7 @@ void ComponentAnimationPlayer::Reset()
     m_TransitionTimeTotal = 0;
 }
 
+#if MYFW_USING_LUA
 void ComponentAnimationPlayer::LuaRegister(lua_State* luastate)
 {
     luabridge::getGlobalNamespace( luastate )
@@ -53,6 +54,7 @@ void ComponentAnimationPlayer::LuaRegister(lua_State* luastate)
             .addFunction( "SetCurrentAnimation", &ComponentAnimationPlayer::SetCurrentAnimation )
         .endClass();
 }
+#endif //MYFW_USING_LUA
 
 #if MYFW_USING_WX
 void ComponentAnimationPlayer::AddToObjectsPanel(wxTreeItemId gameobjectid)

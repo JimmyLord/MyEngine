@@ -635,5 +635,8 @@
     <ClInclude Include="SourceCommon\ComponentSystem\ComponentTemplate.h">
       <Filter>Source\ComponentSystem</Filter>
     </ClInclude>
+    <ClInclude Include="SourceNaCL\memory.h">
+      <Filter>Source - Platform\Source - NaCL</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

@@ -45,7 +45,9 @@ ComponentBase* EngineComponentTypeManager::CreateComponent(int type)
     case ComponentType_CameraShadow:        pComponent = MyNew ComponentCameraShadow;       break;
     case ComponentType_PostEffect:          pComponent = MyNew ComponentPostEffect;         break;
     case ComponentType_CollisionObject:     pComponent = MyNew ComponentCollisionObject;    break;
+#if MYFW_USING_LUA
     case ComponentType_LuaScript:           pComponent = MyNew ComponentLuaScript;          break;
+#endif //MYFW_USING_LUA
     case ComponentType_ParticleEmitter:     pComponent = MyNew ComponentParticleEmitter;    break;
     case ComponentType_AnimationPlayer:     pComponent = MyNew ComponentAnimationPlayer;    break;
     case ComponentType_MenuPage:            pComponent = MyNew ComponentMenuPage;           break;

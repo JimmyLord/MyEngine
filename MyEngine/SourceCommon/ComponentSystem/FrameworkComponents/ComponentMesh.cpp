@@ -89,9 +89,11 @@ void ComponentMesh::Reset()
 #endif //MYFW_USING_WX
 }
 
+#if MYFW_USING_LUA
 void ComponentMesh::LuaRegister(lua_State* luastate)
 {
 }
+#endif //MYFW_USING_LUA
 
 #if MYFW_USING_WX
 void ComponentMesh::AddToObjectsPanel(wxTreeItemId gameobjectid)

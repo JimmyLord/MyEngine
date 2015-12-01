@@ -50,6 +50,7 @@ void ComponentBase::Reset()
 #endif
 }
 
+#if MYFW_USING_LUA
 void ComponentBase::LuaRegister(lua_State* luastate)
 {
     luabridge::getGlobalNamespace( luastate )
@@ -66,6 +67,7 @@ void ComponentBase::LuaRegister(lua_State* luastate)
             .addFunction( "GetID", &ComponentBase::GetID )
         .endClass();
 }
+#endif //MYFW_USING_LUA
 
 void ComponentBase::SetEnabled(bool enabled)
 {
