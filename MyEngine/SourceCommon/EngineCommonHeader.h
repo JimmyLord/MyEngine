@@ -12,11 +12,7 @@
 
 #define MYFW_USING_MYENGINE 1
 
-#if MYFW_NACL
-#define MYFW_USING_LUA 0
-#else
 #define MYFW_USING_LUA 1
-#endif
 
 // framework code
 #include "../../Framework/MyFramework/SourceCommon/CommonHeader.h"
