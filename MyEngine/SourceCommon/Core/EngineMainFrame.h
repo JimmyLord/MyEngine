@@ -27,6 +27,7 @@ enum EngineMenuIDs
 {
     myIDEngine_NewScene = myID_LastID,
     myIDEngine_LoadScene,
+    myIDEngine_CreateAdditionalScene,
     myIDEngine_LoadAdditionalScene,
     myIDEngine_SaveScene,
     myIDEngine_SaveSceneAs,

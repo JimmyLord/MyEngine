@@ -178,9 +178,10 @@ void EngineMainFrame::InitFrame()
 
     m_File->Insert( 0, myIDEngine_NewScene, wxT("&New Scene") );
     m_File->Insert( 1, myIDEngine_LoadScene, wxT("&Load Scene...") );
-    m_File->Insert( 2, myIDEngine_LoadAdditionalScene, wxT("&Load Additional Scene...") );
-    m_File->Insert( 3, myIDEngine_SaveScene, wxT("&Save Scene\tCtrl-S") );
-    m_File->Insert( 4, myIDEngine_SaveSceneAs, wxT("Save Scene &As...") );
+    m_File->Insert( 2, myIDEngine_CreateAdditionalScene, wxT("&Create Additional Scene") );
+    m_File->Insert( 3, myIDEngine_LoadAdditionalScene, wxT("&Load Additional Scene...") );
+    m_File->Insert( 4, myIDEngine_SaveScene, wxT("&Save Scene\tCtrl-S") );
+    m_File->Insert( 5, myIDEngine_SaveSceneAs, wxT("Save Scene &As...") );
 
     m_Grid = MyNew wxMenu;
     m_MenuBar->Append( m_Grid, wxT("&Grid") );
@@ -241,6 +242,7 @@ void EngineMainFrame::InitFrame()
 
     Connect( myIDEngine_NewScene,     wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );
     Connect( myIDEngine_LoadScene,    wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );
+    Connect( myIDEngine_CreateAdditionalScene,  wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );
     Connect( myIDEngine_LoadAdditionalScene,    wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );
     Connect( myIDEngine_SaveScene,    wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );
     Connect( myIDEngine_SaveSceneAs,  wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );
@@ -510,6 +512,14 @@ void EngineMainFrame::OnMenu_Engine(wxCommandEvent& event)
                 LoadSceneDialog( true );
                 ResizeViewport();
             }
+        }
+        break;
+
+    case myIDEngine_CreateAdditionalScene:
+        {
+            unsigned int sceneid = g_pComponentSystemManager->GetNextSceneID();
+            g_pComponentSystemManager->CreateNewScene( "Unsaved.scene", sceneid );
+            g_pComponentSystemManager->GetSceneInfo( sceneid )->fullpath[0] = 0;
         }
         break;
 
