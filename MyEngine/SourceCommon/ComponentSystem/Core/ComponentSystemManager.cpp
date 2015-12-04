@@ -1369,9 +1369,15 @@ void ComponentSystemManager::DrawMousePickerFrame(ComponentCamera* pCamera, MyMa
                     if( id > 256*256 )      tint.b = (id>>16)%256;
                     if( id > 256*256*256 )  tint.a = (id>>24)%256;
 
+                    checkGlError( "ComponentSystemManager::DrawMousePickerFrame" );
+
                     pShader->ProgramTint( tint );
 
+                    checkGlError( "ComponentSystemManager::DrawMousePickerFrame" );
+
                     (pCallbackStruct->pObj->*pCallbackStruct->pFunc)( pCamera, pMatViewProj, pShaderOverride );
+
+                    checkGlError( "ComponentSystemManager::DrawMousePickerFrame" );
                 }
             }
         }

@@ -1339,14 +1339,24 @@ void ComponentMenuPage::CreateMenuItems()
 {
     if( m_MenuItemsCreated == false )
     {
-        if( m_pMenuLayoutFile && m_pMenuLayoutFile->m_FileLoadStatus == FileLoadStatus_Success )
+        if( m_pMenuLayoutFile )
         {
-            MyAssert( m_MenuLayouts == 0 );
-            m_MenuLayouts = cJSON_Parse( m_pMenuLayoutFile->m_pBuffer );
-            if( m_MenuLayouts == 0 )
-                m_MenuLayouts = cJSON_CreateObject();
+            if( m_pMenuLayoutFile->m_FileLoadStatus == FileLoadStatus_Success )
+            {
+                MyAssert( m_MenuLayouts == 0 );
+                m_MenuLayouts = cJSON_Parse( m_pMenuLayoutFile->m_pBuffer );
+                if( m_MenuLayouts == 0 )
+                    m_MenuLayouts = cJSON_CreateObject();
 
-            LoadLayoutBasedOnCurrentAspectRatio();
+                LoadLayoutBasedOnCurrentAspectRatio();
+            }
+            else if( m_pMenuLayoutFile->m_FileLoadStatus == FileLoadStatus_Error_FileNotFound )
+            {
+                if( m_MenuLayouts == 0 )
+                    m_MenuLayouts = cJSON_CreateObject();
+
+                LoadLayoutBasedOnCurrentAspectRatio();
+            }
         }
     }
 }
@@ -1542,6 +1552,10 @@ void ComponentMenuPage::UpdateLayout(cJSON* layout)
 
 void ComponentMenuPage::DrawCallback(ComponentCamera* pCamera, MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride)
 {
+    // TODO: menu items don't support shader overrides.
+    if( pShaderOverride != 0 )
+        return;
+
     //ComponentRenderable::DrawCallback( pCamera, pMatViewProj, pShaderOverride );
 
     if( m_Visible == false || (m_LayersThisExistsOn & pCamera->m_LayersToRender) == 0 )

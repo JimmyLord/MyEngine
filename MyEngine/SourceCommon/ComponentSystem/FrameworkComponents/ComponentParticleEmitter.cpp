@@ -371,6 +371,10 @@ void ComponentParticleEmitter::TickCallback(double TimePassed)
 
 void ComponentParticleEmitter::DrawCallback(ComponentCamera* pCamera, MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride)
 {
+    // TODO: Particles don't support shader overrides.
+    if( pShaderOverride != 0 )
+        return;
+
     ComponentRenderable::Draw( pMatViewProj, pShaderOverride, 0 );
 
     if( m_pMaterial == 0 )
