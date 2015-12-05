@@ -790,7 +790,7 @@ void ComponentSystemManager::LoadSceneFromJSON(const char* scenename, const char
     SyncAllRigidBodiesToObjectTransforms();
 }
 
-void ComponentSystemManager::FinishLoading(bool lockwhileloading, bool playwhenfinishedloading)
+void ComponentSystemManager::FinishLoading(bool lockwhileloading, unsigned int sceneid, bool playwhenfinishedloading)
 {
     m_StartGamePlayWhenDoneLoading = playwhenfinishedloading;
     m_WaitingForFilesToFinishLoading = lockwhileloading;
@@ -809,7 +809,7 @@ void ComponentSystemManager::FinishLoading(bool lockwhileloading, bool playwhenf
         m_WaitingForFilesToFinishLoading = false;
     }
 
-    OnLoad();
+    OnLoad( sceneid );
 
     if( playwhenfinishedloading )
     {
@@ -1201,7 +1201,8 @@ void ComponentSystemManager::Tick(double TimePassed)
 {
     if( m_WaitingForFilesToFinishLoading )
     {
-        FinishLoading( true, m_StartGamePlayWhenDoneLoading );
+        // TODO: this is hardcoded to the first scene.
+        FinishLoading( true, 1, m_StartGamePlayWhenDoneLoading );
     }
 
 #if MYFW_USING_WX
@@ -1474,14 +1475,15 @@ void ComponentSystemManager::DrawSingleObject(MyMatrix* pMatViewProj, GameObject
 }
 #endif //MYFW_USING_WX
 
-void ComponentSystemManager::OnLoad()
+void ComponentSystemManager::OnLoad(unsigned int sceneid)
 {
     for( unsigned int i=0; i<BaseComponentType_NumTypes; i++ )
     {
         for( CPPListNode* node = m_Components[i].GetHead(); node != 0; node = node->GetNext() )
         {
             ComponentBase* pComponent = (ComponentBase*)node;
-            pComponent->OnLoad();
+            if( pComponent->GetSceneID() == sceneid )
+                pComponent->OnLoad();
         }
     }
 }

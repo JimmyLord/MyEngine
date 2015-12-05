@@ -144,7 +144,7 @@ public:
     void FreeAllDataFiles(unsigned int sceneidtoclear);
 
     void LoadSceneFromJSON(const char* scenename, const char* jsonstr, unsigned int sceneid);
-    void FinishLoading(bool lockwhileloading, bool playwhenfinishedloading);
+    void FinishLoading(bool lockwhileloading, unsigned int sceneid, bool playwhenfinishedloading);
 
     void SyncAllRigidBodiesToObjectTransforms();
 
@@ -183,7 +183,7 @@ public:
     void OnDrawFrame(ComponentCamera* pCamera, MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride);
     void OnFileRenamed(const char* fullpathbefore, const char* fullpathafter);
 
-    void OnLoad();
+    void OnLoad(unsigned int sceneid);
     void OnPlay();
     void OnStop();
 

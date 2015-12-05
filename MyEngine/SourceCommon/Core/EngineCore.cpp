@@ -109,6 +109,16 @@ EngineCore::~EngineCore()
     SAFE_DELETE( m_pBulletWorld );
 }
 
+#if MYFW_USING_LUA
+void EngineCore::LuaRegister(lua_State* luastate)
+{
+    luabridge::getGlobalNamespace( luastate )
+        .beginClass<EngineCore>( "EngineCore" )
+            .addFunction( "LoadSceneFromFile", &EngineCore::LoadSceneFromFile )
+        .endClass();
+}
+#endif //MYFW_USING_LUA
+
 void EngineCore::InitializeManagers()
 {
     if( g_pFileManager == 0 )
@@ -159,6 +169,7 @@ void EngineCore::OneTimeInit()
     // initialize lua state and register any variables needed.
 #if MYFW_USING_LUA
     m_pLuaGameState = CreateLuaGameState();
+    m_pLuaGameState->Rebuild(); // reset the lua state.
 #endif //MYFW_USING_LUA
 
 #if MYFW_USING_WX
@@ -686,7 +697,6 @@ void EngineCore::OnModeStop()
 
 #if MYFW_USING_WX
         Editor_QuickLoadScene( "temp_editor_onplay.scene" );
-        //LoadSceneFromFile( "temp_editor_onplay.scene", 1 );
 #endif
 
         m_EditorMode = true;
@@ -1539,8 +1549,10 @@ void EngineCore::UnloadScene(unsigned int sceneid, bool cleareditorobjects)
 }
 
 #if MYFW_USING_WX
-void EngineCore::LoadSceneFromFile(const char* fullpath, unsigned int sceneid)
+unsigned int EngineCore::LoadSceneFromFile(const char* fullpath)
 {
+    unsigned int sceneid = g_pComponentSystemManager->GetNextSceneID();
+
     FILE* filehandle;
 #if MYFW_WINDOWS
     errno_t err = fopen_s( &filehandle, fullpath, "rb" );
@@ -1579,6 +1591,8 @@ void EngineCore::LoadSceneFromFile(const char* fullpath, unsigned int sceneid)
 
         delete[] jsonstr;
     }
+
+    return sceneid;
 }
 
 void EngineCore::Editor_QuickSaveScene(const char* fullpath)
@@ -1634,26 +1648,23 @@ void EngineCore::Editor_QuickLoadScene(const char* fullpath)
 }
 #endif //MYFW_USING_WX
 
-void EngineCore::LoadScene(const char* scenename, const char* buffer, unsigned int sceneid)
+void EngineCore::LoadScene(const char* scenename, const char* jsonstr, unsigned int sceneid)
 {
     // reset the editorstate structure.
 #if MYFW_USING_WX
     m_pEditorState->ClearEditorState( false );
 #endif //MYFW_USING_WX
 
-#if MYFW_USING_LUA
-    m_pLuaGameState->Rebuild(); // reset the lua state.
-#endif //MYFW_USING_LUA
-    g_pComponentSystemManager->LoadSceneFromJSON( scenename, buffer, sceneid );
+    g_pComponentSystemManager->LoadSceneFromJSON( scenename, jsonstr, sceneid );
 
     // Tell all the cameras loaded in the scene the dimensions of the window. // TODO: move this into camera's onload.
     OnSurfaceChanged( (unsigned int)m_WindowStartX, (unsigned int)m_WindowStartY, (unsigned int)m_WindowWidth, (unsigned int)m_WindowHeight );
 
     // Finish loading, calls onload and onplay.
 #if MYFW_USING_WX
-    g_pComponentSystemManager->FinishLoading( false, m_AllowGameToRunInEditorMode );
+    g_pComponentSystemManager->FinishLoading( false, sceneid, m_AllowGameToRunInEditorMode );
 #else
-    g_pComponentSystemManager->FinishLoading( false, true );
+    g_pComponentSystemManager->FinishLoading( false, sceneid, true );
 #endif
 
 #if MYFW_USING_WX

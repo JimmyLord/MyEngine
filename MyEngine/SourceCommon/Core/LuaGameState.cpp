@@ -138,6 +138,7 @@ void LuaGameState::RegisterClasses()
         .endClass();
 
     // Have some entity/component classes register themselves.
+    EngineCore::LuaRegister( m_pLuaState );
     GameObject::LuaRegister( m_pLuaState );
     ComponentBase::LuaRegister( m_pLuaState );
     ComponentMenuPage::LuaRegister( m_pLuaState );
@@ -155,6 +156,7 @@ void LuaGameState::RegisterClasses()
     MenuText::LuaRegister( m_pLuaState );
 
     // register global managers
+    luabridge::setGlobal( m_pLuaState, g_pEngineCore, "g_pEngineCore" );
     luabridge::setGlobal( m_pLuaState, g_pComponentSystemManager, "g_pComponentSystemManager" );
     luabridge::setGlobal( m_pLuaState, g_pFileManager, "g_pFileManager" );
 }

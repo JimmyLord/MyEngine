@@ -98,6 +98,10 @@ public:
     EngineCore();
     virtual ~EngineCore();
 
+#if MYFW_USING_LUA
+    static void LuaRegister(lua_State* luastate);
+#endif //MYFW_USING_LUA
+
     virtual void InitializeManagers();
 
     virtual ComponentTypeManager* CreateComponentTypeManager() = 0;
@@ -134,11 +138,11 @@ public:
     void SaveScene(const char* fullpath, unsigned int sceneid);
     void UnloadScene(unsigned int sceneid, bool cleareditorobjects);
 #if MYFW_USING_WX
-    void LoadSceneFromFile(const char* fullpath, unsigned int sceneid);
+    unsigned int LoadSceneFromFile(const char* fullpath);
     void Editor_QuickSaveScene(const char* fullpath);
     void Editor_QuickLoadScene(const char* fullpath);
 #endif //MYFW_USING_WX
-    void LoadScene(const char* scenename, const char* buffer, unsigned int sceneid);
+    void LoadScene(const char* scenename, const char* jsonstr, unsigned int sceneid);
 
 #if MYFW_USING_WX
     void Editor_OnSurfaceChanged(unsigned int startx, unsigned int starty, unsigned int width, unsigned int height);

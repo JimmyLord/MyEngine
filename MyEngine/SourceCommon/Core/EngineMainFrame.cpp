@@ -866,9 +866,7 @@ void EngineMainFrame::LoadScene(const char* scenename, bool unloadscenes)
         g_pEngineCore->UnloadScene( UINT_MAX, false ); // don't unload editor objects.
     }
 
-    unsigned int sceneid = g_pComponentSystemManager->GetNextSceneID();
-    g_pEngineCore->LoadSceneFromFile( scenename, sceneid );
-
+    unsigned int sceneid = g_pEngineCore->LoadSceneFromFile( scenename );
     this->SetTitle( g_pComponentSystemManager->GetSceneInfo( sceneid )->fullpath );
 }
 
