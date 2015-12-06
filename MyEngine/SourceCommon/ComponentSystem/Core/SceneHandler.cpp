@@ -11,9 +11,10 @@
 
 void SceneInfo::ChangePath(const char* newfullpath)
 {
-    sprintf_s( fullpath, MAX_PATH, "%s", newfullpath ); 
+    sprintf_s( m_FullPath, MAX_PATH, "%s", newfullpath ); 
+
 #if MYFW_USING_WX
-    if( treeid.IsOk() )
+    if( m_TreeID.IsOk() )
     {
         const char* filenamestart;
         int i;
@@ -24,7 +25,7 @@ void SceneInfo::ChangePath(const char* newfullpath)
         }
         filenamestart = &newfullpath[i+1];
 
-        g_pPanelObjectList->RenameObject( treeid, filenamestart );
+        g_pPanelObjectList->RenameObject( m_TreeID, filenamestart );
     }
 #endif //MYFW_USING_WX
 }

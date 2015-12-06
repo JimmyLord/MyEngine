@@ -14,19 +14,27 @@ struct SceneInfo
 {
 public:
 #if MYFW_USING_WX
-    wxTreeItemId treeid;
+    wxTreeItemId m_TreeID;
 #endif
-    char fullpath[MAX_PATH];
+    char m_FullPath[MAX_PATH];
     unsigned int m_NextGameObjectID;
     unsigned int m_NextComponentID;
+    bool m_InUse;
 
 public:
     SceneInfo()
     {
-        fullpath[0] = 0;
+        Reset();
+    }
+
+    void Reset()
+    {
+        m_FullPath[0] = 0;
 
         m_NextGameObjectID = 1;
         m_NextComponentID = 1;
+
+        m_InUse = false;
     }
 
     void ChangePath(const char* newfullpath);

@@ -418,11 +418,11 @@ bool EngineMainFrame::OnClose()
             cJSON_AddNumberToObject( pPrefs, "IsMaximized", m_Maximized );
             cJSON_AddNumberToObject( pPrefs, "ShowIcons", m_ShowEditorIcons );
 
-            const char* relativepath = GetRelativePath( g_pComponentSystemManager->GetSceneInfo( 1 )->fullpath );
+            const char* relativepath = GetRelativePath( g_pComponentSystemManager->GetSceneInfo( 1 )->m_FullPath );
             if( relativepath )
                 cJSON_AddStringToObject( pPrefs, "LastSceneLoaded", relativepath );
             else
-                cJSON_AddStringToObject( pPrefs, "LastSceneLoaded", g_pComponentSystemManager->GetSceneInfo( 1 )->fullpath );
+                cJSON_AddStringToObject( pPrefs, "LastSceneLoaded", g_pComponentSystemManager->GetSceneInfo( 1 )->m_FullPath );
             cJSON_AddItemToObject( pPrefs, "EditorCam", g_pEngineCore->m_pEditorState->GetEditorCamera()->m_pComponentTransform->ExportAsJSONObject( false ) );
             cJSON_AddNumberToObject( pPrefs, "EditorLayout", GetDefaultEditorPerspectiveIndex() );
             cJSON_AddNumberToObject( pPrefs, "GameplayLayout", GetDefaultGameplayPerspectiveIndex() );
@@ -488,7 +488,7 @@ void EngineMainFrame::OnMenu_Engine(wxCommandEvent& event)
                 this->SetTitle( "New scene" );
                 g_pEngineCore->UnloadScene( UINT_MAX, false );
                 g_pComponentSystemManager->CreateNewScene( "Unsaved.scene", 1 );
-                g_pComponentSystemManager->GetSceneInfo( 1 )->fullpath[0] = 0;
+                g_pComponentSystemManager->GetSceneInfo( 1 )->m_FullPath[0] = 0;
                 g_pEngineCore->CreateDefaultSceneObjects();
                 ResizeViewport();
             }
@@ -519,7 +519,7 @@ void EngineMainFrame::OnMenu_Engine(wxCommandEvent& event)
         {
             unsigned int sceneid = g_pComponentSystemManager->GetNextSceneID();
             g_pComponentSystemManager->CreateNewScene( "Unsaved.scene", sceneid );
-            g_pComponentSystemManager->GetSceneInfo( sceneid )->fullpath[0] = 0;
+            g_pComponentSystemManager->GetSceneInfo( sceneid )->m_FullPath[0] = 0;
         }
         break;
 
@@ -792,14 +792,14 @@ void EngineMainFrame::SaveScene()
 
             if( sceneid != 0 && sceneid != EngineCore::ENGINE_SCENE_ID )
             {
-                if( g_pComponentSystemManager->GetSceneInfo( sceneid )->fullpath[0] == 0 )
+                if( g_pComponentSystemManager->GetSceneInfo( sceneid )->m_FullPath[0] == 0 )
                 {
                     SaveSceneAs( sceneid );
                 }
                 else
                 {
-                    LOGInfo( LOGTag, "Saving scene... %s\n", pSceneInfo->fullpath );
-                    g_pEngineCore->SaveScene( pSceneInfo->fullpath, sceneid );
+                    LOGInfo( LOGTag, "Saving scene... %s\n", pSceneInfo->m_FullPath );
+                    g_pEngineCore->SaveScene( pSceneInfo->m_FullPath, sceneid );
                 }
             }
         }
@@ -821,9 +821,9 @@ void EngineMainFrame::SaveSceneAs(unsigned int sceneid)
 
     g_pMaterialManager->SaveAllMaterials();
     //g_pComponentSystemManager->AddAllMaterialsToFilesList();
-    g_pEngineCore->SaveScene( g_pComponentSystemManager->GetSceneInfo( sceneid )->fullpath, sceneid );
+    g_pEngineCore->SaveScene( g_pComponentSystemManager->GetSceneInfo( sceneid )->m_FullPath, sceneid );
 
-    this->SetTitle( g_pComponentSystemManager->GetSceneInfo( sceneid )->fullpath );
+    this->SetTitle( g_pComponentSystemManager->GetSceneInfo( sceneid )->m_FullPath );
 }
 
 void EngineMainFrame::LoadSceneDialog(bool unloadscenes)
@@ -867,7 +867,7 @@ void EngineMainFrame::LoadScene(const char* scenename, bool unloadscenes)
     }
 
     unsigned int sceneid = g_pEngineCore->LoadSceneFromFile( scenename );
-    this->SetTitle( g_pComponentSystemManager->GetSceneInfo( sceneid )->fullpath );
+    this->SetTitle( g_pComponentSystemManager->GetSceneInfo( sceneid )->m_FullPath );
 }
 
 void EngineMainFrame::AddDatafileToScene()

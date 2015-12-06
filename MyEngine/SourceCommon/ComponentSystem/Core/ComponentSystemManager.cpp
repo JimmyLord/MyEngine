@@ -29,6 +29,13 @@ ComponentSystemManager::ComponentSystemManager(ComponentTypeManager* typemanager
     m_WaitingForFilesToFinishLoading = false;
     m_StartGamePlayWhenDoneLoading = false;
 
+#if !MYFW_USING_WX
+    for( int i=0; i<MAX_SCENES_LOADED; i++ )
+    {
+        m_pSceneInfoMap[i].Reset();
+    }
+#endif //!MYFW_USING_WX
+
 #if MYFW_USING_WX
     // Add click callbacks to the root of the objects tree
     g_pPanelObjectList->SetTreeRootData( this, ComponentSystemManager::StaticOnLeftClick, ComponentSystemManager::StaticOnRightClick );
@@ -37,8 +44,10 @@ ComponentSystemManager::ComponentSystemManager(ComponentTypeManager* typemanager
     wxTreeItemId rootid = g_pPanelObjectList->GetTreeRoot();
     wxTreeItemId treeid = g_pPanelObjectList->AddObject( m_pSceneHandler, SceneHandler::StaticOnLeftClick, SceneHandler::StaticOnRightClick, rootid, "Unmanaged" );
     g_pPanelObjectList->SetDragAndDropFunctions( treeid, SceneHandler::StaticOnDrag, SceneHandler::StaticOnDrop );
-    m_pSceneInfoMap[0].treeid = treeid;
-    m_pSceneInfoMap[0].fullpath[0] = 0;
+    m_pSceneInfoMap[0].m_InUse = true;
+    m_pSceneInfoMap[0].m_TreeID = treeid;
+
+    m_pSceneInfoMap[EngineCore::ENGINE_SCENE_ID].m_InUse = true;
 #endif //MYFW_USING_WX
 }
 
@@ -899,9 +908,9 @@ void ComponentSystemManager::UnloadScene(unsigned int sceneidtoclear, bool clear
 
             if( sceneid != 0 && sceneid != EngineCore::ENGINE_SCENE_ID ) // don't clear the "Unmanaged" or ENGINE_SCENE_ID scenes
             {
-                MyAssert( pSceneInfo->treeid.IsOk() );
-                if( pSceneInfo->treeid.IsOk() )
-                    g_pPanelObjectList->m_pTree_Objects->Delete( pSceneInfo->treeid );
+                MyAssert( pSceneInfo->m_TreeID.IsOk() );
+                if( pSceneInfo->m_TreeID.IsOk() )
+                    g_pPanelObjectList->m_pTree_Objects->Delete( pSceneInfo->m_TreeID );
                 m_pSceneInfoMap.erase( iterator++ );
             }
             else
@@ -913,11 +922,53 @@ void ComponentSystemManager::UnloadScene(unsigned int sceneidtoclear, bool clear
     else if( sceneidtoclear != 0 ) // don't clear the "Unmanaged" label.
     {
         SceneInfo* pSceneInfo = GetSceneInfo( sceneidtoclear );
-        if( pSceneInfo && pSceneInfo->treeid.IsOk() )
-            g_pPanelObjectList->m_pTree_Objects->Delete( pSceneInfo->treeid );
+        if( pSceneInfo && pSceneInfo->m_TreeID.IsOk() )
+            g_pPanelObjectList->m_pTree_Objects->Delete( pSceneInfo->m_TreeID );
         m_pSceneInfoMap.erase( sceneidtoclear );
     }
+#else
+    // don't clear scene 0.
+    if( sceneidtoclear == UINT_MAX )
+    {
+        for( int i=1; i<MAX_SCENES_LOADED; i++ )
+            m_pSceneInfoMap[i].Reset();
+    }
+    else if( sceneidtoclear != 0 )
+    {
+        MyAssert( m_pSceneInfoMap[sceneidtoclear].m_InUse == true );
+        m_pSceneInfoMap[sceneidtoclear].Reset();
+    }
 #endif
+}
+
+bool ComponentSystemManager::IsSceneLoaded(const char* fullpath)
+{
+#if MYFW_USING_WX
+    typedef std::map<int, SceneInfo>::iterator it_type;
+    for( it_type iterator = m_pSceneInfoMap.begin(); iterator != m_pSceneInfoMap.end(); )
+    {
+        SceneInfo* pSceneInfo = &iterator->second;
+
+        if( pSceneInfo->m_InUse )
+        {
+            if( strcmp( pSceneInfo->m_FullPath, fullpath ) == 0 )
+                return true;
+
+            iterator++;
+        }
+    }
+#else
+    for( int i=1; i<MAX_SCENES_LOADED; i++ )
+    {
+        if( m_pSceneInfoMap[i].m_InUse )
+        {
+            if( strcmp( m_pSceneInfoMap[i].m_FullPath, fullpath ) == 0 )
+                return true;
+        }
+    }
+#endif
+
+    return false;
 }
 
 GameObject* ComponentSystemManager::CreateGameObject(bool manageobject, int sceneid)
@@ -1390,13 +1441,13 @@ void ComponentSystemManager::DrawMousePickerFrame(ComponentCamera* pCamera, MyMa
 #if !MYFW_USING_WX
 SceneInfo* ComponentSystemManager::GetSceneInfo(int sceneid)
 {
-    MyAssert( sceneid >= 0 && sceneid < 10 );
+    MyAssert( sceneid >= 0 && sceneid < MAX_SCENES_LOADED );
     return &m_pSceneInfoMap[sceneid];
 }
 
 unsigned int ComponentSystemManager::GetSceneIDFromFullpath(const char* fullpath)
 {
-    for( int i=0; i<10; i++ )
+    for( int i=0; i<MAX_SCENES_LOADED; i++ )
     {
         unsigned int sceneid = i;
         SceneInfo* pSceneInfo = &m_pSceneInfoMap[i];
@@ -1411,17 +1462,18 @@ unsigned int ComponentSystemManager::GetSceneIDFromFullpath(const char* fullpath
 #else
 void ComponentSystemManager::CreateNewScene(const char* scenename, unsigned int sceneid)
 {
-    MyAssert( m_pSceneInfoMap[sceneid].treeid.IsOk() == false );
+    MyAssert( m_pSceneInfoMap[sceneid].m_TreeID.IsOk() == false );
 
     wxTreeItemId rootid = g_pPanelObjectList->GetTreeRoot();
     wxTreeItemId treeid = g_pPanelObjectList->AddObject( m_pSceneHandler, SceneHandler::StaticOnLeftClick, SceneHandler::StaticOnRightClick, rootid, scenename );
     g_pPanelObjectList->SetDragAndDropFunctions( treeid, SceneHandler::StaticOnDrag, SceneHandler::StaticOnDrop );
-    m_pSceneInfoMap[sceneid].treeid = treeid;
+    m_pSceneInfoMap[sceneid].m_InUse = true;
+    m_pSceneInfoMap[sceneid].m_TreeID = treeid;
 }
 
 wxTreeItemId ComponentSystemManager::GetTreeIDForScene(int sceneid)
 {
-    return m_pSceneInfoMap[sceneid].treeid;
+    return m_pSceneInfoMap[sceneid].m_TreeID;
 }
 
 unsigned int ComponentSystemManager::GetSceneIDFromFullpath(const char* fullpath)
@@ -1432,7 +1484,7 @@ unsigned int ComponentSystemManager::GetSceneIDFromFullpath(const char* fullpath
         unsigned int sceneid = iterator->first;
         SceneInfo* pSceneInfo = &iterator->second;
 
-        if( strcmp( pSceneInfo->fullpath, fullpath ) == 0 )
+        if( strcmp( pSceneInfo->m_FullPath, fullpath ) == 0 )
             return sceneid;
     }
 
@@ -1448,7 +1500,7 @@ unsigned int ComponentSystemManager::GetSceneIDFromSceneTreeID(wxTreeItemId tree
         unsigned int sceneid = iterator->first;
         SceneInfo* pSceneInfo = &iterator->second;
 
-        if( pSceneInfo->treeid == treeid )
+        if( pSceneInfo->m_TreeID == treeid )
             return sceneid;
     }
 
@@ -1458,6 +1510,7 @@ unsigned int ComponentSystemManager::GetSceneIDFromSceneTreeID(wxTreeItemId tree
 
 SceneInfo* ComponentSystemManager::GetSceneInfo(int sceneid)
 {
+    MyAssert( m_pSceneInfoMap[sceneid].m_InUse == true );
     return &m_pSceneInfoMap[sceneid];
 }
 

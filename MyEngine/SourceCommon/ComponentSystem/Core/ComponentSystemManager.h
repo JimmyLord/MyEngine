@@ -105,6 +105,8 @@ class ComponentSystemManager
 : public wxEvtHandler
 #endif //MYFW_USING_WX
 {
+    static const int MAX_SCENES_LOADED = 10;
+
 public:
     ComponentTypeManager* m_pComponentTypeManager; // memory managed, delete this.
     CPPListHead m_GameObjects;
@@ -151,6 +153,7 @@ public:
     // can clear everything except editor objects/components
     // unmanaged components are mainly editor objects and deleted objects in undo stack of editor... might want to rethink that.
     void UnloadScene(unsigned int sceneidtoclear = UINT_MAX, bool clearunmanagedcomponents = true);
+    bool IsSceneLoaded(const char* fullpath);
 
     GameObject* CreateGameObject(bool manageobject = true, int sceneid = 0);
     void UnmanageGameObject(GameObject* pObject);
@@ -218,7 +221,7 @@ public:
     unsigned int GetSceneIDFromSceneTreeID(wxTreeItemId treeid);
     std::map<int, SceneInfo> m_pSceneInfoMap;
 #else
-    SceneInfo m_pSceneInfoMap[10];
+    SceneInfo m_pSceneInfoMap[MAX_SCENES_LOADED];
 #endif
 
 public:

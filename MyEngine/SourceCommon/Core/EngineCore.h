@@ -40,7 +40,8 @@ extern void OnFileUpdated_CallbackFunction(MyFileObject* pFile);
 class EngineCore : public GameCore
 {
 public:
-    static const int ENGINE_SCENE_ID = 9999;
+    static const int ENGINE_SCENE_ID = 9879;
+    static const int MAX_SCENE_FILES_QUEUED_UP = 10;
 
 public:
     ComponentSystemManager* m_pComponentSystemManager;
@@ -91,8 +92,8 @@ public:
     float m_GameWidth;
     float m_GameHeight;
 
-    MyFileObject* m_pSceneFileToLoad;
-    bool m_SceneLoaded;
+protected:
+    MyFileObject* m_pSceneFilesLoading[MAX_SCENE_FILES_QUEUED_UP]; // TODO: replace this monstrosity with an ordered list.
 
 public:
     EngineCore();
@@ -135,6 +136,7 @@ public:
 
     void CreateDefaultEditorSceneObjects();
     void CreateDefaultSceneObjects();
+    void RequestScene(const char* fullpath);
     void SaveScene(const char* fullpath, unsigned int sceneid);
     void UnloadScene(unsigned int sceneid, bool cleareditorobjects);
 #if MYFW_USING_WX
@@ -142,7 +144,7 @@ public:
     void Editor_QuickSaveScene(const char* fullpath);
     void Editor_QuickLoadScene(const char* fullpath);
 #endif //MYFW_USING_WX
-    void LoadScene(const char* scenename, const char* jsonstr, unsigned int sceneid);
+    void LoadSceneFromJSON(const char* scenename, const char* jsonstr, unsigned int sceneid);
 
 #if MYFW_USING_WX
     void Editor_OnSurfaceChanged(unsigned int startx, unsigned int starty, unsigned int width, unsigned int height);

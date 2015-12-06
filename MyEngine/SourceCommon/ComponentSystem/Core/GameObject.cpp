@@ -307,7 +307,7 @@ cJSON* GameObject::ExportReferenceAsJSONObject(unsigned int refsceneid)
 
     if( refsceneid != m_SceneID )
     {
-        cJSON_AddStringToObject( gameobjectref, "Scene", g_pComponentSystemManager->GetSceneInfo( m_SceneID )->fullpath );
+        cJSON_AddStringToObject( gameobjectref, "Scene", g_pComponentSystemManager->GetSceneInfo( m_SceneID )->m_FullPath );
     }
 
     cJSON_AddNumberToObject( gameobjectref, "GOID", m_ID );

@@ -42,8 +42,8 @@ EngineCore::EngineCore()
     m_GameWidth = 0;
     m_GameHeight = 0;
 
-    m_pSceneFileToLoad = 0;
-    m_SceneLoaded = false;
+    for( int i=0; i<MAX_SCENE_FILES_QUEUED_UP; i++ )
+        m_pSceneFilesLoading[i] = 0;
 
     m_pBulletWorld = MyNew BulletWorld();
 
@@ -114,7 +114,7 @@ void EngineCore::LuaRegister(lua_State* luastate)
 {
     luabridge::getGlobalNamespace( luastate )
         .beginClass<EngineCore>( "EngineCore" )
-            .addFunction( "LoadSceneFromFile", &EngineCore::LoadSceneFromFile )
+            .addFunction( "RequestScene", &EngineCore::RequestScene )
         .endClass();
 }
 #endif //MYFW_USING_LUA
@@ -214,15 +214,28 @@ double EngineCore::Tick(double TimePassed)
 
     GameCore::Tick( TimePassed );
 
-#if !MYFW_USING_WX
-    if( m_SceneLoaded == false && m_pSceneFileToLoad && m_pSceneFileToLoad->m_FileLoadStatus == FileLoadStatus_Success )
+    if( m_pSceneFilesLoading[0] && m_pSceneFilesLoading[0]->m_FileLoadStatus == FileLoadStatus_Success )
     {
-        LoadScene( 0, m_pSceneFileToLoad->m_pBuffer, 1 );
-        //m_pComponentSystemManager->OnPlay();
+        unsigned int sceneid = g_pComponentSystemManager->GetNextSceneID();
+
+        g_pComponentSystemManager->m_pSceneInfoMap[sceneid].Reset();
+        g_pComponentSystemManager->m_pSceneInfoMap[sceneid].m_InUse = true;
+        g_pComponentSystemManager->m_pSceneInfoMap[sceneid].ChangePath( m_pSceneFilesLoading[0]->m_FullPath );
+
+        LoadSceneFromJSON( m_pSceneFilesLoading[0]->m_FilenameWithoutExtension, m_pSceneFilesLoading[0]->m_pBuffer, sceneid );
+
+        SAFE_RELEASE( m_pSceneFilesLoading[0] );
+
+        for( int i=0; i<MAX_SCENE_FILES_QUEUED_UP-1; i++ )
+        {
+            m_pSceneFilesLoading[i] = m_pSceneFilesLoading[i+1];
+        }
+        m_pSceneFilesLoading[MAX_SCENE_FILES_QUEUED_UP-1] = 0;
+
+#if !MYFW_USING_WX
         RegisterGameplayButtons();
-        SAFE_RELEASE( m_pSceneFileToLoad );
-    }
 #endif
+    }
 
 #if MYFW_USING_WX
     m_pEditorState->m_pTransformGizmo->Tick( TimePassed, m_pEditorState );
@@ -1504,6 +1517,33 @@ void EngineCore::CreateDefaultSceneObjects()
     }
 }
 
+void EngineCore::RequestScene(const char* fullpath)
+{
+    // if the scene is already loaded, don't request it again
+    if( g_pComponentSystemManager->IsSceneLoaded( fullpath ) )
+        return;
+
+    // check if scene is already queued up
+    for( int i=0; i<MAX_SCENE_FILES_QUEUED_UP; i++ )
+    {
+        if( m_pSceneFilesLoading[i] && strcmp( m_pSceneFilesLoading[i]->m_FullPath, fullpath ) == 0 )
+            return;
+    }
+
+    int i;
+    for( i=0; i<MAX_SCENE_FILES_QUEUED_UP; i++ )
+    {
+        if( m_pSceneFilesLoading[i] == 0 )
+            break;
+    }
+    
+    MyAssert( i != MAX_SCENE_FILES_QUEUED_UP ); // Too many scenes queued up.
+    if( i == MAX_SCENE_FILES_QUEUED_UP )
+        return;
+
+    m_pSceneFilesLoading[i] = RequestFile( fullpath );
+}
+
 void EngineCore::SaveScene(const char* fullpath, unsigned int sceneid)
 {
     char* savestring = g_pComponentSystemManager->SaveSceneToJSON( sceneid );
@@ -1586,8 +1626,9 @@ unsigned int EngineCore::LoadSceneFromFile(const char* fullpath)
         }
         filenamestart = &fullpath[i+1];
 
-        LoadScene( filenamestart, jsonstr, sceneid );
-        strcpy_s( g_pComponentSystemManager->m_pSceneInfoMap[sceneid].fullpath, MAX_PATH, fullpath );
+        LoadSceneFromJSON( filenamestart, jsonstr, sceneid );
+        g_pComponentSystemManager->m_pSceneInfoMap[sceneid].m_InUse = true;
+        strcpy_s( g_pComponentSystemManager->m_pSceneInfoMap[sceneid].m_FullPath, MAX_PATH, fullpath );
 
         delete[] jsonstr;
     }
@@ -1641,14 +1682,14 @@ void EngineCore::Editor_QuickLoadScene(const char* fullpath)
 
         fclose( filehandle );
 
-        LoadScene( fullpath, jsonstr, UINT_MAX );
+        LoadSceneFromJSON( fullpath, jsonstr, UINT_MAX );
 
         delete[] jsonstr;
     }
 }
 #endif //MYFW_USING_WX
 
-void EngineCore::LoadScene(const char* scenename, const char* jsonstr, unsigned int sceneid)
+void EngineCore::LoadSceneFromJSON(const char* scenename, const char* jsonstr, unsigned int sceneid)
 {
     // reset the editorstate structure.
 #if MYFW_USING_WX
