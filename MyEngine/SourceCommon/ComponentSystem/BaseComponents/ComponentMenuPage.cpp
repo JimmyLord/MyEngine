@@ -27,8 +27,10 @@ ComponentMenuPage::ComponentMenuPage()
     m_BaseType = BaseComponentType_Renderable;
 
     m_pComponentTransform = 0;
-    m_pComponentCamera = 0;
     m_pComponentLuaScript = 0;
+
+    m_pGameObjectCamera = 0;
+    m_pComponentCamera = 0;
 
     m_MenuItemsCreated = false;
 
@@ -102,10 +104,28 @@ ComponentMenuPage::~ComponentMenuPage()
     }
 
     cJSON_Delete( m_MenuLayouts );
+
+    // if we had found a camera component, stop it's gameobject from reporting it's deletion.
+    if( m_pGameObjectCamera != 0 ) //m_pComponentCamera != 0 )
+    {
+        //MyAssert( m_pGameObjectCamera == m_pComponentCamera->m_pGameObject && m_pComponentCamera->m_pGameObject != 0 );
+        m_pGameObjectCamera->UnregisterOnDeleteCallback( this, StaticOnGameObjectDeleted );
+        m_pGameObjectCamera = 0;
+        m_pComponentCamera = 0;
+    }
 }
 
 void ComponentMenuPage::Reset()
 {
+    // if we had found a camera component, stop it's gameobject from reporting it's deletion.
+    if( m_pGameObjectCamera != 0 ) //m_pComponentCamera != 0 )
+    {
+        MyAssert( m_pGameObjectCamera == m_pComponentCamera->m_pGameObject && m_pComponentCamera->m_pGameObject != 0 );
+        m_pGameObjectCamera->UnregisterOnDeleteCallback( this, StaticOnGameObjectDeleted );
+        m_pGameObjectCamera = 0;
+        m_pComponentCamera = 0;
+    }
+
     ComponentRenderable::Reset();
 
     m_pComponentTransform = m_pGameObject->m_pComponentTransform;
@@ -117,14 +137,7 @@ void ComponentMenuPage::Reset()
     SAFE_RELEASE( m_pMenuLayoutFile );
     m_MenuItemsCreated = false;
 
-    // find the first ortho cam component in the scene, settle for a perspective if that's all there is.
-    m_pComponentCamera = (ComponentCamera*)g_pComponentSystemManager->GetFirstComponentOfType( "CameraComponent" );
-    MyAssert( m_pComponentCamera->IsA( "CameraComponent" ) );
-    while( m_pComponentCamera != 0 && m_pComponentCamera->m_Orthographic == false )
-    {
-        m_pComponentCamera = (ComponentCamera*)g_pComponentSystemManager->GetNextComponentOfType( m_pComponentCamera );
-        MyAssert( m_pComponentCamera == 0 || m_pComponentCamera->IsA( "CameraComponent" ) );
-    }
+    FindFirstOrthoCamera();
 
     m_pComponentLuaScript = 0;
 
@@ -1365,6 +1378,10 @@ void ComponentMenuPage::TickCallback(double TimePassed)
 {
     //ComponentRenderable::TickCallback( TimePassed );
 
+    // If we don't have a camera attached to this object, try to find one.
+    if( m_pComponentCamera == 0 )
+        FindFirstOrthoCamera();
+
     if( m_MenuPageTickCallbackStruct.pFunc )
     {
         m_MenuPageTickCallbackStruct.pFunc( m_MenuPageTickCallbackStruct.pObj, this, TimePassed );
@@ -1392,6 +1409,11 @@ void ComponentMenuPage::TickCallback(double TimePassed)
 void ComponentMenuPage::OnSurfaceChangedCallback(unsigned int startx, unsigned int starty, unsigned int width, unsigned int height, unsigned int desiredaspectwidth, unsigned int desiredaspectheight)
 {
     //ComponentRenderable::OnSurfaceChangedCallback( TimePassed );
+    if( m_pComponentCamera == 0 )
+        FindFirstOrthoCamera();
+
+    if( m_pComponentCamera == 0 )
+        return;
 
     // if the aspect ratio didn't change, return;
     if( m_CurrentWidth == m_pComponentCamera->m_WindowWidth &&
@@ -1842,7 +1864,7 @@ bool ComponentMenuPage::ExecuteAction(const char* function, const char* action, 
 #endif
         if( m_pComponentLuaScript )
         {
-            if( m_pComponentLuaScript->CallFunction( function, action ) )
+            if( m_pComponentLuaScript->CallFunction( function, action ) == LUA_OK )
                 return true;
         }
 #endif //MYFW_USING_LUA
@@ -1924,7 +1946,7 @@ void ComponentMenuPage::ShowPage()
 #if MYFW_USING_LUA
     if( m_pComponentLuaScript )
     {
-        m_pComponentLuaScript->CallFunction( "OnVisible" );
+        m_pComponentLuaScript->CallFunction( "OnVisible" ); // returns LUA_OK, if all went well
     }
 #endif //MYFW_USING_LUA
 }
@@ -1935,4 +1957,37 @@ void ComponentMenuPage::HidePage()
     {
         m_MenuPageVisibleCallbackStruct.pFunc( m_MenuPageVisibleCallbackStruct.pObj, this, false );
     }
+}
+
+void ComponentMenuPage::FindFirstOrthoCamera()
+{
+    // if we had found a camera component, stop it's gameobject from reporting it's deletion.
+    if( m_pGameObjectCamera != 0 ) //m_pComponentCamera != 0 )
+    {
+        MyAssert( m_pGameObjectCamera == m_pComponentCamera->m_pGameObject && m_pComponentCamera->m_pGameObject != 0 );
+        m_pGameObjectCamera->UnregisterOnDeleteCallback( this, StaticOnGameObjectDeleted );
+        m_pGameObjectCamera = 0;
+        m_pComponentCamera = 0;
+    }
+
+    // find the first ortho cam component in the scene, settle for a perspective if that's all there is.
+    m_pComponentCamera = (ComponentCamera*)g_pComponentSystemManager->GetFirstComponentOfType( "CameraComponent" );
+    MyAssert( m_pComponentCamera->IsA( "CameraComponent" ) );
+    while( m_pComponentCamera != 0 && m_pComponentCamera->m_Orthographic == false )
+    {
+        m_pComponentCamera = (ComponentCamera*)g_pComponentSystemManager->GetNextComponentOfType( m_pComponentCamera );
+        MyAssert( m_pComponentCamera == 0 || m_pComponentCamera->IsA( "CameraComponent" ) );
+    }
+
+    if( m_pComponentCamera )
+    {
+        m_pGameObjectCamera = m_pComponentCamera->m_pGameObject;
+        m_pComponentCamera->m_pGameObject->RegisterOnDeleteCallback( this, StaticOnGameObjectDeleted );
+    }
+}
+
+void ComponentMenuPage::OnGameObjectDeleted(GameObject* pGameObject)
+{
+    // if our camera's gameobject was deleted, clear the pointer.
+    m_pComponentCamera = 0;
 }

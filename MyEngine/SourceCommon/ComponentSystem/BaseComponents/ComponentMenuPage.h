@@ -123,8 +123,10 @@ protected:
 
 public:
     ComponentTransform* m_pComponentTransform;
-    ComponentCamera* m_pComponentCamera;
     ComponentLuaScript* m_pComponentLuaScript;
+
+    GameObject* m_pGameObjectCamera; // used to detect game object deleting.
+    ComponentCamera* m_pComponentCamera;
 
     unsigned int m_LayersThisExistsOn;
 
@@ -197,6 +199,12 @@ public:
 
     void ShowPage();
     void HidePage();
+
+    void FindFirstOrthoCamera();
+
+    // GameObject callbacks.
+    static void StaticOnGameObjectDeleted(void* pObjectPtr, GameObject* pGameObject) { ((ComponentMenuPage*)pObjectPtr)->OnGameObjectDeleted( pGameObject ); }
+    void OnGameObjectDeleted(GameObject* pGameObject);
 
 protected:
     // Callback functions for various events.

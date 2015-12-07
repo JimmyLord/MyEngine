@@ -165,7 +165,7 @@ public:
         if( LuaObject[pFuncName].isFunction() == false ) return false;
 
         ProgramVariables( LuaObject, false );
-        try { if( LuaObject[pFuncName]() ) return true; return false; }
+        try { if( LuaObject[pFuncName]() == LUA_OK ) return true; return false; }
         catch(luabridge::LuaException const& e) { HandleLuaError( pFuncName, e.what() ); }
         return false;
     }
@@ -183,7 +183,7 @@ public:
         if( LuaObject[pFuncName].isFunction() == false ) return false;
 
         ProgramVariables( LuaObject, false );
-        try { if( LuaObject[pFuncName]( p1 ) ) return true; return false; }
+        try { if( LuaObject[pFuncName]( p1 ) == LUA_OK ) return true; return false; }
         catch(luabridge::LuaException const& e) { HandleLuaError( pFuncName, e.what() ); }
         return false;
     }
@@ -201,7 +201,7 @@ public:
         if( LuaObject[pFuncName].isFunction() == false ) return false;
 
         ProgramVariables( LuaObject, false );
-        try { if( LuaObject[pFuncName]( p1, p2, p3, p4, p5, p6, p7, p8 ) ) return true; return false; }
+        try { if( LuaObject[pFuncName]( p1, p2, p3, p4, p5, p6, p7, p8 ) == LUA_OK ) return true; return false; }
         catch(luabridge::LuaException const& e) { HandleLuaError( pFuncName, e.what() ); }
         return false;
     }

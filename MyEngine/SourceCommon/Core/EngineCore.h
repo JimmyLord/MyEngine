@@ -35,6 +35,12 @@ enum LayerValues
     Layer_EditorFG              = 0x8000,
 };
 
+struct RequestedSceneInfo
+{
+    MyFileObject* m_pFile; // acts as a flag whether or not scene was requested.
+    unsigned int m_SceneID; // generally -1, unless scene requested for specific slot.
+};
+
 extern void OnFileUpdated_CallbackFunction(MyFileObject* pFile);
 
 class EngineCore : public GameCore
@@ -93,7 +99,8 @@ public:
     float m_GameHeight;
 
 protected:
-    MyFileObject* m_pSceneFilesLoading[MAX_SCENE_FILES_QUEUED_UP]; // TODO: replace this monstrosity with an ordered list.
+    bool m_SceneReloadRequested;
+    RequestedSceneInfo m_pSceneFilesLoading[MAX_SCENE_FILES_QUEUED_UP]; // TODO: replace this monstrosity with an ordered list.
 
 public:
     EngineCore();
@@ -136,7 +143,10 @@ public:
 
     void CreateDefaultEditorSceneObjects();
     void CreateDefaultSceneObjects();
+    void ReloadScene(unsigned int sceneid);
+    void ReloadSceneInternal(unsigned int sceneid);
     void RequestScene(const char* fullpath);
+    RequestedSceneInfo* RequestSceneInternal(const char* fullpath);
     void SaveScene(const char* fullpath, unsigned int sceneid);
     void UnloadScene(unsigned int sceneid, bool cleareditorobjects);
 #if MYFW_USING_WX

@@ -900,6 +900,9 @@ void ComponentSystemManager::UnloadScene(unsigned int sceneidtoclear, bool clear
     // erase the scene node from the object list tree.
     if( sceneidtoclear == UINT_MAX )
     {
+        // Reset the scene counter, so the new "first" scene loaded will be 1.
+        g_pComponentSystemManager->ResetSceneIDCounter();
+
         typedef std::map<int, SceneInfo>::iterator it_type;
         for( it_type iterator = m_pSceneInfoMap.begin(); iterator != m_pSceneInfoMap.end(); )
         {
@@ -930,6 +933,9 @@ void ComponentSystemManager::UnloadScene(unsigned int sceneidtoclear, bool clear
     // don't clear scene 0.
     if( sceneidtoclear == UINT_MAX )
     {
+        // Reset the scene counter, so the new "first" scene loaded will be 1.
+        g_pComponentSystemManager->ResetSceneIDCounter();
+
         for( int i=1; i<MAX_SCENES_LOADED; i++ )
             m_pSceneInfoMap[i].Reset();
     }
@@ -1452,7 +1458,7 @@ unsigned int ComponentSystemManager::GetSceneIDFromFullpath(const char* fullpath
         unsigned int sceneid = i;
         SceneInfo* pSceneInfo = &m_pSceneInfoMap[i];
 
-        if( strcmp( pSceneInfo->fullpath, fullpath ) == 0 )
+        if( strcmp( pSceneInfo->m_FullPath, fullpath ) == 0 )
             return sceneid;
     }
 

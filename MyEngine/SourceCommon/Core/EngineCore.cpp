@@ -42,8 +42,12 @@ EngineCore::EngineCore()
     m_GameWidth = 0;
     m_GameHeight = 0;
 
+    m_SceneReloadRequested = false;
     for( int i=0; i<MAX_SCENE_FILES_QUEUED_UP; i++ )
-        m_pSceneFilesLoading[i] = 0;
+    {
+        m_pSceneFilesLoading[i].m_pFile = 0;
+        m_pSceneFilesLoading[i].m_SceneID = -1;
+    }
 
     m_pBulletWorld = MyNew BulletWorld();
 
@@ -115,6 +119,7 @@ void EngineCore::LuaRegister(lua_State* luastate)
     luabridge::getGlobalNamespace( luastate )
         .beginClass<EngineCore>( "EngineCore" )
             .addFunction( "RequestScene", &EngineCore::RequestScene )
+            .addFunction( "ReloadScene", &EngineCore::ReloadScene )
         .endClass();
 }
 #endif //MYFW_USING_LUA
@@ -189,6 +194,12 @@ bool EngineCore::IsReadyToRender()
 
 double EngineCore::Tick(double TimePassed)
 {
+    if( m_SceneReloadRequested )
+    {
+        ReloadSceneInternal( 1 );
+        return 0;
+    }
+
     {
         static int numframes = 0;
         static double totaltime = 0;
@@ -214,23 +225,27 @@ double EngineCore::Tick(double TimePassed)
 
     GameCore::Tick( TimePassed );
 
-    if( m_pSceneFilesLoading[0] && m_pSceneFilesLoading[0]->m_FileLoadStatus == FileLoadStatus_Success )
+    // if the next scene requested is ready load the scene.
+    MyFileObject* pFile = m_pSceneFilesLoading[0].m_pFile;
+    if( pFile && pFile->m_FileLoadStatus == FileLoadStatus_Success )
     {
         unsigned int sceneid = g_pComponentSystemManager->GetNextSceneID();
 
         g_pComponentSystemManager->m_pSceneInfoMap[sceneid].Reset();
         g_pComponentSystemManager->m_pSceneInfoMap[sceneid].m_InUse = true;
-        g_pComponentSystemManager->m_pSceneInfoMap[sceneid].ChangePath( m_pSceneFilesLoading[0]->m_FullPath );
+        g_pComponentSystemManager->m_pSceneInfoMap[sceneid].ChangePath( pFile->m_FullPath );
 
-        LoadSceneFromJSON( m_pSceneFilesLoading[0]->m_FilenameWithoutExtension, m_pSceneFilesLoading[0]->m_pBuffer, sceneid );
+        LoadSceneFromJSON( pFile->m_FilenameWithoutExtension, pFile->m_pBuffer, sceneid );
 
-        SAFE_RELEASE( m_pSceneFilesLoading[0] );
+        SAFE_RELEASE( m_pSceneFilesLoading[0].m_pFile );
 
+        // Shift all objects up a slot in the queue.
         for( int i=0; i<MAX_SCENE_FILES_QUEUED_UP-1; i++ )
         {
             m_pSceneFilesLoading[i] = m_pSceneFilesLoading[i+1];
         }
-        m_pSceneFilesLoading[MAX_SCENE_FILES_QUEUED_UP-1] = 0;
+        m_pSceneFilesLoading[MAX_SCENE_FILES_QUEUED_UP-1].m_pFile = 0;
+        m_pSceneFilesLoading[MAX_SCENE_FILES_QUEUED_UP-1].m_SceneID = 0;
 
 #if !MYFW_USING_WX
         RegisterGameplayButtons();
@@ -1517,31 +1532,63 @@ void EngineCore::CreateDefaultSceneObjects()
     }
 }
 
+void EngineCore::ReloadScene(unsigned int sceneid)
+{
+    m_SceneReloadRequested = true;
+}
+
+void EngineCore::ReloadSceneInternal(unsigned int sceneid)
+{
+    m_SceneReloadRequested = false;
+
+    OnModeStop();
+    char oldscenepath[MAX_PATH];
+    sprintf_s( oldscenepath, MAX_PATH, "%s", g_pComponentSystemManager->m_pSceneInfoMap[sceneid].m_FullPath );
+    UnloadScene( -1, true );
+    RequestedSceneInfo* pRequestedSceneInfo = RequestSceneInternal( oldscenepath );
+    MyAssert( pRequestedSceneInfo );
+    if( pRequestedSceneInfo )
+    {
+        pRequestedSceneInfo->m_SceneID = sceneid;
+    }
+}
+
 void EngineCore::RequestScene(const char* fullpath)
+{
+    RequestSceneInternal( fullpath );
+}
+
+RequestedSceneInfo* EngineCore::RequestSceneInternal(const char* fullpath)
 {
     // if the scene is already loaded, don't request it again
     if( g_pComponentSystemManager->IsSceneLoaded( fullpath ) )
-        return;
+        return 0;
 
     // check if scene is already queued up
-    for( int i=0; i<MAX_SCENE_FILES_QUEUED_UP; i++ )
     {
-        if( m_pSceneFilesLoading[i] && strcmp( m_pSceneFilesLoading[i]->m_FullPath, fullpath ) == 0 )
-            return;
+        for( int i=0; i<MAX_SCENE_FILES_QUEUED_UP; i++ )
+        {
+            MyFileObject* pFile = m_pSceneFilesLoading[i].m_pFile;
+            if( pFile && strcmp( pFile->m_FullPath, fullpath ) == 0 )
+                return 0;
+        }
     }
 
     int i;
     for( i=0; i<MAX_SCENE_FILES_QUEUED_UP; i++ )
     {
-        if( m_pSceneFilesLoading[i] == 0 )
+        if( m_pSceneFilesLoading[i].m_pFile == 0 )
             break;
     }
     
     MyAssert( i != MAX_SCENE_FILES_QUEUED_UP ); // Too many scenes queued up.
     if( i == MAX_SCENE_FILES_QUEUED_UP )
-        return;
+        return 0;
 
-    m_pSceneFilesLoading[i] = RequestFile( fullpath );
+    m_pSceneFilesLoading[i].m_pFile = RequestFile( fullpath );
+    m_pSceneFilesLoading[i].m_SceneID = -1;
+
+    return &m_pSceneFilesLoading[i];
 }
 
 void EngineCore::SaveScene(const char* fullpath, unsigned int sceneid)
@@ -1565,6 +1612,8 @@ void EngineCore::SaveScene(const char* fullpath, unsigned int sceneid)
 
 void EngineCore::UnloadScene(unsigned int sceneid, bool cleareditorobjects)
 {
+    m_pLuaGameState->Rebuild(); // reset the lua state.
+
     // reset the editorstate structure.
 #if MYFW_USING_WX
     if( sceneid != 0 )
