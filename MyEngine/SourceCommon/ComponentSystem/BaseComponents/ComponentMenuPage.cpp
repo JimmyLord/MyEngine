@@ -1185,7 +1185,7 @@ bool ComponentMenuPage::OnButtonsCallback(GameCoreButtonActions action, GameCore
     int dirtochecky = 0;
 
     if( action == GCBA_Held || action == GCBA_Up )
-        return true;
+        return false;
 
     if( action == GCBA_Down )
     {
@@ -1250,11 +1250,15 @@ bool ComponentMenuPage::OnButtonsCallback(GameCoreButtonActions action, GameCore
 
         if( nearestindex != -1 )
         {
+            if( m_ItemSelected == nearestindex )
+                return false;
+
             m_ItemSelected = nearestindex;
+            return true;
             //LOGInfo( LOGTag, "SelectedItem: %d\n", m_ItemSelected );
         }
 
-        return true;
+        return false;
     }
     else
     {

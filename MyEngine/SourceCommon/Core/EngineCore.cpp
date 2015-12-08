@@ -194,6 +194,8 @@ bool EngineCore::IsReadyToRender()
 
 double EngineCore::Tick(double TimePassed)
 {
+    checkGlError( "EngineCore::Tick" );
+
     if( m_SceneReloadRequested )
     {
         ReloadSceneInternal( 1 );
@@ -1539,6 +1541,8 @@ void EngineCore::ReloadScene(unsigned int sceneid)
 
 void EngineCore::ReloadSceneInternal(unsigned int sceneid)
 {
+    checkGlError( "start of ReloadSceneInternal" );
+
     m_SceneReloadRequested = false;
 
     OnModeStop();
@@ -1551,6 +1555,8 @@ void EngineCore::ReloadSceneInternal(unsigned int sceneid)
     {
         pRequestedSceneInfo->m_SceneID = sceneid;
     }
+
+    checkGlError( "end of ReloadSceneInternal" );
 }
 
 void EngineCore::RequestScene(const char* fullpath)
@@ -1624,7 +1630,11 @@ void EngineCore::UnloadScene(unsigned int sceneid, bool cleareditorobjects)
     m_pEditorState->ClearEditorState( false );
 #endif //MYFW_USING_WX
 
+    checkGlError( "g_pComponentSystemManager->UnloadScene" );
+
     g_pComponentSystemManager->UnloadScene( sceneid, false );
+
+    checkGlError( "before SAFE_RELEASE( g_pRTQGlobals->m_pMaterial" );
 
     if( sceneid == UINT_MAX && m_FreeAllMaterialsAndTexturesWhenUnloadingScene )
     {
@@ -1635,6 +1645,8 @@ void EngineCore::UnloadScene(unsigned int sceneid, bool cleareditorobjects)
         //g_pMaterialManager->FreeAllMaterials();
         //g_pTextureManager->FreeAllTextures( false );
     }
+
+    checkGlError( "after SAFE_RELEASE( g_pRTQGlobals->m_pMaterial" );
 }
 
 #if MYFW_USING_WX

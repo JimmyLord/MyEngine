@@ -345,6 +345,8 @@ void ComponentMesh::SetMaterial(MaterialDefinition* pMaterial, int submeshindex)
 
 void ComponentMesh::DrawCallback(ComponentCamera* pCamera, MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride)
 {
+    checkGlError( "start of ComponentMesh::DrawCallback()" );
+
     ComponentRenderable::Draw( pMatViewProj, pShaderOverride, 0 );
 
     if( m_pMesh )
@@ -402,4 +404,6 @@ void ComponentMesh::DrawCallback(ComponentCamera* pCamera, MyMatrix* pMatViewPro
 
         m_pMesh->Draw( pMatViewProj, &campos, lights, numlights, pShadowVP, pShadowTex, 0, pShaderOverride );
     }
+
+    checkGlError( "end of ComponentMesh::DrawCallback()" );
 }

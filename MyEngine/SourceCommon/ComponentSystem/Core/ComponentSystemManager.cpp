@@ -53,12 +53,6 @@ ComponentSystemManager::ComponentSystemManager(ComponentTypeManager* typemanager
 
 ComponentSystemManager::~ComponentSystemManager()
 {
-    while( m_GameObjects.GetHead() )
-        delete m_GameObjects.RemHead();
-
-    while( m_Files.GetHead() )
-        delete m_Files.RemHead();
-
     for( unsigned int i=0; i<BaseComponentType_NumTypes; i++ )
     {
         while( m_Components[i].GetHead() )
@@ -69,6 +63,12 @@ ComponentSystemManager::~ComponentSystemManager()
             delete m_Components[i].RemHead();
         }
     }
+
+    while( m_GameObjects.GetHead() )
+        delete m_GameObjects.RemHead();
+
+    while( m_Files.GetHead() )
+        delete m_Files.RemHead();
 
 #if MYFW_USING_WX
     SAFE_DELETE( m_pSceneHandler );
@@ -642,12 +642,18 @@ void ComponentSystemManager::FreeAllDataFiles(unsigned int sceneidtoclear)
         pNode = pNode->GetNext();
 
         if( sceneidtoclear == UINT_MAX || pFile->m_SceneID == sceneidtoclear )
+        {
+            checkGlError( "ComponentSystemManager::FreeAllDataFiles" );
             delete pFile;
+            checkGlError( "ComponentSystemManager::FreeAllDataFiles" );
+        }
     }
 }
 
 void ComponentSystemManager::LoadSceneFromJSON(const char* scenename, const char* jsonstr, unsigned int sceneid)
 {
+    checkGlError( "ComponentSystemManager::LoadSceneFromJSON" );
+
     cJSON* root = cJSON_Parse( jsonstr );
 
     if( root == 0 )
@@ -843,6 +849,8 @@ void ComponentSystemManager::SyncAllRigidBodiesToObjectTransforms()
 
 void ComponentSystemManager::UnloadScene(unsigned int sceneidtoclear, bool clearunmanagedcomponents)
 {
+    checkGlError( "start of ComponentSystemManager::UnloadScene" );
+
     // Remove all components, except ones attached to unmanaged game objects(if wanted)
     {
         for( unsigned int i=0; i<BaseComponentType_NumTypes; i++ )
@@ -870,6 +878,8 @@ void ComponentSystemManager::UnloadScene(unsigned int sceneidtoclear, bool clear
         }
     }
 
+    checkGlError( "ComponentSystemManager::UnloadScene after deleting components" );
+
     // delete all game objects.
     {
         for( CPPListNode* pNode = m_GameObjects.GetHead(); pNode;  )
@@ -893,8 +903,12 @@ void ComponentSystemManager::UnloadScene(unsigned int sceneidtoclear, bool clear
         }
     }
 
+    checkGlError( "ComponentSystemManager::UnloadScene after deleting game objects" );
+
     // release any file ref's added by this scene.
     FreeAllDataFiles( sceneidtoclear );
+
+    checkGlError( "ComponentSystemManager::UnloadScene after FreeAllDataFiles" );
 
 #if MYFW_USING_WX
     // erase the scene node from the object list tree.
@@ -945,6 +959,8 @@ void ComponentSystemManager::UnloadScene(unsigned int sceneidtoclear, bool clear
         m_pSceneInfoMap[sceneidtoclear].Reset();
     }
 #endif
+
+    checkGlError( "end of ComponentSystemManager::UnloadScene" );
 }
 
 bool ComponentSystemManager::IsSceneLoaded(const char* fullpath)
@@ -1359,6 +1375,8 @@ void ComponentSystemManager::OnDrawFrame()
 
 void ComponentSystemManager::OnDrawFrame(ComponentCamera* pCamera, MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride)
 {
+    checkGlError( "start of ComponentSystemManager::OnDrawFrame()" );
+
     // draw all components that registered a callback.
     for( CPPListNode* pNode = m_pComponentCallbackList_Draw.HeadNode.Next; pNode->Next; pNode = pNode->Next )
     {
@@ -1373,6 +1391,8 @@ void ComponentSystemManager::OnDrawFrame(ComponentCamera* pCamera, MyMatrix* pMa
             }
         }
     }
+
+    checkGlError( "start of ComponentSystemManager::OnDrawFrame()" );
 }
 
 void ComponentSystemManager::OnFileRenamed(const char* fullpathbefore, const char* fullpathafter)

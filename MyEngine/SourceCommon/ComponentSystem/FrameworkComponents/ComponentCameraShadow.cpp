@@ -125,6 +125,8 @@ void ComponentCameraShadow::OnSurfaceChanged(unsigned int startx, unsigned int s
 
 void ComponentCameraShadow::OnDrawFrame()
 {
+    checkGlError( "start of ComponentCameraShadow::OnDrawFrame()" );
+
     //ComponentCamera::OnDrawFrame();
 
     {
@@ -142,8 +144,12 @@ void ComponentCameraShadow::OnDrawFrame()
     glDisable( GL_SCISSOR_TEST );
     g_ActiveShaderPass = ShaderPass_ShadowCastRGBA;
 
+    checkGlError( "glDisable( GL_SCISSOR_TEST )" );
+
     m_pDepthFBO->Bind( false );
     glViewport( 0, 0, m_pDepthFBO->m_Width, m_pDepthFBO->m_Height );
+
+    checkGlError( "m_pDepthFBO->Bind()" );
 
 #if MYFW_OPENGLES2
     glClearColor( 1, 1, 1, 1 );
@@ -154,9 +160,13 @@ void ComponentCameraShadow::OnDrawFrame()
     glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 #endif
 
+    checkGlError( "ComponentCameraShadow::OnDrawFrame glClear()" );
+
     g_pComponentSystemManager->OnDrawFrame( this, &m_matViewProj, 0 );
 
     m_pDepthFBO->Unbind( false );
     g_ActiveShaderPass = ShaderPass_Main;
     //glCullFace( GL_BACK );
+
+    checkGlError( "end of ComponentCameraShadow::OnDrawFrame()" );
 }
