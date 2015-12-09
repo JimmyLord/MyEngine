@@ -699,9 +699,9 @@ void EngineCore::OnModeTogglePlayStop()
 
 void EngineCore::OnModePlay()
 {
+#if MYFW_USING_WX
     if( m_EditorMode )
     {
-#if MYFW_USING_WX
         g_pMaterialManager->SaveAllMaterials();
         //g_pComponentSystemManager->AddAllMaterialsToFilesList();
         Editor_QuickSaveScene( "temp_editor_onplay.scene" );
@@ -711,12 +711,13 @@ void EngineCore::OnModePlay()
         m_pComponentSystemManager->OnPlay();
 
         RegisterGameplayButtons();
-#endif
     }
+#endif
 }
 
 void EngineCore::OnModeStop()
 {
+#if MYFW_USING_WX
     if( m_EditorMode == false )
     {
         // Call OnStop() for all components.
@@ -725,24 +726,21 @@ void EngineCore::OnModeStop()
         // Unload all runtime created objects.
         UnloadScene( 0, false );
 
-#if MYFW_USING_WX
         Editor_QuickLoadScene( "temp_editor_onplay.scene" );
-#endif
 
         m_EditorMode = true;
         m_Paused = false;
 
-#if MYFW_USING_WX
         g_pEngineMainFrame->SetWindowPerspectiveToDefault();
         m_pEditorState->ClearKeyAndActionStates();
         //m_pEditorState->ClearSelectedObjectsAndComponents();
-#endif
 
         m_pComponentSystemManager->SyncAllRigidBodiesToObjectTransforms();
 
         UnregisterGameplayButtons();
         return;
     }
+#endif
 }
 
 void EngineCore::OnModePause()
