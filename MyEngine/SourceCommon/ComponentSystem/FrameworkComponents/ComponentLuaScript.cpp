@@ -673,6 +673,7 @@ void ComponentLuaScript::LoadScript()
 
         // load the string from the file
         int loadretcode = luaL_loadstring( m_pLuaGameState->m_pLuaState, m_pScriptFile->m_pBuffer );
+        //LOGInfo( LOGTag, "luaL_loadstring) %s last 3 bytes -> %d %d %d\n", m_pScriptFile->m_FullPath, m_pScriptFile->m_pBuffer[m_pScriptFile->m_FileLength-2], m_pScriptFile->m_pBuffer[m_pScriptFile->m_FileLength-1], m_pScriptFile->m_pBuffer[m_pScriptFile->m_FileLength] );
         if( loadretcode == LUA_OK )
         {
             // run the code to do initial parsing

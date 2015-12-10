@@ -1035,7 +1035,6 @@
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxDebug|x64'">TurnOffAllWarnings</WarningLevel>
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxRelease|Win32'">TurnOffAllWarnings</WarningLevel>
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxRelease|x64'">TurnOffAllWarnings</WarningLevel>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|PNaCl'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="..\Lua\src\lauxlib.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='WxDebug|Win32'">NotUsing</PrecompiledHeader>
@@ -1054,7 +1053,6 @@
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxDebug|x64'">TurnOffAllWarnings</WarningLevel>
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxRelease|Win32'">TurnOffAllWarnings</WarningLevel>
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxRelease|x64'">TurnOffAllWarnings</WarningLevel>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|PNaCl'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="..\Lua\src\lbaselib.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='WxDebug|Win32'">NotUsing</PrecompiledHeader>
@@ -1073,7 +1071,6 @@
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxDebug|x64'">TurnOffAllWarnings</WarningLevel>
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxRelease|Win32'">TurnOffAllWarnings</WarningLevel>
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxRelease|x64'">TurnOffAllWarnings</WarningLevel>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|PNaCl'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="..\Lua\src\lbitlib.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='WxDebug|Win32'">NotUsing</PrecompiledHeader>
@@ -1092,7 +1089,6 @@
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxDebug|x64'">TurnOffAllWarnings</WarningLevel>
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxRelease|Win32'">TurnOffAllWarnings</WarningLevel>
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxRelease|x64'">TurnOffAllWarnings</WarningLevel>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|PNaCl'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="..\Lua\src\lcode.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='WxDebug|Win32'">NotUsing</PrecompiledHeader>
@@ -1111,7 +1107,6 @@
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxDebug|x64'">TurnOffAllWarnings</WarningLevel>
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxRelease|Win32'">TurnOffAllWarnings</WarningLevel>
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxRelease|x64'">TurnOffAllWarnings</WarningLevel>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|PNaCl'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="..\Lua\src\lcorolib.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='WxDebug|Win32'">NotUsing</PrecompiledHeader>
@@ -1130,7 +1125,6 @@
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxDebug|x64'">TurnOffAllWarnings</WarningLevel>
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxRelease|Win32'">TurnOffAllWarnings</WarningLevel>
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxRelease|x64'">TurnOffAllWarnings</WarningLevel>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|PNaCl'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="..\Lua\src\lctype.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='WxDebug|Win32'">NotUsing</PrecompiledHeader>
@@ -1149,7 +1143,6 @@
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxDebug|x64'">TurnOffAllWarnings</WarningLevel>
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxRelease|Win32'">TurnOffAllWarnings</WarningLevel>
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxRelease|x64'">TurnOffAllWarnings</WarningLevel>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|PNaCl'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="..\Lua\src\ldblib.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='WxDebug|Win32'">NotUsing</PrecompiledHeader>
@@ -1168,7 +1161,6 @@
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxDebug|x64'">TurnOffAllWarnings</WarningLevel>
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxRelease|Win32'">TurnOffAllWarnings</WarningLevel>
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxRelease|x64'">TurnOffAllWarnings</WarningLevel>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|PNaCl'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="..\Lua\src\ldebug.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='WxDebug|Win32'">NotUsing</PrecompiledHeader>
@@ -1187,7 +1179,6 @@
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxDebug|x64'">TurnOffAllWarnings</WarningLevel>
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxRelease|Win32'">TurnOffAllWarnings</WarningLevel>
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxRelease|x64'">TurnOffAllWarnings</WarningLevel>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|PNaCl'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="..\Lua\src\ldo.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='WxDebug|Win32'">NotUsing</PrecompiledHeader>
@@ -1206,7 +1197,6 @@
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxDebug|x64'">TurnOffAllWarnings</WarningLevel>
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxRelease|Win32'">TurnOffAllWarnings</WarningLevel>
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxRelease|x64'">TurnOffAllWarnings</WarningLevel>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|PNaCl'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="..\Lua\src\ldump.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='WxDebug|Win32'">NotUsing</PrecompiledHeader>
@@ -1225,7 +1215,6 @@
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxDebug|x64'">TurnOffAllWarnings</WarningLevel>
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxRelease|Win32'">TurnOffAllWarnings</WarningLevel>
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxRelease|x64'">TurnOffAllWarnings</WarningLevel>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|PNaCl'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="..\Lua\src\lfunc.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='WxDebug|Win32'">NotUsing</PrecompiledHeader>
@@ -1244,7 +1233,6 @@
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxDebug|x64'">TurnOffAllWarnings</WarningLevel>
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxRelease|Win32'">TurnOffAllWarnings</WarningLevel>
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxRelease|x64'">TurnOffAllWarnings</WarningLevel>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|PNaCl'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="..\Lua\src\lgc.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='WxDebug|Win32'">NotUsing</PrecompiledHeader>
@@ -1263,7 +1251,6 @@
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxDebug|x64'">TurnOffAllWarnings</WarningLevel>
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxRelease|Win32'">TurnOffAllWarnings</WarningLevel>
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxRelease|x64'">TurnOffAllWarnings</WarningLevel>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|PNaCl'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="..\Lua\src\linit.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='WxDebug|Win32'">NotUsing</PrecompiledHeader>
@@ -1282,7 +1269,6 @@
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxDebug|x64'">TurnOffAllWarnings</WarningLevel>
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxRelease|Win32'">TurnOffAllWarnings</WarningLevel>
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxRelease|x64'">TurnOffAllWarnings</WarningLevel>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|PNaCl'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="..\Lua\src\liolib.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='WxDebug|Win32'">NotUsing</PrecompiledHeader>
@@ -1301,7 +1287,6 @@
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxDebug|x64'">TurnOffAllWarnings</WarningLevel>
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxRelease|Win32'">TurnOffAllWarnings</WarningLevel>
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxRelease|x64'">TurnOffAllWarnings</WarningLevel>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|PNaCl'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="..\Lua\src\llex.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='WxDebug|Win32'">NotUsing</PrecompiledHeader>
@@ -1320,7 +1305,6 @@
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxDebug|x64'">TurnOffAllWarnings</WarningLevel>
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxRelease|Win32'">TurnOffAllWarnings</WarningLevel>
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxRelease|x64'">TurnOffAllWarnings</WarningLevel>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|PNaCl'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="..\Lua\src\lmathlib.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='WxDebug|Win32'">NotUsing</PrecompiledHeader>
@@ -1339,7 +1323,6 @@
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxDebug|x64'">TurnOffAllWarnings</WarningLevel>
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxRelease|Win32'">TurnOffAllWarnings</WarningLevel>
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxRelease|x64'">TurnOffAllWarnings</WarningLevel>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|PNaCl'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="..\Lua\src\lmem.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='WxDebug|Win32'">NotUsing</PrecompiledHeader>
@@ -1358,7 +1341,6 @@
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxDebug|x64'">TurnOffAllWarnings</WarningLevel>
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxRelease|Win32'">TurnOffAllWarnings</WarningLevel>
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxRelease|x64'">TurnOffAllWarnings</WarningLevel>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|PNaCl'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="..\Lua\src\loadlib.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='WxDebug|Win32'">NotUsing</PrecompiledHeader>
@@ -1377,7 +1359,6 @@
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxDebug|x64'">TurnOffAllWarnings</WarningLevel>
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxRelease|Win32'">TurnOffAllWarnings</WarningLevel>
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxRelease|x64'">TurnOffAllWarnings</WarningLevel>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|PNaCl'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="..\Lua\src\lobject.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='WxDebug|Win32'">NotUsing</PrecompiledHeader>
@@ -1396,7 +1377,6 @@
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxDebug|x64'">TurnOffAllWarnings</WarningLevel>
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxRelease|Win32'">TurnOffAllWarnings</WarningLevel>
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxRelease|x64'">TurnOffAllWarnings</WarningLevel>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|PNaCl'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="..\Lua\src\lopcodes.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='WxDebug|Win32'">NotUsing</PrecompiledHeader>
@@ -1415,7 +1395,6 @@
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxDebug|x64'">TurnOffAllWarnings</WarningLevel>
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxRelease|Win32'">TurnOffAllWarnings</WarningLevel>
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxRelease|x64'">TurnOffAllWarnings</WarningLevel>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|PNaCl'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="..\Lua\src\loslib.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='WxDebug|Win32'">NotUsing</PrecompiledHeader>
@@ -1434,7 +1413,6 @@
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxDebug|x64'">TurnOffAllWarnings</WarningLevel>
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxRelease|Win32'">TurnOffAllWarnings</WarningLevel>
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxRelease|x64'">TurnOffAllWarnings</WarningLevel>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|PNaCl'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="..\Lua\src\lparser.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='WxDebug|Win32'">NotUsing</PrecompiledHeader>
@@ -1453,7 +1431,6 @@
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxDebug|x64'">TurnOffAllWarnings</WarningLevel>
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxRelease|Win32'">TurnOffAllWarnings</WarningLevel>
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxRelease|x64'">TurnOffAllWarnings</WarningLevel>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|PNaCl'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="..\Lua\src\lstate.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='WxDebug|Win32'">NotUsing</PrecompiledHeader>
@@ -1472,7 +1449,6 @@
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxDebug|x64'">TurnOffAllWarnings</WarningLevel>
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxRelease|Win32'">TurnOffAllWarnings</WarningLevel>
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxRelease|x64'">TurnOffAllWarnings</WarningLevel>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|PNaCl'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="..\Lua\src\lstring.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='WxDebug|Win32'">NotUsing</PrecompiledHeader>
@@ -1491,7 +1467,6 @@
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxDebug|x64'">TurnOffAllWarnings</WarningLevel>
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxRelease|Win32'">TurnOffAllWarnings</WarningLevel>
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxRelease|x64'">TurnOffAllWarnings</WarningLevel>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|PNaCl'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="..\Lua\src\lstrlib.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='WxDebug|Win32'">NotUsing</PrecompiledHeader>
@@ -1510,7 +1485,6 @@
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxDebug|x64'">TurnOffAllWarnings</WarningLevel>
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxRelease|Win32'">TurnOffAllWarnings</WarningLevel>
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxRelease|x64'">TurnOffAllWarnings</WarningLevel>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|PNaCl'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="..\Lua\src\ltable.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='WxDebug|Win32'">NotUsing</PrecompiledHeader>
@@ -1529,7 +1503,6 @@
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxDebug|x64'">TurnOffAllWarnings</WarningLevel>
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxRelease|Win32'">TurnOffAllWarnings</WarningLevel>
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxRelease|x64'">TurnOffAllWarnings</WarningLevel>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|PNaCl'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="..\Lua\src\ltablib.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='WxDebug|Win32'">NotUsing</PrecompiledHeader>
@@ -1548,7 +1521,6 @@
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxDebug|x64'">TurnOffAllWarnings</WarningLevel>
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxRelease|Win32'">TurnOffAllWarnings</WarningLevel>
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxRelease|x64'">TurnOffAllWarnings</WarningLevel>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|PNaCl'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="..\Lua\src\ltm.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='WxDebug|Win32'">NotUsing</PrecompiledHeader>
@@ -1567,7 +1539,6 @@
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxDebug|x64'">TurnOffAllWarnings</WarningLevel>
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxRelease|Win32'">TurnOffAllWarnings</WarningLevel>
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxRelease|x64'">TurnOffAllWarnings</WarningLevel>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|PNaCl'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="..\Lua\src\lua.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='WxDebug|Win32'">NotUsing</PrecompiledHeader>
@@ -1654,7 +1625,6 @@
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxDebug|x64'">TurnOffAllWarnings</WarningLevel>
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxRelease|Win32'">TurnOffAllWarnings</WarningLevel>
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxRelease|x64'">TurnOffAllWarnings</WarningLevel>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|PNaCl'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="..\Lua\src\lutf8lib.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
@@ -1665,7 +1635,6 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='WxDebug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='WxRelease|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='WxRelease|x64'">NotUsing</PrecompiledHeader>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|PNaCl'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="..\Lua\src\lvm.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='WxDebug|Win32'">NotUsing</PrecompiledHeader>
@@ -1684,7 +1653,6 @@
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxDebug|x64'">TurnOffAllWarnings</WarningLevel>
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxRelease|Win32'">TurnOffAllWarnings</WarningLevel>
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxRelease|x64'">TurnOffAllWarnings</WarningLevel>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|PNaCl'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="..\Lua\src\lzio.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='WxDebug|Win32'">NotUsing</PrecompiledHeader>
@@ -1703,7 +1671,6 @@
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxDebug|x64'">TurnOffAllWarnings</WarningLevel>
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxRelease|Win32'">TurnOffAllWarnings</WarningLevel>
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxRelease|x64'">TurnOffAllWarnings</WarningLevel>
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|PNaCl'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="SourceCommon\Camera\Camera2D.cpp" />
     <ClCompile Include="SourceCommon\Camera\Camera3D.cpp" />
@@ -1725,9 +1692,7 @@
     <ClCompile Include="SourceCommon\ComponentSystem\FrameworkComponents\ComponentCameraShadow.cpp" />
     <ClCompile Include="SourceCommon\ComponentSystem\FrameworkComponents\ComponentCollisionObject.cpp" />
     <ClCompile Include="SourceCommon\ComponentSystem\FrameworkComponents\ComponentLight.cpp" />
-    <ClCompile Include="SourceCommon\ComponentSystem\FrameworkComponents\ComponentLuaScript.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|PNaCl'">true</ExcludedFromBuild>
-    </ClCompile>
+    <ClCompile Include="SourceCommon\ComponentSystem\FrameworkComponents\ComponentLuaScript.cpp" />
     <ClCompile Include="SourceCommon\ComponentSystem\FrameworkComponents\ComponentMesh.cpp" />
     <ClCompile Include="SourceCommon\ComponentSystem\FrameworkComponents\ComponentMeshOBJ.cpp" />
     <ClCompile Include="SourceCommon\ComponentSystem\FrameworkComponents\ComponentMeshPrimitive.cpp" />
@@ -1757,9 +1722,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="SourceCommon\Core\InputFinger.cpp" />
-    <ClCompile Include="SourceCommon\Core\LuaGameState.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|PNaCl'">true</ExcludedFromBuild>
-    </ClCompile>
+    <ClCompile Include="SourceCommon\Core\LuaGameState.cpp" />
     <ClCompile Include="SourceCommon\Editor\Dialogs\DialogGridSettings.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
@@ -1867,84 +1830,32 @@
     <ClInclude Include="..\Lua\LuaBridge\LuaBridge.h" />
     <ClInclude Include="..\Lua\LuaBridge\RefCountedObject.h" />
     <ClInclude Include="..\Lua\LuaBridge\RefCountedPtr.h" />
-    <ClInclude Include="..\Lua\src\lapi.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|PNaCl'">true</ExcludedFromBuild>
-    </ClInclude>
-    <ClInclude Include="..\Lua\src\lauxlib.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|PNaCl'">true</ExcludedFromBuild>
-    </ClInclude>
-    <ClInclude Include="..\Lua\src\lcode.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|PNaCl'">true</ExcludedFromBuild>
-    </ClInclude>
-    <ClInclude Include="..\Lua\src\lctype.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|PNaCl'">true</ExcludedFromBuild>
-    </ClInclude>
-    <ClInclude Include="..\Lua\src\ldebug.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|PNaCl'">true</ExcludedFromBuild>
-    </ClInclude>
-    <ClInclude Include="..\Lua\src\ldo.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|PNaCl'">true</ExcludedFromBuild>
-    </ClInclude>
-    <ClInclude Include="..\Lua\src\lfunc.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|PNaCl'">true</ExcludedFromBuild>
-    </ClInclude>
-    <ClInclude Include="..\Lua\src\lgc.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|PNaCl'">true</ExcludedFromBuild>
-    </ClInclude>
-    <ClInclude Include="..\Lua\src\llex.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|PNaCl'">true</ExcludedFromBuild>
-    </ClInclude>
-    <ClInclude Include="..\Lua\src\llimits.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|PNaCl'">true</ExcludedFromBuild>
-    </ClInclude>
-    <ClInclude Include="..\Lua\src\lmem.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|PNaCl'">true</ExcludedFromBuild>
-    </ClInclude>
-    <ClInclude Include="..\Lua\src\lobject.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|PNaCl'">true</ExcludedFromBuild>
-    </ClInclude>
-    <ClInclude Include="..\Lua\src\lopcodes.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|PNaCl'">true</ExcludedFromBuild>
-    </ClInclude>
-    <ClInclude Include="..\Lua\src\lparser.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|PNaCl'">true</ExcludedFromBuild>
-    </ClInclude>
-    <ClInclude Include="..\Lua\src\lprefix.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|PNaCl'">true</ExcludedFromBuild>
-    </ClInclude>
-    <ClInclude Include="..\Lua\src\lstate.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|PNaCl'">true</ExcludedFromBuild>
-    </ClInclude>
-    <ClInclude Include="..\Lua\src\lstring.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|PNaCl'">true</ExcludedFromBuild>
-    </ClInclude>
-    <ClInclude Include="..\Lua\src\ltable.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|PNaCl'">true</ExcludedFromBuild>
-    </ClInclude>
-    <ClInclude Include="..\Lua\src\ltm.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|PNaCl'">true</ExcludedFromBuild>
-    </ClInclude>
-    <ClInclude Include="..\Lua\src\lua.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|PNaCl'">true</ExcludedFromBuild>
-    </ClInclude>
-    <ClInclude Include="..\Lua\src\lua.hpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|PNaCl'">true</ExcludedFromBuild>
-    </ClInclude>
-    <ClInclude Include="..\Lua\src\luaconf.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|PNaCl'">true</ExcludedFromBuild>
-    </ClInclude>
-    <ClInclude Include="..\Lua\src\lualib.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|PNaCl'">true</ExcludedFromBuild>
-    </ClInclude>
-    <ClInclude Include="..\Lua\src\lundump.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|PNaCl'">true</ExcludedFromBuild>
-    </ClInclude>
-    <ClInclude Include="..\Lua\src\lvm.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|PNaCl'">true</ExcludedFromBuild>
-    </ClInclude>
-    <ClInclude Include="..\Lua\src\lzio.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|PNaCl'">true</ExcludedFromBuild>
-    </ClInclude>
+    <ClInclude Include="..\Lua\src\lapi.h" />
+    <ClInclude Include="..\Lua\src\lauxlib.h" />
+    <ClInclude Include="..\Lua\src\lcode.h" />
+    <ClInclude Include="..\Lua\src\lctype.h" />
+    <ClInclude Include="..\Lua\src\ldebug.h" />
+    <ClInclude Include="..\Lua\src\ldo.h" />
+    <ClInclude Include="..\Lua\src\lfunc.h" />
+    <ClInclude Include="..\Lua\src\lgc.h" />
+    <ClInclude Include="..\Lua\src\llex.h" />
+    <ClInclude Include="..\Lua\src\llimits.h" />
+    <ClInclude Include="..\Lua\src\lmem.h" />
+    <ClInclude Include="..\Lua\src\lobject.h" />
+    <ClInclude Include="..\Lua\src\lopcodes.h" />
+    <ClInclude Include="..\Lua\src\lparser.h" />
+    <ClInclude Include="..\Lua\src\lprefix.h" />
+    <ClInclude Include="..\Lua\src\lstate.h" />
+    <ClInclude Include="..\Lua\src\lstring.h" />
+    <ClInclude Include="..\Lua\src\ltable.h" />
+    <ClInclude Include="..\Lua\src\ltm.h" />
+    <ClInclude Include="..\Lua\src\lua.h" />
+    <ClInclude Include="..\Lua\src\lua.hpp" />
+    <ClInclude Include="..\Lua\src\luaconf.h" />
+    <ClInclude Include="..\Lua\src\lualib.h" />
+    <ClInclude Include="..\Lua\src\lundump.h" />
+    <ClInclude Include="..\Lua\src\lvm.h" />
+    <ClInclude Include="..\Lua\src\lzio.h" />
     <ClInclude Include="SourceCommon\Camera\Camera2D.h" />
     <ClInclude Include="SourceCommon\Camera\Camera3D.h" />
     <ClInclude Include="SourceCommon\ComponentSystem\BaseComponents\ComponentBase.h" />
@@ -1965,9 +1876,7 @@
     <ClInclude Include="SourceCommon\ComponentSystem\FrameworkComponents\ComponentCameraShadow.h" />
     <ClInclude Include="SourceCommon\ComponentSystem\FrameworkComponents\ComponentCollisionObject.h" />
     <ClInclude Include="SourceCommon\ComponentSystem\FrameworkComponents\ComponentLight.h" />
-    <ClInclude Include="SourceCommon\ComponentSystem\FrameworkComponents\ComponentLuaScript.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|PNaCl'">true</ExcludedFromBuild>
-    </ClInclude>
+    <ClInclude Include="SourceCommon\ComponentSystem\FrameworkComponents\ComponentLuaScript.h" />
     <ClInclude Include="SourceCommon\ComponentSystem\FrameworkComponents\ComponentMesh.h" />
     <ClInclude Include="SourceCommon\ComponentSystem\FrameworkComponents\ComponentMeshOBJ.h" />
     <ClInclude Include="SourceCommon\ComponentSystem\FrameworkComponents\ComponentMeshPrimitive.h" />
@@ -1997,9 +1906,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClInclude>
     <ClInclude Include="SourceCommon\Core\InputFinger.h" />
-    <ClInclude Include="SourceCommon\Core\LuaGameState.h">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|PNaCl'">true</ExcludedFromBuild>
-    </ClInclude>
+    <ClInclude Include="SourceCommon\Core\LuaGameState.h" />
     <ClInclude Include="SourceCommon\Editor\Dialogs\DialogGridSettings.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
