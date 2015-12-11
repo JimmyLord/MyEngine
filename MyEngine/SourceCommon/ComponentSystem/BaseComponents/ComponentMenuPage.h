@@ -128,8 +128,6 @@ public:
     GameObject* m_pGameObjectCamera; // used to detect game object deleting.
     ComponentCamera* m_pComponentCamera;
 
-    unsigned int m_LayersThisExistsOn;
-
 public:
     ComponentMenuPage();
     virtual ~ComponentMenuPage();

@@ -466,8 +466,6 @@ void ComponentMenuPage::FillPropertiesWindow(bool clear, bool addcomponentvariab
 
         g_pPanelWatch->AddBool( "Input Enabled", &m_InputEnabled, 0, 1 );
         
-        g_pPanelWatch->AddUnsignedInt( "Layers", &m_LayersThisExistsOn, 0, 65535 );
-
         const char* desc = "none";
         if( m_pComponentCamera )
             desc = m_pComponentCamera->m_pGameObject->GetName();
@@ -904,8 +902,6 @@ cJSON* ComponentMenuPage::ExportAsJSONObject(bool savesceneid)
 
     cJSON_AddNumberToObject( jComponent, "InputEnabled", m_InputEnabled );
     
-    cJSON_AddNumberToObject( jComponent, "Layers", m_LayersThisExistsOn );
-
     if( m_pMenuLayoutFile )
         cJSON_AddStringToObject( jComponent, "MenuFile", m_pMenuLayoutFile->m_FullPath );
     
@@ -928,7 +924,6 @@ void ComponentMenuPage::ImportFromJSONObject(cJSON* jComponent, unsigned int sce
     ComponentRenderable::ImportFromJSONObject( jComponent, sceneid );
 
     cJSONExt_GetBool( jComponent, "InputEnabled", &m_InputEnabled );
-    cJSONExt_GetUnsignedInt( jComponent, "Layers", &m_LayersThisExistsOn );
 
     cJSON* jFilename = cJSON_GetObjectItem( jComponent, "MenuFile" );
     if( jFilename )
@@ -1250,7 +1245,7 @@ bool ComponentMenuPage::OnButtonsCallback(GameCoreButtonActions action, GameCore
 
         if( nearestindex != -1 )
         {
-            if( m_ItemSelected == nearestindex )
+            if( m_ItemSelected == (unsigned int)nearestindex )
                 return false;
 
             m_ItemSelected = nearestindex;
