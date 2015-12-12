@@ -801,7 +801,7 @@ MYFW_PANELOBJECTLIST_DECLARE_CALLBACK_ONDROP(OnDropMenuItemOnMenuItem, Component
             m_pMenuItems[iDroppedOn+1] = pMenuItemDropped;
         }
 
-        g_pPanelObjectList->Tree_MoveObject( this, pMenuItemDropped, pMenuItemDroppedOn );
+        g_pPanelObjectList->Tree_MoveObject( pMenuItemDropped, pMenuItemDroppedOn, false );
     }
 }
 
@@ -828,7 +828,7 @@ MYFW_PANELOBJECTLIST_DECLARE_CALLBACK_ONDROP(OnDropMenuItemOnMenuPage, Component
         }
 
         m_pMenuItems[0] = pMenuItemDropped;
-        g_pPanelObjectList->Tree_MoveObject( this, pMenuItemDropped, 0 );
+        g_pPanelObjectList->Tree_MoveObject( pMenuItemDropped, this, true );
     }
 }
 

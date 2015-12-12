@@ -235,11 +235,11 @@ void GameObject::OnDrop(int controlid, wxCoord x, wxCoord y)
     {
         GameObject* pGameObject = (GameObject*)g_DragAndDropStruct.m_Value;
 
-        // for testing, if we drag a game object onto another one, copy the transform component values
-        //*this->m_pComponentTransform = *pGameObject->m_pComponentTransform;
-
-        // parent one transform to another.
-        this->m_pComponentTransform->SetParent( pGameObject->m_pComponentTransform );
+        // TODO: if you drop a game object on another, parent them or move above/below depending on the "y"
+        g_pPanelObjectList->Tree_MoveObject( pGameObject, this, false );
+        
+        //// Parent this object dropped to this.
+        //pGameObject->SetParent( this );
     }
 }
 
@@ -419,6 +419,16 @@ void GameObject::SetName(const char* name)
         g_pPanelObjectList->RenameObject( this, m_Name );
     }
 #endif //MYFW_USING_WX
+}
+
+void GameObject::SetParent(GameObject* pGameObject)
+{
+    // parent one transform to another.
+    this->m_pComponentTransform->SetParent( pGameObject->m_pComponentTransform );
+
+    // If the parent is in another scene, move the game object to this scene.
+    unsigned int sceneid = g_pComponentSystemManager->GetSceneIDFromSceneTreeID( this );
+    pGameObject->SetSceneID( sceneid );
 }
 
 void GameObject::SetManaged(bool managed)

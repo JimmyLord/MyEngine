@@ -95,8 +95,8 @@ void SceneHandler::OnDrop(wxTreeItemId id, int controlid, wxCoord x, wxCoord y)
     {
         GameObject* pGameObject = (GameObject*)g_DragAndDropStruct.m_Value;
 
+        // If we dropped a gameobject on our scene, move the game object to the new scene.
         unsigned int sceneid = g_pComponentSystemManager->GetSceneIDFromSceneTreeID( id );
-
         pGameObject->SetSceneID( sceneid );
     }
 }
