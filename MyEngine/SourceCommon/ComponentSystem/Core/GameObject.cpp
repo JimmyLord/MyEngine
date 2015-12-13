@@ -235,11 +235,24 @@ void GameObject::OnDrop(int controlid, wxCoord x, wxCoord y)
     {
         GameObject* pGameObject = (GameObject*)g_DragAndDropStruct.m_Value;
 
-        // TODO: if you drop a game object on another, parent them or move above/below depending on the "y"
-        g_pPanelObjectList->Tree_MoveObject( pGameObject, this, false );
-        
-        //// Parent this object dropped to this.
-        //pGameObject->SetParent( this );
+        // if you drop a game object on another, parent them or move above/below depending on the "y"
+        wxTreeItemId treeid = g_pPanelObjectList->FindObject( this );
+        wxRect rect;
+        g_pPanelObjectList->m_pTree_Objects->GetBoundingRect( treeid, rect, false );
+
+        if( false ) //y < rect.GetTop() + 5 ) // move above the selected item
+        {
+            //g_pPanelObjectList->Tree_MoveObjectBefore( pGameObject, this, false );
+        }
+        else if( y > rect.GetBottom() - 10 ) // move below the selected item
+        {
+            g_pPanelObjectList->Tree_MoveObject( pGameObject, this, false );
+        }
+        else // Parent this object dropped to this.
+        {
+            pGameObject->SetParent( this );
+            g_pPanelObjectList->Tree_MoveObject( pGameObject, this, true );
+        }
     }
 }
 
@@ -363,32 +376,8 @@ void GameObject::SetSceneID(unsigned int sceneid)
     if( m_SceneID == sceneid )
         return;
 
-#if MYFW_USING_WX
-    MyAssert( g_pPanelObjectList );
-
-    // Remove this object from the object tree.
-    g_pPanelObjectList->RemoveObject( m_pComponentTransform );
-    g_pPanelObjectList->RemoveObject( this );
-#endif
-
     m_SceneID = sceneid;
     m_ID = g_pComponentSystemManager->GetNextGameObjectIDAndIncrement( sceneid );
-
-#if MYFW_USING_WX
-    // Add this game object to the root of the objects tree
-    wxTreeItemId rootid = g_pComponentSystemManager->GetTreeIDForScene( m_SceneID );
-    if( rootid.IsOk() )
-    {
-        wxTreeItemId gameobjectid = g_pPanelObjectList->AddObject( this, GameObject::StaticOnLeftClick, GameObject::StaticOnRightClick, rootid, m_Name );
-        g_pPanelObjectList->SetDragAndDropFunctions( gameobjectid, GameObject::StaticOnDrag, GameObject::StaticOnDrop );
-        g_pPanelObjectList->SetLabelEditFunction( gameobjectid, GameObject::StaticOnLabelEdit );
-        m_pComponentTransform->AddToObjectsPanel( gameobjectid );
-        for( unsigned int i=0; i<m_Components.Count(); i++ )
-        {
-            m_Components[i]->AddToObjectsPanel( gameobjectid );
-        }
-    }
-#endif
 }
 
 void GameObject::SetID(unsigned int id)
@@ -427,7 +416,7 @@ void GameObject::SetParent(GameObject* pGameObject)
     this->m_pComponentTransform->SetParent( pGameObject->m_pComponentTransform );
 
     // If the parent is in another scene, move the game object to this scene.
-    unsigned int sceneid = g_pComponentSystemManager->GetSceneIDFromSceneTreeID( this );
+    unsigned int sceneid = pGameObject->GetSceneID();
     pGameObject->SetSceneID( sceneid );
 }
 

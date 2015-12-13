@@ -61,21 +61,21 @@ public:
     };
 
     // Object panel callbacks.
-    static void StaticOnLeftClick(void* pObjectPtr, wxTreeItemId id, unsigned int count) { ((SceneHandler*)pObjectPtr)->OnLeftClick( id, count, true ); }
-    void OnLeftClick(wxTreeItemId id, unsigned int count, bool clear);
+    static void StaticOnLeftClick(void* pObjectPtr, wxTreeItemId treeid, unsigned int count) { ((SceneHandler*)pObjectPtr)->OnLeftClick( treeid, count, true ); }
+    void OnLeftClick(wxTreeItemId treeid, unsigned int count, bool clear);
 
-    static void StaticOnRightClick(void* pObjectPtr, wxTreeItemId id) { ((SceneHandler*)pObjectPtr)->OnRightClick( id ); }
-    void OnRightClick(wxTreeItemId id);
+    static void StaticOnRightClick(void* pObjectPtr, wxTreeItemId treeid) { ((SceneHandler*)pObjectPtr)->OnRightClick( treeid ); }
+    void OnRightClick(wxTreeItemId treeid);
     void OnPopupClick(wxEvent &evt); // used as callback for wxEvtHandler, can't be virtual(will crash, haven't looked into it).
 
     static void StaticOnDrag(void* pObjectPtr) { ((SceneHandler*)pObjectPtr)->OnDrag(); }
     void OnDrag();
 
-    static void StaticOnDrop(void* pObjectPtr, wxTreeItemId id, int controlid, wxCoord x, wxCoord y) { ((SceneHandler*)pObjectPtr)->OnDrop(id, controlid, x, y); }
-    void OnDrop(wxTreeItemId id, int controlid, wxCoord x, wxCoord y);
+    static void StaticOnDrop(void* pObjectPtr, wxTreeItemId treeid, int controlid, wxCoord x, wxCoord y) { ((SceneHandler*)pObjectPtr)->OnDrop( treeid, controlid, x, y ); }
+    void OnDrop(wxTreeItemId treeid, int controlid, wxCoord x, wxCoord y);
 
-    static void StaticOnLabelEdit(void* pObjectPtr, wxTreeItemId id, wxString newlabel) { ((SceneHandler*)pObjectPtr)->OnLabelEdit( id, newlabel ); }
-    void OnLabelEdit(wxTreeItemId id, wxString newlabel);
+    static void StaticOnLabelEdit(void* pObjectPtr, wxTreeItemId treeid, wxString newlabel) { ((SceneHandler*)pObjectPtr)->OnLabelEdit( treeid, newlabel ); }
+    void OnLabelEdit(wxTreeItemId treeid, wxString newlabel);
 #endif //MYFW_USING_WX
 };
 

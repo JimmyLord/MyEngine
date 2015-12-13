@@ -39,19 +39,19 @@ SceneHandler::~SceneHandler()
 }
 
 #if MYFW_USING_WX
-void SceneHandler::OnLeftClick(wxTreeItemId id, unsigned int count, bool clear)
+void SceneHandler::OnLeftClick(wxTreeItemId treeid, unsigned int count, bool clear)
 {
 }
 
-void SceneHandler::OnRightClick(wxTreeItemId id)
+void SceneHandler::OnRightClick(wxTreeItemId treeid)
 {
  	wxMenu menu;
     menu.SetClientData( this );
 
-    MyAssert( id.IsOk() );
-    wxString itemname = g_pPanelObjectList->m_pTree_Objects->GetItemText( id );
+    MyAssert( treeid.IsOk() );
+    wxString itemname = g_pPanelObjectList->m_pTree_Objects->GetItemText( treeid );
     
-    m_SceneIDBeingAffected = g_pComponentSystemManager->GetSceneIDFromSceneTreeID( id );
+    m_SceneIDBeingAffected = g_pComponentSystemManager->GetSceneIDFromSceneTreeID( treeid );
     
     menu.Append( RightClick_AddGameObject, "Add Game Object" );
     menu.Connect( wxEVT_COMMAND_MENU_SELECTED, (wxObjectEventFunction)&SceneHandler::OnPopupClick );
@@ -89,19 +89,21 @@ void SceneHandler::OnDrag()
 {
 }
 
-void SceneHandler::OnDrop(wxTreeItemId id, int controlid, wxCoord x, wxCoord y)
+void SceneHandler::OnDrop(wxTreeItemId treeid, int controlid, wxCoord x, wxCoord y)
 {
     if( g_DragAndDropStruct.m_Type == DragAndDropType_GameObjectPointer )
     {
         GameObject* pGameObject = (GameObject*)g_DragAndDropStruct.m_Value;
 
         // If we dropped a gameobject on our scene, move the game object to the new scene.
-        unsigned int sceneid = g_pComponentSystemManager->GetSceneIDFromSceneTreeID( id );
+        unsigned int sceneid = g_pComponentSystemManager->GetSceneIDFromSceneTreeID( treeid );
         pGameObject->SetSceneID( sceneid );
+        wxTreeItemId treeidtomove = g_pPanelObjectList->FindObject( pGameObject );
+        g_pPanelObjectList->Tree_MoveObject( treeidtomove, treeid, true );
     }
 }
 
-void SceneHandler::OnLabelEdit(wxTreeItemId id, wxString newlabel)
+void SceneHandler::OnLabelEdit(wxTreeItemId treeid, wxString newlabel)
 {
 }
 #endif //MYFW_USING_WX
