@@ -11,11 +11,13 @@
 #define __ComponentTransform_H__
 
 typedef void (*TransformPositionChangedCallbackFunc)(void* pObjectPtr, Vector3& newpos, bool changedbyeditor);
-struct TransformPositionChangedCallbackStruct
+struct TransformPositionChangedCallbackStruct : public CPPListNode
 {
     void* pObj;
     TransformPositionChangedCallbackFunc pFunc;
 };
+
+extern MyUnmanagedPool<TransformPositionChangedCallbackStruct> g_pComponentTransform_PositionChangedCallbackPool;
 
 class ComponentTransform : public ComponentBase
 {
@@ -23,7 +25,7 @@ private:
     // Component Variable List
     MYFW_COMPONENT_DECLARE_VARIABLE_LIST( ComponentTransform );
 
-    static const int MAX_REGISTERED_CALLBACKS = 1; // TODO: fix this hardcodedness
+    static const int CALLBACK_POOL_SIZE = 100;
 
 public:
     MyMatrix m_Transform;
@@ -32,7 +34,7 @@ public:
     ComponentTransform* m_pParentTransform;
 
 protected:
-    MyList<TransformPositionChangedCallbackStruct> m_pPositionChangedCallbackList;
+    CPPListHead m_PositionChangedCallbackList;
 
     MyMatrix m_LocalTransform;
     Vector3 m_Position;
@@ -75,7 +77,7 @@ public:
     MyMatrix GetLocalRotPosMatrix();
     MyMatrix* GetLocalTransform() { return &m_LocalTransform; }
 
-    void SetParent(ComponentTransform* pNewParent, bool unregisterondeletecallback = true);
+    void SetParentTransform(ComponentTransform* pNewParent, bool unregisterondeletecallback = true);
     void UpdatePosAndRotFromLocalMatrix();
     void UpdateMatrix();
     //MyMatrix* GetMatrix();

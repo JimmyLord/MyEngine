@@ -64,7 +64,7 @@ public:
     void SetSceneID(unsigned int sceneid);
     void SetID(unsigned int id);
     void SetName(const char* name);
-    void SetParent(GameObject* pGameObject);
+    void SetParentGameObject(GameObject* pGameObject);
     void SetManaged(bool managed);
     bool IsManaged() { return m_Managed; }
 

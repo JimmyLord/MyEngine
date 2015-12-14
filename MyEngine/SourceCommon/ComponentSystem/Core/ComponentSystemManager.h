@@ -167,6 +167,7 @@ public:
     unsigned int GetNextGameObjectIDAndIncrement(unsigned int sceneid);
     unsigned int GetNextComponentIDAndIncrement(unsigned int sceneid);
 
+    GameObject* GetFirstGameObjectFronScene(unsigned int sceneid);
     GameObject* FindGameObjectByID(unsigned int sceneid, unsigned int goid);
     GameObject* FindGameObjectByName(const char* name);
     GameObject* FindGameObjectByJSONRef(cJSON* pJSONGameObjectRef, unsigned int defaultsceneid);

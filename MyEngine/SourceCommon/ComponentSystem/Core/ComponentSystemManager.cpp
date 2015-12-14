@@ -1124,6 +1124,19 @@ unsigned int ComponentSystemManager::GetNextComponentIDAndIncrement(unsigned int
     return pSceneInfo->m_NextComponentID-1;
 }
 
+GameObject* ComponentSystemManager::GetFirstGameObjectFronScene(unsigned int sceneid)
+{
+    for( CPPListNode* node = m_GameObjects.GetHead(); node != 0; node = node->GetNext() )
+    {
+        GameObject* pGameObject = (GameObject*)node;
+
+        if( pGameObject->GetSceneID() )
+            return pGameObject;
+    }
+
+    return 0;
+}
+
 GameObject* ComponentSystemManager::FindGameObjectByID(unsigned int sceneid, unsigned int goid)
 {
     for( CPPListNode* node = m_GameObjects.GetHead(); node != 0; node = node->GetNext() )

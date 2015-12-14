@@ -16,6 +16,8 @@ bool ComponentTransform::m_PanelWatchBlockVisible = true;
 // Component Variable List
 MYFW_COMPONENT_IMPLEMENT_VARIABLE_LIST( ComponentTransform );
 
+MyUnmanagedPool<TransformPositionChangedCallbackStruct> g_pComponentTransform_PositionChangedCallbackPool;
+
 ComponentTransform::ComponentTransform()
 : ComponentBase()
 {
@@ -28,14 +30,14 @@ ComponentTransform::ComponentTransform()
     m_pParentGameObject = 0;
     m_pParentTransform = 0;
 
-    m_pPositionChangedCallbackList.AllocateObjects( MAX_REGISTERED_CALLBACKS );
+    // the first ComponentTransform will create the pool of callback objects.
+    if( g_pComponentTransform_PositionChangedCallbackPool.IsInitialized() == false )
+        g_pComponentTransform_PositionChangedCallbackPool.AllocateObjects( CALLBACK_POOL_SIZE );
 }
 
 ComponentTransform::~ComponentTransform()
 {
     MYFW_COMPONENT_VARIABLE_LIST_DESTRUCTOR();
-
-    m_pPositionChangedCallbackList.FreeAllInList();
 
     // if we had an parent transform, stop it's gameobject from reporting it's deletion.
     if( m_pParentTransform != 0 )
@@ -189,7 +191,7 @@ void* ComponentTransform::OnDropTransform(ComponentVariable* pVar, wxCoord x, wx
         if( pComponent->IsA( "TransformComponent" ) )
         {
             oldvalue = this->m_pParentTransform;
-            this->SetParent( pComponent );
+            this->SetParentTransform( pComponent );
         }
 
         // update the panel so new OBJ name shows up.
@@ -212,7 +214,7 @@ void* ComponentTransform::OnValueChanged(ComponentVariable* pVar, bool finishedc
         {
             g_pPanelWatch->ChangeDescriptionForPointerWithDescription( pVar->m_ControlID, "none" );
             oldpointer = this->m_pParentTransform;
-            this->SetParent( 0 );
+            this->SetParentTransform( 0 );
         }
     }
     else
@@ -220,8 +222,12 @@ void* ComponentTransform::OnValueChanged(ComponentVariable* pVar, bool finishedc
         m_LocalTransform.CreateSRT( m_Scale, m_Rotation, m_Position );
         UpdateMatrix();
 
-        for( unsigned int i=0; i<m_pPositionChangedCallbackList.Count(); i++ )
-            m_pPositionChangedCallbackList[i].pFunc( m_pPositionChangedCallbackList[i].pObj, m_Position, true );
+        for( CPPListNode* pNode = m_PositionChangedCallbackList.GetHead(); pNode != 0; pNode = pNode->GetNext() )
+        {
+            TransformPositionChangedCallbackStruct* pCallbackStruct = (TransformPositionChangedCallbackStruct*)pNode;
+
+            pCallbackStruct->pFunc( pCallbackStruct->pObj, m_Position, true );
+        }
     }
 
     return oldpointer;
@@ -239,12 +245,16 @@ cJSON* ComponentTransform::ExportAsJSONObject(bool savesceneid)
 
 void ComponentTransform::ImportFromJSONObject(cJSON* jsonobj, unsigned int sceneid)
 {
-    ComponentBase::ImportFromJSONObject( jsonobj, sceneid );
-
     // import the parent goid, set the parent, then import the rest.
     ImportVariablesFromJSON( jsonobj, "ParentGOID" );
     if( m_pParentGameObject )
-        SetParent( m_pParentGameObject->m_pComponentTransform );
+    {
+        m_pGameObject->SetParentGameObject( m_pParentGameObject );
+        g_pPanelObjectList->Tree_MoveObject( m_pGameObject, m_pParentGameObject, true );
+        m_pGameObject->MoveAfter( m_pParentGameObject );
+    }
+
+    ComponentBase::ImportFromJSONObject( jsonobj, sceneid );
 
     //ImportVariablesFromJSON( jsonobj ); //_VARIABLE_LIST
 
@@ -275,8 +285,12 @@ void ComponentTransform::SetPosition(Vector3 pos)
     m_Position = pos;
     m_LocalTransform.CreateSRT( m_Scale, m_Rotation, m_Position );
 
-    for( unsigned int i=0; i<m_pPositionChangedCallbackList.Count(); i++ )
-        m_pPositionChangedCallbackList[i].pFunc( m_pPositionChangedCallbackList[i].pObj, m_Position, false );
+    for( CPPListNode* pNode = m_PositionChangedCallbackList.GetHead(); pNode != 0; pNode = pNode->GetNext() )
+    {
+        TransformPositionChangedCallbackStruct* pCallbackStruct = (TransformPositionChangedCallbackStruct*)pNode;
+
+        pCallbackStruct->pFunc( pCallbackStruct->pObj, m_Position, true );
+    }
 }
 
 #if MYFW_USING_WX
@@ -285,8 +299,12 @@ void ComponentTransform::SetPositionByEditor(Vector3 pos)
     m_Position = pos;
     m_LocalTransform.CreateSRT( m_Scale, m_Rotation, m_Position );
 
-    for( unsigned int i=0; i<m_pPositionChangedCallbackList.Count(); i++ )
-        m_pPositionChangedCallbackList[i].pFunc( m_pPositionChangedCallbackList[i].pObj, m_Position, true );
+    for( CPPListNode* pNode = m_PositionChangedCallbackList.GetHead(); pNode != 0; pNode = pNode->GetNext() )
+    {
+        TransformPositionChangedCallbackStruct* pCallbackStruct = (TransformPositionChangedCallbackStruct*)pNode;
+
+        pCallbackStruct->pFunc( pCallbackStruct->pObj, m_Position, true );
+    }
 }
 #endif
 
@@ -315,7 +333,7 @@ MyMatrix ComponentTransform::GetLocalRotPosMatrix()
     return local;
 }
 
-void ComponentTransform::SetParent(ComponentTransform* pNewParent, bool unregisterondeletecallback)
+void ComponentTransform::SetParentTransform(ComponentTransform* pNewParent, bool unregisterondeletecallback)
 {
     // if we had an old parent, stop it's gameobject from reporting it's deletion.
     if( m_pParentTransform != 0 && unregisterondeletecallback )
@@ -373,13 +391,15 @@ void ComponentTransform::UpdateMatrix()
 void ComponentTransform::RegisterPositionChangedCallback(void* pObj, TransformPositionChangedCallbackFunc pCallback)
 {
     MyAssert( pCallback != 0 );
-    MyAssert( m_pPositionChangedCallbackList.Count() < MAX_REGISTERED_CALLBACKS );
 
-    TransformPositionChangedCallbackStruct callbackstruct;
-    callbackstruct.pObj = pObj;
-    callbackstruct.pFunc = pCallback;
+    TransformPositionChangedCallbackStruct* pCallbackStruct = g_pComponentTransform_PositionChangedCallbackPool.GetObject();
+    if( pCallbackStruct != 0 )
+    {
+        pCallbackStruct->pObj = pObj;
+        pCallbackStruct->pFunc = pCallback;
 
-    m_pPositionChangedCallbackList.Add( callbackstruct );
+        m_PositionChangedCallbackList.AddTail( pCallbackStruct );
+    }
 }
 
 void ComponentTransform::OnGameObjectDeleted(GameObject* pGameObject)
@@ -389,6 +409,6 @@ void ComponentTransform::OnGameObjectDeleted(GameObject* pGameObject)
     if( m_pParentTransform == pGameObject->m_pComponentTransform )
     {
         // we're in the callback, so don't unregister the callback.
-        SetParent( 0, false );
+        SetParentTransform( 0, false );
     }
 }

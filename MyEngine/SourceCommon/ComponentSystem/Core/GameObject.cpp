@@ -243,15 +243,18 @@ void GameObject::OnDrop(int controlid, wxCoord x, wxCoord y)
         if( false ) //y < rect.GetTop() + 5 ) // move above the selected item
         {
             //g_pPanelObjectList->Tree_MoveObjectBefore( pGameObject, this, false );
+            //pGameObject->MoveBefore( this );
         }
         else if( y > rect.GetBottom() - 10 ) // move below the selected item
         {
             g_pPanelObjectList->Tree_MoveObject( pGameObject, this, false );
+            pGameObject->MoveAfter( this );
         }
         else // Parent this object dropped to this.
         {
-            pGameObject->SetParent( this );
+            pGameObject->SetParentGameObject( this );
             g_pPanelObjectList->Tree_MoveObject( pGameObject, this, true );
+            pGameObject->MoveAfter( this );
         }
     }
 }
@@ -410,10 +413,10 @@ void GameObject::SetName(const char* name)
 #endif //MYFW_USING_WX
 }
 
-void GameObject::SetParent(GameObject* pGameObject)
+void GameObject::SetParentGameObject(GameObject* pGameObject)
 {
     // parent one transform to another.
-    this->m_pComponentTransform->SetParent( pGameObject->m_pComponentTransform );
+    this->m_pComponentTransform->SetParentTransform( pGameObject->m_pComponentTransform );
 
     // If the parent is in another scene, move the game object to this scene.
     unsigned int sceneid = pGameObject->GetSceneID();
