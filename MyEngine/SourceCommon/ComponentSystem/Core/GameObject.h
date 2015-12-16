@@ -98,6 +98,9 @@ public:
     void RegisterOnDeleteCallback(void* pObj, GameObjectDeletedCallbackFunc pCallback);
     void UnregisterOnDeleteCallback(void* pObj, GameObjectDeletedCallbackFunc pCallback);
 
+    static void StaticOnTransformPositionChanged(void* pObjectPtr, Vector3& newpos, bool changedbyeditor) { ((GameObject*)pObjectPtr)->OnTransformPositionChanged( newpos, changedbyeditor ); }
+    void OnTransformPositionChanged(Vector3& newpos, bool changedbyeditor);
+
 public:
 #if MYFW_USING_WX
     enum RightClickOptions

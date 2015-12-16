@@ -335,10 +335,14 @@ MyMatrix ComponentTransform::GetLocalRotPosMatrix()
 
 void ComponentTransform::SetParentTransform(ComponentTransform* pNewParent, bool unregisterondeletecallback)
 {
-    // if we had an old parent, stop it's gameobject from reporting it's deletion.
+    // if we had an old parent:
     if( m_pParentTransform != 0 && unregisterondeletecallback )
     {
+        // stop it's gameobject from reporting it's deletion
         m_pParentTransform->m_pGameObject->UnregisterOnDeleteCallback( this, StaticOnGameObjectDeleted );
+
+        // stop sending it position changed messages
+        m_pParentTransform->m_pGameObject->m_pComponentTransform->UnregisterPositionChangedCallbacks( this );
     }
 
     if( pNewParent == 0 || pNewParent == this )
@@ -357,7 +361,10 @@ void ComponentTransform::SetParentTransform(ComponentTransform* pNewParent, bool
         m_pParentTransform = pNewParent;
 
         // register this component with the gameobject of the parent to notify us of it's deletion.
-        m_pParentTransform->m_pGameObject->RegisterOnDeleteCallback( this, StaticOnGameObjectDeleted );
+        m_pParentGameObject->RegisterOnDeleteCallback( this, StaticOnGameObjectDeleted );
+
+        // register this transform with it's parent to notify us if it changes.
+        m_pParentGameObject->m_pComponentTransform->RegisterPositionChangedCallback( this, StaticOnParentTransformChanged );
     }
 
     UpdateMatrix();
@@ -402,6 +409,24 @@ void ComponentTransform::RegisterPositionChangedCallback(void* pObj, TransformPo
     }
 }
 
+void ComponentTransform::UnregisterPositionChangedCallbacks(void* pObj)
+{
+    for( CPPListNode* pNode = m_PositionChangedCallbackList.GetHead(); pNode != 0; )
+    {
+        CPPListNode* pNextNode = pNode->GetNext();
+
+        TransformPositionChangedCallbackStruct* pCallbackStruct = (TransformPositionChangedCallbackStruct*)pNode;
+
+        if( pCallbackStruct->pObj == pObj )
+        {
+            pCallbackStruct->Remove();
+            g_pComponentTransform_PositionChangedCallbackPool.ReturnObject( pCallbackStruct );
+        }
+
+        pNode = pNextNode;
+    }
+}
+
 void ComponentTransform::OnGameObjectDeleted(GameObject* pGameObject)
 {
     // if our parent was deleted, clear the pointer.
@@ -410,5 +435,20 @@ void ComponentTransform::OnGameObjectDeleted(GameObject* pGameObject)
     {
         // we're in the callback, so don't unregister the callback.
         SetParentTransform( 0, false );
+    }
+}
+
+void ComponentTransform::OnParentTransformChanged(Vector3& newpos, bool changedbyeditor)
+{
+    UpdateMatrix();
+    UpdatePosAndRotFromLocalMatrix();
+    m_Position = m_Transform.GetTranslation();
+    m_Rotation = m_Transform.GetEulerAngles() * 180.0f/PI;
+
+    for( CPPListNode* pNode = m_PositionChangedCallbackList.GetHead(); pNode != 0; pNode = pNode->GetNext() )
+    {
+        TransformPositionChangedCallbackStruct* pCallbackStruct = (TransformPositionChangedCallbackStruct*)pNode;
+
+        pCallbackStruct->pFunc( pCallbackStruct->pObj, m_Position, changedbyeditor );
     }
 }

@@ -415,6 +415,10 @@ void GameObject::SetName(const char* name)
 
 void GameObject::SetParentGameObject(GameObject* pGameObject)
 {
+    //GameObject* pParentGameObject = m_pComponentTransform->m_pParentGameObject;
+    //if( pParentGameObject )
+    //    pParentGameObject->m_pComponentTransform->UnregisterPositionChangedCallback();
+
     // parent one transform to another.
     this->m_pComponentTransform->SetParentTransform( pGameObject->m_pComponentTransform );
 
@@ -735,4 +739,9 @@ void GameObject::NotifyOthersThisWasDeleted()
 
         pNode = pNextNode;
     }
+}
+
+void GameObject::OnTransformPositionChanged(Vector3& newpos, bool changedbyeditor)
+{
+    int bp = 1;
 }

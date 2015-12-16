@@ -84,10 +84,15 @@ public:
 
     // Callbacks
     void RegisterPositionChangedCallback(void* pObj, TransformPositionChangedCallbackFunc pCallback);
+    void UnregisterPositionChangedCallbacks(void* pObj);
 
     // GameObject callbacks.
     static void StaticOnGameObjectDeleted(void* pObjectPtr, GameObject* pGameObject) { ((ComponentTransform*)pObjectPtr)->OnGameObjectDeleted( pGameObject ); }
     void OnGameObjectDeleted(GameObject* pGameObject);
+
+    // Parent transform changed
+    static void StaticOnParentTransformChanged(void* pObjectPtr, Vector3& newpos, bool changedbyeditor) { ((ComponentTransform*)pObjectPtr)->OnParentTransformChanged( newpos, changedbyeditor ); }
+    void OnParentTransformChanged(Vector3& newpos, bool changedbyeditor);
 
 public:
 #if MYFW_USING_WX
