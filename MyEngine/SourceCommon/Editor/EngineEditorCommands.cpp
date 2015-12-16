@@ -66,8 +66,11 @@ EditorCommand* EditorCommand_MoveObjects::Repeat()
 
 EditorCommand_DeleteObjects::EditorCommand_DeleteObjects(const std::vector<GameObject*>& selectedobjects)
 {
+    MyAssert( selectedobjects.size() > 0 );
+
     for( unsigned int i=0; i<selectedobjects.size(); i++ )
     {
+        m_PreviousGameObjectsInObjectList.push_back( (GameObject*)selectedobjects[i]->GetPrev() );
         m_ObjectsDeleted.push_back( selectedobjects[i] );
     }
 
@@ -94,6 +97,7 @@ void EditorCommand_DeleteObjects::Do()
         m_ObjectsDeleted[i]->UnregisterAllComponentCallbacks( true );
         m_ObjectsDeleted[i]->SetEnabled( false );
         g_pComponentSystemManager->UnmanageGameObject( m_ObjectsDeleted[i] );
+        g_pComponentSystemManager->m_GameObjects.MoveTail( m_ObjectsDeleted[i] );
     }
     m_DeleteGameObjectsWhenDestroyed = true;
 }
@@ -104,6 +108,15 @@ void EditorCommand_DeleteObjects::Undo()
 
     for( unsigned int i=0; i<m_ObjectsDeleted.size(); i++ )
     {
+        if( m_PreviousGameObjectsInObjectList[i] == 0 )
+        {
+            g_pComponentSystemManager->m_GameObjects.MoveHead( m_PreviousGameObjectsInObjectList[i] );
+        }
+        else
+        {
+            m_ObjectsDeleted[i]->MoveAfter( m_PreviousGameObjectsInObjectList[i] );
+        }
+
         g_pComponentSystemManager->ManageGameObject( m_ObjectsDeleted[i] );
         m_ObjectsDeleted[i]->SetEnabled( true );
         m_ObjectsDeleted[i]->RegisterAllComponentCallbacks( false );

@@ -37,6 +37,7 @@ protected:
 
     // IF this is in undo stack, then this stores the only reference to the deleted object.
     //                                and the gameobject stores the only references to the components it contained.
+    std::vector<GameObject*> m_PreviousGameObjectsInObjectList; // to reinsert at the right place.
     std::vector<GameObject*> m_ObjectsDeleted;
     bool m_DeleteGameObjectsWhenDestroyed;
 

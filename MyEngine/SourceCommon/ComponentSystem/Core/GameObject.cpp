@@ -452,6 +452,9 @@ void GameObject::SetManaged(bool managed)
             {
                 m_Components[i]->AddToObjectsPanel( gameobjectid );
             }
+
+            if( this->Prev && this->GetPrev() != 0 )
+                g_pPanelObjectList->Tree_MoveObject( this, this->GetPrev(), false );
         }
         return;
     }
