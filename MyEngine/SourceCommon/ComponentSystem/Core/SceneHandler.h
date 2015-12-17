@@ -16,6 +16,9 @@ public:
 #if MYFW_USING_WX
     wxTreeItemId m_TreeID;
 #endif
+    
+    CPPListHead m_GameObjects; // scene level game objects, children are stored in a list inside the game object.
+
     char m_FullPath[MAX_PATH];
     unsigned int m_NextGameObjectID;
     unsigned int m_NextComponentID;

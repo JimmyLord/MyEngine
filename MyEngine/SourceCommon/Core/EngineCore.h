@@ -46,7 +46,7 @@ extern void OnFileUpdated_CallbackFunction(MyFileObject* pFile);
 class EngineCore : public GameCore
 {
 public:
-    static const int ENGINE_SCENE_ID = 9879;
+    static const int ENGINE_SCENE_ID = 9; //9879;
     static const int MAX_SCENE_FILES_QUEUED_UP = 10;
 
 public:

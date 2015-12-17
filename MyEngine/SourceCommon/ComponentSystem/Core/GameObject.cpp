@@ -323,7 +323,7 @@ cJSON* GameObject::ExportReferenceAsJSONObject(unsigned int refsceneid)
 
     if( refsceneid != m_SceneID )
     {
-        cJSON_AddStringToObject( gameobjectref, "Scene", g_pComponentSystemManager->GetSceneInfo( m_SceneID )->m_FullPath );
+        cJSON_AddStringToObject( gameobjectref, "Scene", GetSceneInfo()->m_FullPath );
     }
 
     cJSON_AddNumberToObject( gameobjectref, "GOID", m_ID );
@@ -453,8 +453,6 @@ void GameObject::SetManaged(bool managed)
                 m_Components[i]->AddToObjectsPanel( gameobjectid );
             }
 
-            if( this->Prev && this->GetPrev() != 0 )
-                g_pPanelObjectList->Tree_MoveObject( this, this->GetPrev(), false );
         }
         return;
     }

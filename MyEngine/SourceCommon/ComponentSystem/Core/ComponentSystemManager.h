@@ -105,11 +105,11 @@ class ComponentSystemManager
 : public wxEvtHandler
 #endif //MYFW_USING_WX
 {
+public:
     static const int MAX_SCENES_LOADED = 10;
 
 public:
     ComponentTypeManager* m_pComponentTypeManager; // memory managed, delete this.
-    CPPListHead m_GameObjects;
 
     // List of files used including a scene id and the source file (if applicable)
     CPPListHead m_Files;
@@ -167,7 +167,7 @@ public:
     unsigned int GetNextGameObjectIDAndIncrement(unsigned int sceneid);
     unsigned int GetNextComponentIDAndIncrement(unsigned int sceneid);
 
-    GameObject* GetFirstGameObjectFronScene(unsigned int sceneid);
+    GameObject* GetFirstGameObjectFromScene(unsigned int sceneid);
     GameObject* FindGameObjectByID(unsigned int sceneid, unsigned int goid);
     GameObject* FindGameObjectByName(const char* name);
     GameObject* FindGameObjectByJSONRef(cJSON* pJSONGameObjectRef, unsigned int defaultsceneid);
@@ -220,8 +220,8 @@ public:
     void CreateNewScene(const char* scenename, unsigned int sceneid);
     wxTreeItemId GetTreeIDForScene(int sceneid);
     unsigned int GetSceneIDFromSceneTreeID(wxTreeItemId treeid);
-    std::map<int, SceneInfo> m_pSceneInfoMap;
-#else
+    //std::map<int, SceneInfo> m_pSceneInfoMap;
+//#else
     SceneInfo m_pSceneInfoMap[MAX_SCENES_LOADED];
 #endif
 

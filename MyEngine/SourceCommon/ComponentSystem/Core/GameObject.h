@@ -26,6 +26,7 @@ class GameObject : public CPPListNode
 
 protected:
     GameObject* m_pGameObjectThisInheritsFrom; // if set, any changes to the parent will be reflected in this object.
+    CPPListHead m_Children; // child game object
 
     bool m_Enabled;
     unsigned int m_SceneID; // 0 for runtime generated.
@@ -48,6 +49,7 @@ public:
     SetClassnameBase( "GameObject" ); // only first 8 character count.
 
     GameObject* GetGameObjectThisInheritsFrom() { return m_pGameObjectThisInheritsFrom; }
+    CPPListHead* GetChildren() { return &m_Children; }
     void SetGameObjectThisInheritsFrom(GameObject* pObj) { m_pGameObjectThisInheritsFrom = pObj; }
 
 #if MYFW_USING_LUA
@@ -70,6 +72,7 @@ public:
 
     bool IsEnabled() { return m_Enabled; }
     unsigned int GetSceneID() { return m_SceneID; }
+    SceneInfo* GetSceneInfo() { return g_pComponentSystemManager->GetSceneInfo( m_SceneID ); }
     unsigned int GetID() { return m_ID; }
     const char* GetName() { return m_Name; }
 

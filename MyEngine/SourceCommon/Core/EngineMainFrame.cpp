@@ -784,11 +784,18 @@ void EngineMainFrame::SaveScene()
     }
     else
     {
-        typedef std::map<int, SceneInfo>::iterator it_type;
-        for( it_type iterator = g_pComponentSystemManager->m_pSceneInfoMap.begin(); iterator != g_pComponentSystemManager->m_pSceneInfoMap.end(); iterator++ )
+        //typedef std::map<int, SceneInfo>::iterator it_type;
+        //for( it_type iterator = g_pComponentSystemManager->m_pSceneInfoMap.begin(); iterator != g_pComponentSystemManager->m_pSceneInfoMap.end(); iterator++ )
+        //{
+        //    unsigned int sceneid = iterator->first;
+        //    SceneInfo* pSceneInfo = &iterator->second;
+        for( unsigned int i=0; i<ComponentSystemManager::MAX_SCENES_LOADED; i++ )
         {
-            unsigned int sceneid = iterator->first;
-            SceneInfo* pSceneInfo = &iterator->second;
+            if( g_pComponentSystemManager->m_pSceneInfoMap[i].m_InUse == false )
+                continue;
+
+            unsigned int sceneid = i;
+            SceneInfo* pSceneInfo = &g_pComponentSystemManager->m_pSceneInfoMap[i];
 
             if( sceneid != 0 && sceneid != EngineCore::ENGINE_SCENE_ID )
             {
