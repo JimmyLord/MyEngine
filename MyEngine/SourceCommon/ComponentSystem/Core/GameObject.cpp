@@ -60,6 +60,10 @@ GameObject::~GameObject()
     SAFE_DELETE( m_pComponentTransform );
 
     SAFE_DELETE_ARRAY( m_Name );
+
+    // delete all children.
+    while( m_ChildList.GetHead() )
+        delete m_ChildList.RemHead();
 }
 
 #if MYFW_USING_LUA
