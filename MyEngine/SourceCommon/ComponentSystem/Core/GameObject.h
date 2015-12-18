@@ -25,8 +25,10 @@ class GameObject : public CPPListNode
     static const int MAX_COMPONENTS = 4; // TODO: fix this hardcodedness
 
 protected:
-    GameObject* m_pGameObjectThisInheritsFrom; // if set, any changes to the parent will be reflected in this object.
-    CPPListHead m_Children; // child game object
+    GameObject* m_pGameObjectThisInheritsFrom; // for variables, if set, any changes to the parent will be reflected in this object.
+
+    // TODO: move "GameObject* m_pParentGameObject" from transform component to here.
+    CPPListHead m_ChildList; // child game objects
 
     bool m_Enabled;
     unsigned int m_SceneID; // 0 for runtime generated.
@@ -49,7 +51,8 @@ public:
     SetClassnameBase( "GameObject" ); // only first 8 character count.
 
     GameObject* GetGameObjectThisInheritsFrom() { return m_pGameObjectThisInheritsFrom; }
-    CPPListHead* GetChildren() { return &m_Children; }
+    CPPListHead* GetChildList() { return &m_ChildList; }
+    GameObject* GetFirstChild() { return (GameObject*)m_ChildList.GetHead(); }
     void SetGameObjectThisInheritsFrom(GameObject* pObj) { m_pGameObjectThisInheritsFrom = pObj; }
 
 #if MYFW_USING_LUA
@@ -66,7 +69,7 @@ public:
     void SetSceneID(unsigned int sceneid);
     void SetID(unsigned int id);
     void SetName(const char* name);
-    void SetParentGameObject(GameObject* pGameObject);
+    void SetParentGameObject(GameObject* pParentGameObject);
     void SetManaged(bool managed);
     bool IsManaged() { return m_Managed; }
 

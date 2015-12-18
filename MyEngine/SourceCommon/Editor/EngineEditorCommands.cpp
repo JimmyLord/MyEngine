@@ -110,7 +110,14 @@ void EditorCommand_DeleteObjects::Undo()
     {
         if( m_PreviousGameObjectsInObjectList[i] == 0 )
         {
-            m_ObjectsDeleted[i]->GetSceneInfo()->m_GameObjects.MoveHead( m_ObjectsDeleted[i] );
+            if( m_ObjectsDeleted[i]->m_pComponentTransform->m_pParentGameObject )
+            {
+                m_ObjectsDeleted[i]->m_pComponentTransform->m_pParentGameObject->GetChildList()->MoveHead( m_ObjectsDeleted[i] );
+            }
+            else
+            {
+                m_ObjectsDeleted[i]->GetSceneInfo()->m_GameObjects.MoveHead( m_ObjectsDeleted[i] );
+            }
         }
         else
         {
@@ -127,9 +134,16 @@ void EditorCommand_DeleteObjects::Undo()
         }
         else
         {
-            wxTreeItemId treeidtomove = g_pPanelObjectList->FindObject( m_ObjectsDeleted[i] );
-            wxTreeItemId rootid = g_pComponentSystemManager->GetTreeIDForScene( m_ObjectsDeleted[i]->GetSceneID() );
-            g_pPanelObjectList->Tree_MoveObject( treeidtomove, rootid, true );
+            if( m_ObjectsDeleted[i]->m_pComponentTransform->m_pParentGameObject )
+            {
+                g_pPanelObjectList->Tree_MoveObject( m_ObjectsDeleted[i], m_ObjectsDeleted[i]->m_pComponentTransform->m_pParentGameObject, true );
+            }
+            else
+            {
+                wxTreeItemId treeidtomove = g_pPanelObjectList->FindObject( m_ObjectsDeleted[i] );
+                wxTreeItemId rootid = g_pComponentSystemManager->GetTreeIDForScene( m_ObjectsDeleted[i]->GetSceneID() );
+                g_pPanelObjectList->Tree_MoveObject( treeidtomove, rootid, true );
+            }
         }
     }
     m_DeleteGameObjectsWhenDestroyed = false;

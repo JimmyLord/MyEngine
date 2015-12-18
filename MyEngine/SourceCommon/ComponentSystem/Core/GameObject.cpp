@@ -250,11 +250,9 @@ void GameObject::OnDrop(int controlid, wxCoord x, wxCoord y)
             g_pPanelObjectList->Tree_MoveObject( pGameObject, this, false );
             pGameObject->MoveAfter( this );
         }
-        else // Parent this object dropped to this.
+        else // Parent the object dropped to this.
         {
             pGameObject->SetParentGameObject( this );
-            g_pPanelObjectList->Tree_MoveObject( pGameObject, this, true );
-            pGameObject->MoveAfter( this );
         }
     }
 }
@@ -413,18 +411,24 @@ void GameObject::SetName(const char* name)
 #endif //MYFW_USING_WX
 }
 
-void GameObject::SetParentGameObject(GameObject* pGameObject)
+void GameObject::SetParentGameObject(GameObject* pParentGameObject)
 {
-    //GameObject* pParentGameObject = m_pComponentTransform->m_pParentGameObject;
-    //if( pParentGameObject )
-    //    pParentGameObject->m_pComponentTransform->UnregisterPositionChangedCallback();
+    //GameObject* pOldParentGameObject = m_pComponentTransform->m_pParentGameObject;
+    //if( pOldParentGameObject )
+    //    pOldParentGameObject->m_pComponentTransform->UnregisterPositionChangedCallback();
 
     // parent one transform to another.
-    this->m_pComponentTransform->SetParentTransform( pGameObject->m_pComponentTransform );
+    this->m_pComponentTransform->SetParentTransform( pParentGameObject->m_pComponentTransform );
 
-    // If the parent is in another scene, move the game object to this scene.
-    unsigned int sceneid = pGameObject->GetSceneID();
-    pGameObject->SetSceneID( sceneid );
+    // If the parent is in another scene, move the game object to that scene.
+    unsigned int sceneid = pParentGameObject->GetSceneID();
+    SetSceneID( sceneid );
+
+    pParentGameObject->m_ChildList.MoveTail( this );
+    if( GetPrev() == 0 )
+        g_pPanelObjectList->Tree_MoveObject( this, pParentGameObject, true );
+    else
+        g_pPanelObjectList->Tree_MoveObject( this, GetPrev(), false );
 }
 
 void GameObject::SetManaged(bool managed)

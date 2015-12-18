@@ -250,8 +250,6 @@ void ComponentTransform::ImportFromJSONObject(cJSON* jsonobj, unsigned int scene
     if( m_pParentGameObject )
     {
         m_pGameObject->SetParentGameObject( m_pParentGameObject );
-        g_pPanelObjectList->Tree_MoveObject( m_pGameObject, m_pParentGameObject, true );
-        m_pGameObject->MoveAfter( m_pParentGameObject );
     }
 
     ComponentBase::ImportFromJSONObject( jsonobj, sceneid );
@@ -335,6 +333,9 @@ MyMatrix ComponentTransform::GetLocalRotPosMatrix()
 
 void ComponentTransform::SetParentTransform(ComponentTransform* pNewParent, bool unregisterondeletecallback)
 {
+    if( m_pParentTransform == pNewParent )
+        return;
+
     // if we had an old parent:
     if( m_pParentTransform != 0 && unregisterondeletecallback )
     {

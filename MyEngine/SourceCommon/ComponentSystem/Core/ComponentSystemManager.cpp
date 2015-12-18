@@ -1195,12 +1195,11 @@ GameObject* ComponentSystemManager::GetFirstGameObjectFromScene(unsigned int sce
     if( pSceneInfo == 0 )
         return 0;
 
-    for( CPPListNode* node = pSceneInfo->m_GameObjects.GetHead(); node != 0; node = node->GetNext() )
+    GameObject* pGameObject = (GameObject*)pSceneInfo->m_GameObjects.GetHead();
+    if( pGameObject )
     {
-        GameObject* pGameObject = (GameObject*)node;
-
-        if( pGameObject->GetSceneID() )
-            return pGameObject;
+        MyAssert( pGameObject->GetSceneID() == sceneid );
+        return pGameObject;
     }
 
     return 0;
@@ -1212,12 +1211,28 @@ GameObject* ComponentSystemManager::FindGameObjectByID(unsigned int sceneid, uns
     if( pSceneInfo == 0 )
         return 0;
 
-    for( CPPListNode* node = pSceneInfo->m_GameObjects.GetHead(); node != 0; node = node->GetNext() )
+    return FindGameObjectByIDFromList( (GameObject*)pSceneInfo->m_GameObjects.GetHead(), goid );
+}
+
+GameObject* ComponentSystemManager::FindGameObjectByIDFromList(GameObject* list, unsigned int goid)
+{
+    if( list == 0 )
+        return 0;
+
+    for( CPPListNode* node = list; node != 0; node = node->GetNext() )
     {
         GameObject* pGameObject = (GameObject*)node;
 
-        if( pGameObject->IsManaged() && pGameObject->GetSceneID() == sceneid && pGameObject->GetID() == goid )
+        if( pGameObject->IsManaged() && pGameObject->GetID() == goid )
             return pGameObject;
+
+        GameObject* pFirstChild = pGameObject->GetFirstChild();
+        if( pFirstChild )
+        {
+            GameObject* pGameObjectFound = FindGameObjectByIDFromList( pFirstChild, goid );
+            if( pGameObjectFound )
+                return pGameObjectFound;
+        }
     }
 
     return 0;
@@ -1240,12 +1255,32 @@ GameObject* ComponentSystemManager::FindGameObjectByName(const char* name)
         SceneInfo* pSceneInfo = &m_pSceneInfoMap[i];
 #endif // MYFW_USING_WX
 
-        for( CPPListNode* node = pSceneInfo->m_GameObjects.GetHead(); node != 0; node = node->GetNext() )
-        {
-            GameObject* pGameObject = (GameObject*)node;
+        GameObject* pGameObjectFound = FindGameObjectByNameFromList( (GameObject*)pSceneInfo->m_GameObjects.GetHead(), name );
+        if( pGameObjectFound )
+            return pGameObjectFound;
+    }
 
-            if( strcmp( pGameObject->GetName(), name ) == 0 )
-                return pGameObject;
+    return 0;
+}
+
+GameObject* ComponentSystemManager::FindGameObjectByNameFromList(GameObject* list, const char* name)
+{
+    if( list == 0 )
+        return 0;
+
+    for( CPPListNode* node = list; node != 0; node = node->GetNext() )
+    {
+        GameObject* pGameObject = (GameObject*)node;
+
+        if( strcmp( pGameObject->GetName(), name ) == 0 )
+            return pGameObject;
+
+        GameObject* pFirstChild = pGameObject->GetFirstChild();
+        if( pFirstChild )
+        {
+            GameObject* pGameObjectFound = FindGameObjectByNameFromList( pFirstChild, name );
+            if( pGameObjectFound )
+                return pGameObjectFound;
         }
     }
 
@@ -1270,15 +1305,7 @@ GameObject* ComponentSystemManager::FindGameObjectByJSONRef(cJSON* pJSONGameObje
     cJSONExt_GetUnsignedInt( pJSONGameObjectRef, "GOID", &goid );
     MyAssert( goid != -1 );
 
-    for( CPPListNode* node = GetSceneInfo( sceneid )->m_GameObjects.GetHead(); node != 0; node = node->GetNext() )
-    {
-        GameObject* pGameObject = (GameObject*)node;
-
-        if( pGameObject->GetSceneID() == sceneid && pGameObject->GetID() == goid )
-            return pGameObject;
-    }
-
-    return 0;
+    return FindGameObjectByID( sceneid, goid );
 }
 
 ComponentCamera* ComponentSystemManager::GetFirstCamera()
