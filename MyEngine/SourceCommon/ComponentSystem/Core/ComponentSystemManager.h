@@ -136,9 +136,10 @@ public:
     static void LuaRegister(lua_State* luastate);
 #endif //MYFW_USING_LUA
 
-    void MoveAllFilesNeededForLoadingScreenToStartOfFileList();
+    void MoveAllFilesNeededForLoadingScreenToStartOfFileList(GameObject* first);
     void AddListOfFilesUsedToJSONObject(unsigned int sceneid, cJSON* filearray);
     char* SaveSceneToJSON(unsigned int sceneid);
+    void SaveGameObjectListToJSONArray(cJSON* gameobjectarray, cJSON* transformarray, GameObject* first, bool savesceneid);
     
     MyFileInfo* AddToFileList(MyFileObject* pFile, MyMesh* pMesh, ShaderGroup* pShaderGroup, TextureDefinition* pTexture, MaterialDefinition* pMaterial, unsigned int sceneid);
     MyFileObject* LoadDataFile(const char* relativepath, unsigned int sceneid, const char* fullsourcefilepath, bool convertifrequired = true);

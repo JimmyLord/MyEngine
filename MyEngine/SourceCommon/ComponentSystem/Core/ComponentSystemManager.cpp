@@ -266,56 +266,50 @@ void ComponentSystemManager::OnMaterialCreated(MaterialDefinition* pMaterial)
 }
 #endif //MYFW_USING_WX
 
-void ComponentSystemManager::MoveAllFilesNeededForLoadingScreenToStartOfFileList()
+void ComponentSystemManager::MoveAllFilesNeededForLoadingScreenToStartOfFileList(GameObject* first)
 {
-#if 0 //MYFW_USING_WX
-    typedef std::map<int, SceneInfo>::iterator it_type;
-    for( it_type iterator = m_pSceneInfoMap.begin(); iterator != m_pSceneInfoMap.end(); )
-    {
-        unsigned int sceneid = iterator->first;
-        SceneInfo* pSceneInfo = &iterator->second;
-#else
-    for( unsigned int i=0; i<MAX_SCENES_LOADED; i++ )
-    {
-        if( m_pSceneInfoMap[i].m_InUse == false )
-            continue;
+    MyAssert( first != 0 );
+    if( first == 0 )
+        return;
 
-        SceneInfo* pSceneInfo = &m_pSceneInfoMap[i];
-#endif // MYFW_USING_WX
+    for( CPPListNode* pNode = first; pNode; pNode = pNode->GetNext() )
+    {
+        GameObject* pGameObject = (GameObject*)pNode;
 
-        for( CPPListNode* pNode = pSceneInfo->m_GameObjects.GetHead(); pNode; pNode = pNode->GetNext() )
+        if( strncmp( pGameObject->GetName(), "Load", 4 ) == 0 )
         {
-            GameObject* pGameObject = (GameObject*)pNode;
-
-            if( strncmp( pGameObject->GetName(), "Load", 4 ) == 0 )
+            for( unsigned int i=0; i<pGameObject->m_Components.Count(); i++ )
             {
-                for( unsigned int i=0; i<pGameObject->m_Components.Count(); i++ )
+                ComponentBase* pComponent = pGameObject->m_Components[i];
+
+                // move sprite material files to front of list.
+                if( pComponent->IsA( "SpriteComponent" ) )
                 {
-                    ComponentBase* pComponent = pGameObject->m_Components[i];
-
-                    // move sprite material files to front of list.
-                    if( pComponent->IsA( "SpriteComponent" ) )
+                    MySprite* pSprite = ((ComponentSprite*)pComponent)->m_pSprite;
+                    if( pSprite && pSprite->GetMaterial() )
                     {
-                        MySprite* pSprite = ((ComponentSprite*)pComponent)->m_pSprite;
-                        if( pSprite && pSprite->GetMaterial() )
-                        {
-                            pSprite->GetMaterial()->MoveAssociatedFilesToFrontOfFileList();
-                        }
+                        pSprite->GetMaterial()->MoveAssociatedFilesToFrontOfFileList();
                     }
-
-    #if MYFW_USING_LUA
-                    // move lua scripts to front of list.
-                    if( pComponent->IsA( "LuaScriptComponent" ) )
-                    {
-                        MyFileObject* pScriptFile = ((ComponentLuaScript*)pComponent)->GetScriptFile();
-                        if( pScriptFile )
-                        {
-                            g_pFileManager->MoveFileToFrontOfFileLoadedList( pScriptFile );
-                        }
-                    }
-    #endif //MYFW_USING_LUA
                 }
+
+#if MYFW_USING_LUA
+                // move lua scripts to front of list.
+                if( pComponent->IsA( "LuaScriptComponent" ) )
+                {
+                    MyFileObject* pScriptFile = ((ComponentLuaScript*)pComponent)->GetScriptFile();
+                    if( pScriptFile )
+                    {
+                        g_pFileManager->MoveFileToFrontOfFileLoadedList( pScriptFile );
+                    }
+                }
+#endif //MYFW_USING_LUA
             }
+        }
+
+        GameObject* pFirstChild = pGameObject->GetFirstChild();
+        if( pFirstChild )
+        {
+            MoveAllFilesNeededForLoadingScreenToStartOfFileList( pFirstChild );
         }
     }
 }
@@ -380,7 +374,26 @@ char* ComponentSystemManager::SaveSceneToJSON(unsigned int sceneid)
 
     // move files used by gameobjects that start with "Load" to front of file list.
     {
-        MoveAllFilesNeededForLoadingScreenToStartOfFileList();
+#if 0 //MYFW_USING_WX
+        typedef std::map<int, SceneInfo>::iterator it_type;
+        for( it_type iterator = m_pSceneInfoMap.begin(); iterator != m_pSceneInfoMap.end(); )
+        {
+            unsigned int sceneid = iterator->first;
+            SceneInfo* pSceneInfo = &iterator->second;
+#else
+        for( unsigned int i=0; i<MAX_SCENES_LOADED; i++ )
+        {
+            if( m_pSceneInfoMap[i].m_InUse == false )
+                continue;
+
+            SceneInfo* pSceneInfo = &m_pSceneInfoMap[i];
+#endif // MYFW_USING_WX
+
+            if( (GameObject*)pSceneInfo->m_GameObjects.GetHead() )
+            {
+                MoveAllFilesNeededForLoadingScreenToStartOfFileList( (GameObject*)pSceneInfo->m_GameObjects.GetHead() );
+            }
+        }
     }
 
     // add the files used.
@@ -403,27 +416,10 @@ char* ComponentSystemManager::SaveSceneToJSON(unsigned int sceneid)
             SceneInfo* pSceneInfo = &m_pSceneInfoMap[i];
 #endif // MYFW_USING_WX
 
-            for( CPPListNode* pNode = pSceneInfo->m_GameObjects.GetHead(); pNode; pNode = pNode->GetNext() )
+            GameObject* first = (GameObject*)pSceneInfo->m_GameObjects.GetHead();
+            if( first && ( first->GetSceneID() == sceneid || savingallscenes ) )
             {
-                GameObject* pGameObject = (GameObject*)pNode;
-                if( pGameObject->IsManaged() &&
-                    ( pGameObject->GetSceneID() == sceneid || savingallscenes )
-                  )
-                {
-                    cJSON_AddItemToArray( gameobjectarray, pGameObject->ExportAsJSONObject( savingallscenes ) );
-                }
-            }
-
-            for( CPPListNode* pNode = pSceneInfo->m_GameObjects.GetHead(); pNode; pNode = pNode->GetNext() )
-            {
-                GameObject* pGameObject = (GameObject*)pNode;
-                if( pGameObject->IsManaged() &&
-                    ( pGameObject->GetSceneID() == sceneid || savingallscenes )
-                  )
-                {
-                    ComponentBase* pComponent = pGameObject->m_pComponentTransform;
-                    cJSON_AddItemToArray( transformarray, pComponent->ExportAsJSONObject( savingallscenes ) );
-                }
+                SaveGameObjectListToJSONArray( gameobjectarray, transformarray, first, savingallscenes );
             }
         }
     }
@@ -449,6 +445,27 @@ char* ComponentSystemManager::SaveSceneToJSON(unsigned int sceneid)
     cJSON_Delete(root);
 
     return savestring;
+}
+
+void ComponentSystemManager::SaveGameObjectListToJSONArray(cJSON* gameobjectarray, cJSON* transformarray, GameObject* first, bool savesceneid)
+{
+    for( CPPListNode* pNode = first; pNode; pNode = pNode->GetNext() )
+    {
+        GameObject* pGameObject = (GameObject*)pNode;
+        if( pGameObject->IsManaged() )
+        {
+            cJSON_AddItemToArray( gameobjectarray, pGameObject->ExportAsJSONObject( savesceneid ) );
+
+            ComponentBase* pComponent = pGameObject->m_pComponentTransform;
+            cJSON_AddItemToArray( transformarray, pComponent->ExportAsJSONObject( savesceneid ) );
+        }
+
+        GameObject* pFirstChild = pGameObject->GetFirstChild();
+        if( pFirstChild )
+        {
+            SaveGameObjectListToJSONArray( gameobjectarray, transformarray, pFirstChild, savesceneid );
+        }
+    }
 }
 
 MyFileInfo* ComponentSystemManager::GetFileInfoIfUsedByScene(const char* fullpath, unsigned int sceneid)
@@ -1211,11 +1228,15 @@ GameObject* ComponentSystemManager::FindGameObjectByID(unsigned int sceneid, uns
     if( pSceneInfo == 0 )
         return 0;
 
-    return FindGameObjectByIDFromList( (GameObject*)pSceneInfo->m_GameObjects.GetHead(), goid );
+    if( pSceneInfo->m_GameObjects.GetHead() )
+        return FindGameObjectByIDFromList( (GameObject*)pSceneInfo->m_GameObjects.GetHead(), goid );
+
+    return 0;
 }
 
 GameObject* ComponentSystemManager::FindGameObjectByIDFromList(GameObject* list, unsigned int goid)
 {
+    MyAssert( list != 0 );
     if( list == 0 )
         return 0;
 
@@ -1255,9 +1276,12 @@ GameObject* ComponentSystemManager::FindGameObjectByName(const char* name)
         SceneInfo* pSceneInfo = &m_pSceneInfoMap[i];
 #endif // MYFW_USING_WX
 
-        GameObject* pGameObjectFound = FindGameObjectByNameFromList( (GameObject*)pSceneInfo->m_GameObjects.GetHead(), name );
-        if( pGameObjectFound )
-            return pGameObjectFound;
+        if( pSceneInfo->m_GameObjects.GetHead() )
+        {
+            GameObject* pGameObjectFound = FindGameObjectByNameFromList( (GameObject*)pSceneInfo->m_GameObjects.GetHead(), name );
+            if( pGameObjectFound )
+                return pGameObjectFound;
+        }
     }
 
     return 0;
@@ -1265,6 +1289,7 @@ GameObject* ComponentSystemManager::FindGameObjectByName(const char* name)
 
 GameObject* ComponentSystemManager::FindGameObjectByNameFromList(GameObject* list, const char* name)
 {
+    MyAssert( list != 0 );
     if( list == 0 )
         return 0;
 
