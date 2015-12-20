@@ -465,7 +465,7 @@ void ComponentLuaScript::UpdateChildrenInGameObjectListWithNewValue(ExposedVaria
 
         if( pGameObject->GetGameObjectThisInheritsFrom() == this->m_pGameObject )
         {
-            UpdateGameObjectWithNewValue( pVar, varindex, pGameObject, controlid, finishedchanging, oldvalue, oldpointer );
+            UpdateChildGameObjectWithNewValue( pVar, varindex, pGameObject, controlid, finishedchanging, oldvalue, oldpointer );
         }
 
         GameObject* pFirstChild = pGameObject->GetFirstChild();
@@ -476,44 +476,60 @@ void ComponentLuaScript::UpdateChildrenInGameObjectListWithNewValue(ExposedVaria
     }
 }
 
-void ComponentLuaScript::UpdateGameObjectWithNewValue(ExposedVariableDesc* pVar, unsigned int varindex, GameObject* pGameObject, int controlid, bool finishedchanging, double oldvalue, void* oldpointer)
+void ComponentLuaScript::UpdateChildGameObjectWithNewValue(ExposedVariableDesc* pVar, unsigned int varindex, GameObject* pChildGameObject, int controlid, bool finishedchanging, double oldvalue, void* oldpointer)
 {
-    if( pGameObject->GetGameObjectThisInheritsFrom() == this->m_pGameObject )
+    if( pChildGameObject->GetGameObjectThisInheritsFrom() == this->m_pGameObject )
     {
         // Found a game object, now find the matching component on it.
-        for( unsigned int i=0; i<pGameObject->m_Components.Count(); i++ )
+        for( unsigned int i=0; i<pChildGameObject->m_Components.Count(); i++ )
         {
-            ComponentLuaScript* pOtherLuaScript = (ComponentLuaScript*)pGameObject->m_Components[i];
+            ComponentLuaScript* pChildLuaScript = (ComponentLuaScript*)pChildGameObject->m_Components[i];
 
             const char* pThisCompClassName = GetClassname();
-            const char* pOtherCompClassName = pOtherLuaScript->GetClassname();
+            const char* pChildCompClassName = pChildLuaScript->GetClassname();
 
             // TODO: this will fail if multiple of the same component are on an object.
-            if( strcmp( pThisCompClassName, pOtherCompClassName ) == 0 )
+            if( strcmp( pThisCompClassName, pChildCompClassName ) == 0 )
             {
-                // Found the matching component, now compare the variable.
-                if( pVar->type == ExposedVariableType_Float )
-                {
-                    if( pOtherLuaScript->m_ExposedVars[varindex]->value == oldvalue )
-                    {
-                        pOtherLuaScript->m_ExposedVars[varindex]->value = pVar->value;
-                        pOtherLuaScript->OnValueChanged( controlid, finishedchanging, oldvalue );
-                        ProgramVariables( m_pLuaGameState->m_pLuaState, true );
+                // it's possible the variables are in a different order, so find the correct variable by name
+                ExposedVariableDesc* pChildVar = 0;
 
-                        pOtherLuaScript->UpdateChildrenWithNewValue( controlid, finishedchanging, oldvalue, oldpointer );
+                // find the first variable in the other object with the same name
+                for( unsigned int i=0; i<m_ExposedVars.Count(); i++ )
+                {
+                    if( m_ExposedVars[varindex]->name == pChildLuaScript->m_ExposedVars[i]->name )
+                    {
+                        pChildVar = pChildLuaScript->m_ExposedVars[i];
+                        break;
                     }
                 }
 
-                if( pVar->type == ExposedVariableType_GameObject )
+                if( pChildVar )
                 {
-                    if( pOtherLuaScript->m_ExposedVars[varindex]->pointer == oldpointer )
+                    // Found the matching component, now compare the variable.
+                    if( pChildVar->type == ExposedVariableType_Float )
                     {
-                        pOtherLuaScript->m_ExposedVars[varindex]->pointer = pVar->pointer;
-                        if( pVar->pointer )
-                            ((GameObject*)pVar->pointer)->RegisterOnDeleteCallback( pOtherLuaScript, StaticOnGameObjectDeleted );
-                        ProgramVariables( m_pLuaGameState->m_pLuaState, true );
+                        if( fequal( pChildVar->value, oldvalue ) )
+                        {
+                            pChildVar->value = pVar->value;
+                            pChildLuaScript->OnValueChanged( controlid, finishedchanging, oldvalue );
+                            ProgramVariables( m_pLuaGameState->m_pLuaState, true );
 
-                        pOtherLuaScript->UpdateChildrenWithNewValue( controlid, finishedchanging, oldvalue, oldpointer );
+                            pChildLuaScript->UpdateChildrenWithNewValue( controlid, finishedchanging, oldvalue, oldpointer );
+                        }
+                    }
+
+                    if( pVar->type == ExposedVariableType_GameObject )
+                    {
+                        if( pChildVar->pointer == oldpointer )
+                        {
+                            pChildVar->pointer = pVar->pointer;
+                            if( pVar->pointer )
+                                ((GameObject*)pVar->pointer)->RegisterOnDeleteCallback( pChildLuaScript, StaticOnGameObjectDeleted );
+                            ProgramVariables( m_pLuaGameState->m_pLuaState, true );
+
+                            pChildLuaScript->UpdateChildrenWithNewValue( controlid, finishedchanging, oldvalue, oldpointer );
+                        }
                     }
                 }
             }
@@ -643,16 +659,33 @@ ComponentLuaScript& ComponentLuaScript::operator=(const ComponentLuaScript& othe
         for( unsigned int i=0; i<m_ExposedVars.Count(); i++ )
         {
             ExposedVariableDesc* pVar = m_ExposedVars[i];
-            ExposedVariableDesc* pOtherVar = other.m_ExposedVars[i];            
+            ExposedVariableDesc* pOtherVar = 0;// = other.m_ExposedVars[i];            
 
-            if( pVar->type == ExposedVariableType_Float )
-                pVar->value = pOtherVar->value;
+            // find the first variable in the other object with the same name
+            for( unsigned int i=0; i<m_ExposedVars.Count(); i++ )
+            {
+                if( pVar->name == other.m_ExposedVars[i]->name )
+                {
+                    pOtherVar = other.m_ExposedVars[i];
+                    break;
+                }
+            }
 
-            if( pVar->type == ExposedVariableType_GameObject )
-                pVar->pointer = pOtherVar->pointer;
+            if( pOtherVar != 0 )
+            {
+                if( pVar->type == ExposedVariableType_Float )
+                {
+                    pVar->value = pOtherVar->value;
+                }
 
-            if( pVar->pointer )
-                ((GameObject*)pVar->pointer)->RegisterOnDeleteCallback( this, StaticOnGameObjectDeleted );
+                if( pVar->type == ExposedVariableType_GameObject )
+                {
+                    pVar->pointer = pOtherVar->pointer;
+
+                    if( pVar->pointer )
+                        ((GameObject*)pVar->pointer)->RegisterOnDeleteCallback( this, StaticOnGameObjectDeleted );
+                }
+            }
         }
 
         ProgramVariables( m_pLuaGameState->m_pLuaState, true );
@@ -809,6 +842,7 @@ void ComponentLuaScript::ParseExterns(luabridge::LuaRef LuaObject)
                 {
                     pVar = m_ExposedVars[i];
                     pVar->inuse = true; // was in use.
+                    break;
                 }
             }
 

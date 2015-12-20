@@ -151,7 +151,7 @@ public:
 
     void UpdateChildrenWithNewValue(int controlid, bool finishedchanging, double oldvalue, void* oldpointer);
     void UpdateChildrenInGameObjectListWithNewValue(ExposedVariableDesc* pVar, unsigned int varindex, GameObject* first, int controlid, bool finishedchanging, double oldvalue, void* oldpointer);
-    void UpdateGameObjectWithNewValue(ExposedVariableDesc* pVar, unsigned int varindex, GameObject* pGameObject, int controlid, bool finishedchanging, double oldvalue, void* oldpointer);
+    void UpdateChildGameObjectWithNewValue(ExposedVariableDesc* pVar, unsigned int varindex, GameObject* pChildGameObject, int controlid, bool finishedchanging, double oldvalue, void* oldpointer);
 #endif //MYFW_USING_WX
 
 public:
