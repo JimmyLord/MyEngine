@@ -102,7 +102,10 @@ void SceneHandler::OnDrop(wxTreeItemId treeid, int controlid, wxCoord x, wxCoord
         g_pPanelObjectList->Tree_MoveObject( treeidtomove, treeid, true );
 
         GameObject* pFirstGameObject = g_pComponentSystemManager->GetFirstGameObjectFromScene( sceneid );
-        pGameObject->MoveBefore( pFirstGameObject );
+        if( pFirstGameObject )
+            pGameObject->MoveBefore( pFirstGameObject );
+        else
+            g_pComponentSystemManager->GetSceneInfo( sceneid )->m_GameObjects.MoveHead( pGameObject );
     }
 }
 
