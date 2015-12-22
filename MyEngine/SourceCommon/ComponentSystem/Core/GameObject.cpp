@@ -195,7 +195,10 @@ void GameObject::OnPopupClick(wxEvent &evt)
     }
     else if( id == RightClick_DuplicateGameObject )
     {
-        g_pComponentSystemManager->EditorCopyGameObject( pGameObject, false );
+        if( g_pEngineCore->m_EditorMode )
+            g_pComponentSystemManager->EditorCopyGameObject( pGameObject, false );
+        else
+            g_pComponentSystemManager->CopyGameObject( pGameObject, "runtime duplicate" );
     }
     else if( id == RightClick_CreateChild )
     {
@@ -429,10 +432,12 @@ void GameObject::SetParentGameObject(GameObject* pParentGameObject)
     SetSceneID( sceneid );
 
     pParentGameObject->m_ChildList.MoveTail( this );
+#if MYFW_USING_WX
     if( GetPrev() == 0 )
         g_pPanelObjectList->Tree_MoveObject( this, pParentGameObject, true );
     else
         g_pPanelObjectList->Tree_MoveObject( this, GetPrev(), false );
+#endif
 }
 
 void GameObject::SetManaged(bool managed)

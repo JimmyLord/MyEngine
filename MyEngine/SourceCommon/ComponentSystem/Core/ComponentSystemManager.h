@@ -225,8 +225,8 @@ public:
     unsigned int GetSceneIDFromSceneTreeID(wxTreeItemId treeid);
     //std::map<int, SceneInfo> m_pSceneInfoMap;
 //#else
-    SceneInfo m_pSceneInfoMap[MAX_SCENES_LOADED];
 #endif
+    SceneInfo m_pSceneInfoMap[MAX_SCENES_LOADED];
 
 public:
 #if MYFW_USING_WX

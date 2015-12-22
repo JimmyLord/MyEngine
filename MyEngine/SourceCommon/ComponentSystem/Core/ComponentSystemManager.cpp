@@ -1158,10 +1158,19 @@ GameObject* ComponentSystemManager::EditorCopyGameObject(GameObject* pObject, bo
 
 GameObject* ComponentSystemManager::CopyGameObject(GameObject* pObject, const char* newname)
 {
-    GameObject* pNewObject = CreateGameObject( true, pObject->GetSceneID() );
-    pNewObject->SetName( newname );
+    // place the new object in the unmanaged scene, unless we're in the editor.
+    unsigned int sceneid = 0;
+    if( g_pEngineCore->m_EditorMode )
+        sceneid = pObject->GetSceneID();
 
-    pNewObject->SetGameObjectThisInheritsFrom( pObject->GetGameObjectThisInheritsFrom() );
+    GameObject* pNewObject = CreateGameObject( true, sceneid );
+    if( newname )
+        pNewObject->SetName( newname );
+
+    if( g_pEngineCore->m_EditorMode )
+    {
+        pNewObject->SetGameObjectThisInheritsFrom( pObject->GetGameObjectThisInheritsFrom() );
+    }
 
     *pNewObject->m_pComponentTransform = *pObject->m_pComponentTransform;
 
@@ -1618,7 +1627,7 @@ void ComponentSystemManager::DrawMousePickerFrame(ComponentCamera* pCamera, MyMa
     }
 }
 
-#if 1 //!MYFW_USING_WX
+//#if !MYFW_USING_WX
 SceneInfo* ComponentSystemManager::GetSceneInfo(int sceneid)
 {
     MyAssert( sceneid >= 0 && sceneid < MAX_SCENES_LOADED );
@@ -1640,6 +1649,7 @@ unsigned int ComponentSystemManager::GetSceneIDFromFullpath(const char* fullpath
     return -1;
 }
 //#else
+#if MYFW_USING_WX
 void ComponentSystemManager::CreateNewScene(const char* scenename, unsigned int sceneid)
 {
     MyAssert( m_pSceneInfoMap[sceneid].m_TreeID.IsOk() == false );
