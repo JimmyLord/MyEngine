@@ -1082,7 +1082,15 @@ GameObject* ComponentSystemManager::CreateGameObject(bool manageobject, int scen
     pGameObject->SetID( id );
 
     //if( manageobject )
+    {
         GetSceneInfo( sceneid )->m_GameObjects.AddTail( pGameObject );
+    }
+
+    // if we're not in editor mode, place this gameobject in scene 0 so it will be destroyed when gameplay is stopped.
+    if( g_pEngineCore->m_EditorMode == false )
+    {
+        pGameObject->SetSceneID( 0 );
+    }
 
     return pGameObject;
 }
@@ -1149,10 +1157,23 @@ void ComponentSystemManager::DeleteGameObject(GameObject* pObject, bool deleteco
 #if MYFW_USING_WX
 GameObject* ComponentSystemManager::EditorCopyGameObject(GameObject* pObject, bool NewObjectInheritsFromOld)
 {
-    EditorCommand_CopyGameObject* pCommand = MyNew EditorCommand_CopyGameObject( pObject, NewObjectInheritsFromOld );
-    g_pEngineMainFrame->m_pCommandStack->Do( pCommand );
+    GameObject* newgameobject = 0;
 
-    return pCommand->GetCreatedObject();
+    EditorCommand_CopyGameObject* pCommand = MyNew EditorCommand_CopyGameObject( pObject, NewObjectInheritsFromOld );
+    if( g_pEngineCore->m_EditorMode )
+    {
+        g_pEngineMainFrame->m_pCommandStack->Do( pCommand );
+        newgameobject = pCommand->GetCreatedObject();
+    }
+    else
+    {
+        // if we're not in editor mode, execute the command and delete it.
+        pCommand->Do();
+        newgameobject = pCommand->GetCreatedObject();
+        delete pCommand;
+    }
+
+    return newgameobject;
 }
 #endif
 
