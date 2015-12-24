@@ -53,6 +53,8 @@ public:
     ComponentSystemManager* m_pComponentSystemManager;
 
     BulletWorld* m_pBulletWorld;
+    Box2DWorld* m_pBox2DWorld;
+
 #if MYFW_USING_LUA
     LuaGameState* m_pLuaGameState;
 #endif //MYFW_USING_LUA

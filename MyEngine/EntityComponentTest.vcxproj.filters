@@ -345,6 +345,9 @@
     <ClCompile Include="SourceCommon\ComponentSystem\ComponentTemplate.cpp">
       <Filter>Source\ComponentSystem</Filter>
     </ClCompile>
+    <ClCompile Include="SourceCommon\ComponentSystem\FrameworkComponents\ComponentCollisionObject2D.cpp">
+      <Filter>Source\ComponentSystem\Framework Components</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SourceCommon\Camera\Camera3D.h">
@@ -637,6 +640,9 @@
     </ClInclude>
     <ClInclude Include="SourceNaCL\memory.h">
       <Filter>Source - Platform\Source - NaCL</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCommon\ComponentSystem\FrameworkComponents\ComponentCollisionObject2D.h">
+      <Filter>Source\ComponentSystem\Framework Components</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

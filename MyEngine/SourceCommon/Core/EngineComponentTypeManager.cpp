@@ -13,19 +13,20 @@
 // must be in same order as enum EngineComponentTypes
 ComponentTypeInfo g_EngineComponentTypeInfo[Component_NumEngineComponentTypes] = // ADDING_NEW_ComponentType
 {
-    { "Camera",         "Camera",           },  //ComponentType_Camera,
-    { "Renderables",    "Sprite",           },  //ComponentType_Sprite,
-    { "Renderables",    "Mesh",             },  //ComponentType_Mesh,
-    { "Renderables",    "Mesh-OBJ",         },  //ComponentType_MeshOBJ,
-    { "Renderables",    "Mesh-Primitive",   },  //ComponentType_MeshPrimitive,
-    { "Lighting",       "Light",            },  //ComponentType_Light,
-    { "Lighting",       "Shadow Dir Light", },  //ComponentType_CameraShadow,
-    { "Effects",        "Post Effect Quad", },  //ComponentType_PostEffect,
-    { "Physics",        "Collision Object", },  //ComponentType_CollisionObject,
-    { "Scripts",        "Lua Script",       },  //ComponentType_LuaScript,
-    { "Particles",      "Particle Emitter", },  //ComponentType_ParticleEmitter,
-    { "Animation",      "Animation Player", },  //ComponentType_AnimationPlayer,
-    { "Menus",          "Menu Page",        },  //ComponentType_MenuPage,
+    { "Camera",         "Camera",              },  //ComponentType_Camera,
+    { "Renderables",    "Sprite",              },  //ComponentType_Sprite,
+    { "Renderables",    "Mesh",                },  //ComponentType_Mesh,
+    { "Renderables",    "Mesh-OBJ",            },  //ComponentType_MeshOBJ,
+    { "Renderables",    "Mesh-Primitive",      },  //ComponentType_MeshPrimitive,
+    { "Lighting",       "Light",               },  //ComponentType_Light,
+    { "Lighting",       "Shadow Dir Light",    },  //ComponentType_CameraShadow,
+    { "Effects",        "Post Effect Quad",    },  //ComponentType_PostEffect,
+    { "Physics",        "Collision Object",    },  //ComponentType_CollisionObject,
+    { "Physics",        "Collision Object 2D", },  //ComponentType_CollisionObject2D,
+    { "Scripts",        "Lua Script",          },  //ComponentType_LuaScript,
+    { "Particles",      "Particle Emitter",    },  //ComponentType_ParticleEmitter,
+    { "Animation",      "Animation Player",    },  //ComponentType_AnimationPlayer,
+    { "Menus",          "Menu Page",           },  //ComponentType_MenuPage,
 };
 
 ComponentBase* EngineComponentTypeManager::CreateComponent(int type)
@@ -45,6 +46,7 @@ ComponentBase* EngineComponentTypeManager::CreateComponent(int type)
     case ComponentType_CameraShadow:        pComponent = MyNew ComponentCameraShadow;       break;
     case ComponentType_PostEffect:          pComponent = MyNew ComponentPostEffect;         break;
     case ComponentType_CollisionObject:     pComponent = MyNew ComponentCollisionObject;    break;
+    case ComponentType_CollisionObject2D:   pComponent = MyNew ComponentCollisionObject2D;  break;
 #if MYFW_USING_LUA
     case ComponentType_LuaScript:           pComponent = MyNew ComponentLuaScript;          break;
 #else

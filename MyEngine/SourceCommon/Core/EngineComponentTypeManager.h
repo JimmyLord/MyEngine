@@ -23,6 +23,7 @@ enum EngineComponentTypes // search for ADDING_NEW_ComponentType
     ComponentType_CameraShadow,
     ComponentType_PostEffect,
     ComponentType_CollisionObject,
+    ComponentType_CollisionObject2D,
     ComponentType_LuaScript,
     ComponentType_ParticleEmitter,
     ComponentType_AnimationPlayer,

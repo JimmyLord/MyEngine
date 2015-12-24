@@ -83,6 +83,7 @@ extern "C"
 #include "ComponentSystem/FrameworkComponents/ComponentLuaScript.h"
 #endif //MYFW_USING_LUA
 #include "ComponentSystem/FrameworkComponents/ComponentCollisionObject.h"
+#include "ComponentSystem/FrameworkComponents/ComponentCollisionObject2D.h"
 
 // misc engine code
 #include "Camera/Camera3D.h"

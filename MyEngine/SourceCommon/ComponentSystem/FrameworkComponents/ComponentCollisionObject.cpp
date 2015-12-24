@@ -271,12 +271,12 @@ void ComponentCollisionObject::OnPlay()
             colShape = new btConvexHullShape( (btScalar*)m_pMesh->GetVerts( false ), m_pMesh->GetNumVerts(), stride );
             ((btConvexHullShape*)colShape)->setMargin( 0.2f );
 
-	        btShapeHull* hull = new btShapeHull( (btConvexShape*)colShape );
-	        btScalar margin = colShape->getMargin();
-	        hull->buildHull(margin);
+            btShapeHull* hull = new btShapeHull( (btConvexShape*)colShape );
+            btScalar margin = colShape->getMargin();
+            hull->buildHull(margin);
             delete colShape;
 
-	        colShape = new btConvexHullShape( (btScalar*)hull->getVertexPointer(), hull->numVertices() );
+            colShape = new btConvexHullShape( (btScalar*)hull->getVertexPointer(), hull->numVertices() );
             delete hull;
         }
         else

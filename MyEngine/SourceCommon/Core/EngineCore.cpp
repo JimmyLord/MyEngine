@@ -50,6 +50,7 @@ EngineCore::EngineCore()
     }
 
     m_pBulletWorld = MyNew BulletWorld();
+    m_pBox2DWorld = MyNew Box2DWorld();
 
 #if MYFW_USING_LUA
     m_pLuaGameState = 0;
@@ -111,6 +112,7 @@ EngineCore::~EngineCore()
 
     SAFE_DELETE( m_pComponentSystemManager );
     SAFE_DELETE( m_pBulletWorld );
+    SAFE_DELETE( m_pBox2DWorld );
 }
 
 #if MYFW_USING_LUA
@@ -280,6 +282,7 @@ double EngineCore::Tick(double TimePassed)
         {
             m_TimeSinceLastPhysicsStep -= 1/60.0f;
             m_pBulletWorld->PhysicsStep();
+            m_pBox2DWorld->PhysicsStep();
             //LOGInfo( LOGTag, "m_pBulletWorld->PhysicsStep()\n" );
         }
     }
