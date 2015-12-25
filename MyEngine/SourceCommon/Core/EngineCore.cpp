@@ -32,6 +32,7 @@ EngineCore::EngineCore()
     m_pShaderFile_ClipSpaceTexture = 0;
     m_pShader_TintColor = 0;
     m_pShader_ClipSpaceTexture = 0;
+    m_pMaterial_Box2DDebugDraw = 0;
     m_pMaterial_3DGrid = 0;
     m_pMaterial_TransformGizmoX = 0;
     m_pMaterial_TransformGizmoY = 0;
@@ -50,7 +51,7 @@ EngineCore::EngineCore()
     }
 
     m_pBulletWorld = MyNew BulletWorld();
-    m_pBox2DWorld = MyNew Box2DWorld();
+    m_pBox2DWorld = 0;
 
 #if MYFW_USING_LUA
     m_pLuaGameState = 0;
@@ -94,6 +95,7 @@ EngineCore::~EngineCore()
     g_pFileManager->FreeFile( m_pShaderFile_ClipSpaceTexture );
     SAFE_RELEASE( m_pShader_TintColor );
     SAFE_RELEASE( m_pShader_ClipSpaceTexture );
+    SAFE_RELEASE( m_pMaterial_Box2DDebugDraw );
     SAFE_RELEASE( m_pMaterial_3DGrid );
     SAFE_RELEASE( m_pMaterial_TransformGizmoX );
     SAFE_RELEASE( m_pMaterial_TransformGizmoY );
@@ -163,6 +165,7 @@ void EngineCore::OneTimeInit()
     m_pShaderFile_ClipSpaceTexture = RequestFile( "DataEngine/Shaders/Shader_ClipSpaceTexture.glsl" );
     m_pShader_TintColor = MyNew ShaderGroup( m_pShaderFile_TintColor );
     m_pShader_ClipSpaceTexture = MyNew ShaderGroup( m_pShaderFile_ClipSpaceTexture );
+    m_pMaterial_Box2DDebugDraw = MyNew MaterialDefinition( m_pShader_TintColor, ColorByte(128,128,128,255) );
     m_pMaterial_3DGrid = MyNew MaterialDefinition( m_pShader_TintColor, ColorByte(128,128,128,255) );
     m_pMaterial_TransformGizmoX = MyNew MaterialDefinition( m_pShader_TintColor, ColorByte(255,0,0,255) );
     m_pMaterial_TransformGizmoY = MyNew MaterialDefinition( m_pShader_TintColor, ColorByte(0,255,0,255) );
@@ -183,6 +186,10 @@ void EngineCore::OneTimeInit()
 //    m_pComponentSystemManager->CreateNewScene( "Unsaved.scene", 1 );
     CreateDefaultEditorSceneObjects();
 #endif //MYFW_USING_WX
+
+    // create the box2d world, pass in a material for the debug renderer.
+    ComponentCamera* pCamera = m_pEditorState->GetEditorCamera();
+    m_pBox2DWorld = MyNew Box2DWorld( m_pMaterial_Box2DDebugDraw, &pCamera->m_Camera3D.m_matViewProj );
 
 //    CreateDefaultSceneObjects();
 
@@ -549,6 +556,8 @@ void EngineCore::OnDrawFrame(unsigned int canvasid)
         glEnable( GL_DEPTH_TEST );
     }
 #endif
+
+    m_pBox2DWorld->m_pWorld->DrawDebugData();
 }
 
 void EngineCore::OnFileRenamed(const char* fullpathbefore, const char* fullpathafter)

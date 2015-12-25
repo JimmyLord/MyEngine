@@ -90,6 +90,7 @@ public:
     MyFileObject* m_pShaderFile_ClipSpaceTexture;
     ShaderGroup* m_pShader_TintColor;
     ShaderGroup* m_pShader_ClipSpaceTexture;
+    MaterialDefinition* m_pMaterial_Box2DDebugDraw;
     MaterialDefinition* m_pMaterial_3DGrid;
     MaterialDefinition* m_pMaterial_TransformGizmoX;
     MaterialDefinition* m_pMaterial_TransformGizmoY;
