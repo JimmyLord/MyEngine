@@ -51,6 +51,7 @@ enum EngineMenuIDs
     myIDEngine_DebugShowMousePickerFBO,
     myIDEngine_DebugShowSelectedAnimatedMesh,
     myIDEngine_DebugShowGLStats,
+    myIDEngine_DebugShowPhysicsShapes,
     myIDEngine_LastID,
 };
 

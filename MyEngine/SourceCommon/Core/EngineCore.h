@@ -75,6 +75,7 @@ public:
     bool m_Debug_DrawMousePickerFBO;
     bool m_Debug_DrawSelectedAnimatedMesh;
     bool m_Debug_DrawSelectedMaterial;
+    bool m_Debug_DrawPhysicsDebugShapes;
     bool m_Debug_DrawGLStats;
     MyFileObject* m_pSphereMeshFile;
     MySprite* m_pDebugQuadSprite;

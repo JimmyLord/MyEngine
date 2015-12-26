@@ -66,6 +66,7 @@ EngineCore::EngineCore()
     m_Debug_DrawMousePickerFBO = false;
     m_Debug_DrawSelectedAnimatedMesh = false;
     m_Debug_DrawSelectedMaterial = false;
+    m_Debug_DrawPhysicsDebugShapes = false;
     m_Debug_DrawGLStats = false;
     m_pSphereMeshFile = 0;
     m_pDebugQuadSprite = 0;
@@ -557,7 +558,10 @@ void EngineCore::OnDrawFrame(unsigned int canvasid)
     }
 #endif
 
-    m_pBox2DWorld->m_pWorld->DrawDebugData();
+    if( m_Debug_DrawPhysicsDebugShapes && g_GLCanvasIDActive == 1 )
+    {
+        m_pBox2DWorld->m_pWorld->DrawDebugData();
+    }
 }
 
 void EngineCore::OnFileRenamed(const char* fullpathbefore, const char* fullpathafter)
