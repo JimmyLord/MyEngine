@@ -66,7 +66,7 @@ EngineCore::EngineCore()
     m_Debug_DrawMousePickerFBO = false;
     m_Debug_DrawSelectedAnimatedMesh = false;
     m_Debug_DrawSelectedMaterial = false;
-    m_Debug_DrawPhysicsDebugShapes = false;
+    m_Debug_DrawPhysicsDebugShapes = true;
     m_Debug_DrawGLStats = false;
     m_pSphereMeshFile = 0;
     m_pDebugQuadSprite = 0;
