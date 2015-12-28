@@ -31,6 +31,11 @@ ComponentBase::ComponentBase()
 
 ComponentBase::~ComponentBase()
 {
+#if MYFW_USING_WX
+    if( g_pPanelWatch->GetObjectBeingWatched() == this )
+        g_pPanelWatch->ClearAllVariables();
+#endif //MYFW_USING_WX
+
     // Components must be disabled before being deleted, so they unregister their callbacks.
     MyAssert( m_Enabled == false );
     MyAssert( m_CallbacksRegistered == false );
@@ -1299,6 +1304,8 @@ void ComponentBase::OnLeftClick(unsigned int count, bool clear)
 
     if( clear )
         g_pPanelWatch->ClearAllVariables();
+
+    g_pPanelWatch->SetObjectBeingWatched( this );
 
     FillPropertiesWindow( clear, true, true );
 }

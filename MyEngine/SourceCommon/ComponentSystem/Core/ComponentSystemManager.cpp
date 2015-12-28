@@ -1032,11 +1032,34 @@ void ComponentSystemManager::UnloadScene(unsigned int sceneidtoclear, bool clear
         // Reset the scene counter, so the new "first" scene loaded will be 1.
         g_pComponentSystemManager->ResetSceneIDCounter();
 
-        for( int i=1; i<MAX_SCENES_LOADED; i++ )
-            m_pSceneInfoMap[i].Reset();
+        for( int sceneid=1; sceneid<MAX_SCENES_LOADED; sceneid++ )
+        {
+            if( sceneid == 0 || sceneid == EngineCore::ENGINE_SCENE_ID )
+                continue;
+
+            if( m_pSceneInfoMap[sceneid].m_InUse == false )
+                continue;
+
+#if MYFW_USING_WX
+            MyAssert( m_pSceneInfoMap[sceneid].m_TreeID.IsOk() );
+            if( m_pSceneInfoMap[sceneid].m_TreeID.IsOk() )
+            {
+                g_pPanelObjectList->m_pTree_Objects->Delete( m_pSceneInfoMap[sceneid].m_TreeID );
+            }
+#endif
+            m_pSceneInfoMap[sceneid].Reset();
+        }
     }
     else if( sceneidtoclear != 0 )
     {
+#if MYFW_USING_WX
+        MyAssert( m_pSceneInfoMap[sceneidtoclear].m_TreeID.IsOk() );
+        if( m_pSceneInfoMap[sceneidtoclear].m_TreeID.IsOk() )
+        {
+            g_pPanelObjectList->m_pTree_Objects->Delete( m_pSceneInfoMap[sceneidtoclear].m_TreeID );
+        }
+#endif
+
         MyAssert( m_pSceneInfoMap[sceneidtoclear].m_InUse == true );
         m_pSceneInfoMap[sceneidtoclear].Reset();
     }

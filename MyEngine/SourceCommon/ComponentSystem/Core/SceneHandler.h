@@ -32,6 +32,10 @@ public:
 
     void Reset()
     {
+#if MYFW_USING_WX
+        m_TreeID.Unset();
+#endif
+
         m_FullPath[0] = 0;
 
         m_NextGameObjectID = 1;

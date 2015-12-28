@@ -34,6 +34,11 @@ GameObject::GameObject(bool managed, int sceneid)
 
 GameObject::~GameObject()
 {
+#if MYFW_USING_WX
+    if( g_pPanelWatch->GetObjectBeingWatched() == this )
+        g_pPanelWatch->ClearAllVariables();
+#endif //MYFW_USING_WX
+
     NotifyOthersThisWasDeleted();
 
     MyAssert( m_pOnDeleteCallbacks.GetHead() == 0 );
@@ -109,6 +114,8 @@ void GameObject::OnLeftClick(unsigned int count, bool clear)
 
     if( clear )
         g_pPanelWatch->ClearAllVariables();
+
+    g_pPanelWatch->SetObjectBeingWatched( this );
 
     // show the gameobject name and an enabled checkbox.
     char tempname[100];
