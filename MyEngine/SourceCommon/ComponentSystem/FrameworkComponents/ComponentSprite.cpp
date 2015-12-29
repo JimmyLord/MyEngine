@@ -239,13 +239,13 @@ void ComponentSprite::RegisterCallbacks()
     {
         m_CallbacksRegistered = true;
 
-        //MYFW_REGISTER_COMPONENT_CALLBACK( Tick );
-        //MYFW_REGISTER_COMPONENT_CALLBACK( OnSurfaceChanged );
+        //MYFW_REGISTER_COMPONENT_CALLBACK( ComponentSprite, Tick );
+        //MYFW_REGISTER_COMPONENT_CALLBACK( ComponentSprite, OnSurfaceChanged );
         MYFW_REGISTER_COMPONENT_CALLBACK( ComponentSprite, Draw );
-        //MYFW_REGISTER_COMPONENT_CALLBACK( OnTouch );
-        //MYFW_REGISTER_COMPONENT_CALLBACK( OnButtons );
-        //MYFW_REGISTER_COMPONENT_CALLBACK( OnKeys );
-        //MYFW_REGISTER_COMPONENT_CALLBACK( OnFileRenamed );
+        //MYFW_REGISTER_COMPONENT_CALLBACK( ComponentSprite, OnTouch );
+        //MYFW_REGISTER_COMPONENT_CALLBACK( ComponentSprite, OnButtons );
+        //MYFW_REGISTER_COMPONENT_CALLBACK( ComponentSprite, OnKeys );
+        //MYFW_REGISTER_COMPONENT_CALLBACK( ComponentSprite, OnFileRenamed );
     }
 }
 
@@ -279,5 +279,5 @@ void ComponentSprite::DrawCallback(ComponentCamera* pCamera, MyMatrix* pMatViewP
     m_pSprite->SetPosition( &m_pComponentTransform->m_Transform );
     m_pSprite->SetTint( m_Tint );
     m_pSprite->Create( "ComponentSprite", m_Size.x, m_Size.y, 0, 1, 0, 1, Justify_Center, false );
-    m_pSprite->Draw( pMatViewProj );
+    m_pSprite->Draw( pMatViewProj, pShaderOverride );
 }

@@ -146,13 +146,13 @@ void ComponentTemplate::RegisterCallbacks()
     {
         m_CallbacksRegistered = true;
 
-        //MYFW_REGISTER_COMPONENT_CALLBACK( Tick );
-        //MYFW_REGISTER_COMPONENT_CALLBACK( OnSurfaceChanged );
-        //MYFW_REGISTER_COMPONENT_CALLBACK( Draw );
-        //MYFW_REGISTER_COMPONENT_CALLBACK( OnTouch );
-        //MYFW_REGISTER_COMPONENT_CALLBACK( OnButtons );
-        //MYFW_REGISTER_COMPONENT_CALLBACK( OnKeys );
-        //MYFW_REGISTER_COMPONENT_CALLBACK( OnFileRenamed );
+        //MYFW_REGISTER_COMPONENT_CALLBACK( ComponentTemplate, Tick );
+        //MYFW_REGISTER_COMPONENT_CALLBACK( ComponentTemplate, OnSurfaceChanged );
+        //MYFW_REGISTER_COMPONENT_CALLBACK( ComponentTemplate, Draw );
+        //MYFW_REGISTER_COMPONENT_CALLBACK( ComponentTemplate, OnTouch );
+        //MYFW_REGISTER_COMPONENT_CALLBACK( ComponentTemplate, OnButtons );
+        //MYFW_REGISTER_COMPONENT_CALLBACK( ComponentTemplate, OnKeys );
+        //MYFW_REGISTER_COMPONENT_CALLBACK( ComponentTemplate, OnFileRenamed );
     }
 }
 

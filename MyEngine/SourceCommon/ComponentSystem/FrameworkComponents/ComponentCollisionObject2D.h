@@ -19,16 +19,21 @@ enum Physics2DPrimitiveTypes //ADDING_NEW_Physics2DPrimitiveType - order doesn't
 
 extern const char* Physics2DPrimitiveTypeStrings[Physics2DPrimitive_NumTypes];
 
-class ComponentCollisionObject2D : public ComponentUpdateable
+class ComponentCollisionObject2D : public ComponentBase
 {
+private:
+    // Component Variable List
+    MYFW_COMPONENT_DECLARE_VARIABLE_LIST( ComponentCollisionObject2D );
+
 public:
     b2Body* m_pBody;
 
     int m_PrimitiveType;
 
+    bool m_Static;
     float m_Mass;
-    Vector3 m_Scale;
-    MyMesh* m_pMesh;
+    //Vector3 m_Scale;
+    //MyMesh* m_pMesh;
 
 public:
     ComponentCollisionObject2D();
@@ -39,43 +44,49 @@ public:
     static void LuaRegister(lua_State* luastate);
 #endif //MYFW_USING_LUA
 
-    virtual cJSON* ExportAsJSONObject(bool savesceneid);
-    virtual void ImportFromJSONObject(cJSON* jsonobj, unsigned int sceneid);
+    //virtual cJSON* ExportAsJSONObject(bool savesceneid);
+    //virtual void ImportFromJSONObject(cJSON* jsonobj, unsigned int sceneid);
 
     virtual void Reset();
     virtual void CopyFromSameType_Dangerous(ComponentBase* pObject) { *this = (ComponentCollisionObject2D&)*pObject; }
     ComponentCollisionObject2D& operator=(const ComponentCollisionObject2D& other);
 
-    virtual void RegisterCallbacks() {} // TODO: change this component to use callbacks.
-    virtual void UnregisterCallbacks() {} // TODO: change this component to use callbacks.
-
-    void SetMesh(MyMesh* pMesh);
+    virtual void RegisterCallbacks();
+    virtual void UnregisterCallbacks();
 
     virtual void OnPlay();
     virtual void OnStop();
-    virtual void Tick(double TimePassed);
+
+    void CreateBody();
 
     void SyncRigidBodyToTransform();
 
     void ApplyForce(Vector3 force, Vector3 relpos);
 
+protected:
+    // Callback functions for various events.
+    MYFW_DECLARE_COMPONENT_CALLBACK_TICK(); // TickCallback
+    //MYFW_DECLARE_COMPONENT_CALLBACK_ONSURFACECHANGED(); // OnSurfaceChangedCallback
+    //MYFW_DECLARE_COMPONENT_CALLBACK_DRAW(); // DrawCallback
+    //MYFW_DECLARE_COMPONENT_CALLBACK_ONTOUCH(); // OnTouchCallback
+    //MYFW_DECLARE_COMPONENT_CALLBACK_ONBUTTONS(); // OnButtonsCallback
+    //MYFW_DECLARE_COMPONENT_CALLBACK_ONKEYS(); // OnKeysCallback
+    //MYFW_DECLARE_COMPONENT_CALLBACK_ONFILERENAMED(); // OnFileRenamedCallback
+
 public:
 #if MYFW_USING_WX
     static bool m_PanelWatchBlockVisible;
-    int m_ControlID_PrimitiveType;
+
+    virtual void AddToObjectsPanel(wxTreeItemId gameobjectid);
 
     // Object panel callbacks.
-    virtual void AddToObjectsPanel(wxTreeItemId gameobjectid);
     static void StaticOnLeftClick(void* pObjectPtr, wxTreeItemId id, unsigned int count) { ((ComponentCollisionObject2D*)pObjectPtr)->OnLeftClick( count, true ); }
     void OnLeftClick(unsigned int count, bool clear);
     virtual void FillPropertiesWindow(bool clear, bool addcomponentvariables = false, bool ignoreblockvisibleflag = false);
 
-    // Watch panel callbacks.
-    static void StaticOnValueChanged(void* pObjectPtr, int controlid, bool finishedchanging, double oldvalue) { ((ComponentCollisionObject2D*)pObjectPtr)->OnValueChanged( controlid, finishedchanging ); }
-    void OnValueChanged(int controlid, bool finishedchanging);
-
-    static void StaticOnDropOBJ(void* pObjectPtr, int controlid, wxCoord x, wxCoord y) { ((ComponentCollisionObject2D*)pObjectPtr)->OnDropOBJ(controlid, x, y); }
-    void OnDropOBJ(int controlid, wxCoord x, wxCoord y);
+    // Component variable callbacks.
+    void* OnDrop(ComponentVariable* pVar, wxCoord x, wxCoord y);
+    void* OnValueChanged(ComponentVariable* pVar, bool finishedchanging, double oldvalue);
 
     static void StaticOnTransformPositionChanged(void* pObjectPtr, Vector3& newpos, bool changedbyeditor) { ((ComponentCollisionObject2D*)pObjectPtr)->OnTransformPositionChanged( newpos, changedbyeditor ); }
     void OnTransformPositionChanged(Vector3& newpos, bool changedbyeditor);

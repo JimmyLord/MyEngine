@@ -1788,23 +1788,29 @@ void ComponentSystemManager::OnLoad(unsigned int sceneid)
 
 void ComponentSystemManager::OnPlay()
 {
-    for( CPPListNode* node = m_Components[BaseComponentType_Updateable].GetHead(); node != 0; node = node->GetNext() )
+    for( unsigned int i=0; i<BaseComponentType_NumTypes; i++ )
     {
-        ComponentBase* pComponent = (ComponentBase*)node;
+        for( CPPListNode* node = m_Components[i].GetHead(); node != 0; node = node->GetNext() )
+        {
+            ComponentBase* pComponent = (ComponentBase*)node;
 
-        MyAssert( pComponent->IsEnabled() == true );
+            //MyAssert( pComponent->IsEnabled() == true );
         
-        if( pComponent->m_pGameObject->IsEnabled() == true )
-            pComponent->OnPlay();
+            if( pComponent->m_pGameObject->IsEnabled() == true )
+                pComponent->OnPlay();
+        }
     }
 }
 
 void ComponentSystemManager::OnStop()
 {
-    for( CPPListNode* node = m_Components[BaseComponentType_Updateable].GetHead(); node != 0; node = node->GetNext() )
+    for( unsigned int i=0; i<BaseComponentType_NumTypes; i++ )
     {
-        ComponentBase* pComponent = (ComponentBase*)node;
-        pComponent->OnStop();
+        for( CPPListNode* node = m_Components[i].GetHead(); node != 0; node = node->GetNext() )
+        {
+            ComponentBase* pComponent = (ComponentBase*)node;
+            pComponent->OnStop();
+        }
     }
 }
 
