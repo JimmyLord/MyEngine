@@ -14,6 +14,7 @@ enum Physics2DPrimitiveTypes //ADDING_NEW_Physics2DPrimitiveType - order doesn't
 {
     Physics2DPrimitiveType_Box,
     Physics2DPrimitiveType_Circle,
+    Physics2DPrimitiveType_Edge,
     Physics2DPrimitive_NumTypes,
 };
 
@@ -32,7 +33,7 @@ public:
 
     bool m_Static;
     float m_Mass;
-    //Vector3 m_Scale;
+    Vector3 m_Scale;
     //MyMesh* m_pMesh;
 
 public:
@@ -61,7 +62,8 @@ public:
 
     void SyncRigidBodyToTransform();
 
-    void ApplyForce(Vector3 force, Vector3 relpos);
+    void ApplyForce(Vector2 force, Vector2 point);
+    void ApplyLinearImpulse(Vector2 impulse, Vector2 point);
 
 protected:
     // Callback functions for various events.

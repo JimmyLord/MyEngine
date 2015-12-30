@@ -86,6 +86,7 @@ void GameObject::LuaRegister(lua_State* luastate)
             .addFunction( "GetFirstComponentOfType", &GameObject::GetFirstComponentOfType )
             .addFunction( "GetAnimationPlayer", &GameObject::GetAnimationPlayer )
             .addFunction( "GetCollisionObject", &GameObject::GetCollisionObject )
+            .addFunction( "Get2DCollisionObject", &GameObject::Get2DCollisionObject )
         .endClass();
 }
 #endif //MYFW_USING_LUA
@@ -697,11 +698,19 @@ ComponentCollisionObject* GameObject::GetCollisionObject()
 {
     for( unsigned int i=0; i<m_Components.Count(); i++ )
     {
-        //if( m_Components[i]->m_Type == ComponentType_CollisionObject )
-        {
-            if( m_Components[i]->IsA( "CollisionComponent" ) )
-                return (ComponentCollisionObject*)m_Components[i];
-        }
+        if( m_Components[i]->IsA( "CollisionObjectComponent" ) )
+            return (ComponentCollisionObject*)m_Components[i];
+    }
+
+    return 0;
+}
+
+ComponentCollisionObject2D* GameObject::Get2DCollisionObject()
+{
+    for( unsigned int i=0; i<m_Components.Count(); i++ )
+    {
+        if( m_Components[i]->IsA( "2DCollisionObjectComponent" ) )
+            return (ComponentCollisionObject2D*)m_Components[i];
     }
 
     return 0;

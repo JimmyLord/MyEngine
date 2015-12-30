@@ -91,6 +91,7 @@ public:
 
     ComponentTransform* GetTransform() { return m_pComponentTransform; }
     ComponentCollisionObject* GetCollisionObject();
+    ComponentCollisionObject2D* Get2DCollisionObject();
 
     // TODO: find a way to find an arbitrary component type that would be accessible from lua script.
     ComponentAnimationPlayer* GetAnimationPlayer();

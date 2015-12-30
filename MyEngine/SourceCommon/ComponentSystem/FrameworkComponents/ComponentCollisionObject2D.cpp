@@ -18,6 +18,7 @@ const char* Physics2DPrimitiveTypeStrings[Physics2DPrimitive_NumTypes] = //ADDIN
 {
     "Box",
     "Circle",
+    "Edge",
 };
 
 // Component Variable List
@@ -40,7 +41,7 @@ ComponentCollisionObject2D::ComponentCollisionObject2D()
 
     m_Static = false;
     m_Mass = 0;
-    //m_Scale.Set( 1,1,1 );
+    m_Scale.Set( 1,1,1 );
     //m_pMesh = 0;
 }
 
@@ -67,7 +68,7 @@ void ComponentCollisionObject2D::RegisterVariables(CPPListHead* pList, Component
 #pragma GCC diagnostic default "-Winvalid-offsetof"
 #endif
 
-    AddVar( pList, "PrimitiveType", ComponentVariableType_Int,   MyOffsetOf( pThis, &pThis->m_PrimitiveType ),   true, true, 0, (CVarFunc_ValueChanged)&ComponentCollisionObject2D::OnValueChanged, 0, 0 );
+    AddVarEnum( pList, "PrimitiveType", MyOffsetOf( pThis, &pThis->m_PrimitiveType ),   true, true, "Primitive Type", Physics2DPrimitive_NumTypes, Physics2DPrimitiveTypeStrings, (CVarFunc_ValueChanged)&ComponentCollisionObject2D::OnValueChanged, 0, 0 );
     AddVar( pList, "Static",        ComponentVariableType_Bool,  MyOffsetOf( pThis, &pThis->m_Static ),          true, true, 0, (CVarFunc_ValueChanged)&ComponentCollisionObject2D::OnValueChanged, 0, 0 );
     AddVar( pList, "Mass",          ComponentVariableType_Float, MyOffsetOf( pThis, &pThis->m_Mass ),            true, true, 0, (CVarFunc_ValueChanged)&ComponentCollisionObject2D::OnValueChanged, 0, 0 );
     //AddVar( pList, "Scale",         ComponentVariableType_Float, MyOffsetOf( pThis, &pThis->m_Scale ),           true, true, 0, (CVarFunc_ValueChanged)&ComponentCollisionObject2D::OnValueChanged, 0, 0 );
@@ -81,7 +82,7 @@ void ComponentCollisionObject2D::Reset()
 
     m_Static = false;
     m_Mass = 0;
-    //m_Scale.Set( 1,1,1 );
+    m_Scale.Set( 1,1,1 );
     //SAFE_RELEASE( m_pMesh );
 
 #if MYFW_USING_WX
@@ -96,6 +97,7 @@ void ComponentCollisionObject2D::LuaRegister(lua_State* luastate)
         .beginClass<ComponentCollisionObject2D>( "ComponentCollisionObject2D" )
             .addData( "mass", &ComponentCollisionObject2D::m_Mass )            
             .addFunction( "ApplyForce", &ComponentCollisionObject2D::ApplyForce )
+            .addFunction( "ApplyLinearImpulse", &ComponentCollisionObject2D::ApplyLinearImpulse )
         .endClass();
 }
 #endif //MYFW_USING_LUA
@@ -145,11 +147,11 @@ void* ComponentCollisionObject2D::OnValueChanged(ComponentVariable* pVar, bool f
 {
     void* oldpointer = 0;
 
-    //if( controlid == m_ControlID_PrimitiveType )
-    //{
-    //    // TODO: rethink this, doesn't need refresh if panel isn't visible.
-    //    g_pPanelWatch->m_NeedsRefresh = true;
-    //}
+    if( pVar->m_Offset == MyOffsetOf( this, &m_PrimitiveType ) )
+    {
+        // TODO: rethink this, doesn't need refresh if panel isn't visible.
+        g_pPanelWatch->m_NeedsRefresh = true;
+    }
 
     //if( pVar->m_Offset == MyOffsetOf( this, &m_SampleVector3 ) )
     //{
@@ -310,12 +312,14 @@ void ComponentCollisionObject2D::CreateBody()
 
         m_pBody = g_pBox2DWorld->m_pWorld->CreateBody( &bodydef );
 
+        m_Scale = m_pGameObject->m_pComponentTransform->GetLocalScale();
+
         switch( m_PrimitiveType )
         {
         case Physics2DPrimitiveType_Box:
             {
                 b2PolygonShape boxshape;
-                boxshape.SetAsBox( 1, 1 );
+                boxshape.SetAsBox( 0.5f * m_Scale.x, 0.5f * m_Scale.y );
 
                 b2FixtureDef fixturedef;
                 fixturedef.shape = &boxshape;
@@ -329,10 +333,28 @@ void ComponentCollisionObject2D::CreateBody()
             {
                 b2CircleShape circleshape;
                 circleshape.m_p.Set( 0, 0 );
-                circleshape.m_radius = 1;
+                circleshape.m_radius = m_Scale.x;
 
                 b2FixtureDef fixturedef;
                 fixturedef.shape = &circleshape;
+                fixturedef.density = 1;
+
+                m_pBody->CreateFixture( &fixturedef );
+            }
+            break;
+
+        case Physics2DPrimitiveType_Edge:
+            {
+                b2EdgeShape edgeshape;
+
+                // TODO: define edges so they're not limited to x/y axes.
+                if( m_Scale.x > m_Scale.y )
+                    edgeshape.Set( b2Vec2( -0.5f * m_Scale.x, 0 ), b2Vec2( 0.5f * m_Scale.x, 0 ) );
+                else
+                    edgeshape.Set( b2Vec2( 0, -0.5f * m_Scale.y ), b2Vec2( 0, 0.5f * m_Scale.y ) );
+
+                b2FixtureDef fixturedef;
+                fixturedef.shape = &edgeshape;
                 fixturedef.density = 1;
 
                 m_pBody->CreateFixture( &fixturedef );
@@ -353,12 +375,12 @@ void ComponentCollisionObject2D::TickCallback(double TimePassed)
         return;
 
     b2Vec2 pos = m_pBody->GetPosition();
-    float32 angle = m_pBody->GetAngle();
+    float32 angle = -m_pBody->GetAngle() / PI * 180.0f;
 
     MyMatrix* matLocal = m_pGameObject->m_pComponentTransform->GetLocalTransform();
 
     matLocal->SetIdentity();
-    matLocal->CreateSRT( Vector3( 1 ), Vector3( 0, 0, angle ), Vector3( pos.x, pos.y, 0 ) );
+    matLocal->CreateSRT( m_Scale, Vector3( 0, 0, angle ), Vector3( pos.x, pos.y, 0 ) );
 
 #if MYFW_USING_WX
     m_pGameObject->m_pComponentTransform->UpdatePosAndRotFromLocalMatrix();
@@ -386,11 +408,16 @@ void ComponentCollisionObject2D::SyncRigidBodyToTransform()
     //g_pBulletWorld->m_pDynamicsWorld->addRigidBody( m_pBody );
 }
 
-void ComponentCollisionObject2D::ApplyForce(Vector3 force, Vector3 relpos)
+void ComponentCollisionObject2D::ApplyForce(Vector2 force, Vector2 point)
 {
-    //btVector3 btforce( force.x, force.y, force.z );
-    //btVector3 btrelpos( relpos.x, relpos.y, relpos.z );
+    b2Vec2 b2force = b2Vec2( force.x, force.y );
 
-    //m_pBody->activate();
-    //m_pBody->applyForce( btforce, btrelpos );
+    m_pBody->ApplyForce( b2force, m_pBody->GetWorldCenter(), true );
+}
+
+void ComponentCollisionObject2D::ApplyLinearImpulse(Vector2 impulse, Vector2 point)
+{
+    b2Vec2 b2impulse = b2Vec2( impulse.x, impulse.y );
+
+    m_pBody->ApplyLinearImpulse( b2impulse, m_pBody->GetWorldCenter(), true );
 }
