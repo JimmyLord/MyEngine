@@ -190,7 +190,7 @@ void EngineCore::OneTimeInit()
 
     // create the box2d world, pass in a material for the debug renderer.
     ComponentCamera* pCamera = m_pEditorState->GetEditorCamera();
-    m_pBox2DWorld = MyNew Box2DWorld( m_pMaterial_Box2DDebugDraw, &pCamera->m_Camera3D.m_matViewProj );
+    m_pBox2DWorld = MyNew Box2DWorld( m_pMaterial_Box2DDebugDraw, &pCamera->m_Camera3D.m_matViewProj, new EngineBox2DContactListener );
 
 //    CreateDefaultSceneObjects();
 

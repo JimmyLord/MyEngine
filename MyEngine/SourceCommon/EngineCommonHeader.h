@@ -85,6 +85,9 @@ extern "C"
 #include "ComponentSystem/FrameworkComponents/ComponentCollisionObject.h"
 #include "ComponentSystem/FrameworkComponents/ComponentCollisionObject2D.h"
 
+// Physics code
+#include "Physics/EngineBox2DContactListener.h"
+
 // misc engine code
 #include "Camera/Camera3D.h"
 #include "Camera/Camera2D.h"

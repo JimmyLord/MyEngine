@@ -27,6 +27,8 @@ private:
     MYFW_COMPONENT_DECLARE_VARIABLE_LIST( ComponentCollisionObject2D );
 
 public:
+    ComponentLuaScript* m_pComponentLuaScript;
+
     b2Body* m_pBody;
 
     int m_PrimitiveType;

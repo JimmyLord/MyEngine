@@ -35,6 +35,8 @@ ComponentCollisionObject2D::ComponentCollisionObject2D()
 
     //m_Type = ComponentType_CollisionObject2D;
 
+    m_pComponentLuaScript = 0;
+
     m_pBody = 0;
 
     m_PrimitiveType = Physics2DPrimitiveType_Box;
@@ -79,6 +81,8 @@ void ComponentCollisionObject2D::Reset()
     ComponentBase::Reset();
 
     m_PrimitiveType = Physics2DPrimitiveType_Box;
+
+    m_pComponentLuaScript = 0;
 
     m_Static = false;
     m_Mass = 0;
@@ -268,6 +272,11 @@ void ComponentCollisionObject2D::OnPlay()
 {
     ComponentBase::OnPlay();
 
+    if( m_pComponentLuaScript == 0 )
+    {
+        m_pComponentLuaScript = (ComponentLuaScript*)m_pGameObject->GetFirstComponentOfType( "LuaScriptComponent" );
+    }
+
     MyAssert( m_pBody == 0 );
     if( m_pBody != 0 )
     {
@@ -311,6 +320,7 @@ void ComponentCollisionObject2D::CreateBody()
             bodydef.type = b2_dynamicBody;
 
         m_pBody = g_pBox2DWorld->m_pWorld->CreateBody( &bodydef );
+        m_pBody->SetUserData( this );
 
         m_Scale = m_pGameObject->m_pComponentTransform->GetLocalScale();
 

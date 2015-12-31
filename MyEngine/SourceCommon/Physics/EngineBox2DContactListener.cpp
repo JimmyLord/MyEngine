@@ -1,0 +1,54 @@
+//
+// Copyright (c) 2015 Jimmy Lord http://www.flatheadgames.com
+//
+// This software is provided 'as-is', without any express or implied warranty.  In no event will the authors be held liable for any damages arising from the use of this software.
+// Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
+// 1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
+// 2. Altered source versions must be plainly marked as such, and must not be misrepresented as being the original software.
+// 3. This notice may not be removed or altered from any source distribution.
+
+#include "EngineCommonHeader.h"
+
+EngineBox2DContactListener::EngineBox2DContactListener()
+{
+}
+
+EngineBox2DContactListener::~EngineBox2DContactListener()
+{
+}
+
+void EngineBox2DContactListener::BeginContact(b2Contact* contact)
+{
+    //Box2DContactListener::BeginContact( contact );
+    
+    b2Fixture* pFixture[2];
+    ComponentCollisionObject2D* pCollisionComponent[2];
+
+    pFixture[0] = contact->GetFixtureA();
+    pFixture[1] = contact->GetFixtureB();
+
+    pCollisionComponent[0] = (ComponentCollisionObject2D*)pFixture[0]->GetBody()->GetUserData();
+    pCollisionComponent[1] = (ComponentCollisionObject2D*)pFixture[1]->GetBody()->GetUserData();
+
+    for( int i=0; i<2; i++ )
+    {
+        MyAssert( pCollisionComponent[i] );
+
+        if( pCollisionComponent[i] && pCollisionComponent[i]->m_pComponentLuaScript )
+        {
+            if( pCollisionComponent[i]->m_pComponentLuaScript )
+            {
+                b2Vec2 b2normal = contact->GetManifold()->localNormal;
+                Vector2 normal( b2normal.x, b2normal.y );
+                if( i == 0 )
+                    normal *= -1;
+                pCollisionComponent[i]->m_pComponentLuaScript->CallFunction( "OnCollision", normal );
+            }
+        }
+    }
+}
+
+void EngineBox2DContactListener::EndContact(b2Contact* contact)
+{
+    //Box2DContactListener::EndContact( contact );
+}

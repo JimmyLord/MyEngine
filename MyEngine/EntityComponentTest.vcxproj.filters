@@ -79,6 +79,9 @@
     <Filter Include="Source\SharedGameCode\Core">
       <UniqueIdentifier>{1094f882-23c8-4f1d-ae4c-1f5cfe7a49d8}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Physics">
+      <UniqueIdentifier>{60a0e06f-d005-4c7b-aa0c-b07250ed8713}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="SourceCommon\Camera\Camera3D.cpp">
@@ -347,6 +350,9 @@
     </ClCompile>
     <ClCompile Include="SourceCommon\ComponentSystem\FrameworkComponents\ComponentCollisionObject2D.cpp">
       <Filter>Source\ComponentSystem\Framework Components</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCommon\Physics\EngineBox2DContactListener.cpp">
+      <Filter>Source\Physics</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -643,6 +649,9 @@
     </ClInclude>
     <ClInclude Include="SourceCommon\ComponentSystem\FrameworkComponents\ComponentCollisionObject2D.h">
       <Filter>Source\ComponentSystem\Framework Components</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCommon\Physics\EngineBox2DContactListener.h">
+      <Filter>Source\Physics</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

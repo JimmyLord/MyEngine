@@ -1798,6 +1798,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|PNaCl'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Emscripten'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="SourceCommon\Physics\EngineBox2DContactListener.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\SharedGameCode\Core\MeshShapes.h" />
@@ -1966,6 +1967,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='WxRelease|PNaCl'">true</ExcludedFromBuild>
     </ClInclude>
     <ClInclude Include="SourceCommon\EngineCommonHeader.h" />
+    <ClInclude Include="SourceCommon\Physics\EngineBox2DContactListener.h" />
     <ClInclude Include="SourceNaCL\memory.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
