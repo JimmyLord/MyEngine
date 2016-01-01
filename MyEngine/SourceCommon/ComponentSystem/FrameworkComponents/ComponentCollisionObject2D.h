@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015 Jimmy Lord http://www.flatheadgames.com
+// Copyright (c) 2015-2016 Jimmy Lord http://www.flatheadgames.com
 //
 // This software is provided 'as-is', without any express or implied warranty.  In no event will the authors be held liable for any damages arising from the use of this software.
 // Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -34,7 +34,7 @@ public:
     int m_PrimitiveType;
 
     bool m_Static;
-    float m_Mass;
+    float m_Density;
     Vector3 m_Scale;
     //MyMesh* m_pMesh;
 
@@ -66,6 +66,8 @@ public:
 
     void ApplyForce(Vector2 force, Vector2 point);
     void ApplyLinearImpulse(Vector2 impulse, Vector2 point);
+    Vector2 GetLinearVelocity();
+    float GetMass();
 
 protected:
     // Callback functions for various events.

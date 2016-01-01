@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015 Jimmy Lord http://www.flatheadgames.com
+// Copyright (c) 2015-2016 Jimmy Lord http://www.flatheadgames.com
 //
 // This software is provided 'as-is', without any express or implied warranty.  In no event will the authors be held liable for any damages arising from the use of this software.
 // Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -42,7 +42,7 @@ ComponentCollisionObject2D::ComponentCollisionObject2D()
     m_PrimitiveType = Physics2DPrimitiveType_Box;
 
     m_Static = false;
-    m_Mass = 0;
+    m_Density = 0;
     m_Scale.Set( 1,1,1 );
     //m_pMesh = 0;
 }
@@ -72,7 +72,7 @@ void ComponentCollisionObject2D::RegisterVariables(CPPListHead* pList, Component
 
     AddVarEnum( pList, "PrimitiveType", MyOffsetOf( pThis, &pThis->m_PrimitiveType ),   true, true, "Primitive Type", Physics2DPrimitive_NumTypes, Physics2DPrimitiveTypeStrings, (CVarFunc_ValueChanged)&ComponentCollisionObject2D::OnValueChanged, 0, 0 );
     AddVar( pList, "Static",        ComponentVariableType_Bool,  MyOffsetOf( pThis, &pThis->m_Static ),          true, true, 0, (CVarFunc_ValueChanged)&ComponentCollisionObject2D::OnValueChanged, 0, 0 );
-    AddVar( pList, "Mass",          ComponentVariableType_Float, MyOffsetOf( pThis, &pThis->m_Mass ),            true, true, 0, (CVarFunc_ValueChanged)&ComponentCollisionObject2D::OnValueChanged, 0, 0 );
+    AddVar( pList, "Density",       ComponentVariableType_Float, MyOffsetOf( pThis, &pThis->m_Density ),         true, true, 0, (CVarFunc_ValueChanged)&ComponentCollisionObject2D::OnValueChanged, 0, 0 );
     //AddVar( pList, "Scale",         ComponentVariableType_Float, MyOffsetOf( pThis, &pThis->m_Scale ),           true, true, 0, (CVarFunc_ValueChanged)&ComponentCollisionObject2D::OnValueChanged, 0, 0 );
 }
 
@@ -85,7 +85,7 @@ void ComponentCollisionObject2D::Reset()
     m_pComponentLuaScript = 0;
 
     m_Static = false;
-    m_Mass = 0;
+    m_Density = 0;
     m_Scale.Set( 1,1,1 );
     //SAFE_RELEASE( m_pMesh );
 
@@ -99,9 +99,11 @@ void ComponentCollisionObject2D::LuaRegister(lua_State* luastate)
 {
     luabridge::getGlobalNamespace( luastate )
         .beginClass<ComponentCollisionObject2D>( "ComponentCollisionObject2D" )
-            .addData( "mass", &ComponentCollisionObject2D::m_Mass )            
+            .addData( "density", &ComponentCollisionObject2D::m_Density )
             .addFunction( "ApplyForce", &ComponentCollisionObject2D::ApplyForce )
             .addFunction( "ApplyLinearImpulse", &ComponentCollisionObject2D::ApplyLinearImpulse )
+            .addFunction( "GetLinearVelocity", &ComponentCollisionObject2D::GetLinearVelocity )
+            .addFunction( "GetMass", &ComponentCollisionObject2D::GetMass )            
         .endClass();
 }
 #endif //MYFW_USING_LUA
@@ -165,50 +167,12 @@ void* ComponentCollisionObject2D::OnValueChanged(ComponentVariable* pVar, bool f
     return oldpointer;
 }
 
-//void ComponentCollisionObject2D::OnDropOBJ(int controlid, wxCoord x, wxCoord y)
-//{
-//    if( g_DragAndDropStruct.m_Type == DragAndDropType_FileObjectPointer )
-//    {
-//        MyFileObject* pFile = (MyFileObject*)g_DragAndDropStruct.m_Value;
-//        MyAssert( pFile );
-//        //MyAssert( m_pMesh );
-//
-//        size_t len = strlen( pFile->m_FullPath );
-//        const char* filenameext = &pFile->m_FullPath[len-4];
-//
-//        if( strcmp( filenameext, ".obj" ) == 0 )
-//        {
-//            MyMesh* pMesh = g_pMeshManager->FindMeshBySourceFile( pFile );
-//            SetMesh( pMesh );
-//
-//            // update the panel so new OBJ name shows up.
-//            g_pPanelWatch->m_pVariables[g_DragAndDropStruct.m_ID].m_Description = m_pMesh->m_pSourceFile->m_FullPath;
-//        }
-//    }
-//}
-
 void ComponentCollisionObject2D::OnTransformPositionChanged(Vector3& newpos, bool changedbyeditor)
 {
     if( changedbyeditor )
         SyncRigidBodyToTransform();
 }
 #endif //MYFW_USING_WX
-
-//cJSON* ComponentCollisionObject2D::ExportAsJSONObject(bool savesceneid)
-//{
-//    cJSON* jComponent = ComponentBase::ExportAsJSONObject( savesceneid );
-//
-//    //ExportVariablesToJSON( jComponent ); //_VARIABLE_LIST
-//
-//    return jComponent;
-//}
-//
-//void ComponentCollisionObject2D::ImportFromJSONObject(cJSON* jsonobj, unsigned int sceneid)
-//{
-//    ComponentBase::ImportFromJSONObject( jsonobj, sceneid );
-//
-//    //ImportVariablesFromJSON( jsonobj ); //_VARIABLE_LIST
-//}
 
 ComponentCollisionObject2D& ComponentCollisionObject2D::operator=(const ComponentCollisionObject2D& other)
 {
@@ -220,7 +184,7 @@ ComponentCollisionObject2D& ComponentCollisionObject2D::operator=(const Componen
     m_PrimitiveType = other.m_PrimitiveType;
 
     m_Static = other.m_Static;
-    m_Mass = other.m_Mass;
+    m_Density = other.m_Density;
     //m_Scale = other.m_Scale;
     //m_pMesh
 
@@ -333,7 +297,7 @@ void ComponentCollisionObject2D::CreateBody()
 
                 b2FixtureDef fixturedef;
                 fixturedef.shape = &boxshape;
-                fixturedef.density = 1;
+                fixturedef.density = m_Density;
 
                 m_pBody->CreateFixture( &fixturedef );
             }
@@ -347,7 +311,7 @@ void ComponentCollisionObject2D::CreateBody()
 
                 b2FixtureDef fixturedef;
                 fixturedef.shape = &circleshape;
-                fixturedef.density = 1;
+                fixturedef.density = m_Density;
 
                 m_pBody->CreateFixture( &fixturedef );
             }
@@ -365,7 +329,7 @@ void ComponentCollisionObject2D::CreateBody()
 
                 b2FixtureDef fixturedef;
                 fixturedef.shape = &edgeshape;
-                fixturedef.density = 1;
+                fixturedef.density = m_Density;
 
                 m_pBody->CreateFixture( &fixturedef );
             }
@@ -421,13 +385,22 @@ void ComponentCollisionObject2D::SyncRigidBodyToTransform()
 void ComponentCollisionObject2D::ApplyForce(Vector2 force, Vector2 point)
 {
     b2Vec2 b2force = b2Vec2( force.x, force.y );
-
     m_pBody->ApplyForce( b2force, m_pBody->GetWorldCenter(), true );
 }
 
 void ComponentCollisionObject2D::ApplyLinearImpulse(Vector2 impulse, Vector2 point)
 {
     b2Vec2 b2impulse = b2Vec2( impulse.x, impulse.y );
-
     m_pBody->ApplyLinearImpulse( b2impulse, m_pBody->GetWorldCenter(), true );
+}
+
+Vector2 ComponentCollisionObject2D::GetLinearVelocity()
+{
+    b2Vec2 b2velocity = m_pBody->GetLinearVelocity();
+    return Vector2( b2velocity.x, b2velocity.y );
+}
+
+float ComponentCollisionObject2D::GetMass()
+{
+    return m_pBody->GetMass();
 }
