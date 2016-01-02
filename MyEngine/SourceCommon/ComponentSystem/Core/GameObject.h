@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2014-2015 Jimmy Lord http://www.flatheadgames.com
+// Copyright (c) 2014-2016 Jimmy Lord http://www.flatheadgames.com
 //
 // This software is provided 'as-is', without any express or implied warranty.  In no event will the authors be held liable for any damages arising from the use of this software.
 // Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -83,6 +83,8 @@ public:
     ComponentBase* AddExistingComponent(ComponentBase* pComponent, bool resetcomponent);
     ComponentBase* RemoveComponent(ComponentBase* pComponent);
 
+    ComponentBase* FindComponentByID(unsigned int componentid);
+
     ComponentBase* GetFirstComponentOfBaseType(BaseComponentTypes basetype);
     ComponentBase* GetNextComponentOfBaseType(ComponentBase* pLastComponent);
 
@@ -91,7 +93,7 @@ public:
 
     ComponentTransform* GetTransform() { return m_pComponentTransform; }
     ComponentCollisionObject* GetCollisionObject();
-    ComponentCollisionObject2D* Get2DCollisionObject();
+    Component2DCollisionObject* Get2DCollisionObject();
 
     // TODO: find a way to find an arbitrary component type that would be accessible from lua script.
     ComponentAnimationPlayer* GetAnimationPlayer();

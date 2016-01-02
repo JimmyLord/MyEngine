@@ -7,8 +7,8 @@
 // 2. Altered source versions must be plainly marked as such, and must not be misrepresented as being the original software.
 // 3. This notice may not be removed or altered from any source distribution.
 
-#ifndef __ComponentCollisionObject2D_H__
-#define __ComponentCollisionObject2D_H__
+#ifndef __Component2DCollisionObject_H__
+#define __Component2DCollisionObject_H__
 
 enum Physics2DPrimitiveTypes //ADDING_NEW_Physics2DPrimitiveType - order doesn't matter, saved as string.
 {
@@ -20,11 +20,11 @@ enum Physics2DPrimitiveTypes //ADDING_NEW_Physics2DPrimitiveType - order doesn't
 
 extern const char* Physics2DPrimitiveTypeStrings[Physics2DPrimitive_NumTypes];
 
-class ComponentCollisionObject2D : public ComponentBase
+class Component2DCollisionObject : public ComponentBase
 {
 private:
     // Component Variable List
-    MYFW_COMPONENT_DECLARE_VARIABLE_LIST( ComponentCollisionObject2D );
+    MYFW_COMPONENT_DECLARE_VARIABLE_LIST( Component2DCollisionObject );
 
 public:
     ComponentLuaScript* m_pComponentLuaScript;
@@ -39,8 +39,8 @@ public:
     //MyMesh* m_pMesh;
 
 public:
-    ComponentCollisionObject2D();
-    virtual ~ComponentCollisionObject2D();
+    Component2DCollisionObject();
+    virtual ~Component2DCollisionObject();
     SetClassnameBase( "2DCollisionObjectComponent" ); // only first 8 character count.
 
 #if MYFW_USING_LUA
@@ -51,8 +51,8 @@ public:
     //virtual void ImportFromJSONObject(cJSON* jsonobj, unsigned int sceneid);
 
     virtual void Reset();
-    virtual void CopyFromSameType_Dangerous(ComponentBase* pObject) { *this = (ComponentCollisionObject2D&)*pObject; }
-    ComponentCollisionObject2D& operator=(const ComponentCollisionObject2D& other);
+    virtual void CopyFromSameType_Dangerous(ComponentBase* pObject) { *this = (Component2DCollisionObject&)*pObject; }
+    Component2DCollisionObject& operator=(const Component2DCollisionObject& other);
 
     virtual void RegisterCallbacks();
     virtual void UnregisterCallbacks();
@@ -86,7 +86,7 @@ public:
     virtual void AddToObjectsPanel(wxTreeItemId gameobjectid);
 
     // Object panel callbacks.
-    static void StaticOnLeftClick(void* pObjectPtr, wxTreeItemId id, unsigned int count) { ((ComponentCollisionObject2D*)pObjectPtr)->OnLeftClick( count, true ); }
+    static void StaticOnLeftClick(void* pObjectPtr, wxTreeItemId id, unsigned int count) { ((Component2DCollisionObject*)pObjectPtr)->OnLeftClick( count, true ); }
     void OnLeftClick(unsigned int count, bool clear);
     virtual void FillPropertiesWindow(bool clear, bool addcomponentvariables = false, bool ignoreblockvisibleflag = false);
 
@@ -94,9 +94,9 @@ public:
     void* OnDrop(ComponentVariable* pVar, wxCoord x, wxCoord y);
     void* OnValueChanged(ComponentVariable* pVar, bool finishedchanging, double oldvalue);
 
-    static void StaticOnTransformPositionChanged(void* pObjectPtr, Vector3& newpos, bool changedbyeditor) { ((ComponentCollisionObject2D*)pObjectPtr)->OnTransformPositionChanged( newpos, changedbyeditor ); }
+    static void StaticOnTransformPositionChanged(void* pObjectPtr, Vector3& newpos, bool changedbyeditor) { ((Component2DCollisionObject*)pObjectPtr)->OnTransformPositionChanged( newpos, changedbyeditor ); }
     void OnTransformPositionChanged(Vector3& newpos, bool changedbyeditor);
 #endif //MYFW_USING_WX
 };
 
-#endif //__ComponentCollisionObject2D_H__
+#endif //__Component2DCollisionObject_H__

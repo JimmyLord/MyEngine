@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2014-2015 Jimmy Lord http://www.flatheadgames.com
+// Copyright (c) 2014-2016 Jimmy Lord http://www.flatheadgames.com
 //
 // This software is provided 'as-is', without any express or implied warranty.  In no event will the authors be held liable for any damages arising from the use of this software.
 // Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -577,6 +577,19 @@ ComponentBase* GameObject::RemoveComponent(ComponentBase* pComponent)
     return 0; // component not found.
 }
 
+ComponentBase* GameObject::FindComponentByID(unsigned int componentid)
+{
+    for( unsigned int i=0; i<m_Components.Count(); i++ )
+    {
+        if( m_Components[i]->GetID() == componentid )
+        {
+            return m_Components[i];
+        }
+    }
+
+    return 0;
+}
+
 ComponentAnimationPlayer* GameObject::GetAnimationPlayer()
 {
     for( unsigned int i=0; i<m_Components.Count(); i++ )
@@ -705,12 +718,12 @@ ComponentCollisionObject* GameObject::GetCollisionObject()
     return 0;
 }
 
-ComponentCollisionObject2D* GameObject::Get2DCollisionObject()
+Component2DCollisionObject* GameObject::Get2DCollisionObject()
 {
     for( unsigned int i=0; i<m_Components.Count(); i++ )
     {
         if( m_Components[i]->IsA( "2DCollisionObjectComponent" ) )
-            return (ComponentCollisionObject2D*)m_Components[i];
+            return (Component2DCollisionObject*)m_Components[i];
     }
 
     return 0;

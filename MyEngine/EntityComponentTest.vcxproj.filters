@@ -82,6 +82,9 @@
     <Filter Include="Source\Physics">
       <UniqueIdentifier>{60a0e06f-d005-4c7b-aa0c-b07250ed8713}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\ComponentSystem\Framework Components\Physics2D">
+      <UniqueIdentifier>{87d4e2d2-c11f-408c-80bf-e553af8dc6b6}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="SourceCommon\Camera\Camera3D.cpp">
@@ -348,11 +351,14 @@
     <ClCompile Include="SourceCommon\ComponentSystem\ComponentTemplate.cpp">
       <Filter>Source\ComponentSystem</Filter>
     </ClCompile>
-    <ClCompile Include="SourceCommon\ComponentSystem\FrameworkComponents\ComponentCollisionObject2D.cpp">
-      <Filter>Source\ComponentSystem\Framework Components</Filter>
-    </ClCompile>
     <ClCompile Include="SourceCommon\Physics\EngineBox2DContactListener.cpp">
       <Filter>Source\Physics</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCommon\ComponentSystem\FrameworkComponents\Physics2D\Component2DCollisionObject.cpp">
+      <Filter>Source\ComponentSystem\Framework Components\Physics2D</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCommon\ComponentSystem\FrameworkComponents\Physics2D\Component2DJointRevolute.cpp">
+      <Filter>Source\ComponentSystem\Framework Components\Physics2D</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -647,11 +653,14 @@
     <ClInclude Include="SourceNaCL\memory.h">
       <Filter>Source - Platform\Source - NaCL</Filter>
     </ClInclude>
-    <ClInclude Include="SourceCommon\ComponentSystem\FrameworkComponents\ComponentCollisionObject2D.h">
-      <Filter>Source\ComponentSystem\Framework Components</Filter>
-    </ClInclude>
     <ClInclude Include="SourceCommon\Physics\EngineBox2DContactListener.h">
       <Filter>Source\Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCommon\ComponentSystem\FrameworkComponents\Physics2D\Component2DCollisionObject.h">
+      <Filter>Source\ComponentSystem\Framework Components\Physics2D</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCommon\ComponentSystem\FrameworkComponents\Physics2D\Component2DJointRevolute.h">
+      <Filter>Source\ComponentSystem\Framework Components\Physics2D</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

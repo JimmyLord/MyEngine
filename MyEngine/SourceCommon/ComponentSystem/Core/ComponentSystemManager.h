@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2014-2015 Jimmy Lord http://www.flatheadgames.com
+// Copyright (c) 2014-2016 Jimmy Lord http://www.flatheadgames.com
 //
 // This software is provided 'as-is', without any express or implied warranty.  In no event will the authors be held liable for any damages arising from the use of this software.
 // Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -174,6 +174,7 @@ public:
     GameObject* FindGameObjectByName(const char* name);
     GameObject* FindGameObjectByNameFromList(GameObject* list, const char* name);
     GameObject* FindGameObjectByJSONRef(cJSON* pJSONGameObjectRef, unsigned int defaultsceneid);
+    ComponentBase* FindComponentByJSONRef(cJSON* pJSONComponentRef, unsigned int defaultsceneid);
     ComponentCamera* GetFirstCamera();
     ComponentBase* GetFirstComponentOfType(const char* type);
     ComponentBase* GetNextComponentOfType(ComponentBase* pLastComponent);

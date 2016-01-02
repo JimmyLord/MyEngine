@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015 Jimmy Lord http://www.flatheadgames.com
+// Copyright (c) 2015-2016 Jimmy Lord http://www.flatheadgames.com
 //
 // This software is provided 'as-is', without any express or implied warranty.  In no event will the authors be held liable for any damages arising from the use of this software.
 // Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -22,13 +22,13 @@ void EngineBox2DContactListener::BeginContact(b2Contact* contact)
     //Box2DContactListener::BeginContact( contact );
     
     b2Fixture* pFixture[2];
-    ComponentCollisionObject2D* pCollisionComponent[2];
+    Component2DCollisionObject* pCollisionComponent[2];
 
     pFixture[0] = contact->GetFixtureA();
     pFixture[1] = contact->GetFixtureB();
 
-    pCollisionComponent[0] = (ComponentCollisionObject2D*)pFixture[0]->GetBody()->GetUserData();
-    pCollisionComponent[1] = (ComponentCollisionObject2D*)pFixture[1]->GetBody()->GetUserData();
+    pCollisionComponent[0] = (Component2DCollisionObject*)pFixture[0]->GetBody()->GetUserData();
+    pCollisionComponent[1] = (Component2DCollisionObject*)pFixture[1]->GetBody()->GetUserData();
 
     for( int i=0; i<2; i++ )
     {

@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2014-2015 Jimmy Lord http://www.flatheadgames.com
+// Copyright (c) 2014-2016 Jimmy Lord http://www.flatheadgames.com
 //
 // This software is provided 'as-is', without any express or implied warranty.  In no event will the authors be held liable for any damages arising from the use of this software.
 // Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -822,7 +822,7 @@ void ComponentSystemManager::LoadSceneFromJSON(const char* scenename, const char
         }
     }
 
-    // create/init all the other components
+    // create all the other components, not loading component properties
     for( int i=0; i<cJSON_GetArraySize( componentarray ); i++ )
     {
         cJSON* componentobj = cJSON_GetArrayItem( componentarray, i );
@@ -858,11 +858,29 @@ void ComponentSystemManager::LoadSceneFromJSON(const char* scenename, const char
             if( pComponent == 0 )
                 pComponent = pGameObject->AddNewComponent( type, sceneid );
 
-            pComponent->ImportFromJSONObject( componentobj, sceneid );
-            
             pComponent->SetID( id );
             if( id >= m_pSceneInfoMap[sceneid].m_NextComponentID )
                 m_pSceneInfoMap[sceneid].m_NextComponentID = id + 1;
+        }
+    }
+
+    // load all the components properties, to ensure components are already loaded
+    for( int i=0; i<cJSON_GetArraySize( componentarray ); i++ )
+    {
+        cJSON* componentobj = cJSON_GetArrayItem( componentarray, i );
+        
+        if( getsceneidfromeachobject )
+            cJSONExt_GetUnsignedInt( componentobj, "SceneID", &sceneid );
+
+        unsigned int id;
+        cJSONExt_GetUnsignedInt( componentobj, "ID", &id );
+
+        ComponentBase* pComponent = FindComponentByID( id, sceneid );
+        MyAssert( pComponent );
+
+        if( pComponent )
+        {
+            pComponent->ImportFromJSONObject( componentobj, sceneid );
         }
     }
 
@@ -1386,6 +1404,22 @@ GameObject* ComponentSystemManager::FindGameObjectByJSONRef(cJSON* pJSONGameObje
     return FindGameObjectByID( sceneid, goid );
 }
 
+ComponentBase* ComponentSystemManager::FindComponentByJSONRef(cJSON* pJSONComponentRef, unsigned int defaultsceneid)
+{
+    GameObject* pGameObject = FindGameObjectByJSONRef( pJSONComponentRef, defaultsceneid );
+    MyAssert( pGameObject );
+    if( pGameObject )
+    {
+        unsigned int componentid = -1;
+        cJSONExt_GetUnsignedInt( pJSONComponentRef, "ComponentID", &componentid );
+        MyAssert( componentid != -1 );
+
+        return pGameObject->FindComponentByID( componentid );
+    }
+
+    return 0;
+}
+
 ComponentCamera* ComponentSystemManager::GetFirstCamera()
 {
     for( CPPListNode* node = m_Components[BaseComponentType_Camera].GetHead(); node != 0; node = node->GetNext() )
@@ -1788,6 +1822,26 @@ void ComponentSystemManager::OnLoad(unsigned int sceneid)
 
 void ComponentSystemManager::OnPlay()
 {
+    // TODO: find a better solution than 2 passes, sort the OnPlay callback lists(once OnPlay is a callback of course...)
+
+    // first pass, everything but 2d physics joints.
+    for( unsigned int i=0; i<BaseComponentType_NumTypes; i++ )
+    {
+        for( CPPListNode* node = m_Components[i].GetHead(); node != 0; node = node->GetNext() )
+        {
+            ComponentBase* pComponent = (ComponentBase*)node;
+
+            //MyAssert( pComponent->IsEnabled() == true );
+
+            if( pComponent->m_pGameObject->IsEnabled() == true )
+            {
+                if( pComponent->IsA( "2DJoint-" ) == false )
+                    pComponent->OnPlay();
+            }
+        }
+    }
+
+    // second pass, only 2d physics joints.
     for( unsigned int i=0; i<BaseComponentType_NumTypes; i++ )
     {
         for( CPPListNode* node = m_Components[i].GetHead(); node != 0; node = node->GetNext() )
@@ -1797,7 +1851,10 @@ void ComponentSystemManager::OnPlay()
             //MyAssert( pComponent->IsEnabled() == true );
         
             if( pComponent->m_pGameObject->IsEnabled() == true )
-                pComponent->OnPlay();
+            {
+                if( pComponent->IsA( "2DJoint-" ) == true )
+                    pComponent->OnPlay();
+            }
         }
     }
 }

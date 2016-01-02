@@ -1691,7 +1691,6 @@
     <ClCompile Include="SourceCommon\ComponentSystem\FrameworkComponents\ComponentAnimationPlayer.cpp" />
     <ClCompile Include="SourceCommon\ComponentSystem\FrameworkComponents\ComponentCameraShadow.cpp" />
     <ClCompile Include="SourceCommon\ComponentSystem\FrameworkComponents\ComponentCollisionObject.cpp" />
-    <ClCompile Include="SourceCommon\ComponentSystem\FrameworkComponents\ComponentCollisionObject2D.cpp" />
     <ClCompile Include="SourceCommon\ComponentSystem\FrameworkComponents\ComponentLight.cpp" />
     <ClCompile Include="SourceCommon\ComponentSystem\FrameworkComponents\ComponentLuaScript.cpp" />
     <ClCompile Include="SourceCommon\ComponentSystem\FrameworkComponents\ComponentMesh.cpp" />
@@ -1700,6 +1699,8 @@
     <ClCompile Include="SourceCommon\ComponentSystem\FrameworkComponents\ComponentParticleEmitter.cpp" />
     <ClCompile Include="SourceCommon\ComponentSystem\FrameworkComponents\ComponentPostEffect.cpp" />
     <ClCompile Include="SourceCommon\ComponentSystem\FrameworkComponents\ComponentSprite.cpp" />
+    <ClCompile Include="SourceCommon\ComponentSystem\FrameworkComponents\Physics2D\Component2DCollisionObject.cpp" />
+    <ClCompile Include="SourceCommon\ComponentSystem\FrameworkComponents\Physics2D\Component2DJointRevolute.cpp" />
     <ClCompile Include="SourceCommon\Core\BulletWorld.cpp" />
     <ClCompile Include="SourceCommon\Core\EditorState.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
@@ -1877,7 +1878,6 @@
     <ClInclude Include="SourceCommon\ComponentSystem\FrameworkComponents\ComponentAnimationPlayer.h" />
     <ClInclude Include="SourceCommon\ComponentSystem\FrameworkComponents\ComponentCameraShadow.h" />
     <ClInclude Include="SourceCommon\ComponentSystem\FrameworkComponents\ComponentCollisionObject.h" />
-    <ClInclude Include="SourceCommon\ComponentSystem\FrameworkComponents\ComponentCollisionObject2D.h" />
     <ClInclude Include="SourceCommon\ComponentSystem\FrameworkComponents\ComponentLight.h" />
     <ClInclude Include="SourceCommon\ComponentSystem\FrameworkComponents\ComponentLuaScript.h" />
     <ClInclude Include="SourceCommon\ComponentSystem\FrameworkComponents\ComponentMesh.h" />
@@ -1886,6 +1886,8 @@
     <ClInclude Include="SourceCommon\ComponentSystem\FrameworkComponents\ComponentParticleEmitter.h" />
     <ClInclude Include="SourceCommon\ComponentSystem\FrameworkComponents\ComponentPostEffect.h" />
     <ClInclude Include="SourceCommon\ComponentSystem\FrameworkComponents\ComponentSprite.h" />
+    <ClInclude Include="SourceCommon\ComponentSystem\FrameworkComponents\Physics2D\Component2DCollisionObject.h" />
+    <ClInclude Include="SourceCommon\ComponentSystem\FrameworkComponents\Physics2D\Component2DJointRevolute.h" />
     <ClInclude Include="SourceCommon\Core\BulletWorld.h" />
     <ClInclude Include="SourceCommon\Core\EditorState.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>

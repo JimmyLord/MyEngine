@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2014-2015 Jimmy Lord http://www.flatheadgames.com
+// Copyright (c) 2014-2016 Jimmy Lord http://www.flatheadgames.com
 //
 // This software is provided 'as-is', without any express or implied warranty.  In no event will the authors be held liable for any damages arising from the use of this software.
 // Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -11,6 +11,7 @@
 
 // sort by category, otherwise right-click menu will have duplicates.
 // must be in same order as enum EngineComponentTypes
+// name(2nd column) is saved into the scene files, changing it will break objects.
 ComponentTypeInfo g_EngineComponentTypeInfo[Component_NumEngineComponentTypes] = // ADDING_NEW_ComponentType
 {
     { "Camera",         "Camera",              },  //ComponentType_Camera,
@@ -22,7 +23,8 @@ ComponentTypeInfo g_EngineComponentTypeInfo[Component_NumEngineComponentTypes] =
     { "Lighting",       "Shadow Dir Light",    },  //ComponentType_CameraShadow,
     { "Effects",        "Post Effect Quad",    },  //ComponentType_PostEffect,
     { "Physics",        "Collision Object",    },  //ComponentType_CollisionObject,
-    { "Physics",        "Collision Object 2D", },  //ComponentType_CollisionObject2D,
+    { "Physics",        "2D Collision Object", },  //ComponentType_2DCollisionObject,
+    { "Physics",        "2D Joint - Revolute", },  //ComponentType_2DJointRevolute,
     { "Scripts",        "Lua Script",          },  //ComponentType_LuaScript,
     { "Particles",      "Particle Emitter",    },  //ComponentType_ParticleEmitter,
     { "Animation",      "Animation Player",    },  //ComponentType_AnimationPlayer,
@@ -46,7 +48,8 @@ ComponentBase* EngineComponentTypeManager::CreateComponent(int type)
     case ComponentType_CameraShadow:        pComponent = MyNew ComponentCameraShadow;       break;
     case ComponentType_PostEffect:          pComponent = MyNew ComponentPostEffect;         break;
     case ComponentType_CollisionObject:     pComponent = MyNew ComponentCollisionObject;    break;
-    case ComponentType_CollisionObject2D:   pComponent = MyNew ComponentCollisionObject2D;  break;
+    case ComponentType_2DCollisionObject:   pComponent = MyNew Component2DCollisionObject;  break;
+    case ComponentType_2DJointRevolute:     pComponent = MyNew Component2DJointRevolute;    break;
 #if MYFW_USING_LUA
     case ComponentType_LuaScript:           pComponent = MyNew ComponentLuaScript;          break;
 #else

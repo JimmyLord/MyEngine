@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2014-2015 Jimmy Lord http://www.flatheadgames.com
+// Copyright (c) 2014-2016 Jimmy Lord http://www.flatheadgames.com
 //
 // This software is provided 'as-is', without any express or implied warranty.  In no event will the authors be held liable for any damages arising from the use of this software.
 // Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -356,6 +356,19 @@ void ComponentBase::ExportVariablesToJSON(cJSON* jComponent)
                 break;
 
             case ComponentVariableType_ComponentPtr:
+                {
+                    ComponentBase* pComponent = *(ComponentBase**)((char*)this + pVar->m_Offset);
+                    if( pComponent )
+                    {
+                        cJSON* jComponentRef = pComponent->ExportReferenceAsJSONObject();
+                        if( jComponentRef )
+                        {
+                            cJSON_AddItemToObject( jComponent, pVar->m_Label, jComponentRef );
+                        }
+                    }
+                }
+                break;
+
             case ComponentVariableType_FilePtr:
             case ComponentVariableType_MaterialPtr:
                 MyAssert( false );
@@ -449,6 +462,16 @@ void ComponentBase::ImportVariablesFromJSON(cJSON* jsonobj, const char* singlela
                 break;
 
             case ComponentVariableType_ComponentPtr:
+                {
+                    cJSON* jComponentRef = cJSON_GetObjectItem( jsonobj, pVar->m_Label );
+                    if( jComponentRef )
+                    {
+                        ComponentBase* pComponent = g_pComponentSystemManager->FindComponentByJSONRef( jComponentRef, m_SceneIDLoadedFrom );
+                        *(ComponentBase**)((char*)this + pVar->m_Offset) = pComponent;
+                    }
+                }
+                break;
+
             case ComponentVariableType_FilePtr:
             case ComponentVariableType_MaterialPtr:
                 MyAssert( false );
@@ -1421,6 +1444,21 @@ void ComponentBase::ImportFromJSONObject(cJSON* jsonobj, unsigned int sceneid)
     cJSONExt_GetUnsignedInt( jsonobj, "Divorced", &m_DivorcedVariables );
 
     ImportVariablesFromJSON( jsonobj ); //_VARIABLE_LIST
+}
+
+cJSON* ComponentBase::ExportReferenceAsJSONObject()
+{
+    // see ComponentSystemManager::FindComponentByJSONRef
+
+    cJSON* ref = m_pGameObject->ExportReferenceAsJSONObject( GetSceneID() );
+    MyAssert( ref );
+
+    if( ref )
+    {
+        cJSON_AddNumberToObject( ref, "ComponentID", m_ID );
+    }
+
+    return ref;
 }
 
 ComponentBase& ComponentBase::operator=(const ComponentBase& other)

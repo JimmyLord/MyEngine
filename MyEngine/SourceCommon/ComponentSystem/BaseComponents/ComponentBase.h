@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2014-2015 Jimmy Lord http://www.flatheadgames.com
+// Copyright (c) 2014-2016 Jimmy Lord http://www.flatheadgames.com
 //
 // This software is provided 'as-is', without any express or implied warranty.  In no event will the authors be held liable for any damages arising from the use of this software.
 // Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -138,13 +138,13 @@ public:
 };
 
 #if MYFW_USING_WX
-#define AddVar(a,b,c,d,e,f,g, h,i,j) AddVariable(a,b,c,d,e,f,g, h,i,j);
-#define AddVarPointer(a,b,c,d,e,f,g,h,i, j,k,l) AddVariablePointer(a,b,c,d,e,f,g,h,i, j,k,l);
-#define AddVarEnum(a,b,c,d,e,f,g,h, i,j,k) AddVariableEnum(a,b,c,d,e,f,g,h, i,j,k);
+#define AddVar(pList,label,type,offset,saveload,displayinwatch,watchlabel, onvaluechanged,ondrop,onbuttonpressed) AddVariable(pList,label,type,offset,saveload,displayinwatch,watchlabel, onvaluechanged,ondrop,onbuttonpressed);
+#define AddVarPointer(pList,label,saveload,displayinwatch,watchlabel,getptrvalue,setptrvalue,getptrdesc,setptrdesc, onvaluechanged,ondrop,onbuttonpressed) AddVariablePointer(pList,label,saveload,displayinwatch,watchlabel,getptrvalue,setptrvalue,getptrdesc,setptrdesc, onvaluechanged,ondrop,onbuttonpressed);
+#define AddVarEnum(pList,label,offset,saveload,displayinwatch,watchlabel,numenums,ppStrings, onvaluechanged,ondrop,onbuttonpressed) AddVariableEnum(pList,label,offset,saveload,displayinwatch,watchlabel,numenums,ppStrings, onvaluechanged,ondrop,onbuttonpressed);
 #else
-#define AddVar(a,b,c,d,e,f,g, ...) AddVariable(a,b,c,d,e,f,g, 0,0,0);
-#define AddVarPointer(a,b,c,d,e,f,g,h,i, ...) AddVariablePointer(a,b,c,d,e,f,g,h,i, 0,0,0);
-#define AddVarEnum(a,b,c,d,e,f,g,h, ...) AddVariableEnum(a,b,c,d,e,f,g,h, 0,0,0);
+#define AddVar(pList,label,type,offset,saveload,displayinwatch,watchlabel, ...) AddVariable(pList,label,type,offset,saveload,displayinwatch,watchlabel, 0,0,0);
+#define AddVarPointer(pList,label,saveload,displayinwatch,watchlabel,getptrvalue,setptrvalue,getptrdesc,setptrdesc, ...) AddVariablePointer(pList,label,saveload,displayinwatch,watchlabel,getptrvalue,setptrvalue,getptrdesc,setptrdesc, 0,0,0);
+#define AddVarEnum(pList,label,offset,saveload,displayinwatch,watchlabel,numenums,ppStrings, ...) AddVariableEnum(pList,label,offset,saveload,displayinwatch,watchlabel,numenums,ppStrings, 0,0,0);
 #endif
 
 #define MYFW_COMPONENT_DECLARE_VARIABLE_LIST(ComponentName) \
@@ -222,6 +222,7 @@ public:
 
     virtual cJSON* ExportAsJSONObject(bool savesceneid);
     virtual void ImportFromJSONObject(cJSON* jsonobj, unsigned int sceneid);
+    virtual cJSON* ExportReferenceAsJSONObject();
 
     virtual void Reset();
     virtual void CopyFromSameType_Dangerous(ComponentBase* pObject) { *this = (ComponentBase&)*pObject; }

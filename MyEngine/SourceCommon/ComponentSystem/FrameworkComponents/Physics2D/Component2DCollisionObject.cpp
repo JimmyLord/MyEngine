@@ -8,10 +8,9 @@
 // 3. This notice may not be removed or altered from any source distribution.
 
 #include "EngineCommonHeader.h"
-#include "BulletCollision/CollisionShapes/btShapeHull.h"
 
 #if MYFW_USING_WX
-bool ComponentCollisionObject2D::m_PanelWatchBlockVisible = true;
+bool Component2DCollisionObject::m_PanelWatchBlockVisible = true;
 #endif
 
 const char* Physics2DPrimitiveTypeStrings[Physics2DPrimitive_NumTypes] = //ADDING_NEW_Physics2DPrimitiveType
@@ -22,9 +21,9 @@ const char* Physics2DPrimitiveTypeStrings[Physics2DPrimitive_NumTypes] = //ADDIN
 };
 
 // Component Variable List
-MYFW_COMPONENT_IMPLEMENT_VARIABLE_LIST( ComponentCollisionObject2D ); //_VARIABLE_LIST
+MYFW_COMPONENT_IMPLEMENT_VARIABLE_LIST( Component2DCollisionObject ); //_VARIABLE_LIST
 
-ComponentCollisionObject2D::ComponentCollisionObject2D()
+Component2DCollisionObject::Component2DCollisionObject()
 : ComponentBase()
 {
     MYFW_COMPONENT_VARIABLE_LIST_CONSTRUCTOR(); //_VARIABLE_LIST
@@ -33,7 +32,7 @@ ComponentCollisionObject2D::ComponentCollisionObject2D()
 
     m_BaseType = BaseComponentType_Data;
 
-    //m_Type = ComponentType_CollisionObject2D;
+    //m_Type = ComponentType_2DCollisionObject;
 
     m_pComponentLuaScript = 0;
 
@@ -47,7 +46,7 @@ ComponentCollisionObject2D::ComponentCollisionObject2D()
     //m_pMesh = 0;
 }
 
-ComponentCollisionObject2D::~ComponentCollisionObject2D()
+Component2DCollisionObject::~Component2DCollisionObject()
 {
     MYFW_COMPONENT_VARIABLE_LIST_DESTRUCTOR(); //_VARIABLE_LIST
 
@@ -59,24 +58,15 @@ ComponentCollisionObject2D::~ComponentCollisionObject2D()
     //SAFE_RELEASE( m_pMesh );
 }
 
-void ComponentCollisionObject2D::RegisterVariables(CPPListHead* pList, ComponentCollisionObject2D* pThis) //_VARIABLE_LIST
+void Component2DCollisionObject::RegisterVariables(CPPListHead* pList, Component2DCollisionObject* pThis) //_VARIABLE_LIST
 {
-    // just want to make sure these are the same on all compilers.  They should be since this is a simple class.
-#if MYFW_IOS || MYFW_OSX || MYFW_NACL
-#pragma GCC diagnostic ignored "-Winvalid-offsetof"
-#endif
-    //MyAssert( offsetof( ComponentCollisionObject2D, m_SampleVector3 ) == MyOffsetOf( pThis, &pThis->m_SampleVector3 ) );
-#if MYFW_IOS || MYFW_OSX
-#pragma GCC diagnostic default "-Winvalid-offsetof"
-#endif
-
-    AddVarEnum( pList, "PrimitiveType", MyOffsetOf( pThis, &pThis->m_PrimitiveType ),   true, true, "Primitive Type", Physics2DPrimitive_NumTypes, Physics2DPrimitiveTypeStrings, (CVarFunc_ValueChanged)&ComponentCollisionObject2D::OnValueChanged, 0, 0 );
-    AddVar( pList, "Static",        ComponentVariableType_Bool,  MyOffsetOf( pThis, &pThis->m_Static ),          true, true, 0, (CVarFunc_ValueChanged)&ComponentCollisionObject2D::OnValueChanged, 0, 0 );
-    AddVar( pList, "Density",       ComponentVariableType_Float, MyOffsetOf( pThis, &pThis->m_Density ),         true, true, 0, (CVarFunc_ValueChanged)&ComponentCollisionObject2D::OnValueChanged, 0, 0 );
-    //AddVar( pList, "Scale",         ComponentVariableType_Float, MyOffsetOf( pThis, &pThis->m_Scale ),           true, true, 0, (CVarFunc_ValueChanged)&ComponentCollisionObject2D::OnValueChanged, 0, 0 );
+    AddVarEnum( pList, "PrimitiveType", MyOffsetOf( pThis, &pThis->m_PrimitiveType ),   true, true, "Primitive Type", Physics2DPrimitive_NumTypes, Physics2DPrimitiveTypeStrings, (CVarFunc_ValueChanged)&Component2DCollisionObject::OnValueChanged, 0, 0 );
+    AddVar( pList, "Static",        ComponentVariableType_Bool,  MyOffsetOf( pThis, &pThis->m_Static ),          true, true, 0, (CVarFunc_ValueChanged)&Component2DCollisionObject::OnValueChanged, 0, 0 );
+    AddVar( pList, "Density",       ComponentVariableType_Float, MyOffsetOf( pThis, &pThis->m_Density ),         true, true, 0, (CVarFunc_ValueChanged)&Component2DCollisionObject::OnValueChanged, 0, 0 );
+    //AddVar( pList, "Scale",         ComponentVariableType_Float, MyOffsetOf( pThis, &pThis->m_Scale ),           true, true, 0, (CVarFunc_ValueChanged)&Component2DCollisionObject::OnValueChanged, 0, 0 );
 }
 
-void ComponentCollisionObject2D::Reset()
+void Component2DCollisionObject::Reset()
 {
     ComponentBase::Reset();
 
@@ -95,34 +85,34 @@ void ComponentCollisionObject2D::Reset()
 }
 
 #if MYFW_USING_LUA
-void ComponentCollisionObject2D::LuaRegister(lua_State* luastate)
+void Component2DCollisionObject::LuaRegister(lua_State* luastate)
 {
     luabridge::getGlobalNamespace( luastate )
-        .beginClass<ComponentCollisionObject2D>( "ComponentCollisionObject2D" )
-            .addData( "density", &ComponentCollisionObject2D::m_Density )
-            .addFunction( "ApplyForce", &ComponentCollisionObject2D::ApplyForce )
-            .addFunction( "ApplyLinearImpulse", &ComponentCollisionObject2D::ApplyLinearImpulse )
-            .addFunction( "GetLinearVelocity", &ComponentCollisionObject2D::GetLinearVelocity )
-            .addFunction( "GetMass", &ComponentCollisionObject2D::GetMass )            
+        .beginClass<Component2DCollisionObject>( "Component2DCollisionObject" )
+            .addData( "density", &Component2DCollisionObject::m_Density )
+            .addFunction( "ApplyForce", &Component2DCollisionObject::ApplyForce )
+            .addFunction( "ApplyLinearImpulse", &Component2DCollisionObject::ApplyLinearImpulse )
+            .addFunction( "GetLinearVelocity", &Component2DCollisionObject::GetLinearVelocity )
+            .addFunction( "GetMass", &Component2DCollisionObject::GetMass )            
         .endClass();
 }
 #endif //MYFW_USING_LUA
 
 #if MYFW_USING_WX
-void ComponentCollisionObject2D::AddToObjectsPanel(wxTreeItemId gameobjectid)
+void Component2DCollisionObject::AddToObjectsPanel(wxTreeItemId gameobjectid)
 {
     //wxTreeItemId id =
-    g_pPanelObjectList->AddObject( this, ComponentCollisionObject2D::StaticOnLeftClick, ComponentBase::StaticOnRightClick, gameobjectid, "CollisionObject2D" );
+    g_pPanelObjectList->AddObject( this, Component2DCollisionObject::StaticOnLeftClick, ComponentBase::StaticOnRightClick, gameobjectid, "2DCollisionObject" );
 }
 
-void ComponentCollisionObject2D::OnLeftClick(unsigned int count, bool clear)
+void Component2DCollisionObject::OnLeftClick(unsigned int count, bool clear)
 {
     ComponentBase::OnLeftClick( count, clear );
 }
 
-void ComponentCollisionObject2D::FillPropertiesWindow(bool clear, bool addcomponentvariables, bool ignoreblockvisibleflag)
+void Component2DCollisionObject::FillPropertiesWindow(bool clear, bool addcomponentvariables, bool ignoreblockvisibleflag)
 {
-    m_ControlID_ComponentTitleLabel = g_pPanelWatch->AddSpace( "Template", this, ComponentBase::StaticOnComponentTitleLabelClicked );
+    m_ControlID_ComponentTitleLabel = g_pPanelWatch->AddSpace( "2D Collision Object", this, ComponentBase::StaticOnComponentTitleLabelClicked );
 
     if( m_PanelWatchBlockVisible || ignoreblockvisibleflag == true )
     {
@@ -132,7 +122,7 @@ void ComponentCollisionObject2D::FillPropertiesWindow(bool clear, bool addcompon
     }
 }
 
-void* ComponentCollisionObject2D::OnDrop(ComponentVariable* pVar, wxCoord x, wxCoord y)
+void* Component2DCollisionObject::OnDrop(ComponentVariable* pVar, wxCoord x, wxCoord y)
 {
     void* oldvalue = 0;
 
@@ -149,7 +139,7 @@ void* ComponentCollisionObject2D::OnDrop(ComponentVariable* pVar, wxCoord x, wxC
     return oldvalue;
 }
 
-void* ComponentCollisionObject2D::OnValueChanged(ComponentVariable* pVar, bool finishedchanging, double oldvalue)
+void* Component2DCollisionObject::OnValueChanged(ComponentVariable* pVar, bool finishedchanging, double oldvalue)
 {
     void* oldpointer = 0;
 
@@ -167,14 +157,14 @@ void* ComponentCollisionObject2D::OnValueChanged(ComponentVariable* pVar, bool f
     return oldpointer;
 }
 
-void ComponentCollisionObject2D::OnTransformPositionChanged(Vector3& newpos, bool changedbyeditor)
+void Component2DCollisionObject::OnTransformPositionChanged(Vector3& newpos, bool changedbyeditor)
 {
     if( changedbyeditor )
         SyncRigidBodyToTransform();
 }
 #endif //MYFW_USING_WX
 
-ComponentCollisionObject2D& ComponentCollisionObject2D::operator=(const ComponentCollisionObject2D& other)
+Component2DCollisionObject& Component2DCollisionObject::operator=(const Component2DCollisionObject& other)
 {
     MyAssert( &other != this );
 
@@ -191,23 +181,23 @@ ComponentCollisionObject2D& ComponentCollisionObject2D::operator=(const Componen
     return *this;
 }
 
-void ComponentCollisionObject2D::RegisterCallbacks()
+void Component2DCollisionObject::RegisterCallbacks()
 {
     if( m_Enabled && m_CallbacksRegistered == false )
     {
         m_CallbacksRegistered = true;
 
-        MYFW_REGISTER_COMPONENT_CALLBACK( ComponentCollisionObject2D, Tick );
-        //MYFW_REGISTER_COMPONENT_CALLBACK( ComponentCollisionObject2D, OnSurfaceChanged );
-        //MYFW_REGISTER_COMPONENT_CALLBACK( ComponentCollisionObject2D, Draw );
-        //MYFW_REGISTER_COMPONENT_CALLBACK( ComponentCollisionObject2D, OnTouch );
-        //MYFW_REGISTER_COMPONENT_CALLBACK( ComponentCollisionObject2D, OnButtons );
-        //MYFW_REGISTER_COMPONENT_CALLBACK( ComponentCollisionObject2D, OnKeys );
-        //MYFW_REGISTER_COMPONENT_CALLBACK( ComponentCollisionObject2D, OnFileRenamed );
+        MYFW_REGISTER_COMPONENT_CALLBACK( Component2DCollisionObject, Tick );
+        //MYFW_REGISTER_COMPONENT_CALLBACK( Component2DCollisionObject, OnSurfaceChanged );
+        //MYFW_REGISTER_COMPONENT_CALLBACK( Component2DCollisionObject, Draw );
+        //MYFW_REGISTER_COMPONENT_CALLBACK( Component2DCollisionObject, OnTouch );
+        //MYFW_REGISTER_COMPONENT_CALLBACK( Component2DCollisionObject, OnButtons );
+        //MYFW_REGISTER_COMPONENT_CALLBACK( Component2DCollisionObject, OnKeys );
+        //MYFW_REGISTER_COMPONENT_CALLBACK( Component2DCollisionObject, OnFileRenamed );
     }
 }
 
-void ComponentCollisionObject2D::UnregisterCallbacks()
+void Component2DCollisionObject::UnregisterCallbacks()
 {
     if( m_CallbacksRegistered == true )
     {
@@ -223,7 +213,7 @@ void ComponentCollisionObject2D::UnregisterCallbacks()
     }
 }
 
-//void ComponentCollisionObject2D::SetMesh(MyMesh* pMesh)
+//void Component2DCollisionObject::SetMesh(MyMesh* pMesh)
 //{
 //    if( pMesh )
 //        pMesh->AddRef();
@@ -232,7 +222,7 @@ void ComponentCollisionObject2D::UnregisterCallbacks()
 //    m_pMesh = pMesh;
 //}
 
-void ComponentCollisionObject2D::OnPlay()
+void Component2DCollisionObject::OnPlay()
 {
     ComponentBase::OnPlay();
 
@@ -251,7 +241,7 @@ void ComponentCollisionObject2D::OnPlay()
     CreateBody();
 }
 
-void ComponentCollisionObject2D::OnStop()
+void Component2DCollisionObject::OnStop()
 {
     ComponentBase::OnStop();
 
@@ -263,7 +253,7 @@ void ComponentCollisionObject2D::OnStop()
     }
 }
 
-void ComponentCollisionObject2D::CreateBody()
+void Component2DCollisionObject::CreateBody()
 {
     MyAssert( m_pBody == 0 );
 
@@ -338,7 +328,7 @@ void ComponentCollisionObject2D::CreateBody()
     }
 }
 
-void ComponentCollisionObject2D::TickCallback(double TimePassed)
+void Component2DCollisionObject::TickCallback(double TimePassed)
 {
     //ComponentBase::Tick( TimePassed );
 
@@ -361,7 +351,7 @@ void ComponentCollisionObject2D::TickCallback(double TimePassed)
 #endif
 }
 
-void ComponentCollisionObject2D::SyncRigidBodyToTransform()
+void Component2DCollisionObject::SyncRigidBodyToTransform()
 {
     if( m_pBody == 0 )
         return;
@@ -382,25 +372,25 @@ void ComponentCollisionObject2D::SyncRigidBodyToTransform()
     //g_pBulletWorld->m_pDynamicsWorld->addRigidBody( m_pBody );
 }
 
-void ComponentCollisionObject2D::ApplyForce(Vector2 force, Vector2 point)
+void Component2DCollisionObject::ApplyForce(Vector2 force, Vector2 point)
 {
     b2Vec2 b2force = b2Vec2( force.x, force.y );
     m_pBody->ApplyForce( b2force, m_pBody->GetWorldCenter(), true );
 }
 
-void ComponentCollisionObject2D::ApplyLinearImpulse(Vector2 impulse, Vector2 point)
+void Component2DCollisionObject::ApplyLinearImpulse(Vector2 impulse, Vector2 point)
 {
     b2Vec2 b2impulse = b2Vec2( impulse.x, impulse.y );
     m_pBody->ApplyLinearImpulse( b2impulse, m_pBody->GetWorldCenter(), true );
 }
 
-Vector2 ComponentCollisionObject2D::GetLinearVelocity()
+Vector2 Component2DCollisionObject::GetLinearVelocity()
 {
     b2Vec2 b2velocity = m_pBody->GetLinearVelocity();
     return Vector2( b2velocity.x, b2velocity.y );
 }
 
-float ComponentCollisionObject2D::GetMass()
+float Component2DCollisionObject::GetMass()
 {
     return m_pBody->GetMass();
 }

@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2014-2015 Jimmy Lord http://www.flatheadgames.com
+// Copyright (c) 2014-2016 Jimmy Lord http://www.flatheadgames.com
 //
 // This software is provided 'as-is', without any express or implied warranty.  In no event will the authors be held liable for any damages arising from the use of this software.
 // Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -145,7 +145,7 @@ void LuaGameState::RegisterClasses()
     ComponentTransform::LuaRegister( m_pLuaState );
     ComponentSystemManager::LuaRegister( m_pLuaState );
     ComponentCollisionObject::LuaRegister( m_pLuaState );
-    ComponentCollisionObject2D::LuaRegister( m_pLuaState );
+    Component2DCollisionObject::LuaRegister( m_pLuaState );
     ComponentAnimationPlayer::LuaRegister( m_pLuaState );
     ComponentSprite::LuaRegister( m_pLuaState );
     ComponentMesh::LuaRegister( m_pLuaState );
