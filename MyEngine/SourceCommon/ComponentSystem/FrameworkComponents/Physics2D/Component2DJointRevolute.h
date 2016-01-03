@@ -21,8 +21,12 @@ public:
 
     Vector2 m_AnchorA;
     Vector2 m_AnchorB;
+    bool m_MotorEnabled;
+    float m_MotorSpeed;
+    float m_MotorMaxTorque;
 
     // runtime vars, filled in OnPlay();
+    b2RevoluteJoint* m_pJoint;
     b2Body* m_pBody;
     b2Body* m_pSecondBody;
 

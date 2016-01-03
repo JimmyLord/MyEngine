@@ -30,6 +30,11 @@ Component2DJointRevolute::Component2DJointRevolute()
     m_AnchorA.Set( 0, 0 );
     m_AnchorB.Set( 0, 0 );
 
+    m_MotorEnabled = false;
+    m_MotorSpeed = 0;
+    m_MotorMaxTorque = 0;
+
+    m_pJoint = 0;
     m_pBody = 0;
     m_pSecondBody = 0;
 }
@@ -46,6 +51,9 @@ void Component2DJointRevolute::RegisterVariables(CPPListHead* pList, Component2D
         (CVarFunc_ValueChanged)&Component2DJointRevolute::OnValueChanged, (CVarFunc_DropTarget)&Component2DJointRevolute::OnDrop, 0 );
     //AddVar( pList, "AnchorA", ComponentVariableType_Vector2, MyOffsetOf( pThis, &pThis->m_AnchorA ), true, true, 0, (CVarFunc_ValueChanged)&Component2DJointRevolute::OnValueChanged, 0, 0 );
     AddVar( pList, "AnchorB", ComponentVariableType_Vector2, MyOffsetOf( pThis, &pThis->m_AnchorB ), true, true, "Anchor Offset", (CVarFunc_ValueChanged)&Component2DJointRevolute::OnValueChanged, 0, 0 );
+    AddVar( pList, "MotorEnabled", ComponentVariableType_Bool, MyOffsetOf( pThis, &pThis->m_MotorEnabled ), true, true, "Motor Enabled", (CVarFunc_ValueChanged)&Component2DJointRevolute::OnValueChanged, 0, 0 );
+    AddVar( pList, "MotorSpeed", ComponentVariableType_Float, MyOffsetOf( pThis, &pThis->m_MotorSpeed ), true, true, "Motor Speed", (CVarFunc_ValueChanged)&Component2DJointRevolute::OnValueChanged, 0, 0 );
+    AddVar( pList, "MotorMaxTorque", ComponentVariableType_Float, MyOffsetOf( pThis, &pThis->m_MotorMaxTorque ), true, true, "Motor Max Torque", (CVarFunc_ValueChanged)&Component2DJointRevolute::OnValueChanged, 0, 0 );
 }
 
 void Component2DJointRevolute::Reset()
@@ -57,6 +65,11 @@ void Component2DJointRevolute::Reset()
     m_AnchorA.Set( 0, 0 );
     m_AnchorB.Set( 0, 0 );
 
+    m_MotorEnabled = false;
+    m_MotorSpeed = 0;
+    m_MotorMaxTorque = 0;
+
+    m_pJoint = 0;
     m_pBody = 0;
     m_pSecondBody = 0;
 
@@ -138,19 +151,38 @@ void* Component2DJointRevolute::OnValueChanged(ComponentVariable* pVar, bool fin
             g_pPanelWatch->ChangeDescriptionForPointerWithDescription( pVar->m_ControlID, "none" );
             oldpointer = this->m_pSecondCollisionObject;
             m_pSecondCollisionObject = 0;
+
+            g_pPanelWatch->m_NeedsRefresh = true;
         }
     }
 
-    //if( pVar->m_Offset == MyOffsetOf( this, &m_PrimitiveType ) )
-    //{
-    //    // TODO: rethink this, doesn't need refresh if panel isn't visible.
-    //    g_pPanelWatch->m_NeedsRefresh = true;
-    //}
+    // the joint will only exist if game is running.
+    if( m_pJoint )
+    {
+        if( pVar->m_Offset == MyOffsetOf( this, &m_MotorEnabled ) )
+        {
+            if( fequal( m_MotorSpeed, 0 ) == false )
+            {
+                m_pJoint->EnableMotor( true );
+                m_pJoint->SetMotorSpeed( m_MotorSpeed );
+                m_pJoint->SetMaxMotorTorque( m_MotorMaxTorque );
+            }
+            else
+            {
+                m_pJoint->EnableMotor( false );
+            }
+        }
 
-    //if( pVar->m_Offset == MyOffsetOf( this, &m_SampleVector3 ) )
-    //{
-    //    MyAssert( pVar->m_ControlID != -1 );
-    //}
+        if( pVar->m_Offset == MyOffsetOf( this, &m_MotorSpeed ) )
+        {
+            m_pJoint->SetMotorSpeed( m_MotorSpeed );
+        }
+
+        if( pVar->m_Offset == MyOffsetOf( this, &m_MotorMaxTorque ) )
+        {
+            m_pJoint->SetMaxMotorTorque( m_MotorMaxTorque );
+        }
+    }
 
     return oldpointer;
 }
@@ -168,6 +200,11 @@ Component2DJointRevolute& Component2DJointRevolute::operator=(const Component2DJ
     m_AnchorA = other.m_AnchorA;
     m_AnchorB = other.m_AnchorB;
 
+    m_MotorEnabled = other.m_MotorEnabled;
+    m_MotorSpeed = other.m_MotorSpeed;
+    m_MotorMaxTorque = other.m_MotorMaxTorque;
+
+    m_pJoint = other.m_pJoint;
     m_pBody = other.m_pBody;
     m_pSecondBody = other.m_pSecondBody;
 
@@ -216,6 +253,8 @@ void Component2DJointRevolute::OnPlay()
 
     if( m_pBody )
     {
+        b2RevoluteJointDef jointdef;
+
         if( m_pSecondBody )
         {
             Vector3 posA = m_pGameObject->m_pComponentTransform->GetPosition();
@@ -223,15 +262,11 @@ void Component2DJointRevolute::OnPlay()
             //b2Vec2 anchorpos( posB.x - posA.x + m_AnchorA.x, posB.y - posA.y + m_AnchorA.y );
             b2Vec2 anchorpos( posB.x - posA.x, posB.y - posA.y );
 
-            b2RevoluteJointDef jointdef;
-
             jointdef.bodyA = m_pBody;
             jointdef.bodyB = m_pSecondBody;
             jointdef.collideConnected = false;
             jointdef.localAnchorA = anchorpos;//m_AnchorA.x, m_AnchorA.y );
             jointdef.localAnchorB.Set( m_AnchorB.x, m_AnchorB.y );
-
-            g_pBox2DWorld->m_pWorld->CreateJoint( &jointdef );
         }
         else
         {
@@ -239,15 +274,25 @@ void Component2DJointRevolute::OnPlay()
             //b2Vec2 anchorpos( pos.x + m_AnchorA.x, pos.y + m_AnchorA.y );
             b2Vec2 anchorpos( pos.x + m_AnchorB.x, pos.y + m_AnchorB.y );
 
-            b2RevoluteJointDef jointdef;
             jointdef.Initialize( g_pBox2DWorld->m_pGround, m_pBody, anchorpos );
-
-            g_pBox2DWorld->m_pWorld->CreateJoint( &jointdef );
         }
+
+        if( m_MotorEnabled )
+        {
+            jointdef.enableMotor = true;
+            jointdef.motorSpeed = m_MotorSpeed;
+            jointdef.maxMotorTorque = m_MotorMaxTorque;
+        }
+
+        m_pJoint = (b2RevoluteJoint*)g_pBox2DWorld->m_pWorld->CreateJoint( &jointdef );
     }
 }
 
 void Component2DJointRevolute::OnStop()
 {
     ComponentBase::OnStop();
+
+    m_pJoint = 0;
+    m_pBody = 0;
+    m_pSecondBody = 0;
 }
