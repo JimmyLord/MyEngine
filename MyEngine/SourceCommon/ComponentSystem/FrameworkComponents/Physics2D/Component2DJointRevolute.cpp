@@ -34,6 +34,10 @@ Component2DJointRevolute::Component2DJointRevolute()
     m_MotorSpeed = 0;
     m_MotorMaxTorque = 0;
 
+    m_AngleLimitEnabled = false;
+    m_AngleLimitMin = 0;
+    m_AngleLimitMax = 0;
+
     m_pJoint = 0;
     m_pBody = 0;
     m_pSecondBody = 0;
@@ -49,11 +53,17 @@ void Component2DJointRevolute::RegisterVariables(CPPListHead* pList, Component2D
     AddVar( pList, "SecondCollisionObject", ComponentVariableType_ComponentPtr,
         MyOffsetOf( pThis, &pThis->m_pSecondCollisionObject ), true, true, 0,
         (CVarFunc_ValueChanged)&Component2DJointRevolute::OnValueChanged, (CVarFunc_DropTarget)&Component2DJointRevolute::OnDrop, 0 );
-    //AddVar( pList, "AnchorA", ComponentVariableType_Vector2, MyOffsetOf( pThis, &pThis->m_AnchorA ), true, true, 0, (CVarFunc_ValueChanged)&Component2DJointRevolute::OnValueChanged, 0, 0 );
-    AddVar( pList, "AnchorB", ComponentVariableType_Vector2, MyOffsetOf( pThis, &pThis->m_AnchorB ), true, true, "Anchor Offset", (CVarFunc_ValueChanged)&Component2DJointRevolute::OnValueChanged, 0, 0 );
+
+    AddVar( pList, "AnchorA", ComponentVariableType_Vector2, MyOffsetOf( pThis, &pThis->m_AnchorA ), true, true, 0, (CVarFunc_ValueChanged)&Component2DJointRevolute::OnValueChanged, 0, 0 );
+    AddVar( pList, "AnchorB", ComponentVariableType_Vector2, MyOffsetOf( pThis, &pThis->m_AnchorB ), true, true, 0, (CVarFunc_ValueChanged)&Component2DJointRevolute::OnValueChanged, 0, 0 );
+
     AddVar( pList, "MotorEnabled", ComponentVariableType_Bool, MyOffsetOf( pThis, &pThis->m_MotorEnabled ), true, true, "Motor Enabled", (CVarFunc_ValueChanged)&Component2DJointRevolute::OnValueChanged, 0, 0 );
     AddVar( pList, "MotorSpeed", ComponentVariableType_Float, MyOffsetOf( pThis, &pThis->m_MotorSpeed ), true, true, "Motor Speed", (CVarFunc_ValueChanged)&Component2DJointRevolute::OnValueChanged, 0, 0 );
     AddVar( pList, "MotorMaxTorque", ComponentVariableType_Float, MyOffsetOf( pThis, &pThis->m_MotorMaxTorque ), true, true, "Motor Max Torque", (CVarFunc_ValueChanged)&Component2DJointRevolute::OnValueChanged, 0, 0 );
+
+    AddVar( pList, "LimitEnabled", ComponentVariableType_Bool, MyOffsetOf( pThis, &pThis->m_AngleLimitEnabled ), true, true, "Angle Limit Enabled", (CVarFunc_ValueChanged)&Component2DJointRevolute::OnValueChanged, 0, 0 );
+    AddVar( pList, "LimitMin", ComponentVariableType_Float, MyOffsetOf( pThis, &pThis->m_AngleLimitMin ), true, true, "Min Angle", (CVarFunc_ValueChanged)&Component2DJointRevolute::OnValueChanged, 0, 0 );
+    AddVar( pList, "LimitMax", ComponentVariableType_Float, MyOffsetOf( pThis, &pThis->m_AngleLimitMax ), true, true, "Max Angle", (CVarFunc_ValueChanged)&Component2DJointRevolute::OnValueChanged, 0, 0 );
 }
 
 void Component2DJointRevolute::Reset()
@@ -68,6 +78,10 @@ void Component2DJointRevolute::Reset()
     m_MotorEnabled = false;
     m_MotorSpeed = 0;
     m_MotorMaxTorque = 0;
+
+    m_AngleLimitEnabled = false;
+    m_AngleLimitMin = 0;
+    m_AngleLimitMax = 0;
 
     m_pJoint = 0;
     m_pBody = 0;
@@ -156,6 +170,19 @@ void* Component2DJointRevolute::OnValueChanged(ComponentVariable* pVar, bool fin
         }
     }
 
+    // sanity check on angle limits.
+    if( pVar->m_Offset == MyOffsetOf( this, &m_AngleLimitMin ) )
+    {
+        if( m_AngleLimitMin > m_AngleLimitMax )
+            m_AngleLimitMin = m_AngleLimitMax;
+    }
+
+    if( pVar->m_Offset == MyOffsetOf( this, &m_AngleLimitMax ) )
+    {
+        if( m_AngleLimitMax < m_AngleLimitMin )
+            m_AngleLimitMax = m_AngleLimitMin;
+    }
+
     // the joint will only exist if game is running.
     if( m_pJoint )
     {
@@ -182,6 +209,29 @@ void* Component2DJointRevolute::OnValueChanged(ComponentVariable* pVar, bool fin
         {
             m_pJoint->SetMaxMotorTorque( m_MotorMaxTorque );
         }
+
+        if( pVar->m_Offset == MyOffsetOf( this, &m_AngleLimitEnabled ) )
+        {
+            if( fequal( m_MotorSpeed, 0 ) == false )
+            {
+                m_pJoint->EnableLimit( true );
+                m_pJoint->SetLimits( m_AngleLimitMin * PI/180, m_AngleLimitMax * PI/180 );
+            }
+            else
+            {
+                m_pJoint->EnableMotor( false );
+            }
+        }
+
+        if( pVar->m_Offset == MyOffsetOf( this, &m_AngleLimitMin ) )
+        {
+            m_pJoint->SetLimits( m_AngleLimitMin * PI/180, m_AngleLimitMax * PI/180 );
+        }
+
+        if( pVar->m_Offset == MyOffsetOf( this, &m_AngleLimitMax ) )
+        {
+            m_pJoint->SetLimits( m_AngleLimitMin * PI/180, m_AngleLimitMax * PI/180 );
+        }
     }
 
     return oldpointer;
@@ -203,6 +253,10 @@ Component2DJointRevolute& Component2DJointRevolute::operator=(const Component2DJ
     m_MotorEnabled = other.m_MotorEnabled;
     m_MotorSpeed = other.m_MotorSpeed;
     m_MotorMaxTorque = other.m_MotorMaxTorque;
+
+    m_AngleLimitEnabled = other.m_AngleLimitEnabled;
+    m_AngleLimitMin = other.m_AngleLimitMin;
+    m_AngleLimitMax = other.m_AngleLimitMax;
 
     m_pJoint = other.m_pJoint;
     m_pBody = other.m_pBody;
@@ -260,21 +314,22 @@ void Component2DJointRevolute::OnPlay()
             Vector3 posA = m_pGameObject->m_pComponentTransform->GetPosition();
             Vector3 posB = m_pSecondCollisionObject->m_pGameObject->m_pComponentTransform->GetPosition();
             //b2Vec2 anchorpos( posB.x - posA.x + m_AnchorA.x, posB.y - posA.y + m_AnchorA.y );
-            b2Vec2 anchorpos( posB.x - posA.x, posB.y - posA.y );
+            //b2Vec2 anchorpos( (posB.x - m_AnchorB.x) - posA.x, (posB.y - m_AnchorB.y) - posA.y );
 
             jointdef.bodyA = m_pBody;
             jointdef.bodyB = m_pSecondBody;
             jointdef.collideConnected = false;
-            jointdef.localAnchorA = anchorpos;//m_AnchorA.x, m_AnchorA.y );
+            //jointdef.localAnchorA = anchorpos;//m_AnchorA.x, m_AnchorA.y );
+            jointdef.localAnchorA.Set( m_AnchorA.x, m_AnchorA.y );
             jointdef.localAnchorB.Set( m_AnchorB.x, m_AnchorB.y );
         }
         else
         {
             Vector3 pos = m_pGameObject->m_pComponentTransform->GetPosition();
-            //b2Vec2 anchorpos( pos.x + m_AnchorA.x, pos.y + m_AnchorA.y );
-            b2Vec2 anchorpos( pos.x + m_AnchorB.x, pos.y + m_AnchorB.y );
+            b2Vec2 anchorpos( pos.x + m_AnchorA.x, pos.y + m_AnchorA.y );
+            //b2Vec2 anchorpos( pos.x + m_AnchorB.x, pos.y + m_AnchorB.y );
 
-            jointdef.Initialize( g_pBox2DWorld->m_pGround, m_pBody, anchorpos );
+            jointdef.Initialize( m_pBody, g_pBox2DWorld->m_pGround, anchorpos );
         }
 
         if( m_MotorEnabled )
@@ -282,6 +337,13 @@ void Component2DJointRevolute::OnPlay()
             jointdef.enableMotor = true;
             jointdef.motorSpeed = m_MotorSpeed;
             jointdef.maxMotorTorque = m_MotorMaxTorque;
+        }
+
+        if( m_AngleLimitEnabled )
+        {
+            jointdef.enableLimit = true;
+            jointdef.lowerAngle = m_AngleLimitMin * PI/180;
+            jointdef.upperAngle = m_AngleLimitMax * PI/180;
         }
 
         m_pJoint = (b2RevoluteJoint*)g_pBox2DWorld->m_pWorld->CreateJoint( &jointdef );

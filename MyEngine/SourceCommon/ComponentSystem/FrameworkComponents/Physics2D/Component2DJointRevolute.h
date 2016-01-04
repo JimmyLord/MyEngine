@@ -24,6 +24,9 @@ public:
     bool m_MotorEnabled;
     float m_MotorSpeed;
     float m_MotorMaxTorque;
+    bool m_AngleLimitEnabled;
+    float m_AngleLimitMin;
+    float m_AngleLimitMax;
 
     // runtime vars, filled in OnPlay();
     b2RevoluteJoint* m_pJoint;
