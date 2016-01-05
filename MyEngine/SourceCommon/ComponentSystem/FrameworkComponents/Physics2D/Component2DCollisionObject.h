@@ -33,9 +33,13 @@ public:
 
     int m_PrimitiveType;
 
+    Vector3 m_Scale;
+
     bool m_Static;
     float m_Density;
-    Vector3 m_Scale;
+    bool m_IsSensor;
+    float m_Friction;
+    float m_Restitution;
     //MyMesh* m_pMesh;
 
 public:

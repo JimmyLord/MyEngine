@@ -40,9 +40,13 @@ Component2DCollisionObject::Component2DCollisionObject()
 
     m_PrimitiveType = Physics2DPrimitiveType_Box;
 
+    m_Scale.Set( 1,1,1 );
+
     m_Static = false;
     m_Density = 0;
-    m_Scale.Set( 1,1,1 );
+    m_IsSensor = false;
+    m_Friction = 0.2f;
+    m_Restitution = 0;
     //m_pMesh = 0;
 }
 
@@ -61,8 +65,13 @@ Component2DCollisionObject::~Component2DCollisionObject()
 void Component2DCollisionObject::RegisterVariables(CPPListHead* pList, Component2DCollisionObject* pThis) //_VARIABLE_LIST
 {
     AddVarEnum( pList, "PrimitiveType", MyOffsetOf( pThis, &pThis->m_PrimitiveType ),   true, true, "Primitive Type", Physics2DPrimitive_NumTypes, Physics2DPrimitiveTypeStrings, (CVarFunc_ValueChanged)&Component2DCollisionObject::OnValueChanged, 0, 0 );
+
     AddVar( pList, "Static",        ComponentVariableType_Bool,  MyOffsetOf( pThis, &pThis->m_Static ),          true, true, 0, (CVarFunc_ValueChanged)&Component2DCollisionObject::OnValueChanged, 0, 0 );
     AddVar( pList, "Density",       ComponentVariableType_Float, MyOffsetOf( pThis, &pThis->m_Density ),         true, true, 0, (CVarFunc_ValueChanged)&Component2DCollisionObject::OnValueChanged, 0, 0 );
+    AddVar( pList, "IsSensor",      ComponentVariableType_Bool,  MyOffsetOf( pThis, &pThis->m_IsSensor ),        true, true, 0, (CVarFunc_ValueChanged)&Component2DCollisionObject::OnValueChanged, 0, 0 );
+    AddVar( pList, "Friction",      ComponentVariableType_Float, MyOffsetOf( pThis, &pThis->m_Friction ),        true, true, 0, (CVarFunc_ValueChanged)&Component2DCollisionObject::OnValueChanged, 0, 0 );
+    AddVar( pList, "Restitution",   ComponentVariableType_Float, MyOffsetOf( pThis, &pThis->m_Restitution ),     true, true, 0, (CVarFunc_ValueChanged)&Component2DCollisionObject::OnValueChanged, 0, 0 );
+
     //AddVar( pList, "Scale",         ComponentVariableType_Float, MyOffsetOf( pThis, &pThis->m_Scale ),           true, true, 0, (CVarFunc_ValueChanged)&Component2DCollisionObject::OnValueChanged, 0, 0 );
 }
 
@@ -74,9 +83,13 @@ void Component2DCollisionObject::Reset()
 
     m_pComponentLuaScript = 0;
 
+    m_Scale.Set( 1,1,1 );
+
     m_Static = false;
     m_Density = 0;
-    m_Scale.Set( 1,1,1 );
+    m_IsSensor = false;
+    m_Friction = 0.2f;
+    m_Restitution = 0;
     //SAFE_RELEASE( m_pMesh );
 
 #if MYFW_USING_WX
@@ -149,10 +162,67 @@ void* Component2DCollisionObject::OnValueChanged(ComponentVariable* pVar, bool f
         g_pPanelWatch->m_NeedsRefresh = true;
     }
 
-    //if( pVar->m_Offset == MyOffsetOf( this, &m_SampleVector3 ) )
-    //{
-    //    MyAssert( pVar->m_ControlID != -1 );
-    //}
+    // limit some properties
+    if( pVar->m_Offset == MyOffsetOf( this, &m_Density ) )
+    {
+        if( m_Density < 0 )
+            m_Density = 0;
+    }
+
+    if( pVar->m_Offset == MyOffsetOf( this, &m_Friction ) )
+    {
+        MyClamp( m_Friction, 0.0f, 1.0f );
+    }
+
+    if( pVar->m_Offset == MyOffsetOf( this, &m_Restitution ) )
+    {
+        MyClamp( m_Restitution, 0.0f, 1.0f );
+    }
+
+    // if a body exists, game is running, change the already existing body or fixture.
+    if( m_pBody )
+    {
+        if( pVar->m_Offset == MyOffsetOf( this, &m_Static ) )
+        {
+            if( m_Static )
+                m_pBody->SetType( b2_staticBody );
+            else
+                m_pBody->SetType( b2_dynamicBody );
+        }
+
+        if( pVar->m_Offset == MyOffsetOf( this, &m_Density ) )
+        {
+            for( b2Fixture* pFixture = m_pBody->GetFixtureList(); pFixture != 0; pFixture = pFixture->GetNext() )
+            {
+                pFixture->SetDensity( m_Density );
+            }
+            m_pBody->ResetMassData();
+        }
+
+        if( pVar->m_Offset == MyOffsetOf( this, &m_IsSensor ) )
+        {
+            for( b2Fixture* pFixture = m_pBody->GetFixtureList(); pFixture != 0; pFixture = pFixture->GetNext() )
+            {
+                pFixture->SetSensor( m_IsSensor );
+            }
+        }
+
+        if( pVar->m_Offset == MyOffsetOf( this, &m_Friction ) )
+        {
+            for( b2Fixture* pFixture = m_pBody->GetFixtureList(); pFixture != 0; pFixture = pFixture->GetNext() )
+            {
+                pFixture->SetFriction( m_Friction );
+            }
+        }
+
+        if( pVar->m_Offset == MyOffsetOf( this, &m_Restitution ) )
+        {
+            for( b2Fixture* pFixture = m_pBody->GetFixtureList(); pFixture != 0; pFixture = pFixture->GetNext() )
+            {
+                pFixture->SetRestitution( m_Restitution );
+            }
+        }
+    }
 
     return oldpointer;
 }
@@ -173,9 +243,14 @@ Component2DCollisionObject& Component2DCollisionObject::operator=(const Componen
     // TODO: replace this with a CopyComponentVariablesFromOtherObject... or something similar.
     m_PrimitiveType = other.m_PrimitiveType;
 
+    //m_Scale = other.m_Scale;
+
     m_Static = other.m_Static;
     m_Density = other.m_Density;
-    //m_Scale = other.m_Scale;
+    m_IsSensor = other.m_IsSensor;
+    m_Friction = other.m_Friction;
+    m_Restitution = other.m_Restitution;
+
     //m_pMesh
 
     return *this;
@@ -288,6 +363,9 @@ void Component2DCollisionObject::CreateBody()
                 b2FixtureDef fixturedef;
                 fixturedef.shape = &boxshape;
                 fixturedef.density = m_Density;
+                fixturedef.isSensor = m_IsSensor;
+                fixturedef.friction = m_Friction;
+                fixturedef.restitution = m_Restitution;
 
                 m_pBody->CreateFixture( &fixturedef );
             }
@@ -302,6 +380,9 @@ void Component2DCollisionObject::CreateBody()
                 b2FixtureDef fixturedef;
                 fixturedef.shape = &circleshape;
                 fixturedef.density = m_Density;
+                fixturedef.isSensor = m_IsSensor;
+                fixturedef.friction = m_Friction;
+                fixturedef.restitution = m_Restitution;
 
                 m_pBody->CreateFixture( &fixturedef );
             }
@@ -320,6 +401,9 @@ void Component2DCollisionObject::CreateBody()
                 b2FixtureDef fixturedef;
                 fixturedef.shape = &edgeshape;
                 fixturedef.density = m_Density;
+                fixturedef.isSensor = m_IsSensor;
+                fixturedef.friction = m_Friction;
+                fixturedef.restitution = m_Restitution;
 
                 m_pBody->CreateFixture( &fixturedef );
             }

@@ -311,8 +311,24 @@ void ComponentBase::ExportVariablesToJSON(cJSON* jComponent)
             switch( pVar->m_Type )
             {
             case ComponentVariableType_Int:
-            case ComponentVariableType_Enum:
                 cJSON_AddNumberToObject( jComponent, pVar->m_Label, *(int*)((char*)this + pVar->m_Offset) );
+                break;
+
+            case ComponentVariableType_Enum:
+                {
+                    int enumvalue = *(int*)((char*)this + pVar->m_Offset);
+
+                    // Save the enum string value.
+                    if( enumvalue >= 0 && enumvalue < pVar->m_NumEnumStrings )
+                    {
+                        cJSON_AddStringToObject( jComponent, pVar->m_Label, pVar->m_ppEnumStrings[enumvalue] );
+                    }
+                    else
+                    {
+                        // if out of range, save as an int.
+                        cJSON_AddNumberToObject( jComponent, pVar->m_Label, enumvalue );
+                    }
+                }
                 break;
 
             case ComponentVariableType_UnsignedInt:
@@ -415,8 +431,34 @@ void ComponentBase::ImportVariablesFromJSON(cJSON* jsonobj, const char* singlela
             switch( pVar->m_Type )
             {
             case ComponentVariableType_Int:
-            case ComponentVariableType_Enum:
                 cJSONExt_GetInt( jsonobj, pVar->m_Label, (int*)((char*)this + pVar->m_Offset) );
+                break;
+
+            case ComponentVariableType_Enum:
+                {
+                    cJSON* obj = cJSON_GetObjectItem( jsonobj, pVar->m_Label );
+
+                    if( obj )
+                    {
+                        // try to load the value as a string.
+                        if( obj->valuestring != 0 )
+                        {
+                            for( int i=0; i<pVar->m_NumEnumStrings; i++ )
+                            {
+                                if( strcmp( pVar->m_ppEnumStrings[i], obj->valuestring ) == 0 )
+                                {
+                                    *(int*)((char*)this + pVar->m_Offset) = i;
+                                    break;
+                                }
+                            }
+                        }
+                        else
+                        {
+                            // if a string wasn't found, then treat the value as an int.
+                            *(int*)((char*)this + pVar->m_Offset) = obj->valueint;
+                        }
+                    }
+                }
                 break;
 
             case ComponentVariableType_UnsignedInt:
