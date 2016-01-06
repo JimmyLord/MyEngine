@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015 Jimmy Lord http://www.flatheadgames.com
+// Copyright (c) 2015-2016 Jimmy Lord http://www.flatheadgames.com
 //
 // This software is provided 'as-is', without any express or implied warranty.  In no event will the authors be held liable for any damages arising from the use of this software.
 // Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -16,10 +16,12 @@ bool ComponentMeshPrimitive::m_PanelWatchBlockVisible = true;
 // Component Variable List
 MYFW_COMPONENT_IMPLEMENT_VARIABLE_LIST( ComponentMeshPrimitive ); //_VARIABLE_LIST
 
+// These strings are used to save, so don't change them.
 const char* ComponentMeshPrimitiveTypeStrings[ComponentMeshPrimitive_NumTypes] =
 {
     "Plane",
     "Icosphere",
+    "2DCircle",
 };
 
 ComponentMeshPrimitive::ComponentMeshPrimitive()
@@ -118,6 +120,16 @@ bool ComponentMeshPrimitive::ShouldVariableBeAddedToWatchPanel(ComponentVariable
     }
 
     if( m_MeshPrimitiveType == ComponentMeshPrimitive_Icosphere )
+    {
+        if( strcmp( pVar->m_Label, "PlaneSize" ) == 0 )          return false;
+        if( strcmp( pVar->m_Label, "PlaneVertCountx" ) == 0 )    return false;
+        if( strcmp( pVar->m_Label, "PlaneVertCounty" ) == 0 )    return false;
+        if( strcmp( pVar->m_Label, "PlaneUVStart" ) == 0 )       return false;
+        if( strcmp( pVar->m_Label, "PlaneUVRange" ) == 0 )       return false;
+        if( strcmp( pVar->m_Label, "SphereRadius" ) == 0 )       return true;
+    }
+
+    if( m_MeshPrimitiveType == ComponentMeshPrimitive_2DCircle )
     {
         if( strcmp( pVar->m_Label, "PlaneSize" ) == 0 )          return false;
         if( strcmp( pVar->m_Label, "PlaneVertCountx" ) == 0 )    return false;
@@ -241,6 +253,10 @@ void ComponentMeshPrimitive::CreatePrimitive()
     else if( m_MeshPrimitiveType == ComponentMeshPrimitive_Icosphere )
     {
         m_pMesh->CreateIcosphere( m_Sphere_Radius, 0 );
+    }
+    else if( m_MeshPrimitiveType == ComponentMeshPrimitive_2DCircle )
+    {
+        m_pMesh->Create2DCircle( m_Sphere_Radius, 20 );
     }
 }
 
