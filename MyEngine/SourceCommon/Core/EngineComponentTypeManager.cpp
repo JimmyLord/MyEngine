@@ -14,21 +14,22 @@
 // name(2nd column) is saved into the scene files, changing it will break objects.
 ComponentTypeInfo g_EngineComponentTypeInfo[Component_NumEngineComponentTypes] = // ADDING_NEW_ComponentType
 {
-    { "Camera",         "Camera",              },  //ComponentType_Camera,
-    { "Renderables",    "Sprite",              },  //ComponentType_Sprite,
-    { "Renderables",    "Mesh",                },  //ComponentType_Mesh,
-    { "Renderables",    "Mesh-OBJ",            },  //ComponentType_MeshOBJ,
-    { "Renderables",    "Mesh-Primitive",      },  //ComponentType_MeshPrimitive,
-    { "Lighting",       "Light",               },  //ComponentType_Light,
-    { "Lighting",       "Shadow Dir Light",    },  //ComponentType_CameraShadow,
-    { "Effects",        "Post Effect Quad",    },  //ComponentType_PostEffect,
-    { "Physics",        "Collision Object",    },  //ComponentType_CollisionObject,
-    { "Physics",        "2D Collision Object", },  //ComponentType_2DCollisionObject,
-    { "Physics",        "2D Joint - Revolute", },  //ComponentType_2DJointRevolute,
-    { "Scripts",        "Lua Script",          },  //ComponentType_LuaScript,
-    { "Particles",      "Particle Emitter",    },  //ComponentType_ParticleEmitter,
-    { "Animation",      "Animation Player",    },  //ComponentType_AnimationPlayer,
-    { "Menus",          "Menu Page",           },  //ComponentType_MenuPage,
+    { "Camera",         "Camera",               },  //ComponentType_Camera,
+    { "Renderables",    "Sprite",               },  //ComponentType_Sprite,
+    { "Renderables",    "Mesh",                 },  //ComponentType_Mesh,
+    { "Renderables",    "Mesh-OBJ",             },  //ComponentType_MeshOBJ,
+    { "Renderables",    "Mesh-Primitive",       },  //ComponentType_MeshPrimitive,
+    { "Lighting",       "Light",                },  //ComponentType_Light,
+    { "Lighting",       "Shadow Dir Light",     },  //ComponentType_CameraShadow,
+    { "Effects",        "Post Effect Quad",     },  //ComponentType_PostEffect,
+    { "Physics",        "Collision Object",     },  //ComponentType_CollisionObject,
+    { "Physics",        "2D Collision Object",  },  //ComponentType_2DCollisionObject,
+    { "Physics",        "2D Joint - Revolute",  },  //ComponentType_2DJointRevolute,
+    { "Physics",        "2D Joint - Prismatic", },  //ComponentType_2DJointPrismatic,
+    { "Scripts",        "Lua Script",           },  //ComponentType_LuaScript,
+    { "Particles",      "Particle Emitter",     },  //ComponentType_ParticleEmitter,
+    { "Animation",      "Animation Player",     },  //ComponentType_AnimationPlayer,
+    { "Menus",          "Menu Page",            },  //ComponentType_MenuPage,
 };
 
 ComponentBase* EngineComponentTypeManager::CreateComponent(int type)
@@ -50,6 +51,7 @@ ComponentBase* EngineComponentTypeManager::CreateComponent(int type)
     case ComponentType_CollisionObject:     pComponent = MyNew ComponentCollisionObject;    break;
     case ComponentType_2DCollisionObject:   pComponent = MyNew Component2DCollisionObject;  break;
     case ComponentType_2DJointRevolute:     pComponent = MyNew Component2DJointRevolute;    break;
+    case ComponentType_2DJointPrismatic:    pComponent = MyNew Component2DJointPrismatic;   break;
 #if MYFW_USING_LUA
     case ComponentType_LuaScript:           pComponent = MyNew ComponentLuaScript;          break;
 #else

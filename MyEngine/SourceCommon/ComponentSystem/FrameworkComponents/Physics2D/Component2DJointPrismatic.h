@@ -7,14 +7,14 @@
 // 2. Altered source versions must be plainly marked as such, and must not be misrepresented as being the original software.
 // 3. This notice may not be removed or altered from any source distribution.
 
-#ifndef __Component2DJointRevolute_H__
-#define __Component2DJointRevolute_H__
+#ifndef __Component2DJointPrismatic_H__
+#define __Component2DJointPrismatic_H__
 
-class Component2DJointRevolute : public ComponentBase
+class Component2DJointPrismatic : public ComponentBase
 {
 private:
     // Component Variable List
-    MYFW_COMPONENT_DECLARE_VARIABLE_LIST( Component2DJointRevolute );
+    MYFW_COMPONENT_DECLARE_VARIABLE_LIST( Component2DJointPrismatic );
 
 public:
     Component2DCollisionObject* m_pSecondCollisionObject;
@@ -23,21 +23,21 @@ public:
     Vector2 m_AnchorB;
     bool m_MotorEnabled;
     float m_MotorSpeed;
-    float m_MotorMaxTorque;
-    bool m_AngleLimitEnabled;
-    float m_AngleLimitMin;
-    float m_AngleLimitMax;
+    float m_MotorMaxForce;
+    bool m_TranslationLimitEnabled;
+    float m_TranslationLimitMin;
+    float m_TranslationLimitMax;
 
     // runtime vars, filled in OnPlay();
-    b2RevoluteJoint* m_pJoint;
+    b2PrismaticJoint* m_pJoint;
     b2Body* m_pBody;
     b2Body* m_pSecondBody;
 
 public:
-    Component2DJointRevolute();
-    virtual ~Component2DJointRevolute();
-    SetClassnameBase( "2DJoint-RevoluteComponent" ); // only first 8 character count. // "2DJoint-"
-    //SetClassnameWithParent( "2DRevoluteComponent", "2DJoint" ); // only first 8 character count.
+    Component2DJointPrismatic();
+    virtual ~Component2DJointPrismatic();
+    SetClassnameBase( "2DJoint-PrismaticComponent" ); // only first 8 character count. // "2DJoint-"
+    //SetClassnameWithParent( "2DPrismaticComponent", "2DJoint" ); // only first 8 character count.
 
 #if MYFW_USING_LUA
     static void LuaRegister(lua_State* luastate);
@@ -47,8 +47,8 @@ public:
     //virtual void ImportFromJSONObject(cJSON* jsonobj, unsigned int sceneid);
 
     virtual void Reset();
-    virtual void CopyFromSameType_Dangerous(ComponentBase* pObject) { *this = (Component2DJointRevolute&)*pObject; }
-    Component2DJointRevolute& operator=(const Component2DJointRevolute& other);
+    virtual void CopyFromSameType_Dangerous(ComponentBase* pObject) { *this = (Component2DJointPrismatic&)*pObject; }
+    Component2DJointPrismatic& operator=(const Component2DJointPrismatic& other);
 
     virtual void RegisterCallbacks();
     virtual void UnregisterCallbacks();
@@ -73,7 +73,7 @@ public:
     virtual void AddToObjectsPanel(wxTreeItemId gameobjectid);
 
     // Object panel callbacks.
-    static void StaticOnLeftClick(void* pObjectPtr, wxTreeItemId id, unsigned int count) { ((Component2DJointRevolute*)pObjectPtr)->OnLeftClick( count, true ); }
+    static void StaticOnLeftClick(void* pObjectPtr, wxTreeItemId id, unsigned int count) { ((Component2DJointPrismatic*)pObjectPtr)->OnLeftClick( count, true ); }
     void OnLeftClick(unsigned int count, bool clear);
     virtual void FillPropertiesWindow(bool clear, bool addcomponentvariables = false, bool ignoreblockvisibleflag = false);
 
@@ -83,4 +83,4 @@ public:
 #endif //MYFW_USING_WX
 };
 
-#endif //__Component2DJointRevolute_H__
+#endif //__Component2DJointPrismatic_H__

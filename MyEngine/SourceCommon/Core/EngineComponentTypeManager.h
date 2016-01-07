@@ -25,6 +25,7 @@ enum EngineComponentTypes // search for ADDING_NEW_ComponentType
     ComponentType_CollisionObject,
     ComponentType_2DCollisionObject,
     ComponentType_2DJointRevolute,
+    ComponentType_2DJointPrismatic,
     ComponentType_LuaScript,
     ComponentType_ParticleEmitter,
     ComponentType_AnimationPlayer,

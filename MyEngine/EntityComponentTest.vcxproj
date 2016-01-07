@@ -1700,6 +1700,7 @@
     <ClCompile Include="SourceCommon\ComponentSystem\FrameworkComponents\ComponentPostEffect.cpp" />
     <ClCompile Include="SourceCommon\ComponentSystem\FrameworkComponents\ComponentSprite.cpp" />
     <ClCompile Include="SourceCommon\ComponentSystem\FrameworkComponents\Physics2D\Component2DCollisionObject.cpp" />
+    <ClCompile Include="SourceCommon\ComponentSystem\FrameworkComponents\Physics2D\Component2DJointPrismatic.cpp" />
     <ClCompile Include="SourceCommon\ComponentSystem\FrameworkComponents\Physics2D\Component2DJointRevolute.cpp" />
     <ClCompile Include="SourceCommon\Core\BulletWorld.cpp" />
     <ClCompile Include="SourceCommon\Core\EditorState.cpp">
@@ -1887,6 +1888,7 @@
     <ClInclude Include="SourceCommon\ComponentSystem\FrameworkComponents\ComponentPostEffect.h" />
     <ClInclude Include="SourceCommon\ComponentSystem\FrameworkComponents\ComponentSprite.h" />
     <ClInclude Include="SourceCommon\ComponentSystem\FrameworkComponents\Physics2D\Component2DCollisionObject.h" />
+    <ClInclude Include="SourceCommon\ComponentSystem\FrameworkComponents\Physics2D\Component2DJointPrismatic.h" />
     <ClInclude Include="SourceCommon\ComponentSystem\FrameworkComponents\Physics2D\Component2DJointRevolute.h" />
     <ClInclude Include="SourceCommon\Core\BulletWorld.h" />
     <ClInclude Include="SourceCommon\Core\EditorState.h">

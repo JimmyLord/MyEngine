@@ -85,6 +85,7 @@ extern "C"
 #include "ComponentSystem/FrameworkComponents/ComponentCollisionObject.h"
 #include "ComponentSystem/FrameworkComponents/Physics2D/Component2DCollisionObject.h"
 #include "ComponentSystem/FrameworkComponents/Physics2D/Component2DJointRevolute.h"
+#include "ComponentSystem/FrameworkComponents/Physics2D/Component2DJointPrismatic.h"
 
 // Physics code
 #include "Physics/EngineBox2DContactListener.h"
