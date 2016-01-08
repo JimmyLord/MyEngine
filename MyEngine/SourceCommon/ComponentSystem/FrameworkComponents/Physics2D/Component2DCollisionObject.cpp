@@ -339,10 +339,12 @@ void Component2DCollisionObject::CreateBody()
     if( m_pBody == 0 )
     {
         Vector3 pos = m_pGameObject->m_pComponentTransform->GetPosition();
+        Vector3 rot = m_pGameObject->m_pComponentTransform->GetLocalRotation();
 
         b2BodyDef bodydef;
         
         bodydef.position = b2Vec2( pos.x, pos.y );
+        bodydef.angle = -rot.z / 180 * PI;
         if( m_Static )
             bodydef.type = b2_staticBody;
         else

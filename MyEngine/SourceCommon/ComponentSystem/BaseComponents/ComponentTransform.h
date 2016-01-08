@@ -76,6 +76,7 @@ public:
     Vector3 GetLocalRotation() { return m_Rotation; }
     MyMatrix GetLocalRotPosMatrix();
     MyMatrix* GetLocalTransform() { return &m_LocalTransform; }
+    MyMatrix* GetTransform() { return &m_Transform; }
 
     void SetParentTransform(ComponentTransform* pNewParent, bool unregisterondeletecallback = true);
     void UpdatePosAndRotFromLocalMatrix();

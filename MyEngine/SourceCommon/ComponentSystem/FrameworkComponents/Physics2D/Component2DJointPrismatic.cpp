@@ -329,7 +329,9 @@ void Component2DJointPrismatic::OnPlay()
             b2Vec2 anchorpos( pos.x + m_AnchorA.x, pos.y + m_AnchorA.y );
             //b2Vec2 anchorpos( pos.x + m_AnchorB.x, pos.y + m_AnchorB.y );
 
-            jointdef.Initialize( m_pBody, g_pBox2DWorld->m_pGround, anchorpos, b2Vec2( 0, 1 ) );
+            MyMatrix* transform = m_pGameObject->m_pComponentTransform->GetTransform();
+            Vector3 up = transform->GetUp();
+            jointdef.Initialize( m_pBody, g_pBox2DWorld->m_pGround, anchorpos, b2Vec2( up.x, up.y ) );
         }
 
         if( m_MotorEnabled )
