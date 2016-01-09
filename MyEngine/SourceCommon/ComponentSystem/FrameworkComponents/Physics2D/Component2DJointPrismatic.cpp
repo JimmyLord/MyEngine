@@ -27,6 +27,7 @@ Component2DJointPrismatic::Component2DJointPrismatic()
 
     m_pSecondCollisionObject = 0;
     
+    m_Up.Set( 0, 1 );
     m_AnchorA.Set( 0, 0 );
     m_AnchorB.Set( 0, 0 );
 
@@ -54,6 +55,8 @@ void Component2DJointPrismatic::RegisterVariables(CPPListHead* pList, Component2
         MyOffsetOf( pThis, &pThis->m_pSecondCollisionObject ), true, true, 0,
         (CVarFunc_ValueChanged)&Component2DJointPrismatic::OnValueChanged, (CVarFunc_DropTarget)&Component2DJointPrismatic::OnDrop, 0 );
 
+    AddVar( pList, "Up", ComponentVariableType_Vector2, MyOffsetOf( pThis, &pThis->m_Up ), true, true, 0, (CVarFunc_ValueChanged)&Component2DJointPrismatic::OnValueChanged, 0, 0 );
+
     AddVar( pList, "AnchorA", ComponentVariableType_Vector2, MyOffsetOf( pThis, &pThis->m_AnchorA ), true, true, 0, (CVarFunc_ValueChanged)&Component2DJointPrismatic::OnValueChanged, 0, 0 );
     AddVar( pList, "AnchorB", ComponentVariableType_Vector2, MyOffsetOf( pThis, &pThis->m_AnchorB ), true, true, 0, (CVarFunc_ValueChanged)&Component2DJointPrismatic::OnValueChanged, 0, 0 );
 
@@ -71,6 +74,8 @@ void Component2DJointPrismatic::Reset()
     ComponentBase::Reset();
 
     m_pSecondCollisionObject = 0;
+
+    m_Up.Set( 0, 1 );
 
     m_AnchorA.Set( 0, 0 );
     m_AnchorB.Set( 0, 0 );
@@ -247,6 +252,8 @@ Component2DJointPrismatic& Component2DJointPrismatic::operator=(const Component2
     // TODO: replace this with a CopyComponentVariablesFromOtherObject... or something similar.
     m_pSecondCollisionObject = other.m_pSecondCollisionObject;
 
+    m_Up = other.m_Up;
+
     m_AnchorA = other.m_AnchorA;
     m_AnchorB = other.m_AnchorB;
 
@@ -329,8 +336,9 @@ void Component2DJointPrismatic::OnPlay()
             b2Vec2 anchorpos( pos.x + m_AnchorA.x, pos.y + m_AnchorA.y );
             //b2Vec2 anchorpos( pos.x + m_AnchorB.x, pos.y + m_AnchorB.y );
 
-            MyMatrix* transform = m_pGameObject->m_pComponentTransform->GetTransform();
-            Vector3 up = transform->GetUp();
+            MyMatrix transform = *m_pGameObject->m_pComponentTransform->GetTransform();
+            Vector4 up = transform * Vector4( m_Up, 0, 0 ).GetNormalized();
+            up.Normalize();
             jointdef.Initialize( m_pBody, g_pBox2DWorld->m_pGround, anchorpos, b2Vec2( up.x, up.y ) );
         }
 

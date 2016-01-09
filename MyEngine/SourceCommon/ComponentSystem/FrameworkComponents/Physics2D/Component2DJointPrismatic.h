@@ -19,6 +19,7 @@ private:
 public:
     Component2DCollisionObject* m_pSecondCollisionObject;
 
+    Vector2 m_Up; // up vector is in object space.
     Vector2 m_AnchorA;
     Vector2 m_AnchorB;
     bool m_MotorEnabled;
