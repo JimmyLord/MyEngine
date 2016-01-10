@@ -56,7 +56,7 @@ Component2DCollisionObject::~Component2DCollisionObject()
 
     if( m_pBody )
     {
-        g_pBox2DWorld->m_pWorld->DestroyBody( m_pBody );
+        GetSceneInfo()->m_pBox2DWorld->m_pWorld->DestroyBody( m_pBody );
     }
 
     //SAFE_RELEASE( m_pMesh );
@@ -309,7 +309,7 @@ void Component2DCollisionObject::OnPlay()
     MyAssert( m_pBody == 0 );
     if( m_pBody != 0 )
     {
-        g_pBox2DWorld->m_pWorld->DestroyBody( m_pBody );
+        GetSceneInfo()->m_pBox2DWorld->m_pWorld->DestroyBody( m_pBody );
         m_pBody = 0;
     }
 
@@ -323,7 +323,7 @@ void Component2DCollisionObject::OnStop()
     // shouldn't get hit, all objects are deleted/recreated when gameplay is stopped.
     if( m_pBody )
     {
-        g_pBox2DWorld->m_pWorld->DestroyBody( m_pBody );
+        GetSceneInfo()->m_pBox2DWorld->m_pWorld->DestroyBody( m_pBody );
         m_pBody = 0;
     }
 }
@@ -350,7 +350,7 @@ void Component2DCollisionObject::CreateBody()
         else
             bodydef.type = b2_dynamicBody;
 
-        m_pBody = g_pBox2DWorld->m_pWorld->CreateBody( &bodydef );
+        m_pBody = GetSceneInfo()->m_pBox2DWorld->m_pWorld->CreateBody( &bodydef );
         m_pBody->SetUserData( this );
 
         m_Scale = m_pGameObject->m_pComponentTransform->GetLocalScale();
@@ -441,21 +441,6 @@ void Component2DCollisionObject::SyncRigidBodyToTransform()
 {
     if( m_pBody == 0 )
         return;
-
-    //btTransform transform;
-    ////btVector3 pos(m_pGameObject->m_pComponentTransform->m_Position.x, m_pGameObject->m_pComponentTransform->m_Position.y, m_pGameObject->m_pComponentTransform->m_Position.z );
-    ////transform.setIdentity();
-    ////transform.setOrigin( pos );
-    //MyMatrix localmat = m_pGameObject->m_pComponentTransform->GetLocalRotPosMatrix(); //GetLocalTransform();
-    //transform.setFromOpenGLMatrix( &localmat.m11 );
-
-    //m_pBody->getMotionState()->setWorldTransform( transform );
-    //m_pBody->setWorldTransform( transform );
-
-    //m_pBody->activate( true );
-
-    //g_pBulletWorld->m_pDynamicsWorld->removeRigidBody( m_pBody );
-    //g_pBulletWorld->m_pDynamicsWorld->addRigidBody( m_pBody );
 }
 
 void Component2DCollisionObject::ApplyForce(Vector2 force, Vector2 point)

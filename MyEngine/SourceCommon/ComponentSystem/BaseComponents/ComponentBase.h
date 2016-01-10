@@ -244,6 +244,7 @@ public:
 
     bool IsEnabled() { return m_Enabled; }
     unsigned int GetSceneID() { return m_SceneIDLoadedFrom; }
+    SceneInfo* GetSceneInfo();
     unsigned int GetID() { return m_ID; }
 
     // pre-DrawCallback functions

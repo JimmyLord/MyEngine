@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2012-2015 Jimmy Lord http://www.flatheadgames.com
+// Copyright (c) 2012-2016 Jimmy Lord http://www.flatheadgames.com
 //
 // This software is provided 'as-is', without any express or implied warranty.  In no event will the authors be held liable for any damages arising from the use of this software.
 // Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -51,7 +51,6 @@ EngineCore::EngineCore()
     }
 
     m_pBulletWorld = MyNew BulletWorld();
-    m_pBox2DWorld = 0;
 
 #if MYFW_USING_LUA
     m_pLuaGameState = 0;
@@ -115,7 +114,6 @@ EngineCore::~EngineCore()
 
     SAFE_DELETE( m_pComponentSystemManager );
     SAFE_DELETE( m_pBulletWorld );
-    SAFE_DELETE( m_pBox2DWorld );
 }
 
 #if MYFW_USING_LUA
@@ -189,8 +187,8 @@ void EngineCore::OneTimeInit()
 #endif //MYFW_USING_WX
 
     // create the box2d world, pass in a material for the debug renderer.
-    ComponentCamera* pCamera = m_pEditorState->GetEditorCamera();
-    m_pBox2DWorld = MyNew Box2DWorld( m_pMaterial_Box2DDebugDraw, &pCamera->m_Camera3D.m_matViewProj, new EngineBox2DContactListener );
+    //ComponentCamera* pCamera = m_pEditorState->GetEditorCamera();
+    //m_pBox2DWorld = MyNew Box2DWorld( m_pMaterial_Box2DDebugDraw, &pCamera->m_Camera3D.m_matViewProj, new EngineBox2DContactListener );
 
 //    CreateDefaultSceneObjects();
 
@@ -288,10 +286,16 @@ double EngineCore::Tick(double TimePassed)
 
         while( m_TimeSinceLastPhysicsStep > 1/60.0f )
         {
+            //LOGInfo( LOGTag, "m_pBulletWorld->PhysicsStep()\n" );
+
             m_TimeSinceLastPhysicsStep -= 1/60.0f;
             m_pBulletWorld->PhysicsStep();
-            m_pBox2DWorld->PhysicsStep();
-            //LOGInfo( LOGTag, "m_pBulletWorld->PhysicsStep()\n" );
+
+            for( int i=0; i<g_pComponentSystemManager->MAX_SCENES_LOADED; i++ )
+            {
+                if( g_pComponentSystemManager->m_pSceneInfoMap[i].m_InUse && g_pComponentSystemManager->m_pSceneInfoMap[i].m_pBox2DWorld )
+                    g_pComponentSystemManager->m_pSceneInfoMap[i].m_pBox2DWorld->PhysicsStep();
+            }
         }
     }
 
@@ -560,7 +564,11 @@ void EngineCore::OnDrawFrame(unsigned int canvasid)
 
     if( m_Debug_DrawPhysicsDebugShapes && g_GLCanvasIDActive == 1 )
     {
-        m_pBox2DWorld->m_pWorld->DrawDebugData();
+        for( int i=0; i<g_pComponentSystemManager->MAX_SCENES_LOADED; i++ )
+        {
+            if( g_pComponentSystemManager->m_pSceneInfoMap[i].m_InUse && g_pComponentSystemManager->m_pSceneInfoMap[i].m_pBox2DWorld )
+                g_pComponentSystemManager->m_pSceneInfoMap[i].m_pBox2DWorld->m_pWorld->DrawDebugData();
+        }
     }
 }
 

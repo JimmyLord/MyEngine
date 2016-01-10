@@ -339,7 +339,7 @@ void Component2DJointPrismatic::OnPlay()
             MyMatrix transform = *m_pGameObject->m_pComponentTransform->GetTransform();
             Vector4 up = transform * Vector4( m_Up, 0, 0 ).GetNormalized();
             up.Normalize();
-            jointdef.Initialize( m_pBody, g_pBox2DWorld->m_pGround, anchorpos, b2Vec2( up.x, up.y ) );
+            jointdef.Initialize( m_pBody, GetSceneInfo()->m_pBox2DWorld->m_pGround, anchorpos, b2Vec2( up.x, up.y ) );
         }
 
         if( m_MotorEnabled )
@@ -356,7 +356,7 @@ void Component2DJointPrismatic::OnPlay()
             jointdef.upperTranslation = m_TranslationLimitMax;
         }
 
-        m_pJoint = (b2PrismaticJoint*)g_pBox2DWorld->m_pWorld->CreateJoint( &jointdef );
+        m_pJoint = (b2PrismaticJoint*)GetSceneInfo()->m_pBox2DWorld->m_pWorld->CreateJoint( &jointdef );
     }
 }
 

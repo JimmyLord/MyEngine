@@ -80,8 +80,7 @@ ComponentSystemManager::~ComponentSystemManager()
         SceneInfo* pSceneInfo = &m_pSceneInfoMap[i];
 #endif // MYFW_USING_WX
 
-        while( pSceneInfo->m_GameObjects.GetHead() )
-            delete pSceneInfo->m_GameObjects.RemHead();
+        pSceneInfo->Reset();
     }
 
     while( m_Files.GetHead() )
@@ -1737,6 +1736,10 @@ void ComponentSystemManager::CreateNewScene(const char* scenename, unsigned int 
     g_pPanelObjectList->SetDragAndDropFunctions( treeid, SceneHandler::StaticOnDrag, SceneHandler::StaticOnDrop );
     m_pSceneInfoMap[sceneid].m_InUse = true;
     m_pSceneInfoMap[sceneid].m_TreeID = treeid;
+
+    // create the box2d world, pass in a material for the debug renderer.
+    ComponentCamera* pCamera = g_pEngineCore->m_pEditorState->GetEditorCamera();
+    m_pSceneInfoMap[sceneid].m_pBox2DWorld = MyNew Box2DWorld( g_pEngineCore->m_pMaterial_Box2DDebugDraw, &pCamera->m_Camera3D.m_matViewProj, new EngineBox2DContactListener );
 }
 
 wxTreeItemId ComponentSystemManager::GetTreeIDForScene(int sceneid)
@@ -1776,11 +1779,8 @@ unsigned int ComponentSystemManager::GetSceneIDFromSceneTreeID(wxTreeItemId tree
     //return -1;
     for( int i=0; i<MAX_SCENES_LOADED; i++ )
     {
-        unsigned int sceneid = i;
-        SceneInfo* pSceneInfo = &m_pSceneInfoMap[i];
-
-        if( pSceneInfo->m_TreeID == treeid )
-            return sceneid;
+        if( m_pSceneInfoMap[i].m_InUse && m_pSceneInfoMap[i].m_TreeID == treeid )
+            return i;
     }
 
     MyAssert( false ); // fullpath not found, that's fine when used from gameobject loading.

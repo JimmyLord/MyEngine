@@ -87,6 +87,11 @@ void ComponentBase::SetEnabled(bool enabled)
         UnregisterCallbacks();
 }
 
+SceneInfo* ComponentBase::GetSceneInfo()
+{
+    return g_pComponentSystemManager->GetSceneInfo( m_SceneIDLoadedFrom );
+}
+
 //CPPListHead ComponentBase::m_ComponentVariableList;
 
 void ComponentBase::ClearAllVariables_Base(CPPListHead* pComponentVariableList)

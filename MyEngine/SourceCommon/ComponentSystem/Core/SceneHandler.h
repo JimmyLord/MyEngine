@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015 Jimmy Lord http://www.flatheadgames.com
+// Copyright (c) 2015-2016 Jimmy Lord http://www.flatheadgames.com
 //
 // This software is provided 'as-is', without any express or implied warranty.  In no event will the authors be held liable for any damages arising from the use of this software.
 // Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -18,6 +18,7 @@ public:
 #endif
     
     CPPListHead m_GameObjects; // scene level game objects, children are stored in a list inside the game object.
+    Box2DWorld* m_pBox2DWorld; // each scene has it's own Box2D world, TODO: runtime created physics objects won't work.
 
     char m_FullPath[MAX_PATH];
     unsigned int m_NextGameObjectID;
@@ -27,6 +28,8 @@ public:
 public:
     SceneInfo()
     {
+        m_pBox2DWorld = 0;
+
         Reset();
     }
 
@@ -35,6 +38,10 @@ public:
 #if MYFW_USING_WX
         m_TreeID.Unset();
 #endif
+        while( m_GameObjects.GetHead() )
+            delete m_GameObjects.RemHead();
+
+        SAFE_DELETE( m_pBox2DWorld );
 
         m_FullPath[0] = 0;
 
