@@ -331,8 +331,12 @@ void Component2DCollisionObject::OnStop()
 void Component2DCollisionObject::CreateBody()
 {
     MyAssert( m_pBody == 0 );
+    //MyAssert( GetSceneInfo()->m_pBox2DWorld );
 
     if( m_pBody != 0 )
+        return;
+
+    if( GetSceneInfo()->m_pBox2DWorld == 0 )
         return;
 
     // create a body on start

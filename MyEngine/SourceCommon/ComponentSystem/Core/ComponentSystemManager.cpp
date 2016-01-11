@@ -1249,6 +1249,23 @@ GameObject* ComponentSystemManager::CopyGameObject(GameObject* pObject, const ch
         pComponent->OnLoad();
     }
 
+    if( g_pEngineCore->m_EditorMode == false )
+    {
+        if( pNewObject->IsEnabled() == true )
+        {
+            for( unsigned int i=0; i<pNewObject->m_Components.Count(); i++ )
+            {
+                if( pNewObject->m_Components[i]->IsA( "2DJoint-" ) == false )
+                    pNewObject->m_Components[i]->OnPlay();
+            }
+            for( unsigned int i=0; i<pNewObject->m_Components.Count(); i++ )
+            {
+                if( pNewObject->m_Components[i]->IsA( "2DJoint-" ) == true )
+                    pNewObject->m_Components[i]->OnPlay();
+            }
+        }
+    }
+
     return pNewObject;
 }
 
