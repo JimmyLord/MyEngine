@@ -305,6 +305,8 @@ void Component2DJointRevolute::OnPlay()
     if( m_pSecondCollisionObject )
         m_pSecondBody = m_pSecondCollisionObject->m_pBody;
 
+    Box2DWorld* pBox2DWorld = m_pGameObject->Get2DCollisionObject()->m_pBox2DWorld;
+
     if( m_pBody )
     {
         b2RevoluteJointDef jointdef;
@@ -329,7 +331,7 @@ void Component2DJointRevolute::OnPlay()
             b2Vec2 anchorpos( pos.x + m_AnchorA.x, pos.y + m_AnchorA.y );
             //b2Vec2 anchorpos( pos.x + m_AnchorB.x, pos.y + m_AnchorB.y );
 
-            jointdef.Initialize( m_pBody, GetSceneInfo()->m_pBox2DWorld->m_pGround, anchorpos );
+            jointdef.Initialize( m_pBody, pBox2DWorld->m_pGround, anchorpos );
         }
 
         if( m_MotorEnabled )
@@ -346,7 +348,7 @@ void Component2DJointRevolute::OnPlay()
             jointdef.upperAngle = m_AngleLimitMax * PI/180;
         }
 
-        m_pJoint = (b2RevoluteJoint*)GetSceneInfo()->m_pBox2DWorld->m_pWorld->CreateJoint( &jointdef );
+        m_pJoint = (b2RevoluteJoint*)pBox2DWorld->m_pWorld->CreateJoint( &jointdef );
     }
 }
 

@@ -18,6 +18,7 @@ GameObject::GameObject(bool managed, int sceneid)
     m_Enabled = true;
     m_SceneID = sceneid;
     m_ID = 0;
+    m_PhysicsSceneID = 0;
     m_Name = 0;
 
     m_pComponentTransform = MyNew ComponentTransform();
@@ -296,6 +297,9 @@ cJSON* GameObject::ExportAsJSONObject(bool savesceneid)
         cJSON_AddNumberToObject( jGameObject, "SceneID", m_SceneID );
 
     cJSON_AddNumberToObject( jGameObject, "ID", m_ID );
+    if( m_SceneID != m_PhysicsSceneID )
+        cJSON_AddNumberToObject( jGameObject, "PhysicsSceneID", m_PhysicsSceneID );
+
     cJSON_AddStringToObject( jGameObject, "Name", m_Name );
 
     return jGameObject;
@@ -315,6 +319,8 @@ void GameObject::ImportFromJSONObject(cJSON* jGameObject, unsigned int sceneid)
     }
 
     cJSONExt_GetUnsignedInt( jGameObject, "ID", &m_ID );
+    m_PhysicsSceneID = m_SceneID;
+    cJSONExt_GetUnsignedInt( jGameObject, "PhysicsSceneID", &m_PhysicsSceneID );
 
     obj = cJSON_GetObjectItem( jGameObject, "Name" );
     if( obj )

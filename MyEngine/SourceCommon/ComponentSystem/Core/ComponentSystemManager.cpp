@@ -1228,6 +1228,8 @@ GameObject* ComponentSystemManager::CopyGameObject(GameObject* pObject, const ch
     if( newname )
         pNewObject->SetName( newname );
 
+    pNewObject->SetPhysicsSceneID( pObject->GetPhysicsSceneID() );
+
     if( g_pEngineCore->m_EditorMode )
     {
         pNewObject->SetGameObjectThisInheritsFrom( pObject->GetGameObjectThisInheritsFrom() );

@@ -29,6 +29,7 @@ private:
 public:
     ComponentLuaScript* m_pComponentLuaScript;
 
+    Box2DWorld* m_pBox2DWorld;
     b2Body* m_pBody;
 
     int m_PrimitiveType;

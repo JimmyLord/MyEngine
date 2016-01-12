@@ -312,6 +312,8 @@ void Component2DJointPrismatic::OnPlay()
     if( m_pSecondCollisionObject )
         m_pSecondBody = m_pSecondCollisionObject->m_pBody;
 
+    Box2DWorld* pBox2DWorld = m_pGameObject->Get2DCollisionObject()->m_pBox2DWorld;
+
     if( m_pBody )
     {
         b2PrismaticJointDef jointdef;
@@ -339,7 +341,7 @@ void Component2DJointPrismatic::OnPlay()
             MyMatrix transform = *m_pGameObject->m_pComponentTransform->GetTransform();
             Vector4 up = transform * Vector4( m_Up, 0, 0 ).GetNormalized();
             up.Normalize();
-            jointdef.Initialize( m_pBody, GetSceneInfo()->m_pBox2DWorld->m_pGround, anchorpos, b2Vec2( up.x, up.y ) );
+            jointdef.Initialize( m_pBody, pBox2DWorld->m_pGround, anchorpos, b2Vec2( up.x, up.y ) );
         }
 
         if( m_MotorEnabled )
@@ -356,7 +358,7 @@ void Component2DJointPrismatic::OnPlay()
             jointdef.upperTranslation = m_TranslationLimitMax;
         }
 
-        m_pJoint = (b2PrismaticJoint*)GetSceneInfo()->m_pBox2DWorld->m_pWorld->CreateJoint( &jointdef );
+        m_pJoint = (b2PrismaticJoint*)pBox2DWorld->m_pWorld->CreateJoint( &jointdef );
     }
 }
 

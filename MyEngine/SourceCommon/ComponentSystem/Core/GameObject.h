@@ -33,6 +33,7 @@ protected:
     bool m_Enabled;
     unsigned int m_SceneID; // 0 for runtime generated.
     unsigned int m_ID;
+    unsigned int m_PhysicsSceneID; // can't be 0 (runtime scene) if a collision component exists
     char* m_Name; // this a copy of the string passed in.
     bool m_Managed;
 
@@ -78,6 +79,9 @@ public:
     SceneInfo* GetSceneInfo() { return g_pComponentSystemManager->GetSceneInfo( m_SceneID ); }
     unsigned int GetID() { return m_ID; }
     const char* GetName() { return m_Name; }
+
+    void SetPhysicsSceneID(unsigned int id) { m_PhysicsSceneID = id; }
+    unsigned int GetPhysicsSceneID() { return m_PhysicsSceneID; }
 
     ComponentBase* AddNewComponent(int componenttype, unsigned int sceneid, ComponentSystemManager* pComponentSystemManager = g_pComponentSystemManager);
     ComponentBase* AddExistingComponent(ComponentBase* pComponent, bool resetcomponent);

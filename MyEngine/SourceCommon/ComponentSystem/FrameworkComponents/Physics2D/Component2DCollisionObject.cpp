@@ -36,6 +36,7 @@ Component2DCollisionObject::Component2DCollisionObject()
 
     m_pComponentLuaScript = 0;
 
+    m_pBox2DWorld = 0;
     m_pBody = 0;
 
     m_PrimitiveType = Physics2DPrimitiveType_Box;
@@ -56,7 +57,8 @@ Component2DCollisionObject::~Component2DCollisionObject()
 
     if( m_pBody )
     {
-        GetSceneInfo()->m_pBox2DWorld->m_pWorld->DestroyBody( m_pBody );
+        MyAssert( m_pBox2DWorld );
+        m_pBox2DWorld->m_pWorld->DestroyBody( m_pBody );
     }
 
     //SAFE_RELEASE( m_pMesh );
@@ -80,6 +82,13 @@ void Component2DCollisionObject::Reset()
     ComponentBase::Reset();
 
     m_PrimitiveType = Physics2DPrimitiveType_Box;
+
+    if( m_pBody )
+    {
+        MyAssert( m_pBox2DWorld );
+        m_pBox2DWorld->m_pWorld->DestroyBody( m_pBody );
+    }
+    m_pBox2DWorld = 0;
 
     m_pComponentLuaScript = 0;
 
@@ -306,11 +315,22 @@ void Component2DCollisionObject::OnPlay()
         m_pComponentLuaScript = (ComponentLuaScript*)m_pGameObject->GetFirstComponentOfType( "LuaScriptComponent" );
     }
 
+    MyAssert( m_pGameObject->GetPhysicsSceneID() != 0 );
+    SceneInfo* pSceneInfo = g_pComponentSystemManager->GetSceneInfo( m_pGameObject->GetPhysicsSceneID() );
+    if( pSceneInfo )
+    {
+        m_pBox2DWorld = pSceneInfo->m_pBox2DWorld;
+        MyAssert( m_pBox2DWorld );
+    }
+
     MyAssert( m_pBody == 0 );
     if( m_pBody != 0 )
     {
-        GetSceneInfo()->m_pBox2DWorld->m_pWorld->DestroyBody( m_pBody );
-        m_pBody = 0;
+        if( m_pBox2DWorld )
+        {
+            m_pBox2DWorld->m_pWorld->DestroyBody( m_pBody );
+            m_pBody = 0;
+        }
     }
 
     CreateBody();
@@ -323,20 +343,21 @@ void Component2DCollisionObject::OnStop()
     // shouldn't get hit, all objects are deleted/recreated when gameplay is stopped.
     if( m_pBody )
     {
-        GetSceneInfo()->m_pBox2DWorld->m_pWorld->DestroyBody( m_pBody );
+        m_pBox2DWorld->m_pWorld->DestroyBody( m_pBody );
         m_pBody = 0;
+        m_pBox2DWorld = 0;
     }
 }
 
 void Component2DCollisionObject::CreateBody()
 {
     MyAssert( m_pBody == 0 );
-    //MyAssert( GetSceneInfo()->m_pBox2DWorld );
+    MyAssert( m_pBox2DWorld );
 
     if( m_pBody != 0 )
         return;
 
-    if( GetSceneInfo()->m_pBox2DWorld == 0 )
+    if( m_pBox2DWorld == 0 )
         return;
 
     // create a body on start
@@ -354,7 +375,7 @@ void Component2DCollisionObject::CreateBody()
         else
             bodydef.type = b2_dynamicBody;
 
-        m_pBody = GetSceneInfo()->m_pBox2DWorld->m_pWorld->CreateBody( &bodydef );
+        m_pBody = m_pBox2DWorld->m_pWorld->CreateBody( &bodydef );
         m_pBody->SetUserData( this );
 
         m_Scale = m_pGameObject->m_pComponentTransform->GetLocalScale();
