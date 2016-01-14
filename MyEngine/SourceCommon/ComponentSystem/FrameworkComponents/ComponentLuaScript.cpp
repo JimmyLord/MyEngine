@@ -758,7 +758,7 @@ void ComponentLuaScript::LoadScript()
                 {
                     // Create a table to store local variables unique to this component.
                     char gameobjectname[100];
-                    sprintf_s( gameobjectname, 100, "_GameObject_%d", m_pGameObject->GetID() );
+                    sprintf_s( gameobjectname, 100, "_GameObject_%d_%d", m_pGameObject->GetSceneID(), m_pGameObject->GetID() );
                     luabridge::LuaRef datatable = luabridge::getGlobal( m_pLuaGameState->m_pLuaState, gameobjectname );
 
                     if( datatable.isTable() == false )
@@ -899,7 +899,7 @@ void ComponentLuaScript::ProgramVariables(luabridge::LuaRef LuaObject, bool upda
 {
     // set "this" to the data table storing this gameobjects script data "_GameObject_<ID>"
     char gameobjectname[100];
-    sprintf_s( gameobjectname, 100, "_GameObject_%d", m_pGameObject->GetID() );
+    sprintf_s( gameobjectname, 100, "_GameObject_%d_%d", m_pGameObject->GetSceneID(), m_pGameObject->GetID() );
     luabridge::LuaRef datatable = luabridge::getGlobal( m_pLuaGameState->m_pLuaState, gameobjectname );
     luabridge::setGlobal( m_pLuaGameState->m_pLuaState, datatable, "this" );
 
@@ -1056,7 +1056,8 @@ void ComponentLuaScript::OnStop()
 void ComponentLuaScript::OnGameObjectEnabled()
 {
     ComponentBase::OnGameObjectEnabled();
-    OnPlay();
+    if( g_pEngineCore->m_EditorMode == false )
+        OnPlay();
 }
 
 void ComponentLuaScript::OnGameObjectDisabled()

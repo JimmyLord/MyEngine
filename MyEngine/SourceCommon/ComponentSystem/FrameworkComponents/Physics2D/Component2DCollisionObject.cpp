@@ -454,8 +454,11 @@ void Component2DCollisionObject::TickCallback(double TimePassed)
 
     MyMatrix* matLocal = m_pGameObject->m_pComponentTransform->GetLocalTransform();
 
+    Vector3 oldpos = m_pGameObject->m_pComponentTransform->GetPosition();
+    Vector3 oldrot = m_pGameObject->m_pComponentTransform->GetLocalRotation();
+
     matLocal->SetIdentity();
-    matLocal->CreateSRT( m_Scale, Vector3( 0, 0, angle ), Vector3( pos.x, pos.y, 0 ) );
+    matLocal->CreateSRT( m_Scale, Vector3( 0, 0, angle ), Vector3( pos.x, pos.y, oldpos.z ) );
 
 #if MYFW_USING_WX
     m_pGameObject->m_pComponentTransform->UpdatePosAndRotFromLocalMatrix();
