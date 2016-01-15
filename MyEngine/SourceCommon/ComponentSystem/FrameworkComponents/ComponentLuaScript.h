@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2014-2015 Jimmy Lord http://www.flatheadgames.com
+// Copyright (c) 2014-2016 Jimmy Lord http://www.flatheadgames.com
 //
 // This software is provided 'as-is', without any express or implied warranty.  In no event will the authors be held liable for any damages arising from the use of this software.
 // Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -55,7 +55,9 @@ protected:
     bool m_ScriptLoaded;
     bool m_Playing;
     bool m_ErrorInScript;
-    bool m_ShouldBePlayingButIsntBecauseScriptFileWasStillLoading;
+    bool m_CallLuaOnPlayNextTickOrAfterScriptIsFinishedLoading;
+
+    const ComponentLuaScript* m_pCopyExternsFromThisComponentAfterLoadingScript;
 
     MyFileObject* m_pScriptFile;
     MyList<ExposedVariableDesc*> m_ExposedVars;
@@ -162,6 +164,7 @@ public:
 
         // find the function and call it.
         luabridge::LuaRef LuaObject = luabridge::getGlobal( m_pLuaGameState->m_pLuaState, m_pScriptFile->m_FilenameWithoutExtension );
+        MyAssert( LuaObject.isNil() == false );
 
         // call pFuncName
         if( LuaObject[pFuncName].isFunction() == false ) return false;
@@ -180,6 +183,7 @@ public:
 
         // find the function and call it.
         luabridge::LuaRef LuaObject = luabridge::getGlobal( m_pLuaGameState->m_pLuaState, m_pScriptFile->m_FilenameWithoutExtension );
+        MyAssert( LuaObject.isNil() == false );
 
         // call pFuncName
         if( LuaObject[pFuncName].isFunction() == false ) return false;
@@ -198,6 +202,7 @@ public:
 
         // find the function and call it.
         luabridge::LuaRef LuaObject = luabridge::getGlobal( m_pLuaGameState->m_pLuaState, m_pScriptFile->m_FilenameWithoutExtension );
+        MyAssert( LuaObject.isNil() == false );
 
         // call pFuncName
         if( LuaObject[pFuncName].isFunction() == false ) return false;

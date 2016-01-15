@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2014-2015 Jimmy Lord http://www.flatheadgames.com
+// Copyright (c) 2014-2016 Jimmy Lord http://www.flatheadgames.com
 //
 // This software is provided 'as-is', without any express or implied warranty.  In no event will the authors be held liable for any damages arising from the use of this software.
 // Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -79,7 +79,9 @@ void ComponentLuaScript::Reset()
     m_ScriptLoaded = false;
     m_Playing = false;
     m_ErrorInScript = false;
-    m_ShouldBePlayingButIsntBecauseScriptFileWasStillLoading = false;
+    m_CallLuaOnPlayNextTickOrAfterScriptIsFinishedLoading = false;
+
+    m_pCopyExternsFromThisComponentAfterLoadingScript = 0;
 
     while( m_ExposedVars.Count() )
     {
@@ -194,7 +196,7 @@ void ComponentLuaScript::OnFileUpdated(MyFileObject* pFile)
         m_ErrorInScript = false;
 
         if( m_Playing )
-            m_ShouldBePlayingButIsntBecauseScriptFileWasStillLoading = true;
+            m_CallLuaOnPlayNextTickOrAfterScriptIsFinishedLoading = true;
     }
 }
 
@@ -653,42 +655,7 @@ ComponentLuaScript& ComponentLuaScript::operator=(const ComponentLuaScript& othe
     {
         this->m_pScriptFile->AddRef();
 
-        // load the script and copy externed variable values
-        LoadScript();
-
-        for( unsigned int i=0; i<m_ExposedVars.Count(); i++ )
-        {
-            ExposedVariableDesc* pVar = m_ExposedVars[i];
-            ExposedVariableDesc* pOtherVar = 0;// = other.m_ExposedVars[i];            
-
-            // find the first variable in the other object with the same name
-            for( unsigned int i=0; i<m_ExposedVars.Count(); i++ )
-            {
-                if( pVar->name == other.m_ExposedVars[i]->name )
-                {
-                    pOtherVar = other.m_ExposedVars[i];
-                    break;
-                }
-            }
-
-            if( pOtherVar != 0 )
-            {
-                if( pVar->type == ExposedVariableType_Float )
-                {
-                    pVar->value = pOtherVar->value;
-                }
-
-                if( pVar->type == ExposedVariableType_GameObject )
-                {
-                    pVar->pointer = pOtherVar->pointer;
-
-                    if( pVar->pointer )
-                        ((GameObject*)pVar->pointer)->RegisterOnDeleteCallback( this, StaticOnGameObjectDeleted );
-                }
-            }
-        }
-
-        ProgramVariables( m_pLuaGameState->m_pLuaState, true );
+        m_pCopyExternsFromThisComponentAfterLoadingScript = &other;
     }
 
     return *this;
@@ -959,7 +926,6 @@ void ComponentLuaScript::OnLoad()
 
     m_ScriptLoaded = false;
     m_ErrorInScript = false;
-    LoadScript();
 }
 
 void ComponentLuaScript::OnPlay()
@@ -969,59 +935,12 @@ void ComponentLuaScript::OnPlay()
     if( m_ErrorInScript )
         return;
 
-#if _DEBUG && MYFW_USING_WX
-    // reload the script when play is hit in debug, for quick script edits.
-    //if( m_pScriptFile && m_pScriptFile->m_FileReady == true )
-    //{
-    //    m_ScriptLoaded = false;
-    //    //g_pFileManager->ReloadFile( m_pScriptFile );
-    //    // hard loop until the filemanager is done loading the file.
-    //    while( m_pScriptFile && m_pScriptFile->m_FileReady == false )
-    //    {
-    //        g_pFileManager->Tick();
-    //    }
-    //    LoadScript();
-    //}
-#endif
-
-    // TODO: prevent "play" if file is not loaded.
-    //       or test this a bit, Tick will call OnPlay once it's loaded.
-    if( m_pScriptFile )
+    if( m_pScriptFile->m_FileLoadStatus != FileLoadStatus_Success )
     {
-        if( m_ScriptLoaded == false )
-        {
-            LoadScript();
-        }
-
-        if( m_pScriptFile->m_FileLoadStatus != FileLoadStatus_Success )
-        {
-            m_ShouldBePlayingButIsntBecauseScriptFileWasStillLoading = true;
-            LOGInfo( LOGTag, "Script warning: OnPlay, script not loaded: %s\n", m_pScriptFile->m_FilenameWithoutExtension );
-        }
-        else
-        {
-            // find the OnPlay function and call it, look for a table that matched our filename.
-            luabridge::LuaRef LuaObject = luabridge::getGlobal( m_pLuaGameState->m_pLuaState, m_pScriptFile->m_FilenameWithoutExtension );
-        
-            if( LuaObject.isNil() == false )
-            {
-                if( LuaObject["OnPlay"].isFunction() )
-                {
-                    ProgramVariables( LuaObject, true );
-                    try
-                    {
-                        LuaObject["OnPlay"]();
-                    }
-                    catch(luabridge::LuaException const& e)
-                    {
-                        HandleLuaError( "OnPlay", e.what() );
-                    }
-                }
-
-                m_Playing = true;
-            }
-        }
+        LOGInfo( LOGTag, "Script warning: OnPlay, script not loaded: %s\n", m_pScriptFile->m_FilenameWithoutExtension );
     }
+
+    m_CallLuaOnPlayNextTickOrAfterScriptIsFinishedLoading = true;
 }
 
 void ComponentLuaScript::OnStop()
@@ -1078,14 +997,80 @@ void ComponentLuaScript::TickCallback(double TimePassed)
         LoadScript();
     }
 
-    if( m_ScriptLoaded && m_ShouldBePlayingButIsntBecauseScriptFileWasStillLoading )
+    if( g_pLuaGameState == false || m_ScriptLoaded == false )
+        return;
+
+    // copy externed variable values after loading the script
     {
-        m_ShouldBePlayingButIsntBecauseScriptFileWasStillLoading = false;
-        OnPlay();
+        if( m_pCopyExternsFromThisComponentAfterLoadingScript )
+        {
+            const ComponentLuaScript& other = *m_pCopyExternsFromThisComponentAfterLoadingScript;
+            m_pCopyExternsFromThisComponentAfterLoadingScript = 0;
+
+            for( unsigned int i=0; i<m_ExposedVars.Count(); i++ )
+            {
+                ExposedVariableDesc* pVar = m_ExposedVars[i];
+                ExposedVariableDesc* pOtherVar = 0;// = other.m_ExposedVars[i];            
+
+                // find the first variable in the other object with the same name
+                for( unsigned int i=0; i<m_ExposedVars.Count(); i++ )
+                {
+                    if( pVar->name == other.m_ExposedVars[i]->name )
+                    {
+                        pOtherVar = other.m_ExposedVars[i];
+                        break;
+                    }
+                }
+
+                if( pOtherVar != 0 )
+                {
+                    if( pVar->type == ExposedVariableType_Float )
+                    {
+                        pVar->value = pOtherVar->value;
+                    }
+
+                    if( pVar->type == ExposedVariableType_GameObject )
+                    {
+                        pVar->pointer = pOtherVar->pointer;
+
+                        if( pVar->pointer )
+                            ((GameObject*)pVar->pointer)->RegisterOnDeleteCallback( this, StaticOnGameObjectDeleted );
+                    }
+                }
+            }
+
+            ProgramVariables( m_pLuaGameState->m_pLuaState, true );
+        }
+    }
+
+    if( m_CallLuaOnPlayNextTickOrAfterScriptIsFinishedLoading )
+    {
+        m_CallLuaOnPlayNextTickOrAfterScriptIsFinishedLoading = false;
+
+        // find the OnPlay function and call it, look for a table that matched our filename.
+        luabridge::LuaRef LuaObject = luabridge::getGlobal( m_pLuaGameState->m_pLuaState, m_pScriptFile->m_FilenameWithoutExtension );
+        
+        if( LuaObject.isNil() == false )
+        {
+            if( LuaObject["OnPlay"].isFunction() )
+            {
+                ProgramVariables( LuaObject, true );
+                try
+                {
+                    LuaObject["OnPlay"]();
+                }
+                catch(luabridge::LuaException const& e)
+                {
+                    HandleLuaError( "OnPlay", e.what() );
+                }
+            }
+
+            m_Playing = true;
+        }
     }
 
     // find the Tick function and call it.
-    if( m_ScriptLoaded && m_Playing )
+    if( m_Playing )
     {
         luabridge::LuaRef LuaObject = luabridge::getGlobal( m_pLuaGameState->m_pLuaState, m_pScriptFile->m_FilenameWithoutExtension );
         MyAssert( LuaObject.isTable() );
