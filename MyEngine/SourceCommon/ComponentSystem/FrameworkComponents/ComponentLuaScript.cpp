@@ -736,7 +736,9 @@ void ComponentLuaScript::LoadScript()
                     }
 
                     ParseExterns( LuaObject );
-                    OnScriptLoaded();
+
+                    // Call the OnLoad function in the Lua script.
+                    CallFunction( "OnLoad" );
                 }
             }
             else
@@ -895,31 +897,6 @@ void ComponentLuaScript::HandleLuaError(const char* functionname, const char* er
     lua_pop( m_pLuaGameState->m_pLuaState, 1 );
 }
 
-void ComponentLuaScript::OnScriptLoaded()
-{
-    if( m_ErrorInScript )
-        return;
-
-    //if( m_Playing )
-    {
-        luabridge::LuaRef LuaObject = luabridge::getGlobal( m_pLuaGameState->m_pLuaState, m_pScriptFile->m_FilenameWithoutExtension );
-        
-        // call stop
-        if( LuaObject["OnLoad"].isFunction() )
-        {
-            //ProgramVariables( LuaObject );
-            try
-            {
-                LuaObject["OnLoad"]();
-            }
-            catch(luabridge::LuaException const& e)
-            {
-                HandleLuaError( "OnLoad", e.what() );
-            }
-        }
-    }
-}
-
 void ComponentLuaScript::OnLoad()
 {
     ComponentUpdateable::OnLoad();
@@ -949,21 +926,7 @@ void ComponentLuaScript::OnStop()
 
     if( m_Playing && m_ErrorInScript == false )
     {
-        luabridge::LuaRef LuaObject = luabridge::getGlobal( m_pLuaGameState->m_pLuaState, m_pScriptFile->m_FilenameWithoutExtension );
-        
-        // call stop
-        if( LuaObject["OnStop"].isFunction() )
-        {
-            ProgramVariables( LuaObject, false );
-            try
-            {
-                LuaObject["OnStop"]();
-            }
-            catch(luabridge::LuaException const& e)
-            {
-                HandleLuaError( "OnStop", e.what() );
-            }
-        }
+        CallFunction( "OnStop" );
     }
 
     m_ScriptLoaded = false;
@@ -1054,6 +1017,7 @@ void ComponentLuaScript::TickCallback(double TimePassed)
         {
             if( LuaObject["OnPlay"].isFunction() )
             {
+                // program the exposed variable values in the table, don't just set the table to be active.
                 ProgramVariables( LuaObject, true );
                 try
                 {
@@ -1072,25 +1036,7 @@ void ComponentLuaScript::TickCallback(double TimePassed)
     // find the Tick function and call it.
     if( m_Playing )
     {
-        luabridge::LuaRef LuaObject = luabridge::getGlobal( m_pLuaGameState->m_pLuaState, m_pScriptFile->m_FilenameWithoutExtension );
-        MyAssert( LuaObject.isTable() );
-
-        if( LuaObject.isTable() )
-        {
-            // call tick
-            if( LuaObject["Tick"].isFunction() )
-            {
-                ProgramVariables( LuaObject, false );
-                try
-                {
-                    LuaObject["Tick"]( TimePassed );
-                }
-                catch(luabridge::LuaException const& e)
-                {
-                    HandleLuaError( "Tick", e.what() );
-                }
-            }
-        }
+        CallFunction( "Tick" );
     }
 }
 
@@ -1104,22 +1050,8 @@ bool ComponentLuaScript::OnTouchCallback(int action, int id, float x, float y, f
     // find the OnTouch function and call it.
     if( m_Playing )
     {
-        luabridge::LuaRef LuaObject = luabridge::getGlobal( m_pLuaGameState->m_pLuaState, m_pScriptFile->m_FilenameWithoutExtension );
-
-        // call OnTouch
-        if( LuaObject["OnTouch"].isFunction() )
-        {
-            ProgramVariables( LuaObject, false );
-            try
-            {
-                if( LuaObject["OnTouch"]( action, id, x, y, pressure, size ) )
-                    return true;
-            }
-            catch(luabridge::LuaException const& e)
-            {
-                HandleLuaError( "OnTouch", e.what() );
-            }
-        }
+        if( CallFunction( "OnTouch", id, x, y, pressure, size ) )
+            return true;
     }
 
     return false;
@@ -1135,24 +1067,10 @@ bool ComponentLuaScript::OnButtonsCallback(GameCoreButtonActions action, GameCor
     // find the OnButtons function and call it.
     if( m_Playing )
     {
-        luabridge::LuaRef LuaObject = luabridge::getGlobal( m_pLuaGameState->m_pLuaState, m_pScriptFile->m_FilenameWithoutExtension );
-
-        // call OnButtons
-        if( LuaObject["OnButtons"].isFunction() )
-        {
-            ProgramVariables( LuaObject, false );
-            try
-            {
-                int a = action;
-                int i = id;
-                if( LuaObject["OnButtons"]( a, i ) )
-                    return true;
-            }
-            catch(luabridge::LuaException const& e)
-            {
-                HandleLuaError( "OnButtons", e.what() );
-            }
-        }
+        int a = action;
+        int i = id;
+        if( CallFunction( "OnButtons", a, i ) )
+            return true;
     }
 
     return false;
