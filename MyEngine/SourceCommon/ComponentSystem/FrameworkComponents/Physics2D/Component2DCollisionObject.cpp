@@ -18,6 +18,7 @@ const char* Physics2DPrimitiveTypeStrings[Physics2DPrimitive_NumTypes] = //ADDIN
     "Box",
     "Circle",
     "Edge",
+    "Chain",
 };
 
 // Component Variable List
@@ -62,19 +63,29 @@ Component2DCollisionObject::~Component2DCollisionObject()
     }
 
     //SAFE_RELEASE( m_pMesh );
+
+#if !MYFW_USING_WX
+    m_Vertices.FreeAllInList();
+#endif
 }
 
 void Component2DCollisionObject::RegisterVariables(CPPListHead* pList, Component2DCollisionObject* pThis) //_VARIABLE_LIST
 {
-    AddVarEnum( pList, "PrimitiveType", MyOffsetOf( pThis, &pThis->m_PrimitiveType ),   true, true, "Primitive Type", Physics2DPrimitive_NumTypes, Physics2DPrimitiveTypeStrings, (CVarFunc_ValueChanged)&Component2DCollisionObject::OnValueChanged, 0, 0 );
+    ComponentVariable* pVars[6];
 
-    AddVar( pList, "Static",        ComponentVariableType_Bool,  MyOffsetOf( pThis, &pThis->m_Static ),          true, true, 0, (CVarFunc_ValueChanged)&Component2DCollisionObject::OnValueChanged, 0, 0 );
-    AddVar( pList, "Density",       ComponentVariableType_Float, MyOffsetOf( pThis, &pThis->m_Density ),         true, true, 0, (CVarFunc_ValueChanged)&Component2DCollisionObject::OnValueChanged, 0, 0 );
-    AddVar( pList, "IsSensor",      ComponentVariableType_Bool,  MyOffsetOf( pThis, &pThis->m_IsSensor ),        true, true, 0, (CVarFunc_ValueChanged)&Component2DCollisionObject::OnValueChanged, 0, 0 );
-    AddVar( pList, "Friction",      ComponentVariableType_Float, MyOffsetOf( pThis, &pThis->m_Friction ),        true, true, 0, (CVarFunc_ValueChanged)&Component2DCollisionObject::OnValueChanged, 0, 0 );
-    AddVar( pList, "Restitution",   ComponentVariableType_Float, MyOffsetOf( pThis, &pThis->m_Restitution ),     true, true, 0, (CVarFunc_ValueChanged)&Component2DCollisionObject::OnValueChanged, 0, 0 );
+    pVars[0] = AddVarEnum( pList, "PrimitiveType", MyOffsetOf( pThis, &pThis->m_PrimitiveType ),   true, true, "Primitive Type", Physics2DPrimitive_NumTypes, Physics2DPrimitiveTypeStrings, (CVarFunc_ValueChanged)&Component2DCollisionObject::OnValueChanged, 0, 0 );
+
+    pVars[1] = AddVar( pList, "Static",        ComponentVariableType_Bool,  MyOffsetOf( pThis, &pThis->m_Static ),          true, true, 0, (CVarFunc_ValueChanged)&Component2DCollisionObject::OnValueChanged, 0, 0 );
+    pVars[2] = AddVar( pList, "Density",       ComponentVariableType_Float, MyOffsetOf( pThis, &pThis->m_Density ),         true, true, 0, (CVarFunc_ValueChanged)&Component2DCollisionObject::OnValueChanged, 0, 0 );
+    pVars[3] = AddVar( pList, "IsSensor",      ComponentVariableType_Bool,  MyOffsetOf( pThis, &pThis->m_IsSensor ),        true, true, 0, (CVarFunc_ValueChanged)&Component2DCollisionObject::OnValueChanged, 0, 0 );
+    pVars[4] = AddVar( pList, "Friction",      ComponentVariableType_Float, MyOffsetOf( pThis, &pThis->m_Friction ),        true, true, 0, (CVarFunc_ValueChanged)&Component2DCollisionObject::OnValueChanged, 0, 0 );
+    pVars[5] = AddVar( pList, "Restitution",   ComponentVariableType_Float, MyOffsetOf( pThis, &pThis->m_Restitution ),     true, true, 0, (CVarFunc_ValueChanged)&Component2DCollisionObject::OnValueChanged, 0, 0 );
 
     //AddVar( pList, "Scale",         ComponentVariableType_Float, MyOffsetOf( pThis, &pThis->m_Scale ),           true, true, 0, (CVarFunc_ValueChanged)&Component2DCollisionObject::OnValueChanged, 0, 0 );
+#if MYFW_USING_WX
+    //for( int i=0; i<6; i++ )
+    //    pVars[i]->AddCallback_ShouldVariableBeAdded( (CVarFunc_ShouldVariableBeAdded)(&Component2DCollisionObject::ShouldVariableBeAddedToWatchPanel) );
+#endif //MYFW_USING_WX
 }
 
 void Component2DCollisionObject::Reset()
@@ -141,7 +152,17 @@ void Component2DCollisionObject::FillPropertiesWindow(bool clear, bool addcompon
         ComponentBase::FillPropertiesWindow( clear );
 
         FillPropertiesWindowWithVariables(); //_VARIABLE_LIST
+
+        if( m_PrimitiveType == Physics2DPrimitiveType_Chain )
+        {
+            g_pPanelWatch->AddButton( "Edit Chain", 0, 0 );
+        }
     }
+}
+
+bool Component2DCollisionObject::ShouldVariableBeAddedToWatchPanel(ComponentVariable* pVar)
+{
+    return true;
 }
 
 void* Component2DCollisionObject::OnDrop(ComponentVariable* pVar, wxCoord x, wxCoord y)
@@ -243,6 +264,43 @@ void Component2DCollisionObject::OnTransformPositionChanged(Vector3& newpos, boo
 }
 #endif //MYFW_USING_WX
 
+cJSON* Component2DCollisionObject::ExportAsJSONObject(bool savesceneid)
+{
+    cJSON* jComponent = ComponentBase::ExportAsJSONObject( savesceneid );
+
+#if MYFW_USING_WX
+    int count = m_Vertices.size();
+#else
+    int count = m_Vertices.Count();
+#endif
+
+    if( count > 0 )
+        cJSONExt_AddFloatArrayToObject( jComponent, "Vertices", &m_Vertices[0].x, count * 2 );
+
+    return jComponent;
+}
+
+void Component2DCollisionObject::ImportFromJSONObject(cJSON* jsonobj, unsigned int sceneid)
+{
+    ComponentBase::ImportFromJSONObject( jsonobj, sceneid );
+
+    unsigned int chasingid = 0;
+    cJSON* jVertexArray = cJSON_GetObjectItem( jsonobj, "Vertices" );
+    if( jVertexArray )
+    {
+        int arraysize = cJSON_GetArraySize( jVertexArray );
+
+#if MYFW_USING_WX
+        m_Vertices.resize( arraysize / 2 );
+#else
+        m_Vertices.FreeAllInList();
+        m_Vertices.AllocateObjects( arraysize / 2 );
+#endif
+
+        cJSONExt_GetFloatArray( jsonobj, "Vertices", &m_Vertices[0].x, arraysize );
+    }
+}
+
 Component2DCollisionObject& Component2DCollisionObject::operator=(const Component2DCollisionObject& other)
 {
     MyAssert( &other != this );
@@ -261,6 +319,13 @@ Component2DCollisionObject& Component2DCollisionObject::operator=(const Componen
     m_Restitution = other.m_Restitution;
 
     //m_pMesh
+    
+    // TODO: fix copying chains
+#if MYFW_USING_WX
+    //m_Vertices = other.m_Vertices;
+#else
+    //m_Vertices = other.m_Vertices;
+#endif
 
     return *this;
 }
@@ -435,6 +500,37 @@ void Component2DCollisionObject::CreateBody()
                 m_pBody->CreateFixture( &fixturedef );
             }
             break;
+
+        case Physics2DPrimitiveType_Chain:
+            {
+                b2ChainShape chainshape;
+
+#if MYFW_USING_WX
+                int count = m_Vertices.size();
+#else
+                int count = m_Vertices.Count();
+#endif
+                if( count == 0 )
+                {
+                    m_Vertices.push_back( b2Vec2( -5, 0 ) );
+                    m_Vertices.push_back( b2Vec2( 5, 0 ) );
+                    count = 2;
+                }
+
+                if( count > 0 )
+                {
+                    chainshape.CreateChain( &m_Vertices[0], count );
+
+                    b2FixtureDef fixturedef;
+                    fixturedef.shape = &chainshape;
+                    fixturedef.density = m_Density;
+                    fixturedef.isSensor = m_IsSensor;
+                    fixturedef.friction = m_Friction;
+                    fixturedef.restitution = m_Restitution;
+
+                    m_pBody->CreateFixture( &fixturedef );
+                }
+            }
         }
     }
 }

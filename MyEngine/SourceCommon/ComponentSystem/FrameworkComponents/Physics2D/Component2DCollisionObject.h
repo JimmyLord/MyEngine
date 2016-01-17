@@ -15,6 +15,7 @@ enum Physics2DPrimitiveTypes //ADDING_NEW_Physics2DPrimitiveType - order doesn't
     Physics2DPrimitiveType_Box,
     Physics2DPrimitiveType_Circle,
     Physics2DPrimitiveType_Edge,
+    Physics2DPrimitiveType_Chain,
     Physics2DPrimitive_NumTypes,
 };
 
@@ -43,6 +44,12 @@ public:
     float m_Restitution;
     //MyMesh* m_pMesh;
 
+#if MYFW_USING_WX
+    std::vector<b2Vec2> m_Vertices;
+#else
+    MyList<b2Vec2> m_Vertices;
+#endif
+
 public:
     Component2DCollisionObject();
     virtual ~Component2DCollisionObject();
@@ -52,8 +59,8 @@ public:
     static void LuaRegister(lua_State* luastate);
 #endif //MYFW_USING_LUA
 
-    //virtual cJSON* ExportAsJSONObject(bool savesceneid);
-    //virtual void ImportFromJSONObject(cJSON* jsonobj, unsigned int sceneid);
+    virtual cJSON* ExportAsJSONObject(bool savesceneid);
+    virtual void ImportFromJSONObject(cJSON* jsonobj, unsigned int sceneid);
 
     virtual void Reset();
     virtual void CopyFromSameType_Dangerous(ComponentBase* pObject) { *this = (Component2DCollisionObject&)*pObject; }
@@ -94,6 +101,7 @@ public:
     static void StaticOnLeftClick(void* pObjectPtr, wxTreeItemId id, unsigned int count) { ((Component2DCollisionObject*)pObjectPtr)->OnLeftClick( count, true ); }
     void OnLeftClick(unsigned int count, bool clear);
     virtual void FillPropertiesWindow(bool clear, bool addcomponentvariables = false, bool ignoreblockvisibleflag = false);
+    virtual bool ShouldVariableBeAddedToWatchPanel(ComponentVariable* pVar);
 
     // Component variable callbacks.
     void* OnDrop(ComponentVariable* pVar, wxCoord x, wxCoord y);
