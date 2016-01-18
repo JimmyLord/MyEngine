@@ -117,6 +117,8 @@ extern "C"
 #include "Editor/EngineEditorCommands.h"
 #include "Editor/TransformGizmo.h"
 #include "Editor/Dialogs/DialogGridSettings.h"
+#include "Editor/Interfaces/EditorInterface.h"
+#include "Editor/Interfaces/EditorInterface_SceneManagement.h"
 #endif
 
 #include "Core/EngineCore.h"

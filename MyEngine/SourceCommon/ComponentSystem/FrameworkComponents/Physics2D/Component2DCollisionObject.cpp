@@ -155,7 +155,7 @@ void Component2DCollisionObject::FillPropertiesWindow(bool clear, bool addcompon
 
         if( m_PrimitiveType == Physics2DPrimitiveType_Chain )
         {
-            g_pPanelWatch->AddButton( "Edit Chain", 0, 0 );
+            g_pPanelWatch->AddButton( "Edit Chain", this, Component2DCollisionObject::StaticOnButtonEditChain );
         }
     }
 }
@@ -261,6 +261,11 @@ void Component2DCollisionObject::OnTransformPositionChanged(Vector3& newpos, boo
 {
     if( changedbyeditor )
         SyncRigidBodyToTransform();
+}
+
+void Component2DCollisionObject::OnButtonEditChain()
+{
+    //g_pEngineCore->SetEditorInterface( 
 }
 #endif //MYFW_USING_WX
 

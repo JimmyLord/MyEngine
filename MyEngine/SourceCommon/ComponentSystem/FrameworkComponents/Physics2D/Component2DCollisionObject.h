@@ -109,6 +109,9 @@ public:
 
     static void StaticOnTransformPositionChanged(void* pObjectPtr, Vector3& newpos, bool changedbyeditor) { ((Component2DCollisionObject*)pObjectPtr)->OnTransformPositionChanged( newpos, changedbyeditor ); }
     void OnTransformPositionChanged(Vector3& newpos, bool changedbyeditor);
+
+    static void StaticOnButtonEditChain(void* pObjectPtr) { ((Component2DCollisionObject*)pObjectPtr)->OnButtonEditChain(); }
+    void OnButtonEditChain();
 #endif //MYFW_USING_WX
 };
 

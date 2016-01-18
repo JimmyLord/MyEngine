@@ -85,6 +85,9 @@
     <Filter Include="Source\ComponentSystem\Framework Components\Physics2D">
       <UniqueIdentifier>{87d4e2d2-c11f-408c-80bf-e553af8dc6b6}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Editor\Interfaces">
+      <UniqueIdentifier>{b2675a48-2ea1-48e2-9485-6fa399f712ab}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="SourceCommon\Camera\Camera3D.cpp">
@@ -362,6 +365,12 @@
     </ClCompile>
     <ClCompile Include="SourceCommon\ComponentSystem\FrameworkComponents\Physics2D\Component2DJointPrismatic.cpp">
       <Filter>Source\ComponentSystem\Framework Components\Physics2D</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCommon\Editor\Interfaces\EditorInterface.cpp">
+      <Filter>Source\Editor\Interfaces</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCommon\Editor\Interfaces\EditorInterface_SceneManagement.cpp">
+      <Filter>Source\Editor\Interfaces</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -667,6 +676,12 @@
     </ClInclude>
     <ClInclude Include="SourceCommon\ComponentSystem\FrameworkComponents\Physics2D\Component2DJointPrismatic.h">
       <Filter>Source\ComponentSystem\Framework Components\Physics2D</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCommon\Editor\Interfaces\EditorInterface.h">
+      <Filter>Source\Editor\Interfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCommon\Editor\Interfaces\EditorInterface_SceneManagement.h">
+      <Filter>Source\Editor\Interfaces</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

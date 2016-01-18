@@ -105,6 +105,9 @@ protected:
     bool m_SceneReloadRequested;
     RequestedSceneInfo m_pSceneFilesLoading[MAX_SCENE_FILES_QUEUED_UP]; // TODO: replace this monstrosity with an ordered list.
 
+    EditorInterface_SceneManagement* m_pEditorInterface_SceneManagement;
+    EditorInterface* m_pCurrentEditorInterface;
+
 public:
     EngineCore();
     virtual ~EngineCore();
