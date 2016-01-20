@@ -119,6 +119,7 @@ extern "C"
 #include "Editor/Dialogs/DialogGridSettings.h"
 #include "Editor/Interfaces/EditorInterface.h"
 #include "Editor/Interfaces/EditorInterface_SceneManagement.h"
+#include "Editor/Interfaces/EditorInterface_2DPointEditor.h"
 #endif
 
 #include "Core/EngineCore.h"

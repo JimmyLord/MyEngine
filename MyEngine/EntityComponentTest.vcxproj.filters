@@ -372,6 +372,9 @@
     <ClCompile Include="SourceCommon\Editor\Interfaces\EditorInterface_SceneManagement.cpp">
       <Filter>Source\Editor\Interfaces</Filter>
     </ClCompile>
+    <ClCompile Include="SourceCommon\Editor\Interfaces\EditorInterface_2DPointEditor.cpp">
+      <Filter>Source\Editor\Interfaces</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SourceCommon\Camera\Camera3D.h">
@@ -681,6 +684,9 @@
       <Filter>Source\Editor\Interfaces</Filter>
     </ClInclude>
     <ClInclude Include="SourceCommon\Editor\Interfaces\EditorInterface_SceneManagement.h">
+      <Filter>Source\Editor\Interfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCommon\Editor\Interfaces\EditorInterface_2DPointEditor.h">
       <Filter>Source\Editor\Interfaces</Filter>
     </ClInclude>
   </ItemGroup>

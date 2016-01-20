@@ -35,6 +35,13 @@ enum LayerValues
     Layer_EditorFG              = 0x8000,
 };
 
+enum EditorInterfaceTypes
+{
+    EditorInterfaceType_SceneManagement,
+    EditorInterfaceType_2DPointEditor,
+    EditorInterfaceType_NumInterfaces,
+};
+
 struct RequestedSceneInfo
 {
     MyFileObject* m_pFile; // acts as a flag whether or not scene was requested.
@@ -105,7 +112,7 @@ protected:
     bool m_SceneReloadRequested;
     RequestedSceneInfo m_pSceneFilesLoading[MAX_SCENE_FILES_QUEUED_UP]; // TODO: replace this monstrosity with an ordered list.
 
-    EditorInterface_SceneManagement* m_pEditorInterface_SceneManagement;
+    EditorInterface* m_pEditorInterfaces[EditorInterfaceType_NumInterfaces];
     EditorInterface* m_pCurrentEditorInterface;
 
 public:
@@ -170,6 +177,8 @@ public:
     GameObject* GetObjectAtPixel(unsigned int x, unsigned int y, bool createnewbitmap);
     void SelectObjectsInRectangle(unsigned int sx, unsigned int sy, unsigned int ex, unsigned int ey);
     void GetMouseRay(Vector2 mousepos, Vector3* start, Vector3* end);
+
+    void SetEditorInterface(EditorInterfaceTypes type);
 #endif //MYFW_USING_WX
 
 #if MYFW_USING_WX

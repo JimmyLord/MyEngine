@@ -50,8 +50,9 @@ EngineCore::EngineCore()
         m_pSceneFilesLoading[i].m_SceneID = -1;
     }
 
-    m_pEditorInterface_SceneManagement = MyNew EditorInterface_SceneManagement();
-    m_pCurrentEditorInterface = m_pEditorInterface_SceneManagement; 
+    m_pEditorInterfaces[EditorInterfaceType_SceneManagement] = MyNew EditorInterface_SceneManagement();
+    m_pEditorInterfaces[EditorInterfaceType_2DPointEditor] = MyNew EditorInterface_2DPointEditor();
+    SetEditorInterface( EditorInterfaceType_SceneManagement );
 
     m_pBulletWorld = MyNew BulletWorld();
 
@@ -94,7 +95,8 @@ EngineCore::~EngineCore()
     SAFE_DELETE( m_pLuaGameState );
 #endif //MYFW_USING_LUA
 
-    SAFE_DELETE( m_pEditorInterface_SceneManagement );
+    for( int i=0; i<EditorInterfaceType_NumInterfaces; i++ )
+        SAFE_DELETE( m_pEditorInterfaces[i] );
 
     g_pFileManager->FreeFile( m_pShaderFile_TintColor );
     g_pFileManager->FreeFile( m_pShaderFile_ClipSpaceTexture );
@@ -1403,6 +1405,13 @@ void EngineCore::GetMouseRay(Vector2 mousepos, Vector3* start, Vector3* end)
 
     start->Set( raystart.x, raystart.y, raystart.z );
     end->Set( rayend.x, rayend.y, rayend.z );
+}
+
+void EngineCore::SetEditorInterface(EditorInterfaceTypes type)
+{
+    MyAssert( type >= 0 && type < EditorInterfaceType_NumInterfaces );
+
+    m_pCurrentEditorInterface = m_pEditorInterfaces[type];
 }
 #endif //MYFW_USING_WX
 

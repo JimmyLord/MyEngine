@@ -1769,6 +1769,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='WxRelease|PNaCl'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="SourceCommon\Editor\Interfaces\EditorInterface.cpp" />
+    <ClCompile Include="SourceCommon\Editor\Interfaces\EditorInterface_2DPointEditor.cpp" />
     <ClCompile Include="SourceCommon\Editor\Interfaces\EditorInterface_SceneManagement.cpp" />
     <ClCompile Include="SourceCommon\Editor\TransformGizmo.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
@@ -1959,6 +1960,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='WxRelease|PNaCl'">true</ExcludedFromBuild>
     </ClInclude>
     <ClInclude Include="SourceCommon\Editor\Interfaces\EditorInterface.h" />
+    <ClInclude Include="SourceCommon\Editor\Interfaces\EditorInterface_2DPointEditor.h" />
     <ClInclude Include="SourceCommon\Editor\Interfaces\EditorInterface_SceneManagement.h" />
     <ClInclude Include="SourceCommon\Editor\TransformGizmo.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
