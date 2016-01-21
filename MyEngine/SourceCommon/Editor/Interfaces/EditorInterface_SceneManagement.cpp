@@ -17,6 +17,18 @@ EditorInterface_SceneManagement::~EditorInterface_SceneManagement()
 {
 }
 
+void EditorInterface_SceneManagement::OnActivated()
+{
+    EditorState* pEditorState = g_pEngineCore->m_pEditorState;
+    pEditorState->m_pTransformGizmo->m_VisibleIfObjectsSelected = true;
+}
+
+void EditorInterface_SceneManagement::OnDeactivated()
+{
+    EditorState* pEditorState = g_pEngineCore->m_pEditorState;
+    pEditorState->m_pTransformGizmo->m_VisibleIfObjectsSelected = false;
+}
+
 void EditorInterface_SceneManagement::OnDrawFrame(unsigned int canvasid)
 {
     MyAssert( canvasid == 1 );

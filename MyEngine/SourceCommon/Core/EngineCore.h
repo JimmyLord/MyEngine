@@ -179,6 +179,7 @@ public:
     void GetMouseRay(Vector2 mousepos, Vector3* start, Vector3* end);
 
     void SetEditorInterface(EditorInterfaceTypes type);
+    EditorInterface* EngineCore::GetCurrentEditorInterface();
 #endif //MYFW_USING_WX
 
 #if MYFW_USING_WX

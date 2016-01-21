@@ -50,10 +50,6 @@ EngineCore::EngineCore()
         m_pSceneFilesLoading[i].m_SceneID = -1;
     }
 
-    m_pEditorInterfaces[EditorInterfaceType_SceneManagement] = MyNew EditorInterface_SceneManagement();
-    m_pEditorInterfaces[EditorInterfaceType_2DPointEditor] = MyNew EditorInterface_2DPointEditor();
-    SetEditorInterface( EditorInterfaceType_SceneManagement );
-
     m_pBulletWorld = MyNew BulletWorld();
 
 #if MYFW_USING_LUA
@@ -80,6 +76,10 @@ EngineCore::EngineCore()
 
     g_pPanelObjectList->m_pCallbackFunctionObject = this;
     g_pPanelObjectList->m_pOnTreeSelectionChangedFunction = StaticOnObjectListTreeSelectionChanged;
+
+    m_pEditorInterfaces[EditorInterfaceType_SceneManagement] = MyNew EditorInterface_SceneManagement();
+    m_pEditorInterfaces[EditorInterfaceType_2DPointEditor] = MyNew EditorInterface_2DPointEditor();
+    m_pCurrentEditorInterface = 0;
 #endif //MYFW_USING_WX
 
     m_DebugFPS = 0;
@@ -164,6 +164,8 @@ void EngineCore::OneTimeInit()
     {
         m_pDebugTextMesh = MyNew MyMeshText( 100, m_pDebugFont );
     }
+
+    SetEditorInterface( EditorInterfaceType_SceneManagement );
 #endif //MYFW_USING_WX
 
     // setup our shaders
@@ -1411,7 +1413,17 @@ void EngineCore::SetEditorInterface(EditorInterfaceTypes type)
 {
     MyAssert( type >= 0 && type < EditorInterfaceType_NumInterfaces );
 
+    if( m_pCurrentEditorInterface )
+        m_pCurrentEditorInterface->OnDeactivated();
+
     m_pCurrentEditorInterface = m_pEditorInterfaces[type];
+
+    m_pCurrentEditorInterface->OnActivated();
+}
+
+EditorInterface* EngineCore::GetCurrentEditorInterface()
+{
+    return m_pCurrentEditorInterface;
 }
 #endif //MYFW_USING_WX
 

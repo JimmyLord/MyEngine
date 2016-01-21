@@ -18,6 +18,8 @@ public:
     EditorInterface();
     virtual ~EditorInterface();
 
+    virtual void OnActivated();
+    virtual void OnDeactivated();
     virtual void OnDrawFrame(unsigned int canvasid);
 
     virtual bool HandleInput(int keyaction, int keycode, int mouseaction, int id, float x, float y, float pressure) = 0;

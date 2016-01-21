@@ -17,6 +17,7 @@ class TransformGizmo
 public:
     GameObject* m_pTransformGizmos[3];
 
+    bool m_VisibleIfObjectsSelected;
     int m_SelectedPart;
 
     bool m_LastIntersectResultIsValid;

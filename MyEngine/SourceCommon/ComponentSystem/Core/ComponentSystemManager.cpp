@@ -1821,6 +1821,11 @@ void ComponentSystemManager::DrawSingleObject(MyMatrix* pMatViewProj, GameObject
         if( pComponent )
         {
             pComponent->Draw( pMatViewProj );
+
+            ComponentCallbackStruct_Draw* pCallbackStruct = pComponent->GetDrawCallback();
+            ComponentBase* pComponent = (ComponentBase*)pCallbackStruct->pObj;
+
+            (pCallbackStruct->pObj->*pCallbackStruct->pFunc)( 0, pMatViewProj, 0 );
         }
     }
 }

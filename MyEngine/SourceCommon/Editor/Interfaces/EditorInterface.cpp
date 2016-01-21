@@ -17,6 +17,14 @@ EditorInterface::~EditorInterface()
 {
 }
 
+void EditorInterface::OnActivated()
+{
+}
+
+void EditorInterface::OnDeactivated()
+{
+}
+
 void EditorInterface::OnDrawFrame(unsigned int canvasid)
 {
     MyAssert( canvasid == 1 );

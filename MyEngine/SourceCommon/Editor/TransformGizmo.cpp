@@ -12,6 +12,7 @@
 
 TransformGizmo::TransformGizmo()
 {
+    m_VisibleIfObjectsSelected = false;
     m_SelectedPart = -1;
 
     for( int i=0; i<3; i++ )
@@ -86,6 +87,9 @@ void TransformGizmo::Tick(double TimePassed, EditorState* pEditorState)
         {
             pRenderable->SetVisible( false );
         }
+
+        if( m_VisibleIfObjectsSelected == false )
+            pRenderable->SetVisible( false );
 
         if( pRenderable->IsVisible() )
         {

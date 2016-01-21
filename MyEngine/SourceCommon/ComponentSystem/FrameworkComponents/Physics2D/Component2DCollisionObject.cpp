@@ -266,6 +266,7 @@ void Component2DCollisionObject::OnTransformPositionChanged(Vector3& newpos, boo
 void Component2DCollisionObject::OnButtonEditChain()
 {
     g_pEngineCore->SetEditorInterface( EditorInterfaceType_2DPointEditor );
+    ((EditorInterface_2DPointEditor*)g_pEngineCore->GetCurrentEditorInterface())->Set2DCollisionObjectToEdit( this );
 }
 #endif //MYFW_USING_WX
 

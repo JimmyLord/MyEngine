@@ -13,14 +13,21 @@
 class EditorInterface_2DPointEditor : public EditorInterface
 {
 protected:
+    Component2DCollisionObject* m_pCollisionObject;
+
+    GameObject* m_pPoint;
 
 public:
     EditorInterface_2DPointEditor();
     virtual ~EditorInterface_2DPointEditor();
 
+    virtual void OnActivated();
+    virtual void OnDeactivated();
     virtual void OnDrawFrame(unsigned int canvasid);
 
     virtual bool HandleInput(int keyaction, int keycode, int mouseaction, int id, float x, float y, float pressure);
+
+    void Set2DCollisionObjectToEdit(Component2DCollisionObject* pCollisionObject);
 };
 
 #endif //__EditorInterface_2DPointEditor_H__

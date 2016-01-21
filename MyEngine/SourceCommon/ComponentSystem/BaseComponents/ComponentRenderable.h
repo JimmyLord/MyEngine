@@ -40,6 +40,17 @@ public:
     virtual void RegisterCallbacks() {} // TODO: change this component to use callbacks.
     virtual void UnregisterCallbacks() {} // TODO: change this component to use callbacks.
 
+public:
+    // Callback functions for various events.
+    //MYFW_DECLARE_COMPONENT_CALLBACK_TICK(); // TickCallback
+    //MYFW_DECLARE_COMPONENT_CALLBACK_ONSURFACECHANGED(); // OnSurfaceChangedCallback
+    MYFW_DECLARE_COMPONENT_CALLBACK_DRAW(); // DrawCallback
+    //MYFW_DECLARE_COMPONENT_CALLBACK_ONTOUCH(); // OnTouchCallback
+    //MYFW_DECLARE_COMPONENT_CALLBACK_ONBUTTONS(); // OnButtonsCallback
+    //MYFW_DECLARE_COMPONENT_CALLBACK_ONKEYS(); // OnKeysCallback
+    //MYFW_DECLARE_COMPONENT_CALLBACK_ONFILERENAMED(); // OnFileRenamedCallback
+
+public:
     virtual MaterialDefinition* GetMaterial(int submeshindex) { return 0; }
     virtual void SetMaterial(MaterialDefinition* pMaterial, int submeshindex);
     void Draw(MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride = 0, int drawcount = 0);

@@ -65,7 +65,8 @@ struct FileUpdatedCallbackStruct
 
 #define MYFW_DECLARE_COMPONENT_CALLBACK_DRAW() \
     ComponentCallbackStruct_Draw m_CallbackStruct_Draw; \
-    void DrawCallback(ComponentCamera* pCamera, MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride);
+    void DrawCallback(ComponentCamera* pCamera, MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride); \
+    virtual ComponentCallbackStruct_Draw* GetDrawCallback() { return &m_CallbackStruct_Draw; }
 
 #define MYFW_DECLARE_COMPONENT_CALLBACK_ONTOUCH() \
     ComponentCallbackStruct_OnTouch m_CallbackStruct_OnTouch; \
