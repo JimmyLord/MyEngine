@@ -16,6 +16,7 @@ protected:
     Component2DCollisionObject* m_pCollisionObject;
 
     GameObject* m_pPoint;
+    int m_IndexOfPointBeingDragged;
 
 public:
     EditorInterface_2DPointEditor();

@@ -14,6 +14,8 @@ EditorInterface_2DPointEditor::EditorInterface_2DPointEditor()
     m_pCollisionObject = 0;
 
     m_pPoint = 0;
+
+    m_IndexOfPointBeingDragged = -1;
 }
 
 EditorInterface_2DPointEditor::~EditorInterface_2DPointEditor()
@@ -83,6 +85,15 @@ void EditorInterface_2DPointEditor::OnDrawFrame(unsigned int canvasid)
 
         g_pComponentSystemManager->DrawSingleObject( pEditorMatViewProj, m_pPoint, 0 );
     }
+
+    if( g_pEngineCore->m_Debug_DrawPhysicsDebugShapes && g_GLCanvasIDActive == 1 )
+    {
+        for( int i=0; i<g_pComponentSystemManager->MAX_SCENES_LOADED; i++ )
+        {
+            if( g_pComponentSystemManager->m_pSceneInfoMap[i].m_InUse && g_pComponentSystemManager->m_pSceneInfoMap[i].m_pBox2DWorld )
+                g_pComponentSystemManager->m_pSceneInfoMap[i].m_pBox2DWorld->m_pWorld->DrawDebugData();
+        }
+    }
 }
 
 bool EditorInterface_2DPointEditor::HandleInput(int keyaction, int keycode, int mouseaction, int id, float x, float y, float pressure)
@@ -98,12 +109,81 @@ bool EditorInterface_2DPointEditor::HandleInput(int keyaction, int keycode, int 
 
     if( pEditorState->m_ModifierKeyStates & MODIFIERKEY_LeftMouse )
     {
-        if( mouseaction == GCBA_Down && id == 0 )
+        if( id == 0 ) // left mouse button
         {
-            // find the object we clicked on.
-            unsigned int id = GetIDAtPixel( (unsigned int)x, (unsigned int)y, true );
+            if( mouseaction == GCBA_Down )
+            {
+                // find the object we clicked on.
+                unsigned int id = GetIDAtPixel( (unsigned int)x, (unsigned int)y, true );
 
-            LOGInfo( LOGTag, "GetIDAtPixel() = %d\n", id / 100000 - 1 );
+                m_IndexOfPointBeingDragged = id / 100000 - 1;
+
+                LOGInfo( LOGTag, "Grabbed point %d\n", m_IndexOfPointBeingDragged );
+            }
+
+            if( mouseaction == GCBA_Up && id == 0 )
+            {
+                if( m_IndexOfPointBeingDragged != -1 )
+                {
+                    LOGInfo( LOGTag, "Released point %d\n", m_IndexOfPointBeingDragged );
+
+                    // create a plane based on the axis we want.
+                    Vector3 normal = Vector3(0,0,1);
+                    Vector3 axisvector = Vector3(1,0,0);
+
+                    // create a plane on Z = 0 // TODO: if the Box2D world is on any other plane, fix this.
+                    Plane plane;
+                    plane.Set( normal, Vector3(0,0,0) );
+
+                    // Get the mouse click ray... current and last frame.
+                    Vector3 currentraystart, currentrayend;
+                    g_pEngineCore->GetMouseRay( pEditorState->m_CurrentMousePosition, &currentraystart, &currentrayend );
+
+                    Vector3 lastraystart, lastrayend;
+                    g_pEngineCore->GetMouseRay( pEditorState->m_LastMousePosition, &lastraystart, &lastrayend );
+
+                    //LOGInfo( LOGTag, "current->(%0.0f,%0.0f) (%0.2f,%0.2f,%0.2f) (%0.2f,%0.2f,%0.2f)\n",
+                    //        pEditorState->m_CurrentMousePosition.x,
+                    //        pEditorState->m_CurrentMousePosition.y,
+                    //        currentraystart.x,
+                    //        currentraystart.y,
+                    //        currentraystart.z,
+                    //        currentrayend.x,
+                    //        currentrayend.y,
+                    //        currentrayend.z
+                    //    );
+
+                    // find the intersection point of the plane.
+                    Vector3 currentresult;
+                    Vector3 lastresult;
+                    if( plane.IntersectRay( currentraystart, currentrayend, &currentresult ) &&
+                        plane.IntersectRay( lastraystart, lastrayend, &lastresult ) )
+                    {
+                        //LOGInfo( LOGTag, "currentresult( %f, %f, %f );", currentresult.x, currentresult.y, currentresult.z );
+                        //LOGInfo( LOGTag, "lastresult( %f, %f, %f );", lastresult.x, lastresult.y, lastresult.z );
+                        //LOGInfo( LOGTag, "axisvector( %f, %f, %f );\n", axisvector.x, axisvector.y, axisvector.z );
+
+                        ComponentTransform* pParentTransformComponent = m_pCollisionObject->m_pGameObject->GetTransform();
+                        MyMatrix* pParentMatrix = pParentTransformComponent->GetTransform();
+
+                        b2Vec2 newpos;
+                        newpos.x = currentresult.x - pParentMatrix->GetTranslation().x;
+                        newpos.y = currentresult.y - pParentMatrix->GetTranslation().y;
+
+                        if( pEditorState->m_ModifierKeyStates & MODIFIERKEY_Shift )
+                        {
+                            std::vector<b2Vec2>::iterator it = m_pCollisionObject->m_Vertices.begin();
+                            m_pCollisionObject->m_Vertices.insert( it + m_IndexOfPointBeingDragged, newpos );
+                        }
+                        else
+                        {
+                            m_pCollisionObject->m_Vertices[m_IndexOfPointBeingDragged].Set( newpos.x, newpos.y );
+                        }
+                    }
+                }
+
+                m_IndexOfPointBeingDragged = -1;
+            }
         }
     }
 
