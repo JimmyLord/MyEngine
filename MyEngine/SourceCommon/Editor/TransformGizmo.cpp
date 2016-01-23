@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015 Jimmy Lord http://www.flatheadgames.com
+// Copyright (c) 2015-2016 Jimmy Lord http://www.flatheadgames.com
 //
 // This software is provided 'as-is', without any express or implied warranty.  In no event will the authors be held liable for any damages arising from the use of this software.
 // Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -129,7 +129,7 @@ bool TransformGizmo::HandleInput(EngineCore* pGame, int keydown, int keycode, in
         return false;
 
     // find the object we're hovering on
-    GameObject* pObject = pGame->GetObjectAtPixel( (unsigned int)x, (unsigned int)y, true );
+    GameObject* pObject = pGame->GetCurrentEditorInterface()->GetObjectAtPixel( (unsigned int)x, (unsigned int)y, true );
 
     m_SelectedPart = -1;
 

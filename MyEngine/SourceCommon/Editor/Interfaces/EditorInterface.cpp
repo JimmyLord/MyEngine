@@ -43,6 +43,18 @@ void EditorInterface::OnDrawFrame(unsigned int canvasid)
                 pCamera->OnDrawFrame();
         }
     }
+
+    // Draw our mouse picker frame over the screen
+    if( g_pEngineCore->m_Debug_DrawMousePickerFBO && g_GLCanvasIDActive == 1 )
+    {
+        if( g_pEngineCore->m_pDebugQuadSprite == 0 )
+            g_pEngineCore->m_pDebugQuadSprite = MyNew MySprite( false );
+
+        g_pEngineCore->m_pDebugQuadSprite->CreateInPlace( "debug", 0.75f, 0.75f, 0.5f, 0.5f, 0, 1, 1, 0, Justify_Center, false );
+        g_pEngineCore->m_pMaterial_MousePicker->SetTextureColor( pEditorState->m_pMousePickerFBO->m_pColorTexture );
+        g_pEngineCore->m_pDebugQuadSprite->SetMaterial( g_pEngineCore->m_pMaterial_MousePicker );
+        g_pEngineCore->m_pDebugQuadSprite->Draw( 0 );
+    }
 }
 
 void EditorInterface::SetModifierKeyStates(int keyaction, int keycode, int mouseaction, int id, float x, float y, float pressure)
@@ -291,4 +303,225 @@ bool EditorInterface::HandleInputForEditorCamera(int keyaction, int keycode, int
     }
 
     return false;
+}
+
+void EditorInterface::RenderObjectIDsToFBO()
+{
+    EditorState* pEditorState = g_pEngineCore->m_pEditorState;
+
+    if( pEditorState->m_pMousePickerFBO->m_FullyLoaded == false )
+        return;
+
+    // bind our FBO so we can render the scene to it.
+    pEditorState->m_pMousePickerFBO->Bind( true );
+
+    pEditorState->m_pTransformGizmo->ScaleGizmosForMousePickRendering( true );
+
+    glDisable( GL_SCISSOR_TEST );
+    glViewport( 0, 0, pEditorState->m_pMousePickerFBO->m_Width, pEditorState->m_pMousePickerFBO->m_Height );
+
+    glClearColor( 0, 0, 0, 0 );
+    glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+
+    // draw all editor camera components.
+    ComponentCamera* pCamera = 0;
+    for( unsigned int i=0; i<pEditorState->m_pEditorCamera->m_Components.Count(); i++ )
+    {
+        pCamera = dynamic_cast<ComponentCamera*>( pEditorState->m_pEditorCamera->m_Components[i] );
+        if( pCamera )
+        {
+            g_pComponentSystemManager->DrawMousePickerFrame( pCamera, &pCamera->m_Camera3D.m_matViewProj, g_pEngineCore->m_pShader_TintColor );
+            glClear( GL_DEPTH_BUFFER_BIT );
+        }
+    }
+
+    pEditorState->m_pMousePickerFBO->Unbind( true );
+
+    pEditorState->m_pTransformGizmo->ScaleGizmosForMousePickRendering( false );
+}
+
+unsigned int EditorInterface::GetIDAtPixel(unsigned int x, unsigned int y, bool createnewbitmap)
+{
+    EditorState* pEditorState = g_pEngineCore->m_pEditorState;
+
+    if( pEditorState->m_pMousePickerFBO->m_FullyLoaded == false )
+        return 0;
+
+    if( createnewbitmap )
+    {
+        RenderObjectIDsToFBO();
+    }
+
+    // bind our FBO so we can render sample from it.
+    pEditorState->m_pMousePickerFBO->Bind( true );
+
+    // Find the first camera again.
+    ComponentCamera* pCamera = 0;
+    for( unsigned int i=0; i<pEditorState->m_pEditorCamera->m_Components.Count(); i++ )
+    {
+        pCamera = dynamic_cast<ComponentCamera*>( pEditorState->m_pEditorCamera->m_Components[i] );
+        break;
+    }
+
+    MyAssert( pCamera );
+    if( pCamera == 0 )
+        return 0;
+
+    // get a pixel from the FBO... use m_WindowStartX/m_WindowStartY from any camera component.
+    unsigned char pixel[4];
+    glReadPixels( x - (unsigned int)pCamera->m_WindowStartX, y - (unsigned int)pCamera->m_WindowStartY,
+                  1, 1, GL_RGBA, GL_UNSIGNED_BYTE, pixel );
+
+    pEditorState->m_pMousePickerFBO->Unbind( true );
+
+    // Convert the RGB value to an id.
+    uint64_t id = pixel[0] + pixel[1]*256 + pixel[2]*256*256 + pixel[3]*256*256*256;
+    id = (((uint64_t)UINT_MAX+1) * (id % 641) + id) / 641; // 1, 641, 6700417, 4294967297,
+    //LOGInfo( LOGTag, "pixel - %d, %d, %d, %d - id - %d\n", pixel[0], pixel[1], pixel[2], pixel[3], id );
+
+    return (unsigned int)id;
+}
+
+GameObject* EditorInterface::GetObjectAtPixel(unsigned int x, unsigned int y, bool createnewbitmap)
+{
+    EditorState* pEditorState = g_pEngineCore->m_pEditorState;
+
+    unsigned int id = GetIDAtPixel( x, y, createnewbitmap );
+
+    unsigned int sceneid = (unsigned int)(id / 100000);
+    id = id % 100000;
+
+    // find the object clicked on.
+    GameObject* pGameObject = g_pComponentSystemManager->FindGameObjectByID( sceneid, (unsigned int)id );
+
+    // if we didn't click on something, check if it's the transform gizmo.
+    //   has to be checked manually since they are unmanaged.
+    if( pGameObject == 0 )
+    {
+        for( int i=0; i<3; i++ )
+        {
+            if( pEditorState->m_pTransformGizmo->m_pTransformGizmos[i]->GetID() == id )
+            {
+                pGameObject = pEditorState->m_pTransformGizmo->m_pTransformGizmos[i];
+            }
+        }
+    }
+
+    return pGameObject;
+}
+
+void EditorInterface::SelectObjectsInRectangle(unsigned int sx, unsigned int sy, unsigned int ex, unsigned int ey)
+{
+    EditorState* pEditorState = g_pEngineCore->m_pEditorState;
+
+    int smallerx = sx > ex ? ex : sx;
+    int biggerx = sx < ex ? ex : sx;
+
+    int smallery = sy > ey ? ey : sy;
+    int biggery = sy < ey ? ey : sy;
+
+    //LOGInfo( LOGTag, "group selecting: %d,%d  %d,%d\n", smallerx, smallery, biggerx, biggery );
+
+    // render to the FBO.
+    RenderObjectIDsToFBO();
+
+    // bind our FBO so we can sample from it.
+    pEditorState->m_pMousePickerFBO->Bind( true );
+
+    // Find the first camera again.
+    ComponentCamera* pCamera = 0;
+    for( unsigned int i=0; i<pEditorState->m_pEditorCamera->m_Components.Count(); i++ )
+    {
+        pCamera = dynamic_cast<ComponentCamera*>( pEditorState->m_pEditorCamera->m_Components[i] );
+        break;
+    }
+
+    MyAssert( pCamera );
+    if( pCamera == 0 )
+        return;
+
+    // get a pixel from the FBO... use m_WindowStartX/m_WindowStartY from any camera component.
+    unsigned int fbowidth = pEditorState->m_pMousePickerFBO->m_Width;
+    unsigned int fboheight = pEditorState->m_pMousePickerFBO->m_Height;
+    unsigned char* pixels = MyNew unsigned char[fbowidth * fboheight * 4];
+    glReadPixels( 0, 0, fbowidth, fboheight, GL_RGBA, GL_UNSIGNED_BYTE, pixels );
+    pEditorState->m_pMousePickerFBO->Unbind( true );
+
+    bool controlheld = pEditorState->m_ModifierKeyStates & MODIFIERKEY_Control ? true : false;
+
+    // if user isn't holding control, then clear objects and items selected in tree.
+    if( controlheld == false )
+        pEditorState->ClearSelectedObjectsAndComponents();
+
+    // potentially about to multi-select, so disable tree callbacks.
+    g_pPanelObjectList->m_UpdatePanelWatchOnSelection = false;
+
+    //unsigned int pixelsbeingtested = (biggerx - smallerx) * (biggery - smallery);
+
+    // check whether or not the first object clicked on was selected, we only care if control is held.
+    bool firstobjectwasselected = false;
+    if( controlheld )
+    {
+        unsigned int offset = (sy*fbowidth + sx)*4;
+        unsigned long long id = pixels[offset+0] + pixels[offset+1]*256 + pixels[offset+2]*256*256 + pixels[offset+3]*256*256*256;
+        id = (((uint64_t)UINT_MAX+1) * (id % 641) + id) / 641; // 1, 641, 6700417, 4294967297,
+
+        unsigned int sceneid = (unsigned int)id / 100000;
+        id = id % 100000;
+
+        // if the object's not already selected, select it.
+        GameObject* pObject = g_pComponentSystemManager->FindGameObjectByID( sceneid, (unsigned int)id );
+
+        if( pObject && pEditorState->IsGameObjectSelected( pObject ) )
+            firstobjectwasselected = true;
+    }
+
+    for( int y=smallery; y<=biggery; y++ )
+    {
+        for( int x=smallerx; x<=biggerx; x++ )
+        {
+            unsigned int offset = (y*fbowidth + x)*4;
+            unsigned long long id = pixels[offset+0] + pixels[offset+1]*256 + pixels[offset+2]*256*256 + pixels[offset+3]*256*256*256;
+            id = (((uint64_t)UINT_MAX+1) * (id % 641) + id) / 641; // 1, 641, 6700417, 4294967297,
+
+            unsigned int sceneid = (unsigned int)id / 100000;
+            id = id % 100000;
+
+            // if the object's not already selected, select it.
+            GameObject* pObject = g_pComponentSystemManager->FindGameObjectByID( sceneid, (unsigned int)id );
+
+            if( pObject )
+            {
+                bool objectselected = pEditorState->IsGameObjectSelected( pObject );
+
+                // if we're selecting objects, then select the unselected objects.
+                if( firstobjectwasselected == false )
+                {
+                    if( objectselected == false )
+                    {
+                        // select the object
+                        pEditorState->SelectGameObject( pObject );
+
+                        // select the object in the object tree.
+                        g_pPanelObjectList->SelectObject( pObject );
+                    }
+                }
+                else if( controlheld ) // if the first object was already selected, deselect all dragged if control is held.
+                {
+                    if( objectselected == true )
+                    {
+                        pEditorState->UnselectGameObject( pObject );
+                        g_pPanelObjectList->UnselectObject( pObject );
+                    }
+                }
+            }
+        }
+    }
+
+    g_pPanelObjectList->m_UpdatePanelWatchOnSelection = true;
+    UpdatePanelWatchWithSelectedItems(); // will reset and update pEditorState->m_pSelectedObjects
+
+    //LOGInfo( LOGTag, "Done selecting objects.\n" );
+
+    delete[] pixels;
 }

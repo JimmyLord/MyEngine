@@ -41,19 +41,6 @@ void EditorInterface_SceneManagement::OnDrawFrame(unsigned int canvasid)
     // EditorInterface class will draw the main editor view
     EditorInterface::OnDrawFrame( canvasid );
 
-    // Draw our mouse picker frame over the screen
-#if MYFW_USING_WX
-    if( g_pEngineCore->m_Debug_DrawMousePickerFBO && g_GLCanvasIDActive == 1 )
-    {
-        if( g_pEngineCore->m_pDebugQuadSprite == 0 )
-            g_pEngineCore->m_pDebugQuadSprite = MyNew MySprite( false );
-
-        g_pEngineCore->m_pDebugQuadSprite->CreateInPlace( "debug", 0.75f, 0.75f, 0.5f, 0.5f, 0, 1, 1, 0, Justify_Center, false );
-        g_pEngineCore->m_pMaterial_MousePicker->SetTextureColor( pEditorState->m_pMousePickerFBO->m_pColorTexture );
-        g_pEngineCore->m_pDebugQuadSprite->SetMaterial( g_pEngineCore->m_pMaterial_MousePicker );
-        g_pEngineCore->m_pDebugQuadSprite->Draw( 0 );
-    }
-
     if( g_pEngineCore->m_Debug_DrawSelectedAnimatedMesh && g_GLCanvasIDActive == 1 )
     {
         if( pEditorState->m_pSelectedObjects.size() > 0 )
@@ -171,14 +158,12 @@ void EditorInterface_SceneManagement::OnDrawFrame(unsigned int canvasid)
                 g_pComponentSystemManager->m_pSceneInfoMap[i].m_pBox2DWorld->m_pWorld->DrawDebugData();
         }
     }
-#endif
 }
 
 bool EditorInterface_SceneManagement::HandleInput(int keyaction, int keycode, int mouseaction, int id, float x, float y, float pressure)
 {
     EditorState* pEditorState = g_pEngineCore->m_pEditorState;
 
-#if MYFW_USING_WX
     EditorInterface::SetModifierKeyStates( keyaction, keycode, mouseaction, id, x, y, pressure );
 
     if( pEditorState->m_ModifierKeyStates & MODIFIERKEY_LeftMouse )
@@ -220,7 +205,7 @@ bool EditorInterface_SceneManagement::HandleInput(int keyaction, int keycode, in
         if( mouseaction == GCBA_Down && id == 0 )
         {
             // find the object we clicked on.
-            GameObject* pObject = g_pEngineCore->GetObjectAtPixel( (unsigned int)x, (unsigned int)y, true );
+            GameObject* pObject = GetObjectAtPixel( (unsigned int)x, (unsigned int)y, true );
 
             // reset mouse movement, so we can undo to this state after mouse goes up.
             pEditorState->m_DistanceTranslated.Set( 0, 0, 0 );
@@ -536,7 +521,7 @@ bool EditorInterface_SceneManagement::HandleInput(int keyaction, int keycode, in
                 // when mouse up, select all object in the box.
                 if( pEditorState->m_EditorActionState == EDITORACTIONSTATE_GroupSelectingObjects )
                 {
-                    g_pEngineCore->SelectObjectsInRectangle(
+                    SelectObjectsInRectangle(
                         (unsigned int)pEditorState->m_MouseLeftDownLocation.x, (unsigned int)pEditorState->m_MouseLeftDownLocation.y,
                         (unsigned int)pEditorState->m_CurrentMousePosition.x, (unsigned int)pEditorState->m_CurrentMousePosition.y );
                 }
@@ -570,7 +555,6 @@ bool EditorInterface_SceneManagement::HandleInput(int keyaction, int keycode, in
 
     // clear mouse button states.
     EditorInterface::ClearModifierKeyStates( keyaction, keycode, mouseaction, id, x, y, pressure );
-#endif //MYFW_USING_WX
 
     return false;
 }

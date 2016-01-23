@@ -232,7 +232,7 @@ public:
 
 public:
 #if MYFW_USING_WX
-    void DrawSingleObject(MyMatrix* pMatViewProj, GameObject* pObject); // used to draw an animated mesh into the debug FBO
+    void DrawSingleObject(MyMatrix* pMatViewProj, GameObject* pObject, ShaderGroup* pShaderOverride); // used to draw an animated mesh into the debug FBO
 
     void CheckForUpdatedDataSourceFiles(bool initialcheck);
     void OnFileUpdated(MyFileObject* pFile);

@@ -1812,7 +1812,7 @@ unsigned int ComponentSystemManager::GetSceneIDFromSceneTreeID(wxTreeItemId tree
 //    return &m_pSceneInfoMap[sceneid];
 //}
 
-void ComponentSystemManager::DrawSingleObject(MyMatrix* pMatViewProj, GameObject* pObject)
+void ComponentSystemManager::DrawSingleObject(MyMatrix* pMatViewProj, GameObject* pObject, ShaderGroup* pShaderOverride)
 {
     for( unsigned int i=0; i<pObject->m_Components.Count(); i++ )
     {
@@ -1825,7 +1825,7 @@ void ComponentSystemManager::DrawSingleObject(MyMatrix* pMatViewProj, GameObject
             ComponentCallbackStruct_Draw* pCallbackStruct = pComponent->GetDrawCallback();
             ComponentBase* pComponent = (ComponentBase*)pCallbackStruct->pObj;
 
-            (pCallbackStruct->pObj->*pCallbackStruct->pFunc)( 0, pMatViewProj, 0 );
+            (pCallbackStruct->pObj->*pCallbackStruct->pFunc)( 0, pMatViewProj, pShaderOverride );
         }
     }
 }

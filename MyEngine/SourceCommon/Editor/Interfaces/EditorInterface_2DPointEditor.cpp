@@ -81,7 +81,7 @@ void EditorInterface_2DPointEditor::OnDrawFrame(unsigned int canvasid)
         ComponentCamera* pCamera = g_pEngineCore->m_pEditorState->GetEditorCamera();
         MyMatrix* pEditorMatViewProj = &pCamera->m_Camera3D.m_matViewProj;
 
-        g_pComponentSystemManager->DrawSingleObject( pEditorMatViewProj, m_pPoint );
+        g_pComponentSystemManager->DrawSingleObject( pEditorMatViewProj, m_pPoint, 0 );
     }
 }
 
@@ -94,15 +94,24 @@ bool EditorInterface_2DPointEditor::HandleInput(int keyaction, int keycode, int 
         g_pEngineCore->SetEditorInterface( EditorInterfaceType_SceneManagement );        
     }
 
-#if MYFW_USING_WX
     EditorInterface::SetModifierKeyStates( keyaction, keycode, mouseaction, id, x, y, pressure );
+
+    if( pEditorState->m_ModifierKeyStates & MODIFIERKEY_LeftMouse )
+    {
+        if( mouseaction == GCBA_Down && id == 0 )
+        {
+            // find the object we clicked on.
+            unsigned int id = GetIDAtPixel( (unsigned int)x, (unsigned int)y, true );
+
+            LOGInfo( LOGTag, "GetIDAtPixel() = %d\n", id / 100000 - 1 );
+        }
+    }
 
     // handle camera movement, with both mouse and keyboard.
     EditorInterface::HandleInputForEditorCamera( keyaction, keycode, mouseaction, id, x, y, pressure );
 
     // clear mouse button states.
     EditorInterface::ClearModifierKeyStates( keyaction, keycode, mouseaction, id, x, y, pressure );
-#endif //MYFW_USING_WX
 
     return false;
 }
@@ -110,4 +119,78 @@ bool EditorInterface_2DPointEditor::HandleInput(int keyaction, int keycode, int 
 void EditorInterface_2DPointEditor::Set2DCollisionObjectToEdit(Component2DCollisionObject* pCollisionObject)
 {
     m_pCollisionObject = pCollisionObject;
+}
+
+void EditorInterface_2DPointEditor::RenderObjectIDsToFBO()
+{
+    //EditorInterface::RenderObjectIDsToFBO();
+
+    EditorState* pEditorState = g_pEngineCore->m_pEditorState;
+
+    if( pEditorState->m_pMousePickerFBO->m_FullyLoaded == false )
+        return;
+
+    // bind our FBO so we can render the scene to it.
+    pEditorState->m_pMousePickerFBO->Bind( true );
+
+    //pEditorState->m_pTransformGizmo->ScaleGizmosForMousePickRendering( true );
+
+    glDisable( GL_SCISSOR_TEST );
+    glViewport( 0, 0, pEditorState->m_pMousePickerFBO->m_Width, pEditorState->m_pMousePickerFBO->m_Height );
+
+    glClearColor( 0, 0, 0, 0 );
+    glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+
+    //// draw all editor camera components.
+    //ComponentCamera* pCamera = 0;
+    //for( unsigned int i=0; i<pEditorState->m_pEditorCamera->m_Components.Count(); i++ )
+    //{
+    //    pCamera = dynamic_cast<ComponentCamera*>( pEditorState->m_pEditorCamera->m_Components[i] );
+    //    if( pCamera )
+    //    {
+    //        g_pComponentSystemManager->DrawMousePickerFrame( pCamera, &pCamera->m_Camera3D.m_matViewProj, g_pEngineCore->m_pShader_TintColor );
+    //        glClear( GL_DEPTH_BUFFER_BIT );
+    //    }
+    //}
+
+    // Draw a circle at each vertex position.
+    {
+        ShaderGroup* pShaderOverride = g_pEngineCore->m_pShader_TintColor;
+        Shader_Base* pShader = (Shader_Base*)pShaderOverride->GlobalPass( 0, 4 );
+    
+        if( pShader->ActivateAndProgramShader() )
+        {
+            ComponentCamera* pCamera = g_pEngineCore->m_pEditorState->GetEditorCamera();
+            MyMatrix* pEditorMatViewProj = &pCamera->m_Camera3D.m_matViewProj;
+
+            for( unsigned int i=0; i<m_pCollisionObject->m_Vertices.size(); i++ )
+            {
+                b2Vec2 pos2d = m_pCollisionObject->m_Vertices[i];
+                Vector3 pos3d( pos2d.x, pos2d.y, 0 );
+
+                ComponentTransform* pParentTransformComponent = m_pCollisionObject->m_pGameObject->GetTransform();
+                MyMatrix* pParentMatrix = pParentTransformComponent->GetTransform();
+                Vector3 worldpos = pParentMatrix->GetTranslation() + pos3d;
+
+                m_pPoint->m_pComponentTransform->SetPosition( worldpos );
+
+                ColorByte tint( 0, 0, 0, 0 );
+                    
+                unsigned int id = ((i+1) * 100000) * 641; // 1, 641, 6700417, 4294967297, 
+
+                if( 1 )                 tint.r = id%256;
+                if( id > 256 )          tint.g = (id>>8)%256;
+                if( id > 256*256 )      tint.b = (id>>16)%256;
+                if( id > 256*256*256 )  tint.a = (id>>24)%256;
+
+                pShader->ProgramTint( tint );
+
+                g_pComponentSystemManager->DrawSingleObject( pEditorMatViewProj, m_pPoint, pShaderOverride );
+            }
+        }
+    }
+
+    pEditorState->m_pMousePickerFBO->Unbind( true );
+
+    pEditorState->m_pTransformGizmo->ScaleGizmosForMousePickRendering( false );
 }

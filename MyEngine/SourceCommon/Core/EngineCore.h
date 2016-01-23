@@ -173,9 +173,6 @@ public:
     void Editor_OnSurfaceChanged(unsigned int startx, unsigned int starty, unsigned int width, unsigned int height);
 
     void RenderSingleObject(GameObject* pObject);
-    void RenderObjectIDsToFBO();
-    GameObject* GetObjectAtPixel(unsigned int x, unsigned int y, bool createnewbitmap);
-    void SelectObjectsInRectangle(unsigned int sx, unsigned int sy, unsigned int ex, unsigned int ey);
     void GetMouseRay(Vector2 mousepos, Vector3* start, Vector3* end);
 
     void SetEditorInterface(EditorInterfaceTypes type);

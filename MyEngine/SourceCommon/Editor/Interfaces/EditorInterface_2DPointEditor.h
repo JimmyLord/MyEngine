@@ -27,6 +27,8 @@ public:
 
     virtual bool HandleInput(int keyaction, int keycode, int mouseaction, int id, float x, float y, float pressure);
 
+    virtual void RenderObjectIDsToFBO();
+
     void Set2DCollisionObjectToEdit(Component2DCollisionObject* pCollisionObject);
 };
 

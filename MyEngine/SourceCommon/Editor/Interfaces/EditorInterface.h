@@ -24,6 +24,11 @@ public:
 
     virtual bool HandleInput(int keyaction, int keycode, int mouseaction, int id, float x, float y, float pressure) = 0;
 
+    virtual void RenderObjectIDsToFBO();
+    virtual unsigned int GetIDAtPixel(unsigned int x, unsigned int y, bool createnewbitmap);
+    virtual GameObject* GetObjectAtPixel(unsigned int x, unsigned int y, bool createnewbitmap);
+    virtual void SelectObjectsInRectangle(unsigned int sx, unsigned int sy, unsigned int ex, unsigned int ey);
+
     void SetModifierKeyStates(int keyaction, int keycode, int mouseaction, int id, float x, float y, float pressure);
     void ClearModifierKeyStates(int keyaction, int keycode, int mouseaction, int id, float x, float y, float pressure);
     bool HandleInputForEditorCamera(int keyaction, int keycode, int mouseaction, int id, float x, float y, float pressure);
