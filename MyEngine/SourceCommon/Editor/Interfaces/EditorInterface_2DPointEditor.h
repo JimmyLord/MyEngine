@@ -17,6 +17,7 @@ protected:
 
     GameObject* m_pPoint;
     int m_IndexOfPointBeingDragged;
+    bool m_NewMousePress;
 
 public:
     EditorInterface_2DPointEditor();

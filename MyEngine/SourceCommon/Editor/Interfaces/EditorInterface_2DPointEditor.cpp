@@ -16,6 +16,7 @@ EditorInterface_2DPointEditor::EditorInterface_2DPointEditor()
     m_pPoint = 0;
 
     m_IndexOfPointBeingDragged = -1;
+    m_NewMousePress = false;
 }
 
 EditorInterface_2DPointEditor::~EditorInterface_2DPointEditor()
@@ -42,6 +43,11 @@ void EditorInterface_2DPointEditor::OnDrawFrame(unsigned int canvasid)
     if( m_pCollisionObject == 0 )
         return;
 
+    MaterialDefinition* pMaterial = g_pEngineCore->m_pMaterial_TransformGizmoY;
+
+    ComponentCamera* pCamera = g_pEngineCore->m_pEditorState->GetEditorCamera();
+    MyMatrix* pEditorMatViewProj = &pCamera->m_Camera3D.m_matViewProj;
+
     // create a gameobject for the points that we'll draw.
     if( m_pPoint == 0 )
     {
@@ -55,7 +61,7 @@ void EditorInterface_2DPointEditor::OnDrawFrame(unsigned int canvasid)
         if( pComponentMesh )
         {
             pComponentMesh->SetVisible( true );
-            pComponentMesh->SetMaterial( g_pEngineCore->m_pMaterial_TransformGizmoY, 0 );
+            pComponentMesh->SetMaterial( pMaterial, 0 );
             pComponentMesh->SetLayersThisExistsOn( Layer_EditorFG );
             pComponentMesh->m_pMesh = MyNew MyMesh();
             pComponentMesh->m_pMesh->Create2DCircle( 0.25f, 20 );
@@ -68,6 +74,42 @@ void EditorInterface_2DPointEditor::OnDrawFrame(unsigned int canvasid)
     ComponentRenderable* pRenderable = (ComponentRenderable*)m_pPoint->GetFirstComponentOfBaseType( BaseComponentType_Renderable );
     pRenderable->SetVisible( true );
 
+    // Draw lines connecting the circles
+    //for( unsigned int i=0; i<m_pCollisionObject->m_Vertices.size(); i++ )
+    {
+        // Set the material to the correct color and draw the shape.
+        Shader_Base* pShader = (Shader_Base*)pMaterial->GetShader()->GlobalPass( 0, 0 );
+        pMaterial->SetColorDiffuse( ColorByte( 0, 255, 0, 255 ) );
+
+        // Setup our position attribute, pass in the array of verts, not using a VBO.
+        glBindBuffer( GL_ARRAY_BUFFER, 0 );
+        pShader->InitializeAttributeArray( pShader->m_aHandle_Position, 2, GL_FLOAT, GL_FALSE, sizeof(float)*2, (void*)&m_pCollisionObject->m_Vertices[0] );
+
+        ComponentTransform* pParentTransformComponent = m_pCollisionObject->m_pGameObject->GetTransform();
+        MyMatrix worldmat;
+        worldmat.SetIdentity();
+        worldmat.SetTranslation( pParentTransformComponent->GetPosition() );
+
+        // Setup uniforms, mainly viewproj and tint.
+        glUseProgram( pShader->m_ProgramHandle );
+        pShader->ProgramBaseUniforms( pEditorMatViewProj, &worldmat, 0, pMaterial->m_ColorDiffuse, pMaterial->m_ColorSpecular, pMaterial->m_Shininess );
+
+        glLineWidth( 3 );
+
+        //glEnable( GL_BLEND );
+        //glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
+
+        //glDisable( GL_CULL_FACE );
+        //glDisable( GL_DEPTH_TEST );
+
+        MyDrawArrays( GL_LINE_STRIP, 0, m_pCollisionObject->m_Vertices.size() );
+
+        //glEnable( GL_CULL_FACE );
+        //glEnable( GL_DEPTH_TEST );
+
+        //glDisable( GL_BLEND );
+    }
+
     // Draw a circle at each vertex position.
     for( unsigned int i=0; i<m_pCollisionObject->m_Vertices.size(); i++ )
     {
@@ -79,9 +121,6 @@ void EditorInterface_2DPointEditor::OnDrawFrame(unsigned int canvasid)
         Vector3 worldpos = pParentMatrix->GetTranslation() + pos3d;
 
         m_pPoint->m_pComponentTransform->SetPosition( worldpos );
-
-        ComponentCamera* pCamera = g_pEngineCore->m_pEditorState->GetEditorCamera();
-        MyMatrix* pEditorMatViewProj = &pCamera->m_Camera3D.m_matViewProj;
 
         g_pComponentSystemManager->DrawSingleObject( pEditorMatViewProj, m_pPoint, 0 );
     }
@@ -113,19 +152,29 @@ bool EditorInterface_2DPointEditor::HandleInput(int keyaction, int keycode, int 
         {
             if( mouseaction == GCBA_Down )
             {
+                m_NewMousePress = true;
+
                 // find the object we clicked on.
-                unsigned int id = GetIDAtPixel( (unsigned int)x, (unsigned int)y, true );
+                unsigned int pixelid = GetIDAtPixel( (unsigned int)x, (unsigned int)y, true );
 
-                m_IndexOfPointBeingDragged = id / 100000 - 1;
+                m_IndexOfPointBeingDragged = pixelid - 1;
 
-                LOGInfo( LOGTag, "Grabbed point %d\n", m_IndexOfPointBeingDragged );
+                //LOGInfo( LOGTag, "Grabbed point %d\n", m_IndexOfPointBeingDragged );
             }
 
-            if( mouseaction == GCBA_Up && id == 0 )
+            if( mouseaction == GCBA_Held && id == 0 )
             {
+                bool createnewvertex = false;
+                if( m_NewMousePress && pEditorState->m_ModifierKeyStates & MODIFIERKEY_Shift )
+                {
+                    createnewvertex = true;
+                }
+
+                m_NewMousePress = false;
+
                 if( m_IndexOfPointBeingDragged != -1 )
                 {
-                    LOGInfo( LOGTag, "Released point %d\n", m_IndexOfPointBeingDragged );
+                    //LOGInfo( LOGTag, "Released point %d\n", m_IndexOfPointBeingDragged );
 
                     // create a plane based on the axis we want.
                     Vector3 normal = Vector3(0,0,1);
@@ -170,7 +219,7 @@ bool EditorInterface_2DPointEditor::HandleInput(int keyaction, int keycode, int 
                         newpos.x = currentresult.x - pParentMatrix->GetTranslation().x;
                         newpos.y = currentresult.y - pParentMatrix->GetTranslation().y;
 
-                        if( pEditorState->m_ModifierKeyStates & MODIFIERKEY_Shift )
+                        if( createnewvertex )
                         {
                             std::vector<b2Vec2>::iterator it = m_pCollisionObject->m_Vertices.begin();
                             m_pCollisionObject->m_Vertices.insert( it + m_IndexOfPointBeingDragged, newpos );
@@ -182,7 +231,7 @@ bool EditorInterface_2DPointEditor::HandleInput(int keyaction, int keycode, int 
                     }
                 }
 
-                m_IndexOfPointBeingDragged = -1;
+                //m_IndexOfPointBeingDragged = -1;
             }
         }
     }
@@ -256,7 +305,7 @@ void EditorInterface_2DPointEditor::RenderObjectIDsToFBO()
 
                 ColorByte tint( 0, 0, 0, 0 );
                     
-                unsigned int id = ((i+1) * 100000) * 641; // 1, 641, 6700417, 4294967297, 
+                unsigned int id = (i+1) * 641; // 1, 641, 6700417, 4294967297, 
 
                 if( 1 )                 tint.r = id%256;
                 if( id > 256 )          tint.g = (id>>8)%256;

@@ -124,6 +124,12 @@ void TransformGizmo::Tick(double TimePassed, EditorState* pEditorState)
 
 bool TransformGizmo::HandleInput(EngineCore* pGame, int keydown, int keycode, int action, int id, float x, float y, float pressure)
 {
+    ComponentRenderable* pRenderable = (ComponentRenderable*)m_pTransformGizmos[0]->GetFirstComponentOfBaseType( BaseComponentType_Renderable );
+    ComponentMesh* pMesh = dynamic_cast<ComponentMesh*>( pRenderable );
+
+    if( pMesh->IsVisible() == false )
+        return false;
+
     //MyAssert( x >= 0 && y >= 0 );
     if( x < 0 || y < 0 )
         return false;
