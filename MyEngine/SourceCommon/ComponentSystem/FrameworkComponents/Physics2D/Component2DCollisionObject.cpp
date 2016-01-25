@@ -344,7 +344,9 @@ void Component2DCollisionObject::RegisterCallbacks()
 
         MYFW_REGISTER_COMPONENT_CALLBACK( Component2DCollisionObject, Tick );
         //MYFW_REGISTER_COMPONENT_CALLBACK( Component2DCollisionObject, OnSurfaceChanged );
-        //MYFW_REGISTER_COMPONENT_CALLBACK( Component2DCollisionObject, Draw );
+#if MYFW_USING_WX
+        MYFW_REGISTER_COMPONENT_CALLBACK( Component2DCollisionObject, Draw );
+#endif
         //MYFW_REGISTER_COMPONENT_CALLBACK( Component2DCollisionObject, OnTouch );
         //MYFW_REGISTER_COMPONENT_CALLBACK( Component2DCollisionObject, OnButtons );
         //MYFW_REGISTER_COMPONENT_CALLBACK( Component2DCollisionObject, OnKeys );
@@ -358,7 +360,9 @@ void Component2DCollisionObject::UnregisterCallbacks()
     {
         MYFW_UNREGISTER_COMPONENT_CALLBACK( Tick );
         //MYFW_UNREGISTER_COMPONENT_CALLBACK( OnSurfaceChanged );
-        //MYFW_UNREGISTER_COMPONENT_CALLBACK( Draw );
+#if MYFW_USING_WX
+        MYFW_UNREGISTER_COMPONENT_CALLBACK( Draw );
+#endif
         //MYFW_UNREGISTER_COMPONENT_CALLBACK( OnTouch );
         //MYFW_UNREGISTER_COMPONENT_CALLBACK( OnButtons );
         //MYFW_UNREGISTER_COMPONENT_CALLBACK( OnKeys );
@@ -566,6 +570,72 @@ void Component2DCollisionObject::TickCallback(double TimePassed)
     m_pGameObject->m_pComponentTransform->UpdatePosAndRotFromLocalMatrix();
 #endif
 }
+
+#if MYFW_USING_WX
+void Component2DCollisionObject::DrawCallback(ComponentCamera* pCamera, MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride)
+{
+    if( m_Vertices.size() == 0 )
+        return;
+
+    if( g_GLCanvasIDActive != 1 )
+        return;
+
+    // if debug shapes drawing isn't enabled, then only draw lines if we're editing this objects verts.
+    if( g_pEngineCore->m_Debug_DrawPhysicsDebugShapes == false )
+    {
+        EditorInterfaceTypes interfacetype = g_pEngineCore->GetCurrentEditorInterfaceType();
+        EditorInterface* pInterface = g_pEngineCore->GetCurrentEditorInterface();
+
+        if( interfacetype != EditorInterfaceType_2DPointEditor ||
+            ((EditorInterface_2DPointEditor*)pInterface)->Get2DCollisionObjectBeingEdited() != this )
+        {
+            return;
+        }
+    }
+
+    //ComponentCamera* pCamera = g_pEngineCore->m_pEditorState->GetEditorCamera();
+    MyMatrix* pEditorMatViewProj = &pCamera->m_Camera3D.m_matViewProj;
+
+    MaterialDefinition* pMaterial = g_pEngineCore->m_pMaterial_TransformGizmoY;
+
+    // Draw lines connecting the circles
+    {
+        // Set the material to the correct color and draw the shape.
+        Shader_Base* pShader = (Shader_Base*)pMaterial->GetShader()->GlobalPass( 0, 0 );
+        pMaterial->SetColorDiffuse( ColorByte( 0, 255, 0, 255 ) );
+
+        // Setup our position attribute, pass in the array of verts, not using a VBO.
+        glBindBuffer( GL_ARRAY_BUFFER, 0 );
+        pShader->InitializeAttributeArray( pShader->m_aHandle_Position, 2, GL_FLOAT, GL_FALSE, sizeof(float)*2, (void*)&m_Vertices[0] );
+
+        ComponentTransform* pParentTransformComponent = m_pGameObject->GetTransform();
+        MyMatrix worldmat;
+        worldmat.SetIdentity();
+        worldmat.SetTranslation( pParentTransformComponent->GetPosition() );
+
+        // Setup uniforms, mainly viewproj and tint.
+        glUseProgram( pShader->m_ProgramHandle );
+        pShader->ProgramBaseUniforms( pEditorMatViewProj, &worldmat, 0, pMaterial->m_ColorDiffuse, pMaterial->m_ColorSpecular, pMaterial->m_Shininess );
+
+        glLineWidth( 3 );
+
+        glEnable( GL_BLEND );
+        glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
+
+        //glDisable( GL_CULL_FACE );
+        //glDisable( GL_DEPTH_TEST );
+
+        MyDrawArrays( GL_LINE_STRIP, 0, m_Vertices.size() );
+
+        glLineWidth( 1 );
+
+        //glEnable( GL_CULL_FACE );
+        //glEnable( GL_DEPTH_TEST );
+
+        glDisable( GL_BLEND );
+    }
+}
+#endif
 
 void Component2DCollisionObject::SyncRigidBodyToTransform()
 {

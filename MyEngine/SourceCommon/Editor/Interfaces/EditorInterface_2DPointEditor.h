@@ -31,6 +31,7 @@ public:
 
     virtual void RenderObjectIDsToFBO();
 
+    Component2DCollisionObject* Get2DCollisionObjectBeingEdited() { return m_pCollisionObject; }
     void Set2DCollisionObjectToEdit(Component2DCollisionObject* pCollisionObject);
 };
 

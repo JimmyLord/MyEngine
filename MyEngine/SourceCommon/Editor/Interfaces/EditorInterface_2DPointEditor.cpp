@@ -26,27 +26,7 @@ EditorInterface_2DPointEditor::~EditorInterface_2DPointEditor()
 
 void EditorInterface_2DPointEditor::OnActivated()
 {
-}
-
-void EditorInterface_2DPointEditor::OnDeactivated()
-{
-    ComponentRenderable* pRenderable = (ComponentRenderable*)m_pPoint->GetFirstComponentOfBaseType( BaseComponentType_Renderable );
-    pRenderable->SetVisible( false );
-}
-
-void EditorInterface_2DPointEditor::OnDrawFrame(unsigned int canvasid)
-{
-    // EditorInterface class will draw the main editor view
-    EditorInterface::OnDrawFrame( canvasid );
-
-    MyAssert( m_pCollisionObject != 0 );
-    if( m_pCollisionObject == 0 )
-        return;
-
     MaterialDefinition* pMaterial = g_pEngineCore->m_pMaterial_TransformGizmoY;
-
-    ComponentCamera* pCamera = g_pEngineCore->m_pEditorState->GetEditorCamera();
-    MyMatrix* pEditorMatViewProj = &pCamera->m_Camera3D.m_matViewProj;
 
     // create a gameobject for the points that we'll draw.
     if( m_pPoint == 0 )
@@ -70,47 +50,31 @@ void EditorInterface_2DPointEditor::OnDrawFrame(unsigned int canvasid)
 
         m_pPoint = pGameObject;
     }
+}
+
+void EditorInterface_2DPointEditor::OnDeactivated()
+{
+    ComponentRenderable* pRenderable = (ComponentRenderable*)m_pPoint->GetFirstComponentOfBaseType( BaseComponentType_Renderable );
+    pRenderable->SetVisible( false );
+}
+
+void EditorInterface_2DPointEditor::OnDrawFrame(unsigned int canvasid)
+{
+    // EditorInterface class will draw the main editor view
+    EditorInterface::OnDrawFrame( canvasid );
+
+    MyAssert( m_pCollisionObject != 0 );
+    if( m_pCollisionObject == 0 )
+        return;
+
+    MyAssert( m_pPoint != 0 );
+    if( m_pPoint == 0 )
+        return;
 
     ComponentRenderable* pRenderable = (ComponentRenderable*)m_pPoint->GetFirstComponentOfBaseType( BaseComponentType_Renderable );
     pRenderable->SetVisible( true );
 
-    // Draw lines connecting the circles
-    //for( unsigned int i=0; i<m_pCollisionObject->m_Vertices.size(); i++ )
-    {
-        // Set the material to the correct color and draw the shape.
-        Shader_Base* pShader = (Shader_Base*)pMaterial->GetShader()->GlobalPass( 0, 0 );
-        pMaterial->SetColorDiffuse( ColorByte( 0, 255, 0, 255 ) );
-
-        // Setup our position attribute, pass in the array of verts, not using a VBO.
-        glBindBuffer( GL_ARRAY_BUFFER, 0 );
-        pShader->InitializeAttributeArray( pShader->m_aHandle_Position, 2, GL_FLOAT, GL_FALSE, sizeof(float)*2, (void*)&m_pCollisionObject->m_Vertices[0] );
-
-        ComponentTransform* pParentTransformComponent = m_pCollisionObject->m_pGameObject->GetTransform();
-        MyMatrix worldmat;
-        worldmat.SetIdentity();
-        worldmat.SetTranslation( pParentTransformComponent->GetPosition() );
-
-        // Setup uniforms, mainly viewproj and tint.
-        glUseProgram( pShader->m_ProgramHandle );
-        pShader->ProgramBaseUniforms( pEditorMatViewProj, &worldmat, 0, pMaterial->m_ColorDiffuse, pMaterial->m_ColorSpecular, pMaterial->m_Shininess );
-
-        glLineWidth( 3 );
-
-        //glEnable( GL_BLEND );
-        //glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
-
-        //glDisable( GL_CULL_FACE );
-        //glDisable( GL_DEPTH_TEST );
-
-        MyDrawArrays( GL_LINE_STRIP, 0, m_pCollisionObject->m_Vertices.size() );
-
-        //glEnable( GL_CULL_FACE );
-        //glEnable( GL_DEPTH_TEST );
-
-        //glDisable( GL_BLEND );
-    }
-
-    // Draw a circle at each vertex position.
+    // Draw a circle at each vertex position. // lines are drawn by m_pCollisionObject's render callback
     for( unsigned int i=0; i<m_pCollisionObject->m_Vertices.size(); i++ )
     {
         b2Vec2 pos2d = m_pCollisionObject->m_Vertices[i];
@@ -122,9 +86,13 @@ void EditorInterface_2DPointEditor::OnDrawFrame(unsigned int canvasid)
 
         m_pPoint->m_pComponentTransform->SetPosition( worldpos );
 
+        ComponentCamera* pCamera = g_pEngineCore->m_pEditorState->GetEditorCamera();
+        MyMatrix* pEditorMatViewProj = &pCamera->m_Camera3D.m_matViewProj;
+
         g_pComponentSystemManager->DrawSingleObject( pEditorMatViewProj, m_pPoint, 0 );
     }
 
+    // Draw Box2D debug data
     if( g_pEngineCore->m_Debug_DrawPhysicsDebugShapes && g_GLCanvasIDActive == 1 )
     {
         for( int i=0; i<g_pComponentSystemManager->MAX_SCENES_LOADED; i++ )

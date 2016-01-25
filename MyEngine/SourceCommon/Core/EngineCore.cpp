@@ -79,6 +79,7 @@ EngineCore::EngineCore()
 
     m_pEditorInterfaces[EditorInterfaceType_SceneManagement] = MyNew EditorInterface_SceneManagement();
     m_pEditorInterfaces[EditorInterfaceType_2DPointEditor] = MyNew EditorInterface_2DPointEditor();
+    m_CurrentEditorInterfaceType = EditorInterfaceType_NumInterfaces;
     m_pCurrentEditorInterface = 0;
 #endif //MYFW_USING_WX
 
@@ -1211,6 +1212,7 @@ void EngineCore::SetEditorInterface(EditorInterfaceTypes type)
     if( m_pCurrentEditorInterface )
         m_pCurrentEditorInterface->OnDeactivated();
 
+    m_CurrentEditorInterfaceType = type;
     m_pCurrentEditorInterface = m_pEditorInterfaces[type];
 
     m_pCurrentEditorInterface->OnActivated();

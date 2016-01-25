@@ -113,6 +113,7 @@ protected:
     RequestedSceneInfo m_pSceneFilesLoading[MAX_SCENE_FILES_QUEUED_UP]; // TODO: replace this monstrosity with an ordered list.
 
     EditorInterface* m_pEditorInterfaces[EditorInterfaceType_NumInterfaces];
+    EditorInterfaceTypes m_CurrentEditorInterfaceType;
     EditorInterface* m_pCurrentEditorInterface;
 
 public:
@@ -176,7 +177,8 @@ public:
     void GetMouseRay(Vector2 mousepos, Vector3* start, Vector3* end);
 
     void SetEditorInterface(EditorInterfaceTypes type);
-    EditorInterface* EngineCore::GetCurrentEditorInterface();
+    EditorInterface* GetCurrentEditorInterface();
+    EditorInterfaceTypes GetCurrentEditorInterfaceType() { return m_CurrentEditorInterfaceType; }
 #endif //MYFW_USING_WX
 
 #if MYFW_USING_WX
