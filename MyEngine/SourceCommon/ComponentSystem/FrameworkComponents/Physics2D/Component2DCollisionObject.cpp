@@ -326,11 +326,14 @@ Component2DCollisionObject& Component2DCollisionObject::operator=(const Componen
 
     //m_pMesh
     
-    // TODO: fix copying chains
+    // copy vertices
 #if MYFW_USING_WX
-    //m_Vertices = other.m_Vertices;
+    m_Vertices = other.m_Vertices;
 #else
-    //m_Vertices = other.m_Vertices;
+    m_Vertices.FreeAllInList();
+    m_Vertices.AllocateObjects( other.m_Vertices.Count() );
+    for( unsigned int i=0; i<m_Vertices.Count(); i++ )
+        m_Vertices[i] = other.m_Vertices[i];
 #endif
 
     return *this;
@@ -580,17 +583,19 @@ void Component2DCollisionObject::DrawCallback(ComponentCamera* pCamera, MyMatrix
     if( g_GLCanvasIDActive != 1 )
         return;
 
-    // if debug shapes drawing isn't enabled, then only draw lines if we're editing this objects verts.
-    if( g_pEngineCore->m_Debug_DrawPhysicsDebugShapes == false )
+    // Kick out early if we don't want to draw the lines for the vertices.
+    EditorInterfaceTypes interfacetype = g_pEngineCore->GetCurrentEditorInterfaceType();
+    if( interfacetype == EditorInterfaceType_2DPointEditor )
     {
-        EditorInterfaceTypes interfacetype = g_pEngineCore->GetCurrentEditorInterfaceType();
-        EditorInterface* pInterface = g_pEngineCore->GetCurrentEditorInterface();
-
-        if( interfacetype != EditorInterfaceType_2DPointEditor ||
-            ((EditorInterface_2DPointEditor*)pInterface)->Get2DCollisionObjectBeingEdited() != this )
-        {
+        // if we're not the chain being edited, don't draw the lines.
+        EditorInterface_2DPointEditor* pInterface = (EditorInterface_2DPointEditor*)g_pEngineCore->GetCurrentEditorInterface();
+        if( pInterface->Get2DCollisionObjectBeingEdited() != this )
             return;
-        }
+    }
+    else
+    {
+        if( g_pEngineCore->m_Debug_DrawPhysicsDebugShapes == false )
+            return;
     }
 
     //ComponentCamera* pCamera = g_pEngineCore->m_pEditorState->GetEditorCamera();
