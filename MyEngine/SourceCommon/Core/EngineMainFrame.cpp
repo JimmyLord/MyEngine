@@ -79,6 +79,11 @@ EngineMainFrame::EngineMainFrame()
     m_MenuItem_GridSnapEnabled = 0;
     m_MenuItem_ShowEditorIcons = 0;
 
+    m_MenuItem_Debug_DrawMousePickerFBO = 0;
+    m_MenuItem_Debug_DrawSelectedAnimatedMesh = 0;
+    m_MenuItem_Debug_DrawGLStats = 0;
+    m_MenuItem_Debug_DrawPhysicsDebugShapes = 0;
+
     m_pEditorPrefs = 0;
 
     m_ShowEditorIcons = true;
@@ -207,10 +212,10 @@ void EngineMainFrame::InitFrame()
 
     m_Debug = MyNew wxMenu;
     m_MenuBar->Append( m_Debug, wxT("&Debug views") );
-    m_Debug->AppendCheckItem( myIDEngine_DebugShowMousePickerFBO, wxT("Show &Mouse Picker FBO\tF9") );
-    m_Debug->AppendCheckItem( myIDEngine_DebugShowSelectedAnimatedMesh, wxT("Show &Animated Debug View for Selection\tF8") );
-    m_Debug->AppendCheckItem( myIDEngine_DebugShowGLStats, wxT("Show &GL Stats\tShift-F9") );
-    m_Debug->AppendCheckItem( myIDEngine_DebugShowPhysicsShapes, wxT("Show &Physics debug shapes\tShift-F8") );
+    m_MenuItem_Debug_DrawMousePickerFBO       = m_Debug->AppendCheckItem( myIDEngine_DebugShowMousePickerFBO, wxT("Show &Mouse Picker FBO\tF9") );
+    m_MenuItem_Debug_DrawSelectedAnimatedMesh = m_Debug->AppendCheckItem( myIDEngine_DebugShowSelectedAnimatedMesh, wxT("Show &Animated Debug View for Selection\tF8") );
+    m_MenuItem_Debug_DrawGLStats              = m_Debug->AppendCheckItem( myIDEngine_DebugShowGLStats, wxT("Show &GL Stats\tShift-F9") );
+    m_MenuItem_Debug_DrawPhysicsDebugShapes   = m_Debug->AppendCheckItem( myIDEngine_DebugShowPhysicsShapes, wxT("Show &Physics debug shapes\tShift-F8") );
 
     m_Hackery_Record_StackDepth = -1;
 
@@ -465,6 +470,21 @@ void EngineMainFrame::UpdateMenuItemStates()
 
     if( m_MenuItem_ShowEditorIcons )
         m_MenuItem_ShowEditorIcons->Check( m_ShowEditorIcons );
+
+    if( g_pEngineCore )
+    {
+        if( m_MenuItem_Debug_DrawMousePickerFBO )
+            m_MenuItem_Debug_DrawMousePickerFBO->Check( g_pEngineCore->m_Debug_DrawMousePickerFBO );
+
+        if( m_MenuItem_Debug_DrawSelectedAnimatedMesh )
+            m_MenuItem_Debug_DrawSelectedAnimatedMesh->Check( g_pEngineCore->m_Debug_DrawSelectedAnimatedMesh );
+
+        if( m_MenuItem_Debug_DrawGLStats )
+            m_MenuItem_Debug_DrawGLStats->Check( g_pEngineCore->m_Debug_DrawGLStats );
+
+        if( m_MenuItem_Debug_DrawPhysicsDebugShapes )
+            m_MenuItem_Debug_DrawPhysicsDebugShapes->Check( g_pEngineCore->m_Debug_DrawPhysicsDebugShapes );
+    }
 }
 
 void EngineMainFrame::OnMenu_Engine(wxCommandEvent& event)

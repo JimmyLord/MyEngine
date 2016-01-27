@@ -86,6 +86,11 @@ public:
     wxMenuItem* m_MenuItem_GridSnapEnabled;
     wxMenuItem* m_MenuItem_ShowEditorIcons;
 
+    wxMenuItem* m_MenuItem_Debug_DrawMousePickerFBO;
+    wxMenuItem* m_MenuItem_Debug_DrawSelectedAnimatedMesh;
+    wxMenuItem* m_MenuItem_Debug_DrawGLStats;
+    wxMenuItem* m_MenuItem_Debug_DrawPhysicsDebugShapes;
+
     cJSON* m_pEditorPrefs;
 
     // Editor preferences
