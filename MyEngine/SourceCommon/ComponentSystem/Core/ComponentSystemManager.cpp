@@ -1115,9 +1115,9 @@ bool ComponentSystemManager::IsSceneLoaded(const char* fullpath)
     return false;
 }
 
-GameObject* ComponentSystemManager::CreateGameObject(bool manageobject, int sceneid)
+GameObject* ComponentSystemManager::CreateGameObject(bool manageobject, int sceneid, bool isfolder)
 {
-    GameObject* pGameObject = MyNew GameObject( manageobject, sceneid );
+    GameObject* pGameObject = MyNew GameObject( manageobject, sceneid, isfolder );
     unsigned int id = GetNextGameObjectIDAndIncrement( sceneid );
     pGameObject->SetID( id );
 

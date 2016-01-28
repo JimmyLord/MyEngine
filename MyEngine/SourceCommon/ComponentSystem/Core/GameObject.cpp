@@ -9,13 +9,14 @@
 
 #include "EngineCommonHeader.h"
 
-GameObject::GameObject(bool managed, int sceneid)
+GameObject::GameObject(bool managed, int sceneid, bool isfolder)
 {
     ClassnameSanityCheck();
 
     m_pGameObjectThisInheritsFrom = 0;
 
     m_Enabled = true;
+    m_IsFolder = isfolder;
     m_SceneID = sceneid;
     m_ID = 0;
     m_PhysicsSceneID = 0;
@@ -155,28 +156,35 @@ void GameObject::OnRightClick()
     // if there are ever more than 1000 component types?!? increase the RightClick_* initial value in header.
     MyAssert( g_pComponentTypeManager->GetNumberOfComponentTypes() < RightClick_DuplicateGameObject );
 
-    menu.Append( RightClick_DuplicateGameObject, "Duplicate GameObject" );
-    menu.Append( RightClick_CreateChild, "Create Child GameObject" );
-    if( m_pGameObjectThisInheritsFrom )
+    if( m_IsFolder == false )
     {
-        menu.Append( RightClick_ClearParent, "Clear Parent" );
-    }
-
-    unsigned int numtypes = g_pComponentTypeManager->GetNumberOfComponentTypes();
-    for( unsigned int i=0; i<numtypes; i++ )
-    {
-        if( lastcategory != g_pComponentTypeManager->GetTypeCategory( i ) )
+        menu.Append( RightClick_DuplicateGameObject, "Duplicate GameObject" );
+        menu.Append( RightClick_CreateChild, "Create Child GameObject" );
+        if( m_pGameObjectThisInheritsFrom )
         {
-            categorymenu = MyNew wxMenu;
-            menu.AppendSubMenu( categorymenu, g_pComponentTypeManager->GetTypeCategory( i ) );
+            menu.Append( RightClick_ClearParent, "Clear Parent" );
         }
 
-        categorymenu->Append( i, g_pComponentTypeManager->GetTypeName( i ) );
+        unsigned int numtypes = g_pComponentTypeManager->GetNumberOfComponentTypes();
+        for( unsigned int i=0; i<numtypes; i++ )
+        {
+            if( lastcategory != g_pComponentTypeManager->GetTypeCategory( i ) )
+            {
+                categorymenu = MyNew wxMenu;
+                menu.AppendSubMenu( categorymenu, g_pComponentTypeManager->GetTypeCategory( i ) );
+            }
 
-        lastcategory = g_pComponentTypeManager->GetTypeCategory( i );
-    }
+            categorymenu->Append( i, g_pComponentTypeManager->GetTypeName( i ) );
+
+            lastcategory = g_pComponentTypeManager->GetTypeCategory( i );
+        }
     
-    menu.Append( RightClick_DeleteGameObject, "Delete GameObject" );
+        menu.Append( RightClick_DeleteGameObject, "Delete GameObject" );
+    }
+    else
+    {
+        menu.Append( RightClick_DeleteFolder, "Delete Folder and all contents" );
+    }
 
     menu.Connect( wxEVT_COMMAND_MENU_SELECTED, (wxObjectEventFunction)&GameObject::OnPopupClick );
     
@@ -237,6 +245,20 @@ void GameObject::OnPopupClick(wxEvent &evt)
             g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_DeleteObjects( gameobjects ) );
         }
     }
+    else if( id == RightClick_DeleteFolder )
+    {
+        // delete all gameobjects in the folder, along with the folder itself.
+        std::vector<GameObject*> gameobjects;
+
+        gameobjects.push_back( pGameObject ); // the folder itself.
+        for( CPPListNode* pNode = pGameObject->m_ChildList.GetHead(); pNode; pNode = pNode->GetNext() )
+        {
+            // TODO: recurse through children
+            gameobjects.push_back( (GameObject*)pNode );
+        }
+
+        g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_DeleteObjects( gameobjects ) );
+    }
 }
 
 void GameObject::OnDrag()
@@ -293,6 +315,9 @@ cJSON* GameObject::ExportAsJSONObject(bool savesceneid)
     if( m_Enabled == false )
         cJSON_AddNumberToObject( jGameObject, "Enabled", m_Enabled );
 
+    if( m_IsFolder == true )
+        cJSON_AddNumberToObject( jGameObject, "IsFolder", m_IsFolder );
+
     if( savesceneid )
         cJSON_AddNumberToObject( jGameObject, "SceneID", m_SceneID );
 
@@ -317,6 +342,8 @@ void GameObject::ImportFromJSONObject(cJSON* jGameObject, unsigned int sceneid)
         // if this trips, then other object might be loaded after this or come from another scene that isn't loaded.
         MyAssert( m_pGameObjectThisInheritsFrom != 0 );
     }
+
+    cJSONExt_GetBool( jGameObject, "IsFolder", &m_IsFolder );
 
     cJSONExt_GetUnsignedInt( jGameObject, "ID", &m_ID );
     m_PhysicsSceneID = m_SceneID;

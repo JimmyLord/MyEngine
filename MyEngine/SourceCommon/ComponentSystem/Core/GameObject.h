@@ -31,6 +31,7 @@ protected:
     CPPListHead m_ChildList; // child game objects
 
     bool m_Enabled;
+    bool m_IsFolder;
     unsigned int m_SceneID; // 0 for runtime generated.
     unsigned int m_ID;
     unsigned int m_PhysicsSceneID; // can't be 0 (runtime scene) if a collision component exists
@@ -47,7 +48,7 @@ public:
     MyList<ComponentBase*> m_Components; // component system manager is responsible for deleting these components.
 
 public:
-    GameObject(bool managed, int sceneid);
+    GameObject(bool managed, int sceneid, bool isfolder);
     virtual ~GameObject();
     SetClassnameBase( "GameObject" ); // only first 8 character count.
 
@@ -122,6 +123,7 @@ public:
         RightClick_CreateChild,
         RightClick_ClearParent,
         RightClick_DeleteGameObject,
+        RightClick_DeleteFolder,
     };
 
     static void StaticOnTitleLabelClicked(void* pObjectPtr, int controlid, bool finishedchanging, double oldvalue) { ((GameObject*)pObjectPtr)->OnTitleLabelClicked( controlid, finishedchanging ); }

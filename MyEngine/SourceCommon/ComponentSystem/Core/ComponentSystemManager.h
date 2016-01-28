@@ -157,7 +157,7 @@ public:
     void UnloadScene(unsigned int sceneidtoclear = UINT_MAX, bool clearunmanagedcomponents = true);
     bool IsSceneLoaded(const char* fullpath);
 
-    GameObject* CreateGameObject(bool manageobject = true, int sceneid = 0);
+    GameObject* CreateGameObject(bool manageobject = true, int sceneid = 0, bool isfolder = false);
     void UnmanageGameObject(GameObject* pObject);
     void ManageGameObject(GameObject* pObject);
     void DeleteGameObject(GameObject* pObject, bool deletecomponents);

@@ -72,6 +72,7 @@ public:
     {
         RightClick_UnloadScene = 1000,
         RightClick_AddGameObject = 1001,
+        RightClick_AddFolder = 1002,
     };
 
     // Object panel callbacks.

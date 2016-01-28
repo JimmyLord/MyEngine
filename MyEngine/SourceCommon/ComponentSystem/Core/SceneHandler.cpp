@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015 Jimmy Lord http://www.flatheadgames.com
+// Copyright (c) 2015-2016 Jimmy Lord http://www.flatheadgames.com
 //
 // This software is provided 'as-is', without any express or implied warranty.  In no event will the authors be held liable for any damages arising from the use of this software.
 // Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -56,6 +56,9 @@ void SceneHandler::OnRightClick(wxTreeItemId treeid)
     menu.Append( RightClick_AddGameObject, "Add Game Object" );
     menu.Connect( wxEVT_COMMAND_MENU_SELECTED, (wxObjectEventFunction)&SceneHandler::OnPopupClick );
 
+    menu.Append( RightClick_AddFolder, "Add Folder" );
+    menu.Connect( wxEVT_COMMAND_MENU_SELECTED, (wxObjectEventFunction)&SceneHandler::OnPopupClick );
+
     menu.Append( RightClick_UnloadScene, "Unload scene" );
  	menu.Connect( wxEVT_COMMAND_MENU_SELECTED, (wxObjectEventFunction)&SceneHandler::OnPopupClick );
 
@@ -80,6 +83,13 @@ void SceneHandler::OnPopupClick(wxEvent &evt)
         {
             GameObject* pGameObject = g_pComponentSystemManager->CreateGameObject( true, pSceneHandler->m_SceneIDBeingAffected );
             pGameObject->SetName( "New Game Object" );
+        }
+        break;
+
+    case RightClick_AddFolder:
+        {
+            GameObject* pGameObject = g_pComponentSystemManager->CreateGameObject( true, pSceneHandler->m_SceneIDBeingAffected, true );
+            pGameObject->SetName( "New Folder" );
         }
         break;
     }
