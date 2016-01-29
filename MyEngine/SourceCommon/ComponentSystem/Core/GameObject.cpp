@@ -498,7 +498,10 @@ void GameObject::SetManaged(bool managed)
             //wxTreeItemId rootid = g_pPanelObjectList->GetTreeRoot();
             wxTreeItemId rootid = g_pComponentSystemManager->GetTreeIDForScene( m_SceneID );
             MyAssert( rootid.IsOk() );
-            wxTreeItemId gameobjectid = g_pPanelObjectList->AddObject( this, GameObject::StaticOnLeftClick, GameObject::StaticOnRightClick, rootid, m_Name );
+            int iconindex = ObjectListIcon_GameObject;
+            if( m_IsFolder )
+                iconindex = ObjectListIcon_Folder;
+            wxTreeItemId gameobjectid = g_pPanelObjectList->AddObject( this, GameObject::StaticOnLeftClick, GameObject::StaticOnRightClick, rootid, m_Name, iconindex );
             g_pPanelObjectList->SetDragAndDropFunctions( gameobjectid, GameObject::StaticOnDrag, GameObject::StaticOnDrop );
             g_pPanelObjectList->SetLabelEditFunction( gameobjectid, GameObject::StaticOnLabelEdit );
             m_pComponentTransform->AddToObjectsPanel( gameobjectid );

@@ -203,7 +203,7 @@ void ComponentLuaScript::OnFileUpdated(MyFileObject* pFile)
 void ComponentLuaScript::AddToObjectsPanel(wxTreeItemId gameobjectid)
 {
     //wxTreeItemId id =
-    g_pPanelObjectList->AddObject( this, ComponentLuaScript::StaticOnLeftClick, ComponentBase::StaticOnRightClick, gameobjectid, "Lua script" );
+    g_pPanelObjectList->AddObject( this, ComponentLuaScript::StaticOnLeftClick, ComponentBase::StaticOnRightClick, gameobjectid, "Lua script", ObjectListIcon_Component );
 }
 
 void ComponentLuaScript::OnLeftClick(unsigned int count, bool clear)

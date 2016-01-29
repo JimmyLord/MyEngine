@@ -135,7 +135,7 @@ void Component2DCollisionObject::LuaRegister(lua_State* luastate)
 void Component2DCollisionObject::AddToObjectsPanel(wxTreeItemId gameobjectid)
 {
     //wxTreeItemId id =
-    g_pPanelObjectList->AddObject( this, Component2DCollisionObject::StaticOnLeftClick, ComponentBase::StaticOnRightClick, gameobjectid, "2DCollisionObject" );
+    g_pPanelObjectList->AddObject( this, Component2DCollisionObject::StaticOnLeftClick, ComponentBase::StaticOnRightClick, gameobjectid, "2DCollisionObject", ObjectListIcon_Component );
 }
 
 void Component2DCollisionObject::OnLeftClick(unsigned int count, bool clear)

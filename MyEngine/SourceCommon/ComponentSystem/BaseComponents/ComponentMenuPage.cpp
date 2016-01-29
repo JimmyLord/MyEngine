@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015 Jimmy Lord http://www.flatheadgames.com
+// Copyright (c) 2015-2016 Jimmy Lord http://www.flatheadgames.com
 //
 // This software is provided 'as-is', without any express or implied warranty.  In no event will the authors be held liable for any damages arising from the use of this software.
 // Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -447,7 +447,7 @@ void ComponentMenuPage::SaveCurrentLayoutToJSON()
 
 void ComponentMenuPage::AddToObjectsPanel(wxTreeItemId gameobjectid)
 {
-    wxTreeItemId treeid = g_pPanelObjectList->AddObject( this, ComponentMenuPage::StaticOnLeftClick, ComponentBase::StaticOnRightClick, gameobjectid, "Menu Page" );
+    wxTreeItemId treeid = g_pPanelObjectList->AddObject( this, ComponentMenuPage::StaticOnLeftClick, ComponentBase::StaticOnRightClick, gameobjectid, "Menu Page", ObjectListIcon_Component );
     g_pPanelObjectList->SetDragAndDropFunctions( treeid, 0, ComponentMenuPage::StaticOnDropMenuItemOnMenuPage );
 }
 
@@ -596,7 +596,7 @@ void ComponentMenuPage::AddMenuItemToTree(unsigned int index, PanelObjectListCal
 
     wxTreeItemId componentID = g_pPanelObjectList->FindObject( this );
 
-    wxTreeItemId treeid = g_pPanelObjectList->AddObject( pMenuItem, pLeftClickFunc, StaticOnMenuItemRightClick, componentID, desc );
+    wxTreeItemId treeid = g_pPanelObjectList->AddObject( pMenuItem, pLeftClickFunc, StaticOnMenuItemRightClick, componentID, desc, ObjectListIcon_Component );
     g_pPanelObjectList->SetLabelEditFunction( treeid, MenuItem::StaticOnLabelEdit );
     g_pPanelObjectList->SetDragAndDropFunctions( treeid, MenuItem::StaticOnDrag, ComponentMenuPage::StaticOnDropMenuItemOnMenuItem );
     g_pPanelObjectList->SetCustomObjectForCallback_RightClick( treeid, this );

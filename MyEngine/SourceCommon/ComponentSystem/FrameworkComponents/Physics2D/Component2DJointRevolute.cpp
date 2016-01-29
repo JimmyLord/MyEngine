@@ -107,7 +107,7 @@ void Component2DJointRevolute::LuaRegister(lua_State* luastate)
 void Component2DJointRevolute::AddToObjectsPanel(wxTreeItemId gameobjectid)
 {
     //wxTreeItemId id =
-    g_pPanelObjectList->AddObject( this, Component2DJointRevolute::StaticOnLeftClick, ComponentBase::StaticOnRightClick, gameobjectid, "2DJointRevolute" );
+    g_pPanelObjectList->AddObject( this, Component2DJointRevolute::StaticOnLeftClick, ComponentBase::StaticOnRightClick, gameobjectid, "2DJointRevolute", ObjectListIcon_Component );
 }
 
 void Component2DJointRevolute::OnLeftClick(unsigned int count, bool clear)

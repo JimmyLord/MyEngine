@@ -84,7 +84,7 @@ void ComponentMeshPrimitive::Reset()
 void ComponentMeshPrimitive::AddToObjectsPanel(wxTreeItemId gameobjectid)
 {
     //wxTreeItemId id =
-    g_pPanelObjectList->AddObject( this, ComponentMeshPrimitive::StaticOnLeftClick, ComponentBase::StaticOnRightClick, gameobjectid, "MeshPrimitive" );
+    g_pPanelObjectList->AddObject( this, ComponentMeshPrimitive::StaticOnLeftClick, ComponentBase::StaticOnRightClick, gameobjectid, "MeshPrimitive", ObjectListIcon_Component );
 }
 
 void ComponentMeshPrimitive::OnLeftClick(unsigned int count, bool clear)

@@ -20,6 +20,14 @@ class MyFileInfo; // at bottom of this file.
 
 //#include "../BaseComponents/ComponentBase.h"
 
+enum ObjectListIconTypes
+{
+    ObjectListIcon_Scene,
+    ObjectListIcon_GameObject,
+    ObjectListIcon_Folder,
+    ObjectListIcon_Component,
+};
+
 extern ComponentSystemManager* g_pComponentSystemManager;
 
 #if MYFW_USING_WX

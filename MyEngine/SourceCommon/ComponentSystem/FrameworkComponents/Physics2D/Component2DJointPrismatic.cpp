@@ -112,7 +112,7 @@ void Component2DJointPrismatic::LuaRegister(lua_State* luastate)
 void Component2DJointPrismatic::AddToObjectsPanel(wxTreeItemId gameobjectid)
 {
     //wxTreeItemId id =
-    g_pPanelObjectList->AddObject( this, Component2DJointPrismatic::StaticOnLeftClick, ComponentBase::StaticOnRightClick, gameobjectid, "2DJointPrismatic" );
+    g_pPanelObjectList->AddObject( this, Component2DJointPrismatic::StaticOnLeftClick, ComponentBase::StaticOnRightClick, gameobjectid, "2DJointPrismatic", ObjectListIcon_Component );
 }
 
 void Component2DJointPrismatic::OnLeftClick(unsigned int count, bool clear)

@@ -37,12 +37,30 @@ ComponentSystemManager::ComponentSystemManager(ComponentTypeManager* typemanager
 #endif //!MYFW_USING_WX
 
 #if MYFW_USING_WX
+    // Add icons to the object list tree
+    {
+        wxImageList* pImageList = new wxImageList(16,16);
+
+        wxBitmap bitmap_scene( "DataEngine/EditorIcons/IconScene.bmp", wxBITMAP_TYPE_BMP );
+        wxBitmap bitmap_gameobject( "DataEngine/EditorIcons/IconGameObject.bmp", wxBITMAP_TYPE_BMP );
+        wxBitmap bitmap_folder( "DataEngine/EditorIcons/IconFolder.bmp", wxBITMAP_TYPE_BMP );// = wxArtProvider::GetBitmap( wxART_FOLDER, wxART_OTHER, wxSize(16,16) );
+        wxBitmap bitmap_component( "DataEngine/EditorIcons/IconComponent.bmp", wxBITMAP_TYPE_BMP );
+
+        // Order added must match ObjectListIconTypes enum order
+        pImageList->Add( bitmap_scene );          // ObjectListIcon_Scene,
+        pImageList->Add( bitmap_gameobject );     // ObjectListIcon_GameObject,
+        pImageList->Add( bitmap_folder );         // ObjectListIcon_Folder,
+        pImageList->Add( bitmap_component );      // ObjectListIcon_Component,
+
+        g_pPanelObjectList->AssignImageListToObjectTree( pImageList );
+    }
+
     // Add click callbacks to the root of the objects tree
     g_pPanelObjectList->SetTreeRootData( this, ComponentSystemManager::StaticOnLeftClick, ComponentSystemManager::StaticOnRightClick );
 
     // Create a scene for "Unmanaged" objects.
     wxTreeItemId rootid = g_pPanelObjectList->GetTreeRoot();
-    wxTreeItemId treeid = g_pPanelObjectList->AddObject( m_pSceneHandler, SceneHandler::StaticOnLeftClick, SceneHandler::StaticOnRightClick, rootid, "Unmanaged" );
+    wxTreeItemId treeid = g_pPanelObjectList->AddObject( m_pSceneHandler, SceneHandler::StaticOnLeftClick, SceneHandler::StaticOnRightClick, rootid, "Unmanaged", ObjectListIcon_Scene );
     g_pPanelObjectList->SetDragAndDropFunctions( treeid, SceneHandler::StaticOnDrag, SceneHandler::StaticOnDrop );
     SceneInfo scene;
     m_pSceneInfoMap[0].m_InUse = true;
@@ -779,15 +797,18 @@ void ComponentSystemManager::LoadSceneFromJSON(const char* scenename, const char
         if( getsceneidfromeachobject )
             cJSONExt_GetUnsignedInt( gameobj, "SceneID", &sceneid );
 
-        unsigned int id;
+        unsigned int id = -1;
         cJSONExt_GetUnsignedInt( gameobj, "ID", &id );
+        MyAssert( id != -1 );
+        bool isfolder = false;
+        cJSONExt_GetBool( gameobj, "IsFolder", &isfolder );
 
         // find an existing game object with the same id or create a new one.
         GameObject* pGameObject = FindGameObjectByID( sceneid, id );
         if( pGameObject ) { MyAssert( pGameObject->GetSceneID() == sceneid ); }
 
         if( pGameObject == 0 )        
-            pGameObject = CreateGameObject( true, sceneid );
+            pGameObject = CreateGameObject( true, sceneid, isfolder );
 
         pGameObject->ImportFromJSONObject( gameobj, sceneid );
         
@@ -1751,7 +1772,7 @@ void ComponentSystemManager::CreateNewScene(const char* scenename, unsigned int 
     MyAssert( m_pSceneInfoMap[sceneid].m_TreeID.IsOk() == false );
 
     wxTreeItemId rootid = g_pPanelObjectList->GetTreeRoot();
-    wxTreeItemId treeid = g_pPanelObjectList->AddObject( m_pSceneHandler, SceneHandler::StaticOnLeftClick, SceneHandler::StaticOnRightClick, rootid, scenename );
+    wxTreeItemId treeid = g_pPanelObjectList->AddObject( m_pSceneHandler, SceneHandler::StaticOnLeftClick, SceneHandler::StaticOnRightClick, rootid, scenename, ObjectListIcon_Scene );
     g_pPanelObjectList->SetDragAndDropFunctions( treeid, SceneHandler::StaticOnDrag, SceneHandler::StaticOnDrop );
     m_pSceneInfoMap[sceneid].m_InUse = true;
     m_pSceneInfoMap[sceneid].m_TreeID = treeid;
