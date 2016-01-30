@@ -93,6 +93,7 @@ public:
     void SelectGameObject(GameObject* pObject);
     void UnselectGameObject(GameObject* pObject);
     bool IsGameObjectSelected(GameObject* pObject);
+    void DeleteSelectedObjects();
 
     bool IsComponentSelected(ComponentBase* pComponent);
 

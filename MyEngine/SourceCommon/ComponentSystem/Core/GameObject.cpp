@@ -233,9 +233,7 @@ void GameObject::OnPopupClick(wxEvent &evt)
         // if the object isn't selected, delete just the one object, otherwise delete all selected objects.
         if( pEditorState->IsGameObjectSelected( pGameObject ) )
         {
-            g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_DeleteObjects( pEditorState->m_pSelectedObjects ) );
-
-            pGameObject->NotifyOthersThisWasDeleted();
+            pEditorState->DeleteSelectedObjects();
         }
         else
         {

@@ -1036,7 +1036,7 @@ void ComponentLuaScript::TickCallback(double TimePassed)
     // find the Tick function and call it.
     if( m_Playing )
     {
-        CallFunction( "Tick" );
+        CallFunction( "Tick", TimePassed );
     }
 }
 

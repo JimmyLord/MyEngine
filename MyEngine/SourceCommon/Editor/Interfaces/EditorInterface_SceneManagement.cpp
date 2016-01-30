@@ -509,6 +509,12 @@ bool EditorInterface_SceneManagement::HandleInput(int keyaction, int keycode, in
                 pEditorState->LockCameraToGameObject( 0 );
             }
         }
+
+        if( keycode == MYKEYCODE_DELETE )
+        {
+            // delete the current selected gameobjects.
+            pEditorState->DeleteSelectedObjects();
+        }
     }
 
     // check for mouse ups

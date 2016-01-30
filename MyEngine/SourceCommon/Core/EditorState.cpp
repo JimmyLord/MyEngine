@@ -179,6 +179,11 @@ bool EditorState::IsGameObjectSelected(GameObject* pObject)
     return false;
 }
 
+void EditorState::DeleteSelectedObjects()
+{
+    g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_DeleteObjects( m_pSelectedObjects ) );
+}
+
 bool EditorState::IsComponentSelected(ComponentBase* pComponent)
 {
     for( unsigned int i=0; i<m_pSelectedComponents.size(); i++ )
