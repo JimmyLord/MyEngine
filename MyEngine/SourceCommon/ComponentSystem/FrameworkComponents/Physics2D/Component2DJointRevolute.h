@@ -28,6 +28,8 @@ public:
     float m_AngleLimitMin;
     float m_AngleLimitMax;
 
+    float m_BreakForce;
+
     // runtime vars, filled in OnPlay();
     b2RevoluteJoint* m_pJoint;
     b2Body* m_pBody;
@@ -58,7 +60,7 @@ public:
 
 protected:
     // Callback functions for various events.
-    //MYFW_DECLARE_COMPONENT_CALLBACK_TICK(); // TickCallback
+    MYFW_DECLARE_COMPONENT_CALLBACK_TICK(); // TickCallback
     //MYFW_DECLARE_COMPONENT_CALLBACK_ONSURFACECHANGED(); // OnSurfaceChangedCallback
     //MYFW_DECLARE_COMPONENT_CALLBACK_DRAW(); // DrawCallback
     //MYFW_DECLARE_COMPONENT_CALLBACK_ONTOUCH(); // OnTouchCallback

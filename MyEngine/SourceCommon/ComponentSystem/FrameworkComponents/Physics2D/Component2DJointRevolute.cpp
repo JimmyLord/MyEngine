@@ -38,6 +38,8 @@ Component2DJointRevolute::Component2DJointRevolute()
     m_AngleLimitMin = 0;
     m_AngleLimitMax = 0;
 
+    m_BreakForce = 0;
+
     m_pJoint = 0;
     m_pBody = 0;
     m_pSecondBody = 0;
@@ -64,6 +66,8 @@ void Component2DJointRevolute::RegisterVariables(CPPListHead* pList, Component2D
     AddVar( pList, "LimitEnabled", ComponentVariableType_Bool, MyOffsetOf( pThis, &pThis->m_AngleLimitEnabled ), true, true, "Angle Limit Enabled", (CVarFunc_ValueChanged)&Component2DJointRevolute::OnValueChanged, 0, 0 );
     AddVar( pList, "LimitMin", ComponentVariableType_Float, MyOffsetOf( pThis, &pThis->m_AngleLimitMin ), true, true, "Min Angle", (CVarFunc_ValueChanged)&Component2DJointRevolute::OnValueChanged, 0, 0 );
     AddVar( pList, "LimitMax", ComponentVariableType_Float, MyOffsetOf( pThis, &pThis->m_AngleLimitMax ), true, true, "Max Angle", (CVarFunc_ValueChanged)&Component2DJointRevolute::OnValueChanged, 0, 0 );
+
+    AddVar( pList, "BreakForce", ComponentVariableType_Float, MyOffsetOf( pThis, &pThis->m_BreakForce ), true, true, "Break Force", (CVarFunc_ValueChanged)&Component2DJointRevolute::OnValueChanged, 0, 0 );
 }
 
 void Component2DJointRevolute::Reset()
@@ -82,6 +86,8 @@ void Component2DJointRevolute::Reset()
     m_AngleLimitEnabled = false;
     m_AngleLimitMin = 0;
     m_AngleLimitMax = 0;
+
+    m_BreakForce = 0;
 
     m_pJoint = 0;
     m_pBody = 0;
@@ -258,6 +264,8 @@ Component2DJointRevolute& Component2DJointRevolute::operator=(const Component2DJ
     m_AngleLimitMin = other.m_AngleLimitMin;
     m_AngleLimitMax = other.m_AngleLimitMax;
 
+    m_BreakForce = other.m_BreakForce;
+
     m_pJoint = other.m_pJoint;
     m_pBody = other.m_pBody;
     m_pSecondBody = other.m_pSecondBody;
@@ -271,7 +279,7 @@ void Component2DJointRevolute::RegisterCallbacks()
     {
         m_CallbacksRegistered = true;
 
-        //MYFW_REGISTER_COMPONENT_CALLBACK( Component2DJointRevolute, Tick );
+        MYFW_REGISTER_COMPONENT_CALLBACK( Component2DJointRevolute, Tick );
         //MYFW_REGISTER_COMPONENT_CALLBACK( Component2DJointRevolute, OnSurfaceChanged );
         //MYFW_REGISTER_COMPONENT_CALLBACK( Component2DJointRevolute, Draw );
         //MYFW_REGISTER_COMPONENT_CALLBACK( Component2DJointRevolute, OnTouch );
@@ -285,7 +293,7 @@ void Component2DJointRevolute::UnregisterCallbacks()
 {
     if( m_CallbacksRegistered == true )
     {
-        //MYFW_UNREGISTER_COMPONENT_CALLBACK( Tick );
+        MYFW_UNREGISTER_COMPONENT_CALLBACK( Tick );
         //MYFW_UNREGISTER_COMPONENT_CALLBACK( OnSurfaceChanged );
         //MYFW_UNREGISTER_COMPONENT_CALLBACK( Draw );
         //MYFW_UNREGISTER_COMPONENT_CALLBACK( OnTouch );
@@ -294,6 +302,25 @@ void Component2DJointRevolute::UnregisterCallbacks()
         //MYFW_UNREGISTER_COMPONENT_CALLBACK( OnFileRenamed );
 
         m_CallbacksRegistered = false;
+    }
+}
+
+void Component2DJointRevolute::TickCallback(double TimePassed)
+{
+    if( m_BreakForce <= 0 )
+        return;
+
+    if( m_pJoint )
+    {
+        b2Vec2 reactionforce = m_pJoint->GetReactionForce( 60.0f );
+        float magforce2 = reactionforce.LengthSquared();
+
+        if( magforce2 > m_BreakForce*m_BreakForce )
+        {
+            Box2DWorld* pBox2DWorld = m_pGameObject->Get2DCollisionObject()->m_pBox2DWorld;
+            pBox2DWorld->m_pWorld->DestroyJoint( m_pJoint );
+            m_pJoint = 0;
+        }
     }
 }
 

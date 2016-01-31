@@ -651,13 +651,15 @@ void Component2DCollisionObject::SyncRigidBodyToTransform()
 void Component2DCollisionObject::ApplyForce(Vector2 force, Vector2 point)
 {
     b2Vec2 b2force = b2Vec2( force.x, force.y );
-    m_pBody->ApplyForce( b2force, m_pBody->GetWorldCenter(), true );
+    b2Vec2 worldpoint = m_pBody->GetWorldPoint( *(b2Vec2*)&point );
+    m_pBody->ApplyForce( b2force, worldpoint, true );
 }
 
 void Component2DCollisionObject::ApplyLinearImpulse(Vector2 impulse, Vector2 point)
 {
     b2Vec2 b2impulse = b2Vec2( impulse.x, impulse.y );
-    m_pBody->ApplyLinearImpulse( b2impulse, m_pBody->GetWorldCenter(), true );
+    b2Vec2 worldpoint = m_pBody->GetWorldPoint( *(b2Vec2*)&point );
+    m_pBody->ApplyLinearImpulse( b2impulse, worldpoint, true );
 }
 
 Vector2 Component2DCollisionObject::GetLinearVelocity()
