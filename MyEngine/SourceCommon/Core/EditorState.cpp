@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015 Jimmy Lord http://www.flatheadgames.com
+// Copyright (c) 2015-2016 Jimmy Lord http://www.flatheadgames.com
 //
 // This software is provided 'as-is', without any express or implied warranty.  In no event will the authors be held liable for any damages arising from the use of this software.
 // Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -181,7 +181,8 @@ bool EditorState::IsGameObjectSelected(GameObject* pObject)
 
 void EditorState::DeleteSelectedObjects()
 {
-    g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_DeleteObjects( m_pSelectedObjects ) );
+    if( m_pSelectedObjects.size() > 0 )
+        g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_DeleteObjects( m_pSelectedObjects ) );
 }
 
 bool EditorState::IsComponentSelected(ComponentBase* pComponent)

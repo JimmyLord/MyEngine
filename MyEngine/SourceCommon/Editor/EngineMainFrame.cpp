@@ -454,6 +454,33 @@ bool EngineMainFrame::OnClose()
     return false;
 }
 
+bool EngineMainFrame::FilterGlobalEvents(wxEvent& event)
+{
+    wxWindow* pWindowInFocus = FindFocus();
+
+    // ignore global events if gameplay is in focus.
+    if( pWindowInFocus == m_pGLCanvas )
+        return false;
+
+    if( event.GetEventType() == wxEVT_KEY_DOWN )
+    {
+        int wxkeycode = ((wxKeyEvent&)event).GetKeyCode();
+
+        if( g_pEngineCore->HandleEditorInput( GCBA_Down, wxkeycode, -1, -1, -1, -1, -1 ) )
+            return true;
+    }
+
+    if( event.GetEventType() == wxEVT_KEY_UP )
+    {
+        int wxkeycode = ((wxKeyEvent&)event).GetKeyCode();
+
+        if( g_pEngineCore->HandleEditorInput( GCBA_Up, wxkeycode, -1, -1, -1, -1, -1 ) )
+            return true;
+    }
+
+    return false;
+}
+
 void EngineMainFrame::ResizeViewport()
 {
     MainFrame::ResizeViewport();

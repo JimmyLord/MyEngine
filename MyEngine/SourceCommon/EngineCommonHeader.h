@@ -18,7 +18,7 @@
 #include "../../Framework/MyFramework/SourceCommon/CommonHeader.h"
 #if MYFW_USING_WX
 #include "../../Framework/MyFramework/SourceWindows/MYFWWinMainWx.h"
-#include "Core/EngineMainFrame.h"
+#include "Editor/EngineMainFrame.h"
 #include "../../Framework/MyFramework/SourceWidgets/EditorCommands.h"
 #include "../../Framework/MyFramework/SourceWidgets/CommandStack.h"
 #endif
