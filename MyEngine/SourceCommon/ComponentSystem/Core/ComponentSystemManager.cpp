@@ -29,6 +29,8 @@ ComponentSystemManager::ComponentSystemManager(ComponentTypeManager* typemanager
     m_WaitingForFilesToFinishLoading = false;
     m_StartGamePlayWhenDoneLoading = false;
 
+    m_TimeScale = 1;
+
 #if 1 //!MYFW_USING_WX
     for( int i=0; i<MAX_SCENES_LOADED; i++ )
     {
@@ -147,6 +149,7 @@ void ComponentSystemManager::LuaRegister(lua_State* luastate)
 {
     luabridge::getGlobalNamespace( luastate )
         .beginClass<ComponentSystemManager>( "ComponentSystemManager" )
+            .addFunction( "SetTimeScale", &ComponentSystemManager::SetTimeScale )
             .addFunction( "CreateGameObject", &ComponentSystemManager::CreateGameObject )
             .addFunction( "DeleteGameObject", &ComponentSystemManager::DeleteGameObject )
             .addFunction( "CopyGameObject", &ComponentSystemManager::CopyGameObject )
@@ -1562,6 +1565,8 @@ void ComponentSystemManager::Tick(double TimePassed)
     CheckForUpdatedDataSourceFiles( true );
 #endif
 
+    //TimePassed *= m_TimeScale;
+
     // update all Components:
 
     // all scripts.
@@ -1906,6 +1911,8 @@ void ComponentSystemManager::OnPlay()
 
 void ComponentSystemManager::OnStop()
 {
+    SetTimeScale( 1 );
+
     for( unsigned int i=0; i<BaseComponentType_NumTypes; i++ )
     {
         for( CPPListNode* node = m_Components[i].GetHead(); node != 0; node = node->GetNext() )

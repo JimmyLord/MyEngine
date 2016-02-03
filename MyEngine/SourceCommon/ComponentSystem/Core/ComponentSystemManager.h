@@ -129,6 +129,8 @@ public:
     bool m_WaitingForFilesToFinishLoading;
     bool m_StartGamePlayWhenDoneLoading;
 
+    float m_TimeScale;
+
 protected:
 #if MYFW_USING_WX
     std::vector<FileUpdatedCallbackStruct> m_pFileUpdatedCallbackList;
@@ -144,6 +146,8 @@ public:
 #if MYFW_USING_LUA
     static void LuaRegister(lua_State* luastate);
 #endif //MYFW_USING_LUA
+
+    void SetTimeScale(float scale) { m_TimeScale = scale; }
 
     void MoveAllFilesNeededForLoadingScreenToStartOfFileList(GameObject* first);
     void AddListOfFilesUsedToJSONObject(unsigned int sceneid, cJSON* filearray);

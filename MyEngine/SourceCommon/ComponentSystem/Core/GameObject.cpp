@@ -19,7 +19,7 @@ GameObject::GameObject(bool managed, int sceneid, bool isfolder)
     m_IsFolder = isfolder;
     m_SceneID = sceneid;
     m_ID = 0;
-    m_PhysicsSceneID = 0;
+    m_PhysicsSceneID = sceneid;
     m_Name = 0;
 
     m_pComponentTransform = MyNew ComponentTransform();
@@ -89,6 +89,7 @@ void GameObject::LuaRegister(lua_State* luastate)
             .addFunction( "GetAnimationPlayer", &GameObject::GetAnimationPlayer )
             .addFunction( "GetCollisionObject", &GameObject::GetCollisionObject )
             .addFunction( "Get2DCollisionObject", &GameObject::Get2DCollisionObject )
+            .addFunction( "GetParticleEmitter", &GameObject::GetParticleEmitter )
         .endClass();
 }
 #endif //MYFW_USING_LUA
@@ -463,6 +464,10 @@ void GameObject::SetParentGameObject(GameObject* pParentGameObject)
     //if( pOldParentGameObject )
     //    pOldParentGameObject->m_pComponentTransform->UnregisterPositionChangedCallback();
 
+    // if the old transform is the same as the new one, kick out.
+    if( m_pComponentTransform->m_pParentTransform == pParentGameObject->m_pComponentTransform )
+        return;
+
     // parent one transform to another.
     this->m_pComponentTransform->SetParentTransform( pParentGameObject->m_pComponentTransform );
 
@@ -758,6 +763,17 @@ Component2DCollisionObject* GameObject::Get2DCollisionObject()
     {
         if( m_Components[i]->IsA( "2DCollisionObjectComponent" ) )
             return (Component2DCollisionObject*)m_Components[i];
+    }
+
+    return 0;
+}
+
+ComponentParticleEmitter* GameObject::GetParticleEmitter()
+{
+    for( unsigned int i=0; i<m_Components.Count(); i++ )
+    {
+        if( m_Components[i]->IsA( "ParticleEmitterComponent" ) )
+            return (ComponentParticleEmitter*)m_Components[i];
     }
 
     return 0;

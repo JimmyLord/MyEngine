@@ -22,7 +22,7 @@ class GameObject : public CPPListNode
 , public wxEvtHandler
 #endif
 {
-    static const int MAX_COMPONENTS = 4; // TODO: fix this hardcodedness
+    static const int MAX_COMPONENTS = 8; // TODO: fix this hardcodedness
 
 protected:
     GameObject* m_pGameObjectThisInheritsFrom; // for variables, if set, any changes to the parent will be reflected in this object.
@@ -97,11 +97,12 @@ public:
     ComponentBase* GetNextComponentOfType(ComponentBase* pLastComponent);
 
     ComponentTransform* GetTransform() { return m_pComponentTransform; }
-    ComponentCollisionObject* GetCollisionObject();
-    Component2DCollisionObject* Get2DCollisionObject();
 
     // TODO: find a way to find an arbitrary component type that would be accessible from lua script.
     ComponentAnimationPlayer* GetAnimationPlayer();
+    ComponentCollisionObject* GetCollisionObject();
+    Component2DCollisionObject* Get2DCollisionObject();
+    ComponentParticleEmitter* GetParticleEmitter();
 
     MaterialDefinition* GetMaterial();
     void SetMaterial(MaterialDefinition* pMaterial);

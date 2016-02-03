@@ -603,10 +603,13 @@ void Component2DCollisionObject::DrawCallback(ComponentCamera* pCamera, MyMatrix
 
     MaterialDefinition* pMaterial = g_pEngineCore->m_pMaterial_TransformGizmoY;
 
-    // Draw lines connecting the circles
+    // Draw lines for the vertices (connecting the circles if editing verts)
     {
         // Set the material to the correct color and draw the shape.
         Shader_Base* pShader = (Shader_Base*)pMaterial->GetShader()->GlobalPass( 0, 0 );
+        if( pShader->ActivateAndProgramShader() == false )
+            return;
+
         pMaterial->SetColorDiffuse( ColorByte( 0, 255, 0, 255 ) );
 
         // Setup our position attribute, pass in the array of verts, not using a VBO.
@@ -619,7 +622,6 @@ void Component2DCollisionObject::DrawCallback(ComponentCamera* pCamera, MyMatrix
         worldmat.SetTranslation( pParentTransformComponent->GetPosition() );
 
         // Setup uniforms, mainly viewproj and tint.
-        glUseProgram( pShader->m_ProgramHandle );
         pShader->ProgramBaseUniforms( pEditorMatViewProj, &worldmat, 0, pMaterial->m_ColorDiffuse, pMaterial->m_ColorSpecular, pMaterial->m_Shininess );
 
         glLineWidth( 3 );
