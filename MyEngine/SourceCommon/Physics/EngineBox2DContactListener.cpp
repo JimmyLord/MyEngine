@@ -22,13 +22,17 @@ void EngineBox2DContactListener::BeginContact(b2Contact* contact)
     //Box2DContactListener::BeginContact( contact );
     
     b2Fixture* pFixture[2];
+    b2Body* pBody[2];
     Component2DCollisionObject* pCollisionComponent[2];
 
     pFixture[0] = contact->GetFixtureA();
     pFixture[1] = contact->GetFixtureB();
 
-    pCollisionComponent[0] = (Component2DCollisionObject*)pFixture[0]->GetBody()->GetUserData();
-    pCollisionComponent[1] = (Component2DCollisionObject*)pFixture[1]->GetBody()->GetUserData();
+    for( int i=0; i<2; i++ )
+    {
+        pBody[i] = pFixture[i]->GetBody();
+        pCollisionComponent[i] = (Component2DCollisionObject*)pBody[i]->GetUserData();
+    }
 
     for( int i=0; i<2; i++ )
     {
@@ -38,11 +42,24 @@ void EngineBox2DContactListener::BeginContact(b2Contact* contact)
         {
             if( pCollisionComponent[i]->m_pComponentLuaScript )
             {
-                b2Vec2 b2normal = contact->GetManifold()->localNormal;
-                Vector2 normal( b2normal.x, b2normal.y );
-                if( i == 0 )
-                    normal *= -1;
-                pCollisionComponent[i]->m_pComponentLuaScript->CallFunction( "OnCollision", normal );
+                b2Manifold* pManifold = contact->GetManifold();
+
+                if( pManifold->pointCount > 0 )
+                {
+                    b2Vec2 b2normal = pManifold->localNormal;
+                    Vector2 normal( b2normal.x, b2normal.y );
+                    if( i == 0 )
+                        normal *= -1;
+                    pCollisionComponent[i]->m_pComponentLuaScript->CallFunction( "OnCollision", normal );
+                }
+                else
+                {
+                    Vector2 normal( 0, 0 );
+                    if( pFixture[i]->IsSensor() )
+                        normal = (Vector2&)pBody[!i]->GetLinearVelocity();
+
+                    pCollisionComponent[i]->m_pComponentLuaScript->CallFunction( "OnCollision", normal );
+                }
             }
         }
     }

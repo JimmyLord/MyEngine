@@ -89,6 +89,11 @@ void EditorInterface_2DPointEditor::OnDrawFrame(unsigned int canvasid)
         ComponentCamera* pCamera = g_pEngineCore->m_pEditorState->GetEditorCamera();
         MyMatrix* pEditorMatViewProj = &pCamera->m_Camera3D.m_matViewProj;
 
+        float distance = (pCamera->m_pComponentTransform->GetPosition() - pos3d).Length();
+        m_pPoint->m_pComponentTransform->SetScale( Vector3( distance / 15.0f ) );
+
+        // TODO: change the material color if this is the selected dot.
+
         g_pComponentSystemManager->DrawSingleObject( pEditorMatViewProj, m_pPoint, 0 );
     }
 
@@ -110,6 +115,16 @@ bool EditorInterface_2DPointEditor::HandleInput(int keyaction, int keycode, int 
     if( keyaction == GCBA_Up && keycode == MYKEYCODE_ESC )
     {
         g_pEngineCore->SetEditorInterface( EditorInterfaceType_SceneManagement );        
+    }
+
+    // TODO: store last used vertex and handle delete key
+    if( keyaction == GCBA_Up && keycode == MYKEYCODE_DELETE )
+    {
+        if( m_IndexOfPointBeingDragged != -1 && m_pCollisionObject->m_Vertices.size() > 2 )
+        {
+            m_pCollisionObject->m_Vertices.erase( m_pCollisionObject->m_Vertices.begin() + m_IndexOfPointBeingDragged );
+            m_IndexOfPointBeingDragged = -1;
+        }
     }
 
     EditorInterface::SetModifierKeyStates( keyaction, keycode, mouseaction, id, x, y, pressure );

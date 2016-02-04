@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015 Jimmy Lord http://www.flatheadgames.com
+// Copyright (c) 2015-2016 Jimmy Lord http://www.flatheadgames.com
 //
 // This software is provided 'as-is', without any express or implied warranty.  In no event will the authors be held liable for any damages arising from the use of this software.
 // Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -34,7 +34,7 @@ void EditorCommand_MoveObjects::Do()
 {
     for( unsigned int i=0; i<m_ObjectsMoved.size(); i++ )
     {
-        Vector3 newpos = m_ObjectsMoved[i]->m_pComponentTransform->GetPosition() + m_DistanceMoved;
+        Vector3 newpos = m_ObjectsMoved[i]->m_pComponentTransform->GetLocalTransform()->GetTranslation() + m_DistanceMoved;
         m_ObjectsMoved[i]->m_pComponentTransform->SetPositionByEditor( newpos );
         m_ObjectsMoved[i]->m_pComponentTransform->UpdateMatrix();
     }
@@ -45,7 +45,7 @@ void EditorCommand_MoveObjects::Undo()
     //LOGInfo( LOGTag, "EditorCommand_MoveObjects::Undo %f,%f,%f\n", m_DistanceMoved.x, m_DistanceMoved.y, m_DistanceMoved.z );
     for( unsigned int i=0; i<m_ObjectsMoved.size(); i++ )
     {
-        Vector3 newpos = m_ObjectsMoved[i]->m_pComponentTransform->GetPosition() - m_DistanceMoved;
+        Vector3 newpos = m_ObjectsMoved[i]->m_pComponentTransform->GetLocalTransform()->GetTranslation() - m_DistanceMoved;
         m_ObjectsMoved[i]->m_pComponentTransform->SetPositionByEditor( newpos );
         m_ObjectsMoved[i]->m_pComponentTransform->UpdateMatrix();
     }
