@@ -59,6 +59,7 @@ void ComponentParticleEmitter::Reset()
 
     SAFE_RELEASE( m_pMaterial );
 
+    m_ContinuousSpawn = true;
     m_TimeTilNextSpawn = 0;
 
     m_BurstDuration = 100;
@@ -92,6 +93,16 @@ void ComponentParticleEmitter::Reset()
 #endif //MYFW_USING_WX
 }
 
+#if MYFW_USING_LUA
+void ComponentParticleEmitter::LuaRegister(lua_State* luastate)
+{
+    luabridge::getGlobalNamespace( luastate )
+        .beginClass<ComponentParticleEmitter>( "ComponentParticleEmitter" )
+            .addFunction( "CreateBurst", &ComponentParticleEmitter::CreateBurst )
+        .endClass();
+}
+#endif //MYFW_USING_LUA
+
 #if MYFW_USING_WX
 void ComponentParticleEmitter::AddToObjectsPanel(wxTreeItemId gameobjectid)
 {
@@ -114,13 +125,15 @@ void ComponentParticleEmitter::FillPropertiesWindow(bool clear, bool addcomponen
 
         g_pPanelWatch->AddBool( "Run in editor", &m_RunInEditor, 0, 1 );
 
+        g_pPanelWatch->AddBool( "Spawn on timer", &m_ContinuousSpawn, 0, 1 );
+
         g_pPanelWatch->AddVector3( "Offset", &m_InitialOffset, 0, 0 );
         g_pPanelWatch->AddFloat( "size", &m_Size, 0, 0 );
         g_pPanelWatch->AddFloat( "sizevariation", &m_SizeVariation, 0, 0 );
         g_pPanelWatch->AddFloat( "timetolive", &m_TimeToLive, 0.01f, 5000 );
         g_pPanelWatch->AddVector2( "center variation", &m_CenterVariation, 0, 20 );
-        g_pPanelWatch->AddVector3( "dir", &m_Dir, -1, 1 );
-        g_pPanelWatch->AddVector3( "dirvariation", &m_DirVariation, -1, 1 );
+        g_pPanelWatch->AddVector3( "dir", &m_Dir, -100, 100 );
+        g_pPanelWatch->AddVector3( "dirvariation", &m_DirVariation, -100, 100 );
 
         g_pPanelWatch->AddBool( "usecolorsasoptions", &m_UseColorsAsOptions, 0, 1 );
 
@@ -154,6 +167,7 @@ cJSON* ComponentParticleEmitter::ExportAsJSONObject(bool savesceneid)
     cJSON* component = ComponentRenderable::ExportAsJSONObject( savesceneid );
 
     cJSON_AddNumberToObject( component, "RunInEditor", m_RunInEditor );
+    cJSON_AddNumberToObject( component, "ContinuousSpawn", m_ContinuousSpawn );    
 
     cJSONExt_AddFloatArrayToObject( component, "offset", &m_InitialOffset.x, 3 );
     cJSON_AddNumberToObject( component, "size", m_Size );
@@ -179,6 +193,7 @@ void ComponentParticleEmitter::ImportFromJSONObject(cJSON* jsonobj, unsigned int
     ComponentRenderable::ImportFromJSONObject( jsonobj, sceneid );
 
     cJSONExt_GetBool( jsonobj, "RunInEditor", &m_RunInEditor );
+    cJSONExt_GetBool( jsonobj, "ContinuousSpawn", &m_ContinuousSpawn );
 
     cJSONExt_GetFloatArray( jsonobj, "offset", &m_InitialOffset.x, 3 );
     cJSONExt_GetFloat( jsonobj, "size", &m_Size );
@@ -208,6 +223,9 @@ ComponentParticleEmitter& ComponentParticleEmitter::operator=(const ComponentPar
     MyAssert( &other != this );
 
     ComponentRenderable::operator=( other );
+
+    this->m_RunInEditor         = other.m_RunInEditor;
+    this->m_ContinuousSpawn     = other.m_ContinuousSpawn;
 
     this->m_Size                = other.m_Size;
     this->m_SizeVariation       = other.m_SizeVariation;
@@ -271,7 +289,7 @@ void ComponentParticleEmitter::SetMaterial(MaterialDefinition* pMaterial, int su
     m_pParticleRenderer->SetMaterial( m_pMaterial );
 }
 
-void ComponentParticleEmitter::CreateBurst(int number, Vector3 pos)
+void ComponentParticleEmitter::CreateBurst(int number, Vector3 offset)
 {
     while( number )
     {
@@ -280,7 +298,9 @@ void ComponentParticleEmitter::CreateBurst(int number, Vector3 pos)
         Particle* pParticle = m_Particles.MakeObjectActive();
         if( pParticle )
         {
-            pParticle->pos = pos + m_InitialOffset;
+            Vector3 emitterpos = m_pComponentTransform->GetPosition();
+
+            pParticle->pos = emitterpos + m_InitialOffset;
             if( m_CenterVariation.x != 0 )
                 pParticle->pos.x += (rand()%(int)(m_CenterVariation.x*10000))/10000.0f - m_CenterVariation.x/2;
             if( m_CenterVariation.y != 0 )
@@ -309,6 +329,7 @@ void ComponentParticleEmitter::CreateBurst(int number, Vector3 pos)
                 pParticle->timetolive += (rand()%10000-5000)/10000.0f * m_TimeToLiveVariation;
 
             //if( m_InitialSpeedBoost )
+            if( 0 )
             {
                 pParticle->pos.x += pParticle->dir.x * m_InitialSpeedBoost;
                 pParticle->pos.y += pParticle->dir.y * m_InitialSpeedBoost;
@@ -360,11 +381,12 @@ void ComponentParticleEmitter::TickCallback(double TimePassed)
             m_pParticleRenderer->AddPoint( pParticle->pos, 0, color, size );
     }
 
-    m_TimeTilNextSpawn -= (float)TimePassed;
+    if( m_ContinuousSpawn || m_RunInEditor )
+        m_TimeTilNextSpawn -= (float)TimePassed;
+
     if( m_TimeTilNextSpawn < 0 )
     {
-        Vector3 pos = m_pComponentTransform->GetPosition();
-        CreateBurst( 1, pos );
+        CreateBurst( 1, Vector3(0,0,0) );
         m_TimeTilNextSpawn = m_SpawnTime;
     }
 }

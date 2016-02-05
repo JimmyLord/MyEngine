@@ -36,6 +36,7 @@ public:
 
     MyActivePool<Particle*> m_Particles;
 
+    bool m_ContinuousSpawn;
     float m_TimeTilNextSpawn;
     float m_BurstTimeLeft;
 
@@ -68,6 +69,10 @@ public:
     virtual ~ComponentParticleEmitter();
     SetClassnameWithParent( "ParticleEmitterComponent", ComponentRenderable ); // only first 8 character count.
 
+#if MYFW_USING_LUA
+    static void LuaRegister(lua_State* luastate);
+#endif //MYFW_USING_LUA
+
     virtual cJSON* ExportAsJSONObject(bool savesceneid);
     virtual void ImportFromJSONObject(cJSON* jsonobj, unsigned int sceneid);
 
@@ -81,7 +86,7 @@ public:
     virtual MaterialDefinition* GetMaterial(int submeshindex) { return m_pMaterial; }
     virtual void SetMaterial(MaterialDefinition* pMaterial, int submeshindex);
 
-    void CreateBurst(int number, Vector3 pos);
+    void CreateBurst(int number, Vector3 offset);
 
 protected:
     // Callback functions for various events.
