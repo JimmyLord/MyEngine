@@ -219,9 +219,6 @@
     <ClCompile Include="SourceCommon\Core\EngineComponentTypeManager.cpp">
       <Filter>Source\Core Files</Filter>
     </ClCompile>
-    <ClCompile Include="SourceCommon\Core\EngineMainFrame.cpp">
-      <Filter>Source\Core Files</Filter>
-    </ClCompile>
     <ClCompile Include="SourceCommon\ComponentSystem\BaseComponents\ComponentBase.cpp">
       <Filter>Source\ComponentSystem\Base Components</Filter>
     </ClCompile>
@@ -374,6 +371,12 @@
     </ClCompile>
     <ClCompile Include="SourceCommon\Editor\Interfaces\EditorInterface_2DPointEditor.cpp">
       <Filter>Source\Editor\Interfaces</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCommon\Editor\EngineMainFrame.cpp">
+      <Filter>Source\Editor</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCommon\ComponentSystem\FrameworkComponents\Physics2D\Component2DJointWeld.cpp">
+      <Filter>Source\ComponentSystem\Framework Components\Physics2D</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -528,9 +531,6 @@
       <Filter>Source\Core Files</Filter>
     </ClInclude>
     <ClInclude Include="SourceCommon\Core\EngineComponentTypeManager.h">
-      <Filter>Source\Core Files</Filter>
-    </ClInclude>
-    <ClInclude Include="SourceCommon\Core\EngineMainFrame.h">
       <Filter>Source\Core Files</Filter>
     </ClInclude>
     <ClInclude Include="SourceCommon\ComponentSystem\BaseComponents\ComponentUpdateable.h">
@@ -688,6 +688,12 @@
     </ClInclude>
     <ClInclude Include="SourceCommon\Editor\Interfaces\EditorInterface_2DPointEditor.h">
       <Filter>Source\Editor\Interfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCommon\Editor\EngineMainFrame.h">
+      <Filter>Source\Editor</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCommon\ComponentSystem\FrameworkComponents\Physics2D\Component2DJointWeld.h">
+      <Filter>Source\ComponentSystem\Framework Components\Physics2D</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

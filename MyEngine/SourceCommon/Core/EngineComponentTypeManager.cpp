@@ -26,6 +26,7 @@ ComponentTypeInfo g_EngineComponentTypeInfo[Component_NumEngineComponentTypes] =
     { "Physics",        "2D Collision Object",  },  //ComponentType_2DCollisionObject,
     { "Physics",        "2D Joint - Revolute",  },  //ComponentType_2DJointRevolute,
     { "Physics",        "2D Joint - Prismatic", },  //ComponentType_2DJointPrismatic,
+    { "Physics",        "2D Joint - Weld",      },  //ComponentType_2DJointWeld,
     { "Scripts",        "Lua Script",           },  //ComponentType_LuaScript,
     { "Particles",      "Particle Emitter",     },  //ComponentType_ParticleEmitter,
     { "Animation",      "Animation Player",     },  //ComponentType_AnimationPlayer,
@@ -52,6 +53,7 @@ ComponentBase* EngineComponentTypeManager::CreateComponent(int type)
     case ComponentType_2DCollisionObject:   pComponent = MyNew Component2DCollisionObject;  break;
     case ComponentType_2DJointRevolute:     pComponent = MyNew Component2DJointRevolute;    break;
     case ComponentType_2DJointPrismatic:    pComponent = MyNew Component2DJointPrismatic;   break;
+    case ComponentType_2DJointWeld:         pComponent = MyNew Component2DJointWeld;        break;
 #if MYFW_USING_LUA
     case ComponentType_LuaScript:           pComponent = MyNew ComponentLuaScript;          break;
 #else
