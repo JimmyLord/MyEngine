@@ -112,9 +112,11 @@ protected:
     bool m_SceneReloadRequested;
     RequestedSceneInfo m_pSceneFilesLoading[MAX_SCENE_FILES_QUEUED_UP]; // TODO: replace this monstrosity with an ordered list.
 
+#if MYFW_USING_WX
     EditorInterface* m_pEditorInterfaces[EditorInterfaceType_NumInterfaces];
     EditorInterfaceTypes m_CurrentEditorInterfaceType;
     EditorInterface* m_pCurrentEditorInterface;
+#endif //MYFW_USING_WX
 
 public:
     EngineCore();
@@ -153,7 +155,9 @@ public:
 
     virtual void RegisterGameplayButtons();
     virtual void UnregisterGameplayButtons();
+#if MYFW_USING_WX
     bool HandleEditorInput(int keyaction, int keycode, int mouseaction, int id, float x, float y, float pressure);
+#endif //MYFW_USING_WX
 
     void CreateDefaultEditorSceneObjects();
     void CreateDefaultSceneObjects();

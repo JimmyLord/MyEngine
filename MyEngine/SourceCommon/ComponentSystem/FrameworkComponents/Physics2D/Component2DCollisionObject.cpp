@@ -516,15 +516,16 @@ void Component2DCollisionObject::CreateBody()
 
 #if MYFW_USING_WX
                 int count = m_Vertices.size();
-#else
-                int count = m_Vertices.Count();
-#endif
+
                 if( count == 0 )
                 {
                     m_Vertices.push_back( b2Vec2( -5, 0 ) );
                     m_Vertices.push_back( b2Vec2( 5, 0 ) );
                     count = 2;
                 }
+#else
+                int count = m_Vertices.Count();
+#endif
 
                 if( count > 0 )
                 {

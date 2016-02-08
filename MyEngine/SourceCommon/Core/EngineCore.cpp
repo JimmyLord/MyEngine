@@ -96,8 +96,10 @@ EngineCore::~EngineCore()
     SAFE_DELETE( m_pLuaGameState );
 #endif //MYFW_USING_LUA
 
+#if MYFW_USING_WX
     for( int i=0; i<EditorInterfaceType_NumInterfaces; i++ )
         SAFE_DELETE( m_pEditorInterfaces[i] );
+#endif MYFW_USING_WX
 
     g_pFileManager->FreeFile( m_pShaderFile_TintColor );
     g_pFileManager->FreeFile( m_pShaderFile_ClipSpaceTexture );
@@ -704,10 +706,12 @@ void EngineCore::UnregisterGameplayButtons()
     }
 }
 
+#if MYFW_USING_WX
 bool EngineCore::HandleEditorInput(int keyaction, int keycode, int mouseaction, int id, float x, float y, float pressure)
 {
     return m_pCurrentEditorInterface->HandleInput( keyaction, keycode, mouseaction, id, x, y, pressure );
 }
+#endif //MYFW_USING_WX
 
 void EngineCore::CreateDefaultEditorSceneObjects()
 {
