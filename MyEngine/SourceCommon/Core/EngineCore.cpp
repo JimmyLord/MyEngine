@@ -277,6 +277,10 @@ double EngineCore::Tick(double TimePassed)
     m_pEditorState->UpdateCamera( TimePassed );
 #endif
 
+    float timescale = m_pComponentSystemManager->m_TimeScale;
+
+    TimePassed *= timescale;
+    
     // tick all components.
     {
         if( m_EditorMode && m_AllowGameToRunInEditorMode == false )
@@ -526,6 +530,7 @@ bool EngineCore::OnKeys(GameCoreButtonActions action, int keycode, int unicodech
                     g_pShaderManager->InvalidateAllShaders( true );
                     //g_pTextureManager->InvalidateAllTextures( true );
                     //g_pBufferManager->InvalidateAllBuffers( true );
+                    return true;
                 }
             }
         }

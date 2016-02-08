@@ -458,6 +458,17 @@ void Component2DCollisionObject::CreateBody()
 
         m_Scale = m_pGameObject->m_pComponentTransform->GetLocalScale();
 
+        // Set up the fixture
+        b2FixtureDef fixturedef;
+        fixturedef.density = m_Density;
+        fixturedef.isSensor = m_IsSensor;
+        fixturedef.friction = m_Friction;
+        fixturedef.restitution = m_Restitution;
+        fixturedef.filter.categoryBits = 0x0001;
+        fixturedef.filter.maskBits = 0xFFFF;
+        fixturedef.filter.groupIndex = 0;
+
+        // Create the right shape and add it to the fixture def
         switch( m_PrimitiveType )
         {
         case Physics2DPrimitiveType_Box:
@@ -465,12 +476,7 @@ void Component2DCollisionObject::CreateBody()
                 b2PolygonShape boxshape;
                 boxshape.SetAsBox( 0.5f * m_Scale.x, 0.5f * m_Scale.y );
 
-                b2FixtureDef fixturedef;
                 fixturedef.shape = &boxshape;
-                fixturedef.density = m_Density;
-                fixturedef.isSensor = m_IsSensor;
-                fixturedef.friction = m_Friction;
-                fixturedef.restitution = m_Restitution;
 
                 m_pBody->CreateFixture( &fixturedef );
             }
@@ -482,12 +488,7 @@ void Component2DCollisionObject::CreateBody()
                 circleshape.m_p.Set( 0, 0 );
                 circleshape.m_radius = m_Scale.x;
 
-                b2FixtureDef fixturedef;
                 fixturedef.shape = &circleshape;
-                fixturedef.density = m_Density;
-                fixturedef.isSensor = m_IsSensor;
-                fixturedef.friction = m_Friction;
-                fixturedef.restitution = m_Restitution;
 
                 m_pBody->CreateFixture( &fixturedef );
             }
@@ -503,12 +504,7 @@ void Component2DCollisionObject::CreateBody()
                 else
                     edgeshape.Set( b2Vec2( 0, -0.5f * m_Scale.y ), b2Vec2( 0, 0.5f * m_Scale.y ) );
 
-                b2FixtureDef fixturedef;
                 fixturedef.shape = &edgeshape;
-                fixturedef.density = m_Density;
-                fixturedef.isSensor = m_IsSensor;
-                fixturedef.friction = m_Friction;
-                fixturedef.restitution = m_Restitution;
 
                 m_pBody->CreateFixture( &fixturedef );
             }
@@ -534,12 +530,7 @@ void Component2DCollisionObject::CreateBody()
                 {
                     chainshape.CreateChain( &m_Vertices[0], count );
 
-                    b2FixtureDef fixturedef;
                     fixturedef.shape = &chainshape;
-                    fixturedef.density = m_Density;
-                    fixturedef.isSensor = m_IsSensor;
-                    fixturedef.friction = m_Friction;
-                    fixturedef.restitution = m_Restitution;
 
                     m_pBody->CreateFixture( &fixturedef );
                 }
