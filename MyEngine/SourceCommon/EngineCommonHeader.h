@@ -31,7 +31,7 @@
 #pragma warning( disable : 4264 )
 #pragma warning( disable : 4640 )
 #endif
-#include "../../../bullet3/src/btBulletDynamicsCommon.h"
+#include "../../../Libraries/bullet3/src/btBulletDynamicsCommon.h"
 #if MYFW_WINDOWS
 #pragma warning( pop )
 #endif
