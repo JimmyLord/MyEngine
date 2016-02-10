@@ -35,8 +35,8 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{AD82F95E-C422-7443-A26D-57999762CED9}</ProjectGuid>
-    <RootNamespace>BulletDynamics</RootNamespace>
+    <ProjectGuid>{5E81B361-BFF0-A443-A143-44C7B2164E8E}</ProjectGuid>
+    <RootNamespace>LinearMath</RootNamespace>
     <Keyword>Win32Proj</Keyword>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -119,9 +119,9 @@
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ProjectName)_$(Configuration)</TargetName>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|PNaCl'">lib$(ProjectName)_$(Configuration)</TargetName>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|Android'">$(ProjectName)</TargetName>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\..\Libraries\bullet3\bin\</OutDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">obj\x64\Release\BulletDynamics\</IntDir>
-    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">BulletDynamics_vs2010_x64_release</TargetName>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">..\bullet3\bin\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|x64'">obj\x64\Release\LinearMath\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">LinearMath_vs2010_x64_release</TargetName>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)Output\$(PlatformName)\$(TargetName)\$(Configuration)\</OutDir>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|PNaCl'">$(SolutionDir)Output\$(PlatformName)\$(TargetName)\$(Configuration)\</OutDir>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Android'">$(SolutionDir)Output\$(PlatformName)\$(TargetName)\$(Configuration)\</OutDir>
@@ -131,15 +131,15 @@
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProjectName)_$(Configuration)</TargetName>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|PNaCl'">lib$(ProjectName)_$(Configuration)</TargetName>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|Android'">$(ProjectName)</TargetName>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\..\Libraries\bullet3\bin\</OutDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">obj\x64\Debug\BulletDynamics\</IntDir>
-    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">BulletDynamics_vs2010_x64_debug</TargetName>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">..\bullet3\bin\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">obj\x64\Debug\LinearMath\</IntDir>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">LinearMath_vs2010_x64_debug</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
       <AdditionalOptions>/MP %(AdditionalOptions)</AdditionalOptions>
       <Optimization>Full</Optimization>
-      <AdditionalIncludeDirectories>..\..\Libraries\bullet3\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../bullet3/src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>
       </PreprocessorDefinitions>
       <MinimalRebuild>false</MinimalRebuild>
@@ -158,7 +158,7 @@
     <ResourceCompile>
       <PreprocessorDefinitions>
       </PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\..\Libraries\bullet3\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../bullet3/src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Lib>
       <TargetMachine>MachineX86</TargetMachine>
@@ -173,7 +173,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|PNaCl'">
     <ClCompile>
       <Optimization>Full</Optimization>
-      <AdditionalIncludeDirectories>..\..\Libraries\bullet3\src;$(SolutionDir)../Engine/MyEngine/SourceNaCL</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../bullet3/src;$(SolutionDir)../Engine/MyEngine/SourceNaCL</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>
       </PreprocessorDefinitions>
       <MinimalRebuild>false</MinimalRebuild>
@@ -192,7 +192,7 @@
     <ResourceCompile>
       <PreprocessorDefinitions>
       </PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\..\Libraries\bullet3\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../bullet3/src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Lib>
       <TargetMachine>MachineX86</TargetMachine>
@@ -207,7 +207,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Android'">
     <ClCompile>
       <Optimization>Full</Optimization>
-      <AdditionalIncludeDirectories>..\..\Libraries\bullet3\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../bullet3/src;..\bullet3\src\LinearMath</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>
       </PreprocessorDefinitions>
       <MinimalRebuild>false</MinimalRebuild>
@@ -225,7 +225,7 @@
     <ResourceCompile>
       <PreprocessorDefinitions>
       </PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\..\Libraries\bullet3\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../bullet3/src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Lib>
       <TargetMachine>MachineX86</TargetMachine>
@@ -241,7 +241,7 @@
     <ClCompile>
       <AdditionalOptions>/MP %(AdditionalOptions)</AdditionalOptions>
       <Optimization>Full</Optimization>
-      <AdditionalIncludeDirectories>..\..\Libraries\bullet3\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../bullet3/src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>
       </PreprocessorDefinitions>
       <MinimalRebuild>false</MinimalRebuild>
@@ -259,7 +259,7 @@
     <ResourceCompile>
       <PreprocessorDefinitions>
       </PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\..\Libraries\bullet3\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../bullet3/src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Lib>
       <TargetMachine>MachineX64</TargetMachine>
@@ -275,7 +275,7 @@
     <ClCompile>
       <AdditionalOptions>/MP %(AdditionalOptions)</AdditionalOptions>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>..\..\Libraries\bullet3\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../bullet3/src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_DEBUG=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>false</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -286,12 +286,12 @@
       <WarningLevel>Level3</WarningLevel>
       <FloatingPointModel>Fast</FloatingPointModel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <ProgramDataBaseFileName>$(OutDir)BulletDynamics_vs2010_debug.pdb</ProgramDataBaseFileName>
+      <ProgramDataBaseFileName>$(OutDir)LinearMath_vs2010_debug.pdb</ProgramDataBaseFileName>
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>_DEBUG=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\..\Libraries\bullet3\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../bullet3/src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Lib>
       <TargetMachine>MachineX86</TargetMachine>
@@ -304,7 +304,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|PNaCl'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>..\..\Libraries\bullet3\src;$(SolutionDir)../Engine/MyEngine/SourceNaCL</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../bullet3/src;$(SolutionDir)../Engine/MyEngine/SourceNaCL</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_DEBUG=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>false</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -315,12 +315,12 @@
       <WarningLevel>Level3</WarningLevel>
       <FloatingPointModel>Fast</FloatingPointModel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <ProgramDataBaseFileName>$(OutDir)BulletDynamics_vs2010_debug.pdb</ProgramDataBaseFileName>
+      <ProgramDataBaseFileName>$(OutDir)LinearMath_vs2010_debug.pdb</ProgramDataBaseFileName>
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>_DEBUG=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\..\Libraries\bullet3\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../bullet3/src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Lib>
       <TargetMachine>MachineX86</TargetMachine>
@@ -333,7 +333,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Android'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>..\..\Libraries\bullet3\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../bullet3/src;../bullet3/src/LinearMath</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_DEBUG=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>false</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -344,13 +344,13 @@
       <WarningLevel>Level3</WarningLevel>
       <FloatingPointModel>Fast</FloatingPointModel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <ProgramDataBaseFileName>$(OutDir)BulletDynamics_vs2010_debug.pdb</ProgramDataBaseFileName>
+      <ProgramDataBaseFileName>$(OutDir)LinearMath_vs2010_debug.pdb</ProgramDataBaseFileName>
       <GccExceptionHandling>true</GccExceptionHandling>
       <RuntimeTypeInfo>true</RuntimeTypeInfo>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>_DEBUG=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\..\Libraries\bullet3\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../bullet3/src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Lib>
       <TargetMachine>MachineX86</TargetMachine>
@@ -364,7 +364,7 @@
     <ClCompile>
       <AdditionalOptions>/MP %(AdditionalOptions)</AdditionalOptions>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>..\..\Libraries\bullet3\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../bullet3/src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_DEBUG=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>false</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -375,11 +375,11 @@
       <WarningLevel>Level3</WarningLevel>
       <FloatingPointModel>Fast</FloatingPointModel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <ProgramDataBaseFileName>$(OutDir)BulletDynamics_vs2010_x64_debug.pdb</ProgramDataBaseFileName>
+      <ProgramDataBaseFileName>$(OutDir)LinearMath_vs2010_x64_debug.pdb</ProgramDataBaseFileName>
     </ClCompile>
     <ResourceCompile>
       <PreprocessorDefinitions>_DEBUG=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\..\Libraries\bullet3\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../bullet3/src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Lib>
       <TargetMachine>MachineX64</TargetMachine>
@@ -390,120 +390,51 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\Libraries\bullet3\src\BulletDynamics\Dynamics\btActionInterface.h" />
-    <ClInclude Include="..\..\Libraries\bullet3\src\BulletDynamics\Dynamics\btDiscreteDynamicsWorld.h" />
-    <ClInclude Include="..\..\Libraries\bullet3\src\BulletDynamics\Dynamics\btDynamicsWorld.h" />
-    <ClInclude Include="..\..\Libraries\bullet3\src\BulletDynamics\Dynamics\btRigidBody.h" />
-    <ClInclude Include="..\..\Libraries\bullet3\src\BulletDynamics\Dynamics\btSimpleDynamicsWorld.h" />
-    <ClInclude Include="..\..\Libraries\bullet3\src\BulletDynamics\ConstraintSolver\btConeTwistConstraint.h" />
-    <ClInclude Include="..\..\Libraries\bullet3\src\BulletDynamics\ConstraintSolver\btConstraintSolver.h" />
-    <ClInclude Include="..\..\Libraries\bullet3\src\BulletDynamics\ConstraintSolver\btContactConstraint.h" />
-    <ClInclude Include="..\..\Libraries\bullet3\src\BulletDynamics\ConstraintSolver\btContactSolverInfo.h" />
-    <ClInclude Include="..\..\Libraries\bullet3\src\BulletDynamics\ConstraintSolver\btFixedConstraint.h" />
-    <ClInclude Include="..\..\Libraries\bullet3\src\BulletDynamics\ConstraintSolver\btGearConstraint.h" />
-    <ClInclude Include="..\..\Libraries\bullet3\src\BulletDynamics\ConstraintSolver\btGeneric6DofConstraint.h" />
-    <ClInclude Include="..\..\Libraries\bullet3\src\BulletDynamics\ConstraintSolver\btGeneric6DofSpring2Constraint.h" />
-    <ClInclude Include="..\..\Libraries\bullet3\src\BulletDynamics\ConstraintSolver\btGeneric6DofSpringConstraint.h" />
-    <ClInclude Include="..\..\Libraries\bullet3\src\BulletDynamics\ConstraintSolver\btHinge2Constraint.h" />
-    <ClInclude Include="..\..\Libraries\bullet3\src\BulletDynamics\ConstraintSolver\btHingeConstraint.h" />
-    <ClInclude Include="..\..\Libraries\bullet3\src\BulletDynamics\ConstraintSolver\btJacobianEntry.h" />
-    <ClInclude Include="..\..\Libraries\bullet3\src\BulletDynamics\ConstraintSolver\btNNCGConstraintSolver.h" />
-    <ClInclude Include="..\..\Libraries\bullet3\src\BulletDynamics\ConstraintSolver\btPoint2PointConstraint.h" />
-    <ClInclude Include="..\..\Libraries\bullet3\src\BulletDynamics\ConstraintSolver\btSequentialImpulseConstraintSolver.h" />
-    <ClInclude Include="..\..\Libraries\bullet3\src\BulletDynamics\ConstraintSolver\btSliderConstraint.h" />
-    <ClInclude Include="..\..\Libraries\bullet3\src\BulletDynamics\ConstraintSolver\btSolve2LinearConstraint.h" />
-    <ClInclude Include="..\..\Libraries\bullet3\src\BulletDynamics\ConstraintSolver\btSolverBody.h" />
-    <ClInclude Include="..\..\Libraries\bullet3\src\BulletDynamics\ConstraintSolver\btSolverConstraint.h" />
-    <ClInclude Include="..\..\Libraries\bullet3\src\BulletDynamics\ConstraintSolver\btTypedConstraint.h" />
-    <ClInclude Include="..\..\Libraries\bullet3\src\BulletDynamics\ConstraintSolver\btUniversalConstraint.h" />
-    <ClInclude Include="..\..\Libraries\bullet3\src\BulletDynamics\Featherstone\btMultiBody.h" />
-    <ClInclude Include="..\..\Libraries\bullet3\src\BulletDynamics\Featherstone\btMultiBodyConstraint.h" />
-    <ClInclude Include="..\..\Libraries\bullet3\src\BulletDynamics\Featherstone\btMultiBodyConstraintSolver.h" />
-    <ClInclude Include="..\..\Libraries\bullet3\src\BulletDynamics\Featherstone\btMultiBodyDynamicsWorld.h" />
-    <ClInclude Include="..\..\Libraries\bullet3\src\BulletDynamics\Featherstone\btMultiBodyJointLimitConstraint.h" />
-    <ClInclude Include="..\..\Libraries\bullet3\src\BulletDynamics\Featherstone\btMultiBodyJointMotor.h" />
-    <ClInclude Include="..\..\Libraries\bullet3\src\BulletDynamics\Featherstone\btMultiBodyLink.h" />
-    <ClInclude Include="..\..\Libraries\bullet3\src\BulletDynamics\Featherstone\btMultiBodyLinkCollider.h" />
-    <ClInclude Include="..\..\Libraries\bullet3\src\BulletDynamics\Featherstone\btMultiBodyPoint2Point.h" />
-    <ClInclude Include="..\..\Libraries\bullet3\src\BulletDynamics\Featherstone\btMultiBodySolverConstraint.h" />
-    <ClInclude Include="..\..\Libraries\bullet3\src\BulletDynamics\MLCPSolvers\btDantzigLCP.h" />
-    <ClInclude Include="..\..\Libraries\bullet3\src\BulletDynamics\MLCPSolvers\btDantzigSolver.h" />
-    <ClInclude Include="..\..\Libraries\bullet3\src\BulletDynamics\MLCPSolvers\btLemkeAlgorithm.h" />
-    <ClInclude Include="..\..\Libraries\bullet3\src\BulletDynamics\MLCPSolvers\btLemkeSolver.h" />
-    <ClInclude Include="..\..\Libraries\bullet3\src\BulletDynamics\MLCPSolvers\btMLCPSolver.h" />
-    <ClInclude Include="..\..\Libraries\bullet3\src\BulletDynamics\MLCPSolvers\btMLCPSolverInterface.h" />
-    <ClInclude Include="..\..\Libraries\bullet3\src\BulletDynamics\MLCPSolvers\btPATHSolver.h" />
-    <ClInclude Include="..\..\Libraries\bullet3\src\BulletDynamics\MLCPSolvers\btSolveProjectedGaussSeidel.h" />
-    <ClInclude Include="..\..\Libraries\bullet3\src\BulletDynamics\Vehicle\btRaycastVehicle.h" />
-    <ClInclude Include="..\..\Libraries\bullet3\src\BulletDynamics\Vehicle\btVehicleRaycaster.h" />
-    <ClInclude Include="..\..\Libraries\bullet3\src\BulletDynamics\Vehicle\btWheelInfo.h" />
-    <ClInclude Include="..\..\Libraries\bullet3\src\BulletDynamics\Character\btCharacterControllerInterface.h" />
-    <ClInclude Include="..\..\Libraries\bullet3\src\BulletDynamics\Character\btKinematicCharacterController.h" />
+    <ClInclude Include="..\bullet3\src\LinearMath\btAabbUtil2.h" />
+    <ClInclude Include="..\bullet3\src\LinearMath\btAlignedAllocator.h" />
+    <ClInclude Include="..\bullet3\src\LinearMath\btAlignedObjectArray.h" />
+    <ClInclude Include="..\bullet3\src\LinearMath\btConvexHull.h" />
+    <ClInclude Include="..\bullet3\src\LinearMath\btConvexHullComputer.h" />
+    <ClInclude Include="..\bullet3\src\LinearMath\btCpuFeatureUtility.h" />
+    <ClInclude Include="..\bullet3\src\LinearMath\btDefaultMotionState.h" />
+    <ClInclude Include="..\bullet3\src\LinearMath\btGeometryUtil.h" />
+    <ClInclude Include="..\bullet3\src\LinearMath\btGrahamScan2dConvexHull.h" />
+    <ClInclude Include="..\bullet3\src\LinearMath\btHashMap.h" />
+    <ClInclude Include="..\bullet3\src\LinearMath\btIDebugDraw.h" />
+    <ClInclude Include="..\bullet3\src\LinearMath\btList.h" />
+    <ClInclude Include="..\bullet3\src\LinearMath\btMatrix3x3.h" />
+    <ClInclude Include="..\bullet3\src\LinearMath\btMatrixX.h" />
+    <ClInclude Include="..\bullet3\src\LinearMath\btMinMax.h" />
+    <ClInclude Include="..\bullet3\src\LinearMath\btMotionState.h" />
+    <ClInclude Include="..\bullet3\src\LinearMath\btPolarDecomposition.h" />
+    <ClInclude Include="..\bullet3\src\LinearMath\btPoolAllocator.h" />
+    <ClInclude Include="..\bullet3\src\LinearMath\btQuadWord.h" />
+    <ClInclude Include="..\bullet3\src\LinearMath\btQuaternion.h" />
+    <ClInclude Include="..\bullet3\src\LinearMath\btQuickprof.h" />
+    <ClInclude Include="..\bullet3\src\LinearMath\btRandom.h" />
+    <ClInclude Include="..\bullet3\src\LinearMath\btScalar.h" />
+    <ClInclude Include="..\bullet3\src\LinearMath\btSerializer.h" />
+    <ClInclude Include="..\bullet3\src\LinearMath\btSpatialAlgebra.h" />
+    <ClInclude Include="..\bullet3\src\LinearMath\btStackAlloc.h" />
+    <ClInclude Include="..\bullet3\src\LinearMath\btTransform.h" />
+    <ClInclude Include="..\bullet3\src\LinearMath\btTransformUtil.h" />
+    <ClInclude Include="..\bullet3\src\LinearMath\btVector3.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\Libraries\bullet3\src\BulletDynamics\Dynamics\btDiscreteDynamicsWorld.cpp">
+    <ClCompile Include="..\bullet3\src\LinearMath\btAlignedAllocator.cpp">
     </ClCompile>
-    <ClCompile Include="..\..\Libraries\bullet3\src\BulletDynamics\Dynamics\btRigidBody.cpp">
+    <ClCompile Include="..\bullet3\src\LinearMath\btConvexHull.cpp" />
+    <ClCompile Include="..\bullet3\src\LinearMath\btConvexHullComputer.cpp">
     </ClCompile>
-    <ClCompile Include="..\..\Libraries\bullet3\src\BulletDynamics\Dynamics\btSimpleDynamicsWorld.cpp">
+    <ClCompile Include="..\bullet3\src\LinearMath\btGeometryUtil.cpp">
     </ClCompile>
-    <ClCompile Include="..\..\Libraries\bullet3\src\BulletDynamics\ConstraintSolver\btConeTwistConstraint.cpp">
+    <ClCompile Include="..\bullet3\src\LinearMath\btPolarDecomposition.cpp">
     </ClCompile>
-    <ClCompile Include="..\..\Libraries\bullet3\src\BulletDynamics\ConstraintSolver\btContactConstraint.cpp">
+    <ClCompile Include="..\bullet3\src\LinearMath\btQuickprof.cpp">
     </ClCompile>
-    <ClCompile Include="..\..\Libraries\bullet3\src\BulletDynamics\ConstraintSolver\btFixedConstraint.cpp">
+    <ClCompile Include="..\bullet3\src\LinearMath\btSerializer.cpp">
     </ClCompile>
-    <ClCompile Include="..\..\Libraries\bullet3\src\BulletDynamics\ConstraintSolver\btGearConstraint.cpp">
-    </ClCompile>
-    <ClCompile Include="..\..\Libraries\bullet3\src\BulletDynamics\ConstraintSolver\btGeneric6DofConstraint.cpp">
-    </ClCompile>
-    <ClCompile Include="..\..\Libraries\bullet3\src\BulletDynamics\ConstraintSolver\btGeneric6DofSpring2Constraint.cpp">
-    </ClCompile>
-    <ClCompile Include="..\..\Libraries\bullet3\src\BulletDynamics\ConstraintSolver\btGeneric6DofSpringConstraint.cpp">
-    </ClCompile>
-    <ClCompile Include="..\..\Libraries\bullet3\src\BulletDynamics\ConstraintSolver\btHinge2Constraint.cpp">
-    </ClCompile>
-    <ClCompile Include="..\..\Libraries\bullet3\src\BulletDynamics\ConstraintSolver\btHingeConstraint.cpp">
-    </ClCompile>
-    <ClCompile Include="..\..\Libraries\bullet3\src\BulletDynamics\ConstraintSolver\btNNCGConstraintSolver.cpp">
-    </ClCompile>
-    <ClCompile Include="..\..\Libraries\bullet3\src\BulletDynamics\ConstraintSolver\btPoint2PointConstraint.cpp">
-    </ClCompile>
-    <ClCompile Include="..\..\Libraries\bullet3\src\BulletDynamics\ConstraintSolver\btSequentialImpulseConstraintSolver.cpp">
-    </ClCompile>
-    <ClCompile Include="..\..\Libraries\bullet3\src\BulletDynamics\ConstraintSolver\btSliderConstraint.cpp">
-    </ClCompile>
-    <ClCompile Include="..\..\Libraries\bullet3\src\BulletDynamics\ConstraintSolver\btSolve2LinearConstraint.cpp">
-    </ClCompile>
-    <ClCompile Include="..\..\Libraries\bullet3\src\BulletDynamics\ConstraintSolver\btTypedConstraint.cpp">
-    </ClCompile>
-    <ClCompile Include="..\..\Libraries\bullet3\src\BulletDynamics\ConstraintSolver\btUniversalConstraint.cpp">
-    </ClCompile>
-    <ClCompile Include="..\..\Libraries\bullet3\src\BulletDynamics\Featherstone\btMultiBody.cpp">
-    </ClCompile>
-    <ClCompile Include="..\..\Libraries\bullet3\src\BulletDynamics\Featherstone\btMultiBodyConstraint.cpp">
-    </ClCompile>
-    <ClCompile Include="..\..\Libraries\bullet3\src\BulletDynamics\Featherstone\btMultiBodyConstraintSolver.cpp">
-    </ClCompile>
-    <ClCompile Include="..\..\Libraries\bullet3\src\BulletDynamics\Featherstone\btMultiBodyDynamicsWorld.cpp">
-    </ClCompile>
-    <ClCompile Include="..\..\Libraries\bullet3\src\BulletDynamics\Featherstone\btMultiBodyJointLimitConstraint.cpp">
-    </ClCompile>
-    <ClCompile Include="..\..\Libraries\bullet3\src\BulletDynamics\Featherstone\btMultiBodyJointMotor.cpp">
-    </ClCompile>
-    <ClCompile Include="..\..\Libraries\bullet3\src\BulletDynamics\Featherstone\btMultiBodyPoint2Point.cpp">
-    </ClCompile>
-    <ClCompile Include="..\..\Libraries\bullet3\src\BulletDynamics\MLCPSolvers\btDantzigLCP.cpp">
-    </ClCompile>
-    <ClCompile Include="..\..\Libraries\bullet3\src\BulletDynamics\MLCPSolvers\btLemkeAlgorithm.cpp">
-    </ClCompile>
-    <ClCompile Include="..\..\Libraries\bullet3\src\BulletDynamics\MLCPSolvers\btMLCPSolver.cpp">
-    </ClCompile>
-    <ClCompile Include="..\..\Libraries\bullet3\src\BulletDynamics\Vehicle\btRaycastVehicle.cpp">
-    </ClCompile>
-    <ClCompile Include="..\..\Libraries\bullet3\src\BulletDynamics\Vehicle\btWheelInfo.cpp">
-    </ClCompile>
-    <ClCompile Include="..\..\Libraries\bullet3\src\BulletDynamics\Character\btKinematicCharacterController.cpp">
+    <ClCompile Include="..\bullet3\src\LinearMath\btVector3.cpp">
     </ClCompile>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -31,7 +31,7 @@
 #pragma warning( disable : 4264 )
 #pragma warning( disable : 4640 )
 #endif
-#include "../../../Libraries/bullet3/src/btBulletDynamicsCommon.h"
+#include "../../Libraries/bullet3/src/btBulletDynamicsCommon.h"
 #if MYFW_WINDOWS
 #pragma warning( pop )
 #endif
@@ -41,14 +41,14 @@
 #if MYFW_USING_LUA
 extern "C"
 {
-    #include "../../lua/src/lua.h"
-    #include "../../lua/src/lualib.h"
-    #include "../../lua/src/lauxlib.h"
+    #include "../../Libraries/Lua/src/lua.h"
+    #include "../../Libraries/Lua/src/lualib.h"
+    #include "../../Libraries/Lua/src/lauxlib.h"
 }
 #undef Nil
 #pragma warning( push )
 #pragma warning( disable : 4640 )
-#include "../../lua/LuaBridge/LuaBridge.h"
+#include "../../Libraries/LuaBridge/LuaBridge.h"
 #pragma warning( pop )
 #include "Core/LuaGameState.h"
 #endif //MYFW_USING_LUA
