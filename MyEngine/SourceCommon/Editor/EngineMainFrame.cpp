@@ -11,7 +11,7 @@
 
 #if MYFW_USING_WX
 
-#include "../../Framework/MyFramework/SourceWindows/MYFWWinMainWx.h"
+#include "../../../Framework/MyFramework/SourceWindows/MYFWWinMainWx.h"
 #include "EngineMainFrame.h"
 
 EngineMainFrame* g_pEngineMainFrame = 0;

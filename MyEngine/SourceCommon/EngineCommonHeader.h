@@ -15,12 +15,12 @@
 #define MYFW_USING_LUA 1
 
 // framework code
-#include "../../Framework/MyFramework/SourceCommon/CommonHeader.h"
+#include "../../../Framework/MyFramework/SourceCommon/CommonHeader.h"
 #if MYFW_USING_WX
-#include "../../Framework/MyFramework/SourceWindows/MYFWWinMainWx.h"
+#include "../../../Framework/MyFramework/SourceWindows/MYFWWinMainWx.h"
 #include "Editor/EngineMainFrame.h"
-#include "../../Framework/MyFramework/SourceWidgets/EditorCommands.h"
-#include "../../Framework/MyFramework/SourceWidgets/CommandStack.h"
+#include "../../../Framework/MyFramework/SourceWidgets/EditorCommands.h"
+#include "../../../Framework/MyFramework/SourceWidgets/CommandStack.h"
 #endif
 
 // bullet
@@ -98,19 +98,19 @@ extern "C"
 
 #include "ComponentSystem/Core/GameObject.h"
 
-#include "../../SharedGameCode/Core/RenderTextQuick.h"
-#include "../../SharedGameCode/Menus/MenuItem.h"
-#include "../../SharedGameCode/Core/MeshShapes.h"
+#include "../../../SharedGameCode/Core/RenderTextQuick.h"
+#include "../../../SharedGameCode/Menus/MenuItem.h"
+#include "../../../SharedGameCode/Core/MeshShapes.h"
 
-#include "../../SharedGameCode/Menus/LanguageTable.h"
-#include "../../SharedGameCode/Menus/MenuButton.h"
-#include "../../SharedGameCode/Menus/MenuCheckBox.h"
-#include "../../SharedGameCode/Menus/MenuSprite.h"
-#include "../../SharedGameCode/Menus/MenuText.h"
-#include "../../SharedGameCode/Menus/MenuInputBox.h"
-#include "../../SharedGameCode/Menus/MenuScrollingText.h"
+#include "../../../SharedGameCode/Menus/LanguageTable.h"
+#include "../../../SharedGameCode/Menus/MenuButton.h"
+#include "../../../SharedGameCode/Menus/MenuCheckBox.h"
+#include "../../../SharedGameCode/Menus/MenuSprite.h"
+#include "../../../SharedGameCode/Menus/MenuText.h"
+#include "../../../SharedGameCode/Menus/MenuInputBox.h"
+#include "../../../SharedGameCode/Menus/MenuScrollingText.h"
 
-#include "../../SharedGameCode/Menus/Menu_Helpers.h"
+#include "../../../SharedGameCode/Menus/Menu_Helpers.h"
 
 #if MYFW_USING_WX
 #include "Core/EditorState.h"
