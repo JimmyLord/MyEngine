@@ -172,8 +172,8 @@ void EngineCore::OneTimeInit()
 #endif //MYFW_USING_WX
 
     // setup our shaders
-    m_pShaderFile_TintColor = RequestFile( "DataEngine/Shaders/Shader_TintColor.glsl" );
-    m_pShaderFile_ClipSpaceTexture = RequestFile( "DataEngine/Shaders/Shader_ClipSpaceTexture.glsl" );
+    m_pShaderFile_TintColor = g_pEngineFileManager->RequestFile_UntrackedByScene( "DataEngine/Shaders/Shader_TintColor.glsl" );
+    m_pShaderFile_ClipSpaceTexture = g_pEngineFileManager->RequestFile_UntrackedByScene( "DataEngine/Shaders/Shader_ClipSpaceTexture.glsl" );
     m_pShader_TintColor = MyNew ShaderGroup( m_pShaderFile_TintColor );
     m_pShader_ClipSpaceTexture = MyNew ShaderGroup( m_pShaderFile_ClipSpaceTexture );
     m_pMaterial_Box2DDebugDraw = MyNew MaterialDefinition( m_pShader_TintColor, ColorByte(128,128,128,255) );
@@ -605,7 +605,6 @@ void EngineCore::OnModePlay()
     if( m_EditorMode )
     {
         g_pMaterialManager->SaveAllMaterials();
-        //g_pComponentSystemManager->AddAllMaterialsToFilesList();
         Editor_QuickSaveScene( "temp_editor_onplay.scene" );
         m_EditorMode = false;
         m_Paused = false;
@@ -883,7 +882,7 @@ RequestedSceneInfo* EngineCore::RequestSceneInternal(const char* fullpath)
     if( i == MAX_SCENE_FILES_QUEUED_UP )
         return 0;
 
-    m_pSceneFilesLoading[i].m_pFile = RequestFile( fullpath );
+    m_pSceneFilesLoading[i].m_pFile = g_pEngineFileManager->RequestFile_UntrackedByScene( fullpath );
     m_pSceneFilesLoading[i].m_SceneID = -1;
 
     return &m_pSceneFilesLoading[i];

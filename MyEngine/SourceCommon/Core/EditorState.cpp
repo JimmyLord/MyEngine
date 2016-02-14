@@ -55,7 +55,10 @@ EditorState::EditorState()
 
         pMaterial->SetBlendType( MaterialBlendType_On );
 
-        TextureDefinition* pTexture = g_pTextureManager->CreateTexture( EditorIconFilenames[i] );
+        MyFileObject* pFile = g_pEngineFileManager->RequestFile_UntrackedByScene( EditorIconFilenames[i] );
+        TextureDefinition* pTexture = g_pTextureManager->CreateTexture( pFile );
+        pFile->Release();
+
         pMaterial->SetTextureColor( pTexture );
         pTexture->Release();
 
@@ -66,7 +69,7 @@ EditorState::EditorState()
         }
         else
         {
-            MyFileObject* pFile = g_pFileManager->RequestFile( "DataEngine/Shaders/Shader_TextureTint.glsl" );
+            MyFileObject* pFile = g_pEngineFileManager->RequestFile_UntrackedByScene( "DataEngine/Shaders/Shader_TextureTint.glsl" );
             MyAssert( pFile->IsA( "MyFileShader" ) );
             if( pFile->IsA( "MyFileShader" ) )
             {

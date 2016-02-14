@@ -212,30 +212,6 @@ void ComponentSystemManager::Editor_RegisterFileUpdatedCallback(FileUpdatedCallb
     m_pFileUpdatedCallbackList.push_back( callbackstruct );
 }
 
-void ComponentSystemManager::AddAllMaterialsToFilesList()
-{
-    // This function shouldn't be called anymore, materials will still load on demand, but must be manually added to file list.
-    MyAssert( false );
-
-    for( CPPListNode* pNode = g_pMaterialManager->m_Materials.GetHead(); pNode; pNode = pNode->GetNext() )
-    {
-        MaterialDefinition* pMaterial = (MaterialDefinition*)pNode;
-
-        if( pMaterial->m_pFile )
-        {
-            // TODO: fix this, shouldn't assume this is scene 1.
-            int sceneid = 1;
-
-            if( GetFileObjectIfUsedByScene( pMaterial->m_pFile->m_FullPath, sceneid ) == 0 )
-            {
-                MyFileInfo* pFileInfo = AddToFileList( pMaterial->m_pFile, 0, 0, 0, pMaterial, sceneid );
-                pMaterial->m_pFile->AddRef();
-                pMaterial->AddRef();
-            }
-        }
-    }
-}
-
 void ComponentSystemManager::OnLeftClick(unsigned int count, bool clear)
 {
     if( clear )
@@ -277,11 +253,11 @@ void ComponentSystemManager::OnMaterialCreated(MaterialDefinition* pMaterial)
     // if this material doesn't have a file and it has a name, then save it.
     if( pMaterial && pMaterial->m_pFile == 0 && pMaterial->m_Name[0] != 0 )
     {
-        //int oldrefcount = pMaterial->GetRefCount();
-
         g_pMaterialManager->SaveAllMaterials();
-        //AddAllMaterialsToFilesList();
-        //pMaterial->Release(); // ref should have been added by AddAllMaterialsToFilesList().
+
+        // Add the material to the file list, so it can be freed on shutdown.
+        AddToFileList( pMaterial->m_pFile, 0, 0, 0, pMaterial, 1 );
+        pMaterial->m_pFile->AddRef();
     }
 }
 #endif //MYFW_USING_WX
@@ -536,9 +512,10 @@ MyFileObject* ComponentSystemManager::LoadDataFile(const char* relativepath, uns
     // if the file is already tagged as being used by this scene, don't request/addref it.
     if( pFile != 0 )
     {
-        LOGInfo( LOGTag, "%s already in scene, reloading\n", relativepath );
-        g_pFileManager->ReloadFile( pFile );
-        OnFileUpdated_CallbackFunction( pFile );
+        return pFile;
+        //LOGInfo( LOGTag, "%s already in scene, reloading\n", relativepath );
+        //g_pFileManager->ReloadFile( pFile );
+        //OnFileUpdated_CallbackFunction( pFile );
     }
     else
     {
@@ -557,26 +534,52 @@ MyFileObject* ComponentSystemManager::LoadDataFile(const char* relativepath, uns
         }
 #endif
         
+        // store pFile so we can free it afterwards.
+        MyFileInfo* pFileInfo = AddToFileList( pFile, 0, 0, 0, 0, sceneid );
+
         TextureDefinition* pTexture = 0;
 
         // load textures differently than other files.
         if( rellen > 4 && strcmp( &relativepath[rellen-4], ".png" ) == 0 )
         {
-            pTexture = g_pTextureManager->CreateTexture( relativepath );
-            pFile = pTexture->m_pFile;
-            pFile->AddRef();
+            // check if the texture is already loaded and create it if not.
+            pTexture = g_pTextureManager->FindTexture( relativepath );
+            if( pTexture == 0 )
+            {
+                // Find the file and add it to the object, 
+                pFile = g_pEngineFileManager->RequestFile_UntrackedByScene( relativepath );
+                pFileInfo->m_pFile = pFile;
+
+                pTexture = g_pTextureManager->CreateTexture( relativepath );
+                MyAssert( pFile == pTexture->m_pFile );
+                pFile = pTexture->m_pFile;
+
+                // Update the fileinfo block with the texture.
+                pFileInfo->m_pTexture = pTexture;
+            }
+            else
+            {
+                MyAssert( false ); // the texture shouldn't be loaded and not in the list of files used.
+
+                // Update the fileinfo block with the texture.
+                pFileInfo->m_pTexture = pTexture;
+
+                // Add a ref to the file for our scene file list.
+                pFile = pTexture->m_pFile;
+                pFile->AddRef();
+            }
+
         }
         else
         {
-            pFile = g_pFileManager->RequestFile( relativepath );
+            // Call untracked request since we're in the tracking code, just to avoid unnecessary repeat of LoadDataFile() call.
+            pFile = g_pEngineFileManager->RequestFile_UntrackedByScene( relativepath );
+            pFileInfo->m_pFile = pFile;
 #if MYFW_USING_WX
             // TODO: wasn't used and causes a crash in release mode... look into it.
             //pFile->SetCustomLeftClickCallback( StaticOnMemoryPanelFileSelectedLeftClick, this );
 #endif
         }
-
-        // store pFile so we can free it afterwards.
-        MyFileInfo* pFileInfo = AddToFileList( pFile, 0, 0, pTexture, 0, sceneid );
 
         // if the extension of the source file is different than that of the file we're loading,
         //  then store the source file path in the fileobject, so we can detect/reconvert if that file changes.
@@ -766,14 +769,14 @@ void ComponentSystemManager::LoadSceneFromJSON(const char* scenename, const char
 
             if( jFile->valuestring != 0 )
             {
-                LoadDataFile( jFile->valuestring, sceneid, 0 );
+                LoadDataFile( jFile->valuestring, sceneid, 0, true );
             }
             else
             {
                 cJSON* jPath = cJSON_GetObjectItem( jFile, "Path" );
                 if( jPath )
                 {
-                    LoadDataFile( jPath->valuestring, sceneid, 0 );
+                    LoadDataFile( jPath->valuestring, sceneid, 0, true );
 
                     MyFileInfo* pFileInfo = GetFileInfoIfUsedByScene( jPath->valuestring, sceneid );
                     MyAssert( pFileInfo );

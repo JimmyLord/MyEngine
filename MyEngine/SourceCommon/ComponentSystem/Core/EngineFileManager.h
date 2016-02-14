@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015 Jimmy Lord http://www.flatheadgames.com
+// Copyright (c) 2015-2016 Jimmy Lord http://www.flatheadgames.com
 //
 // This software is provided 'as-is', without any express or implied warranty.  In no event will the authors be held liable for any damages arising from the use of this software.
 // Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -10,6 +10,10 @@
 #ifndef __EngineFileManager_H__
 #define __EngineFileManager_H__
 
+class EngineFileManager;
+
+extern EngineFileManager* g_pEngineFileManager;
+
 class EngineFileManager : public FileManager
 {
 public:
@@ -17,6 +21,9 @@ public:
     virtual ~EngineFileManager();
 
     virtual MyFileObject* RequestFile(const char* filename);
+    virtual MyFileObject* RequestFile(const char* filename, unsigned int sceneid);
+
+    MyFileObject* RequestFile_UntrackedByScene(const char* filename);
 };
 
 #endif //__EngineFileManager_H__

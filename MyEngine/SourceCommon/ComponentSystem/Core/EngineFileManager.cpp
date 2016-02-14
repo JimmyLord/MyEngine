@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015 Jimmy Lord http://www.flatheadgames.com
+// Copyright (c) 2015-2016 Jimmy Lord http://www.flatheadgames.com
 //
 // This software is provided 'as-is', without any express or implied warranty.  In no event will the authors be held liable for any damages arising from the use of this software.
 // Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -10,8 +10,12 @@
 #include "EngineCommonHeader.h"
 #include "EngineFileManager.h"
 
+EngineFileManager* g_pEngineFileManager = 0;
+
 EngineFileManager::EngineFileManager()
 {
+    MyAssert( g_pEngineFileManager == 0 );
+    g_pEngineFileManager = this;
 }
 
 EngineFileManager::~EngineFileManager()
@@ -20,14 +24,38 @@ EngineFileManager::~EngineFileManager()
 
 MyFileObject* EngineFileManager::RequestFile(const char* filename)
 {
-    MyAssert( filename != 0 );
-    if( filename == 0 )
-        return 0;
-    MyAssert( filename[0] != 0 );
-    if( filename[0] == 0 )
-        return 0;
+    // add any files requested to the list of files needed by the (first) scene.
+    MyFileObject* pFile = RequestFile( filename, 1 );
 
-    MyFileObject* pFile = FileManager::RequestFile( filename );
+    return pFile;
+}
+
+MyFileObject* EngineFileManager::RequestFile(const char* filename, unsigned int sceneid)
+{
+    MyFileObject* pFile = 0;
+
+    //// TODO: Have the ComponentSystemManager add the file to the list of active files for the scene.
+    //if( 0 )//g_pComponentSystemManager )
+    //{
+    //    pFile = g_pComponentSystemManager->LoadDataFile( filename, sceneid, 0, true );
+
+    //    // LoadDataFile doesn't add a ref, so add one.
+    //    pFile->AddRef();
+    //}
+    //else
+    {
+        // just load the file as normal.
+        pFile = FileManager::RequestFile( filename );
+    }
+
     
+    return pFile;
+}
+
+MyFileObject* EngineFileManager::RequestFile_UntrackedByScene(const char* filename)
+{
+    // Load the resource, but don't track it as scene data file.
+    MyFileObject* pFile = FileManager::RequestFile( filename );
+
     return pFile;
 }

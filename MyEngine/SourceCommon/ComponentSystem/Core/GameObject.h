@@ -68,7 +68,7 @@ public:
     void SetEnabled(bool enabled);
     void RegisterAllComponentCallbacks(bool ignoreenabledflag);
     void UnregisterAllComponentCallbacks(bool ignoreenabledflag);
-    void SetSceneID(unsigned int sceneid);
+    void SetSceneID(unsigned int sceneid, bool assignnewgoid = true);
     void SetID(unsigned int id);
     void SetName(const char* name);
     void SetParentGameObject(GameObject* pParentGameObject);

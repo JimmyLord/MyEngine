@@ -121,7 +121,7 @@ void ComponentLuaScript::CreateNewScriptFile()
             sprintf_s( fullpath, MAX_PATH, "%s", (const char*)wxpath );
             const char* relativepath = GetRelativePath( fullpath );
 
-            MyFileObject* pScriptFile = g_pComponentSystemManager->LoadDataFile( relativepath, m_pGameObject->GetSceneID(), 0 );
+            MyFileObject* pScriptFile = g_pComponentSystemManager->LoadDataFile( relativepath, m_pGameObject->GetSceneID(), 0, true );
             SetScriptFile( pScriptFile );
 
             // update the panel so new filename shows up. // TODO: this won't refresh lua variables, so maybe refresh the whole watch panel.
@@ -584,7 +584,7 @@ void ComponentLuaScript::ImportFromJSONObject(cJSON* jsonobj, unsigned int scene
     cJSON* scriptstringobj = cJSON_GetObjectItem( jsonobj, "Script" );
     if( scriptstringobj )
     {
-        MyFileObject* pFile = g_pFileManager->RequestFile( scriptstringobj->valuestring );
+        MyFileObject* pFile = g_pEngineFileManager->RequestFile( scriptstringobj->valuestring, GetSceneID() );
         MyAssert( pFile );
         if( pFile )
         {

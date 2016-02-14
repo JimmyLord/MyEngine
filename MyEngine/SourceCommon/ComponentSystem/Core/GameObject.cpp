@@ -353,7 +353,7 @@ void GameObject::ImportFromJSONObject(cJSON* jGameObject, unsigned int sceneid)
     {
         SetName( obj->valuestring );
     }
-    SetSceneID( sceneid );
+    SetSceneID( sceneid, false ); // set new scene, but don't assign a new GOID.
 
     bool enabled = true;
     cJSONExt_GetBool( jGameObject, "Enabled", &enabled );
@@ -419,13 +419,17 @@ void GameObject::UnregisterAllComponentCallbacks(bool ignoreenabledflag)
     }
 }
 
-void GameObject::SetSceneID(unsigned int sceneid)
+void GameObject::SetSceneID(unsigned int sceneid, bool assignnewgoid)
 {
     if( m_SceneID == sceneid )
         return;
 
     m_SceneID = sceneid;
-    m_ID = g_pComponentSystemManager->GetNextGameObjectIDAndIncrement( sceneid );
+   
+    if( assignnewgoid )
+    {
+        m_ID = g_pComponentSystemManager->GetNextGameObjectIDAndIncrement( sceneid );
+    }
 }
 
 void GameObject::SetID(unsigned int id)
