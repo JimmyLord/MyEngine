@@ -548,7 +548,7 @@ MyFileObject* ComponentSystemManager::LoadDataFile(const char* relativepath, uns
                 pFile = g_pEngineFileManager->RequestFile_UntrackedByScene( relativepath );
                 pFileInfo->m_pFile = pFile;
 
-                pTexture = g_pTextureManager->CreateTexture( relativepath );
+                pTexture = g_pTextureManager->CreateTexture( pFile );
                 MyAssert( pFile == pTexture->m_pFile );
                 pFile = pTexture->m_pFile;
 
