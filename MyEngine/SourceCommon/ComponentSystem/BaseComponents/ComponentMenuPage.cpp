@@ -1306,7 +1306,7 @@ bool ComponentMenuPage::OnKeysCallback(GameCoreButtonActions action, int keycode
     {
         if( m_pInputBoxWithKeyboardFocus )
         {
-            return m_pInputBoxWithKeyboardFocus->OnKeyDown( keycode, unicodechar );
+            return m_pInputBoxWithKeyboardFocus->OnKeys( GCBA_Down, keycode, unicodechar );
         }
     }
 
