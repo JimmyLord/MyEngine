@@ -184,6 +184,7 @@ void GameObject::OnRightClick()
     }
     else
     {
+        menu.Append( RightClick_DuplicateFolder, "Duplicate Folder and all contents" );
         menu.Append( RightClick_DeleteFolder, "Delete Folder and all contents" );
     }
 
@@ -257,6 +258,13 @@ void GameObject::OnPopupClick(wxEvent &evt)
         }
 
         g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_DeleteObjects( gameobjects ) );
+    }
+    else if( id == RightClick_DuplicateFolder )
+    {
+        if( g_pEngineCore->m_EditorMode )
+            g_pComponentSystemManager->EditorCopyGameObject( pGameObject, false );
+        else
+            g_pComponentSystemManager->CopyGameObject( pGameObject, "runtime duplicate" );
     }
 }
 

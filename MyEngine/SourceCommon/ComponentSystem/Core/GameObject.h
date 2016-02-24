@@ -52,6 +52,7 @@ public:
     virtual ~GameObject();
     SetClassnameBase( "GameObject" ); // only first 8 character count.
 
+    bool IsFolder() { return m_IsFolder; }
     GameObject* GetGameObjectThisInheritsFrom() { return m_pGameObjectThisInheritsFrom; }
     CPPListHead* GetChildList() { return &m_ChildList; }
     GameObject* GetFirstChild() { return (GameObject*)m_ChildList.GetHead(); }
@@ -125,6 +126,7 @@ public:
         RightClick_ClearParent,
         RightClick_DeleteGameObject,
         RightClick_DeleteFolder,
+        RightClick_DuplicateFolder,
     };
 
     static void StaticOnTitleLabelClicked(void* pObjectPtr, int controlid, bool finishedchanging, double oldvalue) { ((GameObject*)pObjectPtr)->OnTitleLabelClicked( controlid, finishedchanging ); }

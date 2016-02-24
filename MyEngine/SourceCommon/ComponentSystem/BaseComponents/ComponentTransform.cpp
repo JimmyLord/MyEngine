@@ -267,8 +267,7 @@ ComponentTransform& ComponentTransform::operator=(const ComponentTransform& othe
     ComponentBase::operator=( other );
 
     this->m_Transform = other.m_Transform;
-    this->m_pParentGameObject = other.m_pParentGameObject;
-    this->m_pParentTransform = other.m_pParentTransform;
+    this->SetParentTransform( other.m_pParentTransform, false );
 
     this->m_LocalTransform = other.m_LocalTransform;
     this->m_Position = other.m_Position;

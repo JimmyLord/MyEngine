@@ -1249,7 +1249,7 @@ GameObject* ComponentSystemManager::CopyGameObject(GameObject* pObject, const ch
     if( g_pEngineCore->m_EditorMode )
         sceneid = pObject->GetSceneID();
 
-    GameObject* pNewObject = CreateGameObject( true, sceneid );
+    GameObject* pNewObject = CreateGameObject( true, sceneid, pObject->IsFolder() );
     if( newname )
         pNewObject->SetName( newname );
 
@@ -1276,6 +1276,7 @@ GameObject* ComponentSystemManager::CopyGameObject(GameObject* pObject, const ch
         pComponent->OnLoad();
     }
 
+    // Call OnPlay for all components.
     if( g_pEngineCore->m_EditorMode == false )
     {
         if( pNewObject->IsEnabled() == true )
@@ -1285,12 +1286,23 @@ GameObject* ComponentSystemManager::CopyGameObject(GameObject* pObject, const ch
                 if( pNewObject->m_Components[i]->IsA( "2DJoint-" ) == false )
                     pNewObject->m_Components[i]->OnPlay();
             }
+            // Call OnPlay for joints after everything else, will allow physics bodies to be created first.
             for( unsigned int i=0; i<pNewObject->m_Components.Count(); i++ )
             {
                 if( pNewObject->m_Components[i]->IsA( "2DJoint-" ) == true )
                     pNewObject->m_Components[i]->OnPlay();
             }
         }
+    }
+
+    // Recursively copy children.
+    GameObject* pChild = pObject->GetFirstChild();
+    while( pChild )
+    {
+        GameObject* pNewChild = CopyGameObject( pChild, pChild->GetName() );
+        pNewChild->SetParentGameObject( pNewObject );
+
+        pChild = (GameObject*)pChild->GetNext();
     }
 
     return pNewObject;
