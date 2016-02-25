@@ -274,8 +274,8 @@ bool EditorInterface::HandleInputForEditorCamera(int keyaction, int keycode, int
             }
         }
 
-        // pull the pos/angle from the local matrix and update the values for the watch window.
-        pCamera->m_pComponentTransform->UpdatePosAndRotFromLocalMatrix();
+        // pull the pos/angle from the world matrix and update the values for the watch window.
+        pCamera->m_pComponentTransform->UpdateSRTFromWorldMatrix();
     }
 
     // handle editor keys

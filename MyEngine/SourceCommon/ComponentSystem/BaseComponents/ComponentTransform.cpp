@@ -219,8 +219,9 @@ void* ComponentTransform::OnValueChanged(ComponentVariable* pVar, bool finishedc
     }
     else
     {
-        m_LocalTransform.CreateSRT( m_Scale, m_Rotation, m_Position );
-        UpdateMatrix();
+        MyMatrix matWorld;
+        matWorld.CreateSRT( m_Scale, m_Rotation, m_Position );
+        m_pGameObject->m_pComponentTransform->SetWorldTransform( &matWorld );
 
         for( CPPListNode* pNode = m_PositionChangedCallbackList.GetHead(); pNode != 0; pNode = pNode->GetNext() )
         {
@@ -236,6 +237,8 @@ void* ComponentTransform::OnValueChanged(ComponentVariable* pVar, bool finishedc
 
 cJSON* ComponentTransform::ExportAsJSONObject(bool savesceneid)
 {
+    UpdateSRTFromWorldMatrix();
+
     cJSON* jComponent = ComponentBase::ExportAsJSONObject( savesceneid );
 
     //ExportVariablesToJSON( jComponent ); //_VARIABLE_LIST
@@ -256,7 +259,9 @@ void ComponentTransform::ImportFromJSONObject(cJSON* jsonobj, unsigned int scene
 
     //ImportVariablesFromJSON( jsonobj ); //_VARIABLE_LIST
 
-    m_LocalTransform.CreateSRT( m_Scale, m_Rotation, m_Position );
+    MyMatrix matWorld;
+    matWorld.CreateSRT( m_Scale, m_Rotation, m_Position );
+    m_pGameObject->m_pComponentTransform->SetWorldTransform( &matWorld );
     UpdateMatrix();
 }
 
@@ -322,6 +327,21 @@ void ComponentTransform::SetLocalTransform(MyMatrix* mat)
     m_LocalTransform = *mat;
 }
 
+void ComponentTransform::SetWorldTransform(MyMatrix* mat)
+{
+    m_Transform = *mat;
+
+    if( m_pParentTransform )
+    {
+        //m_pParentTransform->UpdateMatrix();
+        m_LocalTransform = m_pParentTransform->m_Transform.GetInverse() * m_Transform;
+    }
+    else
+    {
+        m_LocalTransform = m_Transform;
+    }
+}
+
 MyMatrix ComponentTransform::GetLocalRotPosMatrix()
 {
     MyMatrix local;
@@ -369,13 +389,14 @@ void ComponentTransform::SetParentTransform(ComponentTransform* pNewParent, bool
 
     UpdateMatrix();
 
-    UpdatePosAndRotFromLocalMatrix();
+    UpdateSRTFromWorldMatrix();
 }
 
-void ComponentTransform::UpdatePosAndRotFromLocalMatrix()
+void ComponentTransform::UpdateSRTFromWorldMatrix()
 {
-    m_Position = m_LocalTransform.GetTranslation();
-    m_Rotation = m_LocalTransform.GetEulerAngles() * 180.0f/PI;
+    m_Scale = m_Transform.GetScale();
+    m_Rotation = m_Transform.GetEulerAngles() * 180.0f/PI;
+    m_Position = m_Transform.GetTranslation();
 }
 
 void ComponentTransform::UpdateMatrix()
@@ -441,7 +462,7 @@ void ComponentTransform::OnGameObjectDeleted(GameObject* pGameObject)
 void ComponentTransform::OnParentTransformChanged(Vector3& newpos, bool changedbyeditor)
 {
     UpdateMatrix();
-    UpdatePosAndRotFromLocalMatrix();
+    UpdateSRTFromWorldMatrix();
     m_Position = m_Transform.GetTranslation();
     m_Rotation = m_Transform.GetEulerAngles() * 180.0f/PI;
 

@@ -280,6 +280,10 @@ void GameObject::OnDrop(int controlid, wxCoord x, wxCoord y)
     {
         GameObject* pGameObject = (GameObject*)g_DragAndDropStruct.m_Value;
 
+        // if we're dropping this object on itself, kick out.
+        if( pGameObject == this )
+            return;
+
         // if you drop a game object on another, parent them or move above/below depending on the "y"
         wxTreeItemId treeid = g_pPanelObjectList->FindObject( this );
         wxRect rect;

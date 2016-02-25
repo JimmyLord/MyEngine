@@ -553,16 +553,16 @@ void Component2DCollisionObject::TickCallback(double TimePassed)
     b2Vec2 pos = m_pBody->GetPosition();
     float32 angle = -m_pBody->GetAngle() / PI * 180.0f;
 
-    MyMatrix* matLocal = m_pGameObject->m_pComponentTransform->GetLocalTransform();
+    MyMatrix matWorld;// = *m_pGameObject->m_pComponentTransform->GetTransform();
 
     Vector3 oldpos = m_pGameObject->m_pComponentTransform->GetPosition();
     Vector3 oldrot = m_pGameObject->m_pComponentTransform->GetLocalRotation();
 
-    matLocal->SetIdentity();
-    matLocal->CreateSRT( m_Scale, Vector3( 0, 0, angle ), Vector3( pos.x, pos.y, oldpos.z ) );
+    matWorld.CreateSRT( m_Scale, Vector3( 0, 0, angle ), Vector3( pos.x, pos.y, oldpos.z ) );
+    m_pGameObject->m_pComponentTransform->SetWorldTransform( &matWorld );
 
 #if MYFW_USING_WX
-    m_pGameObject->m_pComponentTransform->UpdatePosAndRotFromLocalMatrix();
+    m_pGameObject->m_pComponentTransform->UpdateSRTFromWorldMatrix();
 #endif
 }
 

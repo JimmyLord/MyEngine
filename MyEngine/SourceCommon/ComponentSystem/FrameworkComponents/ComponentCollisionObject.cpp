@@ -369,7 +369,7 @@ void ComponentCollisionObject::Tick(double TimePassed)
     *matLocal = matBulletGL;
 
 #if MYFW_USING_WX
-    m_pComponentTransform->UpdatePosAndRotFromLocalMatrix();
+    m_pComponentTransform->UpdateSRTFromWorldMatrix();
 #endif
 
     // if the collisionshape is scaled, scale our object to match.
