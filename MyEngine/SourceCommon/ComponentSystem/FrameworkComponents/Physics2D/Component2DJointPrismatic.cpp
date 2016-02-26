@@ -320,8 +320,8 @@ void Component2DJointPrismatic::OnPlay()
 
         if( m_pSecondBody )
         {
-            Vector3 posA = m_pGameObject->m_pComponentTransform->GetPosition();
-            Vector3 posB = m_pSecondCollisionObject->m_pGameObject->m_pComponentTransform->GetPosition();
+            Vector3 posA = m_pGameObject->m_pComponentTransform->GetWorldPosition();
+            Vector3 posB = m_pSecondCollisionObject->m_pGameObject->m_pComponentTransform->GetWorldPosition();
             //b2Vec2 anchorpos( posB.x - posA.x + m_AnchorA.x, posB.y - posA.y + m_AnchorA.y );
             //b2Vec2 anchorpos( (posB.x - m_AnchorB.x) - posA.x, (posB.y - m_AnchorB.y) - posA.y );
 
@@ -334,11 +334,11 @@ void Component2DJointPrismatic::OnPlay()
         }
         else
         {
-            Vector3 pos = m_pGameObject->m_pComponentTransform->GetPosition();
+            Vector3 pos = m_pGameObject->m_pComponentTransform->GetWorldPosition();
             b2Vec2 anchorpos( pos.x + m_AnchorA.x, pos.y + m_AnchorA.y );
             //b2Vec2 anchorpos( pos.x + m_AnchorB.x, pos.y + m_AnchorB.y );
 
-            MyMatrix transform = *m_pGameObject->m_pComponentTransform->GetTransform();
+            MyMatrix transform = *m_pGameObject->m_pComponentTransform->GetWorldTransform();
             Vector4 up = transform * Vector4( m_Up, 0, 0 ).GetNormalized();
             up.Normalize();
             jointdef.Initialize( m_pBody, pBox2DWorld->m_pGround, anchorpos, b2Vec2( up.x, up.y ) );

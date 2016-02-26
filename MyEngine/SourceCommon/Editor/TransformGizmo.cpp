@@ -66,8 +66,8 @@ void TransformGizmo::Tick(double TimePassed, EditorState* pEditorState)
         if( pEditorState->m_pSelectedObjects.size() == 1 )
         {
             pRenderable->SetVisible( true );
-            ObjectPosition = pEditorState->m_pSelectedObjects[0]->m_pComponentTransform->GetPosition();
-            ObjectTransform = *pEditorState->m_pSelectedObjects[0]->m_pComponentTransform->GetLocalTransform();
+            ObjectPosition = pEditorState->m_pSelectedObjects[0]->m_pComponentTransform->GetWorldPosition();
+            ObjectTransform = *pEditorState->m_pSelectedObjects[0]->m_pComponentTransform->GetWorldTransform();
         }
         else if( pEditorState->m_pSelectedObjects.size() > 1 )
         {
@@ -77,7 +77,7 @@ void TransformGizmo::Tick(double TimePassed, EditorState* pEditorState)
             ObjectPosition.Set( 0, 0, 0 );
             for( unsigned int i=0; i<pEditorState->m_pSelectedObjects.size(); i++ )
             {
-                ObjectPosition += pEditorState->m_pSelectedObjects[i]->m_pComponentTransform->GetPosition();
+                ObjectPosition += pEditorState->m_pSelectedObjects[i]->m_pComponentTransform->GetLocalPosition();
             }
             ObjectPosition /= (float)pEditorState->m_pSelectedObjects.size();
 
@@ -94,7 +94,7 @@ void TransformGizmo::Tick(double TimePassed, EditorState* pEditorState)
         if( pRenderable->IsVisible() )
         {
             // move the gizmo to the object position.
-            m_pTransformGizmos[i]->m_pComponentTransform->SetPosition( ObjectPosition );
+            m_pTransformGizmos[i]->m_pComponentTransform->SetLocalPosition( ObjectPosition );
 
             // rotate the gizmo.
             MyMatrix matrot;
@@ -114,10 +114,10 @@ void TransformGizmo::Tick(double TimePassed, EditorState* pEditorState)
 
             Vector3 rot = matrot.GetEulerAngles() * 180.0f/PI;
 
-            m_pTransformGizmos[i]->m_pComponentTransform->SetRotation( rot );
+            m_pTransformGizmos[i]->m_pComponentTransform->SetLocalRotation( rot );
 
-            float distance = (pEditorState->m_pEditorCamera->m_pComponentTransform->GetPosition() - ObjectPosition).Length();
-            m_pTransformGizmos[i]->m_pComponentTransform->SetScale( Vector3( distance / 15.0f ) );
+            float distance = (pEditorState->m_pEditorCamera->m_pComponentTransform->GetLocalPosition() - ObjectPosition).Length();
+            m_pTransformGizmos[i]->m_pComponentTransform->SetLocalScale( Vector3( distance / 15.0f ) );
         }
     }
 }
@@ -218,7 +218,7 @@ void TransformGizmo::ScaleGizmosForMousePickRendering(bool doscale)
     {
         Vector3 currentscale = m_pTransformGizmos[i]->m_pComponentTransform->GetLocalScale();
         Vector3 newscale( currentscale.x * scaleamount, currentscale.y, currentscale.z * scaleamount );
-        m_pTransformGizmos[i]->m_pComponentTransform->SetScale( newscale );
+        m_pTransformGizmos[i]->m_pComponentTransform->SetLocalScale( newscale );
     }
 }
 
@@ -240,7 +240,7 @@ void TransformGizmo::TranslateSelectedObjects(EngineCore* pGame, EditorState* pE
             //pEditorState->m_EditorActionState = EDITORACTIONSTATE_TranslateYZ;
 
             //ComponentCamera* pCamera = pEditorState->GetEditorCamera();
-            MyMatrix* pObjectTransform = &pEditorState->m_pSelectedObjects[0]->m_pComponentTransform->m_Transform;
+            MyMatrix* pObjectTransform = pEditorState->m_pSelectedObjects[0]->m_pComponentTransform->GetLocalTransform();
 
             // create a plane based on the axis we want.
             Vector3 axisvector;
@@ -333,7 +333,7 @@ void TransformGizmo::TranslateSelectedObjects(EngineCore* pGame, EditorState* pE
                 if( g_pEngineMainFrame->m_GridSettings.snapenabled )
                 {
                     // snap object 0 to grid, all other will stay relative.
-                    Vector3 pos = pEditorState->m_pSelectedObjects[0]->m_pComponentTransform->GetPosition();
+                    Vector3 pos = pEditorState->m_pSelectedObjects[0]->m_pComponentTransform->GetLocalPosition();
 
                     if( m_LastIntersectResultIsValid == false )
                     {
@@ -374,7 +374,7 @@ void TransformGizmo::TranslateSelectedObjects(EngineCore* pGame, EditorState* pE
                         Vector3 pos = pTransform->GetLocalTransform()->GetTranslation();
 
                         pTransform->SetPositionByEditor( pos + diff );
-                        pTransform->UpdateMatrix();
+                        pTransform->UpdateTransform();
                     }
                 }
             }

@@ -81,16 +81,16 @@ void EditorInterface_2DPointEditor::OnDrawFrame(unsigned int canvasid)
         Vector3 pos3d( pos2d.x, pos2d.y, 0 );
 
         ComponentTransform* pParentTransformComponent = m_pCollisionObject->m_pGameObject->GetTransform();
-        MyMatrix* pParentMatrix = pParentTransformComponent->GetTransform();
+        MyMatrix* pParentMatrix = pParentTransformComponent->GetWorldTransform();
         Vector3 worldpos = pParentMatrix->GetTranslation() + pos3d;
 
-        m_pPoint->m_pComponentTransform->SetPosition( worldpos );
+        m_pPoint->m_pComponentTransform->SetLocalPosition( worldpos );
 
         ComponentCamera* pCamera = g_pEngineCore->m_pEditorState->GetEditorCamera();
         MyMatrix* pEditorMatViewProj = &pCamera->m_Camera3D.m_matViewProj;
 
-        float distance = (pCamera->m_pComponentTransform->GetPosition() - pos3d).Length();
-        m_pPoint->m_pComponentTransform->SetScale( Vector3( distance / 15.0f ) );
+        float distance = (pCamera->m_pComponentTransform->GetLocalPosition() - pos3d).Length();
+        m_pPoint->m_pComponentTransform->SetLocalScale( Vector3( distance / 15.0f ) );
 
         // TODO: change the material color if this is the selected dot.
 
@@ -196,7 +196,7 @@ bool EditorInterface_2DPointEditor::HandleInput(int keyaction, int keycode, int 
                         //LOGInfo( LOGTag, "axisvector( %f, %f, %f );\n", axisvector.x, axisvector.y, axisvector.z );
 
                         ComponentTransform* pParentTransformComponent = m_pCollisionObject->m_pGameObject->GetTransform();
-                        MyMatrix* pParentMatrix = pParentTransformComponent->GetTransform();
+                        MyMatrix* pParentMatrix = pParentTransformComponent->GetLocalTransform();
 
                         b2Vec2 newpos;
                         newpos.x = currentresult.x - pParentMatrix->GetTranslation().x;
@@ -281,10 +281,10 @@ void EditorInterface_2DPointEditor::RenderObjectIDsToFBO()
                 Vector3 pos3d( pos2d.x, pos2d.y, 0 );
 
                 ComponentTransform* pParentTransformComponent = m_pCollisionObject->m_pGameObject->GetTransform();
-                MyMatrix* pParentMatrix = pParentTransformComponent->GetTransform();
+                MyMatrix* pParentMatrix = pParentTransformComponent->GetLocalTransform();
                 Vector3 worldpos = pParentMatrix->GetTranslation() + pos3d;
 
-                m_pPoint->m_pComponentTransform->SetPosition( worldpos );
+                m_pPoint->m_pComponentTransform->SetLocalPosition( worldpos );
 
                 ColorByte tint( 0, 0, 0, 0 );
                     

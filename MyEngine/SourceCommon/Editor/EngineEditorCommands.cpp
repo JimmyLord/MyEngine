@@ -36,7 +36,7 @@ void EditorCommand_MoveObjects::Do()
     {
         Vector3 newpos = m_ObjectsMoved[i]->m_pComponentTransform->GetLocalTransform()->GetTranslation() + m_DistanceMoved;
         m_ObjectsMoved[i]->m_pComponentTransform->SetPositionByEditor( newpos );
-        m_ObjectsMoved[i]->m_pComponentTransform->UpdateMatrix();
+        m_ObjectsMoved[i]->m_pComponentTransform->UpdateTransform();
     }
 }
 
@@ -47,7 +47,7 @@ void EditorCommand_MoveObjects::Undo()
     {
         Vector3 newpos = m_ObjectsMoved[i]->m_pComponentTransform->GetLocalTransform()->GetTranslation() - m_DistanceMoved;
         m_ObjectsMoved[i]->m_pComponentTransform->SetPositionByEditor( newpos );
-        m_ObjectsMoved[i]->m_pComponentTransform->UpdateMatrix();
+        m_ObjectsMoved[i]->m_pComponentTransform->UpdateTransform();
     }
 }
 
@@ -110,9 +110,9 @@ void EditorCommand_DeleteObjects::Undo()
     {
         if( m_PreviousGameObjectsInObjectList[i] == 0 )
         {
-            if( m_ObjectsDeleted[i]->m_pComponentTransform->m_pParentGameObject )
+            if( m_ObjectsDeleted[i]->m_pComponentTransform->GetParentGameObject() )
             {
-                m_ObjectsDeleted[i]->m_pComponentTransform->m_pParentGameObject->GetChildList()->MoveHead( m_ObjectsDeleted[i] );
+                m_ObjectsDeleted[i]->m_pComponentTransform->GetParentGameObject()->GetChildList()->MoveHead( m_ObjectsDeleted[i] );
             }
             else
             {
@@ -134,9 +134,9 @@ void EditorCommand_DeleteObjects::Undo()
         }
         else
         {
-            if( m_ObjectsDeleted[i]->m_pComponentTransform->m_pParentGameObject )
+            if( m_ObjectsDeleted[i]->m_pComponentTransform->GetParentGameObject() )
             {
-                g_pPanelObjectList->Tree_MoveObject( m_ObjectsDeleted[i], m_ObjectsDeleted[i]->m_pComponentTransform->m_pParentGameObject, true );
+                g_pPanelObjectList->Tree_MoveObject( m_ObjectsDeleted[i], m_ObjectsDeleted[i]->m_pComponentTransform->GetParentGameObject(), true );
             }
             else
             {

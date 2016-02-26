@@ -369,7 +369,7 @@ void ComponentCollisionObject::Tick(double TimePassed)
     *matLocal = matBulletGL;
 
 #if MYFW_USING_WX
-    m_pComponentTransform->UpdateSRTFromWorldMatrix();
+    m_pComponentTransform->UpdateWorldSRT();
 #endif
 
     // if the collisionshape is scaled, scale our object to match.
@@ -396,7 +396,7 @@ void ComponentCollisionObject::SyncRigidBodyToTransform()
     //btVector3 pos(m_pComponentTransform->m_Position.x, m_pComponentTransform->m_Position.y, m_pComponentTransform->m_Position.z );
     //transform.setIdentity();
     //transform.setOrigin( pos );
-    MyMatrix localmat = m_pComponentTransform->GetLocalRotPosMatrix(); //GetLocalTransform();
+    MyMatrix localmat = m_pComponentTransform->GetLocalRotPosMatrix();
     transform.setFromOpenGLMatrix( &localmat.m11 );
 
     m_pBody->getMotionState()->setWorldTransform( transform );

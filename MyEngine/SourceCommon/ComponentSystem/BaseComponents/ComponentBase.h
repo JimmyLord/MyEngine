@@ -81,6 +81,9 @@ public:
     const char** m_ppEnumStrings;
 
 #if MYFW_USING_WX
+    float m_FloatLowerLimit;
+    float m_FloatUpperLimit;
+
     CVarFunc_DropTarget m_pOnDropCallbackFunc;
     CVarFunc m_pOnButtonPressedCallbackFunc;
     CVarFunc_ValueChanged m_pOnValueChangedCallbackFunc;
@@ -113,6 +116,9 @@ public:
         m_ppEnumStrings = 0;
 
 #if MYFW_USING_WX
+        m_FloatLowerLimit = 0;
+        m_FloatUpperLimit = 0;
+
         m_pOnDropCallbackFunc = pOnDropCallBackFunc;
         m_pOnButtonPressedCallbackFunc = pOnButtonPressedCallBackFunc;
         m_pOnValueChangedCallbackFunc = pOnValueChangedCallBackFunc;

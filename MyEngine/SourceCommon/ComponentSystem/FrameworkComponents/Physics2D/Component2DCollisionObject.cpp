@@ -441,8 +441,8 @@ void Component2DCollisionObject::CreateBody()
     // create a body on start
     if( m_pBody == 0 )
     {
-        Vector3 pos = m_pGameObject->m_pComponentTransform->GetPosition();
-        Vector3 rot = m_pGameObject->m_pComponentTransform->GetLocalRotation();
+        Vector3 pos = m_pGameObject->m_pComponentTransform->GetWorldPosition();
+        Vector3 rot = m_pGameObject->m_pComponentTransform->GetWorldRotation();
 
         b2BodyDef bodydef;
         
@@ -456,7 +456,7 @@ void Component2DCollisionObject::CreateBody()
         m_pBody = m_pBox2DWorld->m_pWorld->CreateBody( &bodydef );
         m_pBody->SetUserData( this );
 
-        m_Scale = m_pGameObject->m_pComponentTransform->GetLocalScale();
+        m_Scale = m_pGameObject->m_pComponentTransform->GetWorldScale();
 
         // Set up the fixture
         b2FixtureDef fixturedef;
@@ -555,14 +555,14 @@ void Component2DCollisionObject::TickCallback(double TimePassed)
 
     MyMatrix matWorld;// = *m_pGameObject->m_pComponentTransform->GetTransform();
 
-    Vector3 oldpos = m_pGameObject->m_pComponentTransform->GetPosition();
-    Vector3 oldrot = m_pGameObject->m_pComponentTransform->GetLocalRotation();
+    Vector3 oldpos = m_pGameObject->m_pComponentTransform->GetWorldPosition();
+    Vector3 oldrot = m_pGameObject->m_pComponentTransform->GetWorldRotation();
 
     matWorld.CreateSRT( m_Scale, Vector3( 0, 0, angle ), Vector3( pos.x, pos.y, oldpos.z ) );
     m_pGameObject->m_pComponentTransform->SetWorldTransform( &matWorld );
 
 #if MYFW_USING_WX
-    m_pGameObject->m_pComponentTransform->UpdateSRTFromWorldMatrix();
+    m_pGameObject->m_pComponentTransform->UpdateWorldSRT();
 #endif
 }
 
@@ -611,7 +611,7 @@ void Component2DCollisionObject::DrawCallback(ComponentCamera* pCamera, MyMatrix
         ComponentTransform* pParentTransformComponent = m_pGameObject->GetTransform();
         MyMatrix worldmat;
         worldmat.SetIdentity();
-        worldmat.SetTranslation( pParentTransformComponent->GetPosition() );
+        worldmat.SetTranslation( pParentTransformComponent->GetWorldPosition() );
 
         // Setup uniforms, mainly viewproj and tint.
         pShader->ProgramBaseUniforms( pEditorMatViewProj, &worldmat, 0, pMaterial->m_ColorDiffuse, pMaterial->m_ColorSpecular, pMaterial->m_Shininess );

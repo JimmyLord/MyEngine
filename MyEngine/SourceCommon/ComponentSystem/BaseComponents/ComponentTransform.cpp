@@ -55,18 +55,29 @@ void ComponentTransform::RegisterVariables(CPPListHead* pList, ComponentTransfor
 #endif
     MyAssert( offsetof( ComponentTransform, m_pParentGameObject ) == MyOffsetOf( pThis, &pThis->m_pParentGameObject ) );
     MyAssert( offsetof( ComponentTransform, m_pParentTransform )  == MyOffsetOf( pThis, &pThis->m_pParentTransform )  );
-    MyAssert( offsetof( ComponentTransform, m_Position )          == MyOffsetOf( pThis, &pThis->m_Position )          );
-    MyAssert( offsetof( ComponentTransform, m_Scale )             == MyOffsetOf( pThis, &pThis->m_Scale )             );
-    MyAssert( offsetof( ComponentTransform, m_Rotation )          == MyOffsetOf( pThis, &pThis->m_Rotation )          );
+    MyAssert( offsetof( ComponentTransform, m_LocalPosition )     == MyOffsetOf( pThis, &pThis->m_LocalPosition )     );
+    MyAssert( offsetof( ComponentTransform, m_LocalScale )        == MyOffsetOf( pThis, &pThis->m_LocalScale )        );
+    MyAssert( offsetof( ComponentTransform, m_LocalRotation )     == MyOffsetOf( pThis, &pThis->m_LocalRotation )     );
 #if MYFW_IOS || MYFW_OSX
 #pragma GCC diagnostic default "-Winvalid-offsetof"
 #endif
 
-    AddVar( pList, "ParentGOID",      ComponentVariableType_GameObjectPtr,    MyOffsetOf( pThis, &pThis->m_pParentGameObject ), true,  false, 0,                  (CVarFunc_ValueChanged)&ComponentTransform::OnValueChanged,                                                         0, 0 );
+    AddVar( pList, "ParentGOID",      ComponentVariableType_GameObjectPtr,    MyOffsetOf( pThis, &pThis->m_pParentGameObject ),  true, false, 0,                  (CVarFunc_ValueChanged)&ComponentTransform::OnValueChanged,                                                         0, 0 );
     AddVar( pList, "ParentTransform", ComponentVariableType_ComponentPtr,     MyOffsetOf( pThis, &pThis->m_pParentTransform ),  false,  true, "Parent Transform", (CVarFunc_ValueChanged)&ComponentTransform::OnValueChanged, (CVarFunc_DropTarget)&ComponentTransform::OnDropTransform, 0 );
-    AddVar( pList, "Pos",             ComponentVariableType_Vector3,          MyOffsetOf( pThis, &pThis->m_Position ),          true,   true, 0,                  (CVarFunc_ValueChanged)&ComponentTransform::OnValueChanged,                                                         0, 0 );
-    AddVar( pList, "Scale",           ComponentVariableType_Vector3,          MyOffsetOf( pThis, &pThis->m_Scale ),             true,   true, 0,                  (CVarFunc_ValueChanged)&ComponentTransform::OnValueChanged,                                                         0, 0 );
-    AddVar( pList, "Rot",             ComponentVariableType_Vector3,          MyOffsetOf( pThis, &pThis->m_Rotation ),          true,   true, 0,                  (CVarFunc_ValueChanged)&ComponentTransform::OnValueChanged,                                                         0, 0 );
+    AddVar( pList, "WorldPos",        ComponentVariableType_Vector3,          MyOffsetOf( pThis, &pThis->m_WorldPosition ),     false,  true, "World Pos",        (CVarFunc_ValueChanged)&ComponentTransform::OnValueChanged,                                                         0, 0 );
+    AddVar( pList, "WorldRot",        ComponentVariableType_Vector3,          MyOffsetOf( pThis, &pThis->m_WorldRotation ),     false,  true, "World Rot",        (CVarFunc_ValueChanged)&ComponentTransform::OnValueChanged,                                                         0, 0 );
+    ComponentVariable* pVarWorldScale = AddVar( pList, "WorldScale",      ComponentVariableType_Vector3,          MyOffsetOf( pThis, &pThis->m_WorldScale ),        false,  true, "World Scale",      (CVarFunc_ValueChanged)&ComponentTransform::OnValueChanged,                                                         0, 0 );
+    AddVar( pList, "Pos",             ComponentVariableType_Vector3,          MyOffsetOf( pThis, &pThis->m_LocalPosition ),      true,  true, "Local Pos",        (CVarFunc_ValueChanged)&ComponentTransform::OnValueChanged,                                                         0, 0 );
+    AddVar( pList, "Rot",             ComponentVariableType_Vector3,          MyOffsetOf( pThis, &pThis->m_LocalRotation ),      true,  true, "Local Rot",        (CVarFunc_ValueChanged)&ComponentTransform::OnValueChanged,                                                         0, 0 );
+    ComponentVariable* pVarScale      = AddVar( pList, "Scale",           ComponentVariableType_Vector3,          MyOffsetOf( pThis, &pThis->m_LocalScale ),         true,  true, "Local Scale",      (CVarFunc_ValueChanged)&ComponentTransform::OnValueChanged,                                                         0, 0 );
+
+#if MYFW_USING_WX
+    pVarWorldScale->m_FloatLowerLimit = 0;
+    pVarWorldScale->m_FloatUpperLimit = 1000000.0f;
+
+    pVarScale->m_FloatLowerLimit = 0;
+    pVarScale->m_FloatUpperLimit = 1000000.0f;
+#endif
 }
 
 void ComponentTransform::Reset()
@@ -80,19 +91,23 @@ void ComponentTransform::Reset()
 
     ComponentBase::Reset();
 
-    m_Transform.SetIdentity();
     m_pParentGameObject = 0;
     m_pParentTransform = 0;
 
-    m_LocalTransform.SetIdentity();
-    m_Position.Set( 0,0,0 );
-    m_Scale.Set( 1,1,1 );
-    m_Rotation.Set( 0,0,0 );
+    m_WorldTransform.SetIdentity();
 
-#if MYFW_USING_WX
+    //m_LocalTransform.SetIdentity();
+    //m_LocalPosition.Set( 0,0,0 );
+    //m_LocalScale.Set( 1,1,1 );
+    //m_LocalRotation.Set( 0,0,0 );
+
+//#if MYFW_USING_WX
+    m_WorldPosition.Set( 0,0,0 );
+    m_WorldScale.Set( 1,1,1 );
+    m_WorldRotation.Set( 0,0,0 );
     //m_ControlID_ParentTransform = -1;
     m_pPanelWatchBlockVisible = &m_PanelWatchBlockVisible;
-#endif //MYFW_USING_WX
+//#endif //MYFW_USING_WX
 }
 
 #if MYFW_USING_LUA
@@ -100,11 +115,11 @@ void ComponentTransform::LuaRegister(lua_State* luastate)
 {
     luabridge::getGlobalNamespace( luastate )
         .beginClass<ComponentTransform>( "ComponentTransform" )
-            .addData( "localmatrix", &ComponentTransform::m_LocalTransform )
-            .addFunction( "SetPosition", &ComponentTransform::SetPosition )
-            .addFunction( "GetPosition", &ComponentTransform::GetPosition )
-            .addFunction( "SetRotation", &ComponentTransform::SetRotation )
-            .addFunction( "GetLocalRotation", &ComponentTransform::GetLocalRotation )
+            //.addData( "localmatrix", &ComponentTransform::m_LocalTransform )
+            .addFunction( "SetPosition", &ComponentTransform::SetWorldPosition )
+            .addFunction( "SetRotation", &ComponentTransform::SetWorldRotation )
+            .addFunction( "GetPosition", &ComponentTransform::GetWorldPosition )
+            .addFunction( "GetRotation", &ComponentTransform::GetWorldRotation )
         .endClass();
 }
 #endif //MYFW_USING_LUA
@@ -220,14 +235,14 @@ void* ComponentTransform::OnValueChanged(ComponentVariable* pVar, bool finishedc
     else
     {
         MyMatrix matWorld;
-        matWorld.CreateSRT( m_Scale, m_Rotation, m_Position );
+        matWorld.CreateSRT( m_WorldScale, m_WorldRotation, m_WorldPosition );
         m_pGameObject->m_pComponentTransform->SetWorldTransform( &matWorld );
 
         for( CPPListNode* pNode = m_PositionChangedCallbackList.GetHead(); pNode != 0; pNode = pNode->GetNext() )
         {
             TransformPositionChangedCallbackStruct* pCallbackStruct = (TransformPositionChangedCallbackStruct*)pNode;
 
-            pCallbackStruct->pFunc( pCallbackStruct->pObj, m_Position, true );
+            pCallbackStruct->pFunc( pCallbackStruct->pObj, m_WorldPosition, true );
         }
     }
 
@@ -237,8 +252,6 @@ void* ComponentTransform::OnValueChanged(ComponentVariable* pVar, bool finishedc
 
 cJSON* ComponentTransform::ExportAsJSONObject(bool savesceneid)
 {
-    UpdateSRTFromWorldMatrix();
-
     cJSON* jComponent = ComponentBase::ExportAsJSONObject( savesceneid );
 
     //ExportVariablesToJSON( jComponent ); //_VARIABLE_LIST
@@ -259,10 +272,10 @@ void ComponentTransform::ImportFromJSONObject(cJSON* jsonobj, unsigned int scene
 
     //ImportVariablesFromJSON( jsonobj ); //_VARIABLE_LIST
 
-    MyMatrix matWorld;
-    matWorld.CreateSRT( m_Scale, m_Rotation, m_Position );
-    m_pGameObject->m_pComponentTransform->SetWorldTransform( &matWorld );
-    UpdateMatrix();
+    MyMatrix matLocal;
+    matLocal.CreateSRT( m_LocalScale, m_LocalRotation, m_LocalPosition );
+    m_pGameObject->m_pComponentTransform->SetLocalTransform( &matLocal );
+    UpdateTransform();
 }
 
 ComponentTransform& ComponentTransform::operator=(const ComponentTransform& other)
@@ -271,81 +284,129 @@ ComponentTransform& ComponentTransform::operator=(const ComponentTransform& othe
 
     ComponentBase::operator=( other );
 
-    this->m_Transform = other.m_Transform;
+    this->m_WorldTransform = other.m_WorldTransform;
+    this->m_WorldPosition = other.m_WorldPosition;
+    this->m_WorldScale = other.m_WorldScale;
+    this->m_WorldRotation = other.m_WorldRotation;
+
     this->SetParentTransform( other.m_pParentTransform, false );
 
-    this->m_LocalTransform = other.m_LocalTransform;
-    this->m_Position = other.m_Position;
-    this->m_Scale = other.m_Scale;
-    this->m_Rotation = other.m_Rotation;
+    //this->m_LocalTransform = other.m_LocalTransform;
+    //this->m_LocalPosition = other.m_LocalPosition;
+    //this->m_LocalScale = other.m_LocalScale;
+    //this->m_LocalRotation = other.m_LocalRotation;
 
     return *this;
-}
-
-void ComponentTransform::SetPosition(Vector3 pos)
-{
-    m_Position = pos;
-    m_LocalTransform.CreateSRT( m_Scale, m_Rotation, m_Position );
-
-    for( CPPListNode* pNode = m_PositionChangedCallbackList.GetHead(); pNode != 0; pNode = pNode->GetNext() )
-    {
-        TransformPositionChangedCallbackStruct* pCallbackStruct = (TransformPositionChangedCallbackStruct*)pNode;
-
-        pCallbackStruct->pFunc( pCallbackStruct->pObj, m_Position, true );
-    }
 }
 
 #if MYFW_USING_WX
 void ComponentTransform::SetPositionByEditor(Vector3 pos)
 {
-    m_Position = pos;
-    m_LocalTransform.CreateSRT( m_Scale, m_Rotation, m_Position );
+    m_LocalPosition = pos;
+    m_LocalTransform.CreateSRT( m_LocalScale, m_LocalRotation, m_LocalPosition );
 
     for( CPPListNode* pNode = m_PositionChangedCallbackList.GetHead(); pNode != 0; pNode = pNode->GetNext() )
     {
         TransformPositionChangedCallbackStruct* pCallbackStruct = (TransformPositionChangedCallbackStruct*)pNode;
 
-        pCallbackStruct->pFunc( pCallbackStruct->pObj, m_Position, true );
+        pCallbackStruct->pFunc( pCallbackStruct->pObj, m_LocalPosition, true );
     }
 }
 #endif
 
-void ComponentTransform::SetScale(Vector3 scale)
+void ComponentTransform::SetWorldPosition(Vector3 pos)
 {
-    m_Scale = scale;
-    m_LocalTransform.CreateSRT( m_Scale, m_Rotation, m_Position );
+    m_WorldPosition = pos;
+    m_WorldTransform.CreateSRT( m_WorldScale, m_WorldRotation, m_WorldPosition );
+
+    for( CPPListNode* pNode = m_PositionChangedCallbackList.GetHead(); pNode != 0; pNode = pNode->GetNext() )
+    {
+        TransformPositionChangedCallbackStruct* pCallbackStruct = (TransformPositionChangedCallbackStruct*)pNode;
+
+        pCallbackStruct->pFunc( pCallbackStruct->pObj, m_WorldPosition, true );
+    }
 }
 
-void ComponentTransform::SetRotation(Vector3 rot)
+void ComponentTransform::SetWorldScale(Vector3 scale)
 {
-    m_Rotation = rot;
-    m_LocalTransform.CreateSRT( m_Scale, m_Rotation, m_Position );
+    m_WorldScale = scale;
+    m_WorldTransform.CreateSRT( m_WorldScale, m_WorldRotation, m_WorldPosition );
+}
+
+void ComponentTransform::SetWorldRotation(Vector3 rot)
+{
+    m_WorldRotation = rot;
+    m_WorldTransform.CreateSRT( m_WorldScale, m_WorldRotation, m_WorldPosition );
 }
 
 void ComponentTransform::SetLocalTransform(MyMatrix* mat)
 {
     m_LocalTransform = *mat;
+    UpdateLocalSRT();
+
+    if( m_pParentTransform )
+    {
+        m_WorldTransform = m_pParentTransform->m_WorldTransform * m_LocalTransform;
+    }
+}
+
+void ComponentTransform::SetLocalPosition(Vector3 pos)
+{
+    m_LocalPosition = pos;
+    m_LocalTransform.CreateSRT( m_LocalScale, m_LocalRotation, m_LocalPosition );
+
+    for( CPPListNode* pNode = m_PositionChangedCallbackList.GetHead(); pNode != 0; pNode = pNode->GetNext() )
+    {
+        TransformPositionChangedCallbackStruct* pCallbackStruct = (TransformPositionChangedCallbackStruct*)pNode;
+
+        pCallbackStruct->pFunc( pCallbackStruct->pObj, m_LocalPosition, true );
+    }
+}
+
+void ComponentTransform::SetLocalScale(Vector3 scale)
+{
+    m_LocalScale = scale;
+    m_LocalTransform.CreateSRT( m_LocalScale, m_LocalRotation, m_LocalPosition );
+}
+
+void ComponentTransform::SetLocalRotation(Vector3 rot)
+{
+    m_LocalRotation = rot;
+    m_LocalTransform.CreateSRT( m_LocalScale, m_LocalRotation, m_LocalPosition );
 }
 
 void ComponentTransform::SetWorldTransform(MyMatrix* mat)
 {
-    m_Transform = *mat;
+    //MyAssert( false );
+    m_WorldTransform = *mat;
 
     if( m_pParentTransform )
     {
-        //m_pParentTransform->UpdateMatrix();
-        m_LocalTransform = m_pParentTransform->m_Transform.GetInverse() * m_Transform;
+        m_pParentTransform->UpdateTransform();
+        m_LocalTransform = m_pParentTransform->m_WorldTransform.GetInverse() * m_WorldTransform;
+        UpdateLocalSRT();
     }
     else
     {
-        m_LocalTransform = m_Transform;
+        m_LocalTransform = m_WorldTransform;
+        UpdateLocalSRT();
     }
+
+    //UpdateWorldSRT();
+}
+
+MyMatrix ComponentTransform::GetWorldRotPosMatrix()
+{
+    MyMatrix world;
+    world.CreateSRT( Vector3(1,1,1), m_WorldRotation, m_WorldPosition );
+
+    return world;
 }
 
 MyMatrix ComponentTransform::GetLocalRotPosMatrix()
 {
     MyMatrix local;
-    local.CreateSRT( Vector3(1,1,1), m_Rotation, m_Position );
+    local.CreateSRT( Vector3(1,1,1), m_LocalRotation, m_LocalPosition );
 
     return local;
 }
@@ -355,6 +416,8 @@ void ComponentTransform::SetParentTransform(ComponentTransform* pNewParent, bool
     if( m_pParentTransform == pNewParent )
         return;
 
+    MyMatrix localtransform;
+
     // if we had an old parent:
     if( m_pParentTransform != 0 && unregisterondeletecallback )
     {
@@ -363,19 +426,29 @@ void ComponentTransform::SetParentTransform(ComponentTransform* pNewParent, bool
 
         // stop sending it position changed messages
         m_pParentTransform->m_pGameObject->m_pComponentTransform->UnregisterPositionChangedCallbacks( this );
+
+        MyMatrix matparentworld = pNewParent->m_WorldTransform;
+        matparentworld.Inverse();
+        localtransform = matparentworld * m_WorldTransform;
+    }
+    else
+    {
+        localtransform = m_WorldTransform;
     }
 
     if( pNewParent == 0 || pNewParent == this )
     {
-        m_LocalTransform = m_Transform;
+        m_WorldTransform = localtransform;
+        UpdateWorldSRT();
         m_pParentGameObject = 0;
         m_pParentTransform = 0;
     }
     else
     {
-        MyMatrix matparent = pNewParent->m_Transform;
-        matparent.Inverse();
-        m_LocalTransform = matparent * m_Transform;
+        MyMatrix matparentworld = pNewParent->m_WorldTransform;
+        matparentworld.Inverse();
+        MyMatrix matworld = matparentworld * localtransform;
+        SetWorldTransform( &matworld );
 
         m_pParentGameObject = pNewParent->m_pGameObject;
         m_pParentTransform = pNewParent;
@@ -387,28 +460,43 @@ void ComponentTransform::SetParentTransform(ComponentTransform* pNewParent, bool
         m_pParentGameObject->m_pComponentTransform->RegisterPositionChangedCallback( this, StaticOnParentTransformChanged );
     }
 
-    UpdateMatrix();
-
-    UpdateSRTFromWorldMatrix();
+    UpdateTransform();
+    UpdateWorldSRT();
 }
 
-void ComponentTransform::UpdateSRTFromWorldMatrix()
+#if MYFW_USING_WX
+void ComponentTransform::UpdateWorldSRT()
 {
-    m_Scale = m_Transform.GetScale();
-    m_Rotation = m_Transform.GetEulerAngles() * 180.0f/PI;
-    m_Position = m_Transform.GetTranslation();
+    m_WorldScale = m_WorldTransform.GetScale();
+    m_WorldRotation = m_WorldTransform.GetEulerAngles() * 180.0f/PI;
+    m_WorldPosition = m_WorldTransform.GetTranslation();
+}
+#endif
+
+void ComponentTransform::UpdateLocalSRT()
+{
+    m_LocalScale = m_LocalTransform.GetScale();
+    m_LocalRotation = m_LocalTransform.GetEulerAngles() * 180.0f/PI;
+    m_LocalPosition = m_LocalTransform.GetTranslation();
 }
 
-void ComponentTransform::UpdateMatrix()
+void ComponentTransform::UpdateTransform()
 {
-    //m_Transform.CreateSRT( m_Scale, m_Rotation, m_Position );
-    m_Transform = m_LocalTransform;
+    m_LocalTransform.CreateSRT( m_LocalScale, m_LocalRotation, m_LocalPosition );
 
     if( m_pParentTransform )
     {
-        m_pParentTransform->UpdateMatrix();
-        m_Transform = m_pParentTransform->m_Transform * m_Transform;
+        m_pParentTransform->UpdateTransform();
+        m_WorldTransform = m_pParentTransform->m_WorldTransform * m_LocalTransform;
     }
+    else
+    {
+        m_WorldTransform = m_LocalTransform;
+    }
+
+#if MYFW_USING_WX
+    UpdateWorldSRT();
+#endif
 }
 
 //MyMatrix* ComponentTransform::GetMatrix()
@@ -461,15 +549,13 @@ void ComponentTransform::OnGameObjectDeleted(GameObject* pGameObject)
 
 void ComponentTransform::OnParentTransformChanged(Vector3& newpos, bool changedbyeditor)
 {
-    UpdateMatrix();
-    UpdateSRTFromWorldMatrix();
-    m_Position = m_Transform.GetTranslation();
-    m_Rotation = m_Transform.GetEulerAngles() * 180.0f/PI;
+    UpdateTransform();
+    UpdateWorldSRT();
 
     for( CPPListNode* pNode = m_PositionChangedCallbackList.GetHead(); pNode != 0; pNode = pNode->GetNext() )
     {
         TransformPositionChangedCallbackStruct* pCallbackStruct = (TransformPositionChangedCallbackStruct*)pNode;
 
-        pCallbackStruct->pFunc( pCallbackStruct->pObj, m_Position, changedbyeditor );
+        pCallbackStruct->pFunc( pCallbackStruct->pObj, m_WorldPosition, changedbyeditor );
     }
 }

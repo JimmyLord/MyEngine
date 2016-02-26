@@ -1039,7 +1039,7 @@ void EngineMainFrame::OnDrop(int controlid, wxCoord x, wxCoord y)
             if( pObject && pObject->GetMaterial() )
             {
                 // place it just above of the object selected otherwise place it at 0,0,0... for now.
-                pGameObject->m_pComponentTransform->SetPosition( pObject->m_pComponentTransform->GetPosition() );
+                pGameObject->m_pComponentTransform->SetWorldPosition( pObject->m_pComponentTransform->GetWorldPosition() );
             }
         }
     }

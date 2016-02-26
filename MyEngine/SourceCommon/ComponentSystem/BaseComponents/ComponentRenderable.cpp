@@ -168,7 +168,7 @@ void ComponentRenderable::Draw(MyMatrix* pMatViewProj, ShaderGroup* pShaderOverr
 {
 #if 1 //MYFW_USING_WX
     // ugh, for now... matrix will be dirty when playing with watch window in wx 
-    m_pComponentTransform->UpdateMatrix();
+    m_pComponentTransform->UpdateTransform();
 #endif
 }
 

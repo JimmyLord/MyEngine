@@ -751,9 +751,9 @@ void EngineCore::CreateDefaultEditorSceneObjects()
         pGameObject = m_pComponentSystemManager->CreateGameObject( false, ENGINE_SCENE_ID ); // not managed.
         pGameObject->SetName( "Editor Camera" );
 #if MYFW_RIGHTHANDED
-        pGameObject->m_pComponentTransform->SetPosition( Vector3( 0, 0, 10 ) );
+        pGameObject->m_pComponentTransform->SetWorldPosition( Vector3( 0, 0, 10 ) );
 #else
-        pGameObject->m_pComponentTransform->SetPosition( Vector3( 0, 0, -10 ) );
+        pGameObject->m_pComponentTransform->SetWorldPosition( Vector3( 0, 0, -10 ) );
 #endif
 
         // add an editor scene camera
@@ -800,9 +800,9 @@ void EngineCore::CreateDefaultSceneObjects()
         pGameObject = m_pComponentSystemManager->CreateGameObject( true, 1 );
         pGameObject->SetName( "Main Camera" );
 #if MYFW_RIGHTHANDED
-        pGameObject->m_pComponentTransform->SetPosition( Vector3( 0, 0, 10 ) );
+        pGameObject->m_pComponentTransform->SetWorldPosition( Vector3( 0, 0, 10 ) );
 #else
-        pGameObject->m_pComponentTransform->SetPosition( Vector3( 0, 0, -10 ) );
+        pGameObject->m_pComponentTransform->SetWorldPosition( Vector3( 0, 0, -10 ) );
 #endif
 
         pComponentCamera = (ComponentCamera*)pGameObject->AddNewComponent( ComponentType_Camera, 1 );
@@ -1206,7 +1206,7 @@ void EngineCore::GetMouseRay(Vector2 mousepos, Vector3* start, Vector3* end)
 #endif
 
     // define the ray.
-    Vector3 raystart = pCamera->m_pComponentTransform->GetPosition();
+    Vector3 raystart = pCamera->m_pComponentTransform->GetWorldPosition();
     Vector3 rayend = raystart + rayworld * 10000;
 
     start->Set( raystart.x, raystart.y, raystart.z );

@@ -204,8 +204,8 @@ void ComponentCamera::ComputeProjectionMatrices()
 
 void ComponentCamera::Tick(double TimePassed)
 {
-    m_pComponentTransform->UpdateMatrix();
-    MyMatrix matView = m_pComponentTransform->m_Transform;
+    m_pComponentTransform->UpdateTransform();
+    MyMatrix matView = *m_pComponentTransform->GetLocalTransform();
     matView.Inverse();
 
     if( m_Orthographic )

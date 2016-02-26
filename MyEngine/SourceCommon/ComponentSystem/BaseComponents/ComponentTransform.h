@@ -27,19 +27,21 @@ private:
 
     static const int CALLBACK_POOL_SIZE = 100;
 
-public:
-    MyMatrix m_Transform;
+protected:
+    CPPListHead m_PositionChangedCallbackList;
 
     GameObject* m_pParentGameObject;
     ComponentTransform* m_pParentTransform;
 
-protected:
-    CPPListHead m_PositionChangedCallbackList;
+    MyMatrix m_WorldTransform;
+    Vector3 m_WorldPosition;
+    Vector3 m_WorldScale;
+    Vector3 m_WorldRotation; // in degrees
 
     MyMatrix m_LocalTransform;
-    Vector3 m_Position;
-    Vector3 m_Scale;
-    Vector3 m_Rotation; // in degrees
+    Vector3 m_LocalPosition;
+    Vector3 m_LocalScale;
+    Vector3 m_LocalRotation; // in degrees
 
 public:
     ComponentTransform();
@@ -60,29 +62,41 @@ public:
     virtual void RegisterCallbacks() {} // TODO: change this component to use callbacks.
     virtual void UnregisterCallbacks() {} // TODO: change this component to use callbacks.
 
-    // recalculate the matrix each time we set any of the 3 properties. // not efficient
-    void SetPosition(Vector3 pos);
 #if MYFW_USING_WX
     void SetPositionByEditor(Vector3 pos);
 #endif
-    void SetScale(Vector3 scale);
-    void SetRotation(Vector3 rot);
-    void SetLocalTransform(MyMatrix* mat);
-    void SetWorldTransform(MyMatrix* mat);
 
-    Vector3 GetPosition() { return m_Transform.GetTranslation(); }
-
-    Vector3 GetLocalPosition() { return m_Position; }
-    Vector3 GetLocalScale() { return m_Scale; }
-    Vector3 GetLocalRotation() { return m_Rotation; }
-    MyMatrix GetLocalRotPosMatrix();
-    MyMatrix* GetLocalTransform() { return &m_LocalTransform; }
-    MyMatrix* GetTransform() { return &m_Transform; }
-
+    GameObject* GetParentGameObject() { return m_pParentGameObject; }
+    ComponentTransform* GetParentTransform() { return m_pParentTransform; }
     void SetParentTransform(ComponentTransform* pNewParent, bool unregisterondeletecallback = true);
-    void UpdateSRTFromWorldMatrix();
-    void UpdateMatrix();
-    //MyMatrix* GetMatrix();
+
+    void SetWorldTransform(MyMatrix* mat);
+    MyMatrix* GetWorldTransform() { return &m_WorldTransform; }
+    Vector3 GetWorldPosition() { return m_WorldPosition; }
+    Vector3 GetWorldScale() { return m_WorldScale; }
+    Vector3 GetWorldRotation() { return m_WorldRotation; }
+    MyMatrix GetWorldRotPosMatrix();
+
+    // recalculate the matrix each time we set any of the 3 properties. // not efficient
+    void SetWorldPosition(Vector3 pos);
+    void SetWorldScale(Vector3 scale);
+    void SetWorldRotation(Vector3 rot);
+
+    void SetLocalTransform(MyMatrix* mat);
+    MyMatrix* GetLocalTransform() { return &m_LocalTransform; }
+    Vector3 GetLocalPosition() { return m_LocalPosition; }
+    Vector3 GetLocalScale() { return m_LocalScale; }
+    Vector3 GetLocalRotation() { return m_LocalRotation; }
+    MyMatrix GetLocalRotPosMatrix();
+
+    // recalculate the matrix each time we set any of the 3 properties. // not efficient
+    void SetLocalPosition(Vector3 pos);
+    void SetLocalScale(Vector3 scale);
+    void SetLocalRotation(Vector3 rot);
+
+    void UpdateLocalSRT();
+    void UpdateWorldSRT();
+    void UpdateTransform();
 
     // Callbacks
     void RegisterPositionChangedCallback(void* pObj, TransformPositionChangedCallbackFunc pCallback);

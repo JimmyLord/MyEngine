@@ -130,7 +130,7 @@ void ComponentCameraShadow::OnDrawFrame()
     //ComponentCamera::OnDrawFrame();
 
     {
-        MyMatrix matView = m_pComponentTransform->m_Transform;
+        MyMatrix matView = *m_pComponentTransform->GetWorldTransform();
         matView.Inverse();
 
         MyMatrix matProj;

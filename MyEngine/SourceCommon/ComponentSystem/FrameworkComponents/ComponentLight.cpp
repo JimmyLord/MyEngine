@@ -59,7 +59,7 @@ void ComponentLight::Reset()
         m_pGameObject->m_pComponentTransform->RegisterPositionChangedCallback( this, StaticOnTransformPositionChanged );
     }
 
-    m_pLight->m_Position = m_pGameObject->m_pComponentTransform->GetPosition();
+    m_pLight->m_Position = m_pGameObject->m_pComponentTransform->GetWorldPosition();
     m_pLight->m_Color.Set( 1, 1, 1, 1 );
     m_pLight->m_Attenuation.Set( 0, 0, 0.09f );
 
@@ -220,12 +220,12 @@ void ComponentLight::DrawCallback(ComponentCamera* pCamera, MyMatrix* pMatViewPr
     Vector2 size( 1, 1 );
 
     // Scale and make the lightbulb sprite face the camera.
-    MyMatrix* pCameraTransform = pCamera->m_pComponentTransform->GetLocalTransform();
+    MyMatrix* pCameraTransform = pCamera->m_pComponentTransform->GetWorldTransform();
 
     MyMatrix scale;
     MyMatrix rotpos;
     scale.CreateScale( size );
-    rotpos.CreateLookAtWorld( m_pLight->m_Position, pCameraTransform->GetUp(), pCamera->m_pComponentTransform->GetPosition() );
+    rotpos.CreateLookAtWorld( m_pLight->m_Position, pCameraTransform->GetUp(), pCamera->m_pComponentTransform->GetWorldPosition() );
 
     MyMatrix transform = rotpos * scale;
     pSprite->SetPosition( &transform );

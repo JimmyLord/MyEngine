@@ -298,7 +298,7 @@ void ComponentParticleEmitter::CreateBurst(int number, Vector3 offset)
         Particle* pParticle = m_Particles.MakeObjectActive();
         if( pParticle )
         {
-            Vector3 emitterpos = m_pComponentTransform->GetPosition();
+            Vector3 emitterpos = m_pComponentTransform->GetWorldPosition();
 
             pParticle->pos = emitterpos + m_InitialOffset;
             if( m_CenterVariation.x != 0 )

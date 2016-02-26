@@ -481,7 +481,7 @@ void GameObject::SetParentGameObject(GameObject* pParentGameObject)
     //    pOldParentGameObject->m_pComponentTransform->UnregisterPositionChangedCallback();
 
     // if the old transform is the same as the new one, kick out.
-    if( m_pComponentTransform->m_pParentTransform == pParentGameObject->m_pComponentTransform )
+    if( m_pComponentTransform->GetParentTransform() == pParentGameObject->m_pComponentTransform )
         return;
 
     // parent one transform to another.

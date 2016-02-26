@@ -198,7 +198,7 @@ void ComponentBase::AddVariableToPropertiesWindow(ComponentVariable* pVar)
             break;
 
         case ComponentVariableType_Float:
-            pVar->m_ControlID = g_pPanelWatch->AddFloat( pVar->m_WatchLabel, (float*)((char*)this + pVar->m_Offset), 0, 0, this, ComponentBase::StaticOnValueChangedVariable, ComponentBase::StaticOnRightClick );
+            pVar->m_ControlID = g_pPanelWatch->AddFloat( pVar->m_WatchLabel, (float*)((char*)this + pVar->m_Offset), pVar->m_FloatLowerLimit, pVar->m_FloatUpperLimit, this, ComponentBase::StaticOnValueChangedVariable, ComponentBase::StaticOnRightClick );
             break;
 
             //ComponentVariableType_Double,
@@ -209,11 +209,11 @@ void ComponentBase::AddVariableToPropertiesWindow(ComponentVariable* pVar)
             break;
 
         case ComponentVariableType_Vector2:
-            pVar->m_ControlID = g_pPanelWatch->AddVector2( pVar->m_WatchLabel, (Vector2*)((char*)this + pVar->m_Offset), 0.0f, 0.0f, this, ComponentBase::StaticOnValueChangedVariable, ComponentBase::StaticOnRightClick );
+            pVar->m_ControlID = g_pPanelWatch->AddVector2( pVar->m_WatchLabel, (Vector2*)((char*)this + pVar->m_Offset), pVar->m_FloatLowerLimit, pVar->m_FloatUpperLimit, this, ComponentBase::StaticOnValueChangedVariable, ComponentBase::StaticOnRightClick );
             break;
 
         case ComponentVariableType_Vector3:
-            pVar->m_ControlID = g_pPanelWatch->AddVector3( pVar->m_WatchLabel, (Vector3*)((char*)this + pVar->m_Offset), 0.0f, 0.0f, this, ComponentBase::StaticOnValueChangedVariable, ComponentBase::StaticOnRightClick );
+            pVar->m_ControlID = g_pPanelWatch->AddVector3( pVar->m_WatchLabel, (Vector3*)((char*)this + pVar->m_Offset), pVar->m_FloatLowerLimit, pVar->m_FloatUpperLimit, this, ComponentBase::StaticOnValueChangedVariable, ComponentBase::StaticOnRightClick );
             break;
 
         case ComponentVariableType_GameObjectPtr:

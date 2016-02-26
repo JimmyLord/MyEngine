@@ -358,11 +358,12 @@ void ComponentMesh::DrawCallback(ComponentCamera* pCamera, MyMatrix* pMatViewPro
             m_pMesh->m_SubmeshList[i]->m_PointSize = m_PointSize;
         }
 
-        m_pMesh->SetTransform( m_pComponentTransform->m_Transform );
+        MyMatrix worldtransform = *m_pComponentTransform->GetWorldTransform();
+        m_pMesh->SetTransform( worldtransform );
 
         // Find nearest lights.
         MyLight* lights;
-        int numlights = g_pLightManager->FindNearestLights( 4, m_pComponentTransform->m_Transform.GetTranslation(), &lights );
+        int numlights = g_pLightManager->FindNearestLights( 4, m_pComponentTransform->GetWorldTransform()->GetTranslation(), &lights );
 
         // Find nearest shadow casting light.
         MyMatrix* pShadowVP = 0;
@@ -390,14 +391,14 @@ void ComponentMesh::DrawCallback(ComponentCamera* pCamera, MyMatrix* pMatViewPro
 #if MYFW_USING_WX
         if( g_pEngineCore->m_EditorMode )
         {
-            campos = g_pEngineCore->m_pEditorState->GetEditorCamera()->m_pComponentTransform->GetPosition();
+            campos = g_pEngineCore->m_pEditorState->GetEditorCamera()->m_pComponentTransform->GetWorldPosition();
         }
         else
 #endif
         {
             ComponentCamera* pCamera = g_pComponentSystemManager->GetFirstCamera();
             if( pCamera )
-                campos = g_pComponentSystemManager->GetFirstCamera()->m_pComponentTransform->GetPosition();
+                campos = g_pComponentSystemManager->GetFirstCamera()->m_pComponentTransform->GetWorldPosition();
             else
                 campos.Set( 0, 0, 0 );
         }
