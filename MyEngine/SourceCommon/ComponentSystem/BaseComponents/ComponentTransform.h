@@ -35,13 +35,13 @@ protected:
 
     MyMatrix m_WorldTransform;
     Vector3 m_WorldPosition;
-    Vector3 m_WorldScale;
     Vector3 m_WorldRotation; // in degrees
+    Vector3 m_WorldScale;
 
     MyMatrix m_LocalTransform;
     Vector3 m_LocalPosition;
-    Vector3 m_LocalScale;
     Vector3 m_LocalRotation; // in degrees
+    Vector3 m_LocalScale;
 
 public:
     ComponentTransform();
@@ -72,27 +72,27 @@ public:
 
     void SetWorldTransform(MyMatrix* mat);
     MyMatrix* GetWorldTransform() { return &m_WorldTransform; }
-    Vector3 GetWorldPosition() { return m_WorldPosition; }
-    Vector3 GetWorldScale() { return m_WorldScale; }
-    Vector3 GetWorldRotation() { return m_WorldRotation; }
+    Vector3 GetWorldPosition();// { return m_WorldPosition; }
+    Vector3 GetWorldRotation();// { return m_WorldRotation; }
+    Vector3 GetWorldScale();// { return m_WorldScale; }
     MyMatrix GetWorldRotPosMatrix();
 
     // recalculate the matrix each time we set any of the 3 properties. // not efficient
     void SetWorldPosition(Vector3 pos);
-    void SetWorldScale(Vector3 scale);
     void SetWorldRotation(Vector3 rot);
+    void SetWorldScale(Vector3 scale);
 
     void SetLocalTransform(MyMatrix* mat);
     MyMatrix* GetLocalTransform() { return &m_LocalTransform; }
-    Vector3 GetLocalPosition() { return m_LocalPosition; }
-    Vector3 GetLocalScale() { return m_LocalScale; }
-    Vector3 GetLocalRotation() { return m_LocalRotation; }
+    Vector3 GetLocalPosition();// { return m_LocalPosition; }
+    Vector3 GetLocalRotation();// { return m_LocalRotation; }
+    Vector3 GetLocalScale();// { return m_LocalScale; }
     MyMatrix GetLocalRotPosMatrix();
 
     // recalculate the matrix each time we set any of the 3 properties. // not efficient
     void SetLocalPosition(Vector3 pos);
-    void SetLocalScale(Vector3 scale);
     void SetLocalRotation(Vector3 rot);
+    void SetLocalScale(Vector3 scale);
 
     void UpdateLocalSRT();
     void UpdateWorldSRT();

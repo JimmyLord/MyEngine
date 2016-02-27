@@ -358,19 +358,11 @@ void ComponentCollisionObject::Tick(double TimePassed)
     if( pMotionState == 0 )
         return;
 
-    MyMatrix* matLocal = m_pComponentTransform->GetLocalTransform();
-
     btTransform transform;
     pMotionState->getWorldTransform( transform );
     MyMatrix matRotPos;
     MyMatrix matBulletGL;
     transform.getOpenGLMatrix( &matBulletGL.m11 );
-
-    *matLocal = matBulletGL;
-
-#if MYFW_USING_WX
-    m_pComponentTransform->UpdateWorldSRT();
-#endif
 
     // if the collisionshape is scaled, scale our object to match.
     btVector3 scale = m_pBody->getCollisionShape()->getLocalScaling();
@@ -378,8 +370,10 @@ void ComponentCollisionObject::Tick(double TimePassed)
     {
         MyMatrix matScale;
         matScale.CreateScale( scale.x(), scale.y(), scale.z() );
-        *matLocal = *matLocal * matScale;
+        matBulletGL = matBulletGL * matScale;
     }
+
+    m_pComponentTransform->SetWorldTransform( &matBulletGL );
 
     //btVector3 pos = transform.getOrigin();
     //btQuaternion rot = transform.getRotation();

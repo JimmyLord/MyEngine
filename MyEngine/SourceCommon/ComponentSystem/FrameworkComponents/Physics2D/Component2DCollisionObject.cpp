@@ -560,10 +560,6 @@ void Component2DCollisionObject::TickCallback(double TimePassed)
 
     matWorld.CreateSRT( m_Scale, Vector3( 0, 0, angle ), Vector3( pos.x, pos.y, oldpos.z ) );
     m_pGameObject->m_pComponentTransform->SetWorldTransform( &matWorld );
-
-#if MYFW_USING_WX
-    m_pGameObject->m_pComponentTransform->UpdateWorldSRT();
-#endif
 }
 
 #if MYFW_USING_WX
