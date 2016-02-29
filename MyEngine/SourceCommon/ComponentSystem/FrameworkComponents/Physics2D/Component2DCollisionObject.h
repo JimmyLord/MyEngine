@@ -107,7 +107,7 @@ public:
 
     // Component variable callbacks.
     void* OnDrop(ComponentVariable* pVar, wxCoord x, wxCoord y);
-    void* OnValueChanged(ComponentVariable* pVar, bool finishedchanging, double oldvalue);
+    void* OnValueChanged(ComponentVariable* pVar, int controlid, bool finishedchanging, double oldvalue);
 
     static void StaticOnTransformPositionChanged(void* pObjectPtr, Vector3& newpos, bool changedbyeditor) { ((Component2DCollisionObject*)pObjectPtr)->OnTransformPositionChanged( newpos, changedbyeditor ); }
     void OnTransformPositionChanged(Vector3& newpos, bool changedbyeditor);

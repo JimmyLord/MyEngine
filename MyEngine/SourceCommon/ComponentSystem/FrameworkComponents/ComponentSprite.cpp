@@ -181,7 +181,7 @@ void* ComponentSprite::OnDrop(ComponentVariable* pVar, wxCoord x, wxCoord y)
     return oldvalue;
 }
 
-void* ComponentSprite::OnValueChanged(ComponentVariable* pVar, bool finishedchanging, double oldvalue)
+void* ComponentSprite::OnValueChanged(ComponentVariable* pVar, int controlid, bool finishedchanging, double oldvalue)
 {
     void* oldpointer = 0;
 

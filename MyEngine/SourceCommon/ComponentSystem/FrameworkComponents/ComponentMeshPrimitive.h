@@ -81,7 +81,7 @@ public:
     virtual bool ShouldVariableBeAddedToWatchPanel(ComponentVariable* pVar);
 
     // Component variable callbacks. //_VARIABLE_LIST
-    void* OnValueChanged(ComponentVariable* pVar, bool finishedchanging, double oldvalue);
+    void* OnValueChanged(ComponentVariable* pVar, int controlid, bool finishedchanging, double oldvalue);
 #endif //MYFW_USING_WX
 };
 

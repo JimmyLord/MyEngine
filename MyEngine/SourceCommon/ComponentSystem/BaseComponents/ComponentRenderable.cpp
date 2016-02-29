@@ -89,7 +89,7 @@ void ComponentRenderable::FillPropertiesWindow(bool clear, bool addcomponentvari
 //    return oldvalue;
 //}
 //
-//void* ComponentRenderable::OnValueChanged(ComponentVariable* pVar, bool finishedchanging)
+//void* ComponentRenderable::OnValueChanged(ComponentVariable* pVar, int controlid, bool finishedchanging, double oldvalue)
 //{
 //    void* oldvalue = 0;
 //    return oldvalue;

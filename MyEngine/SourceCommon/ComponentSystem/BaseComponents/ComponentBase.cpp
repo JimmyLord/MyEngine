@@ -681,7 +681,7 @@ void ComponentBase::OnValueChangedVariable(int controlid, bool finishedchanging,
         void* oldpointer = 0;
 
         if( pVar->m_pOnValueChangedCallbackFunc )
-            oldpointer = (this->*pVar->m_pOnValueChangedCallbackFunc)( pVar, finishedchanging, oldvalue );
+            oldpointer = (this->*pVar->m_pOnValueChangedCallbackFunc)( pVar, controlid, finishedchanging, oldvalue );
 
         if( m_pGameObject && m_pGameObject->GetGameObjectThisInheritsFrom() )
         {
@@ -1118,7 +1118,7 @@ void ComponentBase::UpdateGameObjectWithNewValue(GameObject* pGameObject, bool f
                         {
                             *(int*)((char*)pChildComponent + offset) = *(int*)((char*)this + offset);
                             if( pVar->m_pOnValueChangedCallbackFunc )
-                                (pChildComponent->*pVar->m_pOnValueChangedCallbackFunc)( pVar, finishedchanging, oldvalue );
+                                (pChildComponent->*pVar->m_pOnValueChangedCallbackFunc)( pVar, controlid, finishedchanging, oldvalue );
                         }
 
                         pChildComponent->UpdateChildrenWithNewValue( fromdraganddrop, pVar, controlid, finishedchanging, oldvalue, oldpointer, x, y, newpointer );
@@ -1137,7 +1137,7 @@ void ComponentBase::UpdateGameObjectWithNewValue(GameObject* pGameObject, bool f
                         {
                             *(unsigned int*)((char*)pChildComponent + offset) = *(unsigned int*)((char*)this + offset);
                             if( pVar->m_pOnValueChangedCallbackFunc )
-                                (pChildComponent->*pVar->m_pOnValueChangedCallbackFunc)( pVar, finishedchanging, oldvalue );
+                                (pChildComponent->*pVar->m_pOnValueChangedCallbackFunc)( pVar, controlid, finishedchanging, oldvalue );
                         }
 
                         pChildComponent->UpdateChildrenWithNewValue( fromdraganddrop, pVar, controlid, finishedchanging, oldvalue, oldpointer, x, y, newpointer );
@@ -1159,7 +1159,7 @@ void ComponentBase::UpdateGameObjectWithNewValue(GameObject* pGameObject, bool f
                         {
                             *(bool*)((char*)pChildComponent + offset) = *(bool*)((char*)this + offset);
                             if( pVar->m_pOnValueChangedCallbackFunc )
-                                (pChildComponent->*pVar->m_pOnValueChangedCallbackFunc)( pVar, finishedchanging, oldvalue );
+                                (pChildComponent->*pVar->m_pOnValueChangedCallbackFunc)( pVar, controlid, finishedchanging, oldvalue );
                         }
 
                         pChildComponent->UpdateChildrenWithNewValue( fromdraganddrop, pVar, controlid, finishedchanging, oldvalue, oldpointer, x, y, newpointer );
@@ -1178,7 +1178,7 @@ void ComponentBase::UpdateGameObjectWithNewValue(GameObject* pGameObject, bool f
                         {
                             *(float*)((char*)pChildComponent + offset) = *(float*)((char*)this + offset);
                             if( pVar->m_pOnValueChangedCallbackFunc )
-                                (pChildComponent->*pVar->m_pOnValueChangedCallbackFunc)( pVar, finishedchanging, oldvalue );
+                                (pChildComponent->*pVar->m_pOnValueChangedCallbackFunc)( pVar, controlid, finishedchanging, oldvalue );
                         }
 
                         pChildComponent->UpdateChildrenWithNewValue( fromdraganddrop, pVar, controlid, finishedchanging, oldvalue, oldpointer, x, y, newpointer );
@@ -1209,7 +1209,7 @@ void ComponentBase::UpdateGameObjectWithNewValue(GameObject* pGameObject, bool f
                                     ColorByte* newcolor = (ColorByte*)((char*)this + offset);
                                     *childcolor = *newcolor;
                                     if( pVar->m_pOnValueChangedCallbackFunc )
-                                        (pChildComponent->*pVar->m_pOnValueChangedCallbackFunc)( pVar, finishedchanging, oldvalue );
+                                        (pChildComponent->*pVar->m_pOnValueChangedCallbackFunc)( pVar, controlid, finishedchanging, oldvalue );
                                 }
                             }
                         }
@@ -1222,7 +1222,7 @@ void ComponentBase::UpdateGameObjectWithNewValue(GameObject* pGameObject, bool f
                             {
                                 *(unsigned char*)((char*)pChildComponent + offset) = *(unsigned char*)((char*)this + offset);
                                 if( pVar->m_pOnValueChangedCallbackFunc )
-                                    (pChildComponent->*pVar->m_pOnValueChangedCallbackFunc)( pVar, finishedchanging, oldvalue );
+                                    (pChildComponent->*pVar->m_pOnValueChangedCallbackFunc)( pVar, controlid, finishedchanging, oldvalue );
                             }
                         }
 
@@ -1246,7 +1246,7 @@ void ComponentBase::UpdateGameObjectWithNewValue(GameObject* pGameObject, bool f
                         {
                             *(float*)((char*)pChildComponent + offset) = *(float*)((char*)this + offset);
                             if( pVar->m_pOnValueChangedCallbackFunc )
-                                (pChildComponent->*pVar->m_pOnValueChangedCallbackFunc)( pVar, finishedchanging, oldvalue );
+                                (pChildComponent->*pVar->m_pOnValueChangedCallbackFunc)( pVar, controlid, finishedchanging, oldvalue );
                         }
 
                         pChildComponent->UpdateChildrenWithNewValue( fromdraganddrop, pVar, controlid, finishedchanging, oldvalue, oldpointer, x, y, newpointer );
@@ -1287,7 +1287,7 @@ void ComponentBase::UpdateGameObjectWithNewValue(GameObject* pGameObject, bool f
                                 MyAssert( pVar->m_pOnValueChangedCallbackFunc );
                                 if( pVar->m_pOnValueChangedCallbackFunc )
                                 {
-                                    void* oldpointer2 = (pChildComponent->*pVar->m_pOnValueChangedCallbackFunc)( pVar, finishedchanging, oldvalue );
+                                    void* oldpointer2 = (pChildComponent->*pVar->m_pOnValueChangedCallbackFunc)( pVar, controlid, finishedchanging, oldvalue );
                                     MyAssert( oldpointer2 == oldpointer );
                                 }
                             }                                
@@ -1335,7 +1335,7 @@ void ComponentBase::UpdateGameObjectWithNewValue(GameObject* pGameObject, bool f
                                 MyAssert( pVar->m_pOnValueChangedCallbackFunc );
                                 if( pVar->m_pOnValueChangedCallbackFunc )
                                 {
-                                    void* oldpointer2 = (pChildComponent->*pVar->m_pOnValueChangedCallbackFunc)( pVar, finishedchanging, oldvalue );
+                                    void* oldpointer2 = (pChildComponent->*pVar->m_pOnValueChangedCallbackFunc)( pVar, controlid, finishedchanging, oldvalue );
                                     MyAssert( oldpointer2 == oldpointer );
                                 }
                             }

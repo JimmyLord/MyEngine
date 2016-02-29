@@ -139,7 +139,7 @@ bool ComponentMesh::ShouldVariableBeAddedToWatchPanel(ComponentVariable* pVar)
     return true;
 }
 
-void* ComponentMesh::OnValueChanged(ComponentVariable* pVar, bool finishedchanging, double oldvalue)
+void* ComponentMesh::OnValueChanged(ComponentVariable* pVar, int controlid, bool finishedchanging, double oldvalue)
 {
     void* oldpointer = 0;
 

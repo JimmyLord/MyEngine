@@ -302,7 +302,7 @@ void* ComponentLuaScript::OnDropCV(ComponentVariable* pVar, wxCoord x, wxCoord y
     return oldvalue;
 }
 
-void* ComponentLuaScript::OnValueChangedCV(ComponentVariable* pVar, bool finishedchanging, double oldvalue)
+void* ComponentLuaScript::OnValueChangedCV(ComponentVariable* pVar, int controlid, bool finishedchanging, double oldvalue)
 {
     void* oldpointer = 0;
 

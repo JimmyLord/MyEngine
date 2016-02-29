@@ -140,7 +140,7 @@ public:
 
     // Component variable callbacks.
     void* OnDropCV(ComponentVariable* pVar, wxCoord x, wxCoord y);
-    void* OnValueChangedCV(ComponentVariable* pVar, bool finishedchanging, double oldvalue);
+    void* OnValueChangedCV(ComponentVariable* pVar, int controlid, bool finishedchanging, double oldvalue);
 
     // Watch panel callbacks.
     static void StaticOnDrop(void* pObjectPtr, int controlid, wxCoord x, wxCoord y) { ((ComponentLuaScript*)pObjectPtr)->OnDrop(controlid, x, y); }

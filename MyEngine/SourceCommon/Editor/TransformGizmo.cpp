@@ -94,7 +94,7 @@ void TransformGizmo::Tick(double TimePassed, EditorState* pEditorState)
         if( pRenderable->IsVisible() )
         {
             // move the gizmo to the object position.
-            m_pTransformGizmos[i]->m_pComponentTransform->SetLocalPosition( ObjectPosition );
+            m_pTransformGizmos[i]->m_pComponentTransform->SetWorldPosition( ObjectPosition );
 
             // rotate the gizmo.
             MyMatrix matrot;
@@ -114,10 +114,10 @@ void TransformGizmo::Tick(double TimePassed, EditorState* pEditorState)
 
             Vector3 rot = matrot.GetEulerAngles() * 180.0f/PI;
 
-            m_pTransformGizmos[i]->m_pComponentTransform->SetLocalRotation( rot );
+            m_pTransformGizmos[i]->m_pComponentTransform->SetWorldRotation( rot );
 
             float distance = (pEditorState->m_pEditorCamera->m_pComponentTransform->GetLocalPosition() - ObjectPosition).Length();
-            m_pTransformGizmos[i]->m_pComponentTransform->SetLocalScale( Vector3( distance / 15.0f ) );
+            m_pTransformGizmos[i]->m_pComponentTransform->SetWorldScale( Vector3( distance / 15.0f ) );
         }
     }
 }
@@ -218,7 +218,7 @@ void TransformGizmo::ScaleGizmosForMousePickRendering(bool doscale)
     {
         Vector3 currentscale = m_pTransformGizmos[i]->m_pComponentTransform->GetLocalScale();
         Vector3 newscale( currentscale.x * scaleamount, currentscale.y, currentscale.z * scaleamount );
-        m_pTransformGizmos[i]->m_pComponentTransform->SetLocalScale( newscale );
+        m_pTransformGizmos[i]->m_pComponentTransform->SetWorldScale( newscale );
     }
 }
 

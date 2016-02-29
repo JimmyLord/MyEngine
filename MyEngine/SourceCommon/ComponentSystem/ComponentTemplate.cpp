@@ -99,7 +99,7 @@ void* ComponentTemplate::OnDrop(ComponentVariable* pVar, wxCoord x, wxCoord y)
     return oldvalue;
 }
 
-void* ComponentTemplate::OnValueChanged(ComponentVariable* pVar, bool finishedchanging, double oldvalue)
+void* ComponentTemplate::OnValueChanged(ComponentVariable* pVar, int controlid, bool finishedchanging, double oldvalue)
 {
     void* oldpointer = 0;
 

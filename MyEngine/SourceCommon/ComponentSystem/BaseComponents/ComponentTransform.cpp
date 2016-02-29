@@ -218,7 +218,7 @@ void* ComponentTransform::OnDropTransform(ComponentVariable* pVar, wxCoord x, wx
     return oldvalue;
 }
 
-void* ComponentTransform::OnValueChanged(ComponentVariable* pVar, bool finishedchanging, double oldvalue)
+void* ComponentTransform::OnValueChanged(ComponentVariable* pVar, int controlid, bool finishedchanging, double oldvalue)
 {
     void* oldpointer = 0;
 
@@ -236,15 +236,45 @@ void* ComponentTransform::OnValueChanged(ComponentVariable* pVar, bool finishedc
     }
     else
     {
-        MyMatrix matWorld;
-        matWorld.CreateSRT( m_WorldScale, m_WorldRotation, m_WorldPosition );
-        m_pGameObject->m_pComponentTransform->SetWorldTransform( &matWorld );
-
-        for( CPPListNode* pNode = m_PositionChangedCallbackList.GetHead(); pNode != 0; pNode = pNode->GetNext() )
+        if( pVar->m_Offset == MyOffsetOf( this, &m_WorldPosition ) ||
+            pVar->m_Offset == MyOffsetOf( this, &m_WorldRotation ) ||
+            pVar->m_Offset == MyOffsetOf( this, &m_WorldScale ) )
         {
-            TransformPositionChangedCallbackStruct* pCallbackStruct = (TransformPositionChangedCallbackStruct*)pNode;
+            if( m_pParentTransform == 0 )
+            {
+                m_LocalPosition = m_WorldPosition;
+                m_LocalRotation = m_WorldRotation;
+                m_LocalScale = m_WorldScale;
+                m_LocalTransformIsDirty = true;
+            }
+            else
+            {
+                // TODO: apply world SRT change to local SRT, update both matrices.
+                m_LocalTransformIsDirty = true;
+            }
 
-            pCallbackStruct->pFunc( pCallbackStruct->pObj, m_WorldPosition, true );
+            m_WorldTransformIsDirty = true;
+            UpdateTransform();
+
+            for( CPPListNode* pNode = m_PositionChangedCallbackList.GetHead(); pNode != 0; pNode = pNode->GetNext() )
+            {
+                TransformPositionChangedCallbackStruct* pCallbackStruct = (TransformPositionChangedCallbackStruct*)pNode;
+
+                pCallbackStruct->pFunc( pCallbackStruct->pObj, m_WorldPosition, true );
+            }
+        }
+        else if( pVar->m_Offset == MyOffsetOf( this, &m_LocalPosition ) ||
+                 pVar->m_Offset == MyOffsetOf( this, &m_LocalRotation ) ||
+                 pVar->m_Offset == MyOffsetOf( this, &m_LocalScale ) )
+        {
+            m_LocalTransformIsDirty = true;
+
+            for( CPPListNode* pNode = m_PositionChangedCallbackList.GetHead(); pNode != 0; pNode = pNode->GetNext() )
+            {
+                TransformPositionChangedCallbackStruct* pCallbackStruct = (TransformPositionChangedCallbackStruct*)pNode;
+
+                pCallbackStruct->pFunc( pCallbackStruct->pObj, m_WorldPosition, true );
+            }
         }
     }
 
@@ -315,7 +345,7 @@ void ComponentTransform::SetPositionByEditor(Vector3 pos)
     }
     else
     {
-        m_WorldTransformIsDirty = true;
+        m_LocalTransformIsDirty = true;
     }
 
     for( CPPListNode* pNode = m_PositionChangedCallbackList.GetHead(); pNode != 0; pNode = pNode->GetNext() )
@@ -351,7 +381,7 @@ void ComponentTransform::SetWorldRotation(Vector3 rot)
     m_WorldTransformIsDirty = true;
     if( m_pParentTransform == 0 )
     {
-        m_LocalRotation = m_WorldPosition;
+        m_LocalRotation = m_WorldRotation;
         m_LocalTransformIsDirty = true;
     }
 }
