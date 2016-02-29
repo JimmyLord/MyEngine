@@ -166,10 +166,10 @@ void ComponentRenderable::SetMaterial(MaterialDefinition* pMaterial, int submesh
 
 void ComponentRenderable::Draw(MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride, int drawcount)
 {
-#if 1 //MYFW_USING_WX
-    // ugh, for now... matrix will be dirty when playing with watch window in wx 
-    m_pComponentTransform->UpdateTransform();
-#endif
+//#if 1 //MYFW_USING_WX
+//    // ugh, for now... matrix will be dirty when playing with watch window in wx 
+//    m_pComponentTransform->UpdateTransform();
+//#endif
 }
 
 bool ComponentRenderable::IsVisible()

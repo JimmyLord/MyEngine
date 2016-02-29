@@ -34,11 +34,13 @@ protected:
     ComponentTransform* m_pParentTransform;
 
     MyMatrix m_WorldTransform;
+    bool m_WorldTransformIsDirty;
     Vector3 m_WorldPosition;
     Vector3 m_WorldRotation; // in degrees
     Vector3 m_WorldScale;
 
     MyMatrix m_LocalTransform;
+    bool m_LocalTransformIsDirty;
     Vector3 m_LocalPosition;
     Vector3 m_LocalRotation; // in degrees
     Vector3 m_LocalScale;
@@ -71,10 +73,10 @@ public:
     void SetParentTransform(ComponentTransform* pNewParent, bool unregisterondeletecallback = true);
 
     void SetWorldTransform(MyMatrix* mat);
-    MyMatrix* GetWorldTransform() { return &m_WorldTransform; }
-    Vector3 GetWorldPosition();// { return m_WorldPosition; }
-    Vector3 GetWorldRotation();// { return m_WorldRotation; }
-    Vector3 GetWorldScale();// { return m_WorldScale; }
+    MyMatrix* GetWorldTransform();
+    Vector3 GetWorldPosition();
+    Vector3 GetWorldRotation();
+    Vector3 GetWorldScale();
     MyMatrix GetWorldRotPosMatrix();
 
     // recalculate the matrix each time we set any of the 3 properties. // not efficient
@@ -83,10 +85,10 @@ public:
     void SetWorldScale(Vector3 scale);
 
     void SetLocalTransform(MyMatrix* mat);
-    MyMatrix* GetLocalTransform() { return &m_LocalTransform; }
-    Vector3 GetLocalPosition();// { return m_LocalPosition; }
-    Vector3 GetLocalRotation();// { return m_LocalRotation; }
-    Vector3 GetLocalScale();// { return m_LocalScale; }
+    MyMatrix* GetLocalTransform();
+    Vector3 GetLocalPosition();
+    Vector3 GetLocalRotation();
+    Vector3 GetLocalScale();
     MyMatrix GetLocalRotPosMatrix();
 
     // recalculate the matrix each time we set any of the 3 properties. // not efficient

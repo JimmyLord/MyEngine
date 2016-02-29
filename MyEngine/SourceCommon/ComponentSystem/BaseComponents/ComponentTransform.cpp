@@ -95,15 +95,16 @@ void ComponentTransform::Reset()
     m_pParentTransform = 0;
 
     m_WorldTransform.SetIdentity();
-
-    m_LocalTransform.SetIdentity();
-    m_LocalPosition.Set( 0,0,0 );
-    m_LocalRotation.Set( 0,0,0 );
-    m_LocalScale.Set( 1,1,1 );
-
+    m_WorldTransformIsDirty = true;
     m_WorldPosition.Set( 0,0,0 );
     m_WorldRotation.Set( 0,0,0 );
     m_WorldScale.Set( 1,1,1 );
+
+    m_LocalTransform.SetIdentity();
+    m_LocalTransformIsDirty = true;
+    m_LocalPosition.Set( 0,0,0 );
+    m_LocalRotation.Set( 0,0,0 );
+    m_LocalScale.Set( 1,1,1 );
 
 #if MYFW_USING_WX
     //m_ControlID_ParentTransform = -1;
@@ -267,6 +268,8 @@ void ComponentTransform::ImportFromJSONObject(cJSON* jsonobj, unsigned int scene
     if( m_pParentGameObject )
     {
         m_pGameObject->SetParentGameObject( m_pParentGameObject );
+        m_WorldTransformIsDirty = true;
+        m_LocalTransformIsDirty = true;
     }
 
     // load all the registered variables.
@@ -283,6 +286,7 @@ ComponentTransform& ComponentTransform::operator=(const ComponentTransform& othe
     ComponentBase::operator=( other );
 
     this->m_WorldTransform = other.m_WorldTransform;
+    this->m_WorldTransformIsDirty = other.m_WorldTransformIsDirty;
     this->m_WorldPosition = other.m_WorldPosition;
     this->m_WorldRotation = other.m_WorldRotation;
     this->m_WorldScale = other.m_WorldScale;
@@ -290,6 +294,7 @@ ComponentTransform& ComponentTransform::operator=(const ComponentTransform& othe
     this->SetParentTransform( other.m_pParentTransform, false );
 
     this->m_LocalTransform = other.m_LocalTransform;
+    this->m_LocalTransformIsDirty = other.m_LocalTransformIsDirty;
     this->m_LocalPosition = other.m_LocalPosition;
     this->m_LocalRotation = other.m_LocalRotation;
     this->m_LocalScale = other.m_LocalScale;
@@ -303,6 +308,16 @@ void ComponentTransform::SetPositionByEditor(Vector3 pos)
     m_LocalPosition = pos;
     m_LocalTransform.CreateSRT( m_LocalScale, m_LocalRotation, m_LocalPosition );
 
+    if( m_pParentTransform == 0 )
+    {
+        m_WorldPosition = pos;
+        m_WorldTransform.CreateSRT( m_WorldScale, m_WorldRotation, m_WorldPosition );
+    }
+    else
+    {
+        m_WorldTransformIsDirty = true;
+    }
+
     for( CPPListNode* pNode = m_PositionChangedCallbackList.GetHead(); pNode != 0; pNode = pNode->GetNext() )
     {
         TransformPositionChangedCallbackStruct* pCallbackStruct = (TransformPositionChangedCallbackStruct*)pNode;
@@ -315,7 +330,12 @@ void ComponentTransform::SetPositionByEditor(Vector3 pos)
 void ComponentTransform::SetWorldPosition(Vector3 pos)
 {
     m_WorldPosition = pos;
-    m_WorldTransform.CreateSRT( m_WorldScale, m_WorldRotation, m_WorldPosition );
+    m_WorldTransformIsDirty = true;
+    if( m_pParentTransform == 0 )
+    {
+        m_LocalPosition = m_WorldPosition;
+        m_LocalTransformIsDirty = true;
+    }
 
     for( CPPListNode* pNode = m_PositionChangedCallbackList.GetHead(); pNode != 0; pNode = pNode->GetNext() )
     {
@@ -328,13 +348,23 @@ void ComponentTransform::SetWorldPosition(Vector3 pos)
 void ComponentTransform::SetWorldRotation(Vector3 rot)
 {
     m_WorldRotation = rot;
-    m_WorldTransform.CreateSRT( m_WorldScale, m_WorldRotation, m_WorldPosition );
+    m_WorldTransformIsDirty = true;
+    if( m_pParentTransform == 0 )
+    {
+        m_LocalRotation = m_WorldPosition;
+        m_LocalTransformIsDirty = true;
+    }
 }
 
 void ComponentTransform::SetWorldScale(Vector3 scale)
 {
     m_WorldScale = scale;
-    m_WorldTransform.CreateSRT( m_WorldScale, m_WorldRotation, m_WorldPosition );
+    m_WorldTransformIsDirty = true;
+    if( m_pParentTransform == 0 )
+    {
+        m_LocalScale = m_WorldScale;
+        m_LocalTransformIsDirty = true;
+    }
 }
 
 void ComponentTransform::SetLocalTransform(MyMatrix* mat)
@@ -350,8 +380,15 @@ void ComponentTransform::SetLocalTransform(MyMatrix* mat)
 
 void ComponentTransform::SetLocalPosition(Vector3 pos)
 {
+    UpdateTransform();
+
     m_LocalPosition = pos;
-    m_LocalTransform.CreateSRT( m_LocalScale, m_LocalRotation, m_LocalPosition );
+    m_LocalTransformIsDirty = true;
+    if( m_pParentTransform == 0 )
+    {
+        m_WorldPosition = m_LocalPosition;
+        m_WorldTransformIsDirty = true;
+    }
 
     for( CPPListNode* pNode = m_PositionChangedCallbackList.GetHead(); pNode != 0; pNode = pNode->GetNext() )
     {
@@ -364,13 +401,23 @@ void ComponentTransform::SetLocalPosition(Vector3 pos)
 void ComponentTransform::SetLocalRotation(Vector3 rot)
 {
     m_LocalRotation = rot;
-    m_LocalTransform.CreateSRT( m_LocalScale, m_LocalRotation, m_LocalPosition );
+    m_LocalTransformIsDirty = true;
+    if( m_pParentTransform == 0 )
+    {
+        m_WorldRotation = m_LocalRotation;
+        m_WorldTransformIsDirty = true;
+    }
 }
 
 void ComponentTransform::SetLocalScale(Vector3 scale)
 {
     m_LocalScale = scale;
-    m_LocalTransform.CreateSRT( m_LocalScale, m_LocalRotation, m_LocalPosition );
+    m_LocalTransformIsDirty = true;
+    if( m_pParentTransform == 0 )
+    {
+        m_WorldScale = m_LocalScale;
+        m_WorldTransformIsDirty = true;
+    }
 }
 
 void ComponentTransform::SetWorldTransform(MyMatrix* mat)
@@ -390,6 +437,16 @@ void ComponentTransform::SetWorldTransform(MyMatrix* mat)
         m_LocalTransform = m_WorldTransform;
         UpdateLocalSRT();
     }
+}
+
+MyMatrix* ComponentTransform::GetWorldTransform()
+{
+    UpdateTransform();
+
+    if( m_pParentTransform == 0 )
+        return &m_LocalTransform;
+
+    return &m_WorldTransform;
 }
 
 Vector3 ComponentTransform::GetWorldPosition()
@@ -414,6 +471,13 @@ MyMatrix ComponentTransform::GetWorldRotPosMatrix()
     world.CreateSRT( Vector3(1,1,1), m_WorldRotation, m_WorldPosition );
 
     return world;
+}
+
+MyMatrix* ComponentTransform::GetLocalTransform()
+{
+    UpdateTransform();
+
+    return &m_LocalTransform;
 }
 
 Vector3 ComponentTransform::GetLocalPosition()
@@ -512,20 +576,40 @@ void ComponentTransform::UpdateLocalSRT()
 
 void ComponentTransform::UpdateTransform()
 {
-    m_LocalTransform.CreateSRT( m_LocalScale, m_LocalRotation, m_LocalPosition );
-
     if( m_pParentTransform )
     {
-        m_pParentTransform->UpdateTransform();
-        m_WorldTransform = m_pParentTransform->m_WorldTransform * m_LocalTransform;
-        UpdateWorldSRT();
+        if( m_WorldTransformIsDirty )
+        {
+            //MyAssert( m_LocalTransformIsDirty == false );
+
+            m_WorldTransformIsDirty = false;
+            m_WorldTransform.CreateSRT( m_WorldScale, m_WorldRotation, m_WorldPosition );
+        }
+
+        if( m_LocalTransformIsDirty )
+        {
+            //MyAssert( m_WorldTransformIsDirty == false );
+
+            m_LocalTransformIsDirty = false;
+            m_LocalTransform.CreateSRT( m_LocalScale, m_LocalRotation, m_LocalPosition );
+
+            m_WorldTransform = m_pParentTransform->m_WorldTransform * m_LocalTransform;
+            UpdateWorldSRT();
+        }
     }
     else
     {
-        m_WorldTransform = m_LocalTransform;
-        m_WorldPosition = m_LocalPosition;
-        m_WorldRotation = m_LocalRotation;
-        m_WorldScale = m_LocalScale;
+        if( m_LocalTransformIsDirty )
+        {
+            m_LocalTransformIsDirty = false;
+            m_LocalTransform.CreateSRT( m_LocalScale, m_LocalRotation, m_LocalPosition );
+
+            m_WorldTransformIsDirty = false;
+            m_WorldTransform = m_LocalTransform;
+            m_WorldPosition = m_LocalPosition;
+            m_WorldRotation = m_LocalRotation;
+            m_WorldScale = m_LocalScale;
+        }
     }
 }
 
@@ -579,8 +663,8 @@ void ComponentTransform::OnGameObjectDeleted(GameObject* pGameObject)
 
 void ComponentTransform::OnParentTransformChanged(Vector3& newpos, bool changedbyeditor)
 {
+    m_LocalTransformIsDirty = true;
     UpdateTransform();
-    UpdateWorldSRT();
 
     for( CPPListNode* pNode = m_PositionChangedCallbackList.GetHead(); pNode != 0; pNode = pNode->GetNext() )
     {
