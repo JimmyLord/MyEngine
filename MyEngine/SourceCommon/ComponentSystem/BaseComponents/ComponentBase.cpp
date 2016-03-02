@@ -1032,6 +1032,22 @@ ComponentVariable* ComponentBase::FindComponentVariableForControl(int controlid)
     return 0;
 }
 
+ComponentVariable* ComponentBase::FindComponentVariableByLabel(CPPListHead* list, const char* label)
+{
+    for( CPPListNode* pNode = list->GetHead(); pNode; pNode = pNode->GetNext() )
+    {
+        ComponentVariable* pVar = (ComponentVariable*)pNode;
+        MyAssert( pVar );
+
+        if( strcmp( pVar->m_Label, label ) == 0 )
+        {
+            return pVar;
+        }
+    }
+
+    return 0;
+}
+
 void ComponentBase::UpdateChildrenWithNewValue(bool fromdraganddrop, ComponentVariable* pVar, int controlid, bool finishedchanging, double oldvalue, void* oldpointer, wxCoord x, wxCoord y, void* newpointer)
 {
 #if 0 //MYFW_USING_WX

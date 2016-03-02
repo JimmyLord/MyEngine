@@ -55,9 +55,9 @@ void ComponentTransform::RegisterVariables(CPPListHead* pList, ComponentTransfor
 #endif
     MyAssert( offsetof( ComponentTransform, m_pParentGameObject ) == MyOffsetOf( pThis, &pThis->m_pParentGameObject ) );
     MyAssert( offsetof( ComponentTransform, m_pParentTransform )  == MyOffsetOf( pThis, &pThis->m_pParentTransform )  );
-    //MyAssert( offsetof( ComponentTransform, m_LocalPosition )     == MyOffsetOf( pThis, &pThis->m_LocalPosition )     );
-    //MyAssert( offsetof( ComponentTransform, m_LocalRotation )     == MyOffsetOf( pThis, &pThis->m_LocalRotation )     );
-    //MyAssert( offsetof( ComponentTransform, m_LocalScale )        == MyOffsetOf( pThis, &pThis->m_LocalScale )        );
+    MyAssert( offsetof( ComponentTransform, m_LocalPosition )     == MyOffsetOf( pThis, &pThis->m_LocalPosition )     );
+    MyAssert( offsetof( ComponentTransform, m_LocalRotation )     == MyOffsetOf( pThis, &pThis->m_LocalRotation )     );
+    MyAssert( offsetof( ComponentTransform, m_LocalScale )        == MyOffsetOf( pThis, &pThis->m_LocalScale )        );
 #if MYFW_IOS || MYFW_OSX
 #pragma GCC diagnostic default "-Winvalid-offsetof"
 #endif
@@ -66,18 +66,22 @@ void ComponentTransform::RegisterVariables(CPPListHead* pList, ComponentTransfor
     AddVar( pList, "ParentTransform", ComponentVariableType_ComponentPtr,     MyOffsetOf( pThis, &pThis->m_pParentTransform ),  false,  true, "Parent Transform", (CVarFunc_ValueChanged)&ComponentTransform::OnValueChanged, (CVarFunc_DropTarget)&ComponentTransform::OnDropTransform, 0 );
     AddVar( pList, "WorldPos",        ComponentVariableType_Vector3,          MyOffsetOf( pThis, &pThis->m_WorldPosition ),     false,  true, "World Pos",        (CVarFunc_ValueChanged)&ComponentTransform::OnValueChanged,                                                         0, 0 );
     AddVar( pList, "WorldRot",        ComponentVariableType_Vector3,          MyOffsetOf( pThis, &pThis->m_WorldRotation ),     false,  true, "World Rot",        (CVarFunc_ValueChanged)&ComponentTransform::OnValueChanged,                                                         0, 0 );
-    ComponentVariable* pVarWorldScale = AddVar( pList, "WorldScale",      ComponentVariableType_Vector3,          MyOffsetOf( pThis, &pThis->m_WorldScale ),        false,  true, "World Scale",      (CVarFunc_ValueChanged)&ComponentTransform::OnValueChanged,                                                         0, 0 );
-    AddVar( pList, "Pos",             ComponentVariableType_Vector3,          MyOffsetOf( pThis, &pThis->m_LocalPosition ),      true,  true, "Local Pos",        (CVarFunc_ValueChanged)&ComponentTransform::OnValueChanged,                                                         0, 0 );
-    AddVar( pList, "Rot",             ComponentVariableType_Vector3,          MyOffsetOf( pThis, &pThis->m_LocalRotation ),      true,  true, "Local Rot",        (CVarFunc_ValueChanged)&ComponentTransform::OnValueChanged,                                                         0, 0 );
-    ComponentVariable* pVarScale      = AddVar( pList, "Scale",           ComponentVariableType_Vector3,          MyOffsetOf( pThis, &pThis->m_LocalScale ),         true,  true, "Local Scale",      (CVarFunc_ValueChanged)&ComponentTransform::OnValueChanged,                                                         0, 0 );
+    AddVar( pList, "WorldScale",      ComponentVariableType_Vector3,          MyOffsetOf( pThis, &pThis->m_WorldScale ),        false,  true, "World Scale",      (CVarFunc_ValueChanged)&ComponentTransform::OnValueChanged,                                                         0, 0 );
 
-#if MYFW_USING_WX
-    pVarWorldScale->m_FloatLowerLimit = 0;
-    pVarWorldScale->m_FloatUpperLimit = 1000000.0f;
+    // FillPropertiesWindow() changed m_DisplayInWatch for these 3, will show if parented, won't otherwise.
+    AddVar( pList, "Pos",             ComponentVariableType_Vector3,          MyOffsetOf( pThis, &pThis->m_LocalPosition ),      true, false, "Local Pos",        (CVarFunc_ValueChanged)&ComponentTransform::OnValueChanged,                                                         0, 0 );
+    AddVar( pList, "Rot",             ComponentVariableType_Vector3,          MyOffsetOf( pThis, &pThis->m_LocalRotation ),      true, false, "Local Rot",        (CVarFunc_ValueChanged)&ComponentTransform::OnValueChanged,                                                         0, 0 );
+    AddVar( pList, "Scale",           ComponentVariableType_Vector3,          MyOffsetOf( pThis, &pThis->m_LocalScale ),         true, false, "Local Scale",      (CVarFunc_ValueChanged)&ComponentTransform::OnValueChanged,                                                         0, 0 );
 
-    pVarScale->m_FloatLowerLimit = 0;
-    pVarScale->m_FloatUpperLimit = 1000000.0f;
-#endif
+//#if MYFW_USING_WX
+//    //ComponentVariable* pVarWorldScale = FindComponentVariableByLabel( &m_ComponentVariableList_ComponentTransform, "WorldScale" );
+//    //pVarWorldScale->m_FloatLowerLimit = 0;
+//    //pVarWorldScale->m_FloatUpperLimit = 1000000.0f;
+//
+//    //ComponentVariable* pVarScale = FindComponentVariableByLabel( &m_ComponentVariableList_ComponentTransform, "Scale" );
+//    //pVarScale->m_FloatLowerLimit = 0;
+//    //pVarScale->m_FloatUpperLimit = 1000000.0f;
+//#endif
 }
 
 void ComponentTransform::Reset()
@@ -178,6 +182,19 @@ void ComponentTransform::FillPropertiesWindow(bool clear, bool addcomponentvaria
         //g_pPanelWatch->AddVector3( "Pos", &m_Position, 0.0f, 0.0f, this, ComponentTransform::StaticOnValueChanged );
         //g_pPanelWatch->AddVector3( "Rot", &m_Rotation, 0, 0, this, ComponentTransform::StaticOnValueChanged );
         //g_pPanelWatch->AddVector3( "Scale", &m_Scale, 0.0f, 0.0f, this, ComponentTransform::StaticOnValueChanged );
+
+        if( m_pParentTransform )
+        {
+            FindComponentVariableByLabel( &m_ComponentVariableList_ComponentTransform, "Pos" )->m_DisplayInWatch = true;
+            FindComponentVariableByLabel( &m_ComponentVariableList_ComponentTransform, "Rot" )->m_DisplayInWatch = true;
+            FindComponentVariableByLabel( &m_ComponentVariableList_ComponentTransform, "Scale" )->m_DisplayInWatch = true;
+        }
+        else
+        {
+            FindComponentVariableByLabel( &m_ComponentVariableList_ComponentTransform, "Pos" )->m_DisplayInWatch = false;
+            FindComponentVariableByLabel( &m_ComponentVariableList_ComponentTransform, "Rot" )->m_DisplayInWatch = false;
+            FindComponentVariableByLabel( &m_ComponentVariableList_ComponentTransform, "Scale" )->m_DisplayInWatch = false;
+        }
 
         if( addcomponentvariables )
             FillPropertiesWindowWithVariables(); //_VARIABLE_LIST
