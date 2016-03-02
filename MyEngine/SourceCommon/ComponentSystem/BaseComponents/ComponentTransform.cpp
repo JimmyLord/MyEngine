@@ -249,8 +249,16 @@ void* ComponentTransform::OnValueChanged(ComponentVariable* pVar, int controlid,
             }
             else
             {
-                // TODO: apply world SRT change to local SRT, update both matrices.
-                m_LocalTransformIsDirty = true;
+                // calculate new local transform matrix, decompose it into local SRT.
+                MyMatrix matworld;
+                matworld.CreateSRT( m_WorldScale, m_WorldRotation, m_WorldPosition );
+
+                MyMatrix matparentworld = *m_pParentTransform->GetWorldTransform();
+                matparentworld.Inverse();
+                MyMatrix matlocal = matparentworld * matworld;
+                
+                SetLocalTransform( &matlocal );
+                UpdateLocalSRT();
             }
 
             m_WorldTransformIsDirty = true;
