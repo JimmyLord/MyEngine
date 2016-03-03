@@ -137,7 +137,7 @@ void LuaGameState::RegisterClasses()
             .addFunction( "RequestFile", &FileManager::RequestFile )
         .endClass();
 
-    // Have some entity/component classes register themselves.
+    // Have some entity/component classes register themselves. // ADDING_NEW_ComponentType
     EngineCore::LuaRegister( m_pLuaState );
     GameObject::LuaRegister( m_pLuaState );
     ComponentBase::LuaRegister( m_pLuaState );
@@ -147,6 +147,7 @@ void LuaGameState::RegisterClasses()
     ComponentCollisionObject::LuaRegister( m_pLuaState );
     Component2DCollisionObject::LuaRegister( m_pLuaState );
     ComponentAnimationPlayer::LuaRegister( m_pLuaState );
+    ComponentAudioPlayer::LuaRegister( m_pLuaState );
     ComponentParticleEmitter::LuaRegister( m_pLuaState );
     ComponentSprite::LuaRegister( m_pLuaState );
     ComponentMesh::LuaRegister( m_pLuaState );

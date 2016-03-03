@@ -68,7 +68,7 @@ void ComponentTransform::RegisterVariables(CPPListHead* pList, ComponentTransfor
     AddVar( pList, "WorldRot",        ComponentVariableType_Vector3,          MyOffsetOf( pThis, &pThis->m_WorldRotation ),     false,  true, "World Rot",        (CVarFunc_ValueChanged)&ComponentTransform::OnValueChanged,                                                         0, 0 );
     AddVar( pList, "WorldScale",      ComponentVariableType_Vector3,          MyOffsetOf( pThis, &pThis->m_WorldScale ),        false,  true, "World Scale",      (CVarFunc_ValueChanged)&ComponentTransform::OnValueChanged,                                                         0, 0 );
 
-    // FillPropertiesWindow() changed m_DisplayInWatch for these 3, will show if parented, won't otherwise.
+    // FillPropertiesWindow() changes m_DisplayInWatch for these 3, will show if parented, won't otherwise.
     AddVar( pList, "Pos",             ComponentVariableType_Vector3,          MyOffsetOf( pThis, &pThis->m_LocalPosition ),      true, false, "Local Pos",        (CVarFunc_ValueChanged)&ComponentTransform::OnValueChanged,                                                         0, 0 );
     AddVar( pList, "Rot",             ComponentVariableType_Vector3,          MyOffsetOf( pThis, &pThis->m_LocalRotation ),      true, false, "Local Rot",        (CVarFunc_ValueChanged)&ComponentTransform::OnValueChanged,                                                         0, 0 );
     AddVar( pList, "Scale",           ComponentVariableType_Vector3,          MyOffsetOf( pThis, &pThis->m_LocalScale ),         true, false, "Local Scale",      (CVarFunc_ValueChanged)&ComponentTransform::OnValueChanged,                                                         0, 0 );

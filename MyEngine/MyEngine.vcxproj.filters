@@ -378,6 +378,9 @@
     <ClCompile Include="SourceCommon\ComponentSystem\FrameworkComponents\Physics2D\Component2DJointWeld.cpp">
       <Filter>Source\ComponentSystem\Framework Components\Physics2D</Filter>
     </ClCompile>
+    <ClCompile Include="SourceCommon\ComponentSystem\FrameworkComponents\ComponentAudioPlayer.cpp">
+      <Filter>Source\ComponentSystem\Framework Components</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SourceCommon\Camera\Camera3D.h">
@@ -694,6 +697,9 @@
     </ClInclude>
     <ClInclude Include="SourceCommon\ComponentSystem\FrameworkComponents\Physics2D\Component2DJointWeld.h">
       <Filter>Source\ComponentSystem\Framework Components\Physics2D</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCommon\ComponentSystem\FrameworkComponents\ComponentAudioPlayer.h">
+      <Filter>Source\ComponentSystem\Framework Components</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

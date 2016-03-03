@@ -58,6 +58,17 @@ void ComponentTemplate::Reset()
 #endif //MYFW_USING_WX
 }
 
+#if MYFW_USING_LUA
+void ComponentTemplate::LuaRegister(lua_State* luastate)
+{
+    luabridge::getGlobalNamespace( luastate )
+        .beginClass<ComponentSprite>( "ComponentTemplate" )
+            //.addData( "m_SampleVector3", &ComponentSprite::m_SampleVector3 )
+            //.addFunction( "GetVector3", &ComponentSprite::GetVector3 )
+        .endClass();
+}
+#endif //MYFW_USING_LUA
+
 #if MYFW_USING_WX
 void ComponentTemplate::AddToObjectsPanel(wxTreeItemId gameobjectid)
 {
@@ -116,16 +127,16 @@ void* ComponentTemplate::OnValueChanged(ComponentVariable* pVar, int controlid, 
 //{
 //    cJSON* jComponent = ComponentBase::ExportAsJSONObject( savesceneid );
 //
-//    //ExportVariablesToJSON( jComponent ); //_VARIABLE_LIST
+//    ExportVariablesToJSON( jComponent ); //_VARIABLE_LIST
 //
 //    return jComponent;
 //}
 //
-//void ComponentTemplate::ImportFromJSONObject(cJSON* jsonobj, unsigned int sceneid)
+//void ComponentTemplate::ImportFromJSONObject(cJSON* jComponent, unsigned int sceneid)
 //{
-//    ComponentBase::ImportFromJSONObject( jsonobj, sceneid );
+//    ComponentBase::ImportFromJSONObject( jComponent, sceneid );
 //
-//    //ImportVariablesFromJSON( jsonobj ); //_VARIABLE_LIST
+//    ImportVariablesFromJSON( jComponent ); //_VARIABLE_LIST
 //}
 
 ComponentTemplate& ComponentTemplate::operator=(const ComponentTemplate& other)

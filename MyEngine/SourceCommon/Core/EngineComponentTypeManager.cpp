@@ -30,6 +30,7 @@ ComponentTypeInfo g_EngineComponentTypeInfo[Component_NumEngineComponentTypes] =
     { "Scripts",        "Lua Script",           },  //ComponentType_LuaScript,
     { "Particles",      "Particle Emitter",     },  //ComponentType_ParticleEmitter,
     { "Animation",      "Animation Player",     },  //ComponentType_AnimationPlayer,
+    { "Audio",          "Audio Player",         },  //ComponentType_AudioPlayer,
     { "Menus",          "Menu Page",            },  //ComponentType_MenuPage,
 };
 
@@ -61,6 +62,7 @@ ComponentBase* EngineComponentTypeManager::CreateComponent(int type)
 #endif //MYFW_USING_LUA
     case ComponentType_ParticleEmitter:     pComponent = MyNew ComponentParticleEmitter;    break;
     case ComponentType_AnimationPlayer:     pComponent = MyNew ComponentAnimationPlayer;    break;
+    case ComponentType_AudioPlayer:         pComponent = MyNew ComponentAudioPlayer;        break;
     case ComponentType_MenuPage:            pComponent = MyNew ComponentMenuPage;           break;
     }
 
