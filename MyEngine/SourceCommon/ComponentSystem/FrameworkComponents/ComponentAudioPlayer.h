@@ -19,6 +19,7 @@ private:
 protected:
     // TODO: replace with audio cue system.
     MyFileObject* m_pAudioFile;
+    int m_ChannelSoundIsPlayingOn;
 
 public:
     ComponentAudioPlayer();

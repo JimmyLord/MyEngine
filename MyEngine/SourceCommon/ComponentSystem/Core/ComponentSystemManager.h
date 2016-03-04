@@ -267,6 +267,7 @@ public:
 class MyFileInfo : public CPPListNode
 {
 public:
+    // m_pFile might be 0 (for wav's for example, but m_SourceFileFullPath should be set in those cases)
     MyFileObject* m_pFile;
     char m_SourceFileFullPath[MAX_PATH];
     unsigned int m_SceneID;

@@ -165,6 +165,9 @@ void ComponentSystemManager::CheckForUpdatedDataSourceFiles(bool initialcheck)
     {
         MyFileInfo* pFileInfo = (MyFileInfo*)pNode;
 
+        if( pFileInfo->m_pFile == 0 )
+            continue;
+
         if( (initialcheck == false || pFileInfo->m_DidInitialCheckIfSourceFileWasUpdated == false) && // haven't done initial check
             pFileInfo->m_pFile->m_FileLastWriteTime.dwHighDateTime != 0 && // converted file has been loaded
             pFileInfo->m_SourceFileFullPath[0] != 0 )                      // we have a source file
@@ -468,8 +471,19 @@ MyFileInfo* ComponentSystemManager::GetFileInfoIfUsedByScene(const char* fullpat
     {
         MyFileInfo* pFileInfo = (MyFileInfo*)pNode;
 
-        if( strcmp( pFileInfo->m_pFile->m_FullPath, fullpath ) == 0 && (sceneid == -1 || pFileInfo->m_SceneID == sceneid) )
-            return pFileInfo;
+        if( sceneid == -1 || pFileInfo->m_SceneID == sceneid )
+        {
+            if( pFileInfo->m_pFile == 0 )
+            {
+                if( strcmp( pFileInfo->m_SourceFileFullPath, fullpath ) == 0 )
+                    return pFileInfo;
+            }
+            else
+            {
+                if( strcmp( pFileInfo->m_pFile->m_FullPath, fullpath ) == 0 )
+                    return pFileInfo;
+            }
+        }
     }
 
     return 0;
@@ -566,7 +580,14 @@ MyFileObject* ComponentSystemManager::LoadDataFile(const char* relativepath, uns
                 pFile = pTexture->m_pFile;
                 pFile->AddRef();
             }
-
+        }
+        else if( rellen > 4 && strcmp( &relativepath[rellen-4], ".wav" ) == 0 )
+        {
+            // Let SoundPlayer (SDL on windows) load the wav files
+            SoundCue* pCue = g_pGameCore->m_pSoundManager->CreateCue( "Music" );
+            g_pGameCore->m_pSoundManager->AddSoundToCue( pCue, relativepath );
+            strcpy_s( pFileInfo->m_SourceFileFullPath, MAX_PATH, relativepath );
+            return 0;
         }
         else
         {

@@ -26,6 +26,8 @@ ComponentAudioPlayer::ComponentAudioPlayer()
     m_BaseType = BaseComponentType_Data;
 
     m_pAudioFile = 0;
+
+    m_ChannelSoundIsPlayingOn = -1;
 }
 
 ComponentAudioPlayer::~ComponentAudioPlayer()
@@ -133,8 +135,11 @@ void* ComponentAudioPlayer::OnValueChanged(ComponentVariable* pVar, int controli
 
 void ComponentAudioPlayer::OnButtonPlaySound()
 {
-    g_pGameCore->m_pSoundPlayer->StopMusic();
-    g_pGameCore->m_pSoundPlayer->PlayMusic( m_pAudioFile->m_FullPath );
+    //g_pGameCore->m_pSoundPlayer->StopMusic();
+    //g_pGameCore->m_pSoundPlayer->PlayMusic( m_pAudioFile->m_FullPath );
+    g_pGameCore->m_pSoundPlayer->StopSound( m_ChannelSoundIsPlayingOn );
+    //m_ChannelSoundIsPlayingOn = g_pGameCore->m_pSoundPlayer->PlaySound( 0 );
+    m_ChannelSoundIsPlayingOn = g_pGameCore->m_pSoundManager->PlayCueByName( "Music" );
 }
 #endif //MYFW_USING_WX
 
