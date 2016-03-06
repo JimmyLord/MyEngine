@@ -44,6 +44,7 @@ enum ComponentVariableTypes
     ComponentVariableType_ComponentPtr,
     ComponentVariableType_FilePtr,
     ComponentVariableType_MaterialPtr,
+    ComponentVariableType_SoundCuePtr,
 
     ComponentVariableType_PointerIndirect,
 

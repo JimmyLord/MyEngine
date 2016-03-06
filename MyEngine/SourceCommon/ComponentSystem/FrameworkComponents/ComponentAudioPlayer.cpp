@@ -25,14 +25,15 @@ ComponentAudioPlayer::ComponentAudioPlayer()
 
     m_BaseType = BaseComponentType_Data;
 
-    m_pAudioFile = 0;
+    m_SoundCueName[0] = 0;
+    m_pSoundCue = 0;
 
     m_ChannelSoundIsPlayingOn = -1;
 }
 
 ComponentAudioPlayer::~ComponentAudioPlayer()
 {
-    SAFE_RELEASE( m_pAudioFile );
+    //SAFE_RELEASE( m_pAudioFile );
 
     MYFW_COMPONENT_VARIABLE_LIST_DESTRUCTOR(); //_VARIABLE_LIST
 }
@@ -43,19 +44,21 @@ void ComponentAudioPlayer::RegisterVariables(CPPListHead* pList, ComponentAudioP
 #if MYFW_IOS || MYFW_OSX || MYFW_NACL
 #pragma GCC diagnostic ignored "-Winvalid-offsetof"
 #endif
-    MyAssert( offsetof( ComponentAudioPlayer, m_pAudioFile ) == MyOffsetOf( pThis, &pThis->m_pAudioFile ) );
+    MyAssert( offsetof( ComponentAudioPlayer, m_pSoundCue ) == MyOffsetOf( pThis, &pThis->m_pSoundCue ) );
 #if MYFW_IOS || MYFW_OSX
 #pragma GCC diagnostic default "-Winvalid-offsetof"
 #endif
 
-    AddVar( pList, "AudioFile", ComponentVariableType_FilePtr, MyOffsetOf( pThis, &pThis->m_pAudioFile ), false, true, 0, (CVarFunc_ValueChanged)&ComponentAudioPlayer::OnValueChanged, (CVarFunc_DropTarget)&ComponentAudioPlayer::OnDrop, 0 );
+    AddVar( pList, "Cue", ComponentVariableType_SoundCuePtr, MyOffsetOf( pThis, &pThis->m_pSoundCue ), false, true, 0, (CVarFunc_ValueChanged)&ComponentAudioPlayer::OnValueChanged, (CVarFunc_DropTarget)&ComponentAudioPlayer::OnDrop, 0 );
 }
 
 void ComponentAudioPlayer::Reset()
 {
     ComponentBase::Reset();
 
-    SAFE_RELEASE( m_pAudioFile );
+    //SAFE_RELEASE( m_pSoundCue );
+    m_SoundCueName[0] = 0;
+    m_pSoundCue = 0;
 
 #if MYFW_USING_WX
     m_pPanelWatchBlockVisible = &m_PanelWatchBlockVisible;
@@ -103,9 +106,12 @@ void* ComponentAudioPlayer::OnDrop(ComponentVariable* pVar, wxCoord x, wxCoord y
 {
     void* oldvalue = 0;
 
-    if( g_DragAndDropStruct.m_Type == DragAndDropType_FileObjectPointer )
+    if( g_DragAndDropStruct.m_Type == DragAndDropType_SoundCuePointer )
     {
-        SetAudioFile( (MyFileObject*)g_DragAndDropStruct.m_Value );
+        SetSoundCue( (SoundCue*)g_DragAndDropStruct.m_Value );
+
+        // update the panel so new sound cue name shows up.
+        g_pPanelWatch->ChangeDescriptionForPointerWithDescription( pVar->m_ControlID, m_SoundCueName );
     }
 
     //if( g_DragAndDropStruct.m_Type == DragAndDropType_ComponentPointer )
@@ -125,9 +131,12 @@ void* ComponentAudioPlayer::OnValueChanged(ComponentVariable* pVar, int controli
 {
     void* oldpointer = 0;
 
-    if( pVar->m_Offset == MyOffsetOf( this, &m_pAudioFile ) )
+    if( pVar->m_Offset == MyOffsetOf( this, &m_pSoundCue ) )
     {
         MyAssert( pVar->m_ControlID != -1 );
+
+        // TODO: read the cue name or null it out
+        //m_SoundCueName[0] = 0;
     }
 
     return oldpointer;
@@ -135,11 +144,14 @@ void* ComponentAudioPlayer::OnValueChanged(ComponentVariable* pVar, int controli
 
 void ComponentAudioPlayer::OnButtonPlaySound()
 {
-    //g_pGameCore->m_pSoundPlayer->StopMusic();
-    //g_pGameCore->m_pSoundPlayer->PlayMusic( m_pAudioFile->m_FullPath );
+    if( m_pSoundCue == 0 && m_SoundCueName[0] != 0 )
+        m_pSoundCue = g_pGameCore->m_pSoundManager->FindCueByName( m_SoundCueName );
+
+    if( m_pSoundCue == 0 )
+        return;
+
     g_pGameCore->m_pSoundPlayer->StopSound( m_ChannelSoundIsPlayingOn );
-    //m_ChannelSoundIsPlayingOn = g_pGameCore->m_pSoundPlayer->PlaySound( 0 );
-    m_ChannelSoundIsPlayingOn = g_pGameCore->m_pSoundManager->PlayCueByName( "Music" );
+    m_ChannelSoundIsPlayingOn = g_pGameCore->m_pSoundManager->PlayCue( m_pSoundCue );
 }
 #endif //MYFW_USING_WX
 
@@ -147,8 +159,15 @@ cJSON* ComponentAudioPlayer::ExportAsJSONObject(bool savesceneid)
 {
     cJSON* jComponent = ComponentBase::ExportAsJSONObject( savesceneid );
 
-    if( m_pAudioFile )
-        cJSON_AddStringToObject( jComponent, "AudioFile", m_pAudioFile->m_FullPath );
+    if( m_pSoundCue )
+    {
+        if( m_pSoundCue )
+        {
+            MyAssert( strcmp( m_SoundCueName, m_pSoundCue->m_Name ) == 0 );
+        }
+
+        cJSON_AddStringToObject( jComponent, "Cue", m_SoundCueName );
+    }
 
     ExportVariablesToJSON( jComponent ); //_VARIABLE_LIST
 
@@ -159,16 +178,11 @@ void ComponentAudioPlayer::ImportFromJSONObject(cJSON* jComponent, unsigned int 
 {
     ComponentBase::ImportFromJSONObject( jComponent, sceneid );
 
-    cJSON* scriptstringobj = cJSON_GetObjectItem( jComponent, "AudioFile" );
+    cJSON* scriptstringobj = cJSON_GetObjectItem( jComponent, "Cue" );
     if( scriptstringobj )
     {
-        MyFileObject* pFile = g_pEngineFileManager->RequestFile( scriptstringobj->valuestring, GetSceneID() );
-        MyAssert( pFile );
-        if( pFile )
-        {
-            SetAudioFile( pFile );
-            pFile->Release(); // free ref added by RequestFile
-        }
+        strcpy_s( m_SoundCueName, MAX_SOUND_CUE_NAME_LEN, scriptstringobj->valuestring );
+        m_pSoundCue = 0;
     }
 
     ImportVariablesFromJSON( jComponent ); //_VARIABLE_LIST
@@ -180,7 +194,7 @@ ComponentAudioPlayer& ComponentAudioPlayer::operator=(const ComponentAudioPlayer
 
     ComponentBase::operator=( other );
 
-    SetAudioFile( other.m_pAudioFile );
+    SetSoundCue( other.m_pSoundCue );
 
     return *this;
 }
@@ -217,10 +231,11 @@ void ComponentAudioPlayer::UnregisterCallbacks()
     }
 }
 
-void ComponentAudioPlayer::SetAudioFile(MyFileObject* pFile)
+void ComponentAudioPlayer::SetSoundCue(SoundCue* pCue)
 {
-    if( pFile )
-        pFile->AddRef();
-    SAFE_RELEASE( m_pAudioFile );
-    m_pAudioFile = pFile;
+    //if( pFile )
+    //    pFile->AddRef();
+    //SAFE_RELEASE( m_pSoundCue );
+    strcpy_s( m_SoundCueName, MAX_SOUND_CUE_NAME_LEN, pCue->m_Name );
+    m_pSoundCue = pCue;
 }

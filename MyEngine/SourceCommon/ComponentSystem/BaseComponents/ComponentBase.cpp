@@ -260,6 +260,18 @@ void ComponentBase::AddVariableToPropertiesWindow(ComponentVariable* pVar)
             }
             break;
 
+        case ComponentVariableType_SoundCuePtr:
+            {
+                SoundCue* pCue = *(SoundCue**)((char*)this + pVar->m_Offset);
+
+                const char* desc = "no sound cue";
+                if( pCue != 0 )
+                    desc = pCue->m_Name;
+
+                pVar->m_ControlID = g_pPanelWatch->AddPointerWithDescription( pVar->m_WatchLabel, pCue, desc, this, ComponentBase::StaticOnDropVariable, ComponentBase::StaticOnValueChangedVariable, ComponentBase::StaticOnRightClick );
+            }
+            break;
+
         case ComponentVariableType_PointerIndirect:
             {
                 void* pPtr = (this->*pVar->m_pGetPointerValueCallBackFunc)( pVar );
@@ -392,6 +404,7 @@ void ComponentBase::ExportVariablesToJSON(cJSON* jComponent)
 
             case ComponentVariableType_FilePtr:
             case ComponentVariableType_MaterialPtr:
+            case ComponentVariableType_SoundCuePtr:
                 MyAssert( false );
                 break;
 
@@ -521,6 +534,7 @@ void ComponentBase::ImportVariablesFromJSON(cJSON* jsonobj, const char* singlela
 
             case ComponentVariableType_FilePtr:
             case ComponentVariableType_MaterialPtr:
+            case ComponentVariableType_SoundCuePtr:
                 MyAssert( false );
                 break;
 
@@ -654,6 +668,7 @@ bool ComponentBase::DoesVariableMatchParent(int controlid, ComponentVariable* pV
             case ComponentVariableType_FilePtr:
             case ComponentVariableType_ComponentPtr:
             case ComponentVariableType_MaterialPtr:
+            case ComponentVariableType_SoundCuePtr:
                 return *(void**)((char*)this + offset) == *(void**)((char*)pOtherComponent + offset);
 
             case ComponentVariableType_PointerIndirect:
@@ -981,6 +996,13 @@ void ComponentBase::CopyValueFromParent(ComponentVariable* pVar)
                 OnDropVariable( pVar->m_ControlID, 0, 0 );
                 break;
 
+            case ComponentVariableType_SoundCuePtr:
+                g_DragAndDropStruct.m_ID = pVar->m_ControlID;
+                g_DragAndDropStruct.m_Type = DragAndDropType_SoundCuePointer;
+                g_DragAndDropStruct.m_Value = *(void**)((char*)pOtherComponent + offset);
+                OnDropVariable( pVar->m_ControlID, 0, 0 );
+                break;
+
             case ComponentVariableType_ComponentPtr:
                 //*(ComponentBase**)((char*)this + offset) = *(ComponentBase**)((char*)pOtherComponent + offset);
                 g_DragAndDropStruct.m_ID = pVar->m_ControlID;
@@ -1276,6 +1298,7 @@ void ComponentBase::UpdateGameObjectWithNewValue(GameObject* pGameObject, bool f
                 case ComponentVariableType_FilePtr:
                 case ComponentVariableType_ComponentPtr:
                 case ComponentVariableType_MaterialPtr:
+                case ComponentVariableType_SoundCuePtr:
                     {
                         if( fromdraganddrop )
                         {

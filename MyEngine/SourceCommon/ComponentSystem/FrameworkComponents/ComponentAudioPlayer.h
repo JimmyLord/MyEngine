@@ -18,7 +18,8 @@ private:
 
 protected:
     // TODO: replace with audio cue system.
-    MyFileObject* m_pAudioFile;
+    char m_SoundCueName[MAX_SOUND_CUE_NAME_LEN];
+    SoundCue* m_pSoundCue;
     int m_ChannelSoundIsPlayingOn;
 
 public:
@@ -41,7 +42,7 @@ public:
     virtual void UnregisterCallbacks();
 
 protected:
-    void SetAudioFile(MyFileObject* pFile);
+    void SetSoundCue(SoundCue* pCue);
 
 protected:
     // Callback functions for various events.
