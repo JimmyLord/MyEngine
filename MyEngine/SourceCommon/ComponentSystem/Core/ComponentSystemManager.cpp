@@ -351,6 +351,12 @@ void ComponentSystemManager::AddListOfFilesUsedToJSONObject(unsigned int sceneid
                 cJSON_AddItemToObject( jFile, "SourcePath", cJSON_CreateString( pFileInfo->m_SourceFileFullPath ) );
             }
         }
+        else
+        {
+            cJSON* jFile = cJSON_CreateObject();
+            cJSON_AddItemToObject( jFile, "Path", cJSON_CreateString( pFileInfo->m_SourceFileFullPath ) );
+            cJSON_AddItemToArray( filearray, jFile );
+        }
     }
 }
 

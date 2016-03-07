@@ -145,7 +145,11 @@ void* ComponentAudioPlayer::OnValueChanged(ComponentVariable* pVar, int controli
 void ComponentAudioPlayer::OnButtonPlaySound()
 {
     if( m_pSoundCue == 0 && m_SoundCueName[0] != 0 )
+    {
         m_pSoundCue = g_pGameCore->m_pSoundManager->FindCueByName( m_SoundCueName );
+        if( m_pSoundCue )
+            g_pPanelWatch->m_NeedsRefresh = true;
+    }
 
     if( m_pSoundCue == 0 )
         return;
@@ -183,6 +187,7 @@ void ComponentAudioPlayer::ImportFromJSONObject(cJSON* jComponent, unsigned int 
     {
         strcpy_s( m_SoundCueName, MAX_SOUND_CUE_NAME_LEN, scriptstringobj->valuestring );
         m_pSoundCue = 0;
+        m_pSoundCue = g_pGameCore->m_pSoundManager->FindCueByName( m_SoundCueName );
     }
 
     ImportVariablesFromJSON( jComponent ); //_VARIABLE_LIST
