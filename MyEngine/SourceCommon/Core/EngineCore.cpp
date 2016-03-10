@@ -605,6 +605,7 @@ void EngineCore::OnModePlay()
     if( m_EditorMode )
     {
         g_pMaterialManager->SaveAllMaterials();
+        m_pSoundManager->SaveAllCues();
         Editor_QuickSaveScene( "temp_editor_onplay.scene" );
         m_EditorMode = false;
         m_Paused = false;
