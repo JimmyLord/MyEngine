@@ -22,6 +22,7 @@ ComponentSystemManager::ComponentSystemManager(ComponentTypeManager* typemanager
 
 #if MYFW_USING_WX
     g_pMaterialManager->RegisterMaterialCreatedCallback( this, StaticOnMaterialCreated );
+    g_pGameCore->m_pSoundManager->RegisterSoundCueCreatedCallback( this, StaticOnSoundCueCreated );
 #endif
 
     m_NextSceneID = 1;
@@ -257,8 +258,21 @@ void ComponentSystemManager::OnMaterialCreated(MaterialDefinition* pMaterial)
     if( pMaterial && pMaterial->m_pFile )
     {
         // Add the material to the file list, so it can be freed on shutdown.
-        AddToFileList( pMaterial->m_pFile, 0, 0, 0, pMaterial, 1 );
+        AddToFileList( pMaterial->m_pFile, 0, 0, 0, pMaterial, 0, 1 );
         pMaterial->m_pFile->AddRef();
+    }
+}
+
+void ComponentSystemManager::OnSoundCueCreated(SoundCue* pSoundCue)
+{
+    MyAssert( pSoundCue );
+
+    // if this material doesn't have a file and it has a name, then save it.
+    if( pSoundCue && pSoundCue->m_pFile )
+    {
+        // Add the material to the file list, so it can be freed on shutdown.
+        AddToFileList( pSoundCue->m_pFile, 0, 0, 0, 0, pSoundCue, 1 );
+        pSoundCue->m_pFile->AddRef();
     }
 }
 #endif //MYFW_USING_WX
@@ -505,16 +519,20 @@ MyFileObject* ComponentSystemManager::GetFileObjectIfUsedByScene(const char* ful
     return 0;
 }
 
-MyFileInfo* ComponentSystemManager::AddToFileList(MyFileObject* pFile, MyMesh* pMesh, ShaderGroup* pShaderGroup, TextureDefinition* pTexture, MaterialDefinition* pMaterial, unsigned int sceneid)
+MyFileInfo* ComponentSystemManager::AddToFileList(MyFileObject* pFile, MyMesh* pMesh, ShaderGroup* pShaderGroup, TextureDefinition* pTexture, MaterialDefinition* pMaterial, SoundCue* pSoundCue, unsigned int sceneid)
 {
     // store pFile so we can free it afterwards.
     MyFileInfo* pFileInfo = MyNew MyFileInfo();
     pFileInfo->m_pFile = pFile;
+
     pFileInfo->m_pMesh = pMesh;
     pFileInfo->m_pShaderGroup = pShaderGroup;
-    pFileInfo->m_pMaterial = pMaterial;
     pFileInfo->m_pTexture = pTexture;
+    pFileInfo->m_pMaterial = pMaterial;
+    pFileInfo->m_pSoundCue = pSoundCue;
+
     pFileInfo->m_SceneID = sceneid;
+
     m_Files.AddTail( pFileInfo );
 
     return pFileInfo;
@@ -553,7 +571,7 @@ MyFileObject* ComponentSystemManager::LoadDataFile(const char* relativepath, uns
 #endif
         
         // store pFile so we can free it afterwards.
-        MyFileInfo* pFileInfo = AddToFileList( pFile, 0, 0, 0, 0, sceneid );
+        MyFileInfo* pFileInfo = AddToFileList( pFile, 0, 0, 0, 0, 0, sceneid );
 
         TextureDefinition* pTexture = 0;
 
@@ -592,6 +610,8 @@ MyFileObject* ComponentSystemManager::LoadDataFile(const char* relativepath, uns
             // Let SoundPlayer (SDL on windows) load the wav files
             SoundCue* pCue = g_pGameCore->m_pSoundManager->CreateCue( "Music" );
             g_pGameCore->m_pSoundManager->AddSoundToCue( pCue, relativepath );
+
+            pFileInfo->m_pSoundCue = pCue;
             strcpy_s( pFileInfo->m_SourceFileFullPath, MAX_PATH, relativepath );
             return 0;
         }
@@ -655,10 +675,16 @@ MyFileObject* ComponentSystemManager::LoadDataFile(const char* relativepath, uns
             }
         }
 
-        // if we're loading an .mymaterial file, create a Material.
+        // if we're loading a .mymaterial file, create a Material.
         if( strcmp( pFile->m_ExtensionWithDot, ".mymaterial" ) == 0 )
         {
             pFileInfo->m_pMaterial = g_pMaterialManager->LoadMaterial( pFile->m_FullPath );
+        }
+
+        // if we're loading a .mycue file, create a Sound Cue.
+        if( strcmp( pFile->m_ExtensionWithDot, ".mycue" ) == 0 )
+        {
+            pFileInfo->m_pSoundCue = g_pGameCore->m_pSoundManager->LoadCue( pFile->m_FullPath );
         }
     }
 

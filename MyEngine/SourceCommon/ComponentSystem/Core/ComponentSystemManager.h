@@ -154,7 +154,7 @@ public:
     char* SaveSceneToJSON(unsigned int sceneid);
     void SaveGameObjectListToJSONArray(cJSON* gameobjectarray, cJSON* transformarray, GameObject* first, bool savesceneid);
     
-    MyFileInfo* AddToFileList(MyFileObject* pFile, MyMesh* pMesh, ShaderGroup* pShaderGroup, TextureDefinition* pTexture, MaterialDefinition* pMaterial, unsigned int sceneid);
+    MyFileInfo* AddToFileList(MyFileObject* pFile, MyMesh* pMesh, ShaderGroup* pShaderGroup, TextureDefinition* pTexture, MaterialDefinition* pMaterial, SoundCue* pSoundCue, unsigned int sceneid);
     MyFileObject* LoadDataFile(const char* relativepath, unsigned int sceneid, const char* fullsourcefilepath, bool convertifrequired);
     MyFileObject* ImportDataFile(unsigned int sceneid, const char* fullsourcefilepath);
     void FreeAllDataFiles(unsigned int sceneidtoclear);
@@ -261,6 +261,9 @@ public:
 
     static void StaticOnMaterialCreated(void* pObjectPtr, MaterialDefinition* pMaterial) { ((ComponentSystemManager*)pObjectPtr)->OnMaterialCreated( pMaterial ); }
     void OnMaterialCreated(MaterialDefinition* pMaterial);
+
+    static void StaticOnSoundCueCreated(void* pObjectPtr, SoundCue* pSoundCue) { ((ComponentSystemManager*)pObjectPtr)->OnSoundCueCreated( pSoundCue ); }
+    void OnSoundCueCreated(SoundCue* pSoundCue);
 #endif //MYFW_USING_WX
 };
 
@@ -276,6 +279,7 @@ public:
     ShaderGroup* m_pShaderGroup; // a shadergroup may have been created alongside the file.
     TextureDefinition* m_pTexture; //a texture may have been created alongside the file.
     MaterialDefinition* m_pMaterial; //a material may have been created alongside the file.
+    SoundCue* m_pSoundCue; //a sound cue may have been created alongside the file.
 
     bool m_DidInitialCheckIfSourceFileWasUpdated;
 
@@ -290,6 +294,7 @@ public:
         m_pShaderGroup = 0;
         m_pTexture = 0;
         m_pMaterial = 0;
+        m_pSoundCue = 0;
 
         m_DidInitialCheckIfSourceFileWasUpdated = false;
     }
@@ -303,6 +308,7 @@ public:
         SAFE_RELEASE( m_pShaderGroup );
         SAFE_RELEASE( m_pTexture );
         SAFE_RELEASE( m_pMaterial );
+        SAFE_RELEASE( m_pSoundCue );
     }
 };
 
