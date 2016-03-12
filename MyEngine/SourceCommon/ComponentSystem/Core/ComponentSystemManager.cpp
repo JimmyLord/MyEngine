@@ -609,10 +609,13 @@ MyFileObject* ComponentSystemManager::LoadDataFile(const char* relativepath, uns
         {
             // Let SoundPlayer (SDL on windows) load the wav files
             SoundCue* pCue = g_pGameCore->m_pSoundManager->CreateCue( "Music" );
+            pCue->SaveSoundCue( 0 );
             g_pGameCore->m_pSoundManager->AddSoundToCue( pCue, relativepath );
 
             pFileInfo->m_pSoundCue = pCue;
-            strcpy_s( pFileInfo->m_SourceFileFullPath, MAX_PATH, relativepath );
+            pFileInfo->m_pFile = pCue->m_pFile;
+            pFileInfo->m_pFile->AddRef();
+            //strcpy_s( pFileInfo->m_SourceFileFullPath, MAX_PATH, relativepath );
             return 0;
         }
         else
