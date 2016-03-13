@@ -92,6 +92,12 @@ void ComponentAudioPlayer::FillPropertiesWindow(bool clear, bool addcomponentvar
 {
     m_ControlID_ComponentTitleLabel = g_pPanelWatch->AddSpace( "Audio Player", this, ComponentBase::StaticOnComponentTitleLabelClicked );
 
+    // check for the sound cue if it's null, it might not have be set on initial load.
+    if( m_pSoundCue == 0 && m_SoundCueName[0] != 0 )
+    {
+        m_pSoundCue = g_pGameCore->m_pSoundManager->FindCueByName( m_SoundCueName );
+    }
+
     if( m_PanelWatchBlockVisible || ignoreblockvisibleflag == true )
     {
         ComponentBase::FillPropertiesWindow( clear );

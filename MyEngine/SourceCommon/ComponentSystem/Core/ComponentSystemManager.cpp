@@ -607,6 +607,10 @@ MyFileObject* ComponentSystemManager::LoadDataFile(const char* relativepath, uns
         }
         else if( rellen > 4 && strcmp( &relativepath[rellen-4], ".wav" ) == 0 )
         {
+#if !MYFW_USING_WX
+            // raw wav's shouldn't be loadable in standalone builds, scenes should only reference sound cues
+            MyAssert( false );
+#else
             // Let SoundPlayer (SDL on windows) load the wav files
             SoundCue* pCue = g_pGameCore->m_pSoundManager->CreateCue( "Music" );
             pCue->SaveSoundCue( 0 );
@@ -616,6 +620,7 @@ MyFileObject* ComponentSystemManager::LoadDataFile(const char* relativepath, uns
             pFileInfo->m_pFile = pCue->m_pFile;
             pFileInfo->m_pFile->AddRef();
             //strcpy_s( pFileInfo->m_SourceFileFullPath, MAX_PATH, relativepath );
+#endif //!MYFW_USING_WX
             return 0;
         }
         else
