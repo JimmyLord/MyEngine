@@ -160,6 +160,7 @@ public:
     void FreeAllDataFiles(unsigned int sceneidtoclear);
 
     void LoadSceneFromJSON(const char* scenename, const char* jsonstr, unsigned int sceneid);
+    ComponentBase* CreateComponentFromJSONObject(GameObject* pGameObject, cJSON* jComponent);
     void FinishLoading(bool lockwhileloading, unsigned int sceneid, bool playwhenfinishedloading);
 
     void SyncAllRigidBodiesToObjectTransforms();
@@ -170,6 +171,7 @@ public:
     bool IsSceneLoaded(const char* fullpath);
 
     GameObject* CreateGameObject(bool manageobject = true, int sceneid = 0, bool isfolder = false);
+    GameObject* CreateGameObjectFromTemplate(unsigned int templateid, int sceneid);
     void UnmanageGameObject(GameObject* pObject);
     void ManageGameObject(GameObject* pObject);
     void DeleteGameObject(GameObject* pObject, bool deletecomponents);

@@ -921,32 +921,7 @@ void ComponentSystemManager::LoadSceneFromJSON(const char* scenename, const char
         GameObject* pGameObject = FindGameObjectByID( sceneid, id );
         MyAssert( pGameObject );
 
-        cJSON* typeobj = cJSON_GetObjectItem( componentobj, "Type" );
-        MyAssert( typeobj );
-        int type = -1;
-        if( typeobj )
-            type = g_pComponentTypeManager->GetTypeByName( typeobj->valuestring );
-
-        if( type == -1 )
-        {
-            LOGError( LOGTag, "Unknown component in scene file: %s\n", typeobj->valuestring );
-            MyAssert( false );
-        }
-        else
-        {
-            unsigned int id;
-            cJSONExt_GetUnsignedInt( componentobj, "ID", &id );
-
-            ComponentBase* pComponent = FindComponentByID( id, sceneid );
-            if( pComponent ) { MyAssert( pComponent->GetSceneID() == sceneid ); }
-    
-            if( pComponent == 0 )
-                pComponent = pGameObject->AddNewComponent( type, sceneid );
-
-            pComponent->SetID( id );
-            if( id >= m_pSceneInfoMap[sceneid].m_NextComponentID )
-                m_pSceneInfoMap[sceneid].m_NextComponentID = id + 1;
-        }
+        CreateComponentFromJSONObject( pGameObject, componentobj );
     }
 
     // load all the components properties, to ensure components are already loaded
@@ -972,6 +947,62 @@ void ComponentSystemManager::LoadSceneFromJSON(const char* scenename, const char
     cJSON_Delete( root );
 
     SyncAllRigidBodiesToObjectTransforms();
+}
+
+ComponentBase* ComponentSystemManager::CreateComponentFromJSONObject(GameObject* pGameObject, cJSON* jComponent)
+{
+    unsigned int sceneid = pGameObject->GetSceneID();
+
+    cJSON* typeobj = cJSON_GetObjectItem( jComponent, "Type" );
+    MyAssert( typeobj );
+    int type = -1;
+    if( typeobj )
+        type = g_pComponentTypeManager->GetTypeByName( typeobj->valuestring );
+
+    if( type == -1 )
+    {
+        LOGError( LOGTag, "Unknown component in scene file: %s\n", typeobj->valuestring );
+        MyAssert( false );
+    }
+    else
+    {
+        ComponentBase* pComponent = 0;
+
+        // if the JSON block has a component id, check if that component already exists
+        unsigned int id = 0;
+        {
+            cJSONExt_GetUnsignedInt( jComponent, "ID", &id );
+
+            if( id != 0 )
+            {
+                pComponent = FindComponentByID( id, sceneid );
+                if( pComponent )
+                {
+                    MyAssert( pComponent->GetSceneID() == sceneid );
+
+                    if( id >= m_pSceneInfoMap[sceneid].m_NextComponentID )
+                        m_pSceneInfoMap[sceneid].m_NextComponentID = id + 1;
+
+                    return pComponent;
+                }
+            }
+        }
+
+        // Create a new component of this type on the game object.
+        pComponent = pGameObject->AddNewComponent( type, sceneid );
+
+        // If this component had an id set in the scene file, then use it.
+        if( id != 0 )
+        {
+            pComponent->SetID( id );
+            if( id >= m_pSceneInfoMap[sceneid].m_NextComponentID )
+                m_pSceneInfoMap[sceneid].m_NextComponentID = id + 1;
+        }
+
+        return pComponent;
+    }
+
+    return 0;
 }
 
 void ComponentSystemManager::FinishLoading(bool lockwhileloading, unsigned int sceneid, bool playwhenfinishedloading)
@@ -1219,6 +1250,45 @@ GameObject* ComponentSystemManager::CreateGameObject(bool manageobject, int scen
     }
 
     return pGameObject;
+}
+
+GameObject* ComponentSystemManager::CreateGameObjectFromTemplate(unsigned int templateid, int sceneid)
+{
+    if( templateid == 0 )
+    {
+        GameObject* pGameObject = CreateGameObject( true, sceneid, false );
+        pGameObject->SetName( "new object" );
+
+        const char TemplateJSONStr[] = "\
+{\
+\"Components\":	[{\
+\"Type\":	\"Audio Player\",\
+\"Cue\":	\"Music\"\
+}]\
+}";
+        cJSON* jRoot = cJSON_Parse( TemplateJSONStr );
+        
+        cJSON* jComponentArray = cJSON_GetObjectItem( jRoot, "Components" );
+        int arraysize = cJSON_GetArraySize( jComponentArray );
+
+        for( int i=0; i<arraysize; i++ )
+        {
+            cJSON* jComponent = cJSON_GetArrayItem( jComponentArray, i );
+
+            ComponentBase* pComponent = CreateComponentFromJSONObject( pGameObject, jComponent );
+            MyAssert( pComponent );
+            if( pComponent )
+            {
+                pComponent->ImportFromJSONObject( jComponent, sceneid );
+            }
+        }
+
+        cJSON_Delete( jRoot );
+
+        return pGameObject;
+    }
+
+    return 0;
 }
 
 void ComponentSystemManager::UnmanageGameObject(GameObject* pObject)

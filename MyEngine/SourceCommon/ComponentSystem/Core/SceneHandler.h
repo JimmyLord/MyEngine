@@ -71,8 +71,11 @@ public:
     enum RightClickOptions
     {
         RightClick_UnloadScene = 1000,
-        RightClick_AddGameObject = 1001,
-        RightClick_AddFolder = 1002,
+        RightClick_AddGameObject,
+        RightClick_AddFolder,
+
+        RightClick_AddGameObjectFromTemplate = 10000,
+        // all higher values reserved for different templates.
     };
 
     // Object panel callbacks.
