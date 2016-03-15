@@ -11,6 +11,7 @@
 #define __ComponentSystemManager_H__
 
 class ComponentSystemManager;
+class GameObjectTemplateManager;
 class SceneHandler;
 class GameObject;
 class ComponentBase;
@@ -240,6 +241,8 @@ public:
     wxTreeItemId GetTreeIDForScene(int sceneid);
     unsigned int GetSceneIDFromSceneTreeID(wxTreeItemId treeid);
     //std::map<int, SceneInfo> m_pSceneInfoMap;
+
+    GameObjectTemplateManager* m_pGameObjectTemplateManager;
 //#else
 #endif
     SceneInfo m_pSceneInfoMap[MAX_SCENES_LOADED];

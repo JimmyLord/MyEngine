@@ -18,6 +18,7 @@ ComponentSystemManager::ComponentSystemManager(ComponentTypeManager* typemanager
     m_pComponentTypeManager = typemanager;
 #if MYFW_USING_WX
     m_pSceneHandler = MyNew SceneHandler();
+    m_pGameObjectTemplateManager = MyNew GameObjectTemplateManager();
 #endif
 
 #if MYFW_USING_WX
@@ -109,6 +110,7 @@ ComponentSystemManager::~ComponentSystemManager()
 
 #if MYFW_USING_WX
     SAFE_DELETE( m_pSceneHandler );
+    SAFE_DELETE( m_pGameObjectTemplateManager );
 #endif
     SAFE_DELETE( m_pComponentTypeManager );
 
@@ -1259,16 +1261,9 @@ GameObject* ComponentSystemManager::CreateGameObjectFromTemplate(unsigned int te
         GameObject* pGameObject = CreateGameObject( true, sceneid, false );
         pGameObject->SetName( "new object" );
 
-        const char TemplateJSONStr[] = "\
-{\
-\"Components\":	[{\
-\"Type\":	\"Audio Player\",\
-\"Cue\":	\"Music\"\
-}]\
-}";
-        cJSON* jRoot = cJSON_Parse( TemplateJSONStr );
-        
-        cJSON* jComponentArray = cJSON_GetObjectItem( jRoot, "Components" );
+        cJSON* jTemplate = m_pGameObjectTemplateManager->GetTemplateJSONObject( templateid );
+
+        cJSON* jComponentArray = cJSON_GetObjectItem( jTemplate, "Components" );
         int arraysize = cJSON_GetArraySize( jComponentArray );
 
         for( int i=0; i<arraysize; i++ )
@@ -1283,7 +1278,7 @@ GameObject* ComponentSystemManager::CreateGameObjectFromTemplate(unsigned int te
             }
         }
 
-        cJSON_Delete( jRoot );
+        // Don't delete jTemplate
 
         return pGameObject;
     }
@@ -1981,6 +1976,8 @@ unsigned int ComponentSystemManager::GetSceneIDFromSceneTreeID(wxTreeItemId tree
 //    MyAssert( m_pSceneInfoMap[sceneid].m_InUse == true );
 //    return &m_pSceneInfoMap[sceneid];
 //}
+
+//void ComponentSystemManager::m_pGameObjectTemplateManager
 
 void ComponentSystemManager::DrawSingleObject(MyMatrix* pMatViewProj, GameObject* pObject, ShaderGroup* pShaderOverride)
 {

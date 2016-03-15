@@ -381,6 +381,9 @@
     <ClCompile Include="SourceCommon\ComponentSystem\FrameworkComponents\ComponentAudioPlayer.cpp">
       <Filter>Source\ComponentSystem\Framework Components</Filter>
     </ClCompile>
+    <ClCompile Include="SourceCommon\Editor\GameObjectTemplateManager.cpp">
+      <Filter>Source\Editor</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SourceCommon\Camera\Camera3D.h">
@@ -700,6 +703,9 @@
     </ClInclude>
     <ClInclude Include="SourceCommon\ComponentSystem\FrameworkComponents\ComponentAudioPlayer.h">
       <Filter>Source\ComponentSystem\Framework Components</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCommon\Editor\GameObjectTemplateManager.h">
+      <Filter>Source\Editor</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
