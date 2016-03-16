@@ -1256,7 +1256,7 @@ GameObject* ComponentSystemManager::CreateGameObject(bool manageobject, int scen
 
 GameObject* ComponentSystemManager::CreateGameObjectFromTemplate(unsigned int templateid, int sceneid)
 {
-    if( templateid == 0 )
+    //if( templateid == 0 )
     {
         GameObject* pGameObject = CreateGameObject( true, sceneid, false );
         pGameObject->SetName( "new object" );

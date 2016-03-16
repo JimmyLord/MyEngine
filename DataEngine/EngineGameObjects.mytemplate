@@ -1,0 +1,29 @@
+{
+	"Templates":	[{
+			"Name":	"Audio Player",
+			"Components":	[{
+					"Type":	"Audio Player",
+					"Cue":	"Music"
+				}]
+		}, {
+			"Name":	"2D Physics Sprite",
+			"Components":	[{
+					"Type":	"2D Collision Object",
+					"PrimitiveType":	"Box",
+					"Static":	0,
+					"Density":	1,
+					"IsSensor":	0,
+					"Friction":	0.200000,
+					"Restitution":	0
+				}, {
+					"Type":	"Sprite",
+					"GOID":	4,
+					"ID":	8,
+					"Visible":	1,
+					"Layers":	1,
+					"Tint":	[255, 255, 255, 255],
+					"Size":	[1, 1],
+					"Material":	"Data/Materials/Colors/Color-Green.mymaterial"
+				}]
+		}]
+}

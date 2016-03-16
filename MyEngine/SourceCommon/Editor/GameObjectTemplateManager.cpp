@@ -11,26 +11,21 @@
 
 GameObjectTemplateManager::GameObjectTemplateManager()
 {
-    char* m_TemplateStrings1 = "{\"Components\":	[{\"Type\":	\"Audio Player\",\"Cue\":	\"Music\"}]}";
-    char* m_TemplateStrings2 = "{\"Components\":	[{\"Type\":	\"Audio Player\",\"Cue\":	\"Music\"}]}";
+    char* filestring = PlatformSpecific_LoadFile( "DataEngine/EngineGameObjects.mytemplate", 0 );
 
-    m_pTemplatesJSON = cJSON_CreateArray();
+    m_jTemplatesRoot = cJSON_Parse( filestring );
 
-    cJSON* jTemplate1 = cJSON_Parse( m_TemplateStrings1 );
-    cJSON_AddItemToArray( m_pTemplatesJSON, jTemplate1 );
-
-    cJSON* jTemplate2 = cJSON_Parse( m_TemplateStrings2 );
-    cJSON_AddItemToArray( m_pTemplatesJSON, jTemplate2 );
+    m_jTemplatesArray = cJSON_GetObjectItem( m_jTemplatesRoot, "Templates" );
 }
 
 GameObjectTemplateManager::~GameObjectTemplateManager()
 {
-    cJSON_Delete( m_pTemplatesJSON );
+    cJSON_Delete( m_jTemplatesRoot );
 }
 
 cJSON* GameObjectTemplateManager::GetTemplateJSONObject(unsigned int templateid)
 {
-    cJSON* jTemplate = cJSON_GetArrayItem( m_pTemplatesJSON, templateid );
+    cJSON* jTemplate = cJSON_GetArrayItem( m_jTemplatesArray, templateid );
     
     return jTemplate;
 }

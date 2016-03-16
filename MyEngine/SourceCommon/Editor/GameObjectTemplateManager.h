@@ -13,7 +13,8 @@
 class GameObjectTemplateManager
 {
 protected:
-    cJSON* m_pTemplatesJSON;
+    cJSON* m_jTemplatesRoot;
+    cJSON* m_jTemplatesArray;
 
 public:
     GameObjectTemplateManager();

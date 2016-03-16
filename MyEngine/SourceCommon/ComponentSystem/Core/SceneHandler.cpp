@@ -54,16 +54,21 @@ void SceneHandler::OnRightClick(wxTreeItemId treeid)
     m_SceneIDBeingAffected = g_pComponentSystemManager->GetSceneIDFromSceneTreeID( treeid );
     
     menu.Append( RightClick_AddGameObject, "Add Game Object" );
-    menu.Connect( wxEVT_COMMAND_MENU_SELECTED, (wxObjectEventFunction)&SceneHandler::OnPopupClick );
 
-    menu.Append( RightClick_AddGameObjectFromTemplate, "Add Game Object From Template" );
- 	menu.Connect( wxEVT_COMMAND_MENU_SELECTED, (wxObjectEventFunction)&SceneHandler::OnPopupClick );
+    wxMenu* templatesmenu = MyNew wxMenu;
+    menu.AppendSubMenu( templatesmenu, "Templates" );
+
+    //unsigned int numtypes = 2;
+    //for( unsigned int i=0; i<numtypes; i++ )
+    {
+        templatesmenu->Append( RightClick_AddGameObjectFromTemplate + 0, "type 1" );
+        templatesmenu->Append( RightClick_AddGameObjectFromTemplate + 1, "type 2" );
+    }
 
     menu.Append( RightClick_AddFolder, "Add Folder" );
-    menu.Connect( wxEVT_COMMAND_MENU_SELECTED, (wxObjectEventFunction)&SceneHandler::OnPopupClick );
-
     menu.Append( RightClick_UnloadScene, "Unload scene" );
- 	menu.Connect( wxEVT_COMMAND_MENU_SELECTED, (wxObjectEventFunction)&SceneHandler::OnPopupClick );
+
+    menu.Connect( wxEVT_COMMAND_MENU_SELECTED, (wxObjectEventFunction)&SceneHandler::OnPopupClick );
 
     // blocking call.
     g_pPanelWatch->PopupMenu( &menu ); // there's no reason this is using g_pPanelWatch other than convenience.
