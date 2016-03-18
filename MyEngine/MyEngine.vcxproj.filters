@@ -88,6 +88,9 @@
     <Filter Include="Source\Editor\Interfaces">
       <UniqueIdentifier>{b2675a48-2ea1-48e2-9485-6fa399f712ab}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Editor\Exporters">
+      <UniqueIdentifier>{02837739-8d7a-47e0-9809-10810feb1f20}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="SourceCommon\Camera\Camera3D.cpp">
@@ -383,6 +386,9 @@
     </ClCompile>
     <ClCompile Include="SourceCommon\Editor\GameObjectTemplateManager.cpp">
       <Filter>Source\Editor</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCommon\Editor\Exporters\ExportBox2DScene.cpp">
+      <Filter>Source\Editor\Exporters</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -706,6 +712,9 @@
     </ClInclude>
     <ClInclude Include="SourceCommon\Editor\GameObjectTemplateManager.h">
       <Filter>Source\Editor</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCommon\Editor\Exporters\ExportBox2DScene.h">
+      <Filter>Source\Editor\Exporters</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

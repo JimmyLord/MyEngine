@@ -31,6 +31,7 @@ enum EngineMenuIDs
     myIDEngine_LoadAdditionalScene,
     myIDEngine_SaveScene,
     myIDEngine_SaveSceneAs,
+    myIDEngine_ExportBox2DScene,
     myIDEngine_AddDatafile,
     myIDEngine_Grid_SnapOnOff,
     myIDEngine_Grid_Settings,
@@ -125,6 +126,7 @@ public:
 
     void SaveScene();
     void SaveSceneAs(unsigned int sceneid);
+    void ExportBox2DScene(unsigned int sceneid);
     void LoadSceneDialog(bool unloadscenes);
     void LoadScene(const char* scenename, bool unloadscenes);
 

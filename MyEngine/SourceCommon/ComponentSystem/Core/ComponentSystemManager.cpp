@@ -9,6 +9,10 @@
 
 #include "EngineCommonHeader.h"
 
+#if MYFW_USING_WX
+#include "Editor/Exporters/ExportBox2DScene.h"
+#endif //MYFW_USING_WX
+
 ComponentSystemManager* g_pComponentSystemManager = 0;
 
 ComponentSystemManager::ComponentSystemManager(ComponentTypeManager* typemanager)
@@ -464,6 +468,11 @@ char* ComponentSystemManager::SaveSceneToJSON(unsigned int sceneid)
     cJSON_Delete(root);
 
     return savestring;
+}
+
+char* ComponentSystemManager::ExportBox2DSceneToJSON(unsigned int sceneid)
+{
+    return ::ExportBox2DSceneToJSON( this, sceneid );
 }
 
 void ComponentSystemManager::SaveGameObjectListToJSONArray(cJSON* gameobjectarray, cJSON* transformarray, GameObject* first, bool savesceneid)

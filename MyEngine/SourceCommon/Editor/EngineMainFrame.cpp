@@ -188,6 +188,10 @@ void EngineMainFrame::InitFrame()
     m_File->Insert( 4, myIDEngine_SaveScene, wxT("&Save Scene\tCtrl-S") );
     m_File->Insert( 5, myIDEngine_SaveSceneAs, wxT("Save Scene &As...") );
 
+    wxMenu* menuexport = MyNew wxMenu;
+    m_File->Insert( 6, -1, "E&xport", menuexport );
+    menuexport->Append( myIDEngine_ExportBox2DScene, wxT("Box2D Scene...") );
+
     m_Grid = MyNew wxMenu;
     m_MenuBar->Append( m_Grid, wxT("&Grid") );
     m_MenuItem_GridSnapEnabled = m_Grid->AppendCheckItem( myIDEngine_Grid_SnapOnOff, wxT("Grid Snap &On/Off\tCtrl-G") );
@@ -220,22 +224,20 @@ void EngineMainFrame::InitFrame()
     m_Hackery_Record_StackDepth = -1;
 
     // Override these menu options from the main frame,
-    Connect( myID_View_SavePerspective, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );
-    Connect( myID_View_LoadPerspective, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );
-    Connect( myID_View_ResetPerspective, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );
+    //Connect( myID_View_SavePerspective, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );
+    //Connect( myID_View_LoadPerspective, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );
+    //Connect( myID_View_ResetPerspective, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );
 
     m_EditorPerspectives = MyNew wxMenu;
     for( int i=0; i<Perspective_NumPerspectives; i++ )
     {
         m_EditorPerspectiveOptions[i] = m_EditorPerspectives->AppendCheckItem( myIDEngine_View_EditorPerspective + i, g_DefaultPerspectiveMenuLabels[i], wxEmptyString );
-        Connect( myIDEngine_View_EditorPerspective + i, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );
     }
 
     m_GameplayPerspectives = MyNew wxMenu;
     for( int i=0; i<Perspective_NumPerspectives; i++ )
     {
         m_GameplayPerspectiveOptions[i] = m_GameplayPerspectives->AppendCheckItem( myIDEngine_View_GameplayPerspective + i, g_DefaultPerspectiveMenuLabels[i], wxEmptyString );
-        Connect( myIDEngine_View_GameplayPerspective + i, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );
     }
 
     m_EditorPerspectiveOptions[0]->Check();
@@ -246,33 +248,7 @@ void EngineMainFrame::InitFrame()
 
     m_MenuItem_ShowEditorIcons = m_View->AppendCheckItem( myIDEngine_View_ShowEditorIcons, wxT("Show &Editor Icons\tShift-F7") );
 
-    Connect( myIDEngine_NewScene,     wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );
-    Connect( myIDEngine_LoadScene,    wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );
-    Connect( myIDEngine_CreateAdditionalScene,  wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );
-    Connect( myIDEngine_LoadAdditionalScene,    wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );
-    Connect( myIDEngine_SaveScene,    wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );
-    Connect( myIDEngine_SaveSceneAs,  wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );
-
-    Connect( myIDEngine_AddDatafile,  wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );
-
-    Connect( myIDEngine_Grid_SnapOnOff, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );
-    Connect( myIDEngine_Grid_Settings,  wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );
-
-    Connect( myIDEngine_Mode_PlayStop,       wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );
-    Connect( myIDEngine_Mode_Pause,          wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );
-    Connect( myIDEngine_Mode_Advance1Frame,  wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );
-    Connect( myIDEngine_Mode_Advance1Second, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );
-    //Connect( myIDEngine_Mode_Stop,           wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );
-
-    Connect( myIDEngine_RecordMacro,  wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );
-    Connect( myIDEngine_ExecuteMacro, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );
-
-    Connect( myIDEngine_View_ShowEditorIcons, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );
-
-    Connect( myIDEngine_DebugShowMousePickerFBO,       wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );
-    Connect( myIDEngine_DebugShowSelectedAnimatedMesh, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );
-    Connect( myIDEngine_DebugShowGLStats,              wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );
-    Connect( myIDEngine_DebugShowPhysicsShapes,        wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );    
+    Connect( wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );
 
     if( m_pEditorPrefs )
     {
@@ -593,6 +569,10 @@ void EngineMainFrame::OnMenu_Engine(wxCommandEvent& event)
         SaveSceneAs( 1 );
         break;
 
+    case myIDEngine_ExportBox2DScene:
+        ExportBox2DScene( 1 );
+        break;
+
     case myIDEngine_AddDatafile:
         AddDatafileToScene();
         break;
@@ -884,6 +864,18 @@ void EngineMainFrame::SaveSceneAs(unsigned int sceneid)
     g_pEngineCore->SaveScene( g_pComponentSystemManager->GetSceneInfo( sceneid )->m_FullPath, sceneid );
 
     this->SetTitle( g_pComponentSystemManager->GetSceneInfo( sceneid )->m_FullPath );
+}
+
+void EngineMainFrame::ExportBox2DScene(unsigned int sceneid)
+{
+    wxFileDialog FileDialog( this, _("Export Box2D Scene file"), "", "", "Box2D Scene files (*.box2dscene)|*.box2dscene", wxFD_SAVE|wxFD_OVERWRITE_PROMPT);
+    
+    if( FileDialog.ShowModal() == wxID_CANCEL )
+        return;
+    
+    wxString wxpath = FileDialog.GetPath();
+
+    g_pEngineCore->ExportBox2DScene( wxpath, sceneid );
 }
 
 void EngineMainFrame::LoadSceneDialog(bool unloadscenes)

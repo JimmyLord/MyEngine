@@ -166,6 +166,7 @@ public:
     void RequestScene(const char* fullpath);
     RequestedSceneInfo* RequestSceneInternal(const char* fullpath);
     void SaveScene(const char* fullpath, unsigned int sceneid);
+    void ExportBox2DScene(const char* fullpath, unsigned int sceneid);
     void UnloadScene(unsigned int sceneid, bool cleareditorobjects);
 #if MYFW_USING_WX
     unsigned int LoadSceneFromFile(const char* fullpath);

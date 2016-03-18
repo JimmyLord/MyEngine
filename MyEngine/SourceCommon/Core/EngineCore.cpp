@@ -908,6 +908,25 @@ void EngineCore::SaveScene(const char* fullpath, unsigned int sceneid)
     cJSONExt_free( savestring );
 }
 
+void EngineCore::ExportBox2DScene(const char* fullpath, unsigned int sceneid)
+{
+    char* savestring = g_pComponentSystemManager->ExportBox2DSceneToJSON( sceneid );
+
+    FILE* filehandle;
+#if MYFW_WINDOWS
+    errno_t error = fopen_s( &filehandle, fullpath, "w" );
+#else
+    filehandle = fopen( fullpath, "w" );
+#endif
+    if( filehandle )
+    {
+        fprintf( filehandle, "%s", savestring );
+        fclose( filehandle );
+    }
+
+    cJSONExt_free( savestring );
+}
+
 void EngineCore::UnloadScene(unsigned int sceneid, bool cleareditorobjects)
 {
     m_pLuaGameState->Rebuild(); // reset the lua state.

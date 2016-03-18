@@ -153,6 +153,7 @@ public:
     void MoveAllFilesNeededForLoadingScreenToStartOfFileList(GameObject* first);
     void AddListOfFilesUsedToJSONObject(unsigned int sceneid, cJSON* filearray);
     char* SaveSceneToJSON(unsigned int sceneid);
+    char* ExportBox2DSceneToJSON(unsigned int sceneid);
     void SaveGameObjectListToJSONArray(cJSON* gameobjectarray, cJSON* transformarray, GameObject* first, bool savesceneid);
     
     MyFileInfo* AddToFileList(MyFileObject* pFile, MyMesh* pMesh, ShaderGroup* pShaderGroup, TextureDefinition* pTexture, MaterialDefinition* pMaterial, SoundCue* pSoundCue, unsigned int sceneid);

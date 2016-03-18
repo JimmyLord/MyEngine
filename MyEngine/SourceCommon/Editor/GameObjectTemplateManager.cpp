@@ -16,6 +16,8 @@ GameObjectTemplateManager::GameObjectTemplateManager()
     m_jTemplatesRoot = cJSON_Parse( filestring );
 
     m_jTemplatesArray = cJSON_GetObjectItem( m_jTemplatesRoot, "Templates" );
+
+    delete[] filestring;
 }
 
 GameObjectTemplateManager::~GameObjectTemplateManager()
