@@ -29,3 +29,16 @@ cJSON* GameObjectTemplateManager::GetTemplateJSONObject(unsigned int templateid)
     
     return jTemplate;
 }
+
+unsigned int GameObjectTemplateManager::GetNumberOfTemplates()
+{
+    return (unsigned int)cJSON_GetArraySize( m_jTemplatesArray );
+}
+
+const char* GameObjectTemplateManager::GetTemplateName(unsigned int templateid)
+{
+    cJSON* jTemplate = cJSON_GetArrayItem( m_jTemplatesArray, templateid );
+
+    cJSON* jName = cJSON_GetObjectItem( jTemplate, "Name" );
+    return jName->valuestring;
+}

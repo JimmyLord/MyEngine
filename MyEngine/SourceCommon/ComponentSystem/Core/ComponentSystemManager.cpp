@@ -1256,13 +1256,17 @@ GameObject* ComponentSystemManager::CreateGameObject(bool manageobject, int scen
 
 GameObject* ComponentSystemManager::CreateGameObjectFromTemplate(unsigned int templateid, int sceneid)
 {
-    //if( templateid == 0 )
+    MyAssert( templateid < m_pGameObjectTemplateManager->GetNumberOfTemplates() );
+
+    GameObject* pGameObject = CreateGameObject( true, sceneid, false );
+    
+    const char* templatename = m_pGameObjectTemplateManager->GetTemplateName( templateid );
+    pGameObject->SetName( templatename );
+
+    cJSON* jTemplate = m_pGameObjectTemplateManager->GetTemplateJSONObject( templateid );
+
+    if( jTemplate )
     {
-        GameObject* pGameObject = CreateGameObject( true, sceneid, false );
-        pGameObject->SetName( "new object" );
-
-        cJSON* jTemplate = m_pGameObjectTemplateManager->GetTemplateJSONObject( templateid );
-
         cJSON* jComponentArray = cJSON_GetObjectItem( jTemplate, "Components" );
         int arraysize = cJSON_GetArraySize( jComponentArray );
 
@@ -1277,13 +1281,11 @@ GameObject* ComponentSystemManager::CreateGameObjectFromTemplate(unsigned int te
                 pComponent->ImportFromJSONObject( jComponent, sceneid );
             }
         }
-
-        // Don't delete jTemplate
-
-        return pGameObject;
     }
 
-    return 0;
+    // Don't delete jTemplate
+
+    return pGameObject;
 }
 
 void ComponentSystemManager::UnmanageGameObject(GameObject* pObject)

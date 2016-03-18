@@ -58,11 +58,11 @@ void SceneHandler::OnRightClick(wxTreeItemId treeid)
     wxMenu* templatesmenu = MyNew wxMenu;
     menu.AppendSubMenu( templatesmenu, "Templates" );
 
-    //unsigned int numtypes = 2;
-    //for( unsigned int i=0; i<numtypes; i++ )
+    unsigned int numtypes = 2;
+    for( unsigned int i=0; i<g_pComponentSystemManager->m_pGameObjectTemplateManager->GetNumberOfTemplates(); i++ )
     {
-        templatesmenu->Append( RightClick_AddGameObjectFromTemplate + 0, "type 1" );
-        templatesmenu->Append( RightClick_AddGameObjectFromTemplate + 1, "type 2" );
+        const char* name = g_pComponentSystemManager->m_pGameObjectTemplateManager->GetTemplateName( i );
+        templatesmenu->Append( RightClick_AddGameObjectFromTemplate + i, name );
     }
 
     menu.Append( RightClick_AddFolder, "Add Folder" );

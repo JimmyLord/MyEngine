@@ -21,6 +21,9 @@ public:
     virtual ~GameObjectTemplateManager();
 
     cJSON* GetTemplateJSONObject(unsigned int templateid);
+
+    unsigned int GetNumberOfTemplates();
+    const char* GetTemplateName(unsigned int templateid);
 };
 
 #endif //__GameObjectTemplateManager_H__
