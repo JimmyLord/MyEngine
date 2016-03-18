@@ -324,8 +324,8 @@ void ComponentTransform::ImportFromJSONObject(cJSON* jsonobj, unsigned int scene
     {
         m_pGameObject->SetParentGameObject( m_pParentGameObject );
         m_WorldTransformIsDirty = true;
-        m_LocalTransformIsDirty = true;
     }
+    m_LocalTransformIsDirty = true;
 
     // load all the registered variables.
     ComponentBase::ImportFromJSONObject( jsonobj, sceneid );
