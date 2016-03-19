@@ -200,58 +200,38 @@ bool EditorInterface::HandleInputForEditorCamera(int keyaction, int keycode, int
             //    }
             //}
         }
-        // if left or right mouse is down, rotate the camera.
+        // if right mouse is down, rotate the camera around selected object or around it's current position
         else if( pEditorState->m_EditorActionState == EDITORACTIONSTATE_None &&
-                 //( (mods & MODIFIERKEY_LeftMouse) || (mods & MODIFIERKEY_RightMouse) ) )
                  (mods & MODIFIERKEY_RightMouse) )
         {
-            // rotate the camera around selected object or a point 10 units in front of the camera.
+            // get the direction the mouse moved
             Vector2 dir = pEditorState->m_CurrentMousePosition - pEditorState->m_LastMousePosition;
 
-            Vector3 pivot;
-            float distancefrompivot;
+            if( dir.LengthSquared() > 0 )
+            {
+                Vector3 pivot;
+                float distancefrompivot;
 
-            //if( mods & MODIFIERKEY_LeftMouse && pEditorState->m_pSelectedObjects.size() > 0 && pEditorState->m_pTransformGizmo->m_pTransformGizmos[0] )//pEditorState->m_pSelectedObjects[0] )
-            if( mods & MODIFIERKEY_Alt && pEditorState->m_pSelectedObjects.size() > 0 && pEditorState->m_pTransformGizmo->m_pTransformGizmos[0] )
-            {
-                // pivot around the transform gizmo
-                pivot = pEditorState->m_pTransformGizmo->m_pTransformGizmos[0]->m_pComponentTransform->GetWorldTransform()->GetTranslation();
-                //pEditorState->m_pSelectedObjects[0]->m_pComponentTransform->m_Transform.GetTranslation();
-                distancefrompivot = (matCamera->GetTranslation() - pivot).Length();
-            }
-            else
-            {
-                if( mods & MODIFIERKEY_RightMouse )
+                // different pivot and distance from pivot depending if Alt is held.
+                if( mods & MODIFIERKEY_Alt && pEditorState->m_pSelectedObjects.size() > 0 && pEditorState->m_pTransformGizmo->m_pTransformGizmos[0] )
+                {
+                    // pivot around the transform gizmo
+                    pivot = pEditorState->m_pTransformGizmo->m_pTransformGizmos[0]->m_pComponentTransform->GetWorldTransform()->GetTranslation();
+                    distancefrompivot = (matCamera->GetTranslation() - pivot).Length();
+                }
+                else
                 {
                     // pivot on the camera, just change rotation.
                     pivot = matCamera->GetTranslation();
                     distancefrompivot = 0;
                 }
-                else
-                {
-                    // TODO: try to pivot from distance of object at mouse
-                    MyMatrix mattemp = *matCamera;
-#if MYFW_RIGHTHANDED
-                    mattemp.TranslatePreRotScale( 0, 0, -10 );
-#else
-                    mattemp.TranslatePreRotScale( 0, 0, 10 );
-#endif
-                    pivot = mattemp.GetTranslation();
-                    distancefrompivot = 10;
-                }
-            }
 
-            if( dir.LengthSquared() > 0 )
-            {
                 //LOGInfo( LOGTag, "dir (%0.2f, %0.2f)\n", dir.x, dir.y );
 
-                //Vector3 pos = matCamera->GetTranslation();
-                Vector3 angle = pCamera->m_pComponentTransform->GetWorldRotation();
+                Vector3 angle = pCamera->m_pComponentTransform->GetLocalRotation();
 
-                // todo: make this degrees per inch
+                // TODO: make this degrees per inch
                 float degreesperpixel = 1.0f;
-
-                dir.Normalize();
 
 #if MYFW_RIGHTHANDED
                 angle.y += dir.x * degreesperpixel;
@@ -262,6 +242,7 @@ bool EditorInterface::HandleInputForEditorCamera(int keyaction, int keycode, int
 #endif
                 MyClamp( angle.x, -90.0f, 90.0f );
 
+                // Create a new local transform
                 matCamera->SetIdentity();
 #if MYFW_RIGHTHANDED
                 matCamera->Translate( 0, 0, distancefrompivot );
@@ -271,11 +252,13 @@ bool EditorInterface::HandleInputForEditorCamera(int keyaction, int keycode, int
                 matCamera->Rotate( angle.x, 1, 0, 0 );
                 matCamera->Rotate( angle.y, 0, 1, 0 );
                 matCamera->Translate( pivot );
+
+                // Update the local scale/rotation/translation from the local transform
+                pCamera->m_pComponentTransform->UpdateLocalSRT();
             }
         }
 
         // pull the pos/angle from the world matrix and update the values for the watch window.
-        //pCamera->m_pComponentTransform->UpdateLocalSRT();
         pCamera->m_pComponentTransform->UpdateTransform();
     }
 
