@@ -64,7 +64,7 @@ void Component2DJointPrismatic::RegisterVariables(CPPListHead* pList, Component2
     AddVar( pList, "MotorSpeed", ComponentVariableType_Float, MyOffsetOf( pThis, &pThis->m_MotorSpeed ), true, true, "Motor Speed", (CVarFunc_ValueChanged)&Component2DJointPrismatic::OnValueChanged, 0, 0 );
     AddVar( pList, "MotorMaxForce", ComponentVariableType_Float, MyOffsetOf( pThis, &pThis->m_MotorMaxForce ), true, true, "Motor Max Force", (CVarFunc_ValueChanged)&Component2DJointPrismatic::OnValueChanged, 0, 0 );
 
-    AddVar( pList, "LimitEnabled", ComponentVariableType_Bool, MyOffsetOf( pThis, &pThis->m_TranslationLimitEnabled ), true, true, "Translation Limit Enabled", (CVarFunc_ValueChanged)&Component2DJointPrismatic::OnValueChanged, 0, 0 );
+    AddVar( pList, "LimitEnabled", ComponentVariableType_Bool, MyOffsetOf( pThis, &pThis->m_TranslationLimitEnabled ), true, true, "Limit Enabled", (CVarFunc_ValueChanged)&Component2DJointPrismatic::OnValueChanged, 0, 0 );
     AddVar( pList, "LimitMin", ComponentVariableType_Float, MyOffsetOf( pThis, &pThis->m_TranslationLimitMin ), true, true, "Min Translation", (CVarFunc_ValueChanged)&Component2DJointPrismatic::OnValueChanged, 0, 0 );
     AddVar( pList, "LimitMax", ComponentVariableType_Float, MyOffsetOf( pThis, &pThis->m_TranslationLimitMax ), true, true, "Max Translation", (CVarFunc_ValueChanged)&Component2DJointPrismatic::OnValueChanged, 0, 0 );
 }

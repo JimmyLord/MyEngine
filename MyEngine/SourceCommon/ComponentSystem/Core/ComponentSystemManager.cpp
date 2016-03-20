@@ -472,7 +472,11 @@ char* ComponentSystemManager::SaveSceneToJSON(unsigned int sceneid)
 
 char* ComponentSystemManager::ExportBox2DSceneToJSON(unsigned int sceneid)
 {
+#if MYFW_USING_WX
     return ::ExportBox2DSceneToJSON( this, sceneid );
+#else
+    return 0;
+#endif //MYFW_USING_WX
 }
 
 void ComponentSystemManager::SaveGameObjectListToJSONArray(cJSON* gameobjectarray, cJSON* transformarray, GameObject* first, bool savesceneid)
@@ -1263,6 +1267,7 @@ GameObject* ComponentSystemManager::CreateGameObject(bool manageobject, int scen
     return pGameObject;
 }
 
+#if MYFW_USING_WX
 GameObject* ComponentSystemManager::CreateGameObjectFromTemplate(unsigned int templateid, int sceneid)
 {
     MyAssert( templateid < m_pGameObjectTemplateManager->GetNumberOfTemplates() );
@@ -1296,6 +1301,7 @@ GameObject* ComponentSystemManager::CreateGameObjectFromTemplate(unsigned int te
 
     return pGameObject;
 }
+#endif //MYFW_USING_WX
 
 void ComponentSystemManager::UnmanageGameObject(GameObject* pObject)
 {

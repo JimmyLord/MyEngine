@@ -173,7 +173,9 @@ public:
     bool IsSceneLoaded(const char* fullpath);
 
     GameObject* CreateGameObject(bool manageobject = true, int sceneid = 0, bool isfolder = false);
+#if MYFW_USING_WX
     GameObject* CreateGameObjectFromTemplate(unsigned int templateid, int sceneid);
+#endif
     void UnmanageGameObject(GameObject* pObject);
     void ManageGameObject(GameObject* pObject);
     void DeleteGameObject(GameObject* pObject, bool deletecomponents);
