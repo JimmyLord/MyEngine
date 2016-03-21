@@ -56,7 +56,7 @@ void SceneHandler::OnRightClick(wxTreeItemId treeid)
     menu.Append( RightClick_AddGameObject, "Add Game Object" );
 
     wxMenu* templatesmenu = MyNew wxMenu;
-    menu.AppendSubMenu( templatesmenu, "Templates" );
+    menu.AppendSubMenu( templatesmenu, "Add Game Object Template" );
 
     unsigned int numtypes = 2;
     for( unsigned int i=0; i<g_pComponentSystemManager->m_pGameObjectTemplateManager->GetNumberOfTemplates(); i++ )

@@ -1226,7 +1226,7 @@ void EngineCore::GetMouseRay(Vector2 mousepos, Vector3* start, Vector3* end)
 #endif
 
     // define the ray.
-    Vector3 raystart = pCamera->m_pComponentTransform->GetWorldPosition();
+    Vector3 raystart = pCamera->m_pComponentTransform->GetLocalPosition();
     Vector3 rayend = raystart + rayworld * 10000;
 
     start->Set( raystart.x, raystart.y, raystart.z );

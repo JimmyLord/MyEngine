@@ -80,5 +80,25 @@
 					"LimitMin":	-1,
 					"LimitMax":	1
 				}]
+		}, {
+			"Name":	"2D Physics Chain",
+			"Scale": [2, 0.05, 1],
+			"Components":	[{
+					"Type":	"Sprite",
+					"Visible":	1,
+					"Layers":	1,
+					"Tint":	[255, 255, 255, 255],
+					"Size":	[1, 1],
+					"Material":	"Data/Materials/Colors/Color-Green.mymaterial"
+				}, {
+					"Type":	"2D Collision Object",
+					"PrimitiveType":	"Chain",
+					"Static":	1,
+					"Density":	0,
+					"IsSensor":	0,
+					"Friction":	0.200000,
+					"Restitution":	0,
+					"Vertices":	[-1, 0, 1, 0]
+				}]
 		}]
 }

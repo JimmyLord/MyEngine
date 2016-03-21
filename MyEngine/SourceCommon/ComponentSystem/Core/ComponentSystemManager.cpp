@@ -1281,6 +1281,10 @@ GameObject* ComponentSystemManager::CreateGameObjectFromTemplate(unsigned int te
 
     if( jTemplate )
     {
+        Vector3 scale;
+        cJSONExt_GetFloatArray( jTemplate, "Scale", &scale.x, 3 );
+        pGameObject->GetTransform()->SetLocalScale( scale );
+
         cJSON* jComponentArray = cJSON_GetObjectItem( jTemplate, "Components" );
         int arraysize = cJSON_GetArraySize( jComponentArray );
 
