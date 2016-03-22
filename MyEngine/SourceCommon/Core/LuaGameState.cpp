@@ -143,6 +143,7 @@ void LuaGameState::RegisterClasses()
     ComponentBase::LuaRegister( m_pLuaState );
     ComponentMenuPage::LuaRegister( m_pLuaState );
     ComponentTransform::LuaRegister( m_pLuaState );
+    ComponentGameObjectProperties::LuaRegister( m_pLuaState );
     ComponentSystemManager::LuaRegister( m_pLuaState );
     ComponentCollisionObject::LuaRegister( m_pLuaState );
     Component2DCollisionObject::LuaRegister( m_pLuaState );

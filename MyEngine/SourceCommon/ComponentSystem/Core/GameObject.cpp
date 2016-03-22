@@ -9,11 +9,30 @@
 
 #include "EngineCommonHeader.h"
 
+const char* GameObjectFlagStrings[32] =
+{
+    "Not Set",
+    "Camera",
+    "Player",
+    "Enemy",
+    "Target",
+    "5",
+    "6",
+    "7",
+    "8",
+    "9",
+    "10",
+    "11",
+    "12",
+};
+
 GameObject::GameObject(bool managed, int sceneid, bool isfolder)
 {
     ClassnameSanityCheck();
 
     m_pGameObjectThisInheritsFrom = 0;
+
+    m_Properties.SetEnabled( false );
 
     m_Enabled = true;
     m_IsFolder = isfolder;
@@ -138,6 +157,8 @@ void GameObject::OnLeftClick(unsigned int count, bool clear)
             snprintf_s( tempname, 100, "** DISABLED ** %s (%s) ** DISABLED **", m_Name, m_pGameObjectThisInheritsFrom->m_Name );
     }
     g_pPanelWatch->AddSpace( tempname, this, GameObject::StaticOnTitleLabelClicked );
+
+    m_Properties.FillPropertiesWindow( false );
 
     m_pComponentTransform->FillPropertiesWindow( false, true );
     for( unsigned int i=0; i<m_Components.Count(); i++ )
@@ -338,6 +359,9 @@ cJSON* GameObject::ExportAsJSONObject(bool savesceneid)
 
     cJSON_AddStringToObject( jGameObject, "Name", m_Name );
 
+    cJSON* jProperties = m_Properties.ExportAsJSONObject( false );
+    cJSON_AddItemToObject( jGameObject, "Properties", jProperties );
+
     return jGameObject;
 }
 
@@ -370,6 +394,10 @@ void GameObject::ImportFromJSONObject(cJSON* jGameObject, unsigned int sceneid)
     bool enabled = true;
     cJSONExt_GetBool( jGameObject, "Enabled", &enabled );
     SetEnabled( enabled );
+
+    cJSON* jProperties = cJSON_GetObjectItem( jGameObject, "Properties" );
+    if( jProperties )
+        m_Properties.ImportFromJSONObject( jProperties, sceneid );
 }
 
 cJSON* GameObject::ExportReferenceAsJSONObject(unsigned int refsceneid)

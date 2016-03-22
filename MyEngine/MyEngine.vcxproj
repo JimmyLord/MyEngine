@@ -1677,6 +1677,7 @@
     <ClCompile Include="SourceCommon\ComponentSystem\BaseComponents\ComponentBase.cpp" />
     <ClCompile Include="SourceCommon\ComponentSystem\BaseComponents\ComponentCamera.cpp" />
     <ClCompile Include="SourceCommon\ComponentSystem\BaseComponents\ComponentData.cpp" />
+    <ClCompile Include="SourceCommon\ComponentSystem\BaseComponents\ComponentGameObjectProperties.cpp" />
     <ClCompile Include="SourceCommon\ComponentSystem\BaseComponents\ComponentInputHandler.cpp" />
     <ClCompile Include="SourceCommon\ComponentSystem\BaseComponents\ComponentMenuPage.cpp" />
     <ClCompile Include="SourceCommon\ComponentSystem\BaseComponents\ComponentRenderable.cpp" />
@@ -1927,6 +1928,7 @@
     <ClInclude Include="SourceCommon\ComponentSystem\BaseComponents\ComponentBase.h" />
     <ClInclude Include="SourceCommon\ComponentSystem\BaseComponents\ComponentCamera.h" />
     <ClInclude Include="SourceCommon\ComponentSystem\BaseComponents\ComponentData.h" />
+    <ClInclude Include="SourceCommon\ComponentSystem\BaseComponents\ComponentGameObjectProperties.h" />
     <ClInclude Include="SourceCommon\ComponentSystem\BaseComponents\ComponentInputHandler.h" />
     <ClInclude Include="SourceCommon\ComponentSystem\BaseComponents\ComponentMenuPage.h" />
     <ClInclude Include="SourceCommon\ComponentSystem\BaseComponents\ComponentRenderable.h" />

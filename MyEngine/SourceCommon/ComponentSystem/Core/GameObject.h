@@ -30,6 +30,8 @@ protected:
     // TODO: move "GameObject* m_pParentGameObject" from transform component to here.
     CPPListHead m_ChildList; // child game objects
 
+    ComponentGameObjectProperties m_Properties;
+
     bool m_Enabled;
     bool m_IsFolder;
     unsigned int m_SceneID; // 0 for runtime generated.
@@ -65,6 +67,8 @@ public:
     cJSON* ExportAsJSONObject(bool savesceneid);
     void ImportFromJSONObject(cJSON* jGameObject, unsigned int sceneid);
     cJSON* ExportReferenceAsJSONObject(unsigned int refsceneid);
+
+    unsigned int GetFlags() { return m_Properties.GetFlags(); }
 
     void SetEnabled(bool enabled);
     void RegisterAllComponentCallbacks(bool ignoreenabledflag);

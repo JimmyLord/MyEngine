@@ -26,6 +26,20 @@ cJSON* ExportGameObject(cJSON* jGameObjectArray, GameObject* pGameObject)
         cJSONExt_AddFloatArrayToObject( jGameObject, "Rot", &rot.x, 3 );
         cJSONExt_AddFloatArrayToObject( jGameObject, "Scale", &scale.x, 3 );
 
+        cJSON* jFlagsArray = cJSON_CreateArray();
+        cJSON_AddItemToObject( jGameObject, "Flags", jFlagsArray );
+        for( int i=0; i<32; i++ )
+        {
+            extern const char* GameObjectFlagStrings[32];
+            unsigned int flags = pGameObject->GetFlags();
+            //if( flags & (1<<i) ) // TODO: treat flags like flags.
+            if( flags == i )
+            {
+                cJSON* jFlag = cJSON_CreateString( GameObjectFlagStrings[i] );
+                cJSON_AddItemToArray( jFlagsArray, jFlag );
+            }
+        }
+
         if( pGameObject->m_Components.Count() > 0 )
         {
             cJSON* jComponentArray = 0;

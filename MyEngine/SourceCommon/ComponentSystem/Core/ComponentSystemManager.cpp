@@ -1281,7 +1281,7 @@ GameObject* ComponentSystemManager::CreateGameObjectFromTemplate(unsigned int te
 
     if( jTemplate )
     {
-        Vector3 scale;
+        Vector3 scale(1);
         cJSONExt_GetFloatArray( jTemplate, "Scale", &scale.x, 3 );
         pGameObject->GetTransform()->SetLocalScale( scale );
 

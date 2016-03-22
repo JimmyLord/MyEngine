@@ -390,6 +390,9 @@
     <ClCompile Include="SourceCommon\Editor\Exporters\ExportBox2DScene.cpp">
       <Filter>Source\Editor\Exporters</Filter>
     </ClCompile>
+    <ClCompile Include="SourceCommon\ComponentSystem\BaseComponents\ComponentGameObjectProperties.cpp">
+      <Filter>Source\ComponentSystem\Base Components</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SourceCommon\Camera\Camera3D.h">
@@ -715,6 +718,9 @@
     </ClInclude>
     <ClInclude Include="SourceCommon\Editor\Exporters\ExportBox2DScene.h">
       <Filter>Source\Editor\Exporters</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCommon\ComponentSystem\BaseComponents\ComponentGameObjectProperties.h">
+      <Filter>Source\ComponentSystem\Base Components</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
