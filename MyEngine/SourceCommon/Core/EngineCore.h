@@ -76,6 +76,8 @@ public:
     int m_LuaMemoryUsedLastFrame;
     int m_LuaMemoryUsedThisFrame;
 
+    char* m_GameObjectFlagStrings[32];
+
 #if MYFW_USING_WX
     EditorState* m_pEditorState;
     bool m_Debug_DrawMousePickerFBO;
@@ -127,6 +129,7 @@ public:
 #endif //MYFW_USING_LUA
 
     virtual void InitializeManagers();
+    void InitializeGameObjectFlagStrings(cJSON* jStringsArray);
 
     virtual ComponentTypeManager* CreateComponentTypeManager() = 0;
 #if MYFW_USING_LUA

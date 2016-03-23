@@ -86,6 +86,11 @@ EngineCore::EngineCore()
     m_DebugFPS = 0;
     m_LuaMemoryUsedLastFrame = 0;
     m_LuaMemoryUsedThisFrame = 0;
+
+    for( int i=0; i<32; i++ )
+    {
+        m_GameObjectFlagStrings[i] = 0;
+    }
 }
 
 EngineCore::~EngineCore()
@@ -124,6 +129,11 @@ EngineCore::~EngineCore()
 
     SAFE_DELETE( m_pComponentSystemManager );
     SAFE_DELETE( m_pBulletWorld );
+
+    for( int i=0; i<32; i++ )
+    {
+        delete[] m_GameObjectFlagStrings[i];
+    }
 }
 
 #if MYFW_USING_LUA
@@ -146,6 +156,38 @@ void EngineCore::InitializeManagers()
 
     if( g_pRTQGlobals == 0 )
         g_pRTQGlobals = MyNew RenderTextQuickGlobals;
+}
+
+void EngineCore::InitializeGameObjectFlagStrings(cJSON* jStringsArray)
+{
+    if( jStringsArray == 0 )
+    {
+        char* strings[32] =
+        {
+            "Not Set", "Camera", "Player", "Enemy", "Target", "5", "6", "7", "8", "9",
+            "10", "11", "12", "13", "14", "15", "16", "17", "18", "19",
+            "20", "21", "22", "23", "24", "25", "26", "27", "28", "29",
+            "30", "31",
+        };
+        
+        for( int i=0; i<32; i++ )
+        {
+            int len = strlen( strings[i] ) + 1;
+            m_GameObjectFlagStrings[i] = new char[len];
+            strcpy_s( m_GameObjectFlagStrings[i], len, strings[i] );
+        }
+    }
+    else
+    {
+        for( int i=0; i<cJSON_GetArraySize( jStringsArray ); i++ )
+        {
+            cJSON* jGameObjectFlagsString = cJSON_GetArrayItem( jStringsArray, i );
+            
+            int len = strlen( jGameObjectFlagsString->valuestring ) + 1;
+            m_GameObjectFlagStrings[i] = new char[len];
+            strcpy_s( m_GameObjectFlagStrings[i], len, jGameObjectFlagsString->valuestring );
+        }
+    }
 }
 
 void EngineCore::OneTimeInit()

@@ -146,6 +146,17 @@ ComponentVariable* ComponentBase::AddVariableEnum_Base(CPPListHead* pComponentVa
     return pVariable;
 }
 
+ComponentVariable* ComponentBase::AddVariableFlags_Base(CPPListHead* pComponentVariableList, const char* label, size_t offset, bool saveload, bool displayinwatch, const char* watchlabel, int numenums, const char** ppStrings, CVarFunc_ValueChanged pOnValueChangedCallBackFunc, CVarFunc_DropTarget pOnDropCallBackFunc, CVarFunc pOnButtonPressedCallBackFunc)
+{
+    ComponentVariable* pVariable = AddVariable_Base( pComponentVariableList, label, ComponentVariableType_Flags, offset, saveload, displayinwatch,
+        watchlabel, pOnValueChangedCallBackFunc, pOnDropCallBackFunc, pOnButtonPressedCallBackFunc );
+    
+    pVariable->m_NumEnumStrings = numenums;
+    pVariable->m_ppEnumStrings = ppStrings;
+
+    return pVariable;
+}
+
 #if MYFW_USING_WX
 void ComponentBase::FillPropertiesWindowWithVariables()
 {
@@ -184,6 +195,10 @@ void ComponentBase::AddVariableToPropertiesWindow(ComponentVariable* pVar)
 
         case ComponentVariableType_Enum:
             pVar->m_ControlID = g_pPanelWatch->AddEnum( pVar->m_WatchLabel, (int*)((char*)this + pVar->m_Offset), pVar->m_NumEnumStrings, pVar->m_ppEnumStrings, this, ComponentBase::StaticOnValueChangedVariable );
+            break;
+
+        case ComponentVariableType_Flags:
+            pVar->m_ControlID = g_pPanelWatch->AddFlags( pVar->m_WatchLabel, (unsigned int*)((char*)this + pVar->m_Offset), pVar->m_NumEnumStrings, pVar->m_ppEnumStrings, this, ComponentBase::StaticOnValueChangedVariable );
             break;
 
         case ComponentVariableType_UnsignedInt:
@@ -348,6 +363,25 @@ void ComponentBase::ExportVariablesToJSON(cJSON* jComponent)
                 }
                 break;
 
+            case ComponentVariableType_Flags:
+                {
+                    unsigned int flags = *(unsigned int*)((char*)this + pVar->m_Offset);
+
+                    // Save the flags set as strings.
+                    cJSON* jFlagsArray = cJSON_CreateArray();
+                    cJSON_AddItemToObject( jComponent, pVar->m_Label, jFlagsArray );
+                    for( unsigned int i=0; i<32; i++ )
+                    {
+                        //if( flags & (1<<i) ) // TODO: treat flags like flags.
+                        if( flags == i )
+                        {
+                            cJSON* jFlag = cJSON_CreateString( pVar->m_ppEnumStrings[i] );
+                            cJSON_AddItemToArray( jFlagsArray, jFlag );
+                        }
+                    }
+                }
+                break;
+
             case ComponentVariableType_UnsignedInt:
                 cJSON_AddNumberToObject( jComponent, pVar->m_Label, *(unsigned int*)((char*)this + pVar->m_Offset) );
                 break;
@@ -474,6 +508,35 @@ void ComponentBase::ImportVariablesFromJSON(cJSON* jsonobj, const char* singlela
                         {
                             // if a string wasn't found, then treat the value as an int.
                             *(int*)((char*)this + pVar->m_Offset) = obj->valueint;
+                        }
+                    }
+                }
+                break;
+
+            case ComponentVariableType_Flags:
+                {
+                    cJSON* jFlagsArray = cJSON_GetObjectItem( jsonobj, pVar->m_Label );
+
+                    // load each array value as a string.
+                    if( jFlagsArray )
+                    {
+                        for( int i=0; i<cJSON_GetArraySize( jFlagsArray ); i++ )
+                        {
+                            cJSON* jFlag = cJSON_GetArrayItem( jFlagsArray, i );
+
+                            if( jFlag->valuestring != 0 )
+                            {
+                                for( int i=0; i<pVar->m_NumEnumStrings; i++ )
+                                {
+                                    if( strcmp( pVar->m_ppEnumStrings[i], jFlag->valuestring ) == 0 )
+                                    {
+                                        // TODO: treat flags like flags.
+                                        //*(unsigned int*)((char*)this + pVar->m_Offset) &= 1<<i;
+                                        *(unsigned int*)((char*)this + pVar->m_Offset) = i;
+                                        break;
+                                    }
+                                }
+                            }
                         }
                     }
                 }
@@ -623,6 +686,7 @@ bool ComponentBase::DoesVariableMatchParent(int controlid, ComponentVariable* pV
                 return *(int*)((char*)this + offset) == *(int*)((char*)pOtherComponent + offset);
 
             case ComponentVariableType_UnsignedInt:
+            case ComponentVariableType_Flags:
                 return *(unsigned int*)((char*)this + offset) == *(unsigned int*)((char*)pOtherComponent + offset);
 
             //ComponentVariableType_Char,
@@ -852,6 +916,7 @@ void ComponentBase::CopyValueFromParent(ComponentVariable* pVar)
                 break;
 
             case ComponentVariableType_UnsignedInt:
+            case ComponentVariableType_Flags:
                 {
                     unsigned int oldvalue = *(unsigned int*)((char*)this + offset);
                     unsigned int newvalue = *(unsigned int*)((char*)pOtherComponent + offset);
@@ -1164,6 +1229,7 @@ void ComponentBase::UpdateGameObjectWithNewValue(GameObject* pGameObject, bool f
                     break;
 
                 case ComponentVariableType_UnsignedInt:
+                case ComponentVariableType_Flags:
                     MyAssert( fromdraganddrop == false ); // not drag/dropping these types ATM.
 
                     if( fromdraganddrop == false )

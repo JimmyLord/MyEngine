@@ -9,23 +9,6 @@
 
 #include "EngineCommonHeader.h"
 
-const char* GameObjectFlagStrings[32] =
-{
-    "Not Set",
-    "Camera",
-    "Player",
-    "Enemy",
-    "Target",
-    "5",
-    "6",
-    "7",
-    "8",
-    "9",
-    "10",
-    "11",
-    "12",
-};
-
 GameObject::GameObject(bool managed, int sceneid, bool isfolder)
 {
     ClassnameSanityCheck();

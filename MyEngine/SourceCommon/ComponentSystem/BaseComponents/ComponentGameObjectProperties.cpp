@@ -45,8 +45,8 @@ void ComponentGameObjectProperties::RegisterVariables(CPPListHead* pList, Compon
 #endif
 
     // TODO: shouldn't be an 'enum', should be a 'flags' type.
-    extern const char* GameObjectFlagStrings[32];
-    AddVarEnum( pList, "Flags", MyOffsetOf( pThis, &pThis->m_Flags ), true, true, 0, 12, GameObjectFlagStrings, (CVarFunc_ValueChanged)&ComponentGameObjectProperties::OnValueChanged, (CVarFunc_DropTarget)&ComponentGameObjectProperties::OnDrop, 0 );
+    const char** strings = (const char**)g_pEngineCore->m_GameObjectFlagStrings;
+    AddVarFlags( pList, "Flags", MyOffsetOf( pThis, &pThis->m_Flags ), true, true, 0, 12, strings, (CVarFunc_ValueChanged)&ComponentGameObjectProperties::OnValueChanged, (CVarFunc_DropTarget)&ComponentGameObjectProperties::OnDrop, 0 );
 }
 
 void ComponentGameObjectProperties::Reset()

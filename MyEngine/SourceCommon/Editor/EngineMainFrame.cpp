@@ -346,13 +346,6 @@ void EngineMainFrame::OnPostInit()
     {
         cJSON* obj;
 
-        obj = cJSON_GetObjectItem( m_pEditorPrefs, "LastSceneLoaded" );
-        if( obj && obj->valuestring[0] != 0 )
-        {
-            LoadScene( obj->valuestring, false ); // this is only parsed on startup, so no need to unload scene.
-            sceneloaded = true;
-        }
-
         obj = cJSON_GetObjectItem( m_pEditorPrefs, "EditorCam" );
         if( obj )
             g_pEngineCore->m_pEditorState->GetEditorCamera()->m_pComponentTransform->ImportFromJSONObject( obj, EngineCore::ENGINE_SCENE_ID );
@@ -365,8 +358,23 @@ void EngineMainFrame::OnPostInit()
         cJSONExt_GetBool( m_pEditorPrefs, "GridSnapEnabled", &m_GridSettings.snapenabled );
         cJSONExt_GetFloatArray( m_pEditorPrefs, "GridStepSize", &m_GridSettings.stepsize.x, 3 );
 
+        cJSON* jGameObjectFlagsArray = cJSON_GetObjectItem( m_pEditorPrefs, "GameObjectFlags" );
+        g_pEngineCore->InitializeGameObjectFlagStrings( jGameObjectFlagsArray );
+
+        // Load the scene at the end.
+        obj = cJSON_GetObjectItem( m_pEditorPrefs, "LastSceneLoaded" );
+        if( obj && obj->valuestring[0] != 0 )
+        {
+            LoadScene( obj->valuestring, false ); // this is only parsed on startup, so no need to unload scene.
+            sceneloaded = true;
+        }
+
         cJSON_Delete( m_pEditorPrefs );
         m_pEditorPrefs = 0;
+    }
+    else
+    {
+        g_pEngineCore->InitializeGameObjectFlagStrings( 0 );
     }
 
     if( sceneloaded == false )
@@ -443,6 +451,9 @@ bool EngineMainFrame::OnClose()
 
             cJSON_AddNumberToObject( pPrefs, "GridSnapEnabled", m_GridSettings.snapenabled );
             cJSONExt_AddFloatArrayToObject( pPrefs, "GridStepSize", &m_GridSettings.stepsize.x, 3 );
+
+            cJSON* jGameObjectFlagsArray = cJSON_CreateStringArray( (const char**)g_pEngineCore->m_GameObjectFlagStrings, 32 );
+            cJSON_AddItemToObject( pPrefs, "GameObjectFlags", jGameObjectFlagsArray );
 
             char* string = cJSON_Print( pPrefs );
             cJSON_Delete( pPrefs );

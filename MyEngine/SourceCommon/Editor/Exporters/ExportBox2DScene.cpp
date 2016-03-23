@@ -28,14 +28,13 @@ cJSON* ExportGameObject(cJSON* jGameObjectArray, GameObject* pGameObject)
 
         cJSON* jFlagsArray = cJSON_CreateArray();
         cJSON_AddItemToObject( jGameObject, "Flags", jFlagsArray );
-        for( int i=0; i<32; i++ )
+        for( unsigned int i=0; i<32; i++ )
         {
-            extern const char* GameObjectFlagStrings[32];
             unsigned int flags = pGameObject->GetFlags();
             //if( flags & (1<<i) ) // TODO: treat flags like flags.
             if( flags == i )
             {
-                cJSON* jFlag = cJSON_CreateString( GameObjectFlagStrings[i] );
+                cJSON* jFlag = cJSON_CreateString( g_pEngineCore->m_GameObjectFlagStrings[i] );
                 cJSON_AddItemToArray( jFlagsArray, jFlag );
             }
         }
