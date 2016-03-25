@@ -44,9 +44,8 @@ void ComponentGameObjectProperties::RegisterVariables(CPPListHead* pList, Compon
 #pragma GCC diagnostic default "-Winvalid-offsetof"
 #endif
 
-    // TODO: shouldn't be an 'enum', should be a 'flags' type.
     const char** strings = (const char**)g_pEngineCore->m_GameObjectFlagStrings;
-    AddVarFlags( pList, "Flags", MyOffsetOf( pThis, &pThis->m_Flags ), true, true, 0, 12, strings, (CVarFunc_ValueChanged)&ComponentGameObjectProperties::OnValueChanged, (CVarFunc_DropTarget)&ComponentGameObjectProperties::OnDrop, 0 );
+    AddVarFlags( pList, "Flags", MyOffsetOf( pThis, &pThis->m_Flags ), true, true, 0, 32, strings, (CVarFunc_ValueChanged)&ComponentGameObjectProperties::OnValueChanged, (CVarFunc_DropTarget)&ComponentGameObjectProperties::OnDrop, 0 );
 }
 
 void ComponentGameObjectProperties::Reset()

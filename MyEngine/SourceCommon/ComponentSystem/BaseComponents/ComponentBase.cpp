@@ -372,8 +372,7 @@ void ComponentBase::ExportVariablesToJSON(cJSON* jComponent)
                     cJSON_AddItemToObject( jComponent, pVar->m_Label, jFlagsArray );
                     for( unsigned int i=0; i<32; i++ )
                     {
-                        //if( flags & (1<<i) ) // TODO: treat flags like flags.
-                        if( flags == i )
+                        if( flags & (1<<i) )
                         {
                             cJSON* jFlag = cJSON_CreateString( pVar->m_ppEnumStrings[i] );
                             cJSON_AddItemToArray( jFlagsArray, jFlag );
@@ -530,9 +529,8 @@ void ComponentBase::ImportVariablesFromJSON(cJSON* jsonobj, const char* singlela
                                 {
                                     if( strcmp( pVar->m_ppEnumStrings[i], jFlag->valuestring ) == 0 )
                                     {
-                                        // TODO: treat flags like flags.
-                                        //*(unsigned int*)((char*)this + pVar->m_Offset) &= 1<<i;
-                                        *(unsigned int*)((char*)this + pVar->m_Offset) = i;
+                                        // TODO: if flag string isn't found, create a warning.
+                                        *(unsigned int*)((char*)this + pVar->m_Offset) |= 1<<i;
                                         break;
                                     }
                                 }
