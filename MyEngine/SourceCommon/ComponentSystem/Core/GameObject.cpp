@@ -343,7 +343,15 @@ cJSON* GameObject::ExportAsJSONObject(bool savesceneid)
     cJSON_AddStringToObject( jGameObject, "Name", m_Name );
 
     cJSON* jProperties = m_Properties.ExportAsJSONObject( false );
-    cJSON_AddItemToObject( jGameObject, "Properties", jProperties );
+    // if no properties were saved, don't write it out to disk
+    if( jProperties->child == 0 )
+    {
+        cJSON_Delete( jProperties );
+    }
+    else
+    {
+        cJSON_AddItemToObject( jGameObject, "Properties", jProperties );
+    }
 
     return jGameObject;
 }

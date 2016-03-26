@@ -368,14 +368,17 @@ void ComponentBase::ExportVariablesToJSON(cJSON* jComponent)
                     unsigned int flags = *(unsigned int*)((char*)this + pVar->m_Offset);
 
                     // Save the flags set as strings.
-                    cJSON* jFlagsArray = cJSON_CreateArray();
-                    cJSON_AddItemToObject( jComponent, pVar->m_Label, jFlagsArray );
-                    for( unsigned int i=0; i<32; i++ )
+                    if( flags != 0 )
                     {
-                        if( flags & (1<<i) )
+                        cJSON* jFlagsArray = cJSON_CreateArray();
+                        cJSON_AddItemToObject( jComponent, pVar->m_Label, jFlagsArray );
+                        for( unsigned int i=0; i<32; i++ )
                         {
-                            cJSON* jFlag = cJSON_CreateString( pVar->m_ppEnumStrings[i] );
-                            cJSON_AddItemToArray( jFlagsArray, jFlag );
+                            if( flags & (1<<i) )
+                            {
+                                cJSON* jFlag = cJSON_CreateString( pVar->m_ppEnumStrings[i] );
+                                cJSON_AddItemToArray( jFlagsArray, jFlag );
+                            }
                         }
                     }
                 }
@@ -525,15 +528,29 @@ void ComponentBase::ImportVariablesFromJSON(cJSON* jsonobj, const char* singlela
 
                             if( jFlag->valuestring != 0 )
                             {
+                                bool found = false;
                                 for( int i=0; i<pVar->m_NumEnumStrings; i++ )
                                 {
                                     if( strcmp( pVar->m_ppEnumStrings[i], jFlag->valuestring ) == 0 )
                                     {
-                                        // TODO: if flag string isn't found, create a warning.
                                         *(unsigned int*)((char*)this + pVar->m_Offset) |= 1<<i;
+                                        found = true;
                                         break;
                                     }
                                 }
+
+                                // if the flag string wasn't found, popup a warning
+#if MYFW_USING_WX
+                                if( found == false )
+                                {
+                                    static bool messageboxshown = false;
+                                    if( messageboxshown == false )
+                                    {
+                                        messageboxshown = true;
+                                        wxMessageBox( "Warning: At least one GameObject Flag string wasn't found,\nsaving the scene will discard old flags", "Warning" );
+                                    }
+                                }
+#endif //MYFW_USING_WX
                             }
                         }
                     }
