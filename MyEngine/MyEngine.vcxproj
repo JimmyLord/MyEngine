@@ -9,10 +9,6 @@
       <Configuration>Debug</Configuration>
       <Platform>Emscripten</Platform>
     </ProjectConfiguration>
-    <ProjectConfiguration Include="Debug|NaCl">
-      <Configuration>Debug</Configuration>
-      <Platform>NaCl</Platform>
-    </ProjectConfiguration>
     <ProjectConfiguration Include="Debug|PNaCl">
       <Configuration>Debug</Configuration>
       <Platform>PNaCl</Platform>
@@ -32,10 +28,6 @@
     <ProjectConfiguration Include="Release|Emscripten">
       <Configuration>Release</Configuration>
       <Platform>Emscripten</Platform>
-    </ProjectConfiguration>
-    <ProjectConfiguration Include="Release|NaCl">
-      <Configuration>Release</Configuration>
-      <Platform>NaCl</Platform>
     </ProjectConfiguration>
     <ProjectConfiguration Include="Release|PNaCl">
       <Configuration>Release</Configuration>
@@ -57,10 +49,6 @@
       <Configuration>WxDebug</Configuration>
       <Platform>Emscripten</Platform>
     </ProjectConfiguration>
-    <ProjectConfiguration Include="WxDebug|NaCl">
-      <Configuration>WxDebug</Configuration>
-      <Platform>NaCl</Platform>
-    </ProjectConfiguration>
     <ProjectConfiguration Include="WxDebug|PNaCl">
       <Configuration>WxDebug</Configuration>
       <Platform>PNaCl</Platform>
@@ -80,10 +68,6 @@
     <ProjectConfiguration Include="WxRelease|Emscripten">
       <Configuration>WxRelease</Configuration>
       <Platform>Emscripten</Platform>
-    </ProjectConfiguration>
-    <ProjectConfiguration Include="WxRelease|NaCl">
-      <Configuration>WxRelease</Configuration>
-      <Platform>NaCl</Platform>
     </ProjectConfiguration>
     <ProjectConfiguration Include="WxRelease|PNaCl">
       <Configuration>WxRelease</Configuration>
@@ -155,18 +139,6 @@
     <UseDebugLibraries>true</UseDebugLibraries>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|NaCl'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
-    <UseDebugLibraries>true</UseDebugLibraries>
-    <CharacterSet>Unicode</CharacterSet>
-    <NaClTargetPlatform>pepper_16</NaClTargetPlatform>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='WxDebug|NaCl'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
-    <UseDebugLibraries>true</UseDebugLibraries>
-    <CharacterSet>Unicode</CharacterSet>
-    <NaClTargetPlatform>pepper_16</NaClTargetPlatform>
-  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
@@ -227,20 +199,6 @@
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|NaCl'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
-    <UseDebugLibraries>false</UseDebugLibraries>
-    <WholeProgramOptimization>true</WholeProgramOptimization>
-    <CharacterSet>Unicode</CharacterSet>
-    <NaClTargetPlatform>pepper_16</NaClTargetPlatform>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='WxRelease|NaCl'" Label="Configuration">
-    <ConfigurationType>Application</ConfigurationType>
-    <UseDebugLibraries>false</UseDebugLibraries>
-    <WholeProgramOptimization>true</WholeProgramOptimization>
-    <CharacterSet>Unicode</CharacterSet>
-    <NaClTargetPlatform>pepper_16</NaClTargetPlatform>
-  </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
   </ImportGroup>
@@ -274,12 +232,6 @@
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='WxDebug|Android'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
-  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|NaCl'" Label="PropertySheets">
-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-  </ImportGroup>
-  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='WxDebug|NaCl'" Label="PropertySheets">
-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-  </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
@@ -308,12 +260,6 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='WxRelease|Android'" Label="PropertySheets">
-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-  </ImportGroup>
-  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|NaCl'" Label="PropertySheets">
-    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-  </ImportGroup>
-  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='WxRelease|NaCl'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
@@ -387,18 +333,6 @@
     <IntDir>$(SolutionDir)Output\Intermediate\$(PlatformName)\$(TargetName)\$(Configuration)\</IntDir>
     <LibraryPath>$(AndroidLibDir);$(AndroidStlLibPath);</LibraryPath>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|NaCl'">
-    <LinkIncremental>true</LinkIncremental>
-    <OutDir>$(ProjectDir)SourceNaCL\Web\</OutDir>
-    <IntDir>$(SolutionDir)Output\Intermediate\$(PlatformName)\$(TargetName)\$(Configuration)\</IntDir>
-    <TargetName>$(ProjectName)_x86_$(Configuration)</TargetName>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='WxDebug|NaCl'">
-    <LinkIncremental>true</LinkIncremental>
-    <OutDir>$(ProjectDir)SourceNaCL\Web\</OutDir>
-    <IntDir>$(SolutionDir)Output\Intermediate\$(PlatformName)\$(TargetName)\$(Configuration)\</IntDir>
-    <TargetName>$(ProjectName)_x86_$(Configuration)</TargetName>
-  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
     <OutDir>$(SolutionDir)Output\$(PlatformName)\$(TargetName)\$(Configuration)\</OutDir>
@@ -464,18 +398,6 @@
     <LinkIncremental>false</LinkIncremental>
     <OutDir>$(SolutionDir)Output\$(PlatformName)\$(TargetName)\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)Output\Intermediate\$(PlatformName)\$(TargetName)\$(Configuration)\</IntDir>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|NaCl'">
-    <LinkIncremental>false</LinkIncremental>
-    <OutDir>$(ProjectDir)SourceNaCL\Web\</OutDir>
-    <IntDir>$(SolutionDir)Output\Intermediate\$(PlatformName)\$(TargetName)\$(Configuration)\</IntDir>
-    <TargetName>$(ProjectName)_x86_$(Configuration)</TargetName>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='WxRelease|NaCl'">
-    <LinkIncremental>false</LinkIncremental>
-    <OutDir>$(ProjectDir)SourceNaCL\Web\</OutDir>
-    <IntDir>$(SolutionDir)Output\Intermediate\$(PlatformName)\$(TargetName)\$(Configuration)\</IntDir>
-    <TargetName>$(ProjectName)_x86_$(Configuration)</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -683,48 +605,6 @@
       <Command>
       </Command>
     </PreBuildEvent>
-  </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|NaCl'">
-    <ClCompile>
-      <PrecompiledHeader>
-      </PrecompiledHeader>
-      <WarningLevel>Level3</WarningLevel>
-      <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>MYFW_NACL;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(SolutionDir)..\Framework\Box2D_v2.2.1;SourceCommon</AdditionalIncludeDirectories>
-    </ClCompile>
-    <Link>
-      <SubSystem>Windows</SubSystem>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>$(SolutionDir)Output\$(PlatformName)\MyFramework\$(Configuration)\MyFramework_x86_$(Configuration).a</AdditionalDependencies>
-      <AdditionalOptions>-lppapi -lppapi_cpp -lppapi_gles2 %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalLibraryDirectories>
-      </AdditionalLibraryDirectories>
-    </Link>
-    <AntBuild>
-      <AntBuildPath>$(ProjectDir)\SourceAndroid\AndroidApk\</AntBuildPath>
-    </AntBuild>
-  </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='WxDebug|NaCl'">
-    <ClCompile>
-      <PrecompiledHeader>
-      </PrecompiledHeader>
-      <WarningLevel>Level3</WarningLevel>
-      <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>MYFW_NACL;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(SolutionDir)..\Framework\Box2D_v2.2.1;SourceCommon</AdditionalIncludeDirectories>
-    </ClCompile>
-    <Link>
-      <SubSystem>Windows</SubSystem>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>$(SolutionDir)Output\$(PlatformName)\MyFramework\$(Configuration)\MyFramework_x86_$(Configuration).a</AdditionalDependencies>
-      <AdditionalOptions>-lppapi -lppapi_cpp -lppapi_gles2 %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalLibraryDirectories>
-      </AdditionalLibraryDirectories>
-    </Link>
-    <AntBuild>
-      <AntBuildPath>$(ProjectDir)\SourceAndroid\AndroidApk\</AntBuildPath>
-    </AntBuild>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -948,56 +828,6 @@
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalDependencies>$(SolutionDir)Output\Android\MyFramework\$(Configuration)\MyFramework.a</AdditionalDependencies>
       <AdditionalOptions>-lGLESv2 %(AdditionalOptions)</AdditionalOptions>
-    </Link>
-    <AntBuild>
-      <AntBuildPath>$(ProjectDir)\SourceAndroid\AndroidApk\</AntBuildPath>
-    </AntBuild>
-  </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|NaCl'">
-    <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
-      <PrecompiledHeader>
-      </PrecompiledHeader>
-      <Optimization>MaxSpeed</Optimization>
-      <FunctionLevelLinking>true</FunctionLevelLinking>
-      <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>MYFW_NACL;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(SolutionDir)..\Framework\Box2D_v2.2.1;SourceCommon</AdditionalIncludeDirectories>
-    </ClCompile>
-    <Link>
-      <SubSystem>Windows</SubSystem>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
-      <EnableCOMDATFolding>true</EnableCOMDATFolding>
-      <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>$(SolutionDir)Output\$(PlatformName)\MyFramework\$(Configuration)\MyFramework_x86_$(Configuration).a</AdditionalDependencies>
-      <AdditionalOptions>-lppapi -lppapi_cpp -lppapi_gles2 %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalLibraryDirectories>
-      </AdditionalLibraryDirectories>
-    </Link>
-    <AntBuild>
-      <AntBuildPath>$(ProjectDir)\SourceAndroid\AndroidApk\</AntBuildPath>
-    </AntBuild>
-  </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='WxRelease|NaCl'">
-    <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
-      <PrecompiledHeader>
-      </PrecompiledHeader>
-      <Optimization>MaxSpeed</Optimization>
-      <FunctionLevelLinking>true</FunctionLevelLinking>
-      <IntrinsicFunctions>true</IntrinsicFunctions>
-      <PreprocessorDefinitions>MYFW_NACL;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(SolutionDir)..\Framework\Box2D_v2.2.1;SourceCommon</AdditionalIncludeDirectories>
-    </ClCompile>
-    <Link>
-      <SubSystem>Windows</SubSystem>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
-      <EnableCOMDATFolding>true</EnableCOMDATFolding>
-      <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>$(SolutionDir)Output\$(PlatformName)\MyFramework\$(Configuration)\MyFramework_x86_$(Configuration).a</AdditionalDependencies>
-      <AdditionalOptions>-lppapi -lppapi_cpp -lppapi_gles2 %(AdditionalOptions)</AdditionalOptions>
-      <AdditionalLibraryDirectories>
-      </AdditionalLibraryDirectories>
     </Link>
     <AntBuild>
       <AntBuildPath>$(ProjectDir)\SourceAndroid\AndroidApk\</AntBuildPath>
