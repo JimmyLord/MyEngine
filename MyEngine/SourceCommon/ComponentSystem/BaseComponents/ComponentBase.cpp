@@ -522,35 +522,46 @@ void ComponentBase::ImportVariablesFromJSON(cJSON* jsonobj, const char* singlela
                     // load each array value as a string.
                     if( jFlagsArray )
                     {
-                        for( int i=0; i<cJSON_GetArraySize( jFlagsArray ); i++ )
+                        int arraysize = cJSON_GetArraySize( jFlagsArray );
+                        if( arraysize == 0 )
                         {
-                            cJSON* jFlag = cJSON_GetArrayItem( jFlagsArray, i );
-
-                            if( jFlag->valuestring != 0 )
+                            // TODO: remove eventually
+                            // support for old scene files that didn't store visibility flags in arrays
+                            // just load valueint as a single flag.
+                            *(unsigned int*)((char*)this + pVar->m_Offset) = 1<<(jFlagsArray->valueint-1);
+                        }
+                        else
+                        {
+                            for( int i=0; i<arraysize; i++ )
                             {
-                                bool found = false;
-                                for( int i=0; i<pVar->m_NumEnumStrings; i++ )
-                                {
-                                    if( strcmp( pVar->m_ppEnumStrings[i], jFlag->valuestring ) == 0 )
-                                    {
-                                        *(unsigned int*)((char*)this + pVar->m_Offset) |= 1<<i;
-                                        found = true;
-                                        break;
-                                    }
-                                }
+                                cJSON* jFlag = cJSON_GetArrayItem( jFlagsArray, i );
 
-                                // if the flag string wasn't found, popup a warning
-#if MYFW_USING_WX
-                                if( found == false )
+                                if( jFlag->valuestring != 0 )
                                 {
-                                    static bool messageboxshown = false;
-                                    if( messageboxshown == false )
+                                    bool found = false;
+                                    for( int i=0; i<pVar->m_NumEnumStrings; i++ )
                                     {
-                                        messageboxshown = true;
-                                        wxMessageBox( "Warning: At least one GameObject Flag string wasn't found,\nsaving the scene will discard old flags", "Warning" );
+                                        if( strcmp( pVar->m_ppEnumStrings[i], jFlag->valuestring ) == 0 )
+                                        {
+                                            *(unsigned int*)((char*)this + pVar->m_Offset) |= 1<<i;
+                                            found = true;
+                                            break;
+                                        }
                                     }
-                                }
+
+                                    // if the flag string wasn't found, popup a warning
+#if MYFW_USING_WX
+                                    if( found == false )
+                                    {
+                                        static bool messageboxshown = false;
+                                        if( messageboxshown == false )
+                                        {
+                                            messageboxshown = true;
+                                            wxMessageBox( "Warning: At least one GameObject Flag string wasn't found,\nsaving the scene will discard old flags", "Warning" );
+                                        }
+                                    }
 #endif //MYFW_USING_WX
+                                }
                             }
                         }
                     }

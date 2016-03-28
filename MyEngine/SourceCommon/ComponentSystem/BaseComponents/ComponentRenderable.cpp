@@ -36,7 +36,9 @@ ComponentRenderable::~ComponentRenderable()
 void ComponentRenderable::RegisterVariables(CPPListHead* pList, ComponentRenderable* pThis) //_VARIABLE_LIST
 {
     AddVariable( pList, "Visible",     ComponentVariableType_Bool,         MyOffsetOf( pThis, &pThis->m_Visible ),             true,  true, 0, 0, 0, 0 ); //ComponentRenderable::StaticOnValueChanged, ComponentRenderable::StaticOnDrop, 0 );
-    AddVariable( pList, "Layers",      ComponentVariableType_UnsignedInt,  MyOffsetOf( pThis, &pThis->m_LayersThisExistsOn ),  true,  true, 0, 0, 0, 0 ); //ComponentRenderable::StaticOnValueChanged, ComponentRenderable::StaticOnDrop, 0 );
+
+    extern const char* g_pVisibilityLayerStrings[8];
+    AddVarFlags( pList, "Layers", MyOffsetOf( pThis, &pThis->m_LayersThisExistsOn ),  true,  true, 0, 8, g_pVisibilityLayerStrings, 0, 0, 0 ); //ComponentRenderable::StaticOnValueChanged, ComponentRenderable::StaticOnDrop, 0 );
 }
 
 void ComponentRenderable::Reset()

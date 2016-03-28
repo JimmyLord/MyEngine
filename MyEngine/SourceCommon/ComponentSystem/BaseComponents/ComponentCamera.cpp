@@ -13,6 +13,18 @@
 bool ComponentCamera::m_PanelWatchBlockVisible = true;
 #endif
 
+const char* g_pVisibilityLayerStrings[8] =
+{
+    "Main view",
+    "HUD",
+    "2",
+    "3",
+    "4",
+    "5",
+    "6",
+    "7",
+};
+
 ComponentCamera::ComponentCamera()
 : ComponentBase()
 {
@@ -57,7 +69,8 @@ void ComponentCamera::FillPropertiesWindow(bool clear, bool addcomponentvariable
         g_pPanelWatch->AddBool( "ColorBit", &m_ClearColorBuffer, 0, 1, this, ComponentCamera::StaticOnValueChanged );
         g_pPanelWatch->AddBool( "DepthBit", &m_ClearDepthBuffer, 0, 1, this, ComponentCamera::StaticOnValueChanged );
 
-        g_pPanelWatch->AddUnsignedInt( "Layers", &m_LayersToRender, 0, 65535, this, ComponentCamera::StaticOnValueChanged );
+        //g_pPanelWatch->AddUnsignedInt( "Layers", &m_LayersToRender, 0, 65535, this, ComponentCamera::StaticOnValueChanged );
+        g_pPanelWatch->AddFlags( "Layers", &m_LayersToRender, 8, g_pVisibilityLayerStrings, this, ComponentCamera::StaticOnValueChanged );
     }
 }
 
