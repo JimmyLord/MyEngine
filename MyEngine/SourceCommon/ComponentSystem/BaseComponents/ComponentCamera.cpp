@@ -25,9 +25,14 @@ const char* g_pVisibilityLayerStrings[8] =
     "7",
 };
 
+// Component Variable List
+MYFW_COMPONENT_IMPLEMENT_VARIABLE_LIST( ComponentCamera ); //_VARIABLE_LIST
+
 ComponentCamera::ComponentCamera()
 : ComponentBase()
 {
+    MYFW_COMPONENT_VARIABLE_LIST_CONSTRUCTOR(); //_VARIABLE_LIST
+
     ClassnameSanityCheck();
 
     m_BaseType = BaseComponentType_Camera;
@@ -39,6 +44,13 @@ ComponentCamera::~ComponentCamera()
 {
     SAFE_RELEASE( m_pPostEffectFBOs[0] );
     SAFE_RELEASE( m_pPostEffectFBOs[1] );
+
+    MYFW_COMPONENT_VARIABLE_LIST_DESTRUCTOR(); //_VARIABLE_LIST
+}
+
+void ComponentCamera::RegisterVariables(CPPListHead* pList, ComponentCamera* pThis) //_VARIABLE_LIST
+{
+    AddVarFlags( pList, "Layers", MyOffsetOf( pThis, &pThis->m_LayersToRender ), true, true, 0, 8, g_pVisibilityLayerStrings, (CVarFunc_ValueChanged)&ComponentCamera::OnValueChanged, 0, 0 );
 }
 
 #if MYFW_USING_WX
@@ -70,11 +82,23 @@ void ComponentCamera::FillPropertiesWindow(bool clear, bool addcomponentvariable
         g_pPanelWatch->AddBool( "DepthBit", &m_ClearDepthBuffer, 0, 1, this, ComponentCamera::StaticOnValueChanged );
 
         //g_pPanelWatch->AddUnsignedInt( "Layers", &m_LayersToRender, 0, 65535, this, ComponentCamera::StaticOnValueChanged );
-        g_pPanelWatch->AddFlags( "Layers", &m_LayersToRender, 8, g_pVisibilityLayerStrings, this, ComponentCamera::StaticOnValueChanged );
+        //g_pPanelWatch->AddFlags( "Layers", &m_LayersToRender, 8, g_pVisibilityLayerStrings, this, ComponentCamera::StaticOnValueChanged );
+
+        FillPropertiesWindowWithVariables(); //_VARIABLE_LIST
     }
 }
 
-void ComponentCamera::OnValueChanged(int controlid, bool finishedchanging)
+void* ComponentCamera::OnValueChanged(ComponentVariable* pVar, int controlid, bool finishedchanging, double oldvalue)
+{
+    void* oldpointer = 0;
+
+    ComputeProjectionMatrices();
+    m_FullClearsRequired = 2;
+
+    return oldpointer;
+}
+
+void ComponentCamera::OtherOnValueChanged(int controlid, bool finishedchanging)
 {
     ComputeProjectionMatrices();
     m_FullClearsRequired = 2;
@@ -83,34 +107,37 @@ void ComponentCamera::OnValueChanged(int controlid, bool finishedchanging)
 
 cJSON* ComponentCamera::ExportAsJSONObject(bool savesceneid)
 {
-    cJSON* component = ComponentBase::ExportAsJSONObject( savesceneid );
+    cJSON* jComponent = ComponentBase::ExportAsJSONObject( savesceneid );
 
-    cJSON_AddNumberToObject( component, "Ortho", m_Orthographic );
+    cJSON_AddNumberToObject( jComponent, "Ortho", m_Orthographic );
 
-    cJSON_AddNumberToObject( component, "DWidth", m_DesiredWidth );
-    cJSON_AddNumberToObject( component, "DHeight", m_DesiredHeight );
+    cJSON_AddNumberToObject( jComponent, "DWidth", m_DesiredWidth );
+    cJSON_AddNumberToObject( jComponent, "DHeight", m_DesiredHeight );
 
-    cJSON_AddNumberToObject( component, "ColorBit", m_ClearColorBuffer );
-    cJSON_AddNumberToObject( component, "DepthBit", m_ClearDepthBuffer );
+    cJSON_AddNumberToObject( jComponent, "ColorBit", m_ClearColorBuffer );
+    cJSON_AddNumberToObject( jComponent, "DepthBit", m_ClearDepthBuffer );
 
-    cJSON_AddNumberToObject( component, "Layers", m_LayersToRender );
+    //cJSON_AddNumberToObject( jComponent, "Layers", m_LayersToRender );
 
-    return component;
+    return jComponent;
 }
 
-void ComponentCamera::ImportFromJSONObject(cJSON* jsonobj, unsigned int sceneid)
+void ComponentCamera::ImportFromJSONObject(cJSON* jComponent, unsigned int sceneid)
 {
-    ComponentBase::ImportFromJSONObject( jsonobj, sceneid );
+    // if we're loading a camera, start the layers flags at 0, so we set the flags when loading.
+    m_LayersToRender = 0;
 
-    cJSONExt_GetBool( jsonobj, "Ortho", &m_Orthographic );
+    ComponentBase::ImportFromJSONObject( jComponent, sceneid );
 
-    cJSONExt_GetFloat( jsonobj, "DWidth", &m_DesiredWidth );
-    cJSONExt_GetFloat( jsonobj, "DHeight", &m_DesiredHeight );
+    cJSONExt_GetBool( jComponent, "Ortho", &m_Orthographic );
 
-    cJSONExt_GetBool( jsonobj, "ColorBit", &m_ClearColorBuffer );
-    cJSONExt_GetBool( jsonobj, "DepthBit", &m_ClearDepthBuffer );
+    cJSONExt_GetFloat( jComponent, "DWidth", &m_DesiredWidth );
+    cJSONExt_GetFloat( jComponent, "DHeight", &m_DesiredHeight );
 
-    cJSONExt_GetUnsignedInt( jsonobj, "Layers", &m_LayersToRender );
+    cJSONExt_GetBool( jComponent, "ColorBit", &m_ClearColorBuffer );
+    cJSONExt_GetBool( jComponent, "DepthBit", &m_ClearDepthBuffer );
+
+    //cJSONExt_GetUnsignedInt( jComponent, "Layers", &m_LayersToRender );
 }
 
 void ComponentCamera::Reset()

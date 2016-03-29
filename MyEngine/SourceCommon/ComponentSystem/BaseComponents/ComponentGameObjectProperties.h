@@ -38,6 +38,7 @@ public:
     virtual void RegisterCallbacks();
     virtual void UnregisterCallbacks();
 
+    void SetFlags(unsigned int flags) { m_Flags = flags; }
     unsigned int GetFlags() { return m_Flags; }
 
 protected:

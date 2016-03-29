@@ -164,7 +164,7 @@ void EngineCore::InitializeGameObjectFlagStrings(cJSON* jStringsArray)
     {
         char* strings[32] =
         {
-            "Camera", "Player", "Enemy", "Target", "4", "5", "6", "7", "8", "9",
+            "Camera-Main", "Camera-HUD", "Player", "Enemy", "Target", "5", "6", "7", "8", "9",
             "10", "11", "12", "13", "14", "15", "16", "17", "18", "19",
             "20", "21", "22", "23", "24", "25", "26", "27", "28", "29",
             "30", "31",
@@ -179,7 +179,15 @@ void EngineCore::InitializeGameObjectFlagStrings(cJSON* jStringsArray)
     }
     else
     {
-        for( int i=0; i<cJSON_GetArraySize( jStringsArray ); i++ )
+        int stringarraylength = cJSON_GetArraySize( jStringsArray );
+        if( stringarraylength > 32 )
+        {
+            stringarraylength = 32;
+            LOGError( LOGTag, "Too many strings in 'GameObjectFlags' in 'EditorPrefs.ini'\n" );
+            MyAssert( false );
+        }
+
+        for( int i=0; i<stringarraylength; i++ )
         {
             cJSON* jGameObjectFlagsString = cJSON_GetArrayItem( jStringsArray, i );
             
@@ -842,6 +850,7 @@ void EngineCore::CreateDefaultSceneObjects()
     {
         pGameObject = m_pComponentSystemManager->CreateGameObject( true, 1 );
         pGameObject->SetName( "Main Camera" );
+        pGameObject->SetFlags( 1<<0 );
 #if MYFW_RIGHTHANDED
         pGameObject->m_pComponentTransform->SetWorldPosition( Vector3( 0, 0, 10 ) );
 #else
@@ -858,6 +867,7 @@ void EngineCore::CreateDefaultSceneObjects()
     {
         pGameObject = m_pComponentSystemManager->CreateGameObject( true, 1 );
         pGameObject->SetName( "Hud Camera" );
+        pGameObject->SetFlags( 1<<1 );
 
         pComponentCamera = (ComponentCamera*)pGameObject->AddNewComponent( ComponentType_Camera, 1 );
         pComponentCamera->SetDesiredAspectRatio( 640, 960 );

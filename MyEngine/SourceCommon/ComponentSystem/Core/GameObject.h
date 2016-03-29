@@ -68,6 +68,7 @@ public:
     void ImportFromJSONObject(cJSON* jGameObject, unsigned int sceneid);
     cJSON* ExportReferenceAsJSONObject(unsigned int refsceneid);
 
+    void SetFlags(unsigned int flags) { return m_Properties.SetFlags( flags ); }
     unsigned int GetFlags() { return m_Properties.GetFlags(); }
 
     void SetEnabled(bool enabled);

@@ -1864,7 +1864,10 @@ void ComponentSystemManager::MoveInputHandlersToFront(CPPListNode* pOnTouch, CPP
 void ComponentSystemManager::DrawMousePickerFrame(ComponentCamera* pCamera, MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride)
 {
     // always use 4 bone version.
-    // TODO: this might fail with 1-3 bones, but works with 0 since bone attribs and uniforms should default to 0.
+    // TODO: this might fail with 1-3 bones,
+    //       but should work with 0 bones since bone attribs are set to 100% weight on bone 0
+    //       and bone 0 transform uniform is set to identity.
+    //       This doesn't seem to work on some(AMD?) cards ATM.
     Shader_Base* pShader = (Shader_Base*)pShaderOverride->GlobalPass( 0, 4 );
     if( pShader->ActivateAndProgramShader() )
     {

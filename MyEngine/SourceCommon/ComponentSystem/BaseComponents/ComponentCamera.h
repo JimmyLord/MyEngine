@@ -20,6 +20,10 @@ extern const char* g_pVisibilityLayerStrings[8];
 
 class ComponentCamera : public ComponentBase
 {
+private:
+    // Component Variable List
+    MYFW_COMPONENT_DECLARE_VARIABLE_LIST( ComponentCamera );
+
 public:
     ComponentTransform* m_pComponentTransform;
 
@@ -58,7 +62,7 @@ public:
     SetClassnameBase( "CameraComponent" ); // only first 8 character count.
 
     virtual cJSON* ExportAsJSONObject(bool savesceneid);
-    virtual void ImportFromJSONObject(cJSON* jsonobj, unsigned int sceneid);
+    virtual void ImportFromJSONObject(cJSON* jComponent, unsigned int sceneid);
 
     virtual void Reset();
     virtual void CopyFromSameType_Dangerous(ComponentBase* pObject) { *this = (ComponentCamera&)*pObject; }
@@ -98,8 +102,10 @@ public:
     static void StaticOnLeftClick(void* pObjectPtr, wxTreeItemId id, unsigned int count) { ((ComponentCamera*)pObjectPtr)->OnLeftClick( count, true ); }
     void OnLeftClick(unsigned int count, bool clear);
     virtual void FillPropertiesWindow(bool clear, bool addcomponentvariables = false, bool ignoreblockvisibleflag = false);
-    static void StaticOnValueChanged(void* pObjectPtr, int controlid, bool finishedchanging, double oldvalue) { ((ComponentCamera*)pObjectPtr)->OnValueChanged( controlid, finishedchanging ); }
-    void OnValueChanged(int controlid, bool finishedchanging);
+
+    void* OnValueChanged(ComponentVariable* pVar, int controlid, bool finishedchanging, double oldvalue);
+    static void StaticOnValueChanged(void* pObjectPtr, int controlid, bool finishedchanging, double oldvalue) { ((ComponentCamera*)pObjectPtr)->OtherOnValueChanged( controlid, finishedchanging ); }
+    void OtherOnValueChanged(int controlid, bool finishedchanging);
 #endif //MYFW_USING_WX
 };
 
