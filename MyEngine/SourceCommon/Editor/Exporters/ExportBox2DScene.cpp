@@ -51,6 +51,7 @@ cJSON* ExportGameObject(cJSON* jGameObjectArray, GameObject* pGameObject)
                     pComponent->IsA( "2DJoint-Weld" ) ||
                     pComponent->IsA( "2DJoint-Prismatic" ) ||
                     pComponent->IsA( "MeshPrimitiveComponent" ) ||
+                    pComponent->IsA( "MeshOBJComponent" ) ||
                     pComponent->IsA( "SpriteComponent" ) )
                 {
                     if( jComponentArray == 0 )
@@ -69,6 +70,8 @@ cJSON* ExportGameObject(cJSON* jGameObjectArray, GameObject* pGameObject)
                     cJSON_DeleteItemFromObject( jComponent, "SecondCollisionObject" );
                     cJSON_DeleteItemFromObject( jComponent, "Material" );
                     cJSON_DeleteItemFromObject( jComponent, "Materials" );
+                    cJSON_DeleteItemFromObject( jComponent, "Tint" );
+                    cJSON_DeleteItemFromObject( jComponent, "Size" );
 
                     if( Component2DJointRevolute* pJoint = dynamic_cast<Component2DJointRevolute*>(pComponent) )
                     {
@@ -97,6 +100,12 @@ cJSON* ExportGameObject(cJSON* jGameObjectArray, GameObject* pGameObject)
                     if( pComponent->IsA( "MeshPrimitiveComponent" ) )
                     {
                         ComponentMeshPrimitive* pMesh = (ComponentMeshPrimitive*)pComponent;
+                        pMaterial = pMesh->GetMaterial( 0 );
+                    }
+
+                    if( pComponent->IsA( "MeshOBJComponent" ) )
+                    {
+                        ComponentMeshOBJ* pMesh = (ComponentMeshOBJ*)pComponent;
                         pMaterial = pMesh->GetMaterial( 0 );
                     }
 

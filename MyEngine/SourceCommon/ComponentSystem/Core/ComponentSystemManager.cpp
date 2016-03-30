@@ -1908,7 +1908,7 @@ void ComponentSystemManager::DrawMousePickerFrame(ComponentCamera* pCamera, MyMa
             }
         }
 
-        pShader->DeactivateShader();
+        pShader->DeactivateShader( 0, false );
     }
 }
 
