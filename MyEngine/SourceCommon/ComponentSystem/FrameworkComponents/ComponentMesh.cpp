@@ -391,16 +391,22 @@ void ComponentMesh::DrawCallback(ComponentCamera* pCamera, MyMatrix* pMatViewPro
 #if MYFW_USING_WX
         if( g_pEngineCore->m_EditorMode )
         {
-            campos = g_pEngineCore->m_pEditorState->GetEditorCamera()->m_pComponentTransform->GetWorldPosition();
+            ComponentCamera* pCamera = g_pEngineCore->m_pEditorState->GetEditorCamera();
+
+            campos = pCamera->m_pComponentTransform->GetLocalPosition();
         }
         else
 #endif
         {
             ComponentCamera* pCamera = g_pComponentSystemManager->GetFirstCamera();
             if( pCamera )
-                campos = g_pComponentSystemManager->GetFirstCamera()->m_pComponentTransform->GetWorldPosition();
+            {
+                campos = pCamera->m_pComponentTransform->GetLocalPosition();
+            }
             else
+            {
                 campos.Set( 0, 0, 0 );
+            }
         }
 
         m_pMesh->Draw( pMatViewProj, &campos, lights, numlights, pShadowVP, pShadowTex, 0, pShaderOverride );

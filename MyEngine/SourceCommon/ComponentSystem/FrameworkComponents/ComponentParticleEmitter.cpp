@@ -377,8 +377,38 @@ void ComponentParticleEmitter::TickCallback(double TimePassed)
             i--;
         }
 
-        if( size > 0 )            
-            m_pParticleRenderer->AddPoint( pParticle->pos, 0, color, size );
+        if( size > 0 )
+        {
+            Vector3 camrot;
+#if MYFW_USING_WX
+            if( g_pEngineCore->m_EditorMode )
+            {
+                ComponentCamera* pCamera = g_pEngineCore->m_pEditorState->GetEditorCamera();
+
+                //pCamera->m_pComponentTransform->UpdateLocalSRT();
+                camrot = pCamera->m_pComponentTransform->GetLocalRotation();
+            }
+            else
+#endif
+            {
+                ComponentCamera* pCamera = g_pComponentSystemManager->GetFirstCamera();
+                if( pCamera )
+                {
+                    //pCamera->m_pComponentTransform->UpdateLocalSRT();
+                    camrot = pCamera->m_pComponentTransform->GetLocalRotation();
+                }
+                else
+                {
+                    camrot.Set( 0, 0, 0 );
+                }
+            }
+            MyMatrix matcamrot;
+            Vector3 invcamrot = camrot;// * -1;
+            matcamrot.CreateSRT( Vector3(1), invcamrot, Vector3(0) );
+            //matcamrot.SetIdentity();
+
+            m_pParticleRenderer->AddPoint( pParticle->pos, 0, color, size, matcamrot );
+        }
     }
 
     if( m_ContinuousSpawn || m_RunInEditor )
@@ -402,6 +432,13 @@ void ComponentParticleEmitter::DrawCallback(ComponentCamera* pCamera, MyMatrix* 
     if( m_pMaterial == 0 )
         return;
 
+    Vector3 camrot;
+    if( pCamera )
+    {
+        //pCamera->m_pComponentTransform->UpdateLocalSRT();
+        camrot = pCamera->m_pComponentTransform->GetLocalRotation();
+    }
+
     m_pParticleRenderer->SetMaterial( m_pMaterial );
-    m_pParticleRenderer->Draw( pMatViewProj );
+    m_pParticleRenderer->Draw( pMatViewProj, &camrot );
 }
