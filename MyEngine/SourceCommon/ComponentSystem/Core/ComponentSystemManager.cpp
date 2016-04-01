@@ -1622,18 +1622,27 @@ ComponentBase* ComponentSystemManager::FindComponentByJSONRef(cJSON* pJSONCompon
     return 0;
 }
 
-ComponentCamera* ComponentSystemManager::GetFirstCamera()
+ComponentCamera* ComponentSystemManager::GetFirstCamera(bool prefereditorcam)
 {
-    for( CPPListNode* node = m_Components[BaseComponentType_Camera].GetHead(); node != 0; node = node->GetNext() )
+#if MYFW_USING_WX
+    if( prefereditorcam && g_pEngineCore->m_EditorMode )
     {
-        ComponentCamera* pCamera = (ComponentCamera*)node;
-
-        // skip unmanaged cameras. (editor cam)
-        if( pCamera->m_pGameObject->IsManaged() == true )
+        return g_pEngineCore->m_pEditorState->GetEditorCamera();
+    }
+    else
+    {
+#endif
+        for( CPPListNode* node = m_Components[BaseComponentType_Camera].GetHead(); node != 0; node = node->GetNext() )
         {
-            MyAssert( pCamera->m_Type == ComponentType_Camera );
+            ComponentCamera* pCamera = (ComponentCamera*)node;
 
-            return pCamera;
+            // skip unmanaged cameras. (editor cam)
+            if( pCamera->m_pGameObject->IsManaged() == true )
+            {
+                MyAssert( pCamera->m_Type == ComponentType_Camera );
+
+                return pCamera;
+            }
         }
     }
 
@@ -1837,7 +1846,7 @@ void ComponentSystemManager::OnDrawFrame(ComponentCamera* pCamera, MyMatrix* pMa
         }
     }
 
-    checkGlError( "start of ComponentSystemManager::OnDrawFrame()" );
+    checkGlError( "end of ComponentSystemManager::OnDrawFrame()" );
 }
 
 void ComponentSystemManager::OnFileRenamed(const char* fullpathbefore, const char* fullpathafter)

@@ -346,6 +346,20 @@ void ComponentParticleEmitter::TickCallback(double TimePassed)
     // TODO: if we want to share particle renderers, then don't reset like this.
     m_pParticleRenderer->Reset();
 
+    // rebuild the quad to face the camera each frame. // TODO: don't rebuild if billboarding is disabled.
+    {
+        // Get the camera rotation vector, use the editor camera if in editor mode.
+        Vector3 camrot( 0, 0, 0 );
+        ComponentCamera* pCamera = g_pComponentSystemManager->GetFirstCamera( true );
+        if( pCamera )
+            camrot = pCamera->m_pComponentTransform->GetLocalRotation();
+
+        MyMatrix matcamrot;
+        matcamrot.CreateSRT( Vector3(1), camrot, Vector3(0) );
+
+        m_pParticleRenderer->RebuildParticleQuad( &matcamrot );
+    }
+
     //m_TimeAlive += TimePassed;
 
     for( unsigned int i=0; i<m_Particles.m_ActiveObjects.Count(); i++ )
@@ -379,35 +393,7 @@ void ComponentParticleEmitter::TickCallback(double TimePassed)
 
         if( size > 0 )
         {
-            Vector3 camrot;
-#if MYFW_USING_WX
-            if( g_pEngineCore->m_EditorMode )
-            {
-                ComponentCamera* pCamera = g_pEngineCore->m_pEditorState->GetEditorCamera();
-
-                //pCamera->m_pComponentTransform->UpdateLocalSRT();
-                camrot = pCamera->m_pComponentTransform->GetLocalRotation();
-            }
-            else
-#endif
-            {
-                ComponentCamera* pCamera = g_pComponentSystemManager->GetFirstCamera();
-                if( pCamera )
-                {
-                    //pCamera->m_pComponentTransform->UpdateLocalSRT();
-                    camrot = pCamera->m_pComponentTransform->GetLocalRotation();
-                }
-                else
-                {
-                    camrot.Set( 0, 0, 0 );
-                }
-            }
-            MyMatrix matcamrot;
-            Vector3 invcamrot = camrot;// * -1;
-            matcamrot.CreateSRT( Vector3(1), invcamrot, Vector3(0) );
-            //matcamrot.SetIdentity();
-
-            m_pParticleRenderer->AddPoint( pParticle->pos, 0, color, size, matcamrot );
+            m_pParticleRenderer->AddPoint( pParticle->pos, 0, color, size );
         }
     }
 
@@ -432,13 +418,6 @@ void ComponentParticleEmitter::DrawCallback(ComponentCamera* pCamera, MyMatrix* 
     if( m_pMaterial == 0 )
         return;
 
-    Vector3 camrot;
-    if( pCamera )
-    {
-        //pCamera->m_pComponentTransform->UpdateLocalSRT();
-        camrot = pCamera->m_pComponentTransform->GetLocalRotation();
-    }
-
     m_pParticleRenderer->SetMaterial( m_pMaterial );
-    m_pParticleRenderer->Draw( pMatViewProj, &camrot );
+    m_pParticleRenderer->Draw( pMatViewProj );
 }

@@ -194,7 +194,7 @@ public:
     GameObject* FindGameObjectByNameFromList(GameObject* list, const char* name);
     GameObject* FindGameObjectByJSONRef(cJSON* pJSONGameObjectRef, unsigned int defaultsceneid);
     ComponentBase* FindComponentByJSONRef(cJSON* pJSONComponentRef, unsigned int defaultsceneid);
-    ComponentCamera* GetFirstCamera();
+    ComponentCamera* GetFirstCamera(bool prefereditorcam = false);
     ComponentBase* GetFirstComponentOfType(const char* type);
     ComponentBase* GetNextComponentOfType(ComponentBase* pLastComponent);
 
