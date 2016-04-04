@@ -1630,8 +1630,8 @@ ComponentCamera* ComponentSystemManager::GetFirstCamera(bool prefereditorcam)
         return g_pEngineCore->m_pEditorState->GetEditorCamera();
     }
     else
-    {
 #endif
+    {
         for( CPPListNode* node = m_Components[BaseComponentType_Camera].GetHead(); node != 0; node = node->GetNext() )
         {
             ComponentCamera* pCamera = (ComponentCamera*)node;
@@ -1876,7 +1876,6 @@ void ComponentSystemManager::DrawMousePickerFrame(ComponentCamera* pCamera, MyMa
     // TODO: this might fail with 1-3 bones,
     //       but should work with 0 bones since bone attribs are set to 100% weight on bone 0
     //       and bone 0 transform uniform is set to identity.
-    //       This doesn't seem to work on some(AMD?) cards ATM.
     Shader_Base* pShader = (Shader_Base*)pShaderOverride->GlobalPass( 0, 4 );
     if( pShader->ActivateAndProgramShader() )
     {

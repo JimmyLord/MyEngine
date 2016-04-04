@@ -42,6 +42,8 @@ public:
 
     float m_BurstDuration;
 
+    bool m_BillboardSprites;
+
     float m_SpawnTime;
     float m_SpawnTimeVariation;
     float m_InitialSpeedBoost;

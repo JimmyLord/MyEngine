@@ -65,6 +65,8 @@ void ComponentParticleEmitter::Reset()
     m_BurstDuration = 100;
 
     m_BurstTimeLeft = m_BurstDuration;
+
+    m_BillboardSprites = true;
     
     m_SpawnTime = 1/60.0f;
     m_SpawnTimeVariation = 0.1f;
@@ -127,6 +129,8 @@ void ComponentParticleEmitter::FillPropertiesWindow(bool clear, bool addcomponen
 
         g_pPanelWatch->AddBool( "Spawn on timer", &m_ContinuousSpawn, 0, 1 );
 
+        g_pPanelWatch->AddBool( "Billboard", &m_BillboardSprites, 0, 1 );
+
         g_pPanelWatch->AddVector3( "Offset", &m_InitialOffset, 0, 0 );
         g_pPanelWatch->AddFloat( "size", &m_Size, 0, 0 );
         g_pPanelWatch->AddFloat( "sizevariation", &m_SizeVariation, 0, 0 );
@@ -167,7 +171,8 @@ cJSON* ComponentParticleEmitter::ExportAsJSONObject(bool savesceneid)
     cJSON* component = ComponentRenderable::ExportAsJSONObject( savesceneid );
 
     cJSON_AddNumberToObject( component, "RunInEditor", m_RunInEditor );
-    cJSON_AddNumberToObject( component, "ContinuousSpawn", m_ContinuousSpawn );    
+    cJSON_AddNumberToObject( component, "ContinuousSpawn", m_ContinuousSpawn );
+    cJSON_AddNumberToObject( component, "Billboard", m_BillboardSprites );
 
     cJSONExt_AddFloatArrayToObject( component, "offset", &m_InitialOffset.x, 3 );
     cJSON_AddNumberToObject( component, "size", m_Size );
@@ -194,6 +199,7 @@ void ComponentParticleEmitter::ImportFromJSONObject(cJSON* jsonobj, unsigned int
 
     cJSONExt_GetBool( jsonobj, "RunInEditor", &m_RunInEditor );
     cJSONExt_GetBool( jsonobj, "ContinuousSpawn", &m_ContinuousSpawn );
+    cJSONExt_GetBool( jsonobj, "Billboard", &m_BillboardSprites );
 
     cJSONExt_GetFloatArray( jsonobj, "offset", &m_InitialOffset.x, 3 );
     cJSONExt_GetFloat( jsonobj, "size", &m_Size );
@@ -226,6 +232,8 @@ ComponentParticleEmitter& ComponentParticleEmitter::operator=(const ComponentPar
 
     this->m_RunInEditor         = other.m_RunInEditor;
     this->m_ContinuousSpawn     = other.m_ContinuousSpawn;
+
+    this->m_BillboardSprites    = other.m_BillboardSprites;
 
     this->m_Size                = other.m_Size;
     this->m_SizeVariation       = other.m_SizeVariation;
@@ -347,6 +355,7 @@ void ComponentParticleEmitter::TickCallback(double TimePassed)
     m_pParticleRenderer->Reset();
 
     // rebuild the quad to face the camera each frame. // TODO: don't rebuild if billboarding is disabled.
+    if( m_BillboardSprites )
     {
         // Get the camera rotation vector, use the editor camera if in editor mode.
         Vector3 camrot( 0, 0, 0 );
@@ -358,6 +367,10 @@ void ComponentParticleEmitter::TickCallback(double TimePassed)
         matcamrot.CreateSRT( Vector3(1), camrot, Vector3(0) );
 
         m_pParticleRenderer->RebuildParticleQuad( &matcamrot );
+    }
+    else
+    {
+        m_pParticleRenderer->RebuildParticleQuad( 0 );
     }
 
     //m_TimeAlive += TimePassed;
