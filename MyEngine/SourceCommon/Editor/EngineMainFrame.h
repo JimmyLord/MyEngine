@@ -112,6 +112,8 @@ public:
 
     virtual bool FilterGlobalEvents(wxEvent& event);
 
+    void OnDropFiles(wxDropFilesEvent& event);
+
     virtual void ResizeViewport();
 
     virtual void UpdateMenuItemStates();
@@ -130,7 +132,8 @@ public:
     void LoadSceneDialog(bool unloadscenes);
     void LoadScene(const char* scenename, bool unloadscenes);
 
-    void AddDatafileToScene();
+    void AddDatafilesToScene();
+    void LoadDatafile(wxString filename);
 
     static void StaticOnDrop(void* pObjectPtr, int controlid, wxCoord x, wxCoord y) { ((EngineMainFrame*)pObjectPtr)->OnDrop(controlid, x, y); }
     void OnDrop(int controlid, wxCoord x, wxCoord y);

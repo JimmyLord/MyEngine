@@ -223,6 +223,9 @@ void EngineMainFrame::InitFrame()
 
     m_Hackery_Record_StackDepth = -1;
 
+    this->DragAcceptFiles( true );
+    Connect( wxEVT_DROP_FILES, wxDropFilesEventHandler(EngineMainFrame::OnDropFiles) );
+
     // Override these menu options from the main frame,
     Connect( myID_View_SavePerspective, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );
     Connect( myID_View_LoadPerspective, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );
@@ -497,6 +500,16 @@ bool EngineMainFrame::FilterGlobalEvents(wxEvent& event)
     return false;
 }
 
+void EngineMainFrame::OnDropFiles(wxDropFilesEvent& event)
+{
+    wxString* pFileArray = event.GetFiles();
+
+    for( int i=0; i<event.GetNumberOfFiles(); i++ )
+    {
+        LoadDatafile( pFileArray[i] );
+    }
+}
+
 void EngineMainFrame::ResizeViewport()
 {
     MainFrame::ResizeViewport();
@@ -614,7 +627,7 @@ void EngineMainFrame::OnMenu_Engine(wxCommandEvent& event)
         break;
 
     case myIDEngine_AddDatafile:
-        AddDatafileToScene();
+        AddDatafilesToScene();
         break;
 
     case myIDEngine_Grid_SnapOnOff:
@@ -962,7 +975,7 @@ void EngineMainFrame::LoadScene(const char* scenename, bool unloadscenes)
     this->SetTitle( g_pComponentSystemManager->GetSceneInfo( sceneid )->m_FullPath );
 }
 
-void EngineMainFrame::AddDatafileToScene()
+void EngineMainFrame::AddDatafilesToScene()
 {
     // multiple select file open dialog
     wxFileDialog FileDialog( this, _("Open Datafile"), "./Data", "", "All files(*.*)|*.*", wxFD_OPEN|wxFD_FILE_MUST_EXIST|wxFD_MULTIPLE );
@@ -975,24 +988,30 @@ void EngineMainFrame::AddDatafileToScene()
     wxArrayString patharray;
     FileDialog.GetPaths( patharray );
 
-    char fullpath[MAX_PATH];
     for( unsigned int filenum=0; filenum<patharray.Count(); filenum++ )
     {
-        sprintf_s( fullpath, MAX_PATH, "%s", (const char*)patharray[filenum] );
-
-        // if the datafile is in our working directory, then load it... otherwise TODO: copy it in?
-        const char* relativepath = GetRelativePath( fullpath );
-        if( relativepath == 0 )
-        {
-            // File is not in our working directory.
-            // TODO: copy the file into our data folder?
-            LOGError( LOGTag, "file must be in working directory\n" );
-            //MyAssert( false );
-            return;
-        }
-
-        g_pEngineCore->m_pComponentSystemManager->LoadDataFile( relativepath, 1, (const char*)patharray[filenum], true );
+        LoadDatafile( patharray[filenum] );
     }
+}
+
+void EngineMainFrame::LoadDatafile(wxString filename)
+{
+    char fullpath[MAX_PATH];
+
+    sprintf_s( fullpath, MAX_PATH, "%s", (const char*)filename );
+
+    // if the datafile is in our working directory, then load it... otherwise TODO: copy it in?
+    const char* relativepath = GetRelativePath( fullpath );
+    if( relativepath == 0 )
+    {
+        // File is not in our working directory.
+        // TODO: copy the file into our data folder?
+        LOGError( LOGTag, "file must be in working directory\n" );
+        //MyAssert( false );
+        return;
+    }
+
+    g_pEngineCore->m_pComponentSystemManager->LoadDataFile( relativepath, 1, filename, true );
 }
 
 void EngineMainFrame::OnDrop(int controlid, wxCoord x, wxCoord y)
