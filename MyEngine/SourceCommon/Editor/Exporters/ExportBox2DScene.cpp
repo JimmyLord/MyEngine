@@ -107,6 +107,9 @@ cJSON* ExportGameObject(cJSON* jGameObjectArray, GameObject* pGameObject)
                     {
                         ComponentMeshOBJ* pMesh = (ComponentMeshOBJ*)pComponent;
                         pMaterial = pMesh->GetMaterial( 0 );
+
+                        if( pMesh->m_pMesh && pMesh->m_pMesh->m_pSourceFile )
+                            cJSON_AddStringToObject( jComponent, "OBJFilename", pMesh->m_pMesh->m_pSourceFile->m_FilenameWithoutExtension );
                     }
 
                     if( pMaterial )
