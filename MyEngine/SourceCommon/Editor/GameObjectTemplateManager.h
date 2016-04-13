@@ -12,17 +12,30 @@
 
 class GameObjectTemplateManager
 {
+private:
+    struct GameObjectTemplate
+    {
+        bool isfolder;
+        cJSON* jParent;
+        cJSON* jTemplate;
+    };
+
 protected:
-    cJSON* m_jTemplatesRoot;
-    cJSON* m_jTemplatesArray;
+    std::vector<GameObjectTemplate> m_jTemplates;
+
+    cJSON* m_jRoot;
+    cJSON* m_jRootTemplatesArray;
 
 public:
     GameObjectTemplateManager();
     virtual ~GameObjectTemplateManager();
 
-    cJSON* GetTemplateJSONObject(unsigned int templateid);
+    void AddTemplatesToVector(cJSON* jTemplateArray);
 
     unsigned int GetNumberOfTemplates();
+    bool IsTemplateAFolder(unsigned int templateid);
+    cJSON* GetTemplateJSONObject(unsigned int templateid);
+    cJSON* GetParentTemplateJSONObject(unsigned int templateid);
     const char* GetTemplateName(unsigned int templateid);
 };
 

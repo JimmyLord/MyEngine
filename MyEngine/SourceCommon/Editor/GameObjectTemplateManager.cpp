@@ -13,33 +13,62 @@ GameObjectTemplateManager::GameObjectTemplateManager()
 {
     char* filestring = PlatformSpecific_LoadFile( "DataEngine/EngineGameObjects.mytemplate", 0 );
 
-    m_jTemplatesRoot = cJSON_Parse( filestring );
+    m_jRoot = cJSON_Parse( filestring );
 
-    m_jTemplatesArray = cJSON_GetObjectItem( m_jTemplatesRoot, "Templates" );
+    m_jRootTemplatesArray = cJSON_GetObjectItem( m_jRoot, "Templates" );
+    AddTemplatesToVector( m_jRootTemplatesArray );
 
     delete[] filestring;
 }
 
 GameObjectTemplateManager::~GameObjectTemplateManager()
 {
-    cJSON_Delete( m_jTemplatesRoot );
+    cJSON_Delete( m_jRoot );
 }
 
-cJSON* GameObjectTemplateManager::GetTemplateJSONObject(unsigned int templateid)
+void GameObjectTemplateManager::AddTemplatesToVector(cJSON* jTemplateArray)
 {
-    cJSON* jTemplate = cJSON_GetArrayItem( m_jTemplatesArray, templateid );
-    
-    return jTemplate;
+    for( int i=0; i<cJSON_GetArraySize( jTemplateArray ); i++ )
+    {
+        cJSON* jTemplate = cJSON_GetArrayItem( jTemplateArray, i );
+        cJSON* jInnerArray = cJSON_GetObjectItem( jTemplate, "Templates" );
+
+        GameObjectTemplate gotemplate;
+        gotemplate.isfolder = (jInnerArray != 0); // it's a folder if there's an inner array
+        gotemplate.jParent = jTemplateArray;
+        gotemplate.jTemplate = jTemplate;
+        m_jTemplates.push_back( gotemplate );
+
+        if( jInnerArray )
+        {
+            AddTemplatesToVector( jInnerArray );
+        }
+    }
 }
 
 unsigned int GameObjectTemplateManager::GetNumberOfTemplates()
 {
-    return (unsigned int)cJSON_GetArraySize( m_jTemplatesArray );
+    return m_jTemplates.size();
+}
+
+bool GameObjectTemplateManager::IsTemplateAFolder(unsigned int templateid)
+{
+    return m_jTemplates[templateid].isfolder;
+}
+
+cJSON* GameObjectTemplateManager::GetTemplateJSONObject(unsigned int templateid)
+{
+    return m_jTemplates[templateid].jTemplate;
+}
+
+cJSON* GameObjectTemplateManager::GetParentTemplateJSONObject(unsigned int templateid)
+{
+    return m_jTemplates[templateid].jParent;
 }
 
 const char* GameObjectTemplateManager::GetTemplateName(unsigned int templateid)
 {
-    cJSON* jTemplate = cJSON_GetArrayItem( m_jTemplatesArray, templateid );
+    cJSON* jTemplate = GetTemplateJSONObject( templateid );
 
     cJSON* jName = cJSON_GetObjectItem( jTemplate, "Name" );
     return jName->valuestring;

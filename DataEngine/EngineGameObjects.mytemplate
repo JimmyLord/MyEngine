@@ -6,99 +6,102 @@
 					"Cue":	"Music"
 				}]
 		}, {
-			"Name":	"2D Physics Sprite",
-			"Components":	[{
-					"Type":	"2D Collision Object",
-					"PrimitiveType":	"Box",
-					"Static":	0,
-					"Density":	1,
-					"IsSensor":	0,
-					"Friction":	0.200000,
-					"Restitution":	0
+			"Name":	"2D Physics Objects",
+			"Templates":	[{
+					"Name":	"2D Physics Sprite",
+					"Components":	[{
+							"Type":	"2D Collision Object",
+							"PrimitiveType":	"Box",
+							"Static":	0,
+							"Density":	1,
+							"IsSensor":	0,
+							"Friction":	0.200000,
+							"Restitution":	0
+						}, {
+							"Type":	"Sprite",
+							"Visible":	1,
+							"Layers":	["Main view"],
+							"Tint":	[255, 255, 255, 255],
+							"Size":	[1, 1],
+							"Material":	"Data/Materials/Colors/Color-Green.mymaterial"
+						}]
 				}, {
-					"Type":	"Sprite",
-					"Visible":	1,
-					"Layers":	1,
-					"Tint":	[255, 255, 255, 255],
-					"Size":	[1, 1],
-					"Material":	"Data/Materials/Colors/Color-Green.mymaterial"
-				}]
-		}, {
-			"Name":	"2D Physics Sprite w/ Revolute Joint",
-			"Components":	[{
-					"Type":	"Sprite",
-					"Visible":	1,
-					"Layers":	1,
-					"Tint":	[255, 255, 255, 255],
-					"Size":	[1, 1],
-					"Material":	"Data/Materials/Colors/Color-Green.mymaterial"
+					"Name":	"2D Physics Sprite w/ Revolute Joint",
+					"Components":	[{
+							"Type":	"Sprite",
+							"Visible":	1,
+							"Layers":	["Main view"],
+							"Tint":	[255, 255, 255, 255],
+							"Size":	[1, 1],
+							"Material":	"Data/Materials/Colors/Color-Green.mymaterial"
+						}, {
+							"Type":	"2D Collision Object",
+							"PrimitiveType":	"Box",
+							"Static":	0,
+							"Density":	1,
+							"IsSensor":	0,
+							"Friction":	0.200000,
+							"Restitution":	0
+						}, {
+							"Type":	"2D Joint - Revolute",
+							"AnchorA":	[0, 0],
+							"AnchorB":	[0, 0],
+							"MotorEnabled":	0,
+							"MotorSpeed":	5,
+							"MotorMaxTorque":	5,
+							"LimitEnabled":	0,
+							"LimitMin":	-90,
+							"LimitMax":	90
+						}]
 				}, {
-					"Type":	"2D Collision Object",
-					"PrimitiveType":	"Box",
-					"Static":	0,
-					"Density":	1,
-					"IsSensor":	0,
-					"Friction":	0.200000,
-					"Restitution":	0
+					"Name":	"2D Physics Sprite w/ Prismatic Joint",
+					"Components":	[{
+							"Type":	"Sprite",
+							"Visible":	1,
+							"Layers":	["Main view"],
+							"Tint":	[255, 255, 255, 255],
+							"Size":	[1, 1],
+							"Material":	"Data/Materials/Colors/Color-Green.mymaterial"
+						}, {
+							"Type":	"2D Collision Object",
+							"PrimitiveType":	"Box",
+							"Static":	0,
+							"Density":	1,
+							"IsSensor":	0,
+							"Friction":	0.200000,
+							"Restitution":	0
+						}, {
+							"Type":	"2D Joint - Prismatic",
+							"Up":	[0, 1],
+							"AnchorA":	[0, 0],
+							"AnchorB":	[0, 0],
+							"MotorEnabled":	0,
+							"MotorSpeed":	5,
+							"MotorMaxTorque":	5,
+							"LimitEnabled":	1,
+							"LimitMin":	-1,
+							"LimitMax":	1
+						}]
 				}, {
-					"Type":	"2D Joint - Revolute",
-					"AnchorA":	[0, 0],
-					"AnchorB":	[0, 0],
-					"MotorEnabled":	0,
-					"MotorSpeed":	5,
-					"MotorMaxTorque":	5,
-					"LimitEnabled":	0,
-					"LimitMin":	-90,
-					"LimitMax":	90
-				}]
-		}, {
-			"Name":	"2D Physics Sprite w/ Prismatic Joint",
-			"Components":	[{
-					"Type":	"Sprite",
-					"Visible":	1,
-					"Layers":	1,
-					"Tint":	[255, 255, 255, 255],
-					"Size":	[1, 1],
-					"Material":	"Data/Materials/Colors/Color-Green.mymaterial"
-				}, {
-					"Type":	"2D Collision Object",
-					"PrimitiveType":	"Box",
-					"Static":	0,
-					"Density":	1,
-					"IsSensor":	0,
-					"Friction":	0.200000,
-					"Restitution":	0
-				}, {
-					"Type":	"2D Joint - Prismatic",
-					"Up":	[0, 1],
-					"AnchorA":	[0, 0],
-					"AnchorB":	[0, 0],
-					"MotorEnabled":	0,
-					"MotorSpeed":	5,
-					"MotorMaxTorque":	5,
-					"LimitEnabled":	1,
-					"LimitMin":	-1,
-					"LimitMax":	1
-				}]
-		}, {
-			"Name":	"2D Physics Chain",
-			"Scale": [2, 0.05, 1],
-			"Components":	[{
-					"Type":	"Sprite",
-					"Visible":	1,
-					"Layers":	1,
-					"Tint":	[255, 255, 255, 255],
-					"Size":	[1, 1],
-					"Material":	"Data/Materials/Colors/Color-Green.mymaterial"
-				}, {
-					"Type":	"2D Collision Object",
-					"PrimitiveType":	"Chain",
-					"Static":	1,
-					"Density":	0,
-					"IsSensor":	0,
-					"Friction":	0.200000,
-					"Restitution":	0,
-					"Vertices":	[-1, 0, 1, 0]
+					"Name":	"2D Physics Chain",
+					"Scale": [2, 0.05, 1],
+					"Components":	[{
+							"Type":	"Sprite",
+							"Visible":	1,
+							"Layers":	["Main view"],
+							"Tint":	[255, 255, 255, 255],
+							"Size":	[1, 1],
+							"Material":	"Data/Materials/Colors/Color-Green.mymaterial"
+						}, {
+							"Type":	"2D Collision Object",
+							"PrimitiveType":	"Chain",
+							"Static":	1,
+							"Density":	0,
+							"IsSensor":	0,
+							"Friction":	0.200000,
+							"Restitution":	0,
+							"Vertices":	[-1, 0, 1, 0]
+						}]
 				}]
 		}]
 }

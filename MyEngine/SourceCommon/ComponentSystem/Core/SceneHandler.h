@@ -84,6 +84,7 @@ public:
 
     static void StaticOnRightClick(void* pObjectPtr, wxTreeItemId treeid) { ((SceneHandler*)pObjectPtr)->OnRightClick( treeid ); }
     void OnRightClick(wxTreeItemId treeid);
+    int AddGameObjectTemplatesToMenu(wxMenu* menu, int startindex);
     void OnPopupClick(wxEvent &evt); // used as callback for wxEvtHandler, can't be virtual(will crash, haven't looked into it).
 
     static void StaticOnDrag(void* pObjectPtr) { ((SceneHandler*)pObjectPtr)->OnDrag(); }

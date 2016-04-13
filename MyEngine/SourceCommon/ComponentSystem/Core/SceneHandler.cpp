@@ -57,13 +57,7 @@ void SceneHandler::OnRightClick(wxTreeItemId treeid)
 
     wxMenu* templatesmenu = MyNew wxMenu;
     menu.AppendSubMenu( templatesmenu, "Add Game Object Template" );
-
-    unsigned int numtypes = 2;
-    for( unsigned int i=0; i<g_pComponentSystemManager->m_pGameObjectTemplateManager->GetNumberOfTemplates(); i++ )
-    {
-        const char* name = g_pComponentSystemManager->m_pGameObjectTemplateManager->GetTemplateName( i );
-        templatesmenu->Append( RightClick_AddGameObjectFromTemplate + i, name );
-    }
+    AddGameObjectTemplatesToMenu( templatesmenu, 0 );
 
     menu.Append( RightClick_AddFolder, "Add Folder" );
     menu.Append( RightClick_UnloadScene, "Unload scene" );
@@ -72,6 +66,39 @@ void SceneHandler::OnRightClick(wxTreeItemId treeid)
 
     // blocking call.
     g_pPanelWatch->PopupMenu( &menu ); // there's no reason this is using g_pPanelWatch other than convenience.
+}
+
+int SceneHandler::AddGameObjectTemplatesToMenu(wxMenu* menu, int startindex)
+{
+    GameObjectTemplateManager* pManager = g_pComponentSystemManager->m_pGameObjectTemplateManager;
+    
+    cJSON* jFirstParent = pManager->GetParentTemplateJSONObject( startindex );
+
+    unsigned int i = startindex;
+    while( i < pManager->GetNumberOfTemplates() )
+    {
+        bool isfolder = pManager->IsTemplateAFolder( i );
+        const char* name = pManager->GetTemplateName( i );
+
+        if( pManager->GetParentTemplateJSONObject( i ) != jFirstParent )
+            return i;
+
+        if( isfolder )
+        {
+            wxMenu* submenu = MyNew wxMenu;
+            menu->AppendSubMenu( submenu, name );
+
+            i = AddGameObjectTemplatesToMenu( submenu, i+1 );
+        }
+        else
+        {
+            menu->Append( RightClick_AddGameObjectFromTemplate + i, name );
+        }
+
+        i++;
+    }
+
+    return i;
 }
 
 void SceneHandler::OnPopupClick(wxEvent &evt)
