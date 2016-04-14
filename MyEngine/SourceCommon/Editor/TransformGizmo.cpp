@@ -239,28 +239,45 @@ void TransformGizmo::TranslateSelectedObjects(EngineCore* pGame, EditorState* pE
         {
             //pEditorState->m_EditorActionState = EDITORACTIONSTATE_TranslateYZ;
 
-            //ComponentCamera* pCamera = pEditorState->GetEditorCamera();
             MyMatrix* pObjectTransform = pEditorState->m_pSelectedObjects[0]->m_pComponentTransform->GetLocalTransform();
 
             // create a plane based on the axis we want.
             Vector3 axisvector;
             Plane plane;
             {
+                ComponentCamera* pCamera = pEditorState->GetEditorCamera();
+                Vector3 camInvAt = pCamera->m_pGameObject->GetTransform()->GetLocalTransform()->GetAt() * -1;
+
                 Vector3 normal;
-                if( pEditorState->m_EditorActionState == EDITORACTIONSTATE_TranslateXY ||
-                    pEditorState->m_EditorActionState == EDITORACTIONSTATE_TranslateX )
+                if( pEditorState->m_EditorActionState == EDITORACTIONSTATE_TranslateX )
+                {
+                    camInvAt.x = 0;
+                    normal = camInvAt; // set plane normal to face the camera.
+                    axisvector = Vector3(1,0,0);
+                }
+                else if( pEditorState->m_EditorActionState == EDITORACTIONSTATE_TranslateY )
+                {
+                    camInvAt.y = 0;
+                    normal = camInvAt; // set plane normal to face the camera.
+                    axisvector = Vector3(0,1,0);
+                }
+                else if( pEditorState->m_EditorActionState == EDITORACTIONSTATE_TranslateZ )
+                {
+                    camInvAt.z = 0;
+                    normal = camInvAt; // set plane normal to face the camera.
+                    axisvector = Vector3(0,0,1);
+                }
+                else if( pEditorState->m_EditorActionState == EDITORACTIONSTATE_TranslateXY )
                 {
                     normal = Vector3(0,0,1);
                     axisvector = Vector3(1,0,0);
                 }
-                else if( pEditorState->m_EditorActionState == EDITORACTIONSTATE_TranslateXZ ||
-                         pEditorState->m_EditorActionState == EDITORACTIONSTATE_TranslateZ )
+                else if( pEditorState->m_EditorActionState == EDITORACTIONSTATE_TranslateXZ )
                 {
                     normal = Vector3(0,1,0);
                     axisvector = Vector3(0,0,1);
                 }
-                else if( pEditorState->m_EditorActionState == EDITORACTIONSTATE_TranslateYZ ||
-                         pEditorState->m_EditorActionState == EDITORACTIONSTATE_TranslateY )
+                else if( pEditorState->m_EditorActionState == EDITORACTIONSTATE_TranslateYZ )
                 {
                     normal = Vector3(1,0,0);
                     axisvector = Vector3(0,1,0);
@@ -304,7 +321,7 @@ void TransformGizmo::TranslateSelectedObjects(EngineCore* pGame, EditorState* pE
             if( plane.IntersectRay( currentraystart, currentrayend, &currentresult ) &&
                 plane.IntersectRay( lastraystart, lastrayend, &lastresult ) )
             {
-                //LOGInfo( LOGTag, "currentresult( %f, %f, %f );", currentresult.x, currentresult.y, currentresult.z );
+                LOGInfo( LOGTag, "currentresult( %f, %f, %f );\n", currentresult.x, currentresult.y, currentresult.z );
                 //LOGInfo( LOGTag, "lastresult( %f, %f, %f );", lastresult.x, lastresult.y, lastresult.z );
                 //LOGInfo( LOGTag, "axisvector( %f, %f, %f );\n", axisvector.x, axisvector.y, axisvector.z );
 
