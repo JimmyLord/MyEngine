@@ -589,7 +589,7 @@ void Component2DCollisionObject::DrawCallback(ComponentCamera* pCamera, MyMatrix
     //ComponentCamera* pCamera = g_pEngineCore->m_pEditorState->GetEditorCamera();
     MyMatrix* pEditorMatViewProj = &pCamera->m_Camera3D.m_matViewProj;
 
-    MaterialDefinition* pMaterial = g_pEngineCore->m_pMaterial_TransformGizmoY;
+    MaterialDefinition* pMaterial = g_pEngineCore->m_pEditorState->m_pTransformGizmo->m_pMaterial_Translate1Axis[1];
 
     // Draw lines for the vertices (connecting the circles if editing verts)
     {

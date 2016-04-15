@@ -183,9 +183,9 @@ bool EditorInterface_SceneManagement::HandleInput(int keyaction, int keycode, in
         //    GameObject* pObject = GetObjectAtPixel( x, y, true );
 
         //    // don't select the gizmos. TODO: give object a 'selectable' flag or something.
-        //    if( pObject != pEditorState->m_pTransformGizmo->m_pTransformGizmos[0] &&
-        //        pObject != pEditorState->m_pTransformGizmo->m_pTransformGizmos[1] &&
-        //        pObject != pEditorState->m_pTransformGizmo->m_pTransformGizmos[2] )
+        //    if( pObject != pEditorState->m_pTransformGizmo->m_pTranslate1Axis[0] &&
+        //        pObject != pEditorState->m_pTransformGizmo->m_pTranslate1Axis[1] &&
+        //        pObject != pEditorState->m_pTransformGizmo->m_pTranslate1Axis[2] )
         //    {
         //        // if control isn't held, then deselect all objects first.
         //        if( (pEditorState->m_ModifierKeyStates & MODIFIERKEY_Control) == 0 )
@@ -214,19 +214,35 @@ bool EditorInterface_SceneManagement::HandleInput(int keyaction, int keycode, in
             bool selectedgizmo = false;
 
             // translate to the right.
-            if( pObject == pEditorState->m_pTransformGizmo->m_pTransformGizmos[0] )
+            if( pObject == pEditorState->m_pTransformGizmo->m_pTranslate1Axis[0] )
             {
                 pEditorState->m_EditorActionState = EDITORACTIONSTATE_TranslateX;
                 selectedgizmo = true;
             }
-            if( pObject == pEditorState->m_pTransformGizmo->m_pTransformGizmos[1] )
+            if( pObject == pEditorState->m_pTransformGizmo->m_pTranslate1Axis[1] )
             {
                 pEditorState->m_EditorActionState = EDITORACTIONSTATE_TranslateY;
                 selectedgizmo = true;
             }
-            if( pObject == pEditorState->m_pTransformGizmo->m_pTransformGizmos[2] )
+            if( pObject == pEditorState->m_pTransformGizmo->m_pTranslate1Axis[2] )
             {
                 pEditorState->m_EditorActionState = EDITORACTIONSTATE_TranslateZ;
+                selectedgizmo = true;
+            }
+
+            if( pObject == pEditorState->m_pTransformGizmo->m_pTranslate2Axis[0] )
+            {
+                pEditorState->m_EditorActionState = EDITORACTIONSTATE_TranslateYZ;
+                selectedgizmo = true;
+            }
+            if( pObject == pEditorState->m_pTransformGizmo->m_pTranslate2Axis[1] )
+            {
+                pEditorState->m_EditorActionState = EDITORACTIONSTATE_TranslateXZ;
+                selectedgizmo = true;
+            }
+            if( pObject == pEditorState->m_pTransformGizmo->m_pTranslate2Axis[2] )
+            {
+                pEditorState->m_EditorActionState = EDITORACTIONSTATE_TranslateXY;
                 selectedgizmo = true;
             }
 

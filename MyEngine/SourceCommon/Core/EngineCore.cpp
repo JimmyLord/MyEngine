@@ -34,9 +34,6 @@ EngineCore::EngineCore()
     m_pShader_ClipSpaceTexture = 0;
     m_pMaterial_Box2DDebugDraw = 0;
     m_pMaterial_3DGrid = 0;
-    m_pMaterial_TransformGizmoX = 0;
-    m_pMaterial_TransformGizmoY = 0;
-    m_pMaterial_TransformGizmoZ = 0;
     m_pMaterial_MousePicker = 0;
     m_pMaterial_ClipSpaceTexture = 0;
 
@@ -112,9 +109,6 @@ EngineCore::~EngineCore()
     SAFE_RELEASE( m_pShader_ClipSpaceTexture );
     SAFE_RELEASE( m_pMaterial_Box2DDebugDraw );
     SAFE_RELEASE( m_pMaterial_3DGrid );
-    SAFE_RELEASE( m_pMaterial_TransformGizmoX );
-    SAFE_RELEASE( m_pMaterial_TransformGizmoY );
-    SAFE_RELEASE( m_pMaterial_TransformGizmoZ );
     SAFE_RELEASE( m_pMaterial_MousePicker );
     SAFE_RELEASE( m_pMaterial_ClipSpaceTexture );
 
@@ -228,9 +222,6 @@ void EngineCore::OneTimeInit()
     m_pShader_ClipSpaceTexture = MyNew ShaderGroup( m_pShaderFile_ClipSpaceTexture );
     m_pMaterial_Box2DDebugDraw = MyNew MaterialDefinition( m_pShader_TintColor, ColorByte(128,128,128,255) );
     m_pMaterial_3DGrid = MyNew MaterialDefinition( m_pShader_TintColor, ColorByte(128,128,128,255) );
-    m_pMaterial_TransformGizmoX = MyNew MaterialDefinition( m_pShader_TintColor, ColorByte(255,0,0,255) );
-    m_pMaterial_TransformGizmoY = MyNew MaterialDefinition( m_pShader_TintColor, ColorByte(0,255,0,255) );
-    m_pMaterial_TransformGizmoZ = MyNew MaterialDefinition( m_pShader_TintColor, ColorByte(0,0,255,255) );
     m_pMaterial_MousePicker = MyNew MaterialDefinition( m_pShader_ClipSpaceTexture );
     m_pMaterial_ClipSpaceTexture = MyNew MaterialDefinition( m_pShader_ClipSpaceTexture );
 
@@ -795,7 +786,7 @@ void EngineCore::CreateDefaultEditorSceneObjects()
     }
 
     // create a 3d transform gizmo for each axis.
-    m_pEditorState->m_pTransformGizmo->CreateAxisObjects( ENGINE_SCENE_ID, 0.03f, m_pMaterial_TransformGizmoX, m_pMaterial_TransformGizmoY, m_pMaterial_TransformGizmoZ, m_pEditorState );
+    m_pEditorState->m_pTransformGizmo->CreateAxisObjects( ENGINE_SCENE_ID, 0.03f, m_pEditorState );
 
     // create a 3D editor camera, renders editor view.
     {

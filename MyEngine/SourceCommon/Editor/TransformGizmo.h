@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015 Jimmy Lord http://www.flatheadgames.com
+// Copyright (c) 2015-2016 Jimmy Lord http://www.flatheadgames.com
 //
 // This software is provided 'as-is', without any express or implied warranty.  In no event will the authors be held liable for any damages arising from the use of this software.
 // Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -15,7 +15,11 @@ class EngineCore;
 class TransformGizmo
 {
 public:
-    GameObject* m_pTransformGizmos[3];
+    GameObject* m_pTranslate1Axis[3];
+    GameObject* m_pTranslate2Axis[3];
+
+    MaterialDefinition* m_pMaterial_Translate1Axis[3];
+    MaterialDefinition* m_pMaterial_Translate2Axis[3];
 
     bool m_VisibleIfObjectsSelected;
     int m_SelectedPart;
@@ -31,7 +35,7 @@ public:
 
     bool HandleInput(EngineCore* pGame, int keydown, int keycode, int action, int id, float x, float y, float pressure);
 
-    void CreateAxisObjects(unsigned int sceneid, float scale, MaterialDefinition* pMaterialX, MaterialDefinition* pMaterialY, MaterialDefinition* pMaterialZ, EditorState* pEditorState);
+    void CreateAxisObjects(unsigned int sceneid, float scale, EditorState* pEditorState);
     void ScaleGizmosForMousePickRendering(bool doscale);
     
     void TranslateSelectedObjects(EngineCore* pGame, EditorState* pEditorState);

@@ -213,10 +213,10 @@ bool EditorInterface::HandleInputForEditorCamera(int keyaction, int keycode, int
                 float distancefrompivot;
 
                 // different pivot and distance from pivot depending if Alt is held.
-                if( mods & MODIFIERKEY_Alt && pEditorState->m_pSelectedObjects.size() > 0 && pEditorState->m_pTransformGizmo->m_pTransformGizmos[0] )
+                if( mods & MODIFIERKEY_Alt && pEditorState->m_pSelectedObjects.size() > 0 && pEditorState->m_pTransformGizmo->m_pTranslate1Axis[0] )
                 {
                     // pivot around the transform gizmo
-                    pivot = pEditorState->m_pTransformGizmo->m_pTransformGizmos[0]->m_pComponentTransform->GetWorldTransform()->GetTranslation();
+                    pivot = pEditorState->m_pTransformGizmo->m_pTranslate1Axis[0]->m_pComponentTransform->GetWorldTransform()->GetTranslation();
                     distancefrompivot = (matCamera->GetTranslation() - pivot).Length();
                 }
                 else
@@ -388,9 +388,14 @@ GameObject* EditorInterface::GetObjectAtPixel(unsigned int x, unsigned int y, bo
     {
         for( int i=0; i<3; i++ )
         {
-            if( pEditorState->m_pTransformGizmo->m_pTransformGizmos[i]->GetID() == id )
+            if( pEditorState->m_pTransformGizmo->m_pTranslate1Axis[i]->GetID() == id )
             {
-                pGameObject = pEditorState->m_pTransformGizmo->m_pTransformGizmos[i];
+                pGameObject = pEditorState->m_pTransformGizmo->m_pTranslate1Axis[i];
+            }
+
+            if( pEditorState->m_pTransformGizmo->m_pTranslate2Axis[i]->GetID() == id )
+            {
+                pGameObject = pEditorState->m_pTransformGizmo->m_pTranslate2Axis[i];
             }
         }
     }

@@ -26,7 +26,7 @@ EditorInterface_2DPointEditor::~EditorInterface_2DPointEditor()
 
 void EditorInterface_2DPointEditor::OnActivated()
 {
-    MaterialDefinition* pMaterial = g_pEngineCore->m_pMaterial_TransformGizmoY;
+    MaterialDefinition* pMaterial = g_pEngineCore->m_pEditorState->m_pTransformGizmo->m_pMaterial_Translate1Axis[1];
 
     // create a gameobject for the points that we'll draw.
     if( m_pPoint == 0 )

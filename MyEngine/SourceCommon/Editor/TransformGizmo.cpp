@@ -16,7 +16,12 @@ TransformGizmo::TransformGizmo()
     m_SelectedPart = -1;
 
     for( int i=0; i<3; i++ )
-        m_pTransformGizmos[i] = 0;
+    {
+        m_pTranslate1Axis[i] = 0;
+        m_pTranslate2Axis[i] = 0;
+        m_pMaterial_Translate1Axis[i] = 0;
+        m_pMaterial_Translate2Axis[i] = 0;
+    }
 
     m_LastIntersectResultIsValid = false;
     m_LastIntersectResultUsed.Set(0,0,0);
@@ -26,18 +31,54 @@ TransformGizmo::~TransformGizmo()
 {
     for( int i=0; i<3; i++ )
     {
-        SAFE_DELETE( m_pTransformGizmos[i] );
+        SAFE_DELETE( m_pTranslate1Axis[i] );
+        SAFE_DELETE( m_pTranslate2Axis[i] );
+        SAFE_RELEASE( m_pMaterial_Translate1Axis[i] );
+        SAFE_RELEASE( m_pMaterial_Translate2Axis[i] );
     }
 }
 
 void TransformGizmo::Tick(double TimePassed, EditorState* pEditorState)
 {
+    // Find the center of the object.
+    bool GizmoVisible = false;
+    Vector3 ObjectPosition;
+    MyMatrix ObjectTransform;
+
+    if( pEditorState->m_pSelectedObjects.size() == 1 )
+    {
+        GizmoVisible = true;
+        ObjectPosition = pEditorState->m_pSelectedObjects[0]->m_pComponentTransform->GetWorldPosition();
+        ObjectTransform = *pEditorState->m_pSelectedObjects[0]->m_pComponentTransform->GetWorldTransform();
+    }
+    else if( pEditorState->m_pSelectedObjects.size() > 1 )
+    {
+        GizmoVisible = true;
+
+        // find the center point between all selected objects.
+        ObjectPosition.Set( 0, 0, 0 );
+        for( unsigned int i=0; i<pEditorState->m_pSelectedObjects.size(); i++ )
+        {
+            ObjectPosition += pEditorState->m_pSelectedObjects[i]->m_pComponentTransform->GetLocalPosition();
+        }
+        ObjectPosition /= (float)pEditorState->m_pSelectedObjects.size();
+
+        ObjectTransform.SetIdentity();
+    }
+    else
+    {
+        GizmoVisible = false;
+    }
+
+    if( m_VisibleIfObjectsSelected == false )
+        GizmoVisible = false;
+
     // Update transform gizmos
     for( int i=0; i<3; i++ )
     {
-        MyAssert( m_pTransformGizmos[i] );
+        MyAssert( m_pTranslate1Axis[i] );
 
-        ComponentRenderable* pRenderable = (ComponentRenderable*)m_pTransformGizmos[i]->GetFirstComponentOfBaseType( BaseComponentType_Renderable );
+        ComponentRenderable* pRenderable = (ComponentRenderable*)m_pTranslate1Axis[i]->GetFirstComponentOfBaseType( BaseComponentType_Renderable );
 
         ComponentMesh* pMesh = dynamic_cast<ComponentMesh*>( pRenderable );
         MyAssert( pMesh );
@@ -60,41 +101,12 @@ void TransformGizmo::Tick(double TimePassed, EditorState* pEditorState)
             }
         }
 
-        Vector3 ObjectPosition;
-        MyMatrix ObjectTransform;
+        pRenderable->SetVisible( GizmoVisible );
 
-        if( pEditorState->m_pSelectedObjects.size() == 1 )
-        {
-            pRenderable->SetVisible( true );
-            ObjectPosition = pEditorState->m_pSelectedObjects[0]->m_pComponentTransform->GetWorldPosition();
-            ObjectTransform = *pEditorState->m_pSelectedObjects[0]->m_pComponentTransform->GetWorldTransform();
-        }
-        else if( pEditorState->m_pSelectedObjects.size() > 1 )
-        {
-            pRenderable->SetVisible( true );
-
-            // find the center point between all selected objects.
-            ObjectPosition.Set( 0, 0, 0 );
-            for( unsigned int i=0; i<pEditorState->m_pSelectedObjects.size(); i++ )
-            {
-                ObjectPosition += pEditorState->m_pSelectedObjects[i]->m_pComponentTransform->GetLocalPosition();
-            }
-            ObjectPosition /= (float)pEditorState->m_pSelectedObjects.size();
-
-            ObjectTransform.SetIdentity();
-        }
-        else
-        {
-            pRenderable->SetVisible( false );
-        }
-
-        if( m_VisibleIfObjectsSelected == false )
-            pRenderable->SetVisible( false );
-
-        if( pRenderable->IsVisible() )
+        if( GizmoVisible )
         {
             // move the gizmo to the object position.
-            m_pTransformGizmos[i]->m_pComponentTransform->SetLocalPosition( ObjectPosition );
+            m_pTranslate1Axis[i]->m_pComponentTransform->SetLocalPosition( ObjectPosition );
 
             // rotate the gizmo.
             MyMatrix matrot;
@@ -114,17 +126,92 @@ void TransformGizmo::Tick(double TimePassed, EditorState* pEditorState)
 
             Vector3 rot = matrot.GetEulerAngles() * 180.0f/PI;
 
-            m_pTransformGizmos[i]->m_pComponentTransform->SetLocalRotation( rot );
+            m_pTranslate1Axis[i]->m_pComponentTransform->SetLocalRotation( rot );
 
             float distance = (pEditorState->m_pEditorCamera->m_pComponentTransform->GetLocalPosition() - ObjectPosition).Length();
-            m_pTransformGizmos[i]->m_pComponentTransform->SetLocalScale( Vector3( distance / 15.0f ) );
+            m_pTranslate1Axis[i]->m_pComponentTransform->SetLocalScale( Vector3( distance / 15.0f ) );
+        }
+    }
+
+    // Update transform gizmos
+    for( int i=0; i<3; i++ )
+    {
+        MyAssert( m_pTranslate2Axis[i] );
+
+        ComponentRenderable* pRenderable = (ComponentRenderable*)m_pTranslate2Axis[i]->GetFirstComponentOfBaseType( BaseComponentType_Renderable );
+
+        ComponentMesh* pMesh = dynamic_cast<ComponentMesh*>( pRenderable );
+        MyAssert( pMesh );
+        if( pMesh )
+        {
+            MaterialDefinition* pMaterial = pMesh->GetMaterial( 0 );
+            if( pMaterial )
+            {
+                if( i == 0 )
+                    pMaterial->m_ColorDiffuse.Set( 100, 255, 255, 180 );
+                if( i == 1 )
+                    pMaterial->m_ColorDiffuse.Set( 255, 100, 255, 180 );
+                if( i == 2 )
+                    pMaterial->m_ColorDiffuse.Set( 255, 255, 100, 180 );
+
+                if( i+3 == m_SelectedPart )
+                {
+                    pMaterial->m_ColorDiffuse.Set( 255, 255, 255, 180 );
+                }
+            }
+        }
+
+        pRenderable->SetVisible( GizmoVisible );
+
+        if( GizmoVisible )
+        {
+            ComponentCamera* pCamera = pEditorState->GetEditorCamera();
+            Vector3 campos = pCamera->m_pGameObject->GetTransform()->GetLocalPosition();
+
+            Vector3 pos = ObjectPosition;
+
+            // rotate the gizmo.
+            MyMatrix matrot;
+            matrot.SetIdentity();
+            if( i == 0 ) // yz
+            {
+                if( campos.x  > ObjectPosition.x ) { matrot.Rotate( -90, 0, 0, 1 ); matrot.Rotate( 180, 0, 1, 0 ); }
+                if( campos.x <= ObjectPosition.x ) { matrot.Rotate( +90, 1, 0, 0 ); matrot.Rotate( -90, 0, 1, 0 ); }
+                //if( campos.y  < ObjectPosition.y ) pos.y -= 2;
+            }
+            if( i == 1 ) // xz
+            {
+                if( campos.y  > ObjectPosition.y ) { matrot.Rotate( -90, 0, 1, 0 ); }
+                if( campos.y <= ObjectPosition.y ) { matrot.Rotate( 180, 1, 0, 0 ); }
+            }
+            if( i == 2 ) // xy
+            {
+                if( campos.z  > ObjectPosition.z ) { matrot.Rotate( -90, 1, 0, 0 ); matrot.Rotate( -90, 0, 0, 1 ); }
+                if( campos.z <= ObjectPosition.z ) { matrot.Rotate( 90, 1, 0, 0 ); }
+            }
+
+            MyMatrix matrotobj;
+            matrotobj.SetIdentity();
+            matrotobj.CreateSRT( Vector3(1,1,1), ObjectTransform.GetEulerAngles(), Vector3(0,0,0) );
+
+            matrot = matrotobj * matrot;
+
+            Vector3 rot = matrot.GetEulerAngles() * 180.0f/PI;
+
+            // move the gizmo to the object position.
+            m_pTranslate2Axis[i]->m_pComponentTransform->SetLocalPosition( pos );
+
+            m_pTranslate2Axis[i]->m_pComponentTransform->SetLocalRotation( rot );
+
+            float distance = (pEditorState->m_pEditorCamera->m_pComponentTransform->GetLocalPosition() - ObjectPosition).Length();
+            m_pTranslate2Axis[i]->m_pComponentTransform->SetLocalScale( Vector3( distance / 15.0f ) );
         }
     }
 }
 
 bool TransformGizmo::HandleInput(EngineCore* pGame, int keydown, int keycode, int action, int id, float x, float y, float pressure)
 {
-    ComponentRenderable* pRenderable = (ComponentRenderable*)m_pTransformGizmos[0]->GetFirstComponentOfBaseType( BaseComponentType_Renderable );
+    ComponentRenderable* pRenderable = (ComponentRenderable*)m_pTranslate1Axis[0]->GetFirstComponentOfBaseType( BaseComponentType_Renderable );
     ComponentMesh* pMesh = dynamic_cast<ComponentMesh*>( pRenderable );
 
     if( pMesh->IsVisible() == false )
@@ -139,21 +226,33 @@ bool TransformGizmo::HandleInput(EngineCore* pGame, int keydown, int keycode, in
 
     m_SelectedPart = -1;
 
-    if( pObject == m_pTransformGizmos[0] )
+    if( pObject == m_pTranslate1Axis[0] )
         m_SelectedPart = 0;
-    if( pObject == m_pTransformGizmos[1] )
+    if( pObject == m_pTranslate1Axis[1] )
         m_SelectedPart = 1;
-    if( pObject == m_pTransformGizmos[2] )
+    if( pObject == m_pTranslate1Axis[2] )
         m_SelectedPart = 2;
+
+    if( pObject == m_pTranslate2Axis[0] )
+        m_SelectedPart = 3;
+    if( pObject == m_pTranslate2Axis[1] )
+        m_SelectedPart = 4;
+    if( pObject == m_pTranslate2Axis[2] )
+        m_SelectedPart = 5;
 
     return false;
 }
 
-void TransformGizmo::CreateAxisObjects(unsigned int sceneid, float scale, MaterialDefinition* pMaterialX, MaterialDefinition* pMaterialY, MaterialDefinition* pMaterialZ, EditorState* pEditorState)
+void TransformGizmo::CreateAxisObjects(unsigned int sceneid, float scale, EditorState* pEditorState)
 {
     GameObject* pGameObject;
     ComponentMesh* pComponentMesh;
 
+    m_pMaterial_Translate1Axis[0] = MyNew MaterialDefinition( g_pEngineCore->m_pShader_TintColor, ColorByte(255,0,0,255) );
+    m_pMaterial_Translate1Axis[1] = MyNew MaterialDefinition( g_pEngineCore->m_pShader_TintColor, ColorByte(0,255,0,255) );
+    m_pMaterial_Translate1Axis[2] = MyNew MaterialDefinition( g_pEngineCore->m_pShader_TintColor, ColorByte(0,0,255,255) );
+
+    // Create single axis translators.
     {
         pGameObject = g_pComponentSystemManager->CreateGameObject( false, sceneid ); // not managed.
         pGameObject->SetName( "3D Transform Gizmo - x-axis" );
@@ -162,14 +261,14 @@ void TransformGizmo::CreateAxisObjects(unsigned int sceneid, float scale, Materi
         if( pComponentMesh )
         {
             pComponentMesh->SetVisible( true );
-            pComponentMesh->SetMaterial( pMaterialX, 0 );
+            pComponentMesh->SetMaterial( m_pMaterial_Translate1Axis[0], 0 );
             pComponentMesh->SetLayersThisExistsOn( Layer_EditorFG );
             pComponentMesh->m_pMesh = MyNew MyMesh();
             pComponentMesh->m_pMesh->CreateEditorTransformGizmoAxis( 3, 0.05f, ColorByte(255, 100, 100, 255) );
             pComponentMesh->m_GLPrimitiveType = pComponentMesh->m_pMesh->m_SubmeshList[0]->m_PrimitiveType;
         }
 
-        pEditorState->m_pTransformGizmo->m_pTransformGizmos[0] = pGameObject;
+        pEditorState->m_pTransformGizmo->m_pTranslate1Axis[0] = pGameObject;
     }
     {
         pGameObject = g_pComponentSystemManager->CreateGameObject( false, sceneid ); // not managed.
@@ -179,14 +278,14 @@ void TransformGizmo::CreateAxisObjects(unsigned int sceneid, float scale, Materi
         if( pComponentMesh )
         {
             pComponentMesh->SetVisible( true );
-            pComponentMesh->SetMaterial( pMaterialY, 0 );
+            pComponentMesh->SetMaterial( m_pMaterial_Translate1Axis[1], 0 );
             pComponentMesh->SetLayersThisExistsOn( Layer_EditorFG );
             pComponentMesh->m_pMesh = MyNew MyMesh();
             pComponentMesh->m_pMesh->CreateEditorTransformGizmoAxis( 3, 0.05f, ColorByte(100, 255, 100, 255) );
             pComponentMesh->m_GLPrimitiveType = pComponentMesh->m_pMesh->m_SubmeshList[0]->m_PrimitiveType;
         }
 
-        pEditorState->m_pTransformGizmo->m_pTransformGizmos[1] = pGameObject;
+        pEditorState->m_pTransformGizmo->m_pTranslate1Axis[1] = pGameObject;
     }
     {
         pGameObject = g_pComponentSystemManager->CreateGameObject( false, sceneid ); // not managed.
@@ -196,14 +295,71 @@ void TransformGizmo::CreateAxisObjects(unsigned int sceneid, float scale, Materi
         if( pComponentMesh )
         {
             pComponentMesh->SetVisible( true );
-            pComponentMesh->SetMaterial( pMaterialZ, 0 );
+            pComponentMesh->SetMaterial( m_pMaterial_Translate1Axis[2], 0 );
             pComponentMesh->SetLayersThisExistsOn( Layer_EditorFG );
             pComponentMesh->m_pMesh = MyNew MyMesh();
             pComponentMesh->m_pMesh->CreateEditorTransformGizmoAxis( 3, 0.05f, ColorByte(100, 100, 255, 255) );
             pComponentMesh->m_GLPrimitiveType = pComponentMesh->m_pMesh->m_SubmeshList[0]->m_PrimitiveType;
         }
 
-        pEditorState->m_pTransformGizmo->m_pTransformGizmos[2] = pGameObject;
+        pEditorState->m_pTransformGizmo->m_pTranslate1Axis[2] = pGameObject;
+    }
+
+    m_pMaterial_Translate2Axis[0] = MyNew MaterialDefinition( g_pEngineCore->m_pShader_TintColor, ColorByte(255,0,0,100) );
+    m_pMaterial_Translate2Axis[1] = MyNew MaterialDefinition( g_pEngineCore->m_pShader_TintColor, ColorByte(0,255,0,100) );
+    m_pMaterial_Translate2Axis[2] = MyNew MaterialDefinition( g_pEngineCore->m_pShader_TintColor, ColorByte(0,0,255,100) );
+
+    // Create 2 axis translators
+    {
+        pGameObject = g_pComponentSystemManager->CreateGameObject( false, sceneid ); // not managed.
+        pGameObject->SetName( "3D Transform Gizmo - yz-axis" );
+
+        pComponentMesh = (ComponentMesh*)pGameObject->AddNewComponent( ComponentType_Mesh, sceneid );
+        if( pComponentMesh )
+        {
+            pComponentMesh->SetVisible( true );
+            pComponentMesh->SetMaterial( m_pMaterial_Translate2Axis[0], 0 );
+            pComponentMesh->SetLayersThisExistsOn( Layer_EditorFG );
+            pComponentMesh->m_pMesh = MyNew MyMesh();
+            pComponentMesh->m_pMesh->CreatePlane( Vector3(0,0,0), Vector2(1,1), Vector2Int(2,2), Vector2(0,0), Vector2(1,1) );
+            pComponentMesh->m_GLPrimitiveType = pComponentMesh->m_pMesh->m_SubmeshList[0]->m_PrimitiveType;
+        }
+
+        pEditorState->m_pTransformGizmo->m_pTranslate2Axis[0] = pGameObject;
+    }
+    {
+        pGameObject = g_pComponentSystemManager->CreateGameObject( false, sceneid ); // not managed.
+        pGameObject->SetName( "3D Transform Gizmo - xz-axis" );
+
+        pComponentMesh = (ComponentMesh*)pGameObject->AddNewComponent( ComponentType_Mesh, sceneid );
+        if( pComponentMesh )
+        {
+            pComponentMesh->SetVisible( true );
+            pComponentMesh->SetMaterial( m_pMaterial_Translate2Axis[1], 0 );
+            pComponentMesh->SetLayersThisExistsOn( Layer_EditorFG );
+            pComponentMesh->m_pMesh = MyNew MyMesh();
+            pComponentMesh->m_pMesh->CreatePlane( Vector3(0,0,0), Vector2(1,1), Vector2Int(2,2), Vector2(0,0), Vector2(1,1) );
+            pComponentMesh->m_GLPrimitiveType = pComponentMesh->m_pMesh->m_SubmeshList[0]->m_PrimitiveType;
+        }
+
+        pEditorState->m_pTransformGizmo->m_pTranslate2Axis[1] = pGameObject;
+    }
+    {
+        pGameObject = g_pComponentSystemManager->CreateGameObject( false, sceneid ); // not managed.
+        pGameObject->SetName( "3D Transform Gizmo - xy-axis" );
+
+        pComponentMesh = (ComponentMesh*)pGameObject->AddNewComponent( ComponentType_Mesh, sceneid );
+        if( pComponentMesh )
+        {
+            pComponentMesh->SetVisible( true );
+            pComponentMesh->SetMaterial( m_pMaterial_Translate2Axis[2], 0 );
+            pComponentMesh->SetLayersThisExistsOn( Layer_EditorFG );
+            pComponentMesh->m_pMesh = MyNew MyMesh();
+            pComponentMesh->m_pMesh->CreatePlane( Vector3(0,0,0), Vector2(1,1), Vector2Int(2,2), Vector2(0,0), Vector2(1,1) );
+            pComponentMesh->m_GLPrimitiveType = pComponentMesh->m_pMesh->m_SubmeshList[0]->m_PrimitiveType;
+        }
+
+        pEditorState->m_pTransformGizmo->m_pTranslate2Axis[2] = pGameObject;
     }
 }
 
@@ -216,9 +372,11 @@ void TransformGizmo::ScaleGizmosForMousePickRendering(bool doscale)
 
     for( int i=0; i<3; i++ )
     {
-        Vector3 currentscale = m_pTransformGizmos[i]->m_pComponentTransform->GetLocalScale();
+        Vector3 currentscale = m_pTranslate1Axis[i]->m_pComponentTransform->GetLocalScale();
         Vector3 newscale( currentscale.x * scaleamount, currentscale.y, currentscale.z * scaleamount );
-        m_pTransformGizmos[i]->m_pComponentTransform->SetLocalScale( newscale );
+        m_pTranslate1Axis[i]->m_pComponentTransform->SetLocalScale( newscale );
+
+        //m_pTranslate2Axis[i]->m_pComponentTransform->SetLocalScale( newscale );
     }
 }
 
@@ -321,7 +479,7 @@ void TransformGizmo::TranslateSelectedObjects(EngineCore* pGame, EditorState* pE
             if( plane.IntersectRay( currentraystart, currentrayend, &currentresult ) &&
                 plane.IntersectRay( lastraystart, lastrayend, &lastresult ) )
             {
-                LOGInfo( LOGTag, "currentresult( %f, %f, %f );\n", currentresult.x, currentresult.y, currentresult.z );
+                //LOGInfo( LOGTag, "currentresult( %f, %f, %f );\n", currentresult.x, currentresult.y, currentresult.z );
                 //LOGInfo( LOGTag, "lastresult( %f, %f, %f );", lastresult.x, lastresult.y, lastresult.z );
                 //LOGInfo( LOGTag, "axisvector( %f, %f, %f );\n", axisvector.x, axisvector.y, axisvector.z );
 
