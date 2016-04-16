@@ -2003,6 +2003,18 @@ unsigned int ComponentSystemManager::GetSceneIDFromSceneTreeID(wxTreeItemId tree
     return -1;
 }
 
+unsigned int ComponentSystemManager::GetNumberOfScenesLoaded()
+{
+    unsigned int numloaded = 0;
+    for( int i=0; i<MAX_SCENES_LOADED; i++ )
+    {
+        if( m_pSceneInfoMap[i].m_InUse )
+            numloaded++;
+    }
+
+    return numloaded;
+}
+
 //SceneInfo* ComponentSystemManager::GetSceneInfo(int sceneid)
 //{
 //    MyAssert( m_pSceneInfoMap[sceneid].m_InUse == true );

@@ -738,7 +738,7 @@ void ComponentLuaScript::LoadScript()
                     ParseExterns( LuaObject );
 
                     // Call the OnLoad function in the Lua script.
-                    CallFunction( "OnLoad" );
+                    CallFunctionEvenIfGameplayInactive( "OnLoad" );
                 }
             }
             else

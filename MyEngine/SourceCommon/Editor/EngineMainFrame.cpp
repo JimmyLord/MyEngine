@@ -512,9 +512,12 @@ void EngineMainFrame::OnDropFiles(wxDropFilesEvent& event)
 
 void EngineMainFrame::ResizeViewport()
 {
-    MainFrame::ResizeViewport();
+    unsigned int activecanvas = g_GLCanvasIDActive;
 
+    MainFrame::ResizeViewport();
     m_pGLCanvasEditor->ResizeViewport();
+
+    g_GLCanvasIDActive = activecanvas;
 }
 
 void EngineMainFrame::UpdateMenuItemStates()

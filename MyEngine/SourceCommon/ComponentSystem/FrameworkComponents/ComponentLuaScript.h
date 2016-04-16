@@ -156,6 +156,24 @@ public:
 #endif //MYFW_USING_WX
 
 public:
+    bool CallFunctionEvenIfGameplayInactive(const char* pFuncName)
+    {
+        if( m_ErrorInScript ) return false;
+        //if( m_Playing == false ) return false;
+
+        // find the function and call it.
+        luabridge::LuaRef LuaObject = luabridge::getGlobal( m_pLuaGameState->m_pLuaState, m_pScriptFile->m_FilenameWithoutExtension );
+        MyAssert( LuaObject.isNil() == false );
+
+        // call pFuncName
+        if( LuaObject[pFuncName].isFunction() == false ) return false;
+
+        ProgramVariables( LuaObject, false );
+        try { if( LuaObject[pFuncName]() == LUA_OK ) return true; return false; }
+        catch(luabridge::LuaException const& e) { HandleLuaError( pFuncName, e.what() ); }
+        return false;
+    }
+
     bool CallFunction(const char* pFuncName)
     {
         if( m_ErrorInScript ) return false;

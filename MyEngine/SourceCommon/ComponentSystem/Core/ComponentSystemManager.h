@@ -243,6 +243,7 @@ public:
     void CreateNewScene(const char* scenename, unsigned int sceneid);
     wxTreeItemId GetTreeIDForScene(int sceneid);
     unsigned int GetSceneIDFromSceneTreeID(wxTreeItemId treeid);
+    unsigned int GetNumberOfScenesLoaded();
     //std::map<int, SceneInfo> m_pSceneInfoMap;
 
     GameObjectTemplateManager* m_pGameObjectTemplateManager;
