@@ -202,6 +202,13 @@ bool EditorInterface_2DPointEditor::HandleInput(int keyaction, int keycode, int 
                         newpos.x = currentresult.x - pParentMatrix->GetTranslation().x;
                         newpos.y = currentresult.y - pParentMatrix->GetTranslation().y;
 
+                        if( g_pEngineMainFrame->m_GridSettings.snapenabled )
+                        {
+                            // snap point to grid.
+                            newpos.x = MyRoundToMultipleOf( newpos.x, g_pEngineMainFrame->m_GridSettings.stepsize.x );
+                            newpos.y = MyRoundToMultipleOf( newpos.y, g_pEngineMainFrame->m_GridSettings.stepsize.y );
+                        }
+
                         if( createnewvertex )
                         {
                             std::vector<b2Vec2>::iterator it = m_pCollisionObject->m_Vertices.begin();
@@ -231,6 +238,11 @@ bool EditorInterface_2DPointEditor::HandleInput(int keyaction, int keycode, int 
 void EditorInterface_2DPointEditor::Set2DCollisionObjectToEdit(Component2DCollisionObject* pCollisionObject)
 {
     m_pCollisionObject = pCollisionObject;
+
+    if( m_pCollisionObject->m_Vertices.size() == 0 )
+    {
+        m_pCollisionObject->m_Vertices.push_back( b2Vec2(0,0) );
+    }
 }
 
 void EditorInterface_2DPointEditor::RenderObjectIDsToFBO()
@@ -285,6 +297,12 @@ void EditorInterface_2DPointEditor::RenderObjectIDsToFBO()
                 Vector3 worldpos = pParentMatrix->GetTranslation() + pos3d;
 
                 m_pPoint->m_pComponentTransform->SetLocalPosition( worldpos );
+
+                ComponentCamera* pCamera = g_pEngineCore->m_pEditorState->GetEditorCamera();
+                MyMatrix* pEditorMatViewProj = &pCamera->m_Camera3D.m_matViewProj;
+
+                float distance = (pCamera->m_pComponentTransform->GetLocalPosition() - pos3d).Length();
+                m_pPoint->m_pComponentTransform->SetLocalScale( Vector3( distance / 15.0f ) );
 
                 ColorByte tint( 0, 0, 0, 0 );
                     
