@@ -351,6 +351,64 @@ void ComponentMesh::DrawCallback(ComponentCamera* pCamera, MyMatrix* pMatViewPro
 
     if( m_pMesh )
     {
+        MyMatrix worldtransform = *m_pComponentTransform->GetWorldTransform();
+
+        // simple frustum check
+        {
+            MyAABounds* bounds = m_pMesh->GetBounds();
+            Vector3 center = bounds->GetCenter();
+            Vector3 half = bounds->GetHalfSize();
+
+            MyMatrix wvp = *pMatViewProj * worldtransform;
+
+            Vector4 clippos[8];
+
+            // transform AABB extents into clip space.
+            clippos[0] = wvp * Vector4(center.x - half.x, center.y - half.y, center.z - half.z, 1);
+            clippos[1] = wvp * Vector4(center.x - half.x, center.y - half.y, center.z + half.z, 1);
+            clippos[2] = wvp * Vector4(center.x - half.x, center.y + half.y, center.z - half.z, 1);
+            clippos[3] = wvp * Vector4(center.x - half.x, center.y + half.y, center.z + half.z, 1);
+            clippos[4] = wvp * Vector4(center.x + half.x, center.y - half.y, center.z - half.z, 1);
+            clippos[5] = wvp * Vector4(center.x + half.x, center.y - half.y, center.z + half.z, 1);
+            clippos[6] = wvp * Vector4(center.x + half.x, center.y + half.y, center.z - half.z, 1);
+            clippos[7] = wvp * Vector4(center.x + half.x, center.y + half.y, center.z + half.z, 1);
+
+            // check visibility two planes at a time
+            bool visible;
+            for( int component=0; component<3; component++ ) // loop through x/y/z
+            {
+                // check if all 8 points are less than the -w extent of it's axis
+                visible = false;
+                for( int i=0; i<8; i++ )
+                {
+                    if( clippos[i][component] >= -clippos[i].w )
+                    {
+                        visible = true; // this point is on the visible side of the plane, skip to next plane
+                        break;
+                    }
+                }
+                if( visible == false ) // all points are on outside of plane, don't draw object
+                    break;
+
+                // check if all 8 points are greater than the -w extent of it's axis
+                visible = false;
+                for( int i=0; i<8; i++ )
+                {
+                    if( clippos[i][component] <= clippos[i].w )
+                    {
+                        visible = true; // this point is on the visible side of the plane, skip to next plane
+                        break;
+                    }
+                }
+                if( visible == false ) // all points are on outside of plane, don't draw object
+                    break;
+            }
+
+            // if all points are on outside of frustum, don't draw mesh.
+            if( visible == false )
+                return;
+        }
+
         for( unsigned int i=0; i<m_pMesh->m_SubmeshList.Count(); i++ )
         {
             m_pMesh->SetMaterial( m_MaterialList[i], i );
@@ -358,7 +416,6 @@ void ComponentMesh::DrawCallback(ComponentCamera* pCamera, MyMatrix* pMatViewPro
             m_pMesh->m_SubmeshList[i]->m_PointSize = m_PointSize;
         }
 
-        MyMatrix worldtransform = *m_pComponentTransform->GetWorldTransform();
         m_pMesh->SetTransform( worldtransform );
 
         // Find nearest lights.
