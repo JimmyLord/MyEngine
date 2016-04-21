@@ -122,7 +122,7 @@ bool EditorInterface_2DPointEditor::HandleInput(int keyaction, int keycode, int 
     {
         if( m_IndexOfPointBeingDragged != -1 && m_pCollisionObject->m_Vertices.size() > 2 )
         {
-            m_pCollisionObject->m_Vertices.erase( m_pCollisionObject->m_Vertices.begin() + m_IndexOfPointBeingDragged );
+            g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_Delete2DPoint( m_pCollisionObject, m_IndexOfPointBeingDragged ) );
             m_IndexOfPointBeingDragged = -1;
         }
     }
@@ -141,6 +141,9 @@ bool EditorInterface_2DPointEditor::HandleInput(int keyaction, int keycode, int 
                 unsigned int pixelid = GetIDAtPixel( (unsigned int)x, (unsigned int)y, true );
 
                 m_IndexOfPointBeingDragged = pixelid - 1;
+
+                // reset mouse movement, so we can undo to this state after mouse goes up.
+                pEditorState->m_DistanceTranslated.Set( 0, 0, 0 );
 
                 //LOGInfo( LOGTag, "Grabbed point %d\n", m_IndexOfPointBeingDragged );
             }
@@ -211,17 +214,32 @@ bool EditorInterface_2DPointEditor::HandleInput(int keyaction, int keycode, int 
 
                         if( createnewvertex )
                         {
-                            std::vector<b2Vec2>::iterator it = m_pCollisionObject->m_Vertices.begin();
-                            m_pCollisionObject->m_Vertices.insert( it + m_IndexOfPointBeingDragged, newpos );
+                            g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_Insert2DPoint( m_pCollisionObject, m_IndexOfPointBeingDragged ) );
                         }
                         else
                         {
+                            b2Vec2 distmoved = newpos - m_pCollisionObject->m_Vertices[m_IndexOfPointBeingDragged];
+                            pEditorState->m_DistanceTranslated.x += distmoved.x;
+                            pEditorState->m_DistanceTranslated.y += distmoved.y;
                             m_pCollisionObject->m_Vertices[m_IndexOfPointBeingDragged].Set( newpos.x, newpos.y );
                         }
                     }
                 }
 
                 //m_IndexOfPointBeingDragged = -1;
+            }
+
+            if( mouseaction == GCBA_Up )
+            {
+                if( m_IndexOfPointBeingDragged != -1 )
+                {
+                    // TODO: do this when finished moving.
+                    b2Vec2 distmoved;
+                    distmoved.x = pEditorState->m_DistanceTranslated.x;
+                    distmoved.y = pEditorState->m_DistanceTranslated.y;
+                    if( distmoved.LengthSquared() != 0 )
+                        g_pEngineMainFrame->m_pCommandStack->Add( MyNew EditorCommand_Move2DPoint( distmoved, m_pCollisionObject, m_IndexOfPointBeingDragged ) );
+                }
             }
         }
     }

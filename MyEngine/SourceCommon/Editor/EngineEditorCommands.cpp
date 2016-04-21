@@ -456,3 +456,117 @@ EditorCommand* EditorCommand_ChangeAllScriptsOnGameObject::Repeat()
 
     return 0;
 }
+
+//====================================================================================================
+// EditorCommand_Move2DPoint
+//====================================================================================================
+
+EditorCommand_Move2DPoint::EditorCommand_Move2DPoint(b2Vec2 distancemoved, Component2DCollisionObject* pCollisionObject, int indexmoved)
+{
+    MyAssert( m_pCollisionObject );
+    MyAssert( indexmoved >= 0 && indexmoved < (int)pCollisionObject->m_Vertices.size() );
+
+    m_pCollisionObject = pCollisionObject;
+    m_DistanceMoved = distancemoved;
+    m_IndexOfPointMoved = indexmoved;
+
+    //LOGInfo( LOGTag, "EditorCommand_Move2DPoint:: %f,%f\n", m_DistanceMoved.x, m_DistanceMoved.y );
+}
+
+EditorCommand_Move2DPoint::~EditorCommand_Move2DPoint()
+{
+}
+
+void EditorCommand_Move2DPoint::Do()
+{
+    m_pCollisionObject->m_Vertices[m_IndexOfPointMoved].x += m_DistanceMoved.x;
+    m_pCollisionObject->m_Vertices[m_IndexOfPointMoved].y += m_DistanceMoved.y;
+}
+
+void EditorCommand_Move2DPoint::Undo()
+{
+    m_pCollisionObject->m_Vertices[m_IndexOfPointMoved].x -= m_DistanceMoved.x;
+    m_pCollisionObject->m_Vertices[m_IndexOfPointMoved].y -= m_DistanceMoved.y;
+}
+
+EditorCommand* EditorCommand_Move2DPoint::Repeat()
+{
+    EditorCommand_Move2DPoint* pCommand;
+    pCommand = MyNew EditorCommand_Move2DPoint( *this );
+
+    pCommand->Do();
+    return pCommand;
+}
+
+//====================================================================================================
+// EditorCommand_Insert2DPoint
+//====================================================================================================
+
+EditorCommand_Insert2DPoint::EditorCommand_Insert2DPoint(Component2DCollisionObject* pCollisionObject, int indexinserted)
+{
+    MyAssert( m_pCollisionObject );
+    MyAssert( indexinserted >= 0 && indexinserted < (int)pCollisionObject->m_Vertices.size() );
+
+    m_pCollisionObject = pCollisionObject;
+    m_IndexOfPointInserted = indexinserted;
+}
+
+EditorCommand_Insert2DPoint::~EditorCommand_Insert2DPoint()
+{
+}
+
+void EditorCommand_Insert2DPoint::Do()
+{
+    std::vector<b2Vec2>::iterator it = m_pCollisionObject->m_Vertices.begin();
+    m_pCollisionObject->m_Vertices.insert( it + m_IndexOfPointInserted, m_pCollisionObject->m_Vertices[m_IndexOfPointInserted] );
+}
+
+void EditorCommand_Insert2DPoint::Undo()
+{
+    std::vector<b2Vec2>::iterator it = m_pCollisionObject->m_Vertices.begin();
+    m_pCollisionObject->m_Vertices.erase( it + m_IndexOfPointInserted );
+}
+
+EditorCommand* EditorCommand_Insert2DPoint::Repeat()
+{
+    // Do nothing.
+
+    return 0;
+}
+
+//====================================================================================================
+// EditorCommand_Delete2DPoint
+//====================================================================================================
+
+EditorCommand_Delete2DPoint::EditorCommand_Delete2DPoint(Component2DCollisionObject* pCollisionObject, int indexdeleted)
+{
+    MyAssert( m_pCollisionObject );
+    MyAssert( indexdeleted >= 0 && indexdeleted < (int)pCollisionObject->m_Vertices.size() );
+
+    m_pCollisionObject = pCollisionObject;
+    m_IndexOfPointDeleted = indexdeleted;
+    m_Position = m_pCollisionObject->m_Vertices[m_IndexOfPointDeleted];
+}
+
+EditorCommand_Delete2DPoint::~EditorCommand_Delete2DPoint()
+{
+}
+
+void EditorCommand_Delete2DPoint::Do()
+{
+    std::vector<b2Vec2>::iterator it = m_pCollisionObject->m_Vertices.begin();
+    m_pCollisionObject->m_Vertices.erase( it + m_IndexOfPointDeleted );
+}
+
+void EditorCommand_Delete2DPoint::Undo()
+{
+    std::vector<b2Vec2>::iterator it = m_pCollisionObject->m_Vertices.begin();
+    m_pCollisionObject->m_Vertices.insert( it + m_IndexOfPointDeleted, m_Position );
+}
+
+EditorCommand* EditorCommand_Delete2DPoint::Repeat()
+{
+    // Do nothing.
+
+    return 0;
+}

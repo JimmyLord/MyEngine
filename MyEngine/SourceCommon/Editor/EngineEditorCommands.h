@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015 Jimmy Lord http://www.flatheadgames.com
+// Copyright (c) 2015-2016 Jimmy Lord http://www.flatheadgames.com
 //
 // This software is provided 'as-is', without any express or implied warranty.  In no event will the authors be held liable for any damages arising from the use of this software.
 // Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -169,6 +169,59 @@ protected:
 public:
     EditorCommand_ChangeAllScriptsOnGameObject(GameObject* object, MyFileObject* scriptfile);
     virtual ~EditorCommand_ChangeAllScriptsOnGameObject();
+
+    virtual void Do();
+    virtual void Undo();
+    virtual EditorCommand* Repeat();
+};
+
+//====================================================================================================
+
+class EditorCommand_Move2DPoint : public EditorCommand
+{
+protected:
+    Component2DCollisionObject* m_pCollisionObject;
+    b2Vec2 m_DistanceMoved;
+    int m_IndexOfPointMoved;
+
+public:
+    EditorCommand_Move2DPoint(b2Vec2 distancemoved, Component2DCollisionObject* pCollisionObject, int indexmoved);
+    virtual ~EditorCommand_Move2DPoint();
+
+    virtual void Do();
+    virtual void Undo();
+    virtual EditorCommand* Repeat();
+};
+
+//====================================================================================================
+
+class EditorCommand_Insert2DPoint : public EditorCommand
+{
+protected:
+    Component2DCollisionObject* m_pCollisionObject;
+    int m_IndexOfPointInserted;
+
+public:
+    EditorCommand_Insert2DPoint(Component2DCollisionObject* pCollisionObject, int indexinserted);
+    virtual ~EditorCommand_Insert2DPoint();
+
+    virtual void Do();
+    virtual void Undo();
+    virtual EditorCommand* Repeat();
+};
+
+//====================================================================================================
+
+class EditorCommand_Delete2DPoint : public EditorCommand
+{
+protected:
+    Component2DCollisionObject* m_pCollisionObject;
+    int m_IndexOfPointDeleted;
+    b2Vec2 m_Position;
+
+public:
+    EditorCommand_Delete2DPoint(Component2DCollisionObject* pCollisionObject, int indexdeleted);
+    virtual ~EditorCommand_Delete2DPoint();
 
     virtual void Do();
     virtual void Undo();
