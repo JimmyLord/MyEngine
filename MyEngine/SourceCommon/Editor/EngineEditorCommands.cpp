@@ -538,14 +538,14 @@ EditorCommand* EditorCommand_Insert2DPoint::Repeat()
 // EditorCommand_Delete2DPoint
 //====================================================================================================
 
-EditorCommand_Delete2DPoint::EditorCommand_Delete2DPoint(Component2DCollisionObject* pCollisionObject, int indexdeleted)
+EditorCommand_Delete2DPoint::EditorCommand_Delete2DPoint(Component2DCollisionObject* pCollisionObject, int indexdeleted, b2Vec2 position)
 {
     MyAssert( m_pCollisionObject );
     MyAssert( indexdeleted >= 0 && indexdeleted < (int)pCollisionObject->m_Vertices.size() );
 
     m_pCollisionObject = pCollisionObject;
     m_IndexOfPointDeleted = indexdeleted;
-    m_Position = m_pCollisionObject->m_Vertices[m_IndexOfPointDeleted];
+    m_Position = position;
 }
 
 EditorCommand_Delete2DPoint::~EditorCommand_Delete2DPoint()

@@ -17,7 +17,9 @@ protected:
 
     GameObject* m_pPoint;
     int m_IndexOfPointBeingDragged;
+    b2Vec2 m_PositionMouseWentDown;
     bool m_NewMousePress;
+    bool m_AddedVertexWhenMouseWasDragged;
 
 public:
     EditorInterface_2DPointEditor();
@@ -30,6 +32,8 @@ public:
     virtual bool HandleInput(int keyaction, int keycode, int mouseaction, int id, float x, float y, float pressure);
 
     virtual void RenderObjectIDsToFBO();
+
+    void CancelCurrentOperation();
 
     Component2DCollisionObject* Get2DCollisionObjectBeingEdited() { return m_pCollisionObject; }
     void Set2DCollisionObjectToEdit(Component2DCollisionObject* pCollisionObject);

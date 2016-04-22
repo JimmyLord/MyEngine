@@ -220,7 +220,7 @@ protected:
     b2Vec2 m_Position;
 
 public:
-    EditorCommand_Delete2DPoint(Component2DCollisionObject* pCollisionObject, int indexdeleted);
+    EditorCommand_Delete2DPoint(Component2DCollisionObject* pCollisionObject, int indexdeleted, b2Vec2 position);
     virtual ~EditorCommand_Delete2DPoint();
 
     virtual void Do();

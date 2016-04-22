@@ -15,8 +15,11 @@ EditorInterface_2DPointEditor::EditorInterface_2DPointEditor()
 
     m_pPoint = 0;
 
+    m_PositionMouseWentDown.SetZero();
+
     m_IndexOfPointBeingDragged = -1;
     m_NewMousePress = false;
+    m_AddedVertexWhenMouseWasDragged = false;
 }
 
 EditorInterface_2DPointEditor::~EditorInterface_2DPointEditor()
@@ -108,12 +111,29 @@ void EditorInterface_2DPointEditor::OnDrawFrame(unsigned int canvasid)
     }
 }
 
+void EditorInterface_2DPointEditor::CancelCurrentOperation()
+{
+    if( m_IndexOfPointBeingDragged != -1 )
+    {
+        if( m_AddedVertexWhenMouseWasDragged )
+        {
+            g_pEngineMainFrame->m_pCommandStack->Undo( 1 );
+        }
+        else
+        {
+            m_pCollisionObject->m_Vertices[m_IndexOfPointBeingDragged] = m_PositionMouseWentDown;
+        }
+        m_IndexOfPointBeingDragged = -1;
+    }
+}
+
 bool EditorInterface_2DPointEditor::HandleInput(int keyaction, int keycode, int mouseaction, int id, float x, float y, float pressure)
 {
     EditorState* pEditorState = g_pEngineCore->m_pEditorState;
 
     if( keyaction == GCBA_Up && keycode == MYKEYCODE_ESC )
     {
+        CancelCurrentOperation();
         g_pEngineCore->SetEditorInterface( EditorInterfaceType_SceneManagement );        
     }
 
@@ -122,7 +142,13 @@ bool EditorInterface_2DPointEditor::HandleInput(int keyaction, int keycode, int 
     {
         if( m_IndexOfPointBeingDragged != -1 && m_pCollisionObject->m_Vertices.size() > 2 )
         {
-            g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_Delete2DPoint( m_pCollisionObject, m_IndexOfPointBeingDragged ) );
+            // if the mouse is still down, undo will use the position of the vertex when the mouse went down
+            //     otherwise it will use the saved position of the vertex
+            b2Vec2 position = m_pCollisionObject->m_Vertices[m_IndexOfPointBeingDragged];
+            if( pEditorState->m_ModifierKeyStates & MODIFIERKEY_LeftMouse )
+                position = m_PositionMouseWentDown;
+
+            g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_Delete2DPoint( m_pCollisionObject, m_IndexOfPointBeingDragged, position ) );
             m_IndexOfPointBeingDragged = -1;
         }
     }
@@ -131,6 +157,14 @@ bool EditorInterface_2DPointEditor::HandleInput(int keyaction, int keycode, int 
 
     if( pEditorState->m_ModifierKeyStates & MODIFIERKEY_LeftMouse )
     {
+        if( id == 1 ) // right mouse button to cancel current operation
+        {
+            if( mouseaction == GCBA_Down )
+            {
+                CancelCurrentOperation();
+            }
+        }
+
         if( id == 0 ) // left mouse button
         {
             if( mouseaction == GCBA_Down )
@@ -141,9 +175,13 @@ bool EditorInterface_2DPointEditor::HandleInput(int keyaction, int keycode, int 
                 unsigned int pixelid = GetIDAtPixel( (unsigned int)x, (unsigned int)y, true );
 
                 m_IndexOfPointBeingDragged = pixelid - 1;
+                m_AddedVertexWhenMouseWasDragged = false;
 
                 // reset mouse movement, so we can undo to this state after mouse goes up.
-                pEditorState->m_DistanceTranslated.Set( 0, 0, 0 );
+                if( m_IndexOfPointBeingDragged != -1 )
+                {
+                    m_PositionMouseWentDown = m_pCollisionObject->m_Vertices[m_IndexOfPointBeingDragged];
+                }
 
                 //LOGInfo( LOGTag, "Grabbed point %d\n", m_IndexOfPointBeingDragged );
             }
@@ -215,12 +253,10 @@ bool EditorInterface_2DPointEditor::HandleInput(int keyaction, int keycode, int 
                         if( createnewvertex )
                         {
                             g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_Insert2DPoint( m_pCollisionObject, m_IndexOfPointBeingDragged ) );
+                            m_AddedVertexWhenMouseWasDragged = true;
                         }
                         else
                         {
-                            b2Vec2 distmoved = newpos - m_pCollisionObject->m_Vertices[m_IndexOfPointBeingDragged];
-                            pEditorState->m_DistanceTranslated.x += distmoved.x;
-                            pEditorState->m_DistanceTranslated.y += distmoved.y;
                             m_pCollisionObject->m_Vertices[m_IndexOfPointBeingDragged].Set( newpos.x, newpos.y );
                         }
                     }
@@ -233,12 +269,11 @@ bool EditorInterface_2DPointEditor::HandleInput(int keyaction, int keycode, int 
             {
                 if( m_IndexOfPointBeingDragged != -1 )
                 {
-                    // TODO: do this when finished moving.
-                    b2Vec2 distmoved;
-                    distmoved.x = pEditorState->m_DistanceTranslated.x;
-                    distmoved.y = pEditorState->m_DistanceTranslated.y;
+                    // add command to stack for undo/redo.
+                    
+                    b2Vec2 distmoved = m_pCollisionObject->m_Vertices[m_IndexOfPointBeingDragged] - m_PositionMouseWentDown;
                     if( distmoved.LengthSquared() != 0 )
-                        g_pEngineMainFrame->m_pCommandStack->Add( MyNew EditorCommand_Move2DPoint( distmoved, m_pCollisionObject, m_IndexOfPointBeingDragged ) );
+                        g_pEngineMainFrame->m_pCommandStack->Add( MyNew EditorCommand_Move2DPoint( distmoved, m_pCollisionObject, m_IndexOfPointBeingDragged ), m_AddedVertexWhenMouseWasDragged );
                 }
             }
         }
