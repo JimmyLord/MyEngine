@@ -539,20 +539,30 @@ void TransformGizmo::TranslateSelectedObjects(EngineCore* pGame, EditorState* pE
                 //LOGInfo( LOGTag, "pEditorState->m_DistanceTranslated.Set( %f, %f, %f );", pEditorState->m_DistanceTranslated.x, pEditorState->m_DistanceTranslated.y, pEditorState->m_DistanceTranslated.z );
                 //LOGInfo( LOGTag, "diff( %f, %f, %f, %d );", diff.x, diff.y, diff.z, pEditorState->m_pSelectedObjects.size() );
 
-                for( unsigned int i=0; i<pEditorState->m_pSelectedObjects.size(); i++ )
-                {
-                    ComponentTransform* pTransform = pEditorState->m_pSelectedObjects[i]->m_pComponentTransform;
-
-                    // if this object has a selected parent, don't move it, only move the parent.
-                    if( pTransform->IsAnyParentInList( pEditorState->m_pSelectedObjects ) == false )
-                    {
-                        Vector3 pos = pTransform->GetLocalTransform()->GetTranslation();
-
-                        pTransform->SetPositionByEditor( pos + diff );
-                        pTransform->UpdateTransform();
-                    }
-                }
+                TranslateSelectedObjects( pEditorState, diff );
             }
         }
     }
+}
+
+void TransformGizmo::TranslateSelectedObjects(EditorState* pEditorState, Vector3 distance)
+{
+    for( unsigned int i=0; i<pEditorState->m_pSelectedObjects.size(); i++ )
+    {
+        ComponentTransform* pTransform = pEditorState->m_pSelectedObjects[i]->m_pComponentTransform;
+
+        // if this object has a selected parent, don't move it, only move the parent.
+        if( pTransform->IsAnyParentInList( pEditorState->m_pSelectedObjects ) == false )
+        {
+            Vector3 pos = pTransform->GetLocalTransform()->GetTranslation();
+
+            pTransform->SetPositionByEditor( pos + distance );
+            pTransform->UpdateTransform();
+        }
+    }
+}
+
+void TransformGizmo::CancelLastTranslation(EditorState* pEditorState)
+{
+    TranslateSelectedObjects( pEditorState, pEditorState->m_DistanceTranslated * -1 );
 }

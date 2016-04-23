@@ -39,6 +39,8 @@ public:
     void ScaleGizmosForMousePickRendering(bool doscale);
     
     void TranslateSelectedObjects(EngineCore* pGame, EditorState* pEditorState);
+    void TranslateSelectedObjects(EditorState* pEditorState, Vector3 distance);
+    void CancelLastTranslation(EditorState* pEditorState);
 };
 
 #endif // __TransformGizmo_H__

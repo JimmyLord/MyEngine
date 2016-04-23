@@ -166,6 +166,22 @@ bool EditorInterface_SceneManagement::HandleInput(int keyaction, int keycode, in
 
     EditorInterface::SetModifierKeyStates( keyaction, keycode, mouseaction, id, x, y, pressure );
 
+    if( pEditorState->m_ModifierKeyStates & MODIFIERKEY_RightMouse )
+    {
+        // cancel the current action
+        if( pEditorState->m_EditorActionState >= EDITORACTIONSTATE_TranslateX &&
+            pEditorState->m_EditorActionState <= EDITORACTIONSTATE_TranslateYZ )
+        {
+            pEditorState->m_pTransformGizmo->CancelLastTranslation( pEditorState );
+        }
+        else if( pEditorState->m_EditorActionState == EDITORACTIONSTATE_GroupSelectingObjects )
+        {
+        }
+
+        pEditorState->ClearConstraint();
+        pEditorState->m_EditorActionState = EDITORACTIONSTATE_None;
+    }
+
     if( pEditorState->m_ModifierKeyStates & MODIFIERKEY_LeftMouse )
     {
         if( mouseaction == GCBA_Down && id == 0 )
@@ -213,7 +229,7 @@ bool EditorInterface_SceneManagement::HandleInput(int keyaction, int keycode, in
 
             bool selectedgizmo = false;
 
-            // translate to the right.
+            // translate on one axis.
             if( pObject == pEditorState->m_pTransformGizmo->m_pTranslate1Axis[0] )
             {
                 pEditorState->m_EditorActionState = EDITORACTIONSTATE_TranslateX;
@@ -230,6 +246,7 @@ bool EditorInterface_SceneManagement::HandleInput(int keyaction, int keycode, in
                 selectedgizmo = true;
             }
 
+            // translate on two axes.
             if( pObject == pEditorState->m_pTransformGizmo->m_pTranslate2Axis[0] )
             {
                 pEditorState->m_EditorActionState = EDITORACTIONSTATE_TranslateYZ;
@@ -540,7 +557,7 @@ bool EditorInterface_SceneManagement::HandleInput(int keyaction, int keycode, in
     {
         if( mouseaction == GCBA_Up )
         {
-            if( id == 0 ) // left button up
+            if( id == 0 && pEditorState->m_EditorActionState != EDITORACTIONSTATE_None ) // left button up
             {
                 // when mouse up, select all object in the box.
                 if( pEditorState->m_EditorActionState == EDITORACTIONSTATE_GroupSelectingObjects )
@@ -550,29 +567,33 @@ bool EditorInterface_SceneManagement::HandleInput(int keyaction, int keycode, in
                         (unsigned int)pEditorState->m_CurrentMousePosition.x, (unsigned int)pEditorState->m_CurrentMousePosition.y );
                 }
 
-                pEditorState->m_EditorActionState = EDITORACTIONSTATE_None;
-
                 // GIZMOTRANSLATE: add translation to undo stack, action itself is done each frame.  We only want to undo to last mouse down.
-                if( pEditorState->m_pSelectedObjects.size() > 0 && pEditorState->m_DistanceTranslated.LengthSquared() != 0 )
+                if( pEditorState->m_EditorActionState >= EDITORACTIONSTATE_TranslateX &&
+                    pEditorState->m_EditorActionState <= EDITORACTIONSTATE_TranslateYZ )
                 {
-                    // Create a new list of selected objects, don't include objects that have parents that are selected.
-                    std::vector<GameObject*> selectedobjects;
-                    for( unsigned int i=0; i<pEditorState->m_pSelectedObjects.size(); i++ )
+                    if( pEditorState->m_pSelectedObjects.size() > 0 && pEditorState->m_DistanceTranslated.LengthSquared() != 0 )
                     {
-                        ComponentTransform* pTransform = pEditorState->m_pSelectedObjects[i]->m_pComponentTransform;
-
-                        // if this object has a selected parent, don't move it, only move the parent.
-                        if( pTransform->IsAnyParentInList( pEditorState->m_pSelectedObjects ) == false )
+                        // Create a new list of selected objects, don't include objects that have parents that are selected.
+                        std::vector<GameObject*> selectedobjects;
+                        for( unsigned int i=0; i<pEditorState->m_pSelectedObjects.size(); i++ )
                         {
-                            selectedobjects.push_back( pEditorState->m_pSelectedObjects[i] );
+                            ComponentTransform* pTransform = pEditorState->m_pSelectedObjects[i]->m_pComponentTransform;
+
+                            // if this object has a selected parent, don't move it, only move the parent.
+                            if( pTransform->IsAnyParentInList( pEditorState->m_pSelectedObjects ) == false )
+                            {
+                                selectedobjects.push_back( pEditorState->m_pSelectedObjects[i] );
+                            }
+                        }
+
+                        if( selectedobjects.size() > 0 )
+                        {
+                            g_pEngineMainFrame->m_pCommandStack->Add( MyNew EditorCommand_MoveObjects( pEditorState->m_DistanceTranslated, selectedobjects ) );
                         }
                     }
-
-                    if( selectedobjects.size() > 0 )
-                    {
-                        g_pEngineMainFrame->m_pCommandStack->Add( MyNew EditorCommand_MoveObjects( pEditorState->m_DistanceTranslated, selectedobjects ) );
-                    }
                 }
+
+                pEditorState->m_EditorActionState = EDITORACTIONSTATE_None;
             }
         }
     }
