@@ -83,6 +83,7 @@ EngineCore::EngineCore()
     m_DebugFPS = 0;
     m_LuaMemoryUsedLastFrame = 0;
     m_LuaMemoryUsedThisFrame = 0;
+    m_TotalMemoryAllocatedLastFrame = 0;
 
     for( int i=0; i<32; i++ )
     {
@@ -462,6 +463,7 @@ void EngineCore::OnDrawFrame(unsigned int canvasid)
         m_pDebugTextMesh->CreateStringWhite( false, 10, m_WindowStartX+m_WindowWidth, m_WindowStartY+m_WindowHeight, Justify_TopRight, Vector2(0,0),
             "GL - draws(%d) - fps(%d)", g_GLStats.GetNumDrawCallsLastFrameForCurrentCanvasID(), (int)m_DebugFPS );
 
+        // Draw Lua memory usage.
         {
             int megs = m_LuaMemoryUsedThisFrame/1000000;
             int kilos = (m_LuaMemoryUsedThisFrame - megs*1000000)/1000;
@@ -479,6 +481,29 @@ void EngineCore::OnDrawFrame(unsigned int canvasid)
                 m_pDebugTextMesh->CreateStringWhite( true, 10, m_WindowStartX+m_WindowWidth, m_WindowStartY+m_WindowHeight-10, Justify_TopRight, Vector2(0,0),
                     "Lua - memory(%d,%03d,%03d) - (%d)", megs, kilos, bytes, change );
             }
+        }
+
+        // Draw Main ram memory usage.
+        {
+            unsigned int bytesused = MyMemory_GetNumberOfBytesAllocated();
+            int megs = bytesused/1000000;
+            int kilos = (bytesused - megs*1000000)/1000;
+            int bytes = bytesused%1000;
+
+            int change = bytesused - m_TotalMemoryAllocatedLastFrame;
+
+            if( megs == 0 )
+            {
+                m_pDebugTextMesh->CreateStringWhite( true, 10, m_WindowStartX+m_WindowWidth, m_WindowStartY+m_WindowHeight-20, Justify_TopRight, Vector2(0,0),
+                    "Memory(%03d,%03d) - (%d)", kilos, bytes, change );
+            }
+            else
+            {
+                m_pDebugTextMesh->CreateStringWhite( true, 10, m_WindowStartX+m_WindowWidth, m_WindowStartY+m_WindowHeight-20, Justify_TopRight, Vector2(0,0),
+                    "Memory(%d,%03d,%03d) - (%d)", megs, kilos, bytes, change );
+            }
+
+            m_TotalMemoryAllocatedLastFrame = bytesused;
         }
 
         MyMatrix mat;

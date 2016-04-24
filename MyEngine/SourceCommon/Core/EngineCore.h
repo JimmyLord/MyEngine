@@ -75,6 +75,7 @@ public:
     float m_DebugFPS;
     int m_LuaMemoryUsedLastFrame;
     int m_LuaMemoryUsedThisFrame;
+    unsigned int m_TotalMemoryAllocatedLastFrame;
 
     char* m_GameObjectFlagStrings[32];
 
