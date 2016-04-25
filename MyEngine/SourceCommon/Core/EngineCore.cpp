@@ -129,6 +129,8 @@ EngineCore::~EngineCore()
     {
         delete[] m_GameObjectFlagStrings[i];
     }
+
+    m_SingleFrameMemoryStack.Cleanup();
 }
 
 #if MYFW_USING_LUA
@@ -196,6 +198,10 @@ void EngineCore::InitializeGameObjectFlagStrings(cJSON* jStringsArray)
 void EngineCore::OneTimeInit()
 {
     GameCore::OneTimeInit();
+
+    // allocate one meg of ram for now, this stack gets wiped each frame in OnDrawFrameDone()
+    //  TODO: expose size
+    m_SingleFrameMemoryStack.Initialize( 1000000 );
 
 #if MYFW_USING_WX
     m_pEditorState = MyNew EditorState;
@@ -513,6 +519,13 @@ void EngineCore::OnDrawFrame(unsigned int canvasid)
         glEnable( GL_DEPTH_TEST );
     }
 #endif
+}
+
+void EngineCore::OnDrawFrameDone()
+{
+    GameCore::OnDrawFrameDone();
+
+    m_SingleFrameMemoryStack.Clear();
 }
 
 void EngineCore::OnFileRenamed(const char* fullpathbefore, const char* fullpathafter)
@@ -1050,27 +1063,30 @@ unsigned int EngineCore::LoadSceneFromFile(const char* fullpath)
         {
             fseek( filehandle, 0, SEEK_SET );
 
-            jsonstr = MyNew char[length+1];
+            MyStackAllocator::MyStackPointer stackpointer;
+            jsonstr = (char*)m_SingleFrameMemoryStack.AllocateBlock( length+1, &stackpointer );
             fread( jsonstr, length, 1, filehandle );
             jsonstr[length] = 0;
+
+            const char* filenamestart;
+            int i;
+            for( i=strlen(fullpath)-1; i>=0; i-- )
+            {
+                if( fullpath[i] == '\\' || fullpath[i] == '/' )
+                    break;
+            }
+            filenamestart = &fullpath[i+1];
+
+            LoadSceneFromJSON( filenamestart, jsonstr, sceneid );
+            g_pComponentSystemManager->m_pSceneInfoMap[sceneid].m_InUse = true;
+            strcpy_s( g_pComponentSystemManager->m_pSceneInfoMap[sceneid].m_FullPath, MAX_PATH, fullpath );
+
+            // probably should bother with a rewind, might cause issues in future if LoadSceneFromJSON()
+            //   uses stack and wants to keep info around
+            m_SingleFrameMemoryStack.RewindStack( stackpointer );
         }
 
         fclose( filehandle );
-
-        const char* filenamestart;
-        int i;
-        for( i=strlen(fullpath)-1; i>=0; i-- )
-        {
-            if( fullpath[i] == '\\' || fullpath[i] == '/' )
-                break;
-        }
-        filenamestart = &fullpath[i+1];
-
-        LoadSceneFromJSON( filenamestart, jsonstr, sceneid );
-        g_pComponentSystemManager->m_pSceneInfoMap[sceneid].m_InUse = true;
-        strcpy_s( g_pComponentSystemManager->m_pSceneInfoMap[sceneid].m_FullPath, MAX_PATH, fullpath );
-
-        delete[] jsonstr;
     }
 
     return sceneid;
