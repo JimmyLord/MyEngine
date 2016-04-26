@@ -77,6 +77,8 @@ public:
     int m_LuaMemoryUsedLastFrame;
     int m_LuaMemoryUsedThisFrame;
     unsigned int m_TotalMemoryAllocatedLastFrame;
+    unsigned int m_SingleFrameStackSizeLastFrame;
+    unsigned int m_SingleFrameStackSizeThisFrame;
 
     char* m_GameObjectFlagStrings[32];
 
@@ -185,6 +187,7 @@ public:
     void GetMouseRay(Vector2 mousepos, Vector3* start, Vector3* end);
 
     void SetEditorInterface(EditorInterfaceTypes type);
+    EditorInterface* GetEditorInterface(EditorInterfaceTypes type);
     EditorInterface* GetCurrentEditorInterface();
     EditorInterfaceTypes GetCurrentEditorInterfaceType() { return m_CurrentEditorInterfaceType; }
 #endif //MYFW_USING_WX

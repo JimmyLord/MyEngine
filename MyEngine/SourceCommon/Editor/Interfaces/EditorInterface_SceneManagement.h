@@ -18,6 +18,8 @@ public:
     EditorInterface_SceneManagement();
     virtual ~EditorInterface_SceneManagement();
 
+    virtual void Initialize();
+
     virtual void OnActivated();
     virtual void OnDeactivated();
     virtual void OnDrawFrame(unsigned int canvasid);

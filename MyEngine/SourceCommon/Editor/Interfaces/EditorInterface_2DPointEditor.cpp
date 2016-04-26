@@ -20,17 +20,35 @@ EditorInterface_2DPointEditor::EditorInterface_2DPointEditor()
     m_IndexOfPointBeingDragged = -1;
     m_NewMousePress = false;
     m_AddedVertexWhenMouseWasDragged = false;
+
+    for( int i=0; i<Mat_NumMaterials; i++ )
+    {
+        m_pMaterials[i] = 0;
+    }
 }
 
 EditorInterface_2DPointEditor::~EditorInterface_2DPointEditor()
 {
     SAFE_DELETE( m_pPoint );
+
+    for( int i=0; i<Mat_NumMaterials; i++ )
+    {
+        SAFE_RELEASE( m_pMaterials[i] );
+    }
+}
+
+void EditorInterface_2DPointEditor::Initialize()
+{
+    if( m_pMaterials[Mat_Lines] == 0 )
+        m_pMaterials[Mat_Lines] = MyNew MaterialDefinition( g_pEngineCore->m_pShader_TintColor, ColorByte(255,0,0,255) );
+    if( m_pMaterials[Mat_Points] == 0 )
+        m_pMaterials[Mat_Points] = MyNew MaterialDefinition( g_pEngineCore->m_pShader_TintColor, ColorByte(255,255,0,255) );
+    if( m_pMaterials[Mat_SelectedPoint] == 0 )
+        m_pMaterials[Mat_SelectedPoint] = MyNew MaterialDefinition( g_pEngineCore->m_pShader_TintColor, ColorByte(255,255,255,255) );
 }
 
 void EditorInterface_2DPointEditor::OnActivated()
 {
-    MaterialDefinition* pMaterial = g_pEngineCore->m_pEditorState->m_pTransformGizmo->m_pMaterial_Translate1Axis[1];
-
     // create a gameobject for the points that we'll draw.
     if( m_pPoint == 0 )
     {
@@ -44,7 +62,7 @@ void EditorInterface_2DPointEditor::OnActivated()
         if( pComponentMesh )
         {
             pComponentMesh->SetVisible( true );
-            pComponentMesh->SetMaterial( pMaterial, 0 );
+            pComponentMesh->SetMaterial( m_pMaterials[Mat_Points], 0 );
             pComponentMesh->SetLayersThisExistsOn( Layer_EditorFG );
             pComponentMesh->m_pMesh = MyNew MyMesh();
             pComponentMesh->m_pMesh->Create2DCircle( 0.25f, 20 );
@@ -95,9 +113,14 @@ void EditorInterface_2DPointEditor::OnDrawFrame(unsigned int canvasid)
         float distance = (pCamera->m_pComponentTransform->GetLocalPosition() - pos3d).Length();
         m_pPoint->m_pComponentTransform->SetLocalScale( Vector3( distance / 15.0f ) );
 
-        // TODO: change the material color if this is the selected dot.
+        // change the material color if this is the selected dot.
+        if( i == (unsigned int)m_IndexOfPointBeingDragged )
+            m_pPoint->SetMaterial( m_pMaterials[Mat_SelectedPoint] );
 
         g_pComponentSystemManager->DrawSingleObject( pEditorMatViewProj, m_pPoint, 0 );
+
+        if( i == (unsigned int)m_IndexOfPointBeingDragged )
+            m_pPoint->SetMaterial( m_pMaterials[Mat_Points] );
     }
 
     // Draw Box2D debug data
@@ -376,4 +399,11 @@ void EditorInterface_2DPointEditor::RenderObjectIDsToFBO()
     pEditorState->m_pMousePickerFBO->Unbind( true );
 
     pEditorState->m_pTransformGizmo->ScaleGizmosForMousePickRendering( false );
+}
+
+MaterialDefinition* EditorInterface_2DPointEditor::GetMaterial(MaterialTypes type)
+{
+    MyAssert( type >= 0 && type < Mat_NumMaterials );
+
+    return m_pMaterials[type];
 }

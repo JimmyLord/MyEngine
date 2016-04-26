@@ -18,6 +18,8 @@ public:
     EditorInterface();
     virtual ~EditorInterface();
 
+    virtual void Initialize() = 0;
+
     virtual void OnActivated();
     virtual void OnDeactivated();
     virtual void OnDrawFrame(unsigned int canvasid);

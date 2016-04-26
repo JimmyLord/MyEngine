@@ -12,6 +12,15 @@
 
 class EditorInterface_2DPointEditor : public EditorInterface
 {
+public:
+    enum MaterialTypes
+    {
+        Mat_Lines, // drawn by box2d debug draw code.
+        Mat_Points,
+        Mat_SelectedPoint,
+        Mat_NumMaterials,
+    };
+
 protected:
     Component2DCollisionObject* m_pCollisionObject;
 
@@ -21,9 +30,13 @@ protected:
     bool m_NewMousePress;
     bool m_AddedVertexWhenMouseWasDragged;
 
+    MaterialDefinition* m_pMaterials[Mat_NumMaterials];
+
 public:
     EditorInterface_2DPointEditor();
     virtual ~EditorInterface_2DPointEditor();
+
+    virtual void Initialize();
 
     virtual void OnActivated();
     virtual void OnDeactivated();
@@ -37,6 +50,8 @@ public:
 
     Component2DCollisionObject* Get2DCollisionObjectBeingEdited() { return m_pCollisionObject; }
     void Set2DCollisionObjectToEdit(Component2DCollisionObject* pCollisionObject);
+
+    MaterialDefinition* GetMaterial(MaterialTypes type);
 };
 
 #endif //__EditorInterface_2DPointEditor_H__

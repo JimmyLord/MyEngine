@@ -17,6 +17,10 @@ EditorInterface_SceneManagement::~EditorInterface_SceneManagement()
 {
 }
 
+void EditorInterface_SceneManagement::Initialize()
+{
+}
+
 void EditorInterface_SceneManagement::OnActivated()
 {
     EditorState* pEditorState = g_pEngineCore->m_pEditorState;

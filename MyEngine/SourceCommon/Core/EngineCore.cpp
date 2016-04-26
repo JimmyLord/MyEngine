@@ -84,6 +84,8 @@ EngineCore::EngineCore()
     m_LuaMemoryUsedLastFrame = 0;
     m_LuaMemoryUsedThisFrame = 0;
     m_TotalMemoryAllocatedLastFrame = 0;
+    m_SingleFrameStackSizeLastFrame = 0;
+    m_SingleFrameStackSizeThisFrame = 0;
 
     for( int i=0; i<32; i++ )
     {
@@ -200,8 +202,8 @@ void EngineCore::OneTimeInit()
     GameCore::OneTimeInit();
 
     // allocate one meg of ram for now, this stack gets wiped each frame in OnDrawFrameDone()
-    //  TODO: expose size
-    m_SingleFrameMemoryStack.Initialize( 1000000 );
+    //  TODO: expose size, hardcoded to 100k for now... and not used for anything but editor mode scene load
+    m_SingleFrameMemoryStack.Initialize( 100000 );
 
 #if MYFW_USING_WX
     m_pEditorState = MyNew EditorState;
@@ -244,6 +246,12 @@ void EngineCore::OneTimeInit()
 #if MYFW_USING_WX
 //    m_pComponentSystemManager->CreateNewScene( "Unsaved.scene", 1 );
     CreateDefaultEditorSceneObjects();
+
+    // Initialize our editor interfaces (load materials, etc)
+    for( int i=0; i<EditorInterfaceType_NumInterfaces; i++ )
+    {
+        m_pEditorInterfaces[i]->Initialize();
+    }
 #endif //MYFW_USING_WX
 
     // create the box2d world, pass in a material for the debug renderer.
@@ -512,6 +520,27 @@ void EngineCore::OnDrawFrame(unsigned int canvasid)
             m_TotalMemoryAllocatedLastFrame = bytesused;
         }
 
+        // Draw single frame stack ram memory usage.
+        {
+            unsigned int bytesused = m_SingleFrameStackSizeThisFrame;
+            int megs = bytesused/1000000;
+            int kilos = (bytesused - megs*1000000)/1000;
+            int bytes = bytesused%1000;
+
+            int change = bytesused - m_SingleFrameStackSizeLastFrame;
+
+            if( megs == 0 )
+            {
+                m_pDebugTextMesh->CreateStringWhite( true, 10, m_WindowStartX+m_WindowWidth, m_WindowStartY+m_WindowHeight-30, Justify_TopRight, Vector2(0,0),
+                    "Frame Stack(%03d,%03d) - (%d)", kilos, bytes, change );
+            }
+            else
+            {
+                m_pDebugTextMesh->CreateStringWhite( true, 10, m_WindowStartX+m_WindowWidth, m_WindowStartY+m_WindowHeight-30, Justify_TopRight, Vector2(0,0),
+                    "Frame Stack(%d,%03d,%03d) - (%d)", megs, kilos, bytes, change );
+            }
+        }
+
         MyMatrix mat;
         mat.CreateOrtho( m_WindowStartX, m_WindowStartX+m_WindowWidth, m_WindowStartY, m_WindowStartY+m_WindowHeight, 1, -1 );
         glDisable( GL_DEPTH_TEST );
@@ -525,6 +554,8 @@ void EngineCore::OnDrawFrameDone()
 {
     GameCore::OnDrawFrameDone();
 
+    m_SingleFrameStackSizeLastFrame = m_SingleFrameStackSizeThisFrame;
+    m_SingleFrameStackSizeThisFrame = m_SingleFrameMemoryStack.GetBytesUsed();
     m_SingleFrameMemoryStack.Clear();
 }
 
@@ -1131,16 +1162,19 @@ void EngineCore::Editor_QuickLoadScene(const char* fullpath)
         {
             fseek( filehandle, 0, SEEK_SET );
 
-            jsonstr = MyNew char[length+1];
+            MyStackAllocator::MyStackPointer stackpointer;
+            jsonstr = (char*)m_SingleFrameMemoryStack.AllocateBlock( length+1, &stackpointer );
             fread( jsonstr, length, 1, filehandle );
             jsonstr[length] = 0;
+
+            LoadSceneFromJSON( fullpath, jsonstr, UINT_MAX );
+
+            // probably should bother with a rewind, might cause issues in future if LoadSceneFromJSON()
+            //   uses stack and wants to keep info around
+            m_SingleFrameMemoryStack.RewindStack( stackpointer );
         }
 
         fclose( filehandle );
-
-        LoadSceneFromJSON( fullpath, jsonstr, UINT_MAX );
-
-        delete[] jsonstr;
     }
 }
 #endif //MYFW_USING_WX
@@ -1328,6 +1362,11 @@ void EngineCore::SetEditorInterface(EditorInterfaceTypes type)
     m_pCurrentEditorInterface = m_pEditorInterfaces[type];
 
     m_pCurrentEditorInterface->OnActivated();
+}
+
+EditorInterface* EngineCore::GetEditorInterface(EditorInterfaceTypes type)
+{
+    return m_pEditorInterfaces[type];
 }
 
 EditorInterface* EngineCore::GetCurrentEditorInterface()
