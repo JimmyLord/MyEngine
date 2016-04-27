@@ -110,7 +110,7 @@ void EditorInterface_2DPointEditor::OnDrawFrame(unsigned int canvasid)
         ComponentCamera* pCamera = g_pEngineCore->m_pEditorState->GetEditorCamera();
         MyMatrix* pEditorMatViewProj = &pCamera->m_Camera3D.m_matViewProj;
 
-        float distance = (pCamera->m_pComponentTransform->GetLocalPosition() - pos3d).Length();
+        float distance = (pCamera->m_pComponentTransform->GetLocalPosition() - worldpos).Length();
         m_pPoint->m_pComponentTransform->SetLocalScale( Vector3( distance / 15.0f ) );
 
         // change the material color if this is the selected dot.
@@ -227,9 +227,13 @@ bool EditorInterface_2DPointEditor::HandleInput(int keyaction, int keycode, int 
                     Vector3 normal = Vector3(0,0,1);
                     Vector3 axisvector = Vector3(1,0,0);
 
-                    // create a plane on Z = 0 // TODO: if the Box2D world is on any other plane, fix this.
+                    ComponentTransform* pParentTransformComponent = m_pCollisionObject->m_pGameObject->GetTransform();
+                    MyMatrix* pParentMatrix = pParentTransformComponent->GetWorldTransform();
+                    Vector3 worldpos = pParentMatrix->GetTranslation();
+
+                    // create a plane on Z = worldpos.z // TODO: if the Box2D world is on a rotated plane, fix this.
                     Plane plane;
-                    plane.Set( normal, Vector3(0,0,0) );
+                    plane.Set( normal, Vector3( 0, 0, worldpos.z ) );
 
                     // Get the mouse click ray... current and last frame.
                     Vector3 currentraystart, currentrayend;
