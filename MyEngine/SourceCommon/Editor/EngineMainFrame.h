@@ -66,7 +66,10 @@ class EngineMainFrame : public MainFrame
 {
 public:
     MainGLCanvas* m_pGLCanvasEditor;
-    wxTextCtrl* m_pLogPane;
+    wxNotebook* m_pLogPane;
+    wxTextCtrl* m_pLogMain;
+    wxTextCtrl* m_pLogInfo;
+    wxTextCtrl* m_pLogErrors;
 
     unsigned int m_StackDepthAtLastSave;
 

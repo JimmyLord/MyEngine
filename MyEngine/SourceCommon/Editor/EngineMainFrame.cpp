@@ -43,13 +43,54 @@ char* g_SavedPerspectives[Perspective_NumPerspectives] =
 void EngineMainFrame_MessageLog(int logtype, const char* tag, const char* message)
 {
     // TODO: writing to "g_pEngineMainFrame->m_pLogPane" only works from main thread, will assert otherwise.  fix me. 
+
+    // Info and Error (not debug) messages go into the "All" log.
+    if( logtype != 2 )
+    {
+        if( logtype == 1 )
+            g_pEngineMainFrame->m_pLogMain->AppendText( "ERROR: " );
+        g_pEngineMainFrame->m_pLogMain->AppendText( message );
+    }
+
+    // All warnings go into the "Info" log.
+    if( logtype == 0 )
+        g_pEngineMainFrame->m_pLogInfo->AppendText( message );
+
+    // All errors go into the "Errors" log.
     if( logtype == 1 )
-        g_pEngineMainFrame->m_pLogPane->AppendText( "ERROR: " );
+        g_pEngineMainFrame->m_pLogErrors->AppendText( message );
 
-    //g_pEngineMainFrame->m_pLogPane->AppendText( tag );
-    //g_pEngineMainFrame->m_pLogPane->AppendText( " " );
+    // If the default tag wasn't used, find or create an extra log window for that tag.
+    wxTextCtrl* pCustomLogTextCtrl = 0;
+    if( tag != LOGTag )
+    {
+        // Find custom box if it exists.
+        for( unsigned int i=0; i<g_pEngineMainFrame->m_pLogPane->GetPageCount(); i++ )
+        {
+            if( g_pEngineMainFrame->m_pLogPane->GetPageText( i ) == tag )
+            {
+                pCustomLogTextCtrl = (wxTextCtrl*)g_pEngineMainFrame->m_pLogPane->GetPage( i );
+                break;
+            }
+        }
 
-    g_pEngineMainFrame->m_pLogPane->AppendText( message );
+        // if not, create it.
+        if( pCustomLogTextCtrl == 0 )
+        {
+            pCustomLogTextCtrl = new wxTextCtrl( g_pEngineMainFrame->m_pLogPane, -1, wxEmptyString,
+                                         wxDefaultPosition, wxDefaultSize,
+                                         wxTE_READONLY | wxNO_BORDER | wxTE_MULTILINE );
+            g_pEngineMainFrame->m_pLogPane->AddPage( pCustomLogTextCtrl, tag );
+        }
+
+        // write the message to the custom box, error check shouldn't be needed.
+        if( pCustomLogTextCtrl )
+        {
+            if( logtype == 1 )
+                pCustomLogTextCtrl->AppendText( "ERROR: " );
+            pCustomLogTextCtrl->AppendText( message );
+        }
+    }
 }
 
 EngineMainFrame::EngineMainFrame()
@@ -316,10 +357,23 @@ void EngineMainFrame::AddPanes()
 
     m_AUIManager.AddPane( m_pGLCanvasEditor, wxAuiPaneInfo().Name("GLCanvasEditor").Bottom().Caption("Editor") );//.CaptionVisible(false) );
 
-    m_pLogPane = new wxTextCtrl( this, -1, wxEmptyString,
-                                 wxDefaultPosition, wxSize(200,150),
-                                 wxTE_READONLY | wxNO_BORDER | wxTE_MULTILINE );
+    m_pLogPane = MyNew wxNotebook( this, wxID_ANY, wxPoint(0,0), wxDefaultSize );
     m_AUIManager.AddPane( m_pLogPane, wxAuiPaneInfo().Name("Log").Bottom().Caption("Log") );//.CaptionVisible(false) );
+
+    m_pLogMain = new wxTextCtrl( m_pLogPane, -1, wxEmptyString,
+                                 wxDefaultPosition, wxDefaultSize,
+                                 wxTE_READONLY | wxNO_BORDER | wxTE_MULTILINE );
+    m_pLogPane->AddPage( m_pLogMain, "Main Log" );
+
+    m_pLogInfo = new wxTextCtrl( m_pLogPane, -1, wxEmptyString,
+                                 wxDefaultPosition, wxDefaultSize,
+                                 wxTE_READONLY | wxNO_BORDER | wxTE_MULTILINE );
+    m_pLogPane->AddPage( m_pLogInfo, "Info" );
+
+    m_pLogErrors = new wxTextCtrl( m_pLogPane, -1, wxEmptyString,
+                                 wxDefaultPosition, wxDefaultSize,
+                                 wxTE_READONLY | wxNO_BORDER | wxTE_MULTILINE );
+    m_pLogPane->AddPage( m_pLogErrors, "Errors" );
 }
 
 bool EngineMainFrame::UpdateAUIManagerAndLoadPerspective()

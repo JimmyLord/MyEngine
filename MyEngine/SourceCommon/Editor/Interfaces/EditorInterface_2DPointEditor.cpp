@@ -67,8 +67,11 @@ void EditorInterface_2DPointEditor::OnActivated()
             pComponentMesh->m_pMesh = MyNew MyMesh();
             pComponentMesh->m_pMesh->Create2DCircle( 0.25f, 20 );
             pComponentMesh->m_GLPrimitiveType = pComponentMesh->m_pMesh->m_SubmeshList[0]->m_PrimitiveType;
-        }
 
+            // remove this from the main list of renderable components.
+            pComponentMesh->UnregisterCallbacks();
+        }
+        
         m_pPoint = pGameObject;
     }
 }
@@ -206,7 +209,7 @@ bool EditorInterface_2DPointEditor::HandleInput(int keyaction, int keycode, int 
                     m_PositionMouseWentDown = m_pCollisionObject->m_Vertices[m_IndexOfPointBeingDragged];
                 }
 
-                //LOGInfo( LOGTag, "Grabbed point %d\n", m_IndexOfPointBeingDragged );
+                LOGDebug( "2DPointEditor", "Grabbed point %d\n", m_IndexOfPointBeingDragged );
             }
 
             if( mouseaction == GCBA_Held && id == 0 )
@@ -221,7 +224,7 @@ bool EditorInterface_2DPointEditor::HandleInput(int keyaction, int keycode, int 
 
                 if( m_IndexOfPointBeingDragged != -1 )
                 {
-                    //LOGInfo( LOGTag, "Released point %d\n", m_IndexOfPointBeingDragged );
+                    LOGDebug( "2DPointEditor", "Moved point %d\n", m_IndexOfPointBeingDragged );
 
                     // create a plane based on the axis we want.
                     Vector3 normal = Vector3(0,0,1);
@@ -242,7 +245,7 @@ bool EditorInterface_2DPointEditor::HandleInput(int keyaction, int keycode, int 
                     Vector3 lastraystart, lastrayend;
                     g_pEngineCore->GetMouseRay( pEditorState->m_LastMousePosition, &lastraystart, &lastrayend );
 
-                    //LOGInfo( LOGTag, "current->(%0.0f,%0.0f) (%0.2f,%0.2f,%0.2f) (%0.2f,%0.2f,%0.2f)\n",
+                    //LOGDebug( "2DPointEditor", "current->(%0.0f,%0.0f) (%0.2f,%0.2f,%0.2f) (%0.2f,%0.2f,%0.2f)\n",
                     //        pEditorState->m_CurrentMousePosition.x,
                     //        pEditorState->m_CurrentMousePosition.y,
                     //        currentraystart.x,
@@ -259,9 +262,9 @@ bool EditorInterface_2DPointEditor::HandleInput(int keyaction, int keycode, int 
                     if( plane.IntersectRay( currentraystart, currentrayend, &currentresult ) &&
                         plane.IntersectRay( lastraystart, lastrayend, &lastresult ) )
                     {
-                        //LOGInfo( LOGTag, "currentresult( %f, %f, %f );", currentresult.x, currentresult.y, currentresult.z );
-                        //LOGInfo( LOGTag, "lastresult( %f, %f, %f );", lastresult.x, lastresult.y, lastresult.z );
-                        //LOGInfo( LOGTag, "axisvector( %f, %f, %f );\n", axisvector.x, axisvector.y, axisvector.z );
+                        //LOGDebug( "2DPointEditor", "currentresult( %f, %f, %f );", currentresult.x, currentresult.y, currentresult.z );
+                        //LOGDebug( "2DPointEditor", "lastresult( %f, %f, %f );", lastresult.x, lastresult.y, lastresult.z );
+                        //LOGDebug( "2DPointEditor", "axisvector( %f, %f, %f );\n", axisvector.x, axisvector.y, axisvector.z );
 
                         ComponentTransform* pParentTransformComponent = m_pCollisionObject->m_pGameObject->GetTransform();
                         MyMatrix* pParentMatrix = pParentTransformComponent->GetLocalTransform();
