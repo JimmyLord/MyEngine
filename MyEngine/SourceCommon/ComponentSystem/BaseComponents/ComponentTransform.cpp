@@ -16,7 +16,7 @@ bool ComponentTransform::m_PanelWatchBlockVisible = true;
 // Component Variable List
 MYFW_COMPONENT_IMPLEMENT_VARIABLE_LIST( ComponentTransform );
 
-MyUnmanagedPool<TransformPositionChangedCallbackStruct> g_pComponentTransform_PositionChangedCallbackPool;
+MySimplePool<TransformPositionChangedCallbackStruct> g_pComponentTransform_PositionChangedCallbackPool;
 
 ComponentTransform::ComponentTransform()
 : ComponentBase()
@@ -43,6 +43,7 @@ ComponentTransform::~ComponentTransform()
     if( m_pParentTransform != 0 )
     {
         MyAssert( m_pParentGameObject == m_pParentTransform->m_pGameObject );
+        //SetParentTransform( 0 );
         m_pParentTransform->m_pGameObject->UnregisterOnDeleteCallback( this, StaticOnGameObjectDeleted );
     }
 }
@@ -567,17 +568,25 @@ void ComponentTransform::SetParentTransform(ComponentTransform* pNewParent, bool
     MyMatrix localtransform;
 
     // if we had an old parent:
-    if( m_pParentTransform != 0 && unregisterondeletecallback )
+    if( m_pParentTransform != 0 )
     {
         // stop it's gameobject from reporting it's deletion
+        if( unregisterondeletecallback )
         m_pParentTransform->m_pGameObject->UnregisterOnDeleteCallback( this, StaticOnGameObjectDeleted );
 
         // stop sending it position changed messages
         m_pParentTransform->m_pGameObject->m_pComponentTransform->UnregisterPositionChangedCallbacks( this );
 
-        MyMatrix matparentworld = pNewParent->m_WorldTransform;
-        matparentworld.Inverse();
-        localtransform = matparentworld * m_WorldTransform;
+        if( pNewParent )
+        {
+            MyMatrix matparentworld = pNewParent->m_WorldTransform;
+            matparentworld.Inverse();
+            localtransform = matparentworld * m_WorldTransform;
+        }
+        else
+        {
+            localtransform = m_WorldTransform;
+        }
     }
     else
     {

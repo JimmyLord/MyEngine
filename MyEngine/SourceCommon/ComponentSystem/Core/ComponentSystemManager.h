@@ -17,6 +17,7 @@ class GameObject;
 class ComponentBase;
 class ComponentCamera;
 class ComponentLight;
+class SceneGraph_Base;
 class MyFileInfo; // at bottom of this file.
 
 //#include "../BaseComponents/ComponentBase.h"
@@ -131,6 +132,8 @@ public:
     bool m_StartGamePlayWhenDoneLoading;
 
     float m_TimeScale;
+
+    SceneGraph_Base* m_pSceneGraph;
 
 protected:
 #if MYFW_USING_WX

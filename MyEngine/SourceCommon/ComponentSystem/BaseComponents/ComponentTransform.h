@@ -17,7 +17,7 @@ struct TransformPositionChangedCallbackStruct : public CPPListNode
     TransformPositionChangedCallbackFunc pFunc;
 };
 
-extern MyUnmanagedPool<TransformPositionChangedCallbackStruct> g_pComponentTransform_PositionChangedCallbackPool;
+extern MySimplePool<TransformPositionChangedCallbackStruct> g_pComponentTransform_PositionChangedCallbackPool;
 
 class ComponentTransform : public ComponentBase
 {

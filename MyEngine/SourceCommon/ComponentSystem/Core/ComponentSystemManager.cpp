@@ -9,6 +9,9 @@
 
 #include "EngineCommonHeader.h"
 
+#include "../../../Framework/MyFramework/SourceCommon/SceneGraphs/SceneGraph_Base.h"
+#include "../../../Framework/MyFramework/SourceCommon/SceneGraphs/SceneGraph_Flat.h"
+
 #if MYFW_USING_WX
 #include "Editor/Exporters/ExportBox2DScene.h"
 #endif //MYFW_USING_WX
@@ -36,6 +39,8 @@ ComponentSystemManager::ComponentSystemManager(ComponentTypeManager* typemanager
     m_StartGamePlayWhenDoneLoading = false;
 
     m_TimeScale = 1;
+
+    m_pSceneGraph = MyNew SceneGraph_Flat();
 
 #if 1 //!MYFW_USING_WX
     for( int i=0; i<MAX_SCENES_LOADED; i++ )
@@ -117,6 +122,8 @@ ComponentSystemManager::~ComponentSystemManager()
     SAFE_DELETE( m_pGameObjectTemplateManager );
 #endif
     SAFE_DELETE( m_pComponentTypeManager );
+    
+    SAFE_DELETE( m_pSceneGraph );
 
     // if a component didn't unregister its callbacks, assert.
     MyAssert( m_pComponentCallbackList_Tick.GetHead() == 0 );
@@ -145,11 +152,32 @@ ComponentSystemManager::~ComponentSystemManager()
 
 MYFW_COMPONENTSYSTEMMANAGER_IMPLEMENT_CALLBACK_REGISTER_FUNCTIONS( Tick );
 MYFW_COMPONENTSYSTEMMANAGER_IMPLEMENT_CALLBACK_REGISTER_FUNCTIONS( OnSurfaceChanged );
-MYFW_COMPONENTSYSTEMMANAGER_IMPLEMENT_CALLBACK_REGISTER_FUNCTIONS( Draw );
+//MYFW_COMPONENTSYSTEMMANAGER_IMPLEMENT_CALLBACK_REGISTER_FUNCTIONS( Draw ); // declared manually below
 MYFW_COMPONENTSYSTEMMANAGER_IMPLEMENT_CALLBACK_REGISTER_FUNCTIONS( OnTouch );
 MYFW_COMPONENTSYSTEMMANAGER_IMPLEMENT_CALLBACK_REGISTER_FUNCTIONS( OnButtons );
 MYFW_COMPONENTSYSTEMMANAGER_IMPLEMENT_CALLBACK_REGISTER_FUNCTIONS( OnKeys );
 MYFW_COMPONENTSYSTEMMANAGER_IMPLEMENT_CALLBACK_REGISTER_FUNCTIONS( OnFileRenamed );
+
+void ComponentSystemManager::RegisterComponentCallback_Draw(ComponentCallbackStruct_Draw* pCallbackStruct)
+{
+    MyAssert( pCallbackStruct->pFunc != 0 && pCallbackStruct->pObj != 0 );
+    m_pComponentCallbackList_Draw.AddTail( pCallbackStruct );
+
+    GameObject* pGameObject = pCallbackStruct->pObj->m_pGameObject;
+    MyMatrix* pWorldTransform = pGameObject->GetTransform()->GetWorldTransform();
+
+    ComponentMesh* pComponent = (ComponentMesh*)pGameObject->GetFirstComponentOfType( "MeshComponent" );
+    if( pComponent && pComponent->m_pMesh )
+    {
+        m_pSceneGraph->AddRenderableObject( pWorldTransform, pComponent->m_pMesh, pComponent->m_MaterialList[0] );
+    }
+}
+
+void ComponentSystemManager::UnregisterComponentCallback_Draw(ComponentCallbackStruct_Draw* pCallbackStruct)
+{
+    if( pCallbackStruct->Prev )
+        pCallbackStruct->Remove();
+}
 
 #if MYFW_USING_LUA
 void ComponentSystemManager::LuaRegister(lua_State* luastate)
