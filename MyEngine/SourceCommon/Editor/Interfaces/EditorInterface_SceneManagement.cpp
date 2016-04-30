@@ -137,7 +137,7 @@ void EditorInterface_SceneManagement::OnDrawFrame(unsigned int canvasid)
                 matproj.CreatePerspectiveVFoV( 45, aspect, 0.01f, 100 );
 
                 MyMatrix matviewproj = matproj * matview;
-                g_pEngineCore->m_pMaterialBallMesh->Draw( &matviewproj, 0, 0, 0, 0, 0, 0, 0 );
+                g_pEngineCore->m_pMaterialBallMesh->Draw( 0, &matviewproj, 0, 0, 0, 0, 0, 0, 0 );
 
                 pEditorState->m_pDebugViewFBO->Unbind( true );
             }

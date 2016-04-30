@@ -416,7 +416,7 @@ void ComponentMesh::DrawCallback(ComponentCamera* pCamera, MyMatrix* pMatViewPro
             m_pMesh->m_SubmeshList[i]->m_PointSize = m_PointSize;
         }
 
-        m_pMesh->SetTransform( worldtransform );
+        //m_pMesh->SetTransform( worldtransform );
 
         // Find nearest lights.
         MyLight* lights;
@@ -466,7 +466,7 @@ void ComponentMesh::DrawCallback(ComponentCamera* pCamera, MyMatrix* pMatViewPro
             }
         }
 
-        m_pMesh->Draw( pMatViewProj, &campos, lights, numlights, pShadowVP, pShadowTex, 0, pShaderOverride );
+        m_pMesh->Draw( &worldtransform, pMatViewProj, &campos, lights, numlights, pShadowVP, pShadowTex, 0, pShaderOverride );
     }
 
     checkGlError( "end of ComponentMesh::DrawCallback()" );

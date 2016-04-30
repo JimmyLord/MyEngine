@@ -169,7 +169,9 @@ void ComponentSystemManager::RegisterComponentCallback_Draw(ComponentCallbackStr
     ComponentMesh* pComponent = (ComponentMesh*)pGameObject->GetFirstComponentOfType( "MeshComponent" );
     if( pComponent && pComponent->m_pMesh )
     {
-        m_pSceneGraph->AddRenderableObject( pWorldTransform, pComponent->m_pMesh, pComponent->m_MaterialList[0] );
+        MyMesh* pMesh = pComponent->m_pMesh;
+        for( unsigned int i=0; i<pMesh->m_SubmeshList.Count(); i++ )
+            m_pSceneGraph->AddRenderableObject( pWorldTransform, pMesh, pMesh->m_SubmeshList[i], pComponent->m_MaterialList[i] );
     }
 }
 
