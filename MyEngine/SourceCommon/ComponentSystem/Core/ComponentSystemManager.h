@@ -254,6 +254,9 @@ public:
 #endif
     SceneInfo m_pSceneInfoMap[MAX_SCENES_LOADED];
 
+    // SceneGraph Functions
+    void AddMeshToSceneGraph(GameObject* pGameObject, MyMesh* pMesh, MaterialDefinition** pMaterialList);
+
 public:
 #if MYFW_USING_WX
     void DrawSingleObject(MyMatrix* pMatViewProj, GameObject* pObject, ShaderGroup* pShaderOverride); // used to draw an animated mesh into the debug FBO

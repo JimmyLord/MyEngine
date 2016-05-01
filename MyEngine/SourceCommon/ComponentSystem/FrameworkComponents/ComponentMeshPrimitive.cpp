@@ -258,6 +258,10 @@ void ComponentMeshPrimitive::CreatePrimitive()
     {
         m_pMesh->Create2DCircle( m_Sphere_Radius, 20 );
     }
+
+    // Add the Mesh to the main scene graph
+    // TODO: remove the old mesh from the scene graph
+    //g_pComponentSystemManager->AddMeshToSceneGraph( m_pGameObject, m_pMesh, m_MaterialList );
 }
 
 void ComponentMeshPrimitive::DrawCallback(ComponentCamera* pCamera, MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride)

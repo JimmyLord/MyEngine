@@ -163,16 +163,16 @@ void ComponentSystemManager::RegisterComponentCallback_Draw(ComponentCallbackStr
     MyAssert( pCallbackStruct->pFunc != 0 && pCallbackStruct->pObj != 0 );
     m_pComponentCallbackList_Draw.AddTail( pCallbackStruct );
 
-    GameObject* pGameObject = pCallbackStruct->pObj->m_pGameObject;
-    MyMatrix* pWorldTransform = pGameObject->GetTransform()->GetWorldTransform();
+    //GameObject* pGameObject = pCallbackStruct->pObj->m_pGameObject;
+    //MyMatrix* pWorldTransform = pGameObject->GetTransform()->GetWorldTransform();
 
-    ComponentMesh* pComponent = (ComponentMesh*)pGameObject->GetFirstComponentOfType( "MeshComponent" );
-    if( pComponent && pComponent->m_pMesh )
-    {
-        MyMesh* pMesh = pComponent->m_pMesh;
-        for( unsigned int i=0; i<pMesh->m_SubmeshList.Count(); i++ )
-            m_pSceneGraph->AddRenderableObject( pWorldTransform, pMesh, pMesh->m_SubmeshList[i], pComponent->m_MaterialList[i] );
-    }
+    //ComponentMesh* pComponent = (ComponentMesh*)pGameObject->GetFirstComponentOfType( "MeshComponent" );
+    //if( pComponent && pComponent->m_pMesh )
+    //{
+    //    MyMesh* pMesh = pComponent->m_pMesh;
+    //    for( unsigned int i=0; i<pMesh->m_SubmeshList.Count(); i++ )
+    //        m_pSceneGraph->AddRenderableObject( pWorldTransform, pMesh, pMesh->m_SubmeshList[i], pComponent->m_MaterialList[i] );
+    //}
 }
 
 void ComponentSystemManager::UnregisterComponentCallback_Draw(ComponentCallbackStruct_Draw* pCallbackStruct)
@@ -1862,16 +1862,24 @@ void ComponentSystemManager::OnDrawFrame(ComponentCamera* pCamera, MyMatrix* pMa
     checkGlError( "start of ComponentSystemManager::OnDrawFrame()" );
 
     // draw all components that registered a callback.
-    for( CPPListNode* pNode = m_pComponentCallbackList_Draw.HeadNode.Next; pNode->Next; pNode = pNode->Next )
+    if( 0 )
     {
-        ComponentCallbackStruct_Draw* pCallbackStruct = (ComponentCallbackStruct_Draw*)pNode;
-        ComponentBase* pComponent = (ComponentBase*)pCallbackStruct->pObj;
-
-        if( pComponent->ExistsOnLayer( pCamera->m_LayersToRender ) )
+        Vector3 campos = pCamera->m_pComponentTransform->GetLocalPosition();
+        m_pSceneGraph->Draw( campos, pMatViewProj, pShaderOverride );
+    }
+    else
+    {
+        for( CPPListNode* pNode = m_pComponentCallbackList_Draw.HeadNode.Next; pNode->Next; pNode = pNode->Next )
         {
-            if( pComponent->IsVisible() )
+            ComponentCallbackStruct_Draw* pCallbackStruct = (ComponentCallbackStruct_Draw*)pNode;
+            ComponentBase* pComponent = (ComponentBase*)pCallbackStruct->pObj;
+
+            if( pComponent->ExistsOnLayer( pCamera->m_LayersToRender ) )
             {
-                (pCallbackStruct->pObj->*pCallbackStruct->pFunc)( pCamera, pMatViewProj, pShaderOverride );
+                if( pComponent->IsVisible() )
+                {
+                    (pCallbackStruct->pObj->*pCallbackStruct->pFunc)( pCamera, pMatViewProj, pShaderOverride );
+                }
             }
         }
     }
@@ -2043,6 +2051,14 @@ unsigned int ComponentSystemManager::GetNumberOfScenesLoaded()
     }
 
     return numloaded;
+}
+
+void ComponentSystemManager::AddMeshToSceneGraph(GameObject* pGameObject, MyMesh* pMesh, MaterialDefinition** pMaterialList)
+{
+    MyMatrix* pWorldTransform = pGameObject->GetTransform()->GetWorldTransform();
+
+    for( unsigned int i=0; i<pMesh->m_SubmeshList.Count(); i++ )
+        m_pSceneGraph->AddRenderableObject( pWorldTransform, pMesh, pMesh->m_SubmeshList[i], pMaterialList[i] );
 }
 
 //SceneInfo* ComponentSystemManager::GetSceneInfo(int sceneid)
