@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2014-2015 Jimmy Lord http://www.flatheadgames.com
+// Copyright (c) 2014-2016 Jimmy Lord http://www.flatheadgames.com
 //
 // This software is provided 'as-is', without any express or implied warranty.  In no event will the authors be held liable for any damages arising from the use of this software.
 // Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -11,6 +11,7 @@
 #define __ComponentMesh_H__
 
 class ComponentTransform;
+class SceneGraphObject;
 
 extern const char* OpenGLPrimitiveTypeStrings[7];
 
@@ -26,6 +27,8 @@ public:
 public:
     MyMesh* m_pMesh;
 
+    bool m_WaitingToAddToSceneGraph;
+    SceneGraphObject* m_pSceneGraphObjects[MAX_SUBMESHES];
     MaterialDefinition* m_MaterialList[MAX_SUBMESHES];
     int m_GLPrimitiveType;
     int m_PointSize;
@@ -52,9 +55,12 @@ public:
     virtual MaterialDefinition* GetMaterial(int submeshindex) { return m_MaterialList[submeshindex]; }
     virtual void SetMaterial(MaterialDefinition* pMaterial, int submeshindex);
 
+    void AddToSceneGraph();
+    void RemoveFromSceneGraph();
+
 protected:
     // Callback functions for various events.
-    //MYFW_DECLARE_COMPONENT_CALLBACK_TICK(); // TickCallback
+    MYFW_DECLARE_COMPONENT_CALLBACK_TICK(); // TickCallback
     //MYFW_DECLARE_COMPONENT_CALLBACK_ONSURFACECHANGED(); // OnSurfaceChangedCallback
     MYFW_DECLARE_COMPONENT_CALLBACK_DRAW(); // DrawCallback
     //MYFW_DECLARE_COMPONENT_CALLBACK_ONTOUCH(); // OnTouchCallback

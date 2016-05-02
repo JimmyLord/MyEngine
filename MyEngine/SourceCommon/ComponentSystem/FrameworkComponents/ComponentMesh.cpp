@@ -9,6 +9,9 @@
 
 #include "EngineCommonHeader.h"
 
+#include "../../../Framework/MyFramework/SourceCommon/SceneGraphs/SceneGraph_Base.h"
+#include "../../../Framework/MyFramework/SourceCommon/SceneGraphs/SceneGraph_Flat.h"
+
 #if MYFW_USING_WX
 bool ComponentMesh::m_PanelWatchBlockVisible = true;
 #endif
@@ -40,7 +43,10 @@ ComponentMesh::ComponentMesh()
 
     m_pMesh = 0;
     for( int i=0; i<MAX_SUBMESHES; i++ )
+    {
+        m_pSceneGraphObjects[i] = 0;
         m_MaterialList[i] = 0;
+    }
 
     m_GLPrimitiveType = GL_TRIANGLES;
     m_PointSize = 1;
@@ -52,7 +58,12 @@ ComponentMesh::~ComponentMesh()
 
     SAFE_RELEASE( m_pMesh );
     for( unsigned int i=0; i<MAX_SUBMESHES; i++ )
+    {
+        if( m_pSceneGraphObjects[i] != 0 )
+            g_pComponentSystemManager->RemoveObjectFromSceneGraph( m_pSceneGraphObjects[i] );
+        m_pSceneGraphObjects[i] = 0;
         SAFE_RELEASE( m_MaterialList[i] );
+    }
 }
 
 void ComponentMesh::RegisterVariables(CPPListHead* pList, ComponentMesh* pThis) //_VARIABLE_LIST
@@ -341,6 +352,64 @@ void ComponentMesh::SetMaterial(MaterialDefinition* pMaterial, int submeshindex)
         pMaterial->AddRef();
     SAFE_RELEASE( m_MaterialList[submeshindex] );
     m_MaterialList[submeshindex] = pMaterial;
+
+    if( m_pSceneGraphObjects[submeshindex] )
+    {
+        m_pSceneGraphObjects[submeshindex]->m_pMaterial = pMaterial;
+    }
+}
+
+void ComponentMesh::AddToSceneGraph()
+{
+    MyAssert( m_pMesh );
+
+    if( m_pMesh->m_MeshReady )
+    {
+        MyAssert( m_pMesh->m_SubmeshList.Count() > 0 );
+
+        // Add the Mesh to the main scene graph
+        if( m_pMesh->m_SubmeshList.Count() > 0 )
+        {
+            g_pComponentSystemManager->AddMeshToSceneGraph( m_pGameObject, m_pMesh, m_MaterialList, m_pSceneGraphObjects );
+        }
+
+        m_WaitingToAddToSceneGraph = false;
+
+        MYFW_UNREGISTER_COMPONENT_CALLBACK( Tick );
+    }
+    else if( m_WaitingToAddToSceneGraph == false )
+    {
+        m_WaitingToAddToSceneGraph = true;
+
+        MYFW_REGISTER_COMPONENT_CALLBACK( ComponentMesh, Tick );
+    }
+}
+
+void ComponentMesh::RemoveFromSceneGraph()
+{
+    if( m_WaitingToAddToSceneGraph )
+    {
+        m_WaitingToAddToSceneGraph = false;
+        MYFW_UNREGISTER_COMPONENT_CALLBACK( Tick );
+        return;
+    }
+
+    MyAssert( m_pMesh );
+    MyAssert( m_pMesh->m_SubmeshList.Count() > 0 );
+
+    for( unsigned int i=0; i<m_pMesh->m_SubmeshList.Count(); i++ )
+    {
+        g_pComponentSystemManager->m_pSceneGraph->RemoveObject( m_pSceneGraphObjects[i] );
+    }
+}
+
+void ComponentMesh::TickCallback(double TimePassed)
+{
+    MyAssert( m_WaitingToAddToSceneGraph );
+
+    m_pMesh->ParseFile();
+
+    AddToSceneGraph();
 }
 
 void ComponentMesh::DrawCallback(ComponentCamera* pCamera, MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride)

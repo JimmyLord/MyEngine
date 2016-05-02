@@ -18,6 +18,7 @@ class ComponentBase;
 class ComponentCamera;
 class ComponentLight;
 class SceneGraph_Base;
+class SceneGraphObject;
 class MyFileInfo; // at bottom of this file.
 
 //#include "../BaseComponents/ComponentBase.h"
@@ -255,7 +256,8 @@ public:
     SceneInfo m_pSceneInfoMap[MAX_SCENES_LOADED];
 
     // SceneGraph Functions
-    void AddMeshToSceneGraph(GameObject* pGameObject, MyMesh* pMesh, MaterialDefinition** pMaterialList);
+    void AddMeshToSceneGraph(GameObject* pGameObject, MyMesh* pMesh, MaterialDefinition** pMaterialList, SceneGraphObject** pOutputList);
+    void RemoveObjectFromSceneGraph(SceneGraphObject* pSceneGraphObject);
 
 public:
 #if MYFW_USING_WX

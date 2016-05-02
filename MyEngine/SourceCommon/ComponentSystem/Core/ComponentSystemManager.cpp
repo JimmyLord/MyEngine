@@ -2053,12 +2053,25 @@ unsigned int ComponentSystemManager::GetNumberOfScenesLoaded()
     return numloaded;
 }
 
-void ComponentSystemManager::AddMeshToSceneGraph(GameObject* pGameObject, MyMesh* pMesh, MaterialDefinition** pMaterialList)
+void ComponentSystemManager::AddMeshToSceneGraph(GameObject* pGameObject, MyMesh* pMesh, MaterialDefinition** pMaterialList, SceneGraphObject** pOutputList)
 {
+    MyAssert( pGameObject != 0 );
+    MyAssert( pMesh != 0 );
+    MyAssert( pMaterialList != 0 );
+    MyAssert( pOutputList != 0 );
+    MyAssert( pMesh->m_SubmeshList.Count() > 0 );
+
     MyMatrix* pWorldTransform = pGameObject->GetTransform()->GetWorldTransform();
 
     for( unsigned int i=0; i<pMesh->m_SubmeshList.Count(); i++ )
-        m_pSceneGraph->AddRenderableObject( pWorldTransform, pMesh, pMesh->m_SubmeshList[i], pMaterialList[i] );
+    {
+        pOutputList[i] = m_pSceneGraph->AddObject( pWorldTransform, pMesh, pMesh->m_SubmeshList[i], pMaterialList[i] );
+    }
+}
+
+void ComponentSystemManager::RemoveObjectFromSceneGraph(SceneGraphObject* pSceneGraphObject)
+{
+    m_pSceneGraph->RemoveObject( pSceneGraphObject );
 }
 
 //SceneInfo* ComponentSystemManager::GetSceneInfo(int sceneid)

@@ -32,6 +32,8 @@ ComponentLight::~ComponentLight()
 {
     MYFW_COMPONENT_VARIABLE_LIST_DESTRUCTOR();
 
+    m_pGameObject->m_pComponentTransform->UnregisterPositionChangedCallbacks( this );
+
     if( m_pLight )
         g_pLightManager->DestroyLight( m_pLight );
 }

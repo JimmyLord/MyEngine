@@ -687,6 +687,9 @@ void ComponentTransform::RegisterPositionChangedCallback(void* pObj, TransformPo
     MyAssert( pCallback != 0 );
 
     TransformPositionChangedCallbackStruct* pCallbackStruct = g_pComponentTransform_PositionChangedCallbackPool.GetObject();
+
+    //LOGInfo( "TransformPool", "Grabbed an object (%d) - %s\n", g_pComponentTransform_PositionChangedCallbackPool.GetNumUsed(), ((ComponentBase*)pObj)->m_pGameObject->GetName() );
+
     if( pCallbackStruct != 0 )
     {
         pCallbackStruct->pObj = pObj;
@@ -708,6 +711,8 @@ void ComponentTransform::UnregisterPositionChangedCallbacks(void* pObj)
         {
             pCallbackStruct->Remove();
             g_pComponentTransform_PositionChangedCallbackPool.ReturnObject( pCallbackStruct );
+
+            //LOGInfo( "TransformPool", "Returned an object (%d) %s\n", g_pComponentTransform_PositionChangedCallbackPool.GetNumUsed(), ((ComponentBase*)pObj)->m_pGameObject->GetName() );
         }
 
         pNode = pNextNode;

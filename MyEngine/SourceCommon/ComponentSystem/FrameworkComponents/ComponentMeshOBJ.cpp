@@ -295,6 +295,7 @@ void ComponentMeshOBJ::SetMesh(MyMesh* pMesh)
     if( pMesh )
         pMesh->AddRef();
 
+    RemoveFromSceneGraph();
     SAFE_RELEASE( m_pMesh );
     m_pMesh = pMesh;
 
@@ -327,6 +328,8 @@ void ComponentMeshOBJ::SetMesh(MyMesh* pMesh)
                 //}
             }
         }
+
+        AddToSceneGraph();
     }
 }
 

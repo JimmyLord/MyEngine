@@ -38,6 +38,8 @@ ComponentCollisionObject::ComponentCollisionObject()
 
 ComponentCollisionObject::~ComponentCollisionObject()
 {
+    m_pComponentTransform->UnregisterPositionChangedCallbacks( this );
+
     if( m_pBody )
     {
         g_pBulletWorld->m_pDynamicsWorld->removeRigidBody( m_pBody );
