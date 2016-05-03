@@ -544,7 +544,7 @@ void EngineCore::OnDrawFrame(unsigned int canvasid)
         MyMatrix mat;
         mat.CreateOrtho( m_WindowStartX, m_WindowStartX+m_WindowWidth, m_WindowStartY, m_WindowStartY+m_WindowHeight, 1, -1 );
         glDisable( GL_DEPTH_TEST );
-        m_pDebugTextMesh->Draw( 0, &mat, 0,0,0,0,0,0,0 );
+        m_pDebugTextMesh->Draw( 0, &mat, 0,0,0,0,0,0,0,0 );
         glEnable( GL_DEPTH_TEST );
     }
 #endif

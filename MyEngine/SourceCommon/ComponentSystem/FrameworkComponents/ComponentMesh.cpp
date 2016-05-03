@@ -370,7 +370,7 @@ void ComponentMesh::AddToSceneGraph()
         // Add the Mesh to the main scene graph
         if( m_pMesh->m_SubmeshList.Count() > 0 )
         {
-            g_pComponentSystemManager->AddMeshToSceneGraph( m_pGameObject, m_pMesh, m_MaterialList, m_pSceneGraphObjects );
+            g_pComponentSystemManager->AddMeshToSceneGraph( m_pGameObject, m_pMesh, m_MaterialList, m_pSceneGraphObjects, m_GLPrimitiveType, m_PointSize );
         }
 
         m_WaitingToAddToSceneGraph = false;
@@ -514,12 +514,14 @@ void ComponentMesh::DrawCallback(ComponentCamera* pCamera, MyMatrix* pMatViewPro
         }
 
         Vector3 campos;
+        Vector3 camrot;
 #if MYFW_USING_WX
         if( g_pEngineCore->m_EditorMode )
         {
             ComponentCamera* pCamera = g_pEngineCore->m_pEditorState->GetEditorCamera();
 
             campos = pCamera->m_pComponentTransform->GetLocalPosition();
+            camrot = pCamera->m_pComponentTransform->GetLocalRotation();
         }
         else
 #endif
@@ -528,14 +530,16 @@ void ComponentMesh::DrawCallback(ComponentCamera* pCamera, MyMatrix* pMatViewPro
             if( pCamera )
             {
                 campos = pCamera->m_pComponentTransform->GetLocalPosition();
+                camrot = pCamera->m_pComponentTransform->GetLocalRotation();
             }
             else
             {
                 campos.Set( 0, 0, 0 );
+                camrot.Set( 0, 0, 0 );
             }
         }
 
-        m_pMesh->Draw( &worldtransform, pMatViewProj, &campos, lights, numlights, pShadowVP, pShadowTex, 0, pShaderOverride );
+        m_pMesh->Draw( &worldtransform, pMatViewProj, &campos, &camrot, lights, numlights, pShadowVP, pShadowTex, 0, pShaderOverride );
     }
 
     checkGlError( "end of ComponentMesh::DrawCallback()" );

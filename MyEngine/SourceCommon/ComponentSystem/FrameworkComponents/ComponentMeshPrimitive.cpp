@@ -261,7 +261,7 @@ void ComponentMeshPrimitive::CreatePrimitive()
 
     // Add the Mesh to the main scene graph
     // TODO: remove the old mesh from the scene graph
-    g_pComponentSystemManager->AddMeshToSceneGraph( m_pGameObject, m_pMesh, m_MaterialList, m_pSceneGraphObjects );
+    g_pComponentSystemManager->AddMeshToSceneGraph( m_pGameObject, m_pMesh, m_MaterialList, m_pSceneGraphObjects, m_GLPrimitiveType, m_PointSize );
 }
 
 void ComponentMeshPrimitive::DrawCallback(ComponentCamera* pCamera, MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride)

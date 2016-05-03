@@ -432,7 +432,7 @@ void ComponentParticleEmitter::DrawCallback(ComponentCamera* pCamera, MyMatrix* 
         return;
 
     m_pParticleRenderer->SetMaterial( m_pMaterial );
-    m_pParticleRenderer->Draw( pCamera->m_pComponentTransform->GetLocalPosition(),
-                               pCamera->m_pComponentTransform->GetLocalRotation(),
-                               pMatViewProj );
+    m_pParticleRenderer->DrawParticles( pCamera->m_pComponentTransform->GetLocalPosition(),
+                                        pCamera->m_pComponentTransform->GetLocalRotation(),
+                                        pMatViewProj );
 }

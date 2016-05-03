@@ -1862,10 +1862,34 @@ void ComponentSystemManager::OnDrawFrame(ComponentCamera* pCamera, MyMatrix* pMa
     checkGlError( "start of ComponentSystemManager::OnDrawFrame()" );
 
     // draw all components that registered a callback.
-    if( 0 )
+    if( 0 ) // 1 to draw with scene graph, 0 to use draw callbacks. // TODO: always use scene graph
     {
         Vector3 campos = pCamera->m_pComponentTransform->GetLocalPosition();
-        m_pSceneGraph->Draw( campos, pMatViewProj, pShaderOverride );
+        Vector3 camrot = pCamera->m_pComponentTransform->GetLocalRotation();
+
+        // Find nearest shadow casting light. TODO: handle this better.
+        MyMatrix* pShadowVP = 0;
+        TextureDefinition* pShadowTex = 0;
+        if( g_ActiveShaderPass == ShaderPass_Main )
+        {
+            GameObject* pObject = g_pComponentSystemManager->FindGameObjectByName( "Shadow Light" );
+            if( pObject )
+            {
+                ComponentBase* pComponent = pObject->GetFirstComponentOfBaseType( BaseComponentType_Camera );
+                ComponentCameraShadow* pShadowCam = pComponent->IsA( "CameraShadowComponent" ) ? (ComponentCameraShadow*)pComponent : 0;
+                if( pShadowCam )
+                {
+                    pShadowVP = &pShadowCam->m_matViewProj;
+#if 1
+                    pShadowTex = pShadowCam->m_pDepthFBO->m_pDepthTexture;
+#else
+                    pShadowTex = pShadowCam->m_pDepthFBO->m_pColorTexture;
+#endif
+                }
+            }
+        }
+
+        m_pSceneGraph->Draw( &campos, &camrot, pMatViewProj, pShadowVP, pShadowTex, pShaderOverride );
     }
     else
     {
@@ -2053,7 +2077,7 @@ unsigned int ComponentSystemManager::GetNumberOfScenesLoaded()
     return numloaded;
 }
 
-void ComponentSystemManager::AddMeshToSceneGraph(GameObject* pGameObject, MyMesh* pMesh, MaterialDefinition** pMaterialList, SceneGraphObject** pOutputList)
+void ComponentSystemManager::AddMeshToSceneGraph(GameObject* pGameObject, MyMesh* pMesh, MaterialDefinition** pMaterialList, SceneGraphObject** pOutputList, int primitive, int pointsize)
 {
     MyAssert( pGameObject != 0 );
     MyAssert( pMesh != 0 );
@@ -2065,7 +2089,7 @@ void ComponentSystemManager::AddMeshToSceneGraph(GameObject* pGameObject, MyMesh
 
     for( unsigned int i=0; i<pMesh->m_SubmeshList.Count(); i++ )
     {
-        pOutputList[i] = m_pSceneGraph->AddObject( pWorldTransform, pMesh, pMesh->m_SubmeshList[i], pMaterialList[i] );
+        pOutputList[i] = m_pSceneGraph->AddObject( pWorldTransform, pMesh, pMesh->m_SubmeshList[i], pMaterialList[i], primitive, pointsize );
     }
 }
 

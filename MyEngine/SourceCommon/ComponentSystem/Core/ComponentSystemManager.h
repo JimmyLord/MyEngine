@@ -256,7 +256,7 @@ public:
     SceneInfo m_pSceneInfoMap[MAX_SCENES_LOADED];
 
     // SceneGraph Functions
-    void AddMeshToSceneGraph(GameObject* pGameObject, MyMesh* pMesh, MaterialDefinition** pMaterialList, SceneGraphObject** pOutputList);
+    void AddMeshToSceneGraph(GameObject* pGameObject, MyMesh* pMesh, MaterialDefinition** pMaterialList, SceneGraphObject** pOutputList, int primitive, int pointsize);
     void RemoveObjectFromSceneGraph(SceneGraphObject* pSceneGraphObject);
 
 public:
