@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015 Jimmy Lord http://www.flatheadgames.com
+// Copyright (c) 2015-2016 Jimmy Lord http://www.flatheadgames.com
 //
 // This software is provided 'as-is', without any express or implied warranty.  In no event will the authors be held liable for any damages arising from the use of this software.
 // Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -26,6 +26,8 @@ public:
     };
 
 public:
+    SceneGraphObject* m_pSceneGraphObject;
+
     MaterialDefinition* m_pMaterial;
 
     // renderers could be shared between emitters, but would make culling harder in future
@@ -85,8 +87,13 @@ public:
     virtual void RegisterCallbacks();
     virtual void UnregisterCallbacks();
 
+    virtual void OnLoad();
+
     virtual MaterialDefinition* GetMaterial(int submeshindex) { return m_pMaterial; }
     virtual void SetMaterial(MaterialDefinition* pMaterial, int submeshindex);
+
+    virtual void AddToSceneGraph();
+    virtual void RemoveFromSceneGraph();
 
     void CreateBurst(int number, Vector3 offset);
 

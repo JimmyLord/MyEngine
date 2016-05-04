@@ -370,7 +370,7 @@ void ComponentMesh::AddToSceneGraph()
         // Add the Mesh to the main scene graph
         if( m_pMesh->m_SubmeshList.Count() > 0 )
         {
-            g_pComponentSystemManager->AddMeshToSceneGraph( m_pGameObject, m_pMesh, m_MaterialList, m_pSceneGraphObjects, m_GLPrimitiveType, m_PointSize );
+            g_pComponentSystemManager->AddMeshToSceneGraph( m_pGameObject, m_pMesh, m_MaterialList, m_GLPrimitiveType, m_PointSize, m_pSceneGraphObjects );
         }
 
         m_WaitingToAddToSceneGraph = false;

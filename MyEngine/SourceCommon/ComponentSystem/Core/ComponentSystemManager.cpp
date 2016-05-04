@@ -2077,7 +2077,7 @@ unsigned int ComponentSystemManager::GetNumberOfScenesLoaded()
     return numloaded;
 }
 
-void ComponentSystemManager::AddMeshToSceneGraph(GameObject* pGameObject, MyMesh* pMesh, MaterialDefinition** pMaterialList, SceneGraphObject** pOutputList, int primitive, int pointsize)
+void ComponentSystemManager::AddMeshToSceneGraph(GameObject* pGameObject, MyMesh* pMesh, MaterialDefinition** pMaterialList, int primitive, int pointsize, SceneGraphObject** pOutputList)
 {
     MyAssert( pGameObject != 0 );
     MyAssert( pMesh != 0 );
@@ -2091,6 +2091,17 @@ void ComponentSystemManager::AddMeshToSceneGraph(GameObject* pGameObject, MyMesh
     {
         pOutputList[i] = m_pSceneGraph->AddObject( pWorldTransform, pMesh, pMesh->m_SubmeshList[i], pMaterialList[i], primitive, pointsize );
     }
+}
+
+SceneGraphObject* ComponentSystemManager::AddSubmeshToSceneGraph(GameObject* pGameObject, MySubmesh* pSubmesh, MaterialDefinition* pMaterial, int primitive, int pointsize)
+{
+    MyAssert( pGameObject != 0 );
+    MyAssert( pSubmesh != 0 );
+    MyAssert( pMaterial != 0 );
+
+    MyMatrix* pWorldTransform = pGameObject->GetTransform()->GetWorldTransform();
+
+    return m_pSceneGraph->AddObject( pWorldTransform, 0, pSubmesh, pMaterial, primitive, pointsize );
 }
 
 void ComponentSystemManager::RemoveObjectFromSceneGraph(SceneGraphObject* pSceneGraphObject)

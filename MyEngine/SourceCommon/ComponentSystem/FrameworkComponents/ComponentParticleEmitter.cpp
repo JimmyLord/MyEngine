@@ -9,6 +9,8 @@
 
 #include "EngineCommonHeader.h"
 
+#include "../../../Framework/MyFramework/SourceCommon/SceneGraphs/SceneGraph_Base.h"
+
 #if MYFW_USING_WX
 bool ComponentParticleEmitter::m_PanelWatchBlockVisible = true;
 #endif
@@ -39,6 +41,7 @@ ComponentParticleEmitter::ComponentParticleEmitter()
     }
 #endif
 
+    m_pSceneGraphObject = 0;
     m_pMaterial = 0;
 }
 
@@ -49,6 +52,8 @@ ComponentParticleEmitter::~ComponentParticleEmitter()
     SAFE_DELETE( m_pParticleRenderer );
 
     SAFE_RELEASE( m_pMaterial );
+
+    RemoveFromSceneGraph();
 }
 
 void ComponentParticleEmitter::Reset()
@@ -285,6 +290,12 @@ void ComponentParticleEmitter::UnregisterCallbacks()
     }
 }
 
+void ComponentParticleEmitter::OnLoad()
+{
+    if( m_pSceneGraphObject == 0 )
+        AddToSceneGraph();
+}
+
 void ComponentParticleEmitter::SetMaterial(MaterialDefinition* pMaterial, int submeshindex)
 {
     ComponentRenderable::SetMaterial( pMaterial, submeshindex );
@@ -295,6 +306,26 @@ void ComponentParticleEmitter::SetMaterial(MaterialDefinition* pMaterial, int su
     m_pMaterial = pMaterial;
 
     m_pParticleRenderer->SetMaterial( m_pMaterial );
+
+    if( m_pSceneGraphObject )
+    {
+        m_pSceneGraphObject->m_pMaterial = pMaterial;
+    }
+}
+
+void ComponentParticleEmitter::AddToSceneGraph()
+{
+    MyAssert( m_pSceneGraphObject == 0 );
+    MyAssert( m_pParticleRenderer );
+
+    // Add the particle renderer (submesh) to the main scene graph
+    m_pSceneGraphObject = g_pComponentSystemManager->AddSubmeshToSceneGraph( m_pGameObject, m_pParticleRenderer, m_pMaterial, GL_TRIANGLES, 1 );
+}
+
+void ComponentParticleEmitter::RemoveFromSceneGraph()
+{
+    if( m_pSceneGraphObject != 0 )
+        g_pComponentSystemManager->m_pSceneGraph->RemoveObject( m_pSceneGraphObject );
 }
 
 void ComponentParticleEmitter::CreateBurst(int number, Vector3 offset)

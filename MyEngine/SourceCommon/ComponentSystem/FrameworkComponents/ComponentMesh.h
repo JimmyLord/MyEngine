@@ -55,8 +55,8 @@ public:
     virtual MaterialDefinition* GetMaterial(int submeshindex) { return m_MaterialList[submeshindex]; }
     virtual void SetMaterial(MaterialDefinition* pMaterial, int submeshindex);
 
-    void AddToSceneGraph();
-    void RemoveFromSceneGraph();
+    virtual void AddToSceneGraph();
+    virtual void RemoveFromSceneGraph();
 
 protected:
     // Callback functions for various events.
