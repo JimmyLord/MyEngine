@@ -359,6 +359,24 @@ void ComponentMesh::SetMaterial(MaterialDefinition* pMaterial, int submeshindex)
     }
 }
 
+void ComponentMesh::SetVisible(bool visible)
+{
+    ComponentRenderable::SetVisible( visible );
+
+    for( int i=0; i<MAX_SUBMESHES; i++ )
+    {
+        if( m_pSceneGraphObjects[i] )
+        {
+            m_pSceneGraphObjects[i]->m_Visible = visible;
+        }
+    }
+}
+
+//bool ComponentMesh::IsVisible()
+//{
+//    return ComponentRenderable::IsVisible;
+//}
+
 void ComponentMesh::AddToSceneGraph()
 {
     MyAssert( m_pMesh );

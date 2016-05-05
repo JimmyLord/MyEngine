@@ -266,6 +266,7 @@ void TransformGizmo::CreateAxisObjects(unsigned int sceneid, float scale, Editor
             pComponentMesh->m_pMesh = MyNew MyMesh();
             pComponentMesh->m_pMesh->CreateEditorTransformGizmoAxis( 3, 0.05f, ColorByte(255, 100, 100, 255) );
             pComponentMesh->m_GLPrimitiveType = pComponentMesh->m_pMesh->m_SubmeshList[0]->m_PrimitiveType;
+            pComponentMesh->AddToSceneGraph();
         }
 
         pEditorState->m_pTransformGizmo->m_pTranslate1Axis[0] = pGameObject;
@@ -283,6 +284,7 @@ void TransformGizmo::CreateAxisObjects(unsigned int sceneid, float scale, Editor
             pComponentMesh->m_pMesh = MyNew MyMesh();
             pComponentMesh->m_pMesh->CreateEditorTransformGizmoAxis( 3, 0.05f, ColorByte(100, 255, 100, 255) );
             pComponentMesh->m_GLPrimitiveType = pComponentMesh->m_pMesh->m_SubmeshList[0]->m_PrimitiveType;
+            pComponentMesh->AddToSceneGraph();
         }
 
         pEditorState->m_pTransformGizmo->m_pTranslate1Axis[1] = pGameObject;
@@ -300,6 +302,7 @@ void TransformGizmo::CreateAxisObjects(unsigned int sceneid, float scale, Editor
             pComponentMesh->m_pMesh = MyNew MyMesh();
             pComponentMesh->m_pMesh->CreateEditorTransformGizmoAxis( 3, 0.05f, ColorByte(100, 100, 255, 255) );
             pComponentMesh->m_GLPrimitiveType = pComponentMesh->m_pMesh->m_SubmeshList[0]->m_PrimitiveType;
+            pComponentMesh->AddToSceneGraph();
         }
 
         pEditorState->m_pTransformGizmo->m_pTranslate1Axis[2] = pGameObject;
@@ -323,6 +326,7 @@ void TransformGizmo::CreateAxisObjects(unsigned int sceneid, float scale, Editor
             pComponentMesh->m_pMesh = MyNew MyMesh();
             pComponentMesh->m_pMesh->CreatePlane( Vector3(0,0,0), Vector2(1,1), Vector2Int(2,2), Vector2(0,0), Vector2(1,1) );
             pComponentMesh->m_GLPrimitiveType = pComponentMesh->m_pMesh->m_SubmeshList[0]->m_PrimitiveType;
+            pComponentMesh->AddToSceneGraph();
         }
 
         pEditorState->m_pTransformGizmo->m_pTranslate2Axis[0] = pGameObject;
@@ -340,6 +344,7 @@ void TransformGizmo::CreateAxisObjects(unsigned int sceneid, float scale, Editor
             pComponentMesh->m_pMesh = MyNew MyMesh();
             pComponentMesh->m_pMesh->CreatePlane( Vector3(0,0,0), Vector2(1,1), Vector2Int(2,2), Vector2(0,0), Vector2(1,1) );
             pComponentMesh->m_GLPrimitiveType = pComponentMesh->m_pMesh->m_SubmeshList[0]->m_PrimitiveType;
+            pComponentMesh->AddToSceneGraph();
         }
 
         pEditorState->m_pTransformGizmo->m_pTranslate2Axis[1] = pGameObject;
@@ -357,6 +362,7 @@ void TransformGizmo::CreateAxisObjects(unsigned int sceneid, float scale, Editor
             pComponentMesh->m_pMesh = MyNew MyMesh();
             pComponentMesh->m_pMesh->CreatePlane( Vector3(0,0,0), Vector2(1,1), Vector2Int(2,2), Vector2(0,0), Vector2(1,1) );
             pComponentMesh->m_GLPrimitiveType = pComponentMesh->m_pMesh->m_SubmeshList[0]->m_PrimitiveType;
+            pComponentMesh->AddToSceneGraph();
         }
 
         pEditorState->m_pTransformGizmo->m_pTranslate2Axis[2] = pGameObject;
@@ -376,7 +382,8 @@ void TransformGizmo::ScaleGizmosForMousePickRendering(bool doscale)
         Vector3 newscale( currentscale.x * scaleamount, currentscale.y, currentscale.z * scaleamount );
         m_pTranslate1Axis[i]->m_pComponentTransform->SetLocalScale( newscale );
 
-        //m_pTranslate2Axis[i]->m_pComponentTransform->SetLocalScale( newscale );
+        // update the world matrix, so the scale will apply when the scene graph renders the scene.
+        m_pTranslate1Axis[i]->m_pComponentTransform->UpdateTransform();
     }
 }
 

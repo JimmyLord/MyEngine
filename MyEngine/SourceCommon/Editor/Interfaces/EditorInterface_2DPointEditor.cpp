@@ -405,7 +405,7 @@ void EditorInterface_2DPointEditor::RenderObjectIDsToFBO()
 
     pEditorState->m_pMousePickerFBO->Unbind( true );
 
-    pEditorState->m_pTransformGizmo->ScaleGizmosForMousePickRendering( false );
+    //pEditorState->m_pTransformGizmo->ScaleGizmosForMousePickRendering( false );
 }
 
 MaterialDefinition* EditorInterface_2DPointEditor::GetMaterial(MaterialTypes type)
