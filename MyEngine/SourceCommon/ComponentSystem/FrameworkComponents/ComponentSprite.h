@@ -19,6 +19,8 @@ private:
     MYFW_COMPONENT_DECLARE_VARIABLE_LIST( ComponentSprite ); //_VARIABLE_LIST
 
 public:
+    SceneGraphObject* m_pSceneGraphObject;
+
     MySprite* m_pSprite;
     ColorByte m_Tint;
     Vector2 m_Size;
@@ -42,11 +44,13 @@ public:
     virtual void RegisterCallbacks();
     virtual void UnregisterCallbacks();
 
+    virtual void OnLoad();
+
     virtual MaterialDefinition* GetMaterial(int submeshindex) { if( m_pSprite ) return m_pSprite->GetMaterial(); return 0; }
     virtual void SetMaterial(MaterialDefinition* pMaterial, int submeshindex);
 
-    virtual void AddToSceneGraph() {}
-    virtual void RemoveFromSceneGraph() {}
+    virtual void AddToSceneGraph();
+    virtual void RemoveFromSceneGraph();
 
 protected:
     // Callback functions for various events.

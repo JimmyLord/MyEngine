@@ -477,11 +477,11 @@ void ComponentCamera::DrawCallback(ComponentCamera* pCamera, MyMatrix* pMatViewP
     rot90.Rotate( -90, 0, 1, 0 );
     
     MyMatrix transform = *m_pComponentTransform->GetLocalTransform() * rot90;
-    pSprite->SetPosition( &transform );
+    //pSprite->SetPosition( &transform );
     
     // disable culling, so we see the camera from both sides.
     glDisable( GL_CULL_FACE );
-    pSprite->Draw( pMatViewProj, pShaderOverride );
+    pSprite->Draw( &transform, pMatViewProj, pShaderOverride );
     glEnable( GL_CULL_FACE );
 }
 #endif

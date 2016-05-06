@@ -9,6 +9,8 @@
 
 #include "EngineCommonHeader.h"
 
+#include "../../../Framework/MyFramework/SourceCommon/SceneGraphs/SceneGraph_Base.h"
+
 #if MYFW_USING_WX
 bool ComponentSprite::m_PanelWatchBlockVisible = true;
 #endif
@@ -25,6 +27,8 @@ ComponentSprite::ComponentSprite()
 
     m_BaseType = BaseComponentType_Renderable;
 
+    m_pSceneGraphObject = 0;
+
     m_pSprite = 0;
 }
 
@@ -33,6 +37,8 @@ ComponentSprite::~ComponentSprite()
     MYFW_COMPONENT_VARIABLE_LIST_DESTRUCTOR(); //_VARIABLE_LIST
 
     SAFE_RELEASE( m_pSprite );
+
+    RemoveFromSceneGraph();
 }
 
 void ComponentSprite::RegisterVariables(CPPListHead* pList, ComponentSprite* pThis) //_VARIABLE_LIST
@@ -199,6 +205,11 @@ void* ComponentSprite::OnValueChanged(ComponentVariable* pVar, int controlid, bo
         }
     }
 
+    //if( strcmp( pVar->m_Label, "Size" ) == 0 )
+    {
+        m_pSprite->Create( "ComponentSprite", m_Size.x, m_Size.y, 0, 1, 0, 1, Justify_Center, false );
+    }
+
     return oldpointer;
 }
 #endif //MYFW_USING_WX
@@ -265,19 +276,47 @@ void ComponentSprite::UnregisterCallbacks()
     }
 }
 
+void ComponentSprite::OnLoad()
+{
+    m_pSprite->Create( "ComponentSprite", m_Size.x, m_Size.y, 0, 1, 0, 1, Justify_Center, false );
+
+    if( m_pSceneGraphObject == 0 )
+        AddToSceneGraph();
+}
+
 void ComponentSprite::SetMaterial(MaterialDefinition* pMaterial, int submeshindex)
 {
     ComponentRenderable::SetMaterial( pMaterial, 0 );
 
     m_pSprite->SetMaterial( pMaterial );
+
+    if( m_pSceneGraphObject )
+    {
+        m_pSceneGraphObject->m_pMaterial = pMaterial;
+    }
+}
+
+void ComponentSprite::AddToSceneGraph()
+{
+    MyAssert( m_pSceneGraphObject == 0 );
+    MyAssert( m_pSprite );
+
+    // Add the particle renderer (submesh) to the main scene graph
+    m_pSceneGraphObject = g_pComponentSystemManager->AddSubmeshToSceneGraph( m_pGameObject, m_pSprite, m_pSprite->GetMaterial(), GL_TRIANGLES, 1 );
+}
+
+void ComponentSprite::RemoveFromSceneGraph()
+{
+    if( m_pSceneGraphObject != 0 )
+        g_pComponentSystemManager->m_pSceneGraph->RemoveObject( m_pSceneGraphObject );
 }
 
 void ComponentSprite::DrawCallback(ComponentCamera* pCamera, MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride)
 {
     ComponentRenderable::Draw( pMatViewProj, pShaderOverride, 0 );
 
-    m_pSprite->SetPosition( m_pComponentTransform->GetWorldTransform() );
+    //m_pSprite->SetPosition( m_pComponentTransform->GetWorldTransform() );
     m_pSprite->SetTint( m_Tint );
-    m_pSprite->Create( "ComponentSprite", m_Size.x, m_Size.y, 0, 1, 0, 1, Justify_Center, false );
-    m_pSprite->Draw( pMatViewProj, pShaderOverride );
+    //m_pSprite->Create( "ComponentSprite", m_Size.x, m_Size.y, 0, 1, 0, 1, Justify_Center, false );
+    m_pSprite->Draw( m_pComponentTransform->GetWorldTransform(), pMatViewProj, pShaderOverride );
 }

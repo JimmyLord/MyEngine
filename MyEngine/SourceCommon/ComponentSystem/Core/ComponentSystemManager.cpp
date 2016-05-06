@@ -1862,7 +1862,7 @@ void ComponentSystemManager::OnDrawFrame(ComponentCamera* pCamera, MyMatrix* pMa
     checkGlError( "start of ComponentSystemManager::OnDrawFrame()" );
 
     // draw all components that registered a callback.
-    if( 0 ) // 1 to draw with scene graph, 0 to use draw callbacks. // TODO: always use scene graph
+    if( 1 ) // 1 to draw with scene graph, 0 to use draw callbacks. // TODO: always use scene graph
     {
         Vector3 campos = pCamera->m_pComponentTransform->GetLocalPosition();
         Vector3 camrot = pCamera->m_pComponentTransform->GetLocalRotation();

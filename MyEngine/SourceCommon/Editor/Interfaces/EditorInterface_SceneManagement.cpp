@@ -74,7 +74,7 @@ void EditorInterface_SceneManagement::OnDrawFrame(unsigned int canvasid)
                 g_pEngineCore->m_pDebugQuadSprite->CreateInPlace( "debug", 0.5f, 0.5f, 1.0f, 1.0f, 0, 1, 1, 0, Justify_Center, false );
                 g_pEngineCore->m_pMaterial_ClipSpaceTexture->SetTextureColor( pEditorState->m_pDebugViewFBO->m_pColorTexture );
                 g_pEngineCore->m_pDebugQuadSprite->SetMaterial( g_pEngineCore->m_pMaterial_ClipSpaceTexture );
-                g_pEngineCore->m_pDebugQuadSprite->Draw( 0 );
+                g_pEngineCore->m_pDebugQuadSprite->Draw( 0, 0 );
             }
 
             // if it's a shadow cam, render the depth texture
@@ -87,7 +87,7 @@ void EditorInterface_SceneManagement::OnDrawFrame(unsigned int canvasid)
                 g_pEngineCore->m_pDebugQuadSprite->CreateInPlace( "debug", 0.5f, 0.5f, 1.0f, 1.0f, 0, 1, 1, 0, Justify_Center, false );
                 g_pEngineCore->m_pMaterial_ClipSpaceTexture->SetTextureColor( pCamera->m_pDepthFBO->m_pDepthTexture );
                 g_pEngineCore->m_pDebugQuadSprite->SetMaterial( g_pEngineCore->m_pMaterial_ClipSpaceTexture );
-                g_pEngineCore->m_pDebugQuadSprite->Draw( 0 );
+                g_pEngineCore->m_pDebugQuadSprite->Draw( 0, 0 );
             }
         }
     }
@@ -150,7 +150,7 @@ void EditorInterface_SceneManagement::OnDrawFrame(unsigned int canvasid)
             g_pEngineCore->m_pDebugQuadSprite->CreateInPlace( "debug", 0.5f, 0.5f, 1.0f, 1.0f, 0, u, v, 0, Justify_Center, false );
             g_pEngineCore->m_pMaterial_ClipSpaceTexture->SetTextureColor( pEditorState->m_pDebugViewFBO->m_pColorTexture );
             g_pEngineCore->m_pDebugQuadSprite->SetMaterial( g_pEngineCore->m_pMaterial_ClipSpaceTexture );
-            g_pEngineCore->m_pDebugQuadSprite->Draw( 0 );
+            g_pEngineCore->m_pDebugQuadSprite->Draw( 0, 0 );
         }
     }
 

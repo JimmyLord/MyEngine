@@ -123,10 +123,10 @@ void LuaGameState::RegisterClasses()
             .addFunction( "Normalize", &Vector2::Normalize )
         .endClass();
 
-    luabridge::getGlobalNamespace( m_pLuaState )
-        .beginClass<MySprite>( "MySprite" )
-            .addFunction( "SetZRotation", &MySprite::SetZRotation )
-        .endClass();    
+    //luabridge::getGlobalNamespace( m_pLuaState )
+    //    .beginClass<MySprite>( "MySprite" )
+    //        .addFunction( "SetZRotation", &MySprite::SetZRotation )
+    //    .endClass();    
 
     luabridge::getGlobalNamespace( m_pLuaState )
         .beginClass<MyFileObject>( "MyFileObject" )

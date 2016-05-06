@@ -53,7 +53,7 @@ void EditorInterface::OnDrawFrame(unsigned int canvasid)
         g_pEngineCore->m_pDebugQuadSprite->CreateInPlace( "debug", 0.75f, 0.75f, 0.5f, 0.5f, 0, 1, 1, 0, Justify_Center, false );
         g_pEngineCore->m_pMaterial_MousePicker->SetTextureColor( pEditorState->m_pMousePickerFBO->m_pColorTexture );
         g_pEngineCore->m_pDebugQuadSprite->SetMaterial( g_pEngineCore->m_pMaterial_MousePicker );
-        g_pEngineCore->m_pDebugQuadSprite->Draw( 0 );
+        g_pEngineCore->m_pDebugQuadSprite->Draw( 0, 0 );
     }
 }
 

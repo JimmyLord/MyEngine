@@ -230,12 +230,12 @@ void ComponentLight::DrawCallback(ComponentCamera* pCamera, MyMatrix* pMatViewPr
     rotpos.CreateLookAtWorld( m_pLight->m_Position, pCameraTransform->GetUp(), pCamera->m_pComponentTransform->GetWorldPosition() );
 
     MyMatrix transform = rotpos * scale;
-    pSprite->SetPosition( &transform );
+    //pSprite->SetPosition( &transform );
 
     // Set the sprite color
     pSprite->GetMaterial()->m_ColorDiffuse = m_pLight->m_Color.AsColorByte();
     pSprite->GetMaterial()->m_ColorDiffuse.a = 255;
     
-    pSprite->Draw( pMatViewProj, pShaderOverride );
+    pSprite->Draw( &transform, pMatViewProj, pShaderOverride );
 }
 #endif
