@@ -261,7 +261,8 @@ void ComponentMeshPrimitive::CreatePrimitive()
 
     // Add the Mesh to the main scene graph
     // TODO: remove the old mesh from the scene graph
-    g_pComponentSystemManager->AddMeshToSceneGraph( m_pGameObject, m_pMesh, m_MaterialList, m_GLPrimitiveType, m_PointSize, m_pSceneGraphObjects );
+    SceneGraphFlags flags = SceneGraphFlag_Opaque; // TODO: check if opaque or transparent
+    g_pComponentSystemManager->AddMeshToSceneGraph( m_pGameObject, m_pMesh, m_MaterialList, m_GLPrimitiveType, m_PointSize, flags, m_pSceneGraphObjects );
 }
 
 void ComponentMeshPrimitive::DrawCallback(ComponentCamera* pCamera, MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride)

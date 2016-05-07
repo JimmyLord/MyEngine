@@ -319,7 +319,8 @@ void ComponentParticleEmitter::AddToSceneGraph()
     MyAssert( m_pParticleRenderer );
 
     // Add the particle renderer (submesh) to the main scene graph
-    m_pSceneGraphObject = g_pComponentSystemManager->AddSubmeshToSceneGraph( m_pGameObject, m_pParticleRenderer, m_pMaterial, GL_TRIANGLES, 1 );
+    SceneGraphFlags flags = SceneGraphFlag_Transparent; // TODO: check if opaque or transparent
+    m_pSceneGraphObject = g_pComponentSystemManager->AddSubmeshToSceneGraph( m_pGameObject, m_pParticleRenderer, m_pMaterial, GL_TRIANGLES, 1, flags );
 }
 
 void ComponentParticleEmitter::RemoveFromSceneGraph()

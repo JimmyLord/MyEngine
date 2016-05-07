@@ -355,7 +355,17 @@ void ComponentMesh::SetMaterial(MaterialDefinition* pMaterial, int submeshindex)
 
     if( m_pSceneGraphObjects[submeshindex] )
     {
+        // TODO: clean this mess
+        // clear opaque/transparent flags, set the proper flag based on new material transparency
+        SceneGraphFlags flags = m_pSceneGraphObjects[submeshindex]->m_Flags;
+        flags = (SceneGraphFlags)(flags & ~(SceneGraphFlag_Opaque | SceneGraphFlag_Transparent));
+        if( m_MaterialList[submeshindex]->IsTransparent() )
+            flags = (SceneGraphFlags)(flags | SceneGraphFlag_Transparent);
+        else
+            flags = (SceneGraphFlags)(flags | SceneGraphFlag_Opaque);
+
         m_pSceneGraphObjects[submeshindex]->m_pMaterial = pMaterial;
+        m_pSceneGraphObjects[submeshindex]->m_Flags = flags;
     }
 }
 
@@ -388,7 +398,8 @@ void ComponentMesh::AddToSceneGraph()
         // Add the Mesh to the main scene graph
         if( m_pMesh->m_SubmeshList.Count() > 0 )
         {
-            g_pComponentSystemManager->AddMeshToSceneGraph( m_pGameObject, m_pMesh, m_MaterialList, m_GLPrimitiveType, m_PointSize, m_pSceneGraphObjects );
+            SceneGraphFlags flags = SceneGraphFlag_Opaque; // TODO: check if opaque or transparent
+            g_pComponentSystemManager->AddMeshToSceneGraph( m_pGameObject, m_pMesh, m_MaterialList, m_GLPrimitiveType, m_PointSize, flags, m_pSceneGraphObjects );
         }
 
         m_WaitingToAddToSceneGraph = false;
