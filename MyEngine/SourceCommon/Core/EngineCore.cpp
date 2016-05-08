@@ -564,6 +564,11 @@ void EngineCore::OnFileRenamed(const char* fullpathbefore, const char* fullpatha
     g_pComponentSystemManager->OnFileRenamed( fullpathbefore, fullpathafter );
 }
 
+bool EngineCore::OnEvent(MyEvent* pEvent)
+{
+    return g_pComponentSystemManager->OnEvent( pEvent );
+}
+
 bool EngineCore::OnTouch(int action, int id, float x, float y, float pressure, float size)
 {
     if( GameCore::OnTouch( action, id, x, y, pressure, size ) )

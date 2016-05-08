@@ -42,6 +42,7 @@ public:
     static void LuaRegister(lua_State* luastate);
 #endif //MYFW_USING_LUA
 
+    // ComponentBase overrides
     virtual cJSON* ExportAsJSONObject(bool savesceneid);
     virtual void ImportFromJSONObject(cJSON* jComponentMesh, unsigned int sceneid);
 
@@ -52,6 +53,9 @@ public:
     virtual void RegisterCallbacks();
     virtual void UnregisterCallbacks();
 
+    virtual bool OnEvent(MyEvent* pEvent);
+
+    // ComponentRenderable overrides
     virtual MaterialDefinition* GetMaterial(int submeshindex) { return m_MaterialList[submeshindex]; }
     virtual void SetMaterial(MaterialDefinition* pMaterial, int submeshindex);
 

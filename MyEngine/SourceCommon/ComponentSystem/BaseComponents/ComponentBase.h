@@ -250,6 +250,8 @@ public:
     virtual void OnGameObjectEnabled();
     virtual void OnGameObjectDisabled();
 
+    virtual bool OnEvent(MyEvent* pEvent);
+
     virtual void SetEnabled(bool enabled);
     void SetSceneID(unsigned int sceneid) { m_SceneIDLoadedFrom = sceneid; }
     void SetID(unsigned int id) { m_ID = id; }

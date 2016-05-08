@@ -2205,6 +2205,21 @@ void ComponentSystemManager::OnStop()
     }
 }
 
+bool ComponentSystemManager::OnEvent(MyEvent* pEvent)
+{
+    for( unsigned int i=0; i<BaseComponentType_NumTypes; i++ )
+    {
+        for( CPPListNode* node = m_Components[i].GetHead(); node != 0; node = node->GetNext() )
+        {
+            ComponentBase* pComponent = (ComponentBase*)node;
+            if( pComponent->OnEvent( pEvent ) )
+                return true;
+        }
+    }
+
+    return false;
+}
+
 bool ComponentSystemManager::OnTouch(int action, int id, float x, float y, float pressure, float size)
 {
     // send touch events to all components that registered a callback.

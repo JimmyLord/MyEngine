@@ -1664,3 +1664,8 @@ void ComponentBase::OnGameObjectDisabled()
 {
     UnregisterCallbacks();
 }
+
+bool ComponentBase::OnEvent(MyEvent* pEvent)
+{
+    return false;
+}

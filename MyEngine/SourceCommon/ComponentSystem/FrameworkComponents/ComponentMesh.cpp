@@ -342,6 +342,25 @@ void ComponentMesh::UnregisterCallbacks()
     }
 }
 
+bool ComponentMesh::OnEvent(MyEvent* pEvent)
+{
+    // Testing: when any material finishes loading, set the material again to fix the flags of the scenegraphobject
+    if( pEvent->GetType() == Event_MaterialFinishedLoading ||
+        pEvent->GetType() == Event_ShaderFinishedLoading )
+    {
+        for( int i=0; i<MAX_SUBMESHES; i++ )
+        {
+            if( m_MaterialList[i] )
+            {
+                SetMaterial( m_MaterialList[i], i );
+            }
+        }
+        return false; // keep propagating the event.
+    }
+
+    return false;
+}
+
 void ComponentMesh::SetMaterial(MaterialDefinition* pMaterial, int submeshindex)
 {
     ComponentRenderable::SetMaterial( pMaterial, submeshindex );
