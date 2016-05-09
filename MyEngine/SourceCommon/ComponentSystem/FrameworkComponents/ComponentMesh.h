@@ -53,6 +53,7 @@ public:
     virtual void RegisterCallbacks();
     virtual void UnregisterCallbacks();
 
+    static bool StaticOnEvent(void* pObjectPtr, MyEvent* pEvent) { return ((ComponentMesh*)pObjectPtr)->OnEvent( pEvent ); }
     virtual bool OnEvent(MyEvent* pEvent);
 
     // ComponentRenderable overrides

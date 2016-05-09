@@ -50,10 +50,14 @@ ComponentMesh::ComponentMesh()
 
     m_GLPrimitiveType = GL_TRIANGLES;
     m_PointSize = 1;
+
+    g_pEventManager->RegisterForEvents( Event_ShaderFinishedLoading, this, &ComponentMesh::StaticOnEvent );
 }
 
 ComponentMesh::~ComponentMesh()
 {
+    g_pEventManager->UnregisterForEvents( Event_ShaderFinishedLoading, this, &ComponentMesh::StaticOnEvent );
+
     MYFW_COMPONENT_VARIABLE_LIST_DESTRUCTOR(); //_VARIABLE_LIST
 
     SAFE_RELEASE( m_pMesh );
