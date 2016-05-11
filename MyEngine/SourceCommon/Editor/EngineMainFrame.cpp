@@ -1018,6 +1018,9 @@ void EngineMainFrame::LoadScene(const char* scenename, bool unloadscenes)
     // clear out the old scene before loading.
     if( unloadscenes )
     {
+        // Make sure gameplay is stopped before loading
+        g_pEngineCore->OnModeStop();
+
         // Reset the scene counter, so the new "first" scene loaded will be 1.
         g_pComponentSystemManager->ResetSceneIDCounter();
 

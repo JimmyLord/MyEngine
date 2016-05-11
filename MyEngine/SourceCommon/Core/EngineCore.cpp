@@ -1204,8 +1204,6 @@ void EngineCore::LoadSceneFromJSON(const char* scenename, const char* jsonstr, u
 #endif
 
 #if MYFW_USING_WX
-    m_EditorMode = true;
-
     g_pEngineMainFrame->ResizeViewport();
 #endif
 }
