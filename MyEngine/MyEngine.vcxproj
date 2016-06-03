@@ -488,6 +488,7 @@
       <PrecompiledHeaderFile>EngineCommonHeader.h</PrecompiledHeaderFile>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
+      <ForcedIncludeFiles>EngineCommonHeader.h</ForcedIncludeFiles>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -834,6 +835,7 @@
     </AntBuild>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\SharedGameCode\Camera\SharedCamera3D.cpp" />
     <ClCompile Include="..\..\SharedGameCode\Core\MeshShapes.cpp" />
     <ClCompile Include="..\..\SharedGameCode\Core\RenderTextQuick.cpp" />
     <ClCompile Include="..\..\SharedGameCode\Menus\LanguageTable.cpp" />
@@ -865,6 +867,8 @@
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxDebug|x64'">TurnOffAllWarnings</WarningLevel>
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxRelease|Win32'">TurnOffAllWarnings</WarningLevel>
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxRelease|x64'">TurnOffAllWarnings</WarningLevel>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='WxDebug|Win32'">
+      </ForcedIncludeFiles>
     </ClCompile>
     <ClCompile Include="..\Libraries\Lua\src\lauxlib.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='WxDebug|Win32'">NotUsing</PrecompiledHeader>
@@ -883,6 +887,8 @@
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxDebug|x64'">TurnOffAllWarnings</WarningLevel>
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxRelease|Win32'">TurnOffAllWarnings</WarningLevel>
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxRelease|x64'">TurnOffAllWarnings</WarningLevel>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='WxDebug|Win32'">
+      </ForcedIncludeFiles>
     </ClCompile>
     <ClCompile Include="..\Libraries\Lua\src\lbaselib.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='WxDebug|Win32'">NotUsing</PrecompiledHeader>
@@ -901,6 +907,8 @@
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxDebug|x64'">TurnOffAllWarnings</WarningLevel>
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxRelease|Win32'">TurnOffAllWarnings</WarningLevel>
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxRelease|x64'">TurnOffAllWarnings</WarningLevel>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='WxDebug|Win32'">
+      </ForcedIncludeFiles>
     </ClCompile>
     <ClCompile Include="..\Libraries\Lua\src\lbitlib.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='WxDebug|Win32'">NotUsing</PrecompiledHeader>
@@ -919,6 +927,8 @@
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxDebug|x64'">TurnOffAllWarnings</WarningLevel>
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxRelease|Win32'">TurnOffAllWarnings</WarningLevel>
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxRelease|x64'">TurnOffAllWarnings</WarningLevel>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='WxDebug|Win32'">
+      </ForcedIncludeFiles>
     </ClCompile>
     <ClCompile Include="..\Libraries\Lua\src\lcode.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='WxDebug|Win32'">NotUsing</PrecompiledHeader>
@@ -937,6 +947,8 @@
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxDebug|x64'">TurnOffAllWarnings</WarningLevel>
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxRelease|Win32'">TurnOffAllWarnings</WarningLevel>
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxRelease|x64'">TurnOffAllWarnings</WarningLevel>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='WxDebug|Win32'">
+      </ForcedIncludeFiles>
     </ClCompile>
     <ClCompile Include="..\Libraries\Lua\src\lcorolib.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='WxDebug|Win32'">NotUsing</PrecompiledHeader>
@@ -955,6 +967,8 @@
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxDebug|x64'">TurnOffAllWarnings</WarningLevel>
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxRelease|Win32'">TurnOffAllWarnings</WarningLevel>
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxRelease|x64'">TurnOffAllWarnings</WarningLevel>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='WxDebug|Win32'">
+      </ForcedIncludeFiles>
     </ClCompile>
     <ClCompile Include="..\Libraries\Lua\src\lctype.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='WxDebug|Win32'">NotUsing</PrecompiledHeader>
@@ -973,6 +987,8 @@
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxDebug|x64'">TurnOffAllWarnings</WarningLevel>
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxRelease|Win32'">TurnOffAllWarnings</WarningLevel>
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxRelease|x64'">TurnOffAllWarnings</WarningLevel>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='WxDebug|Win32'">
+      </ForcedIncludeFiles>
     </ClCompile>
     <ClCompile Include="..\Libraries\Lua\src\ldblib.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='WxDebug|Win32'">NotUsing</PrecompiledHeader>
@@ -991,6 +1007,8 @@
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxDebug|x64'">TurnOffAllWarnings</WarningLevel>
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxRelease|Win32'">TurnOffAllWarnings</WarningLevel>
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxRelease|x64'">TurnOffAllWarnings</WarningLevel>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='WxDebug|Win32'">
+      </ForcedIncludeFiles>
     </ClCompile>
     <ClCompile Include="..\Libraries\Lua\src\ldebug.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='WxDebug|Win32'">NotUsing</PrecompiledHeader>
@@ -1009,6 +1027,8 @@
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxDebug|x64'">TurnOffAllWarnings</WarningLevel>
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxRelease|Win32'">TurnOffAllWarnings</WarningLevel>
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxRelease|x64'">TurnOffAllWarnings</WarningLevel>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='WxDebug|Win32'">
+      </ForcedIncludeFiles>
     </ClCompile>
     <ClCompile Include="..\Libraries\Lua\src\ldo.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='WxDebug|Win32'">NotUsing</PrecompiledHeader>
@@ -1027,6 +1047,8 @@
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxDebug|x64'">TurnOffAllWarnings</WarningLevel>
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxRelease|Win32'">TurnOffAllWarnings</WarningLevel>
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxRelease|x64'">TurnOffAllWarnings</WarningLevel>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='WxDebug|Win32'">
+      </ForcedIncludeFiles>
     </ClCompile>
     <ClCompile Include="..\Libraries\Lua\src\ldump.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='WxDebug|Win32'">NotUsing</PrecompiledHeader>
@@ -1045,6 +1067,8 @@
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxDebug|x64'">TurnOffAllWarnings</WarningLevel>
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxRelease|Win32'">TurnOffAllWarnings</WarningLevel>
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxRelease|x64'">TurnOffAllWarnings</WarningLevel>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='WxDebug|Win32'">
+      </ForcedIncludeFiles>
     </ClCompile>
     <ClCompile Include="..\Libraries\Lua\src\lfunc.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='WxDebug|Win32'">NotUsing</PrecompiledHeader>
@@ -1063,6 +1087,8 @@
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxDebug|x64'">TurnOffAllWarnings</WarningLevel>
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxRelease|Win32'">TurnOffAllWarnings</WarningLevel>
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxRelease|x64'">TurnOffAllWarnings</WarningLevel>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='WxDebug|Win32'">
+      </ForcedIncludeFiles>
     </ClCompile>
     <ClCompile Include="..\Libraries\Lua\src\lgc.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='WxDebug|Win32'">NotUsing</PrecompiledHeader>
@@ -1081,6 +1107,8 @@
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxDebug|x64'">TurnOffAllWarnings</WarningLevel>
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxRelease|Win32'">TurnOffAllWarnings</WarningLevel>
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxRelease|x64'">TurnOffAllWarnings</WarningLevel>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='WxDebug|Win32'">
+      </ForcedIncludeFiles>
     </ClCompile>
     <ClCompile Include="..\Libraries\Lua\src\linit.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='WxDebug|Win32'">NotUsing</PrecompiledHeader>
@@ -1099,6 +1127,8 @@
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxDebug|x64'">TurnOffAllWarnings</WarningLevel>
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxRelease|Win32'">TurnOffAllWarnings</WarningLevel>
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxRelease|x64'">TurnOffAllWarnings</WarningLevel>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='WxDebug|Win32'">
+      </ForcedIncludeFiles>
     </ClCompile>
     <ClCompile Include="..\Libraries\Lua\src\liolib.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='WxDebug|Win32'">NotUsing</PrecompiledHeader>
@@ -1117,6 +1147,8 @@
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxDebug|x64'">TurnOffAllWarnings</WarningLevel>
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxRelease|Win32'">TurnOffAllWarnings</WarningLevel>
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxRelease|x64'">TurnOffAllWarnings</WarningLevel>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='WxDebug|Win32'">
+      </ForcedIncludeFiles>
     </ClCompile>
     <ClCompile Include="..\Libraries\Lua\src\llex.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='WxDebug|Win32'">NotUsing</PrecompiledHeader>
@@ -1135,6 +1167,8 @@
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxDebug|x64'">TurnOffAllWarnings</WarningLevel>
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxRelease|Win32'">TurnOffAllWarnings</WarningLevel>
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxRelease|x64'">TurnOffAllWarnings</WarningLevel>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='WxDebug|Win32'">
+      </ForcedIncludeFiles>
     </ClCompile>
     <ClCompile Include="..\Libraries\Lua\src\lmathlib.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='WxDebug|Win32'">NotUsing</PrecompiledHeader>
@@ -1153,6 +1187,8 @@
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxDebug|x64'">TurnOffAllWarnings</WarningLevel>
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxRelease|Win32'">TurnOffAllWarnings</WarningLevel>
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxRelease|x64'">TurnOffAllWarnings</WarningLevel>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='WxDebug|Win32'">
+      </ForcedIncludeFiles>
     </ClCompile>
     <ClCompile Include="..\Libraries\Lua\src\lmem.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='WxDebug|Win32'">NotUsing</PrecompiledHeader>
@@ -1171,6 +1207,8 @@
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxDebug|x64'">TurnOffAllWarnings</WarningLevel>
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxRelease|Win32'">TurnOffAllWarnings</WarningLevel>
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxRelease|x64'">TurnOffAllWarnings</WarningLevel>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='WxDebug|Win32'">
+      </ForcedIncludeFiles>
     </ClCompile>
     <ClCompile Include="..\Libraries\Lua\src\loadlib.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='WxDebug|Win32'">NotUsing</PrecompiledHeader>
@@ -1189,6 +1227,8 @@
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxDebug|x64'">TurnOffAllWarnings</WarningLevel>
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxRelease|Win32'">TurnOffAllWarnings</WarningLevel>
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxRelease|x64'">TurnOffAllWarnings</WarningLevel>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='WxDebug|Win32'">
+      </ForcedIncludeFiles>
     </ClCompile>
     <ClCompile Include="..\Libraries\Lua\src\lobject.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='WxDebug|Win32'">NotUsing</PrecompiledHeader>
@@ -1207,6 +1247,8 @@
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxDebug|x64'">TurnOffAllWarnings</WarningLevel>
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxRelease|Win32'">TurnOffAllWarnings</WarningLevel>
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxRelease|x64'">TurnOffAllWarnings</WarningLevel>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='WxDebug|Win32'">
+      </ForcedIncludeFiles>
     </ClCompile>
     <ClCompile Include="..\Libraries\Lua\src\lopcodes.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='WxDebug|Win32'">NotUsing</PrecompiledHeader>
@@ -1225,6 +1267,8 @@
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxDebug|x64'">TurnOffAllWarnings</WarningLevel>
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxRelease|Win32'">TurnOffAllWarnings</WarningLevel>
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxRelease|x64'">TurnOffAllWarnings</WarningLevel>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='WxDebug|Win32'">
+      </ForcedIncludeFiles>
     </ClCompile>
     <ClCompile Include="..\Libraries\Lua\src\loslib.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='WxDebug|Win32'">NotUsing</PrecompiledHeader>
@@ -1243,6 +1287,8 @@
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxDebug|x64'">TurnOffAllWarnings</WarningLevel>
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxRelease|Win32'">TurnOffAllWarnings</WarningLevel>
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxRelease|x64'">TurnOffAllWarnings</WarningLevel>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='WxDebug|Win32'">
+      </ForcedIncludeFiles>
     </ClCompile>
     <ClCompile Include="..\Libraries\Lua\src\lparser.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='WxDebug|Win32'">NotUsing</PrecompiledHeader>
@@ -1261,6 +1307,8 @@
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxDebug|x64'">TurnOffAllWarnings</WarningLevel>
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxRelease|Win32'">TurnOffAllWarnings</WarningLevel>
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxRelease|x64'">TurnOffAllWarnings</WarningLevel>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='WxDebug|Win32'">
+      </ForcedIncludeFiles>
     </ClCompile>
     <ClCompile Include="..\Libraries\Lua\src\lstate.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='WxDebug|Win32'">NotUsing</PrecompiledHeader>
@@ -1279,6 +1327,8 @@
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxDebug|x64'">TurnOffAllWarnings</WarningLevel>
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxRelease|Win32'">TurnOffAllWarnings</WarningLevel>
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxRelease|x64'">TurnOffAllWarnings</WarningLevel>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='WxDebug|Win32'">
+      </ForcedIncludeFiles>
     </ClCompile>
     <ClCompile Include="..\Libraries\Lua\src\lstring.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='WxDebug|Win32'">NotUsing</PrecompiledHeader>
@@ -1297,6 +1347,8 @@
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxDebug|x64'">TurnOffAllWarnings</WarningLevel>
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxRelease|Win32'">TurnOffAllWarnings</WarningLevel>
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxRelease|x64'">TurnOffAllWarnings</WarningLevel>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='WxDebug|Win32'">
+      </ForcedIncludeFiles>
     </ClCompile>
     <ClCompile Include="..\Libraries\Lua\src\lstrlib.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='WxDebug|Win32'">NotUsing</PrecompiledHeader>
@@ -1315,6 +1367,8 @@
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxDebug|x64'">TurnOffAllWarnings</WarningLevel>
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxRelease|Win32'">TurnOffAllWarnings</WarningLevel>
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxRelease|x64'">TurnOffAllWarnings</WarningLevel>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='WxDebug|Win32'">
+      </ForcedIncludeFiles>
     </ClCompile>
     <ClCompile Include="..\Libraries\Lua\src\ltable.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='WxDebug|Win32'">NotUsing</PrecompiledHeader>
@@ -1333,6 +1387,8 @@
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxDebug|x64'">TurnOffAllWarnings</WarningLevel>
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxRelease|Win32'">TurnOffAllWarnings</WarningLevel>
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxRelease|x64'">TurnOffAllWarnings</WarningLevel>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='WxDebug|Win32'">
+      </ForcedIncludeFiles>
     </ClCompile>
     <ClCompile Include="..\Libraries\Lua\src\ltablib.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='WxDebug|Win32'">NotUsing</PrecompiledHeader>
@@ -1351,6 +1407,8 @@
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxDebug|x64'">TurnOffAllWarnings</WarningLevel>
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxRelease|Win32'">TurnOffAllWarnings</WarningLevel>
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxRelease|x64'">TurnOffAllWarnings</WarningLevel>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='WxDebug|Win32'">
+      </ForcedIncludeFiles>
     </ClCompile>
     <ClCompile Include="..\Libraries\Lua\src\ltm.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='WxDebug|Win32'">NotUsing</PrecompiledHeader>
@@ -1369,6 +1427,8 @@
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxDebug|x64'">TurnOffAllWarnings</WarningLevel>
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxRelease|Win32'">TurnOffAllWarnings</WarningLevel>
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxRelease|x64'">TurnOffAllWarnings</WarningLevel>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='WxDebug|Win32'">
+      </ForcedIncludeFiles>
     </ClCompile>
     <ClCompile Include="..\Libraries\Lua\src\lua.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='WxDebug|Win32'">NotUsing</PrecompiledHeader>
@@ -1403,6 +1463,8 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|PNaCl'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='WxDebug|PNaCl'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='WxRelease|PNaCl'">true</ExcludedFromBuild>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='WxDebug|Win32'">
+      </ForcedIncludeFiles>
     </ClCompile>
     <ClCompile Include="..\Libraries\Lua\src\luac.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='WxDebug|Win32'">NotUsing</PrecompiledHeader>
@@ -1437,6 +1499,8 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|PNaCl'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='WxDebug|PNaCl'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='WxRelease|PNaCl'">true</ExcludedFromBuild>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='WxDebug|Win32'">
+      </ForcedIncludeFiles>
     </ClCompile>
     <ClCompile Include="..\Libraries\Lua\src\lundump.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='WxDebug|Win32'">NotUsing</PrecompiledHeader>
@@ -1455,6 +1519,8 @@
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxDebug|x64'">TurnOffAllWarnings</WarningLevel>
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxRelease|Win32'">TurnOffAllWarnings</WarningLevel>
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxRelease|x64'">TurnOffAllWarnings</WarningLevel>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='WxDebug|Win32'">
+      </ForcedIncludeFiles>
     </ClCompile>
     <ClCompile Include="..\Libraries\Lua\src\lutf8lib.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
@@ -1465,6 +1531,8 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='WxDebug|x64'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='WxRelease|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='WxRelease|x64'">NotUsing</PrecompiledHeader>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='WxDebug|Win32'">
+      </ForcedIncludeFiles>
     </ClCompile>
     <ClCompile Include="..\Libraries\Lua\src\lvm.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='WxDebug|Win32'">NotUsing</PrecompiledHeader>
@@ -1483,6 +1551,8 @@
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxDebug|x64'">TurnOffAllWarnings</WarningLevel>
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxRelease|Win32'">TurnOffAllWarnings</WarningLevel>
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxRelease|x64'">TurnOffAllWarnings</WarningLevel>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='WxDebug|Win32'">
+      </ForcedIncludeFiles>
     </ClCompile>
     <ClCompile Include="..\Libraries\Lua\src\lzio.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='WxDebug|Win32'">NotUsing</PrecompiledHeader>
@@ -1501,6 +1571,8 @@
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxDebug|x64'">TurnOffAllWarnings</WarningLevel>
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxRelease|Win32'">TurnOffAllWarnings</WarningLevel>
       <WarningLevel Condition="'$(Configuration)|$(Platform)'=='WxRelease|x64'">TurnOffAllWarnings</WarningLevel>
+      <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='WxDebug|Win32'">
+      </ForcedIncludeFiles>
     </ClCompile>
     <ClCompile Include="SourceCommon\Camera\Camera2D.cpp" />
     <ClCompile Include="SourceCommon\Camera\Camera3D.cpp" />
@@ -1696,6 +1768,7 @@
     <ClCompile Include="SourceCommon\Physics\EngineBox2DContactListener.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\SharedGameCode\Camera\SharedCamera3D.h" />
     <ClInclude Include="..\..\SharedGameCode\Core\MeshShapes.h" />
     <ClInclude Include="..\..\SharedGameCode\Core\RenderTextQuick.h" />
     <ClInclude Include="..\..\SharedGameCode\Menus\LanguageTable.h" />

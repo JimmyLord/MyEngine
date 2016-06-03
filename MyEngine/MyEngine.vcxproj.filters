@@ -91,6 +91,9 @@
     <Filter Include="Source\Editor\Exporters">
       <UniqueIdentifier>{02837739-8d7a-47e0-9809-10810feb1f20}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\SharedGameCode\Camera">
+      <UniqueIdentifier>{9daafbb5-ea20-4f34-88f5-d2031d302f01}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="SourceCommon\Camera\Camera3D.cpp">
@@ -392,6 +395,9 @@
     </ClCompile>
     <ClCompile Include="SourceCommon\ComponentSystem\BaseComponents\ComponentGameObjectProperties.cpp">
       <Filter>Source\ComponentSystem\Base Components</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\SharedGameCode\Camera\SharedCamera3D.cpp">
+      <Filter>Source\SharedGameCode\Camera</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -721,6 +727,9 @@
     </ClInclude>
     <ClInclude Include="SourceCommon\ComponentSystem\BaseComponents\ComponentGameObjectProperties.h">
       <Filter>Source\ComponentSystem\Base Components</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\SharedGameCode\Camera\SharedCamera3D.h">
+      <Filter>Source\SharedGameCode\Camera</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
