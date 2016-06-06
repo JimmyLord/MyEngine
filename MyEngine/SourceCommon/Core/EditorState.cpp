@@ -117,6 +117,8 @@ void EditorState::ClearEditorState(bool clearselectedobjectandcomponents)
 
 void EditorState::OnSurfaceChanged(unsigned int startx, unsigned int starty, unsigned int width, unsigned int height)
 {
+    m_EditorWindowRect.Set( startx, starty, width, height );
+
     if( m_pDebugViewFBO )
     {
         if( m_pDebugViewFBO->m_TextureWidth < width || m_pDebugViewFBO->m_TextureHeight < height )

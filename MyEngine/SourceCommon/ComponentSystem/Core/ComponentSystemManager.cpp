@@ -2078,6 +2078,33 @@ unsigned int ComponentSystemManager::GetNumberOfScenesLoaded()
     return numloaded;
 }
 
+//SceneInfo* ComponentSystemManager::GetSceneInfo(int sceneid)
+//{
+//    MyAssert( m_pSceneInfoMap[sceneid].m_InUse == true );
+//    return &m_pSceneInfoMap[sceneid];
+//}
+
+//void ComponentSystemManager::m_pGameObjectTemplateManager
+
+void ComponentSystemManager::DrawSingleObject(MyMatrix* pMatViewProj, GameObject* pObject, ShaderGroup* pShaderOverride)
+{
+    for( unsigned int i=0; i<pObject->m_Components.Count(); i++ )
+    {
+        ComponentRenderable* pComponent = dynamic_cast<ComponentRenderable*>( pObject->m_Components[i] );
+
+        if( pComponent )
+        {
+            pComponent->Draw( pMatViewProj );
+
+            ComponentCallbackStruct_Draw* pCallbackStruct = pComponent->GetDrawCallback();
+            ComponentBase* pComponent = (ComponentBase*)pCallbackStruct->pObj;
+
+            (pCallbackStruct->pObj->*pCallbackStruct->pFunc)( 0, pMatViewProj, pShaderOverride );
+        }
+    }
+}
+#endif //MYFW_USING_WX
+
 void ComponentSystemManager::AddMeshToSceneGraph(GameObject* pGameObject, MyMesh* pMesh, MaterialDefinition** pMaterialList, int primitive, int pointsize, SceneGraphFlags flags, SceneGraphObject** pOutputList)
 {
     MyAssert( pGameObject != 0 );
@@ -2111,33 +2138,6 @@ void ComponentSystemManager::RemoveObjectFromSceneGraph(SceneGraphObject* pScene
 {
     m_pSceneGraph->RemoveObject( pSceneGraphObject );
 }
-
-//SceneInfo* ComponentSystemManager::GetSceneInfo(int sceneid)
-//{
-//    MyAssert( m_pSceneInfoMap[sceneid].m_InUse == true );
-//    return &m_pSceneInfoMap[sceneid];
-//}
-
-//void ComponentSystemManager::m_pGameObjectTemplateManager
-
-void ComponentSystemManager::DrawSingleObject(MyMatrix* pMatViewProj, GameObject* pObject, ShaderGroup* pShaderOverride)
-{
-    for( unsigned int i=0; i<pObject->m_Components.Count(); i++ )
-    {
-        ComponentRenderable* pComponent = dynamic_cast<ComponentRenderable*>( pObject->m_Components[i] );
-
-        if( pComponent )
-        {
-            pComponent->Draw( pMatViewProj );
-
-            ComponentCallbackStruct_Draw* pCallbackStruct = pComponent->GetDrawCallback();
-            ComponentBase* pComponent = (ComponentBase*)pCallbackStruct->pObj;
-
-            (pCallbackStruct->pObj->*pCallbackStruct->pFunc)( 0, pMatViewProj, pShaderOverride );
-        }
-    }
-}
-#endif //MYFW_USING_WX
 
 void ComponentSystemManager::OnLoad(unsigned int sceneid)
 {

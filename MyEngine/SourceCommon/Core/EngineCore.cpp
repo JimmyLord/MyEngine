@@ -95,6 +95,8 @@ EngineCore::EngineCore()
 
 EngineCore::~EngineCore()
 {
+    SAFE_DELETE( g_pImGuiManager );
+
     SAFE_DELETE( g_pRTQGlobals );
 
 #if MYFW_USING_LUA
@@ -155,6 +157,9 @@ void EngineCore::InitializeManagers()
 
     if( g_pRTQGlobals == 0 )
         g_pRTQGlobals = MyNew RenderTextQuickGlobals;
+
+    if( g_pImGuiManager == 0 )
+        g_pImGuiManager = MyNew ImGuiManager;
 }
 
 void EngineCore::InitializeGameObjectFlagStrings(cJSON* jStringsArray)
@@ -261,6 +266,9 @@ void EngineCore::OneTimeInit()
 //    CreateDefaultSceneObjects();
 
     //OnSurfaceChanged( (unsigned int)m_WindowStartX, (unsigned int)m_WindowStartY, (unsigned int)m_WindowWidth, (unsigned int)m_WindowHeight );
+
+    if( g_pImGuiManager )
+        g_pImGuiManager->Init();
 }
 
 bool EngineCore::IsReadyToRender()
@@ -271,6 +279,9 @@ bool EngineCore::IsReadyToRender()
 double EngineCore::Tick(double TimePassed)
 {
     checkGlError( "EngineCore::Tick" );
+
+    if( g_pImGuiManager )
+        g_pImGuiManager->StartFrame( TimePassed );
 
     if( m_SceneReloadRequested )
     {
@@ -446,16 +457,23 @@ void EngineCore::OnDrawFrame(unsigned int canvasid)
 {
     GameCore::OnDrawFrame( canvasid );
 
+    MyRect windowrect( 0, 0, 0, 0 );
+
 #if MYFW_USING_WX
     if( g_GLCanvasIDActive == 1 )
     {
         m_pCurrentEditorInterface->OnDrawFrame( canvasid );
+        windowrect = m_pEditorState->m_EditorWindowRect;
+
+        if( g_pImGuiManager )
+            g_pImGuiManager->EndFrame( (float)windowrect.w, (float)windowrect.h, true );
     }
     else
 #endif
     {
         // draw all components.
         m_pComponentSystemManager->OnDrawFrame();
+        windowrect.Set( (int)m_WindowStartX, (int)m_WindowStartY, (int)m_WindowWidth, (int)m_WindowHeight );
     }
 
 #if MYFW_USING_WX
@@ -472,9 +490,9 @@ void EngineCore::OnDrawFrame(unsigned int canvasid)
             }
         }
 
-        //m_pDebugTextMesh->CreateStringWhite( false, 15, m_WindowStartX+m_WindowWidth, m_WindowStartY+m_WindowHeight, Justify_TopRight, Vector2(0,0),
+        //m_pDebugTextMesh->CreateStringWhite( false, 15, (float)windowrect.x+windowrect.w, (float)windowrect.y+windowrect.h, Justify_TopRight, Vector2(0,0),
         //                                     "GLStats - buffers(%0.2fM) - draws(%d) - fps(%d)", g_pBufferManager->CalculateTotalMemoryUsedByBuffers()/1000000.0f, g_GLStats.GetNumDrawCallsLastFrameForCurrentCanvasID(), (int)m_DebugFPS );
-        m_pDebugTextMesh->CreateStringWhite( false, 10, m_WindowStartX+m_WindowWidth, m_WindowStartY+m_WindowHeight, Justify_TopRight, Vector2(0,0),
+        m_pDebugTextMesh->CreateStringWhite( false, 10, (float)windowrect.x+windowrect.w, (float)windowrect.y+windowrect.h, Justify_TopRight, Vector2(0,0),
             "GL - draws(%d) - fps(%d)", g_GLStats.GetNumDrawCallsLastFrameForCurrentCanvasID(), (int)m_DebugFPS );
 
         // Draw Lua memory usage.
@@ -487,12 +505,12 @@ void EngineCore::OnDrawFrame(unsigned int canvasid)
 
             if( megs == 0 )
             {
-                m_pDebugTextMesh->CreateStringWhite( true, 10, m_WindowStartX+m_WindowWidth, m_WindowStartY+m_WindowHeight-10, Justify_TopRight, Vector2(0,0),
+                m_pDebugTextMesh->CreateStringWhite( true, 10, (float)windowrect.x+windowrect.w, (float)windowrect.y+windowrect.h-10, Justify_TopRight, Vector2(0,0),
                     "Lua - memory(%d,%03d) - (%d)", kilos, bytes, change );
             }
             else
             {
-                m_pDebugTextMesh->CreateStringWhite( true, 10, m_WindowStartX+m_WindowWidth, m_WindowStartY+m_WindowHeight-10, Justify_TopRight, Vector2(0,0),
+                m_pDebugTextMesh->CreateStringWhite( true, 10, (float)windowrect.x+windowrect.w, (float)windowrect.y+windowrect.h-10, Justify_TopRight, Vector2(0,0),
                     "Lua - memory(%d,%03d,%03d) - (%d)", megs, kilos, bytes, change );
             }
         }
@@ -508,12 +526,12 @@ void EngineCore::OnDrawFrame(unsigned int canvasid)
 
             if( megs == 0 )
             {
-                m_pDebugTextMesh->CreateStringWhite( true, 10, m_WindowStartX+m_WindowWidth, m_WindowStartY+m_WindowHeight-20, Justify_TopRight, Vector2(0,0),
+                m_pDebugTextMesh->CreateStringWhite( true, 10, (float)windowrect.x+windowrect.w, (float)windowrect.y+windowrect.h-20, Justify_TopRight, Vector2(0,0),
                     "Memory(%03d,%03d) - (%d)", kilos, bytes, change );
             }
             else
             {
-                m_pDebugTextMesh->CreateStringWhite( true, 10, m_WindowStartX+m_WindowWidth, m_WindowStartY+m_WindowHeight-20, Justify_TopRight, Vector2(0,0),
+                m_pDebugTextMesh->CreateStringWhite( true, 10, (float)windowrect.x+windowrect.w, (float)windowrect.y+windowrect.h-20, Justify_TopRight, Vector2(0,0),
                     "Memory(%d,%03d,%03d) - (%d)", megs, kilos, bytes, change );
             }
 
@@ -531,18 +549,18 @@ void EngineCore::OnDrawFrame(unsigned int canvasid)
 
             if( megs == 0 )
             {
-                m_pDebugTextMesh->CreateStringWhite( true, 10, m_WindowStartX+m_WindowWidth, m_WindowStartY+m_WindowHeight-30, Justify_TopRight, Vector2(0,0),
+                m_pDebugTextMesh->CreateStringWhite( true, 10, (float)windowrect.x+windowrect.w, (float)windowrect.y+windowrect.h-30, Justify_TopRight, Vector2(0,0),
                     "Frame Stack(%03d,%03d) - (%d)", kilos, bytes, change );
             }
             else
             {
-                m_pDebugTextMesh->CreateStringWhite( true, 10, m_WindowStartX+m_WindowWidth, m_WindowStartY+m_WindowHeight-30, Justify_TopRight, Vector2(0,0),
+                m_pDebugTextMesh->CreateStringWhite( true, 10, (float)windowrect.x+windowrect.w, (float)windowrect.y+windowrect.h-30, Justify_TopRight, Vector2(0,0),
                     "Frame Stack(%d,%03d,%03d) - (%d)", megs, kilos, bytes, change );
             }
         }
 
         MyMatrix mat;
-        mat.CreateOrtho( m_WindowStartX, m_WindowStartX+m_WindowWidth, m_WindowStartY, m_WindowStartY+m_WindowHeight, 1, -1 );
+        mat.CreateOrtho( (float)windowrect.x, (float)windowrect.x+windowrect.w, (float)windowrect.y, (float)windowrect.y+windowrect.h, 1, -1 );
         glDisable( GL_DEPTH_TEST );
         m_pDebugTextMesh->Draw( 0, &mat, 0,0,0,0,0,0,0,0 );
         glEnable( GL_DEPTH_TEST );
@@ -557,6 +575,14 @@ void EngineCore::OnDrawFrameDone()
     m_SingleFrameStackSizeLastFrame = m_SingleFrameStackSizeThisFrame;
     m_SingleFrameStackSizeThisFrame = m_SingleFrameMemoryStack.GetBytesUsed();
     m_SingleFrameMemoryStack.Clear();
+
+#if MYFW_USING_WX
+    if( g_GLCanvasIDActive == 1 )
+#endif
+    {
+        if( g_pImGuiManager )
+            g_pImGuiManager->ClearInput();
+    }
 }
 
 void EngineCore::OnFileRenamed(const char* fullpathbefore, const char* fullpathafter)
@@ -824,6 +850,22 @@ void EngineCore::UnregisterGameplayButtons()
 #if MYFW_USING_WX
 bool EngineCore::HandleEditorInput(int keyaction, int keycode, int mouseaction, int id, float x, float y, float pressure)
 {
+    ImGuiIO& io = ImGui::GetIO();
+
+    if( mouseaction != -1 )
+    {
+        io.MousePos.x = x;
+        io.MousePos.y = m_pEditorState->m_EditorWindowRect.h - y;
+    
+        if( id != -1 )
+        {
+            LOGInfo( "ImGui", "Mouse Down\n" );
+            io.MouseDown[id] = true;
+        }
+
+        io.MouseWheel = pressure;
+    }
+
     return m_pCurrentEditorInterface->HandleInput( keyaction, keycode, mouseaction, id, x, y, pressure );
 }
 #endif //MYFW_USING_WX

@@ -1,3 +1,6 @@
 [submodule "Libraries/bullet3"]
 	path = Libraries/bullet3
 	url = https://github.com/bulletphysics/bullet3.git
+[submodule "Libraries/imgui"]
+	path = Libraries/imgui
+	url = https://github.com/ocornut/imgui.git

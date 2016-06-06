@@ -44,6 +44,8 @@ extern const char* EditorIconFilenames[EditorIcon_NumIcons];
 
 struct EditorState
 {
+    MyRect m_EditorWindowRect;
+
     unsigned int m_ModifierKeyStates;
     EditorActionState m_EditorActionState;
     Vector2 m_MouseLeftDownLocation;

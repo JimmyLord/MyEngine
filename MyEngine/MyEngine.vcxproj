@@ -486,9 +486,8 @@
       <PreprocessorDefinitions>MYFW_WINDOWS;PCHFILE="EngineCommonHeader.h";WIN32;MYFW_USING_WX;wxMSVC_VERSION_AUTO;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>$(SolutionDir)../Framework/Libraries/Box2D/Box2D;SourceCommon;$(SolutionDir)../Framework/Libraries/wxWidgets/include/msvc;$(SolutionDir)../Framework/Libraries/wxWidgets/include;$(ProjectDir)../Libraries/bullet3/src/</AdditionalIncludeDirectories>
       <PrecompiledHeaderFile>EngineCommonHeader.h</PrecompiledHeaderFile>
-      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
-      <FunctionLevelLinking>true</FunctionLevelLinking>
-      <ForcedIncludeFiles>EngineCommonHeader.h</ForcedIncludeFiles>
+      <ForcedIncludeFiles>
+      </ForcedIncludeFiles>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -835,21 +834,24 @@
     </AntBuild>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\SharedGameCode\Camera\SharedCamera3D.cpp" />
-    <ClCompile Include="..\..\SharedGameCode\Core\MeshShapes.cpp" />
-    <ClCompile Include="..\..\SharedGameCode\Core\RenderTextQuick.cpp" />
-    <ClCompile Include="..\..\SharedGameCode\Menus\LanguageTable.cpp" />
-    <ClCompile Include="..\..\SharedGameCode\Menus\MenuButton.cpp" />
-    <ClCompile Include="..\..\SharedGameCode\Menus\MenuCheckBox.cpp" />
-    <ClCompile Include="..\..\SharedGameCode\Menus\MenuDraggableButton.cpp" />
-    <ClCompile Include="..\..\SharedGameCode\Menus\MenuInputBox.cpp" />
-    <ClCompile Include="..\..\SharedGameCode\Menus\MenuItem.cpp" />
-    <ClCompile Include="..\..\SharedGameCode\Menus\MenuScrollBox.cpp" />
-    <ClCompile Include="..\..\SharedGameCode\Menus\MenuScrollingText.cpp" />
-    <ClCompile Include="..\..\SharedGameCode\Menus\MenuSlider.cpp" />
-    <ClCompile Include="..\..\SharedGameCode\Menus\MenuSprite.cpp" />
-    <ClCompile Include="..\..\SharedGameCode\Menus\MenuText.cpp" />
-    <ClCompile Include="..\..\SharedGameCode\Menus\Menu_Helpers.cpp" />
+    <ClCompile Include="..\Libraries\imgui\imgui.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='WxDebug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='WxRelease|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\Libraries\imgui\imgui_demo.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='WxDebug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='WxRelease|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\Libraries\imgui\imgui_draw.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='WxDebug|Win32'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='WxRelease|Win32'">NotUsing</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="..\Libraries\Lua\src\lapi.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='WxDebug|Win32'">NotUsing</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='WxDebug|x64'">NotUsing</PrecompiledHeader>
@@ -1765,24 +1767,16 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|PNaCl'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Emscripten'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="SourceCommon\GUI\ImGuiManager.cpp" />
     <ClCompile Include="SourceCommon\Physics\EngineBox2DContactListener.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\SharedGameCode\Camera\SharedCamera3D.h" />
-    <ClInclude Include="..\..\SharedGameCode\Core\MeshShapes.h" />
-    <ClInclude Include="..\..\SharedGameCode\Core\RenderTextQuick.h" />
-    <ClInclude Include="..\..\SharedGameCode\Menus\LanguageTable.h" />
-    <ClInclude Include="..\..\SharedGameCode\Menus\MenuButton.h" />
-    <ClInclude Include="..\..\SharedGameCode\Menus\MenuCheckBox.h" />
-    <ClInclude Include="..\..\SharedGameCode\Menus\MenuDraggableButton.h" />
-    <ClInclude Include="..\..\SharedGameCode\Menus\MenuInputBox.h" />
-    <ClInclude Include="..\..\SharedGameCode\Menus\MenuItem.h" />
-    <ClInclude Include="..\..\SharedGameCode\Menus\MenuScrollBox.h" />
-    <ClInclude Include="..\..\SharedGameCode\Menus\MenuScrollingText.h" />
-    <ClInclude Include="..\..\SharedGameCode\Menus\MenuSlider.h" />
-    <ClInclude Include="..\..\SharedGameCode\Menus\MenuSprite.h" />
-    <ClInclude Include="..\..\SharedGameCode\Menus\MenuText.h" />
-    <ClInclude Include="..\..\SharedGameCode\Menus\Menu_Helpers.h" />
+    <ClInclude Include="..\Libraries\imgui\imconfig.h" />
+    <ClInclude Include="..\Libraries\imgui\imgui.h" />
+    <ClInclude Include="..\Libraries\imgui\imgui_internal.h" />
+    <ClInclude Include="..\Libraries\imgui\stb_rect_pack.h" />
+    <ClInclude Include="..\Libraries\imgui\stb_textedit.h" />
+    <ClInclude Include="..\Libraries\imgui\stb_truetype.h" />
     <ClInclude Include="..\Libraries\LuaBridge\detail\CFunctions.h" />
     <ClInclude Include="..\Libraries\LuaBridge\detail\ClassInfo.h" />
     <ClInclude Include="..\Libraries\LuaBridge\detail\Constructor.h" />
@@ -2000,8 +1994,12 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='WxRelease|PNaCl'">true</ExcludedFromBuild>
     </ClInclude>
     <ClInclude Include="SourceCommon\EngineCommonHeader.h" />
+    <ClInclude Include="SourceCommon\GUI\ImGuiManager.h" />
     <ClInclude Include="SourceCommon\Physics\EngineBox2DContactListener.h" />
     <ClInclude Include="SourceNaCL\memory.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\Libraries\imgui\README.md" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

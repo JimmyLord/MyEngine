@@ -53,6 +53,10 @@ extern "C"
 #include "Core/LuaGameState.h"
 #endif //MYFW_USING_LUA
 
+// dear ImGui
+#include "../../Libraries/imgui/imgui.h"
+#include "GUI/ImGuiManager.h"
+
 // core component system code
 #include "ComponentSystem/Core/EngineFileManager.h"
 #include "ComponentSystem/Core/ComponentTypeManager.h"
