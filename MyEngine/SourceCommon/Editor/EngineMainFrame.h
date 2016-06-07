@@ -121,6 +121,8 @@ public:
 
     virtual void UpdateMenuItemStates();
 
+    virtual void ProcessAllGLCanvasInputEventQueues();
+
     void OnMenu_Engine(wxCommandEvent& event);
     void SetWindowPerspectiveToDefault(bool forceswitch = false);
     int GetCurrentPerspectiveIndex();

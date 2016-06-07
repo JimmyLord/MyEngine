@@ -280,8 +280,10 @@ double EngineCore::Tick(double TimePassed)
 {
     checkGlError( "EngineCore::Tick" );
 
+#if MYFW_USING_WX
     if( g_pImGuiManager )
         g_pImGuiManager->StartFrame( TimePassed );
+#endif
 
     if( m_SceneReloadRequested )
     {
@@ -578,11 +580,11 @@ void EngineCore::OnDrawFrameDone()
 
 #if MYFW_USING_WX
     if( g_GLCanvasIDActive == 1 )
-#endif
     {
         if( g_pImGuiManager )
             g_pImGuiManager->ClearInput();
     }
+#endif
 }
 
 void EngineCore::OnFileRenamed(const char* fullpathbefore, const char* fullpathafter)
@@ -613,7 +615,7 @@ bool EngineCore::OnTouch(int action, int id, float x, float y, float pressure, f
             if( m_pEditorState->m_pTransformGizmo->HandleInput( this, -1, -1, action, id, x, y, pressure ) )
                 return true;
 
-            if( HandleEditorInput( -1, -1, action, id, x, y, pressure ) )
+            if( HandleEditorInput( g_GLCanvasIDActive, -1, -1, action, id, x, y, pressure ) )
                 return true;
 
             return false;
@@ -662,7 +664,7 @@ bool EngineCore::OnKeys(GameCoreButtonActions action, int keycode, int unicodech
     if( action == GCBA_Down )
     {
 #if MYFW_USING_WX
-        if( m_EditorMode )
+        //if( m_EditorMode )
         {
             if( keycode == 344 ) // F5
             {
@@ -680,7 +682,7 @@ bool EngineCore::OnKeys(GameCoreButtonActions action, int keycode, int unicodech
 
         if( g_GLCanvasIDActive == 1 )
         {
-            if( HandleEditorInput( action, keycode, -1, -1, -1, -1, -1 ) )
+            if( HandleEditorInput( g_GLCanvasIDActive, action, keycode, -1, -1, -1, -1, -1 ) )
                 return true;
 
             return false;
@@ -698,7 +700,7 @@ bool EngineCore::OnKeys(GameCoreButtonActions action, int keycode, int unicodech
 #if MYFW_USING_WX
         if( g_GLCanvasIDActive == 1 )
         {
-            if( HandleEditorInput( action, keycode, -1, -1, -1, -1, -1 ) )
+            if( HandleEditorInput( g_GLCanvasIDActive, action, keycode, -1, -1, -1, -1, -1 ) )
                 return true;
 
             return false;
@@ -716,7 +718,7 @@ bool EngineCore::OnKeys(GameCoreButtonActions action, int keycode, int unicodech
 #if MYFW_USING_WX
         if( g_GLCanvasIDActive == 1 )
         {
-            if( HandleEditorInput( action, keycode, -1, -1, -1, -1, -1 ) )
+            if( HandleEditorInput( g_GLCanvasIDActive, action, keycode, -1, -1, -1, -1, -1 ) )
                 return true;
 
             return false;
@@ -848,19 +850,30 @@ void EngineCore::UnregisterGameplayButtons()
 }
 
 #if MYFW_USING_WX
-bool EngineCore::HandleEditorInput(int keyaction, int keycode, int mouseaction, int id, float x, float y, float pressure)
+bool EngineCore::HandleEditorInput(int canvasid, int keyaction, int keycode, int mouseaction, int id, float x, float y, float pressure)
 {
     ImGuiIO& io = ImGui::GetIO();
+
+    //LOGInfo( "ImGui", "HandleEditorInput()\n" );
 
     if( mouseaction != -1 )
     {
         io.MousePos.x = x;
         io.MousePos.y = m_pEditorState->m_EditorWindowRect.h - y;
     
-        if( id != -1 )
+        if( mouseaction == GCBA_Down )
         {
-            LOGInfo( "ImGui", "Mouse Down\n" );
+            //LOGInfo( "ImGui", "Mouse Down %d\n", id );
             io.MouseDown[id] = true;
+        }
+
+        if( mouseaction == GCBA_Held || mouseaction == GCBA_Wheel )
+        {
+            for( int i=0; i<3; i++ )
+            {
+                if( id & (1 << i) )
+                    io.MouseDown[i] = true;
+            }
         }
 
         io.MouseWheel = pressure;

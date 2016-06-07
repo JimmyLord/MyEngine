@@ -19,7 +19,7 @@ void ImGuiManager::Init()
     ImGuiIO& io = ImGui::GetIO();
     io.DisplaySize.x = 300;
     io.DisplaySize.y = 300;
-    io.IniFilename = "imgui.ini";
+    //io.IniFilename = "imgui.ini";
     io.RenderDrawListsFn = ImGuiManager::RenderDrawLists;  // Setup a render function, or set to NULL and call GetDrawData() after Render() to access the render data.
 
     unsigned char* pixels;
@@ -37,6 +37,7 @@ void ImGuiManager::Init()
 
 void ImGuiManager::Shutdown()
 {
+    ImGui::Shutdown();
 }
 
 void ImGuiManager::ClearInput()
@@ -47,7 +48,7 @@ void ImGuiManager::ClearInput()
 
     //io.MousePos.x = 0;
     //io.MousePos.y = 0;
-    for( int i=0; i<3; i++ )
+    for( int i=0; i<5; i++ )
     {
         io.MouseDown[i] = false;
     }
@@ -60,6 +61,9 @@ void ImGuiManager::StartFrame(double TimePassed)
 
     ImGuiIO& io = ImGui::GetIO();
     io.DeltaTime = (float)TimePassed;
+
+    //if( io.MouseDown[0] )
+    //    LOGInfo( "ImGui", "Mouse left button state = %d, %0.2f\n", io.MouseDown[0], io.MouseClickedTime[0] );
 
     ImGui::NewFrame();
     ImGui::ShowTestWindow();

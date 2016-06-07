@@ -539,7 +539,7 @@ bool EngineMainFrame::FilterGlobalEvents(wxEvent& event)
     {
         int wxkeycode = ((wxKeyEvent&)event).GetKeyCode();
 
-        if( g_pEngineCore->HandleEditorInput( GCBA_Down, wxkeycode, -1, -1, -1, -1, -1 ) )
+        if( g_pEngineCore->HandleEditorInput( 1, GCBA_Down, wxkeycode, -1, -1, -1, -1, -1 ) )
             return true;
     }
 
@@ -547,7 +547,7 @@ bool EngineMainFrame::FilterGlobalEvents(wxEvent& event)
     {
         int wxkeycode = ((wxKeyEvent&)event).GetKeyCode();
 
-        if( g_pEngineCore->HandleEditorInput( GCBA_Up, wxkeycode, -1, -1, -1, -1, -1 ) )
+        if( g_pEngineCore->HandleEditorInput( 1, GCBA_Up, wxkeycode, -1, -1, -1, -1, -1 ) )
             return true;
     }
 
@@ -598,6 +598,13 @@ void EngineMainFrame::UpdateMenuItemStates()
         if( m_MenuItem_Debug_DrawPhysicsDebugShapes )
             m_MenuItem_Debug_DrawPhysicsDebugShapes->Check( g_pEngineCore->m_Debug_DrawPhysicsDebugShapes );
     }
+}
+
+void EngineMainFrame::ProcessAllGLCanvasInputEventQueues()
+{
+    MainFrame::ProcessAllGLCanvasInputEventQueues();
+
+    m_pGLCanvasEditor->ProcessInputEventQueue();
 }
 
 void EngineMainFrame::OnMenu_Engine(wxCommandEvent& event)

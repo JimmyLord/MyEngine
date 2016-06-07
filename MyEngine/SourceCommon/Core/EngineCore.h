@@ -163,7 +163,7 @@ public:
     virtual void RegisterGameplayButtons();
     virtual void UnregisterGameplayButtons();
 #if MYFW_USING_WX
-    bool HandleEditorInput(int keyaction, int keycode, int mouseaction, int id, float x, float y, float pressure);
+    bool HandleEditorInput(int canvasid, int keyaction, int keycode, int mouseaction, int id, float x, float y, float pressure);
 #endif //MYFW_USING_WX
 
     void CreateDefaultEditorSceneObjects();
