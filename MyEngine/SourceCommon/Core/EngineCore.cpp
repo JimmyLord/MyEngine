@@ -730,6 +730,13 @@ bool EngineCore::OnKeys(GameCoreButtonActions action, int keycode, int unicodech
     return false;
 }
 
+bool EngineCore::OnChar(unsigned int c)
+{
+    g_pImGuiManager->OnChar( c );
+
+    return true;
+}
+
 void EngineCore::OnModeTogglePlayStop()
 {
     if( m_EditorMode )
@@ -858,14 +865,15 @@ bool EngineCore::HandleEditorInput(int canvasid, int keyaction, int keycode, int
 
     if( mouseaction != -1 )
     {
+        MyAssert( keyaction == -1 && keycode == -1 );
+
         io.MousePos.x = x;
         io.MousePos.y = m_pEditorState->m_EditorWindowRect.h - y;
     
         if( mouseaction == GCBA_Down )
-        {
-            //LOGInfo( "ImGui", "Mouse Down %d\n", id );
             io.MouseDown[id] = true;
-        }
+        if( mouseaction == GCBA_Up )
+            io.MouseDown[id] = false;
 
         if( mouseaction == GCBA_Held || mouseaction == GCBA_Wheel )
         {
@@ -877,6 +885,16 @@ bool EngineCore::HandleEditorInput(int canvasid, int keyaction, int keycode, int
         }
 
         io.MouseWheel = pressure;
+    }
+    else
+    {
+        MyAssert( keyaction != -1 && keycode != -1 );
+        MyAssert( mouseaction == -1 && id == -1 );
+        
+        if( keyaction == GCBA_Down )
+            io.KeysDown[keycode] = true;
+        if( keyaction == GCBA_Up )
+            io.KeysDown[keycode] = false;
     }
 
     return m_pCurrentEditorInterface->HandleInput( keyaction, keycode, mouseaction, id, x, y, pressure );

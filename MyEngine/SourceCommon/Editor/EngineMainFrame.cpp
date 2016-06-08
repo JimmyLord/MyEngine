@@ -535,21 +535,21 @@ bool EngineMainFrame::FilterGlobalEvents(wxEvent& event)
     if( pWindowInFocus == m_pGLCanvas )
         return false;
 
-    if( event.GetEventType() == wxEVT_KEY_DOWN )
-    {
-        int wxkeycode = ((wxKeyEvent&)event).GetKeyCode();
+    //if( event.GetEventType() == wxEVT_KEY_DOWN )
+    //{
+    //    int wxkeycode = ((wxKeyEvent&)event).GetKeyCode();
 
-        if( g_pEngineCore->HandleEditorInput( 1, GCBA_Down, wxkeycode, -1, -1, -1, -1, -1 ) )
-            return true;
-    }
+    //    if( g_pEngineCore->HandleEditorInput( 1, GCBA_Down, wxkeycode, -1, -1, -1, -1, -1 ) )
+    //        return true;
+    //}
 
-    if( event.GetEventType() == wxEVT_KEY_UP )
-    {
-        int wxkeycode = ((wxKeyEvent&)event).GetKeyCode();
+    //if( event.GetEventType() == wxEVT_KEY_UP )
+    //{
+    //    int wxkeycode = ((wxKeyEvent&)event).GetKeyCode();
 
-        if( g_pEngineCore->HandleEditorInput( 1, GCBA_Up, wxkeycode, -1, -1, -1, -1, -1 ) )
-            return true;
-    }
+    //    if( g_pEngineCore->HandleEditorInput( 1, GCBA_Up, wxkeycode, -1, -1, -1, -1, -1 ) )
+    //        return true;
+    //}
 
     return false;
 }

@@ -33,6 +33,26 @@ void ImGuiManager::Init()
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
 
     io.Fonts->TexID = (void*)g_FontTexture;
+
+    io.KeyMap[ImGuiKey_Tab]         = MYKEYCODE_TAB;
+    io.KeyMap[ImGuiKey_LeftArrow]   = MYKEYCODE_LEFT;
+    io.KeyMap[ImGuiKey_RightArrow]  = MYKEYCODE_RIGHT;
+    io.KeyMap[ImGuiKey_UpArrow]     = MYKEYCODE_UP;
+    io.KeyMap[ImGuiKey_DownArrow]   = MYKEYCODE_DOWN;
+    io.KeyMap[ImGuiKey_PageUp]      = MYKEYCODE_PAGEUP;
+    io.KeyMap[ImGuiKey_PageDown]    = MYKEYCODE_PAGEDOWN;
+    io.KeyMap[ImGuiKey_Home]        = MYKEYCODE_HOME;
+    io.KeyMap[ImGuiKey_End]         = MYKEYCODE_END;
+    io.KeyMap[ImGuiKey_Delete]      = MYKEYCODE_DELETE;
+    io.KeyMap[ImGuiKey_Backspace]   = MYKEYCODE_BACKSPACE;
+    io.KeyMap[ImGuiKey_Enter]       = MYKEYCODE_ENTER;
+    io.KeyMap[ImGuiKey_Escape]      = MYKEYCODE_ESC;
+    io.KeyMap[ImGuiKey_A]           = 'A';
+    io.KeyMap[ImGuiKey_C]           = 'C';
+    io.KeyMap[ImGuiKey_V]           = 'V';
+    io.KeyMap[ImGuiKey_X]           = 'X';
+    io.KeyMap[ImGuiKey_Y]           = 'Y';
+    io.KeyMap[ImGuiKey_Z]           = 'Z';
 }
 
 void ImGuiManager::Shutdown()
@@ -42,17 +62,27 @@ void ImGuiManager::Shutdown()
 
 void ImGuiManager::ClearInput()
 {
-    //LOGInfo( "ImGui", "ClearInput()\n" );
+    ////LOGInfo( "ImGui", "ClearInput()\n" );
 
+    //ImGuiIO& io = ImGui::GetIO();
+
+    ////io.MousePos.x = 0;
+    ////io.MousePos.y = 0;
+    //for( int i=0; i<5; i++ )
+    //{
+    //    io.MouseDown[i] = false;
+    //}
+    ////io.MouseWheel = 0;
+}
+
+void ImGuiManager::OnChar(unsigned int c)
+{
     ImGuiIO& io = ImGui::GetIO();
 
-    //io.MousePos.x = 0;
-    //io.MousePos.y = 0;
-    for( int i=0; i<5; i++ )
+    if( c > 0 && c < 0x10000 )
     {
-        io.MouseDown[i] = false;
+        io.AddInputCharacter( (unsigned short)c );
     }
-    //io.MouseWheel = 0;
 }
 
 void ImGuiManager::StartFrame(double TimePassed)
@@ -62,8 +92,10 @@ void ImGuiManager::StartFrame(double TimePassed)
     ImGuiIO& io = ImGui::GetIO();
     io.DeltaTime = (float)TimePassed;
 
-    //if( io.MouseDown[0] )
-    //    LOGInfo( "ImGui", "Mouse left button state = %d, %0.2f\n", io.MouseDown[0], io.MouseClickedTime[0] );
+    io.KeyCtrl = io.KeysDown[MYKEYCODE_LCTRL] || io.KeysDown[MYKEYCODE_RCTRL];
+    io.KeyShift = io.KeysDown[MYKEYCODE_LSHIFT] || io.KeysDown[MYKEYCODE_RSHIFT];
+    io.KeyAlt = io.KeysDown[MYKEYCODE_LALT] || io.KeysDown[MYKEYCODE_RALT];
+    //io.KeySuper = io.KeysDown[GLFW_KEY_LEFT_SUPER] || io.KeysDown[GLFW_KEY_RIGHT_SUPER];
 
     ImGui::NewFrame();
     ImGui::ShowTestWindow();

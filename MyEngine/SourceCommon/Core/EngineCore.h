@@ -153,6 +153,7 @@ public:
     virtual bool OnTouch(int action, int id, float x, float y, float pressure, float size);
     virtual bool OnButtons(GameCoreButtonActions action, GameCoreButtonIDs id);
     virtual bool OnKeys(GameCoreButtonActions action, int keycode, int unicodechar);
+    virtual bool OnChar(unsigned int c);
 
     virtual void OnModeTogglePlayStop();
     virtual void OnModePlay();

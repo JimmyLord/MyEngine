@@ -15,6 +15,8 @@ public:
     void Shutdown();
 
     void ClearInput();
+    void OnChar(unsigned int c);
+
     void StartFrame(double TimePassed);
     void EndFrame(float width, float height, bool draw);
 
