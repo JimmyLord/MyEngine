@@ -612,9 +612,6 @@ bool EngineCore::OnTouch(int action, int id, float x, float y, float pressure, f
             // prefer 0,0 at bottom left.
             y = pCamera->m_WindowHeight - y;
 
-            if( m_pEditorState->m_pTransformGizmo->HandleInput( this, -1, -1, action, id, x, y, pressure ) )
-                return true;
-
             if( HandleEditorInput( g_GLCanvasIDActive, -1, -1, action, id, x, y, pressure ) )
                 return true;
 
@@ -896,6 +893,12 @@ bool EngineCore::HandleEditorInput(int canvasid, int keyaction, int keycode, int
         if( keyaction == GCBA_Up )
             io.KeysDown[keycode] = false;
     }
+
+    if( ImGui::IsAnyItemActive() )
+        return true;
+
+    if( m_pEditorState->m_pTransformGizmo->HandleInput( this, -1, -1, mouseaction, id, x, y, pressure ) )
+        return true;
 
     return m_pCurrentEditorInterface->HandleInput( keyaction, keycode, mouseaction, id, x, y, pressure );
 }

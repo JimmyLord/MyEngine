@@ -41,6 +41,8 @@ ComponentMesh::ComponentMesh()
 
     m_BaseType = BaseComponentType_Renderable;
 
+    m_WaitingToAddToSceneGraph = false;
+
     m_pMesh = 0;
     for( int i=0; i<MAX_SUBMESHES; i++ )
     {
@@ -452,6 +454,7 @@ void ComponentMesh::RemoveFromSceneGraph()
     for( unsigned int i=0; i<m_pMesh->m_SubmeshList.Count(); i++ )
     {
         g_pComponentSystemManager->m_pSceneGraph->RemoveObject( m_pSceneGraphObjects[i] );
+        m_pSceneGraphObjects[i] = 0;
     }
 }
 

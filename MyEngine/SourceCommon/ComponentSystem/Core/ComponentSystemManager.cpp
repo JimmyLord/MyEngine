@@ -2119,6 +2119,7 @@ void ComponentSystemManager::AddMeshToSceneGraph(GameObject* pGameObject, MyMesh
     {
         if( pMaterialList[i]->IsTransparent() )
             flags = SceneGraphFlag_Transparent;
+        MyAssert( pOutputList[i] == 0 );
         pOutputList[i] = m_pSceneGraph->AddObject( pWorldTransform, pMesh, pMesh->m_SubmeshList[i], pMaterialList[i], primitive, pointsize, flags );
     }
 }

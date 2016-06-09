@@ -292,10 +292,15 @@ void ComponentMeshOBJ::UnregisterCallbacks()
 
 void ComponentMeshOBJ::SetMesh(MyMesh* pMesh)
 {
+    if( m_pMesh == pMesh )
+        return;
+
     if( pMesh )
         pMesh->AddRef();
 
-    RemoveFromSceneGraph();
+    if( m_pMesh )
+        RemoveFromSceneGraph();
+
     SAFE_RELEASE( m_pMesh );
     m_pMesh = pMesh;
 
