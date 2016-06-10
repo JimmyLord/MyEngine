@@ -10,6 +10,10 @@
 #ifndef __EngineCore_H__
 #define __EngineCore_H__
 
+#if MYFW_USING_WX
+#define MYFW_PROFILING_ENABLED 1
+#endif
+
 class BulletWorld;
 class EngineCore;
 
@@ -46,6 +50,13 @@ struct RequestedSceneInfo
 {
     MyFileObject* m_pFile; // acts as a flag whether or not scene was requested.
     unsigned int m_SceneID; // generally -1, unless scene requested for specific slot.
+};
+
+struct FrameTimingInfo
+{
+    float Tick;
+    float Render_Editor;
+    float Render_Game;
 };
 
 extern void OnFileUpdated_CallbackFunction(MyFileObject* pFile);
@@ -120,6 +131,11 @@ protected:
     EditorInterfaceTypes m_CurrentEditorInterfaceType;
     EditorInterface* m_pCurrentEditorInterface;
 #endif //MYFW_USING_WX
+
+#if MYFW_PROFILING_ENABLED
+    std::vector<FrameTimingInfo> m_FrameTimingInfo;
+    unsigned int m_FrameTimingNextEntry;
+#endif
 
 public:
     EngineCore();

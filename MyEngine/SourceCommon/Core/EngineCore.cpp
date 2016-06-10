@@ -80,6 +80,10 @@ EngineCore::EngineCore()
     m_pCurrentEditorInterface = 0;
 #endif //MYFW_USING_WX
 
+#if MYFW_PROFILING_ENABLED
+    m_FrameTimingNextEntry = 0;
+#endif
+
     m_DebugFPS = 0;
     m_LuaMemoryUsedLastFrame = 0;
     m_LuaMemoryUsedThisFrame = 0;
@@ -280,6 +284,10 @@ double EngineCore::Tick(double TimePassed)
 {
     checkGlError( "EngineCore::Tick" );
 
+#if MYFW_PROFILING_ENABLED
+    double Timing_Start = MyTime_GetSystemTime();
+#endif
+
 #if MYFW_USING_WX
     if( g_pImGuiManager )
         g_pImGuiManager->StartFrame( TimePassed );
@@ -397,6 +405,18 @@ double EngineCore::Tick(double TimePassed)
     }
 #endif
 
+#if MYFW_PROFILING_ENABLED
+    double Timing_End = MyTime_GetSystemTime();
+    
+    FrameTimingInfo info;
+    info.Tick = (float)((Timing_End - Timing_Start)*1000);
+    
+    if( m_FrameTimingNextEntry >= m_FrameTimingInfo.size() )
+        m_FrameTimingInfo.push_back( info );
+    else
+        m_FrameTimingInfo[m_FrameTimingNextEntry] = info;
+#endif
+
     // update the global unpaused time.
     if( m_EditorMode && m_AllowGameToRunInEditorMode == false )
         return TimeUnpaused;
@@ -457,6 +477,10 @@ void EngineCore::OnFocusLost()
 
 void EngineCore::OnDrawFrame(unsigned int canvasid)
 {
+#if MYFW_PROFILING_ENABLED
+    double Timing_Start = MyTime_GetSystemTime();
+#endif
+
     GameCore::OnDrawFrame( canvasid );
 
     MyRect windowrect( 0, 0, 0, 0 );
@@ -466,9 +490,6 @@ void EngineCore::OnDrawFrame(unsigned int canvasid)
     {
         m_pCurrentEditorInterface->OnDrawFrame( canvasid );
         windowrect = m_pEditorState->m_EditorWindowRect;
-
-        if( g_pImGuiManager )
-            g_pImGuiManager->EndFrame( (float)windowrect.w, (float)windowrect.h, true );
     }
     else
 #endif
@@ -568,6 +589,60 @@ void EngineCore::OnDrawFrame(unsigned int canvasid)
         glEnable( GL_DEPTH_TEST );
     }
 #endif
+
+#if MYFW_PROFILING_ENABLED
+    double Timing_End = MyTime_GetSystemTime();
+
+    if( g_GLCanvasIDActive == 0 )
+        m_FrameTimingInfo[m_FrameTimingNextEntry].Render_Game = (float)((Timing_End - Timing_Start)*1000);
+    else if( g_GLCanvasIDActive == 1 )
+        m_FrameTimingInfo[m_FrameTimingNextEntry].Render_Editor = (float)((Timing_End - Timing_Start)*1000);
+
+    if( g_GLCanvasIDActive == 1 )
+    {
+        ImGui::SetNextWindowSize( ImVec2(150,50), ImGuiSetCond_FirstUseEver );
+        ImGui::Begin( "Timing" );
+        //ImGui::Text( "Hello world!" );
+        //ImGui::SliderFloat( "", &m_AnimationTime, 0, 1, "Time: %.3f" );
+    
+        int numsamplestoshow = 60*5; // 5 seconds worth @ 60fps
+        int numentries = m_FrameTimingInfo.size();
+        int start = m_FrameTimingNextEntry - numsamplestoshow;
+        if( start < 0 )
+            start = 0;
+        if( numsamplestoshow > numentries )
+            numsamplestoshow = numentries;
+
+        m_FrameTimingNextEntry++;
+
+        // sort of circular buffer the frame timings.
+        unsigned int maxframestostore = numsamplestoshow * 4;
+        if( m_FrameTimingNextEntry >= maxframestostore )
+        {
+            // copy the last "numsamples" entries back to the start and reset where we insert records.
+            for( int i=0; i<numsamplestoshow; i++ )
+                m_FrameTimingInfo[0+i] = m_FrameTimingInfo[maxframestostore-numsamplestoshow+i];
+
+            m_FrameTimingNextEntry = numsamplestoshow;
+        }
+
+        //m_FrameTimingInfo.back().Tick = sin( (float)MyTime_GetSystemTime() );
+
+        ImGui::PlotLines( "Tick",          &m_FrameTimingInfo[start].Tick,          numsamplestoshow, 0, "", 0.0f, 5.0f, ImVec2(0,20), sizeof(FrameTimingInfo) );
+        ImGui::PlotLines( "Render Editor", &m_FrameTimingInfo[start].Render_Editor, numsamplestoshow, 0, "", 0.0f, 1.5f, ImVec2(0,20), sizeof(FrameTimingInfo) );
+        ImGui::PlotLines( "Render Game",   &m_FrameTimingInfo[start].Render_Game,   numsamplestoshow, 0, "", 0.0f, 1.5f, ImVec2(0,20), sizeof(FrameTimingInfo) );
+
+        ImGui::End();
+    }
+#endif //MYFW_PROFILING_ENABLED
+
+#if MYFW_USING_WX
+    if( g_GLCanvasIDActive == 1 )
+    {
+        if( g_pImGuiManager )
+            g_pImGuiManager->EndFrame( (float)windowrect.w, (float)windowrect.h, true );
+    }
+#endif //MYFW_USING_WX
 }
 
 void EngineCore::OnDrawFrameDone()
