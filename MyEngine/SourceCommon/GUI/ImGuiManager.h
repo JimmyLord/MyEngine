@@ -16,6 +16,9 @@ extern ImGuiManager* g_pImGuiManager;
 
 class ImGuiManager
 {
+protected:
+    void ClearInput();
+
 public:
     ImGuiManager();
     virtual ~ImGuiManager();
@@ -23,7 +26,9 @@ public:
     void Init();
     void Shutdown();
 
-    void ClearInput();
+    //void OnFocusGained();
+    void OnFocusLost();
+
     bool HandleInput(int keyaction, int keycode, int mouseaction, int id, float x, float y, float pressure);
     void OnChar(unsigned int c);
 

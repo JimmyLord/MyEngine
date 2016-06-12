@@ -71,19 +71,28 @@ void ImGuiManager::Shutdown()
 
 void ImGuiManager::ClearInput()
 {
-    // TODO: Clear all input flags if we lose/gain focus
+    //LOGInfo( "ImGui", "ClearInput()\n" );
 
-    ////LOGInfo( "ImGui", "ClearInput()\n" );
+    ImGuiIO& io = ImGui::GetIO();
 
-    //ImGuiIO& io = ImGui::GetIO();
+    //io.MousePos.x = 0;
+    //io.MousePos.y = 0;
+    //io.MouseWheel = 0;
 
-    ////io.MousePos.x = 0;
-    ////io.MousePos.y = 0;
-    //for( int i=0; i<5; i++ )
-    //{
-    //    io.MouseDown[i] = false;
-    //}
-    ////io.MouseWheel = 0;
+    for( int i=0; i<5; i++ )
+    {
+        io.MouseDown[i] = false;
+    }
+
+    for( int i=0; i<512; i++ )
+    {
+        io.KeysDown[i] = false;
+    }
+}
+
+void ImGuiManager::OnFocusLost()
+{
+    ClearInput();
 }
 
 bool ImGuiManager::HandleInput(int keyaction, int keycode, int mouseaction, int id, float x, float y, float pressure)

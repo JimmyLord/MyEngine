@@ -468,6 +468,8 @@ void EngineCore::OnFocusGained()
 void EngineCore::OnFocusLost()
 {
     GameCore::OnFocusLost();
+
+    g_pImGuiManager->OnFocusLost();
 }
 
 void EngineCore::OnDrawFrame(unsigned int canvasid)

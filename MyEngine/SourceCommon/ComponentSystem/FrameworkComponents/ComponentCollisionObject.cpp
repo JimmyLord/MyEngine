@@ -104,25 +104,25 @@ void ComponentCollisionObject::FillPropertiesWindow(bool clear, bool addcomponen
 
         switch( m_PrimitiveType )
         {
-            case PhysicsPrimitiveType_Cube:
+        case PhysicsPrimitiveType_Cube:
             {
                 g_pPanelWatch->AddVector3( "Scale", &m_Scale, 0, 0 );
             }
             break;
 
-            case PhysicsPrimitiveType_Sphere:
+        case PhysicsPrimitiveType_Sphere:
             {
                 g_pPanelWatch->AddFloat( "Scale", &m_Scale.x, 0, 0 );
             }
             break;
 
-            case PhysicsPrimitiveType_StaticPlane:
+        case PhysicsPrimitiveType_StaticPlane:
             {
                 // nothing here, maybe add an pos/rot offset, but ATM uses object transform.
             }
             break;
 
-            case PhysicsPrimitiveType_ConvexHull:
+        case PhysicsPrimitiveType_ConvexHull:
             {
                 const char* desc = "no mesh";
                 if( m_pMesh && m_pMesh->m_pSourceFile )
