@@ -71,6 +71,8 @@ void ImGuiManager::Shutdown()
 
 void ImGuiManager::ClearInput()
 {
+    // TODO: Clear all input flags if we lose/gain focus
+
     ////LOGInfo( "ImGui", "ClearInput()\n" );
 
     //ImGuiIO& io = ImGui::GetIO();
@@ -82,6 +84,53 @@ void ImGuiManager::ClearInput()
     //    io.MouseDown[i] = false;
     //}
     ////io.MouseWheel = 0;
+}
+
+bool ImGuiManager::HandleInput(int keyaction, int keycode, int mouseaction, int id, float x, float y, float pressure)
+{
+    ImGuiIO& io = ImGui::GetIO();
+
+    //LOGInfo( "ImGui", "HandleEditorInput()\n" );
+
+    if( mouseaction != -1 )
+    {
+        MyAssert( keyaction == -1 && keycode == -1 );
+
+        io.MousePos.x = x;
+        io.MousePos.y = y;
+
+        if( mouseaction == GCBA_Down )
+            io.MouseDown[id] = true;
+        if( mouseaction == GCBA_Up )
+            io.MouseDown[id] = false;
+
+        if( mouseaction == GCBA_Held || mouseaction == GCBA_Wheel )
+        {
+            for( int i=0; i<3; i++ )
+            {
+                if( id & (1 << i) )
+                    io.MouseDown[i] = true;
+            }
+        }
+
+        io.MouseWheel = pressure;
+    }
+    else
+    {
+        MyAssert( keyaction != -1 && keycode != -1 );
+        MyAssert( mouseaction == -1 && id == -1 );
+        
+        if( keyaction == GCBA_Down )
+            io.KeysDown[keycode] = true;
+        if( keyaction == GCBA_Up )
+            io.KeysDown[keycode] = false;
+    }
+
+    // TODO: fix, doesn't work if window isn't selected and we're rolled over it.
+    if( ImGui::IsAnyItemActive() )
+        return true;
+
+    return false;
 }
 
 void ImGuiManager::OnChar(unsigned int c)
@@ -107,7 +156,7 @@ void ImGuiManager::StartFrame(double TimePassed)
     //io.KeySuper = io.KeysDown[GLFW_KEY_LEFT_SUPER] || io.KeysDown[GLFW_KEY_RIGHT_SUPER];
 
     ImGui::NewFrame();
-    //ImGui::ShowTestWindow();
+    ImGui::ShowTestWindow();
 }
 
 void ImGuiManager::EndFrame(float width, float height, bool draw)

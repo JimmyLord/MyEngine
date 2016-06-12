@@ -24,6 +24,7 @@ public:
     void Shutdown();
 
     void ClearInput();
+    bool HandleInput(int keyaction, int keycode, int mouseaction, int id, float x, float y, float pressure);
     void OnChar(unsigned int c);
 
     void StartFrame(double TimePassed);

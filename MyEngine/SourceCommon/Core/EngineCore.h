@@ -10,7 +10,7 @@
 #ifndef __EngineCore_H__
 #define __EngineCore_H__
 
-#if MYFW_USING_WX
+#if _DEBUG
 #define MYFW_PROFILING_ENABLED 1
 #endif
 
@@ -64,6 +64,7 @@ extern void OnFileUpdated_CallbackFunction(MyFileObject* pFile);
 class EngineCore : public GameCore
 {
 public:
+    static const int MAX_FRAMES_TO_STORE = 60*30; // 30 seconds @ 60fps
     static const int ENGINE_SCENE_ID = 9; //9879;
     static const int MAX_SCENE_FILES_QUEUED_UP = 10;
 
@@ -133,7 +134,7 @@ protected:
 #endif //MYFW_USING_WX
 
 #if MYFW_PROFILING_ENABLED
-    std::vector<FrameTimingInfo> m_FrameTimingInfo;
+    FrameTimingInfo m_FrameTimingInfo[MAX_FRAMES_TO_STORE];
     unsigned int m_FrameTimingNextEntry;
 #endif
 
@@ -180,6 +181,7 @@ public:
     virtual void RegisterGameplayButtons();
     virtual void UnregisterGameplayButtons();
 #if MYFW_USING_WX
+    bool HandleImGuiInput(int canvasid, int keyaction, int keycode, int mouseaction, int id, float x, float y, float pressure);
     bool HandleEditorInput(int canvasid, int keyaction, int keycode, int mouseaction, int id, float x, float y, float pressure);
 #endif //MYFW_USING_WX
 

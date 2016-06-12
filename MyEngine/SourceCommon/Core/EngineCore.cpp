@@ -288,10 +288,8 @@ double EngineCore::Tick(double TimePassed)
     double Timing_Start = MyTime_GetSystemTime();
 #endif
 
-#if MYFW_USING_WX
     if( g_pImGuiManager )
         g_pImGuiManager->StartFrame( TimePassed );
-#endif
 
     if( m_SceneReloadRequested )
     {
@@ -411,10 +409,7 @@ double EngineCore::Tick(double TimePassed)
     FrameTimingInfo info;
     info.Tick = (float)((Timing_End - Timing_Start)*1000);
     
-    if( m_FrameTimingNextEntry >= m_FrameTimingInfo.size() )
-        m_FrameTimingInfo.push_back( info );
-    else
-        m_FrameTimingInfo[m_FrameTimingNextEntry] = info;
+    m_FrameTimingInfo[m_FrameTimingNextEntry] = info;
 #endif
 
     // update the global unpaused time.
@@ -593,12 +588,18 @@ void EngineCore::OnDrawFrame(unsigned int canvasid)
 #if MYFW_PROFILING_ENABLED
     double Timing_End = MyTime_GetSystemTime();
 
+#if MYFW_USING_WX
     if( g_GLCanvasIDActive == 0 )
         m_FrameTimingInfo[m_FrameTimingNextEntry].Render_Game = (float)((Timing_End - Timing_Start)*1000);
     else if( g_GLCanvasIDActive == 1 )
         m_FrameTimingInfo[m_FrameTimingNextEntry].Render_Editor = (float)((Timing_End - Timing_Start)*1000);
+#else
+    m_FrameTimingInfo[m_FrameTimingNextEntry].Render_Game = (float)((Timing_End - Timing_Start)*1000);
+#endif
 
+#if MYFW_USING_WX
     if( g_GLCanvasIDActive == 1 )
+#endif
     {
         ImGui::SetNextWindowSize( ImVec2(150,50), ImGuiSetCond_FirstUseEver );
         ImGui::Begin( "Timing" );
@@ -606,7 +607,9 @@ void EngineCore::OnDrawFrame(unsigned int canvasid)
         //ImGui::SliderFloat( "", &m_AnimationTime, 0, 1, "Time: %.3f" );
     
         int numsamplestoshow = 60*5; // 5 seconds worth @ 60fps
-        int numentries = m_FrameTimingInfo.size();
+        MyAssert( numsamplestoshow < MAX_FRAMES_TO_STORE );
+
+        int numentries = m_FrameTimingNextEntry + 1;
         int start = m_FrameTimingNextEntry - numsamplestoshow;
         if( start < 0 )
             start = 0;
@@ -616,12 +619,11 @@ void EngineCore::OnDrawFrame(unsigned int canvasid)
         m_FrameTimingNextEntry++;
 
         // sort of circular buffer the frame timings.
-        unsigned int maxframestostore = numsamplestoshow * 4;
-        if( m_FrameTimingNextEntry >= maxframestostore )
+        if( m_FrameTimingNextEntry >= MAX_FRAMES_TO_STORE )
         {
             // copy the last "numsamples" entries back to the start and reset where we insert records.
             for( int i=0; i<numsamplestoshow; i++ )
-                m_FrameTimingInfo[0+i] = m_FrameTimingInfo[maxframestostore-numsamplestoshow+i];
+                m_FrameTimingInfo[0+i] = m_FrameTimingInfo[MAX_FRAMES_TO_STORE-numsamplestoshow+i];
 
             m_FrameTimingNextEntry = numsamplestoshow;
         }
@@ -629,7 +631,9 @@ void EngineCore::OnDrawFrame(unsigned int canvasid)
         //m_FrameTimingInfo.back().Tick = sin( (float)MyTime_GetSystemTime() );
 
         ImGui::PlotLines( "Tick",          &m_FrameTimingInfo[start].Tick,          numsamplestoshow, 0, "", 0.0f, 5.0f, ImVec2(0,20), sizeof(FrameTimingInfo) );
+#if MYFW_USING_WX
         ImGui::PlotLines( "Render Editor", &m_FrameTimingInfo[start].Render_Editor, numsamplestoshow, 0, "", 0.0f, 1.5f, ImVec2(0,20), sizeof(FrameTimingInfo) );
+#endif
         ImGui::PlotLines( "Render Game",   &m_FrameTimingInfo[start].Render_Game,   numsamplestoshow, 0, "", 0.0f, 1.5f, ImVec2(0,20), sizeof(FrameTimingInfo) );
 
         ImGui::End();
@@ -638,11 +642,11 @@ void EngineCore::OnDrawFrame(unsigned int canvasid)
 
 #if MYFW_USING_WX
     if( g_GLCanvasIDActive == 1 )
+#endif //MYFW_USING_WX
     {
         if( g_pImGuiManager )
             g_pImGuiManager->EndFrame( (float)windowrect.w, (float)windowrect.h, true );
     }
-#endif //MYFW_USING_WX
 }
 
 void EngineCore::OnDrawFrameDone()
@@ -654,12 +658,12 @@ void EngineCore::OnDrawFrameDone()
     m_SingleFrameMemoryStack.Clear();
 
 #if MYFW_USING_WX
-    if( g_GLCanvasIDActive == 1 )
-    {
-        if( g_pImGuiManager )
-            g_pImGuiManager->ClearInput();
-    }
+    //if( g_GLCanvasIDActive == 1 )
 #endif
+    //{
+    //    if( g_pImGuiManager )
+    //        g_pImGuiManager->ClearInput();
+    //}
 }
 
 void EngineCore::OnFileRenamed(const char* fullpathbefore, const char* fullpathafter)
@@ -700,14 +704,16 @@ bool EngineCore::OnTouch(int action, int id, float x, float y, float pressure, f
     }
 #endif
 
-    // mouse moving without button down.
-    if( id == -1 )
-        return false;
-
     // TODO: get the camera properly.
     ComponentCamera* pCamera = m_pComponentSystemManager->GetFirstCamera();
     if( pCamera == 0 )
         return false;
+
+#if !MYFW_USING_WX
+    float toplefty = y;
+    if( g_pImGuiManager->HandleInput( -1, -1, action, id, x, toplefty, pressure ) )
+        return true;
+#endif
 
     // prefer 0,0 at bottom left.
     y = pCamera->m_WindowHeight - y;
@@ -717,6 +723,10 @@ bool EngineCore::OnTouch(int action, int id, float x, float y, float pressure, f
     y = (y - pCamera->m_Camera2D.m_ScreenOffsetY + pCamera->m_WindowStartY) / pCamera->m_Camera2D.m_ScreenHeight * m_GameHeight;
 
     m_LastMousePos.Set( x, y );
+
+    // mouse moving without button down.
+    if( id == -1 )
+        return false;
 
     return m_pComponentSystemManager->OnTouch( action, id, x, y, pressure, size );
 }
@@ -730,73 +740,44 @@ bool EngineCore::OnButtons(GameCoreButtonActions action, GameCoreButtonIDs id)
 
 bool EngineCore::OnKeys(GameCoreButtonActions action, int keycode, int unicodechar)
 {
-    if( GameCore::OnKeys( action, keycode, unicodechar ) )
-        return true;
-
-    if( action == GCBA_Down )
-    {
 #if MYFW_USING_WX
-        //if( m_EditorMode )
-        {
-            if( keycode == 344 ) // F5
-            {
-                int filesupdated = g_pFileManager->ReloadAnyUpdatedFiles( OnFileUpdated_CallbackFunction );
+    if( g_GLCanvasIDActive == 1 )
+    {
+        // not calling GameCore::OnKeys( action, keycode, unicodechar ) which translates keypresses to joystick input
 
-                if( filesupdated )
-                {
-                    g_pShaderManager->InvalidateAllShaders( true );
-                    //g_pTextureManager->InvalidateAllTextures( true );
-                    //g_pBufferManager->InvalidateAllBuffers( true );
-                    return true;
-                }
+        if( action == GCBA_Down && keycode == 344 ) // F5 )
+        {
+            int filesupdated = g_pFileManager->ReloadAnyUpdatedFiles( OnFileUpdated_CallbackFunction );
+
+            if( filesupdated )
+            {
+                g_pShaderManager->InvalidateAllShaders( true );
+                //g_pTextureManager->InvalidateAllTextures( true );
+                //g_pBufferManager->InvalidateAllBuffers( true );
+                return true;
             }
         }
 
-        if( g_GLCanvasIDActive == 1 )
-        {
-            if( HandleEditorInput( g_GLCanvasIDActive, action, keycode, -1, -1, -1, -1, -1 ) )
-                return true;
-
-            return false;
-        }
-        else
-#endif
-        {
-            if( m_pComponentSystemManager->OnKeys( GCBA_Down, keycode, unicodechar ) )
-                return true;
-        }
+        if( HandleEditorInput( g_GLCanvasIDActive, action, keycode, -1, -1, -1, -1, -1 ) )
+            return true;
     }
-
-    if( action == GCBA_Up )
-    {
-#if MYFW_USING_WX
-        if( g_GLCanvasIDActive == 1 )
-        {
-            if( HandleEditorInput( g_GLCanvasIDActive, action, keycode, -1, -1, -1, -1, -1 ) )
-                return true;
-
-            return false;
-        }
-        else
 #endif
-        {
-            if( m_pComponentSystemManager->OnKeys( GCBA_Up, keycode, unicodechar ) )
-                return true;
-        }
-    }
 
-    if( action == GCBA_Held )
-    {
 #if MYFW_USING_WX
-        if( g_GLCanvasIDActive == 1 )
-        {
-            if( HandleEditorInput( g_GLCanvasIDActive, action, keycode, -1, -1, -1, -1, -1 ) )
-                return true;
-
-            return false;
-        }
-        //else
+    if( g_GLCanvasIDActive == 0 )
 #endif
+    {
+#if !MYFW_USING_WX
+        if( g_pImGuiManager->HandleInput( action, keycode, -1, -1, -1, -1, -1 ) )
+            return true;
+#endif
+
+        // GameCore::OnKeys translates keypresses to joystick input
+        if( GameCore::OnKeys( action, keycode, unicodechar ) )
+            return true;
+
+        if( m_pComponentSystemManager->OnKeys( action, keycode, unicodechar ) )
+            return true;
     }
 
     return false;
@@ -804,7 +785,12 @@ bool EngineCore::OnKeys(GameCoreButtonActions action, int keycode, int unicodech
 
 bool EngineCore::OnChar(unsigned int c)
 {
-    g_pImGuiManager->OnChar( c );
+#if MYFW_USING_WX
+    if( g_GLCanvasIDActive == 1 )
+#endif
+    {
+        g_pImGuiManager->OnChar( c );
+    }
 
     return true;
 }
@@ -931,45 +917,8 @@ void EngineCore::UnregisterGameplayButtons()
 #if MYFW_USING_WX
 bool EngineCore::HandleEditorInput(int canvasid, int keyaction, int keycode, int mouseaction, int id, float x, float y, float pressure)
 {
-    ImGuiIO& io = ImGui::GetIO();
-
-    //LOGInfo( "ImGui", "HandleEditorInput()\n" );
-
-    if( mouseaction != -1 )
-    {
-        MyAssert( keyaction == -1 && keycode == -1 );
-
-        io.MousePos.x = x;
-        io.MousePos.y = m_pEditorState->m_EditorWindowRect.h - y;
-    
-        if( mouseaction == GCBA_Down )
-            io.MouseDown[id] = true;
-        if( mouseaction == GCBA_Up )
-            io.MouseDown[id] = false;
-
-        if( mouseaction == GCBA_Held || mouseaction == GCBA_Wheel )
-        {
-            for( int i=0; i<3; i++ )
-            {
-                if( id & (1 << i) )
-                    io.MouseDown[i] = true;
-            }
-        }
-
-        io.MouseWheel = pressure;
-    }
-    else
-    {
-        MyAssert( keyaction != -1 && keycode != -1 );
-        MyAssert( mouseaction == -1 && id == -1 );
-        
-        if( keyaction == GCBA_Down )
-            io.KeysDown[keycode] = true;
-        if( keyaction == GCBA_Up )
-            io.KeysDown[keycode] = false;
-    }
-
-    if( ImGui::IsAnyItemActive() )
+    float toplefty = m_pEditorState->m_EditorWindowRect.h - y;
+    if( g_pImGuiManager->HandleInput( keyaction, keycode, mouseaction, id, x, toplefty, pressure ) )
         return true;
 
     if( m_pEditorState->m_pTransformGizmo->HandleInput( this, -1, -1, mouseaction, id, x, y, pressure ) )
