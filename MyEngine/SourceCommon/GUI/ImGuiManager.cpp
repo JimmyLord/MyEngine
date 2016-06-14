@@ -165,7 +165,7 @@ void ImGuiManager::StartFrame(double TimePassed)
     //io.KeySuper = io.KeysDown[GLFW_KEY_LEFT_SUPER] || io.KeysDown[GLFW_KEY_RIGHT_SUPER];
 
     ImGui::NewFrame();
-    ImGui::ShowTestWindow();
+    //ImGui::ShowTestWindow();
 }
 
 void ImGuiManager::EndFrame(float width, float height, bool draw)

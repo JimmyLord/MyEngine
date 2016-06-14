@@ -53,6 +53,7 @@ enum EngineMenuIDs
     myIDEngine_DebugShowSelectedAnimatedMesh,
     myIDEngine_DebugShowGLStats,
     myIDEngine_DebugShowPhysicsShapes,
+    myIDEngine_DebugShowProfilingInfo,
     myIDEngine_LastID,
 };
 
@@ -94,6 +95,7 @@ public:
     wxMenuItem* m_MenuItem_Debug_DrawSelectedAnimatedMesh;
     wxMenuItem* m_MenuItem_Debug_DrawGLStats;
     wxMenuItem* m_MenuItem_Debug_DrawPhysicsDebugShapes;
+    wxMenuItem* m_MenuItem_Debug_ShowProfilingInfo;
 
     cJSON* m_pEditorPrefs;
 

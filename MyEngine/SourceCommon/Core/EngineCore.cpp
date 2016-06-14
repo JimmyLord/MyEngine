@@ -63,6 +63,7 @@ EngineCore::EngineCore()
     m_Debug_DrawSelectedAnimatedMesh = false;
     m_Debug_DrawSelectedMaterial = false;
     m_Debug_DrawPhysicsDebugShapes = true;
+    m_Debug_ShowProfilingInfo = true;
     m_Debug_DrawGLStats = false;
     m_pSphereMeshFile = 0;
     m_pDebugQuadSprite = 0;
@@ -285,6 +286,8 @@ double EngineCore::Tick(double TimePassed)
     checkGlError( "EngineCore::Tick" );
 
 #if MYFW_PROFILING_ENABLED
+    static double Timing_LastFrameTime = 0;
+
     double Timing_Start = MyTime_GetSystemTime();
 #endif
 
@@ -408,6 +411,9 @@ double EngineCore::Tick(double TimePassed)
     
     FrameTimingInfo info;
     info.Tick = (float)((Timing_End - Timing_Start)*1000);
+
+    info.FrameTime = (float)((Timing_Start - Timing_LastFrameTime)*1000);
+    Timing_LastFrameTime = Timing_Start;
     
     m_FrameTimingInfo[m_FrameTimingNextEntry] = info;
 #endif
@@ -587,6 +593,8 @@ void EngineCore::OnDrawFrame(unsigned int canvasid)
     }
 #endif
 
+    //glFinish();
+
 #if MYFW_PROFILING_ENABLED
     double Timing_End = MyTime_GetSystemTime();
 
@@ -600,7 +608,7 @@ void EngineCore::OnDrawFrame(unsigned int canvasid)
 #endif
 
 #if MYFW_USING_WX
-    if( g_GLCanvasIDActive == 1 )
+    if( g_GLCanvasIDActive == 1 && g_pEngineCore->m_Debug_ShowProfilingInfo )
 #endif
     {
         ImGui::SetNextWindowSize( ImVec2(150,50), ImGuiSetCond_FirstUseEver );
@@ -631,6 +639,8 @@ void EngineCore::OnDrawFrame(unsigned int canvasid)
         }
 
         //m_FrameTimingInfo.back().Tick = sin( (float)MyTime_GetSystemTime() );
+
+        ImGui::PlotLines( "Frame Time",    &m_FrameTimingInfo[start].FrameTime,     numsamplestoshow, 0, "", 0.0f, 50.0f, ImVec2(0,20), sizeof(FrameTimingInfo) );
 
         ImGui::PlotLines( "Tick",          &m_FrameTimingInfo[start].Tick,          numsamplestoshow, 0, "", 0.0f, 5.0f, ImVec2(0,20), sizeof(FrameTimingInfo) );
 #if MYFW_USING_WX

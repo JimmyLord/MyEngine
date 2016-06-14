@@ -54,6 +54,7 @@ struct RequestedSceneInfo
 
 struct FrameTimingInfo
 {
+    float FrameTime;
     float Tick;
     float Render_Editor;
     float Render_Game;
@@ -100,6 +101,7 @@ public:
     bool m_Debug_DrawSelectedAnimatedMesh;
     bool m_Debug_DrawSelectedMaterial;
     bool m_Debug_DrawPhysicsDebugShapes;
+    bool m_Debug_ShowProfilingInfo;
     bool m_Debug_DrawGLStats;
     MyFileObject* m_pSphereMeshFile;
     MySprite* m_pDebugQuadSprite;
