@@ -1889,8 +1889,8 @@ void ComponentSystemManager::OnDrawFrame(ComponentCamera* pCamera, MyMatrix* pMa
             }
         }
 
-        m_pSceneGraph->Draw( SceneGraphFlag_Opaque, &campos, &camrot, pMatViewProj, pShadowVP, pShadowTex, pShaderOverride );
-        m_pSceneGraph->Draw( SceneGraphFlag_Transparent, &campos, &camrot, pMatViewProj, pShadowVP, pShadowTex, pShaderOverride );
+        m_pSceneGraph->Draw( SceneGraphFlag_Opaque, pCamera->m_LayersToRender, &campos, &camrot, pMatViewProj, pShadowVP, pShadowTex, pShaderOverride );
+        m_pSceneGraph->Draw( SceneGraphFlag_Transparent, pCamera->m_LayersToRender, &campos, &camrot, pMatViewProj, pShadowVP, pShadowTex, pShaderOverride );
     }
     else
     {
@@ -2105,7 +2105,7 @@ void ComponentSystemManager::DrawSingleObject(MyMatrix* pMatViewProj, GameObject
 }
 #endif //MYFW_USING_WX
 
-void ComponentSystemManager::AddMeshToSceneGraph(GameObject* pGameObject, MyMesh* pMesh, MaterialDefinition** pMaterialList, int primitive, int pointsize, SceneGraphFlags flags, SceneGraphObject** pOutputList)
+void ComponentSystemManager::AddMeshToSceneGraph(GameObject* pGameObject, MyMesh* pMesh, MaterialDefinition** pMaterialList, int primitive, int pointsize, SceneGraphFlags flags, unsigned int layers, SceneGraphObject** pOutputList)
 {
     MyAssert( pGameObject != 0 );
     MyAssert( pMesh != 0 );
@@ -2120,11 +2120,11 @@ void ComponentSystemManager::AddMeshToSceneGraph(GameObject* pGameObject, MyMesh
         if( pMaterialList[i]->IsTransparent() )
             flags = SceneGraphFlag_Transparent;
         MyAssert( pOutputList[i] == 0 );
-        pOutputList[i] = m_pSceneGraph->AddObject( pWorldTransform, pMesh, pMesh->m_SubmeshList[i], pMaterialList[i], primitive, pointsize, flags );
+        pOutputList[i] = m_pSceneGraph->AddObject( pWorldTransform, pMesh, pMesh->m_SubmeshList[i], pMaterialList[i], primitive, pointsize, flags, layers );
     }
 }
 
-SceneGraphObject* ComponentSystemManager::AddSubmeshToSceneGraph(GameObject* pGameObject, MySubmesh* pSubmesh, MaterialDefinition* pMaterial, int primitive, int pointsize, SceneGraphFlags flags)
+SceneGraphObject* ComponentSystemManager::AddSubmeshToSceneGraph(GameObject* pGameObject, MySubmesh* pSubmesh, MaterialDefinition* pMaterial, int primitive, int pointsize, SceneGraphFlags flags, unsigned int layers)
 {
     MyAssert( pGameObject != 0 );
     MyAssert( pSubmesh != 0 );
@@ -2132,7 +2132,7 @@ SceneGraphObject* ComponentSystemManager::AddSubmeshToSceneGraph(GameObject* pGa
 
     MyMatrix* pWorldTransform = pGameObject->GetTransform()->GetWorldTransform();
 
-    return m_pSceneGraph->AddObject( pWorldTransform, 0, pSubmesh, pMaterial, primitive, pointsize, flags );
+    return m_pSceneGraph->AddObject( pWorldTransform, 0, pSubmesh, pMaterial, primitive, pointsize, flags, layers );
 }
 
 void ComponentSystemManager::RemoveObjectFromSceneGraph(SceneGraphObject* pSceneGraphObject)

@@ -424,7 +424,8 @@ void ComponentMesh::AddToSceneGraph()
         if( m_pMesh->m_SubmeshList.Count() > 0 )
         {
             SceneGraphFlags flags = SceneGraphFlag_Opaque; // TODO: check if opaque or transparent
-            g_pComponentSystemManager->AddMeshToSceneGraph( m_pGameObject, m_pMesh, m_MaterialList, m_GLPrimitiveType, m_PointSize, flags, m_pSceneGraphObjects );
+            unsigned int layers = m_LayersThisExistsOn;
+            g_pComponentSystemManager->AddMeshToSceneGraph( m_pGameObject, m_pMesh, m_MaterialList, m_GLPrimitiveType, m_PointSize, flags, layers, m_pSceneGraphObjects );
         }
 
         m_WaitingToAddToSceneGraph = false;
