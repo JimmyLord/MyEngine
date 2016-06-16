@@ -298,10 +298,7 @@ ComponentMesh& ComponentMesh::operator=(const ComponentMesh& other)
 
     ComponentRenderable::operator=( other );
 
-    if( other.m_pMesh )
-        other.m_pMesh->AddRef();
-    SAFE_RELEASE( m_pMesh );
-    m_pMesh = other.m_pMesh;
+    SetMesh( other.m_pMesh );
 
     //const ComponentMesh* pOther = &other;
     //MyAssert( other.m_MaterialList.Count() == m_MaterialList.Count() );
@@ -411,6 +408,14 @@ void ComponentMesh::SetVisible(bool visible)
 //{
 //    return ComponentRenderable::IsVisible;
 //}
+
+void ComponentMesh::SetMesh(MyMesh* pMesh)
+{
+    if( pMesh )
+        pMesh->AddRef();
+    SAFE_RELEASE( m_pMesh );
+    m_pMesh = pMesh;
+}
 
 void ComponentMesh::AddToSceneGraph()
 {

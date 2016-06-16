@@ -33,6 +33,8 @@ public:
     virtual void RegisterCallbacks();
     virtual void UnregisterCallbacks();
 
+    virtual void SetMesh(MyMesh* pMesh);
+
 protected:
     // Callback functions for various events.
     //MYFW_DECLARE_COMPONENT_CALLBACK_TICK(); // TickCallback
@@ -44,8 +46,6 @@ protected:
     //MYFW_DECLARE_COMPONENT_CALLBACK_ONFILERENAMED(); // OnFileRenamedCallback
 
 public:
-    void SetMesh(MyMesh* pMesh);
-
     // Runtime component variable callbacks. //_VARIABLE_LIST
     //static void* StaticGetPointerValue(void* pObjectPtr, ComponentVariable* pVar) { return ((ComponentMeshOBJ*)pObjectPtr)->GetPointerValue(pVar); }
     void* GetPointerValue(ComponentVariable* pVar);

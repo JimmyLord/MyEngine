@@ -63,6 +63,8 @@ public:
     virtual void SetVisible(bool visible);
     //virtual bool IsVisible();
 
+    virtual void SetMesh(MyMesh* pMesh);
+
     virtual void AddToSceneGraph();
     virtual void RemoveFromSceneGraph();
 
