@@ -64,6 +64,7 @@ public:
 
     virtual void AddToSceneGraph() = 0;
     virtual void RemoveFromSceneGraph() = 0;
+    virtual void PushChangesToSceneGraphObjects() = 0;
 
 public:
 #if MYFW_USING_WX

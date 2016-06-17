@@ -153,6 +153,8 @@ void* ComponentMeshPrimitive::OnValueChanged(ComponentVariable* pVar, int contro
             CreatePrimitive();
             g_pPanelWatch->m_NeedsRefresh = true;
         }
+
+        PushChangesToSceneGraphObjects();
     }
 
     return oldpointer;

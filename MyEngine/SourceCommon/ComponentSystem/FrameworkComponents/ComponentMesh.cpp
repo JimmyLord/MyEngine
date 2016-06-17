@@ -187,6 +187,8 @@ void* ComponentMesh::OnValueChanged(ComponentVariable* pVar, int controlid, bool
         {
             g_pPanelWatch->m_NeedsRefresh = true;
         }
+
+        PushChangesToSceneGraphObjects();
     }
 
     return oldpointer;
@@ -461,6 +463,27 @@ void ComponentMesh::RemoveFromSceneGraph()
     {
         g_pComponentSystemManager->m_pSceneGraph->RemoveObject( m_pSceneGraphObjects[i] );
         m_pSceneGraphObjects[i] = 0;
+    }
+}
+
+void ComponentMesh::PushChangesToSceneGraphObjects()
+{
+    //ComponentRenderable::PushChangesToSceneGraphObjects(); // pure virtual
+
+    // Sync scenegraph objects
+    for( int i=0; i<MAX_SUBMESHES; i++ )
+    {
+        if( m_pSceneGraphObjects[i] )
+        {
+            m_pSceneGraphObjects[i]->m_Flags = SceneGraphFlag_Opaque; // TODO: check if opaque or transparent
+            m_pSceneGraphObjects[i]->m_Layers = this->m_LayersThisExistsOn;
+
+            m_pSceneGraphObjects[i]->m_pMaterial = this->GetMaterial( i );
+            m_pSceneGraphObjects[i]->m_Visible = this->m_Visible;
+
+            m_pSceneGraphObjects[i]->m_GLPrimitiveType = this->m_GLPrimitiveType;
+            m_pSceneGraphObjects[i]->m_PointSize = this->m_PointSize;
+        }
     }
 }
 

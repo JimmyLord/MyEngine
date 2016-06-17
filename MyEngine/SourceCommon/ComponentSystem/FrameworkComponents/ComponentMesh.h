@@ -67,6 +67,7 @@ public:
 
     virtual void AddToSceneGraph();
     virtual void RemoveFromSceneGraph();
+    virtual void PushChangesToSceneGraphObjects();
 
 protected:
     // Callback functions for various events.
