@@ -1404,6 +1404,11 @@ void ComponentBase::UpdateGameObjectWithNewValue(GameObject* pGameObject, bool f
                                 if( pVar->m_pOnDropCallbackFunc )
                                 {
                                     void* oldpointer2 = (pChildComponent->*pVar->m_pOnDropCallbackFunc)( pVar, x, y );
+
+                                    // assert should only trip if child didn't have same value that the parent had
+                                    //     which shouldn't happen since values aren't divorced.
+                                    // could happen since divorced flags are saved in .scene files and not verified on load
+                                    // nothing bad will happen if assert trips, other than child value getting overwritten unexpectedly.
                                     MyAssert( oldpointer2 == oldpointer );
                                 }
                             }

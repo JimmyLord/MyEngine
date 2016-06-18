@@ -108,8 +108,7 @@ void ComponentSprite::SetPointerValue(ComponentVariable* pVar, void* newvalue)
 {
     if( strcmp( pVar->m_Label, "Material" ) == 0 )
     {
-        if( m_pSprite )
-            return m_pSprite->SetMaterial( (MaterialDefinition*)newvalue );
+        return SetMaterial( (MaterialDefinition*)newvalue, 0 );
     }
 }
 
@@ -136,8 +135,7 @@ void ComponentSprite::SetPointerDesc(ComponentVariable* pVar, const char* newdes
         if( newdesc )
         {
             MaterialDefinition* pMaterial = g_pMaterialManager->LoadMaterial( newdesc );
-            if( pMaterial )
-                m_pSprite->SetMaterial( pMaterial );
+            SetMaterial( pMaterial, 0 );
             pMaterial->Release();
         }
     }
@@ -179,7 +177,7 @@ void* ComponentSprite::OnDrop(ComponentVariable* pVar, wxCoord x, wxCoord y)
         MyAssert( m_pSprite );
 
         oldvalue = m_pSprite->GetMaterial();
-        m_pSprite->SetMaterial( pMaterial );
+        SetMaterial( pMaterial, 0 );
 
         g_pPanelWatch->m_NeedsRefresh = true;
     }
@@ -201,7 +199,7 @@ void* ComponentSprite::OnValueChanged(ComponentVariable* pVar, int controlid, bo
             g_pPanelWatch->ChangeDescriptionForPointerWithDescription( pVar->m_ControlID, "none" );
 
             oldpointer = m_pSprite->GetMaterial();
-            m_pSprite->SetMaterial( 0 );
+            SetMaterial( 0, 0 );
         }
     }
 
@@ -239,7 +237,7 @@ ComponentSprite& ComponentSprite::operator=(const ComponentSprite& other)
     // TODO: replace this with a CopyComponentVariablesFromOtherObject... or something similar.
     this->m_Tint = other.m_Tint;
     this->m_Size = other.m_Size;
-    this->m_pSprite->SetMaterial( other.m_pSprite->GetMaterial() );
+    this->SetMaterial( other.m_pSprite->GetMaterial(), 0 );
 
     return *this;
 }
@@ -286,9 +284,15 @@ void ComponentSprite::OnLoad()
 
 void ComponentSprite::SetMaterial(MaterialDefinition* pMaterial, int submeshindex)
 {
-    ComponentRenderable::SetMaterial( pMaterial, 0 );
+    // sprites only have one submesh
+    MyAssert( submeshindex == 0 );
 
-    m_pSprite->SetMaterial( pMaterial );
+    ComponentRenderable::SetMaterial( pMaterial, submeshindex );
+
+    if( m_pSprite )
+    {
+        m_pSprite->SetMaterial( pMaterial );
+    }
 
     if( m_pSceneGraphObject )
     {

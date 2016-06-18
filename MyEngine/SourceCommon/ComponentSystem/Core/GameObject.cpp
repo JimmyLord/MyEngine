@@ -617,6 +617,8 @@ ComponentBase* GameObject::AddExistingComponent(ComponentBase* pComponent, bool 
     }
 #endif //MYFW_USING_WX
 
+    pComponent->OnLoad();
+
     return pComponent;
 }
 

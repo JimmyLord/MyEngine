@@ -2128,7 +2128,6 @@ SceneGraphObject* ComponentSystemManager::AddSubmeshToSceneGraph(GameObject* pGa
 {
     MyAssert( pGameObject != 0 );
     MyAssert( pSubmesh != 0 );
-    MyAssert( pMaterial != 0 );
 
     MyMatrix* pWorldTransform = pGameObject->GetTransform()->GetWorldTransform();
 

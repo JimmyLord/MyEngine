@@ -204,7 +204,10 @@ void* ComponentMesh::OnDropMaterial(ComponentVariable* pVar, wxCoord x, wxCoord 
         for( int i=0; i<MAX_SUBMESHES; i++ )
         {
             if( pVar->m_Label == g_MaterialLabels[i] )
+            {
                 materialthatchanged = i;
+                break;
+            }
         }
 
         MyAssert( materialthatchanged != -1 );
