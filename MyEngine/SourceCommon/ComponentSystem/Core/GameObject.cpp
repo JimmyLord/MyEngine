@@ -211,10 +211,13 @@ void GameObject::OnPopupClick(wxEvent &evt)
 
         int type = id; // could be EngineComponentTypes or GameComponentTypes type.
 
+        ComponentBase* pComponent = 0;
         if( g_pEngineCore->m_EditorMode )
-            pGameObject->AddNewComponent( type, pGameObject->GetSceneID() );
+            pComponent = pGameObject->AddNewComponent( type, pGameObject->GetSceneID() );
         else
-            pGameObject->AddNewComponent( type, 0 );
+            pComponent = pGameObject->AddNewComponent( type, 0 );
+
+        pComponent->OnLoad();
     }
     else if( id == RightClick_DuplicateGameObject )
     {
@@ -616,8 +619,6 @@ ComponentBase* GameObject::AddExistingComponent(ComponentBase* pComponent, bool 
             pComponent->AddToObjectsPanel( gameobjectid );
     }
 #endif //MYFW_USING_WX
-
-    pComponent->OnLoad();
 
     return pComponent;
 }

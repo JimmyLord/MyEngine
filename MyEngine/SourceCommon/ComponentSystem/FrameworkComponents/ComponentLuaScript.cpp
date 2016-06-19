@@ -1050,7 +1050,7 @@ bool ComponentLuaScript::OnTouchCallback(int action, int id, float x, float y, f
     // find the OnTouch function and call it.
     if( m_Playing )
     {
-        if( CallFunction( "OnTouch", id, x, y, pressure, size ) )
+        if( CallFunction( "OnTouch", action, id, x, y, pressure, size ) )
             return true;
     }
 

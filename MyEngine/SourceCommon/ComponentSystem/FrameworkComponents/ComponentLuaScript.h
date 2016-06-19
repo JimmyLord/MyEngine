@@ -249,6 +249,25 @@ public:
         return false;
     }
 
+    template <class P1, class P2, class P3, class P4, class P5, class P6>
+    bool CallFunction(const char* pFuncName, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6)
+    {
+        if( m_ErrorInScript ) return false;
+        if( m_Playing == false ) return false;
+
+        // find the function and call it.
+        luabridge::LuaRef LuaObject = luabridge::getGlobal( m_pLuaGameState->m_pLuaState, m_pScriptFile->m_FilenameWithoutExtension );
+        MyAssert( LuaObject.isNil() == false );
+
+        // call pFuncName
+        if( LuaObject[pFuncName].isFunction() == false ) return false;
+
+        ProgramVariables( LuaObject, false );
+        try { if( LuaObject[pFuncName]( p1, p2, p3, p4, p5, p6 ) == LUA_OK ) return true; return false; }
+        catch(luabridge::LuaException const& e) { HandleLuaError( pFuncName, e.what() ); }
+        return false;
+    }
+
     template <class P1, class P2, class P3, class P4, class P5, class P6, class P7, class P8>
     bool CallFunction(const char* pFuncName, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6, P7 p7, P8 p8)
     {
