@@ -63,7 +63,7 @@ void ComponentSprite::Reset()
     ComponentRenderable::Reset();
 
     if( m_pSprite == 0 )
-        m_pSprite = MyNew MySprite( true );
+        m_pSprite = MyNew MySprite( false );
 
     m_Size.Set( 1.0f, 1.0f );
     m_Tint.Set( 255,255,255,255 );
@@ -308,7 +308,7 @@ void ComponentSprite::AddToSceneGraph()
     // Add the particle renderer (submesh) to the main scene graph
     SceneGraphFlags flags = SceneGraphFlag_Opaque; // TODO: check if opaque or transparent
     unsigned int layers = m_LayersThisExistsOn;
-    m_pSceneGraphObject = g_pComponentSystemManager->AddSubmeshToSceneGraph( m_pGameObject, m_pSprite, m_pSprite->GetMaterial(), GL_TRIANGLES, 1, flags, layers );
+    m_pSceneGraphObject = g_pComponentSystemManager->AddSubmeshToSceneGraph( this, m_pSprite, m_pSprite->GetMaterial(), GL_TRIANGLES, 1, flags, layers );
 }
 
 void ComponentSprite::RemoveFromSceneGraph()

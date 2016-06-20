@@ -2105,33 +2105,35 @@ void ComponentSystemManager::DrawSingleObject(MyMatrix* pMatViewProj, GameObject
 }
 #endif //MYFW_USING_WX
 
-void ComponentSystemManager::AddMeshToSceneGraph(GameObject* pGameObject, MyMesh* pMesh, MaterialDefinition** pMaterialList, int primitive, int pointsize, SceneGraphFlags flags, unsigned int layers, SceneGraphObject** pOutputList)
+void ComponentSystemManager::AddMeshToSceneGraph(ComponentBase* pComponent, MyMesh* pMesh, MaterialDefinition** pMaterialList, int primitive, int pointsize, SceneGraphFlags flags, unsigned int layers, SceneGraphObject** pOutputList)
 {
-    MyAssert( pGameObject != 0 );
+    MyAssert( pComponent != 0 );
+    MyAssert( pComponent->m_pGameObject != 0 );
     MyAssert( pMesh != 0 );
     MyAssert( pMaterialList != 0 );
     MyAssert( pOutputList != 0 );
     MyAssert( pMesh->m_SubmeshList.Count() > 0 );
 
-    MyMatrix* pWorldTransform = pGameObject->GetTransform()->GetWorldTransform();
+    MyMatrix* pWorldTransform = pComponent->m_pGameObject->GetTransform()->GetWorldTransform();
 
     for( unsigned int i=0; i<pMesh->m_SubmeshList.Count(); i++ )
     {
         if( pMaterialList[i]->IsTransparent() )
             flags = SceneGraphFlag_Transparent;
         MyAssert( pOutputList[i] == 0 );
-        pOutputList[i] = m_pSceneGraph->AddObject( pWorldTransform, pMesh, pMesh->m_SubmeshList[i], pMaterialList[i], primitive, pointsize, flags, layers );
+        pOutputList[i] = m_pSceneGraph->AddObject( pWorldTransform, pMesh, pMesh->m_SubmeshList[i], pMaterialList[i], primitive, pointsize, flags, layers, pComponent );
     }
 }
 
-SceneGraphObject* ComponentSystemManager::AddSubmeshToSceneGraph(GameObject* pGameObject, MySubmesh* pSubmesh, MaterialDefinition* pMaterial, int primitive, int pointsize, SceneGraphFlags flags, unsigned int layers)
+SceneGraphObject* ComponentSystemManager::AddSubmeshToSceneGraph(ComponentBase* pComponent, MySubmesh* pSubmesh, MaterialDefinition* pMaterial, int primitive, int pointsize, SceneGraphFlags flags, unsigned int layers)
 {
-    MyAssert( pGameObject != 0 );
+    MyAssert( pComponent != 0 );
+    MyAssert( pComponent->m_pGameObject != 0 );
     MyAssert( pSubmesh != 0 );
 
-    MyMatrix* pWorldTransform = pGameObject->GetTransform()->GetWorldTransform();
+    MyMatrix* pWorldTransform = pComponent->m_pGameObject->GetTransform()->GetWorldTransform();
 
-    return m_pSceneGraph->AddObject( pWorldTransform, 0, pSubmesh, pMaterial, primitive, pointsize, flags, layers );
+    return m_pSceneGraph->AddObject( pWorldTransform, 0, pSubmesh, pMaterial, primitive, pointsize, flags, layers, pComponent );
 }
 
 void ComponentSystemManager::RemoveObjectFromSceneGraph(SceneGraphObject* pSceneGraphObject)

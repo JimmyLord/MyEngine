@@ -321,7 +321,7 @@ void ComponentParticleEmitter::AddToSceneGraph()
     // Add the particle renderer (submesh) to the main scene graph
     SceneGraphFlags flags = SceneGraphFlag_Transparent; // TODO: check if opaque or transparent
     unsigned int layers = m_LayersThisExistsOn;
-    m_pSceneGraphObject = g_pComponentSystemManager->AddSubmeshToSceneGraph( m_pGameObject, m_pParticleRenderer, m_pMaterial, GL_TRIANGLES, 1, flags, layers );
+    m_pSceneGraphObject = g_pComponentSystemManager->AddSubmeshToSceneGraph( this, m_pParticleRenderer, m_pMaterial, GL_TRIANGLES, 1, flags, layers );
 }
 
 void ComponentParticleEmitter::RemoveFromSceneGraph()

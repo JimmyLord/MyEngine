@@ -435,7 +435,7 @@ void ComponentMesh::AddToSceneGraph()
         {
             SceneGraphFlags flags = SceneGraphFlag_Opaque; // TODO: check if opaque or transparent
             unsigned int layers = m_LayersThisExistsOn;
-            g_pComponentSystemManager->AddMeshToSceneGraph( m_pGameObject, m_pMesh, m_MaterialList, m_GLPrimitiveType, m_PointSize, flags, layers, m_pSceneGraphObjects );
+            g_pComponentSystemManager->AddMeshToSceneGraph( this, m_pMesh, m_MaterialList, m_GLPrimitiveType, m_PointSize, flags, layers, m_pSceneGraphObjects );
         }
 
         m_WaitingToAddToSceneGraph = false;
