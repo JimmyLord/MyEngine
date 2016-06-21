@@ -209,7 +209,7 @@ void ComponentMeshPrimitive::RegisterCallbacks()
 
         //MYFW_REGISTER_COMPONENT_CALLBACK( ComponentMeshPrimitive, Tick );
         //MYFW_REGISTER_COMPONENT_CALLBACK( ComponentMeshPrimitive, OnSurfaceChanged );
-        MYFW_REGISTER_COMPONENT_CALLBACK( ComponentMeshPrimitive, Draw );
+        //MYFW_REGISTER_COMPONENT_CALLBACK( ComponentMeshPrimitive, Draw );
         //MYFW_REGISTER_COMPONENT_CALLBACK( ComponentMeshPrimitive, OnTouch );
         //MYFW_REGISTER_COMPONENT_CALLBACK( ComponentMeshPrimitive, OnButtons );
         //MYFW_REGISTER_COMPONENT_CALLBACK( ComponentMeshPrimitive, OnKeys );
@@ -223,7 +223,7 @@ void ComponentMeshPrimitive::UnregisterCallbacks()
     {
         //MYFW_UNREGISTER_COMPONENT_CALLBACK( Tick );
         //MYFW_UNREGISTER_COMPONENT_CALLBACK( OnSurfaceChanged );
-        MYFW_UNREGISTER_COMPONENT_CALLBACK( Draw );
+        //MYFW_UNREGISTER_COMPONENT_CALLBACK( Draw );
         //MYFW_UNREGISTER_COMPONENT_CALLBACK( OnTouch );
         //MYFW_UNREGISTER_COMPONENT_CALLBACK( OnButtons );
         //MYFW_UNREGISTER_COMPONENT_CALLBACK( OnKeys );

@@ -250,7 +250,7 @@ void ComponentSprite::RegisterCallbacks()
 
         //MYFW_REGISTER_COMPONENT_CALLBACK( ComponentSprite, Tick );
         //MYFW_REGISTER_COMPONENT_CALLBACK( ComponentSprite, OnSurfaceChanged );
-        MYFW_REGISTER_COMPONENT_CALLBACK( ComponentSprite, Draw );
+        //MYFW_REGISTER_COMPONENT_CALLBACK( ComponentSprite, Draw );
         //MYFW_REGISTER_COMPONENT_CALLBACK( ComponentSprite, OnTouch );
         //MYFW_REGISTER_COMPONENT_CALLBACK( ComponentSprite, OnButtons );
         //MYFW_REGISTER_COMPONENT_CALLBACK( ComponentSprite, OnKeys );
@@ -264,7 +264,7 @@ void ComponentSprite::UnregisterCallbacks()
     {
         //MYFW_UNREGISTER_COMPONENT_CALLBACK( Tick );
         //MYFW_UNREGISTER_COMPONENT_CALLBACK( OnSurfaceChanged );
-        MYFW_UNREGISTER_COMPONENT_CALLBACK( Draw );
+        //MYFW_UNREGISTER_COMPONENT_CALLBACK( Draw );
         //MYFW_UNREGISTER_COMPONENT_CALLBACK( OnTouch );
         //MYFW_UNREGISTER_COMPONENT_CALLBACK( OnButtons );
         //MYFW_UNREGISTER_COMPONENT_CALLBACK( OnKeys );

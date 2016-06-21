@@ -1861,8 +1861,7 @@ void ComponentSystemManager::OnDrawFrame(ComponentCamera* pCamera, MyMatrix* pMa
 {
     checkGlError( "start of ComponentSystemManager::OnDrawFrame()" );
 
-    // draw all components that registered a callback.
-    if( 1 ) // 1 to draw with scene graph, 0 to use draw callbacks. // TODO: always use scene graph
+    // Draw all objects in the scene graph
     {
         Vector3 campos = pCamera->m_pComponentTransform->GetLocalPosition();
         Vector3 camrot = pCamera->m_pComponentTransform->GetLocalRotation();
@@ -1892,7 +1891,9 @@ void ComponentSystemManager::OnDrawFrame(ComponentCamera* pCamera, MyMatrix* pMa
         m_pSceneGraph->Draw( SceneGraphFlag_Opaque, pCamera->m_LayersToRender, &campos, &camrot, pMatViewProj, pShadowVP, pShadowTex, pShaderOverride );
         m_pSceneGraph->Draw( SceneGraphFlag_Transparent, pCamera->m_LayersToRender, &campos, &camrot, pMatViewProj, pShadowVP, pShadowTex, pShaderOverride );
     }
-    else
+    
+    // Draw all components that registered a callback, used mostly for debug info (camera/light icons, collision info)
+    // Also used for menu pages.
     {
         for( CPPListNode* pNode = m_pComponentCallbackList_Draw.HeadNode.Next; pNode->Next; pNode = pNode->Next )
         {
