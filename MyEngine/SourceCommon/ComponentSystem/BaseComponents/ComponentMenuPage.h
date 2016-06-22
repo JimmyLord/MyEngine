@@ -149,6 +149,7 @@ public:
 
     virtual void AddToSceneGraph() {}
     virtual void RemoveFromSceneGraph() {}
+    virtual void PushChangesToSceneGraphObjects() {}
 
     void FindLuaScriptComponentPointer();
     virtual void OnLoad();

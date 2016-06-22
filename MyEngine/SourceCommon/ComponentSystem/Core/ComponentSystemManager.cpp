@@ -1888,8 +1888,8 @@ void ComponentSystemManager::OnDrawFrame(ComponentCamera* pCamera, MyMatrix* pMa
             }
         }
 
-        m_pSceneGraph->Draw( SceneGraphFlag_Opaque, pCamera->m_LayersToRender, &campos, &camrot, pMatViewProj, pShadowVP, pShadowTex, pShaderOverride );
-        m_pSceneGraph->Draw( SceneGraphFlag_Transparent, pCamera->m_LayersToRender, &campos, &camrot, pMatViewProj, pShadowVP, pShadowTex, pShaderOverride );
+        m_pSceneGraph->Draw( SceneGraphFlag_Opaque, pCamera->m_LayersToRender, &campos, &camrot, pMatViewProj, pShadowVP, pShadowTex, pShaderOverride, 0 );
+        m_pSceneGraph->Draw( SceneGraphFlag_Transparent, pCamera->m_LayersToRender, &campos, &camrot, pMatViewProj, pShadowVP, pShadowTex, pShaderOverride, 0 );
     }
     
     // Draw all components that registered a callback, used mostly for debug info (camera/light icons, collision info)
@@ -1934,6 +1934,36 @@ void ComponentSystemManager::MoveInputHandlersToFront(CPPListNode* pOnTouch, CPP
         m_pComponentCallbackList_OnKeys.MoveHead( pOnKeys );
 }
 
+void ProgramSceneIDs(ComponentBase* pComponent, ShaderGroup* pShaderOverride)
+{
+    if( pShaderOverride == 0 )
+        return;
+
+    ColorByte tint( 0, 0, 0, 0 );
+
+    unsigned int sceneid = pComponent->m_pGameObject->GetSceneID();
+    unsigned int id = pComponent->m_pGameObject->GetID();
+                    
+    id = (sceneid * 100000 + id) * 641; // 1, 641, 6700417, 4294967297, 
+
+    if( 1 )                 tint.r = id%256;
+    if( id > 256 )          tint.g = (id>>8)%256;
+    if( id > 256*256 )      tint.b = (id>>16)%256;
+    if( id > 256*256*256 )  tint.a = (id>>24)%256;
+
+    checkGlError( "ComponentSystemManager::DrawMousePickerFrame" );
+
+    Shader_Base* pShader = (Shader_Base*)pShaderOverride->GlobalPass( 0, 4 );
+    pShader->ProgramTint( tint );
+}
+
+void ProgramSceneIDs(SceneGraphObject* pObject, ShaderGroup* pShaderOverride)
+{
+    ComponentBase* pComponent = (ComponentBase*)(pObject->m_pUserData);
+
+    ProgramSceneIDs( pComponent, pShaderOverride );
+}
+
 void ComponentSystemManager::DrawMousePickerFrame(ComponentCamera* pCamera, MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride)
 {
     // always use 4 bone version.
@@ -1943,6 +1973,15 @@ void ComponentSystemManager::DrawMousePickerFrame(ComponentCamera* pCamera, MyMa
     Shader_Base* pShader = (Shader_Base*)pShaderOverride->GlobalPass( 0, 4 );
     if( pShader->ActivateAndProgramShader() )
     {
+        // Draw all objects in the scene graph
+        {
+            Vector3 campos = pCamera->m_pComponentTransform->GetLocalPosition();
+            Vector3 camrot = pCamera->m_pComponentTransform->GetLocalRotation();
+
+            m_pSceneGraph->Draw( SceneGraphFlag_Opaque, pCamera->m_LayersToRender, &campos, &camrot, pMatViewProj, 0, 0, pShaderOverride, ProgramSceneIDs );
+            m_pSceneGraph->Draw( SceneGraphFlag_Transparent, pCamera->m_LayersToRender, &campos, &camrot, pMatViewProj, 0, 0, pShaderOverride, ProgramSceneIDs );
+        }
+
         // draw all components that registered a callback.
         for( CPPListNode* pNode = m_pComponentCallbackList_Draw.HeadNode.Next; pNode->Next; pNode = pNode->Next )
         {

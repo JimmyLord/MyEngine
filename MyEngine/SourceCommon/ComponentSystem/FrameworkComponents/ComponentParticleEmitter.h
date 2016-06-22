@@ -94,6 +94,7 @@ public:
 
     virtual void AddToSceneGraph();
     virtual void RemoveFromSceneGraph();
+    virtual void PushChangesToSceneGraphObjects();
 
     void CreateBurst(int number, Vector3 offset);
 

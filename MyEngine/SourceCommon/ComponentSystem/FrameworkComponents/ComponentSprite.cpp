@@ -208,6 +208,8 @@ void* ComponentSprite::OnValueChanged(ComponentVariable* pVar, int controlid, bo
         m_pSprite->Create( "ComponentSprite", m_Size.x, m_Size.y, 0, 1, 0, 1, Justify_Center, false );
     }
 
+    PushChangesToSceneGraphObjects();
+
     return oldpointer;
 }
 #endif //MYFW_USING_WX
@@ -315,6 +317,24 @@ void ComponentSprite::RemoveFromSceneGraph()
 {
     if( m_pSceneGraphObject != 0 )
         g_pComponentSystemManager->m_pSceneGraph->RemoveObject( m_pSceneGraphObject );
+}
+
+void ComponentSprite::PushChangesToSceneGraphObjects()
+{
+    //ComponentRenderable::PushChangesToSceneGraphObjects(); // pure virtual
+
+    // Sync scenegraph object
+    if( m_pSceneGraphObject )
+    {
+        m_pSceneGraphObject->m_Flags = SceneGraphFlag_Opaque; // TODO: check if opaque or transparent
+        m_pSceneGraphObject->m_Layers = this->m_LayersThisExistsOn;
+
+        m_pSceneGraphObject->m_pMaterial = this->GetMaterial( 0 );
+        m_pSceneGraphObject->m_Visible = this->m_Visible;
+
+        //m_pSceneGraphObject->m_GLPrimitiveType = this->m_GLPrimitiveType;
+        //m_pSceneGraphObject->m_PointSize = this->m_PointSize;
+    }
 }
 
 void ComponentSprite::DrawCallback(ComponentCamera* pCamera, MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride)

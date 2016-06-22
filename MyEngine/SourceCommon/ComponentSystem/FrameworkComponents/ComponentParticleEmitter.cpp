@@ -330,6 +330,24 @@ void ComponentParticleEmitter::RemoveFromSceneGraph()
         g_pComponentSystemManager->m_pSceneGraph->RemoveObject( m_pSceneGraphObject );
 }
 
+void ComponentParticleEmitter::PushChangesToSceneGraphObjects()
+{
+    //ComponentRenderable::PushChangesToSceneGraphObjects(); // pure virtual
+
+    // Sync scenegraph object
+    if( m_pSceneGraphObject )
+    {
+        m_pSceneGraphObject->m_Flags = SceneGraphFlag_Opaque; // TODO: check if opaque or transparent
+        m_pSceneGraphObject->m_Layers = this->m_LayersThisExistsOn;
+
+        m_pSceneGraphObject->m_pMaterial = this->GetMaterial( 0 );
+        m_pSceneGraphObject->m_Visible = this->m_Visible;
+
+        //m_pSceneGraphObject->m_GLPrimitiveType = this->m_GLPrimitiveType;
+        //m_pSceneGraphObject->m_PointSize = this->m_PointSize;
+    }
+}
+
 void ComponentParticleEmitter::CreateBurst(int number, Vector3 offset)
 {
     while( number )

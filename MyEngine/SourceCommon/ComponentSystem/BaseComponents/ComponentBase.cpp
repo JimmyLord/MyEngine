@@ -532,6 +532,8 @@ void ComponentBase::ImportVariablesFromJSON(cJSON* jsonobj, const char* singlela
                         }
                         else
                         {
+                            unsigned int flags = 0;
+
                             for( int i=0; i<arraysize; i++ )
                             {
                                 cJSON* jFlag = cJSON_GetArrayItem( jFlagsArray, i );
@@ -543,7 +545,7 @@ void ComponentBase::ImportVariablesFromJSON(cJSON* jsonobj, const char* singlela
                                     {
                                         if( strcmp( pVar->m_ppEnumStrings[i], jFlag->valuestring ) == 0 )
                                         {
-                                            *(unsigned int*)((char*)this + pVar->m_Offset) |= 1<<i;
+                                            flags |= 1<<i;
                                             found = true;
                                             break;
                                         }
@@ -563,6 +565,8 @@ void ComponentBase::ImportVariablesFromJSON(cJSON* jsonobj, const char* singlela
 #endif //MYFW_USING_WX
                                 }
                             }
+
+                            *(unsigned int*)((char*)this + pVar->m_Offset) = flags;
                         }
                     }
                 }
