@@ -40,6 +40,25 @@ public:
     virtual void RegisterCallbacks() {} // TODO: change this component to use callbacks.
     virtual void UnregisterCallbacks() {} // TODO: change this component to use callbacks.
 
+    //virtual void OnGameObjectEnabled();
+    //virtual void OnGameObjectDisabled();
+    virtual void SetEnabled(bool enabled);
+
+    virtual MaterialDefinition* GetMaterial(int submeshindex) { return 0; }
+    virtual void SetMaterial(MaterialDefinition* pMaterial, int submeshindex) {}
+    void Draw(MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride = 0, int drawcount = 0);
+
+    void SetLayersThisExistsOn(unsigned int layers) { m_LayersThisExistsOn = layers; }
+    unsigned int GetLayersThisExistsOn() { return m_LayersThisExistsOn; }
+    virtual bool ExistsOnLayer(unsigned int layerflags) { return (m_LayersThisExistsOn & layerflags) ? true : false; }
+
+    virtual void SetVisible(bool visible) { m_Visible = visible; }
+    virtual bool IsVisible();
+
+    virtual void AddToSceneGraph() = 0;
+    virtual void RemoveFromSceneGraph() = 0;
+    virtual void PushChangesToSceneGraphObjects() = 0;
+
 public:
     // Callback functions for various events.
     //MYFW_DECLARE_COMPONENT_CALLBACK_TICK(); // TickCallback
@@ -49,22 +68,6 @@ public:
     //MYFW_DECLARE_COMPONENT_CALLBACK_ONBUTTONS(); // OnButtonsCallback
     //MYFW_DECLARE_COMPONENT_CALLBACK_ONKEYS(); // OnKeysCallback
     //MYFW_DECLARE_COMPONENT_CALLBACK_ONFILERENAMED(); // OnFileRenamedCallback
-
-public:
-    virtual MaterialDefinition* GetMaterial(int submeshindex) { return 0; }
-    virtual void SetMaterial(MaterialDefinition* pMaterial, int submeshindex);
-    void Draw(MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride = 0, int drawcount = 0);
-
-    virtual void SetVisible(bool visible) { m_Visible = visible; }
-    virtual bool IsVisible();
-
-    void SetLayersThisExistsOn(unsigned int layers) { m_LayersThisExistsOn = layers; }
-    unsigned int GetLayersThisExistsOn() { return m_LayersThisExistsOn; }
-    virtual bool ExistsOnLayer(unsigned int layerflags) { return (m_LayersThisExistsOn & layerflags) ? true : false; }
-
-    virtual void AddToSceneGraph() = 0;
-    virtual void RemoveFromSceneGraph() = 0;
-    virtual void PushChangesToSceneGraphObjects() = 0;
 
 public:
 #if MYFW_USING_WX
@@ -79,7 +82,7 @@ public:
 
     // Component variable callbacks. //_VARIABLE_LIST
     //void* OnDrop(ComponentVariable* pVar, wxCoord x, wxCoord y);
-    //void* OnValueChanged(ComponentVariable* pVar, int controlid, bool finishedchanging, double oldvalue);
+    void* OnValueChanged(ComponentVariable* pVar, int controlid, bool finishedchanging, double oldvalue);
 #endif //MYFW_USING_WX
 };
 

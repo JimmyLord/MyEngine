@@ -429,6 +429,7 @@ void ComponentMesh::AddToSceneGraph()
     if( m_pMesh->m_MeshReady )
     {
         MyAssert( m_pMesh->m_SubmeshList.Count() > 0 );
+        MyAssert( m_pSceneGraphObjects[0] == 0 );
 
         // Add the Mesh to the main scene graph
         if( m_pMesh->m_SubmeshList.Count() > 0 )
@@ -452,6 +453,9 @@ void ComponentMesh::AddToSceneGraph()
 
 void ComponentMesh::RemoveFromSceneGraph()
 {
+    if( m_pMesh == 0 )
+        return;
+
     if( m_WaitingToAddToSceneGraph )
     {
         m_WaitingToAddToSceneGraph = false;
@@ -464,8 +468,11 @@ void ComponentMesh::RemoveFromSceneGraph()
 
     for( unsigned int i=0; i<m_pMesh->m_SubmeshList.Count(); i++ )
     {
-        g_pComponentSystemManager->m_pSceneGraph->RemoveObject( m_pSceneGraphObjects[i] );
-        m_pSceneGraphObjects[i] = 0;
+        if( m_pSceneGraphObjects[i] != 0 )
+        {
+            g_pComponentSystemManager->RemoveObjectFromSceneGraph( m_pSceneGraphObjects[i] );
+            m_pSceneGraphObjects[i] = 0;
+        }
     }
 }
 
@@ -492,6 +499,7 @@ void ComponentMesh::PushChangesToSceneGraphObjects()
 
 void ComponentMesh::TickCallback(double TimePassed)
 {
+    MyAssert( m_pMesh );
     MyAssert( m_WaitingToAddToSceneGraph );
 
     m_pMesh->ParseFile();

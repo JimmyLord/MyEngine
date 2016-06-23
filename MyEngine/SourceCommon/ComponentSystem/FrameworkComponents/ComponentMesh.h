@@ -56,6 +56,9 @@ public:
     static bool StaticOnEvent(void* pObjectPtr, MyEvent* pEvent) { return ((ComponentMesh*)pObjectPtr)->OnEvent( pEvent ); }
     virtual bool OnEvent(MyEvent* pEvent);
 
+    //virtual void OnGameObjectEnabled();
+    //virtual void OnGameObjectDisabled();
+
     // ComponentRenderable overrides
     virtual MaterialDefinition* GetMaterial(int submeshindex) { return m_MaterialList[submeshindex]; }
     virtual void SetMaterial(MaterialDefinition* pMaterial, int submeshindex);

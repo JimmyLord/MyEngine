@@ -74,6 +74,95 @@ void ComponentBase::LuaRegister(lua_State* luastate)
 }
 #endif //MYFW_USING_LUA
 
+cJSON* ComponentBase::ExportAsJSONObject(bool savesceneid)
+{
+    cJSON* jComponent = cJSON_CreateObject();
+
+    //cJSON_AddNumberToObject( jComponent, "BaseType", m_BaseType );
+
+    if( savesceneid )
+        cJSON_AddNumberToObject( jComponent, "SceneID", m_SceneIDLoadedFrom );
+
+    if( m_Type != -1 )
+    {
+        const char* componenttypename = g_pComponentTypeManager->GetTypeName( m_Type );
+        MyAssert( componenttypename );
+        if( componenttypename )
+            cJSON_AddStringToObject( jComponent, "Type", componenttypename );
+    }
+
+    if( m_pGameObject )
+        cJSON_AddNumberToObject( jComponent, "GOID", m_pGameObject->GetID() );
+
+    cJSON_AddNumberToObject( jComponent, "ID", m_ID );
+
+    // TODO: this will break if more variables are added to a component or it's parents.
+    if( m_pGameObject && m_pGameObject->GetGameObjectThisInheritsFrom() != 0 && m_DivorcedVariables != 0 )
+        cJSON_AddNumberToObject( jComponent, "Divorced", m_DivorcedVariables );
+
+    ExportVariablesToJSON( jComponent ); //_VARIABLE_LIST
+
+    return jComponent;
+}
+
+void ComponentBase::ImportFromJSONObject(cJSON* jsonobj, unsigned int sceneid)
+{
+    cJSONExt_GetUnsignedInt( jsonobj, "ID", &m_ID );
+
+    MyAssert( m_SceneIDLoadedFrom == 0 || m_SceneIDLoadedFrom == sceneid );
+    SetSceneID( sceneid );
+
+    // TODO: this will break if more variables are added to a component or it's parents.
+    cJSONExt_GetUnsignedInt( jsonobj, "Divorced", &m_DivorcedVariables );
+
+    ImportVariablesFromJSON( jsonobj ); //_VARIABLE_LIST
+}
+
+cJSON* ComponentBase::ExportReferenceAsJSONObject()
+{
+    // see ComponentSystemManager::FindComponentByJSONRef
+
+    cJSON* ref = m_pGameObject->ExportReferenceAsJSONObject( GetSceneID() );
+    MyAssert( ref );
+
+    if( ref )
+    {
+        cJSON_AddNumberToObject( ref, "ComponentID", m_ID );
+    }
+
+    return ref;
+}
+
+ComponentBase& ComponentBase::operator=(const ComponentBase& other)
+{
+    MyAssert( &other != this );
+
+    return *this;
+}
+
+void ComponentBase::OnLoad()
+{
+    if( m_Enabled && m_pGameObject && m_pGameObject->IsEnabled() )
+        RegisterCallbacks();
+    else
+        UnregisterCallbacks();
+}
+
+bool ComponentBase::OnEvent(MyEvent* pEvent)
+{
+    return false;
+}
+
+void ComponentBase::OnGameObjectEnabled()
+{
+    SetEnabled( true );
+}
+
+void ComponentBase::OnGameObjectDisabled()
+{
+    SetEnabled( false );
+}
+
 void ComponentBase::SetEnabled(bool enabled)
 {
     if( m_Enabled == enabled )
@@ -1588,93 +1677,3 @@ void ComponentBase::OnDrop(int controlid, wxCoord x, wxCoord y)
 {
 }
 #endif //MYFW_USING_WX
-
-cJSON* ComponentBase::ExportAsJSONObject(bool savesceneid)
-{
-    cJSON* jComponent = cJSON_CreateObject();
-
-    //cJSON_AddNumberToObject( jComponent, "BaseType", m_BaseType );
-
-    if( savesceneid )
-        cJSON_AddNumberToObject( jComponent, "SceneID", m_SceneIDLoadedFrom );
-
-    if( m_Type != -1 )
-    {
-        const char* componenttypename = g_pComponentTypeManager->GetTypeName( m_Type );
-        MyAssert( componenttypename );
-        if( componenttypename )
-            cJSON_AddStringToObject( jComponent, "Type", componenttypename );
-    }
-
-    if( m_pGameObject )
-        cJSON_AddNumberToObject( jComponent, "GOID", m_pGameObject->GetID() );
-
-    cJSON_AddNumberToObject( jComponent, "ID", m_ID );
-
-    // TODO: this will break if more variables are added to a component or it's parents.
-    if( m_pGameObject && m_pGameObject->GetGameObjectThisInheritsFrom() != 0 && m_DivorcedVariables != 0 )
-        cJSON_AddNumberToObject( jComponent, "Divorced", m_DivorcedVariables );
-
-    ExportVariablesToJSON( jComponent ); //_VARIABLE_LIST
-
-    return jComponent;
-}
-
-void ComponentBase::ImportFromJSONObject(cJSON* jsonobj, unsigned int sceneid)
-{
-    cJSONExt_GetUnsignedInt( jsonobj, "ID", &m_ID );
-
-    MyAssert( m_SceneIDLoadedFrom == 0 || m_SceneIDLoadedFrom == sceneid );
-    SetSceneID( sceneid );
-
-    // TODO: this will break if more variables are added to a component or it's parents.
-    cJSONExt_GetUnsignedInt( jsonobj, "Divorced", &m_DivorcedVariables );
-
-    ImportVariablesFromJSON( jsonobj ); //_VARIABLE_LIST
-}
-
-cJSON* ComponentBase::ExportReferenceAsJSONObject()
-{
-    // see ComponentSystemManager::FindComponentByJSONRef
-
-    cJSON* ref = m_pGameObject->ExportReferenceAsJSONObject( GetSceneID() );
-    MyAssert( ref );
-
-    if( ref )
-    {
-        cJSON_AddNumberToObject( ref, "ComponentID", m_ID );
-    }
-
-    return ref;
-}
-
-ComponentBase& ComponentBase::operator=(const ComponentBase& other)
-{
-    MyAssert( &other != this );
-
-    return *this;
-}
-
-void ComponentBase::OnLoad()
-{
-    if( m_Enabled && m_pGameObject && m_pGameObject->IsEnabled() )
-        RegisterCallbacks();
-    else
-        UnregisterCallbacks();
-}
-
-void ComponentBase::OnGameObjectEnabled()
-{
-    if( m_Enabled )
-        RegisterCallbacks();
-}
-
-void ComponentBase::OnGameObjectDisabled()
-{
-    UnregisterCallbacks();
-}
-
-bool ComponentBase::OnEvent(MyEvent* pEvent)
-{
-    return false;
-}

@@ -38,7 +38,9 @@ void ComponentRenderable::RegisterVariables(CPPListHead* pList, ComponentRendera
     AddVariable( pList, "Visible",     ComponentVariableType_Bool,         MyOffsetOf( pThis, &pThis->m_Visible ),             true,  true, 0, 0, 0, 0 ); //ComponentRenderable::StaticOnValueChanged, ComponentRenderable::StaticOnDrop, 0 );
 
     extern const char* g_pVisibilityLayerStrings[8];
-    AddVarFlags( pList, "Layers", MyOffsetOf( pThis, &pThis->m_LayersThisExistsOn ),  true,  true, 0, 8, g_pVisibilityLayerStrings, 0, 0, 0 ); //ComponentRenderable::StaticOnValueChanged, ComponentRenderable::StaticOnDrop, 0 );
+    AddVarFlags( pList, "Layers", MyOffsetOf( pThis, &pThis->m_LayersThisExistsOn ), true, true, 0, 8, g_pVisibilityLayerStrings,
+        (CVarFunc_ValueChanged)&ComponentRenderable::OnValueChanged,
+        0, 0 ); //, ComponentRenderable::StaticOnDrop, 0 );
 }
 
 void ComponentRenderable::Reset()
@@ -56,47 +58,6 @@ void ComponentRenderable::Reset()
     m_pPanelWatchBlockVisible = &m_PanelWatchBlockVisible;
 #endif //MYFW_USING_WX
 }
-
-#if MYFW_USING_WX
-void ComponentRenderable::AddToObjectsPanel(wxTreeItemId gameobjectid)
-{
-    //wxTreeItemId id =
-    g_pPanelObjectList->AddObject( this, ComponentRenderable::StaticOnLeftClick, ComponentBase::StaticOnRightClick, gameobjectid, "Renderable", ObjectListIcon_Component );
-}
-
-void ComponentRenderable::OnLeftClick(unsigned int count, bool clear)
-{
-    ComponentBase::OnLeftClick( count, clear );
-}
-
-void ComponentRenderable::FillPropertiesWindow(bool clear, bool addcomponentvariables, bool ignoreblockvisibleflag)
-{
-    //m_ControlID_ComponentTitleLabel = g_pPanelWatch->AddSpace( "Renderable", this, ComponentBase::StaticOnComponentTitleLabelClicked );
-
-    if( m_PanelWatchBlockVisible || ignoreblockvisibleflag == true )
-    {
-        ComponentBase::FillPropertiesWindow( clear );
-
-        if( addcomponentvariables )
-            FillPropertiesWindowWithVariables(); //_VARIABLE_LIST
-
-        //g_pPanelWatch->AddBool( "Visible", &m_Visible, 0, 1 );
-        //g_pPanelWatch->AddUnsignedInt( "Layers", &m_LayersThisExistsOn, 0, 65535 );
-    }
-}
-
-//void* ComponentSprite::OnDrop(ComponentVariable* pVar, wxCoord x, wxCoord y)
-//{
-//    void* oldvalue = 0;
-//    return oldvalue;
-//}
-//
-//void* ComponentRenderable::OnValueChanged(ComponentVariable* pVar, int controlid, bool finishedchanging, double oldvalue)
-//{
-//    void* oldvalue = 0;
-//    return oldvalue;
-//}
-#endif //MYFW_USING_WX
 
 cJSON* ComponentRenderable::ExportAsJSONObject(bool savesceneid)
 {
@@ -162,18 +123,6 @@ ComponentRenderable& ComponentRenderable::operator=(const ComponentRenderable& o
 //    }
 //}
 
-void ComponentRenderable::SetMaterial(MaterialDefinition* pMaterial, int submeshindex)
-{
-}
-
-void ComponentRenderable::Draw(MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride, int drawcount)
-{
-//#if 1 //MYFW_USING_WX
-//    // ugh, for now... matrix will be dirty when playing with watch window in wx 
-//    m_pComponentTransform->UpdateTransform();
-//#endif
-}
-
 bool ComponentRenderable::IsVisible()
 {
     if( m_pGameObject->IsEnabled() == false )
@@ -181,3 +130,78 @@ bool ComponentRenderable::IsVisible()
 
     return m_Visible;
 }
+
+//void ComponentRenderable::OnGameObjectEnabled()
+//{
+//    ComponentBase::OnGameObjectEnabled();
+//}
+//
+//void ComponentRenderable::OnGameObjectDisabled()
+//{
+//    ComponentBase::OnGameObjectDisabled();
+//}
+
+void ComponentRenderable::SetEnabled(bool enabled)
+{
+    ComponentBase::SetEnabled( enabled );
+
+    if( enabled == false )
+    {
+        RemoveFromSceneGraph();
+    }
+    else
+    {
+        AddToSceneGraph();
+    }
+}
+
+void ComponentRenderable::Draw(MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride, int drawcount)
+{
+}
+
+#if MYFW_USING_WX
+void ComponentRenderable::AddToObjectsPanel(wxTreeItemId gameobjectid)
+{
+    //wxTreeItemId id =
+    g_pPanelObjectList->AddObject( this, ComponentRenderable::StaticOnLeftClick, ComponentBase::StaticOnRightClick, gameobjectid, "Renderable", ObjectListIcon_Component );
+}
+
+void ComponentRenderable::OnLeftClick(unsigned int count, bool clear)
+{
+    ComponentBase::OnLeftClick( count, clear );
+}
+
+void ComponentRenderable::FillPropertiesWindow(bool clear, bool addcomponentvariables, bool ignoreblockvisibleflag)
+{
+    //m_ControlID_ComponentTitleLabel = g_pPanelWatch->AddSpace( "Renderable", this, ComponentBase::StaticOnComponentTitleLabelClicked );
+
+    if( m_PanelWatchBlockVisible || ignoreblockvisibleflag == true )
+    {
+        ComponentBase::FillPropertiesWindow( clear );
+
+        if( addcomponentvariables )
+            FillPropertiesWindowWithVariables(); //_VARIABLE_LIST
+
+        //g_pPanelWatch->AddBool( "Visible", &m_Visible, 0, 1 );
+        //g_pPanelWatch->AddUnsignedInt( "Layers", &m_LayersThisExistsOn, 0, 65535 );
+    }
+}
+
+//void* ComponentSprite::OnDrop(ComponentVariable* pVar, wxCoord x, wxCoord y)
+//{
+//    void* oldvalue = 0;
+//    return oldvalue;
+//}
+
+void* ComponentRenderable::OnValueChanged(ComponentVariable* pVar, int controlid, bool finishedchanging, double oldvalue)
+{
+    void* oldpointer = 0;
+
+    if( finishedchanging )
+    {
+        PushChangesToSceneGraphObjects();
+    }
+
+    return oldpointer;
+}
+#endif //MYFW_USING_WX

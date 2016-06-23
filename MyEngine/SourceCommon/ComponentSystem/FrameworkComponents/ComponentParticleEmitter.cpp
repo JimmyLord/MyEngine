@@ -327,7 +327,10 @@ void ComponentParticleEmitter::AddToSceneGraph()
 void ComponentParticleEmitter::RemoveFromSceneGraph()
 {
     if( m_pSceneGraphObject != 0 )
-        g_pComponentSystemManager->m_pSceneGraph->RemoveObject( m_pSceneGraphObject );
+    {
+        g_pComponentSystemManager->RemoveObjectFromSceneGraph( m_pSceneGraphObject );
+        m_pSceneGraphObject = 0;
+    }
 }
 
 void ComponentParticleEmitter::PushChangesToSceneGraphObjects()
