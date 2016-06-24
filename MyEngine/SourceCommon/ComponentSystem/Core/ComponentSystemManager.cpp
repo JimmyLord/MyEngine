@@ -1951,10 +1951,13 @@ void ProgramSceneIDs(ComponentBase* pComponent, ShaderGroup* pShaderOverride)
     if( id > 256*256 )      tint.b = (id>>16)%256;
     if( id > 256*256*256 )  tint.a = (id>>24)%256;
 
-    checkGlError( "ComponentSystemManager::DrawMousePickerFrame" );
+    checkGlError( "ComponentSystemManager::DrawMousePickerFrame - ProgramSceneIDs before setting tint" );
 
     Shader_Base* pShader = (Shader_Base*)pShaderOverride->GlobalPass( 0, 4 );
+    MyAssert( MyGLDebug_IsProgramActive( pShader->m_ProgramHandle ) == true );
     pShader->ProgramTint( tint );
+
+    checkGlError( "ComponentSystemManager::DrawMousePickerFrame - ProgramSceneIDs after setting tint" );
 }
 
 void ProgramSceneIDs(SceneGraphObject* pObject, ShaderGroup* pShaderOverride)

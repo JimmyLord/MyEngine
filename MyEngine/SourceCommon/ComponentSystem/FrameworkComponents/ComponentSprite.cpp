@@ -302,6 +302,16 @@ void ComponentSprite::SetMaterial(MaterialDefinition* pMaterial, int submeshinde
     }
 }
 
+void ComponentSprite::SetVisible(bool visible)
+{
+    ComponentRenderable::SetVisible( visible );
+
+    if( m_pSceneGraphObject )
+    {
+        m_pSceneGraphObject->m_Visible = visible;
+    }
+}
+
 void ComponentSprite::AddToSceneGraph()
 {
     MyAssert( m_pSceneGraphObject == 0 );

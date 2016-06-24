@@ -49,6 +49,8 @@ public:
     virtual MaterialDefinition* GetMaterial(int submeshindex) { if( m_pSprite ) return m_pSprite->GetMaterial(); return 0; }
     virtual void SetMaterial(MaterialDefinition* pMaterial, int submeshindex);
 
+    virtual void SetVisible(bool visible);
+
     virtual void AddToSceneGraph();
     virtual void RemoveFromSceneGraph();
     virtual void PushChangesToSceneGraphObjects();

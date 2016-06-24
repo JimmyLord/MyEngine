@@ -184,7 +184,9 @@ void ImGuiManager::EndFrame(float width, float height, bool draw)
 // - in your Render function, try translating your projection matrix by (0.5f,0.5f) or (0.375f,0.375f)
 void ImGuiManager::RenderDrawLists(ImDrawData* draw_data)
 {
-    glUseProgram( 0 );
+    checkGlError( "Start of ImGuiManager::RenderDrawLists()" );
+
+    MyUseProgram( 0 );
     MyBindBuffer( GL_ARRAY_BUFFER, 0 );
     MyBindBuffer( GL_ELEMENT_ARRAY_BUFFER, 0 );
 
@@ -210,7 +212,7 @@ void ImGuiManager::RenderDrawLists(ImDrawData* draw_data)
     glEnableClientState(GL_TEXTURE_COORD_ARRAY);
     glEnableClientState(GL_COLOR_ARRAY);
     glEnable(GL_TEXTURE_2D);
-    //glUseProgram(0); // You may want this if using this code in an OpenGL 3+ context
+    //MyUseProgram(0); // You may want this if using this code in an OpenGL 3+ context
 
     // Setup viewport, orthographic projection matrix
     glViewport(0, 0, (GLsizei)fb_width, (GLsizei)fb_height);
@@ -262,4 +264,6 @@ void ImGuiManager::RenderDrawLists(ImDrawData* draw_data)
     glPopMatrix();
     glPopAttrib();
     glViewport(last_viewport[0], last_viewport[1], (GLsizei)last_viewport[2], (GLsizei)last_viewport[3]);
+
+    checkGlError( "End of ImGuiManager::RenderDrawLists()" );
 }

@@ -130,6 +130,9 @@ void ComponentParticleEmitter::FillPropertiesWindow(bool clear, bool addcomponen
     {
         ComponentRenderable::FillPropertiesWindow( clear );
 
+        if( addcomponentvariables )
+            FillPropertiesWindowWithVariables(); //_VARIABLE_LIST
+
         g_pPanelWatch->AddBool( "Run in editor", &m_RunInEditor, 0, 1 );
 
         g_pPanelWatch->AddBool( "Spawn on timer", &m_ContinuousSpawn, 0, 1 );
@@ -313,6 +316,11 @@ void ComponentParticleEmitter::SetMaterial(MaterialDefinition* pMaterial, int su
     }
 }
 
+void ComponentParticleEmitter::SetVisible(bool visible)
+{
+    ComponentRenderable::SetVisible( visible );
+}
+
 void ComponentParticleEmitter::AddToSceneGraph()
 {
     MyAssert( m_pSceneGraphObject == 0 );
@@ -488,5 +496,5 @@ void ComponentParticleEmitter::DrawCallback(ComponentCamera* pCamera, MyMatrix* 
     m_pParticleRenderer->SetMaterial( m_pMaterial );
     m_pParticleRenderer->DrawParticles( pCamera->m_pComponentTransform->GetLocalPosition(),
                                         pCamera->m_pComponentTransform->GetLocalRotation(),
-                                        pMatViewProj );
+                                        pMatViewProj, pShaderOverride );
 }
