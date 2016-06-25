@@ -99,7 +99,7 @@ void GameObject::LuaRegister(lua_State* luastate)
 #if MYFW_USING_WX
 void GameObject::OnTitleLabelClicked(int controlid, bool finishedchanging)
 {
-    SetEnabled( !m_Enabled );
+    g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_EnableObject( this, !m_Enabled ) );
     g_pPanelWatch->m_NeedsRefresh = true;
 }
 

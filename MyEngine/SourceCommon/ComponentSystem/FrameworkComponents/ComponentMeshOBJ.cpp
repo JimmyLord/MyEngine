@@ -334,7 +334,8 @@ void ComponentMeshOBJ::SetMesh(MyMesh* pMesh)
             }
         }
 
-        AddToSceneGraph();
+        if( m_pGameObject->IsEnabled() )
+            AddToSceneGraph();
     }
 }
 

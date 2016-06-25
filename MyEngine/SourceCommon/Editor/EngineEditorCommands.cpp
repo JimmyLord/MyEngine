@@ -264,6 +264,8 @@ void EditorCommand_CopyGameObject::Do()
         g_pComponentSystemManager->ManageGameObject( m_ObjectCreated );
     }
 
+    //m_ObjectCreated->SetEnabled( true );
+
     // if done/redone, then object exists in the scene, don't destroy it if undo stack get wiped.
     m_DeleteGameObjectWhenDestroyed = false;
 }
@@ -273,6 +275,7 @@ void EditorCommand_CopyGameObject::Undo()
     g_pEngineCore->m_pEditorState->ClearSelectedObjectsAndComponents();
 
     g_pComponentSystemManager->UnmanageGameObject( m_ObjectCreated );
+    m_ObjectCreated->SetEnabled( false );
 
     // if undone and redo stack gets wiped, then object only exist here, destroy it when this command gets deleted.
     m_DeleteGameObjectWhenDestroyed = true;
@@ -285,6 +288,39 @@ EditorCommand* EditorCommand_CopyGameObject::Repeat()
 
     pCommand->Do();
     return pCommand;
+}
+
+//====================================================================================================
+// EditorCommand_EnableObject
+//====================================================================================================
+
+EditorCommand_EnableObject::EditorCommand_EnableObject(GameObject* pObject, bool enabled)
+{
+    m_pGameObject = pObject;
+    m_ObjectWasEnabled = enabled;
+}
+
+EditorCommand_EnableObject::~EditorCommand_EnableObject()
+{
+}
+
+void EditorCommand_EnableObject::Do()
+{
+    m_pGameObject->SetEnabled( m_ObjectWasEnabled );
+    g_pPanelWatch->m_NeedsRefresh = true;
+}
+
+void EditorCommand_EnableObject::Undo()
+{
+    m_pGameObject->SetEnabled( !m_ObjectWasEnabled );
+    g_pPanelWatch->m_NeedsRefresh = true;
+}
+
+EditorCommand* EditorCommand_EnableObject::Repeat()
+{
+    // Do nothing.
+
+    return 0;
 }
 
 //====================================================================================================

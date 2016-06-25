@@ -99,6 +99,23 @@ public:
 
 //====================================================================================================
 
+class EditorCommand_EnableObject : public EditorCommand
+{
+protected:
+    GameObject* m_pGameObject;
+    bool m_ObjectWasEnabled;
+
+public:
+    EditorCommand_EnableObject(GameObject* pObject, bool enabled);
+    virtual ~EditorCommand_EnableObject();
+
+    virtual void Do();
+    virtual void Undo();
+    virtual EditorCommand* Repeat();
+};
+
+//====================================================================================================
+
 class EditorCommand_ChangeAllMaterialsOnGameObject : public EditorCommand
 {
 protected:

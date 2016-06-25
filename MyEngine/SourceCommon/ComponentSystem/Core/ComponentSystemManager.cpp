@@ -1430,6 +1430,7 @@ GameObject* ComponentSystemManager::CopyGameObject(GameObject* pObject, const ch
     if( newname )
         pNewObject->SetName( newname );
 
+    pNewObject->SetEnabled( pObject->IsEnabled() );
     pNewObject->SetPhysicsSceneID( pObject->GetPhysicsSceneID() );
 
     if( g_pEngineCore->m_EditorMode )
