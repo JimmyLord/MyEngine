@@ -69,6 +69,12 @@ void EditorInterface::SetModifierKeyStates(int keyaction, int keycode, int mouse
         if( keycode == ' ' )                pEditorState->m_ModifierKeyStates |= MODIFIERKEY_Space;
     }
 
+    // since keys can be pressed while a different window frame has focus, let's just manually query the modifiers.
+    if( PlatformSpecific_CheckKeyState( MYKEYCODE_LCTRL ) )  pEditorState->m_ModifierKeyStates |= MODIFIERKEY_Control;
+    if( PlatformSpecific_CheckKeyState( MYKEYCODE_LALT ) )   pEditorState->m_ModifierKeyStates |= MODIFIERKEY_Alt;
+    if( PlatformSpecific_CheckKeyState( MYKEYCODE_LSHIFT ) ) pEditorState->m_ModifierKeyStates |= MODIFIERKEY_Shift;
+    if( PlatformSpecific_CheckKeyState( ' ' ) )              pEditorState->m_ModifierKeyStates |= MODIFIERKEY_Space;
+
     if( mouseaction != -1 )
     {
         pEditorState->m_CurrentMousePosition.Set( x, y );
@@ -106,6 +112,13 @@ void EditorInterface::ClearModifierKeyStates(int keyaction, int keycode, int mou
         if( keycode == MYKEYCODE_LSHIFT )   pEditorState->m_ModifierKeyStates &= ~MODIFIERKEY_Shift;
         if( keycode == ' ' )                pEditorState->m_ModifierKeyStates &= ~MODIFIERKEY_Space;
     }
+
+    // since keys can be pressed while a different window frame has focus, let's just manually query the modifiers.
+    // this shouldn't be necessary since mouse down will have given us focus if we care about keys
+    if( PlatformSpecific_CheckKeyState( MYKEYCODE_LCTRL ) == false )  pEditorState->m_ModifierKeyStates &= ~MODIFIERKEY_Control;
+    if( PlatformSpecific_CheckKeyState( MYKEYCODE_LALT ) == false )   pEditorState->m_ModifierKeyStates &= ~MODIFIERKEY_Alt;
+    if( PlatformSpecific_CheckKeyState( MYKEYCODE_LSHIFT ) == false ) pEditorState->m_ModifierKeyStates &= ~MODIFIERKEY_Shift;
+    if( PlatformSpecific_CheckKeyState( ' ' ) == false )              pEditorState->m_ModifierKeyStates &= ~MODIFIERKEY_Space;
 
     if( mouseaction != -1 )
     {
