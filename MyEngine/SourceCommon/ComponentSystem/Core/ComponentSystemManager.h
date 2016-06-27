@@ -57,6 +57,10 @@ struct FileUpdatedCallbackStruct
     void UnregisterComponentCallback_##CallbackType(ComponentCallbackStruct_##CallbackType* pCallbackStruct);
 
 // Register/Unregister component callback macros - used by components.
+#define MYFW_FILL_COMPONENT_CALLBACK_STRUCT(ComponentClass, CallbackType) \
+    m_CallbackStruct_##CallbackType.pObj = this; \
+    m_CallbackStruct_##CallbackType.pFunc = (ComponentCallbackFunc_##CallbackType)&ComponentClass::CallbackType##Callback;
+
 #define MYFW_REGISTER_COMPONENT_CALLBACK(ComponentClass, CallbackType) \
     m_CallbackStruct_##CallbackType.pObj = this; \
     m_CallbackStruct_##CallbackType.pFunc = (ComponentCallbackFunc_##CallbackType)&ComponentClass::CallbackType##Callback; \

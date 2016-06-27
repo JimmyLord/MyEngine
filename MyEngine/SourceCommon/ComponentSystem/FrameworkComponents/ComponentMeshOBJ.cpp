@@ -266,7 +266,7 @@ void ComponentMeshOBJ::RegisterCallbacks()
 
         //MYFW_REGISTER_COMPONENT_CALLBACK( ComponentMeshOBJ, Tick );
         //MYFW_REGISTER_COMPONENT_CALLBACK( ComponentMeshOBJ, OnSurfaceChanged );
-        //MYFW_REGISTER_COMPONENT_CALLBACK( ComponentMeshOBJ, Draw );
+        MYFW_FILL_COMPONENT_CALLBACK_STRUCT( ComponentMeshOBJ, Draw ); //MYFW_REGISTER_COMPONENT_CALLBACK( ComponentMeshOBJ, Draw );
         //MYFW_REGISTER_COMPONENT_CALLBACK( ComponentMeshOBJ, OnTouch );
         //MYFW_REGISTER_COMPONENT_CALLBACK( ComponentMeshOBJ, OnButtons );
         //MYFW_REGISTER_COMPONENT_CALLBACK( ComponentMeshOBJ, OnKeys );

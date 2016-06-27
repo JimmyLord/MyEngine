@@ -209,7 +209,7 @@ void ComponentMeshPrimitive::RegisterCallbacks()
 
         //MYFW_REGISTER_COMPONENT_CALLBACK( ComponentMeshPrimitive, Tick );
         //MYFW_REGISTER_COMPONENT_CALLBACK( ComponentMeshPrimitive, OnSurfaceChanged );
-        //MYFW_REGISTER_COMPONENT_CALLBACK( ComponentMeshPrimitive, Draw );
+        MYFW_FILL_COMPONENT_CALLBACK_STRUCT( ComponentMeshPrimitive, Draw ); //MYFW_REGISTER_COMPONENT_CALLBACK( ComponentMeshPrimitive, Draw );
         //MYFW_REGISTER_COMPONENT_CALLBACK( ComponentMeshPrimitive, OnTouch );
         //MYFW_REGISTER_COMPONENT_CALLBACK( ComponentMeshPrimitive, OnButtons );
         //MYFW_REGISTER_COMPONENT_CALLBACK( ComponentMeshPrimitive, OnKeys );

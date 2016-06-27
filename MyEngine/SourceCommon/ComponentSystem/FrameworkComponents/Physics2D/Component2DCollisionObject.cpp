@@ -348,6 +348,7 @@ void Component2DCollisionObject::RegisterCallbacks()
         MYFW_REGISTER_COMPONENT_CALLBACK( Component2DCollisionObject, Tick );
         //MYFW_REGISTER_COMPONENT_CALLBACK( Component2DCollisionObject, OnSurfaceChanged );
 #if MYFW_USING_WX
+        //MYFW_FILL_COMPONENT_CALLBACK_STRUCT( Component2DCollisionObject, Draw );
         MYFW_REGISTER_COMPONENT_CALLBACK( Component2DCollisionObject, Draw );
 #endif
         //MYFW_REGISTER_COMPONENT_CALLBACK( Component2DCollisionObject, OnTouch );

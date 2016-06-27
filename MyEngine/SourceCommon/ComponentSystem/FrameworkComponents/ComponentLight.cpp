@@ -152,6 +152,7 @@ void ComponentLight::RegisterCallbacks()
         //MYFW_REGISTER_COMPONENT_CALLBACK( ComponentLight, Tick );
         //MYFW_REGISTER_COMPONENT_CALLBACK( ComponentLight, OnSurfaceChanged );
 #if MYFW_USING_WX
+        //MYFW_FILL_COMPONENT_CALLBACK_STRUCT( ComponentLight, Draw );
         MYFW_REGISTER_COMPONENT_CALLBACK( ComponentLight, Draw );
 #endif //MYFW_USING_WX
         //MYFW_REGISTER_COMPONENT_CALLBACK( ComponentLight, OnTouch );

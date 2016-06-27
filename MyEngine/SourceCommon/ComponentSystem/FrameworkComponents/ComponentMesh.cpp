@@ -326,7 +326,7 @@ void ComponentMesh::RegisterCallbacks()
 
         //MYFW_REGISTER_COMPONENT_CALLBACK( ComponentMesh, Tick );
         //MYFW_REGISTER_COMPONENT_CALLBACK( ComponentMesh, OnSurfaceChanged );
-        //MYFW_REGISTER_COMPONENT_CALLBACK( ComponentMesh, Draw );
+        MYFW_FILL_COMPONENT_CALLBACK_STRUCT( ComponentMesh, Draw ); //MYFW_REGISTER_COMPONENT_CALLBACK( ComponentMesh, Draw );
         //MYFW_REGISTER_COMPONENT_CALLBACK( ComponentMesh, OnTouch );
         //MYFW_REGISTER_COMPONENT_CALLBACK( ComponentMesh, OnButtons );
         //MYFW_REGISTER_COMPONENT_CALLBACK( ComponentMesh, OnKeys );
@@ -495,6 +495,12 @@ void ComponentMesh::PushChangesToSceneGraphObjects()
             m_pSceneGraphObjects[i]->m_PointSize = this->m_PointSize;
         }
     }
+}
+
+MyAABounds* ComponentMesh::GetBounds()
+{
+    if( m_pMesh )
+        return m_pMesh->GetBounds();
 }
 
 void ComponentMesh::TickCallback(double TimePassed)

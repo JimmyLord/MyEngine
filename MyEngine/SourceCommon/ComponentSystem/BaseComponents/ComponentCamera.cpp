@@ -195,6 +195,7 @@ void ComponentCamera::RegisterCallbacks()
         //MYFW_REGISTER_COMPONENT_CALLBACK( ComponentCamera, Tick );
         //MYFW_REGISTER_COMPONENT_CALLBACK( ComponentCamera, OnSurfaceChanged );
 #if MYFW_USING_WX
+        //MYFW_FILL_COMPONENT_CALLBACK_STRUCT( ComponentCamera, Draw );
         MYFW_REGISTER_COMPONENT_CALLBACK( ComponentCamera, Draw );
 #endif //MYFW_USING_WX
         //MYFW_REGISTER_COMPONENT_CALLBACK( ComponentCamera, OnTouch );

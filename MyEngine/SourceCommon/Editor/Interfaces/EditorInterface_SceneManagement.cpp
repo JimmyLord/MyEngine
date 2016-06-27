@@ -52,14 +52,14 @@ void EditorInterface_SceneManagement::OnDrawFrame(unsigned int canvasid)
             // TODO: have the file selecter pick the right game object/mesh
             GameObject* pObject = pEditorState->m_pSelectedObjects[0];
 
-            // if this has an animation player, render the first animation. generally the full timeline.
+            // if this has an animation player, render the current animation.
             ComponentAnimationPlayer* pAnim = pObject->GetAnimationPlayer();
             if( pAnim )
             {
                 int backupindex = pAnim->m_AnimationIndex;
                 float backuptime = pAnim->m_AnimationTime;
 
-                pAnim->m_AnimationIndex = 0;
+                //pAnim->m_AnimationIndex = 0;
                 pAnim->m_AnimationTime = (float)MyTime_GetUnpausedTime();
                 pAnim->Tick( 0 );
 
@@ -71,7 +71,10 @@ void EditorInterface_SceneManagement::OnDrawFrame(unsigned int canvasid)
                 if( g_pEngineCore->m_pDebugQuadSprite == 0 )
                     g_pEngineCore->m_pDebugQuadSprite = MyNew MySprite( false );
 
-                g_pEngineCore->m_pDebugQuadSprite->CreateInPlace( "debug", 0.5f, 0.5f, 1.0f, 1.0f, 0, 1, 1, 0, Justify_Center, false );
+                float maxu = (float)pEditorState->m_pDebugViewFBO->m_Width / pEditorState->m_pDebugViewFBO->m_TextureWidth;
+                float maxv = (float)pEditorState->m_pDebugViewFBO->m_Height / pEditorState->m_pDebugViewFBO->m_TextureHeight;
+
+                g_pEngineCore->m_pDebugQuadSprite->CreateInPlace( "debug", 0.5f, 0.5f, 1.0f, 1.0f, 0, maxu, maxv, 0, Justify_Center, false );
                 g_pEngineCore->m_pMaterial_ClipSpaceTexture->SetTextureColor( pEditorState->m_pDebugViewFBO->m_pColorTexture );
                 g_pEngineCore->m_pDebugQuadSprite->SetMaterial( g_pEngineCore->m_pMaterial_ClipSpaceTexture );
                 g_pEngineCore->m_pDebugQuadSprite->Draw( 0, 0 );

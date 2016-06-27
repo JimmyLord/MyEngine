@@ -72,6 +72,8 @@ public:
     virtual void RemoveFromSceneGraph();
     virtual void PushChangesToSceneGraphObjects();
 
+    virtual MyAABounds* GetBounds();
+
 protected:
     // Callback functions for various events.
     MYFW_DECLARE_COMPONENT_CALLBACK_TICK(); // TickCallback

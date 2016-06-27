@@ -269,7 +269,7 @@ void ComponentParticleEmitter::RegisterCallbacks()
 
         MYFW_REGISTER_COMPONENT_CALLBACK( ComponentParticleEmitter, Tick );
         //MYFW_REGISTER_COMPONENT_CALLBACK( ComponentParticleEmitter, OnSurfaceChanged );
-        //MYFW_REGISTER_COMPONENT_CALLBACK( ComponentParticleEmitter, Draw );
+        MYFW_FILL_COMPONENT_CALLBACK_STRUCT( ComponentParticleEmitter, Draw ); //MYFW_REGISTER_COMPONENT_CALLBACK( ComponentParticleEmitter, Draw );
         //MYFW_REGISTER_COMPONENT_CALLBACK( ComponentParticleEmitter, OnTouch );
         //MYFW_REGISTER_COMPONENT_CALLBACK( ComponentParticleEmitter, OnButtons );
         //MYFW_REGISTER_COMPONENT_CALLBACK( ComponentParticleEmitter, OnKeys );
@@ -494,7 +494,17 @@ void ComponentParticleEmitter::DrawCallback(ComponentCamera* pCamera, MyMatrix* 
         return;
 
     m_pParticleRenderer->SetMaterial( m_pMaterial );
-    m_pParticleRenderer->DrawParticles( pCamera->m_pComponentTransform->GetLocalPosition(),
-                                        pCamera->m_pComponentTransform->GetLocalRotation(),
-                                        pMatViewProj, pShaderOverride );
+
+    Vector3 campos( 0, 0, 0 );
+    Vector3 camrot( 0, 0, 0 );
+    if( pCamera )
+    {
+        campos = pCamera->m_pComponentTransform->GetLocalPosition();
+        camrot = pCamera->m_pComponentTransform->GetLocalRotation();
+    }
+    else
+    {
+    }
+
+    m_pParticleRenderer->DrawParticles( campos, camrot, pMatViewProj, pShaderOverride );
 }

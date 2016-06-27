@@ -1402,11 +1402,11 @@ void EngineCore::OnSurfaceChanged(unsigned int startx, unsigned int starty, unsi
 #if MYFW_USING_WX
 void EngineCore::RenderSingleObject(GameObject* pObject)
 {
-    // render the scene to a FBO.
+    // render the scene to an FBO.
     m_pEditorState->m_pDebugViewFBO->Bind( true );
 
     glDisable( GL_SCISSOR_TEST );
-    glViewport( 0, 0, m_pEditorState->m_pMousePickerFBO->m_Width, m_pEditorState->m_pMousePickerFBO->m_Height );
+    glViewport( 0, 0, m_pEditorState->m_pDebugViewFBO->m_Width, m_pEditorState->m_pDebugViewFBO->m_Height );
 
     glClearColor( 0, 0, 0, 0 );
     glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
@@ -1418,11 +1418,22 @@ void EngineCore::RenderSingleObject(GameObject* pObject)
         pCamera = dynamic_cast<ComponentCamera*>( m_pEditorState->m_pEditorCamera->m_Components[i] );
         if( pCamera )
         {
+            Vector3 objpos = pObject->GetTransform()->GetWorldPosition();
+            Vector3 center(0,0,0);
+            ComponentRenderable* pComponent = (ComponentRenderable*)pObject->GetFirstComponentOfType( "RenderableComponent" );
+            if( pComponent )
+            {
+                MyAABounds* pBounds = pComponent->GetBounds();
+                if( pBounds )
+                    center = pBounds->GetCenter();
+            }
+
             MyMatrix matView;
-            matView.CreateLookAtView( Vector3(0, 15, 15), Vector3(0,1,0), Vector3(0,5,0) );
+            matView.CreateLookAtViewLeftHanded( objpos + center + Vector3(0, 2, -5), Vector3(0,1,0), objpos + center );
 
             MyMatrix matProj;
-            matProj.CreatePerspectiveHFoV( 45, 1, 0.1f, 1000.0f );
+            float aspect = (float)m_pEditorState->m_pDebugViewFBO->m_Width / m_pEditorState->m_pDebugViewFBO->m_Height;
+            matProj.CreatePerspectiveHFoV( 45, aspect, 0.1f, 1000.0f );
 
             MyMatrix matViewProj = matProj * matView;
 
