@@ -501,6 +501,8 @@ MyAABounds* ComponentMesh::GetBounds()
 {
     if( m_pMesh )
         return m_pMesh->GetBounds();
+
+    return 0;
 }
 
 void ComponentMesh::TickCallback(double TimePassed)

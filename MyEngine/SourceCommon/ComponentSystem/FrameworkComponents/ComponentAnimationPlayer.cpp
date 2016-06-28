@@ -163,6 +163,9 @@ void ComponentAnimationPlayer::Tick(double TimePassed)
     if( m_TransitionTimeTotal != 0 )
         perc = m_TransitionTimeLeft / m_TransitionTimeTotal;
     pMesh->RebuildAnimationMatrices( m_AnimationIndex, m_AnimationTime, m_LastAnimationIndex, m_LastAnimationTime, perc );
+
+    //if( perc < 1 )
+    //    LOGInfo( "Animation", "Blend Perc: %0.2f - %d-%d\n", perc, m_AnimationIndex, m_LastAnimationIndex );
 }
 
 void ComponentAnimationPlayer::SetCurrentAnimation(unsigned int anim)
