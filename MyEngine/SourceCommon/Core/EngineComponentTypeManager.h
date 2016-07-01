@@ -19,6 +19,7 @@ enum EngineComponentTypes // search for ADDING_NEW_ComponentType
     ComponentType_Mesh,
     ComponentType_MeshOBJ,
     ComponentType_MeshPrimitive,
+    ComponentType_VoxelWorld,
     ComponentType_Light,
     ComponentType_CameraShadow,
     ComponentType_PostEffect,

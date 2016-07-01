@@ -19,6 +19,7 @@ ComponentTypeInfo g_EngineComponentTypeInfo[Component_NumEngineComponentTypes] =
     { "Renderables",    "Mesh",                 },  //ComponentType_Mesh,
     { "Renderables",    "Mesh-OBJ",             },  //ComponentType_MeshOBJ,
     { "Renderables",    "Mesh-Primitive",       },  //ComponentType_MeshPrimitive,
+    { "Renderables",    "Voxel World",          },  //ComponentType_VoxelWorld,
     { "Lighting",       "Light",                },  //ComponentType_Light,
     { "Lighting",       "Shadow Dir Light",     },  //ComponentType_CameraShadow,
     { "Effects",        "Post Effect Quad",     },  //ComponentType_PostEffect,
@@ -47,6 +48,7 @@ ComponentBase* EngineComponentTypeManager::CreateComponent(int type)
     case ComponentType_Mesh:                pComponent = MyNew ComponentMesh;               break;
     case ComponentType_MeshOBJ:             pComponent = MyNew ComponentMeshOBJ;            break;
     case ComponentType_MeshPrimitive:       pComponent = MyNew ComponentMeshPrimitive;      break;
+    case ComponentType_VoxelWorld:          pComponent = MyNew ComponentVoxelWorld;         break;
     case ComponentType_Light:               pComponent = MyNew ComponentLight;              break;
     case ComponentType_CameraShadow:        pComponent = MyNew ComponentCameraShadow;       break;
     case ComponentType_PostEffect:          pComponent = MyNew ComponentPostEffect;         break;

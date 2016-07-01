@@ -1769,6 +1769,10 @@
     </ClCompile>
     <ClCompile Include="SourceCommon\GUI\ImGuiManager.cpp" />
     <ClCompile Include="SourceCommon\Physics\EngineBox2DContactListener.cpp" />
+    <ClCompile Include="SourceCommon\Voxels\ComponentVoxelWorld.cpp" />
+    <ClCompile Include="SourceCommon\Voxels\VoxelBlock.cpp" />
+    <ClCompile Include="SourceCommon\Voxels\VoxelChunk.cpp" />
+    <ClCompile Include="SourceCommon\Voxels\VoxelWorld.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Libraries\imgui\imconfig.h" />
@@ -1996,6 +2000,10 @@
     <ClInclude Include="SourceCommon\EngineCommonHeader.h" />
     <ClInclude Include="SourceCommon\GUI\ImGuiManager.h" />
     <ClInclude Include="SourceCommon\Physics\EngineBox2DContactListener.h" />
+    <ClInclude Include="SourceCommon\Voxels\ComponentVoxelWorld.h" />
+    <ClInclude Include="SourceCommon\Voxels\VoxelBlock.h" />
+    <ClInclude Include="SourceCommon\Voxels\VoxelChunk.h" />
+    <ClInclude Include="SourceCommon\Voxels\VoxelWorld.h" />
     <ClInclude Include="SourceNaCL\memory.h" />
   </ItemGroup>
   <ItemGroup>

@@ -1940,6 +1940,9 @@ void ProgramSceneIDs(ComponentBase* pComponent, ShaderGroup* pShaderOverride)
     if( pShaderOverride == 0 )
         return;
 
+    if( pComponent == 0 )
+        return;
+
     ColorByte tint( 0, 0, 0, 0 );
 
     unsigned int sceneid = pComponent->m_pGameObject->GetSceneID();

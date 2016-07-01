@@ -94,6 +94,9 @@ extern "C"
 #include "ComponentSystem/FrameworkComponents/Physics2D/Component2DJointPrismatic.h"
 #include "ComponentSystem/FrameworkComponents/Physics2D/Component2DJointWeld.h"
 
+// Other components
+#include "Voxels/ComponentVoxelWorld.h"
+
 // Physics code
 #include "Physics/EngineBox2DContactListener.h"
 

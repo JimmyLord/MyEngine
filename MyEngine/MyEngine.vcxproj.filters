@@ -91,6 +91,9 @@
     <Filter Include="Source\GUI">
       <UniqueIdentifier>{c6bd4344-2b66-481c-85d8-1eef7b18e457}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\Voxels">
+      <UniqueIdentifier>{f05a8088-df72-4a72-b8cb-fadb1ff4b905}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="SourceCommon\Camera\Camera3D.cpp">
@@ -362,6 +365,18 @@
     </ClCompile>
     <ClCompile Include="SourceCommon\GUI\ImGuiManager.cpp">
       <Filter>Source\GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCommon\Voxels\ComponentVoxelWorld.cpp">
+      <Filter>Source\Voxels</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCommon\Voxels\VoxelChunk.cpp">
+      <Filter>Source\Voxels</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCommon\Voxels\VoxelWorld.cpp">
+      <Filter>Source\Voxels</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCommon\Voxels\VoxelBlock.cpp">
+      <Filter>Source\Voxels</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -670,6 +685,18 @@
     </ClInclude>
     <ClInclude Include="SourceCommon\GUI\ImGuiManager.h">
       <Filter>Source\GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCommon\Voxels\ComponentVoxelWorld.h">
+      <Filter>Source\Voxels</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCommon\Voxels\VoxelChunk.h">
+      <Filter>Source\Voxels</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCommon\Voxels\VoxelWorld.h">
+      <Filter>Source\Voxels</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCommon\Voxels\VoxelBlock.h">
+      <Filter>Source\Voxels</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -141,17 +141,29 @@ void LuaGameState::RegisterClasses()
     EngineCore::LuaRegister( m_pLuaState );
     GameObject::LuaRegister( m_pLuaState );
     ComponentBase::LuaRegister( m_pLuaState );
-    ComponentMenuPage::LuaRegister( m_pLuaState );
     ComponentTransform::LuaRegister( m_pLuaState );
     ComponentGameObjectProperties::LuaRegister( m_pLuaState );
     ComponentSystemManager::LuaRegister( m_pLuaState );
-    ComponentCollisionObject::LuaRegister( m_pLuaState );
-    Component2DCollisionObject::LuaRegister( m_pLuaState );
-    ComponentAnimationPlayer::LuaRegister( m_pLuaState );
-    ComponentAudioPlayer::LuaRegister( m_pLuaState );
-    ComponentParticleEmitter::LuaRegister( m_pLuaState );
+
+    //ComponentType_Camera,
     ComponentSprite::LuaRegister( m_pLuaState );
     ComponentMesh::LuaRegister( m_pLuaState );
+    //ComponentType_MeshOBJ,
+    //ComponentType_MeshPrimitive,
+    //ComponentType_VoxelWorld,
+    //ComponentType_Light,
+    //ComponentType_CameraShadow,
+    //ComponentType_PostEffect,
+    ComponentCollisionObject::LuaRegister( m_pLuaState );
+    Component2DCollisionObject::LuaRegister( m_pLuaState );
+    //ComponentType_2DJointRevolute,
+    //ComponentType_2DJointPrismatic,
+    //ComponentType_2DJointWeld,
+    //ComponentType_LuaScript,
+    ComponentParticleEmitter::LuaRegister( m_pLuaState );
+    ComponentAnimationPlayer::LuaRegister( m_pLuaState );
+    ComponentAudioPlayer::LuaRegister( m_pLuaState );
+    ComponentMenuPage::LuaRegister( m_pLuaState );
 
     // Register the MenuItem types.
     MenuItem::LuaRegister( m_pLuaState );
