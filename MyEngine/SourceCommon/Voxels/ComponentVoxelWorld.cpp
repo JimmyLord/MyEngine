@@ -30,10 +30,14 @@ ComponentVoxelWorld::ComponentVoxelWorld()
 
     m_pVoxelWorld = MyNew VoxelWorld;
     m_pVoxelWorld->Initialize();
+
+    m_pVoxelWorld->UpdateVisibility( this );
 }
 
 ComponentVoxelWorld::~ComponentVoxelWorld()
 {
+    delete m_pVoxelWorld;
+
     MYFW_COMPONENT_VARIABLE_LIST_DESTRUCTOR(); //_VARIABLE_LIST
 }
 

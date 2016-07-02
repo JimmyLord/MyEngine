@@ -14,9 +14,9 @@ class VoxelChunk;
 
 class VoxelWorld
 {
-public: //protected:
-    //MySimplePool<VoxelChunk*> m_ChunkPool;
-    VoxelChunk* m_pChunk; // single chunk to get started.
+protected:
+    CPPListHead m_pChunksFree;
+    CPPListHead m_pChunksVisible;
 
     Vector3Int m_WorldSize;
     Vector3Int m_ChunkSize;
@@ -26,6 +26,9 @@ public:
     virtual ~VoxelWorld();
 
     void Initialize();
+    void PrepareChunk();
+
+    void UpdateVisibility(void* pUserData);
 };
 
 #endif //__VoxelWorld_H__

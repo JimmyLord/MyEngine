@@ -15,6 +15,7 @@ VoxelChunk::VoxelChunk()
 {
     m_Transform.SetIdentity();
     m_ChunkSize.Set( 0, 0, 0 );
+    m_pSceneGraphObject = 0;
 
     m_pBlocks = 0;
     m_pMesh = 0;
@@ -22,8 +23,13 @@ VoxelChunk::VoxelChunk()
 
 VoxelChunk::~VoxelChunk()
 {
+    // remove from cpplist.
+    this->Remove();
+
+    RemoveFromSceneGraph();
+
     delete[] m_pBlocks;
-    delete m_pMesh;
+    m_pMesh->Release();
 }
 
 void VoxelChunk::Initialize(Vector3Int chunksize)
@@ -52,12 +58,6 @@ void VoxelChunk::Initialize(Vector3Int chunksize)
         m_pMesh->CreateBuffers( pVertFormat, maxverts, indexbytes, maxindices, true );
 
         RebuildMesh();
-
-        MaterialDefinition* pMaterial = g_pMaterialManager->FindMaterialByFilename( "Data/Materials/Colors/Color-Green.mymaterial" );
-
-        g_pComponentSystemManager->m_pSceneGraph->AddObject( &m_Transform, m_pMesh, m_pMesh->m_SubmeshList[0],
-            pMaterial, GL_TRIANGLES, 0, SceneGraphFlag_Opaque, 0xFFFFFFFF, 0 );
-        //g_pComponentSystemManager->AddMeshToSceneGraph( 0, m_pMesh, 0, 0, 0, SceneGraphFlag_Opaque, 0, 0 );
     }
 }
 
@@ -92,10 +92,10 @@ void VoxelChunk::RebuildMesh()
 
                     int side;
 
-                    float uleft   = 0;
-                    float uright  = 1;
-                    float vtop    = 1;
-                    float vbottom = 0;
+                    float uleft   =  0.0f / 128.0f;
+                    float uright  = 32.0f / 128.0f;
+                    float vtop    =  0.0f / 128.0f;
+                    float vbottom = 32.0f / 128.0f;
 
                     // front
                     side = 0;
@@ -173,4 +173,25 @@ void VoxelChunk::RebuildMesh()
         //Vector3 center( (xleft + xright) / 2, (ytop + ybottom) / 2, (zfront + zback) / 2 );
         //m_AABounds.Set( center, Vector3(boxw/2, boxh/2, boxh/2) );
     }
+}
+
+void VoxelChunk::AddToSceneGraph(void* pUserData)
+{
+    if( m_pSceneGraphObject != 0 )
+        return;
+
+    MaterialDefinition* pMaterial = g_pMaterialManager->FindMaterialByFilename( "Data/Voxels/Tiles.mymaterial" );
+
+    m_pSceneGraphObject = g_pComponentSystemManager->m_pSceneGraph->AddObject(
+        &m_Transform, m_pMesh, m_pMesh->m_SubmeshList[0],
+        pMaterial, GL_TRIANGLES, 0, SceneGraphFlag_Opaque, 0xFFFFFFFF, pUserData );
+}
+
+void VoxelChunk::RemoveFromSceneGraph()
+{
+    if( m_pSceneGraphObject == 0 )
+        return;
+
+    g_pComponentSystemManager->m_pSceneGraph->RemoveObject( m_pSceneGraphObject );
+    m_pSceneGraphObject = 0;
 }

@@ -14,17 +14,59 @@
 
 VoxelWorld::VoxelWorld()
 {
-    m_pChunk = 0;
 }
 
 VoxelWorld::~VoxelWorld()
 {
-    delete m_pChunk;
+    for( CPPListNode* pNode = m_pChunksFree.GetHead(); pNode; )
+    {
+        VoxelChunk* pChunk = (VoxelChunk*)pNode;
+        pNode = pNode->GetNext();
+
+        delete pChunk;
+    }
+
+    for( CPPListNode* pNode = m_pChunksVisible.GetHead(); pNode; )
+    {
+        VoxelChunk* pChunk = (VoxelChunk*)pNode;
+        pNode = pNode->GetNext();
+
+        delete pChunk;
+    }
 }
 
 void VoxelWorld::Initialize()
 {
-    m_pChunk = MyNew VoxelChunk;
-    m_pChunk->Initialize( Vector3Int( 5, 5, 5 ) );
-    m_pChunk->RebuildMesh();
+    VoxelChunk* pChunk = MyNew VoxelChunk;
+    m_pChunksFree.AddHead( pChunk );
+
+    PrepareChunk();
+}
+
+void VoxelWorld::PrepareChunk()
+{
+    VoxelChunk* pChunk = (VoxelChunk*)m_pChunksFree.GetHead();
+    if( pChunk == 0 )
+    {
+        LOGInfo( "VoxelWorld", "Attempting to prepare chunk, but none available\n" );
+        return;
+    }
+
+    pChunk->Initialize( Vector3Int( 5, 5, 5 ) );
+    pChunk->RebuildMesh();
+
+    m_pChunksVisible.MoveTail( pChunk );
+}
+
+void VoxelWorld::UpdateVisibility(void* pUserData)
+{
+    // TODO: Update list of visible chunks
+
+    // Add all visible chunks to scene graph
+    for( CPPListNode* pNode = m_pChunksVisible.GetHead(); pNode; pNode = pNode->GetNext() )
+    {
+        VoxelChunk* pChunk = (VoxelChunk*)pNode;
+
+        pChunk->AddToSceneGraph( pUserData );
+    }
 }

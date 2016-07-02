@@ -13,14 +13,16 @@
 class VoxelBlock;
 class MyMesh;
 
-class VoxelChunk
+class VoxelChunk : public CPPListNode
 {
-public: //protected:
+protected:
     MyMatrix m_Transform;
     Vector3Int m_ChunkSize;
 
     VoxelBlock* m_pBlocks;
     MyMesh* m_pMesh;
+
+    SceneGraphObject* m_pSceneGraphObject;
 
 public:
     VoxelChunk();
@@ -28,6 +30,9 @@ public:
 
     void Initialize(Vector3Int chunksize);
     void RebuildMesh();
+
+    void AddToSceneGraph(void* pUserData);
+    void RemoveFromSceneGraph();
 };
 
 #endif //__VoxelChunk_H__
