@@ -16,6 +16,8 @@ class MyMesh;
 class VoxelChunk : public CPPListNode
 {
 protected:
+    VoxelWorld* m_pWorld;
+
     MyMatrix m_Transform;
     Vector3Int m_ChunkSize;
 
@@ -28,7 +30,7 @@ public:
     VoxelChunk();
     virtual ~VoxelChunk();
 
-    void Initialize(Vector3Int chunksize);
+    void Initialize(VoxelWorld* world, Vector3 pos, Vector3Int chunksize);
     void RebuildMesh();
 
     void AddToSceneGraph(void* pUserData);

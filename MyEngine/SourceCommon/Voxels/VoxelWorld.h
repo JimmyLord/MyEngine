@@ -20,13 +20,21 @@ protected:
 
     Vector3Int m_WorldSize;
     Vector3Int m_ChunkSize;
+    Vector3 m_BlockSize;
+
+    VoxelChunk** m_pWorldChunkPtrs;
+    unsigned int m_NumChunkPointersAllocated;
 
 public:
     VoxelWorld();
     virtual ~VoxelWorld();
 
-    void Initialize();
-    void PrepareChunk();
+    void Initialize(Vector3Int worldsize);
+    void SetWorldSize(Vector3Int worldsize);
+
+    void PrepareChunk(Vector3 pos, Vector3Int size);
+
+    Vector3 GetBlockSize() { return m_BlockSize; }
 
     void UpdateVisibility(void* pUserData);
 };

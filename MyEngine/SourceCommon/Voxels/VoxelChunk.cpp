@@ -13,6 +13,8 @@
 
 VoxelChunk::VoxelChunk()
 {
+    m_pWorld = 0;
+
     m_Transform.SetIdentity();
     m_ChunkSize.Set( 0, 0, 0 );
     m_pSceneGraphObject = 0;
@@ -32,9 +34,14 @@ VoxelChunk::~VoxelChunk()
     m_pMesh->Release();
 }
 
-void VoxelChunk::Initialize(Vector3Int chunksize)
+void VoxelChunk::Initialize(VoxelWorld* world, Vector3 pos, Vector3Int chunksize)
 {
     MyAssert( m_pMesh == 0 );
+
+    m_pWorld = world;
+
+    m_Transform.SetIdentity();
+    m_Transform.SetTranslation( pos );
 
     m_ChunkSize = chunksize;
 
@@ -48,6 +55,11 @@ void VoxelChunk::Initialize(Vector3Int chunksize)
         int maxverts = 6*4*numblocks;
         int maxindices = 6*2*3*numblocks;
         int indexbytes = 2; // TODO: take out hard-coded unsigned short as index type
+
+        if( maxverts > 256*256 )
+        {
+            LOGInfo( "VoxelWorld", "Too many verts needed in chunk - %d\n", maxverts );
+        }
         //int indexbytes = 1;
         //if( maxverts > 256 )
         //    indexbytes = 2;
@@ -71,8 +83,12 @@ void VoxelChunk::RebuildMesh()
     {
         MyAssert( m_pMesh->GetStride( 0 ) == (12 + 8 + 12) ); // XYZ + UV + NORM
 
+        // TODO: fill buffer without storing a local copy in main ram.
         Vertex_XYZUVNorm* pVerts = (Vertex_XYZUVNorm*)m_pMesh->GetVerts( true );
         unsigned short* pIndices = (unsigned short*)m_pMesh->GetIndices( true );
+
+        Vector3 minextents( FLT_MAX, FLT_MAX, FLT_MAX );
+        Vector3 maxextents( -FLT_MAX, -FLT_MAX, -FLT_MAX );
 
         int count = 0;
         for( int z=0; z<m_ChunkSize.z; z++ )
@@ -85,17 +101,26 @@ void VoxelChunk::RebuildMesh()
 
                     float xleft   = x*boxsize.x - boxsize.x/2;
                     float xright  = x*boxsize.x + boxsize.x/2;
-                    float ytop    = y*boxsize.y + boxsize.y/2;
                     float ybottom = y*boxsize.y - boxsize.y/2;
+                    float ytop    = y*boxsize.y + boxsize.y/2;
                     float zfront  = z*boxsize.z - boxsize.z/2;
                     float zback   = z*boxsize.z + boxsize.z/2;
 
                     int side;
 
-                    float uleft   =  0.0f / 128.0f;
-                    float uright  = 32.0f / 128.0f;
-                    float vtop    =  0.0f / 128.0f;
-                    float vbottom = 32.0f / 128.0f;
+                    if( xleft   < minextents.x ) minextents.x = xleft;
+                    if( xright  > maxextents.x ) maxextents.x = xright;
+                    if( ybottom < minextents.y ) minextents.y = ybottom;
+                    if( ytop    > maxextents.y ) maxextents.y = ytop;
+                    if( zfront  < minextents.z ) minextents.z = zfront;
+                    if( zback   > maxextents.z ) maxextents.z = zback;
+
+                    int r = rand()%3;
+
+                    float uleft   = ( 0.0f + 32.0f*r) / 128.0f;
+                    float uright  = (32.0f + 32.0f*r) / 128.0f;
+                    float vtop    = ( 0.0f + 32.0f*0) / 128.0f;
+                    float vbottom = (32.0f + 32.0f*0) / 128.0f;
 
                     // front
                     side = 0;
@@ -170,8 +195,18 @@ void VoxelChunk::RebuildMesh()
             }
         }
 
-        //Vector3 center( (xleft + xright) / 2, (ytop + ybottom) / 2, (zfront + zback) / 2 );
-        //m_AABounds.Set( center, Vector3(boxw/2, boxh/2, boxh/2) );
+        if( count > 0 )
+        {
+            Vector3 center = (minextents + maxextents) / 2;
+            Vector3 extents = (maxextents - minextents) / 2;
+            m_pMesh->GetBounds()->Set( center, extents );
+        }
+        else
+        {
+            Vector3 center( 0, 0, 0 );
+            Vector3 extents( 0, 0, 0 );
+            m_pMesh->GetBounds()->Set( center, extents );
+        }
     }
 }
 

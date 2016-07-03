@@ -29,7 +29,7 @@ ComponentVoxelWorld::ComponentVoxelWorld()
     m_BaseType = BaseComponentType_Data;
 
     m_pVoxelWorld = MyNew VoxelWorld;
-    m_pVoxelWorld->Initialize();
+    m_pVoxelWorld->Initialize( Vector3Int( 10, 1, 10 ) );
 
     m_pVoxelWorld->UpdateVisibility( this );
 }
