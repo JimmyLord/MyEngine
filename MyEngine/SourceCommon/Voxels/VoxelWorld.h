@@ -32,11 +32,14 @@ public:
     void Initialize(Vector3Int worldsize);
     void SetWorldSize(Vector3Int worldsize);
 
-    void PrepareChunk(Vector3 pos, Vector3Int size);
+    void PrepareChunk(Vector3 pos, Vector3Int size, Vector3Int offset);
 
     Vector3 GetBlockSize() { return m_BlockSize; }
 
     void UpdateVisibility(void* pUserData);
+
+    bool IsBlockEnabled(Vector3Int pos);
+    bool IsBlockEnabled(int x, int y, int z);
 };
 
 #endif //__VoxelWorld_H__

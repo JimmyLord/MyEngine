@@ -12,7 +12,7 @@
 
 VoxelBlock::VoxelBlock()
 {
-    m_Enabled = false;
+    m_Enabled = true;
     m_BlockType = 0;
 }
 

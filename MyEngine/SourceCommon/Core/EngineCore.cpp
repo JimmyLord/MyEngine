@@ -212,8 +212,8 @@ void EngineCore::OneTimeInit()
     GameCore::OneTimeInit();
 
     // allocate one meg of ram for now, this stack gets wiped each frame in OnDrawFrameDone()
-    //  TODO: expose size, hardcoded to 100k for now... and not used for anything but editor mode scene load
-    m_SingleFrameMemoryStack.Initialize( 100000 );
+    //  TODO: expose size, hardcoded to 5meg for now... used by editor mode scene load and voxel world creation
+    m_SingleFrameMemoryStack.Initialize( 5000000 );
 
 #if MYFW_USING_WX
     m_pEditorState = MyNew EditorState;

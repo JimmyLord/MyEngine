@@ -19,6 +19,8 @@ protected:
 public:
     VoxelBlock();
     ~VoxelBlock();
+
+    bool IsEnabled() { return m_Enabled; }
 };
 
 #endif //__VoxelBlock_H__

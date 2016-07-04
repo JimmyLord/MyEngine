@@ -20,6 +20,7 @@ protected:
 
     MyMatrix m_Transform;
     Vector3Int m_ChunkSize;
+    Vector3Int m_ChunkOffset;
 
     VoxelBlock* m_pBlocks;
     MyMesh* m_pMesh;
@@ -30,11 +31,14 @@ public:
     VoxelChunk();
     virtual ~VoxelChunk();
 
-    void Initialize(VoxelWorld* world, Vector3 pos, Vector3Int chunksize);
+    void Initialize(VoxelWorld* world, Vector3 pos, Vector3Int chunksize, Vector3Int chunkoffset);
     void RebuildMesh();
 
     void AddToSceneGraph(void* pUserData);
     void RemoveFromSceneGraph();
+
+    bool IsBlockEnabled(Vector3Int worldpos);
+    bool IsBlockEnabled(int worldx, int worldy, int worldz);
 };
 
 #endif //__VoxelChunk_H__

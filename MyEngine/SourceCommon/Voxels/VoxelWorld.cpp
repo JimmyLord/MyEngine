@@ -18,7 +18,7 @@ VoxelWorld::VoxelWorld()
     m_pWorldChunkPtrs = 0;
 
     m_WorldSize.Set( 0, 0, 0 );
-    m_ChunkSize.Set( 10, 10, 10 );
+    m_ChunkSize.Set( 16, 16, 16 );
     m_BlockSize.Set( 1, 1, 1 );
 }
 
@@ -61,9 +61,25 @@ void VoxelWorld::Initialize(Vector3Int worldsize)
                 VoxelChunk* pChunk = MyNew VoxelChunk;
                 m_pChunksFree.AddHead( pChunk );
 
-                m_pWorldChunkPtrs[z * m_ChunkSize.y * m_ChunkSize.x + y * m_ChunkSize.x + x] = pChunk;
+                int chunkindex = z * m_WorldSize.y * m_WorldSize.x + y * m_WorldSize.x + x;
+                m_pWorldChunkPtrs[chunkindex] = pChunk;
 
-                PrepareChunk( Vector3( chunkoffset.x * x, chunkoffset.y * y, chunkoffset.z * z ), m_ChunkSize );
+                Vector3Int chunkoffsetinblocks = m_ChunkSize.MultiplyComponents( Vector3Int(x,y,z) );
+                PrepareChunk( Vector3( chunkoffset.x * x, chunkoffset.y * y, chunkoffset.z * z ), m_ChunkSize, chunkoffsetinblocks );
+            }
+        }
+    }
+    
+    for( int z=0; z<m_WorldSize.z; z++ )
+    {
+        for( int y=0; y<m_WorldSize.y; y++ )
+        {
+            for( int x=0; x<m_WorldSize.x; x++ )
+            {
+                int chunkindex = z * m_WorldSize.y * m_WorldSize.x + y * m_WorldSize.x + x;
+                VoxelChunk* pChunk = m_pWorldChunkPtrs[chunkindex];
+
+                pChunk->RebuildMesh();
             }
         }
     }
@@ -89,7 +105,7 @@ void VoxelWorld::SetWorldSize(Vector3Int worldsize)
     m_WorldSize = worldsize;
 }
 
-void VoxelWorld::PrepareChunk(Vector3 pos, Vector3Int size)
+void VoxelWorld::PrepareChunk(Vector3 pos, Vector3Int size, Vector3Int offset)
 {
     VoxelChunk* pChunk = (VoxelChunk*)m_pChunksFree.GetHead();
     if( pChunk == 0 )
@@ -98,8 +114,7 @@ void VoxelWorld::PrepareChunk(Vector3 pos, Vector3Int size)
         return;
     }
 
-    pChunk->Initialize( this, pos, size );
-    pChunk->RebuildMesh();
+    pChunk->Initialize( this, pos, size, offset );
 
     m_pChunksVisible.MoveTail( pChunk );
 }
@@ -115,4 +130,21 @@ void VoxelWorld::UpdateVisibility(void* pUserData)
 
         pChunk->AddToSceneGraph( pUserData );
     }
+}
+
+bool VoxelWorld::IsBlockEnabled(Vector3Int pos)
+{
+    return IsBlockEnabled( pos.x, pos.y, pos.z );
+}
+
+bool VoxelWorld::IsBlockEnabled(int x, int y, int z)
+{
+    if( x < 0 || y < 0 || z < 0 || x >= m_WorldSize.x*m_ChunkSize.x || y >= m_WorldSize.y*m_ChunkSize.y || z >= m_WorldSize.z*m_ChunkSize.z )
+        return false;
+
+    Vector3Int chunkpos( x/m_ChunkSize.x, y/m_ChunkSize.y, z/m_ChunkSize.z );
+
+    VoxelChunk* pChunk = m_pWorldChunkPtrs[chunkpos.z * m_WorldSize.y * m_WorldSize.x + chunkpos.y * m_WorldSize.x + chunkpos.x];
+
+    return pChunk->IsBlockEnabled( x, y, z );
 }
