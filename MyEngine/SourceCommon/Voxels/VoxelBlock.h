@@ -21,6 +21,7 @@ public:
     ~VoxelBlock();
 
     bool IsEnabled() { return m_Enabled; }
+    void SetEnabled(bool enabled) { m_Enabled = enabled; }
 };
 
 #endif //__VoxelBlock_H__

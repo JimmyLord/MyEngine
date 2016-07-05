@@ -31,6 +31,7 @@ public:
 
     void Initialize(Vector3Int worldsize);
     void SetWorldSize(Vector3Int worldsize);
+    Vector3Int& GetWorldSize() { return m_WorldSize; }
 
     void PrepareChunk(Vector3 pos, Vector3Int size, Vector3Int offset);
 

@@ -50,6 +50,43 @@ void VoxelChunk::Initialize(VoxelWorld* world, Vector3 pos, Vector3Int chunksize
 
     m_pBlocks = MyNew VoxelBlock[chunksize.x * chunksize.y * chunksize.z];
 
+    for( int z=0; z<m_ChunkSize.z; z++ )
+    {
+        for( int y=0; y<m_ChunkSize.y; y++ )
+        {
+            for( int x=0; x<m_ChunkSize.x; x++ )
+            {
+                Vector3Int worldpos( m_ChunkOffset.x+x, m_ChunkOffset.y+y, m_ChunkOffset.z+z );
+
+                bool enabled = false;
+
+                if( 0 )
+                {
+                    float freq = 1/50.0f;
+
+                    double value = SimplexNoise( worldpos.x * freq, worldpos.y * freq, worldpos.z * freq );
+                
+                    enabled = value > 0.0f;
+                }
+                else
+                {
+                    float freq = 1/150.0f;
+
+                    double value = SimplexNoise( worldpos.x * freq, worldpos.z * freq );
+
+                    // shift -1 to 1 into range of 0.5 to 1.
+                    double shiftedvalue = value * 0.25 + 0.75;
+
+                    // bottom half solid, top half hilly.
+                    Vector3Int worldblocksize = m_pWorld->GetWorldSize().MultiplyComponents( m_ChunkSize );
+                    enabled = ((float)worldpos.y / worldblocksize.y) < shiftedvalue;
+                }
+
+                m_pBlocks[z * m_ChunkSize.y * m_ChunkSize.x + y * m_ChunkSize.x + x].SetEnabled( enabled );
+            }
+        }
+    }
+
     // Create a mesh.
     {
         m_pMesh = MyNew MyMesh();
@@ -121,7 +158,7 @@ void VoxelChunk::RebuildMesh()
                     if( zfront  < minextents.z ) minextents.z = zfront;
                     if( zback   > maxextents.z ) maxextents.z = zback;
 
-                    int r = rand()%3;
+                    int r = 3;//rand()%3;
 
                     float uleft   = ( 0.0f + 32.0f*r) / 128.0f;
                     float uright  = (32.0f + 32.0f*r) / 128.0f;
@@ -306,7 +343,7 @@ void VoxelChunk::AddToSceneGraph(void* pUserData)
 
     m_pSceneGraphObject = g_pComponentSystemManager->m_pSceneGraph->AddObject(
         &m_Transform, m_pMesh, m_pMesh->m_SubmeshList[0],
-        pMaterial, GL_TRIANGLES, 0, SceneGraphFlag_Opaque, 0xFFFFFFFF, pUserData );
+        pMaterial, GL_TRIANGLES, 0, SceneGraphFlag_Opaque, 1, pUserData );
 }
 
 void VoxelChunk::RemoveFromSceneGraph()
