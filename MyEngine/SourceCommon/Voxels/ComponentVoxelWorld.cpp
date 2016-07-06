@@ -61,9 +61,9 @@ void ComponentVoxelWorld::Reset()
 void ComponentVoxelWorld::LuaRegister(lua_State* luastate)
 {
     luabridge::getGlobalNamespace( luastate )
-        .beginClass<ComponentSprite>( "ComponentVoxelWorld" )
-            //.addData( "m_SampleVector3", &ComponentSprite::m_SampleVector3 )
-            //.addFunction( "GetVector3", &ComponentSprite::GetVector3 )
+        .beginClass<ComponentVoxelWorld>( "ComponentVoxelWorld" )
+            //.addData( "m_SampleVector3", &ComponentVoxelWorld::m_SampleVector3 )
+            .addFunction( "GetSceneYForNextBlockBelowPosition", &ComponentVoxelWorld::GetSceneYForNextBlockBelowPosition )
         .endClass();
 }
 #endif //MYFW_USING_LUA
@@ -156,7 +156,7 @@ void ComponentVoxelWorld::RegisterCallbacks()
     {
         m_CallbacksRegistered = true;
 
-        //MYFW_REGISTER_COMPONENT_CALLBACK( ComponentVoxelWorld, Tick );
+        MYFW_REGISTER_COMPONENT_CALLBACK( ComponentVoxelWorld, Tick );
         //MYFW_REGISTER_COMPONENT_CALLBACK( ComponentVoxelWorld, OnSurfaceChanged );
         //MYFW_REGISTER_COMPONENT_CALLBACK( ComponentVoxelWorld, Draw );
         //MYFW_REGISTER_COMPONENT_CALLBACK( ComponentVoxelWorld, OnTouch );
@@ -170,7 +170,7 @@ void ComponentVoxelWorld::UnregisterCallbacks()
 {
     if( m_CallbacksRegistered == true )
     {
-        //MYFW_UNREGISTER_COMPONENT_CALLBACK( Tick );
+        MYFW_UNREGISTER_COMPONENT_CALLBACK( Tick );
         //MYFW_UNREGISTER_COMPONENT_CALLBACK( OnSurfaceChanged );
         //MYFW_UNREGISTER_COMPONENT_CALLBACK( Draw );
         //MYFW_UNREGISTER_COMPONENT_CALLBACK( OnTouch );
@@ -180,4 +180,21 @@ void ComponentVoxelWorld::UnregisterCallbacks()
 
         m_CallbacksRegistered = false;
     }
+}
+
+void ComponentVoxelWorld::TickCallback(double TimePassed)
+{
+    if( m_pVoxelWorld == 0 )
+        return;
+
+    m_pVoxelWorld->Tick( TimePassed );
+    m_pVoxelWorld->UpdateVisibility( this );
+}
+
+float ComponentVoxelWorld::GetSceneYForNextBlockBelowPosition(Vector3 scenepos)
+{
+    if( m_pVoxelWorld == 0 )
+        return 0;
+
+    return m_pVoxelWorld->GetSceneYForNextBlockBelowPosition( scenepos );
 }

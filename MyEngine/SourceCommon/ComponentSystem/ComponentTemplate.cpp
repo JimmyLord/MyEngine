@@ -62,9 +62,9 @@ void ComponentTemplate::Reset()
 void ComponentTemplate::LuaRegister(lua_State* luastate)
 {
     luabridge::getGlobalNamespace( luastate )
-        .beginClass<ComponentSprite>( "ComponentTemplate" )
-            //.addData( "m_SampleVector3", &ComponentSprite::m_SampleVector3 )
-            //.addFunction( "GetVector3", &ComponentSprite::GetVector3 )
+        .beginClass<ComponentTemplate>( "ComponentTemplate" )
+            //.addData( "m_SampleVector3", &ComponentTemplate::m_SampleVector3 )
+            //.addFunction( "GetVector3", &ComponentTemplate::GetVector3 )
         .endClass();
 }
 #endif //MYFW_USING_LUA

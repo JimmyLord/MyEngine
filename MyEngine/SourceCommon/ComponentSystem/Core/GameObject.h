@@ -105,10 +105,11 @@ public:
     ComponentTransform* GetTransform() { return m_pComponentTransform; }
 
     // TODO: find a way to find an arbitrary component type that would be accessible from lua script.
-    ComponentAnimationPlayer* GetAnimationPlayer();
-    ComponentCollisionObject* GetCollisionObject();
-    Component2DCollisionObject* Get2DCollisionObject();
-    ComponentParticleEmitter* GetParticleEmitter();
+    ComponentAnimationPlayer* GetAnimationPlayer()      { return (ComponentAnimationPlayer*)GetFirstComponentOfType( "AnimPlayerComponent" ); }
+    ComponentCollisionObject* GetCollisionObject()      { return (ComponentCollisionObject*)GetFirstComponentOfType( "CollisionObjectComponent" ); }
+    Component2DCollisionObject* Get2DCollisionObject()  { return (Component2DCollisionObject*)GetFirstComponentOfType( "2DCollisionObjectComponent" ); }
+    ComponentParticleEmitter* GetParticleEmitter()      { return (ComponentParticleEmitter*)GetFirstComponentOfType( "ParticleEmitterComponent" ); }
+    ComponentVoxelWorld* GetVoxelWorld()                { return (ComponentVoxelWorld*)GetFirstComponentOfType( "VoxelWorldComponent" ); }
 
     MaterialDefinition* GetMaterial();
     void SetMaterial(MaterialDefinition* pMaterial);

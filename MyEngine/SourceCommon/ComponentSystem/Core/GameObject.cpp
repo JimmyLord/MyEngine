@@ -92,6 +92,7 @@ void GameObject::LuaRegister(lua_State* luastate)
             .addFunction( "GetCollisionObject", &GameObject::GetCollisionObject )
             .addFunction( "Get2DCollisionObject", &GameObject::Get2DCollisionObject )
             .addFunction( "GetParticleEmitter", &GameObject::GetParticleEmitter )
+            .addFunction( "GetVoxelWorld", &GameObject::GetVoxelWorld )
         .endClass();
 }
 #endif //MYFW_USING_LUA
@@ -667,20 +668,6 @@ ComponentBase* GameObject::FindComponentByID(unsigned int componentid)
     return 0;
 }
 
-ComponentAnimationPlayer* GameObject::GetAnimationPlayer()
-{
-    for( unsigned int i=0; i<m_Components.Count(); i++ )
-    {
-        ComponentAnimationPlayer* pPlayer = ((ComponentBase*)m_Components[i])->IsA( "AnimPlayerComponent" ) ? (ComponentAnimationPlayer*)m_Components[i] : 0;
-        if( pPlayer != 0 )
-        {
-            return pPlayer;
-        }
-    }
-
-    return 0; // component not found.
-}
-
 // Gets the first material found.
 MaterialDefinition* GameObject::GetMaterial()
 {
@@ -782,39 +769,6 @@ ComponentBase* GameObject::GetNextComponentOfType(ComponentBase* pLastComponent)
     }
 
     return 0; // component not found.
-}
-
-ComponentCollisionObject* GameObject::GetCollisionObject()
-{
-    for( unsigned int i=0; i<m_Components.Count(); i++ )
-    {
-        if( m_Components[i]->IsA( "CollisionObjectComponent" ) )
-            return (ComponentCollisionObject*)m_Components[i];
-    }
-
-    return 0;
-}
-
-Component2DCollisionObject* GameObject::Get2DCollisionObject()
-{
-    for( unsigned int i=0; i<m_Components.Count(); i++ )
-    {
-        if( m_Components[i]->IsA( "2DCollisionObjectComponent" ) )
-            return (Component2DCollisionObject*)m_Components[i];
-    }
-
-    return 0;
-}
-
-ComponentParticleEmitter* GameObject::GetParticleEmitter()
-{
-    for( unsigned int i=0; i<m_Components.Count(); i++ )
-    {
-        if( m_Components[i]->IsA( "ParticleEmitterComponent" ) )
-            return (ComponentParticleEmitter*)m_Components[i];
-    }
-
-    return 0;
 }
 
 void GameObject::RegisterOnDeleteCallback(void* pObj, GameObjectDeletedCallbackFunc pCallback)

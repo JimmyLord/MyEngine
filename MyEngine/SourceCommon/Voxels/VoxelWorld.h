@@ -16,6 +16,7 @@ class VoxelWorld
 {
 protected:
     CPPListHead m_pChunksFree;
+    CPPListHead m_pChunksLoading;
     CPPListHead m_pChunksVisible;
 
     Vector3Int m_WorldSize;
@@ -29,9 +30,13 @@ public:
     VoxelWorld();
     virtual ~VoxelWorld();
 
-    void Initialize(Vector3Int worldsize);
-    void SetWorldSize(Vector3Int worldsize);
+    void Tick(double timepassed);
+
+    void Initialize(Vector3Int visibleworldsize);
     Vector3Int& GetWorldSize() { return m_WorldSize; }
+    void SetWorldSize(Vector3Int visibleworldsize);
+    void SetWorldCenter(Vector3 scenepos);
+    void SetWorldCenter(Vector3Int worldpos);
 
     void PrepareChunk(Vector3 pos, Vector3Int size, Vector3Int offset);
 
@@ -39,8 +44,10 @@ public:
 
     void UpdateVisibility(void* pUserData);
 
+    // Collision/Block queries
     bool IsBlockEnabled(Vector3Int pos);
     bool IsBlockEnabled(int x, int y, int z);
+    float GetSceneYForNextBlockBelowPosition(Vector3 scenepos);
 };
 
 #endif //__VoxelWorld_H__

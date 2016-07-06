@@ -40,9 +40,11 @@ public:
     virtual void RegisterCallbacks();
     virtual void UnregisterCallbacks();
 
+    float GetSceneYForNextBlockBelowPosition(Vector3 scenepos);
+
 protected:
     // Callback functions for various events.
-    //MYFW_DECLARE_COMPONENT_CALLBACK_TICK(); // TickCallback
+    MYFW_DECLARE_COMPONENT_CALLBACK_TICK(); // TickCallback
     //MYFW_DECLARE_COMPONENT_CALLBACK_ONSURFACECHANGED(); // OnSurfaceChangedCallback
     //MYFW_DECLARE_COMPONENT_CALLBACK_DRAW(); // DrawCallback
     //MYFW_DECLARE_COMPONENT_CALLBACK_ONTOUCH(); // OnTouchCallback

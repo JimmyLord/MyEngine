@@ -34,6 +34,14 @@ VoxelWorld::~VoxelWorld()
         delete pChunk;
     }
 
+    for( CPPListNode* pNode = m_pChunksLoading.GetHead(); pNode; )
+    {
+        VoxelChunk* pChunk = (VoxelChunk*)pNode;
+        pNode = pNode->GetNext();
+
+        delete pChunk;
+    }    
+
     for( CPPListNode* pNode = m_pChunksVisible.GetHead(); pNode; )
     {
         VoxelChunk* pChunk = (VoxelChunk*)pNode;
@@ -43,12 +51,12 @@ VoxelWorld::~VoxelWorld()
     }
 }
 
-void VoxelWorld::Initialize(Vector3Int worldsize)
+void VoxelWorld::Initialize(Vector3Int visibleworldsize)
 {
     // Make sure init is only called once.
     MyAssert( m_NumChunkPointersAllocated == 0 );
     
-    SetWorldSize( worldsize );
+    SetWorldSize( visibleworldsize );
 
     Vector3 chunkoffset = m_ChunkSize.MultiplyComponents( m_BlockSize );
 
@@ -69,28 +77,27 @@ void VoxelWorld::Initialize(Vector3Int worldsize)
             }
         }
     }
-    
-    for( int z=0; z<m_WorldSize.z; z++ )
-    {
-        for( int y=0; y<m_WorldSize.y; y++ )
-        {
-            for( int x=0; x<m_WorldSize.x; x++ )
-            {
-                int chunkindex = z * m_WorldSize.y * m_WorldSize.x + y * m_WorldSize.x + x;
-                VoxelChunk* pChunk = m_pWorldChunkPtrs[chunkindex];
+}
 
-                pChunk->RebuildMesh();
-            }
-        }
+void VoxelWorld::Tick(double timepassed)
+{
+    // build the mesh for a single chunk per frame.
+    VoxelChunk* pChunk = (VoxelChunk*)m_pChunksLoading.GetHead();
+
+    if( pChunk )
+    {
+        pChunk->RebuildMesh();
+
+        m_pChunksVisible.MoveTail( pChunk );
     }
 }
 
-void VoxelWorld::SetWorldSize(Vector3Int worldsize)
+void VoxelWorld::SetWorldSize(Vector3Int visibleworldsize)
 {
     // TODO: remove this once function is properly implemented
     MyAssert( m_NumChunkPointersAllocated == 0 );
     
-    unsigned int pointersneeded = worldsize.x * worldsize.y * worldsize.z;
+    unsigned int pointersneeded = visibleworldsize.x * visibleworldsize.y * visibleworldsize.z;
 
     if( pointersneeded > m_NumChunkPointersAllocated )
     {
@@ -102,7 +109,26 @@ void VoxelWorld::SetWorldSize(Vector3Int worldsize)
         m_pWorldChunkPtrs = MyNew VoxelChunk*[pointersneeded];
     }
 
-    m_WorldSize = worldsize;
+    m_WorldSize = visibleworldsize;
+}
+
+void VoxelWorld::SetWorldCenter(Vector3 scenepos)
+{
+    Vector3Int worldpos;
+    worldpos.x = (int)(scenepos.x / m_BlockSize.x);
+    worldpos.y = (int)(scenepos.y / m_BlockSize.y);
+    worldpos.z = (int)(scenepos.z / m_BlockSize.z);
+
+    SetWorldCenter( worldpos );
+}
+
+void VoxelWorld::SetWorldCenter(Vector3Int worldpos)
+{
+    Vector3Int currentworldcenter = m_WorldSize / 2;
+
+    int numchunks = m_WorldSize.x * m_WorldSize.y * m_WorldSize.z;
+
+    // shift the current chunks on the x-axis
 }
 
 void VoxelWorld::PrepareChunk(Vector3 pos, Vector3Int size, Vector3Int offset)
@@ -116,7 +142,7 @@ void VoxelWorld::PrepareChunk(Vector3 pos, Vector3Int size, Vector3Int offset)
 
     pChunk->Initialize( this, pos, size, offset );
 
-    m_pChunksVisible.MoveTail( pChunk );
+    m_pChunksLoading.MoveTail( pChunk );
 }
 
 void VoxelWorld::UpdateVisibility(void* pUserData)
@@ -132,6 +158,9 @@ void VoxelWorld::UpdateVisibility(void* pUserData)
     }
 }
 
+// ============================================================================================================================
+// Collision/Block queries
+// ============================================================================================================================
 bool VoxelWorld::IsBlockEnabled(Vector3Int pos)
 {
     return IsBlockEnabled( pos.x, pos.y, pos.z );
@@ -147,4 +176,30 @@ bool VoxelWorld::IsBlockEnabled(int x, int y, int z)
     VoxelChunk* pChunk = m_pWorldChunkPtrs[chunkpos.z * m_WorldSize.y * m_WorldSize.x + chunkpos.y * m_WorldSize.x + chunkpos.x];
 
     return pChunk->IsBlockEnabled( x, y, z );
+}
+
+float VoxelWorld::GetSceneYForNextBlockBelowPosition(Vector3 scenepos)
+{
+    //m_WorldSize.Set( 10, 3, 10 );
+    //m_ChunkSize.Set( 16, 16, 16 );
+    //m_BlockSize.Set( 1, 1, 1 );
+
+    Vector3Int worldpos;
+    worldpos.x = (int)(scenepos.x / m_BlockSize.x);
+    worldpos.y = (int)((scenepos.y + m_BlockSize.y * 1.1f) / m_BlockSize.y); // Move player up a bit, then test
+    worldpos.z = (int)(scenepos.z / m_BlockSize.z);
+
+    bool enabled = IsBlockEnabled( worldpos );
+
+    while( !enabled && worldpos.y > 0 )
+    {
+        worldpos.y--;
+        enabled = IsBlockEnabled( worldpos );
+    }
+
+    int bp = 1;
+
+    float sceney = worldpos.y * m_BlockSize.y + m_BlockSize.y;
+
+    return sceney;
 }
