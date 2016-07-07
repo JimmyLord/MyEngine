@@ -189,6 +189,11 @@ void ComponentVoxelWorld::TickCallback(double TimePassed)
 
     m_pVoxelWorld->Tick( TimePassed );
     m_pVoxelWorld->UpdateVisibility( this );
+
+    GameObject* pPlayer = g_pComponentSystemManager->FindGameObjectByName( "Player" );
+    Vector3 pos = pPlayer->GetTransform()->GetWorldPosition();
+
+    m_pVoxelWorld->SetWorldCenter( pos );
 }
 
 float ComponentVoxelWorld::GetSceneYForNextBlockBelowPosition(Vector3 scenepos)

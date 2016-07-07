@@ -23,8 +23,19 @@ protected:
     Vector3Int m_ChunkSize;
     Vector3 m_BlockSize;
 
-    VoxelChunk** m_pWorldChunkPtrs;
+    Vector3Int m_WorldOffset;
+    VoxelChunk** m_pActiveWorldChunkPtrs;
     unsigned int m_NumChunkPointersAllocated;
+
+protected:
+    unsigned int GetActiveChunkArrayIndex(Vector3Int worldpos);
+    unsigned int GetActiveChunkArrayIndex(int x, int y, int z);
+    VoxelChunk* GetActiveChunk(unsigned int arrayindex);
+    VoxelChunk* GetActiveChunk(Vector3Int worldpos);
+    VoxelChunk* GetActiveChunk(int x, int y, int z);
+
+    void PrepareChunk(Vector3Int worldpos);
+    void ShiftChunk(Vector3Int to, Vector3Int from, bool isedgeblock);
 
 public:
     VoxelWorld();
@@ -33,16 +44,16 @@ public:
     void Tick(double timepassed);
 
     void Initialize(Vector3Int visibleworldsize);
-    Vector3Int& GetWorldSize() { return m_WorldSize; }
+
+    Vector3Int GetWorldSize() { return m_WorldSize; }
     void SetWorldSize(Vector3Int visibleworldsize);
     void SetWorldCenter(Vector3 scenepos);
-    void SetWorldCenter(Vector3Int worldpos);
-
-    void PrepareChunk(Vector3 pos, Vector3Int size, Vector3Int offset);
-
-    Vector3 GetBlockSize() { return m_BlockSize; }
+    void SetWorldCenter(Vector3Int newworldcenter);
 
     void UpdateVisibility(void* pUserData);
+
+public:
+    Vector3 GetBlockSize() { return m_BlockSize; }
 
     // Collision/Block queries
     bool IsBlockEnabled(Vector3Int pos);

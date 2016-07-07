@@ -38,8 +38,6 @@ VoxelChunk::~VoxelChunk()
 
 void VoxelChunk::Initialize(VoxelWorld* world, Vector3 pos, Vector3Int chunksize, Vector3Int chunkoffset)
 {
-    MyAssert( m_pMesh == 0 );
-
     m_pWorld = world;
 
     m_Transform.SetIdentity();
@@ -48,7 +46,8 @@ void VoxelChunk::Initialize(VoxelWorld* world, Vector3 pos, Vector3Int chunksize
     m_ChunkSize = chunksize;
     m_ChunkOffset = chunkoffset;
 
-    m_pBlocks = MyNew VoxelBlock[chunksize.x * chunksize.y * chunksize.z];
+    if( m_pBlocks == 0 )
+        m_pBlocks = MyNew VoxelBlock[chunksize.x * chunksize.y * chunksize.z];
 
     for( int z=0; z<m_ChunkSize.z; z++ )
     {
@@ -70,7 +69,7 @@ void VoxelChunk::Initialize(VoxelWorld* world, Vector3 pos, Vector3Int chunksize
                 }
                 else
                 {
-                    float freq = 1/150.0f;
+                    float freq = 1/50.0f;
 
                     double value = SimplexNoise( worldpos.x * freq, worldpos.z * freq );
 
@@ -88,6 +87,7 @@ void VoxelChunk::Initialize(VoxelWorld* world, Vector3 pos, Vector3Int chunksize
     }
 
     // Create a mesh.
+    if( m_pMesh == 0 )
     {
         m_pMesh = MyNew MyMesh();
 
@@ -158,12 +158,13 @@ void VoxelChunk::RebuildMesh()
                     if( zfront  < minextents.z ) minextents.z = zfront;
                     if( zback   > maxextents.z ) maxextents.z = zback;
 
-                    int r = 3;//rand()%3;
+                    int c = 0;//rand()%3;
+                    int r = 1;//rand()%3;
 
-                    float uleft   = ( 0.0f + 32.0f*r) / 128.0f;
-                    float uright  = (32.0f + 32.0f*r) / 128.0f;
-                    float vtop    = ( 0.0f + 32.0f*0) / 128.0f;
-                    float vbottom = (32.0f + 32.0f*0) / 128.0f;
+                    float uleft   = (32.0f*(c+0)) / 128.0f;
+                    float uright  = (32.0f*(c+1)) / 128.0f;
+                    float vtop    = (32.0f*(r+0)) / 128.0f;
+                    float vbottom = (32.0f*(r+1)) / 128.0f;
 
                     Vector3Int worldpos( m_ChunkOffset.x+x, m_ChunkOffset.y+y, m_ChunkOffset.z+z );
 
@@ -266,6 +267,14 @@ void VoxelChunk::RebuildMesh()
                         pIndices += 6;
                         indexcount += 6;
                     }
+
+                    c = 3;//rand()%3;
+                    r = 0;//rand()%3;
+
+                    uleft   = (32.0f*(c+0)) / 128.0f;
+                    uright  = (32.0f*(c+1)) / 128.0f;
+                    vtop    = (32.0f*(r+0)) / 128.0f;
+                    vbottom = (32.0f*(r+1)) / 128.0f;
 
                     // top
                     if( y == (m_ChunkSize.y-1) && m_pWorld->IsBlockEnabled( worldpos.x, worldpos.y+1, worldpos.z ) )
