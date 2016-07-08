@@ -92,6 +92,20 @@ void LuaGameState::RegisterClasses()
 
     // register Framework classes.
     luabridge::getGlobalNamespace( m_pLuaState )
+        .beginClass<MyMatrix>( "MyMatrix" )
+            .addConstructor<void(*) ()>()
+            .addFunction( "CreateLookAtViewLeftHanded", &MyMatrix::CreateLookAtViewLeftHanded )
+            .addFunction( "CreateLookAtWorld", &MyMatrix::CreateLookAtWorld )
+            .addFunction( "Scale", (void (MyMatrix::*)(float angle)) &MyMatrix::Scale )
+            .addFunction( "Rotate", (void (MyMatrix::*)(float angle, float x, float y, float z)) &MyMatrix::Rotate )
+            .addFunction( "Translate", (void (MyMatrix::*)(Vector3 pos)) &MyMatrix::Translate )
+            .addFunction( "SetIdentity", &MyMatrix::SetIdentity )
+            .addFunction( "CreateSRT", (void (MyMatrix::*)(Vector3 scale, Vector3 rot, Vector3 pos)) &MyMatrix::CreateSRT )
+            .addFunction( "Multiply", (MyMatrix (MyMatrix::*)(const MyMatrix o) const) &MyMatrix::operator* )
+            .addFunction( "CopyFrom", (MyMatrix& (MyMatrix::*)(const MyMatrix& o)) &MyMatrix::operator= )            
+        .endClass();
+
+    luabridge::getGlobalNamespace( m_pLuaState )
         .beginClass<Vector3>( "Vector3" )
             .addConstructor<void(*) (float x, float y, float z)>()
             .addData( "x", &Vector3::x )
