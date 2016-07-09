@@ -304,6 +304,10 @@ ComponentPostEffect* ComponentCamera::GetNextPostEffect(ComponentPostEffect* pLa
 
 void ComponentCamera::OnDrawFrame()
 {
+    // TODO: Clean up, make func other than tick to this.
+    // Update camera view/proj before drawing.
+    Tick( 0 );
+
     //int currentframebuffer;
     //glGetIntegerv( GL_FRAMEBUFFER_BINDING, &currentframebuffer );
  

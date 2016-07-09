@@ -341,6 +341,14 @@ void ComponentTransform::ImportFromJSONObject(cJSON* jsonobj, unsigned int scene
 
     // local scale/rotation/position should be loaded, update the transform.
     UpdateTransform();
+
+    // inform all children/other objects that our transform changed.
+    for( CPPListNode* pNode = m_PositionChangedCallbackList.GetHead(); pNode != 0; pNode = pNode->GetNext() )
+    {
+        TransformPositionChangedCallbackStruct* pCallbackStruct = (TransformPositionChangedCallbackStruct*)pNode;
+
+        pCallbackStruct->pFunc( pCallbackStruct->pObj, m_WorldPosition, true );
+    }
 }
 
 ComponentTransform& ComponentTransform::operator=(const ComponentTransform& other)
@@ -439,13 +447,20 @@ void ComponentTransform::SetLocalTransform(MyMatrix* mat)
     if( m_pParentTransform )
     {
         m_WorldTransform = m_pParentTransform->m_WorldTransform * m_LocalTransform;
+        UpdateWorldSRT();
+    }
+    else
+    {
+        m_WorldTransformIsDirty = false;
+        m_WorldTransform = m_LocalTransform;
+        m_WorldPosition = m_LocalPosition;
+        m_WorldRotation = m_LocalRotation;
+        m_WorldScale = m_LocalScale;
     }
 }
 
 void ComponentTransform::SetLocalPosition(Vector3 pos)
 {
-    UpdateTransform();
-
     m_LocalPosition = pos;
     m_LocalTransformIsDirty = true;
     if( m_pParentTransform == 0 )
@@ -453,6 +468,8 @@ void ComponentTransform::SetLocalPosition(Vector3 pos)
         m_WorldPosition = m_LocalPosition;
         m_WorldTransformIsDirty = true;
     }
+
+    UpdateTransform();
 
     for( CPPListNode* pNode = m_PositionChangedCallbackList.GetHead(); pNode != 0; pNode = pNode->GetNext() )
     {
@@ -471,6 +488,8 @@ void ComponentTransform::SetLocalRotation(Vector3 rot)
         m_WorldRotation = m_LocalRotation;
         m_WorldTransformIsDirty = true;
     }
+
+    UpdateTransform();
 }
 
 void ComponentTransform::SetLocalScale(Vector3 scale)
@@ -482,6 +501,8 @@ void ComponentTransform::SetLocalScale(Vector3 scale)
         m_WorldScale = m_LocalScale;
         m_WorldTransformIsDirty = true;
     }
+
+    UpdateTransform();
 }
 
 void ComponentTransform::SetWorldTransform(MyMatrix* mat)

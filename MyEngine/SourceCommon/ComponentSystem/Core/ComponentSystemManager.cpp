@@ -1780,6 +1780,10 @@ void ComponentSystemManager::Tick(double TimePassed)
     //    }
     //}
 
+    //// don't tick objects if time is 0, useful for debugging, shouldn't be done otherwise
+    //if( TimePassed == 0 )
+    //    return;
+
     // then all other "Updateables".
     for( CPPListNode* node = m_Components[BaseComponentType_Updateable].GetHead(); node != 0; node = node->GetNext() )
     {
