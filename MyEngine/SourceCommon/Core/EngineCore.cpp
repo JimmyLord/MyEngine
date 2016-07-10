@@ -111,7 +111,7 @@ EngineCore::~EngineCore()
 #if MYFW_USING_WX
     for( int i=0; i<EditorInterfaceType_NumInterfaces; i++ )
         SAFE_DELETE( m_pEditorInterfaces[i] );
-#endif MYFW_USING_WX
+#endif //MYFW_USING_WX
 
     g_pFileManager->FreeFile( m_pShaderFile_TintColor );
     g_pFileManager->FreeFile( m_pShaderFile_ClipSpaceTexture );
@@ -282,6 +282,11 @@ void EngineCore::OneTimeInit()
 
     if( g_pImGuiManager )
         g_pImGuiManager->Init();
+
+#if !MYFW_USING_WX
+    // TODO: fix! this won't work if flags were customized and saved into editorprefs.ini
+    InitializeGameObjectFlagStrings( 0 );
+#endif
 }
 
 bool EngineCore::IsReadyToRender()
@@ -469,6 +474,9 @@ void EngineCore::OnFocusGained()
 #endif
 
     // reload any files that changed while we were out of focus.
+    if( g_pFileManager == 0 )
+        return;
+
     int filesupdated = g_pFileManager->ReloadAnyUpdatedFiles( OnFileUpdated_CallbackFunction );
 
     if( filesupdated )

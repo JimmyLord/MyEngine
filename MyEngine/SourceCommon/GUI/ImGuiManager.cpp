@@ -184,6 +184,9 @@ void ImGuiManager::EndFrame(float width, float height, bool draw)
 // - in your Render function, try translating your projection matrix by (0.5f,0.5f) or (0.375f,0.375f)
 void ImGuiManager::RenderDrawLists(ImDrawData* draw_data)
 {
+#if MYFW_NACL
+    // TODO: fix me
+#else
     checkGlError( "Start of ImGuiManager::RenderDrawLists()" );
 
     MyUseProgram( 0 );
@@ -266,4 +269,5 @@ void ImGuiManager::RenderDrawLists(ImDrawData* draw_data)
     glViewport(last_viewport[0], last_viewport[1], (GLsizei)last_viewport[2], (GLsizei)last_viewport[3]);
 
     checkGlError( "End of ImGuiManager::RenderDrawLists()" );
+#endif
 }

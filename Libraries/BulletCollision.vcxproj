@@ -173,7 +173,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|PNaCl'">
     <ClCompile>
       <Optimization>Full</Optimization>
-      <AdditionalIncludeDirectories>bullet3/src;$(SolutionDir)../MyEngine/SourceNaCL</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>bullet3/src;../MyEngine/SourceNaCL</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>
       </PreprocessorDefinitions>
       <MinimalRebuild>false</MinimalRebuild>
@@ -306,7 +306,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|PNaCl'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>bullet3/src;$(SolutionDir)../MyEngine/SourceNaCL</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>bullet3/src;../MyEngine/SourceNaCL</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_DEBUG=1;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>false</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>

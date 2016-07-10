@@ -447,7 +447,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>MYFW_NACL;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(SolutionDir)../Framework/Box2D_v2.2.1;SourceCommon;$(SolutionDir)../Framework/Libraries/wxWidgets/include/msvc;$(SolutionDir)../Framework/Libraries/wxWidgets/include;$(ProjectDir)../Libraries/bullet3/src/;SourceNaCL</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)../Framework/Libraries/Box2D/Box2D;SourceCommon;$(SolutionDir)../Framework/Libraries/wxWidgets/include/msvc;$(SolutionDir)../Framework/Libraries/wxWidgets/include;$(ProjectDir)../Libraries/bullet3/src/;SourceNaCL</AdditionalIncludeDirectories>
       <PrecompiledHeaderFile>EngineCommonHeader.h</PrecompiledHeaderFile>
       <AdditionalOptions>-DLUA_32BITS %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
@@ -465,7 +465,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>MYFW_EMSCRIPTEN;_DEBUG</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.;..\Framework\Box2D_v2.2.1;SourceCommon</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.;../../Framework/Libraries/Box2D/Box2D;SourceCommon;../Libraries/bullet3/src/</AdditionalIncludeDirectories>
       <PrecompiledHeaderFile>EngineCommonHeader.h</PrecompiledHeaderFile>
     </ClCompile>
     <Link>
@@ -522,7 +522,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>MYFW_NACL;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(SolutionDir)../Framework/Box2D_v2.2.1;SourceCommon;$(SolutionDir)../Framework/Libraries/wxWidgets/include/msvc;$(SolutionDir)../Framework/Libraries/wxWidgets/include;$(ProjectDir)../Libraries/bullet3/src/;SourceNaCL</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)../Framework/Libraries/Box2D/Box2D;SourceCommon;$(SolutionDir)../Framework/Libraries/wxWidgets/include/msvc;$(SolutionDir)../Framework/Libraries/wxWidgets/include;$(ProjectDir)../Libraries/bullet3/src/;SourceNaCL</AdditionalIncludeDirectories>
       <PrecompiledHeaderFile>EngineCommonHeader.h</PrecompiledHeaderFile>
       <AdditionalOptions>-DLUA_32BITS %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
@@ -540,7 +540,7 @@
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>MYFW_EMSCRIPTEN;_DEBUG</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.;..\Framework\Box2D_v2.2.1;SourceCommon</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.;../../Framework/Libraries/Box2D/Box2D;SourceCommon;../Libraries/bullet3/src/</AdditionalIncludeDirectories>
       <PrecompiledHeaderFile>EngineCommonHeader.h</PrecompiledHeaderFile>
     </ClCompile>
     <Link>
@@ -658,7 +658,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>MYFW_NACL;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(SolutionDir)../Framework/Box2D_v2.2.1;SourceCommon;$(SolutionDir)../Framework/Libraries/wxWidgets/include/msvc;$(SolutionDir)../Framework/Libraries/wxWidgets/include;$(ProjectDir)../Libraries/bullet3/src/;SourceNaCL</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)../Framework/Libraries/Box2D/Box2D;SourceCommon;$(SolutionDir)../Framework/Libraries/wxWidgets/include/msvc;$(SolutionDir)../Framework/Libraries/wxWidgets/include;$(ProjectDir)../Libraries/bullet3/src/;SourceNaCL</AdditionalIncludeDirectories>
       <PrecompiledHeaderFile>EngineCommonHeader.h</PrecompiledHeaderFile>
       <AdditionalOptions>-DLUA_32BITS %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
@@ -680,7 +680,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>MYFW_EMSCRIPTEN;NDEBUG</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.;..\Framework\Box2D_v2.2.1;SourceCommon</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.;../../Framework/Libraries/Box2D/Box2D;SourceCommon;../Libraries/bullet3/src/</AdditionalIncludeDirectories>
       <PrecompiledHeaderFile>EngineCommonHeader.h</PrecompiledHeaderFile>
     </ClCompile>
     <Link>
@@ -747,7 +747,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>MYFW_NACL;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>$(SolutionDir)../Framework/Box2D_v2.2.1;SourceCommon;$(SolutionDir)../Framework/Libraries/wxWidgets/include/msvc;$(SolutionDir)../Framework/Libraries/wxWidgets/include;$(ProjectDir)../Libraries/bullet3/src/;SourceNaCL</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)../Framework/Libraries/Box2D/Box2D;SourceCommon;$(SolutionDir)../Framework/Libraries/wxWidgets/include/msvc;$(SolutionDir)../Framework/Libraries/wxWidgets/include;$(ProjectDir)../Libraries/bullet3/src/;SourceNaCL</AdditionalIncludeDirectories>
       <PrecompiledHeaderFile>EngineCommonHeader.h</PrecompiledHeaderFile>
       <AdditionalOptions>-DLUA_32BITS %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
@@ -769,7 +769,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>MYFW_EMSCRIPTEN;NDEBUG</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>.;..\Framework\Box2D_v2.2.1;SourceCommon</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>.;../../Framework/Libraries/Box2D/Box2D;SourceCommon;../Libraries/bullet3/src/</AdditionalIncludeDirectories>
       <PrecompiledHeaderFile>EngineCommonHeader.h</PrecompiledHeaderFile>
     </ClCompile>
     <Link>
@@ -1467,6 +1467,10 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='WxRelease|PNaCl'">true</ExcludedFromBuild>
       <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='WxDebug|Win32'">
       </ForcedIncludeFiles>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Emscripten'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Emscripten'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='WxDebug|Emscripten'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='WxRelease|Emscripten'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="..\Libraries\Lua\src\luac.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='WxDebug|Win32'">NotUsing</PrecompiledHeader>
@@ -1503,6 +1507,10 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='WxRelease|PNaCl'">true</ExcludedFromBuild>
       <ForcedIncludeFiles Condition="'$(Configuration)|$(Platform)'=='WxDebug|Win32'">
       </ForcedIncludeFiles>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Emscripten'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Emscripten'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='WxDebug|Emscripten'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='WxRelease|Emscripten'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="..\Libraries\Lua\src\lundump.c">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='WxDebug|Win32'">NotUsing</PrecompiledHeader>
@@ -1634,6 +1642,10 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|PNaCl'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='WxDebug|PNaCl'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='WxRelease|PNaCl'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Emscripten'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Emscripten'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='WxDebug|Emscripten'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='WxRelease|Emscripten'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="SourceCommon\Editor\EngineCommandStack.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
@@ -1648,6 +1660,10 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|PNaCl'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='WxDebug|PNaCl'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='WxRelease|PNaCl'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Emscripten'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Emscripten'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='WxDebug|Emscripten'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='WxRelease|Emscripten'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="SourceCommon\Editor\EngineEditorCommands.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
@@ -1662,6 +1678,10 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|PNaCl'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='WxDebug|PNaCl'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='WxRelease|PNaCl'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Emscripten'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Emscripten'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='WxDebug|Emscripten'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='WxRelease|Emscripten'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="SourceCommon\Editor\EngineMainFrame.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Android'">true</ExcludedFromBuild>
@@ -1748,6 +1768,10 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|PNaCl'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='WxDebug|PNaCl'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='WxRelease|PNaCl'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Emscripten'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Emscripten'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='WxDebug|Emscripten'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='WxRelease|Emscripten'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="SourceCommon\EngineCommonHeader.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -1767,7 +1791,12 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|PNaCl'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Emscripten'">Create</PrecompiledHeader>
     </ClCompile>
-    <ClCompile Include="SourceCommon\GUI\ImGuiManager.cpp" />
+    <ClCompile Include="SourceCommon\GUI\ImGuiManager.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Emscripten'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Emscripten'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='WxDebug|Emscripten'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='WxRelease|Emscripten'">true</ExcludedFromBuild>
+    </ClCompile>
     <ClCompile Include="SourceCommon\Physics\EngineBox2DContactListener.cpp" />
     <ClCompile Include="SourceCommon\Voxels\ComponentVoxelWorld.cpp" />
     <ClCompile Include="SourceCommon\Voxels\VoxelBlock.cpp" />
@@ -1882,6 +1911,10 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|PNaCl'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='WxDebug|PNaCl'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='WxRelease|PNaCl'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Emscripten'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Emscripten'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='WxDebug|Emscripten'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='WxRelease|Emscripten'">true</ExcludedFromBuild>
     </ClInclude>
     <ClInclude Include="SourceCommon\Editor\EngineCommandStack.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
@@ -1896,6 +1929,10 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|PNaCl'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='WxDebug|PNaCl'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='WxRelease|PNaCl'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Emscripten'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Emscripten'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='WxDebug|Emscripten'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='WxRelease|Emscripten'">true</ExcludedFromBuild>
     </ClInclude>
     <ClInclude Include="SourceCommon\Editor\EngineEditorCommands.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
@@ -1910,6 +1947,10 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|PNaCl'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='WxDebug|PNaCl'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='WxRelease|PNaCl'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Emscripten'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Emscripten'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='WxDebug|Emscripten'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='WxRelease|Emscripten'">true</ExcludedFromBuild>
     </ClInclude>
     <ClInclude Include="SourceCommon\Editor\EngineMainFrame.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Android'">true</ExcludedFromBuild>
@@ -1996,9 +2037,18 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|PNaCl'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='WxDebug|PNaCl'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='WxRelease|PNaCl'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Emscripten'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Emscripten'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='WxDebug|Emscripten'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='WxRelease|Emscripten'">true</ExcludedFromBuild>
     </ClInclude>
     <ClInclude Include="SourceCommon\EngineCommonHeader.h" />
-    <ClInclude Include="SourceCommon\GUI\ImGuiManager.h" />
+    <ClInclude Include="SourceCommon\GUI\ImGuiManager.h">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Emscripten'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Emscripten'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='WxDebug|Emscripten'">true</ExcludedFromBuild>
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='WxRelease|Emscripten'">true</ExcludedFromBuild>
+    </ClInclude>
     <ClInclude Include="SourceCommon\Physics\EngineBox2DContactListener.h" />
     <ClInclude Include="SourceCommon\Voxels\ComponentVoxelWorld.h" />
     <ClInclude Include="SourceCommon\Voxels\VoxelBlock.h" />

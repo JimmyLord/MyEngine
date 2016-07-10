@@ -1,17 +1,33 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|PNaCl">
+      <Configuration>Debug</Configuration>
+      <Platform>PNaCl</Platform>
+    </ProjectConfiguration>
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
       <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|PNaCl">
+      <Configuration>Release</Configuration>
+      <Platform>PNaCl</Platform>
     </ProjectConfiguration>
     <ProjectConfiguration Include="Release|Win32">
       <Configuration>Release</Configuration>
       <Platform>Win32</Platform>
     </ProjectConfiguration>
+    <ProjectConfiguration Include="WxDebug|PNaCl">
+      <Configuration>WxDebug</Configuration>
+      <Platform>PNaCl</Platform>
+    </ProjectConfiguration>
     <ProjectConfiguration Include="WxDebug|Win32">
       <Configuration>WxDebug</Configuration>
       <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="WxRelease|PNaCl">
+      <Configuration>WxRelease</Configuration>
+      <Platform>PNaCl</Platform>
     </ProjectConfiguration>
     <ProjectConfiguration Include="WxRelease|Win32">
       <Configuration>WxRelease</Configuration>
@@ -28,12 +44,28 @@
     <UseDebugLibraries>true</UseDebugLibraries>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|PNaCl'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='WxDebug|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='WxDebug|PNaCl'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|PNaCl'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <WholeProgramOptimization>true</WholeProgramOptimization>
@@ -45,19 +77,37 @@
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='WxRelease|PNaCl'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|PNaCl'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='WxDebug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='WxDebug|PNaCl'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|PNaCl'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='WxRelease|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='WxRelease|PNaCl'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
@@ -66,20 +116,44 @@
     <IntDir>$(SolutionDir)Output\Intermediate\$(PlatformName)\$(TargetName)\$(Configuration)\</IntDir>
     <TargetName>$(ProjectName)_$(Configuration)</TargetName>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|PNaCl'">
+    <OutDir>$(SolutionDir)Output\$(PlatformName)\$(TargetName)\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)Output\Intermediate\$(PlatformName)\$(TargetName)\$(Configuration)\</IntDir>
+    <TargetName>lib$(ProjectName)_$(Configuration)</TargetName>
+    <NaClAddInVersion>1</NaClAddInVersion>
+  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='WxDebug|Win32'">
     <OutDir>$(SolutionDir)Output\$(PlatformName)\$(TargetName)\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)Output\Intermediate\$(PlatformName)\$(TargetName)\$(Configuration)\</IntDir>
     <TargetName>$(ProjectName)_$(Configuration)</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='WxDebug|PNaCl'">
+    <OutDir>$(SolutionDir)Output\$(PlatformName)\$(TargetName)\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)Output\Intermediate\$(PlatformName)\$(TargetName)\$(Configuration)\</IntDir>
+    <TargetName>lib$(ProjectName)_$(Configuration)</TargetName>
+    <NaClAddInVersion>1</NaClAddInVersion>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>$(SolutionDir)Output\$(PlatformName)\$(TargetName)\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)Output\Intermediate\$(PlatformName)\$(TargetName)\$(Configuration)\</IntDir>
     <TargetName>$(ProjectName)_$(Configuration)</TargetName>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|PNaCl'">
+    <OutDir>$(SolutionDir)Output\$(PlatformName)\$(TargetName)\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)Output\Intermediate\$(PlatformName)\$(TargetName)\$(Configuration)\</IntDir>
+    <TargetName>lib$(ProjectName)_$(Configuration)</TargetName>
+    <NaClAddInVersion>1</NaClAddInVersion>
+  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='WxRelease|Win32'">
     <OutDir>$(SolutionDir)Output\$(PlatformName)\$(TargetName)\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)Output\Intermediate\$(PlatformName)\$(TargetName)\$(Configuration)\</IntDir>
     <TargetName>$(ProjectName)_$(Configuration)</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='WxRelease|PNaCl'">
+    <OutDir>$(SolutionDir)Output\$(PlatformName)\$(TargetName)\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)Output\Intermediate\$(PlatformName)\$(TargetName)\$(Configuration)\</IntDir>
+    <TargetName>lib$(ProjectName)_$(Configuration)</TargetName>
+    <NaClAddInVersion>1</NaClAddInVersion>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -95,6 +169,22 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|PNaCl'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>SharedCommonHeader.h</PrecompiledHeaderFile>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <AdditionalIncludeDirectories>$(SolutionDir)../Engine/MyEngine/SourceNaCL;$(SolutionDir)../Engine/MyEngine/SourceCommon;$(SolutionDir)../Engine/Libraries/SharedGameCode;$(SolutionDir)../SharedGameCode;$(SolutionDir)../Framework/Libraries/Box2D/Box2D;$(SolutionDir)../Framework/Libraries/wxWidgets/include/msvc;$(SolutionDir)../Framework/Libraries/wxWidgets/include;$(SolutionDir)../Engine/Libraries/bullet3/src/</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>MYFW_NACL;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalOptions>-DLUA_32BITS %(AdditionalOptions)</AdditionalOptions>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>ppapi_cpp;ppapi;</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='WxDebug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
@@ -107,6 +197,22 @@
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='WxDebug|PNaCl'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>SharedCommonHeader.h</PrecompiledHeaderFile>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <AdditionalIncludeDirectories>$(SolutionDir)../Engine/MyEngine/SourceNaCL;$(SolutionDir)../Engine/MyEngine/SourceCommon;$(SolutionDir)../Engine/Libraries/SharedGameCode;$(SolutionDir)../SharedGameCode;$(SolutionDir)../Framework/Libraries/Box2D/Box2D;$(SolutionDir)../Framework/Libraries/wxWidgets/include/msvc;$(SolutionDir)../Framework/Libraries/wxWidgets/include;$(SolutionDir)../Engine/Libraries/bullet3/src/</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>MYFW_NACL;_DEBUG;MYFW_USING_WX;wxMSVC_VERSION_AUTO;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalOptions>-DLUA_32BITS %(AdditionalOptions)</AdditionalOptions>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>ppapi_cpp;ppapi;</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -127,6 +233,26 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
   </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|PNaCl'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>SharedCommonHeader.h</PrecompiledHeaderFile>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <AdditionalIncludeDirectories>$(SolutionDir)../Engine/MyEngine/SourceNaCL;$(SolutionDir)../Engine/MyEngine/SourceCommon;$(SolutionDir)../Engine/Libraries/SharedGameCode;$(SolutionDir)../SharedGameCode;$(SolutionDir)../Framework/Libraries/Box2D/Box2D;$(SolutionDir)../Framework/Libraries/wxWidgets/include/msvc;$(SolutionDir)../Framework/Libraries/wxWidgets/include;$(SolutionDir)../Engine/Libraries/bullet3/src/</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>MYFW_NACL;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalOptions>-DLUA_32BITS %(AdditionalOptions)</AdditionalOptions>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>ppapi_cpp;ppapi;</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='WxRelease|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
@@ -143,6 +269,26 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='WxRelease|PNaCl'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>SharedCommonHeader.h</PrecompiledHeaderFile>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <AdditionalIncludeDirectories>$(SolutionDir)../Engine/MyEngine/SourceNaCL;$(SolutionDir)../Engine/MyEngine/SourceCommon;$(SolutionDir)../Engine/Libraries/SharedGameCode;$(SolutionDir)../SharedGameCode;$(SolutionDir)../Framework/Libraries/Box2D/Box2D;$(SolutionDir)../Framework/Libraries/wxWidgets/include/msvc;$(SolutionDir)../Framework/Libraries/wxWidgets/include;$(SolutionDir)../Engine/Libraries/bullet3/src/</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>MYFW_NACL;NDEBUG;MYFW_USING_WX;wxMSVC_VERSION_AUTO;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalOptions>-DLUA_32BITS %(AdditionalOptions)</AdditionalOptions>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>ppapi_cpp;ppapi;</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -163,12 +309,19 @@
     <ClCompile Include="..\..\..\SharedGameCode\Menus\Menu_Helpers.cpp" />
     <ClCompile Include="SharedCommonHeader.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|PNaCl'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='WxDebug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='WxDebug|PNaCl'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|PNaCl'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='WxRelease|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='WxRelease|PNaCl'">Create</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">SharedCommonHeader.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|PNaCl'">SharedCommonHeader.h</PrecompiledHeaderFile>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">SharedCommonHeader.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|PNaCl'">SharedCommonHeader.h</PrecompiledHeaderFile>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='WxDebug|Win32'">SharedCommonHeader.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='WxDebug|PNaCl'">SharedCommonHeader.h</PrecompiledHeaderFile>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
