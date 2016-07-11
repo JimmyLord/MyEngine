@@ -142,9 +142,15 @@ EngineCore::~EngineCore()
     m_SingleFrameMemoryStack.Cleanup();
 }
 
+// Helper functions for some global namespace lua binding.
 void EngineCoreSetMousePosition(float x, float y)
 {
     g_pEngineCore->SetMousePosition( x, y );
+}
+
+void EngineCoreSetMouseLock(bool lock)
+{
+    g_pEngineCore->SetMouseLock( lock );
 }
 
 #if MYFW_USING_LUA
@@ -158,6 +164,7 @@ void EngineCore::LuaRegister(lua_State* luastate)
         .endClass();
     
     luabridge::getGlobalNamespace( luastate ).addFunction( "SetMousePosition", EngineCoreSetMousePosition );    
+    luabridge::getGlobalNamespace( luastate ).addFunction( "SetMouseLock", EngineCoreSetMouseLock );    
 }
 #endif //MYFW_USING_LUA
 
@@ -762,12 +769,12 @@ bool EngineCore::OnTouch(int action, int id, float x, float y, float pressure, f
         return true;
 #endif
 
-    // prefer 0,0 at bottom left.
-    y = pCamera->m_WindowHeight - y;
+    //// prefer 0,0 at bottom left.
+    //y = pCamera->m_WindowHeight - y;
 
-    // convert mouse to x/y in Camera2D space. TODO: put this in camera component.
-    x = (x - pCamera->m_Camera2D.m_ScreenOffsetX - pCamera->m_WindowStartX) / pCamera->m_Camera2D.m_ScreenWidth * m_GameWidth;
-    y = (y - pCamera->m_Camera2D.m_ScreenOffsetY + pCamera->m_WindowStartY) / pCamera->m_Camera2D.m_ScreenHeight * m_GameHeight;
+    //// convert mouse to x/y in Camera2D space. TODO: put this in camera component.
+    //x = (x - pCamera->m_Camera2D.m_ScreenOffsetX - pCamera->m_WindowStartX) / pCamera->m_Camera2D.m_ScreenWidth * m_GameWidth;
+    //y = (y - pCamera->m_Camera2D.m_ScreenOffsetY + pCamera->m_WindowStartY) / pCamera->m_Camera2D.m_ScreenHeight * m_GameHeight;
 
     m_LastMousePos.Set( x, y );
 
