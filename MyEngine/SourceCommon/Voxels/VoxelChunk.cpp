@@ -179,7 +179,7 @@ void VoxelChunk::RebuildMesh()
                         pVerts[2].pos.x = xleft;  pVerts[2].pos.y = ybottom; pVerts[2].pos.z = zfront; pVerts[2].uv.x = uleft;  pVerts[2].uv.y = vbottom; // lower left
                         pVerts[3].pos.x = xright; pVerts[3].pos.y = ybottom; pVerts[3].pos.z = zfront; pVerts[3].uv.x = uright; pVerts[3].uv.y = vbottom; // lower right
                         for( int i=0; i<4; i++ )
-                            pVerts[i].normal.Set( 0, 0, 1 );
+                            pVerts[i].normal.Set( 0, 0, -1 );
                         for( int i=0; i<6; i++ )
                             pIndices[i] = (unsigned short)(vertcount + g_SpriteVertexIndices[i]);
                         pVerts += 4;
@@ -199,7 +199,7 @@ void VoxelChunk::RebuildMesh()
                         pVerts[2].pos.x = xright; pVerts[2].pos.y = ybottom; pVerts[2].pos.z = zback;  pVerts[2].uv.x = uleft;  pVerts[2].uv.y = vbottom;
                         pVerts[3].pos.x = xleft;  pVerts[3].pos.y = ybottom; pVerts[3].pos.z = zback;  pVerts[3].uv.x = uright; pVerts[3].uv.y = vbottom;
                         for( int i=0; i<4; i++ )
-                            pVerts[i].normal.Set( 0, 0, -1 );
+                            pVerts[i].normal.Set( 0, 0, 1 );
                         for( int i=0; i<6; i++ )
                             pIndices[i] = (unsigned short)(vertcount + g_SpriteVertexIndices[i]);
                         pVerts += 4;

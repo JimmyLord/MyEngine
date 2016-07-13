@@ -846,7 +846,7 @@ bool EngineCore::OnChar(unsigned int c)
         g_pImGuiManager->OnChar( c );
     }
 
-    return true;
+    return false;
 }
 
 void EngineCore::OnModeTogglePlayStop()

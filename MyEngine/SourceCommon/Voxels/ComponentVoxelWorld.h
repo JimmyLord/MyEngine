@@ -40,7 +40,7 @@ public:
     virtual void RegisterCallbacks();
     virtual void UnregisterCallbacks();
 
-    float GetSceneYForNextBlockBelowPosition(Vector3 scenepos);
+    float GetSceneYForNextBlockBelowPosition(Vector3 scenepos, float radius);
 
 protected:
     // Callback functions for various events.

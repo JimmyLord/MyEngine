@@ -196,10 +196,10 @@ void ComponentVoxelWorld::TickCallback(double TimePassed)
     m_pVoxelWorld->SetWorldCenter( pos );
 }
 
-float ComponentVoxelWorld::GetSceneYForNextBlockBelowPosition(Vector3 scenepos)
+float ComponentVoxelWorld::GetSceneYForNextBlockBelowPosition(Vector3 scenepos, float radius)
 {
     if( m_pVoxelWorld == 0 )
         return 0;
 
-    return m_pVoxelWorld->GetSceneYForNextBlockBelowPosition( scenepos );
+    return m_pVoxelWorld->GetSceneYForNextBlockBelowPosition( scenepos, radius );
 }

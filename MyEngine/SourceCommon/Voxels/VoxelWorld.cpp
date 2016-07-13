@@ -310,6 +310,11 @@ void VoxelWorld::ShiftChunk(Vector3Int to, Vector3Int from, bool isedgeblock)
 }
 
 // ============================================================================================================================
+// Space conversions
+// ============================================================================================================================
+
+
+// ============================================================================================================================
 // Collision/Block queries
 // ============================================================================================================================
 bool VoxelWorld::IsBlockEnabled(Vector3Int pos)
@@ -334,28 +339,41 @@ bool VoxelWorld::IsBlockEnabled(int x, int y, int z)
     return pChunk->IsBlockEnabled( x, y, z );
 }
 
-float VoxelWorld::GetSceneYForNextBlockBelowPosition(Vector3 scenepos)
+float VoxelWorld::GetSceneYForNextBlockBelowPosition(Vector3 scenepos, float radius)
 {
     //m_WorldSize.Set( 10, 3, 10 );
     //m_ChunkSize.Set( 16, 16, 16 );
     //m_BlockSize.Set( 1, 1, 1 );
 
     Vector3Int worldpos;
-    worldpos.x = (int)(scenepos.x / m_BlockSize.x);
-    worldpos.y = (int)((scenepos.y + m_BlockSize.y * 1.1f) / m_BlockSize.y); // Move player up a bit, then test
-    worldpos.z = (int)(scenepos.z / m_BlockSize.z);
-
-    bool enabled = IsBlockEnabled( worldpos );
-
-    while( !enabled && worldpos.y > 0 )
+    float highesty = -FLT_MAX;
+    for( int i=0; i<4; i++ )
     {
-        worldpos.y--;
-        enabled = IsBlockEnabled( worldpos );
+        float xoff;
+        float zoff;
+
+        if( i == 0 )      { xoff = radius * -1; zoff = radius * -1; }
+        else if( i == 1 ) { xoff = radius * -1; zoff = radius *  1; }
+        else if( i == 2 ) { xoff = radius *  1; zoff = radius * -1; }
+        else if( i == 3 ) { xoff = radius *  1; zoff = radius *  1; }
+
+        worldpos.x = (int)((scenepos.x + xoff + m_BlockSize.x/2) / m_BlockSize.x);
+        worldpos.y = (int)((scenepos.y + m_BlockSize.y * 1.1f) / m_BlockSize.y); // Move player up a bit, then test
+        worldpos.z = (int)((scenepos.z + zoff + m_BlockSize.x/2) / m_BlockSize.z);
+
+        bool enabled = IsBlockEnabled( worldpos );
+
+        while( !enabled && worldpos.y > 0 )
+        {
+            worldpos.y--;
+            enabled = IsBlockEnabled( worldpos );
+        }
+
+        float sceney = worldpos.y * m_BlockSize.y + m_BlockSize.y;
+
+        if( sceney > highesty )
+            highesty = sceney;
     }
 
-    int bp = 1;
-
-    float sceney = worldpos.y * m_BlockSize.y + m_BlockSize.y;
-
-    return sceney;
+    return highesty;
 }

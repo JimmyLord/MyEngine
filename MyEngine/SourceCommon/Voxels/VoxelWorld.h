@@ -55,10 +55,12 @@ public:
 public:
     Vector3 GetBlockSize() { return m_BlockSize; }
 
+    // Space conversions
+
     // Collision/Block queries
     bool IsBlockEnabled(Vector3Int pos);
     bool IsBlockEnabled(int x, int y, int z);
-    float GetSceneYForNextBlockBelowPosition(Vector3 scenepos);
+    float GetSceneYForNextBlockBelowPosition(Vector3 scenepos, float radius);
 };
 
 #endif //__VoxelWorld_H__
