@@ -371,10 +371,13 @@ bool VoxelChunk::IsBlockEnabled(Vector3Int worldpos)
 
 bool VoxelChunk::IsBlockEnabled(int worldx, int worldy, int worldz)
 {
-    if( worldx < 0 || worldy < 0 || worldz < 0 )
-        return false;
+    //if( worldx < 0 || worldy < 0 || worldz < 0 )
+    //    return false;
 
     Vector3Int localpos( worldx%m_ChunkSize.x, worldy%m_ChunkSize.y, worldz%m_ChunkSize.z );
+    if( localpos.x < 0 ) localpos.x += m_ChunkSize.x;
+    if( localpos.y < 0 ) localpos.y += m_ChunkSize.y;
+    if( localpos.z < 0 ) localpos.z += m_ChunkSize.z;
 
     if( localpos.x >= m_ChunkSize.x || localpos.y >= m_ChunkSize.y || localpos.z >= m_ChunkSize.z )
         return false;

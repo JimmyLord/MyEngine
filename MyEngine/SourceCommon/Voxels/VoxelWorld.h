@@ -28,13 +28,13 @@ protected:
     unsigned int m_NumChunkPointersAllocated;
 
 protected:
-    unsigned int GetActiveChunkArrayIndex(Vector3Int worldpos);
-    unsigned int GetActiveChunkArrayIndex(int x, int y, int z);
+    unsigned int GetActiveChunkArrayIndex(Vector3Int chunkpos);
+    unsigned int GetActiveChunkArrayIndex(int chunkx, int chunky, int chunkz);
     VoxelChunk* GetActiveChunk(unsigned int arrayindex);
-    VoxelChunk* GetActiveChunk(Vector3Int worldpos);
-    VoxelChunk* GetActiveChunk(int x, int y, int z);
+    VoxelChunk* GetActiveChunk(Vector3Int chunkpos);
+    VoxelChunk* GetActiveChunk(int chunkx, int chunky, int chunkz);
 
-    void PrepareChunk(Vector3Int worldpos);
+    void PrepareChunk(Vector3Int chunkpos);
     void ShiftChunk(Vector3Int to, Vector3Int from, bool isedgeblock);
 
 public:
@@ -56,6 +56,8 @@ public:
     Vector3 GetBlockSize() { return m_BlockSize; }
 
     // Space conversions
+    Vector3Int GetWorldPosition(Vector3 scenepos);
+    Vector3Int GetChunkPosition(Vector3Int worldpos);
 
     // Collision/Block queries
     bool IsBlockEnabled(Vector3Int pos);

@@ -233,16 +233,16 @@ void VoxelWorld::UpdateVisibility(void* pUserData)
 // ============================================================================================================================
 // Protected/Internal functions
 // ============================================================================================================================
-unsigned int VoxelWorld::GetActiveChunkArrayIndex(Vector3Int worldpos)
+unsigned int VoxelWorld::GetActiveChunkArrayIndex(Vector3Int chunkpos)
 {
-    return GetActiveChunkArrayIndex( worldpos.x, worldpos.y, worldpos.z );
+    return GetActiveChunkArrayIndex( chunkpos.x, chunkpos.y, chunkpos.z );
 }
 
-unsigned int VoxelWorld::GetActiveChunkArrayIndex(int worldx, int worldy, int worldz)
+unsigned int VoxelWorld::GetActiveChunkArrayIndex(int chunkx, int chunky, int chunkz)
 {
-    unsigned int index = (worldz - m_WorldOffset.z) * m_WorldSize.y * m_WorldSize.x +
-                         (worldy - m_WorldOffset.y) * m_WorldSize.x +
-                         (worldx - m_WorldOffset.x);
+    unsigned int index = (chunkz - m_WorldOffset.z) * m_WorldSize.y * m_WorldSize.x +
+                         (chunky - m_WorldOffset.y) * m_WorldSize.x +
+                         (chunkx - m_WorldOffset.x);
 
     MyAssert( index < m_NumChunkPointersAllocated );
 
@@ -252,21 +252,22 @@ unsigned int VoxelWorld::GetActiveChunkArrayIndex(int worldx, int worldy, int wo
 VoxelChunk* VoxelWorld::GetActiveChunk(unsigned int arrayindex)
 {
     MyAssert( arrayindex < m_NumChunkPointersAllocated );
+    MyAssert( arrayindex < (unsigned int)(m_WorldSize.x * m_WorldSize.y * m_WorldSize.z) );
 
     return m_pActiveWorldChunkPtrs[arrayindex];
 }
 
-VoxelChunk* VoxelWorld::GetActiveChunk(Vector3Int worldpos)
+VoxelChunk* VoxelWorld::GetActiveChunk(Vector3Int chunkpos)
 {
-    return GetActiveChunk( GetActiveChunkArrayIndex( worldpos ) );
+    return GetActiveChunk( GetActiveChunkArrayIndex( chunkpos ) );
 }
 
-VoxelChunk* VoxelWorld::GetActiveChunk(int x, int y, int z)
+VoxelChunk* VoxelWorld::GetActiveChunk(int chunkx, int chunky, int chunkz)
 {
-    return GetActiveChunk( GetActiveChunkArrayIndex( x, y, z ) );
+    return GetActiveChunk( GetActiveChunkArrayIndex( chunkx, chunky, chunkz ) );
 }
 
-void VoxelWorld::PrepareChunk(Vector3Int worldpos)
+void VoxelWorld::PrepareChunk(Vector3Int chunkpos)
 {
     VoxelChunk* pChunk = (VoxelChunk*)m_pChunksFree.GetHead();
     if( pChunk == 0 )
@@ -275,10 +276,10 @@ void VoxelWorld::PrepareChunk(Vector3Int worldpos)
         return;
     }
 
-    Vector3Int chunkblockoffset = m_ChunkSize.MultiplyComponents( worldpos );
+    Vector3Int chunkblockoffset = m_ChunkSize.MultiplyComponents( chunkpos );
     Vector3 chunkposition = chunkblockoffset.MultiplyComponents( m_BlockSize );
 
-    unsigned int arrayindex = GetActiveChunkArrayIndex( worldpos );
+    unsigned int arrayindex = GetActiveChunkArrayIndex( chunkpos );
     m_pActiveWorldChunkPtrs[arrayindex] = pChunk;
 
     pChunk->Initialize( this, chunkposition, m_ChunkSize, chunkblockoffset );
@@ -312,31 +313,49 @@ void VoxelWorld::ShiftChunk(Vector3Int to, Vector3Int from, bool isedgeblock)
 // ============================================================================================================================
 // Space conversions
 // ============================================================================================================================
+Vector3Int VoxelWorld::GetWorldPosition(Vector3 scenepos)
+{
+    Vector3Int worldpos;
 
+    worldpos.x = (int)floor( (scenepos.x+0.5) / m_BlockSize.x );
+    worldpos.y = (int)floor( (scenepos.y+0.5) / m_BlockSize.y );
+    worldpos.z = (int)floor( (scenepos.z+0.5) / m_BlockSize.z );
+
+    return worldpos;
+}
+
+Vector3Int VoxelWorld::GetChunkPosition(Vector3Int worldpos)
+{
+    Vector3Int chunkpos;
+
+    chunkpos.x = (int)floor( (float)worldpos.x / m_ChunkSize.x );
+    chunkpos.y = (int)floor( (float)worldpos.y / m_ChunkSize.y );
+    chunkpos.z = (int)floor( (float)worldpos.z / m_ChunkSize.z );
+
+    return chunkpos;
+}
 
 // ============================================================================================================================
 // Collision/Block queries
 // ============================================================================================================================
-bool VoxelWorld::IsBlockEnabled(Vector3Int pos)
+bool VoxelWorld::IsBlockEnabled(Vector3Int worldpos)
 {
-    return IsBlockEnabled( pos.x, pos.y, pos.z );
+    return IsBlockEnabled( worldpos.x, worldpos.y, worldpos.z );
 }
 
-bool VoxelWorld::IsBlockEnabled(int x, int y, int z)
+bool VoxelWorld::IsBlockEnabled(int worldx, int worldy, int worldz)
 {
-    if( x < (m_WorldOffset.x * m_ChunkSize.x) || x >= (m_WorldOffset.x + m_WorldSize.x) * m_ChunkSize.x ||
-        y < (m_WorldOffset.y * m_ChunkSize.y) || y >= (m_WorldOffset.y + m_WorldSize.y) * m_ChunkSize.y ||
-        z < (m_WorldOffset.z * m_ChunkSize.z) || z >= (m_WorldOffset.z + m_WorldSize.z) * m_ChunkSize.z )
+    if( worldx < (m_WorldOffset.x * m_ChunkSize.x) || worldx >= (m_WorldOffset.x + m_WorldSize.x) * m_ChunkSize.x ||
+        worldy < (m_WorldOffset.y * m_ChunkSize.y) || worldy >= (m_WorldOffset.y + m_WorldSize.y) * m_ChunkSize.y ||
+        worldz < (m_WorldOffset.z * m_ChunkSize.z) || worldz >= (m_WorldOffset.z + m_WorldSize.z) * m_ChunkSize.z )
     {
         return false;
     }
 
-    Vector3Int chunkpos( x/m_ChunkSize.x, y/m_ChunkSize.y, z/m_ChunkSize.z );
-    chunkpos -= m_WorldOffset;
+    Vector3Int chunkpos = GetChunkPosition( Vector3Int(worldx,worldy,worldz) );
+    VoxelChunk* pChunk = GetActiveChunk( chunkpos );
 
-    VoxelChunk* pChunk = m_pActiveWorldChunkPtrs[chunkpos.z * m_WorldSize.y * m_WorldSize.x + chunkpos.y * m_WorldSize.x + chunkpos.x];
-
-    return pChunk->IsBlockEnabled( x, y, z );
+    return pChunk->IsBlockEnabled( worldx, worldy, worldz );
 }
 
 float VoxelWorld::GetSceneYForNextBlockBelowPosition(Vector3 scenepos, float radius)
@@ -357,9 +376,9 @@ float VoxelWorld::GetSceneYForNextBlockBelowPosition(Vector3 scenepos, float rad
         else if( i == 2 ) { xoff = radius *  1; zoff = radius * -1; }
         else if( i == 3 ) { xoff = radius *  1; zoff = radius *  1; }
 
-        worldpos.x = (int)((scenepos.x + xoff + m_BlockSize.x/2) / m_BlockSize.x);
-        worldpos.y = (int)((scenepos.y + m_BlockSize.y * 1.1f) / m_BlockSize.y); // Move player up a bit, then test
-        worldpos.z = (int)((scenepos.z + zoff + m_BlockSize.x/2) / m_BlockSize.z);
+        // Move player up a bit, then corner
+        Vector3 cornerscenepos( scenepos.x + xoff, scenepos.y + m_BlockSize.y * 1.1f, scenepos.z + zoff );
+        worldpos = GetWorldPosition( cornerscenepos );
 
         bool enabled = IsBlockEnabled( worldpos );
 
