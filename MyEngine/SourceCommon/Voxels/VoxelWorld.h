@@ -12,6 +12,15 @@
 
 class VoxelChunk;
 
+struct VoxelRaycastResult
+{
+    bool m_Hit;
+    Vector3Int m_BlockWorldPosition;
+    int m_BlockFaceHit;
+
+    VoxelChunk* pChunkHoldingBlock;
+};
+
 class VoxelWorld
 {
 protected:
@@ -63,6 +72,9 @@ public:
     bool IsBlockEnabled(Vector3Int pos);
     bool IsBlockEnabled(int x, int y, int z);
     float GetSceneYForNextBlockBelowPosition(Vector3 scenepos, float radius);
+    bool Raycast(Vector3 startpos, Vector3 endpos, float step, VoxelRaycastResult* pResult);
+
+    void GetMouseRayBadly(Vector2 mousepos, Vector3* start, Vector3* end);
 };
 
 #endif //__VoxelWorld_H__

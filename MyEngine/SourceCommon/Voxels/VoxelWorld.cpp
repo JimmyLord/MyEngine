@@ -396,3 +396,73 @@ float VoxelWorld::GetSceneYForNextBlockBelowPosition(Vector3 scenepos, float rad
 
     return highesty;
 }
+
+bool VoxelWorld::Raycast(Vector3 startpos, Vector3 endpos, float step, VoxelRaycastResult* pResult)
+{
+    // Lazy raycast, will pass through blocks if step too big, will always pass through corners
+
+    Vector3 currentpos = startpos;
+    Vector3 dir = endpos - startpos;
+    float len = dir.Length();
+    dir.Normalize();
+    
+    while( true )
+    {
+        Vector3Int worldpos = GetWorldPosition( currentpos );
+
+        // TODO: cache result of last IsBlockEnabled between loops
+        if( IsBlockEnabled( worldpos ) == true )
+        {
+            if( pResult )
+            {
+                pResult->m_Hit = true;
+                pResult->m_BlockWorldPosition = worldpos;
+            }
+            return true;
+        }
+
+        len -= step;
+        currentpos += dir * step;
+
+        if( len < 0 )
+            break;
+    }
+
+    if( pResult )
+    {
+        pResult->m_Hit = false;
+    }
+
+    return false;
+}
+
+void VoxelWorld::GetMouseRayBadly(Vector2 mousepos, Vector3* start, Vector3* end)
+{
+    MyAssert( start != 0 );
+    MyAssert( end != 0 );
+
+    ComponentCamera* pCamera = g_pComponentSystemManager->GetFirstCamera( false );
+
+    // Convert mouse coord into clip space.
+    Vector2 mouseclip;
+    mouseclip.x = (mousepos.x / pCamera->m_DesiredWidth) * 2.0f - 1.0f;
+    mouseclip.y = (mousepos.y / pCamera->m_DesiredHeight) * 2.0f - 1.0f;
+
+    // Convert the mouse ray into view space from clip space.
+    MyMatrix invProj = pCamera->m_Camera3D.m_matProj;
+    invProj.Inverse();
+    Vector4 rayview = invProj * Vector4( mouseclip, -1, 1 );
+
+    // Convert the mouse ray into world space from view space.
+    MyMatrix invView = pCamera->m_Camera3D.m_matView;
+    invView.Inverse();
+    Vector3 rayworld = (invView * Vector4( rayview.x, rayview.y, 1, 0 )).XYZ();
+
+    // define the ray.
+    Vector3 pos = pCamera->m_pComponentTransform->GetLocalPosition();
+    Vector3 raystart = pos + rayworld * 10;
+    Vector3 rayend = pos + rayworld * 10000;
+
+    *start = raystart;
+    *end = rayend;
+}
