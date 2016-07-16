@@ -63,7 +63,9 @@ void ComponentVoxelWorld::LuaRegister(lua_State* luastate)
     luabridge::getGlobalNamespace( luastate )
         .beginClass<ComponentVoxelWorld>( "ComponentVoxelWorld" )
             //.addData( "m_SampleVector3", &ComponentVoxelWorld::m_SampleVector3 )
+            .addFunction( "IsBlockEnabledAtLocation", &ComponentVoxelWorld::IsBlockEnabledAtLocation )
             .addFunction( "GetSceneYForNextBlockBelowPosition", &ComponentVoxelWorld::GetSceneYForNextBlockBelowPosition )
+            .addFunction( "DeleteTileInFocus", &ComponentVoxelWorld::DeleteTileInFocus )            
         .endClass();
 }
 #endif //MYFW_USING_LUA
@@ -196,10 +198,40 @@ void ComponentVoxelWorld::TickCallback(double TimePassed)
     m_pVoxelWorld->SetWorldCenter( pos );
 }
 
+bool ComponentVoxelWorld::IsBlockEnabledAtLocation(Vector3 scenepos, float radius)
+{
+    if( m_pVoxelWorld == 0 )
+        return false;
+
+    if( m_pVoxelWorld->IsBlockEnabledAroundLocation( scenepos, radius ) )
+    {
+        return true;
+    }
+
+    return false;
+}
+
 float ComponentVoxelWorld::GetSceneYForNextBlockBelowPosition(Vector3 scenepos, float radius)
 {
     if( m_pVoxelWorld == 0 )
         return 0;
 
     return m_pVoxelWorld->GetSceneYForNextBlockBelowPosition( scenepos, radius );
+}
+
+void ComponentVoxelWorld::DeleteTileInFocus(Vector2 mousepos)
+{
+    if( m_pVoxelWorld == 0 )
+        return;
+
+    Vector3 start, end;
+    m_pVoxelWorld->GetMouseRayBadly( mousepos, &start, &end );
+
+    VoxelRaycastResult result;
+    if( m_pVoxelWorld->Raycast( start, end, 0.01f, &result ) )
+    {
+        LOGInfo( "VoxelWorld", "Ray hit (%d, %d, %d)\n", result.m_BlockWorldPosition.x, result.m_BlockWorldPosition.y, result.m_BlockWorldPosition.z );
+
+        m_pVoxelWorld->RemoveBlock( result.m_BlockWorldPosition );
+    }
 }

@@ -16,9 +16,7 @@ struct VoxelRaycastResult
 {
     bool m_Hit;
     Vector3Int m_BlockWorldPosition;
-    int m_BlockFaceHit;
-
-    VoxelChunk* pChunkHoldingBlock;
+    Vector3 m_BlockFaceNormal;
 };
 
 class VoxelWorld
@@ -69,12 +67,17 @@ public:
     Vector3Int GetChunkPosition(Vector3Int worldpos);
 
     // Collision/Block queries
-    bool IsBlockEnabled(Vector3Int pos);
-    bool IsBlockEnabled(int x, int y, int z);
+    bool IsBlockEnabled(Vector3Int worldpos);
+    bool IsBlockEnabled(int worldx, int worldy, int worldz);
+    bool IsBlockEnabledAroundLocation(Vector3 scenepos, float radius);
     float GetSceneYForNextBlockBelowPosition(Vector3 scenepos, float radius);
+    Vector3 RaycastSingleBlockFindFaceHit(Vector3Int worldpos, Vector3 startpos, Vector3 endpos);
     bool Raycast(Vector3 startpos, Vector3 endpos, float step, VoxelRaycastResult* pResult);
 
     void GetMouseRayBadly(Vector2 mousepos, Vector3* start, Vector3* end);
+
+    // Add/Remove blocks
+    void RemoveBlock(Vector3Int worldpos);
 };
 
 #endif //__VoxelWorld_H__

@@ -325,6 +325,7 @@ void VoxelChunk::RebuildMesh()
             }
 
             m_pMesh->m_SubmeshList[0]->m_NumIndicesToDraw = indexcount;
+            //LOGInfo( "VoxelChunk", "Num indices: %d\n", indexcount );
 
             Vector3 center = (minextents + maxextents) / 2;
             Vector3 extents = (maxextents - minextents) / 2;
@@ -385,4 +386,28 @@ bool VoxelChunk::IsBlockEnabled(int worldx, int worldy, int worldz)
     VoxelBlock* pBlock = &m_pBlocks[localpos.z * m_ChunkSize.y * m_ChunkSize.x + localpos.y * m_ChunkSize.x + localpos.x];
 
     return pBlock->IsEnabled();
+}
+
+// ============================================================================================================================
+// Space conversions
+// ============================================================================================================================
+unsigned int VoxelChunk::GetBlockIndex(Vector3Int worldpos)
+{
+    Vector3Int localpos = worldpos - m_ChunkOffset;
+
+    unsigned int index = localpos.z * m_ChunkSize.y * m_ChunkSize.x + localpos.y * m_ChunkSize.x + localpos.x;
+
+    MyAssert( index < (unsigned int)m_ChunkSize.x * (unsigned int)m_ChunkSize.y * (unsigned int)m_ChunkSize.z );
+
+    return index;
+}
+
+// ============================================================================================================================
+// Add/Remove blocks
+// ============================================================================================================================
+void VoxelChunk::RemoveBlock(Vector3Int worldpos)
+{
+    unsigned int index = GetBlockIndex( worldpos );
+
+    m_pBlocks[index].SetEnabled( false );
 }

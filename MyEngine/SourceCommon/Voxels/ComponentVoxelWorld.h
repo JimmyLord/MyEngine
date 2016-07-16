@@ -40,7 +40,9 @@ public:
     virtual void RegisterCallbacks();
     virtual void UnregisterCallbacks();
 
+    bool IsBlockEnabledAtLocation(Vector3 scenepos, float radius);
     float GetSceneYForNextBlockBelowPosition(Vector3 scenepos, float radius);
+    void DeleteTileInFocus(Vector2 mousepos);
 
 protected:
     // Callback functions for various events.

@@ -39,6 +39,12 @@ public:
 
     bool IsBlockEnabled(Vector3Int worldpos);
     bool IsBlockEnabled(int worldx, int worldy, int worldz);
+
+    // Space conversions
+    unsigned int GetBlockIndex(Vector3Int worldpos);
+
+    // Add/Remove blocks
+    void RemoveBlock(Vector3Int worldpos);
 };
 
 #endif //__VoxelChunk_H__

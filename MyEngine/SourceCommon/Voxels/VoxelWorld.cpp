@@ -358,6 +358,28 @@ bool VoxelWorld::IsBlockEnabled(int worldx, int worldy, int worldz)
     return pChunk->IsBlockEnabled( worldx, worldy, worldz );
 }
 
+bool VoxelWorld::IsBlockEnabledAroundLocation(Vector3 scenepos, float radius)
+{
+    for( int i=0; i<4; i++ )
+    {
+        float xoff;
+        float zoff;
+
+        if( i == 0 )      { xoff = radius * -1; zoff = radius * -1; }
+        else if( i == 1 ) { xoff = radius * -1; zoff = radius *  1; }
+        else if( i == 2 ) { xoff = radius *  1; zoff = radius * -1; }
+        else if( i == 3 ) { xoff = radius *  1; zoff = radius *  1; }
+
+        Vector3 cornerscenepos( scenepos.x + xoff, scenepos.y, scenepos.z + zoff );
+        if( IsBlockEnabled( GetWorldPosition( cornerscenepos ) ) )
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 float VoxelWorld::GetSceneYForNextBlockBelowPosition(Vector3 scenepos, float radius)
 {
     //m_WorldSize.Set( 10, 3, 10 );
@@ -379,6 +401,8 @@ float VoxelWorld::GetSceneYForNextBlockBelowPosition(Vector3 scenepos, float rad
         // Move player up a bit, then corner
         Vector3 cornerscenepos( scenepos.x + xoff, scenepos.y + m_BlockSize.y * 1.1f, scenepos.z + zoff );
         worldpos = GetWorldPosition( cornerscenepos );
+        //if( i == 0 )
+        //    LOGInfo( "VoxelWorld", "Y Check: (%d,%d,%d)\n", worldpos.x, worldpos.y, worldpos.z );
 
         bool enabled = IsBlockEnabled( worldpos );
 
@@ -397,33 +421,53 @@ float VoxelWorld::GetSceneYForNextBlockBelowPosition(Vector3 scenepos, float rad
     return highesty;
 }
 
+Vector3 VoxelWorld::RaycastSingleBlockFindFaceHit(Vector3Int worldpos, Vector3 startpos, Vector3 endpos)
+{
+    // TODO: Find the normal for the side of the block that was hit.
+    
+    // Return face normal hit.
+    return Vector3( 0, 1, 0 );
+}
+
 bool VoxelWorld::Raycast(Vector3 startpos, Vector3 endpos, float step, VoxelRaycastResult* pResult)
 {
-    // Lazy raycast, will pass through blocks if step too big, will always pass through corners
+    // Lazy raycast, will pass through blocks if step too big, will always pass through corners.
 
-    Vector3 currentpos = startpos;
+    // Init some vars and figure out the length and direction of the ray we're casting.
+    Vector3 currentscenepos = startpos;
     Vector3 dir = endpos - startpos;
     float len = dir.Length();
     dir.Normalize();
+
+    // Init last worldpos to something that isn't the current world pos.
+    Vector3Int lastworldpos = GetWorldPosition( currentscenepos ) + Vector3Int( 1, 1, 1 );
     
     while( true )
     {
-        Vector3Int worldpos = GetWorldPosition( currentpos );
+        Vector3Int worldpos = GetWorldPosition( currentscenepos );
 
-        // TODO: cache result of last IsBlockEnabled between loops
-        if( IsBlockEnabled( worldpos ) == true )
+        // If the worldpos is different than the previous loop, check for a block.
+        if( worldpos != lastworldpos && IsBlockEnabled( worldpos ) == true )
         {
             if( pResult )
             {
                 pResult->m_Hit = true;
                 pResult->m_BlockWorldPosition = worldpos;
+
+                // Find the normal for the side of the block that was hit.
+                pResult->m_BlockFaceNormal = RaycastSingleBlockFindFaceHit( worldpos, startpos, endpos );
             }
             return true;
         }
 
-        len -= step;
-        currentpos += dir * step;
+        // Store the world position we just checked.
+        lastworldpos = worldpos;
 
+        // Move forward along our line.
+        len -= step;
+        currentscenepos += dir * step;
+
+        // Break if we passed the end of our line.
         if( len < 0 )
             break;
     }
@@ -445,8 +489,8 @@ void VoxelWorld::GetMouseRayBadly(Vector2 mousepos, Vector3* start, Vector3* end
 
     // Convert mouse coord into clip space.
     Vector2 mouseclip;
-    mouseclip.x = (mousepos.x / pCamera->m_DesiredWidth) * 2.0f - 1.0f;
-    mouseclip.y = (mousepos.y / pCamera->m_DesiredHeight) * 2.0f - 1.0f;
+    mouseclip.x = (mousepos.x / pCamera->m_WindowWidth) * 2.0f - 1.0f;
+    mouseclip.y = (mousepos.y / pCamera->m_WindowHeight) * 2.0f - 1.0f;
 
     // Convert the mouse ray into view space from clip space.
     MyMatrix invProj = pCamera->m_Camera3D.m_matProj;
@@ -458,11 +502,44 @@ void VoxelWorld::GetMouseRayBadly(Vector2 mousepos, Vector3* start, Vector3* end
     invView.Inverse();
     Vector3 rayworld = (invView * Vector4( rayview.x, rayview.y, 1, 0 )).XYZ();
 
-    // define the ray.
+    // Define the ray.
     Vector3 pos = pCamera->m_pComponentTransform->GetLocalPosition();
-    Vector3 raystart = pos + rayworld * 10;
+    Vector3 raystart = pos + rayworld * 3;
     Vector3 rayend = pos + rayworld * 10000;
 
     *start = raystart;
     *end = rayend;
+}
+
+// ============================================================================================================================
+// Add/Remove blocks
+// ============================================================================================================================
+void VoxelWorld::RemoveBlock(Vector3Int worldpos)
+{
+    Vector3Int chunkpos = GetChunkPosition( worldpos );
+    VoxelChunk* pChunk = GetActiveChunk( chunkpos );
+
+    pChunk->RemoveBlock( worldpos );
+
+    pChunk->RebuildMesh();
+
+    // Check 6 neighbours, and rebuild them if applicable.
+    for( int i=0; i<6; i++ )
+    {
+        Vector3Int neighbourpos = worldpos;
+
+        if( i == 0 ) neighbourpos.x += 1;
+        if( i == 1 ) neighbourpos.x -= 1;
+        if( i == 2 ) neighbourpos.y += 1;
+        if( i == 3 ) neighbourpos.y -= 1;
+        if( i == 4 ) neighbourpos.z += 1;
+        if( i == 5 ) neighbourpos.z -= 1;
+
+        Vector3Int neighbourchunkpos = GetChunkPosition( neighbourpos );
+        VoxelChunk* pNeighbourChunk = GetActiveChunk( neighbourchunkpos );
+        if( pNeighbourChunk && pNeighbourChunk != pChunk )
+        {
+            pNeighbourChunk->RebuildMesh();
+        }
+    }
 }
