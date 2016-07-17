@@ -16,6 +16,8 @@ struct VoxelRaycastResult
 {
     bool m_Hit;
     Vector3Int m_BlockWorldPosition;
+    
+    Vector3 m_BlockFacePoint;
     Vector3 m_BlockFaceNormal;
 };
 
@@ -71,13 +73,13 @@ public:
     bool IsBlockEnabled(int worldx, int worldy, int worldz);
     bool IsBlockEnabledAroundLocation(Vector3 scenepos, float radius);
     float GetSceneYForNextBlockBelowPosition(Vector3 scenepos, float radius);
-    Vector3 RaycastSingleBlockFindFaceHit(Vector3Int worldpos, Vector3 startpos, Vector3 endpos);
+    bool RaycastSingleBlockFindFaceHit(Vector3Int worldpos, Vector3 startpos, Vector3 endpos, Vector3* pPoint, Vector3* pNormal);
     bool Raycast(Vector3 startpos, Vector3 endpos, float step, VoxelRaycastResult* pResult);
 
     void GetMouseRayBadly(Vector2 mousepos, Vector3* start, Vector3* end);
 
     // Add/Remove blocks
-    void RemoveBlock(Vector3Int worldpos);
+    void ChangeBlockState(Vector3Int worldpos, bool enabled);
 };
 
 #endif //__VoxelWorld_H__

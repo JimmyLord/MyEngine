@@ -49,6 +49,9 @@ void VoxelChunk::Initialize(VoxelWorld* world, Vector3 pos, Vector3Int chunksize
     if( m_pBlocks == 0 )
         m_pBlocks = MyNew VoxelBlock[chunksize.x * chunksize.y * chunksize.z];
 
+    Vector3Int worldsize = m_pWorld->GetWorldSize();
+    Vector3Int worldblocksize = worldsize.MultiplyComponents( m_ChunkSize );
+
     for( int z=0; z<m_ChunkSize.z; z++ )
     {
         for( int y=0; y<m_ChunkSize.y; y++ )
@@ -77,7 +80,6 @@ void VoxelChunk::Initialize(VoxelWorld* world, Vector3 pos, Vector3Int chunksize
                     double shiftedvalue = value * 0.25 + 0.75;
 
                     // bottom half solid, top half hilly.
-                    Vector3Int worldblocksize = m_pWorld->GetWorldSize().MultiplyComponents( m_ChunkSize );
                     enabled = ((float)worldpos.y / worldblocksize.y) < shiftedvalue;
                 }
 
@@ -405,9 +407,9 @@ unsigned int VoxelChunk::GetBlockIndex(Vector3Int worldpos)
 // ============================================================================================================================
 // Add/Remove blocks
 // ============================================================================================================================
-void VoxelChunk::RemoveBlock(Vector3Int worldpos)
+void VoxelChunk::ChangeBlockState(Vector3Int worldpos, bool enabled)
 {
     unsigned int index = GetBlockIndex( worldpos );
 
-    m_pBlocks[index].SetEnabled( false );
+    m_pBlocks[index].SetEnabled( enabled );
 }

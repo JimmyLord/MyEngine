@@ -42,13 +42,16 @@ public:
 
     bool IsBlockEnabledAtLocation(Vector3 scenepos, float radius);
     float GetSceneYForNextBlockBelowPosition(Vector3 scenepos, float radius);
+    void AddTileToTileInFocus(Vector2 mousepos);
     void DeleteTileInFocus(Vector2 mousepos);
 
 protected:
     // Callback functions for various events.
     MYFW_DECLARE_COMPONENT_CALLBACK_TICK(); // TickCallback
     //MYFW_DECLARE_COMPONENT_CALLBACK_ONSURFACECHANGED(); // OnSurfaceChangedCallback
-    //MYFW_DECLARE_COMPONENT_CALLBACK_DRAW(); // DrawCallback
+#if _DEBUG
+    MYFW_DECLARE_COMPONENT_CALLBACK_DRAW(); // DrawCallback
+#endif
     //MYFW_DECLARE_COMPONENT_CALLBACK_ONTOUCH(); // OnTouchCallback
     //MYFW_DECLARE_COMPONENT_CALLBACK_ONBUTTONS(); // OnButtonsCallback
     //MYFW_DECLARE_COMPONENT_CALLBACK_ONKEYS(); // OnKeysCallback

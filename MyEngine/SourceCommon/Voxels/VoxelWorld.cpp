@@ -88,7 +88,6 @@ void VoxelWorld::Tick(double timepassed)
     if( pChunk )
     {
         pChunk->RebuildMesh();
-
         m_pChunksVisible.MoveTail( pChunk );
     }
 }
@@ -125,7 +124,15 @@ void VoxelWorld::SetWorldCenter(Vector3 scenepos)
 
 void VoxelWorld::SetWorldCenter(Vector3Int newworldcenter)
 {
+#if MYFW_PROFILING_ENABLED
+    static double Timing_LastFrameTime = 0;
+
+    double Timing_Start = MyTime_GetSystemTime();
+#endif
+
     Vector3Int currentworldcenter = m_WorldOffset + m_WorldSize/2;
+    if( newworldcenter == currentworldcenter )
+        return;
 
     int numchunks = m_WorldSize.x * m_WorldSize.y * m_WorldSize.z;
 
@@ -215,6 +222,14 @@ void VoxelWorld::SetWorldCenter(Vector3Int newworldcenter)
             stepz++;
         }
     }
+
+#if MYFW_PROFILING_ENABLED
+    double Timing_End = MyTime_GetSystemTime();
+
+    float functime = (float)((Timing_End - Timing_Start)*1000);
+
+    LOGInfo( "VoxelWorld", "SetWorldCenter functime: %0.2f\n", functime );
+#endif
 }
 
 void VoxelWorld::UpdateVisibility(void* pUserData)
@@ -421,12 +436,55 @@ float VoxelWorld::GetSceneYForNextBlockBelowPosition(Vector3 scenepos, float rad
     return highesty;
 }
 
-Vector3 VoxelWorld::RaycastSingleBlockFindFaceHit(Vector3Int worldpos, Vector3 startpos, Vector3 endpos)
+bool VoxelWorld::RaycastSingleBlockFindFaceHit(Vector3Int worldpos, Vector3 startpos, Vector3 endpos, Vector3* pPoint, Vector3* pNormal)
 {
-    // TODO: Find the normal for the side of the block that was hit.
+    MyAssert( pPoint != 0 && pNormal != 0 );
     
-    // Return face normal hit.
-    return Vector3( 0, 1, 0 );
+    // TODO: Find the normal for the side of the block that was hit.
+    startpos.x -= worldpos.x * m_BlockSize.x;
+    startpos.y -= worldpos.y * m_BlockSize.y;
+    startpos.z -= worldpos.z * m_BlockSize.z;
+
+    endpos.x -= worldpos.x * m_BlockSize.x;
+    endpos.y -= worldpos.y * m_BlockSize.y;
+    endpos.z -= worldpos.z * m_BlockSize.z;
+
+    float shortestlength = FLT_MAX;
+    Plane plane;
+    Vector3 result;
+
+    for( int i=0; i<6; i++ )
+    {
+        switch( i )
+        {
+        case 0: plane.Set( Vector3(-1,0,0), Vector3(-m_BlockSize.x/2, 0, 0) );
+        case 1: plane.Set( Vector3( 1,0,0), Vector3( m_BlockSize.x/2, 0, 0) );
+        case 2: plane.Set( Vector3(0,-1,0), Vector3(0, -m_BlockSize.y/2, 0) );
+        case 3: plane.Set( Vector3(0, 1,0), Vector3(0,  m_BlockSize.y/2, 0) );
+        case 4: plane.Set( Vector3(0,0,-1), Vector3(0, 0, -m_BlockSize.z/2) );
+        case 5: plane.Set( Vector3(0,0, 1), Vector3(0, 0,  m_BlockSize.z/2) );
+        }
+
+        plane.IntersectRay( startpos, endpos, &result );
+
+        if( ( i >=0 && i <= 1 && result.y > -0.5 && result.y < 0.5 && result.z > -0.5 && result.z < 0.5 ) ||
+            ( i >=2 && i <= 3 && result.x > -0.5 && result.x < 0.5 && result.z > -0.5 && result.z < 0.5 ) ||
+            ( i >=4 && i <= 5 && result.x > -0.5 && result.x < 0.5 && result.y > -0.5 && result.y < 0.5 ) )
+        {
+            float len = (result - startpos).LengthSquared();
+            if( len < shortestlength )
+            {
+                shortestlength = len;
+
+                // Return face normal hit.
+                *pPoint = result;
+                *pNormal = plane.m_Normal;
+            }
+        }
+    }
+
+    //LOGInfo( "VoxelWorld", "Normal: %0.0f,%0.0f,%0.0f\n", pNormal->x, pNormal->y, pNormal->z );
+    return true;
 }
 
 bool VoxelWorld::Raycast(Vector3 startpos, Vector3 endpos, float step, VoxelRaycastResult* pResult)
@@ -455,7 +513,7 @@ bool VoxelWorld::Raycast(Vector3 startpos, Vector3 endpos, float step, VoxelRayc
                 pResult->m_BlockWorldPosition = worldpos;
 
                 // Find the normal for the side of the block that was hit.
-                pResult->m_BlockFaceNormal = RaycastSingleBlockFindFaceHit( worldpos, startpos, endpos );
+                RaycastSingleBlockFindFaceHit( worldpos, startpos, endpos, &pResult->m_BlockFacePoint, &pResult->m_BlockFaceNormal );
             }
             return true;
         }
@@ -514,12 +572,12 @@ void VoxelWorld::GetMouseRayBadly(Vector2 mousepos, Vector3* start, Vector3* end
 // ============================================================================================================================
 // Add/Remove blocks
 // ============================================================================================================================
-void VoxelWorld::RemoveBlock(Vector3Int worldpos)
+void VoxelWorld::ChangeBlockState(Vector3Int worldpos, bool enabled)
 {
     Vector3Int chunkpos = GetChunkPosition( worldpos );
     VoxelChunk* pChunk = GetActiveChunk( chunkpos );
 
-    pChunk->RemoveBlock( worldpos );
+    pChunk->ChangeBlockState( worldpos, enabled );
 
     pChunk->RebuildMesh();
 

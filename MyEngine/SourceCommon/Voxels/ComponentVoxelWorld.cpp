@@ -65,6 +65,7 @@ void ComponentVoxelWorld::LuaRegister(lua_State* luastate)
             //.addData( "m_SampleVector3", &ComponentVoxelWorld::m_SampleVector3 )
             .addFunction( "IsBlockEnabledAtLocation", &ComponentVoxelWorld::IsBlockEnabledAtLocation )
             .addFunction( "GetSceneYForNextBlockBelowPosition", &ComponentVoxelWorld::GetSceneYForNextBlockBelowPosition )
+            .addFunction( "AddTileToTileInFocus", &ComponentVoxelWorld::AddTileToTileInFocus )            
             .addFunction( "DeleteTileInFocus", &ComponentVoxelWorld::DeleteTileInFocus )            
         .endClass();
 }
@@ -160,7 +161,9 @@ void ComponentVoxelWorld::RegisterCallbacks()
 
         MYFW_REGISTER_COMPONENT_CALLBACK( ComponentVoxelWorld, Tick );
         //MYFW_REGISTER_COMPONENT_CALLBACK( ComponentVoxelWorld, OnSurfaceChanged );
-        //MYFW_REGISTER_COMPONENT_CALLBACK( ComponentVoxelWorld, Draw );
+#if _DEBUG
+        MYFW_REGISTER_COMPONENT_CALLBACK( ComponentVoxelWorld, Draw );
+#endif
         //MYFW_REGISTER_COMPONENT_CALLBACK( ComponentVoxelWorld, OnTouch );
         //MYFW_REGISTER_COMPONENT_CALLBACK( ComponentVoxelWorld, OnButtons );
         //MYFW_REGISTER_COMPONENT_CALLBACK( ComponentVoxelWorld, OnKeys );
@@ -174,7 +177,9 @@ void ComponentVoxelWorld::UnregisterCallbacks()
     {
         MYFW_UNREGISTER_COMPONENT_CALLBACK( Tick );
         //MYFW_UNREGISTER_COMPONENT_CALLBACK( OnSurfaceChanged );
-        //MYFW_UNREGISTER_COMPONENT_CALLBACK( Draw );
+#if _DEBUG
+        MYFW_UNREGISTER_COMPONENT_CALLBACK( Draw );
+#endif
         //MYFW_UNREGISTER_COMPONENT_CALLBACK( OnTouch );
         //MYFW_UNREGISTER_COMPONENT_CALLBACK( OnButtons );
         //MYFW_UNREGISTER_COMPONENT_CALLBACK( OnKeys );
@@ -198,6 +203,29 @@ void ComponentVoxelWorld::TickCallback(double TimePassed)
     m_pVoxelWorld->SetWorldCenter( pos );
 }
 
+#if _DEBUG
+static Vector3 g_RayStart;
+static Vector3 g_RayEnd;
+
+void ComponentVoxelWorld::DrawCallback(ComponentCamera* pCamera, MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride)
+{
+    // Draw a debug ray on screen. // TODO: fix and generalize some debug drawing functions
+    //MaterialDefinition* pMaterial = g_pEngineCore->m_pMaterial_Box2DDebugDraw;
+    //ShaderGroup* pShaderGroup = pMaterial->GetShader();
+
+    //Vector3 verts[2];
+    //verts[0] = g_RayStart;
+    //verts[1] = g_RayEnd;
+
+    //Shader_Base* pShader = (Shader_Base*)pShaderGroup->GetShader( ShaderPass_Main, 0, 0 );
+    //pShader->ActivateAndProgramShader( 0, 0, 0, pMatViewProj, 0, pMaterial );
+    //glVertexAttribPointer( pShader->m_aHandle_Position, 3, GL_FLOAT, false, 0, verts );
+    //glLineWidth( 1 );
+    //glDrawArrays( GL_LINES, 0, 2 );
+    //pShader->DeactivateShader();
+}
+#endif
+
 bool ComponentVoxelWorld::IsBlockEnabledAtLocation(Vector3 scenepos, float radius)
 {
     if( m_pVoxelWorld == 0 )
@@ -219,6 +247,35 @@ float ComponentVoxelWorld::GetSceneYForNextBlockBelowPosition(Vector3 scenepos, 
     return m_pVoxelWorld->GetSceneYForNextBlockBelowPosition( scenepos, radius );
 }
 
+void ComponentVoxelWorld::AddTileToTileInFocus(Vector2 mousepos)
+{
+    if( m_pVoxelWorld == 0 )
+        return;
+
+    Vector3 start, end;
+    m_pVoxelWorld->GetMouseRayBadly( mousepos, &start, &end );
+
+#if _DEBUG
+    g_RayStart = start;
+    g_RayEnd = end;
+#endif
+
+    VoxelRaycastResult result;
+    if( m_pVoxelWorld->Raycast( start, end, 0.01f, &result ) )
+    {
+        LOGInfo( "VoxelWorld", "Ray hit (%d, %d, %d)\n", result.m_BlockWorldPosition.x, result.m_BlockWorldPosition.y, result.m_BlockWorldPosition.z );
+
+        if( result.m_BlockFaceNormal.x == -1 ) result.m_BlockWorldPosition.x--;
+        if( result.m_BlockFaceNormal.x ==  1 ) result.m_BlockWorldPosition.x++;
+        if( result.m_BlockFaceNormal.y == -1 ) result.m_BlockWorldPosition.y--;
+        if( result.m_BlockFaceNormal.y ==  1 ) result.m_BlockWorldPosition.y++;
+        if( result.m_BlockFaceNormal.z == -1 ) result.m_BlockWorldPosition.z--;
+        if( result.m_BlockFaceNormal.z ==  1 ) result.m_BlockWorldPosition.z++;
+
+        m_pVoxelWorld->ChangeBlockState( result.m_BlockWorldPosition, true );
+    }
+}
+
 void ComponentVoxelWorld::DeleteTileInFocus(Vector2 mousepos)
 {
     if( m_pVoxelWorld == 0 )
@@ -232,6 +289,6 @@ void ComponentVoxelWorld::DeleteTileInFocus(Vector2 mousepos)
     {
         LOGInfo( "VoxelWorld", "Ray hit (%d, %d, %d)\n", result.m_BlockWorldPosition.x, result.m_BlockWorldPosition.y, result.m_BlockWorldPosition.z );
 
-        m_pVoxelWorld->RemoveBlock( result.m_BlockWorldPosition );
+        m_pVoxelWorld->ChangeBlockState( result.m_BlockWorldPosition, false );
     }
 }

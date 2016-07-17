@@ -44,7 +44,7 @@ public:
     unsigned int GetBlockIndex(Vector3Int worldpos);
 
     // Add/Remove blocks
-    void RemoveBlock(Vector3Int worldpos);
+    void ChangeBlockState(Vector3Int, bool enabled);
 };
 
 #endif //__VoxelChunk_H__
