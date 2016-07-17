@@ -457,12 +457,12 @@ bool VoxelWorld::RaycastSingleBlockFindFaceHit(Vector3Int worldpos, Vector3 star
     {
         switch( i )
         {
-        case 0: plane.Set( Vector3(-1,0,0), Vector3(-m_BlockSize.x/2, 0, 0) );
-        case 1: plane.Set( Vector3( 1,0,0), Vector3( m_BlockSize.x/2, 0, 0) );
-        case 2: plane.Set( Vector3(0,-1,0), Vector3(0, -m_BlockSize.y/2, 0) );
-        case 3: plane.Set( Vector3(0, 1,0), Vector3(0,  m_BlockSize.y/2, 0) );
-        case 4: plane.Set( Vector3(0,0,-1), Vector3(0, 0, -m_BlockSize.z/2) );
-        case 5: plane.Set( Vector3(0,0, 1), Vector3(0, 0,  m_BlockSize.z/2) );
+        case 0: plane.Set( Vector3(-1,0,0), Vector3(-m_BlockSize.x/2, 0, 0) ); break;
+        case 1: plane.Set( Vector3( 1,0,0), Vector3( m_BlockSize.x/2, 0, 0) ); break;
+        case 2: plane.Set( Vector3(0,-1,0), Vector3(0, -m_BlockSize.y/2, 0) ); break;
+        case 3: plane.Set( Vector3(0, 1,0), Vector3(0,  m_BlockSize.y/2, 0) ); break;
+        case 4: plane.Set( Vector3(0,0,-1), Vector3(0, 0, -m_BlockSize.z/2) ); break;
+        case 5: plane.Set( Vector3(0,0, 1), Vector3(0, 0,  m_BlockSize.z/2) ); break;
         }
 
         plane.IntersectRay( startpos, endpos, &result );
