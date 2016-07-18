@@ -40,7 +40,7 @@ public:
     virtual void RegisterCallbacks();
     virtual void UnregisterCallbacks();
 
-    bool IsBlockEnabledAtLocation(Vector3 scenepos, float radius);
+    bool IsBlockEnabledAroundLocation(Vector3 scenepos, float radius);
     float GetSceneYForNextBlockBelowPosition(Vector3 scenepos, float radius);
     void AddTileToTileInFocus(Vector2 mousepos);
     void DeleteTileInFocus(Vector2 mousepos);

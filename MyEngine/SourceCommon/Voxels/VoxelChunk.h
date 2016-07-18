@@ -18,6 +18,8 @@ class VoxelChunk : public CPPListNode
 protected:
     VoxelWorld* m_pWorld;
 
+    bool m_MapCreated;
+
     MyMatrix m_Transform;
     Vector3Int m_ChunkSize;
     Vector3Int m_ChunkOffset;
@@ -32,15 +34,17 @@ public:
     virtual ~VoxelChunk();
 
     void Initialize(VoxelWorld* world, Vector3 pos, Vector3Int chunksize, Vector3Int chunkoffset);
+    void CreateMap();
     void RebuildMesh();
 
     void AddToSceneGraph(void* pUserData);
     void RemoveFromSceneGraph();
 
-    bool IsBlockEnabled(Vector3Int worldpos);
-    bool IsBlockEnabled(int worldx, int worldy, int worldz);
+    bool IsBlockEnabled(Vector3Int worldpos, bool blockexistsifnotready = false);
+    bool IsBlockEnabled(int worldx, int worldy, int worldz, bool blockexistsifnotready = false);
 
     // Space conversions
+    Vector3Int GetChunkOffset() { return m_ChunkOffset; }
     unsigned int GetBlockIndex(Vector3Int worldpos);
 
     // Add/Remove blocks

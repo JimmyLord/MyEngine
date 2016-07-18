@@ -29,7 +29,7 @@ ComponentVoxelWorld::ComponentVoxelWorld()
     m_BaseType = BaseComponentType_Data;
 
     m_pVoxelWorld = MyNew VoxelWorld;
-    m_pVoxelWorld->Initialize( Vector3Int( 10, 3, 10 ) );
+    m_pVoxelWorld->Initialize( Vector3Int( 10, 10, 10 ) );
 
     m_pVoxelWorld->UpdateVisibility( this );
 }
@@ -63,7 +63,7 @@ void ComponentVoxelWorld::LuaRegister(lua_State* luastate)
     luabridge::getGlobalNamespace( luastate )
         .beginClass<ComponentVoxelWorld>( "ComponentVoxelWorld" )
             //.addData( "m_SampleVector3", &ComponentVoxelWorld::m_SampleVector3 )
-            .addFunction( "IsBlockEnabledAtLocation", &ComponentVoxelWorld::IsBlockEnabledAtLocation )
+            .addFunction( "IsBlockEnabledAroundLocation", &ComponentVoxelWorld::IsBlockEnabledAroundLocation )
             .addFunction( "GetSceneYForNextBlockBelowPosition", &ComponentVoxelWorld::GetSceneYForNextBlockBelowPosition )
             .addFunction( "AddTileToTileInFocus", &ComponentVoxelWorld::AddTileToTileInFocus )            
             .addFunction( "DeleteTileInFocus", &ComponentVoxelWorld::DeleteTileInFocus )            
@@ -226,12 +226,12 @@ void ComponentVoxelWorld::DrawCallback(ComponentCamera* pCamera, MyMatrix* pMatV
 }
 #endif
 
-bool ComponentVoxelWorld::IsBlockEnabledAtLocation(Vector3 scenepos, float radius)
+bool ComponentVoxelWorld::IsBlockEnabledAroundLocation(Vector3 scenepos, float radius)
 {
     if( m_pVoxelWorld == 0 )
         return false;
 
-    if( m_pVoxelWorld->IsBlockEnabledAroundLocation( scenepos, radius ) )
+    if( m_pVoxelWorld->IsBlockEnabledAroundLocation( scenepos, radius, true ) )
     {
         return true;
     }

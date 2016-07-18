@@ -69,9 +69,9 @@ public:
     Vector3Int GetChunkPosition(Vector3Int worldpos);
 
     // Collision/Block queries
-    bool IsBlockEnabled(Vector3Int worldpos);
-    bool IsBlockEnabled(int worldx, int worldy, int worldz);
-    bool IsBlockEnabledAroundLocation(Vector3 scenepos, float radius);
+    bool IsBlockEnabled(Vector3Int worldpos, bool blockexistsifnotready = false);
+    bool IsBlockEnabled(int worldx, int worldy, int worldz, bool blockexistsifnotready = false);
+    bool IsBlockEnabledAroundLocation(Vector3 scenepos, float radius, bool blockexistsifnotready = false);
     float GetSceneYForNextBlockBelowPosition(Vector3 scenepos, float radius);
     bool RaycastSingleBlockFindFaceHit(Vector3Int worldpos, Vector3 startpos, Vector3 endpos, Vector3* pPoint, Vector3* pNormal);
     bool Raycast(Vector3 startpos, Vector3 endpos, float step, VoxelRaycastResult* pResult);

@@ -80,16 +80,47 @@ void VoxelWorld::Initialize(Vector3Int visibleworldsize)
     }
 }
 
+static Vector3Int g_WorldCenterChunkOffset;
+signed char ChunkDistanceCmpFunc(CPPListNode *a, CPPListNode *b)
+{
+    Vector3Int offseta = ((VoxelChunk*)a)->GetChunkOffset();
+    Vector3Int offsetb = ((VoxelChunk*)b)->GetChunkOffset();
+
+    int distancea = (offseta - g_WorldCenterChunkOffset).LengthSquared();
+    int distanceb = (offsetb - g_WorldCenterChunkOffset).LengthSquared();
+
+    if( distancea == distanceb )
+        return 0;
+
+    if( distancea < distanceb )
+        return -1;
+
+    return 1;
+}
+
 void VoxelWorld::Tick(double timepassed)
 {
+    // Sort chunks based on distance from world center (which is likely the player location)
+    g_WorldCenterChunkOffset = (m_WorldOffset + m_WorldSize/2).MultiplyComponents( m_ChunkSize );
+    m_pChunksLoading.Sort( ChunkDistanceCmpFunc );
+
     // build the mesh for a single chunk per frame.
     VoxelChunk* pChunk = (VoxelChunk*)m_pChunksLoading.GetHead();
 
     if( pChunk )
     {
+        pChunk->CreateMap();
         pChunk->RebuildMesh();
         m_pChunksVisible.MoveTail( pChunk );
+        return;
     }
+
+    //pChunk = (VoxelChunk*)m_pChunksVisible.GetHead();
+    //while( pChunk )
+    //{
+    //    pChunk->RebuildMesh();
+    //    pChunk = (VoxelChunk*)pChunk->GetNext();
+    //}
 }
 
 void VoxelWorld::SetWorldSize(Vector3Int visibleworldsize)
@@ -353,27 +384,27 @@ Vector3Int VoxelWorld::GetChunkPosition(Vector3Int worldpos)
 // ============================================================================================================================
 // Collision/Block queries
 // ============================================================================================================================
-bool VoxelWorld::IsBlockEnabled(Vector3Int worldpos)
+bool VoxelWorld::IsBlockEnabled(Vector3Int worldpos, bool blockexistsifnotready)
 {
-    return IsBlockEnabled( worldpos.x, worldpos.y, worldpos.z );
+    return IsBlockEnabled( worldpos.x, worldpos.y, worldpos.z, blockexistsifnotready );
 }
 
-bool VoxelWorld::IsBlockEnabled(int worldx, int worldy, int worldz)
+bool VoxelWorld::IsBlockEnabled(int worldx, int worldy, int worldz, bool blockexistsifnotready)
 {
     if( worldx < (m_WorldOffset.x * m_ChunkSize.x) || worldx >= (m_WorldOffset.x + m_WorldSize.x) * m_ChunkSize.x ||
         worldy < (m_WorldOffset.y * m_ChunkSize.y) || worldy >= (m_WorldOffset.y + m_WorldSize.y) * m_ChunkSize.y ||
         worldz < (m_WorldOffset.z * m_ChunkSize.z) || worldz >= (m_WorldOffset.z + m_WorldSize.z) * m_ChunkSize.z )
     {
-        return false;
+        return blockexistsifnotready;
     }
 
     Vector3Int chunkpos = GetChunkPosition( Vector3Int(worldx,worldy,worldz) );
     VoxelChunk* pChunk = GetActiveChunk( chunkpos );
 
-    return pChunk->IsBlockEnabled( worldx, worldy, worldz );
+    return pChunk->IsBlockEnabled( worldx, worldy, worldz, blockexistsifnotready );
 }
 
-bool VoxelWorld::IsBlockEnabledAroundLocation(Vector3 scenepos, float radius)
+bool VoxelWorld::IsBlockEnabledAroundLocation(Vector3 scenepos, float radius, bool blockexistsifnotready)
 {
     for( int i=0; i<4; i++ )
     {
@@ -386,7 +417,7 @@ bool VoxelWorld::IsBlockEnabledAroundLocation(Vector3 scenepos, float radius)
         else if( i == 3 ) { xoff = radius *  1; zoff = radius *  1; }
 
         Vector3 cornerscenepos( scenepos.x + xoff, scenepos.y, scenepos.z + zoff );
-        if( IsBlockEnabled( GetWorldPosition( cornerscenepos ) ) )
+        if( IsBlockEnabled( GetWorldPosition( cornerscenepos ), blockexistsifnotready ) )
         {
             return true;
         }
@@ -397,7 +428,7 @@ bool VoxelWorld::IsBlockEnabledAroundLocation(Vector3 scenepos, float radius)
 
 float VoxelWorld::GetSceneYForNextBlockBelowPosition(Vector3 scenepos, float radius)
 {
-    //m_WorldSize.Set( 10, 3, 10 );
+    //m_WorldSize.Set( 10, 10, 10 );
     //m_ChunkSize.Set( 16, 16, 16 );
     //m_BlockSize.Set( 1, 1, 1 );
 
@@ -419,12 +450,12 @@ float VoxelWorld::GetSceneYForNextBlockBelowPosition(Vector3 scenepos, float rad
         //if( i == 0 )
         //    LOGInfo( "VoxelWorld", "Y Check: (%d,%d,%d)\n", worldpos.x, worldpos.y, worldpos.z );
 
-        bool enabled = IsBlockEnabled( worldpos );
+        bool enabled = IsBlockEnabled( worldpos, true );
 
-        while( !enabled && worldpos.y > 0 )
+        while( !enabled )
         {
             worldpos.y--;
-            enabled = IsBlockEnabled( worldpos );
+            enabled = IsBlockEnabled( worldpos, true );
         }
 
         float sceney = worldpos.y * m_BlockSize.y + m_BlockSize.y;

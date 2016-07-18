@@ -16,6 +16,8 @@ VoxelChunk::VoxelChunk()
 {
     m_pWorld = 0;
 
+    m_MapCreated = false;
+
     m_Transform.SetIdentity();
     m_ChunkSize.Set( 0, 0, 0 );
     m_ChunkOffset.Set( 0, 0, 0 );
@@ -49,8 +51,24 @@ void VoxelChunk::Initialize(VoxelWorld* world, Vector3 pos, Vector3Int chunksize
     if( m_pBlocks == 0 )
         m_pBlocks = MyNew VoxelBlock[chunksize.x * chunksize.y * chunksize.z];
 
-    Vector3Int worldsize = m_pWorld->GetWorldSize();
-    Vector3Int worldblocksize = worldsize.MultiplyComponents( m_ChunkSize );
+    m_MapCreated = false;
+
+    // Create a mesh.
+    if( m_pMesh == 0 )
+    {
+        m_pMesh = MyNew MyMesh();
+
+        int indexbytes = 2; // TODO: take out hard-coded unsigned short as index type
+
+        VertexFormat_Dynamic_Desc* pVertFormat = g_pVertexFormatManager->GetDynamicVertexFormat( 1, true, false, false, false, 0 );
+        m_pMesh->CreateBuffers( pVertFormat, 0, indexbytes, 0, true );
+    }
+}
+
+void VoxelChunk::CreateMap()
+{
+    //Vector3Int worldsize = m_pWorld->GetWorldSize();
+    //Vector3Int worldblocksize = worldsize.MultiplyComponents( m_ChunkSize );
 
     for( int z=0; z<m_ChunkSize.z; z++ )
     {
@@ -76,11 +94,15 @@ void VoxelChunk::Initialize(VoxelWorld* world, Vector3 pos, Vector3Int chunksize
 
                     double value = SimplexNoise( worldpos.x * freq, worldpos.z * freq );
 
-                    // shift -1 to 1 into range of 0.5 to 1.
-                    double shiftedvalue = value * 0.25 + 0.75;
+                    //// shift -1 to 1 into range of 0.5 to 1.
+                    //double shiftedvalue = value * 0.25 + 0.75;
 
-                    // bottom half solid, top half hilly.
-                    enabled = ((float)worldpos.y / worldblocksize.y) < shiftedvalue;
+                    //// bottom half solid, top half hilly.
+                    //enabled = ((float)worldpos.y / worldblocksize.y) < shiftedvalue;
+
+                    //below 0 is solid
+                    //above 0 is hilly -> hills are -20 to 20 blocks tall
+                    enabled = value * 20 > worldpos.y ? true : false;
                 }
 
                 m_pBlocks[z * m_ChunkSize.y * m_ChunkSize.x + y * m_ChunkSize.x + x].SetEnabled( enabled );
@@ -88,16 +110,7 @@ void VoxelChunk::Initialize(VoxelWorld* world, Vector3 pos, Vector3Int chunksize
         }
     }
 
-    // Create a mesh.
-    if( m_pMesh == 0 )
-    {
-        m_pMesh = MyNew MyMesh();
-
-        int indexbytes = 2; // TODO: take out hard-coded unsigned short as index type
-
-        VertexFormat_Dynamic_Desc* pVertFormat = g_pVertexFormatManager->GetDynamicVertexFormat( 1, true, false, false, false, 0 );
-        m_pMesh->CreateBuffers( pVertFormat, 0, indexbytes, 0, true );
-    }
+    m_MapCreated = true;
 }
 
 void VoxelChunk::RebuildMesh()
@@ -367,15 +380,16 @@ void VoxelChunk::RemoveFromSceneGraph()
     m_pSceneGraphObject = 0;
 }
 
-bool VoxelChunk::IsBlockEnabled(Vector3Int worldpos)
+bool VoxelChunk::IsBlockEnabled(Vector3Int worldpos, bool blockexistsifnotready)
 {
-    return IsBlockEnabled( worldpos.x, worldpos.y, worldpos.z );
+    return IsBlockEnabled( worldpos.x, worldpos.y, worldpos.z, blockexistsifnotready );
 }
 
-bool VoxelChunk::IsBlockEnabled(int worldx, int worldy, int worldz)
+bool VoxelChunk::IsBlockEnabled(int worldx, int worldy, int worldz, bool blockexistsifnotready)
 {
-    //if( worldx < 0 || worldy < 0 || worldz < 0 )
-    //    return false;
+    // If the block haven't been setup yet, then return false, as if blocks aren't there.
+    if( m_MapCreated == false )
+        return blockexistsifnotready;
 
     Vector3Int localpos( worldx%m_ChunkSize.x, worldy%m_ChunkSize.y, worldz%m_ChunkSize.z );
     if( localpos.x < 0 ) localpos.x += m_ChunkSize.x;
