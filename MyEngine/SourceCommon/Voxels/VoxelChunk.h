@@ -19,6 +19,7 @@ protected:
     VoxelWorld* m_pWorld;
 
     bool m_MapCreated;
+    bool m_MeshOptimized;
 
     MyMatrix m_Transform;
     Vector3Int m_ChunkSize;
@@ -42,6 +43,10 @@ public:
 
     bool IsBlockEnabled(Vector3Int worldpos, bool blockexistsifnotready = false);
     bool IsBlockEnabled(int worldx, int worldy, int worldz, bool blockexistsifnotready = false);
+
+    // Chunk state
+    bool IsMapCreated() { return m_MapCreated; }
+    bool IsMeshOptimized() { return m_MeshOptimized; }
 
     // Space conversions
     Vector3Int GetChunkOffset() { return m_ChunkOffset; }

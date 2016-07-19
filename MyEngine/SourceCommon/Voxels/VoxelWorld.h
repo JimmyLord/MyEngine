@@ -23,6 +23,8 @@ struct VoxelRaycastResult
 
 class VoxelWorld
 {
+    friend class VoxelChunk;
+
 protected:
     CPPListHead m_pChunksFree;
     CPPListHead m_pChunksLoading;
@@ -37,6 +39,7 @@ protected:
     unsigned int m_NumChunkPointersAllocated;
 
 protected:
+    bool IsChunkActive(Vector3Int chunkpos);
     unsigned int GetActiveChunkArrayIndex(Vector3Int chunkpos);
     unsigned int GetActiveChunkArrayIndex(int chunkx, int chunky, int chunkz);
     VoxelChunk* GetActiveChunk(unsigned int arrayindex);

@@ -17,6 +17,7 @@ VoxelChunk::VoxelChunk()
     m_pWorld = 0;
 
     m_MapCreated = false;
+    m_MeshOptimized = false;
 
     m_Transform.SetIdentity();
     m_ChunkSize.Set( 0, 0, 0 );
@@ -145,6 +146,11 @@ void VoxelChunk::RebuildMesh()
         Vertex_XYZUVNorm* pActualVerts = pVerts;
         unsigned short* pActualIndices = pIndices;
 
+        int TileTops_Col[] = { 0, 1, 2, 3 };
+        int TileTops_Row[] = { 0, 0, 0, 0 };
+        int TileSides_Col[] = { 0, 1, 2, 3 };
+        int TileSides_Row[] = { 1, 1, 1, 1 };
+
         int vertcount = 0;
         int indexcount = 0;
         int count = 0;
@@ -156,6 +162,14 @@ void VoxelChunk::RebuildMesh()
                 {
                     if( m_pBlocks[z * m_ChunkSize.y * m_ChunkSize.x + y * m_ChunkSize.x + x].IsEnabled() == false )
                         continue;
+
+                    int tileindex = 0;
+                    if( m_ChunkOffset.y + y > 8 )
+                        tileindex = 1;
+                    if( m_ChunkOffset.y + y > 12 )
+                        tileindex = 3;
+                    if( m_ChunkOffset.y + y < -15 )
+                        tileindex = 2;
 
                     Vector3 boxsize( 1, 1, 1 );
 
@@ -176,10 +190,10 @@ void VoxelChunk::RebuildMesh()
                     int c = 0;//rand()%3;
                     int r = 1;//rand()%3;
 
-                    float uleft   = (32.0f*(c+0)) / 128.0f;
-                    float uright  = (32.0f*(c+1)) / 128.0f;
-                    float vtop    = (32.0f*(r+0)) / 128.0f;
-                    float vbottom = (32.0f*(r+1)) / 128.0f;
+                    float uleft   = (32.0f*(TileSides_Col[tileindex]+0)) / 128.0f;
+                    float uright  = (32.0f*(TileSides_Col[tileindex]+1)) / 128.0f;
+                    float vtop    = (32.0f*(TileSides_Row[tileindex]+0)) / 128.0f;
+                    float vbottom = (32.0f*(TileSides_Row[tileindex]+1)) / 128.0f;
 
                     Vector3Int worldpos( m_ChunkOffset.x+x, m_ChunkOffset.y+y, m_ChunkOffset.z+z );
 
@@ -286,10 +300,10 @@ void VoxelChunk::RebuildMesh()
                     c = 3;//rand()%3;
                     r = 0;//rand()%3;
 
-                    uleft   = (32.0f*(c+0)) / 128.0f;
-                    uright  = (32.0f*(c+1)) / 128.0f;
-                    vtop    = (32.0f*(r+0)) / 128.0f;
-                    vbottom = (32.0f*(r+1)) / 128.0f;
+                    uleft   = (32.0f*(TileTops_Col[tileindex]+0)) / 128.0f;
+                    uright  = (32.0f*(TileTops_Col[tileindex]+1)) / 128.0f;
+                    vtop    = (32.0f*(TileTops_Row[tileindex]+0)) / 128.0f;
+                    vbottom = (32.0f*(TileTops_Row[tileindex]+1)) / 128.0f;
 
                     // top
                     if( y == (m_ChunkSize.y-1) && m_pWorld->IsBlockEnabled( worldpos.x, worldpos.y+1, worldpos.z ) )
@@ -356,6 +370,36 @@ void VoxelChunk::RebuildMesh()
         }
 
         g_pEngineCore->m_SingleFrameMemoryStack.RewindStack( memstart );
+    }
+
+    // if any of the neighbouring chunks wasn't ready, then we likely created extra faces to close outside walls.
+    // rebuild the mesh to get rid of those sides.
+    {
+        m_MeshOptimized = true;
+
+        Vector3Int chunkpos = m_pWorld->GetChunkPosition( m_ChunkOffset );
+
+        for( int i=0; i<6; i++ )
+        {
+            Vector3Int neighbourchunkpos = chunkpos;
+
+            if( i == 0 ) chunkpos.x += 1;
+            if( i == 1 ) chunkpos.x -= 1;
+            if( i == 2 ) chunkpos.y += 1;
+            if( i == 3 ) chunkpos.y -= 1;
+            if( i == 4 ) chunkpos.z += 1;
+            if( i == 5 ) chunkpos.z -= 1;
+
+            if( m_pWorld->IsChunkActive( neighbourchunkpos ) )
+            {
+                VoxelChunk* pNeighbourChunk = m_pWorld->GetActiveChunk( neighbourchunkpos );
+                if( pNeighbourChunk && pNeighbourChunk->m_MapCreated == false )
+                {
+                    m_MeshOptimized = false;
+                    break;
+                }
+            }
+        }        
     }
 }
 

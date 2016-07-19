@@ -115,12 +115,17 @@ void VoxelWorld::Tick(double timepassed)
         return;
     }
 
-    //pChunk = (VoxelChunk*)m_pChunksVisible.GetHead();
-    //while( pChunk )
-    //{
-    //    pChunk->RebuildMesh();
-    //    pChunk = (VoxelChunk*)pChunk->GetNext();
-    //}
+    // if all chunks are loaded then rebuild a single unoptimized chunk per frame.
+    pChunk = (VoxelChunk*)m_pChunksVisible.GetHead();
+    while( pChunk )
+    {
+        if( pChunk->IsMeshOptimized() == false )
+        {
+            pChunk->RebuildMesh();
+            return;
+        }
+        pChunk = (VoxelChunk*)pChunk->GetNext();
+    }
 }
 
 void VoxelWorld::SetWorldSize(Vector3Int visibleworldsize)
@@ -155,11 +160,11 @@ void VoxelWorld::SetWorldCenter(Vector3 scenepos)
 
 void VoxelWorld::SetWorldCenter(Vector3Int newworldcenter)
 {
-#if MYFW_PROFILING_ENABLED
-    static double Timing_LastFrameTime = 0;
-
-    double Timing_Start = MyTime_GetSystemTime();
-#endif
+//#if MYFW_PROFILING_ENABLED
+//    static double Timing_LastFrameTime = 0;
+//
+//    double Timing_Start = MyTime_GetSystemTime();
+//#endif
 
     Vector3Int currentworldcenter = m_WorldOffset + m_WorldSize/2;
     if( newworldcenter == currentworldcenter )
@@ -254,13 +259,13 @@ void VoxelWorld::SetWorldCenter(Vector3Int newworldcenter)
         }
     }
 
-#if MYFW_PROFILING_ENABLED
-    double Timing_End = MyTime_GetSystemTime();
-
-    float functime = (float)((Timing_End - Timing_Start)*1000);
-
-    LOGInfo( "VoxelWorld", "SetWorldCenter functime: %0.2f\n", functime );
-#endif
+//#if MYFW_PROFILING_ENABLED
+//    double Timing_End = MyTime_GetSystemTime();
+//
+//    float functime = (float)((Timing_End - Timing_Start)*1000);
+//
+//    //LOGInfo( "VoxelWorld", "SetWorldCenter functime: %0.2f\n", functime );
+//#endif
 }
 
 void VoxelWorld::UpdateVisibility(void* pUserData)
@@ -279,6 +284,18 @@ void VoxelWorld::UpdateVisibility(void* pUserData)
 // ============================================================================================================================
 // Protected/Internal functions
 // ============================================================================================================================
+bool VoxelWorld::IsChunkActive(Vector3Int chunkpos)
+{
+    if( chunkpos.x >= m_WorldOffset.x && chunkpos.x < m_WorldOffset.x + m_WorldSize.x &&
+        chunkpos.y >= m_WorldOffset.y && chunkpos.y < m_WorldOffset.y + m_WorldSize.y &&
+        chunkpos.z >= m_WorldOffset.z && chunkpos.z < m_WorldOffset.z + m_WorldSize.z )
+    {
+        return true;
+    }
+
+    return false;
+}
+
 unsigned int VoxelWorld::GetActiveChunkArrayIndex(Vector3Int chunkpos)
 {
     return GetActiveChunkArrayIndex( chunkpos.x, chunkpos.y, chunkpos.z );
@@ -445,10 +462,8 @@ float VoxelWorld::GetSceneYForNextBlockBelowPosition(Vector3 scenepos, float rad
         else if( i == 3 ) { xoff = radius *  1; zoff = radius *  1; }
 
         // Move player up a bit, then corner
-        Vector3 cornerscenepos( scenepos.x + xoff, scenepos.y + m_BlockSize.y * 1.1f, scenepos.z + zoff );
+        Vector3 cornerscenepos( scenepos.x + xoff, scenepos.y, scenepos.z + zoff );
         worldpos = GetWorldPosition( cornerscenepos );
-        //if( i == 0 )
-        //    LOGInfo( "VoxelWorld", "Y Check: (%d,%d,%d)\n", worldpos.x, worldpos.y, worldpos.z );
 
         bool enabled = IsBlockEnabled( worldpos, true );
 
@@ -460,9 +475,14 @@ float VoxelWorld::GetSceneYForNextBlockBelowPosition(Vector3 scenepos, float rad
 
         float sceney = worldpos.y * m_BlockSize.y + m_BlockSize.y;
 
+        //if( i == 0 )
+        //    LOGInfo( "VoxelWorld", "Y Check: (%d,%d,%d) %0.2f\n", worldpos.x, worldpos.y, worldpos.z, sceney );
+
         if( sceney > highesty )
             highesty = sceney;
     }
+
+    //LOGInfo( "VoxelWorld", "Y Check: (%d,%d,%d) %0.2f\n", worldpos.x, worldpos.y, worldpos.z, highesty );
 
     return highesty;
 }

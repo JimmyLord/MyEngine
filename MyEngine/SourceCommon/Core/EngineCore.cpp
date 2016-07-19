@@ -423,6 +423,8 @@ double EngineCore::Tick(double TimePassed)
         int luamemcountb = lua_gc( g_pLuaGameState->m_pLuaState, LUA_GCCOUNTB, 0 );
         m_LuaMemoryUsedLastFrame = m_LuaMemoryUsedThisFrame;
         m_LuaMemoryUsedThisFrame = luamemcountk*1024 + luamemcountb;
+
+        lua_gc( g_pLuaGameState->m_pLuaState, LUA_GCCOLLECT, 0 );
     }
 #endif
 
