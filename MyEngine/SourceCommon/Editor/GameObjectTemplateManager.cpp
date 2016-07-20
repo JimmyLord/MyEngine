@@ -12,6 +12,8 @@
 GameObjectTemplateManager::GameObjectTemplateManager()
 {
     char* filestring = PlatformSpecific_LoadFile( "DataEngine/EngineGameObjects.mytemplate", 0 );
+    if( filestring == 0 )
+        return;
 
     m_jRoot = cJSON_Parse( filestring );
 

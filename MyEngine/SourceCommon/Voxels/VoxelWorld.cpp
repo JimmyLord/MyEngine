@@ -22,6 +22,8 @@ VoxelWorld::VoxelWorld()
     m_BlockSize.Set( 1, 1, 1 );
 
     m_WorldOffset.Set( 0, 0, 0 );
+
+    m_pMaterial = 0;
 }
 
 VoxelWorld::~VoxelWorld()
@@ -51,6 +53,8 @@ VoxelWorld::~VoxelWorld()
 
         delete pChunk;
     }
+
+    m_pMaterial->Release();
 }
 
 void VoxelWorld::Initialize(Vector3Int visibleworldsize)
@@ -277,7 +281,22 @@ void VoxelWorld::UpdateVisibility(void* pUserData)
     {
         VoxelChunk* pChunk = (VoxelChunk*)pNode;
 
-        pChunk->AddToSceneGraph( pUserData );
+        pChunk->AddToSceneGraph( pUserData, m_pMaterial );
+    }
+}
+
+void VoxelWorld::SetMaterial(MaterialDefinition* pMaterial)
+{
+    pMaterial->AddRef();
+    if( m_pMaterial )
+        m_pMaterial->Release();
+    m_pMaterial = pMaterial;
+
+    for( CPPListNode* pNode = m_pChunksVisible.GetHead(); pNode; pNode = pNode->GetNext() )
+    {
+        VoxelChunk* pChunk = (VoxelChunk*)pNode;
+
+        pChunk->SetMaterial( m_pMaterial );        
     }
 }
 

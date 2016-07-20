@@ -35,14 +35,19 @@ public:
     virtual ~VoxelChunk();
 
     void Initialize(VoxelWorld* world, Vector3 pos, Vector3Int chunksize, Vector3Int chunkoffset);
+
+    // Map/Blocks
     void CreateMap();
-    void RebuildMesh();
-
-    void AddToSceneGraph(void* pUserData);
-    void RemoveFromSceneGraph();
-
     bool IsBlockEnabled(Vector3Int worldpos, bool blockexistsifnotready = false);
     bool IsBlockEnabled(int worldx, int worldy, int worldz, bool blockexistsifnotready = false);
+
+    // Rendering
+    void RebuildMesh();
+
+    void AddToSceneGraph(void* pUserData, MaterialDefinition* pMaterial);
+    void RemoveFromSceneGraph();
+
+    void SetMaterial(MaterialDefinition* pMaterial);
 
     // Chunk state
     bool IsMapCreated() { return m_MapCreated; }

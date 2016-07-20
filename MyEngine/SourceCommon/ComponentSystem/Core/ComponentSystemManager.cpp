@@ -59,11 +59,18 @@ ComponentSystemManager::ComponentSystemManager(ComponentTypeManager* typemanager
         wxBitmap bitmap_folder( "DataEngine/EditorIcons/IconFolder.bmp", wxBITMAP_TYPE_BMP );// = wxArtProvider::GetBitmap( wxART_FOLDER, wxART_OTHER, wxSize(16,16) );
         wxBitmap bitmap_component( "DataEngine/EditorIcons/IconComponent.bmp", wxBITMAP_TYPE_BMP );
 
-        // Order added must match ObjectListIconTypes enum order
-        pImageList->Add( bitmap_scene );          // ObjectListIcon_Scene,
-        pImageList->Add( bitmap_gameobject );     // ObjectListIcon_GameObject,
-        pImageList->Add( bitmap_folder );         // ObjectListIcon_Folder,
-        pImageList->Add( bitmap_component );      // ObjectListIcon_Component,
+        // make sure bitmaps loaded
+        //    will happen if DataEngine folder isn't there... run "Windows-CreateSymLinksForData.bat"
+        MyAssert( bitmap_scene.IsOk() );
+
+        if( bitmap_scene.IsOk() )
+        {
+            // Order added must match ObjectListIconTypes enum order
+            pImageList->Add( bitmap_scene );          // ObjectListIcon_Scene,
+            pImageList->Add( bitmap_gameobject );     // ObjectListIcon_GameObject,
+            pImageList->Add( bitmap_folder );         // ObjectListIcon_Folder,
+            pImageList->Add( bitmap_component );      // ObjectListIcon_Component,
+        }
 
         g_pPanelObjectList->AssignImageListToObjectTree( pImageList );
     }

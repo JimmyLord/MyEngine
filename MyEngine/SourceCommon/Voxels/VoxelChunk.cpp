@@ -66,6 +66,9 @@ void VoxelChunk::Initialize(VoxelWorld* world, Vector3 pos, Vector3Int chunksize
     }
 }
 
+// ============================================================================================================================
+// Map/Blocks
+// ============================================================================================================================
 void VoxelChunk::CreateMap()
 {
     //Vector3Int worldsize = m_pWorld->GetWorldSize();
@@ -106,7 +109,18 @@ void VoxelChunk::CreateMap()
                     enabled = value * 20 > worldpos.y ? true : false;
                 }
 
-                m_pBlocks[z * m_ChunkSize.y * m_ChunkSize.x + y * m_ChunkSize.x + x].SetEnabled( enabled );
+                VoxelBlock* pBlock = &m_pBlocks[z * m_ChunkSize.y * m_ChunkSize.x + y * m_ChunkSize.x + x];
+                pBlock->SetEnabled( enabled );
+
+                int blocktype = 0;
+                if( m_ChunkOffset.y + y > 8 )
+                    blocktype = 1;
+                if( m_ChunkOffset.y + y > 12 )
+                    blocktype = 3;
+                if( m_ChunkOffset.y + y < -15 )
+                    blocktype = 2;
+
+                pBlock->SetBlockType( blocktype );
             }
         }
     }
@@ -114,6 +128,33 @@ void VoxelChunk::CreateMap()
     m_MapCreated = true;
 }
 
+bool VoxelChunk::IsBlockEnabled(Vector3Int worldpos, bool blockexistsifnotready)
+{
+    return IsBlockEnabled( worldpos.x, worldpos.y, worldpos.z, blockexistsifnotready );
+}
+
+bool VoxelChunk::IsBlockEnabled(int worldx, int worldy, int worldz, bool blockexistsifnotready)
+{
+    // If the block haven't been setup yet, then return false, as if blocks aren't there.
+    if( m_MapCreated == false )
+        return blockexistsifnotready;
+
+    Vector3Int localpos( worldx%m_ChunkSize.x, worldy%m_ChunkSize.y, worldz%m_ChunkSize.z );
+    if( localpos.x < 0 ) localpos.x += m_ChunkSize.x;
+    if( localpos.y < 0 ) localpos.y += m_ChunkSize.y;
+    if( localpos.z < 0 ) localpos.z += m_ChunkSize.z;
+
+    if( localpos.x >= m_ChunkSize.x || localpos.y >= m_ChunkSize.y || localpos.z >= m_ChunkSize.z )
+        return false;
+
+    VoxelBlock* pBlock = &m_pBlocks[localpos.z * m_ChunkSize.y * m_ChunkSize.x + localpos.y * m_ChunkSize.x + localpos.x];
+
+    return pBlock->IsEnabled();
+}
+
+// ============================================================================================================================
+// Rendering
+// ============================================================================================================================
 void VoxelChunk::RebuildMesh()
 {
     MyAssert( m_pBlocks );
@@ -160,16 +201,11 @@ void VoxelChunk::RebuildMesh()
             {
                 for( int x=0; x<m_ChunkSize.x; x++ )
                 {
-                    if( m_pBlocks[z * m_ChunkSize.y * m_ChunkSize.x + y * m_ChunkSize.x + x].IsEnabled() == false )
+                    VoxelBlock* pBlock = &m_pBlocks[z * m_ChunkSize.y * m_ChunkSize.x + y * m_ChunkSize.x + x];
+                    if( pBlock->IsEnabled() == false )
                         continue;
 
-                    int tileindex = 0;
-                    if( m_ChunkOffset.y + y > 8 )
-                        tileindex = 1;
-                    if( m_ChunkOffset.y + y > 12 )
-                        tileindex = 3;
-                    if( m_ChunkOffset.y + y < -15 )
-                        tileindex = 2;
+                    int tileindex = pBlock->GetBlockType();
 
                     Vector3 boxsize( 1, 1, 1 );
 
@@ -403,12 +439,10 @@ void VoxelChunk::RebuildMesh()
     }
 }
 
-void VoxelChunk::AddToSceneGraph(void* pUserData)
+void VoxelChunk::AddToSceneGraph(void* pUserData, MaterialDefinition* pMaterial)
 {
     if( m_pSceneGraphObject != 0 )
         return;
-
-    MaterialDefinition* pMaterial = g_pMaterialManager->FindMaterialByFilename( "Data/Voxels/Tiles.mymaterial" );
 
     m_pSceneGraphObject = g_pComponentSystemManager->m_pSceneGraph->AddObject(
         &m_Transform, m_pMesh, m_pMesh->m_SubmeshList[0],
@@ -424,28 +458,12 @@ void VoxelChunk::RemoveFromSceneGraph()
     m_pSceneGraphObject = 0;
 }
 
-bool VoxelChunk::IsBlockEnabled(Vector3Int worldpos, bool blockexistsifnotready)
+void VoxelChunk::SetMaterial(MaterialDefinition* pMaterial)
 {
-    return IsBlockEnabled( worldpos.x, worldpos.y, worldpos.z, blockexistsifnotready );
-}
+    if( m_pSceneGraphObject == 0 )
+        return;
 
-bool VoxelChunk::IsBlockEnabled(int worldx, int worldy, int worldz, bool blockexistsifnotready)
-{
-    // If the block haven't been setup yet, then return false, as if blocks aren't there.
-    if( m_MapCreated == false )
-        return blockexistsifnotready;
-
-    Vector3Int localpos( worldx%m_ChunkSize.x, worldy%m_ChunkSize.y, worldz%m_ChunkSize.z );
-    if( localpos.x < 0 ) localpos.x += m_ChunkSize.x;
-    if( localpos.y < 0 ) localpos.y += m_ChunkSize.y;
-    if( localpos.z < 0 ) localpos.z += m_ChunkSize.z;
-
-    if( localpos.x >= m_ChunkSize.x || localpos.y >= m_ChunkSize.y || localpos.z >= m_ChunkSize.z )
-        return false;
-
-    VoxelBlock* pBlock = &m_pBlocks[localpos.z * m_ChunkSize.y * m_ChunkSize.x + localpos.y * m_ChunkSize.x + localpos.x];
-
-    return pBlock->IsEnabled();
+    m_pSceneGraphObject->m_pMaterial = pMaterial;
 }
 
 // ============================================================================================================================

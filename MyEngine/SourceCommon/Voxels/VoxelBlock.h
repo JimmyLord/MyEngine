@@ -22,6 +22,9 @@ public:
 
     bool IsEnabled() { return m_Enabled; }
     void SetEnabled(bool enabled) { m_Enabled = enabled; }
+
+    unsigned int GetBlockType() { return m_BlockType; }
+    void SetBlockType(unsigned int type) { m_BlockType = type; }
 };
 
 #endif //__VoxelBlock_H__

@@ -32,11 +32,15 @@ ComponentVoxelWorld::ComponentVoxelWorld()
     m_pVoxelWorld->Initialize( Vector3Int( 10, 10, 10 ) );
 
     m_pVoxelWorld->UpdateVisibility( this );
+
+    m_pMaterial = 0;
 }
 
 ComponentVoxelWorld::~ComponentVoxelWorld()
 {
     delete m_pVoxelWorld;
+
+    SAFE_RELEASE( m_pMaterial );
 
     MYFW_COMPONENT_VARIABLE_LIST_DESTRUCTOR(); //_VARIABLE_LIST
 }
@@ -44,6 +48,13 @@ ComponentVoxelWorld::~ComponentVoxelWorld()
 void ComponentVoxelWorld::RegisterVariables(CPPListHead* pList, ComponentVoxelWorld* pThis) //_VARIABLE_LIST
 {
     //AddVar( pList, "SampleFloat", ComponentVariableType_Vector3, MyOffsetOf( pThis, &pThis->m_SampleVector3 ), true, true, 0, (CVarFunc_ValueChanged)&ComponentVoxelWorld::OnValueChanged, (CVarFunc_DropTarget)&ComponentVoxelWorld::OnDrop, 0 );
+    AddVarPointer( pList, "Material",  true,  true, 0,
+        (CVarFunc_GetPointerValue)&ComponentVoxelWorld::GetPointerValue,
+        (CVarFunc_SetPointerValue)&ComponentVoxelWorld::SetPointerValue,
+        (CVarFunc_GetPointerDesc)&ComponentVoxelWorld::GetPointerDesc,
+        (CVarFunc_SetPointerDesc)&ComponentVoxelWorld::SetPointerDesc,
+        (CVarFunc_ValueChanged)&ComponentVoxelWorld::OnValueChanged,
+        (CVarFunc_DropTarget)&ComponentVoxelWorld::OnDrop, 0 );
 }
 
 void ComponentVoxelWorld::Reset()
@@ -51,6 +62,7 @@ void ComponentVoxelWorld::Reset()
     ComponentBase::Reset();
 
     //m_SampleVector3.Set( 0, 0, 0 );
+    SAFE_RELEASE( m_pMaterial );
 
 #if MYFW_USING_WX
     m_pPanelWatchBlockVisible = &m_PanelWatchBlockVisible;
@@ -70,6 +82,51 @@ void ComponentVoxelWorld::LuaRegister(lua_State* luastate)
         .endClass();
 }
 #endif //MYFW_USING_LUA
+
+void* ComponentVoxelWorld::GetPointerValue(ComponentVariable* pVar) //_VARIABLE_LIST
+{
+    if( strcmp( pVar->m_Label, "Material" ) == 0 )
+    {
+        return m_pMaterial;
+    }
+
+    return 0;
+}
+
+void ComponentVoxelWorld::SetPointerValue(ComponentVariable* pVar, void* newvalue)
+{
+    if( strcmp( pVar->m_Label, "Material" ) == 0 )
+    {
+        return SetMaterial( (MaterialDefinition*)newvalue );
+    }
+}
+
+const char* ComponentVoxelWorld::GetPointerDesc(ComponentVariable* pVar) //_VARIABLE_LIST
+{
+    if( strcmp( pVar->m_Label, "Material" ) == 0 )
+    {
+        if( m_pMaterial && m_pMaterial->m_pFile )
+            return m_pMaterial->m_pFile->m_FullPath;
+        else
+            return "none";
+    }
+
+    return "fix me";
+}
+
+void ComponentVoxelWorld::SetPointerDesc(ComponentVariable* pVar, const char* newdesc) //_VARIABLE_LIST
+{
+    if( strcmp( pVar->m_Label, "Material" ) == 0 )
+    {
+        MyAssert( newdesc );
+        if( newdesc )
+        {
+            MaterialDefinition* pMaterial = g_pMaterialManager->LoadMaterial( newdesc );
+            SetMaterial( pMaterial );
+            pMaterial->Release();
+        }
+    }
+}
 
 #if MYFW_USING_WX
 void ComponentVoxelWorld::AddToObjectsPanel(wxTreeItemId gameobjectid)
@@ -109,6 +166,19 @@ void* ComponentVoxelWorld::OnDrop(ComponentVariable* pVar, wxCoord x, wxCoord y)
         (GameObject*)g_DragAndDropStruct.m_Value;
     }
 
+    if( g_DragAndDropStruct.m_Type == DragAndDropType_MaterialDefinitionPointer )
+    {
+        MaterialDefinition* pMaterial = (MaterialDefinition*)g_DragAndDropStruct.m_Value;
+        MyAssert( pMaterial );
+
+        oldvalue = m_pMaterial;
+        SetMaterial( pMaterial );
+
+        // update the panel so new Material name shows up.
+        if( pMaterial->m_pFile )
+            g_pPanelWatch->m_pVariables[g_DragAndDropStruct.m_ID].m_Description = pMaterial->m_pFile->m_FilenameWithoutExtension;
+    }
+
     return oldvalue;
 }
 
@@ -120,6 +190,19 @@ void* ComponentVoxelWorld::OnValueChanged(ComponentVariable* pVar, int controlid
     //{
     //    MyAssert( pVar->m_ControlID != -1 );
     //}
+    if( strncmp( pVar->m_Label, "Material", strlen("Material") ) == 0 )
+    {
+        MyAssert( pVar->m_ControlID != -1 );
+
+        wxString text = g_pPanelWatch->m_pVariables[pVar->m_ControlID].m_Handle_TextCtrl->GetValue();
+        if( text == "" || text == "none" )
+        {
+            g_pPanelWatch->ChangeDescriptionForPointerWithDescription( pVar->m_ControlID, "none" );
+
+            oldpointer = GetMaterial();
+            SetMaterial( 0 );
+        }
+    }
 
     return oldpointer;
 }
@@ -149,6 +232,9 @@ ComponentVoxelWorld& ComponentVoxelWorld::operator=(const ComponentVoxelWorld& o
 
     // TODO: replace this with a CopyComponentVariablesFromOtherObject... or something similar.
     //m_SampleVector3 = other.m_SampleVector3;
+    m_pMaterial = other.m_pMaterial;
+    if( m_pMaterial )
+        m_pMaterial->AddRef();
 
     return *this;
 }
@@ -187,6 +273,18 @@ void ComponentVoxelWorld::UnregisterCallbacks()
 
         m_CallbacksRegistered = false;
     }
+}
+
+void ComponentVoxelWorld::SetMaterial(MaterialDefinition* pMaterial)
+{
+    pMaterial->AddRef();
+    SAFE_RELEASE( m_pMaterial );
+    m_pMaterial = pMaterial;
+
+    if( m_pVoxelWorld == 0 )
+        return;
+
+    m_pVoxelWorld->SetMaterial( pMaterial );
 }
 
 void ComponentVoxelWorld::TickCallback(double TimePassed)

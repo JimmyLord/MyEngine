@@ -38,6 +38,8 @@ protected:
     VoxelChunk** m_pActiveWorldChunkPtrs;
     unsigned int m_NumChunkPointersAllocated;
 
+    MaterialDefinition* m_pMaterial;
+
 protected:
     bool IsChunkActive(Vector3Int chunkpos);
     unsigned int GetActiveChunkArrayIndex(Vector3Int chunkpos);
@@ -63,6 +65,8 @@ public:
     void SetWorldCenter(Vector3Int newworldcenter);
 
     void UpdateVisibility(void* pUserData);
+    void SetMaterial(MaterialDefinition* pMaterial);
+    MaterialDefinition* GetMaterial() { return m_pMaterial; }
 
 public:
     Vector3 GetBlockSize() { return m_BlockSize; }

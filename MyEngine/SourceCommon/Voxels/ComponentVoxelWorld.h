@@ -20,6 +20,7 @@ private:
 
 public:
     VoxelWorld* m_pVoxelWorld;
+    MaterialDefinition* m_pMaterial;
 
 public:
     ComponentVoxelWorld();
@@ -40,6 +41,9 @@ public:
     virtual void RegisterCallbacks();
     virtual void UnregisterCallbacks();
 
+    virtual MaterialDefinition* GetMaterial() { return m_pMaterial; }
+    virtual void SetMaterial(MaterialDefinition* pMaterial);
+
     bool IsBlockEnabledAroundLocation(Vector3 scenepos, float radius);
     float GetSceneYForNextBlockBelowPosition(Vector3 scenepos, float radius);
     void AddTileToTileInFocus(Vector2 mousepos);
@@ -56,6 +60,13 @@ protected:
     //MYFW_DECLARE_COMPONENT_CALLBACK_ONBUTTONS(); // OnButtonsCallback
     //MYFW_DECLARE_COMPONENT_CALLBACK_ONKEYS(); // OnKeysCallback
     //MYFW_DECLARE_COMPONENT_CALLBACK_ONFILERENAMED(); // OnFileRenamedCallback
+
+public:
+    // Runtime component variable callbacks. //_VARIABLE_LIST
+    void* GetPointerValue(ComponentVariable* pVar);
+    void SetPointerValue(ComponentVariable* pVar, void* newvalue);
+    const char* GetPointerDesc(ComponentVariable* pVar);
+    void SetPointerDesc(ComponentVariable* pVar, const char* newdesc);
 
 public:
 #if MYFW_USING_WX

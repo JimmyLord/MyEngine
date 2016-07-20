@@ -742,13 +742,16 @@ bool EngineCore::OnTouch(int action, int id, float x, float y, float pressure, f
     {
         if( g_GLCanvasIDActive == 1 )
         {
-            ComponentCamera* pCamera = m_pEditorState->GetEditorCamera();
+            if( m_pEditorState->m_pEditorCamera )
+            {
+                ComponentCamera* pCamera = m_pEditorState->GetEditorCamera();
 
-            // prefer 0,0 at bottom left.
-            y = pCamera->m_WindowHeight - y;
+                // prefer 0,0 at bottom left.
+                y = pCamera->m_WindowHeight - y;
 
-            if( HandleEditorInput( g_GLCanvasIDActive, -1, -1, action, id, x, y, pressure ) )
-                return true;
+                if( HandleEditorInput( g_GLCanvasIDActive, -1, -1, action, id, x, y, pressure ) )
+                    return true;
+            }
 
             return false;
         }
