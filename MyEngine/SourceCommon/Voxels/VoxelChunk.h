@@ -37,7 +37,8 @@ public:
     void Initialize(VoxelWorld* world, Vector3 pos, Vector3Int chunksize, Vector3Int chunkoffset);
 
     // Map/Blocks
-    void CreateMap();
+    static unsigned int DefaultGenerateMapFunc(Vector3Int worldpos);
+    void GenerateMap();
     bool IsBlockEnabled(Vector3Int worldpos, bool blockexistsifnotready = false);
     bool IsBlockEnabled(int worldx, int worldy, int worldz, bool blockexistsifnotready = false);
 
@@ -54,7 +55,9 @@ public:
     bool IsMeshOptimized() { return m_MeshOptimized; }
 
     // Space conversions
+    Vector3Int GetChunkSize() { return m_ChunkSize; }
     Vector3Int GetChunkOffset() { return m_ChunkOffset; }
+    VoxelBlock* GetBlockFromLocalPos(Vector3Int localpos);
     unsigned int GetBlockIndex(Vector3Int worldpos);
 
     // Add/Remove blocks

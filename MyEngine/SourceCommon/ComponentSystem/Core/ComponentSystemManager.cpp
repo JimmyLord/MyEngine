@@ -2176,7 +2176,7 @@ void ComponentSystemManager::AddMeshToSceneGraph(ComponentBase* pComponent, MyMe
 
     for( unsigned int i=0; i<pMesh->m_SubmeshList.Count(); i++ )
     {
-        if( pMaterialList[i]->IsTransparent() )
+        if( pMaterialList[i] && pMaterialList[i]->IsTransparent() )
             flags = SceneGraphFlag_Transparent;
         MyAssert( pOutputList[i] == 0 );
         pOutputList[i] = m_pSceneGraph->AddObject( pWorldTransform, pMesh, pMesh->m_SubmeshList[i], pMaterialList[i], primitive, pointsize, flags, layers, pComponent );

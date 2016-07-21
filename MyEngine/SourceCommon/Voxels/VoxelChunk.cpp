@@ -69,57 +69,74 @@ void VoxelChunk::Initialize(VoxelWorld* world, Vector3 pos, Vector3Int chunksize
 // ============================================================================================================================
 // Map/Blocks
 // ============================================================================================================================
-void VoxelChunk::CreateMap()
+unsigned int VoxelChunk::DefaultGenerateMapFunc(Vector3Int worldpos)
+{
+    bool enabled = false;
+
+    if( 0 )
+    {
+        float freq = 1/50.0f;
+
+        double value = SimplexNoise( worldpos.x * freq, worldpos.y * freq, worldpos.z * freq );
+                
+        enabled = value > 0.0f;
+    }
+    else
+    {
+        float freq = 1/50.0f;
+
+        double value = SimplexNoise( worldpos.x * freq, worldpos.z * freq );
+
+        //// shift -1 to 1 into range of 0.5 to 1.
+        //double shiftedvalue = value * 0.25 + 0.75;
+
+        //// bottom half solid, top half hilly.
+        //enabled = ((float)worldpos.y / worldblocksize.y) < shiftedvalue;
+
+        //below 0 is solid
+        //above 0 is hilly -> hills are -20 to 20 blocks tall
+        enabled = value * 20 > worldpos.y ? true : false;
+    }
+
+    int blocktype = 1;
+    if( worldpos.y > 8 )
+        blocktype = 2;
+    if( worldpos.y > 12 )
+        blocktype = 4;
+    if( worldpos.y < -15 )
+        blocktype = 3;
+
+    if( enabled == false )
+        blocktype = 0;
+
+    return blocktype;
+}
+
+void VoxelChunk::GenerateMap()
 {
     //Vector3Int worldsize = m_pWorld->GetWorldSize();
     //Vector3Int worldblocksize = worldsize.MultiplyComponents( m_ChunkSize );
+    Vector3Int chunksize = GetChunkSize();
+    Vector3Int chunkoffset = GetChunkOffset();
 
-    for( int z=0; z<m_ChunkSize.z; z++ )
+    for( int z=0; z<chunksize.z; z++ )
     {
-        for( int y=0; y<m_ChunkSize.y; y++ )
+        for( int y=0; y<chunksize.y; y++ )
         {
-            for( int x=0; x<m_ChunkSize.x; x++ )
+            for( int x=0; x<chunksize.x; x++ )
             {
-                Vector3Int worldpos( m_ChunkOffset.x+x, m_ChunkOffset.y+y, m_ChunkOffset.z+z );
+                unsigned int blocktype;
+                Vector3Int worldpos = Vector3Int( chunkoffset.x + x, chunkoffset.y + y, chunkoffset.z + z );
 
-                bool enabled = false;
+                VoxelWorld_GenerateMap_CallbackFunction pFunc = m_pWorld->GetMapGenerationCallbackFunction();
 
-                if( 0 )
-                {
-                    float freq = 1/50.0f;
-
-                    double value = SimplexNoise( worldpos.x * freq, worldpos.y * freq, worldpos.z * freq );
-                
-                    enabled = value > 0.0f;
-                }
+                if( pFunc != 0 )
+                    blocktype = pFunc( worldpos );
                 else
-                {
-                    float freq = 1/50.0f;
+                    blocktype = VoxelChunk::DefaultGenerateMapFunc( worldpos );
 
-                    double value = SimplexNoise( worldpos.x * freq, worldpos.z * freq );
-
-                    //// shift -1 to 1 into range of 0.5 to 1.
-                    //double shiftedvalue = value * 0.25 + 0.75;
-
-                    //// bottom half solid, top half hilly.
-                    //enabled = ((float)worldpos.y / worldblocksize.y) < shiftedvalue;
-
-                    //below 0 is solid
-                    //above 0 is hilly -> hills are -20 to 20 blocks tall
-                    enabled = value * 20 > worldpos.y ? true : false;
-                }
-
-                VoxelBlock* pBlock = &m_pBlocks[z * m_ChunkSize.y * m_ChunkSize.x + y * m_ChunkSize.x + x];
-                pBlock->SetEnabled( enabled );
-
-                int blocktype = 0;
-                if( m_ChunkOffset.y + y > 8 )
-                    blocktype = 1;
-                if( m_ChunkOffset.y + y > 12 )
-                    blocktype = 3;
-                if( m_ChunkOffset.y + y < -15 )
-                    blocktype = 2;
-
+                VoxelBlock* pBlock = GetBlockFromLocalPos( Vector3Int( x, y, z ) );
+                pBlock->SetEnabled( blocktype > 0 ? true : false );
                 pBlock->SetBlockType( blocktype );
             }
         }
@@ -187,10 +204,10 @@ void VoxelChunk::RebuildMesh()
         Vertex_XYZUVNorm* pActualVerts = pVerts;
         unsigned short* pActualIndices = pIndices;
 
-        int TileTops_Col[] = { 0, 1, 2, 3 };
-        int TileTops_Row[] = { 0, 0, 0, 0 };
-        int TileSides_Col[] = { 0, 1, 2, 3 };
-        int TileSides_Row[] = { 1, 1, 1, 1 };
+        int TileTops_Col[] = { 0, 1, 2, 3, 0 };
+        int TileTops_Row[] = { 0, 0, 0, 0, 2 };
+        int TileSides_Col[] = { 0, 1, 2, 3, 0 };
+        int TileSides_Row[] = { 1, 1, 1, 1, 3 };
 
         int vertcount = 0;
         int indexcount = 0;
@@ -205,7 +222,7 @@ void VoxelChunk::RebuildMesh()
                     if( pBlock->IsEnabled() == false )
                         continue;
 
-                    int tileindex = pBlock->GetBlockType();
+                    int tileindex = pBlock->GetBlockType() - 1;
 
                     Vector3 boxsize( 1, 1, 1 );
 
@@ -469,6 +486,13 @@ void VoxelChunk::SetMaterial(MaterialDefinition* pMaterial)
 // ============================================================================================================================
 // Space conversions
 // ============================================================================================================================
+VoxelBlock* VoxelChunk::GetBlockFromLocalPos(Vector3Int localpos)
+{
+    VoxelBlock* pBlock = &m_pBlocks[localpos.z * m_ChunkSize.y * m_ChunkSize.x + localpos.y * m_ChunkSize.x + localpos.x];
+
+    return pBlock;
+}
+
 unsigned int VoxelChunk::GetBlockIndex(Vector3Int worldpos)
 {
     Vector3Int localpos = worldpos - m_ChunkOffset;

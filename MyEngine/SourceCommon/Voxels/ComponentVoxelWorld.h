@@ -41,9 +41,12 @@ public:
     virtual void RegisterCallbacks();
     virtual void UnregisterCallbacks();
 
+    // Rendering
     virtual MaterialDefinition* GetMaterial() { return m_pMaterial; }
     virtual void SetMaterial(MaterialDefinition* pMaterial);
 
+    // Queries
+    VoxelWorld* GetWorld() { return m_pVoxelWorld; }
     bool IsBlockEnabledAroundLocation(Vector3 scenepos, float radius);
     float GetSceneYForNextBlockBelowPosition(Vector3 scenepos, float radius);
     void AddTileToTileInFocus(Vector2 mousepos);

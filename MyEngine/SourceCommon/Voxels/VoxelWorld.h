@@ -12,6 +12,8 @@
 
 class VoxelChunk;
 
+typedef unsigned int (*VoxelWorld_GenerateMap_CallbackFunction)(Vector3Int worldpos);
+
 struct VoxelRaycastResult
 {
     bool m_Hit;
@@ -39,6 +41,8 @@ protected:
     unsigned int m_NumChunkPointersAllocated;
 
     MaterialDefinition* m_pMaterial;
+
+    VoxelWorld_GenerateMap_CallbackFunction m_pMapGenCallbackFunc;
 
 protected:
     bool IsChunkActive(Vector3Int chunkpos);
@@ -70,6 +74,10 @@ public:
 
 public:
     Vector3 GetBlockSize() { return m_BlockSize; }
+
+    // Map generation
+    void SetMapGenerationCallbackFunction(VoxelWorld_GenerateMap_CallbackFunction pFunc);
+    VoxelWorld_GenerateMap_CallbackFunction GetMapGenerationCallbackFunction();
 
     // Space conversions
     Vector3Int GetWorldPosition(Vector3 scenepos);

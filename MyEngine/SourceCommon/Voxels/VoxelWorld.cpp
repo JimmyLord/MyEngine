@@ -24,6 +24,8 @@ VoxelWorld::VoxelWorld()
     m_WorldOffset.Set( 0, 0, 0 );
 
     m_pMaterial = 0;
+
+    m_pMapGenCallbackFunc = 0;
 }
 
 VoxelWorld::~VoxelWorld()
@@ -113,9 +115,10 @@ void VoxelWorld::Tick(double timepassed)
 
     if( pChunk )
     {
-        pChunk->CreateMap();
+        pChunk->GenerateMap();
         pChunk->RebuildMesh();
         m_pChunksVisible.MoveTail( pChunk );
+
         return;
     }
 
@@ -390,6 +393,19 @@ void VoxelWorld::ShiftChunk(Vector3Int to, Vector3Int from, bool isedgeblock)
         m_pActiveWorldChunkPtrs[tooffset] = m_pActiveWorldChunkPtrs[fromoffset];
         m_pActiveWorldChunkPtrs[fromoffset] = 0;
     }
+}
+
+// ============================================================================================================================
+// Map generation
+// ============================================================================================================================
+void VoxelWorld::SetMapGenerationCallbackFunction(VoxelWorld_GenerateMap_CallbackFunction pFunc)
+{
+    m_pMapGenCallbackFunc = pFunc;
+}
+
+VoxelWorld_GenerateMap_CallbackFunction VoxelWorld::GetMapGenerationCallbackFunction()
+{
+    return m_pMapGenCallbackFunc;
 }
 
 // ============================================================================================================================
