@@ -307,13 +307,13 @@ EditorCommand_EnableObject::~EditorCommand_EnableObject()
 void EditorCommand_EnableObject::Do()
 {
     m_pGameObject->SetEnabled( m_ObjectWasEnabled );
-    g_pPanelWatch->m_NeedsRefresh = true;
+    g_pPanelWatch->SetNeedsRefresh();
 }
 
 void EditorCommand_EnableObject::Undo()
 {
     m_pGameObject->SetEnabled( !m_ObjectWasEnabled );
-    g_pPanelWatch->m_NeedsRefresh = true;
+    g_pPanelWatch->SetNeedsRefresh();
 }
 
 EditorCommand* EditorCommand_EnableObject::Repeat()

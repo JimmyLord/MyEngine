@@ -154,7 +154,7 @@ void ComponentAudioPlayer::OnButtonPlaySound()
     {
         m_pSoundCue = g_pGameCore->m_pSoundManager->FindCueByName( m_SoundCueName );
         if( m_pSoundCue )
-            g_pPanelWatch->m_NeedsRefresh = true;
+            g_pPanelWatch->SetNeedsRefresh();
     }
 
     if( m_pSoundCue == 0 )

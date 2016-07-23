@@ -67,7 +67,7 @@ void ComponentPostEffect::OnDropMaterial(int controlid, wxCoord x, wxCoord y)
 
         // update the panel so new Material name shows up.
         if( pMaterial->m_pFile )
-            g_pPanelWatch->m_pVariables[g_DragAndDropStruct.m_ID].m_Description = pMaterial->m_pFile->m_FilenameWithoutExtension;
+            g_pPanelWatch->GetVariableProperties( g_DragAndDropStruct.m_ID )->m_Description = pMaterial->m_pFile->m_FilenameWithoutExtension;
     }
 }
 

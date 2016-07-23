@@ -1186,7 +1186,7 @@ void EngineMainFrame::OnDrop(int controlid, wxCoord x, wxCoord y)
     //    m_ExposedVars[id]->pointer = pGameObject;
 
     //    // update the panel so new gameobject name shows up.
-    //    g_pPanelWatch->m_pVariables[g_DragAndDropStruct.m_ID].m_Description = pGameObject->GetName();
+    //    g_pPanelWatch->GetVariableProperties( g_DragAndDropStruct.m_ID )->m_Description = pGameObject->GetName();
     //}
 }
 

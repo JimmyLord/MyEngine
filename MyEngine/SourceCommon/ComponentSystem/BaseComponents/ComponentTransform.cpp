@@ -238,7 +238,7 @@ void* ComponentTransform::OnDropTransform(ComponentVariable* pVar, wxCoord x, wx
         }
 
         // update the panel so new OBJ name shows up.
-        g_pPanelWatch->m_pVariables[g_DragAndDropStruct.m_ID].m_Description = m_pParentTransform->m_pGameObject->GetName();
+        g_pPanelWatch->GetVariableProperties( g_DragAndDropStruct.m_ID )->m_Description = m_pParentTransform->m_pGameObject->GetName();
     }
 
     return oldvalue;
@@ -252,7 +252,7 @@ void* ComponentTransform::OnValueChanged(ComponentVariable* pVar, int controlid,
     {
         MyAssert( pVar->m_ControlID != -1 );
 
-        wxString text = g_pPanelWatch->m_pVariables[pVar->m_ControlID].m_Handle_TextCtrl->GetValue();
+        wxString text = g_pPanelWatch->GetVariableProperties( pVar->m_ControlID )->m_Handle_TextCtrl->GetValue();
         if( text == "" || text == "none" )
         {
             g_pPanelWatch->ChangeDescriptionForPointerWithDescription( pVar->m_ControlID, "none" );

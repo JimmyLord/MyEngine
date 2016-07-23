@@ -173,7 +173,7 @@ void* ComponentMesh::OnValueChanged(ComponentVariable* pVar, int controlid, bool
 
             MyAssert( pVar->m_ControlID != -1 );
 
-            wxString text = g_pPanelWatch->m_pVariables[pVar->m_ControlID].m_Handle_TextCtrl->GetValue();
+            wxString text = g_pPanelWatch->GetVariableProperties( pVar->m_ControlID )->m_Handle_TextCtrl->GetValue();
             if( text == "" || text == "none" )
             {
                 g_pPanelWatch->ChangeDescriptionForPointerWithDescription( pVar->m_ControlID, "none" );
@@ -185,7 +185,7 @@ void* ComponentMesh::OnValueChanged(ComponentVariable* pVar, int controlid, bool
 
         //if( controlid == m_ControlID_PrimitiveType )
         {
-            g_pPanelWatch->m_NeedsRefresh = true;
+            g_pPanelWatch->SetNeedsRefresh();
         }
 
         PushChangesToSceneGraphObjects();
@@ -220,7 +220,7 @@ void* ComponentMesh::OnDropMaterial(ComponentVariable* pVar, wxCoord x, wxCoord 
             SetMaterial( pMaterial, materialthatchanged );
 
             // update the panel so new Material name shows up.
-            g_pPanelWatch->m_pVariables[g_DragAndDropStruct.m_ID].m_Description = pMaterial->GetName();
+            g_pPanelWatch->GetVariableProperties( g_DragAndDropStruct.m_ID )->m_Description = pMaterial->GetName();
         }
     }
 

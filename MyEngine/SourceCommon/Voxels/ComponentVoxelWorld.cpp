@@ -176,7 +176,7 @@ void* ComponentVoxelWorld::OnDrop(ComponentVariable* pVar, wxCoord x, wxCoord y)
 
         // update the panel so new Material name shows up.
         if( pMaterial->m_pFile )
-            g_pPanelWatch->m_pVariables[g_DragAndDropStruct.m_ID].m_Description = pMaterial->m_pFile->m_FilenameWithoutExtension;
+            g_pPanelWatch->GetVariableProperties( g_DragAndDropStruct.m_ID )->m_Description = pMaterial->m_pFile->m_FilenameWithoutExtension;
     }
 
     return oldvalue;
@@ -194,7 +194,7 @@ void* ComponentVoxelWorld::OnValueChanged(ComponentVariable* pVar, int controlid
     {
         MyAssert( pVar->m_ControlID != -1 );
 
-        wxString text = g_pPanelWatch->m_pVariables[pVar->m_ControlID].m_Handle_TextCtrl->GetValue();
+        wxString text = g_pPanelWatch->GetVariableProperties( pVar->m_ControlID )->m_Handle_TextCtrl->GetValue();
         if( text == "" || text == "none" )
         {
             g_pPanelWatch->ChangeDescriptionForPointerWithDescription( pVar->m_ControlID, "none" );
@@ -277,7 +277,8 @@ void ComponentVoxelWorld::UnregisterCallbacks()
 
 void ComponentVoxelWorld::SetMaterial(MaterialDefinition* pMaterial)
 {
-    pMaterial->AddRef();
+    if( pMaterial )
+        pMaterial->AddRef();
     SAFE_RELEASE( m_pMaterial );
     m_pMaterial = pMaterial;
 

@@ -164,7 +164,7 @@ void* ComponentMeshOBJ::OnValueChanged(ComponentVariable* pVar, int controlid, b
         {
             MyAssert( pVar->m_ControlID != -1 );
 
-            wxString text = g_pPanelWatch->m_pVariables[pVar->m_ControlID].m_Handle_TextCtrl->GetValue();
+            wxString text = g_pPanelWatch->GetVariableProperties( pVar->m_ControlID )->m_Handle_TextCtrl->GetValue();
             if( text == "" || text == "none" )
             {
                 g_pPanelWatch->ChangeDescriptionForPointerWithDescription( pVar->m_ControlID, "none" );
@@ -201,7 +201,7 @@ void* ComponentMeshOBJ::OnDropOBJ(ComponentVariable* pVar, wxCoord x, wxCoord y)
             SetMesh( pMesh );
 
             // update the panel so new OBJ name shows up.
-            g_pPanelWatch->m_pVariables[g_DragAndDropStruct.m_ID].m_Description = m_pMesh->m_pSourceFile->m_FullPath;
+            g_pPanelWatch->GetVariableProperties( g_DragAndDropStruct.m_ID )->m_Description = m_pMesh->m_pSourceFile->m_FullPath;
         }
 
         if( strcmp( filenameext, ".mymesh" ) == 0 )
@@ -213,10 +213,10 @@ void* ComponentMeshOBJ::OnDropOBJ(ComponentVariable* pVar, wxCoord x, wxCoord y)
             SetMesh( pMesh );
 
             // update the panel so new OBJ name shows up.
-            g_pPanelWatch->m_pVariables[g_DragAndDropStruct.m_ID].m_Description = m_pMesh->m_pSourceFile->m_FullPath;
+            g_pPanelWatch->GetVariableProperties( g_DragAndDropStruct.m_ID )->m_Description = m_pMesh->m_pSourceFile->m_FullPath;
         }
 
-        g_pPanelWatch->m_NeedsRefresh = true;
+        g_pPanelWatch->SetNeedsRefresh();
     }
 
     return oldpointer;

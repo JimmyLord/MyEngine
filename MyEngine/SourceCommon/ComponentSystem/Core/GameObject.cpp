@@ -101,7 +101,7 @@ void GameObject::LuaRegister(lua_State* luastate)
 void GameObject::OnTitleLabelClicked(int controlid, bool finishedchanging)
 {
     g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_EnableObject( this, !m_Enabled ) );
-    g_pPanelWatch->m_NeedsRefresh = true;
+    g_pPanelWatch->SetNeedsRefresh();
 }
 
 void GameObject::OnLeftClick(unsigned int count, bool clear)

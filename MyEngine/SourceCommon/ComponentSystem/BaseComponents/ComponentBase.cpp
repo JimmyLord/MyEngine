@@ -320,6 +320,10 @@ void ComponentBase::AddVariableToPropertiesWindow(ComponentVariable* pVar)
             pVar->m_ControlID = g_pPanelWatch->AddVector3( pVar->m_WatchLabel, (Vector3*)((char*)this + pVar->m_Offset), pVar->m_FloatLowerLimit, pVar->m_FloatUpperLimit, this, ComponentBase::StaticOnValueChangedVariable, ComponentBase::StaticOnRightClick );
             break;
 
+        case ComponentVariableType_Vector3Int:
+            pVar->m_ControlID = g_pPanelWatch->AddVector3Int( pVar->m_WatchLabel, (Vector3Int*)((char*)this + pVar->m_Offset), 0.0f, 0.0f, this, ComponentBase::StaticOnValueChangedVariable, ComponentBase::StaticOnRightClick );
+            break;
+
         case ComponentVariableType_GameObjectPtr:
             MyAssert( false );
             break;
@@ -501,6 +505,10 @@ void ComponentBase::ExportVariablesToJSON(cJSON* jComponent)
 
             case ComponentVariableType_Vector3:
                 cJSONExt_AddFloatArrayToObject( jComponent, pVar->m_Label, (float*)((char*)this + pVar->m_Offset), 3 );
+                break;
+
+            case ComponentVariableType_Vector3Int:
+                cJSONExt_AddIntArrayToObject( jComponent, pVar->m_Label, (int*)((char*)this + pVar->m_Offset), 3 );
                 break;
 
             case ComponentVariableType_GameObjectPtr:
@@ -691,6 +699,10 @@ void ComponentBase::ImportVariablesFromJSON(cJSON* jsonobj, const char* singlela
                 cJSONExt_GetFloatArray( jsonobj, pVar->m_Label, (float*)((char*)this + pVar->m_Offset), 3 );
                 break;
 
+            case ComponentVariableType_Vector3Int:
+                cJSONExt_GetIntArray( jsonobj, pVar->m_Label, (int*)((char*)this + pVar->m_Offset), 3 );
+                break;
+
             case ComponentVariableType_GameObjectPtr:
                 {
                     unsigned int parentid = 0;
@@ -843,6 +855,10 @@ bool ComponentBase::DoesVariableMatchParent(int controlid, ComponentVariable* pV
             case ComponentVariableType_Vector3:
                 offset += controlcomponent*4;
                 return *(float*)((char*)this + offset) == *(float*)((char*)pOtherComponent + offset);
+
+            case ComponentVariableType_Vector3Int:
+                offset += controlcomponent*4;
+                return *(int*)((char*)this + offset) == *(int*)((char*)pOtherComponent + offset);
 
             case ComponentVariableType_GameObjectPtr:
                 MyAssert( false );
@@ -1030,7 +1046,7 @@ void ComponentBase::CopyValueFromParent(ComponentVariable* pVar)
 
                     g_pEngineMainFrame->m_pCommandStack->Add( MyNew EditorCommand_PanelWatchNumberValueChanged(
                         newvalue - oldvalue, PanelWatchType_Int, ((char*)this + offset), pVar->m_ControlID,
-                        g_pPanelWatch->m_pVariables[pVar->m_ControlID].m_pOnValueChangedCallbackFunc, g_pPanelWatch->m_pVariables[pVar->m_ControlID].m_pCallbackObj ) );
+                        g_pPanelWatch->GetVariableProperties( pVar->m_ControlID )->m_pOnValueChangedCallbackFunc, g_pPanelWatch->GetVariableProperties( pVar->m_ControlID )->m_pCallbackObj ) );
                 }
                 break;
 
@@ -1046,7 +1062,7 @@ void ComponentBase::CopyValueFromParent(ComponentVariable* pVar)
 
                     g_pEngineMainFrame->m_pCommandStack->Add( MyNew EditorCommand_PanelWatchNumberValueChanged(
                         newvalue - oldvalue, PanelWatchType_UnsignedInt, ((char*)this + offset), pVar->m_ControlID,
-                        g_pPanelWatch->m_pVariables[pVar->m_ControlID].m_pOnValueChangedCallbackFunc, g_pPanelWatch->m_pVariables[pVar->m_ControlID].m_pCallbackObj ) );
+                        g_pPanelWatch->GetVariableProperties( pVar->m_ControlID )->m_pOnValueChangedCallbackFunc, g_pPanelWatch->GetVariableProperties( pVar->m_ControlID )->m_pCallbackObj ) );
                 }
                 break;
 
@@ -1067,7 +1083,7 @@ void ComponentBase::CopyValueFromParent(ComponentVariable* pVar)
 
                     g_pEngineMainFrame->m_pCommandStack->Add( MyNew EditorCommand_PanelWatchNumberValueChanged(
                         newvalue - oldvalue, PanelWatchType_Bool, ((char*)this + offset), pVar->m_ControlID,
-                        g_pPanelWatch->m_pVariables[pVar->m_ControlID].m_pOnValueChangedCallbackFunc, g_pPanelWatch->m_pVariables[pVar->m_ControlID].m_pCallbackObj ) );
+                        g_pPanelWatch->GetVariableProperties( pVar->m_ControlID )->m_pOnValueChangedCallbackFunc, g_pPanelWatch->GetVariableProperties( pVar->m_ControlID )->m_pCallbackObj ) );
                 }
                 break;
 
@@ -1082,7 +1098,7 @@ void ComponentBase::CopyValueFromParent(ComponentVariable* pVar)
 
                     g_pEngineMainFrame->m_pCommandStack->Add( MyNew EditorCommand_PanelWatchNumberValueChanged(
                         newvalue - oldvalue, PanelWatchType_Float, ((char*)this + offset), pVar->m_ControlID,
-                        g_pPanelWatch->m_pVariables[pVar->m_ControlID].m_pOnValueChangedCallbackFunc, g_pPanelWatch->m_pVariables[pVar->m_ControlID].m_pCallbackObj ) );
+                        g_pPanelWatch->GetVariableProperties( pVar->m_ControlID )->m_pOnValueChangedCallbackFunc, g_pPanelWatch->GetVariableProperties( pVar->m_ControlID )->m_pCallbackObj ) );
                 }
                 break;
 
@@ -1125,10 +1141,10 @@ void ComponentBase::CopyValueFromParent(ComponentVariable* pVar)
 
                     g_pEngineMainFrame->m_pCommandStack->Add( MyNew EditorCommand_PanelWatchNumberValueChanged(
                         newvalue.x - oldvalue.x, PanelWatchType_Float, ((char*)this + offset + 4*0), pVar->m_ControlID+0,
-                        g_pPanelWatch->m_pVariables[pVar->m_ControlID].m_pOnValueChangedCallbackFunc, g_pPanelWatch->m_pVariables[pVar->m_ControlID].m_pCallbackObj ) );
+                        g_pPanelWatch->GetVariableProperties( pVar->m_ControlID )->m_pOnValueChangedCallbackFunc, g_pPanelWatch->GetVariableProperties( pVar->m_ControlID )->m_pCallbackObj ) );
                     g_pEngineMainFrame->m_pCommandStack->Add( MyNew EditorCommand_PanelWatchNumberValueChanged(
                         newvalue.y - oldvalue.y, PanelWatchType_Float, ((char*)this + offset + 4*1), pVar->m_ControlID+1,
-                        g_pPanelWatch->m_pVariables[pVar->m_ControlID].m_pOnValueChangedCallbackFunc, g_pPanelWatch->m_pVariables[pVar->m_ControlID].m_pCallbackObj ), true );
+                        g_pPanelWatch->GetVariableProperties( pVar->m_ControlID )->m_pOnValueChangedCallbackFunc, g_pPanelWatch->GetVariableProperties( pVar->m_ControlID )->m_pCallbackObj ), true );
                 }
                 break;
 
@@ -1145,13 +1161,36 @@ void ComponentBase::CopyValueFromParent(ComponentVariable* pVar)
 
                     g_pEngineMainFrame->m_pCommandStack->Add( MyNew EditorCommand_PanelWatchNumberValueChanged(
                         newvalue.x - oldvalue.x, PanelWatchType_Float, ((char*)this + offset + 4*0), pVar->m_ControlID+0,
-                        g_pPanelWatch->m_pVariables[pVar->m_ControlID].m_pOnValueChangedCallbackFunc, g_pPanelWatch->m_pVariables[pVar->m_ControlID].m_pCallbackObj ) );
+                        g_pPanelWatch->GetVariableProperties( pVar->m_ControlID )->m_pOnValueChangedCallbackFunc, g_pPanelWatch->GetVariableProperties( pVar->m_ControlID )->m_pCallbackObj ) );
                     g_pEngineMainFrame->m_pCommandStack->Add( MyNew EditorCommand_PanelWatchNumberValueChanged(
                         newvalue.y - oldvalue.y, PanelWatchType_Float, ((char*)this + offset + 4*1), pVar->m_ControlID+1,
-                        g_pPanelWatch->m_pVariables[pVar->m_ControlID].m_pOnValueChangedCallbackFunc, g_pPanelWatch->m_pVariables[pVar->m_ControlID].m_pCallbackObj ), true );
+                        g_pPanelWatch->GetVariableProperties( pVar->m_ControlID )->m_pOnValueChangedCallbackFunc, g_pPanelWatch->GetVariableProperties( pVar->m_ControlID )->m_pCallbackObj ), true );
                     g_pEngineMainFrame->m_pCommandStack->Add( MyNew EditorCommand_PanelWatchNumberValueChanged(
                         newvalue.z - oldvalue.z, PanelWatchType_Float, ((char*)this + offset + 4*2), pVar->m_ControlID+2,
-                        g_pPanelWatch->m_pVariables[pVar->m_ControlID].m_pOnValueChangedCallbackFunc, g_pPanelWatch->m_pVariables[pVar->m_ControlID].m_pCallbackObj ), true );
+                        g_pPanelWatch->GetVariableProperties( pVar->m_ControlID )->m_pOnValueChangedCallbackFunc, g_pPanelWatch->GetVariableProperties( pVar->m_ControlID )->m_pCallbackObj ), true );
+                }
+                break;
+
+            case ComponentVariableType_Vector3Int:
+                {
+                    Vector3Int oldvalue = *(Vector3Int*)((char*)this + offset);
+                    Vector3Int newvalue = *(Vector3Int*)((char*)pOtherComponent + offset);
+                    *(Vector3Int*)((char*)this + offset) = *(Vector3Int*)((char*)pOtherComponent + offset);
+
+                    // notify component it's children that the value changed.
+                    OnValueChangedVariable( pVar->m_ControlID+0, true, oldvalue.x );
+                    OnValueChangedVariable( pVar->m_ControlID+1, true, oldvalue.y );
+                    OnValueChangedVariable( pVar->m_ControlID+2, true, oldvalue.z );
+
+                    g_pEngineMainFrame->m_pCommandStack->Add( MyNew EditorCommand_PanelWatchNumberValueChanged(
+                        newvalue.x - oldvalue.x, PanelWatchType_Int, ((char*)this + offset + 4*0), pVar->m_ControlID+0,
+                        g_pPanelWatch->GetVariableProperties( pVar->m_ControlID )->m_pOnValueChangedCallbackFunc, g_pPanelWatch->GetVariableProperties( pVar->m_ControlID )->m_pCallbackObj ) );
+                    g_pEngineMainFrame->m_pCommandStack->Add( MyNew EditorCommand_PanelWatchNumberValueChanged(
+                        newvalue.y - oldvalue.y, PanelWatchType_Int, ((char*)this + offset + 4*1), pVar->m_ControlID+1,
+                        g_pPanelWatch->GetVariableProperties( pVar->m_ControlID )->m_pOnValueChangedCallbackFunc, g_pPanelWatch->GetVariableProperties( pVar->m_ControlID )->m_pCallbackObj ), true );
+                    g_pEngineMainFrame->m_pCommandStack->Add( MyNew EditorCommand_PanelWatchNumberValueChanged(
+                        newvalue.z - oldvalue.z, PanelWatchType_Int, ((char*)this + offset + 4*2), pVar->m_ControlID+2,
+                        g_pPanelWatch->GetVariableProperties( pVar->m_ControlID )->m_pOnValueChangedCallbackFunc, g_pPanelWatch->GetVariableProperties( pVar->m_ControlID )->m_pCallbackObj ), true );
                 }
                 break;
 
@@ -1226,6 +1265,7 @@ ComponentVariable* ComponentBase::FindComponentVariableForControl(int controlid)
         MyAssert( pVar );
 
         if( pVar->m_ControlID == controlid ||
+            (pVar->m_Type == ComponentVariableType_Vector3Int && (pVar->m_ControlID+1 == controlid || pVar->m_ControlID+2 == controlid) ) ||
             (pVar->m_Type == ComponentVariableType_Vector3 && (pVar->m_ControlID+1 == controlid || pVar->m_ControlID+2 == controlid) ) ||
             (pVar->m_Type == ComponentVariableType_Vector2 && (pVar->m_ControlID+1 == controlid) ) ||
             (pVar->m_Type == ComponentVariableType_ColorByte && (pVar->m_ControlID+1 == controlid) )
@@ -1476,6 +1516,28 @@ void ComponentBase::UpdateGameObjectWithNewValue(GameObject* pGameObject, bool f
                     }
                     break;
 
+                case ComponentVariableType_Vector3Int:
+                    MyAssert( fromdraganddrop == false ); // not drag/dropping these types ATM.
+
+                    if( fromdraganddrop == false )
+                    {
+                        // figure out which component of a multi-component control(e.g. vector3Int) this is.
+                        int controlcomponent = controlid - pVar->m_ControlID;
+
+                        int offset = pVar->m_Offset + controlcomponent*4;
+
+                        // old method of comparing values //if( *(int*)((char*)pChildComponent + offset) == oldvalue )
+                        if( pChildComponent->IsDivorced( pVar->m_Index + controlcomponent ) == false )
+                        {
+                            *(int*)((char*)pChildComponent + offset) = *(int*)((char*)this + offset);
+                            if( pVar->m_pOnValueChangedCallbackFunc )
+                                (pChildComponent->*pVar->m_pOnValueChangedCallbackFunc)( pVar, controlid, finishedchanging, oldvalue );
+                        }
+
+                        pChildComponent->UpdateChildrenWithNewValue( fromdraganddrop, pVar, controlid, finishedchanging, oldvalue, oldpointer, x, y, newpointer );
+                    }
+                    break;
+
                 case ComponentVariableType_GameObjectPtr:
                     MyAssert( false );
                     break;
@@ -1591,7 +1653,7 @@ void ComponentBase::OnComponentTitleLabelClicked(int id, bool finishedchanging)
         if( m_pPanelWatchBlockVisible )
         {
             *m_pPanelWatchBlockVisible = !(*m_pPanelWatchBlockVisible);
-            g_pPanelWatch->m_NeedsRefresh = true;
+            g_pPanelWatch->SetNeedsRefresh();
         }
     }
 }

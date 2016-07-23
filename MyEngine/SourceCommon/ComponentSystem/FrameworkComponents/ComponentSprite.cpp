@@ -179,7 +179,7 @@ void* ComponentSprite::OnDrop(ComponentVariable* pVar, wxCoord x, wxCoord y)
         oldvalue = m_pSprite->GetMaterial();
         SetMaterial( pMaterial, 0 );
 
-        g_pPanelWatch->m_NeedsRefresh = true;
+        g_pPanelWatch->SetNeedsRefresh();
     }
 
     return oldvalue;
@@ -193,7 +193,7 @@ void* ComponentSprite::OnValueChanged(ComponentVariable* pVar, int controlid, bo
     {
         MyAssert( pVar->m_ControlID != -1 );
 
-        wxString text = g_pPanelWatch->m_pVariables[pVar->m_ControlID].m_Handle_TextCtrl->GetValue();
+        wxString text = g_pPanelWatch->GetVariableProperties( pVar->m_ControlID )->m_Handle_TextCtrl->GetValue();
         if( text == "" || text == "none" )
         {
             g_pPanelWatch->ChangeDescriptionForPointerWithDescription( pVar->m_ControlID, "none" );

@@ -30,8 +30,9 @@ VoxelChunk::VoxelChunk()
 
 VoxelChunk::~VoxelChunk()
 {
-    // remove from cpplist.
-    this->Remove();
+    // remove from cpplist if it's in a list
+    if( this->Prev )
+        this->Remove();
 
     RemoveFromSceneGraph();
 
@@ -172,7 +173,7 @@ bool VoxelChunk::IsBlockEnabled(int worldx, int worldy, int worldz, bool blockex
 // ============================================================================================================================
 // Rendering
 // ============================================================================================================================
-void VoxelChunk::RebuildMesh()
+void VoxelChunk::RebuildMesh(unsigned int increment)
 {
     MyAssert( m_pBlocks );
     MyAssert( m_pMesh );
@@ -204,10 +205,11 @@ void VoxelChunk::RebuildMesh()
         Vertex_XYZUVNorm* pActualVerts = pVerts;
         unsigned short* pActualIndices = pIndices;
 
-        int TileTops_Col[] = { 0, 1, 2, 3, 0 };
-        int TileTops_Row[] = { 0, 0, 0, 0, 2 };
-        int TileSides_Col[] = { 0, 1, 2, 3, 0 };
-        int TileSides_Row[] = { 1, 1, 1, 1, 3 };
+        //  block type          1, 2, 3, 4, 5, 6
+        int TileTops_Col[] =  { 0, 1, 2, 3, 0, 0 };
+        int TileTops_Row[] =  { 0, 0, 0, 0, 2, 3 };
+        int TileSides_Col[] = { 0, 1, 2, 3, 0, 0 };
+        int TileSides_Row[] = { 1, 1, 1, 1, 2, 3 };
 
         int vertcount = 0;
         int indexcount = 0;

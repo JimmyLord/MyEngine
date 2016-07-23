@@ -116,7 +116,7 @@ void VoxelWorld::Tick(double timepassed)
     if( pChunk )
     {
         pChunk->GenerateMap();
-        pChunk->RebuildMesh();
+        pChunk->RebuildMesh( 1 );
         m_pChunksVisible.MoveTail( pChunk );
 
         return;
@@ -128,7 +128,7 @@ void VoxelWorld::Tick(double timepassed)
     {
         if( pChunk->IsMeshOptimized() == false )
         {
-            pChunk->RebuildMesh();
+            pChunk->RebuildMesh( 1 );
             return;
         }
         pChunk = (VoxelChunk*)pChunk->GetNext();
@@ -665,7 +665,7 @@ void VoxelWorld::ChangeBlockState(Vector3Int worldpos, bool enabled)
 
     pChunk->ChangeBlockState( worldpos, enabled );
 
-    pChunk->RebuildMesh();
+    pChunk->RebuildMesh( 1 );
 
     // Check 6 neighbours, and rebuild them if applicable.
     for( int i=0; i<6; i++ )
@@ -683,7 +683,7 @@ void VoxelWorld::ChangeBlockState(Vector3Int worldpos, bool enabled)
         VoxelChunk* pNeighbourChunk = GetActiveChunk( neighbourchunkpos );
         if( pNeighbourChunk && pNeighbourChunk != pChunk )
         {
-            pNeighbourChunk->RebuildMesh();
+            pNeighbourChunk->RebuildMesh( 1 );
         }
     }
 }

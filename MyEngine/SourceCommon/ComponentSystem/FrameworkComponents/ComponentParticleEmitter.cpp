@@ -169,7 +169,7 @@ void ComponentParticleEmitter::OnDropMaterial(int controlid, wxCoord x, wxCoord 
         SetMaterial( pMaterial, 0 );
 
         // update the panel so new Material name shows up.
-        g_pPanelWatch->m_pVariables[g_DragAndDropStruct.m_ID].m_Description = pMaterial->m_pFile->m_FilenameWithoutExtension;
+        g_pPanelWatch->GetVariableProperties( g_DragAndDropStruct.m_ID )->m_Description = pMaterial->m_pFile->m_FilenameWithoutExtension;
     }
 }
 #endif //MYFW_USING_WX

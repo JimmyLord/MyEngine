@@ -40,6 +40,8 @@ enum ComponentVariableTypes
 
     ComponentVariableType_Vector2,
     ComponentVariableType_Vector3,
+    
+    ComponentVariableType_Vector3Int,
 
     ComponentVariableType_GameObjectPtr,
     ComponentVariableType_ComponentPtr,

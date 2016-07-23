@@ -34,6 +34,7 @@ public:
     // Plane
     Vector2 m_Plane_Size;
     Vector2Int m_Plane_VertCount;
+    bool m_Plane_UVsPerQuad;
     Vector2 m_Plane_UVStart;
     Vector2 m_Plane_UVRange;
 

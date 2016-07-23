@@ -43,7 +43,7 @@ public:
     bool IsBlockEnabled(int worldx, int worldy, int worldz, bool blockexistsifnotready = false);
 
     // Rendering
-    void RebuildMesh();
+    void RebuildMesh(unsigned int increment);
 
     void AddToSceneGraph(void* pUserData, MaterialDefinition* pMaterial);
     void RemoveFromSceneGraph();

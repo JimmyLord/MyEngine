@@ -141,7 +141,7 @@ void ComponentCollisionObject::OnValueChanged(int controlid, bool finishedchangi
         if( controlid == m_ControlID_PrimitiveType )
         {
             // TODO: rethink this, doesn't need refresh if panel isn't visible.
-            g_pPanelWatch->m_NeedsRefresh = true;
+            g_pPanelWatch->SetNeedsRefresh();
         }
     }
 }
@@ -163,7 +163,7 @@ void ComponentCollisionObject::OnDropOBJ(int controlid, wxCoord x, wxCoord y)
             SetMesh( pMesh );
 
             // update the panel so new OBJ name shows up.
-            g_pPanelWatch->m_pVariables[g_DragAndDropStruct.m_ID].m_Description = m_pMesh->m_pSourceFile->m_FullPath;
+            g_pPanelWatch->GetVariableProperties( g_DragAndDropStruct.m_ID )->m_Description = m_pMesh->m_pSourceFile->m_FullPath;
         }
     }
 }

@@ -126,7 +126,7 @@ void ComponentLuaScript::CreateNewScriptFile()
 
             // update the panel so new filename shows up. // TODO: this won't refresh lua variables, so maybe refresh the whole watch panel.
             int scriptcontrolid = FindVariablesControlIDByLabel( "Script" );
-            g_pPanelWatch->m_pVariables[scriptcontrolid].m_Description = m_pScriptFile->m_FullPath;
+            g_pPanelWatch->GetVariableProperties( scriptcontrolid )->m_Description = m_pScriptFile->m_FullPath;
 
             // TODO: create a template file.
             {
@@ -295,7 +295,7 @@ void* ComponentLuaScript::OnDropCV(ComponentVariable* pVar, wxCoord x, wxCoord y
 
             // update the panel so new filename shows up.
             // TODO: this won't refresh lua variables, so maybe refresh the whole watch panel.
-            g_pPanelWatch->m_pVariables[pVar->m_ControlID].m_Description = m_pScriptFile->m_FullPath;
+            g_pPanelWatch->GetVariableProperties( pVar->m_ControlID )->m_Description = m_pScriptFile->m_FullPath;
         }
     }
 
@@ -308,7 +308,7 @@ void* ComponentLuaScript::OnValueChangedCV(ComponentVariable* pVar, int controli
 
     if( strcmp( pVar->m_Label, "Script" ) == 0 )
     {
-        wxString text = g_pPanelWatch->m_pVariables[pVar->m_ControlID].m_Handle_TextCtrl->GetValue();
+        wxString text = g_pPanelWatch->GetVariableProperties( pVar->m_ControlID )->m_Handle_TextCtrl->GetValue();
         if( text == "" || text == "none" || text == "no script" )
         {
             g_pPanelWatch->ChangeDescriptionForPointerWithDescription( pVar->m_ControlID, "no script" );
@@ -338,7 +338,7 @@ void* ComponentLuaScript::ProcessOnDrop(int controlid, wxCoord x, wxCoord y)
 
             // update the panel so new filename shows up. // TODO: this won't refresh lua variables, so maybe refresh the whole watch panel.
             int scriptcontrolid = FindVariablesControlIDByLabel( "Script" );
-            g_pPanelWatch->m_pVariables[scriptcontrolid].m_Description = m_pScriptFile->m_FullPath;
+            g_pPanelWatch->GetVariableProperties( scriptcontrolid )->m_Description = m_pScriptFile->m_FullPath;
         }
     }
 
@@ -366,7 +366,7 @@ void* ComponentLuaScript::ProcessOnDrop(int controlid, wxCoord x, wxCoord y)
                 ((GameObject*)m_ExposedVars[id]->pointer)->RegisterOnDeleteCallback( this, StaticOnGameObjectDeleted );
 
                 // update the panel so new gameobject name shows up.
-                g_pPanelWatch->m_pVariables[g_DragAndDropStruct.m_ID].m_Description = pGameObject->GetName();
+                g_pPanelWatch->GetVariableProperties( g_DragAndDropStruct.m_ID )->m_Description = pGameObject->GetName();
             }
         }
     }
@@ -397,7 +397,7 @@ void ComponentLuaScript::OnValueChanged(int controlid, bool finishedchanging, do
 
                 MyAssert( pGameObject->IsA( "GameObject" ) );
 
-                wxString text = g_pPanelWatch->m_pVariables[controlid].m_Handle_TextCtrl->GetValue();
+                wxString text = g_pPanelWatch->GetVariableProperties( controlid )->m_Handle_TextCtrl->GetValue();
                 if( text == "" || text == "none" || text == "no gameobject" )
                 {
                     g_pPanelWatch->ChangeDescriptionForPointerWithDescription( controlid, "no gameobject" );
