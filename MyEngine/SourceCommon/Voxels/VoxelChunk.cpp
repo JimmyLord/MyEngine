@@ -20,6 +20,7 @@ VoxelChunk::VoxelChunk()
     m_MeshOptimized = false;
 
     m_Transform.SetIdentity();
+    m_BlockSize.Set( 0, 0, 0 );
     m_ChunkSize.Set( 0, 0, 0 );
     m_ChunkOffset.Set( 0, 0, 0 );
     m_pSceneGraphObject = 0;
@@ -40,13 +41,14 @@ VoxelChunk::~VoxelChunk()
     m_pMesh->Release();
 }
 
-void VoxelChunk::Initialize(VoxelWorld* world, Vector3 pos, Vector3Int chunksize, Vector3Int chunkoffset)
+void VoxelChunk::Initialize(VoxelWorld* world, Vector3 pos, Vector3Int chunksize, Vector3Int chunkoffset, Vector3 blocksize)
 {
     m_pWorld = world;
 
     m_Transform.SetIdentity();
     m_Transform.SetTranslation( pos );
 
+    m_BlockSize = blocksize;
     m_ChunkSize = chunksize;
     m_ChunkOffset = chunkoffset;
 
@@ -54,6 +56,10 @@ void VoxelChunk::Initialize(VoxelWorld* world, Vector3 pos, Vector3Int chunksize
         m_pBlocks = MyNew VoxelBlock[chunksize.x * chunksize.y * chunksize.z];
 
     m_MapCreated = false;
+
+    // if this chunk isn't part of a world, then it's a manually created mesh, so set map is created for now.
+    if( m_pWorld == 0 )
+        m_MapCreated = true;
 
     // Create a mesh.
     if( m_pMesh == 0 )
@@ -115,6 +121,10 @@ unsigned int VoxelChunk::DefaultGenerateMapFunc(Vector3Int worldpos)
 
 void VoxelChunk::GenerateMap()
 {
+    MyAssert( m_pWorld != 0 );
+    if( m_pWorld == 0 )
+        return;
+
     //Vector3Int worldsize = m_pWorld->GetWorldSize();
     //Vector3Int worldblocksize = worldsize.MultiplyComponents( m_ChunkSize );
     Vector3Int chunksize = GetChunkSize();
@@ -146,26 +156,22 @@ void VoxelChunk::GenerateMap()
     m_MapCreated = true;
 }
 
-bool VoxelChunk::IsBlockEnabled(Vector3Int worldpos, bool blockexistsifnotready)
+bool VoxelChunk::IsBlockEnabled(Vector3Int localpos, bool blockexistsifnotready)
 {
-    return IsBlockEnabled( worldpos.x, worldpos.y, worldpos.z, blockexistsifnotready );
+    return IsBlockEnabled( localpos.x, localpos.y, localpos.z, blockexistsifnotready );
 }
 
-bool VoxelChunk::IsBlockEnabled(int worldx, int worldy, int worldz, bool blockexistsifnotready)
+bool VoxelChunk::IsBlockEnabled(int localx, int localy, int localz, bool blockexistsifnotready)
 {
     // If the block haven't been setup yet, then return false, as if blocks aren't there.
     if( m_MapCreated == false )
         return blockexistsifnotready;
 
-    Vector3Int localpos( worldx%m_ChunkSize.x, worldy%m_ChunkSize.y, worldz%m_ChunkSize.z );
-    if( localpos.x < 0 ) localpos.x += m_ChunkSize.x;
-    if( localpos.y < 0 ) localpos.y += m_ChunkSize.y;
-    if( localpos.z < 0 ) localpos.z += m_ChunkSize.z;
+    MyAssert( localx >= 0 && localx < m_ChunkSize.x );
+    MyAssert( localy >= 0 && localy < m_ChunkSize.y );
+    MyAssert( localz >= 0 && localz < m_ChunkSize.z );
 
-    if( localpos.x >= m_ChunkSize.x || localpos.y >= m_ChunkSize.y || localpos.z >= m_ChunkSize.z )
-        return false;
-
-    VoxelBlock* pBlock = &m_pBlocks[localpos.z * m_ChunkSize.y * m_ChunkSize.x + localpos.y * m_ChunkSize.x + localpos.x];
+    VoxelBlock* pBlock = &m_pBlocks[localz * m_ChunkSize.y * m_ChunkSize.x + localy * m_ChunkSize.x + localx];
 
     return pBlock->IsEnabled();
 }
@@ -226,14 +232,12 @@ void VoxelChunk::RebuildMesh(unsigned int increment)
 
                     int tileindex = pBlock->GetBlockType() - 1;
 
-                    Vector3 boxsize( 1, 1, 1 );
-
-                    float xleft   = x*boxsize.x - boxsize.x/2;
-                    float xright  = x*boxsize.x + boxsize.x/2;
-                    float ybottom = y*boxsize.y - boxsize.y/2;
-                    float ytop    = y*boxsize.y + boxsize.y/2;
-                    float zfront  = z*boxsize.z - boxsize.z/2;
-                    float zback   = z*boxsize.z + boxsize.z/2;
+                    float xleft   = x*m_BlockSize.x - m_BlockSize.x/2;
+                    float xright  = x*m_BlockSize.x + m_BlockSize.x/2;
+                    float ybottom = y*m_BlockSize.y - m_BlockSize.y/2;
+                    float ytop    = y*m_BlockSize.y + m_BlockSize.y/2;
+                    float zfront  = z*m_BlockSize.z - m_BlockSize.z/2;
+                    float zback   = z*m_BlockSize.z + m_BlockSize.z/2;
 
                     if( xleft   < minextents.x ) minextents.x = xleft;
                     if( xright  > maxextents.x ) maxextents.x = xright;
@@ -253,7 +257,7 @@ void VoxelChunk::RebuildMesh(unsigned int increment)
                     Vector3Int worldpos( m_ChunkOffset.x+x, m_ChunkOffset.y+y, m_ChunkOffset.z+z );
 
                     // front
-                    if( z == 0 && m_pWorld->IsBlockEnabled( worldpos.x, worldpos.y, worldpos.z-1 ) )
+                    if( z == 0 && m_pWorld && m_pWorld->IsBlockEnabled( worldpos.x, worldpos.y, worldpos.z-1 ) )
                     {
                     }
                     else if( z == 0 || m_pBlocks[(z-1) * m_ChunkSize.y * m_ChunkSize.x + (y) * m_ChunkSize.x + (x)].IsEnabled() == false )
@@ -273,7 +277,7 @@ void VoxelChunk::RebuildMesh(unsigned int increment)
                     }
 
                     // back
-                    if( z == (m_ChunkSize.z-1) && m_pWorld->IsBlockEnabled( worldpos.x, worldpos.y, worldpos.z+1 ) )
+                    if( z == (m_ChunkSize.z-1) && m_pWorld && m_pWorld->IsBlockEnabled( worldpos.x, worldpos.y, worldpos.z+1 ) )
                     {
                     }
                     else if( z == (m_ChunkSize.z-1) || m_pBlocks[(z+1) * m_ChunkSize.y * m_ChunkSize.x + (y) * m_ChunkSize.x + (x)].IsEnabled() == false )
@@ -293,7 +297,7 @@ void VoxelChunk::RebuildMesh(unsigned int increment)
                     }
 
                     // left
-                    if( x == 0 && m_pWorld->IsBlockEnabled( worldpos.x-1, worldpos.y, worldpos.z ) )
+                    if( x == 0 && m_pWorld && m_pWorld->IsBlockEnabled( worldpos.x-1, worldpos.y, worldpos.z ) )
                     {
                     }
                     else if( x == 0 || m_pBlocks[(z) * m_ChunkSize.y * m_ChunkSize.x + (y) * m_ChunkSize.x + (x-1)].IsEnabled() == false )
@@ -313,7 +317,7 @@ void VoxelChunk::RebuildMesh(unsigned int increment)
                     }
 
                     // right
-                    if( x == (m_ChunkSize.x-1) && m_pWorld->IsBlockEnabled( worldpos.x+1, worldpos.y, worldpos.z ) )
+                    if( x == (m_ChunkSize.x-1) && m_pWorld && m_pWorld->IsBlockEnabled( worldpos.x+1, worldpos.y, worldpos.z ) )
                     {
                     }
                     else if( x == (m_ChunkSize.x-1) || m_pBlocks[(z) * m_ChunkSize.y * m_ChunkSize.x + (y) * m_ChunkSize.x + (x+1)].IsEnabled() == false )
@@ -333,7 +337,7 @@ void VoxelChunk::RebuildMesh(unsigned int increment)
                     }
 
                     // bottom
-                    if( y == 0 && m_pWorld->IsBlockEnabled( worldpos.x, worldpos.y-1, worldpos.z ) )
+                    if( y == 0 && m_pWorld && m_pWorld->IsBlockEnabled( worldpos.x, worldpos.y-1, worldpos.z ) )
                     {
                     }
                     else if( y == 0 || m_pBlocks[(z) * m_ChunkSize.y * m_ChunkSize.x + (y-1) * m_ChunkSize.x + (x)].IsEnabled() == false )
@@ -361,7 +365,7 @@ void VoxelChunk::RebuildMesh(unsigned int increment)
                     vbottom = (32.0f*(TileTops_Row[tileindex]+1)) / 128.0f;
 
                     // top
-                    if( y == (m_ChunkSize.y-1) && m_pWorld->IsBlockEnabled( worldpos.x, worldpos.y+1, worldpos.z ) )
+                    if( y == (m_ChunkSize.y-1) && m_pWorld && m_pWorld->IsBlockEnabled( worldpos.x, worldpos.y+1, worldpos.z ) )
                     {
                     }
                     else if( y == (m_ChunkSize.y-1) || m_pBlocks[(z) * m_ChunkSize.y * m_ChunkSize.x + (y+1) * m_ChunkSize.x + (x)].IsEnabled() == false )
@@ -429,6 +433,7 @@ void VoxelChunk::RebuildMesh(unsigned int increment)
 
     // if any of the neighbouring chunks wasn't ready, then we likely created extra faces to close outside walls.
     // rebuild the mesh to get rid of those sides.
+    if( m_pWorld )
     {
         m_MeshOptimized = true;
 
@@ -468,6 +473,15 @@ void VoxelChunk::AddToSceneGraph(void* pUserData, MaterialDefinition* pMaterial)
         pMaterial, GL_TRIANGLES, 0, SceneGraphFlag_Opaque, 1, pUserData );
 }
 
+void VoxelChunk::OverrideSceneGraphObjectTransform(MyMatrix* pTransform)
+{
+    MyAssert( m_pSceneGraphObject != 0 );
+    if( m_pSceneGraphObject == 0 )
+        return;
+
+    m_pSceneGraphObject->m_pTransform = pTransform;
+}
+
 void VoxelChunk::RemoveFromSceneGraph()
 {
     if( m_pSceneGraphObject == 0 )
@@ -488,6 +502,17 @@ void VoxelChunk::SetMaterial(MaterialDefinition* pMaterial)
 // ============================================================================================================================
 // Space conversions
 // ============================================================================================================================
+Vector3Int VoxelChunk::GetWorldPosition(Vector3 scenepos)
+{
+    Vector3Int worldpos;
+
+    worldpos.x = (int)floor( (scenepos.x+m_BlockSize.x/2) / m_BlockSize.x );
+    worldpos.y = (int)floor( (scenepos.y+m_BlockSize.y/2) / m_BlockSize.y );
+    worldpos.z = (int)floor( (scenepos.z+m_BlockSize.z/2) / m_BlockSize.z );
+
+    return worldpos;
+}
+
 VoxelBlock* VoxelChunk::GetBlockFromLocalPos(Vector3Int localpos)
 {
     VoxelBlock* pBlock = &m_pBlocks[localpos.z * m_ChunkSize.y * m_ChunkSize.x + localpos.y * m_ChunkSize.x + localpos.x];
@@ -504,6 +529,116 @@ unsigned int VoxelChunk::GetBlockIndex(Vector3Int worldpos)
     MyAssert( index < (unsigned int)m_ChunkSize.x * (unsigned int)m_ChunkSize.y * (unsigned int)m_ChunkSize.z );
 
     return index;
+}
+
+// ============================================================================================================================
+// Collision/Block queries
+// ============================================================================================================================
+bool VoxelChunk::RayCastSingleBlockFindFaceHit(Vector3Int worldpos, Vector3 startpos, Vector3 endpos, Vector3* pPoint, Vector3* pNormal)
+{
+    MyAssert( pPoint != 0 && pNormal != 0 );
+    
+    // TODO: Find the normal for the side of the block that was hit.
+    startpos.x -= worldpos.x * m_BlockSize.x;
+    startpos.y -= worldpos.y * m_BlockSize.y;
+    startpos.z -= worldpos.z * m_BlockSize.z;
+
+    endpos.x -= worldpos.x * m_BlockSize.x;
+    endpos.y -= worldpos.y * m_BlockSize.y;
+    endpos.z -= worldpos.z * m_BlockSize.z;
+
+    float shortestlength = FLT_MAX;
+    Plane plane;
+    Vector3 result;
+
+    for( int i=0; i<6; i++ )
+    {
+        switch( i )
+        {
+        case 0: plane.Set( Vector3(-1,0,0), Vector3(-m_BlockSize.x/2, 0, 0) ); break;
+        case 1: plane.Set( Vector3( 1,0,0), Vector3( m_BlockSize.x/2, 0, 0) ); break;
+        case 2: plane.Set( Vector3(0,-1,0), Vector3(0, -m_BlockSize.y/2, 0) ); break;
+        case 3: plane.Set( Vector3(0, 1,0), Vector3(0,  m_BlockSize.y/2, 0) ); break;
+        case 4: plane.Set( Vector3(0,0,-1), Vector3(0, 0, -m_BlockSize.z/2) ); break;
+        case 5: plane.Set( Vector3(0,0, 1), Vector3(0, 0,  m_BlockSize.z/2) ); break;
+        }
+
+        plane.IntersectRay( startpos, endpos, &result );
+
+        if( ( i >=0 && i <= 1 && result.y > -0.5 && result.y < 0.5 && result.z > -0.5 && result.z < 0.5 ) ||
+            ( i >=2 && i <= 3 && result.x > -0.5 && result.x < 0.5 && result.z > -0.5 && result.z < 0.5 ) ||
+            ( i >=4 && i <= 5 && result.x > -0.5 && result.x < 0.5 && result.y > -0.5 && result.y < 0.5 ) )
+        {
+            float len = (result - startpos).LengthSquared();
+            if( len < shortestlength )
+            {
+                shortestlength = len;
+
+                // Return face normal hit.
+                *pPoint = result;
+                *pNormal = plane.m_Normal;
+            }
+        }
+    }
+
+    //LOGInfo( "VoxelWorld", "Normal: %0.0f,%0.0f,%0.0f\n", pNormal->x, pNormal->y, pNormal->z );
+    return true;
+}
+
+bool VoxelChunk::RayCast(Vector3 startpos, Vector3 endpos, float step, VoxelRayCastResult* pResult)
+{
+    // Lazy raycast, will pass through blocks if step too big, will always pass through corners.
+
+    // Init some vars and figure out the length and direction of the ray we're casting.
+    Vector3 currentscenepos = startpos;
+    Vector3 dir = endpos - startpos;
+    float len = dir.Length();
+    dir.Normalize();
+
+    // Init last worldpos to something that isn't the current world pos.
+    Vector3Int lastlocalpos = GetWorldPosition( currentscenepos ) + Vector3Int( 1, 1, 1 );
+    
+    while( true )
+    {
+        Vector3Int localpos = GetWorldPosition( currentscenepos );
+
+        if( localpos.x >= 0 && localpos.x < m_ChunkSize.x &&
+            localpos.y >= 0 && localpos.y < m_ChunkSize.y &&
+            localpos.z >= 0 && localpos.z < m_ChunkSize.z )
+        {
+            // If the worldpos is different than the previous loop, check for a block.
+            if( localpos != lastlocalpos && IsBlockEnabled( localpos ) == true )
+            {
+                if( pResult )
+                {
+                    pResult->m_Hit = true;
+                    pResult->m_BlockWorldPosition = localpos;
+
+                    // Find the normal for the side of the block that was hit.
+                    RayCastSingleBlockFindFaceHit( localpos, startpos, endpos, &pResult->m_BlockFacePoint, &pResult->m_BlockFaceNormal );
+                }
+                return true;
+            }
+        }
+
+        // Store the world position we just checked.
+        lastlocalpos = localpos;
+
+        // Move forward along our line.
+        len -= step;
+        currentscenepos += dir * step;
+
+        // Break if we passed the end of our line.
+        if( len < 0 )
+            break;
+    }
+
+    if( pResult )
+    {
+        pResult->m_Hit = false;
+    }
+
+    return false;
 }
 
 // ============================================================================================================================

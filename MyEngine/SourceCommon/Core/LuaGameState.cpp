@@ -164,6 +164,7 @@ void LuaGameState::RegisterClasses()
     ComponentMesh::LuaRegister( m_pLuaState );
     //ComponentType_MeshOBJ,
     //ComponentType_MeshPrimitive,
+    ComponentVoxelMesh::LuaRegister( m_pLuaState );
     ComponentVoxelWorld::LuaRegister( m_pLuaState );
     //ComponentType_Light,
     //ComponentType_CameraShadow,

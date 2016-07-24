@@ -367,7 +367,7 @@ void VoxelWorld::PrepareChunk(Vector3Int chunkpos)
     unsigned int arrayindex = GetActiveChunkArrayIndex( chunkpos );
     m_pActiveWorldChunkPtrs[arrayindex] = pChunk;
 
-    pChunk->Initialize( this, chunkposition, m_ChunkSize, chunkblockoffset );
+    pChunk->Initialize( this, chunkposition, m_ChunkSize, chunkblockoffset, m_BlockSize );
 
     m_pChunksLoading.MoveTail( pChunk );
 }
@@ -453,7 +453,12 @@ bool VoxelWorld::IsBlockEnabled(int worldx, int worldy, int worldz, bool blockex
     Vector3Int chunkpos = GetChunkPosition( Vector3Int(worldx,worldy,worldz) );
     VoxelChunk* pChunk = GetActiveChunk( chunkpos );
 
-    return pChunk->IsBlockEnabled( worldx, worldy, worldz, blockexistsifnotready );
+    Vector3Int localpos( worldx%m_ChunkSize.x, worldy%m_ChunkSize.y, worldz%m_ChunkSize.z );
+    if( localpos.x < 0 ) localpos.x += m_ChunkSize.x;
+    if( localpos.y < 0 ) localpos.y += m_ChunkSize.y;
+    if( localpos.z < 0 ) localpos.z += m_ChunkSize.z;
+
+    return pChunk->IsBlockEnabled( localpos, blockexistsifnotready );
 }
 
 bool VoxelWorld::IsBlockEnabledAroundLocation(Vector3 scenepos, float radius, bool blockexistsifnotready)
@@ -522,7 +527,7 @@ float VoxelWorld::GetSceneYForNextBlockBelowPosition(Vector3 scenepos, float rad
     return highesty;
 }
 
-bool VoxelWorld::RaycastSingleBlockFindFaceHit(Vector3Int worldpos, Vector3 startpos, Vector3 endpos, Vector3* pPoint, Vector3* pNormal)
+bool VoxelWorld::RayCastSingleBlockFindFaceHit(Vector3Int worldpos, Vector3 startpos, Vector3 endpos, Vector3* pPoint, Vector3* pNormal)
 {
     MyAssert( pPoint != 0 && pNormal != 0 );
     
@@ -573,7 +578,7 @@ bool VoxelWorld::RaycastSingleBlockFindFaceHit(Vector3Int worldpos, Vector3 star
     return true;
 }
 
-bool VoxelWorld::Raycast(Vector3 startpos, Vector3 endpos, float step, VoxelRaycastResult* pResult)
+bool VoxelWorld::RayCast(Vector3 startpos, Vector3 endpos, float step, VoxelRayCastResult* pResult)
 {
     // Lazy raycast, will pass through blocks if step too big, will always pass through corners.
 
@@ -599,7 +604,7 @@ bool VoxelWorld::Raycast(Vector3 startpos, Vector3 endpos, float step, VoxelRayc
                 pResult->m_BlockWorldPosition = worldpos;
 
                 // Find the normal for the side of the block that was hit.
-                RaycastSingleBlockFindFaceHit( worldpos, startpos, endpos, &pResult->m_BlockFacePoint, &pResult->m_BlockFaceNormal );
+                RayCastSingleBlockFindFaceHit( worldpos, startpos, endpos, &pResult->m_BlockFacePoint, &pResult->m_BlockFaceNormal );
             }
             return true;
         }

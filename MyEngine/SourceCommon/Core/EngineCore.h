@@ -43,6 +43,7 @@ enum EditorInterfaceTypes
 {
     EditorInterfaceType_SceneManagement,
     EditorInterfaceType_2DPointEditor,
+    EditorInterfaceType_VoxelMeshEditor,
     EditorInterfaceType_NumInterfaces,
 };
 

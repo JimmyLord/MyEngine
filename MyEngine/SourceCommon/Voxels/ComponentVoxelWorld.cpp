@@ -359,8 +359,8 @@ void ComponentVoxelWorld::AddTileToTileInFocus(Vector2 mousepos)
     g_RayEnd = end;
 #endif
 
-    VoxelRaycastResult result;
-    if( m_pVoxelWorld->Raycast( start, end, 0.01f, &result ) )
+    VoxelRayCastResult result;
+    if( m_pVoxelWorld->RayCast( start, end, 0.01f, &result ) )
     {
         LOGInfo( "VoxelWorld", "Ray hit (%d, %d, %d)\n", result.m_BlockWorldPosition.x, result.m_BlockWorldPosition.y, result.m_BlockWorldPosition.z );
 
@@ -383,8 +383,8 @@ void ComponentVoxelWorld::DeleteTileInFocus(Vector2 mousepos)
     Vector3 start, end;
     m_pVoxelWorld->GetMouseRayBadly( mousepos, &start, &end );
 
-    VoxelRaycastResult result;
-    if( m_pVoxelWorld->Raycast( start, end, 0.01f, &result ) )
+    VoxelRayCastResult result;
+    if( m_pVoxelWorld->RayCast( start, end, 0.01f, &result ) )
     {
         LOGInfo( "VoxelWorld", "Ray hit (%d, %d, %d)\n", result.m_BlockWorldPosition.x, result.m_BlockWorldPosition.y, result.m_BlockWorldPosition.z );
 

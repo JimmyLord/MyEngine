@@ -95,6 +95,7 @@ extern "C"
 #include "ComponentSystem/FrameworkComponents/Physics2D/Component2DJointWeld.h"
 
 // Other components
+#include "Voxels/ComponentVoxelMesh.h"
 #include "Voxels/ComponentVoxelWorld.h"
 
 // Physics code
@@ -131,6 +132,7 @@ extern "C"
 #include "Editor/Interfaces/EditorInterface.h"
 #include "Editor/Interfaces/EditorInterface_SceneManagement.h"
 #include "Editor/Interfaces/EditorInterface_2DPointEditor.h"
+#include "Editor/Interfaces/EditorInterface_VoxelMeshEditor.h"
 #endif
 
 #include "Core/EngineCore.h"

@@ -10,18 +10,11 @@
 #ifndef __VoxelWorld_H__
 #define __VoxelWorld_H__
 
+#include "VoxelRayCast.h"
+
 class VoxelChunk;
 
 typedef unsigned int (*VoxelWorld_GenerateMap_CallbackFunction)(Vector3Int worldpos);
-
-struct VoxelRaycastResult
-{
-    bool m_Hit;
-    Vector3Int m_BlockWorldPosition;
-    
-    Vector3 m_BlockFacePoint;
-    Vector3 m_BlockFaceNormal;
-};
 
 class VoxelWorld
 {
@@ -88,8 +81,8 @@ public:
     bool IsBlockEnabled(int worldx, int worldy, int worldz, bool blockexistsifnotready = false);
     bool IsBlockEnabledAroundLocation(Vector3 scenepos, float radius, bool blockexistsifnotready = false);
     float GetSceneYForNextBlockBelowPosition(Vector3 scenepos, float radius);
-    bool RaycastSingleBlockFindFaceHit(Vector3Int worldpos, Vector3 startpos, Vector3 endpos, Vector3* pPoint, Vector3* pNormal);
-    bool Raycast(Vector3 startpos, Vector3 endpos, float step, VoxelRaycastResult* pResult);
+    bool RayCastSingleBlockFindFaceHit(Vector3Int worldpos, Vector3 startpos, Vector3 endpos, Vector3* pPoint, Vector3* pNormal);
+    bool RayCast(Vector3 startpos, Vector3 endpos, float step, VoxelRayCastResult* pResult);
 
     void GetMouseRayBadly(Vector2 mousepos, Vector3* start, Vector3* end);
 

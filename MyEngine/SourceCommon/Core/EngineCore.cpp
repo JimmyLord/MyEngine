@@ -77,6 +77,7 @@ EngineCore::EngineCore()
 
     m_pEditorInterfaces[EditorInterfaceType_SceneManagement] = MyNew EditorInterface_SceneManagement();
     m_pEditorInterfaces[EditorInterfaceType_2DPointEditor] = MyNew EditorInterface_2DPointEditor();
+    m_pEditorInterfaces[EditorInterfaceType_VoxelMeshEditor] = MyNew EditorInterface_VoxelMeshEditor();
     m_CurrentEditorInterfaceType = EditorInterfaceType_NumInterfaces;
     m_pCurrentEditorInterface = 0;
 #endif //MYFW_USING_WX

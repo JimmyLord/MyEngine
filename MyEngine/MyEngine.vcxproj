@@ -1755,6 +1755,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="SourceCommon\Editor\Interfaces\EditorInterface_VoxelMeshEditor.cpp" />
     <ClCompile Include="SourceCommon\Editor\TransformGizmo.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
@@ -1798,6 +1799,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='WxRelease|Emscripten'">true</ExcludedFromBuild>
     </ClCompile>
     <ClCompile Include="SourceCommon\Physics\EngineBox2DContactListener.cpp" />
+    <ClCompile Include="SourceCommon\Voxels\ComponentVoxelMesh.cpp" />
     <ClCompile Include="SourceCommon\Voxels\ComponentVoxelWorld.cpp" />
     <ClCompile Include="SourceCommon\Voxels\VoxelBlock.cpp" />
     <ClCompile Include="SourceCommon\Voxels\VoxelChunk.cpp" />
@@ -2024,6 +2026,7 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
     </ClInclude>
+    <ClInclude Include="SourceCommon\Editor\Interfaces\EditorInterface_VoxelMeshEditor.h" />
     <ClInclude Include="SourceCommon\Editor\TransformGizmo.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
@@ -2050,9 +2053,11 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='WxRelease|Emscripten'">true</ExcludedFromBuild>
     </ClInclude>
     <ClInclude Include="SourceCommon\Physics\EngineBox2DContactListener.h" />
+    <ClInclude Include="SourceCommon\Voxels\ComponentVoxelMesh.h" />
     <ClInclude Include="SourceCommon\Voxels\ComponentVoxelWorld.h" />
     <ClInclude Include="SourceCommon\Voxels\VoxelBlock.h" />
     <ClInclude Include="SourceCommon\Voxels\VoxelChunk.h" />
+    <ClInclude Include="SourceCommon\Voxels\VoxelRayCast.h" />
     <ClInclude Include="SourceCommon\Voxels\VoxelWorld.h" />
     <ClInclude Include="SourceNaCL\memory.h" />
   </ItemGroup>

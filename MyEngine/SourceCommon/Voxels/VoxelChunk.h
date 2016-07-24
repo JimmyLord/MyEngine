@@ -10,6 +10,8 @@
 #ifndef __VoxelChunk_H__
 #define __VoxelChunk_H__
 
+#include "VoxelRayCast.h"
+
 class VoxelBlock;
 class MyMesh;
 
@@ -22,6 +24,7 @@ protected:
     bool m_MeshOptimized;
 
     MyMatrix m_Transform;
+    Vector3 m_BlockSize;
     Vector3Int m_ChunkSize;
     Vector3Int m_ChunkOffset;
 
@@ -34,18 +37,20 @@ public:
     VoxelChunk();
     virtual ~VoxelChunk();
 
-    void Initialize(VoxelWorld* world, Vector3 pos, Vector3Int chunksize, Vector3Int chunkoffset);
+    void Initialize(VoxelWorld* world, Vector3 pos, Vector3Int chunksize, Vector3Int chunkoffset, Vector3 blocksize);
 
     // Map/Blocks
     static unsigned int DefaultGenerateMapFunc(Vector3Int worldpos);
     void GenerateMap();
-    bool IsBlockEnabled(Vector3Int worldpos, bool blockexistsifnotready = false);
-    bool IsBlockEnabled(int worldx, int worldy, int worldz, bool blockexistsifnotready = false);
+    VoxelBlock* GetBlocks() { return m_pBlocks; }
+    bool IsBlockEnabled(Vector3Int localpos, bool blockexistsifnotready = false);
+    bool IsBlockEnabled(int localx, int localy, int localz, bool blockexistsifnotready = false);
 
     // Rendering
     void RebuildMesh(unsigned int increment);
 
     void AddToSceneGraph(void* pUserData, MaterialDefinition* pMaterial);
+    void OverrideSceneGraphObjectTransform(MyMatrix* pTransform);
     void RemoveFromSceneGraph();
 
     void SetMaterial(MaterialDefinition* pMaterial);
@@ -55,10 +60,15 @@ public:
     bool IsMeshOptimized() { return m_MeshOptimized; }
 
     // Space conversions
+    Vector3Int GetWorldPosition(Vector3 scenepos);
     Vector3Int GetChunkSize() { return m_ChunkSize; }
     Vector3Int GetChunkOffset() { return m_ChunkOffset; }
     VoxelBlock* GetBlockFromLocalPos(Vector3Int localpos);
     unsigned int GetBlockIndex(Vector3Int worldpos);
+
+    // Collision/Block queries
+    bool RayCastSingleBlockFindFaceHit(Vector3Int worldpos, Vector3 startpos, Vector3 endpos, Vector3* pPoint, Vector3* pNormal);
+    bool RayCast(Vector3 startpos, Vector3 endpos, float step, VoxelRayCastResult* pResult);
 
     // Add/Remove blocks
     void ChangeBlockState(Vector3Int, bool enabled);

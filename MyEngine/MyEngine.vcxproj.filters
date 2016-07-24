@@ -378,6 +378,12 @@
     <ClCompile Include="SourceCommon\Voxels\VoxelBlock.cpp">
       <Filter>Source\Voxels</Filter>
     </ClCompile>
+    <ClCompile Include="SourceCommon\Voxels\ComponentVoxelMesh.cpp">
+      <Filter>Source\Voxels</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCommon\Editor\Interfaces\EditorInterface_VoxelMeshEditor.cpp">
+      <Filter>Source\Editor\Interfaces</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SourceCommon\Camera\Camera3D.h">
@@ -696,6 +702,15 @@
       <Filter>Source\Voxels</Filter>
     </ClInclude>
     <ClInclude Include="SourceCommon\Voxels\VoxelBlock.h">
+      <Filter>Source\Voxels</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCommon\Voxels\ComponentVoxelMesh.h">
+      <Filter>Source\Voxels</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCommon\Editor\Interfaces\EditorInterface_VoxelMeshEditor.h">
+      <Filter>Source\Editor\Interfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCommon\Voxels\VoxelRayCast.h">
       <Filter>Source\Voxels</Filter>
     </ClInclude>
   </ItemGroup>
