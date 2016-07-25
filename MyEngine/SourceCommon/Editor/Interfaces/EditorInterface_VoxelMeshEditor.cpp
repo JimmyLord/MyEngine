@@ -14,6 +14,8 @@
 EditorInterface_VoxelMeshEditor::EditorInterface_VoxelMeshEditor()
 {
     m_pVoxelMesh = 0;
+
+    m_CapturedRightMouse = false;
 }
 
 EditorInterface_VoxelMeshEditor::~EditorInterface_VoxelMeshEditor()
@@ -62,24 +64,38 @@ bool EditorInterface_VoxelMeshEditor::HandleInput(int keyaction, int keycode, in
 
     EditorInterface::SetModifierKeyStates( keyaction, keycode, mouseaction, id, x, y, pressure );
 
+    if( mouseaction == GCBA_Held )
+    {
+        if( id & (1 << 1) && m_CapturedRightMouse )
+        {
+            return true;
+        }
+    }
+
     if( id == 1 ) // right mouse button to remove a block from the chunk
     {
         if( mouseaction == GCBA_Down )
         {
             Vector2 mousepos( x, y );
-
-            Vector3 start, end;
-            g_pEngineCore->GetMouseRay( mousepos, &start, &end );
-
-            // TODO: transform ray to chunk space.
-
             VoxelRayCastResult result;
-            pChunk->RayCast( start, end, 0.1f, &result );
+            RayCast( mousepos, &result );
 
             if( result.m_Hit == true )
             {
                 pChunk->ChangeBlockState( result.m_BlockWorldPosition, false );
                 pChunk->RebuildMesh( 1 );
+
+                m_CapturedRightMouse = true;
+                return true;
+            }
+        }
+
+        if( mouseaction == GCBA_Up )
+        {
+            if( m_CapturedRightMouse )
+            {
+                m_CapturedRightMouse = false;
+            //    return true;
             }
         }
     }
@@ -93,14 +109,8 @@ bool EditorInterface_VoxelMeshEditor::HandleInput(int keyaction, int keycode, in
                 if( pChunk )
                 {
                     Vector2 mousepos( x, y );
-
-                    Vector3 start, end;
-                    g_pEngineCore->GetMouseRay( mousepos, &start, &end );
-
-                    // TODO: transform ray to chunk space.
-
                     VoxelRayCastResult result;
-                    pChunk->RayCast( start, end, 0.1f, &result );
+                    RayCast( mousepos, &result );
 
                     if( result.m_Hit == true )
                     {
@@ -111,10 +121,12 @@ bool EditorInterface_VoxelMeshEditor::HandleInput(int keyaction, int keycode, in
                         if( result.m_BlockFaceNormal.z == -1 ) result.m_BlockWorldPosition.z--;
                         if( result.m_BlockFaceNormal.z ==  1 ) result.m_BlockWorldPosition.z++;
 
-                        // TODO: validate that result.m_BlockWorldPosition is inside the chunk
-
-                        pChunk->ChangeBlockState( result.m_BlockWorldPosition, true );
-                        pChunk->RebuildMesh( 1 );
+                        // if result.m_BlockWorldPosition is inside the chunk, add a block
+                        if( pChunk->IsInChunkSpace( result.m_BlockWorldPosition ) )
+                        {
+                            pChunk->ChangeBlockState( result.m_BlockWorldPosition, true );
+                            pChunk->RebuildMesh( 1 );
+                        }
                     }
                 }
             }
@@ -146,4 +158,24 @@ void EditorInterface_VoxelMeshEditor::SetMeshToEdit(ComponentVoxelMesh* pVoxelMe
 void EditorInterface_VoxelMeshEditor::RenderObjectIDsToFBO()
 {
     EditorInterface::RenderObjectIDsToFBO();
+}
+
+bool EditorInterface_VoxelMeshEditor::RayCast(Vector2 mousepos, VoxelRayCastResult* pResult)
+{
+    Vector3 start, end;
+    g_pEngineCore->GetMouseRay( mousepos, &start, &end );
+
+    // transform ray to chunk space.
+    MyMatrix transform = *m_pVoxelMesh->m_pGameObject->m_pComponentTransform->GetWorldTransform();
+    transform.Inverse();
+    Vector3 chunkspacestart = transform * start;
+    Vector3 chunkspaceend = transform * end;
+
+    VoxelChunk* pChunk = m_pVoxelMesh->GetChunk();
+    Vector3 blocksize = pChunk->GetBlockSize();
+    float smallestdimension = blocksize.x < blocksize.y ?
+                              (blocksize.x < blocksize.z ? blocksize.x : blocksize.z) :
+                              (blocksize.y < blocksize.z ? blocksize.y : blocksize.z);
+
+    return pChunk->RayCast( chunkspacestart, chunkspaceend, smallestdimension/2.0f, pResult );
 }

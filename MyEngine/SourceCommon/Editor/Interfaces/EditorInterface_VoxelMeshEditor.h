@@ -17,6 +17,8 @@ public:
 protected:
     ComponentVoxelMesh* m_pVoxelMesh;
 
+    bool m_CapturedRightMouse;
+
 public:
     EditorInterface_VoxelMeshEditor();
     virtual ~EditorInterface_VoxelMeshEditor();
@@ -35,6 +37,8 @@ public:
 
     ComponentVoxelMesh* GetMeshBeingEdited() { return m_pVoxelMesh; }
     void SetMeshToEdit(ComponentVoxelMesh* pVoxelMesh);
+
+    bool RayCast(Vector2 mousepos, VoxelRayCastResult* pResult);
 };
 
 #endif //__EditorInterface_VoxelMeshEditor_H__

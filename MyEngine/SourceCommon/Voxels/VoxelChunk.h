@@ -42,6 +42,7 @@ public:
     // Map/Blocks
     static unsigned int DefaultGenerateMapFunc(Vector3Int worldpos);
     void GenerateMap();
+    bool IsInChunkSpace(Vector3Int worldpos);
     VoxelBlock* GetBlocks() { return m_pBlocks; }
     bool IsBlockEnabled(Vector3Int localpos, bool blockexistsifnotready = false);
     bool IsBlockEnabled(int localx, int localy, int localz, bool blockexistsifnotready = false);
@@ -61,6 +62,7 @@ public:
 
     // Space conversions
     Vector3Int GetWorldPosition(Vector3 scenepos);
+    Vector3 GetBlockSize() { return m_BlockSize; }
     Vector3Int GetChunkSize() { return m_ChunkSize; }
     Vector3Int GetChunkOffset() { return m_ChunkOffset; }
     VoxelBlock* GetBlockFromLocalPos(Vector3Int localpos);

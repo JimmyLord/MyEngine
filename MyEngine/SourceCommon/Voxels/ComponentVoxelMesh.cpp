@@ -27,7 +27,7 @@ ComponentVoxelMesh::ComponentVoxelMesh()
 
     m_BaseType = BaseComponentType_Data;
 
-    m_MeshSize.Set( 16, 16, 16 );
+    m_MeshSize.Set( 4, 4, 4 );
 
     m_pVoxelChunk = MyNew VoxelChunk;
     m_pVoxelChunk->Initialize( 0, Vector3(0,0,0), m_MeshSize, Vector3Int(0,0,0), Vector3(0.2f,0.2f,0.2f) );

@@ -981,10 +981,13 @@ bool EngineCore::HandleEditorInput(int canvasid, int keyaction, int keycode, int
     if( g_pImGuiManager->HandleInput( keyaction, keycode, mouseaction, id, x, toplefty, pressure ) )
         return true;
 
+    if( m_pCurrentEditorInterface->HandleInput( keyaction, keycode, mouseaction, id, x, y, pressure ) )
+        return true;
+
     if( m_pEditorState->m_pTransformGizmo->HandleInput( this, -1, -1, mouseaction, id, x, y, pressure ) )
         return true;
 
-    return m_pCurrentEditorInterface->HandleInput( keyaction, keycode, mouseaction, id, x, y, pressure );
+    return false;
 }
 #endif //MYFW_USING_WX
 

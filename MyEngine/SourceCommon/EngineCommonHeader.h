@@ -95,6 +95,7 @@ extern "C"
 #include "ComponentSystem/FrameworkComponents/Physics2D/Component2DJointWeld.h"
 
 // Other components
+#include "Voxels/VoxelRayCast.h"
 #include "Voxels/ComponentVoxelMesh.h"
 #include "Voxels/ComponentVoxelWorld.h"
 

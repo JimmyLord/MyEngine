@@ -156,6 +156,20 @@ void VoxelChunk::GenerateMap()
     m_MapCreated = true;
 }
 
+bool VoxelChunk::IsInChunkSpace(Vector3Int worldpos)
+{
+    Vector3Int localpos = worldpos - m_ChunkOffset;
+
+    if( localpos.x >= 0 && localpos.x < m_ChunkSize.x &&
+        localpos.y >= 0 && localpos.y < m_ChunkSize.y &&
+        localpos.z >= 0 && localpos.z < m_ChunkSize.z )
+    {
+        return true;
+    }
+
+    return false;
+}
+
 bool VoxelChunk::IsBlockEnabled(Vector3Int localpos, bool blockexistsifnotready)
 {
     return IsBlockEnabled( localpos.x, localpos.y, localpos.z, blockexistsifnotready );
@@ -587,24 +601,24 @@ bool VoxelChunk::RayCastSingleBlockFindFaceHit(Vector3Int worldpos, Vector3 star
 
 bool VoxelChunk::RayCast(Vector3 startpos, Vector3 endpos, float step, VoxelRayCastResult* pResult)
 {
+    // startpos and endpos are expected to be in chunk space.
+
     // Lazy raycast, will pass through blocks if step too big, will always pass through corners.
 
     // Init some vars and figure out the length and direction of the ray we're casting.
-    Vector3 currentscenepos = startpos;
+    Vector3 currentchunkspacepos = startpos;
     Vector3 dir = endpos - startpos;
     float len = dir.Length();
     dir.Normalize();
 
     // Init last worldpos to something that isn't the current world pos.
-    Vector3Int lastlocalpos = GetWorldPosition( currentscenepos ) + Vector3Int( 1, 1, 1 );
+    Vector3Int lastlocalpos = GetWorldPosition( currentchunkspacepos ) + Vector3Int( 1, 1, 1 );
     
     while( true )
     {
-        Vector3Int localpos = GetWorldPosition( currentscenepos );
+        Vector3Int localpos = GetWorldPosition( currentchunkspacepos );
 
-        if( localpos.x >= 0 && localpos.x < m_ChunkSize.x &&
-            localpos.y >= 0 && localpos.y < m_ChunkSize.y &&
-            localpos.z >= 0 && localpos.z < m_ChunkSize.z )
+        if( IsInChunkSpace( localpos ) )
         {
             // If the worldpos is different than the previous loop, check for a block.
             if( localpos != lastlocalpos && IsBlockEnabled( localpos ) == true )
@@ -626,7 +640,7 @@ bool VoxelChunk::RayCast(Vector3 startpos, Vector3 endpos, float step, VoxelRayC
 
         // Move forward along our line.
         len -= step;
-        currentscenepos += dir * step;
+        currentchunkspacepos += dir * step;
 
         // Break if we passed the end of our line.
         if( len < 0 )
