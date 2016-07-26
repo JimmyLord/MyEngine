@@ -469,7 +469,7 @@ void ComponentBase::ExportVariablesToJSON(cJSON* jComponent)
                         {
                             if( flags & (1<<i) )
                             {
-                                MyAssert( pVar->m_ppEnumStrings[i] != 0 )
+                                MyAssert( pVar->m_ppEnumStrings[i] != 0 );
                                 if( pVar->m_ppEnumStrings[i] != 0 )
                                 {
                                     cJSON* jFlag = cJSON_CreateString( pVar->m_ppEnumStrings[i] );
