@@ -154,7 +154,7 @@ void ComponentCamera::Reset()
     m_DesiredWidth = 0;
     m_DesiredHeight = 0;
     
-    m_LayersToRender = 0xFFFF;
+    m_LayersToRender = 0x00FF;
 
     m_WindowStartX = 0;
     m_WindowStartY = 0;

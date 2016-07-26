@@ -606,8 +606,5 @@ bool EditorInterface_SceneManagement::HandleInput(int keyaction, int keycode, in
         }
     }
 
-    // clear modifier and mouse button states.
-    EditorInterface::ClearModifierKeyStates( keyaction, keycode, mouseaction, id, x, y, pressure );
-
     return false;
 }

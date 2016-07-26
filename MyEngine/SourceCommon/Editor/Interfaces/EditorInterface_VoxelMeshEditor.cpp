@@ -95,7 +95,8 @@ bool EditorInterface_VoxelMeshEditor::HandleInput(int keyaction, int keycode, in
             if( m_CapturedRightMouse )
             {
                 m_CapturedRightMouse = false;
-            //    return true;
+                pEditorState->m_ModifierKeyStates &= ~MODIFIERKEY_RightMouse;
+                return true;
             }
         }
     }
@@ -143,9 +144,6 @@ bool EditorInterface_VoxelMeshEditor::HandleInput(int keyaction, int keycode, in
 
     // handle camera movement, with both mouse and keyboard.
     EditorInterface::HandleInputForEditorCamera( keyaction, keycode, mouseaction, id, x, y, pressure );
-
-    // clear mouse button states.
-    EditorInterface::ClearModifierKeyStates( keyaction, keycode, mouseaction, id, x, y, pressure );
 
     return false;
 }

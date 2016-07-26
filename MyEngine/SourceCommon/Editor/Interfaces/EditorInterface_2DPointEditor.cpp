@@ -312,9 +312,6 @@ bool EditorInterface_2DPointEditor::HandleInput(int keyaction, int keycode, int 
     // handle camera movement, with both mouse and keyboard.
     EditorInterface::HandleInputForEditorCamera( keyaction, keycode, mouseaction, id, x, y, pressure );
 
-    // clear mouse button states.
-    EditorInterface::ClearModifierKeyStates( keyaction, keycode, mouseaction, id, x, y, pressure );
-
     return false;
 }
 

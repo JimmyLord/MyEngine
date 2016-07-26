@@ -987,6 +987,9 @@ bool EngineCore::HandleEditorInput(int canvasid, int keyaction, int keycode, int
     if( m_pEditorState->m_pTransformGizmo->HandleInput( this, -1, -1, mouseaction, id, x, y, pressure ) )
         return true;
 
+    // clear modifier key and mouse button states.
+    m_pCurrentEditorInterface->ClearModifierKeyStates( keyaction, keycode, mouseaction, id, x, y, pressure );
+
     return false;
 }
 #endif //MYFW_USING_WX
