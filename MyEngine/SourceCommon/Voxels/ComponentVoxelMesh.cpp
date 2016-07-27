@@ -19,7 +19,7 @@ bool ComponentVoxelMesh::m_PanelWatchBlockVisible = true;
 MYFW_COMPONENT_IMPLEMENT_VARIABLE_LIST( ComponentVoxelMesh ); //_VARIABLE_LIST
 
 ComponentVoxelMesh::ComponentVoxelMesh()
-: ComponentBase()
+: ComponentMesh()
 {
     MYFW_COMPONENT_VARIABLE_LIST_CONSTRUCTOR(); //_VARIABLE_LIST
 
@@ -27,58 +27,42 @@ ComponentVoxelMesh::ComponentVoxelMesh()
 
     m_BaseType = BaseComponentType_Data;
 
-    m_MeshSize.Set( 4, 4, 4 );
-
-    m_pVoxelChunk = MyNew VoxelChunk;
-    m_pVoxelChunk->Initialize( 0, Vector3(0,0,0), m_MeshSize, Vector3Int(0,0,0), Vector3(0.2f,0.2f,0.2f) );
-    VoxelBlock* pBlocks = m_pVoxelChunk->GetBlocks();
-    for( int z=0; z<m_MeshSize.z; z++ )
-    {
-        for( int y=0; y<m_MeshSize.y; y++ )
-        {
-            for( int x=0; x<m_MeshSize.x; x++ )
-            {
-                VoxelBlock* pBlock = &pBlocks[z*m_MeshSize.y*m_MeshSize.x + y*m_MeshSize.x + x];
-
-                pBlock->SetEnabled( true );
-            }
-        }
-    }
-    m_pVoxelChunk->RebuildMesh( 1 );
-    m_pVoxelChunk->AddToSceneGraph( this, 0 );
-
-    m_pMaterial = 0;
+    m_ChunkSize.Set( 4, 4, 4 );
 }
 
 ComponentVoxelMesh::~ComponentVoxelMesh()
 {
-    delete m_pVoxelChunk;
-
-    SAFE_RELEASE( m_pMaterial );
-
     MYFW_COMPONENT_VARIABLE_LIST_DESTRUCTOR(); //_VARIABLE_LIST
 }
 
 void ComponentVoxelMesh::RegisterVariables(CPPListHead* pList, ComponentVoxelMesh* pThis) //_VARIABLE_LIST
 {
-    AddVarPointer( pList, "Material",  true,  true, 0,
+    ComponentMesh::RegisterVariables( pList, pThis );
+
+    //AddVarPointer( pList, "Material", true, true, 0,
+    //    (CVarFunc_GetPointerValue)&ComponentVoxelMesh::GetPointerValue,
+    //    (CVarFunc_SetPointerValue)&ComponentVoxelMesh::SetPointerValue,
+    //    (CVarFunc_GetPointerDesc)&ComponentVoxelMesh::GetPointerDesc,
+    //    (CVarFunc_SetPointerDesc)&ComponentVoxelMesh::SetPointerDesc,
+    //    (CVarFunc_ValueChanged)&ComponentVoxelMesh::OnValueChanged,
+    //    (CVarFunc_DropTarget)&ComponentVoxelMesh::OnDrop, 0 );
+
+    AddVar( pList, "MaxSize", ComponentVariableType_Vector3Int, MyOffsetOf( pThis, &pThis->m_ChunkSize ), true, true, 0, (CVarFunc_ValueChanged)&ComponentVoxelMesh::OnValueChanged, (CVarFunc_DropTarget)&ComponentVoxelMesh::OnDrop, 0 );
+
+    AddVarPointer( pList, "File", true, true, "File",
         (CVarFunc_GetPointerValue)&ComponentVoxelMesh::GetPointerValue,
         (CVarFunc_SetPointerValue)&ComponentVoxelMesh::SetPointerValue,
         (CVarFunc_GetPointerDesc)&ComponentVoxelMesh::GetPointerDesc,
         (CVarFunc_SetPointerDesc)&ComponentVoxelMesh::SetPointerDesc,
         (CVarFunc_ValueChanged)&ComponentVoxelMesh::OnValueChanged,
         (CVarFunc_DropTarget)&ComponentVoxelMesh::OnDrop, 0 );
-
-    AddVar( pList, "MaxSize", ComponentVariableType_Vector3Int, MyOffsetOf( pThis, &pThis->m_MeshSize ), true, true, 0, (CVarFunc_ValueChanged)&ComponentVoxelMesh::OnValueChanged, (CVarFunc_DropTarget)&ComponentVoxelMesh::OnDrop, 0 );
 }
 
 void ComponentVoxelMesh::Reset()
 {
-    ComponentBase::Reset();
+    ComponentMesh::Reset();
 
-    SAFE_RELEASE( m_pMaterial );
-
-    m_MeshSize.Set( 16, 16, 16 );
+    m_ChunkSize.Set( 4, 4, 4 );
 
 #if MYFW_USING_WX
     m_pPanelWatchBlockVisible = &m_PanelWatchBlockVisible;
@@ -99,9 +83,10 @@ void ComponentVoxelMesh::LuaRegister(lua_State* luastate)
 
 void* ComponentVoxelMesh::GetPointerValue(ComponentVariable* pVar) //_VARIABLE_LIST
 {
-    if( strcmp( pVar->m_Label, "Material" ) == 0 )
+    if( strcmp( pVar->m_Label, "File" ) == 0 )
     {
-        return m_pMaterial;
+        if( m_pMesh )
+            return m_pMesh->m_pSourceFile;
     }
 
     return 0;
@@ -109,18 +94,24 @@ void* ComponentVoxelMesh::GetPointerValue(ComponentVariable* pVar) //_VARIABLE_L
 
 void ComponentVoxelMesh::SetPointerValue(ComponentVariable* pVar, void* newvalue)
 {
-    if( strcmp( pVar->m_Label, "Material" ) == 0 )
+    if( strcmp( pVar->m_Label, "File" ) == 0 )
     {
-        return SetMaterial( (MaterialDefinition*)newvalue );
+        MyMesh* pMesh = g_pMeshManager->FindMeshBySourceFile( (MyFileObject*)newvalue );
+        SetMesh( pMesh );
     }
 }
 
 const char* ComponentVoxelMesh::GetPointerDesc(ComponentVariable* pVar) //_VARIABLE_LIST
 {
-    if( strcmp( pVar->m_Label, "Material" ) == 0 )
+    if( strcmp( pVar->m_Label, "File" ) == 0 )
     {
-        if( m_pMaterial && m_pMaterial->m_pFile )
-            return m_pMaterial->m_pFile->m_FullPath;
+        //MyAssert( m_pMesh );
+        if( m_pMesh == 0 )
+            return "none";
+
+        MyFileObject* pFile = m_pMesh->m_pSourceFile;
+        if( pFile )
+            return pFile->m_FullPath;
         else
             return "none";
     }
@@ -130,14 +121,31 @@ const char* ComponentVoxelMesh::GetPointerDesc(ComponentVariable* pVar) //_VARIA
 
 void ComponentVoxelMesh::SetPointerDesc(ComponentVariable* pVar, const char* newdesc) //_VARIABLE_LIST
 {
-    if( strcmp( pVar->m_Label, "Material" ) == 0 )
+    if( strcmp( pVar->m_Label, "File" ) == 0 )
     {
         MyAssert( newdesc );
         if( newdesc )
         {
-            MaterialDefinition* pMaterial = g_pMaterialManager->LoadMaterial( newdesc );
-            SetMaterial( pMaterial );
-            pMaterial->Release();
+            MyFileObject* pFile = g_pFileManager->RequestFile( newdesc ); // adds a ref
+            if( pFile )
+            {
+                MyMesh* pMesh = g_pMeshManager->FindMeshBySourceFile( pFile ); // doesn't add a ref
+                if( pMesh == 0 )
+                {
+                    pMesh = MyNew MyMesh();
+                    if( strcmp( pFile->m_ExtensionWithDot, ".myvoxelmesh" ) == 0 )
+                    {
+                        pMesh->CreateFromMyMeshFile( pFile );
+                    }
+                    SetMesh( pMesh );
+                    pMesh->Release();
+                }
+                else
+                {
+                    SetMesh( pMesh );
+                }
+                pFile->Release(); // free ref from RequestFile
+            }
         }
     }
 }
@@ -146,21 +154,21 @@ void ComponentVoxelMesh::SetPointerDesc(ComponentVariable* pVar, const char* new
 void ComponentVoxelMesh::AddToObjectsPanel(wxTreeItemId gameobjectid)
 {
     //wxTreeItemId id =
-    g_pPanelObjectList->AddObject( this, ComponentVoxelMesh::StaticOnLeftClick, ComponentBase::StaticOnRightClick, gameobjectid, "VoxelChunk", ObjectListIcon_Component );
+    g_pPanelObjectList->AddObject( this, ComponentVoxelMesh::StaticOnLeftClick, ComponentMesh::StaticOnRightClick, gameobjectid, "VoxelChunk", ObjectListIcon_Component );
 }
 
 void ComponentVoxelMesh::OnLeftClick(unsigned int count, bool clear)
 {
-    ComponentBase::OnLeftClick( count, clear );
+    ComponentMesh::OnLeftClick( count, clear );
 }
 
 void ComponentVoxelMesh::FillPropertiesWindow(bool clear, bool addcomponentvariables, bool ignoreblockvisibleflag)
 {
-    m_ControlID_ComponentTitleLabel = g_pPanelWatch->AddSpace( "VoxelChunk", this, ComponentBase::StaticOnComponentTitleLabelClicked );
+    m_ControlID_ComponentTitleLabel = g_pPanelWatch->AddSpace( "VoxelChunk", this, ComponentMesh::StaticOnComponentTitleLabelClicked );
 
     if( m_PanelWatchBlockVisible || ignoreblockvisibleflag == true )
     {
-        ComponentBase::FillPropertiesWindow( clear );
+        ComponentMesh::FillPropertiesWindow( clear );
 
         FillPropertiesWindowWithVariables(); //_VARIABLE_LIST
 
@@ -170,7 +178,7 @@ void ComponentVoxelMesh::FillPropertiesWindow(bool clear, bool addcomponentvaria
 
 void* ComponentVoxelMesh::OnDrop(ComponentVariable* pVar, wxCoord x, wxCoord y)
 {
-    void* oldvalue = 0;
+    void* oldpointer = 0;
 
     if( g_DragAndDropStruct.m_Type == DragAndDropType_ComponentPointer )
     {
@@ -182,44 +190,59 @@ void* ComponentVoxelMesh::OnDrop(ComponentVariable* pVar, wxCoord x, wxCoord y)
         (GameObject*)g_DragAndDropStruct.m_Value;
     }
 
-    if( g_DragAndDropStruct.m_Type == DragAndDropType_MaterialDefinitionPointer )
+    if( g_DragAndDropStruct.m_Type == DragAndDropType_FileObjectPointer )
     {
-        MaterialDefinition* pMaterial = (MaterialDefinition*)g_DragAndDropStruct.m_Value;
-        MyAssert( pMaterial );
+        MyFileObject* pFile = (MyFileObject*)g_DragAndDropStruct.m_Value;
+        MyAssert( pFile );
+        //MyAssert( m_pMesh );
 
-        oldvalue = m_pMaterial;
-        SetMaterial( pMaterial );
+        //size_t len = strlen( pFile->m_FullPath );
+        const char* filenameext = pFile->m_ExtensionWithDot;
 
-        // update the panel so new Material name shows up.
-        if( pMaterial->m_pFile )
-            g_pPanelWatch->GetVariableProperties( g_DragAndDropStruct.m_ID )->m_Description = pMaterial->m_pFile->m_FilenameWithoutExtension;
+        if( strcmp( filenameext, ".myvoxelmesh" ) == 0 )
+        {
+            if( m_pMesh )
+                oldpointer = m_pMesh->m_pSourceFile;
+
+            MyMesh* pMesh = g_pMeshManager->FindMeshBySourceFile( pFile );
+            SetMesh( pMesh );
+
+            // update the panel so new OBJ name shows up.
+            g_pPanelWatch->GetVariableProperties( g_DragAndDropStruct.m_ID )->m_Description = m_pMesh->m_pSourceFile->m_FullPath;
+        }
+
+        g_pPanelWatch->SetNeedsRefresh();
     }
 
-    return oldvalue;
+    return oldpointer;
 }
 
 void* ComponentVoxelMesh::OnValueChanged(ComponentVariable* pVar, int controlid, bool finishedchanging, double oldvalue)
 {
     void* oldpointer = 0;
 
-    if( pVar->m_Offset == MyOffsetOf( this, &m_MeshSize ) )
+    if( pVar->m_Offset == MyOffsetOf( this, &m_ChunkSize ) )
     {
         MyAssert( pVar->m_ControlID != -1 );
 
         // TODO: resize the max voxel size.
     }
 
-    if( strncmp( pVar->m_Label, "Material", strlen("Material") ) == 0 )
+    if( finishedchanging )
     {
-        MyAssert( pVar->m_ControlID != -1 );
-
-        wxString text = g_pPanelWatch->GetVariableProperties( pVar->m_ControlID )->m_Handle_TextCtrl->GetValue();
-        if( text == "" || text == "none" )
+        if( strcmp( pVar->m_Label, "File" ) == 0 )
         {
-            g_pPanelWatch->ChangeDescriptionForPointerWithDescription( pVar->m_ControlID, "none" );
+            MyAssert( pVar->m_ControlID != -1 );
 
-            oldpointer = GetMaterial();
-            SetMaterial( 0 );
+            wxString text = g_pPanelWatch->GetVariableProperties( pVar->m_ControlID )->m_Handle_TextCtrl->GetValue();
+            if( text == "" || text == "none" )
+            {
+                g_pPanelWatch->ChangeDescriptionForPointerWithDescription( pVar->m_ControlID, "none" );
+
+                if( m_pMesh )
+                    oldpointer = m_pMesh->m_pSourceFile;
+                SetMesh( 0 );
+            }
         }
     }
 
@@ -235,7 +258,7 @@ void ComponentVoxelMesh::OnButtonEditMesh()
 
 //cJSON* ComponentVoxelMesh::ExportAsJSONObject(bool savesceneid)
 //{
-//    cJSON* jComponent = ComponentBase::ExportAsJSONObject( savesceneid );
+//    cJSON* jComponent = ComponentMesh::ExportAsJSONObject( savesceneid );
 //
 //    ExportVariablesToJSON( jComponent ); //_VARIABLE_LIST
 //
@@ -244,27 +267,52 @@ void ComponentVoxelMesh::OnButtonEditMesh()
 
 void ComponentVoxelMesh::ImportFromJSONObject(cJSON* jComponent, unsigned int sceneid)
 {
-    ComponentBase::ImportFromJSONObject( jComponent, sceneid );
+    ComponentMesh::ImportFromJSONObject( jComponent, sceneid );
 
     ImportVariablesFromJSON( jComponent ); //_VARIABLE_LIST
 
     // update the scenegraph object transform when component is finished loading.
-    MyMatrix* pTransform = m_pGameObject->m_pComponentTransform->GetWorldTransform();
-    m_pVoxelChunk->OverrideSceneGraphObjectTransform( pTransform );
+    //MyMatrix* pTransform = m_pGameObject->m_pComponentTransform->GetWorldTransform();
+    //m_pVoxelChunk->OverrideSceneGraphObjectTransform( pTransform );
+
+    if( m_pMesh == 0 )
+    {
+        VoxelChunk* pVoxelChunk = MyNew VoxelChunk;
+
+        pVoxelChunk->Initialize( 0, Vector3(0,0,0), m_ChunkSize, Vector3Int(0,0,0), Vector3(0.2f,0.2f,0.2f) );
+        VoxelBlock* pBlocks = pVoxelChunk->GetBlocks();
+        for( int z=0; z<m_ChunkSize.z; z++ )
+        {
+            for( int y=0; y<m_ChunkSize.y; y++ )
+            {
+                for( int x=0; x<m_ChunkSize.x; x++ )
+                {
+                    VoxelBlock* pBlock = &pBlocks[z*m_ChunkSize.y*m_ChunkSize.x + y*m_ChunkSize.x + x];
+
+                    pBlock->SetEnabled( true );
+                }
+            }
+        }
+        pVoxelChunk->RebuildMesh( 1 );
+        //m_pVoxelChunk->AddToSceneGraph( this, 0 );
+
+        SetMesh( pVoxelChunk );
+        pVoxelChunk->Release();
+    }
 }
 
 ComponentVoxelMesh& ComponentVoxelMesh::operator=(const ComponentVoxelMesh& other)
 {
     MyAssert( &other != this );
 
-    ComponentBase::operator=( other );
+    ComponentMesh::operator=( other );
 
     // TODO: replace this with a CopyComponentVariablesFromOtherObject... or something similar.
-    m_pMaterial = other.m_pMaterial;
-    if( m_pMaterial )
-        m_pMaterial->AddRef();
+    //m_pMaterial = other.m_pMaterial;
+    //if( m_pMaterial )
+    //    m_pMaterial->AddRef();
 
-    m_MeshSize = other.m_MeshSize;
+    m_ChunkSize = other.m_ChunkSize;
 
     return *this;
 }
@@ -305,18 +353,18 @@ void ComponentVoxelMesh::UnregisterCallbacks()
     }
 }
 
-void ComponentVoxelMesh::SetMaterial(MaterialDefinition* pMaterial)
-{
-    if( pMaterial )
-        pMaterial->AddRef();
-    SAFE_RELEASE( m_pMaterial );
-    m_pMaterial = pMaterial;
-
-    if( m_pVoxelChunk == 0 )
-        return;
-
-    m_pVoxelChunk->SetMaterial( pMaterial );
-}
+//void ComponentVoxelMesh::SetMaterial(MaterialDefinition* pMaterial)
+//{
+//    if( pMaterial )
+//        pMaterial->AddRef();
+//    SAFE_RELEASE( m_pMaterial );
+//    m_pMaterial = pMaterial;
+//
+//    if( m_pVoxelChunk == 0 )
+//        return;
+//
+//    m_pVoxelChunk->SetMaterial( pMaterial, 0 );
+//}
 
 //void ComponentVoxelMesh::TickCallback(double TimePassed)
 //{

@@ -12,21 +12,19 @@
 
 class VoxelChunk;
 
-class ComponentVoxelMesh : public ComponentBase
+class ComponentVoxelMesh : public ComponentMesh
 {
 private:
     // Component Variable List
     MYFW_COMPONENT_DECLARE_VARIABLE_LIST( ComponentVoxelMesh );
 
 public:
-    Vector3Int m_MeshSize;
-    VoxelChunk* m_pVoxelChunk;
-    MaterialDefinition* m_pMaterial;
+    Vector3Int m_ChunkSize;
 
 public:
     ComponentVoxelMesh();
     virtual ~ComponentVoxelMesh();
-    SetClassnameBase( "VoxelMeshComponent" ); // only first 8 character count.
+    SetClassnameWithParent( "VoxelMeshComponent", ComponentRenderable ); // only first 8 character count.
 
 #if MYFW_USING_LUA
     static void LuaRegister(lua_State* luastate);
@@ -43,11 +41,11 @@ public:
     virtual void UnregisterCallbacks();
 
     // Rendering
-    virtual MaterialDefinition* GetMaterial() { return m_pMaterial; }
-    virtual void SetMaterial(MaterialDefinition* pMaterial);
+    //virtual MaterialDefinition* GetMaterial() { return m_pMaterial; }
+    //virtual void SetMaterial(MaterialDefinition* pMaterial);
 
     // Queries
-    VoxelChunk* GetChunk() { return m_pVoxelChunk; }
+    VoxelChunk* GetChunk() { return (VoxelChunk*)m_pMesh; }//m_pVoxelChunk; }
     void AddTileToTileInFocus(Vector2 mousepos);
     void DeleteTileInFocus(Vector2 mousepos);
 

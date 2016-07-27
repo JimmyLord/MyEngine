@@ -26,19 +26,13 @@ VoxelChunk::VoxelChunk()
     m_pSceneGraphObject = 0;
 
     m_pBlocks = 0;
-    m_pMesh = 0;
 }
 
 VoxelChunk::~VoxelChunk()
 {
-    // remove from cpplist if it's in a list
-    if( this->Prev )
-        this->Remove();
-
     RemoveFromSceneGraph();
 
     delete[] m_pBlocks;
-    m_pMesh->Release();
 }
 
 void VoxelChunk::Initialize(VoxelWorld* world, Vector3 pos, Vector3Int chunksize, Vector3Int chunkoffset, Vector3 blocksize)
@@ -61,15 +55,13 @@ void VoxelChunk::Initialize(VoxelWorld* world, Vector3 pos, Vector3Int chunksize
     if( m_pWorld == 0 )
         m_MapCreated = true;
 
-    // Create a mesh.
-    if( m_pMesh == 0 )
+    // Set up the vertex format for this mesh.
+    if( m_SubmeshList.Length() == 0 )
     {
-        m_pMesh = MyNew MyMesh();
-
         int indexbytes = 2; // TODO: take out hard-coded unsigned short as index type
 
         VertexFormat_Dynamic_Desc* pVertFormat = g_pVertexFormatManager->GetDynamicVertexFormat( 1, true, false, false, false, 0 );
-        m_pMesh->CreateBuffers( pVertFormat, 0, indexbytes, 0, true );
+        CreateBuffers( pVertFormat, 0, indexbytes, 0, true );
     }
 }
 
@@ -196,19 +188,18 @@ bool VoxelChunk::IsBlockEnabled(int localx, int localy, int localz, bool blockex
 void VoxelChunk::RebuildMesh(unsigned int increment)
 {
     MyAssert( m_pBlocks );
-    MyAssert( m_pMesh );
 
     // Loop through blocks and add a cube for each one that's enabled
     // TODO: merge outer faces, eliminate inner faces.
     {
-        MyAssert( m_pMesh->GetStride( 0 ) == (12 + 8 + 12) ); // XYZ + UV + NORM
+        MyAssert( GetStride( 0 ) == (12 + 8 + 12) ); // XYZ + UV + NORM
 
         int numblocks = m_ChunkSize.x * m_ChunkSize.y * m_ChunkSize.z;
         int maxverts = 6*4*numblocks;
         int maxindices = 6*2*3*numblocks;
 
         // TODO: take out hard-coded unsigned short as index type
-        int vertbuffersize = maxverts * m_pMesh->GetStride( 0 );
+        int vertbuffersize = maxverts * GetStride( 0 );
         int indexbuffersize = maxindices * 2;
 
         // TODO: fill buffer without storing a local copy in main ram.
@@ -422,24 +413,24 @@ void VoxelChunk::RebuildMesh(unsigned int increment)
                     LOGInfo( "VoxelWorld", "Too many verts needed in chunk - %d\n", maxverts );
                 }
 
-                m_pMesh->m_SubmeshList[0]->m_pVertexBuffer->TempBufferData( vertcount * m_pMesh->GetStride( 0 ), pActualVerts );
-                m_pMesh->m_SubmeshList[0]->m_pIndexBuffer->TempBufferData( indexcount * 2, pActualIndices );
+                m_SubmeshList[0]->m_pVertexBuffer->TempBufferData( vertcount * GetStride( 0 ), pActualVerts );
+                m_SubmeshList[0]->m_pIndexBuffer->TempBufferData( indexcount * 2, pActualIndices );
             }
 
-            m_pMesh->m_SubmeshList[0]->m_NumIndicesToDraw = indexcount;
+            m_SubmeshList[0]->m_NumIndicesToDraw = indexcount;
             //LOGInfo( "VoxelChunk", "Num indices: %d\n", indexcount );
 
             Vector3 center = (minextents + maxextents) / 2;
             Vector3 extents = (maxextents - minextents) / 2;
-            m_pMesh->GetBounds()->Set( center, extents );
+            GetBounds()->Set( center, extents );
         }
         else
         {
-            m_pMesh->m_SubmeshList[0]->m_NumIndicesToDraw = 0;
+            m_SubmeshList[0]->m_NumIndicesToDraw = 0;
 
             Vector3 center( 0, 0, 0 );
             Vector3 extents( 0, 0, 0 );
-            m_pMesh->GetBounds()->Set( center, extents );
+            GetBounds()->Set( center, extents );
         }
 
         g_pEngineCore->m_SingleFrameMemoryStack.RewindStack( memstart );
@@ -475,6 +466,8 @@ void VoxelChunk::RebuildMesh(unsigned int increment)
             }
         }        
     }
+
+    m_MeshReady = true;
 }
 
 void VoxelChunk::AddToSceneGraph(void* pUserData, MaterialDefinition* pMaterial)
@@ -483,7 +476,7 @@ void VoxelChunk::AddToSceneGraph(void* pUserData, MaterialDefinition* pMaterial)
         return;
 
     m_pSceneGraphObject = g_pComponentSystemManager->m_pSceneGraph->AddObject(
-        &m_Transform, m_pMesh, m_pMesh->m_SubmeshList[0],
+        &m_Transform, this, m_SubmeshList[0],
         pMaterial, GL_TRIANGLES, 0, SceneGraphFlag_Opaque, 1, pUserData );
 }
 
@@ -505,10 +498,12 @@ void VoxelChunk::RemoveFromSceneGraph()
     m_pSceneGraphObject = 0;
 }
 
-void VoxelChunk::SetMaterial(MaterialDefinition* pMaterial)
+void VoxelChunk::SetMaterial(MaterialDefinition* pMaterial, int submeshindex)
 {
     if( m_pSceneGraphObject == 0 )
         return;
+
+    MyMesh::SetMaterial( pMaterial, 0 );
 
     m_pSceneGraphObject->m_pMaterial = pMaterial;
 }

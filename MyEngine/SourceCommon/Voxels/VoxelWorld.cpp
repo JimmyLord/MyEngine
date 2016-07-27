@@ -37,7 +37,7 @@ VoxelWorld::~VoxelWorld()
         VoxelChunk* pChunk = (VoxelChunk*)pNode;
         pNode = pNode->GetNext();
 
-        delete pChunk;
+        pChunk->Release();
     }
 
     for( CPPListNode* pNode = m_pChunksLoading.GetHead(); pNode; )
@@ -45,7 +45,7 @@ VoxelWorld::~VoxelWorld()
         VoxelChunk* pChunk = (VoxelChunk*)pNode;
         pNode = pNode->GetNext();
 
-        delete pChunk;
+        pChunk->Release();
     }    
 
     for( CPPListNode* pNode = m_pChunksVisible.GetHead(); pNode; )
@@ -53,7 +53,7 @@ VoxelWorld::~VoxelWorld()
         VoxelChunk* pChunk = (VoxelChunk*)pNode;
         pNode = pNode->GetNext();
 
-        delete pChunk;
+        pChunk->Release();
     }
 
     m_pMaterial->Release();
@@ -78,7 +78,7 @@ void VoxelWorld::Initialize(Vector3Int visibleworldsize)
             for( int x=0; x<m_WorldSize.x; x++ )
             {
                 VoxelChunk* pChunk = MyNew VoxelChunk;
-                m_pChunksFree.AddHead( pChunk );
+                m_pChunksFree.MoveHead( pChunk );
 
                 PrepareChunk( Vector3Int( x, y, z ) );
             }
@@ -299,7 +299,7 @@ void VoxelWorld::SetMaterial(MaterialDefinition* pMaterial)
     {
         VoxelChunk* pChunk = (VoxelChunk*)pNode;
 
-        pChunk->SetMaterial( m_pMaterial );        
+        pChunk->SetMaterial( m_pMaterial, 0 );        
     }
 }
 
@@ -544,23 +544,26 @@ bool VoxelWorld::RayCastSingleBlockFindFaceHit(Vector3Int worldpos, Vector3 star
     Plane plane;
     Vector3 result;
 
+    Vector3 bs = m_BlockSize;
+    Vector3 halfbs = m_BlockSize/2;
+
     for( int i=0; i<6; i++ )
     {
         switch( i )
         {
-        case 0: plane.Set( Vector3(-1,0,0), Vector3(-m_BlockSize.x/2, 0, 0) ); break;
-        case 1: plane.Set( Vector3( 1,0,0), Vector3( m_BlockSize.x/2, 0, 0) ); break;
-        case 2: plane.Set( Vector3(0,-1,0), Vector3(0, -m_BlockSize.y/2, 0) ); break;
-        case 3: plane.Set( Vector3(0, 1,0), Vector3(0,  m_BlockSize.y/2, 0) ); break;
-        case 4: plane.Set( Vector3(0,0,-1), Vector3(0, 0, -m_BlockSize.z/2) ); break;
-        case 5: plane.Set( Vector3(0,0, 1), Vector3(0, 0,  m_BlockSize.z/2) ); break;
+        case 0: plane.Set( Vector3(-bs.x,0,0), Vector3(-halfbs.x, 0, 0) ); break;
+        case 1: plane.Set( Vector3( bs.x,0,0), Vector3( halfbs.x, 0, 0) ); break;
+        case 2: plane.Set( Vector3(0,-bs.y,0), Vector3(0, -halfbs.y, 0) ); break;
+        case 3: plane.Set( Vector3(0, bs.y,0), Vector3(0,  halfbs.y, 0) ); break;
+        case 4: plane.Set( Vector3(0,0,-bs.z), Vector3(0, 0, -halfbs.z) ); break;
+        case 5: plane.Set( Vector3(0,0, bs.z), Vector3(0, 0,  halfbs.z) ); break;
         }
 
         plane.IntersectRay( startpos, endpos, &result );
 
-        if( ( i >=0 && i <= 1 && result.y > -0.5 && result.y < 0.5 && result.z > -0.5 && result.z < 0.5 ) ||
-            ( i >=2 && i <= 3 && result.x > -0.5 && result.x < 0.5 && result.z > -0.5 && result.z < 0.5 ) ||
-            ( i >=4 && i <= 5 && result.x > -0.5 && result.x < 0.5 && result.y > -0.5 && result.y < 0.5 ) )
+        if( ( i >=0 && i <= 1 && result.y > -halfbs.y && result.y < halfbs.y && result.z > -halfbs.z && result.z < halfbs.z ) ||
+            ( i >=2 && i <= 3 && result.x > -halfbs.x && result.x < halfbs.x && result.z > -halfbs.z && result.z < halfbs.z ) ||
+            ( i >=4 && i <= 5 && result.x > -halfbs.x && result.x < halfbs.x && result.y > -halfbs.y && result.y < halfbs.y ) )
         {
             float len = (result - startpos).LengthSquared();
             if( len < shortestlength )

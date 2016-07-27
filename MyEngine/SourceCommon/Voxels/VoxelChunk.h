@@ -15,7 +15,7 @@
 class VoxelBlock;
 class MyMesh;
 
-class VoxelChunk : public CPPListNode
+class VoxelChunk : public MyMesh
 {
 protected:
     VoxelWorld* m_pWorld;
@@ -29,7 +29,6 @@ protected:
     Vector3Int m_ChunkOffset;
 
     VoxelBlock* m_pBlocks;
-    MyMesh* m_pMesh;
 
     SceneGraphObject* m_pSceneGraphObject;
 
@@ -54,7 +53,7 @@ public:
     void OverrideSceneGraphObjectTransform(MyMatrix* pTransform);
     void RemoveFromSceneGraph();
 
-    void SetMaterial(MaterialDefinition* pMaterial);
+    virtual void SetMaterial(MaterialDefinition* pMaterial, int submeshindex);
 
     // Chunk state
     bool IsMapCreated() { return m_MapCreated; }

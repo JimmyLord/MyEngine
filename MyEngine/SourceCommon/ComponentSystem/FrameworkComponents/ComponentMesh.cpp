@@ -416,10 +416,20 @@ void ComponentMesh::SetVisible(bool visible)
 
 void ComponentMesh::SetMesh(MyMesh* pMesh)
 {
+    if( m_pMesh == pMesh )
+        return;
+
     if( pMesh )
         pMesh->AddRef();
+
+    if( m_pMesh )
+        RemoveFromSceneGraph();
+
     SAFE_RELEASE( m_pMesh );
     m_pMesh = pMesh;
+
+    if( m_pMesh )
+        AddToSceneGraph();
 }
 
 void ComponentMesh::AddToSceneGraph()
@@ -464,7 +474,7 @@ void ComponentMesh::RemoveFromSceneGraph()
     }
 
     MyAssert( m_pMesh );
-    MyAssert( m_pMesh->m_SubmeshList.Count() > 0 );
+    //MyAssert( m_pMesh->m_SubmeshList.Count() > 0 );
 
     for( unsigned int i=0; i<m_pMesh->m_SubmeshList.Count(); i++ )
     {
