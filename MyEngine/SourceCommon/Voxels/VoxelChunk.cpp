@@ -66,6 +66,188 @@ void VoxelChunk::Initialize(VoxelWorld* world, Vector3 pos, Vector3Int chunksize
 }
 
 // ============================================================================================================================
+// Load/Save ".myvoxelmesh" files
+// ============================================================================================================================
+void VoxelChunk::CreateFromVoxelMeshFile(MyFileObject* pFile)
+{
+    //LOGInfo( LOGTag, "%d: MyMesh::CreateFromVoxelMeshFile ( %s ) \n", this, pFile->m_FilenameWithoutExtension );
+
+    MyAssert( pFile );
+
+    // if the requested file changed, then ditch the current one and load the new one.
+    if( pFile != m_pSourceFile ) //|| m_ForceCheckForAnimationFile )
+    {
+        m_ForceCheckForAnimationFile = false;
+
+        // free the old .myvoxelmesh file and store a pointer to the new one.
+        pFile->AddRef();
+        SAFE_RELEASE( m_pSourceFile );
+        m_pSourceFile = pFile;
+
+//        // free the old .myaniminfo file and store a pointer to the new one.
+//        //if( m_pAnimationControlFile )
+//        //    LOGInfo( LOGTag, "Releasing old animation file ( %s ) file = %d\n", pFile->m_FilenameWithoutExtension, m_pAnimationControlFile );
+//        SAFE_RELEASE( m_pAnimationControlFile );
+//        char animfilename[MAX_PATH];
+//        pFile->GenerateNewFullPathExtensionWithSameNameInSameFolder( ".myaniminfo", animfilename, MAX_PATH );
+//#if MYFW_USING_WX
+//        // only try to open the file if it exists, only in editor builds since file i/o isn't necessarily synchronous otherwise.
+//        if( g_pFileManager->DoesFileExist( animfilename ) )
+//        {
+//            MyFileObject* newfile = g_pFileManager->RequestFile( animfilename ); // adds a ref to the existing file or new one.
+//            m_pAnimationControlFile = newfile;
+//            //LOGInfo( LOGTag, "g_pFileManager->DoesFileExist( %s ) returned true file = %d\n", animfilename, m_pAnimationControlFile );
+//        }
+//        else
+//        {
+//            //LOGInfo( LOGTag, "g_pFileManager->DoesFileExist( %s ) returned false\n", animfilename );
+//        }
+//#else
+//        MyFileObject* newfile = g_pFileManager->RequestFile( animfilename ); // adds a ref to the existing file or new one.
+//        m_pAnimationControlFile = newfile;
+//#endif
+    }
+
+    m_MeshReady = false;
+
+    // is the mesh ready and the anim file is loaded or failed to load.
+    if( pFile->m_FileLoadStatus == FileLoadStatus_Success //&&
+        //(m_pAnimationControlFile == 0 || m_pAnimationControlFile->m_FileLoadStatus >= FileLoadStatus_Success)
+      )
+    {
+        ////LOGInfo( LOGTag, "Animation File = %d\n", m_pAnimationControlFile );
+
+        //if( m_pAnimationControlFile && m_pAnimationControlFile->m_FileLoadStatus == FileLoadStatus_Error_FileNotFound )
+        //{
+        //    //LOGInfo( LOGTag, "Animation File - error loading file\n" );
+        //    g_pFileManager->FreeFile( m_pAnimationControlFile );
+        //    m_pAnimationControlFile = 0;
+        //}
+
+        LoadMyVoxelMesh( pFile->m_pBuffer, &m_SubmeshList, m_InitialScale );
+        
+        //if( m_pAnimationControlFile )
+        //{
+        //    //LOGInfo( LOGTag, "LoadAnimationControlFile = %s\n", m_pAnimationControlFile->m_pBuffer );
+        //    LoadAnimationControlFile( m_pAnimationControlFile->m_pBuffer );
+        //}
+        //else
+        //{
+        //    LoadAnimationControlFile( 0 );
+        //}
+    }
+}
+
+void VoxelChunk::ParseFile()
+{
+    MyAssert( m_pSourceFile == 0 || strcmp( m_pSourceFile->m_ExtensionWithDot, ".myvoxelmesh" ) == 0 );
+
+    // not needed, only ".myvoxelmesh" files should be assigned to voxelchunks.
+    //MyMesh::ParseFile();
+
+    if( m_MeshReady == false )
+    {
+        if( m_pSourceFile != 0 )
+        {
+            if( strcmp( m_pSourceFile->m_ExtensionWithDot, ".myvoxelmesh" ) == 0 )
+            {
+                CreateFromVoxelMeshFile( m_pSourceFile );
+            }
+
+            if( m_SubmeshList.Count() > 0 )
+            {
+                MaterialDefinition* pMaterial = m_SubmeshList[0]->GetMaterial();
+
+                if( pMaterial && pMaterial->GetShader() == 0 )
+                {
+                    // guess at an appropriate shader for this mesh/material.
+                    GuessAndAssignAppropriateShader();
+                }
+            }
+        }
+    }
+}
+
+void VoxelChunk::SaveMyVoxelMesh(const char* relativepath)
+{
+    cJSON* jVoxelMesh = cJSON_CreateObject();
+
+    cJSONExt_AddFloatArrayToObject( jVoxelMesh, "BlockSize", &m_BlockSize.x, 3 );
+    cJSONExt_AddIntArrayToObject( jVoxelMesh, "ChunkSize", &m_ChunkSize.x, 3 );
+
+    // save the blocks.
+    MyStackAllocator::MyStackPointer stackpointer;
+    char* blockstring = (char*)g_pEngineCore->m_SingleFrameMemoryStack.AllocateBlock( m_ChunkSize.x * m_ChunkSize.y * m_ChunkSize.z, &stackpointer );
+
+    for( int z=0; z<m_ChunkSize.z; z++ )
+    {
+        for( int y=0; y<m_ChunkSize.y; y++ )
+        {
+            for( int x=0; x<m_ChunkSize.x; x++ )
+            {
+                int index = z * m_ChunkSize.y * m_ChunkSize.x + y * m_ChunkSize.x + x;
+                unsigned int type = m_pBlocks[index].GetBlockType();
+                if( m_pBlocks[index].IsEnabled() == false )
+                    type = 0;
+                blockstring[index] = (char)type + '#';
+            }
+        }
+    }
+
+    cJSON_AddStringToObject( jVoxelMesh, "Blocks", blockstring );
+
+    char* string = cJSON_Print( jVoxelMesh );
+
+    FILE* file = 0;
+    fopen_s( &file, relativepath, "wb" );
+    fprintf( file, "%s", string );
+    fclose( file );
+
+    cJSON_Delete( jVoxelMesh );
+
+    cJSONExt_free( string );
+
+    g_pEngineCore->m_SingleFrameMemoryStack.RewindStack( stackpointer );
+}
+
+void VoxelChunk::LoadMyVoxelMesh(char* buffer, MyList<MySubmesh*>* pSubmeshList, float scale)
+{
+    MyAssert( pSubmeshList );
+    MyAssert( pSubmeshList->Length() == 0 );
+
+    cJSON* jVoxelMesh = cJSON_Parse( buffer );
+
+    cJSONExt_GetFloatArray( jVoxelMesh, "BlockSize", &m_BlockSize.x, 3 );
+    cJSONExt_GetIntArray( jVoxelMesh, "ChunkSize", &m_ChunkSize.x, 3 );
+
+    Initialize( 0, Vector3(0,0,0), m_ChunkSize, Vector3Int(0,0,0), m_BlockSize );
+
+    char* blockstring = cJSON_GetObjectItem( jVoxelMesh, "Blocks" )->valuestring;
+
+    // load the blocks
+    for( int z=0; z<m_ChunkSize.z; z++ )
+    {
+        for( int y=0; y<m_ChunkSize.y; y++ )
+        {
+            for( int x=0; x<m_ChunkSize.x; x++ )
+            {
+                int index = z * m_ChunkSize.y * m_ChunkSize.x + y * m_ChunkSize.x + x;
+                int blocktype = blockstring[index] - '#';
+
+                m_pBlocks[index].SetBlockType( blocktype );
+                m_pBlocks[index].SetEnabled( blocktype != 0 );
+            }
+        }
+    }
+
+    cJSON_Delete( jVoxelMesh );
+
+    RebuildMesh( 1 );
+
+    m_MeshReady = true;
+}
+
+// ============================================================================================================================
 // Map/Blocks
 // ============================================================================================================================
 unsigned int VoxelChunk::DefaultGenerateMapFunc(Vector3Int worldpos)
@@ -656,9 +838,10 @@ bool VoxelChunk::RayCast(Vector3 startpos, Vector3 endpos, float step, VoxelRayC
 // ============================================================================================================================
 // Add/Remove blocks
 // ============================================================================================================================
-void VoxelChunk::ChangeBlockState(Vector3Int worldpos, bool enabled)
+void VoxelChunk::ChangeBlockState(Vector3Int worldpos, unsigned int type, bool enabled)
 {
     unsigned int index = GetBlockIndex( worldpos );
 
+    m_pBlocks[index].SetBlockType( type );
     m_pBlocks[index].SetEnabled( enabled );
 }

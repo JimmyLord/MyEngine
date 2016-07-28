@@ -38,6 +38,12 @@ public:
 
     void Initialize(VoxelWorld* world, Vector3 pos, Vector3Int chunksize, Vector3Int chunkoffset, Vector3 blocksize);
 
+    // Load/Save ".myvoxelmesh" files
+    void CreateFromVoxelMeshFile(MyFileObject* pFile);
+    virtual void ParseFile(); // MyMesh override
+    void SaveMyVoxelMesh(const char* relativepath);
+    void LoadMyVoxelMesh(char* buffer, MyList<MySubmesh*>* pSubmeshList, float scale);
+
     // Map/Blocks
     static unsigned int DefaultGenerateMapFunc(Vector3Int worldpos);
     void GenerateMap();
@@ -53,7 +59,7 @@ public:
     void OverrideSceneGraphObjectTransform(MyMatrix* pTransform);
     void RemoveFromSceneGraph();
 
-    virtual void SetMaterial(MaterialDefinition* pMaterial, int submeshindex);
+    virtual void SetMaterial(MaterialDefinition* pMaterial, int submeshindex); // MyMesh override
 
     // Chunk state
     bool IsMapCreated() { return m_MapCreated; }
@@ -72,7 +78,7 @@ public:
     bool RayCast(Vector3 startpos, Vector3 endpos, float step, VoxelRayCastResult* pResult);
 
     // Add/Remove blocks
-    void ChangeBlockState(Vector3Int, bool enabled);
+    void ChangeBlockState(Vector3Int worldpos, unsigned int type, bool enabled);
 };
 
 #endif //__VoxelChunk_H__

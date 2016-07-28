@@ -671,7 +671,7 @@ void VoxelWorld::ChangeBlockState(Vector3Int worldpos, bool enabled)
     Vector3Int chunkpos = GetChunkPosition( worldpos );
     VoxelChunk* pChunk = GetActiveChunk( chunkpos );
 
-    pChunk->ChangeBlockState( worldpos, enabled );
+    pChunk->ChangeBlockState( worldpos, 1, enabled );
 
     pChunk->RebuildMesh( 1 );
 

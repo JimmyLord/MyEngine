@@ -132,10 +132,10 @@ void ComponentVoxelMesh::SetPointerDesc(ComponentVariable* pVar, const char* new
                 MyMesh* pMesh = g_pMeshManager->FindMeshBySourceFile( pFile ); // doesn't add a ref
                 if( pMesh == 0 )
                 {
-                    pMesh = MyNew MyMesh();
+                    pMesh = MyNew VoxelChunk();
                     if( strcmp( pFile->m_ExtensionWithDot, ".myvoxelmesh" ) == 0 )
                     {
-                        pMesh->CreateFromMyMeshFile( pFile );
+                        ((VoxelChunk*)pMesh)->CreateFromVoxelMeshFile( pFile );
                     }
                     SetMesh( pMesh );
                     pMesh->Release();
@@ -172,7 +172,10 @@ void ComponentVoxelMesh::FillPropertiesWindow(bool clear, bool addcomponentvaria
 
         FillPropertiesWindowWithVariables(); //_VARIABLE_LIST
 
-        g_pPanelWatch->AddButton( "Edit Mesh", this, ComponentVoxelMesh::StaticOnButtonEditMesh );
+        if( m_pMesh == 0 || m_pMesh->m_pSourceFile == 0 )
+            g_pPanelWatch->AddButton( "Create Mesh", this, ComponentVoxelMesh::StaticOnButtonCreateMesh );
+        else
+            g_pPanelWatch->AddButton( "Edit Mesh", this, ComponentVoxelMesh::StaticOnButtonEditMesh );
     }
 }
 
@@ -249,6 +252,52 @@ void* ComponentVoxelMesh::OnValueChanged(ComponentVariable* pVar, int controlid,
     return oldpointer;
 }
 
+void ComponentVoxelMesh::OnButtonCreateMesh()
+{
+    MyAssert( m_pMesh == 0 || m_pMesh->m_pSourceFile == 0 );
+
+    // pop up a file selector dialog.
+    {
+        // generally offer to create scripts in Scripts folder.
+        wxString initialpath = "./Data/Meshes";
+
+        wxFileDialog FileDialog( g_pEngineMainFrame, _("Create Voxel mesh file"), initialpath, "", "Voxel mesh files (*.myvoxelmesh)|*.myvoxelmesh", wxFD_SAVE|wxFD_OVERWRITE_PROMPT);
+    
+        if( FileDialog.ShowModal() != wxID_CANCEL )
+        {
+            wxString wxpath = FileDialog.GetPath();
+            char fullpath[MAX_PATH];
+            sprintf_s( fullpath, MAX_PATH, "%s", (const char*)wxpath );
+            const char* relativepath = GetRelativePath( fullpath );
+
+            if( g_pFileManager->DoesFileExist( relativepath ) == false )
+            {
+                // create the file
+                // TODO: make the file not garbage.
+                FILE* file = 0;
+                fopen_s( &file, relativepath, "wb" );
+                fclose( file );
+            }
+
+            {
+                MyFileObject* pFile = g_pComponentSystemManager->LoadDataFile( relativepath, m_pGameObject->GetSceneID(), 0, true );
+
+                // update the panel so new filename shows up.
+                int filecontrolid = FindVariablesControlIDByLabel( "File" );
+                if( filecontrolid != -1 )
+                    g_pPanelWatch->GetVariableProperties( filecontrolid )->m_Description = pFile->m_FullPath;
+
+                CreateMesh();
+
+                pFile->AddRef();
+                m_pMesh->m_pSourceFile = pFile;
+
+                g_pPanelWatch->SetNeedsRefresh();
+            }
+        }
+    }
+}
+
 void ComponentVoxelMesh::OnButtonEditMesh()
 {
     g_pEngineCore->SetEditorInterface( EditorInterfaceType_VoxelMeshEditor );
@@ -268,37 +317,6 @@ void ComponentVoxelMesh::OnButtonEditMesh()
 void ComponentVoxelMesh::ImportFromJSONObject(cJSON* jComponent, unsigned int sceneid)
 {
     ComponentMesh::ImportFromJSONObject( jComponent, sceneid );
-
-    ImportVariablesFromJSON( jComponent ); //_VARIABLE_LIST
-
-    // update the scenegraph object transform when component is finished loading.
-    //MyMatrix* pTransform = m_pGameObject->m_pComponentTransform->GetWorldTransform();
-    //m_pVoxelChunk->OverrideSceneGraphObjectTransform( pTransform );
-
-    if( m_pMesh == 0 )
-    {
-        VoxelChunk* pVoxelChunk = MyNew VoxelChunk;
-
-        pVoxelChunk->Initialize( 0, Vector3(0,0,0), m_ChunkSize, Vector3Int(0,0,0), Vector3(0.2f,0.2f,0.2f) );
-        VoxelBlock* pBlocks = pVoxelChunk->GetBlocks();
-        for( int z=0; z<m_ChunkSize.z; z++ )
-        {
-            for( int y=0; y<m_ChunkSize.y; y++ )
-            {
-                for( int x=0; x<m_ChunkSize.x; x++ )
-                {
-                    VoxelBlock* pBlock = &pBlocks[z*m_ChunkSize.y*m_ChunkSize.x + y*m_ChunkSize.x + x];
-
-                    pBlock->SetEnabled( true );
-                }
-            }
-        }
-        pVoxelChunk->RebuildMesh( 1 );
-        //m_pVoxelChunk->AddToSceneGraph( this, 0 );
-
-        SetMesh( pVoxelChunk );
-        pVoxelChunk->Release();
-    }
 }
 
 ComponentVoxelMesh& ComponentVoxelMesh::operator=(const ComponentVoxelMesh& other)
@@ -447,4 +465,34 @@ void ComponentVoxelMesh::DeleteTileInFocus(Vector2 mousepos)
 
     //    m_pVoxelChunk->ChangeBlockState( result.m_BlockChunkPosition, false );
     //}
+}
+
+void ComponentVoxelMesh::CreateMesh()
+{
+    MyAssert( m_pMesh == 0 );
+
+    if( m_pMesh == 0 )
+    {
+        VoxelChunk* pVoxelChunk = MyNew VoxelChunk;
+
+        pVoxelChunk->Initialize( 0, Vector3(0,0,0), m_ChunkSize, Vector3Int(0,0,0), Vector3(0.2f,0.2f,0.2f) );
+        VoxelBlock* pBlocks = pVoxelChunk->GetBlocks();
+        for( int z=0; z<m_ChunkSize.z; z++ )
+        {
+            for( int y=0; y<m_ChunkSize.y; y++ )
+            {
+                for( int x=0; x<m_ChunkSize.x; x++ )
+                {
+                    VoxelBlock* pBlock = &pBlocks[z*m_ChunkSize.y*m_ChunkSize.x + y*m_ChunkSize.x + x];
+
+                    pBlock->SetEnabled( true );
+                }
+            }
+        }
+        pVoxelChunk->RebuildMesh( 1 );
+        //m_pVoxelChunk->AddToSceneGraph( this, 0 );
+
+        SetMesh( pVoxelChunk );
+        pVoxelChunk->Release();
+    }
 }

@@ -18,7 +18,7 @@ private:
     // Component Variable List
     MYFW_COMPONENT_DECLARE_VARIABLE_LIST( ComponentVoxelMesh );
 
-public:
+protected:
     Vector3Int m_ChunkSize;
 
 public:
@@ -48,6 +48,9 @@ public:
     VoxelChunk* GetChunk() { return (VoxelChunk*)m_pMesh; }//m_pVoxelChunk; }
     void AddTileToTileInFocus(Vector2 mousepos);
     void DeleteTileInFocus(Vector2 mousepos);
+
+protected:
+    void CreateMesh();
 
 protected:
     // Callback functions for various events.
@@ -82,6 +85,9 @@ public:
     // Component variable callbacks.
     void* OnDrop(ComponentVariable* pVar, wxCoord x, wxCoord y);
     void* OnValueChanged(ComponentVariable* pVar, int controlid, bool finishedchanging, double oldvalue);
+
+    static void StaticOnButtonCreateMesh(void* pObjectPtr) { ((ComponentVoxelMesh*)pObjectPtr)->OnButtonCreateMesh(); }
+    void OnButtonCreateMesh();
 
     static void StaticOnButtonEditMesh(void* pObjectPtr) { ((ComponentVoxelMesh*)pObjectPtr)->OnButtonEditMesh(); }
     void OnButtonEditMesh();

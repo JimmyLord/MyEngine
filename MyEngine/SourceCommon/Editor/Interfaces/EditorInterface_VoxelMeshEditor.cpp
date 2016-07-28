@@ -54,6 +54,9 @@ bool EditorInterface_VoxelMeshEditor::HandleInput(int keyaction, int keycode, in
 
     if( keyaction == GCBA_Up && keycode == MYKEYCODE_ESC )
     {
+        // TODO: move this save op elsewhere.
+        pChunk->SaveMyVoxelMesh( m_pVoxelMesh->m_pMesh->m_pSourceFile->m_FullPath );
+
         CancelCurrentOperation();
         g_pEngineCore->SetEditorInterface( EditorInterfaceType_SceneManagement );        
     }
@@ -82,7 +85,7 @@ bool EditorInterface_VoxelMeshEditor::HandleInput(int keyaction, int keycode, in
 
             if( result.m_Hit == true )
             {
-                pChunk->ChangeBlockState( result.m_BlockWorldPosition, false );
+                pChunk->ChangeBlockState( result.m_BlockWorldPosition, 0, false );
                 pChunk->RebuildMesh( 1 );
 
                 m_CapturedRightMouse = true;
@@ -125,7 +128,7 @@ bool EditorInterface_VoxelMeshEditor::HandleInput(int keyaction, int keycode, in
                         // if result.m_BlockWorldPosition is inside the chunk, add a block
                         if( pChunk->IsInChunkSpace( result.m_BlockWorldPosition ) )
                         {
-                            pChunk->ChangeBlockState( result.m_BlockWorldPosition, true );
+                            pChunk->ChangeBlockState( result.m_BlockWorldPosition, 1, true );
                             pChunk->RebuildMesh( 1 );
                         }
                     }
