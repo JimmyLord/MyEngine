@@ -16,6 +16,8 @@ EditorInterface_VoxelMeshEditor::EditorInterface_VoxelMeshEditor()
     m_pVoxelMesh = 0;
 
     m_CapturedRightMouse = false;
+
+    m_CurrentBlockType = 1;
 }
 
 EditorInterface_VoxelMeshEditor::~EditorInterface_VoxelMeshEditor()
@@ -40,6 +42,41 @@ void EditorInterface_VoxelMeshEditor::OnDeactivated()
 void EditorInterface_VoxelMeshEditor::OnDrawFrame(unsigned int canvasid)
 {
     EditorInterface::OnDrawFrame( canvasid );
+
+    VoxelChunk* pChunk = m_pVoxelMesh->GetChunk();
+
+    if( g_GLCanvasIDActive == 1 )
+    {
+        ImGui::SetNextWindowSize( ImVec2(150,50), ImGuiSetCond_FirstUseEver );
+        ImGui::Begin( "Voxel Mesh Editor" );
+
+        //ImGui::Text( "Hello world!" );
+        //ImGui::SliderFloat( "", &m_AnimationTime, 0, 1, "Time: %.3f" );
+        if( ImGui::Button( "Fill" ) )
+        {
+            pChunk->ChangeBlockState( Vector3Int(0,0,0), m_CurrentBlockType, true );
+            pChunk->RebuildMesh( 1 );
+        }
+
+        if( ImGui::Button( "Clear" ) )
+        {
+            pChunk->ChangeBlockState( Vector3Int(0,0,0), m_CurrentBlockType, false );
+            pChunk->RebuildMesh( 1 );
+        }
+
+        if( ImGui::Button( "Save" ) )
+        {
+            pChunk->SaveMyVoxelMesh( m_pVoxelMesh->m_pMesh->m_pSourceFile->m_FullPath );
+        }
+
+        if( ImGui::Button( "1" ) ) { m_CurrentBlockType = 1; }
+        if( ImGui::Button( "2" ) ) { m_CurrentBlockType = 2; }
+        if( ImGui::Button( "3" ) ) { m_CurrentBlockType = 3; }
+        if( ImGui::Button( "4" ) ) { m_CurrentBlockType = 4; }
+        if( ImGui::Button( "5" ) ) { m_CurrentBlockType = 5; }
+
+        ImGui::End();
+    }
 }
 
 void EditorInterface_VoxelMeshEditor::CancelCurrentOperation()
@@ -67,11 +104,42 @@ bool EditorInterface_VoxelMeshEditor::HandleInput(int keyaction, int keycode, in
 
     EditorInterface::SetModifierKeyStates( keyaction, keycode, mouseaction, id, x, y, pressure );
 
+    // if right button is captured and held, then don't call let camera function get called below.
     if( mouseaction == GCBA_Held )
     {
         if( id & (1 << 1) && m_CapturedRightMouse )
         {
             return true;
+        }
+    }
+
+    if( id == 0 ) // left mouse button to add a block
+    {
+        if( mouseaction == GCBA_Down )
+        {
+            if( pChunk )
+            {
+                Vector2 mousepos( x, y );
+                VoxelRayCastResult result;
+                RayCast( mousepos, &result );
+
+                if( result.m_Hit == true )
+                {
+                    if( result.m_BlockFaceNormal.x == -1 ) result.m_BlockWorldPosition.x--;
+                    if( result.m_BlockFaceNormal.x ==  1 ) result.m_BlockWorldPosition.x++;
+                    if( result.m_BlockFaceNormal.y == -1 ) result.m_BlockWorldPosition.y--;
+                    if( result.m_BlockFaceNormal.y ==  1 ) result.m_BlockWorldPosition.y++;
+                    if( result.m_BlockFaceNormal.z == -1 ) result.m_BlockWorldPosition.z--;
+                    if( result.m_BlockFaceNormal.z ==  1 ) result.m_BlockWorldPosition.z++;
+
+                    // if result.m_BlockWorldPosition is inside the chunk, add a block
+                    if( pChunk->IsInChunkSpace( result.m_BlockWorldPosition ) )
+                    {
+                        pChunk->ChangeBlockState( result.m_BlockWorldPosition, m_CurrentBlockType, true );
+                        pChunk->RebuildMesh( 1 );
+                    }
+                }
+            }
         }
     }
 
@@ -104,43 +172,22 @@ bool EditorInterface_VoxelMeshEditor::HandleInput(int keyaction, int keycode, in
         }
     }
 
-    if( pEditorState->m_ModifierKeyStates & MODIFIERKEY_LeftMouse )
+    if( id == 2 ) // middle mouse button to pick the color from the block
     {
-        if( id == 0 ) // left mouse button
+        if( mouseaction == GCBA_Down )
         {
-            if( mouseaction == GCBA_Down )
+            if( pChunk )
             {
-                if( pChunk )
+                Vector2 mousepos( x, y );
+                VoxelRayCastResult result;
+                RayCast( mousepos, &result );
+
+                // if result.m_BlockWorldPosition is inside the chunk, add a block
+                if( pChunk->IsInChunkSpace( result.m_BlockWorldPosition ) )
                 {
-                    Vector2 mousepos( x, y );
-                    VoxelRayCastResult result;
-                    RayCast( mousepos, &result );
-
-                    if( result.m_Hit == true )
-                    {
-                        if( result.m_BlockFaceNormal.x == -1 ) result.m_BlockWorldPosition.x--;
-                        if( result.m_BlockFaceNormal.x ==  1 ) result.m_BlockWorldPosition.x++;
-                        if( result.m_BlockFaceNormal.y == -1 ) result.m_BlockWorldPosition.y--;
-                        if( result.m_BlockFaceNormal.y ==  1 ) result.m_BlockWorldPosition.y++;
-                        if( result.m_BlockFaceNormal.z == -1 ) result.m_BlockWorldPosition.z--;
-                        if( result.m_BlockFaceNormal.z ==  1 ) result.m_BlockWorldPosition.z++;
-
-                        // if result.m_BlockWorldPosition is inside the chunk, add a block
-                        if( pChunk->IsInChunkSpace( result.m_BlockWorldPosition ) )
-                        {
-                            pChunk->ChangeBlockState( result.m_BlockWorldPosition, 1, true );
-                            pChunk->RebuildMesh( 1 );
-                        }
-                    }
+                    VoxelBlock* pBlock = pChunk->GetBlockFromLocalPos( result.m_BlockWorldPosition );
+                    m_CurrentBlockType = pBlock->GetBlockType();
                 }
-            }
-
-            if( mouseaction == GCBA_Held && id == 0 )
-            {
-            }
-
-            if( mouseaction == GCBA_Up )
-            {
             }
         }
     }

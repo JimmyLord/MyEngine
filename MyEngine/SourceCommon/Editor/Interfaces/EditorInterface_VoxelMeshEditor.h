@@ -19,6 +19,8 @@ protected:
 
     bool m_CapturedRightMouse;
 
+    unsigned int m_CurrentBlockType;
+
 public:
     EditorInterface_VoxelMeshEditor();
     virtual ~EditorInterface_VoxelMeshEditor();
