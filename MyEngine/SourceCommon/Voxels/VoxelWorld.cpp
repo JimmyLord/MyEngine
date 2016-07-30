@@ -26,6 +26,10 @@ VoxelWorld::VoxelWorld()
     m_pMaterial = 0;
 
     m_pMapGenCallbackFunc = 0;
+
+    m_MaxWorldSize.Set( 0, 0, 0 );
+    m_pSaveFile = 0;
+    m_jJSONSavedMapData = 0;
 }
 
 VoxelWorld::~VoxelWorld()
@@ -56,7 +60,12 @@ VoxelWorld::~VoxelWorld()
         pChunk->Release();
     }
 
-    m_pMaterial->Release();
+    SAFE_RELEASE( m_pMaterial );
+    SAFE_RELEASE( m_pSaveFile );
+    if( m_jJSONSavedMapData )
+    {
+        cJSON_Delete( m_jJSONSavedMapData );
+    }
 }
 
 void VoxelWorld::Initialize(Vector3Int visibleworldsize)
@@ -110,12 +119,36 @@ void VoxelWorld::Tick(double timepassed)
     g_WorldCenterChunkOffset = (m_WorldOffset + m_WorldSize/2).MultiplyComponents( m_ChunkSize );
     m_pChunksLoading.Sort( ChunkDistanceCmpFunc );
 
+    // only make chunks once the save file is fully loaded, if there's a save file.
+    if( m_pSaveFile && m_jJSONSavedMapData == 0 )
+    {
+        if( m_pSaveFile->m_FileLoadStatus != FileLoadStatus_Success )
+        {
+            return;
+        }
+
+        if( m_pSaveFile->m_FileLoadStatus == FileLoadStatus_Success )
+        {
+            m_jJSONSavedMapData = cJSON_Parse( m_pSaveFile->m_pBuffer );
+        }
+    }
+
     // build the mesh for a single chunk per frame.
     VoxelChunk* pChunk = (VoxelChunk*)m_pChunksLoading.GetHead();
 
     if( pChunk )
     {
-        pChunk->GenerateMap();
+        Vector3Int chunkpos = GetChunkPosition( pChunk->GetChunkOffset() );
+        cJSON* jChunk = GetJSONObjectForChunk( chunkpos );
+
+        if( jChunk )
+        {
+            pChunk->ImportFromJSONObject( jChunk );
+        }
+        else
+        {
+            pChunk->GenerateMap();
+        }
         pChunk->RebuildMesh( 1 );
         m_pChunksVisible.MoveTail( pChunk );
 
@@ -288,6 +321,15 @@ void VoxelWorld::UpdateVisibility(void* pUserData)
     }
 }
 
+void VoxelWorld::SetSaveFile(MyFileObject* pFile)
+{
+    if( pFile )
+        pFile->AddRef();
+
+    SAFE_RELEASE( m_pSaveFile );
+    m_pSaveFile = pFile;
+}
+
 void VoxelWorld::SetMaterial(MaterialDefinition* pMaterial)
 {
     pMaterial->AddRef();
@@ -393,6 +435,16 @@ void VoxelWorld::ShiftChunk(Vector3Int to, Vector3Int from, bool isedgeblock)
         m_pActiveWorldChunkPtrs[tooffset] = m_pActiveWorldChunkPtrs[fromoffset];
         m_pActiveWorldChunkPtrs[fromoffset] = 0;
     }
+}
+
+cJSON* VoxelWorld::GetJSONObjectForChunk(Vector3Int chunkpos)
+{
+    if( m_jJSONSavedMapData == 0 )
+        return 0;
+
+    // TODO
+    cJSON* jChunk = cJSON_GetObjectItem( m_jJSONSavedMapData, "test" );
+    return jChunk;
 }
 
 // ============================================================================================================================

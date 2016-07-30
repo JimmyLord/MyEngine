@@ -28,6 +28,10 @@ ComponentVoxelWorld::ComponentVoxelWorld()
 
     m_BaseType = BaseComponentType_Data;
 
+    m_BakeWorld = false;
+    m_MaxWorldSize.Set( 0, 0, 0 );
+    m_pSaveFile = 0;
+
     m_pVoxelWorld = MyNew VoxelWorld;
     m_pVoxelWorld->Initialize( Vector3Int( 10, 10, 10 ) );
 
@@ -41,6 +45,7 @@ ComponentVoxelWorld::~ComponentVoxelWorld()
     delete m_pVoxelWorld;
 
     SAFE_RELEASE( m_pMaterial );
+    SAFE_RELEASE( m_pSaveFile );
 
     MYFW_COMPONENT_VARIABLE_LIST_DESTRUCTOR(); //_VARIABLE_LIST
 }
@@ -55,6 +60,21 @@ void ComponentVoxelWorld::RegisterVariables(CPPListHead* pList, ComponentVoxelWo
         (CVarFunc_SetPointerDesc)&ComponentVoxelWorld::SetPointerDesc,
         (CVarFunc_ValueChanged)&ComponentVoxelWorld::OnValueChanged,
         (CVarFunc_DropTarget)&ComponentVoxelWorld::OnDrop, 0 );
+
+    AddVar( pList, "Bake World", ComponentVariableType_Bool, MyOffsetOf( pThis, &pThis->m_BakeWorld ),
+            true, true, 0, (CVarFunc_ValueChanged)&ComponentVoxelWorld::OnValueChanged,
+            (CVarFunc_DropTarget)&ComponentVoxelWorld::OnDrop, 0 );
+
+    // These are only displayed if "Bake World" is checked.
+    {
+        AddVar( pList, "Max World Size", ComponentVariableType_Vector3Int, MyOffsetOf( pThis, &pThis->m_MaxWorldSize ),
+                true, false, 0, (CVarFunc_ValueChanged)&ComponentVoxelWorld::OnValueChanged,
+                (CVarFunc_DropTarget)&ComponentVoxelWorld::OnDrop, 0 );
+
+        AddVar( pList, "Save File", ComponentVariableType_FilePtr, MyOffsetOf( pThis, &pThis->m_pSaveFile ),
+                false, false, 0, (CVarFunc_ValueChanged)&ComponentVoxelWorld::OnValueChanged,
+                (CVarFunc_DropTarget)&ComponentVoxelWorld::OnDrop, 0 );
+    }
 }
 
 void ComponentVoxelWorld::Reset()
@@ -148,7 +168,25 @@ void ComponentVoxelWorld::FillPropertiesWindow(bool clear, bool addcomponentvari
     {
         ComponentBase::FillPropertiesWindow( clear );
 
+        if( m_BakeWorld )
+        {
+            FindComponentVariableByLabel( &m_ComponentVariableList_ComponentVoxelWorld, "Max World Size" )->m_DisplayInWatch = true;
+            FindComponentVariableByLabel( &m_ComponentVariableList_ComponentVoxelWorld, "Save File" )->m_DisplayInWatch = true;
+        }
+        else
+        {
+            FindComponentVariableByLabel( &m_ComponentVariableList_ComponentVoxelWorld, "Max World Size" )->m_DisplayInWatch = false;
+            FindComponentVariableByLabel( &m_ComponentVariableList_ComponentVoxelWorld, "Save File" )->m_DisplayInWatch = false;
+        }
+
         FillPropertiesWindowWithVariables(); //_VARIABLE_LIST
+
+        if( m_BakeWorld )
+        {
+            if( m_pSaveFile == 0 )
+                g_pPanelWatch->AddButton( "Create Save File", this, ComponentVoxelWorld::StaticOnButtonCreateSaveFile );
+            g_pPanelWatch->AddButton( "Edit Mesh", this, ComponentVoxelWorld::StaticOnButtonEditMesh );
+        }
     }
 }
 
@@ -186,10 +224,6 @@ void* ComponentVoxelWorld::OnValueChanged(ComponentVariable* pVar, int controlid
 {
     void* oldpointer = 0;
 
-    //if( pVar->m_Offset == MyOffsetOf( this, &m_SampleVector3 ) )
-    //{
-    //    MyAssert( pVar->m_ControlID != -1 );
-    //}
     if( strncmp( pVar->m_Label, "Material", strlen("Material") ) == 0 )
     {
         MyAssert( pVar->m_ControlID != -1 );
@@ -204,25 +238,108 @@ void* ComponentVoxelWorld::OnValueChanged(ComponentVariable* pVar, int controlid
         }
     }
 
+    if( strncmp( pVar->m_Label, "Bake World", strlen("Bake World") ) == 0 )
+    {
+        g_pPanelWatch->SetNeedsRefresh();
+    }
+
+    if( strcmp( pVar->m_Label, "Save File" ) == 0 )
+    {
+        wxString text = g_pPanelWatch->GetVariableProperties( pVar->m_ControlID )->m_Handle_TextCtrl->GetValue();
+        if( text == "" || text == "none" || text == "no file" )
+        {
+            g_pPanelWatch->ChangeDescriptionForPointerWithDescription( pVar->m_ControlID, "no file" );
+            oldpointer = m_pSaveFile;
+            this->SetSaveFile( 0 );
+        }
+    }
+
     return oldpointer;
+}
+
+void ComponentVoxelWorld::OnButtonCreateSaveFile()
+{
+    MyAssert( m_pSaveFile == 0 );
+
+    // pop up a file selector dialog.
+    {
+        // generally offer to create scripts in Scripts folder.
+        wxString initialpath = "./Data/Meshes";
+
+        wxFileDialog FileDialog( g_pEngineMainFrame, _("Create Voxel world file"), initialpath, "", "Voxel world files (*.myvoxelworld)|*.myvoxelworld", wxFD_SAVE|wxFD_OVERWRITE_PROMPT);
+    
+        if( FileDialog.ShowModal() != wxID_CANCEL )
+        {
+            wxString wxpath = FileDialog.GetPath();
+            char fullpath[MAX_PATH];
+            sprintf_s( fullpath, MAX_PATH, "%s", (const char*)wxpath );
+            const char* relativepath = GetRelativePath( fullpath );
+
+            if( g_pFileManager->DoesFileExist( relativepath ) == false )
+            {
+                // create the file
+                // TODO: make the file not garbage.
+                FILE* file = 0;
+                fopen_s( &file, relativepath, "wb" );
+                fclose( file );
+            }
+
+            {
+                MyFileObject* pFile = g_pComponentSystemManager->LoadDataFile( relativepath, m_pGameObject->GetSceneID(), 0, true );
+
+                // update the panel so new filename shows up.
+                int filecontrolid = FindVariablesControlIDByLabel( "File" );
+                if( filecontrolid != -1 )
+                    g_pPanelWatch->GetVariableProperties( filecontrolid )->m_Description = pFile->m_FullPath;
+
+                pFile->AddRef();
+                m_pSaveFile = pFile;
+
+                g_pPanelWatch->SetNeedsRefresh();
+            }
+        }
+    }
+}
+
+void ComponentVoxelWorld::OnButtonEditMesh()
+{
+    g_pEngineCore->SetEditorInterface( EditorInterfaceType_VoxelMeshEditor );
+    ((EditorInterface_VoxelMeshEditor*)g_pEngineCore->GetCurrentEditorInterface())->SetWorldToEdit( this );
 }
 #endif //MYFW_USING_WX
 
-//cJSON* ComponentVoxelWorld::ExportAsJSONObject(bool savesceneid)
-//{
-//    cJSON* jComponent = ComponentBase::ExportAsJSONObject( savesceneid );
-//
-//    ExportVariablesToJSON( jComponent ); //_VARIABLE_LIST
-//
-//    return jComponent;
-//}
-//
-//void ComponentVoxelWorld::ImportFromJSONObject(cJSON* jComponent, unsigned int sceneid)
-//{
-//    ComponentBase::ImportFromJSONObject( jComponent, sceneid );
-//
-//    ImportVariablesFromJSON( jComponent ); //_VARIABLE_LIST
-//}
+cJSON* ComponentVoxelWorld::ExportAsJSONObject(bool savesceneid)
+{
+    cJSON* jComponent = ComponentBase::ExportAsJSONObject( savesceneid );
+
+    ExportVariablesToJSON( jComponent ); //_VARIABLE_LIST
+
+    if( m_pSaveFile )
+        cJSON_AddStringToObject( jComponent, "Save File", m_pSaveFile->m_FullPath );
+
+    return jComponent;
+}
+
+void ComponentVoxelWorld::ImportFromJSONObject(cJSON* jComponent, unsigned int sceneid)
+{
+    ComponentBase::ImportFromJSONObject( jComponent, sceneid );
+
+    ImportVariablesFromJSON( jComponent ); //_VARIABLE_LIST
+
+    cJSON* jSaveFile = cJSON_GetObjectItem( jComponent, "Save File" );
+    if( jSaveFile )
+    {
+        MyFileObject* pFile = g_pEngineFileManager->RequestFile( jSaveFile->valuestring, GetSceneID() );
+        MyAssert( pFile );
+        if( pFile )
+        {
+            SetSaveFile( pFile );
+            pFile->Release(); // free ref added by RequestFile
+
+            m_pVoxelWorld->SetSaveFile( pFile );
+        }
+    }
+}
 
 ComponentVoxelWorld& ComponentVoxelWorld::operator=(const ComponentVoxelWorld& other)
 {
@@ -273,6 +390,15 @@ void ComponentVoxelWorld::UnregisterCallbacks()
 
         m_CallbacksRegistered = false;
     }
+}
+
+void ComponentVoxelWorld::SetSaveFile(MyFileObject* pFile)
+{
+    if( pFile )
+        pFile->AddRef();
+
+    SAFE_RELEASE( m_pSaveFile );
+    m_pSaveFile = pFile;
 }
 
 void ComponentVoxelWorld::SetMaterial(MaterialDefinition* pMaterial)

@@ -124,7 +124,9 @@ void VoxelChunk::CreateFromVoxelMeshFile(MyFileObject* pFile)
         //    m_pAnimationControlFile = 0;
         //}
 
-        LoadMyVoxelMesh( pFile->m_pBuffer, &m_SubmeshList, m_InitialScale );
+        cJSON* jVoxelMesh = cJSON_Parse( pFile->m_pBuffer );
+        ImportFromJSONObject( jVoxelMesh );
+        cJSON_Delete( jVoxelMesh );
         
         //if( m_pAnimationControlFile )
         //{
@@ -168,7 +170,7 @@ void VoxelChunk::ParseFile()
     }
 }
 
-void VoxelChunk::SaveMyVoxelMesh(const char* relativepath)
+cJSON* VoxelChunk::ExportAsJSONObject()
 {
     cJSON* jVoxelMesh = cJSON_CreateObject();
 
@@ -196,27 +198,13 @@ void VoxelChunk::SaveMyVoxelMesh(const char* relativepath)
 
     cJSON_AddStringToObject( jVoxelMesh, "Blocks", blockstring );
 
-    char* string = cJSON_Print( jVoxelMesh );
-
-    FILE* file = 0;
-    fopen_s( &file, relativepath, "wb" );
-    fprintf( file, "%s", string );
-    fclose( file );
-
-    cJSON_Delete( jVoxelMesh );
-
-    cJSONExt_free( string );
+    return jVoxelMesh;
 
     g_pEngineCore->m_SingleFrameMemoryStack.RewindStack( stackpointer );
 }
 
-void VoxelChunk::LoadMyVoxelMesh(char* buffer, MyList<MySubmesh*>* pSubmeshList, float scale)
+void VoxelChunk::ImportFromJSONObject(cJSON* jVoxelMesh)
 {
-    MyAssert( pSubmeshList );
-    MyAssert( pSubmeshList->Length() == 0 );
-
-    cJSON* jVoxelMesh = cJSON_Parse( buffer );
-
     cJSONExt_GetFloatArray( jVoxelMesh, "BlockSize", &m_BlockSize.x, 3 );
     cJSONExt_GetIntArray( jVoxelMesh, "ChunkSize", &m_ChunkSize.x, 3 );
 
@@ -239,8 +227,6 @@ void VoxelChunk::LoadMyVoxelMesh(char* buffer, MyList<MySubmesh*>* pSubmeshList,
             }
         }
     }
-
-    cJSON_Delete( jVoxelMesh );
 
     RebuildMesh( 1 );
 

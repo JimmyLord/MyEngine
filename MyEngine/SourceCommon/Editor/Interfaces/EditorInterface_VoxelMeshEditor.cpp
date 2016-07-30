@@ -66,7 +66,7 @@ void EditorInterface_VoxelMeshEditor::OnDrawFrame(unsigned int canvasid)
 
         if( ImGui::Button( "Save" ) )
         {
-            pChunk->SaveMyVoxelMesh( m_pVoxelMesh->m_pMesh->m_pSourceFile->m_FullPath );
+            pChunk->ExportAsJSONObject();
         }
 
         if( ImGui::Button( "1" ) ) { m_CurrentBlockType = 1; }
@@ -83,6 +83,23 @@ void EditorInterface_VoxelMeshEditor::CancelCurrentOperation()
 {
 }
 
+void EditorInterface_VoxelMeshEditor::SaveVoxelMesh()
+{
+    VoxelChunk* pChunk = m_pVoxelMesh->GetChunk();
+    cJSON* jVoxelMesh = pChunk->ExportAsJSONObject();
+
+    char* string = cJSON_Print( jVoxelMesh );
+
+    FILE* file = 0;
+    fopen_s( &file, m_pVoxelMesh->m_pMesh->m_pSourceFile->m_FullPath, "wb" );
+    fprintf( file, "%s", string );
+    fclose( file );
+
+    cJSON_Delete( jVoxelMesh );
+
+    cJSONExt_free( string );
+}
+
 bool EditorInterface_VoxelMeshEditor::HandleInput(int keyaction, int keycode, int mouseaction, int id, float x, float y, float pressure)
 {
     EditorState* pEditorState = g_pEngineCore->m_pEditorState;
@@ -92,7 +109,7 @@ bool EditorInterface_VoxelMeshEditor::HandleInput(int keyaction, int keycode, in
     if( keyaction == GCBA_Up && keycode == MYKEYCODE_ESC )
     {
         // TODO: move this save op elsewhere.
-        pChunk->SaveMyVoxelMesh( m_pVoxelMesh->m_pMesh->m_pSourceFile->m_FullPath );
+        pChunk->ExportAsJSONObject();
 
         CancelCurrentOperation();
         g_pEngineCore->SetEditorInterface( EditorInterfaceType_SceneManagement );        
@@ -196,6 +213,11 @@ bool EditorInterface_VoxelMeshEditor::HandleInput(int keyaction, int keycode, in
     EditorInterface::HandleInputForEditorCamera( keyaction, keycode, mouseaction, id, x, y, pressure );
 
     return false;
+}
+
+void EditorInterface_VoxelMeshEditor::SetWorldToEdit(ComponentVoxelWorld* pVoxelWorld)
+{
+    m_pVoxelWorld = pVoxelWorld;
 }
 
 void EditorInterface_VoxelMeshEditor::SetMeshToEdit(ComponentVoxelMesh* pVoxelMesh)

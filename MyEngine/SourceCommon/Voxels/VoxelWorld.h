@@ -37,6 +37,10 @@ protected:
 
     VoxelWorld_GenerateMap_CallbackFunction m_pMapGenCallbackFunc;
 
+    Vector3Int m_MaxWorldSize;
+    MyFileObject* m_pSaveFile;
+    cJSON* m_jJSONSavedMapData; // TODO: replace this with custom solution for large worlds.
+
 protected:
     bool IsChunkActive(Vector3Int chunkpos);
     unsigned int GetActiveChunkArrayIndex(Vector3Int chunkpos);
@@ -47,6 +51,8 @@ protected:
 
     void PrepareChunk(Vector3Int chunkpos);
     void ShiftChunk(Vector3Int to, Vector3Int from, bool isedgeblock);
+
+    cJSON* GetJSONObjectForChunk(Vector3Int chunkpos);
 
 public:
     VoxelWorld();
@@ -62,6 +68,7 @@ public:
     void SetWorldCenter(Vector3Int newworldcenter);
 
     void UpdateVisibility(void* pUserData);
+    void SetSaveFile(MyFileObject* pFile);
     void SetMaterial(MaterialDefinition* pMaterial);
     MaterialDefinition* GetMaterial() { return m_pMaterial; }
 

@@ -261,7 +261,11 @@ void ComponentBase::FillPropertiesWindowWithVariables()
 void ComponentBase::AddVariableToPropertiesWindow(ComponentVariable* pVar)
 {
     if( pVar->m_DisplayInWatch == false )
+    {
+        // clear out the control id, for cases where variables get dynamically enabled/disabled.
+        pVar->m_ControlID = -10; // less than -4 since vec4's add 3 in FindComponentVariableForControl()
         return;
+    }
 
     if( pVar->m_pShouldVariableBeAddedCallbackFunc )
     {

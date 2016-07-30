@@ -18,9 +18,13 @@ private:
     // Component Variable List
     MYFW_COMPONENT_DECLARE_VARIABLE_LIST( ComponentVoxelWorld );
 
-public:
+protected:
     VoxelWorld* m_pVoxelWorld;
     MaterialDefinition* m_pMaterial;
+
+    bool m_BakeWorld;
+    Vector3Int m_MaxWorldSize;
+    MyFileObject* m_pSaveFile;
 
 public:
     ComponentVoxelWorld();
@@ -31,8 +35,8 @@ public:
     static void LuaRegister(lua_State* luastate);
 #endif //MYFW_USING_LUA
 
-    //virtual cJSON* ExportAsJSONObject(bool savesceneid);
-    //virtual void ImportFromJSONObject(cJSON* jsonobj, unsigned int sceneid);
+    virtual cJSON* ExportAsJSONObject(bool savesceneid);
+    virtual void ImportFromJSONObject(cJSON* jsonobj, unsigned int sceneid);
 
     virtual void Reset();
     virtual void CopyFromSameType_Dangerous(ComponentBase* pObject) { *this = (ComponentVoxelWorld&)*pObject; }
@@ -40,6 +44,8 @@ public:
 
     virtual void RegisterCallbacks();
     virtual void UnregisterCallbacks();
+
+    void SetSaveFile(MyFileObject* pFile);
 
     // Rendering
     virtual MaterialDefinition* GetMaterial() { return m_pMaterial; }
@@ -85,6 +91,12 @@ public:
     // Component variable callbacks.
     void* OnDrop(ComponentVariable* pVar, wxCoord x, wxCoord y);
     void* OnValueChanged(ComponentVariable* pVar, int controlid, bool finishedchanging, double oldvalue);
+
+    static void StaticOnButtonCreateSaveFile(void* pObjectPtr) { ((ComponentVoxelWorld*)pObjectPtr)->OnButtonCreateSaveFile(); }
+    void OnButtonCreateSaveFile();
+
+    static void StaticOnButtonEditMesh(void* pObjectPtr) { ((ComponentVoxelWorld*)pObjectPtr)->OnButtonEditMesh(); }
+    void OnButtonEditMesh();
 #endif //MYFW_USING_WX
 };
 

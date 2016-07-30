@@ -15,6 +15,7 @@ class EditorInterface_VoxelMeshEditor : public EditorInterface
 public:
 
 protected:
+    ComponentVoxelWorld* m_pVoxelWorld;
     ComponentVoxelMesh* m_pVoxelMesh;
 
     bool m_CapturedRightMouse;
@@ -37,7 +38,10 @@ public:
 
     void CancelCurrentOperation();
 
+    void SaveVoxelMesh();
+
     ComponentVoxelMesh* GetMeshBeingEdited() { return m_pVoxelMesh; }
+    void SetWorldToEdit(ComponentVoxelWorld* pVoxelWorld);
     void SetMeshToEdit(ComponentVoxelMesh* pVoxelMesh);
 
     bool RayCast(Vector2 mousepos, VoxelRayCastResult* pResult);

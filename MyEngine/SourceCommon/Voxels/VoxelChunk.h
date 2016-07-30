@@ -41,8 +41,8 @@ public:
     // Load/Save ".myvoxelmesh" files
     void CreateFromVoxelMeshFile(MyFileObject* pFile);
     virtual void ParseFile(); // MyMesh override
-    void SaveMyVoxelMesh(const char* relativepath);
-    void LoadMyVoxelMesh(char* buffer, MyList<MySubmesh*>* pSubmeshList, float scale);
+    cJSON* ExportAsJSONObject();
+    void ImportFromJSONObject(cJSON* jVoxelMesh);
 
     // Map/Blocks
     static unsigned int DefaultGenerateMapFunc(Vector3Int worldpos);
