@@ -475,7 +475,8 @@ void ComponentVoxelMesh::CreateMesh()
     {
         VoxelChunk* pVoxelChunk = MyNew VoxelChunk;
 
-        pVoxelChunk->Initialize( 0, Vector3(0,0,0), m_ChunkSize, Vector3Int(0,0,0), Vector3(0.2f,0.2f,0.2f) );
+        pVoxelChunk->Initialize( 0, Vector3(0,0,0), Vector3Int(0,0,0), Vector3(0.2f,0.2f,0.2f) );
+        pVoxelChunk->SetChunkSize( m_ChunkSize );
         VoxelBlock* pBlocks = pVoxelChunk->GetBlocks();
         for( int z=0; z<m_ChunkSize.z; z++ )
         {

@@ -10,6 +10,7 @@
 #include "EngineCommonHeader.h"
 #include "../../Voxels/VoxelBlock.h"
 #include "../../Voxels/VoxelChunk.h"
+#include "../../Voxels/VoxelWorld.h"
 
 EditorInterface_VoxelMeshEditor::EditorInterface_VoxelMeshEditor()
 {
@@ -43,9 +44,14 @@ void EditorInterface_VoxelMeshEditor::OnDrawFrame(unsigned int canvasid)
 {
     EditorInterface::OnDrawFrame( canvasid );
 
-    VoxelChunk* pChunk = m_pVoxelMesh->GetChunk();
+    if( g_GLCanvasIDActive != 1 )
+        return;
 
-    if( g_GLCanvasIDActive == 1 )
+    VoxelChunk* pChunk = 0;
+    if( m_pVoxelMesh )
+        pChunk = m_pVoxelMesh->GetChunk();
+
+    if( pChunk )
     {
         ImGui::SetNextWindowSize( ImVec2(150,50), ImGuiSetCond_FirstUseEver );
         ImGui::Begin( "Voxel Mesh Editor" );
@@ -104,16 +110,25 @@ bool EditorInterface_VoxelMeshEditor::HandleInput(int keyaction, int keycode, in
 {
     EditorState* pEditorState = g_pEngineCore->m_pEditorState;
 
-    VoxelChunk* pChunk = m_pVoxelMesh->GetChunk();
+    VoxelChunk* pChunk = 0;
+    if( m_pVoxelMesh )
+        pChunk = m_pVoxelMesh->GetChunk();
 
     if( keyaction == GCBA_Up && keycode == MYKEYCODE_ESC )
     {
         // TODO: move this save op elsewhere.
-        pChunk->ExportAsJSONObject();
+        if( pChunk )
+            pChunk->ExportAsJSONObject();
+
+        if( m_pVoxelWorld )
+            m_pVoxelWorld->GetWorld()->SaveTheWorld();
 
         CancelCurrentOperation();
         g_pEngineCore->SetEditorInterface( EditorInterfaceType_SceneManagement );        
     }
+
+    if( pChunk == 0 )
+        return false;
 
     if( keyaction == GCBA_Up && keycode == MYKEYCODE_DELETE )
     {

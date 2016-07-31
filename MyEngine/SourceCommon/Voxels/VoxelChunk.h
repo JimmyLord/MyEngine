@@ -22,6 +22,7 @@ protected:
 
     bool m_MapCreated;
     bool m_MeshOptimized;
+    bool m_MapWasEdited;
 
     MyMatrix m_Transform;
     Vector3 m_BlockSize;
@@ -36,7 +37,8 @@ public:
     VoxelChunk();
     virtual ~VoxelChunk();
 
-    void Initialize(VoxelWorld* world, Vector3 pos, Vector3Int chunksize, Vector3Int chunkoffset, Vector3 blocksize);
+    void Initialize(VoxelWorld* world, Vector3 pos, Vector3Int chunkoffset, Vector3 blocksize);
+    void SetChunkSize(Vector3Int chunksize);
 
     // Load/Save ".myvoxelmesh" files
     void CreateFromVoxelMeshFile(MyFileObject* pFile);
@@ -47,6 +49,7 @@ public:
     // Map/Blocks
     static unsigned int DefaultGenerateMapFunc(Vector3Int worldpos);
     void GenerateMap();
+    bool IsMapEdited() { return m_MapWasEdited; }
     bool IsInChunkSpace(Vector3Int worldpos);
     VoxelBlock* GetBlocks() { return m_pBlocks; }
     bool IsBlockEnabled(Vector3Int localpos, bool blockexistsifnotready = false);

@@ -68,9 +68,11 @@ public:
     void SetWorldCenter(Vector3Int newworldcenter);
 
     void UpdateVisibility(void* pUserData);
-    void SetSaveFile(MyFileObject* pFile);
     void SetMaterial(MaterialDefinition* pMaterial);
     MaterialDefinition* GetMaterial() { return m_pMaterial; }
+
+    void SetSaveFile(MyFileObject* pFile);
+    void SaveTheWorld();
 
 public:
     Vector3 GetBlockSize() { return m_BlockSize; }

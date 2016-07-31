@@ -18,6 +18,7 @@ VoxelChunk::VoxelChunk()
 
     m_MapCreated = false;
     m_MeshOptimized = false;
+    m_MapWasEdited = false;
 
     m_Transform.SetIdentity();
     m_BlockSize.Set( 0, 0, 0 );
@@ -35,7 +36,7 @@ VoxelChunk::~VoxelChunk()
     delete[] m_pBlocks;
 }
 
-void VoxelChunk::Initialize(VoxelWorld* world, Vector3 pos, Vector3Int chunksize, Vector3Int chunkoffset, Vector3 blocksize)
+void VoxelChunk::Initialize(VoxelWorld* world, Vector3 pos, Vector3Int chunkoffset, Vector3 blocksize)
 {
     m_pWorld = world;
 
@@ -43,11 +44,7 @@ void VoxelChunk::Initialize(VoxelWorld* world, Vector3 pos, Vector3Int chunksize
     m_Transform.SetTranslation( pos );
 
     m_BlockSize = blocksize;
-    m_ChunkSize = chunksize;
     m_ChunkOffset = chunkoffset;
-
-    if( m_pBlocks == 0 )
-        m_pBlocks = MyNew VoxelBlock[chunksize.x * chunksize.y * chunksize.z];
 
     m_MapCreated = false;
 
@@ -63,6 +60,14 @@ void VoxelChunk::Initialize(VoxelWorld* world, Vector3 pos, Vector3Int chunksize
         VertexFormat_Dynamic_Desc* pVertFormat = g_pVertexFormatManager->GetDynamicVertexFormat( 1, true, false, false, false, 0 );
         CreateBuffers( pVertFormat, 0, indexbytes, 0, true );
     }
+}
+
+void VoxelChunk::SetChunkSize(Vector3Int chunksize)
+{
+    m_ChunkSize = chunksize;
+
+    if( m_pBlocks == 0 )
+        m_pBlocks = MyNew VoxelBlock[chunksize.x * chunksize.y * chunksize.z];
 }
 
 // ============================================================================================================================
@@ -125,6 +130,7 @@ void VoxelChunk::CreateFromVoxelMeshFile(MyFileObject* pFile)
         //}
 
         cJSON* jVoxelMesh = cJSON_Parse( pFile->m_pBuffer );
+        Initialize( 0, Vector3(0,0,0), Vector3Int(0,0,0), m_BlockSize );
         ImportFromJSONObject( jVoxelMesh );
         cJSON_Delete( jVoxelMesh );
         
@@ -179,7 +185,7 @@ cJSON* VoxelChunk::ExportAsJSONObject()
 
     // save the blocks.
     MyStackAllocator::MyStackPointer stackpointer;
-    char* blockstring = (char*)g_pEngineCore->m_SingleFrameMemoryStack.AllocateBlock( m_ChunkSize.x * m_ChunkSize.y * m_ChunkSize.z, &stackpointer );
+    char* blockstring = (char*)g_pEngineCore->m_SingleFrameMemoryStack.AllocateBlock( m_ChunkSize.x * m_ChunkSize.y * m_ChunkSize.z + 1, &stackpointer );
 
     for( int z=0; z<m_ChunkSize.z; z++ )
     {
@@ -196,6 +202,9 @@ cJSON* VoxelChunk::ExportAsJSONObject()
         }
     }
 
+    blockstring[m_ChunkSize.z * m_ChunkSize.y * m_ChunkSize.x] = 0;
+    MyAssert( strlen( blockstring ) == (size_t)(m_ChunkSize.z * m_ChunkSize.y * m_ChunkSize.x) );
+
     cJSON_AddStringToObject( jVoxelMesh, "Blocks", blockstring );
 
     return jVoxelMesh;
@@ -208,7 +217,7 @@ void VoxelChunk::ImportFromJSONObject(cJSON* jVoxelMesh)
     cJSONExt_GetFloatArray( jVoxelMesh, "BlockSize", &m_BlockSize.x, 3 );
     cJSONExt_GetIntArray( jVoxelMesh, "ChunkSize", &m_ChunkSize.x, 3 );
 
-    Initialize( 0, Vector3(0,0,0), m_ChunkSize, Vector3Int(0,0,0), m_BlockSize );
+    SetChunkSize( m_ChunkSize );
 
     char* blockstring = cJSON_GetObjectItem( jVoxelMesh, "Blocks" )->valuestring;
 
@@ -826,6 +835,8 @@ bool VoxelChunk::RayCast(Vector3 startpos, Vector3 endpos, float step, VoxelRayC
 // ============================================================================================================================
 void VoxelChunk::ChangeBlockState(Vector3Int worldpos, unsigned int type, bool enabled)
 {
+    m_MapWasEdited = true;
+
     unsigned int index = GetBlockIndex( worldpos );
 
     m_pBlocks[index].SetBlockType( type );

@@ -122,7 +122,7 @@ void VoxelWorld::Tick(double timepassed)
     // only make chunks once the save file is fully loaded, if there's a save file.
     if( m_pSaveFile && m_jJSONSavedMapData == 0 )
     {
-        if( m_pSaveFile->m_FileLoadStatus != FileLoadStatus_Success )
+        if( m_pSaveFile->m_FileLoadStatus == FileLoadStatus_Loading )
         {
             return;
         }
@@ -321,15 +321,6 @@ void VoxelWorld::UpdateVisibility(void* pUserData)
     }
 }
 
-void VoxelWorld::SetSaveFile(MyFileObject* pFile)
-{
-    if( pFile )
-        pFile->AddRef();
-
-    SAFE_RELEASE( m_pSaveFile );
-    m_pSaveFile = pFile;
-}
-
 void VoxelWorld::SetMaterial(MaterialDefinition* pMaterial)
 {
     pMaterial->AddRef();
@@ -342,6 +333,89 @@ void VoxelWorld::SetMaterial(MaterialDefinition* pMaterial)
         VoxelChunk* pChunk = (VoxelChunk*)pNode;
 
         pChunk->SetMaterial( m_pMaterial, 0 );        
+    }
+}
+
+void VoxelWorld::SetSaveFile(MyFileObject* pFile)
+{
+    if( pFile )
+        pFile->AddRef();
+
+    SAFE_RELEASE( m_pSaveFile );
+    m_pSaveFile = pFile;
+}
+
+void VoxelWorld::SaveTheWorld()
+{
+    MyAssert( m_pSaveFile );
+
+    if( m_jJSONSavedMapData == 0 )
+        m_jJSONSavedMapData = cJSON_CreateObject();
+
+    for( int z=0; z<m_WorldSize.z; z++ )
+    {
+        for( int y=0; y<m_WorldSize.y; y++ )
+        {
+            for( int x=0; x<m_WorldSize.x; x++ )
+            {
+                Vector3Int chunkpos = m_WorldOffset + Vector3Int( x, y, z );
+
+                VoxelChunk* pChunk = GetActiveChunk( chunkpos );
+                if( pChunk == 0 || pChunk->IsMapEdited() == false )
+                    continue;
+
+                char strx[20];
+                char stry[20];
+                char strz[20];
+
+                sprintf_s( strx, 20, "%d", chunkpos.x );
+                sprintf_s( stry, 20, "%d", chunkpos.y );
+                sprintf_s( strz, 20, "%d", chunkpos.z );
+
+                cJSON* jZ = cJSON_GetObjectItem( m_jJSONSavedMapData, strz );
+                if( jZ == 0 )
+                {
+                    jZ = cJSON_CreateObject();
+                    cJSON_AddItemToObject( m_jJSONSavedMapData, strz, jZ );
+                }
+
+                if( jZ )
+                {
+                    cJSON* jY = cJSON_GetObjectItem( jZ, stry );
+                    if( jY == 0 )
+                    {
+                        jY = cJSON_CreateObject();
+                        cJSON_AddItemToObject( jZ, stry, jY );
+                    }
+
+                    if( jY )
+                    {
+                        cJSON* jX = cJSON_GetObjectItem( jY, strx );
+                        cJSON* jChunk = pChunk->ExportAsJSONObject();
+                        if( jX )
+                        {
+                            cJSON_ReplaceItemInObject( jY, strx, jChunk );
+                        }
+                        else
+                        {
+                            cJSON_AddItemToObject( jY, strx, jChunk );
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    if( m_jJSONSavedMapData )
+    {
+        FILE* file = 0;
+        fopen_s( &file, m_pSaveFile->m_FullPath, "wb" );
+
+        char* jsonstring = cJSON_Print( m_jJSONSavedMapData );
+        fprintf( file, "%s", jsonstring );
+        cJSONExt_free( jsonstring );
+
+        fclose( file );
     }
 }
 
@@ -409,7 +483,8 @@ void VoxelWorld::PrepareChunk(Vector3Int chunkpos)
     unsigned int arrayindex = GetActiveChunkArrayIndex( chunkpos );
     m_pActiveWorldChunkPtrs[arrayindex] = pChunk;
 
-    pChunk->Initialize( this, chunkposition, m_ChunkSize, chunkblockoffset, m_BlockSize );
+    pChunk->Initialize( this, chunkposition, chunkblockoffset, m_BlockSize );
+    pChunk->SetChunkSize( m_ChunkSize );
 
     m_pChunksLoading.MoveTail( pChunk );
 }
@@ -442,9 +517,29 @@ cJSON* VoxelWorld::GetJSONObjectForChunk(Vector3Int chunkpos)
     if( m_jJSONSavedMapData == 0 )
         return 0;
 
-    // TODO
-    cJSON* jChunk = cJSON_GetObjectItem( m_jJSONSavedMapData, "test" );
-    return jChunk;
+    char strx[20];
+    char stry[20];
+    char strz[20];
+
+    sprintf_s( strx, 20, "%d", chunkpos.x );
+    sprintf_s( stry, 20, "%d", chunkpos.y );
+    sprintf_s( strz, 20, "%d", chunkpos.z );
+
+    cJSON* jZ = cJSON_GetObjectItem( m_jJSONSavedMapData, strz );
+    if( jZ )
+    {
+        cJSON* jY = cJSON_GetObjectItem( jZ, stry );
+        if( jY )
+        {
+            cJSON* jX = cJSON_GetObjectItem( jY, strx );
+            if( jX )
+            {
+                return jX;
+            }
+        }
+    }
+
+    return 0;
 }
 
 // ============================================================================================================================
