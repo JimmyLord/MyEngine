@@ -51,13 +51,11 @@ void EditorInterface_VoxelMeshEditor::OnDrawFrame(unsigned int canvasid)
     if( m_pVoxelMesh )
         pChunk = m_pVoxelMesh->GetChunk();
 
+    ImGui::SetNextWindowSize( ImVec2(150,50), ImGuiSetCond_FirstUseEver );
+    ImGui::Begin( "Voxel Mesh Editor" );
+
     if( pChunk )
     {
-        ImGui::SetNextWindowSize( ImVec2(150,50), ImGuiSetCond_FirstUseEver );
-        ImGui::Begin( "Voxel Mesh Editor" );
-
-        //ImGui::Text( "Hello world!" );
-        //ImGui::SliderFloat( "", &m_AnimationTime, 0, 1, "Time: %.3f" );
         if( ImGui::Button( "Fill" ) )
         {
             pChunk->ChangeBlockState( Vector3Int(0,0,0), m_CurrentBlockType, true );
@@ -69,20 +67,20 @@ void EditorInterface_VoxelMeshEditor::OnDrawFrame(unsigned int canvasid)
             pChunk->ChangeBlockState( Vector3Int(0,0,0), m_CurrentBlockType, false );
             pChunk->RebuildMesh( 1 );
         }
-
-        if( ImGui::Button( "Save" ) )
-        {
-            pChunk->ExportAsJSONObject();
-        }
-
-        if( ImGui::Button( "1" ) ) { m_CurrentBlockType = 1; }
-        if( ImGui::Button( "2" ) ) { m_CurrentBlockType = 2; }
-        if( ImGui::Button( "3" ) ) { m_CurrentBlockType = 3; }
-        if( ImGui::Button( "4" ) ) { m_CurrentBlockType = 4; }
-        if( ImGui::Button( "5" ) ) { m_CurrentBlockType = 5; }
-
-        ImGui::End();
     }
+
+    if( ImGui::Button( "Save" ) )
+    {
+        SaveVoxelMesh();
+    }
+
+    if( ImGui::Button( "1" ) ) { m_CurrentBlockType = 1; }
+    if( ImGui::Button( "2" ) ) { m_CurrentBlockType = 2; }
+    if( ImGui::Button( "3" ) ) { m_CurrentBlockType = 3; }
+    if( ImGui::Button( "4" ) ) { m_CurrentBlockType = 4; }
+    if( ImGui::Button( "5" ) ) { m_CurrentBlockType = 5; }
+
+    ImGui::End();
 }
 
 void EditorInterface_VoxelMeshEditor::CancelCurrentOperation()
@@ -91,19 +89,30 @@ void EditorInterface_VoxelMeshEditor::CancelCurrentOperation()
 
 void EditorInterface_VoxelMeshEditor::SaveVoxelMesh()
 {
-    VoxelChunk* pChunk = m_pVoxelMesh->GetChunk();
-    cJSON* jVoxelMesh = pChunk->ExportAsJSONObject();
+    if( m_pVoxelWorld )
+    {
+        LOGInfo( LOGTag, "Voxel Editor: Voxel World Saved\n" );
 
-    char* string = cJSON_Print( jVoxelMesh );
+        m_pVoxelWorld->GetWorld()->SaveTheWorld();
+    }
+    else
+    {
+        LOGInfo( LOGTag, "Voxel Editor: Voxel Mesh Saved\n" );
 
-    FILE* file = 0;
-    fopen_s( &file, m_pVoxelMesh->m_pMesh->m_pSourceFile->m_FullPath, "wb" );
-    fprintf( file, "%s", string );
-    fclose( file );
+        VoxelChunk* pChunk = m_pVoxelMesh->GetChunk();
+        cJSON* jVoxelMesh = pChunk->ExportAsJSONObject();
 
-    cJSON_Delete( jVoxelMesh );
+        char* string = cJSON_Print( jVoxelMesh );
 
-    cJSONExt_free( string );
+        FILE* file = 0;
+        fopen_s( &file, m_pVoxelMesh->m_pMesh->m_pSourceFile->m_FullPath, "wb" );
+        fprintf( file, "%s", string );
+        fclose( file );
+
+        cJSON_Delete( jVoxelMesh );
+
+        cJSONExt_free( string );
+    }
 }
 
 bool EditorInterface_VoxelMeshEditor::HandleInput(int keyaction, int keycode, int mouseaction, int id, float x, float y, float pressure)
@@ -117,18 +126,11 @@ bool EditorInterface_VoxelMeshEditor::HandleInput(int keyaction, int keycode, in
     if( keyaction == GCBA_Up && keycode == MYKEYCODE_ESC )
     {
         // TODO: move this save op elsewhere.
-        if( pChunk )
-            pChunk->ExportAsJSONObject();
+        SaveVoxelMesh();
 
-        if( m_pVoxelWorld )
-            m_pVoxelWorld->GetWorld()->SaveTheWorld();
-
-        CancelCurrentOperation();
+        //CancelCurrentOperation();
         g_pEngineCore->SetEditorInterface( EditorInterfaceType_SceneManagement );        
     }
-
-    if( pChunk == 0 )
-        return false;
 
     if( keyaction == GCBA_Up && keycode == MYKEYCODE_DELETE )
     {
@@ -149,22 +151,28 @@ bool EditorInterface_VoxelMeshEditor::HandleInput(int keyaction, int keycode, in
     {
         if( mouseaction == GCBA_Down )
         {
-            if( pChunk )
+            Vector2 mousepos( x, y );
+            VoxelRayCastResult result;
+            RayCast( mousepos, &result );
+
+            if( result.m_Hit == true )
             {
-                Vector2 mousepos( x, y );
-                VoxelRayCastResult result;
-                RayCast( mousepos, &result );
+                if( result.m_BlockFaceNormal.x == -1 ) result.m_BlockWorldPosition.x--;
+                if( result.m_BlockFaceNormal.x ==  1 ) result.m_BlockWorldPosition.x++;
+                if( result.m_BlockFaceNormal.y == -1 ) result.m_BlockWorldPosition.y--;
+                if( result.m_BlockFaceNormal.y ==  1 ) result.m_BlockWorldPosition.y++;
+                if( result.m_BlockFaceNormal.z == -1 ) result.m_BlockWorldPosition.z--;
+                if( result.m_BlockFaceNormal.z ==  1 ) result.m_BlockWorldPosition.z++;
 
-                if( result.m_Hit == true )
+                // if result.m_BlockWorldPosition is inside the chunk, add a block
+                if( m_pVoxelWorld )
                 {
-                    if( result.m_BlockFaceNormal.x == -1 ) result.m_BlockWorldPosition.x--;
-                    if( result.m_BlockFaceNormal.x ==  1 ) result.m_BlockWorldPosition.x++;
-                    if( result.m_BlockFaceNormal.y == -1 ) result.m_BlockWorldPosition.y--;
-                    if( result.m_BlockFaceNormal.y ==  1 ) result.m_BlockWorldPosition.y++;
-                    if( result.m_BlockFaceNormal.z == -1 ) result.m_BlockWorldPosition.z--;
-                    if( result.m_BlockFaceNormal.z ==  1 ) result.m_BlockWorldPosition.z++;
+                    VoxelWorld* pWorld = m_pVoxelWorld->GetWorld();
+                    pWorld->ChangeBlockState( result.m_BlockWorldPosition, m_CurrentBlockType, true );
+                }
 
-                    // if result.m_BlockWorldPosition is inside the chunk, add a block
+                if( m_pVoxelMesh )
+                {
                     if( pChunk->IsInChunkSpace( result.m_BlockWorldPosition ) )
                     {
                         pChunk->ChangeBlockState( result.m_BlockWorldPosition, m_CurrentBlockType, true );
@@ -185,8 +193,17 @@ bool EditorInterface_VoxelMeshEditor::HandleInput(int keyaction, int keycode, in
 
             if( result.m_Hit == true )
             {
-                pChunk->ChangeBlockState( result.m_BlockWorldPosition, 0, false );
-                pChunk->RebuildMesh( 1 );
+                if( m_pVoxelWorld )
+                {
+                    VoxelWorld* pWorld = m_pVoxelWorld->GetWorld();
+                    pWorld->ChangeBlockState( result.m_BlockWorldPosition, 0, false );
+                }
+
+                if( m_pVoxelMesh )
+                {
+                    pChunk->ChangeBlockState( result.m_BlockWorldPosition, 0, false );
+                    pChunk->RebuildMesh( 1 );
+                }
 
                 m_CapturedRightMouse = true;
                 return true;
@@ -208,13 +225,20 @@ bool EditorInterface_VoxelMeshEditor::HandleInput(int keyaction, int keycode, in
     {
         if( mouseaction == GCBA_Down )
         {
-            if( pChunk )
-            {
-                Vector2 mousepos( x, y );
-                VoxelRayCastResult result;
-                RayCast( mousepos, &result );
+            Vector2 mousepos( x, y );
+            VoxelRayCastResult result;
+            RayCast( mousepos, &result );
 
-                // if result.m_BlockWorldPosition is inside the chunk, add a block
+            // if result.m_BlockWorldPosition is inside the chunk, add a block
+            if( m_pVoxelWorld )
+            {
+                VoxelWorld* pWorld = m_pVoxelWorld->GetWorld();
+                VoxelBlock* pBlock = pWorld->GetBlock( result.m_BlockWorldPosition );
+                m_CurrentBlockType = pBlock->GetBlockType();
+            }
+
+            if( m_pVoxelMesh )
+            {
                 if( pChunk->IsInChunkSpace( result.m_BlockWorldPosition ) )
                 {
                     VoxelBlock* pBlock = pChunk->GetBlockFromLocalPos( result.m_BlockWorldPosition );
@@ -250,17 +274,35 @@ bool EditorInterface_VoxelMeshEditor::RayCast(Vector2 mousepos, VoxelRayCastResu
     Vector3 start, end;
     g_pEngineCore->GetMouseRay( mousepos, &start, &end );
 
-    // transform ray to chunk space.
-    MyMatrix transform = *m_pVoxelMesh->m_pGameObject->m_pComponentTransform->GetWorldTransform();
-    transform.Inverse();
-    Vector3 chunkspacestart = transform * start;
-    Vector3 chunkspaceend = transform * end;
+    if( m_pVoxelWorld )
+    {
+        // raycast against the world
+        VoxelWorld* pWorld = m_pVoxelWorld->GetWorld();
+        Vector3 blocksize = pWorld->GetBlockSize();
+        float smallestdimension = blocksize.x < blocksize.y ?
+                                  (blocksize.x < blocksize.z ? blocksize.x : blocksize.z) :
+                                  (blocksize.y < blocksize.z ? blocksize.y : blocksize.z);
 
-    VoxelChunk* pChunk = m_pVoxelMesh->GetChunk();
-    Vector3 blocksize = pChunk->GetBlockSize();
-    float smallestdimension = blocksize.x < blocksize.y ?
-                              (blocksize.x < blocksize.z ? blocksize.x : blocksize.z) :
-                              (blocksize.y < blocksize.z ? blocksize.y : blocksize.z);
+        return pWorld->RayCast( start, end, smallestdimension/10.0f, pResult );
+    }
 
-    return pChunk->RayCast( chunkspacestart, chunkspaceend, smallestdimension/2.0f, pResult );
+    if( m_pVoxelMesh )
+    {
+        // transform ray to chunk space.
+        MyMatrix transform = *m_pVoxelMesh->m_pGameObject->m_pComponentTransform->GetWorldTransform();
+        transform.Inverse();
+        Vector3 chunkspacestart = transform * start;
+        Vector3 chunkspaceend = transform * end;
+
+        // raycast against the single chunk
+        VoxelChunk* pChunk = m_pVoxelMesh->GetChunk();
+        Vector3 blocksize = pChunk->GetBlockSize();
+        float smallestdimension = blocksize.x < blocksize.y ?
+                                  (blocksize.x < blocksize.z ? blocksize.x : blocksize.z) :
+                                  (blocksize.y < blocksize.z ? blocksize.y : blocksize.z);
+
+        return pChunk->RayCast( chunkspacestart, chunkspaceend, smallestdimension/10.0f, pResult );
+    }
+
+    return false;
 }

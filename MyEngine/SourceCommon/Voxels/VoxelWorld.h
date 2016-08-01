@@ -86,6 +86,8 @@ public:
     Vector3Int GetChunkPosition(Vector3Int worldpos);
 
     // Collision/Block queries
+    VoxelBlock* GetBlock(Vector3Int worldpos);
+    VoxelBlock* GetBlock(int worldx, int worldy, int worldz);
     bool IsBlockEnabled(Vector3Int worldpos, bool blockexistsifnotready = false);
     bool IsBlockEnabled(int worldx, int worldy, int worldz, bool blockexistsifnotready = false);
     bool IsBlockEnabledAroundLocation(Vector3 scenepos, float radius, bool blockexistsifnotready = false);
@@ -96,7 +98,7 @@ public:
     void GetMouseRayBadly(Vector2 mousepos, Vector3* start, Vector3* end);
 
     // Add/Remove blocks
-    void ChangeBlockState(Vector3Int worldpos, bool enabled);
+    void ChangeBlockState(Vector3Int worldpos, unsigned int type, bool enabled);
 };
 
 #endif //__VoxelWorld_H__

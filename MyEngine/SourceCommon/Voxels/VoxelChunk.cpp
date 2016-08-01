@@ -239,7 +239,7 @@ void VoxelChunk::ImportFromJSONObject(cJSON* jVoxelMesh)
 
     RebuildMesh( 1 );
 
-    m_MeshReady = true;
+    m_MapCreated = true;
 }
 
 // ============================================================================================================================

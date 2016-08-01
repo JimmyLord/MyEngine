@@ -497,7 +497,7 @@ void ComponentVoxelWorld::AddTileToTileInFocus(Vector2 mousepos)
         if( result.m_BlockFaceNormal.z == -1 ) result.m_BlockWorldPosition.z--;
         if( result.m_BlockFaceNormal.z ==  1 ) result.m_BlockWorldPosition.z++;
 
-        m_pVoxelWorld->ChangeBlockState( result.m_BlockWorldPosition, true );
+        m_pVoxelWorld->ChangeBlockState( result.m_BlockWorldPosition, 1, true );
     }
 }
 
@@ -514,6 +514,6 @@ void ComponentVoxelWorld::DeleteTileInFocus(Vector2 mousepos)
     {
         LOGInfo( "VoxelWorld", "Ray hit (%d, %d, %d)\n", result.m_BlockWorldPosition.x, result.m_BlockWorldPosition.y, result.m_BlockWorldPosition.z );
 
-        m_pVoxelWorld->ChangeBlockState( result.m_BlockWorldPosition, false );
+        m_pVoxelWorld->ChangeBlockState( result.m_BlockWorldPosition, 1, false );
     }
 }

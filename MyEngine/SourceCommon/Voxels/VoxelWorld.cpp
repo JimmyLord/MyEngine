@@ -583,6 +583,24 @@ Vector3Int VoxelWorld::GetChunkPosition(Vector3Int worldpos)
 // ============================================================================================================================
 // Collision/Block queries
 // ============================================================================================================================
+VoxelBlock* VoxelWorld::GetBlock(Vector3Int worldpos)
+{
+    return GetBlock( worldpos.x, worldpos.y, worldpos.z );
+}
+
+VoxelBlock* VoxelWorld::GetBlock(int worldx, int worldy, int worldz)
+{
+    Vector3Int chunkpos = GetChunkPosition( Vector3Int(worldx,worldy,worldz) );
+    VoxelChunk* pChunk = GetActiveChunk( chunkpos );
+
+    Vector3Int localpos( worldx%m_ChunkSize.x, worldy%m_ChunkSize.y, worldz%m_ChunkSize.z );
+    if( localpos.x < 0 ) localpos.x += m_ChunkSize.x;
+    if( localpos.y < 0 ) localpos.y += m_ChunkSize.y;
+    if( localpos.z < 0 ) localpos.z += m_ChunkSize.z;
+
+    return pChunk->GetBlockFromLocalPos( localpos );
+}
+
 bool VoxelWorld::IsBlockEnabled(Vector3Int worldpos, bool blockexistsifnotready)
 {
     return IsBlockEnabled( worldpos.x, worldpos.y, worldpos.z, blockexistsifnotready );
@@ -813,12 +831,12 @@ void VoxelWorld::GetMouseRayBadly(Vector2 mousepos, Vector3* start, Vector3* end
 // ============================================================================================================================
 // Add/Remove blocks
 // ============================================================================================================================
-void VoxelWorld::ChangeBlockState(Vector3Int worldpos, bool enabled)
+void VoxelWorld::ChangeBlockState(Vector3Int worldpos, unsigned int type, bool enabled)
 {
     Vector3Int chunkpos = GetChunkPosition( worldpos );
     VoxelChunk* pChunk = GetActiveChunk( chunkpos );
 
-    pChunk->ChangeBlockState( worldpos, 1, enabled );
+    pChunk->ChangeBlockState( worldpos, type, enabled );
 
     pChunk->RebuildMesh( 1 );
 
