@@ -73,6 +73,7 @@ public:
 
     void SetSaveFile(MyFileObject* pFile);
     void SaveTheWorld();
+    void SaveChunk(VoxelChunk* pChunk);
 
 public:
     Vector3 GetBlockSize() { return m_BlockSize; }

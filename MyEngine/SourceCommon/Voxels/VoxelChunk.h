@@ -43,7 +43,7 @@ public:
     // Load/Save ".myvoxelmesh" files
     void CreateFromVoxelMeshFile(MyFileObject* pFile);
     virtual void ParseFile(); // MyMesh override
-    cJSON* ExportAsJSONObject();
+    cJSON* ExportAsJSONObject(bool exportforworld = false);
     void ImportFromJSONObject(cJSON* jVoxelMesh);
 
     // Map/Blocks

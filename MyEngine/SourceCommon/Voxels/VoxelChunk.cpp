@@ -176,12 +176,15 @@ void VoxelChunk::ParseFile()
     }
 }
 
-cJSON* VoxelChunk::ExportAsJSONObject()
+cJSON* VoxelChunk::ExportAsJSONObject(bool exportforworld)
 {
     cJSON* jVoxelMesh = cJSON_CreateObject();
 
-    cJSONExt_AddFloatArrayToObject( jVoxelMesh, "BlockSize", &m_BlockSize.x, 3 );
-    cJSONExt_AddIntArrayToObject( jVoxelMesh, "ChunkSize", &m_ChunkSize.x, 3 );
+    if( exportforworld == false )
+    {
+        cJSONExt_AddFloatArrayToObject( jVoxelMesh, "BlockSize", &m_BlockSize.x, 3 );
+        cJSONExt_AddIntArrayToObject( jVoxelMesh, "ChunkSize", &m_ChunkSize.x, 3 );
+    }
 
     // save the blocks.
     MyStackAllocator::MyStackPointer stackpointer;

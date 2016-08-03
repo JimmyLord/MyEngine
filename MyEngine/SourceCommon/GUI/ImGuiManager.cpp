@@ -135,8 +135,8 @@ bool ImGuiManager::HandleInput(int keyaction, int keycode, int mouseaction, int 
             io.KeysDown[keycode] = false;
     }
 
-    // TODO: fix, doesn't work if window isn't selected and we're rolled over it.
-    if( ImGui::IsAnyItemActive() )
+    // if a window is hovered, don't let input events pass through it.
+    if( ImGui::IsMouseHoveringAnyWindow() )
         return true;
 
     return false;
