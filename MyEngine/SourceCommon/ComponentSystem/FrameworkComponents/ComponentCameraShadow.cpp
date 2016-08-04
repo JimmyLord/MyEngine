@@ -111,6 +111,51 @@ ComponentCameraShadow& ComponentCameraShadow::operator=(const ComponentCameraSha
     return *this;
 }
 
+void ComponentCameraShadow::RegisterCallbacks()
+{
+    // TODO: change this component to use callbacks.
+    // for now register ComponentCamera's callbacks, mainly draw so the editor icon will appear.
+    ComponentCamera::RegisterCallbacks();
+
+//    if( m_Enabled && m_CallbacksRegistered == false )
+//    {
+//        m_CallbacksRegistered = true;
+//
+//        //MYFW_REGISTER_COMPONENT_CALLBACK( ComponentCameraShadow, Tick );
+//        //MYFW_REGISTER_COMPONENT_CALLBACK( ComponentCameraShadow, OnSurfaceChanged );
+//#if MYFW_USING_WX
+//        //MYFW_FILL_COMPONENT_CALLBACK_STRUCT( ComponentCameraShadow, Draw );
+//        MYFW_REGISTER_COMPONENT_CALLBACK( ComponentCameraShadow, Draw );
+//#endif //MYFW_USING_WX
+//        //MYFW_REGISTER_COMPONENT_CALLBACK( ComponentCameraShadow, OnTouch );
+//        //MYFW_REGISTER_COMPONENT_CALLBACK( ComponentCameraShadow, OnButtons );
+//        //MYFW_REGISTER_COMPONENT_CALLBACK( ComponentCameraShadow, OnKeys );
+//        //MYFW_REGISTER_COMPONENT_CALLBACK( ComponentCameraShadow, OnFileRenamed );
+//    }
+}
+
+void ComponentCameraShadow::UnregisterCallbacks()
+{
+    // TODO: change this component to use callbacks.
+    // for now register ComponentCamera's callbacks, mainly draw so the editor icon will appear.
+    ComponentCamera::UnregisterCallbacks();
+
+//    if( m_CallbacksRegistered == true )
+//    {
+//        //MYFW_UNREGISTER_COMPONENT_CALLBACK( Tick );
+//        //MYFW_UNREGISTER_COMPONENT_CALLBACK( OnSurfaceChanged );
+//#if MYFW_USING_WX
+//        MYFW_UNREGISTER_COMPONENT_CALLBACK( Draw );
+//#endif //MYFW_USING_WX
+//        //MYFW_UNREGISTER_COMPONENT_CALLBACK( OnTouch );
+//        //MYFW_UNREGISTER_COMPONENT_CALLBACK( OnButtons );
+//        //MYFW_UNREGISTER_COMPONENT_CALLBACK( OnKeys );
+//        //MYFW_UNREGISTER_COMPONENT_CALLBACK( OnFileRenamed );
+//
+//        m_CallbacksRegistered = false;
+//    }
+}
+
 void ComponentCameraShadow::Tick(double TimePassed)
 {
     ComponentCamera::Tick( TimePassed );

@@ -481,6 +481,9 @@ void ComponentCamera::DrawCallback(ComponentCamera* pCamera, MyMatrix* pMatViewP
     rot90.SetIdentity();
     rot90.Rotate( -90, 0, 1, 0 );
     
+    if( IsA( "CameraShadowComponent" ) )
+        rot90.Rotate( 180, 1, 0, 0 );
+
     MyMatrix transform = *m_pComponentTransform->GetLocalTransform() * rot90;
     //pSprite->SetPosition( &transform );
     

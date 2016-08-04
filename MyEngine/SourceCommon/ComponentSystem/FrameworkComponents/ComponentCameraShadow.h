@@ -33,8 +33,8 @@ public:
     virtual void CopyFromSameType_Dangerous(ComponentBase* pObject) { *this = (ComponentCameraShadow&)*pObject; }
     ComponentCameraShadow& operator=(const ComponentCameraShadow& other);
 
-    virtual void RegisterCallbacks() {} // TODO: change this component to use callbacks.
-    virtual void UnregisterCallbacks() {} // TODO: change this component to use callbacks.
+    virtual void RegisterCallbacks(); // TODO: change this component to use callbacks.
+    virtual void UnregisterCallbacks(); // TODO: change this component to use callbacks.
 
     virtual void Tick(double TimePassed);
     virtual void OnSurfaceChanged(unsigned int startx, unsigned int starty, unsigned int width, unsigned int height, unsigned int desiredaspectwidth, unsigned int desiredaspectheight);
