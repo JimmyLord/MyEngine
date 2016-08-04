@@ -95,7 +95,7 @@ void ComponentTemplate::FillPropertiesWindow(bool clear, bool addcomponentvariab
 
 void* ComponentTemplate::OnDrop(ComponentVariable* pVar, wxCoord x, wxCoord y)
 {
-    void* oldvalue = 0;
+    void* oldpointer = 0;
 
     if( g_DragAndDropStruct.m_Type == DragAndDropType_ComponentPointer )
     {
@@ -107,7 +107,7 @@ void* ComponentTemplate::OnDrop(ComponentVariable* pVar, wxCoord x, wxCoord y)
         (GameObject*)g_DragAndDropStruct.m_Value;
     }
 
-    return oldvalue;
+    return oldpointer;
 }
 
 void* ComponentTemplate::OnValueChanged(ComponentVariable* pVar, int controlid, bool finishedchanging, double oldvalue)

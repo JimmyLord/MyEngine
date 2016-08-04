@@ -17,6 +17,8 @@ private:
     MYFW_COMPONENT_DECLARE_VARIABLE_LIST( ComponentLight );
 
 protected:
+    LightTypes m_LightType;
+
     MyLight* m_pLight;
 
 public:
@@ -64,6 +66,9 @@ public:
     static void StaticOnLeftClick(void* pObjectPtr, wxTreeItemId id, unsigned int count) { ((ComponentLight*)pObjectPtr)->OnLeftClick( count, true ); }
     void OnLeftClick(unsigned int count, bool clear);
     virtual void FillPropertiesWindow(bool clear, bool addcomponentvariables = false, bool ignoreblockvisibleflag = false);
+
+    void* OnValueChanged(ComponentVariable* pVar, int controlid, bool finishedchanging, double oldvalue);
+    void* OnDrop(ComponentVariable* pVar, wxCoord x, wxCoord y);
 #endif //MYFW_USING_WX
 };
 

@@ -24,6 +24,8 @@ ComponentLight::ComponentLight()
     ClassnameSanityCheck();
 
     m_BaseType = BaseComponentType_Data;
+    
+    m_LightType = LightType_Point;
 
     m_pLight = 0;
 }
@@ -49,6 +51,9 @@ void ComponentLight::RegisterVariables(CPPListHead* pList, ComponentLight* pThis
 
     //cJSONExt_AddFloatArrayToObject( jComponent, "Color", &m_pLight->m_Color.r, 4 );
     //cJSONExt_AddFloatArrayToObject( jComponent, "Atten", &m_pLight->m_Attenuation.x, 3 );
+
+    AddVarEnum( pList, "LightType", MyOffsetOf( pThis, &pThis->m_LightType ), true, true, "Type", 3, g_LightTypeStrings,
+        (CVarFunc_ValueChanged)&ComponentLight::OnValueChanged, (CVarFunc_DropTarget)&ComponentLight::OnDrop, 0 );
 }
 
 void ComponentLight::Reset()
@@ -61,6 +66,7 @@ void ComponentLight::Reset()
         m_pGameObject->m_pComponentTransform->RegisterPositionChangedCallback( this, StaticOnTransformPositionChanged );
     }
 
+    m_pLight->m_LightType = LightType_Point;
     m_pLight->m_Position = m_pGameObject->m_pComponentTransform->GetWorldPosition();
     m_pLight->m_Color.Set( 1, 1, 1, 1 );
     m_pLight->m_Attenuation.Set( 0, 0, 0.09f );
@@ -100,6 +106,31 @@ void ComponentLight::FillPropertiesWindow(bool clear, bool addcomponentvariables
         }
     }
 }
+
+void* ComponentLight::OnValueChanged(ComponentVariable* pVar, int controlid, bool finishedchanging, double oldvalue)
+{
+    void* oldpointer = 0;
+
+    if( pVar->m_Offset == MyOffsetOf( this, &m_LightType ) )
+    {
+        MyAssert( m_pLight != 0 );
+
+        m_pLight->m_LightType = m_LightType;
+    }
+
+    return oldpointer;
+}
+
+void* ComponentLight::OnDrop(ComponentVariable* pVar, wxCoord x, wxCoord y)
+{
+    void* oldpointer = 0;
+
+    //if( g_DragAndDropStruct.m_Type == DragAndDropType_ComponentPointer )
+    //{
+    //}
+
+    return oldpointer;
+}
 #endif //MYFW_USING_WX
 
 cJSON* ComponentLight::ExportAsJSONObject(bool savesceneid)
@@ -122,6 +153,10 @@ void ComponentLight::ImportFromJSONObject(cJSON* jsonobj, unsigned int sceneid)
 
     cJSONExt_GetFloatArray( jsonobj, "Color", &m_pLight->m_Color.r, 4 );
     cJSONExt_GetFloatArray( jsonobj, "Atten", &m_pLight->m_Attenuation.x, 3 );
+
+    MyAssert( m_pLight );
+
+    m_pLight->m_LightType = m_LightType;
 }
 
 void ComponentLight::OnTransformPositionChanged(Vector3& newpos, bool changedbyeditor)
