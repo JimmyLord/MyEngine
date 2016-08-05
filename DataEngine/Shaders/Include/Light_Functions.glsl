@@ -1,3 +1,29 @@
+#if NUM_DIR_LIGHTS > 0
+void DirLightContribution(int index, vec4 vertpos4, vec3 campos, vec3 normal, float shininess, inout vec4 finaldiffuse, inout vec4 finalspecular)
+{
+    // vert, cam, normal and light positions are in world space.
+    vec3 vertpos = vertpos4.xyz / vertpos4.w;
+
+    // Light properties
+    vec3 lightdir = u_DirLightDir;
+    vec4 lightcolor = u_DirLightColor;
+
+    vec3 unnormalizedlightdirvector = lightdir;
+    vec3 lightdirvector = normalize( unnormalizedlightdirvector );
+
+    // diffuse
+    float diffperc = max( dot( normal, lightdirvector ), 0.0 );
+    finaldiffuse += lightcolor * diffperc;
+
+    // specular
+    vec3 viewvector = normalize( campos - vertpos );
+    vec3 halfvector = normalize( viewvector + lightdirvector );
+    float specperc = max( dot( normal, halfvector ), 0.0 );
+    specperc = pow( specperc, shininess );
+    finalspecular += lightcolor * specperc;
+}
+#endif
+
 #if NUM_LIGHTS > 0
 void PointLightContribution(int index, vec4 vertpos4, vec3 campos, vec3 normal, float shininess, inout vec4 finaldiffuse, inout vec4 finalspecular)
 {

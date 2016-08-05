@@ -601,8 +601,8 @@ void ComponentMesh::DrawCallback(ComponentCamera* pCamera, MyMatrix* pMatViewPro
         //m_pMesh->SetTransform( worldtransform );
 
         // Find nearest lights.
-        MyLight* lights;
-        int numlights = g_pLightManager->FindNearestLights( LightType_Point, 4, m_pComponentTransform->GetWorldTransform()->GetTranslation(), &lights );
+        MyLight* lights[4];
+        int numlights = g_pLightManager->FindNearestLights( LightType_Point, 4, m_pComponentTransform->GetWorldTransform()->GetTranslation(), lights );
 
         // Find nearest shadow casting light.
         MyMatrix* pShadowVP = 0;
