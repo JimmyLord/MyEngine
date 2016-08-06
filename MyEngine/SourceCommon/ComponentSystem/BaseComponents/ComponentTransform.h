@@ -10,14 +10,14 @@
 #ifndef __ComponentTransform_H__
 #define __ComponentTransform_H__
 
-typedef void (*TransformPositionChangedCallbackFunc)(void* pObjectPtr, Vector3& newpos, bool changedbyeditor);
-struct TransformPositionChangedCallbackStruct : public CPPListNode
+typedef void (*TransformChangedCallbackFunc)(void* pObjectPtr, Vector3& newpos, Vector3& newrot, Vector3& newscale, bool changedbyeditor);
+struct TransformChangedCallbackStruct : public CPPListNode
 {
     void* pObj;
-    TransformPositionChangedCallbackFunc pFunc;
+    TransformChangedCallbackFunc pFunc;
 };
 
-extern MySimplePool<TransformPositionChangedCallbackStruct> g_pComponentTransform_PositionChangedCallbackPool;
+extern MySimplePool<TransformChangedCallbackStruct> g_pComponentTransform_PositionChangedCallbackPool;
 
 class ComponentTransform : public ComponentBase
 {
@@ -91,6 +91,8 @@ public:
     Vector3 GetLocalScale();
     MyMatrix GetLocalRotPosMatrix();
 
+    void LookAt(Vector3 pos);
+
     // recalculate the matrix each time we set any of the 3 properties. // not efficient
     void SetLocalPosition(Vector3 pos);
     void SetLocalRotation(Vector3 rot);
@@ -101,7 +103,7 @@ public:
     void UpdateTransform();
 
     // Callbacks
-    void RegisterPositionChangedCallback(void* pObj, TransformPositionChangedCallbackFunc pCallback);
+    void RegisterPositionChangedCallback(void* pObj, TransformChangedCallbackFunc pCallback);
     void UnregisterPositionChangedCallbacks(void* pObj);
 
     // GameObject callbacks.
@@ -109,8 +111,8 @@ public:
     void OnGameObjectDeleted(GameObject* pGameObject);
 
     // Parent transform changed
-    static void StaticOnParentTransformChanged(void* pObjectPtr, Vector3& newpos, bool changedbyeditor) { ((ComponentTransform*)pObjectPtr)->OnParentTransformChanged( newpos, changedbyeditor ); }
-    void OnParentTransformChanged(Vector3& newpos, bool changedbyeditor);
+    static void StaticOnParentTransformChanged(void* pObjectPtr, Vector3& newpos, Vector3& newrot, Vector3& newscale, bool changedbyeditor) { ((ComponentTransform*)pObjectPtr)->OnParentTransformChanged( newpos, newrot, newscale, changedbyeditor ); }
+    void OnParentTransformChanged(Vector3& newpos, Vector3& newrot, Vector3& newscale, bool changedbyeditor);
 
 public:
 #if MYFW_USING_WX

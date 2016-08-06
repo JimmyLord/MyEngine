@@ -120,8 +120,8 @@ public:
     void RegisterOnDeleteCallback(void* pObj, GameObjectDeletedCallbackFunc pCallback);
     void UnregisterOnDeleteCallback(void* pObj, GameObjectDeletedCallbackFunc pCallback);
 
-    static void StaticOnTransformPositionChanged(void* pObjectPtr, Vector3& newpos, bool changedbyeditor) { ((GameObject*)pObjectPtr)->OnTransformPositionChanged( newpos, changedbyeditor ); }
-    void OnTransformPositionChanged(Vector3& newpos, bool changedbyeditor);
+    static void StaticOnTransformChanged(void* pObjectPtr, Vector3& newpos, Vector3& newrot, Vector3& newscale, bool changedbyeditor) { ((GameObject*)pObjectPtr)->OnTransformChanged( newpos, newrot, newscale, changedbyeditor ); }
+    void OnTransformChanged(Vector3& newpos, Vector3& newrot, Vector3& newscale, bool changedbyeditor);
 
 public:
 #if MYFW_USING_WX

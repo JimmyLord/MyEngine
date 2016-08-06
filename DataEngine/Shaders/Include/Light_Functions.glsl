@@ -61,7 +61,7 @@ float CalculateShadowPercentage()
     vec2 shadowcoord = v_ShadowPos.xy / v_ShadowPos.w;
     vec4 shadowtex = texture2D( u_ShadowTexture, shadowcoord );
     
-    float bias = 0.002;
+    float bias = 0.0002;
     float projzdepth = (v_ShadowPos.z-bias) / v_ShadowPos.w;
 
 #if 1

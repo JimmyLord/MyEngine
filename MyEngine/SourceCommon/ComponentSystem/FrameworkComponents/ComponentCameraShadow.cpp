@@ -176,6 +176,12 @@ void ComponentCameraShadow::OnDrawFrame()
 
     {
         MyMatrix matView = *m_pComponentTransform->GetWorldTransform();
+        
+        MyMatrix mat180x;
+        mat180x.SetIdentity();
+        mat180x.Rotate( 180, 1, 0, 0 );
+        matView = matView * mat180x;
+
         matView.Inverse();
 
         MyMatrix matProj;
@@ -184,7 +190,7 @@ void ComponentCameraShadow::OnDrawFrame()
         m_matViewProj = matProj * matView;
     }
 
-    //glCullFace( GL_FRONT );
+    glCullFace( GL_FRONT );
 
     glDisable( GL_SCISSOR_TEST );
     g_ActiveShaderPass = ShaderPass_ShadowCastRGBA;
@@ -211,7 +217,7 @@ void ComponentCameraShadow::OnDrawFrame()
 
     m_pDepthFBO->Unbind( false );
     g_ActiveShaderPass = ShaderPass_Main;
-    //glCullFace( GL_BACK );
+    glCullFace( GL_BACK );
 
     checkGlError( "end of ComponentCameraShadow::OnDrawFrame()" );
 }

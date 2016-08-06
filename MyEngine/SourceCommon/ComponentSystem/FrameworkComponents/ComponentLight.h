@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015 Jimmy Lord http://www.flatheadgames.com
+// Copyright (c) 2015-2016 Jimmy Lord http://www.flatheadgames.com
 //
 // This software is provided 'as-is', without any express or implied warranty.  In no event will the authors be held liable for any damages arising from the use of this software.
 // Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -39,8 +39,8 @@ public:
     virtual void OnGameObjectEnabled();
     virtual void OnGameObjectDisabled();
 
-    static void StaticOnTransformPositionChanged(void* pObjectPtr, Vector3& newpos, bool changedbyeditor) { ((ComponentLight*)pObjectPtr)->OnTransformPositionChanged( newpos, changedbyeditor ); }
-    void OnTransformPositionChanged(Vector3& newpos, bool changedbyeditor);
+    static void StaticOnTransformChanged(void* pObjectPtr, Vector3& newpos, Vector3& newrot, Vector3& newscale, bool changedbyeditor) { ((ComponentLight*)pObjectPtr)->OnTransformChanged( newpos, newrot, newscale, changedbyeditor ); }
+    void OnTransformChanged(Vector3& newpos, Vector3& newrot, Vector3& newscale, bool changedbyeditor);
 
     // pre-DrawCallback functions
     virtual bool IsVisible();

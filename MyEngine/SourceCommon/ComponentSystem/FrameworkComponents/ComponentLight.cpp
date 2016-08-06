@@ -63,11 +63,12 @@ void ComponentLight::Reset()
     if( m_pLight == 0 )
     {
         m_pLight = g_pLightManager->CreateLight();
-        m_pGameObject->m_pComponentTransform->RegisterPositionChangedCallback( this, StaticOnTransformPositionChanged );
+        m_pGameObject->m_pComponentTransform->RegisterPositionChangedCallback( this, StaticOnTransformChanged );
     }
 
     m_pLight->m_LightType = LightType_Point;
-    m_pLight->m_Position = m_pGameObject->m_pComponentTransform->GetWorldPosition();
+    m_pLight->m_Position.Set( 0, 0, 0 );
+    m_pLight->m_SpotDirectionVector.Set( 0, 0, 0 );
     m_pLight->m_Color.Set( 1, 1, 1, 1 );
     m_pLight->m_Attenuation.Set( 0, 0, 0.09f );
 
@@ -101,8 +102,8 @@ void ComponentLight::FillPropertiesWindow(bool clear, bool addcomponentvariables
 
         if( m_pLight )
         {
-            g_pPanelWatch->AddColorFloat( "color", &m_pLight->m_Color, 0, 1 );
-            g_pPanelWatch->AddVector3( "atten", &m_pLight->m_Attenuation, 0, 1 );
+            g_pPanelWatch->AddColorFloat( "Color", &m_pLight->m_Color, 0, 1 );
+            g_pPanelWatch->AddVector3( "Attenuation", &m_pLight->m_Attenuation, 0, 1 );
         }
     }
 }
@@ -157,13 +158,16 @@ void ComponentLight::ImportFromJSONObject(cJSON* jsonobj, unsigned int sceneid)
     MyAssert( m_pLight );
 
     m_pLight->m_LightType = m_LightType;
+    m_pLight->m_Position = m_pGameObject->GetTransform()->GetWorldPosition();
+    m_pLight->m_SpotDirectionVector = m_pGameObject->GetTransform()->GetWorldTransform()->GetAt();
 }
 
-void ComponentLight::OnTransformPositionChanged(Vector3& newpos, bool changedbyeditor)
+void ComponentLight::OnTransformChanged(Vector3& newpos, Vector3& newrot, Vector3& newscale, bool changedbyeditor)
 {
     MyAssert( m_pLight );
 
-    m_pLight->m_Position = newpos;
+    m_pLight->m_Position = m_pGameObject->GetTransform()->GetWorldPosition();
+    m_pLight->m_SpotDirectionVector = m_pGameObject->GetTransform()->GetWorldTransform()->GetAt();
 }
 
 ComponentLight& ComponentLight::operator=(const ComponentLight& other)

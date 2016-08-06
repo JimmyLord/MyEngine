@@ -16,7 +16,7 @@ bool ComponentTransform::m_PanelWatchBlockVisible = true;
 // Component Variable List
 MYFW_COMPONENT_IMPLEMENT_VARIABLE_LIST( ComponentTransform );
 
-MySimplePool<TransformPositionChangedCallbackStruct> g_pComponentTransform_PositionChangedCallbackPool;
+MySimplePool<TransformChangedCallbackStruct> g_pComponentTransform_PositionChangedCallbackPool;
 
 ComponentTransform::ComponentTransform()
 : ComponentBase()
@@ -135,6 +135,8 @@ void ComponentTransform::LuaRegister(lua_State* luastate)
             .addFunction( "SetLocalRotation", &ComponentTransform::SetLocalRotation )
             .addFunction( "GetLocalPosition", &ComponentTransform::GetLocalPosition )
             .addFunction( "GetLocalRotation", &ComponentTransform::GetLocalRotation )
+
+            .addFunction( "LookAt", &ComponentTransform::LookAt )
         .endClass();
 }
 #endif //MYFW_USING_LUA
@@ -292,9 +294,9 @@ void* ComponentTransform::OnValueChanged(ComponentVariable* pVar, int controlid,
 
             for( CPPListNode* pNode = m_PositionChangedCallbackList.GetHead(); pNode != 0; pNode = pNode->GetNext() )
             {
-                TransformPositionChangedCallbackStruct* pCallbackStruct = (TransformPositionChangedCallbackStruct*)pNode;
+                TransformChangedCallbackStruct* pCallbackStruct = (TransformChangedCallbackStruct*)pNode;
 
-                pCallbackStruct->pFunc( pCallbackStruct->pObj, m_WorldPosition, true );
+                pCallbackStruct->pFunc( pCallbackStruct->pObj, m_WorldPosition, m_WorldRotation, m_WorldScale, true );
             }
         }
         else if( pVar->m_Offset == MyOffsetOf( this, &m_LocalPosition ) ||
@@ -305,9 +307,9 @@ void* ComponentTransform::OnValueChanged(ComponentVariable* pVar, int controlid,
 
             for( CPPListNode* pNode = m_PositionChangedCallbackList.GetHead(); pNode != 0; pNode = pNode->GetNext() )
             {
-                TransformPositionChangedCallbackStruct* pCallbackStruct = (TransformPositionChangedCallbackStruct*)pNode;
+                TransformChangedCallbackStruct* pCallbackStruct = (TransformChangedCallbackStruct*)pNode;
 
-                pCallbackStruct->pFunc( pCallbackStruct->pObj, m_WorldPosition, true );
+                pCallbackStruct->pFunc( pCallbackStruct->pObj, m_WorldPosition, m_WorldRotation, m_WorldScale, true );
             }
         }
     }
@@ -345,9 +347,9 @@ void ComponentTransform::ImportFromJSONObject(cJSON* jsonobj, unsigned int scene
     // inform all children/other objects that our transform changed.
     for( CPPListNode* pNode = m_PositionChangedCallbackList.GetHead(); pNode != 0; pNode = pNode->GetNext() )
     {
-        TransformPositionChangedCallbackStruct* pCallbackStruct = (TransformPositionChangedCallbackStruct*)pNode;
+        TransformChangedCallbackStruct* pCallbackStruct = (TransformChangedCallbackStruct*)pNode;
 
-        pCallbackStruct->pFunc( pCallbackStruct->pObj, m_WorldPosition, true );
+        pCallbackStruct->pFunc( pCallbackStruct->pObj, m_WorldPosition, m_WorldRotation, m_WorldScale, true );
     }
 }
 
@@ -392,9 +394,9 @@ void ComponentTransform::SetPositionByEditor(Vector3 pos)
 
     for( CPPListNode* pNode = m_PositionChangedCallbackList.GetHead(); pNode != 0; pNode = pNode->GetNext() )
     {
-        TransformPositionChangedCallbackStruct* pCallbackStruct = (TransformPositionChangedCallbackStruct*)pNode;
+        TransformChangedCallbackStruct* pCallbackStruct = (TransformChangedCallbackStruct*)pNode;
 
-        pCallbackStruct->pFunc( pCallbackStruct->pObj, m_LocalPosition, true );
+        pCallbackStruct->pFunc( pCallbackStruct->pObj, m_WorldPosition, m_WorldRotation, m_WorldScale, true );
     }
 }
 #endif
@@ -411,9 +413,9 @@ void ComponentTransform::SetWorldPosition(Vector3 pos)
 
     for( CPPListNode* pNode = m_PositionChangedCallbackList.GetHead(); pNode != 0; pNode = pNode->GetNext() )
     {
-        TransformPositionChangedCallbackStruct* pCallbackStruct = (TransformPositionChangedCallbackStruct*)pNode;
+        TransformChangedCallbackStruct* pCallbackStruct = (TransformChangedCallbackStruct*)pNode;
 
-        pCallbackStruct->pFunc( pCallbackStruct->pObj, m_WorldPosition, true );
+        pCallbackStruct->pFunc( pCallbackStruct->pObj, m_WorldPosition, m_WorldRotation, m_WorldScale, true );
     }
 }
 
@@ -473,9 +475,9 @@ void ComponentTransform::SetLocalPosition(Vector3 pos)
 
     for( CPPListNode* pNode = m_PositionChangedCallbackList.GetHead(); pNode != 0; pNode = pNode->GetNext() )
     {
-        TransformPositionChangedCallbackStruct* pCallbackStruct = (TransformPositionChangedCallbackStruct*)pNode;
+        TransformChangedCallbackStruct* pCallbackStruct = (TransformChangedCallbackStruct*)pNode;
 
-        pCallbackStruct->pFunc( pCallbackStruct->pObj, m_LocalPosition, true );
+        pCallbackStruct->pFunc( pCallbackStruct->pObj, m_WorldPosition, m_WorldRotation, m_WorldScale, true );
     }
 }
 
@@ -587,6 +589,18 @@ MyMatrix ComponentTransform::GetLocalRotPosMatrix()
     local.CreateSRT( Vector3(1,1,1), m_LocalRotation, m_LocalPosition );
 
     return local;
+}
+
+void ComponentTransform::LookAt(Vector3 pos)
+{
+    MyMatrix temp;
+    temp.CreateLookAtWorld( m_WorldPosition, Vector3(0,1,0), pos );
+
+    Vector3 rot = temp.GetEulerAngles() * 180.0f/PI;
+
+    //LOGInfo( "LookAt", "(%0.2f, %0.2f, %0.2f)\n", rot.x, rot.y, rot.z );
+
+    SetWorldRotation( rot );
 }
 
 void ComponentTransform::SetParentTransform(ComponentTransform* pNewParent, bool unregisterondeletecallback)
@@ -711,11 +725,11 @@ void ComponentTransform::UpdateTransform()
 //    return &m_Transform;
 //}
 
-void ComponentTransform::RegisterPositionChangedCallback(void* pObj, TransformPositionChangedCallbackFunc pCallback)
+void ComponentTransform::RegisterPositionChangedCallback(void* pObj, TransformChangedCallbackFunc pCallback)
 {
     MyAssert( pCallback != 0 );
 
-    TransformPositionChangedCallbackStruct* pCallbackStruct = g_pComponentTransform_PositionChangedCallbackPool.GetObjectFromPool();
+    TransformChangedCallbackStruct* pCallbackStruct = g_pComponentTransform_PositionChangedCallbackPool.GetObjectFromPool();
 
     //LOGInfo( "TransformPool", "Grabbed an object (%d) - %s\n", g_pComponentTransform_PositionChangedCallbackPool.GetNumUsed(), ((ComponentBase*)pObj)->m_pGameObject->GetName() );
 
@@ -734,7 +748,7 @@ void ComponentTransform::UnregisterPositionChangedCallbacks(void* pObj)
     {
         CPPListNode* pNextNode = pNode->GetNext();
 
-        TransformPositionChangedCallbackStruct* pCallbackStruct = (TransformPositionChangedCallbackStruct*)pNode;
+        TransformChangedCallbackStruct* pCallbackStruct = (TransformChangedCallbackStruct*)pNode;
 
         if( pCallbackStruct->pObj == pObj )
         {
@@ -759,15 +773,15 @@ void ComponentTransform::OnGameObjectDeleted(GameObject* pGameObject)
     }
 }
 
-void ComponentTransform::OnParentTransformChanged(Vector3& newpos, bool changedbyeditor)
+void ComponentTransform::OnParentTransformChanged(Vector3& newpos, Vector3& newrot, Vector3& newscale, bool changedbyeditor)
 {
     m_LocalTransformIsDirty = true;
     UpdateTransform();
 
     for( CPPListNode* pNode = m_PositionChangedCallbackList.GetHead(); pNode != 0; pNode = pNode->GetNext() )
     {
-        TransformPositionChangedCallbackStruct* pCallbackStruct = (TransformPositionChangedCallbackStruct*)pNode;
+        TransformChangedCallbackStruct* pCallbackStruct = (TransformChangedCallbackStruct*)pNode;
 
-        pCallbackStruct->pFunc( pCallbackStruct->pObj, m_WorldPosition, changedbyeditor );
+        pCallbackStruct->pFunc( pCallbackStruct->pObj, m_WorldPosition, m_WorldRotation, m_WorldScale, changedbyeditor );
     }
 }

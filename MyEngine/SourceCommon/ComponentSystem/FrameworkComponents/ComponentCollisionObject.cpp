@@ -63,7 +63,7 @@ void ComponentCollisionObject::Reset()
     m_pPanelWatchBlockVisible = &m_PanelWatchBlockVisible;
     m_ControlID_PrimitiveType = -1;
 
-    m_pComponentTransform->RegisterPositionChangedCallback( this, StaticOnTransformPositionChanged );
+    m_pComponentTransform->RegisterPositionChangedCallback( this, StaticOnTransformChanged );
 #endif //MYFW_USING_WX
 }
 
@@ -168,7 +168,7 @@ void ComponentCollisionObject::OnDropOBJ(int controlid, wxCoord x, wxCoord y)
     }
 }
 
-void ComponentCollisionObject::OnTransformPositionChanged(Vector3& newpos, bool changedbyeditor)
+void ComponentCollisionObject::OnTransformChanged(Vector3& newpos, Vector3& newrot, Vector3& newscale, bool changedbyeditor)
 {
     if( changedbyeditor )
         SyncRigidBodyToTransform();
