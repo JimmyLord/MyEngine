@@ -68,6 +68,8 @@ public:
 
     virtual void SetMesh(MyMesh* pMesh);
 
+    virtual void MeshFinishedLoading();
+
     virtual void AddToSceneGraph();
     virtual void RemoveFromSceneGraph();
     virtual void PushChangesToSceneGraphObjects();

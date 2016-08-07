@@ -20,6 +20,7 @@ private:
 
 protected:
     Vector3Int m_ChunkSize;
+    Vector3 m_BlockSize;
 
 public:
     ComponentVoxelMesh();
@@ -40,9 +41,9 @@ public:
     virtual void RegisterCallbacks();
     virtual void UnregisterCallbacks();
 
+    virtual void MeshFinishedLoading();
+
     // Rendering
-    //virtual MaterialDefinition* GetMaterial() { return m_pMaterial; }
-    //virtual void SetMaterial(MaterialDefinition* pMaterial);
 
     // Queries
     VoxelChunk* GetChunk() { return (VoxelChunk*)m_pMesh; }//m_pVoxelChunk; }

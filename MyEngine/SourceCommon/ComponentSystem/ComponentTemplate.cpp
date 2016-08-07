@@ -127,16 +127,12 @@ void* ComponentTemplate::OnValueChanged(ComponentVariable* pVar, int controlid, 
 //{
 //    cJSON* jComponent = ComponentBase::ExportAsJSONObject( savesceneid );
 //
-//    ExportVariablesToJSON( jComponent ); //_VARIABLE_LIST
-//
 //    return jComponent;
 //}
 //
 //void ComponentTemplate::ImportFromJSONObject(cJSON* jComponent, unsigned int sceneid)
 //{
 //    ComponentBase::ImportFromJSONObject( jComponent, sceneid );
-//
-//    ImportVariablesFromJSON( jComponent ); //_VARIABLE_LIST
 //}
 
 ComponentTemplate& ComponentTemplate::operator=(const ComponentTemplate& other)

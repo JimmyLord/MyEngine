@@ -30,6 +30,7 @@ protected:
     Vector3Int m_ChunkOffset;
 
     VoxelBlock* m_pBlocks;
+    unsigned int m_BlocksAllocated;
 
     SceneGraphObject* m_pSceneGraphObject;
 
@@ -39,6 +40,7 @@ public:
 
     void Initialize(VoxelWorld* world, Vector3 pos, Vector3Int chunkoffset, Vector3 blocksize);
     void SetChunkSize(Vector3Int chunksize);
+    void SetBlockSize(Vector3 blocksize);
 
     // Load/Save ".myvoxelmesh" files
     void CreateFromVoxelMeshFile(MyFileObject* pFile);

@@ -14,6 +14,7 @@
 
 EditorInterface_VoxelMeshEditor::EditorInterface_VoxelMeshEditor()
 {
+    m_pVoxelWorld = 0;
     m_pVoxelMesh = 0;
 
     m_CapturedRightMouse = false;

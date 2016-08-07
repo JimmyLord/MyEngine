@@ -28,6 +28,7 @@ ComponentVoxelMesh::ComponentVoxelMesh()
     m_BaseType = BaseComponentType_Data;
 
     m_ChunkSize.Set( 4, 4, 4 );
+    m_BlockSize.Set( 0.2f, 0.2f, 0.2f );
 }
 
 ComponentVoxelMesh::~ComponentVoxelMesh()
@@ -48,6 +49,7 @@ void ComponentVoxelMesh::RegisterVariables(CPPListHead* pList, ComponentVoxelMes
     //    (CVarFunc_DropTarget)&ComponentVoxelMesh::OnDrop, 0 );
 
     AddVar( pList, "MaxSize", ComponentVariableType_Vector3Int, MyOffsetOf( pThis, &pThis->m_ChunkSize ), true, true, 0, (CVarFunc_ValueChanged)&ComponentVoxelMesh::OnValueChanged, (CVarFunc_DropTarget)&ComponentVoxelMesh::OnDrop, 0 );
+    AddVar( pList, "BlockSize", ComponentVariableType_Vector3, MyOffsetOf( pThis, &pThis->m_BlockSize ), true, true, 0, (CVarFunc_ValueChanged)&ComponentVoxelMesh::OnValueChanged, (CVarFunc_DropTarget)&ComponentVoxelMesh::OnDrop, 0 );
 
     AddVarPointer( pList, "File", true, true, "File",
         (CVarFunc_GetPointerValue)&ComponentVoxelMesh::GetPointerValue,
@@ -63,6 +65,7 @@ void ComponentVoxelMesh::Reset()
     ComponentMesh::Reset();
 
     m_ChunkSize.Set( 4, 4, 4 );
+    m_BlockSize.Set( 0.2f, 0.2f, 0.2f );
 
 #if MYFW_USING_WX
     m_pPanelWatchBlockVisible = &m_PanelWatchBlockVisible;
@@ -224,11 +227,21 @@ void* ComponentVoxelMesh::OnValueChanged(ComponentVariable* pVar, int controlid,
 {
     void* oldpointer = 0;
 
-    if( pVar->m_Offset == MyOffsetOf( this, &m_ChunkSize ) )
+    if( m_pMesh )
     {
-        MyAssert( pVar->m_ControlID != -1 );
+        VoxelChunk* pVoxelChunk = (VoxelChunk*)m_pMesh;
 
-        // TODO: resize the max voxel size.
+        if( pVar->m_Offset == MyOffsetOf( this, &m_ChunkSize ) )
+        {
+            pVoxelChunk->SetChunkSize( m_ChunkSize );
+        }
+
+        if( pVar->m_Offset == MyOffsetOf( this, &m_BlockSize ) )
+        {
+            pVoxelChunk->SetBlockSize( m_BlockSize );
+        }
+
+        pVoxelChunk->RebuildMesh( 1 );
     }
 
     if( finishedchanging )
@@ -270,15 +283,6 @@ void ComponentVoxelMesh::OnButtonCreateMesh()
             sprintf_s( fullpath, MAX_PATH, "%s", (const char*)wxpath );
             const char* relativepath = GetRelativePath( fullpath );
 
-            if( g_pFileManager->DoesFileExist( relativepath ) == false )
-            {
-                // create the file
-                // TODO: make the file not garbage.
-                FILE* file = 0;
-                fopen_s( &file, relativepath, "wb" );
-                fclose( file );
-            }
-
             {
                 MyFileObject* pFile = g_pComponentSystemManager->LoadDataFile( relativepath, m_pGameObject->GetSceneID(), 0, true );
 
@@ -293,6 +297,24 @@ void ComponentVoxelMesh::OnButtonCreateMesh()
                 m_pMesh->m_pSourceFile = pFile;
 
                 g_pPanelWatch->SetNeedsRefresh();
+            }
+
+            if( g_pFileManager->DoesFileExist( relativepath ) == false )
+            {
+                // create the file
+                VoxelChunk* pChunk = (VoxelChunk*)m_pMesh;
+                cJSON* jVoxelMesh = pChunk->ExportAsJSONObject();
+
+                char* string = cJSON_Print( jVoxelMesh );
+
+                FILE* file = 0;
+                fopen_s( &file, relativepath, "wb" );
+                fprintf( file, "%s", string );
+                fclose( file );
+
+                cJSON_Delete( jVoxelMesh );
+
+                cJSONExt_free( string );
             }
         }
     }
@@ -331,6 +353,7 @@ ComponentVoxelMesh& ComponentVoxelMesh::operator=(const ComponentVoxelMesh& othe
     //    m_pMaterial->AddRef();
 
     m_ChunkSize = other.m_ChunkSize;
+    m_BlockSize = other.m_BlockSize;
 
     return *this;
 }
@@ -371,32 +394,12 @@ void ComponentVoxelMesh::UnregisterCallbacks()
     }
 }
 
-//void ComponentVoxelMesh::SetMaterial(MaterialDefinition* pMaterial)
-//{
-//    if( pMaterial )
-//        pMaterial->AddRef();
-//    SAFE_RELEASE( m_pMaterial );
-//    m_pMaterial = pMaterial;
-//
-//    if( m_pVoxelChunk == 0 )
-//        return;
-//
-//    m_pVoxelChunk->SetMaterial( pMaterial, 0 );
-//}
+void ComponentVoxelMesh::MeshFinishedLoading()
+{
+    VoxelChunk* pVoxelChunk = (VoxelChunk*)m_pMesh;
 
-//void ComponentVoxelMesh::TickCallback(double TimePassed)
-//{
-//    if( m_pVoxelChunk == 0 )
-//        return;
-//
-//    m_pVoxelChunk->Tick( TimePassed );
-//    m_pVoxelChunk->UpdateVisibility( this );
-//
-//    GameObject* pPlayer = g_pComponentSystemManager->FindGameObjectByName( "Player" );
-//    Vector3 pos = pPlayer->GetTransform()->GetChunkPosition();
-//
-//    m_pVoxelChunk->SetChunkCenter( pos );
-//}
+    m_ChunkSize = pVoxelChunk->GetChunkSize();
+}
 
 #if _DEBUG
 static Vector3 g_RayStart;
@@ -475,7 +478,7 @@ void ComponentVoxelMesh::CreateMesh()
     {
         VoxelChunk* pVoxelChunk = MyNew VoxelChunk;
 
-        pVoxelChunk->Initialize( 0, Vector3(0,0,0), Vector3Int(0,0,0), Vector3(0.2f,0.2f,0.2f) );
+        pVoxelChunk->Initialize( 0, Vector3(0,0,0), Vector3Int(0,0,0), m_BlockSize );
         pVoxelChunk->SetChunkSize( m_ChunkSize );
         VoxelBlock* pBlocks = pVoxelChunk->GetBlocks();
         for( int z=0; z<m_ChunkSize.z; z++ )
@@ -486,6 +489,7 @@ void ComponentVoxelMesh::CreateMesh()
                 {
                     VoxelBlock* pBlock = &pBlocks[z*m_ChunkSize.y*m_ChunkSize.x + y*m_ChunkSize.x + x];
 
+                    pBlock->SetBlockType( 1 );
                     pBlock->SetEnabled( true );
                 }
             }

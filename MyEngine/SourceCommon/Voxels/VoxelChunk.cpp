@@ -27,6 +27,7 @@ VoxelChunk::VoxelChunk()
     m_pSceneGraphObject = 0;
 
     m_pBlocks = 0;
+    m_BlocksAllocated = 0;
 }
 
 VoxelChunk::~VoxelChunk()
@@ -64,10 +65,82 @@ void VoxelChunk::Initialize(VoxelWorld* world, Vector3 pos, Vector3Int chunkoffs
 
 void VoxelChunk::SetChunkSize(Vector3Int chunksize)
 {
-    m_ChunkSize = chunksize;
+    if( (unsigned int)(chunksize.x * chunksize.y * chunksize.z) == m_BlocksAllocated )
+        return;
 
     if( m_pBlocks == 0 )
-        m_pBlocks = MyNew VoxelBlock[chunksize.x * chunksize.y * chunksize.z];
+    {
+        m_BlocksAllocated = chunksize.x * chunksize.y * chunksize.z;
+        m_pBlocks = MyNew VoxelBlock[m_BlocksAllocated];
+        for( unsigned int i=0; i<m_BlocksAllocated; i++ )
+        {
+            m_pBlocks[i].SetBlockType( 0 );
+            m_pBlocks[i].SetEnabled( false );
+        }
+    }
+    else
+    {
+        if( (unsigned int)(chunksize.x * chunksize.y * chunksize.z) > m_BlocksAllocated )
+        {
+            VoxelBlock* oldblocks = m_pBlocks;
+
+            m_BlocksAllocated = chunksize.x * chunksize.y * chunksize.z;
+            m_pBlocks = MyNew VoxelBlock[m_BlocksAllocated];
+            for( unsigned int i=0; i<m_BlocksAllocated; i++ )
+            {
+                m_pBlocks[i].SetBlockType( 0 );
+                m_pBlocks[i].SetEnabled( false );
+            }
+
+            // copy the contents of the old size into the new one.
+            // m_ChunkSize is old size, chunksize is new.
+            for( int z=0; z<m_ChunkSize.z; z++ )
+            {
+                for( int y=0; y<m_ChunkSize.y; y++ )
+                {
+                    for( int x=0; x<m_ChunkSize.x; x++ )
+                    {
+                        int oldoffset = z * m_ChunkSize.y * m_ChunkSize.x + y * m_ChunkSize.x + x;
+                        int newoffset = z * chunksize.y * chunksize.x + y * chunksize.x + x;
+
+                        m_pBlocks[newoffset].SetEnabled( oldblocks[oldoffset].IsEnabled() );
+                        m_pBlocks[newoffset].SetBlockType( oldblocks[oldoffset].GetBlockType() );
+                    }
+                }
+            }
+
+            delete[] oldblocks;
+        }
+        else
+        {
+            // move the blocks around to fit into the smaller size.
+            // m_ChunkSize is old size, chunksize is new.
+            for( int z=0; z<chunksize.z; z++ )
+            {
+                for( int y=0; y<chunksize.y; y++ )
+                {
+                    for( int x=0; x<chunksize.x; x++ )
+                    {
+                        int oldoffset = z * m_ChunkSize.y * m_ChunkSize.x + y * m_ChunkSize.x + x;
+                        int newoffset = z * chunksize.y * chunksize.x + y * chunksize.x + x;
+
+                        if( oldoffset != newoffset )
+                        {
+                            m_pBlocks[newoffset].SetEnabled( m_pBlocks[oldoffset].IsEnabled() );
+                            m_pBlocks[newoffset].SetBlockType( m_pBlocks[oldoffset].GetBlockType() );
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    m_ChunkSize = chunksize;
+}
+
+void VoxelChunk::SetBlockSize(Vector3 blocksize)
+{
+    m_BlockSize = blocksize;
 }
 
 // ============================================================================================================================
@@ -130,9 +203,18 @@ void VoxelChunk::CreateFromVoxelMeshFile(MyFileObject* pFile)
         //}
 
         cJSON* jVoxelMesh = cJSON_Parse( pFile->m_pBuffer );
-        Initialize( 0, Vector3(0,0,0), Vector3Int(0,0,0), m_BlockSize );
-        ImportFromJSONObject( jVoxelMesh );
-        cJSON_Delete( jVoxelMesh );
+        if( jVoxelMesh )
+        {
+            Initialize( 0, Vector3(0,0,0), Vector3Int(0,0,0), m_BlockSize );
+            ImportFromJSONObject( jVoxelMesh );
+            cJSON_Delete( jVoxelMesh );
+        }
+        else
+        {
+            // shouldn't happen if the file isn't corrupt
+            // TODO: this number should match the size set in ComponentVoxelMesh.
+            SetChunkSize( Vector3Int( 4, 4, 4 ) );
+        }
         
         //if( m_pAnimationControlFile )
         //{
