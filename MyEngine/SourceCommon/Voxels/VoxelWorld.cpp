@@ -146,37 +146,50 @@ void VoxelWorld::Tick(double timepassed)
     }
 
     // build the mesh for a single chunk per frame.
-    VoxelChunk* pChunk = (VoxelChunk*)m_pChunksLoading.GetHead();
-
-    if( pChunk )
+    int maxtobuildinoneframe = 4;
+    for( int i=0; i<maxtobuildinoneframe; i++ )
     {
-        Vector3Int chunkpos = GetChunkPosition( pChunk->GetChunkOffset() );
-        cJSON* jChunk = GetJSONObjectForChunk( chunkpos );
+        VoxelChunk* pChunk = (VoxelChunk*)m_pChunksLoading.GetHead();
 
-        if( jChunk )
+        if( pChunk )
         {
-            pChunk->ImportFromJSONObject( jChunk );
-        }
-        else
-        {
-            pChunk->GenerateMap();
-        }
-        pChunk->RebuildMesh( 1 );
-        m_pChunksVisible.MoveTail( pChunk );
+            if( pChunk->IsMapCreated() == false )
+            {
+                Vector3Int chunkpos = GetChunkPosition( pChunk->GetChunkOffset() );
+                cJSON* jChunk = GetJSONObjectForChunk( chunkpos );
 
-        return;
-    }
+                if( jChunk )
+                {
+                    pChunk->ImportFromJSONObject( jChunk );
+                }
+                else
+                {
+                    pChunk->GenerateMap();
+                }
+            }
 
-    // if all chunks are loaded then rebuild a single unoptimized chunk per frame.
-    pChunk = (VoxelChunk*)m_pChunksVisible.GetHead();
-    while( pChunk )
-    {
-        if( pChunk->IsMeshOptimized() == false )
-        {
+            pChunk->SetMaterial( m_pMaterial, 0 );
             pChunk->RebuildMesh( 1 );
+    
+            if( pChunk->m_MeshReady == true )
+            {
+                m_pChunksVisible.MoveTail( pChunk );
+            }
+
             return;
         }
-        pChunk = (VoxelChunk*)pChunk->GetNext();
+
+        // if all chunks are loaded then rebuild a single unoptimized chunk per frame.
+        pChunk = (VoxelChunk*)m_pChunksVisible.GetHead();
+        while( pChunk )
+        {
+            if( pChunk->IsMeshOptimized() == false )
+            {
+                pChunk->RebuildMesh( 1 );
+                return;
+            }
+            pChunk = (VoxelChunk*)pChunk->GetNext();
+        }
     }
 }
 

@@ -58,7 +58,7 @@ public:
     bool IsBlockEnabled(int localx, int localy, int localz, bool blockexistsifnotready = false);
 
     // Rendering
-    void RebuildMesh(unsigned int increment);
+    bool RebuildMesh(unsigned int increment);
 
     void AddToSceneGraph(void* pUserData, MaterialDefinition* pMaterial);
     void OverrideSceneGraphObjectTransform(MyMatrix* pTransform);

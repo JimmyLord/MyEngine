@@ -447,9 +447,19 @@ bool VoxelChunk::IsBlockEnabled(int localx, int localy, int localz, bool blockex
 // ============================================================================================================================
 // Rendering
 // ============================================================================================================================
-void VoxelChunk::RebuildMesh(unsigned int increment)
+bool VoxelChunk::RebuildMesh(unsigned int increment)
 {
     MyAssert( m_pBlocks );
+
+    if( m_SubmeshList[0]->GetMaterial() == 0 ||
+        m_SubmeshList[0]->GetMaterial()->GetTextureColor() == 0 )
+    {
+        return false;
+    }
+
+    TextureDefinition* pTexture = m_SubmeshList[0]->GetMaterial()->GetTextureColor();
+    int texwidth = pTexture->m_Width;
+    int texheight = pTexture->m_Height;
 
     // Loop through blocks and add a cube for each one that's enabled
     // TODO: merge outer faces, eliminate inner faces.
@@ -479,10 +489,10 @@ void VoxelChunk::RebuildMesh(unsigned int increment)
         unsigned short* pActualIndices = pIndices;
 
         //  block type          1, 2, 3, 4, 5, 6
-        int TileTops_Col[] =  { 0, 1, 2, 3, 0, 0 };
-        int TileTops_Row[] =  { 0, 0, 0, 0, 2, 3 };
-        int TileSides_Col[] = { 0, 1, 2, 3, 0, 0 };
-        int TileSides_Row[] = { 1, 1, 1, 1, 2, 3 };
+        int TileTops_Col[] =  { 0, 1, 2, 3, 4, 5 };
+        int TileTops_Row[] =  { 0, 0, 0, 0, 0, 0 };
+        int TileSides_Col[] = { 0, 1, 2, 3, 4, 5 };
+        int TileSides_Row[] = { 1, 1, 1, 1, 1, 1 };
 
         int vertcount = 0;
         int indexcount = 0;
@@ -516,10 +526,10 @@ void VoxelChunk::RebuildMesh(unsigned int increment)
                     int c = 0;//rand()%3;
                     int r = 1;//rand()%3;
 
-                    float uleft   = (32.0f*(TileSides_Col[tileindex]+0)) / 128.0f;
-                    float uright  = (32.0f*(TileSides_Col[tileindex]+1)) / 128.0f;
-                    float vtop    = (32.0f*(TileSides_Row[tileindex]+0)) / 128.0f;
-                    float vbottom = (32.0f*(TileSides_Row[tileindex]+1)) / 128.0f;
+                    float uleft   = (32.0f*(TileSides_Col[tileindex]+0)) / texwidth;
+                    float uright  = (32.0f*(TileSides_Col[tileindex]+1)) / texwidth;
+                    float vtop    = (32.0f*(TileSides_Row[tileindex]+0)) / texwidth;
+                    float vbottom = (32.0f*(TileSides_Row[tileindex]+1)) / texwidth;
 
                     Vector3Int worldpos( m_ChunkOffset.x+x, m_ChunkOffset.y+y, m_ChunkOffset.z+z );
 
@@ -626,10 +636,10 @@ void VoxelChunk::RebuildMesh(unsigned int increment)
                     c = 3;//rand()%3;
                     r = 0;//rand()%3;
 
-                    uleft   = (32.0f*(TileTops_Col[tileindex]+0)) / 128.0f;
-                    uright  = (32.0f*(TileTops_Col[tileindex]+1)) / 128.0f;
-                    vtop    = (32.0f*(TileTops_Row[tileindex]+0)) / 128.0f;
-                    vbottom = (32.0f*(TileTops_Row[tileindex]+1)) / 128.0f;
+                    uleft   = (32.0f*(TileTops_Col[tileindex]+0)) / texwidth;
+                    uright  = (32.0f*(TileTops_Col[tileindex]+1)) / texwidth;
+                    vtop    = (32.0f*(TileTops_Row[tileindex]+0)) / texwidth;
+                    vbottom = (32.0f*(TileTops_Row[tileindex]+1)) / texwidth;
 
                     // top
                     if( y == (m_ChunkSize.y-1) && m_pWorld && m_pWorld->IsBlockEnabled( worldpos.x, worldpos.y+1, worldpos.z ) )
@@ -710,12 +720,12 @@ void VoxelChunk::RebuildMesh(unsigned int increment)
         {
             Vector3Int neighbourchunkpos = chunkpos;
 
-            if( i == 0 ) chunkpos.x += 1;
-            if( i == 1 ) chunkpos.x -= 1;
-            if( i == 2 ) chunkpos.y += 1;
-            if( i == 3 ) chunkpos.y -= 1;
-            if( i == 4 ) chunkpos.z += 1;
-            if( i == 5 ) chunkpos.z -= 1;
+            if( i == 0 ) neighbourchunkpos.x += 1;
+            if( i == 1 ) neighbourchunkpos.x -= 1;
+            if( i == 2 ) neighbourchunkpos.y += 1;
+            if( i == 3 ) neighbourchunkpos.y -= 1;
+            if( i == 4 ) neighbourchunkpos.z += 1;
+            if( i == 5 ) neighbourchunkpos.z -= 1;
 
             if( m_pWorld->IsChunkActive( neighbourchunkpos ) )
             {
@@ -730,6 +740,8 @@ void VoxelChunk::RebuildMesh(unsigned int increment)
     }
 
     m_MeshReady = true;
+
+    return true;
 }
 
 void VoxelChunk::AddToSceneGraph(void* pUserData, MaterialDefinition* pMaterial)
@@ -762,10 +774,10 @@ void VoxelChunk::RemoveFromSceneGraph()
 
 void VoxelChunk::SetMaterial(MaterialDefinition* pMaterial, int submeshindex)
 {
+    MyMesh::SetMaterial( pMaterial, 0 );
+
     if( m_pSceneGraphObject == 0 )
         return;
-
-    MyMesh::SetMaterial( pMaterial, 0 );
 
     m_pSceneGraphObject->m_pMaterial = pMaterial;
 }
