@@ -13,9 +13,14 @@
 bool ComponentPostEffect::m_PanelWatchBlockVisible = true;
 #endif
 
+// Component Variable List
+MYFW_COMPONENT_IMPLEMENT_VARIABLE_LIST( ComponentPostEffect ); //_VARIABLE_LIST
+
 ComponentPostEffect::ComponentPostEffect()
 : ComponentData()
 {
+    MYFW_COMPONENT_VARIABLE_LIST_CONSTRUCTOR(); //_VARIABLE_LIST
+
     ClassnameSanityCheck();
 
     m_BaseType = BaseComponentType_Data;
@@ -26,8 +31,17 @@ ComponentPostEffect::ComponentPostEffect()
 
 ComponentPostEffect::~ComponentPostEffect()
 {
+    MYFW_COMPONENT_VARIABLE_LIST_DESTRUCTOR(); //_VARIABLE_LIST
+
     SAFE_RELEASE( m_pFullScreenQuad );
     SAFE_RELEASE( m_pMaterial );
+}
+
+void ComponentPostEffect::RegisterVariables(CPPListHead* pList, ComponentPostEffect* pThis) //_VARIABLE_LIST
+{
+    AddVar( pList, "Enabled", ComponentVariableType_Bool, MyOffsetOf( pThis, &pThis->m_Enabled ), true, true, 0,
+            (CVarFunc_ValueChanged)&ComponentPostEffect::OnValueChanged,
+            0, 0 ); //ComponentPostEffect::StaticOnDrop, 0 );
 }
 
 #if MYFW_USING_WX
@@ -48,6 +62,8 @@ void ComponentPostEffect::FillPropertiesWindow(bool clear, bool addcomponentvari
     if( m_PanelWatchBlockVisible || ignoreblockvisibleflag == true )
     {
         ComponentData::FillPropertiesWindow( clear );
+
+        FillPropertiesWindowWithVariables(); //_VARIABLE_LIST
 
         const char* desc = "no material";
         if( m_pMaterial && m_pMaterial->m_pFile )
@@ -71,9 +87,11 @@ void ComponentPostEffect::OnDropMaterial(int controlid, wxCoord x, wxCoord y)
     }
 }
 
-void ComponentPostEffect::OnValueChanged(int controlid, bool finishedchanging)
+void* ComponentPostEffect::OnValueChanged(ComponentVariable* pVar, int controlid, bool finishedchanging, double oldvalue)
 {
-    //ComponentData::OnValueChanged( controlid, finishedchanging );
+    void* oldpointer = 0;
+
+    return oldpointer;
 }
 #endif //MYFW_USING_WX
 

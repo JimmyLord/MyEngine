@@ -293,7 +293,7 @@ ComponentPostEffect* ComponentCamera::GetNextPostEffect(ComponentPostEffect* pLa
     {
         pPostEffect = pComponent->IsA( "PostEffectComponent" ) ? (ComponentPostEffect*)pComponent : 0;
         
-        if( pPostEffect && pPostEffect->m_pMaterial != 0 )
+        if( pPostEffect && pPostEffect->m_pMaterial != 0 && pPostEffect->IsEnabled() )
             return pPostEffect; // if we found a valid initialized post effect, return it.
         else
             pComponent = m_pGameObject->GetNextComponentOfBaseType( pComponent );
