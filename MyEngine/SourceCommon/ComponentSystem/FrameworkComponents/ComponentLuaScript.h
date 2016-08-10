@@ -14,6 +14,8 @@ enum ExposedVariableTypes
 {
     ExposedVariableType_Unused,
     ExposedVariableType_Float,
+    ExposedVariableType_Bool,
+    ExposedVariableType_Vector3,
     ExposedVariableType_GameObject,
 };
 
@@ -23,7 +25,9 @@ struct ExposedVariableDesc
     ExposedVariableTypes type;
     union // TODO?: make these values shared between c++ and lua so they can be changed/saved more easily.
     {
-        double value;
+        double valuedouble;
+        bool valuebool;
+        float valuevector3[3];
         void* pointer;
     };
 
@@ -34,7 +38,9 @@ struct ExposedVariableDesc
     {
         name = "";
         type = ExposedVariableType_Unused;
-        value = 0;
+        valuedouble = 0;
+        valuebool = 0;
+        valuevector3[0] = valuevector3[1] = valuevector3[2] = 0;
         inuse = false;
         controlID = -1;
     }

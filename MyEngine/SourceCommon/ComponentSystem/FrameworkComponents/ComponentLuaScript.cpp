@@ -235,17 +235,39 @@ void ComponentLuaScript::FillPropertiesWindow(bool clear, bool addcomponentvaria
 
             ExposedVariableDesc* pVar = m_ExposedVars[i];
 
-            if( pVar->type == ExposedVariableType_Float )
+            switch( pVar->type )
             {
-                id = g_pPanelWatch->AddDouble( pVar->name.c_str(), &pVar->value, 0, 0, this, ComponentLuaScript::StaticOnValueChanged );
-            }
-            else if( pVar->type == ExposedVariableType_GameObject )
-            {
-                // setup name and drag and drop of game objects.
-                const char* desc = "no gameobject";
-                if( pVar->pointer )
-                    desc = ((GameObject*)pVar->pointer)->GetName();
-                id = g_pPanelWatch->AddPointerWithDescription( pVar->name.c_str(), pVar->pointer, desc, this, ComponentLuaScript::StaticOnDrop, ComponentLuaScript::StaticOnValueChanged );
+            case ExposedVariableType_Unused:
+                MyAssert( false );
+                break;
+
+            case ExposedVariableType_Float:
+                {
+                    id = g_pPanelWatch->AddDouble( pVar->name.c_str(), &pVar->valuedouble, 0, 0, this, ComponentLuaScript::StaticOnValueChanged );
+                }
+                break;
+
+            case ExposedVariableType_Bool:
+                {
+                    id = g_pPanelWatch->AddBool( pVar->name.c_str(), &pVar->valuebool, 0, 0, this, ComponentLuaScript::StaticOnValueChanged );
+                }
+                break;
+
+            case ExposedVariableType_Vector3:
+                {
+                    id = g_pPanelWatch->AddVector3( pVar->name.c_str(), (Vector3*)&pVar->valuevector3, 0, 0, this, ComponentLuaScript::StaticOnValueChanged );
+                }
+                break;
+
+            case ExposedVariableType_GameObject:
+                {
+                    // setup name and drag and drop of game objects.
+                    const char* desc = "no gameobject";
+                    if( pVar->pointer )
+                        desc = ((GameObject*)pVar->pointer)->GetName();
+                    id = g_pPanelWatch->AddPointerWithDescription( pVar->name.c_str(), pVar->pointer, desc, this, ComponentLuaScript::StaticOnDrop, ComponentLuaScript::StaticOnValueChanged );
+                }
+                break;
             }
 
             if( m_ControlIDOfFirstExtern == -1 )
@@ -385,14 +407,27 @@ void ComponentLuaScript::OnValueChanged(int controlid, bool finishedchanging, do
 {
     if( controlid != -1 && m_ControlIDOfFirstExtern != -1 )
     {
-        int id = controlid - m_ControlIDOfFirstExtern;
+        //int id = controlid - m_ControlIDOfFirstExtern;
         
-        MyAssert( id < (int)m_ExposedVars.Count() );
-        if( id < (int)m_ExposedVars.Count() )
+        //MyAssert( id < (int)m_ExposedVars.Count() );
+        //if( id < (int)m_ExposedVars.Count() )
+        for( unsigned int index=0; index<m_ExposedVars.Count(); index++ )
         {
-            if( m_ExposedVars[id]->type == ExposedVariableType_GameObject )
+            if( m_ExposedVars[index]->controlID != controlid ||
+                ( m_ExposedVars[index]->type == ExposedVariableType_Vector3 &&
+                  ( m_ExposedVars[index]->controlID + 0 != controlid ||
+                    m_ExposedVars[index]->controlID + 1 != controlid ||
+                    m_ExposedVars[index]->controlID + 2 != controlid
+                  )
+                )
+              )
             {
-                ExposedVariableDesc* pVariable = m_ExposedVars[id];
+                continue;
+            }
+
+            if( m_ExposedVars[index]->type == ExposedVariableType_GameObject )
+            {
+                ExposedVariableDesc* pVariable = m_ExposedVars[index];
                 GameObject* pGameObject = (GameObject*)pVariable->pointer;
 
                 MyAssert( pGameObject->IsA( "GameObject" ) );
@@ -406,9 +441,9 @@ void ComponentLuaScript::OnValueChanged(int controlid, bool finishedchanging, do
                     if( pVariable->type == ExposedVariableType_GameObject && pGameObject )
                         pGameObject->UnregisterOnDeleteCallback( this, StaticOnGameObjectDeleted );
 
-                    void* oldpointer = m_ExposedVars[id]->pointer;
+                    void* oldpointer = m_ExposedVars[index]->pointer;
 
-                    m_ExposedVars[id]->pointer = 0;
+                    m_ExposedVars[index]->pointer = 0;
 
                     UpdateChildrenWithNewValue( controlid, true, 0, oldpointer );
                     ProgramVariables( m_pLuaGameState->m_pLuaState, true );
@@ -509,16 +544,30 @@ void ComponentLuaScript::UpdateChildGameObjectWithNewValue(ExposedVariableDesc* 
                 if( pChildVar )
                 {
                     // Found the matching component, now compare the variable.
-                    if( pChildVar->type == ExposedVariableType_Float )
+                    if( pChildVar->type == ExposedVariableType_Float ||
+                        pChildVar->type == ExposedVariableType_Bool )
                     {
-                        if( fequal( pChildVar->value, oldvalue ) )
+                        if( fequal( pChildVar->valuedouble, oldvalue ) )
                         {
-                            pChildVar->value = pVar->value;
+                            pChildVar->valuedouble = pVar->valuedouble;
                             pChildLuaScript->OnValueChanged( controlid, finishedchanging, oldvalue );
                             ProgramVariables( m_pLuaGameState->m_pLuaState, true );
 
                             pChildLuaScript->UpdateChildrenWithNewValue( controlid, finishedchanging, oldvalue, oldpointer );
                         }
+                    }
+
+                    if( pChildVar->type == ExposedVariableType_Vector3 )
+                    {
+                        MyAssert( false );
+                        //if( fequal( pChildVar->valuevector3[0], oldvalue ) )
+                        //{
+                        //    pChildVar->valuedouble = pVar->valuedouble;
+                        //    pChildLuaScript->OnValueChanged( controlid, finishedchanging, oldvalue );
+                        //    ProgramVariables( m_pLuaGameState->m_pLuaState, true );
+
+                        //    pChildLuaScript->UpdateChildrenWithNewValue( controlid, finishedchanging, oldvalue, oldpointer );
+                        //}
                     }
 
                     if( pVar->type == ExposedVariableType_GameObject )
@@ -562,7 +611,15 @@ cJSON* ComponentLuaScript::ExportAsJSONObject(bool savesceneid)
 
         if( pVar->type == ExposedVariableType_Float )
         {
-            cJSON_AddNumberToObject( jsonvar, "Value", pVar->value );
+            cJSON_AddNumberToObject( jsonvar, "Value", pVar->valuedouble );
+        }
+        if( pVar->type == ExposedVariableType_Bool )
+        {
+            cJSON_AddNumberToObject( jsonvar, "Value", pVar->valuebool );
+        }
+        if( pVar->type == ExposedVariableType_Vector3 )
+        {
+            cJSONExt_AddFloatArrayToObject( jsonvar, "Value", pVar->valuevector3, 3 );
         }
         else if( pVar->type == ExposedVariableType_GameObject && pVar->pointer )
         {
@@ -629,7 +686,15 @@ void ComponentLuaScript::ImportFromJSONObject(cJSON* jsonobj, unsigned int scene
 
         if( pVar->type == ExposedVariableType_Float )
         {
-            cJSONExt_GetDouble( jsonvar, "Value", &pVar->value );
+            cJSONExt_GetDouble( jsonvar, "Value", &pVar->valuedouble );
+        }
+        if( pVar->type == ExposedVariableType_Bool )
+        {
+            cJSONExt_GetBool( jsonvar, "Value", &pVar->valuebool );
+        }
+        if( pVar->type == ExposedVariableType_Vector3 )
+        {
+            cJSONExt_GetFloatArray( jsonvar, "Value", pVar->valuevector3, 3 );
         }
         else if( pVar->type == ExposedVariableType_GameObject )
         {
@@ -829,9 +894,39 @@ void ComponentLuaScript::ParseExterns(luabridge::LuaRef LuaObject)
             {
                 // if it's a new variable or it changed type, set it to it's initial value.
                 if( pVar->inuse == false || pVar->type != ExposedVariableType_Float )
-                    pVar->value = variableinitialvalue.cast<double>();
+                    pVar->valuedouble = variableinitialvalue.cast<double>();
 
                 pVar->type = ExposedVariableType_Float;
+            }
+            else if( vartype == "Vector3" )
+            {
+                // if it's a new variable or it changed type, set it to it's initial value.
+                if( pVar->inuse == false || pVar->type != ExposedVariableType_Vector3 )
+                {
+                    if( variableinitialvalue.isTable() == false ||
+                        variableinitialvalue[1].isNil() || 
+                        variableinitialvalue[2].isNil() || 
+                        variableinitialvalue[3].isNil() )
+                    {
+                        LOGError( "LuaScript", "Initial value for vector3 isn't an array of 3 values\n" );
+                    }
+                    else
+                    {
+                        pVar->valuevector3[0] = variableinitialvalue[1].cast<float>();
+                        pVar->valuevector3[1] = variableinitialvalue[2].cast<float>();
+                        pVar->valuevector3[2] = variableinitialvalue[3].cast<float>();
+                    }
+                }
+
+                pVar->type = ExposedVariableType_Vector3;
+            }
+            else if( vartype == "Bool" )
+            {
+                // if it's a new variable or it changed type, set it to it's initial value.
+                if( pVar->inuse == false || pVar->type != ExposedVariableType_Bool )
+                    pVar->valuebool = variableinitialvalue.cast<bool>();
+
+                pVar->type = ExposedVariableType_Bool;
             }
             else if( vartype == "GameObject" )
             {
@@ -880,7 +975,13 @@ void ComponentLuaScript::ProgramVariables(luabridge::LuaRef LuaObject, bool upda
             ExposedVariableDesc* pVar = m_ExposedVars[i];
 
             if( pVar->type == ExposedVariableType_Float )
-                datatable[pVar->name] = pVar->value;
+                datatable[pVar->name] = pVar->valuedouble;
+
+            if( pVar->type == ExposedVariableType_Bool )
+                datatable[pVar->name] = pVar->valuebool;
+
+            if( pVar->type == ExposedVariableType_Vector3 )
+                datatable[pVar->name] = Vector3( pVar->valuevector3[0], pVar->valuevector3[1], pVar->valuevector3[2] );
 
             if( pVar->type == ExposedVariableType_GameObject )
                 datatable[pVar->name] = (GameObject*)pVar->pointer;
@@ -989,7 +1090,18 @@ void ComponentLuaScript::TickCallback(double TimePassed)
                 {
                     if( pVar->type == ExposedVariableType_Float )
                     {
-                        pVar->value = pOtherVar->value;
+                        pVar->valuedouble = pOtherVar->valuedouble;
+                    }
+
+                    if( pVar->type == ExposedVariableType_Bool )
+                    {
+                        pVar->valuebool = pOtherVar->valuebool;
+                    }
+
+                    if( pVar->type == ExposedVariableType_Vector3 )
+                    {
+                        for( int i=0; i<3; i++ )
+                            pVar->valuevector3[0] = pOtherVar->valuevector3[0];
                     }
 
                     if( pVar->type == ExposedVariableType_GameObject )
