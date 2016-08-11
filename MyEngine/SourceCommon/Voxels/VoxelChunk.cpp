@@ -34,7 +34,8 @@ VoxelChunk::~VoxelChunk()
 {
     RemoveFromSceneGraph();
 
-    delete[] m_pBlocks;
+    if( m_BlocksAllocated > 0 ) 
+        delete[] m_pBlocks;
 }
 
 void VoxelChunk::Initialize(VoxelWorld* world, Vector3 pos, Vector3Int chunkoffset, Vector3 blocksize)
@@ -63,16 +64,29 @@ void VoxelChunk::Initialize(VoxelWorld* world, Vector3 pos, Vector3Int chunkoffs
     }
 }
 
-void VoxelChunk::SetChunkSize(Vector3Int chunksize)
+void VoxelChunk::SetChunkSize(Vector3Int chunksize, VoxelBlock* pPreallocatedBlocks)
 {
-    if( (unsigned int)(chunksize.x * chunksize.y * chunksize.z) == m_BlocksAllocated )
+    unsigned int numblocks = (unsigned int)(chunksize.x * chunksize.y * chunksize.z);
+    if( numblocks == m_BlocksAllocated )
+        return;
+
+    if( chunksize == m_ChunkSize )
         return;
 
     if( m_pBlocks == 0 )
     {
-        m_BlocksAllocated = chunksize.x * chunksize.y * chunksize.z;
-        m_pBlocks = MyNew VoxelBlock[m_BlocksAllocated];
-        for( unsigned int i=0; i<m_BlocksAllocated; i++ )
+        if( pPreallocatedBlocks ) // passed in by world objects, m_BlocksAllocated will equal 0 if it doesn't need freeing.
+        {
+            m_BlocksAllocated = 0;
+            m_pBlocks = pPreallocatedBlocks;
+        }
+        else
+        {
+            m_BlocksAllocated = chunksize.x * chunksize.y * chunksize.z;
+            m_pBlocks = MyNew VoxelBlock[m_BlocksAllocated];
+        }
+
+        for( unsigned int i=0; i<numblocks; i++ )
         {
             m_pBlocks[i].SetBlockType( 0 );
             m_pBlocks[i].SetEnabled( false );
@@ -80,6 +94,9 @@ void VoxelChunk::SetChunkSize(Vector3Int chunksize)
     }
     else
     {
+        // world chunks should never be resized.
+        MyAssert( m_BlocksAllocated != 0 );
+
         if( (unsigned int)(chunksize.x * chunksize.y * chunksize.z) > m_BlocksAllocated )
         {
             VoxelBlock* oldblocks = m_pBlocks;
@@ -299,10 +316,16 @@ cJSON* VoxelChunk::ExportAsJSONObject(bool exportforworld)
 
 void VoxelChunk::ImportFromJSONObject(cJSON* jVoxelMesh)
 {
-    cJSONExt_GetFloatArray( jVoxelMesh, "BlockSize", &m_BlockSize.x, 3 );
-    cJSONExt_GetIntArray( jVoxelMesh, "ChunkSize", &m_ChunkSize.x, 3 );
+    Vector3 blocksize( 0, 0, 0 );
+    cJSONExt_GetFloatArray( jVoxelMesh, "BlockSize", &blocksize.x, 3 );
 
-    SetChunkSize( m_ChunkSize );
+    Vector3Int chunksize( 0, 0, 0 );
+    cJSONExt_GetIntArray( jVoxelMesh, "ChunkSize", &chunksize.x, 3 );
+
+    if( blocksize.x != 0 )
+        m_BlockSize = blocksize;
+    if( chunksize.x != 0 )
+        SetChunkSize( chunksize );
 
     char* blockstring = cJSON_GetObjectItem( jVoxelMesh, "Blocks" )->valuestring;
 
@@ -523,9 +546,6 @@ bool VoxelChunk::RebuildMesh(unsigned int increment)
                     if( zfront  < minextents.z ) minextents.z = zfront;
                     if( zback   > maxextents.z ) maxextents.z = zback;
 
-                    int c = 0;//rand()%3;
-                    int r = 1;//rand()%3;
-
                     float uleft   = (32.0f*(TileSides_Col[tileindex]+0)) / texwidth;
                     float uright  = (32.0f*(TileSides_Col[tileindex]+1)) / texwidth;
                     float vtop    = (32.0f*(TileSides_Row[tileindex]+0)) / texwidth;
@@ -633,9 +653,6 @@ bool VoxelChunk::RebuildMesh(unsigned int increment)
                         indexcount += 6;
                     }
 
-                    c = 3;//rand()%3;
-                    r = 0;//rand()%3;
-
                     uleft   = (32.0f*(TileTops_Col[tileindex]+0)) / texwidth;
                     uright  = (32.0f*(TileTops_Col[tileindex]+1)) / texwidth;
                     vtop    = (32.0f*(TileTops_Row[tileindex]+0)) / texwidth;
@@ -703,6 +720,8 @@ bool VoxelChunk::RebuildMesh(unsigned int increment)
             Vector3 center( 0, 0, 0 );
             Vector3 extents( 0, 0, 0 );
             GetBounds()->Set( center, extents );
+
+            RemoveFromSceneGraph();
         }
 
         g_pEngineCore->m_SingleFrameMemoryStack.RewindStack( memstart );

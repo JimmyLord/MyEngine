@@ -495,7 +495,7 @@ void ComponentVoxelMesh::CreateMesh()
             }
         }
         pVoxelChunk->RebuildMesh( 1 );
-        //m_pVoxelChunk->AddToSceneGraph( this, 0 );
+        pVoxelChunk->AddToSceneGraph( this, 0 );
 
         SetMesh( pVoxelChunk );
         pVoxelChunk->Release();

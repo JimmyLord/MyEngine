@@ -15,6 +15,8 @@
 VoxelWorld::VoxelWorld()
 {
     m_NumChunkPointersAllocated = 0;
+    m_VoxelBlockSingleAllocation = 0;
+    m_VoxelChunkSingleAllocation = 0;
     m_pActiveWorldChunkPtrs = 0;
 
     m_WorldSize.Set( 0, 0, 0 );
@@ -34,8 +36,6 @@ VoxelWorld::VoxelWorld()
 
 VoxelWorld::~VoxelWorld()
 {
-    delete[] m_pActiveWorldChunkPtrs;
-
     for( CPPListNode* pNode = m_pChunksFree.GetHead(); pNode; )
     {
         VoxelChunk* pChunk = (VoxelChunk*)pNode;
@@ -59,6 +59,15 @@ VoxelWorld::~VoxelWorld()
 
         pChunk->Release();
     }
+
+    for( unsigned int i=0; i<m_NumChunkPointersAllocated; i++ )
+    {
+        m_VoxelChunkSingleAllocation[i].RemoveFinalRefIfCreatedOnStackToAvoidAssertInDestructor();
+    }
+    delete[] m_VoxelChunkSingleAllocation;
+    delete[] m_pActiveWorldChunkPtrs;
+
+    delete[] m_VoxelBlockSingleAllocation;
 
     SAFE_RELEASE( m_pMaterial );
     SAFE_RELEASE( m_pSaveFile );
@@ -86,10 +95,13 @@ void VoxelWorld::Initialize(Vector3Int visibleworldsize)
         {
             for( int x=0; x<m_WorldSize.x; x++ )
             {
-                VoxelChunk* pChunk = MyNew VoxelChunk;
+                unsigned int chunkindex = (unsigned int)(z * m_WorldSize.y * m_WorldSize.x + y * m_WorldSize.x + x);
+                VoxelChunk* pChunk = &m_VoxelChunkSingleAllocation[chunkindex];
+                VoxelBlock* pBlocks = &m_VoxelBlockSingleAllocation[chunkindex * m_ChunkSize.x*m_ChunkSize.y*m_ChunkSize.z];
+
                 m_pChunksFree.MoveHead( pChunk );
 
-                PrepareChunk( Vector3Int( x, y, z ) );
+                PrepareChunk( Vector3Int( x, y, z ), pBlocks );
             }
         }
     }
@@ -146,7 +158,7 @@ void VoxelWorld::Tick(double timepassed)
     }
 
     // build the mesh for a single chunk per frame.
-    int maxtobuildinoneframe = 4;
+    int maxtobuildinoneframe = 40;
     for( int i=0; i<maxtobuildinoneframe; i++ )
     {
         VoxelChunk* pChunk = (VoxelChunk*)m_pChunksLoading.GetHead();
@@ -176,7 +188,7 @@ void VoxelWorld::Tick(double timepassed)
                 m_pChunksVisible.MoveTail( pChunk );
             }
 
-            return;
+            continue;
         }
 
         // if all chunks are loaded then rebuild a single unoptimized chunk per frame.
@@ -186,7 +198,7 @@ void VoxelWorld::Tick(double timepassed)
             if( pChunk->IsMeshOptimized() == false )
             {
                 pChunk->RebuildMesh( 1 );
-                return;
+                break;
             }
             pChunk = (VoxelChunk*)pChunk->GetNext();
         }
@@ -207,7 +219,19 @@ void VoxelWorld::SetWorldSize(Vector3Int visibleworldsize)
         //       delete the old array
 
         m_NumChunkPointersAllocated = pointersneeded;
+
+        m_VoxelChunkSingleAllocation = MyNew VoxelChunk[pointersneeded];
         m_pActiveWorldChunkPtrs = MyNew VoxelChunk*[pointersneeded];
+
+        m_VoxelBlockSingleAllocation = MyNew VoxelBlock[pointersneeded * m_ChunkSize.x*m_ChunkSize.y*m_ChunkSize.z];
+
+        LOGInfo( LOGTag, "VoxelWorld Allocation -> blocks %d\n", pointersneeded * m_ChunkSize.x*m_ChunkSize.y*m_ChunkSize.z * sizeof( VoxelBlock ) );
+
+        // give each chunk/mesh a single ref, removed manually before deleting the array.
+        for( unsigned int i=0; i<pointersneeded; i++ )
+        {
+            m_VoxelChunkSingleAllocation[i].AddRef();
+        }
     }
 
     m_WorldSize = visibleworldsize;
@@ -516,7 +540,7 @@ VoxelChunk* VoxelWorld::GetActiveChunk(int chunkx, int chunky, int chunkz)
     return GetActiveChunk( GetActiveChunkArrayIndex( chunkx, chunky, chunkz ) );
 }
 
-void VoxelWorld::PrepareChunk(Vector3Int chunkpos)
+void VoxelWorld::PrepareChunk(Vector3Int chunkpos, VoxelBlock* pBlocks)
 {
     VoxelChunk* pChunk = (VoxelChunk*)m_pChunksFree.GetHead();
     if( pChunk == 0 )
@@ -532,7 +556,8 @@ void VoxelWorld::PrepareChunk(Vector3Int chunkpos)
     m_pActiveWorldChunkPtrs[arrayindex] = pChunk;
 
     pChunk->Initialize( this, chunkposition, chunkblockoffset, m_BlockSize );
-    pChunk->SetChunkSize( m_ChunkSize );
+    if( pBlocks != 0 )
+        pChunk->SetChunkSize( m_ChunkSize, pBlocks );
 
     m_pChunksLoading.MoveTail( pChunk );
 }
@@ -551,7 +576,7 @@ void VoxelWorld::ShiftChunk(Vector3Int to, Vector3Int from, bool isedgeblock)
 
     if( isedgeblock )
     {
-        PrepareChunk( m_WorldOffset + to );
+        PrepareChunk( m_WorldOffset + to, 0 );
     }
     else
     {
