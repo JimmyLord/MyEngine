@@ -111,7 +111,7 @@ void EditorInterface_SceneManagement::OnDrawFrame(unsigned int canvasid)
             {
                 if( g_pEngineCore->m_pSphereMeshFile->m_FileLoadStatus == FileLoadStatus_Success )
                 {
-                    g_pEngineCore->m_pMaterialBallMesh->CreateFromMyMeshFile( g_pEngineCore->m_pSphereMeshFile );
+                    g_pEngineCore->m_pMaterialBallMesh->SetSourceFile( g_pEngineCore->m_pSphereMeshFile );
                 }
             }
 
@@ -139,6 +139,7 @@ void EditorInterface_SceneManagement::OnDrawFrame(unsigned int canvasid)
                 MyMatrix matproj;
                 matproj.CreatePerspectiveVFoV( 45, aspect, 0.01f, 100 );
 
+                // TODO: pass in a camera position.
                 MyMatrix matviewproj = matproj * matview;
                 g_pEngineCore->m_pMaterialBallMesh->Draw( 0, &matviewproj, 0, 0, 0, 0, 0, 0, 0, 0 );
 

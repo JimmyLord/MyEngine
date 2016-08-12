@@ -708,15 +708,11 @@ MyFileObject* ComponentSystemManager::LoadDataFile(const char* relativepath, uns
 
         // if we're loading a mesh file type, create a mesh.
         {
-            if( strcmp( pFile->m_ExtensionWithDot, ".obj" ) == 0 )
+            if( strcmp( pFile->m_ExtensionWithDot, ".obj" ) == 0 ||
+                strcmp( pFile->m_ExtensionWithDot, ".mymesh" ) == 0 )
             {
                 pFileInfo->m_pMesh = MyNew MyMesh();
-                pFileInfo->m_pMesh->CreateFromOBJFile( pFile );
-            }
-            if( strcmp( pFile->m_ExtensionWithDot, ".mymesh" ) == 0 )
-            {
-                pFileInfo->m_pMesh = MyNew MyMesh();
-                pFileInfo->m_pMesh->CreateFromMyMeshFile( pFile );
+                pFileInfo->m_pMesh->SetSourceFile( pFile );
             }
         }
 

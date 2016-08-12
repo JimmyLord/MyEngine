@@ -38,7 +38,7 @@ ComponentCollisionObject::ComponentCollisionObject()
 
 ComponentCollisionObject::~ComponentCollisionObject()
 {
-    m_pComponentTransform->UnregisterPositionChangedCallbacks( this );
+    m_pComponentTransform->UnregisterTransformChangedCallbacks( this );
 
     if( m_pBody )
     {
@@ -63,7 +63,7 @@ void ComponentCollisionObject::Reset()
     m_pPanelWatchBlockVisible = &m_PanelWatchBlockVisible;
     m_ControlID_PrimitiveType = -1;
 
-    m_pComponentTransform->RegisterPositionChangedCallback( this, StaticOnTransformChanged );
+    m_pComponentTransform->RegisterTransformChangedCallback( this, StaticOnTransformChanged );
 #endif //MYFW_USING_WX
 }
 

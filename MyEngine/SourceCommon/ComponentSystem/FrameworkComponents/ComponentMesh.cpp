@@ -524,9 +524,9 @@ void ComponentMesh::TickCallback(double TimePassed)
     MyAssert( m_pMesh );
     MyAssert( m_WaitingToAddToSceneGraph );
 
-    m_pMesh->ParseFile();
-    if( m_pMesh->m_MeshReady )
-        MeshFinishedLoading();
+    //m_pMesh->ParseFile();
+    //if( m_pMesh->m_MeshReady )
+    //    MeshFinishedLoading();
 
     // AddToSceneGraph() should stop tick callbacks, so MeshFinishedLoading() above won't get called multiple times.
     AddToSceneGraph();

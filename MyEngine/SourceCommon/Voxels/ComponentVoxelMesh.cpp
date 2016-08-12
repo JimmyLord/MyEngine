@@ -242,6 +242,7 @@ void* ComponentVoxelMesh::OnValueChanged(ComponentVariable* pVar, int controlid,
         }
 
         pVoxelChunk->RebuildMesh( 1 );
+        pVoxelChunk->AddToSceneGraph( this, m_MaterialList[0] );
     }
 
     if( finishedchanging )
@@ -495,7 +496,7 @@ void ComponentVoxelMesh::CreateMesh()
             }
         }
         pVoxelChunk->RebuildMesh( 1 );
-        pVoxelChunk->AddToSceneGraph( this, 0 );
+        pVoxelChunk->AddToSceneGraph( this, m_MaterialList[0] );
 
         SetMesh( pVoxelChunk );
         pVoxelChunk->Release();

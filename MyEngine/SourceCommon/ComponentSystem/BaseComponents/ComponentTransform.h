@@ -17,7 +17,7 @@ struct TransformChangedCallbackStruct : public CPPListNode
     TransformChangedCallbackFunc pFunc;
 };
 
-extern MySimplePool<TransformChangedCallbackStruct> g_pComponentTransform_PositionChangedCallbackPool;
+extern MySimplePool<TransformChangedCallbackStruct> g_pComponentTransform_TransformChangedCallbackPool;
 
 class ComponentTransform : public ComponentBase
 {
@@ -28,7 +28,7 @@ private:
     static const int CALLBACK_POOL_SIZE = 100;
 
 protected:
-    CPPListHead m_PositionChangedCallbackList;
+    CPPListHead m_TransformChangedCallbackList;
 
     GameObject* m_pParentGameObject;
     ComponentTransform* m_pParentTransform;
@@ -103,8 +103,8 @@ public:
     void UpdateTransform();
 
     // Callbacks
-    void RegisterPositionChangedCallback(void* pObj, TransformChangedCallbackFunc pCallback);
-    void UnregisterPositionChangedCallbacks(void* pObj);
+    void RegisterTransformChangedCallback(void* pObj, TransformChangedCallbackFunc pCallback);
+    void UnregisterTransformChangedCallbacks(void* pObj);
 
     // GameObject callbacks.
     static void StaticOnGameObjectDeleted(void* pObjectPtr, GameObject* pGameObject) { ((ComponentTransform*)pObjectPtr)->OnGameObjectDeleted( pGameObject ); }

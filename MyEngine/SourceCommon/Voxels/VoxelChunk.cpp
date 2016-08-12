@@ -223,6 +223,7 @@ void VoxelChunk::CreateFromVoxelMeshFile(MyFileObject* pFile)
         if( jVoxelMesh )
         {
             Initialize( 0, Vector3(0,0,0), Vector3Int(0,0,0), m_BlockSize );
+            //m_SubmeshList[0]->SetMaterial( pMaterial );
             ImportFromJSONObject( jVoxelMesh );
             cJSON_Delete( jVoxelMesh );
         }
@@ -258,7 +259,15 @@ void VoxelChunk::ParseFile()
         {
             if( strcmp( m_pSourceFile->m_ExtensionWithDot, ".myvoxelmesh" ) == 0 )
             {
-                CreateFromVoxelMeshFile( m_pSourceFile );
+                if( m_MapCreated == false )
+                {
+                    CreateFromVoxelMeshFile( m_pSourceFile );
+                }
+                
+                if( m_MapCreated )
+                {
+                    RebuildMesh( 1 );
+                }
             }
 
             if( m_SubmeshList.Count() > 0 )
@@ -344,8 +353,6 @@ void VoxelChunk::ImportFromJSONObject(cJSON* jVoxelMesh)
             }
         }
     }
-
-    RebuildMesh( 1 );
 
     m_MapCreated = true;
 }

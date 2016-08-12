@@ -101,14 +101,7 @@ void ComponentMeshOBJ::SetPointerDesc(ComponentVariable* pVar, const char* newde
                 if( pMesh == 0 )
                 {
                     pMesh = MyNew MyMesh();
-                    if( strcmp( pFile->m_ExtensionWithDot, ".obj" ) == 0 )
-                    {
-                        pMesh->CreateFromOBJFile( pFile );
-                    }
-                    if( strcmp( pFile->m_ExtensionWithDot, ".mymesh" ) == 0 )
-                    {
-                        pMesh->CreateFromMyMeshFile( pFile );
-                    }
+                    pMesh->SetSourceFile( pFile );
                     SetMesh( pMesh );
                     pMesh->Release();
                 }
@@ -304,39 +297,39 @@ void ComponentMeshOBJ::SetMesh(MyMesh* pMesh)
     SAFE_RELEASE( m_pMesh );
     m_pMesh = pMesh;
 
-    if( pMesh )
-    {
-        // parse the mesh file in case this is the first instance of it.
-        if( pMesh->m_MeshReady == false )
-            pMesh->ParseFile();
+    //if( pMesh )
+    //{
+    //    // parse the mesh file in case this is the first instance of it.
+    //    if( pMesh->m_MeshReady == false )
+    //        pMesh->ParseFile();
 
-        // if we didn't already have a material set for any submesh, use the default material from the new mesh's submesh.
-        // TODO: this doesn't happen elsewhere if the mesh isn't ready because the file was still loading.
-        if( pMesh->m_MeshReady == true )
-        {
-            for( unsigned int i=0; i<MAX_SUBMESHES; i++ )
-            {
-                if( m_MaterialList[i] == 0 ) // if we don't already have a material set:
-                {
-                    if( i < pMesh->m_SubmeshList.Count() ) // check if the new mesh has a known material and set it:
-                    {
-                        MyAssert( pMesh->m_SubmeshList[i] );
-                        MaterialDefinition* pMaterial = pMesh->m_SubmeshList[i]->GetMaterial();
-                        if( pMaterial )
-                            SetMaterial( pMaterial, i );
-                    }
-                }
-                // decided to leave it without clearing the material if the new mesh doesn't have as many submeshes.
-                //else
-                //{
-                //    SetMaterial( 0, i ); // clear the material if the new mesh doesn't have as many submeshes.
-                //}
-            }
-        }
+    //    // if we didn't already have a material set for any submesh, use the default material from the new mesh's submesh.
+    //    // TODO: this doesn't happen elsewhere if the mesh isn't ready because the file was still loading.
+    //    if( pMesh->m_MeshReady == true )
+    //    {
+    //        for( unsigned int i=0; i<MAX_SUBMESHES; i++ )
+    //        {
+    //            if( m_MaterialList[i] == 0 ) // if we don't already have a material set:
+    //            {
+    //                if( i < pMesh->m_SubmeshList.Count() ) // check if the new mesh has a known material and set it:
+    //                {
+    //                    MyAssert( pMesh->m_SubmeshList[i] );
+    //                    MaterialDefinition* pMaterial = pMesh->m_SubmeshList[i]->GetMaterial();
+    //                    if( pMaterial )
+    //                        SetMaterial( pMaterial, i );
+    //                }
+    //            }
+    //            // decided to leave it without clearing the material if the new mesh doesn't have as many submeshes.
+    //            //else
+    //            //{
+    //            //    SetMaterial( 0, i ); // clear the material if the new mesh doesn't have as many submeshes.
+    //            //}
+    //        }
+    //    }
 
         if( m_pGameObject->IsEnabled() )
             AddToSceneGraph();
-    }
+    //}
 }
 
 void ComponentMeshOBJ::DrawCallback(ComponentCamera* pCamera, MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride)

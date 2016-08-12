@@ -16,7 +16,7 @@ bool ComponentTransform::m_PanelWatchBlockVisible = true;
 // Component Variable List
 MYFW_COMPONENT_IMPLEMENT_VARIABLE_LIST( ComponentTransform );
 
-MySimplePool<TransformChangedCallbackStruct> g_pComponentTransform_PositionChangedCallbackPool;
+MySimplePool<TransformChangedCallbackStruct> g_pComponentTransform_TransformChangedCallbackPool;
 
 ComponentTransform::ComponentTransform()
 : ComponentBase()
@@ -31,8 +31,8 @@ ComponentTransform::ComponentTransform()
     m_pParentTransform = 0;
 
     // the first ComponentTransform will create the pool of callback objects.
-    if( g_pComponentTransform_PositionChangedCallbackPool.IsInitialized() == false )
-        g_pComponentTransform_PositionChangedCallbackPool.AllocateObjects( CALLBACK_POOL_SIZE );
+    if( g_pComponentTransform_TransformChangedCallbackPool.IsInitialized() == false )
+        g_pComponentTransform_TransformChangedCallbackPool.AllocateObjects( CALLBACK_POOL_SIZE );
 }
 
 ComponentTransform::~ComponentTransform()
@@ -292,7 +292,7 @@ void* ComponentTransform::OnValueChanged(ComponentVariable* pVar, int controlid,
             m_WorldTransformIsDirty = true;
             UpdateTransform();
 
-            for( CPPListNode* pNode = m_PositionChangedCallbackList.GetHead(); pNode != 0; pNode = pNode->GetNext() )
+            for( CPPListNode* pNode = m_TransformChangedCallbackList.GetHead(); pNode != 0; pNode = pNode->GetNext() )
             {
                 TransformChangedCallbackStruct* pCallbackStruct = (TransformChangedCallbackStruct*)pNode;
 
@@ -305,7 +305,7 @@ void* ComponentTransform::OnValueChanged(ComponentVariable* pVar, int controlid,
         {
             m_LocalTransformIsDirty = true;
 
-            for( CPPListNode* pNode = m_PositionChangedCallbackList.GetHead(); pNode != 0; pNode = pNode->GetNext() )
+            for( CPPListNode* pNode = m_TransformChangedCallbackList.GetHead(); pNode != 0; pNode = pNode->GetNext() )
             {
                 TransformChangedCallbackStruct* pCallbackStruct = (TransformChangedCallbackStruct*)pNode;
 
@@ -345,7 +345,7 @@ void ComponentTransform::ImportFromJSONObject(cJSON* jsonobj, unsigned int scene
     UpdateTransform();
 
     // inform all children/other objects that our transform changed.
-    for( CPPListNode* pNode = m_PositionChangedCallbackList.GetHead(); pNode != 0; pNode = pNode->GetNext() )
+    for( CPPListNode* pNode = m_TransformChangedCallbackList.GetHead(); pNode != 0; pNode = pNode->GetNext() )
     {
         TransformChangedCallbackStruct* pCallbackStruct = (TransformChangedCallbackStruct*)pNode;
 
@@ -392,7 +392,7 @@ void ComponentTransform::SetPositionByEditor(Vector3 pos)
         m_LocalTransformIsDirty = true;
     }
 
-    for( CPPListNode* pNode = m_PositionChangedCallbackList.GetHead(); pNode != 0; pNode = pNode->GetNext() )
+    for( CPPListNode* pNode = m_TransformChangedCallbackList.GetHead(); pNode != 0; pNode = pNode->GetNext() )
     {
         TransformChangedCallbackStruct* pCallbackStruct = (TransformChangedCallbackStruct*)pNode;
 
@@ -411,7 +411,7 @@ void ComponentTransform::SetWorldPosition(Vector3 pos)
         m_LocalTransformIsDirty = true;
     }
 
-    for( CPPListNode* pNode = m_PositionChangedCallbackList.GetHead(); pNode != 0; pNode = pNode->GetNext() )
+    for( CPPListNode* pNode = m_TransformChangedCallbackList.GetHead(); pNode != 0; pNode = pNode->GetNext() )
     {
         TransformChangedCallbackStruct* pCallbackStruct = (TransformChangedCallbackStruct*)pNode;
 
@@ -473,7 +473,7 @@ void ComponentTransform::SetLocalPosition(Vector3 pos)
 
     UpdateTransform();
 
-    for( CPPListNode* pNode = m_PositionChangedCallbackList.GetHead(); pNode != 0; pNode = pNode->GetNext() )
+    for( CPPListNode* pNode = m_TransformChangedCallbackList.GetHead(); pNode != 0; pNode = pNode->GetNext() )
     {
         TransformChangedCallbackStruct* pCallbackStruct = (TransformChangedCallbackStruct*)pNode;
 
@@ -618,7 +618,7 @@ void ComponentTransform::SetParentTransform(ComponentTransform* pNewParent, bool
         m_pParentTransform->m_pGameObject->UnregisterOnDeleteCallback( this, StaticOnGameObjectDeleted );
 
         // stop sending it position changed messages
-        m_pParentTransform->m_pGameObject->m_pComponentTransform->UnregisterPositionChangedCallbacks( this );
+        m_pParentTransform->m_pGameObject->m_pComponentTransform->UnregisterTransformChangedCallbacks( this );
 
         if( pNewParent )
         {
@@ -660,7 +660,7 @@ void ComponentTransform::SetParentTransform(ComponentTransform* pNewParent, bool
         m_pParentGameObject->RegisterOnDeleteCallback( this, StaticOnGameObjectDeleted );
 
         // register this transform with it's parent to notify us if it changes.
-        m_pParentGameObject->m_pComponentTransform->RegisterPositionChangedCallback( this, StaticOnParentTransformChanged );
+        m_pParentGameObject->m_pComponentTransform->RegisterTransformChangedCallback( this, StaticOnParentTransformChanged );
     }
 
     UpdateTransform();
@@ -725,26 +725,26 @@ void ComponentTransform::UpdateTransform()
 //    return &m_Transform;
 //}
 
-void ComponentTransform::RegisterPositionChangedCallback(void* pObj, TransformChangedCallbackFunc pCallback)
+void ComponentTransform::RegisterTransformChangedCallback(void* pObj, TransformChangedCallbackFunc pCallback)
 {
     MyAssert( pCallback != 0 );
 
-    TransformChangedCallbackStruct* pCallbackStruct = g_pComponentTransform_PositionChangedCallbackPool.GetObjectFromPool();
+    TransformChangedCallbackStruct* pCallbackStruct = g_pComponentTransform_TransformChangedCallbackPool.GetObjectFromPool();
 
-    //LOGInfo( "TransformPool", "Grabbed an object (%d) - %s\n", g_pComponentTransform_PositionChangedCallbackPool.GetNumUsed(), ((ComponentBase*)pObj)->m_pGameObject->GetName() );
+    //LOGInfo( "TransformPool", "Grabbed an object (%d) - %s\n", g_pComponentTransform_TransformChangedCallbackPool.GetNumUsed(), ((ComponentBase*)pObj)->m_pGameObject->GetName() );
 
     if( pCallbackStruct != 0 )
     {
         pCallbackStruct->pObj = pObj;
         pCallbackStruct->pFunc = pCallback;
 
-        m_PositionChangedCallbackList.AddTail( pCallbackStruct );
+        m_TransformChangedCallbackList.AddTail( pCallbackStruct );
     }
 }
 
-void ComponentTransform::UnregisterPositionChangedCallbacks(void* pObj)
+void ComponentTransform::UnregisterTransformChangedCallbacks(void* pObj)
 {
-    for( CPPListNode* pNode = m_PositionChangedCallbackList.GetHead(); pNode != 0; )
+    for( CPPListNode* pNode = m_TransformChangedCallbackList.GetHead(); pNode != 0; )
     {
         CPPListNode* pNextNode = pNode->GetNext();
 
@@ -753,9 +753,9 @@ void ComponentTransform::UnregisterPositionChangedCallbacks(void* pObj)
         if( pCallbackStruct->pObj == pObj )
         {
             pCallbackStruct->Remove();
-            g_pComponentTransform_PositionChangedCallbackPool.ReturnObjectToPool( pCallbackStruct );
+            g_pComponentTransform_TransformChangedCallbackPool.ReturnObjectToPool( pCallbackStruct );
 
-            //LOGInfo( "TransformPool", "Returned an object (%d) %s\n", g_pComponentTransform_PositionChangedCallbackPool.GetNumUsed(), ((ComponentBase*)pObj)->m_pGameObject->GetName() );
+            //LOGInfo( "TransformPool", "Returned an object (%d) %s\n", g_pComponentTransform_TransformChangedCallbackPool.GetNumUsed(), ((ComponentBase*)pObj)->m_pGameObject->GetName() );
         }
 
         pNode = pNextNode;
@@ -778,7 +778,7 @@ void ComponentTransform::OnParentTransformChanged(Vector3& newpos, Vector3& newr
     m_LocalTransformIsDirty = true;
     UpdateTransform();
 
-    for( CPPListNode* pNode = m_PositionChangedCallbackList.GetHead(); pNode != 0; pNode = pNode->GetNext() )
+    for( CPPListNode* pNode = m_TransformChangedCallbackList.GetHead(); pNode != 0; pNode = pNode->GetNext() )
     {
         TransformChangedCallbackStruct* pCallbackStruct = (TransformChangedCallbackStruct*)pNode;
 
