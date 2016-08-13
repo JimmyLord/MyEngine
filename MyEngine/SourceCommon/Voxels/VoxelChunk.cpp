@@ -161,71 +161,36 @@ void VoxelChunk::SetBlockSize(Vector3 blocksize)
 }
 
 // ============================================================================================================================
-// Load/Save ".myvoxelmesh" files
+// Internal file loading functions
 // ============================================================================================================================
-void VoxelChunk::CreateFromVoxelMeshFile(MyFileObject* pFile)
+void VoxelChunk::CreateFromVoxelMeshFile()
 {
-    //LOGInfo( LOGTag, "%d: MyMesh::CreateFromVoxelMeshFile ( %s ) \n", this, pFile->m_FilenameWithoutExtension );
-
-    MyAssert( pFile );
-
-    // if the requested file changed, then ditch the current one and load the new one.
-    if( pFile != m_pSourceFile ) //|| m_ForceCheckForAnimationFile )
-    {
-        m_ForceCheckForAnimationFile = false;
-
-        // free the old .myvoxelmesh file and store a pointer to the new one.
-        pFile->AddRef();
-        SAFE_RELEASE( m_pSourceFile );
-        m_pSourceFile = pFile;
-
-//        // free the old .myaniminfo file and store a pointer to the new one.
-//        //if( m_pAnimationControlFile )
-//        //    LOGInfo( LOGTag, "Releasing old animation file ( %s ) file = %d\n", pFile->m_FilenameWithoutExtension, m_pAnimationControlFile );
-//        SAFE_RELEASE( m_pAnimationControlFile );
-//        char animfilename[MAX_PATH];
-//        pFile->GenerateNewFullPathExtensionWithSameNameInSameFolder( ".myaniminfo", animfilename, MAX_PATH );
-//#if MYFW_USING_WX
-//        // only try to open the file if it exists, only in editor builds since file i/o isn't necessarily synchronous otherwise.
-//        if( g_pFileManager->DoesFileExist( animfilename ) )
-//        {
-//            MyFileObject* newfile = g_pFileManager->RequestFile( animfilename ); // adds a ref to the existing file or new one.
-//            m_pAnimationControlFile = newfile;
-//            //LOGInfo( LOGTag, "g_pFileManager->DoesFileExist( %s ) returned true file = %d\n", animfilename, m_pAnimationControlFile );
-//        }
-//        else
-//        {
-//            //LOGInfo( LOGTag, "g_pFileManager->DoesFileExist( %s ) returned false\n", animfilename );
-//        }
-//#else
-//        MyFileObject* newfile = g_pFileManager->RequestFile( animfilename ); // adds a ref to the existing file or new one.
-//        m_pAnimationControlFile = newfile;
-//#endif
-    }
-
     m_MeshReady = false;
 
-    // is the mesh ready and the anim file is loaded or failed to load.
-    if( pFile->m_FileLoadStatus == FileLoadStatus_Success //&&
-        //(m_pAnimationControlFile == 0 || m_pAnimationControlFile->m_FileLoadStatus >= FileLoadStatus_Success)
-      )
+    if( m_pSourceFile->m_FileLoadStatus == FileLoadStatus_Success )
     {
-        ////LOGInfo( LOGTag, "Animation File = %d\n", m_pAnimationControlFile );
+        OnFileFinishedLoadingVoxelMesh( m_pSourceFile );
+    }
+    else
+    {
+        m_pSourceFile->RegisterFileFinishedLoadingCallback( this, StaticOnFileFinishedLoadingVoxelMesh );
+    }
+}
 
-        //if( m_pAnimationControlFile && m_pAnimationControlFile->m_FileLoadStatus == FileLoadStatus_Error_FileNotFound )
-        //{
-        //    //LOGInfo( LOGTag, "Animation File - error loading file\n" );
-        //    g_pFileManager->FreeFile( m_pAnimationControlFile );
-        //    m_pAnimationControlFile = 0;
-        //}
+void VoxelChunk::OnFileFinishedLoadingVoxelMesh(MyFileObject* pFile)
+{
+    if( pFile == m_pSourceFile )
+    {
+        pFile->UnregisterFileFinishedLoadingCallback( this );
 
         cJSON* jVoxelMesh = cJSON_Parse( pFile->m_pBuffer );
         if( jVoxelMesh )
         {
             Initialize( 0, Vector3(0,0,0), Vector3Int(0,0,0), m_BlockSize );
-            //m_SubmeshList[0]->SetMaterial( pMaterial );
             ImportFromJSONObject( jVoxelMesh );
             cJSON_Delete( jVoxelMesh );
+
+            RebuildMesh( 1 );
         }
         else
         {
@@ -233,16 +198,6 @@ void VoxelChunk::CreateFromVoxelMeshFile(MyFileObject* pFile)
             // TODO: this number should match the size set in ComponentVoxelMesh.
             SetChunkSize( Vector3Int( 4, 4, 4 ) );
         }
-        
-        //if( m_pAnimationControlFile )
-        //{
-        //    //LOGInfo( LOGTag, "LoadAnimationControlFile = %s\n", m_pAnimationControlFile->m_pBuffer );
-        //    LoadAnimationControlFile( m_pAnimationControlFile->m_pBuffer );
-        //}
-        //else
-        //{
-        //    LoadAnimationControlFile( 0 );
-        //}
     }
 }
 
@@ -261,7 +216,7 @@ void VoxelChunk::ParseFile()
             {
                 if( m_MapCreated == false )
                 {
-                    CreateFromVoxelMeshFile( m_pSourceFile );
+                    CreateFromVoxelMeshFile();
                 }
                 
                 if( m_MapCreated )
@@ -284,6 +239,9 @@ void VoxelChunk::ParseFile()
     }
 }
 
+// ============================================================================================================================
+// Load/Save ".myvoxelmesh" files
+// ============================================================================================================================
 cJSON* VoxelChunk::ExportAsJSONObject(bool exportforworld)
 {
     cJSON* jVoxelMesh = cJSON_CreateObject();

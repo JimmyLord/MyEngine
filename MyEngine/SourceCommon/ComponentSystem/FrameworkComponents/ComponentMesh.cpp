@@ -524,12 +524,13 @@ void ComponentMesh::TickCallback(double TimePassed)
     MyAssert( m_pMesh );
     MyAssert( m_WaitingToAddToSceneGraph );
 
-    //m_pMesh->ParseFile();
-    //if( m_pMesh->m_MeshReady )
-    //    MeshFinishedLoading();
+    if( m_pMesh->m_MeshReady )
+    {
+        MeshFinishedLoading();
 
-    // AddToSceneGraph() should stop tick callbacks, so MeshFinishedLoading() above won't get called multiple times.
-    AddToSceneGraph();
+        // AddToSceneGraph() will stop tick callbacks.
+        AddToSceneGraph();
+    }
 }
 
 void ComponentMesh::DrawCallback(ComponentCamera* pCamera, MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride)

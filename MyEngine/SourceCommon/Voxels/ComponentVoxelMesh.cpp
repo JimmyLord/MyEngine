@@ -136,10 +136,7 @@ void ComponentVoxelMesh::SetPointerDesc(ComponentVariable* pVar, const char* new
                 if( pMesh == 0 )
                 {
                     pMesh = MyNew VoxelChunk();
-                    if( strcmp( pFile->m_ExtensionWithDot, ".myvoxelmesh" ) == 0 )
-                    {
-                        ((VoxelChunk*)pMesh)->CreateFromVoxelMeshFile( pFile );
-                    }
+                    pMesh->SetSourceFile( pFile );
                     SetMesh( pMesh );
                     pMesh->Release();
                 }

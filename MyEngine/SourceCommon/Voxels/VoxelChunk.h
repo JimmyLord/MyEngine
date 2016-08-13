@@ -34,6 +34,13 @@ protected:
 
     SceneGraphObject* m_pSceneGraphObject;
 
+    // Internal file loading functions
+    void CreateFromVoxelMeshFile();
+    static void StaticOnFileFinishedLoadingVoxelMesh(void* pObjectPtr, MyFileObject* pFile) { ((VoxelChunk*)pObjectPtr)->OnFileFinishedLoadingVoxelMesh( pFile ); }
+    void OnFileFinishedLoadingVoxelMesh(MyFileObject* pFile);
+
+    virtual void ParseFile(); // MyMesh override
+
 public:
     VoxelChunk();
     virtual ~VoxelChunk();
@@ -43,8 +50,6 @@ public:
     void SetBlockSize(Vector3 blocksize);
 
     // Load/Save ".myvoxelmesh" files
-    void CreateFromVoxelMeshFile(MyFileObject* pFile);
-    virtual void ParseFile(); // MyMesh override
     cJSON* ExportAsJSONObject(bool exportforworld = false);
     void ImportFromJSONObject(cJSON* jVoxelMesh);
 
