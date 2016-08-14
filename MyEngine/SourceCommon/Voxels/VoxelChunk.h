@@ -29,6 +29,8 @@ protected:
     Vector3Int m_ChunkSize;
     Vector3Int m_ChunkOffset;
 
+    Vector2Int m_TextureTileCount;
+
     VoxelBlock* m_pBlocks;
     unsigned int m_BlocksAllocated; // set to 0 if blocks were allocated elsewhere and passed in.
 

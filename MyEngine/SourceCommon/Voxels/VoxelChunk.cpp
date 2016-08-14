@@ -26,6 +26,8 @@ VoxelChunk::VoxelChunk()
     m_ChunkOffset.Set( 0, 0, 0 );
     m_pSceneGraphObject = 0;
 
+    m_TextureTileCount.Set( 8, 8 );
+
     m_pBlocks = 0;
     m_BlocksAllocated = 0;
 }
@@ -439,16 +441,6 @@ bool VoxelChunk::RebuildMesh(unsigned int increment)
 {
     MyAssert( m_pBlocks );
 
-    if( m_SubmeshList[0]->GetMaterial() == 0 ||
-        m_SubmeshList[0]->GetMaterial()->GetTextureColor() == 0 )
-    {
-        return false;
-    }
-
-    TextureDefinition* pTexture = m_SubmeshList[0]->GetMaterial()->GetTextureColor();
-    int texwidth = pTexture->m_Width;
-    int texheight = pTexture->m_Height;
-
     // Loop through blocks and add a cube for each one that's enabled
     // TODO: merge outer faces, eliminate inner faces.
     {
@@ -511,10 +503,10 @@ bool VoxelChunk::RebuildMesh(unsigned int increment)
                     if( zfront  < minextents.z ) minextents.z = zfront;
                     if( zback   > maxextents.z ) maxextents.z = zback;
 
-                    float uleft   = (32.0f*(TileSides_Col[tileindex]+0)) / texwidth;
-                    float uright  = (32.0f*(TileSides_Col[tileindex]+1)) / texwidth;
-                    float vtop    = (32.0f*(TileSides_Row[tileindex]+0)) / texwidth;
-                    float vbottom = (32.0f*(TileSides_Row[tileindex]+1)) / texwidth;
+                    float uleft   = (float)(TileSides_Col[tileindex]+0) / m_TextureTileCount.x;
+                    float uright  = (float)(TileSides_Col[tileindex]+1) / m_TextureTileCount.x;
+                    float vtop    = (float)(TileSides_Row[tileindex]+0) / m_TextureTileCount.y;
+                    float vbottom = (float)(TileSides_Row[tileindex]+1) / m_TextureTileCount.y;
 
                     Vector3Int worldpos( m_ChunkOffset.x+x, m_ChunkOffset.y+y, m_ChunkOffset.z+z );
 
@@ -618,10 +610,10 @@ bool VoxelChunk::RebuildMesh(unsigned int increment)
                         indexcount += 6;
                     }
 
-                    uleft   = (32.0f*(TileTops_Col[tileindex]+0)) / texwidth;
-                    uright  = (32.0f*(TileTops_Col[tileindex]+1)) / texwidth;
-                    vtop    = (32.0f*(TileTops_Row[tileindex]+0)) / texwidth;
-                    vbottom = (32.0f*(TileTops_Row[tileindex]+1)) / texwidth;
+                    uleft   = (float)(TileTops_Col[tileindex]+0) / m_TextureTileCount.x;
+                    uright  = (float)(TileTops_Col[tileindex]+1) / m_TextureTileCount.x;
+                    vtop    = (float)(TileTops_Row[tileindex]+0) / m_TextureTileCount.y;
+                    vbottom = (float)(TileTops_Row[tileindex]+1) / m_TextureTileCount.y;
 
                     // top
                     if( y == (m_ChunkSize.y-1) && m_pWorld && m_pWorld->IsBlockEnabled( worldpos.x, worldpos.y+1, worldpos.z ) )

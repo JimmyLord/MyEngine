@@ -432,6 +432,11 @@ void ComponentMesh::SetMesh(MyMesh* pMesh)
         AddToSceneGraph();
 }
 
+bool ComponentMesh::IsMeshReady()
+{
+    return m_pMesh->m_MeshReady;
+}
+
 void ComponentMesh::MeshFinishedLoading()
 {
 }
@@ -524,7 +529,7 @@ void ComponentMesh::TickCallback(double TimePassed)
     MyAssert( m_pMesh );
     MyAssert( m_WaitingToAddToSceneGraph );
 
-    if( m_pMesh->m_MeshReady )
+    if( IsMeshReady() )
     {
         MeshFinishedLoading();
 

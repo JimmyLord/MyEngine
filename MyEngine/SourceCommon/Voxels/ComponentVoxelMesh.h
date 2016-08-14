@@ -19,6 +19,7 @@ private:
     MYFW_COMPONENT_DECLARE_VARIABLE_LIST( ComponentVoxelMesh );
 
 protected:
+    Vector2Int m_TextureTileCount;
     Vector3Int m_ChunkSize;
     Vector3 m_BlockSize;
 
@@ -41,6 +42,7 @@ public:
     virtual void RegisterCallbacks();
     virtual void UnregisterCallbacks();
 
+    virtual bool IsMeshReady();
     virtual void MeshFinishedLoading();
 
     // Rendering

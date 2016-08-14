@@ -27,6 +27,7 @@ ComponentVoxelMesh::ComponentVoxelMesh()
 
     m_BaseType = BaseComponentType_Data;
 
+    m_TextureTileCount.Set( 8, 8 );
     m_ChunkSize.Set( 4, 4, 4 );
     m_BlockSize.Set( 0.2f, 0.2f, 0.2f );
 }
@@ -48,6 +49,7 @@ void ComponentVoxelMesh::RegisterVariables(CPPListHead* pList, ComponentVoxelMes
     //    (CVarFunc_ValueChanged)&ComponentVoxelMesh::OnValueChanged,
     //    (CVarFunc_DropTarget)&ComponentVoxelMesh::OnDrop, 0 );
 
+    //AddVar( pList, "TileCount", ComponentVariableType_Vector2Int, MyOffsetOf( pThis, &pThis->m_TextureTileCount ), true, true, 0, (CVarFunc_ValueChanged)&ComponentVoxelMesh::OnValueChanged, (CVarFunc_DropTarget)&ComponentVoxelMesh::OnDrop, 0 );
     AddVar( pList, "MaxSize", ComponentVariableType_Vector3Int, MyOffsetOf( pThis, &pThis->m_ChunkSize ), true, true, 0, (CVarFunc_ValueChanged)&ComponentVoxelMesh::OnValueChanged, (CVarFunc_DropTarget)&ComponentVoxelMesh::OnDrop, 0 );
     AddVar( pList, "BlockSize", ComponentVariableType_Vector3, MyOffsetOf( pThis, &pThis->m_BlockSize ), true, true, 0, (CVarFunc_ValueChanged)&ComponentVoxelMesh::OnValueChanged, (CVarFunc_DropTarget)&ComponentVoxelMesh::OnDrop, 0 );
 
@@ -390,6 +392,11 @@ void ComponentVoxelMesh::UnregisterCallbacks()
 
         m_CallbacksRegistered = false;
     }
+}
+
+bool ComponentVoxelMesh::IsMeshReady()
+{
+    return ComponentMesh::IsMeshReady();
 }
 
 void ComponentVoxelMesh::MeshFinishedLoading()
