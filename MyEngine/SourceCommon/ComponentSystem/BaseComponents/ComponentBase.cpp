@@ -324,6 +324,10 @@ void ComponentBase::AddVariableToPropertiesWindow(ComponentVariable* pVar)
             pVar->m_ControlID = g_pPanelWatch->AddVector3( pVar->m_WatchLabel, (Vector3*)((char*)this + pVar->m_Offset), pVar->m_FloatLowerLimit, pVar->m_FloatUpperLimit, this, ComponentBase::StaticOnValueChangedVariable, ComponentBase::StaticOnRightClick );
             break;
 
+        case ComponentVariableType_Vector2Int:
+            pVar->m_ControlID = g_pPanelWatch->AddVector2Int( pVar->m_WatchLabel, (Vector2Int*)((char*)this + pVar->m_Offset), 0.0f, 0.0f, this, ComponentBase::StaticOnValueChangedVariable, ComponentBase::StaticOnRightClick );
+            break;
+
         case ComponentVariableType_Vector3Int:
             pVar->m_ControlID = g_pPanelWatch->AddVector3Int( pVar->m_WatchLabel, (Vector3Int*)((char*)this + pVar->m_Offset), 0.0f, 0.0f, this, ComponentBase::StaticOnValueChangedVariable, ComponentBase::StaticOnRightClick );
             break;
@@ -513,6 +517,10 @@ void ComponentBase::ExportVariablesToJSON(cJSON* jComponent)
 
             case ComponentVariableType_Vector3:
                 cJSONExt_AddFloatArrayToObject( jComponent, pVar->m_Label, (float*)((char*)this + pVar->m_Offset), 3 );
+                break;
+
+            case ComponentVariableType_Vector2Int:
+                cJSONExt_AddIntArrayToObject( jComponent, pVar->m_Label, (int*)((char*)this + pVar->m_Offset), 2 );
                 break;
 
             case ComponentVariableType_Vector3Int:
@@ -707,6 +715,10 @@ void ComponentBase::ImportVariablesFromJSON(cJSON* jsonobj, const char* singlela
                 cJSONExt_GetFloatArray( jsonobj, pVar->m_Label, (float*)((char*)this + pVar->m_Offset), 3 );
                 break;
 
+            case ComponentVariableType_Vector2Int:
+                cJSONExt_GetIntArray( jsonobj, pVar->m_Label, (int*)((char*)this + pVar->m_Offset), 2 );
+                break;
+
             case ComponentVariableType_Vector3Int:
                 cJSONExt_GetIntArray( jsonobj, pVar->m_Label, (int*)((char*)this + pVar->m_Offset), 3 );
                 break;
@@ -864,6 +876,7 @@ bool ComponentBase::DoesVariableMatchParent(int controlid, ComponentVariable* pV
                 offset += controlcomponent*4;
                 return *(float*)((char*)this + offset) == *(float*)((char*)pOtherComponent + offset);
 
+            case ComponentVariableType_Vector2Int:
             case ComponentVariableType_Vector3Int:
                 offset += controlcomponent*4;
                 return *(int*)((char*)this + offset) == *(int*)((char*)pOtherComponent + offset);
@@ -1179,6 +1192,25 @@ void ComponentBase::CopyValueFromParent(ComponentVariable* pVar)
                 }
                 break;
 
+            case ComponentVariableType_Vector2Int:
+                {
+                    Vector2Int oldvalue = *(Vector2Int*)((char*)this + offset);
+                    Vector2Int newvalue = *(Vector2Int*)((char*)pOtherComponent + offset);
+                    *(Vector2Int*)((char*)this + offset) = *(Vector2Int*)((char*)pOtherComponent + offset);
+
+                    // notify component it's children that the value changed.
+                    OnValueChangedVariable( pVar->m_ControlID+0, true, oldvalue.x );
+                    OnValueChangedVariable( pVar->m_ControlID+1, true, oldvalue.y );
+
+                    g_pEngineMainFrame->m_pCommandStack->Add( MyNew EditorCommand_PanelWatchNumberValueChanged(
+                        newvalue.x - oldvalue.x, PanelWatchType_Int, ((char*)this + offset + 4*0), pVar->m_ControlID+0,
+                        g_pPanelWatch->GetVariableProperties( pVar->m_ControlID )->m_pOnValueChangedCallbackFunc, g_pPanelWatch->GetVariableProperties( pVar->m_ControlID )->m_pCallbackObj ) );
+                    g_pEngineMainFrame->m_pCommandStack->Add( MyNew EditorCommand_PanelWatchNumberValueChanged(
+                        newvalue.y - oldvalue.y, PanelWatchType_Int, ((char*)this + offset + 4*1), pVar->m_ControlID+1,
+                        g_pPanelWatch->GetVariableProperties( pVar->m_ControlID )->m_pOnValueChangedCallbackFunc, g_pPanelWatch->GetVariableProperties( pVar->m_ControlID )->m_pCallbackObj ), true );
+                }
+                break;
+
             case ComponentVariableType_Vector3Int:
                 {
                     Vector3Int oldvalue = *(Vector3Int*)((char*)this + offset);
@@ -1273,6 +1305,7 @@ ComponentVariable* ComponentBase::FindComponentVariableForControl(int controlid)
         MyAssert( pVar );
 
         if( pVar->m_ControlID == controlid ||
+            (pVar->m_Type == ComponentVariableType_Vector2Int && (pVar->m_ControlID+1 == controlid) ) ||
             (pVar->m_Type == ComponentVariableType_Vector3Int && (pVar->m_ControlID+1 == controlid || pVar->m_ControlID+2 == controlid) ) ||
             (pVar->m_Type == ComponentVariableType_Vector3 && (pVar->m_ControlID+1 == controlid || pVar->m_ControlID+2 == controlid) ) ||
             (pVar->m_Type == ComponentVariableType_Vector2 && (pVar->m_ControlID+1 == controlid) ) ||
@@ -1524,6 +1557,7 @@ void ComponentBase::UpdateGameObjectWithNewValue(GameObject* pGameObject, bool f
                     }
                     break;
 
+                case ComponentVariableType_Vector2Int:
                 case ComponentVariableType_Vector3Int:
                     MyAssert( fromdraganddrop == false ); // not drag/dropping these types ATM.
 

@@ -49,7 +49,7 @@ void ComponentVoxelMesh::RegisterVariables(CPPListHead* pList, ComponentVoxelMes
     //    (CVarFunc_ValueChanged)&ComponentVoxelMesh::OnValueChanged,
     //    (CVarFunc_DropTarget)&ComponentVoxelMesh::OnDrop, 0 );
 
-    //AddVar( pList, "TileCount", ComponentVariableType_Vector2Int, MyOffsetOf( pThis, &pThis->m_TextureTileCount ), true, true, 0, (CVarFunc_ValueChanged)&ComponentVoxelMesh::OnValueChanged, (CVarFunc_DropTarget)&ComponentVoxelMesh::OnDrop, 0 );
+    AddVar( pList, "TextureTileCount", ComponentVariableType_Vector2Int, MyOffsetOf( pThis, &pThis->m_TextureTileCount ), true, true, 0, (CVarFunc_ValueChanged)&ComponentVoxelMesh::OnValueChanged, (CVarFunc_DropTarget)&ComponentVoxelMesh::OnDrop, 0 );
     AddVar( pList, "MaxSize", ComponentVariableType_Vector3Int, MyOffsetOf( pThis, &pThis->m_ChunkSize ), true, true, 0, (CVarFunc_ValueChanged)&ComponentVoxelMesh::OnValueChanged, (CVarFunc_DropTarget)&ComponentVoxelMesh::OnDrop, 0 );
     AddVar( pList, "BlockSize", ComponentVariableType_Vector3, MyOffsetOf( pThis, &pThis->m_BlockSize ), true, true, 0, (CVarFunc_ValueChanged)&ComponentVoxelMesh::OnValueChanged, (CVarFunc_DropTarget)&ComponentVoxelMesh::OnDrop, 0 );
 
@@ -168,6 +168,13 @@ void ComponentVoxelMesh::FillPropertiesWindow(bool clear, bool addcomponentvaria
 {
     m_ControlID_ComponentTitleLabel = g_pPanelWatch->AddSpace( "VoxelChunk", this, ComponentMesh::StaticOnComponentTitleLabelClicked );
 
+    if( m_pMesh )
+    {
+        m_BlockSize = ((VoxelChunk*)m_pMesh)->GetBlockSize();
+        m_ChunkSize = ((VoxelChunk*)m_pMesh)->GetChunkSize();
+        m_TextureTileCount = ((VoxelChunk*)m_pMesh)->GetTextureTileCount();
+    }
+
     if( m_PanelWatchBlockVisible || ignoreblockvisibleflag == true )
     {
         ComponentMesh::FillPropertiesWindow( clear );
@@ -229,6 +236,11 @@ void* ComponentVoxelMesh::OnValueChanged(ComponentVariable* pVar, int controlid,
     if( m_pMesh )
     {
         VoxelChunk* pVoxelChunk = (VoxelChunk*)m_pMesh;
+
+        if( pVar->m_Offset == MyOffsetOf( this, &m_TextureTileCount ) )
+        {
+            pVoxelChunk->SetTextureTileCount( m_TextureTileCount );
+        }
 
         if( pVar->m_Offset == MyOffsetOf( this, &m_ChunkSize ) )
         {

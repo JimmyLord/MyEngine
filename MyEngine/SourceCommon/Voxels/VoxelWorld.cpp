@@ -158,7 +158,7 @@ void VoxelWorld::Tick(double timepassed)
     }
 
     // build the mesh for a single chunk per frame.
-    int maxtobuildinoneframe = 40;
+    int maxtobuildinoneframe = 4;
     for( int i=0; i<maxtobuildinoneframe; i++ )
     {
         VoxelChunk* pChunk = (VoxelChunk*)m_pChunksLoading.GetHead();

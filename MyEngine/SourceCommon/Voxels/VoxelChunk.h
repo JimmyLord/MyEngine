@@ -25,10 +25,10 @@ protected:
     bool m_MapWasEdited;
 
     MyMatrix m_Transform;
+
+    Vector3Int m_ChunkOffset;
     Vector3 m_BlockSize;
     Vector3Int m_ChunkSize;
-    Vector3Int m_ChunkOffset;
-
     Vector2Int m_TextureTileCount;
 
     VoxelBlock* m_pBlocks;
@@ -48,8 +48,14 @@ public:
     virtual ~VoxelChunk();
 
     void Initialize(VoxelWorld* world, Vector3 pos, Vector3Int chunkoffset, Vector3 blocksize);
-    void SetChunkSize(Vector3Int chunksize, VoxelBlock* pPreallocatedBlocks = 0);
     void SetBlockSize(Vector3 blocksize);
+    void SetChunkSize(Vector3Int chunksize, VoxelBlock* pPreallocatedBlocks = 0);
+    void SetTextureTileCount(Vector2Int tilecount);
+
+    Vector3Int GetChunkOffset() { return m_ChunkOffset; }
+    Vector3 GetBlockSize() { return m_BlockSize; }
+    Vector3Int GetChunkSize() { return m_ChunkSize; }
+    Vector2Int GetTextureTileCount() { return m_TextureTileCount; }
 
     // Load/Save ".myvoxelmesh" files
     cJSON* ExportAsJSONObject(bool exportforworld = false);
@@ -79,9 +85,6 @@ public:
 
     // Space conversions
     Vector3Int GetWorldPosition(Vector3 scenepos);
-    Vector3 GetBlockSize() { return m_BlockSize; }
-    Vector3Int GetChunkSize() { return m_ChunkSize; }
-    Vector3Int GetChunkOffset() { return m_ChunkOffset; }
     VoxelBlock* GetBlockFromLocalPos(Vector3Int localpos);
     unsigned int GetBlockIndex(Vector3Int worldpos);
 

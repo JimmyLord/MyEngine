@@ -162,6 +162,11 @@ void VoxelChunk::SetBlockSize(Vector3 blocksize)
     m_BlockSize = blocksize;
 }
 
+void VoxelChunk::SetTextureTileCount(Vector2Int tilecount)
+{
+    m_TextureTileCount = tilecount;
+}
+
 // ============================================================================================================================
 // Internal file loading functions
 // ============================================================================================================================
@@ -252,6 +257,7 @@ cJSON* VoxelChunk::ExportAsJSONObject(bool exportforworld)
     {
         cJSONExt_AddFloatArrayToObject( jVoxelMesh, "BlockSize", &m_BlockSize.x, 3 );
         cJSONExt_AddIntArrayToObject( jVoxelMesh, "ChunkSize", &m_ChunkSize.x, 3 );
+        cJSONExt_AddIntArrayToObject( jVoxelMesh, "TextureTileCount", &m_TextureTileCount.x, 2 );
     }
 
     // save the blocks.
@@ -291,10 +297,15 @@ void VoxelChunk::ImportFromJSONObject(cJSON* jVoxelMesh)
     Vector3Int chunksize( 0, 0, 0 );
     cJSONExt_GetIntArray( jVoxelMesh, "ChunkSize", &chunksize.x, 3 );
 
+    Vector2Int texturetilecount( 0, 0 );
+    cJSONExt_GetIntArray( jVoxelMesh, "TextureTileCount", &texturetilecount.x, 2 );
+
     if( blocksize.x != 0 )
         m_BlockSize = blocksize;
     if( chunksize.x != 0 )
         SetChunkSize( chunksize );
+    if( texturetilecount.x != 0 )
+        SetTextureTileCount( texturetilecount );
 
     char* blockstring = cJSON_GetObjectItem( jVoxelMesh, "Blocks" )->valuestring;
 
