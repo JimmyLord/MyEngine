@@ -49,9 +49,9 @@ void ComponentVoxelMesh::RegisterVariables(CPPListHead* pList, ComponentVoxelMes
     //    (CVarFunc_ValueChanged)&ComponentVoxelMesh::OnValueChanged,
     //    (CVarFunc_DropTarget)&ComponentVoxelMesh::OnDrop, 0 );
 
-    AddVar( pList, "TextureTileCount", ComponentVariableType_Vector2Int, MyOffsetOf( pThis, &pThis->m_TextureTileCount ), true, true, 0, (CVarFunc_ValueChanged)&ComponentVoxelMesh::OnValueChanged, (CVarFunc_DropTarget)&ComponentVoxelMesh::OnDrop, 0 );
-    AddVar( pList, "MaxSize", ComponentVariableType_Vector3Int, MyOffsetOf( pThis, &pThis->m_ChunkSize ), true, true, 0, (CVarFunc_ValueChanged)&ComponentVoxelMesh::OnValueChanged, (CVarFunc_DropTarget)&ComponentVoxelMesh::OnDrop, 0 );
-    AddVar( pList, "BlockSize", ComponentVariableType_Vector3, MyOffsetOf( pThis, &pThis->m_BlockSize ), true, true, 0, (CVarFunc_ValueChanged)&ComponentVoxelMesh::OnValueChanged, (CVarFunc_DropTarget)&ComponentVoxelMesh::OnDrop, 0 );
+    AddVar( pList, "TextureTileCount", ComponentVariableType_Vector2Int, MyOffsetOf( pThis, &pThis->m_TextureTileCount ), false, true, 0, (CVarFunc_ValueChanged)&ComponentVoxelMesh::OnValueChanged, (CVarFunc_DropTarget)&ComponentVoxelMesh::OnDrop, 0 );
+    AddVar( pList, "MaxSize", ComponentVariableType_Vector3Int, MyOffsetOf( pThis, &pThis->m_ChunkSize ), false, true, 0, (CVarFunc_ValueChanged)&ComponentVoxelMesh::OnValueChanged, (CVarFunc_DropTarget)&ComponentVoxelMesh::OnDrop, 0 );
+    AddVar( pList, "BlockSize", ComponentVariableType_Vector3, MyOffsetOf( pThis, &pThis->m_BlockSize ), false, true, 0, (CVarFunc_ValueChanged)&ComponentVoxelMesh::OnValueChanged, (CVarFunc_DropTarget)&ComponentVoxelMesh::OnDrop, 0 );
 
     AddVarPointer( pList, "File", true, true, "File",
         (CVarFunc_GetPointerValue)&ComponentVoxelMesh::GetPointerValue,
