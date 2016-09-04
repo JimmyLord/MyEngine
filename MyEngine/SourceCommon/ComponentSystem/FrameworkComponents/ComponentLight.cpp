@@ -267,7 +267,7 @@ void ComponentLight::DrawCallback(ComponentCamera* pCamera, MyMatrix* pMatViewPr
     MyMatrix scale;
     MyMatrix rotpos;
     scale.CreateScale( size );
-    rotpos.CreateLookAtWorld( m_pLight->m_Position, pCameraTransform->GetUp(), pCamera->m_pComponentTransform->GetWorldPosition() );
+    rotpos.CreateLookAtWorld( m_pLight->m_Position, pCameraTransform->GetUp(), pCamera->m_pComponentTransform->GetLocalPosition() );
 
     MyMatrix transform = rotpos * scale;
     //pSprite->SetPosition( &transform );

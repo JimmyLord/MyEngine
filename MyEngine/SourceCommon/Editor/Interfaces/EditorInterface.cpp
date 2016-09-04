@@ -310,7 +310,7 @@ void EditorInterface::RenderObjectIDsToFBO()
 {
     EditorState* pEditorState = g_pEngineCore->m_pEditorState;
 
-    if( pEditorState->m_pMousePickerFBO->m_FullyLoaded == false )
+    if( pEditorState->m_pMousePickerFBO->IsFullyLoaded() == false )
         return;
 
     // bind our FBO so we can render the scene to it.
@@ -345,7 +345,7 @@ unsigned int EditorInterface::GetIDAtPixel(unsigned int x, unsigned int y, bool 
 {
     EditorState* pEditorState = g_pEngineCore->m_pEditorState;
 
-    if( pEditorState->m_pMousePickerFBO->m_FullyLoaded == false )
+    if( pEditorState->m_pMousePickerFBO->IsFullyLoaded() == false )
         return 0;
 
     if( createnewbitmap )
