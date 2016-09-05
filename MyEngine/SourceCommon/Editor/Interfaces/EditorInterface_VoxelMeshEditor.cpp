@@ -75,13 +75,50 @@ void EditorInterface_VoxelMeshEditor::OnDrawFrame(unsigned int canvasid)
         SaveVoxelMesh();
     }
 
-    if( ImGui::Button( "1" ) ) { m_CurrentBlockType = 1; }
-    if( ImGui::Button( "2" ) ) { m_CurrentBlockType = 2; }
-    if( ImGui::Button( "3" ) ) { m_CurrentBlockType = 3; }
-    if( ImGui::Button( "4" ) ) { m_CurrentBlockType = 4; }
-    if( ImGui::Button( "5" ) ) { m_CurrentBlockType = 5; }
+    ImVec4 selectedcolor = ImVec4( 0.5f, 1.0f, 0.5f, 1.0f );
+
+    ImGui::Columns( 5, 0, true );
+
+    int buttonpressed = 0;
+
+    if( m_CurrentBlockType == 1 ) ImGui::PushStyleColor( ImGuiCol_Button, selectedcolor );
+    if( ImGui::Button( "1" ) ) buttonpressed = 1;
+    if( m_CurrentBlockType == 1 ) ImGui::PopStyleColor();
+
+    ImGui::NextColumn();
+    if( m_CurrentBlockType == 2 ) ImGui::PushStyleColor( ImGuiCol_Button, selectedcolor );
+    if( ImGui::Button( "2" ) ) buttonpressed = 2;
+    if( m_CurrentBlockType == 2 ) ImGui::PopStyleColor();
+
+    ImGui::NextColumn();
+    if( m_CurrentBlockType == 3 ) ImGui::PushStyleColor( ImGuiCol_Button, selectedcolor );
+    if( ImGui::Button( "3" ) ) buttonpressed = 3;
+    if( m_CurrentBlockType == 3 ) ImGui::PopStyleColor();
+
+    ImGui::NextColumn();
+    if( m_CurrentBlockType == 4 ) ImGui::PushStyleColor( ImGuiCol_Button, selectedcolor );
+    if( ImGui::Button( "4" ) ) buttonpressed = 4;
+    if( m_CurrentBlockType == 4 ) ImGui::PopStyleColor();
+
+    ImGui::NextColumn();
+    if( m_CurrentBlockType == 5 ) ImGui::PushStyleColor( ImGuiCol_Button, selectedcolor );
+    if( ImGui::Button( "5" ) ) buttonpressed = 5;
+    if( m_CurrentBlockType == 5 ) ImGui::PopStyleColor();
+
+    ImGui::Columns( 1, 0, true );
 
     ImGui::End();
+
+    if( ImGui::IsKeyDown( '1' ) ) m_CurrentBlockType = 1;
+    if( ImGui::IsKeyDown( '2' ) ) m_CurrentBlockType = 2;
+    if( ImGui::IsKeyDown( '3' ) ) m_CurrentBlockType = 3;
+    if( ImGui::IsKeyDown( '4' ) ) m_CurrentBlockType = 4;
+    if( ImGui::IsKeyDown( '5' ) ) m_CurrentBlockType = 5;
+
+    if( buttonpressed != 0 )
+    {
+        m_CurrentBlockType = buttonpressed;
+    }
 }
 
 void EditorInterface_VoxelMeshEditor::CancelCurrentOperation()
@@ -123,6 +160,15 @@ bool EditorInterface_VoxelMeshEditor::HandleInput(int keyaction, int keycode, in
     VoxelChunk* pChunk = 0;
     if( m_pVoxelMesh )
         pChunk = m_pVoxelMesh->GetChunk();
+
+    if( keyaction == GCBA_Down )
+    {
+        if( keycode == '1' ) { m_CurrentBlockType = 1; return true; }
+        if( keycode == '2' ) { m_CurrentBlockType = 2; return true; }
+        if( keycode == '3' ) { m_CurrentBlockType = 3; return true; }
+        if( keycode == '4' ) { m_CurrentBlockType = 4; return true; }
+        if( keycode == '5' ) { m_CurrentBlockType = 5; return true; }
+    }
 
     if( keyaction == GCBA_Up && keycode == MYKEYCODE_ESC )
     {
