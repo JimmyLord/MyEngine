@@ -1065,7 +1065,7 @@ void ComponentSystemManager::FinishLoading(bool lockwhileloading, unsigned int s
             MyFileInfo* pFileInfo = (MyFileInfo*)pNode;
 
             MyAssert( pFileInfo && pFileInfo->m_pFile );
-            if( pFileInfo->m_pFile->m_FileLoadStatus == FileLoadStatus_Loading )
+            if( pFileInfo->m_pFile->m_FileLoadStatus < FileLoadStatus_Success ) // still loading
                 return;
         }
 

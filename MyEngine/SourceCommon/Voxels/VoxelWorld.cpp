@@ -134,7 +134,7 @@ void VoxelWorld::Tick(double timepassed)
     // only make chunks once the save file is fully loaded, if there's a save file.
     if( m_pSaveFile && m_jJSONSavedMapData == 0 )
     {
-        if( m_pSaveFile->m_FileLoadStatus == FileLoadStatus_Loading )
+        if( m_pSaveFile->m_FileLoadStatus < FileLoadStatus_Success )
         {
             return;
         }
