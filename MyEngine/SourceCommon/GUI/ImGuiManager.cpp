@@ -19,6 +19,7 @@ ImGuiManager::ImGuiManager()
 
 ImGuiManager::~ImGuiManager()
 {
+    Shutdown();
 }
 
 void ImGuiManager::Init()
