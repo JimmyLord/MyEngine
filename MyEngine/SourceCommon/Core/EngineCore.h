@@ -96,6 +96,8 @@ public:
 
     char* m_GameObjectFlagStrings[32];
 
+    bool m_Debug_DrawWireframe;
+
 #if MYFW_USING_WX
     EditorState* m_pEditorState;
     bool m_Debug_DrawMousePickerFBO;

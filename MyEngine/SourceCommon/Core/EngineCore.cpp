@@ -57,6 +57,8 @@ EngineCore::EngineCore()
 
     m_LastMousePos.Set( -1, -1 );
 
+    m_Debug_DrawWireframe = false;
+
 #if MYFW_USING_WX
     m_pEditorState = 0;
     m_Debug_DrawMousePickerFBO = false;
@@ -510,6 +512,9 @@ void EngineCore::OnDrawFrame(unsigned int canvasid)
     double Timing_Start = MyTime_GetSystemTime();
 #endif
 
+    if( m_Debug_DrawWireframe )
+        glPolygonMode( GL_FRONT, GL_LINE );
+
     GameCore::OnDrawFrame( canvasid );
 
     MyRect windowrect( 0, 0, 0, 0 );
@@ -527,6 +532,9 @@ void EngineCore::OnDrawFrame(unsigned int canvasid)
         m_pComponentSystemManager->OnDrawFrame();
         windowrect.Set( (int)m_WindowStartX, (int)m_WindowStartY, (int)m_WindowWidth, (int)m_WindowHeight );
     }
+
+    if( m_Debug_DrawWireframe )
+        glPolygonMode( GL_FRONT, GL_FILL );
 
 #if MYFW_USING_WX
     if( m_Debug_DrawGLStats && m_pDebugTextMesh )// && g_GLCanvasIDActive == 1 )

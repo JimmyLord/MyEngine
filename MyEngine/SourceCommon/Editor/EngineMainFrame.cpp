@@ -261,6 +261,7 @@ void EngineMainFrame::InitFrame()
     m_MenuItem_Debug_DrawMousePickerFBO       = m_Debug->AppendCheckItem( myIDEngine_DebugShowMousePickerFBO, wxT("Show &Mouse Picker FBO\tF9") );
     m_MenuItem_Debug_DrawSelectedAnimatedMesh = m_Debug->AppendCheckItem( myIDEngine_DebugShowSelectedAnimatedMesh, wxT("Show &Animated Debug View for Selection\tF8") );
     m_MenuItem_Debug_DrawGLStats              = m_Debug->AppendCheckItem( myIDEngine_DebugShowGLStats, wxT("Show &GL Stats\tShift-F9") );
+    m_MenuItem_Debug_DrawWireframe            = m_Debug->AppendCheckItem( myIDEngine_DebugDrawWireframe, wxT("Draw &Wireframe\tCtrl-F9") );
     m_MenuItem_Debug_DrawPhysicsDebugShapes   = m_Debug->AppendCheckItem( myIDEngine_DebugShowPhysicsShapes, wxT("Show &Physics debug shapes\tShift-F8") );
     m_MenuItem_Debug_ShowProfilingInfo        = m_Debug->AppendCheckItem( myIDEngine_DebugShowProfilingInfo, wxT("Show profiling &Info\tCtrl-F8") );
 
@@ -323,6 +324,7 @@ void EngineMainFrame::InitFrame()
     Connect( myIDEngine_DebugShowMousePickerFBO,       wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );
     Connect( myIDEngine_DebugShowSelectedAnimatedMesh, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );
     Connect( myIDEngine_DebugShowGLStats,              wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );
+    Connect( myIDEngine_DebugDrawWireframe,            wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );
     Connect( myIDEngine_DebugShowPhysicsShapes,        wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );
     Connect( myIDEngine_DebugShowProfilingInfo,        wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );
 
@@ -824,6 +826,10 @@ void EngineMainFrame::OnMenu_Engine(wxCommandEvent& event)
 
     case myIDEngine_DebugShowGLStats:
         g_pEngineCore->m_Debug_DrawGLStats = !g_pEngineCore->m_Debug_DrawGLStats;
+        break;
+
+    case myIDEngine_DebugDrawWireframe:
+        g_pEngineCore->m_Debug_DrawWireframe = !g_pEngineCore->m_Debug_DrawWireframe;
         break;
 
     case myIDEngine_DebugShowPhysicsShapes:
