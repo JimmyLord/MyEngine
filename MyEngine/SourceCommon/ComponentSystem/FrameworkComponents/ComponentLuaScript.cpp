@@ -67,7 +67,7 @@ void ComponentLuaScript::RegisterVariables(CPPListHead* pList, ComponentLuaScrip
 #endif
 
     // script is not automatically saved/loaded
-    AddVar( pList, "Script", ComponentVariableType_FilePtr, MyOffsetOf( pThis, &pThis->m_pScriptFile ), false, true, 0, (CVarFunc_ValueChanged)&ComponentLuaScript::OnValueChangedCV, (CVarFunc_DropTarget)&ComponentLuaScript::OnDropCV, 0 );
+    AddVar( pList, "Script", ComponentVariableType_FilePtr, MyOffsetOf( pThis, &pThis->m_pScriptFile ), false, true, 0, (CVarFunc_ValueChanged)&ComponentLuaScript::OnValueChanged, (CVarFunc_DropTarget)&ComponentLuaScript::OnDrop, 0 );
 }
 
 void ComponentLuaScript::Reset()
@@ -243,19 +243,19 @@ void ComponentLuaScript::FillPropertiesWindow(bool clear, bool addcomponentvaria
 
             case ExposedVariableType_Float:
                 {
-                    id = g_pPanelWatch->AddDouble( pVar->name.c_str(), &pVar->valuedouble, 0, 0, this, ComponentLuaScript::StaticOnValueChanged );
+                    id = g_pPanelWatch->AddDouble( pVar->name.c_str(), &pVar->valuedouble, 0, 0, this, ComponentLuaScript::StaticOnExposedVarValueChanged );
                 }
                 break;
 
             case ExposedVariableType_Bool:
                 {
-                    id = g_pPanelWatch->AddBool( pVar->name.c_str(), &pVar->valuebool, 0, 0, this, ComponentLuaScript::StaticOnValueChanged );
+                    id = g_pPanelWatch->AddBool( pVar->name.c_str(), &pVar->valuebool, 0, 0, this, ComponentLuaScript::StaticOnExposedVarValueChanged );
                 }
                 break;
 
             case ExposedVariableType_Vector3:
                 {
-                    id = g_pPanelWatch->AddVector3( pVar->name.c_str(), (Vector3*)&pVar->valuevector3, 0, 0, this, ComponentLuaScript::StaticOnValueChanged );
+                    id = g_pPanelWatch->AddVector3( pVar->name.c_str(), (Vector3*)&pVar->valuevector3, 0, 0, this, ComponentLuaScript::StaticOnExposedVarValueChanged );
                 }
                 break;
 
@@ -265,7 +265,7 @@ void ComponentLuaScript::FillPropertiesWindow(bool clear, bool addcomponentvaria
                     const char* desc = "no gameobject";
                     if( pVar->pointer )
                         desc = ((GameObject*)pVar->pointer)->GetName();
-                    id = g_pPanelWatch->AddPointerWithDescription( pVar->name.c_str(), pVar->pointer, desc, this, ComponentLuaScript::StaticOnDrop, ComponentLuaScript::StaticOnValueChanged );
+                    id = g_pPanelWatch->AddPointerWithDescription( pVar->name.c_str(), pVar->pointer, desc, this, ComponentLuaScript::StaticOnDropExposedVar, ComponentLuaScript::StaticOnExposedVarValueChanged );
                 }
                 break;
             }
@@ -301,7 +301,7 @@ void ComponentLuaScript::OnPopupClick(wxEvent &evt)
     }
 }
 
-void* ComponentLuaScript::OnDropCV(ComponentVariable* pVar, wxCoord x, wxCoord y)
+void* ComponentLuaScript::OnDrop(ComponentVariable* pVar, wxCoord x, wxCoord y)
 {
     void* oldvalue = 0;
 
@@ -324,7 +324,7 @@ void* ComponentLuaScript::OnDropCV(ComponentVariable* pVar, wxCoord x, wxCoord y
     return oldvalue;
 }
 
-void* ComponentLuaScript::OnValueChangedCV(ComponentVariable* pVar, int controlid, bool finishedchanging, double oldvalue)
+void* ComponentLuaScript::OnValueChanged(ComponentVariable* pVar, int controlid, bool finishedchanging, double oldvalue)
 {
     void* oldpointer = 0;
 
@@ -342,7 +342,7 @@ void* ComponentLuaScript::OnValueChangedCV(ComponentVariable* pVar, int controli
     return oldpointer;
 }
 
-void* ComponentLuaScript::ProcessOnDrop(int controlid, wxCoord x, wxCoord y)
+void* ComponentLuaScript::ProcessOnDropExposedVar(int controlid, wxCoord x, wxCoord y)
 {
     void* oldpointer = 0;
 
@@ -396,14 +396,14 @@ void* ComponentLuaScript::ProcessOnDrop(int controlid, wxCoord x, wxCoord y)
     return oldpointer;
 }
 
-void ComponentLuaScript::OnDrop(int controlid, wxCoord x, wxCoord y)
+void ComponentLuaScript::OnDropExposedVar(int controlid, wxCoord x, wxCoord y)
 {
-    void* oldpointer = ProcessOnDrop( controlid, x, y );
+    void* oldpointer = ProcessOnDropExposedVar( controlid, x, y );
 
     UpdateChildrenWithNewValue( controlid, true, 0, oldpointer );
 }
 
-void ComponentLuaScript::OnValueChanged(int controlid, bool finishedchanging, double oldvalue)
+void ComponentLuaScript::OnExposedVarValueChanged(int controlid, bool finishedchanging, double oldvalue)
 {
     if( controlid != -1 && m_ControlIDOfFirstExtern != -1 )
     {
@@ -550,7 +550,7 @@ void ComponentLuaScript::UpdateChildGameObjectWithNewValue(ExposedVariableDesc* 
                         if( fequal( pChildVar->valuedouble, oldvalue ) )
                         {
                             pChildVar->valuedouble = pVar->valuedouble;
-                            pChildLuaScript->OnValueChanged( controlid, finishedchanging, oldvalue );
+                            pChildLuaScript->OnExposedVarValueChanged( controlid, finishedchanging, oldvalue );
                             ProgramVariables( m_pLuaGameState->m_pLuaState, true );
 
                             pChildLuaScript->UpdateChildrenWithNewValue( controlid, finishedchanging, oldvalue, oldpointer );
@@ -1205,7 +1205,7 @@ void ComponentLuaScript::OnGameObjectDeleted(GameObject* pGameObject)
                     g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_PanelWatchPointerChanged(
                         0,
                         PanelWatchType_PointerWithDesc, &pVar->pointer, -1,
-                        ComponentLuaScript::StaticOnValueChanged, this ), true );
+                        ComponentLuaScript::StaticOnExposedVarValueChanged, this ), true );
                 }
 #endif
                 pVar->pointer = 0;

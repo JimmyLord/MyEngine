@@ -1904,6 +1904,9 @@ void ComponentMenuPage::ShowPage()
         return;
 #endif //MYFW_USING_LUA
 
+    if( m_pComponentCamera == 0 )
+        return;
+
     bool layoutchanged = false;
 
     if( m_CurrentWidth != m_pComponentCamera->m_WindowWidth ||

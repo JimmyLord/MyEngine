@@ -145,16 +145,16 @@ public:
     void OnPopupClick(wxEvent &evt);
 
     // Component variable callbacks.
-    void* OnDropCV(ComponentVariable* pVar, wxCoord x, wxCoord y);
-    void* OnValueChangedCV(ComponentVariable* pVar, int controlid, bool finishedchanging, double oldvalue);
+    void* OnDrop(ComponentVariable* pVar, wxCoord x, wxCoord y);
+    void* OnValueChanged(ComponentVariable* pVar, int controlid, bool finishedchanging, double oldvalue);
 
-    // Watch panel callbacks.
-    static void StaticOnDrop(void* pObjectPtr, int controlid, wxCoord x, wxCoord y) { ((ComponentLuaScript*)pObjectPtr)->OnDrop(controlid, x, y); }
-    void OnDrop(int controlid, wxCoord x, wxCoord y);
-    void* ProcessOnDrop(int controlid, wxCoord x, wxCoord y);
+    // Watch panel callbacks for exposed variables.
+    static void StaticOnDropExposedVar(void* pObjectPtr, int controlid, wxCoord x, wxCoord y) { ((ComponentLuaScript*)pObjectPtr)->OnDropExposedVar(controlid, x, y); }
+    void OnDropExposedVar(int controlid, wxCoord x, wxCoord y);
+    void* ProcessOnDropExposedVar(int controlid, wxCoord x, wxCoord y);
     
-    static void StaticOnValueChanged(void* pObjectPtr, int controlid, bool finishedchanging, double oldvalue) { ((ComponentLuaScript*)pObjectPtr)->OnValueChanged( controlid, finishedchanging, oldvalue ); }
-    void OnValueChanged(int controlid, bool finishedchanging, double oldvalue);
+    static void StaticOnExposedVarValueChanged(void* pObjectPtr, int controlid, bool finishedchanging, double oldvalue) { ((ComponentLuaScript*)pObjectPtr)->OnExposedVarValueChanged( controlid, finishedchanging, oldvalue ); }
+    void OnExposedVarValueChanged(int controlid, bool finishedchanging, double oldvalue);
 
     void UpdateChildrenWithNewValue(int controlid, bool finishedchanging, double oldvalue, void* oldpointer);
     void UpdateChildrenInGameObjectListWithNewValue(ExposedVariableDesc* pVar, unsigned int varindex, GameObject* first, int controlid, bool finishedchanging, double oldvalue, void* oldpointer);
