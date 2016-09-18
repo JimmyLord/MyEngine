@@ -156,9 +156,9 @@ public:
     static void StaticOnExposedVarValueChanged(void* pObjectPtr, int controlid, bool finishedchanging, double oldvalue) { ((ComponentLuaScript*)pObjectPtr)->OnExposedVarValueChanged( controlid, finishedchanging, oldvalue ); }
     void OnExposedVarValueChanged(int controlid, bool finishedchanging, double oldvalue);
 
-    void UpdateChildrenWithNewValue(int controlid, bool finishedchanging, double oldvalue, void* oldpointer);
-    void UpdateChildrenInGameObjectListWithNewValue(ExposedVariableDesc* pVar, unsigned int varindex, GameObject* first, int controlid, bool finishedchanging, double oldvalue, void* oldpointer);
-    void UpdateChildGameObjectWithNewValue(ExposedVariableDesc* pVar, unsigned int varindex, GameObject* pChildGameObject, int controlid, bool finishedchanging, double oldvalue, void* oldpointer);
+    void UpdateChildrenWithNewValue(ExposedVariableDesc* pVar, bool finishedchanging, double oldvalue, void* oldpointer);
+    void UpdateChildrenInGameObjectListWithNewValue(ExposedVariableDesc* pVar, unsigned int varindex, GameObject* first, bool finishedchanging, double oldvalue, void* oldpointer);
+    void UpdateChildGameObjectWithNewValue(ExposedVariableDesc* pVar, unsigned int varindex, GameObject* pChildGameObject, bool finishedchanging, double oldvalue, void* oldpointer);
 #endif //MYFW_USING_WX
 
 public:

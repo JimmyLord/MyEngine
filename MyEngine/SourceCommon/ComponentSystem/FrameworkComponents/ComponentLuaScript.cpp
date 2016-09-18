@@ -400,11 +400,29 @@ void ComponentLuaScript::OnDropExposedVar(int controlid, wxCoord x, wxCoord y)
 {
     void* oldpointer = ProcessOnDropExposedVar( controlid, x, y );
 
-    UpdateChildrenWithNewValue( controlid, true, 0, oldpointer );
+    ExposedVariableDesc* pVar = 0;
+
+    if( controlid != -1 )
+    {
+        for( unsigned int index=0; index<m_ExposedVars.Count(); index++ )
+        {
+            if( m_ExposedVars[index]->controlID == controlid )
+            {
+                pVar = m_ExposedVars[index];
+                break;
+            }
+        }
+    }
+
+    MyAssert( pVar != 0 );
+
+    UpdateChildrenWithNewValue( pVar, true, 0, oldpointer );
 }
 
 void ComponentLuaScript::OnExposedVarValueChanged(int controlid, bool finishedchanging, double oldvalue)
 {
+    ExposedVariableDesc* pVar = 0;
+
     if( controlid != -1 && m_ControlIDOfFirstExtern != -1 )
     {
         //int id = controlid - m_ControlIDOfFirstExtern;
@@ -413,6 +431,9 @@ void ComponentLuaScript::OnExposedVarValueChanged(int controlid, bool finishedch
         //if( id < (int)m_ExposedVars.Count() )
         for( unsigned int index=0; index<m_ExposedVars.Count(); index++ )
         {
+            if( m_ExposedVars[index]->controlID == controlid )
+                pVar = m_ExposedVars[index];
+
             if( m_ExposedVars[index]->controlID != controlid ||
                 ( m_ExposedVars[index]->type == ExposedVariableType_Vector3 &&
                   ( m_ExposedVars[index]->controlID + 0 != controlid ||
@@ -445,7 +466,7 @@ void ComponentLuaScript::OnExposedVarValueChanged(int controlid, bool finishedch
 
                     m_ExposedVars[index]->pointer = 0;
 
-                    UpdateChildrenWithNewValue( controlid, true, 0, oldpointer );
+                    UpdateChildrenWithNewValue( m_ExposedVars[index], true, 0, oldpointer );
                     ProgramVariables( m_pLuaGameState->m_pLuaState, true );
                     return;
                 }
@@ -453,20 +474,33 @@ void ComponentLuaScript::OnExposedVarValueChanged(int controlid, bool finishedch
         }
     }
 
-    ProgramVariables( m_pLuaGameState->m_pLuaState, true );
+    //if( m_pGameObject && m_pGameObject->GetGameObjectThisInheritsFrom() )
+    //{
+    //    // divorce the child value from it's parent, if it no longer matches.
+    //    if( DoesVariableMatchParent( controlid, pVar ) == false ) // returns true if no parent was found.
+    //    {
+    //        // if the variable no longer matches the parent, then divorce it.
+    //        SetDivorced( pVar->m_Index, true );
+    //        g_pPanelWatch->ChangeStaticTextFontStyle( pVar->m_ControlID, wxFONTSTYLE_ITALIC, wxFONTWEIGHT_BOLD );
+    //        g_pPanelWatch->ChangeStaticTextBGColor( pVar->m_ControlID, wxColour( 255, 200, 200, 255 ) );
+    //    }
+    //}
 
-    UpdateChildrenWithNewValue( controlid, finishedchanging, oldvalue, 0 );
+    UpdateChildrenWithNewValue( pVar, finishedchanging, oldvalue, 0 );
+    ProgramVariables( m_pLuaGameState->m_pLuaState, true );
 }
 
-void ComponentLuaScript::UpdateChildrenWithNewValue(int controlid, bool finishedchanging, double oldvalue, void* oldpointer)
+void ComponentLuaScript::UpdateChildrenWithNewValue(ExposedVariableDesc* pVar, bool finishedchanging, double oldvalue, void* oldpointer)
 {
+    MyAssert( pVar );
+
     // find children of this gameobject and change their vars if needed.
     for( unsigned int varindex=0; varindex<m_ExposedVars.Count(); varindex++ )
     {
-        ExposedVariableDesc* pVar = (ExposedVariableDesc*)m_ExposedVars[varindex];
-        MyAssert( pVar );
+        ExposedVariableDesc* pOtherVar = (ExposedVariableDesc*)m_ExposedVars[varindex];
+        MyAssert( pOtherVar );
 
-        if( pVar->controlID == controlid )
+        if( pVar->name == pOtherVar->name )
         {
 #if 0 //MYFW_USING_WX
             typedef std::map<int, SceneInfo>::iterator it_type;
@@ -486,14 +520,14 @@ void ComponentLuaScript::UpdateChildrenWithNewValue(int controlid, bool finished
                 if( (GameObject*)pSceneInfo->m_GameObjects.GetHead() )
                 {
                     GameObject* first = (GameObject*)pSceneInfo->m_GameObjects.GetHead();
-                    UpdateChildrenInGameObjectListWithNewValue( pVar, varindex, first, controlid, finishedchanging, oldvalue, oldpointer );
+                    UpdateChildrenInGameObjectListWithNewValue( pVar, varindex, first, finishedchanging, oldvalue, oldpointer );
                 } 
             }
         }
     }
 }
 
-void ComponentLuaScript::UpdateChildrenInGameObjectListWithNewValue(ExposedVariableDesc* pVar, unsigned int varindex, GameObject* first, int controlid, bool finishedchanging, double oldvalue, void* oldpointer)
+void ComponentLuaScript::UpdateChildrenInGameObjectListWithNewValue(ExposedVariableDesc* pVar, unsigned int varindex, GameObject* first, bool finishedchanging, double oldvalue, void* oldpointer)
 {
     // find children of this gameobject and change their values as well, if their value matches the old value.
     for( CPPListNode* pCompNode = first; pCompNode; pCompNode = pCompNode->GetNext() )
@@ -502,18 +536,18 @@ void ComponentLuaScript::UpdateChildrenInGameObjectListWithNewValue(ExposedVaria
 
         if( pGameObject->GetGameObjectThisInheritsFrom() == this->m_pGameObject )
         {
-            UpdateChildGameObjectWithNewValue( pVar, varindex, pGameObject, controlid, finishedchanging, oldvalue, oldpointer );
+            UpdateChildGameObjectWithNewValue( pVar, varindex, pGameObject, finishedchanging, oldvalue, oldpointer );
         }
 
         GameObject* pFirstChild = pGameObject->GetFirstChild();
         if( pFirstChild )
         {
-            UpdateChildrenInGameObjectListWithNewValue( pVar, varindex, pFirstChild, controlid, finishedchanging, oldvalue, oldpointer );
+            UpdateChildrenInGameObjectListWithNewValue( pVar, varindex, pFirstChild, finishedchanging, oldvalue, oldpointer );
         }
     }
 }
 
-void ComponentLuaScript::UpdateChildGameObjectWithNewValue(ExposedVariableDesc* pVar, unsigned int varindex, GameObject* pChildGameObject, int controlid, bool finishedchanging, double oldvalue, void* oldpointer)
+void ComponentLuaScript::UpdateChildGameObjectWithNewValue(ExposedVariableDesc* pVar, unsigned int varindex, GameObject* pChildGameObject, bool finishedchanging, double oldvalue, void* oldpointer)
 {
     if( pChildGameObject->GetGameObjectThisInheritsFrom() == this->m_pGameObject )
     {
@@ -550,10 +584,10 @@ void ComponentLuaScript::UpdateChildGameObjectWithNewValue(ExposedVariableDesc* 
                         if( fequal( pChildVar->valuedouble, oldvalue ) )
                         {
                             pChildVar->valuedouble = pVar->valuedouble;
-                            pChildLuaScript->OnExposedVarValueChanged( controlid, finishedchanging, oldvalue );
-                            ProgramVariables( m_pLuaGameState->m_pLuaState, true );
+                            //pChildLuaScript->OnExposedVarValueChanged( controlid, finishedchanging, oldvalue );
 
-                            pChildLuaScript->UpdateChildrenWithNewValue( controlid, finishedchanging, oldvalue, oldpointer );
+                            pChildLuaScript->ProgramVariables( m_pLuaGameState->m_pLuaState, true );
+                            pChildLuaScript->UpdateChildrenWithNewValue( pChildVar, finishedchanging, oldvalue, oldpointer );
                         }
                     }
 
@@ -564,8 +598,8 @@ void ComponentLuaScript::UpdateChildGameObjectWithNewValue(ExposedVariableDesc* 
                         //{
                         //    pChildVar->valuedouble = pVar->valuedouble;
                         //    pChildLuaScript->OnValueChanged( controlid, finishedchanging, oldvalue );
-                        //    ProgramVariables( m_pLuaGameState->m_pLuaState, true );
 
+                        //    pChildLuaScript->ProgramVariables( m_pLuaGameState->m_pLuaState, true );
                         //    pChildLuaScript->UpdateChildrenWithNewValue( controlid, finishedchanging, oldvalue, oldpointer );
                         //}
                     }
@@ -577,9 +611,9 @@ void ComponentLuaScript::UpdateChildGameObjectWithNewValue(ExposedVariableDesc* 
                             pChildVar->pointer = pVar->pointer;
                             if( pVar->pointer )
                                 ((GameObject*)pVar->pointer)->RegisterOnDeleteCallback( pChildLuaScript, StaticOnGameObjectDeleted );
-                            ProgramVariables( m_pLuaGameState->m_pLuaState, true );
 
-                            pChildLuaScript->UpdateChildrenWithNewValue( controlid, finishedchanging, oldvalue, oldpointer );
+                            pChildLuaScript->ProgramVariables( m_pLuaGameState->m_pLuaState, true );
+                            pChildLuaScript->UpdateChildrenWithNewValue( pChildVar, finishedchanging, oldvalue, oldpointer );
                         }
                     }
                 }
