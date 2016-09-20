@@ -243,19 +243,19 @@ void ComponentLuaScript::FillPropertiesWindow(bool clear, bool addcomponentvaria
 
             case ExposedVariableType_Float:
                 {
-                    id = g_pPanelWatch->AddDouble( pVar->name.c_str(), &pVar->valuedouble, 0, 0, this, ComponentLuaScript::StaticOnExposedVarValueChanged );
+                    id = g_pPanelWatch->AddDouble( pVar->name.c_str(), &pVar->valuedouble, 0, 0, this, ComponentLuaScript::StaticOnExposedVarValueChanged, ComponentLuaScript::StaticOnRightClickExposedVariable );
                 }
                 break;
 
             case ExposedVariableType_Bool:
                 {
-                    id = g_pPanelWatch->AddBool( pVar->name.c_str(), &pVar->valuebool, 0, 0, this, ComponentLuaScript::StaticOnExposedVarValueChanged );
+                    id = g_pPanelWatch->AddBool( pVar->name.c_str(), &pVar->valuebool, 0, 0, this, ComponentLuaScript::StaticOnExposedVarValueChanged, ComponentLuaScript::StaticOnRightClickExposedVariable );
                 }
                 break;
 
             case ExposedVariableType_Vector3:
                 {
-                    id = g_pPanelWatch->AddVector3( pVar->name.c_str(), (Vector3*)&pVar->valuevector3, 0, 0, this, ComponentLuaScript::StaticOnExposedVarValueChanged );
+                    id = g_pPanelWatch->AddVector3( pVar->name.c_str(), (Vector3*)&pVar->valuevector3, 0, 0, this, ComponentLuaScript::StaticOnExposedVarValueChanged, ComponentLuaScript::StaticOnRightClickExposedVariable );
                 }
                 break;
 
@@ -265,7 +265,7 @@ void ComponentLuaScript::FillPropertiesWindow(bool clear, bool addcomponentvaria
                     const char* desc = "no gameobject";
                     if( pVar->pointer )
                         desc = ((GameObject*)pVar->pointer)->GetName();
-                    id = g_pPanelWatch->AddPointerWithDescription( pVar->name.c_str(), pVar->pointer, desc, this, ComponentLuaScript::StaticOnDropExposedVar, ComponentLuaScript::StaticOnExposedVarValueChanged );
+                    id = g_pPanelWatch->AddPointerWithDescription( pVar->name.c_str(), pVar->pointer, desc, this, ComponentLuaScript::StaticOnDropExposedVar, ComponentLuaScript::StaticOnExposedVarValueChanged, ComponentLuaScript::StaticOnRightClickExposedVariable );
                 }
                 break;
             }
@@ -422,6 +422,15 @@ void ComponentLuaScript::OnDropExposedVar(int controlid, wxCoord x, wxCoord y)
 
     MyAssert( pVar != 0 );
 
+    // divorce the child value from it's parent, if it no longer matches.
+    if( DoesExposedVariableMatchParent( pVar ) == false ) // returns true if no parent was found.
+    {
+        // if the variable no longer matches the parent, then divorce it.
+        pVar->divorced = true;
+        g_pPanelWatch->ChangeStaticTextFontStyle( pVar->controlID, wxFONTSTYLE_ITALIC, wxFONTWEIGHT_BOLD );
+        g_pPanelWatch->ChangeStaticTextBGColor( pVar->controlID, wxColour( 255, 200, 200, 255 ) );
+    }
+
     UpdateChildrenWithNewValue( pVar, true, 0, oldpointer );
 }
 
@@ -472,6 +481,15 @@ void ComponentLuaScript::OnExposedVarValueChanged(int controlid, bool finishedch
 
                     m_ExposedVars[index]->pointer = 0;
 
+                    // divorce the child value from it's parent, if it no longer matches.
+                    if( DoesExposedVariableMatchParent( pVar ) == false ) // returns true if no parent was found.
+                    {
+                        // if the variable no longer matches the parent, then divorce it.
+                        pVar->divorced = true;
+                        g_pPanelWatch->ChangeStaticTextFontStyle( pVar->controlID, wxFONTSTYLE_ITALIC, wxFONTWEIGHT_BOLD );
+                        g_pPanelWatch->ChangeStaticTextBGColor( pVar->controlID, wxColour( 255, 200, 200, 255 ) );
+                    }
+
                     UpdateChildrenWithNewValue( m_ExposedVars[index], true, 0, oldpointer );
                     ProgramVariables( m_pLuaGameState->m_pLuaState, true );
                     return;
@@ -479,18 +497,6 @@ void ComponentLuaScript::OnExposedVarValueChanged(int controlid, bool finishedch
             }
         }
     }
-
-    //if( m_pGameObject && m_pGameObject->GetGameObjectThisInheritsFrom() )
-    //{
-    //    // divorce the child value from it's parent, if it no longer matches.
-    //    if( DoesVariableMatchParent( controlid, pVar ) == false ) // returns true if no parent was found.
-    //    {
-    //        // if the variable no longer matches the parent, then divorce it.
-    //        SetDivorced( pVar->m_Index, true );
-    //        g_pPanelWatch->ChangeStaticTextFontStyle( pVar->m_ControlID, wxFONTSTYLE_ITALIC, wxFONTWEIGHT_BOLD );
-    //        g_pPanelWatch->ChangeStaticTextBGColor( pVar->m_ControlID, wxColour( 255, 200, 200, 255 ) );
-    //    }
-    //}
 
     // divorce the child value from it's parent, if it no longer matches.
     if( DoesExposedVariableMatchParent( pVar ) == false ) // returns true if no parent was found.
@@ -503,6 +509,164 @@ void ComponentLuaScript::OnExposedVarValueChanged(int controlid, bool finishedch
 
     UpdateChildrenWithNewValue( pVar, finishedchanging, oldvalue, 0 );
     ProgramVariables( m_pLuaGameState->m_pLuaState, true );
+}
+
+void ComponentLuaScript::OnRightClickExposedVariable(int controlid)
+{
+    // the only right-click options involve this components gameobject having a parent, so quick early if it doesn't
+    if( m_pGameObject->GetGameObjectThisInheritsFrom() == 0 )
+        return;
+
+    ExposedVariableDesc* pExposedVar = 0;
+
+    if( controlid != -1 && m_ControlIDOfFirstExtern != -1 )
+    {
+        for( unsigned int index=0; index<m_ExposedVars.Count(); index++ )
+        {
+            if( m_ExposedVars[index]->controlID == controlid )
+            {
+                pExposedVar = m_ExposedVars[index];
+                break;
+            }
+        }
+    }
+
+    if( pExposedVar == 0 )
+    {
+        ComponentBase::OnRightClickVariable( controlid );
+        return;
+    }
+
+    wxMenu menu;
+    menu.SetClientData( &m_ComponentLuaScriptEventHandlerForExposedVariables );
+
+    m_ComponentLuaScriptEventHandlerForExposedVariables.pLuaScriptComponent = this;
+    m_ComponentLuaScriptEventHandlerForExposedVariables.pExposedVar = pExposedVar;
+
+    // if this game object inherits from another, right-clicking a variable will offer divorce/marry options.
+    if( m_pGameObject->GetGameObjectThisInheritsFrom() )
+    {
+        if( pExposedVar->divorced == false )
+        {
+            menu.Append( RightClick_DivorceVariable, "Divorce value from parent" );
+ 	        menu.Connect( wxEVT_COMMAND_MENU_SELECTED, (wxObjectEventFunction)&ComponentLuaScriptEventHandlerForExposedVariables::OnPopupClick );
+        }
+        else
+        {
+            menu.Append( RightClick_MarryVariable, "Reset value to parent" );
+ 	        menu.Connect( wxEVT_COMMAND_MENU_SELECTED, (wxObjectEventFunction)&ComponentLuaScriptEventHandlerForExposedVariables::OnPopupClick );
+        }
+    }
+
+    // blocking call.
+    g_pPanelWatch->PopupMenu( &menu ); // there's no reason this is using g_pPanelWatch other than convenience.
+}
+
+void ComponentLuaScriptEventHandlerForExposedVariables::OnPopupClick(wxEvent &evt)
+{
+    ComponentLuaScriptEventHandlerForExposedVariables* pEvtHandler = (ComponentLuaScriptEventHandlerForExposedVariables*)static_cast<wxMenu*>(evt.GetEventObject())->GetClientData();
+    ComponentLuaScript* pLuaScriptComponent = pEvtHandler->pLuaScriptComponent;
+    ExposedVariableDesc* pExposedVar = pEvtHandler->pExposedVar;
+
+    int id = evt.GetId();
+    switch( id )
+    {
+    case ComponentBase::RightClick_DivorceVariable:
+        {
+            pExposedVar->divorced = true;
+            g_pPanelWatch->ChangeStaticTextFontStyle( pExposedVar->controlID, wxFONTSTYLE_ITALIC, wxFONTWEIGHT_BOLD );
+            g_pPanelWatch->ChangeStaticTextBGColor( pExposedVar->controlID, wxColour( 255, 200, 200, 255 ) );
+        }
+        break;
+
+    case ComponentBase::RightClick_MarryVariable:
+        {
+            pExposedVar->divorced = false;
+            g_pPanelWatch->ChangeStaticTextFontStyle( pExposedVar->controlID, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL );
+            g_pPanelWatch->ChangeStaticTextBGColor( pExposedVar->controlID, wxNullColour );
+            
+            // change the value of this variable to match the parent.
+            pLuaScriptComponent->CopyExposedVarValueFromParent( pExposedVar );
+        }
+        break;
+    }
+}
+
+void ComponentLuaScript::CopyExposedVarValueFromParent(ExposedVariableDesc* pVar)
+{
+    MyAssert( m_pGameObject );
+    MyAssert( m_pGameObject->GetGameObjectThisInheritsFrom() );
+
+    GameObject* pParentGO = m_pGameObject->GetGameObjectThisInheritsFrom();
+    if( pParentGO == 0 )
+        return;
+    
+    // Found a game object, now find the matching component on it.
+    for( unsigned int i=0; i<pParentGO->m_Components.Count()+1; i++ )
+    {
+        ComponentBase* pOtherComponent;
+
+        if( i == 0 )
+            pOtherComponent = pParentGO->m_pComponentTransform;
+        else
+            pOtherComponent = pParentGO->m_Components[i-1];
+
+        const char* pThisCompClassName = GetClassname();
+        const char* pOtherCompClassName = pOtherComponent->GetClassname();
+
+        if( strcmp( pThisCompClassName, pOtherCompClassName ) == 0 )
+        {
+            ComponentLuaScript* pOtherLuaScript = (ComponentLuaScript*)pOtherComponent;
+
+            // find children of this gameobject and change their vars if needed.
+            for( unsigned int varindex=0; varindex<m_ExposedVars.Count(); varindex++ )
+            {
+                ExposedVariableDesc* pOtherVar = (ExposedVariableDesc*)pOtherLuaScript->m_ExposedVars[varindex];
+                MyAssert( pOtherVar );
+
+                if( pVar->name == pOtherVar->name )
+                {
+                    switch( pVar->type )
+                    {
+                    case ExposedVariableType_Float:
+                        {
+                            double oldvalue = pVar->valuedouble;
+                            double newvalue = pOtherVar->valuedouble;
+                            pVar->valuedouble = pOtherVar->valuedouble;
+
+                            // notify component it's children that the value changed.
+                            OnExposedVarValueChanged( pVar->controlID, true, oldvalue );
+
+                            g_pEngineMainFrame->m_pCommandStack->Add( MyNew EditorCommand_PanelWatchNumberValueChanged(
+                                newvalue - oldvalue, PanelWatchType_Double, ((char*)&pVar->valuedouble), pVar->controlID,
+                                g_pPanelWatch->GetVariableProperties( pVar->controlID )->m_pOnValueChangedCallbackFunc, g_pPanelWatch->GetVariableProperties( pVar->controlID )->m_pCallbackObj ) );
+                        }
+                        break;
+
+                    case ExposedVariableType_Bool:
+                        MyAssert( false ); // TODO: fix
+                        break;
+                        //return pVar->valuebool == pOtherVar->valuebool;
+
+                    case ExposedVariableType_Vector3:
+                        MyAssert( false ); // TODO: fix
+                        break;
+                        //return pVar->valuevector3 == pOtherVar->valuevector3;
+
+                    case ExposedVariableType_GameObject:
+                        MyAssert( false ); // TODO: fix
+                        break;
+                        //return pVar->pointer == pOtherVar->pointer;
+
+                    case ExposedVariableType_Unused:
+                    default:
+                        MyAssert( false );
+                        break;
+                    }
+                }
+            }
+        }
+    }
 }
 
 bool ComponentLuaScript::DoesExposedVariableMatchParent(ExposedVariableDesc* pVar)

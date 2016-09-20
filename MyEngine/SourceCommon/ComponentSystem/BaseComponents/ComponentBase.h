@@ -309,8 +309,8 @@ public:
     void OnDropVariable(int controlid, wxCoord x, wxCoord y);
 
     ComponentBaseEventHandlerForComponentVariables m_ComponentBaseEventHandlerForComponentVariables;
-    static void StaticOnRightClick(void* pObjectPtr, int controlid) { ((ComponentBase*)pObjectPtr)->OnRightClick(controlid); }
-    void OnRightClick(int controlid);
+    static void StaticOnRightClickVariable(void* pObjectPtr, int controlid) { ((ComponentBase*)pObjectPtr)->OnRightClickVariable(controlid); }
+    void OnRightClickVariable(int controlid);
 
     ComponentVariable* FindComponentVariableForControl(int controlid);
     static ComponentVariable* FindComponentVariableByLabel(CPPListHead* list, const char* label);

@@ -48,6 +48,23 @@ struct ExposedVariableDesc
     }
 };
 
+#if MYFW_USING_WX
+class ComponentLuaScriptEventHandlerForExposedVariables : public wxEvtHandler
+{
+public:
+    ComponentLuaScript* pLuaScriptComponent;
+    ExposedVariableDesc* pExposedVar;
+
+public:
+    ComponentLuaScriptEventHandlerForExposedVariables()
+    {
+        pLuaScriptComponent = 0;
+        pExposedVar = 0;
+    };
+    void OnPopupClick(wxEvent &evt);
+};
+#endif
+
 class ComponentLuaScript : public ComponentUpdateable
 {
 private:
@@ -158,10 +175,15 @@ public:
     static void StaticOnExposedVarValueChanged(void* pObjectPtr, int controlid, bool finishedchanging, double oldvalue) { ((ComponentLuaScript*)pObjectPtr)->OnExposedVarValueChanged( controlid, finishedchanging, oldvalue ); }
     void OnExposedVarValueChanged(int controlid, bool finishedchanging, double oldvalue);
 
+    ComponentLuaScriptEventHandlerForExposedVariables m_ComponentLuaScriptEventHandlerForExposedVariables;
+    static void StaticOnRightClickExposedVariable(void* pObjectPtr, int controlid) { ((ComponentLuaScript*)pObjectPtr)->OnRightClickExposedVariable( controlid ); }
+    void OnRightClickExposedVariable(int controlid);
+
     bool DoesExposedVariableMatchParent(ExposedVariableDesc* pVar);
     void UpdateChildrenWithNewValue(ExposedVariableDesc* pVar, bool finishedchanging, double oldvalue, void* oldpointer);
     void UpdateChildrenInGameObjectListWithNewValue(ExposedVariableDesc* pVar, unsigned int varindex, GameObject* first, bool finishedchanging, double oldvalue, void* oldpointer);
     void UpdateChildGameObjectWithNewValue(ExposedVariableDesc* pVar, unsigned int varindex, GameObject* pChildGameObject, bool finishedchanging, double oldvalue, void* oldpointer);
+    void CopyExposedVarValueFromParent(ExposedVariableDesc* pVar);
 #endif //MYFW_USING_WX
 
 public:
