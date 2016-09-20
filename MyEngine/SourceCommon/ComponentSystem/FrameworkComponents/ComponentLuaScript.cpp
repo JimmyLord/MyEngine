@@ -270,6 +270,12 @@ void ComponentLuaScript::FillPropertiesWindow(bool clear, bool addcomponentvaria
                 break;
             }
 
+            if( pVar->divorced )
+            {
+                g_pPanelWatch->ChangeStaticTextFontStyle( pVar->controlID, wxFONTSTYLE_ITALIC, wxFONTWEIGHT_BOLD );
+                g_pPanelWatch->ChangeStaticTextBGColor( pVar->controlID, wxColour( 255, 200, 200, 255 ) );
+            }
+
             if( m_ControlIDOfFirstExtern == -1 )
                 m_ControlIDOfFirstExtern = id;
 
@@ -486,8 +492,80 @@ void ComponentLuaScript::OnExposedVarValueChanged(int controlid, bool finishedch
     //    }
     //}
 
+    // divorce the child value from it's parent, if it no longer matches.
+    if( DoesExposedVariableMatchParent( pVar ) == false ) // returns true if no parent was found.
+    {
+        // if the variable no longer matches the parent, then divorce it.
+        pVar->divorced = true;
+        g_pPanelWatch->ChangeStaticTextFontStyle( pVar->controlID, wxFONTSTYLE_ITALIC, wxFONTWEIGHT_BOLD );
+        g_pPanelWatch->ChangeStaticTextBGColor( pVar->controlID, wxColour( 255, 200, 200, 255 ) );
+    }
+
     UpdateChildrenWithNewValue( pVar, finishedchanging, oldvalue, 0 );
     ProgramVariables( m_pLuaGameState->m_pLuaState, true );
+}
+
+bool ComponentLuaScript::DoesExposedVariableMatchParent(ExposedVariableDesc* pVar)
+{
+    MyAssert( m_pGameObject );
+    if( m_pGameObject == 0 )
+        return true; // the object has no parent, we say it matches.
+    
+    GameObject* pGameObject = m_pGameObject->GetGameObjectThisInheritsFrom();
+    if( pGameObject == 0 )
+        return true; // the object has no parent, we say it matches.
+
+    // Found a game object, now find the matching component on it.
+    for( unsigned int i=0; i<pGameObject->m_Components.Count()+1; i++ )
+    {
+        ComponentBase* pOtherComponent;
+
+        if( i == 0 )
+            pOtherComponent = pGameObject->m_pComponentTransform;
+        else
+            pOtherComponent = pGameObject->m_Components[i-1];
+
+        const char* pThisCompClassName = GetClassname();
+        const char* pOtherCompClassName = pOtherComponent->GetClassname();
+
+        if( strcmp( pThisCompClassName, pOtherCompClassName ) == 0 )
+        {
+            ComponentLuaScript* pOtherLuaScript = (ComponentLuaScript*)pOtherComponent;
+
+            // find children of this gameobject and change their vars if needed.
+            for( unsigned int varindex=0; varindex<m_ExposedVars.Count(); varindex++ )
+            {
+                ExposedVariableDesc* pOtherVar = (ExposedVariableDesc*)pOtherLuaScript->m_ExposedVars[varindex];
+                MyAssert( pOtherVar );
+
+                if( pVar->name == pOtherVar->name )
+                {
+                    switch( pVar->type )
+                    {
+                    case ExposedVariableType_Float:
+                        return pVar->valuedouble == pOtherVar->valuedouble;
+
+                    case ExposedVariableType_Bool:
+                        return pVar->valuebool == pOtherVar->valuebool;
+
+                    case ExposedVariableType_Vector3:
+                        return pVar->valuevector3 == pOtherVar->valuevector3;
+
+                    case ExposedVariableType_GameObject:
+                        return pVar->pointer == pOtherVar->pointer;
+
+                    case ExposedVariableType_Unused:
+                    default:
+                        MyAssert( false );
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    MyAssert( false ); // shouldn't get here.
+    return true; // the object has no parent, we say it matches.
 }
 
 void ComponentLuaScript::UpdateChildrenWithNewValue(ExposedVariableDesc* pVar, bool finishedchanging, double oldvalue, void* oldpointer)
@@ -625,47 +703,50 @@ void ComponentLuaScript::UpdateChildGameObjectWithNewValue(ExposedVariableDesc* 
 
 cJSON* ComponentLuaScript::ExportAsJSONObject(bool savesceneid)
 {
-    cJSON* component = ComponentUpdateable::ExportAsJSONObject( savesceneid );
+    cJSON* jComponent = ComponentUpdateable::ExportAsJSONObject( savesceneid );
 
     if( m_pScriptFile )
-        cJSON_AddStringToObject( component, "Script", m_pScriptFile->m_FullPath );
+        cJSON_AddStringToObject( jComponent, "Script", m_pScriptFile->m_FullPath );
 
     // save the array of exposed variables
     cJSON* exposedvararray = cJSON_CreateArray();
-    cJSON_AddItemToObject( component, "ExposedVars", exposedvararray );
+    cJSON_AddItemToObject( jComponent, "ExposedVars", exposedvararray );
     for( unsigned int i=0; i<m_ExposedVars.Count(); i++ )
     {
         ExposedVariableDesc* pVar = m_ExposedVars[i];
         
-        cJSON* jsonvar = cJSON_CreateObject();
-        cJSON_AddItemToArray( exposedvararray, jsonvar );
+        cJSON* jExposedVar = cJSON_CreateObject();
+        cJSON_AddItemToArray( exposedvararray, jExposedVar );
 
-        cJSON_AddStringToObject( jsonvar, "Name", pVar->name.c_str() );
-        cJSON_AddNumberToObject( jsonvar, "Type", pVar->type );
+        cJSON_AddStringToObject( jExposedVar, "Name", pVar->name.c_str() );
+        cJSON_AddNumberToObject( jExposedVar, "Type", pVar->type );
 
         if( pVar->type == ExposedVariableType_Float )
         {
-            cJSON_AddNumberToObject( jsonvar, "Value", pVar->valuedouble );
+            cJSON_AddNumberToObject( jExposedVar, "Value", pVar->valuedouble );
         }
         if( pVar->type == ExposedVariableType_Bool )
         {
-            cJSON_AddNumberToObject( jsonvar, "Value", pVar->valuebool );
+            cJSON_AddNumberToObject( jExposedVar, "Value", pVar->valuebool );
         }
         if( pVar->type == ExposedVariableType_Vector3 )
         {
-            cJSONExt_AddFloatArrayToObject( jsonvar, "Value", pVar->valuevector3, 3 );
+            cJSONExt_AddFloatArrayToObject( jExposedVar, "Value", pVar->valuevector3, 3 );
         }
         else if( pVar->type == ExposedVariableType_GameObject && pVar->pointer )
         {
             cJSON* gameobjectref = ((GameObject*)pVar->pointer)->ExportReferenceAsJSONObject( m_SceneIDLoadedFrom );
-            cJSON_AddItemToObject( jsonvar, "Value", gameobjectref );
+            cJSON_AddItemToObject( jExposedVar, "Value", gameobjectref );
 
             // TODO: find a way to uniquely identify a game object...
-            //cJSON_AddStringToObject( jsonvar, "Value", ((GameObject*)pVar->pointer)->GetName() );
+            //cJSON_AddStringToObject( jExposedVar, "Value", ((GameObject*)pVar->pointer)->GetName() );
         }
+
+        if( pVar->divorced )
+            cJSON_AddNumberToObject( jExposedVar, "Divorced", pVar->divorced );
     }
 
-    return component;
+    return jComponent;
 }
 
 void ComponentLuaScript::ImportFromJSONObject(cJSON* jsonobj, unsigned int sceneid)
@@ -740,6 +821,8 @@ void ComponentLuaScript::ImportFromJSONObject(cJSON* jsonobj, unsigned int scene
                 //pVar->pointer = g_pComponentSystemManager->FindGameObjectByName( obj->valuestring );
             }
         }
+
+        cJSONExt_GetBool( jsonvar, "Divorced", &pVar->divorced );
     }
 }
 

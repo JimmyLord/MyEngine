@@ -31,6 +31,7 @@ struct ExposedVariableDesc
         void* pointer;
     };
 
+    bool divorced;
     bool inuse; // used internally when reparsing the file.
     int controlID;
 
@@ -41,6 +42,7 @@ struct ExposedVariableDesc
         valuedouble = 0;
         valuebool = 0;
         valuevector3[0] = valuevector3[1] = valuevector3[2] = 0;
+        divorced = false;
         inuse = false;
         controlID = -1;
     }
@@ -156,6 +158,7 @@ public:
     static void StaticOnExposedVarValueChanged(void* pObjectPtr, int controlid, bool finishedchanging, double oldvalue) { ((ComponentLuaScript*)pObjectPtr)->OnExposedVarValueChanged( controlid, finishedchanging, oldvalue ); }
     void OnExposedVarValueChanged(int controlid, bool finishedchanging, double oldvalue);
 
+    bool DoesExposedVariableMatchParent(ExposedVariableDesc* pVar);
     void UpdateChildrenWithNewValue(ExposedVariableDesc* pVar, bool finishedchanging, double oldvalue, void* oldpointer);
     void UpdateChildrenInGameObjectListWithNewValue(ExposedVariableDesc* pVar, unsigned int varindex, GameObject* first, bool finishedchanging, double oldvalue, void* oldpointer);
     void UpdateChildGameObjectWithNewValue(ExposedVariableDesc* pVar, unsigned int varindex, GameObject* pChildGameObject, bool finishedchanging, double oldvalue, void* oldpointer);
