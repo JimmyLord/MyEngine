@@ -432,6 +432,7 @@ void ComponentLuaScript::OnDropExposedVar(int controlid, wxCoord x, wxCoord y)
     }
 
     UpdateChildrenWithNewValue( pVar, true, 0, oldpointer );
+    ProgramVariables( m_pLuaGameState->m_pLuaState, true );
 }
 
 void ComponentLuaScript::OnExposedVarValueChanged(int controlid, bool finishedchanging, double oldvalue)
@@ -644,19 +645,49 @@ void ComponentLuaScript::CopyExposedVarValueFromParent(ExposedVariableDesc* pVar
                         break;
 
                     case ExposedVariableType_Bool:
-                        MyAssert( false ); // TODO: fix
+                        {
+                            bool oldvalue = pVar->valuebool;
+                            bool newvalue = pOtherVar->valuebool;
+                            pVar->valuedouble = pOtherVar->valuebool;
+
+                            // notify component it's children that the value changed.
+                            OnExposedVarValueChanged( pVar->controlID, true, oldvalue );
+
+                            g_pEngineMainFrame->m_pCommandStack->Add( MyNew EditorCommand_PanelWatchNumberValueChanged(
+                                newvalue - oldvalue, PanelWatchType_Bool, ((char*)&pVar->valuebool), pVar->controlID,
+                                g_pPanelWatch->GetVariableProperties( pVar->controlID )->m_pOnValueChangedCallbackFunc, g_pPanelWatch->GetVariableProperties( pVar->controlID )->m_pCallbackObj ) );
+                        }
                         break;
-                        //return pVar->valuebool == pOtherVar->valuebool;
 
                     case ExposedVariableType_Vector3:
-                        MyAssert( false ); // TODO: fix
+                        {
+                            Vector3 oldvalue = *(Vector3*)&pVar->valuevector3;
+                            Vector3 newvalue = *(Vector3*)&pOtherVar->valuevector3;
+                            *(Vector3*)&pVar->valuevector3 = *(Vector3*)&pOtherVar->valuevector3;
+
+                            // notify component it's children that the value changed.
+                            OnExposedVarValueChanged( pVar->controlID+0, true, oldvalue.x );
+                            OnExposedVarValueChanged( pVar->controlID+1, true, oldvalue.y );
+                            OnExposedVarValueChanged( pVar->controlID+2, true, oldvalue.z );
+
+                            g_pEngineMainFrame->m_pCommandStack->Add( MyNew EditorCommand_PanelWatchNumberValueChanged(
+                                newvalue.x - oldvalue.x, PanelWatchType_Float, ((char*)&pVar->valuevector3[0]), pVar->controlID,
+                                g_pPanelWatch->GetVariableProperties( pVar->controlID )->m_pOnValueChangedCallbackFunc, g_pPanelWatch->GetVariableProperties( pVar->controlID )->m_pCallbackObj ) );
+                            g_pEngineMainFrame->m_pCommandStack->Add( MyNew EditorCommand_PanelWatchNumberValueChanged(
+                                newvalue.y - oldvalue.y, PanelWatchType_Float, ((char*)&pVar->valuevector3[1]), pVar->controlID,
+                                g_pPanelWatch->GetVariableProperties( pVar->controlID )->m_pOnValueChangedCallbackFunc, g_pPanelWatch->GetVariableProperties( pVar->controlID )->m_pCallbackObj ), true );
+                            g_pEngineMainFrame->m_pCommandStack->Add( MyNew EditorCommand_PanelWatchNumberValueChanged(
+                                newvalue.z - oldvalue.z, PanelWatchType_Float, ((char*)&pVar->valuevector3[2]), pVar->controlID,
+                                g_pPanelWatch->GetVariableProperties( pVar->controlID )->m_pOnValueChangedCallbackFunc, g_pPanelWatch->GetVariableProperties( pVar->controlID )->m_pCallbackObj ), true );
+                        }
                         break;
-                        //return pVar->valuevector3 == pOtherVar->valuevector3;
 
                     case ExposedVariableType_GameObject:
-                        MyAssert( false ); // TODO: fix
+                        g_DragAndDropStruct.m_ID = pVar->controlID;
+                        g_DragAndDropStruct.m_Type = DragAndDropType_GameObjectPointer;
+                        g_DragAndDropStruct.m_Value = pOtherVar->pointer;
+                        OnDropExposedVar( pVar->controlID, 0, 0 );
                         break;
-                        //return pVar->pointer == pOtherVar->pointer;
 
                     case ExposedVariableType_Unused:
                     default:
