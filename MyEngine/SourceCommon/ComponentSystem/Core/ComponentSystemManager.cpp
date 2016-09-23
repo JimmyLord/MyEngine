@@ -2250,6 +2250,7 @@ void ComponentSystemManager::OnPlay()
 void ComponentSystemManager::OnStop()
 {
     SetTimeScale( 1 );
+    g_pPanelWatch->SetNeedsRefresh();
 
     for( unsigned int i=0; i<BaseComponentType_NumTypes; i++ )
     {

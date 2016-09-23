@@ -272,8 +272,8 @@ void ComponentLuaScript::FillPropertiesWindow(bool clear, bool addcomponentvaria
 
             if( pVar->divorced )
             {
-                g_pPanelWatch->ChangeStaticTextFontStyle( pVar->controlID, wxFONTSTYLE_ITALIC, wxFONTWEIGHT_BOLD );
-                g_pPanelWatch->ChangeStaticTextBGColor( pVar->controlID, wxColour( 255, 200, 200, 255 ) );
+                g_pPanelWatch->ChangeStaticTextFontStyle( id, wxFONTSTYLE_ITALIC, wxFONTWEIGHT_BOLD );
+                g_pPanelWatch->ChangeStaticTextBGColor( id, wxColour( 255, 200, 200, 255 ) );
             }
 
             if( m_ControlIDOfFirstExtern == -1 )
@@ -990,6 +990,8 @@ void ComponentLuaScript::ImportFromJSONObject(cJSON* jsonobj, unsigned int scene
             pVar = MyNew ExposedVariableDesc();
             m_ExposedVars.Add( pVar );
         }
+
+        pVar->Reset();
 
         pVar->name = obj->valuestring;
         cJSONExt_GetInt( jsonvar, "Type", (int*)&pVar->type );

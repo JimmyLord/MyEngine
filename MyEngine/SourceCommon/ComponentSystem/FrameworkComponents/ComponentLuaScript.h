@@ -37,6 +37,11 @@ struct ExposedVariableDesc
 
     ExposedVariableDesc()
     {
+        Reset();
+    }
+
+    void Reset()
+    {
         name = "";
         type = ExposedVariableType_Unused;
         valuedouble = 0;
