@@ -30,6 +30,7 @@
 #pragma warning( disable : 4263 )
 #pragma warning( disable : 4264 )
 #pragma warning( disable : 4640 )
+#pragma warning( disable : 4305 )
 #endif
 #include "../../Libraries/bullet3/src/btBulletDynamicsCommon.h"
 #if MYFW_WINDOWS

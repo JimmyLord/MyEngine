@@ -16,7 +16,8 @@
 class ComponentTransform;
 class ComponentPostEffect;
 
-extern const char* g_pVisibilityLayerStrings[8];
+extern const int g_NumberOfVisibilityLayers = 8;
+extern const char* g_pVisibilityLayerStrings[g_NumberOfVisibilityLayers];
 
 class ComponentCamera : public ComponentBase
 {

@@ -13,7 +13,7 @@
 bool ComponentCamera::m_PanelWatchBlockVisible = true;
 #endif
 
-const char* g_pVisibilityLayerStrings[8] =
+const char* g_pVisibilityLayerStrings[g_NumberOfVisibilityLayers] =
 {
     "Main view",
     "HUD",
@@ -50,7 +50,7 @@ ComponentCamera::~ComponentCamera()
 
 void ComponentCamera::RegisterVariables(CPPListHead* pList, ComponentCamera* pThis) //_VARIABLE_LIST
 {
-    AddVarFlags( pList, "Layers", MyOffsetOf( pThis, &pThis->m_LayersToRender ), true, true, 0, 8, g_pVisibilityLayerStrings, (CVarFunc_ValueChanged)&ComponentCamera::OnValueChanged, 0, 0 );
+    AddVarFlags( pList, "Layers", MyOffsetOf( pThis, &pThis->m_LayersToRender ), true, true, 0, g_NumberOfVisibilityLayers, g_pVisibilityLayerStrings, (CVarFunc_ValueChanged)&ComponentCamera::OnValueChanged, 0, 0 );
 }
 
 #if MYFW_USING_WX
@@ -82,7 +82,7 @@ void ComponentCamera::FillPropertiesWindow(bool clear, bool addcomponentvariable
         g_pPanelWatch->AddBool( "DepthBit", &m_ClearDepthBuffer, 0, 1, this, ComponentCamera::StaticOnValueChanged );
 
         //g_pPanelWatch->AddUnsignedInt( "Layers", &m_LayersToRender, 0, 65535, this, ComponentCamera::StaticOnValueChanged );
-        //g_pPanelWatch->AddFlags( "Layers", &m_LayersToRender, 8, g_pVisibilityLayerStrings, this, ComponentCamera::StaticOnValueChanged );
+        //g_pPanelWatch->AddFlags( "Layers", &m_LayersToRender, g_NumberOfVisibilityLayers, g_pVisibilityLayerStrings, this, ComponentCamera::StaticOnValueChanged );
 
         FillPropertiesWindowWithVariables(); //_VARIABLE_LIST
     }

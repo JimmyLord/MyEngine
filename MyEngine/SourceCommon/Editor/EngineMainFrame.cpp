@@ -104,11 +104,17 @@ EngineMainFrame::EngineMainFrame()
 
     m_EditorPerspectives = 0;
     m_GameplayPerspectives = 0;
+    m_EditorCameraLayers = 0;
 
     for( int i=0; i<Perspective_NumPerspectives; i++ )
     {
         m_EditorPerspectiveOptions[i] = 0;
         m_GameplayPerspectiveOptions[i] = 0;
+    }
+
+    for( int i=0; i<32; i++ ) //g_NumberOfVisibilityLayers; i++ )
+    {
+        m_EditorCameraLayerOptions[i] = 0;
     }
 
     m_Grid = 0;
@@ -292,10 +298,23 @@ void EngineMainFrame::InitFrame()
     m_EditorPerspectiveOptions[0]->Check();
     m_GameplayPerspectiveOptions[0]->Check();
 
+    m_EditorCameraLayers = MyNew wxMenu;
+    for( int i=0; i<g_NumberOfVisibilityLayers; i++ )
+    {
+        wxString label;
+        label << "&" << i+1 << " " << g_pVisibilityLayerStrings[i] << "\tCtrl-Alt-" << i+1;
+        m_EditorCameraLayerOptions[i] = m_EditorCameraLayers->AppendCheckItem( myIDEngine_View_EditorCameraLayer + i, label, wxEmptyString );
+        Connect( myIDEngine_View_EditorCameraLayer + i, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );
+    }
+
+    m_EditorCameraLayerOptions[0]->Check();
+
     m_View->Append( myIDEngine_View_EditorPerspectives, "Editor Layouts", m_EditorPerspectives );
     m_View->Append( myIDEngine_View_GameplayPerspectives, "Gameplay Layouts", m_GameplayPerspectives );
 
     m_MenuItem_ShowEditorIcons = m_View->AppendCheckItem( myIDEngine_View_ShowEditorIcons, wxT("Show &Editor Icons\tShift-F7") );
+    
+    m_View->Append( myIDEngine_View_EditorCameraLayers, "Editor &Camera &Layers", m_EditorCameraLayers );
 
     Connect( myIDEngine_NewScene,               wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );
     Connect( myIDEngine_LoadScene,              wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );
@@ -808,6 +827,23 @@ void EngineMainFrame::OnMenu_Engine(wxCommandEvent& event)
         SetDefaultGameplayPerspectiveIndex( id - myIDEngine_View_GameplayPerspective );
         if( g_pEngineCore->m_EditorMode == false )
             SetWindowPerspectiveToDefault( true );
+        break;
+
+    case myIDEngine_View_EditorCameraLayer + 0:
+    case myIDEngine_View_EditorCameraLayer + 1:
+    case myIDEngine_View_EditorCameraLayer + 2:
+    case myIDEngine_View_EditorCameraLayer + 3:
+    case myIDEngine_View_EditorCameraLayer + 4:
+    case myIDEngine_View_EditorCameraLayer + 5:
+    case myIDEngine_View_EditorCameraLayer + 6:
+    case myIDEngine_View_EditorCameraLayer + 7:
+        {
+            int layerindex = id - myIDEngine_View_EditorCameraLayer;
+            if( m_EditorCameraLayerOptions[layerindex]->IsChecked() )
+                g_pEngineCore->m_pEditorState->GetEditorCamera()->m_LayersToRender |= (1 << layerindex);
+            else
+                g_pEngineCore->m_pEditorState->GetEditorCamera()->m_LayersToRender &= ~(1 << layerindex);
+        }
         break;
 
     case myIDEngine_View_ShowEditorIcons:
