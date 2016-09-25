@@ -112,7 +112,7 @@ EngineMainFrame::EngineMainFrame()
         m_GameplayPerspectiveOptions[i] = 0;
     }
 
-    for( int i=0; i<32; i++ ) //g_NumberOfVisibilityLayers; i++ )
+    for( int i=0; i<g_NumberOfVisibilityLayers; i++ )
     {
         m_EditorCameraLayerOptions[i] = 0;
     }
@@ -302,7 +302,7 @@ void EngineMainFrame::InitFrame()
     for( int i=0; i<g_NumberOfVisibilityLayers; i++ )
     {
         wxString label;
-        label << "&" << i+1 << " " << g_pVisibilityLayerStrings[i] << "\tCtrl-Alt-" << i+1;
+        label << "(&" << i+1 << ") " << g_pVisibilityLayerStrings[i] << "\tCtrl-Alt-" << i+1;
         m_EditorCameraLayerOptions[i] = m_EditorCameraLayers->AppendCheckItem( myIDEngine_View_EditorCameraLayer + i, label, wxEmptyString );
         Connect( myIDEngine_View_EditorCameraLayer + i, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );
     }
@@ -314,7 +314,7 @@ void EngineMainFrame::InitFrame()
 
     m_MenuItem_ShowEditorIcons = m_View->AppendCheckItem( myIDEngine_View_ShowEditorIcons, wxT("Show &Editor Icons\tShift-F7") );
     
-    m_View->Append( myIDEngine_View_EditorCameraLayers, "Editor &Camera &Layers", m_EditorCameraLayers );
+    m_View->Append( myIDEngine_View_EditorCameraLayers, "Editor &Camera Layers", m_EditorCameraLayers );
 
     Connect( myIDEngine_NewScene,               wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );
     Connect( myIDEngine_LoadScene,              wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );

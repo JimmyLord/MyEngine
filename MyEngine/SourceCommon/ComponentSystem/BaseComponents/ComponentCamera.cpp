@@ -17,12 +17,12 @@ const char* g_pVisibilityLayerStrings[g_NumberOfVisibilityLayers] =
 {
     "Main view",
     "HUD",
-    "2",
     "3",
     "4",
     "5",
     "6",
     "7",
+    "8",
 };
 
 // Component Variable List

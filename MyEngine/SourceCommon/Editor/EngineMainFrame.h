@@ -51,8 +51,8 @@ enum EngineMenuIDs
     myIDEngine_View_ShowEditorIcons = myIDEngine_View_GameplayPerspective + Perspective_NumPerspectives,
     myIDEngine_View_EditorCameraLayers,
     myIDEngine_View_EditorCameraLayer,
-        // g_NumberOfVisibilityLayers more items here // enough room for 32. change number on next line (and in m_EditorCameraLayerOptions array) for more
-    myIDEngine_DebugShowMousePickerFBO = myIDEngine_View_EditorCameraLayer + 32,
+        // g_NumberOfVisibilityLayers more items here
+    myIDEngine_DebugShowMousePickerFBO = myIDEngine_View_EditorCameraLayer + g_NumberOfVisibilityLayers,
     myIDEngine_DebugShowSelectedAnimatedMesh,
     myIDEngine_DebugShowGLStats,
     myIDEngine_DebugDrawWireframe,
@@ -84,7 +84,7 @@ public:
 
     wxMenuItem* m_EditorPerspectiveOptions[Perspective_NumPerspectives];
     wxMenuItem* m_GameplayPerspectiveOptions[Perspective_NumPerspectives];
-    wxMenuItem* m_EditorCameraLayerOptions[32]; // should be g_NumberOfVisibilityLayers (8 ATM, left room for 32)
+    wxMenuItem* m_EditorCameraLayerOptions[g_NumberOfVisibilityLayers];
 
     //char m_CurrentSceneName[MAX_PATH];
 
