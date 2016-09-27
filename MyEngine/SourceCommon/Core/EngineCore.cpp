@@ -1492,7 +1492,7 @@ void EngineCore::RenderSingleObject(GameObject* pObject)
             }
 
             MyMatrix matView;
-            matView.CreateLookAtViewLeftHanded( objpos + center + Vector3(0, 2, -5), Vector3(0,1,0), objpos + center );
+            matView.CreateLookAtView( objpos + center + Vector3(0, 2, -5), Vector3(0,1,0), objpos + center );
 
             MyMatrix matProj;
             float aspect = (float)m_pEditorState->m_pDebugViewFBO->m_Width / m_pEditorState->m_pDebugViewFBO->m_Height;
