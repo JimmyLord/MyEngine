@@ -12,7 +12,6 @@
 
 VoxelBlock::VoxelBlock()
 {
-    m_Enabled = true;
     m_BlockType = 0;
 }
 

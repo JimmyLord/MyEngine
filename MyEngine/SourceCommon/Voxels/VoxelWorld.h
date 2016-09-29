@@ -30,6 +30,7 @@ protected:
     Vector3 m_BlockSize;
 
     Vector3Int m_WorldOffset;
+    uint32* m_VoxelBlockEnabledBitsSingleAllocation;
     VoxelBlock* m_VoxelBlockSingleAllocation;
     VoxelChunk* m_VoxelChunkSingleAllocation;
     VoxelChunk** m_pActiveWorldChunkPtrs;
@@ -51,7 +52,7 @@ protected:
     VoxelChunk* GetActiveChunk(Vector3Int chunkpos);
     VoxelChunk* GetActiveChunk(int chunkx, int chunky, int chunkz);
 
-    void PrepareChunk(Vector3Int chunkpos, VoxelBlock* pBlocks);
+    void PrepareChunk(Vector3Int chunkpos, uint32* pPreallocatedBlockEnabledBits, VoxelBlock* pBlocks);
     void ShiftChunk(Vector3Int to, Vector3Int from, bool isedgeblock);
 
     cJSON* GetJSONObjectForChunk(Vector3Int chunkpos);

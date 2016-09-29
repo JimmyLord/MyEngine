@@ -31,8 +31,9 @@ protected:
     Vector3Int m_ChunkSize;
     Vector2Int m_TextureTileCount;
 
+    uint32* m_pBlockEnabledBits; // pointer to enough bits to store enabled flags for each block
     VoxelBlock* m_pBlocks;
-    unsigned int m_BlocksAllocated; // set to 0 if blocks were allocated elsewhere and passed in.
+    uint32 m_BlocksAllocated; // set to 0 if blocks were allocated elsewhere and passed in.
 
     SceneGraphObject* m_pSceneGraphObject;
 
@@ -49,7 +50,7 @@ public:
 
     void Initialize(VoxelWorld* world, Vector3 pos, Vector3Int chunkoffset, Vector3 blocksize);
     void SetBlockSize(Vector3 blocksize);
-    void SetChunkSize(Vector3Int chunksize, VoxelBlock* pPreallocatedBlocks = 0);
+    void SetChunkSize(Vector3Int chunksize, uint32* pPreallocatedBlockEnabledBits = 0, VoxelBlock* pPreallocatedBlocks = 0);
     void SetTextureTileCount(Vector2Int tilecount);
 
     Vector3Int GetChunkOffset() { return m_ChunkOffset; }
@@ -66,6 +67,7 @@ public:
     void GenerateMap();
     bool IsMapEdited() { return m_MapWasEdited; }
     bool IsInChunkSpace(Vector3Int worldpos);
+    uint32* GetBlockEnabledBits() { return m_pBlockEnabledBits; }
     VoxelBlock* GetBlocks() { return m_pBlocks; }
     bool IsBlockEnabled(Vector3Int localpos, bool blockexistsifnotready = false);
     bool IsBlockEnabled(int localx, int localy, int localz, bool blockexistsifnotready = false);

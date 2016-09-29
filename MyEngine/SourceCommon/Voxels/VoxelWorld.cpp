@@ -15,6 +15,7 @@
 VoxelWorld::VoxelWorld()
 {
     m_NumChunkPointersAllocated = 0;
+    m_VoxelBlockEnabledBitsSingleAllocation = 0;
     m_VoxelBlockSingleAllocation = 0;
     m_VoxelChunkSingleAllocation = 0;
     m_pActiveWorldChunkPtrs = 0;
@@ -67,6 +68,7 @@ VoxelWorld::~VoxelWorld()
     delete[] m_VoxelChunkSingleAllocation;
     delete[] m_pActiveWorldChunkPtrs;
 
+    delete[] m_VoxelBlockEnabledBitsSingleAllocation;
     delete[] m_VoxelBlockSingleAllocation;
 
     SAFE_RELEASE( m_pMaterial );
@@ -97,11 +99,19 @@ void VoxelWorld::Initialize(Vector3Int visibleworldsize)
             {
                 unsigned int chunkindex = (unsigned int)(z * m_WorldSize.y * m_WorldSize.x + y * m_WorldSize.x + x);
                 VoxelChunk* pChunk = &m_VoxelChunkSingleAllocation[chunkindex];
-                VoxelBlock* pBlocks = &m_VoxelBlockSingleAllocation[chunkindex * m_ChunkSize.x*m_ChunkSize.y*m_ChunkSize.z];
+                
+                unsigned int chunksize = m_ChunkSize.x*m_ChunkSize.y*m_ChunkSize.z;
+
+                int num4bytecontainersneeded = chunksize / 32;
+                if( chunksize % 32 != 0 )
+                    num4bytecontainersneeded += 1;
+                uint32* pBlockEnabledBits = &m_VoxelBlockEnabledBitsSingleAllocation[chunkindex * num4bytecontainersneeded];
+
+                VoxelBlock* pBlocks = &m_VoxelBlockSingleAllocation[chunkindex * chunksize];
 
                 m_pChunksFree.MoveHead( pChunk );
 
-                PrepareChunk( Vector3Int( x, y, z ), pBlocks );
+                PrepareChunk( Vector3Int( x, y, z ), pBlockEnabledBits, pBlocks );
             }
         }
     }
@@ -223,9 +233,16 @@ void VoxelWorld::SetWorldSize(Vector3Int visibleworldsize)
         m_VoxelChunkSingleAllocation = MyNew VoxelChunk[pointersneeded];
         m_pActiveWorldChunkPtrs = MyNew VoxelChunk*[pointersneeded];
 
-        m_VoxelBlockSingleAllocation = MyNew VoxelBlock[pointersneeded * m_ChunkSize.x*m_ChunkSize.y*m_ChunkSize.z];
+        unsigned int numberofblocksneeded = pointersneeded * m_ChunkSize.x*m_ChunkSize.y*m_ChunkSize.z;
+        int num4bytecontainersneeded = numberofblocksneeded / 32;
+        if( numberofblocksneeded % 32 != 0 )
+            num4bytecontainersneeded += 1;
+        m_VoxelBlockEnabledBitsSingleAllocation = MyNew uint32[num4bytecontainersneeded];
+        m_VoxelBlockSingleAllocation = MyNew VoxelBlock[numberofblocksneeded];
 
-        LOGInfo( LOGTag, "VoxelWorld Allocation -> blocks %d\n", pointersneeded * m_ChunkSize.x*m_ChunkSize.y*m_ChunkSize.z * sizeof( VoxelBlock ) );
+        LOGInfo( LOGTag, "VoxelWorld Allocation -> blocks %d + %d\n",
+            pointersneeded * m_ChunkSize.x*m_ChunkSize.y*m_ChunkSize.z * sizeof( VoxelBlock ),
+            num4bytecontainersneeded * sizeof(uint32) );
 
         // give each chunk/mesh a single ref, removed manually before deleting the array.
         for( unsigned int i=0; i<pointersneeded; i++ )
@@ -540,7 +557,7 @@ VoxelChunk* VoxelWorld::GetActiveChunk(int chunkx, int chunky, int chunkz)
     return GetActiveChunk( GetActiveChunkArrayIndex( chunkx, chunky, chunkz ) );
 }
 
-void VoxelWorld::PrepareChunk(Vector3Int chunkpos, VoxelBlock* pBlocks)
+void VoxelWorld::PrepareChunk(Vector3Int chunkpos, uint32* pPreallocatedBlockEnabledBits, VoxelBlock* pBlocks)
 {
     VoxelChunk* pChunk = (VoxelChunk*)m_pChunksFree.GetHead();
     if( pChunk == 0 )
@@ -557,7 +574,7 @@ void VoxelWorld::PrepareChunk(Vector3Int chunkpos, VoxelBlock* pBlocks)
 
     pChunk->Initialize( this, chunkposition, chunkblockoffset, m_BlockSize );
     if( pBlocks != 0 )
-        pChunk->SetChunkSize( m_ChunkSize, pBlocks );
+        pChunk->SetChunkSize( m_ChunkSize, pPreallocatedBlockEnabledBits, pBlocks );
 
     m_pChunksLoading.MoveTail( pChunk );
 }
@@ -576,7 +593,7 @@ void VoxelWorld::ShiftChunk(Vector3Int to, Vector3Int from, bool isedgeblock)
 
     if( isedgeblock )
     {
-        PrepareChunk( m_WorldOffset + to, 0 );
+        PrepareChunk( m_WorldOffset + to, 0, 0 );
     }
     else
     {

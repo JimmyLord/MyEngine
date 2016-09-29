@@ -28,6 +28,7 @@ VoxelChunk::VoxelChunk()
 
     m_TextureTileCount.Set( 8, 8 );
 
+    m_pBlockEnabledBits = 0;
     m_pBlocks = 0;
     m_BlocksAllocated = 0;
 }
@@ -36,8 +37,11 @@ VoxelChunk::~VoxelChunk()
 {
     RemoveFromSceneGraph();
 
-    if( m_BlocksAllocated > 0 ) 
+    if( m_BlocksAllocated > 0 )
+    {
+        delete[] m_pBlockEnabledBits;
         delete[] m_pBlocks;
+    }
 }
 
 void VoxelChunk::Initialize(VoxelWorld* world, Vector3 pos, Vector3Int chunkoffset, Vector3 blocksize)
@@ -66,7 +70,7 @@ void VoxelChunk::Initialize(VoxelWorld* world, Vector3 pos, Vector3Int chunkoffs
     }
 }
 
-void VoxelChunk::SetChunkSize(Vector3Int chunksize, VoxelBlock* pPreallocatedBlocks)
+void VoxelChunk::SetChunkSize(Vector3Int chunksize, uint32* pPreallocatedBlockEnabledBits, VoxelBlock* pPreallocatedBlocks)
 {
     unsigned int numblocks = (unsigned int)(chunksize.x * chunksize.y * chunksize.z);
     if( numblocks == m_BlocksAllocated )
@@ -80,18 +84,24 @@ void VoxelChunk::SetChunkSize(Vector3Int chunksize, VoxelBlock* pPreallocatedBlo
         if( pPreallocatedBlocks ) // passed in by world objects, m_BlocksAllocated will equal 0 if it doesn't need freeing.
         {
             m_BlocksAllocated = 0;
+            m_pBlockEnabledBits = pPreallocatedBlockEnabledBits;
             m_pBlocks = pPreallocatedBlocks;
         }
         else
         {
             m_BlocksAllocated = chunksize.x * chunksize.y * chunksize.z;
+            int num4bytecontainersneeded = m_BlocksAllocated / 32;
+            if( m_BlocksAllocated % 32 != 0 )
+                num4bytecontainersneeded += 1;
+            m_pBlockEnabledBits = MyNew uint32[num4bytecontainersneeded];
             m_pBlocks = MyNew VoxelBlock[m_BlocksAllocated];
         }
 
         for( unsigned int i=0; i<numblocks; i++ )
         {
             m_pBlocks[i].SetBlockType( 0 );
-            m_pBlocks[i].SetEnabled( false );
+            m_pBlockEnabledBits[i/32] &= ~(1 << (i%32)); // TODO: don't set this bit by bit to disable all blocks
+            //m_pBlocks[i].SetEnabled( false );
         }
     }
     else
@@ -108,7 +118,8 @@ void VoxelChunk::SetChunkSize(Vector3Int chunksize, VoxelBlock* pPreallocatedBlo
             for( unsigned int i=0; i<m_BlocksAllocated; i++ )
             {
                 m_pBlocks[i].SetBlockType( 0 );
-                m_pBlocks[i].SetEnabled( false );
+                m_pBlockEnabledBits[i/32] &= ~(1 << (i%32)); // TODO: don't set this bit by bit to disable all blocks
+                //m_pBlocks[i].SetEnabled( false );
             }
 
             // copy the contents of the old size into the new one.
@@ -122,7 +133,12 @@ void VoxelChunk::SetChunkSize(Vector3Int chunksize, VoxelBlock* pPreallocatedBlo
                         int oldoffset = z * m_ChunkSize.y * m_ChunkSize.x + y * m_ChunkSize.x + x;
                         int newoffset = z * chunksize.y * chunksize.x + y * chunksize.x + x;
 
-                        m_pBlocks[newoffset].SetEnabled( oldblocks[oldoffset].IsEnabled() );
+                        bool wasenabled = m_pBlockEnabledBits[oldoffset/32] & 1 << (oldoffset%32) ? true : false;
+                        if( wasenabled )
+                            m_pBlockEnabledBits[newoffset/32] |= (1 << (newoffset%32));
+                        else
+                            m_pBlockEnabledBits[newoffset/32] &= ~(1 << (newoffset%32));
+                        //m_pBlocks[newoffset].SetEnabled( oldblocks[oldoffset].IsEnabled() );
                         m_pBlocks[newoffset].SetBlockType( oldblocks[oldoffset].GetBlockType() );
                     }
                 }
@@ -145,7 +161,12 @@ void VoxelChunk::SetChunkSize(Vector3Int chunksize, VoxelBlock* pPreallocatedBlo
 
                         if( oldoffset != newoffset )
                         {
-                            m_pBlocks[newoffset].SetEnabled( m_pBlocks[oldoffset].IsEnabled() );
+                            bool wasenabled = m_pBlockEnabledBits[oldoffset/32] & 1 << (oldoffset%32) ? true : false;
+                            if( wasenabled )
+                                m_pBlockEnabledBits[newoffset/32] |= (1 << (newoffset%32));
+                            else
+                                m_pBlockEnabledBits[newoffset/32] &= ~(1 << (newoffset%32));
+                            //m_pBlocks[newoffset].SetEnabled( m_pBlocks[oldoffset].IsEnabled() );
                             m_pBlocks[newoffset].SetBlockType( m_pBlocks[oldoffset].GetBlockType() );
                         }
                     }
@@ -272,7 +293,8 @@ cJSON* VoxelChunk::ExportAsJSONObject(bool exportforworld)
             {
                 int index = z * m_ChunkSize.y * m_ChunkSize.x + y * m_ChunkSize.x + x;
                 unsigned int type = m_pBlocks[index].GetBlockType();
-                if( m_pBlocks[index].IsEnabled() == false )
+                if( (m_pBlockEnabledBits[index/32] & (1 << (index%32))) == 0 )
+                //if( m_pBlocks[index].IsEnabled() == false )
                     type = 0;
                 blockstring[index] = (char)type + '#';
             }
@@ -320,7 +342,11 @@ void VoxelChunk::ImportFromJSONObject(cJSON* jVoxelMesh)
                 int blocktype = blockstring[index] - '#';
 
                 m_pBlocks[index].SetBlockType( blocktype );
-                m_pBlocks[index].SetEnabled( blocktype != 0 );
+                if( blocktype != 0 )
+                    m_pBlockEnabledBits[index/32] &= ~(1 << (index%32));
+                else
+                    m_pBlockEnabledBits[index/32] |= (1 << (index%32));
+                //m_pBlocks[index].SetEnabled( blocktype != 0 );
             }
         }
     }
@@ -402,8 +428,13 @@ void VoxelChunk::GenerateMap()
                     blocktype = VoxelChunk::DefaultGenerateMapFunc( worldpos );
 
                 VoxelBlock* pBlock = GetBlockFromLocalPos( Vector3Int( x, y, z ) );
-                pBlock->SetEnabled( blocktype > 0 ? true : false );
                 pBlock->SetBlockType( blocktype );
+                uint32 index = GetBlockIndex( worldpos );
+                if( blocktype > 0 )
+                    m_pBlockEnabledBits[index/32] |= (1 << (index%32));
+                else
+                    m_pBlockEnabledBits[index/32] &= ~(1 << (index%32));
+                //pBlock->SetEnabled( blocktype > 0 ? true : false );
             }
         }
     }
@@ -440,9 +471,12 @@ bool VoxelChunk::IsBlockEnabled(int localx, int localy, int localz, bool blockex
     MyAssert( localy >= 0 && localy < m_ChunkSize.y );
     MyAssert( localz >= 0 && localz < m_ChunkSize.z );
 
-    VoxelBlock* pBlock = &m_pBlocks[localz * m_ChunkSize.y * m_ChunkSize.x + localy * m_ChunkSize.x + localx];
+    uint32 index = localz * m_ChunkSize.y * m_ChunkSize.x + localy * m_ChunkSize.x + localx;
+    return m_pBlockEnabledBits[index/32] & 1 << (index%32) ? true : false;
 
-    return pBlock->IsEnabled();
+    //VoxelBlock* pBlock = &m_pBlocks[localz * m_ChunkSize.y * m_ChunkSize.x + localy * m_ChunkSize.x + localx];
+
+    //return pBlock->IsEnabled();
 }
 
 // ============================================================================================================================
@@ -494,11 +528,26 @@ bool VoxelChunk::RebuildMesh(unsigned int increment)
             {
                 for( int x=0; x<m_ChunkSize.x; x++ )
                 {
-                    VoxelBlock* pBlock = &m_pBlocks[z * m_ChunkSize.y * m_ChunkSize.x + y * m_ChunkSize.x + x];
-                    if( pBlock->IsEnabled() == false )
+                    unsigned int index = z * m_ChunkSize.y * m_ChunkSize.x + y * m_ChunkSize.x + x;
+                    if( (m_pBlockEnabledBits[index/32] & (1 << (index%32))) == 0 )
                         continue;
 
+                    VoxelBlock* pBlock = &m_pBlocks[index];
+                    //if( pBlock->IsEnabled() == false )
+                    //    continue;
+
+                    Vector3Int worldpos( m_ChunkOffset.x+x, m_ChunkOffset.y+y, m_ChunkOffset.z+z );
+
                     int tileindex = pBlock->GetBlockType() - 1;
+
+                    Vector3 ltf;
+                    Vector3 ltb;
+                    Vector3 lbf;
+                    Vector3 lbb;
+                    Vector3 rtf;
+                    Vector3 rtb;
+                    Vector3 rbf;
+                    Vector3 rbb;
 
                     float xleft   = x*m_BlockSize.x - m_BlockSize.x/2;
                     float xright  = x*m_BlockSize.x + m_BlockSize.x/2;
@@ -514,23 +563,140 @@ bool VoxelChunk::RebuildMesh(unsigned int increment)
                     if( zfront  < minextents.z ) minextents.z = zfront;
                     if( zback   > maxextents.z ) maxextents.z = zback;
 
+                    ltf.Set( xleft,  ytop,    zfront );
+                    ltb.Set( xleft,  ytop,    zback  );
+                    lbf.Set( xleft,  ybottom, zfront );
+                    lbb.Set( xleft,  ybottom, zback  );
+                    rtf.Set( xright, ytop,    zfront );
+                    rtb.Set( xright, ytop,    zback  );
+                    rbf.Set( xright, ybottom, zfront );
+                    rbb.Set( xright, ybottom, zback  );
+
+                    bool smooth = false;
+
+                    if( smooth == true )
+                    {
+                        if( m_pWorld )
+                        {
+                            // Left - Top - Front
+                            if( ( m_pWorld->IsBlockEnabled( worldpos.x-1, worldpos.y+1, worldpos.z  , true ) == true  &&
+                                  m_pWorld->IsBlockEnabled( worldpos.x-1, worldpos.y+2, worldpos.z  , true ) == false ) ||
+                                ( m_pWorld->IsBlockEnabled( worldpos.x-1, worldpos.y+1, worldpos.z-1, true ) == true  &&
+                                  m_pWorld->IsBlockEnabled( worldpos.x-1, worldpos.y+2, worldpos.z-1, true ) == false ) ||
+                                ( m_pWorld->IsBlockEnabled( worldpos.x  , worldpos.y+1, worldpos.z-1, true ) == true  &&
+                                  m_pWorld->IsBlockEnabled( worldpos.x  , worldpos.y+2, worldpos.z-1, true ) == false ) )
+                            {
+                                ltf.y += m_BlockSize.x/2;
+                            }
+                            else
+                            if( ( m_pWorld->IsBlockEnabled( worldpos.x-1, worldpos.y  , worldpos.z  , true ) == false &&
+                                  m_pWorld->IsBlockEnabled( worldpos.x-1, worldpos.y-1, worldpos.z  , true ) == true  ) ||
+                                ( m_pWorld->IsBlockEnabled( worldpos.x-1, worldpos.y  , worldpos.z-1, true ) == false &&
+                                  m_pWorld->IsBlockEnabled( worldpos.x-1, worldpos.y-1, worldpos.z-1, true ) == true  ) ||
+                                ( m_pWorld->IsBlockEnabled( worldpos.x  , worldpos.y  , worldpos.z-1, true ) == false &&
+                                  m_pWorld->IsBlockEnabled( worldpos.x  , worldpos.y-1, worldpos.z-1, true ) == true  ) )
+                            {
+                                ltf.y -= m_BlockSize.x/2;
+                            }
+
+                            // Left - Top - Back
+                            if( ( m_pWorld->IsBlockEnabled( worldpos.x-1, worldpos.y+1, worldpos.z  , true ) == true  &&
+                                  m_pWorld->IsBlockEnabled( worldpos.x-1, worldpos.y+2, worldpos.z  , true ) == false ) ||
+                                ( m_pWorld->IsBlockEnabled( worldpos.x-1, worldpos.y+1, worldpos.z+1, true ) == true  &&
+                                  m_pWorld->IsBlockEnabled( worldpos.x-1, worldpos.y+2, worldpos.z+1, true ) == false ) ||
+                                ( m_pWorld->IsBlockEnabled( worldpos.x  , worldpos.y+1, worldpos.z+1, true ) == true  &&
+                                  m_pWorld->IsBlockEnabled( worldpos.x  , worldpos.y+2, worldpos.z+1, true ) == false ) )
+                            {
+                                ltb.y += m_BlockSize.x/2;
+                            }
+                            else
+                            if( ( m_pWorld->IsBlockEnabled( worldpos.x-1, worldpos.y  , worldpos.z  , true ) == false &&
+                                  m_pWorld->IsBlockEnabled( worldpos.x-1, worldpos.y-1, worldpos.z  , true ) == true  ) ||
+                                ( m_pWorld->IsBlockEnabled( worldpos.x-1, worldpos.y  , worldpos.z+1, true ) == false &&
+                                  m_pWorld->IsBlockEnabled( worldpos.x-1, worldpos.y-1, worldpos.z+1, true ) == true  ) ||
+                                ( m_pWorld->IsBlockEnabled( worldpos.x  , worldpos.y  , worldpos.z+1, true ) == false &&
+                                  m_pWorld->IsBlockEnabled( worldpos.x  , worldpos.y-1, worldpos.z+1, true ) == true  ) )
+                            {
+                                ltb.y -= m_BlockSize.x/2;
+                            }
+
+                            // Right - Top - Front
+                            if( ( m_pWorld->IsBlockEnabled( worldpos.x+1, worldpos.y+1, worldpos.z  , true ) == true  &&
+                                  m_pWorld->IsBlockEnabled( worldpos.x+1, worldpos.y+2, worldpos.z  , true ) == false ) ||
+                                ( m_pWorld->IsBlockEnabled( worldpos.x+1, worldpos.y+1, worldpos.z-1, true ) == true  &&
+                                  m_pWorld->IsBlockEnabled( worldpos.x+1, worldpos.y+2, worldpos.z-1, true ) == false ) ||
+                                ( m_pWorld->IsBlockEnabled( worldpos.x  , worldpos.y+1, worldpos.z-1, true ) == true  &&
+                                  m_pWorld->IsBlockEnabled( worldpos.x  , worldpos.y+2, worldpos.z-1, true ) == false ) )
+                            {
+                                rtf.y += m_BlockSize.x/2;
+                            }
+                            else
+                            if( ( m_pWorld->IsBlockEnabled( worldpos.x+1, worldpos.y  , worldpos.z  , true ) == false &&
+                                  m_pWorld->IsBlockEnabled( worldpos.x+1, worldpos.y-1, worldpos.z  , true ) == true  ) ||
+                                ( m_pWorld->IsBlockEnabled( worldpos.x+1, worldpos.y  , worldpos.z-1, true ) == false &&
+                                  m_pWorld->IsBlockEnabled( worldpos.x+1, worldpos.y-1, worldpos.z-1, true ) == true  ) ||
+                                ( m_pWorld->IsBlockEnabled( worldpos.x  , worldpos.y  , worldpos.z-1, true ) == false &&
+                                  m_pWorld->IsBlockEnabled( worldpos.x  , worldpos.y-1, worldpos.z-1, true ) == true  ) )
+                            {
+                                rtf.y -= m_BlockSize.x/2;
+                            }
+
+                            // Right - Top - Back
+                            if( ( m_pWorld->IsBlockEnabled( worldpos.x+1, worldpos.y+1, worldpos.z  , true ) == true  &&
+                                  m_pWorld->IsBlockEnabled( worldpos.x+1, worldpos.y+2, worldpos.z  , true ) == false ) ||
+                                ( m_pWorld->IsBlockEnabled( worldpos.x+1, worldpos.y+1, worldpos.z+1, true ) == true  &&
+                                  m_pWorld->IsBlockEnabled( worldpos.x+1, worldpos.y+2, worldpos.z+1, true ) == false ) ||
+                                ( m_pWorld->IsBlockEnabled( worldpos.x  , worldpos.y+1, worldpos.z+1, true ) == true  &&
+                                  m_pWorld->IsBlockEnabled( worldpos.x  , worldpos.y+2, worldpos.z+1, true ) == false ) )
+                            {
+                                rtb.y += m_BlockSize.x/2;
+                            }
+                            else
+                            if( ( m_pWorld->IsBlockEnabled( worldpos.x+1, worldpos.y  , worldpos.z  , true ) == false &&
+                                  m_pWorld->IsBlockEnabled( worldpos.x+1, worldpos.y-1, worldpos.z  , true ) == true  ) ||
+                                ( m_pWorld->IsBlockEnabled( worldpos.x+1, worldpos.y  , worldpos.z+1, true ) == false &&
+                                  m_pWorld->IsBlockEnabled( worldpos.x+1, worldpos.y-1, worldpos.z+1, true ) == true  ) ||
+                                ( m_pWorld->IsBlockEnabled( worldpos.x  , worldpos.y  , worldpos.z+1, true ) == false &&
+                                  m_pWorld->IsBlockEnabled( worldpos.x  , worldpos.y-1, worldpos.z+1, true ) == true  ) )
+                            {
+                                rtb.y -= m_BlockSize.x/2;
+                            }
+
+                            //lbf.y;
+                            //lbb.y;
+                            //rbf.Set( xright, ybottom, zfront );
+                            //rbb.Set( xright, ybottom, zback  );
+                        }
+                        else
+                        {
+                            ltb.Set( xleft,  ytop,    zback  );
+                            lbf.Set( xleft,  ybottom, zfront );
+                            lbb.Set( xleft,  ybottom, zback  );
+                            rtf.Set( xright, ytop,    zfront );
+                            rtb.Set( xright, ytop,    zback  );
+                            rbf.Set( xright, ybottom, zfront );
+                            rbb.Set( xright, ybottom, zback  );
+                        }
+                    }
+
                     float uleft   = (float)(TileSides_Col[tileindex]+0) / m_TextureTileCount.x;
                     float uright  = (float)(TileSides_Col[tileindex]+1) / m_TextureTileCount.x;
                     float vtop    = (float)(TileSides_Row[tileindex]+0) / m_TextureTileCount.y;
                     float vbottom = (float)(TileSides_Row[tileindex]+1) / m_TextureTileCount.y;
 
-                    Vector3Int worldpos( m_ChunkOffset.x+x, m_ChunkOffset.y+y, m_ChunkOffset.z+z );
+                    unsigned int neighbourindex;
 
                     // front
+                    neighbourindex = (z-1) * m_ChunkSize.y * m_ChunkSize.x + (y) * m_ChunkSize.x + (x);
                     if( z == 0 && m_pWorld && m_pWorld->IsBlockEnabled( worldpos.x, worldpos.y, worldpos.z-1 ) )
                     {
                     }
-                    else if( z == 0 || m_pBlocks[(z-1) * m_ChunkSize.y * m_ChunkSize.x + (y) * m_ChunkSize.x + (x)].IsEnabled() == false )
+                    else if( z == 0 || (m_pBlockEnabledBits[neighbourindex/32] & (1 << (neighbourindex%32))) == 0 ) //m_pBlocks[(z-1) * m_ChunkSize.y * m_ChunkSize.x + (y) * m_ChunkSize.x + (x)].IsEnabled() == false )
                     {
-                        pVerts[0].pos.x = xleft;  pVerts[0].pos.y = ytop;    pVerts[0].pos.z = zfront; pVerts[0].uv.x = uleft;  pVerts[0].uv.y = vtop;    // upper left
-                        pVerts[1].pos.x = xright; pVerts[1].pos.y = ytop;    pVerts[1].pos.z = zfront; pVerts[1].uv.x = uright; pVerts[1].uv.y = vtop;    // upper right
-                        pVerts[2].pos.x = xleft;  pVerts[2].pos.y = ybottom; pVerts[2].pos.z = zfront; pVerts[2].uv.x = uleft;  pVerts[2].uv.y = vbottom; // lower left
-                        pVerts[3].pos.x = xright; pVerts[3].pos.y = ybottom; pVerts[3].pos.z = zfront; pVerts[3].uv.x = uright; pVerts[3].uv.y = vbottom; // lower right
+                        pVerts[0].pos = ltf; pVerts[0].uv.x = uleft;  pVerts[0].uv.y = vtop;    // upper left
+                        pVerts[1].pos = rtf; pVerts[1].uv.x = uright; pVerts[1].uv.y = vtop;    // upper right
+                        pVerts[2].pos = lbf; pVerts[2].uv.x = uleft;  pVerts[2].uv.y = vbottom; // lower left
+                        pVerts[3].pos = rbf; pVerts[3].uv.x = uright; pVerts[3].uv.y = vbottom; // lower right
                         for( int i=0; i<4; i++ )
                             pVerts[i].normal.Set( 0, 0, -1 );
                         for( int i=0; i<6; i++ )
@@ -542,15 +708,16 @@ bool VoxelChunk::RebuildMesh(unsigned int increment)
                     }
 
                     // back
+                    neighbourindex = (z+1) * m_ChunkSize.y * m_ChunkSize.x + (y) * m_ChunkSize.x + (x);
                     if( z == (m_ChunkSize.z-1) && m_pWorld && m_pWorld->IsBlockEnabled( worldpos.x, worldpos.y, worldpos.z+1 ) )
                     {
                     }
-                    else if( z == (m_ChunkSize.z-1) || m_pBlocks[(z+1) * m_ChunkSize.y * m_ChunkSize.x + (y) * m_ChunkSize.x + (x)].IsEnabled() == false )
+                    else if( z == (m_ChunkSize.z-1) || (m_pBlockEnabledBits[neighbourindex/32] & (1 << (neighbourindex%32))) == 0 ) //m_pBlocks[(z+1) * m_ChunkSize.y * m_ChunkSize.x + (y) * m_ChunkSize.x + (x)].IsEnabled() == false )
                     {
-                        pVerts[0].pos.x = xright; pVerts[0].pos.y = ytop;    pVerts[0].pos.z = zback;  pVerts[0].uv.x = uleft;  pVerts[0].uv.y = vtop;
-                        pVerts[1].pos.x = xleft;  pVerts[1].pos.y = ytop;    pVerts[1].pos.z = zback;  pVerts[1].uv.x = uright; pVerts[1].uv.y = vtop;
-                        pVerts[2].pos.x = xright; pVerts[2].pos.y = ybottom; pVerts[2].pos.z = zback;  pVerts[2].uv.x = uleft;  pVerts[2].uv.y = vbottom;
-                        pVerts[3].pos.x = xleft;  pVerts[3].pos.y = ybottom; pVerts[3].pos.z = zback;  pVerts[3].uv.x = uright; pVerts[3].uv.y = vbottom;
+                        pVerts[0].pos = rtb; pVerts[0].uv.x = uleft;  pVerts[0].uv.y = vtop;
+                        pVerts[1].pos = ltb; pVerts[1].uv.x = uright; pVerts[1].uv.y = vtop;
+                        pVerts[2].pos = rbb; pVerts[2].uv.x = uleft;  pVerts[2].uv.y = vbottom;
+                        pVerts[3].pos = lbb; pVerts[3].uv.x = uright; pVerts[3].uv.y = vbottom;
                         for( int i=0; i<4; i++ )
                             pVerts[i].normal.Set( 0, 0, 1 );
                         for( int i=0; i<6; i++ )
@@ -562,15 +729,16 @@ bool VoxelChunk::RebuildMesh(unsigned int increment)
                     }
 
                     // left
+                    neighbourindex = (z) * m_ChunkSize.y * m_ChunkSize.x + (y) * m_ChunkSize.x + (x-1);
                     if( x == 0 && m_pWorld && m_pWorld->IsBlockEnabled( worldpos.x-1, worldpos.y, worldpos.z ) )
                     {
                     }
-                    else if( x == 0 || m_pBlocks[(z) * m_ChunkSize.y * m_ChunkSize.x + (y) * m_ChunkSize.x + (x-1)].IsEnabled() == false )
+                    else if( x == 0 || (m_pBlockEnabledBits[neighbourindex/32] & (1 << (neighbourindex%32))) == 0 ) //m_pBlocks[(z) * m_ChunkSize.y * m_ChunkSize.x + (y) * m_ChunkSize.x + (x-1)].IsEnabled() == false )
                     {
-                        pVerts[0].pos.x = xleft;  pVerts[0].pos.y = ytop;    pVerts[0].pos.z = zback;  pVerts[0].uv.x = uleft;  pVerts[0].uv.y = vtop;
-                        pVerts[1].pos.x = xleft;  pVerts[1].pos.y = ytop;    pVerts[1].pos.z = zfront; pVerts[1].uv.x = uright; pVerts[1].uv.y = vtop;
-                        pVerts[2].pos.x = xleft;  pVerts[2].pos.y = ybottom; pVerts[2].pos.z = zback;  pVerts[2].uv.x = uleft;  pVerts[2].uv.y = vbottom;
-                        pVerts[3].pos.x = xleft;  pVerts[3].pos.y = ybottom; pVerts[3].pos.z = zfront; pVerts[3].uv.x = uright; pVerts[3].uv.y = vbottom;
+                        pVerts[0].pos = ltb; pVerts[0].uv.x = uleft;  pVerts[0].uv.y = vtop;
+                        pVerts[1].pos = ltf; pVerts[1].uv.x = uright; pVerts[1].uv.y = vtop;
+                        pVerts[2].pos = lbb; pVerts[2].uv.x = uleft;  pVerts[2].uv.y = vbottom;
+                        pVerts[3].pos = lbf; pVerts[3].uv.x = uright; pVerts[3].uv.y = vbottom;
                         for( int i=0; i<4; i++ )
                             pVerts[i].normal.Set( -1, 0, 0 );
                         for( int i=0; i<6; i++ )
@@ -582,15 +750,16 @@ bool VoxelChunk::RebuildMesh(unsigned int increment)
                     }
 
                     // right
+                    neighbourindex = (z) * m_ChunkSize.y * m_ChunkSize.x + (y) * m_ChunkSize.x + (x+1);
                     if( x == (m_ChunkSize.x-1) && m_pWorld && m_pWorld->IsBlockEnabled( worldpos.x+1, worldpos.y, worldpos.z ) )
                     {
                     }
-                    else if( x == (m_ChunkSize.x-1) || m_pBlocks[(z) * m_ChunkSize.y * m_ChunkSize.x + (y) * m_ChunkSize.x + (x+1)].IsEnabled() == false )
+                    else if( x == (m_ChunkSize.x-1) || (m_pBlockEnabledBits[neighbourindex/32] & (1 << (neighbourindex%32))) == 0 ) //m_pBlocks[(z) * m_ChunkSize.y * m_ChunkSize.x + (y) * m_ChunkSize.x + (x+1)].IsEnabled() == false )
                     {
-                        pVerts[0].pos.x = xright; pVerts[0].pos.y = ytop;    pVerts[0].pos.z = zfront; pVerts[0].uv.x = uleft;  pVerts[0].uv.y = vtop;
-                        pVerts[1].pos.x = xright; pVerts[1].pos.y = ytop;    pVerts[1].pos.z = zback;  pVerts[1].uv.x = uright; pVerts[1].uv.y = vtop;
-                        pVerts[2].pos.x = xright; pVerts[2].pos.y = ybottom; pVerts[2].pos.z = zfront; pVerts[2].uv.x = uleft;  pVerts[2].uv.y = vbottom;
-                        pVerts[3].pos.x = xright; pVerts[3].pos.y = ybottom; pVerts[3].pos.z = zback;  pVerts[3].uv.x = uright; pVerts[3].uv.y = vbottom;
+                        pVerts[0].pos = rtf; pVerts[0].uv.x = uleft;  pVerts[0].uv.y = vtop;
+                        pVerts[1].pos = rtb; pVerts[1].uv.x = uright; pVerts[1].uv.y = vtop;
+                        pVerts[2].pos = rbf; pVerts[2].uv.x = uleft;  pVerts[2].uv.y = vbottom;
+                        pVerts[3].pos = rbb; pVerts[3].uv.x = uright; pVerts[3].uv.y = vbottom;
                         for( int i=0; i<4; i++ )
                             pVerts[i].normal.Set( 1, 0, 0 );
                         for( int i=0; i<6; i++ )
@@ -602,15 +771,16 @@ bool VoxelChunk::RebuildMesh(unsigned int increment)
                     }
 
                     // bottom
+                    neighbourindex = (z) * m_ChunkSize.y * m_ChunkSize.x + (y-1) * m_ChunkSize.x + (x);
                     if( y == 0 && m_pWorld && m_pWorld->IsBlockEnabled( worldpos.x, worldpos.y-1, worldpos.z ) )
                     {
                     }
-                    else if( y == 0 || m_pBlocks[(z) * m_ChunkSize.y * m_ChunkSize.x + (y-1) * m_ChunkSize.x + (x)].IsEnabled() == false )
+                    else if( y == 0 || (m_pBlockEnabledBits[neighbourindex/32] & (1 << (neighbourindex%32))) == 0 ) //m_pBlocks[(z) * m_ChunkSize.y * m_ChunkSize.x + (y-1) * m_ChunkSize.x + (x)].IsEnabled() == false )
                     {
-                        pVerts[0].pos.x = xleft;  pVerts[0].pos.y = ybottom; pVerts[0].pos.z = zfront; pVerts[0].uv.x = uleft;  pVerts[0].uv.y = vtop;
-                        pVerts[1].pos.x = xright; pVerts[1].pos.y = ybottom; pVerts[1].pos.z = zfront; pVerts[1].uv.x = uright; pVerts[1].uv.y = vtop;
-                        pVerts[2].pos.x = xleft;  pVerts[2].pos.y = ybottom; pVerts[2].pos.z = zback;  pVerts[2].uv.x = uleft;  pVerts[2].uv.y = vbottom;
-                        pVerts[3].pos.x = xright; pVerts[3].pos.y = ybottom; pVerts[3].pos.z = zback;  pVerts[3].uv.x = uright; pVerts[3].uv.y = vbottom;
+                        pVerts[0].pos = lbf; pVerts[0].uv.x = uleft;  pVerts[0].uv.y = vtop;
+                        pVerts[1].pos = rbf; pVerts[1].uv.x = uright; pVerts[1].uv.y = vtop;
+                        pVerts[2].pos = lbb; pVerts[2].uv.x = uleft;  pVerts[2].uv.y = vbottom;
+                        pVerts[3].pos = rbb; pVerts[3].uv.x = uright; pVerts[3].uv.y = vbottom;
                         for( int i=0; i<4; i++ )
                             pVerts[i].normal.Set( 0, -1, 0 );
                         for( int i=0; i<6; i++ )
@@ -627,15 +797,16 @@ bool VoxelChunk::RebuildMesh(unsigned int increment)
                     vbottom = (float)(TileTops_Row[tileindex]+1) / m_TextureTileCount.y;
 
                     // top
+                    neighbourindex = (z) * m_ChunkSize.y * m_ChunkSize.x + (y+1) * m_ChunkSize.x + (x);
                     if( y == (m_ChunkSize.y-1) && m_pWorld && m_pWorld->IsBlockEnabled( worldpos.x, worldpos.y+1, worldpos.z ) )
                     {
                     }
-                    else if( y == (m_ChunkSize.y-1) || m_pBlocks[(z) * m_ChunkSize.y * m_ChunkSize.x + (y+1) * m_ChunkSize.x + (x)].IsEnabled() == false )
+                    else if( y == (m_ChunkSize.y-1) || (m_pBlockEnabledBits[neighbourindex/32] & (1 << (neighbourindex%32))) == 0 ) //m_pBlocks[(z) * m_ChunkSize.y * m_ChunkSize.x + (y+1) * m_ChunkSize.x + (x)].IsEnabled() == false )
                     {
-                        pVerts[0].pos.x = xleft;  pVerts[0].pos.y = ytop;    pVerts[0].pos.z = zback;  pVerts[0].uv.x = uleft;  pVerts[0].uv.y = vtop;
-                        pVerts[1].pos.x = xright; pVerts[1].pos.y = ytop;    pVerts[1].pos.z = zback;  pVerts[1].uv.x = uright; pVerts[1].uv.y = vtop;
-                        pVerts[2].pos.x = xleft;  pVerts[2].pos.y = ytop;    pVerts[2].pos.z = zfront; pVerts[2].uv.x = uleft;  pVerts[2].uv.y = vbottom;
-                        pVerts[3].pos.x = xright; pVerts[3].pos.y = ytop;    pVerts[3].pos.z = zfront; pVerts[3].uv.x = uright; pVerts[3].uv.y = vbottom;
+                        pVerts[0].pos = ltb; pVerts[0].uv.x = uleft;  pVerts[0].uv.y = vtop;
+                        pVerts[1].pos = rtb; pVerts[1].uv.x = uright; pVerts[1].uv.y = vtop;
+                        pVerts[2].pos = ltf; pVerts[2].uv.x = uleft;  pVerts[2].uv.y = vbottom;
+                        pVerts[3].pos = rtf; pVerts[3].uv.x = uright; pVerts[3].uv.y = vbottom;
                         for( int i=0; i<4; i++ )
                             pVerts[i].normal.Set( 0, 1, 0 );
                         for( int i=0; i<6; i++ )
@@ -924,5 +1095,9 @@ void VoxelChunk::ChangeBlockState(Vector3Int worldpos, unsigned int type, bool e
     unsigned int index = GetBlockIndex( worldpos );
 
     m_pBlocks[index].SetBlockType( type );
-    m_pBlocks[index].SetEnabled( enabled );
+    if( enabled )
+        m_pBlockEnabledBits[index/32] |= (1 << (index%32));
+    else
+        m_pBlockEnabledBits[index/32] &= ~(1 << (index%32));
+    //m_pBlocks[index].SetEnabled( enabled );
 }

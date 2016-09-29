@@ -498,16 +498,19 @@ void ComponentVoxelMesh::CreateMesh()
         pVoxelChunk->Initialize( 0, Vector3(0,0,0), Vector3Int(0,0,0), m_BlockSize );
         pVoxelChunk->SetChunkSize( m_ChunkSize );
         VoxelBlock* pBlocks = pVoxelChunk->GetBlocks();
+        uint32* pBlockEnabledBits = pVoxelChunk->GetBlockEnabledBits();
         for( int z=0; z<m_ChunkSize.z; z++ )
         {
             for( int y=0; y<m_ChunkSize.y; y++ )
             {
                 for( int x=0; x<m_ChunkSize.x; x++ )
                 {
-                    VoxelBlock* pBlock = &pBlocks[z*m_ChunkSize.y*m_ChunkSize.x + y*m_ChunkSize.x + x];
+                    unsigned int index = z*m_ChunkSize.y*m_ChunkSize.x + y*m_ChunkSize.x + x;
+                    VoxelBlock* pBlock = &pBlocks[index];
 
                     pBlock->SetBlockType( 1 );
-                    pBlock->SetEnabled( true );
+                    pBlockEnabledBits[index/32] |= (1 << (index%32));
+                    //pBlock->SetEnabled( true );
                 }
             }
         }

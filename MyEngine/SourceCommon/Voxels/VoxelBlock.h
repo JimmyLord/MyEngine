@@ -13,15 +13,11 @@
 class VoxelBlock
 {
 protected:
-    bool m_Enabled;
     unsigned int m_BlockType;
 
 public:
     VoxelBlock();
     ~VoxelBlock();
-
-    bool IsEnabled() { return m_Enabled; }
-    void SetEnabled(bool enabled) { m_Enabled = enabled; }
 
     unsigned int GetBlockType() { return m_BlockType; }
     void SetBlockType(unsigned int type) { m_BlockType = type; }
