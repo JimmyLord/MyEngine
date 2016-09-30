@@ -692,6 +692,14 @@ VoxelBlock* VoxelWorld::GetBlock(int worldx, int worldy, int worldz)
     return pChunk->GetBlockFromLocalPos( localpos );
 }
 
+VoxelChunk* VoxelWorld::GetChunkContainingWorldPosition(Vector3Int worldpos)
+{
+    Vector3Int chunkpos = GetChunkPosition( worldpos );
+    VoxelChunk* pChunk = GetActiveChunk( chunkpos );
+
+    return pChunk;
+}
+
 bool VoxelWorld::IsBlockEnabled(Vector3Int worldpos, bool blockexistsifnotready)
 {
     return IsBlockEnabled( worldpos.x, worldpos.y, worldpos.z, blockexistsifnotready );

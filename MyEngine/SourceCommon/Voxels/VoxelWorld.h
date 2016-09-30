@@ -92,6 +92,7 @@ public:
     // Collision/Block queries
     VoxelBlock* GetBlock(Vector3Int worldpos);
     VoxelBlock* GetBlock(int worldx, int worldy, int worldz);
+    VoxelChunk* GetChunkContainingWorldPosition(Vector3Int worldpos);
     bool IsBlockEnabled(Vector3Int worldpos, bool blockexistsifnotready = false);
     bool IsBlockEnabled(int worldx, int worldy, int worldz, bool blockexistsifnotready = false);
     bool IsBlockEnabledAroundLocation(Vector3 scenepos, float radius, bool blockexistsifnotready = false);

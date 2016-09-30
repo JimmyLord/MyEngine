@@ -479,12 +479,55 @@ bool VoxelChunk::IsBlockEnabled(int localx, int localy, int localz, bool blockex
     //return pBlock->IsEnabled();
 }
 
+bool VoxelChunk::IsNearbyWorldBlockEnabled(unsigned int worldactivechunkarrayindex, int localx, int localy, int localz, bool blockexistsifnotready)
+{
+    // blocks must be within a chunk in each direction.
+    MyAssert( localx >= -m_ChunkSize.x && localx < m_ChunkSize.x*2 );
+    MyAssert( localy >= -m_ChunkSize.y && localy < m_ChunkSize.y*2 );
+    MyAssert( localz >= -m_ChunkSize.z && localz < m_ChunkSize.z*2 );
+
+    Vector3Int worldchunkoffset(0,0,0);
+
+    if( m_pWorld == 0 )
+    {
+        if( localx < 0 )              { return blockexistsifnotready; }
+        if( localx >= m_ChunkSize.x ) { return blockexistsifnotready; }
+        if( localy < 0 )              { return blockexistsifnotready; }
+        if( localy >= m_ChunkSize.y ) { return blockexistsifnotready; }
+        if( localz < 0 )              { return blockexistsifnotready; }
+        if( localz >= m_ChunkSize.z ) { return blockexistsifnotready; }
+    }
+
+    VoxelChunk* pChunk = this;
+
+    if( m_pWorld )
+    {
+        if( localx < 0 )              { worldactivechunkarrayindex -= 1; localx += m_ChunkSize.x; }
+        if( localx >= m_ChunkSize.x ) { worldactivechunkarrayindex += 1; localx -= m_ChunkSize.x; }
+        if( localy < 0 )              { worldactivechunkarrayindex -= m_pWorld->m_WorldSize.x; localy += m_ChunkSize.y; }
+        if( localy >= m_ChunkSize.y ) { worldactivechunkarrayindex -= m_pWorld->m_WorldSize.x; localy -= m_ChunkSize.y; }
+        if( localz < 0 )              { worldactivechunkarrayindex -= m_pWorld->m_WorldSize.y * m_pWorld->m_WorldSize.x; localz += m_ChunkSize.z; }
+        if( localz >= m_ChunkSize.z ) { worldactivechunkarrayindex -= m_pWorld->m_WorldSize.y * m_pWorld->m_WorldSize.x; localz -= m_ChunkSize.z; }
+
+        if( worldactivechunkarrayindex >= UINT_MAX - m_pWorld->m_WorldSize.z * m_pWorld->m_WorldSize.y * m_pWorld->m_WorldSize.x )
+            return blockexistsifnotready;
+        if( worldactivechunkarrayindex >= (unsigned int)m_pWorld->m_WorldSize.z * (unsigned int)m_pWorld->m_WorldSize.y * (unsigned int)m_pWorld->m_WorldSize.x )
+            return blockexistsifnotready;
+
+        pChunk = m_pWorld->m_pActiveWorldChunkPtrs[worldactivechunkarrayindex];
+    }
+
+    return pChunk->IsBlockEnabled( localx, localy, localz, blockexistsifnotready );
+}
+
 // ============================================================================================================================
 // Rendering
 // ============================================================================================================================
 bool VoxelChunk::RebuildMesh(unsigned int increment)
 {
     MyAssert( m_pBlocks );
+
+    unsigned int worldactivechunkarrayindex = m_pWorld->GetActiveChunkArrayIndex( m_pWorld->GetChunkPosition( m_ChunkOffset ) );
 
     // Loop through blocks and add a cube for each one that's enabled
     // TODO: merge outer faces, eliminate inner faces.
@@ -579,85 +622,85 @@ bool VoxelChunk::RebuildMesh(unsigned int increment)
                         if( m_pWorld )
                         {
                             // Left - Top - Front
-                            if( ( m_pWorld->IsBlockEnabled( worldpos.x-1, worldpos.y+1, worldpos.z  , true ) == true  &&
-                                  m_pWorld->IsBlockEnabled( worldpos.x-1, worldpos.y+2, worldpos.z  , true ) == false ) ||
-                                ( m_pWorld->IsBlockEnabled( worldpos.x-1, worldpos.y+1, worldpos.z-1, true ) == true  &&
-                                  m_pWorld->IsBlockEnabled( worldpos.x-1, worldpos.y+2, worldpos.z-1, true ) == false ) ||
-                                ( m_pWorld->IsBlockEnabled( worldpos.x  , worldpos.y+1, worldpos.z-1, true ) == true  &&
-                                  m_pWorld->IsBlockEnabled( worldpos.x  , worldpos.y+2, worldpos.z-1, true ) == false ) )
+                            if( ( IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x-1, y+1, z  , true ) == true  &&
+                                  IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x-1, y+2, z  , true ) == false ) ||
+                                ( IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x-1, y+1, z-1, true ) == true  &&
+                                  IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x-1, y+2, z-1, true ) == false ) ||
+                                ( IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x  , y+1, z-1, true ) == true  &&
+                                  IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x  , y+2, z-1, true ) == false ) )
                             {
                                 ltf.y += m_BlockSize.x/2;
                             }
                             else
-                            if( ( m_pWorld->IsBlockEnabled( worldpos.x-1, worldpos.y  , worldpos.z  , true ) == false &&
-                                  m_pWorld->IsBlockEnabled( worldpos.x-1, worldpos.y-1, worldpos.z  , true ) == true  ) ||
-                                ( m_pWorld->IsBlockEnabled( worldpos.x-1, worldpos.y  , worldpos.z-1, true ) == false &&
-                                  m_pWorld->IsBlockEnabled( worldpos.x-1, worldpos.y-1, worldpos.z-1, true ) == true  ) ||
-                                ( m_pWorld->IsBlockEnabled( worldpos.x  , worldpos.y  , worldpos.z-1, true ) == false &&
-                                  m_pWorld->IsBlockEnabled( worldpos.x  , worldpos.y-1, worldpos.z-1, true ) == true  ) )
+                            if( ( IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x-1, y  , z  , true ) == false &&
+                                  IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x-1, y  , z-1, true ) == false &&
+                                  IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x  , y  , z-1, true ) == false ) &&
+                                ( IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x-1, y-1, z  , true ) == true  ||
+                                  IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x-1, y-1, z-1, true ) == true  ||
+                                  IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x  , y-1, z-1, true ) == true  ) )
                             {
                                 ltf.y -= m_BlockSize.x/2;
                             }
 
                             // Left - Top - Back
-                            if( ( m_pWorld->IsBlockEnabled( worldpos.x-1, worldpos.y+1, worldpos.z  , true ) == true  &&
-                                  m_pWorld->IsBlockEnabled( worldpos.x-1, worldpos.y+2, worldpos.z  , true ) == false ) ||
-                                ( m_pWorld->IsBlockEnabled( worldpos.x-1, worldpos.y+1, worldpos.z+1, true ) == true  &&
-                                  m_pWorld->IsBlockEnabled( worldpos.x-1, worldpos.y+2, worldpos.z+1, true ) == false ) ||
-                                ( m_pWorld->IsBlockEnabled( worldpos.x  , worldpos.y+1, worldpos.z+1, true ) == true  &&
-                                  m_pWorld->IsBlockEnabled( worldpos.x  , worldpos.y+2, worldpos.z+1, true ) == false ) )
+                            if( ( IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x-1, y+1, z  , true ) == true  &&
+                                  IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x-1, y+2, z  , true ) == false ) ||
+                                ( IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x-1, y+1, z+1, true ) == true  &&
+                                  IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x-1, y+2, z+1, true ) == false ) ||
+                                ( IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x  , y+1, z+1, true ) == true  &&
+                                  IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x  , y+2, z+1, true ) == false ) )
                             {
                                 ltb.y += m_BlockSize.x/2;
                             }
                             else
-                            if( ( m_pWorld->IsBlockEnabled( worldpos.x-1, worldpos.y  , worldpos.z  , true ) == false &&
-                                  m_pWorld->IsBlockEnabled( worldpos.x-1, worldpos.y-1, worldpos.z  , true ) == true  ) ||
-                                ( m_pWorld->IsBlockEnabled( worldpos.x-1, worldpos.y  , worldpos.z+1, true ) == false &&
-                                  m_pWorld->IsBlockEnabled( worldpos.x-1, worldpos.y-1, worldpos.z+1, true ) == true  ) ||
-                                ( m_pWorld->IsBlockEnabled( worldpos.x  , worldpos.y  , worldpos.z+1, true ) == false &&
-                                  m_pWorld->IsBlockEnabled( worldpos.x  , worldpos.y-1, worldpos.z+1, true ) == true  ) )
+                            if( ( IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x-1, y  , z  , true ) == false &&
+                                  IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x-1, y  , z+1, true ) == false &&
+                                  IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x  , y  , z+1, true ) == false ) &&
+                                ( IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x-1, y-1, z  , true ) == true  ||
+                                  IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x-1, y-1, z+1, true ) == true  ||
+                                  IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x  , y-1, z+1, true ) == true  ) )
                             {
                                 ltb.y -= m_BlockSize.x/2;
                             }
 
                             // Right - Top - Front
-                            if( ( m_pWorld->IsBlockEnabled( worldpos.x+1, worldpos.y+1, worldpos.z  , true ) == true  &&
-                                  m_pWorld->IsBlockEnabled( worldpos.x+1, worldpos.y+2, worldpos.z  , true ) == false ) ||
-                                ( m_pWorld->IsBlockEnabled( worldpos.x+1, worldpos.y+1, worldpos.z-1, true ) == true  &&
-                                  m_pWorld->IsBlockEnabled( worldpos.x+1, worldpos.y+2, worldpos.z-1, true ) == false ) ||
-                                ( m_pWorld->IsBlockEnabled( worldpos.x  , worldpos.y+1, worldpos.z-1, true ) == true  &&
-                                  m_pWorld->IsBlockEnabled( worldpos.x  , worldpos.y+2, worldpos.z-1, true ) == false ) )
+                            if( ( IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x+1, y+1, z  , true ) == true  &&
+                                  IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x+1, y+2, z  , true ) == false ) ||
+                                ( IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x+1, y+1, z-1, true ) == true  &&
+                                  IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x+1, y+2, z-1, true ) == false ) ||
+                                ( IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x  , y+1, z-1, true ) == true  &&
+                                  IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x  , y+2, z-1, true ) == false ) )
                             {
                                 rtf.y += m_BlockSize.x/2;
                             }
                             else
-                            if( ( m_pWorld->IsBlockEnabled( worldpos.x+1, worldpos.y  , worldpos.z  , true ) == false &&
-                                  m_pWorld->IsBlockEnabled( worldpos.x+1, worldpos.y-1, worldpos.z  , true ) == true  ) ||
-                                ( m_pWorld->IsBlockEnabled( worldpos.x+1, worldpos.y  , worldpos.z-1, true ) == false &&
-                                  m_pWorld->IsBlockEnabled( worldpos.x+1, worldpos.y-1, worldpos.z-1, true ) == true  ) ||
-                                ( m_pWorld->IsBlockEnabled( worldpos.x  , worldpos.y  , worldpos.z-1, true ) == false &&
-                                  m_pWorld->IsBlockEnabled( worldpos.x  , worldpos.y-1, worldpos.z-1, true ) == true  ) )
+                            if( ( IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x+1, y  , z  , true ) == false &&
+                                  IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x+1, y  , z-1, true ) == false &&
+                                  IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x  , y  , z-1, true ) == false ) &&
+                                ( IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x+1, y-1, z  , true ) == true  ||
+                                  IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x+1, y-1, z-1, true ) == true  ||
+                                  IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x  , y-1, z-1, true ) == true  ) )
                             {
                                 rtf.y -= m_BlockSize.x/2;
                             }
 
                             // Right - Top - Back
-                            if( ( m_pWorld->IsBlockEnabled( worldpos.x+1, worldpos.y+1, worldpos.z  , true ) == true  &&
-                                  m_pWorld->IsBlockEnabled( worldpos.x+1, worldpos.y+2, worldpos.z  , true ) == false ) ||
-                                ( m_pWorld->IsBlockEnabled( worldpos.x+1, worldpos.y+1, worldpos.z+1, true ) == true  &&
-                                  m_pWorld->IsBlockEnabled( worldpos.x+1, worldpos.y+2, worldpos.z+1, true ) == false ) ||
-                                ( m_pWorld->IsBlockEnabled( worldpos.x  , worldpos.y+1, worldpos.z+1, true ) == true  &&
-                                  m_pWorld->IsBlockEnabled( worldpos.x  , worldpos.y+2, worldpos.z+1, true ) == false ) )
+                            if( ( IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x+1, y+1, z  , true ) == true  &&
+                                  IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x+1, y+2, z  , true ) == false ) ||
+                                ( IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x+1, y+1, z+1, true ) == true  &&
+                                  IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x+1, y+2, z+1, true ) == false ) ||
+                                ( IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x  , y+1, z+1, true ) == true  &&
+                                  IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x  , y+2, z+1, true ) == false ) )
                             {
                                 rtb.y += m_BlockSize.x/2;
                             }
                             else
-                            if( ( m_pWorld->IsBlockEnabled( worldpos.x+1, worldpos.y  , worldpos.z  , true ) == false &&
-                                  m_pWorld->IsBlockEnabled( worldpos.x+1, worldpos.y-1, worldpos.z  , true ) == true  ) ||
-                                ( m_pWorld->IsBlockEnabled( worldpos.x+1, worldpos.y  , worldpos.z+1, true ) == false &&
-                                  m_pWorld->IsBlockEnabled( worldpos.x+1, worldpos.y-1, worldpos.z+1, true ) == true  ) ||
-                                ( m_pWorld->IsBlockEnabled( worldpos.x  , worldpos.y  , worldpos.z+1, true ) == false &&
-                                  m_pWorld->IsBlockEnabled( worldpos.x  , worldpos.y-1, worldpos.z+1, true ) == true  ) )
+                            if( ( IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x+1, y  , z  , true ) == false &&
+                                  IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x+1, y  , z+1, true ) == false &&
+                                  IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x  , y  , z+1, true ) == false ) &&
+                                ( IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x+1, y-1, z  , true ) == true  ||
+                                  IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x+1, y-1, z+1, true ) == true  ||
+                                  IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x  , y-1, z+1, true ) == true  ) )
                             {
                                 rtb.y -= m_BlockSize.x/2;
                             }
@@ -666,16 +709,6 @@ bool VoxelChunk::RebuildMesh(unsigned int increment)
                             //lbb.y;
                             //rbf.Set( xright, ybottom, zfront );
                             //rbb.Set( xright, ybottom, zback  );
-                        }
-                        else
-                        {
-                            ltb.Set( xleft,  ytop,    zback  );
-                            lbf.Set( xleft,  ybottom, zfront );
-                            lbb.Set( xleft,  ybottom, zback  );
-                            rtf.Set( xright, ytop,    zfront );
-                            rtb.Set( xright, ytop,    zback  );
-                            rbf.Set( xright, ybottom, zfront );
-                            rbb.Set( xright, ybottom, zback  );
                         }
                     }
 

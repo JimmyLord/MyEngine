@@ -37,6 +37,9 @@ protected:
 
     SceneGraphObject* m_pSceneGraphObject;
 
+    // Slightly faster lookup of nearby blocks.
+    bool IsNearbyWorldBlockEnabled(unsigned int worldactivechunkarrayindex, int localx, int localy, int localz, bool blockexistsifnotready = false);
+
     // Internal file loading functions
     void CreateFromVoxelMeshFile();
     static void StaticOnFileFinishedLoadingVoxelMesh(void* pObjectPtr, MyFileObject* pFile) { ((VoxelChunk*)pObjectPtr)->OnFileFinishedLoadingVoxelMesh( pFile ); }
