@@ -39,8 +39,8 @@ void ComponentRenderable::RegisterVariables(CPPListHead* pList, ComponentRendera
             (CVarFunc_ValueChanged)&ComponentRenderable::OnValueChanged,
             0, 0 ); //ComponentRenderable::StaticOnDrop, 0 );
 
-    extern const char* g_pVisibilityLayerStrings[8];
-    AddVarFlags( pList, "Layers", MyOffsetOf( pThis, &pThis->m_LayersThisExistsOn ), true, true, 0, 8, g_pVisibilityLayerStrings,
+    AddVarFlags( pList, "Layers", MyOffsetOf( pThis, &pThis->m_LayersThisExistsOn ), true, true, 0,
+                 g_NumberOfVisibilityLayers, g_pVisibilityLayerStrings,
                  (CVarFunc_ValueChanged)&ComponentRenderable::OnValueChanged,
                  0, 0 ); //, ComponentRenderable::StaticOnDrop, 0 );
 }

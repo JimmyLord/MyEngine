@@ -13,7 +13,8 @@
 bool ComponentCamera::m_PanelWatchBlockVisible = true;
 #endif
 
-const char* g_pVisibilityLayerStrings[g_NumberOfVisibilityLayers] =
+// 32 layers strings since ComponentBase::ExportVariablesToJSON -> case ComponentVariableType_Flags is looking for 32
+const char* g_pVisibilityLayerStrings[32] = //g_NumberOfVisibilityLayers] =
 {
     "Main view",
     "HUD",
@@ -23,6 +24,30 @@ const char* g_pVisibilityLayerStrings[g_NumberOfVisibilityLayers] =
     "6",
     "7",
     "8",
+    "9",
+    "10",
+    "11",
+    "12",
+    "13",
+    "14",
+    "15",
+    "16",
+    "17",
+    "18",
+    "19",
+    "20",
+    "21",
+    "22",
+    "23",
+    "24",
+    "25",
+    "26",
+    "27",
+    "28",
+    "29",
+    "30",
+    "31",
+    "32",
 };
 
 // Component Variable List
@@ -50,7 +75,9 @@ ComponentCamera::~ComponentCamera()
 
 void ComponentCamera::RegisterVariables(CPPListHead* pList, ComponentCamera* pThis) //_VARIABLE_LIST
 {
-    AddVarFlags( pList, "Layers", MyOffsetOf( pThis, &pThis->m_LayersToRender ), true, true, 0, g_NumberOfVisibilityLayers, g_pVisibilityLayerStrings, (CVarFunc_ValueChanged)&ComponentCamera::OnValueChanged, 0, 0 );
+    AddVarFlags( pList, "Layers", MyOffsetOf( pThis, &pThis->m_LayersToRender ), true, true, 0,
+                 g_NumberOfVisibilityLayers, g_pVisibilityLayerStrings,
+                 (CVarFunc_ValueChanged)&ComponentCamera::OnValueChanged, 0, 0 );
 }
 
 #if MYFW_USING_WX
@@ -80,9 +107,6 @@ void ComponentCamera::FillPropertiesWindow(bool clear, bool addcomponentvariable
 
         g_pPanelWatch->AddBool( "ColorBit", &m_ClearColorBuffer, 0, 1, this, ComponentCamera::StaticOnValueChanged );
         g_pPanelWatch->AddBool( "DepthBit", &m_ClearDepthBuffer, 0, 1, this, ComponentCamera::StaticOnValueChanged );
-
-        //g_pPanelWatch->AddUnsignedInt( "Layers", &m_LayersToRender, 0, 65535, this, ComponentCamera::StaticOnValueChanged );
-        //g_pPanelWatch->AddFlags( "Layers", &m_LayersToRender, g_NumberOfVisibilityLayers, g_pVisibilityLayerStrings, this, ComponentCamera::StaticOnValueChanged );
 
         FillPropertiesWindowWithVariables(); //_VARIABLE_LIST
     }
