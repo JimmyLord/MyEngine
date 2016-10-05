@@ -19,9 +19,15 @@ TransformGizmo::TransformGizmo()
     {
         m_pTranslate1Axis[i] = 0;
         m_pTranslate2Axis[i] = 0;
+        m_pScale1Axis[i] = 0;
+
         m_pMaterial_Translate1Axis[i] = 0;
         m_pMaterial_Translate2Axis[i] = 0;
+        m_pMaterial_Scale1Axis[i] = 0;
     }
+
+    m_pScale3Axis = 0;
+    m_pMaterial_Scale3Axis = 0;
 
     m_LastIntersectResultIsValid = false;
     m_LastIntersectResultUsed.Set(0,0,0);
@@ -33,9 +39,15 @@ TransformGizmo::~TransformGizmo()
     {
         SAFE_DELETE( m_pTranslate1Axis[i] );
         SAFE_DELETE( m_pTranslate2Axis[i] );
+        SAFE_DELETE( m_pScale1Axis[i] );
+
         SAFE_RELEASE( m_pMaterial_Translate1Axis[i] );
         SAFE_RELEASE( m_pMaterial_Translate2Axis[i] );
+        SAFE_RELEASE( m_pMaterial_Scale1Axis[i] );
     }
+
+    SAFE_DELETE( m_pScale3Axis );
+    SAFE_RELEASE( m_pMaterial_Scale3Axis );
 }
 
 void TransformGizmo::Tick(double TimePassed, EditorState* pEditorState)
@@ -73,7 +85,7 @@ void TransformGizmo::Tick(double TimePassed, EditorState* pEditorState)
     if( m_VisibleIfObjectsSelected == false )
         GizmoVisible = false;
 
-    // Update transform gizmos
+    // Update 1 axis transform gizmos
     for( int i=0; i<3; i++ )
     {
         MyAssert( m_pTranslate1Axis[i] );
@@ -133,7 +145,7 @@ void TransformGizmo::Tick(double TimePassed, EditorState* pEditorState)
         }
     }
 
-    // Update transform gizmos
+    // Update 2 axis transform gizmos
     for( int i=0; i<3; i++ )
     {
         MyAssert( m_pTranslate2Axis[i] );
@@ -156,7 +168,7 @@ void TransformGizmo::Tick(double TimePassed, EditorState* pEditorState)
 
                 if( i+3 == m_SelectedPart )
                 {
-                    pMaterial->m_ColorDiffuse.Set( 255, 255, 255, 180 );
+                    pMaterial->m_ColorDiffuse.Set( 255, 255, 255, 255 );
                 }
             }
         }
@@ -207,6 +219,111 @@ void TransformGizmo::Tick(double TimePassed, EditorState* pEditorState)
             m_pTranslate2Axis[i]->m_pComponentTransform->SetLocalScale( Vector3( distance / 15.0f ) );
         }
     }
+
+    // Update 1 axis scale gizmos
+    for( int i=0; i<3; i++ )
+    {
+        MyAssert( m_pScale1Axis[i] );
+
+        ComponentRenderable* pRenderable = (ComponentRenderable*)m_pScale1Axis[i]->GetFirstComponentOfBaseType( BaseComponentType_Renderable );
+
+        ComponentMesh* pMesh = dynamic_cast<ComponentMesh*>( pRenderable );
+        MyAssert( pMesh );
+        if( pMesh )
+        {
+            MaterialDefinition* pMaterial = pMesh->GetMaterial( 0 );
+            if( pMaterial )
+            {
+                if( i == 0 )
+                    pMaterial->m_ColorDiffuse.Set( 255, 100, 100, 255 );
+                if( i == 1 )
+                    pMaterial->m_ColorDiffuse.Set( 100, 255, 100, 255 );
+                if( i == 2 )
+                    pMaterial->m_ColorDiffuse.Set( 100, 100, 255, 255 );
+
+                if( 6+i == m_SelectedPart )
+                    pMaterial->m_ColorDiffuse.Set( 255, 255, 255, 255 );
+            }
+        }
+
+        pRenderable->SetVisible( GizmoVisible );
+
+        if( GizmoVisible )
+        {
+            // move the gizmo to the object position.
+            m_pScale1Axis[i]->m_pComponentTransform->SetLocalPosition( ObjectPosition );
+
+            // rotate the gizmo.
+            MyMatrix matrot;
+            matrot.SetIdentity();
+
+            MyMatrix matrotobj;
+            matrotobj.SetIdentity();
+            matrotobj.CreateSRT( Vector3(1,1,1), ObjectTransform.GetEulerAngles(), Vector3(0,0,0) );
+
+            matrot = matrotobj * matrot;
+
+            Vector3 rot = matrot.GetEulerAngles() * 180.0f/PI;
+
+            m_pScale1Axis[i]->m_pComponentTransform->SetLocalRotation( rot );
+
+            float distance = (pEditorState->m_pEditorCamera->m_pComponentTransform->GetLocalPosition() - ObjectPosition).Length();
+            m_pScale1Axis[i]->m_pComponentTransform->SetLocalScale( Vector3( distance / 15.0f ) );
+        }
+    }
+
+    // Update 3 axis scale gizmo
+    {
+        MyAssert( m_pScale3Axis );
+
+        ComponentRenderable* pRenderable = (ComponentRenderable*)m_pScale3Axis->GetFirstComponentOfBaseType( BaseComponentType_Renderable );
+
+        ComponentMesh* pMesh = dynamic_cast<ComponentMesh*>( pRenderable );
+        MyAssert( pMesh );
+        if( pMesh )
+        {
+            MaterialDefinition* pMaterial = pMesh->GetMaterial( 0 );
+            if( pMaterial )
+            {
+                pMaterial->m_ColorDiffuse.Set( 100, 100, 100, 180 );
+
+                if( 9 == m_SelectedPart )
+                {
+                    pMaterial->m_ColorDiffuse.Set( 255, 255, 255, 180 );
+                }
+            }
+        }
+
+        pRenderable->SetVisible( GizmoVisible );
+
+        if( GizmoVisible )
+        {
+            ComponentCamera* pCamera = pEditorState->GetEditorCamera();
+            Vector3 campos = pCamera->m_pGameObject->GetTransform()->GetLocalPosition();
+
+            Vector3 pos = ObjectPosition;
+
+            // rotate the gizmo.
+            MyMatrix matrot;
+            matrot.SetIdentity();
+
+            MyMatrix matrotobj;
+            matrotobj.SetIdentity();
+            matrotobj.CreateSRT( Vector3(1,1,1), ObjectTransform.GetEulerAngles(), Vector3(0,0,0) );
+
+            matrot = matrotobj * matrot;
+
+            Vector3 rot = matrot.GetEulerAngles() * 180.0f/PI;
+
+            // move the gizmo to the object position.
+            m_pScale3Axis->m_pComponentTransform->SetLocalPosition( pos );
+
+            m_pScale3Axis->m_pComponentTransform->SetLocalRotation( rot );
+
+            float distance = (pEditorState->m_pEditorCamera->m_pComponentTransform->GetLocalPosition() - ObjectPosition).Length();
+            m_pScale3Axis->m_pComponentTransform->SetLocalScale( Vector3( distance / 15.0f ) );
+        }
+    }
 }
 
 bool TransformGizmo::HandleInput(EngineCore* pGame, int keydown, int keycode, int action, int id, float x, float y, float pressure)
@@ -239,6 +356,16 @@ bool TransformGizmo::HandleInput(EngineCore* pGame, int keydown, int keycode, in
         m_SelectedPart = 4;
     if( pObject == m_pTranslate2Axis[2] )
         m_SelectedPart = 5;
+
+    if( pObject == m_pScale1Axis[0] )
+        m_SelectedPart = 6;
+    if( pObject == m_pScale1Axis[1] )
+        m_SelectedPart = 7;
+    if( pObject == m_pScale1Axis[2] )
+        m_SelectedPart = 8;
+
+    if( pObject == m_pScale3Axis )
+        m_SelectedPart = 9;
 
     return false;
 }
@@ -366,6 +493,88 @@ void TransformGizmo::CreateAxisObjects(unsigned int sceneid, float scale, Editor
         }
 
         pEditorState->m_pTransformGizmo->m_pTranslate2Axis[2] = pGameObject;
+    }
+
+    m_pMaterial_Scale1Axis[0] = MyNew MaterialDefinition( g_pEngineCore->m_pShader_TintColor, ColorByte(255,0,0,255) );
+    m_pMaterial_Scale1Axis[1] = MyNew MaterialDefinition( g_pEngineCore->m_pShader_TintColor, ColorByte(0,255,0,255) );
+    m_pMaterial_Scale1Axis[2] = MyNew MaterialDefinition( g_pEngineCore->m_pShader_TintColor, ColorByte(0,0,255,255) );
+
+    // Create single axis scalers.
+    {
+        pGameObject = g_pComponentSystemManager->CreateGameObject( false, sceneid ); // not managed.
+        pGameObject->SetName( "3D Transform Gizmo - x-scale" );
+
+        pComponentMesh = (ComponentMesh*)pGameObject->AddNewComponent( ComponentType_Mesh, sceneid );
+        if( pComponentMesh )
+        {
+            pComponentMesh->SetVisible( true );
+            pComponentMesh->SetMaterial( m_pMaterial_Scale1Axis[0], 0 );
+            pComponentMesh->SetLayersThisExistsOn( Layer_EditorFG );
+            pComponentMesh->m_pMesh = MyNew MyMesh();
+            pComponentMesh->m_pMesh->CreateBox( 0.5f, 0.5f, 0.5f, 0, 1, 0, 1, Justify_Center, Vector3( 3, 0, 0 ) );
+            pComponentMesh->m_GLPrimitiveType = pComponentMesh->m_pMesh->m_SubmeshList[0]->m_PrimitiveType;
+            pComponentMesh->AddToSceneGraph();
+        }
+
+        pEditorState->m_pTransformGizmo->m_pScale1Axis[0] = pGameObject;
+    }
+    {
+        pGameObject = g_pComponentSystemManager->CreateGameObject( false, sceneid ); // not managed.
+        pGameObject->SetName( "3D Transform Gizmo - y-scale" );
+
+        pComponentMesh = (ComponentMesh*)pGameObject->AddNewComponent( ComponentType_Mesh, sceneid );
+        if( pComponentMesh )
+        {
+            pComponentMesh->SetVisible( true );
+            pComponentMesh->SetMaterial( m_pMaterial_Scale1Axis[1], 0 );
+            pComponentMesh->SetLayersThisExistsOn( Layer_EditorFG );
+            pComponentMesh->m_pMesh = MyNew MyMesh();
+            pComponentMesh->m_pMesh->CreateBox( 0.5f, 0.5f, 0.5f, 0, 1, 0, 1, Justify_Center, Vector3( 0, 3, 0 ) );
+            pComponentMesh->m_GLPrimitiveType = pComponentMesh->m_pMesh->m_SubmeshList[0]->m_PrimitiveType;
+            pComponentMesh->AddToSceneGraph();
+        }
+
+        pEditorState->m_pTransformGizmo->m_pScale1Axis[1] = pGameObject;
+    }
+    {
+        pGameObject = g_pComponentSystemManager->CreateGameObject( false, sceneid ); // not managed.
+        pGameObject->SetName( "3D Transform Gizmo - z-scale" );
+
+        pComponentMesh = (ComponentMesh*)pGameObject->AddNewComponent( ComponentType_Mesh, sceneid );
+        if( pComponentMesh )
+        {
+            pComponentMesh->SetVisible( true );
+            pComponentMesh->SetMaterial( m_pMaterial_Scale1Axis[2], 0 );
+            pComponentMesh->SetLayersThisExistsOn( Layer_EditorFG );
+            pComponentMesh->m_pMesh = MyNew MyMesh();
+            pComponentMesh->m_pMesh->CreateBox( 0.5f, 0.5f, 0.5f, 0, 1, 0, 1, Justify_Center, Vector3( 0, 0, 3 ) );
+            pComponentMesh->m_GLPrimitiveType = pComponentMesh->m_pMesh->m_SubmeshList[0]->m_PrimitiveType;
+            pComponentMesh->AddToSceneGraph();
+        }
+
+        pEditorState->m_pTransformGizmo->m_pScale1Axis[2] = pGameObject;
+    }
+
+    m_pMaterial_Scale3Axis = MyNew MaterialDefinition( g_pEngineCore->m_pShader_TintColor, ColorByte(255,0,0,100) );
+
+    // Create 3 axis scaler
+    {
+        pGameObject = g_pComponentSystemManager->CreateGameObject( false, sceneid ); // not managed.
+        pGameObject->SetName( "3D Transform Gizmo - xyz-scale" );
+
+        pComponentMesh = (ComponentMesh*)pGameObject->AddNewComponent( ComponentType_Mesh, sceneid );
+        if( pComponentMesh )
+        {
+            pComponentMesh->SetVisible( true );
+            pComponentMesh->SetMaterial( m_pMaterial_Scale3Axis, 0 );
+            pComponentMesh->SetLayersThisExistsOn( Layer_EditorFG );
+            pComponentMesh->m_pMesh = MyNew MyMesh();
+            pComponentMesh->m_pMesh->CreateBox( 0.5f, 0.5f, 0.5f, 0, 1, 0, 1, Justify_Center, Vector3(0,0,0) );
+            pComponentMesh->m_GLPrimitiveType = pComponentMesh->m_pMesh->m_SubmeshList[0]->m_PrimitiveType;
+            pComponentMesh->AddToSceneGraph();
+        }
+
+        pEditorState->m_pTransformGizmo->m_pScale3Axis = pGameObject;
     }
 }
 

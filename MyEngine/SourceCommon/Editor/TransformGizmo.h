@@ -17,9 +17,13 @@ class TransformGizmo
 public:
     GameObject* m_pTranslate1Axis[3];
     GameObject* m_pTranslate2Axis[3];
+    GameObject* m_pScale1Axis[3];
+    GameObject* m_pScale3Axis;
 
     MaterialDefinition* m_pMaterial_Translate1Axis[3];
     MaterialDefinition* m_pMaterial_Translate2Axis[3];
+    MaterialDefinition* m_pMaterial_Scale1Axis[3];
+    MaterialDefinition* m_pMaterial_Scale3Axis;
 
     bool m_VisibleIfObjectsSelected;
     int m_SelectedPart;
