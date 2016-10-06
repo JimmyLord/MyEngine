@@ -61,6 +61,56 @@ EditorCommand* EditorCommand_MoveObjects::Repeat()
 }
 
 //====================================================================================================
+// EditorCommand_ScaleObjects
+//====================================================================================================
+
+EditorCommand_ScaleObjects::EditorCommand_ScaleObjects(Vector3 amountscaled, const std::vector<GameObject*>& selectedobjects)
+{
+    m_AmountScaled = amountscaled;
+
+    //LOGInfo( LOGTag, "EditorCommand_ScaleObjects:: %f,%f,%f\n", m_AmountScaled.x, m_AmountScaled.y, m_AmountScaled.z );
+
+    for( unsigned int i=0; i<selectedobjects.size(); i++ )
+    {
+        m_ObjectsScaled.push_back( selectedobjects[i] );
+    }
+}
+
+EditorCommand_ScaleObjects::~EditorCommand_ScaleObjects()
+{
+}
+
+void EditorCommand_ScaleObjects::Do()
+{
+    for( unsigned int i=0; i<m_ObjectsScaled.size(); i++ )
+    {
+        Vector3 newpos = m_ObjectsScaled[i]->m_pComponentTransform->GetLocalTransform()->GetScale() + m_AmountScaled;
+        m_ObjectsScaled[i]->m_pComponentTransform->SetScaleByEditor( newpos );
+        m_ObjectsScaled[i]->m_pComponentTransform->UpdateTransform();
+    }
+}
+
+void EditorCommand_ScaleObjects::Undo()
+{
+    //LOGInfo( LOGTag, "EditorCommand_ScaleObjects::Undo %f,%f,%f\n", m_AmountScaled.x, m_AmountScaled.y, m_AmountScaled.z );
+    for( unsigned int i=0; i<m_ObjectsScaled.size(); i++ )
+    {
+        Vector3 newpos = m_ObjectsScaled[i]->m_pComponentTransform->GetLocalTransform()->GetScale() - m_AmountScaled;
+        m_ObjectsScaled[i]->m_pComponentTransform->SetScaleByEditor( newpos );
+        m_ObjectsScaled[i]->m_pComponentTransform->UpdateTransform();
+    }
+}
+
+EditorCommand* EditorCommand_ScaleObjects::Repeat()
+{
+    EditorCommand_ScaleObjects* pCommand;
+    pCommand = MyNew EditorCommand_ScaleObjects( *this );
+
+    pCommand->Do();
+    return pCommand;
+}
+
+//====================================================================================================
 // EditorCommand_DeleteObjects
 //====================================================================================================
 

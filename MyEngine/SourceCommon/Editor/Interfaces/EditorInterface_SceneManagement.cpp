@@ -272,6 +272,28 @@ bool EditorInterface_SceneManagement::HandleInput(int keyaction, int keycode, in
                 selectedgizmo = true;
             }
 
+            // scale.
+            if( pObject == pEditorState->m_pTransformGizmo->m_pScale1Axis[0] )
+            {
+                pEditorState->m_EditorActionState = EDITORACTIONSTATE_ScaleX;
+                selectedgizmo = true;
+            }
+            if( pObject == pEditorState->m_pTransformGizmo->m_pScale1Axis[1] )
+            {
+                pEditorState->m_EditorActionState = EDITORACTIONSTATE_ScaleY;
+                selectedgizmo = true;
+            }
+            if( pObject == pEditorState->m_pTransformGizmo->m_pScale1Axis[2] )
+            {
+                pEditorState->m_EditorActionState = EDITORACTIONSTATE_ScaleZ;
+                selectedgizmo = true;
+            }
+            if( pObject == pEditorState->m_pTransformGizmo->m_pScale3Axis )
+            {
+                pEditorState->m_EditorActionState = EDITORACTIONSTATE_ScaleXYZ;
+                selectedgizmo = true;
+            }
+
             // if shift is held, make a copy of the object and control that one.
             if( selectedgizmo && pEditorState->m_ModifierKeyStates & MODIFIERKEY_Shift )
             {
@@ -528,8 +550,10 @@ bool EditorInterface_SceneManagement::HandleInput(int keyaction, int keycode, in
 
         if( mousedragdir.LengthSquared() != 0 )
         {
-            // If the mouse moved, move the selected objects along a plane or axis
+            // If the mouse moved, move/scale the selected objects along a plane or axis
+            // the checks for which editor tool is active is inside these functions.
             pEditorState->m_pTransformGizmo->TranslateSelectedObjects( g_pEngineCore, pEditorState );
+            pEditorState->m_pTransformGizmo->ScaleSelectedObjects( g_pEngineCore, pEditorState );
         }
     }
 
@@ -598,6 +622,32 @@ bool EditorInterface_SceneManagement::HandleInput(int keyaction, int keycode, in
                         if( selectedobjects.size() > 0 )
                         {
                             g_pEngineMainFrame->m_pCommandStack->Add( MyNew EditorCommand_MoveObjects( pEditorState->m_DistanceTranslated, selectedobjects ) );
+                        }
+                    }
+                }
+
+                // GIZMOSCALE: add scale to undo stack, action itself is done each frame.  We only want to undo to last mouse down.
+                if( pEditorState->m_EditorActionState >= EDITORACTIONSTATE_ScaleX &&
+                    pEditorState->m_EditorActionState <= EDITORACTIONSTATE_ScaleXYZ )
+                {
+                    if( pEditorState->m_pSelectedObjects.size() > 0 && pEditorState->m_DistanceTranslated.LengthSquared() != 0 )
+                    {
+                        // Create a new list of selected objects, don't include objects that have parents that are selected.
+                        std::vector<GameObject*> selectedobjects;
+                        for( unsigned int i=0; i<pEditorState->m_pSelectedObjects.size(); i++ )
+                        {
+                            ComponentTransform* pTransform = pEditorState->m_pSelectedObjects[i]->m_pComponentTransform;
+
+                            // if this object has a selected parent, don't move it, only move the parent.
+                            if( pTransform->IsAnyParentInList( pEditorState->m_pSelectedObjects ) == false )
+                            {
+                                selectedobjects.push_back( pEditorState->m_pSelectedObjects[i] );
+                            }
+                        }
+
+                        if( selectedobjects.size() > 0 )
+                        {
+                            g_pEngineMainFrame->m_pCommandStack->Add( MyNew EditorCommand_ScaleObjects( pEditorState->m_DistanceTranslated, selectedobjects ) );
                         }
                     }
                 }

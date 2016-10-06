@@ -29,6 +29,23 @@ public:
 
 //====================================================================================================
 
+class EditorCommand_ScaleObjects : public EditorCommand
+{
+protected:
+    Vector3 m_AmountScaled;
+    std::vector<GameObject*> m_ObjectsScaled;
+
+public:
+    EditorCommand_ScaleObjects(Vector3 amountscaled, const std::vector<GameObject*>& selectedobjects);
+    virtual ~EditorCommand_ScaleObjects();
+
+    virtual void Do();
+    virtual void Undo();
+    virtual EditorCommand* Repeat();
+};
+
+//====================================================================================================
+
 class EditorCommand_DeleteObjects : public EditorCommand
 {
 protected:

@@ -13,7 +13,7 @@
 TransformGizmo::TransformGizmo()
 {
     m_VisibleIfObjectsSelected = false;
-    m_SelectedPart = -1;
+    m_pSelectedPart = 0;
 
     for( int i=0; i<3; i++ )
     {
@@ -106,7 +106,7 @@ void TransformGizmo::Tick(double TimePassed, EditorState* pEditorState)
                 if( i == 2 )
                     pMaterial->m_ColorDiffuse.Set( 100, 100, 255, 255 );
 
-                if( i == m_SelectedPart )
+                if( m_pTranslate1Axis[i] == m_pSelectedPart )
                 {
                     pMaterial->m_ColorDiffuse.Set( 255,255,255,255 );
                 }
@@ -166,7 +166,7 @@ void TransformGizmo::Tick(double TimePassed, EditorState* pEditorState)
                 if( i == 2 )
                     pMaterial->m_ColorDiffuse.Set( 255, 255, 100, 180 );
 
-                if( i+3 == m_SelectedPart )
+                if( m_pTranslate2Axis[i] == m_pSelectedPart )
                 {
                     pMaterial->m_ColorDiffuse.Set( 255, 255, 255, 255 );
                 }
@@ -241,7 +241,7 @@ void TransformGizmo::Tick(double TimePassed, EditorState* pEditorState)
                 if( i == 2 )
                     pMaterial->m_ColorDiffuse.Set( 100, 100, 255, 255 );
 
-                if( 6+i == m_SelectedPart )
+                if( m_pScale1Axis[i] == m_pSelectedPart )
                     pMaterial->m_ColorDiffuse.Set( 255, 255, 255, 255 );
             }
         }
@@ -287,7 +287,7 @@ void TransformGizmo::Tick(double TimePassed, EditorState* pEditorState)
             {
                 pMaterial->m_ColorDiffuse.Set( 100, 100, 100, 180 );
 
-                if( 9 == m_SelectedPart )
+                if( m_pScale3Axis == m_pSelectedPart )
                 {
                     pMaterial->m_ColorDiffuse.Set( 255, 255, 255, 180 );
                 }
@@ -339,33 +339,7 @@ bool TransformGizmo::HandleInput(EngineCore* pGame, int keydown, int keycode, in
         return false;
 
     // find the object we're hovering on
-    GameObject* pObject = pGame->GetCurrentEditorInterface()->GetObjectAtPixel( (unsigned int)x, (unsigned int)y, true );
-
-    m_SelectedPart = -1;
-
-    if( pObject == m_pTranslate1Axis[0] )
-        m_SelectedPart = 0;
-    if( pObject == m_pTranslate1Axis[1] )
-        m_SelectedPart = 1;
-    if( pObject == m_pTranslate1Axis[2] )
-        m_SelectedPart = 2;
-
-    if( pObject == m_pTranslate2Axis[0] )
-        m_SelectedPart = 3;
-    if( pObject == m_pTranslate2Axis[1] )
-        m_SelectedPart = 4;
-    if( pObject == m_pTranslate2Axis[2] )
-        m_SelectedPart = 5;
-
-    if( pObject == m_pScale1Axis[0] )
-        m_SelectedPart = 6;
-    if( pObject == m_pScale1Axis[1] )
-        m_SelectedPart = 7;
-    if( pObject == m_pScale1Axis[2] )
-        m_SelectedPart = 8;
-
-    if( pObject == m_pScale3Axis )
-        m_SelectedPart = 9;
+    m_pSelectedPart = pGame->GetCurrentEditorInterface()->GetObjectAtPixel( (unsigned int)x, (unsigned int)y, true );
 
     return false;
 }
@@ -781,4 +755,154 @@ void TransformGizmo::TranslateSelectedObjects(EditorState* pEditorState, Vector3
 void TransformGizmo::CancelLastTranslation(EditorState* pEditorState)
 {
     TranslateSelectedObjects( pEditorState, pEditorState->m_DistanceTranslated * -1 );
+}
+
+void TransformGizmo::ScaleSelectedObjects(EngineCore* pGame, EditorState* pEditorState)
+{
+    if( pEditorState->m_pSelectedObjects.size() == 0 )
+        return;
+
+    // move the selected objects along a plane or axis
+    if( pEditorState->m_EditorActionState == EDITORACTIONSTATE_ScaleX ||
+        pEditorState->m_EditorActionState == EDITORACTIONSTATE_ScaleY ||
+        pEditorState->m_EditorActionState == EDITORACTIONSTATE_ScaleZ ||
+        pEditorState->m_EditorActionState == EDITORACTIONSTATE_ScaleXYZ )
+    {
+        // move all selected objects by the same amount, use object 0 to create a plane.
+        {
+            MyMatrix* pObjectTransform = pEditorState->m_pSelectedObjects[0]->m_pComponentTransform->GetLocalTransform();
+
+            // create a plane based on the axis we want.
+            Vector3 axisvector;
+            Plane plane;
+            {
+                ComponentCamera* pCamera = pEditorState->GetEditorCamera();
+                Vector3 camInvAt = pCamera->m_pGameObject->GetTransform()->GetLocalTransform()->GetAt() * -1;
+
+                Vector3 normal;
+                if( pEditorState->m_EditorActionState == EDITORACTIONSTATE_ScaleX )
+                {
+                    camInvAt.x = 0;
+                    normal = camInvAt; // set plane normal to face the camera.
+                    axisvector = Vector3(1,0,0);
+                }
+                else if( pEditorState->m_EditorActionState == EDITORACTIONSTATE_ScaleY )
+                {
+                    camInvAt.y = 0;
+                    normal = camInvAt; // set plane normal to face the camera.
+                    axisvector = Vector3(0,1,0);
+                }
+                else if( pEditorState->m_EditorActionState == EDITORACTIONSTATE_ScaleZ )
+                {
+                    camInvAt.z = 0;
+                    normal = camInvAt; // set plane normal to face the camera.
+                    axisvector = Vector3(0,0,1);
+                }
+                else if( pEditorState->m_EditorActionState == EDITORACTIONSTATE_ScaleXYZ )
+                {
+                    // TODO: fix
+                    normal = Vector3(0,0,1);
+                    axisvector = Vector3(1,0,0);
+                }
+
+                // TODO: support local space translation.
+                if( 1 ) // if( world space translation )
+                {
+                    // create a world space plane.
+                    plane.Set( normal, pObjectTransform->GetTranslation() );
+                }
+//                else
+//                {
+//                    // TODO: support this.
+//                    // transform the normal into the selected objects space.
+//                    plane.Set( (*pObjectTransform * Vector4( normal, 0 )).XYZ(), pObjectTransform->GetTranslation() );
+//                }
+            }
+
+            // Get the mouse click ray... current and last frame.
+            Vector3 currentraystart, currentrayend;
+            pGame->GetMouseRay( pEditorState->m_CurrentMousePosition, &currentraystart, &currentrayend );
+
+            Vector3 lastraystart, lastrayend;
+            pGame->GetMouseRay( pEditorState->m_LastMousePosition, &lastraystart, &lastrayend );
+
+            //LOGInfo( LOGTag, "current->(%0.0f,%0.0f) (%0.2f,%0.2f,%0.2f) (%0.2f,%0.2f,%0.2f)\n",
+            //        pEditorState->m_CurrentMousePosition.x,
+            //        pEditorState->m_CurrentMousePosition.y,
+            //        currentraystart.x,
+            //        currentraystart.y,
+            //        currentraystart.z,
+            //        currentrayend.x,
+            //        currentrayend.y,
+            //        currentrayend.z
+            //    );
+
+            // find the intersection point of the plane.
+            Vector3 currentresult;
+            Vector3 lastresult;
+            if( plane.IntersectRay( currentraystart, currentrayend, &currentresult ) &&
+                plane.IntersectRay( lastraystart, lastrayend, &lastresult ) )
+            {
+                //LOGInfo( LOGTag, "currentresult( %f, %f, %f );\n", currentresult.x, currentresult.y, currentresult.z );
+                //LOGInfo( LOGTag, "lastresult( %f, %f, %f );", lastresult.x, lastresult.y, lastresult.z );
+                //LOGInfo( LOGTag, "axisvector( %f, %f, %f );\n", axisvector.x, axisvector.y, axisvector.z );
+
+                // TODO: support local space scale?.
+                // lock to one of the 3 axis.
+                if( pEditorState->m_EditorActionState == EDITORACTIONSTATE_ScaleX )
+                {
+                    currentresult.y = currentresult.z = 0;
+                    lastresult.y = lastresult.z = 0;
+
+                    LOGInfo( "Scale Gizmo", "ScaleX: " );
+                }
+                if( pEditorState->m_EditorActionState == EDITORACTIONSTATE_ScaleY )
+                {
+                    currentresult.x = currentresult.z = 0;
+                    lastresult.x = lastresult.z = 0;
+
+                    LOGInfo( "Scale Gizmo", "ScaleY: " );
+                }
+                if( pEditorState->m_EditorActionState == EDITORACTIONSTATE_ScaleZ )
+                {
+                    currentresult.x = currentresult.y = 0;
+                    lastresult.x = lastresult.y = 0;
+
+                    LOGInfo( "Scale Gizmo", "ScaleZ: " );
+                }
+
+                // find the diff pos between this frame and last.
+                Vector3 diff = currentresult - lastresult;
+
+                // GIZMOSCALE: scale all of the things. // undo is handled by EngineCore.cpp when mouse is lifted.
+                pEditorState->m_DistanceTranslated += diff;
+                LOGInfo( "Scale Gizmo", "pEditorState->m_DistanceTranslated.Set( %f, %f, %f ); ", pEditorState->m_DistanceTranslated.x, pEditorState->m_DistanceTranslated.y, pEditorState->m_DistanceTranslated.z );
+                LOGInfo( "Scale Gizmo", "diff( %f, %f, %f, %d );\n", diff.x, diff.y, diff.z, pEditorState->m_pSelectedObjects.size() );
+
+                ScaleSelectedObjects( pEditorState, diff );
+            }
+        }
+    }
+}
+
+void TransformGizmo::ScaleSelectedObjects(EditorState* pEditorState, Vector3 scale)
+{
+    for( unsigned int i=0; i<pEditorState->m_pSelectedObjects.size(); i++ )
+    {
+        ComponentTransform* pTransform = pEditorState->m_pSelectedObjects[i]->m_pComponentTransform;
+
+        // if this object has a selected parent, don't move it, only move the parent.
+        if( pTransform->IsAnyParentInList( pEditorState->m_pSelectedObjects ) == false )
+        {
+            Vector3 currscale = pTransform->GetLocalTransform()->GetScale();
+
+            pTransform->SetScaleByEditor( currscale + scale );
+            pTransform->UpdateTransform();
+        }
+    }
+}
+
+void TransformGizmo::CancelLastScale(EditorState* pEditorState)
+{
+    ScaleSelectedObjects( pEditorState, Vector3( 1 / pEditorState->m_DistanceTranslated.x, 1 / pEditorState->m_DistanceTranslated.y, 1 / pEditorState->m_DistanceTranslated.z ) );
 }

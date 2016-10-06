@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015 Jimmy Lord http://www.flatheadgames.com
+// Copyright (c) 2015-2016 Jimmy Lord http://www.flatheadgames.com
 //
 // This software is provided 'as-is', without any express or implied warranty.  In no event will the authors be held liable for any damages arising from the use of this software.
 // Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -22,6 +22,10 @@ enum EditorActionState
     EDITORACTIONSTATE_TranslateXY,
     EDITORACTIONSTATE_TranslateXZ,
     EDITORACTIONSTATE_TranslateYZ,
+    EDITORACTIONSTATE_ScaleX,
+    EDITORACTIONSTATE_ScaleY,
+    EDITORACTIONSTATE_ScaleZ,
+    EDITORACTIONSTATE_ScaleXYZ,
     EDITORACTIONSTATE_GroupSelectingObjects,
     EDITORACTIONSTATE_NumStates,
 };
@@ -69,7 +73,7 @@ struct EditorState
     btTypedConstraint* m_MousePicker_PickConstraint;
     btScalar m_MousePicker_OldPickingDist;
 
-    // transform gizmo info, keep track of total distance translated for undo/redo.
+    // transform gizmo info, keep track of total distance translated for undo/redo, also used for scale.
     Vector3 m_DistanceTranslated;
 
     // camera state

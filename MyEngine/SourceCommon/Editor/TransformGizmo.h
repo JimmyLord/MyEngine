@@ -26,7 +26,7 @@ public:
     MaterialDefinition* m_pMaterial_Scale3Axis;
 
     bool m_VisibleIfObjectsSelected;
-    int m_SelectedPart;
+    GameObject* m_pSelectedPart;
 
     bool m_LastIntersectResultIsValid;
     Vector3 m_LastIntersectResultUsed;
@@ -41,10 +41,16 @@ public:
 
     void CreateAxisObjects(unsigned int sceneid, float scale, EditorState* pEditorState);
     void ScaleGizmosForMousePickRendering(bool doscale);
-    
+
+    // Translate Helpers
     void TranslateSelectedObjects(EngineCore* pGame, EditorState* pEditorState);
     void TranslateSelectedObjects(EditorState* pEditorState, Vector3 distance);
     void CancelLastTranslation(EditorState* pEditorState);
+
+    // Scale Helpers
+    void ScaleSelectedObjects(EngineCore* pGame, EditorState* pEditorState);
+    void ScaleSelectedObjects(EditorState* pEditorState, Vector3 scale);
+    void CancelLastScale(EditorState* pEditorState);
 };
 
 #endif // __TransformGizmo_H__
