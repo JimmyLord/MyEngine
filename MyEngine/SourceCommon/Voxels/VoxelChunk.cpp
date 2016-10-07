@@ -615,11 +615,11 @@ bool VoxelChunk::RebuildMesh(unsigned int increment)
                     rbf.Set( xright, ybottom, zfront );
                     rbb.Set( xright, ybottom, zback  );
 
-                    bool smooth = false;
+                    bool smooth = true;
 
                     if( smooth == true )
                     {
-                        if( m_pWorld )
+                        if( IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x, y+1, z  , true ) == false )
                         {
                             // Left - Top - Front
                             if( ( IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x-1, y+1, z  , true ) == true  &&
@@ -631,16 +631,16 @@ bool VoxelChunk::RebuildMesh(unsigned int increment)
                             {
                                 ltf.y += m_BlockSize.x/2;
                             }
-                            else
-                            if( ( IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x-1, y  , z  , true ) == false &&
-                                  IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x-1, y  , z-1, true ) == false &&
-                                  IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x  , y  , z-1, true ) == false ) &&
-                                ( IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x-1, y-1, z  , true ) == true  ||
-                                  IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x-1, y-1, z-1, true ) == true  ||
-                                  IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x  , y-1, z-1, true ) == true  ) )
-                            {
-                                ltf.y -= m_BlockSize.x/2;
-                            }
+                            //else
+                            //if( ( IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x-1, y  , z  , true ) == false &&
+                            //      IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x-1, y  , z-1, true ) == false &&
+                            //      IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x  , y  , z-1, true ) == false ) &&
+                            //    ( IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x-1, y-1, z  , true ) == true  ||
+                            //      IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x-1, y-1, z-1, true ) == true  ||
+                            //      IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x  , y-1, z-1, true ) == true  ) )
+                            //{
+                            //    ltf.y -= m_BlockSize.x/2;
+                            //}
 
                             // Left - Top - Back
                             if( ( IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x-1, y+1, z  , true ) == true  &&
@@ -652,16 +652,16 @@ bool VoxelChunk::RebuildMesh(unsigned int increment)
                             {
                                 ltb.y += m_BlockSize.x/2;
                             }
-                            else
-                            if( ( IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x-1, y  , z  , true ) == false &&
-                                  IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x-1, y  , z+1, true ) == false &&
-                                  IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x  , y  , z+1, true ) == false ) &&
-                                ( IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x-1, y-1, z  , true ) == true  ||
-                                  IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x-1, y-1, z+1, true ) == true  ||
-                                  IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x  , y-1, z+1, true ) == true  ) )
-                            {
-                                ltb.y -= m_BlockSize.x/2;
-                            }
+                            //else
+                            //if( ( IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x-1, y  , z  , true ) == false &&
+                            //      IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x-1, y  , z+1, true ) == false &&
+                            //      IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x  , y  , z+1, true ) == false ) &&
+                            //    ( IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x-1, y-1, z  , true ) == true  ||
+                            //      IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x-1, y-1, z+1, true ) == true  ||
+                            //      IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x  , y-1, z+1, true ) == true  ) )
+                            //{
+                            //    ltb.y -= m_BlockSize.x/2;
+                            //}
 
                             // Right - Top - Front
                             if( ( IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x+1, y+1, z  , true ) == true  &&
@@ -674,9 +674,9 @@ bool VoxelChunk::RebuildMesh(unsigned int increment)
                                 rtf.y += m_BlockSize.x/2;
                             }
                             else
-                            if( ( IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x+1, y  , z  , true ) == false &&
-                                  IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x+1, y  , z-1, true ) == false &&
-                                  IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x  , y  , z-1, true ) == false ) &&
+                            if( ( IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x+1, y  , z  , true ) == false ) &&
+                                  //IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x+1, y  , z-1, true ) == false &&
+                                  //IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x  , y  , z-1, true ) == false ) &&
                                 ( IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x+1, y-1, z  , true ) == true  ||
                                   IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x+1, y-1, z-1, true ) == true  ||
                                   IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x  , y-1, z-1, true ) == true  ) )
@@ -695,9 +695,9 @@ bool VoxelChunk::RebuildMesh(unsigned int increment)
                                 rtb.y += m_BlockSize.x/2;
                             }
                             else
-                            if( ( IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x+1, y  , z  , true ) == false &&
-                                  IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x+1, y  , z+1, true ) == false &&
-                                  IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x  , y  , z+1, true ) == false ) &&
+                            if( ( IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x+1, y  , z  , true ) == false ) &&
+                                  //IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x+1, y  , z+1, true ) == false &&
+                                  //IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x  , y  , z+1, true ) == false ) &&
                                 ( IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x+1, y-1, z  , true ) == true  ||
                                   IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x+1, y-1, z+1, true ) == true  ||
                                   IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x  , y-1, z+1, true ) == true  ) )

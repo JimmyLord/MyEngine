@@ -39,7 +39,8 @@ EditorState::EditorState()
     m_MousePicker_PickConstraint = 0;
     m_MousePicker_OldPickingDist = 0;
 
-    m_DistanceTranslated = 0;
+    m_DistanceTranslated = Vector3( 0 );
+    m_AmountScaled = Vector3( 1 );
 
     m_CameraState = EditorCameraState_Default;
     m_pGameObjectCameraIsFollowing = 0;

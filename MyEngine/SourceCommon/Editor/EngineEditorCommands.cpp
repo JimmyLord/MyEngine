@@ -84,8 +84,8 @@ void EditorCommand_ScaleObjects::Do()
 {
     for( unsigned int i=0; i<m_ObjectsScaled.size(); i++ )
     {
-        Vector3 newpos = m_ObjectsScaled[i]->m_pComponentTransform->GetLocalTransform()->GetScale() + m_AmountScaled;
-        m_ObjectsScaled[i]->m_pComponentTransform->SetScaleByEditor( newpos );
+        Vector3 newscale = m_ObjectsScaled[i]->m_pComponentTransform->GetLocalTransform()->GetScale().MultiplyComponents( m_AmountScaled );
+        m_ObjectsScaled[i]->m_pComponentTransform->SetScaleByEditor( newscale );
         m_ObjectsScaled[i]->m_pComponentTransform->UpdateTransform();
     }
 }
@@ -95,8 +95,8 @@ void EditorCommand_ScaleObjects::Undo()
     //LOGInfo( LOGTag, "EditorCommand_ScaleObjects::Undo %f,%f,%f\n", m_AmountScaled.x, m_AmountScaled.y, m_AmountScaled.z );
     for( unsigned int i=0; i<m_ObjectsScaled.size(); i++ )
     {
-        Vector3 newpos = m_ObjectsScaled[i]->m_pComponentTransform->GetLocalTransform()->GetScale() - m_AmountScaled;
-        m_ObjectsScaled[i]->m_pComponentTransform->SetScaleByEditor( newpos );
+        Vector3 newscale = m_ObjectsScaled[i]->m_pComponentTransform->GetLocalTransform()->GetScale().DivideComponents( m_AmountScaled );
+        m_ObjectsScaled[i]->m_pComponentTransform->SetScaleByEditor( newscale );
         m_ObjectsScaled[i]->m_pComponentTransform->UpdateTransform();
     }
 }

@@ -234,6 +234,7 @@ bool EditorInterface_SceneManagement::HandleInput(int keyaction, int keycode, in
 
             // reset mouse movement, so we can undo to this state after mouse goes up.
             pEditorState->m_DistanceTranslated.Set( 0, 0, 0 );
+            pEditorState->m_AmountScaled.Set( 1, 1, 1 );
             //LOGInfo( LOGTag, "pEditorState->m_DistanceTranslated.Set zero( %f, %f, %f );\n", pEditorState->m_DistanceTranslated.x, pEditorState->m_DistanceTranslated.y, pEditorState->m_DistanceTranslated.z );
 
             bool selectedgizmo = false;
@@ -630,7 +631,10 @@ bool EditorInterface_SceneManagement::HandleInput(int keyaction, int keycode, in
                 if( pEditorState->m_EditorActionState >= EDITORACTIONSTATE_ScaleX &&
                     pEditorState->m_EditorActionState <= EDITORACTIONSTATE_ScaleXYZ )
                 {
-                    if( pEditorState->m_pSelectedObjects.size() > 0 && pEditorState->m_DistanceTranslated.LengthSquared() != 0 )
+                    if( pEditorState->m_pSelectedObjects.size() > 0 &&
+                        ( pEditorState->m_AmountScaled.x != 1.0f ||
+                          pEditorState->m_AmountScaled.y != 1.0f ||
+                          pEditorState->m_AmountScaled.z != 1.0f ) )
                     {
                         // Create a new list of selected objects, don't include objects that have parents that are selected.
                         std::vector<GameObject*> selectedobjects;
@@ -647,7 +651,7 @@ bool EditorInterface_SceneManagement::HandleInput(int keyaction, int keycode, in
 
                         if( selectedobjects.size() > 0 )
                         {
-                            g_pEngineMainFrame->m_pCommandStack->Add( MyNew EditorCommand_ScaleObjects( pEditorState->m_DistanceTranslated, selectedobjects ) );
+                            g_pEngineMainFrame->m_pCommandStack->Add( MyNew EditorCommand_ScaleObjects( pEditorState->m_AmountScaled, selectedobjects ) );
                         }
                     }
                 }

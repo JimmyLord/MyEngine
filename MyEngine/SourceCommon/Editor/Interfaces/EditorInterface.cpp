@@ -348,6 +348,10 @@ unsigned int EditorInterface::GetIDAtPixel(unsigned int x, unsigned int y, bool 
     if( pEditorState->m_pMousePickerFBO->IsFullyLoaded() == false )
         return 0;
 
+    if( x < 0 || x >= pEditorState->m_pMousePickerFBO->m_Width ||
+        y < 0 || y >= pEditorState->m_pMousePickerFBO->m_Height )
+        return 0;
+
     if( createnewbitmap )
     {
         RenderObjectIDsToFBO();
@@ -415,11 +419,11 @@ GameObject* EditorInterface::GetObjectAtPixel(unsigned int x, unsigned int y, bo
             {
                 pGameObject = pEditorState->m_pTransformGizmo->m_pScale1Axis[i];
             }
+        }
 
-            if( pEditorState->m_pTransformGizmo->m_pScale3Axis->GetID() == id )
-            {
-                pGameObject = pEditorState->m_pTransformGizmo->m_pScale3Axis;
-            }
+        if( pEditorState->m_pTransformGizmo->m_pScale3Axis->GetID() == id )
+        {
+            pGameObject = pEditorState->m_pTransformGizmo->m_pScale3Axis;
         }
     }
 

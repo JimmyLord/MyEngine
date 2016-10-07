@@ -73,8 +73,9 @@ struct EditorState
     btTypedConstraint* m_MousePicker_PickConstraint;
     btScalar m_MousePicker_OldPickingDist;
 
-    // transform gizmo info, keep track of total distance translated for undo/redo, also used for scale.
+    // transform gizmo info, keep track of total distance translated/scaled for undo/redo
     Vector3 m_DistanceTranslated;
+    Vector3 m_AmountScaled;
 
     // camera state
     EditorCameraState m_CameraState;
