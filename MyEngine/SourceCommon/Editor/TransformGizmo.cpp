@@ -473,6 +473,8 @@ void TransformGizmo::CreateAxisObjects(unsigned int sceneid, float scale, Editor
     m_pMaterial_Scale1Axis[1] = MyNew MaterialDefinition( g_pEngineCore->m_pShader_TintColor, ColorByte(0,255,0,255) );
     m_pMaterial_Scale1Axis[2] = MyNew MaterialDefinition( g_pEngineCore->m_pShader_TintColor, ColorByte(0,0,255,255) );
 
+    Vector3 scaleboxsize( 0.7f, 0.7f, 0.7f );
+
     // Create single axis scalers.
     {
         pGameObject = g_pComponentSystemManager->CreateGameObject( false, sceneid ); // not managed.
@@ -485,7 +487,7 @@ void TransformGizmo::CreateAxisObjects(unsigned int sceneid, float scale, Editor
             pComponentMesh->SetMaterial( m_pMaterial_Scale1Axis[0], 0 );
             pComponentMesh->SetLayersThisExistsOn( Layer_EditorFG );
             pComponentMesh->m_pMesh = MyNew MyMesh();
-            pComponentMesh->m_pMesh->CreateBox( 0.5f, 0.5f, 0.5f, 0, 1, 0, 1, Justify_Center, Vector3( 3, 0, 0 ) );
+            pComponentMesh->m_pMesh->CreateBox( scaleboxsize.x, scaleboxsize.y, scaleboxsize.z, 0, 1, 0, 1, Justify_Center, Vector3( 3, 0, 0 ) );
             pComponentMesh->m_GLPrimitiveType = pComponentMesh->m_pMesh->m_SubmeshList[0]->m_PrimitiveType;
             pComponentMesh->AddToSceneGraph();
         }
@@ -503,7 +505,7 @@ void TransformGizmo::CreateAxisObjects(unsigned int sceneid, float scale, Editor
             pComponentMesh->SetMaterial( m_pMaterial_Scale1Axis[1], 0 );
             pComponentMesh->SetLayersThisExistsOn( Layer_EditorFG );
             pComponentMesh->m_pMesh = MyNew MyMesh();
-            pComponentMesh->m_pMesh->CreateBox( 0.5f, 0.5f, 0.5f, 0, 1, 0, 1, Justify_Center, Vector3( 0, 3, 0 ) );
+            pComponentMesh->m_pMesh->CreateBox( scaleboxsize.x, scaleboxsize.y, scaleboxsize.z, 0, 1, 0, 1, Justify_Center, Vector3( 0, 3, 0 ) );
             pComponentMesh->m_GLPrimitiveType = pComponentMesh->m_pMesh->m_SubmeshList[0]->m_PrimitiveType;
             pComponentMesh->AddToSceneGraph();
         }
@@ -521,7 +523,7 @@ void TransformGizmo::CreateAxisObjects(unsigned int sceneid, float scale, Editor
             pComponentMesh->SetMaterial( m_pMaterial_Scale1Axis[2], 0 );
             pComponentMesh->SetLayersThisExistsOn( Layer_EditorFG );
             pComponentMesh->m_pMesh = MyNew MyMesh();
-            pComponentMesh->m_pMesh->CreateBox( 0.5f, 0.5f, 0.5f, 0, 1, 0, 1, Justify_Center, Vector3( 0, 0, 3 ) );
+            pComponentMesh->m_pMesh->CreateBox( scaleboxsize.x, scaleboxsize.y, scaleboxsize.z, 0, 1, 0, 1, Justify_Center, Vector3( 0, 0, 3 ) );
             pComponentMesh->m_GLPrimitiveType = pComponentMesh->m_pMesh->m_SubmeshList[0]->m_PrimitiveType;
             pComponentMesh->AddToSceneGraph();
         }
@@ -543,7 +545,7 @@ void TransformGizmo::CreateAxisObjects(unsigned int sceneid, float scale, Editor
             pComponentMesh->SetMaterial( m_pMaterial_Scale3Axis, 0 );
             pComponentMesh->SetLayersThisExistsOn( Layer_EditorFG );
             pComponentMesh->m_pMesh = MyNew MyMesh();
-            pComponentMesh->m_pMesh->CreateBox( 0.5f, 0.5f, 0.5f, 0, 1, 0, 1, Justify_Center, Vector3(0,0,0) );
+            pComponentMesh->m_pMesh->CreateBox( scaleboxsize.x, scaleboxsize.y, scaleboxsize.z, 0, 1, 0, 1, Justify_Center, Vector3(0,0,0) );
             pComponentMesh->m_GLPrimitiveType = pComponentMesh->m_pMesh->m_SubmeshList[0]->m_PrimitiveType;
             pComponentMesh->AddToSceneGraph();
         }
@@ -771,108 +773,6 @@ void TransformGizmo::ScaleSelectedObjects(EngineCore* pGame, EditorState* pEdito
         // move all selected objects by the same amount, use object 0 to create a plane.
         {
             MyMatrix* pObjectTransform = pEditorState->m_pSelectedObjects[0]->m_pComponentTransform->GetLocalTransform();
-
-//            // create a plane based on the axis we want.
-//            Vector3 axisvector;
-//            Plane plane;
-//            {
-//                ComponentCamera* pCamera = pEditorState->GetEditorCamera();
-//                Vector3 camInvAt = pCamera->m_pGameObject->GetTransform()->GetLocalTransform()->GetAt() * -1;
-//
-//                Vector3 normal;
-//                if( pEditorState->m_EditorActionState == EDITORACTIONSTATE_ScaleX )
-//                {
-//                    camInvAt.x = 0;
-//                    normal = camInvAt; // set plane normal to face the camera.
-//                    axisvector = Vector3(1,0,0);
-//                }
-//                else if( pEditorState->m_EditorActionState == EDITORACTIONSTATE_ScaleY )
-//                {
-//                    camInvAt.y = 0;
-//                    normal = camInvAt; // set plane normal to face the camera.
-//                    axisvector = Vector3(0,1,0);
-//                }
-//                else if( pEditorState->m_EditorActionState == EDITORACTIONSTATE_ScaleZ )
-//                {
-//                    camInvAt.z = 0;
-//                    normal = camInvAt; // set plane normal to face the camera.
-//                    axisvector = Vector3(0,0,1);
-//                }
-//                else if( pEditorState->m_EditorActionState == EDITORACTIONSTATE_ScaleXYZ )
-//                {
-//                    // TODO: fix
-//                    normal = Vector3(0,0,1);
-//                    axisvector = Vector3(1,0,0);
-//                }
-//
-//                // TODO: support local space translation.
-//                if( 1 ) // if( world space translation )
-//                {
-//                    // create a world space plane.
-//                    plane.Set( normal, pObjectTransform->GetTranslation() );
-//                }
-////                else
-////                {
-////                    // TODO: support this.
-////                    // transform the normal into the selected objects space.
-////                    plane.Set( (*pObjectTransform * Vector4( normal, 0 )).XYZ(), pObjectTransform->GetTranslation() );
-////                }
-//            }
-//
-//            // Get the mouse click ray... current and last frame.
-//            Vector3 currentraystart, currentrayend;
-//            pGame->GetMouseRay( pEditorState->m_CurrentMousePosition, &currentraystart, &currentrayend );
-//
-//            Vector3 lastraystart, lastrayend;
-//            pGame->GetMouseRay( pEditorState->m_LastMousePosition, &lastraystart, &lastrayend );
-//
-//            //LOGInfo( LOGTag, "current->(%0.0f,%0.0f) (%0.2f,%0.2f,%0.2f) (%0.2f,%0.2f,%0.2f)\n",
-//            //        pEditorState->m_CurrentMousePosition.x,
-//            //        pEditorState->m_CurrentMousePosition.y,
-//            //        currentraystart.x,
-//            //        currentraystart.y,
-//            //        currentraystart.z,
-//            //        currentrayend.x,
-//            //        currentrayend.y,
-//            //        currentrayend.z
-//            //    );
-//
-//            // find the intersection point of the plane.
-//            Vector3 currentresult;
-//            Vector3 lastresult;
-//            if( plane.IntersectRay( currentraystart, currentrayend, &currentresult ) &&
-//                plane.IntersectRay( lastraystart, lastrayend, &lastresult ) )
-//            {
-//                //LOGInfo( LOGTag, "currentresult( %f, %f, %f );\n", currentresult.x, currentresult.y, currentresult.z );
-//                //LOGInfo( LOGTag, "lastresult( %f, %f, %f );", lastresult.x, lastresult.y, lastresult.z );
-//                //LOGInfo( LOGTag, "axisvector( %f, %f, %f );\n", axisvector.x, axisvector.y, axisvector.z );
-//
-//                // TODO: support local space scale?.
-//                // lock to one of the 3 axis.
-//                if( pEditorState->m_EditorActionState == EDITORACTIONSTATE_ScaleX )
-//                {
-//                    currentresult.y = currentresult.z = 0;
-//                    lastresult.y = lastresult.z = 0;
-//
-//                    LOGInfo( "Scale Gizmo", "ScaleX: " );
-//                }
-//                if( pEditorState->m_EditorActionState == EDITORACTIONSTATE_ScaleY )
-//                {
-//                    currentresult.x = currentresult.z = 0;
-//                    lastresult.x = lastresult.z = 0;
-//
-//                    LOGInfo( "Scale Gizmo", "ScaleY: " );
-//                }
-//                if( pEditorState->m_EditorActionState == EDITORACTIONSTATE_ScaleZ )
-//                {
-//                    currentresult.x = currentresult.y = 0;
-//                    lastresult.x = lastresult.y = 0;
-//
-//                    LOGInfo( "Scale Gizmo", "ScaleZ: " );
-//                }
-//
-//                // find the diff pos between this frame and last.
-//                Vector3 diff = currentresult - lastresult;
 
             {
                 float distance = pEditorState->m_CurrentMousePosition.x - pEditorState->m_LastMousePosition.x
