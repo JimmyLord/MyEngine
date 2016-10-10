@@ -348,8 +348,8 @@ unsigned int EditorInterface::GetIDAtPixel(unsigned int x, unsigned int y, bool 
     if( pEditorState->m_pMousePickerFBO->IsFullyLoaded() == false )
         return 0;
 
-    if( x < 0 || x >= pEditorState->m_pMousePickerFBO->m_Width ||
-        y < 0 || y >= pEditorState->m_pMousePickerFBO->m_Height )
+    if( x >= pEditorState->m_pMousePickerFBO->m_Width ||
+        y >= pEditorState->m_pMousePickerFBO->m_Height )
         return 0;
 
     if( createnewbitmap )

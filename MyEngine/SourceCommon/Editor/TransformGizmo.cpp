@@ -20,10 +20,12 @@ TransformGizmo::TransformGizmo()
         m_pTranslate1Axis[i] = 0;
         m_pTranslate2Axis[i] = 0;
         m_pScale1Axis[i] = 0;
+        m_pRotate1Axis[i] = 0;
 
         m_pMaterial_Translate1Axis[i] = 0;
         m_pMaterial_Translate2Axis[i] = 0;
         m_pMaterial_Scale1Axis[i] = 0;
+        m_pMaterial_Rotate1Axis[i] = 0;
     }
 
     m_pScale3Axis = 0;
@@ -40,10 +42,12 @@ TransformGizmo::~TransformGizmo()
         SAFE_DELETE( m_pTranslate1Axis[i] );
         SAFE_DELETE( m_pTranslate2Axis[i] );
         SAFE_DELETE( m_pScale1Axis[i] );
+        SAFE_DELETE( m_pRotate1Axis[i] );
 
         SAFE_RELEASE( m_pMaterial_Translate1Axis[i] );
         SAFE_RELEASE( m_pMaterial_Translate2Axis[i] );
         SAFE_RELEASE( m_pMaterial_Scale1Axis[i] );
+        SAFE_RELEASE( m_pMaterial_Rotate1Axis[i] );
     }
 
     SAFE_DELETE( m_pScale3Axis );
@@ -324,6 +328,66 @@ void TransformGizmo::Tick(double TimePassed, EditorState* pEditorState)
             m_pScale3Axis->m_pComponentTransform->SetLocalScale( Vector3( distance / 15.0f ) );
         }
     }
+
+    // Update 1 axis rotate gizmos
+    for( int i=0; i<3; i++ )
+    {
+        MyAssert( m_pRotate1Axis[i] );
+
+        ComponentRenderable* pRenderable = (ComponentRenderable*)m_pRotate1Axis[i]->GetFirstComponentOfBaseType( BaseComponentType_Renderable );
+
+        ComponentMesh* pMesh = dynamic_cast<ComponentMesh*>( pRenderable );
+        MyAssert( pMesh );
+        if( pMesh )
+        {
+            MaterialDefinition* pMaterial = pMesh->GetMaterial( 0 );
+            if( pMaterial )
+            {
+                if( i == 0 )
+                    pMaterial->m_ColorDiffuse.Set( 255, 100, 100, 255 );
+                if( i == 1 )
+                    pMaterial->m_ColorDiffuse.Set( 100, 255, 100, 255 );
+                if( i == 2 )
+                    pMaterial->m_ColorDiffuse.Set( 100, 100, 255, 255 );
+
+                if( m_pRotate1Axis[i] == m_pSelectedPart )
+                {
+                    pMaterial->m_ColorDiffuse.Set( 255,255,255,255 );
+                }
+            }
+        }
+
+        pRenderable->SetVisible( GizmoVisible );
+
+        if( GizmoVisible )
+        {
+            // move the gizmo to the object position.
+            m_pRotate1Axis[i]->m_pComponentTransform->SetLocalPosition( ObjectPosition );
+
+            // rotate the gizmo.
+            MyMatrix matrot;
+            matrot.SetIdentity();
+            if( i == 0 )
+                matrot.Rotate( 90, 0, 1, 0 );
+            if( i == 1 )
+                matrot.Rotate( -90, 1, 0, 0 );
+            if( i == 2 )
+                matrot.Rotate( 0, 0, 0, 1 );
+
+            MyMatrix matrotobj;
+            matrotobj.SetIdentity();
+            matrotobj.CreateSRT( Vector3(1,1,1), ObjectTransform.GetEulerAngles(), Vector3(0,0,0) );
+
+            matrot = matrotobj * matrot;
+
+            Vector3 rot = matrot.GetEulerAngles() * 180.0f/PI;
+
+            m_pRotate1Axis[i]->m_pComponentTransform->SetLocalRotation( rot );
+
+            float distance = (pEditorState->m_pEditorCamera->m_pComponentTransform->GetLocalPosition() - ObjectPosition).Length();
+            m_pRotate1Axis[i]->m_pComponentTransform->SetLocalScale( Vector3( distance / 15.0f ) );
+        }
+    }
 }
 
 bool TransformGizmo::HandleInput(EngineCore* pGame, int keydown, int keycode, int action, int id, float x, float y, float pressure)
@@ -551,6 +615,69 @@ void TransformGizmo::CreateAxisObjects(unsigned int sceneid, float scale, Editor
         }
 
         pEditorState->m_pTransformGizmo->m_pScale3Axis = pGameObject;
+    }
+
+    m_pMaterial_Rotate1Axis[0] = MyNew MaterialDefinition( g_pEngineCore->m_pShader_TintColor, ColorByte(255,0,0,255) );
+    m_pMaterial_Rotate1Axis[1] = MyNew MaterialDefinition( g_pEngineCore->m_pShader_TintColor, ColorByte(0,255,0,255) );
+    m_pMaterial_Rotate1Axis[2] = MyNew MaterialDefinition( g_pEngineCore->m_pShader_TintColor, ColorByte(0,0,255,255) );
+
+    float startradius = 2.8f;
+    float endradius = 3.0f;
+
+    // Create single axis rotators.
+    {
+        pGameObject = g_pComponentSystemManager->CreateGameObject( false, sceneid ); // not managed.
+        pGameObject->SetName( "3D Transform Gizmo - x-axis-rotate" );
+
+        pComponentMesh = (ComponentMesh*)pGameObject->AddNewComponent( ComponentType_Mesh, sceneid );
+        if( pComponentMesh )
+        {
+            pComponentMesh->SetVisible( true );
+            pComponentMesh->SetMaterial( m_pMaterial_Rotate1Axis[0], 0 );
+            pComponentMesh->SetLayersThisExistsOn( Layer_EditorFG );
+            pComponentMesh->m_pMesh = MyNew MyMesh();
+            pComponentMesh->m_pMesh->Create2DArc( Vector3(0), 10, 80, startradius, endradius, 5 );
+            pComponentMesh->m_GLPrimitiveType = pComponentMesh->m_pMesh->m_SubmeshList[0]->m_PrimitiveType;
+            pComponentMesh->AddToSceneGraph();
+        }
+
+        pEditorState->m_pTransformGizmo->m_pRotate1Axis[0] = pGameObject;
+    }
+    {
+        pGameObject = g_pComponentSystemManager->CreateGameObject( false, sceneid ); // not managed.
+        pGameObject->SetName( "3D Transform Gizmo - y-axis-rotate" );
+
+        pComponentMesh = (ComponentMesh*)pGameObject->AddNewComponent( ComponentType_Mesh, sceneid );
+        if( pComponentMesh )
+        {
+            pComponentMesh->SetVisible( true );
+            pComponentMesh->SetMaterial( m_pMaterial_Rotate1Axis[1], 0 );
+            pComponentMesh->SetLayersThisExistsOn( Layer_EditorFG );
+            pComponentMesh->m_pMesh = MyNew MyMesh();
+            pComponentMesh->m_pMesh->Create2DArc( Vector3(0), 10, 80, startradius, endradius, 5 );
+            pComponentMesh->m_GLPrimitiveType = pComponentMesh->m_pMesh->m_SubmeshList[0]->m_PrimitiveType;
+            pComponentMesh->AddToSceneGraph();
+        }
+
+        pEditorState->m_pTransformGizmo->m_pRotate1Axis[1] = pGameObject;
+    }
+    {
+        pGameObject = g_pComponentSystemManager->CreateGameObject( false, sceneid ); // not managed.
+        pGameObject->SetName( "3D Transform Gizmo - z-axis-rotate" );
+
+        pComponentMesh = (ComponentMesh*)pGameObject->AddNewComponent( ComponentType_Mesh, sceneid );
+        if( pComponentMesh )
+        {
+            pComponentMesh->SetVisible( true );
+            pComponentMesh->SetMaterial( m_pMaterial_Rotate1Axis[2], 0 );
+            pComponentMesh->SetLayersThisExistsOn( Layer_EditorFG );
+            pComponentMesh->m_pMesh = MyNew MyMesh();
+            pComponentMesh->m_pMesh->Create2DArc( Vector3(0), 10, 80, startradius, endradius, 5 );
+            pComponentMesh->m_GLPrimitiveType = pComponentMesh->m_pMesh->m_SubmeshList[0]->m_PrimitiveType;
+            pComponentMesh->AddToSceneGraph();
+        }
+
+        pEditorState->m_pTransformGizmo->m_pRotate1Axis[2] = pGameObject;
     }
 }
 

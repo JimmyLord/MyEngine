@@ -19,11 +19,13 @@ public:
     GameObject* m_pTranslate2Axis[3];
     GameObject* m_pScale1Axis[3];
     GameObject* m_pScale3Axis;
+    GameObject* m_pRotate1Axis[3];
 
     MaterialDefinition* m_pMaterial_Translate1Axis[3];
     MaterialDefinition* m_pMaterial_Translate2Axis[3];
     MaterialDefinition* m_pMaterial_Scale1Axis[3];
     MaterialDefinition* m_pMaterial_Scale3Axis;
+    MaterialDefinition* m_pMaterial_Rotate1Axis[3];
 
     bool m_VisibleIfObjectsSelected;
     GameObject* m_pSelectedPart;
