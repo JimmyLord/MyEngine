@@ -235,6 +235,7 @@ bool EditorInterface_SceneManagement::HandleInput(int keyaction, int keycode, in
             // reset mouse movement, so we can undo to this state after mouse goes up.
             pEditorState->m_DistanceTranslated.Set( 0, 0, 0 );
             pEditorState->m_AmountScaled.Set( 1, 1, 1 );
+            pEditorState->m_DistanceRotated.Set( 0, 0, 0 );
             //LOGInfo( LOGTag, "pEditorState->m_DistanceTranslated.Set zero( %f, %f, %f );\n", pEditorState->m_DistanceTranslated.x, pEditorState->m_DistanceTranslated.y, pEditorState->m_DistanceTranslated.z );
 
             bool selectedgizmo = false;
@@ -292,6 +293,23 @@ bool EditorInterface_SceneManagement::HandleInput(int keyaction, int keycode, in
             if( pObject == pEditorState->m_pTransformGizmo->m_pScale3Axis )
             {
                 pEditorState->m_EditorActionState = EDITORACTIONSTATE_ScaleXYZ;
+                selectedgizmo = true;
+            }
+
+            // rotate.
+            if( pObject == pEditorState->m_pTransformGizmo->m_pRotate1Axis[0] )
+            {
+                pEditorState->m_EditorActionState = EDITORACTIONSTATE_RotateX;
+                selectedgizmo = true;
+            }
+            if( pObject == pEditorState->m_pTransformGizmo->m_pRotate1Axis[1] )
+            {
+                pEditorState->m_EditorActionState = EDITORACTIONSTATE_RotateY;
+                selectedgizmo = true;
+            }
+            if( pObject == pEditorState->m_pTransformGizmo->m_pRotate1Axis[2] )
+            {
+                pEditorState->m_EditorActionState = EDITORACTIONSTATE_RotateZ;
                 selectedgizmo = true;
             }
 
@@ -551,10 +569,11 @@ bool EditorInterface_SceneManagement::HandleInput(int keyaction, int keycode, in
 
         if( mousedragdir.LengthSquared() != 0 )
         {
-            // If the mouse moved, move/scale the selected objects along a plane or axis
+            // If the mouse moved, translate/scale/rotate the selected objects along a plane or axis
             // the checks for which editor tool is active is inside these functions.
             pEditorState->m_pTransformGizmo->TranslateSelectedObjects( g_pEngineCore, pEditorState );
             pEditorState->m_pTransformGizmo->ScaleSelectedObjects( g_pEngineCore, pEditorState );
+            pEditorState->m_pTransformGizmo->RotateSelectedObjects( g_pEngineCore, pEditorState );
         }
     }
 
@@ -657,6 +676,33 @@ bool EditorInterface_SceneManagement::HandleInput(int keyaction, int keycode, in
                 }
 
                 pEditorState->m_EditorActionState = EDITORACTIONSTATE_None;
+
+                // GIZMOROTATE: add rotation to undo stack, action itself is done each frame.  We only want to undo to last mouse down.
+                if( pEditorState->m_EditorActionState >= EDITORACTIONSTATE_RotateX &&
+                    pEditorState->m_EditorActionState <= EDITORACTIONSTATE_RotateZ )
+                {
+                    if( pEditorState->m_pSelectedObjects.size() > 0 && pEditorState->m_DistanceRotated.LengthSquared() != 0 )
+                    {
+                        // Create a new list of selected objects, don't include objects that have parents that are selected.
+                        std::vector<GameObject*> selectedobjects;
+                        for( unsigned int i=0; i<pEditorState->m_pSelectedObjects.size(); i++ )
+                        {
+                            ComponentTransform* pTransform = pEditorState->m_pSelectedObjects[i]->m_pComponentTransform;
+
+                            // if this object has a selected parent, don't move it, only move the parent.
+                            if( pTransform->IsAnyParentInList( pEditorState->m_pSelectedObjects ) == false )
+                            {
+                                selectedobjects.push_back( pEditorState->m_pSelectedObjects[i] );
+                            }
+                        }
+
+                        if( selectedobjects.size() > 0 )
+                        {
+                            // TODO: support undo
+                            //g_pEngineMainFrame->m_pCommandStack->Add( MyNew EditorCommand_RotateObjects( pEditorState->m_DistanceRotated, selectedobjects ) );
+                        }
+                    }
+                }
             }
         }
     }

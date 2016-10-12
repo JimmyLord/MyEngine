@@ -419,6 +419,11 @@ GameObject* EditorInterface::GetObjectAtPixel(unsigned int x, unsigned int y, bo
             {
                 pGameObject = pEditorState->m_pTransformGizmo->m_pScale1Axis[i];
             }
+
+            if( pEditorState->m_pTransformGizmo->m_pRotate1Axis[i]->GetID() == id )
+            {
+                pGameObject = pEditorState->m_pTransformGizmo->m_pRotate1Axis[i];
+            }
         }
 
         if( pEditorState->m_pTransformGizmo->m_pScale3Axis->GetID() == id )

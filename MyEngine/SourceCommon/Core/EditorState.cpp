@@ -41,6 +41,7 @@ EditorState::EditorState()
 
     m_DistanceTranslated = Vector3( 0 );
     m_AmountScaled = Vector3( 1 );
+    m_DistanceRotated = Vector3( 0 );
 
     m_CameraState = EditorCameraState_Default;
     m_pGameObjectCameraIsFollowing = 0;

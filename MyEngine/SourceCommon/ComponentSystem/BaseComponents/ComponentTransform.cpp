@@ -422,6 +422,29 @@ void ComponentTransform::SetScaleByEditor(Vector3 scale)
         pCallbackStruct->pFunc( pCallbackStruct->pObj, m_WorldPosition, m_WorldRotation, m_WorldScale, true );
     }
 }
+
+void ComponentTransform::SetRotationByEditor(Vector3 eulerangles)
+{
+    m_LocalRotation = eulerangles;
+    m_LocalTransform.CreateSRT( m_LocalScale, m_LocalRotation, m_LocalPosition );
+
+    if( m_pParentTransform == 0 )
+    {
+        m_WorldRotation = eulerangles;
+        m_WorldTransform.CreateSRT( m_WorldScale, m_WorldRotation, m_WorldPosition );
+    }
+    else
+    {
+        m_LocalTransformIsDirty = true;
+    }
+
+    for( CPPListNode* pNode = m_TransformChangedCallbackList.GetHead(); pNode != 0; pNode = pNode->GetNext() )
+    {
+        TransformChangedCallbackStruct* pCallbackStruct = (TransformChangedCallbackStruct*)pNode;
+
+        pCallbackStruct->pFunc( pCallbackStruct->pObj, m_WorldPosition, m_WorldRotation, m_WorldScale, true );
+    }
+}
 #endif
 
 void ComponentTransform::SetWorldPosition(Vector3 pos)

@@ -26,6 +26,9 @@ enum EditorActionState
     EDITORACTIONSTATE_ScaleY,
     EDITORACTIONSTATE_ScaleZ,
     EDITORACTIONSTATE_ScaleXYZ,
+    EDITORACTIONSTATE_RotateX,
+    EDITORACTIONSTATE_RotateY,
+    EDITORACTIONSTATE_RotateZ,
     EDITORACTIONSTATE_GroupSelectingObjects,
     EDITORACTIONSTATE_NumStates,
 };
@@ -76,6 +79,7 @@ struct EditorState
     // transform gizmo info, keep track of total distance translated/scaled for undo/redo
     Vector3 m_DistanceTranslated;
     Vector3 m_AmountScaled;
+    Vector3 m_DistanceRotated;
 
     // camera state
     EditorCameraState m_CameraState;

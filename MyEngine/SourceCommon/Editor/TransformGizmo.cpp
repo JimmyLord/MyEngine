@@ -246,7 +246,9 @@ void TransformGizmo::Tick(double TimePassed, EditorState* pEditorState)
                     pMaterial->m_ColorDiffuse.Set( 100, 100, 255, 255 );
 
                 if( m_pScale1Axis[i] == m_pSelectedPart )
+                {
                     pMaterial->m_ColorDiffuse.Set( 255, 255, 255, 255 );
+                }
             }
         }
 
@@ -302,9 +304,6 @@ void TransformGizmo::Tick(double TimePassed, EditorState* pEditorState)
 
         if( GizmoVisible )
         {
-            ComponentCamera* pCamera = pEditorState->GetEditorCamera();
-            Vector3 campos = pCamera->m_pGameObject->GetTransform()->GetLocalPosition();
-
             Vector3 pos = ObjectPosition;
 
             // rotate the gizmo.
@@ -361,6 +360,9 @@ void TransformGizmo::Tick(double TimePassed, EditorState* pEditorState)
 
         if( GizmoVisible )
         {
+            ComponentCamera* pCamera = pEditorState->GetEditorCamera();
+            Vector3 campos = pCamera->m_pGameObject->GetTransform()->GetLocalPosition();
+
             // move the gizmo to the object position.
             m_pRotate1Axis[i]->m_pComponentTransform->SetLocalPosition( ObjectPosition );
 
@@ -368,11 +370,19 @@ void TransformGizmo::Tick(double TimePassed, EditorState* pEditorState)
             MyMatrix matrot;
             matrot.SetIdentity();
             if( i == 0 )
-                matrot.Rotate( 90, 0, 1, 0 );
+            {
+                if( campos.x  > ObjectPosition.x ) { matrot.Rotate( 90, 0, 1, 0 ); }
+                if( campos.x <= ObjectPosition.x ) { matrot.Rotate( -90, 0, 1, 0 ); matrot.Rotate( -90, 1, 0, 0 ); }
+            }
             if( i == 1 )
-                matrot.Rotate( -90, 1, 0, 0 );
+            {
+                if( campos.y  > ObjectPosition.y ) { matrot.Rotate( -90, 1, 0, 0 ); }
+                if( campos.y <= ObjectPosition.y ) { matrot.Rotate( 90, 1, 0, 0 ); matrot.Rotate( 90, 0, 1, 0 ); }
+            }
             if( i == 2 )
-                matrot.Rotate( 0, 0, 0, 1 );
+            {
+                if( campos.z  > ObjectPosition.z ) { matrot.Rotate( 180, 1, 0, 0 ); matrot.Rotate( -90, 0, 0, 1 ); }
+            }
 
             MyMatrix matrotobj;
             matrotobj.SetIdentity();
@@ -956,4 +966,159 @@ void TransformGizmo::ScaleSelectedObjects(EditorState* pEditorState, Vector3 sca
 void TransformGizmo::CancelLastScale(EditorState* pEditorState)
 {
     ScaleSelectedObjects( pEditorState, Vector3( 1 / pEditorState->m_AmountScaled.x, 1 / pEditorState->m_AmountScaled.y, 1 / pEditorState->m_AmountScaled.z ) );
+}
+
+void TransformGizmo::RotateSelectedObjects(EngineCore* pGame, EditorState* pEditorState)
+{
+    if( pEditorState->m_pSelectedObjects.size() == 0 )
+        return;
+
+    // rotate the selected objects along a plane or axis
+    if( pEditorState->m_EditorActionState == EDITORACTIONSTATE_RotateX ||
+        pEditorState->m_EditorActionState == EDITORACTIONSTATE_RotateY ||
+        pEditorState->m_EditorActionState == EDITORACTIONSTATE_RotateZ )
+    {
+        // rotate all selected objects by the same amount, use object 0 to create a plane.
+        {
+            MyMatrix* pObjectTransform = pEditorState->m_pSelectedObjects[0]->m_pComponentTransform->GetLocalTransform();
+
+            // create a plane based on the axis we want.
+            Vector3 axisvector;
+            Plane plane;
+            {
+                ComponentCamera* pCamera = pEditorState->GetEditorCamera();
+                Vector3 camInvAt = pCamera->m_pGameObject->GetTransform()->GetLocalTransform()->GetAt() * -1;
+
+                Vector3 normal;
+                if( pEditorState->m_EditorActionState == EDITORACTIONSTATE_RotateX )
+                {
+                    camInvAt.x = 0;
+                    normal = camInvAt; // set plane normal to face the camera.
+                    axisvector = Vector3(1,0,0);
+                }
+                else if( pEditorState->m_EditorActionState == EDITORACTIONSTATE_RotateY )
+                {
+                    camInvAt.y = 0;
+                    normal = camInvAt; // set plane normal to face the camera.
+                    axisvector = Vector3(0,1,0);
+                }
+                else if( pEditorState->m_EditorActionState == EDITORACTIONSTATE_RotateZ )
+                {
+                    camInvAt.z = 0;
+                    normal = camInvAt; // set plane normal to face the camera.
+                    axisvector = Vector3(0,0,1);
+                }
+
+                //// TODO: support local space Rotation.
+                //if( 1 ) // if( world space Rotation )
+                //{
+                //    // create a world space plane.
+                    plane.Set( axisvector, pObjectTransform->GetTranslation() );
+                //}
+//                else
+//                {
+//                    // TODO: support this.
+//                    // transform the normal into the selected objects space.
+//                    plane.Set( (*pObjectTransform * Vector4( axisvector, 0 )).XYZ(), pObjectTransform->GetTranslation() );
+//                }
+            }
+
+            // Get the mouse click ray... current and last frame.
+            Vector3 currentraystart, currentrayend;
+            pGame->GetMouseRay( pEditorState->m_CurrentMousePosition, &currentraystart, &currentrayend );
+
+            Vector3 lastraystart, lastrayend;
+            pGame->GetMouseRay( pEditorState->m_LastMousePosition, &lastraystart, &lastrayend );
+
+            //LOGInfo( LOGTag, "current->(%0.0f,%0.0f) (%0.2f,%0.2f,%0.2f) (%0.2f,%0.2f,%0.2f)\n",
+            //        pEditorState->m_CurrentMousePosition.x,
+            //        pEditorState->m_CurrentMousePosition.y,
+            //        currentraystart.x,
+            //        currentraystart.y,
+            //        currentraystart.z,
+            //        currentrayend.x,
+            //        currentrayend.y,
+            //        currentrayend.z
+            //    );
+
+            // find the intersection point of the plane.
+            Vector3 currentresult;
+            Vector3 lastresult;
+            if( plane.IntersectRay( currentraystart, currentrayend, &currentresult ) &&
+                plane.IntersectRay( lastraystart, lastrayend, &lastresult ) )
+            {
+                LOGInfo( LOGTag, "currentresult( %f, %f, %f );", currentresult.x, currentresult.y, currentresult.z );
+                //LOGInfo( LOGTag, "lastresult( %f, %f, %f );", lastresult.x, lastresult.y, lastresult.z );
+                //LOGInfo( LOGTag, "axisvector( %f, %f, %f );\n", axisvector.x, axisvector.y, axisvector.z );
+
+                Vector3 currentangle;
+                Vector3 lastangle;
+
+                Vector3 pos = pObjectTransform->GetTranslation();
+
+                currentresult -= pos;
+                lastresult -= pos;
+
+                currentangle.x = atan2( currentresult.y, currentresult.z );
+                currentangle.y = atan2( currentresult.x, currentresult.z );
+                currentangle.z = atan2( currentresult.y, currentresult.x );
+
+                lastangle.x = atan2( lastresult.y, lastresult.z );
+                lastangle.y = atan2( lastresult.x, lastresult.z );
+                lastangle.z = atan2( lastresult.y, lastresult.x );
+
+                //// lock to one of the 3 axis.
+                //if( pEditorState->m_EditorActionState == EDITORACTIONSTATE_RotateX )
+                //{
+                //    currentresult.y = currentresult.z = 0;
+                //    lastresult.y = lastresult.z = 0;
+                //}
+                //if( pEditorState->m_EditorActionState == EDITORACTIONSTATE_RotateY )
+                //{
+                //    currentresult.x = currentresult.z = 0;
+                //    lastresult.x = lastresult.z = 0;
+                //}
+                if( pEditorState->m_EditorActionState == EDITORACTIONSTATE_RotateZ )
+                {
+                    //currentresult.x = currentresult.y = 0;
+                    //lastresult.x = lastresult.y = 0;
+                    currentangle.x = currentangle.y = 0;
+                    lastangle.x = lastangle.y = 0;
+                    LOGInfo( LOGTag, "angles( %f -> %f );", currentangle.z * 180 / PI, lastangle.z * 180 / PI );
+                }
+
+                // find the diff pos between this frame and last.
+                Vector3 diff = (currentangle - lastangle) * 180 / PI;
+
+                // GIZMOROTATE: rotate all of the things. // undo is handled by EngineCore.cpp when mouse is lifted.
+                pEditorState->m_DistanceRotated += diff;
+                LOGInfo( "Rotate Gizmo", "pEditorState->m_DistanceRotated.Set( %f, %f, %f ); ", pEditorState->m_DistanceRotated.x, pEditorState->m_DistanceRotated.y, pEditorState->m_DistanceRotated.z );
+                LOGInfo( "Rotate Gizmo", "diff( %f, %f, %f, %d );\n", diff.x, diff.y, diff.z, pEditorState->m_pSelectedObjects.size() );
+
+                RotateSelectedObjects( pEditorState, diff );
+            }
+        }
+    }
+}
+
+void TransformGizmo::RotateSelectedObjects(EditorState* pEditorState, Vector3 distance)
+{
+    for( unsigned int i=0; i<pEditorState->m_pSelectedObjects.size(); i++ )
+    {
+        ComponentTransform* pTransform = pEditorState->m_pSelectedObjects[i]->m_pComponentTransform;
+
+        // if this object has a selected parent, don't move it, only move the parent.
+        if( pTransform->IsAnyParentInList( pEditorState->m_pSelectedObjects ) == false )
+        {
+            Vector3 pos = pTransform->GetLocalTransform()->GetEulerAngles();
+
+            pTransform->SetRotationByEditor( pos + distance );
+            pTransform->UpdateTransform();
+        }
+    }
+}
+
+void TransformGizmo::CancelLastRotation(EditorState* pEditorState)
+{
+    RotateSelectedObjects( pEditorState, pEditorState->m_DistanceRotated * -1 );
 }

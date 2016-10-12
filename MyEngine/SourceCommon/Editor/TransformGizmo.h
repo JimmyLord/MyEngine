@@ -53,6 +53,11 @@ public:
     void ScaleSelectedObjects(EngineCore* pGame, EditorState* pEditorState);
     void ScaleSelectedObjects(EditorState* pEditorState, Vector3 scale);
     void CancelLastScale(EditorState* pEditorState);
+
+    // Rotate Helpers
+    void RotateSelectedObjects(EngineCore* pGame, EditorState* pEditorState);
+    void RotateSelectedObjects(EditorState* pEditorState, Vector3 distance);
+    void CancelLastRotation(EditorState* pEditorState);
 };
 
 #endif // __TransformGizmo_H__

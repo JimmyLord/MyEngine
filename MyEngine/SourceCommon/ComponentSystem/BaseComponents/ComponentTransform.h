@@ -67,6 +67,7 @@ public:
 #if MYFW_USING_WX
     void SetPositionByEditor(Vector3 pos);
     void SetScaleByEditor(Vector3 scale);
+    void SetRotationByEditor(Vector3 eulerangles);
 #endif
 
     GameObject* GetParentGameObject() { return m_pParentGameObject; }
