@@ -136,7 +136,7 @@ void TransformGizmo::Tick(double TimePassed, EditorState* pEditorState)
 
             MyMatrix matrotobj;
             matrotobj.SetIdentity();
-            matrotobj.CreateSRT( Vector3(1,1,1), ObjectTransform.GetEulerAngles(), Vector3(0,0,0) );
+            matrotobj.CreateSRT( Vector3(1,1,1), ObjectTransform.GetEulerAngles() * 180.0f/PI, Vector3(0,0,0) );
 
             matrot = matrotobj * matrot;
 
@@ -208,7 +208,7 @@ void TransformGizmo::Tick(double TimePassed, EditorState* pEditorState)
 
             MyMatrix matrotobj;
             matrotobj.SetIdentity();
-            matrotobj.CreateSRT( Vector3(1,1,1), ObjectTransform.GetEulerAngles(), Vector3(0,0,0) );
+            matrotobj.CreateSRT( Vector3(1,1,1), ObjectTransform.GetEulerAngles() * 180.0f/PI, Vector3(0,0,0) );
 
             matrot = matrotobj * matrot;
 
@@ -265,7 +265,7 @@ void TransformGizmo::Tick(double TimePassed, EditorState* pEditorState)
 
             MyMatrix matrotobj;
             matrotobj.SetIdentity();
-            matrotobj.CreateSRT( Vector3(1,1,1), ObjectTransform.GetEulerAngles(), Vector3(0,0,0) );
+            matrotobj.CreateSRT( Vector3(1,1,1), ObjectTransform.GetEulerAngles() * 180.0f/PI, Vector3(0,0,0) );
 
             matrot = matrotobj * matrot;
 
@@ -312,7 +312,7 @@ void TransformGizmo::Tick(double TimePassed, EditorState* pEditorState)
 
             MyMatrix matrotobj;
             matrotobj.SetIdentity();
-            matrotobj.CreateSRT( Vector3(1,1,1), ObjectTransform.GetEulerAngles(), Vector3(0,0,0) );
+            matrotobj.CreateSRT( Vector3(1,1,1), ObjectTransform.GetEulerAngles() * 180.0f/PI, Vector3(0,0,0) );
 
             matrot = matrotobj * matrot;
 
@@ -386,7 +386,7 @@ void TransformGizmo::Tick(double TimePassed, EditorState* pEditorState)
 
             MyMatrix matrotobj;
             matrotobj.SetIdentity();
-            matrotobj.CreateSRT( Vector3(1,1,1), ObjectTransform.GetEulerAngles(), Vector3(0,0,0) );
+            matrotobj.CreateSRT( Vector3(1,1,1), ObjectTransform.GetEulerAngles() * 180.0f/PI, Vector3(0,0,0) );
 
             matrot = matrotobj * matrot;
 
@@ -1047,7 +1047,7 @@ void TransformGizmo::RotateSelectedObjects(EngineCore* pGame, EditorState* pEdit
             if( plane.IntersectRay( currentraystart, currentrayend, &currentresult ) &&
                 plane.IntersectRay( lastraystart, lastrayend, &lastresult ) )
             {
-                LOGInfo( LOGTag, "currentresult( %f, %f, %f );", currentresult.x, currentresult.y, currentresult.z );
+                //LOGInfo( LOGTag, "currentresult( %f, %f, %f );", currentresult.x, currentresult.y, currentresult.z );
                 //LOGInfo( LOGTag, "lastresult( %f, %f, %f );", lastresult.x, lastresult.y, lastresult.z );
                 //LOGInfo( LOGTag, "axisvector( %f, %f, %f );\n", axisvector.x, axisvector.y, axisvector.z );
 
@@ -1059,41 +1059,40 @@ void TransformGizmo::RotateSelectedObjects(EngineCore* pGame, EditorState* pEdit
                 currentresult -= pos;
                 lastresult -= pos;
 
-                currentangle.x = atan2( currentresult.y, currentresult.z );
+                currentangle.x = atan2( currentresult.z, currentresult.y );
                 currentangle.y = atan2( currentresult.x, currentresult.z );
                 currentangle.z = atan2( currentresult.y, currentresult.x );
 
-                lastangle.x = atan2( lastresult.y, lastresult.z );
+                lastangle.x = atan2( lastresult.z, lastresult.y );
                 lastangle.y = atan2( lastresult.x, lastresult.z );
                 lastangle.z = atan2( lastresult.y, lastresult.x );
 
-                //// lock to one of the 3 axis.
-                //if( pEditorState->m_EditorActionState == EDITORACTIONSTATE_RotateX )
-                //{
-                //    currentresult.y = currentresult.z = 0;
-                //    lastresult.y = lastresult.z = 0;
-                //}
-                //if( pEditorState->m_EditorActionState == EDITORACTIONSTATE_RotateY )
-                //{
-                //    currentresult.x = currentresult.z = 0;
-                //    lastresult.x = lastresult.z = 0;
-                //}
+                // lock to one of the 3 axis.
+                if( pEditorState->m_EditorActionState == EDITORACTIONSTATE_RotateX )
+                {
+                    currentangle.y = currentangle.z = 0;
+                    lastangle.y = lastangle.z = 0;
+                    //LOGInfo( LOGTag, "angles( %f -> %f );", currentangle.x * 180 / PI, lastangle.x * 180 / PI );
+                }
+                if( pEditorState->m_EditorActionState == EDITORACTIONSTATE_RotateY )
+                {
+                    currentangle.x = currentangle.z = 0;
+                    lastangle.x = lastangle.z = 0;
+                }
                 if( pEditorState->m_EditorActionState == EDITORACTIONSTATE_RotateZ )
                 {
-                    //currentresult.x = currentresult.y = 0;
-                    //lastresult.x = lastresult.y = 0;
                     currentangle.x = currentangle.y = 0;
                     lastangle.x = lastangle.y = 0;
-                    LOGInfo( LOGTag, "angles( %f -> %f );", currentangle.z * 180 / PI, lastangle.z * 180 / PI );
+                    //LOGInfo( LOGTag, "angles( %f -> %f );", currentangle.z * 180 / PI, lastangle.z * 180 / PI );
                 }
 
                 // find the diff pos between this frame and last.
-                Vector3 diff = (currentangle - lastangle) * 180 / PI;
+                Vector3 diff = (lastangle - currentangle) * 180 / PI;
 
                 // GIZMOROTATE: rotate all of the things. // undo is handled by EngineCore.cpp when mouse is lifted.
                 pEditorState->m_DistanceRotated += diff;
-                LOGInfo( "Rotate Gizmo", "pEditorState->m_DistanceRotated.Set( %f, %f, %f ); ", pEditorState->m_DistanceRotated.x, pEditorState->m_DistanceRotated.y, pEditorState->m_DistanceRotated.z );
-                LOGInfo( "Rotate Gizmo", "diff( %f, %f, %f, %d );\n", diff.x, diff.y, diff.z, pEditorState->m_pSelectedObjects.size() );
+                //LOGInfo( "Rotate Gizmo", "pEditorState->m_DistanceRotated.Set( %f, %f, %f ); ", pEditorState->m_DistanceRotated.x, pEditorState->m_DistanceRotated.y, pEditorState->m_DistanceRotated.z );
+                //LOGInfo( "Rotate Gizmo", "diff( %f, %f, %f, %d );\n", diff.x, diff.y, diff.z, pEditorState->m_pSelectedObjects.size() );
 
                 RotateSelectedObjects( pEditorState, diff );
             }
@@ -1110,9 +1109,10 @@ void TransformGizmo::RotateSelectedObjects(EditorState* pEditorState, Vector3 di
         // if this object has a selected parent, don't move it, only move the parent.
         if( pTransform->IsAnyParentInList( pEditorState->m_pSelectedObjects ) == false )
         {
-            Vector3 pos = pTransform->GetLocalTransform()->GetEulerAngles();
+            // TODO: handle this without ever converting to euler angles.
+            Vector3 angle = pTransform->GetLocalTransform()->GetEulerAngles() * 180.0f/PI;
 
-            pTransform->SetRotationByEditor( pos + distance );
+            pTransform->SetRotationByEditor( angle + distance );
             pTransform->UpdateTransform();
         }
     }
