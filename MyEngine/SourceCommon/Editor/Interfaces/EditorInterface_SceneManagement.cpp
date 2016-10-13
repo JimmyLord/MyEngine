@@ -675,8 +675,6 @@ bool EditorInterface_SceneManagement::HandleInput(int keyaction, int keycode, in
                     }
                 }
 
-                pEditorState->m_EditorActionState = EDITORACTIONSTATE_None;
-
                 // GIZMOROTATE: add rotation to undo stack, action itself is done each frame.  We only want to undo to last mouse down.
                 if( pEditorState->m_EditorActionState >= EDITORACTIONSTATE_RotateX &&
                     pEditorState->m_EditorActionState <= EDITORACTIONSTATE_RotateZ )
@@ -698,11 +696,12 @@ bool EditorInterface_SceneManagement::HandleInput(int keyaction, int keycode, in
 
                         if( selectedobjects.size() > 0 )
                         {
-                            // TODO: support undo
-                            //g_pEngineMainFrame->m_pCommandStack->Add( MyNew EditorCommand_RotateObjects( pEditorState->m_DistanceRotated, selectedobjects ) );
+                            g_pEngineMainFrame->m_pCommandStack->Add( MyNew EditorCommand_RotateObjects( pEditorState->m_DistanceRotated, selectedobjects ) );
                         }
                     }
                 }
+
+                pEditorState->m_EditorActionState = EDITORACTIONSTATE_None;
             }
         }
     }

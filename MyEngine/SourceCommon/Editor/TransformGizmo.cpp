@@ -63,9 +63,11 @@ void TransformGizmo::Tick(double TimePassed, EditorState* pEditorState)
 
     if( pEditorState->m_pSelectedObjects.size() == 1 )
     {
+        ComponentTransform* pTransform = pEditorState->m_pSelectedObjects[0]->m_pComponentTransform;
+
         GizmoVisible = true;
         ObjectPosition = pEditorState->m_pSelectedObjects[0]->m_pComponentTransform->GetWorldPosition();
-        ObjectTransform = *pEditorState->m_pSelectedObjects[0]->m_pComponentTransform->GetWorldTransform();
+        ObjectTransform.CreateRotation( pEditorState->m_pSelectedObjects[0]->m_pComponentTransform->GetWorldRotation() );
     }
     else if( pEditorState->m_pSelectedObjects.size() > 1 )
     {
@@ -1100,7 +1102,7 @@ void TransformGizmo::RotateSelectedObjects(EngineCore* pGame, EditorState* pEdit
     }
 }
 
-void TransformGizmo::RotateSelectedObjects(EditorState* pEditorState, Vector3 distance)
+void TransformGizmo::RotateSelectedObjects(EditorState* pEditorState, Vector3 eulerdegrees)
 {
     for( unsigned int i=0; i<pEditorState->m_pSelectedObjects.size(); i++ )
     {
@@ -1109,10 +1111,13 @@ void TransformGizmo::RotateSelectedObjects(EditorState* pEditorState, Vector3 di
         // if this object has a selected parent, don't move it, only move the parent.
         if( pTransform->IsAnyParentInList( pEditorState->m_pSelectedObjects ) == false )
         {
-            // TODO: handle this without ever converting to euler angles.
-            Vector3 angle = pTransform->GetLocalTransform()->GetEulerAngles() * 180.0f/PI;
+            MyMatrix matrot;
+            matrot.CreateRotation( eulerdegrees );
 
-            pTransform->SetRotationByEditor( angle + distance );
+            MyMatrix mat = *pTransform->GetLocalTransform();
+            mat = *pTransform->GetLocalTransform() * matrot;
+
+            pTransform->SetLocalTransform( &mat );
             pTransform->UpdateTransform();
         }
     }

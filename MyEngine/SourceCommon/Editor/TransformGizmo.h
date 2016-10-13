@@ -56,7 +56,7 @@ public:
 
     // Rotate Helpers
     void RotateSelectedObjects(EngineCore* pGame, EditorState* pEditorState);
-    void RotateSelectedObjects(EditorState* pEditorState, Vector3 distance);
+    void RotateSelectedObjects(EditorState* pEditorState, Vector3 eulerdegrees);
     void CancelLastRotation(EditorState* pEditorState);
 };
 

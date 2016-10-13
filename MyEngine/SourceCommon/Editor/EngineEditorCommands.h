@@ -46,6 +46,23 @@ public:
 
 //====================================================================================================
 
+class EditorCommand_RotateObjects : public EditorCommand
+{
+protected:
+    Vector3 m_AmountRotated;
+    std::vector<GameObject*> m_ObjectsRotated;
+
+public:
+    EditorCommand_RotateObjects(Vector3 amountRotated, const std::vector<GameObject*>& selectedobjects);
+    virtual ~EditorCommand_RotateObjects();
+
+    virtual void Do();
+    virtual void Undo();
+    virtual EditorCommand* Repeat();
+};
+
+//====================================================================================================
+
 class EditorCommand_DeleteObjects : public EditorCommand
 {
 protected:

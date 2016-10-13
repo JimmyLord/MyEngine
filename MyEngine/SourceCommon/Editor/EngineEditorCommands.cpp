@@ -111,6 +111,70 @@ EditorCommand* EditorCommand_ScaleObjects::Repeat()
 }
 
 //====================================================================================================
+// EditorCommand_RotateObjects
+//====================================================================================================
+
+EditorCommand_RotateObjects::EditorCommand_RotateObjects(Vector3 amountRotated, const std::vector<GameObject*>& selectedobjects)
+{
+    m_AmountRotated = amountRotated;
+
+    //LOGInfo( LOGTag, "EditorCommand_RotateObjects:: %f,%f,%f\n", m_AmountRotated.x, m_AmountRotated.y, m_AmountRotated.z );
+
+    for( unsigned int i=0; i<selectedobjects.size(); i++ )
+    {
+        m_ObjectsRotated.push_back( selectedobjects[i] );
+    }
+}
+
+EditorCommand_RotateObjects::~EditorCommand_RotateObjects()
+{
+}
+
+void EditorCommand_RotateObjects::Do()
+{
+    for( unsigned int i=0; i<m_ObjectsRotated.size(); i++ )
+    {
+        ComponentTransform* pTransform = m_ObjectsRotated[i]->m_pComponentTransform;
+
+        MyMatrix matrot;
+        matrot.CreateRotation( m_AmountRotated );
+
+        MyMatrix mat = *pTransform->GetLocalTransform();
+        mat = *pTransform->GetLocalTransform() * matrot;
+
+        pTransform->SetLocalTransform( &mat );
+        pTransform->UpdateTransform();
+    }
+}
+
+void EditorCommand_RotateObjects::Undo()
+{
+    //LOGInfo( LOGTag, "EditorCommand_RotateObjects::Undo %f,%f,%f\n", m_AmountRotated.x, m_AmountRotated.y, m_AmountRotated.z );
+    for( unsigned int i=0; i<m_ObjectsRotated.size(); i++ )
+    {
+        ComponentTransform* pTransform = m_ObjectsRotated[i]->m_pComponentTransform;
+
+        MyMatrix matrot;
+        matrot.CreateRotation( m_AmountRotated * -1 );
+
+        MyMatrix mat = *pTransform->GetLocalTransform();
+        mat = *pTransform->GetLocalTransform() * matrot;
+
+        pTransform->SetLocalTransform( &mat );
+        pTransform->UpdateTransform();
+    }
+}
+
+EditorCommand* EditorCommand_RotateObjects::Repeat()
+{
+    EditorCommand_RotateObjects* pCommand;
+    pCommand = MyNew EditorCommand_RotateObjects( *this );
+
+    pCommand->Do();
+    return pCommand;
+}
+
+//====================================================================================================
 // EditorCommand_DeleteObjects
 //====================================================================================================
 
