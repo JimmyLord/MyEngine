@@ -726,9 +726,11 @@ void TransformGizmo::TranslateSelectedObjects(EngineCore* pGame, EditorState* pE
     {
         // move all selected objects by the same amount, use object 0 to create a plane.
         {
-            //pEditorState->m_EditorActionState = EDITORACTIONSTATE_TranslateYZ;
-
             MyMatrix* pObjectTransform = pEditorState->m_pSelectedObjects[0]->m_pComponentTransform->GetLocalTransform();
+
+            Vector3 AxisX( 1, 0, 0 );
+            Vector3 AxisY( 0, 1, 0 );
+            Vector3 AxisZ( 0, 0, 1 );
 
             // create a plane based on the axis we want.
             Vector3 axisvector;
@@ -736,6 +738,9 @@ void TransformGizmo::TranslateSelectedObjects(EngineCore* pGame, EditorState* pE
             {
                 ComponentCamera* pCamera = pEditorState->GetEditorCamera();
                 Vector3 camInvAt = pCamera->m_pGameObject->GetTransform()->GetLocalTransform()->GetAt() * -1;
+
+                MyMatrix ObjectRotation;
+                ObjectRotation.CreateRotation( pEditorState->m_pSelectedObjects[0]->m_pComponentTransform->GetWorldRotation() );
 
                 Vector3 normal;
                 if( pEditorState->m_EditorActionState == EDITORACTIONSTATE_TranslateX )
@@ -759,17 +764,28 @@ void TransformGizmo::TranslateSelectedObjects(EngineCore* pGame, EditorState* pE
                 else if( pEditorState->m_EditorActionState == EDITORACTIONSTATE_TranslateXY )
                 {
                     normal = Vector3(0,0,1);
-                    axisvector = Vector3(1,0,0);
+                    axisvector = Vector3(1,1,0);
                 }
                 else if( pEditorState->m_EditorActionState == EDITORACTIONSTATE_TranslateXZ )
                 {
                     normal = Vector3(0,1,0);
-                    axisvector = Vector3(0,0,1);
+                    axisvector = Vector3(1,0,1);
                 }
                 else if( pEditorState->m_EditorActionState == EDITORACTIONSTATE_TranslateYZ )
                 {
                     normal = Vector3(1,0,0);
-                    axisvector = Vector3(0,1,0);
+                    axisvector = Vector3(0,1,1);
+                }
+
+                //axisvector.Normalize();
+
+                // if object space
+                if( 0 )
+                {
+                    //normal = ObjectRotation * normal;
+                    AxisX = ObjectRotation * AxisX;
+                    AxisY = ObjectRotation * AxisY;
+                    AxisZ = ObjectRotation * AxisZ;
                 }
 
                 // TODO: support local space translation.
@@ -814,26 +830,24 @@ void TransformGizmo::TranslateSelectedObjects(EngineCore* pGame, EditorState* pE
                 //LOGInfo( LOGTag, "lastresult( %f, %f, %f );", lastresult.x, lastresult.y, lastresult.z );
                 //LOGInfo( LOGTag, "axisvector( %f, %f, %f );\n", axisvector.x, axisvector.y, axisvector.z );
 
-                // TODO: support local space translation.
-                // lock to one of the 3 axis.
+                Vector3 diff = currentresult - lastresult;
+
                 if( pEditorState->m_EditorActionState == EDITORACTIONSTATE_TranslateX )
                 {
-                    currentresult.y = currentresult.z = 0;
-                    lastresult.y = lastresult.z = 0;
+                    diff = AxisX * diff.Dot( AxisX );
                 }
-                if( pEditorState->m_EditorActionState == EDITORACTIONSTATE_TranslateY )
+                else if( pEditorState->m_EditorActionState == EDITORACTIONSTATE_TranslateY)
                 {
-                    currentresult.x = currentresult.z = 0;
-                    lastresult.x = lastresult.z = 0;
+                    diff = AxisY * diff.Dot( AxisY );
                 }
-                if( pEditorState->m_EditorActionState == EDITORACTIONSTATE_TranslateZ )
+                else if( pEditorState->m_EditorActionState == EDITORACTIONSTATE_TranslateZ )
                 {
-                    currentresult.x = currentresult.y = 0;
-                    lastresult.x = lastresult.y = 0;
+                    diff = AxisZ * diff.Dot( AxisZ );
                 }
-
-                // find the diff pos between this frame and last.
-                Vector3 diff = currentresult - lastresult;
+                else
+                {
+                    diff = AxisX*diff.x + AxisY*diff.y + AxisZ*diff.z;
+                }
 
                 // if snapping to grid is enabled, then use m_LastIntersectResultUsed instead of last frames result.
                 if( g_pEngineMainFrame->m_GridSettings.snapenabled )
@@ -1111,14 +1125,19 @@ void TransformGizmo::RotateSelectedObjects(EditorState* pEditorState, Vector3 eu
         // if this object has a selected parent, don't move it, only move the parent.
         if( pTransform->IsAnyParentInList( pEditorState->m_pSelectedObjects ) == false )
         {
-            MyMatrix matrot;
-            matrot.CreateRotation( eulerdegrees );
-
-            MyMatrix mat = *pTransform->GetLocalTransform();
-            mat = *pTransform->GetLocalTransform() * matrot;
-
-            pTransform->SetLocalTransform( &mat );
+            Vector3 rot = pTransform->GetWorldRotation();
+            rot += eulerdegrees;
+            pTransform->SetWorldRotation( rot );
             pTransform->UpdateTransform();
+
+            //MyMatrix matrot;
+            //matrot.CreateRotation( eulerdegrees );
+
+            //MyMatrix mat = *pTransform->GetLocalTransform();
+            //mat = *pTransform->GetLocalTransform() * matrot;
+
+            //pTransform->SetLocalTransform( &mat );
+            //pTransform->UpdateTransform();
         }
     }
 }
