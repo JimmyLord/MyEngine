@@ -260,7 +260,7 @@ bool EditorInterface_SceneManagement::HandleInput(int keyaction, int keycode, in
             // translate on two axes.
             if( pObject == pEditorState->m_pTransformGizmo->m_pTranslate2Axis[0] )
             {
-                pEditorState->m_EditorActionState = EDITORACTIONSTATE_TranslateYZ;
+                pEditorState->m_EditorActionState = EDITORACTIONSTATE_TranslateXY;
                 selectedgizmo = true;
             }
             if( pObject == pEditorState->m_pTransformGizmo->m_pTranslate2Axis[1] )
@@ -270,7 +270,7 @@ bool EditorInterface_SceneManagement::HandleInput(int keyaction, int keycode, in
             }
             if( pObject == pEditorState->m_pTransformGizmo->m_pTranslate2Axis[2] )
             {
-                pEditorState->m_EditorActionState = EDITORACTIONSTATE_TranslateXY;
+                pEditorState->m_EditorActionState = EDITORACTIONSTATE_TranslateYZ;
                 selectedgizmo = true;
             }
 

@@ -61,6 +61,8 @@ void TransformGizmo::Tick(double TimePassed, EditorState* pEditorState)
     Vector3 ObjectPosition;
     MyMatrix ObjectTransform;
 
+    EditorActionState currentaction = pEditorState->m_EditorActionState;
+
     if( pEditorState->m_pSelectedObjects.size() == 1 )
     {
         ComponentTransform* pTransform = pEditorState->m_pSelectedObjects[0]->m_pComponentTransform;
@@ -112,9 +114,10 @@ void TransformGizmo::Tick(double TimePassed, EditorState* pEditorState)
                 if( i == 2 )
                     pMaterial->m_ColorDiffuse.Set( 100, 100, 255, 255 );
 
-                if( m_pTranslate1Axis[i] == m_pSelectedPart )
+                if( ( m_pTranslate1Axis[i] == m_pSelectedPart && currentaction == EDITORACTIONSTATE_None ) ||
+                    currentaction == EDITORACTIONSTATE_TranslateX + i )
                 {
-                    pMaterial->m_ColorDiffuse.Set( 255,255,255,255 );
+                    pMaterial->m_ColorDiffuse.Set( 255, 255, 255, 255 );
                 }
             }
         }
@@ -166,13 +169,14 @@ void TransformGizmo::Tick(double TimePassed, EditorState* pEditorState)
             if( pMaterial )
             {
                 if( i == 0 )
-                    pMaterial->m_ColorDiffuse.Set( 100, 255, 255, 180 );
+                    pMaterial->m_ColorDiffuse.Set( 255, 255, 100, 180 ); // XY
                 if( i == 1 )
-                    pMaterial->m_ColorDiffuse.Set( 255, 100, 255, 180 );
+                    pMaterial->m_ColorDiffuse.Set( 255, 100, 255, 180 ); // XZ
                 if( i == 2 )
-                    pMaterial->m_ColorDiffuse.Set( 255, 255, 100, 180 );
+                    pMaterial->m_ColorDiffuse.Set( 100, 255, 255, 180 ); // YZ
 
-                if( m_pTranslate2Axis[i] == m_pSelectedPart )
+                if( ( m_pTranslate2Axis[i] == m_pSelectedPart && currentaction == EDITORACTIONSTATE_None ) ||
+                    currentaction == EDITORACTIONSTATE_TranslateXY + i )
                 {
                     pMaterial->m_ColorDiffuse.Set( 255, 255, 255, 255 );
                 }
@@ -191,21 +195,21 @@ void TransformGizmo::Tick(double TimePassed, EditorState* pEditorState)
             // rotate the gizmo.
             MyMatrix matrot;
             matrot.SetIdentity();
-            if( i == 0 ) // yz
+            if( i == 0 ) // xy
             {
-                if( campos.x  > ObjectPosition.x ) { matrot.Rotate( -90, 0, 0, 1 ); matrot.Rotate( 180, 0, 1, 0 ); }
-                if( campos.x <= ObjectPosition.x ) { matrot.Rotate( +90, 1, 0, 0 ); matrot.Rotate( -90, 0, 1, 0 ); }
-                //if( campos.y  < ObjectPosition.y ) pos.y -= 2;
+                if( campos.z  > ObjectPosition.z ) { matrot.Rotate( -90, 1, 0, 0 ); matrot.Rotate( -90, 0, 0, 1 ); }
+                if( campos.z <= ObjectPosition.z ) { matrot.Rotate( 90, 1, 0, 0 ); }
             }
             if( i == 1 ) // xz
             {
                 if( campos.y  > ObjectPosition.y ) { matrot.Rotate( -90, 0, 1, 0 ); }
                 if( campos.y <= ObjectPosition.y ) { matrot.Rotate( 180, 1, 0, 0 ); }
             }
-            if( i == 2 ) // xy
+            if( i == 2 ) // yz
             {
-                if( campos.z  > ObjectPosition.z ) { matrot.Rotate( -90, 1, 0, 0 ); matrot.Rotate( -90, 0, 0, 1 ); }
-                if( campos.z <= ObjectPosition.z ) { matrot.Rotate( 90, 1, 0, 0 ); }
+                if( campos.x  > ObjectPosition.x ) { matrot.Rotate( -90, 0, 0, 1 ); matrot.Rotate( 180, 0, 1, 0 ); }
+                if( campos.x <= ObjectPosition.x ) { matrot.Rotate( +90, 1, 0, 0 ); matrot.Rotate( -90, 0, 1, 0 ); }
+                //if( campos.y  < ObjectPosition.y ) pos.y -= 2;
             }
 
             MyMatrix matrotobj;
@@ -247,7 +251,8 @@ void TransformGizmo::Tick(double TimePassed, EditorState* pEditorState)
                 if( i == 2 )
                     pMaterial->m_ColorDiffuse.Set( 100, 100, 255, 255 );
 
-                if( m_pScale1Axis[i] == m_pSelectedPart )
+                if( ( m_pScale1Axis[i] == m_pSelectedPart && currentaction == EDITORACTIONSTATE_None ) ||
+                    currentaction == EDITORACTIONSTATE_ScaleX + i )
                 {
                     pMaterial->m_ColorDiffuse.Set( 255, 255, 255, 255 );
                 }
@@ -351,9 +356,10 @@ void TransformGizmo::Tick(double TimePassed, EditorState* pEditorState)
                 if( i == 2 )
                     pMaterial->m_ColorDiffuse.Set( 100, 100, 255, 255 );
 
-                if( m_pRotate1Axis[i] == m_pSelectedPart )
+                if( ( m_pRotate1Axis[i] == m_pSelectedPart && currentaction == EDITORACTIONSTATE_None ) ||
+                    currentaction == EDITORACTIONSTATE_RotateX + i )
                 {
-                    pMaterial->m_ColorDiffuse.Set( 255,255,255,255 );
+                    pMaterial->m_ColorDiffuse.Set( 255, 255, 255, 255 );
                 }
             }
         }
@@ -492,7 +498,7 @@ void TransformGizmo::CreateAxisObjects(unsigned int sceneid, float scale, Editor
     // Create 2 axis translators
     {
         pGameObject = g_pComponentSystemManager->CreateGameObject( false, sceneid ); // not managed.
-        pGameObject->SetName( "3D Transform Gizmo - yz-axis" );
+        pGameObject->SetName( "3D Transform Gizmo - xy-axis" );
 
         pComponentMesh = (ComponentMesh*)pGameObject->AddNewComponent( ComponentType_Mesh, sceneid );
         if( pComponentMesh )
@@ -506,7 +512,7 @@ void TransformGizmo::CreateAxisObjects(unsigned int sceneid, float scale, Editor
             pComponentMesh->AddToSceneGraph();
         }
 
-        pEditorState->m_pTransformGizmo->m_pTranslate2Axis[0] = pGameObject;
+        pEditorState->m_pTransformGizmo->m_pTranslate2Axis[2] = pGameObject;
     }
     {
         pGameObject = g_pComponentSystemManager->CreateGameObject( false, sceneid ); // not managed.
@@ -528,7 +534,7 @@ void TransformGizmo::CreateAxisObjects(unsigned int sceneid, float scale, Editor
     }
     {
         pGameObject = g_pComponentSystemManager->CreateGameObject( false, sceneid ); // not managed.
-        pGameObject->SetName( "3D Transform Gizmo - xy-axis" );
+        pGameObject->SetName( "3D Transform Gizmo - yz-axis" );
 
         pComponentMesh = (ComponentMesh*)pGameObject->AddNewComponent( ComponentType_Mesh, sceneid );
         if( pComponentMesh )
@@ -542,7 +548,7 @@ void TransformGizmo::CreateAxisObjects(unsigned int sceneid, float scale, Editor
             pComponentMesh->AddToSceneGraph();
         }
 
-        pEditorState->m_pTransformGizmo->m_pTranslate2Axis[2] = pGameObject;
+        pEditorState->m_pTransformGizmo->m_pTranslate2Axis[0] = pGameObject;
     }
 
     m_pMaterial_Scale1Axis[0] = MyNew MaterialDefinition( g_pEngineCore->m_pShader_TintColor, ColorByte(255,0,0,255) );
