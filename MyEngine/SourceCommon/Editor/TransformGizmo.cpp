@@ -63,6 +63,11 @@ void TransformGizmo::Tick(double TimePassed, EditorState* pEditorState)
 
     EditorActionState currentaction = pEditorState->m_EditorActionState;
 
+    // if the gizmo is currently being used, lower it's opacity
+    float overallopacity = 1.0f;
+    if( currentaction != EDITORACTIONSTATE_None )
+        overallopacity = 0.2f;
+
     if( pEditorState->m_pSelectedObjects.size() == 1 )
     {
         ComponentTransform* pTransform = pEditorState->m_pSelectedObjects[0]->m_pComponentTransform;
@@ -108,16 +113,16 @@ void TransformGizmo::Tick(double TimePassed, EditorState* pEditorState)
             if( pMaterial )
             {
                 if( i == 0 )
-                    pMaterial->m_ColorDiffuse.Set( 255, 100, 100, 255 );
+                    pMaterial->m_ColorDiffuse.Set( 255, 100, 100, (unsigned char)(255*overallopacity) );
                 if( i == 1 )
-                    pMaterial->m_ColorDiffuse.Set( 100, 255, 100, 255 );
+                    pMaterial->m_ColorDiffuse.Set( 100, 255, 100, (unsigned char)(255*overallopacity) );
                 if( i == 2 )
-                    pMaterial->m_ColorDiffuse.Set( 100, 100, 255, 255 );
+                    pMaterial->m_ColorDiffuse.Set( 100, 100, 255, (unsigned char)(255*overallopacity) );
 
                 if( ( m_pTranslate1Axis[i] == m_pSelectedPart && currentaction == EDITORACTIONSTATE_None ) ||
                     currentaction == EDITORACTIONSTATE_TranslateX + i )
                 {
-                    pMaterial->m_ColorDiffuse.Set( 255, 255, 255, 255 );
+                    pMaterial->m_ColorDiffuse.Set( 255, 255, 255, (unsigned char)(255*overallopacity) );
                 }
             }
         }
@@ -169,16 +174,16 @@ void TransformGizmo::Tick(double TimePassed, EditorState* pEditorState)
             if( pMaterial )
             {
                 if( i == 0 )
-                    pMaterial->m_ColorDiffuse.Set( 255, 255, 100, 180 ); // XY
+                    pMaterial->m_ColorDiffuse.Set( 255, 255, 100, (unsigned char)(180*overallopacity) ); // XY
                 if( i == 1 )
-                    pMaterial->m_ColorDiffuse.Set( 255, 100, 255, 180 ); // XZ
+                    pMaterial->m_ColorDiffuse.Set( 255, 100, 255, (unsigned char)(180*overallopacity) ); // XZ
                 if( i == 2 )
-                    pMaterial->m_ColorDiffuse.Set( 100, 255, 255, 180 ); // YZ
+                    pMaterial->m_ColorDiffuse.Set( 100, 255, 255, (unsigned char)(180*overallopacity) ); // YZ
 
                 if( ( m_pTranslate2Axis[i] == m_pSelectedPart && currentaction == EDITORACTIONSTATE_None ) ||
                     currentaction == EDITORACTIONSTATE_TranslateXY + i )
                 {
-                    pMaterial->m_ColorDiffuse.Set( 255, 255, 255, 255 );
+                    pMaterial->m_ColorDiffuse.Set( 255, 255, 255, (unsigned char)(255*overallopacity) );
                 }
             }
         }
@@ -245,16 +250,16 @@ void TransformGizmo::Tick(double TimePassed, EditorState* pEditorState)
             if( pMaterial )
             {
                 if( i == 0 )
-                    pMaterial->m_ColorDiffuse.Set( 255, 100, 100, 255 );
+                    pMaterial->m_ColorDiffuse.Set( 255, 100, 100, (unsigned char)(255*overallopacity) );
                 if( i == 1 )
-                    pMaterial->m_ColorDiffuse.Set( 100, 255, 100, 255 );
+                    pMaterial->m_ColorDiffuse.Set( 100, 255, 100, (unsigned char)(255*overallopacity) );
                 if( i == 2 )
-                    pMaterial->m_ColorDiffuse.Set( 100, 100, 255, 255 );
+                    pMaterial->m_ColorDiffuse.Set( 100, 100, 255, (unsigned char)(255*overallopacity) );
 
                 if( ( m_pScale1Axis[i] == m_pSelectedPart && currentaction == EDITORACTIONSTATE_None ) ||
                     currentaction == EDITORACTIONSTATE_ScaleX + i )
                 {
-                    pMaterial->m_ColorDiffuse.Set( 255, 255, 255, 255 );
+                    pMaterial->m_ColorDiffuse.Set( 255, 255, 255, (unsigned char)(255*overallopacity) );
                 }
             }
         }
@@ -298,11 +303,11 @@ void TransformGizmo::Tick(double TimePassed, EditorState* pEditorState)
             MaterialDefinition* pMaterial = pMesh->GetMaterial( 0 );
             if( pMaterial )
             {
-                pMaterial->m_ColorDiffuse.Set( 100, 100, 100, 180 );
+                pMaterial->m_ColorDiffuse.Set( 100, 100, 100, (unsigned char)(180*overallopacity) );
 
                 if( m_pScale3Axis == m_pSelectedPart )
                 {
-                    pMaterial->m_ColorDiffuse.Set( 255, 255, 255, 180 );
+                    pMaterial->m_ColorDiffuse.Set( 255, 255, 255, (unsigned char)(180*overallopacity) );
                 }
             }
         }
@@ -350,16 +355,16 @@ void TransformGizmo::Tick(double TimePassed, EditorState* pEditorState)
             if( pMaterial )
             {
                 if( i == 0 )
-                    pMaterial->m_ColorDiffuse.Set( 255, 100, 100, 255 );
+                    pMaterial->m_ColorDiffuse.Set( 255, 100, 100, (unsigned char)(255*overallopacity) );
                 if( i == 1 )
-                    pMaterial->m_ColorDiffuse.Set( 100, 255, 100, 255 );
+                    pMaterial->m_ColorDiffuse.Set( 100, 255, 100, (unsigned char)(255*overallopacity) );
                 if( i == 2 )
-                    pMaterial->m_ColorDiffuse.Set( 100, 100, 255, 255 );
+                    pMaterial->m_ColorDiffuse.Set( 100, 100, 255, (unsigned char)(255*overallopacity) );
 
                 if( ( m_pRotate1Axis[i] == m_pSelectedPart && currentaction == EDITORACTIONSTATE_None ) ||
                     currentaction == EDITORACTIONSTATE_RotateX + i )
                 {
-                    pMaterial->m_ColorDiffuse.Set( 255, 255, 255, 255 );
+                    pMaterial->m_ColorDiffuse.Set( 255, 255, 255, (unsigned char)(255*overallopacity) );
                 }
             }
         }
@@ -783,29 +788,17 @@ void TransformGizmo::TranslateSelectedObjects(EngineCore* pGame, EditorState* pE
                     axisvector = Vector3(0,1,1);
                 }
 
-                //axisvector.Normalize();
-
                 // if object space
-                if( 0 )
+                if( true )
                 {
-                    //normal = ObjectRotation * normal;
+                    // get our object space axis vectors
                     AxisX = ObjectRotation * AxisX;
                     AxisY = ObjectRotation * AxisY;
                     AxisZ = ObjectRotation * AxisZ;
                 }
 
-                // TODO: support local space translation.
-                if( 1 ) // if( world space translation )
-                {
-                    // create a world space plane.
-                    plane.Set( normal, pObjectTransform->GetTranslation() );
-                }
-//                else
-//                {
-//                    // TODO: support this.
-//                    // transform the normal into the selected objects space.
-//                    plane.Set( (*pObjectTransform * Vector4( normal, 0 )).XYZ(), pObjectTransform->GetTranslation() );
-//                }
+                // create a plane. // TODO: fix the plane rotation for object space translations
+                plane.Set( normal, pObjectTransform->GetTranslation() );
             }
 
             // Get the mouse click ray... current and last frame.
