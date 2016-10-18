@@ -503,6 +503,10 @@ void EngineCore::OnFocusLost()
 {
     GameCore::OnFocusLost();
 
+#if MYFW_USING_WX
+    m_pEditorState->OnFocusLost();
+#endif
+
     g_pImGuiManager->OnFocusLost();
 }
 

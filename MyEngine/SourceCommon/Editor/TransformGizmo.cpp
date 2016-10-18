@@ -722,6 +722,34 @@ void TransformGizmo::ScaleGizmosForMousePickRendering(bool doscale)
     }
 }
 
+void TransformGizmo::CancelCurrentOperation(EditorState* pEditorState)
+{
+    if( pEditorState->m_EditorActionState == EDITORACTIONSTATE_TranslateX ||
+        pEditorState->m_EditorActionState == EDITORACTIONSTATE_TranslateY ||
+        pEditorState->m_EditorActionState == EDITORACTIONSTATE_TranslateZ ||
+        pEditorState->m_EditorActionState == EDITORACTIONSTATE_TranslateXY ||
+        pEditorState->m_EditorActionState == EDITORACTIONSTATE_TranslateXZ ||
+        pEditorState->m_EditorActionState == EDITORACTIONSTATE_TranslateYZ )
+    {
+        CancelLastTranslation( pEditorState );
+    }
+
+    if( pEditorState->m_EditorActionState == EDITORACTIONSTATE_RotateX ||
+        pEditorState->m_EditorActionState == EDITORACTIONSTATE_RotateY ||
+        pEditorState->m_EditorActionState == EDITORACTIONSTATE_RotateZ )
+    {
+        CancelLastRotation( pEditorState );
+    }
+
+    if( pEditorState->m_EditorActionState == EDITORACTIONSTATE_ScaleX ||
+        pEditorState->m_EditorActionState == EDITORACTIONSTATE_ScaleY ||
+        pEditorState->m_EditorActionState == EDITORACTIONSTATE_ScaleZ ||
+        pEditorState->m_EditorActionState == EDITORACTIONSTATE_ScaleXYZ )
+    {
+        CancelLastScale( pEditorState );
+    }
+}
+
 void TransformGizmo::TranslateSelectedObjects(EngineCore* pGame, EditorState* pEditorState)
 {
     if( pEditorState->m_pSelectedObjects.size() == 0 )
@@ -825,9 +853,9 @@ void TransformGizmo::TranslateSelectedObjects(EngineCore* pGame, EditorState* pE
             if( plane.IntersectRay( currentraystart, currentrayend, &currentresult ) &&
                 plane.IntersectRay( lastraystart, lastrayend, &lastresult ) )
             {
-                //LOGInfo( LOGTag, "currentresult( %f, %f, %f );\n", currentresult.x, currentresult.y, currentresult.z );
-                //LOGInfo( LOGTag, "lastresult( %f, %f, %f );", lastresult.x, lastresult.y, lastresult.z );
-                //LOGInfo( LOGTag, "axisvector( %f, %f, %f );\n", axisvector.x, axisvector.y, axisvector.z );
+                LOGInfo( "TransformGizmo", "currentresult( %f, %f, %f );", currentresult.x, currentresult.y, currentresult.z );
+                LOGInfo( "TransformGizmo", "lastresult( %f, %f, %f );", lastresult.x, lastresult.y, lastresult.z );
+                LOGInfo( "TransformGizmo", "axisvector( %f, %f, %f );\n", axisvector.x, axisvector.y, axisvector.z );
 
                 Vector3 diff = currentresult - lastresult;
 

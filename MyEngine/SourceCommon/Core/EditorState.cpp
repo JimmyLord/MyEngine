@@ -117,6 +117,13 @@ void EditorState::ClearEditorState(bool clearselectedobjectandcomponents)
     ClearConstraint();
 }
 
+void EditorState::OnFocusLost()
+{
+    // Cancel whatever operation the transform gizmo was doing.
+    m_pTransformGizmo->CancelCurrentOperation( this );
+    m_EditorActionState = EDITORACTIONSTATE_None;
+}
+
 void EditorState::OnSurfaceChanged(unsigned int startx, unsigned int starty, unsigned int width, unsigned int height)
 {
     m_EditorWindowRect.Set( startx, starty, width, height );

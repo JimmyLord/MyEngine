@@ -179,9 +179,9 @@ bool EditorInterface_SceneManagement::HandleInput(int keyaction, int keycode, in
     {
         // cancel the current action
         if( pEditorState->m_EditorActionState >= EDITORACTIONSTATE_TranslateX &&
-            pEditorState->m_EditorActionState <= EDITORACTIONSTATE_TranslateYZ )
+            pEditorState->m_EditorActionState <= EDITORACTIONSTATE_RotateZ )
         {
-            pEditorState->m_pTransformGizmo->CancelLastTranslation( pEditorState );
+            pEditorState->m_pTransformGizmo->CancelCurrentOperation( pEditorState );
         }
         else if( pEditorState->m_EditorActionState == EDITORACTIONSTATE_GroupSelectingObjects )
         {

@@ -44,6 +44,8 @@ public:
     void CreateAxisObjects(unsigned int sceneid, float scale, EditorState* pEditorState);
     void ScaleGizmosForMousePickRendering(bool doscale);
 
+    void CancelCurrentOperation(EditorState* pEditorState);
+
     // Translate Helpers
     void TranslateSelectedObjects(EngineCore* pGame, EditorState* pEditorState);
     void TranslateSelectedObjects(EditorState* pEditorState, Vector3 distance);
