@@ -784,20 +784,26 @@ void TransformGizmo::TranslateSelectedObjects(EngineCore* pGame, EditorState* pE
                 Vector3 normal;
                 if( pEditorState->m_EditorActionState == EDITORACTIONSTATE_TranslateX )
                 {
-                    camInvAt.x = 0;
-                    normal = camInvAt; // set plane normal to face the camera.
+                    normal = Vector3(0,0,1); // xy plane
+                    if( fabs(camInvAt.Dot( normal )) < 0.7071f ) // if cam dot normal is under 45degrees
+                        normal = Vector3(0,1,0); // xz plane
+
                     axisvector = Vector3(1,0,0);
                 }
                 else if( pEditorState->m_EditorActionState == EDITORACTIONSTATE_TranslateY )
                 {
-                    camInvAt.y = 0;
-                    normal = camInvAt; // set plane normal to face the camera.
+                    normal = Vector3(1,0,0); // yz plane
+                    if( fabs(camInvAt.Dot( normal )) < 0.7071f ) // if cam dot normal is under 45degrees
+                        normal = Vector3(0,0,1); // xy plane
+
                     axisvector = Vector3(0,1,0);
                 }
                 else if( pEditorState->m_EditorActionState == EDITORACTIONSTATE_TranslateZ )
                 {
-                    camInvAt.z = 0;
-                    normal = camInvAt; // set plane normal to face the camera.
+                    normal = Vector3(0,1,0); // xz plane
+                    if( fabs(camInvAt.Dot( normal )) < 0.7071f ) // if cam dot normal is under 45degrees
+                        normal = Vector3(1,0,0); // yz plane
+
                     axisvector = Vector3(0,0,1);
                 }
                 else if( pEditorState->m_EditorActionState == EDITORACTIONSTATE_TranslateXY )
@@ -823,7 +829,11 @@ void TransformGizmo::TranslateSelectedObjects(EngineCore* pGame, EditorState* pE
                     AxisX = ObjectRotation * AxisX;
                     AxisY = ObjectRotation * AxisY;
                     AxisZ = ObjectRotation * AxisZ;
+
+                    normal = ObjectRotation * normal;
                 }
+
+                //LOGInfo( "TransformGizmo", "camInvAt( %f, %f, %f ) normal( %f, %f, %f )\n", camInvAt.x, camInvAt.y, camInvAt.z, normal.x, normal.y, normal.z );
 
                 // create a plane. // TODO: fix the plane rotation for object space translations
                 plane.Set( normal, pObjectTransform->GetTranslation() );
@@ -853,9 +863,9 @@ void TransformGizmo::TranslateSelectedObjects(EngineCore* pGame, EditorState* pE
             if( plane.IntersectRay( currentraystart, currentrayend, &currentresult ) &&
                 plane.IntersectRay( lastraystart, lastrayend, &lastresult ) )
             {
-                LOGInfo( "TransformGizmo", "currentresult( %f, %f, %f );", currentresult.x, currentresult.y, currentresult.z );
-                LOGInfo( "TransformGizmo", "lastresult( %f, %f, %f );", lastresult.x, lastresult.y, lastresult.z );
-                LOGInfo( "TransformGizmo", "axisvector( %f, %f, %f );\n", axisvector.x, axisvector.y, axisvector.z );
+                //LOGInfo( "TransformGizmo", "currentresult( %f, %f, %f );", currentresult.x, currentresult.y, currentresult.z );
+                //LOGInfo( "TransformGizmo", "lastresult( %f, %f, %f );", lastresult.x, lastresult.y, lastresult.z );
+                //LOGInfo( "TransformGizmo", "axisvector( %f, %f, %f );\n", axisvector.x, axisvector.y, axisvector.z );
 
                 Vector3 diff = currentresult - lastresult;
 
@@ -909,7 +919,7 @@ void TransformGizmo::TranslateSelectedObjects(EngineCore* pGame, EditorState* pE
                 // GIZMOTRANSLATE: move all of the things. // undo is handled by EngineCore.cpp when mouse is lifted.
                 pEditorState->m_DistanceTranslated += diff;
                 //LOGInfo( LOGTag, "pEditorState->m_DistanceTranslated.Set( %f, %f, %f );", pEditorState->m_DistanceTranslated.x, pEditorState->m_DistanceTranslated.y, pEditorState->m_DistanceTranslated.z );
-                //LOGInfo( LOGTag, "diff( %f, %f, %f, %d );", diff.x, diff.y, diff.z, pEditorState->m_pSelectedObjects.size() );
+                //LOGInfo( LOGTag, "diff( %f, %f, %f, %d );\n", diff.x, diff.y, diff.z, pEditorState->m_pSelectedObjects.size() );
 
                 TranslateSelectedObjects( pEditorState, diff );
             }
