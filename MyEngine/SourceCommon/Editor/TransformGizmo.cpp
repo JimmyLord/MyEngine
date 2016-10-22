@@ -869,6 +869,7 @@ void TransformGizmo::TranslateSelectedObjects(EngineCore* pGame, EditorState* pE
 
                 Vector3 diff = currentresult - lastresult;
 
+                // For single axis translations, apply the correct amount of diff on that axis
                 if( pEditorState->m_EditorActionState == EDITORACTIONSTATE_TranslateX )
                 {
                     diff = AxisX * diff.Dot( AxisX );
@@ -883,7 +884,7 @@ void TransformGizmo::TranslateSelectedObjects(EngineCore* pGame, EditorState* pE
                 }
                 else
                 {
-                    diff = AxisX*diff.x + AxisY*diff.y + AxisZ*diff.z;
+                    // for 2-axis translation, nothing needs to be done since the plane created is in object space
                 }
 
                 // if snapping to grid is enabled, then use m_LastIntersectResultUsed instead of last frames result.
