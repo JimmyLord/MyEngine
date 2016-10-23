@@ -136,10 +136,16 @@ void EditorCommand_RotateObjects::Do()
     {
         ComponentTransform* pTransform = m_ObjectsRotated[i]->m_pComponentTransform;
 
-        Vector3 rot = pTransform->GetWorldRotation();
-        rot += m_AmountRotated;
-        pTransform->SetWorldRotation( rot );
-        pTransform->UpdateTransform();
+        MyMatrix ObjectRotation;
+        ObjectRotation.CreateRotation( pTransform->GetWorldRotation() );
+
+        MyMatrix newRotation;
+        newRotation.CreateRotation( m_AmountRotated );
+
+        MyMatrix mat;
+        mat = ObjectRotation * newRotation;
+
+        pTransform->SetWorldTransform( &mat );
     }
 }
 
@@ -150,10 +156,16 @@ void EditorCommand_RotateObjects::Undo()
     {
         ComponentTransform* pTransform = m_ObjectsRotated[i]->m_pComponentTransform;
 
-        Vector3 rot = pTransform->GetWorldRotation();
-        rot += m_AmountRotated * -1;
-        pTransform->SetWorldRotation( rot );
-        pTransform->UpdateTransform();
+        MyMatrix ObjectRotation;
+        ObjectRotation.CreateRotation( pTransform->GetWorldRotation() );
+
+        MyMatrix newRotation;
+        newRotation.CreateRotation( m_AmountRotated * -1 );
+
+        MyMatrix mat;
+        mat = ObjectRotation * newRotation;
+
+        pTransform->SetWorldTransform( &mat );
     }
 }
 

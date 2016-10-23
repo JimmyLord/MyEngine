@@ -1037,7 +1037,6 @@ void TransformGizmo::RotateSelectedObjects(EngineCore* pGame, EditorState* pEdit
             MyMatrix* pObjectTransform = pEditorState->m_pSelectedObjects[0]->m_pComponentTransform->GetLocalTransform();
 
             // create a plane based on the axis we want.
-            Vector3 axisvector;
             Plane plane;
             {
                 ComponentCamera* pCamera = pEditorState->GetEditorCamera();
@@ -1046,35 +1045,21 @@ void TransformGizmo::RotateSelectedObjects(EngineCore* pGame, EditorState* pEdit
                 Vector3 normal;
                 if( pEditorState->m_EditorActionState == EDITORACTIONSTATE_RotateX )
                 {
-                    camInvAt.x = 0;
-                    normal = camInvAt; // set plane normal to face the camera.
-                    axisvector = Vector3(1,0,0);
+                    normal = Vector3(1,0,0); // yz plane
                 }
                 else if( pEditorState->m_EditorActionState == EDITORACTIONSTATE_RotateY )
                 {
-                    camInvAt.y = 0;
-                    normal = camInvAt; // set plane normal to face the camera.
-                    axisvector = Vector3(0,1,0);
+                    normal = Vector3(0,1,0); // xz plane
                 }
                 else if( pEditorState->m_EditorActionState == EDITORACTIONSTATE_RotateZ )
                 {
-                    camInvAt.z = 0;
-                    normal = camInvAt; // set plane normal to face the camera.
-                    axisvector = Vector3(0,0,1);
+                    normal = Vector3(0,0,1); // xy plane
                 }
 
-                //// TODO: support local space Rotation.
-                //if( 1 ) // if( world space Rotation )
-                //{
-                //    // create a world space plane.
-                    plane.Set( axisvector, pObjectTransform->GetTranslation() );
-                //}
-//                else
-//                {
-//                    // TODO: support this.
-//                    // transform the normal into the selected objects space.
-//                    plane.Set( (*pObjectTransform * Vector4( axisvector, 0 )).XYZ(), pObjectTransform->GetTranslation() );
-//                }
+                LOGInfo( "TransformGizmo", "normal( %f, %f, %f );\n", normal.x, normal.y, normal.z );
+
+                // create a world space plane.
+                plane.Set( normal, pObjectTransform->GetTranslation() );
             }
 
             // Get the mouse click ray... current and last frame.
@@ -1163,19 +1148,16 @@ void TransformGizmo::RotateSelectedObjects(EditorState* pEditorState, Vector3 eu
         // if this object has a selected parent, don't move it, only move the parent.
         if( pTransform->IsAnyParentInList( pEditorState->m_pSelectedObjects ) == false )
         {
-            Vector3 rot = pTransform->GetWorldRotation();
-            rot += eulerdegrees;
-            pTransform->SetWorldRotation( rot );
-            pTransform->UpdateTransform();
+            MyMatrix ObjectRotation;
+            ObjectRotation.CreateRotation( pEditorState->m_pSelectedObjects[0]->m_pComponentTransform->GetWorldRotation() );
 
-            //MyMatrix matrot;
-            //matrot.CreateRotation( eulerdegrees );
+            MyMatrix newRotation;
+            newRotation.CreateRotation( eulerdegrees );
 
-            //MyMatrix mat = *pTransform->GetLocalTransform();
-            //mat = *pTransform->GetLocalTransform() * matrot;
+            MyMatrix mat;
+            mat = ObjectRotation * newRotation;
 
-            //pTransform->SetLocalTransform( &mat );
-            //pTransform->UpdateTransform();
+            pTransform->SetWorldTransform( &mat );
         }
     }
 }
