@@ -80,6 +80,7 @@ struct EditorState
     Vector3 m_DistanceTranslated;
     Vector3 m_AmountScaled;
     Vector3 m_DistanceRotated;
+    bool m_TransformedInLocalSpace;
 
     // camera state
     EditorCameraState m_CameraState;

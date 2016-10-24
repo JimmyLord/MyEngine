@@ -114,9 +114,10 @@ EditorCommand* EditorCommand_ScaleObjects::Repeat()
 // EditorCommand_RotateObjects
 //====================================================================================================
 
-EditorCommand_RotateObjects::EditorCommand_RotateObjects(Vector3 amountRotated, const std::vector<GameObject*>& selectedobjects)
+EditorCommand_RotateObjects::EditorCommand_RotateObjects(Vector3 amountRotated, bool localspace, const std::vector<GameObject*>& selectedobjects)
 {
     m_AmountRotated = amountRotated;
+    m_TransformedInLocalSpace = localspace;
 
     //LOGInfo( LOGTag, "EditorCommand_RotateObjects:: %f,%f,%f\n", m_AmountRotated.x, m_AmountRotated.y, m_AmountRotated.z );
 
@@ -136,16 +137,29 @@ void EditorCommand_RotateObjects::Do()
     {
         ComponentTransform* pTransform = m_ObjectsRotated[i]->m_pComponentTransform;
 
-        MyMatrix ObjectRotation;
-        ObjectRotation.CreateRotation( pTransform->GetWorldRotation() );
+        if( m_TransformedInLocalSpace == true )
+        {
+            MyMatrix objectRotation;
+            MyMatrix newRotation;
+            MyMatrix combinedRotation;
 
-        MyMatrix newRotation;
-        newRotation.CreateRotation( m_AmountRotated );
+            objectRotation.CreateRotation( pTransform->GetWorldRotation() );
+            newRotation.CreateRotation( m_AmountRotated );
+            combinedRotation = objectRotation * newRotation;
+            
+            Vector3 eulerdegrees = combinedRotation.GetEulerAngles() * 180.0f / PI;
+            pTransform->SetWorldRotation( eulerdegrees );
+            pTransform->UpdateTransform();
+        }
+        else
+        {
+            MyMatrix newRotation;
 
-        MyMatrix mat;
-        mat = ObjectRotation * newRotation;
+            newRotation.CreateRotation( m_AmountRotated );
+            pTransform->Rotate( &newRotation );
+        }
 
-        pTransform->SetWorldTransform( &mat );
+        //pTransform->SetWorldTransform( &combinedRotation );
     }
 }
 
@@ -156,16 +170,27 @@ void EditorCommand_RotateObjects::Undo()
     {
         ComponentTransform* pTransform = m_ObjectsRotated[i]->m_pComponentTransform;
 
-        MyMatrix ObjectRotation;
-        ObjectRotation.CreateRotation( pTransform->GetWorldRotation() );
+        if( m_TransformedInLocalSpace == true )
+        {
+            MyMatrix objectRotation;
+            MyMatrix newRotation;
+            MyMatrix combinedRotation;
 
-        MyMatrix newRotation;
-        newRotation.CreateRotation( m_AmountRotated * -1 );
+            objectRotation.CreateRotation( pTransform->GetWorldRotation() );
+            newRotation.CreateRotation( m_AmountRotated * -1 );
+            combinedRotation = objectRotation * newRotation;
 
-        MyMatrix mat;
-        mat = ObjectRotation * newRotation;
+            Vector3 eulerdegrees = combinedRotation.GetEulerAngles() * 180.0f / PI;
+            pTransform->SetWorldRotation( eulerdegrees );
+            pTransform->UpdateTransform();
+        }
+        else
+        {
+            MyMatrix newRotation;
 
-        pTransform->SetWorldTransform( &mat );
+            newRotation.CreateRotation( m_AmountRotated * -1 );
+            pTransform->Rotate( &newRotation );
+        }
     }
 }
 

@@ -637,6 +637,13 @@ MyMatrix ComponentTransform::GetLocalRotPosMatrix()
     return local;
 }
 
+void ComponentTransform::Rotate(MyMatrix* pRotMatrix)
+{
+    MyMatrix worldMat = *GetWorldTransform() * *pRotMatrix;
+
+    SetWorldTransform( &worldMat );
+}
+
 void ComponentTransform::LookAt(Vector3 pos)
 {
     MyMatrix temp;

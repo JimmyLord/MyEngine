@@ -93,6 +93,7 @@ public:
     Vector3 GetLocalScale();
     MyMatrix GetLocalRotPosMatrix();
 
+    void Rotate(MyMatrix* pRotMatrix);
     void LookAt(Vector3 pos);
 
     // recalculate the matrix each time we set any of the 3 properties. // not efficient

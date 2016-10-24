@@ -1056,7 +1056,7 @@ void TransformGizmo::RotateSelectedObjects(EngineCore* pGame, EditorState* pEdit
                     normal = Vector3(0,0,1); // xy plane
                 }
 
-                LOGInfo( "TransformGizmo", "normal( %f, %f, %f );\n", normal.x, normal.y, normal.z );
+                //LOGInfo( "TransformGizmo", "normal( %f, %f, %f );\n", normal.x, normal.y, normal.z );
 
                 // create a world space plane.
                 plane.Set( normal, pObjectTransform->GetTranslation() );
@@ -1148,16 +1148,27 @@ void TransformGizmo::RotateSelectedObjects(EditorState* pEditorState, Vector3 eu
         // if this object has a selected parent, don't move it, only move the parent.
         if( pTransform->IsAnyParentInList( pEditorState->m_pSelectedObjects ) == false )
         {
-            MyMatrix ObjectRotation;
-            ObjectRotation.CreateRotation( pEditorState->m_pSelectedObjects[0]->m_pComponentTransform->GetWorldRotation() );
+            if( true ) // local space
+            {
+                MyMatrix objectRotation;
+                MyMatrix newRotation;
+                MyMatrix combinedRotation;
 
-            MyMatrix newRotation;
-            newRotation.CreateRotation( eulerdegrees );
+                objectRotation.CreateRotation( pEditorState->m_pSelectedObjects[0]->m_pComponentTransform->GetWorldRotation() );
+                newRotation.CreateRotation( eulerdegrees );
+                combinedRotation = objectRotation * newRotation;
 
-            MyMatrix mat;
-            mat = ObjectRotation * newRotation;
+                Vector3 neweulerdegrees = combinedRotation.GetEulerAngles() * 180.0f / PI;
+                pTransform->SetWorldRotation( neweulerdegrees );
+                pTransform->UpdateTransform();
+            }
+            else
+            {
+                MyMatrix newRotation;
 
-            pTransform->SetWorldTransform( &mat );
+                newRotation.CreateRotation( eulerdegrees );
+                pTransform->Rotate( &newRotation );
+            }
         }
     }
 }
