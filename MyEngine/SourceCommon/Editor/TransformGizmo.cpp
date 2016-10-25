@@ -197,24 +197,28 @@ void TransformGizmo::Tick(double TimePassed, EditorState* pEditorState)
 
             Vector3 pos = ObjectPosition;
 
-            // rotate the gizmo.
+            // move camera position into object space for comparisons.
+            MyMatrix worldTransform = *pEditorState->m_pSelectedObjects[0]->m_pComponentTransform->GetWorldTransform();
+            worldTransform.Inverse();
+            Vector3 objectSpaceCamPos = worldTransform * campos;
+
+            // rotate the 2-axis translation gizmo.
             MyMatrix matrot;
             matrot.SetIdentity();
             if( i == 0 ) // xy
             {
-                if( campos.z  > ObjectPosition.z ) { matrot.Rotate( -90, 1, 0, 0 ); matrot.Rotate( -90, 0, 0, 1 ); }
-                if( campos.z <= ObjectPosition.z ) { matrot.Rotate( 90, 1, 0, 0 ); }
+                if( objectSpaceCamPos.z  > 0 ) { matrot.Rotate( -90, 1, 0, 0 ); matrot.Rotate( -90, 0, 0, 1 ); }
+                if( objectSpaceCamPos.z <= 0 ) { matrot.Rotate( 90, 1, 0, 0 ); }
             }
             if( i == 1 ) // xz
             {
-                if( campos.y  > ObjectPosition.y ) { matrot.Rotate( -90, 0, 1, 0 ); }
-                if( campos.y <= ObjectPosition.y ) { matrot.Rotate( 180, 1, 0, 0 ); }
+                if( objectSpaceCamPos.y  > 0 ) { matrot.Rotate( -90, 0, 1, 0 ); }
+                if( objectSpaceCamPos.y <= 0 ) { matrot.Rotate( 180, 1, 0, 0 ); }
             }
             if( i == 2 ) // yz
             {
-                if( campos.x  > ObjectPosition.x ) { matrot.Rotate( -90, 0, 0, 1 ); matrot.Rotate( 180, 0, 1, 0 ); }
-                if( campos.x <= ObjectPosition.x ) { matrot.Rotate( +90, 1, 0, 0 ); matrot.Rotate( -90, 0, 1, 0 ); }
-                //if( campos.y  < ObjectPosition.y ) pos.y -= 2;
+                if( objectSpaceCamPos.x  > 0 ) { matrot.Rotate( -90, 0, 0, 1 ); matrot.Rotate( 180, 0, 1, 0 ); }
+                if( objectSpaceCamPos.x <= 0 ) { matrot.Rotate( +90, 1, 0, 0 ); matrot.Rotate( -90, 0, 1, 0 ); }
             }
 
             MyMatrix matrotobj;
@@ -379,22 +383,27 @@ void TransformGizmo::Tick(double TimePassed, EditorState* pEditorState)
             // move the gizmo to the object position.
             m_pRotate1Axis[i]->m_pComponentTransform->SetLocalPosition( ObjectPosition );
 
-            // rotate the gizmo.
+            // move camera position into object space for comparisons.
+            MyMatrix worldTransform = *pEditorState->m_pSelectedObjects[0]->m_pComponentTransform->GetWorldTransform();
+            worldTransform.Inverse();
+            Vector3 objectSpaceCamPos = worldTransform * campos;
+
+            // rotate the rotation gizmo.
             MyMatrix matrot;
             matrot.SetIdentity();
             if( i == 0 )
             {
-                if( campos.x  > ObjectPosition.x ) { matrot.Rotate( 90, 0, 1, 0 ); }
-                if( campos.x <= ObjectPosition.x ) { matrot.Rotate( -90, 0, 1, 0 ); matrot.Rotate( -90, 1, 0, 0 ); }
+                if( objectSpaceCamPos.x  > 0 ) { matrot.Rotate( 90, 0, 1, 0 ); }
+                if( objectSpaceCamPos.x <= 0 ) { matrot.Rotate( -90, 0, 1, 0 ); matrot.Rotate( -90, 1, 0, 0 ); }
             }
             if( i == 1 )
             {
-                if( campos.y  > ObjectPosition.y ) { matrot.Rotate( -90, 1, 0, 0 ); }
-                if( campos.y <= ObjectPosition.y ) { matrot.Rotate( 90, 1, 0, 0 ); matrot.Rotate( 90, 0, 1, 0 ); }
+                if( objectSpaceCamPos.y  > 0 ) { matrot.Rotate( -90, 1, 0, 0 ); }
+                if( objectSpaceCamPos.y <= 0 ) { matrot.Rotate( 90, 1, 0, 0 ); matrot.Rotate( 90, 0, 1, 0 ); }
             }
             if( i == 2 )
             {
-                if( campos.z  > ObjectPosition.z ) { matrot.Rotate( 180, 1, 0, 0 ); matrot.Rotate( -90, 0, 0, 1 ); }
+                if( objectSpaceCamPos.z  > 0 ) { matrot.Rotate( 180, 1, 0, 0 ); matrot.Rotate( -90, 0, 0, 1 ); }
             }
 
             MyMatrix matrotobj;
