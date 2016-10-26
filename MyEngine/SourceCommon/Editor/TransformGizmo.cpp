@@ -1045,6 +1045,10 @@ void TransformGizmo::RotateSelectedObjects(EngineCore* pGame, EditorState* pEdit
         {
             MyMatrix* pObjectTransform = pEditorState->m_pSelectedObjects[0]->m_pComponentTransform->GetLocalTransform();
 
+            Vector3 eulerdegrees = pEditorState->m_pSelectedObjects[0]->m_pComponentTransform->GetWorldRotation();
+            MyMatrix objectRotation;
+            objectRotation.CreateRotation( eulerdegrees );
+
             // create a plane based on the axis we want.
             Plane plane;
             {
@@ -1065,7 +1069,13 @@ void TransformGizmo::RotateSelectedObjects(EngineCore* pGame, EditorState* pEdit
                     normal = Vector3(0,0,1); // xy plane
                 }
 
-                //LOGInfo( "TransformGizmo", "normal( %f, %f, %f );\n", normal.x, normal.y, normal.z );
+                if( true ) // local space
+                {
+                    // bring normal into world space
+                    normal = objectRotation * normal;
+                }
+
+                LOGInfo( "TransformGizmo", "normal( %f, %f, %f );\n", normal.x, normal.y, normal.z );
 
                 // create a world space plane.
                 plane.Set( normal, pObjectTransform->GetTranslation() );
@@ -1095,17 +1105,26 @@ void TransformGizmo::RotateSelectedObjects(EngineCore* pGame, EditorState* pEdit
             if( plane.IntersectRay( currentraystart, currentrayend, &currentresult ) &&
                 plane.IntersectRay( lastraystart, lastrayend, &lastresult ) )
             {
-                //LOGInfo( LOGTag, "currentresult( %f, %f, %f );", currentresult.x, currentresult.y, currentresult.z );
-                //LOGInfo( LOGTag, "lastresult( %f, %f, %f );", lastresult.x, lastresult.y, lastresult.z );
-                //LOGInfo( LOGTag, "axisvector( %f, %f, %f );\n", axisvector.x, axisvector.y, axisvector.z );
-
-                Vector3 currentangle;
-                Vector3 lastangle;
-
                 Vector3 pos = pObjectTransform->GetTranslation();
 
                 currentresult -= pos;
                 lastresult -= pos;
+
+                if( true ) // local space
+                {
+                    // bring results from world space into local space.
+                    MyMatrix invRotation = objectRotation.GetInverse();
+
+                    currentresult = invRotation * currentresult;
+                    lastresult = invRotation * lastresult;
+                }
+
+                //LOGInfo( LOGTag, "currentresult( %f, %f, %f );", currentresult.x, currentresult.y, currentresult.z );
+                //LOGInfo( LOGTag, "lastresult( %f, %f, %f );\n", lastresult.x, lastresult.y, lastresult.z );
+                //LOGInfo( LOGTag, "axisvector( %f, %f, %f );\n", axisvector.x, axisvector.y, axisvector.z );
+
+                Vector3 currentangle;
+                Vector3 lastangle;
 
                 currentangle.x = atan2( currentresult.z, currentresult.y );
                 currentangle.y = atan2( currentresult.x, currentresult.z );
