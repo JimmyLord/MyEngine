@@ -232,7 +232,7 @@ bool EditorInterface_SceneManagement::HandleInput(int keyaction, int keycode, in
             // find the object we clicked on.
             GameObject* pObject = GetObjectAtPixel( (unsigned int)x, (unsigned int)y, true );
 
-            // reset mouse movement, so we can undo to this state after mouse goes up.
+            // reset current transform values, so we can undo by this amount after mouse goes up.
             pEditorState->m_DistanceTranslated.Set( 0, 0, 0 );
             pEditorState->m_AmountScaled.Set( 1, 1, 1 );
             pEditorState->m_DistanceRotated.Set( 0, 0, 0 );
@@ -330,6 +330,15 @@ bool EditorInterface_SceneManagement::HandleInput(int keyaction, int keycode, in
                     // select the object in the object tree.
                     g_pPanelObjectList->SelectObject( pNewObject );
                 }
+            }
+
+            // if ctrl is held, transform in world space
+            if( selectedgizmo )
+            {
+                if( pEditorState->m_ModifierKeyStates & MODIFIERKEY_Control )
+                    pEditorState->m_TransformedInLocalSpace = false;
+                else
+                    pEditorState->m_TransformedInLocalSpace = true;
             }
 
             // if we didn't select the gizmo and gameplay is running.
@@ -697,10 +706,15 @@ bool EditorInterface_SceneManagement::HandleInput(int keyaction, int keycode, in
                         if( selectedobjects.size() > 0 )
                         {
                             g_pEngineMainFrame->m_pCommandStack->Add(
-                                MyNew EditorCommand_RotateObjects( pEditorState->m_DistanceRotated, true, selectedobjects ) );
+                                MyNew EditorCommand_RotateObjects( pEditorState->m_DistanceRotated, pEditorState->m_TransformedInLocalSpace, selectedobjects ) );
                         }
                     }
                 }
+
+                // reset current transform values.
+                pEditorState->m_DistanceTranslated.Set( 0, 0, 0 );
+                pEditorState->m_AmountScaled.Set( 1, 1, 1 );
+                pEditorState->m_DistanceRotated.Set( 0, 0, 0 );
 
                 pEditorState->m_EditorActionState = EDITORACTIONSTATE_None;
             }

@@ -639,7 +639,7 @@ MyMatrix ComponentTransform::GetLocalRotPosMatrix()
 
 void ComponentTransform::Rotate(MyMatrix* pRotMatrix)
 {
-    MyMatrix worldMat = *GetWorldTransform() * *pRotMatrix;
+    MyMatrix worldMat = *pRotMatrix * *GetWorldTransform();
 
     SetWorldTransform( &worldMat );
 }

@@ -98,6 +98,22 @@ void TransformGizmo::Tick(double TimePassed, EditorState* pEditorState)
     if( m_VisibleIfObjectsSelected == false )
         GizmoVisible = false;
 
+    // If we're rotating in world space, then rotate the gizmo when the mouse is down
+    Vector3 AmountOfDistanceRotatedToAddToGizmo = pEditorState->m_DistanceRotated;
+
+    // Create an object rotation matrix, used to rotate the gizmos.
+    MyMatrix ObjectRotation;
+    ObjectRotation.SetIdentity();
+    if( (currentaction != EDITORACTIONSTATE_None && pEditorState->m_TransformedInLocalSpace == true ) ||
+        (currentaction == EDITORACTIONSTATE_None && (pEditorState->m_ModifierKeyStates & MODIFIERKEY_Control) == false) )
+    {
+        // We're rotating in object space, so set up a rotation matrix
+        ObjectRotation.CreateRotation( ObjectTransform.GetEulerAngles() * 180.0f/PI );
+
+        // Since gizmo is being rotated by object matrix, we don't need additional rotation.
+        AmountOfDistanceRotatedToAddToGizmo.Set( 0, 0, 0 );
+    }
+
     // Update 1 axis transform gizmos
     for( int i=0; i<3; i++ )
     {
@@ -131,9 +147,6 @@ void TransformGizmo::Tick(double TimePassed, EditorState* pEditorState)
 
         if( GizmoVisible )
         {
-            // move the gizmo to the object position.
-            m_pTranslate1Axis[i]->m_pComponentTransform->SetLocalPosition( ObjectPosition );
-
             // rotate the gizmo.
             MyMatrix matrot;
             matrot.SetIdentity();
@@ -144,15 +157,12 @@ void TransformGizmo::Tick(double TimePassed, EditorState* pEditorState)
             if( i == 2 )
                 matrot.Rotate( -90, 1, 0, 0 );
 
-            MyMatrix matrotobj;
-            matrotobj.SetIdentity();
-            matrotobj.CreateSRT( Vector3(1,1,1), ObjectTransform.GetEulerAngles() * 180.0f/PI, Vector3(0,0,0) );
-
-            matrot = matrotobj * matrot;
-
-            Vector3 rot = matrot.GetEulerAngles() * 180.0f/PI;
-
+            matrot = ObjectRotation * matrot;
+            Vector3 rot = matrot.GetEulerAngles() * 180.0f/PI + AmountOfDistanceRotatedToAddToGizmo;
             m_pTranslate1Axis[i]->m_pComponentTransform->SetLocalRotation( rot );
+
+            // move the gizmo to the object position.
+            m_pTranslate1Axis[i]->m_pComponentTransform->SetLocalPosition( ObjectPosition );
 
             float distance = (pEditorState->m_pEditorCamera->m_pComponentTransform->GetLocalPosition() - ObjectPosition).Length();
             m_pTranslate1Axis[i]->m_pComponentTransform->SetLocalScale( Vector3( distance / 15.0f ) );
@@ -221,18 +231,12 @@ void TransformGizmo::Tick(double TimePassed, EditorState* pEditorState)
                 if( objectSpaceCamPos.x <= 0 ) { matrot.Rotate( +90, 1, 0, 0 ); matrot.Rotate( -90, 0, 1, 0 ); }
             }
 
-            MyMatrix matrotobj;
-            matrotobj.SetIdentity();
-            matrotobj.CreateSRT( Vector3(1,1,1), ObjectTransform.GetEulerAngles() * 180.0f/PI, Vector3(0,0,0) );
-
-            matrot = matrotobj * matrot;
-
-            Vector3 rot = matrot.GetEulerAngles() * 180.0f/PI;
+            matrot = ObjectRotation * matrot;
+            Vector3 rot = matrot.GetEulerAngles() * 180.0f/PI + AmountOfDistanceRotatedToAddToGizmo;
+            m_pTranslate2Axis[i]->m_pComponentTransform->SetLocalRotation( rot );
 
             // move the gizmo to the object position.
             m_pTranslate2Axis[i]->m_pComponentTransform->SetLocalPosition( pos );
-
-            m_pTranslate2Axis[i]->m_pComponentTransform->SetLocalRotation( rot );
 
             float distance = (pEditorState->m_pEditorCamera->m_pComponentTransform->GetLocalPosition() - ObjectPosition).Length();
             m_pTranslate2Axis[i]->m_pComponentTransform->SetLocalScale( Vector3( distance / 15.0f ) );
@@ -272,22 +276,16 @@ void TransformGizmo::Tick(double TimePassed, EditorState* pEditorState)
 
         if( GizmoVisible )
         {
-            // move the gizmo to the object position.
-            m_pScale1Axis[i]->m_pComponentTransform->SetLocalPosition( ObjectPosition );
-
             // rotate the gizmo.
             MyMatrix matrot;
             matrot.SetIdentity();
 
-            MyMatrix matrotobj;
-            matrotobj.SetIdentity();
-            matrotobj.CreateSRT( Vector3(1,1,1), ObjectTransform.GetEulerAngles() * 180.0f/PI, Vector3(0,0,0) );
-
-            matrot = matrotobj * matrot;
-
-            Vector3 rot = matrot.GetEulerAngles() * 180.0f/PI;
-
+            matrot = ObjectRotation * matrot;
+            Vector3 rot = matrot.GetEulerAngles() * 180.0f/PI + AmountOfDistanceRotatedToAddToGizmo;
             m_pScale1Axis[i]->m_pComponentTransform->SetLocalRotation( rot );
+
+            // move the gizmo to the object position.
+            m_pScale1Axis[i]->m_pComponentTransform->SetLocalPosition( ObjectPosition );
 
             float distance = (pEditorState->m_pEditorCamera->m_pComponentTransform->GetLocalPosition() - ObjectPosition).Length();
             m_pScale1Axis[i]->m_pComponentTransform->SetLocalScale( Vector3( distance / 15.0f ) );
@@ -326,18 +324,12 @@ void TransformGizmo::Tick(double TimePassed, EditorState* pEditorState)
             MyMatrix matrot;
             matrot.SetIdentity();
 
-            MyMatrix matrotobj;
-            matrotobj.SetIdentity();
-            matrotobj.CreateSRT( Vector3(1,1,1), ObjectTransform.GetEulerAngles() * 180.0f/PI, Vector3(0,0,0) );
-
-            matrot = matrotobj * matrot;
-
-            Vector3 rot = matrot.GetEulerAngles() * 180.0f/PI;
+            matrot = ObjectRotation * matrot;
+            Vector3 rot = matrot.GetEulerAngles() * 180.0f/PI + AmountOfDistanceRotatedToAddToGizmo;
+            m_pScale3Axis->m_pComponentTransform->SetLocalRotation( rot );
 
             // move the gizmo to the object position.
             m_pScale3Axis->m_pComponentTransform->SetLocalPosition( pos );
-
-            m_pScale3Axis->m_pComponentTransform->SetLocalRotation( rot );
 
             float distance = (pEditorState->m_pEditorCamera->m_pComponentTransform->GetLocalPosition() - ObjectPosition).Length();
             m_pScale3Axis->m_pComponentTransform->SetLocalScale( Vector3( distance / 15.0f ) );
@@ -380,9 +372,6 @@ void TransformGizmo::Tick(double TimePassed, EditorState* pEditorState)
             ComponentCamera* pCamera = pEditorState->GetEditorCamera();
             Vector3 campos = pCamera->m_pGameObject->GetTransform()->GetLocalPosition();
 
-            // move the gizmo to the object position.
-            m_pRotate1Axis[i]->m_pComponentTransform->SetLocalPosition( ObjectPosition );
-
             // move camera position into object space for comparisons.
             MyMatrix worldTransform = *pEditorState->m_pSelectedObjects[0]->m_pComponentTransform->GetWorldTransform();
             worldTransform.Inverse();
@@ -406,15 +395,12 @@ void TransformGizmo::Tick(double TimePassed, EditorState* pEditorState)
                 if( objectSpaceCamPos.z  > 0 ) { matrot.Rotate( 180, 1, 0, 0 ); matrot.Rotate( -90, 0, 0, 1 ); }
             }
 
-            MyMatrix matrotobj;
-            matrotobj.SetIdentity();
-            matrotobj.CreateSRT( Vector3(1,1,1), ObjectTransform.GetEulerAngles() * 180.0f/PI, Vector3(0,0,0) );
-
-            matrot = matrotobj * matrot;
-
-            Vector3 rot = matrot.GetEulerAngles() * 180.0f/PI;
-
+            matrot = ObjectRotation * matrot;
+            Vector3 rot = matrot.GetEulerAngles() * 180.0f/PI + AmountOfDistanceRotatedToAddToGizmo;
             m_pRotate1Axis[i]->m_pComponentTransform->SetLocalRotation( rot );
+
+            // move the gizmo to the object position.
+            m_pRotate1Axis[i]->m_pComponentTransform->SetLocalPosition( ObjectPosition );
 
             float distance = (pEditorState->m_pEditorCamera->m_pComponentTransform->GetLocalPosition() - ObjectPosition).Length();
             m_pRotate1Axis[i]->m_pComponentTransform->SetLocalScale( Vector3( distance / 15.0f ) );
@@ -1069,7 +1055,7 @@ void TransformGizmo::RotateSelectedObjects(EngineCore* pGame, EditorState* pEdit
                     normal = Vector3(0,0,1); // xy plane
                 }
 
-                if( true ) // local space
+                if( pEditorState->m_TransformedInLocalSpace ) // local space
                 {
                     // bring normal into world space
                     normal = objectRotation * normal;
@@ -1110,7 +1096,7 @@ void TransformGizmo::RotateSelectedObjects(EngineCore* pGame, EditorState* pEdit
                 currentresult -= pos;
                 lastresult -= pos;
 
-                if( true ) // local space
+                if( pEditorState->m_TransformedInLocalSpace ) // local space
                 {
                     // bring results from world space into local space.
                     MyMatrix invRotation = objectRotation.GetInverse();
@@ -1159,7 +1145,7 @@ void TransformGizmo::RotateSelectedObjects(EngineCore* pGame, EditorState* pEdit
                 // GIZMOROTATE: rotate all of the things. // undo is handled by EngineCore.cpp when mouse is lifted.
                 pEditorState->m_DistanceRotated += diff;
                 //LOGInfo( "Rotate Gizmo", "pEditorState->m_DistanceRotated.Set( %f, %f, %f ); ", pEditorState->m_DistanceRotated.x, pEditorState->m_DistanceRotated.y, pEditorState->m_DistanceRotated.z );
-                //LOGInfo( "Rotate Gizmo", "diff( %f, %f, %f, %d );\n", diff.x, diff.y, diff.z, pEditorState->m_pSelectedObjects.size() );
+                LOGInfo( "Rotate Gizmo", "diff( %f, %f, %f, %d );\n", diff.x, diff.y, diff.z, pEditorState->m_pSelectedObjects.size() );
 
                 RotateSelectedObjects( pEditorState, diff );
             }
@@ -1176,13 +1162,13 @@ void TransformGizmo::RotateSelectedObjects(EditorState* pEditorState, Vector3 eu
         // if this object has a selected parent, don't move it, only move the parent.
         if( pTransform->IsAnyParentInList( pEditorState->m_pSelectedObjects ) == false )
         {
-            if( true ) // local space
+            if( pEditorState->m_TransformedInLocalSpace ) // local space
             {
                 MyMatrix objectRotation;
                 MyMatrix newRotation;
                 MyMatrix combinedRotation;
 
-                objectRotation.CreateRotation( pEditorState->m_pSelectedObjects[0]->m_pComponentTransform->GetWorldRotation() );
+                objectRotation.CreateRotation( pTransform->GetWorldRotation() );
                 newRotation.CreateRotation( eulerdegrees );
                 combinedRotation = objectRotation * newRotation;
 
@@ -1193,7 +1179,6 @@ void TransformGizmo::RotateSelectedObjects(EditorState* pEditorState, Vector3 eu
             else
             {
                 MyMatrix newRotation;
-
                 newRotation.CreateRotation( eulerdegrees );
                 pTransform->Rotate( &newRotation );
             }
