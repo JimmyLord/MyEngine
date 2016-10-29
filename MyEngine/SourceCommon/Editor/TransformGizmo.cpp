@@ -104,14 +104,32 @@ void TransformGizmo::Tick(double TimePassed, EditorState* pEditorState)
     // Create an object rotation matrix, used to rotate the gizmos.
     MyMatrix ObjectRotation;
     ObjectRotation.SetIdentity();
+
+    // Create an inverse world transform to bring the camera into object space
+    MyMatrix InverseWorldTransform;
+
+    // if we're dealing with a local space transform, then fix the rotation matrices to match
     if( (currentaction != EDITORACTIONSTATE_None && pEditorState->m_TransformedInLocalSpace == true ) ||
         (currentaction == EDITORACTIONSTATE_None && (pEditorState->m_ModifierKeyStates & MODIFIERKEY_Control) == false) )
     {
-        // We're rotating in object space, so set up a rotation matrix
+        // We're transforming in object space, so set up a rotation matrix
         ObjectRotation.CreateRotation( ObjectTransform.GetEulerAngles() * 180.0f/PI );
 
         // Since gizmo is being rotated by object matrix, we don't need additional rotation.
         AmountOfDistanceRotatedToAddToGizmo.Set( 0, 0, 0 );
+
+        // Create inverse world transform to bring the camera into object space
+        if( pEditorState->m_pSelectedObjects.size() > 0 )
+        {
+            InverseWorldTransform = *pEditorState->m_pSelectedObjects[0]->m_pComponentTransform->GetWorldTransform();
+            InverseWorldTransform.Inverse();
+        }
+    }
+    else
+    {
+        // Create inverse world transform to bring the camera into object space
+        InverseWorldTransform.CreateTranslation( ObjectPosition );
+        InverseWorldTransform.Inverse();
     }
 
     // Update 1 axis transform gizmos
@@ -210,7 +228,7 @@ void TransformGizmo::Tick(double TimePassed, EditorState* pEditorState)
             // move camera position into object space for comparisons.
             MyMatrix worldTransform = *pEditorState->m_pSelectedObjects[0]->m_pComponentTransform->GetWorldTransform();
             worldTransform.Inverse();
-            Vector3 objectSpaceCamPos = worldTransform * campos;
+            Vector3 objectSpaceCamPos = InverseWorldTransform * campos;
 
             // rotate the 2-axis translation gizmo.
             MyMatrix matrot;
@@ -375,7 +393,7 @@ void TransformGizmo::Tick(double TimePassed, EditorState* pEditorState)
             // move camera position into object space for comparisons.
             MyMatrix worldTransform = *pEditorState->m_pSelectedObjects[0]->m_pComponentTransform->GetWorldTransform();
             worldTransform.Inverse();
-            Vector3 objectSpaceCamPos = worldTransform * campos;
+            Vector3 objectSpaceCamPos = InverseWorldTransform * campos;
 
             // rotate the rotation gizmo.
             MyMatrix matrot;
