@@ -114,10 +114,11 @@ EditorCommand* EditorCommand_ScaleObjects::Repeat()
 // EditorCommand_RotateObjects
 //====================================================================================================
 
-EditorCommand_RotateObjects::EditorCommand_RotateObjects(Vector3 amountRotated, bool localspace, const std::vector<GameObject*>& selectedobjects)
+EditorCommand_RotateObjects::EditorCommand_RotateObjects(Vector3 amountRotated, bool localspace, Vector3 pivot, const std::vector<GameObject*>& selectedobjects)
 {
     m_AmountRotated = amountRotated;
     m_TransformedInLocalSpace = localspace;
+    m_WorldSpacePivot = pivot;
 
     //LOGInfo( LOGTag, "EditorCommand_RotateObjects:: %f,%f,%f\n", m_AmountRotated.x, m_AmountRotated.y, m_AmountRotated.z );
 
@@ -156,7 +157,7 @@ void EditorCommand_RotateObjects::Do()
             MyMatrix newRotation;
 
             newRotation.CreateRotation( m_AmountRotated );
-            pTransform->Rotate( &newRotation );
+            pTransform->Rotate( &newRotation, m_WorldSpacePivot );
         }
 
         //pTransform->SetWorldTransform( &combinedRotation );
@@ -189,7 +190,7 @@ void EditorCommand_RotateObjects::Undo()
             MyMatrix newRotation;
 
             newRotation.CreateRotation( m_AmountRotated * -1 );
-            pTransform->Rotate( &newRotation );
+            pTransform->Rotate( &newRotation, m_WorldSpacePivot );
         }
     }
 }

@@ -51,10 +51,11 @@ class EditorCommand_RotateObjects : public EditorCommand
 protected:
     Vector3 m_AmountRotated;
     bool m_TransformedInLocalSpace;
+    Vector3 m_WorldSpacePivot;
     std::vector<GameObject*> m_ObjectsRotated;
 
 public:
-    EditorCommand_RotateObjects(Vector3 amountRotated, bool localspace, const std::vector<GameObject*>& selectedobjects);
+    EditorCommand_RotateObjects(Vector3 amountRotated, bool localspace, Vector3 pivot, const std::vector<GameObject*>& selectedobjects);
     virtual ~EditorCommand_RotateObjects();
 
     virtual void Do();

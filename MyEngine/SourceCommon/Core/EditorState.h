@@ -81,6 +81,7 @@ struct EditorState
     Vector3 m_AmountScaled;
     Vector3 m_DistanceRotated;
     bool m_TransformedInLocalSpace;
+    Vector3 m_WorldSpacePivot;
 
     // camera state
     EditorCameraState m_CameraState;

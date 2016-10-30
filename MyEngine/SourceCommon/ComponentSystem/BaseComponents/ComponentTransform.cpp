@@ -637,11 +637,14 @@ MyMatrix ComponentTransform::GetLocalRotPosMatrix()
     return local;
 }
 
-void ComponentTransform::Rotate(MyMatrix* pRotMatrix)
+void ComponentTransform::Rotate(MyMatrix* pRotMatrix, Vector3 pivot)
 {
-    MyMatrix worldMat = *pRotMatrix * *GetWorldTransform();
+    MyMatrix worldTransform = *GetWorldTransform();
+    worldTransform.Translate( -pivot );
+    worldTransform = *pRotMatrix * worldTransform;
+    worldTransform.Translate( pivot );
 
-    SetWorldTransform( &worldMat );
+    SetWorldTransform( &worldTransform );
 }
 
 void ComponentTransform::LookAt(Vector3 pos)

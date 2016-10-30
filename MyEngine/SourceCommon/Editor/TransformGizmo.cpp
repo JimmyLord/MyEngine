@@ -1077,6 +1077,13 @@ void TransformGizmo::RotateSelectedObjects(EngineCore* pGame, EditorState* pEdit
                 {
                     // bring normal into world space
                     normal = objectRotation * normal;
+                    pEditorState->m_WorldSpacePivot.Set( 0, 0, 0 );
+                }
+                else
+                {
+                    // set the pivot to match the current gizmo.
+                    Vector3 gizmopos = m_pTranslate1Axis[0]->m_pComponentTransform->GetWorldPosition();
+                    pEditorState->m_WorldSpacePivot = gizmopos;
                 }
 
                 LOGInfo( "TransformGizmo", "normal( %f, %f, %f );\n", normal.x, normal.y, normal.z );
@@ -1198,7 +1205,7 @@ void TransformGizmo::RotateSelectedObjects(EditorState* pEditorState, Vector3 eu
             {
                 MyMatrix newRotation;
                 newRotation.CreateRotation( eulerdegrees );
-                pTransform->Rotate( &newRotation );
+                pTransform->Rotate( &newRotation, pEditorState->m_WorldSpacePivot );
             }
         }
     }

@@ -706,7 +706,7 @@ bool EditorInterface_SceneManagement::HandleInput(int keyaction, int keycode, in
                         if( selectedobjects.size() > 0 )
                         {
                             g_pEngineMainFrame->m_pCommandStack->Add(
-                                MyNew EditorCommand_RotateObjects( pEditorState->m_DistanceRotated, pEditorState->m_TransformedInLocalSpace, selectedobjects ) );
+                                MyNew EditorCommand_RotateObjects( pEditorState->m_DistanceRotated, pEditorState->m_TransformedInLocalSpace, pEditorState->m_WorldSpacePivot, selectedobjects ) );
                         }
                     }
                 }
