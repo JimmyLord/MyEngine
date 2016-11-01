@@ -836,7 +836,7 @@ void TransformGizmo::TranslateSelectedObjects(EngineCore* pGame, EditorState* pE
                 }
 
                 // if object space
-                if( true )
+                if( pEditorState->m_TransformedInLocalSpace )
                 {
                     // get our object space axis vectors
                     AxisX = ObjectRotation * AxisX;
