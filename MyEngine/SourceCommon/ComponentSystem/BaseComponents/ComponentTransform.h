@@ -93,6 +93,7 @@ public:
     Vector3 GetLocalScale();
     MyMatrix GetLocalRotPosMatrix();
 
+    void Scale(MyMatrix* pScaleMatrix, Vector3 pivot);
     void Rotate(MyMatrix* pRotMatrix, Vector3 pivot);
     void LookAt(Vector3 pos);
 

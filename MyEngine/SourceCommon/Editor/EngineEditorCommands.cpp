@@ -64,9 +64,11 @@ EditorCommand* EditorCommand_MoveObjects::Repeat()
 // EditorCommand_ScaleObjects
 //====================================================================================================
 
-EditorCommand_ScaleObjects::EditorCommand_ScaleObjects(Vector3 amountscaled, const std::vector<GameObject*>& selectedobjects)
+EditorCommand_ScaleObjects::EditorCommand_ScaleObjects(Vector3 amountscaled, bool localspace, Vector3 pivot, const std::vector<GameObject*>& selectedobjects)
 {
     m_AmountScaled = amountscaled;
+    m_TransformedInLocalSpace = localspace;
+    m_WorldSpacePivot = pivot;
 
     //LOGInfo( LOGTag, "EditorCommand_ScaleObjects:: %f,%f,%f\n", m_AmountScaled.x, m_AmountScaled.y, m_AmountScaled.z );
 
@@ -84,9 +86,21 @@ void EditorCommand_ScaleObjects::Do()
 {
     for( unsigned int i=0; i<m_ObjectsScaled.size(); i++ )
     {
-        Vector3 newscale = m_ObjectsScaled[i]->m_pComponentTransform->GetLocalTransform()->GetScale().MultiplyComponents( m_AmountScaled );
-        m_ObjectsScaled[i]->m_pComponentTransform->SetScaleByEditor( newscale );
-        m_ObjectsScaled[i]->m_pComponentTransform->UpdateTransform();
+        ComponentTransform* pTransform = m_ObjectsScaled[i]->m_pComponentTransform;
+
+        if( m_TransformedInLocalSpace == true )
+        {
+            Vector3 newscale = pTransform->GetLocalTransform()->GetScale() * m_AmountScaled;
+
+            pTransform->SetScaleByEditor( newscale );
+            pTransform->UpdateTransform();
+        }
+        else
+        {
+            MyMatrix matscale;
+            matscale.CreateScale( m_AmountScaled );
+            pTransform->Scale( &matscale, m_WorldSpacePivot );
+        }
     }
 }
 
@@ -95,9 +109,21 @@ void EditorCommand_ScaleObjects::Undo()
     //LOGInfo( LOGTag, "EditorCommand_ScaleObjects::Undo %f,%f,%f\n", m_AmountScaled.x, m_AmountScaled.y, m_AmountScaled.z );
     for( unsigned int i=0; i<m_ObjectsScaled.size(); i++ )
     {
-        Vector3 newscale = m_ObjectsScaled[i]->m_pComponentTransform->GetLocalTransform()->GetScale().DivideComponents( m_AmountScaled );
-        m_ObjectsScaled[i]->m_pComponentTransform->SetScaleByEditor( newscale );
-        m_ObjectsScaled[i]->m_pComponentTransform->UpdateTransform();
+        ComponentTransform* pTransform = m_ObjectsScaled[i]->m_pComponentTransform;
+
+        if( m_TransformedInLocalSpace == true )
+        {
+            Vector3 newscale = pTransform->GetLocalTransform()->GetScale() / m_AmountScaled;
+
+            pTransform->SetScaleByEditor( newscale );
+            pTransform->UpdateTransform();
+        }
+        else
+        {
+            MyMatrix matscale;
+            matscale.CreateScale( 1/m_AmountScaled );
+            pTransform->Scale( &matscale, m_WorldSpacePivot );
+        }
     }
 }
 

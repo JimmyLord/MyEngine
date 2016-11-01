@@ -679,7 +679,7 @@ bool EditorInterface_SceneManagement::HandleInput(int keyaction, int keycode, in
 
                         if( selectedobjects.size() > 0 )
                         {
-                            g_pEngineMainFrame->m_pCommandStack->Add( MyNew EditorCommand_ScaleObjects( pEditorState->m_AmountScaled, selectedobjects ) );
+                            g_pEngineMainFrame->m_pCommandStack->Add( MyNew EditorCommand_ScaleObjects( pEditorState->m_AmountScaled, pEditorState->m_TransformedInLocalSpace, pEditorState->m_WorldSpacePivot, selectedobjects ) );
                         }
                     }
                 }

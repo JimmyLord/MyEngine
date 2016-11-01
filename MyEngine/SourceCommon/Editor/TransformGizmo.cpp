@@ -978,6 +978,16 @@ void TransformGizmo::ScaleSelectedObjects(EngineCore* pGame, EditorState* pEdito
         {
             MyMatrix* pObjectTransform = pEditorState->m_pSelectedObjects[0]->m_pComponentTransform->GetLocalTransform();
 
+            if( pEditorState->m_TransformedInLocalSpace ) // local space
+            {
+                pEditorState->m_WorldSpacePivot.Set( 0, 0, 0 );
+            }
+            else
+            {
+                Vector3 gizmopos = m_pTranslate1Axis[0]->m_pComponentTransform->GetWorldPosition();
+                pEditorState->m_WorldSpacePivot = gizmopos;
+            }
+
             {
                 float distance = pEditorState->m_CurrentMousePosition.x - pEditorState->m_LastMousePosition.x
                                + pEditorState->m_CurrentMousePosition.y - pEditorState->m_LastMousePosition.y;
@@ -1020,12 +1030,19 @@ void TransformGizmo::ScaleSelectedObjects(EditorState* pEditorState, Vector3 sca
         // if this object has a selected parent, don't move it, only move the parent.
         if( pTransform->IsAnyParentInList( pEditorState->m_pSelectedObjects ) == false )
         {
-            Vector3 currscale = pTransform->GetLocalTransform()->GetScale();
+            if( pEditorState->m_TransformedInLocalSpace ) // local space
+            {
+                Vector3 newscale = pTransform->GetLocalTransform()->GetScale() * scale;
 
-            Vector3 newscale = currscale.MultiplyComponents( scale );
-
-            pTransform->SetScaleByEditor( newscale );
-            pTransform->UpdateTransform();
+                pTransform->SetScaleByEditor( newscale );
+                pTransform->UpdateTransform();
+            }
+            else
+            {
+                MyMatrix matscale;
+                matscale.CreateScale( scale );
+                pTransform->Scale( &matscale, pEditorState->m_WorldSpacePivot );
+            }
         }
     }
 }

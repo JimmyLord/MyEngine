@@ -33,10 +33,12 @@ class EditorCommand_ScaleObjects : public EditorCommand
 {
 protected:
     Vector3 m_AmountScaled;
+    bool m_TransformedInLocalSpace;
+    Vector3 m_WorldSpacePivot;
     std::vector<GameObject*> m_ObjectsScaled;
 
 public:
-    EditorCommand_ScaleObjects(Vector3 amountscaled, const std::vector<GameObject*>& selectedobjects);
+    EditorCommand_ScaleObjects(Vector3 amountscaled, bool localspace, Vector3 pivot, const std::vector<GameObject*>& selectedobjects);
     virtual ~EditorCommand_ScaleObjects();
 
     virtual void Do();
