@@ -570,6 +570,13 @@ void ComponentTransform::SetWorldTransform(MyMatrix* mat)
         m_LocalTransform = m_WorldTransform;
         UpdateLocalSRT();
     }
+
+    for( CPPListNode* pNode = m_TransformChangedCallbackList.GetHead(); pNode != 0; pNode = pNode->GetNext() )
+    {
+        TransformChangedCallbackStruct* pCallbackStruct = (TransformChangedCallbackStruct*)pNode;
+
+        pCallbackStruct->pFunc( pCallbackStruct->pObj, m_WorldPosition, m_WorldRotation, m_WorldScale, true );
+    }
 }
 
 MyMatrix* ComponentTransform::GetWorldTransform()

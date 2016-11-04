@@ -1103,7 +1103,7 @@ void TransformGizmo::RotateSelectedObjects(EngineCore* pGame, EditorState* pEdit
                     pEditorState->m_WorldSpacePivot = gizmopos;
                 }
 
-                LOGInfo( "TransformGizmo", "normal( %f, %f, %f );\n", normal.x, normal.y, normal.z );
+                //LOGInfo( "TransformGizmo", "normal( %f, %f, %f );\n", normal.x, normal.y, normal.z );
 
                 // create a world space plane.
                 plane.Set( normal, pObjectTransform->GetTranslation() );
@@ -1187,7 +1187,7 @@ void TransformGizmo::RotateSelectedObjects(EngineCore* pGame, EditorState* pEdit
                 // GIZMOROTATE: rotate all of the things. // undo is handled by EngineCore.cpp when mouse is lifted.
                 pEditorState->m_DistanceRotated += diff;
                 //LOGInfo( "Rotate Gizmo", "pEditorState->m_DistanceRotated.Set( %f, %f, %f ); ", pEditorState->m_DistanceRotated.x, pEditorState->m_DistanceRotated.y, pEditorState->m_DistanceRotated.z );
-                LOGInfo( "Rotate Gizmo", "diff( %f, %f, %f, %d );\n", diff.x, diff.y, diff.z, pEditorState->m_pSelectedObjects.size() );
+                //LOGInfo( "Rotate Gizmo", "diff( %f, %f, %f, %d );\n", diff.x, diff.y, diff.z, pEditorState->m_pSelectedObjects.size() );
 
                 RotateSelectedObjects( pEditorState, diff );
             }
