@@ -15,6 +15,8 @@ class EngineCore;
 class TransformGizmo
 {
 public:
+    MyMatrix m_GizmoWorldTransform;
+    Vector3 m_GizmoWorldRotation;
     GameObject* m_pTranslate1Axis[3];
     GameObject* m_pTranslate2Axis[3];
     GameObject* m_pScale1Axis[3];

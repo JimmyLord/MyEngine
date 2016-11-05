@@ -77,6 +77,14 @@ void TransformGizmo::Tick(double TimePassed, EditorState* pEditorState)
             GizmoVisible = true;
             ObjectPosition = pTransform->GetWorldPosition();
             ObjectTransform.CreateRotation( pTransform->GetWorldRotation() );
+
+            m_GizmoWorldTransform = ObjectTransform;
+            m_GizmoWorldRotation = pTransform->GetWorldRotation();
+        }
+        else
+        {
+            m_GizmoWorldTransform.SetIdentity();
+            m_GizmoWorldRotation.Set( 0, 0, 0 );
         }
     }
     else if( pEditorState->m_pSelectedObjects.size() > 1 )
@@ -85,13 +93,22 @@ void TransformGizmo::Tick(double TimePassed, EditorState* pEditorState)
 
         // find the center point between all selected objects.
         ObjectPosition.Set( 0, 0, 0 );
+        unsigned int count = 0;
         for( unsigned int i=0; i<pEditorState->m_pSelectedObjects.size(); i++ )
         {
-            ObjectPosition += pEditorState->m_pSelectedObjects[i]->m_pComponentTransform->GetLocalPosition();
+            if( pEditorState->m_pSelectedObjects[i]->m_pComponentTransform )
+            {
+                ObjectPosition += pEditorState->m_pSelectedObjects[i]->m_pComponentTransform->GetLocalPosition();
+                count++;
+            }
         }
-        ObjectPosition /= (float)pEditorState->m_pSelectedObjects.size();
+        ObjectPosition /= (float)count;
 
         ObjectTransform.SetIdentity();
+
+        m_GizmoWorldTransform = ObjectTransform;
+        m_GizmoWorldTransform.SetTranslation( ObjectPosition );
+        m_GizmoWorldRotation.Set( 0, 0, 0 );
     }
     else
     {
@@ -124,13 +141,8 @@ void TransformGizmo::Tick(double TimePassed, EditorState* pEditorState)
         // Create inverse world transform to bring the camera into object space
         if( pEditorState->m_pSelectedObjects.size() > 0 )
         {
-            ComponentTransform* pTransform = pEditorState->m_pSelectedObjects[0]->m_pComponentTransform;
-
-            if( pTransform )
-            {
-                InverseWorldTransform = *pTransform->GetWorldTransform();
-                InverseWorldTransform.Inverse();
-            }
+            InverseWorldTransform = m_GizmoWorldTransform;
+            InverseWorldTransform.Inverse();
         }
     }
     else
@@ -234,7 +246,7 @@ void TransformGizmo::Tick(double TimePassed, EditorState* pEditorState)
             Vector3 pos = ObjectPosition;
 
             // move camera position into object space for comparisons.
-            MyMatrix worldTransform = *pEditorState->m_pSelectedObjects[0]->m_pComponentTransform->GetWorldTransform();
+            MyMatrix worldTransform = m_GizmoWorldTransform;
             worldTransform.Inverse();
             Vector3 objectSpaceCamPos = InverseWorldTransform * campos;
 
@@ -399,7 +411,7 @@ void TransformGizmo::Tick(double TimePassed, EditorState* pEditorState)
             Vector3 campos = pCamera->m_pGameObject->GetTransform()->GetLocalPosition();
 
             // move camera position into object space for comparisons.
-            MyMatrix worldTransform = *pEditorState->m_pSelectedObjects[0]->m_pComponentTransform->GetWorldTransform();
+            MyMatrix worldTransform = m_GizmoWorldTransform;
             worldTransform.Inverse();
             Vector3 objectSpaceCamPos = InverseWorldTransform * campos;
 
@@ -786,8 +798,6 @@ void TransformGizmo::TranslateSelectedObjects(EngineCore* pGame, EditorState* pE
     {
         // move all selected objects by the same amount, use object 0 to create a plane.
         {
-            MyMatrix* pObjectTransform = pEditorState->m_pSelectedObjects[0]->m_pComponentTransform->GetLocalTransform();
-
             Vector3 AxisX( 1, 0, 0 );
             Vector3 AxisY( 0, 1, 0 );
             Vector3 AxisZ( 0, 0, 1 );
@@ -800,7 +810,7 @@ void TransformGizmo::TranslateSelectedObjects(EngineCore* pGame, EditorState* pE
                 Vector3 camInvAt = pCamera->m_pGameObject->GetTransform()->GetLocalTransform()->GetAt() * -1;
 
                 MyMatrix ObjectRotation;
-                ObjectRotation.CreateRotation( pEditorState->m_pSelectedObjects[0]->m_pComponentTransform->GetWorldRotation() );
+                ObjectRotation.CreateRotation( m_GizmoWorldRotation );
 
                 Vector3 normal;
                 if( pEditorState->m_EditorActionState == EDITORACTIONSTATE_TranslateX )
@@ -857,7 +867,7 @@ void TransformGizmo::TranslateSelectedObjects(EngineCore* pGame, EditorState* pE
                 //LOGInfo( "TransformGizmo", "camInvAt( %f, %f, %f ) normal( %f, %f, %f )\n", camInvAt.x, camInvAt.y, camInvAt.z, normal.x, normal.y, normal.z );
 
                 // create a plane. // TODO: fix the plane rotation for object space translations
-                plane.Set( normal, pObjectTransform->GetTranslation() );
+                plane.Set( normal, m_GizmoWorldTransform.GetTranslation() );
             }
 
             // Get the mouse click ray... current and last frame.
@@ -912,7 +922,7 @@ void TransformGizmo::TranslateSelectedObjects(EngineCore* pGame, EditorState* pE
                 if( g_pEngineMainFrame->m_GridSettings.snapenabled )
                 {
                     // snap object 0 to grid, all other will stay relative.
-                    Vector3 pos = pEditorState->m_pSelectedObjects[0]->m_pComponentTransform->GetLocalPosition();
+                    Vector3 pos = m_GizmoWorldTransform.GetTranslation();
 
                     if( m_LastIntersectResultIsValid == false )
                     {
@@ -956,7 +966,7 @@ void TransformGizmo::TranslateSelectedObjects(EditorState* pEditorState, Vector3
         ComponentTransform* pTransform = pEditorState->m_pSelectedObjects[i]->m_pComponentTransform;
 
         // if this object has a selected parent, don't move it, only move the parent.
-        if( pTransform->IsAnyParentInList( pEditorState->m_pSelectedObjects ) == false )
+        if( pTransform && pTransform->IsAnyParentInList( pEditorState->m_pSelectedObjects ) == false )
         {
             Vector3 pos = pTransform->GetLocalTransform()->GetTranslation();
 
@@ -984,8 +994,6 @@ void TransformGizmo::ScaleSelectedObjects(EngineCore* pGame, EditorState* pEdito
     {
         // move all selected objects by the same amount, use object 0 to create a plane.
         {
-            MyMatrix* pObjectTransform = pEditorState->m_pSelectedObjects[0]->m_pComponentTransform->GetLocalTransform();
-
             if( pEditorState->m_TransformedInLocalSpace ) // local space
             {
                 pEditorState->m_WorldSpacePivot.Set( 0, 0, 0 );
@@ -1036,7 +1044,7 @@ void TransformGizmo::ScaleSelectedObjects(EditorState* pEditorState, Vector3 sca
         ComponentTransform* pTransform = pEditorState->m_pSelectedObjects[i]->m_pComponentTransform;
 
         // if this object has a selected parent, don't move it, only move the parent.
-        if( pTransform->IsAnyParentInList( pEditorState->m_pSelectedObjects ) == false )
+        if( pTransform && pTransform->IsAnyParentInList( pEditorState->m_pSelectedObjects ) == false )
         {
             if( pEditorState->m_TransformedInLocalSpace ) // local space
             {
@@ -1072,9 +1080,7 @@ void TransformGizmo::RotateSelectedObjects(EngineCore* pGame, EditorState* pEdit
     {
         // rotate all selected objects by the same amount, use object 0 to create a plane.
         {
-            MyMatrix* pObjectTransform = pEditorState->m_pSelectedObjects[0]->m_pComponentTransform->GetLocalTransform();
-
-            Vector3 eulerdegrees = pEditorState->m_pSelectedObjects[0]->m_pComponentTransform->GetWorldRotation();
+            Vector3 eulerdegrees = m_GizmoWorldRotation;
             MyMatrix objectRotation;
             objectRotation.CreateRotation( eulerdegrees );
 
@@ -1114,7 +1120,7 @@ void TransformGizmo::RotateSelectedObjects(EngineCore* pGame, EditorState* pEdit
                 //LOGInfo( "TransformGizmo", "normal( %f, %f, %f );\n", normal.x, normal.y, normal.z );
 
                 // create a world space plane.
-                plane.Set( normal, pObjectTransform->GetTranslation() );
+                plane.Set( normal, m_GizmoWorldTransform.GetTranslation() );
             }
 
             // Get the mouse click ray... current and last frame.
@@ -1141,7 +1147,7 @@ void TransformGizmo::RotateSelectedObjects(EngineCore* pGame, EditorState* pEdit
             if( plane.IntersectRay( currentraystart, currentrayend, &currentresult ) &&
                 plane.IntersectRay( lastraystart, lastrayend, &lastresult ) )
             {
-                Vector3 pos = pObjectTransform->GetTranslation();
+                Vector3 pos = m_GizmoWorldTransform.GetTranslation();
 
                 currentresult -= pos;
                 lastresult -= pos;
@@ -1210,7 +1216,7 @@ void TransformGizmo::RotateSelectedObjects(EditorState* pEditorState, Vector3 eu
         ComponentTransform* pTransform = pEditorState->m_pSelectedObjects[i]->m_pComponentTransform;
 
         // if this object has a selected parent, don't move it, only move the parent.
-        if( pTransform->IsAnyParentInList( pEditorState->m_pSelectedObjects ) == false )
+        if( pTransform && pTransform->IsAnyParentInList( pEditorState->m_pSelectedObjects ) == false )
         {
             if( pEditorState->m_TransformedInLocalSpace ) // local space
             {

@@ -125,6 +125,16 @@ void GameObject::OnLeftClick(unsigned int count, bool clear)
     if( g_pEngineCore->m_pEditorState->IsGameObjectSelected( this ) == false )
         g_pEngineCore->m_pEditorState->m_pSelectedObjects.push_back( this );
 
+    // if this is a folder, select all objects inside
+    if( m_IsFolder )
+    {
+        for( CPPListNode* pNode = m_ChildList.GetHead(); pNode; pNode = pNode->GetNext() )
+        {
+            // TODO: recurse through children
+            g_pEngineCore->m_pEditorState->m_pSelectedObjects.push_back( (GameObject*)pNode );
+        }
+    }
+
     //LOGInfo( LOGTag, "Selected objects: %d\n", g_pEngineCore->m_pEditorState->m_pSelectedObjects.size() );
 
     // only show properties of the first selected object.

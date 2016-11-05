@@ -642,7 +642,7 @@ bool EditorInterface_SceneManagement::HandleInput(int keyaction, int keycode, in
                             ComponentTransform* pTransform = pEditorState->m_pSelectedObjects[i]->m_pComponentTransform;
 
                             // if this object has a selected parent, don't move it, only move the parent.
-                            if( pTransform->IsAnyParentInList( pEditorState->m_pSelectedObjects ) == false )
+                            if( pTransform && pTransform->IsAnyParentInList( pEditorState->m_pSelectedObjects ) == false )
                             {
                                 selectedobjects.push_back( pEditorState->m_pSelectedObjects[i] );
                             }
@@ -671,7 +671,7 @@ bool EditorInterface_SceneManagement::HandleInput(int keyaction, int keycode, in
                             ComponentTransform* pTransform = pEditorState->m_pSelectedObjects[i]->m_pComponentTransform;
 
                             // if this object has a selected parent, don't move it, only move the parent.
-                            if( pTransform->IsAnyParentInList( pEditorState->m_pSelectedObjects ) == false )
+                            if( pTransform && pTransform->IsAnyParentInList( pEditorState->m_pSelectedObjects ) == false )
                             {
                                 selectedobjects.push_back( pEditorState->m_pSelectedObjects[i] );
                             }
@@ -697,7 +697,7 @@ bool EditorInterface_SceneManagement::HandleInput(int keyaction, int keycode, in
                             ComponentTransform* pTransform = pEditorState->m_pSelectedObjects[i]->m_pComponentTransform;
 
                             // if this object has a selected parent, don't move it, only move the parent.
-                            if( pTransform->IsAnyParentInList( pEditorState->m_pSelectedObjects ) == false )
+                            if( pTransform && pTransform->IsAnyParentInList( pEditorState->m_pSelectedObjects ) == false )
                             {
                                 selectedobjects.push_back( pEditorState->m_pSelectedObjects[i] );
                             }
