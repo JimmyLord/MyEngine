@@ -15,6 +15,8 @@ GameObject::GameObject(bool managed, int sceneid, bool isfolder)
 
     m_pGameObjectThisInheritsFrom = 0;
 
+    m_pParentGameObject = 0;
+
     m_Properties.SetEnabled( false );
 
     m_Enabled = true;
@@ -24,12 +26,19 @@ GameObject::GameObject(bool managed, int sceneid, bool isfolder)
     m_PhysicsSceneID = sceneid;
     m_Name = 0;
 
-    m_pComponentTransform = MyNew ComponentTransform();
-    m_pComponentTransform->SetSceneID( sceneid );
-    m_pComponentTransform->m_pGameObject = this;
-    m_pComponentTransform->Reset();
+    if( isfolder )
+    {
+        m_pComponentTransform = 0;
+    }
+    else
+    {
+        m_pComponentTransform = MyNew ComponentTransform();
+        m_pComponentTransform->SetSceneID( sceneid );
+        m_pComponentTransform->m_pGameObject = this;
+        m_pComponentTransform->Reset();
+    }
 
-    m_Components.AllocateObjects( MAX_COMPONENTS ); // hard coded nonsense for now, max of 4 components on a game object.
+    m_Components.AllocateObjects( MAX_COMPONENTS ); // hard coded nonsense for now, max of 8 components on a game object.
 
     m_Managed = false;
     if( managed )
@@ -65,7 +74,10 @@ GameObject::~GameObject()
     if( m_Managed )
         SetManaged( false );
 
-    m_pComponentTransform->SetEnabled( false );
+    if( m_pComponentTransform )
+    {
+        m_pComponentTransform->SetEnabled( false );
+    }
     SAFE_DELETE( m_pComponentTransform );
 
     SAFE_DELETE_ARRAY( m_Name );
@@ -144,7 +156,11 @@ void GameObject::OnLeftClick(unsigned int count, bool clear)
 
     m_Properties.FillPropertiesWindow( false );
 
-    m_pComponentTransform->FillPropertiesWindow( false, true );
+    if( m_pComponentTransform )
+    {
+        m_pComponentTransform->FillPropertiesWindow( false, true );
+    }
+
     for( unsigned int i=0; i<m_Components.Count(); i++ )
     {
         m_Components[i]->FillPropertiesWindow( false, true );
@@ -328,8 +344,13 @@ cJSON* GameObject::ExportAsJSONObject(bool savesceneid)
 {
     cJSON* jGameObject = cJSON_CreateObject();
 
+    // Inheritance parent can be in a different scene.
     if( m_pGameObjectThisInheritsFrom )
         cJSON_AddItemToObject( jGameObject, "ParentGO", m_pGameObjectThisInheritsFrom->ExportReferenceAsJSONObject( m_SceneID ) );
+
+    // Transform/Heirarchy parent must be in the same scene.
+    if( m_pParentGameObject )
+        cJSON_AddNumberToObject( jGameObject, "ParentGOID", m_pParentGameObject->GetID() );
 
     if( m_Enabled == false )
         cJSON_AddNumberToObject( jGameObject, "Enabled", m_Enabled );
@@ -371,6 +392,14 @@ void GameObject::ImportFromJSONObject(cJSON* jGameObject, unsigned int sceneid)
 
         // if this trips, then other object might be loaded after this or come from another scene that isn't loaded.
         MyAssert( m_pGameObjectThisInheritsFrom != 0 );
+    }
+
+    unsigned int parentgoid = 0;
+    cJSONExt_GetUnsignedInt( jGameObject, "ParentGOID", &parentgoid );
+    if( parentgoid != 0 )
+    {
+        GameObject* pParentGameObject = g_pComponentSystemManager->FindGameObjectByID( sceneid, parentgoid );
+        SetParentGameObject( pParentGameObject );
     }
 
     cJSONExt_GetBool( jGameObject, "IsFolder", &m_IsFolder );
@@ -499,16 +528,27 @@ void GameObject::SetName(const char* name)
 
 void GameObject::SetParentGameObject(GameObject* pParentGameObject)
 {
-    //GameObject* pOldParentGameObject = m_pComponentTransform->m_pParentGameObject;
-    //if( pOldParentGameObject )
-    //    pOldParentGameObject->m_pComponentTransform->UnregisterPositionChangedCallback();
-
-    // if the old transform is the same as the new one, kick out.
-    if( m_pComponentTransform->GetParentTransform() == pParentGameObject->m_pComponentTransform )
+    // if the old parent is the same as the new one, kick out.
+    if( m_pParentGameObject == pParentGameObject )
         return;
 
-    // parent one transform to another.
-    this->m_pComponentTransform->SetParentTransform( pParentGameObject->m_pComponentTransform );
+    // if we had an old parent:
+    if( m_pParentGameObject != 0 )
+    {
+        // stop it's gameobject from reporting it's deletion
+        m_pParentGameObject->UnregisterOnDeleteCallback( this, StaticOnGameObjectDeleted );
+    }
+
+    m_pParentGameObject = pParentGameObject;
+
+    // register the gameobject of the parent to notify us of it's deletion.
+    pParentGameObject->RegisterOnDeleteCallback( this, StaticOnGameObjectDeleted );
+
+    // parent one transform to another, if there are transforms.
+    if( m_pComponentTransform )
+    {
+        m_pComponentTransform->SetParentTransform( pParentGameObject->m_pComponentTransform );
+    }
 
     // If the parent is in another scene, move the game object to that scene.
     unsigned int sceneid = pParentGameObject->GetSceneID();
@@ -546,7 +586,12 @@ void GameObject::SetManaged(bool managed)
             wxTreeItemId gameobjectid = g_pPanelObjectList->AddObject( this, GameObject::StaticOnLeftClick, GameObject::StaticOnRightClick, rootid, m_Name, iconindex );
             g_pPanelObjectList->SetDragAndDropFunctions( gameobjectid, GameObject::StaticOnDrag, GameObject::StaticOnDrop );
             g_pPanelObjectList->SetLabelEditFunction( gameobjectid, GameObject::StaticOnLabelEdit );
-            m_pComponentTransform->AddToObjectsPanel( gameobjectid );
+            
+            if( m_pComponentTransform )
+            {
+                m_pComponentTransform->AddToObjectsPanel( gameobjectid );
+            }
+
             for( unsigned int i=0; i<m_Components.Count(); i++ )
             {
                 m_Components[i]->AddToObjectsPanel( gameobjectid );
@@ -823,6 +868,20 @@ void GameObject::NotifyOthersThisWasDeleted()
         delete pCallbackStruct;
 
         pNode = pNextNode;
+    }
+}
+
+void GameObject::OnGameObjectDeleted(GameObject* pGameObject)
+{
+    // if our parent was deleted, clear the pointer.
+    MyAssert( m_pParentGameObject == pGameObject ); // the callback should have only been registered if needed.
+    if( m_pParentGameObject == pGameObject )
+    {
+        // we're in the callback, so don't unregister the callback.
+        if( m_pComponentTransform )
+        {
+            m_pComponentTransform->SetParentTransform( 0 );
+        }
     }
 }
 

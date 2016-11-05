@@ -30,8 +30,7 @@ private:
 protected:
     CPPListHead m_TransformChangedCallbackList;
 
-    GameObject* m_pParentGameObject;
-    ComponentTransform* m_pParentTransform;
+    ComponentTransform* m_pParentTransform; // for slightly faster access to transform, parent GameObject is stored in GameObject
 
     MyMatrix m_WorldTransform;
     bool m_WorldTransformIsDirty;
@@ -70,10 +69,10 @@ public:
     void SetRotationByEditor(Vector3 eulerangles);
 #endif
 
-    GameObject* GetParentGameObject() { return m_pParentGameObject; }
     ComponentTransform* GetParentTransform() { return m_pParentTransform; }
-    void SetParentTransform(ComponentTransform* pNewParent, bool unregisterondeletecallback = true);
+    void SetParentTransform(ComponentTransform* pNewParentTransform);
 
+    void SetWorldTransformIsDirty() { m_WorldTransformIsDirty = true; }
     void SetWorldTransform(MyMatrix* mat);
     MyMatrix* GetWorldTransform();
     Vector3 GetWorldPosition();
@@ -109,10 +108,6 @@ public:
     // Callbacks
     void RegisterTransformChangedCallback(void* pObj, TransformChangedCallbackFunc pCallback);
     void UnregisterTransformChangedCallbacks(void* pObj);
-
-    // GameObject callbacks.
-    static void StaticOnGameObjectDeleted(void* pObjectPtr, GameObject* pGameObject) { ((ComponentTransform*)pObjectPtr)->OnGameObjectDeleted( pGameObject ); }
-    void OnGameObjectDeleted(GameObject* pGameObject);
 
     // Parent transform changed
     static void StaticOnParentTransformChanged(void* pObjectPtr, Vector3& newpos, Vector3& newrot, Vector3& newscale, bool changedbyeditor) { ((ComponentTransform*)pObjectPtr)->OnParentTransformChanged( newpos, newrot, newscale, changedbyeditor ); }

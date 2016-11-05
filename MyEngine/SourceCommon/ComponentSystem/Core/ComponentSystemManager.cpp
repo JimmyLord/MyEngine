@@ -526,7 +526,8 @@ void ComponentSystemManager::SaveGameObjectListToJSONArray(cJSON* gameobjectarra
             cJSON_AddItemToArray( gameobjectarray, pGameObject->ExportAsJSONObject( savesceneid ) );
 
             ComponentBase* pComponent = pGameObject->m_pComponentTransform;
-            cJSON_AddItemToArray( transformarray, pComponent->ExportAsJSONObject( savesceneid ) );
+            if( pComponent )
+                cJSON_AddItemToArray( transformarray, pComponent->ExportAsJSONObject( savesceneid ) );
         }
 
         GameObject* pFirstChild = pGameObject->GetFirstChild();
@@ -948,7 +949,28 @@ void ComponentSystemManager::LoadSceneFromJSON(const char* scenename, const char
         if( pGameObject )
         {
             pGameObject->SetID( goid );
-            pGameObject->m_pComponentTransform->ImportFromJSONObject( transformobj, sceneid );
+
+            if( pGameObject->m_pComponentTransform )
+            {
+                pGameObject->m_pComponentTransform->ImportFromJSONObject( transformobj, sceneid );
+            }
+            else
+            {
+                unsigned int parentgoid = 0;
+                cJSONExt_GetUnsignedInt( transformobj, "ParentGOID", &parentgoid );
+                
+                if( parentgoid > 0 )
+                {
+                    GameObject* pParentGameObject = FindGameObjectByID( sceneid, parentgoid );
+                    MyAssert( pParentGameObject );
+
+                    pGameObject->SetParentGameObject( pParentGameObject );
+                    if( pGameObject->m_pComponentTransform )
+                    {
+                        pGameObject->m_pComponentTransform->SetWorldTransformIsDirty();
+                    }
+                }
+            }
 
             if( goid >= m_pSceneInfoMap[sceneid].m_NextGameObjectID )
                 m_pSceneInfoMap[sceneid].m_NextGameObjectID = goid + 1;

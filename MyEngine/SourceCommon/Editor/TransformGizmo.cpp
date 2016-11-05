@@ -72,9 +72,12 @@ void TransformGizmo::Tick(double TimePassed, EditorState* pEditorState)
     {
         ComponentTransform* pTransform = pEditorState->m_pSelectedObjects[0]->m_pComponentTransform;
 
-        GizmoVisible = true;
-        ObjectPosition = pEditorState->m_pSelectedObjects[0]->m_pComponentTransform->GetWorldPosition();
-        ObjectTransform.CreateRotation( pEditorState->m_pSelectedObjects[0]->m_pComponentTransform->GetWorldRotation() );
+        if( pTransform )
+        {
+            GizmoVisible = true;
+            ObjectPosition = pTransform->GetWorldPosition();
+            ObjectTransform.CreateRotation( pTransform->GetWorldRotation() );
+        }
     }
     else if( pEditorState->m_pSelectedObjects.size() > 1 )
     {
@@ -121,8 +124,13 @@ void TransformGizmo::Tick(double TimePassed, EditorState* pEditorState)
         // Create inverse world transform to bring the camera into object space
         if( pEditorState->m_pSelectedObjects.size() > 0 )
         {
-            InverseWorldTransform = *pEditorState->m_pSelectedObjects[0]->m_pComponentTransform->GetWorldTransform();
-            InverseWorldTransform.Inverse();
+            ComponentTransform* pTransform = pEditorState->m_pSelectedObjects[0]->m_pComponentTransform;
+
+            if( pTransform )
+            {
+                InverseWorldTransform = *pTransform->GetWorldTransform();
+                InverseWorldTransform.Inverse();
+            }
         }
     }
     else

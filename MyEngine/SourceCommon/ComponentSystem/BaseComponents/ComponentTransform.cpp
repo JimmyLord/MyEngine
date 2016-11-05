@@ -27,7 +27,6 @@ ComponentTransform::ComponentTransform()
 
     m_BaseType = BaseComponentType_Data;
 
-    m_pParentGameObject = 0;
     m_pParentTransform = 0;
 
     // the first ComponentTransform will create the pool of callback objects.
@@ -38,14 +37,6 @@ ComponentTransform::ComponentTransform()
 ComponentTransform::~ComponentTransform()
 {
     MYFW_COMPONENT_VARIABLE_LIST_DESTRUCTOR();
-
-    // if we had an parent transform, stop it's gameobject from reporting it's deletion.
-    if( m_pParentTransform != 0 )
-    {
-        MyAssert( m_pParentGameObject == m_pParentTransform->m_pGameObject );
-        //SetParentTransform( 0 );
-        m_pParentTransform->m_pGameObject->UnregisterOnDeleteCallback( this, StaticOnGameObjectDeleted );
-    }
 }
 
 void ComponentTransform::RegisterVariables(CPPListHead* pList, ComponentTransform* pThis) //_VARIABLE_LIST
@@ -54,7 +45,7 @@ void ComponentTransform::RegisterVariables(CPPListHead* pList, ComponentTransfor
 #if MYFW_IOS || MYFW_OSX || MYFW_NACL
 #pragma GCC diagnostic ignored "-Winvalid-offsetof"
 #endif
-    MyAssert( offsetof( ComponentTransform, m_pParentGameObject ) == MyOffsetOf( pThis, &pThis->m_pParentGameObject ) );
+    //MyAssert( offsetof( ComponentTransform, m_pParentGameObject ) == MyOffsetOf( pThis, &pThis->m_pParentGameObject ) );
     MyAssert( offsetof( ComponentTransform, m_pParentTransform )  == MyOffsetOf( pThis, &pThis->m_pParentTransform )  );
     MyAssert( offsetof( ComponentTransform, m_LocalPosition )     == MyOffsetOf( pThis, &pThis->m_LocalPosition )     );
     MyAssert( offsetof( ComponentTransform, m_LocalRotation )     == MyOffsetOf( pThis, &pThis->m_LocalRotation )     );
@@ -63,7 +54,7 @@ void ComponentTransform::RegisterVariables(CPPListHead* pList, ComponentTransfor
 #pragma GCC diagnostic default "-Winvalid-offsetof"
 #endif
 
-    AddVar( pList, "ParentGOID",      ComponentVariableType_GameObjectPtr,    MyOffsetOf( pThis, &pThis->m_pParentGameObject ),  true, false, 0,                  (CVarFunc_ValueChanged)&ComponentTransform::OnValueChanged,                                                         0, 0 );
+    //AddVar( pList, "ParentGOID",      ComponentVariableType_GameObjectPtr,    MyOffsetOf( pThis, &pThis->m_pParentGameObject ),  true, false, 0,                  (CVarFunc_ValueChanged)&ComponentTransform::OnValueChanged,                                                         0, 0 );
     AddVar( pList, "ParentTransform", ComponentVariableType_ComponentPtr,     MyOffsetOf( pThis, &pThis->m_pParentTransform ),  false,  true, "Parent Transform", (CVarFunc_ValueChanged)&ComponentTransform::OnValueChanged, (CVarFunc_DropTarget)&ComponentTransform::OnDropTransform, 0 );
     AddVar( pList, "WorldPos",        ComponentVariableType_Vector3,          MyOffsetOf( pThis, &pThis->m_WorldPosition ),     false,  true, "World Pos",        (CVarFunc_ValueChanged)&ComponentTransform::OnValueChanged,                                                         0, 0 );
     AddVar( pList, "WorldRot",        ComponentVariableType_Vector3,          MyOffsetOf( pThis, &pThis->m_WorldRotation ),     false,  true, "World Rot",        (CVarFunc_ValueChanged)&ComponentTransform::OnValueChanged,                                                         0, 0 );
@@ -87,16 +78,8 @@ void ComponentTransform::RegisterVariables(CPPListHead* pList, ComponentTransfor
 
 void ComponentTransform::Reset()
 {
-    // if we had an parent transform, stop it's gameobject from reporting it's deletion.
-    if( m_pParentTransform != 0 )
-    {
-        MyAssert( m_pParentGameObject == m_pParentTransform->m_pGameObject );
-        m_pParentTransform->m_pGameObject->UnregisterOnDeleteCallback( this, StaticOnGameObjectDeleted );
-    }
-
     ComponentBase::Reset();
 
-    m_pParentGameObject = 0;
     m_pParentTransform = 0;
 
     m_WorldTransform.SetIdentity();
@@ -329,14 +312,26 @@ cJSON* ComponentTransform::ExportAsJSONObject(bool savesceneid)
 
 void ComponentTransform::ImportFromJSONObject(cJSON* jsonobj, unsigned int sceneid)
 {
-    // import the parent goid, set the parent, then import the rest.
-    ImportVariablesFromJSON( jsonobj, "ParentGOID" );
-    if( m_pParentGameObject )
+    // moved into GameObject, here for old scene files.
     {
-        m_pGameObject->SetParentGameObject( m_pParentGameObject );
-        m_WorldTransformIsDirty = true;
+        // import the parent goid, set the parent, then import the rest.        
+        //ImportVariablesFromJSON( jsonobj, "ParentGOID" );
+        unsigned int parentgoid = 0;
+        cJSONExt_GetUnsignedInt( jsonobj, "ParentGOID", &parentgoid );
+
+        if( parentgoid > 0 )
+        {
+            GameObject* pParentGameObject = g_pComponentSystemManager->FindGameObjectByID( sceneid, parentgoid );
+            MyAssert( pParentGameObject );
+
+            if( pParentGameObject )
+            {
+                m_pGameObject->SetParentGameObject( pParentGameObject );
+                m_WorldTransformIsDirty = true;
+            }
+            m_LocalTransformIsDirty = true;
+        }
     }
-    m_LocalTransformIsDirty = true;
 
     // load all the registered variables.
     ComponentBase::ImportFromJSONObject( jsonobj, sceneid );
@@ -365,7 +360,7 @@ ComponentTransform& ComponentTransform::operator=(const ComponentTransform& othe
     this->m_WorldRotation = other.m_WorldRotation;
     this->m_WorldScale = other.m_WorldScale;
 
-    this->SetParentTransform( other.m_pParentTransform, false );
+    this->SetParentTransform( other.m_pParentTransform );
 
     this->m_LocalTransform = other.m_LocalTransform;
     this->m_LocalTransformIsDirty = other.m_LocalTransformIsDirty;
@@ -676,9 +671,9 @@ void ComponentTransform::LookAt(Vector3 pos)
     SetWorldRotation( rot );
 }
 
-void ComponentTransform::SetParentTransform(ComponentTransform* pNewParent, bool unregisterondeletecallback)
+void ComponentTransform::SetParentTransform(ComponentTransform* pNewParentTransform)
 {
-    if( m_pParentTransform == pNewParent )
+    if( m_pParentTransform == pNewParentTransform )
         return;
 
     MyMatrix localtransform;
@@ -686,16 +681,12 @@ void ComponentTransform::SetParentTransform(ComponentTransform* pNewParent, bool
     // if we had an old parent:
     if( m_pParentTransform != 0 )
     {
-        // stop it's gameobject from reporting it's deletion
-        if( unregisterondeletecallback )
-        m_pParentTransform->m_pGameObject->UnregisterOnDeleteCallback( this, StaticOnGameObjectDeleted );
-
         // stop sending it position changed messages
         m_pParentTransform->m_pGameObject->m_pComponentTransform->UnregisterTransformChangedCallbacks( this );
 
-        if( pNewParent )
+        if( pNewParentTransform )
         {
-            MyMatrix matparentworld = pNewParent->m_WorldTransform;
+            MyMatrix matparentworld = pNewParentTransform->m_WorldTransform;
             matparentworld.Inverse();
             localtransform = matparentworld * m_WorldTransform;
         }
@@ -709,31 +700,28 @@ void ComponentTransform::SetParentTransform(ComponentTransform* pNewParent, bool
         localtransform = m_WorldTransform;
     }
 
-    if( pNewParent == 0 || pNewParent == this )
+    if( pNewParentTransform == 0 || pNewParentTransform == this )
     {
         m_WorldTransform = localtransform;
         m_WorldPosition = m_LocalPosition;
         m_WorldRotation = m_LocalRotation;
         m_WorldScale = m_LocalScale;
 
-        m_pParentGameObject = 0;
         m_pParentTransform = 0;
     }
     else
     {
-        MyMatrix matparentworld = *pNewParent->GetWorldTransform();
+        MyMatrix matparentworld = *pNewParentTransform->GetWorldTransform();
         matparentworld.Inverse();
         MyMatrix matworld = matparentworld * localtransform;
         SetWorldTransform( &matworld );
 
-        m_pParentGameObject = pNewParent->m_pGameObject;
-        m_pParentTransform = pNewParent;
+        m_pParentTransform = pNewParentTransform;
 
-        // register this component with the gameobject of the parent to notify us of it's deletion.
-        m_pParentGameObject->RegisterOnDeleteCallback( this, StaticOnGameObjectDeleted );
+        GameObject* pParentGameObject = m_pGameObject->GetParentGameObject();
 
         // register this transform with it's parent to notify us if it changes.
-        m_pParentGameObject->m_pComponentTransform->RegisterTransformChangedCallback( this, StaticOnParentTransformChanged );
+        pParentGameObject->m_pComponentTransform->RegisterTransformChangedCallback( this, StaticOnParentTransformChanged );
     }
 
     UpdateTransform();
@@ -832,17 +820,6 @@ void ComponentTransform::UnregisterTransformChangedCallbacks(void* pObj)
         }
 
         pNode = pNextNode;
-    }
-}
-
-void ComponentTransform::OnGameObjectDeleted(GameObject* pGameObject)
-{
-    // if our parent was deleted, clear the pointer.
-    MyAssert( m_pParentTransform == pGameObject->m_pComponentTransform ); // the callback should have only been registered if needed.
-    if( m_pParentTransform == pGameObject->m_pComponentTransform )
-    {
-        // we're in the callback, so don't unregister the callback.
-        SetParentTransform( 0, false );
     }
 }
 

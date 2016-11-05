@@ -27,7 +27,7 @@ class GameObject : public CPPListNode
 protected:
     GameObject* m_pGameObjectThisInheritsFrom; // for variables, if set, any changes to the parent will be reflected in this object.
 
-    // TODO: move "GameObject* m_pParentGameObject" from transform component to here.
+    GameObject* m_pParentGameObject;
     CPPListHead m_ChildList; // child game objects
 
     ComponentGameObjectProperties m_Properties;
@@ -59,6 +59,9 @@ public:
     CPPListHead* GetChildList() { return &m_ChildList; }
     GameObject* GetFirstChild() { return (GameObject*)m_ChildList.GetHead(); }
     void SetGameObjectThisInheritsFrom(GameObject* pObj) { m_pGameObjectThisInheritsFrom = pObj; }
+
+    // Parent gameobject, is terms of transform (should also work with folders/gameobject without transforms)
+    GameObject* GetParentGameObject() { return m_pParentGameObject; }
 
 #if MYFW_USING_LUA
     static void LuaRegister(lua_State* luastate);
@@ -119,6 +122,9 @@ public:
     // Callbacks
     void RegisterOnDeleteCallback(void* pObj, GameObjectDeletedCallbackFunc pCallback);
     void UnregisterOnDeleteCallback(void* pObj, GameObjectDeletedCallbackFunc pCallback);
+
+    static void StaticOnGameObjectDeleted(void* pObjectPtr, GameObject* pGameObject) { ((GameObject*)pObjectPtr)->OnGameObjectDeleted( pGameObject ); }
+    void OnGameObjectDeleted(GameObject* pGameObject);
 
     static void StaticOnTransformChanged(void* pObjectPtr, Vector3& newpos, Vector3& newrot, Vector3& newscale, bool changedbyeditor) { ((GameObject*)pObjectPtr)->OnTransformChanged( newpos, newrot, newscale, changedbyeditor ); }
     void OnTransformChanged(Vector3& newpos, Vector3& newrot, Vector3& newscale, bool changedbyeditor);

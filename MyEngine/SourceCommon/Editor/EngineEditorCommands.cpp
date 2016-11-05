@@ -280,9 +280,9 @@ void EditorCommand_DeleteObjects::Undo()
     {
         if( m_PreviousGameObjectsInObjectList[i] == 0 )
         {
-            if( m_ObjectsDeleted[i]->m_pComponentTransform->GetParentGameObject() )
+            if( m_ObjectsDeleted[i]->GetParentGameObject() )
             {
-                m_ObjectsDeleted[i]->m_pComponentTransform->GetParentGameObject()->GetChildList()->MoveHead( m_ObjectsDeleted[i] );
+                m_ObjectsDeleted[i]->GetParentGameObject()->GetChildList()->MoveHead( m_ObjectsDeleted[i] );
             }
             else
             {
@@ -304,9 +304,9 @@ void EditorCommand_DeleteObjects::Undo()
         }
         else
         {
-            if( m_ObjectsDeleted[i]->m_pComponentTransform->GetParentGameObject() )
+            if( m_ObjectsDeleted[i]->GetParentGameObject() )
             {
-                g_pPanelObjectList->Tree_MoveObject( m_ObjectsDeleted[i], m_ObjectsDeleted[i]->m_pComponentTransform->GetParentGameObject(), true );
+                g_pPanelObjectList->Tree_MoveObject( m_ObjectsDeleted[i], m_ObjectsDeleted[i]->GetParentGameObject(), true );
             }
             else
             {
