@@ -653,6 +653,27 @@ ComponentBase* GameObject::AddExistingComponent(ComponentBase* pComponent, bool 
     if( pComponent->IsA( "TransformComponent" ) )
     {
         m_pComponentTransform = (ComponentTransform*)pComponent;
+
+        // re-parent all child transforms, if there have one
+        for( CPPListNode* pNode = m_ChildList.GetHead(); pNode; pNode = pNode->GetNext() )
+        {
+            // TODO: recurse through children
+            GameObject* pChildObject = (GameObject*)pNode;
+
+            if( pChildObject->m_pComponentTransform )
+            {
+                pChildObject->m_pComponentTransform->SetParentTransform( m_pComponentTransform );
+            }
+        }
+
+        // Re-enable all renderable components
+        for( unsigned int i=0; i<m_Components.Count(); i++ )
+        {
+            if( m_Components[i]->IsA( "RenderableComponent" ) )
+            {
+                m_Components[i]->SetEnabled( true );
+            }
+        }
     }
     else
     {
@@ -695,9 +716,29 @@ ComponentBase* GameObject::RemoveComponent(ComponentBase* pComponent)
     if( pComponent->IsA( "TransformComponent" ) )
     {
         found = true;
-        m_pComponentTransform = 0;
 
-        // TODO: fix child transforms
+        // Unparent all child transforms, if there have one
+        for( CPPListNode* pNode = m_ChildList.GetHead(); pNode; pNode = pNode->GetNext() )
+        {
+            // TODO: recurse through children
+            GameObject* pChildObject = (GameObject*)pNode;
+
+            if( pChildObject->m_pComponentTransform )
+            {
+                pChildObject->m_pComponentTransform->SetParentTransform( 0 );
+            }
+        }
+
+        // Disable all renderable components
+        for( unsigned int i=0; i<m_Components.Count(); i++ )
+        {
+            if( m_Components[i]->IsA( "RenderableComponent" ) )
+            {
+                m_Components[i]->SetEnabled( false );
+            }
+        }
+
+        m_pComponentTransform = 0;
     }
     else
     {

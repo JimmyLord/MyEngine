@@ -148,13 +148,17 @@ ComponentSystemManager::~ComponentSystemManager()
 #define MYFW_COMPONENTSYSTEMMANAGER_IMPLEMENT_CALLBACK_REGISTER_FUNCTIONS(CallbackType) \
     void ComponentSystemManager::RegisterComponentCallback_##CallbackType(ComponentCallbackStruct_##CallbackType* pCallbackStruct) \
     { \
-        MyAssert( pCallbackStruct->pFunc != 0 && pCallbackStruct->pObj != 0 ); \
+        MyAssert( pCallbackStruct->pFunc != 0 && pCallbackStruct->pObj != 0 && pCallbackStruct->Prev == 0 && pCallbackStruct->Next == 0 ); \
         m_pComponentCallbackList_##CallbackType.AddTail( pCallbackStruct ); \
     } \
     void ComponentSystemManager::UnregisterComponentCallback_##CallbackType(ComponentCallbackStruct_##CallbackType* pCallbackStruct) \
     { \
         if( pCallbackStruct->Prev ) \
+        { \
             pCallbackStruct->Remove(); \
+            pCallbackStruct->Next = 0; \
+            pCallbackStruct->Prev = 0; \
+        } \
     }
 
 MYFW_COMPONENTSYSTEMMANAGER_IMPLEMENT_CALLBACK_REGISTER_FUNCTIONS( Tick );
@@ -1820,9 +1824,12 @@ void ComponentSystemManager::Tick(double TimePassed)
         }
     }
 
-    // update all components that registered a tick callback.
-    for( CPPListNode* pNode = m_pComponentCallbackList_Tick.HeadNode.Next; pNode->Next; pNode = pNode->Next )
+    // update all components that registered a tick callback... might unregister themselves while in their callback
+    CPPListNode* pNextNode;
+    for( CPPListNode* pNode = m_pComponentCallbackList_Tick.HeadNode.Next; pNode != 0; pNode = pNextNode )
     {
+        pNextNode = pNode->GetNext();
+
         ComponentCallbackStruct_Tick* pCallbackStruct = (ComponentCallbackStruct_Tick*)pNode;
         MyAssert( pCallbackStruct->pFunc != 0 );
 
