@@ -335,9 +335,11 @@ EditorCommand_DeleteComponents::EditorCommand_DeleteComponents(const std::vector
     for( unsigned int i=0; i<selectedcomponents.size(); i++ )
     {
         // can't delete an objects transform component.
-        if( selectedcomponents[i]->m_pGameObject &&
-            selectedcomponents[i] == selectedcomponents[i]->m_pGameObject->m_pComponentTransform )
-            MyAssert( false );
+        //if( selectedcomponents[i]->m_pGameObject &&
+        //    selectedcomponents[i] == selectedcomponents[i]->m_pGameObject->m_pComponentTransform )
+        //{
+        //    MyAssert( false );
+        //}
         
         m_ComponentsDeleted.push_back( selectedcomponents[i] );
     }

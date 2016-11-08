@@ -1738,17 +1738,17 @@ void ComponentBase::OnPopupClick(wxEvent &evt)
     {
         EditorState* pEditorState = g_pEngineCore->m_pEditorState;
 
-        // deselect all "main" transform components.
-        for( unsigned int i=0; i<pEditorState->m_pSelectedComponents.size(); i++ )
-        {
-            ComponentBase* pSelComp = pEditorState->m_pSelectedComponents[i];
-            if( pSelComp->m_pGameObject && pSelComp == pSelComp->m_pGameObject->m_pComponentTransform )
-            {
-                pEditorState->m_pSelectedComponents[i] = pEditorState->m_pSelectedComponents.back();
-                pEditorState->m_pSelectedComponents.pop_back();
-                i--;
-            }
-        }
+        //// deselect all "main" transform components.
+        //for( unsigned int i=0; i<pEditorState->m_pSelectedComponents.size(); i++ )
+        //{
+        //    ComponentBase* pSelComp = pEditorState->m_pSelectedComponents[i];
+        //    if( pSelComp->m_pGameObject && pSelComp == pSelComp->m_pGameObject->m_pComponentTransform )
+        //    {
+        //        pEditorState->m_pSelectedComponents[i] = pEditorState->m_pSelectedComponents.back();
+        //        pEditorState->m_pSelectedComponents.pop_back();
+        //        i--;
+        //    }
+        //}
 
         // if anything is still selected, delete it/them.
         if( pEditorState->m_pSelectedComponents.size() > 0 )

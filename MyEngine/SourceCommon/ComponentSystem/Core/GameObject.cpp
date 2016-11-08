@@ -649,23 +649,31 @@ ComponentBase* GameObject::AddNewComponent(int componenttype, unsigned int scene
 
 ComponentBase* GameObject::AddExistingComponent(ComponentBase* pComponent, bool resetcomponent)
 {
-    if( m_Components.Count() >= m_Components.Length() )
-        return 0;
+    // special handling for removing transform component
+    if( pComponent->IsA( "TransformComponent" ) )
+    {
+        m_pComponentTransform = (ComponentTransform*)pComponent;
+    }
+    else
+    {
+        if( m_Components.Count() >= m_Components.Length() )
+            return 0;
 
-    pComponent->m_pGameObject = this;
-    if( resetcomponent )
-        pComponent->Reset();
+        pComponent->m_pGameObject = this;
+        if( resetcomponent )
+            pComponent->Reset();
 
-    m_Components.Add( pComponent );
+        m_Components.Add( pComponent );
+
+        // add this to the system managers component list.
+        if( pComponent->Prev == 0 )
+            g_pComponentSystemManager->AddComponent( pComponent );
+    }
 
     // register this components callbacks.
     pComponent->RegisterCallbacks();
 
     MyAssert( pComponent->GetSceneID() == 0 || m_SceneID == pComponent->GetSceneID() );
-
-    // add this to the system managers component list.
-    if( pComponent->Prev == 0 )
-        g_pComponentSystemManager->AddComponent( pComponent );
 
 #if MYFW_USING_WX
     if( m_Managed )
@@ -681,30 +689,47 @@ ComponentBase* GameObject::AddExistingComponent(ComponentBase* pComponent, bool 
 
 ComponentBase* GameObject::RemoveComponent(ComponentBase* pComponent)
 {
-    for( unsigned int i=0; i<m_Components.Count(); i++ )
-    {
-        if( m_Components[i] == pComponent )
-        {
-            m_Components.RemoveIndex_MaintainOrder( i );
+    bool found = false;
 
-            // unregister all this components callbacks.
-            pComponent->UnregisterCallbacks();
-            
-            // remove from system managers component list.
-            pComponent->Remove();
-            pComponent->Prev = 0;
-            pComponent->Next = 0;
+    // special handling for removing transform component
+    if( pComponent->IsA( "TransformComponent" ) )
+    {
+        found = true;
+        m_pComponentTransform = 0;
+
+        // TODO: fix child transforms
+    }
+    else
+    {
+        for( unsigned int i=0; i<m_Components.Count(); i++ )
+        {
+            if( m_Components[i] == pComponent )
+            {
+                found = true;
+                m_Components.RemoveIndex_MaintainOrder( i );
+
+                // remove from system managers component list.
+                pComponent->Remove();
+                pComponent->Prev = 0;
+                pComponent->Next = 0;
+            }
+        }
+    }
+
+    if( found )
+    {
+        // unregister all this components callbacks.
+        pComponent->UnregisterCallbacks();
 
 #if MYFW_USING_WX
-            // remove the component from the object list.
-            if( g_pPanelObjectList )
-            {
-                g_pPanelObjectList->RemoveObject( pComponent );
-            }
+        // remove the component from the object list.
+        if( g_pPanelObjectList )
+        {
+            g_pPanelObjectList->RemoveObject( pComponent );
+        }
 #endif //MYFW_USING_WX
 
-            return pComponent;
-        }
+        return pComponent;
     }
 
     return 0; // component not found.
