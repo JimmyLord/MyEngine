@@ -526,6 +526,11 @@ MyAABounds* ComponentMesh::GetBounds()
 
 void ComponentMesh::TickCallback(double TimePassed)
 {
+    // TODO: temp hack, if the gameobject doesn't have a transform (shouldn't happen), then don't try to add to scene graph
+    if( m_pGameObject->m_pComponentTransform == 0 )
+        return;
+
+    MyAssert( m_pGameObject->m_pComponentTransform );
     MyAssert( m_pMesh );
     MyAssert( m_WaitingToAddToSceneGraph );
 

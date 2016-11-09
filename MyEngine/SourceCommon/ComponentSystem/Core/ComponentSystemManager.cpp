@@ -910,25 +910,44 @@ void ComponentSystemManager::LoadSceneFromJSON(const char* scenename, const char
     // create/init all the game objects
     for( int i=0; i<cJSON_GetArraySize( gameobjectarray ); i++ )
     {
-        cJSON* gameobj = cJSON_GetArrayItem( gameobjectarray, i );
+        cJSON* jGameObject = cJSON_GetArrayItem( gameobjectarray, i );
 
         if( getsceneidfromeachobject )
-            cJSONExt_GetUnsignedInt( gameobj, "SceneID", &sceneid );
+            cJSONExt_GetUnsignedInt( jGameObject, "SceneID", &sceneid );
 
         unsigned int id = -1;
-        cJSONExt_GetUnsignedInt( gameobj, "ID", &id );
+        cJSONExt_GetUnsignedInt( jGameObject, "ID", &id );
         MyAssert( id != -1 );
+
+        // LEGACY: support for old scene files with folders in them, now stored as "SubType"
         bool isfolder = false;
-        cJSONExt_GetBool( gameobj, "IsFolder", &isfolder );
+        cJSONExt_GetBool( jGameObject, "IsFolder", &isfolder );
+
+        bool hastransform = true;
+        cJSON* jSubtype = cJSON_GetObjectItem( jGameObject, "SubType" );
+        if( jSubtype )
+        {
+            if( strcmp( jSubtype->valuestring, "Folder" ) )
+            {
+                isfolder = true;
+                hastransform = false;
+            }
+            else if( strcmp( jSubtype->valuestring, "Logic" ) )
+            {
+                hastransform = false;
+            }
+        }
 
         // find an existing game object with the same id or create a new one.
         GameObject* pGameObject = FindGameObjectByID( sceneid, id );
         if( pGameObject ) { MyAssert( pGameObject->GetSceneID() == sceneid ); }
 
-        if( pGameObject == 0 )        
-            pGameObject = CreateGameObject( true, sceneid, isfolder );
+        if( pGameObject == 0 )
+        {
+            pGameObject = CreateGameObject( true, sceneid, isfolder, hastransform );
+        }
 
-        pGameObject->ImportFromJSONObject( gameobj, sceneid );
+        pGameObject->ImportFromJSONObject( jGameObject, sceneid );
         
         unsigned int gameobjectid = pGameObject->GetID();
         if( gameobjectid > m_pSceneInfoMap[sceneid].m_NextGameObjectID )
@@ -1306,9 +1325,9 @@ bool ComponentSystemManager::IsSceneLoaded(const char* fullpath)
     return false;
 }
 
-GameObject* ComponentSystemManager::CreateGameObject(bool manageobject, int sceneid, bool isfolder)
+GameObject* ComponentSystemManager::CreateGameObject(bool manageobject, int sceneid, bool isfolder, bool hastransform)
 {
-    GameObject* pGameObject = MyNew GameObject( manageobject, sceneid, isfolder );
+    GameObject* pGameObject = MyNew GameObject( manageobject, sceneid, isfolder, hastransform );
     unsigned int id = GetNextGameObjectIDAndIncrement( sceneid );
     pGameObject->SetID( id );
 
@@ -1331,7 +1350,7 @@ GameObject* ComponentSystemManager::CreateGameObjectFromTemplate(unsigned int te
 {
     MyAssert( templateid < m_pGameObjectTemplateManager->GetNumberOfTemplates() );
 
-    GameObject* pGameObject = CreateGameObject( true, sceneid, false );
+    GameObject* pGameObject = CreateGameObject( true, sceneid, false, true );
     
     const char* templatename = m_pGameObjectTemplateManager->GetTemplateName( templateid );
     pGameObject->SetName( templatename );
@@ -1455,7 +1474,8 @@ GameObject* ComponentSystemManager::CopyGameObject(GameObject* pObject, const ch
     if( g_pEngineCore->m_EditorMode )
         sceneid = pObject->GetSceneID();
 
-    GameObject* pNewObject = CreateGameObject( true, sceneid, pObject->IsFolder() );
+    GameObject* pNewObject = CreateGameObject( true, sceneid, pObject->IsFolder(), pObject->m_pComponentTransform ? true : false );
+
     if( newname )
         pNewObject->SetName( newname );
 

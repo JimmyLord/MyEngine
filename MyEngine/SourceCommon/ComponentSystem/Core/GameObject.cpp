@@ -9,7 +9,7 @@
 
 #include "EngineCommonHeader.h"
 
-GameObject::GameObject(bool managed, int sceneid, bool isfolder)
+GameObject::GameObject(bool managed, int sceneid, bool isfolder, bool hastransform)
 {
     ClassnameSanityCheck();
 
@@ -26,7 +26,7 @@ GameObject::GameObject(bool managed, int sceneid, bool isfolder)
     m_PhysicsSceneID = sceneid;
     m_Name = 0;
 
-    if( isfolder )
+    if( isfolder || hastransform == false )
     {
         m_pComponentTransform = 0;
     }
@@ -365,9 +365,6 @@ cJSON* GameObject::ExportAsJSONObject(bool savesceneid)
     if( m_Enabled == false )
         cJSON_AddNumberToObject( jGameObject, "Enabled", m_Enabled );
 
-    if( m_IsFolder == true )
-        cJSON_AddNumberToObject( jGameObject, "IsFolder", m_IsFolder );
-
     if( savesceneid )
         cJSON_AddNumberToObject( jGameObject, "SceneID", m_SceneID );
 
@@ -376,6 +373,11 @@ cJSON* GameObject::ExportAsJSONObject(bool savesceneid)
         cJSON_AddNumberToObject( jGameObject, "PhysicsSceneID", m_PhysicsSceneID );
 
     cJSON_AddStringToObject( jGameObject, "Name", m_Name );
+
+    if( m_IsFolder == true )
+        cJSON_AddStringToObject( jGameObject, "SubType", "Folder" );
+    else if( m_pComponentTransform == false )
+        cJSON_AddStringToObject( jGameObject, "SubType", "Logic" );
 
     cJSON* jProperties = m_Properties.ExportAsJSONObject( false );
     // if no properties were saved, don't write it out to disk
@@ -412,7 +414,15 @@ void GameObject::ImportFromJSONObject(cJSON* jGameObject, unsigned int sceneid)
         SetParentGameObject( pParentGameObject );
     }
 
+    // LEGACY: support for old scene files with folders in them, now stored as "SubType"
     cJSONExt_GetBool( jGameObject, "IsFolder", &m_IsFolder );
+
+    obj = cJSON_GetObjectItem( jGameObject, "SubType" );
+    if( obj )
+    {
+        if( strcmp( obj->valuestring, "Folder" ) )
+            m_IsFolder = true;
+    }
 
     cJSONExt_GetUnsignedInt( jGameObject, "ID", &m_ID );
     m_PhysicsSceneID = m_SceneID;

@@ -123,7 +123,7 @@ void SceneHandler::OnPopupClick(wxEvent &evt)
 
     case RightClick_AddFolder:
         {
-            GameObject* pGameObject = g_pComponentSystemManager->CreateGameObject( true, pSceneHandler->m_SceneIDBeingAffected, true );
+            GameObject* pGameObject = g_pComponentSystemManager->CreateGameObject( true, pSceneHandler->m_SceneIDBeingAffected, true, false );
             pGameObject->SetName( "New Folder" );
         }
         break;

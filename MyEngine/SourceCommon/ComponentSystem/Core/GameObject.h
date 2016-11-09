@@ -50,7 +50,7 @@ public:
     MyList<ComponentBase*> m_Components; // component system manager is responsible for deleting these components.
 
 public:
-    GameObject(bool managed, int sceneid, bool isfolder);
+    GameObject(bool managed, int sceneid, bool isfolder, bool hastransform);
     virtual ~GameObject();
     SetClassnameBase( "GameObject" ); // only first 8 character count.
 
