@@ -693,6 +693,9 @@ void ComponentTransform::SetParentTransform(ComponentTransform* pNewParentTransf
         else
         {
             localtransform = m_WorldTransform;
+            m_LocalPosition = m_WorldPosition;
+            m_LocalRotation = m_WorldRotation;
+            m_LocalScale = m_WorldScale;
         }
     }
     else
@@ -711,16 +714,17 @@ void ComponentTransform::SetParentTransform(ComponentTransform* pNewParentTransf
     }
     else
     {
-        MyMatrix matparentworld = *pNewParentTransform->GetWorldTransform();
-        matparentworld.Inverse();
-        MyMatrix matworld = matparentworld * localtransform;
-        SetWorldTransform( &matworld );
+        //MyMatrix matparentworld = *pNewParentTransform->GetWorldTransform();
+        //matparentworld.Inverse();
+        //MyMatrix matworld = matparentworld * localtransform;
+        //SetWorldTransform( &matworld );
+        //m_pParentTransform = pNewParentTransform;
 
         m_pParentTransform = pNewParentTransform;
-
-        GameObject* pParentGameObject = m_pGameObject->GetParentGameObject();
+        SetWorldTransform( &localtransform );
 
         // register this transform with it's parent to notify us if it changes.
+        GameObject* pParentGameObject = m_pGameObject->GetParentGameObject();
         pParentGameObject->m_pComponentTransform->RegisterTransformChangedCallback( this, StaticOnParentTransformChanged );
     }
 

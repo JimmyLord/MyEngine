@@ -354,6 +354,10 @@ cJSON* GameObject::ExportAsJSONObject(bool savesceneid)
 {
     cJSON* jGameObject = cJSON_CreateObject();
 
+    cJSON_AddNumberToObject( jGameObject, "ID", m_ID );
+
+    cJSON_AddStringToObject( jGameObject, "Name", m_Name );
+
     // Inheritance parent can be in a different scene.
     if( m_pGameObjectThisInheritsFrom )
         cJSON_AddItemToObject( jGameObject, "ParentGO", m_pGameObjectThisInheritsFrom->ExportReferenceAsJSONObject( m_SceneID ) );
@@ -368,11 +372,8 @@ cJSON* GameObject::ExportAsJSONObject(bool savesceneid)
     if( savesceneid )
         cJSON_AddNumberToObject( jGameObject, "SceneID", m_SceneID );
 
-    cJSON_AddNumberToObject( jGameObject, "ID", m_ID );
     if( m_SceneID != m_PhysicsSceneID )
         cJSON_AddNumberToObject( jGameObject, "PhysicsSceneID", m_PhysicsSceneID );
-
-    cJSON_AddStringToObject( jGameObject, "Name", m_Name );
 
     if( m_IsFolder == true )
         cJSON_AddStringToObject( jGameObject, "SubType", "Folder" );
