@@ -578,8 +578,8 @@ MyMatrix* ComponentTransform::GetWorldTransform()
 {
     UpdateTransform();
 
-    if( m_pParentTransform == 0 )
-        return &m_LocalTransform;
+    //if( m_pParentTransform == 0 )
+    //    return &m_LocalTransform;
 
     return &m_WorldTransform;
 }
