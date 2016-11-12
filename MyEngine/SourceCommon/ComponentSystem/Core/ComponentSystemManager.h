@@ -28,6 +28,7 @@ enum ObjectListIconTypes
     ObjectListIcon_Scene,
     ObjectListIcon_GameObject,
     ObjectListIcon_Folder,
+    ObjectListIcon_LogicObject,
     ObjectListIcon_Component,
 };
 

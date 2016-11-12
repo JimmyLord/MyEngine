@@ -415,15 +415,9 @@ void GameObject::ImportFromJSONObject(cJSON* jGameObject, unsigned int sceneid)
         SetParentGameObject( pParentGameObject );
     }
 
-    // LEGACY: support for old scene files with folders in them, now stored as "SubType"
+    // LEGACY: support for old scene files with folders in them
+    //    now stored as "SubType", handled in ComponentSystemManager::LoadSceneFromJSON()
     cJSONExt_GetBool( jGameObject, "IsFolder", &m_IsFolder );
-
-    obj = cJSON_GetObjectItem( jGameObject, "SubType" );
-    if( obj )
-    {
-        if( strcmp( obj->valuestring, "Folder" ) )
-            m_IsFolder = true;
-    }
 
     cJSONExt_GetUnsignedInt( jGameObject, "ID", &m_ID );
     m_PhysicsSceneID = m_SceneID;
@@ -604,6 +598,8 @@ void GameObject::SetManaged(bool managed)
             int iconindex = ObjectListIcon_GameObject;
             if( m_IsFolder )
                 iconindex = ObjectListIcon_Folder;
+            else if( m_pComponentTransform == 0 )
+                iconindex = ObjectListIcon_LogicObject;
             wxTreeItemId gameobjectid = g_pPanelObjectList->AddObject( this, GameObject::StaticOnLeftClick, GameObject::StaticOnRightClick, rootid, m_Name, iconindex );
             g_pPanelObjectList->SetDragAndDropFunctions( gameobjectid, GameObject::StaticOnDrag, GameObject::StaticOnDrop );
             g_pPanelObjectList->SetLabelEditFunction( gameobjectid, GameObject::StaticOnLabelEdit );

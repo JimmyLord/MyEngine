@@ -57,6 +57,7 @@ ComponentSystemManager::ComponentSystemManager(ComponentTypeManager* typemanager
         wxBitmap bitmap_scene( "DataEngine/EditorIcons/IconScene.bmp", wxBITMAP_TYPE_BMP );
         wxBitmap bitmap_gameobject( "DataEngine/EditorIcons/IconGameObject.bmp", wxBITMAP_TYPE_BMP );
         wxBitmap bitmap_folder( "DataEngine/EditorIcons/IconFolder.bmp", wxBITMAP_TYPE_BMP );// = wxArtProvider::GetBitmap( wxART_FOLDER, wxART_OTHER, wxSize(16,16) );
+        wxBitmap bitmap_logicobject( "DataEngine/EditorIcons/IconLogicObject.bmp", wxBITMAP_TYPE_BMP );// = wxArtProvider::GetBitmap( wxART_FOLDER, wxART_OTHER, wxSize(16,16) );
         wxBitmap bitmap_component( "DataEngine/EditorIcons/IconComponent.bmp", wxBITMAP_TYPE_BMP );
 
         // make sure bitmaps loaded
@@ -69,6 +70,7 @@ ComponentSystemManager::ComponentSystemManager(ComponentTypeManager* typemanager
             pImageList->Add( bitmap_scene );          // ObjectListIcon_Scene,
             pImageList->Add( bitmap_gameobject );     // ObjectListIcon_GameObject,
             pImageList->Add( bitmap_folder );         // ObjectListIcon_Folder,
+            pImageList->Add( bitmap_logicobject );    // ObjectListIcon_LogicObject,
             pImageList->Add( bitmap_component );      // ObjectListIcon_Component,
         }
 
@@ -927,12 +929,12 @@ void ComponentSystemManager::LoadSceneFromJSON(const char* scenename, const char
         cJSON* jSubtype = cJSON_GetObjectItem( jGameObject, "SubType" );
         if( jSubtype )
         {
-            if( strcmp( jSubtype->valuestring, "Folder" ) )
+            if( strcmp( jSubtype->valuestring, "Folder" ) == 0 )
             {
                 isfolder = true;
                 hastransform = false;
             }
-            else if( strcmp( jSubtype->valuestring, "Logic" ) )
+            else if( strcmp( jSubtype->valuestring, "Logic" ) == 0 )
             {
                 hastransform = false;
             }
