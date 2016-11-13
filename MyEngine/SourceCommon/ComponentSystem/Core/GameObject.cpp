@@ -197,8 +197,13 @@ void GameObject::OnRightClick()
             menu.Append( RightClick_ClearParent, "Clear Parent" );
         }
 
+        // Special handling of ComponentType_Transform, only offer option if GameObject doesn't have a transform
+        int first = 0;
+        if( m_pComponentTransform != 0 )
+            first = 1;
+
         unsigned int numtypes = g_pComponentTypeManager->GetNumberOfComponentTypes();
-        for( unsigned int i=0; i<numtypes; i++ )
+        for( unsigned int i=first; i<numtypes; i++ )
         {
             if( lastcategory != g_pComponentTypeManager->GetTypeCategory( i ) )
             {
@@ -638,11 +643,20 @@ ComponentBase* GameObject::AddNewComponent(int componenttype, unsigned int scene
 
     ComponentBase* pComponent = g_pComponentTypeManager->CreateComponent( componenttype );
 
-    MyAssert( pComponentSystemManager );
-    if( m_Managed )
+    if( componenttype == ComponentType_Transform )
     {
-        pComponentSystemManager->AddComponent( pComponent );
+        // Special handling of ComponentType_Transform, only offer option if GameObject doesn't have a transform
+        //     m_pComponentTransform will be set in AddExistingComponent() below.
     }
+    else
+    {
+        MyAssert( pComponentSystemManager );
+        if( m_Managed )
+        {
+            pComponentSystemManager->AddComponent( pComponent );
+        }
+    }
+
     unsigned int id = pComponentSystemManager->GetNextComponentIDAndIncrement( sceneid );
     pComponent->SetID( id );
 
@@ -656,10 +670,14 @@ ComponentBase* GameObject::AddNewComponent(int componenttype, unsigned int scene
 
 ComponentBase* GameObject::AddExistingComponent(ComponentBase* pComponent, bool resetcomponent)
 {
-    // special handling for removing transform component
+    // special handling for adding transform component
     if( pComponent->IsA( "TransformComponent" ) )
     {
         m_pComponentTransform = (ComponentTransform*)pComponent;
+
+        pComponent->m_pGameObject = this;
+        if( resetcomponent )
+            pComponent->Reset();
 
         // re-parent all child transforms, if there have one
         for( CPPListNode* pNode = m_ChildList.GetHead(); pNode; pNode = pNode->GetNext() )

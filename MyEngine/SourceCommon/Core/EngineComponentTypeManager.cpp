@@ -14,6 +14,7 @@
 // name(2nd column) is saved into the scene files, changing it will break objects.
 ComponentTypeInfo g_EngineComponentTypeInfo[Component_NumEngineComponentTypes] = // ADDING_NEW_ComponentType
 {
+    { "Base",           "Transform",            },  //ComponentType_Transform,
     { "Camera",         "Camera",               },  //ComponentType_Camera,
     { "Renderables",    "Sprite",               },  //ComponentType_Sprite,
     { "Renderables",    "Mesh",                 },  //ComponentType_Mesh,
@@ -44,6 +45,7 @@ ComponentBase* EngineComponentTypeManager::CreateComponent(int type)
 
     switch( type ) // ADDING_NEW_ComponentType
     {
+    case ComponentType_Transform:           pComponent = MyNew ComponentTransform;          break;
     case ComponentType_Camera:              pComponent = MyNew ComponentCamera;             break;
     case ComponentType_Sprite:              pComponent = MyNew ComponentSprite;             break;
     case ComponentType_Mesh:                pComponent = MyNew ComponentMesh;               break;
