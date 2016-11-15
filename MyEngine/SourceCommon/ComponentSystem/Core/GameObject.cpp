@@ -600,14 +600,10 @@ void GameObject::SetManaged(bool managed)
             //wxTreeItemId rootid = g_pPanelObjectList->GetTreeRoot();
             wxTreeItemId rootid = g_pComponentSystemManager->GetTreeIDForScene( m_SceneID );
             MyAssert( rootid.IsOk() );
-            int iconindex = ObjectListIcon_GameObject;
-            if( m_IsFolder )
-                iconindex = ObjectListIcon_Folder;
-            else if( m_pComponentTransform == 0 )
-                iconindex = ObjectListIcon_LogicObject;
-            wxTreeItemId gameobjectid = g_pPanelObjectList->AddObject( this, GameObject::StaticOnLeftClick, GameObject::StaticOnRightClick, rootid, m_Name, iconindex );
+            wxTreeItemId gameobjectid = g_pPanelObjectList->AddObject( this, GameObject::StaticOnLeftClick, GameObject::StaticOnRightClick, rootid, m_Name );
             g_pPanelObjectList->SetDragAndDropFunctions( gameobjectid, GameObject::StaticOnDrag, GameObject::StaticOnDrop );
             g_pPanelObjectList->SetLabelEditFunction( gameobjectid, GameObject::StaticOnLabelEdit );
+            UpdateObjectListIcon();
             
             if( m_pComponentTransform )
             {
@@ -647,6 +643,10 @@ ComponentBase* GameObject::AddNewComponent(int componenttype, unsigned int scene
     {
         // Special handling of ComponentType_Transform, only offer option if GameObject doesn't have a transform
         //     m_pComponentTransform will be set in AddExistingComponent() below.
+#if MYFW_USING_WX
+        // Update the icon
+        UpdateObjectListIcon();
+#endif //MYFW_USING_WX
     }
     else
     {
@@ -674,6 +674,11 @@ ComponentBase* GameObject::AddExistingComponent(ComponentBase* pComponent, bool 
     if( pComponent->IsA( "TransformComponent" ) )
     {
         m_pComponentTransform = (ComponentTransform*)pComponent;
+
+#if MYFW_USING_WX
+        // Update the icon
+        UpdateObjectListIcon();
+#endif //MYFW_USING_WX
 
         pComponent->m_pGameObject = this;
         if( resetcomponent )
@@ -764,6 +769,11 @@ ComponentBase* GameObject::RemoveComponent(ComponentBase* pComponent)
         }
 
         m_pComponentTransform = 0;
+
+#if MYFW_USING_WX
+        // Update the icon
+        UpdateObjectListIcon();
+#endif //MYFW_USING_WX
     }
     else
     {
@@ -989,4 +999,17 @@ void GameObject::OnGameObjectDeleted(GameObject* pGameObject)
 void GameObject::OnTransformChanged(Vector3& newpos, Vector3& newrot, Vector3& newscale, bool changedbyeditor)
 {
     int bp = 1;
+}
+
+void GameObject::UpdateObjectListIcon()
+{
+    // Set the icon for the gameobject in the objectlist panel tree.
+    int iconindex = ObjectListIcon_GameObject;
+    if( m_IsFolder )
+        iconindex = ObjectListIcon_Folder;
+    else if( m_pComponentTransform == 0 )
+        iconindex = ObjectListIcon_LogicObject;
+    wxTreeItemId gameobjectid = g_pPanelObjectList->FindObject( this );
+    if( gameobjectid.IsOk() )
+        g_pPanelObjectList->SetIcon( gameobjectid, iconindex );
 }

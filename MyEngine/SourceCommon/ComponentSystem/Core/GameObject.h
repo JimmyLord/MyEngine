@@ -159,6 +159,8 @@ public:
 
     static void StaticOnLabelEdit(void* pObjectPtr, wxTreeItemId id, wxString newlabel) { ((GameObject*)pObjectPtr)->OnLabelEdit( newlabel ); }
     void OnLabelEdit(wxString newlabel);
+
+    void UpdateObjectListIcon();
 #endif //MYFW_USING_WX
 };
 
