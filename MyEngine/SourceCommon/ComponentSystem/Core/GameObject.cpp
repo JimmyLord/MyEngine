@@ -646,6 +646,7 @@ ComponentBase* GameObject::AddNewComponent(int componenttype, unsigned int scene
 #if MYFW_USING_WX
         // Update the icon
         UpdateObjectListIcon();
+        pComponent->m_Type = -1; // hack, all transforms have -1 as type, setting this to be consistent.
 #endif //MYFW_USING_WX
     }
     else

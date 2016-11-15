@@ -337,6 +337,7 @@ void ComponentTransform::ImportFromJSONObject(cJSON* jsonobj, unsigned int scene
     ComponentBase::ImportFromJSONObject( jsonobj, sceneid );
 
     // local scale/rotation/position should be loaded, update the transform.
+    m_LocalTransformIsDirty = true;
     UpdateTransform();
 
     // inform all children/other objects that our transform changed.
