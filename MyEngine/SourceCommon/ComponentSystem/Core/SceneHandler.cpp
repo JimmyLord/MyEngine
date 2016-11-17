@@ -60,6 +60,7 @@ void SceneHandler::OnRightClick(wxTreeItemId treeid)
     AddGameObjectTemplatesToMenu( templatesmenu, 0 );
 
     menu.Append( RightClick_AddFolder, "Add Folder" );
+    menu.Append( RightClick_AddLogicGameObject, "Add Logical Game Object" );
     menu.Append( RightClick_UnloadScene, "Unload scene" );
 
     menu.Connect( wxEVT_COMMAND_MENU_SELECTED, (wxObjectEventFunction)&SceneHandler::OnPopupClick );
@@ -125,6 +126,13 @@ void SceneHandler::OnPopupClick(wxEvent &evt)
         {
             GameObject* pGameObject = g_pComponentSystemManager->CreateGameObject( true, pSceneHandler->m_SceneIDBeingAffected, true, false );
             pGameObject->SetName( "New Folder" );
+        }
+        break;
+
+    case RightClick_AddLogicGameObject:
+        {
+            GameObject* pGameObject = g_pComponentSystemManager->CreateGameObject( true, pSceneHandler->m_SceneIDBeingAffected, false, false );
+            pGameObject->SetName( "New Logical Game Object" );
         }
         break;
 

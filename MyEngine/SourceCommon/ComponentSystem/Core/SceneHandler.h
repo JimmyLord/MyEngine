@@ -73,6 +73,7 @@ public:
         RightClick_UnloadScene = 1000,
         RightClick_AddGameObject,
         RightClick_AddFolder,
+        RightClick_AddLogicGameObject,
 
         RightClick_AddGameObjectFromTemplate = 10000,
         // all higher values reserved for different templates.
