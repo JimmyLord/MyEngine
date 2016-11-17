@@ -10,6 +10,22 @@
 #ifndef __EngineEditorCommands_H__
 #define __EngineEditorCommands_H__
 
+class EditorCommand_MoveObjects;
+class EditorCommand_ScaleObjects;
+class EditorCommand_RotateObjects;
+class EditorCommand_DeleteObjects;
+class EditorCommand_DeleteComponents;
+class EditorCommand_CreateGameObject;
+class EditorCommand_CopyGameObject;
+class EditorCommand_EnableObject;
+class EditorCommand_ChangeAllMaterialsOnGameObject;
+class EditorCommand_ChangeTextureOnMaterial;
+class EditorCommand_ChangeShaderOnMaterial;
+class EditorCommand_ChangeAllScriptsOnGameObject;
+class EditorCommand_Move2DPoint;
+class EditorCommand_Insert2DPoint;
+class EditorCommand_Delete2DPoint;
+
 //====================================================================================================
 
 class EditorCommand_MoveObjects : public EditorCommand
@@ -108,6 +124,24 @@ public:
     virtual void Do();
     virtual void Undo();
     virtual EditorCommand* Repeat();
+};
+
+//====================================================================================================
+
+class EditorCommand_CreateGameObject : public EditorCommand
+{
+protected:
+    GameObject* m_ObjectCreated;
+
+public:
+    EditorCommand_CreateGameObject(GameObject* objectcreated);
+    virtual ~EditorCommand_CreateGameObject();
+
+    virtual void Do();
+    virtual void Undo();
+    virtual EditorCommand* Repeat();
+
+    GameObject* GetCreatedObject() { return m_ObjectCreated; }
 };
 
 //====================================================================================================

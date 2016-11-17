@@ -104,6 +104,7 @@ int SceneHandler::AddGameObjectTemplatesToMenu(wxMenu* menu, int startindex)
 
 void SceneHandler::OnPopupClick(wxEvent &evt)
 {
+    GameObject* pGameObjectCreated = 0;
     SceneHandler* pSceneHandler = (SceneHandler*)static_cast<wxMenu*>(evt.GetEventObject())->GetClientData();
 
     int id = evt.GetId();
@@ -117,22 +118,22 @@ void SceneHandler::OnPopupClick(wxEvent &evt)
 
     case RightClick_AddGameObject:
         {
-            GameObject* pGameObject = g_pComponentSystemManager->CreateGameObject( true, pSceneHandler->m_SceneIDBeingAffected );
-            pGameObject->SetName( "New Game Object" );
+            pGameObjectCreated = g_pComponentSystemManager->CreateGameObject( true, pSceneHandler->m_SceneIDBeingAffected );
+            pGameObjectCreated->SetName( "New Game Object" );
         }
         break;
 
     case RightClick_AddFolder:
         {
-            GameObject* pGameObject = g_pComponentSystemManager->CreateGameObject( true, pSceneHandler->m_SceneIDBeingAffected, true, false );
-            pGameObject->SetName( "New Folder" );
+            pGameObjectCreated = g_pComponentSystemManager->CreateGameObject( true, pSceneHandler->m_SceneIDBeingAffected, true, false );
+            pGameObjectCreated->SetName( "New Folder" );
         }
         break;
 
     case RightClick_AddLogicGameObject:
         {
-            GameObject* pGameObject = g_pComponentSystemManager->CreateGameObject( true, pSceneHandler->m_SceneIDBeingAffected, false, false );
-            pGameObject->SetName( "New Logical Game Object" );
+            pGameObjectCreated = g_pComponentSystemManager->CreateGameObject( true, pSceneHandler->m_SceneIDBeingAffected, false, false );
+            pGameObjectCreated->SetName( "New Logical Game Object" );
         }
         break;
 
@@ -144,7 +145,12 @@ void SceneHandler::OnPopupClick(wxEvent &evt)
     if( id >= RightClick_AddGameObjectFromTemplate )
     {
         int templateid = id - RightClick_AddGameObjectFromTemplate;
-        GameObject* pGameObject = g_pComponentSystemManager->CreateGameObjectFromTemplate( templateid, pSceneHandler->m_SceneIDBeingAffected );
+        pGameObjectCreated = g_pComponentSystemManager->CreateGameObjectFromTemplate( templateid, pSceneHandler->m_SceneIDBeingAffected );
+    }
+
+    if( pGameObjectCreated )
+    {
+        g_pEngineMainFrame->m_pCommandStack->Add( MyNew EditorCommand_CreateGameObject( pGameObjectCreated ) );        
     }
 }
 

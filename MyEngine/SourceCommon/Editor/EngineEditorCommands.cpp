@@ -388,6 +388,43 @@ EditorCommand* EditorCommand_DeleteComponents::Repeat()
 }
 
 //====================================================================================================
+// EditorCommand_CreateGameObject
+//====================================================================================================
+
+EditorCommand_CreateGameObject::EditorCommand_CreateGameObject(GameObject* objectcreated)
+{
+    MyAssert( m_ObjectCreated );
+    m_ObjectCreated = objectcreated;
+}
+
+EditorCommand_CreateGameObject::~EditorCommand_CreateGameObject()
+{
+    g_pComponentSystemManager->DeleteGameObject( m_ObjectCreated, true );
+}
+
+void EditorCommand_CreateGameObject::Do()
+{
+    g_pComponentSystemManager->ManageGameObject( m_ObjectCreated );
+}
+
+void EditorCommand_CreateGameObject::Undo()
+{
+    g_pEngineCore->m_pEditorState->ClearSelectedObjectsAndComponents();
+
+    g_pComponentSystemManager->UnmanageGameObject( m_ObjectCreated );
+    m_ObjectCreated->SetEnabled( false );
+}
+
+EditorCommand* EditorCommand_CreateGameObject::Repeat()
+{
+    EditorCommand_CopyGameObject* pCommand;
+    pCommand = MyNew EditorCommand_CopyGameObject( m_ObjectCreated, false );
+
+    pCommand->Do();
+    return pCommand;
+}
+
+//====================================================================================================
 // EditorCommand_CopyGameObject
 //====================================================================================================
 
