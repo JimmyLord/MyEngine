@@ -79,11 +79,15 @@ void TransformGizmo::Tick(double TimePassed, EditorState* pEditorState)
             ObjectTransform.CreateRotation( pTransform->GetWorldRotation() );
 
             m_GizmoWorldTransform = ObjectTransform;
+            m_GizmoWorldTransform.Translate( pTransform->GetWorldPosition() );
+
             m_GizmoWorldRotation = pTransform->GetWorldRotation();
         }
         else
         {
             m_GizmoWorldTransform.SetIdentity();
+            m_GizmoWorldTransform.Translate( pTransform->GetWorldPosition() );
+
             m_GizmoWorldRotation.Set( 0, 0, 0 );
         }
     }
@@ -1046,19 +1050,20 @@ void TransformGizmo::ScaleSelectedObjects(EditorState* pEditorState, Vector3 sca
         // if this object has a selected parent, don't move it, only move the parent.
         if( pTransform && pTransform->IsAnyParentInList( pEditorState->m_pSelectedObjects ) == false )
         {
-            if( pEditorState->m_TransformedInLocalSpace ) // local space
+            // only scale in local space
+            //if( pEditorState->m_TransformedInLocalSpace ) // local space
             {
                 Vector3 newscale = pTransform->GetLocalTransform()->GetScale() * scale;
 
                 pTransform->SetScaleByEditor( newscale );
                 pTransform->UpdateTransform();
             }
-            else
-            {
-                MyMatrix matscale;
-                matscale.CreateScale( scale );
-                pTransform->Scale( &matscale, pEditorState->m_WorldSpacePivot );
-            }
+            //else
+            //{
+            //    MyMatrix matscale;
+            //    matscale.CreateScale( scale );
+            //    pTransform->Scale( &matscale, pEditorState->m_WorldSpacePivot );
+            //}
         }
     }
 }

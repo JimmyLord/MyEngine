@@ -88,19 +88,20 @@ void EditorCommand_ScaleObjects::Do()
     {
         ComponentTransform* pTransform = m_ObjectsScaled[i]->m_pComponentTransform;
 
-        if( m_TransformedInLocalSpace == true )
+        // only scale in local space
+        //if( m_TransformedInLocalSpace == true )
         {
             Vector3 newscale = pTransform->GetLocalTransform()->GetScale() * m_AmountScaled;
 
             pTransform->SetScaleByEditor( newscale );
             pTransform->UpdateTransform();
         }
-        else
-        {
-            MyMatrix matscale;
-            matscale.CreateScale( m_AmountScaled );
-            pTransform->Scale( &matscale, m_WorldSpacePivot );
-        }
+        //else
+        //{
+        //    MyMatrix matscale;
+        //    matscale.CreateScale( m_AmountScaled );
+        //    pTransform->Scale( &matscale, m_WorldSpacePivot );
+        //}
     }
 }
 
@@ -111,19 +112,20 @@ void EditorCommand_ScaleObjects::Undo()
     {
         ComponentTransform* pTransform = m_ObjectsScaled[i]->m_pComponentTransform;
 
-        if( m_TransformedInLocalSpace == true )
+        // only scale in local space
+        //if( m_TransformedInLocalSpace == true )
         {
             Vector3 newscale = pTransform->GetLocalTransform()->GetScale() / m_AmountScaled;
 
             pTransform->SetScaleByEditor( newscale );
             pTransform->UpdateTransform();
         }
-        else
-        {
-            MyMatrix matscale;
-            matscale.CreateScale( 1/m_AmountScaled );
-            pTransform->Scale( &matscale, m_WorldSpacePivot );
-        }
+        //else
+        //{
+        //    MyMatrix matscale;
+        //    matscale.CreateScale( 1/m_AmountScaled );
+        //    pTransform->Scale( &matscale, m_WorldSpacePivot );
+        //}
     }
 }
 
