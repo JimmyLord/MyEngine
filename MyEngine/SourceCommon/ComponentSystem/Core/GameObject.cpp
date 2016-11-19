@@ -353,6 +353,19 @@ void GameObject::OnLabelEdit(wxString newlabel)
         SetName( newlabel );
     }
 }
+
+void GameObject::UpdateObjectListIcon()
+{
+    // Set the icon for the gameobject in the objectlist panel tree.
+    int iconindex = ObjectListIcon_GameObject;
+    if( m_IsFolder )
+        iconindex = ObjectListIcon_Folder;
+    else if( m_pComponentTransform == 0 )
+        iconindex = ObjectListIcon_LogicObject;
+    wxTreeItemId gameobjectid = g_pPanelObjectList->FindObject( this );
+    if( gameobjectid.IsOk() )
+        g_pPanelObjectList->SetIcon( gameobjectid, iconindex );
+}
 #endif //MYFW_USING_WX
 
 cJSON* GameObject::ExportAsJSONObject(bool savesceneid)
@@ -1000,17 +1013,4 @@ void GameObject::OnGameObjectDeleted(GameObject* pGameObject)
 void GameObject::OnTransformChanged(Vector3& newpos, Vector3& newrot, Vector3& newscale, bool changedbyeditor)
 {
     int bp = 1;
-}
-
-void GameObject::UpdateObjectListIcon()
-{
-    // Set the icon for the gameobject in the objectlist panel tree.
-    int iconindex = ObjectListIcon_GameObject;
-    if( m_IsFolder )
-        iconindex = ObjectListIcon_Folder;
-    else if( m_pComponentTransform == 0 )
-        iconindex = ObjectListIcon_LogicObject;
-    wxTreeItemId gameobjectid = g_pPanelObjectList->FindObject( this );
-    if( gameobjectid.IsOk() )
-        g_pPanelObjectList->SetIcon( gameobjectid, iconindex );
 }

@@ -1848,7 +1848,7 @@ void ComponentSystemManager::Tick(double TimePassed)
 
     // update all components that registered a tick callback... might unregister themselves while in their callback
     CPPListNode* pNextNode;
-    for( CPPListNode* pNode = m_pComponentCallbackList_Tick.HeadNode.Next; pNode != 0; pNode = pNextNode )
+    for( CPPListNode* pNode = m_pComponentCallbackList_Tick.GetHead(); pNode != 0; pNode = pNextNode )
     {
         pNextNode = pNode->GetNext();
 
@@ -2301,7 +2301,9 @@ void ComponentSystemManager::OnPlay()
 void ComponentSystemManager::OnStop()
 {
     SetTimeScale( 1 );
+#if MYFW_USING_WX
     g_pPanelWatch->SetNeedsRefresh();
+#endif //MYFW_USING_WX
 
     for( unsigned int i=0; i<BaseComponentType_NumTypes; i++ )
     {

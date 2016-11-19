@@ -14,7 +14,7 @@
 
 #define MYFW_USING_LUA 1
 
-extern const int g_NumberOfVisibilityLayers = 8;
+const int g_NumberOfVisibilityLayers = 8;
 
 // framework code
 #include "../../../Framework/MyFramework/SourceCommon/CommonHeader.h"
