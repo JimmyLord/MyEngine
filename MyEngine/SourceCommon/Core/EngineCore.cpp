@@ -787,12 +787,21 @@ bool EngineCore::OnTouch(int action, int id, float x, float y, float pressure, f
         return true;
 #endif
 
-    // prefer 0,0 at bottom left.
-    y = pCamera->m_WindowHeight - y;
+    // if the mouse is locked and it's a help message, leave the x/y as is
+    //     otherwise, convert to camera space.
+    if( g_pGameCore->IsMouseLocked() && action == GCBA_Held )
+    {
+        // x/y should be showing diffs in position, so leave them as is.
+    }
+    else //if( g_pGameCore->IsMouseLocked() == false || action != GCBA_Held )
+    {
+        // prefer 0,0 at bottom left.
+        y = pCamera->m_WindowHeight - y;
 
-    // convert mouse to x/y in Camera2D space. TODO: put this in camera component.
-    x = (x - pCamera->m_Camera2D.m_ScreenOffsetX - pCamera->m_WindowStartX) / pCamera->m_Camera2D.m_ScreenWidth * m_GameWidth;
-    y = (y - pCamera->m_Camera2D.m_ScreenOffsetY + pCamera->m_WindowStartY) / pCamera->m_Camera2D.m_ScreenHeight * m_GameHeight;
+        // convert mouse to x/y in Camera2D space. TODO: put this in camera component.
+        x = (x - pCamera->m_Camera2D.m_ScreenOffsetX - pCamera->m_WindowStartX) / pCamera->m_Camera2D.m_ScreenWidth * m_GameWidth;
+        y = (y - pCamera->m_Camera2D.m_ScreenOffsetY + pCamera->m_WindowStartY) / pCamera->m_Camera2D.m_ScreenHeight * m_GameHeight;
+    }
 
     m_LastMousePos.Set( x, y );
 
