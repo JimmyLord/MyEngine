@@ -251,6 +251,7 @@ void EngineMainFrame::InitFrame()
     m_PlayPauseStop->Append( myIDEngine_Mode_Pause, wxT("Pause\tCtrl-.") );
     m_PlayPauseStop->Append( myIDEngine_Mode_Advance1Frame, wxT("Advance 1 Frame\tCtrl-]") );
     m_PlayPauseStop->Append( myIDEngine_Mode_Advance1Second, wxT("Advance 1 Second\tCtrl-[") );
+    m_PlayPauseStop->Append( myIDEngine_Mode_LaunchGame, wxT("&Launch Game\tCtrl-F5") );
     //m_PlayPauseStop->Append( myIDEngine_Mode_Stop, wxT("&Stop\tCtrl-SPACE") );
 
     m_Data = MyNew wxMenu;
@@ -333,6 +334,7 @@ void EngineMainFrame::InitFrame()
     Connect( myIDEngine_Mode_Pause,          wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );
     Connect( myIDEngine_Mode_Advance1Frame,  wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );
     Connect( myIDEngine_Mode_Advance1Second, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );
+    Connect( myIDEngine_Mode_LaunchGame,     wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );    
     //Connect( myIDEngine_Mode_Stop,           wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );
 
     Connect( myIDEngine_RecordMacro,  wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );
@@ -753,6 +755,10 @@ void EngineMainFrame::OnMenu_Engine(wxCommandEvent& event)
 
     case myIDEngine_Mode_Advance1Second:
         g_pEngineCore->OnModeAdvanceTime( 1.0f );
+        break;
+
+    case myIDEngine_Mode_LaunchGame:
+        LaunchApplication( "MyEngine_Game.exe", g_pComponentSystemManager->GetSceneInfo( 1 )->m_FullPath );
         break;
 
     //case myIDEngine_Mode_Stop:

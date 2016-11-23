@@ -39,6 +39,7 @@ enum EngineMenuIDs
     myIDEngine_Mode_Pause,
     myIDEngine_Mode_Advance1Frame,
     myIDEngine_Mode_Advance1Second,
+    myIDEngine_Mode_LaunchGame,
     //myIDEngine_Mode_Stop,
     myIDEngine_RecordMacro,
     myIDEngine_ExecuteMacro,
