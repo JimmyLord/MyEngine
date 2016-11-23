@@ -261,25 +261,33 @@ void ComponentCollisionObject::OnPlay()
     // create a rigidbody on start
     if( m_pBody == 0 )
     {
-        btCollisionShape* colShape;
+        btCollisionShape* colShape = 0;
         
-        if( m_pMesh && m_pMesh->m_MeshReady )
+        if( m_PrimitiveType == PhysicsPrimitiveType_ConvexHull )
         {
-            //btStridingMeshInterface meshinterface;
-            //colShape = new btBvhTriangleMeshShape( meshinterface );
+            if( m_pMesh && m_pMesh->m_MeshReady )
+            {
+                //btStridingMeshInterface meshinterface;
+                //colShape = new btBvhTriangleMeshShape( meshinterface );
 
-            // TODO: fix this, it assumes position at the start of the vertex format.
-            unsigned int stride = m_pMesh->GetStride( 0 );
-            colShape = new btConvexHullShape( (btScalar*)m_pMesh->GetVerts( false ), m_pMesh->GetNumVerts(), stride );
-            ((btConvexHullShape*)colShape)->setMargin( 0.2f );
+                // TODO: fix this, it assumes position at the start of the vertex format.
+                unsigned int stride = m_pMesh->GetStride( 0 );
+                colShape = new btConvexHullShape( (btScalar*)m_pMesh->GetVerts( false ), m_pMesh->GetNumVerts(), stride );
+                ((btConvexHullShape*)colShape)->setMargin( 0.2f );
 
-            btShapeHull* hull = new btShapeHull( (btConvexShape*)colShape );
-            btScalar margin = colShape->getMargin();
-            hull->buildHull(margin);
-            delete colShape;
+                btShapeHull* hull = new btShapeHull( (btConvexShape*)colShape );
+                btScalar margin = colShape->getMargin();
+                hull->buildHull(margin);
+                delete colShape;
 
-            colShape = new btConvexHullShape( (btScalar*)hull->getVertexPointer(), hull->numVertices() );
-            delete hull;
+                colShape = new btConvexHullShape( (btScalar*)hull->getVertexPointer(), hull->numVertices() );
+                delete hull;
+            }
+            else
+            {
+                LOGError( LOGTag, "Mesh not loaded, ConvexHull not created\n" ); 
+                return;
+            }
         }
         else
         {

@@ -33,7 +33,7 @@ ComponentVoxelWorld::ComponentVoxelWorld()
     m_pSaveFile = 0;
 
     m_pVoxelWorld = MyNew VoxelWorld;
-    m_pVoxelWorld->Initialize( Vector3Int( 2, 2, 2 ) );
+    m_pVoxelWorld->Initialize( Vector3Int( 10, 5, 10 ) );
 
     m_pVoxelWorld->UpdateVisibility( this );
 

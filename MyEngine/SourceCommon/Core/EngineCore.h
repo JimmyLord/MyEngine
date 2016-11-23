@@ -57,6 +57,7 @@ struct FrameTimingInfo
 {
     float FrameTime;
     float Tick;
+    float Update_Physics;
     float Render_Editor;
     float Render_Game;
 };

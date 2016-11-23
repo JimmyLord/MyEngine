@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2014 Jimmy Lord http://www.flatheadgames.com
+// Copyright (c) 2014-2016 Jimmy Lord http://www.flatheadgames.com
 //
 // This software is provided 'as-is', without any express or implied warranty.  In no event will the authors be held liable for any damages arising from the use of this software.
 // Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -50,8 +50,16 @@ void BulletWorld::CreateWorld()
     m_pDynamicsWorld->setGravity( btVector3(0,-10,0) );
 }
 
+void BulletWorld::PhysicsUpdate(float deltatime)
+{
+    // Update physics based on how much time passed since last frame
+    //    TODO: fix to use substeps properly, at the moment it's causing speed variations.
+    m_pDynamicsWorld->stepSimulation( deltatime, 0 );
+}
+
 void BulletWorld::PhysicsStep()
 {
+    // TODO: look into this, it's not updating consistantly
     m_pDynamicsWorld->stepSimulation( 1.0f/60.0f, 10 );
 
     //// print positions of all objects

@@ -380,12 +380,12 @@ double EngineCore::Tick(double TimePassed)
     m_pEditorState->UpdateCamera( TimePassed );
 #endif
 
-    float timescale = m_pComponentSystemManager->m_TimeScale;
-
-    TimePassed *= timescale;
-    
-    // tick all components.
+    // change timepassed if needed
     {
+        float timescale = m_pComponentSystemManager->m_TimeScale;
+
+        TimePassed *= timescale;
+
         if( m_EditorMode && m_AllowGameToRunInEditorMode == false )
             TimePassed = 0;
 
@@ -393,20 +393,21 @@ double EngineCore::Tick(double TimePassed)
             TimePassed = m_PauseTimeToAdvance;
 
         m_PauseTimeToAdvance = 0;
-
-        m_pComponentSystemManager->Tick( TimePassed );
     }
 
     if( m_EditorMode == false || m_AllowGameToRunInEditorMode )
     {
-        m_TimeSinceLastPhysicsStep += TimePassed;
+#if MYFW_PROFILING_ENABLED
+        double Physics_Timing_Start = MyTime_GetSystemTime();
+#endif // MYFW_PROFILING_ENABLED
 
+        m_pBulletWorld->PhysicsUpdate( (float)TimePassed );
+
+        m_TimeSinceLastPhysicsStep += TimePassed;
         while( m_TimeSinceLastPhysicsStep > 1/60.0f )
         {
-            //LOGInfo( LOGTag, "m_pBulletWorld->PhysicsStep()\n" );
-
             m_TimeSinceLastPhysicsStep -= 1/60.0f;
-            m_pBulletWorld->PhysicsStep();
+            //m_pBulletWorld->PhysicsStep();
 
             for( int i=0; i<g_pComponentSystemManager->MAX_SCENES_LOADED; i++ )
             {
@@ -417,7 +418,20 @@ double EngineCore::Tick(double TimePassed)
                 }
             }
         }
+
+#if MYFW_PROFILING_ENABLED
+        double Physics_Timing_End = MyTime_GetSystemTime();
+
+#if MYFW_USING_WX
+        if( g_GLCanvasIDActive == 0 )
+            m_FrameTimingInfo[m_FrameTimingNextEntry].Update_Physics = (float)((Physics_Timing_End - Physics_Timing_Start)*1000);
+#else
+#endif // MYFW_USING_WX
+#endif // MYFW_PROFILING_ENABLED
     }
+
+    // tick all components.
+    m_pComponentSystemManager->Tick( TimePassed );
 
 #if MYFW_USING_LUA
     if( g_pLuaGameState && g_pLuaGameState->m_pLuaState )
@@ -434,13 +448,10 @@ double EngineCore::Tick(double TimePassed)
 #if MYFW_PROFILING_ENABLED
     double Timing_End = MyTime_GetSystemTime();
     
-    FrameTimingInfo info;
-    info.Tick = (float)((Timing_End - Timing_Start)*1000);
+    m_FrameTimingInfo[m_FrameTimingNextEntry].Tick = (float)((Timing_End - Timing_Start)*1000);
+    m_FrameTimingInfo[m_FrameTimingNextEntry].FrameTime = (float)((Timing_Start - Timing_LastFrameTime)*1000);
 
-    info.FrameTime = (float)((Timing_Start - Timing_LastFrameTime)*1000);
     Timing_LastFrameTime = Timing_Start;
-    
-    m_FrameTimingInfo[m_FrameTimingNextEntry] = info;
 #endif
 
     // update the global unpaused time.
@@ -678,13 +689,15 @@ void EngineCore::OnDrawFrame(unsigned int canvasid)
 
         //m_FrameTimingInfo.back().Tick = sin( (float)MyTime_GetSystemTime() );
 
-        ImGui::PlotLines( "Frame Time",    &m_FrameTimingInfo[start].FrameTime,     numsamplestoshow, 0, "", 0.0f, 50.0f, ImVec2(0,20), sizeof(FrameTimingInfo) );
+        ImGui::PlotLines( "Frame Time",    &m_FrameTimingInfo[start].FrameTime,         numsamplestoshow, 0, "", 0.0f, 50.0f, ImVec2(0,20), sizeof(FrameTimingInfo) );
 
-        ImGui::PlotLines( "Tick",          &m_FrameTimingInfo[start].Tick,          numsamplestoshow, 0, "", 0.0f, 5.0f, ImVec2(0,20), sizeof(FrameTimingInfo) );
+        ImGui::PlotLines( "Tick",          &m_FrameTimingInfo[start].Tick,              numsamplestoshow, 0, "", 0.0f, 5.0f, ImVec2(0,20), sizeof(FrameTimingInfo) );
+
+        ImGui::PlotLines( "Physics",       &m_FrameTimingInfo[start].Update_Physics,    numsamplestoshow, 0, "", 0.0f, 15.0f, ImVec2(0,20), sizeof(FrameTimingInfo) );
 #if MYFW_USING_WX
-        ImGui::PlotLines( "Render Editor", &m_FrameTimingInfo[start].Render_Editor, numsamplestoshow, 0, "", 0.0f, 1.5f, ImVec2(0,20), sizeof(FrameTimingInfo) );
+        ImGui::PlotLines( "Render Editor", &m_FrameTimingInfo[start].Render_Editor,     numsamplestoshow, 0, "", 0.0f, 1.5f, ImVec2(0,20), sizeof(FrameTimingInfo) );
 #endif
-        ImGui::PlotLines( "Render Game",   &m_FrameTimingInfo[start].Render_Game,   numsamplestoshow, 0, "", 0.0f, 1.5f, ImVec2(0,20), sizeof(FrameTimingInfo) );
+        ImGui::PlotLines( "Render Game",   &m_FrameTimingInfo[start].Render_Game,       numsamplestoshow, 0, "", 0.0f, 1.5f, ImVec2(0,20), sizeof(FrameTimingInfo) );
 
         ImGui::End();
     }
