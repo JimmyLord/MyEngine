@@ -872,6 +872,9 @@ void ComponentSystemManager::LoadSceneFromJSON(const char* scenename, const char
     {
         CreateNewScene( scenename, sceneid );
     }
+#else
+    // create the box2d world.
+    m_pSceneInfoMap[sceneid].m_pBox2DWorld = MyNew Box2DWorld( 0, 0, new EngineBox2DContactListener );
 #endif //MYFW_USING_WX
 
     // request all files used by scene.

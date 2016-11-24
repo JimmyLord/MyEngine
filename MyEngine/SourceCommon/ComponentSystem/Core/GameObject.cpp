@@ -438,8 +438,6 @@ void GameObject::ImportFromJSONObject(cJSON* jGameObject, unsigned int sceneid)
     cJSONExt_GetBool( jGameObject, "IsFolder", &m_IsFolder );
 
     cJSONExt_GetUnsignedInt( jGameObject, "ID", &m_ID );
-    m_PhysicsSceneID = m_SceneID;
-    cJSONExt_GetUnsignedInt( jGameObject, "PhysicsSceneID", &m_PhysicsSceneID );
 
     obj = cJSON_GetObjectItem( jGameObject, "Name" );
     if( obj )
@@ -447,6 +445,9 @@ void GameObject::ImportFromJSONObject(cJSON* jGameObject, unsigned int sceneid)
         SetName( obj->valuestring );
     }
     SetSceneID( sceneid, false ); // set new scene, but don't assign a new GOID.
+
+    m_PhysicsSceneID = m_SceneID;
+    cJSONExt_GetUnsignedInt( jGameObject, "PhysicsSceneID", &m_PhysicsSceneID );
 
     bool enabled = true;
     cJSONExt_GetBool( jGameObject, "Enabled", &enabled );
