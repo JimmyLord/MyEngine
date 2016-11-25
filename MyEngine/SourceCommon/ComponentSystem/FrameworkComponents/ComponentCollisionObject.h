@@ -23,7 +23,7 @@ extern const char* PhysicsPrimitiveTypeStrings[PhysicsPrimitive_NumTypes];
 
 class ComponentCollisionObject : public ComponentUpdateable
 {
-public:
+protected:
     btRigidBody* m_pBody;
 
     int m_PrimitiveType;
@@ -31,6 +31,10 @@ public:
     float m_Mass;
     Vector3 m_Scale;
     MyMesh* m_pMesh;
+
+protected:
+    // Internal functions
+    void CreateBody();
 
 public:
     ComponentCollisionObject();

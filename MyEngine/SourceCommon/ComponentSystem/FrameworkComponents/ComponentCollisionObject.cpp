@@ -257,7 +257,12 @@ void ComponentCollisionObject::OnPlay()
     //Vector3 localscale = m_pComponentTransform->GetScale();
     //btVector3 scale( localscale.x, localscale.y, localscale.z );
     //m_pBody->getCollisionShape()->setLocalScaling( scale );
+    
+    CreateBody();
+}
 
+void ComponentCollisionObject::CreateBody()
+{
     // create a rigidbody on start
     if( m_pBody == 0 )
     {
@@ -285,7 +290,7 @@ void ComponentCollisionObject::OnPlay()
             }
             else
             {
-                LOGError( LOGTag, "Mesh not loaded, ConvexHull not created\n" ); 
+                LOGInfo( LOGTag, "Mesh not loaded, ConvexHull not created\n" ); 
                 return;
             }
         }
@@ -360,8 +365,16 @@ void ComponentCollisionObject::Tick(double TimePassed)
         return;
     }
 
+    // if gameplay started before the mesh was loaded, the body won't be made yet.
+    // make it now if possible.
     if( m_pBody == 0 )
-        return;
+    {
+        CreateBody();
+
+        // if we still don't have a body, return.
+        if( m_pBody == 0 )
+            return;
+    }
 
     // TODO: MotionStates are coming up 0 on the mac, test on pc.
     btMotionState* pMotionState = m_pBody->getMotionState();
