@@ -413,6 +413,9 @@ void VoxelWorld::SetSaveFile(MyFileObject* pFile)
 
 void VoxelWorld::SaveTheWorld()
 {
+#if MYFW_NACL
+    return;
+#else
     MyAssert( m_pSaveFile );
 
     if( m_jJSONSavedMapData == 0 )
@@ -451,6 +454,7 @@ void VoxelWorld::SaveTheWorld()
 
         fclose( file );
     }
+#endif // MYFW_NACL
 }
 
 void VoxelWorld::SaveChunk(VoxelChunk* pChunk)

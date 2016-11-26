@@ -527,8 +527,10 @@ void EngineCore::OnDrawFrame(unsigned int canvasid)
     double Timing_Start = MyTime_GetSystemTime();
 #endif
 
+#if !MYFW_OPENGLES2
     if( m_Debug_DrawWireframe )
         glPolygonMode( GL_FRONT, GL_LINE );
+#endif
 
     GameCore::OnDrawFrame( canvasid );
 
@@ -548,8 +550,10 @@ void EngineCore::OnDrawFrame(unsigned int canvasid)
         windowrect.Set( (int)m_WindowStartX, (int)m_WindowStartY, (int)m_WindowWidth, (int)m_WindowHeight );
     }
 
+#if !MYFW_OPENGLES2
     if( m_Debug_DrawWireframe )
         glPolygonMode( GL_FRONT, GL_FILL );
+#endif
 
 #if MYFW_USING_WX
     if( m_Debug_DrawGLStats && m_pDebugTextMesh )// && g_GLCanvasIDActive == 1 )
