@@ -1380,6 +1380,7 @@ GameObject* ComponentSystemManager::CreateGameObjectFromTemplate(unsigned int te
             if( pComponent )
             {
                 pComponent->ImportFromJSONObject( jComponent, sceneid );
+                pComponent->OnLoad();
             }
         }
     }
