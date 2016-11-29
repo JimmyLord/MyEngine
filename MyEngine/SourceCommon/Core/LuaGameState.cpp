@@ -193,6 +193,7 @@ void LuaGameState::RegisterClasses()
     //ComponentType_LuaScript,
     ComponentParticleEmitter::LuaRegister( m_pLuaState );
     ComponentAnimationPlayer::LuaRegister( m_pLuaState );
+    ComponentAnimationPlayer2D::LuaRegister( m_pLuaState );
     ComponentAudioPlayer::LuaRegister( m_pLuaState );
     ComponentMenuPage::LuaRegister( m_pLuaState );
 

@@ -87,6 +87,7 @@ extern "C"
 #include "ComponentSystem/FrameworkComponents/ComponentMeshPrimitive.h"
 #include "ComponentSystem/FrameworkComponents/ComponentParticleEmitter.h"
 #include "ComponentSystem/FrameworkComponents/ComponentAnimationPlayer.h"
+#include "ComponentSystem/FrameworkComponents/ComponentAnimationPlayer2D.h"
 #include "ComponentSystem/FrameworkComponents/ComponentAudioPlayer.h"
 #if MYFW_USING_LUA
 #include "ComponentSystem/FrameworkComponents/ComponentLuaScript.h"

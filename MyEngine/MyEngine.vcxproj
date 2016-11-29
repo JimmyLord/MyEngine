@@ -1602,6 +1602,7 @@
     <ClCompile Include="SourceCommon\ComponentSystem\Core\GameObject.cpp" />
     <ClCompile Include="SourceCommon\ComponentSystem\Core\SceneHandler.cpp" />
     <ClCompile Include="SourceCommon\ComponentSystem\FrameworkComponents\ComponentAnimationPlayer.cpp" />
+    <ClCompile Include="SourceCommon\ComponentSystem\FrameworkComponents\ComponentAnimationPlayer2D.cpp" />
     <ClCompile Include="SourceCommon\ComponentSystem\FrameworkComponents\ComponentAudioPlayer.cpp" />
     <ClCompile Include="SourceCommon\ComponentSystem\FrameworkComponents\ComponentCameraShadow.cpp" />
     <ClCompile Include="SourceCommon\ComponentSystem\FrameworkComponents\ComponentCollisionObject.cpp" />
@@ -1884,6 +1885,7 @@
     <ClInclude Include="SourceCommon\ComponentSystem\Core\GameObject.h" />
     <ClInclude Include="SourceCommon\ComponentSystem\Core\SceneHandler.h" />
     <ClInclude Include="SourceCommon\ComponentSystem\FrameworkComponents\ComponentAnimationPlayer.h" />
+    <ClInclude Include="SourceCommon\ComponentSystem\FrameworkComponents\ComponentAnimationPlayer2D.h" />
     <ClInclude Include="SourceCommon\ComponentSystem\FrameworkComponents\ComponentAudioPlayer.h" />
     <ClInclude Include="SourceCommon\ComponentSystem\FrameworkComponents\ComponentCameraShadow.h" />
     <ClInclude Include="SourceCommon\ComponentSystem\FrameworkComponents\ComponentCollisionObject.h" />
