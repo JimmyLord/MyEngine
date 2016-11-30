@@ -21,7 +21,12 @@ private:
 protected:
     ComponentSprite* m_pSpriteComponent;
 
+    MyFileObject* m_pAnimationFile;
+
     float m_TimeBetweenFrames;
+
+    unsigned int m_AnimationIndex;
+    float m_AnimationTime;
 
 public:
     ComponentAnimationPlayer2D();
@@ -32,12 +37,14 @@ public:
     static void LuaRegister(lua_State* luastate);
 #endif //MYFW_USING_LUA
 
-    //virtual cJSON* ExportAsJSONObject(bool savesceneid);
-    //virtual void ImportFromJSONObject(cJSON* jsonobj, unsigned int sceneid);
+    virtual cJSON* ExportAsJSONObject(bool savesceneid);
+    virtual void ImportFromJSONObject(cJSON* jsonobj, unsigned int sceneid);
 
     virtual void Reset();
     virtual void CopyFromSameType_Dangerous(ComponentBase* pObject) { *this = (ComponentAnimationPlayer2D&)*pObject; }
     ComponentAnimationPlayer2D& operator=(const ComponentAnimationPlayer2D& other);
+
+    void SetAnimationFile(MyFileObject* pFile);
 
     virtual void RegisterCallbacks();
     virtual void UnregisterCallbacks();
@@ -55,6 +62,9 @@ protected:
 public:
 #if MYFW_USING_WX
     static bool m_PanelWatchBlockVisible;
+
+    static void StaticOnFileUpdated(void* pObjectPtr, MyFileObject* pFile) { ((ComponentAnimationPlayer2D*)pObjectPtr)->OnFileUpdated( pFile ); }
+    void OnFileUpdated(MyFileObject* pFile);
 
     virtual void AddToObjectsPanel(wxTreeItemId gameobjectid);
 

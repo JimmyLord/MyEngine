@@ -25,26 +25,29 @@ ComponentAnimationPlayer2D::ComponentAnimationPlayer2D()
 
     m_BaseType = BaseComponentType_Data;
 
+    m_pAnimationFile = 0;
     m_TimeBetweenFrames = 0;
+
+#if MYFW_USING_WX
+    g_pComponentSystemManager->Editor_RegisterFileUpdatedCallback( &StaticOnFileUpdated, this );
+#endif
 }
 
 ComponentAnimationPlayer2D::~ComponentAnimationPlayer2D()
 {
     MYFW_COMPONENT_VARIABLE_LIST_DESTRUCTOR(); //_VARIABLE_LIST
+
+    SAFE_RELEASE( m_pAnimationFile );
 }
 
 void ComponentAnimationPlayer2D::RegisterVariables(CPPListHead* pList, ComponentAnimationPlayer2D* pThis) //_VARIABLE_LIST
 {
-    // just want to make sure these are the same on all compilers.  They should be since this is a simple class.
-#if MYFW_IOS || MYFW_OSX || MYFW_NACL
-#pragma GCC diagnostic ignored "-Winvalid-offsetof"
-#endif
-    MyAssert( offsetof( ComponentAnimationPlayer2D, m_TimeBetweenFrames ) == MyOffsetOf( pThis, &pThis->m_TimeBetweenFrames ) );
-#if MYFW_IOS || MYFW_OSX
-#pragma GCC diagnostic default "-Winvalid-offsetof"
-#endif
+    AddVar( pList, "Time per frame", ComponentVariableType_Float, MyOffsetOf( pThis, &pThis->m_TimeBetweenFrames ), true, true, 0, (CVarFunc_ValueChanged)&ComponentAnimationPlayer2D::OnValueChanged, (CVarFunc_DropTarget)&ComponentAnimationPlayer2D::OnDrop, 0 );
+    AddVar( pList, "Animation Index", ComponentVariableType_UnsignedInt, MyOffsetOf( pThis, &pThis->m_AnimationIndex ), true, true, 0, (CVarFunc_ValueChanged)&ComponentAnimationPlayer2D::OnValueChanged, (CVarFunc_DropTarget)&ComponentAnimationPlayer2D::OnDrop, 0 );
+    AddVar( pList, "Animation Frame", ComponentVariableType_Float, MyOffsetOf( pThis, &pThis->m_AnimationTime ), true, true, 0, (CVarFunc_ValueChanged)&ComponentAnimationPlayer2D::OnValueChanged, (CVarFunc_DropTarget)&ComponentAnimationPlayer2D::OnDrop, 0 );
 
-    AddVar( pList, "Time between frames", ComponentVariableType_Float, MyOffsetOf( pThis, &pThis->m_TimeBetweenFrames ), true, true, 0, (CVarFunc_ValueChanged)&ComponentAnimationPlayer2D::OnValueChanged, (CVarFunc_DropTarget)&ComponentAnimationPlayer2D::OnDrop, 0 );
+    // Animation File is not automatically saved/loaded
+    AddVar( pList, "Animation File", ComponentVariableType_FilePtr, MyOffsetOf( pThis, &pThis->m_pAnimationFile ), false, true, 0, (CVarFunc_ValueChanged)&ComponentAnimationPlayer2D::OnValueChanged, (CVarFunc_DropTarget)&ComponentAnimationPlayer2D::OnDrop, 0 );
 }
 
 void ComponentAnimationPlayer2D::Reset()
@@ -54,6 +57,9 @@ void ComponentAnimationPlayer2D::Reset()
     m_pSpriteComponent = 0;
 
     m_TimeBetweenFrames = 0;
+
+    m_AnimationIndex = 0;
+    m_AnimationTime = 0;
 
 #if MYFW_USING_WX
     m_pPanelWatchBlockVisible = &m_PanelWatchBlockVisible;
@@ -66,16 +72,25 @@ void ComponentAnimationPlayer2D::LuaRegister(lua_State* luastate)
     luabridge::getGlobalNamespace( luastate )
         .beginClass<ComponentAnimationPlayer2D>( "ComponentAnimationPlayer2D" )
             //.addData( "m_TimeBetweenFrames", &ComponentAnimationPlayer2D::m_TimeBetweenFrames )
+            //m_AnimationIndex
+            //m_AnimationTime
             //.addFunction( "GetTimeBetweenFrames", &ComponentAnimationPlayer2D::GetTimeBetweenFrames )
         .endClass();
 }
 #endif //MYFW_USING_LUA
 
 #if MYFW_USING_WX
+void ComponentAnimationPlayer2D::OnFileUpdated(MyFileObject* pFile)
+{
+    if( pFile == m_pAnimationFile )
+    {
+    }
+}
+
 void ComponentAnimationPlayer2D::AddToObjectsPanel(wxTreeItemId gameobjectid)
 {
     //wxTreeItemId id =
-    g_pPanelObjectList->AddObject( this, ComponentAnimationPlayer2D::StaticOnLeftClick, ComponentBase::StaticOnRightClick, gameobjectid, "Animation 2D", ObjectListIcon_Component );
+    g_pPanelObjectList->AddObject( this, ComponentAnimationPlayer2D::StaticOnLeftClick, ComponentBase::StaticOnRightClick, gameobjectid, "2D Animation Player", ObjectListIcon_Component );
 }
 
 void ComponentAnimationPlayer2D::OnLeftClick(unsigned int count, bool clear)
@@ -85,7 +100,7 @@ void ComponentAnimationPlayer2D::OnLeftClick(unsigned int count, bool clear)
 
 void ComponentAnimationPlayer2D::FillPropertiesWindow(bool clear, bool addcomponentvariables, bool ignoreblockvisibleflag)
 {
-    m_ControlID_ComponentTitleLabel = g_pPanelWatch->AddSpace( "Template", this, ComponentBase::StaticOnComponentTitleLabelClicked );
+    m_ControlID_ComponentTitleLabel = g_pPanelWatch->AddSpace( "2D Animation Player", this, ComponentBase::StaticOnComponentTitleLabelClicked );
 
     if( m_PanelWatchBlockVisible || ignoreblockvisibleflag == true )
     {
@@ -109,6 +124,21 @@ void* ComponentAnimationPlayer2D::OnDrop(ComponentVariable* pVar, wxCoord x, wxC
         (GameObject*)g_DragAndDropStruct.m_Value;
     }
 
+    if( g_DragAndDropStruct.m_Type == DragAndDropType_FileObjectPointer )
+    {
+        MyFileObject* pFile = (MyFileObject*)g_DragAndDropStruct.m_Value;
+        MyAssert( pFile );
+
+        if( strcmp( pFile->m_ExtensionWithDot, ".my2daniminfo" ) == 0 )
+        {
+            oldpointer = m_pAnimationFile;
+            SetAnimationFile( pFile );
+
+            // update the panel so new filename shows up.
+            g_pPanelWatch->GetVariableProperties( pVar->m_ControlID )->m_Description = m_pAnimationFile->m_FullPath;
+        }
+    }
+
     return oldpointer;
 }
 
@@ -121,21 +151,47 @@ void* ComponentAnimationPlayer2D::OnValueChanged(ComponentVariable* pVar, int co
         MyAssert( pVar->m_ControlID != -1 );
     }
 
+    if( strcmp( pVar->m_Label, "Animation File" ) == 0 )
+    {
+        wxString text = g_pPanelWatch->GetVariableProperties( pVar->m_ControlID )->m_Handle_TextCtrl->GetValue();
+        if( text == "" || text == "none" || text == "no file" )
+        {
+            g_pPanelWatch->ChangeDescriptionForPointerWithDescription( pVar->m_ControlID, "no file" );
+            oldpointer = m_pAnimationFile;
+            this->SetAnimationFile( 0 );
+        }
+    }
+
     return oldpointer;
 }
 #endif //MYFW_USING_WX
 
-//cJSON* ComponentAnimationPlayer2D::ExportAsJSONObject(bool savesceneid)
-//{
-//    cJSON* jComponent = ComponentBase::ExportAsJSONObject( savesceneid );
-//
-//    return jComponent;
-//}
-//
-//void ComponentAnimationPlayer2D::ImportFromJSONObject(cJSON* jComponent, unsigned int sceneid)
-//{
-//    ComponentBase::ImportFromJSONObject( jComponent, sceneid );
-//}
+cJSON* ComponentAnimationPlayer2D::ExportAsJSONObject(bool savesceneid)
+{
+    cJSON* jComponent = ComponentBase::ExportAsJSONObject( savesceneid );
+
+    if( m_pAnimationFile )
+        cJSON_AddStringToObject( jComponent, "AnimFile", m_pAnimationFile->m_FullPath );
+
+    return jComponent;
+}
+
+void ComponentAnimationPlayer2D::ImportFromJSONObject(cJSON* jComponent, unsigned int sceneid)
+{
+    ComponentBase::ImportFromJSONObject( jComponent, sceneid );
+
+    cJSON* animfilestringobj = cJSON_GetObjectItem( jComponent, "AnimFile" );
+    if( animfilestringobj )
+    {
+        MyFileObject* pFile = g_pEngineFileManager->RequestFile( animfilestringobj->valuestring, GetSceneID() );
+        MyAssert( pFile );
+        if( pFile )
+        {
+            SetAnimationFile( pFile );
+            pFile->Release(); // free ref added by RequestFile
+        }
+    }
+}
 
 ComponentAnimationPlayer2D& ComponentAnimationPlayer2D::operator=(const ComponentAnimationPlayer2D& other)
 {
@@ -146,7 +202,25 @@ ComponentAnimationPlayer2D& ComponentAnimationPlayer2D::operator=(const Componen
     // TODO: replace this with a CopyComponentVariablesFromOtherObject... or something similar.
     m_TimeBetweenFrames = other.m_TimeBetweenFrames;
 
+    m_AnimationIndex = other.m_AnimationIndex;
+    m_AnimationTime = other.m_AnimationTime;
+
+    this->m_pAnimationFile = other.m_pAnimationFile;
+    if( this->m_pAnimationFile )
+    {
+        this->m_pAnimationFile->AddRef();
+    }
+
     return *this;
+}
+
+void ComponentAnimationPlayer2D::SetAnimationFile(MyFileObject* pFile)
+{
+    if( pFile )
+        pFile->AddRef();
+
+    SAFE_RELEASE( m_pAnimationFile );
+    m_pAnimationFile = pFile;
 }
 
 void ComponentAnimationPlayer2D::RegisterCallbacks()
