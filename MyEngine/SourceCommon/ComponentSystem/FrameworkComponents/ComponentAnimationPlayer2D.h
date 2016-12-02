@@ -22,8 +22,7 @@ protected:
     ComponentSprite* m_pSpriteComponent;
 
     MyFileObject* m_pAnimationFile;
-
-    float m_TimeBetweenFrames;
+    My2DAnimInfo* m_pAnimInfo;
 
     unsigned int m_AnimationIndex;
     float m_AnimationTime;

@@ -26,7 +26,7 @@ ComponentAnimationPlayer2D::ComponentAnimationPlayer2D()
     m_BaseType = BaseComponentType_Data;
 
     m_pAnimationFile = 0;
-    m_TimeBetweenFrames = 0;
+    m_pAnimInfo = 0;
 
 #if MYFW_USING_WX
     g_pComponentSystemManager->Editor_RegisterFileUpdatedCallback( &StaticOnFileUpdated, this );
@@ -37,12 +37,12 @@ ComponentAnimationPlayer2D::~ComponentAnimationPlayer2D()
 {
     MYFW_COMPONENT_VARIABLE_LIST_DESTRUCTOR(); //_VARIABLE_LIST
 
+    delete( m_pAnimInfo );
     SAFE_RELEASE( m_pAnimationFile );
 }
 
 void ComponentAnimationPlayer2D::RegisterVariables(CPPListHead* pList, ComponentAnimationPlayer2D* pThis) //_VARIABLE_LIST
 {
-    AddVar( pList, "Time per frame", ComponentVariableType_Float, MyOffsetOf( pThis, &pThis->m_TimeBetweenFrames ), true, true, 0, (CVarFunc_ValueChanged)&ComponentAnimationPlayer2D::OnValueChanged, (CVarFunc_DropTarget)&ComponentAnimationPlayer2D::OnDrop, 0 );
     AddVar( pList, "Animation Index", ComponentVariableType_UnsignedInt, MyOffsetOf( pThis, &pThis->m_AnimationIndex ), true, true, 0, (CVarFunc_ValueChanged)&ComponentAnimationPlayer2D::OnValueChanged, (CVarFunc_DropTarget)&ComponentAnimationPlayer2D::OnDrop, 0 );
     AddVar( pList, "Animation Frame", ComponentVariableType_Float, MyOffsetOf( pThis, &pThis->m_AnimationTime ), true, true, 0, (CVarFunc_ValueChanged)&ComponentAnimationPlayer2D::OnValueChanged, (CVarFunc_DropTarget)&ComponentAnimationPlayer2D::OnDrop, 0 );
 
@@ -55,8 +55,6 @@ void ComponentAnimationPlayer2D::Reset()
     ComponentBase::Reset();
 
     m_pSpriteComponent = 0;
-
-    m_TimeBetweenFrames = 0;
 
     m_AnimationIndex = 0;
     m_AnimationTime = 0;
@@ -84,6 +82,7 @@ void ComponentAnimationPlayer2D::OnFileUpdated(MyFileObject* pFile)
 {
     if( pFile == m_pAnimationFile )
     {
+        LOGInfo( LOGTag, "TODO: animation file changed, update it\n" );
     }
 }
 
@@ -146,10 +145,10 @@ void* ComponentAnimationPlayer2D::OnValueChanged(ComponentVariable* pVar, int co
 {
     void* oldpointer = 0;
 
-    if( pVar->m_Offset == MyOffsetOf( this, &m_TimeBetweenFrames ) )
-    {
-        MyAssert( pVar->m_ControlID != -1 );
-    }
+    //if( pVar->m_Offset == MyOffsetOf( this, &m_TimeBetweenFrames ) )
+    //{
+    //    MyAssert( pVar->m_ControlID != -1 );
+    //}
 
     if( strcmp( pVar->m_Label, "Animation File" ) == 0 )
     {
@@ -200,8 +199,6 @@ ComponentAnimationPlayer2D& ComponentAnimationPlayer2D::operator=(const Componen
     ComponentBase::operator=( other );
 
     // TODO: replace this with a CopyComponentVariablesFromOtherObject... or something similar.
-    m_TimeBetweenFrames = other.m_TimeBetweenFrames;
-
     m_AnimationIndex = other.m_AnimationIndex;
     m_AnimationTime = other.m_AnimationTime;
 
@@ -266,4 +263,21 @@ void ComponentAnimationPlayer2D::TickCallback(double TimePassed)
 
     if( m_pSpriteComponent == 0 )
         return;
+
+    if( m_pAnimInfo == 0 )
+    {
+        if( m_pAnimationFile && m_pAnimationFile->m_FileLoadStatus == FileLoadStatus_Success )
+        {
+            m_pAnimInfo = MyNew My2DAnimInfo();
+            m_pAnimInfo->LoadAnimationControlFile( m_pAnimationFile->m_pBuffer );
+        }
+    }
+
+    if( m_pAnimInfo == 0 )
+        return;
+
+    My2DAnimation* pAnim = m_pAnimInfo->GetAnimationByIndex( 0 );
+    const char* matname = pAnim->m_Frames[0]->m_MaterialName;
+    MaterialDefinition* pMaterial = g_pMaterialManager->FindMaterialByFilename( matname );
+    m_pSpriteComponent->SetMaterial( pMaterial, 0 );
 }
