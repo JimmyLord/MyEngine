@@ -13,12 +13,13 @@ attribute vec4 a_Position;
 attribute vec2 a_UVCoord;
 
 uniform mat4 u_WorldViewProj;
+uniform mat3 u_UVTransform;
 
 void main()
 {
     gl_Position = u_WorldViewProj * a_Position;
 
-    v_UVCoord = a_UVCoord;
+    v_UVCoord = ( u_UVTransform * vec3(a_UVCoord, 1) ).xy;
 }
 
 #endif

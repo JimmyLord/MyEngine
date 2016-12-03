@@ -45,6 +45,7 @@ void ComponentAnimationPlayer2D::RegisterVariables(CPPListHead* pList, Component
 {
     AddVar( pList, "Animation Index", ComponentVariableType_UnsignedInt, MyOffsetOf( pThis, &pThis->m_AnimationIndex ), true, true, 0, (CVarFunc_ValueChanged)&ComponentAnimationPlayer2D::OnValueChanged, (CVarFunc_DropTarget)&ComponentAnimationPlayer2D::OnDrop, 0 );
     AddVar( pList, "Animation Frame", ComponentVariableType_Float, MyOffsetOf( pThis, &pThis->m_AnimationTime ), true, true, 0, (CVarFunc_ValueChanged)&ComponentAnimationPlayer2D::OnValueChanged, (CVarFunc_DropTarget)&ComponentAnimationPlayer2D::OnDrop, 0 );
+    AddVar( pList, "Frame Index", ComponentVariableType_UnsignedInt, MyOffsetOf( pThis, &pThis->m_FrameIndex ), true, true, 0, (CVarFunc_ValueChanged)&ComponentAnimationPlayer2D::OnValueChanged, (CVarFunc_DropTarget)&ComponentAnimationPlayer2D::OnDrop, 0 );
 
     // Animation File is not automatically saved/loaded
     AddVar( pList, "Animation File", ComponentVariableType_FilePtr, MyOffsetOf( pThis, &pThis->m_pAnimationFile ), false, true, 0, (CVarFunc_ValueChanged)&ComponentAnimationPlayer2D::OnValueChanged, (CVarFunc_DropTarget)&ComponentAnimationPlayer2D::OnDrop, 0 );
@@ -58,6 +59,7 @@ void ComponentAnimationPlayer2D::Reset()
 
     m_AnimationIndex = 0;
     m_AnimationTime = 0;
+    m_FrameIndex = 0;
 
 #if MYFW_USING_WX
     m_pPanelWatchBlockVisible = &m_PanelWatchBlockVisible;
@@ -72,6 +74,7 @@ void ComponentAnimationPlayer2D::LuaRegister(lua_State* luastate)
             //.addData( "m_TimeBetweenFrames", &ComponentAnimationPlayer2D::m_TimeBetweenFrames )
             //m_AnimationIndex
             //m_AnimationTime
+            //m_FrameIndex
             //.addFunction( "GetTimeBetweenFrames", &ComponentAnimationPlayer2D::GetTimeBetweenFrames )
         .endClass();
 }
@@ -201,6 +204,7 @@ ComponentAnimationPlayer2D& ComponentAnimationPlayer2D::operator=(const Componen
     // TODO: replace this with a CopyComponentVariablesFromOtherObject... or something similar.
     m_AnimationIndex = other.m_AnimationIndex;
     m_AnimationTime = other.m_AnimationTime;
+    m_FrameIndex = other.m_FrameIndex;
 
     this->m_pAnimationFile = other.m_pAnimationFile;
     if( this->m_pAnimationFile )
@@ -276,8 +280,30 @@ void ComponentAnimationPlayer2D::TickCallback(double TimePassed)
     if( m_pAnimInfo == 0 )
         return;
 
-    My2DAnimation* pAnim = m_pAnimInfo->GetAnimationByIndex( 0 );
-    const char* matname = pAnim->m_Frames[0]->m_MaterialName;
+    // Get the current animation/frame being played, clamp to limits
+    MyClamp( m_AnimationIndex, (uint32)0, m_pAnimInfo->GetNumberOfAnimations()-1 );
+
+    My2DAnimation* pAnim = m_pAnimInfo->GetAnimationByIndex( m_AnimationIndex );
+
+    MyClamp( m_FrameIndex, (uint32)0, pAnim->m_Frames.Count()-1 );
+
+    // Advance time and the current frame if needed
+    m_AnimationTime += (float)TimePassed;
+
+    while( m_AnimationTime > pAnim->m_Frames[m_FrameIndex]->m_Duration )
+    {
+        m_AnimationTime -= pAnim->m_Frames[m_FrameIndex]->m_Duration;
+        m_FrameIndex++;
+        if( m_FrameIndex >= pAnim->m_Frames.Count() )
+            m_FrameIndex = 0;
+    }
+
+    // Set the material
+    const char* matname = pAnim->m_Frames[m_FrameIndex]->m_MaterialName;
     MaterialDefinition* pMaterial = g_pMaterialManager->FindMaterialByFilename( matname );
     m_pSpriteComponent->SetMaterial( pMaterial, 0 );
+
+    // TODO: material can't be shared if UVScale/UVOffset change, fix this
+    pMaterial->m_UVScale = pAnim->m_Frames[m_FrameIndex]->m_UVScale;
+    pMaterial->m_UVOffset = pAnim->m_Frames[m_FrameIndex]->m_UVOffset;
 }

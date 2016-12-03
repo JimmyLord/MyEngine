@@ -24,8 +24,9 @@ protected:
     MyFileObject* m_pAnimationFile;
     My2DAnimInfo* m_pAnimInfo;
 
-    unsigned int m_AnimationIndex;
+    uint32 m_AnimationIndex;
     float m_AnimationTime;
+    uint32 m_FrameIndex;
 
 public:
     ComponentAnimationPlayer2D();
