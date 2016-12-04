@@ -66,8 +66,8 @@ void ComponentPostEffect::FillPropertiesWindow(bool clear, bool addcomponentvari
         FillPropertiesWindowWithVariables(); //_VARIABLE_LIST
 
         const char* desc = "no material";
-        if( m_pMaterial && m_pMaterial->m_pFile )
-            desc = m_pMaterial->m_pFile->m_FilenameWithoutExtension;
+        if( m_pMaterial && m_pMaterial->GetFile() )
+            desc = m_pMaterial->GetMaterialShortDescription();
         g_pPanelWatch->AddPointerWithDescription( "Material", 0, desc, this, ComponentPostEffect::StaticOnDropMaterial );
     }
 }
@@ -82,8 +82,8 @@ void ComponentPostEffect::OnDropMaterial(int controlid, wxCoord x, wxCoord y)
         SetMaterial( pMaterial );
 
         // update the panel so new Material name shows up.
-        if( pMaterial->m_pFile )
-            g_pPanelWatch->GetVariableProperties( g_DragAndDropStruct.m_ID )->m_Description = pMaterial->m_pFile->m_FilenameWithoutExtension;
+        if( pMaterial->GetFile() )
+            g_pPanelWatch->GetVariableProperties( g_DragAndDropStruct.m_ID )->m_Description = pMaterial->GetMaterialShortDescription();
     }
 }
 
@@ -100,7 +100,7 @@ cJSON* ComponentPostEffect::ExportAsJSONObject(bool savesceneid)
     cJSON* component = ComponentData::ExportAsJSONObject( savesceneid );
 
     if( m_pMaterial )
-        cJSON_AddStringToObject( component, "Material", m_pMaterial->m_pFile->m_FullPath );
+        cJSON_AddStringToObject( component, "Material", m_pMaterial->GetMaterialDescription() );
 
     return component;
 }

@@ -95,7 +95,7 @@ void* ComponentSprite::GetPointerValue(ComponentVariable* pVar) //_VARIABLE_LIST
         {
             if( m_pSprite->GetMaterial() )
             {
-                if( m_pSprite->GetMaterial()->m_pFile )
+                if( m_pSprite->GetMaterial()->GetFile() )
                     return m_pSprite->GetMaterial();
             }
         }
@@ -118,8 +118,8 @@ const char* ComponentSprite::GetPointerDesc(ComponentVariable* pVar) //_VARIABLE
     {
         MyAssert( m_pSprite );
         MaterialDefinition* pMaterial = m_pSprite->GetMaterial();
-        if( pMaterial && pMaterial->m_pFile )
-            return pMaterial->m_pFile->m_FullPath;
+        if( pMaterial && pMaterial->GetFile() )
+            return pMaterial->GetMaterialDescription();
         else
             return "none";
     }

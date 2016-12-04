@@ -280,30 +280,30 @@ void ComponentAnimationPlayer2D::TickCallback(double TimePassed)
     if( m_pAnimInfo == 0 )
         return;
 
-    // Get the current animation/frame being played, clamp to limits
-    MyClamp( m_AnimationIndex, (uint32)0, m_pAnimInfo->GetNumberOfAnimations()-1 );
-
-    My2DAnimation* pAnim = m_pAnimInfo->GetAnimationByIndex( m_AnimationIndex );
-
-    MyClamp( m_FrameIndex, (uint32)0, pAnim->m_Frames.Count()-1 );
+    // Get the current animation/frame being played
+    My2DAnimation* pAnim = m_pAnimInfo->GetAnimationByIndexClamped( m_AnimationIndex );
+    My2DAnimationFrame* pFrame = pAnim->GetFrameByIndexClamped( m_FrameIndex );
 
     // Advance time and the current frame if needed
     m_AnimationTime += (float)TimePassed;
 
-    while( m_AnimationTime > pAnim->m_Frames[m_FrameIndex]->m_Duration )
+    float frameduration = pFrame->GetDuration();
+
+    while( m_AnimationTime > frameduration )
     {
-        m_AnimationTime -= pAnim->m_Frames[m_FrameIndex]->m_Duration;
+        m_AnimationTime -= frameduration;
         m_FrameIndex++;
-        if( m_FrameIndex >= pAnim->m_Frames.Count() )
+
+        uint32 framecount = pAnim->GetFrameCount();
+        if( m_FrameIndex >= framecount )
             m_FrameIndex = 0;
     }
 
     // Set the material
-    const char* matname = pAnim->m_Frames[m_FrameIndex]->m_MaterialName;
-    MaterialDefinition* pMaterial = g_pMaterialManager->FindMaterialByFilename( matname );
+    MaterialDefinition* pMaterial = pFrame->GetMaterial();
     m_pSpriteComponent->SetMaterial( pMaterial, 0 );
 
     // TODO: material can't be shared if UVScale/UVOffset change, fix this
-    pMaterial->m_UVScale = pAnim->m_Frames[m_FrameIndex]->m_UVScale;
-    pMaterial->m_UVOffset = pAnim->m_Frames[m_FrameIndex]->m_UVOffset;
+    pMaterial->m_UVScale = pFrame->GetUVScale();
+    pMaterial->m_UVOffset = pFrame->GetUVOffset();
 }

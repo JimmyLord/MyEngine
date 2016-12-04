@@ -237,11 +237,11 @@ cJSON* ComponentMesh::ExportAsJSONObject(bool savesceneid)
 
     for( unsigned int i=0; i<MAX_SUBMESHES; i++ )
     {
-        MyAssert( m_MaterialList[i] == 0 || m_MaterialList[i]->m_pFile ); // new materials should be saved as files before the state is saved.
+        MyAssert( m_MaterialList[i] == 0 || m_MaterialList[i]->GetFile() ); // new materials should be saved as files before the state is saved.
 
         cJSON* jMaterial = 0;
-        if( m_MaterialList[i] && m_MaterialList[i]->m_pFile )
-            jMaterial = cJSON_CreateString( m_MaterialList[i]->m_pFile->m_FullPath );
+        if( m_MaterialList[i] && m_MaterialList[i]->GetFile() )
+            jMaterial = cJSON_CreateString( m_MaterialList[i]->GetMaterialDescription() );
 
         if( jMaterial )
             cJSON_AddItemToArray( jMaterialArray, jMaterial );

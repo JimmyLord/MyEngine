@@ -153,8 +153,8 @@ void ComponentParticleEmitter::FillPropertiesWindow(bool clear, bool addcomponen
         g_pPanelWatch->AddColorFloat( "color2", &m_Color2, 0, 1 );
 
         const char* desc = "no material";
-        if( m_pMaterial )
-            desc = m_pMaterial->m_pFile->m_FilenameWithoutExtension;
+        if( m_pMaterial && m_pMaterial->GetFile() )
+            desc = m_pMaterial->GetMaterialShortDescription();
         g_pPanelWatch->AddPointerWithDescription( "Material", 0, desc, this, ComponentParticleEmitter::StaticOnDropMaterial );
     }
 }
@@ -169,7 +169,8 @@ void ComponentParticleEmitter::OnDropMaterial(int controlid, wxCoord x, wxCoord 
         SetMaterial( pMaterial, 0 );
 
         // update the panel so new Material name shows up.
-        g_pPanelWatch->GetVariableProperties( g_DragAndDropStruct.m_ID )->m_Description = pMaterial->m_pFile->m_FilenameWithoutExtension;
+        if( pMaterial->GetFile() )
+            g_pPanelWatch->GetVariableProperties( g_DragAndDropStruct.m_ID )->m_Description = pMaterial->GetMaterialShortDescription();
     }
 }
 #endif //MYFW_USING_WX
@@ -195,8 +196,8 @@ cJSON* ComponentParticleEmitter::ExportAsJSONObject(bool savesceneid)
     cJSONExt_AddFloatArrayToObject( component, "color1", &m_Color1.r, 4 );
     cJSONExt_AddFloatArrayToObject( component, "color2", &m_Color2.r, 4 );
 
-    if( m_pMaterial )
-        cJSON_AddStringToObject( component, "Material", m_pMaterial->m_pFile->m_FullPath );
+    if( m_pMaterial && m_pMaterial->GetFile() )
+        cJSON_AddStringToObject( component, "Material", m_pMaterial->GetMaterialDescription() );
 
     return component;
 }

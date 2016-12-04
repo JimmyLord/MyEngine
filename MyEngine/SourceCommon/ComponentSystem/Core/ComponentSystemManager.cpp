@@ -304,11 +304,11 @@ void ComponentSystemManager::OnMaterialCreated(MaterialDefinition* pMaterial)
     MyAssert( pMaterial );
 
     // if this material doesn't have a file and it has a name, then save it.
-    if( pMaterial && pMaterial->m_pFile )
+    if( pMaterial && pMaterial->GetFile() )
     {
         // Add the material to the file list, so it can be freed on shutdown.
-        AddToFileList( pMaterial->m_pFile, 0, 0, 0, pMaterial, 0, 1 );
-        pMaterial->m_pFile->AddRef();
+        AddToFileList( pMaterial->GetFile(), 0, 0, 0, pMaterial, 0, 1 );
+        pMaterial->GetFile()->AddRef();
     }
 }
 

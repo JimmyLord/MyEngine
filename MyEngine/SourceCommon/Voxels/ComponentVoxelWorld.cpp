@@ -125,10 +125,15 @@ const char* ComponentVoxelWorld::GetPointerDesc(ComponentVariable* pVar) //_VARI
 {
     if( strcmp( pVar->m_Label, "Material" ) == 0 )
     {
-        if( m_pMaterial && m_pMaterial->m_pFile )
-            return m_pMaterial->m_pFile->m_FullPath;
-        else
-            return "none";
+        const char* desc = 0;
+        
+        if( m_pMaterial )
+            desc = m_pMaterial->GetMaterialDescription();
+        
+        if( desc == 0 )
+            desc = "none";
+
+        return desc;
     }
 
     return "fix me";
@@ -213,8 +218,9 @@ void* ComponentVoxelWorld::OnDrop(ComponentVariable* pVar, wxCoord x, wxCoord y)
         SetMaterial( pMaterial );
 
         // update the panel so new Material name shows up.
-        if( pMaterial->m_pFile )
-            g_pPanelWatch->GetVariableProperties( g_DragAndDropStruct.m_ID )->m_Description = pMaterial->m_pFile->m_FilenameWithoutExtension;
+        const char* shortdesc = pMaterial->GetMaterialShortDescription();
+        if( shortdesc )
+            g_pPanelWatch->GetVariableProperties( g_DragAndDropStruct.m_ID )->m_Description = shortdesc;
     }
 
     return oldvalue;
