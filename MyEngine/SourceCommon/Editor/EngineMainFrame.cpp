@@ -1211,7 +1211,7 @@ void EngineMainFrame::OnDrop(int controlid, wxCoord x, wxCoord y)
             pGameObject->SetName( "New mesh" );
             ComponentMeshOBJ* pComponentMeshOBJ = (ComponentMeshOBJ*)pGameObject->AddNewComponent( ComponentType_MeshOBJ, 1 );
             pComponentMeshOBJ->SetSceneID( 1 );
-            pComponentMeshOBJ->SetMaterial( (MaterialDefinition*)g_pMaterialManager->m_Materials.GetHead(), 0 );
+            pComponentMeshOBJ->SetMaterial( g_pMaterialManager->GetFirstMaterial(), 0 );
             pComponentMeshOBJ->SetMesh( pMesh );
             pComponentMeshOBJ->SetLayersThisExistsOn( Layer_MainScene );
 

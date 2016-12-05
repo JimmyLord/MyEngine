@@ -744,6 +744,12 @@ MyFileObject* ComponentSystemManager::LoadDataFile(const char* relativepath, uns
             pFileInfo->m_pMaterial = g_pMaterialManager->LoadMaterial( pFile->m_FullPath );
         }
 
+        // if we're loading a .myspritesheet, we create a material for each texture in the sheet
+        if( strcmp( pFile->m_ExtensionWithDot, ".myspritesheet" ) == 0 )
+        {
+            pFileInfo->m_pMaterial = g_pMaterialManager->LoadSpriteSheet( pFile->m_FullPath );
+        }
+
         // if we're loading a .mycue file, create a Sound Cue.
         if( strcmp( pFile->m_ExtensionWithDot, ".mycue" ) == 0 )
         {
