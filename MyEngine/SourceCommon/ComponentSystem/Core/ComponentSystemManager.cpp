@@ -126,6 +126,9 @@ ComponentSystemManager::~ComponentSystemManager()
     while( m_Files.GetHead() )
         delete m_Files.RemHead();
 
+    while( m_FilesStillLoading.GetHead() )
+        delete m_FilesStillLoading.RemHead();
+
 #if MYFW_USING_WX
     SAFE_DELETE( m_pSceneHandler );
     SAFE_DELETE( m_pGameObjectTemplateManager );
@@ -243,6 +246,9 @@ void ComponentSystemManager::CheckForUpdatedDataSourceFiles(bool initialcheck)
         }
 #endif
     }
+
+    // TODO: check for updates to files that are still loading?
+    //m_FilesStillLoading
 }
 
 void ComponentSystemManager::OnFileUpdated(MyFileObject* pFile)
@@ -307,7 +313,7 @@ void ComponentSystemManager::OnMaterialCreated(MaterialDefinition* pMaterial)
     if( pMaterial && pMaterial->GetFile() )
     {
         // Add the material to the file list, so it can be freed on shutdown.
-        AddToFileList( pMaterial->GetFile(), 0, 0, 0, pMaterial, 0, 1 );
+        AddToFileList( pMaterial->GetFile(), 0, 0, 0, pMaterial, 0, 0, 1 );
         pMaterial->GetFile()->AddRef();
     }
 }
@@ -320,7 +326,7 @@ void ComponentSystemManager::OnSoundCueCreated(SoundCue* pSoundCue)
     if( pSoundCue && pSoundCue->m_pFile )
     {
         // Add the material to the file list, so it can be freed on shutdown.
-        AddToFileList( pSoundCue->m_pFile, 0, 0, 0, 0, pSoundCue, 1 );
+        AddToFileList( pSoundCue->m_pFile, 0, 0, 0, 0, pSoundCue, 0, 1 );
         pSoundCue->m_pFile->AddRef();
     }
 }
@@ -379,46 +385,57 @@ void ComponentSystemManager::AddListOfFilesUsedToJSONObject(unsigned int sceneid
     // TODO: there are currently many ways a file can be loaded into a secondary scene without being in this list.
     //       need to adjust code in various components to account for this.
 
-    for( CPPListNode* pNode = m_Files.GetHead(); pNode; pNode = pNode->GetNext() )
+    // loop through both lists of files
+    for( int filelist=0; filelist<2; filelist++ )
     {
-        MyFileInfo* pFileInfo = (MyFileInfo*)pNode;
-        
-        MyAssert( pFileInfo );
-        if( pFileInfo == 0 )
-            continue;
+        CPPListNode* pFirstNode = 0;
 
-        if( pFileInfo->m_SceneID != sceneid )
-            continue;
+        if( filelist == 0 )
+            pFirstNode = m_Files.GetHead();
+        else
+            pFirstNode = m_FilesStillLoading.GetHead();
         
-        MyFileObject* pFile = pFileInfo->m_pFile;
-        if( pFile != 0 )
+        for( CPPListNode* pNode = pFirstNode; pNode; pNode = pNode->GetNext() )
         {
-            // skip over shader include files.
-            if( pFile->IsA( "MyFileShader" ) )
+            MyFileInfo* pFileInfo = (MyFileInfo*)pNode;
+        
+            MyAssert( pFileInfo );
+            if( pFileInfo == 0 )
+                continue;
+
+            if( pFileInfo->m_SceneID != sceneid )
+                continue;
+        
+            MyFileObject* pFile = pFileInfo->m_pFile;
+            if( pFile != 0 )
             {
-                MyFileObjectShader* pShaderFile = (MyFileObjectShader*)pFile;
-                if( pShaderFile && pShaderFile->m_IsAnIncludeFile )
+                // skip over shader include files.
+                if( pFile->IsA( "MyFileShader" ) )
                 {
-                    MyAssert( false ); // shader include files shouldn't be in the file list.
-                    continue;
+                    MyFileObjectShader* pShaderFile = (MyFileObjectShader*)pFile;
+                    if( pShaderFile && pShaderFile->m_IsAnIncludeFile )
+                    {
+                        MyAssert( false ); // shader include files shouldn't be in the file list.
+                        continue;
+                    }
+                }
+
+                cJSON* jFile = cJSON_CreateObject();
+                cJSON_AddItemToObject( jFile, "Path", cJSON_CreateString( pFile->m_FullPath ) );
+                cJSON_AddItemToArray( filearray, jFile );
+
+                // Save the source path if there is one.
+                if( pFileInfo->m_SourceFileFullPath[0] != 0 )
+                {
+                    cJSON_AddItemToObject( jFile, "SourcePath", cJSON_CreateString( pFileInfo->m_SourceFileFullPath ) );
                 }
             }
-
-            cJSON* jFile = cJSON_CreateObject();
-            cJSON_AddItemToObject( jFile, "Path", cJSON_CreateString( pFile->m_FullPath ) );
-            cJSON_AddItemToArray( filearray, jFile );
-
-            // Save the source path if there is one.
-            if( pFileInfo->m_SourceFileFullPath[0] != 0 )
+            else
             {
-                cJSON_AddItemToObject( jFile, "SourcePath", cJSON_CreateString( pFileInfo->m_SourceFileFullPath ) );
+                cJSON* jFile = cJSON_CreateObject();
+                cJSON_AddItemToObject( jFile, "Path", cJSON_CreateString( pFileInfo->m_SourceFileFullPath ) );
+                cJSON_AddItemToArray( filearray, jFile );
             }
-        }
-        else
-        {
-            cJSON* jFile = cJSON_CreateObject();
-            cJSON_AddItemToObject( jFile, "Path", cJSON_CreateString( pFileInfo->m_SourceFileFullPath ) );
-            cJSON_AddItemToArray( filearray, jFile );
         }
     }
 }
@@ -546,21 +563,32 @@ void ComponentSystemManager::SaveGameObjectListToJSONArray(cJSON* gameobjectarra
 
 MyFileInfo* ComponentSystemManager::GetFileInfoIfUsedByScene(const char* fullpath, unsigned int sceneid)
 {
-    for( CPPListNode* pNode = m_Files.GetHead(); pNode; pNode = pNode->GetNext() )
+    // loop through both lists of files
+    for( int filelist=0; filelist<2; filelist++ )
     {
-        MyFileInfo* pFileInfo = (MyFileInfo*)pNode;
+        CPPListNode* pFirstNode = 0;
 
-        if( sceneid == -1 || pFileInfo->m_SceneID == sceneid )
+        if( filelist == 0 )
+            pFirstNode = m_Files.GetHead();
+        else
+            pFirstNode = m_FilesStillLoading.GetHead();
+        
+        for( CPPListNode* pNode = pFirstNode; pNode; pNode = pNode->GetNext() )
         {
-            if( pFileInfo->m_pFile == 0 )
+            MyFileInfo* pFileInfo = (MyFileInfo*)pNode;
+
+            if( sceneid == -1 || pFileInfo->m_SceneID == sceneid )
             {
-                if( strcmp( pFileInfo->m_SourceFileFullPath, fullpath ) == 0 )
-                    return pFileInfo;
-            }
-            else
-            {
-                if( strcmp( pFileInfo->m_pFile->m_FullPath, fullpath ) == 0 )
-                    return pFileInfo;
+                if( pFileInfo->m_pFile == 0 )
+                {
+                    if( strcmp( pFileInfo->m_SourceFileFullPath, fullpath ) == 0 )
+                        return pFileInfo;
+                }
+                else
+                {
+                    if( strcmp( pFileInfo->m_pFile->m_FullPath, fullpath ) == 0 )
+                        return pFileInfo;
+                }
             }
         }
     }
@@ -578,7 +606,7 @@ MyFileObject* ComponentSystemManager::GetFileObjectIfUsedByScene(const char* ful
     return 0;
 }
 
-MyFileInfo* ComponentSystemManager::AddToFileList(MyFileObject* pFile, MyMesh* pMesh, ShaderGroup* pShaderGroup, TextureDefinition* pTexture, MaterialDefinition* pMaterial, SoundCue* pSoundCue, unsigned int sceneid)
+MyFileInfo* ComponentSystemManager::AddToFileList(MyFileObject* pFile, MyMesh* pMesh, ShaderGroup* pShaderGroup, TextureDefinition* pTexture, MaterialDefinition* pMaterial, SoundCue* pSoundCue, SpriteSheet* pSpriteSheet, unsigned int sceneid)
 {
     // store pFile so we can free it afterwards.
     MyFileInfo* pFileInfo = MyNew MyFileInfo();
@@ -589,6 +617,7 @@ MyFileInfo* ComponentSystemManager::AddToFileList(MyFileObject* pFile, MyMesh* p
     pFileInfo->m_pTexture = pTexture;
     pFileInfo->m_pMaterial = pMaterial;
     pFileInfo->m_pSoundCue = pSoundCue;
+    pFileInfo->m_pSpriteSheet = pSpriteSheet;
 
     pFileInfo->m_SceneID = sceneid;
 
@@ -630,7 +659,7 @@ MyFileObject* ComponentSystemManager::LoadDataFile(const char* relativepath, uns
 #endif
         
         // store pFile so we can free it afterwards.
-        MyFileInfo* pFileInfo = AddToFileList( pFile, 0, 0, 0, 0, 0, sceneid );
+        MyFileInfo* pFileInfo = AddToFileList( pFile, 0, 0, 0, 0, 0, 0, sceneid );
 
         TextureDefinition* pTexture = 0;
 
@@ -747,7 +776,11 @@ MyFileObject* ComponentSystemManager::LoadDataFile(const char* relativepath, uns
         // if we're loading a .myspritesheet, we create a material for each texture in the sheet
         if( strcmp( pFile->m_ExtensionWithDot, ".myspritesheet" ) == 0 )
         {
-            pFileInfo->m_pMaterial = g_pMaterialManager->LoadSpriteSheet( pFile->m_FullPath );
+            //pFileInfo->m_pMaterial = g_pMaterialManager->LoadSpriteSheet( pFile->m_FullPath );
+            pFileInfo->m_pSpriteSheet = MyNew SpriteSheet();
+            pFileInfo->m_pSpriteSheet->Create( pFile->m_FullPath, 0, GL_LINEAR, GL_LINEAR, false, true );
+
+            m_FilesStillLoading.MoveHead( pFileInfo );
         }
 
         // if we're loading a .mycue file, create a Sound Cue.
@@ -845,16 +878,27 @@ MyFileObject* ComponentSystemManager::ImportDataFile(unsigned int sceneid, const
 
 void ComponentSystemManager::FreeAllDataFiles(unsigned int sceneidtoclear)
 {
-    for( CPPListNode* pNode = m_Files.GetHead(); pNode;  )
+    // loop through both lists of files
+    for( int filelist=0; filelist<2; filelist++ )
     {
-        MyFileInfo* pFile = (MyFileInfo*)pNode;
-        pNode = pNode->GetNext();
+        CPPListNode* pFirstNode = 0;
 
-        if( sceneidtoclear == UINT_MAX || pFile->m_SceneID == sceneidtoclear )
+        if( filelist == 0 )
+            pFirstNode = m_Files.GetHead();
+        else
+            pFirstNode = m_FilesStillLoading.GetHead();
+        
+        for( CPPListNode* pNode = pFirstNode; pNode;  )
         {
-            checkGlError( "ComponentSystemManager::FreeAllDataFiles" );
-            delete pFile;
-            checkGlError( "ComponentSystemManager::FreeAllDataFiles" );
+            MyFileInfo* pFile = (MyFileInfo*)pNode;
+            pNode = pNode->GetNext();
+
+            if( sceneidtoclear == UINT_MAX || pFile->m_SceneID == sceneidtoclear )
+            {
+                checkGlError( "ComponentSystemManager::FreeAllDataFiles" );
+                delete pFile;
+                checkGlError( "ComponentSystemManager::FreeAllDataFiles" );
+            }
         }
     }
 }
@@ -1116,6 +1160,9 @@ void ComponentSystemManager::FinishLoading(bool lockwhileloading, unsigned int s
 
     if( lockwhileloading )
     {
+        if( m_FilesStillLoading.GetHead() != 0 )
+            return;
+
         for( CPPListNode* pNode = m_Files.GetHead(); pNode; pNode = pNode->GetNext() )
         {
             MyFileInfo* pFileInfo = (MyFileInfo*)pNode;
@@ -1822,6 +1869,23 @@ void ComponentSystemManager::Tick(double TimePassed)
         FinishLoading( true, 1, m_StartGamePlayWhenDoneLoading );
     }
 
+    // tick the files that are still loading, if handled by us (spritesheets only ATM)
+    CPPListNode* pNextNode;
+    for( CPPListNode* pNode = m_FilesStillLoading.GetHead(); pNode; pNode = pNextNode )
+    {
+        pNextNode = pNode->GetNext();
+
+        MyFileInfo* pFileInfo = (MyFileInfo*)pNode;
+        
+        MyAssert( pFileInfo );
+        MyAssert( pFileInfo->m_pSpriteSheet );
+
+        pFileInfo->m_pSpriteSheet->Tick( TimePassed );
+
+        if( pFileInfo->m_pSpriteSheet->IsFullyLoaded() )
+            m_Files.MoveTail( pNode );
+    }
+
 #if MYFW_USING_WX
     CheckForUpdatedDataSourceFiles( true );
 #endif
@@ -1857,7 +1921,6 @@ void ComponentSystemManager::Tick(double TimePassed)
     }
 
     // update all components that registered a tick callback... might unregister themselves while in their callback
-    CPPListNode* pNextNode;
     for( CPPListNode* pNode = m_pComponentCallbackList_Tick.GetHead(); pNode != 0; pNode = pNextNode )
     {
         pNextNode = pNode->GetNext();

@@ -130,6 +130,7 @@ public:
 
     // List of files used including a scene id and the source file (if applicable)
     CPPListHead m_Files;
+    CPPListHead m_FilesStillLoading;
 
     // a component can only exist in one of these lists ATM
     CPPListHead m_Components[BaseComponentType_NumTypes];
@@ -165,7 +166,7 @@ public:
     char* ExportBox2DSceneToJSON(unsigned int sceneid);
     void SaveGameObjectListToJSONArray(cJSON* gameobjectarray, cJSON* transformarray, GameObject* first, bool savesceneid);
     
-    MyFileInfo* AddToFileList(MyFileObject* pFile, MyMesh* pMesh, ShaderGroup* pShaderGroup, TextureDefinition* pTexture, MaterialDefinition* pMaterial, SoundCue* pSoundCue, unsigned int sceneid);
+    MyFileInfo* AddToFileList(MyFileObject* pFile, MyMesh* pMesh, ShaderGroup* pShaderGroup, TextureDefinition* pTexture, MaterialDefinition* pMaterial, SoundCue* pSoundCue, SpriteSheet* pSpriteSheet, unsigned int sceneid);
     MyFileObject* LoadDataFile(const char* relativepath, unsigned int sceneid, const char* fullsourcefilepath, bool convertifrequired);
     MyFileObject* ImportDataFile(unsigned int sceneid, const char* fullsourcefilepath);
     void FreeAllDataFiles(unsigned int sceneidtoclear);
@@ -305,6 +306,7 @@ public:
     TextureDefinition* m_pTexture; //a texture may have been created alongside the file.
     MaterialDefinition* m_pMaterial; //a material may have been created alongside the file.
     SoundCue* m_pSoundCue; //a sound cue may have been created alongside the file.
+    SpriteSheet* m_pSpriteSheet; //a sprite sheet may have been created alongside the file.
 
     bool m_DidInitialCheckIfSourceFileWasUpdated;
 
@@ -320,6 +322,7 @@ public:
         m_pTexture = 0;
         m_pMaterial = 0;
         m_pSoundCue = 0;
+        m_pSpriteSheet = 0;
 
         m_DidInitialCheckIfSourceFileWasUpdated = false;
     }
@@ -334,6 +337,7 @@ public:
         SAFE_RELEASE( m_pTexture );
         SAFE_RELEASE( m_pMaterial );
         SAFE_RELEASE( m_pSoundCue );
+        SAFE_DELETE( m_pSpriteSheet );
     }
 };
 
