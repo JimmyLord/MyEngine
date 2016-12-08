@@ -302,8 +302,4 @@ void ComponentAnimationPlayer2D::TickCallback(double TimePassed)
     // Set the material
     MaterialDefinition* pMaterial = pFrame->GetMaterial();
     m_pSpriteComponent->SetMaterial( pMaterial, 0 );
-
-    // TODO: material can't be shared if UVScale/UVOffset change, fix this
-    pMaterial->m_UVScale = pFrame->GetUVScale();
-    pMaterial->m_UVOffset = pFrame->GetUVOffset();
 }

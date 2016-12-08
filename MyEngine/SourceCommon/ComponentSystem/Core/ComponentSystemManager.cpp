@@ -776,9 +776,10 @@ MyFileObject* ComponentSystemManager::LoadDataFile(const char* relativepath, uns
         // if we're loading a .myspritesheet, we create a material for each texture in the sheet
         if( strcmp( pFile->m_ExtensionWithDot, ".myspritesheet" ) == 0 )
         {
-            //pFileInfo->m_pMaterial = g_pMaterialManager->LoadSpriteSheet( pFile->m_FullPath );
+            ShaderGroup* pShaderGroup = g_pShaderGroupManager->FindShaderGroupByFilename( "DataEngine/Shaders/Shader_TextureTint.glsl" );
+
             pFileInfo->m_pSpriteSheet = MyNew SpriteSheet();
-            pFileInfo->m_pSpriteSheet->Create( pFile->m_FullPath, 0, GL_LINEAR, GL_LINEAR, false, true );
+            pFileInfo->m_pSpriteSheet->Create( pFile->m_FullPath, pShaderGroup, GL_LINEAR, GL_LINEAR, false, true );
 
             m_FilesStillLoading.MoveHead( pFileInfo );
         }
