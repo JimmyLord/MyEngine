@@ -273,6 +273,7 @@ void ComponentAnimationPlayer2D::TickCallback(double TimePassed)
         if( m_pAnimationFile && m_pAnimationFile->m_FileLoadStatus == FileLoadStatus_Success )
         {
             m_pAnimInfo = MyNew My2DAnimInfo();
+            m_pAnimInfo->SetSourceFile( m_pAnimationFile );
             m_pAnimInfo->LoadAnimationControlFile( m_pAnimationFile->m_pBuffer );
         }
     }
@@ -289,7 +290,7 @@ void ComponentAnimationPlayer2D::TickCallback(double TimePassed)
 
     float frameduration = pFrame->GetDuration();
 
-    while( m_AnimationTime > frameduration )
+    while( m_AnimationTime > frameduration && frameduration > 0 )
     {
         m_AnimationTime -= frameduration;
         m_FrameIndex++;
