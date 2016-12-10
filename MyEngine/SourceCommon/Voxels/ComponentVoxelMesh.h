@@ -89,11 +89,11 @@ public:
     void* OnDrop(ComponentVariable* pVar, wxCoord x, wxCoord y);
     void* OnValueChanged(ComponentVariable* pVar, int controlid, bool finishedchanging, double oldvalue);
 
-    static void StaticOnButtonCreateMesh(void* pObjectPtr) { ((ComponentVoxelMesh*)pObjectPtr)->OnButtonCreateMesh(); }
-    void OnButtonCreateMesh();
+    static void StaticOnButtonCreateMesh(void* pObjectPtr, int buttonid) { ((ComponentVoxelMesh*)pObjectPtr)->OnButtonCreateMesh( buttonid ); }
+    void OnButtonCreateMesh(int buttonid);
 
-    static void StaticOnButtonEditMesh(void* pObjectPtr) { ((ComponentVoxelMesh*)pObjectPtr)->OnButtonEditMesh(); }
-    void OnButtonEditMesh();
+    static void StaticOnButtonEditMesh(void* pObjectPtr, int buttonid) { ((ComponentVoxelMesh*)pObjectPtr)->OnButtonEditMesh( buttonid ); }
+    void OnButtonEditMesh(int buttonid);
 #endif //MYFW_USING_WX
 };
 

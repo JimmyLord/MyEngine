@@ -92,11 +92,11 @@ public:
     void* OnDrop(ComponentVariable* pVar, wxCoord x, wxCoord y);
     void* OnValueChanged(ComponentVariable* pVar, int controlid, bool finishedchanging, double oldvalue);
 
-    static void StaticOnButtonCreateSaveFile(void* pObjectPtr) { ((ComponentVoxelWorld*)pObjectPtr)->OnButtonCreateSaveFile(); }
-    void OnButtonCreateSaveFile();
+    static void StaticOnButtonCreateSaveFile(void* pObjectPtr, int buttonid) { ((ComponentVoxelWorld*)pObjectPtr)->OnButtonCreateSaveFile( buttonid ); }
+    void OnButtonCreateSaveFile(int buttonid);
 
-    static void StaticOnButtonEditMesh(void* pObjectPtr) { ((ComponentVoxelWorld*)pObjectPtr)->OnButtonEditMesh(); }
-    void OnButtonEditMesh();
+    static void StaticOnButtonEditMesh(void* pObjectPtr, int buttonid) { ((ComponentVoxelWorld*)pObjectPtr)->OnButtonEditMesh( buttonid ); }
+    void OnButtonEditMesh(int buttonid);
 #endif //MYFW_USING_WX
 };
 

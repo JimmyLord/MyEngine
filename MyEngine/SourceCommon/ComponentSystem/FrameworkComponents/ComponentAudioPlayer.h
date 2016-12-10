@@ -69,8 +69,8 @@ public:
     void* OnDrop(ComponentVariable* pVar, wxCoord x, wxCoord y);
     void* OnValueChanged(ComponentVariable* pVar, int controlid, bool finishedchanging, double oldvalue);
 
-    static void StaticOnButtonPlaySound(void* pObjectPtr) { ((ComponentAudioPlayer*)pObjectPtr)->OnButtonPlaySound(); }
-    void OnButtonPlaySound();
+    static void StaticOnButtonPlaySound(void* pObjectPtr, int buttonid) { ((ComponentAudioPlayer*)pObjectPtr)->OnButtonPlaySound( buttonid ); }
+    void OnButtonPlaySound(int buttonid);
 #endif //MYFW_USING_WX
 };
 

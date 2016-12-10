@@ -189,8 +189,8 @@ void ComponentVoxelWorld::FillPropertiesWindow(bool clear, bool addcomponentvari
         if( m_BakeWorld )
         {
             if( m_pSaveFile == 0 )
-                g_pPanelWatch->AddButton( "Create Save File", this, ComponentVoxelWorld::StaticOnButtonCreateSaveFile );
-            g_pPanelWatch->AddButton( "Edit Mesh", this, ComponentVoxelWorld::StaticOnButtonEditMesh );
+                g_pPanelWatch->AddButton( "Create Save File", this, -1, ComponentVoxelWorld::StaticOnButtonCreateSaveFile );
+            g_pPanelWatch->AddButton( "Edit Mesh", this, -1, ComponentVoxelWorld::StaticOnButtonEditMesh );
         }
     }
 }
@@ -263,7 +263,7 @@ void* ComponentVoxelWorld::OnValueChanged(ComponentVariable* pVar, int controlid
     return oldpointer;
 }
 
-void ComponentVoxelWorld::OnButtonCreateSaveFile()
+void ComponentVoxelWorld::OnButtonCreateSaveFile(int buttonid)
 {
     MyAssert( m_pSaveFile == 0 );
 
@@ -307,7 +307,7 @@ void ComponentVoxelWorld::OnButtonCreateSaveFile()
     }
 }
 
-void ComponentVoxelWorld::OnButtonEditMesh()
+void ComponentVoxelWorld::OnButtonEditMesh(int buttonid)
 {
     g_pEngineCore->SetEditorInterface( EditorInterfaceType_VoxelMeshEditor );
     ((EditorInterface_VoxelMeshEditor*)g_pEngineCore->GetCurrentEditorInterface())->SetWorldToEdit( this );

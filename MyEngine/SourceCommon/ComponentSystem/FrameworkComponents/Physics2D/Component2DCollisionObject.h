@@ -112,8 +112,8 @@ public:
     static void StaticOnTransformChanged(void* pObjectPtr, Vector3& newpos, Vector3& newrot, Vector3& newscale, bool changedbyeditor) { ((Component2DCollisionObject*)pObjectPtr)->OnTransformChanged( newpos, newrot, newscale, changedbyeditor ); }
     void OnTransformChanged(Vector3& newpos, Vector3& newrot, Vector3& newscale, bool changedbyeditor);
 
-    static void StaticOnButtonEditChain(void* pObjectPtr) { ((Component2DCollisionObject*)pObjectPtr)->OnButtonEditChain(); }
-    void OnButtonEditChain();
+    static void StaticOnButtonEditChain(void* pObjectPtr, int buttonid) { ((Component2DCollisionObject*)pObjectPtr)->OnButtonEditChain( buttonid ); }
+    void OnButtonEditChain(int buttonid);
 #endif //MYFW_USING_WX
 };
 

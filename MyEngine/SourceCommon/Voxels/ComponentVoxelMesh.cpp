@@ -182,9 +182,9 @@ void ComponentVoxelMesh::FillPropertiesWindow(bool clear, bool addcomponentvaria
         FillPropertiesWindowWithVariables(); //_VARIABLE_LIST
 
         if( m_pMesh == 0 || m_pMesh->m_pSourceFile == 0 )
-            g_pPanelWatch->AddButton( "Create Mesh", this, ComponentVoxelMesh::StaticOnButtonCreateMesh );
+            g_pPanelWatch->AddButton( "Create Mesh", this, -1, ComponentVoxelMesh::StaticOnButtonCreateMesh );
         else
-            g_pPanelWatch->AddButton( "Edit Mesh", this, ComponentVoxelMesh::StaticOnButtonEditMesh );
+            g_pPanelWatch->AddButton( "Edit Mesh", this, -1, ComponentVoxelMesh::StaticOnButtonEditMesh );
     }
 }
 
@@ -277,7 +277,7 @@ void* ComponentVoxelMesh::OnValueChanged(ComponentVariable* pVar, int controlid,
     return oldpointer;
 }
 
-void ComponentVoxelMesh::OnButtonCreateMesh()
+void ComponentVoxelMesh::OnButtonCreateMesh(int buttonid)
 {
     MyAssert( m_pMesh == 0 || m_pMesh->m_pSourceFile == 0 );
 
@@ -332,7 +332,7 @@ void ComponentVoxelMesh::OnButtonCreateMesh()
     }
 }
 
-void ComponentVoxelMesh::OnButtonEditMesh()
+void ComponentVoxelMesh::OnButtonEditMesh(int buttonid)
 {
     g_pEngineCore->SetEditorInterface( EditorInterfaceType_VoxelMeshEditor );
     ((EditorInterface_VoxelMeshEditor*)g_pEngineCore->GetCurrentEditorInterface())->SetMeshToEdit( this );

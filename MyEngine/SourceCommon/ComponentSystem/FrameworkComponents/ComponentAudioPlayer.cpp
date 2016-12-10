@@ -104,7 +104,7 @@ void ComponentAudioPlayer::FillPropertiesWindow(bool clear, bool addcomponentvar
 
         FillPropertiesWindowWithVariables(); //_VARIABLE_LIST
 
-        g_pPanelWatch->AddButton( "Play Sound", this, ComponentAudioPlayer::StaticOnButtonPlaySound );
+        g_pPanelWatch->AddButton( "Play Sound", this, -1, ComponentAudioPlayer::StaticOnButtonPlaySound );
     }
 }
 
@@ -148,7 +148,7 @@ void* ComponentAudioPlayer::OnValueChanged(ComponentVariable* pVar, int controli
     return oldpointer;
 }
 
-void ComponentAudioPlayer::OnButtonPlaySound()
+void ComponentAudioPlayer::OnButtonPlaySound(int buttonid)
 {
     if( m_pSoundCue == 0 && m_SoundCueName[0] != 0 )
     {
