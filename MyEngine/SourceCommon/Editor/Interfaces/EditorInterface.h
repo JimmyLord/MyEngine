@@ -10,9 +10,34 @@
 #ifndef __EditorInterface_H__
 #define __EditorInterface_H__
 
+class EditorInterfaceWxEventHandler : public wxEvtHandler
+{
+public:
+    enum RightClickOptions
+    {
+        RightClick_Placeholder = 1000, // general right-click options, not used yet.
+        RightClick_ComponentOps = 10000, // starts at 10000 adds 1000 for each component, if components need more than 1000 right click options change this
+    };
+
+public:
+    void* m_pPointer;
+    int m_ValueInt;
+
+public:
+    EditorInterfaceWxEventHandler()
+    {
+        m_pPointer = 0;
+        m_ValueInt = 0;
+    };
+    void OnPopupClick(wxEvent &evt);
+};
+
 class EditorInterface
 {
 protected:
+    bool m_ShowRightClickMenu;
+    GameObject* m_pGameObjectRightClicked;
+    EditorInterfaceWxEventHandler m_EditorInterfaceWxEventHandler;
 
 public:
     EditorInterface();
@@ -22,6 +47,8 @@ public:
 
     virtual void OnActivated();
     virtual void OnDeactivated();
+
+    virtual void Tick(double TimePassed);
     virtual void OnDrawFrame(unsigned int canvasid);
 
     virtual bool HandleInput(int keyaction, int keycode, int mouseaction, int id, float x, float y, float pressure) = 0;

@@ -46,6 +46,8 @@ public:
 
     void SetAnimationFile(MyFileObject* pFile);
 
+    My2DAnimInfo* Get2DAnimInfoObject() { return m_pAnimInfo; }
+
     virtual void RegisterCallbacks();
     virtual void UnregisterCallbacks();
 
@@ -76,6 +78,10 @@ public:
     // Component variable callbacks.
     void* OnDrop(ComponentVariable* pVar, wxCoord x, wxCoord y);
     void* OnValueChanged(ComponentVariable* pVar, int controlid, bool finishedchanging, double oldvalue);
+
+    // Scene right-click options
+    virtual void AddRightClickOptionsToMenu(wxMenu* pMenu, int baseid);
+    virtual void OnRightClickOptionClicked(wxEvent &evt, int baseid);
 #endif //MYFW_USING_WX
 };
 

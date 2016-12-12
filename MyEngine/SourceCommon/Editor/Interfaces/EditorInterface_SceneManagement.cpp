@@ -625,7 +625,7 @@ bool EditorInterface_SceneManagement::HandleInput(int keyaction, int keycode, in
                 if( pEditorState->m_EditorActionState == EDITORACTIONSTATE_GroupSelectingObjects )
                 {
                     SelectObjectsInRectangle(
-                        (unsigned int)pEditorState->m_MouseLeftDownLocation.x, (unsigned int)pEditorState->m_MouseLeftDownLocation.y,
+                        (unsigned int)pEditorState->m_MouseDownLocation[0].x, (unsigned int)pEditorState->m_MouseDownLocation[0].y,
                         (unsigned int)pEditorState->m_CurrentMousePosition.x, (unsigned int)pEditorState->m_CurrentMousePosition.y );
                 }
 
@@ -717,6 +717,15 @@ bool EditorInterface_SceneManagement::HandleInput(int keyaction, int keycode, in
                 pEditorState->m_DistanceRotated.Set( 0, 0, 0 );
 
                 pEditorState->m_EditorActionState = EDITORACTIONSTATE_None;
+            }
+
+            // Check for rightmouse up (MODIFIERKEY_RightMouse)
+            if( mouseaction == GCBA_Up && id == 1 && pEditorState->m_EditorActionState == EDITORACTIONSTATE_None )
+            {
+                m_ShowRightClickMenu = true;
+
+                // find the object we clicked on.
+                m_pGameObjectRightClicked = GetObjectAtPixel( (unsigned int)x, (unsigned int)y, true );
             }
         }
     }

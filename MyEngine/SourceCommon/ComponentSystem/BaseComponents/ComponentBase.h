@@ -341,6 +341,10 @@ public:
 
     static void StaticOnDrop(void* pObjectPtr, wxTreeItemId id, int controlid, wxCoord x, wxCoord y) { ((ComponentBase*)pObjectPtr)->OnDrop(controlid, x, y); }
     void OnDrop(int controlid, wxCoord x, wxCoord y);
+
+    // Scene right-click options
+    virtual void AddRightClickOptionsToMenu(wxMenu* pMenu, int baseid) {}
+    virtual void OnRightClickOptionClicked(wxEvent &evt, int baseid) {}
 #endif //MYFW_USING_WX
 };
 

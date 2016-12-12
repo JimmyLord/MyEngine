@@ -166,6 +166,22 @@ void* ComponentAnimationPlayer2D::OnValueChanged(ComponentVariable* pVar, int co
 
     return oldpointer;
 }
+
+void ComponentAnimationPlayer2D::AddRightClickOptionsToMenu(wxMenu* pMenu, int baseid)
+{
+    pMenu->Append( baseid + 1, "Edit 2D Animation Info" );
+}
+
+void ComponentAnimationPlayer2D::OnRightClickOptionClicked(wxEvent &evt, int baseid)
+{
+    int id = evt.GetId();
+
+    if( id == baseid + 1 )
+    {
+        My2DAnimInfo* p2DAnimInfo = Get2DAnimInfoObject();
+        p2DAnimInfo->FillPropertiesWindow( true );
+    }
+}
 #endif //MYFW_USING_WX
 
 cJSON* ComponentAnimationPlayer2D::ExportAsJSONObject(bool savesceneid)

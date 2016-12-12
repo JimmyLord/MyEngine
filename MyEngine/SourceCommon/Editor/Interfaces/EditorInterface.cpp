@@ -9,8 +9,29 @@
 
 #include "EngineCommonHeader.h"
 
+void EditorInterfaceWxEventHandler::OnPopupClick(wxEvent &evt)
+{
+    EditorInterfaceWxEventHandler* pEvtHandler = (EditorInterfaceWxEventHandler*)static_cast<wxMenu*>(evt.GetEventObject())->GetClientData();
+    void* pPointer = pEvtHandler->m_pPointer;
+    int value = pEvtHandler->m_ValueInt;
+
+    int id = evt.GetId();
+
+    GameObject* m_pGameObjectRightClicked = (GameObject*)pPointer;
+
+    if( m_pGameObjectRightClicked )
+    {
+        for( unsigned int i=0; i<m_pGameObjectRightClicked->m_Components.Count(); i++ )
+        {
+            m_pGameObjectRightClicked->m_Components[i]->OnRightClickOptionClicked( evt, RightClick_ComponentOps + 1000 * i );
+        }
+    }
+}
+
 EditorInterface::EditorInterface()
 {
+    m_ShowRightClickMenu = false;
+    m_pGameObjectRightClicked = 0;
 }
 
 EditorInterface::~EditorInterface()
@@ -23,6 +44,34 @@ void EditorInterface::OnActivated()
 
 void EditorInterface::OnDeactivated()
 {
+}
+
+void EditorInterface::Tick(double TimePassed)
+{
+    if( m_ShowRightClickMenu )
+    {
+        m_ShowRightClickMenu = false;
+
+        if( m_pGameObjectRightClicked )
+        {
+            wxMenu menu;
+            menu.SetClientData( &m_EditorInterfaceWxEventHandler );
+
+            m_EditorInterfaceWxEventHandler.m_pPointer = m_pGameObjectRightClicked;
+            m_EditorInterfaceWxEventHandler.m_ValueInt = 0;
+
+            // Loop through components, each will add their menu items to the menu object.
+            for( unsigned int i=0; i<m_pGameObjectRightClicked->m_Components.Count(); i++ )
+            {
+                m_pGameObjectRightClicked->m_Components[i]->AddRightClickOptionsToMenu( &menu, EditorInterfaceWxEventHandler::RightClick_ComponentOps + 1000 * i );
+            }
+
+ 	        menu.Connect( wxEVT_COMMAND_MENU_SELECTED, (wxObjectEventFunction)&EditorInterfaceWxEventHandler::OnPopupClick );
+
+            // blocking call.
+            g_pPanelWatch->PopupMenu( &menu ); // there's no reason this is using g_pPanelWatch other than convenience.
+        }
+    }
 }
 
 void EditorInterface::OnDrawFrame(unsigned int canvasid)
@@ -84,18 +133,37 @@ void EditorInterface::SetModifierKeyStates(int keyaction, int keycode, int mouse
         {
             if( id == 0 )
             {
-                pEditorState->m_MouseLeftDownLocation = pEditorState->m_CurrentMousePosition;
+                pEditorState->m_MouseDownLocation[id] = pEditorState->m_CurrentMousePosition;
                 pEditorState->m_ModifierKeyStates |= MODIFIERKEY_LeftMouse;
             }
             if( id == 1 )
             {
-                pEditorState->m_MouseRightDownLocation = pEditorState->m_CurrentMousePosition;
+                pEditorState->m_MouseDownLocation[id] = pEditorState->m_CurrentMousePosition;
                 pEditorState->m_ModifierKeyStates |= MODIFIERKEY_RightMouse;
             }
             if( id == 2 )
             {
-                pEditorState->m_MouseMiddleDownLocation = pEditorState->m_CurrentMousePosition;
+                pEditorState->m_MouseDownLocation[id] = pEditorState->m_CurrentMousePosition;
                 pEditorState->m_ModifierKeyStates |= MODIFIERKEY_MiddleMouse;
+            }
+        }
+
+        if( mouseaction == GCBA_Held )
+        {
+            if( pEditorState->m_ModifierKeyStates & MODIFIERKEY_LeftMouse )
+            {
+                if( pEditorState->m_MouseDownLocation[0] != pEditorState->m_CurrentMousePosition )
+                    pEditorState->m_HasMouseMovedSinceButtonPressed[0] = true;
+            }
+            if( pEditorState->m_ModifierKeyStates & MODIFIERKEY_RightMouse )
+            {
+                if( pEditorState->m_MouseDownLocation[1] != pEditorState->m_CurrentMousePosition )
+                    pEditorState->m_HasMouseMovedSinceButtonPressed[1] = true;
+            }
+            if( pEditorState->m_ModifierKeyStates & MODIFIERKEY_MiddleMouse )
+            {
+                if( pEditorState->m_MouseDownLocation[2] != pEditorState->m_CurrentMousePosition )
+                    pEditorState->m_HasMouseMovedSinceButtonPressed[2] = true;
             }
         }
     }
@@ -124,21 +192,16 @@ void EditorInterface::ClearModifierKeyStates(int keyaction, int keycode, int mou
     {
         if( mouseaction == GCBA_Up )
         {
+            pEditorState->m_MouseDownLocation[id] = Vector2( -1, -1 );
+
             if( id == 0 )
-            {
-                pEditorState->m_MouseLeftDownLocation = Vector2( -1, -1 );
                 pEditorState->m_ModifierKeyStates &= ~MODIFIERKEY_LeftMouse;
-            }
             else if( id == 1 )
-            {
-                pEditorState->m_MouseRightDownLocation = Vector2( -1, -1 );
                 pEditorState->m_ModifierKeyStates &= ~MODIFIERKEY_RightMouse;
-            }
             else if( id == 2 )
-            {
-                pEditorState->m_MouseMiddleDownLocation = Vector2( -1, -1 );
                 pEditorState->m_ModifierKeyStates &= ~MODIFIERKEY_MiddleMouse;
-            }
+
+            pEditorState->m_HasMouseMovedSinceButtonPressed[id] = false;
         }
     }
 

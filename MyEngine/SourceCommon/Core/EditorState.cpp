@@ -21,9 +21,11 @@ EditorState::EditorState()
 {
     m_ModifierKeyStates = 0;
     m_EditorActionState = EDITORACTIONSTATE_None;
-    m_MouseLeftDownLocation.Set( -1, -1 );
-    m_MouseRightDownLocation.Set( -1, -1 );
-    m_MouseMiddleDownLocation.Set( -1, -1 );
+    for( int i=0; i<3; i++ )
+    {
+        m_MouseDownLocation[i].Set( -1, -1 );
+        m_HasMouseMovedSinceButtonPressed[i] = false;
+    }
     m_LastMousePosition.Set( -1, -1 );
     m_CurrentMousePosition.Set( -1, -1 );
 

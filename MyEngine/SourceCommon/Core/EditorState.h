@@ -55,9 +55,8 @@ struct EditorState
 
     unsigned int m_ModifierKeyStates;
     EditorActionState m_EditorActionState;
-    Vector2 m_MouseLeftDownLocation;
-    Vector2 m_MouseRightDownLocation;
-    Vector2 m_MouseMiddleDownLocation;
+    Vector2 m_MouseDownLocation[3]; // 0 is left button, 1 is right button, 2 is middle button
+    bool m_HasMouseMovedSinceButtonPressed[3]; // 0 is left button, 1 is right button, 2 is middle button
     Vector2 m_LastMousePosition;
     Vector2 m_CurrentMousePosition;
 
