@@ -1529,6 +1529,9 @@ GameObject* ComponentSystemManager::EditorCopyGameObject(GameObject* pObject, bo
 
 GameObject* ComponentSystemManager::CopyGameObject(GameObject* pObject, const char* newname)
 {
+    if( pObject == 0 )
+        return 0;
+
     // place the new object in the unmanaged scene, unless we're in the editor.
     unsigned int sceneid = 0;
     if( g_pEngineCore->m_EditorMode )

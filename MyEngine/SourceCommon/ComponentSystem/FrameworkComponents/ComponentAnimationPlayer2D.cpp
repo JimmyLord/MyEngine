@@ -299,6 +299,9 @@ void ComponentAnimationPlayer2D::TickCallback(double TimePassed)
 
     // Get the current animation/frame being played
     My2DAnimation* pAnim = m_pAnimInfo->GetAnimationByIndexClamped( m_AnimationIndex );
+    if( pAnim->GetFrameCount() == 0 )
+        return;
+
     My2DAnimationFrame* pFrame = pAnim->GetFrameByIndexClamped( m_FrameIndex );
 
     // Advance time and the current frame if needed
@@ -316,7 +319,11 @@ void ComponentAnimationPlayer2D::TickCallback(double TimePassed)
             m_FrameIndex = 0;
     }
 
+    pFrame = pAnim->GetFrameByIndexClamped( m_FrameIndex );
+
     // Set the material
     MaterialDefinition* pMaterial = pFrame->GetMaterial();
     m_pSpriteComponent->SetMaterial( pMaterial, 0 );
+
+    //LOGInfo( LOGTag, "%d, %s\n", m_FrameIndex, (*pMaterial).GetName() );
 }

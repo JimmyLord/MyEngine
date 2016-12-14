@@ -317,7 +317,9 @@ double EngineCore::Tick(double TimePassed)
     if( g_pImGuiManager )
         g_pImGuiManager->StartFrame( TimePassed );
 
+#if MYFW_USING_WX
     m_pCurrentEditorInterface->Tick( TimePassed );
+#endif
 
     if( m_SceneReloadRequested )
     {
