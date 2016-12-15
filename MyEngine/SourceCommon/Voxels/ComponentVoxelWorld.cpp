@@ -285,9 +285,13 @@ void ComponentVoxelWorld::OnButtonCreateSaveFile(int buttonid)
             {
                 // create the file
                 // TODO: make the file not garbage.
-                FILE* file = 0;
-                fopen_s( &file, relativepath, "wb" );
-                fclose( file );
+                FILE* pFile = 0;
+#if MYFW_WINDOWS
+                fopen_s( &pFile, relativepath, "wb" );
+#else
+                pFile = fopen( relativepath, "wb" );
+#endif
+                fclose( pFile );
             }
 
             {

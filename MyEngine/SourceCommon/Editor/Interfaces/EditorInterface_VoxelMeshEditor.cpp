@@ -142,10 +142,14 @@ void EditorInterface_VoxelMeshEditor::SaveVoxelMesh()
 
         char* string = cJSON_Print( jVoxelMesh );
 
-        FILE* file = 0;
-        fopen_s( &file, m_pVoxelMesh->m_pMesh->m_pSourceFile->m_FullPath, "wb" );
-        fprintf( file, "%s", string );
-        fclose( file );
+        FILE* pFile;
+#if MYFW_WINDOWS
+        fopen_s( &pFile, m_pVoxelMesh->m_pMesh->m_pSourceFile->m_FullPath, "wb" );
+#else
+        pFile = fopen( m_pVoxelMesh->m_pMesh->m_pSourceFile->m_FullPath, "wb" );
+#endif
+        fprintf( pFile, "%s", string );
+        fclose( pFile );
 
         cJSON_Delete( jVoxelMesh );
 

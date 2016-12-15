@@ -1,3 +1,7 @@
+#ifndef NUM_DIR_LIGHTS
+#define NUM_DIR_LIGHTS 0
+#endif
+
 #if NUM_DIR_LIGHTS > 0
 void DirLightContribution(int index, vec4 vertpos4, vec3 campos, vec3 normal, float shininess, inout vec4 finaldiffuse, inout vec4 finalspecular)
 {

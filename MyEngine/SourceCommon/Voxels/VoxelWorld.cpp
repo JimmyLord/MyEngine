@@ -445,14 +445,18 @@ void VoxelWorld::SaveTheWorld()
 
     if( m_jJSONSavedMapData )
     {
-        FILE* file = 0;
-        fopen_s( &file, m_pSaveFile->m_FullPath, "wb" );
+        FILE* pFile = 0;
+#if MYFW_WINDOWS
+        fopen_s( &pFile, m_pSaveFile->m_FullPath, "wb" );
+#else
+        pFile = fopen( m_pSaveFile->m_FullPath, "wb" );
+#endif
 
         char* jsonstring = cJSON_Print( m_jJSONSavedMapData );
-        fprintf( file, "%s", jsonstring );
+        fprintf( pFile, "%s", jsonstring );
         cJSONExt_free( jsonstring );
 
-        fclose( file );
+        fclose( pFile );
     }
 #endif // MYFW_NACL
 }

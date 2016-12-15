@@ -319,10 +319,14 @@ void ComponentVoxelMesh::OnButtonCreateMesh(int buttonid)
 
                 char* string = cJSON_Print( jVoxelMesh );
 
-                FILE* file = 0;
-                fopen_s( &file, relativepath, "wb" );
-                fprintf( file, "%s", string );
-                fclose( file );
+                FILE* pFile = 0;
+#if MYFW_WINDOWS
+                fopen_s( &pFile, relativepath, "wb" );
+#else
+                pFile = fopen( relativepath, "wb" );
+#endif
+                fprintf( pFile, "%s", string );
+                fclose( pFile );
 
                 cJSON_Delete( jVoxelMesh );
 
