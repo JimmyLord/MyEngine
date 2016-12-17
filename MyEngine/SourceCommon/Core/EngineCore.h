@@ -10,7 +10,7 @@
 #ifndef __EngineCore_H__
 #define __EngineCore_H__
 
-#if _DEBUG
+#if _DEBUG || MYFW_USING_WX
 #define MYFW_PROFILING_ENABLED 1
 #endif
 

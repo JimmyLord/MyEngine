@@ -168,7 +168,7 @@ void VoxelWorld::Tick(double timepassed)
     }
 
     // build the mesh for a single chunk per frame.
-    int maxtobuildinoneframe = 4;
+    int maxtobuildinoneframe = 2;
     for( int i=0; i<maxtobuildinoneframe; i++ )
     {
         VoxelChunk* pChunk = (VoxelChunk*)m_pChunksLoading.GetHead();
@@ -913,8 +913,8 @@ void VoxelWorld::GetMouseRayBadly(Vector2 mousepos, Vector3* start, Vector3* end
 
     // Convert mouse coord into clip space.
     Vector2 mouseclip;
-    mouseclip.x = (mousepos.x / pCamera->m_WindowWidth) * 2.0f - 1.0f;
-    mouseclip.y = (mousepos.y / pCamera->m_WindowHeight) * 2.0f - 1.0f;
+    mouseclip.x = 0.0f; //(mousepos.x / pCamera->m_DesiredWidth) * 2.0f - 1.0f;
+    mouseclip.y = 0.0f; //(mousepos.y / pCamera->m_DesiredHeight) * 2.0f - 1.0f;
 
     // Convert the mouse ray into view space from clip space.
     MyMatrix invProj = pCamera->m_Camera3D.m_matProj;
@@ -960,10 +960,13 @@ void VoxelWorld::ChangeBlockState(Vector3Int worldpos, unsigned int type, bool e
         if( i == 5 ) neighbourpos.z -= 1;
 
         Vector3Int neighbourchunkpos = GetChunkPosition( neighbourpos );
-        VoxelChunk* pNeighbourChunk = GetActiveChunk( neighbourchunkpos );
-        if( pNeighbourChunk && pNeighbourChunk != pChunk )
+        if( IsChunkActive( neighbourchunkpos ) )
         {
-            pNeighbourChunk->RebuildMesh( 1 );
+            VoxelChunk* pNeighbourChunk = GetActiveChunk( neighbourchunkpos );
+            if( pNeighbourChunk && pNeighbourChunk != pChunk )
+            {
+                pNeighbourChunk->RebuildMesh( 1 );
+            }
         }
     }
 }

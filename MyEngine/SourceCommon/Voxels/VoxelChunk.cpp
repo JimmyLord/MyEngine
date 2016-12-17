@@ -246,7 +246,7 @@ void VoxelChunk::ParseFile()
                 {
                     CreateFromVoxelMeshFile();
                 }
-                
+
                 if( m_MapCreated )
                 {
                     RebuildMesh( 1 );
@@ -306,9 +306,9 @@ cJSON* VoxelChunk::ExportAsJSONObject(bool exportforworld)
 
     cJSON_AddStringToObject( jVoxelMesh, "Blocks", blockstring );
 
-    return jVoxelMesh;
-
     g_pEngineCore->m_SingleFrameMemoryStack.RewindStack( stackpointer );
+
+    return jVoxelMesh;
 }
 
 void VoxelChunk::ImportFromJSONObject(cJSON* jVoxelMesh)
@@ -342,10 +342,10 @@ void VoxelChunk::ImportFromJSONObject(cJSON* jVoxelMesh)
                 int blocktype = blockstring[index] - '#';
 
                 m_pBlocks[index].SetBlockType( blocktype );
-                if( blocktype != 0 )
-                    m_pBlockEnabledBits[index/32] &= ~(1 << (index%32));
-                else
+                if( blocktype > 0 )
                     m_pBlockEnabledBits[index/32] |= (1 << (index%32));
+                else
+                    m_pBlockEnabledBits[index/32] &= ~(1 << (index%32));
                 //m_pBlocks[index].SetEnabled( blocktype != 0 );
             }
         }
@@ -366,7 +366,7 @@ unsigned int VoxelChunk::DefaultGenerateMapFunc(Vector3Int worldpos)
         float freq = 1/50.0f;
 
         double value = SimplexNoise( worldpos.x * freq, worldpos.y * freq, worldpos.z * freq );
-                
+
         enabled = value > 0.0f;
     }
     else
@@ -527,7 +527,10 @@ bool VoxelChunk::RebuildMesh(unsigned int increment)
 {
     MyAssert( m_pBlocks );
 
-    unsigned int worldactivechunkarrayindex = m_pWorld->GetActiveChunkArrayIndex( m_pWorld->GetChunkPosition( m_ChunkOffset ) );
+    unsigned int worldactivechunkarrayindex = -1;
+
+    if( m_pWorld )
+        m_pWorld->GetActiveChunkArrayIndex( m_pWorld->GetChunkPosition( m_ChunkOffset ) );
 
     // Loop through blocks and add a cube for each one that's enabled
     // TODO: merge outer faces, eliminate inner faces.
@@ -548,6 +551,10 @@ bool VoxelChunk::RebuildMesh(unsigned int increment)
         MyStackAllocator::MyStackPointer memstart = g_pEngineCore->m_SingleFrameMemoryStack.GetCurrentLocation();
         Vertex_XYZUVNorm* pVerts = (Vertex_XYZUVNorm*)g_pEngineCore->m_SingleFrameMemoryStack.AllocateBlock( vertbuffersize );
         unsigned short* pIndices = (unsigned short*)g_pEngineCore->m_SingleFrameMemoryStack.AllocateBlock( indexbuffersize );
+
+        pVerts[0].pos.x = 0;
+        pVerts[0].pos.y = 1;
+        pVerts[0].pos.z = 2;
 
         Vector3 minextents( FLT_MAX, FLT_MAX, FLT_MAX );
         Vector3 maxextents( -FLT_MAX, -FLT_MAX, -FLT_MAX );
@@ -581,7 +588,8 @@ bool VoxelChunk::RebuildMesh(unsigned int increment)
 
                     Vector3Int worldpos( m_ChunkOffset.x+x, m_ChunkOffset.y+y, m_ChunkOffset.z+z );
 
-                    int tileindex = pBlock->GetBlockType() - 1;
+                    int blocktypetextureindex = pBlock->GetBlockType() - 1;
+                    MyAssert( blocktypetextureindex != -1 );
 
                     Vector3 ltf;
                     Vector3 ltb;
@@ -712,15 +720,18 @@ bool VoxelChunk::RebuildMesh(unsigned int increment)
                         }
                     }
 
-                    float uleft   = (float)(TileSides_Col[tileindex]+0) / m_TextureTileCount.x;
-                    float uright  = (float)(TileSides_Col[tileindex]+1) / m_TextureTileCount.x;
-                    float vtop    = (float)(TileSides_Row[tileindex]+0) / m_TextureTileCount.y;
-                    float vbottom = (float)(TileSides_Row[tileindex]+1) / m_TextureTileCount.y;
+                    float uleft   = (float)(TileSides_Col[blocktypetextureindex]+0) / m_TextureTileCount.x;
+                    float uright  = (float)(TileSides_Col[blocktypetextureindex]+1) / m_TextureTileCount.x;
+                    float vtop    = (float)(TileSides_Row[blocktypetextureindex]+0) / m_TextureTileCount.y;
+                    float vbottom = (float)(TileSides_Row[blocktypetextureindex]+1) / m_TextureTileCount.y;
 
                     unsigned int neighbourindex;
 
                     // front
-                    neighbourindex = (z-1) * m_ChunkSize.y * m_ChunkSize.x + (y) * m_ChunkSize.x + (x);
+                    if( z == 0 )
+                        neighbourindex = (m_ChunkSize.z-1) * m_ChunkSize.y * m_ChunkSize.x + (y) * m_ChunkSize.x + (x);
+                    else
+                        neighbourindex = (z-1) * m_ChunkSize.y * m_ChunkSize.x + (y) * m_ChunkSize.x + (x);
                     if( z == 0 && m_pWorld && m_pWorld->IsBlockEnabled( worldpos.x, worldpos.y, worldpos.z-1 ) )
                     {
                     }
@@ -741,7 +752,10 @@ bool VoxelChunk::RebuildMesh(unsigned int increment)
                     }
 
                     // back
-                    neighbourindex = (z+1) * m_ChunkSize.y * m_ChunkSize.x + (y) * m_ChunkSize.x + (x);
+                    if( z == (m_ChunkSize.z-1) )
+                        neighbourindex = (0) * m_ChunkSize.y * m_ChunkSize.x + (y) * m_ChunkSize.x + (x);
+                    else
+                        neighbourindex = (z+1) * m_ChunkSize.y * m_ChunkSize.x + (y) * m_ChunkSize.x + (x);
                     if( z == (m_ChunkSize.z-1) && m_pWorld && m_pWorld->IsBlockEnabled( worldpos.x, worldpos.y, worldpos.z+1 ) )
                     {
                     }
@@ -762,7 +776,10 @@ bool VoxelChunk::RebuildMesh(unsigned int increment)
                     }
 
                     // left
-                    neighbourindex = (z) * m_ChunkSize.y * m_ChunkSize.x + (y) * m_ChunkSize.x + (x-1);
+                    if( x == 0 )
+                        neighbourindex = (z) * m_ChunkSize.y * m_ChunkSize.x + (y) * m_ChunkSize.x + (m_ChunkSize.x-1);
+                    else
+                        neighbourindex = (z) * m_ChunkSize.y * m_ChunkSize.x + (y) * m_ChunkSize.x + (x-1);
                     if( x == 0 && m_pWorld && m_pWorld->IsBlockEnabled( worldpos.x-1, worldpos.y, worldpos.z ) )
                     {
                     }
@@ -783,7 +800,10 @@ bool VoxelChunk::RebuildMesh(unsigned int increment)
                     }
 
                     // right
-                    neighbourindex = (z) * m_ChunkSize.y * m_ChunkSize.x + (y) * m_ChunkSize.x + (x+1);
+                    if( x == (m_ChunkSize.x-1) )
+                        neighbourindex = (z) * m_ChunkSize.y * m_ChunkSize.x + (y) * m_ChunkSize.x + (0);
+                    else
+                        neighbourindex = (z) * m_ChunkSize.y * m_ChunkSize.x + (y) * m_ChunkSize.x + (x+1);
                     if( x == (m_ChunkSize.x-1) && m_pWorld && m_pWorld->IsBlockEnabled( worldpos.x+1, worldpos.y, worldpos.z ) )
                     {
                     }
@@ -804,7 +824,10 @@ bool VoxelChunk::RebuildMesh(unsigned int increment)
                     }
 
                     // bottom
-                    neighbourindex = (z) * m_ChunkSize.y * m_ChunkSize.x + (y-1) * m_ChunkSize.x + (x);
+                    if( y == 0 )
+                        neighbourindex = (z) * m_ChunkSize.y * m_ChunkSize.x + (m_ChunkSize.y-1) * m_ChunkSize.x + (x);
+                    else
+                        neighbourindex = (z) * m_ChunkSize.y * m_ChunkSize.x + (y-1) * m_ChunkSize.x + (x);
                     if( y == 0 && m_pWorld && m_pWorld->IsBlockEnabled( worldpos.x, worldpos.y-1, worldpos.z ) )
                     {
                     }
@@ -824,13 +847,16 @@ bool VoxelChunk::RebuildMesh(unsigned int increment)
                         indexcount += 6;
                     }
 
-                    uleft   = (float)(TileTops_Col[tileindex]+0) / m_TextureTileCount.x;
-                    uright  = (float)(TileTops_Col[tileindex]+1) / m_TextureTileCount.x;
-                    vtop    = (float)(TileTops_Row[tileindex]+0) / m_TextureTileCount.y;
-                    vbottom = (float)(TileTops_Row[tileindex]+1) / m_TextureTileCount.y;
+                    uleft   = (float)(TileTops_Col[blocktypetextureindex]+0) / m_TextureTileCount.x;
+                    uright  = (float)(TileTops_Col[blocktypetextureindex]+1) / m_TextureTileCount.x;
+                    vtop    = (float)(TileTops_Row[blocktypetextureindex]+0) / m_TextureTileCount.y;
+                    vbottom = (float)(TileTops_Row[blocktypetextureindex]+1) / m_TextureTileCount.y;
 
                     // top
-                    neighbourindex = (z) * m_ChunkSize.y * m_ChunkSize.x + (y+1) * m_ChunkSize.x + (x);
+                    if( y == (m_ChunkSize.y-1) )
+                        neighbourindex = (z) * m_ChunkSize.y * m_ChunkSize.x + (0) * m_ChunkSize.x + (x);
+                    else
+                        neighbourindex = (z) * m_ChunkSize.y * m_ChunkSize.x + (y+1) * m_ChunkSize.x + (x);
                     if( y == (m_ChunkSize.y-1) && m_pWorld && m_pWorld->IsBlockEnabled( worldpos.x, worldpos.y+1, worldpos.z ) )
                     {
                     }
@@ -855,11 +881,11 @@ bool VoxelChunk::RebuildMesh(unsigned int increment)
 
                     count++;
                 }
-                
+
                 if( vertcount > maxverts - 50 )
                     break;
             }
-            
+
             if( vertcount > maxverts - 50 )
                 break;
         }
@@ -927,7 +953,7 @@ bool VoxelChunk::RebuildMesh(unsigned int increment)
                     break;
                 }
             }
-        }        
+        }
     }
 
     m_MeshReady = true;
@@ -1011,7 +1037,7 @@ unsigned int VoxelChunk::GetBlockIndex(Vector3Int worldpos)
 bool VoxelChunk::RayCastSingleBlockFindFaceHit(Vector3Int worldpos, Vector3 startpos, Vector3 endpos, Vector3* pPoint, Vector3* pNormal)
 {
     MyAssert( pPoint != 0 && pNormal != 0 );
-    
+
     // TODO: Find the normal for the side of the block that was hit.
     startpos.x -= worldpos.x * m_BlockSize.x;
     startpos.y -= worldpos.y * m_BlockSize.y;
@@ -1076,7 +1102,7 @@ bool VoxelChunk::RayCast(Vector3 startpos, Vector3 endpos, float step, VoxelRayC
 
     // Init last worldpos to something that isn't the current world pos.
     Vector3Int lastlocalpos = GetWorldPosition( currentchunkspacepos ) + Vector3Int( 1, 1, 1 );
-    
+
     while( true )
     {
         Vector3Int localpos = GetWorldPosition( currentchunkspacepos );
