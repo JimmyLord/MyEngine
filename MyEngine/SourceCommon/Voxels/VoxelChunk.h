@@ -39,6 +39,7 @@ protected:
 
     // Slightly faster lookup of nearby blocks.
     bool IsNearbyWorldBlockEnabled(unsigned int worldactivechunkarrayindex, int localx, int localy, int localz, bool blockexistsifnotready = false);
+    int CountNeighbouringBlocks(unsigned int worldactivechunkarrayindex, int localx, int localy, int localz, bool blockexistsifnotready = false);
 
     // Internal file loading functions
     void CreateFromVoxelMeshFile();

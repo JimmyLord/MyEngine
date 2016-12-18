@@ -947,26 +947,50 @@ void VoxelWorld::ChangeBlockState(Vector3Int worldpos, unsigned int type, bool e
 
     pChunk->RebuildMesh( 1 );
 
-    // Check 6 neighbours, and rebuild them if applicable.
-    for( int i=0; i<6; i++ )
+    VoxelChunk* pChunksToRebuild[7] = { 0, 0, 0, 0, 0, 0, 0 };
+    int numchunkstorebuild = 0;
+
+    // Create a list of up to 7 chunks to rebuild
+    for( int x = -1; x <= 1; x++ )
     {
-        Vector3Int neighbourpos = worldpos;
-
-        if( i == 0 ) neighbourpos.x += 1;
-        if( i == 1 ) neighbourpos.x -= 1;
-        if( i == 2 ) neighbourpos.y += 1;
-        if( i == 3 ) neighbourpos.y -= 1;
-        if( i == 4 ) neighbourpos.z += 1;
-        if( i == 5 ) neighbourpos.z -= 1;
-
-        Vector3Int neighbourchunkpos = GetChunkPosition( neighbourpos );
-        if( IsChunkActive( neighbourchunkpos ) )
+        for( int y = -1; y <= 1; y++ )
         {
-            VoxelChunk* pNeighbourChunk = GetActiveChunk( neighbourchunkpos );
-            if( pNeighbourChunk && pNeighbourChunk != pChunk )
+            for( int z = -1; z <= 1; z++ )
             {
-                pNeighbourChunk->RebuildMesh( 1 );
+                Vector3Int neighbourpos = worldpos + Vector3Int( x, y, z );
+
+                Vector3Int neighbourchunkpos = GetChunkPosition( neighbourpos );
+                if( IsChunkActive( neighbourchunkpos ) )
+                {
+                    VoxelChunk* pNeighbourChunk = GetActiveChunk( neighbourchunkpos );
+                    if( pNeighbourChunk && pNeighbourChunk != pChunk )
+                    {
+                        int i = 0;
+                        while( true )
+                        {
+                            if( pChunksToRebuild[i] == pNeighbourChunk || pChunksToRebuild[i] == 0 )
+                                break;
+
+                            i++;
+                        }
+                        MyAssert( i < 7 );
+                        pChunksToRebuild[i] = pNeighbourChunk;
+                    }
+                }
             }
         }
     }
+
+    // rebuild up to 7 chunks
+    int chunksrebuilt = 1;
+    for( int i=0; i<7; i++ )
+    {
+        if( pChunksToRebuild[i] )
+        {
+            pChunksToRebuild[i]->RebuildMesh( 1 );
+            chunksrebuilt++;
+        }
+    }
+
+    LOGInfo( LOGTag, "Chunks rebuilt: %d\n", chunksrebuilt );
 }

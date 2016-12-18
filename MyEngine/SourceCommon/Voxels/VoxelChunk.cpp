@@ -65,7 +65,8 @@ void VoxelChunk::Initialize(VoxelWorld* world, Vector3 pos, Vector3Int chunkoffs
     {
         int indexbytes = 2; // TODO: take out hard-coded unsigned short as index type
 
-        VertexFormat_Dynamic_Desc* pVertFormat = g_pVertexFormatManager->GetDynamicVertexFormat( 1, true, false, false, false, 0 );
+        // Vertex_XYZUVNorm_RGBA
+        VertexFormat_Dynamic_Desc* pVertFormat = g_pVertexFormatManager->GetDynamicVertexFormat( 1, true, false, false, true, 0 );
         CreateBuffers( pVertFormat, 0, indexbytes, 0, true );
     }
 }
@@ -505,9 +506,9 @@ bool VoxelChunk::IsNearbyWorldBlockEnabled(unsigned int worldactivechunkarrayind
         if( localx < 0 )              { worldactivechunkarrayindex -= 1; localx += m_ChunkSize.x; }
         if( localx >= m_ChunkSize.x ) { worldactivechunkarrayindex += 1; localx -= m_ChunkSize.x; }
         if( localy < 0 )              { worldactivechunkarrayindex -= m_pWorld->m_WorldSize.x; localy += m_ChunkSize.y; }
-        if( localy >= m_ChunkSize.y ) { worldactivechunkarrayindex -= m_pWorld->m_WorldSize.x; localy -= m_ChunkSize.y; }
+        if( localy >= m_ChunkSize.y ) { worldactivechunkarrayindex += m_pWorld->m_WorldSize.x; localy -= m_ChunkSize.y; }
         if( localz < 0 )              { worldactivechunkarrayindex -= m_pWorld->m_WorldSize.y * m_pWorld->m_WorldSize.x; localz += m_ChunkSize.z; }
-        if( localz >= m_ChunkSize.z ) { worldactivechunkarrayindex -= m_pWorld->m_WorldSize.y * m_pWorld->m_WorldSize.x; localz -= m_ChunkSize.z; }
+        if( localz >= m_ChunkSize.z ) { worldactivechunkarrayindex += m_pWorld->m_WorldSize.y * m_pWorld->m_WorldSize.x; localz -= m_ChunkSize.z; }
 
         if( worldactivechunkarrayindex >= UINT_MAX - m_pWorld->m_WorldSize.z * m_pWorld->m_WorldSize.y * m_pWorld->m_WorldSize.x )
             return blockexistsifnotready;
@@ -520,6 +521,25 @@ bool VoxelChunk::IsNearbyWorldBlockEnabled(unsigned int worldactivechunkarrayind
     return pChunk->IsBlockEnabled( localx, localy, localz, blockexistsifnotready );
 }
 
+int VoxelChunk::CountNeighbouringBlocks(unsigned int worldactivechunkarrayindex, int localx, int localy, int localz, bool blockexistsifnotready)
+{
+    int count = 0;
+
+    for( int x = -1; x <= 1; x++ )
+    {
+        for( int y = -1; y <= 1; y++ )
+        {
+            for( int z = -1; z <= 1; z++ )
+            {
+                if( IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, localx + x, localy + y, localz + z, blockexistsifnotready ) )
+                    count++;
+            }
+        }
+    }
+
+    return count;
+}
+
 // ============================================================================================================================
 // Rendering
 // ============================================================================================================================
@@ -530,12 +550,12 @@ bool VoxelChunk::RebuildMesh(unsigned int increment)
     unsigned int worldactivechunkarrayindex = -1;
 
     if( m_pWorld )
-        m_pWorld->GetActiveChunkArrayIndex( m_pWorld->GetChunkPosition( m_ChunkOffset ) );
+        worldactivechunkarrayindex = m_pWorld->GetActiveChunkArrayIndex( m_pWorld->GetChunkPosition( m_ChunkOffset ) );
 
     // Loop through blocks and add a cube for each one that's enabled
     // TODO: merge outer faces, eliminate inner faces.
     {
-        MyAssert( GetStride( 0 ) == (12 + 8 + 12) ); // XYZ + UV + NORM
+        MyAssert( GetStride( 0 ) == (12 + 8 + 12 + 4) ); // Vertex_XYZUVNorm_RGBA => XYZ + UV + NORM + RGBA
 
         int numblocks = m_ChunkSize.x * m_ChunkSize.y * m_ChunkSize.z;
         int maxverts = 6*4*numblocks;
@@ -546,10 +566,10 @@ bool VoxelChunk::RebuildMesh(unsigned int increment)
         int indexbuffersize = maxindices * 2;
 
         // TODO: fill buffer without storing a local copy in main ram.
-        //Vertex_XYZUVNorm* pVerts = (Vertex_XYZUVNorm*)m_pMesh->GetVerts( true );
+        //Vertex_XYZUVNorm_RGBA* pVerts = (Vertex_XYZUVNorm_RGBA*)m_pMesh->GetVerts( true );
         //unsigned short* pIndices = (unsigned short*)m_pMesh->GetIndices( true );
         MyStackAllocator::MyStackPointer memstart = g_pEngineCore->m_SingleFrameMemoryStack.GetCurrentLocation();
-        Vertex_XYZUVNorm* pVerts = (Vertex_XYZUVNorm*)g_pEngineCore->m_SingleFrameMemoryStack.AllocateBlock( vertbuffersize );
+        Vertex_XYZUVNorm_RGBA* pVerts = (Vertex_XYZUVNorm_RGBA*)g_pEngineCore->m_SingleFrameMemoryStack.AllocateBlock( vertbuffersize );
         unsigned short* pIndices = (unsigned short*)g_pEngineCore->m_SingleFrameMemoryStack.AllocateBlock( indexbuffersize );
 
         pVerts[0].pos.x = 0;
@@ -560,7 +580,7 @@ bool VoxelChunk::RebuildMesh(unsigned int increment)
         Vector3 maxextents( -FLT_MAX, -FLT_MAX, -FLT_MAX );
 
         // pVerts gets advanced by code below, so store a copy.
-        Vertex_XYZUVNorm* pActualVerts = pVerts;
+        Vertex_XYZUVNorm_RGBA* pActualVerts = pVerts;
         unsigned short* pActualIndices = pIndices;
 
         //  block type          1, 2, 3, 4, 5, 6
@@ -591,14 +611,20 @@ bool VoxelChunk::RebuildMesh(unsigned int increment)
                     int blocktypetextureindex = pBlock->GetBlockType() - 1;
                     MyAssert( blocktypetextureindex != -1 );
 
-                    Vector3 ltf;
-                    Vector3 ltb;
-                    Vector3 lbf;
-                    Vector3 lbb;
-                    Vector3 rtf;
-                    Vector3 rtb;
-                    Vector3 rbf;
-                    Vector3 rbb;
+                    struct XYZRGBA
+                    {
+                        Vector3 pos;
+                        ColorByte color;
+                    };
+
+                    XYZRGBA ltf;
+                    XYZRGBA ltb;
+                    XYZRGBA lbf;
+                    XYZRGBA lbb;
+                    XYZRGBA rtf;
+                    XYZRGBA rtb;
+                    XYZRGBA rbf;
+                    XYZRGBA rbb;
 
                     float xleft   = x*m_BlockSize.x - m_BlockSize.x/2;
                     float xright  = x*m_BlockSize.x + m_BlockSize.x/2;
@@ -614,16 +640,133 @@ bool VoxelChunk::RebuildMesh(unsigned int increment)
                     if( zfront  < minextents.z ) minextents.z = zfront;
                     if( zback   > maxextents.z ) maxextents.z = zback;
 
-                    ltf.Set( xleft,  ytop,    zfront );
-                    ltb.Set( xleft,  ytop,    zback  );
-                    lbf.Set( xleft,  ybottom, zfront );
-                    lbb.Set( xleft,  ybottom, zback  );
-                    rtf.Set( xright, ytop,    zfront );
-                    rtb.Set( xright, ytop,    zback  );
-                    rbf.Set( xright, ybottom, zfront );
-                    rbb.Set( xright, ybottom, zback  );
+                    ltf.pos.Set( xleft,  ytop,    zfront );
+                    ltb.pos.Set( xleft,  ytop,    zback  );
+                    lbf.pos.Set( xleft,  ybottom, zfront );
+                    lbb.pos.Set( xleft,  ybottom, zback  );
+                    rtf.pos.Set( xright, ytop,    zfront );
+                    rtb.pos.Set( xright, ytop,    zback  );
+                    rbf.pos.Set( xright, ybottom, zfront );
+                    rbb.pos.Set( xright, ybottom, zback  );
 
-                    bool smooth = true;
+                    bool ambientocclusion = true;
+
+                    ColorByte darker( 48, 48, 48, 0 );
+                    ColorByte light( 196, 196, 196, 255 );
+
+                    // debug, turn edge blocks red
+                    if( false )
+                    {
+                        if( x == 0 || x == m_ChunkSize.x - 1 ||
+                            y == 0 || y == m_ChunkSize.y - 1 ||
+                            z == 0 || z == m_ChunkSize.z - 1 )
+                        {
+                            light = ColorByte( 255, 32, 128, 255 );
+                        }
+                    }
+
+                    ltf.color = light;
+                    ltb.color = light;
+                    lbf.color = light;
+                    lbb.color = light;
+                    rtf.color = light;
+                    rtb.color = light;
+                    rbf.color = light;
+                    rbb.color = light;
+
+                    if( ambientocclusion )
+                    {
+                        // -x    x    +x
+                        // LTB ----- RTB // +z
+                        //  |         |
+                        //  |         |  // z
+                        //  |         |
+                        // LTF ----- RTF // -z
+                        if( IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x, y+1, z, true ) == false )
+                        {
+                            if( IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x  , y+1, z+1, true ) == true ) // UpperMiddle
+                            {
+                                ltb.color -= darker; // Left(-x) - Top - Back(+z)
+                                rtb.color -= darker; // Right(+x) - Top - Back(+z)
+                            }
+                            if( IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x+1, y+1, z+1, true ) == true ) // UpperRight
+                            {
+                                rtb.color -= darker; // Right(+x) - Top - Back(+z)
+                            }
+                            if( IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x+1, y+1, z  , true ) == true ) // Right
+                            {
+                                rtb.color -= darker; // Right(+x) - Top - Back(+z)
+                                rtf.color -= darker; // // Right(+x) - Top - Front(-z)
+                            }
+                            if( IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x+1, y+1, z-1, true ) == true ) // BotRight
+                            {
+                                rtf.color -= darker; // // Right(+x) - Top - Front(-z)
+                            }
+                            if( IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x  , y+1, z-1, true ) == true ) // BottomMiddle
+                            {
+                                rtf.color -= darker; // // Right(+x) - Top - Front(-z)
+                                ltf.color -= darker; // Left(-x) - Top - Front(-z)
+                            }
+                            if( IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x-1, y+1, z-1, true ) == true ) // BotLeft
+                            {
+                                ltf.color -= darker; // Left(-x) - Top - Front(-z)
+                            }
+                            if( IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x-1, y+1, z  , true ) == true ) // Left
+                            {
+                                ltb.color -= darker; // Left(-x) - Top - Back(+z)
+                                ltf.color -= darker; // Left(-x) - Top - Front(-z)
+                            }
+                            if( IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x-1, y+1, z+1, true ) == true ) // UpperLeft
+                            {
+                                ltb.color -= darker; // Left(-x) - Top - Back(+z)
+                            }
+                        }
+
+                        if( IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x, y+1, z, true ) == false )
+                        {
+                            if( IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x  , y+1, z+1, true ) == true ) // UpperMiddle
+                            {
+                                ltb.color -= darker; // Left(-x) - Top - Back(+z)
+                                rtb.color -= darker; // Right(+x) - Top - Back(+z)
+                            }
+                            if( IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x+1, y+1, z+1, true ) == true ) // UpperRight
+                            {
+                                rtb.color -= darker; // Right(+x) - Top - Back(+z)
+                            }
+                            if( IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x+1, y+1, z  , true ) == true ) // Right
+                            {
+                                rtb.color -= darker; // Right(+x) - Top - Back(+z)
+                                rtf.color -= darker; // // Right(+x) - Top - Front(-z)
+                            }
+                            if( IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x+1, y+1, z-1, true ) == true ) // BotRight
+                            {
+                                rtf.color -= darker; // // Right(+x) - Top - Front(-z)
+                            }
+                            if( IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x  , y+1, z-1, true ) == true ) // BottomMiddle
+                            {
+                                rtf.color -= darker; // // Right(+x) - Top - Front(-z)
+                                ltf.color -= darker; // Left(-x) - Top - Front(-z)
+                            }
+                            if( IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x-1, y+1, z-1, true ) == true ) // BotLeft
+                            {
+                                ltf.color -= darker; // Left(-x) - Top - Front(-z)
+                            }
+                            if( IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x-1, y+1, z  , true ) == true ) // Left
+                            {
+                                ltb.color -= darker; // Left(-x) - Top - Back(+z)
+                                ltf.color -= darker; // Left(-x) - Top - Front(-z)
+                            }
+                            if( IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x-1, y+1, z+1, true ) == true ) // UpperLeft
+                            {
+                                ltb.color -= darker; // Left(-x) - Top - Back(+z)
+                            }
+                        }
+                    }
+                    else
+                    {
+                    }
+
+                    bool smooth = false;
 
                     if( smooth == true )
                     {
@@ -637,7 +780,7 @@ bool VoxelChunk::RebuildMesh(unsigned int increment)
                                 ( IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x  , y+1, z-1, true ) == true  &&
                                   IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x  , y+2, z-1, true ) == false ) )
                             {
-                                ltf.y += m_BlockSize.x/2;
+                                ltf.pos.y += m_BlockSize.x/2;
                             }
                             //else
                             //if( ( IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x-1, y  , z  , true ) == false &&
@@ -658,7 +801,7 @@ bool VoxelChunk::RebuildMesh(unsigned int increment)
                                 ( IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x  , y+1, z+1, true ) == true  &&
                                   IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x  , y+2, z+1, true ) == false ) )
                             {
-                                ltb.y += m_BlockSize.x/2;
+                                ltb.pos.y += m_BlockSize.x/2;
                             }
                             //else
                             //if( ( IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x-1, y  , z  , true ) == false &&
@@ -679,7 +822,7 @@ bool VoxelChunk::RebuildMesh(unsigned int increment)
                                 ( IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x  , y+1, z-1, true ) == true  &&
                                   IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x  , y+2, z-1, true ) == false ) )
                             {
-                                rtf.y += m_BlockSize.x/2;
+                                rtf.pos.y += m_BlockSize.x/2;
                             }
                             else
                             if( ( IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x+1, y  , z  , true ) == false ) &&
@@ -689,7 +832,7 @@ bool VoxelChunk::RebuildMesh(unsigned int increment)
                                   IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x+1, y-1, z-1, true ) == true  ||
                                   IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x  , y-1, z-1, true ) == true  ) )
                             {
-                                rtf.y -= m_BlockSize.x/2;
+                                rtf.pos.y -= m_BlockSize.x/2;
                             }
 
                             // Right - Top - Back
@@ -700,7 +843,7 @@ bool VoxelChunk::RebuildMesh(unsigned int increment)
                                 ( IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x  , y+1, z+1, true ) == true  &&
                                   IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x  , y+2, z+1, true ) == false ) )
                             {
-                                rtb.y += m_BlockSize.x/2;
+                                rtb.pos.y += m_BlockSize.x/2;
                             }
                             else
                             if( ( IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x+1, y  , z  , true ) == false ) &&
@@ -710,7 +853,7 @@ bool VoxelChunk::RebuildMesh(unsigned int increment)
                                   IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x+1, y-1, z+1, true ) == true  ||
                                   IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x  , y-1, z+1, true ) == true  ) )
                             {
-                                rtb.y -= m_BlockSize.x/2;
+                                rtb.pos.y -= m_BlockSize.x/2;
                             }
 
                             //lbf.y;
@@ -727,20 +870,30 @@ bool VoxelChunk::RebuildMesh(unsigned int increment)
 
                     unsigned int neighbourindex;
 
+                    unsigned char numneighbours = (unsigned char)CountNeighbouringBlocks( worldactivechunkarrayindex, x, y, z, false );
+                    if( numneighbours < 20 )
+                        numneighbours = 1;
+                    ColorByte blockcolor = ColorByte( 255 / numneighbours, 255 / numneighbours, 255 / numneighbours, 255 );
+
                     // front
                     if( z == 0 )
                         neighbourindex = (m_ChunkSize.z-1) * m_ChunkSize.y * m_ChunkSize.x + (y) * m_ChunkSize.x + (x);
                     else
                         neighbourindex = (z-1) * m_ChunkSize.y * m_ChunkSize.x + (y) * m_ChunkSize.x + (x);
+
                     if( z == 0 && m_pWorld && m_pWorld->IsBlockEnabled( worldpos.x, worldpos.y, worldpos.z-1 ) )
                     {
                     }
                     else if( z == 0 || (m_pBlockEnabledBits[neighbourindex/32] & (1 << (neighbourindex%32))) == 0 ) //m_pBlocks[(z-1) * m_ChunkSize.y * m_ChunkSize.x + (y) * m_ChunkSize.x + (x)].IsEnabled() == false )
                     {
-                        pVerts[0].pos = ltf; pVerts[0].uv.x = uleft;  pVerts[0].uv.y = vtop;    // upper left
-                        pVerts[1].pos = rtf; pVerts[1].uv.x = uright; pVerts[1].uv.y = vtop;    // upper right
-                        pVerts[2].pos = lbf; pVerts[2].uv.x = uleft;  pVerts[2].uv.y = vbottom; // lower left
-                        pVerts[3].pos = rbf; pVerts[3].uv.x = uright; pVerts[3].uv.y = vbottom; // lower right
+                        pVerts[0].pos = ltf.pos; pVerts[0].uv.x = uleft;  pVerts[0].uv.y = vtop;    // upper left
+                        pVerts[1].pos = rtf.pos; pVerts[1].uv.x = uright; pVerts[1].uv.y = vtop;    // upper right
+                        pVerts[2].pos = lbf.pos; pVerts[2].uv.x = uleft;  pVerts[2].uv.y = vbottom; // lower left
+                        pVerts[3].pos = rbf.pos; pVerts[3].uv.x = uright; pVerts[3].uv.y = vbottom; // lower right
+                        pVerts[0].color = ltf.color;
+                        pVerts[1].color = rtf.color;
+                        pVerts[2].color = lbf.color;
+                        pVerts[3].color = rbf.color;
                         for( int i=0; i<4; i++ )
                             pVerts[i].normal.Set( 0, 0, -1 );
                         for( int i=0; i<6; i++ )
@@ -756,15 +909,20 @@ bool VoxelChunk::RebuildMesh(unsigned int increment)
                         neighbourindex = (0) * m_ChunkSize.y * m_ChunkSize.x + (y) * m_ChunkSize.x + (x);
                     else
                         neighbourindex = (z+1) * m_ChunkSize.y * m_ChunkSize.x + (y) * m_ChunkSize.x + (x);
+
                     if( z == (m_ChunkSize.z-1) && m_pWorld && m_pWorld->IsBlockEnabled( worldpos.x, worldpos.y, worldpos.z+1 ) )
                     {
                     }
                     else if( z == (m_ChunkSize.z-1) || (m_pBlockEnabledBits[neighbourindex/32] & (1 << (neighbourindex%32))) == 0 ) //m_pBlocks[(z+1) * m_ChunkSize.y * m_ChunkSize.x + (y) * m_ChunkSize.x + (x)].IsEnabled() == false )
                     {
-                        pVerts[0].pos = rtb; pVerts[0].uv.x = uleft;  pVerts[0].uv.y = vtop;
-                        pVerts[1].pos = ltb; pVerts[1].uv.x = uright; pVerts[1].uv.y = vtop;
-                        pVerts[2].pos = rbb; pVerts[2].uv.x = uleft;  pVerts[2].uv.y = vbottom;
-                        pVerts[3].pos = lbb; pVerts[3].uv.x = uright; pVerts[3].uv.y = vbottom;
+                        pVerts[0].pos = rtb.pos; pVerts[0].uv.x = uleft;  pVerts[0].uv.y = vtop;
+                        pVerts[1].pos = ltb.pos; pVerts[1].uv.x = uright; pVerts[1].uv.y = vtop;
+                        pVerts[2].pos = rbb.pos; pVerts[2].uv.x = uleft;  pVerts[2].uv.y = vbottom;
+                        pVerts[3].pos = lbb.pos; pVerts[3].uv.x = uright; pVerts[3].uv.y = vbottom;
+                        pVerts[0].color = rtb.color;
+                        pVerts[1].color = ltb.color;
+                        pVerts[2].color = rbb.color;
+                        pVerts[3].color = lbb.color;
                         for( int i=0; i<4; i++ )
                             pVerts[i].normal.Set( 0, 0, 1 );
                         for( int i=0; i<6; i++ )
@@ -780,15 +938,20 @@ bool VoxelChunk::RebuildMesh(unsigned int increment)
                         neighbourindex = (z) * m_ChunkSize.y * m_ChunkSize.x + (y) * m_ChunkSize.x + (m_ChunkSize.x-1);
                     else
                         neighbourindex = (z) * m_ChunkSize.y * m_ChunkSize.x + (y) * m_ChunkSize.x + (x-1);
+
                     if( x == 0 && m_pWorld && m_pWorld->IsBlockEnabled( worldpos.x-1, worldpos.y, worldpos.z ) )
                     {
                     }
                     else if( x == 0 || (m_pBlockEnabledBits[neighbourindex/32] & (1 << (neighbourindex%32))) == 0 ) //m_pBlocks[(z) * m_ChunkSize.y * m_ChunkSize.x + (y) * m_ChunkSize.x + (x-1)].IsEnabled() == false )
                     {
-                        pVerts[0].pos = ltb; pVerts[0].uv.x = uleft;  pVerts[0].uv.y = vtop;
-                        pVerts[1].pos = ltf; pVerts[1].uv.x = uright; pVerts[1].uv.y = vtop;
-                        pVerts[2].pos = lbb; pVerts[2].uv.x = uleft;  pVerts[2].uv.y = vbottom;
-                        pVerts[3].pos = lbf; pVerts[3].uv.x = uright; pVerts[3].uv.y = vbottom;
+                        pVerts[0].pos = ltb.pos; pVerts[0].uv.x = uleft;  pVerts[0].uv.y = vtop;
+                        pVerts[1].pos = ltf.pos; pVerts[1].uv.x = uright; pVerts[1].uv.y = vtop;
+                        pVerts[2].pos = lbb.pos; pVerts[2].uv.x = uleft;  pVerts[2].uv.y = vbottom;
+                        pVerts[3].pos = lbf.pos; pVerts[3].uv.x = uright; pVerts[3].uv.y = vbottom;
+                        pVerts[0].color = ltb.color;
+                        pVerts[1].color = ltf.color;
+                        pVerts[2].color = lbb.color;
+                        pVerts[3].color = lbf.color;
                         for( int i=0; i<4; i++ )
                             pVerts[i].normal.Set( -1, 0, 0 );
                         for( int i=0; i<6; i++ )
@@ -804,15 +967,20 @@ bool VoxelChunk::RebuildMesh(unsigned int increment)
                         neighbourindex = (z) * m_ChunkSize.y * m_ChunkSize.x + (y) * m_ChunkSize.x + (0);
                     else
                         neighbourindex = (z) * m_ChunkSize.y * m_ChunkSize.x + (y) * m_ChunkSize.x + (x+1);
+
                     if( x == (m_ChunkSize.x-1) && m_pWorld && m_pWorld->IsBlockEnabled( worldpos.x+1, worldpos.y, worldpos.z ) )
                     {
                     }
                     else if( x == (m_ChunkSize.x-1) || (m_pBlockEnabledBits[neighbourindex/32] & (1 << (neighbourindex%32))) == 0 ) //m_pBlocks[(z) * m_ChunkSize.y * m_ChunkSize.x + (y) * m_ChunkSize.x + (x+1)].IsEnabled() == false )
                     {
-                        pVerts[0].pos = rtf; pVerts[0].uv.x = uleft;  pVerts[0].uv.y = vtop;
-                        pVerts[1].pos = rtb; pVerts[1].uv.x = uright; pVerts[1].uv.y = vtop;
-                        pVerts[2].pos = rbf; pVerts[2].uv.x = uleft;  pVerts[2].uv.y = vbottom;
-                        pVerts[3].pos = rbb; pVerts[3].uv.x = uright; pVerts[3].uv.y = vbottom;
+                        pVerts[0].pos = rtf.pos; pVerts[0].uv.x = uleft;  pVerts[0].uv.y = vtop;
+                        pVerts[1].pos = rtb.pos; pVerts[1].uv.x = uright; pVerts[1].uv.y = vtop;
+                        pVerts[2].pos = rbf.pos; pVerts[2].uv.x = uleft;  pVerts[2].uv.y = vbottom;
+                        pVerts[3].pos = rbb.pos; pVerts[3].uv.x = uright; pVerts[3].uv.y = vbottom;
+                        pVerts[0].color = rtf.color;
+                        pVerts[1].color = rtb.color;
+                        pVerts[2].color = rbf.color;
+                        pVerts[3].color = rbb.color;
                         for( int i=0; i<4; i++ )
                             pVerts[i].normal.Set( 1, 0, 0 );
                         for( int i=0; i<6; i++ )
@@ -828,15 +996,20 @@ bool VoxelChunk::RebuildMesh(unsigned int increment)
                         neighbourindex = (z) * m_ChunkSize.y * m_ChunkSize.x + (m_ChunkSize.y-1) * m_ChunkSize.x + (x);
                     else
                         neighbourindex = (z) * m_ChunkSize.y * m_ChunkSize.x + (y-1) * m_ChunkSize.x + (x);
+
                     if( y == 0 && m_pWorld && m_pWorld->IsBlockEnabled( worldpos.x, worldpos.y-1, worldpos.z ) )
                     {
                     }
                     else if( y == 0 || (m_pBlockEnabledBits[neighbourindex/32] & (1 << (neighbourindex%32))) == 0 ) //m_pBlocks[(z) * m_ChunkSize.y * m_ChunkSize.x + (y-1) * m_ChunkSize.x + (x)].IsEnabled() == false )
                     {
-                        pVerts[0].pos = lbf; pVerts[0].uv.x = uleft;  pVerts[0].uv.y = vtop;
-                        pVerts[1].pos = rbf; pVerts[1].uv.x = uright; pVerts[1].uv.y = vtop;
-                        pVerts[2].pos = lbb; pVerts[2].uv.x = uleft;  pVerts[2].uv.y = vbottom;
-                        pVerts[3].pos = rbb; pVerts[3].uv.x = uright; pVerts[3].uv.y = vbottom;
+                        pVerts[0].pos = lbf.pos; pVerts[0].uv.x = uleft;  pVerts[0].uv.y = vtop;
+                        pVerts[1].pos = rbf.pos; pVerts[1].uv.x = uright; pVerts[1].uv.y = vtop;
+                        pVerts[2].pos = lbb.pos; pVerts[2].uv.x = uleft;  pVerts[2].uv.y = vbottom;
+                        pVerts[3].pos = rbb.pos; pVerts[3].uv.x = uright; pVerts[3].uv.y = vbottom;
+                        pVerts[0].color = lbf.color;
+                        pVerts[1].color = rbf.color;
+                        pVerts[2].color = lbb.color;
+                        pVerts[3].color = rbb.color;
                         for( int i=0; i<4; i++ )
                             pVerts[i].normal.Set( 0, -1, 0 );
                         for( int i=0; i<6; i++ )
@@ -857,15 +1030,20 @@ bool VoxelChunk::RebuildMesh(unsigned int increment)
                         neighbourindex = (z) * m_ChunkSize.y * m_ChunkSize.x + (0) * m_ChunkSize.x + (x);
                     else
                         neighbourindex = (z) * m_ChunkSize.y * m_ChunkSize.x + (y+1) * m_ChunkSize.x + (x);
+
                     if( y == (m_ChunkSize.y-1) && m_pWorld && m_pWorld->IsBlockEnabled( worldpos.x, worldpos.y+1, worldpos.z ) )
                     {
                     }
                     else if( y == (m_ChunkSize.y-1) || (m_pBlockEnabledBits[neighbourindex/32] & (1 << (neighbourindex%32))) == 0 ) //m_pBlocks[(z) * m_ChunkSize.y * m_ChunkSize.x + (y+1) * m_ChunkSize.x + (x)].IsEnabled() == false )
                     {
-                        pVerts[0].pos = ltb; pVerts[0].uv.x = uleft;  pVerts[0].uv.y = vtop;
-                        pVerts[1].pos = rtb; pVerts[1].uv.x = uright; pVerts[1].uv.y = vtop;
-                        pVerts[2].pos = ltf; pVerts[2].uv.x = uleft;  pVerts[2].uv.y = vbottom;
-                        pVerts[3].pos = rtf; pVerts[3].uv.x = uright; pVerts[3].uv.y = vbottom;
+                        pVerts[0].pos = ltb.pos; pVerts[0].uv.x = uleft;  pVerts[0].uv.y = vtop;
+                        pVerts[1].pos = rtb.pos; pVerts[1].uv.x = uright; pVerts[1].uv.y = vtop;
+                        pVerts[2].pos = ltf.pos; pVerts[2].uv.x = uleft;  pVerts[2].uv.y = vbottom;
+                        pVerts[3].pos = rtf.pos; pVerts[3].uv.x = uright; pVerts[3].uv.y = vbottom;
+                        pVerts[0].color = ltb.color;
+                        pVerts[1].color = rtb.color;
+                        pVerts[2].color = ltf.color;
+                        pVerts[3].color = rtf.color;
                         for( int i=0; i<4; i++ )
                             pVerts[i].normal.Set( 0, 1, 0 );
                         for( int i=0; i<6; i++ )
@@ -927,6 +1105,7 @@ bool VoxelChunk::RebuildMesh(unsigned int increment)
 
     // if any of the neighbouring chunks wasn't ready, then we likely created extra faces to close outside walls.
     // rebuild the mesh to get rid of those sides.
+    // also fix ambient occlusion issues
     if( m_pWorld )
     {
         m_MeshOptimized = true;
