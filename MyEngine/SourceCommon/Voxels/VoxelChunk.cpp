@@ -651,7 +651,7 @@ bool VoxelChunk::RebuildMesh(unsigned int increment)
 
                     bool ambientocclusion = true;
 
-                    ColorByte darker( 48, 48, 48, 0 );
+                    ColorByte darker( 332, 332, 332, 0 );
                     ColorByte light( 196, 196, 196, 255 );
 
                     // debug, turn edge blocks red
@@ -682,8 +682,16 @@ bool VoxelChunk::RebuildMesh(unsigned int increment)
                         //  |         |  // z
                         //  |         |
                         // LTF ----- RTF // -z
-                        if( IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x, y+1, z, true ) == false )
+                        // top of blocks
+                        //if( IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x, y+1, z, true ) == false )
                         {
+                            if( IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x, y+1, z, true ) == true ) // above
+                            {
+                                ltb.color -= darker; // Left(-x) - Top - Back(+z)
+                                rtb.color -= darker; // Right(+x) - Top - Back(+z)
+                                ltf.color -= darker; // Left(-x) - Top - Front(-z)
+                                rtf.color -= darker; // Right(+x) - Top - Front(-z)
+                            }
                             if( IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x  , y+1, z+1, true ) == true ) // UpperMiddle
                             {
                                 ltb.color -= darker; // Left(-x) - Top - Back(+z)
@@ -722,43 +730,50 @@ bool VoxelChunk::RebuildMesh(unsigned int increment)
                             }
                         }
 
-                        if( IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x, y+1, z, true ) == false )
+                        // bottom of blocks
                         {
-                            if( IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x  , y+1, z+1, true ) == true ) // UpperMiddle
+                            if( IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x, y-1, z, true ) == true ) // below
                             {
-                                ltb.color -= darker; // Left(-x) - Top - Back(+z)
-                                rtb.color -= darker; // Right(+x) - Top - Back(+z)
+                                lbb.color -= darker; // Left(-x) - Bottom - Back(+z)
+                                rbb.color -= darker; // Right(+x) - Bottom - Back(+z)
+                                lbf.color -= darker; // Left(-x) - Bottom - Front(-z)
+                                rbf.color -= darker; // Right(+x) - Bottom - Front(-z)
                             }
-                            if( IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x+1, y+1, z+1, true ) == true ) // UpperRight
+                            if( IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x  , y-1, z+1, true ) == true ) // UpperMiddle
                             {
-                                rtb.color -= darker; // Right(+x) - Top - Back(+z)
+                                lbb.color -= darker; // Left(-x) - Bottom - Back(+z)
+                                rbb.color -= darker; // Right(+x) - Bottom - Back(+z)
                             }
-                            if( IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x+1, y+1, z  , true ) == true ) // Right
+                            if( IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x+1, y-1, z+1, true ) == true ) // UpperRight
                             {
-                                rtb.color -= darker; // Right(+x) - Top - Back(+z)
-                                rtf.color -= darker; // // Right(+x) - Top - Front(-z)
+                                rbb.color -= darker; // Right(+x) - Bottom - Back(+z)
                             }
-                            if( IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x+1, y+1, z-1, true ) == true ) // BotRight
+                            if( IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x+1, y-1, z  , true ) == true ) // Right
                             {
-                                rtf.color -= darker; // // Right(+x) - Top - Front(-z)
+                                rbb.color -= darker; // Right(+x) - Bottom - Back(+z)
+                                rbf.color -= darker; // // Right(+x) - Bottom - Front(-z)
                             }
-                            if( IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x  , y+1, z-1, true ) == true ) // BottomMiddle
+                            if( IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x+1, y-1, z-1, true ) == true ) // BotRight
                             {
-                                rtf.color -= darker; // // Right(+x) - Top - Front(-z)
-                                ltf.color -= darker; // Left(-x) - Top - Front(-z)
+                                rbf.color -= darker; // // Right(+x) - Bottom - Front(-z)
                             }
-                            if( IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x-1, y+1, z-1, true ) == true ) // BotLeft
+                            if( IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x  , y-1, z-1, true ) == true ) // BottomMiddle
                             {
-                                ltf.color -= darker; // Left(-x) - Top - Front(-z)
+                                rbf.color -= darker; // // Right(+x) - Bottom - Front(-z)
+                                lbf.color -= darker; // Left(-x) - Bottom - Front(-z)
                             }
-                            if( IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x-1, y+1, z  , true ) == true ) // Left
+                            if( IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x-1, y-1, z-1, true ) == true ) // BotLeft
                             {
-                                ltb.color -= darker; // Left(-x) - Top - Back(+z)
-                                ltf.color -= darker; // Left(-x) - Top - Front(-z)
+                                lbf.color -= darker; // Left(-x) - Bottom - Front(-z)
                             }
-                            if( IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x-1, y+1, z+1, true ) == true ) // UpperLeft
+                            if( IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x-1, y-1, z  , true ) == true ) // Left
                             {
-                                ltb.color -= darker; // Left(-x) - Top - Back(+z)
+                                lbb.color -= darker; // Left(-x) - Bottom - Back(+z)
+                                lbf.color -= darker; // Left(-x) - Bottom - Front(-z)
+                            }
+                            if( IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x-1, y-1, z+1, true ) == true ) // UpperLeft
+                            {
+                                lbb.color -= darker; // Left(-x) - Bottom - Back(+z)
                             }
                         }
                     }
@@ -1036,14 +1051,28 @@ bool VoxelChunk::RebuildMesh(unsigned int increment)
                     }
                     else if( y == (m_ChunkSize.y-1) || (m_pBlockEnabledBits[neighbourindex/32] & (1 << (neighbourindex%32))) == 0 ) //m_pBlocks[(z) * m_ChunkSize.y * m_ChunkSize.x + (y+1) * m_ChunkSize.x + (x)].IsEnabled() == false )
                     {
-                        pVerts[0].pos = ltb.pos; pVerts[0].uv.x = uleft;  pVerts[0].uv.y = vtop;
-                        pVerts[1].pos = rtb.pos; pVerts[1].uv.x = uright; pVerts[1].uv.y = vtop;
-                        pVerts[2].pos = ltf.pos; pVerts[2].uv.x = uleft;  pVerts[2].uv.y = vbottom;
-                        pVerts[3].pos = rtf.pos; pVerts[3].uv.x = uright; pVerts[3].uv.y = vbottom;
-                        pVerts[0].color = ltb.color;
-                        pVerts[1].color = rtb.color;
-                        pVerts[2].color = ltf.color;
-                        pVerts[3].color = rtf.color;
+                        if( rtb.color.r + ltf.color.r > ltb.color.r + rtf.color.r )
+                        {
+                            pVerts[0].pos = ltb.pos; pVerts[0].uv.x = uleft;  pVerts[0].uv.y = vtop;
+                            pVerts[1].pos = rtb.pos; pVerts[1].uv.x = uright; pVerts[1].uv.y = vtop;
+                            pVerts[2].pos = ltf.pos; pVerts[2].uv.x = uleft;  pVerts[2].uv.y = vbottom;
+                            pVerts[3].pos = rtf.pos; pVerts[3].uv.x = uright; pVerts[3].uv.y = vbottom;
+                            pVerts[0].color = ltb.color;
+                            pVerts[1].color = rtb.color;
+                            pVerts[2].color = ltf.color;
+                            pVerts[3].color = rtf.color;
+                        }
+                        else
+                        {
+                            pVerts[2].pos = ltb.pos; pVerts[2].uv.x = uleft;  pVerts[2].uv.y = vtop;
+                            pVerts[0].pos = rtb.pos; pVerts[0].uv.x = uright; pVerts[0].uv.y = vtop;
+                            pVerts[3].pos = ltf.pos; pVerts[3].uv.x = uleft;  pVerts[3].uv.y = vbottom;
+                            pVerts[1].pos = rtf.pos; pVerts[1].uv.x = uright; pVerts[1].uv.y = vbottom;
+                            pVerts[2].color = ltb.color;
+                            pVerts[0].color = rtb.color;
+                            pVerts[3].color = ltf.color;
+                            pVerts[1].color = rtf.color;
+                        }
                         for( int i=0; i<4; i++ )
                             pVerts[i].normal.Set( 0, 1, 0 );
                         for( int i=0; i<6; i++ )
