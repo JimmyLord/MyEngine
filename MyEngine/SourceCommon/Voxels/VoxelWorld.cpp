@@ -27,6 +27,7 @@ VoxelWorld::VoxelWorld()
     m_WorldOffset.Set( 0, 0, 0 );
 
     m_pMaterial = 0;
+    m_pSharedIndexBuffer = 0;
 
     m_pMapGenCallbackFunc = 0;
 
@@ -72,6 +73,7 @@ VoxelWorld::~VoxelWorld()
     delete[] m_VoxelBlockSingleAllocation;
 
     SAFE_RELEASE( m_pMaterial );
+    SAFE_RELEASE( m_pSharedIndexBuffer );
     SAFE_RELEASE( m_pSaveFile );
     if( m_jJSONSavedMapData )
     {
@@ -83,6 +85,10 @@ void VoxelWorld::Initialize(Vector3Int visibleworldsize)
 {
     // Make sure init is only called once.
     MyAssert( m_NumChunkPointersAllocated == 0 );
+
+    m_pSharedIndexBuffer = g_pBufferManager->CreateBuffer();
+    m_pSharedIndexBuffer->InitializeBuffer( 0, 0, GL_ELEMENT_ARRAY_BUFFER, GL_STATIC_DRAW, false, 1, (VertexFormats)2, 0, "IBO", "VoxelWorld" );
+    BuildSharedIndexBuffer();
     
     SetWorldSize( visibleworldsize );
 
@@ -140,6 +146,11 @@ void VoxelWorld::Tick(double timepassed)
     // Sort chunks based on distance from world center (which is likely the player location)
     g_WorldCenterChunkOffset = (m_WorldOffset + m_WorldSize/2).MultiplyComponents( m_ChunkSize );
     m_pChunksLoading.Sort( ChunkDistanceCmpFunc );
+
+    if( m_pSharedIndexBuffer->m_Dirty )
+    {
+        BuildSharedIndexBuffer();
+    }
 
     // only make chunks once the save file is fully loaded, if there's a save file.
     if( m_pSaveFile && m_jJSONSavedMapData == 0 )
@@ -519,6 +530,29 @@ void VoxelWorld::SaveChunk(VoxelChunk* pChunk)
 // ============================================================================================================================
 // Protected/Internal functions
 // ============================================================================================================================
+void VoxelWorld::BuildSharedIndexBuffer()
+{
+    unsigned int numquads = 65536 / 4;
+    unsigned int indexbuffersize = numquads * 6;
+        
+    MyStackAllocator::MyStackPointer memstart = g_pEngineCore->m_SingleFrameMemoryStack.GetCurrentLocation();
+    unsigned short* pIndices = (unsigned short*)g_pEngineCore->m_SingleFrameMemoryStack.AllocateBlock( indexbuffersize );
+
+    for( unsigned int i=0; i<numquads; i++ )
+    {
+        pIndices[i*6+0] = (unsigned short)(i*4 + g_SpriteVertexIndices[0]);
+        pIndices[i*6+1] = (unsigned short)(i*4 + g_SpriteVertexIndices[1]);
+        pIndices[i*6+2] = (unsigned short)(i*4 + g_SpriteVertexIndices[2]);
+        pIndices[i*6+3] = (unsigned short)(i*4 + g_SpriteVertexIndices[3]);
+        pIndices[i*6+4] = (unsigned short)(i*4 + g_SpriteVertexIndices[4]);
+        pIndices[i*6+5] = (unsigned short)(i*4 + g_SpriteVertexIndices[5]);
+    }
+
+    m_pSharedIndexBuffer->TempBufferData( numquads * 6, pIndices );
+
+    g_pEngineCore->m_SingleFrameMemoryStack.RewindStack( memstart );
+}
+
 bool VoxelWorld::IsChunkActive(Vector3Int chunkpos)
 {
     if( chunkpos.x >= m_WorldOffset.x && chunkpos.x < m_WorldOffset.x + m_WorldSize.x &&

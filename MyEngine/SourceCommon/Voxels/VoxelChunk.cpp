@@ -67,7 +67,16 @@ void VoxelChunk::Initialize(VoxelWorld* world, Vector3 pos, Vector3Int chunkoffs
 
         // Vertex_XYZUVNorm_RGBA
         VertexFormat_Dynamic_Desc* pVertFormat = g_pVertexFormatManager->GetDynamicVertexFormat( 1, true, false, false, true, 0 );
-        CreateBuffers( pVertFormat, 0, indexbytes, 0, true );
+        if( m_pWorld == 0 )
+        {
+            CreateOneSubmeshWithBuffers( pVertFormat, 0, indexbytes, 0, true );
+        }
+        else
+        {
+            CreateSubmeshes( 1 );
+            CreateVertexBuffer( 0, pVertFormat, 0, true );
+            SetIndexBuffer( m_pWorld->GetSharedIndexBuffer() );
+        }
     }
 }
 
@@ -566,11 +575,8 @@ bool VoxelChunk::RebuildMesh(unsigned int increment)
         int indexbuffersize = maxindices * 2;
 
         // TODO: fill buffer without storing a local copy in main ram.
-        //Vertex_XYZUVNorm_RGBA* pVerts = (Vertex_XYZUVNorm_RGBA*)m_pMesh->GetVerts( true );
-        //unsigned short* pIndices = (unsigned short*)m_pMesh->GetIndices( true );
         MyStackAllocator::MyStackPointer memstart = g_pEngineCore->m_SingleFrameMemoryStack.GetCurrentLocation();
         Vertex_XYZUVNorm_RGBA* pVerts = (Vertex_XYZUVNorm_RGBA*)g_pEngineCore->m_SingleFrameMemoryStack.AllocateBlock( vertbuffersize );
-        unsigned short* pIndices = (unsigned short*)g_pEngineCore->m_SingleFrameMemoryStack.AllocateBlock( indexbuffersize );
 
         pVerts[0].pos.x = 0;
         pVerts[0].pos.y = 1;
@@ -581,7 +587,6 @@ bool VoxelChunk::RebuildMesh(unsigned int increment)
 
         // pVerts gets advanced by code below, so store a copy.
         Vertex_XYZUVNorm_RGBA* pActualVerts = pVerts;
-        unsigned short* pActualIndices = pIndices;
 
         //  block type          1, 2, 3, 4, 5, 6
         int TileTops_Col[] =  { 0, 1, 2, 3, 4, 5 };
@@ -651,7 +656,7 @@ bool VoxelChunk::RebuildMesh(unsigned int increment)
 
                     bool ambientocclusion = true;
 
-                    ColorByte darker( 332, 332, 332, 0 );
+                    ColorByte darker( 48, 48, 48, 0 );
                     ColorByte light( 196, 196, 196, 255 );
 
                     // debug, turn edge blocks red
@@ -911,12 +916,8 @@ bool VoxelChunk::RebuildMesh(unsigned int increment)
                         pVerts[3].color = rbf.color;
                         for( int i=0; i<4; i++ )
                             pVerts[i].normal.Set( 0, 0, -1 );
-                        for( int i=0; i<6; i++ )
-                            pIndices[i] = (unsigned short)(vertcount + g_SpriteVertexIndices[i]);
                         pVerts += 4;
                         vertcount += 4;
-                        pIndices += 6;
-                        indexcount += 6;
                     }
 
                     // back
@@ -940,12 +941,8 @@ bool VoxelChunk::RebuildMesh(unsigned int increment)
                         pVerts[3].color = lbb.color;
                         for( int i=0; i<4; i++ )
                             pVerts[i].normal.Set( 0, 0, 1 );
-                        for( int i=0; i<6; i++ )
-                            pIndices[i] = (unsigned short)(vertcount + g_SpriteVertexIndices[i]);
                         pVerts += 4;
                         vertcount += 4;
-                        pIndices += 6;
-                        indexcount += 6;
                     }
 
                     // left
@@ -969,12 +966,8 @@ bool VoxelChunk::RebuildMesh(unsigned int increment)
                         pVerts[3].color = lbf.color;
                         for( int i=0; i<4; i++ )
                             pVerts[i].normal.Set( -1, 0, 0 );
-                        for( int i=0; i<6; i++ )
-                            pIndices[i] = (unsigned short)(vertcount + g_SpriteVertexIndices[i]);
                         pVerts += 4;
                         vertcount += 4;
-                        pIndices += 6;
-                        indexcount += 6;
                     }
 
                     // right
@@ -998,12 +991,8 @@ bool VoxelChunk::RebuildMesh(unsigned int increment)
                         pVerts[3].color = rbb.color;
                         for( int i=0; i<4; i++ )
                             pVerts[i].normal.Set( 1, 0, 0 );
-                        for( int i=0; i<6; i++ )
-                            pIndices[i] = (unsigned short)(vertcount + g_SpriteVertexIndices[i]);
                         pVerts += 4;
                         vertcount += 4;
-                        pIndices += 6;
-                        indexcount += 6;
                     }
 
                     // bottom
@@ -1027,12 +1016,8 @@ bool VoxelChunk::RebuildMesh(unsigned int increment)
                         pVerts[3].color = rbb.color;
                         for( int i=0; i<4; i++ )
                             pVerts[i].normal.Set( 0, -1, 0 );
-                        for( int i=0; i<6; i++ )
-                            pIndices[i] = (unsigned short)(vertcount + g_SpriteVertexIndices[i]);
                         pVerts += 4;
                         vertcount += 4;
-                        pIndices += 6;
-                        indexcount += 6;
                     }
 
                     uleft   = (float)(TileTops_Col[blocktypetextureindex]+0) / m_TextureTileCount.x;
@@ -1075,12 +1060,8 @@ bool VoxelChunk::RebuildMesh(unsigned int increment)
                         }
                         for( int i=0; i<4; i++ )
                             pVerts[i].normal.Set( 0, 1, 0 );
-                        for( int i=0; i<6; i++ )
-                            pIndices[i] = (unsigned short)(vertcount + g_SpriteVertexIndices[i]);
                         pVerts += 4;
                         vertcount += 4;
-                        pIndices += 6;
-                        indexcount += 6;
                     }
 
                     if( vertcount > maxverts - 50 )
@@ -1108,10 +1089,30 @@ bool VoxelChunk::RebuildMesh(unsigned int increment)
                 }
 
                 m_SubmeshList[0]->m_pVertexBuffer->TempBufferData( vertcount * GetStride( 0 ), pActualVerts );
-                m_SubmeshList[0]->m_pIndexBuffer->TempBufferData( indexcount * 2, pActualIndices );
             }
 
-            m_SubmeshList[0]->m_NumIndicesToDraw = indexcount;
+            // if not a world object, fill an index buffer... TODO: remove this, indices can be static.
+            if( m_pWorld == 0 )
+            {
+                unsigned int numquads = vertcount / 4;
+                unsigned int indexbuffersize = numquads * 6;
+        
+                unsigned short* pIndices = (unsigned short*)g_pEngineCore->m_SingleFrameMemoryStack.AllocateBlock( indexbuffersize );
+
+                for( unsigned int i=0; i<numquads; i++ )
+                {
+                    pIndices[i*6+0] = (unsigned short)(i*4 + g_SpriteVertexIndices[0]);
+                    pIndices[i*6+1] = (unsigned short)(i*4 + g_SpriteVertexIndices[1]);
+                    pIndices[i*6+2] = (unsigned short)(i*4 + g_SpriteVertexIndices[2]);
+                    pIndices[i*6+3] = (unsigned short)(i*4 + g_SpriteVertexIndices[3]);
+                    pIndices[i*6+4] = (unsigned short)(i*4 + g_SpriteVertexIndices[4]);
+                    pIndices[i*6+5] = (unsigned short)(i*4 + g_SpriteVertexIndices[5]);
+                }
+
+                m_SubmeshList[0]->m_pIndexBuffer->TempBufferData( numquads * 6, pIndices );
+            }
+
+            m_SubmeshList[0]->m_NumIndicesToDraw = vertcount / 4 * 6;
             //LOGInfo( "VoxelChunk", "Num indices: %d\n", indexcount );
 
             Vector3 center = (minextents + maxextents) / 2;

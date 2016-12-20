@@ -37,6 +37,7 @@ protected:
     unsigned int m_NumChunkPointersAllocated;
 
     MaterialDefinition* m_pMaterial;
+    BufferDefinition* m_pSharedIndexBuffer;
 
     VoxelWorld_GenerateMap_CallbackFunction m_pMapGenCallbackFunc;
 
@@ -45,6 +46,8 @@ protected:
     cJSON* m_jJSONSavedMapData; // TODO: replace this with custom solution for large worlds.
 
 protected:
+    void BuildSharedIndexBuffer();
+
     bool IsChunkActive(Vector3Int chunkpos);
     unsigned int GetActiveChunkArrayIndex(Vector3Int chunkpos);
     unsigned int GetActiveChunkArrayIndex(int chunkx, int chunky, int chunkz);
@@ -73,6 +76,7 @@ public:
     void UpdateVisibility(void* pUserData);
     void SetMaterial(MaterialDefinition* pMaterial);
     MaterialDefinition* GetMaterial() { return m_pMaterial; }
+    BufferDefinition* GetSharedIndexBuffer() { return m_pSharedIndexBuffer; }
 
     void SetSaveFile(MyFileObject* pFile);
     void SaveTheWorld();
