@@ -496,7 +496,7 @@ bool VoxelChunk::IsNearbyWorldBlockEnabled(unsigned int worldactivechunkarrayind
     MyAssert( localy >= -m_ChunkSize.y && localy < m_ChunkSize.y*2 );
     MyAssert( localz >= -m_ChunkSize.z && localz < m_ChunkSize.z*2 );
 
-    Vector3Int worldchunkoffset(0,0,0);
+    VoxelChunk* pChunk = this;
 
     if( m_pWorld == 0 )
     {
@@ -507,27 +507,60 @@ bool VoxelChunk::IsNearbyWorldBlockEnabled(unsigned int worldactivechunkarrayind
         if( localz < 0 )              { return blockexistsifnotready; }
         if( localz >= m_ChunkSize.z ) { return blockexistsifnotready; }
     }
-
-    VoxelChunk* pChunk = this;
-
-    if( m_pWorld )
+    else //if( m_pWorld )
     {
-        if( localx < 0 )              { worldactivechunkarrayindex -= 1; localx += m_ChunkSize.x; }
-        if( localx >= m_ChunkSize.x ) { worldactivechunkarrayindex += 1; localx -= m_ChunkSize.x; }
-        if( localy < 0 )              { worldactivechunkarrayindex -= m_pWorld->m_WorldSize.x; localy += m_ChunkSize.y; }
-        if( localy >= m_ChunkSize.y ) { worldactivechunkarrayindex += m_pWorld->m_WorldSize.x; localy -= m_ChunkSize.y; }
-        if( localz < 0 )              { worldactivechunkarrayindex -= m_pWorld->m_WorldSize.y * m_pWorld->m_WorldSize.x; localz += m_ChunkSize.z; }
-        if( localz >= m_ChunkSize.z ) { worldactivechunkarrayindex += m_pWorld->m_WorldSize.y * m_pWorld->m_WorldSize.x; localz -= m_ChunkSize.z; }
+        Vector3Int chunkpos = m_pWorld->GetChunkPosition( m_ChunkOffset );
 
-        if( worldactivechunkarrayindex >= UINT_MAX - m_pWorld->m_WorldSize.z * m_pWorld->m_WorldSize.y * m_pWorld->m_WorldSize.x )
-            return blockexistsifnotready;
-        if( worldactivechunkarrayindex >= (unsigned int)m_pWorld->m_WorldSize.z * (unsigned int)m_pWorld->m_WorldSize.y * (unsigned int)m_pWorld->m_WorldSize.x )
-            return blockexistsifnotready;
+        if( localx < 0 )
+        {
+            if( chunkpos.x - 1 < m_pWorld->m_WorldOffset.x )
+                return blockexistsifnotready;
+            pChunk = m_pWorld->m_pActiveWorldChunkPtrs[worldactivechunkarrayindex - 1];
+            localx += m_ChunkSize.x;
+        }
+        else if( localx >= m_ChunkSize.x )
+        {
+            if( chunkpos.x + 1 >= m_pWorld->m_WorldOffset.x + m_pWorld->m_WorldSize.x )
+                return blockexistsifnotready;
+            pChunk = m_pWorld->m_pActiveWorldChunkPtrs[worldactivechunkarrayindex + 1];
+            localx -= m_ChunkSize.x;
+        }
 
-        pChunk = m_pWorld->m_pActiveWorldChunkPtrs[worldactivechunkarrayindex];
+        if( localy < 0 )
+        {
+            if( chunkpos.y - 1 < m_pWorld->m_WorldOffset.y )
+                return blockexistsifnotready;
+            pChunk = m_pWorld->m_pActiveWorldChunkPtrs[worldactivechunkarrayindex - m_pWorld->m_WorldSize.x];
+            localy += m_ChunkSize.y;
+        }
+        else if( localy >= m_ChunkSize.y )
+        {
+            if( chunkpos.y + 1 >= m_pWorld->m_WorldOffset.y + m_pWorld->m_WorldSize.y )
+                return blockexistsifnotready;
+            pChunk = m_pWorld->m_pActiveWorldChunkPtrs[worldactivechunkarrayindex + m_pWorld->m_WorldSize.x];
+            localy -= m_ChunkSize.y;
+        }
+
+        if( localz < 0 )
+        {
+            if( chunkpos.z - 1 < m_pWorld->m_WorldOffset.z )
+                return blockexistsifnotready;
+            pChunk = m_pWorld->m_pActiveWorldChunkPtrs[worldactivechunkarrayindex - m_pWorld->m_WorldSize.y * m_pWorld->m_WorldSize.x];
+            localz += m_ChunkSize.z;
+        }
+        else if( localz >= m_ChunkSize.z )
+        {
+            if( chunkpos.z + 1 >= m_pWorld->m_WorldOffset.z + m_pWorld->m_WorldSize.z )
+                return blockexistsifnotready;
+            pChunk = m_pWorld->m_pActiveWorldChunkPtrs[worldactivechunkarrayindex + m_pWorld->m_WorldSize.y * m_pWorld->m_WorldSize.x];
+            localz -= m_ChunkSize.z;
+        }
     }
 
-    return pChunk->IsBlockEnabled( localx, localy, localz, blockexistsifnotready );
+    MyAssert( pChunk != 0 );
+
+    unsigned int localindex = localz * m_ChunkSize.y * m_ChunkSize.x + localy * m_ChunkSize.x + localx;
+    return pChunk->m_pBlockEnabledBits[localindex/32] & (1 << (localindex%32)) ? true : false;
 }
 
 int VoxelChunk::CountNeighbouringBlocks(unsigned int worldactivechunkarrayindex, int localx, int localy, int localz, bool blockexistsifnotready)
@@ -561,21 +594,21 @@ bool VoxelChunk::RebuildMesh(unsigned int increment)
     if( m_pWorld )
         worldactivechunkarrayindex = m_pWorld->GetActiveChunkArrayIndex( m_pWorld->GetChunkPosition( m_ChunkOffset ) );
 
+    MyStackAllocator::MyStackPointer memstart = g_pEngineCore->m_SingleFrameMemoryStack.GetCurrentLocation();
+
+    int numblocks = m_ChunkSize.x * m_ChunkSize.y * m_ChunkSize.z;
+
     // Loop through blocks and add a cube for each one that's enabled
     // TODO: merge outer faces, eliminate inner faces.
     {
         MyAssert( GetStride( 0 ) == (12 + 8 + 12 + 4) ); // Vertex_XYZUVNorm_RGBA => XYZ + UV + NORM + RGBA
 
-        int numblocks = m_ChunkSize.x * m_ChunkSize.y * m_ChunkSize.z;
         int maxverts = 6*4*numblocks;
-        int maxindices = 6*2*3*numblocks;
 
         // TODO: take out hard-coded unsigned short as index type
         int vertbuffersize = maxverts * GetStride( 0 );
-        int indexbuffersize = maxindices * 2;
 
         // TODO: fill buffer without storing a local copy in main ram.
-        MyStackAllocator::MyStackPointer memstart = g_pEngineCore->m_SingleFrameMemoryStack.GetCurrentLocation();
         Vertex_XYZUVNorm_RGBA* pVerts = (Vertex_XYZUVNorm_RGBA*)g_pEngineCore->m_SingleFrameMemoryStack.AllocateBlock( vertbuffersize );
 
         pVerts[0].pos.x = 0;
@@ -890,10 +923,10 @@ bool VoxelChunk::RebuildMesh(unsigned int increment)
 
                     unsigned int neighbourindex;
 
-                    unsigned char numneighbours = (unsigned char)CountNeighbouringBlocks( worldactivechunkarrayindex, x, y, z, false );
-                    if( numneighbours < 20 )
-                        numneighbours = 1;
-                    ColorByte blockcolor = ColorByte( 255 / numneighbours, 255 / numneighbours, 255 / numneighbours, 255 );
+                    //unsigned char numneighbours = (unsigned char)CountNeighbouringBlocks( worldactivechunkarrayindex, x, y, z, false );
+                    //if( numneighbours < 20 )
+                    //    numneighbours = 1;
+                    //ColorByte blockcolor = ColorByte( 255 / numneighbours, 255 / numneighbours, 255 / numneighbours, 255 );
 
                     // front
                     if( z == 0 )
@@ -1129,8 +1162,6 @@ bool VoxelChunk::RebuildMesh(unsigned int increment)
 
             RemoveFromSceneGraph();
         }
-
-        g_pEngineCore->m_SingleFrameMemoryStack.RewindStack( memstart );
     }
 
     // if any of the neighbouring chunks wasn't ready, then we likely created extra faces to close outside walls.
@@ -1166,6 +1197,8 @@ bool VoxelChunk::RebuildMesh(unsigned int increment)
     }
 
     m_MeshReady = true;
+
+    g_pEngineCore->m_SingleFrameMemoryStack.RewindStack( memstart );
 
     return true;
 }
