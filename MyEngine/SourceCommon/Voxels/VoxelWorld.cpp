@@ -52,7 +52,15 @@ VoxelWorld::~VoxelWorld()
         pNode = pNode->GetNext();
 
         pChunk->Release();
-    }    
+    }
+
+    for( CPPListNode* pNode = m_pChunksWaitingForMesh.GetHead(); pNode; )
+    {
+        VoxelChunk* pChunk = (VoxelChunk*)pNode;
+        pNode = pNode->GetNext();
+
+        pChunk->Release();
+    }
 
     for( CPPListNode* pNode = m_pChunksVisible.GetHead(); pNode; )
     {
@@ -123,29 +131,66 @@ void VoxelWorld::Initialize(Vector3Int visibleworldsize)
     }
 }
 
-static Vector3Int g_WorldCenterChunkOffset;
-signed char ChunkDistanceCmpFunc(CPPListNode *a, CPPListNode *b)
+static Vector3Int g_ChunkSort_WorldCenterChunkOffset;
+static float g_ChunkSort_CameraAngle;
+signed char ChunkSort_ComparisonFunction(CPPListNode *a, CPPListNode *b)
 {
+    float anglerange = PI/2/2;
+    float distancerange = 1000;
+
     Vector3Int offseta = ((VoxelChunk*)a)->GetChunkOffset();
     Vector3Int offsetb = ((VoxelChunk*)b)->GetChunkOffset();
 
-    int distancea = (offseta - g_WorldCenterChunkOffset).LengthSquared();
-    int distanceb = (offsetb - g_WorldCenterChunkOffset).LengthSquared();
+    int distancea = (offseta - g_ChunkSort_WorldCenterChunkOffset).LengthSquared();
+    int distanceb = (offsetb - g_ChunkSort_WorldCenterChunkOffset).LengthSquared();
 
-    if( distancea == distanceb )
-        return 0;
+    // prefer chunks that are close
+    {
+        if( distancea < distancerange )
+            return -1;
 
-    if( distancea < distanceb )
-        return -1;
+        if( distanceb < distancerange )
+            return 1;
+    }
 
-    return 1;
+    // if A and B are on opposite sides of the horizontal view frustum, prefer the one in front of the camera
+    {
+        float anglea = atan2( (float)offseta.z, (float)offseta.x );
+        float angleb = atan2( (float)offsetb.z, (float)offsetb.x );
+
+        float abscamdiffa = fabs( g_ChunkSort_CameraAngle - anglea );
+        float abscamdiffb = fabs( g_ChunkSort_CameraAngle - angleb );
+
+        if( abscamdiffa > PI ) abscamdiffa = PI*2 - abscamdiffa;
+        if( abscamdiffb > PI ) abscamdiffb = PI*2 - abscamdiffb;
+
+        if( abscamdiffa < anglerange && abscamdiffb > anglerange )
+            return -1; // prefer A
+
+        if( abscamdiffa > anglerange && abscamdiffb < anglerange )
+            return 1; // prefer B
+    }
+
+    // Otherwise, both are in front or behind, so prefer the closer one
+    {
+        if( distancea == distanceb )
+            return 0; // prefer A
+
+        if( distancea < distanceb )
+            return -1; // prefer A
+    }
+
+    return 1; // prefer B
 }
 
 void VoxelWorld::Tick(double timepassed)
 {
     // Sort chunks based on distance from world center (which is likely the player location)
-    g_WorldCenterChunkOffset = (m_WorldOffset + m_WorldSize/2).MultiplyComponents( m_ChunkSize );
-    m_pChunksLoading.Sort( ChunkDistanceCmpFunc );
+    g_ChunkSort_WorldCenterChunkOffset = (m_WorldOffset + m_WorldSize/2).MultiplyComponents( m_ChunkSize );
+    ComponentCamera* pCamera = g_pComponentSystemManager->GetFirstCamera( false );
+    Vector3 camat = pCamera->m_pGameObject->GetTransform()->GetLocalTransform()->GetAt();
+    g_ChunkSort_CameraAngle = atan2( camat.z, camat.x );
+    m_pChunksLoading.Sort( ChunkSort_ComparisonFunction );
 
     if( m_pSharedIndexBuffer->m_Dirty )
     {
@@ -178,9 +223,9 @@ void VoxelWorld::Tick(double timepassed)
         }
     }
 
-    // build the mesh for a single chunk per frame.
-    int maxtobuildinoneframe = 2;
-    for( int i=0; i<maxtobuildinoneframe; i++ )
+    // load/generate a few chunks per frame.
+    int maxtoloadinoneframe = 5;
+    for( int i=0; i<maxtoloadinoneframe; i++ )
     {
         VoxelChunk* pChunk = (VoxelChunk*)m_pChunksLoading.GetHead();
 
@@ -199,29 +244,47 @@ void VoxelWorld::Tick(double timepassed)
                 {
                     pChunk->GenerateMap();
                 }
-            }
 
-            pChunk->SetMaterial( m_pMaterial, 0 );
-            pChunk->RebuildMesh( 1 );
-    
-            if( pChunk->m_MeshReady == true )
-            {
-                m_pChunksVisible.MoveTail( pChunk );
+                m_pChunksWaitingForMesh.MoveTail( pChunk );
             }
-
-            continue;
         }
+    }
 
-        // if all chunks are loaded then rebuild a single unoptimized chunk per frame.
-        pChunk = (VoxelChunk*)m_pChunksVisible.GetHead();
-        while( pChunk )
+    m_pChunksWaitingForMesh.Sort( ChunkSort_ComparisonFunction );
+
+    // once all chunks are done loading/generating... TODO: can start building once neighbours are generated
+    //if( m_pChunksLoading.GetHead() == 0 )
+    {
+        // build the mesh for a single chunk per frame.
+        int maxtobuildinoneframe = 1;
+        for( int i=0; i<maxtobuildinoneframe; i++ )
         {
-            if( pChunk->IsMeshOptimized() == false )
+            VoxelChunk* pChunk = (VoxelChunk*)m_pChunksWaitingForMesh.GetHead();
+
+            if( pChunk )
             {
+                pChunk->SetMaterial( m_pMaterial, 0 );
                 pChunk->RebuildMesh( 1 );
-                break;
+    
+                if( pChunk->m_MeshReady == true )
+                {
+                    m_pChunksVisible.MoveTail( pChunk );
+                }
+
+                continue;
             }
-            pChunk = (VoxelChunk*)pChunk->GetNext();
+
+            // if all chunks are loaded then rebuild a single unoptimized chunk per frame.
+            pChunk = (VoxelChunk*)m_pChunksVisible.GetHead();
+            while( pChunk )
+            {
+                if( pChunk->IsMeshOptimized() == false )
+                {
+                    pChunk->RebuildMesh( 1 );
+                    continue;
+                }
+                pChunk = (VoxelChunk*)pChunk->GetNext();
+            }
         }
     }
 }

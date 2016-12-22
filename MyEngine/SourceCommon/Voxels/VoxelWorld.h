@@ -23,6 +23,7 @@ class VoxelWorld
 protected:
     CPPListHead m_pChunksFree;
     CPPListHead m_pChunksLoading;
+    CPPListHead m_pChunksWaitingForMesh;
     CPPListHead m_pChunksVisible;
 
     Vector3Int m_WorldSize;
