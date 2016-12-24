@@ -24,6 +24,7 @@ VoxelChunk::VoxelChunk()
     m_BlockSize.Set( 0, 0, 0 );
     m_ChunkSize.Set( 0, 0, 0 );
     m_ChunkOffset.Set( 0, 0, 0 );
+    m_ChunkPosition.Set( 0, 0, 0 );
     m_pSceneGraphObject = 0;
 
     m_TextureTileCount.Set( 8, 8 );
@@ -53,6 +54,8 @@ void VoxelChunk::Initialize(VoxelWorld* world, Vector3 pos, Vector3Int chunkoffs
 
     m_BlockSize = blocksize;
     m_ChunkOffset = chunkoffset;
+    if( m_pWorld )
+        m_ChunkPosition = m_pWorld->GetChunkPosition( m_ChunkOffset );
 
     m_MapCreated = false;
 
@@ -186,6 +189,8 @@ void VoxelChunk::SetChunkSize(Vector3Int chunksize, uint32* pPreallocatedBlockEn
     }
 
     m_ChunkSize = chunksize;
+
+    CalculateBounds();
 }
 
 void VoxelChunk::SetBlockSize(Vector3 blocksize)
@@ -196,6 +201,22 @@ void VoxelChunk::SetBlockSize(Vector3 blocksize)
 void VoxelChunk::SetTextureTileCount(Vector2Int tilecount)
 {
     m_TextureTileCount = tilecount;
+}
+
+// ============================================================================================================================
+// Internal functions
+// ============================================================================================================================
+void VoxelChunk::CalculateBounds()
+{
+    // figure out the min/max extents of this chunk
+    Vector3 minextents( -m_BlockSize.x/2, -m_BlockSize.y/2, -m_BlockSize.z/2 );
+    Vector3 maxextents( (m_ChunkSize.x-1) * m_BlockSize.x + m_BlockSize.x/2,
+                        (m_ChunkSize.x-1) * m_BlockSize.y + m_BlockSize.y/2,
+                        (m_ChunkSize.x-1) * m_BlockSize.z + m_BlockSize.z/2 );
+
+    Vector3 center = (minextents + maxextents) / 2;
+    Vector3 extents = (maxextents - minextents) / 2;
+    GetBounds()->Set( center, extents );
 }
 
 // ============================================================================================================================
@@ -509,18 +530,16 @@ bool VoxelChunk::IsNearbyWorldBlockEnabled(unsigned int worldactivechunkarrayind
     }
     else //if( m_pWorld )
     {
-        Vector3Int chunkpos = m_pWorld->GetChunkPosition( m_ChunkOffset );
-
         if( localx < 0 )
         {
-            if( chunkpos.x - 1 < m_pWorld->m_WorldOffset.x )
+            if( m_ChunkPosition.x - 1 < m_pWorld->m_WorldOffset.x )
                 return blockexistsifnotready;
             pChunk = m_pWorld->m_pActiveWorldChunkPtrs[worldactivechunkarrayindex - 1];
             localx += m_ChunkSize.x;
         }
         else if( localx >= m_ChunkSize.x )
         {
-            if( chunkpos.x + 1 >= m_pWorld->m_WorldOffset.x + m_pWorld->m_WorldSize.x )
+            if( m_ChunkPosition.x + 1 >= m_pWorld->m_WorldOffset.x + m_pWorld->m_WorldSize.x )
                 return blockexistsifnotready;
             pChunk = m_pWorld->m_pActiveWorldChunkPtrs[worldactivechunkarrayindex + 1];
             localx -= m_ChunkSize.x;
@@ -528,14 +547,14 @@ bool VoxelChunk::IsNearbyWorldBlockEnabled(unsigned int worldactivechunkarrayind
 
         if( localy < 0 )
         {
-            if( chunkpos.y - 1 < m_pWorld->m_WorldOffset.y )
+            if( m_ChunkPosition.y - 1 < m_pWorld->m_WorldOffset.y )
                 return blockexistsifnotready;
             pChunk = m_pWorld->m_pActiveWorldChunkPtrs[worldactivechunkarrayindex - m_pWorld->m_WorldSize.x];
             localy += m_ChunkSize.y;
         }
         else if( localy >= m_ChunkSize.y )
         {
-            if( chunkpos.y + 1 >= m_pWorld->m_WorldOffset.y + m_pWorld->m_WorldSize.y )
+            if( m_ChunkPosition.y + 1 >= m_pWorld->m_WorldOffset.y + m_pWorld->m_WorldSize.y )
                 return blockexistsifnotready;
             pChunk = m_pWorld->m_pActiveWorldChunkPtrs[worldactivechunkarrayindex + m_pWorld->m_WorldSize.x];
             localy -= m_ChunkSize.y;
@@ -543,14 +562,14 @@ bool VoxelChunk::IsNearbyWorldBlockEnabled(unsigned int worldactivechunkarrayind
 
         if( localz < 0 )
         {
-            if( chunkpos.z - 1 < m_pWorld->m_WorldOffset.z )
+            if( m_ChunkPosition.z - 1 < m_pWorld->m_WorldOffset.z )
                 return blockexistsifnotready;
             pChunk = m_pWorld->m_pActiveWorldChunkPtrs[worldactivechunkarrayindex - m_pWorld->m_WorldSize.y * m_pWorld->m_WorldSize.x];
             localz += m_ChunkSize.z;
         }
         else if( localz >= m_ChunkSize.z )
         {
-            if( chunkpos.z + 1 >= m_pWorld->m_WorldOffset.z + m_pWorld->m_WorldSize.z )
+            if( m_ChunkPosition.z + 1 >= m_pWorld->m_WorldOffset.z + m_pWorld->m_WorldSize.z )
                 return blockexistsifnotready;
             pChunk = m_pWorld->m_pActiveWorldChunkPtrs[worldactivechunkarrayindex + m_pWorld->m_WorldSize.y * m_pWorld->m_WorldSize.x];
             localz -= m_ChunkSize.z;
@@ -583,40 +602,34 @@ int VoxelChunk::CountNeighbouringBlocks(unsigned int worldactivechunkarrayindex,
 }
 
 // ============================================================================================================================
-// Rendering
+// Mesh building
 // ============================================================================================================================
 bool VoxelChunk::RebuildMesh(unsigned int increment)
 {
     MyAssert( m_pBlocks );
+    MyAssert( GetStride( 0 ) == (12 + 8 + 12 + 4) ); // Vertex_XYZUVNorm_RGBA => XYZ + UV + NORM + RGBA
 
-    unsigned int worldactivechunkarrayindex = -1;
+#if MYFW_PROFILING_ENABLED
+    double Timing_Start = MyTime_GetSystemTime();
+#endif
 
-    if( m_pWorld )
-        worldactivechunkarrayindex = m_pWorld->GetActiveChunkArrayIndex( m_pWorld->GetChunkPosition( m_ChunkOffset ) );
-
+    // Grab the pointer to the current position of our stack allocator, we'll rewind at the end.
     MyStackAllocator::MyStackPointer memstart = g_pEngineCore->m_SingleFrameMemoryStack.GetCurrentLocation();
 
-    int numblocks = m_ChunkSize.x * m_ChunkSize.y * m_ChunkSize.z;
-
     // Loop through blocks and add a cube for each one that's enabled
-    // TODO: merge outer faces, eliminate inner faces.
     {
-        MyAssert( GetStride( 0 ) == (12 + 8 + 12 + 4) ); // Vertex_XYZUVNorm_RGBA => XYZ + UV + NORM + RGBA
+        unsigned int worldactivechunkarrayindex = -1;
+
+        if( m_pWorld )
+            worldactivechunkarrayindex = m_pWorld->GetActiveChunkArrayIndex( m_ChunkPosition );
+
+        int numblocks = m_ChunkSize.x * m_ChunkSize.y * m_ChunkSize.z;
 
         int maxverts = 6*4*numblocks;
-
-        // TODO: take out hard-coded unsigned short as index type
         int vertbuffersize = maxverts * GetStride( 0 );
 
-        // TODO: fill buffer without storing a local copy in main ram.
+        // Allocate a block of ram big enough to store our verts
         Vertex_XYZUVNorm_RGBA* pVerts = (Vertex_XYZUVNorm_RGBA*)g_pEngineCore->m_SingleFrameMemoryStack.AllocateBlock( vertbuffersize );
-
-        pVerts[0].pos.x = 0;
-        pVerts[0].pos.y = 1;
-        pVerts[0].pos.z = 2;
-
-        Vector3 minextents( FLT_MAX, FLT_MAX, FLT_MAX );
-        Vector3 maxextents( -FLT_MAX, -FLT_MAX, -FLT_MAX );
 
         // pVerts gets advanced by code below, so store a copy.
         Vertex_XYZUVNorm_RGBA* pActualVerts = pVerts;
@@ -671,13 +684,6 @@ bool VoxelChunk::RebuildMesh(unsigned int increment)
                     float zfront  = z*m_BlockSize.z - m_BlockSize.z/2;
                     float zback   = z*m_BlockSize.z + m_BlockSize.z/2;
 
-                    if( xleft   < minextents.x ) minextents.x = xleft;
-                    if( xright  > maxextents.x ) maxextents.x = xright;
-                    if( ybottom < minextents.y ) minextents.y = ybottom;
-                    if( ytop    > maxextents.y ) maxextents.y = ytop;
-                    if( zfront  < minextents.z ) minextents.z = zfront;
-                    if( zback   > maxextents.z ) maxextents.z = zback;
-
                     ltf.pos.Set( xleft,  ytop,    zfront );
                     ltb.pos.Set( xleft,  ytop,    zback  );
                     lbf.pos.Set( xleft,  ybottom, zfront );
@@ -703,14 +709,23 @@ bool VoxelChunk::RebuildMesh(unsigned int increment)
                         }
                     }
 
-                    ltf.color = light;
-                    ltb.color = light;
-                    lbf.color = light;
-                    lbb.color = light;
-                    rtf.color = light;
-                    rtb.color = light;
-                    rbf.color = light;
-                    rbb.color = light;
+                    //ltf.color = light;
+                    //ltb.color = light;
+                    //lbf.color = light;
+                    //lbb.color = light;
+                    //rtf.color = light;
+                    //rtb.color = light;
+                    //rbf.color = light;
+                    //rbb.color = light;
+
+                    int ltfao = 0;
+                    int ltbao = 0;
+                    int lbfao = 0;
+                    int lbbao = 0;
+                    int rtfao = 0;
+                    int rtbao = 0;
+                    int rbfao = 0;
+                    int rbbao = 0;
 
                     if( ambientocclusion )
                     {
@@ -725,46 +740,46 @@ bool VoxelChunk::RebuildMesh(unsigned int increment)
                         {
                             if( IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x, y+1, z, true ) == true ) // above
                             {
-                                ltb.color -= darker; // Left(-x) - Top - Back(+z)
-                                rtb.color -= darker; // Right(+x) - Top - Back(+z)
-                                ltf.color -= darker; // Left(-x) - Top - Front(-z)
-                                rtf.color -= darker; // Right(+x) - Top - Front(-z)
+                                ltbao++; // Left(-x) - Top - Back(+z)
+                                rtbao++; // Right(+x) - Top - Back(+z)
+                                ltfao++; // Left(-x) - Top - Front(-z)
+                                rtfao++; // Right(+x) - Top - Front(-z)
                             }
                             if( IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x  , y+1, z+1, true ) == true ) // UpperMiddle
                             {
-                                ltb.color -= darker; // Left(-x) - Top - Back(+z)
-                                rtb.color -= darker; // Right(+x) - Top - Back(+z)
+                                ltbao++; // Left(-x) - Top - Back(+z)
+                                rtbao++; // Right(+x) - Top - Back(+z)
                             }
                             if( IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x+1, y+1, z+1, true ) == true ) // UpperRight
                             {
-                                rtb.color -= darker; // Right(+x) - Top - Back(+z)
+                                rtbao++; // Right(+x) - Top - Back(+z)
                             }
                             if( IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x+1, y+1, z  , true ) == true ) // Right
                             {
-                                rtb.color -= darker; // Right(+x) - Top - Back(+z)
-                                rtf.color -= darker; // // Right(+x) - Top - Front(-z)
+                                rtbao++; // Right(+x) - Top - Back(+z)
+                                rtfao++; // // Right(+x) - Top - Front(-z)
                             }
                             if( IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x+1, y+1, z-1, true ) == true ) // BotRight
                             {
-                                rtf.color -= darker; // // Right(+x) - Top - Front(-z)
+                                rtfao++; // // Right(+x) - Top - Front(-z)
                             }
                             if( IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x  , y+1, z-1, true ) == true ) // BottomMiddle
                             {
-                                rtf.color -= darker; // // Right(+x) - Top - Front(-z)
-                                ltf.color -= darker; // Left(-x) - Top - Front(-z)
+                                rtfao++; // // Right(+x) - Top - Front(-z)
+                                ltfao++; // Left(-x) - Top - Front(-z)
                             }
                             if( IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x-1, y+1, z-1, true ) == true ) // BotLeft
                             {
-                                ltf.color -= darker; // Left(-x) - Top - Front(-z)
+                                ltfao++; // Left(-x) - Top - Front(-z)
                             }
                             if( IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x-1, y+1, z  , true ) == true ) // Left
                             {
-                                ltb.color -= darker; // Left(-x) - Top - Back(+z)
-                                ltf.color -= darker; // Left(-x) - Top - Front(-z)
+                                ltbao++; // Left(-x) - Top - Back(+z)
+                                ltfao++; // Left(-x) - Top - Front(-z)
                             }
                             if( IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x-1, y+1, z+1, true ) == true ) // UpperLeft
                             {
-                                ltb.color -= darker; // Left(-x) - Top - Back(+z)
+                                ltbao++; // Left(-x) - Top - Back(+z)
                             }
                         }
 
@@ -772,51 +787,150 @@ bool VoxelChunk::RebuildMesh(unsigned int increment)
                         {
                             if( IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x, y-1, z, true ) == true ) // below
                             {
-                                lbb.color -= darker; // Left(-x) - Bottom - Back(+z)
-                                rbb.color -= darker; // Right(+x) - Bottom - Back(+z)
-                                lbf.color -= darker; // Left(-x) - Bottom - Front(-z)
-                                rbf.color -= darker; // Right(+x) - Bottom - Front(-z)
+                                lbbao++; // Left(-x) - Bottom - Back(+z)
+                                rbbao++; // Right(+x) - Bottom - Back(+z)
+                                lbfao++; // Left(-x) - Bottom - Front(-z)
+                                rbfao++; // Right(+x) - Bottom - Front(-z)
                             }
                             if( IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x  , y-1, z+1, true ) == true ) // UpperMiddle
                             {
-                                lbb.color -= darker; // Left(-x) - Bottom - Back(+z)
-                                rbb.color -= darker; // Right(+x) - Bottom - Back(+z)
+                                lbbao++; // Left(-x) - Bottom - Back(+z)
+                                rbbao++; // Right(+x) - Bottom - Back(+z)
                             }
                             if( IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x+1, y-1, z+1, true ) == true ) // UpperRight
                             {
-                                rbb.color -= darker; // Right(+x) - Bottom - Back(+z)
+                                rbbao++; // Right(+x) - Bottom - Back(+z)
                             }
                             if( IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x+1, y-1, z  , true ) == true ) // Right
                             {
-                                rbb.color -= darker; // Right(+x) - Bottom - Back(+z)
-                                rbf.color -= darker; // // Right(+x) - Bottom - Front(-z)
+                                rbbao++; // Right(+x) - Bottom - Back(+z)
+                                rbfao++; // // Right(+x) - Bottom - Front(-z)
                             }
                             if( IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x+1, y-1, z-1, true ) == true ) // BotRight
                             {
-                                rbf.color -= darker; // // Right(+x) - Bottom - Front(-z)
+                                rbfao++; // // Right(+x) - Bottom - Front(-z)
                             }
                             if( IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x  , y-1, z-1, true ) == true ) // BottomMiddle
                             {
-                                rbf.color -= darker; // // Right(+x) - Bottom - Front(-z)
-                                lbf.color -= darker; // Left(-x) - Bottom - Front(-z)
+                                rbfao++; // // Right(+x) - Bottom - Front(-z)
+                                lbfao++; // Left(-x) - Bottom - Front(-z)
                             }
                             if( IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x-1, y-1, z-1, true ) == true ) // BotLeft
                             {
-                                lbf.color -= darker; // Left(-x) - Bottom - Front(-z)
+                                lbfao++; // Left(-x) - Bottom - Front(-z)
                             }
                             if( IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x-1, y-1, z  , true ) == true ) // Left
                             {
-                                lbb.color -= darker; // Left(-x) - Bottom - Back(+z)
-                                lbf.color -= darker; // Left(-x) - Bottom - Front(-z)
+                                lbbao++; // Left(-x) - Bottom - Back(+z)
+                                lbfao++; // Left(-x) - Bottom - Front(-z)
                             }
                             if( IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x-1, y-1, z+1, true ) == true ) // UpperLeft
                             {
-                                lbb.color -= darker; // Left(-x) - Bottom - Back(+z)
+                                lbbao++; // Left(-x) - Bottom - Back(+z)
                             }
                         }
-                    }
-                    else
-                    {
+
+                        ltf.color.Set( light.r - (unsigned char)(darker.r * ltfao), light.g - (unsigned char)(darker.g * ltfao), light.b - (unsigned char)(darker.b * ltfao), 255 );
+                        ltb.color.Set( light.r - (unsigned char)(darker.r * ltbao), light.g - (unsigned char)(darker.g * ltbao), light.b - (unsigned char)(darker.b * ltbao), 255 );
+                        lbf.color.Set( light.r - (unsigned char)(darker.r * lbfao), light.g - (unsigned char)(darker.g * lbfao), light.b - (unsigned char)(darker.b * lbfao), 255 );
+                        lbb.color.Set( light.r - (unsigned char)(darker.r * lbbao), light.g - (unsigned char)(darker.g * lbbao), light.b - (unsigned char)(darker.b * lbbao), 255 );
+                        rtf.color.Set( light.r - (unsigned char)(darker.r * rtfao), light.g - (unsigned char)(darker.g * rtfao), light.b - (unsigned char)(darker.b * rtfao), 255 );
+                        rtb.color.Set( light.r - (unsigned char)(darker.r * rtbao), light.g - (unsigned char)(darker.g * rtbao), light.b - (unsigned char)(darker.b * rtbao), 255 );
+                        rbf.color.Set( light.r - (unsigned char)(darker.r * rbfao), light.g - (unsigned char)(darker.g * rbfao), light.b - (unsigned char)(darker.b * rbfao), 255 );
+                        rbb.color.Set( light.r - (unsigned char)(darker.r * rbbao), light.g - (unsigned char)(darker.g * rbbao), light.b - (unsigned char)(darker.b * rbbao), 255 );
+
+                        //{
+                        //    if( IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x, y+1, z, true ) == true ) // above
+                        //    {
+                        //        ltb.color -= darker; // Left(-x) - Top - Back(+z)
+                        //        rtb.color -= darker; // Right(+x) - Top - Back(+z)
+                        //        ltf.color -= darker; // Left(-x) - Top - Front(-z)
+                        //        rtf.color -= darker; // Right(+x) - Top - Front(-z)
+                        //    }
+                        //    if( IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x  , y+1, z+1, true ) == true ) // UpperMiddle
+                        //    {
+                        //        ltb.color -= darker; // Left(-x) - Top - Back(+z)
+                        //        rtb.color -= darker; // Right(+x) - Top - Back(+z)
+                        //    }
+                        //    if( IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x+1, y+1, z+1, true ) == true ) // UpperRight
+                        //    {
+                        //        rtb.color -= darker; // Right(+x) - Top - Back(+z)
+                        //    }
+                        //    if( IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x+1, y+1, z  , true ) == true ) // Right
+                        //    {
+                        //        rtb.color -= darker; // Right(+x) - Top - Back(+z)
+                        //        rtf.color -= darker; // // Right(+x) - Top - Front(-z)
+                        //    }
+                        //    if( IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x+1, y+1, z-1, true ) == true ) // BotRight
+                        //    {
+                        //        rtf.color -= darker; // // Right(+x) - Top - Front(-z)
+                        //    }
+                        //    if( IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x  , y+1, z-1, true ) == true ) // BottomMiddle
+                        //    {
+                        //        rtf.color -= darker; // // Right(+x) - Top - Front(-z)
+                        //        ltf.color -= darker; // Left(-x) - Top - Front(-z)
+                        //    }
+                        //    if( IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x-1, y+1, z-1, true ) == true ) // BotLeft
+                        //    {
+                        //        ltf.color -= darker; // Left(-x) - Top - Front(-z)
+                        //    }
+                        //    if( IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x-1, y+1, z  , true ) == true ) // Left
+                        //    {
+                        //        ltb.color -= darker; // Left(-x) - Top - Back(+z)
+                        //        ltf.color -= darker; // Left(-x) - Top - Front(-z)
+                        //    }
+                        //    if( IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x-1, y+1, z+1, true ) == true ) // UpperLeft
+                        //    {
+                        //        ltb.color -= darker; // Left(-x) - Top - Back(+z)
+                        //    }
+                        //}
+
+                        //// bottom of blocks
+                        //{
+                        //    if( IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x, y-1, z, true ) == true ) // below
+                        //    {
+                        //        lbb.color -= darker; // Left(-x) - Bottom - Back(+z)
+                        //        rbb.color -= darker; // Right(+x) - Bottom - Back(+z)
+                        //        lbf.color -= darker; // Left(-x) - Bottom - Front(-z)
+                        //        rbf.color -= darker; // Right(+x) - Bottom - Front(-z)
+                        //    }
+                        //    if( IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x  , y-1, z+1, true ) == true ) // UpperMiddle
+                        //    {
+                        //        lbb.color -= darker; // Left(-x) - Bottom - Back(+z)
+                        //        rbb.color -= darker; // Right(+x) - Bottom - Back(+z)
+                        //    }
+                        //    if( IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x+1, y-1, z+1, true ) == true ) // UpperRight
+                        //    {
+                        //        rbb.color -= darker; // Right(+x) - Bottom - Back(+z)
+                        //    }
+                        //    if( IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x+1, y-1, z  , true ) == true ) // Right
+                        //    {
+                        //        rbb.color -= darker; // Right(+x) - Bottom - Back(+z)
+                        //        rbf.color -= darker; // // Right(+x) - Bottom - Front(-z)
+                        //    }
+                        //    if( IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x+1, y-1, z-1, true ) == true ) // BotRight
+                        //    {
+                        //        rbf.color -= darker; // // Right(+x) - Bottom - Front(-z)
+                        //    }
+                        //    if( IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x  , y-1, z-1, true ) == true ) // BottomMiddle
+                        //    {
+                        //        rbf.color -= darker; // // Right(+x) - Bottom - Front(-z)
+                        //        lbf.color -= darker; // Left(-x) - Bottom - Front(-z)
+                        //    }
+                        //    if( IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x-1, y-1, z-1, true ) == true ) // BotLeft
+                        //    {
+                        //        lbf.color -= darker; // Left(-x) - Bottom - Front(-z)
+                        //    }
+                        //    if( IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x-1, y-1, z  , true ) == true ) // Left
+                        //    {
+                        //        lbb.color -= darker; // Left(-x) - Bottom - Back(+z)
+                        //        lbf.color -= darker; // Left(-x) - Bottom - Front(-z)
+                        //    }
+                        //    if( IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x-1, y-1, z+1, true ) == true ) // UpperLeft
+                        //    {
+                        //        lbb.color -= darker; // Left(-x) - Bottom - Back(+z)
+                        //    }
+                        //}
                     }
 
                     bool smooth = false;
@@ -1147,10 +1261,6 @@ bool VoxelChunk::RebuildMesh(unsigned int increment)
 
             m_SubmeshList[0]->m_NumIndicesToDraw = vertcount / 4 * 6;
             //LOGInfo( "VoxelChunk", "Num indices: %d\n", indexcount );
-
-            Vector3 center = (minextents + maxextents) / 2;
-            Vector3 extents = (maxextents - minextents) / 2;
-            GetBounds()->Set( center, extents );
         }
         else
         {
@@ -1171,11 +1281,9 @@ bool VoxelChunk::RebuildMesh(unsigned int increment)
     {
         m_MeshOptimized = true;
 
-        Vector3Int chunkpos = m_pWorld->GetChunkPosition( m_ChunkOffset );
-
         for( int i=0; i<6; i++ )
         {
-            Vector3Int neighbourchunkpos = chunkpos;
+            Vector3Int neighbourchunkpos = m_ChunkPosition;
 
             if( i == 0 ) neighbourchunkpos.x += 1;
             if( i == 1 ) neighbourchunkpos.x -= 1;
@@ -1199,6 +1307,14 @@ bool VoxelChunk::RebuildMesh(unsigned int increment)
     m_MeshReady = true;
 
     g_pEngineCore->m_SingleFrameMemoryStack.RewindStack( memstart );
+
+#if MYFW_PROFILING_ENABLED
+    double Timing_End = MyTime_GetSystemTime();
+
+    LOGInfo( "VoxelChunk", "Chunk offset (%d, %d, %d) - time to build %f\n",
+                           m_ChunkOffset.x, m_ChunkOffset.y, m_ChunkOffset.z,
+                           (Timing_End - Timing_Start) * 1000 );
+#endif
 
     return true;
 }

@@ -26,7 +26,8 @@ protected:
 
     MyMatrix m_Transform;
 
-    Vector3Int m_ChunkOffset;
+    Vector3Int m_ChunkOffset; // offset in the voxel world in blocks
+    Vector3Int m_ChunkPosition; // position in the voxel world in chunks
     Vector3 m_BlockSize;
     Vector3Int m_ChunkSize;
     Vector2Int m_TextureTileCount;
@@ -36,6 +37,9 @@ protected:
     uint32 m_BlocksAllocated; // set to 0 if blocks were allocated elsewhere and passed in.
 
     SceneGraphObject* m_pSceneGraphObject;
+
+    // Internal functions
+    void CalculateBounds();
 
     // Slightly faster lookup of nearby blocks.
     bool IsNearbyWorldBlockEnabled(unsigned int worldactivechunkarrayindex, int localx, int localy, int localz, bool blockexistsifnotready = false);
@@ -76,9 +80,10 @@ public:
     bool IsBlockEnabled(Vector3Int localpos, bool blockexistsifnotready = false);
     bool IsBlockEnabled(int localx, int localy, int localz, bool blockexistsifnotready = false);
 
-    // Rendering
+    // Mesh building
     bool RebuildMesh(unsigned int increment);
 
+    // Rendering
     void AddToSceneGraph(void* pUserData, MaterialDefinition* pMaterial);
     void OverrideSceneGraphObjectTransform(MyMatrix* pTransform);
     void RemoveFromSceneGraph();
