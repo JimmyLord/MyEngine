@@ -40,7 +40,31 @@ char* g_SavedPerspectives[Perspective_NumPerspectives] =
     g_DefaultPerspectives[3],
 };
 
+struct MessageLog
+{
+    int logtype;
+    wxString tag;
+    wxString message;
+};
+
+std::vector<MessageLog> g_LoggedMessages;
+pthread_mutex_t g_MessageLogMutex;
+
 void EngineMainFrame_MessageLog(int logtype, const char* tag, const char* message)
+{
+    MessageLog logentry;
+    logentry.logtype = logtype;
+    logentry.tag = tag;
+    logentry.message = message;
+
+    pthread_mutex_lock( &g_MessageLogMutex );
+
+    g_LoggedMessages.push_back( logentry );
+
+    pthread_mutex_unlock( &g_MessageLogMutex );
+}
+
+void EngineMainFrame_MessageLogForReal(int logtype, const char* tag, const char* message)
 {
     // TODO: writing to "g_pEngineMainFrame->m_pLogPane" only works from main thread, will assert otherwise.  fix me. 
 
@@ -91,6 +115,19 @@ void EngineMainFrame_MessageLog(int logtype, const char* tag, const char* messag
             pCustomLogTextCtrl->AppendText( message );
         }
     }
+}
+
+void EngineMainFrame_DumpCachedMessagesToLogPane()
+{
+    pthread_mutex_lock( &g_MessageLogMutex );
+
+    for( unsigned int i=0; i<g_LoggedMessages.size(); i++ )
+    {
+        EngineMainFrame_MessageLogForReal( g_LoggedMessages[i].logtype, g_LoggedMessages[i].tag, g_LoggedMessages[i].message );
+    }
+    g_LoggedMessages.clear();
+
+    pthread_mutex_unlock( &g_MessageLogMutex );
 }
 
 EngineMainFrame::EngineMainFrame()
@@ -152,6 +189,8 @@ EngineMainFrame::~EngineMainFrame()
     }
 
     g_pMessageLogCallbackFunction = 0;
+
+    pthread_mutex_destroy( &g_MessageLogMutex );
 }
 
 void EngineMainFrame::InitFrame()
@@ -227,6 +266,7 @@ void EngineMainFrame::InitFrame()
 
     //m_CurrentSceneName[0] = 0;
 
+    pthread_mutex_init( &g_MessageLogMutex, 0 );
     g_pMessageLogCallbackFunction = EngineMainFrame_MessageLog;
 
     m_File->Insert( 0, myIDEngine_NewScene, wxT("&New Scene") );

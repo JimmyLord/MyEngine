@@ -14,6 +14,8 @@ class EngineMainFrame;
 
 extern EngineMainFrame* g_pEngineMainFrame;
 
+void EngineMainFrame_DumpCachedMessagesToLogPane();
+
 enum DefaultPerspectives
 {
     Perspective_CenterEditor,

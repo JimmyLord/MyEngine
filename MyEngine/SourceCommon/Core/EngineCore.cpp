@@ -319,6 +319,8 @@ double EngineCore::Tick(double TimePassed)
 
 #if MYFW_USING_WX
     m_pCurrentEditorInterface->Tick( TimePassed );
+
+    EngineMainFrame_DumpCachedMessagesToLogPane();
 #endif
 
     if( m_SceneReloadRequested )
