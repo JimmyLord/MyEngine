@@ -10,6 +10,7 @@
 #include "EngineCommonHeader.h"
 #include "VoxelBlock.h"
 #include "VoxelChunk.h"
+#include "VoxelMeshBuilder.h"
 #include "VoxelWorld.h"
 
 VoxelWorld::VoxelWorld()
@@ -18,6 +19,7 @@ VoxelWorld::VoxelWorld()
     m_VoxelBlockEnabledBitsSingleAllocation = 0;
     m_VoxelBlockSingleAllocation = 0;
     m_VoxelChunkSingleAllocation = 0;
+    m_MeshBuilderVertsSingleAllocation = 0;
     m_pActiveWorldChunkPtrs = 0;
 
     m_WorldSize.Set( 0, 0, 0 );
@@ -34,10 +36,20 @@ VoxelWorld::VoxelWorld()
     m_MaxWorldSize.Set( 0, 0, 0 );
     m_pSaveFile = 0;
     m_jJSONSavedMapData = 0;
+
+    for( int i=0; i<MAX_BUILDERS; i++ )
+    {
+        m_pMeshBuilders[i] = MyNew VoxelMeshBuilder;
+    }
 }
 
 VoxelWorld::~VoxelWorld()
 {
+    for( int i=0; i<MAX_BUILDERS; i++ )
+    {
+        delete m_pMeshBuilders[i];
+    }
+
     for( CPPListNode* pNode = m_pChunksFree.GetHead(); pNode; )
     {
         VoxelChunk* pChunk = (VoxelChunk*)pNode;
@@ -75,6 +87,7 @@ VoxelWorld::~VoxelWorld()
         m_VoxelChunkSingleAllocation[i].RemoveFinalRefIfCreatedOnStackToAvoidAssertInDestructor();
     }
     delete[] m_VoxelChunkSingleAllocation;
+    delete[] m_MeshBuilderVertsSingleAllocation;
     delete[] m_pActiveWorldChunkPtrs;
 
     delete[] m_VoxelBlockEnabledBitsSingleAllocation;
@@ -190,7 +203,7 @@ void VoxelWorld::Tick(double timepassed)
     ComponentCamera* pCamera = g_pComponentSystemManager->GetFirstCamera( false );
     Vector3 camat = pCamera->m_pGameObject->GetTransform()->GetLocalTransform()->GetAt();
     g_ChunkSort_CameraAngle = atan2( camat.z, camat.x );
-    m_pChunksLoading.Sort( ChunkSort_ComparisonFunction );
+    //m_pChunksLoading.Sort( ChunkSort_ComparisonFunction );
 
     if( m_pSharedIndexBuffer->m_Dirty )
     {
@@ -224,7 +237,7 @@ void VoxelWorld::Tick(double timepassed)
     }
 
     // load/generate a few chunks per frame.
-    int maxtoloadinoneframe = 5;
+    int maxtoloadinoneframe = 5000;
     for( int i=0; i<maxtoloadinoneframe; i++ )
     {
         VoxelChunk* pChunk = (VoxelChunk*)m_pChunksLoading.GetHead();
@@ -250,13 +263,44 @@ void VoxelWorld::Tick(double timepassed)
         }
     }
 
-    m_pChunksWaitingForMesh.Sort( ChunkSort_ComparisonFunction );
+    //if( true )
+    //{
+    //    VoxelChunk* pChunk = GetActiveChunk( 1, 0, 2 );
+    //    pChunk->RebuildMesh( 1 );
+    //    return;
+    //}
+
+    //m_pChunksWaitingForMesh.Sort( ChunkSort_ComparisonFunction );
+
+    // if any previous mesh was finished building, move it to the next stage
+    for( int i=0; i<MAX_BUILDERS; i++ )
+    {
+        if( m_pMeshBuilders[i]->m_IsFinished )
+        {
+            m_pMeshBuilders[i]->m_IsFinished = false;
+
+            VoxelChunk* pChunk = m_pMeshBuilders[i]->m_pChunk;
+
+            if( pChunk )
+            {
+                m_pMeshBuilders[i]->m_pChunk = 0;
+
+                //LOGInfo( "VoxelWorld", "Chunk offset (%d, %d, %d) - Time to build %f\n",
+                //                       pChunk->m_ChunkOffset.x, pChunk->m_ChunkOffset.y, pChunk->m_ChunkOffset.z,
+                //                       m_pMeshBuilders[i]->m_TimeToBuild );
+
+                pChunk->CopyVertsIntoVBO( m_pMeshBuilders[i]->m_pVerts, m_pMeshBuilders[i]->m_VertCount );
+                if( pChunk->m_MeshReady == true )
+                    m_pChunksVisible.MoveTail( pChunk );
+           }
+        }
+    }
 
     // once all chunks are done loading/generating... TODO: can start building once neighbours are generated
     //if( m_pChunksLoading.GetHead() == 0 )
     {
         // build the mesh for a single chunk per frame.
-        int maxtobuildinoneframe = 1;
+        int maxtobuildinoneframe = MAX_BUILDERS;
         for( int i=0; i<maxtobuildinoneframe; i++ )
         {
             VoxelChunk* pChunk = (VoxelChunk*)m_pChunksWaitingForMesh.GetHead();
@@ -264,27 +308,29 @@ void VoxelWorld::Tick(double timepassed)
             if( pChunk )
             {
                 pChunk->SetMaterial( m_pMaterial, 0 );
-                pChunk->RebuildMesh( 1 );
-    
-                if( pChunk->m_MeshReady == true )
+                
+                if( m_pMeshBuilders[0]->m_pChunk == 0 )
                 {
-                    m_pChunksVisible.MoveTail( pChunk );
-                }
+                    m_pMeshBuilders[0]->m_pChunk = pChunk;
+                    g_pJobManager->AddJob( m_pMeshBuilders[0] );
 
+                    //pChunk->RebuildMesh( 1 );
+                }
+    
                 continue;
             }
 
-            // if all chunks are loaded then rebuild a single unoptimized chunk per frame.
-            pChunk = (VoxelChunk*)m_pChunksVisible.GetHead();
-            while( pChunk )
-            {
-                if( pChunk->IsMeshOptimized() == false )
-                {
-                    pChunk->RebuildMesh( 1 );
-                    continue;
-                }
-                pChunk = (VoxelChunk*)pChunk->GetNext();
-            }
+            //// if all chunks are loaded then rebuild a single unoptimized chunk per frame.
+            //pChunk = (VoxelChunk*)m_pChunksVisible.GetHead();
+            //while( pChunk )
+            //{
+            //    if( pChunk->IsMeshOptimized() == false )
+            //    {
+            //        //pChunk->RebuildMesh( 1 );
+            //        continue;
+            //    }
+            //    pChunk = (VoxelChunk*)pChunk->GetNext();
+            //}
         }
     }
 }
@@ -304,10 +350,18 @@ void VoxelWorld::SetWorldSize(Vector3Int visibleworldsize)
 
         m_NumChunkPointersAllocated = pointersneeded;
 
+        unsigned int numberofblocksinachunk = m_ChunkSize.x*m_ChunkSize.y*m_ChunkSize.z;
+
+        m_MeshBuilderVertsSingleAllocation = MyNew Vertex_XYZUVNorm_RGBA[numberofblocksinachunk*6*4 * MAX_BUILDERS];
+        for( int i=0; i<MAX_BUILDERS; i++ )
+        {
+            m_pMeshBuilders[i]->m_pVerts = &m_MeshBuilderVertsSingleAllocation[numberofblocksinachunk*6*4 * i];
+        }
+
         m_VoxelChunkSingleAllocation = MyNew VoxelChunk[pointersneeded];
         m_pActiveWorldChunkPtrs = MyNew VoxelChunk*[pointersneeded];
 
-        unsigned int numberofblocksneeded = pointersneeded * m_ChunkSize.x*m_ChunkSize.y*m_ChunkSize.z;
+        unsigned int numberofblocksneeded = pointersneeded * numberofblocksinachunk;
         int num4bytecontainersneeded = numberofblocksneeded / 32;
         if( numberofblocksneeded % 32 != 0 )
             num4bytecontainersneeded += 1;

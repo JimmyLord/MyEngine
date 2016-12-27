@@ -604,14 +604,19 @@ int VoxelChunk::CountNeighbouringBlocks(unsigned int worldactivechunkarrayindex,
 // ============================================================================================================================
 // Mesh building
 // ============================================================================================================================
-bool VoxelChunk::RebuildMesh(unsigned int increment)
+bool VoxelChunk::RebuildMesh(unsigned int increment, Vertex_XYZUVNorm_RGBA* pPreallocatedVerts, int* pVertCount, float* pTimeToBuild)
 {
+    // TODO: runs in a thread, so make thread-safe
+    // will sample nearby world chunks which may be swapped out when player is moving.
+
     MyAssert( m_pBlocks );
     MyAssert( GetStride( 0 ) == (12 + 8 + 12 + 4) ); // Vertex_XYZUVNorm_RGBA => XYZ + UV + NORM + RGBA
 
 #if MYFW_PROFILING_ENABLED
     double Timing_Start = MyTime_GetSystemTime();
 #endif
+
+    //Sleep( 1000 );
 
     // Grab the pointer to the current position of our stack allocator, we'll rewind at the end.
     MyStackAllocator::MyStackPointer memstart = g_pEngineCore->m_SingleFrameMemoryStack.GetCurrentLocation();
@@ -629,7 +634,11 @@ bool VoxelChunk::RebuildMesh(unsigned int increment)
         int vertbuffersize = maxverts * GetStride( 0 );
 
         // Allocate a block of ram big enough to store our verts
-        Vertex_XYZUVNorm_RGBA* pVerts = (Vertex_XYZUVNorm_RGBA*)g_pEngineCore->m_SingleFrameMemoryStack.AllocateBlock( vertbuffersize );
+        Vertex_XYZUVNorm_RGBA* pVerts = pPreallocatedVerts;
+        if( pVerts == 0 )
+        {
+            pVerts = (Vertex_XYZUVNorm_RGBA*)g_pEngineCore->m_SingleFrameMemoryStack.AllocateBlock( vertbuffersize );
+        }
 
         // pVerts gets advanced by code below, so store a copy.
         Vertex_XYZUVNorm_RGBA* pActualVerts = pVerts;
@@ -830,14 +839,14 @@ bool VoxelChunk::RebuildMesh(unsigned int increment)
                             }
                         }
 
-                        ltf.color.Set( light.r - (unsigned char)(darker.r * ltfao), light.g - (unsigned char)(darker.g * ltfao), light.b - (unsigned char)(darker.b * ltfao), 255 );
-                        ltb.color.Set( light.r - (unsigned char)(darker.r * ltbao), light.g - (unsigned char)(darker.g * ltbao), light.b - (unsigned char)(darker.b * ltbao), 255 );
-                        lbf.color.Set( light.r - (unsigned char)(darker.r * lbfao), light.g - (unsigned char)(darker.g * lbfao), light.b - (unsigned char)(darker.b * lbfao), 255 );
-                        lbb.color.Set( light.r - (unsigned char)(darker.r * lbbao), light.g - (unsigned char)(darker.g * lbbao), light.b - (unsigned char)(darker.b * lbbao), 255 );
-                        rtf.color.Set( light.r - (unsigned char)(darker.r * rtfao), light.g - (unsigned char)(darker.g * rtfao), light.b - (unsigned char)(darker.b * rtfao), 255 );
-                        rtb.color.Set( light.r - (unsigned char)(darker.r * rtbao), light.g - (unsigned char)(darker.g * rtbao), light.b - (unsigned char)(darker.b * rtbao), 255 );
-                        rbf.color.Set( light.r - (unsigned char)(darker.r * rbfao), light.g - (unsigned char)(darker.g * rbfao), light.b - (unsigned char)(darker.b * rbfao), 255 );
-                        rbb.color.Set( light.r - (unsigned char)(darker.r * rbbao), light.g - (unsigned char)(darker.g * rbbao), light.b - (unsigned char)(darker.b * rbbao), 255 );
+                        ltf.color.Set( light.r - (unsigned char)(darker.r * ltfao), light.g - (unsigned char)(darker.g * ltfao), light.b - (unsigned char)(darker.b * ltfao), 1 );
+                        ltb.color.Set( light.r - (unsigned char)(darker.r * ltbao), light.g - (unsigned char)(darker.g * ltbao), light.b - (unsigned char)(darker.b * ltbao), 1 );
+                        lbf.color.Set( light.r - (unsigned char)(darker.r * lbfao), light.g - (unsigned char)(darker.g * lbfao), light.b - (unsigned char)(darker.b * lbfao), 1 );
+                        lbb.color.Set( light.r - (unsigned char)(darker.r * lbbao), light.g - (unsigned char)(darker.g * lbbao), light.b - (unsigned char)(darker.b * lbbao), 1 );
+                        rtf.color.Set( light.r - (unsigned char)(darker.r * rtfao), light.g - (unsigned char)(darker.g * rtfao), light.b - (unsigned char)(darker.b * rtfao), 1 );
+                        rtb.color.Set( light.r - (unsigned char)(darker.r * rtbao), light.g - (unsigned char)(darker.g * rtbao), light.b - (unsigned char)(darker.b * rtbao), 1 );
+                        rbf.color.Set( light.r - (unsigned char)(darker.r * rbfao), light.g - (unsigned char)(darker.g * rbfao), light.b - (unsigned char)(darker.b * rbfao), 1 );
+                        rbb.color.Set( light.r - (unsigned char)(darker.r * rbbao), light.g - (unsigned char)(darker.g * rbbao), light.b - (unsigned char)(darker.b * rbbao), 1 );
 
                         //{
                         //    if( IsNearbyWorldBlockEnabled( worldactivechunkarrayindex, x, y+1, z, true ) == true ) // above
@@ -1225,53 +1234,94 @@ bool VoxelChunk::RebuildMesh(unsigned int increment)
                 break;
         }
 
-        if( count > 0 )
+        if( pPreallocatedVerts == 0 )
         {
-            // Copy the data into the OpenGL buffers.
-            if( vertcount > 0 )
-            {
-                if( vertcount > 256*256 )
-                {
-                    LOGInfo( "VoxelWorld", "Too many verts needed in chunk - %d\n", maxverts );
-                }
-
-                m_SubmeshList[0]->m_pVertexBuffer->TempBufferData( vertcount * GetStride( 0 ), pActualVerts );
-            }
-
-            // if not a world object, fill an index buffer... TODO: remove this, indices can be static.
-            if( m_pWorld == 0 )
-            {
-                unsigned int numquads = vertcount / 4;
-                unsigned int indexbuffersize = numquads * 6;
-        
-                unsigned short* pIndices = (unsigned short*)g_pEngineCore->m_SingleFrameMemoryStack.AllocateBlock( indexbuffersize );
-
-                for( unsigned int i=0; i<numquads; i++ )
-                {
-                    pIndices[i*6+0] = (unsigned short)(i*4 + g_SpriteVertexIndices[0]);
-                    pIndices[i*6+1] = (unsigned short)(i*4 + g_SpriteVertexIndices[1]);
-                    pIndices[i*6+2] = (unsigned short)(i*4 + g_SpriteVertexIndices[2]);
-                    pIndices[i*6+3] = (unsigned short)(i*4 + g_SpriteVertexIndices[3]);
-                    pIndices[i*6+4] = (unsigned short)(i*4 + g_SpriteVertexIndices[4]);
-                    pIndices[i*6+5] = (unsigned short)(i*4 + g_SpriteVertexIndices[5]);
-                }
-
-                m_SubmeshList[0]->m_pIndexBuffer->TempBufferData( numquads * 6, pIndices );
-            }
-
-            m_SubmeshList[0]->m_NumIndicesToDraw = vertcount / 4 * 6;
-            //LOGInfo( "VoxelChunk", "Num indices: %d\n", indexcount );
+            CopyVertsIntoVBO( pActualVerts, vertcount );
         }
         else
         {
-            m_SubmeshList[0]->m_NumIndicesToDraw = 0;
-
-            Vector3 center( 0, 0, 0 );
-            Vector3 extents( 0, 0, 0 );
-            GetBounds()->Set( center, extents );
-
-            RemoveFromSceneGraph();
+            *pVertCount = vertcount;
         }
+    }
+
+    g_pEngineCore->m_SingleFrameMemoryStack.RewindStack( memstart );
+
+#if MYFW_PROFILING_ENABLED
+    double Timing_End = MyTime_GetSystemTime();
+
+    //LOGInfo( "VoxelChunk", "Chunk offset (%d, %d, %d) - time to build %f\n",
+    //                       m_ChunkOffset.x, m_ChunkOffset.y, m_ChunkOffset.z,
+    //                       (Timing_End - Timing_Start) * 1000 );
+
+    if( pTimeToBuild )
+    {
+        *pTimeToBuild = (float)((Timing_End - Timing_Start) * 1000);
+    }
+#endif
+
+    return true;
+}
+
+void VoxelChunk::CopyVertsIntoVBO(Vertex_XYZUVNorm_RGBA* pVerts, int vertcount)
+{
+#if MYFW_PROFILING_ENABLED
+    double Timing_Start = MyTime_GetSystemTime();
+#endif
+
+    int numblocks = m_ChunkSize.x * m_ChunkSize.y * m_ChunkSize.z;
+
+    int maxverts = 6*4*numblocks;
+
+    if( vertcount > 0 )
+    {
+        // Copy the data into the OpenGL buffers.
+        if( vertcount > 0 )
+        {
+            if( vertcount > 256*256 )
+            {
+                LOGInfo( "VoxelWorld", "Too many verts needed in chunk - %d\n", maxverts );
+            }
+
+            m_SubmeshList[0]->m_pVertexBuffer->TempBufferData( vertcount * GetStride( 0 ), pVerts );
+        }
+
+        // if not a world object, fill an index buffer... TODO: remove this, indices can be static.
+        if( m_pWorld == 0 )
+        {
+            unsigned int numquads = vertcount / 4;
+            unsigned int indexbuffersize = numquads * 6;
+        
+            MyStackAllocator::MyStackPointer memstart = g_pEngineCore->m_SingleFrameMemoryStack.GetCurrentLocation();
+
+            unsigned short* pIndices = (unsigned short*)g_pEngineCore->m_SingleFrameMemoryStack.AllocateBlock( indexbuffersize );
+
+            for( unsigned int i=0; i<numquads; i++ )
+            {
+                pIndices[i*6+0] = (unsigned short)(i*4 + g_SpriteVertexIndices[0]);
+                pIndices[i*6+1] = (unsigned short)(i*4 + g_SpriteVertexIndices[1]);
+                pIndices[i*6+2] = (unsigned short)(i*4 + g_SpriteVertexIndices[2]);
+                pIndices[i*6+3] = (unsigned short)(i*4 + g_SpriteVertexIndices[3]);
+                pIndices[i*6+4] = (unsigned short)(i*4 + g_SpriteVertexIndices[4]);
+                pIndices[i*6+5] = (unsigned short)(i*4 + g_SpriteVertexIndices[5]);
+            }
+
+            m_SubmeshList[0]->m_pIndexBuffer->TempBufferData( numquads * 6, pIndices );
+            
+            g_pEngineCore->m_SingleFrameMemoryStack.RewindStack( memstart );
+        }
+
+        m_SubmeshList[0]->m_NumIndicesToDraw = vertcount / 4 * 6;
+        //LOGInfo( "VoxelChunk", "Num indices: %d\n", indexcount );
+    }
+    else
+    {
+        m_SubmeshList[0]->m_NumIndicesToDraw = 0;
+
+        Vector3 center( 0, 0, 0 );
+        Vector3 extents( 0, 0, 0 );
+        GetBounds()->Set( center, extents );
+
+        RemoveFromSceneGraph();
     }
 
     // if any of the neighbouring chunks wasn't ready, then we likely created extra faces to close outside walls.
@@ -1306,17 +1356,13 @@ bool VoxelChunk::RebuildMesh(unsigned int increment)
 
     m_MeshReady = true;
 
-    g_pEngineCore->m_SingleFrameMemoryStack.RewindStack( memstart );
-
 #if MYFW_PROFILING_ENABLED
     double Timing_End = MyTime_GetSystemTime();
 
-    LOGInfo( "VoxelChunk", "Chunk offset (%d, %d, %d) - time to build %f\n",
-                           m_ChunkOffset.x, m_ChunkOffset.y, m_ChunkOffset.z,
-                           (Timing_End - Timing_Start) * 1000 );
+    //LOGInfo( "VoxelChunk", "Chunk offset (%d, %d, %d) - time to copy to VBO %f\n",
+    //                       m_ChunkOffset.x, m_ChunkOffset.y, m_ChunkOffset.z,
+    //                       (Timing_End - Timing_Start) * 1000 );
 #endif
-
-    return true;
 }
 
 void VoxelChunk::AddToSceneGraph(void* pUserData, MaterialDefinition* pMaterial)

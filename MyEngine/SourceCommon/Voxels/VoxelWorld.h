@@ -10,15 +10,16 @@
 #ifndef __VoxelWorld_H__
 #define __VoxelWorld_H__
 
-#include "VoxelRayCast.h"
-
 class VoxelChunk;
+class VoxelMeshBuilder;
 
 typedef unsigned int (*VoxelWorld_GenerateMap_CallbackFunction)(Vector3Int worldpos);
 
 class VoxelWorld
 {
     friend class VoxelChunk;
+
+    static const int MAX_BUILDERS = 10;
 
 protected:
     CPPListHead m_pChunksFree;
@@ -34,6 +35,7 @@ protected:
     uint32* m_VoxelBlockEnabledBitsSingleAllocation;
     VoxelBlock* m_VoxelBlockSingleAllocation;
     VoxelChunk* m_VoxelChunkSingleAllocation;
+    Vertex_XYZUVNorm_RGBA* m_MeshBuilderVertsSingleAllocation;
     VoxelChunk** m_pActiveWorldChunkPtrs;
     unsigned int m_NumChunkPointersAllocated;
 
@@ -45,6 +47,8 @@ protected:
     Vector3Int m_MaxWorldSize;
     MyFileObject* m_pSaveFile;
     cJSON* m_jJSONSavedMapData; // TODO: replace this with custom solution for large worlds.
+
+    VoxelMeshBuilder* m_pMeshBuilders[MAX_BUILDERS];
 
 protected:
     void BuildSharedIndexBuffer();

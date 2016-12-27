@@ -17,6 +17,8 @@ class MyMesh;
 
 class VoxelChunk : public MyMesh
 {
+    friend class VoxelWorld;
+
 protected:
     VoxelWorld* m_pWorld;
 
@@ -81,7 +83,8 @@ public:
     bool IsBlockEnabled(int localx, int localy, int localz, bool blockexistsifnotready = false);
 
     // Mesh building
-    bool RebuildMesh(unsigned int increment);
+    bool RebuildMesh(unsigned int increment, Vertex_XYZUVNorm_RGBA* pPreallocatedVerts = 0, int* pVertCount = 0, float* pTimeToBuild = 0);
+    void CopyVertsIntoVBO(Vertex_XYZUVNorm_RGBA* pVerts, int vertcount);
 
     // Rendering
     void AddToSceneGraph(void* pUserData, MaterialDefinition* pMaterial);
