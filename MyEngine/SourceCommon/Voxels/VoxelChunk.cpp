@@ -606,8 +606,8 @@ int VoxelChunk::CountNeighbouringBlocks(unsigned int worldactivechunkarrayindex,
 // ============================================================================================================================
 bool VoxelChunk::RebuildMesh(unsigned int increment, Vertex_XYZUVNorm_RGBA* pPreallocatedVerts, int* pVertCount, float* pTimeToBuild)
 {
-    // TODO: runs in a thread, so make thread-safe
-    // will sample nearby world chunks which may be swapped out when player is moving.
+    // Runs in a thread, so need to be thread-safe
+    // samples from neighbouring world chunks, so world is not allowed to change while rebuild is running
 
     MyAssert( m_pBlocks );
     MyAssert( GetStride( 0 ) == (12 + 8 + 12 + 4) ); // Vertex_XYZUVNorm_RGBA => XYZ + UV + NORM + RGBA
@@ -619,7 +619,11 @@ bool VoxelChunk::RebuildMesh(unsigned int increment, Vertex_XYZUVNorm_RGBA* pPre
     //Sleep( 1000 );
 
     // Grab the pointer to the current position of our stack allocator, we'll rewind at the end.
-    MyStackAllocator::MyStackPointer memstart = g_pEngineCore->m_SingleFrameMemoryStack.GetCurrentLocation();
+    MyStackAllocator::MyStackPointer memstart;
+    if( pPreallocatedVerts == 0 )
+    {
+        memstart = g_pEngineCore->m_SingleFrameMemoryStack.GetCurrentLocation();
+    }
 
     // Loop through blocks and add a cube for each one that's enabled
     {
@@ -635,7 +639,7 @@ bool VoxelChunk::RebuildMesh(unsigned int increment, Vertex_XYZUVNorm_RGBA* pPre
 
         // Allocate a block of ram big enough to store our verts
         Vertex_XYZUVNorm_RGBA* pVerts = pPreallocatedVerts;
-        if( pVerts == 0 )
+        if( pPreallocatedVerts == 0 )
         {
             pVerts = (Vertex_XYZUVNorm_RGBA*)g_pEngineCore->m_SingleFrameMemoryStack.AllocateBlock( vertbuffersize );
         }
@@ -1244,7 +1248,10 @@ bool VoxelChunk::RebuildMesh(unsigned int increment, Vertex_XYZUVNorm_RGBA* pPre
         }
     }
 
-    g_pEngineCore->m_SingleFrameMemoryStack.RewindStack( memstart );
+    if( pPreallocatedVerts == 0 )
+    {
+        g_pEngineCore->m_SingleFrameMemoryStack.RewindStack( memstart );
+    }
 
 #if MYFW_PROFILING_ENABLED
     double Timing_End = MyTime_GetSystemTime();

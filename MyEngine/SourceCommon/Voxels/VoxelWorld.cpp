@@ -27,6 +27,7 @@ VoxelWorld::VoxelWorld()
     m_BlockSize.Set( 1, 1, 1 );
 
     m_WorldOffset.Set( 0, 0, 0 );
+    m_DesiredWorldCenter.Set( 0, 0, 0 );
 
     m_pMaterial = 0;
     m_pSharedIndexBuffer = 0;
@@ -41,6 +42,7 @@ VoxelWorld::VoxelWorld()
     {
         m_pMeshBuilders[i] = MyNew VoxelMeshBuilder;
     }
+    m_NumActiveMeshBuilders = 0;
 }
 
 VoxelWorld::~VoxelWorld()
@@ -117,6 +119,7 @@ void VoxelWorld::Initialize(Vector3Int visibleworldsize)
 
     // make 0,0,0 the bottom left corner. TODO: pass in an offset
     m_WorldOffset.Set( 0, 0, 0 );
+    m_DesiredWorldCenter.Set( 0, 0, 0 );
 
     for( int z=0; z<m_WorldSize.z; z++ )
     {
@@ -205,6 +208,12 @@ void VoxelWorld::Tick(double timepassed)
     g_ChunkSort_CameraAngle = atan2( camat.z, camat.x );
     //m_pChunksLoading.Sort( ChunkSort_ComparisonFunction );
 
+    //LOGInfo( "VoxelWorld", "Num active mesh builders: %d\n", m_NumActiveMeshBuilders );
+
+    // Only call if there are no active mesh builders.
+    // TODO: pause all builders if desired center doesn't match actual center.
+    SetWorldCenterForReal( m_DesiredWorldCenter );
+
     if( m_pSharedIndexBuffer->m_Dirty )
     {
         BuildSharedIndexBuffer();
@@ -283,6 +292,7 @@ void VoxelWorld::Tick(double timepassed)
 
             if( pChunk )
             {
+                m_NumActiveMeshBuilders--;
                 m_pMeshBuilders[i]->m_pChunk = 0;
 
                 //LOGInfo( "VoxelWorld", "Chunk offset (%d, %d, %d) - Time to build %f\n",
@@ -303,19 +313,32 @@ void VoxelWorld::Tick(double timepassed)
         int maxtobuildinoneframe = MAX_BUILDERS;
         for( int i=0; i<maxtobuildinoneframe; i++ )
         {
+            // find an open meshbuilder
+            int freeMeshBuilderIndex = 0;
+            for( freeMeshBuilderIndex=0; freeMeshBuilderIndex<MAX_BUILDERS; freeMeshBuilderIndex++ )
+            {
+                if( m_pMeshBuilders[freeMeshBuilderIndex]->m_pChunk == 0 )
+                    break;
+            }
+            if( freeMeshBuilderIndex == MAX_BUILDERS )
+                break;
+
+            //if( m_pMeshBuilders[freeMeshBuilderIndex]->m_pChunk != 0 )
+            //    return;
+
             VoxelChunk* pChunk = (VoxelChunk*)m_pChunksWaitingForMesh.GetHead();
 
             if( pChunk )
             {
                 pChunk->SetMaterial( m_pMaterial, 0 );
-                
-                if( m_pMeshBuilders[0]->m_pChunk == 0 )
-                {
-                    m_pMeshBuilders[0]->m_pChunk = pChunk;
-                    g_pJobManager->AddJob( m_pMeshBuilders[0] );
 
-                    //pChunk->RebuildMesh( 1 );
-                }
+                VoxelMeshBuilder* pMeshBuilder = m_pMeshBuilders[freeMeshBuilderIndex];
+                m_NumActiveMeshBuilders++;
+                
+                pMeshBuilder->m_pChunk = pChunk;
+                g_pJobManager->AddJob( pMeshBuilder );
+
+                //pChunk->RebuildMesh( 1 );
     
                 continue;
             }
@@ -394,11 +417,20 @@ void VoxelWorld::SetWorldCenter(Vector3 scenepos)
 
 void VoxelWorld::SetWorldCenter(Vector3Int newworldcenter)
 {
+    m_DesiredWorldCenter = newworldcenter;
+}
+
+void VoxelWorld::SetWorldCenterForReal(Vector3Int newworldcenter)
+{
 //#if MYFW_PROFILING_ENABLED
 //    static double Timing_LastFrameTime = 0;
 //
 //    double Timing_Start = MyTime_GetSystemTime();
 //#endif
+
+    // Since chunks meshes are built on a thread and sample from neighbour chunks
+    //   this can only be done when all rebuild mesh jobs are idle
+    //MyAssert( m_NumActiveMeshBuilders == 0 );
 
     Vector3Int currentworldcenter = m_WorldOffset + m_WorldSize/2;
     if( newworldcenter == currentworldcenter )

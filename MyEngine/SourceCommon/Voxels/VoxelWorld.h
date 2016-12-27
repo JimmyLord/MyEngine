@@ -19,7 +19,7 @@ class VoxelWorld
 {
     friend class VoxelChunk;
 
-    static const int MAX_BUILDERS = 10;
+    static const int MAX_BUILDERS = 2;
 
 protected:
     CPPListHead m_pChunksFree;
@@ -32,6 +32,8 @@ protected:
     Vector3 m_BlockSize;
 
     Vector3Int m_WorldOffset;
+    Vector3Int m_DesiredWorldCenter;
+
     uint32* m_VoxelBlockEnabledBitsSingleAllocation;
     VoxelBlock* m_VoxelBlockSingleAllocation;
     VoxelChunk* m_VoxelChunkSingleAllocation;
@@ -49,6 +51,7 @@ protected:
     cJSON* m_jJSONSavedMapData; // TODO: replace this with custom solution for large worlds.
 
     VoxelMeshBuilder* m_pMeshBuilders[MAX_BUILDERS];
+    int m_NumActiveMeshBuilders;
 
 protected:
     void BuildSharedIndexBuffer();
@@ -64,6 +67,8 @@ protected:
     void ShiftChunk(Vector3Int to, Vector3Int from, bool isedgeblock);
 
     cJSON* GetJSONObjectForChunk(Vector3Int chunkpos);
+
+    void SetWorldCenterForReal(Vector3Int newworldcenter);
 
 public:
     VoxelWorld();
