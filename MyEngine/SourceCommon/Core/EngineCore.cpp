@@ -699,15 +699,15 @@ void EngineCore::OnDrawFrame(unsigned int canvasid)
 
         //m_FrameTimingInfo.back().Tick = sin( (float)MyTime_GetSystemTime() );
 
-        ImGui::PlotLines( "Frame Time",    &m_FrameTimingInfo[start].FrameTime,         numsamplestoshow, 0, "", 0.0f, 50.0f, ImVec2(0,20), sizeof(FrameTimingInfo) );
+        ImGui::PlotLines( "Frame Time",    &m_FrameTimingInfo[start].FrameTime,         numsamplestoshow, 0, "", 0.0f, 1000/20.0f, ImVec2(0,20), sizeof(FrameTimingInfo) );
 
-        ImGui::PlotLines( "Tick",          &m_FrameTimingInfo[start].Tick,              numsamplestoshow, 0, "", 0.0f, 5.0f, ImVec2(0,20), sizeof(FrameTimingInfo) );
+        ImGui::PlotLines( "Tick",          &m_FrameTimingInfo[start].Tick,              numsamplestoshow, 0, "", 0.0f, 1000/60.0f, ImVec2(0,20), sizeof(FrameTimingInfo) );
 
-        ImGui::PlotLines( "Physics",       &m_FrameTimingInfo[start].Update_Physics,    numsamplestoshow, 0, "", 0.0f, 15.0f, ImVec2(0,20), sizeof(FrameTimingInfo) );
+        ImGui::PlotLines( "Physics",       &m_FrameTimingInfo[start].Update_Physics,    numsamplestoshow, 0, "", 0.0f, 1000/60.0f, ImVec2(0,20), sizeof(FrameTimingInfo) );
 #if MYFW_USING_WX
-        ImGui::PlotLines( "Render Editor", &m_FrameTimingInfo[start].Render_Editor,     numsamplestoshow, 0, "", 0.0f, 1.5f, ImVec2(0,20), sizeof(FrameTimingInfo) );
+        ImGui::PlotLines( "Render Editor", &m_FrameTimingInfo[start].Render_Editor,     numsamplestoshow, 0, "", 0.0f, 1000/60.0f, ImVec2(0,20), sizeof(FrameTimingInfo) );
 #endif
-        ImGui::PlotLines( "Render Game",   &m_FrameTimingInfo[start].Render_Game,       numsamplestoshow, 0, "", 0.0f, 1.5f, ImVec2(0,20), sizeof(FrameTimingInfo) );
+        ImGui::PlotLines( "Render Game",   &m_FrameTimingInfo[start].Render_Game,       numsamplestoshow, 0, "", 0.0f, 1000/60.0f, ImVec2(0,20), sizeof(FrameTimingInfo) );
 
         ImGui::End();
     }

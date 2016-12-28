@@ -212,7 +212,8 @@ void VoxelWorld::Tick(double timepassed)
 
     // Only call if there are no active mesh builders.
     // TODO: pause all builders if desired center doesn't match actual center.
-    SetWorldCenterForReal( m_DesiredWorldCenter );
+    if( m_NumActiveMeshBuilders == 0 )
+        SetWorldCenterForReal( m_DesiredWorldCenter );
 
     if( m_pSharedIndexBuffer->m_Dirty )
     {
@@ -308,6 +309,9 @@ void VoxelWorld::Tick(double timepassed)
 
     // once all chunks are done loading/generating... TODO: can start building once neighbours are generated
     //if( m_pChunksLoading.GetHead() == 0 )
+    // Stop adding mesh building jobs if a new center is requested.
+    Vector3Int currentworldcenter = m_WorldOffset + m_WorldSize/2;
+    if( m_DesiredWorldCenter == currentworldcenter )
     {
         // build the mesh for a single chunk per frame.
         int maxtobuildinoneframe = MAX_BUILDERS;
@@ -430,7 +434,7 @@ void VoxelWorld::SetWorldCenterForReal(Vector3Int newworldcenter)
 
     // Since chunks meshes are built on a thread and sample from neighbour chunks
     //   this can only be done when all rebuild mesh jobs are idle
-    //MyAssert( m_NumActiveMeshBuilders == 0 );
+    MyAssert( m_NumActiveMeshBuilders == 0 );
 
     Vector3Int currentworldcenter = m_WorldOffset + m_WorldSize/2;
     if( newworldcenter == currentworldcenter )
