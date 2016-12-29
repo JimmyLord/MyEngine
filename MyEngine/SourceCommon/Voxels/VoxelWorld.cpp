@@ -201,23 +201,18 @@ signed char ChunkSort_ComparisonFunction(CPPListNode *a, CPPListNode *b)
 
 void VoxelWorld::Tick(double timepassed)
 {
-    // Sort chunks based on distance from world center (which is likely the player location)
-    g_ChunkSort_WorldCenterChunkOffset = (m_WorldOffset + m_WorldSize/2).MultiplyComponents( m_ChunkSize );
-    ComponentCamera* pCamera = g_pComponentSystemManager->GetFirstCamera( false );
-    Vector3 camat = pCamera->m_pGameObject->GetTransform()->GetLocalTransform()->GetAt();
-    g_ChunkSort_CameraAngle = atan2( camat.z, camat.x );
-    //m_pChunksLoading.Sort( ChunkSort_ComparisonFunction );
-
-    //LOGInfo( "VoxelWorld", "Num active mesh builders: %d\n", m_NumActiveMeshBuilders );
-
-    // Only call if there are no active mesh builders.
-    // TODO: pause all builders if desired center doesn't match actual center.
-    if( m_NumActiveMeshBuilders == 0 )
-        SetWorldCenterForReal( m_DesiredWorldCenter );
-
+    // If ever our single shared index buffer isn't ready (startup, lost context, etc), create the indices
     if( m_pSharedIndexBuffer->m_Dirty )
     {
         BuildSharedIndexBuffer();
+    }
+
+    //LOGInfo( "VoxelWorld", "Num active mesh builders: %d\n", m_NumActiveMeshBuilders );
+
+    // Only call if there are no active mesh builders.  No new builders will get created if world center isn't desired center.
+    if( m_NumActiveMeshBuilders == 0 )
+    {
+        SetWorldCenterForReal( m_DesiredWorldCenter );
     }
 
     // only make chunks once the save file is fully loaded, if there's a save file.
@@ -246,8 +241,17 @@ void VoxelWorld::Tick(double timepassed)
         }
     }
 
-    // load/generate a few chunks per frame.
-    int maxtoloadinoneframe = 5000;
+    // Sort chunks that need generating based on distance from world center (which is likely the player location)
+    {
+        g_ChunkSort_WorldCenterChunkOffset = (m_WorldOffset + m_WorldSize/2).MultiplyComponents( m_ChunkSize );
+        ComponentCamera* pCamera = g_pComponentSystemManager->GetFirstCamera( false );
+        Vector3 camat = pCamera->m_pGameObject->GetTransform()->GetLocalTransform()->GetAt();
+        g_ChunkSort_CameraAngle = atan2( camat.z, camat.x );
+        //m_pChunksLoading.Sort( ChunkSort_ComparisonFunction );
+    }
+
+    // load/generate a few chunks per frame. // TODO: thread GenerateMap()
+    int maxtoloadinoneframe = 2;
     for( int i=0; i<maxtoloadinoneframe; i++ )
     {
         VoxelChunk* pChunk = (VoxelChunk*)m_pChunksLoading.GetHead();
@@ -273,16 +277,52 @@ void VoxelWorld::Tick(double timepassed)
         }
     }
 
-    //if( true )
-    //{
-    //    VoxelChunk* pChunk = GetActiveChunk( 1, 0, 2 );
-    //    pChunk->RebuildMesh( 1 );
-    //    return;
-    //}
+    // Sort chunks that need meshing based on distance from world center (which is likely the player location)
+    {
+        //m_pChunksWaitingForMesh.Sort( ChunkSort_ComparisonFunction );
+    }
 
-    //m_pChunksWaitingForMesh.Sort( ChunkSort_ComparisonFunction );
+    // if any chunks are done loading/generating, build the mesh (threaded)
+    // TODO: don't build if neighbours aren't generated
+    if( m_pChunksWaitingForMesh.GetHead() )
+    {
+        // Don't add mesh building jobs if a new center is requested.
+        Vector3Int currentworldcenter = m_WorldOffset + m_WorldSize/2;
+        if( m_DesiredWorldCenter == currentworldcenter )
+        {
+            // build one mesh for each meshbuilder object (added to MyJobManager queue)
+            int maxtobuildsimultaneously = MAX_BUILDERS;
+            for( int i=0; i<maxtobuildsimultaneously; i++ )
+            {
+                // find an open meshbuilder
+                int freeMeshBuilderIndex = 0;
+                for( freeMeshBuilderIndex=0; freeMeshBuilderIndex<MAX_BUILDERS; freeMeshBuilderIndex++ )
+                {
+                    if( m_pMeshBuilders[freeMeshBuilderIndex]->m_pChunk == 0 )
+                        break;
 
-    // if any previous mesh was finished building, move it to the next stage
+                    if( freeMeshBuilderIndex == MAX_BUILDERS )
+                        break;
+                }
+
+                VoxelChunk* pChunk = (VoxelChunk*)m_pChunksWaitingForMesh.GetHead();
+                if( pChunk )
+                {
+                    pChunk->SetMaterial( m_pMaterial, 0 );
+
+                    VoxelMeshBuilder* pMeshBuilder = m_pMeshBuilders[freeMeshBuilderIndex];
+                    m_NumActiveMeshBuilders++;
+                
+                    pMeshBuilder->m_pChunk = pChunk;
+                    g_pJobManager->AddJob( pMeshBuilder );
+    
+                    continue;
+                }
+            }
+        }
+    }
+
+    // if any previous mesh was finished building, copy the verts into a VBO and free up the MeshBuilder.
     for( int i=0; i<MAX_BUILDERS; i++ )
     {
         if( m_pMeshBuilders[i]->m_IsFinished )
@@ -304,60 +344,6 @@ void VoxelWorld::Tick(double timepassed)
                 if( pChunk->m_MeshReady == true )
                     m_pChunksVisible.MoveTail( pChunk );
            }
-        }
-    }
-
-    // once all chunks are done loading/generating... TODO: can start building once neighbours are generated
-    //if( m_pChunksLoading.GetHead() == 0 )
-    // Stop adding mesh building jobs if a new center is requested.
-    Vector3Int currentworldcenter = m_WorldOffset + m_WorldSize/2;
-    if( m_DesiredWorldCenter == currentworldcenter )
-    {
-        // build the mesh for a single chunk per frame.
-        int maxtobuildinoneframe = MAX_BUILDERS;
-        for( int i=0; i<maxtobuildinoneframe; i++ )
-        {
-            // find an open meshbuilder
-            int freeMeshBuilderIndex = 0;
-            for( freeMeshBuilderIndex=0; freeMeshBuilderIndex<MAX_BUILDERS; freeMeshBuilderIndex++ )
-            {
-                if( m_pMeshBuilders[freeMeshBuilderIndex]->m_pChunk == 0 )
-                    break;
-            }
-            if( freeMeshBuilderIndex == MAX_BUILDERS )
-                break;
-
-            //if( m_pMeshBuilders[freeMeshBuilderIndex]->m_pChunk != 0 )
-            //    return;
-
-            VoxelChunk* pChunk = (VoxelChunk*)m_pChunksWaitingForMesh.GetHead();
-
-            if( pChunk )
-            {
-                pChunk->SetMaterial( m_pMaterial, 0 );
-
-                VoxelMeshBuilder* pMeshBuilder = m_pMeshBuilders[freeMeshBuilderIndex];
-                m_NumActiveMeshBuilders++;
-                
-                pMeshBuilder->m_pChunk = pChunk;
-                g_pJobManager->AddJob( pMeshBuilder );
-
-                //pChunk->RebuildMesh( 1 );
-    
-                continue;
-            }
-
-            //// if all chunks are loaded then rebuild a single unoptimized chunk per frame.
-            //pChunk = (VoxelChunk*)m_pChunksVisible.GetHead();
-            //while( pChunk )
-            //{
-            //    if( pChunk->IsMeshOptimized() == false )
-            //    {
-            //        //pChunk->RebuildMesh( 1 );
-            //        continue;
-            //    }
-            //    pChunk = (VoxelChunk*)pChunk->GetNext();
-            //}
         }
     }
 }
