@@ -12,6 +12,7 @@
 
 class VoxelChunk;
 class VoxelMeshBuilder;
+class VoxelChunkGenerator;
 
 typedef unsigned int (*VoxelWorld_GenerateMap_CallbackFunction)(Vector3Int worldpos);
 
@@ -20,6 +21,7 @@ class VoxelWorld
     friend class VoxelChunk;
 
     static const int MAX_BUILDERS = 2;
+    static const int MAX_GENERATORS = 2;
 
 protected:
     CPPListHead m_pChunksFree;
@@ -49,6 +51,9 @@ protected:
     Vector3Int m_MaxWorldSize;
     MyFileObject* m_pSaveFile;
     cJSON* m_jJSONSavedMapData; // TODO: replace this with custom solution for large worlds.
+
+    VoxelChunkGenerator* m_pChunkGenerators[MAX_GENERATORS];
+    int m_NumActiveChunkGenerators;
 
     VoxelMeshBuilder* m_pMeshBuilders[MAX_BUILDERS];
     int m_NumActiveMeshBuilders;

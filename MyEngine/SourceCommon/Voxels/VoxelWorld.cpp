@@ -10,7 +10,7 @@
 #include "EngineCommonHeader.h"
 #include "VoxelBlock.h"
 #include "VoxelChunk.h"
-#include "VoxelMeshBuilder.h"
+#include "VoxelJobs.h"
 #include "VoxelWorld.h"
 
 VoxelWorld::VoxelWorld()
@@ -38,6 +38,11 @@ VoxelWorld::VoxelWorld()
     m_pSaveFile = 0;
     m_jJSONSavedMapData = 0;
 
+    for( int i=0; i<MAX_GENERATORS; i++ )
+    {
+        m_pChunkGenerators[i] = MyNew VoxelChunkGenerator;
+    }
+
     for( int i=0; i<MAX_BUILDERS; i++ )
     {
         m_pMeshBuilders[i] = MyNew VoxelMeshBuilder;
@@ -47,6 +52,11 @@ VoxelWorld::VoxelWorld()
 
 VoxelWorld::~VoxelWorld()
 {
+    for( int i=0; i<MAX_GENERATORS; i++ )
+    {
+        delete m_pChunkGenerators[i];
+    }
+
     for( int i=0; i<MAX_BUILDERS; i++ )
     {
         delete m_pMeshBuilders[i];
@@ -250,8 +260,8 @@ void VoxelWorld::Tick(double timepassed)
         //m_pChunksLoading.Sort( ChunkSort_ComparisonFunction );
     }
 
-    // load/generate a few chunks per frame. // TODO: thread GenerateMap()
-    int maxtoloadinoneframe = 2;
+    // if any chunks aren't initialized, either load from json or call generate func (threaded)
+    int maxtoloadinoneframe = 100;
     for( int i=0; i<maxtoloadinoneframe; i++ )
     {
         VoxelChunk* pChunk = (VoxelChunk*)m_pChunksLoading.GetHead();
@@ -266,14 +276,55 @@ void VoxelWorld::Tick(double timepassed)
                 if( jChunk )
                 {
                     pChunk->ImportFromJSONObject( jChunk );
+                    m_pChunksWaitingForMesh.MoveTail( pChunk );
                 }
                 else
                 {
-                    pChunk->GenerateMap();
-                }
+                    // find an open VoxelChunkGenerator
+                    int freeChunkGeneratorIndex = 0;
+                    for( freeChunkGeneratorIndex=0; freeChunkGeneratorIndex<MAX_GENERATORS; freeChunkGeneratorIndex++ )
+                    {
+                        if( m_pChunkGenerators[freeChunkGeneratorIndex]->m_pChunk == 0 )
+                            break;
+                    }
+                    if( freeChunkGeneratorIndex == MAX_GENERATORS )
+                        break;
 
-                m_pChunksWaitingForMesh.MoveTail( pChunk );
+                    VoxelChunk* pChunk = (VoxelChunk*)m_pChunksLoading.GetHead();
+                    if( pChunk )
+                    {
+                        VoxelChunkGenerator* pChunkGenerator = m_pChunkGenerators[freeChunkGeneratorIndex];
+                        m_NumActiveChunkGenerators++;
+
+                        pChunkGenerator->m_IsStarted = false;
+                        pChunkGenerator->m_IsFinished = false;
+                        pChunkGenerator->m_pChunk = pChunk;
+                        g_pJobManager->AddJob( pChunkGenerator );
+                    }
+
+                    //pChunk->GenerateMap();
+                }
             }
+        }
+    }
+
+    // if any previous chunks was finished generating, free up the ChunkGenerator.
+    for( int i=0; i<MAX_GENERATORS; i++ )
+    {
+        if( m_pChunkGenerators[i]->m_IsFinished )
+        {
+            m_pChunkGenerators[i]->m_IsFinished = false;
+
+            VoxelChunk* pChunk = m_pChunkGenerators[i]->m_pChunk;
+
+            if( pChunk )
+            {
+                m_NumActiveChunkGenerators--;
+                m_pChunkGenerators[i]->m_pChunk = 0;
+
+                if( pChunk->m_MapCreated == true )
+                    m_pChunksWaitingForMesh.MoveTail( pChunk );
+           }
         }
     }
 
@@ -300,10 +351,9 @@ void VoxelWorld::Tick(double timepassed)
                 {
                     if( m_pMeshBuilders[freeMeshBuilderIndex]->m_pChunk == 0 )
                         break;
-
-                    if( freeMeshBuilderIndex == MAX_BUILDERS )
-                        break;
                 }
+                if( freeMeshBuilderIndex == MAX_BUILDERS )
+                    break;
 
                 VoxelChunk* pChunk = (VoxelChunk*)m_pChunksWaitingForMesh.GetHead();
                 if( pChunk )
@@ -313,6 +363,8 @@ void VoxelWorld::Tick(double timepassed)
                     VoxelMeshBuilder* pMeshBuilder = m_pMeshBuilders[freeMeshBuilderIndex];
                     m_NumActiveMeshBuilders++;
                 
+                    pMeshBuilder->m_IsStarted = false;
+                    pMeshBuilder->m_IsFinished = false;
                     pMeshBuilder->m_pChunk = pChunk;
                     g_pJobManager->AddJob( pMeshBuilder );
     

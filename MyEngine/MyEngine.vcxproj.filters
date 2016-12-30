@@ -387,7 +387,7 @@
     <ClCompile Include="SourceCommon\ComponentSystem\FrameworkComponents\ComponentAnimationPlayer2D.cpp">
       <Filter>Source\ComponentSystem\Framework Components</Filter>
     </ClCompile>
-    <ClCompile Include="SourceCommon\Voxels\VoxelMeshBuilder.cpp">
+    <ClCompile Include="SourceCommon\Voxels\VoxelJobs.cpp">
       <Filter>Source\Voxels</Filter>
     </ClCompile>
   </ItemGroup>
@@ -722,7 +722,7 @@
     <ClInclude Include="SourceCommon\ComponentSystem\FrameworkComponents\ComponentAnimationPlayer2D.h">
       <Filter>Source\ComponentSystem\Framework Components</Filter>
     </ClInclude>
-    <ClInclude Include="SourceCommon\Voxels\VoxelMeshBuilder.h">
+    <ClInclude Include="SourceCommon\Voxels\VoxelJobs.h">
       <Filter>Source\Voxels</Filter>
     </ClInclude>
   </ItemGroup>

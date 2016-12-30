@@ -10,8 +10,35 @@
 #include "EngineCommonHeader.h"
 #include "VoxelBlock.h"
 #include "VoxelChunk.h"
-#include "VoxelMeshBuilder.h"
+#include "VoxelJobs.h"
 #include "VoxelWorld.h"
+
+//====================================================================================================
+// VoxelChunkGenerator
+//====================================================================================================
+
+VoxelChunkGenerator::VoxelChunkGenerator()
+{
+    m_pWorld = 0;
+    m_pChunk = 0;
+}
+
+VoxelChunkGenerator::~VoxelChunkGenerator()
+{
+}
+
+void VoxelChunkGenerator::DoWork()
+{
+    //LOGInfo( "Voxel Chunk Generator", "Started generating chunk\n" );
+
+    m_pChunk->GenerateMap();
+
+    //LOGInfo( "Voxel Chunk Generator", "Finished generating chunk\n" );
+}
+
+//====================================================================================================
+// VoxelMeshBuilder
+//====================================================================================================
 
 VoxelMeshBuilder::VoxelMeshBuilder()
 {

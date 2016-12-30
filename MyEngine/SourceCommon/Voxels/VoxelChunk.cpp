@@ -433,12 +433,12 @@ unsigned int VoxelChunk::DefaultGenerateMapFunc(Vector3Int worldpos)
 
 void VoxelChunk::GenerateMap()
 {
+    // Runs on a thread, so need to be thread-safe
+
     MyAssert( m_pWorld != 0 );
     if( m_pWorld == 0 )
         return;
 
-    //Vector3Int worldsize = m_pWorld->GetWorldSize();
-    //Vector3Int worldblocksize = worldsize.MultiplyComponents( m_ChunkSize );
     Vector3Int chunksize = GetChunkSize();
     Vector3Int chunkoffset = GetChunkOffset();
 
@@ -465,7 +465,6 @@ void VoxelChunk::GenerateMap()
                     m_pBlockEnabledBits[index/32] |= (1 << (index%32));
                 else
                     m_pBlockEnabledBits[index/32] &= ~(1 << (index%32));
-                //pBlock->SetEnabled( blocktype > 0 ? true : false );
             }
         }
     }
@@ -606,7 +605,7 @@ int VoxelChunk::CountNeighbouringBlocks(unsigned int worldactivechunkarrayindex,
 // ============================================================================================================================
 bool VoxelChunk::RebuildMesh(unsigned int increment, Vertex_XYZUVNorm_RGBA* pPreallocatedVerts, int* pVertCount, float* pTimeToBuild)
 {
-    // Runs in a thread, so need to be thread-safe
+    // Runs on a thread, so need to be thread-safe
     // samples from neighbouring world chunks, so world is not allowed to change while rebuild is running
 
     MyAssert( m_pBlocks );

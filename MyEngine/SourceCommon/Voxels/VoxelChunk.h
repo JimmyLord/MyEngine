@@ -74,7 +74,7 @@ public:
 
     // Map/Blocks
     static unsigned int DefaultGenerateMapFunc(Vector3Int worldpos);
-    void GenerateMap();
+    void GenerateMap(); // runs on a thread
     bool IsMapEdited() { return m_MapWasEdited; }
     bool IsInChunkSpace(Vector3Int worldpos);
     uint32* GetBlockEnabledBits() { return m_pBlockEnabledBits; }
@@ -83,7 +83,7 @@ public:
     bool IsBlockEnabled(int localx, int localy, int localz, bool blockexistsifnotready = false);
 
     // Mesh building
-    bool RebuildMesh(unsigned int increment, Vertex_XYZUVNorm_RGBA* pPreallocatedVerts = 0, int* pVertCount = 0, float* pTimeToBuild = 0);
+    bool RebuildMesh(unsigned int increment, Vertex_XYZUVNorm_RGBA* pPreallocatedVerts = 0, int* pVertCount = 0, float* pTimeToBuild = 0); // runs on a thread
     void CopyVertsIntoVBO(Vertex_XYZUVNorm_RGBA* pVerts, int vertcount);
 
     // Rendering

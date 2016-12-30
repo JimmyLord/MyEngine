@@ -7,11 +7,26 @@
 // 2. Altered source versions must be plainly marked as such, and must not be misrepresented as being the original software.
 // 3. This notice may not be removed or altered from any source distribution.
 
-#ifndef __VoxelMeshBuilder_H__
-#define __VoxelMeshBuilder_H__
+#ifndef __VoxelJobs_H__
+#define __VoxelJobs_H__
 
 class VoxelBlock;
 class MyMesh;
+
+class VoxelChunkGenerator : public MyJob
+{
+    friend class VoxelWorld;
+
+protected:
+    VoxelWorld* m_pWorld;
+    VoxelChunk* m_pChunk;
+
+public:
+    VoxelChunkGenerator();
+    virtual ~VoxelChunkGenerator();
+
+    virtual void DoWork();
+};
 
 class VoxelMeshBuilder : public MyJob
 {
@@ -33,4 +48,4 @@ public:
     virtual void DoWork();
 };
 
-#endif //__VoxelMeshBuilder_H__
+#endif //__VoxelJobs_H__
