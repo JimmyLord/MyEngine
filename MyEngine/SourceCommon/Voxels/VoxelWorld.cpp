@@ -27,7 +27,7 @@ VoxelWorld::VoxelWorld()
     m_BlockSize.Set( 1, 1, 1 );
 
     m_WorldOffset.Set( 0, 0, 0 );
-    m_DesiredWorldCenter.Set( 0, 0, 0 );
+    m_DesiredOffset.Set( 0, 0, 0 );
 
     m_pMaterial = 0;
     m_pSharedIndexBuffer = 0;
@@ -42,6 +42,7 @@ VoxelWorld::VoxelWorld()
     {
         m_pChunkGenerators[i] = MyNew VoxelChunkGenerator;
     }
+    m_NumActiveChunkGenerators = 0;
 
     for( int i=0; i<MAX_BUILDERS; i++ )
     {
@@ -129,7 +130,7 @@ void VoxelWorld::Initialize(Vector3Int visibleworldsize)
 
     // make 0,0,0 the bottom left corner. TODO: pass in an offset
     m_WorldOffset.Set( 0, 0, 0 );
-    m_DesiredWorldCenter.Set( 0, 0, 0 );
+    m_DesiredOffset.Set( 0, 0, 0 );
 
     for( int z=0; z<m_WorldSize.z; z++ )
     {
@@ -220,9 +221,9 @@ void VoxelWorld::Tick(double timepassed)
     //LOGInfo( "VoxelWorld", "Num active mesh builders: %d\n", m_NumActiveMeshBuilders );
 
     // Only call if there are no active mesh builders.  No new builders will get created if world center isn't desired center.
-    if( m_NumActiveMeshBuilders == 0 )
+    if( m_NumActiveChunkGenerators == 0 && m_NumActiveMeshBuilders == 0 )
     {
-        SetWorldCenterForReal( m_DesiredWorldCenter );
+        SetWorldCenterForReal( m_DesiredOffset + m_WorldSize/2 );
     }
 
     // only make chunks once the save file is fully loaded, if there's a save file.
@@ -261,48 +262,58 @@ void VoxelWorld::Tick(double timepassed)
     }
 
     // if any chunks aren't initialized, either load from json or call generate func (threaded)
-    int maxtoloadinoneframe = 100;
-    for( int i=0; i<maxtoloadinoneframe; i++ )
+    if( m_pChunksLoading.GetHead() )
     {
-        VoxelChunk* pChunk = (VoxelChunk*)m_pChunksLoading.GetHead();
-
-        if( pChunk )
+        // Don't add chunk generation jobs if a new center is requested.
+        if( m_DesiredOffset == m_WorldOffset )
         {
-            if( pChunk->IsMapCreated() == false )
+            int maxtogenerateinoneframe = 100;
+            for( int i=0; i<maxtogenerateinoneframe; i++ )
             {
-                Vector3Int chunkpos = GetChunkPosition( pChunk->GetChunkOffset() );
-                cJSON* jChunk = GetJSONObjectForChunk( chunkpos );
+                VoxelChunk* pChunk = (VoxelChunk*)m_pChunksLoading.GetHead();
 
-                if( jChunk )
+                if( pChunk )
                 {
-                    pChunk->ImportFromJSONObject( jChunk );
-                    m_pChunksWaitingForMesh.MoveTail( pChunk );
-                }
-                else
-                {
-                    // find an open VoxelChunkGenerator
-                    int freeChunkGeneratorIndex = 0;
-                    for( freeChunkGeneratorIndex=0; freeChunkGeneratorIndex<MAX_GENERATORS; freeChunkGeneratorIndex++ )
+                    if( pChunk->IsMapCreated() == false )
                     {
-                        if( m_pChunkGenerators[freeChunkGeneratorIndex]->m_pChunk == 0 )
-                            break;
+                        Vector3Int chunkpos = GetChunkPosition( pChunk->GetChunkOffset() );
+                        cJSON* jChunk = GetJSONObjectForChunk( chunkpos );
+
+                        if( jChunk )
+                        {
+                            pChunk->ImportFromJSONObject( jChunk );
+                            m_pChunksWaitingForMesh.MoveTail( pChunk );
+                        }
+                        else
+                        {
+                            // find an open VoxelChunkGenerator
+                            int freeChunkGeneratorIndex = 0;
+                            for( freeChunkGeneratorIndex=0; freeChunkGeneratorIndex<MAX_GENERATORS; freeChunkGeneratorIndex++ )
+                            {
+                                if( m_pChunkGenerators[freeChunkGeneratorIndex]->m_pChunk == 0 )
+                                    break;
+                            }
+                            if( freeChunkGeneratorIndex == MAX_GENERATORS )
+                                break;
+
+                            VoxelChunk* pChunk = (VoxelChunk*)m_pChunksLoading.GetHead();
+                            if( pChunk )
+                            {
+                                VoxelChunkGenerator* pChunkGenerator = m_pChunkGenerators[freeChunkGeneratorIndex];
+                                m_NumActiveChunkGenerators++;
+
+                                pChunkGenerator->m_IsStarted = false;
+                                pChunkGenerator->m_IsFinished = false;
+                                pChunkGenerator->m_pChunk = pChunk;
+                                
+                                MyAssert( pChunkGenerator->m_pChunk->m_MapCreated == false );
+                                g_pJobManager->AddJob( pChunkGenerator );
+                            
+                                //pChunk->GenerateMap();
+                                //m_pChunksWaitingForMesh.MoveTail( pChunk );
+                            }
+                        }
                     }
-                    if( freeChunkGeneratorIndex == MAX_GENERATORS )
-                        break;
-
-                    VoxelChunk* pChunk = (VoxelChunk*)m_pChunksLoading.GetHead();
-                    if( pChunk )
-                    {
-                        VoxelChunkGenerator* pChunkGenerator = m_pChunkGenerators[freeChunkGeneratorIndex];
-                        m_NumActiveChunkGenerators++;
-
-                        pChunkGenerator->m_IsStarted = false;
-                        pChunkGenerator->m_IsFinished = false;
-                        pChunkGenerator->m_pChunk = pChunk;
-                        g_pJobManager->AddJob( pChunkGenerator );
-                    }
-
-                    //pChunk->GenerateMap();
                 }
             }
         }
@@ -338,8 +349,7 @@ void VoxelWorld::Tick(double timepassed)
     if( m_pChunksWaitingForMesh.GetHead() )
     {
         // Don't add mesh building jobs if a new center is requested.
-        Vector3Int currentworldcenter = m_WorldOffset + m_WorldSize/2;
-        if( m_DesiredWorldCenter == currentworldcenter )
+        if( m_DesiredOffset == m_WorldOffset )
         {
             // build one mesh for each meshbuilder object (added to MyJobManager queue)
             int maxtobuildsimultaneously = MAX_BUILDERS;
@@ -359,6 +369,8 @@ void VoxelWorld::Tick(double timepassed)
                 if( pChunk )
                 {
                     pChunk->SetMaterial( m_pMaterial, 0 );
+
+                    MyAssert( pChunk->m_MapCreated == true );
 
                     VoxelMeshBuilder* pMeshBuilder = m_pMeshBuilders[freeMeshBuilderIndex];
                     m_NumActiveMeshBuilders++;
@@ -459,7 +471,7 @@ void VoxelWorld::SetWorldCenter(Vector3 scenepos)
 
 void VoxelWorld::SetWorldCenter(Vector3Int newworldcenter)
 {
-    m_DesiredWorldCenter = newworldcenter;
+    m_DesiredOffset = newworldcenter - m_WorldSize/2;
 }
 
 void VoxelWorld::SetWorldCenterForReal(Vector3Int newworldcenter)
@@ -473,6 +485,7 @@ void VoxelWorld::SetWorldCenterForReal(Vector3Int newworldcenter)
     // Since chunks meshes are built on a thread and sample from neighbour chunks
     //   this can only be done when all rebuild mesh jobs are idle
     MyAssert( m_NumActiveMeshBuilders == 0 );
+    MyAssert( m_NumActiveChunkGenerators == 0 );
 
     Vector3Int currentworldcenter = m_WorldOffset + m_WorldSize/2;
     if( newworldcenter == currentworldcenter )

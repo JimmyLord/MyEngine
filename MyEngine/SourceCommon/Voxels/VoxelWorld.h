@@ -34,7 +34,7 @@ protected:
     Vector3 m_BlockSize;
 
     Vector3Int m_WorldOffset;
-    Vector3Int m_DesiredWorldCenter;
+    Vector3Int m_DesiredOffset;
 
     uint32* m_VoxelBlockEnabledBitsSingleAllocation;
     VoxelBlock* m_VoxelBlockSingleAllocation;

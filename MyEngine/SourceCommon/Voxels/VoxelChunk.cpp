@@ -458,9 +458,11 @@ void VoxelChunk::GenerateMap()
                 else
                     blocktype = VoxelChunk::DefaultGenerateMapFunc( worldpos );
 
-                VoxelBlock* pBlock = GetBlockFromLocalPos( Vector3Int( x, y, z ) );
+                Vector3Int localpos = Vector3Int( x, y, z );
+                VoxelBlock* pBlock = GetBlockFromLocalPos( localpos );
                 pBlock->SetBlockType( blocktype );
-                uint32 index = GetBlockIndex( worldpos );
+
+                uint32 index = GetBlockIndexFromLocalPos( localpos );
                 if( blocktype > 0 )
                     m_pBlockEnabledBits[index/32] |= (1 << (index%32));
                 else
@@ -1430,7 +1432,12 @@ VoxelBlock* VoxelChunk::GetBlockFromLocalPos(Vector3Int localpos)
     return pBlock;
 }
 
-unsigned int VoxelChunk::GetBlockIndex(Vector3Int worldpos)
+unsigned int VoxelChunk::GetBlockIndexFromLocalPos(Vector3Int localpos)
+{
+    return localpos.z * m_ChunkSize.y * m_ChunkSize.x + localpos.y * m_ChunkSize.x + localpos.x;
+}
+
+unsigned int VoxelChunk::GetBlockIndexFromWorldPos(Vector3Int worldpos)
 {
     Vector3Int localpos = worldpos - m_ChunkOffset;
 
@@ -1561,7 +1568,7 @@ void VoxelChunk::ChangeBlockState(Vector3Int worldpos, unsigned int type, bool e
 {
     m_MapWasEdited = true;
 
-    unsigned int index = GetBlockIndex( worldpos );
+    unsigned int index = GetBlockIndexFromWorldPos( worldpos );
 
     m_pBlocks[index].SetBlockType( type );
     if( enabled )

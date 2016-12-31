@@ -100,7 +100,8 @@ public:
     // Space conversions
     Vector3Int GetWorldPosition(Vector3 scenepos);
     VoxelBlock* GetBlockFromLocalPos(Vector3Int localpos);
-    unsigned int GetBlockIndex(Vector3Int worldpos);
+    unsigned int GetBlockIndexFromLocalPos(Vector3Int localpos);
+    unsigned int GetBlockIndexFromWorldPos(Vector3Int worldpos);
 
     // Collision/Block queries
     bool RayCastSingleBlockFindFaceHit(Vector3Int worldpos, Vector3 startpos, Vector3 endpos, Vector3* pPoint, Vector3* pNormal);
