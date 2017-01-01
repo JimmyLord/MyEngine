@@ -462,9 +462,9 @@ void VoxelWorld::SetWorldSize(Vector3Int visibleworldsize)
 void VoxelWorld::SetWorldCenter(Vector3 scenepos)
 {
     Vector3Int worldpos;
-    worldpos.x = (int)(scenepos.x / m_BlockSize.x) / m_ChunkSize.x;
-    worldpos.y = (int)(scenepos.y / m_BlockSize.y) / m_ChunkSize.x;
-    worldpos.z = (int)(scenepos.z / m_BlockSize.z) / m_ChunkSize.x;
+    worldpos.x = (int)floor( (scenepos.x / m_BlockSize.x) / m_ChunkSize.x );
+    worldpos.y = (int)floor( (scenepos.y / m_BlockSize.y) / m_ChunkSize.y );
+    worldpos.z = (int)floor( (scenepos.z / m_BlockSize.z) / m_ChunkSize.z );
 
     SetWorldCenter( worldpos );
 }
@@ -490,6 +490,8 @@ void VoxelWorld::SetWorldCenterForReal(Vector3Int newworldcenter)
     Vector3Int currentworldcenter = m_WorldOffset + m_WorldSize/2;
     if( newworldcenter == currentworldcenter )
         return;
+
+    //LOGInfo( "VoxelWorld", "SetWorldCenter: %d, %d, %d\n", newworldcenter.x, newworldcenter.y, newworldcenter.z );
 
     int numchunks = m_WorldSize.x * m_WorldSize.y * m_WorldSize.z;
 
@@ -821,6 +823,8 @@ void VoxelWorld::PrepareChunk(Vector3Int chunkpos, uint32* pPreallocatedBlockEna
     pChunk->Initialize( this, chunkposition, chunkblockoffset, m_BlockSize );
     if( pBlocks != 0 )
         pChunk->SetChunkSize( m_ChunkSize, pPreallocatedBlockEnabledBits, pBlocks );
+    else
+        pChunk->CalculateBounds();
 
     m_pChunksLoading.MoveTail( pChunk );
 }
