@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016 Jimmy Lord http://www.flatheadgames.com
+// Copyright (c) 2016-2017 Jimmy Lord http://www.flatheadgames.com
 //
 // This software is provided 'as-is', without any express or implied warranty.  In no event will the authors be held liable for any damages arising from the use of this software.
 // Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -20,13 +20,15 @@ class VoxelWorld
 {
     friend class VoxelChunk;
 
+    static const int MAX_GENERATORS = 20;
     static const int MAX_BUILDERS = 2;
-    static const int MAX_GENERATORS = 2;
 
 protected:
     CPPListHead m_pChunksFree;
     CPPListHead m_pChunksLoading;
+    CPPListHead m_pChunksBeingGenerated;
     CPPListHead m_pChunksWaitingForMesh;
+    CPPListHead m_pChunksBeingMeshed;
     CPPListHead m_pChunksVisible;
 
     Vector3Int m_WorldSize;

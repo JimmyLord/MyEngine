@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016 Jimmy Lord http://www.flatheadgames.com
+// Copyright (c) 2016-2017 Jimmy Lord http://www.flatheadgames.com
 //
 // This software is provided 'as-is', without any express or implied warranty.  In no event will the authors be held liable for any damages arising from the use of this software.
 // Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -79,7 +79,23 @@ VoxelWorld::~VoxelWorld()
         pChunk->Release();
     }
 
+    for( CPPListNode* pNode = m_pChunksBeingGenerated.GetHead(); pNode; )
+    {
+        VoxelChunk* pChunk = (VoxelChunk*)pNode;
+        pNode = pNode->GetNext();
+
+        pChunk->Release();
+    }
+
     for( CPPListNode* pNode = m_pChunksWaitingForMesh.GetHead(); pNode; )
+    {
+        VoxelChunk* pChunk = (VoxelChunk*)pNode;
+        pNode = pNode->GetNext();
+
+        pChunk->Release();
+    }
+
+    for( CPPListNode* pNode = m_pChunksBeingMeshed.GetHead(); pNode; )
     {
         VoxelChunk* pChunk = (VoxelChunk*)pNode;
         pNode = pNode->GetNext();
@@ -262,59 +278,62 @@ void VoxelWorld::Tick(double timepassed)
     }
 
     // if any chunks aren't initialized, either load from json or call generate func (threaded)
-    if( m_pChunksLoading.GetHead() )
+    VoxelChunk* pChunk = (VoxelChunk*)m_pChunksLoading.GetHead();
+    if( pChunk )
     {
         // Don't add chunk generation jobs if a new center is requested.
         if( m_DesiredOffset == m_WorldOffset )
         {
             int maxtogenerateinoneframe = 100;
+
             for( int i=0; i<maxtogenerateinoneframe; i++ )
             {
-                VoxelChunk* pChunk = (VoxelChunk*)m_pChunksLoading.GetHead();
+                if( pChunk == 0 )
+                    break;
 
-                if( pChunk )
+                MyAssert( pChunk->IsMapCreated() == false );
+
+                Vector3Int chunkpos = GetChunkPosition( pChunk->GetChunkOffset() );
+                cJSON* jChunk = GetJSONObjectForChunk( chunkpos );
+
+                if( jChunk )
                 {
-                    if( pChunk->IsMapCreated() == false )
+                    pChunk->ImportFromJSONObject( jChunk );
+                    m_pChunksWaitingForMesh.MoveTail( pChunk );
+                }
+                else
+                {
+                    // find an open VoxelChunkGenerator
+                    int freeChunkGeneratorIndex = 0;
+                    for( freeChunkGeneratorIndex=0; freeChunkGeneratorIndex<MAX_GENERATORS; freeChunkGeneratorIndex++ )
                     {
-                        Vector3Int chunkpos = GetChunkPosition( pChunk->GetChunkOffset() );
-                        cJSON* jChunk = GetJSONObjectForChunk( chunkpos );
+                        if( m_pChunkGenerators[freeChunkGeneratorIndex]->m_pChunk == 0 )
+                            break;
+                    }
+                    if( freeChunkGeneratorIndex == MAX_GENERATORS )
+                        break;
 
-                        if( jChunk )
-                        {
-                            pChunk->ImportFromJSONObject( jChunk );
-                            m_pChunksWaitingForMesh.MoveTail( pChunk );
-                        }
-                        else
-                        {
-                            // find an open VoxelChunkGenerator
-                            int freeChunkGeneratorIndex = 0;
-                            for( freeChunkGeneratorIndex=0; freeChunkGeneratorIndex<MAX_GENERATORS; freeChunkGeneratorIndex++ )
-                            {
-                                if( m_pChunkGenerators[freeChunkGeneratorIndex]->m_pChunk == 0 )
-                                    break;
-                            }
-                            if( freeChunkGeneratorIndex == MAX_GENERATORS )
-                                break;
+                    // Move the chunk to the next list in the chain
+                    m_pChunksBeingGenerated.MoveTail( pChunk );
 
-                            VoxelChunk* pChunk = (VoxelChunk*)m_pChunksLoading.GetHead();
-                            if( pChunk )
-                            {
-                                VoxelChunkGenerator* pChunkGenerator = m_pChunkGenerators[freeChunkGeneratorIndex];
-                                m_NumActiveChunkGenerators++;
+                    if( pChunk )
+                    {
+                        VoxelChunkGenerator* pChunkGenerator = m_pChunkGenerators[freeChunkGeneratorIndex];
+                        m_NumActiveChunkGenerators++;
 
-                                pChunkGenerator->m_IsStarted = false;
-                                pChunkGenerator->m_IsFinished = false;
-                                pChunkGenerator->m_pChunk = pChunk;
+                        pChunkGenerator->m_IsStarted = false;
+                        pChunkGenerator->m_IsFinished = false;
+                        pChunkGenerator->m_pChunk = pChunk;
                                 
-                                MyAssert( pChunkGenerator->m_pChunk->m_MapCreated == false );
-                                g_pJobManager->AddJob( pChunkGenerator );
+                        MyAssert( pChunkGenerator->m_pChunk->m_MapCreated == false );
+                        g_pJobManager->AddJob( pChunkGenerator );
                             
-                                //pChunk->GenerateMap();
-                                //m_pChunksWaitingForMesh.MoveTail( pChunk );
-                            }
-                        }
+                        //pChunk->GenerateMap();
+                        //m_pChunksWaitingForMesh.MoveTail( pChunk );
                     }
                 }
+
+                pChunk = (VoxelChunk*)m_pChunksLoading.GetHead();
             }
         }
     }
@@ -346,7 +365,8 @@ void VoxelWorld::Tick(double timepassed)
 
     // if any chunks are done loading/generating, build the mesh (threaded)
     // TODO: don't build if neighbours aren't generated
-    if( m_pChunksWaitingForMesh.GetHead() )
+    pChunk = (VoxelChunk*)m_pChunksWaitingForMesh.GetHead();
+    if( pChunk )
     {
         // Don't add mesh building jobs if a new center is requested.
         if( m_DesiredOffset == m_WorldOffset )
@@ -355,6 +375,9 @@ void VoxelWorld::Tick(double timepassed)
             int maxtobuildsimultaneously = MAX_BUILDERS;
             for( int i=0; i<maxtobuildsimultaneously; i++ )
             {
+                if( pChunk == 0 )
+                    break;
+
                 // find an open meshbuilder
                 int freeMeshBuilderIndex = 0;
                 for( freeMeshBuilderIndex=0; freeMeshBuilderIndex<MAX_BUILDERS; freeMeshBuilderIndex++ )
@@ -364,9 +387,10 @@ void VoxelWorld::Tick(double timepassed)
                 }
                 if( freeMeshBuilderIndex == MAX_BUILDERS )
                     break;
+                
+                // Move the chunk to the next list in the chain
+                m_pChunksBeingMeshed.MoveTail( pChunk );
 
-                VoxelChunk* pChunk = (VoxelChunk*)m_pChunksWaitingForMesh.GetHead();
-                if( pChunk )
                 {
                     pChunk->SetMaterial( m_pMaterial, 0 );
 
@@ -379,9 +403,9 @@ void VoxelWorld::Tick(double timepassed)
                     pMeshBuilder->m_IsFinished = false;
                     pMeshBuilder->m_pChunk = pChunk;
                     g_pJobManager->AddJob( pMeshBuilder );
-    
-                    continue;
                 }
+
+                pChunk = (VoxelChunk*)m_pChunksWaitingForMesh.GetHead();
             }
         }
     }
