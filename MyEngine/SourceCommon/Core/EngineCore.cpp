@@ -799,18 +799,27 @@ bool EngineCore::OnTouch(int action, int id, float x, float y, float pressure, f
     }
 #endif
 
+#if !MYFW_USING_WX
+    if( g_pGameCore->IsMouseLocked() == false )
+    {
+        float toplefty = y;
+        if( g_pImGuiManager->HandleInput( -1, -1, action, id, x, toplefty, pressure ) )
+            return true;
+    }
+#endif
+
+    // if mouse lock was requested, don't let mouse held messages go further.
+    if( g_pGameCore->WasMouseLockRequested() && g_pGameCore->IsMouseLocked() == false && action == GCBA_Held )
+    {
+        return false;
+    }
+
     // TODO: get the camera properly.
     ComponentCamera* pCamera = m_pComponentSystemManager->GetFirstCamera();
     if( pCamera == 0 )
         return false;
 
-#if !MYFW_USING_WX
-    float toplefty = y;
-    if( g_pImGuiManager->HandleInput( -1, -1, action, id, x, toplefty, pressure ) )
-        return true;
-#endif
-
-    // if the mouse is locked and it's a help message, leave the x/y as is
+    // if the mouse is locked and it's a mouse held message, leave the x/y as is
     //     otherwise, convert to camera space.
     if( g_pGameCore->IsMouseLocked() && action == GCBA_Held )
     {
