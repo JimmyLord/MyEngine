@@ -216,7 +216,9 @@ void VoxelChunk::CalculateBounds()
 
     Vector3 center = (minextents + maxextents) / 2;
     Vector3 extents = (maxextents - minextents) / 2;
-    GetBounds()->Set( center, extents );
+
+    MyAABounds* pBounds = GetBounds();
+    pBounds->Set( center, extents );
 }
 
 // ============================================================================================================================
@@ -435,6 +437,8 @@ void VoxelChunk::GenerateMap()
 {
     // Runs on a thread, so need to be thread-safe
 
+    //LOGInfo( "VoxelWorld", "GenerateMap() Start - %d, %d, %d\n", m_ChunkPosition.x, m_ChunkPosition.y, m_ChunkPosition.z );
+
     MyAssert( m_pWorld != 0 );
     if( m_pWorld == 0 )
         return;
@@ -470,6 +474,8 @@ void VoxelChunk::GenerateMap()
             }
         }
     }
+
+    //LOGInfo( "VoxelWorld", "GenerateMap() End - %d, %d, %d\n", m_ChunkPosition.x, m_ChunkPosition.y, m_ChunkPosition.z );
 
     m_MapCreated = true;
 }
@@ -609,6 +615,8 @@ bool VoxelChunk::RebuildMesh(unsigned int increment, Vertex_XYZUVNorm_RGBA* pPre
 {
     // Runs on a thread, so need to be thread-safe
     // samples from neighbouring world chunks, so world is not allowed to change while rebuild is running
+
+    //LOGInfo( "VoxelWorld", "RebuildMesh() Start - %d, %d, %d\n", m_ChunkPosition.x, m_ChunkPosition.y, m_ChunkPosition.z );
 
     MyAssert( m_pBlocks );
     MyAssert( GetStride( 0 ) == (12 + 8 + 12 + 4) ); // Vertex_XYZUVNorm_RGBA => XYZ + UV + NORM + RGBA
@@ -1267,6 +1275,8 @@ bool VoxelChunk::RebuildMesh(unsigned int increment, Vertex_XYZUVNorm_RGBA* pPre
     }
 #endif
 
+    //LOGInfo( "VoxelWorld", "RebuildMesh() End - %d, %d, %d\n", m_ChunkPosition.x, m_ChunkPosition.y, m_ChunkPosition.z );
+
     return true;
 }
 
@@ -1320,6 +1330,8 @@ void VoxelChunk::CopyVertsIntoVBO(Vertex_XYZUVNorm_RGBA* pVerts, int vertcount)
 
         m_SubmeshList[0]->m_NumIndicesToDraw = vertcount / 4 * 6;
         //LOGInfo( "VoxelChunk", "Num indices: %d\n", indexcount );
+
+        CalculateBounds();
     }
     else
     {
@@ -1327,7 +1339,9 @@ void VoxelChunk::CopyVertsIntoVBO(Vertex_XYZUVNorm_RGBA* pVerts, int vertcount)
 
         Vector3 center( 0, 0, 0 );
         Vector3 extents( 0, 0, 0 );
-        GetBounds()->Set( center, extents );
+        
+        MyAABounds* pBounds = GetBounds();
+        pBounds->Set( center, extents );
 
         RemoveFromSceneGraph();
     }

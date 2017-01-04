@@ -847,8 +847,6 @@ void VoxelWorld::PrepareChunk(Vector3Int chunkpos, uint32* pPreallocatedBlockEna
     pChunk->Initialize( this, chunkposition, chunkblockoffset, m_BlockSize );
     if( pBlocks != 0 )
         pChunk->SetChunkSize( m_ChunkSize, pPreallocatedBlockEnabledBits, pBlocks );
-    else
-        pChunk->CalculateBounds();
 
     m_pChunksLoading.MoveTail( pChunk );
 }
