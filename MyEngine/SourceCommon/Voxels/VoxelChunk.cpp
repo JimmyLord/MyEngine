@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016 Jimmy Lord http://www.flatheadgames.com
+// Copyright (c) 2016-2017 Jimmy Lord http://www.flatheadgames.com
 //
 // This software is provided 'as-is', without any express or implied warranty.  In no event will the authors be held liable for any damages arising from the use of this software.
 // Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -1311,7 +1311,8 @@ void VoxelChunk::CopyVertsIntoVBO(Vertex_XYZUVNorm_RGBA* pVerts, int vertcount)
         
             MyStackAllocator::MyStackPointer memstart = g_pEngineCore->m_SingleFrameMemoryStack.GetCurrentLocation();
 
-            unsigned short* pIndices = (unsigned short*)g_pEngineCore->m_SingleFrameMemoryStack.AllocateBlock( indexbuffersize );
+            unsigned int bytestoallocate = indexbuffersize * sizeof(unsigned short);
+            unsigned short* pIndices = (unsigned short*)g_pEngineCore->m_SingleFrameMemoryStack.AllocateBlock( bytestoallocate );
 
             for( unsigned int i=0; i<numquads; i++ )
             {
@@ -1323,7 +1324,7 @@ void VoxelChunk::CopyVertsIntoVBO(Vertex_XYZUVNorm_RGBA* pVerts, int vertcount)
                 pIndices[i*6+5] = (unsigned short)(i*4 + g_SpriteVertexIndices[5]);
             }
 
-            m_SubmeshList[0]->m_pIndexBuffer->TempBufferData( numquads * 6, pIndices );
+            m_SubmeshList[0]->m_pIndexBuffer->TempBufferData( bytestoallocate, pIndices );
             
             g_pEngineCore->m_SingleFrameMemoryStack.RewindStack( memstart );
         }
