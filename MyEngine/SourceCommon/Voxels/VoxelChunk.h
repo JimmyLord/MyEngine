@@ -22,9 +22,13 @@ class VoxelChunk : public MyMesh
 protected:
     VoxelWorld* m_pWorld;
 
+    bool m_LockedInThreadedOp;
+
+    // status flags, also m_MeshReady from MyMesh
     bool m_MapCreated;
     bool m_MeshOptimized;
     bool m_MapWasEdited;
+    bool m_WasVisibleLastFrame;
 
     MyMatrix m_Transform;
 
@@ -91,7 +95,9 @@ public:
     void OverrideSceneGraphObjectTransform(MyMatrix* pTransform);
     void RemoveFromSceneGraph();
 
-    virtual void SetMaterial(MaterialDefinition* pMaterial, int submeshindex); // MyMesh override
+    // MyMesh overrides
+    virtual void SetMaterial(MaterialDefinition* pMaterial, int submeshindex);
+    virtual void PreDraw();
 
     // Chunk state
     bool IsMapCreated() { return m_MapCreated; }

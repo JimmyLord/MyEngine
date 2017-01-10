@@ -25,6 +25,7 @@ class VoxelWorld
 
 protected:
     CPPListHead m_pChunksFree;
+    CPPListHead m_pChunksNotVisible; // active(around player) but not being looked at
     CPPListHead m_pChunksLoading;
     CPPListHead m_pChunksBeingGenerated;
     CPPListHead m_pChunksWaitingForMesh;
@@ -76,6 +77,7 @@ protected:
     cJSON* GetJSONObjectForChunk(Vector3Int chunkpos);
 
     void SetWorldCenterForReal(Vector3Int newworldcenter);
+    void SetChunkVisible(VoxelChunk* pChunk);
 
 public:
     VoxelWorld();

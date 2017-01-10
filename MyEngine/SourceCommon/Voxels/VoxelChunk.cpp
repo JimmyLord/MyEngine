@@ -16,9 +16,12 @@ VoxelChunk::VoxelChunk()
 {
     m_pWorld = 0;
 
+    m_LockedInThreadedOp = false;
+
     m_MapCreated = false;
     m_MeshOptimized = false;
     m_MapWasEdited = false;
+    m_WasVisibleLastFrame = false;
 
     m_Transform.SetIdentity();
     m_BlockSize.Set( 0, 0, 0 );
@@ -478,6 +481,7 @@ void VoxelChunk::GenerateMap()
     //LOGInfo( "VoxelWorld", "GenerateMap() End - %d, %d, %d\n", m_ChunkPosition.x, m_ChunkPosition.y, m_ChunkPosition.z );
 
     m_MapCreated = true;
+    m_LockedInThreadedOp = false;
 }
 
 bool VoxelChunk::IsInChunkSpace(Vector3Int worldpos)
@@ -1277,6 +1281,8 @@ bool VoxelChunk::RebuildMesh(unsigned int increment, Vertex_XYZUVNorm_RGBA* pPre
 
     //LOGInfo( "VoxelWorld", "RebuildMesh() End - %d, %d, %d\n", m_ChunkPosition.x, m_ChunkPosition.y, m_ChunkPosition.z );
 
+    m_LockedInThreadedOp = false;
+
     return true;
 }
 
@@ -1416,6 +1422,9 @@ void VoxelChunk::RemoveFromSceneGraph()
     m_pSceneGraphObject = 0;
 }
 
+// ============================================================================================================================
+// MyMesh overrides
+// ============================================================================================================================
 void VoxelChunk::SetMaterial(MaterialDefinition* pMaterial, int submeshindex)
 {
     MyMesh::SetMaterial( pMaterial, 0 );
@@ -1424,6 +1433,19 @@ void VoxelChunk::SetMaterial(MaterialDefinition* pMaterial, int submeshindex)
         return;
 
     m_pSceneGraphObject->m_pMaterial = pMaterial;
+}
+
+void VoxelChunk::PreDraw()
+{
+    //MyMesh::PreDraw(); // doesn't do anything
+
+    m_WasVisibleLastFrame = true;
+
+    if( m_pWorld )
+    {
+        if( m_LockedInThreadedOp == false )
+            m_pWorld->SetChunkVisible( this );
+    }
 }
 
 // ============================================================================================================================

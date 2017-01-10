@@ -71,6 +71,14 @@ VoxelWorld::~VoxelWorld()
         pChunk->Release();
     }
 
+    for( CPPListNode* pNode = m_pChunksNotVisible.GetHead(); pNode; )
+    {
+        VoxelChunk* pChunk = (VoxelChunk*)pNode;
+        pNode = pNode->GetNext();
+
+        pChunk->Release();
+    }
+
     for( CPPListNode* pNode = m_pChunksLoading.GetHead(); pNode; )
     {
         VoxelChunk* pChunk = (VoxelChunk*)pNode;
@@ -324,6 +332,8 @@ void VoxelWorld::Tick(double timepassed)
                         pChunkGenerator->m_IsStarted = false;
                         pChunkGenerator->m_IsFinished = false;
                         pChunkGenerator->m_pChunk = pChunk;
+
+                        pChunk->m_LockedInThreadedOp = true;
                                 
                         MyAssert( pChunkGenerator->m_pChunk->m_MapCreated == false );
                         g_pJobManager->AddJob( pChunkGenerator );
@@ -402,6 +412,9 @@ void VoxelWorld::Tick(double timepassed)
                     pMeshBuilder->m_IsStarted = false;
                     pMeshBuilder->m_IsFinished = false;
                     pMeshBuilder->m_pChunk = pChunk;
+
+                    pChunk->m_LockedInThreadedOp = true;
+
                     g_pJobManager->AddJob( pMeshBuilder );
                 }
 
@@ -615,14 +628,36 @@ void VoxelWorld::SetWorldCenterForReal(Vector3Int newworldcenter)
 //#endif
 }
 
+void VoxelWorld::SetChunkVisible(VoxelChunk* pChunk)
+{
+    if( pChunk->m_MeshReady )
+    {
+        m_pChunksVisible.MoveTail( pChunk );
+    }
+    else if( pChunk->m_MapCreated )
+    {
+        m_pChunksWaitingForMesh.MoveTail( pChunk );
+    }
+    else
+    {
+        m_pChunksLoading.MoveTail( pChunk );
+    }
+}
+
 void VoxelWorld::UpdateVisibility(void* pUserData)
 {
-    // TODO: Update list of visible chunks
-
     // Add all visible chunks to scene graph
-    for( CPPListNode* pNode = m_pChunksVisible.GetHead(); pNode; pNode = pNode->GetNext() )
+    //for( CPPListNode* pNode = m_pChunksVisible.GetHead(); pNode; pNode = pNode->GetNext() )
+    //{
+    //    VoxelChunk* pChunk = (VoxelChunk*)pNode;
+
+    //    pChunk->AddToSceneGraph( pUserData, m_pMaterial );
+    //}
+
+    // Add all chunks to scene graph, let scene graph decide which are visible // TODO: make sure scene graph is an octree
+    for( unsigned int i=0; i<m_NumChunkPointersAllocated; i++ )
     {
-        VoxelChunk* pChunk = (VoxelChunk*)pNode;
+        VoxelChunk* pChunk = m_pActiveWorldChunkPtrs[i];
 
         pChunk->AddToSceneGraph( pUserData, m_pMaterial );
     }
@@ -848,7 +883,7 @@ void VoxelWorld::PrepareChunk(Vector3Int chunkpos, uint32* pPreallocatedBlockEna
     if( pBlocks != 0 )
         pChunk->SetChunkSize( m_ChunkSize, pPreallocatedBlockEnabledBits, pBlocks );
 
-    m_pChunksLoading.MoveTail( pChunk );
+    m_pChunksNotVisible.MoveTail( pChunk );
 }
 
 void VoxelWorld::ShiftChunk(Vector3Int to, Vector3Int from, bool isedgeblock)
