@@ -632,6 +632,7 @@ void VoxelWorld::SetChunkVisible(VoxelChunk* pChunk)
 {
     if( pChunk->m_MeshReady )
     {
+        MyAssert( pChunk->m_MapCreated == true );
         m_pChunksVisible.MoveTail( pChunk );
     }
     else if( pChunk->m_MapCreated )
@@ -896,6 +897,7 @@ void VoxelWorld::ShiftChunk(Vector3Int to, Vector3Int from, bool isedgeblock)
         m_pChunksFree.MoveTail( pChunk );
         SaveChunk( pChunk );
         pChunk->RemoveFromSceneGraph();
+        pChunk->m_MeshReady = false;
     }
 
     if( isedgeblock )
