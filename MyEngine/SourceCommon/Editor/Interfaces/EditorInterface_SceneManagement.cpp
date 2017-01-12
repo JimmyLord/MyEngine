@@ -122,7 +122,7 @@ void EditorInterface_SceneManagement::OnDrawFrame(unsigned int canvasid)
                 glDisable( GL_SCISSOR_TEST );
                 glViewport( 0, 0, pEditorState->m_pMousePickerFBO->m_Width, pEditorState->m_pMousePickerFBO->m_Height );
 
-                glClearColor( 0, 0, 0, 0 );
+                glClearColor( 0.2f, 0.2f, 0.2f, 1.0f );
                 glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
                 g_pEngineCore->m_pMaterialBallMesh->SetMaterial( pMaterial, 0 );
@@ -139,9 +139,9 @@ void EditorInterface_SceneManagement::OnDrawFrame(unsigned int canvasid)
                 MyMatrix matproj;
                 matproj.CreatePerspectiveVFoV( 45, aspect, 0.01f, 100 );
 
-                // TODO: pass in a camera position.
                 MyMatrix matviewproj = matproj * matview;
-                g_pEngineCore->m_pMaterialBallMesh->Draw( 0, &matviewproj, 0, 0, 0, 0, 0, 0, 0, 0 );
+                Vector3 campos = matview.GetTranslation() * -1;
+                g_pEngineCore->m_pMaterialBallMesh->Draw( 0, &matviewproj, &campos, 0, 0, 0, 0, 0, 0, 0 );
 
                 pEditorState->m_pDebugViewFBO->Unbind( true );
             }

@@ -2011,15 +2011,18 @@ void ComponentSystemManager::OnDrawFrame(ComponentCamera* pCamera, MyMatrix* pMa
             if( pObject )
             {
                 ComponentBase* pComponent = pObject->GetFirstComponentOfBaseType( BaseComponentType_Camera );
-                ComponentCameraShadow* pShadowCam = pComponent->IsA( "CameraShadowComponent" ) ? (ComponentCameraShadow*)pComponent : 0;
-                if( pShadowCam )
+                if( pComponent )
                 {
-                    pShadowVP = &pShadowCam->m_matViewProj;
+                    ComponentCameraShadow* pShadowCam = pComponent->IsA( "CameraShadowComponent" ) ? (ComponentCameraShadow*)pComponent : 0;
+                    if( pShadowCam )
+                    {
+                        pShadowVP = &pShadowCam->m_matViewProj;
 #if 1
-                    pShadowTex = pShadowCam->m_pDepthFBO->m_pDepthTexture;
+                        pShadowTex = pShadowCam->m_pDepthFBO->m_pDepthTexture;
 #else
-                    pShadowTex = pShadowCam->m_pDepthFBO->m_pColorTexture;
+                        pShadowTex = pShadowCam->m_pDepthFBO->m_pColorTexture;
 #endif
+                    }
                 }
             }
         }
