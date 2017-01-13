@@ -21,7 +21,7 @@ class VoxelWorld
     friend class VoxelChunk;
 
     static const int MAX_GENERATORS = 20;
-    static const int MAX_BUILDERS = 2;
+    static const int MAX_BUILDERS = 10;
 
 protected:
     CPPListHead m_pChunksFree;
@@ -78,6 +78,8 @@ protected:
 
     void SetWorldCenterForReal(Vector3Int newworldcenter);
     void SetChunkVisible(VoxelChunk* pChunk);
+
+    void SortChunkList(CPPListHead* pChunkList);
 
 public:
     VoxelWorld();
