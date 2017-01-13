@@ -182,58 +182,6 @@ void VoxelWorld::Initialize(Vector3Int visibleworldsize)
     }
 }
 
-static Vector3Int g_ChunkSort_WorldCenterChunkOffset;
-static float g_ChunkSort_CameraAngle;
-signed char ChunkSort_ComparisonFunction(CPPListNode *a, CPPListNode *b)
-{
-    float anglerange = PI/2/2;
-    float distancerange = 1000;
-
-    Vector3Int offseta = ((VoxelChunk*)a)->GetChunkOffset();
-    Vector3Int offsetb = ((VoxelChunk*)b)->GetChunkOffset();
-
-    int distancea = (offseta - g_ChunkSort_WorldCenterChunkOffset).LengthSquared();
-    int distanceb = (offsetb - g_ChunkSort_WorldCenterChunkOffset).LengthSquared();
-
-    // prefer chunks that are close
-    {
-        if( distancea < distancerange )
-            return -1;
-
-        if( distanceb < distancerange )
-            return 1;
-    }
-
-    // if A and B are on opposite sides of the horizontal view frustum, prefer the one in front of the camera
-    {
-        float anglea = atan2( (float)offseta.z, (float)offseta.x );
-        float angleb = atan2( (float)offsetb.z, (float)offsetb.x );
-
-        float abscamdiffa = fabs( g_ChunkSort_CameraAngle - anglea );
-        float abscamdiffb = fabs( g_ChunkSort_CameraAngle - angleb );
-
-        if( abscamdiffa > PI ) abscamdiffa = PI*2 - abscamdiffa;
-        if( abscamdiffb > PI ) abscamdiffb = PI*2 - abscamdiffb;
-
-        if( abscamdiffa < anglerange && abscamdiffb > anglerange )
-            return -1; // prefer A
-
-        if( abscamdiffa > anglerange && abscamdiffb < anglerange )
-            return 1; // prefer B
-    }
-
-    // Otherwise, both are in front or behind, so prefer the closer one
-    {
-        if( distancea == distanceb )
-            return 0; // prefer A
-
-        if( distancea < distanceb )
-            return -1; // prefer A
-    }
-
-    return 1; // prefer B
-}
-
 void VoxelWorld::Tick(double timepassed)
 {
     // If ever our single shared index buffer isn't ready (startup, lost context, etc), create the indices
@@ -278,11 +226,7 @@ void VoxelWorld::Tick(double timepassed)
 
     // Sort chunks that need generating based on distance from world center (which is likely the player location)
     {
-        g_ChunkSort_WorldCenterChunkOffset = (m_WorldOffset + m_WorldSize/2).MultiplyComponents( m_ChunkSize );
-        ComponentCamera* pCamera = g_pComponentSystemManager->GetFirstCamera( false );
-        Vector3 camat = pCamera->m_pGameObject->GetTransform()->GetLocalTransform()->GetAt();
-        g_ChunkSort_CameraAngle = atan2( camat.z, camat.x );
-        //m_pChunksLoading.Sort( ChunkSort_ComparisonFunction );
+        SortChunkList( &m_pChunksLoading );
     }
 
     // if any chunks aren't initialized, either load from json or call generate func (threaded)
@@ -370,7 +314,7 @@ void VoxelWorld::Tick(double timepassed)
 
     // Sort chunks that need meshing based on distance from world center (which is likely the player location)
     {
-        //m_pChunksWaitingForMesh.Sort( ChunkSort_ComparisonFunction );
+        SortChunkList( &m_pChunksWaitingForMesh );
     }
 
     // if any chunks are done loading/generating, build the mesh (threaded)
@@ -645,6 +589,44 @@ void VoxelWorld::SetChunkVisible(VoxelChunk* pChunk)
     }
 }
 
+void VoxelWorld::SortChunkList(CPPListHead* pChunkList)
+{
+    // sort chunks quickly
+    
+    // create 10 buckets, place each chunk in one bucket than put them all back into the list passed in.
+    CPPListHead buckets[10];
+
+    Vector3Int worldCenter = m_WorldOffset + m_WorldSize/2;
+
+    CPPListNode* pNextNode;
+    for( CPPListNode* pNode = pChunkList->GetHead(); pNode; pNode = pNextNode )
+    {
+        pNextNode = pNode->GetNext();
+
+        VoxelChunk* pChunk = (VoxelChunk*)pNode;
+
+        Vector3Int offset = pChunk->m_ChunkPosition;
+        Vector3Int diff = offset - worldCenter;
+
+        // artificially increase y diff, i.e. prefer chunks on our plane
+        if( diff.y < -1 || diff.y > 1 )
+            diff.y *= 5;
+
+        int distance = diff.Length();
+
+        if( distance > 9 )
+            distance = 9;
+
+        buckets[distance].MoveTail( pChunk );
+    }
+
+    // put all chunks back into the list passed in
+    for( int i=0; i<10; i++ )
+    {
+        pChunkList->Append( &buckets[i] );
+    }
+}
+
 void VoxelWorld::UpdateVisibility(void* pUserData)
 {
     // Add all visible chunks to scene graph
@@ -897,7 +879,7 @@ void VoxelWorld::ShiftChunk(Vector3Int to, Vector3Int from, bool isedgeblock)
         m_pChunksFree.MoveTail( pChunk );
         SaveChunk( pChunk );
         pChunk->RemoveFromSceneGraph();
-        pChunk->m_MeshReady = false;
+        pChunk->Clear();
     }
 
     if( isedgeblock )
