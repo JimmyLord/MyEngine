@@ -58,6 +58,9 @@ protected:
 
     virtual void ParseFile(); // MyMesh override
 
+    bool IsReady();
+    bool MeshHasVerts();
+
 public:
     VoxelChunk();
     virtual ~VoxelChunk();

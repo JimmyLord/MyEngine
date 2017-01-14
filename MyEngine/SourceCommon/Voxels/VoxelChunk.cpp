@@ -303,6 +303,25 @@ void VoxelChunk::ParseFile()
     }
 }
 
+bool VoxelChunk::IsReady()
+{
+    if( m_MeshReady == true )
+    {
+        MyAssert( m_MapCreated == true );
+        return true;
+    }
+
+    return false;
+}
+
+bool VoxelChunk::MeshHasVerts()
+{
+    if( m_SubmeshList[0]->m_NumIndicesToDraw > 0 )
+        return true;
+
+    return false;
+}
+
 // ============================================================================================================================
 // Load/Save ".myvoxelmesh" files
 // ============================================================================================================================

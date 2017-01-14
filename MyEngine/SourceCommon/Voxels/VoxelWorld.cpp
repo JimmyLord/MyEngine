@@ -612,7 +612,7 @@ void VoxelWorld::SortChunkList(CPPListHead* pChunkList)
         if( diff.y < -1 || diff.y > 1 )
             diff.y *= 5;
 
-        int distance = diff.Length();
+        int distance = (int)diff.Length();
 
         if( distance > 9 )
             distance = 9;
@@ -642,7 +642,15 @@ void VoxelWorld::UpdateVisibility(void* pUserData)
     {
         VoxelChunk* pChunk = m_pActiveWorldChunkPtrs[i];
 
-        pChunk->AddToSceneGraph( pUserData, m_pMaterial );
+        if( pChunk->IsReady() && pChunk->MeshHasVerts() == false )
+        {
+            // don't add prepped but empty chunks back to scene graph
+            int bp = 1;
+        }
+        else
+        {
+            pChunk->AddToSceneGraph( pUserData, m_pMaterial );
+        }
     }
 }
 
