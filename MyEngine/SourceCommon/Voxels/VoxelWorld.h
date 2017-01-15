@@ -20,8 +20,8 @@ class VoxelWorld
 {
     friend class VoxelChunk;
 
-    static const int MAX_GENERATORS = 20;
-    static const int MAX_BUILDERS = 10;
+    static const int MAX_GENERATORS = 200;
+    static const int MAX_BUILDERS = 100;
 
 protected:
     CPPListHead m_pChunksFree;
@@ -86,6 +86,8 @@ public:
     virtual ~VoxelWorld();
 
     void Tick(double timepassed);
+    int DealWithGeneratedChunkJobs();
+    int DealWithMeshedChunkJobs();
 
     void Initialize(Vector3Int visibleworldsize);
 

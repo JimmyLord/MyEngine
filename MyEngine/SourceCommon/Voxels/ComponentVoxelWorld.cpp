@@ -33,9 +33,9 @@ ComponentVoxelWorld::ComponentVoxelWorld()
     m_pSaveFile = 0;
 
     m_pVoxelWorld = MyNew VoxelWorld;
-    m_pVoxelWorld->Initialize( Vector3Int( 10, 5, 10 ) );
+    m_pVoxelWorld->Initialize( Vector3Int( 21, 21, 21 ) );
 
-    m_pVoxelWorld->UpdateVisibility( this );
+    //m_pVoxelWorld->UpdateVisibility( this );
 
     m_pMaterial = 0;
 }

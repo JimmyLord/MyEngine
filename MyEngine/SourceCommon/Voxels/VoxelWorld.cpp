@@ -190,15 +190,7 @@ void VoxelWorld::Tick(double timepassed)
         BuildSharedIndexBuffer();
     }
 
-    //LOGInfo( "VoxelWorld", "Num active mesh builders: %d\n", m_NumActiveMeshBuilders );
-
-    // Only call if there are no active mesh builders.  No new builders will get created if world center isn't desired center.
-    if( m_NumActiveChunkGenerators == 0 && m_NumActiveMeshBuilders == 0 )
-    {
-        SetWorldCenterForReal( m_DesiredOffset + m_WorldSize/2 );
-    }
-
-    // only make chunks once the save file is fully loaded, if there's a save file.
+    // Only make chunks once the save file is fully loaded, if there's a save file.
     if( m_pSaveFile && m_jJSONSavedMapData == 0 )
     {
         if( m_pSaveFile->m_FileLoadStatus < FileLoadStatus_Success )
@@ -224,9 +216,62 @@ void VoxelWorld::Tick(double timepassed)
         }
     }
 
-    // Sort chunks that need generating based on distance from world center (which is likely the player location)
+    // Only call if there are no active mesh builders.  No new builders will get created if world center isn't desired center.
+    if( m_NumActiveChunkGenerators == 0 && m_NumActiveMeshBuilders == 0 )
     {
-        SortChunkList( &m_pChunksLoading );
+        SetWorldCenterForReal( m_DesiredOffset + m_WorldSize/2 );
+    }
+
+    // Sort chunks that need generating based on distance from world center (which is likely the player location)
+    SortChunkList( &m_pChunksLoading );
+
+    // Deal with generate chunk jobs that completed and start new ones
+    int chunksGeneratedThisFrame = DealWithGeneratedChunkJobs();
+
+    // Sort chunks that need meshing based on distance from world center (which is likely the player location)
+    SortChunkList( &m_pChunksWaitingForMesh );
+
+    // Deal with meshing jobs that completed and start new ones
+    int chunksMeshedThisFrame = DealWithMeshedChunkJobs();
+
+    // Some stats posted in an ImGui window
+    {
+        ImGui::SetNextWindowSize( ImVec2(150,100), ImGuiSetCond_FirstUseEver );
+        ImGui::Begin( "Voxel World Stats" );
+
+        ImGui::Text( "Active Gen's: %d", m_NumActiveChunkGenerators );
+        ImGui::Text( "Active Mesher's: %d", m_NumActiveMeshBuilders );
+
+        ImGui::Text( "Chunks Gen'd this frame: %d", chunksGeneratedThisFrame );
+        ImGui::Text( "Chunks Mesh'd this frame: %d", chunksMeshedThisFrame );        
+
+        ImGui::End();
+    }
+}
+
+int VoxelWorld::DealWithGeneratedChunkJobs()
+{
+    int jobscomplete = 0;
+
+    // if any previous chunks was finished generating, free up the ChunkGenerator.
+    for( int i=0; i<MAX_GENERATORS; i++ )
+    {
+        if( m_pChunkGenerators[i]->m_IsFinished )
+        {
+            m_pChunkGenerators[i]->m_IsFinished = false;
+
+            VoxelChunk* pChunk = m_pChunkGenerators[i]->m_pChunk;
+
+            if( pChunk )
+            {
+                jobscomplete++;
+                m_NumActiveChunkGenerators--;
+                m_pChunkGenerators[i]->m_pChunk = 0;
+
+                if( pChunk->m_MapCreated == true )
+                    m_pChunksWaitingForMesh.MoveTail( pChunk );
+           }
+        }
     }
 
     // if any chunks aren't initialized, either load from json or call generate func (threaded)
@@ -292,34 +337,43 @@ void VoxelWorld::Tick(double timepassed)
         }
     }
 
-    // if any previous chunks was finished generating, free up the ChunkGenerator.
-    for( int i=0; i<MAX_GENERATORS; i++ )
-    {
-        if( m_pChunkGenerators[i]->m_IsFinished )
-        {
-            m_pChunkGenerators[i]->m_IsFinished = false;
+    return jobscomplete;
+}
 
-            VoxelChunk* pChunk = m_pChunkGenerators[i]->m_pChunk;
+int VoxelWorld::DealWithMeshedChunkJobs()
+{
+    int jobscomplete = 0;
+
+    // if any previous mesh was finished building, copy the verts into a VBO and free up the MeshBuilder.
+    for( int i=0; i<MAX_BUILDERS; i++ )
+    {
+        if( m_pMeshBuilders[i]->m_IsFinished )
+        {
+            m_pMeshBuilders[i]->m_IsFinished = false;
+
+            VoxelChunk* pChunk = m_pMeshBuilders[i]->m_pChunk;
 
             if( pChunk )
             {
-                m_NumActiveChunkGenerators--;
-                m_pChunkGenerators[i]->m_pChunk = 0;
+                jobscomplete++;
 
-                if( pChunk->m_MapCreated == true )
-                    m_pChunksWaitingForMesh.MoveTail( pChunk );
+                m_NumActiveMeshBuilders--;
+                m_pMeshBuilders[i]->m_pChunk = 0;
+
+                //LOGInfo( "VoxelWorld", "Chunk offset (%d, %d, %d) - Time to build %f\n",
+                //                       pChunk->m_ChunkOffset.x, pChunk->m_ChunkOffset.y, pChunk->m_ChunkOffset.z,
+                //                       m_pMeshBuilders[i]->m_TimeToBuild );
+
+                pChunk->CopyVertsIntoVBO( m_pMeshBuilders[i]->m_pVerts, m_pMeshBuilders[i]->m_VertCount );
+                if( pChunk->m_MeshReady == true )
+                    m_pChunksVisible.MoveTail( pChunk );
            }
         }
     }
 
-    // Sort chunks that need meshing based on distance from world center (which is likely the player location)
-    {
-        SortChunkList( &m_pChunksWaitingForMesh );
-    }
-
     // if any chunks are done loading/generating, build the mesh (threaded)
     // TODO: don't build if neighbours aren't generated
-    pChunk = (VoxelChunk*)m_pChunksWaitingForMesh.GetHead();
+    VoxelChunk* pChunk = (VoxelChunk*)m_pChunksWaitingForMesh.GetHead();
     if( pChunk )
     {
         // Don't add mesh building jobs if a new center is requested.
@@ -367,30 +421,7 @@ void VoxelWorld::Tick(double timepassed)
         }
     }
 
-    // if any previous mesh was finished building, copy the verts into a VBO and free up the MeshBuilder.
-    for( int i=0; i<MAX_BUILDERS; i++ )
-    {
-        if( m_pMeshBuilders[i]->m_IsFinished )
-        {
-            m_pMeshBuilders[i]->m_IsFinished = false;
-
-            VoxelChunk* pChunk = m_pMeshBuilders[i]->m_pChunk;
-
-            if( pChunk )
-            {
-                m_NumActiveMeshBuilders--;
-                m_pMeshBuilders[i]->m_pChunk = 0;
-
-                //LOGInfo( "VoxelWorld", "Chunk offset (%d, %d, %d) - Time to build %f\n",
-                //                       pChunk->m_ChunkOffset.x, pChunk->m_ChunkOffset.y, pChunk->m_ChunkOffset.z,
-                //                       m_pMeshBuilders[i]->m_TimeToBuild );
-
-                pChunk->CopyVertsIntoVBO( m_pMeshBuilders[i]->m_pVerts, m_pMeshBuilders[i]->m_VertCount );
-                if( pChunk->m_MeshReady == true )
-                    m_pChunksVisible.MoveTail( pChunk );
-           }
-        }
-    }
+    return jobscomplete;
 }
 
 void VoxelWorld::SetWorldSize(Vector3Int visibleworldsize)
