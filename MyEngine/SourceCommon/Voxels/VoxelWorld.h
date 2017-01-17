@@ -96,6 +96,7 @@ public:
     void SetWorldCenter(Vector3 scenepos);
     void SetWorldCenter(Vector3Int newworldcenter);
 
+    void ResetAllChunks();
     void UpdateVisibility(void* pUserData);
     void SetMaterial(MaterialDefinition* pMaterial);
     MaterialDefinition* GetMaterial() { return m_pMaterial; }

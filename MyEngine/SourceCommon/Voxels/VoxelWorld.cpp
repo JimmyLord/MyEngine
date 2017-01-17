@@ -222,17 +222,21 @@ void VoxelWorld::Tick(double timepassed)
         SetWorldCenterForReal( m_DesiredOffset + m_WorldSize/2 );
     }
 
-    // Sort chunks that need generating based on distance from world center (which is likely the player location)
-    SortChunkList( &m_pChunksLoading );
+    g_pJobManager->GetJobListMutexLock();
 
-    // Deal with generate chunk jobs that completed and start new ones
-    int chunksGeneratedThisFrame = DealWithGeneratedChunkJobs();
+        // Sort chunks that need generating based on distance from world center (which is likely the player location)
+        SortChunkList( &m_pChunksLoading );
 
-    // Sort chunks that need meshing based on distance from world center (which is likely the player location)
-    SortChunkList( &m_pChunksWaitingForMesh );
+        // Deal with generate chunk jobs that completed and start new ones
+        int chunksGeneratedThisFrame = DealWithGeneratedChunkJobs();
 
-    // Deal with meshing jobs that completed and start new ones
-    int chunksMeshedThisFrame = DealWithMeshedChunkJobs();
+        // Sort chunks that need meshing based on distance from world center (which is likely the player location)
+        SortChunkList( &m_pChunksWaitingForMesh );
+
+        // Deal with meshing jobs that completed and start new ones
+        int chunksMeshedThisFrame = DealWithMeshedChunkJobs();
+
+    g_pJobManager->ReleaseJobListMutexLock();
 
     // Some stats posted in an ImGui window
     {
@@ -243,7 +247,12 @@ void VoxelWorld::Tick(double timepassed)
         ImGui::Text( "Active Mesher's: %d", m_NumActiveMeshBuilders );
 
         ImGui::Text( "Chunks Gen'd this frame: %d", chunksGeneratedThisFrame );
-        ImGui::Text( "Chunks Mesh'd this frame: %d", chunksMeshedThisFrame );        
+        ImGui::Text( "Chunks Mesh'd this frame: %d", chunksMeshedThisFrame );
+
+        if( ImGui::Button( "Reset chunks" ) )
+        {
+            ResetAllChunks();
+        }
 
         ImGui::End();
     }
@@ -325,7 +334,7 @@ int VoxelWorld::DealWithGeneratedChunkJobs()
                         pChunk->m_LockedInThreadedOp = true;
                                 
                         MyAssert( pChunkGenerator->m_pChunk->m_MapCreated == false );
-                        g_pJobManager->AddJob( pChunkGenerator );
+                        g_pJobManager->AddJob( pChunkGenerator, false );
                             
                         //pChunk->GenerateMap();
                         //m_pChunksWaitingForMesh.MoveTail( pChunk );
@@ -413,7 +422,7 @@ int VoxelWorld::DealWithMeshedChunkJobs()
 
                     pChunk->m_LockedInThreadedOp = true;
 
-                    g_pJobManager->AddJob( pMeshBuilder );
+                    g_pJobManager->AddJob( pMeshBuilder, false );
                 }
 
                 pChunk = (VoxelChunk*)m_pChunksWaitingForMesh.GetHead();
@@ -656,6 +665,51 @@ void VoxelWorld::SortChunkList(CPPListHead* pChunkList)
     {
         pChunkList->Append( &buckets[i] );
     }
+}
+
+void VoxelWorld::ResetAllChunks()
+{
+    // Clear the map/mesh for all chunks not currently being processed by another thread.
+
+    for( CPPListNode* pNode = m_pChunksWaitingForMesh.GetHead(); pNode; )
+    {
+        VoxelChunk* pChunk = (VoxelChunk*)pNode;
+        pNode = pNode->GetNext();
+
+            pChunk->m_SubmeshList[0]->m_pVertexBuffer->Invalidate( true );
+            pChunk->m_SubmeshList[0]->m_NumIndicesToDraw = 0;
+            pChunk->m_MapCreated = false;
+            pChunk->m_MeshReady = false;
+            pChunk->m_MeshOptimized = false;
+            m_pChunksNotVisible.MoveTail( pChunk );
+    }
+
+    for( CPPListNode* pNode = m_pChunksVisible.GetHead(); pNode; )
+    {
+        VoxelChunk* pChunk = (VoxelChunk*)pNode;
+        pNode = pNode->GetNext();
+
+            pChunk->m_SubmeshList[0]->m_pVertexBuffer->Invalidate( true );
+            pChunk->m_SubmeshList[0]->m_NumIndicesToDraw = 0;
+            pChunk->m_MapCreated = false;
+            pChunk->m_MeshReady = false;
+            pChunk->m_MeshOptimized = false;
+            m_pChunksNotVisible.MoveTail( pChunk );
+    }
+
+    //for( unsigned int i=0; i<m_NumChunkPointersAllocated; i++ )
+    //{
+    //    VoxelChunk* pChunk = m_pActiveWorldChunkPtrs[i];
+    //    if( pChunk->m_LockedInThreadedOp == false )
+    //    {
+    //        pChunk->m_SubmeshList[0]->m_pVertexBuffer->Invalidate( true );
+    //        pChunk->m_SubmeshList[0]->m_NumIndicesToDraw = 0;
+    //        pChunk->m_MapCreated = false;
+    //        pChunk->m_MeshReady = false;
+    //        pChunk->m_MeshOptimized = false;
+    //        m_pChunksNotVisible.MoveTail( pChunk );
+    //    }
+    //}
 }
 
 void VoxelWorld::UpdateVisibility(void* pUserData)
