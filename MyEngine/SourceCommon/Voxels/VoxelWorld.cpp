@@ -182,7 +182,7 @@ void VoxelWorld::Initialize(Vector3Int visibleworldsize)
     }
 }
 
-void VoxelWorld::Tick(double timepassed)
+void VoxelWorld::Tick(double timepassed, void* pUserData)
 {
     // If ever our single shared index buffer isn't ready (startup, lost context, etc), create the indices
     if( m_pSharedIndexBuffer->m_Dirty )
@@ -256,6 +256,8 @@ void VoxelWorld::Tick(double timepassed)
 
         ImGui::End();
     }
+
+    UpdateVisibility( pUserData );
 }
 
 int VoxelWorld::DealWithGeneratedChunkJobs()
@@ -1037,9 +1039,9 @@ Vector3Int VoxelWorld::GetWorldPosition(Vector3 scenepos)
 {
     Vector3Int worldpos;
 
-    worldpos.x = (int)floor( (scenepos.x+0.5) / m_BlockSize.x );
-    worldpos.y = (int)floor( (scenepos.y+0.5) / m_BlockSize.y );
-    worldpos.z = (int)floor( (scenepos.z+0.5) / m_BlockSize.z );
+    worldpos.x = (int)floor( (scenepos.x/*+m_BlockSize.x/2*/) / m_BlockSize.x );
+    worldpos.y = (int)floor( (scenepos.y/*+m_BlockSize.y/2*/) / m_BlockSize.y );
+    worldpos.z = (int)floor( (scenepos.z/*+m_BlockSize.z/2*/) / m_BlockSize.z );
 
     return worldpos;
 }
@@ -1199,12 +1201,12 @@ bool VoxelWorld::RayCastSingleBlockFindFaceHit(Vector3Int worldpos, Vector3 star
     {
         switch( i )
         {
-        case 0: plane.Set( Vector3(-bs.x,0,0), Vector3(-halfbs.x, 0, 0) ); break;
-        case 1: plane.Set( Vector3( bs.x,0,0), Vector3( halfbs.x, 0, 0) ); break;
-        case 2: plane.Set( Vector3(0,-bs.y,0), Vector3(0, -halfbs.y, 0) ); break;
-        case 3: plane.Set( Vector3(0, bs.y,0), Vector3(0,  halfbs.y, 0) ); break;
-        case 4: plane.Set( Vector3(0,0,-bs.z), Vector3(0, 0, -halfbs.z) ); break;
-        case 5: plane.Set( Vector3(0,0, bs.z), Vector3(0, 0,  halfbs.z) ); break;
+        case 0: plane.Set( Vector3(-1,0,0), Vector3(   0, 0, 0) ); break; //Vector3(-halfbs.x, 0, 0) ); break;
+        case 1: plane.Set( Vector3( 1,0,0), Vector3(bs.x, 0, 0) ); break; //Vector3( halfbs.x, 0, 0) ); break;
+        case 2: plane.Set( Vector3(0,-1,0), Vector3(0,    0, 0) ); break; //Vector3(0, -halfbs.y, 0) ); break;
+        case 3: plane.Set( Vector3(0, 1,0), Vector3(0, bs.y, 0) ); break; //Vector3(0,  halfbs.y, 0) ); break;
+        case 4: plane.Set( Vector3(0,0,-1), Vector3(0, 0,    0) ); break; //Vector3(0, 0, -halfbs.z) ); break;
+        case 5: plane.Set( Vector3(0,0, 1), Vector3(0, 0, bs.z) ); break; //Vector3(0, 0,  halfbs.z) ); break;
         }
 
         plane.IntersectRay( startpos, endpos, &result );

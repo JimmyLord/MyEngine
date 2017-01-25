@@ -212,10 +212,10 @@ void VoxelChunk::SetTextureTileCount(Vector2Int tilecount)
 void VoxelChunk::CalculateBounds()
 {
     // figure out the min/max extents of this chunk
-    Vector3 minextents( -m_BlockSize.x/2, -m_BlockSize.y/2, -m_BlockSize.z/2 );
-    Vector3 maxextents( (m_ChunkSize.x-1) * m_BlockSize.x + m_BlockSize.x/2,
-                        (m_ChunkSize.x-1) * m_BlockSize.y + m_BlockSize.y/2,
-                        (m_ChunkSize.x-1) * m_BlockSize.z + m_BlockSize.z/2 );
+    Vector3 minextents( 0, 0, 0 ); //-m_BlockSize.x/2, -m_BlockSize.y/2, -m_BlockSize.z/2 );
+    Vector3 maxextents( (m_ChunkSize.x-1) * m_BlockSize.x + m_BlockSize.x, ///2
+                        (m_ChunkSize.x-1) * m_BlockSize.y + m_BlockSize.y, ///2
+                        (m_ChunkSize.x-1) * m_BlockSize.z + m_BlockSize.z ); ///2
 
     Vector3 center = (minextents + maxextents) / 2;
     Vector3 extents = (maxextents - minextents) / 2;
@@ -722,12 +722,12 @@ bool VoxelChunk::RebuildMesh(unsigned int increment, Vertex_XYZUVNorm_RGBA* pPre
                     XYZRGBA rbf;
                     XYZRGBA rbb;
 
-                    float xleft   = x*m_BlockSize.x - m_BlockSize.x/2;
-                    float xright  = x*m_BlockSize.x + m_BlockSize.x/2;
-                    float ybottom = y*m_BlockSize.y - m_BlockSize.y/2;
-                    float ytop    = y*m_BlockSize.y + m_BlockSize.y/2;
-                    float zfront  = z*m_BlockSize.z - m_BlockSize.z/2;
-                    float zback   = z*m_BlockSize.z + m_BlockSize.z/2;
+                    float xleft   = x*m_BlockSize.x;// - m_BlockSize.x/2;
+                    float xright  = x*m_BlockSize.x + m_BlockSize.x;///2;
+                    float ybottom = y*m_BlockSize.y;// - m_BlockSize.y/2;
+                    float ytop    = y*m_BlockSize.y + m_BlockSize.y;///2;
+                    float zfront  = z*m_BlockSize.z;// - m_BlockSize.z/2;
+                    float zback   = z*m_BlockSize.z + m_BlockSize.z;///2;
 
                     ltf.pos.Set( xleft,  ytop,    zfront );
                     ltb.pos.Set( xleft,  ytop,    zback  );
@@ -1474,9 +1474,9 @@ Vector3Int VoxelChunk::GetWorldPosition(Vector3 scenepos)
 {
     Vector3Int worldpos;
 
-    worldpos.x = (int)floor( (scenepos.x+m_BlockSize.x/2) / m_BlockSize.x );
-    worldpos.y = (int)floor( (scenepos.y+m_BlockSize.y/2) / m_BlockSize.y );
-    worldpos.z = (int)floor( (scenepos.z+m_BlockSize.z/2) / m_BlockSize.z );
+    worldpos.x = (int)floor( (scenepos.x/*+m_BlockSize.x/2*/) / m_BlockSize.x );
+    worldpos.y = (int)floor( (scenepos.y/*+m_BlockSize.y/2*/) / m_BlockSize.y );
+    worldpos.z = (int)floor( (scenepos.z/*+m_BlockSize.z/2*/) / m_BlockSize.z );
 
     return worldpos;
 }
@@ -1531,12 +1531,12 @@ bool VoxelChunk::RayCastSingleBlockFindFaceHit(Vector3Int worldpos, Vector3 star
     {
         switch( i )
         {
-        case 0: plane.Set( Vector3(-bs.x,0,0), Vector3(-halfbs.x, 0, 0) ); break;
-        case 1: plane.Set( Vector3( bs.x,0,0), Vector3( halfbs.x, 0, 0) ); break;
-        case 2: plane.Set( Vector3(0,-bs.y,0), Vector3(0, -halfbs.y, 0) ); break;
-        case 3: plane.Set( Vector3(0, bs.y,0), Vector3(0,  halfbs.y, 0) ); break;
-        case 4: plane.Set( Vector3(0,0,-bs.z), Vector3(0, 0, -halfbs.z) ); break;
-        case 5: plane.Set( Vector3(0,0, bs.z), Vector3(0, 0,  halfbs.z) ); break;
+        case 0: plane.Set( Vector3(-1,0,0), Vector3(   0, 0, 0) ); break; //Vector3(-halfbs.x, 0, 0) ); break;
+        case 1: plane.Set( Vector3( 1,0,0), Vector3(bs.x, 0, 0) ); break; //Vector3( halfbs.x, 0, 0) ); break;
+        case 2: plane.Set( Vector3(0,-1,0), Vector3(0,    0, 0) ); break; //Vector3(0, -halfbs.y, 0) ); break;
+        case 3: plane.Set( Vector3(0, 1,0), Vector3(0, bs.y, 0) ); break; //Vector3(0,  halfbs.y, 0) ); break;
+        case 4: plane.Set( Vector3(0,0,-1), Vector3(0, 0,    0) ); break; //Vector3(0, 0, -halfbs.z) ); break;
+        case 5: plane.Set( Vector3(0,0, 1), Vector3(0, 0, bs.z) ); break; //Vector3(0, 0,  halfbs.z) ); break;
         }
 
         plane.IntersectRay( startpos, endpos, &result );

@@ -33,7 +33,7 @@ ComponentVoxelWorld::ComponentVoxelWorld()
     m_pSaveFile = 0;
 
     m_pVoxelWorld = MyNew VoxelWorld;
-    m_pVoxelWorld->Initialize( Vector3Int( 21, 21, 21 ) );
+    m_pVoxelWorld->Initialize( Vector3Int( 3, 3, 3 ) );
 
     //m_pVoxelWorld->UpdateVisibility( this );
 
@@ -429,8 +429,7 @@ void ComponentVoxelWorld::TickCallback(double TimePassed)
     if( m_pVoxelWorld == 0 )
         return;
 
-    m_pVoxelWorld->Tick( TimePassed );
-    m_pVoxelWorld->UpdateVisibility( this );
+    m_pVoxelWorld->Tick( TimePassed, this );
 
     GameObject* pPlayer = g_pComponentSystemManager->FindGameObjectByName( "Player" );
     Vector3 pos = pPlayer->GetTransform()->GetWorldPosition();
