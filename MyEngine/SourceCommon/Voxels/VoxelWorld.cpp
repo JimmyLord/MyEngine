@@ -1195,25 +1195,24 @@ bool VoxelWorld::RayCastSingleBlockFindFaceHit(Vector3Int worldpos, Vector3 star
     Vector3 result;
 
     Vector3 bs = m_BlockSize;
-    Vector3 halfbs = m_BlockSize/2;
 
     for( int i=0; i<6; i++ )
     {
         switch( i )
         {
-        case 0: plane.Set( Vector3(-1,0,0), Vector3(   0, 0, 0) ); break; //Vector3(-halfbs.x, 0, 0) ); break;
-        case 1: plane.Set( Vector3( 1,0,0), Vector3(bs.x, 0, 0) ); break; //Vector3( halfbs.x, 0, 0) ); break;
-        case 2: plane.Set( Vector3(0,-1,0), Vector3(0,    0, 0) ); break; //Vector3(0, -halfbs.y, 0) ); break;
-        case 3: plane.Set( Vector3(0, 1,0), Vector3(0, bs.y, 0) ); break; //Vector3(0,  halfbs.y, 0) ); break;
-        case 4: plane.Set( Vector3(0,0,-1), Vector3(0, 0,    0) ); break; //Vector3(0, 0, -halfbs.z) ); break;
-        case 5: plane.Set( Vector3(0,0, 1), Vector3(0, 0, bs.z) ); break; //Vector3(0, 0,  halfbs.z) ); break;
+        case 0: plane.Set( Vector3(-1,0,0), Vector3(   0, 0, 0) ); break;
+        case 1: plane.Set( Vector3( 1,0,0), Vector3(bs.x, 0, 0) ); break;
+        case 2: plane.Set( Vector3(0,-1,0), Vector3(0,    0, 0) ); break;
+        case 3: plane.Set( Vector3(0, 1,0), Vector3(0, bs.y, 0) ); break;
+        case 4: plane.Set( Vector3(0,0,-1), Vector3(0, 0,    0) ); break;
+        case 5: plane.Set( Vector3(0,0, 1), Vector3(0, 0, bs.z) ); break;
         }
 
         plane.IntersectRay( startpos, endpos, &result );
 
-        if( ( i >=0 && i <= 1 && result.y > -halfbs.y && result.y < halfbs.y && result.z > -halfbs.z && result.z < halfbs.z ) ||
-            ( i >=2 && i <= 3 && result.x > -halfbs.x && result.x < halfbs.x && result.z > -halfbs.z && result.z < halfbs.z ) ||
-            ( i >=4 && i <= 5 && result.x > -halfbs.x && result.x < halfbs.x && result.y > -halfbs.y && result.y < halfbs.y ) )
+        if( ( i >=0 && i <= 1 && result.y > 0 && result.y < bs.y && result.z > 0 && result.z < bs.z ) ||
+            ( i >=2 && i <= 3 && result.x > 0 && result.x < bs.x && result.z > 0 && result.z < bs.z ) ||
+            ( i >=4 && i <= 5 && result.x > 0 && result.x < bs.x && result.y > 0 && result.y < bs.y ) )
         {
             float len = (result - startpos).LengthSquared();
             if( len < shortestlength )
