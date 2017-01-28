@@ -473,9 +473,8 @@ void EditorCommand_CopyGameObject::Do()
     else
     {
         g_pComponentSystemManager->ManageGameObject( m_ObjectCreated );
+        m_ObjectCreated->SetEnabled( m_ObjectToCopy->IsEnabled() );
     }
-
-    //m_ObjectCreated->SetEnabled( true );
 
     // if done/redone, then object exists in the scene, don't destroy it if undo stack get wiped.
     m_DeleteGameObjectWhenDestroyed = false;
