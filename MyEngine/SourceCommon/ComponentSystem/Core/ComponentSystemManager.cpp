@@ -11,6 +11,7 @@
 
 #include "../../../Framework/MyFramework/SourceCommon/SceneGraphs/SceneGraph_Base.h"
 #include "../../../Framework/MyFramework/SourceCommon/SceneGraphs/SceneGraph_Flat.h"
+#include "../../../Framework/MyFramework/SourceCommon/SceneGraphs/SceneGraph_Octree.h"
 
 #if MYFW_USING_WX
 #include "Editor/Exporters/ExportBox2DScene.h"
@@ -40,7 +41,9 @@ ComponentSystemManager::ComponentSystemManager(ComponentTypeManager* typemanager
 
     m_TimeScale = 1;
 
-    m_pSceneGraph = MyNew SceneGraph_Flat();
+    //m_pSceneGraph = MyNew SceneGraph_Flat();
+    int depth = 3;
+    m_pSceneGraph = MyNew SceneGraph_Octree( depth, -32, -32, -32, 32, 32, 32 );
 
 #if 1 //!MYFW_USING_WX
     for( int i=0; i<MAX_SCENES_LOADED; i++ )
