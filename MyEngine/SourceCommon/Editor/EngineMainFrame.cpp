@@ -1132,6 +1132,7 @@ void EngineMainFrame::LoadScene(const char* scenename, bool unloadscenes)
         // if we're unloading the old scene(s), clear all selected items.
         g_pEngineCore->m_pEditorState->ClearKeyAndActionStates();
         g_pEngineCore->m_pEditorState->ClearSelectedObjectsAndComponents();
+        g_pEngineCore->SetEditorInterface( EditorInterfaceType_SceneManagement );
 
         g_pEngineCore->UnloadScene( UINT_MAX, false ); // don't unload editor objects.
     }
