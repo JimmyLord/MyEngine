@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2016 Jimmy Lord http://www.flatheadgames.com
+// Copyright (c) 2015-2017 Jimmy Lord http://www.flatheadgames.com
 //
 // This software is provided 'as-is', without any express or implied warranty.  In no event will the authors be held liable for any damages arising from the use of this software.
 // Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -445,28 +445,59 @@ EditorCommand_CopyGameObject::~EditorCommand_CopyGameObject()
         g_pComponentSystemManager->DeleteGameObject( m_ObjectCreated, true );
 }
 
+void CreateUniqueName(char* newname, int SizeInBytes, const char* oldname)
+{
+    int oldnamelen = (int)strlen( oldname );
+
+    // find number at end of string
+    int indexofnumber = -1;
+    {
+        for( int i=oldnamelen-1; i>=0; i-- )
+        {
+            if( oldname[i] < '0' || oldname[i] > '9' )
+            {
+                if( i != oldnamelen-1 )
+                {
+                    indexofnumber = i+1;
+                }
+                break;
+            }
+        }
+    }
+
+    // find the old number, or 0 if one didn't exist
+    int number = 0;
+    if( indexofnumber != -1 )
+        number = atoi( &oldname[indexofnumber] );
+
+    // if the string didn't end with a number, set the offset to the end of the string
+    if( indexofnumber == -1 )
+        indexofnumber = oldnamelen;
+
+    // keep incrementing number until unique name is found
+    do
+    {
+        number += 1;
+        snprintf_s( newname, SizeInBytes, indexofnumber, "%s", oldname );
+        snprintf_s( newname+indexofnumber, SizeInBytes-indexofnumber, SizeInBytes-1-indexofnumber, "%d", number );
+    } while( g_pComponentSystemManager->FindGameObjectByName( newname ) != 0 );
+}
+
 void EditorCommand_CopyGameObject::Do()
 {
     if( m_ObjectCreated == 0 )
     {
         char newname[50];
         const char* oldname = m_ObjectToCopy->GetName();
-        int oldnamelen = (int)strlen( oldname );
+
         if( m_NewObjectInheritsFromOld == false ) // if making a copy
         {
-            if( oldnamelen > 7 && strcmp( &oldname[oldnamelen-7], " - copy" ) == 0 )
-            {
-                m_ObjectCreated = g_pComponentSystemManager->CopyGameObject( m_ObjectToCopy, oldname );
-            }
-            else
-            {
-                sprintf_s( newname, 50, "%s - copy", m_ObjectToCopy->GetName() );
-                m_ObjectCreated = g_pComponentSystemManager->CopyGameObject( m_ObjectToCopy, newname );
-            }
+            CreateUniqueName( newname, 50, oldname );
+            m_ObjectCreated = g_pComponentSystemManager->CopyGameObject( m_ObjectToCopy, newname );
         }
         else // if making a child object
         {
-            sprintf_s( newname, 50, "%s - child", m_ObjectToCopy->GetName() );
+            snprintf_s( newname, 50, 49, "%s - child", m_ObjectToCopy->GetName() );
             m_ObjectCreated = g_pComponentSystemManager->CopyGameObject( m_ObjectToCopy, newname );
         }
     }
