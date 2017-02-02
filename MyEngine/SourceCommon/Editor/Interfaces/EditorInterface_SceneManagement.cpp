@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016 Jimmy Lord http://www.flatheadgames.com
+// Copyright (c) 2016-2017 Jimmy Lord http://www.flatheadgames.com
 //
 // This software is provided 'as-is', without any express or implied warranty.  In no event will the authors be held liable for any damages arising from the use of this software.
 // Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -230,7 +230,7 @@ bool EditorInterface_SceneManagement::HandleInput(int keyaction, int keycode, in
         if( mouseaction == GCBA_Down && id == 0 )
         {
             // find the object we clicked on.
-            GameObject* pObject = GetObjectAtPixel( (unsigned int)x, (unsigned int)y, true );
+            GameObject* pObject = GetObjectAtPixel( (unsigned int)x, (unsigned int)y, true, true );
 
             // reset current transform values, so we can undo by this amount after mouse goes up.
             pEditorState->m_DistanceTranslated.Set( 0, 0, 0 );
@@ -725,7 +725,7 @@ bool EditorInterface_SceneManagement::HandleInput(int keyaction, int keycode, in
                 m_ShowRightClickMenu = true;
 
                 // find the object we clicked on.
-                m_pGameObjectRightClicked = GetObjectAtPixel( (unsigned int)x, (unsigned int)y, true );
+                m_pGameObjectRightClicked = GetObjectAtPixel( (unsigned int)x, (unsigned int)y, true, true );
             }
         }
     }

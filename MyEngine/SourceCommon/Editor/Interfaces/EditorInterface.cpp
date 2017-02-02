@@ -404,7 +404,7 @@ void EditorInterface::RenderObjectIDsToFBO()
     pEditorState->m_pTransformGizmo->ScaleGizmosForMousePickRendering( false );
 }
 
-unsigned int EditorInterface::GetIDAtPixel(unsigned int x, unsigned int y, bool createnewbitmap)
+unsigned int EditorInterface::GetIDAtPixel(unsigned int x, unsigned int y, bool createnewbitmap, bool includetransformgizmo)
 {
     EditorState* pEditorState = g_pEngineCore->m_pEditorState;
 
@@ -417,6 +417,12 @@ unsigned int EditorInterface::GetIDAtPixel(unsigned int x, unsigned int y, bool 
 
     if( createnewbitmap )
     {
+        if( includetransformgizmo == false )
+        {
+            // Hide the transform gizmo
+            pEditorState->m_pTransformGizmo->Hide();
+        }
+
         RenderObjectIDsToFBO();
     }
 
@@ -450,11 +456,11 @@ unsigned int EditorInterface::GetIDAtPixel(unsigned int x, unsigned int y, bool 
     return (unsigned int)id;
 }
 
-GameObject* EditorInterface::GetObjectAtPixel(unsigned int x, unsigned int y, bool createnewbitmap)
+GameObject* EditorInterface::GetObjectAtPixel(unsigned int x, unsigned int y, bool createnewbitmap, bool includetransformgizmo)
 {
     EditorState* pEditorState = g_pEngineCore->m_pEditorState;
 
-    unsigned int id = GetIDAtPixel( x, y, createnewbitmap );
+    unsigned int id = GetIDAtPixel( x, y, createnewbitmap, includetransformgizmo );
 
     unsigned int sceneid = (unsigned int)(id / 100000);
     id = id % 100000;

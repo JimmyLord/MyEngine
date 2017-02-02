@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2014-2016 Jimmy Lord http://www.flatheadgames.com
+// Copyright (c) 2014-2017 Jimmy Lord http://www.flatheadgames.com
 //
 // This software is provided 'as-is', without any express or implied warranty.  In no event will the authors be held liable for any damages arising from the use of this software.
 // Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -278,7 +278,7 @@ void EngineMainFrame::InitFrame()
 
     wxMenu* menuexport = MyNew wxMenu;
     m_File->Insert( 6, -1, "E&xport", menuexport );
-    menuexport->Append( myIDEngine_ExportBox2DScene, wxT("Box2D Scene...") );
+    menuexport->Append( myIDEngine_ExportBox2DScene, wxT("Box2D Scene...\tCtrl-Shift-E") );
 
     m_Grid = MyNew wxMenu;
     m_MenuBar->Append( m_Grid, wxT("&Grid") );
@@ -1185,7 +1185,7 @@ void EngineMainFrame::OnDrop(int controlid, wxCoord x, wxCoord y)
     // get the GameObject the mouse was hovering over.
     ComponentCamera* pCamera = g_pEngineCore->m_pEditorState->GetEditorCamera();
     y = pCamera->m_WindowHeight - y; // prefer 0,0 at bottom left.
-    GameObject* pObject = g_pEngineCore->GetCurrentEditorInterface()->GetObjectAtPixel( x, y, true );
+    GameObject* pObject = g_pEngineCore->GetCurrentEditorInterface()->GetObjectAtPixel( x, y, true, false );
 
     if( g_DragAndDropStruct.m_Type == DragAndDropType_MaterialDefinitionPointer )
     {

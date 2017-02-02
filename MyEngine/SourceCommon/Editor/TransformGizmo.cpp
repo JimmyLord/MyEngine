@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2016 Jimmy Lord http://www.flatheadgames.com
+// Copyright (c) 2015-2017 Jimmy Lord http://www.flatheadgames.com
 //
 // This software is provided 'as-is', without any express or implied warranty.  In no event will the authors be held liable for any damages arising from the use of this software.
 // Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -9,6 +9,8 @@
 
 #include "EngineCommonHeader.h"
 #include "TransformGizmo.h"
+
+float g_TransformScale = 1/25.0f;
 
 TransformGizmo::TransformGizmo()
 {
@@ -207,7 +209,7 @@ void TransformGizmo::Tick(double TimePassed, EditorState* pEditorState)
             m_pTranslate1Axis[i]->m_pComponentTransform->SetLocalPosition( ObjectPosition );
 
             float distance = (pEditorState->m_pEditorCamera->m_pComponentTransform->GetLocalPosition() - ObjectPosition).Length();
-            m_pTranslate1Axis[i]->m_pComponentTransform->SetLocalScale( Vector3( distance / 15.0f ) );
+            m_pTranslate1Axis[i]->m_pComponentTransform->SetLocalScale( Vector3( distance * g_TransformScale ) );
         }
     }
 
@@ -281,7 +283,7 @@ void TransformGizmo::Tick(double TimePassed, EditorState* pEditorState)
             m_pTranslate2Axis[i]->m_pComponentTransform->SetLocalPosition( pos );
 
             float distance = (pEditorState->m_pEditorCamera->m_pComponentTransform->GetLocalPosition() - ObjectPosition).Length();
-            m_pTranslate2Axis[i]->m_pComponentTransform->SetLocalScale( Vector3( distance / 15.0f ) );
+            m_pTranslate2Axis[i]->m_pComponentTransform->SetLocalScale( Vector3( distance * g_TransformScale ) );
         }
     }
 
@@ -330,7 +332,7 @@ void TransformGizmo::Tick(double TimePassed, EditorState* pEditorState)
             m_pScale1Axis[i]->m_pComponentTransform->SetLocalPosition( ObjectPosition );
 
             float distance = (pEditorState->m_pEditorCamera->m_pComponentTransform->GetLocalPosition() - ObjectPosition).Length();
-            m_pScale1Axis[i]->m_pComponentTransform->SetLocalScale( Vector3( distance / 15.0f ) );
+            m_pScale1Axis[i]->m_pComponentTransform->SetLocalScale( Vector3( distance * g_TransformScale ) );
         }
     }
 
@@ -374,7 +376,7 @@ void TransformGizmo::Tick(double TimePassed, EditorState* pEditorState)
             m_pScale3Axis->m_pComponentTransform->SetLocalPosition( pos );
 
             float distance = (pEditorState->m_pEditorCamera->m_pComponentTransform->GetLocalPosition() - ObjectPosition).Length();
-            m_pScale3Axis->m_pComponentTransform->SetLocalScale( Vector3( distance / 15.0f ) );
+            m_pScale3Axis->m_pComponentTransform->SetLocalScale( Vector3( distance * g_TransformScale ) );
         }
     }
 
@@ -445,8 +447,50 @@ void TransformGizmo::Tick(double TimePassed, EditorState* pEditorState)
             m_pRotate1Axis[i]->m_pComponentTransform->SetLocalPosition( ObjectPosition );
 
             float distance = (pEditorState->m_pEditorCamera->m_pComponentTransform->GetLocalPosition() - ObjectPosition).Length();
-            m_pRotate1Axis[i]->m_pComponentTransform->SetLocalScale( Vector3( distance / 15.0f ) );
+            m_pRotate1Axis[i]->m_pComponentTransform->SetLocalScale( Vector3( distance * g_TransformScale ) );
         }
+    }
+}
+
+void TransformGizmo::Hide()
+{
+    // Update 1 axis transform gizmos
+    for( int i=0; i<3; i++ )
+    {
+        MyAssert( m_pTranslate1Axis[i] );
+        ComponentRenderable* pRenderable = (ComponentRenderable*)m_pTranslate1Axis[i]->GetFirstComponentOfBaseType( BaseComponentType_Renderable );
+        pRenderable->SetVisible( false );
+    }
+
+    // Update 2 axis transform gizmos
+    for( int i=0; i<3; i++ )
+    {
+        MyAssert( m_pTranslate2Axis[i] );
+        ComponentRenderable* pRenderable = (ComponentRenderable*)m_pTranslate2Axis[i]->GetFirstComponentOfBaseType( BaseComponentType_Renderable );
+        pRenderable->SetVisible( false );
+    }
+
+    // Update 1 axis scale gizmos
+    for( int i=0; i<3; i++ )
+    {
+        MyAssert( m_pScale1Axis[i] );
+        ComponentRenderable* pRenderable = (ComponentRenderable*)m_pScale1Axis[i]->GetFirstComponentOfBaseType( BaseComponentType_Renderable );
+        pRenderable->SetVisible( false );
+    }
+
+    // Update 3 axis scale gizmo
+    {
+        MyAssert( m_pScale3Axis );
+        ComponentRenderable* pRenderable = (ComponentRenderable*)m_pScale3Axis->GetFirstComponentOfBaseType( BaseComponentType_Renderable );
+        pRenderable->SetVisible( false );
+    }
+
+    // Update 1 axis rotate gizmos
+    for( int i=0; i<3; i++ )
+    {
+        MyAssert( m_pRotate1Axis[i] );
+        ComponentRenderable* pRenderable = (ComponentRenderable*)m_pRotate1Axis[i]->GetFirstComponentOfBaseType( BaseComponentType_Renderable );
+        pRenderable->SetVisible( false );
     }
 }
 
@@ -463,7 +507,7 @@ bool TransformGizmo::HandleInput(EngineCore* pGame, int keydown, int keycode, in
         return false;
 
     // find the object we're hovering on
-    m_pSelectedPart = pGame->GetCurrentEditorInterface()->GetObjectAtPixel( (unsigned int)x, (unsigned int)y, true );
+    m_pSelectedPart = pGame->GetCurrentEditorInterface()->GetObjectAtPixel( (unsigned int)x, (unsigned int)y, true, true );
 
     return false;
 }
