@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2016 Jimmy Lord http://www.flatheadgames.com
+// Copyright (c) 2015-2017 Jimmy Lord http://www.flatheadgames.com
 //
 // This software is provided 'as-is', without any express or implied warranty.  In no event will the authors be held liable for any damages arising from the use of this software.
 // Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -42,6 +42,7 @@ Component2DCollisionObject::Component2DCollisionObject()
 
     m_PrimitiveType = Physics2DPrimitiveType_Box;
 
+    m_Offset.Set( 0, 0 );
     m_Scale.Set( 1,1,1 );
 
     m_Static = false;
@@ -71,15 +72,18 @@ Component2DCollisionObject::~Component2DCollisionObject()
 
 void Component2DCollisionObject::RegisterVariables(CPPListHead* pList, Component2DCollisionObject* pThis) //_VARIABLE_LIST
 {
-    ComponentVariable* pVars[6];
+    ComponentVariable* pVar;
 
-    pVars[0] = AddVarEnum( pList, "PrimitiveType", MyOffsetOf( pThis, &pThis->m_PrimitiveType ),   true, true, "Primitive Type", Physics2DPrimitive_NumTypes, Physics2DPrimitiveTypeStrings, (CVarFunc_ValueChanged)&Component2DCollisionObject::OnValueChanged, 0, 0 );
+    pVar = AddVar( pList, "Offset", ComponentVariableType_Vector2, MyOffsetOf( pThis, &pThis->m_Offset ), true, true, 0, (CVarFunc_ValueChanged)&Component2DCollisionObject::OnValueChanged, 0, 0 );
+    //pVar->AddCallback_ShouldVariableBeAdded( (CVarFunc_ShouldVariableBeAdded)(&Component2DCollisionObject::ShouldVariableBeAddedToWatchPanel) );
 
-    pVars[1] = AddVar( pList, "Static",        ComponentVariableType_Bool,  MyOffsetOf( pThis, &pThis->m_Static ),          true, true, 0, (CVarFunc_ValueChanged)&Component2DCollisionObject::OnValueChanged, 0, 0 );
-    pVars[2] = AddVar( pList, "Density",       ComponentVariableType_Float, MyOffsetOf( pThis, &pThis->m_Density ),         true, true, 0, (CVarFunc_ValueChanged)&Component2DCollisionObject::OnValueChanged, 0, 0 );
-    pVars[3] = AddVar( pList, "IsSensor",      ComponentVariableType_Bool,  MyOffsetOf( pThis, &pThis->m_IsSensor ),        true, true, 0, (CVarFunc_ValueChanged)&Component2DCollisionObject::OnValueChanged, 0, 0 );
-    pVars[4] = AddVar( pList, "Friction",      ComponentVariableType_Float, MyOffsetOf( pThis, &pThis->m_Friction ),        true, true, 0, (CVarFunc_ValueChanged)&Component2DCollisionObject::OnValueChanged, 0, 0 );
-    pVars[5] = AddVar( pList, "Restitution",   ComponentVariableType_Float, MyOffsetOf( pThis, &pThis->m_Restitution ),     true, true, 0, (CVarFunc_ValueChanged)&Component2DCollisionObject::OnValueChanged, 0, 0 );
+    AddVarEnum( pList, "PrimitiveType", MyOffsetOf( pThis, &pThis->m_PrimitiveType ),   true, true, "Primitive Type", Physics2DPrimitive_NumTypes, Physics2DPrimitiveTypeStrings, (CVarFunc_ValueChanged)&Component2DCollisionObject::OnValueChanged, 0, 0 );
+
+    AddVar( pList, "Static",        ComponentVariableType_Bool,  MyOffsetOf( pThis, &pThis->m_Static ),          true, true, 0, (CVarFunc_ValueChanged)&Component2DCollisionObject::OnValueChanged, 0, 0 );
+    AddVar( pList, "Density",       ComponentVariableType_Float, MyOffsetOf( pThis, &pThis->m_Density ),         true, true, 0, (CVarFunc_ValueChanged)&Component2DCollisionObject::OnValueChanged, 0, 0 );
+    AddVar( pList, "IsSensor",      ComponentVariableType_Bool,  MyOffsetOf( pThis, &pThis->m_IsSensor ),        true, true, 0, (CVarFunc_ValueChanged)&Component2DCollisionObject::OnValueChanged, 0, 0 );
+    AddVar( pList, "Friction",      ComponentVariableType_Float, MyOffsetOf( pThis, &pThis->m_Friction ),        true, true, 0, (CVarFunc_ValueChanged)&Component2DCollisionObject::OnValueChanged, 0, 0 );
+    AddVar( pList, "Restitution",   ComponentVariableType_Float, MyOffsetOf( pThis, &pThis->m_Restitution ),     true, true, 0, (CVarFunc_ValueChanged)&Component2DCollisionObject::OnValueChanged, 0, 0 );
 
     //AddVar( pList, "Scale",         ComponentVariableType_Float, MyOffsetOf( pThis, &pThis->m_Scale ),           true, true, 0, (CVarFunc_ValueChanged)&Component2DCollisionObject::OnValueChanged, 0, 0 );
 #if MYFW_USING_WX
@@ -162,6 +166,22 @@ void Component2DCollisionObject::FillPropertiesWindow(bool clear, bool addcompon
 
 bool Component2DCollisionObject::ShouldVariableBeAddedToWatchPanel(ComponentVariable* pVar)
 {
+    //if( m_PrimitiveType == Physics2DPrimitiveType_Box )
+    //{
+    //    if( strcmp( pVar->m_Label, "PlaneSize" ) == 0 )         return true;
+    //}
+    //if( m_PrimitiveType == Physics2DPrimitiveType_Circle )
+    //{
+    //    if( strcmp( pVar->m_Label, "PlaneSize" ) == 0 )         return true;
+    //}
+    //if( m_PrimitiveType == Physics2DPrimitiveType_Edge )
+    //{
+    //    if( strcmp( pVar->m_Label, "PlaneSize" ) == 0 )         return true;
+    //}
+    //if( m_PrimitiveType == Physics2DPrimitiveType_Chain )
+    //{
+    //    if( strcmp( pVar->m_Label, "PlaneSize" ) == 0 )         return true;
+    //}
     return true;
 }
 
@@ -319,6 +339,7 @@ Component2DCollisionObject& Component2DCollisionObject::operator=(const Componen
     // TODO: replace this with a CopyComponentVariablesFromOtherObject... or something similar.
     m_PrimitiveType = other.m_PrimitiveType;
 
+    m_Offset = other.m_Offset;
     //m_Scale = other.m_Scale;
 
     m_Static = other.m_Static;
@@ -478,7 +499,14 @@ void Component2DCollisionObject::CreateBody()
         case Physics2DPrimitiveType_Box:
             {
                 b2PolygonShape boxshape;
-                boxshape.SetAsBox( 0.5f * m_Scale.x, 0.5f * m_Scale.y );
+
+                b2Vec2 verts[4];
+                verts[0].Set( -0.5f * m_Scale.x + m_Offset.x, -0.5f * m_Scale.y + m_Offset.y );
+                verts[1].Set(  0.5f * m_Scale.x + m_Offset.x, -0.5f * m_Scale.y + m_Offset.y );
+                verts[2].Set(  0.5f * m_Scale.x + m_Offset.x,  0.5f * m_Scale.y + m_Offset.y );
+                verts[3].Set( -0.5f * m_Scale.x + m_Offset.x,  0.5f * m_Scale.y + m_Offset.y );
+
+                boxshape.Set( verts, 4 );
 
                 fixturedef.shape = &boxshape;
 
@@ -489,7 +517,7 @@ void Component2DCollisionObject::CreateBody()
         case Physics2DPrimitiveType_Circle:
             {
                 b2CircleShape circleshape;
-                circleshape.m_p.Set( 0, 0 );
+                circleshape.m_p.Set( m_Offset.x, m_Offset.y );
                 circleshape.m_radius = m_Scale.x;
 
                 fixturedef.shape = &circleshape;
@@ -504,9 +532,9 @@ void Component2DCollisionObject::CreateBody()
 
                 // TODO: define edges so they're not limited to x/y axes.
                 if( m_Scale.x > m_Scale.y )
-                    edgeshape.Set( b2Vec2( -0.5f * m_Scale.x, 0 ), b2Vec2( 0.5f * m_Scale.x, 0 ) );
+                    edgeshape.Set( b2Vec2( m_Offset.x + -0.5f * m_Scale.x, m_Offset.y + 0 ), b2Vec2( m_Offset.x + 0.5f * m_Scale.x, m_Offset.y + 0 ) );
                 else
-                    edgeshape.Set( b2Vec2( 0, -0.5f * m_Scale.y ), b2Vec2( 0, 0.5f * m_Scale.y ) );
+                    edgeshape.Set( b2Vec2( m_Offset.x + 0, m_Offset.y + -0.5f * m_Scale.y ), b2Vec2( m_Offset.x + 0, m_Offset.y + 0.5f * m_Scale.y ) );
 
                 fixturedef.shape = &edgeshape;
 
@@ -524,12 +552,17 @@ void Component2DCollisionObject::CreateBody()
                 if( count == 0 )
                 {
                     m_Vertices.push_back( b2Vec2( -5, 0 ) );
-                    m_Vertices.push_back( b2Vec2( 5, 0 ) );
+                    m_Vertices.push_back( b2Vec2(  5, 0 ) );
                     count = 2;
                 }
 #else
                 int count = m_Vertices.Count();
 #endif
+                for( int i=0; i<count; i++ )
+                {
+                    m_Vertices[i].x += m_Offset.x;
+                    m_Vertices[i].y += m_Offset.y;
+                }
 
                 if( count > 0 )
                 {
@@ -646,17 +679,27 @@ void Component2DCollisionObject::SyncRigidBodyToTransform()
         return;
 }
 
-void Component2DCollisionObject::ApplyForce(Vector2 force, Vector2 point)
+void Component2DCollisionObject::ApplyForce(Vector2 force, Vector2 localpoint)
 {
     b2Vec2 b2force = b2Vec2( force.x, force.y );
-    b2Vec2 worldpoint = m_pBody->GetWorldPoint( *(b2Vec2*)&point );
+
+    // apply force to center of mass + offset
+    b2MassData massData;
+    m_pBody->GetMassData( &massData );
+    b2Vec2 worldpoint = m_pBody->GetWorldPoint( massData.center + *(b2Vec2*)&localpoint );
+
     m_pBody->ApplyForce( b2force, worldpoint, true );
 }
 
-void Component2DCollisionObject::ApplyLinearImpulse(Vector2 impulse, Vector2 point)
+void Component2DCollisionObject::ApplyLinearImpulse(Vector2 impulse, Vector2 localpoint)
 {
     b2Vec2 b2impulse = b2Vec2( impulse.x, impulse.y );
-    b2Vec2 worldpoint = m_pBody->GetWorldPoint( *(b2Vec2*)&point );
+    
+    // apply force to center of mass + offset
+    b2MassData massData;
+    m_pBody->GetMassData( &massData );
+    b2Vec2 worldpoint = m_pBody->GetWorldPoint( massData.center + *(b2Vec2*)&localpoint );
+    
     m_pBody->ApplyLinearImpulse( b2impulse, worldpoint, true );
 }
 

@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2016 Jimmy Lord http://www.flatheadgames.com
+// Copyright (c) 2015-2017 Jimmy Lord http://www.flatheadgames.com
 //
 // This software is provided 'as-is', without any express or implied warranty.  In no event will the authors be held liable for any damages arising from the use of this software.
 // Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -35,6 +35,7 @@ public:
 
     int m_PrimitiveType;
 
+    Vector2 m_Offset;
     Vector3 m_Scale;
 
     bool m_Static;
@@ -76,8 +77,8 @@ public:
 
     void SyncRigidBodyToTransform();
 
-    void ApplyForce(Vector2 force, Vector2 point);
-    void ApplyLinearImpulse(Vector2 impulse, Vector2 point);
+    void ApplyForce(Vector2 force, Vector2 localpoint);
+    void ApplyLinearImpulse(Vector2 impulse, Vector2 localpoint);
     Vector2 GetLinearVelocity();
     float GetMass();
 
