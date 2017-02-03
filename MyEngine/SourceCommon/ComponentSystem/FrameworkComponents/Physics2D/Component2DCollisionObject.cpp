@@ -39,6 +39,7 @@ Component2DCollisionObject::Component2DCollisionObject()
 
     m_pBox2DWorld = 0;
     m_pBody = 0;
+    m_pFixture = 0;
 
     m_PrimitiveType = Physics2DPrimitiveType_Box;
 
@@ -50,7 +51,6 @@ Component2DCollisionObject::Component2DCollisionObject()
     m_IsSensor = false;
     m_Friction = 0.2f;
     m_Restitution = 0;
-    //m_pMesh = 0;
 }
 
 Component2DCollisionObject::~Component2DCollisionObject()
@@ -62,8 +62,6 @@ Component2DCollisionObject::~Component2DCollisionObject()
         MyAssert( m_pBox2DWorld );
         m_pBox2DWorld->m_pWorld->DestroyBody( m_pBody );
     }
-
-    //SAFE_RELEASE( m_pMesh );
 
 #if !MYFW_USING_WX
     m_Vertices.FreeAllInList();
@@ -103,6 +101,8 @@ void Component2DCollisionObject::Reset()
         MyAssert( m_pBox2DWorld );
         m_pBox2DWorld->m_pWorld->DestroyBody( m_pBody );
     }
+    m_pBody = 0;
+    m_pFixture = 0;
     m_pBox2DWorld = 0;
 
     m_pComponentLuaScript = 0;
@@ -114,7 +114,6 @@ void Component2DCollisionObject::Reset()
     m_IsSensor = false;
     m_Friction = 0.2f;
     m_Restitution = 0;
-    //SAFE_RELEASE( m_pMesh );
 
 #if MYFW_USING_WX
     m_pPanelWatchBlockVisible = &m_PanelWatchBlockVisible;
@@ -239,38 +238,40 @@ void* Component2DCollisionObject::OnValueChanged(ComponentVariable* pVar, int co
             else
                 m_pBody->SetType( b2_dynamicBody );
         }
+    }
 
+    if( m_pFixture )
+    {
         if( pVar->m_Offset == MyOffsetOf( this, &m_Density ) )
         {
-            for( b2Fixture* pFixture = m_pBody->GetFixtureList(); pFixture != 0; pFixture = pFixture->GetNext() )
+            m_pFixture->SetDensity( m_Density );
+            
+            if( m_pBody )
             {
-                pFixture->SetDensity( m_Density );
+                m_pBody->ResetMassData();
             }
-            m_pBody->ResetMassData();
+            else
+            {
+                Component2DCollisionObject* pComponentWithBody = (Component2DCollisionObject*)m_pGameObject->GetFirstComponentOfType( "2DCollisionObjectComponent" );
+        
+                MyAssert( pComponentWithBody != this );
+                pComponentWithBody->GetBody()->ResetMassData();
+            }
         }
 
         if( pVar->m_Offset == MyOffsetOf( this, &m_IsSensor ) )
         {
-            for( b2Fixture* pFixture = m_pBody->GetFixtureList(); pFixture != 0; pFixture = pFixture->GetNext() )
-            {
-                pFixture->SetSensor( m_IsSensor );
-            }
+            m_pFixture->SetSensor( m_IsSensor );
         }
 
         if( pVar->m_Offset == MyOffsetOf( this, &m_Friction ) )
         {
-            for( b2Fixture* pFixture = m_pBody->GetFixtureList(); pFixture != 0; pFixture = pFixture->GetNext() )
-            {
-                pFixture->SetFriction( m_Friction );
-            }
+            m_pFixture->SetFriction( m_Friction );
         }
 
         if( pVar->m_Offset == MyOffsetOf( this, &m_Restitution ) )
         {
-            for( b2Fixture* pFixture = m_pBody->GetFixtureList(); pFixture != 0; pFixture = pFixture->GetNext() )
-            {
-                pFixture->SetRestitution( m_Restitution );
-            }
+            m_pFixture->SetRestitution( m_Restitution );
         }
     }
 
@@ -348,8 +349,6 @@ Component2DCollisionObject& Component2DCollisionObject::operator=(const Componen
     m_Friction = other.m_Friction;
     m_Restitution = other.m_Restitution;
 
-    //m_pMesh
-    
     // copy vertices
 #if MYFW_USING_WX
     m_Vertices = other.m_Vertices;
@@ -400,15 +399,6 @@ void Component2DCollisionObject::UnregisterCallbacks()
     }
 }
 
-//void Component2DCollisionObject::SetMesh(MyMesh* pMesh)
-//{
-//    if( pMesh )
-//        pMesh->AddRef();
-//
-//    SAFE_RELEASE( m_pMesh );
-//    m_pMesh = pMesh;
-//}
-
 void Component2DCollisionObject::OnPlay()
 {
     ComponentBase::OnPlay();
@@ -435,6 +425,8 @@ void Component2DCollisionObject::OnPlay()
             m_pBody = 0;
         }
     }
+    MyAssert( m_pFixture == 0 );
+    m_pFixture = 0;
 
     CreateBody();
 }
@@ -443,13 +435,13 @@ void Component2DCollisionObject::OnStop()
 {
     ComponentBase::OnStop();
 
-    // shouldn't get hit, all objects are deleted/recreated when gameplay is stopped.
     if( m_pBody )
     {
         m_pBox2DWorld->m_pWorld->DestroyBody( m_pBody );
         m_pBody = 0;
-        m_pBox2DWorld = 0;
     }
+    m_pFixture = 0;
+    m_pBox2DWorld = 0;
 }
 
 void Component2DCollisionObject::CreateBody()
@@ -463,26 +455,43 @@ void Component2DCollisionObject::CreateBody()
     if( m_pBox2DWorld == 0 )
         return;
 
+    b2Body* pBody = 0;
+
     // create a body on start
     if( m_pBody == 0 )
     {
-        Vector3 pos = m_pGameObject->m_pComponentTransform->GetWorldPosition();
-        Vector3 rot = m_pGameObject->m_pComponentTransform->GetWorldRotation();
-
-        b2BodyDef bodydef;
+        Component2DCollisionObject* pComponentWithBody = (Component2DCollisionObject*)m_pGameObject->GetFirstComponentOfType( "2DCollisionObjectComponent" );
         
-        bodydef.position = b2Vec2( pos.x, pos.y );
-        bodydef.angle = -rot.z / 180 * PI;
-        if( m_Static )
-            bodydef.type = b2_staticBody;
+        // if this is the first component of this type, create the body, otherwise get the body from the first component.
+        if( pComponentWithBody == this )
+        {
+            Vector3 pos = m_pGameObject->m_pComponentTransform->GetWorldPosition();
+            Vector3 rot = m_pGameObject->m_pComponentTransform->GetWorldRotation();
+
+            b2BodyDef bodydef;
+        
+            bodydef.position = b2Vec2( pos.x, pos.y );
+            bodydef.angle = -rot.z / 180 * PI;
+            if( m_Static )
+                bodydef.type = b2_staticBody;
+            else
+                bodydef.type = b2_dynamicBody;
+
+            m_pBody = m_pBox2DWorld->m_pWorld->CreateBody( &bodydef );
+            m_pBody->SetUserData( this );
+
+            m_Scale = m_pGameObject->m_pComponentTransform->GetWorldScale();
+
+            pBody = m_pBody;
+        }
         else
-            bodydef.type = b2_dynamicBody;
+        {
+            pBody = pComponentWithBody->GetBody();
+        }
+    }
 
-        m_pBody = m_pBox2DWorld->m_pWorld->CreateBody( &bodydef );
-        m_pBody->SetUserData( this );
-
-        m_Scale = m_pGameObject->m_pComponentTransform->GetWorldScale();
-
+    if( pBody != 0 )
+    {
         // Set up the fixture
         b2FixtureDef fixturedef;
         fixturedef.density = m_Density;
@@ -510,7 +519,7 @@ void Component2DCollisionObject::CreateBody()
 
                 fixturedef.shape = &boxshape;
 
-                m_pBody->CreateFixture( &fixturedef );
+                m_pFixture = pBody->CreateFixture( &fixturedef );
             }
             break;
 
@@ -522,7 +531,7 @@ void Component2DCollisionObject::CreateBody()
 
                 fixturedef.shape = &circleshape;
 
-                m_pBody->CreateFixture( &fixturedef );
+                m_pFixture = pBody->CreateFixture( &fixturedef );
             }
             break;
 
@@ -538,7 +547,7 @@ void Component2DCollisionObject::CreateBody()
 
                 fixturedef.shape = &edgeshape;
 
-                m_pBody->CreateFixture( &fixturedef );
+                m_pFixture = pBody->CreateFixture( &fixturedef );
             }
             break;
 
@@ -570,7 +579,7 @@ void Component2DCollisionObject::CreateBody()
 
                     fixturedef.shape = &chainshape;
 
-                    m_pBody->CreateFixture( &fixturedef );
+                    m_pFixture = pBody->CreateFixture( &fixturedef );
                 }
             }
         }
@@ -590,7 +599,7 @@ void Component2DCollisionObject::TickCallback(double TimePassed)
     b2Vec2 pos = m_pBody->GetPosition();
     float32 angle = -m_pBody->GetAngle() / PI * 180.0f;
 
-    MyMatrix matWorld;// = *m_pGameObject->m_pComponentTransform->GetTransform();
+    MyMatrix matWorld;
 
     Vector3 oldpos = m_pGameObject->m_pComponentTransform->GetWorldPosition();
     Vector3 oldrot = m_pGameObject->m_pComponentTransform->GetWorldRotation();

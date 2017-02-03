@@ -31,7 +31,8 @@ public:
     ComponentLuaScript* m_pComponentLuaScript;
 
     Box2DWorld* m_pBox2DWorld;
-    b2Body* m_pBody;
+    b2Body* m_pBody; // only the first of these components on a gameobject will have a body, every other one is an additional fixture
+    b2Fixture* m_pFixture;
 
     int m_PrimitiveType;
 
@@ -43,7 +44,6 @@ public:
     bool m_IsSensor;
     float m_Friction;
     float m_Restitution;
-    //MyMesh* m_pMesh;
 
 #if MYFW_USING_WX
     std::vector<b2Vec2> m_Vertices;
@@ -74,6 +74,7 @@ public:
     virtual void OnStop();
 
     void CreateBody();
+    b2Body* GetBody() { return m_pBody; }
 
     void SyncRigidBodyToTransform();
 
