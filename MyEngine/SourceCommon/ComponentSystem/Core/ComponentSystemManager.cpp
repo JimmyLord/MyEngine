@@ -1554,7 +1554,11 @@ GameObject* ComponentSystemManager::CopyGameObject(GameObject* pObject, const ch
         pNewObject->SetGameObjectThisInheritsFrom( pObject->GetGameObjectThisInheritsFrom() );
     }
 
-    *pNewObject->m_pComponentTransform = *pObject->m_pComponentTransform;
+    if( pObject->IsFolder() == false )
+    {
+        MyAssert( pObject->m_pComponentTransform != 0 );
+        *pNewObject->m_pComponentTransform = *pObject->m_pComponentTransform;
+    }
 
     for( unsigned int i=0; i<pObject->m_Components.Count(); i++ )
     {

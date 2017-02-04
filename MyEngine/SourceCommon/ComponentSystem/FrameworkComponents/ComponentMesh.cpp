@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2014-2016 Jimmy Lord http://www.flatheadgames.com
+// Copyright (c) 2014-2017 Jimmy Lord http://www.flatheadgames.com
 //
 // This software is provided 'as-is', without any express or implied warranty.  In no event will the authors be held liable for any damages arising from the use of this software.
 // Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -303,8 +303,6 @@ ComponentMesh& ComponentMesh::operator=(const ComponentMesh& other)
 
     ComponentRenderable::operator=( other );
 
-    SetMesh( other.m_pMesh );
-
     //const ComponentMesh* pOther = &other;
     //MyAssert( other.m_MaterialList.Count() == m_MaterialList.Count() );
     for( unsigned int i=0; i<MAX_SUBMESHES; i++ )
@@ -314,6 +312,8 @@ ComponentMesh& ComponentMesh::operator=(const ComponentMesh& other)
 
     m_GLPrimitiveType = other.m_GLPrimitiveType;
     m_PointSize = other.m_PointSize;
+
+    SetMesh( other.m_pMesh );
 
     return *this;
 }
