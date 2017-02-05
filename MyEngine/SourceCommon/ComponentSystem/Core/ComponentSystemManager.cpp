@@ -1554,12 +1554,6 @@ GameObject* ComponentSystemManager::CopyGameObject(GameObject* pObject, const ch
         pNewObject->SetGameObjectThisInheritsFrom( pObject->GetGameObjectThisInheritsFrom() );
     }
 
-    if( pObject->IsFolder() == false )
-    {
-        MyAssert( pObject->m_pComponentTransform != 0 );
-        *pNewObject->m_pComponentTransform = *pObject->m_pComponentTransform;
-    }
-
     for( unsigned int i=0; i<pObject->m_Components.Count(); i++ )
     {
         ComponentBase* pComponent = 0;
@@ -1591,6 +1585,18 @@ GameObject* ComponentSystemManager::CopyGameObject(GameObject* pObject, const ch
                     pNewObject->m_Components[i]->OnPlay();
             }
         }
+    }
+
+    // if the object we're copying was parented, set the parent.
+    if( pObject->GetParentGameObject() != 0 )
+    {
+        pNewObject->SetParentGameObject( pObject->GetParentGameObject() );
+    }
+
+    if( pObject->IsFolder() == false )
+    {
+        MyAssert( pObject->m_pComponentTransform != 0 );
+        *pNewObject->m_pComponentTransform = *pObject->m_pComponentTransform;
     }
 
     // Recursively copy children.

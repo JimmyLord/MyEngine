@@ -320,6 +320,10 @@ bool EditorInterface_SceneManagement::HandleInput(int keyaction, int keycode, in
                 pEditorState->ClearSelectedObjectsAndComponents();
                 for( unsigned int i=0; i<selectedobjects.size(); i++ )
                 {
+                    // don't copy folders, only the objects selected inside them.
+                    if( selectedobjects[i]->IsFolder() )
+                        continue;
+
                     GameObject* pNewObject = g_pComponentSystemManager->EditorCopyGameObject( selectedobjects[i], false );
                     if( g_pEngineCore->m_EditorMode )
                     {
