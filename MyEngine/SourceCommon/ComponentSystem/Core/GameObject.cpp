@@ -329,18 +329,16 @@ void GameObject::OnDrop(int controlid, wxCoord x, wxCoord y)
         wxRect rect;
         g_pPanelObjectList->m_pTree_Objects->GetBoundingRect( treeid, rect, false );
 
-        if( false ) //y < rect.GetTop() + 5 ) // move above the selected item
+        // range must match code in PanelObjectListDropTarget::OnDragOver // TODO: fix this
+        if( y > rect.GetBottom() - 10 )
         {
-            //g_pPanelObjectList->Tree_MoveObjectBefore( pGameObject, this, false );
-            //pGameObject->MoveBefore( this );
-        }
-        else if( y > rect.GetBottom() - 10 ) // move below the selected item
-        {
+            // move below the selected item
             g_pPanelObjectList->Tree_MoveObject( pGameObject, this, false );
             pGameObject->MoveAfter( this );
         }
-        else // Parent the object dropped to this.
+        else
         {
+            // Parent the object dropped to this.
             pGameObject->SetParentGameObject( this );
         }
     }
