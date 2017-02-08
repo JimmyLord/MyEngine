@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2012-2016 Jimmy Lord http://www.flatheadgames.com
+// Copyright (c) 2012-2017 Jimmy Lord http://www.flatheadgames.com
 //
 // This software is provided 'as-is', without any express or implied warranty.  In no event will the authors be held liable for any damages arising from the use of this software.
 // Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -76,6 +76,7 @@ EngineCore::EngineCore()
 
     g_pPanelObjectList->m_pCallbackFunctionObject = this;
     g_pPanelObjectList->m_pOnTreeSelectionChangedFunction = StaticOnObjectListTreeSelectionChanged;
+    g_pPanelObjectList->m_pOnTreeMultipleSelectionFunction = StaticOnObjectListTreeMultipleSelection;
 
     m_pEditorInterfaces[EditorInterfaceType_SceneManagement] = MyNew EditorInterface_SceneManagement();
     m_pEditorInterfaces[EditorInterfaceType_2DPointEditor] = MyNew EditorInterface_2DPointEditor();
@@ -1611,13 +1612,90 @@ EditorInterface* EngineCore::GetCurrentEditorInterface()
 #endif //MYFW_USING_WX
 
 #if MYFW_USING_WX
-void EngineCore::OnObjectListTreeSelectionChanged()
+void EngineCore::OnObjectListTreeSelectionChanged() //StaticOnObjectListTreeSelectionChanged
 {
     if( m_pEditorState )
     {
         //LOGInfo( LOGTag, "Clearing Selected Objects\n" );
         m_pEditorState->m_pSelectedObjects.clear();
         m_pEditorState->m_pSelectedComponents.clear();
+    }
+}
+
+void EngineCore::OnObjectListTreeMultipleSelection() //StaticOnObjectListTreeMultipleSelection
+{
+    wxArrayTreeItemIds selecteditems;
+    unsigned int numselected = (unsigned int)g_pPanelObjectList->m_pTree_Objects->GetSelections( selecteditems );
+
+    if( numselected == 0 )
+        return;
+
+    wxTreeItemId firstid = selecteditems[0].GetID();
+    TreeItemDataGenericObjectInfo* pFirstData = (TreeItemDataGenericObjectInfo*)g_pPanelObjectList->m_pTree_Objects->GetItemData( firstid );
+
+    // far from a great test, but if first object is using a gameobject callback, it's a gameobject...
+    // Deal with multiple gameobjects selected:
+    if( pFirstData->m_pLeftClickFunction == GameObject::StaticOnLeftClick )
+    {
+        GameObject* pFirstGameObject = (GameObject*)pFirstData->m_pObject;
+
+        for( unsigned int componentindex=0; componentindex<pFirstGameObject->m_Components.Count()+1; componentindex++ )
+        {
+            // Figure out which component we want to check other gameobjects for, special case for transform component.
+            ComponentBase* pComponentToLookFor = 0;
+
+            if( componentindex == 0 )
+            {
+                if( pFirstGameObject->m_pComponentTransform == 0 )
+                    continue;
+
+                pComponentToLookFor = pFirstGameObject->m_pComponentTransform;
+            }
+            else
+            {
+                pComponentToLookFor = pFirstGameObject->m_Components[componentindex-1];
+            }
+
+            MyAssert( pComponentToLookFor );
+
+            // loop through selected gameobjects and check if they all have to least one of this component type on them.
+            bool allgameobjectshavecomponent = true;
+            for( unsigned int treeindex=1; treeindex<numselected; treeindex++ )
+            {
+                wxTreeItemId id = selecteditems[treeindex].GetID();
+                TreeItemDataGenericObjectInfo* pData = (TreeItemDataGenericObjectInfo*)g_pPanelObjectList->m_pTree_Objects->GetItemData( id );
+
+                // again, not the best test, but check if this is a game object.
+                if( pData->m_pLeftClickFunction == GameObject::StaticOnLeftClick )
+                {
+                    GameObject* pGameObject = (GameObject*)pData->m_pObject;
+
+                    bool hascomponent = false;
+                    for( unsigned int i=0; i<pGameObject->m_Components.Count()+1; i++ )
+                    {
+                        if( ( i == 0 && pGameObject->m_pComponentTransform->IsA( pComponentToLookFor->GetClassname() ) == true ) ||
+                            ( i >= 1 && pGameObject->m_Components[i-1]->IsA( pComponentToLookFor->GetClassname() ) == true ) )
+                        {
+                            hascomponent = true;
+                            break;
+                        }
+                    }
+
+                    if( hascomponent == false )
+                    {
+                        allgameobjectshavecomponent = false;
+                    }
+                }
+
+                if( allgameobjectshavecomponent == false )
+                    break;
+            }
+
+            if( allgameobjectshavecomponent == true )
+            {
+                pComponentToLookFor->OnLeftClick( 0, false );
+            }
+        }
     }
 }
 #endif //MYFW_USING_WX
