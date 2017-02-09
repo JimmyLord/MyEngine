@@ -931,6 +931,12 @@ void ComponentBase::OnValueChangedVariable(int controlid, bool finishedchanging,
         }
 
         UpdateChildrenWithNewValue( false, pVar, controlid, finishedchanging, oldvalue, oldpointer, -1, -1, 0 );
+
+        // deal with multiple selections
+        for( unsigned int i=0; i<m_MultiSelectedComponents.size(); i++ )
+        {
+            UpdateOtherComponentWithNewValue( m_MultiSelectedComponents[i], false, pVar, controlid, finishedchanging, oldvalue, oldpointer, 0, 0, 0 );
+        }
     }
 }
 
@@ -1407,286 +1413,293 @@ void ComponentBase::UpdateGameObjectWithNewValue(GameObject* pGameObject, bool f
                 if( pChildComponent->IsDivorced( pVar->m_Index ) )
                     return;
 
-                // Found the matching component, now compare the variable.
-                switch( pVar->m_Type )
-                {
-                case ComponentVariableType_Int:
-                case ComponentVariableType_Enum:
-                    MyAssert( fromdraganddrop == false ); // not drag/dropping these types ATM.
-
-                    if( fromdraganddrop == false )
-                    {
-                        int offset = pVar->m_Offset;
-
-                        // old method of comparing values //if( *(int*)((char*)pChildComponent + offset) == oldvalue )
-                        if( pChildComponent->IsDivorced( pVar->m_Index ) == false )
-                        {
-                            *(int*)((char*)pChildComponent + offset) = *(int*)((char*)this + offset);
-                            if( pVar->m_pOnValueChangedCallbackFunc )
-                                (pChildComponent->*pVar->m_pOnValueChangedCallbackFunc)( pVar, controlid, finishedchanging, oldvalue );
-                        }
-
-                        pChildComponent->UpdateChildrenWithNewValue( fromdraganddrop, pVar, controlid, finishedchanging, oldvalue, oldpointer, x, y, newpointer );
-                    }
-                    break;
-
-                case ComponentVariableType_UnsignedInt:
-                case ComponentVariableType_Flags:
-                    MyAssert( fromdraganddrop == false ); // not drag/dropping these types ATM.
-
-                    if( fromdraganddrop == false )
-                    {
-                        int offset = pVar->m_Offset;
-
-                        // old method of comparing values //if( *(unsigned int*)((char*)pChildComponent + offset) == oldvalue )
-                        if( pChildComponent->IsDivorced( pVar->m_Index ) == false )
-                        {
-                            *(unsigned int*)((char*)pChildComponent + offset) = *(unsigned int*)((char*)this + offset);
-                            if( pVar->m_pOnValueChangedCallbackFunc )
-                                (pChildComponent->*pVar->m_pOnValueChangedCallbackFunc)( pVar, controlid, finishedchanging, oldvalue );
-                        }
-
-                        pChildComponent->UpdateChildrenWithNewValue( fromdraganddrop, pVar, controlid, finishedchanging, oldvalue, oldpointer, x, y, newpointer );
-                    }
-                    break;
-
-                //ComponentVariableType_Char,
-                //ComponentVariableType_UnsignedChar,
-
-                case ComponentVariableType_Bool:
-                    MyAssert( fromdraganddrop == false ); // not drag/dropping these types ATM.
-
-                    if( fromdraganddrop == false )
-                    {
-                        int offset = pVar->m_Offset;
-
-                        // old method of comparing values //if( *(bool*)((char*)pChildComponent + offset) == fequal( oldvalue, 1 ) ? true : false )
-                        if( pChildComponent->IsDivorced( pVar->m_Index ) == false )
-                        {
-                            *(bool*)((char*)pChildComponent + offset) = *(bool*)((char*)this + offset);
-                            if( pVar->m_pOnValueChangedCallbackFunc )
-                                (pChildComponent->*pVar->m_pOnValueChangedCallbackFunc)( pVar, controlid, finishedchanging, oldvalue );
-                        }
-
-                        pChildComponent->UpdateChildrenWithNewValue( fromdraganddrop, pVar, controlid, finishedchanging, oldvalue, oldpointer, x, y, newpointer );
-                    }
-                    break;
-
-                case ComponentVariableType_Float:
-                    MyAssert( fromdraganddrop == false ); // not drag/dropping these types ATM.
-
-                    if( fromdraganddrop == false )
-                    {
-                        int offset = pVar->m_Offset;
-
-                        // old method of comparing values //if( *(float*)((char*)pChildComponent + offset) == oldvalue )
-                        if( pChildComponent->IsDivorced( pVar->m_Index ) == false )
-                        {
-                            *(float*)((char*)pChildComponent + offset) = *(float*)((char*)this + offset);
-                            if( pVar->m_pOnValueChangedCallbackFunc )
-                                (pChildComponent->*pVar->m_pOnValueChangedCallbackFunc)( pVar, controlid, finishedchanging, oldvalue );
-                        }
-
-                        pChildComponent->UpdateChildrenWithNewValue( fromdraganddrop, pVar, controlid, finishedchanging, oldvalue, oldpointer, x, y, newpointer );
-                    }
-                    break;
-
-                //ComponentVariableType_Double,
-                //ComponentVariableType_ColorFloat,
-
-                case ComponentVariableType_ColorByte:
-                    MyAssert( fromdraganddrop == false ); // not drag/dropping these types ATM.
-
-                    if( fromdraganddrop == false )
-                    {
-                        int controlcomponent = controlid - pVar->m_ControlID;
-
-                        if( controlcomponent == 0 )
-                        {
-                            if( oldvalue != 0 )
-                            {
-                                int offset = pVar->m_Offset;
-                                ColorByte* oldcolor = (ColorByte*)*(int*)&oldvalue;
-                                ColorByte* childcolor = (ColorByte*)((char*)pChildComponent + offset);
-
-                                // old method of comparing values //if( *childcolor == *oldcolor )
-                                if( pChildComponent->IsDivorced( pVar->m_Index ) == false )
-                                {
-                                    ColorByte* newcolor = (ColorByte*)((char*)this + offset);
-                                    *childcolor = *newcolor;
-                                    if( pVar->m_pOnValueChangedCallbackFunc )
-                                        (pChildComponent->*pVar->m_pOnValueChangedCallbackFunc)( pVar, controlid, finishedchanging, oldvalue );
-                                }
-                            }
-                        }
-                        else
-                        {
-                            int offset = pVar->m_Offset + sizeof(unsigned char)*3; // offset of the alpha in ColorByte
-
-                            // old method of comparing values //if( *(unsigned char*)((char*)pChildComponent + offset) == oldvalue )
-                            if( pChildComponent->IsDivorced( pVar->m_Index + 3 ) == false )
-                            {
-                                *(unsigned char*)((char*)pChildComponent + offset) = *(unsigned char*)((char*)this + offset);
-                                if( pVar->m_pOnValueChangedCallbackFunc )
-                                    (pChildComponent->*pVar->m_pOnValueChangedCallbackFunc)( pVar, controlid, finishedchanging, oldvalue );
-                            }
-                        }
-
-                        pChildComponent->UpdateChildrenWithNewValue( fromdraganddrop, pVar, controlid, finishedchanging, oldvalue, oldpointer, x, y, newpointer );
-                    }
-                    break;
-
-                case ComponentVariableType_Vector2:
-                case ComponentVariableType_Vector3:
-                    MyAssert( fromdraganddrop == false ); // not drag/dropping these types ATM.
-
-                    if( fromdraganddrop == false )
-                    {
-                        // figure out which component of a multi-component control(e.g. vector3) this is.
-                        int controlcomponent = controlid - pVar->m_ControlID;
-
-                        int offset = pVar->m_Offset + controlcomponent*4;
-
-                        // old method of comparing values //if( *(float*)((char*)pChildComponent + offset) == oldvalue )
-                        if( pChildComponent->IsDivorced( pVar->m_Index + controlcomponent ) == false )
-                        {
-                            *(float*)((char*)pChildComponent + offset) = *(float*)((char*)this + offset);
-                            if( pVar->m_pOnValueChangedCallbackFunc )
-                                (pChildComponent->*pVar->m_pOnValueChangedCallbackFunc)( pVar, controlid, finishedchanging, oldvalue );
-                        }
-
-                        pChildComponent->UpdateChildrenWithNewValue( fromdraganddrop, pVar, controlid, finishedchanging, oldvalue, oldpointer, x, y, newpointer );
-                    }
-                    break;
-
-                case ComponentVariableType_Vector2Int:
-                case ComponentVariableType_Vector3Int:
-                    MyAssert( fromdraganddrop == false ); // not drag/dropping these types ATM.
-
-                    if( fromdraganddrop == false )
-                    {
-                        // figure out which component of a multi-component control(e.g. vector3Int) this is.
-                        int controlcomponent = controlid - pVar->m_ControlID;
-
-                        int offset = pVar->m_Offset + controlcomponent*4;
-
-                        // old method of comparing values //if( *(int*)((char*)pChildComponent + offset) == oldvalue )
-                        if( pChildComponent->IsDivorced( pVar->m_Index + controlcomponent ) == false )
-                        {
-                            *(int*)((char*)pChildComponent + offset) = *(int*)((char*)this + offset);
-                            if( pVar->m_pOnValueChangedCallbackFunc )
-                                (pChildComponent->*pVar->m_pOnValueChangedCallbackFunc)( pVar, controlid, finishedchanging, oldvalue );
-                        }
-
-                        pChildComponent->UpdateChildrenWithNewValue( fromdraganddrop, pVar, controlid, finishedchanging, oldvalue, oldpointer, x, y, newpointer );
-                    }
-                    break;
-
-                case ComponentVariableType_GameObjectPtr:
-                    MyAssert( false );
-                    break;
-
-                case ComponentVariableType_FilePtr:
-                case ComponentVariableType_ComponentPtr:
-                case ComponentVariableType_MaterialPtr:
-                case ComponentVariableType_SoundCuePtr:
-                    {
-                        if( fromdraganddrop )
-                        {
-                            int offset = pVar->m_Offset;
-
-                            // old method of comparing values //if( *(void**)((char*)pChildComponent + offset) == oldpointer )
-                            if( pChildComponent->IsDivorced( pVar->m_Index ) == false )
-                            {
-                                // OnDropCallback will grab the new value from g_DragAndDropStruct
-                                MyAssert( pVar->m_pOnDropCallbackFunc );
-                                if( pVar->m_pOnDropCallbackFunc )
-                                {
-                                    void* oldpointer2 = (pChildComponent->*pVar->m_pOnDropCallbackFunc)( pVar, x, y );
-
-                                    // assert should only trip if child didn't have same value that the parent had
-                                    //     which shouldn't happen since values aren't divorced.
-                                    // could happen since divorced flags are saved in .scene files and not verified on load
-                                    // nothing bad will happen if assert trips, other than child value getting overwritten unexpectedly.
-                                    MyAssert( oldpointer2 == oldpointer );
-                                }
-                            }
-                        }
-                        else
-                        {
-                            int offset = pVar->m_Offset;
-
-                            // old method of comparing values //if( *(void**)((char*)pChildComponent + pVar->m_Offset) == oldpointer )
-                            if( pChildComponent->IsDivorced( pVar->m_Index ) == false )
-                            {
-                                MyAssert( pVar->m_pOnValueChangedCallbackFunc );
-                                if( pVar->m_pOnValueChangedCallbackFunc )
-                                {
-                                    void* oldpointer2 = (pChildComponent->*pVar->m_pOnValueChangedCallbackFunc)( pVar, controlid, finishedchanging, oldvalue );
-                                    MyAssert( oldpointer2 == oldpointer );
-                                }
-                            }                                
-                        }
-
-                        pChildComponent->UpdateChildrenWithNewValue( fromdraganddrop, pVar, controlid, finishedchanging, oldvalue, oldpointer, x, y, newpointer );
-                    }
-                    break;
-
-                case ComponentVariableType_PointerIndirect:
-                    {
-                        if( fromdraganddrop )
-                        {
-                            int offset = pVar->m_Offset;
-
-                            // old method of comparing values //if( (pChildComponent->*pVar->m_pGetPointerValueCallBackFunc)( pVar ) == oldpointer )
-                            if( pChildComponent->IsDivorced( pVar->m_Index ) == false )
-                            {
-                                // OnDropCallback will grab the new value from g_DragAndDropStruct
-                                MyAssert( pVar->m_pOnDropCallbackFunc );
-                                if( pVar->m_pOnDropCallbackFunc )
-                                {
-                                    void* oldpointer2 = (pChildComponent->*pVar->m_pOnDropCallbackFunc)( pVar, x, y );
-                                    MyAssert( oldpointer2 == oldpointer );
-                                }
-                            }
-                        }
-                        else if( newpointer )
-                        {
-                            // old method of comparing values //if( (pChildComponent->*pVar->m_pGetPointerValueCallBackFunc)( pVar ) == oldpointer )
-                            if( pChildComponent->IsDivorced( pVar->m_Index ) == false )
-                            {
-                                MyAssert( pVar->m_pSetPointerValueCallBackFunc );
-                                if( pVar->m_pSetPointerValueCallBackFunc )
-                                {
-                                    (pChildComponent->*pVar->m_pSetPointerValueCallBackFunc)( pVar, newpointer );
-                                }
-                            }
-                        }
-                        else
-                        {
-                            // old method of comparing values //if( (pChildComponent->*pVar->m_pGetPointerValueCallBackFunc)( pVar ) == oldpointer )
-                            if( pChildComponent->IsDivorced( pVar->m_Index ) == false )
-                            {
-                                MyAssert( pVar->m_pOnValueChangedCallbackFunc );
-                                if( pVar->m_pOnValueChangedCallbackFunc )
-                                {
-                                    void* oldpointer2 = (pChildComponent->*pVar->m_pOnValueChangedCallbackFunc)( pVar, controlid, finishedchanging, oldvalue );
-                                    MyAssert( oldpointer2 == oldpointer );
-                                }
-                            }
-                        }
-
-                        pChildComponent->UpdateChildrenWithNewValue( fromdraganddrop, pVar, controlid, finishedchanging, oldvalue, oldpointer, x, y, newpointer );
-                    }
-                    break;
-
-                case ComponentVariableType_NumTypes:
-                default:
-                    MyAssert( false );
-                    break;
-                }
+                UpdateOtherComponentWithNewValue(pChildComponent, fromdraganddrop, pVar, controlid, finishedchanging, oldvalue, oldpointer, x, y, newpointer);
             }
         }
+    }
+}
+
+void ComponentBase::UpdateOtherComponentWithNewValue(ComponentBase* pComponent, bool fromdraganddrop, ComponentVariable* pVar, int controlid, bool finishedchanging, double oldvalue, void* oldpointer, wxCoord x, wxCoord y, void* newpointer)
+{
+    ComponentBase* pChildComponent = pComponent;
+
+    // Found the matching component, now compare the variable.
+    switch( pVar->m_Type )
+    {
+    case ComponentVariableType_Int:
+    case ComponentVariableType_Enum:
+        MyAssert( fromdraganddrop == false ); // not drag/dropping these types ATM.
+
+        if( fromdraganddrop == false )
+        {
+            int offset = pVar->m_Offset;
+
+            // old method of comparing values //if( *(int*)((char*)pChildComponent + offset) == oldvalue )
+            if( pChildComponent->IsDivorced( pVar->m_Index ) == false )
+            {
+                *(int*)((char*)pChildComponent + offset) = *(int*)((char*)this + offset);
+                if( pVar->m_pOnValueChangedCallbackFunc )
+                    (pChildComponent->*pVar->m_pOnValueChangedCallbackFunc)( pVar, controlid, finishedchanging, oldvalue );
+            }
+
+            pChildComponent->UpdateChildrenWithNewValue( fromdraganddrop, pVar, controlid, finishedchanging, oldvalue, oldpointer, x, y, newpointer );
+        }
+        break;
+
+    case ComponentVariableType_UnsignedInt:
+    case ComponentVariableType_Flags:
+        MyAssert( fromdraganddrop == false ); // not drag/dropping these types ATM.
+
+        if( fromdraganddrop == false )
+        {
+            int offset = pVar->m_Offset;
+
+            // old method of comparing values //if( *(unsigned int*)((char*)pChildComponent + offset) == oldvalue )
+            if( pChildComponent->IsDivorced( pVar->m_Index ) == false )
+            {
+                *(unsigned int*)((char*)pChildComponent + offset) = *(unsigned int*)((char*)this + offset);
+                if( pVar->m_pOnValueChangedCallbackFunc )
+                    (pChildComponent->*pVar->m_pOnValueChangedCallbackFunc)( pVar, controlid, finishedchanging, oldvalue );
+            }
+
+            pChildComponent->UpdateChildrenWithNewValue( fromdraganddrop, pVar, controlid, finishedchanging, oldvalue, oldpointer, x, y, newpointer );
+        }
+        break;
+
+    //ComponentVariableType_Char,
+    //ComponentVariableType_UnsignedChar,
+
+    case ComponentVariableType_Bool:
+        MyAssert( fromdraganddrop == false ); // not drag/dropping these types ATM.
+
+        if( fromdraganddrop == false )
+        {
+            int offset = pVar->m_Offset;
+
+            // old method of comparing values //if( *(bool*)((char*)pChildComponent + offset) == fequal( oldvalue, 1 ) ? true : false )
+            if( pChildComponent->IsDivorced( pVar->m_Index ) == false )
+            {
+                *(bool*)((char*)pChildComponent + offset) = *(bool*)((char*)this + offset);
+                if( pVar->m_pOnValueChangedCallbackFunc )
+                    (pChildComponent->*pVar->m_pOnValueChangedCallbackFunc)( pVar, controlid, finishedchanging, oldvalue );
+            }
+
+            pChildComponent->UpdateChildrenWithNewValue( fromdraganddrop, pVar, controlid, finishedchanging, oldvalue, oldpointer, x, y, newpointer );
+        }
+        break;
+
+    case ComponentVariableType_Float:
+        MyAssert( fromdraganddrop == false ); // not drag/dropping these types ATM.
+
+        if( fromdraganddrop == false )
+        {
+            int offset = pVar->m_Offset;
+
+            // old method of comparing values //if( *(float*)((char*)pChildComponent + offset) == oldvalue )
+            if( pChildComponent->IsDivorced( pVar->m_Index ) == false )
+            {
+                *(float*)((char*)pChildComponent + offset) = *(float*)((char*)this + offset);
+                if( pVar->m_pOnValueChangedCallbackFunc )
+                    (pChildComponent->*pVar->m_pOnValueChangedCallbackFunc)( pVar, controlid, finishedchanging, oldvalue );
+            }
+
+            pChildComponent->UpdateChildrenWithNewValue( fromdraganddrop, pVar, controlid, finishedchanging, oldvalue, oldpointer, x, y, newpointer );
+        }
+        break;
+
+    //ComponentVariableType_Double,
+    //ComponentVariableType_ColorFloat,
+
+    case ComponentVariableType_ColorByte:
+        MyAssert( fromdraganddrop == false ); // not drag/dropping these types ATM.
+
+        if( fromdraganddrop == false )
+        {
+            int controlcomponent = controlid - pVar->m_ControlID;
+
+            if( controlcomponent == 0 )
+            {
+                if( oldvalue != 0 )
+                {
+                    int offset = pVar->m_Offset;
+                    ColorByte* oldcolor = (ColorByte*)*(int*)&oldvalue;
+                    ColorByte* childcolor = (ColorByte*)((char*)pChildComponent + offset);
+
+                    // old method of comparing values //if( *childcolor == *oldcolor )
+                    if( pChildComponent->IsDivorced( pVar->m_Index ) == false )
+                    {
+                        ColorByte* newcolor = (ColorByte*)((char*)this + offset);
+                        *childcolor = *newcolor;
+                        if( pVar->m_pOnValueChangedCallbackFunc )
+                            (pChildComponent->*pVar->m_pOnValueChangedCallbackFunc)( pVar, controlid, finishedchanging, oldvalue );
+                    }
+                }
+            }
+            else
+            {
+                int offset = pVar->m_Offset + sizeof(unsigned char)*3; // offset of the alpha in ColorByte
+
+                // old method of comparing values //if( *(unsigned char*)((char*)pChildComponent + offset) == oldvalue )
+                if( pChildComponent->IsDivorced( pVar->m_Index + 3 ) == false )
+                {
+                    *(unsigned char*)((char*)pChildComponent + offset) = *(unsigned char*)((char*)this + offset);
+                    if( pVar->m_pOnValueChangedCallbackFunc )
+                        (pChildComponent->*pVar->m_pOnValueChangedCallbackFunc)( pVar, controlid, finishedchanging, oldvalue );
+                }
+            }
+
+            pChildComponent->UpdateChildrenWithNewValue( fromdraganddrop, pVar, controlid, finishedchanging, oldvalue, oldpointer, x, y, newpointer );
+        }
+        break;
+
+    case ComponentVariableType_Vector2:
+    case ComponentVariableType_Vector3:
+        MyAssert( fromdraganddrop == false ); // not drag/dropping these types ATM.
+
+        if( fromdraganddrop == false )
+        {
+            // figure out which component of a multi-component control(e.g. vector3) this is.
+            int controlcomponent = controlid - pVar->m_ControlID;
+
+            int offset = pVar->m_Offset + controlcomponent*4;
+
+            // old method of comparing values //if( *(float*)((char*)pChildComponent + offset) == oldvalue )
+            if( pChildComponent->IsDivorced( pVar->m_Index + controlcomponent ) == false )
+            {
+                *(float*)((char*)pChildComponent + offset) = *(float*)((char*)this + offset);
+                if( pVar->m_pOnValueChangedCallbackFunc )
+                    (pChildComponent->*pVar->m_pOnValueChangedCallbackFunc)( pVar, controlid, finishedchanging, oldvalue );
+            }
+
+            pChildComponent->UpdateChildrenWithNewValue( fromdraganddrop, pVar, controlid, finishedchanging, oldvalue, oldpointer, x, y, newpointer );
+        }
+        break;
+
+    case ComponentVariableType_Vector2Int:
+    case ComponentVariableType_Vector3Int:
+        MyAssert( fromdraganddrop == false ); // not drag/dropping these types ATM.
+
+        if( fromdraganddrop == false )
+        {
+            // figure out which component of a multi-component control(e.g. vector3Int) this is.
+            int controlcomponent = controlid - pVar->m_ControlID;
+
+            int offset = pVar->m_Offset + controlcomponent*4;
+
+            // old method of comparing values //if( *(int*)((char*)pChildComponent + offset) == oldvalue )
+            if( pChildComponent->IsDivorced( pVar->m_Index + controlcomponent ) == false )
+            {
+                *(int*)((char*)pChildComponent + offset) = *(int*)((char*)this + offset);
+                if( pVar->m_pOnValueChangedCallbackFunc )
+                    (pChildComponent->*pVar->m_pOnValueChangedCallbackFunc)( pVar, controlid, finishedchanging, oldvalue );
+            }
+
+            pChildComponent->UpdateChildrenWithNewValue( fromdraganddrop, pVar, controlid, finishedchanging, oldvalue, oldpointer, x, y, newpointer );
+        }
+        break;
+
+    case ComponentVariableType_GameObjectPtr:
+        MyAssert( false );
+        break;
+
+    case ComponentVariableType_FilePtr:
+    case ComponentVariableType_ComponentPtr:
+    case ComponentVariableType_MaterialPtr:
+    case ComponentVariableType_SoundCuePtr:
+        {
+            if( fromdraganddrop )
+            {
+                int offset = pVar->m_Offset;
+
+                // old method of comparing values //if( *(void**)((char*)pChildComponent + offset) == oldpointer )
+                if( pChildComponent->IsDivorced( pVar->m_Index ) == false )
+                {
+                    // OnDropCallback will grab the new value from g_DragAndDropStruct
+                    MyAssert( pVar->m_pOnDropCallbackFunc );
+                    if( pVar->m_pOnDropCallbackFunc )
+                    {
+                        void* oldpointer2 = (pChildComponent->*pVar->m_pOnDropCallbackFunc)( pVar, x, y );
+
+                        // assert should only trip if child didn't have same value that the parent had
+                        //     which shouldn't happen since values aren't divorced.
+                        // could happen since divorced flags are saved in .scene files and not verified on load
+                        // nothing bad will happen if assert trips, other than child value getting overwritten unexpectedly.
+                        MyAssert( oldpointer2 == oldpointer );
+                    }
+                }
+            }
+            else
+            {
+                int offset = pVar->m_Offset;
+
+                // old method of comparing values //if( *(void**)((char*)pChildComponent + pVar->m_Offset) == oldpointer )
+                if( pChildComponent->IsDivorced( pVar->m_Index ) == false )
+                {
+                    MyAssert( pVar->m_pOnValueChangedCallbackFunc );
+                    if( pVar->m_pOnValueChangedCallbackFunc )
+                    {
+                        void* oldpointer2 = (pChildComponent->*pVar->m_pOnValueChangedCallbackFunc)( pVar, controlid, finishedchanging, oldvalue );
+                        MyAssert( oldpointer2 == oldpointer );
+                    }
+                }                                
+            }
+
+            pChildComponent->UpdateChildrenWithNewValue( fromdraganddrop, pVar, controlid, finishedchanging, oldvalue, oldpointer, x, y, newpointer );
+        }
+        break;
+
+    case ComponentVariableType_PointerIndirect:
+        {
+            if( fromdraganddrop )
+            {
+                int offset = pVar->m_Offset;
+
+                // old method of comparing values //if( (pChildComponent->*pVar->m_pGetPointerValueCallBackFunc)( pVar ) == oldpointer )
+                if( pChildComponent->IsDivorced( pVar->m_Index ) == false )
+                {
+                    // OnDropCallback will grab the new value from g_DragAndDropStruct
+                    MyAssert( pVar->m_pOnDropCallbackFunc );
+                    if( pVar->m_pOnDropCallbackFunc )
+                    {
+                        void* oldpointer2 = (pChildComponent->*pVar->m_pOnDropCallbackFunc)( pVar, x, y );
+                        MyAssert( oldpointer2 == oldpointer );
+                    }
+                }
+            }
+            else if( newpointer )
+            {
+                // old method of comparing values //if( (pChildComponent->*pVar->m_pGetPointerValueCallBackFunc)( pVar ) == oldpointer )
+                if( pChildComponent->IsDivorced( pVar->m_Index ) == false )
+                {
+                    MyAssert( pVar->m_pSetPointerValueCallBackFunc );
+                    if( pVar->m_pSetPointerValueCallBackFunc )
+                    {
+                        (pChildComponent->*pVar->m_pSetPointerValueCallBackFunc)( pVar, newpointer );
+                    }
+                }
+            }
+            else
+            {
+                // old method of comparing values //if( (pChildComponent->*pVar->m_pGetPointerValueCallBackFunc)( pVar ) == oldpointer )
+                if( pChildComponent->IsDivorced( pVar->m_Index ) == false )
+                {
+                    MyAssert( pVar->m_pOnValueChangedCallbackFunc );
+                    if( pVar->m_pOnValueChangedCallbackFunc )
+                    {
+                        void* oldpointer2 = (pChildComponent->*pVar->m_pOnValueChangedCallbackFunc)( pVar, controlid, finishedchanging, oldvalue );
+                        MyAssert( oldpointer2 == oldpointer );
+                    }
+                }
+            }
+
+            pChildComponent->UpdateChildrenWithNewValue( fromdraganddrop, pVar, controlid, finishedchanging, oldvalue, oldpointer, x, y, newpointer );
+        }
+        break;
+
+    case ComponentVariableType_NumTypes:
+    default:
+        MyAssert( false );
+        break;
     }
 }
 
@@ -1704,6 +1717,9 @@ void ComponentBase::OnComponentTitleLabelClicked(int id, bool finishedchanging)
 
 void ComponentBase::OnLeftClick(unsigned int count, bool clear)
 {
+    if( count <= 1 )
+        m_MultiSelectedComponents.clear();
+
     // select this Component in the editor window.
     g_pEngineCore->m_pEditorState->m_pSelectedComponents.push_back( this );
 

@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2014-2016 Jimmy Lord http://www.flatheadgames.com
+// Copyright (c) 2014-2017 Jimmy Lord http://www.flatheadgames.com
 //
 // This software is provided 'as-is', without any express or implied warranty.  In no event will the authors be held liable for any damages arising from the use of this software.
 // Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -294,6 +294,9 @@ public:
     //virtual bool ShouldVariableBeAddedToWatchPanel(ComponentVariable* pVar) { return true; }
     virtual void AddToObjectsPanel(wxTreeItemId gameobjectid);
 
+    // an array of all components of this type selected (when more than 1 is selected)
+    std::vector<ComponentBase*> m_MultiSelectedComponents;
+
     // an unsigned int of all divorced components variables, only maintained in editor builds.
     //unsigned int m_DivorcedVariables; // moved outside USING_WX block to allow load/save in game mode.
     bool IsDivorced(int index);
@@ -317,6 +320,7 @@ public:
     void UpdateChildrenWithNewValue(bool fromdraganddrop, ComponentVariable* pVar, int controlid, bool finishedchanging, double oldvalue, void* oldpointer, wxCoord x, wxCoord y, void* newpointer);
     void UpdateChildrenInGameObjectListWithNewValue(GameObject* first, bool fromdraganddrop, ComponentVariable* pVar, int controlid, bool finishedchanging, double oldvalue, void* oldpointer, wxCoord x, wxCoord y, void* newpointer);
     void UpdateGameObjectWithNewValue(GameObject* pGameObject, bool fromdraganddrop, ComponentVariable* pVar, int controlid, bool finishedchanging, double oldvalue, void* oldpointer, wxCoord x, wxCoord y, void* newpointer);
+    void UpdateOtherComponentWithNewValue(ComponentBase* pComponent, bool fromdraganddrop, ComponentVariable* pVar, int controlid, bool finishedchanging, double oldvalue, void* oldpointer, wxCoord x, wxCoord y, void* newpointer);
     void CopyValueFromParent(ComponentVariable* pVar);
 
     // to show/hide the components controls in watch panel

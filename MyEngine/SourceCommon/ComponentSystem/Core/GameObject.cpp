@@ -169,11 +169,17 @@ void GameObject::OnLeftClick(unsigned int count, bool clear)
 
     if( m_pComponentTransform )
     {
+        if( count <= 1 )
+            m_pComponentTransform->m_MultiSelectedComponents.clear();
+
         m_pComponentTransform->FillPropertiesWindow( false, true );
     }
 
     for( unsigned int i=0; i<m_Components.Count(); i++ )
     {
+        if( count <= 1 )
+            m_Components[i]->m_MultiSelectedComponents.clear();
+
         m_Components[i]->FillPropertiesWindow( false, true );
     }
 }

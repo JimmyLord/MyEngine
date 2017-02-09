@@ -1673,9 +1673,16 @@ void EngineCore::OnObjectListTreeMultipleSelection() //StaticOnObjectListTreeMul
                     bool hascomponent = false;
                     for( unsigned int i=0; i<pGameObject->m_Components.Count()+1; i++ )
                     {
-                        if( ( i == 0 && pGameObject->m_pComponentTransform->IsA( pComponentToLookFor->GetClassname() ) == true ) ||
-                            ( i >= 1 && pGameObject->m_Components[i-1]->IsA( pComponentToLookFor->GetClassname() ) == true ) )
+                        if( i == 0 && pGameObject->m_pComponentTransform->IsA( pComponentToLookFor->GetClassname() ) == true )
                         {
+                            pComponentToLookFor->m_MultiSelectedComponents.push_back( pGameObject->m_pComponentTransform );
+                            hascomponent = true;
+                            break;
+                        }
+                        
+                        if( i >= 1 && pGameObject->m_Components[i-1]->IsA( pComponentToLookFor->GetClassname() ) == true )
+                        {
+                            pComponentToLookFor->m_MultiSelectedComponents.push_back( pGameObject->m_Components[i-1] );
                             hascomponent = true;
                             break;
                         }
@@ -1693,7 +1700,7 @@ void EngineCore::OnObjectListTreeMultipleSelection() //StaticOnObjectListTreeMul
 
             if( allgameobjectshavecomponent == true )
             {
-                pComponentToLookFor->OnLeftClick( 0, false );
+                pComponentToLookFor->OnLeftClick( 2, false );
             }
         }
     }
