@@ -1630,6 +1630,18 @@ void EngineCore::OnObjectListTreeMultipleSelection() //StaticOnObjectListTreeMul
     if( numselected == 0 )
         return;
 
+    // add all selected objects to editor selection list.
+    for( unsigned int i=0; i<numselected; i++ )
+    {
+        wxTreeItemId id = selecteditems[i].GetID();
+        TreeItemDataGenericObjectInfo* pData = (TreeItemDataGenericObjectInfo*)g_pPanelObjectList->m_pTree_Objects->GetItemData( id );
+
+        GameObject* pGameObject = (GameObject*)pData->m_pObject;
+
+        if( g_pEngineCore->m_pEditorState->IsGameObjectSelected( pGameObject ) == false )
+            g_pEngineCore->m_pEditorState->m_pSelectedObjects.push_back( pGameObject );
+    }
+
     wxTreeItemId firstid = selecteditems[0].GetID();
     TreeItemDataGenericObjectInfo* pFirstData = (TreeItemDataGenericObjectInfo*)g_pPanelObjectList->m_pTree_Objects->GetItemData( firstid );
 
