@@ -278,24 +278,46 @@ void ComponentBase::AddVariableToPropertiesWindow(ComponentVariable* pVar)
         }
     }
 
+    bool allComponentsHaveSameValue = true;
+
     //if( pVar->m_Offset != -1 )
     {
         switch( pVar->m_Type )
         {
         case ComponentVariableType_Int:
             pVar->m_ControlID = g_pPanelWatch->AddInt( pVar->m_WatchLabel, (int*)((char*)this + pVar->m_Offset), -65535, 65535, this, ComponentBase::StaticOnValueChangedVariable, ComponentBase::StaticOnRightClickVariable );
+            for( unsigned int i=0; i<m_MultiSelectedComponents.size(); i++ )
+            {
+                if( *(int*)((char*)this + pVar->m_Offset) != *(int*)((char*)m_MultiSelectedComponents[i] + pVar->m_Offset) )
+                    allComponentsHaveSameValue = false;
+            }
             break;
 
         case ComponentVariableType_Enum:
             pVar->m_ControlID = g_pPanelWatch->AddEnum( pVar->m_WatchLabel, (int*)((char*)this + pVar->m_Offset), pVar->m_NumEnumStrings, pVar->m_ppEnumStrings, this, ComponentBase::StaticOnValueChangedVariable );
+            for( unsigned int i=0; i<m_MultiSelectedComponents.size(); i++ )
+            {
+                if( *(int*)((char*)this + pVar->m_Offset) != *(int*)((char*)m_MultiSelectedComponents[i] + pVar->m_Offset) )
+                    allComponentsHaveSameValue = false;
+            }
             break;
 
         case ComponentVariableType_Flags:
             pVar->m_ControlID = g_pPanelWatch->AddFlags( pVar->m_WatchLabel, (unsigned int*)((char*)this + pVar->m_Offset), pVar->m_NumEnumStrings, pVar->m_ppEnumStrings, this, ComponentBase::StaticOnValueChangedVariable );
+            for( unsigned int i=0; i<m_MultiSelectedComponents.size(); i++ )
+            {
+                if( *(unsigned int*)((char*)this + pVar->m_Offset) != *(unsigned int*)((char*)m_MultiSelectedComponents[i] + pVar->m_Offset) )
+                    allComponentsHaveSameValue = false;
+            }
             break;
 
         case ComponentVariableType_UnsignedInt:
             pVar->m_ControlID = g_pPanelWatch->AddUnsignedInt( pVar->m_WatchLabel, (unsigned int*)((char*)this + pVar->m_Offset), 0, 65535, this, ComponentBase::StaticOnValueChangedVariable, ComponentBase::StaticOnRightClickVariable );
+            for( unsigned int i=0; i<m_MultiSelectedComponents.size(); i++ )
+            {
+                if( *(unsigned int*)((char*)this + pVar->m_Offset) != *(unsigned int*)((char*)m_MultiSelectedComponents[i] + pVar->m_Offset) )
+                    allComponentsHaveSameValue = false;
+            }
             break;
 
         //ComponentVariableType_Char,
@@ -303,33 +325,68 @@ void ComponentBase::AddVariableToPropertiesWindow(ComponentVariable* pVar)
 
         case ComponentVariableType_Bool:
             pVar->m_ControlID = g_pPanelWatch->AddBool( pVar->m_WatchLabel, (bool*)((char*)this + pVar->m_Offset), 0, 1, this, ComponentBase::StaticOnValueChangedVariable, ComponentBase::StaticOnRightClickVariable );
+            for( unsigned int i=0; i<m_MultiSelectedComponents.size(); i++ )
+            {
+                if( *(bool*)((char*)this + pVar->m_Offset) != *(bool*)((char*)m_MultiSelectedComponents[i] + pVar->m_Offset) )
+                    allComponentsHaveSameValue = false;
+            }
             break;
 
         case ComponentVariableType_Float:
             pVar->m_ControlID = g_pPanelWatch->AddFloat( pVar->m_WatchLabel, (float*)((char*)this + pVar->m_Offset), pVar->m_FloatLowerLimit, pVar->m_FloatUpperLimit, this, ComponentBase::StaticOnValueChangedVariable, ComponentBase::StaticOnRightClickVariable );
+            for( unsigned int i=0; i<m_MultiSelectedComponents.size(); i++ )
+            {
+                if( *(float*)((char*)this + pVar->m_Offset) != *(float*)((char*)m_MultiSelectedComponents[i] + pVar->m_Offset) )
+                    allComponentsHaveSameValue = false;
+            }
             break;
 
-            //ComponentVariableType_Double,
+        //ComponentVariableType_Double,
         //ComponentVariableType_ColorFloat,
 
         case ComponentVariableType_ColorByte:
             pVar->m_ControlID = g_pPanelWatch->AddColorByte( pVar->m_WatchLabel, (ColorByte*)((char*)this + pVar->m_Offset), 0.0f, 0.0f, this, ComponentBase::StaticOnValueChangedVariable, ComponentBase::StaticOnRightClickVariable );
+            for( unsigned int i=0; i<m_MultiSelectedComponents.size(); i++ )
+            {
+                if( *(ColorByte*)((char*)this + pVar->m_Offset) != *(ColorByte*)((char*)m_MultiSelectedComponents[i] + pVar->m_Offset) )
+                    allComponentsHaveSameValue = false;
+            }
             break;
 
         case ComponentVariableType_Vector2:
             pVar->m_ControlID = g_pPanelWatch->AddVector2( pVar->m_WatchLabel, (Vector2*)((char*)this + pVar->m_Offset), pVar->m_FloatLowerLimit, pVar->m_FloatUpperLimit, this, ComponentBase::StaticOnValueChangedVariable, ComponentBase::StaticOnRightClickVariable );
+            for( unsigned int i=0; i<m_MultiSelectedComponents.size(); i++ )
+            {
+                if( *(Vector2*)((char*)this + pVar->m_Offset) != *(Vector2*)((char*)m_MultiSelectedComponents[i] + pVar->m_Offset) )
+                    allComponentsHaveSameValue = false;
+            }
             break;
 
         case ComponentVariableType_Vector3:
             pVar->m_ControlID = g_pPanelWatch->AddVector3( pVar->m_WatchLabel, (Vector3*)((char*)this + pVar->m_Offset), pVar->m_FloatLowerLimit, pVar->m_FloatUpperLimit, this, ComponentBase::StaticOnValueChangedVariable, ComponentBase::StaticOnRightClickVariable );
+            for( unsigned int i=0; i<m_MultiSelectedComponents.size(); i++ )
+            {
+                if( *(Vector3*)((char*)this + pVar->m_Offset) != *(Vector3*)((char*)m_MultiSelectedComponents[i] + pVar->m_Offset) )
+                    allComponentsHaveSameValue = false;
+            }
             break;
 
         case ComponentVariableType_Vector2Int:
             pVar->m_ControlID = g_pPanelWatch->AddVector2Int( pVar->m_WatchLabel, (Vector2Int*)((char*)this + pVar->m_Offset), 0.0f, 0.0f, this, ComponentBase::StaticOnValueChangedVariable, ComponentBase::StaticOnRightClickVariable );
+            for( unsigned int i=0; i<m_MultiSelectedComponents.size(); i++ )
+            {
+                if( *(Vector2Int*)((char*)this + pVar->m_Offset) != *(Vector2Int*)((char*)m_MultiSelectedComponents[i] + pVar->m_Offset) )
+                    allComponentsHaveSameValue = false;
+            }
             break;
 
         case ComponentVariableType_Vector3Int:
             pVar->m_ControlID = g_pPanelWatch->AddVector3Int( pVar->m_WatchLabel, (Vector3Int*)((char*)this + pVar->m_Offset), 0.0f, 0.0f, this, ComponentBase::StaticOnValueChangedVariable, ComponentBase::StaticOnRightClickVariable );
+            for( unsigned int i=0; i<m_MultiSelectedComponents.size(); i++ )
+            {
+                if( *(Vector3Int*)((char*)this + pVar->m_Offset) != *(Vector3Int*)((char*)m_MultiSelectedComponents[i] + pVar->m_Offset) )
+                    allComponentsHaveSameValue = false;
+            }
             break;
 
         case ComponentVariableType_GameObjectPtr:
@@ -348,6 +405,11 @@ void ComponentBase::AddVariableToPropertiesWindow(ComponentVariable* pVar)
 
                 pVar->m_ControlID = g_pPanelWatch->AddPointerWithDescription( pVar->m_WatchLabel, pTransformComponent, desc, this, ComponentBase::StaticOnDropVariable, ComponentBase::StaticOnValueChangedVariable, ComponentBase::StaticOnRightClickVariable );
             }
+            for( unsigned int i=0; i<m_MultiSelectedComponents.size(); i++ )
+            {
+                if( *(ComponentTransform**)((char*)this + pVar->m_Offset) != *(ComponentTransform**)((char*)m_MultiSelectedComponents[i] + pVar->m_Offset) )
+                    allComponentsHaveSameValue = false;
+            }
             break;
 
         case ComponentVariableType_FilePtr:
@@ -362,6 +424,11 @@ void ComponentBase::AddVariableToPropertiesWindow(ComponentVariable* pVar)
 
                 pVar->m_ControlID = g_pPanelWatch->AddPointerWithDescription( pVar->m_WatchLabel, pFile, desc, this, ComponentBase::StaticOnDropVariable, ComponentBase::StaticOnValueChangedVariable, ComponentBase::StaticOnRightClickVariable );
             }
+            for( unsigned int i=0; i<m_MultiSelectedComponents.size(); i++ )
+            {
+                if( *(MyFileObject**)((char*)this + pVar->m_Offset) != *(MyFileObject**)((char*)m_MultiSelectedComponents[i] + pVar->m_Offset) )
+                    allComponentsHaveSameValue = false;
+            }
             break;
 
         case ComponentVariableType_MaterialPtr:
@@ -373,6 +440,11 @@ void ComponentBase::AddVariableToPropertiesWindow(ComponentVariable* pVar)
                     desc = pMaterial->GetName();
 
                 pVar->m_ControlID = g_pPanelWatch->AddPointerWithDescription( pVar->m_WatchLabel, pMaterial, desc, this, ComponentBase::StaticOnDropVariable, ComponentBase::StaticOnValueChangedVariable, ComponentBase::StaticOnRightClickVariable );
+            }
+            for( unsigned int i=0; i<m_MultiSelectedComponents.size(); i++ )
+            {
+                if( *(MaterialDefinition**)((char*)this + pVar->m_Offset) != *(MaterialDefinition**)((char*)m_MultiSelectedComponents[i] + pVar->m_Offset) )
+                    allComponentsHaveSameValue = false;
             }
             break;
 
@@ -386,6 +458,11 @@ void ComponentBase::AddVariableToPropertiesWindow(ComponentVariable* pVar)
 
                 pVar->m_ControlID = g_pPanelWatch->AddPointerWithDescription( pVar->m_WatchLabel, pCue, desc, this, ComponentBase::StaticOnDropVariable, ComponentBase::StaticOnValueChangedVariable, ComponentBase::StaticOnRightClickVariable );
             }
+            for( unsigned int i=0; i<m_MultiSelectedComponents.size(); i++ )
+            {
+                if( *(SoundCue**)((char*)this + pVar->m_Offset) != *(SoundCue**)((char*)m_MultiSelectedComponents[i] + pVar->m_Offset) )
+                    allComponentsHaveSameValue = false;
+            }
             break;
 
         case ComponentVariableType_PointerIndirect:
@@ -393,6 +470,11 @@ void ComponentBase::AddVariableToPropertiesWindow(ComponentVariable* pVar)
                 void* pPtr = (this->*pVar->m_pGetPointerValueCallBackFunc)( pVar );
                 const char* pDesc = (this->*pVar->m_pGetPointerDescCallBackFunc)( pVar );
                 pVar->m_ControlID = g_pPanelWatch->AddPointerWithDescription( pVar->m_WatchLabel, pPtr, pDesc, this, ComponentBase::StaticOnDropVariable, ComponentBase::StaticOnValueChangedVariable, ComponentBase::StaticOnRightClickVariable );
+            }
+            for( unsigned int i=0; i<m_MultiSelectedComponents.size(); i++ )
+            {
+                if( (this->*pVar->m_pGetPointerValueCallBackFunc)( pVar ) != (m_MultiSelectedComponents[i]->*pVar->m_pGetPointerValueCallBackFunc)( pVar ) )
+                    allComponentsHaveSameValue = false;
             }
             break;
 
@@ -406,6 +488,12 @@ void ComponentBase::AddVariableToPropertiesWindow(ComponentVariable* pVar)
         {
             g_pPanelWatch->ChangeStaticTextFontStyle( pVar->m_ControlID, wxFONTSTYLE_ITALIC, wxFONTWEIGHT_BOLD );
             g_pPanelWatch->ChangeStaticTextBGColor( pVar->m_ControlID, wxColour( 255, 200, 200, 255 ) );
+        }
+
+        if( allComponentsHaveSameValue == false )
+        {
+            g_pPanelWatch->ChangeStaticTextFontStyle( pVar->m_ControlID, wxFONTSTYLE_ITALIC, wxFONTWEIGHT_BOLD );
+            g_pPanelWatch->ChangeStaticTextBGColor( pVar->m_ControlID, wxColour( 200, 200, 255, 255 ) );
         }
     }
 }

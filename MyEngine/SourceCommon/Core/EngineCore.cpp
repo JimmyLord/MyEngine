@@ -1712,7 +1712,7 @@ void EngineCore::OnObjectListTreeMultipleSelection() //StaticOnObjectListTreeMul
 
             if( allgameobjectshavecomponent == true )
             {
-                pComponentToLookFor->OnLeftClick( 2, false );
+                pComponentToLookFor->OnLeftClick( numselected, false );
             }
         }
     }

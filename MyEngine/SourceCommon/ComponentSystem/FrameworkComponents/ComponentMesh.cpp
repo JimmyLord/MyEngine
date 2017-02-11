@@ -386,10 +386,13 @@ void ComponentMesh::SetMaterial(MaterialDefinition* pMaterial, int submeshindex)
         // clear opaque/transparent flags, set the proper flag based on new material transparency
         SceneGraphFlags flags = m_pSceneGraphObjects[submeshindex]->m_Flags;
         flags = (SceneGraphFlags)(flags & ~(SceneGraphFlag_Opaque | SceneGraphFlag_Transparent));
-        if( m_MaterialList[submeshindex]->IsTransparent() )
-            flags = (SceneGraphFlags)(flags | SceneGraphFlag_Transparent);
-        else
-            flags = (SceneGraphFlags)(flags | SceneGraphFlag_Opaque);
+        if( pMaterial )
+        {
+            if( m_MaterialList[submeshindex]->IsTransparent() )
+                flags = (SceneGraphFlags)(flags | SceneGraphFlag_Transparent);
+            else
+                flags = (SceneGraphFlags)(flags | SceneGraphFlag_Opaque);
+        }
 
         m_pSceneGraphObjects[submeshindex]->m_pMaterial = pMaterial;
         m_pSceneGraphObjects[submeshindex]->m_Flags = flags;
