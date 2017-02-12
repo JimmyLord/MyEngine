@@ -277,6 +277,7 @@ protected:
     virtual CPPListHead* GetComponentVariableList() { /*MyAssert( false );*/ return 0; } // = 0; TODO: make this pure virual once MYFW_COMPONENT_DECLARE_VARIABLE_LIST and MYFW_COMPONENT_IMPLEMENT_VARIABLE_LIST are in each component
 #if MYFW_USING_WX
     void FillPropertiesWindowWithVariables();
+    bool DoAllMultiSelectedVariabledHaveTheSameValue(ComponentVariable* pVar);
     void AddVariableToPropertiesWindow(ComponentVariable* pVar);
     int FindVariablesControlIDByLabel(const char* label);
 #endif
@@ -320,7 +321,7 @@ public:
     void UpdateChildrenWithNewValue(bool fromdraganddrop, ComponentVariable* pVar, int controlid, bool finishedchanging, double oldvalue, void* oldpointer, wxCoord x, wxCoord y, void* newpointer);
     void UpdateChildrenInGameObjectListWithNewValue(GameObject* first, bool fromdraganddrop, ComponentVariable* pVar, int controlid, bool finishedchanging, double oldvalue, void* oldpointer, wxCoord x, wxCoord y, void* newpointer);
     void UpdateGameObjectWithNewValue(GameObject* pGameObject, bool fromdraganddrop, ComponentVariable* pVar, int controlid, bool finishedchanging, double oldvalue, void* oldpointer, wxCoord x, wxCoord y, void* newpointer);
-    void UpdateOtherComponentWithNewValue(ComponentBase* pComponent, bool fromdraganddrop, ComponentVariable* pVar, int controlid, bool finishedchanging, double oldvalue, void* oldpointer, wxCoord x, wxCoord y, void* newpointer);
+    void UpdateOtherComponentWithNewValue(ComponentBase* pComponent, bool ignoreDivorceStatus, bool fromdraganddrop, ComponentVariable* pVar, int controlid, bool finishedchanging, double oldvalue, void* oldpointer, wxCoord x, wxCoord y, void* newpointer);
     void CopyValueFromParent(ComponentVariable* pVar);
 
     // to show/hide the components controls in watch panel

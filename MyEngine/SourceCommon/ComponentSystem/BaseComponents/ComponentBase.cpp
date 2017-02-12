@@ -258,6 +258,127 @@ void ComponentBase::FillPropertiesWindowWithVariables()
     }
 }
 
+bool ComponentBase::DoAllMultiSelectedVariabledHaveTheSameValue(ComponentVariable* pVar)
+{
+    bool allComponentsHaveSameValue = true;
+
+    //if( pVar->m_Offset != -1 )
+    {
+        switch( pVar->m_Type )
+        {
+        case ComponentVariableType_Int:
+        case ComponentVariableType_Enum:
+            for( unsigned int i=0; i<m_MultiSelectedComponents.size(); i++ )
+            {
+                if( *(int*)((char*)this + pVar->m_Offset) != *(int*)((char*)m_MultiSelectedComponents[i] + pVar->m_Offset) )
+                    allComponentsHaveSameValue = false;
+            }
+            break;
+
+        case ComponentVariableType_Flags:
+        case ComponentVariableType_UnsignedInt:
+            for( unsigned int i=0; i<m_MultiSelectedComponents.size(); i++ )
+            {
+                if( *(unsigned int*)((char*)this + pVar->m_Offset) != *(unsigned int*)((char*)m_MultiSelectedComponents[i] + pVar->m_Offset) )
+                    allComponentsHaveSameValue = false;
+            }
+            break;
+
+        //ComponentVariableType_Char,
+        //ComponentVariableType_UnsignedChar,
+
+        case ComponentVariableType_Bool:
+            for( unsigned int i=0; i<m_MultiSelectedComponents.size(); i++ )
+            {
+                if( *(bool*)((char*)this + pVar->m_Offset) != *(bool*)((char*)m_MultiSelectedComponents[i] + pVar->m_Offset) )
+                    allComponentsHaveSameValue = false;
+            }
+            break;
+
+        case ComponentVariableType_Float:
+            for( unsigned int i=0; i<m_MultiSelectedComponents.size(); i++ )
+            {
+                if( *(float*)((char*)this + pVar->m_Offset) != *(float*)((char*)m_MultiSelectedComponents[i] + pVar->m_Offset) )
+                    allComponentsHaveSameValue = false;
+            }
+            break;
+
+        //ComponentVariableType_Double,
+        //ComponentVariableType_ColorFloat,
+
+        case ComponentVariableType_ColorByte:
+            for( unsigned int i=0; i<m_MultiSelectedComponents.size(); i++ )
+            {
+                if( *(ColorByte*)((char*)this + pVar->m_Offset) != *(ColorByte*)((char*)m_MultiSelectedComponents[i] + pVar->m_Offset) )
+                    allComponentsHaveSameValue = false;
+            }
+            break;
+
+        case ComponentVariableType_Vector2:
+            for( unsigned int i=0; i<m_MultiSelectedComponents.size(); i++ )
+            {
+                if( *(Vector2*)((char*)this + pVar->m_Offset) != *(Vector2*)((char*)m_MultiSelectedComponents[i] + pVar->m_Offset) )
+                    allComponentsHaveSameValue = false;
+            }
+            break;
+
+        case ComponentVariableType_Vector3:
+            for( unsigned int i=0; i<m_MultiSelectedComponents.size(); i++ )
+            {
+                if( *(Vector3*)((char*)this + pVar->m_Offset) != *(Vector3*)((char*)m_MultiSelectedComponents[i] + pVar->m_Offset) )
+                    allComponentsHaveSameValue = false;
+            }
+            break;
+
+        case ComponentVariableType_Vector2Int:
+            for( unsigned int i=0; i<m_MultiSelectedComponents.size(); i++ )
+            {
+                if( *(Vector2Int*)((char*)this + pVar->m_Offset) != *(Vector2Int*)((char*)m_MultiSelectedComponents[i] + pVar->m_Offset) )
+                    allComponentsHaveSameValue = false;
+            }
+            break;
+
+        case ComponentVariableType_Vector3Int:
+            for( unsigned int i=0; i<m_MultiSelectedComponents.size(); i++ )
+            {
+                if( *(Vector3Int*)((char*)this + pVar->m_Offset) != *(Vector3Int*)((char*)m_MultiSelectedComponents[i] + pVar->m_Offset) )
+                    allComponentsHaveSameValue = false;
+            }
+            break;
+
+        case ComponentVariableType_GameObjectPtr:
+            MyAssert( false );
+            break;
+
+        case ComponentVariableType_ComponentPtr:
+        case ComponentVariableType_FilePtr:
+        case ComponentVariableType_MaterialPtr:
+        case ComponentVariableType_SoundCuePtr:
+            for( unsigned int i=0; i<m_MultiSelectedComponents.size(); i++ )
+            {
+                if( *((char*)this + pVar->m_Offset) != *((char*)m_MultiSelectedComponents[i] + pVar->m_Offset) )
+                    allComponentsHaveSameValue = false;
+            }
+            break;
+
+        case ComponentVariableType_PointerIndirect:
+            for( unsigned int i=0; i<m_MultiSelectedComponents.size(); i++ )
+            {
+                if( (this->*pVar->m_pGetPointerValueCallBackFunc)( pVar ) != (m_MultiSelectedComponents[i]->*pVar->m_pGetPointerValueCallBackFunc)( pVar ) )
+                    allComponentsHaveSameValue = false;
+            }
+            break;
+
+        case ComponentVariableType_NumTypes:
+        default:
+            MyAssert( false );
+            break;
+        }
+    }
+
+    return allComponentsHaveSameValue;
+}
+
 void ComponentBase::AddVariableToPropertiesWindow(ComponentVariable* pVar)
 {
     if( pVar->m_DisplayInWatch == false )
@@ -278,46 +399,24 @@ void ComponentBase::AddVariableToPropertiesWindow(ComponentVariable* pVar)
         }
     }
 
-    bool allComponentsHaveSameValue = true;
-
     //if( pVar->m_Offset != -1 )
     {
         switch( pVar->m_Type )
         {
         case ComponentVariableType_Int:
             pVar->m_ControlID = g_pPanelWatch->AddInt( pVar->m_WatchLabel, (int*)((char*)this + pVar->m_Offset), -65535, 65535, this, ComponentBase::StaticOnValueChangedVariable, ComponentBase::StaticOnRightClickVariable );
-            for( unsigned int i=0; i<m_MultiSelectedComponents.size(); i++ )
-            {
-                if( *(int*)((char*)this + pVar->m_Offset) != *(int*)((char*)m_MultiSelectedComponents[i] + pVar->m_Offset) )
-                    allComponentsHaveSameValue = false;
-            }
             break;
 
         case ComponentVariableType_Enum:
             pVar->m_ControlID = g_pPanelWatch->AddEnum( pVar->m_WatchLabel, (int*)((char*)this + pVar->m_Offset), pVar->m_NumEnumStrings, pVar->m_ppEnumStrings, this, ComponentBase::StaticOnValueChangedVariable );
-            for( unsigned int i=0; i<m_MultiSelectedComponents.size(); i++ )
-            {
-                if( *(int*)((char*)this + pVar->m_Offset) != *(int*)((char*)m_MultiSelectedComponents[i] + pVar->m_Offset) )
-                    allComponentsHaveSameValue = false;
-            }
             break;
 
         case ComponentVariableType_Flags:
             pVar->m_ControlID = g_pPanelWatch->AddFlags( pVar->m_WatchLabel, (unsigned int*)((char*)this + pVar->m_Offset), pVar->m_NumEnumStrings, pVar->m_ppEnumStrings, this, ComponentBase::StaticOnValueChangedVariable );
-            for( unsigned int i=0; i<m_MultiSelectedComponents.size(); i++ )
-            {
-                if( *(unsigned int*)((char*)this + pVar->m_Offset) != *(unsigned int*)((char*)m_MultiSelectedComponents[i] + pVar->m_Offset) )
-                    allComponentsHaveSameValue = false;
-            }
             break;
 
         case ComponentVariableType_UnsignedInt:
             pVar->m_ControlID = g_pPanelWatch->AddUnsignedInt( pVar->m_WatchLabel, (unsigned int*)((char*)this + pVar->m_Offset), 0, 65535, this, ComponentBase::StaticOnValueChangedVariable, ComponentBase::StaticOnRightClickVariable );
-            for( unsigned int i=0; i<m_MultiSelectedComponents.size(); i++ )
-            {
-                if( *(unsigned int*)((char*)this + pVar->m_Offset) != *(unsigned int*)((char*)m_MultiSelectedComponents[i] + pVar->m_Offset) )
-                    allComponentsHaveSameValue = false;
-            }
             break;
 
         //ComponentVariableType_Char,
@@ -325,20 +424,10 @@ void ComponentBase::AddVariableToPropertiesWindow(ComponentVariable* pVar)
 
         case ComponentVariableType_Bool:
             pVar->m_ControlID = g_pPanelWatch->AddBool( pVar->m_WatchLabel, (bool*)((char*)this + pVar->m_Offset), 0, 1, this, ComponentBase::StaticOnValueChangedVariable, ComponentBase::StaticOnRightClickVariable );
-            for( unsigned int i=0; i<m_MultiSelectedComponents.size(); i++ )
-            {
-                if( *(bool*)((char*)this + pVar->m_Offset) != *(bool*)((char*)m_MultiSelectedComponents[i] + pVar->m_Offset) )
-                    allComponentsHaveSameValue = false;
-            }
             break;
 
         case ComponentVariableType_Float:
             pVar->m_ControlID = g_pPanelWatch->AddFloat( pVar->m_WatchLabel, (float*)((char*)this + pVar->m_Offset), pVar->m_FloatLowerLimit, pVar->m_FloatUpperLimit, this, ComponentBase::StaticOnValueChangedVariable, ComponentBase::StaticOnRightClickVariable );
-            for( unsigned int i=0; i<m_MultiSelectedComponents.size(); i++ )
-            {
-                if( *(float*)((char*)this + pVar->m_Offset) != *(float*)((char*)m_MultiSelectedComponents[i] + pVar->m_Offset) )
-                    allComponentsHaveSameValue = false;
-            }
             break;
 
         //ComponentVariableType_Double,
@@ -346,47 +435,22 @@ void ComponentBase::AddVariableToPropertiesWindow(ComponentVariable* pVar)
 
         case ComponentVariableType_ColorByte:
             pVar->m_ControlID = g_pPanelWatch->AddColorByte( pVar->m_WatchLabel, (ColorByte*)((char*)this + pVar->m_Offset), 0.0f, 0.0f, this, ComponentBase::StaticOnValueChangedVariable, ComponentBase::StaticOnRightClickVariable );
-            for( unsigned int i=0; i<m_MultiSelectedComponents.size(); i++ )
-            {
-                if( *(ColorByte*)((char*)this + pVar->m_Offset) != *(ColorByte*)((char*)m_MultiSelectedComponents[i] + pVar->m_Offset) )
-                    allComponentsHaveSameValue = false;
-            }
             break;
 
         case ComponentVariableType_Vector2:
             pVar->m_ControlID = g_pPanelWatch->AddVector2( pVar->m_WatchLabel, (Vector2*)((char*)this + pVar->m_Offset), pVar->m_FloatLowerLimit, pVar->m_FloatUpperLimit, this, ComponentBase::StaticOnValueChangedVariable, ComponentBase::StaticOnRightClickVariable );
-            for( unsigned int i=0; i<m_MultiSelectedComponents.size(); i++ )
-            {
-                if( *(Vector2*)((char*)this + pVar->m_Offset) != *(Vector2*)((char*)m_MultiSelectedComponents[i] + pVar->m_Offset) )
-                    allComponentsHaveSameValue = false;
-            }
             break;
 
         case ComponentVariableType_Vector3:
             pVar->m_ControlID = g_pPanelWatch->AddVector3( pVar->m_WatchLabel, (Vector3*)((char*)this + pVar->m_Offset), pVar->m_FloatLowerLimit, pVar->m_FloatUpperLimit, this, ComponentBase::StaticOnValueChangedVariable, ComponentBase::StaticOnRightClickVariable );
-            for( unsigned int i=0; i<m_MultiSelectedComponents.size(); i++ )
-            {
-                if( *(Vector3*)((char*)this + pVar->m_Offset) != *(Vector3*)((char*)m_MultiSelectedComponents[i] + pVar->m_Offset) )
-                    allComponentsHaveSameValue = false;
-            }
             break;
 
         case ComponentVariableType_Vector2Int:
             pVar->m_ControlID = g_pPanelWatch->AddVector2Int( pVar->m_WatchLabel, (Vector2Int*)((char*)this + pVar->m_Offset), 0.0f, 0.0f, this, ComponentBase::StaticOnValueChangedVariable, ComponentBase::StaticOnRightClickVariable );
-            for( unsigned int i=0; i<m_MultiSelectedComponents.size(); i++ )
-            {
-                if( *(Vector2Int*)((char*)this + pVar->m_Offset) != *(Vector2Int*)((char*)m_MultiSelectedComponents[i] + pVar->m_Offset) )
-                    allComponentsHaveSameValue = false;
-            }
             break;
 
         case ComponentVariableType_Vector3Int:
             pVar->m_ControlID = g_pPanelWatch->AddVector3Int( pVar->m_WatchLabel, (Vector3Int*)((char*)this + pVar->m_Offset), 0.0f, 0.0f, this, ComponentBase::StaticOnValueChangedVariable, ComponentBase::StaticOnRightClickVariable );
-            for( unsigned int i=0; i<m_MultiSelectedComponents.size(); i++ )
-            {
-                if( *(Vector3Int*)((char*)this + pVar->m_Offset) != *(Vector3Int*)((char*)m_MultiSelectedComponents[i] + pVar->m_Offset) )
-                    allComponentsHaveSameValue = false;
-            }
             break;
 
         case ComponentVariableType_GameObjectPtr:
@@ -405,11 +469,6 @@ void ComponentBase::AddVariableToPropertiesWindow(ComponentVariable* pVar)
 
                 pVar->m_ControlID = g_pPanelWatch->AddPointerWithDescription( pVar->m_WatchLabel, pTransformComponent, desc, this, ComponentBase::StaticOnDropVariable, ComponentBase::StaticOnValueChangedVariable, ComponentBase::StaticOnRightClickVariable );
             }
-            for( unsigned int i=0; i<m_MultiSelectedComponents.size(); i++ )
-            {
-                if( *(ComponentTransform**)((char*)this + pVar->m_Offset) != *(ComponentTransform**)((char*)m_MultiSelectedComponents[i] + pVar->m_Offset) )
-                    allComponentsHaveSameValue = false;
-            }
             break;
 
         case ComponentVariableType_FilePtr:
@@ -424,11 +483,6 @@ void ComponentBase::AddVariableToPropertiesWindow(ComponentVariable* pVar)
 
                 pVar->m_ControlID = g_pPanelWatch->AddPointerWithDescription( pVar->m_WatchLabel, pFile, desc, this, ComponentBase::StaticOnDropVariable, ComponentBase::StaticOnValueChangedVariable, ComponentBase::StaticOnRightClickVariable );
             }
-            for( unsigned int i=0; i<m_MultiSelectedComponents.size(); i++ )
-            {
-                if( *(MyFileObject**)((char*)this + pVar->m_Offset) != *(MyFileObject**)((char*)m_MultiSelectedComponents[i] + pVar->m_Offset) )
-                    allComponentsHaveSameValue = false;
-            }
             break;
 
         case ComponentVariableType_MaterialPtr:
@@ -440,11 +494,6 @@ void ComponentBase::AddVariableToPropertiesWindow(ComponentVariable* pVar)
                     desc = pMaterial->GetName();
 
                 pVar->m_ControlID = g_pPanelWatch->AddPointerWithDescription( pVar->m_WatchLabel, pMaterial, desc, this, ComponentBase::StaticOnDropVariable, ComponentBase::StaticOnValueChangedVariable, ComponentBase::StaticOnRightClickVariable );
-            }
-            for( unsigned int i=0; i<m_MultiSelectedComponents.size(); i++ )
-            {
-                if( *(MaterialDefinition**)((char*)this + pVar->m_Offset) != *(MaterialDefinition**)((char*)m_MultiSelectedComponents[i] + pVar->m_Offset) )
-                    allComponentsHaveSameValue = false;
             }
             break;
 
@@ -458,11 +507,6 @@ void ComponentBase::AddVariableToPropertiesWindow(ComponentVariable* pVar)
 
                 pVar->m_ControlID = g_pPanelWatch->AddPointerWithDescription( pVar->m_WatchLabel, pCue, desc, this, ComponentBase::StaticOnDropVariable, ComponentBase::StaticOnValueChangedVariable, ComponentBase::StaticOnRightClickVariable );
             }
-            for( unsigned int i=0; i<m_MultiSelectedComponents.size(); i++ )
-            {
-                if( *(SoundCue**)((char*)this + pVar->m_Offset) != *(SoundCue**)((char*)m_MultiSelectedComponents[i] + pVar->m_Offset) )
-                    allComponentsHaveSameValue = false;
-            }
             break;
 
         case ComponentVariableType_PointerIndirect:
@@ -470,11 +514,6 @@ void ComponentBase::AddVariableToPropertiesWindow(ComponentVariable* pVar)
                 void* pPtr = (this->*pVar->m_pGetPointerValueCallBackFunc)( pVar );
                 const char* pDesc = (this->*pVar->m_pGetPointerDescCallBackFunc)( pVar );
                 pVar->m_ControlID = g_pPanelWatch->AddPointerWithDescription( pVar->m_WatchLabel, pPtr, pDesc, this, ComponentBase::StaticOnDropVariable, ComponentBase::StaticOnValueChangedVariable, ComponentBase::StaticOnRightClickVariable );
-            }
-            for( unsigned int i=0; i<m_MultiSelectedComponents.size(); i++ )
-            {
-                if( (this->*pVar->m_pGetPointerValueCallBackFunc)( pVar ) != (m_MultiSelectedComponents[i]->*pVar->m_pGetPointerValueCallBackFunc)( pVar ) )
-                    allComponentsHaveSameValue = false;
             }
             break;
 
@@ -490,7 +529,7 @@ void ComponentBase::AddVariableToPropertiesWindow(ComponentVariable* pVar)
             g_pPanelWatch->ChangeStaticTextBGColor( pVar->m_ControlID, wxColour( 255, 200, 200, 255 ) );
         }
 
-        if( allComponentsHaveSameValue == false )
+        if( DoAllMultiSelectedVariabledHaveTheSameValue( pVar ) == false )
         {
             g_pPanelWatch->ChangeStaticTextFontStyle( pVar->m_ControlID, wxFONTSTYLE_ITALIC, wxFONTWEIGHT_BOLD );
             g_pPanelWatch->ChangeStaticTextBGColor( pVar->m_ControlID, wxColour( 200, 200, 255, 255 ) );
@@ -1023,7 +1062,7 @@ void ComponentBase::OnValueChangedVariable(int controlid, bool finishedchanging,
         // deal with multiple selections
         for( unsigned int i=0; i<m_MultiSelectedComponents.size(); i++ )
         {
-            UpdateOtherComponentWithNewValue( m_MultiSelectedComponents[i], false, pVar, controlid, finishedchanging, oldvalue, oldpointer, 0, 0, 0 );
+            UpdateOtherComponentWithNewValue( m_MultiSelectedComponents[i], true, false, pVar, controlid, finishedchanging, oldvalue, oldpointer, 0, 0, 0 );
         }
     }
 }
@@ -1053,6 +1092,12 @@ void ComponentBase::OnDropVariable(int controlid, wxCoord x, wxCoord y)
 
         // OnDropCallback will grab the new value from g_DragAndDropStruct
         UpdateChildrenWithNewValue( true, pVar, controlid, true, 0, oldpointer, x, y, 0 );
+
+        // deal with multiple selections
+        for( unsigned int i=0; i<m_MultiSelectedComponents.size(); i++ )
+        {
+            UpdateOtherComponentWithNewValue( m_MultiSelectedComponents[i], true, true, pVar, controlid, true, 0, oldpointer, x, y, 0 );
+        }
     }
 }
 
@@ -1450,7 +1495,7 @@ void ComponentBase::UpdateChildrenWithNewValue(bool fromdraganddrop, ComponentVa
         {
             GameObject* first = (GameObject*)pSceneInfo->m_GameObjects.GetHead();
             UpdateChildrenInGameObjectListWithNewValue( first, fromdraganddrop, pVar, controlid, finishedchanging, oldvalue, oldpointer, x, y, newpointer );
-        } 
+        }
     }
 }
 
@@ -1501,15 +1546,25 @@ void ComponentBase::UpdateGameObjectWithNewValue(GameObject* pGameObject, bool f
                 if( pChildComponent->IsDivorced( pVar->m_Index ) )
                     return;
 
-                UpdateOtherComponentWithNewValue(pChildComponent, fromdraganddrop, pVar, controlid, finishedchanging, oldvalue, oldpointer, x, y, newpointer);
+                UpdateOtherComponentWithNewValue(pChildComponent, false, fromdraganddrop, pVar, controlid, finishedchanging, oldvalue, oldpointer, x, y, newpointer);
             }
         }
     }
 }
 
-void ComponentBase::UpdateOtherComponentWithNewValue(ComponentBase* pComponent, bool fromdraganddrop, ComponentVariable* pVar, int controlid, bool finishedchanging, double oldvalue, void* oldpointer, wxCoord x, wxCoord y, void* newpointer)
+void ComponentBase::UpdateOtherComponentWithNewValue(ComponentBase* pComponent, bool ignoreDivorceStatus, bool fromdraganddrop, ComponentVariable* pVar, int controlid, bool finishedchanging, double oldvalue, void* oldpointer, wxCoord x, wxCoord y, void* newpointer)
 {
     ComponentBase* pChildComponent = pComponent;
+
+    // figure out which component of a multi-component control(e.g. vector3, vector2, colorbyte, etc) this is.
+    int controlcomponent = controlid - pVar->m_ControlID;
+
+    bool updateValue = false;
+    if( ignoreDivorceStatus || pChildComponent->IsDivorced( pVar->m_Index + controlcomponent ) == false )
+        updateValue = true;
+
+    if( updateValue == false )
+        return;
 
     // Found the matching component, now compare the variable.
     switch( pVar->m_Type )
@@ -1522,13 +1577,10 @@ void ComponentBase::UpdateOtherComponentWithNewValue(ComponentBase* pComponent, 
         {
             int offset = pVar->m_Offset;
 
-            // old method of comparing values //if( *(int*)((char*)pChildComponent + offset) == oldvalue )
-            if( pChildComponent->IsDivorced( pVar->m_Index ) == false )
-            {
-                *(int*)((char*)pChildComponent + offset) = *(int*)((char*)this + offset);
-                if( pVar->m_pOnValueChangedCallbackFunc )
-                    (pChildComponent->*pVar->m_pOnValueChangedCallbackFunc)( pVar, controlid, finishedchanging, oldvalue );
-            }
+            // copy the value, call the callback function and update children.
+            *(int*)((char*)pChildComponent + offset) = *(int*)((char*)this + offset);
+            if( pVar->m_pOnValueChangedCallbackFunc )
+                (pChildComponent->*pVar->m_pOnValueChangedCallbackFunc)( pVar, controlid, finishedchanging, oldvalue );
 
             pChildComponent->UpdateChildrenWithNewValue( fromdraganddrop, pVar, controlid, finishedchanging, oldvalue, oldpointer, x, y, newpointer );
         }
@@ -1542,13 +1594,10 @@ void ComponentBase::UpdateOtherComponentWithNewValue(ComponentBase* pComponent, 
         {
             int offset = pVar->m_Offset;
 
-            // old method of comparing values //if( *(unsigned int*)((char*)pChildComponent + offset) == oldvalue )
-            if( pChildComponent->IsDivorced( pVar->m_Index ) == false )
-            {
-                *(unsigned int*)((char*)pChildComponent + offset) = *(unsigned int*)((char*)this + offset);
-                if( pVar->m_pOnValueChangedCallbackFunc )
-                    (pChildComponent->*pVar->m_pOnValueChangedCallbackFunc)( pVar, controlid, finishedchanging, oldvalue );
-            }
+            // copy the value, call the callback function and update children.
+            *(unsigned int*)((char*)pChildComponent + offset) = *(unsigned int*)((char*)this + offset);
+            if( pVar->m_pOnValueChangedCallbackFunc )
+                (pChildComponent->*pVar->m_pOnValueChangedCallbackFunc)( pVar, controlid, finishedchanging, oldvalue );
 
             pChildComponent->UpdateChildrenWithNewValue( fromdraganddrop, pVar, controlid, finishedchanging, oldvalue, oldpointer, x, y, newpointer );
         }
@@ -1564,13 +1613,10 @@ void ComponentBase::UpdateOtherComponentWithNewValue(ComponentBase* pComponent, 
         {
             int offset = pVar->m_Offset;
 
-            // old method of comparing values //if( *(bool*)((char*)pChildComponent + offset) == fequal( oldvalue, 1 ) ? true : false )
-            if( pChildComponent->IsDivorced( pVar->m_Index ) == false )
-            {
-                *(bool*)((char*)pChildComponent + offset) = *(bool*)((char*)this + offset);
-                if( pVar->m_pOnValueChangedCallbackFunc )
-                    (pChildComponent->*pVar->m_pOnValueChangedCallbackFunc)( pVar, controlid, finishedchanging, oldvalue );
-            }
+            // copy the value, call the callback function and update children.
+            *(bool*)((char*)pChildComponent + offset) = *(bool*)((char*)this + offset);
+            if( pVar->m_pOnValueChangedCallbackFunc )
+                (pChildComponent->*pVar->m_pOnValueChangedCallbackFunc)( pVar, controlid, finishedchanging, oldvalue );
 
             pChildComponent->UpdateChildrenWithNewValue( fromdraganddrop, pVar, controlid, finishedchanging, oldvalue, oldpointer, x, y, newpointer );
         }
@@ -1582,14 +1628,11 @@ void ComponentBase::UpdateOtherComponentWithNewValue(ComponentBase* pComponent, 
         if( fromdraganddrop == false )
         {
             int offset = pVar->m_Offset;
-
-            // old method of comparing values //if( *(float*)((char*)pChildComponent + offset) == oldvalue )
-            if( pChildComponent->IsDivorced( pVar->m_Index ) == false )
-            {
-                *(float*)((char*)pChildComponent + offset) = *(float*)((char*)this + offset);
-                if( pVar->m_pOnValueChangedCallbackFunc )
-                    (pChildComponent->*pVar->m_pOnValueChangedCallbackFunc)( pVar, controlid, finishedchanging, oldvalue );
-            }
+            
+            // copy the value, call the callback function and update children.
+            *(float*)((char*)pChildComponent + offset) = *(float*)((char*)this + offset);
+            if( pVar->m_pOnValueChangedCallbackFunc )
+                (pChildComponent->*pVar->m_pOnValueChangedCallbackFunc)( pVar, controlid, finishedchanging, oldvalue );
 
             pChildComponent->UpdateChildrenWithNewValue( fromdraganddrop, pVar, controlid, finishedchanging, oldvalue, oldpointer, x, y, newpointer );
         }
@@ -1612,15 +1655,12 @@ void ComponentBase::UpdateOtherComponentWithNewValue(ComponentBase* pComponent, 
                     int offset = pVar->m_Offset;
                     ColorByte* oldcolor = (ColorByte*)*(int*)&oldvalue;
                     ColorByte* childcolor = (ColorByte*)((char*)pChildComponent + offset);
-
-                    // old method of comparing values //if( *childcolor == *oldcolor )
-                    if( pChildComponent->IsDivorced( pVar->m_Index ) == false )
-                    {
-                        ColorByte* newcolor = (ColorByte*)((char*)this + offset);
-                        *childcolor = *newcolor;
-                        if( pVar->m_pOnValueChangedCallbackFunc )
-                            (pChildComponent->*pVar->m_pOnValueChangedCallbackFunc)( pVar, controlid, finishedchanging, oldvalue );
-                    }
+                    
+                    // copy the value, call the callback function and update children.
+                    ColorByte* newcolor = (ColorByte*)((char*)this + offset);
+                    *childcolor = *newcolor;
+                    if( pVar->m_pOnValueChangedCallbackFunc )
+                        (pChildComponent->*pVar->m_pOnValueChangedCallbackFunc)( pVar, controlid, finishedchanging, oldvalue );
                 }
             }
             else
@@ -1628,6 +1668,7 @@ void ComponentBase::UpdateOtherComponentWithNewValue(ComponentBase* pComponent, 
                 int offset = pVar->m_Offset + sizeof(unsigned char)*3; // offset of the alpha in ColorByte
 
                 // old method of comparing values //if( *(unsigned char*)((char*)pChildComponent + offset) == oldvalue )
+                // TODO: fix?
                 if( pChildComponent->IsDivorced( pVar->m_Index + 3 ) == false )
                 {
                     *(unsigned char*)((char*)pChildComponent + offset) = *(unsigned char*)((char*)this + offset);
@@ -1646,18 +1687,12 @@ void ComponentBase::UpdateOtherComponentWithNewValue(ComponentBase* pComponent, 
 
         if( fromdraganddrop == false )
         {
-            // figure out which component of a multi-component control(e.g. vector3) this is.
-            int controlcomponent = controlid - pVar->m_ControlID;
-
             int offset = pVar->m_Offset + controlcomponent*4;
 
-            // old method of comparing values //if( *(float*)((char*)pChildComponent + offset) == oldvalue )
-            if( pChildComponent->IsDivorced( pVar->m_Index + controlcomponent ) == false )
-            {
-                *(float*)((char*)pChildComponent + offset) = *(float*)((char*)this + offset);
-                if( pVar->m_pOnValueChangedCallbackFunc )
-                    (pChildComponent->*pVar->m_pOnValueChangedCallbackFunc)( pVar, controlid, finishedchanging, oldvalue );
-            }
+            // copy the value, call the callback function and update children.
+            *(float*)((char*)pChildComponent + offset) = *(float*)((char*)this + offset);
+            if( pVar->m_pOnValueChangedCallbackFunc )
+                (pChildComponent->*pVar->m_pOnValueChangedCallbackFunc)( pVar, controlid, finishedchanging, oldvalue );
 
             pChildComponent->UpdateChildrenWithNewValue( fromdraganddrop, pVar, controlid, finishedchanging, oldvalue, oldpointer, x, y, newpointer );
         }
@@ -1669,18 +1704,12 @@ void ComponentBase::UpdateOtherComponentWithNewValue(ComponentBase* pComponent, 
 
         if( fromdraganddrop == false )
         {
-            // figure out which component of a multi-component control(e.g. vector3Int) this is.
-            int controlcomponent = controlid - pVar->m_ControlID;
-
             int offset = pVar->m_Offset + controlcomponent*4;
-
-            // old method of comparing values //if( *(int*)((char*)pChildComponent + offset) == oldvalue )
-            if( pChildComponent->IsDivorced( pVar->m_Index + controlcomponent ) == false )
-            {
-                *(int*)((char*)pChildComponent + offset) = *(int*)((char*)this + offset);
-                if( pVar->m_pOnValueChangedCallbackFunc )
-                    (pChildComponent->*pVar->m_pOnValueChangedCallbackFunc)( pVar, controlid, finishedchanging, oldvalue );
-            }
+            
+            // copy the value, call the callback function and update children.
+            *(int*)((char*)pChildComponent + offset) = *(int*)((char*)this + offset);
+            if( pVar->m_pOnValueChangedCallbackFunc )
+                (pChildComponent->*pVar->m_pOnValueChangedCallbackFunc)( pVar, controlid, finishedchanging, oldvalue );
 
             pChildComponent->UpdateChildrenWithNewValue( fromdraganddrop, pVar, controlid, finishedchanging, oldvalue, oldpointer, x, y, newpointer );
         }
@@ -1699,37 +1728,31 @@ void ComponentBase::UpdateOtherComponentWithNewValue(ComponentBase* pComponent, 
             {
                 int offset = pVar->m_Offset;
 
-                // old method of comparing values //if( *(void**)((char*)pChildComponent + offset) == oldpointer )
-                if( pChildComponent->IsDivorced( pVar->m_Index ) == false )
+                // OnDropCallback will grab the new value from g_DragAndDropStruct
+                MyAssert( pVar->m_pOnDropCallbackFunc );
+                if( pVar->m_pOnDropCallbackFunc )
                 {
-                    // OnDropCallback will grab the new value from g_DragAndDropStruct
-                    MyAssert( pVar->m_pOnDropCallbackFunc );
-                    if( pVar->m_pOnDropCallbackFunc )
-                    {
-                        void* oldpointer2 = (pChildComponent->*pVar->m_pOnDropCallbackFunc)( pVar, x, y );
+                    void* oldpointer2 = (pChildComponent->*pVar->m_pOnDropCallbackFunc)( pVar, x, y );
 
-                        // assert should only trip if child didn't have same value that the parent had
-                        //     which shouldn't happen since values aren't divorced.
-                        // could happen since divorced flags are saved in .scene files and not verified on load
-                        // nothing bad will happen if assert trips, other than child value getting overwritten unexpectedly.
-                        MyAssert( oldpointer2 == oldpointer );
-                    }
+                    // assert should only trip if child didn't have same value that the parent had
+                    //     which shouldn't happen since values aren't divorced.
+                    // could happen since divorced flags are saved in .scene files and not verified on load
+                    // nothing bad will happen if assert trips, other than child value getting overwritten unexpectedly.
+                    // TODO: temp removed since will also trip if parent/child are multiselected and pointer changes.
+                    //MyAssert( oldpointer2 == oldpointer );
                 }
             }
             else
             {
                 int offset = pVar->m_Offset;
-
-                // old method of comparing values //if( *(void**)((char*)pChildComponent + pVar->m_Offset) == oldpointer )
-                if( pChildComponent->IsDivorced( pVar->m_Index ) == false )
+                
+                // call the callback function and update children.
+                MyAssert( pVar->m_pOnValueChangedCallbackFunc );
+                if( pVar->m_pOnValueChangedCallbackFunc )
                 {
-                    MyAssert( pVar->m_pOnValueChangedCallbackFunc );
-                    if( pVar->m_pOnValueChangedCallbackFunc )
-                    {
-                        void* oldpointer2 = (pChildComponent->*pVar->m_pOnValueChangedCallbackFunc)( pVar, controlid, finishedchanging, oldvalue );
-                        MyAssert( oldpointer2 == oldpointer );
-                    }
-                }                                
+                    void* oldpointer2 = (pChildComponent->*pVar->m_pOnValueChangedCallbackFunc)( pVar, controlid, finishedchanging, oldvalue );
+                    MyAssert( oldpointer2 == oldpointer );
+                }
             }
 
             pChildComponent->UpdateChildrenWithNewValue( fromdraganddrop, pVar, controlid, finishedchanging, oldvalue, oldpointer, x, y, newpointer );
@@ -1742,41 +1765,29 @@ void ComponentBase::UpdateOtherComponentWithNewValue(ComponentBase* pComponent, 
             {
                 int offset = pVar->m_Offset;
 
-                // old method of comparing values //if( (pChildComponent->*pVar->m_pGetPointerValueCallBackFunc)( pVar ) == oldpointer )
-                if( pChildComponent->IsDivorced( pVar->m_Index ) == false )
+                // OnDropCallback will grab the new value from g_DragAndDropStruct
+                MyAssert( pVar->m_pOnDropCallbackFunc );
+                if( pVar->m_pOnDropCallbackFunc )
                 {
-                    // OnDropCallback will grab the new value from g_DragAndDropStruct
-                    MyAssert( pVar->m_pOnDropCallbackFunc );
-                    if( pVar->m_pOnDropCallbackFunc )
-                    {
-                        void* oldpointer2 = (pChildComponent->*pVar->m_pOnDropCallbackFunc)( pVar, x, y );
-                        MyAssert( oldpointer2 == oldpointer );
-                    }
+                    void* oldpointer2 = (pChildComponent->*pVar->m_pOnDropCallbackFunc)( pVar, x, y );
+                    MyAssert( oldpointer2 == oldpointer );
                 }
             }
             else if( newpointer )
             {
-                // old method of comparing values //if( (pChildComponent->*pVar->m_pGetPointerValueCallBackFunc)( pVar ) == oldpointer )
-                if( pChildComponent->IsDivorced( pVar->m_Index ) == false )
+                MyAssert( pVar->m_pSetPointerValueCallBackFunc );
+                if( pVar->m_pSetPointerValueCallBackFunc )
                 {
-                    MyAssert( pVar->m_pSetPointerValueCallBackFunc );
-                    if( pVar->m_pSetPointerValueCallBackFunc )
-                    {
-                        (pChildComponent->*pVar->m_pSetPointerValueCallBackFunc)( pVar, newpointer );
-                    }
+                    (pChildComponent->*pVar->m_pSetPointerValueCallBackFunc)( pVar, newpointer );
                 }
             }
             else
             {
-                // old method of comparing values //if( (pChildComponent->*pVar->m_pGetPointerValueCallBackFunc)( pVar ) == oldpointer )
-                if( pChildComponent->IsDivorced( pVar->m_Index ) == false )
+                MyAssert( pVar->m_pOnValueChangedCallbackFunc );
+                if( pVar->m_pOnValueChangedCallbackFunc )
                 {
-                    MyAssert( pVar->m_pOnValueChangedCallbackFunc );
-                    if( pVar->m_pOnValueChangedCallbackFunc )
-                    {
-                        void* oldpointer2 = (pChildComponent->*pVar->m_pOnValueChangedCallbackFunc)( pVar, controlid, finishedchanging, oldvalue );
-                        MyAssert( oldpointer2 == oldpointer );
-                    }
+                    void* oldpointer2 = (pChildComponent->*pVar->m_pOnValueChangedCallbackFunc)( pVar, controlid, finishedchanging, oldvalue );
+                    MyAssert( oldpointer2 == oldpointer );
                 }
             }
 
