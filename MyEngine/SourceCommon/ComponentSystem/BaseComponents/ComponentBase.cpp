@@ -1556,15 +1556,15 @@ void ComponentBase::UpdateOtherComponentWithNewValue(ComponentBase* pComponent, 
 {
     ComponentBase* pChildComponent = pComponent;
 
-    // figure out which component of a multi-component control(e.g. vector3, vector2, colorbyte, etc) this is.
-    int controlcomponent = controlid - pVar->m_ControlID;
-
     bool updateValue = false;
-    if( ignoreDivorceStatus || pChildComponent->IsDivorced( pVar->m_Index + controlcomponent ) == false )
+    if( ignoreDivorceStatus || pChildComponent->IsDivorced( pVar->m_Index ) == false )
         updateValue = true;
 
     if( updateValue == false )
         return;
+
+    // figure out which component of a multi-component control(e.g. vector3, vector2, colorbyte, etc) this is.
+    int controlcomponent = controlid - pVar->m_ControlID;
 
     // Found the matching component, now compare the variable.
     switch( pVar->m_Type )
@@ -1648,7 +1648,7 @@ void ComponentBase::UpdateOtherComponentWithNewValue(ComponentBase* pComponent, 
         {
             int controlcomponent = controlid - pVar->m_ControlID;
 
-            if( controlcomponent == 0 )
+            if( controlcomponent == 0 ) // color picker box
             {
                 if( oldvalue != 0 )
                 {
@@ -1665,16 +1665,13 @@ void ComponentBase::UpdateOtherComponentWithNewValue(ComponentBase* pComponent, 
             }
             else
             {
+                MyAssert( controlcomponent == 1 ); // alpha control is next to the color picker box
+
                 int offset = pVar->m_Offset + sizeof(unsigned char)*3; // offset of the alpha in ColorByte
 
-                // old method of comparing values //if( *(unsigned char*)((char*)pChildComponent + offset) == oldvalue )
-                // TODO: fix?
-                if( pChildComponent->IsDivorced( pVar->m_Index + 3 ) == false )
-                {
-                    *(unsigned char*)((char*)pChildComponent + offset) = *(unsigned char*)((char*)this + offset);
-                    if( pVar->m_pOnValueChangedCallbackFunc )
-                        (pChildComponent->*pVar->m_pOnValueChangedCallbackFunc)( pVar, controlid, finishedchanging, oldvalue );
-                }
+                *(unsigned char*)((char*)pChildComponent + offset) = *(unsigned char*)((char*)this + offset);
+                if( pVar->m_pOnValueChangedCallbackFunc )
+                    (pChildComponent->*pVar->m_pOnValueChangedCallbackFunc)( pVar, controlid, finishedchanging, oldvalue );
             }
 
             pChildComponent->UpdateChildrenWithNewValue( fromdraganddrop, pVar, controlid, finishedchanging, oldvalue, oldpointer, x, y, newpointer );
