@@ -217,7 +217,7 @@ void* ComponentMesh::OnDropMaterial(ComponentVariable* pVar, wxCoord x, wxCoord 
             MyAssert( pMaterial );
 
             oldvalue = GetMaterial( materialthatchanged );
-            SetMaterial( pMaterial, materialthatchanged );
+            g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_ChangeMaterialOnMesh( this, materialthatchanged, pMaterial ) );
 
             // update the panel so new Material name shows up.
             g_pPanelWatch->GetVariableProperties( g_DragAndDropStruct.m_ID )->m_Description = pMaterial->GetName();

@@ -565,6 +565,42 @@ EditorCommand* EditorCommand_EnableObject::Repeat()
 }
 
 //====================================================================================================
+// EditorCommand_ChangeMaterialOnMesh
+//====================================================================================================
+
+EditorCommand_ChangeMaterialOnMesh::EditorCommand_ChangeMaterialOnMesh(ComponentRenderable* pComponent, int submeshindex, MaterialDefinition* pMaterial)
+{
+    MyAssert( m_pComponent );
+
+    m_pComponent = pComponent;
+    m_SubmeshIndex = submeshindex;
+    m_pNewMaterial = pMaterial;
+}
+
+EditorCommand_ChangeMaterialOnMesh::~EditorCommand_ChangeMaterialOnMesh()
+{
+}
+
+void EditorCommand_ChangeMaterialOnMesh::Do()
+{
+    m_pOldMaterial = m_pComponent->GetMaterial( m_SubmeshIndex );
+
+    m_pComponent->SetMaterial( m_pNewMaterial, m_SubmeshIndex );
+}
+
+void EditorCommand_ChangeMaterialOnMesh::Undo()
+{
+    m_pComponent->SetMaterial( m_pOldMaterial, m_SubmeshIndex );
+}
+
+EditorCommand* EditorCommand_ChangeMaterialOnMesh::Repeat()
+{
+    // Do nothing.
+
+    return 0;
+}
+
+//====================================================================================================
 // EditorCommand_ChangeAllMaterialsOnGameObject
 //====================================================================================================
 

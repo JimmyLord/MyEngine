@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2016 Jimmy Lord http://www.flatheadgames.com
+// Copyright (c) 2015-2017 Jimmy Lord http://www.flatheadgames.com
 //
 // This software is provided 'as-is', without any express or implied warranty.  In no event will the authors be held liable for any damages arising from the use of this software.
 // Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -18,6 +18,7 @@ class EditorCommand_DeleteComponents;
 class EditorCommand_CreateGameObject;
 class EditorCommand_CopyGameObject;
 class EditorCommand_EnableObject;
+class EditorCommand_ChangeMaterialOnMesh;
 class EditorCommand_ChangeAllMaterialsOnGameObject;
 class EditorCommand_ChangeTextureOnMaterial;
 class EditorCommand_ChangeShaderOnMaterial;
@@ -180,6 +181,25 @@ protected:
 public:
     EditorCommand_EnableObject(GameObject* pObject, bool enabled);
     virtual ~EditorCommand_EnableObject();
+
+    virtual void Do();
+    virtual void Undo();
+    virtual EditorCommand* Repeat();
+};
+
+//====================================================================================================
+
+class EditorCommand_ChangeMaterialOnMesh : public EditorCommand
+{
+protected:
+    ComponentRenderable* m_pComponent;
+    int m_SubmeshIndex;
+    MaterialDefinition* m_pNewMaterial;
+    MaterialDefinition* m_pOldMaterial;
+
+public:
+    EditorCommand_ChangeMaterialOnMesh(ComponentRenderable* pComponent, int submeshindex, MaterialDefinition* pMaterial);
+    virtual ~EditorCommand_ChangeMaterialOnMesh();
 
     virtual void Do();
     virtual void Undo();
