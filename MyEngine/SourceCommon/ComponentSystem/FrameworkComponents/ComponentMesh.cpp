@@ -179,7 +179,7 @@ void* ComponentMesh::OnValueChanged(ComponentVariable* pVar, int controlid, bool
                 g_pPanelWatch->ChangeDescriptionForPointerWithDescription( pVar->m_ControlID, "none" );
 
                 oldpointer = GetMaterial( materialthatchanged );
-                SetMaterial( 0, materialthatchanged );
+                g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_ChangeMaterialOnMesh( this, materialthatchanged, 0 ) );
             }
         }
 
