@@ -1767,7 +1767,7 @@ void ComponentBase::UpdateOtherComponentWithNewValue(ComponentBase* pComponent, 
                 if( pVar->m_pOnDropCallbackFunc )
                 {
                     void* oldpointer2 = (pChildComponent->*pVar->m_pOnDropCallbackFunc)( pVar, x, y );
-                    MyAssert( oldpointer2 == oldpointer );
+                    //MyAssert( oldpointer2 == oldpointer );
                 }
             }
             else if( newpointer )
@@ -1784,7 +1784,7 @@ void ComponentBase::UpdateOtherComponentWithNewValue(ComponentBase* pComponent, 
                 if( pVar->m_pOnValueChangedCallbackFunc )
                 {
                     void* oldpointer2 = (pChildComponent->*pVar->m_pOnValueChangedCallbackFunc)( pVar, controlid, finishedchanging, oldvalue );
-                    MyAssert( oldpointer2 == oldpointer );
+                    //MyAssert( oldpointer2 == oldpointer );
                 }
             }
 

@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015 Jimmy Lord http://www.flatheadgames.com
+// Copyright (c) 2015-2017 Jimmy Lord http://www.flatheadgames.com
 //
 // This software is provided 'as-is', without any express or implied warranty.  In no event will the authors be held liable for any damages arising from the use of this software.
 // Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -30,15 +30,15 @@ void EngineCommandStack::Redo(unsigned int levels)
         CommandStack::Redo( levels );
 }
 
-void EngineCommandStack::Do(EditorCommand* pCommand, bool linktoprevious)
+void EngineCommandStack::Do(EditorCommand* pCommand, bool linktoprevious, bool autolinkifsameframeasprevious)
 {
-    CommandStack::Do( pCommand, linktoprevious );
+    CommandStack::Do( pCommand, linktoprevious, autolinkifsameframeasprevious );
 }
 
-void EngineCommandStack::Add(EditorCommand* pCommand, bool linktoprevious)
+void EngineCommandStack::Add(EditorCommand* pCommand, bool linktoprevious, bool autolinkifsameframeasprevious)
 {
     if( g_pEngineCore->m_EditorMode )
-        return CommandStack::Add( pCommand, linktoprevious );
+        return CommandStack::Add( pCommand, linktoprevious, autolinkifsameframeasprevious );
 
     delete pCommand;
 }

@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2014-2016 Jimmy Lord http://www.flatheadgames.com
+// Copyright (c) 2014-2017 Jimmy Lord http://www.flatheadgames.com
 //
 // This software is provided 'as-is', without any express or implied warranty.  In no event will the authors be held liable for any damages arising from the use of this software.
 // Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -108,7 +108,11 @@ void ComponentSprite::SetPointerValue(ComponentVariable* pVar, void* newvalue)
 {
     if( strcmp( pVar->m_Label, "Material" ) == 0 )
     {
-        return SetMaterial( (MaterialDefinition*)newvalue, 0 );
+#if MYFW_USING_WX
+        g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_ChangeMaterialOnMesh( this, 0, (MaterialDefinition*)newvalue ) );
+#else
+        SetMaterial( (MaterialDefinition*)newvalue, 0 );
+#endif
     }
 }
 
@@ -135,7 +139,11 @@ void ComponentSprite::SetPointerDesc(ComponentVariable* pVar, const char* newdes
         if( newdesc )
         {
             MaterialDefinition* pMaterial = g_pMaterialManager->LoadMaterial( newdesc );
+#if MYFW_USING_WX
+            g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_ChangeMaterialOnMesh( this, 0, pMaterial ) );
+#else
             SetMaterial( pMaterial, 0 );
+#endif
             pMaterial->Release();
         }
     }
@@ -177,7 +185,7 @@ void* ComponentSprite::OnDrop(ComponentVariable* pVar, wxCoord x, wxCoord y)
         MyAssert( m_pSprite );
 
         oldvalue = m_pSprite->GetMaterial();
-        SetMaterial( pMaterial, 0 );
+        g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_ChangeMaterialOnMesh( this, 0, pMaterial ) );
 
         g_pPanelWatch->SetNeedsRefresh();
     }
@@ -199,7 +207,7 @@ void* ComponentSprite::OnValueChanged(ComponentVariable* pVar, int controlid, bo
             g_pPanelWatch->ChangeDescriptionForPointerWithDescription( pVar->m_ControlID, "none" );
 
             oldpointer = m_pSprite->GetMaterial();
-            SetMaterial( 0, 0 );
+            g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_ChangeMaterialOnMesh( this, 0, 0 ) );
         }
     }
 
