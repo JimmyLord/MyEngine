@@ -515,7 +515,7 @@ bool EngineMainFrame::OnClose()
 {
     int answer = wxID_YES;
 
-    if( m_pCommandStack->m_UndoStack.size() != m_StackDepthAtLastSave )
+    if( m_pCommandStack->GetUndoStackSize() != m_StackDepthAtLastSave )
     {
         //answer = wxMessageBox( "Some changes aren't saved.\nQuit anyway?", "Confirm", wxYES_NO, this );
         wxMessageDialog dlg( this, "Some changes aren't saved.\nQuit anyway?", "Confirm", wxYES_NO | wxNO_DEFAULT );
@@ -686,7 +686,7 @@ void EngineMainFrame::OnMenu_Engine(wxCommandEvent& event)
         {
             int answer = wxID_YES;
 
-            if( m_pCommandStack->m_UndoStack.size() != m_StackDepthAtLastSave )
+            if( m_pCommandStack->GetUndoStackSize() != m_StackDepthAtLastSave )
             {
                 //answer = wxMessageBox( "Some changes aren't saved.\nCreate a new scene?", "Confirm", wxYES_NO, this );
                 wxMessageDialog dlg( g_pEngineMainFrame, "Some changes aren't saved.\nCreate a new scene?", "Confirm", wxYES_NO | wxNO_DEFAULT );
@@ -710,7 +710,7 @@ void EngineMainFrame::OnMenu_Engine(wxCommandEvent& event)
         {
             int answer = wxID_YES;
 
-            if( m_pCommandStack->m_UndoStack.size() != m_StackDepthAtLastSave )
+            if( m_pCommandStack->GetUndoStackSize() != m_StackDepthAtLastSave )
             {
                 //answer = wxMessageBox( "Some changes aren't saved.\nLoad anyway?", "Confirm", wxYES_NO, this );
                 wxMessageDialog dlg( g_pEngineMainFrame, "Some changes aren't saved.\nLoad anyway?", "Confirm", wxYES_NO | wxNO_DEFAULT );
@@ -742,14 +742,14 @@ void EngineMainFrame::OnMenu_Engine(wxCommandEvent& event)
         break;
 
     case myIDEngine_SaveScene:
-        m_StackDepthAtLastSave = (unsigned int)m_pCommandStack->m_UndoStack.size();
+        m_StackDepthAtLastSave = m_pCommandStack->GetUndoStackSize();
         g_pMaterialManager->SaveAllMaterials();
         g_pGameCore->m_pSoundManager->SaveAllCues();
         SaveScene();
         break;
 
     case myIDEngine_SaveSceneAs:
-        m_StackDepthAtLastSave = (unsigned int)m_pCommandStack->m_UndoStack.size();
+        m_StackDepthAtLastSave = m_pCommandStack->GetUndoStackSize();
         g_pMaterialManager->SaveAllMaterials();
         g_pGameCore->m_pSoundManager->SaveAllCues();
         SaveSceneAs( 1 );
@@ -806,19 +806,19 @@ void EngineMainFrame::OnMenu_Engine(wxCommandEvent& event)
     //    break;
 
     case myIDEngine_RecordMacro:
-        m_Hackery_Record_StackDepth = (int)m_pCommandStack->m_UndoStack.size();
+        m_Hackery_Record_StackDepth = (int)m_pCommandStack->GetUndoStackSize();
         break;
 
     case myIDEngine_ExecuteMacro:
         if( m_Hackery_Record_StackDepth != -1 )
         {
-            int topdepth = (int)m_pCommandStack->m_UndoStack.size();
+            int topdepth = (int)m_pCommandStack->GetUndoStackSize();
             for( int i=m_Hackery_Record_StackDepth; i<topdepth; i++ )
             {
                 // need to copy the command.
-                EditorCommand* pCommand = m_pCommandStack->m_UndoStack[i]->Repeat();
-                if( pCommand )
-                    m_pCommandStack->Add( pCommand );
+                EditorCommand* pCommandCopy = m_pCommandStack->GetUndoCommandAtIndex(i)->Repeat();
+                if( pCommandCopy )
+                    m_pCommandStack->Add( pCommandCopy );
             }
             m_Hackery_Record_StackDepth = topdepth;
         }
@@ -1137,7 +1137,12 @@ void EngineMainFrame::LoadScene(const char* scenename, bool unloadscenes)
         g_pEngineCore->UnloadScene( UINT_MAX, false ); // don't unload editor objects.
     }
 
+    // Load the scene from file.
+    // This might cause some "undo" actions, so wipe them out once the load is complete.
+    unsigned int numItemsInUndoStack = g_pEngineMainFrame->m_pCommandStack->GetUndoStackSize();
     unsigned int sceneid = g_pEngineCore->LoadSceneFromFile( scenename );
+    g_pEngineMainFrame->m_pCommandStack->ClearUndoStack( numItemsInUndoStack );
+
     this->SetTitle( g_pComponentSystemManager->GetSceneInfo( sceneid )->m_FullPath );
 }
 
