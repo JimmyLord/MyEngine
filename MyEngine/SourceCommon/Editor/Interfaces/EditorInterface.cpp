@@ -89,7 +89,58 @@ void EditorInterface::OnDrawFrame(unsigned int canvasid)
             ComponentCamera* pCamera = dynamic_cast<ComponentCamera*>( pEditorState->m_pEditorCamera->m_Components[i] );
 
             if( pCamera )
+            {
                 pCamera->OnDrawFrame();
+
+                if( pCamera->m_LayersToRender & 1 << 0 ) // only draw selected objects over "main" layer
+                {
+                    //glDisable( GL_DEPTH_TEST );
+                    glDisable( GL_CULL_FACE );
+                    glDepthFunc( GL_LEQUAL );
+
+                    // Draw selected objects in editor view.
+                    ShaderGroup* pShaderOverride = g_pEngineCore->m_pShader_SelectedObjects;
+
+                    Shader_Base* pShader = (Shader_Base*)pShaderOverride->GlobalPass( 0, 4 );
+                    if( pShader->ActivateAndProgramShader() )
+                    {
+                        for( unsigned int i=0; i<pEditorState->m_pSelectedObjects.size(); i++ )
+                        {
+                            // draw an outline around the selected object
+                            glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
+                            glEnable( GL_POLYGON_OFFSET_LINE );
+                            glEnable( GL_POLYGON_OFFSET_FILL ); // enabling GL_POLYGON_OFFSET_LINE doesn't work on my intel 4000
+                            glPolygonOffset( -0.5, -0.5 );
+                            pShader->ProgramTint( ColorByte(255,255,255,255) );
+                            g_pComponentSystemManager->DrawSingleObject( &pCamera->m_Camera3D.m_matViewProj,
+                                                                         pEditorState->m_pSelectedObjects[i],
+                                                                         pShaderOverride );
+                            glPolygonOffset( 0, 0 );
+                            glDisable( GL_POLYGON_OFFSET_FILL );
+                            glDisable( GL_POLYGON_OFFSET_LINE );
+                            glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
+
+                            // draw the entire selected shape with the shader
+                            glEnable( GL_BLEND );
+                            glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
+
+                            pShader->ProgramBaseUniforms( 0, 0, 0, ColorByte(0,0,0,0), ColorByte(0,0,0,0), 0 );
+                            pShader->ProgramTint( ColorByte(0,0,0,0) );
+                            g_pComponentSystemManager->DrawSingleObject( &pCamera->m_Camera3D.m_matViewProj,
+                                                                         pEditorState->m_pSelectedObjects[i],
+                                                                         pShaderOverride );
+                        }
+                    }
+
+                    pShader->DeactivateShader( 0, true );
+
+                    // always disable blending
+                    glDisable( GL_BLEND );
+
+                    glEnable( GL_CULL_FACE );
+                    glEnable( GL_DEPTH_TEST );
+                }
+            }
         }
     }
 

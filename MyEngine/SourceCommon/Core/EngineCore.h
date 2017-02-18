@@ -118,8 +118,10 @@ public:
     double m_TimeSinceLastPhysicsStep;
 
     MyFileObject* m_pShaderFile_TintColor;
+    MyFileObject* m_pShaderFile_SelectedObjects;
     MyFileObject* m_pShaderFile_ClipSpaceTexture;
     ShaderGroup* m_pShader_TintColor;
+    ShaderGroup* m_pShader_SelectedObjects;
     ShaderGroup* m_pShader_ClipSpaceTexture;
     MaterialDefinition* m_pMaterial_Box2DDebugDraw;
     MaterialDefinition* m_pMaterial_3DGrid;

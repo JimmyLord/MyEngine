@@ -29,8 +29,10 @@ EngineCore::EngineCore()
     m_TimeSinceLastPhysicsStep = 0;
 
     m_pShaderFile_TintColor = 0;
+    m_pShaderFile_SelectedObjects = 0;
     m_pShaderFile_ClipSpaceTexture = 0;
     m_pShader_TintColor = 0;
+    m_pShader_SelectedObjects = 0;
     m_pShader_ClipSpaceTexture = 0;
     m_pMaterial_Box2DDebugDraw = 0;
     m_pMaterial_3DGrid = 0;
@@ -118,8 +120,10 @@ EngineCore::~EngineCore()
 #endif //MYFW_USING_WX
 
     g_pFileManager->FreeFile( m_pShaderFile_TintColor );
+    g_pFileManager->FreeFile( m_pShaderFile_SelectedObjects );
     g_pFileManager->FreeFile( m_pShaderFile_ClipSpaceTexture );
     SAFE_RELEASE( m_pShader_TintColor );
+    SAFE_RELEASE( m_pShader_SelectedObjects );
     SAFE_RELEASE( m_pShader_ClipSpaceTexture );
     SAFE_RELEASE( m_pMaterial_Box2DDebugDraw );
     SAFE_RELEASE( m_pMaterial_3DGrid );
@@ -255,8 +259,10 @@ void EngineCore::OneTimeInit()
 
     // setup our shaders
     m_pShaderFile_TintColor = g_pEngineFileManager->RequestFile_UntrackedByScene( "DataEngine/Shaders/Shader_TintColor.glsl" );
+    m_pShaderFile_SelectedObjects = g_pEngineFileManager->RequestFile_UntrackedByScene( "DataEngine/Shaders/Shader_SelectedObjects.glsl" );
     m_pShaderFile_ClipSpaceTexture = g_pEngineFileManager->RequestFile_UntrackedByScene( "DataEngine/Shaders/Shader_ClipSpaceTexture.glsl" );
     m_pShader_TintColor = MyNew ShaderGroup( m_pShaderFile_TintColor );
+    m_pShader_SelectedObjects = MyNew ShaderGroup( m_pShaderFile_SelectedObjects );
     m_pShader_ClipSpaceTexture = MyNew ShaderGroup( m_pShaderFile_ClipSpaceTexture );
     m_pMaterial_Box2DDebugDraw = MyNew MaterialDefinition( m_pShader_TintColor, ColorByte(128,128,128,255) );
     m_pMaterial_3DGrid = MyNew MaterialDefinition( m_pShader_TintColor, ColorByte(128,128,128,255) );
