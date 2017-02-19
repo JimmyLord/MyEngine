@@ -967,7 +967,8 @@ void TransformGizmo::TranslateSelectedObjects(EngineCore* pGame, EditorState* pE
                 }
 
                 // if snapping to grid is enabled, then use m_LastIntersectResultUsed instead of last frames result.
-                if( g_pEngineMainFrame->m_GridSettings.snapenabled )
+                if( g_pEngineMainFrame->m_GridSettings.snapenabled ||
+                    pEditorState->m_ModifierKeyStates & MODIFIERKEY_Alt )
                 {
                     // snap object 0 to grid, all other will stay relative.
                     Vector3 pos = m_GizmoWorldTransform.GetTranslation();

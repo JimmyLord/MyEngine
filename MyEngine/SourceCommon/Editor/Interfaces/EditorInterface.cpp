@@ -107,28 +107,37 @@ void EditorInterface::OnDrawFrame(unsigned int canvasid)
                         for( unsigned int i=0; i<pEditorState->m_pSelectedObjects.size(); i++ )
                         {
                             // draw an outline around the selected object
-                            glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
-                            glEnable( GL_POLYGON_OFFSET_LINE );
-                            glEnable( GL_POLYGON_OFFSET_FILL ); // enabling GL_POLYGON_OFFSET_LINE doesn't work on my intel 4000
-                            glPolygonOffset( -0.5, -0.5 );
-                            pShader->ProgramTint( ColorByte(255,255,255,255) );
-                            g_pComponentSystemManager->DrawSingleObject( &pCamera->m_Camera3D.m_matViewProj,
-                                                                         pEditorState->m_pSelectedObjects[i],
-                                                                         pShaderOverride );
-                            glPolygonOffset( 0, 0 );
-                            glDisable( GL_POLYGON_OFFSET_FILL );
-                            glDisable( GL_POLYGON_OFFSET_LINE );
-                            glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
+                            if( g_pEngineMainFrame->m_SelectedObjects_ShowWireframe )
+                            {
+                                glEnable( GL_BLEND );
+                                glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
 
+                                glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
+                                glEnable( GL_POLYGON_OFFSET_LINE );
+                                glEnable( GL_POLYGON_OFFSET_FILL ); // enabling GL_POLYGON_OFFSET_LINE doesn't work on my intel 4000
+                                glPolygonOffset( -0.5, -0.5 );
+                                pShader->ProgramTint( ColorByte(255,255,255,50) );
+                                g_pComponentSystemManager->DrawSingleObject( &pCamera->m_Camera3D.m_matViewProj,
+                                                                             pEditorState->m_pSelectedObjects[i],
+                                                                             pShaderOverride );
+                                glPolygonOffset( 0, 0 );
+                                glDisable( GL_POLYGON_OFFSET_FILL );
+                                glDisable( GL_POLYGON_OFFSET_LINE );
+                                glPolygonMode( GL_FRONT_AND_BACK, GL_FILL );
+                            }
+                            
                             // draw the entire selected shape with the shader
-                            glEnable( GL_BLEND );
-                            glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
+                            if( g_pEngineMainFrame->m_SelectedObjects_ShowEffect )
+                            {
+                                glEnable( GL_BLEND );
+                                glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
 
-                            pShader->ProgramBaseUniforms( 0, 0, 0, ColorByte(0,0,0,0), ColorByte(0,0,0,0), 0 );
-                            pShader->ProgramTint( ColorByte(0,0,0,0) );
-                            g_pComponentSystemManager->DrawSingleObject( &pCamera->m_Camera3D.m_matViewProj,
-                                                                         pEditorState->m_pSelectedObjects[i],
-                                                                         pShaderOverride );
+                                pShader->ProgramBaseUniforms( 0, 0, 0, ColorByte(0,0,0,0), ColorByte(0,0,0,0), 0 );
+                                pShader->ProgramTint( ColorByte(0,0,0,0) );
+                                g_pComponentSystemManager->DrawSingleObject( &pCamera->m_Camera3D.m_matViewProj,
+                                                                             pEditorState->m_pSelectedObjects[i],
+                                                                             pShaderOverride );
+                            }
                         }
                     }
 

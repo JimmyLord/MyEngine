@@ -162,6 +162,8 @@ EngineMainFrame::EngineMainFrame()
 
     m_MenuItem_GridSnapEnabled = 0;
     m_MenuItem_ShowEditorIcons = 0;
+    m_MenuItem_SelectedObjects_ShowWireframe = 0;
+    m_MenuItem_SelectedObjects_ShowEffect = 0;
 
     m_MenuItem_Debug_DrawMousePickerFBO = 0;
     m_MenuItem_Debug_DrawSelectedAnimatedMesh = 0;
@@ -172,6 +174,8 @@ EngineMainFrame::EngineMainFrame()
     m_pEditorPrefs = 0;
 
     m_ShowEditorIcons = true;
+    m_SelectedObjects_ShowWireframe = true;
+    m_SelectedObjects_ShowEffect = true;
 
     m_GridSettings.snapenabled = false;
     m_GridSettings.stepsize.Set( 5, 5, 5 );
@@ -354,6 +358,11 @@ void EngineMainFrame::InitFrame()
     m_View->Append( myIDEngine_View_GameplayPerspectives, "Gameplay Layouts", m_GameplayPerspectives );
 
     m_MenuItem_ShowEditorIcons = m_View->AppendCheckItem( myIDEngine_View_ShowEditorIcons, wxT("Show &Editor Icons\tShift-F7") );
+
+    wxMenu* pMenuSelectedObjects = MyNew wxMenu;
+    m_View->AppendSubMenu( pMenuSelectedObjects, "Selected Objects" );
+    m_MenuItem_SelectedObjects_ShowWireframe = pMenuSelectedObjects->AppendCheckItem( myIDEngine_View_SelectedObjects_ShowWireframe, wxT("Show &Wireframe") );
+    m_MenuItem_SelectedObjects_ShowEffect = pMenuSelectedObjects->AppendCheckItem( myIDEngine_View_SelectedObjects_ShowEffect, wxT("Show &Effect") );
     
     m_View->Append( myIDEngine_View_EditorCameraLayers, "Editor &Camera Layers", m_EditorCameraLayers );
 
@@ -380,7 +389,9 @@ void EngineMainFrame::InitFrame()
     Connect( myIDEngine_RecordMacro,  wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );
     Connect( myIDEngine_ExecuteMacro, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );
 
-    Connect( myIDEngine_View_ShowEditorIcons, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );
+    Connect( myIDEngine_View_ShowEditorIcons,               wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );
+    Connect( myIDEngine_View_SelectedObjects_ShowWireframe, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );
+    Connect( myIDEngine_View_SelectedObjects_ShowEffect,    wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );
 
     Connect( myIDEngine_DebugShowMousePickerFBO,       wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );
     Connect( myIDEngine_DebugShowSelectedAnimatedMesh, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );
@@ -477,6 +488,8 @@ void EngineMainFrame::OnPostInit()
         cJSONExt_GetInt( m_pEditorPrefs, "GameAspectRatio", (int*)&g_CurrentGLViewType );
 
         cJSONExt_GetBool( m_pEditorPrefs, "ShowIcons", &m_ShowEditorIcons );
+        cJSONExt_GetBool( m_pEditorPrefs, "SelectedObjects_ShowWireframe", &m_SelectedObjects_ShowWireframe );
+        cJSONExt_GetBool( m_pEditorPrefs, "SelectedObjects_ShowEffect", &m_SelectedObjects_ShowEffect );
 
         cJSONExt_GetBool( m_pEditorPrefs, "GridSnapEnabled", &m_GridSettings.snapenabled );
         cJSONExt_GetFloatArray( m_pEditorPrefs, "GridStepSize", &m_GridSettings.stepsize.x, 3 );
@@ -560,6 +573,8 @@ bool EngineMainFrame::OnClose()
             cJSON_AddNumberToObject( pPrefs, "ClientHeight", m_ClientHeight );
             cJSON_AddNumberToObject( pPrefs, "IsMaximized", m_Maximized );
             cJSON_AddNumberToObject( pPrefs, "ShowIcons", m_ShowEditorIcons );
+            cJSON_AddNumberToObject( pPrefs, "SelectedObjects_ShowWireframe", m_SelectedObjects_ShowWireframe );
+            cJSON_AddNumberToObject( pPrefs, "SelectedObjects_ShowEffect", m_SelectedObjects_ShowEffect );
 
             const char* relativepath = GetRelativePath( g_pComponentSystemManager->GetSceneInfo( 1 )->m_FullPath );
             if( relativepath )
@@ -649,6 +664,12 @@ void EngineMainFrame::UpdateMenuItemStates()
 
     if( m_MenuItem_ShowEditorIcons )
         m_MenuItem_ShowEditorIcons->Check( m_ShowEditorIcons );
+
+    if( m_MenuItem_SelectedObjects_ShowWireframe )
+        m_MenuItem_SelectedObjects_ShowWireframe->Check( m_SelectedObjects_ShowWireframe );
+
+    if( m_MenuItem_SelectedObjects_ShowEffect )
+        m_MenuItem_SelectedObjects_ShowEffect->Check( m_SelectedObjects_ShowEffect );
 
     if( g_pEngineCore )
     {
@@ -893,9 +914,15 @@ void EngineMainFrame::OnMenu_Engine(wxCommandEvent& event)
         break;
 
     case myIDEngine_View_ShowEditorIcons:
-        {
-            m_ShowEditorIcons = !m_ShowEditorIcons;
-        }
+        m_ShowEditorIcons = !m_ShowEditorIcons;
+        break;
+
+    case myIDEngine_View_SelectedObjects_ShowWireframe:
+        m_SelectedObjects_ShowWireframe = !m_SelectedObjects_ShowWireframe;
+        break;
+
+    case myIDEngine_View_SelectedObjects_ShowEffect:
+        m_SelectedObjects_ShowEffect = !m_SelectedObjects_ShowEffect;
         break;
 
     case myIDEngine_DebugShowMousePickerFBO:

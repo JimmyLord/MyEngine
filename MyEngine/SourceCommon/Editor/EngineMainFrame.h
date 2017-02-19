@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2014-2016 Jimmy Lord http://www.flatheadgames.com
+// Copyright (c) 2014-2017 Jimmy Lord http://www.flatheadgames.com
 //
 // This software is provided 'as-is', without any express or implied warranty.  In no event will the authors be held liable for any damages arising from the use of this software.
 // Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -52,6 +52,8 @@ enum EngineMenuIDs
     myIDEngine_View_GameplayPerspective = myIDEngine_View_EditorPerspective + Perspective_NumPerspectives,
         // Perspective_NumPerspectives more items here
     myIDEngine_View_ShowEditorIcons = myIDEngine_View_GameplayPerspective + Perspective_NumPerspectives,
+    myIDEngine_View_SelectedObjects_ShowWireframe,
+    myIDEngine_View_SelectedObjects_ShowEffect,
     myIDEngine_View_EditorCameraLayers,
     myIDEngine_View_EditorCameraLayer,
         // g_NumberOfVisibilityLayers more items here
@@ -99,6 +101,8 @@ public:
 
     wxMenuItem* m_MenuItem_GridSnapEnabled;
     wxMenuItem* m_MenuItem_ShowEditorIcons;
+    wxMenuItem* m_MenuItem_SelectedObjects_ShowWireframe;
+    wxMenuItem* m_MenuItem_SelectedObjects_ShowEffect;
 
     wxMenuItem* m_MenuItem_Debug_DrawMousePickerFBO;
     wxMenuItem* m_MenuItem_Debug_DrawSelectedAnimatedMesh;
@@ -111,6 +115,8 @@ public:
 
     // Editor preferences
     bool m_ShowEditorIcons;
+    bool m_SelectedObjects_ShowWireframe;
+    bool m_SelectedObjects_ShowEffect;
     GridSettings m_GridSettings;
 
     int m_Hackery_Record_StackDepth;
