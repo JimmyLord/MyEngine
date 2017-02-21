@@ -341,11 +341,16 @@ void GameObject::OnDrop(int controlid, wxCoord x, wxCoord y)
             // move below the selected item
             g_pPanelObjectList->Tree_MoveObject( pGameObject, this, false );
             pGameObject->MoveAfter( this );
+            GameObject* thisparent = this->GetParentGameObject();
+            pGameObject->SetParentGameObject( thisparent );
         }
         else
         {
             // Parent the object dropped to this.
             pGameObject->SetParentGameObject( this );
+
+            // move as first item in parent
+            g_pPanelObjectList->Tree_MoveObject( pGameObject, this, true );
         }
     }
 }
@@ -580,26 +585,28 @@ void GameObject::SetParentGameObject(GameObject* pParentGameObject)
 
     m_pParentGameObject = pParentGameObject;
 
-    // register the gameobject of the parent to notify us of it's deletion.
-    pParentGameObject->RegisterOnDeleteCallback( this, StaticOnGameObjectDeleted );
+    // if we have a new parent
+    if( m_pParentGameObject != 0 )
+    {
+        // register the gameobject of the parent to notify us of it's deletion.
+        pParentGameObject->RegisterOnDeleteCallback( this, StaticOnGameObjectDeleted );
+
+        pParentGameObject->m_ChildList.MoveTail( this );
+    }
+    else
+    {
+        g_pComponentSystemManager->GetSceneInfo( m_SceneID )->m_GameObjects.MoveTail( this );
+    }
 
     // parent one transform to another, if there are transforms.
     if( m_pComponentTransform )
     {
-        m_pComponentTransform->SetParentTransform( pParentGameObject->m_pComponentTransform );
+        ComponentTransform* pNewParentTransform = 0;
+        if( m_pParentGameObject != 0 )
+            pNewParentTransform = pParentGameObject->m_pComponentTransform;
+
+        m_pComponentTransform->SetParentTransform( pNewParentTransform );
     }
-
-    // If the parent is in another scene, move the game object to that scene.
-    unsigned int sceneid = pParentGameObject->GetSceneID();
-    SetSceneID( sceneid );
-
-    pParentGameObject->m_ChildList.MoveTail( this );
-#if MYFW_USING_WX
-    if( GetPrev() == 0 )
-        g_pPanelObjectList->Tree_MoveObject( this, pParentGameObject, true );
-    else
-        g_pPanelObjectList->Tree_MoveObject( this, GetPrev(), false );
-#endif
 }
 
 void GameObject::SetManaged(bool managed)
@@ -704,7 +711,7 @@ ComponentBase* GameObject::AddExistingComponent(ComponentBase* pComponent, bool 
         if( resetcomponent )
             pComponent->Reset();
 
-        // re-parent all child transforms, if there have one
+        // re-parent all child transforms, if they have one
         for( CPPListNode* pNode = m_ChildList.GetHead(); pNode; pNode = pNode->GetNext() )
         {
             // TODO: recurse through children
@@ -767,7 +774,7 @@ ComponentBase* GameObject::RemoveComponent(ComponentBase* pComponent)
     {
         found = true;
 
-        // Unparent all child transforms, if there have one
+        // Unparent all child transforms, if they have one
         for( CPPListNode* pNode = m_ChildList.GetHead(); pNode; pNode = pNode->GetNext() )
         {
             // TODO: recurse through children

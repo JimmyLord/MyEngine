@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2014-2016 Jimmy Lord http://www.flatheadgames.com
+// Copyright (c) 2014-2017 Jimmy Lord http://www.flatheadgames.com
 //
 // This software is provided 'as-is', without any express or implied warranty.  In no event will the authors be held liable for any damages arising from the use of this software.
 // Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -219,7 +219,7 @@ void* ComponentTransform::OnDropTransform(ComponentVariable* pVar, wxCoord x, wx
         if( pComponent->IsA( "TransformComponent" ) )
         {
             oldvalue = this->m_pParentTransform;
-            this->SetParentTransform( pComponent );
+            this->m_pGameObject->SetParentGameObject( pComponent->m_pGameObject );
         }
 
         // update the panel so new OBJ name shows up.
@@ -682,12 +682,12 @@ void ComponentTransform::SetParentTransform(ComponentTransform* pNewParentTransf
     // if we had an old parent:
     if( m_pParentTransform != 0 )
     {
-        // stop sending it position changed messages
+        // stop sending old parent position changed messages
         m_pParentTransform->m_pGameObject->m_pComponentTransform->UnregisterTransformChangedCallbacks( this );
 
         if( pNewParentTransform )
         {
-            MyMatrix matparentworld = pNewParentTransform->m_WorldTransform;
+            MyMatrix matparentworld = m_pParentTransform->m_WorldTransform;
             matparentworld.Inverse();
             localtransform = matparentworld * m_WorldTransform;
         }
@@ -697,6 +697,8 @@ void ComponentTransform::SetParentTransform(ComponentTransform* pNewParentTransf
             m_LocalPosition = m_WorldPosition;
             m_LocalRotation = m_WorldRotation;
             m_LocalScale = m_WorldScale;
+
+            m_LocalTransformIsDirty = true;
         }
     }
     else
