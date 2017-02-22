@@ -677,7 +677,7 @@ void ComponentTransform::SetParentTransform(ComponentTransform* pNewParentTransf
     if( m_pParentTransform == pNewParentTransform )
         return;
 
-    MyMatrix localtransform;
+    MyMatrix wantedWorldSpaceTransform;
 
     // if we had an old parent:
     if( m_pParentTransform != 0 )
@@ -685,30 +685,23 @@ void ComponentTransform::SetParentTransform(ComponentTransform* pNewParentTransf
         // stop sending old parent position changed messages
         m_pParentTransform->m_pGameObject->m_pComponentTransform->UnregisterTransformChangedCallbacks( this );
 
-        if( pNewParentTransform )
-        {
-            MyMatrix matparentworld = m_pParentTransform->m_WorldTransform;
-            matparentworld.Inverse();
-            localtransform = matparentworld * m_WorldTransform;
-        }
-        else
-        {
-            localtransform = m_WorldTransform;
-            m_LocalPosition = m_WorldPosition;
-            m_LocalRotation = m_WorldRotation;
-            m_LocalScale = m_WorldScale;
+        // Maintain our world space position by setting local transform to match world
+        wantedWorldSpaceTransform = m_WorldTransform;
+        m_LocalPosition = m_WorldPosition;
+        m_LocalRotation = m_WorldRotation;
+        m_LocalScale = m_WorldScale;
 
-            m_LocalTransformIsDirty = true;
-        }
+        m_LocalTransformIsDirty = true;
     }
     else
     {
-        localtransform = m_WorldTransform;
+        wantedWorldSpaceTransform = m_WorldTransform;
     }
 
-    if( pNewParentTransform == 0 || pNewParentTransform == this )
+    if( pNewParentTransform == 0 )
     {
-        m_WorldTransform = localtransform;
+        // If no new parent, set world transform to match local
+        m_WorldTransform = wantedWorldSpaceTransform;
         m_WorldPosition = m_LocalPosition;
         m_WorldRotation = m_LocalRotation;
         m_WorldScale = m_LocalScale;
@@ -717,16 +710,11 @@ void ComponentTransform::SetParentTransform(ComponentTransform* pNewParentTransf
     }
     else
     {
-        //MyMatrix matparentworld = *pNewParentTransform->GetWorldTransform();
-        //matparentworld.Inverse();
-        //MyMatrix matworld = matparentworld * localtransform;
-        //SetWorldTransform( &matworld );
-        //m_pParentTransform = pNewParentTransform;
-
+        // If there's a new parent, set it as the parent, then recalculate it's world/local transform.
         m_pParentTransform = pNewParentTransform;
-        SetWorldTransform( &localtransform );
+        SetWorldTransform( &wantedWorldSpaceTransform );
 
-        // register this transform with it's parent to notify us if it changes.
+        // Register this transform with it's parent to notify us if it changes.
         GameObject* pParentGameObject = m_pGameObject->GetParentGameObject();
         pParentGameObject->m_pComponentTransform->RegisterTransformChangedCallback( this, StaticOnParentTransformChanged );
     }

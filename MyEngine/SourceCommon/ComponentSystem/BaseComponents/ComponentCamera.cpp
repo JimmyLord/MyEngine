@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2014-2016 Jimmy Lord http://www.flatheadgames.com
+// Copyright (c) 2014-2017 Jimmy Lord http://www.flatheadgames.com
 //
 // This software is provided 'as-is', without any express or implied warranty.  In no event will the authors be held liable for any damages arising from the use of this software.
 // Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -270,7 +270,7 @@ void ComponentCamera::ComputeProjectionMatrices()
 void ComponentCamera::Tick(double TimePassed)
 {
     m_pComponentTransform->UpdateTransform();
-    MyMatrix matView = *m_pComponentTransform->GetLocalTransform();
+    MyMatrix matView = *m_pComponentTransform->GetWorldTransform();
     matView.Inverse();
 
     if( m_Orthographic )
@@ -505,7 +505,7 @@ void ComponentCamera::DrawCallback(ComponentCamera* pCamera, MyMatrix* pMatViewP
     rot90.SetIdentity();
     rot90.Rotate( -90, 0, 1, 0 );
 
-    MyMatrix transform = *m_pComponentTransform->GetLocalTransform() * rot90;
+    MyMatrix transform = *m_pComponentTransform->GetWorldTransform() * rot90;
     //pSprite->SetPosition( &transform );
     
     // disable culling, so we see the camera from both sides.
