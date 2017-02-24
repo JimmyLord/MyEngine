@@ -166,6 +166,11 @@ void SceneHandler::OnDrop(wxTreeItemId treeid, int controlid, wxCoord x, wxCoord
 
         // If we dropped a gameobject on our scene, move the game object to the new scene.
         unsigned int sceneid = g_pComponentSystemManager->GetSceneIDFromSceneTreeID( treeid );
+
+        // Don't allow gameobjects to be dropped onto "Unmanaged" scene
+        if( sceneid == 0 )
+            return;
+
         pGameObject->SetSceneID( sceneid );
         wxTreeItemId treeidtomove = g_pPanelObjectList->FindObject( pGameObject );
         g_pPanelObjectList->Tree_MoveObject( treeidtomove, treeid, true );

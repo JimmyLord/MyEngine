@@ -948,27 +948,8 @@ void TransformGizmo::TranslateSelectedObjects(EngineCore* pGame, EditorState* pE
 
                 Vector3 diff = currentresult - lastresult;
 
-                // For single axis translations, apply the correct amount of diff on that axis
-                if( pEditorState->m_EditorActionState == EDITORACTIONSTATE_TranslateX )
-                {
-                    diff = AxisX * diff.Dot( AxisX );
-                }
-                else if( pEditorState->m_EditorActionState == EDITORACTIONSTATE_TranslateY)
-                {
-                    diff = AxisY * diff.Dot( AxisY );
-                }
-                else if( pEditorState->m_EditorActionState == EDITORACTIONSTATE_TranslateZ )
-                {
-                    diff = AxisZ * diff.Dot( AxisZ );
-                }
-                else
-                {
-                    // for 2-axis translation, nothing needs to be done since the plane created is in object space
-                }
-
                 // if snapping to grid is enabled, then use m_LastIntersectResultUsed instead of last frames result.
-                if( g_pEngineMainFrame->m_GridSettings.snapenabled ||
-                    pEditorState->m_ModifierKeyStates & MODIFIERKEY_Alt )
+                if( g_pEngineMainFrame->m_GridSettings.snapenabled || pEditorState->m_ModifierKeyStates & MODIFIERKEY_Alt )
                 {
                     // snap object 0 to grid, all other will stay relative.
                     Vector3 pos = m_GizmoWorldTransform.GetTranslation();
@@ -995,6 +976,24 @@ void TransformGizmo::TranslateSelectedObjects(EngineCore* pGame, EditorState* pE
                         m_LastIntersectResultUsed.y = currentresult.y;
                     if( diff.z != 0 )
                         m_LastIntersectResultUsed.z = currentresult.z;
+                }
+
+                // For single axis translations, apply the correct amount of diff on that axis
+                if( pEditorState->m_EditorActionState == EDITORACTIONSTATE_TranslateX )
+                {
+                    diff = AxisX * diff.Dot( AxisX );
+                }
+                else if( pEditorState->m_EditorActionState == EDITORACTIONSTATE_TranslateY)
+                {
+                    diff = AxisY * diff.Dot( AxisY );
+                }
+                else if( pEditorState->m_EditorActionState == EDITORACTIONSTATE_TranslateZ )
+                {
+                    diff = AxisZ * diff.Dot( AxisZ );
+                }
+                else
+                {
+                    // for 2-axis translation, nothing needs to be done since the plane created is in object space
                 }
 
                 // GIZMOTRANSLATE: move all of the things. // undo is handled by EngineCore.cpp when mouse is lifted.
