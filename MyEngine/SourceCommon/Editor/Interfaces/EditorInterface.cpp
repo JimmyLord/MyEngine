@@ -272,14 +272,14 @@ bool EditorInterface::HandleInputForEditorCamera(int keyaction, int keycode, int
 {
     EditorState* pEditorState = g_pEngineCore->m_pEditorState;
 
-    // if mouse message. down, up or dragging.
+    // if mouse message. down, up, dragging or wheel.
     if( mouseaction != -1 )
     {
         unsigned int mods = pEditorState->m_ModifierKeyStates;
 
         // get the editor camera's local transform.
         ComponentCamera* pCamera = pEditorState->GetEditorCamera();
-        MyMatrix* matCamera = pCamera->m_pComponentTransform->GetLocalTransform();
+        MyMatrix* matCamera = pCamera->m_pComponentTransform->GetLocalTransform( true );
 
         // move camera in/out if mousewheel spinning
         if( mouseaction == GCBA_Wheel )
@@ -394,9 +394,9 @@ bool EditorInterface::HandleInputForEditorCamera(int keyaction, int keycode, int
             }
         }
 
-        // pull the pos/angle from the world matrix and update the values for the watch window.
-        pCamera->m_pComponentTransform->UpdateTransform();
+        // pull the scale/pos/rot from the local matrix and update the values in the watch window.
         pCamera->m_pComponentTransform->UpdateLocalSRT();
+        pCamera->m_pComponentTransform->UpdateTransform();
     }
 
     // handle editor keys
@@ -404,7 +404,7 @@ bool EditorInterface::HandleInputForEditorCamera(int keyaction, int keycode, int
     {
         // get the editor camera's local transform.
         ComponentCamera* pCamera = pEditorState->GetEditorCamera();
-        MyMatrix* matCamera = pCamera->m_pComponentTransform->GetLocalTransform();
+        MyMatrix* matCamera = pCamera->m_pComponentTransform->GetLocalTransform( true );
 
         // WASD to move camera
         Vector3 dir( 0, 0, 0 );

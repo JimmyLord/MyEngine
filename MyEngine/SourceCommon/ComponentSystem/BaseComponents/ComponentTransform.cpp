@@ -575,9 +575,12 @@ void ComponentTransform::SetWorldTransform(MyMatrix* mat)
     }
 }
 
-MyMatrix* ComponentTransform::GetWorldTransform()
+MyMatrix* ComponentTransform::GetWorldTransform(bool markdirty)
 {
     UpdateTransform();
+
+    if( markdirty )
+        m_WorldTransformIsDirty = true;
 
     //if( m_pParentTransform == 0 )
     //    return &m_LocalTransform;
@@ -609,9 +612,12 @@ MyMatrix ComponentTransform::GetWorldRotPosMatrix()
     return world;
 }
 
-MyMatrix* ComponentTransform::GetLocalTransform()
+MyMatrix* ComponentTransform::GetLocalTransform(bool markdirty)
 {
     UpdateTransform();
+
+    if( markdirty )
+        m_LocalTransformIsDirty = true;
 
     return &m_LocalTransform;
 }

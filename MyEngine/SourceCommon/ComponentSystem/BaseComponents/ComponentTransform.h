@@ -74,7 +74,7 @@ public:
 
     void SetWorldTransformIsDirty() { m_WorldTransformIsDirty = true; }
     void SetWorldTransform(MyMatrix* mat);
-    MyMatrix* GetWorldTransform();
+    MyMatrix* GetWorldTransform(bool markdirty = false);
     Vector3 GetWorldPosition();
     Vector3 GetWorldRotation();
     Vector3 GetWorldScale();
@@ -86,7 +86,7 @@ public:
     void SetWorldScale(Vector3 scale);
 
     void SetLocalTransform(MyMatrix* mat);
-    MyMatrix* GetLocalTransform();
+    MyMatrix* GetLocalTransform(bool markdirty = false);
     Vector3 GetLocalPosition();
     Vector3 GetLocalRotation();
     Vector3 GetLocalScale();

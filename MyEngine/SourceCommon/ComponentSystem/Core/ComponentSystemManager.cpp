@@ -1592,8 +1592,10 @@ GameObject* ComponentSystemManager::CopyGameObject(GameObject* pObject, const ch
     {
         pNewObject->SetParentGameObject( pObject->GetParentGameObject() );
 
+#if MYFW_USING_WX
         // Place the child under the parent in the object list
         g_pPanelObjectList->Tree_MoveObject( pNewObject, pObject->GetParentGameObject(), true );
+#endif
     }
 
     if( pObject->IsFolder() == false )
@@ -1609,8 +1611,10 @@ GameObject* ComponentSystemManager::CopyGameObject(GameObject* pObject, const ch
         GameObject* pNewChild = CopyGameObject( pChild, pChild->GetName() );
         pNewChild->SetParentGameObject( pNewObject );
 
+#if MYFW_USING_WX
         // Place the child under the parent in the object list
         g_pPanelObjectList->Tree_MoveObject( pNewChild, pNewObject, true );
+#endif
 
         pChild = (GameObject*)pChild->GetNext();
     }
