@@ -32,7 +32,17 @@ void EngineCommandStack::Redo(unsigned int levels)
 
 void EngineCommandStack::Do(EditorCommand* pCommand, bool linktoprevious, bool autolinkifsameframeasprevious)
 {
-    CommandStack::Do( pCommand, linktoprevious, autolinkifsameframeasprevious );
+    if( g_pEngineCore->m_EditorMode )
+    {
+        // if editor mode, add to undo stack then do command.
+        CommandStack::Do( pCommand, linktoprevious, autolinkifsameframeasprevious );
+    }
+    else
+    {
+        // if game mode, do the command and delete it.
+        pCommand->Do();
+        delete pCommand;
+    }
 }
 
 void EngineCommandStack::Add(EditorCommand* pCommand, bool linktoprevious, bool autolinkifsameframeasprevious)
