@@ -390,6 +390,9 @@
     <ClCompile Include="SourceCommon\Voxels\VoxelJobs.cpp">
       <Filter>Source\Voxels</Filter>
     </ClCompile>
+    <ClCompile Include="SourceCommon\ComponentSystem\Core\PrefabManager.cpp">
+      <Filter>Source\ComponentSystem\Core Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SourceCommon\Camera\Camera3D.h">
@@ -724,6 +727,9 @@
     </ClInclude>
     <ClInclude Include="SourceCommon\Voxels\VoxelJobs.h">
       <Filter>Source\Voxels</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCommon\ComponentSystem\Core\PrefabManager.h">
+      <Filter>Source\ComponentSystem\Core Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

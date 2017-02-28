@@ -223,6 +223,19 @@ void GameObject::OnRightClick()
             lastcategory = g_pComponentTypeManager->GetTypeCategory( i );
         }
     
+#if _DEBUG // TODO: enable this in release mode once it's further along.
+        wxMenu* prefabmenu = MyNew wxMenu;
+        menu.AppendSubMenu( prefabmenu, "Create Prefab in" );
+
+        int numprefabfiles = 0;
+        for( int i=0; i<numprefabfiles; i++ )
+        {
+            prefabmenu->Append( RightClick_CreatePrefab + i, "TODO: prefab filename goes here" );
+        }
+
+        prefabmenu->Append( RightClick_CreatePrefab + numprefabfiles, "New/Load Prefab file..." );
+#endif
+
         menu.Append( RightClick_DeleteGameObject, "Delete GameObject" );
     }
     else
@@ -273,6 +286,9 @@ void GameObject::OnPopupClick(wxEvent &evt)
     else if( id == RightClick_ClearParent )
     {
         m_pGameObjectThisInheritsFrom = 0;
+    }
+    else if( id >= RightClick_CreatePrefab && id < RightClick_CreatePrefab + 10000 )
+    {
     }
     else if( id == RightClick_DeleteGameObject )
     {

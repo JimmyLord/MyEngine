@@ -136,7 +136,9 @@ public:
         RightClick_DuplicateGameObject = 1000,
         RightClick_CreateChild,
         RightClick_ClearParent,
-        RightClick_DeleteGameObject,
+        RightClick_CreatePrefab,
+            // next 10000 values reserved for prefab scenes that are open. 10000 also hardcoded in cpp file
+        RightClick_DeleteGameObject = RightClick_CreatePrefab + 10000,
         RightClick_DeleteFolder,
         RightClick_DuplicateFolder,
     };
