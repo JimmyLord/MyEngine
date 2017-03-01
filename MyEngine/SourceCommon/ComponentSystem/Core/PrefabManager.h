@@ -30,6 +30,11 @@ public:
     void RequestFile(const char* prefabfilename);
 
     void CreatePrefabInFile(unsigned int fileindex, const char* prefabname, GameObject* pGameObject);
+
+#if MYFW_USING_WX
+    void CreateFile(const char* relativepath);
+    bool CreateOrLoadFile();
+#endif
 };
 
 #endif //__PrefabManager_H__

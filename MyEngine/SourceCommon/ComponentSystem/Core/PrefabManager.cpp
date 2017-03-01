@@ -18,6 +18,15 @@ PrefabManager::~PrefabManager()
 {
 }
 
+unsigned int PrefabManager::GetNumberOfFiles()
+{
+#if MYFW_USING_WX
+    return m_pPrefabFiles.size();
+#else
+    return m_pPrefabFiles.Count();
+#endif
+}
+
 void PrefabManager::SetNumberOfFiles(unsigned int numfiles)
 {
 #if !MYFW_USING_WX
@@ -51,3 +60,58 @@ void PrefabManager::RequestFile(const char* prefabfilename)
 void PrefabManager::CreatePrefabInFile(unsigned int fileindex, const char* prefabname, GameObject* pGameObject)
 {
 }
+
+#if MYFW_USING_WX
+void PrefabManager::CreateFile(const char* relativepath)
+{
+    // create an empty stub of a file so it can be properly requested by our code
+    FILE* pFile = 0;
+#if MYFW_WINDOWS
+    fopen_s( &pFile, relativepath, "wb" );
+#else
+    pFile = fopen( relativepath, "wb" );
+#endif
+    if( pFile )
+    {
+        fclose( pFile );
+    }
+
+    // if the file managed to save, request it.
+    if( pFile != 0 )
+    {
+        RequestFile( relativepath );
+    }
+}
+
+bool PrefabManager::CreateOrLoadFile()
+{
+    // Pick an existing file to load or create a new file
+    {
+        wxFileDialog FileDialog( g_pEngineMainFrame, _("Load or Create Prefab file"), "./Data/Prefabs", "", "Prefab files (*.myprefabs)|*.myprefabs", wxFD_OPEN );
+    
+        if( FileDialog.ShowModal() != wxID_CANCEL )
+        {
+            wxString wxpath = FileDialog.GetPath();
+            char fullpath[MAX_PATH];
+            sprintf_s( fullpath, MAX_PATH, "%s", (const char*)wxpath );
+            const char* relativepath = GetRelativePath( fullpath );
+
+            if( relativepath != 0 )
+            {
+                if( g_pFileManager->DoesFileExist( relativepath ) )
+                {
+                    RequestFile( relativepath );
+                    return true;
+                }
+                else
+                {
+                    CreateFile( relativepath );
+                    return true;
+                }
+            }
+        }
+    }
+
+    return false;
+}
+#endif

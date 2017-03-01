@@ -9,6 +9,7 @@
 
 #include "EngineCommonHeader.h"
 
+#include "PrefabManager.h"
 #include "../../../Framework/MyFramework/SourceCommon/SceneGraphs/SceneGraph_Base.h"
 #include "../../../Framework/MyFramework/SourceCommon/SceneGraphs/SceneGraph_Flat.h"
 #include "../../../Framework/MyFramework/SourceCommon/SceneGraphs/SceneGraph_Octree.h"
@@ -28,6 +29,8 @@ ComponentSystemManager::ComponentSystemManager(ComponentTypeManager* typemanager
     m_pSceneHandler = MyNew SceneHandler();
     m_pGameObjectTemplateManager = MyNew GameObjectTemplateManager();
 #endif
+
+    m_pPrefabManager = MyNew PrefabManager();
 
 #if MYFW_USING_WX
     g_pMaterialManager->RegisterMaterialCreatedCallback( this, StaticOnMaterialCreated );
@@ -137,6 +140,8 @@ ComponentSystemManager::~ComponentSystemManager()
     SAFE_DELETE( m_pGameObjectTemplateManager );
 #endif
     SAFE_DELETE( m_pComponentTypeManager );
+
+    SAFE_DELETE( m_pPrefabManager );
     
     SAFE_DELETE( m_pSceneGraph );
 

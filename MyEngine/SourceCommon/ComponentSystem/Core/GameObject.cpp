@@ -9,6 +9,8 @@
 
 #include "EngineCommonHeader.h"
 
+#include "PrefabManager.h"
+
 GameObject::GameObject(bool managed, int sceneid, bool isfolder, bool hastransform)
 {
     ClassnameSanityCheck();
@@ -227,10 +229,13 @@ void GameObject::OnRightClick()
         wxMenu* prefabmenu = MyNew wxMenu;
         menu.AppendSubMenu( prefabmenu, "Create Prefab in" );
 
-        int numprefabfiles = 0;
-        for( int i=0; i<numprefabfiles; i++ )
+        unsigned int numprefabfiles = g_pComponentSystemManager->m_pPrefabManager->GetNumberOfFiles();
+        for( unsigned int i=0; i<numprefabfiles; i++ )
         {
-            prefabmenu->Append( RightClick_CreatePrefab + i, "TODO: prefab filename goes here" );
+            MyFileObject* pFile = g_pComponentSystemManager->m_pPrefabManager->GetFile( i );
+            MyAssert( pFile != 0 );
+
+            prefabmenu->Append( RightClick_CreatePrefab + i, pFile->m_FilenameWithoutExtension );
         }
 
         prefabmenu->Append( RightClick_CreatePrefab + numprefabfiles, "New/Load Prefab file..." );
@@ -289,6 +294,17 @@ void GameObject::OnPopupClick(wxEvent &evt)
     }
     else if( id >= RightClick_CreatePrefab && id < RightClick_CreatePrefab + 10000 )
     {
+        unsigned int numprefabfiles = g_pComponentSystemManager->m_pPrefabManager->GetNumberOfFiles();
+        if( id == RightClick_CreatePrefab + numprefabfiles )
+        {
+            // Load or create a new file.
+            if( g_pComponentSystemManager->m_pPrefabManager->CreateOrLoadFile() )
+            {
+                // Create a prefab based on selected object.
+                unsigned int fileindex = numprefabfiles;
+                g_pComponentSystemManager->m_pPrefabManager->CreatePrefabInFile( fileindex, this->GetName(), this );
+            }
+        }
     }
     else if( id == RightClick_DeleteGameObject )
     {
