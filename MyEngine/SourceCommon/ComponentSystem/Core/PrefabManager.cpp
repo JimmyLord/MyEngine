@@ -42,26 +42,38 @@ MyFileObject* PrefabManager::GetFile(unsigned int fileindex)
     MyAssert( fileindex < m_pPrefabFiles.Count() );
 #endif
 
-    return m_pPrefabFiles[fileindex];
+    return m_pPrefabFiles[fileindex]->m_pFile;
 }
 
 void PrefabManager::RequestFile(const char* prefabfilename)
 {
     MyFileObject* pFile = g_pFileManager->RequestFile( prefabfilename );
+    MyAssert( pFile );
+
+    PrefabFile* pPrefabFile = MyNew PrefabFile( pFile );
 
 #if MYFW_USING_WX
-    m_pPrefabFiles.push_back( pFile );
+    m_pPrefabFiles.push_back( pPrefabFile );
 #else
     MyAssert( m_pPrefabFiles.Count() < m_pPrefabFiles.Length() );
-    m_pPrefabFiles.Add( pFile );
+    m_pPrefabFiles.Add( pPrefabFile );
 #endif
 }
 
+#if MYFW_USING_WX
 void PrefabManager::CreatePrefabInFile(unsigned int fileindex, const char* prefabname, GameObject* pGameObject)
 {
+    // TODO: write GameObject::ExportAsJSONPrefab and swap with that.
+    cJSON* jGameObject = pGameObject->ExportAsJSONObject( false );
+
+    PrefabFile::PrefabObject temp;
+    temp.jPrefab = jGameObject;
+    m_pPrefabFiles[fileindex]->m_pPrefabs.push_back( temp );
+
+    // TODO: kick off immediate save of prefab file.
+    // TODO: show this prefab in the object or file list... or both?
 }
 
-#if MYFW_USING_WX
 void PrefabManager::CreateFile(const char* relativepath)
 {
     // create an empty stub of a file so it can be properly requested by our code

@@ -302,7 +302,7 @@ void GameObject::OnPopupClick(wxEvent &evt)
             {
                 // Create a prefab based on selected object.
                 unsigned int fileindex = numprefabfiles;
-                g_pComponentSystemManager->m_pPrefabManager->CreatePrefabInFile( fileindex, this->GetName(), this );
+                g_pComponentSystemManager->m_pPrefabManager->CreatePrefabInFile( fileindex, pGameObject->GetName(), pGameObject );
             }
         }
     }

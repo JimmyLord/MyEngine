@@ -10,13 +10,41 @@
 #ifndef __PrefabManager_H__
 #define __PrefabManager_H__
 
+class PrefabFile
+{
+    friend class PrefabManager;
+
+protected:
+    struct PrefabObject
+    {
+        cJSON* jPrefab;
+#if MYFW_USING_WX
+        GameObject* pGameObject; // each prefab is instantiated in editor so inheritance code can compare values.
+#endif
+    };
+
+    MyFileObject* m_pFile;
+
+#if MYFW_USING_WX
+    std::vector<PrefabObject> m_pPrefabs;
+#else
+    MyList<PrefabObject> m_pPrefabs;
+#endif
+
+public:
+    PrefabFile(MyFileObject* pFile)
+    {
+        m_pFile = pFile;
+    }
+};
+
 class PrefabManager
 {
 protected:
 #if MYFW_USING_WX
-    std::vector<MyFileObject*> m_pPrefabFiles;
+    std::vector<PrefabFile*> m_pPrefabFiles;
 #else
-    MyList<MyFileObject*> m_pPrefabFiles;
+    MyList<PrefabFile*> m_pPrefabFiles;
 #endif
 
 public:
@@ -29,9 +57,9 @@ public:
     MyFileObject* GetFile(unsigned int fileindex);
     void RequestFile(const char* prefabfilename);
 
+#if MYFW_USING_WX
     void CreatePrefabInFile(unsigned int fileindex, const char* prefabname, GameObject* pGameObject);
 
-#if MYFW_USING_WX
     void CreateFile(const char* relativepath);
     bool CreateOrLoadFile();
 #endif
