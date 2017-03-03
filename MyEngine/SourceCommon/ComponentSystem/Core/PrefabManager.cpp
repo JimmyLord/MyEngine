@@ -10,6 +10,43 @@
 #include "EngineCommonHeader.h"
 #include "PrefabManager.h"
 
+PrefabFile::PrefabFile(MyFileObject* pFile)
+{
+    m_pFile = pFile;
+}
+
+#if MYFW_USING_WX
+void PrefabFile::Save()
+{
+    cJSON* jPrefabArray = cJSON_CreateArray();
+
+    for( unsigned int i=0; i<m_pPrefabs.size(); i++ )
+    {
+        cJSON_AddItemToArray( jPrefabArray, m_pPrefabs[i].jPrefab );
+    }
+
+    char* jsonstring = cJSON_Print( jPrefabArray );
+
+    FILE* pFile;
+#if MYFW_WINDOWS
+    fopen_s( &pFile, m_pFile->m_FullPath, "wb" );
+#else
+    pFile = fopen( m_pFile->m_FullPath, "wb" );
+#endif
+    fprintf( pFile, "%s", jsonstring );
+    fclose( pFile );
+    
+    cJSONExt_free( jsonstring );
+    
+    while( cJSON_GetArraySize( jPrefabArray ) )
+    {
+        cJSON_DetachItemFromArray( jPrefabArray, 0 );
+    }
+
+    cJSON_Delete( jPrefabArray );
+}
+#endif
+
 PrefabManager::PrefabManager()
 {
 }
@@ -63,14 +100,15 @@ void PrefabManager::RequestFile(const char* prefabfilename)
 #if MYFW_USING_WX
 void PrefabManager::CreatePrefabInFile(unsigned int fileindex, const char* prefabname, GameObject* pGameObject)
 {
-    // TODO: write GameObject::ExportAsJSONPrefab and swap with that.
-    cJSON* jGameObject = pGameObject->ExportAsJSONObject( false );
+    cJSON* jGameObject = pGameObject->ExportAsJSONPrefab();
 
     PrefabFile::PrefabObject temp;
     temp.jPrefab = jGameObject;
     m_pPrefabFiles[fileindex]->m_pPrefabs.push_back( temp );
 
-    // TODO: kick off immediate save of prefab file.
+    // Kick off immediate save of prefab file.
+    m_pPrefabFiles[fileindex]->Save();
+
     // TODO: show this prefab in the object or file list... or both?
 }
 

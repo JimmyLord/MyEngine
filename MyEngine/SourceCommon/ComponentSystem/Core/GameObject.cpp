@@ -516,6 +516,46 @@ cJSON* GameObject::ExportReferenceAsJSONObject(unsigned int refsceneid)
     return gameobjectref;
 }
 
+cJSON* GameObject::ExportAsJSONPrefab()
+{
+    cJSON* jGameObject = cJSON_CreateObject();
+
+    // Transform/Heirarchy parent must be in the same scene.
+    if( m_pParentGameObject )
+        cJSON_AddNumberToObject( jGameObject, "ParentGOID", m_pParentGameObject->GetID() );
+
+    if( m_IsFolder == true )
+        cJSON_AddStringToObject( jGameObject, "SubType", "Folder" );
+    else if( m_pComponentTransform == false )
+        cJSON_AddStringToObject( jGameObject, "SubType", "Logic" );
+
+    cJSON* jProperties = m_Properties.ExportAsJSONObject( false );
+    // if no properties were saved, don't write it out to disk
+    if( jProperties->child == 0 )
+    {
+        cJSON_Delete( jProperties );
+    }
+    else
+    {
+        cJSON_AddItemToObject( jGameObject, "Properties", jProperties );
+    }
+
+    // export components
+    if( m_Components.Count() > 0 )
+    {
+        cJSON* jComponentArray = cJSON_CreateArray();
+        cJSON_AddItemToObject( jGameObject, "Components", jComponentArray );
+        for( unsigned int i=0; i<m_Components.Count(); i++ )
+        {
+            cJSON* jComponent = m_Components[i]->ExportAsJSONObject( false );
+
+            cJSON_AddItemToArray( jComponentArray, jComponent );
+        }
+    }
+
+    return jGameObject;
+}
+
 void GameObject::SetEnabled(bool enabled)
 {
     if( m_Enabled == enabled )

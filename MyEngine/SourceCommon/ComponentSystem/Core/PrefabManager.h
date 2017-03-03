@@ -32,10 +32,11 @@ protected:
 #endif
 
 public:
-    PrefabFile(MyFileObject* pFile)
-    {
-        m_pFile = pFile;
-    }
+    PrefabFile(MyFileObject* pFile);
+
+#if MYFW_USING_WX
+    void Save();
+#endif
 };
 
 class PrefabManager
