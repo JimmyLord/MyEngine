@@ -10,19 +10,41 @@
 #ifndef __PrefabManager_H__
 #define __PrefabManager_H__
 
+struct PrefabObject
+{
+    friend class PrefabFile;
+    friend class PrefabManager;
+
+    static const int MAX_PREFAB_NAME_LENGTH = 30;
+
+protected:
+    char m_Name[MAX_PREFAB_NAME_LENGTH];
+    cJSON* m_jPrefab;
+#if MYFW_USING_WX
+    GameObject* m_pGameObject; // each prefab is instantiated in editor so inheritance code can compare values.
+#endif
+
+public:
+    PrefabObject()
+    {
+        m_Name[0] = 0;
+        m_jPrefab = 0;
+#if MYFW_USING_WX
+        m_pGameObject = 0;
+#endif
+    }
+
+    void SetName(const char* name)
+    {
+        strcpy_s( m_Name, MAX_PREFAB_NAME_LENGTH, name );
+    }
+};
+
 class PrefabFile
 {
     friend class PrefabManager;
 
 protected:
-    struct PrefabObject
-    {
-        cJSON* jPrefab;
-#if MYFW_USING_WX
-        GameObject* pGameObject; // each prefab is instantiated in editor so inheritance code can compare values.
-#endif
-    };
-
     MyFileObject* m_pFile;
 
 #if MYFW_USING_WX
@@ -33,6 +55,9 @@ protected:
 
 public:
     PrefabFile(MyFileObject* pFile);
+
+    static void StaticOnFileFinishedLoading(void* pObjectPtr, MyFileObject* pFile) { ((PrefabFile*)pObjectPtr)->OnFileFinishedLoading( pFile ); }
+    void OnFileFinishedLoading(MyFileObject* pFile);
 
 #if MYFW_USING_WX
     void Save();

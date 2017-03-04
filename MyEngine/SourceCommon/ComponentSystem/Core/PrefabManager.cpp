@@ -10,22 +10,56 @@
 #include "EngineCommonHeader.h"
 #include "PrefabManager.h"
 
+// ============================================================================================================================
+// PrefabFile
+// ============================================================================================================================
+
 PrefabFile::PrefabFile(MyFileObject* pFile)
 {
+    MyAssert( pFile != 0 );
+
     m_pFile = pFile;
+
+    pFile->RegisterFileFinishedLoadingCallback( this, StaticOnFileFinishedLoading );
+}
+
+void PrefabFile::OnFileFinishedLoading(MyFileObject* pFile)
+{
+    pFile->UnregisterFileFinishedLoadingCallback( this );
+
+    cJSON* jRoot = cJSON_Parse( pFile->m_pBuffer );
+
+    cJSON* jPrefab = jRoot->child;
+    while( jPrefab )
+    {
+        PrefabObject temp;
+        temp.SetName( jPrefab->string );
+        temp.m_jPrefab = jPrefab;
+#if MYFW_USING_WX
+        m_pPrefabs.push_back( temp );
+#else
+        m_pPrefabs.Add( temp );
+#endif
+
+        jPrefab = jPrefab->next;
+
+        cJSON_DetachItemFromObject( jPrefab, jPrefab->string );
+    }
+
+    cJSON_Delete( jRoot );
 }
 
 #if MYFW_USING_WX
 void PrefabFile::Save()
 {
-    cJSON* jPrefabArray = cJSON_CreateArray();
+    cJSON* jRoot = cJSON_CreateObject();
 
     for( unsigned int i=0; i<m_pPrefabs.size(); i++ )
     {
-        cJSON_AddItemToArray( jPrefabArray, m_pPrefabs[i].jPrefab );
+        cJSON_AddItemToObject( jRoot, m_pPrefabs[i].m_Name, m_pPrefabs[i].m_jPrefab );
     }
 
-    char* jsonstring = cJSON_Print( jPrefabArray );
+    char* jsonstring = cJSON_Print( jRoot );
 
     FILE* pFile;
 #if MYFW_WINDOWS
@@ -38,14 +72,18 @@ void PrefabFile::Save()
     
     cJSONExt_free( jsonstring );
     
-    while( cJSON_GetArraySize( jPrefabArray ) )
+    for( unsigned int i=0; i<m_pPrefabs.size(); i++ )
     {
-        cJSON_DetachItemFromArray( jPrefabArray, 0 );
+        cJSON_DetachItemFromObject( jRoot, m_pPrefabs[i].m_Name );
     }
 
-    cJSON_Delete( jPrefabArray );
+    cJSON_Delete( jRoot );
 }
 #endif
+
+// ============================================================================================================================
+// PrefabManager
+// ============================================================================================================================
 
 PrefabManager::PrefabManager()
 {
@@ -102,8 +140,9 @@ void PrefabManager::CreatePrefabInFile(unsigned int fileindex, const char* prefa
 {
     cJSON* jGameObject = pGameObject->ExportAsJSONPrefab();
 
-    PrefabFile::PrefabObject temp;
-    temp.jPrefab = jGameObject;
+    PrefabObject temp;
+    temp.SetName( prefabname );
+    temp.m_jPrefab = jGameObject;
     m_pPrefabFiles[fileindex]->m_pPrefabs.push_back( temp );
 
     // Kick off immediate save of prefab file.
