@@ -23,6 +23,23 @@ PrefabFile::PrefabFile(MyFileObject* pFile)
     pFile->RegisterFileFinishedLoadingCallback( this, StaticOnFileFinishedLoading );
 }
 
+PrefabFile::~PrefabFile()
+{
+#if MYFW_USING_WX
+    for( unsigned int prefabindex=0; prefabindex<m_pPrefabs.size(); prefabindex++ )
+#else
+    for( unsigned int prefabindex=0; prefabindex<m_pPrefabs.Count(); prefabindex++ )
+#endif
+    {
+        cJSON_Delete( m_pPrefabs[prefabindex].m_jPrefab );
+
+        // TODO: delete/release m_pGameObject
+        MyAssert( m_pPrefabs[prefabindex].m_pGameObject == 0 );
+    }
+
+    m_pFile->Release();
+}
+
 void PrefabFile::OnFileFinishedLoading(MyFileObject* pFile)
 {
     pFile->UnregisterFileFinishedLoadingCallback( this );
@@ -41,9 +58,9 @@ void PrefabFile::OnFileFinishedLoading(MyFileObject* pFile)
         m_pPrefabs.Add( temp );
 #endif
 
-        jPrefab = jPrefab->next;
+        cJSON_DetachItemFromObject( jRoot, jPrefab->string );
 
-        cJSON_DetachItemFromObject( jPrefab, jPrefab->string );
+        jPrefab = jPrefab->next;
     }
 
     cJSON_Delete( jRoot );
@@ -91,6 +108,14 @@ PrefabManager::PrefabManager()
 
 PrefabManager::~PrefabManager()
 {
+#if MYFW_USING_WX
+    for( unsigned int fileindex=0; fileindex<m_pPrefabFiles.size(); fileindex++ )
+#else
+    for( unsigned int fileindex=0; fileindex<m_pPrefabFiles.Count(); fileindex++ )
+#endif
+    {
+        delete m_pPrefabFiles[fileindex];
+    }
 }
 
 unsigned int PrefabManager::GetNumberOfFiles()
@@ -136,6 +161,17 @@ void PrefabManager::RequestFile(const char* prefabfilename)
 }
 
 #if MYFW_USING_WX
+void PrefabManager::LoadFileNow(const char* prefabfilename)
+{
+    MyFileObject* pFile = g_pFileManager->LoadFileNow( prefabfilename );
+    MyAssert( pFile );
+
+    PrefabFile* pPrefabFile = MyNew PrefabFile( pFile );
+    pPrefabFile->OnFileFinishedLoading( pFile );
+
+    m_pPrefabFiles.push_back( pPrefabFile );
+}
+
 void PrefabManager::CreatePrefabInFile(unsigned int fileindex, const char* prefabname, GameObject* pGameObject)
 {
     cJSON* jGameObject = pGameObject->ExportAsJSONPrefab();
@@ -189,7 +225,7 @@ bool PrefabManager::CreateOrLoadFile()
             {
                 if( g_pFileManager->DoesFileExist( relativepath ) )
                 {
-                    RequestFile( relativepath );
+                    LoadFileNow( relativepath );
                     return true;
                 }
                 else

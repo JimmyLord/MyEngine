@@ -55,6 +55,7 @@ protected:
 
 public:
     PrefabFile(MyFileObject* pFile);
+    ~PrefabFile();
 
     static void StaticOnFileFinishedLoading(void* pObjectPtr, MyFileObject* pFile) { ((PrefabFile*)pObjectPtr)->OnFileFinishedLoading( pFile ); }
     void OnFileFinishedLoading(MyFileObject* pFile);
@@ -71,6 +72,11 @@ protected:
     std::vector<PrefabFile*> m_pPrefabFiles;
 #else
     MyList<PrefabFile*> m_pPrefabFiles;
+#endif
+
+protected:
+#if MYFW_USING_WX
+    void LoadFileNow(const char* prefabfilename);
 #endif
 
 public:
