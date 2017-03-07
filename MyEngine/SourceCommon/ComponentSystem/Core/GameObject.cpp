@@ -232,7 +232,8 @@ void GameObject::OnRightClick()
         unsigned int numprefabfiles = g_pComponentSystemManager->m_pPrefabManager->GetNumberOfFiles();
         for( unsigned int i=0; i<numprefabfiles; i++ )
         {
-            MyFileObject* pFile = g_pComponentSystemManager->m_pPrefabManager->GetFile( i );
+            PrefabFile* pPrefabFile = g_pComponentSystemManager->m_pPrefabManager->GetLoadedPrefabFileByIndex( i );
+            MyFileObject* pFile = pPrefabFile->GetFile();
             MyAssert( pFile != 0 );
 
             prefabmenu->Append( RightClick_CreatePrefab + i, pFile->m_FilenameWithoutExtension );

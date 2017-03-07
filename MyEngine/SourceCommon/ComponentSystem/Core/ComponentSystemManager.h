@@ -20,6 +20,7 @@ class ComponentCamera;
 class ComponentLight;
 class SceneGraph_Base;
 class SceneGraphObject;
+class PrefabFile;
 class MyFileInfo; // at bottom of this file.
 
 //#include "../BaseComponents/ComponentBase.h"
@@ -309,6 +310,7 @@ public:
     MaterialDefinition* m_pMaterial; //a material may have been created alongside the file.
     SoundCue* m_pSoundCue; //a sound cue may have been created alongside the file.
     SpriteSheet* m_pSpriteSheet; //a sprite sheet may have been created alongside the file.
+    PrefabFile* m_pPrefabFile; // a prefab file may have been created alongside the file
 
     bool m_DidInitialCheckIfSourceFileWasUpdated;
 

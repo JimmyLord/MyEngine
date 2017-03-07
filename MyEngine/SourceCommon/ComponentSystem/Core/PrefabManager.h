@@ -57,6 +57,8 @@ public:
     PrefabFile(MyFileObject* pFile);
     ~PrefabFile();
 
+    MyFileObject* GetFile() { return m_pFile; }
+
     static void StaticOnFileFinishedLoading(void* pObjectPtr, MyFileObject* pFile) { ((PrefabFile*)pObjectPtr)->OnFileFinishedLoading( pFile ); }
     void OnFileFinishedLoading(MyFileObject* pFile);
 
@@ -86,8 +88,8 @@ public:
     unsigned int GetNumberOfFiles();
     void SetNumberOfFiles(unsigned int numfiles); // for non-editor build, on scene load, allocate enough entries for # of files.
 
-    MyFileObject* GetFile(unsigned int fileindex);
-    void RequestFile(const char* prefabfilename);
+    PrefabFile* GetLoadedPrefabFileByIndex(unsigned int fileindex);
+    PrefabFile* RequestFile(const char* prefabfilename);
 
 #if MYFW_USING_WX
     void CreatePrefabInFile(unsigned int fileindex, const char* prefabname, GameObject* pGameObject);

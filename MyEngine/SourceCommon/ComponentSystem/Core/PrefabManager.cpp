@@ -49,6 +49,8 @@ void PrefabFile::OnFileFinishedLoading(MyFileObject* pFile)
     cJSON* jPrefab = jRoot->child;
     while( jPrefab )
     {
+        cJSON* jNextPrefab = jPrefab->next;
+
         PrefabObject temp;
         temp.SetName( jPrefab->string );
         temp.m_jPrefab = jPrefab;
@@ -60,7 +62,7 @@ void PrefabFile::OnFileFinishedLoading(MyFileObject* pFile)
 
         cJSON_DetachItemFromObject( jRoot, jPrefab->string );
 
-        jPrefab = jPrefab->next;
+        jPrefab = jNextPrefab;
     }
 
     cJSON_Delete( jRoot );
@@ -134,7 +136,7 @@ void PrefabManager::SetNumberOfFiles(unsigned int numfiles)
 #endif
 }
 
-MyFileObject* PrefabManager::GetFile(unsigned int fileindex)
+PrefabFile* PrefabManager::GetLoadedPrefabFileByIndex(unsigned int fileindex)
 {
 #if MYFW_USING_WX
     MyAssert( fileindex < m_pPrefabFiles.size() );
@@ -142,10 +144,10 @@ MyFileObject* PrefabManager::GetFile(unsigned int fileindex)
     MyAssert( fileindex < m_pPrefabFiles.Count() );
 #endif
 
-    return m_pPrefabFiles[fileindex]->m_pFile;
+    return m_pPrefabFiles[fileindex];
 }
 
-void PrefabManager::RequestFile(const char* prefabfilename)
+PrefabFile* PrefabManager::RequestFile(const char* prefabfilename)
 {
     MyFileObject* pFile = g_pFileManager->RequestFile( prefabfilename );
     MyAssert( pFile );
@@ -158,6 +160,8 @@ void PrefabManager::RequestFile(const char* prefabfilename)
     MyAssert( m_pPrefabFiles.Count() < m_pPrefabFiles.Length() );
     m_pPrefabFiles.Add( pPrefabFile );
 #endif
+
+    return pPrefabFile;
 }
 
 #if MYFW_USING_WX

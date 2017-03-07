@@ -781,6 +781,12 @@ MyFileObject* ComponentSystemManager::LoadDataFile(const char* relativepath, uns
             pFileInfo->m_pMaterial = g_pMaterialManager->LoadMaterial( pFile->m_FullPath );
         }
 
+        // if we're loading a .myprefabs file, add it to the prefab manager.
+        if( strcmp( pFile->m_ExtensionWithDot, ".myprefabs" ) == 0 )
+        {
+            pFileInfo->m_pPrefabFile = m_pPrefabManager->RequestFile( pFile->m_FullPath );
+        }
+
         // if we're loading a .myspritesheet, we create a material for each texture in the sheet
         if( strcmp( pFile->m_ExtensionWithDot, ".myspritesheet" ) == 0 )
         {
