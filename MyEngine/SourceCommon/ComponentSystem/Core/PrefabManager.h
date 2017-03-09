@@ -64,6 +64,13 @@ public:
 
 #if MYFW_USING_WX
     void Save();
+
+    // Object panel callbacks.
+    static void StaticOnLeftClick(void* pObjectPtr, wxTreeItemId treeid, unsigned int count) { ((PrefabFile*)pObjectPtr)->OnLeftClick( treeid, count, true ); }
+    void OnLeftClick(wxTreeItemId treeid, unsigned int count, bool clear);
+
+    static void StaticOnRightClick(void* pObjectPtr, wxTreeItemId treeid) { ((PrefabFile*)pObjectPtr)->OnRightClick( treeid ); }
+    void OnRightClick(wxTreeItemId treeid);
 #endif
 };
 

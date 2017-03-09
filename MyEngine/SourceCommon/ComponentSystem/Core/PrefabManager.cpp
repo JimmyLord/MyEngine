@@ -21,6 +21,10 @@ PrefabFile::PrefabFile(MyFileObject* pFile)
     m_pFile = pFile;
 
     pFile->RegisterFileFinishedLoadingCallback( this, StaticOnFileFinishedLoading );
+
+    wxTreeItemId rootid = g_pPanelObjectList->GetTreeRoot();
+    wxTreeItemId treeid = g_pPanelObjectList->AddObject( this, PrefabFile::StaticOnLeftClick, PrefabFile::StaticOnRightClick, rootid, m_pFile->m_FilenameWithoutExtension, ObjectListIcon_Scene );
+    //g_pPanelObjectList->SetDragAndDropFunctions( treeid, PrefabFile::StaticOnDrag, PrefabFile::StaticOnDrop );
 }
 
 PrefabFile::~PrefabFile()
@@ -97,6 +101,36 @@ void PrefabFile::Save()
     }
 
     cJSON_Delete( jRoot );
+}
+
+void PrefabFile::OnLeftClick(wxTreeItemId treeid, unsigned int count, bool clear)
+{
+}
+
+void PrefabFile::OnRightClick(wxTreeItemId treeid)
+{
+ 	wxMenu menu;
+    menu.SetClientData( this );
+
+    MyAssert( treeid.IsOk() );
+    wxString itemname = g_pPanelObjectList->m_pTree_Objects->GetItemText( treeid );
+    
+    //m_SceneIDBeingAffected = g_pComponentSystemManager->GetSceneIDFromSceneTreeID( treeid );
+    //
+    //menu.Append( RightClick_AddGameObject, "Add Game Object" );
+
+    //wxMenu* templatesmenu = MyNew wxMenu;
+    //menu.AppendSubMenu( templatesmenu, "Add Game Object Template" );
+    //AddGameObjectTemplatesToMenu( templatesmenu, 0 );
+
+    //menu.Append( RightClick_AddFolder, "Add Folder" );
+    //menu.Append( RightClick_AddLogicGameObject, "Add Logical Game Object" );
+    //menu.Append( RightClick_UnloadScene, "Unload scene" );
+
+    menu.Connect( wxEVT_COMMAND_MENU_SELECTED, (wxObjectEventFunction)&SceneHandler::OnPopupClick );
+
+    // blocking call.
+    g_pPanelWatch->PopupMenu( &menu ); // there's no reason this is using g_pPanelWatch other than convenience.
 }
 #endif
 
