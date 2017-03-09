@@ -10,7 +10,11 @@
 #ifndef __PrefabManager_H__
 #define __PrefabManager_H__
 
-struct PrefabObject
+class PrefabObject;
+class PrefabFile;
+class PrefabManager;
+
+class PrefabObject
 {
     friend class PrefabFile;
     friend class PrefabManager;
@@ -25,19 +29,22 @@ protected:
 #endif
 
 public:
-    PrefabObject()
-    {
-        m_Name[0] = 0;
-        m_jPrefab = 0;
-#if MYFW_USING_WX
-        m_pGameObject = 0;
-#endif
-    }
+    PrefabObject();
+    void Init(PrefabFile* pFile, const char* name);
+    void SetName(const char* name);
 
-    void SetName(const char* name)
-    {
-        strcpy_s( m_Name, MAX_PREFAB_NAME_LENGTH, name );
-    }
+#if MYFW_USING_WX
+    void Save();
+
+    wxTreeItemId m_TreeID;
+
+    // Object panel callbacks.
+    static void StaticOnLeftClick(void* pObjectPtr, wxTreeItemId treeid, unsigned int count) { ((PrefabObject*)pObjectPtr)->OnLeftClick( treeid, count, true ); }
+    void OnLeftClick(wxTreeItemId treeid, unsigned int count, bool clear);
+
+    static void StaticOnRightClick(void* pObjectPtr, wxTreeItemId treeid) { ((PrefabObject*)pObjectPtr)->OnRightClick( treeid ); }
+    void OnRightClick(wxTreeItemId treeid);
+#endif
 };
 
 class PrefabFile
@@ -48,9 +55,9 @@ protected:
     MyFileObject* m_pFile;
 
 #if MYFW_USING_WX
-    std::vector<PrefabObject> m_pPrefabs;
+    std::vector<PrefabObject> m_Prefabs;
 #else
-    MyList<PrefabObject> m_pPrefabs;
+    MyList<PrefabObject> m_Prefabs;
 #endif
 
 public:
@@ -64,6 +71,8 @@ public:
 
 #if MYFW_USING_WX
     void Save();
+
+    wxTreeItemId m_TreeID;
 
     // Object panel callbacks.
     static void StaticOnLeftClick(void* pObjectPtr, wxTreeItemId treeid, unsigned int count) { ((PrefabFile*)pObjectPtr)->OnLeftClick( treeid, count, true ); }

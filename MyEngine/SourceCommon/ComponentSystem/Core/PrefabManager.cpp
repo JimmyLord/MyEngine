@@ -11,6 +11,72 @@
 #include "PrefabManager.h"
 
 // ============================================================================================================================
+// PrefabObject
+// ============================================================================================================================
+
+PrefabObject::PrefabObject()
+{
+    m_Name[0] = 0;
+    m_jPrefab = 0;
+
+#if MYFW_USING_WX
+    m_pGameObject = 0;
+#endif
+}
+
+void PrefabObject::Init(PrefabFile* pFile, const char* name)
+{
+#if MYFW_USING_WX
+    wxTreeItemId rootid = pFile->m_TreeID;
+    m_TreeID = g_pPanelObjectList->AddObject( this, PrefabObject::StaticOnLeftClick, PrefabObject::StaticOnRightClick, rootid, m_Name, ObjectListIcon_GameObject );
+    //g_pPanelObjectList->SetDragAndDropFunctions( treeid, PrefabFile::StaticOnDrag, PrefabFile::StaticOnDrop );
+
+    SetName( name );
+#endif
+}
+
+void PrefabObject::SetName(const char* name)
+{
+    strcpy_s( m_Name, MAX_PREFAB_NAME_LENGTH, name );
+
+#if MYFW_USING_WX
+    g_pPanelObjectList->RenameObject( this, m_Name );
+#endif
+}
+
+#if MYFW_USING_WX
+void PrefabObject::OnLeftClick(wxTreeItemId treeid, unsigned int count, bool clear)
+{
+}
+
+void PrefabObject::OnRightClick(wxTreeItemId treeid)
+{
+ 	wxMenu menu;
+    menu.SetClientData( this );
+
+    MyAssert( treeid.IsOk() );
+    wxString itemname = g_pPanelObjectList->m_pTree_Objects->GetItemText( treeid );
+    
+    //m_SceneIDBeingAffected = g_pComponentSystemManager->GetSceneIDFromSceneTreeID( treeid );
+    //
+    //menu.Append( RightClick_AddGameObject, "Add Game Object" );
+
+    //wxMenu* templatesmenu = MyNew wxMenu;
+    //menu.AppendSubMenu( templatesmenu, "Add Game Object Template" );
+    //AddGameObjectTemplatesToMenu( templatesmenu, 0 );
+
+    //menu.Append( RightClick_AddFolder, "Add Folder" );
+    //menu.Append( RightClick_AddLogicGameObject, "Add Logical Game Object" );
+    //menu.Append( RightClick_UnloadScene, "Unload scene" );
+
+    //menu.Connect( wxEVT_COMMAND_MENU_SELECTED, (wxObjectEventFunction)&SceneHandler::OnPopupClick );
+
+    // blocking call.
+    //g_pPanelWatch->PopupMenu( &menu ); // there's no reason this is using g_pPanelWatch other than convenience.
+}
+#endif
+
+// ============================================================================================================================
 // PrefabFile
 // ============================================================================================================================
 
@@ -22,23 +88,25 @@ PrefabFile::PrefabFile(MyFileObject* pFile)
 
     pFile->RegisterFileFinishedLoadingCallback( this, StaticOnFileFinishedLoading );
 
+#if MYFW_USING_WX
     wxTreeItemId rootid = g_pPanelObjectList->GetTreeRoot();
-    wxTreeItemId treeid = g_pPanelObjectList->AddObject( this, PrefabFile::StaticOnLeftClick, PrefabFile::StaticOnRightClick, rootid, m_pFile->m_FilenameWithoutExtension, ObjectListIcon_Scene );
+    m_TreeID = g_pPanelObjectList->AddObject( this, PrefabFile::StaticOnLeftClick, PrefabFile::StaticOnRightClick, rootid, m_pFile->m_FilenameWithoutExtension, ObjectListIcon_Scene );
     //g_pPanelObjectList->SetDragAndDropFunctions( treeid, PrefabFile::StaticOnDrag, PrefabFile::StaticOnDrop );
+#endif
 }
 
 PrefabFile::~PrefabFile()
 {
 #if MYFW_USING_WX
-    for( unsigned int prefabindex=0; prefabindex<m_pPrefabs.size(); prefabindex++ )
+    for( unsigned int prefabindex=0; prefabindex<m_Prefabs.size(); prefabindex++ )
 #else
-    for( unsigned int prefabindex=0; prefabindex<m_pPrefabs.Count(); prefabindex++ )
+    for( unsigned int prefabindex=0; prefabindex<m_Prefabs.Count(); prefabindex++ )
 #endif
     {
-        cJSON_Delete( m_pPrefabs[prefabindex].m_jPrefab );
+        cJSON_Delete( m_Prefabs[prefabindex].m_jPrefab );
 
         // TODO: delete/release m_pGameObject
-        MyAssert( m_pPrefabs[prefabindex].m_pGameObject == 0 );
+        MyAssert( m_Prefabs[prefabindex].m_pGameObject == 0 );
     }
 
     m_pFile->Release();
@@ -55,14 +123,15 @@ void PrefabFile::OnFileFinishedLoading(MyFileObject* pFile)
     {
         cJSON* jNextPrefab = jPrefab->next;
 
-        PrefabObject temp;
-        temp.SetName( jPrefab->string );
-        temp.m_jPrefab = jPrefab;
 #if MYFW_USING_WX
-        m_pPrefabs.push_back( temp );
+        m_Prefabs.push_back( PrefabObject() );
+        PrefabObject* pPrefab = &m_Prefabs[ m_Prefabs.size()-1 ];
 #else
-        m_pPrefabs.Add( temp );
+        m_Prefabs.Add( PrefabObject() );
+        PrefabObject* pPrefab = &m_Prefabs[ m_Prefabs.Count()-1 ];
 #endif
+        pPrefab->Init( this, jPrefab->string );
+        pPrefab->m_jPrefab = jPrefab;
 
         cJSON_DetachItemFromObject( jRoot, jPrefab->string );
 
@@ -77,9 +146,9 @@ void PrefabFile::Save()
 {
     cJSON* jRoot = cJSON_CreateObject();
 
-    for( unsigned int i=0; i<m_pPrefabs.size(); i++ )
+    for( unsigned int i=0; i<m_Prefabs.size(); i++ )
     {
-        cJSON_AddItemToObject( jRoot, m_pPrefabs[i].m_Name, m_pPrefabs[i].m_jPrefab );
+        cJSON_AddItemToObject( jRoot, m_Prefabs[i].m_Name, m_Prefabs[i].m_jPrefab );
     }
 
     char* jsonstring = cJSON_Print( jRoot );
@@ -95,9 +164,9 @@ void PrefabFile::Save()
     
     cJSONExt_free( jsonstring );
     
-    for( unsigned int i=0; i<m_pPrefabs.size(); i++ )
+    for( unsigned int i=0; i<m_Prefabs.size(); i++ )
     {
-        cJSON_DetachItemFromObject( jRoot, m_pPrefabs[i].m_Name );
+        cJSON_DetachItemFromObject( jRoot, m_Prefabs[i].m_Name );
     }
 
     cJSON_Delete( jRoot );
@@ -127,10 +196,10 @@ void PrefabFile::OnRightClick(wxTreeItemId treeid)
     //menu.Append( RightClick_AddLogicGameObject, "Add Logical Game Object" );
     //menu.Append( RightClick_UnloadScene, "Unload scene" );
 
-    menu.Connect( wxEVT_COMMAND_MENU_SELECTED, (wxObjectEventFunction)&SceneHandler::OnPopupClick );
+    //menu.Connect( wxEVT_COMMAND_MENU_SELECTED, (wxObjectEventFunction)&SceneHandler::OnPopupClick );
 
     // blocking call.
-    g_pPanelWatch->PopupMenu( &menu ); // there's no reason this is using g_pPanelWatch other than convenience.
+    //g_pPanelWatch->PopupMenu( &menu ); // there's no reason this is using g_pPanelWatch other than convenience.
 }
 #endif
 
@@ -214,10 +283,10 @@ void PrefabManager::CreatePrefabInFile(unsigned int fileindex, const char* prefa
 {
     cJSON* jGameObject = pGameObject->ExportAsJSONPrefab();
 
-    PrefabObject temp;
-    temp.SetName( prefabname );
-    temp.m_jPrefab = jGameObject;
-    m_pPrefabFiles[fileindex]->m_pPrefabs.push_back( temp );
+    m_pPrefabFiles[fileindex]->m_Prefabs.push_back( PrefabObject() );
+    PrefabObject* pPrefab = &m_pPrefabFiles[fileindex]->m_Prefabs[ m_pPrefabFiles[fileindex]->m_Prefabs.size()-1 ];
+    pPrefab->SetName( prefabname );
+    pPrefab->m_jPrefab = jGameObject;
 
     // Kick off immediate save of prefab file.
     m_pPrefabFiles[fileindex]->Save();
