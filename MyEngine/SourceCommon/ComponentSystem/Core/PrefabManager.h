@@ -32,6 +32,9 @@ public:
     PrefabObject();
     void Init(PrefabFile* pFile, const char* name);
     void SetName(const char* name);
+    
+    const char* GetName();
+    cJSON* GetJSONObject();
 
 #if MYFW_USING_WX
     void Save();
@@ -44,6 +47,12 @@ public:
 
     static void StaticOnRightClick(void* pObjectPtr, wxTreeItemId treeid) { ((PrefabObject*)pObjectPtr)->OnRightClick( treeid ); }
     void OnRightClick(wxTreeItemId treeid);
+
+    static void StaticOnDrag(void* pObjectPtr) { ((PrefabObject*)pObjectPtr)->OnDrag(); }
+    void OnDrag();
+
+    static void StaticOnDrop(void* pObjectPtr, wxTreeItemId id, int controlid, wxCoord x, wxCoord y) { ((PrefabObject*)pObjectPtr)->OnDrop(controlid, x, y); }
+    void OnDrop(int controlid, wxCoord x, wxCoord y);
 #endif
 };
 
@@ -55,9 +64,9 @@ protected:
     MyFileObject* m_pFile;
 
 #if MYFW_USING_WX
-    std::vector<PrefabObject> m_Prefabs;
+    std::vector<PrefabObject*> m_Prefabs;
 #else
-    MyList<PrefabObject> m_Prefabs;
+    MyList<PrefabObject*> m_Prefabs;
 #endif
 
 public:

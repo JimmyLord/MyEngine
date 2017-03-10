@@ -1418,6 +1418,44 @@ GameObject* ComponentSystemManager::CreateGameObject(bool manageobject, int scen
     return pGameObject;
 }
 
+GameObject* ComponentSystemManager::CreateGameObjectFromPrefab(PrefabObject* pPrefab, int sceneid)
+{
+    MyAssert( pPrefab != 0 );
+
+    GameObject* pGameObject = CreateGameObject( true, sceneid, false, true );
+    
+    pGameObject->SetName( pPrefab->GetName() );
+
+    cJSON* jPrefab = pPrefab->GetJSONObject();
+
+    if( jPrefab )
+    {
+        //Vector3 scale(1);
+        //cJSONExt_GetFloatArray( jPrefab, "Scale", &scale.x, 3 );
+        //pGameObject->GetTransform()->SetLocalScale( scale );
+
+        cJSON* jComponentArray = cJSON_GetObjectItem( jPrefab, "Components" );
+        int arraysize = cJSON_GetArraySize( jComponentArray );
+
+        for( int i=0; i<arraysize; i++ )
+        {
+            cJSON* jComponent = cJSON_GetArrayItem( jComponentArray, i );
+
+            ComponentBase* pComponent = CreateComponentFromJSONObject( pGameObject, jComponent );
+            MyAssert( pComponent );
+            if( pComponent )
+            {
+                pComponent->ImportFromJSONObject( jComponent, sceneid );
+                pComponent->OnLoad();
+            }
+        }
+    }
+
+    // Don't delete jPrefab
+
+    return pGameObject;
+}
+
 #if MYFW_USING_WX
 GameObject* ComponentSystemManager::CreateGameObjectFromTemplate(unsigned int templateid, int sceneid)
 {

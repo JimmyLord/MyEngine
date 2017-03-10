@@ -29,7 +29,7 @@ void PrefabObject::Init(PrefabFile* pFile, const char* name)
 #if MYFW_USING_WX
     wxTreeItemId rootid = pFile->m_TreeID;
     m_TreeID = g_pPanelObjectList->AddObject( this, PrefabObject::StaticOnLeftClick, PrefabObject::StaticOnRightClick, rootid, m_Name, ObjectListIcon_GameObject );
-    //g_pPanelObjectList->SetDragAndDropFunctions( treeid, PrefabFile::StaticOnDrag, PrefabFile::StaticOnDrop );
+    g_pPanelObjectList->SetDragAndDropFunctions( m_TreeID, PrefabObject::StaticOnDrag, PrefabObject::StaticOnDrop );
 
     SetName( name );
 #endif
@@ -42,6 +42,16 @@ void PrefabObject::SetName(const char* name)
 #if MYFW_USING_WX
     g_pPanelObjectList->RenameObject( this, m_Name );
 #endif
+}
+
+const char* PrefabObject::GetName()
+{
+    return m_Name;
+}
+
+cJSON* PrefabObject::GetJSONObject()
+{
+    return m_jPrefab;
 }
 
 #if MYFW_USING_WX
@@ -74,6 +84,16 @@ void PrefabObject::OnRightClick(wxTreeItemId treeid)
     // blocking call.
     //g_pPanelWatch->PopupMenu( &menu ); // there's no reason this is using g_pPanelWatch other than convenience.
 }
+
+void PrefabObject::OnDrag()
+{
+    g_DragAndDropStruct.m_Type = (DragAndDropTypes)DragAndDropTypeEngine_Prefab;
+    g_DragAndDropStruct.m_Value = this;
+}
+
+void PrefabObject::OnDrop(int controlid, wxCoord x, wxCoord y)
+{
+}
 #endif
 
 // ============================================================================================================================
@@ -103,10 +123,12 @@ PrefabFile::~PrefabFile()
     for( unsigned int prefabindex=0; prefabindex<m_Prefabs.Count(); prefabindex++ )
 #endif
     {
-        cJSON_Delete( m_Prefabs[prefabindex].m_jPrefab );
+        cJSON_Delete( m_Prefabs[prefabindex]->m_jPrefab );
 
         // TODO: delete/release m_pGameObject
-        MyAssert( m_Prefabs[prefabindex].m_pGameObject == 0 );
+        MyAssert( m_Prefabs[prefabindex]->m_pGameObject == 0 );
+
+        delete m_Prefabs[prefabindex];
     }
 
     m_pFile->Release();
@@ -124,11 +146,11 @@ void PrefabFile::OnFileFinishedLoading(MyFileObject* pFile)
         cJSON* jNextPrefab = jPrefab->next;
 
 #if MYFW_USING_WX
-        m_Prefabs.push_back( PrefabObject() );
-        PrefabObject* pPrefab = &m_Prefabs[ m_Prefabs.size()-1 ];
+        PrefabObject* pPrefab = new PrefabObject();
+        m_Prefabs.push_back( pPrefab );
 #else
-        m_Prefabs.Add( PrefabObject() );
-        PrefabObject* pPrefab = &m_Prefabs[ m_Prefabs.Count()-1 ];
+        PrefabObject* pPrefab = new PrefabObject();
+        m_Prefabs.Add( pPrefab );
 #endif
         pPrefab->Init( this, jPrefab->string );
         pPrefab->m_jPrefab = jPrefab;
@@ -148,7 +170,7 @@ void PrefabFile::Save()
 
     for( unsigned int i=0; i<m_Prefabs.size(); i++ )
     {
-        cJSON_AddItemToObject( jRoot, m_Prefabs[i].m_Name, m_Prefabs[i].m_jPrefab );
+        cJSON_AddItemToObject( jRoot, m_Prefabs[i]->m_Name, m_Prefabs[i]->m_jPrefab );
     }
 
     char* jsonstring = cJSON_Print( jRoot );
@@ -166,7 +188,7 @@ void PrefabFile::Save()
     
     for( unsigned int i=0; i<m_Prefabs.size(); i++ )
     {
-        cJSON_DetachItemFromObject( jRoot, m_Prefabs[i].m_Name );
+        cJSON_DetachItemFromObject( jRoot, m_Prefabs[i]->m_Name );
     }
 
     cJSON_Delete( jRoot );
@@ -283,8 +305,8 @@ void PrefabManager::CreatePrefabInFile(unsigned int fileindex, const char* prefa
 {
     cJSON* jGameObject = pGameObject->ExportAsJSONPrefab();
 
-    m_pPrefabFiles[fileindex]->m_Prefabs.push_back( PrefabObject() );
-    PrefabObject* pPrefab = &m_pPrefabFiles[fileindex]->m_Prefabs[ m_pPrefabFiles[fileindex]->m_Prefabs.size()-1 ];
+    PrefabObject* pPrefab = new PrefabObject();
+    m_pPrefabFiles[fileindex]->m_Prefabs.push_back( pPrefab );
     pPrefab->SetName( prefabname );
     pPrefab->m_jPrefab = jGameObject;
 

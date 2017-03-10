@@ -12,6 +12,8 @@
 
 class ComponentSystemManager;
 class PrefabManager;
+class PrefabFile;
+class PrefabObject;
 class GameObjectTemplateManager;
 class SceneHandler;
 class GameObject;
@@ -20,7 +22,6 @@ class ComponentCamera;
 class ComponentLight;
 class SceneGraph_Base;
 class SceneGraphObject;
-class PrefabFile;
 class MyFileInfo; // at bottom of this file.
 
 //#include "../BaseComponents/ComponentBase.h"
@@ -185,6 +186,7 @@ public:
     bool IsSceneLoaded(const char* fullpath);
 
     GameObject* CreateGameObject(bool manageobject = true, int sceneid = 0, bool isfolder = false, bool hastransform = true);
+    GameObject* CreateGameObjectFromPrefab(PrefabObject* pPrefab, int sceneid);
 #if MYFW_USING_WX
     GameObject* CreateGameObjectFromTemplate(unsigned int templateid, int sceneid);
 #endif

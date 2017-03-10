@@ -731,6 +731,9 @@
     <ClInclude Include="SourceCommon\ComponentSystem\Core\PrefabManager.h">
       <Filter>Source\ComponentSystem\Core Files</Filter>
     </ClInclude>
+    <ClInclude Include="SourceCommon\Editor\DragAndDropHackeryExtended.h">
+      <Filter>Source\Editor</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\Libraries\imgui\README.md">

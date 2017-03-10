@@ -193,6 +193,20 @@ void SceneHandler::OnDrop(wxTreeItemId treeid, int controlid, wxCoord x, wxCoord
 
         SceneInfo* pScene = g_pComponentSystemManager->GetSceneInfo( sceneid );
     }
+
+    if( g_DragAndDropStruct.m_Type == DragAndDropTypeEngine_Prefab )
+    {
+        PrefabObject* pPrefab = (PrefabObject*)g_DragAndDropStruct.m_Value;
+
+        // If we dropped a gameobject on our scene, move the game object to the new scene.
+        unsigned int sceneid = g_pComponentSystemManager->GetSceneIDFromSceneTreeID( treeid );
+
+        // Don't allow gameobjects to be dropped onto "Unmanaged" scene
+        if( sceneid == 0 )
+            return;
+
+        g_pComponentSystemManager->CreateGameObjectFromPrefab( pPrefab, sceneid );
+    }
 }
 
 void SceneHandler::OnLabelEdit(wxTreeItemId treeid, wxString newlabel)
