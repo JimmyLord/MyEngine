@@ -165,9 +165,9 @@ void ComponentAudioPlayer::OnButtonPlaySound(int buttonid)
 }
 #endif //MYFW_USING_WX
 
-cJSON* ComponentAudioPlayer::ExportAsJSONObject(bool savesceneid)
+cJSON* ComponentAudioPlayer::ExportAsJSONObject(bool savesceneid, bool saveid)
 {
-    cJSON* jComponent = ComponentBase::ExportAsJSONObject( savesceneid );
+    cJSON* jComponent = ComponentBase::ExportAsJSONObject( savesceneid, saveid );
 
     if( m_pSoundCue )
     {

@@ -74,7 +74,7 @@ void ComponentBase::LuaRegister(lua_State* luastate)
 }
 #endif //MYFW_USING_LUA
 
-cJSON* ComponentBase::ExportAsJSONObject(bool savesceneid)
+cJSON* ComponentBase::ExportAsJSONObject(bool savesceneid, bool saveid)
 {
     cJSON* jComponent = cJSON_CreateObject();
 
@@ -91,10 +91,15 @@ cJSON* ComponentBase::ExportAsJSONObject(bool savesceneid)
             cJSON_AddStringToObject( jComponent, "Type", componenttypename );
     }
 
-    if( m_pGameObject )
-        cJSON_AddNumberToObject( jComponent, "GOID", m_pGameObject->GetID() );
+    if( saveid )
+    {
+        if( m_pGameObject )
+        {
+            cJSON_AddNumberToObject( jComponent, "GOID", m_pGameObject->GetID() );
+        }
 
-    cJSON_AddNumberToObject( jComponent, "ID", m_ID );
+        cJSON_AddNumberToObject( jComponent, "ID", m_ID );
+    }
 
     // TODO: this will break if more variables are added to a component or it's parents.
     if( m_pGameObject && m_pGameObject->GetGameObjectThisInheritsFrom() != 0 && m_DivorcedVariables != 0 )

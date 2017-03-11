@@ -526,7 +526,7 @@ char* ComponentSystemManager::SaveSceneToJSON(unsigned int sceneid)
                     ( pComponent->m_pGameObject->GetSceneID() == sceneid || savingallscenes )
                   )
                 {
-                    cJSON_AddItemToArray( componentarray, pComponent->ExportAsJSONObject( savingallscenes ) );
+                    cJSON_AddItemToArray( componentarray, pComponent->ExportAsJSONObject( savingallscenes, true ) );
                 }
             }
         }
@@ -558,7 +558,7 @@ void ComponentSystemManager::SaveGameObjectListToJSONArray(cJSON* gameobjectarra
 
             ComponentBase* pComponent = pGameObject->m_pComponentTransform;
             if( pComponent )
-                cJSON_AddItemToArray( transformarray, pComponent->ExportAsJSONObject( savesceneid ) );
+                cJSON_AddItemToArray( transformarray, pComponent->ExportAsJSONObject( savesceneid, true ) );
         }
 
         GameObject* pFirstChild = pGameObject->GetFirstChild();
@@ -1427,7 +1427,6 @@ GameObject* ComponentSystemManager::CreateGameObjectFromPrefab(PrefabObject* pPr
     pGameObject->SetName( pPrefab->GetName() );
 
     cJSON* jPrefab = pPrefab->GetJSONObject();
-
     if( jPrefab )
     {
         //Vector3 scale(1);

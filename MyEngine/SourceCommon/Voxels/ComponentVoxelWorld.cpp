@@ -318,9 +318,9 @@ void ComponentVoxelWorld::OnButtonEditMesh(int buttonid)
 }
 #endif //MYFW_USING_WX
 
-cJSON* ComponentVoxelWorld::ExportAsJSONObject(bool savesceneid)
+cJSON* ComponentVoxelWorld::ExportAsJSONObject(bool savesceneid, bool saveid)
 {
-    cJSON* jComponent = ComponentBase::ExportAsJSONObject( savesceneid );
+    cJSON* jComponent = ComponentBase::ExportAsJSONObject( savesceneid, saveid );
 
     ExportVariablesToJSON( jComponent ); //_VARIABLE_LIST
 

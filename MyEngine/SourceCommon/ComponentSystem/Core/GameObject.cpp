@@ -441,7 +441,7 @@ cJSON* GameObject::ExportAsJSONObject(bool savesceneid)
     else if( m_pComponentTransform == false )
         cJSON_AddStringToObject( jGameObject, "SubType", "Logic" );
 
-    cJSON* jProperties = m_Properties.ExportAsJSONObject( false );
+    cJSON* jProperties = m_Properties.ExportAsJSONObject( false, true );
     // if no properties were saved, don't write it out to disk
     if( jProperties->child == 0 )
     {
@@ -530,7 +530,7 @@ cJSON* GameObject::ExportAsJSONPrefab()
     else if( m_pComponentTransform == false )
         cJSON_AddStringToObject( jGameObject, "SubType", "Logic" );
 
-    cJSON* jProperties = m_Properties.ExportAsJSONObject( false );
+    cJSON* jProperties = m_Properties.ExportAsJSONObject( false, false );
     // if no properties were saved, don't write it out to disk
     if( jProperties->child == 0 )
     {
@@ -548,7 +548,7 @@ cJSON* GameObject::ExportAsJSONPrefab()
         cJSON_AddItemToObject( jGameObject, "Components", jComponentArray );
         for( unsigned int i=0; i<m_Components.Count(); i++ )
         {
-            cJSON* jComponent = m_Components[i]->ExportAsJSONObject( false );
+            cJSON* jComponent = m_Components[i]->ExportAsJSONObject( false, false );
 
             cJSON_AddItemToArray( jComponentArray, jComponent );
         }

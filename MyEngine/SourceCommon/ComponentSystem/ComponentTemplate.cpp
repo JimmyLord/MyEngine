@@ -123,9 +123,9 @@ void* ComponentTemplate::OnValueChanged(ComponentVariable* pVar, int controlid, 
 }
 #endif //MYFW_USING_WX
 
-//cJSON* ComponentTemplate::ExportAsJSONObject(bool savesceneid)
+//cJSON* ComponentTemplate::ExportAsJSONObject(bool savesceneid, bool saveid)
 //{
-//    cJSON* jComponent = ComponentBase::ExportAsJSONObject( savesceneid );
+//    cJSON* jComponent = ComponentBase::ExportAsJSONObject( savesceneid, saveid );
 //
 //    return jComponent;
 //}

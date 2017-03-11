@@ -291,9 +291,9 @@ void Component2DCollisionObject::OnButtonEditChain(int buttonid)
 }
 #endif //MYFW_USING_WX
 
-cJSON* Component2DCollisionObject::ExportAsJSONObject(bool savesceneid)
+cJSON* Component2DCollisionObject::ExportAsJSONObject(bool savesceneid, bool saveid)
 {
-    cJSON* jComponent = ComponentBase::ExportAsJSONObject( savesceneid );
+    cJSON* jComponent = ComponentBase::ExportAsJSONObject( savesceneid, saveid );
 
 #if MYFW_USING_WX
     int count = m_Vertices.size();

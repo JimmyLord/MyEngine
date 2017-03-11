@@ -175,9 +175,9 @@ void ComponentParticleEmitter::OnDropMaterial(int controlid, wxCoord x, wxCoord 
 }
 #endif //MYFW_USING_WX
 
-cJSON* ComponentParticleEmitter::ExportAsJSONObject(bool savesceneid)
+cJSON* ComponentParticleEmitter::ExportAsJSONObject(bool savesceneid, bool saveid)
 {
-    cJSON* component = ComponentRenderable::ExportAsJSONObject( savesceneid );
+    cJSON* component = ComponentRenderable::ExportAsJSONObject( savesceneid, saveid );
 
     cJSON_AddNumberToObject( component, "RunInEditor", m_RunInEditor );
     cJSON_AddNumberToObject( component, "ContinuousSpawn", m_ContinuousSpawn );

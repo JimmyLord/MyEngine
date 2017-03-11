@@ -62,7 +62,7 @@ public:
     virtual ~ComponentCamera();
     SetClassnameBase( "CameraComponent" ); // only first 8 character count.
 
-    virtual cJSON* ExportAsJSONObject(bool savesceneid);
+    virtual cJSON* ExportAsJSONObject(bool savesceneid, bool saveid);
     virtual void ImportFromJSONObject(cJSON* jComponent, unsigned int sceneid);
 
     virtual void Reset();

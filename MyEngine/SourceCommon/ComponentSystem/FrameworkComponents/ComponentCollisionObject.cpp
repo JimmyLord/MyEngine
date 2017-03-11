@@ -175,9 +175,9 @@ void ComponentCollisionObject::OnTransformChanged(Vector3& newpos, Vector3& newr
 }
 #endif //MYFW_USING_WX
 
-cJSON* ComponentCollisionObject::ExportAsJSONObject(bool savesceneid)
+cJSON* ComponentCollisionObject::ExportAsJSONObject(bool savesceneid, bool saveid)
 {
-    cJSON* component = ComponentUpdateable::ExportAsJSONObject( savesceneid );
+    cJSON* component = ComponentUpdateable::ExportAsJSONObject( savesceneid, saveid );
 
     // physics primitive type, stored as string
     const char* primitivetypename = PhysicsPrimitiveTypeStrings[m_PrimitiveType];

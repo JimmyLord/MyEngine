@@ -134,9 +134,9 @@ void* ComponentLight::OnDrop(ComponentVariable* pVar, wxCoord x, wxCoord y)
 }
 #endif //MYFW_USING_WX
 
-cJSON* ComponentLight::ExportAsJSONObject(bool savesceneid)
+cJSON* ComponentLight::ExportAsJSONObject(bool savesceneid, bool saveid)
 {
-    cJSON* jComponent = ComponentData::ExportAsJSONObject( savesceneid );
+    cJSON* jComponent = ComponentData::ExportAsJSONObject( savesceneid, saveid );
 
     //ExportVariablesToJSON( jComponent ); //_VARIABLE_LIST
 

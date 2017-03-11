@@ -137,7 +137,7 @@ public:
     static void LuaRegister(lua_State* luastate);
 #endif //MYFW_USING_LUA
 
-    virtual cJSON* ExportAsJSONObject(bool savesceneid);
+    virtual cJSON* ExportAsJSONObject(bool savesceneid, bool saveid);
     virtual void ImportFromJSONObject(cJSON* jComponent, unsigned int sceneid);
 
     virtual void Reset();

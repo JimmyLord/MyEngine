@@ -26,7 +26,7 @@ public:
     virtual ~ComponentCameraShadow();
     SetClassnameBase( "CameraShadowComponent" ); // only first 8 character count.
 
-    virtual cJSON* ExportAsJSONObject(bool savesceneid);
+    virtual cJSON* ExportAsJSONObject(bool savesceneid, bool saveid);
     virtual void ImportFromJSONObject(cJSON* jsonobj, unsigned int sceneid);
 
     virtual void Reset();

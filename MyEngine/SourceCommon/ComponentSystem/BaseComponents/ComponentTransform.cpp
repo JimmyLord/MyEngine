@@ -301,9 +301,9 @@ void* ComponentTransform::OnValueChanged(ComponentVariable* pVar, int controlid,
 }
 #endif //MYFW_USING_WX
 
-cJSON* ComponentTransform::ExportAsJSONObject(bool savesceneid)
+cJSON* ComponentTransform::ExportAsJSONObject(bool savesceneid, bool saveid)
 {
-    cJSON* jComponent = ComponentBase::ExportAsJSONObject( savesceneid );
+    cJSON* jComponent = ComponentBase::ExportAsJSONObject( savesceneid, saveid );
 
     //ExportVariablesToJSON( jComponent ); //_VARIABLE_LIST
 

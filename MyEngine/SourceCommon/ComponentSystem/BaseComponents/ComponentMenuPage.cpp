@@ -893,12 +893,12 @@ void ComponentMenuPageEventHandlerForMenuItems::OnPopupClick(wxEvent &evt)
 
 #endif //MYFW_USING_WX
 
-cJSON* ComponentMenuPage::ExportAsJSONObject(bool savesceneid)
+cJSON* ComponentMenuPage::ExportAsJSONObject(bool savesceneid, bool saveid)
 {
 #if MYFW_USING_WX
     SaveMenuPageToDisk();
 
-    cJSON* jComponent = ComponentRenderable::ExportAsJSONObject( savesceneid );
+    cJSON* jComponent = ComponentRenderable::ExportAsJSONObject( savesceneid, saveid );
 
     cJSON_AddNumberToObject( jComponent, "InputEnabled", m_InputEnabled );
     

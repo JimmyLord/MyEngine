@@ -184,9 +184,9 @@ void ComponentAnimationPlayer2D::OnRightClickOptionClicked(wxEvent &evt, int bas
 }
 #endif //MYFW_USING_WX
 
-cJSON* ComponentAnimationPlayer2D::ExportAsJSONObject(bool savesceneid)
+cJSON* ComponentAnimationPlayer2D::ExportAsJSONObject(bool savesceneid, bool saveid)
 {
-    cJSON* jComponent = ComponentBase::ExportAsJSONObject( savesceneid );
+    cJSON* jComponent = ComponentBase::ExportAsJSONObject( savesceneid, saveid );
 
     if( m_pAnimationFile )
         cJSON_AddStringToObject( jComponent, "AnimFile", m_pAnimationFile->m_FullPath );

@@ -896,9 +896,9 @@ void ComponentLuaScript::UpdateChildGameObjectWithNewValue(ExposedVariableDesc* 
 }
 #endif //MYFW_USING_WX
 
-cJSON* ComponentLuaScript::ExportAsJSONObject(bool savesceneid)
+cJSON* ComponentLuaScript::ExportAsJSONObject(bool savesceneid, bool saveid)
 {
-    cJSON* jComponent = ComponentUpdateable::ExportAsJSONObject( savesceneid );
+    cJSON* jComponent = ComponentUpdateable::ExportAsJSONObject( savesceneid, saveid );
 
     if( m_pScriptFile )
         cJSON_AddStringToObject( jComponent, "Script", m_pScriptFile->m_FullPath );

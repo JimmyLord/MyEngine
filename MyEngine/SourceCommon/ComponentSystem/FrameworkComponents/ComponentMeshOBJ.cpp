@@ -216,9 +216,9 @@ void* ComponentMeshOBJ::OnDropOBJ(ComponentVariable* pVar, wxCoord x, wxCoord y)
 }
 #endif //MYFW_USING_WX
 
-cJSON* ComponentMeshOBJ::ExportAsJSONObject(bool savesceneid)
+cJSON* ComponentMeshOBJ::ExportAsJSONObject(bool savesceneid, bool saveid)
 {
-    cJSON* component = ComponentMesh::ExportAsJSONObject( savesceneid );
+    cJSON* component = ComponentMesh::ExportAsJSONObject( savesceneid, saveid );
 
     //if( m_pMesh && m_pMesh->m_pSourceFile )
     //    cJSON_AddStringToObject( component, "OBJ", m_pMesh->m_pSourceFile->m_FullPath );

@@ -166,9 +166,9 @@ void* ComponentMeshPrimitive::OnValueChanged(ComponentVariable* pVar, int contro
 }
 #endif //MYFW_USING_WX
 
-cJSON* ComponentMeshPrimitive::ExportAsJSONObject(bool savesceneid)
+cJSON* ComponentMeshPrimitive::ExportAsJSONObject(bool savesceneid, bool saveid)
 {
-    cJSON* component = ComponentMesh::ExportAsJSONObject( savesceneid );
+    cJSON* component = ComponentMesh::ExportAsJSONObject( savesceneid, saveid );
 
     return component;
 }

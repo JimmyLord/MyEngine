@@ -60,7 +60,7 @@ cJSON* ExportGameObject(cJSON* jGameObjectArray, GameObject* pGameObject)
                         cJSON_AddItemToObject( jGameObject, "Components", jComponentArray );
                     }
 
-                    cJSON* jComponent = pComponent->ExportAsJSONObject( false );
+                    cJSON* jComponent = pComponent->ExportAsJSONObject( false, true );
                     cJSON_AddItemToArray( jComponentArray, jComponent );
 
                     cJSON_DeleteItemFromObject( jComponent, "GOID" );

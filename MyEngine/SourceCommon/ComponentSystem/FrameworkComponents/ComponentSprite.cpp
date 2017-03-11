@@ -222,9 +222,9 @@ void* ComponentSprite::OnValueChanged(ComponentVariable* pVar, int controlid, bo
 }
 #endif //MYFW_USING_WX
 
-cJSON* ComponentSprite::ExportAsJSONObject(bool savesceneid)
+cJSON* ComponentSprite::ExportAsJSONObject(bool savesceneid, bool saveid)
 {
-    cJSON* jComponent = ComponentRenderable::ExportAsJSONObject( savesceneid );
+    cJSON* jComponent = ComponentRenderable::ExportAsJSONObject( savesceneid, saveid );
 
     //ExportVariablesToJSON( jComponent ); //_VARIABLE_LIST
 

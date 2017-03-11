@@ -129,9 +129,9 @@ void ComponentCamera::OtherOnValueChanged(int controlid, bool finishedchanging)
 }
 #endif //MYFW_USING_WX
 
-cJSON* ComponentCamera::ExportAsJSONObject(bool savesceneid)
+cJSON* ComponentCamera::ExportAsJSONObject(bool savesceneid, bool saveid)
 {
-    cJSON* jComponent = ComponentBase::ExportAsJSONObject( savesceneid );
+    cJSON* jComponent = ComponentBase::ExportAsJSONObject( savesceneid, saveid );
 
     cJSON_AddNumberToObject( jComponent, "Ortho", m_Orthographic );
 

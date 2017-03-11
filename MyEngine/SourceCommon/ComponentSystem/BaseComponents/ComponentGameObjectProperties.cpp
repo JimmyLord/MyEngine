@@ -124,13 +124,13 @@ void* ComponentGameObjectProperties::OnValueChanged(ComponentVariable* pVar, int
 }
 #endif //MYFW_USING_WX
 
-cJSON* ComponentGameObjectProperties::ExportAsJSONObject(bool savesceneid)
+cJSON* ComponentGameObjectProperties::ExportAsJSONObject(bool savesceneid, bool saveid)
 {
     cJSON* jComponent = 0;
 
     // not calling ComponentBase, manually adding the divorced variables, don't want to save ID, Type, etc.
     {
-        //cJSON* jComponent = ComponentBase::ExportAsJSONObject( savesceneid );
+        //cJSON* jComponent = ComponentBase::ExportAsJSONObject( savesceneid, saveid );
         jComponent = cJSON_CreateObject();
 
         // TODO: this will break if more variables are added to a component or it's parents.

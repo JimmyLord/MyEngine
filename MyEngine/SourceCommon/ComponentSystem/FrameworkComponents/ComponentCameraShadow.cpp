@@ -56,9 +56,9 @@ void ComponentCameraShadow::OnValueChanged(int controlid, bool finishedchanging)
 }
 #endif //MYFW_USING_WX
 
-cJSON* ComponentCameraShadow::ExportAsJSONObject(bool savesceneid)
+cJSON* ComponentCameraShadow::ExportAsJSONObject(bool savesceneid, bool saveid)
 {
-    cJSON* component = ComponentCamera::ExportAsJSONObject( savesceneid );
+    cJSON* component = ComponentCamera::ExportAsJSONObject( savesceneid, saveid );
 
     //cJSON_AddNumberToObject( component, "Ortho", m_Orthographic );
 

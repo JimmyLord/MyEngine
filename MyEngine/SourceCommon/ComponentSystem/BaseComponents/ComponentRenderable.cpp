@@ -61,9 +61,9 @@ void ComponentRenderable::Reset()
 #endif //MYFW_USING_WX
 }
 
-cJSON* ComponentRenderable::ExportAsJSONObject(bool savesceneid)
+cJSON* ComponentRenderable::ExportAsJSONObject(bool savesceneid, bool saveid)
 {
-    cJSON* jComponent = ComponentBase::ExportAsJSONObject( savesceneid );
+    cJSON* jComponent = ComponentBase::ExportAsJSONObject( savesceneid, saveid );
 
     //cJSON_AddNumberToObject( jComponent, "Visible", m_Visible );
     //cJSON_AddNumberToObject( jComponent, "Layers", m_LayersThisExistsOn );
