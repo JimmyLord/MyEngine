@@ -205,6 +205,7 @@ void SceneHandler::OnDrop(wxTreeItemId treeid, int controlid, wxCoord x, wxCoord
         if( sceneid == 0 )
             return;
 
+        // TODO: undo/redo
         g_pComponentSystemManager->CreateGameObjectFromPrefab( pPrefab, sceneid );
     }
 }
