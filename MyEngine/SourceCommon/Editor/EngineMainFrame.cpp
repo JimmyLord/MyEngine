@@ -1303,12 +1303,18 @@ void EngineMainFrame::OnDrop(int controlid, wxCoord x, wxCoord y)
         // Hardcoded to always drop into scene 1
         unsigned int sceneid = 1;
 
-        // TODO: undo/redo
-        GameObject* pNewObject = g_pComponentSystemManager->CreateGameObjectFromPrefab( pPrefab, sceneid );
+        // Create the game object
+        GameObject* pGameObjectCreated = g_pComponentSystemManager->CreateGameObjectFromPrefab( pPrefab, sceneid );
 
-        // select the object dropped
-        g_pEngineCore->m_pEditorState->ClearSelectedObjectsAndComponents();
-        g_pEngineCore->m_pEditorState->SelectGameObject( pNewObject );
+        if( pGameObjectCreated )
+        {
+            // Undo/Redo
+            g_pEngineMainFrame->m_pCommandStack->Add( MyNew EditorCommand_CreateGameObject( pGameObjectCreated ) );
+
+            // Select the object dropped
+            g_pEngineCore->m_pEditorState->ClearSelectedObjectsAndComponents();
+            g_pEngineCore->m_pEditorState->SelectGameObject( pGameObjectCreated );
+        }
     }
 
     //if( g_DragAndDropStruct.m_Type == DragAndDropType_GameObjectPointer )

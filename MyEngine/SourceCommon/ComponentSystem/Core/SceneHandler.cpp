@@ -150,7 +150,7 @@ void SceneHandler::OnPopupClick(wxEvent &evt)
 
     if( pGameObjectCreated )
     {
-        g_pEngineMainFrame->m_pCommandStack->Add( MyNew EditorCommand_CreateGameObject( pGameObjectCreated ) );        
+        g_pEngineMainFrame->m_pCommandStack->Add( MyNew EditorCommand_CreateGameObject( pGameObjectCreated ) );
     }
 }
 
@@ -205,8 +205,14 @@ void SceneHandler::OnDrop(wxTreeItemId treeid, int controlid, wxCoord x, wxCoord
         if( sceneid == 0 )
             return;
 
-        // TODO: undo/redo
-        g_pComponentSystemManager->CreateGameObjectFromPrefab( pPrefab, sceneid );
+        // Create the game object
+        GameObject* pGameObjectCreated = g_pComponentSystemManager->CreateGameObjectFromPrefab( pPrefab, sceneid );
+
+        if( pGameObjectCreated )
+        {
+            // Undo/Redo
+            g_pEngineMainFrame->m_pCommandStack->Add( MyNew EditorCommand_CreateGameObject( pGameObjectCreated ) );
+        }
     }
 }
 
