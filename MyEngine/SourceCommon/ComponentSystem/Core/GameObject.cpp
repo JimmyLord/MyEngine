@@ -11,7 +11,7 @@
 
 #include "PrefabManager.h"
 
-GameObject::GameObject(bool managed, int sceneid, bool isfolder, bool hastransform)
+GameObject::GameObject(bool managed, int sceneid, bool isfolder, bool hastransform, PrefabObject* pPrefab)
 {
     ClassnameSanityCheck();
 
@@ -23,6 +23,7 @@ GameObject::GameObject(bool managed, int sceneid, bool isfolder, bool hastransfo
     m_Properties.m_pGameObject = this;
 
     m_Enabled = true;
+    m_pPrefab = pPrefab;
     m_IsFolder = isfolder;
     m_SceneID = sceneid;
     m_ID = 0;
@@ -401,10 +402,13 @@ void GameObject::UpdateObjectListIcon()
 {
     // Set the icon for the gameobject in the objectlist panel tree.
     int iconindex = ObjectListIcon_GameObject;
-    if( m_IsFolder )
+    if( m_pPrefab != 0 )
+        iconindex = ObjectListIcon_Prefab;
+    else if( m_IsFolder )
         iconindex = ObjectListIcon_Folder;
     else if( m_pComponentTransform == 0 )
         iconindex = ObjectListIcon_LogicObject;
+
     wxTreeItemId gameobjectid = g_pPanelObjectList->FindObject( this );
     if( gameobjectid.IsOk() )
         g_pPanelObjectList->SetIcon( gameobjectid, iconindex );
@@ -436,6 +440,9 @@ cJSON* GameObject::ExportAsJSONObject(bool savesceneid)
     if( m_SceneID != m_PhysicsSceneID )
         cJSON_AddNumberToObject( jGameObject, "PhysicsSceneID", m_PhysicsSceneID );
 
+    if( m_pPrefab != 0 )
+        cJSON_AddStringToObject( jGameObject, "Prefab", m_pPrefab->GetName() );
+    
     if( m_IsFolder == true )
         cJSON_AddStringToObject( jGameObject, "SubType", "Folder" );
     else if( m_pComponentTransform == false )
@@ -458,6 +465,13 @@ cJSON* GameObject::ExportAsJSONObject(bool savesceneid)
 void GameObject::ImportFromJSONObject(cJSON* jGameObject, unsigned int sceneid)
 {
     cJSON* obj;
+
+    // Deal with prefabs
+    obj = cJSON_GetObjectItem( jGameObject, "Prefab" );
+    if( obj )
+    {
+        // TODO: when importing prefab objects, update all undivorced variables to match prefab file
+    }
 
     obj = cJSON_GetObjectItem( jGameObject, "ParentGO" );
     if( obj )

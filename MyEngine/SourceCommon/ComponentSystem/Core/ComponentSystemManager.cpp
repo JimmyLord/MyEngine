@@ -65,6 +65,7 @@ ComponentSystemManager::ComponentSystemManager(ComponentTypeManager* typemanager
         wxBitmap bitmap_folder( "DataEngine/EditorIcons/IconFolder.bmp", wxBITMAP_TYPE_BMP );// = wxArtProvider::GetBitmap( wxART_FOLDER, wxART_OTHER, wxSize(16,16) );
         wxBitmap bitmap_logicobject( "DataEngine/EditorIcons/IconLogicObject.bmp", wxBITMAP_TYPE_BMP );// = wxArtProvider::GetBitmap( wxART_FOLDER, wxART_OTHER, wxSize(16,16) );
         wxBitmap bitmap_component( "DataEngine/EditorIcons/IconComponent.bmp", wxBITMAP_TYPE_BMP );
+        wxBitmap bitmap_prefab( "DataEngine/EditorIcons/IconPrefab.bmp", wxBITMAP_TYPE_BMP );
 
         // make sure bitmaps loaded
         //    will happen if DataEngine folder isn't there... run "Windows-CreateSymLinksForData.bat"
@@ -78,6 +79,7 @@ ComponentSystemManager::ComponentSystemManager(ComponentTypeManager* typemanager
             pImageList->Add( bitmap_folder );         // ObjectListIcon_Folder,
             pImageList->Add( bitmap_logicobject );    // ObjectListIcon_LogicObject,
             pImageList->Add( bitmap_component );      // ObjectListIcon_Component,
+            pImageList->Add( bitmap_prefab );         // ObjectListIcon_Prefab,
         }
 
         g_pPanelObjectList->AssignImageListToObjectTree( pImageList );
@@ -1398,9 +1400,9 @@ bool ComponentSystemManager::IsSceneLoaded(const char* fullpath)
     return false;
 }
 
-GameObject* ComponentSystemManager::CreateGameObject(bool manageobject, int sceneid, bool isfolder, bool hastransform)
+GameObject* ComponentSystemManager::CreateGameObject(bool manageobject, int sceneid, bool isfolder, bool hastransform, PrefabObject* pPrefab)
 {
-    GameObject* pGameObject = MyNew GameObject( manageobject, sceneid, isfolder, hastransform );
+    GameObject* pGameObject = MyNew GameObject( manageobject, sceneid, isfolder, hastransform, pPrefab );
     unsigned int id = GetNextGameObjectIDAndIncrement( sceneid );
     pGameObject->SetID( id );
 
@@ -1422,7 +1424,7 @@ GameObject* ComponentSystemManager::CreateGameObjectFromPrefab(PrefabObject* pPr
 {
     MyAssert( pPrefab != 0 );
 
-    GameObject* pGameObject = CreateGameObject( true, sceneid, false, true );
+    GameObject* pGameObject = CreateGameObject( true, sceneid, false, true, pPrefab );
     
     pGameObject->SetName( pPrefab->GetName() );
 

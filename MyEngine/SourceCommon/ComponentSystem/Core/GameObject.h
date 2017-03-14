@@ -25,6 +25,7 @@ class GameObject : public CPPListNode
     static const int MAX_COMPONENTS = 8; // TODO: fix this hardcodedness
 
 protected:
+    PrefabObject* m_pPrefab;
     GameObject* m_pGameObjectThisInheritsFrom; // for variables, if set, any changes to the parent will be reflected in this object.
 
     GameObject* m_pParentGameObject;
@@ -50,9 +51,12 @@ public:
     MyList<ComponentBase*> m_Components; // component system manager is responsible for deleting these components.
 
 public:
-    GameObject(bool managed, int sceneid, bool isfolder, bool hastransform);
+    GameObject(bool managed, int sceneid, bool isfolder, bool hastransform, PrefabObject* pPrefab);
     virtual ~GameObject();
     SetClassnameBase( "GameObject" ); // only first 8 character count.
+
+    PrefabObject* GetPrefab() { return m_pPrefab; }
+    bool IsPrefab() { return m_pPrefab != 0; }
 
     bool IsFolder() { return m_IsFolder; }
     GameObject* GetGameObjectThisInheritsFrom() { return m_pGameObjectThisInheritsFrom; }

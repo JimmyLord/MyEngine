@@ -33,6 +33,7 @@ enum ObjectListIconTypes
     ObjectListIcon_Folder,
     ObjectListIcon_LogicObject,
     ObjectListIcon_Component,
+    ObjectListIcon_Prefab,
 };
 
 extern ComponentSystemManager* g_pComponentSystemManager;
@@ -185,7 +186,7 @@ public:
     void UnloadScene(unsigned int sceneidtoclear = UINT_MAX, bool clearunmanagedcomponents = true);
     bool IsSceneLoaded(const char* fullpath);
 
-    GameObject* CreateGameObject(bool manageobject = true, int sceneid = 0, bool isfolder = false, bool hastransform = true);
+    GameObject* CreateGameObject(bool manageobject = true, int sceneid = 0, bool isfolder = false, bool hastransform = true, PrefabObject* pPrefab = 0);
     GameObject* CreateGameObjectFromPrefab(PrefabObject* pPrefab, int sceneid);
 #if MYFW_USING_WX
     GameObject* CreateGameObjectFromTemplate(unsigned int templateid, int sceneid);
