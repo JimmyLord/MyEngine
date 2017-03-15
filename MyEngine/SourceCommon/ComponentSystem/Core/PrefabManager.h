@@ -24,6 +24,7 @@ class PrefabObject
 protected:
     char m_Name[MAX_PREFAB_NAME_LENGTH];
     cJSON* m_jPrefab;
+    PrefabFile* m_pPrefabFile;
 #if MYFW_USING_WX
     GameObject* m_pGameObject; // each prefab is instantiated in editor so inheritance code can compare values.
 #endif
@@ -35,6 +36,8 @@ public:
     
     const char* GetName();
     cJSON* GetJSONObject();
+
+    PrefabFile* GetPrefabFile() { return m_pPrefabFile; }
 
 #if MYFW_USING_WX
     void Save();
@@ -115,6 +118,8 @@ public:
 
     PrefabFile* GetLoadedPrefabFileByIndex(unsigned int fileindex);
     PrefabFile* RequestFile(const char* prefabfilename);
+
+    PrefabFile* GetPrefabFileForFileObject(const char* prefabfilename);
 
 #if MYFW_USING_WX
     void CreatePrefabInFile(unsigned int fileindex, const char* prefabname, GameObject* pGameObject);

@@ -18,6 +18,7 @@ PrefabObject::PrefabObject()
 {
     m_Name[0] = 0;
     m_jPrefab = 0;
+    m_pPrefabFile = 0;
 
 #if MYFW_USING_WX
     m_pGameObject = 0;
@@ -31,6 +32,7 @@ void PrefabObject::Init(PrefabFile* pFile, const char* name)
     m_TreeID = g_pPanelObjectList->AddObject( this, PrefabObject::StaticOnLeftClick, PrefabObject::StaticOnRightClick, rootid, m_Name, ObjectListIcon_GameObject );
     g_pPanelObjectList->SetDragAndDropFunctions( m_TreeID, PrefabObject::StaticOnDrag, PrefabObject::StaticOnDrop );
 
+    m_pPrefabFile = pFile;
     SetName( name );
 #endif
 }
@@ -287,6 +289,25 @@ PrefabFile* PrefabManager::RequestFile(const char* prefabfilename)
 #endif
 
     return pPrefabFile;
+}
+
+PrefabFile* PrefabManager::GetPrefabFileForFileObject(const char* prefabfilename)
+{
+#if MYFW_USING_WX
+    unsigned int numprefabfiles = m_pPrefabFiles.size();
+#else
+    unsigned int numprefabfiles = m_pPrefabFiles.Count();
+#endif
+
+    for( unsigned int i=0; i<numprefabfiles; i++ )
+    {
+        if( strcmp( m_pPrefabFiles[i]->GetFile()->m_FullPath, prefabfilename ) == 0 )
+        {
+            return m_pPrefabFiles[i];
+        }
+    }
+
+    return 0;
 }
 
 #if MYFW_USING_WX

@@ -441,7 +441,10 @@ cJSON* GameObject::ExportAsJSONObject(bool savesceneid)
         cJSON_AddNumberToObject( jGameObject, "PhysicsSceneID", m_PhysicsSceneID );
 
     if( m_pPrefab != 0 )
+    {
+        cJSON_AddStringToObject( jGameObject, "PrefabFile", m_pPrefab->GetPrefabFile()->GetFile()->m_FullPath );
         cJSON_AddStringToObject( jGameObject, "Prefab", m_pPrefab->GetName() );
+    }
     
     if( m_IsFolder == true )
         cJSON_AddStringToObject( jGameObject, "SubType", "Folder" );
@@ -470,6 +473,20 @@ void GameObject::ImportFromJSONObject(cJSON* jGameObject, unsigned int sceneid)
     obj = cJSON_GetObjectItem( jGameObject, "Prefab" );
     if( obj )
     {
+        cJSON* jPrefabFile = cJSON_GetObjectItem( jGameObject, "PrefabFile" );
+        MyAssert( jPrefabFile != 0 );
+
+        if( jPrefabFile )
+        {
+            PrefabFile* pPrefabFile = g_pComponentSystemManager->m_pPrefabManager->GetPrefabFileForFileObject( jPrefabFile->valuestring );
+            
+            // prefab file load must have been initiated by scene load
+            // might want to consider triggering a load here if it's not in the file list.
+            MyAssert( pPrefabFile != 0 );
+
+            // TODO: link to the correct prefab
+        }
+
         // TODO: when importing prefab objects, update all undivorced variables to match prefab file
     }
 
