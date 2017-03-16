@@ -413,6 +413,20 @@ void GameObject::UpdateObjectListIcon()
     if( gameobjectid.IsOk() )
         g_pPanelObjectList->SetIcon( gameobjectid, iconindex );
 }
+
+void GameObject::FinishLoadingPrefab(PrefabFile* pPrefabFile, const char* name)
+{
+    // TODO: link to the correct prefab
+    // TODO: when importing prefab objects, update all undivorced variables to match prefab file
+}
+
+void GameObject::OnPrefabFileFinishedLoading(MyFileObject* pFile)
+{
+    PrefabFile* pPrefabFile = g_pComponentSystemManager->m_pPrefabManager->GetPrefabFileForFileObject( pFile->m_FullPath );
+    FinishLoadingPrefab( pPrefabFile, m_PrefabName );
+
+    pFile->UnregisterFileFinishedLoadingCallback( this );
+}
 #endif //MYFW_USING_WX
 
 cJSON* GameObject::ExportAsJSONObject(bool savesceneid)
@@ -467,11 +481,10 @@ cJSON* GameObject::ExportAsJSONObject(bool savesceneid)
 
 void GameObject::ImportFromJSONObject(cJSON* jGameObject, unsigned int sceneid)
 {
-    cJSON* obj;
-
-    // Deal with prefabs
-    obj = cJSON_GetObjectItem( jGameObject, "Prefab" );
-    if( obj )
+    // Deal with prefabs // only in editor builds, game builds don't much care.
+#if MYFW_USING_WX
+    cJSON* jPrefab = cJSON_GetObjectItem( jGameObject, "Prefab" );
+    if( jPrefab )
     {
         cJSON* jPrefabFile = cJSON_GetObjectItem( jGameObject, "PrefabFile" );
         MyAssert( jPrefabFile != 0 );
@@ -484,16 +497,24 @@ void GameObject::ImportFromJSONObject(cJSON* jGameObject, unsigned int sceneid)
             // might want to consider triggering a load here if it's not in the file list.
             MyAssert( pPrefabFile != 0 );
 
-            // TODO: link to the correct prefab
+            // if the prefab file isn't loaded yet, store the name and link to the prefab when the file is loaded
+            if( true )
+            {
+                strcpy_s( m_PrefabName, PrefabObject::MAX_PREFAB_NAME_LENGTH, jPrefab->valuestring );
+                pPrefabFile->GetFile()->RegisterFileFinishedLoadingCallback( this, StaticOnPrefabFileFinishedLoading );
+            }
+            else
+            {
+                FinishLoadingPrefab( pPrefabFile, jPrefab->valuestring );
+            }
         }
-
-        // TODO: when importing prefab objects, update all undivorced variables to match prefab file
     }
+#endif // MYFW_USING_WX
 
-    obj = cJSON_GetObjectItem( jGameObject, "ParentGO" );
-    if( obj )
+    cJSON* jParentGO = cJSON_GetObjectItem( jGameObject, "ParentGO" );
+    if( jParentGO )
     {
-        m_pGameObjectThisInheritsFrom = g_pComponentSystemManager->FindGameObjectByJSONRef( obj, m_SceneID );
+        m_pGameObjectThisInheritsFrom = g_pComponentSystemManager->FindGameObjectByJSONRef( jParentGO, m_SceneID );
 
         // if this trips, then other object might be loaded after this or come from another scene that isn't loaded.
         MyAssert( m_pGameObjectThisInheritsFrom != 0 );
@@ -513,10 +534,10 @@ void GameObject::ImportFromJSONObject(cJSON* jGameObject, unsigned int sceneid)
 
     cJSONExt_GetUnsignedInt( jGameObject, "ID", &m_ID );
 
-    obj = cJSON_GetObjectItem( jGameObject, "Name" );
-    if( obj )
+    cJSON* jName = cJSON_GetObjectItem( jGameObject, "Name" );
+    if( jName )
     {
-        SetName( obj->valuestring );
+        SetName( jName->valuestring );
     }
     SetSceneID( sceneid, false ); // set new scene, but don't assign a new GOID.
 

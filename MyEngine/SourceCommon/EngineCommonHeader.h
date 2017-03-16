@@ -107,6 +107,8 @@ extern "C"
 #include "Physics/EngineBox2DContactListener.h"
 
 // misc engine code
+#include "ComponentSystem\Core\PrefabManager.h"
+
 #include "Camera/Camera3D.h"
 #include "Camera/Camera2D.h"
 #include "Core/InputFinger.h"

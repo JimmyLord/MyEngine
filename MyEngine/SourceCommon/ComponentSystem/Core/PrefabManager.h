@@ -19,6 +19,7 @@ class PrefabObject
     friend class PrefabFile;
     friend class PrefabManager;
 
+public:
     static const int MAX_PREFAB_NAME_LENGTH = 30;
 
 protected:
