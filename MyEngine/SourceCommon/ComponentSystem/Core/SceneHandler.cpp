@@ -206,7 +206,7 @@ void SceneHandler::OnDrop(wxTreeItemId treeid, int controlid, wxCoord x, wxCoord
             return;
 
         // Create the game object
-        GameObject* pGameObjectCreated = g_pComponentSystemManager->CreateGameObjectFromPrefab( pPrefab, sceneid );
+        GameObject* pGameObjectCreated = g_pComponentSystemManager->CreateGameObjectFromPrefab( pPrefab, true, sceneid );
 
         if( pGameObjectCreated )
         {

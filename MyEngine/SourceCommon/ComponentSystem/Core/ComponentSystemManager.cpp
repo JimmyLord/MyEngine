@@ -1403,28 +1403,32 @@ bool ComponentSystemManager::IsSceneLoaded(const char* fullpath)
 GameObject* ComponentSystemManager::CreateGameObject(bool manageobject, int sceneid, bool isfolder, bool hastransform, PrefabObject* pPrefab)
 {
     GameObject* pGameObject = MyNew GameObject( manageobject, sceneid, isfolder, hastransform, pPrefab );
-    unsigned int id = GetNextGameObjectIDAndIncrement( sceneid );
-    pGameObject->SetID( id );
-
-    //if( manageobject )
+    
+    if( manageobject )
     {
-        GetSceneInfo( sceneid )->m_GameObjects.AddTail( pGameObject );
-    }
+        unsigned int id = GetNextGameObjectIDAndIncrement( sceneid );
+        pGameObject->SetID( id );
 
-    // if we're not in editor mode, place this gameobject in scene 0 so it will be destroyed when gameplay is stopped.
-    if( g_pEngineCore->m_EditorMode == false )
-    {
-        pGameObject->SetSceneID( 0 );
+        //if( manageobject )
+        {
+            GetSceneInfo( sceneid )->m_GameObjects.AddTail( pGameObject );
+        }
+
+        // if we're not in editor mode, place this gameobject in scene 0 so it will be destroyed when gameplay is stopped.
+        if( g_pEngineCore->m_EditorMode == false )
+        {
+            pGameObject->SetSceneID( 0 );
+        }
     }
 
     return pGameObject;
 }
 
-GameObject* ComponentSystemManager::CreateGameObjectFromPrefab(PrefabObject* pPrefab, int sceneid)
+GameObject* ComponentSystemManager::CreateGameObjectFromPrefab(PrefabObject* pPrefab, bool manageobject, int sceneid)
 {
     MyAssert( pPrefab != 0 );
 
-    GameObject* pGameObject = CreateGameObject( true, sceneid, false, true, pPrefab );
+    GameObject* pGameObject = CreateGameObject( manageobject, sceneid, false, true, pPrefab );
     
     pGameObject->SetName( pPrefab->GetName() );
 

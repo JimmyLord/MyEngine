@@ -1039,6 +1039,11 @@ bool ComponentBase::DoesVariableMatchParent(int controlid, ComponentVariable* pV
     return true; // the object has no parent, we say it matches.
 }
 
+void ComponentBase::SyncUndivorcedVariables(ComponentBase* pSourceComponent)
+{
+    // TODO: actual sync of variables.
+}
+
 void ComponentBase::OnValueChangedVariable(int controlid, bool finishedchanging, double oldvalue)
 {
     ComponentVariable* pVar = FindComponentVariableForControl( controlid );

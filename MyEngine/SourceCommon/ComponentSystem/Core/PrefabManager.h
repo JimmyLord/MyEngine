@@ -32,8 +32,10 @@ protected:
 
 public:
     PrefabObject();
+    ~PrefabObject();
     void Init(PrefabFile* pFile, const char* name);
     void SetName(const char* name);
+    void SetPrefabJSONString(cJSON* jPrefab);
     
     const char* GetName();
     cJSON* GetJSONObject();
@@ -41,6 +43,8 @@ public:
     PrefabFile* GetPrefabFile() { return m_pPrefabFile; }
 
 #if MYFW_USING_WX
+    GameObject* GetGameObject() { return m_pGameObject; }
+
     void Save();
 
     wxTreeItemId m_TreeID;
@@ -78,6 +82,7 @@ public:
     ~PrefabFile();
 
     MyFileObject* GetFile() { return m_pFile; }
+    PrefabObject* GetPrefabByName(const char* name);
 
     static void StaticOnFileFinishedLoading(void* pObjectPtr, MyFileObject* pFile) { ((PrefabFile*)pObjectPtr)->OnFileFinishedLoading( pFile ); }
     void OnFileFinishedLoading(MyFileObject* pFile);

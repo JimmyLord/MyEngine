@@ -25,6 +25,11 @@ PrefabObject::PrefabObject()
 #endif
 }
 
+PrefabObject::~PrefabObject()
+{
+    delete m_pGameObject;
+}
+
 void PrefabObject::Init(PrefabFile* pFile, const char* name)
 {
 #if MYFW_USING_WX
@@ -43,6 +48,22 @@ void PrefabObject::SetName(const char* name)
 
 #if MYFW_USING_WX
     g_pPanelObjectList->RenameObject( this, m_Name );
+#endif
+}
+
+void PrefabObject::SetPrefabJSONString(cJSON* jPrefab)
+{
+    if( m_jPrefab )
+    {
+        cJSON_Delete( m_jPrefab );
+#if MYFW_USING_WX
+        delete m_pGameObject;
+#endif
+    }
+
+    m_jPrefab = jPrefab;
+#if MYFW_USING_WX
+    m_pGameObject = g_pComponentSystemManager->CreateGameObjectFromPrefab( this, false, 0 );
 #endif
 }
 
@@ -127,13 +148,27 @@ PrefabFile::~PrefabFile()
     {
         cJSON_Delete( m_Prefabs[prefabindex]->m_jPrefab );
 
-        // TODO: delete/release m_pGameObject
-        MyAssert( m_Prefabs[prefabindex]->m_pGameObject == 0 );
-
         delete m_Prefabs[prefabindex];
     }
 
     m_pFile->Release();
+}
+
+PrefabObject* PrefabFile::GetPrefabByName(const char* name)
+{
+#if MYFW_USING_WX
+    for( unsigned int prefabindex=0; prefabindex<m_Prefabs.size(); prefabindex++ )
+#else
+    for( unsigned int prefabindex=0; prefabindex<m_Prefabs.Count(); prefabindex++ )
+#endif
+    {
+        if( strcmp( m_Prefabs[prefabindex]->GetName(), name ) == 0 )
+        {
+            return m_Prefabs[prefabindex];
+        }
+    }
+
+    return 0;
 }
 
 void PrefabFile::OnFileFinishedLoading(MyFileObject* pFile)
@@ -155,7 +190,7 @@ void PrefabFile::OnFileFinishedLoading(MyFileObject* pFile)
         m_Prefabs.Add( pPrefab );
 #endif
         pPrefab->Init( this, jPrefab->string );
-        pPrefab->m_jPrefab = jPrefab;
+        pPrefab->SetPrefabJSONString( jPrefab );
 
         cJSON_DetachItemFromObject( jRoot, jPrefab->string );
 
@@ -329,7 +364,7 @@ void PrefabManager::CreatePrefabInFile(unsigned int fileindex, const char* prefa
     PrefabObject* pPrefab = new PrefabObject();
     m_pPrefabFiles[fileindex]->m_Prefabs.push_back( pPrefab );
     pPrefab->SetName( prefabname );
-    pPrefab->m_jPrefab = jGameObject;
+    pPrefab->SetPrefabJSONString( jGameObject );
 
     // Kick off immediate save of prefab file.
     m_pPrefabFiles[fileindex]->Save();

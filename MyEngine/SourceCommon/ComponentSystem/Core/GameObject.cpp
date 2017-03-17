@@ -416,8 +416,24 @@ void GameObject::UpdateObjectListIcon()
 
 void GameObject::FinishLoadingPrefab(PrefabFile* pPrefabFile, const char* name)
 {
-    // TODO: link to the correct prefab
-    // TODO: when importing prefab objects, update all undivorced variables to match prefab file
+    // link to the correct prefab
+    m_pPrefab = pPrefabFile->GetPrefabByName( name );
+
+    // TODO: check the if the gameobect(s) in the prefab are completely different and deal with it
+
+    // otherwise, importing same prefab, so update all undivorced variables to match prefab file
+    {
+        GameObject* pPrefabGameObject = m_pPrefab->GetGameObject();
+        MyAssert( pPrefabGameObject );
+
+        for( unsigned int i=0; i<m_Components.Count(); i++ )
+        {
+            ComponentBase* pComponent = m_Components[i];
+            ComponentBase* pPrefabComponent = pPrefabGameObject->m_Components[i];
+
+            pComponent->SyncUndivorcedVariables( pPrefabComponent );
+        }
+    }
 }
 
 void GameObject::OnPrefabFileFinishedLoading(MyFileObject* pFile)
@@ -809,8 +825,11 @@ ComponentBase* GameObject::AddNewComponent(int componenttype, unsigned int scene
         }
     }
 
-    unsigned int id = pComponentSystemManager->GetNextComponentIDAndIncrement( sceneid );
-    pComponent->SetID( id );
+    if( sceneid != 0 )
+    {
+        unsigned int id = pComponentSystemManager->GetNextComponentIDAndIncrement( sceneid );
+        pComponent->SetID( id );
+    }
 
     MyAssert( sceneid == 0 || m_SceneID == sceneid );
     pComponent->SetSceneID( sceneid );
@@ -868,9 +887,12 @@ ComponentBase* GameObject::AddExistingComponent(ComponentBase* pComponent, bool 
 
         m_Components.Add( pComponent );
 
-        // add this to the system managers component list.
-        if( pComponent->Prev == 0 )
-            g_pComponentSystemManager->AddComponent( pComponent );
+        // if this gameobject is managed, add this component to the system managers component list.
+        if( m_Managed )
+        {
+            if( pComponent->Prev == 0 )
+                g_pComponentSystemManager->AddComponent( pComponent );
+        }
     }
 
     // register this components callbacks.

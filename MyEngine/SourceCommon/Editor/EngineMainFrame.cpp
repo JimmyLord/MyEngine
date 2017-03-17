@@ -1304,7 +1304,7 @@ void EngineMainFrame::OnDrop(int controlid, wxCoord x, wxCoord y)
         unsigned int sceneid = 1;
 
         // Create the game object
-        GameObject* pGameObjectCreated = g_pComponentSystemManager->CreateGameObjectFromPrefab( pPrefab, sceneid );
+        GameObject* pGameObjectCreated = g_pComponentSystemManager->CreateGameObjectFromPrefab( pPrefab, true, sceneid );
 
         if( pGameObjectCreated )
         {
