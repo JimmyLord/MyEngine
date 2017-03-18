@@ -64,6 +64,7 @@ void PrefabObject::SetPrefabJSONString(cJSON* jPrefab)
     m_jPrefab = jPrefab;
 #if MYFW_USING_WX
     m_pGameObject = g_pComponentSystemManager->CreateGameObjectFromPrefab( this, false, 0 );
+    m_pGameObject->SetEnabled( false );
 #endif
 }
 

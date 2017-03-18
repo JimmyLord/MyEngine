@@ -102,31 +102,16 @@ ComponentSystemManager::ComponentSystemManager(ComponentTypeManager* typemanager
 
 ComponentSystemManager::~ComponentSystemManager()
 {
-    for( unsigned int i=0; i<BaseComponentType_NumTypes; i++ )
-    {
-        while( m_Components[i].GetHead() )
-        {
-            ComponentBase* pComponent = (ComponentBase*)m_Components[i].GetHead();
-            pComponent->SetEnabled( false );
+    // Prefab objects are in scene 0, so let the PrefabManager delete them before the sceneinfo does below.
+    SAFE_DELETE( m_pPrefabManager );
 
-            delete m_Components[i].RemHead();
-        }
-    }
-
-#if 0 //MYFW_USING_WX
-    typedef std::map<int, SceneInfo>::iterator it_type;
-    for( it_type iterator = m_pSceneInfoMap.begin(); iterator != m_pSceneInfoMap.end(); )
-    {
-        unsigned int sceneid = iterator->first;
-        SceneInfo* pSceneInfo = &iterator->second;
-#else
+    // Reset all scenes, i.e. Delete all GameObjects from each scene
     for( unsigned int i=0; i<MAX_SCENES_LOADED; i++ )
     {
         if( m_pSceneInfoMap[i].m_InUse == false )
             continue;
 
         SceneInfo* pSceneInfo = &m_pSceneInfoMap[i];
-#endif // MYFW_USING_WX
 
         pSceneInfo->Reset();
     }
@@ -142,8 +127,6 @@ ComponentSystemManager::~ComponentSystemManager()
     SAFE_DELETE( m_pGameObjectTemplateManager );
 #endif
     SAFE_DELETE( m_pComponentTypeManager );
-
-    SAFE_DELETE( m_pPrefabManager );
     
     SAFE_DELETE( m_pSceneGraph );
 
@@ -1404,7 +1387,6 @@ GameObject* ComponentSystemManager::CreateGameObject(bool manageobject, int scen
 {
     GameObject* pGameObject = MyNew GameObject( manageobject, sceneid, isfolder, hastransform, pPrefab );
     
-    if( manageobject )
     {
         unsigned int id = GetNextGameObjectIDAndIncrement( sceneid );
         pGameObject->SetID( id );

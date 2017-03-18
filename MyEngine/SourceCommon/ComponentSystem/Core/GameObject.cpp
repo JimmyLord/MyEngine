@@ -64,8 +64,7 @@ GameObject::~GameObject()
     if( this->Prev != 0 )
         Remove();
 
-    // if this object is managed, the ComponentSystemManager will delete the components.
-    if( m_Managed == false )
+    // Delete components
     {
         while( m_Components.Count() )
         {
@@ -887,12 +886,9 @@ ComponentBase* GameObject::AddExistingComponent(ComponentBase* pComponent, bool 
 
         m_Components.Add( pComponent );
 
-        // if this gameobject is managed, add this component to the system managers component list.
-        if( m_Managed )
-        {
-            if( pComponent->Prev == 0 )
-                g_pComponentSystemManager->AddComponent( pComponent );
-        }
+        // if the component isn't already in the system managers component list, add it, whether gameobject is managed or not
+        if( pComponent->Prev == 0 )
+            g_pComponentSystemManager->AddComponent( pComponent );
     }
 
     // register this components callbacks.
