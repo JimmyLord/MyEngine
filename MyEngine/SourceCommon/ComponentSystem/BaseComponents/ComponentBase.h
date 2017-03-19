@@ -304,6 +304,8 @@ public:
     void SetDivorced(int index, bool divorced);
     bool DoesVariableMatchParent(int controlid, ComponentVariable* pVar);
     void SyncUndivorcedVariables(ComponentBase* pSourceComponent);
+    void SyncVariable(ComponentBase* pChildComponent, ComponentVariable* pVar);
+    void SyncChildren(ComponentBase* pChildComponent, int component, double oldvalue, void* oldpointer);
 
     // Watch panel callbacks for component variables.
     // if any variables value changed, then react.

@@ -1041,7 +1041,209 @@ bool ComponentBase::DoesVariableMatchParent(int controlid, ComponentVariable* pV
 
 void ComponentBase::SyncUndivorcedVariables(ComponentBase* pSourceComponent)
 {
-    // TODO: actual sync of variables.
+    // Sync variables.
+    CPPListHead* pVariableList = GetComponentVariableList();
+
+    if( pVariableList )
+    {
+        for( CPPListNode* pNode = pVariableList->GetHead(); pNode; pNode = pNode->GetNext() )
+        {
+            ComponentVariable* pVar = (ComponentVariable*)pNode;
+            MyAssert( pVar );
+
+            pSourceComponent->SyncVariable( this, pVar );
+        }
+    }
+}
+
+void ComponentBase::SyncVariable(ComponentBase* pChildComponent, ComponentVariable* pVar)
+{
+    if( pChildComponent->IsDivorced( pVar->m_Index ) == true )
+        return;
+
+    // Compare the variable.
+    switch( pVar->m_Type )
+    {
+    case ComponentVariableType_Int:
+    case ComponentVariableType_Enum:
+        {
+            int offset = pVar->m_Offset;
+
+            double oldvalue = *(int*)((char*)pChildComponent + offset);
+
+            // copy the value, call the callback function and update children.
+            *(int*)((char*)pChildComponent + offset) = *(int*)((char*)this + offset);
+            //if( pVar->m_pOnValueChangedCallbackFunc )
+            //    (pChildComponent->*pVar->m_pOnValueChangedCallbackFunc)( pVar, -1, true, oldvalue );
+
+            //pChildComponent->SyncChildren( pVar, 0, oldvalue, 0 );
+        }
+        break;
+
+    case ComponentVariableType_UnsignedInt:
+    case ComponentVariableType_Flags:
+        {
+            int offset = pVar->m_Offset;
+
+            double oldvalue = *(unsigned int*)((char*)pChildComponent + offset);
+
+            // copy the value, call the callback function and update children.
+            *(unsigned int*)((char*)pChildComponent + offset) = *(unsigned int*)((char*)this + offset);
+            //if( pVar->m_pOnValueChangedCallbackFunc )
+            //    (pChildComponent->*pVar->m_pOnValueChangedCallbackFunc)( pVar, -1, true, oldvalue );
+
+            //pChildComponent->SyncChildren( pVar, 0, oldvalue, 0 );
+        }
+        break;
+
+    //ComponentVariableType_Char,
+    //ComponentVariableType_UnsignedChar,
+
+    case ComponentVariableType_Bool:
+        {
+            int offset = pVar->m_Offset;
+
+            double oldvalue = *(bool*)((char*)pChildComponent + offset);
+
+            // copy the value, call the callback function and update children.
+            *(bool*)((char*)pChildComponent + offset) = *(bool*)((char*)this + offset);
+            //if( pVar->m_pOnValueChangedCallbackFunc )
+            //    (pChildComponent->*pVar->m_pOnValueChangedCallbackFunc)( pVar, -1, true, oldvalue );
+
+            //pChildComponent->SyncChildren( pVar, 0, oldvalue, 0 );
+        }
+        break;
+
+    case ComponentVariableType_Float:
+        {
+            int offset = pVar->m_Offset;
+            
+            double oldvalue = *(float*)((char*)pChildComponent + offset);
+
+            // copy the value, call the callback function and update children.
+            *(float*)((char*)pChildComponent + offset) = *(float*)((char*)this + offset);
+            //if( pVar->m_pOnValueChangedCallbackFunc )
+            //    (pChildComponent->*pVar->m_pOnValueChangedCallbackFunc)( pVar, -1, true, oldvalue );
+
+            //pChildComponent->SyncChildren( pVar, 0, oldvalue, 0 );
+        }
+        break;
+
+    //ComponentVariableType_Double,
+    //ComponentVariableType_ColorFloat,
+
+    case ComponentVariableType_ColorByte:
+        for( int component = 0; component < 4; component++ )
+        {
+            int offset = pVar->m_Offset + sizeof(unsigned char)*component;
+
+            double oldvalue = *(unsigned char*)((char*)pChildComponent + offset);
+
+            // copy the value, call the callback function and update children.
+            *(unsigned char*)((char*)pChildComponent + offset) = *(unsigned char*)((char*)this + offset);
+            //if( pVar->m_pOnValueChangedCallbackFunc )
+            //    (pChildComponent->*pVar->m_pOnValueChangedCallbackFunc)( pVar, -1, true, oldvalue );
+
+            //pChildComponent->SyncChildren( pVar, component, oldvalue, 0 );
+        }
+        break;
+
+    case ComponentVariableType_Vector2:
+    case ComponentVariableType_Vector3:
+        for( int component = 0; component < 3; component++ )
+        {
+            if( pVar->m_Type == ComponentVariableType_Vector2 && component >= 2 )
+                continue;
+
+            int offset = pVar->m_Offset + component*4;
+
+            double oldvalue = *(float*)((char*)pChildComponent + offset);
+
+            // copy the value, call the callback function and update children.
+            *(float*)((char*)pChildComponent + offset) = *(float*)((char*)this + offset);
+            //if( pVar->m_pOnValueChangedCallbackFunc )
+            //    (pChildComponent->*pVar->m_pOnValueChangedCallbackFunc)( pVar, -1, true, oldvalue );
+
+            //pChildComponent->SyncChildren( pVar, component, oldvalue, 0 );
+        }
+        break;
+
+    case ComponentVariableType_Vector2Int:
+    case ComponentVariableType_Vector3Int:
+        for( int component = 0; component < 3; component++ )
+        {
+            if( pVar->m_Type == ComponentVariableType_Vector2 && component >= 2 )
+                continue;
+
+            int offset = pVar->m_Offset + component*4;
+            
+            double oldvalue = *(int*)((char*)pChildComponent + offset);
+
+            // copy the value, call the callback function and update children.
+            *(int*)((char*)pChildComponent + offset) = *(int*)((char*)this + offset);
+            //if( pVar->m_pOnValueChangedCallbackFunc )
+            //    (pChildComponent->*pVar->m_pOnValueChangedCallbackFunc)( pVar, -1, true, oldvalue );
+
+            //pChildComponent->SyncChildren( pVar, component, oldvalue, 0 );
+        }
+        break;
+
+    case ComponentVariableType_GameObjectPtr:
+        MyAssert( false );
+        break;
+
+    case ComponentVariableType_FilePtr:
+    case ComponentVariableType_ComponentPtr:
+    case ComponentVariableType_MaterialPtr:
+    case ComponentVariableType_SoundCuePtr:
+        // TODO: implement this case
+        //MyAssert( false );
+        {
+            //int offset = pVar->m_Offset;
+            //    
+            //// call the callback function and update children.
+            //MyAssert( pVar->m_pOnValueChangedCallbackFunc );
+            //if( pVar->m_pOnValueChangedCallbackFunc )
+            //{
+            //    void* oldpointer2 = (pChildComponent->*pVar->m_pOnValueChangedCallbackFunc)( pVar, controlid, finishedchanging, oldvalue );
+            //    //MyAssert( oldpointer2 == oldpointer );
+            //}
+
+            //pChildComponent->UpdateChildrenWithNewValue( fromdraganddrop, pVar, controlid, finishedchanging, oldvalue, oldpointer, x, y, newpointer );
+        }
+        break;
+
+    case ComponentVariableType_PointerIndirect:
+        // TODO: implement this case
+        //MyAssert( false );
+        {
+            //else if( newpointer )
+            //{
+            //    MyAssert( pVar->m_pSetPointerValueCallBackFunc );
+            //    if( pVar->m_pSetPointerValueCallBackFunc )
+            //    {
+            //        (pChildComponent->*pVar->m_pSetPointerValueCallBackFunc)( pVar, newpointer );
+            //    }
+            //}
+            //else
+            //{
+            //    MyAssert( pVar->m_pOnValueChangedCallbackFunc );
+            //    if( pVar->m_pOnValueChangedCallbackFunc )
+            //    {
+            //        void* oldpointer2 = (pChildComponent->*pVar->m_pOnValueChangedCallbackFunc)( pVar, controlid, finishedchanging, oldvalue );
+            //        //MyAssert( oldpointer2 == oldpointer );
+            //    }
+            //}
+
+            //pChildComponent->UpdateChildrenWithNewValue( fromdraganddrop, pVar, controlid, finishedchanging, oldvalue, oldpointer, x, y, newpointer );
+        }
+        break;
+
+    case ComponentVariableType_NumTypes:
+    default:
+        MyAssert( false );
+        break;
+    }
 }
 
 void ComponentBase::OnValueChangedVariable(int controlid, bool finishedchanging, double oldvalue)
