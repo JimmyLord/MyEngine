@@ -1072,11 +1072,14 @@ void ComponentBase::SyncVariable(ComponentBase* pChildComponent, ComponentVariab
             double oldvalue = *(int*)((char*)pChildComponent + offset);
 
             // copy the value, call the callback function and update children.
-            *(int*)((char*)pChildComponent + offset) = *(int*)((char*)this + offset);
-            //if( pVar->m_pOnValueChangedCallbackFunc )
-            //    (pChildComponent->*pVar->m_pOnValueChangedCallbackFunc)( pVar, -1, true, oldvalue );
+            if( *(int*)((char*)pChildComponent + offset) != *(int*)((char*)this + offset) )
+            {
+                *(int*)((char*)pChildComponent + offset) = *(int*)((char*)this + offset);
+                if( pVar->m_pOnValueChangedCallbackFunc )
+                    (pChildComponent->*pVar->m_pOnValueChangedCallbackFunc)( pVar, -1, true, oldvalue, 0 );
 
-            //pChildComponent->SyncChildren( pVar, 0, oldvalue, 0 );
+                //pChildComponent->SyncChildren( pVar, 0, oldvalue, 0 );
+            }
         }
         break;
 
@@ -1088,11 +1091,14 @@ void ComponentBase::SyncVariable(ComponentBase* pChildComponent, ComponentVariab
             double oldvalue = *(unsigned int*)((char*)pChildComponent + offset);
 
             // copy the value, call the callback function and update children.
-            *(unsigned int*)((char*)pChildComponent + offset) = *(unsigned int*)((char*)this + offset);
-            //if( pVar->m_pOnValueChangedCallbackFunc )
-            //    (pChildComponent->*pVar->m_pOnValueChangedCallbackFunc)( pVar, -1, true, oldvalue );
+            if( *(unsigned int*)((char*)pChildComponent + offset) != *(unsigned int*)((char*)this + offset) )
+            {
+                *(unsigned int*)((char*)pChildComponent + offset) = *(unsigned int*)((char*)this + offset);
+                if( pVar->m_pOnValueChangedCallbackFunc )
+                    (pChildComponent->*pVar->m_pOnValueChangedCallbackFunc)( pVar, -1, true, oldvalue, 0 );
 
-            //pChildComponent->SyncChildren( pVar, 0, oldvalue, 0 );
+                //pChildComponent->SyncChildren( pVar, 0, oldvalue, 0 );
+            }
         }
         break;
 
@@ -1106,11 +1112,14 @@ void ComponentBase::SyncVariable(ComponentBase* pChildComponent, ComponentVariab
             double oldvalue = *(bool*)((char*)pChildComponent + offset);
 
             // copy the value, call the callback function and update children.
-            *(bool*)((char*)pChildComponent + offset) = *(bool*)((char*)this + offset);
-            //if( pVar->m_pOnValueChangedCallbackFunc )
-            //    (pChildComponent->*pVar->m_pOnValueChangedCallbackFunc)( pVar, -1, true, oldvalue );
+            if( *(bool*)((char*)pChildComponent + offset) != *(bool*)((char*)this + offset) )
+            {
+                *(bool*)((char*)pChildComponent + offset) = *(bool*)((char*)this + offset);
+                if( pVar->m_pOnValueChangedCallbackFunc )
+                    (pChildComponent->*pVar->m_pOnValueChangedCallbackFunc)( pVar, -1, true, oldvalue, 0 );
 
-            //pChildComponent->SyncChildren( pVar, 0, oldvalue, 0 );
+                //pChildComponent->SyncChildren( pVar, 0, oldvalue, 0 );
+            }
         }
         break;
 
@@ -1121,11 +1130,14 @@ void ComponentBase::SyncVariable(ComponentBase* pChildComponent, ComponentVariab
             double oldvalue = *(float*)((char*)pChildComponent + offset);
 
             // copy the value, call the callback function and update children.
-            *(float*)((char*)pChildComponent + offset) = *(float*)((char*)this + offset);
-            //if( pVar->m_pOnValueChangedCallbackFunc )
-            //    (pChildComponent->*pVar->m_pOnValueChangedCallbackFunc)( pVar, -1, true, oldvalue );
+            if( *(float*)((char*)pChildComponent + offset) != *(float*)((char*)this + offset) )
+            {
+                *(float*)((char*)pChildComponent + offset) = *(float*)((char*)this + offset);
+                if( pVar->m_pOnValueChangedCallbackFunc )
+                    (pChildComponent->*pVar->m_pOnValueChangedCallbackFunc)( pVar, -1, true, oldvalue, 0 );
 
-            //pChildComponent->SyncChildren( pVar, 0, oldvalue, 0 );
+                //pChildComponent->SyncChildren( pVar, 0, oldvalue, 0 );
+            }
         }
         break;
 
@@ -1140,11 +1152,14 @@ void ComponentBase::SyncVariable(ComponentBase* pChildComponent, ComponentVariab
             double oldvalue = *(unsigned char*)((char*)pChildComponent + offset);
 
             // copy the value, call the callback function and update children.
-            *(unsigned char*)((char*)pChildComponent + offset) = *(unsigned char*)((char*)this + offset);
-            //if( pVar->m_pOnValueChangedCallbackFunc )
-            //    (pChildComponent->*pVar->m_pOnValueChangedCallbackFunc)( pVar, -1, true, oldvalue );
+            if( *(unsigned char*)((char*)pChildComponent + offset) != *(unsigned char*)((char*)this + offset) )
+            {
+                *(unsigned char*)((char*)pChildComponent + offset) = *(unsigned char*)((char*)this + offset);
+                if( pVar->m_pOnValueChangedCallbackFunc )
+                    (pChildComponent->*pVar->m_pOnValueChangedCallbackFunc)( pVar, -1, true, oldvalue, 0 );
 
-            //pChildComponent->SyncChildren( pVar, component, oldvalue, 0 );
+                //pChildComponent->SyncChildren( pVar, component, oldvalue, 0 );
+            }
         }
         break;
 
@@ -1160,11 +1175,14 @@ void ComponentBase::SyncVariable(ComponentBase* pChildComponent, ComponentVariab
             double oldvalue = *(float*)((char*)pChildComponent + offset);
 
             // copy the value, call the callback function and update children.
-            *(float*)((char*)pChildComponent + offset) = *(float*)((char*)this + offset);
-            //if( pVar->m_pOnValueChangedCallbackFunc )
-            //    (pChildComponent->*pVar->m_pOnValueChangedCallbackFunc)( pVar, -1, true, oldvalue );
+            if( *(float*)((char*)pChildComponent + offset) != *(float*)((char*)this + offset) )
+            {
+                *(float*)((char*)pChildComponent + offset) = *(float*)((char*)this + offset);
+                if( pVar->m_pOnValueChangedCallbackFunc )
+                    (pChildComponent->*pVar->m_pOnValueChangedCallbackFunc)( pVar, -1, true, oldvalue, 0 );
 
-            //pChildComponent->SyncChildren( pVar, component, oldvalue, 0 );
+                //pChildComponent->SyncChildren( pVar, component, oldvalue, 0 );
+            }
         }
         break;
 
@@ -1180,11 +1198,14 @@ void ComponentBase::SyncVariable(ComponentBase* pChildComponent, ComponentVariab
             double oldvalue = *(int*)((char*)pChildComponent + offset);
 
             // copy the value, call the callback function and update children.
-            *(int*)((char*)pChildComponent + offset) = *(int*)((char*)this + offset);
-            //if( pVar->m_pOnValueChangedCallbackFunc )
-            //    (pChildComponent->*pVar->m_pOnValueChangedCallbackFunc)( pVar, -1, true, oldvalue );
+            if( *(int*)((char*)pChildComponent + offset) != *(int*)((char*)this + offset) )
+            {
+                *(int*)((char*)pChildComponent + offset) = *(int*)((char*)this + offset);
+                if( pVar->m_pOnValueChangedCallbackFunc )
+                    (pChildComponent->*pVar->m_pOnValueChangedCallbackFunc)( pVar, -1, true, oldvalue, 0 );
 
-            //pChildComponent->SyncChildren( pVar, component, oldvalue, 0 );
+                //pChildComponent->SyncChildren( pVar, component, oldvalue, 0 );
+            }
         }
         break;
 
@@ -1196,20 +1217,23 @@ void ComponentBase::SyncVariable(ComponentBase* pChildComponent, ComponentVariab
     case ComponentVariableType_ComponentPtr:
     case ComponentVariableType_MaterialPtr:
     case ComponentVariableType_SoundCuePtr:
-        // TODO: implement this case
-        //MyAssert( false );
         {
-            //int offset = pVar->m_Offset;
-            //    
-            //// call the callback function and update children.
-            //MyAssert( pVar->m_pOnValueChangedCallbackFunc );
-            //if( pVar->m_pOnValueChangedCallbackFunc )
-            //{
-            //    void* oldpointer2 = (pChildComponent->*pVar->m_pOnValueChangedCallbackFunc)( pVar, controlid, finishedchanging, oldvalue );
-            //    //MyAssert( oldpointer2 == oldpointer );
-            //}
+            int offset = pVar->m_Offset;
 
-            //pChildComponent->UpdateChildrenWithNewValue( fromdraganddrop, pVar, controlid, finishedchanging, oldvalue, oldpointer, x, y, newpointer );
+            // call the callback function (which will copy the value) and update children.
+            MyAssert( pVar->m_pOnValueChangedCallbackFunc );
+            if( *(void**)((char*)pChildComponent + offset) != *(void**)((char*)this + offset) )
+            {
+                void* newpointer = *(void**)((char*)this + offset);
+
+                if( pVar->m_pOnValueChangedCallbackFunc )
+                {
+                    void* oldpointer2 = (pChildComponent->*pVar->m_pOnValueChangedCallbackFunc)( pVar, -1, true, 0, newpointer );
+                    //MyAssert( oldpointer2 == oldpointer );
+                }
+
+                //pChildComponent->UpdateChildrenWithNewValue( fromdraganddrop, pVar, controlid, finishedchanging, oldvalue, oldpointer, x, y, newpointer );
+            }
         }
         break;
 
@@ -1255,7 +1279,7 @@ void ComponentBase::OnValueChangedVariable(int controlid, bool finishedchanging,
         void* oldpointer = 0;
 
         if( pVar->m_pOnValueChangedCallbackFunc )
-            oldpointer = (this->*pVar->m_pOnValueChangedCallbackFunc)( pVar, controlid, finishedchanging, oldvalue );
+            oldpointer = (this->*pVar->m_pOnValueChangedCallbackFunc)( pVar, controlid, finishedchanging, oldvalue, 0 );
 
         if( m_pGameObject && m_pGameObject->GetGameObjectThisInheritsFrom() )
         {
@@ -1792,7 +1816,7 @@ void ComponentBase::UpdateOtherComponentWithNewValue(ComponentBase* pComponent, 
             // copy the value, call the callback function and update children.
             *(int*)((char*)pChildComponent + offset) = *(int*)((char*)this + offset);
             if( pVar->m_pOnValueChangedCallbackFunc )
-                (pChildComponent->*pVar->m_pOnValueChangedCallbackFunc)( pVar, controlid, finishedchanging, oldvalue );
+                (pChildComponent->*pVar->m_pOnValueChangedCallbackFunc)( pVar, controlid, finishedchanging, oldvalue, 0 );
 
             pChildComponent->UpdateChildrenWithNewValue( fromdraganddrop, pVar, controlid, finishedchanging, oldvalue, oldpointer, x, y, newpointer );
         }
@@ -1809,7 +1833,7 @@ void ComponentBase::UpdateOtherComponentWithNewValue(ComponentBase* pComponent, 
             // copy the value, call the callback function and update children.
             *(unsigned int*)((char*)pChildComponent + offset) = *(unsigned int*)((char*)this + offset);
             if( pVar->m_pOnValueChangedCallbackFunc )
-                (pChildComponent->*pVar->m_pOnValueChangedCallbackFunc)( pVar, controlid, finishedchanging, oldvalue );
+                (pChildComponent->*pVar->m_pOnValueChangedCallbackFunc)( pVar, controlid, finishedchanging, oldvalue, 0 );
 
             pChildComponent->UpdateChildrenWithNewValue( fromdraganddrop, pVar, controlid, finishedchanging, oldvalue, oldpointer, x, y, newpointer );
         }
@@ -1828,7 +1852,7 @@ void ComponentBase::UpdateOtherComponentWithNewValue(ComponentBase* pComponent, 
             // copy the value, call the callback function and update children.
             *(bool*)((char*)pChildComponent + offset) = *(bool*)((char*)this + offset);
             if( pVar->m_pOnValueChangedCallbackFunc )
-                (pChildComponent->*pVar->m_pOnValueChangedCallbackFunc)( pVar, controlid, finishedchanging, oldvalue );
+                (pChildComponent->*pVar->m_pOnValueChangedCallbackFunc)( pVar, controlid, finishedchanging, oldvalue, 0 );
 
             pChildComponent->UpdateChildrenWithNewValue( fromdraganddrop, pVar, controlid, finishedchanging, oldvalue, oldpointer, x, y, newpointer );
         }
@@ -1844,7 +1868,7 @@ void ComponentBase::UpdateOtherComponentWithNewValue(ComponentBase* pComponent, 
             // copy the value, call the callback function and update children.
             *(float*)((char*)pChildComponent + offset) = *(float*)((char*)this + offset);
             if( pVar->m_pOnValueChangedCallbackFunc )
-                (pChildComponent->*pVar->m_pOnValueChangedCallbackFunc)( pVar, controlid, finishedchanging, oldvalue );
+                (pChildComponent->*pVar->m_pOnValueChangedCallbackFunc)( pVar, controlid, finishedchanging, oldvalue, 0 );
 
             pChildComponent->UpdateChildrenWithNewValue( fromdraganddrop, pVar, controlid, finishedchanging, oldvalue, oldpointer, x, y, newpointer );
         }
@@ -1872,7 +1896,7 @@ void ComponentBase::UpdateOtherComponentWithNewValue(ComponentBase* pComponent, 
                     ColorByte* newcolor = (ColorByte*)((char*)this + offset);
                     *childcolor = *newcolor;
                     if( pVar->m_pOnValueChangedCallbackFunc )
-                        (pChildComponent->*pVar->m_pOnValueChangedCallbackFunc)( pVar, controlid, finishedchanging, oldvalue );
+                        (pChildComponent->*pVar->m_pOnValueChangedCallbackFunc)( pVar, controlid, finishedchanging, oldvalue, 0 );
                 }
             }
             else
@@ -1883,7 +1907,7 @@ void ComponentBase::UpdateOtherComponentWithNewValue(ComponentBase* pComponent, 
 
                 *(unsigned char*)((char*)pChildComponent + offset) = *(unsigned char*)((char*)this + offset);
                 if( pVar->m_pOnValueChangedCallbackFunc )
-                    (pChildComponent->*pVar->m_pOnValueChangedCallbackFunc)( pVar, controlid, finishedchanging, oldvalue );
+                    (pChildComponent->*pVar->m_pOnValueChangedCallbackFunc)( pVar, controlid, finishedchanging, oldvalue, 0 );
             }
 
             pChildComponent->UpdateChildrenWithNewValue( fromdraganddrop, pVar, controlid, finishedchanging, oldvalue, oldpointer, x, y, newpointer );
@@ -1901,7 +1925,7 @@ void ComponentBase::UpdateOtherComponentWithNewValue(ComponentBase* pComponent, 
             // copy the value, call the callback function and update children.
             *(float*)((char*)pChildComponent + offset) = *(float*)((char*)this + offset);
             if( pVar->m_pOnValueChangedCallbackFunc )
-                (pChildComponent->*pVar->m_pOnValueChangedCallbackFunc)( pVar, controlid, finishedchanging, oldvalue );
+                (pChildComponent->*pVar->m_pOnValueChangedCallbackFunc)( pVar, controlid, finishedchanging, oldvalue, 0 );
 
             pChildComponent->UpdateChildrenWithNewValue( fromdraganddrop, pVar, controlid, finishedchanging, oldvalue, oldpointer, x, y, newpointer );
         }
@@ -1918,7 +1942,7 @@ void ComponentBase::UpdateOtherComponentWithNewValue(ComponentBase* pComponent, 
             // copy the value, call the callback function and update children.
             *(int*)((char*)pChildComponent + offset) = *(int*)((char*)this + offset);
             if( pVar->m_pOnValueChangedCallbackFunc )
-                (pChildComponent->*pVar->m_pOnValueChangedCallbackFunc)( pVar, controlid, finishedchanging, oldvalue );
+                (pChildComponent->*pVar->m_pOnValueChangedCallbackFunc)( pVar, controlid, finishedchanging, oldvalue, 0 );
 
             pChildComponent->UpdateChildrenWithNewValue( fromdraganddrop, pVar, controlid, finishedchanging, oldvalue, oldpointer, x, y, newpointer );
         }
@@ -1959,7 +1983,9 @@ void ComponentBase::UpdateOtherComponentWithNewValue(ComponentBase* pComponent, 
                 MyAssert( pVar->m_pOnValueChangedCallbackFunc );
                 if( pVar->m_pOnValueChangedCallbackFunc )
                 {
-                    void* oldpointer2 = (pChildComponent->*pVar->m_pOnValueChangedCallbackFunc)( pVar, controlid, finishedchanging, oldvalue );
+                    void* newpointer = *(void**)((char*)this + offset);
+
+                    void* oldpointer2 = (pChildComponent->*pVar->m_pOnValueChangedCallbackFunc)( pVar, controlid, finishedchanging, oldvalue, newpointer );
                     //MyAssert( oldpointer2 == oldpointer );
                 }
             }
@@ -1995,7 +2021,7 @@ void ComponentBase::UpdateOtherComponentWithNewValue(ComponentBase* pComponent, 
                 MyAssert( pVar->m_pOnValueChangedCallbackFunc );
                 if( pVar->m_pOnValueChangedCallbackFunc )
                 {
-                    void* oldpointer2 = (pChildComponent->*pVar->m_pOnValueChangedCallbackFunc)( pVar, controlid, finishedchanging, oldvalue );
+                    void* oldpointer2 = (pChildComponent->*pVar->m_pOnValueChangedCallbackFunc)( pVar, controlid, finishedchanging, oldvalue, 0 );
                     //MyAssert( oldpointer2 == oldpointer );
                 }
             }

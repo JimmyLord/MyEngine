@@ -108,7 +108,7 @@ void ComponentLight::FillPropertiesWindow(bool clear, bool addcomponentvariables
     }
 }
 
-void* ComponentLight::OnValueChanged(ComponentVariable* pVar, int controlid, bool finishedchanging, double oldvalue)
+void* ComponentLight::OnValueChanged(ComponentVariable* pVar, int controlid, bool finishedchanging, double oldvalue, void* newpointer)
 {
     void* oldpointer = 0;
 

@@ -133,7 +133,7 @@ void* ComponentAudioPlayer::OnDrop(ComponentVariable* pVar, wxCoord x, wxCoord y
     return oldvalue;
 }
 
-void* ComponentAudioPlayer::OnValueChanged(ComponentVariable* pVar, int controlid, bool finishedchanging, double oldvalue)
+void* ComponentAudioPlayer::OnValueChanged(ComponentVariable* pVar, int controlid, bool finishedchanging, double oldvalue, void* newpointer)
 {
     void* oldpointer = 0;
 

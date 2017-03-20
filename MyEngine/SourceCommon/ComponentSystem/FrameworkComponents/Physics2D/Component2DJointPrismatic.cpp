@@ -156,7 +156,7 @@ void* Component2DJointPrismatic::OnDrop(ComponentVariable* pVar, wxCoord x, wxCo
     return oldvalue;
 }
 
-void* Component2DJointPrismatic::OnValueChanged(ComponentVariable* pVar, int controlid, bool finishedchanging, double oldvalue)
+void* Component2DJointPrismatic::OnValueChanged(ComponentVariable* pVar, int controlid, bool finishedchanging, double oldvalue, void* newpointer)
 {
     void* oldpointer = 0;
 

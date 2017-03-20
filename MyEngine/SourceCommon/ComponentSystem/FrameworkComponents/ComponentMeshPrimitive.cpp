@@ -146,7 +146,7 @@ bool ComponentMeshPrimitive::ShouldVariableBeAddedToWatchPanel(ComponentVariable
     return ComponentMesh::ShouldVariableBeAddedToWatchPanel( pVar );
 }
 
-void* ComponentMeshPrimitive::OnValueChanged(ComponentVariable* pVar, int controlid, bool finishedchanging, double oldvalue)
+void* ComponentMeshPrimitive::OnValueChanged(ComponentVariable* pVar, int controlid, bool finishedchanging, double oldvalue, void* newpointer)
 {
     void* oldpointer = 0;
 
@@ -154,7 +154,7 @@ void* ComponentMeshPrimitive::OnValueChanged(ComponentVariable* pVar, int contro
     {
         CreatePrimitive();
 
-        if( controlid == m_ControlID_MeshPrimitiveType )
+        if( controlid != -1 && controlid == m_ControlID_MeshPrimitiveType )
         {
             g_pPanelWatch->SetNeedsRefresh();
         }

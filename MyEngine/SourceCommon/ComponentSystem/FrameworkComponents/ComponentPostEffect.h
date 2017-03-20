@@ -61,7 +61,7 @@ public:
     void OnDropMaterial(int controlid, wxCoord x, wxCoord y);
     
     //void* OnDrop(ComponentVariable* pVar, wxCoord x, wxCoord y);    
-    void* OnValueChanged(ComponentVariable* pVar, int controlid, bool finishedchanging, double oldvalue);
+    void* OnValueChanged(ComponentVariable* pVar, int controlid, bool finishedchanging, double oldvalue, void* newpointer);
 #endif //MYFW_USING_WX
 };
 

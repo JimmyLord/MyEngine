@@ -157,7 +157,7 @@ void* Component2DJointRevolute::OnDrop(ComponentVariable* pVar, wxCoord x, wxCoo
     return oldvalue;
 }
 
-void* Component2DJointRevolute::OnValueChanged(ComponentVariable* pVar, int controlid, bool finishedchanging, double oldvalue)
+void* Component2DJointRevolute::OnValueChanged(ComponentVariable* pVar, int controlid, bool finishedchanging, double oldvalue, void* newpointer)
 {
     void* oldpointer = 0;
 

@@ -127,7 +127,7 @@ void* Component2DJointWeld::OnDrop(ComponentVariable* pVar, wxCoord x, wxCoord y
     return oldvalue;
 }
 
-void* Component2DJointWeld::OnValueChanged(ComponentVariable* pVar, int controlid, bool finishedchanging, double oldvalue)
+void* Component2DJointWeld::OnValueChanged(ComponentVariable* pVar, int controlid, bool finishedchanging, double oldvalue, void* newpointer)
 {
     void* oldpointer = 0;
 

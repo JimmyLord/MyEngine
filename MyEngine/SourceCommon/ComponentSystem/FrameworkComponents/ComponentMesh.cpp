@@ -156,7 +156,7 @@ bool ComponentMesh::ShouldVariableBeAddedToWatchPanel(ComponentVariable* pVar)
     return true;
 }
 
-void* ComponentMesh::OnValueChanged(ComponentVariable* pVar, int controlid, bool finishedchanging, double oldvalue)
+void* ComponentMesh::OnValueChanged(ComponentVariable* pVar, int controlid, bool finishedchanging, double oldvalue, void* newpointer)
 {
     void* oldpointer = 0;
 
@@ -171,15 +171,22 @@ void* ComponentMesh::OnValueChanged(ComponentVariable* pVar, int controlid, bool
                     materialthatchanged = i;
             }
 
-            MyAssert( pVar->m_ControlID != -1 );
-
-            wxString text = g_pPanelWatch->GetVariableProperties( pVar->m_ControlID )->m_Handle_TextCtrl->GetValue();
-            if( text == "" || text == "none" )
+            if( newpointer != 0 )
             {
-                g_pPanelWatch->ChangeDescriptionForPointerWithDescription( pVar->m_ControlID, "none" );
-
                 oldpointer = GetMaterial( materialthatchanged );
-                g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_ChangeMaterialOnMesh( this, materialthatchanged, 0 ) );
+                MaterialDefinition* pNewMaterial = (MaterialDefinition*)newpointer;
+                g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_ChangeMaterialOnMesh( this, materialthatchanged, pNewMaterial ) );
+            }
+            else if( pVar->m_ControlID != -1 )
+            {
+                wxString text = g_pPanelWatch->GetVariableProperties( pVar->m_ControlID )->m_Handle_TextCtrl->GetValue();
+                if( text == "" || text == "none" )
+                {
+                    g_pPanelWatch->ChangeDescriptionForPointerWithDescription( pVar->m_ControlID, "none" );
+
+                    oldpointer = GetMaterial( materialthatchanged );
+                    g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_ChangeMaterialOnMesh( this, materialthatchanged, 0 ) );
+                }
             }
         }
 

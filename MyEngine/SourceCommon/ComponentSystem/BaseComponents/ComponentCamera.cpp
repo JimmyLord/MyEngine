@@ -112,7 +112,7 @@ void ComponentCamera::FillPropertiesWindow(bool clear, bool addcomponentvariable
     }
 }
 
-void* ComponentCamera::OnValueChanged(ComponentVariable* pVar, int controlid, bool finishedchanging, double oldvalue)
+void* ComponentCamera::OnValueChanged(ComponentVariable* pVar, int controlid, bool finishedchanging, double oldvalue, void* newpointer)
 {
     void* oldpointer = 0;
 
