@@ -155,16 +155,17 @@ void* ComponentMeshOBJ::OnValueChanged(ComponentVariable* pVar, int controlid, b
     {
         if( strcmp( pVar->m_Label, "OBJ" ) == 0 )
         {
-            MyAssert( pVar->m_ControlID != -1 );
-
-            wxString text = g_pPanelWatch->GetVariableProperties( pVar->m_ControlID )->m_Handle_TextCtrl->GetValue();
-            if( text == "" || text == "none" )
+            if( pVar->m_ControlID != -1 )
             {
-                g_pPanelWatch->ChangeDescriptionForPointerWithDescription( pVar->m_ControlID, "none" );
+                wxString text = g_pPanelWatch->GetVariableProperties( pVar->m_ControlID )->m_Handle_TextCtrl->GetValue();
+                if( text == "" || text == "none" )
+                {
+                    g_pPanelWatch->ChangeDescriptionForPointerWithDescription( pVar->m_ControlID, "none" );
 
-                if( m_pMesh )
-                    oldpointer = m_pMesh->m_pSourceFile;
-                SetMesh( 0 );
+                    if( m_pMesh )
+                        oldpointer = m_pMesh->m_pSourceFile;
+                    SetMesh( 0 );
+                }
             }
         }
     }

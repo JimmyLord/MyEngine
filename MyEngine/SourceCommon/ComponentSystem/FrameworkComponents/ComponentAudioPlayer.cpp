@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016 Jimmy Lord http://www.flatheadgames.com
+// Copyright (c) 2016-2017 Jimmy Lord http://www.flatheadgames.com
 //
 // This software is provided 'as-is', without any express or implied warranty.  In no event will the authors be held liable for any damages arising from the use of this software.
 // Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -139,10 +139,16 @@ void* ComponentAudioPlayer::OnValueChanged(ComponentVariable* pVar, int controli
 
     if( pVar->m_Offset == MyOffsetOf( this, &m_pSoundCue ) )
     {
-        MyAssert( pVar->m_ControlID != -1 );
-
-        // TODO: read the cue name or null it out
-        //m_SoundCueName[0] = 0;
+        if( newpointer != 0 )
+        {
+            MyAssert( false );
+            // TODO: implement this block
+        }
+        else if( pVar->m_ControlID != -1 )
+        {
+            // TODO: read the cue name or null it out
+            //m_SoundCueName[0] = 0;
+        }
     }
 
     return oldpointer;

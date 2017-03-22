@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016 Jimmy Lord http://www.flatheadgames.com
+// Copyright (c) 2016-2017 Jimmy Lord http://www.flatheadgames.com
 //
 // This software is provided 'as-is', without any express or implied warranty.  In no event will the authors be held liable for any damages arising from the use of this software.
 // Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -162,16 +162,22 @@ void* Component2DJointPrismatic::OnValueChanged(ComponentVariable* pVar, int con
 
     if( pVar->m_Offset == MyOffsetOf( this, &m_pSecondCollisionObject ) )
     {
-        MyAssert( pVar->m_ControlID != -1 );
-
-        wxString text = g_pPanelWatch->GetVariableProperties( pVar->m_ControlID )->m_Handle_TextCtrl->GetValue();
-        if( text == "" || text == "none" )
+        if( newpointer != 0 )
         {
-            g_pPanelWatch->ChangeDescriptionForPointerWithDescription( pVar->m_ControlID, "none" );
-            oldpointer = this->m_pSecondCollisionObject;
-            m_pSecondCollisionObject = 0;
+            MyAssert( false );
+            // TODO: implement this block
+        }
+        else if( pVar->m_ControlID != -1 )
+        {
+            wxString text = g_pPanelWatch->GetVariableProperties( pVar->m_ControlID )->m_Handle_TextCtrl->GetValue();
+            if( text == "" || text == "none" )
+            {
+                g_pPanelWatch->ChangeDescriptionForPointerWithDescription( pVar->m_ControlID, "none" );
+                oldpointer = this->m_pSecondCollisionObject;
+                m_pSecondCollisionObject = 0;
 
-            g_pPanelWatch->SetNeedsRefresh();
+                g_pPanelWatch->SetNeedsRefresh();
+            }
         }
     }
 

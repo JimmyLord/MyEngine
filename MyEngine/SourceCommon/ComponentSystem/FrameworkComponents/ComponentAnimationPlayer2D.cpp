@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016 Jimmy Lord http://www.flatheadgames.com
+// Copyright (c) 2016-2017 Jimmy Lord http://www.flatheadgames.com
 //
 // This software is provided 'as-is', without any express or implied warranty.  In no event will the authors be held liable for any damages arising from the use of this software.
 // Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -155,12 +155,20 @@ void* ComponentAnimationPlayer2D::OnValueChanged(ComponentVariable* pVar, int co
 
     if( strcmp( pVar->m_Label, "Animation File" ) == 0 )
     {
-        wxString text = g_pPanelWatch->GetVariableProperties( pVar->m_ControlID )->m_Handle_TextCtrl->GetValue();
-        if( text == "" || text == "none" || text == "no file" )
+        if( newpointer != 0 )
         {
-            g_pPanelWatch->ChangeDescriptionForPointerWithDescription( pVar->m_ControlID, "no file" );
-            oldpointer = m_pAnimationFile;
-            this->SetAnimationFile( 0 );
+            MyAssert( false );
+            // TODO: implement this block
+        }
+        else if( pVar->m_ControlID != -1 )
+        {
+            wxString text = g_pPanelWatch->GetVariableProperties( pVar->m_ControlID )->m_Handle_TextCtrl->GetValue();
+            if( text == "" || text == "none" || text == "no file" )
+            {
+                g_pPanelWatch->ChangeDescriptionForPointerWithDescription( pVar->m_ControlID, "no file" );
+                oldpointer = m_pAnimationFile;
+                this->SetAnimationFile( 0 );
+            }
         }
     }
 

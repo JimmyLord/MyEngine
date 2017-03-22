@@ -235,14 +235,21 @@ void* ComponentTransform::OnValueChanged(ComponentVariable* pVar, int controlid,
 
     if( pVar->m_Offset == MyOffsetOf( this, &m_pParentTransform ) )
     {
-        MyAssert( pVar->m_ControlID != -1 );
-
-        wxString text = g_pPanelWatch->GetVariableProperties( pVar->m_ControlID )->m_Handle_TextCtrl->GetValue();
-        if( text == "" || text == "none" )
+        if( newpointer != 0 )
         {
-            g_pPanelWatch->ChangeDescriptionForPointerWithDescription( pVar->m_ControlID, "none" );
-            oldpointer = this->m_pParentTransform;
-            this->SetParentTransform( 0 );
+            MyAssert( false ); // this block is untested
+            oldpointer = this->GetParentTransform();
+            this->SetParentTransform( (ComponentTransform*)newpointer ); // TODO: add undo.
+        }
+        else if( pVar->m_ControlID != -1 )
+        {
+            wxString text = g_pPanelWatch->GetVariableProperties( pVar->m_ControlID )->m_Handle_TextCtrl->GetValue();
+            if( text == "" || text == "none" )
+            {
+                g_pPanelWatch->ChangeDescriptionForPointerWithDescription( pVar->m_ControlID, "none" );
+                oldpointer = this->m_pParentTransform;
+                this->SetParentTransform( 0 );
+            }
         }
     }
     else

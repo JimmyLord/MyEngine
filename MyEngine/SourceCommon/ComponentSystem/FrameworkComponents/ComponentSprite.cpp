@@ -199,15 +199,21 @@ void* ComponentSprite::OnValueChanged(ComponentVariable* pVar, int controlid, bo
 
     if( strcmp( pVar->m_Label, "Material" ) == 0 )
     {
-        MyAssert( pVar->m_ControlID != -1 );
-
-        wxString text = g_pPanelWatch->GetVariableProperties( pVar->m_ControlID )->m_Handle_TextCtrl->GetValue();
-        if( text == "" || text == "none" )
+        if( newpointer != 0 )
         {
-            g_pPanelWatch->ChangeDescriptionForPointerWithDescription( pVar->m_ControlID, "none" );
+            MyAssert( false );
+            // TODO: implement this block
+        }
+        else if( pVar->m_ControlID != -1 )
+        {
+            wxString text = g_pPanelWatch->GetVariableProperties( pVar->m_ControlID )->m_Handle_TextCtrl->GetValue();
+            if( text == "" || text == "none" )
+            {
+                g_pPanelWatch->ChangeDescriptionForPointerWithDescription( pVar->m_ControlID, "none" );
 
-            oldpointer = m_pSprite->GetMaterial();
-            g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_ChangeMaterialOnMesh( this, 0, 0 ) );
+                oldpointer = m_pSprite->GetMaterial();
+                g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_ChangeMaterialOnMesh( this, 0, 0 ) );
+            }
         }
     }
 

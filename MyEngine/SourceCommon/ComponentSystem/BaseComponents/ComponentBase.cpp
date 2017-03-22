@@ -1232,34 +1232,32 @@ void ComponentBase::SyncVariable(ComponentBase* pChildComponent, ComponentVariab
                     //MyAssert( oldpointer2 == oldpointer );
                 }
 
-                //pChildComponent->UpdateChildrenWithNewValue( fromdraganddrop, pVar, controlid, finishedchanging, oldvalue, oldpointer, x, y, newpointer );
+                //pChildComponent->SyncChildren( pVar, component, oldvalue, 0 );
             }
         }
         break;
 
     case ComponentVariableType_PointerIndirect:
-        // TODO: implement this case
-        //MyAssert( false );
         {
-            //else if( newpointer )
-            //{
-            //    MyAssert( pVar->m_pSetPointerValueCallBackFunc );
-            //    if( pVar->m_pSetPointerValueCallBackFunc )
-            //    {
-            //        (pChildComponent->*pVar->m_pSetPointerValueCallBackFunc)( pVar, newpointer );
-            //    }
-            //}
-            //else
-            //{
-            //    MyAssert( pVar->m_pOnValueChangedCallbackFunc );
-            //    if( pVar->m_pOnValueChangedCallbackFunc )
-            //    {
-            //        void* oldpointer2 = (pChildComponent->*pVar->m_pOnValueChangedCallbackFunc)( pVar, controlid, finishedchanging, oldvalue );
-            //        //MyAssert( oldpointer2 == oldpointer );
-            //    }
-            //}
+            void* childpointer = (pChildComponent->*pVar->m_pGetPointerValueCallBackFunc)( pVar );
+            void* newpointer = (this->*pVar->m_pGetPointerValueCallBackFunc)( pVar );
 
-            //pChildComponent->UpdateChildrenWithNewValue( fromdraganddrop, pVar, controlid, finishedchanging, oldvalue, oldpointer, x, y, newpointer );
+            if( childpointer != newpointer )
+            {
+                MyAssert( pVar->m_pSetPointerValueCallBackFunc );
+                if( pVar->m_pSetPointerValueCallBackFunc )
+                {
+                    (pChildComponent->*pVar->m_pSetPointerValueCallBackFunc)( pVar, newpointer );
+                }
+
+                MyAssert( pVar->m_pOnValueChangedCallbackFunc );
+                if( pVar->m_pOnValueChangedCallbackFunc )
+                {
+                    (pChildComponent->*pVar->m_pOnValueChangedCallbackFunc)( pVar, -1, true, 0, newpointer );
+                }
+
+                //pChildComponent->SyncChildren( pVar, component, oldvalue, 0 );
+            }
         }
         break;
 
