@@ -1078,7 +1078,7 @@ void ComponentBase::SyncVariable(ComponentBase* pChildComponent, ComponentVariab
                 if( pVar->m_pOnValueChangedCallbackFunc )
                     (pChildComponent->*pVar->m_pOnValueChangedCallbackFunc)( pVar, -1, true, oldvalue, 0 );
 
-                //pChildComponent->SyncChildren( pVar, 0, oldvalue, 0 );
+                pChildComponent->SyncVariableInChildren( pVar );
             }
         }
         break;
@@ -1097,7 +1097,7 @@ void ComponentBase::SyncVariable(ComponentBase* pChildComponent, ComponentVariab
                 if( pVar->m_pOnValueChangedCallbackFunc )
                     (pChildComponent->*pVar->m_pOnValueChangedCallbackFunc)( pVar, -1, true, oldvalue, 0 );
 
-                //pChildComponent->SyncChildren( pVar, 0, oldvalue, 0 );
+                pChildComponent->SyncVariableInChildren( pVar );
             }
         }
         break;
@@ -1118,7 +1118,7 @@ void ComponentBase::SyncVariable(ComponentBase* pChildComponent, ComponentVariab
                 if( pVar->m_pOnValueChangedCallbackFunc )
                     (pChildComponent->*pVar->m_pOnValueChangedCallbackFunc)( pVar, -1, true, oldvalue, 0 );
 
-                //pChildComponent->SyncChildren( pVar, 0, oldvalue, 0 );
+                pChildComponent->SyncVariableInChildren( pVar );
             }
         }
         break;
@@ -1136,7 +1136,7 @@ void ComponentBase::SyncVariable(ComponentBase* pChildComponent, ComponentVariab
                 if( pVar->m_pOnValueChangedCallbackFunc )
                     (pChildComponent->*pVar->m_pOnValueChangedCallbackFunc)( pVar, -1, true, oldvalue, 0 );
 
-                //pChildComponent->SyncChildren( pVar, 0, oldvalue, 0 );
+                pChildComponent->SyncVariableInChildren( pVar );
             }
         }
         break;
@@ -1158,7 +1158,7 @@ void ComponentBase::SyncVariable(ComponentBase* pChildComponent, ComponentVariab
                 if( pVar->m_pOnValueChangedCallbackFunc )
                     (pChildComponent->*pVar->m_pOnValueChangedCallbackFunc)( pVar, -1, true, oldvalue, 0 );
 
-                //pChildComponent->SyncChildren( pVar, component, oldvalue, 0 );
+                pChildComponent->SyncVariableInChildren( pVar );
             }
         }
         break;
@@ -1181,7 +1181,7 @@ void ComponentBase::SyncVariable(ComponentBase* pChildComponent, ComponentVariab
                 if( pVar->m_pOnValueChangedCallbackFunc )
                     (pChildComponent->*pVar->m_pOnValueChangedCallbackFunc)( pVar, -1, true, oldvalue, 0 );
 
-                //pChildComponent->SyncChildren( pVar, component, oldvalue, 0 );
+                pChildComponent->SyncVariableInChildren( pVar );
             }
         }
         break;
@@ -1204,7 +1204,7 @@ void ComponentBase::SyncVariable(ComponentBase* pChildComponent, ComponentVariab
                 if( pVar->m_pOnValueChangedCallbackFunc )
                     (pChildComponent->*pVar->m_pOnValueChangedCallbackFunc)( pVar, -1, true, oldvalue, 0 );
 
-                //pChildComponent->SyncChildren( pVar, component, oldvalue, 0 );
+                pChildComponent->SyncVariableInChildren( pVar );
             }
         }
         break;
@@ -1232,7 +1232,7 @@ void ComponentBase::SyncVariable(ComponentBase* pChildComponent, ComponentVariab
                     //MyAssert( oldpointer2 == oldpointer );
                 }
 
-                //pChildComponent->SyncChildren( pVar, component, oldvalue, 0 );
+                pChildComponent->SyncVariableInChildren( pVar );
             }
         }
         break;
@@ -1256,7 +1256,7 @@ void ComponentBase::SyncVariable(ComponentBase* pChildComponent, ComponentVariab
                     (pChildComponent->*pVar->m_pOnValueChangedCallbackFunc)( pVar, -1, true, 0, newpointer );
                 }
 
-                //pChildComponent->SyncChildren( pVar, component, oldvalue, 0 );
+                pChildComponent->SyncVariableInChildren( pVar );
             }
         }
         break;
@@ -1265,6 +1265,76 @@ void ComponentBase::SyncVariable(ComponentBase* pChildComponent, ComponentVariab
     default:
         MyAssert( false );
         break;
+    }
+}
+
+void ComponentBase::SyncVariableInChildren(ComponentVariable* pVar)
+{
+    for( unsigned int i=0; i<ComponentSystemManager::MAX_SCENES_LOADED; i++ )
+    {
+        if( g_pComponentSystemManager->m_pSceneInfoMap[i].m_InUse == false )
+            continue;
+
+        SceneInfo* pSceneInfo = &g_pComponentSystemManager->m_pSceneInfoMap[i];
+
+        if( (GameObject*)pSceneInfo->m_GameObjects.GetHead() )
+        {
+            GameObject* first = (GameObject*)pSceneInfo->m_GameObjects.GetHead();
+            SyncVariableInChildrenInGameObjectListWithNewValue( first, pVar );
+        }
+    }
+}
+
+void ComponentBase::SyncVariableInChildrenInGameObjectListWithNewValue(GameObject* first, ComponentVariable* pVar)
+{
+    // find children of this gameobject and change their values as well, if their value matches the old value.
+    for( CPPListNode* pNode = first; pNode; pNode = pNode->GetNext() )
+    {
+        GameObject* pGameObject = (GameObject*)pNode;
+
+        MyAssert( this->m_pGameObject != 0 );
+        if( pGameObject->GetGameObjectThisInheritsFrom() == this->m_pGameObject )
+        {
+            SyncVariableInGameObjectWithNewValue( pGameObject, pVar );
+        }
+
+        GameObject* pFirstChild = pGameObject->GetFirstChild();
+        if( pFirstChild )
+        {
+            SyncVariableInChildrenInGameObjectListWithNewValue( pFirstChild, pVar );
+        }
+    }
+}
+
+void ComponentBase::SyncVariableInGameObjectWithNewValue(GameObject* pGameObject, ComponentVariable* pVar)
+{
+    MyAssert( this->m_pGameObject != 0 );
+    MyAssert( pGameObject->GetGameObjectThisInheritsFrom() == this->m_pGameObject );
+
+    {
+        // Found a game object, now find the matching component on it.
+        for( unsigned int i=0; i<pGameObject->m_Components.Count()+1; i++ )
+        {
+            ComponentBase* pChildComponent;
+
+            if( i == 0 )
+                pChildComponent = pGameObject->m_pComponentTransform;
+            else
+                pChildComponent = pGameObject->m_Components[i-1];
+
+            const char* pThisCompClassName = GetClassname();
+            const char* pOtherCompClassName = pChildComponent->GetClassname();
+
+            // TODO: this will fail if multiple of the same component are on an object.
+            if( strcmp( pThisCompClassName, pOtherCompClassName ) == 0 )
+            {
+                // if this variable in the child component is divorced from us(it's parent), don't update it
+                if( pChildComponent->IsDivorced( pVar->m_Index ) )
+                    return;
+
+                SyncVariable( pChildComponent, pVar );
+            }
+        }
     }
 }
 
