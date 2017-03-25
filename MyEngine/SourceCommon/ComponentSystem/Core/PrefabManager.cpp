@@ -30,16 +30,17 @@ PrefabObject::~PrefabObject()
     delete m_pGameObject;
 }
 
-void PrefabObject::Init(PrefabFile* pFile, const char* name)
+void PrefabObject::Init(PrefabFile* pFile, const char* name, unsigned int id)
 {
 #if MYFW_USING_WX
     wxTreeItemId rootid = pFile->m_TreeID;
     m_TreeID = g_pPanelObjectList->AddObject( this, PrefabObject::StaticOnLeftClick, PrefabObject::StaticOnRightClick, rootid, m_Name, ObjectListIcon_GameObject );
     g_pPanelObjectList->SetDragAndDropFunctions( m_TreeID, PrefabObject::StaticOnDrag, PrefabObject::StaticOnDrop );
+#endif
 
     m_pPrefabFile = pFile;
     SetName( name );
-#endif
+    m_PrefabID = id;
 }
 
 void PrefabObject::SetName(const char* name)
@@ -51,7 +52,7 @@ void PrefabObject::SetName(const char* name)
 #endif
 }
 
-void PrefabObject::SetPrefabJSONString(cJSON* jPrefab)
+void PrefabObject::SetPrefabJSONObject(cJSON* jPrefab)
 {
     if( m_jPrefab )
     {
@@ -128,6 +129,7 @@ PrefabFile::PrefabFile(MyFileObject* pFile)
 {
     MyAssert( pFile != 0 );
 
+    m_NextPrefabID = 1;
     m_pFile = pFile;
 
     pFile->RegisterFileFinishedLoadingCallback( this, StaticOnFileFinishedLoading );
@@ -153,6 +155,13 @@ PrefabFile::~PrefabFile()
     }
 
     m_pFile->Release();
+}
+
+uint32 PrefabFile::GetNextPrefabIDAndIncrement()
+{
+    m_NextPrefabID++;
+
+    return m_NextPrefabID - 1;
 }
 
 PrefabObject* PrefabFile::GetPrefabByName(const char* name)
@@ -183,6 +192,7 @@ void PrefabFile::OnFileFinishedLoading(MyFileObject* pFile)
     {
         cJSON* jNextPrefab = jPrefab->next;
 
+        // Add the prefab to our array
 #if MYFW_USING_WX
         PrefabObject* pPrefab = new PrefabObject();
         m_Prefabs.push_back( pPrefab );
@@ -190,10 +200,26 @@ void PrefabFile::OnFileFinishedLoading(MyFileObject* pFile)
         PrefabObject* pPrefab = new PrefabObject();
         m_Prefabs.Add( pPrefab );
 #endif
-        pPrefab->Init( this, jPrefab->string );
-        pPrefab->SetPrefabJSONString( jPrefab );
 
-        cJSON_DetachItemFromObject( jRoot, jPrefab->string );
+        // Deal with the prefab id, increment out counter if the one found in the file is bigger
+        uint32 prefabid = 0;
+        cJSONExt_GetUnsignedInt( jPrefab, "ID", &prefabid );
+
+        if( prefabid > m_NextPrefabID )
+            m_NextPrefabID = prefabid + 1;
+
+        // if PrefabID is zero or a duplicate of other objects id, things will break
+        // TODO? check for duplicates as well and pop up warning in editor
+        MyAssert( prefabid != 0 );
+
+        // Initialize the actual PrefabObject
+        cJSON* jPrefabObject = cJSON_GetObjectItem( jPrefab, "Object" );
+
+        pPrefab->Init( this, jPrefab->string, prefabid );
+        pPrefab->SetPrefabJSONObject( jPrefabObject );
+
+        // Detach the object from the json file.  We don't want it deleted since it's stored in the PrefabObject
+        cJSON_DetachItemFromObject( jPrefab, "Object" );
 
         jPrefab = jNextPrefab;
     }
@@ -208,7 +234,10 @@ void PrefabFile::Save()
 
     for( unsigned int i=0; i<m_Prefabs.size(); i++ )
     {
-        cJSON_AddItemToObject( jRoot, m_Prefabs[i]->m_Name, m_Prefabs[i]->m_jPrefab );
+        cJSON* jPrefabObject = cJSON_CreateObject();
+        cJSON_AddItemToObject( jRoot, m_Prefabs[i]->m_Name, jPrefabObject );
+        cJSON_AddNumberToObject( jPrefabObject, "ID", m_Prefabs[i]->m_PrefabID );
+        cJSON_AddItemToObject( jPrefabObject, "Object", m_Prefabs[i]->m_jPrefab );
     }
 
     char* jsonstring = cJSON_Print( jRoot );
@@ -362,13 +391,19 @@ void PrefabManager::CreatePrefabInFile(unsigned int fileindex, const char* prefa
 {
     cJSON* jGameObject = pGameObject->ExportAsJSONPrefab();
 
+    PrefabFile* pFile = m_pPrefabFiles[fileindex];
+
+    // Create a PrefabObject and stick it in the PrefabFile
     PrefabObject* pPrefab = new PrefabObject();
-    m_pPrefabFiles[fileindex]->m_Prefabs.push_back( pPrefab );
+    pFile->m_Prefabs.push_back( pPrefab );
+
+    // Initialize it's values
     pPrefab->SetName( prefabname );
-    pPrefab->SetPrefabJSONString( jGameObject );
+    pPrefab->SetPrefabJSONObject( jGameObject );
+    pPrefab->SetPrefabID( pFile->GetNextPrefabIDAndIncrement() );
 
     // Kick off immediate save of prefab file.
-    m_pPrefabFiles[fileindex]->Save();
+    pFile->Save();
 
     // TODO: show this prefab in the object or file list... or both?
 }
@@ -425,4 +460,20 @@ bool PrefabManager::CreateOrLoadFile()
 
     return false;
 }
+
+void PrefabManager::SaveAllPrefabs(bool saveunchanged)
+{
+#if MYFW_USING_WX
+    unsigned int numprefabfiles = m_pPrefabFiles.size();
+#else
+    unsigned int numprefabfiles = m_pPrefabFiles.Count();
+#endif
+
+    for( unsigned int i=0; i<numprefabfiles; i++ )
+    {
+        if( saveunchanged || m_pPrefabFiles[i]->HasAnythingChanged() )
+            m_pPrefabFiles[i]->Save();
+    }
+}
+
 #endif

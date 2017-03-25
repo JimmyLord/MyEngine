@@ -26,6 +26,7 @@ protected:
     char m_Name[MAX_PREFAB_NAME_LENGTH];
     cJSON* m_jPrefab;
     PrefabFile* m_pPrefabFile;
+    uint32 m_PrefabID;
 #if MYFW_USING_WX
     GameObject* m_pGameObject; // each prefab is instantiated in editor so inheritance code can compare values.
 #endif
@@ -33,9 +34,10 @@ protected:
 public:
     PrefabObject();
     ~PrefabObject();
-    void Init(PrefabFile* pFile, const char* name);
+    void Init(PrefabFile* pFile, const char* name, unsigned int id);
     void SetName(const char* name);
-    void SetPrefabJSONString(cJSON* jPrefab);
+    void SetPrefabJSONObject(cJSON* jPrefab);
+    void SetPrefabID(uint32 id) { m_PrefabID = id; }
     
     const char* GetName();
     cJSON* GetJSONObject();
@@ -69,7 +71,10 @@ class PrefabFile
     friend class PrefabManager;
 
 protected:
+    uint32 m_NextPrefabID;
     MyFileObject* m_pFile;
+
+    bool m_HasAnythingChanged;
 
 #if MYFW_USING_WX
     std::vector<PrefabObject*> m_Prefabs;
@@ -81,8 +86,12 @@ public:
     PrefabFile(MyFileObject* pFile);
     ~PrefabFile();
 
+    uint32 GetNextPrefabIDAndIncrement();
     MyFileObject* GetFile() { return m_pFile; }
     PrefabObject* GetPrefabByName(const char* name);
+
+    void SetHasAnythingChanged() { m_HasAnythingChanged = true; }
+    bool HasAnythingChanged() { return m_HasAnythingChanged; }
 
     static void StaticOnFileFinishedLoading(void* pObjectPtr, MyFileObject* pFile) { ((PrefabFile*)pObjectPtr)->OnFileFinishedLoading( pFile ); }
     void OnFileFinishedLoading(MyFileObject* pFile);
@@ -132,6 +141,8 @@ public:
 
     void CreateFile(const char* relativepath);
     bool CreateOrLoadFile();
+
+    void SaveAllPrefabs(bool saveunchanged = false);
 #endif
 };
 

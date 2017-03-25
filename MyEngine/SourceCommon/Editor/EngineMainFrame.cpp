@@ -765,6 +765,7 @@ void EngineMainFrame::OnMenu_Engine(wxCommandEvent& event)
     case myIDEngine_SaveScene:
         m_StackDepthAtLastSave = m_pCommandStack->GetUndoStackSize();
         g_pMaterialManager->SaveAllMaterials();
+        g_pComponentSystemManager->m_pPrefabManager->SaveAllPrefabs();
         g_pGameCore->m_pSoundManager->SaveAllCues();
         SaveScene();
         break;
@@ -772,6 +773,7 @@ void EngineMainFrame::OnMenu_Engine(wxCommandEvent& event)
     case myIDEngine_SaveSceneAs:
         m_StackDepthAtLastSave = m_pCommandStack->GetUndoStackSize();
         g_pMaterialManager->SaveAllMaterials();
+        g_pComponentSystemManager->m_pPrefabManager->SaveAllPrefabs();
         g_pGameCore->m_pSoundManager->SaveAllCues();
         SaveSceneAs( 1 );
         break;
@@ -1102,6 +1104,7 @@ void EngineMainFrame::SaveSceneAs(unsigned int sceneid)
     //sprintf_s( g_pComponentSystemManager->GetSceneInfo( sceneid )->fullpath, 260, "%s", (const char*)wxpath );
 
     g_pMaterialManager->SaveAllMaterials();
+    g_pComponentSystemManager->m_pPrefabManager->SaveAllPrefabs();
     g_pGameCore->m_pSoundManager->SaveAllCues();
     g_pEngineCore->SaveScene( g_pComponentSystemManager->GetSceneInfo( sceneid )->m_FullPath, sceneid );
 
