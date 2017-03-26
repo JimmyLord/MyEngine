@@ -413,10 +413,10 @@ void GameObject::UpdateObjectListIcon()
         g_pPanelObjectList->SetIcon( gameobjectid, iconindex );
 }
 
-void GameObject::FinishLoadingPrefab(PrefabFile* pPrefabFile, const char* name)
+void GameObject::FinishLoadingPrefab(PrefabFile* pPrefabFile, uint32 prefabid)
 {
     // link to the correct prefab
-    m_pPrefab = pPrefabFile->GetPrefabByName( name );
+    m_pPrefab = pPrefabFile->GetPrefabByID( prefabid );
 
     // TODO: check the if the gameobect(s) in the prefab are completely different and deal with it
 
@@ -438,7 +438,7 @@ void GameObject::FinishLoadingPrefab(PrefabFile* pPrefabFile, const char* name)
 void GameObject::OnPrefabFileFinishedLoading(MyFileObject* pFile)
 {
     PrefabFile* pPrefabFile = g_pComponentSystemManager->m_pPrefabManager->GetPrefabFileForFileObject( pFile->m_FullPath );
-    FinishLoadingPrefab( pPrefabFile, m_PrefabName );
+    FinishLoadingPrefab( pPrefabFile, m_PrefabID );
 
     pFile->UnregisterFileFinishedLoadingCallback( this );
 }
@@ -472,7 +472,7 @@ cJSON* GameObject::ExportAsJSONObject(bool savesceneid)
     if( m_pPrefab != 0 )
     {
         cJSON_AddStringToObject( jGameObject, "PrefabFile", m_pPrefab->GetPrefabFile()->GetFile()->m_FullPath );
-        cJSON_AddStringToObject( jGameObject, "Prefab", m_pPrefab->GetName() );
+        cJSON_AddNumberToObject( jGameObject, "PrefabID", m_pPrefab->GetID() );
     }
     
     if( m_IsFolder == true )
@@ -498,14 +498,16 @@ void GameObject::ImportFromJSONObject(cJSON* jGameObject, unsigned int sceneid)
 {
     // Deal with prefabs // only in editor builds, game builds don't much care.
 #if MYFW_USING_WX
-    cJSON* jPrefab = cJSON_GetObjectItem( jGameObject, "Prefab" );
-    if( jPrefab )
+    cJSON* jPrefabID = cJSON_GetObjectItem( jGameObject, "PrefabID" );
+    if( jPrefabID )
     {
         cJSON* jPrefabFile = cJSON_GetObjectItem( jGameObject, "PrefabFile" );
         MyAssert( jPrefabFile != 0 );
 
         if( jPrefabFile )
         {
+            m_PrefabID = jPrefabID->valueint;
+
             PrefabFile* pPrefabFile = g_pComponentSystemManager->m_pPrefabManager->GetPrefabFileForFileObject( jPrefabFile->valuestring );
             
             // prefab file load must have been initiated by scene load
@@ -515,12 +517,11 @@ void GameObject::ImportFromJSONObject(cJSON* jGameObject, unsigned int sceneid)
             // if the prefab file isn't loaded yet, store the name and link to the prefab when the file is loaded
             if( true )
             {
-                strcpy_s( m_PrefabName, PrefabObject::MAX_PREFAB_NAME_LENGTH, jPrefab->valuestring );
                 pPrefabFile->GetFile()->RegisterFileFinishedLoadingCallback( this, StaticOnPrefabFileFinishedLoading );
             }
             else
             {
-                FinishLoadingPrefab( pPrefabFile, jPrefab->valuestring );
+                FinishLoadingPrefab( pPrefabFile, m_PrefabID );
             }
         }
     }

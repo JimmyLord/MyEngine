@@ -170,8 +170,8 @@ public:
     void UpdateObjectListIcon();
 
     // Prefab Loading Vars
-    char m_PrefabName[PrefabObject::MAX_PREFAB_NAME_LENGTH];
-    void FinishLoadingPrefab(PrefabFile* pPrefabFile, const char* name);
+    uint32 m_PrefabID;
+    void FinishLoadingPrefab(PrefabFile* pPrefabFile, uint32 prefabid);
     static void StaticOnPrefabFileFinishedLoading(void* pObjectPtr, MyFileObject* pFile) { ((GameObject*)pObjectPtr)->OnPrefabFileFinishedLoading( pFile ); }
     void OnPrefabFileFinishedLoading(MyFileObject* pFile);
 #endif //MYFW_USING_WX

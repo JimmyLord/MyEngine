@@ -30,7 +30,7 @@ PrefabObject::~PrefabObject()
     delete m_pGameObject;
 }
 
-void PrefabObject::Init(PrefabFile* pFile, const char* name, unsigned int id)
+void PrefabObject::Init(PrefabFile* pFile, const char* name, uint32 prefabid)
 {
 #if MYFW_USING_WX
     wxTreeItemId rootid = pFile->m_TreeID;
@@ -40,7 +40,7 @@ void PrefabObject::Init(PrefabFile* pFile, const char* name, unsigned int id)
 
     m_pPrefabFile = pFile;
     SetName( name );
-    m_PrefabID = id;
+    m_PrefabID = prefabid;
 }
 
 void PrefabObject::SetName(const char* name)
@@ -149,6 +149,7 @@ PrefabFile::~PrefabFile()
     for( unsigned int prefabindex=0; prefabindex<m_Prefabs.Count(); prefabindex++ )
 #endif
     {
+        // delete the cJSON* jPrefab object, it should have been detached from any cJSON branch when loaded/saved
         cJSON_Delete( m_Prefabs[prefabindex]->m_jPrefab );
 
         delete m_Prefabs[prefabindex];
@@ -164,7 +165,7 @@ uint32 PrefabFile::GetNextPrefabIDAndIncrement()
     return m_NextPrefabID - 1;
 }
 
-PrefabObject* PrefabFile::GetPrefabByName(const char* name)
+PrefabObject* PrefabFile::GetFirstPrefabByName(const char* name)
 {
 #if MYFW_USING_WX
     for( unsigned int prefabindex=0; prefabindex<m_Prefabs.size(); prefabindex++ )
@@ -173,6 +174,23 @@ PrefabObject* PrefabFile::GetPrefabByName(const char* name)
 #endif
     {
         if( strcmp( m_Prefabs[prefabindex]->GetName(), name ) == 0 )
+        {
+            return m_Prefabs[prefabindex];
+        }
+    }
+
+    return 0;
+}
+
+PrefabObject* PrefabFile::GetPrefabByID(uint32 prefabid)
+{
+#if MYFW_USING_WX
+    for( unsigned int prefabindex=0; prefabindex<m_Prefabs.size(); prefabindex++ )
+#else
+    for( unsigned int prefabindex=0; prefabindex<m_Prefabs.Count(); prefabindex++ )
+#endif
+    {
+        if( m_Prefabs[prefabindex]->GetID() == prefabid )
         {
             return m_Prefabs[prefabindex];
         }
@@ -218,7 +236,7 @@ void PrefabFile::OnFileFinishedLoading(MyFileObject* pFile)
         pPrefab->Init( this, jPrefab->string, prefabid );
         pPrefab->SetPrefabJSONObject( jPrefabObject );
 
-        // Detach the object from the json file.  We don't want it deleted since it's stored in the PrefabObject
+        // Detach the object from the json branch.  We don't want it deleted since it's stored in the PrefabObject
         cJSON_DetachItemFromObject( jPrefab, "Object" );
 
         jPrefab = jNextPrefab;
@@ -253,9 +271,11 @@ void PrefabFile::Save()
     
     cJSONExt_free( jsonstring );
     
+    // Detach "Object" from the json branch since we're storing it in m_Prefabs[i]->m_jPrefab and will delete elsewhere
     for( unsigned int i=0; i<m_Prefabs.size(); i++ )
     {
-        cJSON_DetachItemFromObject( jRoot, m_Prefabs[i]->m_Name );
+        cJSON* jPrefabObject = cJSON_GetObjectItem( jRoot, m_Prefabs[i]->m_Name );
+        cJSON_DetachItemFromObject( jPrefabObject, "Object" );
     }
 
     cJSON_Delete( jRoot );

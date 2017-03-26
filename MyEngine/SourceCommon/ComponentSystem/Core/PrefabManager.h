@@ -34,12 +34,13 @@ protected:
 public:
     PrefabObject();
     ~PrefabObject();
-    void Init(PrefabFile* pFile, const char* name, unsigned int id);
+    void Init(PrefabFile* pFile, const char* name, uint32 prefabid);
     void SetName(const char* name);
     void SetPrefabJSONObject(cJSON* jPrefab);
-    void SetPrefabID(uint32 id) { m_PrefabID = id; }
+    void SetPrefabID(uint32 prefabid) { m_PrefabID = prefabid; }
     
     const char* GetName();
+    uint32 GetID() { return m_PrefabID; }
     cJSON* GetJSONObject();
 
     PrefabFile* GetPrefabFile() { return m_pPrefabFile; }
@@ -88,7 +89,8 @@ public:
 
     uint32 GetNextPrefabIDAndIncrement();
     MyFileObject* GetFile() { return m_pFile; }
-    PrefabObject* GetPrefabByName(const char* name);
+    PrefabObject* GetFirstPrefabByName(const char* name);
+    PrefabObject* GetPrefabByID(uint32 prefabid);
 
     void SetHasAnythingChanged() { m_HasAnythingChanged = true; }
     bool HasAnythingChanged() { return m_HasAnythingChanged; }
