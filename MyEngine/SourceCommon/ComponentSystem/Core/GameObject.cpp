@@ -306,6 +306,12 @@ void GameObject::OnPopupClick(wxEvent &evt)
                 g_pComponentSystemManager->m_pPrefabManager->CreatePrefabInFile( fileindex, pGameObject->GetName(), pGameObject );
             }
         }
+        else
+        {
+            // Create a prefab based on selected object.
+            unsigned int fileindex = id - RightClick_CreatePrefab;
+            g_pComponentSystemManager->m_pPrefabManager->CreatePrefabInFile( fileindex, pGameObject->GetName(), pGameObject );
+        }
     }
     else if( id == RightClick_DeleteGameObject )
     {
@@ -433,6 +439,8 @@ void GameObject::FinishLoadingPrefab(PrefabFile* pPrefabFile, uint32 prefabid)
             pComponent->SyncUndivorcedVariables( pPrefabComponent );
         }
     }
+
+    UpdateObjectListIcon();
 }
 
 void GameObject::OnPrefabFileFinishedLoading(MyFileObject* pFile)

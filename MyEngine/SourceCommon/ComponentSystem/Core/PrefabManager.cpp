@@ -413,19 +413,23 @@ void PrefabManager::CreatePrefabInFile(unsigned int fileindex, const char* prefa
 
     PrefabFile* pFile = m_pPrefabFiles[fileindex];
 
+    // Check if a prefab with this name already exists and fail if it does
+    if( pFile->GetFirstPrefabByName( prefabname ) )
+    {
+        wxMessageBox( "A prefab with this name already exists, rename it and create it again", "Failed to create prefab" );
+        return;
+    }
+
     // Create a PrefabObject and stick it in the PrefabFile
     PrefabObject* pPrefab = new PrefabObject();
     pFile->m_Prefabs.push_back( pPrefab );
 
-    // Initialize it's values
-    pPrefab->SetName( prefabname );
+    // Initialize its values
+    pPrefab->Init( pFile, prefabname, pFile->GetNextPrefabIDAndIncrement() );
     pPrefab->SetPrefabJSONObject( jGameObject );
-    pPrefab->SetPrefabID( pFile->GetNextPrefabIDAndIncrement() );
 
     // Kick off immediate save of prefab file.
     pFile->Save();
-
-    // TODO: show this prefab in the object or file list... or both?
 }
 
 void PrefabManager::CreateFile(const char* relativepath)
@@ -483,11 +487,7 @@ bool PrefabManager::CreateOrLoadFile()
 
 void PrefabManager::SaveAllPrefabs(bool saveunchanged)
 {
-#if MYFW_USING_WX
     unsigned int numprefabfiles = m_pPrefabFiles.size();
-#else
-    unsigned int numprefabfiles = m_pPrefabFiles.Count();
-#endif
 
     for( unsigned int i=0; i<numprefabfiles; i++ )
     {
