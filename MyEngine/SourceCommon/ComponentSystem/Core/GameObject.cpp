@@ -369,6 +369,9 @@ void GameObject::OnDrop(int controlid, wxCoord x, wxCoord y)
         if( pGameObject == this )
             return;
 
+        // Change the dropped gameobject's sceneid to match this one.
+        pGameObject->SetSceneID( this->GetSceneID() );
+
         // if you drop a game object on another, parent them or move above/below depending on the "y"
         wxTreeItemId treeid = g_pPanelObjectList->FindObject( this );
         wxRect rect;
@@ -597,6 +600,12 @@ cJSON* GameObject::ExportAsJSONPrefab()
 {
     cJSON* jGameObject = cJSON_CreateObject();
 
+    // Back-up sceneid.
+    // Set gameobject to scene zero, so any gameobject references will store the sceneid when serialized (since they will differ)
+    // Set it back later, without changing gameobject id.
+    unsigned int sceneidbackup = GetSceneID();
+    SetSceneID( 0, false );
+
     // Transform/Heirarchy parent must be in the same scene.
     if( m_pParentGameObject )
         cJSON_AddNumberToObject( jGameObject, "ParentGOID", m_pParentGameObject->GetID() );
@@ -629,6 +638,9 @@ cJSON* GameObject::ExportAsJSONPrefab()
             cJSON_AddItemToArray( jComponentArray, jComponent );
         }
     }
+
+    // Reset scene id to original value, don't change the gameobjectid.
+    SetSceneID( sceneidbackup, false );
 
     return jGameObject;
 }
@@ -682,6 +694,12 @@ void GameObject::SetSceneID(unsigned int sceneid, bool assignnewgoid)
         return;
 
     m_SceneID = sceneid;
+
+    // Loop through components and change the sceneid in each
+    for( unsigned int i=0; i<m_Components.Count(); i++ )
+    {
+        m_Components[i]->SetSceneID( sceneid );
+    }
    
     if( assignnewgoid )
     {

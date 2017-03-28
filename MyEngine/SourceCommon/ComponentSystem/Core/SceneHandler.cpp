@@ -171,7 +171,10 @@ void SceneHandler::OnDrop(wxTreeItemId treeid, int controlid, wxCoord x, wxCoord
         if( sceneid == 0 )
             return;
 
+        // Change the gameobjects sceneid.
         pGameObject->SetSceneID( sceneid );
+
+        // Move the wx tree item to the correct spot.
         wxTreeItemId treeidtomove = g_pPanelObjectList->FindObject( pGameObject );
         g_pPanelObjectList->Tree_MoveObject( treeidtomove, treeid, true );
 
