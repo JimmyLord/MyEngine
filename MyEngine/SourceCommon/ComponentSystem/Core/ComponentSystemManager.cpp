@@ -1576,7 +1576,7 @@ GameObject* ComponentSystemManager::CopyGameObject(GameObject* pObject, const ch
     if( g_pEngineCore->m_EditorMode )
         sceneid = pObject->GetSceneID();
 
-    GameObject* pNewObject = CreateGameObject( true, sceneid, pObject->IsFolder(), pObject->m_pComponentTransform ? true : false );
+    GameObject* pNewObject = CreateGameObject( true, sceneid, pObject->IsFolder(), pObject->m_pComponentTransform ? true : false, pObject->GetPrefab() );
 
     if( newname )
         pNewObject->SetName( newname );
