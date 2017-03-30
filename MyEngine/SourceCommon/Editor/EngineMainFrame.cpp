@@ -1220,15 +1220,15 @@ void EngineMainFrame::OnDrop(int controlid, wxCoord x, wxCoord y)
     // get the GameObject the mouse was hovering over.
     ComponentCamera* pCamera = g_pEngineCore->m_pEditorState->GetEditorCamera();
     y = pCamera->m_WindowHeight - y; // prefer 0,0 at bottom left.
-    GameObject* pObject = g_pEngineCore->GetCurrentEditorInterface()->GetObjectAtPixel( x, y, true, false );
+    GameObject* pObjectDroppedOn = g_pEngineCore->GetCurrentEditorInterface()->GetObjectAtPixel( x, y, true, false );
 
     if( g_DragAndDropStruct.m_Type == DragAndDropType_MaterialDefinitionPointer )
     {
         MaterialDefinition* pMaterial = (MaterialDefinition*)g_DragAndDropStruct.m_Value;
 
-        if( pMaterial && pObject )
+        if( pMaterial && pObjectDroppedOn )
         {
-            g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_ChangeAllMaterialsOnGameObject( pObject, pMaterial ) );
+            g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_ChangeAllMaterialsOnGameObject( pObjectDroppedOn, pMaterial ) );
         }
     }
 
@@ -1236,9 +1236,9 @@ void EngineMainFrame::OnDrop(int controlid, wxCoord x, wxCoord y)
     {
         TextureDefinition* pTexture = (TextureDefinition*)g_DragAndDropStruct.m_Value;
 
-        if( pTexture && pObject && pObject->GetMaterial() )
+        if( pTexture && pObjectDroppedOn && pObjectDroppedOn->GetMaterial() )
         {
-            g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_ChangeTextureOnMaterial( pObject->GetMaterial(), pTexture ) );
+            g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_ChangeTextureOnMaterial( pObjectDroppedOn->GetMaterial(), pTexture ) );
         }
     }
 
@@ -1246,9 +1246,9 @@ void EngineMainFrame::OnDrop(int controlid, wxCoord x, wxCoord y)
     {
         ShaderGroup* pShader = (ShaderGroup*)g_DragAndDropStruct.m_Value;
 
-        if( pShader && pObject && pObject->GetMaterial() )
+        if( pShader && pObjectDroppedOn && pObjectDroppedOn->GetMaterial() )
         {
-            g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_ChangeShaderOnMaterial( pObject->GetMaterial(), pShader ) );
+            g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_ChangeShaderOnMaterial( pObjectDroppedOn->GetMaterial(), pShader ) );
         }
     }
 
@@ -1259,18 +1259,18 @@ void EngineMainFrame::OnDrop(int controlid, wxCoord x, wxCoord y)
 
         if( pFile && strcmp( pFile->m_ExtensionWithDot, ".lua" ) == 0 )
         {
-            if( pObject )
+            if( pObjectDroppedOn )
             {
-                g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_ChangeAllScriptsOnGameObject( pObject, pFile ) );
+                g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_ChangeAllScriptsOnGameObject( pObjectDroppedOn, pFile ) );
             }
         }
 
         if( pFile && strcmp( pFile->m_ExtensionWithDot, ".glsl" ) == 0 )
         {
-            if( pObject && pObject->GetMaterial() )
+            if( pObjectDroppedOn && pObjectDroppedOn->GetMaterial() )
             {
                 ShaderGroup* pShader = g_pShaderGroupManager->FindShaderGroupByFile( pFile );
-                g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_ChangeShaderOnMaterial( pObject->GetMaterial(), pShader ) );
+                g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_ChangeShaderOnMaterial( pObjectDroppedOn->GetMaterial(), pShader ) );
             }
         }
 
@@ -1291,10 +1291,10 @@ void EngineMainFrame::OnDrop(int controlid, wxCoord x, wxCoord y)
             pComponentMeshOBJ->SetMesh( pMesh );
             pComponentMeshOBJ->SetLayersThisExistsOn( Layer_MainScene );
 
-            if( pObject && pObject->GetMaterial() )
+            if( pObjectDroppedOn && pObjectDroppedOn->GetMaterial() )
             {
                 // place it just above of the object selected otherwise place it at 0,0,0... for now.
-                pGameObject->m_pComponentTransform->SetWorldPosition( pObject->m_pComponentTransform->GetWorldPosition() );
+                pGameObject->m_pComponentTransform->SetWorldPosition( pObjectDroppedOn->m_pComponentTransform->GetWorldPosition() );
             }
         }
     }
@@ -1303,8 +1303,12 @@ void EngineMainFrame::OnDrop(int controlid, wxCoord x, wxCoord y)
     {
         PrefabObject* pPrefab = (PrefabObject*)g_DragAndDropStruct.m_Value;
 
-        // Hardcoded to always drop into scene 1
+        // Default to drop into scene 1, but prefer putting in same scene as the object dropped on.
         unsigned int sceneid = 1;
+        if( pObjectDroppedOn )
+        {
+            sceneid = pObjectDroppedOn->GetSceneID();
+        }
 
         // Create the game object
         GameObject* pGameObjectCreated = g_pComponentSystemManager->CreateGameObjectFromPrefab( pPrefab, true, sceneid );
@@ -1317,6 +1321,15 @@ void EngineMainFrame::OnDrop(int controlid, wxCoord x, wxCoord y)
             // Select the object dropped
             g_pEngineCore->m_pEditorState->ClearSelectedObjectsAndComponents();
             g_pEngineCore->m_pEditorState->SelectGameObject( pGameObjectCreated );
+
+            // Move the new object to the same spot as the one it was dropped on
+            if( pObjectDroppedOn )
+            {
+                std::vector<GameObject*> selectedobjects;
+                selectedobjects.push_back( pGameObjectCreated );
+                Vector3 worldpos = pObjectDroppedOn->GetTransform()->GetWorldPosition();
+                g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_MoveObjects( worldpos, selectedobjects ), true );
+            }
         }
     }
 
