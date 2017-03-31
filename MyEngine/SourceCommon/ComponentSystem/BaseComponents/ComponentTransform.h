@@ -10,7 +10,7 @@
 #ifndef __ComponentTransform_H__
 #define __ComponentTransform_H__
 
-typedef void (*TransformChangedCallbackFunc)(void* pObjectPtr, Vector3& newpos, Vector3& newrot, Vector3& newscale, bool changedbyeditor);
+typedef void (*TransformChangedCallbackFunc)(void* pObjectPtr, Vector3& newpos, Vector3& newrot, Vector3& newscale, bool changedbyuserineditor);
 struct TransformChangedCallbackStruct : public CPPListNode
 {
     void* pObj;
@@ -110,8 +110,8 @@ public:
     void UnregisterTransformChangedCallbacks(void* pObj);
 
     // Parent transform changed
-    static void StaticOnParentTransformChanged(void* pObjectPtr, Vector3& newpos, Vector3& newrot, Vector3& newscale, bool changedbyeditor) { ((ComponentTransform*)pObjectPtr)->OnParentTransformChanged( newpos, newrot, newscale, changedbyeditor ); }
-    void OnParentTransformChanged(Vector3& newpos, Vector3& newrot, Vector3& newscale, bool changedbyeditor);
+    static void StaticOnParentTransformChanged(void* pObjectPtr, Vector3& newpos, Vector3& newrot, Vector3& newscale, bool changedbyuserineditor) { ((ComponentTransform*)pObjectPtr)->OnParentTransformChanged( newpos, newrot, newscale, changedbyuserineditor ); }
+    void OnParentTransformChanged(Vector3& newpos, Vector3& newrot, Vector3& newscale, bool changedbyuserineditor);
 
 public:
 #if MYFW_USING_WX

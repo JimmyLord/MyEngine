@@ -39,8 +39,8 @@ public:
     virtual void OnGameObjectEnabled();
     virtual void OnGameObjectDisabled();
 
-    static void StaticOnTransformChanged(void* pObjectPtr, Vector3& newpos, Vector3& newrot, Vector3& newscale, bool changedbyeditor) { ((ComponentLight*)pObjectPtr)->OnTransformChanged( newpos, newrot, newscale, changedbyeditor ); }
-    void OnTransformChanged(Vector3& newpos, Vector3& newrot, Vector3& newscale, bool changedbyeditor);
+    static void StaticOnTransformChanged(void* pObjectPtr, Vector3& newpos, Vector3& newrot, Vector3& newscale, bool changedbyuserineditor) { ((ComponentLight*)pObjectPtr)->OnTransformChanged( newpos, newrot, newscale, changedbyuserineditor ); }
+    void OnTransformChanged(Vector3& newpos, Vector3& newrot, Vector3& newscale, bool changedbyuserineditor);
 
     // pre-DrawCallback functions
     virtual bool IsVisible();

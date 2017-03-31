@@ -162,7 +162,7 @@ void ComponentLight::ImportFromJSONObject(cJSON* jsonobj, unsigned int sceneid)
     m_pLight->m_SpotDirectionVector = m_pGameObject->GetTransform()->GetWorldTransform()->GetAt();
 }
 
-void ComponentLight::OnTransformChanged(Vector3& newpos, Vector3& newrot, Vector3& newscale, bool changedbyeditor)
+void ComponentLight::OnTransformChanged(Vector3& newpos, Vector3& newrot, Vector3& newscale, bool changedbyuserineditor)
 {
     MyAssert( m_pLight );
 

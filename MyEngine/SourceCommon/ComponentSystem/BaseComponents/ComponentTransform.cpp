@@ -578,7 +578,7 @@ void ComponentTransform::SetWorldTransform(MyMatrix* mat)
     {
         TransformChangedCallbackStruct* pCallbackStruct = (TransformChangedCallbackStruct*)pNode;
 
-        pCallbackStruct->pFunc( pCallbackStruct->pObj, m_WorldPosition, m_WorldRotation, m_WorldScale, true );
+        pCallbackStruct->pFunc( pCallbackStruct->pObj, m_WorldPosition, m_WorldRotation, m_WorldScale, false );
     }
 }
 
@@ -831,7 +831,7 @@ void ComponentTransform::UnregisterTransformChangedCallbacks(void* pObj)
     }
 }
 
-void ComponentTransform::OnParentTransformChanged(Vector3& newpos, Vector3& newrot, Vector3& newscale, bool changedbyeditor)
+void ComponentTransform::OnParentTransformChanged(Vector3& newpos, Vector3& newrot, Vector3& newscale, bool changedbyuserineditor)
 {
     m_LocalTransformIsDirty = true;
     UpdateTransform();
@@ -840,6 +840,6 @@ void ComponentTransform::OnParentTransformChanged(Vector3& newpos, Vector3& newr
     {
         TransformChangedCallbackStruct* pCallbackStruct = (TransformChangedCallbackStruct*)pNode;
 
-        pCallbackStruct->pFunc( pCallbackStruct->pObj, m_WorldPosition, m_WorldRotation, m_WorldScale, changedbyeditor );
+        pCallbackStruct->pFunc( pCallbackStruct->pObj, m_WorldPosition, m_WorldRotation, m_WorldScale, changedbyuserineditor );
     }
 }

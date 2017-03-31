@@ -168,9 +168,9 @@ void ComponentCollisionObject::OnDropOBJ(int controlid, wxCoord x, wxCoord y)
     }
 }
 
-void ComponentCollisionObject::OnTransformChanged(Vector3& newpos, Vector3& newrot, Vector3& newscale, bool changedbyeditor)
+void ComponentCollisionObject::OnTransformChanged(Vector3& newpos, Vector3& newrot, Vector3& newscale, bool changedbyuserineditor)
 {
-    if( changedbyeditor )
+    if( changedbyuserineditor )
         SyncRigidBodyToTransform();
 }
 #endif //MYFW_USING_WX
@@ -306,7 +306,7 @@ void ComponentCollisionObject::CreateBody()
             }
             else if( m_PrimitiveType == PhysicsPrimitiveType_StaticPlane )
             {
-                // plane is flat on x/z and at origin, rigid will have transform to place plane in space.
+                // plane is flat on x/z and at origin, rigidbody will have transform to place plane in space.
                 colShape = new btStaticPlaneShape( btVector3(0, 1, 0), 0 );
             }
         }
@@ -338,6 +338,7 @@ void ComponentCollisionObject::CreateBody()
         // using motionstate is recommended, it provides interpolation capabilities, and only synchronizes 'active' objects
         btDefaultMotionState* myMotionState = new btDefaultMotionState( startTransform );
         btRigidBody::btRigidBodyConstructionInfo rbInfo( m_Mass, myMotionState, colShape, localInertia );
+        //rbInfo.m_friction = 1; // TODO: expose friction
         m_pBody = new btRigidBody( rbInfo );
         
         g_pBulletWorld->m_pDynamicsWorld->addRigidBody( m_pBody );

@@ -1193,7 +1193,7 @@ void GameObject::OnGameObjectDeleted(GameObject* pGameObject)
     }
 }
 
-void GameObject::OnTransformChanged(Vector3& newpos, Vector3& newrot, Vector3& newscale, bool changedbyeditor)
+void GameObject::OnTransformChanged(Vector3& newpos, Vector3& newrot, Vector3& newscale, bool changedbyuserineditor)
 {
     int bp = 1;
 }
