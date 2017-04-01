@@ -220,7 +220,15 @@ void GameObject::OnRightClick()
                 menu.AppendSubMenu( categorymenu, g_pComponentTypeManager->GetTypeCategory( i ) );
             }
 
-            categorymenu->Append( i, g_pComponentTypeManager->GetTypeName( i ) );
+            if( i == ComponentType_Mesh )
+            {
+                // don't include ComponentType_Mesh in the right-click menu.
+                // TODO: if more exceptions are made, improve this system.
+            }
+            else
+            {
+                categorymenu->Append( i, g_pComponentTypeManager->GetTypeName( i ) );
+            }
 
             lastcategory = g_pComponentTypeManager->GetTypeCategory( i );
         }
@@ -930,6 +938,8 @@ ComponentBase* GameObject::AddExistingComponent(ComponentBase* pComponent, bool 
         if( gameobjectid.IsOk() )
             pComponent->AddToObjectsPanel( gameobjectid );
     }
+
+    g_pPanelWatch->SetNeedsRefresh();
 #endif //MYFW_USING_WX
 
     return pComponent;

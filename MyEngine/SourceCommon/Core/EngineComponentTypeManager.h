@@ -17,7 +17,7 @@ enum EngineComponentTypes // search for ADDING_NEW_ComponentType
     ComponentType_Transform, // must stay as first component, special handling of adding transform components in GameObject.cpp
     ComponentType_Camera,
     ComponentType_Sprite,
-    ComponentType_Mesh,
+    ComponentType_Mesh, // this is a base type, shouldn't be in the editor's "add component" list
     ComponentType_MeshOBJ,
     ComponentType_MeshPrimitive,
     ComponentType_VoxelMesh,
