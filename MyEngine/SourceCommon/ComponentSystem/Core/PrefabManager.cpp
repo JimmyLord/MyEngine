@@ -64,8 +64,13 @@ void PrefabObject::SetPrefabJSONObject(cJSON* jPrefab)
 
     m_jPrefab = jPrefab;
 #if MYFW_USING_WX
+    // This might cause some "undo" actions, so wipe them out once the load is complete.
+    unsigned int numItemsInUndoStack = g_pEngineMainFrame->m_pCommandStack->GetUndoStackSize();
+
     m_pGameObject = g_pComponentSystemManager->CreateGameObjectFromPrefab( this, false, 0 );
     m_pGameObject->SetEnabled( false );
+
+    g_pEngineMainFrame->m_pCommandStack->ClearUndoStack( numItemsInUndoStack );
 #endif
 }
 
@@ -82,6 +87,7 @@ cJSON* PrefabObject::GetJSONObject()
 #if MYFW_USING_WX
 void PrefabObject::OnLeftClick(wxTreeItemId treeid, unsigned int count, bool clear)
 {
+    g_pPanelWatch->ClearAllVariables();
 }
 
 void PrefabObject::OnRightClick(wxTreeItemId treeid)
