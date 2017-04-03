@@ -22,6 +22,8 @@ class GameObject : public CPPListNode
 , public wxEvtHandler
 #endif
 {
+    friend class EditorCommand_DeleteObjects; // for NotifyOthersThisWasDeleted()
+
     static const int MAX_COMPONENTS = 8; // TODO: fix this hardcodedness
 
 protected:

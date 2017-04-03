@@ -26,6 +26,7 @@ class EditorCommand_ChangeAllScriptsOnGameObject;
 class EditorCommand_Move2DPoint;
 class EditorCommand_Insert2DPoint;
 class EditorCommand_Delete2DPoint;
+class EditorCommand_LuaExposedVariablePointerChanged;
 
 //====================================================================================================
 
@@ -331,6 +332,27 @@ protected:
 public:
     EditorCommand_Delete2DPoint(Component2DCollisionObject* pCollisionObject, int indexdeleted, b2Vec2 position);
     virtual ~EditorCommand_Delete2DPoint();
+
+    virtual void Do();
+    virtual void Undo();
+    virtual EditorCommand* Repeat();
+};
+
+//====================================================================================================
+
+class EditorCommand_LuaExposedVariablePointerChanged : public EditorCommand
+{
+protected:
+    void* m_NewValue;
+    void* m_OldValue;
+    ExposedVariableDesc* m_pVar;
+
+    LuaExposedVarValueChangedCallback m_pOnValueChangedCallBackFunc;
+    void* m_pCallbackObj;
+
+public:
+    EditorCommand_LuaExposedVariablePointerChanged(void* newvalue, ExposedVariableDesc* pVar, LuaExposedVarValueChangedCallback callbackfunc, void* callbackobj);
+    virtual ~EditorCommand_LuaExposedVariablePointerChanged();
 
     virtual void Do();
     virtual void Undo();

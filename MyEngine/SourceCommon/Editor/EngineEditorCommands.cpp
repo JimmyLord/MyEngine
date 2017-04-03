@@ -270,6 +270,7 @@ void EditorCommand_DeleteObjects::Do()
         m_ObjectsDeleted[i]->SetEnabled( false );
         g_pComponentSystemManager->UnmanageGameObject( m_ObjectsDeleted[i] );
         m_ObjectsDeleted[i]->GetSceneInfo()->m_GameObjects.MoveTail( m_ObjectsDeleted[i] );
+        m_ObjectsDeleted[i]->NotifyOthersThisWasDeleted();
     }
     m_DeleteGameObjectsWhenDestroyed = true;
 }
@@ -280,6 +281,7 @@ void EditorCommand_DeleteObjects::Undo()
 
     for( unsigned int i=0; i<m_ObjectsDeleted.size(); i++ )
     {
+        // Place gameobject in old spot in tree.
         if( m_PreviousGameObjectsInObjectList[i] == 0 )
         {
             if( m_ObjectsDeleted[i]->GetParentGameObject() )
@@ -296,10 +298,12 @@ void EditorCommand_DeleteObjects::Undo()
             m_ObjectsDeleted[i]->MoveAfter( m_PreviousGameObjectsInObjectList[i] );
         }
 
+        // Undo everything we did to "delete" this object
         g_pComponentSystemManager->ManageGameObject( m_ObjectsDeleted[i] );
         m_ObjectsDeleted[i]->SetEnabled( true );
         m_ObjectsDeleted[i]->RegisterAllComponentCallbacks( false );
 
+        // Place gameobject in old spot in tree.
         if( m_ObjectsDeleted[i]->Prev && m_ObjectsDeleted[i]->GetPrev() != 0 )
         {
             g_pPanelObjectList->Tree_MoveObject( m_ObjectsDeleted[i], m_ObjectsDeleted[i]->GetPrev(), false );
@@ -318,6 +322,7 @@ void EditorCommand_DeleteObjects::Undo()
             }
         }
     }
+
     m_DeleteGameObjectsWhenDestroyed = false;
 }
 
@@ -883,3 +888,50 @@ EditorCommand* EditorCommand_Delete2DPoint::Repeat()
 
     return 0;
 }
+
+//====================================================================================================
+// EditorCommand_LuaExposedVariablePointerChanged
+//====================================================================================================
+
+EditorCommand_LuaExposedVariablePointerChanged::EditorCommand_LuaExposedVariablePointerChanged(void* newvalue, ExposedVariableDesc* pVar, LuaExposedVarValueChangedCallback callbackfunc, void* callbackobj)
+{
+    m_NewValue = newvalue;
+    m_pVar = pVar;
+
+    m_OldValue = pVar->pointer;
+
+    m_pOnValueChangedCallBackFunc = callbackfunc;
+    m_pCallbackObj = callbackobj;
+}
+
+EditorCommand_LuaExposedVariablePointerChanged::~EditorCommand_LuaExposedVariablePointerChanged()
+{
+}
+
+void EditorCommand_LuaExposedVariablePointerChanged::Do()
+{
+    m_pVar->pointer = m_NewValue;
+
+    g_pPanelWatch->UpdatePanel();
+
+    if( m_pCallbackObj && m_pOnValueChangedCallBackFunc )
+        m_pOnValueChangedCallBackFunc( m_pCallbackObj, m_pVar, 0, true, 0, m_OldValue );
+}
+
+void EditorCommand_LuaExposedVariablePointerChanged::Undo()
+{
+    m_pVar->pointer = m_OldValue;
+
+    g_pPanelWatch->UpdatePanel();
+
+    if( m_pCallbackObj && m_pOnValueChangedCallBackFunc )
+        m_pOnValueChangedCallBackFunc( m_pCallbackObj, m_pVar, 0, true, 0, m_NewValue );
+}
+
+EditorCommand* EditorCommand_LuaExposedVariablePointerChanged::Repeat()
+{
+    return 0;
+}
+
+//====================================================================================================
+//====================================================================================================

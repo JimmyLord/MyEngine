@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2014-2016 Jimmy Lord http://www.flatheadgames.com
+// Copyright (c) 2014-2017 Jimmy Lord http://www.flatheadgames.com
 //
 // This software is provided 'as-is', without any express or implied warranty.  In no event will the authors be held liable for any damages arising from the use of this software.
 // Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -52,6 +52,8 @@ struct ExposedVariableDesc
         controlID = -1;
     }
 };
+
+typedef void (*LuaExposedVarValueChangedCallback)(void* pObjectPtr, ExposedVariableDesc* pVar, int component, bool finishedchanging, double oldvalue, void* oldpointer);
 
 #if MYFW_USING_WX
 class ComponentLuaScriptEventHandlerForExposedVariables : public wxEvtHandler
@@ -177,8 +179,12 @@ public:
     void OnDropExposedVar(int controlid, wxCoord x, wxCoord y);
     void* ProcessOnDropExposedVar(int controlid, wxCoord x, wxCoord y);
     
-    static void StaticOnExposedVarValueChanged(void* pObjectPtr, int controlid, bool finishedchanging, double oldvalue) { ((ComponentLuaScript*)pObjectPtr)->OnExposedVarValueChanged( controlid, finishedchanging, oldvalue ); }
-    void OnExposedVarValueChanged(int controlid, bool finishedchanging, double oldvalue);
+    static void StaticOnPanelWatchExposedVarValueChanged(void* pObjectPtr, int controlid, bool finishedchanging, double oldvalue) { ((ComponentLuaScript*)pObjectPtr)->OnPanelWatchExposedVarValueChanged( controlid, finishedchanging, oldvalue ); }
+    void OnPanelWatchExposedVarValueChanged(int controlid, bool finishedchanging, double oldvalue);
+
+    // exposed variable changed callback (not from watch panel)
+    static void StaticOnExposedVarValueChanged(void* pObjectPtr, ExposedVariableDesc* pVar, int component, bool finishedchanging, double oldvalue, void* oldpointer) { ((ComponentLuaScript*)pObjectPtr)->OnExposedVarValueChanged( pVar, component, finishedchanging, oldvalue, oldpointer ); }
+    void OnExposedVarValueChanged(ExposedVariableDesc* pVar, int component, bool finishedchanging, double oldvalue, void* oldpointer);
 
     ComponentLuaScriptEventHandlerForExposedVariables m_ComponentLuaScriptEventHandlerForExposedVariables;
     static void StaticOnRightClickExposedVariable(void* pObjectPtr, int controlid) { ((ComponentLuaScript*)pObjectPtr)->OnRightClickExposedVariable( controlid ); }

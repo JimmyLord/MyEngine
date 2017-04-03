@@ -1169,8 +1169,6 @@ void GameObject::UnregisterOnDeleteCallback(void* pObj, GameObjectDeletedCallbac
             return;
         }
     }
-
-    MyAssert( false );
 }
 
 void GameObject::NotifyOthersThisWasDeleted()
@@ -1180,9 +1178,15 @@ void GameObject::NotifyOthersThisWasDeleted()
         CPPListNode* pNextNode = pNode->GetNext();
 
         GameObjectDeletedCallbackStruct* pCallbackStruct = (GameObjectDeletedCallbackStruct*)pNode;
+
+        // Remove the callback struct from the list before calling the function
+        //     since the callback function might try to unregister (and delete) the callback struct
+        pCallbackStruct->Remove();
+
+        // Call the onGameObjectDeleted callback function
         pCallbackStruct->pFunc( pCallbackStruct->pObj, this );
 
-        pCallbackStruct->Remove();
+        // Delete the struct
         delete pCallbackStruct;
 
         pNode = pNextNode;
