@@ -102,9 +102,6 @@
     <ClCompile Include="SourceCommon\Camera\Camera2D.cpp">
       <Filter>Source\Camera</Filter>
     </ClCompile>
-    <ClCompile Include="SourceCommon\Core\BulletWorld.cpp">
-      <Filter>Source\Core Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\Libraries\Lua\src\lapi.c">
       <Filter>Libraries\Lua\src</Filter>
     </ClCompile>
@@ -393,6 +390,12 @@
     <ClCompile Include="SourceCommon\ComponentSystem\Core\PrefabManager.cpp">
       <Filter>Source\ComponentSystem\Core Files</Filter>
     </ClCompile>
+    <ClCompile Include="SourceCommon\Physics\BulletDebugDraw.cpp">
+      <Filter>Source\Physics</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCommon\Physics\BulletWorld.cpp">
+      <Filter>Source\Physics</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SourceCommon\Camera\Camera3D.h">
@@ -400,9 +403,6 @@
     </ClInclude>
     <ClInclude Include="SourceCommon\Camera\Camera2D.h">
       <Filter>Source\Camera</Filter>
-    </ClInclude>
-    <ClInclude Include="SourceCommon\Core\BulletWorld.h">
-      <Filter>Source\Core Files</Filter>
     </ClInclude>
     <ClInclude Include="..\Libraries\LuaBridge\LuaBridge.h">
       <Filter>Libraries\Lua\LuaBridge</Filter>
@@ -733,6 +733,12 @@
     </ClInclude>
     <ClInclude Include="SourceCommon\Editor\DragAndDropHackeryExtended.h">
       <Filter>Source\Editor</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCommon\Physics\BulletDebugDraw.h">
+      <Filter>Source\Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCommon\Physics\BulletWorld.h">
+      <Filter>Source\Physics</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2014-2016 Jimmy Lord http://www.flatheadgames.com
+// Copyright (c) 2014-2017 Jimmy Lord http://www.flatheadgames.com
 //
 // This software is provided 'as-is', without any express or implied warranty.  In no event will the authors be held liable for any damages arising from the use of this software.
 // Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -11,6 +11,7 @@
 #define __BulletWorld_H__
 
 class BulletWorld;
+class BulletDebugDraw;
 
 extern BulletWorld* g_pBulletWorld;
 
@@ -27,11 +28,13 @@ public:
     // make sure to re-use collision shapes among rigid bodies whenever possible!
     btAlignedObjectArray<btCollisionShape*> m_CollisionShapes;
 
+    BulletDebugDraw* m_pBulletDebugDraw;
+
 public:
-    BulletWorld();
+    BulletWorld(MaterialDefinition* debugdrawmaterial, MyMatrix* matviewproj);
     ~BulletWorld();
 
-    void CreateWorld();
+    void CreateWorld(MaterialDefinition* debugdrawmaterial, MyMatrix* matviewproj);
     void PhysicsUpdate(float deltatime);
     void PhysicsStep();
     void Cleanup();

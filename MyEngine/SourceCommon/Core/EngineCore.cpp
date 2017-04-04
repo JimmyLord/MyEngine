@@ -49,7 +49,7 @@ EngineCore::EngineCore()
         m_pSceneFilesLoading[i].m_SceneID = -1;
     }
 
-    m_pBulletWorld = MyNew BulletWorld();
+    m_pBulletWorld = 0;
 
 #if MYFW_USING_LUA
     m_pLuaGameState = 0;
@@ -299,6 +299,10 @@ void EngineCore::OneTimeInit()
 
     if( g_pImGuiManager )
         g_pImGuiManager->Init();
+
+    // Create one bullet world shared between all scenes.
+    ComponentCamera* pCamera = g_pEngineCore->m_pEditorState->GetEditorCamera();
+    m_pBulletWorld = MyNew BulletWorld( g_pEngineCore->m_pMaterial_Box2DDebugDraw, &pCamera->m_Camera3D.m_matViewProj );
 
 #if !MYFW_USING_WX
     // TODO: fix! this won't work if flags were customized and saved into editorprefs.ini
@@ -933,6 +937,7 @@ void EngineCore::OnModePlay()
     if( m_EditorMode )
     {
         g_pMaterialManager->SaveAllMaterials();
+        //m_pComponentSystemManager->m_pPrefabManager->SaveAllPrefabs();
         m_pSoundManager->SaveAllCues();
         Editor_QuickSaveScene( "temp_editor_onplay.scene" );
         m_EditorMode = false;

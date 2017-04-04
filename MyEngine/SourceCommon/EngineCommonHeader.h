@@ -38,7 +38,7 @@ const int g_NumberOfVisibilityLayers = 8;
 #if MYFW_WINDOWS
 #pragma warning( pop )
 #endif
-#include "Core/BulletWorld.h"
+#include "Physics/BulletWorld.h"
 
 // lua
 #if MYFW_USING_LUA

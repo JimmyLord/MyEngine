@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2014-2016 Jimmy Lord http://www.flatheadgames.com
+// Copyright (c) 2014-2017 Jimmy Lord http://www.flatheadgames.com
 //
 // This software is provided 'as-is', without any express or implied warranty.  In no event will the authors be held liable for any damages arising from the use of this software.
 // Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -10,14 +10,15 @@
 #include "EngineCommonHeader.h"
 
 #include "BulletWorld.h"
+#include "BulletDebugDraw.h"
 
 BulletWorld* g_pBulletWorld = 0;
 
-BulletWorld::BulletWorld()
+BulletWorld::BulletWorld(MaterialDefinition* debugdrawmaterial, MyMatrix* matviewproj)
 {
     g_pBulletWorld = this;
 
-    CreateWorld();
+    CreateWorld( debugdrawmaterial, matviewproj );
 }
 
 BulletWorld::~BulletWorld()
@@ -28,7 +29,7 @@ BulletWorld::~BulletWorld()
     Cleanup();
 }
 
-void BulletWorld::CreateWorld()
+void BulletWorld::CreateWorld(MaterialDefinition* debugdrawmaterial, MyMatrix* matviewproj)
 {
     // collision configuration contains default setup for memory, collision setup.
     //   Advanced users can create their own configuration.
@@ -46,6 +47,9 @@ void BulletWorld::CreateWorld()
     m_pSolver = new btSequentialImpulseConstraintSolver();
 
     m_pDynamicsWorld = new btDiscreteDynamicsWorld( m_pDispatcher, m_pOverlappingPairCache, m_pSolver, m_pCollisionConfiguration );
+
+    m_pBulletDebugDraw = MyNew BulletDebugDraw( debugdrawmaterial, matviewproj );
+    m_pDynamicsWorld->setDebugDrawer( m_pBulletDebugDraw );
 
     m_pDynamicsWorld->setGravity( btVector3(0,-10,0) );
 }
@@ -103,6 +107,8 @@ void BulletWorld::Cleanup()
         m_CollisionShapes[j] = 0;
         delete shape;
     }
+
+    delete m_pBulletDebugDraw;
 
     // delete dynamics world
     delete m_pDynamicsWorld;

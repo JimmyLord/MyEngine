@@ -166,6 +166,8 @@ void EditorInterface_SceneManagement::OnDrawFrame(unsigned int canvasid)
             if( g_pComponentSystemManager->m_pSceneInfoMap[i].m_InUse && g_pComponentSystemManager->m_pSceneInfoMap[i].m_pBox2DWorld )
                 g_pComponentSystemManager->m_pSceneInfoMap[i].m_pBox2DWorld->m_pWorld->DrawDebugData();
         }
+
+        g_pEngineCore->m_pBulletWorld->m_pDynamicsWorld->debugDrawWorld();
     }
 }
 
