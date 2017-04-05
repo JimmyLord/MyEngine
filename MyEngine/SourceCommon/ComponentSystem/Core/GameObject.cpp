@@ -681,7 +681,7 @@ void GameObject::RegisterAllComponentCallbacks(bool ignoreenabledflag)
     // loop through all components and register/unregister their callbacks.
     for( unsigned int i=0; i<m_Components.Count(); i++ )
     {
-        if( m_Enabled || ignoreenabledflag )
+        if( m_Components[i]->IsEnabled() || ignoreenabledflag )
             m_Components[i]->RegisterCallbacks();
     }
 }
@@ -691,7 +691,7 @@ void GameObject::UnregisterAllComponentCallbacks(bool ignoreenabledflag)
     // loop through all components and register/unregister their callbacks.
     for( unsigned int i=0; i<m_Components.Count(); i++ )
     {
-        if( m_Enabled || ignoreenabledflag )
+        if( m_Components[i]->IsEnabled() || ignoreenabledflag )
             m_Components[i]->UnregisterCallbacks();
     }
 }

@@ -177,3 +177,7 @@ void ComponentTemplate::UnregisterCallbacks()
         m_CallbacksRegistered = false;
     }
 }
+
+//void ComponentTemplate::TickCallback(double TimePassed)
+//{
+//}

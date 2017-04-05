@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2014-2016 Jimmy Lord http://www.flatheadgames.com
+// Copyright (c) 2014-2017 Jimmy Lord http://www.flatheadgames.com
 //
 // This software is provided 'as-is', without any express or implied warranty.  In no event will the authors be held liable for any damages arising from the use of this software.
 // Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -23,11 +23,11 @@ const char* PhysicsPrimitiveTypeStrings[PhysicsPrimitive_NumTypes] = //ADDING_NE
 };
 
 ComponentCollisionObject::ComponentCollisionObject()
-: ComponentUpdateable()
+: ComponentBase()
 {
     ClassnameSanityCheck();
 
-    m_BaseType = BaseComponentType_Updateable;
+    m_BaseType = BaseComponentType_Data;
     m_Type = ComponentType_CollisionObject;
 
     m_pBody = 0;
@@ -38,7 +38,7 @@ ComponentCollisionObject::ComponentCollisionObject()
 
 ComponentCollisionObject::~ComponentCollisionObject()
 {
-    m_pComponentTransform->UnregisterTransformChangedCallbacks( this );
+    m_pGameObject->m_pComponentTransform->UnregisterTransformChangedCallbacks( this );
 
     if( m_pBody )
     {
@@ -51,7 +51,7 @@ ComponentCollisionObject::~ComponentCollisionObject()
 
 void ComponentCollisionObject::Reset()
 {
-    ComponentUpdateable::Reset();
+    ComponentBase::Reset();
 
     m_PrimitiveType = PhysicsPrimitiveType_Cube;
 
@@ -63,7 +63,7 @@ void ComponentCollisionObject::Reset()
     m_pPanelWatchBlockVisible = &m_PanelWatchBlockVisible;
     m_ControlID_PrimitiveType = -1;
 
-    m_pComponentTransform->RegisterTransformChangedCallback( this, StaticOnTransformChanged );
+    m_pGameObject->m_pComponentTransform->RegisterTransformChangedCallback( this, StaticOnTransformChanged );
 #endif //MYFW_USING_WX
 }
 
@@ -177,7 +177,7 @@ void ComponentCollisionObject::OnTransformChanged(Vector3& newpos, Vector3& newr
 
 cJSON* ComponentCollisionObject::ExportAsJSONObject(bool savesceneid, bool saveid)
 {
-    cJSON* component = ComponentUpdateable::ExportAsJSONObject( savesceneid, saveid );
+    cJSON* component = ComponentBase::ExportAsJSONObject( savesceneid, saveid );
 
     // physics primitive type, stored as string
     const char* primitivetypename = PhysicsPrimitiveTypeStrings[m_PrimitiveType];
@@ -197,7 +197,7 @@ cJSON* ComponentCollisionObject::ExportAsJSONObject(bool savesceneid, bool savei
 
 void ComponentCollisionObject::ImportFromJSONObject(cJSON* jsonobj, unsigned int sceneid)
 {
-    ComponentUpdateable::ImportFromJSONObject( jsonobj, sceneid );
+    ComponentBase::ImportFromJSONObject( jsonobj, sceneid );
 
     // physics primitive type, stored as string
     cJSON* typeobj = cJSON_GetObjectItem( jsonobj, "Primitive" );
@@ -231,12 +231,44 @@ ComponentCollisionObject& ComponentCollisionObject::operator=(const ComponentCol
 {
     MyAssert( &other != this );
 
-    ComponentUpdateable::operator=( other );
+    ComponentBase::operator=( other );
 
     m_Mass = other.m_Mass;
     m_PrimitiveType = other.m_PrimitiveType;
 
     return *this;
+}
+
+void ComponentCollisionObject::RegisterCallbacks()
+{
+    if( m_Enabled && m_CallbacksRegistered == false )
+    {
+        m_CallbacksRegistered = true;
+
+        MYFW_REGISTER_COMPONENT_CALLBACK( ComponentCollisionObject, Tick );
+        //MYFW_REGISTER_COMPONENT_CALLBACK( ComponentCollisionObject, OnSurfaceChanged );
+        //MYFW_REGISTER_COMPONENT_CALLBACK( ComponentCollisionObject, Draw );
+        //MYFW_REGISTER_COMPONENT_CALLBACK( ComponentCollisionObject, OnTouch );
+        //MYFW_REGISTER_COMPONENT_CALLBACK( ComponentCollisionObject, OnButtons );
+        //MYFW_REGISTER_COMPONENT_CALLBACK( ComponentCollisionObject, OnKeys );
+        //MYFW_REGISTER_COMPONENT_CALLBACK( ComponentCollisionObject, OnFileRenamed );
+    }
+}
+
+void ComponentCollisionObject::UnregisterCallbacks()
+{
+    if( m_CallbacksRegistered == true )
+    {
+        MYFW_UNREGISTER_COMPONENT_CALLBACK( Tick );
+        //MYFW_UNREGISTER_COMPONENT_CALLBACK( OnSurfaceChanged );
+        //MYFW_UNREGISTER_COMPONENT_CALLBACK( Draw );
+        //MYFW_UNREGISTER_COMPONENT_CALLBACK( OnTouch );
+        //MYFW_UNREGISTER_COMPONENT_CALLBACK( OnButtons );
+        //MYFW_UNREGISTER_COMPONENT_CALLBACK( OnKeys );
+        //MYFW_UNREGISTER_COMPONENT_CALLBACK( OnFileRenamed );
+
+        m_CallbacksRegistered = false;
+    }
 }
 
 void ComponentCollisionObject::SetMesh(MyMesh* pMesh)
@@ -250,11 +282,11 @@ void ComponentCollisionObject::SetMesh(MyMesh* pMesh)
 
 void ComponentCollisionObject::OnPlay()
 {
-    ComponentUpdateable::OnPlay();
+    ComponentBase::OnPlay();
 
     //// set the collision object scale on play, guess this should be set whenever the object is scaled.
     ////   TODO: find a better way to handle the object being scaled in editor.
-    //Vector3 localscale = m_pComponentTransform->GetScale();
+    //Vector3 localscale = m_pGameObject->m_pComponentTransform->GetScale();
     //btVector3 scale( localscale.x, localscale.y, localscale.z );
     //m_pBody->getCollisionShape()->setLocalScaling( scale );
     
@@ -326,13 +358,13 @@ void ComponentCollisionObject::CreateBody()
         if( isDynamic )
             colShape->calculateLocalInertia( m_Mass, localInertia );
 
-        //btVector3 pos(m_pComponentTransform->m_Position.x, m_pComponentTransform->m_Position.y, m_pComponentTransform->m_Position.z );
+        //btVector3 pos(m_pGameObject->m_pComponentTransform->m_Position.x, m_pGameObject->m_pComponentTransform->m_Position.y, m_pGameObject->m_pComponentTransform->m_Position.z );
         //startTransform.setOrigin( pos );
-        Vector3 localscale = m_pComponentTransform->GetLocalScale();
+        Vector3 localscale = m_pGameObject->m_pComponentTransform->GetLocalScale();
         btVector3 scale( localscale.x, localscale.y, localscale.z );
         colShape->setLocalScaling( scale );
 
-        MyMatrix localmat = m_pComponentTransform->GetLocalRotPosMatrix(); //GetLocalTransform();
+        MyMatrix localmat = m_pGameObject->m_pComponentTransform->GetLocalRotPosMatrix(); //GetLocalTransform();
         startTransform.setFromOpenGLMatrix( &localmat.m11 );
 
         // using motionstate is recommended, it provides interpolation capabilities, and only synchronizes 'active' objects
@@ -347,7 +379,7 @@ void ComponentCollisionObject::CreateBody()
 
 void ComponentCollisionObject::OnStop()
 {
-    ComponentUpdateable::OnStop();
+    ComponentBase::OnStop();
 
     // shouldn't get hit, all objects are deleted/recreated when gameplay is stopped.
     if( m_pBody )
@@ -357,10 +389,8 @@ void ComponentCollisionObject::OnStop()
     }
 }
 
-void ComponentCollisionObject::Tick(double TimePassed)
+void ComponentCollisionObject::TickCallback(double TimePassed)
 {
-    //ComponentUpdateable::Tick( TimePassed );
-
     if( TimePassed == 0 )
     {
         return;
@@ -397,12 +427,12 @@ void ComponentCollisionObject::Tick(double TimePassed)
         matBulletGL = matBulletGL * matScale;
     }
 
-    m_pComponentTransform->SetWorldTransform( &matBulletGL );
+    m_pGameObject->m_pComponentTransform->SetWorldTransform( &matBulletGL );
 
     //btVector3 pos = transform.getOrigin();
     //btQuaternion rot = transform.getRotation();
-    //m_pComponentTransform->SetPosition( Vector3( pos.getX(), pos.getY(), pos.getZ() ) );
-    //m_pComponentTransform->SetRotation( Vector3( rot.g, pos.getY(), pos.getZ() ) );
+    //m_pGameObject->m_pComponentTransform->SetPosition( Vector3( pos.getX(), pos.getY(), pos.getZ() ) );
+    //m_pGameObject->m_pComponentTransform->SetRotation( Vector3( rot.g, pos.getY(), pos.getZ() ) );
 }
 
 void ComponentCollisionObject::SyncRigidBodyToTransform()
@@ -411,10 +441,10 @@ void ComponentCollisionObject::SyncRigidBodyToTransform()
         return;
 
     btTransform transform;
-    //btVector3 pos(m_pComponentTransform->m_Position.x, m_pComponentTransform->m_Position.y, m_pComponentTransform->m_Position.z );
+    //btVector3 pos(m_pGameObject->m_pComponentTransform->m_Position.x, m_pGameObject->m_pComponentTransform->m_Position.y, m_pGameObject->m_pComponentTransform->m_Position.z );
     //transform.setIdentity();
     //transform.setOrigin( pos );
-    MyMatrix localmat = m_pComponentTransform->GetLocalRotPosMatrix();
+    MyMatrix localmat = m_pGameObject->m_pComponentTransform->GetLocalRotPosMatrix();
     transform.setFromOpenGLMatrix( &localmat.m11 );
 
     m_pBody->getMotionState()->setWorldTransform( transform );

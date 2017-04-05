@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2014-2016 Jimmy Lord http://www.flatheadgames.com
+// Copyright (c) 2014-2017 Jimmy Lord http://www.flatheadgames.com
 //
 // This software is provided 'as-is', without any express or implied warranty.  In no event will the authors be held liable for any damages arising from the use of this software.
 // Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -21,7 +21,7 @@ enum PhysicsPrimitiveTypes //ADDING_NEW_PhysicsPrimitiveType - order doesn't mat
 
 extern const char* PhysicsPrimitiveTypeStrings[PhysicsPrimitive_NumTypes];
 
-class ComponentCollisionObject : public ComponentUpdateable
+class ComponentCollisionObject : public ComponentBase
 {
 protected:
     btRigidBody* m_pBody;
@@ -52,14 +52,24 @@ public:
     virtual void CopyFromSameType_Dangerous(ComponentBase* pObject) { *this = (ComponentCollisionObject&)*pObject; }
     ComponentCollisionObject& operator=(const ComponentCollisionObject& other);
 
-    virtual void RegisterCallbacks() {} // TODO: change this component to use callbacks.
-    virtual void UnregisterCallbacks() {} // TODO: change this component to use callbacks.
+    virtual void RegisterCallbacks();
+    virtual void UnregisterCallbacks();
 
+protected:
+    // Callback functions for various events.
+    MYFW_DECLARE_COMPONENT_CALLBACK_TICK(); // TickCallback
+    //MYFW_DECLARE_COMPONENT_CALLBACK_ONSURFACECHANGED(); // OnSurfaceChangedCallback
+    //MYFW_DECLARE_COMPONENT_CALLBACK_DRAW(); // DrawCallback
+    //MYFW_DECLARE_COMPONENT_CALLBACK_ONTOUCH(); // OnTouchCallback
+    //MYFW_DECLARE_COMPONENT_CALLBACK_ONBUTTONS(); // OnButtonsCallback
+    //MYFW_DECLARE_COMPONENT_CALLBACK_ONKEYS(); // OnKeysCallback
+    //MYFW_DECLARE_COMPONENT_CALLBACK_ONFILERENAMED(); // OnFileRenamedCallback
+
+public:
     void SetMesh(MyMesh* pMesh);
 
     virtual void OnPlay();
     virtual void OnStop();
-    virtual void Tick(double TimePassed);
 
     void SyncRigidBodyToTransform();
 
