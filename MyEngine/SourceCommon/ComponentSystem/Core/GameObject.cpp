@@ -560,7 +560,16 @@ void GameObject::ImportFromJSONObject(cJSON* jGameObject, unsigned int sceneid)
     if( parentgoid != 0 )
     {
         GameObject* pParentGameObject = g_pComponentSystemManager->FindGameObjectByID( sceneid, parentgoid );
+
+        GameObject* pLastChild = (GameObject*)pParentGameObject->GetChildList()->GetTail();
+
         SetParentGameObject( pParentGameObject );
+
+        // move as last item in parent
+        if( pLastChild != 0 )
+            g_pPanelObjectList->Tree_MoveObject( this, pLastChild, false );
+        else
+            g_pPanelObjectList->Tree_MoveObject( this, m_pParentGameObject, true );
     }
 
     // LEGACY: support for old scene files with folders in them
