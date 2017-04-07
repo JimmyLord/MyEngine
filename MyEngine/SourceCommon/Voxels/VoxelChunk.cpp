@@ -231,7 +231,7 @@ void VoxelChunk::CreateFromVoxelMeshFile()
 {
     m_MeshReady = false;
 
-    if( m_pSourceFile->m_FileLoadStatus == FileLoadStatus_Success )
+    if( m_pSourceFile->GetFileLoadStatus() == FileLoadStatus_Success )
     {
         OnFileFinishedLoadingVoxelMesh( m_pSourceFile );
     }
@@ -247,7 +247,7 @@ void VoxelChunk::OnFileFinishedLoadingVoxelMesh(MyFileObject* pFile)
     {
         pFile->UnregisterFileFinishedLoadingCallback( this );
 
-        cJSON* jVoxelMesh = cJSON_Parse( pFile->m_pBuffer );
+        cJSON* jVoxelMesh = cJSON_Parse( pFile->GetBuffer() );
         if( jVoxelMesh )
         {
             Initialize( 0, Vector3(0,0,0), Vector3Int(0,0,0), m_BlockSize );
@@ -267,7 +267,7 @@ void VoxelChunk::OnFileFinishedLoadingVoxelMesh(MyFileObject* pFile)
 
 void VoxelChunk::ParseFile()
 {
-    MyAssert( m_pSourceFile == 0 || strcmp( m_pSourceFile->m_ExtensionWithDot, ".myvoxelmesh" ) == 0 );
+    MyAssert( m_pSourceFile == 0 || strcmp( m_pSourceFile->GetExtensionWithDot(), ".myvoxelmesh" ) == 0 );
 
     // not needed, only ".myvoxelmesh" files should be assigned to voxelchunks.
     //MyMesh::ParseFile();
@@ -276,7 +276,7 @@ void VoxelChunk::ParseFile()
     {
         if( m_pSourceFile != 0 )
         {
-            if( strcmp( m_pSourceFile->m_ExtensionWithDot, ".myvoxelmesh" ) == 0 )
+            if( strcmp( m_pSourceFile->GetExtensionWithDot(), ".myvoxelmesh" ) == 0 )
             {
                 if( m_MapCreated == false )
                 {

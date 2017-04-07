@@ -116,7 +116,7 @@ const char* ComponentVoxelMesh::GetPointerDesc(ComponentVariable* pVar) //_VARIA
 
         MyFileObject* pFile = m_pMesh->m_pSourceFile;
         if( pFile )
-            return pFile->m_FullPath;
+            return pFile->GetFullPath();
         else
             return "none";
     }
@@ -208,8 +208,8 @@ void* ComponentVoxelMesh::OnDrop(ComponentVariable* pVar, wxCoord x, wxCoord y)
         MyAssert( pFile );
         //MyAssert( m_pMesh );
 
-        //size_t len = strlen( pFile->m_FullPath );
-        const char* filenameext = pFile->m_ExtensionWithDot;
+        //size_t len = strlen( pFile->GetFullPath() );
+        const char* filenameext = pFile->GetExtensionWithDot();
 
         if( strcmp( filenameext, ".myvoxelmesh" ) == 0 )
         {
@@ -220,7 +220,7 @@ void* ComponentVoxelMesh::OnDrop(ComponentVariable* pVar, wxCoord x, wxCoord y)
             SetMesh( pMesh );
 
             // update the panel so new OBJ name shows up.
-            g_pPanelWatch->GetVariableProperties( g_DragAndDropStruct.m_ID )->m_Description = m_pMesh->m_pSourceFile->m_FullPath;
+            g_pPanelWatch->GetVariableProperties( g_DragAndDropStruct.m_ID )->m_Description = m_pMesh->m_pSourceFile->GetFullPath();
         }
 
         g_pPanelWatch->SetNeedsRefresh();
@@ -307,7 +307,7 @@ void ComponentVoxelMesh::OnButtonCreateMesh(int buttonid)
                 // update the panel so new filename shows up.
                 int filecontrolid = FindVariablesControlIDByLabel( "File" );
                 if( filecontrolid != -1 )
-                    g_pPanelWatch->GetVariableProperties( filecontrolid )->m_Description = pFile->m_FullPath;
+                    g_pPanelWatch->GetVariableProperties( filecontrolid )->m_Description = pFile->GetFullPath();
 
                 CreateMesh();
 

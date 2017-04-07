@@ -244,7 +244,7 @@ void GameObject::OnRightClick()
             MyFileObject* pFile = pPrefabFile->GetFile();
             MyAssert( pFile != 0 );
 
-            prefabmenu->Append( RightClick_CreatePrefab + i, pFile->m_FilenameWithoutExtension );
+            prefabmenu->Append( RightClick_CreatePrefab + i, pFile->GetFilenameWithoutExtension() );
         }
 
         prefabmenu->Append( RightClick_CreatePrefab + numprefabfiles, "New/Load Prefab file..." );
@@ -456,7 +456,7 @@ void GameObject::FinishLoadingPrefab(PrefabFile* pPrefabFile, uint32 prefabid)
 
 void GameObject::OnPrefabFileFinishedLoading(MyFileObject* pFile)
 {
-    PrefabFile* pPrefabFile = g_pComponentSystemManager->m_pPrefabManager->GetPrefabFileForFileObject( pFile->m_FullPath );
+    PrefabFile* pPrefabFile = g_pComponentSystemManager->m_pPrefabManager->GetPrefabFileForFileObject( pFile->GetFullPath() );
     FinishLoadingPrefab( pPrefabFile, m_PrefabID );
 
     pFile->UnregisterFileFinishedLoadingCallback( this );
@@ -490,7 +490,7 @@ cJSON* GameObject::ExportAsJSONObject(bool savesceneid)
 
     if( m_pPrefab != 0 )
     {
-        cJSON_AddStringToObject( jGameObject, "PrefabFile", m_pPrefab->GetPrefabFile()->GetFile()->m_FullPath );
+        cJSON_AddStringToObject( jGameObject, "PrefabFile", m_pPrefab->GetPrefabFile()->GetFile()->GetFullPath() );
         cJSON_AddNumberToObject( jGameObject, "PrefabID", m_pPrefab->GetID() );
     }
     
@@ -534,7 +534,7 @@ void GameObject::ImportFromJSONObject(cJSON* jGameObject, unsigned int sceneid)
             MyAssert( pPrefabFile != 0 );
 
             // if the prefab file isn't loaded yet, store the name and link to the prefab when the file is loaded
-            if( true )
+            if( true ) //pPrefabFile->GetFile()->IsFinishedLoading() == false )
             {
                 pPrefabFile->GetFile()->RegisterFileFinishedLoadingCallback( this, StaticOnPrefabFileFinishedLoading );
             }

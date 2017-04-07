@@ -142,7 +142,7 @@ PrefabFile::PrefabFile(MyFileObject* pFile)
 
 #if MYFW_USING_WX
     wxTreeItemId rootid = g_pPanelObjectList->GetTreeRoot();
-    m_TreeID = g_pPanelObjectList->AddObject( this, PrefabFile::StaticOnLeftClick, PrefabFile::StaticOnRightClick, rootid, m_pFile->m_FilenameWithoutExtension, ObjectListIcon_Scene );
+    m_TreeID = g_pPanelObjectList->AddObject( this, PrefabFile::StaticOnLeftClick, PrefabFile::StaticOnRightClick, rootid, m_pFile->GetFilenameWithoutExtension(), ObjectListIcon_Scene );
     //g_pPanelObjectList->SetDragAndDropFunctions( treeid, PrefabFile::StaticOnDrag, PrefabFile::StaticOnDrop );
 #endif
 }
@@ -209,7 +209,7 @@ void PrefabFile::OnFileFinishedLoading(MyFileObject* pFile)
 {
     pFile->UnregisterFileFinishedLoadingCallback( this );
 
-    cJSON* jRoot = cJSON_Parse( pFile->m_pBuffer );
+    cJSON* jRoot = cJSON_Parse( pFile->GetBuffer() );
 
     cJSON* jPrefab = jRoot->child;
     while( jPrefab )
@@ -268,9 +268,9 @@ void PrefabFile::Save()
 
     FILE* pFile;
 #if MYFW_WINDOWS
-    fopen_s( &pFile, m_pFile->m_FullPath, "wb" );
+    fopen_s( &pFile, m_pFile->GetFullPath(), "wb" );
 #else
-    pFile = fopen( m_pFile->m_FullPath, "wb" );
+    pFile = fopen( m_pFile->GetFullPath(), "wb" );
 #endif
     fprintf( pFile, "%s", jsonstring );
     fclose( pFile );
@@ -392,7 +392,7 @@ PrefabFile* PrefabManager::GetPrefabFileForFileObject(const char* prefabfilename
 
     for( unsigned int i=0; i<numprefabfiles; i++ )
     {
-        if( strcmp( m_pPrefabFiles[i]->GetFile()->m_FullPath, prefabfilename ) == 0 )
+        if( strcmp( m_pPrefabFiles[i]->GetFile()->GetFullPath(), prefabfilename ) == 0 )
         {
             return m_pPrefabFiles[i];
         }

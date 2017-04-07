@@ -215,7 +215,7 @@ void ComponentSystemManager::CheckForUpdatedDataSourceFiles(bool initialcheck)
             continue;
 
         if( (initialcheck == false || pFileInfo->m_DidInitialCheckIfSourceFileWasUpdated == false) && // haven't done initial check
-            pFileInfo->m_pFile->m_FileLastWriteTime.dwHighDateTime != 0 && // converted file has been loaded
+            pFileInfo->m_pFile->GetFileLastWriteTime().dwHighDateTime != 0 && // converted file has been loaded
             pFileInfo->m_SourceFileFullPath[0] != 0 )                      // we have a source file
         {
 #if MYFW_WINDOWS
@@ -227,9 +227,9 @@ void ComponentSystemManager::CheckForUpdatedDataSourceFiles(bool initialcheck)
                 FindClose( handle );
 
             // if the source file is newer than the data file, reimport it.
-            if( data.ftLastWriteTime.dwHighDateTime > pFileInfo->m_pFile->m_FileLastWriteTime.dwHighDateTime ||
-                ( data.ftLastWriteTime.dwHighDateTime == pFileInfo->m_pFile->m_FileLastWriteTime.dwHighDateTime &&
-                  data.ftLastWriteTime.dwLowDateTime > pFileInfo->m_pFile->m_FileLastWriteTime.dwLowDateTime ) )
+            if( data.ftLastWriteTime.dwHighDateTime > pFileInfo->m_pFile->GetFileLastWriteTime().dwHighDateTime ||
+                ( data.ftLastWriteTime.dwHighDateTime == pFileInfo->m_pFile->GetFileLastWriteTime().dwHighDateTime &&
+                  data.ftLastWriteTime.dwLowDateTime > pFileInfo->m_pFile->GetFileLastWriteTime().dwLowDateTime ) )
             {
                 ImportDataFile( pFileInfo->m_SceneID, pFileInfo->m_SourceFileFullPath );
                 bool updated = true;
@@ -414,7 +414,7 @@ void ComponentSystemManager::AddListOfFilesUsedToJSONObject(unsigned int sceneid
                 }
 
                 cJSON* jFile = cJSON_CreateObject();
-                cJSON_AddItemToObject( jFile, "Path", cJSON_CreateString( pFile->m_FullPath ) );
+                cJSON_AddItemToObject( jFile, "Path", cJSON_CreateString( pFile->GetFullPath() ) );
                 cJSON_AddItemToArray( filearray, jFile );
 
                 // Save the source path if there is one.
@@ -579,7 +579,7 @@ MyFileInfo* ComponentSystemManager::GetFileInfoIfUsedByScene(const char* fullpat
                 }
                 else
                 {
-                    if( strcmp( pFileInfo->m_pFile->m_FullPath, fullpath ) == 0 )
+                    if( strcmp( pFileInfo->m_pFile->GetFullPath(), fullpath ) == 0 )
                         return pFileInfo;
                 }
             }
@@ -737,8 +737,8 @@ MyFileObject* ComponentSystemManager::LoadDataFile(const char* relativepath, uns
 
         // if we're loading a mesh file type, create a mesh.
         {
-            if( strcmp( pFile->m_ExtensionWithDot, ".obj" ) == 0 ||
-                strcmp( pFile->m_ExtensionWithDot, ".mymesh" ) == 0 )
+            if( strcmp( pFile->GetExtensionWithDot(), ".obj" ) == 0 ||
+                strcmp( pFile->GetExtensionWithDot(), ".mymesh" ) == 0 )
             {
                 pFileInfo->m_pMesh = MyNew MyMesh();
                 pFileInfo->m_pMesh->SetSourceFile( pFile );
@@ -746,7 +746,7 @@ MyFileObject* ComponentSystemManager::LoadDataFile(const char* relativepath, uns
         }
 
         // if we're loading an .glsl file, create a ShaderGroup.
-        if( strcmp( pFile->m_ExtensionWithDot, ".glsl" ) == 0 )
+        if( strcmp( pFile->GetExtensionWithDot(), ".glsl" ) == 0 )
         {
             ShaderGroup* pShaderGroup = g_pShaderGroupManager->FindShaderGroupByFile( pFile );
             if( pShaderGroup )
@@ -761,32 +761,32 @@ MyFileObject* ComponentSystemManager::LoadDataFile(const char* relativepath, uns
         }
 
         // if we're loading a .mymaterial file, create a Material.
-        if( strcmp( pFile->m_ExtensionWithDot, ".mymaterial" ) == 0 )
+        if( strcmp( pFile->GetExtensionWithDot(), ".mymaterial" ) == 0 )
         {
-            pFileInfo->m_pMaterial = g_pMaterialManager->LoadMaterial( pFile->m_FullPath );
+            pFileInfo->m_pMaterial = g_pMaterialManager->LoadMaterial( pFile->GetFullPath() );
         }
 
         // if we're loading a .myprefabs file, add it to the prefab manager.
-        if( strcmp( pFile->m_ExtensionWithDot, ".myprefabs" ) == 0 )
+        if( strcmp( pFile->GetExtensionWithDot(), ".myprefabs" ) == 0 )
         {
-            pFileInfo->m_pPrefabFile = m_pPrefabManager->RequestFile( pFile->m_FullPath );
+            pFileInfo->m_pPrefabFile = m_pPrefabManager->RequestFile( pFile->GetFullPath() );
         }
 
         // if we're loading a .myspritesheet, we create a material for each texture in the sheet
-        if( strcmp( pFile->m_ExtensionWithDot, ".myspritesheet" ) == 0 )
+        if( strcmp( pFile->GetExtensionWithDot(), ".myspritesheet" ) == 0 )
         {
             ShaderGroup* pShaderGroup = g_pShaderGroupManager->FindShaderGroupByFilename( "DataEngine/Shaders/Shader_TextureTint.glsl" );
 
             pFileInfo->m_pSpriteSheet = MyNew SpriteSheet();
-            pFileInfo->m_pSpriteSheet->Create( pFile->m_FullPath, pShaderGroup, GL_LINEAR, GL_LINEAR, false, true );
+            pFileInfo->m_pSpriteSheet->Create( pFile->GetFullPath(), pShaderGroup, GL_LINEAR, GL_LINEAR, false, true );
 
             m_FilesStillLoading.MoveHead( pFileInfo );
         }
 
         // if we're loading a .mycue file, create a Sound Cue.
-        if( strcmp( pFile->m_ExtensionWithDot, ".mycue" ) == 0 )
+        if( strcmp( pFile->GetExtensionWithDot(), ".mycue" ) == 0 )
         {
-            pFileInfo->m_pSoundCue = g_pGameCore->m_pSoundManager->LoadCue( pFile->m_FullPath );
+            pFileInfo->m_pSoundCue = g_pGameCore->m_pSoundManager->LoadCue( pFile->GetFullPath() );
         }
     }
 
@@ -1168,7 +1168,7 @@ void ComponentSystemManager::FinishLoading(bool lockwhileloading, unsigned int s
             MyFileInfo* pFileInfo = (MyFileInfo*)pNode;
 
             MyAssert( pFileInfo && pFileInfo->m_pFile );
-            if( pFileInfo->m_pFile->m_FileLoadStatus < FileLoadStatus_Success ) // still loading
+            if( pFileInfo->m_pFile->GetFileLoadStatus() < FileLoadStatus_Success ) // still loading
                 return;
         }
 

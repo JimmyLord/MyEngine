@@ -126,7 +126,7 @@ void ComponentCollisionObject::FillPropertiesWindow(bool clear, bool addcomponen
             {
                 const char* desc = "no mesh";
                 if( m_pMesh && m_pMesh->m_pSourceFile )
-                    desc = m_pMesh->m_pSourceFile->m_FullPath;
+                    desc = m_pMesh->m_pSourceFile->GetFullPath();
                 g_pPanelWatch->AddPointerWithDescription( "Collision Mesh", 0, desc, this, ComponentCollisionObject::StaticOnDropOBJ );
             }
             break;
@@ -154,8 +154,9 @@ void ComponentCollisionObject::OnDropOBJ(int controlid, wxCoord x, wxCoord y)
         MyAssert( pFile );
         //MyAssert( m_pMesh );
 
-        size_t len = strlen( pFile->m_FullPath );
-        const char* filenameext = &pFile->m_FullPath[len-4];
+        const char* pPath = pFile->GetFullPath();
+        size_t len = strlen( pPath );
+        const char* filenameext = &pPath[len-4];
 
         if( strcmp( filenameext, ".obj" ) == 0 )
         {
@@ -163,7 +164,7 @@ void ComponentCollisionObject::OnDropOBJ(int controlid, wxCoord x, wxCoord y)
             SetMesh( pMesh );
 
             // update the panel so new OBJ name shows up.
-            g_pPanelWatch->GetVariableProperties( g_DragAndDropStruct.m_ID )->m_Description = m_pMesh->m_pSourceFile->m_FullPath;
+            g_pPanelWatch->GetVariableProperties( g_DragAndDropStruct.m_ID )->m_Description = m_pMesh->m_pSourceFile->GetFullPath();
         }
     }
 }
@@ -190,7 +191,7 @@ cJSON* ComponentCollisionObject::ExportAsJSONObject(bool savesceneid, bool savei
     
     // OBJ filename
     if( m_pMesh && m_pMesh->m_pSourceFile )
-        cJSON_AddStringToObject( component, "OBJ", m_pMesh->m_pSourceFile->m_FullPath );
+        cJSON_AddStringToObject( component, "OBJ", m_pMesh->m_pSourceFile->GetFullPath() );
 
     return component;
 }

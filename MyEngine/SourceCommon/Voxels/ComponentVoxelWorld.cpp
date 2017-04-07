@@ -306,7 +306,7 @@ void ComponentVoxelWorld::OnButtonCreateSaveFile(int buttonid)
                 // update the panel so new filename shows up.
                 int filecontrolid = FindVariablesControlIDByLabel( "File" );
                 if( filecontrolid != -1 )
-                    g_pPanelWatch->GetVariableProperties( filecontrolid )->m_Description = pFile->m_FullPath;
+                    g_pPanelWatch->GetVariableProperties( filecontrolid )->m_Description = pFile->GetFullPath();
 
                 pFile->AddRef();
                 m_pSaveFile = pFile;
@@ -331,7 +331,7 @@ cJSON* ComponentVoxelWorld::ExportAsJSONObject(bool savesceneid, bool saveid)
     ExportVariablesToJSON( jComponent ); //_VARIABLE_LIST
 
     if( m_pSaveFile )
-        cJSON_AddStringToObject( jComponent, "Save File", m_pSaveFile->m_FullPath );
+        cJSON_AddStringToObject( jComponent, "Save File", m_pSaveFile->GetFullPath() );
 
     return jComponent;
 }

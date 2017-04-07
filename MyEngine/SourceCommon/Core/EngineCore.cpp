@@ -367,15 +367,15 @@ double EngineCore::Tick(double TimePassed)
 
     // if the next scene requested is ready load the scene.
     MyFileObject* pFile = m_pSceneFilesLoading[0].m_pFile;
-    if( pFile && pFile->m_FileLoadStatus == FileLoadStatus_Success )
+    if( pFile && pFile->GetFileLoadStatus() == FileLoadStatus_Success )
     {
         unsigned int sceneid = g_pComponentSystemManager->GetNextSceneID();
 
         g_pComponentSystemManager->m_pSceneInfoMap[sceneid].Reset();
         g_pComponentSystemManager->m_pSceneInfoMap[sceneid].m_InUse = true;
-        g_pComponentSystemManager->m_pSceneInfoMap[sceneid].ChangePath( pFile->m_FullPath );
+        g_pComponentSystemManager->m_pSceneInfoMap[sceneid].ChangePath( pFile->GetFullPath() );
 
-        LoadSceneFromJSON( pFile->m_FilenameWithoutExtension, pFile->m_pBuffer, sceneid );
+        LoadSceneFromJSON( pFile->GetFilenameWithoutExtension(), pFile->GetBuffer(), sceneid );
 
         SAFE_RELEASE( m_pSceneFilesLoading[0].m_pFile );
 
@@ -483,15 +483,15 @@ void OnFileUpdated_CallbackFunction(MyFileObject* pFile)
 #if MYFW_USING_WX
     g_pComponentSystemManager->OnFileUpdated( pFile );
 
-    LOGInfo( LOGTag, "OnFileUpdated_CallbackFunction pFile = %s\n", pFile->m_FullPath );
+    LOGInfo( LOGTag, "OnFileUpdated_CallbackFunction pFile = %s\n", pFile->GetFullPath() );
 
-    if( strcmp( pFile->m_ExtensionWithDot, ".mymaterial" ) == 0 )
+    if( strcmp( pFile->GetExtensionWithDot(), ".mymaterial" ) == 0 )
     {
-        MaterialDefinition* pMaterial = g_pMaterialManager->FindMaterialByFilename( pFile->m_FullPath );
+        MaterialDefinition* pMaterial = g_pMaterialManager->FindMaterialByFilename( pFile->GetFullPath() );
         g_pMaterialManager->ReloadMaterial( pMaterial );
     }
 
-    if( strcmp( pFile->m_ExtensionWithDot, ".mymesh" ) == 0 )
+    if( strcmp( pFile->GetExtensionWithDot(), ".mymesh" ) == 0 )
     {
         MyMesh* pMesh = g_pMeshManager->FindMeshBySourceFile( pFile );
         // clear out the old mesh and load in the new one.
@@ -1217,7 +1217,7 @@ RequestedSceneInfo* EngineCore::RequestSceneInternal(const char* fullpath)
         for( int i=0; i<MAX_SCENE_FILES_QUEUED_UP; i++ )
         {
             MyFileObject* pFile = m_pSceneFilesLoading[i].m_pFile;
-            if( pFile && strcmp( pFile->m_FullPath, fullpath ) == 0 )
+            if( pFile && strcmp( pFile->GetFullPath(), fullpath ) == 0 )
                 return 0;
         }
     }

@@ -131,13 +131,13 @@ void* ComponentAnimationPlayer2D::OnDrop(ComponentVariable* pVar, wxCoord x, wxC
         MyFileObject* pFile = (MyFileObject*)g_DragAndDropStruct.m_Value;
         MyAssert( pFile );
 
-        if( strcmp( pFile->m_ExtensionWithDot, ".my2daniminfo" ) == 0 )
+        if( strcmp( pFile->GetExtensionWithDot(), ".my2daniminfo" ) == 0 )
         {
             oldpointer = m_pAnimationFile;
             SetAnimationFile( pFile );
 
             // update the panel so new filename shows up.
-            g_pPanelWatch->GetVariableProperties( pVar->m_ControlID )->m_Description = m_pAnimationFile->m_FullPath;
+            g_pPanelWatch->GetVariableProperties( pVar->m_ControlID )->m_Description = m_pAnimationFile->GetFullPath();
         }
     }
 
@@ -197,7 +197,7 @@ cJSON* ComponentAnimationPlayer2D::ExportAsJSONObject(bool savesceneid, bool sav
     cJSON* jComponent = ComponentBase::ExportAsJSONObject( savesceneid, saveid );
 
     if( m_pAnimationFile )
-        cJSON_AddStringToObject( jComponent, "AnimFile", m_pAnimationFile->m_FullPath );
+        cJSON_AddStringToObject( jComponent, "AnimFile", m_pAnimationFile->GetFullPath() );
 
     return jComponent;
 }
@@ -294,11 +294,11 @@ void ComponentAnimationPlayer2D::TickCallback(double TimePassed)
 
     if( m_pAnimInfo == 0 )
     {
-        if( m_pAnimationFile && m_pAnimationFile->m_FileLoadStatus == FileLoadStatus_Success )
+        if( m_pAnimationFile && m_pAnimationFile->GetFileLoadStatus() == FileLoadStatus_Success )
         {
             m_pAnimInfo = MyNew My2DAnimInfo();
             m_pAnimInfo->SetSourceFile( m_pAnimationFile );
-            m_pAnimInfo->LoadAnimationControlFile( m_pAnimationFile->m_pBuffer );
+            m_pAnimInfo->LoadAnimationControlFile( m_pAnimationFile->GetBuffer() );
         }
     }
 

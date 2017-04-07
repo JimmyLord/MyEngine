@@ -290,7 +290,7 @@ void ComponentMenuPage::SaveMenuPageToDisk()
     }
 
     if( m_pMenuLayoutFile )
-        SaveMenuPageToDisk( m_pMenuLayoutFile->m_FullPath );
+        SaveMenuPageToDisk( m_pMenuLayoutFile->GetFullPath() );
     else
         LOGError( LOGTag, "MENU FILE NOT SAVED!\n" );
 }
@@ -330,7 +330,7 @@ void ComponentMenuPage::RenameMenuPage(const char* newfullpath)
     // TODO: clicking on the filename box should pop up a file-open dialog, instead of this mess.
 
     // if the filename didn't change, return.
-    if( m_pMenuLayoutFile != 0 && strcmp( newfullpath, m_pMenuLayoutFile->m_FullPath ) == 0 )
+    if( m_pMenuLayoutFile != 0 && strcmp( newfullpath, m_pMenuLayoutFile->GetFullPath() ) == 0 )
         return;
 
     // if new file exists load it, otherwise delete this file, save as the new name and load it.
@@ -339,7 +339,7 @@ void ComponentMenuPage::RenameMenuPage(const char* newfullpath)
         // filename changed, delete the old file, save the new one and 
         if( m_pMenuLayoutFile->GetRefCount() == 1 )
         {
-            LOGInfo( LOGTag, "Renaming menu file from %s to %s, file is not be deleted from disk.\n", m_pMenuLayoutFile->m_FullPath, newfullpath );
+            LOGInfo( LOGTag, "Renaming menu file from %s to %s, file is not be deleted from disk.\n", m_pMenuLayoutFile->GetFullPath(), newfullpath );
 
             m_pMenuLayoutFile->Release();
                     
@@ -472,7 +472,7 @@ void ComponentMenuPage::FillPropertiesWindow(bool clear, bool addcomponentvariab
         m_ControlID_ComponentCamera = g_pPanelWatch->AddPointerWithDescription( "Camera Component", m_pComponentCamera, desc, this, ComponentMenuPage::StaticOnDropComponent, ComponentMenuPage::StaticOnValueChanged );
 
         if( m_pMenuLayoutFile )
-            m_ControlID_Filename = g_pPanelWatch->AddPointerWithDescription( "Menu file", m_pMenuLayoutFile, m_pMenuLayoutFile->m_FullPath, this, 0, ComponentMenuPage::StaticOnValueChanged );
+            m_ControlID_Filename = g_pPanelWatch->AddPointerWithDescription( "Menu file", m_pMenuLayoutFile, m_pMenuLayoutFile->GetFullPath(), this, 0, ComponentMenuPage::StaticOnValueChanged );
         else
             m_ControlID_Filename = g_pPanelWatch->AddPointerWithDescription( "Menu file", m_pMenuLayoutFile, "no file", this, 0, ComponentMenuPage::StaticOnValueChanged );
 
@@ -684,7 +684,7 @@ void ComponentMenuPage::OnValueChanged(int controlid, bool finishedchanging)
             RenameMenuPage( newfullpath );
             if( m_pMenuLayoutFile )
             {
-                g_pPanelWatch->ChangeDescriptionForPointerWithDescription( controlid, m_pMenuLayoutFile->m_FullPath );
+                g_pPanelWatch->ChangeDescriptionForPointerWithDescription( controlid, m_pMenuLayoutFile->GetFullPath() );
             }
             else
             {
@@ -903,7 +903,7 @@ cJSON* ComponentMenuPage::ExportAsJSONObject(bool savesceneid, bool saveid)
     cJSON_AddNumberToObject( jComponent, "InputEnabled", m_InputEnabled );
     
     if( m_pMenuLayoutFile )
-        cJSON_AddStringToObject( jComponent, "MenuFile", m_pMenuLayoutFile->m_FullPath );
+        cJSON_AddStringToObject( jComponent, "MenuFile", m_pMenuLayoutFile->GetFullPath() );
     
     if( m_ButtonActions[0][0] != 0 ) cJSON_AddStringToObject( jComponent, "ActionButtonB", m_ButtonActions[0] );
     if( m_ButtonActions[1][0] != 0 ) cJSON_AddStringToObject( jComponent, "ActionButtonC", m_ButtonActions[1] );
@@ -1318,10 +1318,10 @@ void ComponentMenuPage::OnFileRenamedCallback(const char* fullpathbefore, const 
 {
     if( m_MenuLayouts == 0 )
     {
-        if( m_pMenuLayoutFile && m_pMenuLayoutFile->m_FileLoadStatus == FileLoadStatus_Success )
+        if( m_pMenuLayoutFile && m_pMenuLayoutFile->GetFileLoadStatus() == FileLoadStatus_Success )
         {
             MyAssert( m_MenuLayouts == 0 );
-            m_MenuLayouts = cJSON_Parse( m_pMenuLayoutFile->m_pBuffer );
+            m_MenuLayouts = cJSON_Parse( m_pMenuLayoutFile->GetBuffer() );
         }
     }
 
@@ -1353,16 +1353,16 @@ void ComponentMenuPage::CreateMenuItems()
     {
         if( m_pMenuLayoutFile )
         {
-            if( m_pMenuLayoutFile->m_FileLoadStatus == FileLoadStatus_Success )
+            if( m_pMenuLayoutFile->GetFileLoadStatus() == FileLoadStatus_Success )
             {
                 MyAssert( m_MenuLayouts == 0 );
-                m_MenuLayouts = cJSON_Parse( m_pMenuLayoutFile->m_pBuffer );
+                m_MenuLayouts = cJSON_Parse( m_pMenuLayoutFile->GetBuffer() );
                 if( m_MenuLayouts == 0 )
                     m_MenuLayouts = cJSON_CreateObject();
 
                 LoadLayoutBasedOnCurrentAspectRatio();
             }
-            else if( m_pMenuLayoutFile->m_FileLoadStatus == FileLoadStatus_Error_FileNotFound )
+            else if( m_pMenuLayoutFile->GetFileLoadStatus() == FileLoadStatus_Error_FileNotFound )
             {
                 if( m_MenuLayouts == 0 )
                     m_MenuLayouts = cJSON_CreateObject();

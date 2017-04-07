@@ -126,7 +126,7 @@ void ComponentLuaScript::CreateNewScriptFile()
 
             // update the panel so new filename shows up. // TODO: this won't refresh lua variables, so maybe refresh the whole watch panel.
             int scriptcontrolid = FindVariablesControlIDByLabel( "Script" );
-            g_pPanelWatch->GetVariableProperties( scriptcontrolid )->m_Description = m_pScriptFile->m_FullPath;
+            g_pPanelWatch->GetVariableProperties( scriptcontrolid )->m_Description = m_pScriptFile->GetFullPath();
 
             // TODO: create a template file.
             {
@@ -139,7 +139,7 @@ void ComponentLuaScript::CreateNewScriptFile()
                     {
                         fprintf( file, "-- Menu Action File\n" );
                         fprintf( file, "\n" );
-                        fprintf( file, "%s =\n", m_pScriptFile->m_FilenameWithoutExtension );
+                        fprintf( file, "%s =\n", m_pScriptFile->GetFilenameWithoutExtension() );
                         fprintf( file, "{\n" );
                         fprintf( file, "\n" );
                         fprintf( file, "OnVisible = function(visible)\n" );
@@ -153,9 +153,9 @@ void ComponentLuaScript::CreateNewScriptFile()
                     }
                     else
                     {
-                        fprintf( file, "-- %s Script\n", m_pScriptFile->m_FilenameWithoutExtension );
+                        fprintf( file, "-- %s Script\n", m_pScriptFile->GetFilenameWithoutExtension() );
                         fprintf( file, "\n" );
-                        fprintf( file, "%s =\n", m_pScriptFile->m_FilenameWithoutExtension );
+                        fprintf( file, "%s =\n", m_pScriptFile->GetFilenameWithoutExtension() );
                         fprintf( file, "{\n" );
                         fprintf( file, "\n" );
                         fprintf( file, "OnLoad = function()\n" );
@@ -226,7 +226,7 @@ void ComponentLuaScript::FillPropertiesWindow(bool clear, bool addcomponentvaria
 
         //const char* desc = "no script";
         //if( m_pScriptFile )
-        //    desc = m_pScriptFile->m_FullPath;
+        //    desc = m_pScriptFile->GetFullPath();
         //m_ControlID_Script = g_pPanelWatch->AddPointerWithDescription( "Script", 0, desc, this, ComponentLuaScript::StaticOnDrop );
 
         for( unsigned int i=0; i<m_ExposedVars.Count(); i++ )
@@ -316,14 +316,14 @@ void* ComponentLuaScript::OnDrop(ComponentVariable* pVar, wxCoord x, wxCoord y)
         MyFileObject* pFile = (MyFileObject*)g_DragAndDropStruct.m_Value;
         MyAssert( pFile );
 
-        if( strcmp( pFile->m_ExtensionWithDot, ".lua" ) == 0 )
+        if( strcmp( pFile->GetExtensionWithDot(), ".lua" ) == 0 )
         {
             oldvalue = m_pScriptFile;
             SetScriptFile( pFile );
 
             // update the panel so new filename shows up.
             // TODO: this won't refresh lua variables, so maybe refresh the whole watch panel.
-            g_pPanelWatch->GetVariableProperties( pVar->m_ControlID )->m_Description = m_pScriptFile->m_FullPath;
+            g_pPanelWatch->GetVariableProperties( pVar->m_ControlID )->m_Description = m_pScriptFile->GetFullPath();
         }
     }
 
@@ -359,14 +359,14 @@ void* ComponentLuaScript::ProcessOnDropExposedVar(int controlid, wxCoord x, wxCo
         MyFileObject* pFile = (MyFileObject*)g_DragAndDropStruct.m_Value;
         MyAssert( pFile );
 
-        if( strcmp( pFile->m_ExtensionWithDot, ".lua" ) == 0 )
+        if( strcmp( pFile->GetExtensionWithDot(), ".lua" ) == 0 )
         {
             oldpointer = m_pScriptFile;
             SetScriptFile( pFile );
 
             // update the panel so new filename shows up. // TODO: this won't refresh lua variables, so maybe refresh the whole watch panel.
             int scriptcontrolid = FindVariablesControlIDByLabel( "Script" );
-            g_pPanelWatch->GetVariableProperties( scriptcontrolid )->m_Description = m_pScriptFile->m_FullPath;
+            g_pPanelWatch->GetVariableProperties( scriptcontrolid )->m_Description = m_pScriptFile->GetFullPath();
         }
     }
 
@@ -915,7 +915,7 @@ cJSON* ComponentLuaScript::ExportAsJSONObject(bool savesceneid, bool saveid)
     cJSON* jComponent = ComponentUpdateable::ExportAsJSONObject( savesceneid, saveid );
 
     if( m_pScriptFile )
-        cJSON_AddStringToObject( jComponent, "Script", m_pScriptFile->m_FullPath );
+        cJSON_AddStringToObject( jComponent, "Script", m_pScriptFile->GetFullPath() );
 
     // save the array of exposed variables
     cJSON* exposedvararray = cJSON_CreateArray();
@@ -1104,20 +1104,20 @@ void ComponentLuaScript::LoadScript()
         return;
 
     // script is ready, so run it.
-    if( m_pScriptFile->m_FileLoadStatus == FileLoadStatus_Success )
+    if( m_pScriptFile->GetFileLoadStatus() == FileLoadStatus_Success )
     {
-        LOGInfo( LOGTag, "luaL_loadstring: %s\n", m_pScriptFile->m_FilenameWithoutExtension );
+        LOGInfo( LOGTag, "luaL_loadstring: %s\n", m_pScriptFile->GetFilenameWithoutExtension() );
 
         // load the string from the file
-        int loadretcode = luaL_loadstring( m_pLuaGameState->m_pLuaState, m_pScriptFile->m_pBuffer );
-        //LOGInfo( LOGTag, "luaL_loadstring) %s last 3 bytes -> %d %d %d\n", m_pScriptFile->m_FullPath, m_pScriptFile->m_pBuffer[m_pScriptFile->m_FileLength-2], m_pScriptFile->m_pBuffer[m_pScriptFile->m_FileLength-1], m_pScriptFile->m_pBuffer[m_pScriptFile->m_FileLength] );
+        int loadretcode = luaL_loadstring( m_pLuaGameState->m_pLuaState, m_pScriptFile->GetBuffer() );
+        //LOGInfo( LOGTag, "luaL_loadstring) %s last 3 bytes -> %d %d %d\n", m_pScriptFile->GetFullPath(), m_pScriptFile->GetBuffer()[m_pScriptFile->m_FileLength-2], m_pScriptFile->GetBuffer()[m_pScriptFile->m_FileLength-1], m_pScriptFile->GetBuffer()[m_pScriptFile->m_FileLength] );
         if( loadretcode == LUA_OK )
         {
             // run the code to do initial parsing
             int exeretcode = lua_pcall( m_pLuaGameState->m_pLuaState, 0, LUA_MULTRET, 0 );
             if( exeretcode == LUA_OK )
             {
-                luabridge::LuaRef LuaObject = luabridge::getGlobal( m_pLuaGameState->m_pLuaState, m_pScriptFile->m_FilenameWithoutExtension );
+                luabridge::LuaRef LuaObject = luabridge::getGlobal( m_pLuaGameState->m_pLuaState, m_pScriptFile->GetFilenameWithoutExtension() );
 
                 if( LuaObject.isTable() )
                 {
@@ -1328,7 +1328,7 @@ void ComponentLuaScript::ProgramVariables(luabridge::LuaRef LuaObject, bool upda
 void ComponentLuaScript::HandleLuaError(const char* functionname, const char* errormessage)
 {
     m_ErrorInScript = true;
-    LuaBridgeExt_LogExceptionFormattedForVisualStudioOutputWindow( functionname, m_pScriptFile->m_FullPath, errormessage );
+    LuaBridgeExt_LogExceptionFormattedForVisualStudioOutputWindow( functionname, m_pScriptFile->GetFullPath(), errormessage );
 
     // pop the error message off the lua stack
     lua_pop( m_pLuaGameState->m_pLuaState, 1 );
@@ -1349,9 +1349,9 @@ void ComponentLuaScript::OnPlay()
     if( m_ErrorInScript )
         return;
 
-    if( m_pScriptFile->m_FileLoadStatus != FileLoadStatus_Success )
+    if( m_pScriptFile->GetFileLoadStatus() != FileLoadStatus_Success )
     {
-        LOGInfo( LOGTag, "Script warning: OnPlay, script not loaded: %s\n", m_pScriptFile->m_FilenameWithoutExtension );
+        LOGInfo( LOGTag, "Script warning: OnPlay, script not loaded: %s\n", m_pScriptFile->GetFilenameWithoutExtension() );
     }
 
     m_CallLuaOnPlayNextTickOrAfterScriptIsFinishedLoading = true;
@@ -1459,7 +1459,7 @@ void ComponentLuaScript::TickCallback(double TimePassed)
         m_CallLuaOnPlayNextTickOrAfterScriptIsFinishedLoading = false;
 
         // find the OnPlay function and call it, look for a table that matched our filename.
-        luabridge::LuaRef LuaObject = luabridge::getGlobal( m_pLuaGameState->m_pLuaState, m_pScriptFile->m_FilenameWithoutExtension );
+        luabridge::LuaRef LuaObject = luabridge::getGlobal( m_pLuaGameState->m_pLuaState, m_pScriptFile->GetFilenameWithoutExtension() );
         
         if( LuaObject.isNil() == false )
         {

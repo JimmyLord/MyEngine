@@ -1257,7 +1257,7 @@ void EngineMainFrame::OnDrop(int controlid, wxCoord x, wxCoord y)
         MyFileObject* pFile = (MyFileObject*)g_DragAndDropStruct.m_Value;
         MyAssert( pFile );
 
-        if( pFile && strcmp( pFile->m_ExtensionWithDot, ".lua" ) == 0 )
+        if( pFile && strcmp( pFile->GetExtensionWithDot(), ".lua" ) == 0 )
         {
             if( pObjectDroppedOn )
             {
@@ -1265,7 +1265,7 @@ void EngineMainFrame::OnDrop(int controlid, wxCoord x, wxCoord y)
             }
         }
 
-        if( pFile && strcmp( pFile->m_ExtensionWithDot, ".glsl" ) == 0 )
+        if( pFile && strcmp( pFile->GetExtensionWithDot(), ".glsl" ) == 0 )
         {
             if( pObjectDroppedOn && pObjectDroppedOn->GetMaterial() )
             {
@@ -1275,7 +1275,7 @@ void EngineMainFrame::OnDrop(int controlid, wxCoord x, wxCoord y)
         }
 
         if( pFile &&
-            ( strcmp( pFile->m_ExtensionWithDot, ".obj" ) == 0 || strcmp( pFile->m_ExtensionWithDot, ".mymesh" ) == 0 )
+            ( strcmp( pFile->GetExtensionWithDot(), ".obj" ) == 0 || strcmp( pFile->GetExtensionWithDot(), ".mymesh" ) == 0 )
           )
         {
             // TODO: undo/redo

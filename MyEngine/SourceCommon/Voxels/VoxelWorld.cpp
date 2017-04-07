@@ -193,14 +193,14 @@ void VoxelWorld::Tick(double timepassed, void* pUserData)
     // Only make chunks once the save file is fully loaded, if there's a save file.
     if( m_pSaveFile && m_jJSONSavedMapData == 0 )
     {
-        if( m_pSaveFile->m_FileLoadStatus < FileLoadStatus_Success )
+        if( m_pSaveFile->GetFileLoadStatus() < FileLoadStatus_Success )
         {
             return;
         }
 
-        if( m_pSaveFile->m_FileLoadStatus == FileLoadStatus_Success )
+        if( m_pSaveFile->GetFileLoadStatus() == FileLoadStatus_Success )
         {
-            m_jJSONSavedMapData = cJSON_Parse( m_pSaveFile->m_pBuffer );
+            m_jJSONSavedMapData = cJSON_Parse( m_pSaveFile->GetBuffer() );
             if( m_jJSONSavedMapData == 0 )
                 m_jJSONSavedMapData = cJSON_CreateObject();
 
@@ -801,9 +801,9 @@ void VoxelWorld::SaveTheWorld()
     {
         FILE* pFile = 0;
 #if MYFW_WINDOWS
-        fopen_s( &pFile, m_pSaveFile->m_FullPath, "wb" );
+        fopen_s( &pFile, m_pSaveFile->GetFullPath(), "wb" );
 #else
-        pFile = fopen( m_pSaveFile->m_FullPath, "wb" );
+        pFile = fopen( m_pSaveFile->GetFullPath(), "wb" );
 #endif
 
         char* jsonstring = cJSON_Print( m_jJSONSavedMapData );

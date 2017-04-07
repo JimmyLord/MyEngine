@@ -483,7 +483,7 @@ void ComponentBase::AddVariableToPropertiesWindow(ComponentVariable* pVar)
                 const char* desc = "none";
                 if( pFile )
                 {
-                    desc = pFile->m_FullPath;
+                    desc = pFile->GetFullPath();
                 }
 
                 pVar->m_ControlID = g_pPanelWatch->AddPointerWithDescription( pVar->m_WatchLabel, pFile, desc, this, ComponentBase::StaticOnDropVariable, ComponentBase::StaticOnValueChangedVariable, ComponentBase::StaticOnRightClickVariable );

@@ -204,7 +204,7 @@ public:
         //if( m_Playing == false ) return false;
 
         // find the function and call it.
-        luabridge::LuaRef LuaObject = luabridge::getGlobal( m_pLuaGameState->m_pLuaState, m_pScriptFile->m_FilenameWithoutExtension );
+        luabridge::LuaRef LuaObject = luabridge::getGlobal( m_pLuaGameState->m_pLuaState, m_pScriptFile->GetFilenameWithoutExtension() );
         MyAssert( LuaObject.isNil() == false );
 
         // call pFuncName
@@ -222,7 +222,7 @@ public:
         if( m_Playing == false ) return false;
 
         // find the function and call it.
-        luabridge::LuaRef LuaObject = luabridge::getGlobal( m_pLuaGameState->m_pLuaState, m_pScriptFile->m_FilenameWithoutExtension );
+        luabridge::LuaRef LuaObject = luabridge::getGlobal( m_pLuaGameState->m_pLuaState, m_pScriptFile->GetFilenameWithoutExtension() );
         MyAssert( LuaObject.isNil() == false );
 
         // call pFuncName
@@ -241,7 +241,7 @@ public:
         if( m_Playing == false ) return false;
 
         // find the function and call it.
-        luabridge::LuaRef LuaObject = luabridge::getGlobal( m_pLuaGameState->m_pLuaState, m_pScriptFile->m_FilenameWithoutExtension );
+        luabridge::LuaRef LuaObject = luabridge::getGlobal( m_pLuaGameState->m_pLuaState, m_pScriptFile->GetFilenameWithoutExtension() );
         MyAssert( LuaObject.isNil() == false );
 
         // call pFuncName
@@ -260,7 +260,7 @@ public:
         if( m_Playing == false ) return false;
 
         // find the function and call it.
-        luabridge::LuaRef LuaObject = luabridge::getGlobal( m_pLuaGameState->m_pLuaState, m_pScriptFile->m_FilenameWithoutExtension );
+        luabridge::LuaRef LuaObject = luabridge::getGlobal( m_pLuaGameState->m_pLuaState, m_pScriptFile->GetFilenameWithoutExtension() );
         MyAssert( LuaObject.isNil() == false );
 
         // call pFuncName
@@ -279,7 +279,7 @@ public:
         if( m_Playing == false ) return false;
 
         // find the function and call it.
-        luabridge::LuaRef LuaObject = luabridge::getGlobal( m_pLuaGameState->m_pLuaState, m_pScriptFile->m_FilenameWithoutExtension );
+        luabridge::LuaRef LuaObject = luabridge::getGlobal( m_pLuaGameState->m_pLuaState, m_pScriptFile->GetFilenameWithoutExtension() );
         MyAssert( LuaObject.isNil() == false );
 
         // call pFuncName
@@ -298,7 +298,7 @@ public:
         if( m_Playing == false ) return false;
 
         // find the function and call it.
-        luabridge::LuaRef LuaObject = luabridge::getGlobal( m_pLuaGameState->m_pLuaState, m_pScriptFile->m_FilenameWithoutExtension );
+        luabridge::LuaRef LuaObject = luabridge::getGlobal( m_pLuaGameState->m_pLuaState, m_pScriptFile->GetFilenameWithoutExtension() );
         MyAssert( LuaObject.isNil() == false );
 
         // call pFuncName
@@ -317,7 +317,7 @@ public:
         if( m_Playing == false ) return false;
 
         // find the function and call it.
-        luabridge::LuaRef LuaObject = luabridge::getGlobal( m_pLuaGameState->m_pLuaState, m_pScriptFile->m_FilenameWithoutExtension );
+        luabridge::LuaRef LuaObject = luabridge::getGlobal( m_pLuaGameState->m_pLuaState, m_pScriptFile->GetFilenameWithoutExtension() );
         MyAssert( LuaObject.isNil() == false );
 
         // call pFuncName

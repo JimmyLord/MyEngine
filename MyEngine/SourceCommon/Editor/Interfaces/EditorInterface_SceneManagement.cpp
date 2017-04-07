@@ -109,7 +109,7 @@ void EditorInterface_SceneManagement::OnDrawFrame(unsigned int canvasid)
 
             if( g_pEngineCore->m_pMaterialBallMesh && g_pEngineCore->m_pMaterialBallMesh->m_MeshReady == false )
             {
-                if( g_pEngineCore->m_pSphereMeshFile->m_FileLoadStatus == FileLoadStatus_Success )
+                if( g_pEngineCore->m_pSphereMeshFile->GetFileLoadStatus() == FileLoadStatus_Success )
                 {
                     g_pEngineCore->m_pMaterialBallMesh->SetSourceFile( g_pEngineCore->m_pSphereMeshFile );
                 }

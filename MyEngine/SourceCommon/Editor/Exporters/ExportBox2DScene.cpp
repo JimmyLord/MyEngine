@@ -109,7 +109,7 @@ cJSON* ExportGameObject(cJSON* jGameObjectArray, GameObject* pGameObject)
                         pMaterial = pMesh->GetMaterial( 0 );
 
                         if( pMesh->m_pMesh && pMesh->m_pMesh->m_pSourceFile )
-                            cJSON_AddStringToObject( jComponent, "OBJFilename", pMesh->m_pMesh->m_pSourceFile->m_FilenameWithoutExtension );
+                            cJSON_AddStringToObject( jComponent, "OBJFilename", pMesh->m_pMesh->m_pSourceFile->GetFilenameWithoutExtension() );
                     }
 
                     if( pMaterial )
@@ -128,7 +128,7 @@ cJSON* ExportGameObject(cJSON* jGameObjectArray, GameObject* pGameObject)
                                             
                         if( pMaterial->GetShader() )
                         {
-                            char* name = pMaterial->GetShader()->GetShader( ShaderPass_Main )->m_pFile->m_FilenameWithoutExtension;
+                            const char* name = pMaterial->GetShader()->GetShader( ShaderPass_Main )->m_pFile->GetFilenameWithoutExtension();
                             cJSON_AddStringToObject( jComponent, "Shader", name );
                         }
 

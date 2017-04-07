@@ -79,7 +79,7 @@ const char* ComponentMeshOBJ::GetPointerDesc(ComponentVariable* pVar) //_VARIABL
 
         MyFileObject* pFile = m_pMesh->m_pSourceFile;
         if( pFile )
-            return pFile->m_FullPath;
+            return pFile->GetFullPath();
         else
             return "none";
     }
@@ -137,7 +137,7 @@ void ComponentMeshOBJ::FillPropertiesWindow(bool clear, bool addcomponentvariabl
 
         //const char* desc = "no mesh";
         //if( m_pMesh && m_pMesh->m_pSourceFile )
-        //    desc = m_pMesh->m_pSourceFile->m_FullPath;
+        //    desc = m_pMesh->m_pSourceFile->GetFullPath();
         //g_pPanelWatch->AddPointerWithDescription( "File", 0, desc, this, ComponentMeshOBJ::StaticOnDropOBJ );
 
         if( addcomponentvariables )
@@ -183,8 +183,8 @@ void* ComponentMeshOBJ::OnDropOBJ(ComponentVariable* pVar, wxCoord x, wxCoord y)
         MyAssert( pFile );
         //MyAssert( m_pMesh );
 
-        //size_t len = strlen( pFile->m_FullPath );
-        const char* filenameext = pFile->m_ExtensionWithDot;
+        //size_t len = strlen( pFile->GetFullPath() );
+        const char* filenameext = pFile->GetExtensionWithDot();
 
         if( strcmp( filenameext, ".obj" ) == 0 )
         {
@@ -195,7 +195,7 @@ void* ComponentMeshOBJ::OnDropOBJ(ComponentVariable* pVar, wxCoord x, wxCoord y)
             SetMesh( pMesh );
 
             // update the panel so new OBJ name shows up.
-            g_pPanelWatch->GetVariableProperties( g_DragAndDropStruct.m_ID )->m_Description = m_pMesh->m_pSourceFile->m_FullPath;
+            g_pPanelWatch->GetVariableProperties( g_DragAndDropStruct.m_ID )->m_Description = m_pMesh->m_pSourceFile->GetFullPath();
         }
 
         if( strcmp( filenameext, ".mymesh" ) == 0 )
@@ -207,7 +207,7 @@ void* ComponentMeshOBJ::OnDropOBJ(ComponentVariable* pVar, wxCoord x, wxCoord y)
             SetMesh( pMesh );
 
             // update the panel so new OBJ name shows up.
-            g_pPanelWatch->GetVariableProperties( g_DragAndDropStruct.m_ID )->m_Description = m_pMesh->m_pSourceFile->m_FullPath;
+            g_pPanelWatch->GetVariableProperties( g_DragAndDropStruct.m_ID )->m_Description = m_pMesh->m_pSourceFile->GetFullPath();
         }
 
         g_pPanelWatch->SetNeedsRefresh();
@@ -222,7 +222,7 @@ cJSON* ComponentMeshOBJ::ExportAsJSONObject(bool savesceneid, bool saveid)
     cJSON* component = ComponentMesh::ExportAsJSONObject( savesceneid, saveid );
 
     //if( m_pMesh && m_pMesh->m_pSourceFile )
-    //    cJSON_AddStringToObject( component, "OBJ", m_pMesh->m_pSourceFile->m_FullPath );
+    //    cJSON_AddStringToObject( component, "OBJ", m_pMesh->m_pSourceFile->GetFullPath() );
 
     return component;
 }
