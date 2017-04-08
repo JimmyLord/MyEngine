@@ -534,7 +534,7 @@ void GameObject::ImportFromJSONObject(cJSON* jGameObject, unsigned int sceneid)
             MyAssert( pPrefabFile != 0 );
 
             // if the prefab file isn't loaded yet, store the name and link to the prefab when the file is loaded
-            if( true ) //pPrefabFile->GetFile()->IsFinishedLoading() == false )
+            if( pPrefabFile->GetFile()->IsFinishedLoading() == false ) // still loading
             {
                 pPrefabFile->GetFile()->RegisterFileFinishedLoadingCallback( this, StaticOnPrefabFileFinishedLoading );
             }
