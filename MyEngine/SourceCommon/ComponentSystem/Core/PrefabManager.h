@@ -14,6 +14,27 @@ class PrefabObject;
 class PrefabFile;
 class PrefabManager;
 
+#if MYFW_USING_WX
+class PrefabObjectWxEventHandler : public wxEvtHandler
+{
+public:
+    enum RightClickOptions
+    {
+        RightClick_DeletePrefab = 1000,
+    };
+
+public:
+    PrefabObject* m_pPrefabObject;
+
+public:
+    PrefabObjectWxEventHandler()
+    {
+        m_pPrefabObject = 0;
+    };
+    void OnPopupClick(wxEvent &evt);
+};
+#endif
+
 class PrefabObject
 {
     friend class PrefabFile;
@@ -46,6 +67,10 @@ public:
     PrefabFile* GetPrefabFile() { return m_pPrefabFile; }
 
 #if MYFW_USING_WX
+    // Event handler for right click menu.
+    friend class SoundManagerWxEventHandler;
+    PrefabObjectWxEventHandler m_WxEventHandler;
+
     GameObject* GetGameObject() { return m_pGameObject; }
 
     void Save();

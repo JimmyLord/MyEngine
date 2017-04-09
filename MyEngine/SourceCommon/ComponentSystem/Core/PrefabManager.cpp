@@ -93,14 +93,14 @@ void PrefabObject::OnLeftClick(wxTreeItemId treeid, unsigned int count, bool cle
 void PrefabObject::OnRightClick(wxTreeItemId treeid)
 {
  	wxMenu menu;
-    menu.SetClientData( this );
+    menu.SetClientData( &m_WxEventHandler );
+
+    m_WxEventHandler.m_pPrefabObject = this;
 
     MyAssert( treeid.IsOk() );
     wxString itemname = g_pPanelObjectList->m_pTree_Objects->GetItemText( treeid );
     
-    //m_SceneIDBeingAffected = g_pComponentSystemManager->GetSceneIDFromSceneTreeID( treeid );
-    //
-    //menu.Append( RightClick_AddGameObject, "Add Game Object" );
+    menu.Append( PrefabObjectWxEventHandler::RightClick_DeletePrefab, "Delete prefab" );
 
     //wxMenu* templatesmenu = MyNew wxMenu;
     //menu.AppendSubMenu( templatesmenu, "Add Game Object Template" );
@@ -110,10 +110,22 @@ void PrefabObject::OnRightClick(wxTreeItemId treeid)
     //menu.Append( RightClick_AddLogicGameObject, "Add Logical Game Object" );
     //menu.Append( RightClick_UnloadScene, "Unload scene" );
 
-    //menu.Connect( wxEVT_COMMAND_MENU_SELECTED, (wxObjectEventFunction)&SceneHandler::OnPopupClick );
+    menu.Connect( wxEVT_COMMAND_MENU_SELECTED, (wxObjectEventFunction)&PrefabObjectWxEventHandler::OnPopupClick );
 
     // blocking call.
-    //g_pPanelWatch->PopupMenu( &menu ); // there's no reason this is using g_pPanelWatch other than convenience.
+    g_pPanelWatch->PopupMenu( &menu ); // there's no reason this is using g_pPanelWatch other than convenience.
+}
+
+void PrefabObjectWxEventHandler::OnPopupClick(wxEvent &evt)
+{
+    PrefabObjectWxEventHandler* pEvtHandler = (PrefabObjectWxEventHandler*)static_cast<wxMenu*>(evt.GetEventObject())->GetClientData();
+    PrefabObject* pPrefabObject = pEvtHandler->m_pPrefabObject;
+
+    int id = evt.GetId();
+    if( id == RightClick_DeletePrefab )
+    {
+        int bp = 1;
+    }
 }
 
 void PrefabObject::OnDrag()
