@@ -27,6 +27,7 @@ class EditorCommand_Move2DPoint;
 class EditorCommand_Insert2DPoint;
 class EditorCommand_Delete2DPoint;
 class EditorCommand_LuaExposedVariablePointerChanged;
+class EditorCommand_DeletePrefabs;
 
 //====================================================================================================
 
@@ -353,6 +354,31 @@ protected:
 public:
     EditorCommand_LuaExposedVariablePointerChanged(void* newvalue, ExposedVariableDesc* pVar, LuaExposedVarValueChangedCallback callbackfunc, void* callbackobj);
     virtual ~EditorCommand_LuaExposedVariablePointerChanged();
+
+    virtual void Do();
+    virtual void Undo();
+    virtual EditorCommand* Repeat();
+};
+
+//====================================================================================================
+
+class EditorCommand_DeletePrefabs : public EditorCommand
+{
+protected:
+    struct PrefabInfo
+    {
+        PrefabObject* m_pPrefab;
+        PrefabObject* m_pPreviousPrefabInObjectList; // to reinsert at the right place.
+        std::vector<GameObject*> m_pListOfGameObjectsThatUsedPrefab; // for undo
+    };
+
+    // IF this is in undo stack, then this stores the only reference to the deleted prefab.
+    std::vector<PrefabInfo> m_PrefabInfo;
+    bool m_DeletePrefabsWhenDestroyed;
+
+public:
+    EditorCommand_DeletePrefabs(const std::vector<PrefabObject*>& selectedprefabs);
+    virtual ~EditorCommand_DeletePrefabs();
 
     virtual void Do();
     virtual void Undo();

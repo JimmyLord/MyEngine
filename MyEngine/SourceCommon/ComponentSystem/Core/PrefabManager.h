@@ -35,7 +35,7 @@ public:
 };
 #endif
 
-class PrefabObject
+class PrefabObject : CPPListNode
 {
     friend class PrefabFile;
     friend class PrefabManager;
@@ -102,11 +102,7 @@ protected:
 
     bool m_HasAnythingChanged;
 
-#if MYFW_USING_WX
-    std::vector<PrefabObject*> m_Prefabs;
-#else
-    MyList<PrefabObject*> m_Prefabs;
-#endif
+    CPPListHead m_Prefabs;
 
 public:
     PrefabFile(MyFileObject* pFile);

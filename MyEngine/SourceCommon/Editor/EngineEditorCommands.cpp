@@ -934,4 +934,95 @@ EditorCommand* EditorCommand_LuaExposedVariablePointerChanged::Repeat()
 }
 
 //====================================================================================================
+// EditorCommand_DeletePrefabs
+//====================================================================================================
+
+EditorCommand_DeletePrefabs::EditorCommand_DeletePrefabs(const std::vector<PrefabObject*>& selectedprefabs)
+{
+    MyAssert( selectedprefabs.size() > 0 );
+
+    for( unsigned int i=0; i<selectedprefabs.size(); i++ )
+    {
+        PrefabInfo info;
+        info.m_pPrefab = selectedprefabs[i];
+        info.m_pPreviousPrefabInObjectList = 0; // TODO
+        info.m_pListOfGameObjectsThatUsedPrefab; // TODO: find all gameobjects that inherit from this prefab
+
+        m_PrefabInfo.push_back( info );
+    }
+
+    m_DeletePrefabsWhenDestroyed = false;
+}
+
+EditorCommand_DeletePrefabs::~EditorCommand_DeletePrefabs()
+{
+    if( m_DeletePrefabsWhenDestroyed )
+    {
+        for( unsigned int i=0; i<m_PrefabInfo.size(); i++ )
+        {
+            delete m_PrefabInfo[i].m_pPrefab;
+        }
+    }
+}
+
+void EditorCommand_DeletePrefabs::Do()
+{
+    g_pEngineCore->m_pEditorState->ClearSelectedObjectsAndComponents();
+
+    for( unsigned int i=0; i<m_PrefabInfo.size(); i++ )
+    {
+        // TODO: loop through gameobjects and unset which prefab they inherit from.
+        // TODO: remove prefab from PrefabFile
+        // TODO: remove prefab from Object List tree
+    }
+    m_DeletePrefabsWhenDestroyed = true;
+}
+
+void EditorCommand_DeletePrefabs::Undo()
+{
+    g_pEngineCore->m_pEditorState->ClearSelectedObjectsAndComponents();
+
+    for( unsigned int i=0; i<m_PrefabInfo.size(); i++ )
+    {
+        PrefabObject* pPrefabDeleted = m_PrefabInfo[i].m_pPrefab;
+
+        //// TODO: Place prefab in old spot in tree.
+        //if( m_PrefabInfo[i].m_pPreviousPrefabInObjectList == 0 )
+        //{
+        //    pPrefabDeleted->MoveAfter( m_PrefabInfo[i].m_pPreviousPrefabInObjectList );
+        //}
+
+        //// TODO: Undo everything we did to "delete" this object
+
+        //// TODO: Place prefab in old spot in tree.
+        //if( pPrefabDeleted->Prev && pPrefabDeleted->GetPrev() != 0 )
+        //{
+        //    g_pPanelObjectList->Tree_MoveObject( pPrefabDeleted, pPrefabDeleted->GetPrev(), false );
+        //}
+        //else
+        //{
+        //    if( pPrefabDeleted->GetParentGameObject() )
+        //    {
+        //        g_pPanelObjectList->Tree_MoveObject( pPrefabDeleted, pPrefabDeleted->GetParentGameObject(), true );
+        //    }
+        //    else
+        //    {
+        //        wxTreeItemId treeidtomove = g_pPanelObjectList->FindObject( pPrefabDeleted );
+        //        wxTreeItemId rootid = g_pComponentSystemManager->GetTreeIDForScene( pPrefabDeleted->GetSceneID() );
+        //        g_pPanelObjectList->Tree_MoveObject( treeidtomove, rootid, true );
+        //    }
+        //}
+    }
+
+    m_DeletePrefabsWhenDestroyed = false;
+}
+
+EditorCommand* EditorCommand_DeletePrefabs::Repeat()
+{
+    // Do nothing.
+
+    return 0;
+}
+
+//====================================================================================================
 //====================================================================================================

@@ -161,16 +161,17 @@ PrefabFile::PrefabFile(MyFileObject* pFile)
 
 PrefabFile::~PrefabFile()
 {
-#if MYFW_USING_WX
-    for( unsigned int prefabindex=0; prefabindex<m_Prefabs.size(); prefabindex++ )
-#else
-    for( unsigned int prefabindex=0; prefabindex<m_Prefabs.Count(); prefabindex++ )
-#endif
+    CPPListNode* pNextNode;
+    for( CPPListNode* pNode = m_Prefabs.GetHead(); pNode != 0; pNode = pNextNode )
     {
-        // delete the cJSON* jPrefab object, it should have been detached from any cJSON branch when loaded/saved
-        cJSON_Delete( m_Prefabs[prefabindex]->m_jPrefab );
+        pNextNode = pNode->GetNext();
 
-        delete m_Prefabs[prefabindex];
+        PrefabObject* pPrefab = (PrefabObject*)pNode;
+
+        // delete the cJSON* jPrefab object, it should have been detached from any cJSON branch when loaded/saved
+        cJSON_Delete( pPrefab->m_jPrefab );
+
+        delete pPrefab;
     }
 
     m_pFile->Release();
@@ -185,15 +186,13 @@ uint32 PrefabFile::GetNextPrefabIDAndIncrement()
 
 PrefabObject* PrefabFile::GetFirstPrefabByName(const char* name)
 {
-#if MYFW_USING_WX
-    for( unsigned int prefabindex=0; prefabindex<m_Prefabs.size(); prefabindex++ )
-#else
-    for( unsigned int prefabindex=0; prefabindex<m_Prefabs.Count(); prefabindex++ )
-#endif
+    for( CPPListNode* pNode = m_Prefabs.GetHead(); pNode != 0; pNode = pNode->GetNext() )
     {
-        if( strcmp( m_Prefabs[prefabindex]->GetName(), name ) == 0 )
+        PrefabObject* pPrefab = (PrefabObject*)pNode;
+
+        if( strcmp( pPrefab->GetName(), name ) == 0 )
         {
-            return m_Prefabs[prefabindex];
+            return pPrefab;
         }
     }
 
@@ -202,15 +201,13 @@ PrefabObject* PrefabFile::GetFirstPrefabByName(const char* name)
 
 PrefabObject* PrefabFile::GetPrefabByID(uint32 prefabid)
 {
-#if MYFW_USING_WX
-    for( unsigned int prefabindex=0; prefabindex<m_Prefabs.size(); prefabindex++ )
-#else
-    for( unsigned int prefabindex=0; prefabindex<m_Prefabs.Count(); prefabindex++ )
-#endif
+    for( CPPListNode* pNode = m_Prefabs.GetHead(); pNode != 0; pNode = pNode->GetNext() )
     {
-        if( m_Prefabs[prefabindex]->GetID() == prefabid )
+        PrefabObject* pPrefab = (PrefabObject*)pNode;
+
+        if( pPrefab->GetID() == prefabid )
         {
-            return m_Prefabs[prefabindex];
+            return pPrefab;
         }
     }
 
@@ -229,13 +226,8 @@ void PrefabFile::OnFileFinishedLoading(MyFileObject* pFile)
         cJSON* jNextPrefab = jPrefab->next;
 
         // Add the prefab to our array
-#if MYFW_USING_WX
         PrefabObject* pPrefab = new PrefabObject();
-        m_Prefabs.push_back( pPrefab );
-#else
-        PrefabObject* pPrefab = new PrefabObject();
-        m_Prefabs.Add( pPrefab );
-#endif
+        m_Prefabs.AddTail( pPrefab );
 
         // Deal with the prefab id, increment out counter if the one found in the file is bigger
         uint32 prefabid = 0;
@@ -268,12 +260,14 @@ void PrefabFile::Save()
 {
     cJSON* jRoot = cJSON_CreateObject();
 
-    for( unsigned int i=0; i<m_Prefabs.size(); i++ )
+    for( CPPListNode* pNode = m_Prefabs.GetHead(); pNode != 0; pNode = pNode->GetNext() )
     {
+        PrefabObject* pPrefab = (PrefabObject*)pNode;
+
         cJSON* jPrefabObject = cJSON_CreateObject();
-        cJSON_AddItemToObject( jRoot, m_Prefabs[i]->m_Name, jPrefabObject );
-        cJSON_AddNumberToObject( jPrefabObject, "ID", m_Prefabs[i]->m_PrefabID );
-        cJSON_AddItemToObject( jPrefabObject, "Object", m_Prefabs[i]->m_jPrefab );
+        cJSON_AddItemToObject( jRoot, pPrefab->m_Name, jPrefabObject );
+        cJSON_AddNumberToObject( jPrefabObject, "ID", pPrefab->m_PrefabID );
+        cJSON_AddItemToObject( jPrefabObject, "Object", pPrefab->m_jPrefab );
     }
 
     char* jsonstring = cJSON_Print( jRoot );
@@ -290,9 +284,11 @@ void PrefabFile::Save()
     cJSONExt_free( jsonstring );
     
     // Detach "Object" from the json branch since we're storing it in m_Prefabs[i]->m_jPrefab and will delete elsewhere
-    for( unsigned int i=0; i<m_Prefabs.size(); i++ )
+    for( CPPListNode* pNode = m_Prefabs.GetHead(); pNode != 0; pNode = pNode->GetNext() )
     {
-        cJSON* jPrefabObject = cJSON_GetObjectItem( jRoot, m_Prefabs[i]->m_Name );
+        PrefabObject* pPrefab = (PrefabObject*)pNode;
+
+        cJSON* jPrefabObject = cJSON_GetObjectItem( jRoot, pPrefab->m_Name );
         cJSON_DetachItemFromObject( jPrefabObject, "Object" );
     }
 
@@ -440,7 +436,7 @@ void PrefabManager::CreatePrefabInFile(unsigned int fileindex, const char* prefa
 
     // Create a PrefabObject and stick it in the PrefabFile
     PrefabObject* pPrefab = new PrefabObject();
-    pFile->m_Prefabs.push_back( pPrefab );
+    pFile->m_Prefabs.AddTail( pPrefab );
 
     // Initialize its values
     pPrefab->Init( pFile, prefabname, pFile->GetNextPrefabIDAndIncrement() );
