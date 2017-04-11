@@ -943,9 +943,11 @@ EditorCommand_DeletePrefabs::EditorCommand_DeletePrefabs(const std::vector<Prefa
 
     for( unsigned int i=0; i<selectedprefabs.size(); i++ )
     {
+        PrefabObject* pPrefab = selectedprefabs[i];
+
         PrefabInfo info;
-        info.m_pPrefab = selectedprefabs[i];
-        info.m_pPreviousPrefabInObjectList = 0; // TODO
+        info.m_pPrefab = pPrefab;
+        info.m_pPreviousPrefabInObjectList = (PrefabObject*)pPrefab->GetPrev();
         info.m_pListOfGameObjectsThatUsedPrefab; // TODO: find all gameobjects that inherit from this prefab
 
         m_PrefabInfo.push_back( info );
@@ -971,10 +973,15 @@ void EditorCommand_DeletePrefabs::Do()
 
     for( unsigned int i=0; i<m_PrefabInfo.size(); i++ )
     {
+        PrefabObject* pPrefab = m_PrefabInfo[i].m_pPrefab;
+        PrefabFile* pFile = pPrefab->GetPrefabFile();
+
         // TODO: loop through gameobjects and unset which prefab they inherit from.
-        // TODO: remove prefab from PrefabFile
-        // TODO: remove prefab from Object List tree
+        
+        // Remove prefab from PrefabFile
+        pFile->RemovePrefab( pPrefab );
     }
+
     m_DeletePrefabsWhenDestroyed = true;
 }
 
@@ -984,34 +991,14 @@ void EditorCommand_DeletePrefabs::Undo()
 
     for( unsigned int i=0; i<m_PrefabInfo.size(); i++ )
     {
-        PrefabObject* pPrefabDeleted = m_PrefabInfo[i].m_pPrefab;
+        PrefabObject* pPrefab = m_PrefabInfo[i].m_pPrefab;
+        PrefabObject* pPreviousPrefab = m_PrefabInfo[i].m_pPreviousPrefabInObjectList;
+        PrefabFile* pFile = pPrefab->GetPrefabFile();
 
-        //// TODO: Place prefab in old spot in tree.
-        //if( m_PrefabInfo[i].m_pPreviousPrefabInObjectList == 0 )
-        //{
-        //    pPrefabDeleted->MoveAfter( m_PrefabInfo[i].m_pPreviousPrefabInObjectList );
-        //}
+        // Place prefab in old spot in PrefabFile and object list
+        pFile->AddExistingPrefab( pPrefab, pPreviousPrefab );
 
-        //// TODO: Undo everything we did to "delete" this object
-
-        //// TODO: Place prefab in old spot in tree.
-        //if( pPrefabDeleted->Prev && pPrefabDeleted->GetPrev() != 0 )
-        //{
-        //    g_pPanelObjectList->Tree_MoveObject( pPrefabDeleted, pPrefabDeleted->GetPrev(), false );
-        //}
-        //else
-        //{
-        //    if( pPrefabDeleted->GetParentGameObject() )
-        //    {
-        //        g_pPanelObjectList->Tree_MoveObject( pPrefabDeleted, pPrefabDeleted->GetParentGameObject(), true );
-        //    }
-        //    else
-        //    {
-        //        wxTreeItemId treeidtomove = g_pPanelObjectList->FindObject( pPrefabDeleted );
-        //        wxTreeItemId rootid = g_pComponentSystemManager->GetTreeIDForScene( pPrefabDeleted->GetSceneID() );
-        //        g_pPanelObjectList->Tree_MoveObject( treeidtomove, rootid, true );
-        //    }
-        //}
+        // TODO: Undo everything we did to "delete" this object
     }
 
     m_DeletePrefabsWhenDestroyed = false;

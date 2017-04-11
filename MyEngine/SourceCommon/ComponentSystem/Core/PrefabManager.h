@@ -35,7 +35,7 @@ public:
 };
 #endif
 
-class PrefabObject : CPPListNode
+class PrefabObject : public CPPListNode
 {
     friend class PrefabFile;
     friend class PrefabManager;
@@ -76,6 +76,8 @@ public:
     void Save();
 
     wxTreeItemId m_TreeID;
+
+    void AddToObjectList();
 
     // Object panel callbacks.
     static void StaticOnLeftClick(void* pObjectPtr, wxTreeItemId treeid, unsigned int count) { ((PrefabObject*)pObjectPtr)->OnLeftClick( treeid, count, true ); }
@@ -123,6 +125,9 @@ public:
     void Save();
 
     wxTreeItemId m_TreeID;
+
+    void RemovePrefab(PrefabObject* pPrefab);
+    void AddExistingPrefab(PrefabObject* pPrefab, PrefabObject* pPreviousPrefab); // used to undo delete in editor
 
     // Object panel callbacks.
     static void StaticOnLeftClick(void* pObjectPtr, wxTreeItemId treeid, unsigned int count) { ((PrefabFile*)pObjectPtr)->OnLeftClick( treeid, count, true ); }

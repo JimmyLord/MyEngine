@@ -85,6 +85,13 @@ cJSON* PrefabObject::GetJSONObject()
 }
 
 #if MYFW_USING_WX
+void PrefabObject::AddToObjectList() // Used by undo/redo to add/remove from tree
+{
+    wxTreeItemId rootid = m_pPrefabFile->m_TreeID;
+    m_TreeID = g_pPanelObjectList->AddObject( this, PrefabObject::StaticOnLeftClick, PrefabObject::StaticOnRightClick, rootid, m_Name, ObjectListIcon_GameObject );
+    g_pPanelObjectList->SetDragAndDropFunctions( m_TreeID, PrefabObject::StaticOnDrag, PrefabObject::StaticOnDrop );
+}
+
 void PrefabObject::OnLeftClick(wxTreeItemId treeid, unsigned int count, bool clear)
 {
     g_pPanelWatch->ClearAllVariables();
@@ -124,7 +131,10 @@ void PrefabObjectWxEventHandler::OnPopupClick(wxEvent &evt)
     int id = evt.GetId();
     if( id == RightClick_DeletePrefab )
     {
-        int bp = 1;
+        // Create a temp vector to pass into command.
+        std::vector<PrefabObject*> prefabs;
+        prefabs.push_back( pPrefabObject );
+        g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_DeletePrefabs( prefabs ) );
     }
 }
 
@@ -293,6 +303,39 @@ void PrefabFile::Save()
     }
 
     cJSON_Delete( jRoot );
+}
+
+void PrefabFile::RemovePrefab(PrefabObject* pPrefab)
+{
+    // Remove prefab from m_Prefabs list
+    pPrefab->Remove();
+
+    // Remove prefab from Object List tree
+    g_pPanelObjectList->RemoveObject( pPrefab );
+}
+
+void PrefabFile::AddExistingPrefab(PrefabObject* pPrefab, PrefabObject* pPreviousPrefab) // used to undo delete in editor
+{
+    // Add prefab to m_Prefabs list
+    if( pPreviousPrefab )
+    {
+        pPrefab->AddAfter( pPreviousPrefab );
+    }
+    else
+    {
+        m_Prefabs.AddHead( pPrefab );
+    }
+
+    // Add prefab to Object List tree
+    pPrefab->AddToObjectList();
+    if( pPreviousPrefab != 0 )
+    {
+        g_pPanelObjectList->Tree_MoveObject( pPrefab, pPreviousPrefab, false );
+    }
+    else
+    {
+        g_pPanelObjectList->Tree_MoveObject( pPrefab->m_TreeID, m_TreeID, true );
+    }
 }
 
 void PrefabFile::OnLeftClick(wxTreeItemId treeid, unsigned int count, bool clear)
