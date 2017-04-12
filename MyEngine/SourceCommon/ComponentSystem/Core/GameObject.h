@@ -176,6 +176,8 @@ public:
     void FinishLoadingPrefab(PrefabFile* pPrefabFile, uint32 prefabid);
     static void StaticOnPrefabFileFinishedLoading(void* pObjectPtr, MyFileObject* pFile) { ((GameObject*)pObjectPtr)->OnPrefabFileFinishedLoading( pFile ); }
     void OnPrefabFileFinishedLoading(MyFileObject* pFile);
+
+    void Editor_SetPrefab(PrefabObject* pPrefab) { m_pPrefab = pPrefab; UpdateObjectListIcon(); } // used when deleting prefabs
 #endif //MYFW_USING_WX
 };
 

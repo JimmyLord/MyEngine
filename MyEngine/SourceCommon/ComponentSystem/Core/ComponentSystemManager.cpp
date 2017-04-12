@@ -2323,6 +2323,25 @@ unsigned int ComponentSystemManager::GetNumberOfScenesLoaded()
     return numloaded;
 }
 
+void ComponentSystemManager::Editor_GetListOfGameObjectsThatUsePrefab(std::vector<GameObject*>* pGameObjectList, PrefabObject* pPrefabToFind)
+{
+    for( unsigned int i=0; i<MAX_SCENES_LOADED; i++ )
+    {
+        if( m_pSceneInfoMap[i].m_InUse == false )
+            continue;
+
+        for( CPPListNode* pNode = m_pSceneInfoMap[i].m_GameObjects.GetHead(); pNode; pNode = pNode->GetNext() )
+        {
+            GameObject* pGameObject = (GameObject*)pNode;
+
+            if( pGameObject->GetPrefab() == pPrefabToFind )
+            {
+                pGameObjectList->push_back( pGameObject );
+            }
+        }
+    }
+}
+
 //SceneInfo* ComponentSystemManager::GetSceneInfo(int sceneid)
 //{
 //    MyAssert( m_pSceneInfoMap[sceneid].m_InUse == true );
