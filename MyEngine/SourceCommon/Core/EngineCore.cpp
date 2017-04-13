@@ -1647,10 +1647,20 @@ void EngineCore::OnObjectListTreeMultipleSelection() //StaticOnObjectListTreeMul
         wxTreeItemId id = selecteditems[i].GetID();
         TreeItemDataGenericObjectInfo* pData = (TreeItemDataGenericObjectInfo*)g_pPanelObjectList->m_pTree_Objects->GetItemData( id );
 
-        GameObject* pGameObject = (GameObject*)pData->m_pObject;
+        MyAssert( pData && pData->m_pObject );
 
-        if( g_pEngineCore->m_pEditorState->IsGameObjectSelected( pGameObject ) == false )
-            g_pEngineCore->m_pEditorState->m_pSelectedObjects.push_back( pGameObject );
+        GameObject* pGameObject = 0;
+        
+        if( pData->m_pLeftClickFunction == GameObject::StaticOnLeftClick )
+            pGameObject = (GameObject*)pData->m_pObject;
+        else if( pData->m_pLeftClickFunction == PrefabObject::StaticOnLeftClick )
+            pGameObject = ((PrefabObject*)pData->m_pObject)->GetGameObject();
+
+        if( pGameObject )
+        {
+            if( g_pEngineCore->m_pEditorState->IsGameObjectSelected( pGameObject ) == false )
+                g_pEngineCore->m_pEditorState->m_pSelectedObjects.push_back( pGameObject );
+        }
     }
 
     wxTreeItemId firstid = selecteditems[0].GetID();
