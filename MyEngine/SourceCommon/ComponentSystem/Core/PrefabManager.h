@@ -171,6 +171,8 @@ public:
     bool CreateOrLoadFile();
 
     void SaveAllPrefabs(bool saveunchanged = false);
+
+    PrefabObject* FindPrefabContainingGameObject(GameObject* pGameObject);
 #endif
 };
 

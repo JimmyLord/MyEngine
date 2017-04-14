@@ -106,8 +106,27 @@ void PrefabObject::OnRightClick(wxTreeItemId treeid)
 
     MyAssert( treeid.IsOk() );
     wxString itemname = g_pPanelObjectList->m_pTree_Objects->GetItemText( treeid );
-    
-    menu.Append( PrefabObjectWxEventHandler::RightClick_DeletePrefab, "Delete prefab" );
+
+    // Count how many prefabs are selected, ignore other selected objects that aren't prefabs.
+    int numprefabsselected = 0;
+    EditorState* pEditorState = g_pEngineCore->m_pEditorState;
+    for( unsigned int i=0; i<pEditorState->m_pSelectedObjects.size(); i++ )
+    {
+        PrefabObject* pSelectedPrefab = g_pComponentSystemManager->m_pPrefabManager->FindPrefabContainingGameObject( pEditorState->m_pSelectedObjects[i] );
+        if( pSelectedPrefab )
+        {
+            numprefabsselected++;
+        }
+    }
+
+    if( numprefabsselected > 1 )
+    {
+        menu.Append( PrefabObjectWxEventHandler::RightClick_DeletePrefab, "Delete prefabs" );
+    }
+    else
+    {
+        menu.Append( PrefabObjectWxEventHandler::RightClick_DeletePrefab, "Delete prefab" );
+    }
 
     //wxMenu* templatesmenu = MyNew wxMenu;
     //menu.AppendSubMenu( templatesmenu, "Add Game Object Template" );
@@ -133,7 +152,24 @@ void PrefabObjectWxEventHandler::OnPopupClick(wxEvent &evt)
     {
         // Create a temp vector to pass into command.
         std::vector<PrefabObject*> prefabs;
-        prefabs.push_back( pPrefabObject );
+
+        EditorState* pEditorState = g_pEngineCore->m_pEditorState;
+        if( pEditorState->m_pSelectedObjects.size() > 0 )
+        {
+            for( unsigned int i=0; i<pEditorState->m_pSelectedObjects.size(); i++ )
+            {
+                PrefabObject* pSelectedPrefab = g_pComponentSystemManager->m_pPrefabManager->FindPrefabContainingGameObject( pEditorState->m_pSelectedObjects[i] );
+                if( pSelectedPrefab )
+                {
+                    prefabs.push_back( pSelectedPrefab );
+                }
+            }
+        }
+        else
+        {
+            prefabs.push_back( pPrefabObject );
+        }
+
         g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_DeletePrefabs( prefabs ) );
     }
 }
@@ -551,6 +587,24 @@ void PrefabManager::SaveAllPrefabs(bool saveunchanged)
         if( saveunchanged || m_pPrefabFiles[i]->HasAnythingChanged() )
             m_pPrefabFiles[i]->Save();
     }
+}
+
+PrefabObject* PrefabManager::FindPrefabContainingGameObject(GameObject* pGameObject)
+{
+    for( unsigned int i=0; i<m_pPrefabFiles.size(); i++ )
+    {
+        for( CPPListNode* pNode = m_pPrefabFiles[i]->m_Prefabs.GetHead(); pNode != 0; pNode = pNode->GetNext() )
+        {
+            PrefabObject* pPrefab = (PrefabObject*)pNode;
+            
+            if( pPrefab->m_pGameObject == pGameObject )
+            {
+                return pPrefab;
+            }
+        }
+    }
+
+    return 0;
 }
 
 #endif
