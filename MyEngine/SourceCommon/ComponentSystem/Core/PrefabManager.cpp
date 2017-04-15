@@ -36,6 +36,7 @@ void PrefabObject::Init(PrefabFile* pFile, const char* name, uint32 prefabid)
     wxTreeItemId rootid = pFile->m_TreeID;
     m_TreeID = g_pPanelObjectList->AddObject( this, PrefabObject::StaticOnLeftClick, PrefabObject::StaticOnRightClick, rootid, m_Name, ObjectListIcon_GameObject );
     g_pPanelObjectList->SetDragAndDropFunctions( m_TreeID, PrefabObject::StaticOnDrag, PrefabObject::StaticOnDrop );
+    g_pPanelObjectList->SetIcon( m_TreeID, ObjectListIcon_Prefab );
 #endif
 
     m_pPrefabFile = pFile;
@@ -90,6 +91,7 @@ void PrefabObject::AddToObjectList() // Used by undo/redo to add/remove from tre
     wxTreeItemId rootid = m_pPrefabFile->m_TreeID;
     m_TreeID = g_pPanelObjectList->AddObject( this, PrefabObject::StaticOnLeftClick, PrefabObject::StaticOnRightClick, rootid, m_Name, ObjectListIcon_GameObject );
     g_pPanelObjectList->SetDragAndDropFunctions( m_TreeID, PrefabObject::StaticOnDrag, PrefabObject::StaticOnDrop );
+    g_pPanelObjectList->SetIcon( m_TreeID, ObjectListIcon_Prefab );
 }
 
 void PrefabObject::OnLeftClick(wxTreeItemId treeid, unsigned int count, bool clear)
@@ -202,6 +204,7 @@ PrefabFile::PrefabFile(MyFileObject* pFile)
     wxTreeItemId rootid = g_pPanelObjectList->GetTreeRoot();
     m_TreeID = g_pPanelObjectList->AddObject( this, PrefabFile::StaticOnLeftClick, PrefabFile::StaticOnRightClick, rootid, m_pFile->GetFilenameWithoutExtension(), ObjectListIcon_Scene );
     //g_pPanelObjectList->SetDragAndDropFunctions( treeid, PrefabFile::StaticOnDrag, PrefabFile::StaticOnDrop );
+    g_pPanelObjectList->SetIcon( m_TreeID, ObjectListIcon_Prefab );
 #endif
 }
 
