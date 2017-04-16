@@ -401,7 +401,6 @@
     <ClInclude Include="bullet3\src\BulletCollision\BroadphaseCollision\btDbvt.h" />
     <ClInclude Include="bullet3\src\BulletCollision\BroadphaseCollision\btDbvtBroadphase.h" />
     <ClInclude Include="bullet3\src\BulletCollision\BroadphaseCollision\btDispatcher.h" />
-    <ClInclude Include="bullet3\src\BulletCollision\BroadphaseCollision\btMultiSapBroadphase.h" />
     <ClInclude Include="bullet3\src\BulletCollision\BroadphaseCollision\btOverlappingPairCache.h" />
     <ClInclude Include="bullet3\src\BulletCollision\BroadphaseCollision\btOverlappingPairCallback.h" />
     <ClInclude Include="bullet3\src\BulletCollision\BroadphaseCollision\btQuantizedBvh.h" />
@@ -537,8 +536,6 @@
     <ClCompile Include="bullet3\src\BulletCollision\BroadphaseCollision\btDbvtBroadphase.cpp">
     </ClCompile>
     <ClCompile Include="bullet3\src\BulletCollision\BroadphaseCollision\btDispatcher.cpp">
-    </ClCompile>
-    <ClCompile Include="bullet3\src\BulletCollision\BroadphaseCollision\btMultiSapBroadphase.cpp">
     </ClCompile>
     <ClCompile Include="bullet3\src\BulletCollision\BroadphaseCollision\btOverlappingPairCache.cpp">
     </ClCompile>

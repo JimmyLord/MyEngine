@@ -977,7 +977,7 @@ void EditorCommand_DeletePrefabs::Do()
         PrefabFile* pFile = pPrefab->GetPrefabFile();
 
         // Loop through gameobjects and unset which prefab they inherit from.
-        for( int j=0; j<m_PrefabInfo[i].m_pListOfGameObjectsThatUsedPrefab.size(); j++ )
+        for( unsigned int j=0; j<m_PrefabInfo[i].m_pListOfGameObjectsThatUsedPrefab.size(); j++ )
         {
             m_PrefabInfo[i].m_pListOfGameObjectsThatUsedPrefab[j]->Editor_SetPrefab( 0 );
         }
@@ -1003,7 +1003,7 @@ void EditorCommand_DeletePrefabs::Undo()
         pFile->AddExistingPrefab( pPrefab, pPreviousPrefab );
 
         // Loop through gameobjects and reset which prefab they inherited from.
-        for( int j=0; j<m_PrefabInfo[i].m_pListOfGameObjectsThatUsedPrefab.size(); j++ )
+        for( unsigned int j=0; j<m_PrefabInfo[i].m_pListOfGameObjectsThatUsedPrefab.size(); j++ )
         {
             m_PrefabInfo[i].m_pListOfGameObjectsThatUsedPrefab[j]->Editor_SetPrefab( pPrefab );
         }
