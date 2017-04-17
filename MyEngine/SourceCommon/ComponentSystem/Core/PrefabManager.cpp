@@ -97,6 +97,8 @@ void PrefabObject::AddToObjectList() // Used by undo/redo to add/remove from tre
 void PrefabObject::OnLeftClick(wxTreeItemId treeid, unsigned int count, bool clear)
 {
     g_pPanelWatch->ClearAllVariables();
+
+    m_pGameObject->OnLeftClick( 1, false );
 }
 
 void PrefabObject::OnRightClick(wxTreeItemId treeid)

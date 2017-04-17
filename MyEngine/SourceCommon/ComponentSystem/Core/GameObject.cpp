@@ -17,6 +17,13 @@ GameObject::GameObject(bool managed, int sceneid, bool isfolder, bool hastransfo
 
     m_pGameObjectThisInheritsFrom = 0;
 
+#if MYFW_USING_WX
+    if( pPrefab != 0 )
+    {
+        m_pGameObjectThisInheritsFrom = pPrefab->GetGameObject();
+    }
+#endif
+
     m_pParentGameObject = 0;
 
     m_Properties.SetEnabled( false );
@@ -434,6 +441,10 @@ void GameObject::FinishLoadingPrefab(PrefabFile* pPrefabFile, uint32 prefabid)
 {
     // link to the correct prefab
     m_pPrefab = pPrefabFile->GetPrefabByID( prefabid );
+
+#if MYFW_USING_WX
+    m_pGameObjectThisInheritsFrom = m_pPrefab->GetGameObject();
+#endif
 
     // TODO: check the if the gameobect(s) in the prefab are completely different and deal with it
 
