@@ -484,7 +484,15 @@ cJSON* GameObject::ExportAsJSONObject(bool savesceneid)
 
     // Inheritance parent can be in a different scene.
     if( m_pGameObjectThisInheritsFrom )
-        cJSON_AddItemToObject( jGameObject, "ParentGO", m_pGameObjectThisInheritsFrom->ExportReferenceAsJSONObject( m_SceneID ) );
+    {
+#if MYFW_USING_WX
+        // don't save parentGO if it's the prefab.
+        if( m_pPrefab && m_pGameObjectThisInheritsFrom != m_pPrefab->GetGameObject() )
+#endif
+        {
+            cJSON_AddItemToObject( jGameObject, "ParentGO", m_pGameObjectThisInheritsFrom->ExportReferenceAsJSONObject( m_SceneID ) );
+        }
+    }
 
     // Transform/Heirarchy parent must be in the same scene.
     if( m_pParentGameObject )
