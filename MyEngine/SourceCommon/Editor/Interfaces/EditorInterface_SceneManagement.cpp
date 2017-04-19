@@ -197,40 +197,6 @@ bool EditorInterface_SceneManagement::HandleInput(int keyaction, int keycode, in
     {
         if( mouseaction == GCBA_Down && id == 0 )
         {
-            pEditorState->m_EditorActionState = EDITORACTIONSTATE_GroupSelectingObjects;
-        }
-
-        // select an object when mouse is released and on the same pixel it went down.
-        // TODO: make same "pixel test" a "total travel < small number" test.
-        //if( mouseaction == GCBA_Up && id == 0 && pEditorState->m_CurrentMousePosition == pEditorState->m_MouseLeftDownLocation )
-        //{
-        //    pEditorState->m_EditorActionState = EDITORACTIONSTATE_None;
-
-        //    // find the object we clicked on.
-        //    GameObject* pObject = GetObjectAtPixel( x, y, true );
-
-        //    // don't select the gizmos. TODO: give object a 'selectable' flag or something.
-        //    if( pObject != pEditorState->m_pTransformGizmo->m_pTranslate1Axis[0] &&
-        //        pObject != pEditorState->m_pTransformGizmo->m_pTranslate1Axis[1] &&
-        //        pObject != pEditorState->m_pTransformGizmo->m_pTranslate1Axis[2] )
-        //    {
-        //        // if control isn't held, then deselect all objects first.
-        //        if( (pEditorState->m_ModifierKeyStates & MODIFIERKEY_Control) == 0 )
-        //        {
-        //            pEditorState->ClearSelectedObjectsAndComponents();
-        //        }
-
-        //        if( pObject && pEditorState->IsObjectSelected( pObject ) == false )
-        //        {
-        //            pEditorState->m_pSelectedObjects.push_back( pObject );
-        //            // select the object in the object tree.
-        //            g_pPanelObjectList->SelectObject( pObject ); // passing in 0 will unselect all items.
-        //        }
-        //    }
-        //}
-
-        if( mouseaction == GCBA_Down && id == 0 )
-        {
             // find the object we clicked on.
             GameObject* pObject = GetObjectAtPixel( (unsigned int)x, (unsigned int)y, true, true );
 
@@ -313,6 +279,12 @@ bool EditorInterface_SceneManagement::HandleInput(int keyaction, int keycode, in
             {
                 pEditorState->m_EditorActionState = EDITORACTIONSTATE_RotateZ;
                 selectedgizmo = true;
+            }
+
+            if( selectedgizmo == false )
+            {
+                // if we didn't select the transform gizmo, we're likely selecting objects
+                pEditorState->m_EditorActionState = EDITORACTIONSTATE_GroupSelectingObjects;
             }
 
             // if shift is held, make a copy of the object and control that one.
@@ -448,6 +420,10 @@ bool EditorInterface_SceneManagement::HandleInput(int keyaction, int keycode, in
             // gameplay is running and we picked up a physics object in the editor view, so move it around.
             if( pEditorState->m_MousePicker_PickConstraint && g_pBulletWorld->m_pDynamicsWorld )
             {
+                // if we clicked and moved while on a 3d physics body, cancel the EDITORACTIONSTATE_GroupSelectingObjects state
+                if( pEditorState->HasMouseMovedSinceButtonPressed( 0 ) )
+                    pEditorState->m_EditorActionState = EDITORACTIONSTATE_None;
+
                 // move the constraint pivot
                 if( pEditorState->m_MousePicker_PickConstraint->getConstraintType() == D6_CONSTRAINT_TYPE )
                 {
