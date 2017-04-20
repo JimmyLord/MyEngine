@@ -34,8 +34,12 @@ public:
     bool m_ClearColorBuffer;
     bool m_ClearDepthBuffer;
 
+    // For ortho
     float m_DesiredWidth;
     float m_DesiredHeight;
+
+    // For perspective
+    float m_FieldOfView;
 
     unsigned int m_LayersToRender;
 
@@ -105,8 +109,7 @@ public:
     virtual void FillPropertiesWindow(bool clear, bool addcomponentvariables = false, bool ignoreblockvisibleflag = false);
 
     void* OnValueChanged(ComponentVariable* pVar, int controlid, bool finishedchanging, double oldvalue, void* newpointer);
-    static void StaticOnValueChanged(void* pObjectPtr, int controlid, bool finishedchanging, double oldvalue) { ((ComponentCamera*)pObjectPtr)->OtherOnValueChanged( controlid, finishedchanging ); }
-    void OtherOnValueChanged(int controlid, bool finishedchanging);
+    static void StaticOnValueChanged(void* pObjectPtr, int controlid, bool finishedchanging, double oldvalue) { ((ComponentCamera*)pObjectPtr)->OnValueChanged( 0, controlid, finishedchanging, 0, 0 ); }
 #endif //MYFW_USING_WX
 };
 

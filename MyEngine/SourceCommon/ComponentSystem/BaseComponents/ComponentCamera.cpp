@@ -75,6 +75,8 @@ ComponentCamera::~ComponentCamera()
 
 void ComponentCamera::RegisterVariables(CPPListHead* pList, ComponentCamera* pThis) //_VARIABLE_LIST
 {
+    AddVar( pList, "FoV", ComponentVariableType_Float, MyOffsetOf( pThis, &pThis->m_FieldOfView ), true, true, 0, (CVarFunc_ValueChanged)&ComponentCamera::OnValueChanged, 0, 0 );
+    
     AddVarFlags( pList, "Layers", MyOffsetOf( pThis, &pThis->m_LayersToRender ), true, true, 0,
                  g_NumberOfVisibilityLayers, g_pVisibilityLayerStrings,
                  (CVarFunc_ValueChanged)&ComponentCamera::OnValueChanged, 0, 0 );
@@ -120,12 +122,6 @@ void* ComponentCamera::OnValueChanged(ComponentVariable* pVar, int controlid, bo
     m_FullClearsRequired = 2;
 
     return oldpointer;
-}
-
-void ComponentCamera::OtherOnValueChanged(int controlid, bool finishedchanging)
-{
-    ComputeProjectionMatrices();
-    m_FullClearsRequired = 2;
 }
 #endif //MYFW_USING_WX
 
@@ -177,6 +173,8 @@ void ComponentCamera::Reset()
     
     m_DesiredWidth = 0;
     m_DesiredHeight = 0;
+
+    m_FieldOfView = 45;
     
     m_LayersToRender = 0x00FF;
 
@@ -263,7 +261,9 @@ void ComponentCamera::ComputeProjectionMatrices()
     float deviceratio = (float)m_WindowWidth / (float)m_WindowHeight;
     float gameratio = m_DesiredWidth / m_DesiredHeight;
 
-    m_Camera3D.SetupProjection( deviceratio, gameratio, 45 );
+    MyClamp( m_FieldOfView, 1.0f, 179.0f );
+
+    m_Camera3D.SetupProjection( deviceratio, gameratio, m_FieldOfView );
     m_Camera2D.Setup( (float)m_WindowWidth, (float)m_WindowHeight, m_DesiredWidth, m_DesiredHeight );
 }
 
