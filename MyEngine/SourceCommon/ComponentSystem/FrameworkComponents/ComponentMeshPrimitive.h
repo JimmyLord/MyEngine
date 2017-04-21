@@ -79,9 +79,9 @@ public:
     static void StaticOnLeftClick(void* pObjectPtr, wxTreeItemId id, unsigned int count) { ((ComponentMeshPrimitive*)pObjectPtr)->OnLeftClick( count, true ); }
     void OnLeftClick(unsigned int count, bool clear);
     virtual void FillPropertiesWindow(bool clear, bool addcomponentvariables = false, bool ignoreblockvisibleflag = false);
-    virtual bool ShouldVariableBeAddedToWatchPanel(ComponentVariable* pVar);
 
     // Component variable callbacks. //_VARIABLE_LIST
+    virtual bool ShouldVariableBeAddedToWatchPanel(ComponentVariable* pVar);
     void* OnValueChanged(ComponentVariable* pVar, int controlid, bool finishedchanging, double oldvalue, void* newpointer);
 #endif //MYFW_USING_WX
 };

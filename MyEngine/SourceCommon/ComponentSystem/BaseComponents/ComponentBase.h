@@ -146,6 +146,14 @@ public:
         m_pShouldVariableBeAddedCallbackFunc = pFunc;
     }
 #endif //MYFW_USING_WX
+
+    void SetEditorLimits(float lowerlimit, float upperlimit)
+    {
+#if MYFW_USING_WX
+        m_FloatLowerLimit = lowerlimit;
+        m_FloatUpperLimit = upperlimit;
+#endif //MYFW_USING_WX
+    }
 };
 
 #if MYFW_USING_WX

@@ -75,11 +75,28 @@ ComponentCamera::~ComponentCamera()
 
 void ComponentCamera::RegisterVariables(CPPListHead* pList, ComponentCamera* pThis) //_VARIABLE_LIST
 {
-    AddVar( pList, "FoV", ComponentVariableType_Float, MyOffsetOf( pThis, &pThis->m_FieldOfView ), true, true, 0, (CVarFunc_ValueChanged)&ComponentCamera::OnValueChanged, 0, 0 );
-    
+    ComponentVariable* pVar;
+
     AddVarFlags( pList, "Layers", MyOffsetOf( pThis, &pThis->m_LayersToRender ), true, true, 0,
                  g_NumberOfVisibilityLayers, g_pVisibilityLayerStrings,
                  (CVarFunc_ValueChanged)&ComponentCamera::OnValueChanged, 0, 0 );
+
+    pVar = AddVar( pList, "Ortho", ComponentVariableType_Bool, MyOffsetOf( pThis, &pThis->m_Orthographic ), true, true, 0, (CVarFunc_ValueChanged)&ComponentCamera::OnValueChanged, 0, 0 );
+
+    pVar = AddVar( pList, "DesiredWidth", ComponentVariableType_Float, MyOffsetOf( pThis, &pThis->m_DesiredWidth ), true, true, 0, (CVarFunc_ValueChanged)&ComponentCamera::OnValueChanged, 0, 0 );
+    pVar->SetEditorLimits( 640, 960 );
+    pVar->AddCallback_ShouldVariableBeAdded( (CVarFunc_ShouldVariableBeAdded)(&ComponentCamera::ShouldVariableBeAddedToWatchPanel) );
+
+    pVar = AddVar( pList, "DesiredHeight", ComponentVariableType_Float, MyOffsetOf( pThis, &pThis->m_DesiredHeight ), true, true, 0, (CVarFunc_ValueChanged)&ComponentCamera::OnValueChanged, 0, 0 );
+    pVar->SetEditorLimits( 640, 960 );
+    pVar->AddCallback_ShouldVariableBeAdded( (CVarFunc_ShouldVariableBeAdded)(&ComponentCamera::ShouldVariableBeAddedToWatchPanel) );
+
+    pVar = AddVar( pList, "FoV", ComponentVariableType_Float, MyOffsetOf( pThis, &pThis->m_FieldOfView ), true, true, 0, (CVarFunc_ValueChanged)&ComponentCamera::OnValueChanged, 0, 0 );
+    pVar->SetEditorLimits( 1, 179 );
+    pVar->AddCallback_ShouldVariableBeAdded( (CVarFunc_ShouldVariableBeAdded)(&ComponentCamera::ShouldVariableBeAddedToWatchPanel) );
+    
+    pVar = AddVar( pList, "ColorBit", ComponentVariableType_Bool, MyOffsetOf( pThis, &pThis->m_ClearColorBuffer ), true, true, 0, (CVarFunc_ValueChanged)&ComponentCamera::OnValueChanged, 0, 0 );
+    pVar = AddVar( pList, "DepthBit", ComponentVariableType_Bool, MyOffsetOf( pThis, &pThis->m_ClearDepthBuffer ), true, true, 0, (CVarFunc_ValueChanged)&ComponentCamera::OnValueChanged, 0, 0 );
 }
 
 #if MYFW_USING_WX
@@ -102,16 +119,26 @@ void ComponentCamera::FillPropertiesWindow(bool clear, bool addcomponentvariable
     {
         ComponentBase::FillPropertiesWindow( clear );
 
-        g_pPanelWatch->AddBool( "Ortho", &m_Orthographic, 0, 1, this, ComponentCamera::StaticOnValueChanged );
-
-        g_pPanelWatch->AddFloat( "Desired width", &m_DesiredWidth, 640, 960, this, ComponentCamera::StaticOnValueChanged );
-        g_pPanelWatch->AddFloat( "Desired height", &m_DesiredHeight, 640, 960, this, ComponentCamera::StaticOnValueChanged );
-
-        g_pPanelWatch->AddBool( "ColorBit", &m_ClearColorBuffer, 0, 1, this, ComponentCamera::StaticOnValueChanged );
-        g_pPanelWatch->AddBool( "DepthBit", &m_ClearDepthBuffer, 0, 1, this, ComponentCamera::StaticOnValueChanged );
-
         FillPropertiesWindowWithVariables(); //_VARIABLE_LIST
     }
+}
+
+bool ComponentCamera::ShouldVariableBeAddedToWatchPanel(ComponentVariable* pVar)
+{
+    if( m_Orthographic == true )
+    {
+        if( strcmp( pVar->m_Label, "DesiredWidth" ) == 0 )       return true;
+        if( strcmp( pVar->m_Label, "DesiredHeight" ) == 0 )      return true;
+        if( strcmp( pVar->m_Label, "FoV" ) == 0 )                return false;
+    }
+    else //f( m_Orthographic == false )
+    {
+        if( strcmp( pVar->m_Label, "DesiredWidth" ) == 0 )       return false;
+        if( strcmp( pVar->m_Label, "DesiredHeight" ) == 0 )      return false;
+        if( strcmp( pVar->m_Label, "FoV" ) == 0 )                return true;
+    }
+
+    return true;
 }
 
 void* ComponentCamera::OnValueChanged(ComponentVariable* pVar, int controlid, bool finishedchanging, double oldvalue, void* newpointer)
@@ -119,7 +146,13 @@ void* ComponentCamera::OnValueChanged(ComponentVariable* pVar, int controlid, bo
     void* oldpointer = 0;
 
     ComputeProjectionMatrices();
-    m_FullClearsRequired = 2;
+
+    if( finishedchanging )
+    {
+        m_FullClearsRequired = 2;
+
+        g_pPanelWatch->SetNeedsRefresh();
+    }
 
     return oldpointer;
 }
@@ -128,16 +161,6 @@ void* ComponentCamera::OnValueChanged(ComponentVariable* pVar, int controlid, bo
 cJSON* ComponentCamera::ExportAsJSONObject(bool savesceneid, bool saveid)
 {
     cJSON* jComponent = ComponentBase::ExportAsJSONObject( savesceneid, saveid );
-
-    cJSON_AddNumberToObject( jComponent, "Ortho", m_Orthographic );
-
-    cJSON_AddNumberToObject( jComponent, "DWidth", m_DesiredWidth );
-    cJSON_AddNumberToObject( jComponent, "DHeight", m_DesiredHeight );
-
-    cJSON_AddNumberToObject( jComponent, "ColorBit", m_ClearColorBuffer );
-    cJSON_AddNumberToObject( jComponent, "DepthBit", m_ClearDepthBuffer );
-
-    //cJSON_AddNumberToObject( jComponent, "Layers", m_LayersToRender );
 
     return jComponent;
 }
@@ -148,16 +171,6 @@ void ComponentCamera::ImportFromJSONObject(cJSON* jComponent, unsigned int scene
     m_LayersToRender = 0;
 
     ComponentBase::ImportFromJSONObject( jComponent, sceneid );
-
-    cJSONExt_GetBool( jComponent, "Ortho", &m_Orthographic );
-
-    cJSONExt_GetFloat( jComponent, "DWidth", &m_DesiredWidth );
-    cJSONExt_GetFloat( jComponent, "DHeight", &m_DesiredHeight );
-
-    cJSONExt_GetBool( jComponent, "ColorBit", &m_ClearColorBuffer );
-    cJSONExt_GetBool( jComponent, "DepthBit", &m_ClearDepthBuffer );
-
-    //cJSONExt_GetUnsignedInt( jComponent, "Layers", &m_LayersToRender );
 }
 
 void ComponentCamera::Reset()
@@ -171,8 +184,8 @@ void ComponentCamera::Reset()
     m_ClearColorBuffer = true;
     m_ClearDepthBuffer = true;
     
-    m_DesiredWidth = 0;
-    m_DesiredHeight = 0;
+    m_DesiredWidth = 640;
+    m_DesiredHeight = 960;
 
     m_FieldOfView = 45;
     
@@ -287,8 +300,8 @@ void ComponentCamera::Tick(double TimePassed)
 
 void ComponentCamera::OnSurfaceChanged(unsigned int startx, unsigned int starty, unsigned int width, unsigned int height, unsigned int desiredaspectwidth, unsigned int desiredaspectheight)
 {
-    m_DesiredWidth = (float)desiredaspectwidth;
-    m_DesiredHeight = (float)desiredaspectheight;
+    //m_DesiredWidth = (float)desiredaspectwidth;
+    //m_DesiredHeight = (float)desiredaspectheight;
 
     m_WindowStartX = startx;
     m_WindowStartY = starty;
