@@ -187,7 +187,7 @@ void ImGuiManager::EndFrame(float width, float height, bool draw)
 // - in your Render function, try translating your projection matrix by (0.5f,0.5f) or (0.375f,0.375f)
 void ImGuiManager::RenderDrawLists(ImDrawData* draw_data)
 {
-#if MYFW_NACL || MYFW_BLACKBERRY
+#if MYFW_NACL || MYFW_BLACKBERRY || MYFW_ANDROID
     // TODO: fix me
 #else
     checkGlError( "Start of ImGuiManager::RenderDrawLists()" );

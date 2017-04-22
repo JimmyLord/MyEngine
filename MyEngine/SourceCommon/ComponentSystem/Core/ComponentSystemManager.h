@@ -263,10 +263,10 @@ public:
     unsigned int GetNumberOfScenesLoaded();
     //std::map<int, SceneInfo> m_pSceneInfoMap;
 
-    PrefabManager* m_pPrefabManager;
     GameObjectTemplateManager* m_pGameObjectTemplateManager;
     void Editor_GetListOfGameObjectsThatUsePrefab(std::vector<GameObject*>* pGameObjectList, PrefabObject* pPrefabToFind);
 #endif
+    PrefabManager* m_pPrefabManager;
     SceneInfo m_pSceneInfoMap[MAX_SCENES_LOADED];
 
     // SceneGraph Functions

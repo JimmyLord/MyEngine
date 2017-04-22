@@ -301,8 +301,13 @@ void EngineCore::OneTimeInit()
         g_pImGuiManager->Init();
 
     // Create one bullet world shared between all scenes.
+#if !MYFW_USING_WX
+    // disable debug draw in non-editor builds
+    m_pBulletWorld = MyNew BulletWorld( 0, 0 );
+#else
     ComponentCamera* pCamera = g_pEngineCore->m_pEditorState->GetEditorCamera();
     m_pBulletWorld = MyNew BulletWorld( g_pEngineCore->m_pMaterial_Box2DDebugDraw, &pCamera->m_Camera3D.m_matViewProj );
+#endif
 
 #if !MYFW_USING_WX
     // TODO: fix! this won't work if flags were customized and saved into editorprefs.ini

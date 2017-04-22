@@ -48,8 +48,11 @@ void BulletWorld::CreateWorld(MaterialDefinition* debugdrawmaterial, MyMatrix* m
 
     m_pDynamicsWorld = new btDiscreteDynamicsWorld( m_pDispatcher, m_pOverlappingPairCache, m_pSolver, m_pCollisionConfiguration );
 
-    m_pBulletDebugDraw = MyNew BulletDebugDraw( debugdrawmaterial, matviewproj );
-    m_pDynamicsWorld->setDebugDrawer( m_pBulletDebugDraw );
+    if( debugdrawmaterial != 0 )
+    {
+        m_pBulletDebugDraw = MyNew BulletDebugDraw( debugdrawmaterial, matviewproj );
+        m_pDynamicsWorld->setDebugDrawer( m_pBulletDebugDraw );
+    }
 
     m_pDynamicsWorld->setGravity( btVector3(0,-10,0) );
 }

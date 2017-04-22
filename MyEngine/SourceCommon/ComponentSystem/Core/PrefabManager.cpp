@@ -27,7 +27,9 @@ PrefabObject::PrefabObject()
 
 PrefabObject::~PrefabObject()
 {
+#if MYFW_USING_WX
     delete m_pGameObject;
+#endif
 }
 
 void PrefabObject::Init(PrefabFile* pFile, const char* name, uint32 prefabid)

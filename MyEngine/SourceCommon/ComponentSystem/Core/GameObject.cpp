@@ -584,11 +584,13 @@ void GameObject::ImportFromJSONObject(cJSON* jGameObject, unsigned int sceneid)
 
         SetParentGameObject( pParentGameObject );
 
+#if MYFW_USING_WX
         // move as last item in parent
         if( pLastChild != 0 )
             g_pPanelObjectList->Tree_MoveObject( this, pLastChild, false );
         else
             g_pPanelObjectList->Tree_MoveObject( this, m_pParentGameObject, true );
+#endif
     }
 
     // LEGACY: support for old scene files with folders in them
