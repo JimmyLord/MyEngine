@@ -1424,6 +1424,7 @@ void EngineCore::Editor_QuickLoadScene(const char* fullpath)
 
 void EngineCore::LoadSceneFromJSON(const char* scenename, const char* jsonstr, unsigned int sceneid)
 {
+    LOGInfo( LOGTag, "Loading scene file(%d): %s\n", sceneid, scenename );
     // reset the editorstate structure.
 #if MYFW_USING_WX
     m_pEditorState->ClearEditorState( false );

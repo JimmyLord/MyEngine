@@ -18,6 +18,8 @@ BulletWorld::BulletWorld(MaterialDefinition* debugdrawmaterial, MyMatrix* matvie
 {
     g_pBulletWorld = this;
 
+    m_pBulletDebugDraw = 0;
+
     CreateWorld( debugdrawmaterial, matviewproj );
 }
 
