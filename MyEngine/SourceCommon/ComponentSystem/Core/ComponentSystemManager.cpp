@@ -693,9 +693,9 @@ MyFileObject* ComponentSystemManager::LoadDataFile(const char* relativepath, uns
             MyAssert( false );
 #else
             // Let SoundPlayer (SDL on windows) load the wav files
-            SoundCue* pCue = g_pGameCore->m_pSoundManager->CreateCue( "Music" );
-            pCue->SaveSoundCue( 0 );
+            SoundCue* pCue = g_pGameCore->m_pSoundManager->CreateCue( "new cue" );
             g_pGameCore->m_pSoundManager->AddSoundToCue( pCue, relativepath );
+            pCue->SaveSoundCue( 0 );
 
             pFileInfo->m_pSoundCue = pCue;
             pFileInfo->m_pFile = pCue->m_pFile;

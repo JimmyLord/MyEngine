@@ -70,8 +70,8 @@ void ComponentAudioPlayer::LuaRegister(lua_State* luastate)
 {
     luabridge::getGlobalNamespace( luastate )
         .beginClass<ComponentSprite>( "ComponentAudioPlayer" )
-            //.addData( "m_SampleVector3", &ComponentSprite::m_SampleVector3 )
-            //.addFunction( "GetVector3", &ComponentSprite::GetVector3 )
+            //.addData( "m_SampleVector3", &ComponentAudioPlayer::m_SampleVector3 )
+            .addFunction( "PlaySound", &ComponentAudioPlayer::PlaySound )
         .endClass();
 }
 #endif //MYFW_USING_LUA
@@ -245,6 +245,19 @@ void ComponentAudioPlayer::UnregisterCallbacks()
         //MYFW_UNREGISTER_COMPONENT_CALLBACK( OnFileRenamed );
 
         m_CallbacksRegistered = false;
+    }
+}
+
+void ComponentAudioPlayer::PlaySound(bool fireAndForget)
+{
+    if( fireAndForget == false )
+    {
+        g_pGameCore->m_pSoundPlayer->StopSound( m_ChannelSoundIsPlayingOn );
+        m_ChannelSoundIsPlayingOn = g_pGameCore->m_pSoundManager->PlayCue( m_pSoundCue );
+    }
+    else
+    {
+        g_pGameCore->m_pSoundManager->PlayCue( m_pSoundCue );
     }
 }
 

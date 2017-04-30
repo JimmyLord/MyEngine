@@ -41,6 +41,8 @@ public:
     virtual void RegisterCallbacks();
     virtual void UnregisterCallbacks();
 
+    void PlaySound(bool fireAndForget);
+
 protected:
     void SetSoundCue(SoundCue* pCue);
 
