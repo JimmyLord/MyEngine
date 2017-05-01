@@ -315,6 +315,11 @@ void ComponentSystemManager::OnSoundCueCreated(SoundCue* pSoundCue)
 {
     MyAssert( pSoundCue );
 
+    if( pSoundCue )
+    {
+        pSoundCue->AddRef();
+    }
+
     // if this material doesn't have a file and it has a name, then save it.
     if( pSoundCue && pSoundCue->m_pFile )
     {
