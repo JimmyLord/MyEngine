@@ -120,6 +120,7 @@ public:
     Component2DCollisionObject* Get2DCollisionObject()  { return (Component2DCollisionObject*)GetFirstComponentOfType( "2DCollisionObjectComponent" ); }
     ComponentParticleEmitter* GetParticleEmitter()      { return (ComponentParticleEmitter*)GetFirstComponentOfType( "ParticleEmitterComponent" ); }
     ComponentVoxelWorld* GetVoxelWorld()                { return (ComponentVoxelWorld*)GetFirstComponentOfType( "VoxelWorldComponent" ); }
+    ComponentAudioPlayer* GetAudioPlayer()              { return (ComponentAudioPlayer*)GetFirstComponentOfType( "AudioPlayer" ); }
 
     MaterialDefinition* GetMaterial();
     void SetMaterial(MaterialDefinition* pMaterial);

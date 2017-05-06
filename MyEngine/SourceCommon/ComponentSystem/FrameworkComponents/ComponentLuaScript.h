@@ -150,6 +150,7 @@ public:
     enum RightClickOptions
     {
         RightClick_CreateNewScriptFile = 2000,
+        RightClick_LaunchScriptEditor = 2001,
     };
 
     void CreateNewScriptFile();
@@ -173,6 +174,8 @@ public:
     // Component variable callbacks.
     void* OnDrop(ComponentVariable* pVar, wxCoord x, wxCoord y);
     void* OnValueChanged(ComponentVariable* pVar, int controlid, bool finishedchanging, double oldvalue, void* newpointer);
+    void OnRightClickCallback(ComponentVariable* pVar, wxMenu* pMenu);
+    void OnPopupClickCallback(ComponentVariable* pVar, int id);
 
     // Watch panel callbacks for exposed variables.
     static void StaticOnDropExposedVar(void* pObjectPtr, int controlid, wxCoord x, wxCoord y) { ((ComponentLuaScript*)pObjectPtr)->OnDropExposedVar(controlid, x, y); }

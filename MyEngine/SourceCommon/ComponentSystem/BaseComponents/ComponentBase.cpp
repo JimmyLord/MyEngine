@@ -1412,7 +1412,8 @@ void ComponentBase::OnRightClickVariable(int controlid)
         return;
 
     // the only right-click options involve this components gameobject having a parent, so quick early if it doesn't
-    if( m_pGameObject->GetGameObjectThisInheritsFrom() == 0 )
+    // also if there's a callback function, we'll still create the menu.
+    if( m_pGameObject->GetGameObjectThisInheritsFrom() == 0 && pVar->m_pOnRightClickCallbackFunc == 0 )
         return;
 
     wxMenu menu;
@@ -1427,14 +1428,19 @@ void ComponentBase::OnRightClickVariable(int controlid)
         if( IsDivorced( pVar->m_Index ) == false )
         {
             menu.Append( RightClick_DivorceVariable, "Divorce value from parent" );
- 	        menu.Connect( wxEVT_COMMAND_MENU_SELECTED, (wxObjectEventFunction)&ComponentBaseEventHandlerForComponentVariables::OnPopupClick );
         }
         else
         {
             menu.Append( RightClick_MarryVariable, "Reset value to parent" );
- 	        menu.Connect( wxEVT_COMMAND_MENU_SELECTED, (wxObjectEventFunction)&ComponentBaseEventHandlerForComponentVariables::OnPopupClick );
         }
     }
+
+    if( pVar->m_pOnRightClickCallbackFunc )
+    {
+        (this->*(pVar->m_pOnRightClickCallbackFunc))( pVar, &menu );
+    }
+
+    menu.Connect( wxEVT_COMMAND_MENU_SELECTED, (wxObjectEventFunction)&ComponentBaseEventHandlerForComponentVariables::OnPopupClick );
 
     // blocking call.
     g_pPanelWatch->PopupMenu( &menu ); // there's no reason this is using g_pPanelWatch other than convenience.
@@ -1467,6 +1473,11 @@ void ComponentBaseEventHandlerForComponentVariables::OnPopupClick(wxEvent &evt)
             pComponent->CopyValueFromParent( pVar );
         }
         break;
+    }
+
+    if( pVar->m_pOnPopupClickCallbackFunc )
+    {
+        (pComponent->*(pVar->m_pOnPopupClickCallbackFunc))( pVar, id );
     }
 }
 

@@ -67,7 +67,8 @@ void ComponentLuaScript::RegisterVariables(CPPListHead* pList, ComponentLuaScrip
 #endif
 
     // script is not automatically saved/loaded
-    AddVar( pList, "Script", ComponentVariableType_FilePtr, MyOffsetOf( pThis, &pThis->m_pScriptFile ), false, true, 0, (CVarFunc_ValueChanged)&ComponentLuaScript::OnValueChanged, (CVarFunc_DropTarget)&ComponentLuaScript::OnDrop, 0 );
+    ComponentVariable* pVar = AddVar( pList, "Script", ComponentVariableType_FilePtr, MyOffsetOf( pThis, &pThis->m_pScriptFile ), false, true, 0, (CVarFunc_ValueChanged)&ComponentLuaScript::OnValueChanged, (CVarFunc_DropTarget)&ComponentLuaScript::OnDrop, 0 );
+    pVar->AddCallback_OnRightClick( (CVarFunc_wxMenu)&ComponentLuaScript::OnRightClickCallback, (CVarFunc_Int)&ComponentLuaScript::OnPopupClickCallback );
 }
 
 void ComponentLuaScript::Reset()
@@ -346,6 +347,32 @@ void* ComponentLuaScript::OnValueChanged(ComponentVariable* pVar, int controlid,
     }
 
     return oldpointer;
+}
+
+void ComponentLuaScript::OnRightClickCallback(ComponentVariable* pVar, wxMenu* pMenu)
+{
+    if( m_pScriptFile == 0 )
+    {
+        pMenu->Append( RightClick_CreateNewScriptFile, "Create new script" );
+    }
+    else
+    {
+        pMenu->Append( RightClick_LaunchScriptEditor, "Edit script" );
+    }
+}
+
+void ComponentLuaScript::OnPopupClickCallback(ComponentVariable* pVar, int id)
+{
+    switch( id )
+    {
+    case RightClick_CreateNewScriptFile:
+        CreateNewScriptFile();
+        break;
+
+    case RightClick_LaunchScriptEditor:
+        m_pScriptFile->OSLaunchFile( true );
+        break;
+    }
 }
 
 void* ComponentLuaScript::ProcessOnDropExposedVar(int controlid, wxCoord x, wxCoord y)

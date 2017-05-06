@@ -69,7 +69,7 @@ void ComponentAudioPlayer::Reset()
 void ComponentAudioPlayer::LuaRegister(lua_State* luastate)
 {
     luabridge::getGlobalNamespace( luastate )
-        .beginClass<ComponentSprite>( "ComponentAudioPlayer" )
+        .beginClass<ComponentAudioPlayer>( "ComponentAudioPlayer" )
             //.addData( "m_SampleVector3", &ComponentAudioPlayer::m_SampleVector3 )
             .addFunction( "PlaySound", &ComponentAudioPlayer::PlaySound )
         .endClass();
@@ -250,6 +250,9 @@ void ComponentAudioPlayer::UnregisterCallbacks()
 
 void ComponentAudioPlayer::PlaySound(bool fireAndForget)
 {
+    if( m_pSoundCue == 0 )
+        return;
+
     if( fireAndForget == false )
     {
         g_pGameCore->m_pSoundPlayer->StopSound( m_ChannelSoundIsPlayingOn );

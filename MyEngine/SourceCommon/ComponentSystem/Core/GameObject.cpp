@@ -115,6 +115,7 @@ void GameObject::LuaRegister(lua_State* luastate)
             .addFunction( "Get2DCollisionObject", &GameObject::Get2DCollisionObject )
             .addFunction( "GetParticleEmitter", &GameObject::GetParticleEmitter )
             .addFunction( "GetVoxelWorld", &GameObject::GetVoxelWorld )
+            .addFunction( "GetAudioPlayer", &GameObject::GetAudioPlayer )
         .endClass();
 }
 #endif //MYFW_USING_LUA

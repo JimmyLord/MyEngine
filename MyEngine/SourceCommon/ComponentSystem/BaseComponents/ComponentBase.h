@@ -59,9 +59,12 @@ class ComponentVariable;
 
 #if !MYFW_USING_WX
 #define wxCoord float
+#define wxMenu void
 #endif //MYFW_USING_WX
 
 typedef void (ComponentBase::*CVarFunc)(ComponentVariable* pVar);
+typedef void (ComponentBase::*CVarFunc_Int)(ComponentVariable* pVar, int someint);
+typedef void (ComponentBase::*CVarFunc_wxMenu)(ComponentVariable* pVar, wxMenu* pMenu);
 typedef void* (ComponentBase::*CVarFunc_DropTarget)(ComponentVariable* pVar, wxCoord x, wxCoord y);
 typedef void* (ComponentBase::*CVarFunc_ValueChanged)(ComponentVariable* pVar, int controlid, bool finishedchanging, double oldvalue, void* newpointer);
 typedef void* (ComponentBase::*CVarFunc_Pointer)(ComponentVariable* pVar);
@@ -93,6 +96,8 @@ public:
     CVarFunc m_pOnButtonPressedCallbackFunc;
     CVarFunc_ValueChanged m_pOnValueChangedCallbackFunc;
     CVarFunc_ShouldVariableBeAdded m_pShouldVariableBeAddedCallbackFunc;
+    CVarFunc_wxMenu m_pOnRightClickCallbackFunc;
+    CVarFunc_Int m_pOnPopupClickCallbackFunc;
 #endif //MYFW_USING_WX
 
     CVarFunc_GetPointerValue m_pGetPointerValueCallBackFunc;
@@ -144,6 +149,12 @@ public:
     void AddCallback_ShouldVariableBeAdded(CVarFunc_ShouldVariableBeAdded pFunc)
     {
         m_pShouldVariableBeAddedCallbackFunc = pFunc;
+    }
+
+    void AddCallback_OnRightClick(CVarFunc_wxMenu pRightClickFunc, CVarFunc_Int pPopupClickFunc)
+    {
+        m_pOnRightClickCallbackFunc = pRightClickFunc;
+        m_pOnPopupClickCallbackFunc = pPopupClickFunc;
     }
 #endif //MYFW_USING_WX
 
