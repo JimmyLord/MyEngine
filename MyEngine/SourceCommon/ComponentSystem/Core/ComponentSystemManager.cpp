@@ -35,6 +35,7 @@ ComponentSystemManager::ComponentSystemManager(ComponentTypeManager* typemanager
 #if MYFW_USING_WX
     g_pMaterialManager->RegisterMaterialCreatedCallback( this, StaticOnMaterialCreated );
     g_pGameCore->m_pSoundManager->RegisterSoundCueCreatedCallback( this, StaticOnSoundCueCreated );
+    g_pGameCore->m_pSoundManager->RegisterSoundCueUnloadedCallback( this, StaticOnSoundCueUnloaded );
 #endif
 
     m_NextSceneID = 1;
@@ -327,6 +328,15 @@ void ComponentSystemManager::OnSoundCueCreated(SoundCue* pSoundCue)
         AddToFileList( pSoundCue->m_pFile, 0, 0, 0, 0, pSoundCue, 0, 1 );
         pSoundCue->m_pFile->AddRef();
     }
+}
+
+void ComponentSystemManager::OnSoundCueUnloaded(SoundCue* pSoundCue)
+{
+    MyAssert( pSoundCue );
+
+    // TODO: find the file in the filelist and unload it.
+    //FileInfo* pFileInfo = ???
+    //FreeDataFile( -1, pFileInfo );
 }
 #endif //MYFW_USING_WX
 
@@ -880,6 +890,11 @@ MyFileObject* ComponentSystemManager::ImportDataFile(unsigned int sceneid, const
     return 0;
 }
 #endif //MYFW_USING_WX
+
+void ComponentSystemManager::FreeDataFile(unsigned int sceneidtoclear, MyFileInfo* pFileInfo)
+{
+    // TODO
+}
 
 void ComponentSystemManager::FreeAllDataFiles(unsigned int sceneidtoclear)
 {
