@@ -36,6 +36,10 @@ ComponentSystemManager::ComponentSystemManager(ComponentTypeManager* typemanager
     g_pMaterialManager->RegisterMaterialCreatedCallback( this, StaticOnMaterialCreated );
     g_pGameCore->m_pSoundManager->RegisterSoundCueCreatedCallback( this, StaticOnSoundCueCreated );
     g_pGameCore->m_pSoundManager->RegisterSoundCueUnloadedCallback( this, StaticOnSoundCueUnloaded );
+
+    // This class adds to SoundCue's refcount when storing cue in m_Files
+    //    so increment this number to prevent editor from allowing it to be unloaded if ref'ed by game code
+    g_pGameCore->m_pSoundManager->m_NumRefsPlacedOnSoundCueBySystem += 1;
 #endif
 
     m_NextSceneID = 1;
@@ -334,9 +338,30 @@ void ComponentSystemManager::OnSoundCueUnloaded(SoundCue* pSoundCue)
 {
     MyAssert( pSoundCue );
 
-    // TODO: find the file in the filelist and unload it.
-    //FileInfo* pFileInfo = ???
-    //FreeDataFile( -1, pFileInfo );
+    // Loop through both lists of files and unload all files referencing this sound cue.
+    for( int filelist=0; filelist<2; filelist++ )
+    {
+        CPPListNode* pFirstNode = 0;
+
+        if( filelist == 0 )
+            pFirstNode = m_Files.GetHead();
+        else
+            pFirstNode = m_FilesStillLoading.GetHead();
+        
+        CPPListNode* pNextNode;
+        for( CPPListNode* pNode = pFirstNode; pNode; pNode = pNextNode )
+        {
+            pNextNode = pNode->GetNext();
+
+            MyFileInfo* pFileInfo = (MyFileInfo*)pNode;
+
+            if( pFileInfo->m_pSoundCue == pSoundCue )
+            {
+                // Unload the file.
+                FreeDataFile( pFileInfo );
+            }
+        }
+    }
 }
 #endif //MYFW_USING_WX
 
@@ -891,9 +916,9 @@ MyFileObject* ComponentSystemManager::ImportDataFile(unsigned int sceneid, const
 }
 #endif //MYFW_USING_WX
 
-void ComponentSystemManager::FreeDataFile(unsigned int sceneidtoclear, MyFileInfo* pFileInfo)
+void ComponentSystemManager::FreeDataFile(MyFileInfo* pFileInfo)
 {
-    // TODO
+    delete pFileInfo;
 }
 
 void ComponentSystemManager::FreeAllDataFiles(unsigned int sceneidtoclear)
@@ -915,9 +940,7 @@ void ComponentSystemManager::FreeAllDataFiles(unsigned int sceneidtoclear)
 
             if( sceneidtoclear == UINT_MAX || pFile->m_SceneID == sceneidtoclear )
             {
-                checkGlError( "ComponentSystemManager::FreeAllDataFiles" );
                 delete pFile;
-                checkGlError( "ComponentSystemManager::FreeAllDataFiles" );
             }
         }
     }

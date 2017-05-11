@@ -731,7 +731,7 @@ EditorCommand* EditorCommand_ChangeShaderOnMaterial::Repeat()
 EditorCommand_ChangeAllScriptsOnGameObject::EditorCommand_ChangeAllScriptsOnGameObject(GameObject* object, MyFileObject* scriptfile)
 {
     m_pGameObject = object;
-    pNewScriptFile = scriptfile;
+    m_pNewScriptFile = scriptfile;
 }
 
 EditorCommand_ChangeAllScriptsOnGameObject::~EditorCommand_ChangeAllScriptsOnGameObject()
@@ -751,7 +751,7 @@ void EditorCommand_ChangeAllScriptsOnGameObject::Do()
         }
     }
 
-    m_pGameObject->SetScriptFile( pNewScriptFile );
+    m_pGameObject->SetScriptFile( m_pNewScriptFile );
 }
 
 void EditorCommand_ChangeAllScriptsOnGameObject::Undo()
@@ -769,6 +769,39 @@ void EditorCommand_ChangeAllScriptsOnGameObject::Undo()
 }
 
 EditorCommand* EditorCommand_ChangeAllScriptsOnGameObject::Repeat()
+{
+    // Do nothing.
+
+    return 0;
+}
+
+//====================================================================================================
+// EditorCommand_ChangeSoundCue
+//====================================================================================================
+
+EditorCommand_ChangeSoundCue::EditorCommand_ChangeSoundCue(ComponentAudioPlayer* pComponent, SoundCue* pSoundCue)
+{
+    m_pComponent = pComponent;
+    m_pSoundCue = pSoundCue;
+
+    m_pOldSoundCue = pComponent->GetSoundCue();
+}
+
+EditorCommand_ChangeSoundCue::~EditorCommand_ChangeSoundCue()
+{
+}
+
+void EditorCommand_ChangeSoundCue::Do()
+{
+    m_pComponent->SetSoundCue( m_pSoundCue );
+}
+
+void EditorCommand_ChangeSoundCue::Undo()
+{
+    m_pComponent->SetSoundCue( m_pOldSoundCue );
+}
+
+EditorCommand* EditorCommand_ChangeSoundCue::Repeat()
 {
     // Do nothing.
 

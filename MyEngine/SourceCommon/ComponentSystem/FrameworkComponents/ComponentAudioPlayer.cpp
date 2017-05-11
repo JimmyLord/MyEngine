@@ -33,7 +33,7 @@ ComponentAudioPlayer::ComponentAudioPlayer()
 
 ComponentAudioPlayer::~ComponentAudioPlayer()
 {
-    //SAFE_RELEASE( m_pAudioFile );
+    SAFE_RELEASE( m_pSoundCue );
 
     MYFW_COMPONENT_VARIABLE_LIST_DESTRUCTOR(); //_VARIABLE_LIST
 }
@@ -92,10 +92,10 @@ void ComponentAudioPlayer::FillPropertiesWindow(bool clear, bool addcomponentvar
 {
     m_ControlID_ComponentTitleLabel = g_pPanelWatch->AddSpace( "Audio Player", this, ComponentBase::StaticOnComponentTitleLabelClicked );
 
-    // check for the sound cue if it's null, it might not have be set on initial load.
+    // Check for the sound cue if it's null, it might not have been set on initial load if sound cue file wasn't loaded.
     if( m_pSoundCue == 0 && m_SoundCueName[0] != 0 )
     {
-        m_pSoundCue = g_pGameCore->m_pSoundManager->FindCueByName( m_SoundCueName );
+        SetSoundCue( g_pGameCore->m_pSoundManager->FindCueByName( m_SoundCueName ) );
     }
 
     if( m_PanelWatchBlockVisible || ignoreblockvisibleflag == true )
@@ -146,8 +146,16 @@ void* ComponentAudioPlayer::OnValueChanged(ComponentVariable* pVar, int controli
         }
         else if( pVar->m_ControlID != -1 )
         {
-            // TODO: read the cue name or null it out
-            //m_SoundCueName[0] = 0;
+            wxString text = g_pPanelWatch->GetVariableProperties( pVar->m_ControlID )->m_Handle_TextCtrl->GetValue();
+            if( text == "" || text == "none" )
+            {
+                g_pPanelWatch->ChangeDescriptionForPointerWithDescription( pVar->m_ControlID, "no sound cue" );
+
+                oldpointer = m_pSoundCue;
+                
+                // Set the current sound cue to null.
+                g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_ChangeSoundCue( this, 0 ) );
+            }
         }
     }
 
@@ -156,9 +164,10 @@ void* ComponentAudioPlayer::OnValueChanged(ComponentVariable* pVar, int controli
 
 void ComponentAudioPlayer::OnButtonPlaySound(int buttonid)
 {
+    // Check for the sound cue if it's null, it might not have been set on initial load if sound cue file wasn't loaded.
     if( m_pSoundCue == 0 && m_SoundCueName[0] != 0 )
     {
-        m_pSoundCue = g_pGameCore->m_pSoundManager->FindCueByName( m_SoundCueName );
+        SetSoundCue( g_pGameCore->m_pSoundManager->FindCueByName( m_SoundCueName ) );
         if( m_pSoundCue )
             g_pPanelWatch->SetNeedsRefresh();
     }
@@ -197,9 +206,16 @@ void ComponentAudioPlayer::ImportFromJSONObject(cJSON* jComponent, unsigned int 
     cJSON* scriptstringobj = cJSON_GetObjectItem( jComponent, "Cue" );
     if( scriptstringobj )
     {
-        strcpy_s( m_SoundCueName, MAX_SOUND_CUE_NAME_LEN, scriptstringobj->valuestring );
-        m_pSoundCue = 0;
-        m_pSoundCue = g_pGameCore->m_pSoundManager->FindCueByName( m_SoundCueName );
+        SoundCue* pSoundCue = g_pGameCore->m_pSoundManager->FindCueByName( m_SoundCueName );
+        if( pSoundCue )
+        {
+            SetSoundCue( pSoundCue );
+        }
+        else
+        {
+            // Set the name of the cue we want to load for later.
+            strcpy_s( m_SoundCueName, MAX_SOUND_CUE_NAME_LEN, scriptstringobj->valuestring );
+        }
     }
 
     ImportVariablesFromJSON( jComponent ); //_VARIABLE_LIST
@@ -222,7 +238,9 @@ void ComponentAudioPlayer::RegisterCallbacks()
     {
         m_CallbacksRegistered = true;
 
-        //MYFW_REGISTER_COMPONENT_CALLBACK( ComponentAudioPlayer, Tick );
+#if MYFW_USING_WX
+        MYFW_REGISTER_COMPONENT_CALLBACK( ComponentAudioPlayer, Tick );
+#endif
         //MYFW_REGISTER_COMPONENT_CALLBACK( ComponentAudioPlayer, OnSurfaceChanged );
         //MYFW_REGISTER_COMPONENT_CALLBACK( ComponentAudioPlayer, Draw );
         //MYFW_REGISTER_COMPONENT_CALLBACK( ComponentAudioPlayer, OnTouch );
@@ -236,7 +254,9 @@ void ComponentAudioPlayer::UnregisterCallbacks()
 {
     if( m_CallbacksRegistered == true )
     {
-        //MYFW_UNREGISTER_COMPONENT_CALLBACK( Tick );
+#if MYFW_USING_WX
+        MYFW_UNREGISTER_COMPONENT_CALLBACK( Tick );
+#endif
         //MYFW_UNREGISTER_COMPONENT_CALLBACK( OnSurfaceChanged );
         //MYFW_UNREGISTER_COMPONENT_CALLBACK( Draw );
         //MYFW_UNREGISTER_COMPONENT_CALLBACK( OnTouch );
@@ -248,8 +268,37 @@ void ComponentAudioPlayer::UnregisterCallbacks()
     }
 }
 
+#if MYFW_USING_WX
+void ComponentAudioPlayer::TickCallback(double TimePassed)
+{
+    //ComponentBase::TickCallback( TimePassed );
+
+    // In editor mode, continually check for sound cue pointer then unregister tick callback one found.
+    if( m_pSoundCue == 0 && m_SoundCueName[0] != 0 )
+    {
+        SoundCue* pSoundCue = g_pGameCore->m_pSoundManager->FindCueByName( m_SoundCueName );
+
+        if( pSoundCue )
+        {
+            SetSoundCue( pSoundCue );
+        }
+    }
+
+    if( m_pSoundCue != 0 )
+    {
+        MYFW_UNREGISTER_COMPONENT_CALLBACK( Tick );
+    }
+}
+#endif //MYFW_USING_WX
+
 void ComponentAudioPlayer::PlaySound(bool fireAndForget)
 {
+    // Check for the sound cue if it's null, it might not have been set on initial load if sound cue file wasn't loaded.
+    if( m_pSoundCue == 0 && m_SoundCueName[0] != 0 )
+    {
+        SetSoundCue( g_pGameCore->m_pSoundManager->FindCueByName( m_SoundCueName ) );
+    }
+
     if( m_pSoundCue == 0 )
         return;
 
@@ -266,9 +315,22 @@ void ComponentAudioPlayer::PlaySound(bool fireAndForget)
 
 void ComponentAudioPlayer::SetSoundCue(SoundCue* pCue)
 {
-    //if( pFile )
-    //    pFile->AddRef();
-    //SAFE_RELEASE( m_pSoundCue );
-    strcpy_s( m_SoundCueName, MAX_SOUND_CUE_NAME_LEN, pCue->m_Name );
-    m_pSoundCue = pCue;
+    if( pCue )
+        pCue->AddRef();
+    SAFE_RELEASE( m_pSoundCue );
+
+    if( pCue )
+    {
+        m_pSoundCue = pCue;
+
+        strcpy_s( m_SoundCueName, MAX_SOUND_CUE_NAME_LEN, pCue->m_Name );
+    }
+    else
+    {
+        m_SoundCueName[0] = 0;
+    }
+
+#if MYFW_USING_WX
+    g_pPanelWatch->SetNeedsRefresh();
+#endif
 }

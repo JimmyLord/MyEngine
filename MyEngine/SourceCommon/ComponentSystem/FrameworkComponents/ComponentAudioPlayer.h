@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016 Jimmy Lord http://www.flatheadgames.com
+// Copyright (c) 2016-2017 Jimmy Lord http://www.flatheadgames.com
 //
 // This software is provided 'as-is', without any express or implied warranty.  In no event will the authors be held liable for any damages arising from the use of this software.
 // Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -17,7 +17,6 @@ private:
     MYFW_COMPONENT_DECLARE_VARIABLE_LIST( ComponentAudioPlayer );
 
 protected:
-    // TODO: replace with audio cue system.
     char m_SoundCueName[MAX_SOUND_CUE_NAME_LEN];
     SoundCue* m_pSoundCue;
     int m_ChannelSoundIsPlayingOn;
@@ -43,12 +42,14 @@ public:
 
     void PlaySound(bool fireAndForget);
 
-protected:
+    SoundCue* GetSoundCue() { return m_pSoundCue; }
     void SetSoundCue(SoundCue* pCue);
 
 protected:
     // Callback functions for various events.
-    //MYFW_DECLARE_COMPONENT_CALLBACK_TICK(); // TickCallback
+#if MYFW_USING_WX
+    MYFW_DECLARE_COMPONENT_CALLBACK_TICK(); // TickCallback
+#endif
     //MYFW_DECLARE_COMPONENT_CALLBACK_ONSURFACECHANGED(); // OnSurfaceChangedCallback
     //MYFW_DECLARE_COMPONENT_CALLBACK_DRAW(); // DrawCallback
     //MYFW_DECLARE_COMPONENT_CALLBACK_ONTOUCH(); // OnTouchCallback

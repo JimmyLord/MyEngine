@@ -173,7 +173,7 @@ public:
     MyFileInfo* AddToFileList(MyFileObject* pFile, MyMesh* pMesh, ShaderGroup* pShaderGroup, TextureDefinition* pTexture, MaterialDefinition* pMaterial, SoundCue* pSoundCue, SpriteSheet* pSpriteSheet, unsigned int sceneid);
     MyFileObject* LoadDataFile(const char* relativepath, unsigned int sceneid, const char* fullsourcefilepath, bool convertifrequired);
     MyFileObject* ImportDataFile(unsigned int sceneid, const char* fullsourcefilepath);
-    void FreeDataFile(unsigned int sceneidtoclear, MyFileInfo* pFileInfo);
+    void FreeDataFile(MyFileInfo* pFileInfo);
     void FreeAllDataFiles(unsigned int sceneidtoclear);
 
     void LoadSceneFromJSON(const char* scenename, const char* jsonstr, unsigned int sceneid);

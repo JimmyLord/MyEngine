@@ -23,6 +23,7 @@ class EditorCommand_ChangeAllMaterialsOnGameObject;
 class EditorCommand_ChangeTextureOnMaterial;
 class EditorCommand_ChangeShaderOnMaterial;
 class EditorCommand_ChangeAllScriptsOnGameObject;
+class EditorCommand_ChangeSoundCue;
 class EditorCommand_Move2DPoint;
 class EditorCommand_Insert2DPoint;
 class EditorCommand_Delete2DPoint;
@@ -272,7 +273,7 @@ class EditorCommand_ChangeAllScriptsOnGameObject : public EditorCommand
 {
 protected:
     GameObject* m_pGameObject;
-    MyFileObject* pNewScriptFile;
+    MyFileObject* m_pNewScriptFile;
 
     std::vector<ComponentBase*> m_ComponentsChanged;
     std::vector<MyFileObject*> m_OldScriptFiles;
@@ -280,6 +281,24 @@ protected:
 public:
     EditorCommand_ChangeAllScriptsOnGameObject(GameObject* object, MyFileObject* scriptfile);
     virtual ~EditorCommand_ChangeAllScriptsOnGameObject();
+
+    virtual void Do();
+    virtual void Undo();
+    virtual EditorCommand* Repeat();
+};
+
+//====================================================================================================
+
+class EditorCommand_ChangeSoundCue : public EditorCommand
+{
+protected:
+    ComponentAudioPlayer* m_pComponent;
+    SoundCue* m_pSoundCue;
+    SoundCue* m_pOldSoundCue;
+
+public:
+    EditorCommand_ChangeSoundCue(ComponentAudioPlayer* pComponent, SoundCue* pSoundCue);
+    virtual ~EditorCommand_ChangeSoundCue();
 
     virtual void Do();
     virtual void Undo();

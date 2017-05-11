@@ -95,6 +95,7 @@ public:
     CVarFunc_DropTarget m_pOnDropCallbackFunc;
     CVarFunc m_pOnButtonPressedCallbackFunc;
     CVarFunc_ValueChanged m_pOnValueChangedCallbackFunc;
+
     CVarFunc_ShouldVariableBeAdded m_pShouldVariableBeAddedCallbackFunc;
     CVarFunc_wxMenu m_pOnRightClickCallbackFunc;
     CVarFunc_Int m_pOnPopupClickCallbackFunc;
@@ -134,6 +135,8 @@ public:
         m_pOnValueChangedCallbackFunc = pOnValueChangedCallBackFunc;
 
         m_pShouldVariableBeAddedCallbackFunc = 0;
+        m_pOnRightClickCallbackFunc = 0;
+        m_pOnPopupClickCallbackFunc = 0;
 #endif //MYFW_USING_WX
 
         m_pGetPointerValueCallBackFunc = pGetPointerValueCallBackFunc;
