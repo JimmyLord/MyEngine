@@ -114,7 +114,8 @@ void* ComponentAudioPlayer::OnDrop(ComponentVariable* pVar, wxCoord x, wxCoord y
 
     if( g_DragAndDropStruct.m_Type == DragAndDropType_SoundCuePointer )
     {
-        SetSoundCue( (SoundCue*)g_DragAndDropStruct.m_Value );
+        //SetSoundCue( (SoundCue*)g_DragAndDropStruct.m_Value );
+        g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_ChangeSoundCue( this, (SoundCue*)g_DragAndDropStruct.m_Value ) );
 
         // update the panel so new sound cue name shows up.
         g_pPanelWatch->ChangeDescriptionForPointerWithDescription( pVar->m_ControlID, m_SoundCueName );
@@ -141,8 +142,9 @@ void* ComponentAudioPlayer::OnValueChanged(ComponentVariable* pVar, int controli
     {
         if( newpointer != 0 )
         {
-            MyAssert( false );
-            // TODO: implement this block
+            oldpointer = m_pSoundCue;
+
+            SetSoundCue( (SoundCue*)newpointer );
         }
         else if( pVar->m_ControlID != -1 )
         {

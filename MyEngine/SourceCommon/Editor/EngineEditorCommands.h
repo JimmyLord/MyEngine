@@ -27,8 +27,10 @@ class EditorCommand_ChangeSoundCue;
 class EditorCommand_Move2DPoint;
 class EditorCommand_Insert2DPoint;
 class EditorCommand_Delete2DPoint;
+class EditorCommand_ComponentVariablePointerChanged;
 class EditorCommand_LuaExposedVariablePointerChanged;
 class EditorCommand_DeletePrefabs;
+class EditorCommand_DivorceOrMarryComponentVariable;
 
 //====================================================================================================
 
@@ -360,6 +362,26 @@ public:
 
 //====================================================================================================
 
+class EditorCommand_ComponentVariablePointerChanged : public EditorCommand
+{
+protected:
+    ComponentBase* m_pComponent;
+    ComponentVariable* m_pVar;
+
+    void* m_pNewPointer;
+    void* m_pOldPointer;
+
+public:
+    EditorCommand_ComponentVariablePointerChanged(void* newpointer, ComponentVariable* pVar, ComponentBase* pComponent);
+    virtual ~EditorCommand_ComponentVariablePointerChanged();
+
+    virtual void Do();
+    virtual void Undo();
+    virtual EditorCommand* Repeat();
+};
+
+//====================================================================================================
+
 class EditorCommand_LuaExposedVariablePointerChanged : public EditorCommand
 {
 protected:
@@ -398,6 +420,25 @@ protected:
 public:
     EditorCommand_DeletePrefabs(const std::vector<PrefabObject*>& selectedprefabs);
     virtual ~EditorCommand_DeletePrefabs();
+
+    virtual void Do();
+    virtual void Undo();
+    virtual EditorCommand* Repeat();
+};
+
+//====================================================================================================
+
+class EditorCommand_DivorceOrMarryComponentVariable : public EditorCommand
+{
+protected:
+    ComponentBase* m_pComponent;
+    ComponentVariable* m_pVar;
+
+    bool m_MarryTheVariable;
+
+public:
+    EditorCommand_DivorceOrMarryComponentVariable(ComponentBase* pComponent, ComponentVariable* pVar, bool marry);
+    virtual ~EditorCommand_DivorceOrMarryComponentVariable();
 
     virtual void Do();
     virtual void Undo();

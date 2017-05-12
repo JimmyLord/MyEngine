@@ -676,7 +676,7 @@ void ComponentLuaScript::CopyExposedVarValueFromParent(ExposedVariableDesc* pVar
                             double newvalue = pOtherVar->valuedouble;
                             pVar->valuedouble = pOtherVar->valuedouble;
 
-                            // notify component it's children that the value changed.
+                            // notify component and it's children that the value changed.
                             OnExposedVarValueChanged( pVar, 0, true, oldvalue, 0 );
 
                             g_pEngineMainFrame->m_pCommandStack->Add( MyNew EditorCommand_PanelWatchNumberValueChanged(
@@ -691,7 +691,7 @@ void ComponentLuaScript::CopyExposedVarValueFromParent(ExposedVariableDesc* pVar
                             bool newvalue = pOtherVar->valuebool;
                             pVar->valuedouble = pOtherVar->valuebool;
 
-                            // notify component it's children that the value changed.
+                            // notify component and it's children that the value changed.
                             OnExposedVarValueChanged( pVar, 0, true, oldvalue, 0 );
 
                             g_pEngineMainFrame->m_pCommandStack->Add( MyNew EditorCommand_PanelWatchNumberValueChanged(
@@ -706,7 +706,7 @@ void ComponentLuaScript::CopyExposedVarValueFromParent(ExposedVariableDesc* pVar
                             Vector3 newvalue = *(Vector3*)&pOtherVar->valuevector3;
                             *(Vector3*)&pVar->valuevector3 = *(Vector3*)&pOtherVar->valuevector3;
 
-                            // notify component it's children that the value changed.
+                            // notify component and it's children that the value changed.
                             OnExposedVarValueChanged( pVar, 0, true, oldvalue.x, 0 );
                             OnExposedVarValueChanged( pVar, 1, true, oldvalue.y, 0 );
                             OnExposedVarValueChanged( pVar, 2, true, oldvalue.z, 0 );

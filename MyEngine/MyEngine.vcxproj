@@ -1595,6 +1595,7 @@
     <ClCompile Include="SourceCommon\ComponentSystem\BaseComponents\ComponentRenderable.cpp" />
     <ClCompile Include="SourceCommon\ComponentSystem\BaseComponents\ComponentTransform.cpp" />
     <ClCompile Include="SourceCommon\ComponentSystem\BaseComponents\ComponentUpdateable.cpp" />
+    <ClCompile Include="SourceCommon\ComponentSystem\BaseComponents\ComponentVariable.cpp" />
     <ClCompile Include="SourceCommon\ComponentSystem\ComponentTemplate.cpp" />
     <ClCompile Include="SourceCommon\ComponentSystem\Core\ComponentSystemManager.cpp" />
     <ClCompile Include="SourceCommon\ComponentSystem\Core\ComponentTypeManager.cpp" />
@@ -1881,6 +1882,7 @@
     <ClInclude Include="SourceCommon\ComponentSystem\BaseComponents\ComponentRenderable.h" />
     <ClInclude Include="SourceCommon\ComponentSystem\BaseComponents\ComponentTransform.h" />
     <ClInclude Include="SourceCommon\ComponentSystem\BaseComponents\ComponentUpdateable.h" />
+    <ClInclude Include="SourceCommon\ComponentSystem\BaseComponents\ComponentVariable.h" />
     <ClInclude Include="SourceCommon\ComponentSystem\ComponentTemplate.h" />
     <ClInclude Include="SourceCommon\ComponentSystem\Core\ComponentSystemManager.h" />
     <ClInclude Include="SourceCommon\ComponentSystem\Core\ComponentTypeManager.h" />

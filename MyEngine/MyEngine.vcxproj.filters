@@ -396,6 +396,9 @@
     <ClCompile Include="SourceCommon\Physics\BulletWorld.cpp">
       <Filter>Source\Physics</Filter>
     </ClCompile>
+    <ClCompile Include="SourceCommon\ComponentSystem\BaseComponents\ComponentVariable.cpp">
+      <Filter>Source\ComponentSystem\Base Components</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SourceCommon\Camera\Camera3D.h">
@@ -739,6 +742,9 @@
     </ClInclude>
     <ClInclude Include="SourceCommon\Physics\BulletWorld.h">
       <Filter>Source\Physics</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCommon\ComponentSystem\BaseComponents\ComponentVariable.h">
+      <Filter>Source\ComponentSystem\Base Components</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

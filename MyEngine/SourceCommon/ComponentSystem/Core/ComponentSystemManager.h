@@ -24,8 +24,6 @@ class SceneGraph_Base;
 class SceneGraphObject;
 class MyFileInfo; // at bottom of this file.
 
-//#include "../BaseComponents/ComponentBase.h"
-
 enum ObjectListIconTypes
 {
     ObjectListIcon_Scene,

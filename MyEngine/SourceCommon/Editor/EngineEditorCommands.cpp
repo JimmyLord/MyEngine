@@ -923,6 +923,46 @@ EditorCommand* EditorCommand_Delete2DPoint::Repeat()
 }
 
 //====================================================================================================
+// EditorCommand_ComponentVariablePointerChanged
+//====================================================================================================
+
+EditorCommand_ComponentVariablePointerChanged::EditorCommand_ComponentVariablePointerChanged(void* newpointer, ComponentVariable* pVar, ComponentBase* pComponent)
+{
+    MyAssert( pComponent && pVar );
+
+    m_pComponent = pComponent;
+    m_pVar = pVar;
+
+    m_pNewPointer = newpointer;
+    m_pOldPointer =  *(void**)((char*)m_pComponent + pVar->m_Offset);
+}
+
+EditorCommand_ComponentVariablePointerChanged::~EditorCommand_ComponentVariablePointerChanged()
+{
+}
+
+void EditorCommand_ComponentVariablePointerChanged::Do()
+{
+    g_pPanelWatch->UpdatePanel();
+
+    // this could likely be dangerous, the object might not be in focus anymore and how it handles callbacks could cause issues.
+    (m_pComponent->*(m_pVar->m_pOnValueChangedCallbackFunc))( m_pVar, m_pVar->m_ControlID, true, 0, m_pNewPointer );
+}
+
+void EditorCommand_ComponentVariablePointerChanged::Undo()
+{
+    g_pPanelWatch->UpdatePanel();
+
+    // this could likely be dangerous, the object might not be in focus anymore and how it handles callbacks could cause issues.
+    (m_pComponent->*(m_pVar->m_pOnValueChangedCallbackFunc))( m_pVar, m_pVar->m_ControlID, true, 0, m_pOldPointer );
+}
+
+EditorCommand* EditorCommand_ComponentVariablePointerChanged::Repeat()
+{
+    return 0;
+}
+
+//====================================================================================================
 // EditorCommand_LuaExposedVariablePointerChanged
 //====================================================================================================
 
@@ -1049,6 +1089,68 @@ EditorCommand* EditorCommand_DeletePrefabs::Repeat()
 {
     // Do nothing.
 
+    return 0;
+}
+
+//====================================================================================================
+// EditorCommand_DivorceOrMarryComponentVariable
+//====================================================================================================
+
+EditorCommand_DivorceOrMarryComponentVariable::EditorCommand_DivorceOrMarryComponentVariable(ComponentBase* pComponent, ComponentVariable* pVar, bool marry)
+{
+    MyAssert( pComponent && pVar );
+
+    m_pComponent = pComponent;
+    m_pVar = pVar;
+
+    m_MarryTheVariable = marry;
+
+    //m_pComponent->
+}
+
+EditorCommand_DivorceOrMarryComponentVariable::~EditorCommand_DivorceOrMarryComponentVariable()
+{
+}
+
+void EditorCommand_DivorceOrMarryComponentVariable::Do()
+{
+    if( m_MarryTheVariable == true )
+    {
+        m_pComponent->SetDivorced( m_pVar->m_Index, false );
+        g_pPanelWatch->ChangeStaticTextFontStyle( m_pVar->m_ControlID, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL );
+        g_pPanelWatch->ChangeStaticTextBGColor( m_pVar->m_ControlID, wxNullColour );
+
+        m_pComponent->CopyValueFromParent( m_pVar );
+    }
+    else
+    {
+        m_pComponent->SetDivorced( m_pVar->m_Index, true );
+        g_pPanelWatch->ChangeStaticTextFontStyle( m_pVar->m_ControlID, wxFONTSTYLE_ITALIC, wxFONTWEIGHT_BOLD );
+        g_pPanelWatch->ChangeStaticTextBGColor( m_pVar->m_ControlID, wxColour( 255, 200, 200, 255 ) );
+    }
+}
+
+void EditorCommand_DivorceOrMarryComponentVariable::Undo()
+{
+    // Do the opposite
+    if( m_MarryTheVariable == false )
+    {
+        m_pComponent->SetDivorced( m_pVar->m_Index, false );
+        g_pPanelWatch->ChangeStaticTextFontStyle( m_pVar->m_ControlID, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL );
+        g_pPanelWatch->ChangeStaticTextBGColor( m_pVar->m_ControlID, wxNullColour );
+
+        // TODO: restore the old value of the child.
+    }
+    else
+    {
+        m_pComponent->SetDivorced( m_pVar->m_Index, true );
+        g_pPanelWatch->ChangeStaticTextFontStyle( m_pVar->m_ControlID, wxFONTSTYLE_ITALIC, wxFONTWEIGHT_BOLD );
+        g_pPanelWatch->ChangeStaticTextBGColor( m_pVar->m_ControlID, wxColour( 255, 200, 200, 255 ) );
+    }
+}
+
+EditorCommand* EditorCommand_DivorceOrMarryComponentVariable::Repeat()
+{
     return 0;
 }
 

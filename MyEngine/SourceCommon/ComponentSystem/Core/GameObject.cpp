@@ -488,7 +488,8 @@ cJSON* GameObject::ExportAsJSONObject(bool savesceneid)
     {
 #if MYFW_USING_WX
         // don't save parentGO if it's the prefab.
-        if( m_pPrefab && m_pGameObjectThisInheritsFrom != m_pPrefab->GetGameObject() )
+        if( m_pPrefab == 0 ||
+            (m_pGameObjectThisInheritsFrom != m_pPrefab->GetGameObject()) )
 #endif
         {
             cJSON_AddItemToObject( jGameObject, "ParentGO", m_pGameObjectThisInheritsFrom->ExportReferenceAsJSONObject( m_SceneID ) );
