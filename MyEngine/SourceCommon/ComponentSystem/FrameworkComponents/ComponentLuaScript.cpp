@@ -337,12 +337,17 @@ void* ComponentLuaScript::OnValueChanged(ComponentVariable* pVar, int controlid,
 
     if( strcmp( pVar->m_Label, "Script" ) == 0 )
     {
-        wxString text = g_pPanelWatch->GetVariableProperties( pVar->m_ControlID )->m_Handle_TextCtrl->GetValue();
-        if( text == "" || text == "none" || text == "no script" )
+        if( controlid != -1 ) // controlid will only be set if the control itself was changed.
         {
-            g_pPanelWatch->ChangeDescriptionForPointerWithDescription( pVar->m_ControlID, "no script" );
-            oldpointer = m_pScriptFile;
-            this->SetScriptFile( 0 );
+            MyAssert( controlid == pVar->m_ControlID );
+
+            wxString text = g_pPanelWatch->GetVariableProperties( pVar->m_ControlID )->m_Handle_TextCtrl->GetValue();
+            if( text == "" || text == "none" || text == "no script" )
+            {
+                g_pPanelWatch->ChangeDescriptionForPointerWithDescription( pVar->m_ControlID, "no script" );
+                oldpointer = m_pScriptFile;
+                this->SetScriptFile( 0 );
+            }
         }
     }
 

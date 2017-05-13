@@ -235,14 +235,10 @@ void* ComponentTransform::OnValueChanged(ComponentVariable* pVar, int controlid,
 
     if( pVar->m_Offset == MyOffsetOf( this, &m_pParentTransform ) )
     {
-        if( newpointer != 0 )
+        if( controlid != -1 ) // controlid will only be set if the control itself was changed.
         {
-            MyAssert( false ); // this block is untested
-            oldpointer = this->GetParentTransform();
-            this->SetParentTransform( (ComponentTransform*)newpointer ); // TODO: add undo.
-        }
-        else if( pVar->m_ControlID != -1 )
-        {
+            MyAssert( controlid == pVar->m_ControlID );
+
             wxString text = g_pPanelWatch->GetVariableProperties( pVar->m_ControlID )->m_Handle_TextCtrl->GetValue();
             if( text == "" || text == "none" )
             {
@@ -250,6 +246,12 @@ void* ComponentTransform::OnValueChanged(ComponentVariable* pVar, int controlid,
                 oldpointer = this->m_pParentTransform;
                 this->SetParentTransform( 0 );
             }
+        }
+        else if( newpointer != 0 )
+        {
+            MyAssert( false ); // this block is untested
+            oldpointer = this->GetParentTransform();
+            this->SetParentTransform( (ComponentTransform*)newpointer ); // TODO: add undo.
         }
     }
     else

@@ -433,6 +433,8 @@ class EditorCommand_DivorceOrMarryComponentVariable : public EditorCommand
 protected:
     ComponentBase* m_pComponent;
     ComponentVariable* m_pVar;
+    ComponentVariableValue m_OldValue;
+    ComponentVariableValue m_NewValue;
 
     bool m_MarryTheVariable;
 

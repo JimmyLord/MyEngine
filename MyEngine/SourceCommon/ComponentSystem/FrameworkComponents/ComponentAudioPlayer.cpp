@@ -140,14 +140,10 @@ void* ComponentAudioPlayer::OnValueChanged(ComponentVariable* pVar, int controli
 
     if( pVar->m_Offset == MyOffsetOf( this, &m_pSoundCue ) )
     {
-        if( newpointer != 0 )
+        if( controlid != -1 ) // controlid will only be set if the control itself was changed.
         {
-            oldpointer = m_pSoundCue;
+            MyAssert( controlid == pVar->m_ControlID );
 
-            SetSoundCue( (SoundCue*)newpointer );
-        }
-        else if( pVar->m_ControlID != -1 )
-        {
             wxString text = g_pPanelWatch->GetVariableProperties( pVar->m_ControlID )->m_Handle_TextCtrl->GetValue();
             if( text == "" || text == "none" )
             {
@@ -158,6 +154,12 @@ void* ComponentAudioPlayer::OnValueChanged(ComponentVariable* pVar, int controli
                 // Set the current sound cue to null.
                 g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_ChangeSoundCue( this, 0 ) );
             }
+        }
+        else if( newpointer != 0 )
+        {
+            oldpointer = m_pSoundCue;
+
+            SetSoundCue( (SoundCue*)newpointer );
         }
     }
 
@@ -177,7 +179,8 @@ void ComponentAudioPlayer::OnButtonPlaySound(int buttonid)
     if( m_pSoundCue == 0 )
         return;
 
-    g_pGameCore->m_pSoundPlayer->StopSound( m_ChannelSoundIsPlayingOn );
+    if( m_ChannelSoundIsPlayingOn != -1 )
+        g_pGameCore->m_pSoundPlayer->StopSound( m_ChannelSoundIsPlayingOn );
     m_ChannelSoundIsPlayingOn = g_pGameCore->m_pSoundManager->PlayCue( m_pSoundCue );
 }
 #endif //MYFW_USING_WX

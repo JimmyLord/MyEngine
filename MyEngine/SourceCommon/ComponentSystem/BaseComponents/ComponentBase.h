@@ -26,85 +26,6 @@ enum BaseComponentTypes
 
 class ComponentVariable;
 
-//#if !MYFW_USING_WX
-//#define wxCoord float
-//#define wxMenu void
-//#endif //MYFW_USING_WX
-//
-//typedef void (ComponentBase::*CVarFunc)(ComponentVariable* pVar);
-//typedef void (ComponentBase::*CVarFunc_Int)(ComponentVariable* pVar, int someint);
-//typedef void (ComponentBase::*CVarFunc_wxMenu)(ComponentVariable* pVar, wxMenu* pMenu);
-//typedef void* (ComponentBase::*CVarFunc_DropTarget)(ComponentVariable* pVar, wxCoord x, wxCoord y);
-//typedef void* (ComponentBase::*CVarFunc_ValueChanged)(ComponentVariable* pVar, int controlid, bool finishedchanging, double oldvalue, void* newpointer);
-//typedef void* (ComponentBase::*CVarFunc_Pointer)(ComponentVariable* pVar);
-//
-//typedef void* (ComponentBase::*CVarFunc_GetPointerValue)(ComponentVariable* pVar);
-//typedef void (ComponentBase::*CVarFunc_SetPointerValue)(ComponentVariable* pVar, void* newvalue);
-//typedef const char* (ComponentBase::*CVarFunc_GetPointerDesc)(ComponentVariable* pVar);
-//typedef void (ComponentBase::*CVarFunc_SetPointerDesc)(ComponentVariable* pVar, const char* newdesc);
-//
-//typedef bool (ComponentBase::*CVarFunc_ShouldVariableBeAdded)(ComponentVariable* pVar);
-
-//#if MYFW_USING_WX
-//#define AddVar(pList,label,type,offset,saveload,displayinwatch,watchlabel, onvaluechanged,ondrop,onbuttonpressed) AddVariable(pList,label,type,offset,saveload,displayinwatch,watchlabel, onvaluechanged,ondrop,onbuttonpressed);
-//#define AddVarPointer(pList,label,saveload,displayinwatch,watchlabel,getptrvalue,setptrvalue,getptrdesc,setptrdesc, onvaluechanged,ondrop,onbuttonpressed) AddVariablePointer(pList,label,saveload,displayinwatch,watchlabel,getptrvalue,setptrvalue,getptrdesc,setptrdesc, onvaluechanged,ondrop,onbuttonpressed);
-//#define AddVarEnum(pList,label,offset,saveload,displayinwatch,watchlabel,numenums,ppStrings, onvaluechanged,ondrop,onbuttonpressed) AddVariableEnum(pList,label,offset,saveload,displayinwatch,watchlabel,numenums,ppStrings, onvaluechanged,ondrop,onbuttonpressed);
-//#define AddVarFlags(pList,label,offset,saveload,displayinwatch,watchlabel,numenums,ppStrings, onvaluechanged,ondrop,onbuttonpressed) AddVariableFlags(pList,label,offset,saveload,displayinwatch,watchlabel,numenums,ppStrings, onvaluechanged,ondrop,onbuttonpressed);
-//#else
-//#define AddVar(pList,label,type,offset,saveload,displayinwatch,watchlabel, ...) AddVariable(pList,label,type,offset,saveload,displayinwatch,watchlabel, 0,0,0);
-//#define AddVarPointer(pList,label,saveload,displayinwatch,watchlabel,getptrvalue,setptrvalue,getptrdesc,setptrdesc, ...) AddVariablePointer(pList,label,saveload,displayinwatch,watchlabel,getptrvalue,setptrvalue,getptrdesc,setptrdesc, 0,0,0);
-//#define AddVarEnum(pList,label,offset,saveload,displayinwatch,watchlabel,numenums,ppStrings, ...) AddVariableEnum(pList,label,offset,saveload,displayinwatch,watchlabel,numenums,ppStrings, 0,0,0);
-//#define AddVarFlags(pList,label,offset,saveload,displayinwatch,watchlabel,numenums,ppStrings, ...) AddVariableFlags(pList,label,offset,saveload,displayinwatch,watchlabel,numenums,ppStrings, 0,0,0);
-//#endif
-//
-//#define MYFW_COMPONENT_DECLARE_VARIABLE_LIST(ComponentName) \
-//    static CPPListHead m_ComponentVariableList_##ComponentName; /* ComponentVariable type */ \
-//    static int m_ComponentVariableListRefCount_##ComponentName; \
-//    static void RegisterVariables(CPPListHead* pList, ComponentName* pThis); \
-//    static void ClearAllVariables() { m_ComponentVariableListRefCount_##ComponentName--; if( m_ComponentVariableListRefCount_##ComponentName == 0 ) ClearAllVariables_Base( &m_ComponentVariableList_##ComponentName ); } \
-//    static ComponentVariable* AddVariable(CPPListHead* pList, const char* label, ComponentVariableTypes type, size_t offset, bool saveload, bool displayinwatch, const char* watchlabel, CVarFunc_ValueChanged pOnValueChangedCallBackFunc, CVarFunc_DropTarget pOnDropCallBackFunc, CVarFunc pOnButtonPressedCallBackFunc) \
-//    { return AddVariable_Base( pList, label, type, offset, saveload, displayinwatch, watchlabel, pOnValueChangedCallBackFunc, pOnDropCallBackFunc, pOnButtonPressedCallBackFunc ); } \
-//    static ComponentVariable* AddVariablePointer(CPPListHead* pList, const char* label, bool saveload, bool displayinwatch, const char* watchlabel, CVarFunc_GetPointerValue pGetPointerValueCallBackFunc, CVarFunc_SetPointerValue pSetPointerValueCallBackFunc, CVarFunc_GetPointerDesc pGetPointerDescCallBackFunc, CVarFunc_SetPointerDesc pSetPointerDescCallBackFunc, CVarFunc_ValueChanged pOnValueChangedCallBackFunc, CVarFunc_DropTarget pOnDropCallBackFunc, CVarFunc pOnButtonPressedCallBackFunc) \
-//    { return AddVariablePointer_Base( pList, label, saveload, displayinwatch, watchlabel, pGetPointerValueCallBackFunc, pSetPointerValueCallBackFunc, pGetPointerDescCallBackFunc, pSetPointerDescCallBackFunc, pOnValueChangedCallBackFunc, pOnDropCallBackFunc, pOnButtonPressedCallBackFunc ); } \
-//    static ComponentVariable* AddVariableEnum(CPPListHead* pList, const char* label, size_t offset, bool saveload, bool displayinwatch, const char* watchlabel, int numenums, const char** ppStrings, CVarFunc_ValueChanged pOnValueChangedCallBackFunc, CVarFunc_DropTarget pOnDropCallBackFunc, CVarFunc pOnButtonPressedCallBackFunc) \
-//    { return AddVariableEnum_Base( pList, label, offset, saveload, displayinwatch, watchlabel, numenums, ppStrings, pOnValueChangedCallBackFunc, pOnDropCallBackFunc, pOnButtonPressedCallBackFunc ); } \
-//    static ComponentVariable* AddVariableFlags(CPPListHead* pList, const char* label, size_t offset, bool saveload, bool displayinwatch, const char* watchlabel, int numenums, const char** ppStrings, CVarFunc_ValueChanged pOnValueChangedCallBackFunc, CVarFunc_DropTarget pOnDropCallBackFunc, CVarFunc pOnButtonPressedCallBackFunc) \
-//    { return AddVariableFlags_Base( pList, label, offset, saveload, displayinwatch, watchlabel, numenums, ppStrings, pOnValueChangedCallBackFunc, pOnDropCallBackFunc, pOnButtonPressedCallBackFunc ); } \
-//    static bool ComponentVariablesHaveBeenRegistered() \
-//    { \
-//        if( m_ComponentVariableList_##ComponentName.GetHead() == 0 ) m_ComponentVariableListRefCount_##ComponentName = 0; \
-//        m_ComponentVariableListRefCount_##ComponentName++; \
-//        return (m_ComponentVariableListRefCount_##ComponentName != 1); \
-//    } \
-//    virtual CPPListHead* GetComponentVariableList() { return &m_ComponentVariableList_##ComponentName; }
-//
-//#define MYFW_COMPONENT_IMPLEMENT_VARIABLE_LIST(ComponentName) \
-//    CPPListHead ComponentName::m_ComponentVariableList_##ComponentName; \
-//    int ComponentName::m_ComponentVariableListRefCount_##ComponentName;
-//
-//#define MYFW_COMPONENT_VARIABLE_LIST_CONSTRUCTOR() \
-//    if( ComponentVariablesHaveBeenRegistered() == false ) RegisterVariables( GetComponentVariableList(), this );
-//
-//#define MYFW_COMPONENT_VARIABLE_LIST_DESTRUCTOR() \
-//    ClearAllVariables();
-//
-//#if MYFW_USING_WX
-//class ComponentBaseEventHandlerForComponentVariables : public wxEvtHandler
-//{
-//public:
-//    ComponentBase* pComponent;
-//    ComponentVariable* pVar;
-//
-//public:
-//    ComponentBaseEventHandlerForComponentVariables()
-//    {
-//        pComponent = 0;
-//        pVar = 0;
-//    };
-//    void OnPopupClick(wxEvent &evt);
-//};
-//#endif
-
 class ComponentBase : public CPPListNode
 #if MYFW_USING_WX
 , public wxEvtHandler
@@ -205,6 +126,8 @@ public:
     void SyncVariableInChildren(ComponentVariable* pVar);
     void SyncVariableInChildrenInGameObjectListWithNewValue(GameObject* first, ComponentVariable* pVar);
     void SyncVariableInGameObjectWithNewValue(GameObject* pGameObject, ComponentVariable* pVar);
+
+    ComponentBase* FindMatchingComponentInParent();
 
     // Watch panel callbacks for component variables.
     // if any variables value changed, then react.

@@ -155,8 +155,10 @@ void* ComponentMeshOBJ::OnValueChanged(ComponentVariable* pVar, int controlid, b
     {
         if( strcmp( pVar->m_Label, "OBJ" ) == 0 )
         {
-            if( pVar->m_ControlID != -1 )
+            if( controlid != -1 ) // controlid will only be set if the control itself was changed.
             {
+                MyAssert( controlid == pVar->m_ControlID );
+
                 wxString text = g_pPanelWatch->GetVariableProperties( pVar->m_ControlID )->m_Handle_TextCtrl->GetValue();
                 if( text == "" || text == "none" )
                 {

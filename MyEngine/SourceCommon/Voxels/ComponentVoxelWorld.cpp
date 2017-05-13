@@ -232,13 +232,10 @@ void* ComponentVoxelWorld::OnValueChanged(ComponentVariable* pVar, int controlid
 
     if( strncmp( pVar->m_Label, "Material", strlen("Material") ) == 0 )
     {
-        if( newpointer != 0 )
+        if( controlid != -1 ) // controlid will only be set if the control itself was changed.
         {
-            MyAssert( false );
-            // TODO: implement this block
-        }
-        else if( pVar->m_ControlID != -1 )
-        {
+            MyAssert( controlid == pVar->m_ControlID );
+
             wxString text = g_pPanelWatch->GetVariableProperties( pVar->m_ControlID )->m_Handle_TextCtrl->GetValue();
             if( text == "" || text == "none" )
             {
@@ -247,6 +244,11 @@ void* ComponentVoxelWorld::OnValueChanged(ComponentVariable* pVar, int controlid
                 oldpointer = GetMaterial();
                 SetMaterial( 0 );
             }
+        }
+        if( newpointer != 0 )
+        {
+            MyAssert( false );
+            // TODO: implement this block
         }
     }
 

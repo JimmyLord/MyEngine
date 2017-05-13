@@ -1338,6 +1338,34 @@ void ComponentBase::SyncVariableInGameObjectWithNewValue(GameObject* pGameObject
     }
 }
 
+ComponentBase* ComponentBase::FindMatchingComponentInParent()
+{
+    GameObject* pParentGO = m_pGameObject->GetGameObjectThisInheritsFrom();
+    if( pParentGO == 0 )
+        return 0;
+
+    // Found a game object, now find the matching component on it.
+    for( unsigned int i=0; i<pParentGO->m_Components.Count()+1; i++ )
+    {
+        ComponentBase* pParentComponent;
+
+        if( i == 0 )
+            pParentComponent = pParentGO->m_pComponentTransform;
+        else
+            pParentComponent = pParentGO->m_Components[i-1];
+
+        const char* pChildCompClassName = GetClassname();
+        const char* pParentCompClassName = pParentComponent->GetClassname();
+
+        if( strcmp( pChildCompClassName, pParentCompClassName ) == 0 )
+        {
+            return pParentComponent;
+        }
+    }
+
+    return 0;
+}
+
 void ComponentBase::OnValueChangedVariable(int controlid, bool finishedchanging, double oldvalue)
 {
     ComponentVariable* pVar = FindComponentVariableForControl( controlid );
@@ -1457,7 +1485,7 @@ void ComponentBaseEventHandlerForComponentVariables::OnPopupClick(wxEvent &evt)
     {
     case ComponentBase::RightClick_DivorceVariable:
         {
-            g_pEngineMainFrame->m_pCommandStack->Add( MyNew EditorCommand_DivorceOrMarryComponentVariable(
+            g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_DivorceOrMarryComponentVariable(
                 pComponent, pVar, false ) );
 
             //pComponent->SetDivorced( pVar->m_Index, true );
@@ -1468,7 +1496,7 @@ void ComponentBaseEventHandlerForComponentVariables::OnPopupClick(wxEvent &evt)
 
     case ComponentBase::RightClick_MarryVariable:
         {
-            g_pEngineMainFrame->m_pCommandStack->Add( MyNew EditorCommand_DivorceOrMarryComponentVariable(
+            g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_DivorceOrMarryComponentVariable(
                 pComponent, pVar, true ) );
 
             //pComponent->SetDivorced( pVar->m_Index, false );
@@ -1476,7 +1504,7 @@ void ComponentBaseEventHandlerForComponentVariables::OnPopupClick(wxEvent &evt)
             //g_pPanelWatch->ChangeStaticTextBGColor( pVar->m_ControlID, wxNullColour );
             
             // change the value of this variable to match the parent.
-            pComponent->CopyValueFromParent( pVar );
+            //pComponent->CopyValueFromParent( pVar );
         }
         break;
     }

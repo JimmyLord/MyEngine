@@ -171,14 +171,10 @@ void* ComponentMesh::OnValueChanged(ComponentVariable* pVar, int controlid, bool
                     materialthatchanged = i;
             }
 
-            if( newpointer != 0 )
+            if( controlid != -1 ) // controlid will only be set if the control itself was changed.
             {
-                oldpointer = GetMaterial( materialthatchanged );
-                MaterialDefinition* pNewMaterial = (MaterialDefinition*)newpointer;
-                g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_ChangeMaterialOnMesh( this, materialthatchanged, pNewMaterial ) );
-            }
-            else if( pVar->m_ControlID != -1 )
-            {
+                MyAssert( controlid == pVar->m_ControlID );
+
                 wxString text = g_pPanelWatch->GetVariableProperties( pVar->m_ControlID )->m_Handle_TextCtrl->GetValue();
                 if( text == "" || text == "none" )
                 {
@@ -187,6 +183,12 @@ void* ComponentMesh::OnValueChanged(ComponentVariable* pVar, int controlid, bool
                     oldpointer = GetMaterial( materialthatchanged );
                     g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_ChangeMaterialOnMesh( this, materialthatchanged, 0 ) );
                 }
+            }
+            else if( newpointer != 0 )
+            {
+                oldpointer = GetMaterial( materialthatchanged );
+                MaterialDefinition* pNewMaterial = (MaterialDefinition*)newpointer;
+                g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_ChangeMaterialOnMesh( this, materialthatchanged, pNewMaterial ) );
             }
         }
 

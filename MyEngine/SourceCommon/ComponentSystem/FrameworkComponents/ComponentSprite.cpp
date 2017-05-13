@@ -199,13 +199,10 @@ void* ComponentSprite::OnValueChanged(ComponentVariable* pVar, int controlid, bo
 
     if( strcmp( pVar->m_Label, "Material" ) == 0 )
     {
-        if( newpointer != 0 )
+        if( controlid != -1 ) // controlid will only be set if the control itself was changed.
         {
-            MyAssert( false );
-            // TODO: implement this block
-        }
-        else if( pVar->m_ControlID != -1 )
-        {
+            MyAssert( controlid == pVar->m_ControlID );
+
             wxString text = g_pPanelWatch->GetVariableProperties( pVar->m_ControlID )->m_Handle_TextCtrl->GetValue();
             if( text == "" || text == "none" )
             {
@@ -214,6 +211,11 @@ void* ComponentSprite::OnValueChanged(ComponentVariable* pVar, int controlid, bo
                 oldpointer = m_pSprite->GetMaterial();
                 g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_ChangeMaterialOnMesh( this, 0, 0 ) );
             }
+        }
+        else if( newpointer != 0 )
+        {
+            MyAssert( false );
+            // TODO: implement this block
         }
     }
 

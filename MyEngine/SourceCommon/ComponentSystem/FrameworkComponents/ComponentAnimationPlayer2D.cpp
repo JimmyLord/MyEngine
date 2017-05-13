@@ -155,13 +155,10 @@ void* ComponentAnimationPlayer2D::OnValueChanged(ComponentVariable* pVar, int co
 
     if( strcmp( pVar->m_Label, "Animation File" ) == 0 )
     {
-        if( newpointer != 0 )
+        if( controlid != -1 ) // controlid will only be set if the control itself was changed.
         {
-            MyAssert( false );
-            // TODO: implement this block
-        }
-        else if( pVar->m_ControlID != -1 )
-        {
+            MyAssert( controlid == pVar->m_ControlID );
+
             wxString text = g_pPanelWatch->GetVariableProperties( pVar->m_ControlID )->m_Handle_TextCtrl->GetValue();
             if( text == "" || text == "none" || text == "no file" )
             {
@@ -169,6 +166,11 @@ void* ComponentAnimationPlayer2D::OnValueChanged(ComponentVariable* pVar, int co
                 oldpointer = m_pAnimationFile;
                 this->SetAnimationFile( 0 );
             }
+        }
+        else if( newpointer != 0 )
+        {
+            MyAssert( false );
+            // TODO: implement this block
         }
     }
 

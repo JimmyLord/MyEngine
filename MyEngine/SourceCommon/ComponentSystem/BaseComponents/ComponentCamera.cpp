@@ -84,20 +84,20 @@ void ComponentCamera::RegisterVariables(CPPListHead* pList, ComponentCamera* pTh
     pVar = AddVar( pList, "Ortho", ComponentVariableType_Bool, MyOffsetOf( pThis, &pThis->m_Orthographic ), true, true, 0, (CVarFunc_ValueChanged)&ComponentCamera::OnValueChanged, 0, 0 );
 
     pVar = AddVar( pList, "DesiredWidth", ComponentVariableType_Float, MyOffsetOf( pThis, &pThis->m_DesiredWidth ), true, true, 0, (CVarFunc_ValueChanged)&ComponentCamera::OnValueChanged, 0, 0 );
-    pVar->SetEditorLimits( 640, 960 );
 #if MYFW_USING_WX
+    pVar->SetEditorLimits( 640, 960 );
     pVar->AddCallback_ShouldVariableBeAdded( (CVarFunc_ShouldVariableBeAdded)(&ComponentCamera::ShouldVariableBeAddedToWatchPanel) );
 #endif
 
     pVar = AddVar( pList, "DesiredHeight", ComponentVariableType_Float, MyOffsetOf( pThis, &pThis->m_DesiredHeight ), true, true, 0, (CVarFunc_ValueChanged)&ComponentCamera::OnValueChanged, 0, 0 );
-    pVar->SetEditorLimits( 640, 960 );
 #if MYFW_USING_WX
+    pVar->SetEditorLimits( 640, 960 );
     pVar->AddCallback_ShouldVariableBeAdded( (CVarFunc_ShouldVariableBeAdded)(&ComponentCamera::ShouldVariableBeAddedToWatchPanel) );
 #endif
 
     pVar = AddVar( pList, "FoV", ComponentVariableType_Float, MyOffsetOf( pThis, &pThis->m_FieldOfView ), true, true, 0, (CVarFunc_ValueChanged)&ComponentCamera::OnValueChanged, 0, 0 );
-    pVar->SetEditorLimits( 1, 179 );
 #if MYFW_USING_WX
+    pVar->SetEditorLimits( 1, 179 );
     pVar->AddCallback_ShouldVariableBeAdded( (CVarFunc_ShouldVariableBeAdded)(&ComponentCamera::ShouldVariableBeAddedToWatchPanel) );
 #endif
     
