@@ -156,7 +156,7 @@ bool ComponentMesh::ShouldVariableBeAddedToWatchPanel(ComponentVariable* pVar)
     return true;
 }
 
-void* ComponentMesh::OnValueChanged(ComponentVariable* pVar, int controlid, bool finishedchanging, double oldvalue, void* newpointer)
+void* ComponentMesh::OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue newvalue)
 {
     void* oldpointer = 0;
 
@@ -171,10 +171,8 @@ void* ComponentMesh::OnValueChanged(ComponentVariable* pVar, int controlid, bool
                     materialthatchanged = i;
             }
 
-            if( controlid != -1 ) // controlid will only be set if the control itself was changed.
+            if( changedbyinterface )
             {
-                MyAssert( controlid == pVar->m_ControlID );
-
                 wxString text = g_pPanelWatch->GetVariableProperties( pVar->m_ControlID )->m_Handle_TextCtrl->GetValue();
                 if( text == "" || text == "none" )
                 {
@@ -184,10 +182,11 @@ void* ComponentMesh::OnValueChanged(ComponentVariable* pVar, int controlid, bool
                     g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_ChangeMaterialOnMesh( this, materialthatchanged, 0 ) );
                 }
             }
-            else if( newpointer != 0 )
+            else if( newvalue.GetMaterialPtr() != 0 )
             {
                 oldpointer = GetMaterial( materialthatchanged );
-                MaterialDefinition* pNewMaterial = (MaterialDefinition*)newpointer;
+                MaterialDefinition* pNewMaterial = newvalue.GetMaterialPtr();
+                // TODONOW: don't add editor commands here.
                 g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_ChangeMaterialOnMesh( this, materialthatchanged, pNewMaterial ) );
             }
         }

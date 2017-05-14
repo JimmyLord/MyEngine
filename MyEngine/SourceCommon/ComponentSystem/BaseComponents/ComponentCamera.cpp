@@ -147,7 +147,7 @@ bool ComponentCamera::ShouldVariableBeAddedToWatchPanel(ComponentVariable* pVar)
     return true;
 }
 
-void* ComponentCamera::OnValueChanged(ComponentVariable* pVar, int controlid, bool finishedchanging, double oldvalue, void* newpointer)
+void* ComponentCamera::OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue newvalue)
 {
     void* oldpointer = 0;
 

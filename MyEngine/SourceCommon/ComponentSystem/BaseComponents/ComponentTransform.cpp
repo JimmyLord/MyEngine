@@ -229,16 +229,14 @@ void* ComponentTransform::OnDropTransform(ComponentVariable* pVar, wxCoord x, wx
     return oldvalue;
 }
 
-void* ComponentTransform::OnValueChanged(ComponentVariable* pVar, int controlid, bool finishedchanging, double oldvalue, void* newpointer)
+void* ComponentTransform::OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue newvalue)
 {
     void* oldpointer = 0;
 
     if( pVar->m_Offset == MyOffsetOf( this, &m_pParentTransform ) )
     {
-        if( controlid != -1 ) // controlid will only be set if the control itself was changed.
+        if( changedbyinterface )
         {
-            MyAssert( controlid == pVar->m_ControlID );
-
             wxString text = g_pPanelWatch->GetVariableProperties( pVar->m_ControlID )->m_Handle_TextCtrl->GetValue();
             if( text == "" || text == "none" )
             {
@@ -247,11 +245,11 @@ void* ComponentTransform::OnValueChanged(ComponentVariable* pVar, int controlid,
                 this->SetParentTransform( 0 );
             }
         }
-        else if( newpointer != 0 )
+        else if( newvalue.GetComponentPtr() != 0 )
         {
             MyAssert( false ); // this block is untested
             oldpointer = this->GetParentTransform();
-            this->SetParentTransform( (ComponentTransform*)newpointer ); // TODO: add undo.
+            this->SetParentTransform( (ComponentTransform*)newvalue.GetComponentPtr() );
         }
     }
     else

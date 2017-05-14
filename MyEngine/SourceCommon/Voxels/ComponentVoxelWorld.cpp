@@ -226,16 +226,14 @@ void* ComponentVoxelWorld::OnDrop(ComponentVariable* pVar, wxCoord x, wxCoord y)
     return oldvalue;
 }
 
-void* ComponentVoxelWorld::OnValueChanged(ComponentVariable* pVar, int controlid, bool finishedchanging, double oldvalue, void* newpointer)
+void* ComponentVoxelWorld::OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue newvalue)
 {
     void* oldpointer = 0;
 
     if( strncmp( pVar->m_Label, "Material", strlen("Material") ) == 0 )
     {
-        if( controlid != -1 ) // controlid will only be set if the control itself was changed.
+        if( changedbyinterface )
         {
-            MyAssert( controlid == pVar->m_ControlID );
-
             wxString text = g_pPanelWatch->GetVariableProperties( pVar->m_ControlID )->m_Handle_TextCtrl->GetValue();
             if( text == "" || text == "none" )
             {
@@ -245,7 +243,7 @@ void* ComponentVoxelWorld::OnValueChanged(ComponentVariable* pVar, int controlid
                 SetMaterial( 0 );
             }
         }
-        if( newpointer != 0 )
+        else if( newvalue.GetMaterialPtr() != 0 )
         {
             MyAssert( false );
             // TODO: implement this block

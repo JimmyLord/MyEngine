@@ -144,7 +144,7 @@ void* ComponentAnimationPlayer2D::OnDrop(ComponentVariable* pVar, wxCoord x, wxC
     return oldpointer;
 }
 
-void* ComponentAnimationPlayer2D::OnValueChanged(ComponentVariable* pVar, int controlid, bool finishedchanging, double oldvalue, void* newpointer)
+void* ComponentAnimationPlayer2D::OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue newvalue)
 {
     void* oldpointer = 0;
 
@@ -155,10 +155,8 @@ void* ComponentAnimationPlayer2D::OnValueChanged(ComponentVariable* pVar, int co
 
     if( strcmp( pVar->m_Label, "Animation File" ) == 0 )
     {
-        if( controlid != -1 ) // controlid will only be set if the control itself was changed.
+        if( changedbyinterface )
         {
-            MyAssert( controlid == pVar->m_ControlID );
-
             wxString text = g_pPanelWatch->GetVariableProperties( pVar->m_ControlID )->m_Handle_TextCtrl->GetValue();
             if( text == "" || text == "none" || text == "no file" )
             {
@@ -167,7 +165,7 @@ void* ComponentAnimationPlayer2D::OnValueChanged(ComponentVariable* pVar, int co
                 this->SetAnimationFile( 0 );
             }
         }
-        else if( newpointer != 0 )
+        else if( newvalue.GetFilePtr() != 0 )
         {
             MyAssert( false );
             // TODO: implement this block

@@ -173,7 +173,7 @@ public:
 
     // Component variable callbacks.
     void* OnDrop(ComponentVariable* pVar, wxCoord x, wxCoord y);
-    void* OnValueChanged(ComponentVariable* pVar, int controlid, bool finishedchanging, double oldvalue, void* newpointer);
+    void* OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue newvalue);
     void OnRightClickCallback(ComponentVariable* pVar, wxMenu* pMenu);
     void OnPopupClickCallback(ComponentVariable* pVar, int id);
 
@@ -182,7 +182,7 @@ public:
     void OnDropExposedVar(int controlid, wxCoord x, wxCoord y);
     void* ProcessOnDropExposedVar(int controlid, wxCoord x, wxCoord y);
     
-    static void StaticOnPanelWatchExposedVarValueChanged(void* pObjectPtr, int controlid, bool finishedchanging, double oldvalue) { ((ComponentLuaScript*)pObjectPtr)->OnPanelWatchExposedVarValueChanged( controlid, finishedchanging, oldvalue ); }
+    static void StaticOnPanelWatchExposedVarValueChanged(void* pObjectPtr, int controlid, bool directlychanged, bool finishedchanging, double oldvalue) { ((ComponentLuaScript*)pObjectPtr)->OnPanelWatchExposedVarValueChanged( controlid, finishedchanging, oldvalue ); }
     void OnPanelWatchExposedVarValueChanged(int controlid, bool finishedchanging, double oldvalue);
 
     // exposed variable changed callback (not from watch panel)

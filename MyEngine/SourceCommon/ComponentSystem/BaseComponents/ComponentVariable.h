@@ -54,7 +54,7 @@ typedef void (ComponentBase::*CVarFunc)(ComponentVariable* pVar);
 typedef void (ComponentBase::*CVarFunc_Int)(ComponentVariable* pVar, int someint);
 typedef void (ComponentBase::*CVarFunc_wxMenu)(ComponentVariable* pVar, wxMenu* pMenu);
 typedef void* (ComponentBase::*CVarFunc_DropTarget)(ComponentVariable* pVar, wxCoord x, wxCoord y);
-typedef void* (ComponentBase::*CVarFunc_ValueChanged)(ComponentVariable* pVar, int controlid, bool finishedchanging, double oldvalue, void* newpointer);
+typedef void* (ComponentBase::*CVarFunc_ValueChanged)(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue newvalue);
 typedef void* (ComponentBase::*CVarFunc_Pointer)(ComponentVariable* pVar);
 
 typedef void* (ComponentBase::*CVarFunc_GetPointerValue)(ComponentVariable* pVar);

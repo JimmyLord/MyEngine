@@ -368,11 +368,11 @@ protected:
     ComponentBase* m_pComponent;
     ComponentVariable* m_pVar;
 
-    void* m_pNewPointer;
-    void* m_pOldPointer;
+    ComponentVariableValue m_pNewPointer;
+    ComponentVariableValue m_pOldPointer;
 
 public:
-    EditorCommand_ComponentVariablePointerChanged(void* newpointer, ComponentVariable* pVar, ComponentBase* pComponent);
+    EditorCommand_ComponentVariablePointerChanged(ComponentBase* pComponent, ComponentVariable* pVar, ComponentVariableValue newvalue);
     virtual ~EditorCommand_ComponentVariablePointerChanged();
 
     virtual void Do();

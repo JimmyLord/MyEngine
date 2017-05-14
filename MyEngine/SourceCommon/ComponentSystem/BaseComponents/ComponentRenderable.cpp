@@ -195,7 +195,7 @@ void ComponentRenderable::FillPropertiesWindow(bool clear, bool addcomponentvari
 //    return oldvalue;
 //}
 
-void* ComponentRenderable::OnValueChanged(ComponentVariable* pVar, int controlid, bool finishedchanging, double oldvalue, void* newpointer)
+void* ComponentRenderable::OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue newvalue)
 {
     void* oldpointer = 0;
 

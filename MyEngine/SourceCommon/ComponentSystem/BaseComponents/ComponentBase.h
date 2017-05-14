@@ -131,8 +131,8 @@ public:
 
     // Watch panel callbacks for component variables.
     // if any variables value changed, then react.
-    static void StaticOnValueChangedVariable(void* pObjectPtr, int controlid, bool finishedchanging, double oldvalue) { ((ComponentBase*)pObjectPtr)->OnValueChangedVariable( controlid, finishedchanging, oldvalue ); }
-    void OnValueChangedVariable(int controlid, bool finishedchanging, double oldvalue);
+    static void StaticOnValueChangedVariable(void* pObjectPtr, int controlid, bool directlychanged, bool finishedchanging, double oldvalue) { ((ComponentBase*)pObjectPtr)->OnValueChangedVariable( controlid, directlychanged, finishedchanging, oldvalue ); }
+    void OnValueChangedVariable(int controlid, bool directlychanged, bool finishedchanging, double oldvalue);
 
     static void StaticOnDropVariable(void* pObjectPtr, int controlid, wxCoord x, wxCoord y) { ((ComponentBase*)pObjectPtr)->OnDropVariable(controlid, x, y); }
     void OnDropVariable(int controlid, wxCoord x, wxCoord y);
@@ -153,7 +153,7 @@ public:
     //static bool m_PanelWatchBlockVisible; // each class needs it's own static bool, so if one component of this type is off, they all are.
     bool* m_pPanelWatchBlockVisible; // pointer to the bool above, must be set by each component.
     int m_ControlID_ComponentTitleLabel;
-    static void StaticOnComponentTitleLabelClicked(void* pObjectPtr, int controlid, bool finishedchanging, double oldvalue) { ((ComponentBase*)pObjectPtr)->OnComponentTitleLabelClicked( controlid, finishedchanging ); }
+    static void StaticOnComponentTitleLabelClicked(void* pObjectPtr, int controlid, bool directlychanged, bool finishedchanging, double oldvalue) { ((ComponentBase*)pObjectPtr)->OnComponentTitleLabelClicked( controlid, finishedchanging ); }
     void OnComponentTitleLabelClicked(int controlid, bool finishedchanging);
 
     // Object panel callbacks.

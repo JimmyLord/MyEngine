@@ -229,7 +229,7 @@ void* ComponentVoxelMesh::OnDrop(ComponentVariable* pVar, wxCoord x, wxCoord y)
     return oldpointer;
 }
 
-void* ComponentVoxelMesh::OnValueChanged(ComponentVariable* pVar, int controlid, bool finishedchanging, double oldvalue, void* newpointer)
+void* ComponentVoxelMesh::OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue newvalue)
 {
     void* oldpointer = 0;
 
@@ -260,10 +260,8 @@ void* ComponentVoxelMesh::OnValueChanged(ComponentVariable* pVar, int controlid,
     {
         if( strcmp( pVar->m_Label, "File" ) == 0 )
         {
-            if( controlid != -1 ) // controlid will only be set if the control itself was changed.
+            if( changedbyinterface ) // controlid will only be set if the control itself was changed.
             {
-                MyAssert( controlid == pVar->m_ControlID );
-
                 wxString text = g_pPanelWatch->GetVariableProperties( pVar->m_ControlID )->m_Handle_TextCtrl->GetValue();
                 if( text == "" || text == "none" )
                 {
@@ -274,7 +272,7 @@ void* ComponentVoxelMesh::OnValueChanged(ComponentVariable* pVar, int controlid,
                     SetMesh( 0 );
                 }
             }
-            if( newpointer != 0 )
+            else if( newvalue.GetFilePtr() != 0 )
             {
                 MyAssert( false );
                 // TODO: implement this block

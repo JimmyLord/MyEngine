@@ -111,7 +111,7 @@ void* ComponentGameObjectProperties::OnDrop(ComponentVariable* pVar, wxCoord x, 
     return oldvalue;
 }
 
-void* ComponentGameObjectProperties::OnValueChanged(ComponentVariable* pVar, int controlid, bool finishedchanging, double oldvalue, void* newpointer)
+void* ComponentGameObjectProperties::OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue newvalue)
 {
     void* oldpointer = 0;
 

@@ -156,16 +156,14 @@ void* Component2DJointPrismatic::OnDrop(ComponentVariable* pVar, wxCoord x, wxCo
     return oldvalue;
 }
 
-void* Component2DJointPrismatic::OnValueChanged(ComponentVariable* pVar, int controlid, bool finishedchanging, double oldvalue, void* newpointer)
+void* Component2DJointPrismatic::OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue newvalue)
 {
     void* oldpointer = 0;
 
     if( pVar->m_Offset == MyOffsetOf( this, &m_pSecondCollisionObject ) )
     {
-        if( controlid != -1 ) // controlid will only be set if the control itself was changed.
+        if( changedbyinterface )
         {
-            MyAssert( controlid == pVar->m_ControlID );
-
             wxString text = g_pPanelWatch->GetVariableProperties( pVar->m_ControlID )->m_Handle_TextCtrl->GetValue();
             if( text == "" || text == "none" )
             {
@@ -176,7 +174,7 @@ void* Component2DJointPrismatic::OnValueChanged(ComponentVariable* pVar, int con
                 g_pPanelWatch->SetNeedsRefresh();
             }
         }
-        else if( newpointer != 0 )
+        else if( newvalue.GetComponentPtr() != 0 )
         {
             MyAssert( false );
             // TODO: implement this block

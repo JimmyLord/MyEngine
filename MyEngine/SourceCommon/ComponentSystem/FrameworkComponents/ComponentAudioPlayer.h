@@ -70,7 +70,7 @@ public:
 
     // Component variable callbacks.
     void* OnDrop(ComponentVariable* pVar, wxCoord x, wxCoord y);
-    void* OnValueChanged(ComponentVariable* pVar, int controlid, bool finishedchanging, double oldvalue, void* newpointer);
+    void* OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue newvalue);
 
     static void StaticOnButtonPlaySound(void* pObjectPtr, int buttonid) { ((ComponentAudioPlayer*)pObjectPtr)->OnButtonPlaySound( buttonid ); }
     void OnButtonPlaySound(int buttonid);

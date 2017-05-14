@@ -87,7 +87,7 @@ void ComponentPostEffect::OnDropMaterial(int controlid, wxCoord x, wxCoord y)
     }
 }
 
-void* ComponentPostEffect::OnValueChanged(ComponentVariable* pVar, int controlid, bool finishedchanging, double oldvalue, void* newpointer)
+void* ComponentPostEffect::OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue newvalue)
 {
     void* oldpointer = 0;
 

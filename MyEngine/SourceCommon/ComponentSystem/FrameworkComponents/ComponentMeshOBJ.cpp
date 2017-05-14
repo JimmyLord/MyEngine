@@ -147,7 +147,7 @@ void ComponentMeshOBJ::FillPropertiesWindow(bool clear, bool addcomponentvariabl
     }
 }
 
-void* ComponentMeshOBJ::OnValueChanged(ComponentVariable* pVar, int controlid, bool finishedchanging, double oldvalue, void* newpointer)
+void* ComponentMeshOBJ::OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue newvalue)
 {
     void* oldpointer = 0;
 
@@ -155,10 +155,8 @@ void* ComponentMeshOBJ::OnValueChanged(ComponentVariable* pVar, int controlid, b
     {
         if( strcmp( pVar->m_Label, "OBJ" ) == 0 )
         {
-            if( controlid != -1 ) // controlid will only be set if the control itself was changed.
+            if( changedbyinterface )
             {
-                MyAssert( controlid == pVar->m_ControlID );
-
                 wxString text = g_pPanelWatch->GetVariableProperties( pVar->m_ControlID )->m_Handle_TextCtrl->GetValue();
                 if( text == "" || text == "none" )
                 {

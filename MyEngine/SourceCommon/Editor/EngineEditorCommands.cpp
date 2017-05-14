@@ -926,15 +926,15 @@ EditorCommand* EditorCommand_Delete2DPoint::Repeat()
 // EditorCommand_ComponentVariablePointerChanged
 //====================================================================================================
 
-EditorCommand_ComponentVariablePointerChanged::EditorCommand_ComponentVariablePointerChanged(void* newpointer, ComponentVariable* pVar, ComponentBase* pComponent)
+EditorCommand_ComponentVariablePointerChanged::EditorCommand_ComponentVariablePointerChanged(ComponentBase* pComponent, ComponentVariable* pVar, ComponentVariableValue newvalue)
 {
     MyAssert( pComponent && pVar );
 
     m_pComponent = pComponent;
     m_pVar = pVar;
 
-    m_pNewPointer = newpointer;
-    m_pOldPointer =  *(void**)((char*)m_pComponent + pVar->m_Offset);
+    m_pNewPointer = newvalue;
+    m_pOldPointer.GetValueFromVariable( pComponent, pVar );
 }
 
 EditorCommand_ComponentVariablePointerChanged::~EditorCommand_ComponentVariablePointerChanged()
@@ -946,7 +946,7 @@ void EditorCommand_ComponentVariablePointerChanged::Do()
     g_pPanelWatch->UpdatePanel();
 
     // this could likely be dangerous, the object might not be in focus anymore and how it handles callbacks could cause issues.
-    (m_pComponent->*(m_pVar->m_pOnValueChangedCallbackFunc))( m_pVar, -1, true, 0, m_pNewPointer );
+    (m_pComponent->*(m_pVar->m_pOnValueChangedCallbackFunc))( m_pVar, false, true, 0, m_pNewPointer );
 }
 
 void EditorCommand_ComponentVariablePointerChanged::Undo()
@@ -954,7 +954,7 @@ void EditorCommand_ComponentVariablePointerChanged::Undo()
     g_pPanelWatch->UpdatePanel();
 
     // this could likely be dangerous, the object might not be in focus anymore and how it handles callbacks could cause issues.
-    (m_pComponent->*(m_pVar->m_pOnValueChangedCallbackFunc))( m_pVar, -1, true, 0, m_pOldPointer );
+    (m_pComponent->*(m_pVar->m_pOnValueChangedCallbackFunc))( m_pVar, false, true, 0, m_pOldPointer );
 }
 
 EditorCommand* EditorCommand_ComponentVariablePointerChanged::Repeat()
@@ -1126,12 +1126,11 @@ void EditorCommand_DivorceOrMarryComponentVariable::Do()
         MyAssert( pParentComponent );
         if( pParentComponent )
         {
-            ComponentVariableValue value( pParentComponent, m_pVar );
-            value.CopyValueIntoVariable( m_pComponent, m_pVar );
+            // Get parent objects value.
+            ComponentVariableValue newvalue( pParentComponent, m_pVar );
 
             // Inform component it's value changed.
-            // TODO: Fix the hard-coded sound cue ptr... Change the last param to take in a ComponentVariableValue?
-            //(m_pComponent->*(m_pVar->m_pOnValueChangedCallbackFunc))( m_pVar, -1, true, 0, value.GetSoundCuePtr() );
+            (m_pComponent->*(m_pVar->m_pOnValueChangedCallbackFunc))( m_pVar, false, true, 0, newvalue );
         }
 
         g_pPanelWatch->SetNeedsRefresh();
@@ -1156,7 +1155,8 @@ void EditorCommand_DivorceOrMarryComponentVariable::Undo()
         g_pPanelWatch->ChangeStaticTextBGColor( m_pVar->m_ControlID, wxColour( 255, 200, 200, 255 ) );
 
         // Restore the old value of the child.
-        m_OldValue.CopyValueIntoVariable( m_pComponent, m_pVar );
+        // Inform component it's value changed.
+        (m_pComponent->*(m_pVar->m_pOnValueChangedCallbackFunc))( m_pVar, false, true, 0, m_OldValue );
 
         g_pPanelWatch->SetNeedsRefresh();
     }
