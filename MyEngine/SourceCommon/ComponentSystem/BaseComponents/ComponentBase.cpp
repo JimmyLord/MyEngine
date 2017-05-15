@@ -1430,13 +1430,11 @@ void ComponentBase::OnDropVariable(int controlid, wxCoord x, wxCoord y)
 
         if( m_pGameObject && m_pGameObject->GetGameObjectThisInheritsFrom() )
         {
-            // divorce the child value from it's parent, if it no longer matches.
-            if( DoesVariableMatchParent( controlid, pVar ) == false ) // returns true if no parent was found.
+            // Divorce the child value from it's parent, if it no longer matches.
+            if( DoesVariableMatchParent( controlid, pVar ) == false ) // Returns true if no parent was found.
             {
-                // if the variable no longer matches the parent, then divorce it.
-                SetDivorced( pVar->m_Index, true );
-                g_pPanelWatch->ChangeStaticTextFontStyle( pVar->m_ControlID, wxFONTSTYLE_ITALIC, wxFONTWEIGHT_BOLD );
-                g_pPanelWatch->ChangeStaticTextBGColor( pVar->m_ControlID, wxColour( 255, 200, 200, 255 ) );
+                // Since the variable no longer matches the parent, then divorce it.
+                g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_DivorceOrMarryComponentVariable( this, pVar, false ) );
             }
         }
 
@@ -1503,26 +1501,13 @@ void ComponentBaseEventHandlerForComponentVariables::OnPopupClick(wxEvent &evt)
     {
     case ComponentBase::RightClick_DivorceVariable:
         {
-            g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_DivorceOrMarryComponentVariable(
-                pComponent, pVar, false ) );
-
-            //pComponent->SetDivorced( pVar->m_Index, true );
-            //g_pPanelWatch->ChangeStaticTextFontStyle( pVar->m_ControlID, wxFONTSTYLE_ITALIC, wxFONTWEIGHT_BOLD );
-            //g_pPanelWatch->ChangeStaticTextBGColor( pVar->m_ControlID, wxColour( 255, 200, 200, 255 ) );
+            g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_DivorceOrMarryComponentVariable( pComponent, pVar, false ) );
         }
         break;
 
     case ComponentBase::RightClick_MarryVariable:
         {
-            g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_DivorceOrMarryComponentVariable(
-                pComponent, pVar, true ) );
-
-            //pComponent->SetDivorced( pVar->m_Index, false );
-            //g_pPanelWatch->ChangeStaticTextFontStyle( pVar->m_ControlID, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL );
-            //g_pPanelWatch->ChangeStaticTextBGColor( pVar->m_ControlID, wxNullColour );
-            
-            // change the value of this variable to match the parent.
-            //pComponent->CopyValueFromParent( pVar );
+            g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_DivorceOrMarryComponentVariable( pComponent, pVar, true ) );
         }
         break;
     }

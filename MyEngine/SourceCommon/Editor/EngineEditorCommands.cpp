@@ -1175,4 +1175,44 @@ EditorCommand* EditorCommand_DivorceOrMarryComponentVariable::Repeat()
 }
 
 //====================================================================================================
+// EditorCommand_ComponentVariableIndirectPointerChanged
+//====================================================================================================
+
+EditorCommand_ComponentVariableIndirectPointerChanged::EditorCommand_ComponentVariableIndirectPointerChanged(ComponentBase* pComponent, ComponentVariable* pVar, void* newvalue)
+{
+    MyAssert( pComponent && pVar );
+
+    m_pComponent = pComponent;
+    m_pVar = pVar;
+
+    m_OldValue = (pComponent->*(pVar->m_pGetPointerValueCallBackFunc))( pVar );
+    m_NewValue = newvalue;
+}
+
+EditorCommand_ComponentVariableIndirectPointerChanged::~EditorCommand_ComponentVariableIndirectPointerChanged()
+{
+}
+
+void EditorCommand_ComponentVariableIndirectPointerChanged::Do()
+{
+    // Set the value in the component.
+    (m_pComponent->*(m_pVar->m_pSetPointerValueCallBackFunc))( m_pVar, m_NewValue );
+
+    g_pPanelWatch->SetNeedsRefresh();
+}
+
+void EditorCommand_ComponentVariableIndirectPointerChanged::Undo()
+{
+    // Set the value in the component.
+    (m_pComponent->*(m_pVar->m_pSetPointerValueCallBackFunc))( m_pVar, m_OldValue );
+
+    g_pPanelWatch->SetNeedsRefresh();
+}
+
+EditorCommand* EditorCommand_ComponentVariableIndirectPointerChanged::Repeat()
+{
+    return 0;
+}
+
+//====================================================================================================
 //====================================================================================================

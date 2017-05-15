@@ -191,11 +191,8 @@ void* ComponentMeshOBJ::OnDropOBJ(ComponentVariable* pVar, wxCoord x, wxCoord y)
             if( m_pMesh )
                 oldpointer = m_pMesh->m_pSourceFile;
 
-            MyMesh* pMesh = g_pMeshManager->FindMeshBySourceFile( pFile );
-            SetMesh( pMesh );
-
-            // update the panel so new OBJ name shows up.
-            g_pPanelWatch->GetVariableProperties( g_DragAndDropStruct.m_ID )->m_Description = m_pMesh->m_pSourceFile->GetFullPath();
+            // This EditorCommand will call ::SetPointerValue which is expecting a pointer to the new file.
+            g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_ComponentVariableIndirectPointerChanged( this, pVar, pFile ) );
         }
 
         if( strcmp( filenameext, ".mymesh" ) == 0 )
@@ -203,11 +200,8 @@ void* ComponentMeshOBJ::OnDropOBJ(ComponentVariable* pVar, wxCoord x, wxCoord y)
             if( m_pMesh )
                 oldpointer = m_pMesh->m_pSourceFile;
 
-            MyMesh* pMesh = g_pMeshManager->FindMeshBySourceFile( pFile );
-            SetMesh( pMesh );
-
-            // update the panel so new OBJ name shows up.
-            g_pPanelWatch->GetVariableProperties( g_DragAndDropStruct.m_ID )->m_Description = m_pMesh->m_pSourceFile->GetFullPath();
+            // This EditorCommand will call ::SetPointerValue which is expecting a pointer to the new file.
+            g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_ComponentVariableIndirectPointerChanged( this, pVar, pFile ) );
         }
 
         g_pPanelWatch->SetNeedsRefresh();

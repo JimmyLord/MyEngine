@@ -31,6 +31,7 @@ class EditorCommand_ComponentVariablePointerChanged;
 class EditorCommand_LuaExposedVariablePointerChanged;
 class EditorCommand_DeletePrefabs;
 class EditorCommand_DivorceOrMarryComponentVariable;
+class EditorCommand_ComponentVariableIndirectPointerChanged;
 
 //====================================================================================================
 
@@ -441,6 +442,25 @@ protected:
 public:
     EditorCommand_DivorceOrMarryComponentVariable(ComponentBase* pComponent, ComponentVariable* pVar, bool marry);
     virtual ~EditorCommand_DivorceOrMarryComponentVariable();
+
+    virtual void Do();
+    virtual void Undo();
+    virtual EditorCommand* Repeat();
+};
+
+//====================================================================================================
+
+class EditorCommand_ComponentVariableIndirectPointerChanged : public EditorCommand
+{
+protected:
+    ComponentBase* m_pComponent;
+    ComponentVariable* m_pVar;
+    void* m_OldValue;
+    void* m_NewValue;
+
+public:
+    EditorCommand_ComponentVariableIndirectPointerChanged(ComponentBase* pComponent, ComponentVariable* pVar, void* newvalue);
+    virtual ~EditorCommand_ComponentVariableIndirectPointerChanged();
 
     virtual void Do();
     virtual void Undo();
