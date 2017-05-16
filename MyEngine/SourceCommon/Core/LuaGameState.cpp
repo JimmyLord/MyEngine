@@ -167,6 +167,11 @@ void LuaGameState::RegisterClasses()
             .addFunction( "RequestFile", &FileManager::RequestFile )
         .endClass();
 
+    luabridge::getGlobalNamespace( m_pLuaState )
+        .beginClass<SoundManager>( "SoundManager" )
+            .addFunction( "PlayCueByName", &SoundManager::PlayCueByName )
+        .endClass();
+
     // Have some entity/component classes register themselves. // ADDING_NEW_ComponentType
     EngineCore::LuaRegister( m_pLuaState );
     GameObject::LuaRegister( m_pLuaState );
@@ -207,6 +212,7 @@ void LuaGameState::RegisterClasses()
     luabridge::setGlobal( m_pLuaState, g_pEngineCore, "g_pEngineCore" );
     luabridge::setGlobal( m_pLuaState, g_pComponentSystemManager, "g_pComponentSystemManager" );
     luabridge::setGlobal( m_pLuaState, g_pFileManager, "g_pFileManager" );
+    luabridge::setGlobal( m_pLuaState, g_pGameCore->m_pSoundManager, "g_pSoundManager" );
 }
 
 #endif //MYFW_USING_LUA
