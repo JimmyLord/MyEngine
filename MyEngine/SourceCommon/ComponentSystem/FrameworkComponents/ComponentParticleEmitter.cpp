@@ -111,6 +111,11 @@ void ComponentParticleEmitter::LuaRegister(lua_State* luastate)
 #endif //MYFW_USING_LUA
 
 #if MYFW_USING_WX
+ComponentVariable* ComponentParticleEmitter::GetComponentVariableForMaterial(int submeshindex)
+{
+    return 0; //FindComponentVariableByLabel( &m_ComponentVariableList_ComponentParticleEmitter, "Material" );
+}
+
 void ComponentParticleEmitter::AddToObjectsPanel(wxTreeItemId gameobjectid)
 {
     //wxTreeItemId id =

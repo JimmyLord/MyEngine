@@ -1228,7 +1228,8 @@ void EngineMainFrame::OnDrop(int controlid, wxCoord x, wxCoord y)
 
         if( pMaterial && pObjectDroppedOn )
         {
-            g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_ChangeAllMaterialsOnGameObject( pObjectDroppedOn, pMaterial ) );
+            pObjectDroppedOn->Editor_SetMaterial( pMaterial );
+            g_pPanelWatch->SetNeedsRefresh();
         }
     }
 
@@ -1278,9 +1279,7 @@ void EngineMainFrame::OnDrop(int controlid, wxCoord x, wxCoord y)
             ( strcmp( pFile->GetExtensionWithDot(), ".obj" ) == 0 || strcmp( pFile->GetExtensionWithDot(), ".mymesh" ) == 0 )
           )
         {
-            // TODO: undo/redo
-
-            // create a new gameobject using this obj.
+            // Create a new gameobject using this obj.
             MyMesh* pMesh = g_pMeshManager->FindMeshBySourceFile( pFile );
 
             GameObject* pGameObject = g_pComponentSystemManager->CreateGameObject( true, 1 );
@@ -1293,9 +1292,22 @@ void EngineMainFrame::OnDrop(int controlid, wxCoord x, wxCoord y)
 
             if( pObjectDroppedOn && pObjectDroppedOn->GetMaterial() )
             {
-                // place it just above of the object selected otherwise place it at 0,0,0... for now.
-                pGameObject->m_pComponentTransform->SetWorldPosition( pObjectDroppedOn->m_pComponentTransform->GetWorldPosition() );
+                // Place it just above of the object selected otherwise place it at 0,0,0... for now.
+                Vector3 pos = pObjectDroppedOn->m_pComponentTransform->GetWorldPosition();
+
+                ComponentRenderable* pComponentMeshDroppedOn = (ComponentRenderable*)pObjectDroppedOn->GetFirstComponentOfBaseType( BaseComponentType_Renderable );
+                if( pComponentMeshDroppedOn )
+                {
+                    pos.y += pComponentMeshDroppedOn->GetBounds()->GetHalfSize().y;
+                    pos.y += pMesh->GetBounds()->GetHalfSize().y;
+                }
+
+                pGameObject->m_pComponentTransform->SetWorldPosition( pos );
+                pGameObject->m_pComponentTransform->UpdateTransform();
             }
+
+            // Undo/redo
+            g_pEngineMainFrame->m_pCommandStack->Add( MyNew EditorCommand_CreateGameObject( pGameObject ) );
         }
     }
 

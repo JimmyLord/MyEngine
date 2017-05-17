@@ -120,7 +120,7 @@ public:
     //unsigned int m_DivorcedVariables; // moved outside USING_WX block to allow load/save in game mode.
     bool IsDivorced(int index);
     void SetDivorced(int index, bool divorced);
-    bool DoesVariableMatchParent(int controlid, ComponentVariable* pVar);
+    bool DoesVariableMatchParent(ComponentVariable* pVar, int controlcomponent);
     void SyncUndivorcedVariables(ComponentBase* pSourceComponent);
     void SyncVariable(ComponentBase* pChildComponent, ComponentVariable* pVar);
     void SyncVariableInChildren(ComponentVariable* pVar);
@@ -136,6 +136,7 @@ public:
 
     static void StaticOnDropVariable(void* pObjectPtr, int controlid, wxCoord x, wxCoord y) { ((ComponentBase*)pObjectPtr)->OnDropVariable(controlid, x, y); }
     void OnDropVariable(int controlid, wxCoord x, wxCoord y);
+    void OnDropVariable(ComponentVariable* pVar, int controlcomponent, wxCoord x, wxCoord y);
 
     ComponentBaseEventHandlerForComponentVariables m_ComponentBaseEventHandlerForComponentVariables;
     static void StaticOnRightClickVariable(void* pObjectPtr, int controlid) { ((ComponentBase*)pObjectPtr)->OnRightClickVariable(controlid); }
@@ -143,10 +144,10 @@ public:
 
     ComponentVariable* FindComponentVariableForControl(int controlid);
     static ComponentVariable* FindComponentVariableByLabel(CPPListHead* list, const char* label);
-    void UpdateChildrenWithNewValue(bool fromdraganddrop, ComponentVariable* pVar, int controlid, bool finishedchanging, double oldvalue, void* oldpointer, wxCoord x, wxCoord y, void* newpointer);
-    void UpdateChildrenInGameObjectListWithNewValue(GameObject* first, bool fromdraganddrop, ComponentVariable* pVar, int controlid, bool finishedchanging, double oldvalue, void* oldpointer, wxCoord x, wxCoord y, void* newpointer);
-    void UpdateGameObjectWithNewValue(GameObject* pGameObject, bool fromdraganddrop, ComponentVariable* pVar, int controlid, bool finishedchanging, double oldvalue, void* oldpointer, wxCoord x, wxCoord y, void* newpointer);
-    void UpdateOtherComponentWithNewValue(ComponentBase* pComponent, bool ignoreDivorceStatus, bool fromdraganddrop, ComponentVariable* pVar, int controlid, bool finishedchanging, double oldvalue, void* oldpointer, wxCoord x, wxCoord y, void* newpointer);
+    void UpdateChildrenWithNewValue(bool fromdraganddrop, ComponentVariable* pVar, int controlcomponent, bool finishedchanging, double oldvalue, void* oldpointer, wxCoord x, wxCoord y, void* newpointer);
+    void UpdateChildrenInGameObjectListWithNewValue(GameObject* first, bool fromdraganddrop, ComponentVariable* pVar, int controlcomponent, bool finishedchanging, double oldvalue, void* oldpointer, wxCoord x, wxCoord y, void* newpointer);
+    void UpdateGameObjectWithNewValue(GameObject* pGameObject, bool fromdraganddrop, ComponentVariable* pVar, int controlcomponent, bool finishedchanging, double oldvalue, void* oldpointer, wxCoord x, wxCoord y, void* newpointer);
+    void UpdateOtherComponentWithNewValue(ComponentBase* pComponent, bool directlychanged, bool ignoreDivorceStatus, bool fromdraganddrop, ComponentVariable* pVar, int controlcomponent, bool finishedchanging, double oldvalue, void* oldpointer, wxCoord x, wxCoord y, void* newpointer);
     void CopyValueFromParent(ComponentVariable* pVar);
 
     // to show/hide the components controls in watch panel

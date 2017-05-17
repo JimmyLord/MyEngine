@@ -114,6 +114,8 @@ public:
 #if MYFW_USING_WX
     static bool m_PanelWatchBlockVisible;
 
+    virtual ComponentVariable* GetComponentVariableForMaterial(int submeshindex);
+
     virtual void AddToObjectsPanel(wxTreeItemId gameobjectid);
     
     // Object panel callbacks.

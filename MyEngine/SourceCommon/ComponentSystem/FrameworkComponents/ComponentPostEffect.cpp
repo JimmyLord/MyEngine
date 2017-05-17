@@ -45,6 +45,11 @@ void ComponentPostEffect::RegisterVariables(CPPListHead* pList, ComponentPostEff
 }
 
 #if MYFW_USING_WX
+ComponentVariable* ComponentPostEffect::GetComponentVariableForMaterial(int submeshindex)
+{
+    return 0; //FindComponentVariableByLabel( &m_ComponentVariableList_ComponentPostEffect, "Material" );
+}
+
 void ComponentPostEffect::AddToObjectsPanel(wxTreeItemId gameobjectid)
 {
     g_pPanelObjectList->AddObject( this, ComponentPostEffect::StaticOnLeftClick, ComponentData::StaticOnRightClick, gameobjectid, "Post Effect", ObjectListIcon_Component );

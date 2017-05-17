@@ -113,6 +113,14 @@ void ComponentMesh::LuaRegister(lua_State* luastate)
 #endif //MYFW_USING_LUA
 
 #if MYFW_USING_WX
+ComponentVariable* ComponentMesh::GetComponentVariableForMaterial(int submeshindex)
+{
+    char temp[20];
+    sprintf_s( temp, 20, "Material%d", submeshindex+1 );
+
+    return FindComponentVariableByLabel( &m_ComponentVariableList_ComponentMesh, temp );
+}
+
 void ComponentMesh::AddToObjectsPanel(wxTreeItemId gameobjectid)
 {
     MyAssert( gameobjectid.IsOk() );
@@ -187,7 +195,8 @@ void* ComponentMesh::OnValueChanged(ComponentVariable* pVar, bool changedbyinter
                 oldpointer = GetMaterial( materialthatchanged );
                 MaterialDefinition* pNewMaterial = newvalue.GetMaterialPtr();
                 // TODONOW: don't add editor commands here.
-                g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_ChangeMaterialOnMesh( this, materialthatchanged, pNewMaterial ) );
+                //g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_ChangeMaterialOnMesh( this, materialthatchanged, pNewMaterial ) );
+                SetMaterial( pNewMaterial, 0 );
             }
         }
 

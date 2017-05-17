@@ -591,67 +591,16 @@ void EditorCommand_ChangeMaterialOnMesh::Do()
     m_pOldMaterial = m_pComponent->GetMaterial( m_SubmeshIndex );
 
     m_pComponent->SetMaterial( m_pNewMaterial, m_SubmeshIndex );
+    g_pPanelWatch->SetNeedsRefresh();
 }
 
 void EditorCommand_ChangeMaterialOnMesh::Undo()
 {
     m_pComponent->SetMaterial( m_pOldMaterial, m_SubmeshIndex );
+    g_pPanelWatch->SetNeedsRefresh();
 }
 
 EditorCommand* EditorCommand_ChangeMaterialOnMesh::Repeat()
-{
-    // Do nothing.
-
-    return 0;
-}
-
-//====================================================================================================
-// EditorCommand_ChangeAllMaterialsOnGameObject
-//====================================================================================================
-
-EditorCommand_ChangeAllMaterialsOnGameObject::EditorCommand_ChangeAllMaterialsOnGameObject(GameObject* object, MaterialDefinition* material)
-{
-    m_pGameObject = object;
-    m_pNewMaterial = material;
-}
-
-EditorCommand_ChangeAllMaterialsOnGameObject::~EditorCommand_ChangeAllMaterialsOnGameObject()
-{
-}
-
-void EditorCommand_ChangeAllMaterialsOnGameObject::Do()
-{
-    for( unsigned int i=0; i<m_pGameObject->m_Components.Count(); i++ )
-    {
-        ComponentRenderable* pRenderable = dynamic_cast<ComponentRenderable*>( m_pGameObject->m_Components[i] );
-
-        if( pRenderable )
-        {
-            m_ComponentsChanged.push_back( pRenderable );
-            // TODO: deal with more than just the first submeshes material.
-            m_OldMaterials.push_back( pRenderable->GetMaterial( 0 ) );
-        }
-    }
-
-    m_pGameObject->SetMaterial( m_pNewMaterial );
-}
-
-void EditorCommand_ChangeAllMaterialsOnGameObject::Undo()
-{
-    for( unsigned int i=0; i<m_ComponentsChanged.size(); i++ )
-    {
-        ComponentRenderable* pRenderable = dynamic_cast<ComponentRenderable*>( m_ComponentsChanged[i] );
-        MyAssert( pRenderable );
-
-        if( pRenderable )
-        {
-            // TODO: deal with more than just the first submeshes material.
-            pRenderable->SetMaterial( m_OldMaterials[i], 0 );
-        }
-    }
-}
-
-EditorCommand* EditorCommand_ChangeAllMaterialsOnGameObject::Repeat()
 {
     // Do nothing.
 
@@ -1118,8 +1067,11 @@ void EditorCommand_DivorceOrMarryComponentVariable::Do()
     {
         // Marry the variables.
         m_pComponent->SetDivorced( m_pVar->m_Index, false );
-        g_pPanelWatch->ChangeStaticTextFontStyle( m_pVar->m_ControlID, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL );
-        g_pPanelWatch->ChangeStaticTextBGColor( m_pVar->m_ControlID, wxNullColour );
+        if( m_pVar->m_ControlID >= 0 )
+        {
+            g_pPanelWatch->ChangeStaticTextFontStyle( m_pVar->m_ControlID, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL );
+            g_pPanelWatch->ChangeStaticTextBGColor( m_pVar->m_ControlID, wxNullColour );
+        }
 
         // Set this components value to the parent's value.
         ComponentBase* pParentComponent = m_pComponent->FindMatchingComponentInParent();
@@ -1139,8 +1091,11 @@ void EditorCommand_DivorceOrMarryComponentVariable::Do()
     {
         // Divorce the variables.
         m_pComponent->SetDivorced( m_pVar->m_Index, true );
-        g_pPanelWatch->ChangeStaticTextFontStyle( m_pVar->m_ControlID, wxFONTSTYLE_ITALIC, wxFONTWEIGHT_BOLD );
-        g_pPanelWatch->ChangeStaticTextBGColor( m_pVar->m_ControlID, wxColour( 255, 200, 200, 255 ) );
+        if( m_pVar->m_ControlID >= 0 )
+        {
+            g_pPanelWatch->ChangeStaticTextFontStyle( m_pVar->m_ControlID, wxFONTSTYLE_ITALIC, wxFONTWEIGHT_BOLD );
+            g_pPanelWatch->ChangeStaticTextBGColor( m_pVar->m_ControlID, wxColour( 255, 200, 200, 255 ) );
+        }
     }
 }
 
@@ -1151,8 +1106,11 @@ void EditorCommand_DivorceOrMarryComponentVariable::Undo()
     {
         // Divorce the variables.
         m_pComponent->SetDivorced( m_pVar->m_Index, true );
-        g_pPanelWatch->ChangeStaticTextFontStyle( m_pVar->m_ControlID, wxFONTSTYLE_ITALIC, wxFONTWEIGHT_BOLD );
-        g_pPanelWatch->ChangeStaticTextBGColor( m_pVar->m_ControlID, wxColour( 255, 200, 200, 255 ) );
+        if( m_pVar->m_ControlID >= 0 )
+        {
+            g_pPanelWatch->ChangeStaticTextFontStyle( m_pVar->m_ControlID, wxFONTSTYLE_ITALIC, wxFONTWEIGHT_BOLD );
+            g_pPanelWatch->ChangeStaticTextBGColor( m_pVar->m_ControlID, wxColour( 255, 200, 200, 255 ) );
+        }
 
         // Restore the old value of the child.
         // Inform component it's value changed.
@@ -1164,8 +1122,11 @@ void EditorCommand_DivorceOrMarryComponentVariable::Undo()
     {
         // Marry the variables.
         m_pComponent->SetDivorced( m_pVar->m_Index, false );
-        g_pPanelWatch->ChangeStaticTextFontStyle( m_pVar->m_ControlID, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL );
-        g_pPanelWatch->ChangeStaticTextBGColor( m_pVar->m_ControlID, wxNullColour );
+        if( m_pVar->m_ControlID >= 0 )
+        {
+            g_pPanelWatch->ChangeStaticTextFontStyle( m_pVar->m_ControlID, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL );
+            g_pPanelWatch->ChangeStaticTextBGColor( m_pVar->m_ControlID, wxNullColour );
+        }
     }
 }
 

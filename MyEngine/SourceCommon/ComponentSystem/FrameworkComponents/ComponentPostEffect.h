@@ -43,11 +43,14 @@ public:
 
     virtual MaterialDefinition* GetMaterial() { return m_pMaterial; }
     virtual void SetMaterial(MaterialDefinition* pMaterial);
+    
     void Render(FBODefinition* pFBO);
 
 public:
 #if MYFW_USING_WX
     static bool m_PanelWatchBlockVisible;
+
+    virtual ComponentVariable* GetComponentVariableForMaterial(int submeshindex);
 
     virtual void AddToObjectsPanel(wxTreeItemId gameobjectid);
     

@@ -150,6 +150,11 @@ void ComponentSprite::SetPointerDesc(ComponentVariable* pVar, const char* newdes
 }
 
 #if MYFW_USING_WX
+ComponentVariable* ComponentSprite::GetComponentVariableForMaterial(int submeshindex)
+{
+    return FindComponentVariableByLabel( &m_ComponentVariableList_ComponentSprite, "Material" );
+}
+
 void ComponentSprite::AddToObjectsPanel(wxTreeItemId gameobjectid)
 {
     //wxTreeItemId id =

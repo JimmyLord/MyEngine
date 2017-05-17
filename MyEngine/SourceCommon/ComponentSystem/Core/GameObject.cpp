@@ -473,6 +473,35 @@ void GameObject::OnPrefabFileFinishedLoading(MyFileObject* pFile)
 
     pFile->UnregisterFileFinishedLoadingCallback( this );
 }
+
+// Set the material on all renderable components attached to this object.
+void GameObject::Editor_SetMaterial(MaterialDefinition* pMaterial)
+{
+    for( unsigned int i=0; i<m_Components.Count(); i++ )
+    {
+        if( m_Components[i]->m_BaseType == BaseComponentType_Renderable )
+        {
+            MyAssert( m_Components[i]->IsA( "RenderableComponent" ) );
+
+            ComponentRenderable* pRenderable = (ComponentRenderable*)m_Components[i];
+
+            if( pRenderable )
+            {
+                // TODO: Deal with more than just the first submeshes material.
+                int submeshindex = 0;
+
+                // Go through same code to drop a material on the component, so inheritance and undo/redo will be handled
+                ComponentVariable* pVar = pRenderable->GetComponentVariableForMaterial( submeshindex );
+
+                g_DragAndDropStruct.m_Type = DragAndDropType_MaterialDefinitionPointer;
+                g_DragAndDropStruct.m_ID = pVar->m_ControlID;
+                g_DragAndDropStruct.m_Value = pMaterial;
+
+                pRenderable->OnDropVariable( pVar, 0, -1, -1 );
+            }
+        }
+    }
+}
 #endif //MYFW_USING_WX
 
 cJSON* GameObject::ExportAsJSONObject(bool savesceneid)

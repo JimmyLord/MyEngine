@@ -179,6 +179,7 @@ public:
     void OnPrefabFileFinishedLoading(MyFileObject* pFile);
 
     void Editor_SetPrefab(PrefabObject* pPrefab) { m_pPrefab = pPrefab; UpdateObjectListIcon(); } // used when deleting prefabs
+    void Editor_SetMaterial(MaterialDefinition* pMaterial);
 #endif //MYFW_USING_WX
 };
 

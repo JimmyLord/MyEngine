@@ -19,7 +19,6 @@ class EditorCommand_CreateGameObject;
 class EditorCommand_CopyGameObject;
 class EditorCommand_EnableObject;
 class EditorCommand_ChangeMaterialOnMesh;
-class EditorCommand_ChangeAllMaterialsOnGameObject;
 class EditorCommand_ChangeTextureOnMaterial;
 class EditorCommand_ChangeShaderOnMaterial;
 class EditorCommand_ChangeAllScriptsOnGameObject;
@@ -206,26 +205,6 @@ protected:
 public:
     EditorCommand_ChangeMaterialOnMesh(ComponentRenderable* pComponent, int submeshindex, MaterialDefinition* pMaterial);
     virtual ~EditorCommand_ChangeMaterialOnMesh();
-
-    virtual void Do();
-    virtual void Undo();
-    virtual EditorCommand* Repeat();
-};
-
-//====================================================================================================
-
-class EditorCommand_ChangeAllMaterialsOnGameObject : public EditorCommand
-{
-protected:
-    GameObject* m_pGameObject;
-    MaterialDefinition* m_pNewMaterial;
-
-    std::vector<ComponentBase*> m_ComponentsChanged;
-    std::vector<MaterialDefinition*> m_OldMaterials;
-
-public:
-    EditorCommand_ChangeAllMaterialsOnGameObject(GameObject* object, MaterialDefinition* material);
-    virtual ~EditorCommand_ChangeAllMaterialsOnGameObject();
 
     virtual void Do();
     virtual void Undo();
