@@ -187,15 +187,13 @@ void* ComponentMesh::OnValueChanged(ComponentVariable* pVar, bool changedbyinter
                     g_pPanelWatch->ChangeDescriptionForPointerWithDescription( pVar->m_ControlID, "none" );
 
                     oldpointer = GetMaterial( materialthatchanged );
-                    g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_ChangeMaterialOnMesh( this, materialthatchanged, 0 ) );
+                    g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_ChangeMaterialOnMesh( this, pVar, materialthatchanged, 0 ) );
                 }
             }
             else if( newvalue.GetMaterialPtr() != 0 )
             {
                 oldpointer = GetMaterial( materialthatchanged );
                 MaterialDefinition* pNewMaterial = newvalue.GetMaterialPtr();
-                // TODONOW: don't add editor commands here.
-                //g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_ChangeMaterialOnMesh( this, materialthatchanged, pNewMaterial ) );
                 SetMaterial( pNewMaterial, 0 );
             }
         }
@@ -234,7 +232,7 @@ void* ComponentMesh::OnDropMaterial(ComponentVariable* pVar, wxCoord x, wxCoord 
             MyAssert( pMaterial );
 
             oldvalue = GetMaterial( materialthatchanged );
-            g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_ChangeMaterialOnMesh( this, materialthatchanged, pMaterial ) );
+            g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_ChangeMaterialOnMesh( this, pVar, materialthatchanged, pMaterial ) );
 
             // update the panel so new Material name shows up.
             g_pPanelWatch->GetVariableProperties( g_DragAndDropStruct.m_ID )->m_Description = pMaterial->GetName();

@@ -109,7 +109,7 @@ void ComponentSprite::SetPointerValue(ComponentVariable* pVar, void* newvalue)
     if( strcmp( pVar->m_Label, "Material" ) == 0 )
     {
 #if MYFW_USING_WX
-        g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_ChangeMaterialOnMesh( this, 0, (MaterialDefinition*)newvalue ) );
+        g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_ChangeMaterialOnMesh( this, pVar, 0, (MaterialDefinition*)newvalue ) );
 #else
         SetMaterial( (MaterialDefinition*)newvalue, 0 );
 #endif
@@ -140,7 +140,7 @@ void ComponentSprite::SetPointerDesc(ComponentVariable* pVar, const char* newdes
         {
             MaterialDefinition* pMaterial = g_pMaterialManager->LoadMaterial( newdesc );
 #if MYFW_USING_WX
-            g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_ChangeMaterialOnMesh( this, 0, pMaterial ) );
+            g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_ChangeMaterialOnMesh( this, pVar, 0, pMaterial ) );
 #else
             SetMaterial( pMaterial, 0 );
 #endif
@@ -190,7 +190,7 @@ void* ComponentSprite::OnDrop(ComponentVariable* pVar, wxCoord x, wxCoord y)
         MyAssert( m_pSprite );
 
         oldvalue = m_pSprite->GetMaterial();
-        g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_ChangeMaterialOnMesh( this, 0, pMaterial ) );
+        g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_ChangeMaterialOnMesh( this, pVar, 0, pMaterial ) );
 
         g_pPanelWatch->SetNeedsRefresh();
     }
@@ -212,7 +212,7 @@ void* ComponentSprite::OnValueChanged(ComponentVariable* pVar, bool changedbyint
                 g_pPanelWatch->ChangeDescriptionForPointerWithDescription( pVar->m_ControlID, "none" );
 
                 oldpointer = m_pSprite->GetMaterial();
-                g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_ChangeMaterialOnMesh( this, 0, 0 ) );
+                g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_ChangeMaterialOnMesh( this, pVar, 0, 0 ) );
             }
         }
         else if( newvalue.GetMaterialPtr() != 0 )

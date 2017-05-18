@@ -202,8 +202,11 @@ protected:
     MaterialDefinition* m_pNewMaterial;
     MaterialDefinition* m_pOldMaterial;
 
+    ComponentVariable* m_pVar;
+    bool m_VariableWasDivorced;
+
 public:
-    EditorCommand_ChangeMaterialOnMesh(ComponentRenderable* pComponent, int submeshindex, MaterialDefinition* pMaterial);
+    EditorCommand_ChangeMaterialOnMesh(ComponentRenderable* pComponent, ComponentVariable* pVar, int submeshindex, MaterialDefinition* pMaterial);
     virtual ~EditorCommand_ChangeMaterialOnMesh();
 
     virtual void Do();

@@ -573,13 +573,16 @@ EditorCommand* EditorCommand_EnableObject::Repeat()
 // EditorCommand_ChangeMaterialOnMesh
 //====================================================================================================
 
-EditorCommand_ChangeMaterialOnMesh::EditorCommand_ChangeMaterialOnMesh(ComponentRenderable* pComponent, int submeshindex, MaterialDefinition* pMaterial)
+EditorCommand_ChangeMaterialOnMesh::EditorCommand_ChangeMaterialOnMesh(ComponentRenderable* pComponent, ComponentVariable* pVar, int submeshindex, MaterialDefinition* pMaterial)
 {
     MyAssert( m_pComponent );
 
     m_pComponent = pComponent;
     m_SubmeshIndex = submeshindex;
     m_pNewMaterial = pMaterial;
+
+    m_pVar = pVar;
+    m_VariableWasDivorced = pComponent->IsDivorced( m_pVar->m_Index );
 }
 
 EditorCommand_ChangeMaterialOnMesh::~EditorCommand_ChangeMaterialOnMesh()
@@ -590,12 +593,25 @@ void EditorCommand_ChangeMaterialOnMesh::Do()
 {
     m_pOldMaterial = m_pComponent->GetMaterial( m_SubmeshIndex );
 
+    // If we have a parent, divorce this variable.
+    if( m_pComponent->m_pGameObject->GetGameObjectThisInheritsFrom() )
+    {
+        m_pComponent->SetDivorced( m_pVar->m_Index, true );
+    }
+
     m_pComponent->SetMaterial( m_pNewMaterial, m_SubmeshIndex );
+
     g_pPanelWatch->SetNeedsRefresh();
 }
 
 void EditorCommand_ChangeMaterialOnMesh::Undo()
 {
+    // If the var wasn't divorced before the command, set it back.
+    if( m_VariableWasDivorced == false )
+    {
+        m_pComponent->SetDivorced( m_pVar->m_Index, false );
+    }
+
     m_pComponent->SetMaterial( m_pOldMaterial, m_SubmeshIndex );
     g_pPanelWatch->SetNeedsRefresh();
 }
