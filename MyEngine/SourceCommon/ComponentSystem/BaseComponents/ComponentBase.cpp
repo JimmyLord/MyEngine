@@ -1376,7 +1376,7 @@ void ComponentBase::OnValueChangedVariable(int controlid, bool directlychanged, 
         void* oldpointer = 0;
 
         // Figure out which component of a multi-component control(e.g. vector3, vector2, colorbyte, etc) this is.
-        int controlcomponent = pVar->m_ControlID - controlid;
+        int controlcomponent = controlid - pVar->m_ControlID;
 
         if( pVar->m_pOnValueChangedCallbackFunc )
         {

@@ -14,6 +14,9 @@
 bool ComponentCollisionObject::m_PanelWatchBlockVisible = true;
 #endif
 
+// Component Variable List
+MYFW_COMPONENT_IMPLEMENT_VARIABLE_LIST( ComponentCollisionObject );
+
 const char* PhysicsPrimitiveTypeStrings[PhysicsPrimitive_NumTypes] = //ADDING_NEW_PhysicsPrimitiveType
 {
     "Cube",
@@ -25,6 +28,8 @@ const char* PhysicsPrimitiveTypeStrings[PhysicsPrimitive_NumTypes] = //ADDING_NE
 ComponentCollisionObject::ComponentCollisionObject()
 : ComponentBase()
 {
+    MYFW_COMPONENT_VARIABLE_LIST_CONSTRUCTOR();
+
     ClassnameSanityCheck();
 
     m_BaseType = BaseComponentType_Data;
@@ -47,6 +52,28 @@ ComponentCollisionObject::~ComponentCollisionObject()
     }
 
     SAFE_RELEASE( m_pMesh );
+
+    MYFW_COMPONENT_VARIABLE_LIST_DESTRUCTOR();
+}
+
+void ComponentCollisionObject::RegisterVariables(CPPListHead* pList, ComponentCollisionObject* pThis) //_VARIABLE_LIST
+{
+    ComponentVariable* pVar;
+
+    AddVar( pList, "Mass", ComponentVariableType_Float, MyOffsetOf( pThis, &pThis->m_Mass ), true, true, 0, (CVarFunc_ValueChanged)&ComponentCollisionObject::OnValueChanged, 0, 0 );
+    
+    AddVarEnum( pList, "Primitive", MyOffsetOf( pThis, &pThis->m_PrimitiveType ), true, true, "Primitive Type", PhysicsPrimitive_NumTypes, PhysicsPrimitiveTypeStrings, (CVarFunc_ValueChanged)&ComponentCollisionObject::OnValueChanged, 0, 0 );
+
+    pVar = AddVar( pList, "Scale", ComponentVariableType_Vector3, MyOffsetOf( pThis, &pThis->m_Scale ), true, true, "Scale", (CVarFunc_ValueChanged)&ComponentTransform::OnValueChanged, 0, 0 );
+    pVar->AddCallback_ShouldVariableBeAdded( (CVarFunc_ShouldVariableBeAdded)(&ComponentCollisionObject::ShouldVariableBeAddedToWatchPanel) );
+
+    pVar = AddVar( pList, "ScaleX", ComponentVariableType_Float, MyOffsetOf( pThis, &pThis->m_Scale ), false, true, "Scale", (CVarFunc_ValueChanged)&ComponentTransform::OnValueChanged, 0, 0 );
+    pVar->AddCallback_ShouldVariableBeAdded( (CVarFunc_ShouldVariableBeAdded)(&ComponentCollisionObject::ShouldVariableBeAddedToWatchPanel) );
+
+    pVar = AddVarPointer( pList, "OBJ", true, true, "Collision Mesh",
+        (CVarFunc_GetPointerValue)&ComponentCollisionObject::GetPointerValue, (CVarFunc_SetPointerValue)&ComponentCollisionObject::SetPointerValue, (CVarFunc_GetPointerDesc)&ComponentCollisionObject::GetPointerDesc, (CVarFunc_SetPointerDesc)&ComponentCollisionObject::SetPointerDesc,
+        (CVarFunc_ValueChanged)&ComponentCollisionObject::OnValueChanged, (CVarFunc_DropTarget)&ComponentCollisionObject::OnDropOBJ, 0 );
+    pVar->AddCallback_ShouldVariableBeAdded( (CVarFunc_ShouldVariableBeAdded)(&ComponentCollisionObject::ShouldVariableBeAddedToWatchPanel) );
 }
 
 void ComponentCollisionObject::Reset()
@@ -65,6 +92,72 @@ void ComponentCollisionObject::Reset()
 
     m_pGameObject->m_pComponentTransform->RegisterTransformChangedCallback( this, StaticOnTransformChanged );
 #endif //MYFW_USING_WX
+}
+
+void* ComponentCollisionObject::GetPointerValue(ComponentVariable* pVar) //_VARIABLE_LIST
+{
+    if( strcmp( pVar->m_Label, "OBJ" ) == 0 )
+    {
+        if( m_pMesh )
+            return m_pMesh->m_pSourceFile;
+    }
+
+    return 0;
+}
+
+void ComponentCollisionObject::SetPointerValue(ComponentVariable* pVar, void* newvalue) //_VARIABLE_LIST
+{
+    if( strcmp( pVar->m_Label, "OBJ" ) == 0 )
+    {
+        MyMesh* pMesh = g_pMeshManager->FindMeshBySourceFile( (MyFileObject*)newvalue );
+        SetMesh( pMesh );
+    }
+}
+
+const char* ComponentCollisionObject::GetPointerDesc(ComponentVariable* pVar) //_VARIABLE_LIST
+{
+    if( strcmp( pVar->m_Label, "OBJ" ) == 0 )
+    {
+        //MyAssert( m_pMesh );
+        if( m_pMesh == 0 )
+            return "none";
+
+        MyFileObject* pFile = m_pMesh->m_pSourceFile;
+        if( pFile )
+            return pFile->GetFullPath();
+        else
+            return "none";
+    }
+
+    return "fix me";
+}
+
+void ComponentCollisionObject::SetPointerDesc(ComponentVariable* pVar, const char* newdesc) //_VARIABLE_LIST
+{
+    if( strcmp( pVar->m_Label, "OBJ" ) == 0 )
+    {
+        MyAssert( newdesc );
+        if( newdesc )
+        {
+            MyFileObject* pFile = g_pFileManager->RequestFile( newdesc ); // adds a ref
+            if( pFile )
+            {
+                MyMesh* pMesh = g_pMeshManager->FindMeshBySourceFile( pFile ); // doesn't add a ref
+                if( pMesh == 0 )
+                {
+                    pMesh = MyNew MyMesh();
+                    pMesh->SetSourceFile( pFile );
+                    SetMesh( pMesh );
+                    pMesh->Release();
+                }
+                else
+                {
+                    SetMesh( pMesh );
+                }
+                pFile->Release(); // free ref from RequestFile
+            }
+        }
+    }
 }
 
 #if MYFW_USING_LUA
@@ -98,56 +191,65 @@ void ComponentCollisionObject::FillPropertiesWindow(bool clear, bool addcomponen
     {
         ComponentBase::FillPropertiesWindow( clear );
 
-        g_pPanelWatch->AddFloat( "Mass", &m_Mass, 0, 100000 );
-
-        m_ControlID_PrimitiveType = g_pPanelWatch->AddEnum( "Primitive Type", &m_PrimitiveType, PhysicsPrimitive_NumTypes, PhysicsPrimitiveTypeStrings, this, StaticOnValueChanged );
-
-        switch( m_PrimitiveType )
-        {
-        case PhysicsPrimitiveType_Cube:
-            {
-                g_pPanelWatch->AddVector3( "Scale", &m_Scale, 0, 0 );
-            }
-            break;
-
-        case PhysicsPrimitiveType_Sphere:
-            {
-                g_pPanelWatch->AddFloat( "Scale", &m_Scale.x, 0, 0 );
-            }
-            break;
-
-        case PhysicsPrimitiveType_StaticPlane:
-            {
-                // nothing here, maybe add an pos/rot offset, but ATM uses object transform.
-            }
-            break;
-
-        case PhysicsPrimitiveType_ConvexHull:
-            {
-                const char* desc = "no mesh";
-                if( m_pMesh && m_pMesh->m_pSourceFile )
-                    desc = m_pMesh->m_pSourceFile->GetFullPath();
-                g_pPanelWatch->AddPointerWithDescription( "Collision Mesh", 0, desc, this, ComponentCollisionObject::StaticOnDropOBJ );
-            }
-            break;
-        }
+        FillPropertiesWindowWithVariables(); //_VARIABLE_LIST
     }
 }
 
-void ComponentCollisionObject::OnValueChanged(int controlid, bool finishedchanging)
+bool ComponentCollisionObject::ShouldVariableBeAddedToWatchPanel(ComponentVariable* pVar)
 {
+    switch( m_PrimitiveType )
+    {
+    case PhysicsPrimitiveType_Cube:
+        {
+            if( strcmp( pVar->m_Label, "Scale" ) == 0 )
+                return true;
+        }
+        break;
+
+    case PhysicsPrimitiveType_Sphere:
+        {
+            if( strcmp( pVar->m_Label, "ScaleX" ) == 0 )
+                return true;
+        }
+        break;
+
+    case PhysicsPrimitiveType_StaticPlane:
+        {
+            // nothing here, maybe add an pos/rot offset, but ATM uses object transform.
+        }
+        break;
+
+    case PhysicsPrimitiveType_ConvexHull:
+        {
+            if( strcmp( pVar->m_Label, "OBJ" ) == 0 )
+                return true;
+        }
+        break;
+    }
+
+    return false;
+}
+
+void* ComponentCollisionObject::OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue newvalue)
+{
+    void* oldpointer = 0;
+
     if( finishedchanging )
     {
-        if( controlid == m_ControlID_PrimitiveType )
+        if( strcmp( pVar->m_Label, "Primitive" ) == 0 )
         {
             // TODO: rethink this, doesn't need refresh if panel isn't visible.
             g_pPanelWatch->SetNeedsRefresh();
         }
     }
+
+    return oldpointer;
 }
 
-void ComponentCollisionObject::OnDropOBJ(int controlid, wxCoord x, wxCoord y)
+void* ComponentCollisionObject::OnDropOBJ(ComponentVariable* pVar, wxCoord x, wxCoord y)
 {
+    void* oldpointer = 0;
+
     if( g_DragAndDropStruct.m_Type == DragAndDropType_FileObjectPointer )
     {
         MyFileObject* pFile = (MyFileObject*)g_DragAndDropStruct.m_Value;
@@ -160,13 +262,14 @@ void ComponentCollisionObject::OnDropOBJ(int controlid, wxCoord x, wxCoord y)
 
         if( strcmp( filenameext, ".obj" ) == 0 )
         {
-            MyMesh* pMesh = g_pMeshManager->FindMeshBySourceFile( pFile );
-            SetMesh( pMesh );
+            if( m_pMesh )
+                oldpointer = m_pMesh->m_pSourceFile;
 
-            // update the panel so new OBJ name shows up.
-            g_pPanelWatch->GetVariableProperties( g_DragAndDropStruct.m_ID )->m_Description = m_pMesh->m_pSourceFile->GetFullPath();
+            g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_ComponentVariableIndirectPointerChanged( this, pVar, pFile ) );
         }
     }
+
+    return oldpointer;
 }
 
 void ComponentCollisionObject::OnTransformChanged(Vector3& newpos, Vector3& newrot, Vector3& newscale, bool changedbyuserineditor)
@@ -180,52 +283,12 @@ cJSON* ComponentCollisionObject::ExportAsJSONObject(bool savesceneid, bool savei
 {
     cJSON* component = ComponentBase::ExportAsJSONObject( savesceneid, saveid );
 
-    // physics primitive type, stored as string
-    const char* primitivetypename = PhysicsPrimitiveTypeStrings[m_PrimitiveType];
-    MyAssert( primitivetypename );
-    if( primitivetypename )
-        cJSON_AddStringToObject( component, "Primitive", primitivetypename );
-
-    cJSON_AddNumberToObject( component, "Mass", m_Mass );
-    cJSONExt_AddFloatArrayToObject( component, "Scale", &m_Scale.x, 3 );
-    
-    // OBJ filename
-    if( m_pMesh && m_pMesh->m_pSourceFile )
-        cJSON_AddStringToObject( component, "OBJ", m_pMesh->m_pSourceFile->GetFullPath() );
-
     return component;
 }
 
 void ComponentCollisionObject::ImportFromJSONObject(cJSON* jsonobj, unsigned int sceneid)
 {
     ComponentBase::ImportFromJSONObject( jsonobj, sceneid );
-
-    // physics primitive type, stored as string
-    cJSON* typeobj = cJSON_GetObjectItem( jsonobj, "Primitive" );
-    //MyAssert( typeobj );
-    if( typeobj )
-    {
-        for( int i=0; i<PhysicsPrimitive_NumTypes; i++ )
-        {
-            if( strcmp( PhysicsPrimitiveTypeStrings[i], typeobj->valuestring ) == 0 )
-                m_PrimitiveType = i;
-        }
-    }
-
-    cJSONExt_GetFloat( jsonobj, "Mass", &m_Mass );
-    cJSONExt_GetFloatArray( jsonobj, "Scale", &m_Scale.x, 3 );
-
-    // get the OBJ filename and load the actual file.
-    cJSON* objstringobj = cJSON_GetObjectItem( jsonobj, "OBJ" );
-    if( objstringobj )
-    {
-        MyFileObject* pFile = g_pFileManager->FindFileByName( objstringobj->valuestring );
-        if( pFile )
-        {
-            MyMesh* pMesh = g_pMeshManager->FindMeshBySourceFile( pFile );
-            SetMesh( pMesh );
-        }
-    }
 }
 
 ComponentCollisionObject& ComponentCollisionObject::operator=(const ComponentCollisionObject& other)

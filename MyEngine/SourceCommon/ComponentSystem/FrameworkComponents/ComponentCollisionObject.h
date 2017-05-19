@@ -23,6 +23,10 @@ extern const char* PhysicsPrimitiveTypeStrings[PhysicsPrimitive_NumTypes];
 
 class ComponentCollisionObject : public ComponentBase
 {
+private:
+    // Component Variable List
+    MYFW_COMPONENT_DECLARE_VARIABLE_LIST( ComponentCollisionObject );
+
 protected:
     btRigidBody* m_pBody;
 
@@ -76,6 +80,13 @@ public:
     void ApplyForce(Vector3 force, Vector3 relpos);
 
 public:
+    // Runtime component variable callbacks. //_VARIABLE_LIST
+    void* GetPointerValue(ComponentVariable* pVar);
+    void SetPointerValue(ComponentVariable* pVar, void* newvalue);
+    const char* GetPointerDesc(ComponentVariable* pVar);
+    void SetPointerDesc(ComponentVariable* pVar, const char* newdesc);
+
+public:
 #if MYFW_USING_WX
     static bool m_PanelWatchBlockVisible;
     int m_ControlID_PrimitiveType;
@@ -87,14 +98,19 @@ public:
     virtual void FillPropertiesWindow(bool clear, bool addcomponentvariables = false, bool ignoreblockvisibleflag = false);
 
     // Watch panel callbacks.
-    static void StaticOnValueChanged(void* pObjectPtr, int controlid, bool directlychanged, bool finishedchanging, double oldvalue) { ((ComponentCollisionObject*)pObjectPtr)->OnValueChanged( controlid, finishedchanging ); }
-    void OnValueChanged(int controlid, bool finishedchanging);
+    //static void StaticOnValueChanged(void* pObjectPtr, int controlid, bool directlychanged, bool finishedchanging, double oldvalue) { ((ComponentCollisionObject*)pObjectPtr)->OnValueChanged( controlid, finishedchanging ); }
+    //void OnValueChanged(int controlid, bool finishedchanging);
 
-    static void StaticOnDropOBJ(void* pObjectPtr, int controlid, wxCoord x, wxCoord y) { ((ComponentCollisionObject*)pObjectPtr)->OnDropOBJ(controlid, x, y); }
-    void OnDropOBJ(int controlid, wxCoord x, wxCoord y);
+    //static void StaticOnDropOBJ(void* pObjectPtr, int controlid, wxCoord x, wxCoord y) { ((ComponentCollisionObject*)pObjectPtr)->OnDropOBJ(controlid, x, y); }
+    //void OnDropOBJ(int controlid, wxCoord x, wxCoord y);
 
     static void StaticOnTransformChanged(void* pObjectPtr, Vector3& newpos, Vector3& newrot, Vector3& newscale, bool changedbyuserineditor) { ((ComponentCollisionObject*)pObjectPtr)->OnTransformChanged( newpos, newrot, newscale, changedbyuserineditor ); }
     void OnTransformChanged(Vector3& newpos, Vector3& newrot, Vector3& newscale, bool changedbyuserineditor);
+
+    // Component variable callbacks. //_VARIABLE_LIST
+    virtual bool ShouldVariableBeAddedToWatchPanel(ComponentVariable* pVar);
+    void* OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue newvalue);
+    void* OnDropOBJ(ComponentVariable* pVar, wxCoord x, wxCoord y);
 #endif //MYFW_USING_WX
 };
 
