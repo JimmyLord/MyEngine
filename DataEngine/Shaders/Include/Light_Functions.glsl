@@ -3,14 +3,14 @@
 #endif
 
 #if NUM_DIR_LIGHTS > 0
-void DirLightContribution(int index, vec4 vertpos4, vec3 campos, vec3 normal, float shininess, inout vec4 finaldiffuse, inout vec4 finalspecular)
+void DirLightContribution(int index, vec3 vertpos, vec3 campos, vec3 normal, float shininess, inout vec3 finaldiffuse, inout vec3 finalspecular)
 {
     // vert, cam, normal and light positions are in world space.
-    vec3 vertpos = vertpos4.xyz / vertpos4.w;
+    //vec3 vertpos = vertpos4.xyz / vertpos4.w; // w should be 1
 
     // Light properties
     vec3 lightdir = u_DirLightDir;
-    vec4 lightcolor = u_DirLightColor;
+    vec3 lightcolor = u_DirLightColor;
 
     vec3 unnormalizedlightdirvector = lightdir;
     vec3 lightdirvector = normalize( unnormalizedlightdirvector );
@@ -29,14 +29,14 @@ void DirLightContribution(int index, vec4 vertpos4, vec3 campos, vec3 normal, fl
 #endif
 
 #if NUM_LIGHTS > 0
-void PointLightContribution(int index, vec4 vertpos4, vec3 campos, vec3 normal, float shininess, inout vec4 finaldiffuse, inout vec4 finalspecular)
+void PointLightContribution(int index, vec3 vertpos, vec3 campos, vec3 normal, float shininess, inout vec3 finaldiffuse, inout vec3 finalspecular)
 {
     // vert, cam, normal and light positions are in world space.
-    vec3 vertpos = vertpos4.xyz / vertpos4.w;
+    //vec3 vertpos = vertpos4.xyz / vertpos4.w; // w should be 1
 
     // Light properties
     vec3 lightpos = u_LightPos[index];
-    vec4 lightcolor = u_LightColor[index];
+    vec3 lightcolor = u_LightColor[index];
     vec3 lightatten = u_LightAttenuation[index];
 
     vec3 unnormalizedlightdirvector = lightpos - vertpos;
@@ -51,8 +51,8 @@ void PointLightContribution(int index, vec4 vertpos4, vec3 campos, vec3 normal, 
     finaldiffuse += lightcolor * diffperc * attenuation;
 
     // specular
-    vec3 viewvector = normalize( campos - vertpos );
-    vec3 halfvector = normalize( viewvector + lightdirvector );
+    vec3 camdirvector = normalize( campos - vertpos );
+    vec3 halfvector = normalize( camdirvector + lightdirvector );
     float specperc = max( dot( normal, halfvector ), 0.0 );
     specperc = pow( specperc, shininess );
     finalspecular += lightcolor * specperc * attenuation;

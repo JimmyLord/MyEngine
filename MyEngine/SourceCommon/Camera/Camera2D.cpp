@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2014-2015 Jimmy Lord http://www.flatheadgames.com
+// Copyright (c) 2014-2017 Jimmy Lord http://www.flatheadgames.com
 //
 // This software is provided 'as-is', without any express or implied warranty.  In no event will the authors be held liable for any damages arising from the use of this software.
 // Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -26,7 +26,7 @@ void Camera2D::UpdateMatrices()
     m_matViewProj = m_matProj * m_matView;
 }
 
-void Camera2D::Setup(float devicewidth, float deviceheight, float gamewidth, float gameheight)
+void Camera2D::Setup(float devicewidth, float deviceheight, float gamewidth, float gameheight, float nearZ, float farZ)
 {
     m_DeviceWidth = devicewidth;
     m_DeviceHeight = deviceheight;
@@ -67,7 +67,7 @@ void Camera2D::Setup(float devicewidth, float deviceheight, float gamewidth, flo
     m_OrthoBottom = orthobottom * m_GameHeight;
     m_OrthoTop    = orthotop    * m_GameHeight;
 
-    m_matProj.CreateOrtho( m_OrthoLeft, m_OrthoRight, m_OrthoBottom, m_OrthoTop, 0, -1000 ); // 0, 0 is bottom left.
+    m_matProj.CreateOrtho( m_OrthoLeft, m_OrthoRight, m_OrthoBottom, m_OrthoTop, nearZ, farZ ); // 0, 0 is bottom left.
 
     //LOGInfo( LOGTag, "[OnSurfaceChanged]===========================================\n" );
     //LOGInfo( LOGTag, "[OnSurfaceChanged] OnSurfaceChanged\n" );

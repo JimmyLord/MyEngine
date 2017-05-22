@@ -37,9 +37,13 @@ public:
     // For ortho
     float m_DesiredWidth;
     float m_DesiredHeight;
+    float m_OrthoNearZ;
+    float m_OrthoFarZ;
 
     // For perspective
     float m_FieldOfView;
+    float m_PerspectiveNearZ;
+    float m_PerspectiveFarZ;
 
     unsigned int m_LayersToRender;
 

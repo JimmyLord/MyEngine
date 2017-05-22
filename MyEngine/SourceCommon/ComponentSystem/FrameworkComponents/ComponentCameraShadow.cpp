@@ -185,7 +185,7 @@ void ComponentCameraShadow::OnDrawFrame()
         matView.Inverse();
 
         MyMatrix matProj;
-        matProj.CreateOrtho( -10, 10, -10, 10, 1, 100 );
+        matProj.CreateOrtho( -10, 10, -10, 10, -1, -100 ); // ? not sure why ortho is backwards, camera looking backwards?
 
         m_matViewProj = matProj * matView;
     }

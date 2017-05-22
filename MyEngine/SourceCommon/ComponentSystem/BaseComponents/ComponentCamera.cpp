@@ -95,12 +95,32 @@ void ComponentCamera::RegisterVariables(CPPListHead* pList, ComponentCamera* pTh
     pVar->AddCallback_ShouldVariableBeAdded( (CVarFunc_ShouldVariableBeAdded)(&ComponentCamera::ShouldVariableBeAddedToWatchPanel) );
 #endif
 
+    pVar = AddVar( pList, "OrthoNearZ", ComponentVariableType_Float, MyOffsetOf( pThis, &pThis->m_OrthoNearZ ), true, true, "Near Z", (CVarFunc_ValueChanged)&ComponentCamera::OnValueChanged, 0, 0 );
+#if MYFW_USING_WX
+    pVar->AddCallback_ShouldVariableBeAdded( (CVarFunc_ShouldVariableBeAdded)(&ComponentCamera::ShouldVariableBeAddedToWatchPanel) );
+#endif
+
+    pVar = AddVar( pList, "OrthoFarZ", ComponentVariableType_Float, MyOffsetOf( pThis, &pThis->m_OrthoFarZ ), true, true, "Far Z", (CVarFunc_ValueChanged)&ComponentCamera::OnValueChanged, 0, 0 );
+#if MYFW_USING_WX
+    pVar->AddCallback_ShouldVariableBeAdded( (CVarFunc_ShouldVariableBeAdded)(&ComponentCamera::ShouldVariableBeAddedToWatchPanel) );
+#endif
+
     pVar = AddVar( pList, "FoV", ComponentVariableType_Float, MyOffsetOf( pThis, &pThis->m_FieldOfView ), true, true, 0, (CVarFunc_ValueChanged)&ComponentCamera::OnValueChanged, 0, 0 );
 #if MYFW_USING_WX
     pVar->SetEditorLimits( 1, 179 );
     pVar->AddCallback_ShouldVariableBeAdded( (CVarFunc_ShouldVariableBeAdded)(&ComponentCamera::ShouldVariableBeAddedToWatchPanel) );
 #endif
     
+    pVar = AddVar( pList, "PerspectiveNearZ", ComponentVariableType_Float, MyOffsetOf( pThis, &pThis->m_PerspectiveNearZ ), true, true, "Near Z", (CVarFunc_ValueChanged)&ComponentCamera::OnValueChanged, 0, 0 );
+#if MYFW_USING_WX
+    pVar->AddCallback_ShouldVariableBeAdded( (CVarFunc_ShouldVariableBeAdded)(&ComponentCamera::ShouldVariableBeAddedToWatchPanel) );
+#endif
+
+    pVar = AddVar( pList, "PerspectiveFarZ", ComponentVariableType_Float, MyOffsetOf( pThis, &pThis->m_PerspectiveFarZ ), true, true, "Far Z", (CVarFunc_ValueChanged)&ComponentCamera::OnValueChanged, 0, 0 );
+#if MYFW_USING_WX
+    pVar->AddCallback_ShouldVariableBeAdded( (CVarFunc_ShouldVariableBeAdded)(&ComponentCamera::ShouldVariableBeAddedToWatchPanel) );
+#endif
+
     pVar = AddVar( pList, "ColorBit", ComponentVariableType_Bool, MyOffsetOf( pThis, &pThis->m_ClearColorBuffer ), true, true, 0, (CVarFunc_ValueChanged)&ComponentCamera::OnValueChanged, 0, 0 );
     pVar = AddVar( pList, "DepthBit", ComponentVariableType_Bool, MyOffsetOf( pThis, &pThis->m_ClearDepthBuffer ), true, true, 0, (CVarFunc_ValueChanged)&ComponentCamera::OnValueChanged, 0, 0 );
 }
@@ -135,16 +155,17 @@ bool ComponentCamera::ShouldVariableBeAddedToWatchPanel(ComponentVariable* pVar)
     {
         if( strcmp( pVar->m_Label, "DesiredWidth" ) == 0 )       return true;
         if( strcmp( pVar->m_Label, "DesiredHeight" ) == 0 )      return true;
-        if( strcmp( pVar->m_Label, "FoV" ) == 0 )                return false;
+        if( strcmp( pVar->m_Label, "OrthoNearZ" ) == 0 )         return true;
+        if( strcmp( pVar->m_Label, "OrthoFarZ" ) == 0 )          return true;
     }
-    else //f( m_Orthographic == false )
+    else //if( m_Orthographic == false )
     {
-        if( strcmp( pVar->m_Label, "DesiredWidth" ) == 0 )       return false;
-        if( strcmp( pVar->m_Label, "DesiredHeight" ) == 0 )      return false;
         if( strcmp( pVar->m_Label, "FoV" ) == 0 )                return true;
+        if( strcmp( pVar->m_Label, "PerspectiveNearZ" ) == 0 )   return true;
+        if( strcmp( pVar->m_Label, "PerspectiveFarZ" ) == 0 )    return true;
     }
 
-    return true;
+    return false;
 }
 
 void* ComponentCamera::OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue newvalue)
@@ -192,8 +213,12 @@ void ComponentCamera::Reset()
     
     m_DesiredWidth = 640;
     m_DesiredHeight = 960;
+    m_OrthoNearZ = 0;
+    m_OrthoFarZ = 1000;
 
     m_FieldOfView = 45;
+    m_PerspectiveNearZ = 1;
+    m_PerspectiveFarZ = 10000;
     
     m_LayersToRender = 0x00FF;
 
@@ -218,9 +243,18 @@ ComponentCamera& ComponentCamera::operator=(const ComponentCamera& other)
     ComponentBase::operator=( other );
 
     this->m_Orthographic = other.m_Orthographic;
+
+    this->m_ClearColorBuffer = other.m_ClearColorBuffer;
+    this->m_ClearDepthBuffer = other.m_ClearDepthBuffer;
     
     this->m_DesiredWidth = other.m_DesiredWidth;
     this->m_DesiredHeight = other.m_DesiredHeight;
+    this->m_OrthoNearZ = other.m_OrthoNearZ;
+    this->m_OrthoFarZ = other.m_OrthoFarZ;
+
+    this->m_FieldOfView = other.m_FieldOfView;
+    this->m_PerspectiveNearZ = other.m_PerspectiveNearZ;
+    this->m_PerspectiveFarZ = other.m_PerspectiveFarZ;
 
     this->m_LayersToRender = other.m_LayersToRender;
 
@@ -282,8 +316,8 @@ void ComponentCamera::ComputeProjectionMatrices()
 
     MyClamp( m_FieldOfView, 1.0f, 179.0f );
 
-    m_Camera3D.SetupProjection( deviceratio, gameratio, m_FieldOfView );
-    m_Camera2D.Setup( (float)m_WindowWidth, (float)m_WindowHeight, m_DesiredWidth, m_DesiredHeight );
+    m_Camera3D.SetupProjection( deviceratio, gameratio, m_FieldOfView, m_PerspectiveNearZ, m_PerspectiveFarZ );
+    m_Camera2D.Setup( (float)m_WindowWidth, (float)m_WindowHeight, m_DesiredWidth, m_DesiredHeight, m_OrthoNearZ, m_OrthoFarZ );
 }
 
 void ComponentCamera::Tick(double TimePassed)

@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2014-2016 Jimmy Lord http://www.flatheadgames.com
+// Copyright (c) 2014-2017 Jimmy Lord http://www.flatheadgames.com
 //
 // This software is provided 'as-is', without any express or implied warranty.  In no event will the authors be held liable for any damages arising from the use of this software.
 // Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -16,8 +16,8 @@ Camera3D::Camera3D()
     //m_WindowAspectRatio = 1;
 
     //m_DesiredGameAspectRatio = 1;
-    //m_DesiredHalfVerticalFoV = 45;
-    //m_DesiredHalfHorizontalFoV = 45;
+    //m_DesiredVerticalFoV = 45;
+    //m_DesiredHorizontalFoV = 45;
 
     //m_Eye.Set( 0, 0, 10 );
     //m_Up.Set( 0, 1, 0 );
@@ -38,24 +38,24 @@ void Camera3D::UpdateMatrices()
     m_matViewProj = m_matProj * m_matView;
 }
 
-void Camera3D::SetupProjection(float windowaspectratio, float desiredgameaspectratio, float halfyfov)
+void Camera3D::SetupProjection(float windowaspectratio, float desiredgameaspectratio, float vertfov, float nearZ, float farZ)
 {
     //m_WindowAspectRatio = windowaspectratio;
     //m_DesiredGameAspectRatio = desiredgameaspectratio;
-    //m_DesiredHalfVerticalFoV = halfyfov;
+    //m_DesiredVerticalFoV = vertfov;
 
     // Calculate the desired horizontal FoV based on the vertical and aspect ratio.
         // aspect_ratio = tan( HorizontalFoV/2 ) / tan( VerticalFoV/2 ) 
-    float vertunits = tan( halfyfov / 360.0f * PI );
+    float vertunits = tan( vertfov / 360.0f * PI );
     float horunits = vertunits * desiredgameaspectratio;
-    float halfhorfov = atan( horunits ) * 360.0f / PI;
-    //m_DesiredHalfHorizontalFoV = halfhorfov;
+    float horfov = atan( horunits ) * 360.0f / PI;
+    //m_DesiredHorizontalFoV = horfov;
 
     // if the window is taller than we asked for, lock in the horizontal FoV, otherwise lock to the Vertical
     if( windowaspectratio < desiredgameaspectratio )
-        m_matProj.CreatePerspectiveHFoV( halfhorfov, windowaspectratio, 1, 10000 );
+        m_matProj.CreatePerspectiveHFoV( horfov, windowaspectratio, nearZ, farZ );
     else
-        m_matProj.CreatePerspectiveVFoV( halfyfov, windowaspectratio, 1, 10000 );
+        m_matProj.CreatePerspectiveVFoV( vertfov, windowaspectratio, nearZ, farZ );
 
     UpdateMatrices();
 }

@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2014 Jimmy Lord http://www.flatheadgames.com
+// Copyright (c) 2014-2017 Jimmy Lord http://www.flatheadgames.com
 //
 // This software is provided 'as-is', without any express or implied warranty.  In no event will the authors be held liable for any damages arising from the use of this software.
 // Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -15,8 +15,8 @@ class Camera3D
 public:
     //float m_WindowAspectRatio;
     //float m_DesiredGameAspectRatio;
-    //float m_DesiredHalfVerticalFoV;
-    //float m_DesiredHalfHorizontalFoV;
+    //float m_DesiredVerticalFoV;
+    //float m_DesiredHorizontalFoV;
 
     //Vector3 m_Eye;
     //Vector3 m_Up;
@@ -35,7 +35,7 @@ public:
 
     void UpdateMatrices();
 
-    void SetupProjection(float windowaspectratio, float desiredgameaspectratio, float halfyfov);
+    void SetupProjection(float windowaspectratio, float desiredgameaspectratio, float vertfov, float nearZ, float farZ);
     void LookAt(Vector3& eye, Vector3& up, Vector3& at);
 };
 
