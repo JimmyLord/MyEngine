@@ -309,15 +309,24 @@ void ComponentCamera::SetDesiredAspectRatio(float width, float height)
 void ComponentCamera::ComputeProjectionMatrices()
 {
     if( m_WindowHeight == 0 )
-        return;
+    {
+        float ratio = m_DesiredWidth / m_DesiredHeight;
 
-    float deviceratio = (float)m_WindowWidth / (float)m_WindowHeight;
-    float gameratio = m_DesiredWidth / m_DesiredHeight;
+        MyClamp( m_FieldOfView, 1.0f, 179.0f );
 
-    MyClamp( m_FieldOfView, 1.0f, 179.0f );
+        m_Camera3D.SetupProjection( ratio, ratio, m_FieldOfView, m_PerspectiveNearZ, m_PerspectiveFarZ );
+        m_Camera2D.SetupDirect( -m_DesiredWidth/2, m_DesiredWidth/2, -m_DesiredHeight/2, m_DesiredHeight/2, m_OrthoNearZ, m_OrthoFarZ );
+    }
+    else
+    {
+        float deviceratio = (float)m_WindowWidth / (float)m_WindowHeight;
+        float gameratio = m_DesiredWidth / m_DesiredHeight;
 
-    m_Camera3D.SetupProjection( deviceratio, gameratio, m_FieldOfView, m_PerspectiveNearZ, m_PerspectiveFarZ );
-    m_Camera2D.Setup( (float)m_WindowWidth, (float)m_WindowHeight, m_DesiredWidth, m_DesiredHeight, m_OrthoNearZ, m_OrthoFarZ );
+        MyClamp( m_FieldOfView, 1.0f, 179.0f );
+
+        m_Camera3D.SetupProjection( deviceratio, gameratio, m_FieldOfView, m_PerspectiveNearZ, m_PerspectiveFarZ );
+        m_Camera2D.Setup( (float)m_WindowWidth, (float)m_WindowHeight, m_DesiredWidth, m_DesiredHeight, m_OrthoNearZ, m_OrthoFarZ );
+    }
 }
 
 void ComponentCamera::Tick(double TimePassed)

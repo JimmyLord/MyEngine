@@ -47,6 +47,7 @@ public:
     void UpdateMatrices();
 
     void Setup(float devicewidth, float deviceheight, float gamewidth, float gameheight, float nearZ, float farZ);
+    void SetupDirect(float left, float right, float bottom, float top, float nearZ, float farZ);
     void SetPosZoom(Vector3 position, float zoom);
 };
 

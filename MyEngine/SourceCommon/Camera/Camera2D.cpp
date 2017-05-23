@@ -78,6 +78,16 @@ void Camera2D::Setup(float devicewidth, float deviceheight, float gamewidth, flo
     //LOGInfo( LOGTag, "[OnSurfaceChanged]===========================================\n" );
 }
 
+void Camera2D::SetupDirect(float left, float right, float bottom, float top, float nearZ, float farZ)
+{
+    m_OrthoLeft   = left;
+    m_OrthoRight  = right;
+    m_OrthoBottom = bottom;
+    m_OrthoTop    = top;
+
+    m_matProj.CreateOrtho( m_OrthoLeft, m_OrthoRight, m_OrthoBottom, m_OrthoTop, nearZ, farZ );
+}
+
 void Camera2D::SetPosZoom(Vector3 position, float zoom)
 {
 }

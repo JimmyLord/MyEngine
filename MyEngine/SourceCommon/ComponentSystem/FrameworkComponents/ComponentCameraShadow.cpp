@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2016 Jimmy Lord http://www.flatheadgames.com
+// Copyright (c) 2015-2017 Jimmy Lord http://www.flatheadgames.com
 //
 // This software is provided 'as-is', without any express or implied warranty.  In no event will the authors be held liable for any damages arising from the use of this software.
 // Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -86,6 +86,8 @@ void ComponentCameraShadow::ImportFromJSONObject(cJSON* jsonobj, unsigned int sc
     //cJSONExt_GetBool( jsonobj, "DepthBit", &m_ClearDepthBuffer );
 
     //cJSONExt_GetUnsignedInt( jsonobj, "Layers", &m_LayersToRender );
+
+    ComputeProjectionMatrices();
 }
 
 void ComponentCameraShadow::Reset()
@@ -175,19 +177,13 @@ void ComponentCameraShadow::OnDrawFrame()
     //ComponentCamera::OnDrawFrame();
 
     {
-        MyMatrix matView = *m_pComponentTransform->GetWorldTransform();
-        
-        MyMatrix mat180x;
-        mat180x.SetIdentity();
-        mat180x.Rotate( 180, 1, 0, 0 );
-        matView = matView * mat180x;
+        //MyMatrix matView = *m_pComponentTransform->GetWorldTransform();
+        //matView.Inverse();
 
-        matView.Inverse();
+        //MyMatrix matProj;
+        //matProj.CreateOrtho( -10, 10, -10, 10, 1, 100 );
 
-        MyMatrix matProj;
-        matProj.CreateOrtho( -10, 10, -10, 10, -1, -100 ); // ? not sure why ortho is backwards, camera looking backwards?
-
-        m_matViewProj = matProj * matView;
+        //m_matViewProj = matProj * matView;
     }
 
     glCullFace( GL_FRONT );
@@ -213,7 +209,14 @@ void ComponentCameraShadow::OnDrawFrame()
 
     checkGlError( "ComponentCameraShadow::OnDrawFrame glClear()" );
 
-    g_pComponentSystemManager->OnDrawFrame( this, &m_matViewProj, 0 );
+    if( m_Orthographic )
+    {   
+        g_pComponentSystemManager->OnDrawFrame( this, &m_Camera2D.m_matViewProj, 0 );
+    }
+    else
+    {
+        g_pComponentSystemManager->OnDrawFrame( this, &m_Camera3D.m_matViewProj, 0 );
+    }
 
     m_pDepthFBO->Unbind( false );
     g_ActiveShaderPass = ShaderPass_Main;
