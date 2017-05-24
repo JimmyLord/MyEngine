@@ -47,6 +47,8 @@ public:
     ComponentVariableValue(ComponentBase* pComponent, ComponentVariable* pVar);
 
     void GetValueFromVariable(ComponentBase* pComponent, ComponentVariable* pVar);
+    void UpdateComponentAndChildrenWithValue(ComponentBase* pComponent, ComponentVariable* pVar);
+    void CopyNonPointerValueIntoVariable(ComponentBase* pComponent, ComponentVariable* pVar);
     void CopyValueIntoVariable(ComponentBase* pComponent, ComponentVariable* pVar);
 
     int32               GetInt()             { MyAssert( m_Type == ComponentVariableType_Int );             return m_Int; }

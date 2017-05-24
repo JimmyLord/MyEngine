@@ -1061,14 +1061,23 @@ EditorCommand* EditorCommand_DeletePrefabs::Repeat()
 // EditorCommand_DivorceOrMarryComponentVariable
 //====================================================================================================
 
-EditorCommand_DivorceOrMarryComponentVariable::EditorCommand_DivorceOrMarryComponentVariable(ComponentBase* pComponent, ComponentVariable* pVar, bool marry)
+EditorCommand_DivorceOrMarryComponentVariable::EditorCommand_DivorceOrMarryComponentVariable(ComponentBase* pComponent, ComponentVariable* pVar, bool divorcethevariable)
 {
     MyAssert( pComponent && pVar );
 
     m_pComponent = pComponent;
     m_pVar = pVar;
 
-    m_MarryTheVariable = marry;
+    if( divorcethevariable )
+    {
+        MyAssert( m_pComponent->IsDivorced( pVar->m_Index ) == false );
+    }
+    else
+    {
+        MyAssert( m_pComponent->IsDivorced( pVar->m_Index ) == true );
+    }
+
+    m_DivorceTheVariable = divorcethevariable;
 
     m_OldValue.GetValueFromVariable( pComponent, pVar );
 }
@@ -1079,7 +1088,17 @@ EditorCommand_DivorceOrMarryComponentVariable::~EditorCommand_DivorceOrMarryComp
 
 void EditorCommand_DivorceOrMarryComponentVariable::Do()
 {
-    if( m_MarryTheVariable )
+    if( m_DivorceTheVariable )
+    {
+        // Divorce the variables.
+        m_pComponent->SetDivorced( m_pVar->m_Index, true );
+        if( m_pVar->m_ControlID >= 0 )
+        {
+            g_pPanelWatch->ChangeStaticTextFontStyle( m_pVar->m_ControlID, wxFONTSTYLE_ITALIC, wxFONTWEIGHT_BOLD );
+            g_pPanelWatch->ChangeStaticTextBGColor( m_pVar->m_ControlID, wxColour( 255, 200, 200, 255 ) );
+        }
+    }
+    else
     {
         // Marry the variables.
         m_pComponent->SetDivorced( m_pVar->m_Index, false );
@@ -1097,44 +1116,18 @@ void EditorCommand_DivorceOrMarryComponentVariable::Do()
             // Get parent objects value.
             ComponentVariableValue newvalue( pParentComponent, m_pVar );
 
-            // Inform component it's value changed.
-            (m_pComponent->*(m_pVar->m_pOnValueChangedCallbackFunc))( m_pVar, false, true, 0, newvalue );
+            // Update and inform component and children.
+            newvalue.UpdateComponentAndChildrenWithValue( m_pComponent, m_pVar );
         }
 
         g_pPanelWatch->SetNeedsRefresh();
-    }
-    else
-    {
-        // Divorce the variables.
-        m_pComponent->SetDivorced( m_pVar->m_Index, true );
-        if( m_pVar->m_ControlID >= 0 )
-        {
-            g_pPanelWatch->ChangeStaticTextFontStyle( m_pVar->m_ControlID, wxFONTSTYLE_ITALIC, wxFONTWEIGHT_BOLD );
-            g_pPanelWatch->ChangeStaticTextBGColor( m_pVar->m_ControlID, wxColour( 255, 200, 200, 255 ) );
-        }
     }
 }
 
 void EditorCommand_DivorceOrMarryComponentVariable::Undo()
 {
     // Do the opposite
-    if( m_MarryTheVariable )
-    {
-        // Divorce the variables.
-        m_pComponent->SetDivorced( m_pVar->m_Index, true );
-        if( m_pVar->m_ControlID >= 0 )
-        {
-            g_pPanelWatch->ChangeStaticTextFontStyle( m_pVar->m_ControlID, wxFONTSTYLE_ITALIC, wxFONTWEIGHT_BOLD );
-            g_pPanelWatch->ChangeStaticTextBGColor( m_pVar->m_ControlID, wxColour( 255, 200, 200, 255 ) );
-        }
-
-        // Restore the old value of the child.
-        // Inform component it's value changed.
-        (m_pComponent->*(m_pVar->m_pOnValueChangedCallbackFunc))( m_pVar, false, true, 0, m_OldValue );
-
-        g_pPanelWatch->SetNeedsRefresh();
-    }
-    else
+    if( m_DivorceTheVariable )
     {
         // Marry the variables.
         m_pComponent->SetDivorced( m_pVar->m_Index, false );
@@ -1143,6 +1136,21 @@ void EditorCommand_DivorceOrMarryComponentVariable::Undo()
             g_pPanelWatch->ChangeStaticTextFontStyle( m_pVar->m_ControlID, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL );
             g_pPanelWatch->ChangeStaticTextBGColor( m_pVar->m_ControlID, wxNullColour );
         }
+    }
+    else
+    {
+        // Divorce the variables.
+        m_pComponent->SetDivorced( m_pVar->m_Index, true );
+        if( m_pVar->m_ControlID >= 0 )
+        {
+            g_pPanelWatch->ChangeStaticTextFontStyle( m_pVar->m_ControlID, wxFONTSTYLE_ITALIC, wxFONTWEIGHT_BOLD );
+            g_pPanelWatch->ChangeStaticTextBGColor( m_pVar->m_ControlID, wxColour( 255, 200, 200, 255 ) );
+        }
+
+        // Update and inform component and children.
+        m_OldValue.UpdateComponentAndChildrenWithValue( m_pComponent, m_pVar );
+
+        g_pPanelWatch->SetNeedsRefresh();
     }
 }
 

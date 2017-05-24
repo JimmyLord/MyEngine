@@ -34,7 +34,10 @@ enum ComponentVariableTypes
     ComponentVariableType_Vector2Int,
     ComponentVariableType_Vector3Int,
 
-    ComponentVariableType_GameObjectPtr,
+    // NOTE: Pointer types must come after value types for ComponentVariableValue::CopyNonPointerValueIntoVariable() 
+    ComponentVariableType_FirstPointerType,
+
+    ComponentVariableType_GameObjectPtr = ComponentVariableType_FirstPointerType,
     ComponentVariableType_ComponentPtr,
     ComponentVariableType_FilePtr,
     ComponentVariableType_MaterialPtr,

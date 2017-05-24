@@ -419,10 +419,10 @@ protected:
     ComponentVariableValue m_OldValue;
     ComponentVariableValue m_NewValue;
 
-    bool m_MarryTheVariable;
+    bool m_DivorceTheVariable;
 
 public:
-    EditorCommand_DivorceOrMarryComponentVariable(ComponentBase* pComponent, ComponentVariable* pVar, bool marry);
+    EditorCommand_DivorceOrMarryComponentVariable(ComponentBase* pComponent, ComponentVariable* pVar, bool divorcethevariable);
     virtual ~EditorCommand_DivorceOrMarryComponentVariable();
 
     virtual void Do();

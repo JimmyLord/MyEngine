@@ -571,8 +571,11 @@ void ComponentCamera::DrawCallback(ComponentCamera* pCamera, MyMatrix* pMatViewP
     //pSprite->SetPosition( &transform );
     
     // disable culling, so we see the camera from both sides.
+    glPolygonMode( GL_FRONT, GL_FILL );
     glDisable( GL_CULL_FACE );
     pSprite->Draw( &transform, pMatViewProj, pShaderOverride );
     glEnable( GL_CULL_FACE );
+    if( g_pEngineCore->m_Debug_DrawWireframe )
+        glPolygonMode( GL_FRONT, GL_LINE );
 }
 #endif

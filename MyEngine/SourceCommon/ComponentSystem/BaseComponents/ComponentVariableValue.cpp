@@ -56,6 +56,57 @@ void ComponentVariableValue::GetValueFromVariable(ComponentBase* pComponent, Com
     }
 }
 
+void ComponentVariableValue::UpdateComponentAndChildrenWithValue(ComponentBase* pComponent, ComponentVariable* pVar)
+{
+    // If it's not a pointer, set the value directly in the child component
+    CopyNonPointerValueIntoVariable( pComponent, pVar );
+
+    int numberofcomponents = 1;
+    switch( pVar->m_Type )
+    {
+    case ComponentVariableType_Int:
+    case ComponentVariableType_Enum:            
+    case ComponentVariableType_UnsignedInt:
+    case ComponentVariableType_Flags:           
+    //ComponentVariableType_Char,
+    //ComponentVariableType_UnsignedChar,
+    case ComponentVariableType_Bool:            
+    case ComponentVariableType_Float:           numberofcomponents = 1; break;
+    //ComponentVariableType_Double,
+    //ComponentVariableType_ColorFloat,
+    case ComponentVariableType_ColorByte:       numberofcomponents = 2; break;
+    case ComponentVariableType_Vector2:         numberofcomponents = 2; break;
+    case ComponentVariableType_Vector3:         numberofcomponents = 3; break;
+    case ComponentVariableType_Vector2Int:      numberofcomponents = 2; break;
+    case ComponentVariableType_Vector3Int:      numberofcomponents = 3; break;
+    case ComponentVariableType_GameObjectPtr:   
+    case ComponentVariableType_FilePtr:         
+    case ComponentVariableType_ComponentPtr:    
+    case ComponentVariableType_MaterialPtr:     
+    case ComponentVariableType_SoundCuePtr:     
+    case ComponentVariableType_PointerIndirect: numberofcomponents = 1; break;
+
+    case ComponentVariableType_NumTypes:
+    default:
+        MyAssert( false );
+        break;
+    }
+
+    // Inform component it's value changed.
+    for( int i=0; i<numberofcomponents; i++ )
+    {
+        pComponent->OnValueChangedVariable( pVar->m_ControlID+i, false, true, 0 );
+    }
+}
+
+void ComponentVariableValue::CopyNonPointerValueIntoVariable(ComponentBase* pComponent, ComponentVariable* pVar)
+{
+    if( m_Type < ComponentVariableType_FirstPointerType )
+    {
+        CopyValueIntoVariable( pComponent, pVar );
+    }
+}
+
 void ComponentVariableValue::CopyValueIntoVariable(ComponentBase* pComponent, ComponentVariable* pVar)
 {
     MyAssert( m_Type == pVar->m_Type );

@@ -1389,9 +1389,19 @@ void ComponentBase::OnValueChangedVariable(int controlid, bool directlychanged, 
             if( DoesVariableMatchParent( pVar, controlcomponent ) == false ) // returns true if no parent was found.
             {
                 // if the variable no longer matches the parent, then divorce it.
-                SetDivorced( pVar->m_Index, true );
-                g_pPanelWatch->ChangeStaticTextFontStyle( pVar->m_ControlID, wxFONTSTYLE_ITALIC, wxFONTWEIGHT_BOLD );
-                g_pPanelWatch->ChangeStaticTextBGColor( pVar->m_ControlID, wxColour( 255, 200, 200, 255 ) );
+                if( directlychanged )
+                {
+                    if( finishedchanging && IsDivorced( pVar->m_Index ) == false )
+                    {
+                        g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_DivorceOrMarryComponentVariable( this, pVar, true ) );
+                    }
+                }
+                else
+                {
+                    SetDivorced( pVar->m_Index, true );
+                    g_pPanelWatch->ChangeStaticTextFontStyle( pVar->m_ControlID, wxFONTSTYLE_ITALIC, wxFONTWEIGHT_BOLD );
+                    g_pPanelWatch->ChangeStaticTextBGColor( pVar->m_ControlID, wxColour( 255, 200, 200, 255 ) );
+                }
             }
         }
 
@@ -1424,11 +1434,11 @@ void ComponentBase::OnDropVariable(ComponentVariable* pVar, int controlcomponent
         if( m_pGameObject && m_pGameObject->GetGameObjectThisInheritsFrom() )
         {
             // Divorce the child value from it's parent, if it no longer matches.. and it's not already divorced.
-            if( IsDivorced( pVar->m_Index == false ) &&
+            if( IsDivorced( pVar->m_Index ) == false &&
                 DoesVariableMatchParent( pVar, controlcomponent ) == false ) // Returns true if no parent was found.
             {
                 // Since the variable no longer matches the parent, then divorce it.
-                g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_DivorceOrMarryComponentVariable( this, pVar, false ) );
+                g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_DivorceOrMarryComponentVariable( this, pVar, true ) );
             }
         }
 
@@ -1495,13 +1505,13 @@ void ComponentBaseEventHandlerForComponentVariables::OnPopupClick(wxEvent &evt)
     {
     case ComponentBase::RightClick_DivorceVariable:
         {
-            g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_DivorceOrMarryComponentVariable( pComponent, pVar, false ) );
+            g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_DivorceOrMarryComponentVariable( pComponent, pVar, true ) );
         }
         break;
 
     case ComponentBase::RightClick_MarryVariable:
         {
-            g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_DivorceOrMarryComponentVariable( pComponent, pVar, true ) );
+            g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_DivorceOrMarryComponentVariable( pComponent, pVar, false ) );
         }
         break;
     }

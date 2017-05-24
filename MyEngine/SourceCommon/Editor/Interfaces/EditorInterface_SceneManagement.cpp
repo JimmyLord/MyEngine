@@ -88,7 +88,7 @@ void EditorInterface_SceneManagement::OnDrawFrame(unsigned int canvasid)
                     g_pEngineCore->m_pDebugQuadSprite = MyNew MySprite( false );
 
                 g_pEngineCore->m_pDebugQuadSprite->CreateInPlace( "debug", 0.5f, 0.5f, 1.0f, 1.0f, 0, 1, 1, 0, Justify_Center, false );
-                g_pEngineCore->m_pMaterial_ClipSpaceTexture->SetTextureColor( pCamera->m_pDepthFBO->m_pDepthTexture );
+                g_pEngineCore->m_pMaterial_ClipSpaceTexture->SetTextureColor( pCamera->GetFBO()->m_pDepthTexture );
                 g_pEngineCore->m_pDebugQuadSprite->SetMaterial( g_pEngineCore->m_pMaterial_ClipSpaceTexture );
                 g_pEngineCore->m_pDebugQuadSprite->Draw( 0, 0 );
             }

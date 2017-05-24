@@ -176,16 +176,6 @@ void ComponentCameraShadow::OnDrawFrame()
 
     //ComponentCamera::OnDrawFrame();
 
-    {
-        //MyMatrix matView = *m_pComponentTransform->GetWorldTransform();
-        //matView.Inverse();
-
-        //MyMatrix matProj;
-        //matProj.CreateOrtho( -10, 10, -10, 10, 1, 100 );
-
-        //m_matViewProj = matProj * matView;
-    }
-
     glCullFace( GL_FRONT );
 
     glDisable( GL_SCISSOR_TEST );
@@ -210,7 +200,7 @@ void ComponentCameraShadow::OnDrawFrame()
     checkGlError( "ComponentCameraShadow::OnDrawFrame glClear()" );
 
     if( m_Orthographic )
-    {   
+    {
         g_pComponentSystemManager->OnDrawFrame( this, &m_Camera2D.m_matViewProj, 0 );
     }
     else
@@ -223,4 +213,16 @@ void ComponentCameraShadow::OnDrawFrame()
     glCullFace( GL_BACK );
 
     checkGlError( "end of ComponentCameraShadow::OnDrawFrame()" );
+}
+
+MyMatrix* ComponentCameraShadow::GetViewProjMatrix()
+{
+    if( m_Orthographic )
+    {
+        return &m_Camera2D.m_matViewProj;
+    }
+    else
+    {
+        return &m_Camera3D.m_matViewProj;
+    }
 }

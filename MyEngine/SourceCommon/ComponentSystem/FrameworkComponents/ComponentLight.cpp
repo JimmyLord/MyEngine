@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2016 Jimmy Lord http://www.flatheadgames.com
+// Copyright (c) 2015-2017 Jimmy Lord http://www.flatheadgames.com
 //
 // This software is provided 'as-is', without any express or implied warranty.  In no event will the authors be held liable for any damages arising from the use of this software.
 // Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -276,6 +276,11 @@ void ComponentLight::DrawCallback(ComponentCamera* pCamera, MyMatrix* pMatViewPr
     pSprite->GetMaterial()->m_ColorDiffuse = m_pLight->m_Color.AsColorByte();
     pSprite->GetMaterial()->m_ColorDiffuse.a = 255;
     
+    glPolygonMode( GL_FRONT, GL_FILL );
+
     pSprite->Draw( &transform, pMatViewProj, pShaderOverride );
+
+    if( g_pEngineCore->m_Debug_DrawWireframe )
+        glPolygonMode( GL_FRONT, GL_LINE );
 }
 #endif
