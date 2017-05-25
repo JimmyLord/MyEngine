@@ -477,6 +477,13 @@ void ComponentTransform::SetWorldRotation(Vector3 rot)
         m_LocalRotation = m_WorldRotation;
         m_LocalTransformIsDirty = true;
     }
+
+    for( CPPListNode* pNode = m_TransformChangedCallbackList.GetHead(); pNode != 0; pNode = pNode->GetNext() )
+    {
+        TransformChangedCallbackStruct* pCallbackStruct = (TransformChangedCallbackStruct*)pNode;
+
+        pCallbackStruct->pFunc( pCallbackStruct->pObj, m_WorldPosition, m_WorldRotation, m_WorldScale, true );
+    }
 }
 
 void ComponentTransform::SetWorldScale(Vector3 scale)
@@ -497,7 +504,7 @@ void ComponentTransform::SetLocalTransform(MyMatrix* mat)
 
     if( m_pParentTransform )
     {
-        m_WorldTransform = m_pParentTransform->m_WorldTransform * m_LocalTransform;
+        m_WorldTransform = *m_pParentTransform->GetWorldTransform() * m_LocalTransform;
         UpdateWorldSRT();
     }
     else
@@ -769,7 +776,7 @@ void ComponentTransform::UpdateTransform()
             m_LocalTransformIsDirty = false;
             m_LocalTransform.CreateSRT( m_LocalScale, m_LocalRotation, m_LocalPosition );
 
-            m_WorldTransform = m_pParentTransform->m_WorldTransform * m_LocalTransform;
+            m_WorldTransform = *m_pParentTransform->GetWorldTransform() * m_LocalTransform;
             UpdateWorldSRT();
         }
     }
