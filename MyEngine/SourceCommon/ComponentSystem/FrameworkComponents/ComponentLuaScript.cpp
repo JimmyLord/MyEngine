@@ -68,7 +68,9 @@ void ComponentLuaScript::RegisterVariables(CPPListHead* pList, ComponentLuaScrip
 
     // script is not automatically saved/loaded
     ComponentVariable* pVar = AddVar( pList, "Script", ComponentVariableType_FilePtr, MyOffsetOf( pThis, &pThis->m_pScriptFile ), false, true, 0, (CVarFunc_ValueChanged)&ComponentLuaScript::OnValueChanged, (CVarFunc_DropTarget)&ComponentLuaScript::OnDrop, 0 );
+#if MYFW_USING_WX
     pVar->AddCallback_OnRightClick( (CVarFunc_wxMenu)&ComponentLuaScript::OnRightClickCallback, (CVarFunc_Int)&ComponentLuaScript::OnPopupClickCallback );
+#endif
 }
 
 void ComponentLuaScript::Reset()

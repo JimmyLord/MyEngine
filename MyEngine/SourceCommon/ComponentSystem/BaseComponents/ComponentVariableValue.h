@@ -47,7 +47,9 @@ public:
     ComponentVariableValue(ComponentBase* pComponent, ComponentVariable* pVar);
 
     void GetValueFromVariable(ComponentBase* pComponent, ComponentVariable* pVar);
+#if MYFW_USING_WX
     void UpdateComponentAndChildrenWithValue(ComponentBase* pComponent, ComponentVariable* pVar);
+#endif
     void CopyNonPointerValueIntoVariable(ComponentBase* pComponent, ComponentVariable* pVar);
     void CopyValueIntoVariable(ComponentBase* pComponent, ComponentVariable* pVar);
 

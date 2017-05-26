@@ -56,6 +56,7 @@ void ComponentVariableValue::GetValueFromVariable(ComponentBase* pComponent, Com
     }
 }
 
+#if MYFW_USING_WX
 void ComponentVariableValue::UpdateComponentAndChildrenWithValue(ComponentBase* pComponent, ComponentVariable* pVar)
 {
     // If it's not a pointer, set the value directly in the child component
@@ -98,6 +99,7 @@ void ComponentVariableValue::UpdateComponentAndChildrenWithValue(ComponentBase* 
         pComponent->OnValueChangedVariable( pVar->m_ControlID+i, false, true, 0 );
     }
 }
+#endif //MYFW_USING_WX
 
 void ComponentVariableValue::CopyNonPointerValueIntoVariable(ComponentBase* pComponent, ComponentVariable* pVar)
 {

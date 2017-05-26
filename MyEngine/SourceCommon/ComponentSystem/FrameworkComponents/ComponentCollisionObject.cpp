@@ -65,15 +65,21 @@ void ComponentCollisionObject::RegisterVariables(CPPListHead* pList, ComponentCo
     AddVarEnum( pList, "Primitive", MyOffsetOf( pThis, &pThis->m_PrimitiveType ), true, true, "Primitive Type", PhysicsPrimitive_NumTypes, PhysicsPrimitiveTypeStrings, (CVarFunc_ValueChanged)&ComponentCollisionObject::OnValueChanged, 0, 0 );
 
     pVar = AddVar( pList, "Scale", ComponentVariableType_Vector3, MyOffsetOf( pThis, &pThis->m_Scale ), true, true, "Scale", (CVarFunc_ValueChanged)&ComponentTransform::OnValueChanged, 0, 0 );
+#if MYFW_USING_WX
     pVar->AddCallback_ShouldVariableBeAdded( (CVarFunc_ShouldVariableBeAdded)(&ComponentCollisionObject::ShouldVariableBeAddedToWatchPanel) );
+#endif
 
     pVar = AddVar( pList, "ScaleX", ComponentVariableType_Float, MyOffsetOf( pThis, &pThis->m_Scale ), false, true, "Scale", (CVarFunc_ValueChanged)&ComponentTransform::OnValueChanged, 0, 0 );
+#if MYFW_USING_WX
     pVar->AddCallback_ShouldVariableBeAdded( (CVarFunc_ShouldVariableBeAdded)(&ComponentCollisionObject::ShouldVariableBeAddedToWatchPanel) );
+#endif
 
     pVar = AddVarPointer( pList, "OBJ", true, true, "Collision Mesh",
         (CVarFunc_GetPointerValue)&ComponentCollisionObject::GetPointerValue, (CVarFunc_SetPointerValue)&ComponentCollisionObject::SetPointerValue, (CVarFunc_GetPointerDesc)&ComponentCollisionObject::GetPointerDesc, (CVarFunc_SetPointerDesc)&ComponentCollisionObject::SetPointerDesc,
         (CVarFunc_ValueChanged)&ComponentCollisionObject::OnValueChanged, (CVarFunc_DropTarget)&ComponentCollisionObject::OnDropOBJ, 0 );
+#if MYFW_USING_WX
     pVar->AddCallback_ShouldVariableBeAdded( (CVarFunc_ShouldVariableBeAdded)(&ComponentCollisionObject::ShouldVariableBeAddedToWatchPanel) );
+#endif
 }
 
 void ComponentCollisionObject::Reset()
