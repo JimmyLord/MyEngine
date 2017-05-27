@@ -48,6 +48,14 @@ void EditorInterface::OnDeactivated()
 
 void EditorInterface::Tick(double TimePassed)
 {
+    // Force compile of m_pShader_TintColor (0 lights, 4 bones) to avoid stall on first click in mouse picker code.
+    if( g_pEngineCore->m_pShader_TintColor )
+    {
+        Shader_Base* pShader = (Shader_Base*)g_pEngineCore->m_pShader_TintColor->GlobalPass( 0, 4 );
+        if( pShader->m_Initialized == false )
+            pShader->CompileShader();
+    }
+
     if( m_ShowRightClickMenu )
     {
         m_ShowRightClickMenu = false;
