@@ -176,7 +176,7 @@ void ComponentCameraShadow::OnDrawFrame()
 
     //ComponentCamera::OnDrawFrame();
 
-    glCullFace( GL_FRONT );
+    //glCullFace( GL_FRONT );
 
     glDisable( GL_SCISSOR_TEST );
     g_ActiveShaderPass = ShaderPass_ShadowCastRGBA;
@@ -210,7 +210,7 @@ void ComponentCameraShadow::OnDrawFrame()
 
     m_pDepthFBO->Unbind( false );
     g_ActiveShaderPass = ShaderPass_Main;
-    glCullFace( GL_BACK );
+    //glCullFace( GL_BACK );
 
     checkGlError( "end of ComponentCameraShadow::OnDrawFrame()" );
 }

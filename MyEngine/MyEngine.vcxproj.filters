@@ -354,9 +354,6 @@
     <ClCompile Include="..\Libraries\imgui\imgui.cpp">
       <Filter>Libraries\imgui</Filter>
     </ClCompile>
-    <ClCompile Include="..\Libraries\imgui\imgui_demo.cpp">
-      <Filter>Libraries\imgui</Filter>
-    </ClCompile>
     <ClCompile Include="..\Libraries\imgui\imgui_draw.cpp">
       <Filter>Libraries\imgui</Filter>
     </ClCompile>
