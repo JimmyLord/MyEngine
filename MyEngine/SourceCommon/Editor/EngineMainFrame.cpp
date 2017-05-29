@@ -24,6 +24,12 @@ const char* g_DefaultPerspectiveMenuLabels[Perspective_NumPerspectives] =
     "&Full Frame Game",
 };
 
+const char* g_DefaultEngineEditorWindowTypeMenuLabels[EngineEditorWindow_NumTypes] =
+{
+    "&Editor View",
+    "&Log Panel",
+};
+
 char* g_DefaultPerspectives[Perspective_NumPerspectives] =
 {
     "layout2|name=GLCanvas;caption=Game;state=2099196;dir=4;layer=1;row=0;pos=1;prop=100000;bestw=600;besth=600;minw=-1;minh=-1;maxw=-1;maxh=-1;floatx=-253;floaty=231;floatw=680;floath=748|name=PanelWatch;caption=Watch;state=2099196;dir=2;layer=3;row=0;pos=0;prop=130560;bestw=300;besth=600;minw=-1;minh=-1;maxw=-1;maxh=-1;floatx=1274;floaty=143;floatw=316;floath=632|name=PanelMemory;caption=Memory;state=2099196;dir=2;layer=3;row=0;pos=1;prop=69440;bestw=300;besth=600;minw=-1;minh=-1;maxw=-1;maxh=-1;floatx=1023;floaty=335;floatw=316;floath=632|name=PanelObjectList;caption=Objects;state=2099196;dir=4;layer=1;row=0;pos=0;prop=100000;bestw=300;besth=600;minw=-1;minh=-1;maxw=-1;maxh=-1;floatx=-1;floaty=-1;floatw=-1;floath=-1|name=GLCanvasEditor;caption=Editor;state=2099196;dir=3;layer=0;row=0;pos=0;prop=100000;bestw=600;besth=600;minw=-1;minh=-1;maxw=-1;maxh=-1;floatx=-1;floaty=-1;floatw=-1;floath=-1|name=Log;caption=Log;state=2099196;dir=3;layer=2;row=0;pos=0;prop=100000;bestw=183;besth=150;minw=-1;minh=-1;maxw=-1;maxh=-1;floatx=543;floaty=588;floatw=199;floath=182|dock_size(4,1,0)=302|dock_size(3,0,0)=1560|dock_size(3,2,0)=140|dock_size(2,3,0)=321|",
@@ -436,6 +442,12 @@ void EngineMainFrame::AddPanes()
 
     m_pLogPane = MyNew wxNotebook( this, wxID_ANY, wxPoint(0,0), wxDefaultSize );
     m_AUIManager.AddPane( m_pLogPane, wxAuiPaneInfo().Name("Log").Bottom().Caption("Log") );//.CaptionVisible(false) );
+
+    for( int i=0; i<EngineEditorWindow_NumTypes; i++ )
+    {
+        m_EngineEditorWindowOptions[i] = m_EditorWindows->Append( myIDEngine_EditorWindow_FirstWindow + i, g_DefaultEngineEditorWindowTypeMenuLabels[i], wxEmptyString );
+        Connect( myIDEngine_EditorWindow_FirstWindow + i, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );
+    }
 
     m_pLogMain = new wxTextCtrl( m_pLogPane, -1, wxEmptyString,
                                  wxDefaultPosition, wxDefaultSize,
@@ -925,6 +937,22 @@ void EngineMainFrame::OnMenu_Engine(wxCommandEvent& event)
 
     case myIDEngine_View_SelectedObjects_ShowEffect:
         m_SelectedObjects_ShowEffect = !m_SelectedObjects_ShowEffect;
+        break;
+
+    case myIDEngine_EditorWindow_Editor:
+        {
+            wxAuiPaneInfo& paneinfo = m_AUIManager.GetPane( m_pGLCanvasEditor );
+            paneinfo.Show( !paneinfo.IsShown() );
+            m_AUIManager.Update();
+        }
+        break;
+
+    case myIDEngine_EditorWindow_LogPane:
+        {
+            wxAuiPaneInfo& paneinfo = m_AUIManager.GetPane( m_pLogPane );
+            paneinfo.Show( !paneinfo.IsShown() );
+            m_AUIManager.Update();
+        }
         break;
 
     case myIDEngine_DebugShowMousePickerFBO:

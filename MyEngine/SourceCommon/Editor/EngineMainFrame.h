@@ -25,6 +25,13 @@ enum DefaultPerspectives
     Perspective_NumPerspectives,
 };
 
+enum EngineEditorWindowTypes
+{
+    EngineEditorWindow_Editor,
+    EngineEditorWindow_PanelLog,
+    EngineEditorWindow_NumTypes,
+};
+
 enum EngineMenuIDs
 {
     myIDEngine_NewScene = myID_LastID,
@@ -58,6 +65,9 @@ enum EngineMenuIDs
     myIDEngine_View_EditorCameraLayer,
         // g_NumberOfVisibilityLayers more items here
     myIDEngine_DebugShowMousePickerFBO = myIDEngine_View_EditorCameraLayer + g_NumberOfVisibilityLayers,
+    myIDEngine_EditorWindow_FirstWindow,
+    myIDEngine_EditorWindow_Editor = myIDEngine_EditorWindow_FirstWindow,
+    myIDEngine_EditorWindow_LogPane,
     myIDEngine_DebugShowSelectedAnimatedMesh,
     myIDEngine_DebugShowGLStats,
     myIDEngine_DebugDrawWireframe,
@@ -82,6 +92,9 @@ public:
     wxTextCtrl* m_pLogErrors;
 
     unsigned int m_StackDepthAtLastSave;
+
+    // Engine specific windows tacked onto m_EditorWindows list.
+    wxMenuItem* m_EngineEditorWindowOptions[EngineEditorWindow_NumTypes];
 
     wxMenu* m_EditorPerspectives;
     wxMenu* m_GameplayPerspectives;
