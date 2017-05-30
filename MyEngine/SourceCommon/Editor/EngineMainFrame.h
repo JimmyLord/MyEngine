@@ -145,6 +145,7 @@ public:
     virtual bool OnClose();
 
     virtual bool FilterGlobalEvents(wxEvent& event);
+    virtual void OnGLCanvasShownOrHidden(bool shown);
 
     void OnDropFiles(wxDropFilesEvent& event);
 

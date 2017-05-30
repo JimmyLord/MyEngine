@@ -647,6 +647,18 @@ bool EngineMainFrame::FilterGlobalEvents(wxEvent& event)
     return false;
 }
 
+void EngineMainFrame::OnGLCanvasShownOrHidden(bool shown)
+{
+    if( shown )
+    {
+        m_pGLCanvasEditor->m_TickGameCore = false;
+    }
+    else
+    {
+        m_pGLCanvasEditor->m_TickGameCore = true;
+    }
+}
+
 void EngineMainFrame::OnDropFiles(wxDropFilesEvent& event)
 {
     wxString* pFileArray = event.GetFiles();
