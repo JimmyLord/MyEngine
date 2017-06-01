@@ -65,12 +65,12 @@ ComponentSystemManager::ComponentSystemManager(ComponentTypeManager* typemanager
     {
         wxImageList* pImageList = new wxImageList(16,16);
 
-        wxBitmap bitmap_scene( "DataEngine/EditorIcons/IconScene.bmp", wxBITMAP_TYPE_BMP );
-        wxBitmap bitmap_gameobject( "DataEngine/EditorIcons/IconGameObject.bmp", wxBITMAP_TYPE_BMP );
-        wxBitmap bitmap_folder( "DataEngine/EditorIcons/IconFolder.bmp", wxBITMAP_TYPE_BMP );// = wxArtProvider::GetBitmap( wxART_FOLDER, wxART_OTHER, wxSize(16,16) );
-        wxBitmap bitmap_logicobject( "DataEngine/EditorIcons/IconLogicObject.bmp", wxBITMAP_TYPE_BMP );// = wxArtProvider::GetBitmap( wxART_FOLDER, wxART_OTHER, wxSize(16,16) );
-        wxBitmap bitmap_component( "DataEngine/EditorIcons/IconComponent.bmp", wxBITMAP_TYPE_BMP );
-        wxBitmap bitmap_prefab( "DataEngine/EditorIcons/IconPrefab.bmp", wxBITMAP_TYPE_BMP );
+        wxBitmap bitmap_scene( "Data/DataEngine/EditorIcons/IconScene.bmp", wxBITMAP_TYPE_BMP );
+        wxBitmap bitmap_gameobject( "Data/DataEngine/EditorIcons/IconGameObject.bmp", wxBITMAP_TYPE_BMP );
+        wxBitmap bitmap_folder( "Data/DataEngine/EditorIcons/IconFolder.bmp", wxBITMAP_TYPE_BMP );// = wxArtProvider::GetBitmap( wxART_FOLDER, wxART_OTHER, wxSize(16,16) );
+        wxBitmap bitmap_logicobject( "Data/DataEngine/EditorIcons/IconLogicObject.bmp", wxBITMAP_TYPE_BMP );// = wxArtProvider::GetBitmap( wxART_FOLDER, wxART_OTHER, wxSize(16,16) );
+        wxBitmap bitmap_component( "Data/DataEngine/EditorIcons/IconComponent.bmp", wxBITMAP_TYPE_BMP );
+        wxBitmap bitmap_prefab( "Data/DataEngine/EditorIcons/IconPrefab.bmp", wxBITMAP_TYPE_BMP );
 
         // make sure bitmaps loaded
         //    will happen if DataEngine folder isn't there... run "Windows-CreateSymLinksForData.bat"
@@ -815,7 +815,7 @@ MyFileObject* ComponentSystemManager::LoadDataFile(const char* relativepath, uns
         // if we're loading a .myspritesheet, we create a material for each texture in the sheet
         if( strcmp( pFile->GetExtensionWithDot(), ".myspritesheet" ) == 0 )
         {
-            ShaderGroup* pShaderGroup = g_pShaderGroupManager->FindShaderGroupByFilename( "DataEngine/Shaders/Shader_TextureTint.glsl" );
+            ShaderGroup* pShaderGroup = g_pShaderGroupManager->FindShaderGroupByFilename( "Data/DataEngine/Shaders/Shader_TextureTint.glsl" );
 
             pFileInfo->m_pSpriteSheet = MyNew SpriteSheet();
             pFileInfo->m_pSpriteSheet->Create( pFile->GetFullPath(), pShaderGroup, GL_LINEAR, GL_LINEAR, false, true );

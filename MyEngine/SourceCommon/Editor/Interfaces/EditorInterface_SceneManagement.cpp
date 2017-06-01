@@ -104,7 +104,7 @@ void EditorInterface_SceneManagement::OnDrawFrame(unsigned int canvasid)
             if( g_pEngineCore->m_pMaterialBallMesh == 0 )
             {
                 g_pEngineCore->m_pMaterialBallMesh = MyNew MyMesh();
-                g_pEngineCore->m_pSphereMeshFile = RequestFile( "DataEngine/Meshes/sphere.obj.mymesh" );
+                g_pEngineCore->m_pSphereMeshFile = RequestFile( "Data/DataEngine/Meshes/sphere.obj.mymesh" );
             }
 
             if( g_pEngineCore->m_pMaterialBallMesh && g_pEngineCore->m_pMaterialBallMesh->m_MeshReady == false )

@@ -13,8 +13,8 @@
 
 const char* EditorIconFilenames[EditorIcon_NumIcons] =
 {
-    "DataEngine/Textures/IconLight.png",
-    "DataEngine/Textures/IconCamera.png"
+    "Data/DataEngine/Textures/IconLight.png",
+    "Data/DataEngine/Textures/IconCamera.png"
 };
 
 EditorState::EditorState()
@@ -67,14 +67,14 @@ EditorState::EditorState()
         pMaterial->SetTextureColor( pTexture );
         pTexture->Release();
 
-        ShaderGroup* pShaderGroup = g_pShaderGroupManager->FindShaderGroupByFilename( "DataEngine/Shaders/Shader_TextureTint.glsl" );
+        ShaderGroup* pShaderGroup = g_pShaderGroupManager->FindShaderGroupByFilename( "Data/DataEngine/Shaders/Shader_TextureTint.glsl" );
         if( pShaderGroup != 0 )
         {
             pMaterial->SetShader( pShaderGroup );
         }
         else
         {
-            MyFileObject* pFile = g_pEngineFileManager->RequestFile_UntrackedByScene( "DataEngine/Shaders/Shader_TextureTint.glsl" );
+            MyFileObject* pFile = g_pEngineFileManager->RequestFile_UntrackedByScene( "Data/DataEngine/Shaders/Shader_TextureTint.glsl" );
             MyAssert( pFile->IsA( "MyFileShader" ) );
             if( pFile->IsA( "MyFileShader" ) )
             {

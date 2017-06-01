@@ -11,7 +11,7 @@
 
 GameObjectTemplateManager::GameObjectTemplateManager()
 {
-    char* filestring = PlatformSpecific_LoadFile( "DataEngine/EngineGameObjects.mytemplate", 0 );
+    char* filestring = PlatformSpecific_LoadFile( "Data/DataEngine/EngineGameObjects.mytemplate", 0 );
     if( filestring == 0 )
         return;
 

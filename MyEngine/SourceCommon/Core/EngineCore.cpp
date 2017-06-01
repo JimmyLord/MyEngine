@@ -246,7 +246,7 @@ void EngineCore::OneTimeInit()
 
     if( m_pDebugFont == 0 )
     {
-        m_pDebugFont = g_pFontManager->CreateFont( "DataEngine/Fonts/Nevis60.fnt" );
+        m_pDebugFont = g_pFontManager->CreateFont( "Data/DataEngine/Fonts/Nevis60.fnt" );
     }
 
     if( m_pDebugTextMesh == 0 )
@@ -258,9 +258,9 @@ void EngineCore::OneTimeInit()
 #endif //MYFW_USING_WX
 
     // setup our shaders
-    m_pShaderFile_TintColor = g_pEngineFileManager->RequestFile_UntrackedByScene( "DataEngine/Shaders/Shader_TintColor.glsl" );
-    m_pShaderFile_SelectedObjects = g_pEngineFileManager->RequestFile_UntrackedByScene( "DataEngine/Shaders/Shader_SelectedObjects.glsl" );
-    m_pShaderFile_ClipSpaceTexture = g_pEngineFileManager->RequestFile_UntrackedByScene( "DataEngine/Shaders/Shader_ClipSpaceTexture.glsl" );
+    m_pShaderFile_TintColor = g_pEngineFileManager->RequestFile_UntrackedByScene( "Data/DataEngine/Shaders/Shader_TintColor.glsl" );
+    m_pShaderFile_SelectedObjects = g_pEngineFileManager->RequestFile_UntrackedByScene( "Data/DataEngine/Shaders/Shader_SelectedObjects.glsl" );
+    m_pShaderFile_ClipSpaceTexture = g_pEngineFileManager->RequestFile_UntrackedByScene( "Data/DataEngine/Shaders/Shader_ClipSpaceTexture.glsl" );
     m_pShader_TintColor = MyNew ShaderGroup( m_pShaderFile_TintColor );
     m_pShader_SelectedObjects = MyNew ShaderGroup( m_pShaderFile_SelectedObjects );
     m_pShader_ClipSpaceTexture = MyNew ShaderGroup( m_pShaderFile_ClipSpaceTexture );
@@ -585,7 +585,7 @@ void EngineCore::OnDrawFrame(unsigned int canvasid)
     {
         if( m_pDebugTextMesh->GetMaterial( 0 ) == 0 )
         {
-            MaterialDefinition* pMaterial = g_pMaterialManager->LoadMaterial( "DataEngine/Materials/Nevis60.mymaterial" );
+            MaterialDefinition* pMaterial = g_pMaterialManager->LoadMaterial( "Data/DataEngine/Materials/Nevis60.mymaterial" );
             MyAssert( pMaterial );
             if( pMaterial )
             {

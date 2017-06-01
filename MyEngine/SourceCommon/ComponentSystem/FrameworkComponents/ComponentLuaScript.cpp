@@ -1445,11 +1445,11 @@ void ComponentLuaScript::TickCallback(double TimePassed)
                 ExposedVariableDesc* pOtherVar = 0;// = other.m_ExposedVars[i];            
 
                 // find the first variable in the other object with the same name
-                for( unsigned int i=0; i<m_ExposedVars.Count(); i++ )
+                for( unsigned int oi=0; oi<m_ExposedVars.Count(); oi++ )
                 {
-                    if( pVar->name == other.m_ExposedVars[i]->name )
+                    if( pVar->name == other.m_ExposedVars[oi]->name )
                     {
-                        pOtherVar = other.m_ExposedVars[i];
+                        pOtherVar = other.m_ExposedVars[oi];
                         break;
                     }
                 }

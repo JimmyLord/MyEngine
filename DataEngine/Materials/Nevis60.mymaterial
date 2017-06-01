@@ -2,7 +2,7 @@
 	"Material":	{
 		"Name":	"Nevis60",
 		"Shader":	"Data/Shaders/Shader_TextureVertexColor.glsl",
-		"TexColor":	"DataEngine/Fonts/Nevis60_0.png",
+		"TexColor":	"Data/DataEngine/Fonts/Nevis60_0.png",
 		"ColorAmbient":	[1, 1, 1, 1],
 		"ColorDiffuse":	[1, 1, 1, 1],
 		"ColorSpecular":	[1, 1, 1, 1],

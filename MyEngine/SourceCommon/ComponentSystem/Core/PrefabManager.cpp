@@ -422,11 +422,7 @@ PrefabManager::PrefabManager()
 
 PrefabManager::~PrefabManager()
 {
-#if MYFW_USING_WX
     for( unsigned int fileindex=0; fileindex<m_pPrefabFiles.size(); fileindex++ )
-#else
-    for( unsigned int fileindex=0; fileindex<m_pPrefabFiles.Count(); fileindex++ )
-#endif
     {
         delete m_pPrefabFiles[fileindex];
     }
@@ -434,11 +430,7 @@ PrefabManager::~PrefabManager()
 
 unsigned int PrefabManager::GetNumberOfFiles()
 {
-#if MYFW_USING_WX
     return m_pPrefabFiles.size();
-#else
-    return m_pPrefabFiles.Count();
-#endif
 }
 
 void PrefabManager::SetNumberOfFiles(unsigned int numfiles)
@@ -450,11 +442,7 @@ void PrefabManager::SetNumberOfFiles(unsigned int numfiles)
 
 PrefabFile* PrefabManager::GetLoadedPrefabFileByIndex(unsigned int fileindex)
 {
-#if MYFW_USING_WX
     MyAssert( fileindex < m_pPrefabFiles.size() );
-#else
-    MyAssert( fileindex < m_pPrefabFiles.Count() );
-#endif
 
     return m_pPrefabFiles[fileindex];
 }
@@ -478,11 +466,7 @@ PrefabFile* PrefabManager::RequestFile(const char* prefabfilename)
 
 PrefabFile* PrefabManager::GetPrefabFileForFileObject(const char* prefabfilename)
 {
-#if MYFW_USING_WX
     unsigned int numprefabfiles = m_pPrefabFiles.size();
-#else
-    unsigned int numprefabfiles = m_pPrefabFiles.Count();
-#endif
 
     for( unsigned int i=0; i<numprefabfiles; i++ )
     {
