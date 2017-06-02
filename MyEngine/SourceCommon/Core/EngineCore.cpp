@@ -543,14 +543,17 @@ void EngineCore::OnFocusLost()
     g_pImGuiManager->OnFocusLost();
 }
 
+void EngineCore::OnDrawFrameStart(unsigned int canvasid)
+{
+    if( g_pImGuiManager )
+        g_pImGuiManager->StartFrame();
+}
+
 void EngineCore::OnDrawFrame(unsigned int canvasid)
 {
 #if MYFW_PROFILING_ENABLED
     double Timing_Start = MyTime_GetSystemTime();
 #endif
-
-    if( g_pImGuiManager )
-        g_pImGuiManager->StartFrame();
 
 #if !MYFW_OPENGLES2
     if( m_Debug_DrawWireframe )

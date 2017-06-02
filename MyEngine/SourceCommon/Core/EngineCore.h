@@ -169,6 +169,7 @@ public:
     virtual void OnFocusGained();
     virtual void OnFocusLost();
     virtual void OnSurfaceChanged(unsigned int startx, unsigned int starty, unsigned int width, unsigned int height);
+    virtual void OnDrawFrameStart(unsigned int canvasid);
     virtual void OnDrawFrame(unsigned int canvasid);
     virtual void OnDrawFrameDone();
     virtual void OnFileRenamed(const char* fullpathbefore, const char* fullpathafter);
