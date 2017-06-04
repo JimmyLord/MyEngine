@@ -681,13 +681,32 @@ MyFileObject* ComponentSystemManager::LoadDataFile(const char* relativepath, uns
             fulllen = strlen( fullsourcefilepath );
         size_t rellen = strlen( relativepath );
 
-#if MYFW_USING_WX
+#if MYFW_USING_WX && MYFW_WINDOWS
+        // TODO: Fix this to work on MYFW_OSX/MYFW_LINUX and any other editor builds in future.
         if( convertifrequired && fullsourcefilepath )
         {
-            MyFileObject* pFile = ImportDataFile( sceneid, fullsourcefilepath );
+            WIN32_FIND_DATAA datafiledata;
+            memset( &datafiledata, 0, sizeof( datafiledata ) );
+            HANDLE datafilehandle = FindFirstFileA( relativepath, &datafiledata );
+            if( datafilehandle != INVALID_HANDLE_VALUE )
+                FindClose( datafilehandle );
 
-            if( pFile )
-                return pFile;
+            WIN32_FIND_DATAA sourcefiledata;
+            memset( &sourcefiledata, 0, sizeof( sourcefiledata ) );
+            HANDLE sourcefilehandle = FindFirstFileA( fullsourcefilepath, &sourcefiledata );
+            if( sourcefilehandle != INVALID_HANDLE_VALUE )
+                FindClose( sourcefilehandle );
+
+            // If the source file is newer than the data file (or data file doesn't exist), reimport it.
+            if( sourcefiledata.ftLastWriteTime.dwHighDateTime > datafiledata.ftLastWriteTime.dwHighDateTime ||
+                ( sourcefiledata.ftLastWriteTime.dwHighDateTime == datafiledata.ftLastWriteTime.dwHighDateTime &&
+                  sourcefiledata.ftLastWriteTime.dwLowDateTime > datafiledata.ftLastWriteTime.dwLowDateTime ) )
+            {
+                MyFileObject* pFile = ImportDataFile( sceneid, fullsourcefilepath );
+
+                if( pFile )
+                    return pFile;
+            }
         }
 #endif
         
@@ -984,15 +1003,21 @@ void ComponentSystemManager::LoadSceneFromJSON(const char* scenename, const char
             else
             {
                 cJSON* jPath = cJSON_GetObjectItem( jFile, "Path" );
+                cJSON* jSourcePath = cJSON_GetObjectItem( jFile, "SourcePath" );
                 if( jPath )
                 {
-                    LoadDataFile( jPath->valuestring, sceneid, 0, true );
+                    // Pass the source path in the LoadDataFile call.
+                    // If the file is missing or the source file is newer, we can re-import.
+                    if( jSourcePath == 0 )
+                        LoadDataFile( jPath->valuestring, sceneid, 0, false );
+                    else
+                        LoadDataFile( jPath->valuestring, sceneid, jSourcePath->valuestring, true );
 
+                    // Find the file object and set it's source path.
                     MyFileInfo* pFileInfo = GetFileInfoIfUsedByScene( jPath->valuestring, sceneid );
                     MyAssert( pFileInfo );
                     if( pFileInfo )
                     {
-                        cJSON* jSourcePath = cJSON_GetObjectItem( jFile, "SourcePath" );
                         if( jSourcePath )
                         {
                             strcpy_s( pFileInfo->m_SourceFileFullPath, MAX_PATH, jSourcePath->valuestring );

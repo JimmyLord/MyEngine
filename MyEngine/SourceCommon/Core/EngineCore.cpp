@@ -1718,7 +1718,7 @@ void EngineCore::OnObjectListTreeMultipleSelection() //StaticOnObjectListTreeMul
                     bool hascomponent = false;
                     for( unsigned int i=0; i<pGameObject->m_Components.Count()+1; i++ )
                     {
-                        if( i == 0 && pGameObject->m_pComponentTransform->IsA( pComponentToLookFor->GetClassname() ) == true )
+                        if( i == 0 && pGameObject->m_pComponentTransform && pGameObject->m_pComponentTransform->IsA( pComponentToLookFor->GetClassname() ) == true )
                         {
                             pComponentToLookFor->m_MultiSelectedComponents.push_back( pGameObject->m_pComponentTransform );
                             hascomponent = true;
