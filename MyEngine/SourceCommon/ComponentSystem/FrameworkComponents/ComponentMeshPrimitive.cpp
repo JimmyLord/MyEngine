@@ -19,9 +19,10 @@ MYFW_COMPONENT_IMPLEMENT_VARIABLE_LIST( ComponentMeshPrimitive ); //_VARIABLE_LI
 // These strings are used to save, so don't change them.
 const char* ComponentMeshPrimitiveTypeStrings[ComponentMeshPrimitive_NumTypes] =
 {
-    "Plane",
-    "Icosphere",
-    "2DCircle",
+    "Plane",       // ComponentMeshPrimitive_Plane
+    "Icosphere",   // ComponentMeshPrimitive_Icosphere
+    "2DCircle",    // ComponentMeshPrimitive_2DCircle
+    "Grass",       // ComponentMeshPrimitive_Grass
 };
 
 ComponentMeshPrimitive::ComponentMeshPrimitive()
@@ -141,6 +142,16 @@ bool ComponentMeshPrimitive::ShouldVariableBeAddedToWatchPanel(ComponentVariable
         if( strcmp( pVar->m_Label, "PlaneUVStart" ) == 0 )       return false;
         if( strcmp( pVar->m_Label, "PlaneUVRange" ) == 0 )       return false;
         if( strcmp( pVar->m_Label, "SphereRadius" ) == 0 )       return true;
+    }
+
+    if( m_MeshPrimitiveType == ComponentMeshPrimitive_Grass )
+    {
+        if( strcmp( pVar->m_Label, "PlaneSize" ) == 0 )          return true;
+        if( strcmp( pVar->m_Label, "PlaneVertCountx" ) == 0 )    return true;
+        if( strcmp( pVar->m_Label, "PlaneVertCounty" ) == 0 )    return true;
+        if( strcmp( pVar->m_Label, "PlaneUVStart" ) == 0 )       return true;
+        if( strcmp( pVar->m_Label, "PlaneUVRange" ) == 0 )       return false;
+        if( strcmp( pVar->m_Label, "SphereRadius" ) == 0 )       return false;
     }
 
     return ComponentMesh::ShouldVariableBeAddedToWatchPanel( pVar );
@@ -270,6 +281,10 @@ void ComponentMeshPrimitive::CreatePrimitive()
     else if( m_MeshPrimitiveType == ComponentMeshPrimitive_2DCircle )
     {
         m_pMesh->Create2DCircle( m_Sphere_Radius, 20 );
+    }
+    else if( m_MeshPrimitiveType == ComponentMeshPrimitive_Grass )
+    {
+        m_pMesh->CreateGrass( Vector3(-m_Plane_Size.x/2, 0, -m_Plane_Size.y/2), m_Plane_Size, m_Plane_VertCount, m_Plane_UVStart );
     }
 
     // Add the Mesh to the main scene graph
