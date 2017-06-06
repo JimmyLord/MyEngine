@@ -1,7 +1,7 @@
 uniform vec4 u_AmbientLight;
 
 uniform vec3 u_DirLightDir;
-uniform vec4 u_DirLightColor;
+uniform vec3 u_DirLightColor;
 
 #if NUM_LIGHTS > 0
     uniform vec3 u_LightPos[NUM_LIGHTS];

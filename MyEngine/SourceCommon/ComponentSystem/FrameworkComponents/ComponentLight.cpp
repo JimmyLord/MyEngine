@@ -176,6 +176,8 @@ ComponentLight& ComponentLight::operator=(const ComponentLight& other)
 
     ComponentData::operator=( other );
 
+    this->m_LightType = other.m_LightType;
+
     this->m_pLight->m_Color = other.m_pLight->m_Color;
     this->m_pLight->m_Attenuation = other.m_pLight->m_Attenuation;
 
@@ -234,7 +236,6 @@ void ComponentLight::OnGameObjectDisabled()
     if( m_pLight )
         g_pLightManager->SetLightEnabled( m_pLight, false );
 }
-
 
 bool ComponentLight::IsVisible()
 {

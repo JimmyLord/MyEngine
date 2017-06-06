@@ -13,7 +13,7 @@ void DirLightContribution(vec3 vertpos, vec3 campos, vec3 normal, float shinines
     vec3 lightcolor = u_DirLightColor;
 
     vec3 unnormalizedlightdirvector = lightdir;
-    vec3 lightdirvector = normalize( unnormalizedlightdirvector );
+    vec3 lightdirvector = normalize( unnormalizedlightdirvector ) * -1;
 
     // diffuse
     float diffperc = max( dot( normal, lightdirvector ), 0.0 );
@@ -77,7 +77,7 @@ float CalculateShadowPercentage()
 #endif
         
     if( texzdepth < projzdepth )
-        return 0.5;
+        return 0;
 #endif //ReceiveShadows
 
     return 1.0;

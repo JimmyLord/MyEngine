@@ -20,6 +20,8 @@ class ComponentCameraShadow : public ComponentCamera
 protected:
     FBODefinition* m_pDepthFBO;
 
+    MyLight* m_pLight;
+
 public:
     FBODefinition* GetFBO() { return m_pDepthFBO; }
     MyMatrix* GetViewProjMatrix();
@@ -38,6 +40,12 @@ public:
 
     virtual void RegisterCallbacks(); // TODO: change this component to use callbacks.
     virtual void UnregisterCallbacks(); // TODO: change this component to use callbacks.
+
+    virtual void OnGameObjectEnabled();
+    virtual void OnGameObjectDisabled();
+
+    static void StaticOnTransformChanged(void* pObjectPtr, Vector3& newpos, Vector3& newrot, Vector3& newscale, bool changedbyuserineditor) { ((ComponentCameraShadow*)pObjectPtr)->OnTransformChanged( newpos, newrot, newscale, changedbyuserineditor ); }
+    void OnTransformChanged(Vector3& newpos, Vector3& newrot, Vector3& newscale, bool changedbyuserineditor);
 
     virtual void Tick(double TimePassed);
     virtual void OnSurfaceChanged(unsigned int startx, unsigned int starty, unsigned int width, unsigned int height, unsigned int desiredaspectwidth, unsigned int desiredaspectheight);

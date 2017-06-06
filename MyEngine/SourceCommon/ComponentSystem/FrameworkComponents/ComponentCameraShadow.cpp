@@ -22,11 +22,16 @@ ComponentCameraShadow::ComponentCameraShadow()
 
     m_pComponentTransform = 0;
     m_pDepthFBO = 0;
+
+    m_pLight = 0;
 }
 
 ComponentCameraShadow::~ComponentCameraShadow()
 {
     SAFE_RELEASE( m_pDepthFBO );
+
+    if( m_pLight )
+        g_pLightManager->DestroyLight( m_pLight );
 }
 
 #if MYFW_USING_WX
@@ -48,6 +53,12 @@ void ComponentCameraShadow::FillPropertiesWindow(bool clear, bool addcomponentva
     if( m_PanelWatchBlockVisible || ignoreblockvisibleflag == true )
     {
         ComponentCamera::FillPropertiesWindow( clear );
+
+        if( m_pLight )
+        {
+            g_pPanelWatch->AddColorFloat( "Color", &m_pLight->m_Color, 0, 1 );
+            g_pPanelWatch->AddVector3( "Attenuation", &m_pLight->m_Attenuation, 0, 1 );
+        }
     }
 }
 
@@ -58,19 +69,22 @@ void ComponentCameraShadow::OnValueChanged(int controlid, bool finishedchanging)
 
 cJSON* ComponentCameraShadow::ExportAsJSONObject(bool savesceneid, bool saveid)
 {
-    cJSON* component = ComponentCamera::ExportAsJSONObject( savesceneid, saveid );
+    cJSON* jComponent = ComponentCamera::ExportAsJSONObject( savesceneid, saveid );
 
-    //cJSON_AddNumberToObject( component, "Ortho", m_Orthographic );
+    //cJSON_AddNumberToObject( jComponent, "Ortho", m_Orthographic );
 
-    //cJSON_AddNumberToObject( component, "DWidth", m_DesiredWidth );
-    //cJSON_AddNumberToObject( component, "DHeight", m_DesiredHeight );
+    //cJSON_AddNumberToObject( jComponent, "DWidth", m_DesiredWidth );
+    //cJSON_AddNumberToObject( jComponent, "DHeight", m_DesiredHeight );
 
-    //cJSON_AddNumberToObject( component, "ColorBit", m_ClearColorBuffer );
-    //cJSON_AddNumberToObject( component, "DepthBit", m_ClearDepthBuffer );
+    //cJSON_AddNumberToObject( jComponent, "ColorBit", m_ClearColorBuffer );
+    //cJSON_AddNumberToObject( jComponent, "DepthBit", m_ClearDepthBuffer );
 
-    //cJSON_AddNumberToObject( component, "Layers", m_LayersToRender );
+    //cJSON_AddNumberToObject( jComponent, "Layers", m_LayersToRender );
 
-    return component;
+    cJSONExt_AddFloatArrayToObject( jComponent, "Color", &m_pLight->m_Color.r, 4 );
+    cJSONExt_AddFloatArrayToObject( jComponent, "Atten", &m_pLight->m_Attenuation.x, 3 );
+
+    return jComponent;
 }
 
 void ComponentCameraShadow::ImportFromJSONObject(cJSON* jsonobj, unsigned int sceneid)
@@ -87,6 +101,15 @@ void ComponentCameraShadow::ImportFromJSONObject(cJSON* jsonobj, unsigned int sc
 
     //cJSONExt_GetUnsignedInt( jsonobj, "Layers", &m_LayersToRender );
 
+    cJSONExt_GetFloatArray( jsonobj, "Color", &m_pLight->m_Color.r, 4 );
+    cJSONExt_GetFloatArray( jsonobj, "Atten", &m_pLight->m_Attenuation.x, 3 );
+
+    MyAssert( m_pLight );
+
+    m_pLight->m_LightType = LightType_Directional;
+    m_pLight->m_Position = m_pGameObject->GetTransform()->GetWorldPosition();
+    m_pLight->m_SpotDirectionVector = m_pGameObject->GetTransform()->GetWorldTransform()->GetAt();
+
     ComputeProjectionMatrices();
 }
 
@@ -102,6 +125,18 @@ void ComponentCameraShadow::Reset()
 #else
     m_pDepthFBO = g_pTextureManager->CreateFBO( texres, texres, GL_LINEAR, GL_LINEAR, true, 32, true );
 #endif
+
+    if( m_pLight == 0 )
+    {
+        m_pLight = g_pLightManager->CreateLight();
+        m_pGameObject->m_pComponentTransform->RegisterTransformChangedCallback( this, StaticOnTransformChanged );
+    }
+
+    m_pLight->m_LightType = LightType_Point;
+    m_pLight->m_Position.Set( 0, 0, 0 );
+    m_pLight->m_SpotDirectionVector.Set( 0, 0, 0 );
+    m_pLight->m_Color.Set( 1, 1, 1, 1 );
+    m_pLight->m_Attenuation.Set( 0, 0, 0.09f );
 }
 
 ComponentCameraShadow& ComponentCameraShadow::operator=(const ComponentCameraShadow& other)
@@ -109,6 +144,9 @@ ComponentCameraShadow& ComponentCameraShadow::operator=(const ComponentCameraSha
     MyAssert( &other != this );
 
     ComponentCamera::operator=( other );
+
+    this->m_pLight->m_Color = other.m_pLight->m_Color;
+    this->m_pLight->m_Attenuation = other.m_pLight->m_Attenuation;
 
     return *this;
 }
@@ -156,6 +194,30 @@ void ComponentCameraShadow::UnregisterCallbacks()
 //
 //        m_CallbacksRegistered = false;
 //    }
+}
+
+void ComponentCameraShadow::OnGameObjectEnabled()
+{
+    ComponentBase::OnGameObjectEnabled();
+
+    if( m_pLight )
+        g_pLightManager->SetLightEnabled( m_pLight, true );
+}
+
+void ComponentCameraShadow::OnGameObjectDisabled()
+{
+    ComponentBase::OnGameObjectDisabled();
+
+    if( m_pLight )
+        g_pLightManager->SetLightEnabled( m_pLight, false );
+}
+
+void ComponentCameraShadow::OnTransformChanged(Vector3& newpos, Vector3& newrot, Vector3& newscale, bool changedbyuserineditor)
+{
+    MyAssert( m_pLight );
+
+    m_pLight->m_Position = m_pGameObject->GetTransform()->GetWorldPosition();
+    m_pLight->m_SpotDirectionVector = m_pGameObject->GetTransform()->GetWorldTransform()->GetAt();
 }
 
 void ComponentCameraShadow::Tick(double TimePassed)
