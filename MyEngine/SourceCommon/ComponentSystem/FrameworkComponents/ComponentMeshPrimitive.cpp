@@ -263,6 +263,8 @@ void ComponentMeshPrimitive::CreatePrimitive()
     if( m_pMesh->m_SubmeshList.Count() > 0 )
         m_pMesh->m_SubmeshList[0]->m_PrimitiveType = m_GLPrimitiveType;
 
+    m_pMesh->RegisterSetupCustomsUniformCallback( 0, 0 );
+
     if( m_MeshPrimitiveType == ComponentMeshPrimitive_Plane )
     {
         bool createtriangles = true;
@@ -285,12 +287,18 @@ void ComponentMeshPrimitive::CreatePrimitive()
     else if( m_MeshPrimitiveType == ComponentMeshPrimitive_Grass )
     {
         m_pMesh->CreateGrass( Vector3(-m_Plane_Size.x/2, 0, -m_Plane_Size.y/2), m_Plane_Size, m_Plane_VertCount, m_Plane_UVStart );
+        //m_pMesh->RegisterSetupCustomsUniformCallback( this, ComponentMeshPrimitive::StaticSetupCustomUniformsCallback );
     }
 
     // Add the Mesh to the main scene graph
     // TODO: remove the old mesh from the scene graph
     SceneGraphFlags flags = SceneGraphFlag_Opaque; // TODO: check if opaque or transparent
     AddToSceneGraph();
+}
+
+void ComponentMeshPrimitive::SetupCustomUniformsCallback(Shader_Base* pShader)
+{
+
 }
 
 void ComponentMeshPrimitive::DrawCallback(ComponentCamera* pCamera, MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride)

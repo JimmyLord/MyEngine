@@ -59,6 +59,10 @@ public:
 
     void CreatePrimitive();
 
+    // Mesh draw callback
+    static void StaticSetupCustomUniformsCallback(void* pObjectPtr, Shader_Base* pShader) { ((ComponentMeshPrimitive*)pObjectPtr)->SetupCustomUniformsCallback( pShader ); }
+    void SetupCustomUniformsCallback(Shader_Base* pShader);
+
 protected:
     // Callback functions for various events.
     //MYFW_DECLARE_COMPONENT_CALLBACK_TICK(); // TickCallback
