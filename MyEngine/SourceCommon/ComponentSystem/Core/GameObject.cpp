@@ -129,35 +129,28 @@ void GameObject::OnTitleLabelClicked(int controlid, bool finishedchanging)
 
 void GameObject::OnLeftClick(unsigned int count, bool clear)
 {
-    // select this GameObject in the editor window.
+    g_pEngineCore->OnObjectListTreeMultipleSelection();
+    return;
+}
+
+void GameObject::ShowInWatchPanel()
+{
     if( g_pEngineCore->m_pEditorState == 0 )
         return;
 
+    if( m_IsFolder )
+        return;
+
+    g_pPanelWatch->ClearAllVariables();
+    g_pEngineCore->OnObjectListTreeSelectionChanged();
+
+    // Select this GameObject in the editor window.
     if( g_pEngineCore->m_pEditorState->IsGameObjectSelected( this ) == false )
         g_pEngineCore->m_pEditorState->m_pSelectedObjects.push_back( this );
 
-    // if this is a folder, select all objects inside
-    if( m_IsFolder )
-    {
-        for( CPPListNode* pNode = m_ChildList.GetHead(); pNode; pNode = pNode->GetNext() )
-        {
-            // TODO: recurse through children
-            g_pEngineCore->m_pEditorState->m_pSelectedObjects.push_back( (GameObject*)pNode );
-        }
-    }
-
-    //LOGInfo( LOGTag, "Selected objects: %d\n", g_pEngineCore->m_pEditorState->m_pSelectedObjects.size() );
-
-    // only show properties of the first selected object.
-    if( g_pEngineCore->m_pEditorState->m_pSelectedObjects.size() > 1 )
-        return;
-
-    if( clear )
-        g_pPanelWatch->ClearAllVariables();
-
     g_pPanelWatch->SetObjectBeingWatched( this );
 
-    // show the gameobject name and an enabled checkbox.
+    // Show the gameobject name and an enabled checkbox.
     char tempname[100];
     if( m_Enabled )
     {
@@ -175,21 +168,20 @@ void GameObject::OnLeftClick(unsigned int count, bool clear)
     }
     g_pPanelWatch->AddSpace( tempname, this, GameObject::StaticOnTitleLabelClicked );
 
+    // Add variables from ComponentGameObjectProperties.
     m_Properties.FillPropertiesWindow( false );
 
+    // Add variables from ComponentTransform.
     if( m_pComponentTransform )
     {
-        if( count <= 1 )
-            m_pComponentTransform->m_MultiSelectedComponents.clear();
-
+        m_pComponentTransform->m_MultiSelectedComponents.clear();
         m_pComponentTransform->FillPropertiesWindow( false, true );
     }
 
+    // Add variables from all other components.
     for( unsigned int i=0; i<m_Components.Count(); i++ )
     {
-        if( count <= 1 )
-            m_Components[i]->m_MultiSelectedComponents.clear();
-
+        m_Components[i]->m_MultiSelectedComponents.clear();
         m_Components[i]->FillPropertiesWindow( false, true );
     }
 }
