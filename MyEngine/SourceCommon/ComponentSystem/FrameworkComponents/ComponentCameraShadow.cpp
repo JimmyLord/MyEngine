@@ -30,6 +30,8 @@ ComponentCameraShadow::~ComponentCameraShadow()
 {
     SAFE_RELEASE( m_pDepthFBO );
 
+    m_pGameObject->m_pComponentTransform->UnregisterTransformChangedCallbacks( this );
+
     if( m_pLight )
         g_pLightManager->DestroyLight( m_pLight );
 }

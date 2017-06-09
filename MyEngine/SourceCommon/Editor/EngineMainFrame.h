@@ -42,6 +42,7 @@ enum EngineMenuIDs
     myIDEngine_SaveSceneAs,
     myIDEngine_ExportBox2DScene,
     myIDEngine_AddDatafile,
+    myIDEngine_Grid_VisibleOnOff,
     myIDEngine_Grid_SnapOnOff,
     myIDEngine_Grid_Settings,
     myIDEngine_Mode_PlayStop,
@@ -78,6 +79,7 @@ enum EngineMenuIDs
 
 struct GridSettings
 {
+    bool visible;
     bool snapenabled;
     Vector3 stepsize;
 };
@@ -112,6 +114,7 @@ public:
     wxMenu* m_Hackery;
     wxMenu* m_Debug;
 
+    wxMenuItem* m_MenuItem_GridVisible;
     wxMenuItem* m_MenuItem_GridSnapEnabled;
     wxMenuItem* m_MenuItem_ShowEditorIcons;
     wxMenuItem* m_MenuItem_SelectedObjects_ShowWireframe;

@@ -217,6 +217,8 @@ public:
     void RenderSingleObject(GameObject* pObject);
     void GetMouseRay(Vector2 mousepos, Vector3* start, Vector3* end);
 
+    void SetGridVisible(bool visible);
+
     void SetEditorInterface(EditorInterfaceTypes type);
     EditorInterface* GetEditorInterface(EditorInterfaceTypes type);
     EditorInterface* GetCurrentEditorInterface();

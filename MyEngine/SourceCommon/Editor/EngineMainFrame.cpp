@@ -166,6 +166,7 @@ EngineMainFrame::EngineMainFrame()
     m_Hackery = 0;
     m_Debug = 0;
 
+    m_MenuItem_GridVisible = 0;
     m_MenuItem_GridSnapEnabled = 0;
     m_MenuItem_ShowEditorIcons = 0;
     m_MenuItem_SelectedObjects_ShowWireframe = 0;
@@ -183,6 +184,7 @@ EngineMainFrame::EngineMainFrame()
     m_SelectedObjects_ShowWireframe = true;
     m_SelectedObjects_ShowEffect = true;
 
+    m_GridSettings.visible = true;
     m_GridSettings.snapenabled = false;
     m_GridSettings.stepsize.Set( 5, 5, 5 );
 }
@@ -292,6 +294,7 @@ void EngineMainFrame::InitFrame()
 
     m_Grid = MyNew wxMenu;
     m_MenuBar->Append( m_Grid, wxT("&Grid") );
+    m_MenuItem_GridVisible = m_Grid->AppendCheckItem( myIDEngine_Grid_VisibleOnOff, wxT("Grid &On/Off\tCtrl-Shift-V") );
     m_MenuItem_GridSnapEnabled = m_Grid->AppendCheckItem( myIDEngine_Grid_SnapOnOff, wxT("Grid Snap &On/Off\tCtrl-G") );
     m_Grid->Append( myIDEngine_Grid_Settings, wxT("Grid &Settings\tCtrl-Shift-G") );
 
@@ -382,8 +385,9 @@ void EngineMainFrame::InitFrame()
 
     Connect( myIDEngine_AddDatafile,  wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );
 
-    Connect( myIDEngine_Grid_SnapOnOff, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );
-    Connect( myIDEngine_Grid_Settings,  wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );
+    Connect( myIDEngine_Grid_VisibleOnOff, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );
+    Connect( myIDEngine_Grid_SnapOnOff,    wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );
+    Connect( myIDEngine_Grid_Settings,     wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );
 
     Connect( myIDEngine_Mode_PlayStop,       wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );
     Connect( myIDEngine_Mode_Pause,          wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );
@@ -503,6 +507,9 @@ void EngineMainFrame::OnPostInit()
         cJSONExt_GetBool( m_pEditorPrefs, "SelectedObjects_ShowWireframe", &m_SelectedObjects_ShowWireframe );
         cJSONExt_GetBool( m_pEditorPrefs, "SelectedObjects_ShowEffect", &m_SelectedObjects_ShowEffect );
 
+        cJSONExt_GetBool( m_pEditorPrefs, "GridVisible", &m_GridSettings.visible );
+        g_pEngineCore->SetGridVisible( m_GridSettings.visible );
+
         cJSONExt_GetBool( m_pEditorPrefs, "GridSnapEnabled", &m_GridSettings.snapenabled );
         cJSONExt_GetFloatArray( m_pEditorPrefs, "GridStepSize", &m_GridSettings.stepsize.x, 3 );
 
@@ -599,6 +606,7 @@ bool EngineMainFrame::OnClose()
             extern GLViewTypes g_CurrentGLViewType;
             cJSON_AddNumberToObject( pPrefs, "GameAspectRatio", g_CurrentGLViewType );
 
+            cJSON_AddNumberToObject( pPrefs, "GridVisible", m_GridSettings.visible );
             cJSON_AddNumberToObject( pPrefs, "GridSnapEnabled", m_GridSettings.snapenabled );
             cJSONExt_AddFloatArrayToObject( pPrefs, "GridStepSize", &m_GridSettings.stepsize.x, 3 );
 
@@ -682,6 +690,9 @@ void EngineMainFrame::ResizeViewport()
 void EngineMainFrame::UpdateMenuItemStates()
 {
     MainFrame::UpdateMenuItemStates();
+
+    if( m_MenuItem_GridVisible )
+        m_MenuItem_GridVisible->Check( m_GridSettings.visible );
 
     if( m_MenuItem_GridSnapEnabled )
         m_MenuItem_GridSnapEnabled->Check( m_GridSettings.snapenabled );
@@ -808,6 +819,11 @@ void EngineMainFrame::OnMenu_Engine(wxCommandEvent& event)
 
     case myIDEngine_AddDatafile:
         AddDatafilesToScene();
+        break;
+
+    case myIDEngine_Grid_VisibleOnOff:
+        m_GridSettings.visible = !m_GridSettings.visible;
+        g_pEngineCore->SetGridVisible( m_GridSettings.visible );
         break;
 
     case myIDEngine_Grid_SnapOnOff:

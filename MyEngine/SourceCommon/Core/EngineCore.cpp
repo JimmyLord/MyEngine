@@ -1086,7 +1086,7 @@ void EngineCore::CreateDefaultEditorSceneObjects()
         pComponentMesh = (ComponentMesh*)pGameObject->AddNewComponent( ComponentType_Mesh, ENGINE_SCENE_ID );
         if( pComponentMesh )
         {
-            pComponentMesh->SetVisible( true ); // manually drawn when in editor mode.
+            pComponentMesh->SetVisible( g_pEngineMainFrame->m_GridSettings.visible );
             pComponentMesh->SetMaterial( m_pMaterial_3DGrid, 0 ); //( m_pShader_TransformGizmo );
             pComponentMesh->SetLayersThisExistsOn( Layer_Editor | Layer_EditorUnselectable );
             pComponentMesh->m_pMesh = MyNew MyMesh();
@@ -1608,6 +1608,15 @@ void EngineCore::GetMouseRay(Vector2 mousepos, Vector3* start, Vector3* end)
 
     start->Set( raystart.x, raystart.y, raystart.z );
     end->Set( rayend.x, rayend.y, rayend.z );
+}
+
+void EngineCore::SetGridVisible(bool visible)
+{
+    if( m_pEditorState->m_p3DGridPlane )
+    {
+        ComponentMesh* pComponentMesh = (ComponentMesh*)g_pEngineCore->m_pEditorState->m_p3DGridPlane->GetFirstComponentOfType( "MeshComponent" );
+        pComponentMesh->SetVisible( g_pEngineMainFrame->m_GridSettings.visible );
+    }
 }
 
 void EngineCore::SetEditorInterface(EditorInterfaceTypes type)
