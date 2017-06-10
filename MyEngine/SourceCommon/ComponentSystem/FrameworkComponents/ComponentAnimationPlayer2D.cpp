@@ -157,7 +157,7 @@ void* ComponentAnimationPlayer2D::OnValueChanged(ComponentVariable* pVar, bool c
     {
         if( changedbyinterface )
         {
-            wxString text = g_pPanelWatch->GetVariableProperties( pVar->m_ControlID )->m_Handle_TextCtrl->GetValue();
+            wxString text = g_pPanelWatch->GetVariableProperties( pVar->m_ControlID )->GetTextCtrl()->GetValue();
             if( text == "" || text == "none" || text == "no file" )
             {
                 g_pPanelWatch->ChangeDescriptionForPointerWithDescription( pVar->m_ControlID, "no file" );

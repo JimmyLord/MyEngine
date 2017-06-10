@@ -262,7 +262,7 @@ void* ComponentVoxelMesh::OnValueChanged(ComponentVariable* pVar, bool changedby
         {
             if( changedbyinterface ) // controlid will only be set if the control itself was changed.
             {
-                wxString text = g_pPanelWatch->GetVariableProperties( pVar->m_ControlID )->m_Handle_TextCtrl->GetValue();
+                wxString text = g_pPanelWatch->GetVariableProperties( pVar->m_ControlID )->GetTextCtrl()->GetValue();
                 if( text == "" || text == "none" )
                 {
                     g_pPanelWatch->ChangeDescriptionForPointerWithDescription( pVar->m_ControlID, "none" );

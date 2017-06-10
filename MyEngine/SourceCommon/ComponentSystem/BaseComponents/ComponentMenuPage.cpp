@@ -679,7 +679,7 @@ void ComponentMenuPage::OnValueChanged(int controlid, bool finishedchanging)
     {
         if( h_RenameInProgress == false )
         {
-            wxString newfullpath = g_pPanelWatch->GetVariableProperties( controlid )->m_Handle_TextCtrl->GetValue();
+            wxString newfullpath = g_pPanelWatch->GetVariableProperties( controlid )->GetTextCtrl()->GetValue();
             g_pPanelWatch->ChangeDescriptionForPointerWithDescription( controlid, newfullpath );
             RenameMenuPage( newfullpath );
             if( m_pMenuLayoutFile )

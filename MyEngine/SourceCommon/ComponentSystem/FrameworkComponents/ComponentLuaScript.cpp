@@ -341,7 +341,7 @@ void* ComponentLuaScript::OnValueChanged(ComponentVariable* pVar, bool changedby
     {
         if( changedbyinterface )
         {
-            wxString text = g_pPanelWatch->GetVariableProperties( pVar->m_ControlID )->m_Handle_TextCtrl->GetValue();
+            wxString text = g_pPanelWatch->GetVariableProperties( pVar->m_ControlID )->GetTextCtrl()->GetValue();
             if( text == "" || text == "none" || text == "no script" )
             {
                 g_pPanelWatch->ChangeDescriptionForPointerWithDescription( pVar->m_ControlID, "no script" );
@@ -507,7 +507,7 @@ void ComponentLuaScript::OnPanelWatchExposedVarValueChanged(int controlid, bool 
 
         MyAssert( pGameObject->IsA( "GameObject" ) );
 
-        wxString text = g_pPanelWatch->GetVariableProperties( controlid )->m_Handle_TextCtrl->GetValue();
+        wxString text = g_pPanelWatch->GetVariableProperties( controlid )->GetTextCtrl()->GetValue();
         if( text == "" || text == "none" || text == "no gameobject" )
         {
             g_pPanelWatch->ChangeDescriptionForPointerWithDescription( controlid, "no gameobject" );
