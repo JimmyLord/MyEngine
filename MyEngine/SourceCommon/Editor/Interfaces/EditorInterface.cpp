@@ -51,7 +51,15 @@ void EditorInterface::Tick(double TimePassed)
     // Force compile of m_pShader_TintColor (0 lights, 4 bones) to avoid stall on first click in mouse picker code.
     if( g_pEngineCore->m_pShader_TintColor )
     {
-        Shader_Base* pShader = (Shader_Base*)g_pEngineCore->m_pShader_TintColor->GlobalPass( 0, 4 );
+        Shader_Base* pShader;
+
+        // No lights, 4 bones. Used by mouse picker.
+        pShader = (Shader_Base*)g_pEngineCore->m_pShader_TintColor->GlobalPass( 0, 4 );
+        if( pShader->m_Initialized == false )
+            pShader->CompileShader();
+
+        // 4 lights, 0 bones. Used by transform gizmo.
+        pShader = (Shader_Base*)g_pEngineCore->m_pShader_TintColor->GlobalPass( 4, 0 );
         if( pShader->m_Initialized == false )
             pShader->CompileShader();
     }

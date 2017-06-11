@@ -331,7 +331,9 @@ double EngineCore::Tick(double TimePassed)
 #endif
 
     if( g_pImGuiManager )
+    {
         g_pImGuiManager->StartTick( TimePassed );
+    }
 
 #if MYFW_USING_WX
     m_pCurrentEditorInterface->Tick( TimePassed );
@@ -546,7 +548,15 @@ void EngineCore::OnFocusLost()
 void EngineCore::OnDrawFrameStart(unsigned int canvasid)
 {
     if( g_pImGuiManager )
-        g_pImGuiManager->StartFrame();
+    {
+#if MYFW_USING_WX
+        // In editor builds, only draw imgui interface over editor window.
+        if( canvasid == 1 )
+#endif
+        {
+            g_pImGuiManager->StartFrame();
+        }
+    }
 }
 
 void EngineCore::OnDrawFrame(unsigned int canvasid)
@@ -735,12 +745,15 @@ void EngineCore::OnDrawFrame(unsigned int canvasid)
     }
 #endif //MYFW_PROFILING_ENABLED
 
-#if MYFW_USING_WX
-    if( g_GLCanvasIDActive == 1 )
-#endif //MYFW_USING_WX
+    if( g_pImGuiManager )
     {
-        if( g_pImGuiManager )
+#if MYFW_USING_WX
+        // In editor builds, only draw imgui interface over editor window.
+        if( canvasid == 1 )
+#endif
+        {
             g_pImGuiManager->EndFrame( (float)windowrect.w, (float)windowrect.h, true );
+        }
     }
 }
 
