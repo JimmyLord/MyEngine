@@ -260,7 +260,7 @@ public:
     void OnPopupClick(wxEvent &evt);
 
     MenuItem* AddNewMenuItemToTree(int type);
-    void AddMenuItemToTree(unsigned int index, PanelObjectListCallbackLeftClick pLeftClickFunc, const char* desc);
+    void AddMenuItemToTree(unsigned int index, PanelObjectListObjectCallbackLeftClick pLeftClickFunc, const char* desc);
     void CopyUniqueItemsToOtherLayouts();
 
     // Watch panel callbacks.

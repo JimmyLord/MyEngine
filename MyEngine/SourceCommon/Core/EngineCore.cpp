@@ -79,6 +79,7 @@ EngineCore::EngineCore()
     g_pPanelObjectList->m_pCallbackFunctionObject = this;
     g_pPanelObjectList->m_pOnTreeSelectionChangedFunction = StaticOnObjectListTreeSelectionChanged;
     g_pPanelObjectList->m_pOnTreeMultipleSelectionFunction = StaticOnObjectListTreeMultipleSelection;
+    g_pPanelObjectList->m_pOnTreeDeleteSelectionFunction = StaticOnObjectListTreeDeleteSelection;
 
     m_pEditorInterfaces[EditorInterfaceType_SceneManagement] = MyNew EditorInterface_SceneManagement();
     m_pEditorInterfaces[EditorInterfaceType_2DPointEditor] = MyNew EditorInterface_2DPointEditor();
@@ -1805,5 +1806,11 @@ void EngineCore::OnObjectListTreeMultipleSelection() //StaticOnObjectListTreeMul
             }
         }
     }
+}
+
+void EngineCore::OnObjectListTreeDeleteSelection() //StaticOnObjectListTreeDeleteSelection
+{
+    // Delete the current selected gameobjects.
+    m_pEditorState->DeleteSelectedObjects();
 }
 #endif //MYFW_USING_WX

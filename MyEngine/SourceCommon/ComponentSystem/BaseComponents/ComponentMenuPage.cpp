@@ -555,7 +555,7 @@ void ComponentMenuPage::OnPopupClick(wxEvent &evt)
 MenuItem* ComponentMenuPage::AddNewMenuItemToTree(int type)
 {
     MenuItem* pMenuItem = 0;
-    PanelObjectListCallbackLeftClick pLeftClickFunc = 0;
+    PanelObjectListObjectCallbackLeftClick pLeftClickFunc = 0;
     const char* desc = 0;
 
     if( type == MIT_Button )
@@ -590,7 +590,7 @@ MenuItem* ComponentMenuPage::AddNewMenuItemToTree(int type)
     return pMenuItem;
 }
 
-void ComponentMenuPage::AddMenuItemToTree(unsigned int index, PanelObjectListCallbackLeftClick pLeftClickFunc, const char* desc)
+void ComponentMenuPage::AddMenuItemToTree(unsigned int index, PanelObjectListObjectCallbackLeftClick pLeftClickFunc, const char* desc)
 {
     MenuItem* pMenuItem = m_pMenuItems[index];
 
