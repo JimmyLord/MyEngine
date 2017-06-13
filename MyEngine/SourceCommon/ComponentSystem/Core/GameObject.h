@@ -181,6 +181,9 @@ public:
 
     void Editor_SetPrefab(PrefabObject* pPrefab) { m_pPrefab = pPrefab; UpdateObjectListIcon(); } // used when deleting prefabs
     void Editor_SetMaterial(MaterialDefinition* pMaterial);
+
+    // Editor functions
+    void AddToList(std::vector<GameObject*>* pList);
 #endif //MYFW_USING_WX
 };
 

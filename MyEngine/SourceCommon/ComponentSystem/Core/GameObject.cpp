@@ -343,12 +343,7 @@ void GameObject::OnPopupClick(wxEvent &evt)
         // delete all gameobjects in the folder, along with the folder itself.
         std::vector<GameObject*> gameobjects;
 
-        gameobjects.push_back( pGameObject ); // the folder itself.
-        for( CPPListNode* pNode = pGameObject->m_ChildList.GetHead(); pNode; pNode = pNode->GetNext() )
-        {
-            // TODO: recurse through children
-            gameobjects.push_back( (GameObject*)pNode );
-        }
+        pGameObject->AddToList( &gameobjects );
 
         g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_DeleteObjects( gameobjects ) );
     }
@@ -1263,4 +1258,22 @@ void GameObject::OnGameObjectDeleted(GameObject* pGameObject)
 void GameObject::OnTransformChanged(Vector3& newpos, Vector3& newrot, Vector3& newscale, bool changedbyuserineditor)
 {
     int bp = 1;
+}
+
+void GameObject::AddToList(std::vector<GameObject*>* pList)
+{
+    // Assert we're not already in the list.
+    MyAssert( std::find( pList->begin(), pList->end(), this ) == pList->end() );
+
+    // Select the object.
+    pList->push_back( this );
+
+    // If this is a folder, select all objects inside.
+    if( IsFolder() )
+    {
+        for( CPPListNode* pNode = GetChildList()->GetHead(); pNode; pNode = pNode->GetNext() )
+        {
+            ((GameObject*)pNode)->AddToList( pList );
+        }
+    }
 }

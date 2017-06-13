@@ -1733,8 +1733,7 @@ void EngineCore::OnObjectListTreeMultipleSelection() //StaticOnObjectListTreeMul
             {
                 for( CPPListNode* pNode = pGameObject->GetChildList()->GetHead(); pNode; pNode = pNode->GetNext() )
                 {
-                    // TODO: Recurse through children.
-                    g_pEngineCore->m_pEditorState->m_pSelectedObjects.push_back( (GameObject*)pNode );
+                    ((GameObject*)pNode)->AddToList( &g_pEngineCore->m_pEditorState->m_pSelectedObjects );
                 }
             }
         }
@@ -1810,6 +1809,39 @@ void EngineCore::OnObjectListTreeMultipleSelection() //StaticOnObjectListTreeMul
 
 void EngineCore::OnObjectListTreeDeleteSelection() //StaticOnObjectListTreeDeleteSelection
 {
+    if( m_pEditorState == 0 )
+        return;
+
+    g_pPanelWatch->ClearAllVariables();
+    OnObjectListTreeSelectionChanged();
+
+    wxArrayTreeItemIds selecteditems;
+    unsigned int numselected = (unsigned int)g_pPanelObjectList->m_pTree_Objects->GetSelections( selecteditems );
+
+    if( numselected == 0 )
+        return;
+
+    // Add all selected GameObjects to editor selection list.
+    for( unsigned int i=0; i<numselected; i++ )
+    {
+        wxTreeItemId id = selecteditems[i].GetID();
+        TreeItemDataGenericObjectInfo* pData = (TreeItemDataGenericObjectInfo*)g_pPanelObjectList->m_pTree_Objects->GetItemData( id );
+
+        MyAssert( pData && pData->m_pObject );
+
+        GameObject* pGameObject = 0;
+        
+        if( pData->m_pLeftClickFunction == GameObject::StaticOnLeftClick )
+            pGameObject = (GameObject*)pData->m_pObject;
+        else if( pData->m_pLeftClickFunction == PrefabObject::StaticOnLeftClick )
+            pGameObject = ((PrefabObject*)pData->m_pObject)->GetGameObject();
+
+        if( pGameObject )
+        {
+            pGameObject->AddToList( &g_pEngineCore->m_pEditorState->m_pSelectedObjects );
+        }
+    }
+
     // Delete the current selected gameobjects.
     m_pEditorState->DeleteSelectedObjects();
 }
