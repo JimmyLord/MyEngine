@@ -160,9 +160,11 @@ void SceneHandler::OnDrag()
 
 void SceneHandler::OnDrop(wxTreeItemId treeid, int controlid, wxCoord x, wxCoord y)
 {
-    if( g_DragAndDropStruct.m_Type == DragAndDropType_GameObjectPointer )
+    DragAndDropItem* pDropItem = g_DragAndDropStruct.GetItem( 0 );
+
+    if( pDropItem->m_Type == DragAndDropType_GameObjectPointer )
     {
-        GameObject* pGameObject = (GameObject*)g_DragAndDropStruct.m_Value;
+        GameObject* pGameObject = (GameObject*)pDropItem->m_Value;
 
         // If we dropped a gameobject on our scene, move the game object to the new scene.
         unsigned int sceneid = g_pComponentSystemManager->GetSceneIDFromSceneTreeID( treeid );
@@ -197,9 +199,9 @@ void SceneHandler::OnDrop(wxTreeItemId treeid, int controlid, wxCoord x, wxCoord
         SceneInfo* pScene = g_pComponentSystemManager->GetSceneInfo( sceneid );
     }
 
-    if( g_DragAndDropStruct.m_Type == DragAndDropTypeEngine_Prefab )
+    if( pDropItem->m_Type == DragAndDropTypeEngine_Prefab )
     {
-        PrefabObject* pPrefab = (PrefabObject*)g_DragAndDropStruct.m_Value;
+        PrefabObject* pPrefab = (PrefabObject*)pDropItem->m_Value;
 
         // If we dropped a gameobject on our scene, move the game object to the new scene.
         unsigned int sceneid = g_pComponentSystemManager->GetSceneIDFromSceneTreeID( treeid );

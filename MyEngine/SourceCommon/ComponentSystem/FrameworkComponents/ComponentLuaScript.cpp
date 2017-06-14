@@ -314,9 +314,11 @@ void* ComponentLuaScript::OnDrop(ComponentVariable* pVar, wxCoord x, wxCoord y)
 {
     void* oldvalue = 0;
 
-    if( g_DragAndDropStruct.m_Type == DragAndDropType_FileObjectPointer )
+    DragAndDropItem* pDropItem = g_DragAndDropStruct.GetItem( 0 );
+
+    if( pDropItem->m_Type == DragAndDropType_FileObjectPointer )
     {
-        MyFileObject* pFile = (MyFileObject*)g_DragAndDropStruct.m_Value;
+        MyFileObject* pFile = (MyFileObject*)pDropItem->m_Value;
         MyAssert( pFile );
 
         if( strcmp( pFile->GetExtensionWithDot(), ".lua" ) == 0 )
@@ -386,9 +388,11 @@ void* ComponentLuaScript::ProcessOnDropExposedVar(int controlid, wxCoord x, wxCo
 
     ComponentUpdateable::OnDrop( controlid, x, y );
 
-    if( g_DragAndDropStruct.m_Type == DragAndDropType_FileObjectPointer )
+    DragAndDropItem* pDropItem = g_DragAndDropStruct.GetItem( 0 );
+
+    if( pDropItem->m_Type == DragAndDropType_FileObjectPointer )
     {
-        MyFileObject* pFile = (MyFileObject*)g_DragAndDropStruct.m_Value;
+        MyFileObject* pFile = (MyFileObject*)pDropItem->m_Value;
         MyAssert( pFile );
 
         if( strcmp( pFile->GetExtensionWithDot(), ".lua" ) == 0 )
@@ -402,15 +406,15 @@ void* ComponentLuaScript::ProcessOnDropExposedVar(int controlid, wxCoord x, wxCo
         }
     }
 
-    if( g_DragAndDropStruct.m_Type == DragAndDropType_GameObjectPointer )
+    if( pDropItem->m_Type == DragAndDropType_GameObjectPointer )
     {
-        GameObject* pGameObject = (GameObject*)g_DragAndDropStruct.m_Value;
+        GameObject* pGameObject = (GameObject*)pDropItem->m_Value;
         MyAssert( pGameObject );
 
         MyAssert( m_ControlIDOfFirstExtern != -1 );
         if( m_ControlIDOfFirstExtern != -1 )
         {
-            int id = g_DragAndDropStruct.m_ID - m_ControlIDOfFirstExtern;
+            int id = g_DragAndDropStruct.GetControlID() - m_ControlIDOfFirstExtern;
         
             MyAssert( id < (int)m_ExposedVars.Count() );
             if( id < (int)m_ExposedVars.Count() )
@@ -426,7 +430,7 @@ void* ComponentLuaScript::ProcessOnDropExposedVar(int controlid, wxCoord x, wxCo
                 ((GameObject*)m_ExposedVars[id]->pointer)->RegisterOnDeleteCallback( this, StaticOnGameObjectDeleted );
 
                 // update the panel so new gameobject name shows up.
-                g_pPanelWatch->GetVariableProperties( g_DragAndDropStruct.m_ID )->m_Description = pGameObject->GetName();
+                g_pPanelWatch->GetVariableProperties( g_DragAndDropStruct.GetControlID() )->m_Description = pGameObject->GetName();
             }
         }
     }
@@ -729,9 +733,9 @@ void ComponentLuaScript::CopyExposedVarValueFromParent(ExposedVariableDesc* pVar
                         break;
 
                     case ExposedVariableType_GameObject:
-                        g_DragAndDropStruct.m_ID = pVar->controlID;
-                        g_DragAndDropStruct.m_Type = DragAndDropType_GameObjectPointer;
-                        g_DragAndDropStruct.m_Value = pOtherVar->pointer;
+                        g_DragAndDropStruct.Clear();
+                        g_DragAndDropStruct.SetControlID( pVar->controlID );
+                        g_DragAndDropStruct.Add( DragAndDropType_GameObjectPointer, pOtherVar->pointer );
                         OnDropExposedVar( pVar->controlID, 0, 0 );
                         break;
 

@@ -182,8 +182,7 @@ void PrefabObjectWxEventHandler::OnPopupClick(wxEvent &evt)
 
 void PrefabObject::OnDrag()
 {
-    g_DragAndDropStruct.m_Type = (DragAndDropTypes)DragAndDropTypeEngine_Prefab;
-    g_DragAndDropStruct.m_Value = this;
+    g_DragAndDropStruct.Add( (DragAndDropTypes)DragAndDropTypeEngine_Prefab, this );
 }
 
 void PrefabObject::OnDrop(int controlid, wxCoord x, wxCoord y)

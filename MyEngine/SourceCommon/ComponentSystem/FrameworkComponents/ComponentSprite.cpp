@@ -183,9 +183,11 @@ void* ComponentSprite::OnDrop(ComponentVariable* pVar, wxCoord x, wxCoord y)
 {
     void* oldvalue = 0;
 
-    if( g_DragAndDropStruct.m_Type == DragAndDropType_MaterialDefinitionPointer )
+    DragAndDropItem* pDropItem = g_DragAndDropStruct.GetItem( 0 );
+
+    if( pDropItem->m_Type == DragAndDropType_MaterialDefinitionPointer )
     {
-        MaterialDefinition* pMaterial = (MaterialDefinition*)g_DragAndDropStruct.m_Value;
+        MaterialDefinition* pMaterial = (MaterialDefinition*)pDropItem->m_Value;
         MyAssert( pMaterial );
         MyAssert( m_pSprite );
 

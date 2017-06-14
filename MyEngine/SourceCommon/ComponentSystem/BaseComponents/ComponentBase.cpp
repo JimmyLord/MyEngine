@@ -1731,26 +1731,26 @@ void ComponentBase::CopyValueFromParent(ComponentVariable* pVar)
 
             case ComponentVariableType_GameObjectPtr:
                 //*(GameObject**)((char*)this + offset) = *(GameObject**)((char*)pOtherComponent + offset);
-                g_DragAndDropStruct.m_ID = pVar->m_ControlID;
-                g_DragAndDropStruct.m_Type = DragAndDropType_GameObjectPointer;
-                g_DragAndDropStruct.m_Value = *(MyFileObject**)((char*)pOtherComponent + offset);
+                g_DragAndDropStruct.Clear();
+                g_DragAndDropStruct.SetControlID( pVar->m_ControlID );
+                g_DragAndDropStruct.Add( DragAndDropType_GameObjectPointer, *(MyFileObject**)((char*)pOtherComponent + offset) );
                 OnDropVariable( pVar->m_ControlID, 0, 0 );
                 // TODO: add to undo stack
                 break;
 
             case ComponentVariableType_FilePtr:
                 //*(MyFileObject**)((char*)this + offset) = *(MyFileObject**)((char*)pOtherComponent + offset);
-                g_DragAndDropStruct.m_ID = pVar->m_ControlID;
-                g_DragAndDropStruct.m_Type = DragAndDropType_FileObjectPointer;
-                g_DragAndDropStruct.m_Value = *(MyFileObject**)((char*)pOtherComponent + offset);
+                g_DragAndDropStruct.Clear();
+                g_DragAndDropStruct.SetControlID( pVar->m_ControlID );
+                g_DragAndDropStruct.Add( DragAndDropType_FileObjectPointer, *(MyFileObject**)((char*)pOtherComponent + offset) );
                 OnDropVariable( pVar->m_ControlID, 0, 0 );
                 // TODO: add to undo stack
                 break;
 
             case ComponentVariableType_MaterialPtr:
-                g_DragAndDropStruct.m_ID = pVar->m_ControlID;
-                g_DragAndDropStruct.m_Type = DragAndDropType_MaterialDefinitionPointer;
-                g_DragAndDropStruct.m_Value = *(void**)((char*)pOtherComponent + offset);
+                g_DragAndDropStruct.Clear();
+                g_DragAndDropStruct.SetControlID( pVar->m_ControlID );
+                g_DragAndDropStruct.Add( DragAndDropType_MaterialDefinitionPointer, *(void**)((char*)pOtherComponent + offset) );
                 OnDropVariable( pVar->m_ControlID, 0, 0 );
                 // TODO: add to undo stack
                 break;
@@ -1759,9 +1759,9 @@ void ComponentBase::CopyValueFromParent(ComponentVariable* pVar)
                 {
                     void* newvalue = *(void**)((char*)pOtherComponent + offset);
 
-                    g_DragAndDropStruct.m_ID = pVar->m_ControlID;
-                    g_DragAndDropStruct.m_Type = DragAndDropType_SoundCuePointer;
-                    g_DragAndDropStruct.m_Value = newvalue;
+                    g_DragAndDropStruct.Clear();
+                    g_DragAndDropStruct.SetControlID( pVar->m_ControlID );
+                    g_DragAndDropStruct.Add( DragAndDropType_SoundCuePointer, newvalue );
                     OnDropVariable( pVar->m_ControlID, 0, 0 );
 
                     // Different approach, but I don't like it,
@@ -1773,9 +1773,9 @@ void ComponentBase::CopyValueFromParent(ComponentVariable* pVar)
 
             case ComponentVariableType_ComponentPtr:
                 //*(ComponentBase**)((char*)this + offset) = *(ComponentBase**)((char*)pOtherComponent + offset);
-                g_DragAndDropStruct.m_ID = pVar->m_ControlID;
-                g_DragAndDropStruct.m_Type = DragAndDropType_ComponentPointer;
-                g_DragAndDropStruct.m_Value = *(MyFileObject**)((char*)pOtherComponent + offset);
+                g_DragAndDropStruct.Clear();
+                g_DragAndDropStruct.SetControlID( pVar->m_ControlID );
+                g_DragAndDropStruct.Add( DragAndDropType_ComponentPointer, *(MyFileObject**)((char*)pOtherComponent + offset) );
                 OnDropVariable( pVar->m_ControlID, 0, 0 );
                 // TODO: add to undo stack
                 break;
@@ -2253,8 +2253,7 @@ void ComponentBase::OnPopupClick(wxEvent &evt)
 
 void ComponentBase::OnDrag()
 {
-    g_DragAndDropStruct.m_Type = DragAndDropType_ComponentPointer;
-    g_DragAndDropStruct.m_Value = this;
+    g_DragAndDropStruct.Add( DragAndDropType_ComponentPointer, this );
 }
 
 void ComponentBase::OnDrop(int controlid, wxCoord x, wxCoord y)

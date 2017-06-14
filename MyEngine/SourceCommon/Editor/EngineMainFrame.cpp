@@ -1278,9 +1278,11 @@ void EngineMainFrame::OnDrop(int controlid, wxCoord x, wxCoord y)
     y = pCamera->m_WindowHeight - y; // prefer 0,0 at bottom left.
     GameObject* pObjectDroppedOn = g_pEngineCore->GetCurrentEditorInterface()->GetObjectAtPixel( x, y, true, false );
 
-    if( g_DragAndDropStruct.m_Type == DragAndDropType_MaterialDefinitionPointer )
+    DragAndDropItem* pDropItem = g_DragAndDropStruct.GetItem( 0 );
+
+    if( pDropItem->m_Type == DragAndDropType_MaterialDefinitionPointer )
     {
-        MaterialDefinition* pMaterial = (MaterialDefinition*)g_DragAndDropStruct.m_Value;
+        MaterialDefinition* pMaterial = (MaterialDefinition*)pDropItem->m_Value;
 
         if( pMaterial && pObjectDroppedOn )
         {
@@ -1289,9 +1291,9 @@ void EngineMainFrame::OnDrop(int controlid, wxCoord x, wxCoord y)
         }
     }
 
-    if( g_DragAndDropStruct.m_Type == DragAndDropType_TextureDefinitionPointer )
+    if( pDropItem->m_Type == DragAndDropType_TextureDefinitionPointer )
     {
-        TextureDefinition* pTexture = (TextureDefinition*)g_DragAndDropStruct.m_Value;
+        TextureDefinition* pTexture = (TextureDefinition*)pDropItem->m_Value;
 
         if( pTexture && pObjectDroppedOn && pObjectDroppedOn->GetMaterial() )
         {
@@ -1299,9 +1301,9 @@ void EngineMainFrame::OnDrop(int controlid, wxCoord x, wxCoord y)
         }
     }
 
-    if( g_DragAndDropStruct.m_Type == DragAndDropType_ShaderGroupPointer )
+    if( pDropItem->m_Type == DragAndDropType_ShaderGroupPointer )
     {
-        ShaderGroup* pShader = (ShaderGroup*)g_DragAndDropStruct.m_Value;
+        ShaderGroup* pShader = (ShaderGroup*)pDropItem->m_Value;
 
         if( pShader && pObjectDroppedOn && pObjectDroppedOn->GetMaterial() )
         {
@@ -1309,9 +1311,9 @@ void EngineMainFrame::OnDrop(int controlid, wxCoord x, wxCoord y)
         }
     }
 
-    if( g_DragAndDropStruct.m_Type == DragAndDropType_FileObjectPointer )
+    if( pDropItem->m_Type == DragAndDropType_FileObjectPointer )
     {
-        MyFileObject* pFile = (MyFileObject*)g_DragAndDropStruct.m_Value;
+        MyFileObject* pFile = (MyFileObject*)pDropItem->m_Value;
         MyAssert( pFile );
 
         if( pFile && strcmp( pFile->GetExtensionWithDot(), ".lua" ) == 0 )
@@ -1367,9 +1369,9 @@ void EngineMainFrame::OnDrop(int controlid, wxCoord x, wxCoord y)
         }
     }
 
-    if( g_DragAndDropStruct.m_Type == DragAndDropTypeEngine_Prefab )
+    if( pDropItem->m_Type == DragAndDropTypeEngine_Prefab )
     {
-        PrefabObject* pPrefab = (PrefabObject*)g_DragAndDropStruct.m_Value;
+        PrefabObject* pPrefab = (PrefabObject*)pDropItem->m_Value;
 
         // Default to drop into scene 1, but prefer putting in same scene as the object dropped on.
         unsigned int sceneid = 1;
@@ -1401,18 +1403,18 @@ void EngineMainFrame::OnDrop(int controlid, wxCoord x, wxCoord y)
         }
     }
 
-    //if( g_DragAndDropStruct.m_Type == DragAndDropType_GameObjectPointer )
+    //if( pDropItem->m_Type == DragAndDropType_GameObjectPointer )
     //{
-    //    GameObject* pGameObject = (GameObject*)g_DragAndDropStruct.m_Value;
+    //    GameObject* pGameObject = (GameObject*)pDropItem->m_Value;
     //    MyAssert( pGameObject );
 
-    //    int id = g_DragAndDropStruct.m_ID - m_ControlIDOfFirstExtern;
+    //    int id = g_DragAndDropStruct.GetControlID() - m_ControlIDOfFirstExtern;
     //    
     //    // TODO: this will make a mess of memory if different types of objects can be dragged in...
     //    m_ExposedVars[id]->pointer = pGameObject;
 
     //    // update the panel so new gameobject name shows up.
-    //    g_pPanelWatch->GetVariableProperties( g_DragAndDropStruct.m_ID )->m_Description = pGameObject->GetName();
+    //    g_pPanelWatch->GetVariableProperties( g_DragAndDropStruct.GetControlID() )->m_Description = pGameObject->GetName();
     //}
 }
 

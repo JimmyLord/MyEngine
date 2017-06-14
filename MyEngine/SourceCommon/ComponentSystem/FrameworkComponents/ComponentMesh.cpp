@@ -213,7 +213,9 @@ void* ComponentMesh::OnDropMaterial(ComponentVariable* pVar, wxCoord x, wxCoord 
 {
     void* oldvalue = 0;
 
-    if( g_DragAndDropStruct.m_Type == DragAndDropType_MaterialDefinitionPointer )
+    DragAndDropItem* pDropItem = g_DragAndDropStruct.GetItem( 0 );
+
+    if( pDropItem->m_Type == DragAndDropType_MaterialDefinitionPointer )
     {
         int materialthatchanged = -1;
         for( int i=0; i<MAX_SUBMESHES; i++ )
@@ -228,14 +230,14 @@ void* ComponentMesh::OnDropMaterial(ComponentVariable* pVar, wxCoord x, wxCoord 
         MyAssert( materialthatchanged != -1 );
         if( materialthatchanged != -1 )
         {
-            MaterialDefinition* pMaterial = (MaterialDefinition*)g_DragAndDropStruct.m_Value;
+            MaterialDefinition* pMaterial = (MaterialDefinition*)pDropItem->m_Value;
             MyAssert( pMaterial );
 
             oldvalue = GetMaterial( materialthatchanged );
             g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_ChangeMaterialOnMesh( this, pVar, materialthatchanged, pMaterial ) );
 
             // update the panel so new Material name shows up.
-            g_pPanelWatch->GetVariableProperties( g_DragAndDropStruct.m_ID )->m_Description = pMaterial->GetName();
+            g_pPanelWatch->GetVariableProperties( g_DragAndDropStruct.GetControlID() )->m_Description = pMaterial->GetName();
         }
     }
 

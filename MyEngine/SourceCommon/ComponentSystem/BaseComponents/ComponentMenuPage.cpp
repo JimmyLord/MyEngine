@@ -732,14 +732,16 @@ void ComponentMenuPage::OnDropComponent(int controlid, wxCoord x, wxCoord y)
 
     if( controlid == m_ControlID_ComponentCamera )
     {
-        if( g_DragAndDropStruct.m_Type == DragAndDropType_ComponentPointer )
+        DragAndDropItem* pDropItem = g_DragAndDropStruct.GetItem( 0 );
+
+        if( pDropItem->m_Type == DragAndDropType_ComponentPointer )
         {
-            pComponent = (ComponentBase*)g_DragAndDropStruct.m_Value;
+            pComponent = (ComponentBase*)pDropItem->m_Value;
         }
 
-        if( g_DragAndDropStruct.m_Type == DragAndDropType_GameObjectPointer )
+        if( pDropItem->m_Type == DragAndDropType_GameObjectPointer )
         {
-            pComponent = ((GameObject*)g_DragAndDropStruct.m_Value)->GetFirstComponentOfBaseType( BaseComponentType_Camera );
+            pComponent = ((GameObject*)pDropItem->m_Value)->GetFirstComponentOfBaseType( BaseComponentType_Camera );
         }
 
         if( pComponent && pComponent != this )
@@ -761,9 +763,11 @@ void ComponentMenuPage::OnDropComponent(int controlid, wxCoord x, wxCoord y)
 
 MYFW_PANELOBJECTLIST_DECLARE_CALLBACK_ONDROP(OnDropMenuItemOnMenuItem, ComponentMenuPage)
 {
-    if( g_DragAndDropStruct.m_Type == DragAndDropType_MenuItem )
+    DragAndDropItem* pDropItem = g_DragAndDropStruct.GetItem( 0 );
+
+    if( pDropItem->m_Type == DragAndDropType_MenuItem )
     {
-        MenuItem* pMenuItemDropped = (MenuItem*)g_DragAndDropStruct.m_Value;
+        MenuItem* pMenuItemDropped = (MenuItem*)pDropItem->m_Value;
         MenuItem* pMenuItemDroppedOn = (MenuItem*)g_pPanelObjectList->GetObject( id );
 
         if( pMenuItemDropped == pMenuItemDroppedOn )
@@ -807,9 +811,11 @@ MYFW_PANELOBJECTLIST_DECLARE_CALLBACK_ONDROP(OnDropMenuItemOnMenuItem, Component
 
 MYFW_PANELOBJECTLIST_DECLARE_CALLBACK_ONDROP(OnDropMenuItemOnMenuPage, ComponentMenuPage)
 {
-    if( g_DragAndDropStruct.m_Type == DragAndDropType_MenuItem )
+    DragAndDropItem* pDropItem = g_DragAndDropStruct.GetItem( 0 );
+
+    if( pDropItem->m_Type == DragAndDropType_MenuItem )
     {
-        MenuItem* pMenuItemDropped = (MenuItem*)g_DragAndDropStruct.m_Value;
+        MenuItem* pMenuItemDropped = (MenuItem*)pDropItem->m_Value;
 
         if( m_pMenuItems[0] == pMenuItemDropped )
             return;

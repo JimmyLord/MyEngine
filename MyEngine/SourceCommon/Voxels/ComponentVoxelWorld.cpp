@@ -199,19 +199,21 @@ void* ComponentVoxelWorld::OnDrop(ComponentVariable* pVar, wxCoord x, wxCoord y)
 {
     void* oldvalue = 0;
 
-    if( g_DragAndDropStruct.m_Type == DragAndDropType_ComponentPointer )
+    DragAndDropItem* pDropItem = g_DragAndDropStruct.GetItem( 0 );
+
+    if( pDropItem->m_Type == DragAndDropType_ComponentPointer )
     {
-        (ComponentBase*)g_DragAndDropStruct.m_Value;
+        (ComponentBase*)pDropItem->m_Value;
     }
 
-    if( g_DragAndDropStruct.m_Type == DragAndDropType_GameObjectPointer )
+    if( pDropItem->m_Type == DragAndDropType_GameObjectPointer )
     {
-        (GameObject*)g_DragAndDropStruct.m_Value;
+        (GameObject*)pDropItem->m_Value;
     }
 
-    if( g_DragAndDropStruct.m_Type == DragAndDropType_MaterialDefinitionPointer )
+    if( pDropItem->m_Type == DragAndDropType_MaterialDefinitionPointer )
     {
-        MaterialDefinition* pMaterial = (MaterialDefinition*)g_DragAndDropStruct.m_Value;
+        MaterialDefinition* pMaterial = (MaterialDefinition*)pDropItem->m_Value;
         MyAssert( pMaterial );
 
         oldvalue = m_pMaterial;
@@ -220,7 +222,7 @@ void* ComponentVoxelWorld::OnDrop(ComponentVariable* pVar, wxCoord x, wxCoord y)
         // update the panel so new Material name shows up.
         const char* shortdesc = pMaterial->GetMaterialShortDescription();
         if( shortdesc )
-            g_pPanelWatch->GetVariableProperties( g_DragAndDropStruct.m_ID )->m_Description = shortdesc;
+            g_pPanelWatch->GetVariableProperties( g_DragAndDropStruct.GetControlID() )->m_Description = shortdesc;
     }
 
     return oldvalue;

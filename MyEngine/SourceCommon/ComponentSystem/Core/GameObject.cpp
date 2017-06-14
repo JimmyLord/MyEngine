@@ -358,15 +358,16 @@ void GameObject::OnPopupClick(wxEvent &evt)
 
 void GameObject::OnDrag()
 {
-    g_DragAndDropStruct.m_Type = DragAndDropType_GameObjectPointer;
-    g_DragAndDropStruct.m_Value = this;
+    g_DragAndDropStruct.Add( DragAndDropType_GameObjectPointer, this );
 }
 
 void GameObject::OnDrop(int controlid, wxCoord x, wxCoord y)
 {
-    if( g_DragAndDropStruct.m_Type == DragAndDropType_GameObjectPointer )
+    DragAndDropItem* pDropItem = g_DragAndDropStruct.GetItem( 0 );
+
+    if( pDropItem->m_Type == DragAndDropType_GameObjectPointer )
     {
-        GameObject* pGameObject = (GameObject*)g_DragAndDropStruct.m_Value;
+        GameObject* pGameObject = (GameObject*)pDropItem->m_Value;
 
         // if we're dropping this object on itself, kick out.
         if( pGameObject == this )
@@ -480,9 +481,9 @@ void GameObject::Editor_SetMaterial(MaterialDefinition* pMaterial)
                 // Go through same code to drop a material on the component, so inheritance and undo/redo will be handled
                 ComponentVariable* pVar = pRenderable->GetComponentVariableForMaterial( submeshindex );
 
-                g_DragAndDropStruct.m_Type = DragAndDropType_MaterialDefinitionPointer;
-                g_DragAndDropStruct.m_ID = pVar->m_ControlID;
-                g_DragAndDropStruct.m_Value = pMaterial;
+                g_DragAndDropStruct.Clear();
+                g_DragAndDropStruct.SetControlID( pVar->m_ControlID );
+                g_DragAndDropStruct.Add( DragAndDropType_MaterialDefinitionPointer, pMaterial );
 
                 pRenderable->OnDropVariable( pVar, 0, -1, -1 );
             }

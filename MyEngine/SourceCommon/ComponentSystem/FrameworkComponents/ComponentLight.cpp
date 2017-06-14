@@ -126,7 +126,9 @@ void* ComponentLight::OnDrop(ComponentVariable* pVar, wxCoord x, wxCoord y)
 {
     void* oldpointer = 0;
 
-    //if( g_DragAndDropStruct.m_Type == DragAndDropType_ComponentPointer )
+    //DragAndDropItem* pDropItem = g_DragAndDropStruct.GetItem( 0 );
+
+    //if( pDropItem->m_Type == DragAndDropType_ComponentPointer )
     //{
     //}
 

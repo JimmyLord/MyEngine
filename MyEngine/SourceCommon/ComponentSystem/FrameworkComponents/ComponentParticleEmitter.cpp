@@ -166,16 +166,18 @@ void ComponentParticleEmitter::FillPropertiesWindow(bool clear, bool addcomponen
 
 void ComponentParticleEmitter::OnDropMaterial(int controlid, wxCoord x, wxCoord y)
 {
-    if( g_DragAndDropStruct.m_Type == DragAndDropType_MaterialDefinitionPointer )
+    DragAndDropItem* pDropItem = g_DragAndDropStruct.GetItem( 0 );
+
+    if( pDropItem->m_Type == DragAndDropType_MaterialDefinitionPointer )
     {
-        MaterialDefinition* pMaterial = (MaterialDefinition*)g_DragAndDropStruct.m_Value;
+        MaterialDefinition* pMaterial = (MaterialDefinition*)pDropItem->m_Value;
         MyAssert( pMaterial );
 
         SetMaterial( pMaterial, 0 );
 
         // update the panel so new Material name shows up.
         if( pMaterial->GetFile() )
-            g_pPanelWatch->GetVariableProperties( g_DragAndDropStruct.m_ID )->m_Description = pMaterial->GetMaterialShortDescription();
+            g_pPanelWatch->GetVariableProperties( g_DragAndDropStruct.GetControlID() )->m_Description = pMaterial->GetMaterialShortDescription();
     }
 }
 #endif //MYFW_USING_WX

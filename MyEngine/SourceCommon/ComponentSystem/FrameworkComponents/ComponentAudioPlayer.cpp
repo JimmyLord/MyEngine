@@ -112,23 +112,25 @@ void* ComponentAudioPlayer::OnDrop(ComponentVariable* pVar, wxCoord x, wxCoord y
 {
     void* oldvalue = 0;
 
-    if( g_DragAndDropStruct.m_Type == DragAndDropType_SoundCuePointer )
+    DragAndDropItem* pDropItem = g_DragAndDropStruct.GetItem( 0 );
+
+    if( pDropItem->m_Type == DragAndDropType_SoundCuePointer )
     {
-        //SetSoundCue( (SoundCue*)g_DragAndDropStruct.m_Value );
-        g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_ChangeSoundCue( this, (SoundCue*)g_DragAndDropStruct.m_Value ) );
+        //SetSoundCue( (SoundCue*)pDropItem->m_Value );
+        g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_ChangeSoundCue( this, (SoundCue*)pDropItem->m_Value ) );
 
         // update the panel so new sound cue name shows up.
         g_pPanelWatch->ChangeDescriptionForPointerWithDescription( pVar->m_ControlID, m_SoundCueName );
     }
 
-    //if( g_DragAndDropStruct.m_Type == DragAndDropType_ComponentPointer )
+    //if( pDropItem->m_Type == DragAndDropType_ComponentPointer )
     //{
-    //    (ComponentBase*)g_DragAndDropStruct.m_Value;
+    //    (ComponentBase*)pDropItem->m_Value;
     //}
 
-    //if( g_DragAndDropStruct.m_Type == DragAndDropType_GameObjectPointer )
+    //if( pDropItem->m_Type == DragAndDropType_GameObjectPointer )
     //{
-    //    (GameObject*)g_DragAndDropStruct.m_Value;
+    //    (GameObject*)pDropItem->m_Value;
     //}
 
     return oldvalue;

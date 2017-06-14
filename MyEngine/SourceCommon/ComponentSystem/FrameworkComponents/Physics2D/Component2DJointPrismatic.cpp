@@ -136,9 +136,11 @@ void* Component2DJointPrismatic::OnDrop(ComponentVariable* pVar, wxCoord x, wxCo
 {
     void* oldvalue = m_pSecondCollisionObject;
 
-    if( g_DragAndDropStruct.m_Type == DragAndDropType_ComponentPointer )
+    DragAndDropItem* pDropItem = g_DragAndDropStruct.GetItem( 0 );
+
+    if( pDropItem->m_Type == DragAndDropType_ComponentPointer )
     {
-        ComponentBase* pComponent = (ComponentBase*)g_DragAndDropStruct.m_Value;
+        ComponentBase* pComponent = (ComponentBase*)pDropItem->m_Value;
 
         if( pComponent->IsA( "2DCollisionObjectComponent" ) )
         {
@@ -146,9 +148,9 @@ void* Component2DJointPrismatic::OnDrop(ComponentVariable* pVar, wxCoord x, wxCo
         }        
     }
 
-    if( g_DragAndDropStruct.m_Type == DragAndDropType_GameObjectPointer )
+    if( pDropItem->m_Type == DragAndDropType_GameObjectPointer )
     {
-        GameObject* pGameObject = (GameObject*)g_DragAndDropStruct.m_Value;
+        GameObject* pGameObject = (GameObject*)pDropItem->m_Value;
 
         m_pSecondCollisionObject = pGameObject->Get2DCollisionObject();
     }

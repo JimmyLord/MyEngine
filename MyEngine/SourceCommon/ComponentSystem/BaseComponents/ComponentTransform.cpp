@@ -201,14 +201,16 @@ void* ComponentTransform::OnDropTransform(ComponentVariable* pVar, wxCoord x, wx
 
     ComponentTransform* pComponent = 0;
 
-    if( g_DragAndDropStruct.m_Type == DragAndDropType_ComponentPointer )
+    DragAndDropItem* pDropItem = g_DragAndDropStruct.GetItem( 0 );
+
+    if( pDropItem->m_Type == DragAndDropType_ComponentPointer )
     {
-        pComponent = (ComponentTransform*)g_DragAndDropStruct.m_Value;
+        pComponent = (ComponentTransform*)pDropItem->m_Value;
     }
 
-    if( g_DragAndDropStruct.m_Type == DragAndDropType_GameObjectPointer )
+    if( pDropItem->m_Type == DragAndDropType_GameObjectPointer )
     {
-        pComponent = ((GameObject*)g_DragAndDropStruct.m_Value)->m_pComponentTransform;
+        pComponent = ((GameObject*)pDropItem->m_Value)->m_pComponentTransform;
     }
 
     if( pComponent )
@@ -223,7 +225,7 @@ void* ComponentTransform::OnDropTransform(ComponentVariable* pVar, wxCoord x, wx
         }
 
         // update the panel so new OBJ name shows up.
-        g_pPanelWatch->GetVariableProperties( g_DragAndDropStruct.m_ID )->m_Description = m_pParentTransform->m_pGameObject->GetName();
+        g_pPanelWatch->GetVariableProperties( g_DragAndDropStruct.GetControlID() )->m_Description = m_pParentTransform->m_pGameObject->GetName();
     }
 
     return oldvalue;

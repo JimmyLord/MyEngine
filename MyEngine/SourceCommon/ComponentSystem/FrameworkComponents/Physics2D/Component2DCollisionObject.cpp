@@ -188,14 +188,16 @@ void* Component2DCollisionObject::OnDrop(ComponentVariable* pVar, wxCoord x, wxC
 {
     void* oldvalue = 0;
 
-    if( g_DragAndDropStruct.m_Type == DragAndDropType_ComponentPointer )
+    DragAndDropItem* pDropItem = g_DragAndDropStruct.GetItem( 0 );
+
+    if( pDropItem->m_Type == DragAndDropType_ComponentPointer )
     {
-        (ComponentBase*)g_DragAndDropStruct.m_Value;
+        (ComponentBase*)pDropItem->m_Value;
     }
 
-    if( g_DragAndDropStruct.m_Type == DragAndDropType_GameObjectPointer )
+    if( pDropItem->m_Type == DragAndDropType_GameObjectPointer )
     {
-        (GameObject*)g_DragAndDropStruct.m_Value;
+        (GameObject*)pDropItem->m_Value;
     }
 
     return oldvalue;
