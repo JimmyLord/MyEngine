@@ -363,40 +363,45 @@ void GameObject::OnDrag()
 
 void GameObject::OnDrop(int controlid, wxCoord x, wxCoord y)
 {
-    DragAndDropItem* pDropItem = g_DragAndDropStruct.GetItem( 0 );
+    // If you drop a game object on another, parent them or move above/below depending on the "y".
+    // The bounding rect will change once the first item is moved, so get the rect once before moving things.
+    wxTreeItemId treeid = g_pPanelObjectList->FindObject( this );
+    wxRect rect;
+    g_pPanelObjectList->m_pTree_Objects->GetBoundingRect( treeid, rect, false );
 
-    if( pDropItem->m_Type == DragAndDropType_GameObjectPointer )
+    // Move/Reparent all of the selected items.
+    for( int i=g_DragAndDropStruct.GetItemCount()-1; i>=0; i-- )
     {
-        GameObject* pGameObject = (GameObject*)pDropItem->m_Value;
+        DragAndDropItem* pDropItem = g_DragAndDropStruct.GetItem( i );
 
-        // if we're dropping this object on itself, kick out.
-        if( pGameObject == this )
-            return;
-
-        // Change the dropped gameobject's sceneid to match this one.
-        pGameObject->SetSceneID( this->GetSceneID() );
-
-        // if you drop a game object on another, parent them or move above/below depending on the "y"
-        wxTreeItemId treeid = g_pPanelObjectList->FindObject( this );
-        wxRect rect;
-        g_pPanelObjectList->m_pTree_Objects->GetBoundingRect( treeid, rect, false );
-
-        // range must match code in PanelObjectListDropTarget::OnDragOver // TODO: fix this
-        if( y > rect.GetBottom() - 10 )
+        if( pDropItem->m_Type == DragAndDropType_GameObjectPointer )
         {
-            // move below the selected item
-            g_pPanelObjectList->Tree_MoveObject( pGameObject, this, false );
-            pGameObject->MoveAfter( this );
-            GameObject* thisparent = this->GetParentGameObject();
-            pGameObject->SetParentGameObject( thisparent );
-        }
-        else
-        {
-            // Parent the object dropped to this.
-            pGameObject->SetParentGameObject( this );
+            GameObject* pGameObject = (GameObject*)pDropItem->m_Value;
 
-            // move as first item in parent
-            g_pPanelObjectList->Tree_MoveObject( pGameObject, this, true );
+            // If we're dropping this object on itself, kick out.
+            if( pGameObject == this )
+                continue;
+
+            // Change the dropped gameobject's sceneid to match this one.
+            pGameObject->SetSceneID( this->GetSceneID() );
+
+            // Range must match code in PanelObjectListDropTarget::OnDragOver. // TODO: fix this
+            if( y > rect.GetBottom() - 10 )
+            {
+                // move below the selected item
+                g_pPanelObjectList->Tree_MoveObject( pGameObject, this, false );
+                pGameObject->MoveAfter( this );
+                GameObject* thisparent = this->GetParentGameObject();
+                pGameObject->SetParentGameObject( thisparent );
+            }
+            else
+            {
+                // Parent the object dropped to this.
+                pGameObject->SetParentGameObject( this );
+
+                // Move as first item in parent.
+                g_pPanelObjectList->Tree_MoveObject( pGameObject, this, true );
+            }
         }
     }
 }
