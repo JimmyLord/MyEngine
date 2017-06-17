@@ -171,6 +171,7 @@ EngineMainFrame::EngineMainFrame()
     m_MenuItem_ShowEditorIcons = 0;
     m_MenuItem_SelectedObjects_ShowWireframe = 0;
     m_MenuItem_SelectedObjects_ShowEffect = 0;
+    m_MenuItem_Mode_SwitchFocusOnPlayStop = 0;
 
     m_MenuItem_Debug_DrawMousePickerFBO = 0;
     m_MenuItem_Debug_DrawSelectedAnimatedMesh = 0;
@@ -183,6 +184,7 @@ EngineMainFrame::EngineMainFrame()
     m_ShowEditorIcons = true;
     m_SelectedObjects_ShowWireframe = true;
     m_SelectedObjects_ShowEffect = true;
+    m_Mode_SwitchFocusOnPlayStop = true;
 
     m_GridSettings.visible = true;
     m_GridSettings.snapenabled = false;
@@ -300,12 +302,12 @@ void EngineMainFrame::InitFrame()
 
     m_PlayPauseStop = MyNew wxMenu;
     m_MenuBar->Append( m_PlayPauseStop, wxT("&Mode") );
+    m_MenuItem_Mode_SwitchFocusOnPlayStop = m_PlayPauseStop->AppendCheckItem( myIDEngine_Mode_SwitchFocusOnPlayStop, wxT("Switch &Focus on Play/Stop") );    
     m_PlayPauseStop->Append( myIDEngine_Mode_PlayStop, wxT("&Play/Stop\tCtrl-SPACE") );
     m_PlayPauseStop->Append( myIDEngine_Mode_Pause, wxT("Pause\tCtrl-.") );
     m_PlayPauseStop->Append( myIDEngine_Mode_Advance1Frame, wxT("Advance 1 Frame\tCtrl-]") );
     m_PlayPauseStop->Append( myIDEngine_Mode_Advance1Second, wxT("Advance 1 Second\tCtrl-[") );
     m_PlayPauseStop->Append( myIDEngine_Mode_LaunchGame, wxT("&Launch Game\tCtrl-F5") );
-    //m_PlayPauseStop->Append( myIDEngine_Mode_Stop, wxT("&Stop\tCtrl-SPACE") );
 
     m_Data = MyNew wxMenu;
     m_MenuBar->Append( m_Data, wxT("&Data") );
@@ -389,12 +391,12 @@ void EngineMainFrame::InitFrame()
     Connect( myIDEngine_Grid_SnapOnOff,    wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );
     Connect( myIDEngine_Grid_Settings,     wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );
 
-    Connect( myIDEngine_Mode_PlayStop,       wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );
-    Connect( myIDEngine_Mode_Pause,          wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );
-    Connect( myIDEngine_Mode_Advance1Frame,  wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );
-    Connect( myIDEngine_Mode_Advance1Second, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );
-    Connect( myIDEngine_Mode_LaunchGame,     wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );    
-    //Connect( myIDEngine_Mode_Stop,           wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );
+    Connect( myIDEngine_Mode_SwitchFocusOnPlayStop, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );
+    Connect( myIDEngine_Mode_PlayStop,              wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );
+    Connect( myIDEngine_Mode_Pause,                 wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );
+    Connect( myIDEngine_Mode_Advance1Frame,         wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );
+    Connect( myIDEngine_Mode_Advance1Second,        wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );
+    Connect( myIDEngine_Mode_LaunchGame,            wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );    
 
     Connect( myIDEngine_RecordMacro,  wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );
     Connect( myIDEngine_ExecuteMacro, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );
@@ -506,6 +508,7 @@ void EngineMainFrame::OnPostInit()
         cJSONExt_GetBool( m_pEditorPrefs, "ShowIcons", &m_ShowEditorIcons );
         cJSONExt_GetBool( m_pEditorPrefs, "SelectedObjects_ShowWireframe", &m_SelectedObjects_ShowWireframe );
         cJSONExt_GetBool( m_pEditorPrefs, "SelectedObjects_ShowEffect", &m_SelectedObjects_ShowEffect );
+        cJSONExt_GetBool( m_pEditorPrefs, "Mode_SwitchFocusOnPlayStop", &m_Mode_SwitchFocusOnPlayStop );
 
         cJSONExt_GetBool( m_pEditorPrefs, "GridVisible", &m_GridSettings.visible );
         g_pEngineCore->SetGridVisible( m_GridSettings.visible );
@@ -594,6 +597,7 @@ bool EngineMainFrame::OnClose()
             cJSON_AddNumberToObject( pPrefs, "ShowIcons", m_ShowEditorIcons );
             cJSON_AddNumberToObject( pPrefs, "SelectedObjects_ShowWireframe", m_SelectedObjects_ShowWireframe );
             cJSON_AddNumberToObject( pPrefs, "SelectedObjects_ShowEffect", m_SelectedObjects_ShowEffect );
+            cJSON_AddNumberToObject( pPrefs, "Mode_SwitchFocusOnPlayStop", m_Mode_SwitchFocusOnPlayStop );
 
             const char* relativepath = GetRelativePath( g_pComponentSystemManager->GetSceneInfo( 1 )->m_FullPath );
             if( relativepath )
@@ -705,6 +709,9 @@ void EngineMainFrame::UpdateMenuItemStates()
 
     if( m_MenuItem_SelectedObjects_ShowEffect )
         m_MenuItem_SelectedObjects_ShowEffect->Check( m_SelectedObjects_ShowEffect );
+
+    if( m_MenuItem_Mode_SwitchFocusOnPlayStop )
+        m_MenuItem_Mode_SwitchFocusOnPlayStop->Check( m_Mode_SwitchFocusOnPlayStop );
 
     if( g_pEngineCore )
     {
@@ -844,6 +851,10 @@ void EngineMainFrame::OnMenu_Engine(wxCommandEvent& event)
         }
         break;
 
+    case myIDEngine_Mode_SwitchFocusOnPlayStop:
+        m_Mode_SwitchFocusOnPlayStop = !m_Mode_SwitchFocusOnPlayStop;
+        break;
+
     case myIDEngine_Mode_PlayStop:
         g_pEngineCore->OnModeTogglePlayStop();
         break;
@@ -863,10 +874,6 @@ void EngineMainFrame::OnMenu_Engine(wxCommandEvent& event)
     case myIDEngine_Mode_LaunchGame:
         LaunchApplication( "MyEngine_Game.exe", g_pComponentSystemManager->GetSceneInfo( 1 )->m_FullPath );
         break;
-
-    //case myIDEngine_Mode_Stop:
-    //    g_pEngineCore->OnModeTogglePlayStop();
-    //    break;
 
     case myIDEngine_RecordMacro:
         m_Hackery_Record_StackDepth = (int)m_pCommandStack->GetUndoStackSize();

@@ -45,12 +45,12 @@ enum EngineMenuIDs
     myIDEngine_Grid_VisibleOnOff,
     myIDEngine_Grid_SnapOnOff,
     myIDEngine_Grid_Settings,
+    myIDEngine_Mode_SwitchFocusOnPlayStop,
     myIDEngine_Mode_PlayStop,
     myIDEngine_Mode_Pause,
     myIDEngine_Mode_Advance1Frame,
     myIDEngine_Mode_Advance1Second,
     myIDEngine_Mode_LaunchGame,
-    //myIDEngine_Mode_Stop,
     myIDEngine_RecordMacro,
     myIDEngine_ExecuteMacro,
     myIDEngine_View_EditorPerspectives,
@@ -120,6 +120,8 @@ public:
     wxMenuItem* m_MenuItem_SelectedObjects_ShowWireframe;
     wxMenuItem* m_MenuItem_SelectedObjects_ShowEffect;
 
+    wxMenuItem* m_MenuItem_Mode_SwitchFocusOnPlayStop;
+
     wxMenuItem* m_MenuItem_Debug_DrawMousePickerFBO;
     wxMenuItem* m_MenuItem_Debug_DrawSelectedAnimatedMesh;
     wxMenuItem* m_MenuItem_Debug_DrawGLStats;
@@ -133,6 +135,7 @@ public:
     bool m_ShowEditorIcons;
     bool m_SelectedObjects_ShowWireframe;
     bool m_SelectedObjects_ShowEffect;
+    bool m_Mode_SwitchFocusOnPlayStop;
     GridSettings m_GridSettings;
 
     int m_Hackery_Record_StackDepth;

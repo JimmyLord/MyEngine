@@ -548,6 +548,8 @@ void EngineCore::OnFocusLost()
 
 void EngineCore::OnDrawFrameStart(unsigned int canvasid)
 {
+    GameCore::OnDrawFrameStart( canvasid );
+
     if( g_pImGuiManager )
     {
 #if MYFW_USING_WX
@@ -949,10 +951,22 @@ void EngineCore::OnModeTogglePlayStop()
     if( m_EditorMode )
     {
         OnModePlay();
+        
+        // Set focus to gameplay window.
+        if( g_pEngineMainFrame->m_Mode_SwitchFocusOnPlayStop )
+        {
+            g_pEngineMainFrame->m_pGLCanvas->SetFocus();
+        }
     }
     else
     {
         OnModeStop();
+
+        // Set focus to editor window.
+        if( g_pEngineMainFrame->m_Mode_SwitchFocusOnPlayStop )
+        {
+            g_pEngineMainFrame->m_pGLCanvasEditor->SetFocus();
+        }
     }
 }
 
