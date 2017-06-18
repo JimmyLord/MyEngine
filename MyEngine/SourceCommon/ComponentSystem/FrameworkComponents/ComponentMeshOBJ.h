@@ -21,7 +21,7 @@ protected:
 public:
     ComponentMeshOBJ();
     virtual ~ComponentMeshOBJ();
-    SetClassnameWithParent( "MeshOBJComponent", ComponentRenderable ); // only first 8 character count.
+    SetClassnameWith2Parents( "MeshOBJComponent", ComponentMesh, ComponentRenderable ); // only first 8 character count.
 
     virtual cJSON* ExportAsJSONObject(bool savesceneid, bool saveid);
     virtual void ImportFromJSONObject(cJSON* jsonobj, unsigned int sceneid);

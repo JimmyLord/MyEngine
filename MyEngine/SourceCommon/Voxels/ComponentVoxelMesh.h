@@ -26,7 +26,7 @@ protected:
 public:
     ComponentVoxelMesh();
     virtual ~ComponentVoxelMesh();
-    SetClassnameWithParent( "VoxelMeshComponent", ComponentRenderable ); // only first 8 character count.
+    SetClassnameWith2Parents( "VoxelMeshComponent", ComponentMesh, ComponentRenderable ); // only first 8 character count.
 
 #if MYFW_USING_LUA
     static void LuaRegister(lua_State* luastate);

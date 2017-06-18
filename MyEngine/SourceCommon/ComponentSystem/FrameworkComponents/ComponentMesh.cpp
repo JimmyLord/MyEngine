@@ -53,6 +53,8 @@ ComponentMesh::ComponentMesh()
     m_GLPrimitiveType = GL_TRIANGLES;
     m_PointSize = 1;
 
+    m_pComponentLuaScript = 0;
+
     g_pEventManager->RegisterForEvents( Event_ShaderFinishedLoading, this, &ComponentMesh::StaticOnEvent );
 }
 
@@ -100,6 +102,8 @@ void ComponentMesh::Reset()
     SAFE_RELEASE( m_pMesh );
     for( unsigned int i=0; i<MAX_SUBMESHES; i++ )
         SAFE_RELEASE( m_MaterialList[i] );
+
+    m_pComponentLuaScript = 0;
 
 #if MYFW_USING_WX
     m_pPanelWatchBlockVisible = &m_PanelWatchBlockVisible;
@@ -367,6 +371,23 @@ void ComponentMesh::UnregisterCallbacks()
     }
 }
 
+void ComponentMesh::OnPlay()
+{
+    ComponentBase::OnPlay();
+
+    m_pMesh->RegisterSetupCustomsUniformCallback( 0, 0 );
+
+    if( m_pComponentLuaScript == 0 )
+    {
+        m_pComponentLuaScript = (ComponentLuaScript*)m_pGameObject->GetFirstComponentOfType( "LuaScriptComponent" );
+
+        if( m_pComponentLuaScript )
+        {
+            m_pMesh->RegisterSetupCustomsUniformCallback( this, ComponentMesh::StaticSetupCustomUniformsCallback );
+        }
+    }
+}
+
 bool ComponentMesh::OnEvent(MyEvent* pEvent)
 {
     // Testing: when any material finishes loading, set the material again to fix the flags of the scenegraphobject
@@ -546,6 +567,14 @@ MyAABounds* ComponentMesh::GetBounds()
         return m_pMesh->GetBounds();
 
     return 0;
+}
+
+void ComponentMesh::SetupCustomUniformsCallback(Shader_Base* pShader) // StaticSetupCustomUniformsCallback
+{
+    if( m_pComponentLuaScript )
+    {
+        m_pComponentLuaScript->CallFunction( "SetupCustomUniforms" );//, pShader );
+    }
 }
 
 void ComponentMesh::TickCallback(double TimePassed)

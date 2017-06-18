@@ -45,7 +45,7 @@ public:
 public:
     ComponentMeshPrimitive();
     virtual ~ComponentMeshPrimitive();
-    SetClassnameWithParent( "MeshPrimitiveComponent", ComponentRenderable ); // only first 8 character count.
+    SetClassnameWith2Parents( "MeshPrimitiveComponent", ComponentMesh, ComponentRenderable ); // only first 8 character count.
 
     virtual cJSON* ExportAsJSONObject(bool savesceneid, bool saveid);
     virtual void ImportFromJSONObject(cJSON* jsonobj, unsigned int sceneid);
@@ -58,10 +58,6 @@ public:
     virtual void UnregisterCallbacks();
 
     void CreatePrimitive();
-
-    // Mesh draw callback
-    static void StaticSetupCustomUniformsCallback(void* pObjectPtr, Shader_Base* pShader) { ((ComponentMeshPrimitive*)pObjectPtr)->SetupCustomUniformsCallback( pShader ); }
-    void SetupCustomUniformsCallback(Shader_Base* pShader);
 
 protected:
     // Callback functions for various events.

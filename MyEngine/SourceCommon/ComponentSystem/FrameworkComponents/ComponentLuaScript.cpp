@@ -107,12 +107,19 @@ void ComponentLuaScript::CreateNewScriptFile()
         wxString initialpath = "./Data/Scripts";
 
         bool ismenuactionscript = false;
+        bool ismeshscript = false;
 
-        // if a menupage component is attached to this game objects, then offer to make the file in the menus folder.
+        // If a ComponentMenuPage is attached to this game object, then offer to make the file in the menus folder.
         if( m_pGameObject->GetFirstComponentOfType( "MenuPageComponent" ) != 0 )
         {
             ismenuactionscript = true;
             initialpath = "./Data/Menus";
+        }
+
+        // If a ComponentMesh is attached to this game object, then add a SetupCustomUniforms callback.
+        if( m_pGameObject->GetFirstComponentOfType( "MeshComponent" ) != 0 )
+        {
+            ismeshscript = true;
         }
 
         wxFileDialog FileDialog( g_pEngineMainFrame, _("Create Lua script file"), initialpath, "", "Lua script files (*.lua)|*.lua", wxFD_SAVE|wxFD_OVERWRITE_PROMPT);
@@ -179,6 +186,14 @@ void ComponentLuaScript::CreateNewScriptFile()
                         fprintf( file, "Tick = function(timepassed)\n" );
                         fprintf( file, "end\n" );
                         fprintf( file, "\n" );
+
+                        if( ismeshscript )
+                        {
+                            fprintf( file, "SetupCustomUniforms = function(shader)\n" );
+                            fprintf( file, "end\n" );
+                            fprintf( file, "\n" );
+                        }
+
                         fprintf( file, "}\n" );
                     }
 

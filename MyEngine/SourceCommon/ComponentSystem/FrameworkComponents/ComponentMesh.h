@@ -33,6 +33,10 @@ public:
     int m_GLPrimitiveType;
     int m_PointSize;
 
+protected:
+    // Vars to allow script object callbacks
+    ComponentLuaScript* m_pComponentLuaScript;
+
 public:
     ComponentMesh();
     virtual ~ComponentMesh();
@@ -52,6 +56,8 @@ public:
 
     virtual void RegisterCallbacks();
     virtual void UnregisterCallbacks();
+
+    virtual void OnPlay();
 
     static bool StaticOnEvent(void* pObjectPtr, MyEvent* pEvent) { return ((ComponentMesh*)pObjectPtr)->OnEvent( pEvent ); }
     virtual bool OnEvent(MyEvent* pEvent);
@@ -76,6 +82,10 @@ public:
     virtual void PushChangesToSceneGraphObjects();
 
     virtual MyAABounds* GetBounds();
+
+    // Mesh draw callback
+    static void StaticSetupCustomUniformsCallback(void* pObjectPtr, Shader_Base* pShader) { ((ComponentMesh*)pObjectPtr)->SetupCustomUniformsCallback( pShader ); }
+    void SetupCustomUniformsCallback(Shader_Base* pShader);
 
 protected:
     // Callback functions for various events.
