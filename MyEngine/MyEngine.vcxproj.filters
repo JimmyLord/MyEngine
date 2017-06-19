@@ -399,6 +399,9 @@
     <ClCompile Include="SourceCommon\ComponentSystem\BaseComponents\ComponentVariableValue.cpp">
       <Filter>Source\ComponentSystem\Base Components</Filter>
     </ClCompile>
+    <ClCompile Include="SourceCommon\Core\LuaGLFunctions.cpp">
+      <Filter>Source\Core Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SourceCommon\Camera\Camera3D.h">
@@ -748,6 +751,9 @@
     </ClInclude>
     <ClInclude Include="SourceCommon\ComponentSystem\BaseComponents\ComponentVariableValue.h">
       <Filter>Source\ComponentSystem\Base Components</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCommon\Core\LuaGLFunctions.h">
+      <Filter>Source\Core Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

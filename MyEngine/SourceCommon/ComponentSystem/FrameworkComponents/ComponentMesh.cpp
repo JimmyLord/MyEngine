@@ -573,7 +573,7 @@ void ComponentMesh::SetupCustomUniformsCallback(Shader_Base* pShader) // StaticS
 {
     if( m_pComponentLuaScript )
     {
-        m_pComponentLuaScript->CallFunction( "SetupCustomUniforms" );//, pShader );
+        m_pComponentLuaScript->CallFunction( "SetupCustomUniforms", pShader->m_ProgramHandle );
     }
 }
 

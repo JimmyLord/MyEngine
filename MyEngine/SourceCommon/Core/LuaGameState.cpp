@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2014-2016 Jimmy Lord http://www.flatheadgames.com
+// Copyright (c) 2014-2017 Jimmy Lord http://www.flatheadgames.com
 //
 // This software is provided 'as-is', without any express or implied warranty.  In no event will the authors be held liable for any damages arising from the use of this software.
 // Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -47,7 +47,7 @@ void LuaBridgeExt_LogExceptionFormattedForVisualStudioOutputWindow(const char* u
         }
     }
 
-    LOGInfo( LOGTag, "%s(%d): %s: %s - %s\n", fullpath, linenumber, userdata, &what[errori], what );
+    LOGError( LOGTag, "%s(%d): %s: %s - %s\n", fullpath, linenumber, userdata, &what[errori], what );
 }
 
 LuaGameState::LuaGameState()
@@ -89,6 +89,9 @@ void LuaGameState::RegisterClasses()
     luabridge::getGlobalNamespace( m_pLuaState ).addFunction( "GetSystemTime", MyTime_GetSystemTime );
     luabridge::getGlobalNamespace( m_pLuaState ).addFunction( "GetRunningTime", MyTime_GetRunningTime );
     luabridge::getGlobalNamespace( m_pLuaState ).addFunction( "GetUnpausedTime", MyTime_GetUnpausedTime );
+
+    // Register some GL functions.
+    LuaRegisterGLFunctions( m_pLuaState );
 
     // register Framework classes.
     luabridge::getGlobalNamespace( m_pLuaState )

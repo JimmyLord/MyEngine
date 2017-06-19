@@ -184,16 +184,16 @@ void ComponentLuaScript::CreateNewScriptFile()
                         fprintf( file, "end,\n" );
                         fprintf( file, "\n" );
                         fprintf( file, "Tick = function(timepassed)\n" );
-                        fprintf( file, "end\n" );
-                        fprintf( file, "\n" );
 
                         if( ismeshscript )
                         {
-                            fprintf( file, "SetupCustomUniforms = function(shader)\n" );
-                            fprintf( file, "end\n" );
+                            fprintf( file, "end,\n" );
                             fprintf( file, "\n" );
+                            fprintf( file, "SetupCustomUniforms = function(programhandle)\n" );
                         }
 
+                        fprintf( file, "end\n" );
+                        fprintf( file, "\n" );
                         fprintf( file, "}\n" );
                     }
 

@@ -53,6 +53,7 @@ extern "C"
 #pragma warning( disable : 4640 )
 #include "../../Libraries/LuaBridge/LuaBridge.h"
 #pragma warning( pop )
+#include "Core/LuaGLFunctions.h"
 #include "Core/LuaGameState.h"
 #endif //MYFW_USING_LUA
 
