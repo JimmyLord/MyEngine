@@ -63,7 +63,7 @@ void MyUniform4f(GLint location, GLfloat v0, GLfloat v1, GLfloat v2, GLfloat v3)
 
 void MyUniform1fv(GLint location, GLsizei count, const luabridge::LuaRef value)
 {
-    if( count*1 != value.length() )
+    if( count*1 > value.length() )
     {
         LOGError( LOGTag, "glUniform1fv called with wrong number of floats" );
         return;
@@ -82,59 +82,107 @@ void MyUniform1fv(GLint location, GLsizei count, const luabridge::LuaRef value)
 
 void MyUniform2fv(GLint location, GLsizei count, const luabridge::LuaRef value)
 {
-    if( count*2 != value.length() )
+    if( count > value.length() )
     {
-        LOGError( LOGTag, "glUniform2fv called with wrong number of floats" );
+        LOGError( LOGTag, "glUniform2fv called with wrong number of Vector2s" );
         return;
     }
 
     MyStackAllocator::MyStackPointer stackpointer;
-    float* values = (float*)g_pEngineCore->m_SingleFrameMemoryStack.AllocateBlock( sizeof(float)*2*count, &stackpointer );
+    Vector2* values = (Vector2*)g_pEngineCore->m_SingleFrameMemoryStack.AllocateBlock( sizeof(Vector2)*count, &stackpointer );
 
-    for( int i=0; i<count*2; i++ )
+    for( int i=0; i<count; i++ )
         values[i] = value[i+1]; // LUA array starts at index 1.
 
-    glUniform2fv( location, count, values );
+    glUniform2fv( location, count, &values[0].x );
 
     g_pEngineCore->m_SingleFrameMemoryStack.RewindStack( stackpointer );
+
+    //if( count*2 > value.length() )
+    //{
+    //    LOGError( LOGTag, "glUniform2fv called with wrong number of floats" );
+    //    return;
+    //}
+
+    //MyStackAllocator::MyStackPointer stackpointer;
+    //float* values = (float*)g_pEngineCore->m_SingleFrameMemoryStack.AllocateBlock( sizeof(float)*2*count, &stackpointer );
+
+    //for( int i=0; i<count*2; i++ )
+    //    values[i] = value[i+1]; // LUA array starts at index 1.
+
+    //glUniform2fv( location, count, values );
+
+    //g_pEngineCore->m_SingleFrameMemoryStack.RewindStack( stackpointer );
 }
 
 void MyUniform3fv(GLint location, GLsizei count, const luabridge::LuaRef value)
 {
-    if( count*3 != value.length() )
+    if( count > value.length() )
     {
-        LOGError( LOGTag, "glUniform3fv called with wrong number of floats" );
+        LOGError( LOGTag, "glUniform3fv called with wrong number of Vector3s" );
         return;
     }
 
     MyStackAllocator::MyStackPointer stackpointer;
-    float* values = (float*)g_pEngineCore->m_SingleFrameMemoryStack.AllocateBlock( sizeof(float)*3*count, &stackpointer );
+    Vector3* values = (Vector3*)g_pEngineCore->m_SingleFrameMemoryStack.AllocateBlock( sizeof(Vector3)*count, &stackpointer );
 
-    for( int i=0; i<count*3; i++ )
+    for( int i=0; i<count; i++ )
         values[i] = value[i+1]; // LUA array starts at index 1.
 
-    glUniform3fv( location, count, values );
+    glUniform3fv( location, count, &values[0].x );
 
     g_pEngineCore->m_SingleFrameMemoryStack.RewindStack( stackpointer );
+
+    //if( count*3 > value.length() )
+    //{
+    //    LOGError( LOGTag, "glUniform3fv called with wrong number of floats" );
+    //    return;
+    //}
+
+    //MyStackAllocator::MyStackPointer stackpointer;
+    //float* values = (float*)g_pEngineCore->m_SingleFrameMemoryStack.AllocateBlock( sizeof(float)*3*count, &stackpointer );
+
+    //for( int i=0; i<count*3; i++ )
+    //    values[i] = value[i+1]; // LUA array starts at index 1.
+
+    //glUniform3fv( location, count, values );
+
+    //g_pEngineCore->m_SingleFrameMemoryStack.RewindStack( stackpointer );
 }
 
 void MyUniform4fv(GLint location, GLsizei count, const luabridge::LuaRef value)
 {
-    if( count*4 != value.length() )
+    if( count > value.length() )
     {
-        LOGError( LOGTag, "glUniform4fv called with wrong number of floats" );
+        LOGError( LOGTag, "glUniform4fv called with wrong number of Vector4s" );
         return;
     }
 
     MyStackAllocator::MyStackPointer stackpointer;
-    float* values = (float*)g_pEngineCore->m_SingleFrameMemoryStack.AllocateBlock( sizeof(float)*4*count, &stackpointer );
+    Vector4* values = (Vector4*)g_pEngineCore->m_SingleFrameMemoryStack.AllocateBlock( sizeof(Vector4)*count, &stackpointer );
 
-    for( int i=0; i<count*4; i++ )
+    for( int i=0; i<count; i++ )
         values[i] = value[i+1]; // LUA array starts at index 1.
 
-    glUniform4fv( location, count, values );
+    glUniform4fv( location, count, &values[0].x );
 
     g_pEngineCore->m_SingleFrameMemoryStack.RewindStack( stackpointer );
+
+    //if( count*4 > value.length() )
+    //{
+    //    LOGError( LOGTag, "glUniform4fv called with wrong number of floats" );
+    //    return;
+    //}
+
+    //MyStackAllocator::MyStackPointer stackpointer;
+    //float* values = (float*)g_pEngineCore->m_SingleFrameMemoryStack.AllocateBlock( sizeof(float)*4*count, &stackpointer );
+
+    //for( int i=0; i<count*4; i++ )
+    //    values[i] = value[i+1]; // LUA array starts at index 1.
+
+    //glUniform4fv( location, count, values );
+
+    //g_pEngineCore->m_SingleFrameMemoryStack.RewindStack( stackpointer );
 }
 
 #endif //MYFW_USING_LUA
