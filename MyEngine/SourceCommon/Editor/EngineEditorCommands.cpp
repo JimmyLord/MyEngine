@@ -1200,4 +1200,107 @@ EditorCommand* EditorCommand_ComponentVariableIndirectPointerChanged::Repeat()
 }
 
 //====================================================================================================
+// EditorCommand_ReorderOrReparentGameObjects
+//====================================================================================================
+
+EditorCommand_ReorderOrReparentGameObjects::EditorCommand_ReorderOrReparentGameObjects(const std::vector<GameObject*>& selectedobjects, GameObject* pObjectDroppedOn, bool setaschild)
+{
+    for( unsigned int i=0; i<selectedobjects.size(); i++ )
+    {
+        m_SelectedObjects.push_back( selectedobjects[i] );
+
+        m_OldSceneIDs.push_back( selectedobjects[i]->GetSceneID() );
+        m_OldPreviousObjectInList.push_back( (GameObject*)selectedobjects[i]->GetPrev() );
+        m_OldParent.push_back( selectedobjects[i]->GetParentGameObject() );
+    }
+
+    m_pObjectDroppedOn = pObjectDroppedOn;
+    m_MakeSelectedObjectsChildren = setaschild;
+}
+
+EditorCommand_ReorderOrReparentGameObjects::~EditorCommand_ReorderOrReparentGameObjects()
+{
+}
+
+void EditorCommand_ReorderOrReparentGameObjects::Do()
+{
+    // Move/Reparent all of the selected items.
+    for( int i=m_SelectedObjects.size()-1; i>=0; i-- )
+    {
+        GameObject* pGameObject = (GameObject*)m_SelectedObjects[i];
+
+        // Change the selected gameobject's sceneid to match the one dropped on.
+        pGameObject->SetSceneID( m_pObjectDroppedOn->GetSceneID() );
+
+        if( m_MakeSelectedObjectsChildren == false )
+        {
+            // Move below the selected item.
+            g_pPanelObjectList->Tree_MoveObject( pGameObject, m_pObjectDroppedOn, false );
+            pGameObject->MoveAfter( m_pObjectDroppedOn );
+            GameObject* thisparent = m_pObjectDroppedOn->GetParentGameObject();
+            pGameObject->SetParentGameObject( thisparent );
+        }
+        else
+        {
+            // Parent the object dropped to this.
+            pGameObject->SetParentGameObject( m_pObjectDroppedOn );
+
+            // Move as first item in parent.
+            g_pPanelObjectList->Tree_MoveObject( pGameObject, m_pObjectDroppedOn, true );
+        }
+    }
+}
+
+void EditorCommand_ReorderOrReparentGameObjects::Undo()
+{
+    // Move/Reparent all of the selected items.
+    for( unsigned int i=0; i<m_SelectedObjects.size(); i++ )
+    {
+        GameObject* pGameObject = (GameObject*)m_SelectedObjects[i];
+
+        // Change the selected gameobject's sceneid back to it's original.
+        pGameObject->SetSceneID( m_OldSceneIDs[i] );
+
+        // If this wasn't the first child of a parent object.
+        if( m_OldPreviousObjectInList[i] != 0 )
+        {
+            // Move back to old position.
+            g_pPanelObjectList->Tree_MoveObject( pGameObject, m_OldPreviousObjectInList[i], false );
+            pGameObject->MoveAfter( m_OldPreviousObjectInList[i] );
+            pGameObject->SetParentGameObject( m_OldParent[i] );
+
+            MyAssert( m_OldPreviousObjectInList[i]->GetParentGameObject() == m_OldParent[i] );
+        }
+        else
+        {
+            // If this was the first object in the scene.
+            if( m_OldParent[i] == 0 )
+            {
+                // Move the wx tree item to the correct spot.
+                wxTreeItemId treeidtomove = g_pPanelObjectList->FindObject( pGameObject );
+                wxTreeItemId scenetreeid = g_pComponentSystemManager->GetSceneInfo( m_OldSceneIDs[i] )->m_TreeID;
+                g_pPanelObjectList->Tree_MoveObject( treeidtomove, scenetreeid, true );
+
+                // Unparent the gameobject and move it be be first in the scene list.
+                pGameObject->SetParentGameObject( 0 );
+                g_pComponentSystemManager->GetSceneInfo( m_OldSceneIDs[i] )->m_GameObjects.MoveHead( pGameObject );
+            }
+            else
+            {
+                // Reset parent to original parent.
+                pGameObject->SetParentGameObject( m_OldParent[i] );
+
+                // Move as first item in parent.
+                g_pPanelObjectList->Tree_MoveObject( pGameObject, m_OldParent[i], true );
+            }
+        }
+    }
+}
+
+EditorCommand* EditorCommand_ReorderOrReparentGameObjects::Repeat()
+{
+    return 0;
+}
+
+//====================================================================================================
 //====================================================================================================

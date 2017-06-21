@@ -369,8 +369,10 @@ void GameObject::OnDrop(int controlid, wxCoord x, wxCoord y)
     wxRect rect;
     g_pPanelObjectList->m_pTree_Objects->GetBoundingRect( treeid, rect, false );
 
+    std::vector<GameObject*> selectedObjects;
+
     // Move/Reparent all of the selected items.
-    for( int i=g_DragAndDropStruct.GetItemCount()-1; i>=0; i-- )
+    for( unsigned int i=0; i<g_DragAndDropStruct.GetItemCount(); i++ )
     {
         DragAndDropItem* pDropItem = g_DragAndDropStruct.GetItem( i );
 
@@ -382,27 +384,21 @@ void GameObject::OnDrop(int controlid, wxCoord x, wxCoord y)
             if( pGameObject == this )
                 continue;
 
-            // Change the dropped gameobject's sceneid to match this one.
-            pGameObject->SetSceneID( this->GetSceneID() );
-
-            // Range must match code in PanelObjectListDropTarget::OnDragOver. // TODO: fix this
-            if( y > rect.GetBottom() - 10 )
-            {
-                // move below the selected item
-                g_pPanelObjectList->Tree_MoveObject( pGameObject, this, false );
-                pGameObject->MoveAfter( this );
-                GameObject* thisparent = this->GetParentGameObject();
-                pGameObject->SetParentGameObject( thisparent );
-            }
-            else
-            {
-                // Parent the object dropped to this.
-                pGameObject->SetParentGameObject( this );
-
-                // Move as first item in parent.
-                g_pPanelObjectList->Tree_MoveObject( pGameObject, this, true );
-            }
+            selectedObjects.push_back( pGameObject );
         }
+    }
+
+    // Range must match code in PanelObjectListDropTarget::OnDragOver. // TODO: fix this
+    bool setaschild = true;
+    if( y > rect.GetBottom() - 10 )
+    {
+        // Move below the selected item.
+        setaschild = false;
+    }
+
+    if( selectedObjects.size() > 0 )
+    {
+        g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_ReorderOrReparentGameObjects( selectedObjects, this, setaschild ) );
     }
 }
 

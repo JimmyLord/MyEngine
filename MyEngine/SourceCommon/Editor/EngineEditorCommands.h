@@ -31,6 +31,7 @@ class EditorCommand_LuaExposedVariablePointerChanged;
 class EditorCommand_DeletePrefabs;
 class EditorCommand_DivorceOrMarryComponentVariable;
 class EditorCommand_ComponentVariableIndirectPointerChanged;
+class EditorCommand_ReorderOrReparentGameObjects;
 
 //====================================================================================================
 
@@ -443,6 +444,28 @@ protected:
 public:
     EditorCommand_ComponentVariableIndirectPointerChanged(ComponentBase* pComponent, ComponentVariable* pVar, void* newvalue);
     virtual ~EditorCommand_ComponentVariableIndirectPointerChanged();
+
+    virtual void Do();
+    virtual void Undo();
+    virtual EditorCommand* Repeat();
+};
+
+//====================================================================================================
+
+class EditorCommand_ReorderOrReparentGameObjects : public EditorCommand
+{
+protected:
+    std::vector<GameObject*> m_SelectedObjects;
+    GameObject* m_pObjectDroppedOn;
+    bool m_MakeSelectedObjectsChildren;
+
+    std::vector<unsigned int> m_OldSceneIDs;
+    std::vector<GameObject*> m_OldPreviousObjectInList;
+    std::vector<GameObject*> m_OldParent;
+
+public:
+    EditorCommand_ReorderOrReparentGameObjects(const std::vector<GameObject*>& selectedobjects, GameObject* pObjectDroppedOn, bool setaschild);
+    virtual ~EditorCommand_ReorderOrReparentGameObjects();
 
     virtual void Do();
     virtual void Undo();
