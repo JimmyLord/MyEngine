@@ -371,6 +371,14 @@ void GameObject::OnDrop(int controlid, wxCoord x, wxCoord y)
 
     std::vector<GameObject*> selectedObjects;
 
+    // Range must match code in PanelObjectListDropTarget::OnDragOver. // TODO: fix this
+    bool setaschild = true;
+    if( y > rect.GetBottom() - 10 )
+    {
+        // Move below the selected item.
+        setaschild = false;
+    }
+
     // Move/Reparent all of the selected items.
     for( unsigned int i=0; i<g_DragAndDropStruct.GetItemCount(); i++ )
     {
@@ -384,21 +392,21 @@ void GameObject::OnDrop(int controlid, wxCoord x, wxCoord y)
             if( pGameObject == this )
                 continue;
 
+            // If we're attempting to set dragged objects as children,
+            //   don't allow folders to be children of non-folder gameobjects.
+            if( setaschild )
+            {
+                if( m_IsFolder == false && pGameObject->IsFolder() )
+                    continue;
+            }
+
             selectedObjects.push_back( pGameObject );
         }
     }
 
-    // Range must match code in PanelObjectListDropTarget::OnDragOver. // TODO: fix this
-    bool setaschild = true;
-    if( y > rect.GetBottom() - 10 )
-    {
-        // Move below the selected item.
-        setaschild = false;
-    }
-
     if( selectedObjects.size() > 0 )
     {
-        g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_ReorderOrReparentGameObjects( selectedObjects, this, setaschild ) );
+        g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_ReorderOrReparentGameObjects( selectedObjects, this, GetSceneID(), setaschild ) );
     }
 }
 
@@ -1264,8 +1272,10 @@ void GameObject::OnTransformChanged(Vector3& newpos, Vector3& newrot, Vector3& n
 
 void GameObject::AddToList(std::vector<GameObject*>* pList)
 {
-    // Assert we're not already in the list.
-    MyAssert( std::find( pList->begin(), pList->end(), this ) == pList->end() );
+    // Don't allow same object to be in the list twice.
+    // This can happen if a folder is selected along with an item inside.
+    if( std::find( pList->begin(), pList->end(), this ) != pList->end() )
+        return;
 
     // Select the object.
     pList->push_back( this );

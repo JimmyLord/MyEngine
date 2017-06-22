@@ -160,63 +160,66 @@ void SceneHandler::OnDrag()
 
 void SceneHandler::OnDrop(wxTreeItemId treeid, int controlid, wxCoord x, wxCoord y)
 {
-    DragAndDropItem* pDropItem = g_DragAndDropStruct.GetItem( 0 );
+    // Figure out the sceneid for the scene objects were dropped on.
+    unsigned int sceneid = g_pComponentSystemManager->GetSceneIDFromSceneTreeID( treeid );
 
-    if( pDropItem->m_Type == DragAndDropType_GameObjectPointer )
+    // Don't allow gameobjects or prefabs to be dropped onto "Unmanaged" scene
+    if( sceneid == 0 )
+        return;
+
+    // Check for both gameobjects and prefabs, if a mix is found, ignore the prefabs.
+    bool foundgameobjects = false;
+    bool foundprefabs = false;
+
+    for( unsigned int i=0; i<g_DragAndDropStruct.GetItemCount(); i++ )
     {
-        GameObject* pGameObject = (GameObject*)pDropItem->m_Value;
+        DragAndDropItem* pDropItem = g_DragAndDropStruct.GetItem( i );
 
-        // If we dropped a gameobject on our scene, move the game object to the new scene.
-        unsigned int sceneid = g_pComponentSystemManager->GetSceneIDFromSceneTreeID( treeid );
+        if( pDropItem->m_Type == DragAndDropType_GameObjectPointer )
+            foundgameobjects = true;
 
-        // Don't allow gameobjects to be dropped onto "Unmanaged" scene
-        if( sceneid == 0 )
-            return;
-
-        // Change the gameobjects sceneid.
-        pGameObject->SetSceneID( sceneid );
-
-        // Move the wx tree item to the correct spot.
-        wxTreeItemId treeidtomove = g_pPanelObjectList->FindObject( pGameObject );
-        g_pPanelObjectList->Tree_MoveObject( treeidtomove, treeid, true );
-
-        // We dropped it directly on the scene, so it shouldn't have a parent anymore.
-        pGameObject->SetParentGameObject( 0 );
-
-        GameObject* pFirstGameObject = g_pComponentSystemManager->GetFirstGameObjectFromScene( sceneid );
-        if( pFirstGameObject )
-        {
-            if( pFirstGameObject != pGameObject )
-            {
-                pGameObject->MoveBefore( pFirstGameObject );
-            }
-        }
-        else
-        {
-            g_pComponentSystemManager->GetSceneInfo( sceneid )->m_GameObjects.MoveHead( pGameObject );
-        }
-
-        SceneInfo* pScene = g_pComponentSystemManager->GetSceneInfo( sceneid );
+        if( pDropItem->m_Type == DragAndDropType_GameObjectPointer )
+            foundprefabs = true;
     }
 
-    if( pDropItem->m_Type == DragAndDropTypeEngine_Prefab )
+    if( foundgameobjects )
     {
-        PrefabObject* pPrefab = (PrefabObject*)pDropItem->m_Value;
+        std::vector<GameObject*> selectedObjects;
 
-        // If we dropped a gameobject on our scene, move the game object to the new scene.
-        unsigned int sceneid = g_pComponentSystemManager->GetSceneIDFromSceneTreeID( treeid );
-
-        // Don't allow gameobjects to be dropped onto "Unmanaged" scene
-        if( sceneid == 0 )
-            return;
-
-        // Create the game object
-        GameObject* pGameObjectCreated = g_pComponentSystemManager->CreateGameObjectFromPrefab( pPrefab, true, sceneid );
-
-        if( pGameObjectCreated )
+        for( unsigned int i=0; i<g_DragAndDropStruct.GetItemCount(); i++ )
         {
-            // Undo/Redo
-            g_pEngineMainFrame->m_pCommandStack->Add( MyNew EditorCommand_CreateGameObject( pGameObjectCreated ) );
+            DragAndDropItem* pDropItem = g_DragAndDropStruct.GetItem( i );
+
+            if( pDropItem->m_Type == DragAndDropType_GameObjectPointer )
+            {
+                GameObject* pGameObject = (GameObject*)pDropItem->m_Value;
+
+                selectedObjects.push_back( pGameObject );
+            }
+        }
+
+        g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_ReorderOrReparentGameObjects( selectedObjects, 0, sceneid, true ) );
+    }
+    else if( foundprefabs )
+    {
+        DragAndDropItem* pDropItem = g_DragAndDropStruct.GetItem( 0 );
+
+        if( pDropItem->m_Type == DragAndDropTypeEngine_Prefab )
+        {
+            PrefabObject* pPrefab = (PrefabObject*)pDropItem->m_Value;
+
+            // Don't allow gameobjects to be dropped onto "Unmanaged" scene
+            if( sceneid == 0 )
+                return;
+
+            // Create the game object
+            GameObject* pGameObjectCreated = g_pComponentSystemManager->CreateGameObjectFromPrefab( pPrefab, true, sceneid );
+
+            if( pGameObjectCreated )
+            {
+                // Undo/Redo
+                g_pEngineMainFrame->m_pCommandStack->Add( MyNew EditorCommand_CreateGameObject( pGameObjectCreated ) );
+            }
         }
     }
 }
