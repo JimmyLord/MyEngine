@@ -529,7 +529,7 @@ void EngineCore::OnFocusGained()
 
     if( filesupdated )
     {
-        g_pShaderManager->InvalidateAllShaders( true );
+        //g_pShaderManager->InvalidateAllShaders( true );
         //g_pTextureManager->InvalidateAllTextures( true );
         //g_pBufferManager->InvalidateAllBuffers( true );
     }
