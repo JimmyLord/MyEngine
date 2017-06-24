@@ -203,6 +203,7 @@ public:
 public:
     bool CallFunctionEvenIfGameplayInactive(const char* pFuncName)
     {
+        if( m_ScriptLoaded == false ) return false;
         if( m_ErrorInScript ) return false;
         //if( m_Playing == false ) return false;
 
@@ -221,6 +222,7 @@ public:
 
     bool CallFunction(const char* pFuncName)
     {
+        if( m_ScriptLoaded == false ) return false;
         if( m_ErrorInScript ) return false;
         if( m_Playing == false ) return false;
 
@@ -240,6 +242,7 @@ public:
     template <class P1>
     bool CallFunction(const char* pFuncName, P1 p1)
     {
+        if( m_ScriptLoaded == false ) return false;
         if( m_ErrorInScript ) return false;
         if( m_Playing == false ) return false;
 
@@ -259,6 +262,7 @@ public:
     template <class P1, class P2>
     bool CallFunction(const char* pFuncName, P1 p1, P2 p2)
     {
+        if( m_ScriptLoaded == false ) return false;
         if( m_ErrorInScript ) return false;
         if( m_Playing == false ) return false;
 
@@ -278,6 +282,7 @@ public:
     template <class P1, class P2, class P3, class P4, class P5>
     bool CallFunction(const char* pFuncName, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5)
     {
+        if( m_ScriptLoaded == false ) return false;
         if( m_ErrorInScript ) return false;
         if( m_Playing == false ) return false;
 
@@ -297,6 +302,7 @@ public:
     template <class P1, class P2, class P3, class P4, class P5, class P6>
     bool CallFunction(const char* pFuncName, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6)
     {
+        if( m_ScriptLoaded == false ) return false;
         if( m_ErrorInScript ) return false;
         if( m_Playing == false ) return false;
 
@@ -316,6 +322,7 @@ public:
     template <class P1, class P2, class P3, class P4, class P5, class P6, class P7, class P8>
     bool CallFunction(const char* pFuncName, P1 p1, P2 p2, P3 p3, P4 p4, P5 p5, P6 p6, P7 p7, P8 p8)
     {
+        if( m_ScriptLoaded == false ) return false;
         if( m_ErrorInScript ) return false;
         if( m_Playing == false ) return false;
 

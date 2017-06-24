@@ -375,16 +375,16 @@ void ComponentMesh::OnPlay()
 {
     ComponentBase::OnPlay();
 
-    m_pMesh->RegisterSetupCustomsUniformCallback( 0, 0 );
+    m_pMesh->RegisterSetupCustomUniformCallback( 0, 0 );
 
     if( m_pComponentLuaScript == 0 )
     {
         m_pComponentLuaScript = (ComponentLuaScript*)m_pGameObject->GetFirstComponentOfType( "LuaScriptComponent" );
+    }
 
-        if( m_pComponentLuaScript )
-        {
-            m_pMesh->RegisterSetupCustomsUniformCallback( this, ComponentMesh::StaticSetupCustomUniformsCallback );
-        }
+    if( m_pComponentLuaScript )
+    {
+        m_pMesh->RegisterSetupCustomUniformCallback( this, ComponentMesh::StaticSetupCustomUniformsCallback );
     }
 }
 
