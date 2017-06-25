@@ -106,6 +106,11 @@ protected:
 public:
     enum RightClickOptions
     {
+        RightClick_DeleteComponent = 1000,
+    };
+
+    enum WatchPanelRightClickOptions
+    {
         RightClick_DivorceVariable = 1000,
         RightClick_MarryVariable,
     };

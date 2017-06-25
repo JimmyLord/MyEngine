@@ -312,10 +312,11 @@ void ComponentLuaScript::AppendItemsToRightClickMenu(wxMenu* pMenu)
 
 void ComponentLuaScript::OnPopupClick(wxEvent &evt)
 {
-    ComponentBase::OnPopupClick( evt );
-
     ComponentLuaScript* pComponent = (ComponentLuaScript*)static_cast<wxMenu*>(evt.GetEventObject())->GetClientData();
     MyAssert( pComponent->IsA( "LuaScriptComponent" ) );
+
+    // ComponentBase::OnPopupClick could delete component, so pComponent would point to garbage.
+    ComponentBase::OnPopupClick( evt );
 
     int id = evt.GetId();
 

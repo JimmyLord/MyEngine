@@ -2206,48 +2206,24 @@ void ComponentBase::OnRightClick()
 
 void ComponentBase::AppendItemsToRightClickMenu(wxMenu* pMenu)
 {
-    pMenu->Append( 1000, "Delete Component" );
+    pMenu->Append( RightClick_DeleteComponent, "Delete Component" );
  	pMenu->Connect( wxEVT_COMMAND_MENU_SELECTED, (wxObjectEventFunction)&ComponentBase::OnPopupClick );
 }
 
 void ComponentBase::OnPopupClick(wxEvent &evt)
 {
     //ComponentBase* pComponent = (ComponentBase*)static_cast<wxMenu*>(evt.GetEventObject())->GetClientData();
+
     int id = evt.GetId();
-    if( id == 1000 )
+    if( id == RightClick_DeleteComponent )
     {
         EditorState* pEditorState = g_pEngineCore->m_pEditorState;
-
-        //// deselect all "main" transform components.
-        //for( unsigned int i=0; i<pEditorState->m_pSelectedComponents.size(); i++ )
-        //{
-        //    ComponentBase* pSelComp = pEditorState->m_pSelectedComponents[i];
-        //    if( pSelComp->m_pGameObject && pSelComp == pSelComp->m_pGameObject->m_pComponentTransform )
-        //    {
-        //        pEditorState->m_pSelectedComponents[i] = pEditorState->m_pSelectedComponents.back();
-        //        pEditorState->m_pSelectedComponents.pop_back();
-        //        i--;
-        //    }
-        //}
 
         // if anything is still selected, delete it/them.
         if( pEditorState->m_pSelectedComponents.size() > 0 )
         {
             g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_DeleteComponents( pEditorState->m_pSelectedComponents ) );
         }
-
-        //// if the object isn't selected, delete just the one object, otherwise delete all selected objects.
-        //if( pEditorState->IsComponentSelected( pComponent ) )
-        //{
-        //    g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_DeleteComponents( pEditorState->m_pSelectedComponents ) );
-        //}
-        //else
-        //{
-        //    // create a temp vector to pass into command.
-        //    std::vector<ComponentBase*> components;
-        //    components.push_back( pComponent );
-        //    g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_DeleteComponents( components ) );
-        //}
     }
 }
 
