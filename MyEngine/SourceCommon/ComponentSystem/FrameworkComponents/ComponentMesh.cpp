@@ -381,7 +381,8 @@ void ComponentMesh::OnPlay()
 
     if( m_pComponentLuaScript )
     {
-        m_pMesh->RegisterSetupCustomUniformCallback( this, ComponentMesh::StaticSetupCustomUniformsCallback );
+        m_pComponentLuaScript->RegisterOnDeleteCallback( this, StaticOnLuaScriptDeleted );
+        m_pMesh->RegisterSetupCustomUniformCallback( this, StaticSetupCustomUniformsCallback );
     }
 }
 
@@ -568,10 +569,20 @@ MyAABounds* ComponentMesh::GetBounds()
 
 void ComponentMesh::SetupCustomUniformsCallback(Shader_Base* pShader) // StaticSetupCustomUniformsCallback
 {
-    // TODO: If lua script component is deleted while gameplay is active, m_pComponentLuaScript will be garbage.
-    if( m_pComponentLuaScript )
+    // This callback should only get called if there was a Lua script component.
+    // TODO: don't register the callback if the lua script object doesn't have a "SetupCustomUniforms" function.
+
+    MyAssert( m_pComponentLuaScript != 0 );
+
+    m_pComponentLuaScript->CallFunction( "SetupCustomUniforms", pShader->m_ProgramHandle );
+}
+
+void ComponentMesh::OnLuaScriptDeleted(ComponentBase* pComponent) // StaticOnLuaScriptDeleted
+{
+    if( m_pComponentLuaScript == pComponent )
     {
-        m_pComponentLuaScript->CallFunction( "SetupCustomUniforms", pShader->m_ProgramHandle );
+        m_pComponentLuaScript = 0;
+        m_pMesh->RegisterSetupCustomUniformCallback( 0, 0 );
     }
 }
 

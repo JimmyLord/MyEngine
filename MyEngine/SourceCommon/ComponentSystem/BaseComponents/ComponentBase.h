@@ -11,6 +11,7 @@
 #define __ComponentBase_H__
 
 class GameObject;
+class ComponentBase;
 
 enum BaseComponentTypes
 {
@@ -25,6 +26,13 @@ enum BaseComponentTypes
 };
 
 class ComponentVariable;
+
+typedef void (*ComponentDeletedCallbackFunc)(void* pObjectPtr, ComponentBase* pComponent);
+struct ComponentDeletedCallbackStruct : CPPListNode
+{
+    void* pObj;
+    ComponentDeletedCallbackFunc pFunc;
+};
 
 class ComponentBase : public CPPListNode
 #if MYFW_USING_WX
@@ -43,6 +51,12 @@ public:
     BaseComponentTypes m_BaseType;
     int m_Type;
     GameObject* m_pGameObject;
+
+protected:
+    CPPListHead m_pOnDeleteCallbacks;
+
+protected:
+    void NotifyOthersThisWasDeleted();
 
 public:
     ComponentBase();
@@ -85,6 +99,10 @@ public:
     // pre-DrawCallback functions
     virtual bool IsVisible() { return true; }
     virtual bool ExistsOnLayer(unsigned int layerflags) { return true; }
+
+    // Callbacks
+    void RegisterOnDeleteCallback(void* pObj, ComponentDeletedCallbackFunc pCallback);
+    void UnregisterOnDeleteCallback(void* pObj, ComponentDeletedCallbackFunc pCallback);
 
 protected:
     static void ClearAllVariables_Base(CPPListHead* pComponentVariableList);

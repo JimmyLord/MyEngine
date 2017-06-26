@@ -87,6 +87,10 @@ public:
     static void StaticSetupCustomUniformsCallback(void* pObjectPtr, Shader_Base* pShader) { ((ComponentMesh*)pObjectPtr)->SetupCustomUniformsCallback( pShader ); }
     void SetupCustomUniformsCallback(Shader_Base* pShader);
 
+    // Lua script deleted callbacks.
+    static void StaticOnLuaScriptDeleted(void* pObjectPtr, ComponentBase* pComponent) { ((ComponentMesh*)pObjectPtr)->OnLuaScriptDeleted( pComponent ); }
+    void OnLuaScriptDeleted(ComponentBase* pComponent);
+
 protected:
     // Callback functions for various events.
     MYFW_DECLARE_COMPONENT_CALLBACK_TICK(); // TickCallback

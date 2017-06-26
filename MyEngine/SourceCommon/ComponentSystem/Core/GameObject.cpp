@@ -1270,6 +1270,7 @@ void GameObject::OnTransformChanged(Vector3& newpos, Vector3& newrot, Vector3& n
     int bp = 1;
 }
 
+#if MYFW_USING_WX
 void GameObject::AddToList(std::vector<GameObject*>* pList)
 {
     // Don't allow same object to be in the list twice.
@@ -1289,3 +1290,4 @@ void GameObject::AddToList(std::vector<GameObject*>* pList)
         }
     }
 }
+#endif //MYFW_USING_WX

@@ -948,6 +948,7 @@ bool EngineCore::OnChar(unsigned int c)
 
 void EngineCore::OnModeTogglePlayStop()
 {
+#if MYFW_USING_WX
     if( m_EditorMode )
     {
         OnModePlay();
@@ -968,6 +969,7 @@ void EngineCore::OnModeTogglePlayStop()
             g_pEngineMainFrame->m_pGLCanvasEditor->SetFocus();
         }
     }
+#endif //MYFW_USING_WX
 }
 
 void EngineCore::OnModePlay()

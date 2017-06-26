@@ -40,6 +40,10 @@ ComponentBase::~ComponentBase()
     MyAssert( m_Enabled == false );
     MyAssert( m_CallbacksRegistered == false );
 
+    // Let others know we were deleted.
+    NotifyOthersThisWasDeleted();
+    MyAssert( m_pOnDeleteCallbacks.GetHead() == 0 );
+
     // if it's in a list, remove it.
     if( this->Prev != 0 )
         Remove();
@@ -184,6 +188,62 @@ void ComponentBase::SetEnabled(bool enabled)
 SceneInfo* ComponentBase::GetSceneInfo()
 {
     return g_pComponentSystemManager->GetSceneInfo( m_SceneIDLoadedFrom );
+}
+
+void ComponentBase::RegisterOnDeleteCallback(void* pObj, ComponentDeletedCallbackFunc pCallback)
+{
+    MyAssert( pCallback != 0 );
+
+    // Make sure the same callback isn't being registered.
+    for( CPPListNode* pNode = m_pOnDeleteCallbacks.GetHead(); pNode; pNode = pNode->GetNext() )
+    {
+        ComponentDeletedCallbackStruct* pCallbackStruct = (ComponentDeletedCallbackStruct*)pNode;
+        if( pCallbackStruct->pObj == pObj && pCallbackStruct->pFunc == pCallback )
+            return;
+    }
+
+    // TODO: Pool callback structures.
+    ComponentDeletedCallbackStruct* pCallbackStruct = MyNew ComponentDeletedCallbackStruct;
+    pCallbackStruct->pObj = pObj;
+    pCallbackStruct->pFunc = pCallback;
+
+    m_pOnDeleteCallbacks.AddTail( pCallbackStruct );
+}
+
+void ComponentBase::UnregisterOnDeleteCallback(void* pObj, ComponentDeletedCallbackFunc pCallback)
+{
+    for( CPPListNode* pNode = m_pOnDeleteCallbacks.GetHead(); pNode; pNode = pNode->GetNext() )
+    {
+        ComponentDeletedCallbackStruct* pCallbackStruct = (ComponentDeletedCallbackStruct*)pNode;
+        if( pCallbackStruct->pObj == pObj && pCallbackStruct->pFunc == pCallback )
+        {
+            pCallbackStruct->Remove();
+            delete pCallbackStruct;
+            return;
+        }
+    }
+}
+
+void ComponentBase::NotifyOthersThisWasDeleted()
+{
+    for( CPPListNode* pNode = m_pOnDeleteCallbacks.GetHead(); pNode; )
+    {
+        CPPListNode* pNextNode = pNode->GetNext();
+
+        ComponentDeletedCallbackStruct* pCallbackStruct = (ComponentDeletedCallbackStruct*)pNode;
+
+        // Remove the callback struct from the list before calling the function
+        //     since the callback function might try to unregister (and delete) the callback struct.
+        pCallbackStruct->Remove();
+
+        // Call the onComponentDeleted callback function.
+        pCallbackStruct->pFunc( pCallbackStruct->pObj, this );
+
+        // Delete the struct.
+        delete pCallbackStruct;
+
+        pNode = pNextNode;
+    }
 }
 
 //CPPListHead ComponentBase::m_ComponentVariableList;
