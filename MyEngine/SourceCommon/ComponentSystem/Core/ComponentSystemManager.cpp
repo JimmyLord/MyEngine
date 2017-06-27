@@ -698,9 +698,9 @@ MyFileObject* ComponentSystemManager::LoadDataFile(const char* relativepath, uns
                 FindClose( sourcefilehandle );
 
             // If the source file is newer than the data file (or data file doesn't exist), reimport it.
-            if( sourcefiledata.ftLastWriteTime.dwHighDateTime > datafiledata.ftLastWriteTime.dwHighDateTime ||
+            if( sourcefiledata.ftLastWriteTime.dwHighDateTime >= datafiledata.ftLastWriteTime.dwHighDateTime ||
                 ( sourcefiledata.ftLastWriteTime.dwHighDateTime == datafiledata.ftLastWriteTime.dwHighDateTime &&
-                  sourcefiledata.ftLastWriteTime.dwLowDateTime > datafiledata.ftLastWriteTime.dwLowDateTime ) )
+                  sourcefiledata.ftLastWriteTime.dwLowDateTime >= datafiledata.ftLastWriteTime.dwLowDateTime ) )
             {
                 MyFileObject* pFile = ImportDataFile( sceneid, fullsourcefilepath );
 
@@ -1434,6 +1434,10 @@ bool ComponentSystemManager::IsSceneLoaded(const char* fullpath)
             if( strcmp( pSceneInfo->m_FullPath, fullpath ) == 0 )
                 return true;
 
+            const char* relativepath = GetRelativePath( pSceneInfo->m_FullPath );
+            if( relativepath != 0 && strcmp( relativepath, fullpath ) == 0 )
+                return true;
+
             iterator++;
         }
     }
@@ -1443,6 +1447,10 @@ bool ComponentSystemManager::IsSceneLoaded(const char* fullpath)
         if( m_pSceneInfoMap[i].m_InUse )
         {
             if( strcmp( m_pSceneInfoMap[i].m_FullPath, fullpath ) == 0 )
+                return true;
+
+            const char* relativepath = GetRelativePath( m_pSceneInfoMap[i].m_FullPath );
+            if( relativepath != 0 && strcmp( relativepath, fullpath ) == 0 )
                 return true;
         }
     }
@@ -2312,6 +2320,10 @@ unsigned int ComponentSystemManager::GetSceneIDFromFullpath(const char* fullpath
 
         if( strcmp( pSceneInfo->m_FullPath, fullpath ) == 0 )
             return sceneid;
+
+        const char* relativepath = GetRelativePath( pSceneInfo->m_FullPath );
+        if( relativepath != 0 && strcmp( relativepath, fullpath ) == 0 )
+            return sceneid;
     }
 
     MyAssert( false ); // fullpath not found, that's fine when used from gameobject loading.
@@ -2348,6 +2360,10 @@ wxTreeItemId ComponentSystemManager::GetTreeIDForScene(int sceneid)
 //        SceneInfo* pSceneInfo = &iterator->second;
 //
 //        if( strcmp( pSceneInfo->m_FullPath, fullpath ) == 0 )
+//            return sceneid;
+//
+//        const char* relativepath = GetRelativePath( pSceneInfo->m_FullPath );
+//        if( relativepath != 0 && strcmp( relativepath, fullpath ) == 0 )
 //            return sceneid;
 //    }
 //
