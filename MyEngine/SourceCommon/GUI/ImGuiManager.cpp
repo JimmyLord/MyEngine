@@ -15,6 +15,7 @@ ImGuiManager* g_pImGuiManager = 0;
 
 ImGuiManager::ImGuiManager()
 {
+    m_FrameStarted = false;
 }
 
 ImGuiManager::~ImGuiManager()
@@ -170,6 +171,11 @@ void ImGuiManager::StartTick(double TimePassed)
 
 void ImGuiManager::StartFrame()
 {
+    if( m_FrameStarted == true )
+        return;
+
+    m_FrameStarted = true;
+
     ImGui::NewFrame();
     //ImGui::ShowTestWindow();
 }
@@ -183,6 +189,8 @@ void ImGuiManager::EndFrame(float width, float height, bool draw)
     io.DisplaySize.y = height;
 
     ImGui::Render();
+
+    m_FrameStarted = false;
 }
 
 // This is the main rendering function that you have to implement and provide to ImGui (via setting up 'RenderDrawListsFn' in the ImGuiIO structure)

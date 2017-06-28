@@ -75,8 +75,6 @@ void ComponentRenderable::ImportFromJSONObject(cJSON* jsonobj, unsigned int scen
 {
     ComponentBase::ImportFromJSONObject( jsonobj, sceneid );
 
-    //ImportVariablesFromJSON( jsonobj ); //_VARIABLE_LIST
-
     //cJSONExt_GetBool( jsonobj, "Visible", &m_Visible );
     //cJSONExt_GetUnsignedInt( jsonobj, "Layers", &m_LayersThisExistsOn );
 }

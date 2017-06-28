@@ -355,8 +355,6 @@ void ComponentVoxelMesh::OnButtonEditMesh(int buttonid)
 //{
 //    cJSON* jComponent = ComponentMesh::ExportAsJSONObject( savesceneid, saveid );
 //
-//    ExportVariablesToJSON( jComponent ); //_VARIABLE_LIST
-//
 //    return jComponent;
 //}
 

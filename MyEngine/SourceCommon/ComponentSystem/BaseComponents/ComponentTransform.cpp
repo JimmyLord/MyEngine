@@ -314,8 +314,6 @@ cJSON* ComponentTransform::ExportAsJSONObject(bool savesceneid, bool saveid)
 {
     cJSON* jComponent = ComponentBase::ExportAsJSONObject( savesceneid, saveid );
 
-    //ExportVariablesToJSON( jComponent ); //_VARIABLE_LIST
-
     return jComponent;
 }
 

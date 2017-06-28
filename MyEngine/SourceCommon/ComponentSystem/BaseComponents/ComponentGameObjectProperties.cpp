@@ -125,7 +125,7 @@ cJSON* ComponentGameObjectProperties::ExportAsJSONObject(bool savesceneid, bool 
 {
     cJSON* jComponent = 0;
 
-    // not calling ComponentBase, manually adding the divorced variables, don't want to save ID, Type, etc.
+    // Not calling ComponentBase, manually adding the divorced variables, don't want to save ID, Type, etc.
     {
         //cJSON* jComponent = ComponentBase::ExportAsJSONObject( savesceneid, saveid );
         jComponent = cJSON_CreateObject();
@@ -135,6 +135,7 @@ cJSON* ComponentGameObjectProperties::ExportAsJSONObject(bool savesceneid, bool 
             cJSON_AddNumberToObject( jComponent, "Divorced", m_DivorcedVariables );
     }
 
+    // Not calling ComponentBase::ExportAsJSONObject, so export manually.
     ExportVariablesToJSON( jComponent ); //_VARIABLE_LIST
 
     return jComponent;

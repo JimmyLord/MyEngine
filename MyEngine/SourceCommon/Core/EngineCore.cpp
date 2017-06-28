@@ -299,7 +299,14 @@ void EngineCore::OneTimeInit()
     //OnSurfaceChanged( (unsigned int)m_WindowStartX, (unsigned int)m_WindowStartY, (unsigned int)m_WindowWidth, (unsigned int)m_WindowHeight );
 
     if( g_pImGuiManager )
+    {
         g_pImGuiManager->Init();
+#if MYFW_USING_WX
+        // For editor build, start the next frame immediately, so imgui calls can be made in tick callbacks.
+        // Tick happens before game(0) window is drawn, g_pImGuiManager's draw only happens on editor(1) window.
+        g_pImGuiManager->StartFrame();
+#endif //MYFW_USING_WX
+    }
 
     // Create one bullet world shared between all scenes.
 #if !MYFW_USING_WX
@@ -550,16 +557,12 @@ void EngineCore::OnDrawFrameStart(unsigned int canvasid)
 {
     GameCore::OnDrawFrameStart( canvasid );
 
+#if !MYFW_USING_WX
     if( g_pImGuiManager )
     {
-#if MYFW_USING_WX
-        // In editor builds, only draw imgui interface over editor window.
-        if( canvasid == 1 )
-#endif
-        {
-            g_pImGuiManager->StartFrame();
-        }
+        g_pImGuiManager->StartFrame();
     }
+#endif //!MYFW_USING_WX
 }
 
 void EngineCore::OnDrawFrame(unsigned int canvasid)
@@ -756,6 +759,12 @@ void EngineCore::OnDrawFrame(unsigned int canvasid)
 #endif
         {
             g_pImGuiManager->EndFrame( (float)windowrect.w, (float)windowrect.h, true );
+
+#if MYFW_USING_WX
+            // For editor build, start the next frame immediately, so imgui calls can be made in tick callbacks.
+            // Tick happens before game(0) window is drawn, g_pImGuiManager's draw only happens on editor(1) window.
+            g_pImGuiManager->StartFrame();
+#endif
         }
     }
 }

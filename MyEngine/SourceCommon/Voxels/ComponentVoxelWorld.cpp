@@ -33,7 +33,7 @@ ComponentVoxelWorld::ComponentVoxelWorld()
     m_pSaveFile = 0;
 
     m_pVoxelWorld = MyNew VoxelWorld;
-    m_pVoxelWorld->Initialize( Vector3Int( 3, 3, 3 ) );
+    m_pVoxelWorld->Initialize( Vector3Int( 5, 3, 5 ) );
 
     //m_pVoxelWorld->UpdateVisibility( this );
 
@@ -329,8 +329,6 @@ void ComponentVoxelWorld::OnButtonEditMesh(int buttonid)
 cJSON* ComponentVoxelWorld::ExportAsJSONObject(bool savesceneid, bool saveid)
 {
     cJSON* jComponent = ComponentBase::ExportAsJSONObject( savesceneid, saveid );
-
-    ExportVariablesToJSON( jComponent ); //_VARIABLE_LIST
 
     if( m_pSaveFile )
         cJSON_AddStringToObject( jComponent, "Save File", m_pSaveFile->GetFullPath() );

@@ -19,6 +19,8 @@ class ImGuiManager
 protected:
     void ClearInput();
 
+    bool m_FrameStarted;
+
 public:
     ImGuiManager();
     virtual ~ImGuiManager();
@@ -35,6 +37,8 @@ public:
     void StartTick(double TimePassed);
     void StartFrame();
     void EndFrame(float width, float height, bool draw);
+
+    bool IsFrameStarted() { return m_FrameStarted; }
 
     static void RenderDrawLists(ImDrawData* draw_data);
 };

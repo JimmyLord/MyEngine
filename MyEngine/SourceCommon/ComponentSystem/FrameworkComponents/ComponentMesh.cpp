@@ -271,9 +271,6 @@ cJSON* ComponentMesh::ExportAsJSONObject(bool savesceneid, bool saveid)
     //cJSON_AddNumberToObject( jComponent, "PrimitiveType", m_GLPrimitiveType );
     //cJSON_AddNumberToObject( jComponent, "PointSize", m_PointSize );
     
-    // called in ComponentBase::ExportAsJSONObject
-    //ExportVariablesToJSON( jComponent ); //_VARIABLE_LIST
-
     return jComponent;
 }
 

@@ -199,8 +199,6 @@ cJSON* ComponentAudioPlayer::ExportAsJSONObject(bool savesceneid, bool saveid)
         cJSON_AddStringToObject( jComponent, "Cue", m_SoundCueName );
     }
 
-    ExportVariablesToJSON( jComponent ); //_VARIABLE_LIST
-
     return jComponent;
 }
 

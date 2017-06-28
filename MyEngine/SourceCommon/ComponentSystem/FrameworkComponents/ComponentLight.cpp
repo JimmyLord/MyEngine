@@ -140,8 +140,6 @@ cJSON* ComponentLight::ExportAsJSONObject(bool savesceneid, bool saveid)
 {
     cJSON* jComponent = ComponentData::ExportAsJSONObject( savesceneid, saveid );
 
-    //ExportVariablesToJSON( jComponent ); //_VARIABLE_LIST
-
     cJSONExt_AddFloatArrayToObject( jComponent, "Color", &m_pLight->m_Color.r, 4 );
     cJSONExt_AddFloatArrayToObject( jComponent, "Atten", &m_pLight->m_Attenuation.x, 3 );
 
@@ -151,8 +149,6 @@ cJSON* ComponentLight::ExportAsJSONObject(bool savesceneid, bool saveid)
 void ComponentLight::ImportFromJSONObject(cJSON* jsonobj, unsigned int sceneid)
 {
     ComponentData::ImportFromJSONObject( jsonobj, sceneid );
-
-    //ImportVariablesFromJSON( jsonobj ); //_VARIABLE_LIST
 
     cJSONExt_GetFloatArray( jsonobj, "Color", &m_pLight->m_Color.r, 4 );
     cJSONExt_GetFloatArray( jsonobj, "Atten", &m_pLight->m_Attenuation.x, 3 );
