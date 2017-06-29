@@ -1155,17 +1155,20 @@ void ComponentLuaScript::LoadScript()
     if( m_pScriptFile == 0 || m_ScriptLoaded == true )
         return;
 
-    // script is ready, so run it.
+    // Script is ready, so run it.
     if( m_pScriptFile->GetFileLoadStatus() == FileLoadStatus_Success )
     {
         LOGInfo( LOGTag, "luaL_loadstring: %s\n", m_pScriptFile->GetFilenameWithoutExtension() );
 
-        // load the string from the file
+        // Mark script as loaded. "OnLoad" can be called if no errors occur otherwise m_ErrorInScript will be set as well.
+        m_ScriptLoaded = true;
+
+        // Load the string from the file.
         int loadretcode = luaL_loadstring( m_pLuaGameState->m_pLuaState, m_pScriptFile->GetBuffer() );
         //LOGInfo( LOGTag, "luaL_loadstring) %s last 3 bytes -> %d %d %d\n", m_pScriptFile->GetFullPath(), m_pScriptFile->GetBuffer()[m_pScriptFile->m_FileLength-2], m_pScriptFile->GetBuffer()[m_pScriptFile->m_FileLength-1], m_pScriptFile->GetBuffer()[m_pScriptFile->m_FileLength] );
         if( loadretcode == LUA_OK )
         {
-            // run the code to do initial parsing
+            // Run the code to do initial parsing.
             int exeretcode = lua_pcall( m_pLuaGameState->m_pLuaState, 0, LUA_MULTRET, 0 );
             if( exeretcode == LUA_OK )
             {
@@ -1200,7 +1203,7 @@ void ComponentLuaScript::LoadScript()
                 }
                 else
                 {
-                    MyAssert( false ); // assert until I hit this and deal with it better.
+                    MyAssert( false ); // Assert until I hit this and deal with it better.
                     const char* errorstr = lua_tostring( m_pLuaGameState->m_pLuaState, -1 );
                     HandleLuaError( "!LUA_ERRRUN", errorstr );
                 }
@@ -1220,8 +1223,6 @@ void ComponentLuaScript::LoadScript()
                 HandleLuaError( "!LUA_ERRSYNTAX", errorstr );
             }
         }
-
-        m_ScriptLoaded = true;
     }
 }
 
