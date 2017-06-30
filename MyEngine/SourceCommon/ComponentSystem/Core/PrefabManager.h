@@ -164,6 +164,8 @@ public:
 
     PrefabFile* GetPrefabFileForFileObject(const char* prefabfilename);
 
+    void UnloadAllPrefabFiles();
+
 #if MYFW_USING_WX
     void CreatePrefabInFile(unsigned int fileindex, const char* prefabname, GameObject* pGameObject);
 

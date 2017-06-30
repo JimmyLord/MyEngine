@@ -223,10 +223,14 @@ PrefabFile::~PrefabFile()
         // delete the cJSON* jPrefab object, it should have been detached from any cJSON branch when loaded/saved
         cJSON_Delete( pPrefab->m_jPrefab );
 
+        RemovePrefab( pPrefab );
+
         delete pPrefab;
     }
 
     m_pFile->Release();
+
+    g_pPanelObjectList->RemoveObject( this );
 }
 
 uint32 PrefabFile::GetNextPrefabIDAndIncrement()
@@ -476,6 +480,22 @@ PrefabFile* PrefabManager::GetPrefabFileForFileObject(const char* prefabfilename
     }
 
     return 0;
+}
+
+void PrefabManager::UnloadAllPrefabFiles()
+{
+    unsigned int numprefabfiles = m_pPrefabFiles.size();
+
+    while( m_pPrefabFiles.size() )
+    {
+        delete m_pPrefabFiles[0];
+#if MYFW_USING_WX
+        m_pPrefabFiles.front() = std::move( m_pPrefabFiles.back() );
+        m_pPrefabFiles.pop_back();
+#else
+        m_pPrefabFiles.RemoveIndex( 0 );
+#endif
+    }
 }
 
 #if MYFW_USING_WX

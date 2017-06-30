@@ -1270,7 +1270,7 @@ void ComponentSystemManager::UnloadScene(unsigned int sceneidtoclear, bool clear
 {
     checkGlError( "start of ComponentSystemManager::UnloadScene" );
 
-    // Remove all components, except ones attached to unmanaged game objects(if wanted)
+    // Remove all components, except ones attached to unmanaged game objects (if wanted).
     {
         for( unsigned int i=0; i<BaseComponentType_NumTypes; i++ )
         {
@@ -1289,7 +1289,7 @@ void ComponentSystemManager::UnloadScene(unsigned int sceneidtoclear, bool clear
                 }
                 else if( pComponent->GetID() > m_pSceneInfoMap[sceneid].m_NextComponentID )
                 {
-                    // not sure how this could happen.
+                    // Not sure how this could happen.
                     MyAssert( false );
                     m_pSceneInfoMap[sceneid].m_NextComponentID = pComponent->GetID() + 1;
                 }
@@ -1297,24 +1297,15 @@ void ComponentSystemManager::UnloadScene(unsigned int sceneidtoclear, bool clear
         }
     }
 
-    checkGlError( "ComponentSystemManager::UnloadScene after deleting components" );
-
-    // delete all game objects.
-#if 0 //MYFW_USING_WX
-    typedef std::map<int, SceneInfo>::iterator it_type;
-    for( it_type iterator = m_pSceneInfoMap.begin(); iterator != m_pSceneInfoMap.end(); )
-    {
-        unsigned int sceneid = iterator->first;
-        SceneInfo* pSceneInfo = &iterator->second;
-#else
+    // Delete all game objects from the scene (or all scenes).
     for( unsigned int i=0; i<MAX_SCENES_LOADED; i++ )
     {
         if( m_pSceneInfoMap[i].m_InUse == false )
             continue;
 
         SceneInfo* pSceneInfo = &m_pSceneInfoMap[i];
-#endif // MYFW_USING_WX
 
+        if( sceneidtoclear == UINT_MAX || i == sceneidtoclear )
         {
             for( CPPListNode* pNode = pSceneInfo->m_GameObjects.GetHead(); pNode;  )
             {
@@ -1325,8 +1316,9 @@ void ComponentSystemManager::UnloadScene(unsigned int sceneidtoclear, bool clear
                 unsigned int sceneid = pGameObject->GetSceneID();
                 unsigned int gameobjectid = pGameObject->GetID();
 
-                if( (pGameObject->IsManaged() || clearunmanagedcomponents) &&
-                    (sceneidtoclear == UINT_MAX || sceneid == sceneidtoclear) )
+                MyAssert( i == sceneid );
+
+                if( (pGameObject->IsManaged() || clearunmanagedcomponents) )
                 {
                     DeleteGameObject( pGameObject, true );
                 }
@@ -1338,53 +1330,22 @@ void ComponentSystemManager::UnloadScene(unsigned int sceneidtoclear, bool clear
         }
     }
 
-    checkGlError( "ComponentSystemManager::UnloadScene after deleting game objects" );
+    // If unloading all scenes, unload all prefab files.
+    if( sceneidtoclear == UINT_MAX )
+    {
+        m_pPrefabManager->UnloadAllPrefabFiles();
+    }
 
-    // release any file ref's added by this scene.
+    // Release any file ref's added by this scene.
     FreeAllDataFiles( sceneidtoclear );
 
-    checkGlError( "ComponentSystemManager::UnloadScene after FreeAllDataFiles" );
-
-#if 0 //MYFW_USING_WX
-    // erase the scene node from the object list tree.
+    // If clearing all scenes, 
     if( sceneidtoclear == UINT_MAX )
     {
         // Reset the scene counter, so the new "first" scene loaded will be 1.
         g_pComponentSystemManager->ResetSceneIDCounter();
 
-        typedef std::map<int, SceneInfo>::iterator it_type;
-        for( it_type iterator = m_pSceneInfoMap.begin(); iterator != m_pSceneInfoMap.end(); )
-        {
-            unsigned int sceneid = iterator->first;
-            SceneInfo* pSceneInfo = &iterator->second;
-
-            if( sceneid != 0 && sceneid != EngineCore::ENGINE_SCENE_ID ) // don't clear the "Unmanaged" or ENGINE_SCENE_ID scenes
-            {
-                MyAssert( pSceneInfo->m_TreeID.IsOk() );
-                if( pSceneInfo->m_TreeID.IsOk() )
-                    g_pPanelObjectList->m_pTree_Objects->Delete( pSceneInfo->m_TreeID );
-                m_pSceneInfoMap.erase( iterator++ );
-            }
-            else
-            {
-                iterator++;
-            }
-        }
-    }
-    else if( sceneidtoclear != 0 ) // don't clear the "Unmanaged" label.
-    {
-        SceneInfo* pSceneInfo = GetSceneInfo( sceneidtoclear );
-        if( pSceneInfo && pSceneInfo->m_TreeID.IsOk() )
-            g_pPanelObjectList->m_pTree_Objects->Delete( pSceneInfo->m_TreeID );
-        m_pSceneInfoMap.erase( sceneidtoclear );
-    }
-#else
-    // don't clear scene 0.
-    if( sceneidtoclear == UINT_MAX )
-    {
-        // Reset the scene counter, so the new "first" scene loaded will be 1.
-        g_pComponentSystemManager->ResetSceneIDCounter();
-
+        // Don't clear scene 0 (unmanaged objects).
         for( int sceneid=1; sceneid<MAX_SCENES_LOADED; sceneid++ )
         {
             if( sceneid == 0 || sceneid == EngineCore::ENGINE_SCENE_ID )
@@ -1400,10 +1361,11 @@ void ComponentSystemManager::UnloadScene(unsigned int sceneidtoclear, bool clear
                 g_pPanelObjectList->m_pTree_Objects->Delete( m_pSceneInfoMap[sceneid].m_TreeID );
             }
 #endif
+
             m_pSceneInfoMap[sceneid].Reset();
         }
     }
-    else if( sceneidtoclear != 0 )
+    else if( sceneidtoclear != 0 ) // If clearing any scene other than 0 (unmanaged objects).
     {
 #if MYFW_USING_WX
         MyAssert( m_pSceneInfoMap[sceneidtoclear].m_TreeID.IsOk() );
@@ -1416,7 +1378,6 @@ void ComponentSystemManager::UnloadScene(unsigned int sceneidtoclear, bool clear
         MyAssert( m_pSceneInfoMap[sceneidtoclear].m_InUse == true );
         m_pSceneInfoMap[sceneidtoclear].Reset();
     }
-#endif
 
     checkGlError( "end of ComponentSystemManager::UnloadScene" );
 }

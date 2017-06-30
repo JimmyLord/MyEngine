@@ -1331,6 +1331,14 @@ void EngineCore::UnloadScene(unsigned int sceneid, bool cleareditorobjects)
 {
     m_pLuaGameState->Rebuild(); // reset the lua state.
 
+    g_pComponentSystemManager->UnloadScene( sceneid, false );
+
+    if( sceneid == UINT_MAX && m_FreeAllMaterialsAndTexturesWhenUnloadingScene )
+    {
+        // temp code while RTQGlobals is a thing.
+        SAFE_RELEASE( g_pRTQGlobals->m_pMaterial );
+    }
+
     // reset the editorstate structure.
 #if MYFW_USING_WX
     if( sceneid != 0 )
@@ -1340,24 +1348,6 @@ void EngineCore::UnloadScene(unsigned int sceneid, bool cleareditorobjects)
     }
     m_pEditorState->ClearEditorState( false );
 #endif //MYFW_USING_WX
-
-    checkGlError( "g_pComponentSystemManager->UnloadScene" );
-
-    g_pComponentSystemManager->UnloadScene( sceneid, false );
-
-    checkGlError( "before SAFE_RELEASE( g_pRTQGlobals->m_pMaterial" );
-
-    if( sceneid == UINT_MAX && m_FreeAllMaterialsAndTexturesWhenUnloadingScene )
-    {
-        // temp code while RTQGlobals is a thing.
-        SAFE_RELEASE( g_pRTQGlobals->m_pMaterial );
-
-        //g_pComponentSystemManager->FreeAllDataFiles();
-        //g_pMaterialManager->FreeAllMaterials();
-        //g_pTextureManager->FreeAllTextures( false );
-    }
-
-    checkGlError( "after SAFE_RELEASE( g_pRTQGlobals->m_pMaterial" );
 }
 
 #if MYFW_USING_WX
