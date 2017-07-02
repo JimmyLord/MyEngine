@@ -669,14 +669,16 @@ void ComponentLuaScript::CopyExposedVarValueFromParent(ExposedVariableDesc* pVar
         return;
     
     // Found a game object, now find the matching component on it.
-    for( unsigned int i=0; i<pParentGO->m_Components.Count()+1; i++ )
+    for( unsigned int i=0; i<pParentGO->m_Components.Count()+2; i++ )
     {
         ComponentBase* pOtherComponent;
 
         if( i == 0 )
+            pOtherComponent = pParentGO->GetPropertiesComponent();
+        else if( i == 1 )
             pOtherComponent = pParentGO->m_pComponentTransform;
         else
-            pOtherComponent = pParentGO->m_Components[i-1];
+            pOtherComponent = pParentGO->m_Components[i-2];
 
         const char* pThisCompClassName = GetClassname();
         const char* pOtherCompClassName = pOtherComponent->GetClassname();
@@ -777,14 +779,16 @@ bool ComponentLuaScript::DoesExposedVariableMatchParent(ExposedVariableDesc* pVa
         return true; // the object has no parent, we say it matches.
 
     // Found a game object, now find the matching component on it.
-    for( unsigned int i=0; i<pGameObject->m_Components.Count()+1; i++ )
+    for( unsigned int i=0; i<pGameObject->m_Components.Count()+2; i++ )
     {
         ComponentBase* pOtherComponent;
 
         if( i == 0 )
+            pOtherComponent = pGameObject->GetPropertiesComponent();
+        else if( i == 1 )
             pOtherComponent = pGameObject->m_pComponentTransform;
         else
-            pOtherComponent = pGameObject->m_Components[i-1];
+            pOtherComponent = pGameObject->m_Components[i-2];
 
         const char* pThisCompClassName = GetClassname();
         const char* pOtherCompClassName = pOtherComponent->GetClassname();

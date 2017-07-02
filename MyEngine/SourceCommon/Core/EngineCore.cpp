@@ -1764,12 +1764,19 @@ void EngineCore::OnObjectListTreeMultipleSelection() //StaticOnObjectListTreeMul
     {
         GameObject* pFirstGameObject = m_pEditorState->m_pSelectedObjects[0];
 
-        for( unsigned int componentindex=0; componentindex<pFirstGameObject->m_Components.Count()+1; componentindex++ )
+        for( unsigned int componentindex=0; componentindex<pFirstGameObject->m_Components.Count()+2; componentindex++ )
         {
             // Figure out which component we want to check other gameobjects for, special case for transform component.
             ComponentBase* pComponentToLookFor = 0;
 
             if( componentindex == 0 )
+            {
+                if( pFirstGameObject->GetPropertiesComponent() == 0 )
+                    continue;
+
+                pComponentToLookFor = pFirstGameObject->GetPropertiesComponent();
+            }
+            else if( componentindex == 1 )
             {
                 if( pFirstGameObject->m_pComponentTransform == 0 )
                     continue;
@@ -1778,7 +1785,7 @@ void EngineCore::OnObjectListTreeMultipleSelection() //StaticOnObjectListTreeMul
             }
             else
             {
-                pComponentToLookFor = pFirstGameObject->m_Components[componentindex-1];
+                pComponentToLookFor = pFirstGameObject->m_Components[componentindex-2];
             }
 
             MyAssert( pComponentToLookFor );
@@ -1786,22 +1793,24 @@ void EngineCore::OnObjectListTreeMultipleSelection() //StaticOnObjectListTreeMul
             // Loop through selected gameobjects and check if they all have to least one of this component type on them.
             bool allgameobjectshavecomponent = true;
             for( unsigned int i=1; i<m_pEditorState->m_pSelectedObjects.size(); i++ )
-            {                
+            {
                 GameObject* pGameObject = m_pEditorState->m_pSelectedObjects[i];
 
                 bool hascomponent = false;
-                for( unsigned int i=0; i<pGameObject->m_Components.Count()+1; i++ )
+                for( unsigned int i=0; i<pGameObject->m_Components.Count()+2; i++ )
                 {
-                    if( i == 0 && pGameObject->m_pComponentTransform && pGameObject->m_pComponentTransform->IsA( pComponentToLookFor->GetClassname() ) == true )
+                    ComponentBase* pOtherComponent;
+
+                    if( i == 0 )
+                        pOtherComponent = pGameObject->GetPropertiesComponent();
+                    else if( i == 1 )
+                        pOtherComponent = pGameObject->m_pComponentTransform;
+                    else
+                        pOtherComponent = pGameObject->m_Components[i-2];
+
+                    if( pOtherComponent && pOtherComponent->IsA( pComponentToLookFor->GetClassname() ) == true )
                     {
-                        pComponentToLookFor->m_MultiSelectedComponents.push_back( pGameObject->m_pComponentTransform );
-                        hascomponent = true;
-                        break;
-                    }
-                        
-                    if( i >= 1 && pGameObject->m_Components[i-1]->IsA( pComponentToLookFor->GetClassname() ) == true )
-                    {
-                        pComponentToLookFor->m_MultiSelectedComponents.push_back( pGameObject->m_Components[i-1] );
+                        pComponentToLookFor->m_MultiSelectedComponents.push_back( pOtherComponent );
                         hascomponent = true;
                         break;
                     }

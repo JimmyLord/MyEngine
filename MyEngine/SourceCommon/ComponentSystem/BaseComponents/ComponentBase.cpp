@@ -473,11 +473,11 @@ void ComponentBase::AddVariableToPropertiesWindow(ComponentVariable* pVar)
             break;
 
         case ComponentVariableType_Enum:
-            pVar->m_ControlID = g_pPanelWatch->AddEnum( pVar->m_WatchLabel, (int*)((char*)this + pVar->m_Offset), pVar->m_NumEnumStrings, pVar->m_ppEnumStrings, this, ComponentBase::StaticOnValueChangedVariable );
+            pVar->m_ControlID = g_pPanelWatch->AddEnum( pVar->m_WatchLabel, (int*)((char*)this + pVar->m_Offset), pVar->m_NumEnumStrings, pVar->m_ppEnumStrings, this, ComponentBase::StaticOnValueChangedVariable, ComponentBase::StaticOnRightClickVariable );
             break;
 
         case ComponentVariableType_Flags:
-            pVar->m_ControlID = g_pPanelWatch->AddFlags( pVar->m_WatchLabel, (unsigned int*)((char*)this + pVar->m_Offset), pVar->m_NumEnumStrings, pVar->m_ppEnumStrings, this, ComponentBase::StaticOnValueChangedVariable );
+            pVar->m_ControlID = g_pPanelWatch->AddFlags( pVar->m_WatchLabel, (unsigned int*)((char*)this + pVar->m_Offset), pVar->m_NumEnumStrings, pVar->m_ppEnumStrings, this, ComponentBase::StaticOnValueChangedVariable, ComponentBase::StaticOnRightClickVariable );
             break;
 
         case ComponentVariableType_UnsignedInt:
@@ -1005,14 +1005,16 @@ bool ComponentBase::DoesVariableMatchParent(ComponentVariable* pVar, int control
         return true; // the object has no parent, we say it matches.
 
     // Found a game object, now find the matching component on it.
-    for( unsigned int i=0; i<pGameObject->m_Components.Count()+1; i++ )
+    for( unsigned int i=0; i<pGameObject->m_Components.Count()+2; i++ )
     {
         ComponentBase* pOtherComponent;
 
         if( i == 0 )
+            pOtherComponent = pGameObject->GetPropertiesComponent();
+        else if( i == 1 )
             pOtherComponent = pGameObject->m_pComponentTransform;
         else
-            pOtherComponent = pGameObject->m_Components[i-1];
+            pOtherComponent = pGameObject->m_Components[i-2];
 
         const char* pThisCompClassName = GetClassname();
         const char* pOtherCompClassName = pOtherComponent->GetClassname();
@@ -1374,14 +1376,16 @@ void ComponentBase::SyncVariableInGameObjectWithNewValue(GameObject* pGameObject
 
     {
         // Found a game object, now find the matching component on it.
-        for( unsigned int i=0; i<pGameObject->m_Components.Count()+1; i++ )
+        for( unsigned int i=0; i<pGameObject->m_Components.Count()+2; i++ )
         {
             ComponentBase* pChildComponent;
 
             if( i == 0 )
+                pChildComponent = pGameObject->GetPropertiesComponent();
+            else if( i == 1 )
                 pChildComponent = pGameObject->m_pComponentTransform;
             else
-                pChildComponent = pGameObject->m_Components[i-1];
+                pChildComponent = pGameObject->m_Components[i-2];
 
             const char* pThisCompClassName = GetClassname();
             const char* pOtherCompClassName = pChildComponent->GetClassname();
@@ -1406,14 +1410,16 @@ ComponentBase* ComponentBase::FindMatchingComponentInParent()
         return 0;
 
     // Found a game object, now find the matching component on it.
-    for( unsigned int i=0; i<pParentGO->m_Components.Count()+1; i++ )
+    for( unsigned int i=0; i<pParentGO->m_Components.Count()+2; i++ )
     {
         ComponentBase* pParentComponent;
 
         if( i == 0 )
+            pParentComponent = pParentGO->GetPropertiesComponent();
+        else if( i == 1 )
             pParentComponent = pParentGO->m_pComponentTransform;
         else
-            pParentComponent = pParentGO->m_Components[i-1];
+            pParentComponent = pParentGO->m_Components[i-2];
 
         const char* pChildCompClassName = GetClassname();
         const char* pParentCompClassName = pParentComponent->GetClassname();
@@ -1592,14 +1598,16 @@ void ComponentBase::CopyValueFromParent(ComponentVariable* pVar)
         return;
     
     // Found a game object, now find the matching component on it.
-    for( unsigned int i=0; i<pParentGO->m_Components.Count()+1; i++ )
+    for( unsigned int i=0; i<pParentGO->m_Components.Count()+2; i++ )
     {
         ComponentBase* pOtherComponent;
 
         if( i == 0 )
+            pOtherComponent = pParentGO->GetPropertiesComponent();
+        else if( i == 1 )
             pOtherComponent = pParentGO->m_pComponentTransform;
         else
-            pOtherComponent = pParentGO->m_Components[i-1];
+            pOtherComponent = pParentGO->m_Components[i-2];
 
         const char* pThisCompClassName = GetClassname();
         const char* pOtherCompClassName = pOtherComponent->GetClassname();
@@ -1953,14 +1961,16 @@ void ComponentBase::UpdateGameObjectWithNewValue(GameObject* pGameObject, bool f
 
     {
         // Found a game object, now find the matching component on it.
-        for( unsigned int i=0; i<pGameObject->m_Components.Count()+1; i++ )
+        for( unsigned int i=0; i<pGameObject->m_Components.Count()+2; i++ )
         {
             ComponentBase* pChildComponent;
 
             if( i == 0 )
+                pChildComponent = pGameObject->GetPropertiesComponent();
+            else if( i == 1 )
                 pChildComponent = pGameObject->m_pComponentTransform;
             else
-                pChildComponent = pGameObject->m_Components[i-1];
+                pChildComponent = pGameObject->m_Components[i-2];
 
             const char* pThisCompClassName = GetClassname();
             const char* pOtherCompClassName = pChildComponent->GetClassname();

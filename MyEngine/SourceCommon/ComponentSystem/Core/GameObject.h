@@ -80,6 +80,7 @@ public:
 
     void SetFlags(unsigned int flags) { return m_Properties.SetFlags( flags ); }
     unsigned int GetFlags() { return m_Properties.GetFlags(); }
+    ComponentGameObjectProperties* GetPropertiesComponent() { return &m_Properties; }
 
     void SetEnabled(bool enabled);
     void RegisterAllComponentCallbacks(bool ignoreenabledflag);
