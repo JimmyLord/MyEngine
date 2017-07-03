@@ -889,6 +889,54 @@ void GameObject::SetManaged(bool managed)
 #endif //MYFW_USING_WX
 }
 
+unsigned int GameObject::GetComponentCount()
+{
+    return m_Components.Count();
+}
+
+ComponentBase* GameObject::GetComponentByIndex(unsigned int index)
+{
+    MyAssert( index < m_Components.Count() );
+
+    return m_Components[index];
+}
+
+unsigned int GameObject::GetComponentCountIncludingCore()
+{
+    if( m_pComponentTransform )
+    {
+        return m_Components.Count() + 2; // + properties + transform
+    }
+    else
+    {
+        return m_Components.Count() + 1; // + properties
+    }
+}
+
+ComponentBase* GameObject::GetComponentByIndexIncludingCore(unsigned int index)
+{
+    if( m_pComponentTransform )
+    {
+        MyAssert( index < GetComponentCount() + 2 );
+
+        if( index == 0 )
+            return &m_Properties;
+        else if( index == 1 )
+            return m_pComponentTransform;
+        else
+            return m_Components[index-2];
+    }
+    else
+    {
+        MyAssert( index < GetComponentCount() + 1 );
+
+        if( index == 0 )
+            return &m_Properties;
+        else
+            return m_Components[index-1];
+    }
+}
+
 ComponentBase* GameObject::AddNewComponent(int componenttype, unsigned int sceneid, ComponentSystemManager* pComponentSystemManager)
 {
     MyAssert( componenttype != -1 );

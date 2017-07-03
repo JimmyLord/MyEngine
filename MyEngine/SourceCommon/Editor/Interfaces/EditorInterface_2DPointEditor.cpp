@@ -108,13 +108,13 @@ void EditorInterface_2DPointEditor::OnDrawFrame(unsigned int canvasid)
         MyMatrix* pParentMatrix = pParentTransformComponent->GetWorldTransform();
         Vector3 worldpos = pParentMatrix->GetTranslation() + pos3d;
 
-        m_pPoint->m_pComponentTransform->SetLocalPosition( worldpos );
+        m_pPoint->GetTransform()->SetLocalPosition( worldpos );
 
         ComponentCamera* pCamera = g_pEngineCore->m_pEditorState->GetEditorCamera();
         MyMatrix* pEditorMatViewProj = &pCamera->m_Camera3D.m_matViewProj;
 
         float distance = (pCamera->m_pComponentTransform->GetLocalPosition() - worldpos).Length();
-        m_pPoint->m_pComponentTransform->SetLocalScale( Vector3( distance / 15.0f ) );
+        m_pPoint->GetTransform()->SetLocalScale( Vector3( distance / 15.0f ) );
 
         // change the material color if this is the selected dot.
         if( i == (unsigned int)m_IndexOfPointBeingDragged )
@@ -374,13 +374,13 @@ void EditorInterface_2DPointEditor::RenderObjectIDsToFBO()
                 MyMatrix* pParentMatrix = pParentTransformComponent->GetLocalTransform();
                 Vector3 worldpos = pParentMatrix->GetTranslation() + pos3d;
 
-                m_pPoint->m_pComponentTransform->SetLocalPosition( worldpos );
+                m_pPoint->GetTransform()->SetLocalPosition( worldpos );
 
                 ComponentCamera* pCamera = g_pEngineCore->m_pEditorState->GetEditorCamera();
                 MyMatrix* pEditorMatViewProj = &pCamera->m_Camera3D.m_matViewProj;
 
                 float distance = (pCamera->m_pComponentTransform->GetLocalPosition() - pos3d).Length();
-                m_pPoint->m_pComponentTransform->SetLocalScale( Vector3( distance / 15.0f ) );
+                m_pPoint->GetTransform()->SetLocalScale( Vector3( distance / 15.0f ) );
 
                 ColorByte tint( 0, 0, 0, 0 );
                     

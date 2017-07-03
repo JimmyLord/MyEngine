@@ -377,9 +377,9 @@ void ComponentSystemManager::MoveAllFilesNeededForLoadingScreenToStartOfFileList
 
         if( strncmp( pGameObject->GetName(), "Load", 4 ) == 0 )
         {
-            for( unsigned int i=0; i<pGameObject->m_Components.Count(); i++ )
+            for( unsigned int i=0; i<pGameObject->GetComponentCount(); i++ )
             {
-                ComponentBase* pComponent = pGameObject->m_Components[i];
+                ComponentBase* pComponent = pGameObject->GetComponentByIndex( i );
 
                 // move sprite material files to front of list.
                 if( pComponent->IsA( "SpriteComponent" ) )
@@ -581,7 +581,7 @@ void ComponentSystemManager::SaveGameObjectListToJSONArray(cJSON* gameobjectarra
         {
             cJSON_AddItemToArray( gameobjectarray, pGameObject->ExportAsJSONObject( savesceneid ) );
 
-            ComponentBase* pComponent = pGameObject->m_pComponentTransform;
+            ComponentBase* pComponent = pGameObject->GetTransform();
             if( pComponent )
                 cJSON_AddItemToArray( transformarray, pComponent->ExportAsJSONObject( savesceneid, true ) );
         }
@@ -1096,9 +1096,9 @@ void ComponentSystemManager::LoadSceneFromJSON(const char* scenename, const char
         {
             pGameObject->SetID( goid );
 
-            if( pGameObject->m_pComponentTransform )
+            if( pGameObject->GetTransform() )
             {
-                pGameObject->m_pComponentTransform->ImportFromJSONObject( transformobj, sceneid );
+                pGameObject->GetTransform()->ImportFromJSONObject( transformobj, sceneid );
             }
             else
             {
@@ -1111,9 +1111,9 @@ void ComponentSystemManager::LoadSceneFromJSON(const char* scenename, const char
                     MyAssert( pParentGameObject );
 
                     pGameObject->SetParentGameObject( pParentGameObject );
-                    if( pGameObject->m_pComponentTransform )
+                    if( pGameObject->GetTransform() )
                     {
-                        pGameObject->m_pComponentTransform->SetWorldTransformIsDirty();
+                        pGameObject->GetTransform()->SetWorldTransformIsDirty();
                     }
                 }
             }
@@ -1526,12 +1526,14 @@ void ComponentSystemManager::UnmanageGameObject(GameObject* pObject)
     MyAssert( pObject && pObject->IsManaged() == true );
 
     // remove all components from their respective component lists.
-    for( unsigned int i=0; i<pObject->m_Components.Count(); i++ )
+    for( unsigned int i=0; i<pObject->GetComponentCount(); i++ )
     {
+        ComponentBase* pComponent = pObject->GetComponentByIndex( i );
+
         // remove from list and clear CPPListNode prev/next
-        pObject->m_Components[i]->Remove();
-        pObject->m_Components[i]->Prev = 0;
-        pObject->m_Components[i]->Next = 0;
+        pComponent->Remove();
+        pComponent->Prev = 0;
+        pComponent->Next = 0;
     }
 
     pObject->SetManaged( false );
@@ -1542,9 +1544,9 @@ void ComponentSystemManager::ManageGameObject(GameObject* pObject)
     MyAssert( pObject && pObject->IsManaged() == false );
 
     // add all the gameobject's components back into the component lists.
-    for( unsigned int i=0; i<pObject->m_Components.Count(); i++ )
+    for( unsigned int i=0; i<pObject->GetComponentCount(); i++ )
     {
-        AddComponent( pObject->m_Components[i] );
+        AddComponent( pObject->GetComponentByIndex( i ) );
     }
 
     pObject->SetManaged( true );
@@ -1613,7 +1615,7 @@ GameObject* ComponentSystemManager::CopyGameObject(GameObject* pObject, const ch
     if( g_pEngineCore->m_EditorMode )
         sceneid = pObject->GetSceneID();
 
-    GameObject* pNewObject = CreateGameObject( true, sceneid, pObject->IsFolder(), pObject->m_pComponentTransform ? true : false, pObject->GetPrefab() );
+    GameObject* pNewObject = CreateGameObject( true, sceneid, pObject->IsFolder(), pObject->GetTransform() ? true : false, pObject->GetPrefab() );
 
     if( newname )
         pNewObject->SetName( newname );
@@ -1627,16 +1629,16 @@ GameObject* ComponentSystemManager::CopyGameObject(GameObject* pObject, const ch
         pNewObject->SetGameObjectThisInheritsFrom( pObject->GetGameObjectThisInheritsFrom() );
     }
 
-    for( unsigned int i=0; i<pObject->m_Components.Count(); i++ )
+    for( unsigned int i=0; i<pObject->GetComponentCount(); i++ )
     {
         ComponentBase* pComponent = 0;
 
         if( g_pEngineCore->m_EditorMode )
-            pComponent = pNewObject->AddNewComponent( pObject->m_Components[i]->m_Type, pNewObject->GetSceneID() );
+            pComponent = pNewObject->AddNewComponent( pObject->GetComponentByIndex( i )->m_Type, pNewObject->GetSceneID() );
         else
-            pComponent = pNewObject->AddNewComponent( pObject->m_Components[i]->m_Type, 0 );
+            pComponent = pNewObject->AddNewComponent( pObject->GetComponentByIndex( i )->m_Type, 0 );
 
-        pComponent->CopyFromSameType_Dangerous( pObject->m_Components[i] );
+        pComponent->CopyFromSameType_Dangerous( pObject->GetComponentByIndex( i ) );
 
         pComponent->OnLoad();
     }
@@ -1646,16 +1648,16 @@ GameObject* ComponentSystemManager::CopyGameObject(GameObject* pObject, const ch
     {
         if( pNewObject->IsEnabled() == true )
         {
-            for( unsigned int i=0; i<pNewObject->m_Components.Count(); i++ )
+            for( unsigned int i=0; i<pNewObject->GetComponentCount(); i++ )
             {
-                if( pNewObject->m_Components[i]->IsA( "2DJoint-" ) == false )
-                    pNewObject->m_Components[i]->OnPlay();
+                if( pNewObject->GetComponentByIndex( i )->IsA( "2DJoint-" ) == false )
+                    pNewObject->GetComponentByIndex( i )->OnPlay();
             }
             // Call OnPlay for joints after everything else, will allow physics bodies to be created first.
-            for( unsigned int i=0; i<pNewObject->m_Components.Count(); i++ )
+            for( unsigned int i=0; i<pNewObject->GetComponentCount(); i++ )
             {
-                if( pNewObject->m_Components[i]->IsA( "2DJoint-" ) == true )
-                    pNewObject->m_Components[i]->OnPlay();
+                if( pNewObject->GetComponentByIndex( i )->IsA( "2DJoint-" ) == true )
+                    pNewObject->GetComponentByIndex( i )->OnPlay();
             }
         }
     }
@@ -1673,8 +1675,8 @@ GameObject* ComponentSystemManager::CopyGameObject(GameObject* pObject, const ch
 
     if( pObject->IsFolder() == false )
     {
-        MyAssert( pObject->m_pComponentTransform != 0 );
-        *pNewObject->m_pComponentTransform = *pObject->m_pComponentTransform;
+        MyAssert( pObject->GetTransform() != 0 );
+        *pNewObject->GetTransform() = *pObject->GetTransform();
     }
 
     // Recursively copy children.
@@ -2397,9 +2399,9 @@ void ComponentSystemManager::Editor_GetListOfGameObjectsThatUsePrefab(std::vecto
 
 void ComponentSystemManager::DrawSingleObject(MyMatrix* pMatViewProj, GameObject* pObject, ShaderGroup* pShaderOverride)
 {
-    for( unsigned int i=0; i<pObject->m_Components.Count(); i++ )
+    for( unsigned int i=0; i<pObject->GetComponentCount(); i++ )
     {
-        ComponentRenderable* pComponent = dynamic_cast<ComponentRenderable*>( pObject->m_Components[i] );
+        ComponentRenderable* pComponent = dynamic_cast<ComponentRenderable*>( pObject->GetComponentByIndex( i ) );
 
         if( pComponent )
         {

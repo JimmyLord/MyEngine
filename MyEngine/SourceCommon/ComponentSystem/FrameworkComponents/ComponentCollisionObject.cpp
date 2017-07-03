@@ -43,7 +43,7 @@ ComponentCollisionObject::ComponentCollisionObject()
 
 ComponentCollisionObject::~ComponentCollisionObject()
 {
-    m_pGameObject->m_pComponentTransform->UnregisterTransformChangedCallbacks( this );
+    m_pGameObject->GetTransform()->UnregisterTransformChangedCallbacks( this );
 
     if( m_pBody )
     {
@@ -96,7 +96,7 @@ void ComponentCollisionObject::Reset()
     m_pPanelWatchBlockVisible = &m_PanelWatchBlockVisible;
     m_ControlID_PrimitiveType = -1;
 
-    m_pGameObject->m_pComponentTransform->RegisterTransformChangedCallback( this, StaticOnTransformChanged );
+    m_pGameObject->GetTransform()->RegisterTransformChangedCallback( this, StaticOnTransformChanged );
 #endif //MYFW_USING_WX
 }
 
@@ -358,7 +358,7 @@ void ComponentCollisionObject::OnPlay()
 
     //// set the collision object scale on play, guess this should be set whenever the object is scaled.
     ////   TODO: find a better way to handle the object being scaled in editor.
-    //Vector3 localscale = m_pGameObject->m_pComponentTransform->GetScale();
+    //Vector3 localscale = m_pGameObject->GetTransform()->GetScale();
     //btVector3 scale( localscale.x, localscale.y, localscale.z );
     //m_pBody->getCollisionShape()->setLocalScaling( scale );
     
@@ -430,13 +430,13 @@ void ComponentCollisionObject::CreateBody()
         if( isDynamic )
             colShape->calculateLocalInertia( m_Mass, localInertia );
 
-        //btVector3 pos(m_pGameObject->m_pComponentTransform->m_Position.x, m_pGameObject->m_pComponentTransform->m_Position.y, m_pGameObject->m_pComponentTransform->m_Position.z );
+        //btVector3 pos(m_pGameObject->GetTransform()->m_Position.x, m_pGameObject->GetTransform()->m_Position.y, m_pGameObject->GetTransform()->m_Position.z );
         //startTransform.setOrigin( pos );
-        Vector3 localscale = m_pGameObject->m_pComponentTransform->GetLocalScale();
+        Vector3 localscale = m_pGameObject->GetTransform()->GetLocalScale();
         btVector3 scale( localscale.x, localscale.y, localscale.z );
         colShape->setLocalScaling( scale );
 
-        MyMatrix localmat = m_pGameObject->m_pComponentTransform->GetLocalRotPosMatrix(); //GetLocalTransform();
+        MyMatrix localmat = m_pGameObject->GetTransform()->GetLocalRotPosMatrix(); //GetLocalTransform();
         startTransform.setFromOpenGLMatrix( &localmat.m11 );
 
         // using motionstate is recommended, it provides interpolation capabilities, and only synchronizes 'active' objects
@@ -499,12 +499,12 @@ void ComponentCollisionObject::TickCallback(double TimePassed)
         matBulletGL = matBulletGL * matScale;
     }
 
-    m_pGameObject->m_pComponentTransform->SetWorldTransform( &matBulletGL );
+    m_pGameObject->GetTransform()->SetWorldTransform( &matBulletGL );
 
     //btVector3 pos = transform.getOrigin();
     //btQuaternion rot = transform.getRotation();
-    //m_pGameObject->m_pComponentTransform->SetPosition( Vector3( pos.getX(), pos.getY(), pos.getZ() ) );
-    //m_pGameObject->m_pComponentTransform->SetRotation( Vector3( rot.g, pos.getY(), pos.getZ() ) );
+    //m_pGameObject->GetTransform()->SetPosition( Vector3( pos.getX(), pos.getY(), pos.getZ() ) );
+    //m_pGameObject->GetTransform()->SetRotation( Vector3( rot.g, pos.getY(), pos.getZ() ) );
 }
 
 void ComponentCollisionObject::SyncRigidBodyToTransform()
@@ -513,10 +513,10 @@ void ComponentCollisionObject::SyncRigidBodyToTransform()
         return;
 
     btTransform transform;
-    //btVector3 pos(m_pGameObject->m_pComponentTransform->m_Position.x, m_pGameObject->m_pComponentTransform->m_Position.y, m_pGameObject->m_pComponentTransform->m_Position.z );
+    //btVector3 pos(m_pGameObject->GetTransform()->m_Position.x, m_pGameObject->GetTransform()->m_Position.y, m_pGameObject->GetTransform()->m_Position.z );
     //transform.setIdentity();
     //transform.setOrigin( pos );
-    MyMatrix localmat = m_pGameObject->m_pComponentTransform->GetLocalRotPosMatrix();
+    MyMatrix localmat = m_pGameObject->GetTransform()->GetLocalRotPosMatrix();
     transform.setFromOpenGLMatrix( &localmat.m11 );
 
     m_pBody->getMotionState()->setWorldTransform( transform );

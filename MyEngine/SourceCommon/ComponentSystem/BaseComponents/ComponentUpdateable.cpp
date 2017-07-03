@@ -31,7 +31,7 @@ void ComponentUpdateable::Reset()
 {
     ComponentBase::Reset();
 
-    m_pComponentTransform = m_pGameObject->m_pComponentTransform;
+    m_pComponentTransform = m_pGameObject->GetTransform();
 
 #if MYFW_USING_WX
     m_pPanelWatchBlockVisible = &m_PanelWatchBlockVisible;

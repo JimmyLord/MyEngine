@@ -23,6 +23,7 @@ class GameObject : public CPPListNode
 #endif
 {
     friend class EditorCommand_DeleteObjects; // for NotifyOthersThisWasDeleted()
+    friend class ComponentSystemManager; // for ComponentSystemManager::DeleteGameObject
 
     static const int MAX_COMPONENTS = 8; // TODO: fix this hardcodedness
 
@@ -45,12 +46,11 @@ protected:
 
     CPPListHead m_pOnDeleteCallbacks;
 
-protected:
-    void NotifyOthersThisWasDeleted();
-
-public:
     ComponentTransform* m_pComponentTransform;
     MyList<ComponentBase*> m_Components; // component system manager is responsible for deleting these components.
+
+protected:
+    void NotifyOthersThisWasDeleted();
 
 public:
     GameObject(bool managed, int sceneid, bool isfolder, bool hastransform, PrefabObject* pPrefab);
@@ -100,6 +100,12 @@ public:
 
     void SetPhysicsSceneID(unsigned int id) { m_PhysicsSceneID = id; }
     unsigned int GetPhysicsSceneID() { return m_PhysicsSceneID; }
+
+    unsigned int GetComponentCountIncludingCore();
+    ComponentBase* GetComponentByIndexIncludingCore(unsigned int index);
+
+    unsigned int GetComponentCount();
+    ComponentBase* GetComponentByIndex(unsigned int index);
 
     ComponentBase* AddNewComponent(int componenttype, unsigned int sceneid, ComponentSystemManager* pComponentSystemManager = g_pComponentSystemManager);
     ComponentBase* AddExistingComponent(ComponentBase* pComponent, bool resetcomponent);

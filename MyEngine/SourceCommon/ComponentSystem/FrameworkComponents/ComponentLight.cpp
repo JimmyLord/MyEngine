@@ -34,7 +34,7 @@ ComponentLight::~ComponentLight()
 {
     MYFW_COMPONENT_VARIABLE_LIST_DESTRUCTOR();
 
-    m_pGameObject->m_pComponentTransform->UnregisterTransformChangedCallbacks( this );
+    m_pGameObject->GetTransform()->UnregisterTransformChangedCallbacks( this );
 
     if( m_pLight )
         g_pLightManager->DestroyLight( m_pLight );
@@ -63,7 +63,7 @@ void ComponentLight::Reset()
     if( m_pLight == 0 )
     {
         m_pLight = g_pLightManager->CreateLight();
-        m_pGameObject->m_pComponentTransform->RegisterTransformChangedCallback( this, StaticOnTransformChanged );
+        m_pGameObject->GetTransform()->RegisterTransformChangedCallback( this, StaticOnTransformChanged );
     }
 
     m_pLight->m_LightType = LightType_Point;

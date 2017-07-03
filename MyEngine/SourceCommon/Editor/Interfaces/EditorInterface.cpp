@@ -21,9 +21,9 @@ void EditorInterfaceWxEventHandler::OnPopupClick(wxEvent &evt)
 
     if( m_pGameObjectRightClicked )
     {
-        for( unsigned int i=0; i<m_pGameObjectRightClicked->m_Components.Count(); i++ )
+        for( unsigned int i=0; i<m_pGameObjectRightClicked->GetComponentCount(); i++ )
         {
-            m_pGameObjectRightClicked->m_Components[i]->OnRightClickOptionClicked( evt, RightClick_ComponentOps + 1000 * i );
+            m_pGameObjectRightClicked->GetComponentByIndex( i )->OnRightClickOptionClicked( evt, RightClick_ComponentOps + 1000 * i );
         }
     }
 }
@@ -77,9 +77,9 @@ void EditorInterface::Tick(double TimePassed)
             m_EditorInterfaceWxEventHandler.m_ValueInt = 0;
 
             // Loop through components, each will add their menu items to the menu object.
-            for( unsigned int i=0; i<m_pGameObjectRightClicked->m_Components.Count(); i++ )
+            for( unsigned int i=0; i<m_pGameObjectRightClicked->GetComponentCount(); i++ )
             {
-                m_pGameObjectRightClicked->m_Components[i]->AddRightClickOptionsToMenu( &menu, EditorInterfaceWxEventHandler::RightClick_ComponentOps + 1000 * i );
+                m_pGameObjectRightClicked->GetComponentByIndex( i )->AddRightClickOptionsToMenu( &menu, EditorInterfaceWxEventHandler::RightClick_ComponentOps + 1000 * i );
             }
 
  	        menu.Connect( wxEVT_COMMAND_MENU_SELECTED, (wxObjectEventFunction)&EditorInterfaceWxEventHandler::OnPopupClick );
@@ -100,9 +100,9 @@ void EditorInterface::OnDrawFrame(unsigned int canvasid)
     if( pEditorState->m_pEditorCamera )
     {
         // draw scene from editor camera and editorFG camera
-        for( unsigned int i=0; i<pEditorState->m_pEditorCamera->m_Components.Count(); i++ )
+        for( unsigned int i=0; i<pEditorState->m_pEditorCamera->GetComponentCount(); i++ )
         {
-            ComponentCamera* pCamera = dynamic_cast<ComponentCamera*>( pEditorState->m_pEditorCamera->m_Components[i] );
+            ComponentCamera* pCamera = dynamic_cast<ComponentCamera*>( pEditorState->m_pEditorCamera->GetComponentByIndex( i ) );
 
             if( pCamera )
             {
@@ -368,7 +368,7 @@ bool EditorInterface::HandleInputForEditorCamera(int keyaction, int keycode, int
                 if( mods & MODIFIERKEY_Alt && pEditorState->m_pSelectedObjects.size() > 0 && pEditorState->m_pTransformGizmo->m_pTranslate1Axis[0] )
                 {
                     // pivot around the transform gizmo
-                    pivot = pEditorState->m_pTransformGizmo->m_pTranslate1Axis[0]->m_pComponentTransform->GetWorldTransform()->GetTranslation();
+                    pivot = pEditorState->m_pTransformGizmo->m_pTranslate1Axis[0]->GetTransform()->GetWorldTransform()->GetTranslation();
                     distancefrompivot = (matCamera->GetTranslation() - pivot).Length();
                 }
                 else
@@ -465,9 +465,9 @@ void EditorInterface::RenderObjectIDsToFBO()
 
     // draw all editor camera components.
     ComponentCamera* pCamera = 0;
-    for( unsigned int i=0; i<pEditorState->m_pEditorCamera->m_Components.Count(); i++ )
+    for( unsigned int i=0; i<pEditorState->m_pEditorCamera->GetComponentCount(); i++ )
     {
-        pCamera = dynamic_cast<ComponentCamera*>( pEditorState->m_pEditorCamera->m_Components[i] );
+        pCamera = dynamic_cast<ComponentCamera*>( pEditorState->m_pEditorCamera->GetComponentByIndex( i ) );
         if( pCamera )
         {
             g_pComponentSystemManager->DrawMousePickerFrame( pCamera, &pCamera->m_Camera3D.m_matViewProj, g_pEngineCore->m_pShader_TintColor );
@@ -507,9 +507,9 @@ unsigned int EditorInterface::GetIDAtPixel(unsigned int x, unsigned int y, bool 
 
     // Find the first camera again.
     ComponentCamera* pCamera = 0;
-    for( unsigned int i=0; i<pEditorState->m_pEditorCamera->m_Components.Count(); i++ )
+    for( unsigned int i=0; i<pEditorState->m_pEditorCamera->GetComponentCount(); i++ )
     {
-        pCamera = dynamic_cast<ComponentCamera*>( pEditorState->m_pEditorCamera->m_Components[i] );
+        pCamera = dynamic_cast<ComponentCamera*>( pEditorState->m_pEditorCamera->GetComponentByIndex( i ) );
         break;
     }
 
@@ -603,9 +603,9 @@ void EditorInterface::SelectObjectsInRectangle(unsigned int sx, unsigned int sy,
 
     // Find the first camera again.
     ComponentCamera* pCamera = 0;
-    for( unsigned int i=0; i<pEditorState->m_pEditorCamera->m_Components.Count(); i++ )
+    for( unsigned int i=0; i<pEditorState->m_pEditorCamera->GetComponentCount(); i++ )
     {
-        pCamera = dynamic_cast<ComponentCamera*>( pEditorState->m_pEditorCamera->m_Components[i] );
+        pCamera = dynamic_cast<ComponentCamera*>( pEditorState->m_pEditorCamera->GetComponentByIndex( i ) );
         break;
     }
 

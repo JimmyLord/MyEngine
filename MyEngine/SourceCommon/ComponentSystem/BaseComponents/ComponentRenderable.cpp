@@ -51,7 +51,7 @@ void ComponentRenderable::Reset()
 
     MyAssert( m_pGameObject );
 
-    m_pComponentTransform = m_pGameObject->m_pComponentTransform;
+    m_pComponentTransform = m_pGameObject->GetTransform();
 
     m_Visible = true;
     m_LayersThisExistsOn = Layer_MainScene;

@@ -204,7 +204,7 @@ void ComponentCamera::Reset()
 {
     ComponentBase::Reset();
 
-    m_pComponentTransform = m_pGameObject->m_pComponentTransform;
+    m_pComponentTransform = m_pGameObject->GetTransform();
 
     m_Orthographic = false;
 

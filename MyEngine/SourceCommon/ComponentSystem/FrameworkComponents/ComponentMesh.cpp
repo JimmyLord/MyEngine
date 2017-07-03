@@ -586,10 +586,10 @@ void ComponentMesh::OnLuaScriptDeleted(ComponentBase* pComponent) // StaticOnLua
 void ComponentMesh::TickCallback(double TimePassed)
 {
     // TODO: temp hack, if the gameobject doesn't have a transform (shouldn't happen), then don't try to add to scene graph
-    if( m_pGameObject->m_pComponentTransform == 0 )
+    if( m_pGameObject->GetTransform() == 0 )
         return;
 
-    MyAssert( m_pGameObject->m_pComponentTransform );
+    MyAssert( m_pGameObject->GetTransform() );
     MyAssert( m_pMesh );
     MyAssert( m_WaitingToAddToSceneGraph );
 

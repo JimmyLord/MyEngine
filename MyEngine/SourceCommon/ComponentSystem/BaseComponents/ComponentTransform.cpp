@@ -210,7 +210,7 @@ void* ComponentTransform::OnDropTransform(ComponentVariable* pVar, wxCoord x, wx
 
     if( pDropItem->m_Type == DragAndDropType_GameObjectPointer )
     {
-        pComponent = ((GameObject*)pDropItem->m_Value)->m_pComponentTransform;
+        pComponent = ((GameObject*)pDropItem->m_Value)->GetTransform();
     }
 
     if( pComponent )
@@ -703,7 +703,7 @@ void ComponentTransform::SetParentTransform(ComponentTransform* pNewParentTransf
     if( m_pParentTransform != 0 )
     {
         // stop sending old parent position changed messages
-        m_pParentTransform->m_pGameObject->m_pComponentTransform->UnregisterTransformChangedCallbacks( this );
+        m_pParentTransform->m_pGameObject->GetTransform()->UnregisterTransformChangedCallbacks( this );
 
         // Maintain our world space position by setting local transform to match world
         wantedWorldSpaceTransform = m_WorldTransform;
@@ -736,7 +736,7 @@ void ComponentTransform::SetParentTransform(ComponentTransform* pNewParentTransf
 
         // Register this transform with it's parent to notify us if it changes.
         GameObject* pParentGameObject = m_pGameObject->GetParentGameObject();
-        pParentGameObject->m_pComponentTransform->RegisterTransformChangedCallback( this, StaticOnParentTransformChanged );
+        pParentGameObject->GetTransform()->RegisterTransformChangedCallback( this, StaticOnParentTransformChanged );
     }
 
     UpdateTransform();

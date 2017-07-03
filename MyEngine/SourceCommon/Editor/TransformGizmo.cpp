@@ -72,7 +72,7 @@ void TransformGizmo::Tick(double TimePassed, EditorState* pEditorState)
 
     if( pEditorState->m_pSelectedObjects.size() == 1 )
     {
-        ComponentTransform* pTransform = pEditorState->m_pSelectedObjects[0]->m_pComponentTransform;
+        ComponentTransform* pTransform = pEditorState->m_pSelectedObjects[0]->GetTransform();
 
         if( pTransform )
         {
@@ -102,9 +102,9 @@ void TransformGizmo::Tick(double TimePassed, EditorState* pEditorState)
         unsigned int count = 0;
         for( unsigned int i=0; i<pEditorState->m_pSelectedObjects.size(); i++ )
         {
-            if( pEditorState->m_pSelectedObjects[i]->m_pComponentTransform )
+            if( pEditorState->m_pSelectedObjects[i]->GetTransform() )
             {
-                ObjectPosition += pEditorState->m_pSelectedObjects[i]->m_pComponentTransform->GetLocalPosition();
+                ObjectPosition += pEditorState->m_pSelectedObjects[i]->GetTransform()->GetLocalPosition();
                 count++;
             }
         }
@@ -203,13 +203,13 @@ void TransformGizmo::Tick(double TimePassed, EditorState* pEditorState)
 
             matrot = ObjectRotation * matrot;
             Vector3 rot = matrot.GetEulerAngles() * 180.0f/PI + AmountOfDistanceRotatedToAddToGizmo;
-            m_pTranslate1Axis[i]->m_pComponentTransform->SetLocalRotation( rot );
+            m_pTranslate1Axis[i]->GetTransform()->SetLocalRotation( rot );
 
             // move the gizmo to the object position.
-            m_pTranslate1Axis[i]->m_pComponentTransform->SetLocalPosition( ObjectPosition );
+            m_pTranslate1Axis[i]->GetTransform()->SetLocalPosition( ObjectPosition );
 
-            float distance = (pEditorState->m_pEditorCamera->m_pComponentTransform->GetLocalPosition() - ObjectPosition).Length();
-            m_pTranslate1Axis[i]->m_pComponentTransform->SetLocalScale( Vector3( distance * g_TransformScale ) );
+            float distance = (pEditorState->m_pEditorCamera->GetTransform()->GetLocalPosition() - ObjectPosition).Length();
+            m_pTranslate1Axis[i]->GetTransform()->SetLocalScale( Vector3( distance * g_TransformScale ) );
         }
     }
 
@@ -277,13 +277,13 @@ void TransformGizmo::Tick(double TimePassed, EditorState* pEditorState)
 
             matrot = ObjectRotation * matrot;
             Vector3 rot = matrot.GetEulerAngles() * 180.0f/PI + AmountOfDistanceRotatedToAddToGizmo;
-            m_pTranslate2Axis[i]->m_pComponentTransform->SetLocalRotation( rot );
+            m_pTranslate2Axis[i]->GetTransform()->SetLocalRotation( rot );
 
             // move the gizmo to the object position.
-            m_pTranslate2Axis[i]->m_pComponentTransform->SetLocalPosition( pos );
+            m_pTranslate2Axis[i]->GetTransform()->SetLocalPosition( pos );
 
-            float distance = (pEditorState->m_pEditorCamera->m_pComponentTransform->GetLocalPosition() - ObjectPosition).Length();
-            m_pTranslate2Axis[i]->m_pComponentTransform->SetLocalScale( Vector3( distance * g_TransformScale ) );
+            float distance = (pEditorState->m_pEditorCamera->GetTransform()->GetLocalPosition() - ObjectPosition).Length();
+            m_pTranslate2Axis[i]->GetTransform()->SetLocalScale( Vector3( distance * g_TransformScale ) );
         }
     }
 
@@ -326,13 +326,13 @@ void TransformGizmo::Tick(double TimePassed, EditorState* pEditorState)
 
             matrot = ObjectRotation * matrot;
             Vector3 rot = matrot.GetEulerAngles() * 180.0f/PI + AmountOfDistanceRotatedToAddToGizmo;
-            m_pScale1Axis[i]->m_pComponentTransform->SetLocalRotation( rot );
+            m_pScale1Axis[i]->GetTransform()->SetLocalRotation( rot );
 
             // move the gizmo to the object position.
-            m_pScale1Axis[i]->m_pComponentTransform->SetLocalPosition( ObjectPosition );
+            m_pScale1Axis[i]->GetTransform()->SetLocalPosition( ObjectPosition );
 
-            float distance = (pEditorState->m_pEditorCamera->m_pComponentTransform->GetLocalPosition() - ObjectPosition).Length();
-            m_pScale1Axis[i]->m_pComponentTransform->SetLocalScale( Vector3( distance * g_TransformScale ) );
+            float distance = (pEditorState->m_pEditorCamera->GetTransform()->GetLocalPosition() - ObjectPosition).Length();
+            m_pScale1Axis[i]->GetTransform()->SetLocalScale( Vector3( distance * g_TransformScale ) );
         }
     }
 
@@ -370,13 +370,13 @@ void TransformGizmo::Tick(double TimePassed, EditorState* pEditorState)
 
             matrot = ObjectRotation * matrot;
             Vector3 rot = matrot.GetEulerAngles() * 180.0f/PI + AmountOfDistanceRotatedToAddToGizmo;
-            m_pScale3Axis->m_pComponentTransform->SetLocalRotation( rot );
+            m_pScale3Axis->GetTransform()->SetLocalRotation( rot );
 
             // move the gizmo to the object position.
-            m_pScale3Axis->m_pComponentTransform->SetLocalPosition( pos );
+            m_pScale3Axis->GetTransform()->SetLocalPosition( pos );
 
-            float distance = (pEditorState->m_pEditorCamera->m_pComponentTransform->GetLocalPosition() - ObjectPosition).Length();
-            m_pScale3Axis->m_pComponentTransform->SetLocalScale( Vector3( distance * g_TransformScale ) );
+            float distance = (pEditorState->m_pEditorCamera->GetTransform()->GetLocalPosition() - ObjectPosition).Length();
+            m_pScale3Axis->GetTransform()->SetLocalScale( Vector3( distance * g_TransformScale ) );
         }
     }
 
@@ -441,13 +441,13 @@ void TransformGizmo::Tick(double TimePassed, EditorState* pEditorState)
 
             matrot = ObjectRotation * matrot;
             Vector3 rot = matrot.GetEulerAngles() * 180.0f/PI + AmountOfDistanceRotatedToAddToGizmo;
-            m_pRotate1Axis[i]->m_pComponentTransform->SetLocalRotation( rot );
+            m_pRotate1Axis[i]->GetTransform()->SetLocalRotation( rot );
 
             // move the gizmo to the object position.
-            m_pRotate1Axis[i]->m_pComponentTransform->SetLocalPosition( ObjectPosition );
+            m_pRotate1Axis[i]->GetTransform()->SetLocalPosition( ObjectPosition );
 
-            float distance = (pEditorState->m_pEditorCamera->m_pComponentTransform->GetLocalPosition() - ObjectPosition).Length();
-            m_pRotate1Axis[i]->m_pComponentTransform->SetLocalScale( Vector3( distance * g_TransformScale ) );
+            float distance = (pEditorState->m_pEditorCamera->GetTransform()->GetLocalPosition() - ObjectPosition).Length();
+            m_pRotate1Axis[i]->GetTransform()->SetLocalScale( Vector3( distance * g_TransformScale ) );
         }
     }
 }
@@ -794,12 +794,12 @@ void TransformGizmo::ScaleGizmosForMousePickRendering(bool doscale)
 
     for( int i=0; i<3; i++ )
     {
-        Vector3 currentscale = m_pTranslate1Axis[i]->m_pComponentTransform->GetLocalScale();
+        Vector3 currentscale = m_pTranslate1Axis[i]->GetTransform()->GetLocalScale();
         Vector3 newscale( currentscale.x * scaleamount, currentscale.y, currentscale.z * scaleamount );
-        m_pTranslate1Axis[i]->m_pComponentTransform->SetLocalScale( newscale );
+        m_pTranslate1Axis[i]->GetTransform()->SetLocalScale( newscale );
 
         // update the world matrix, so the scale will apply when the scene graph renders the scene.
-        m_pTranslate1Axis[i]->m_pComponentTransform->UpdateTransform();
+        m_pTranslate1Axis[i]->GetTransform()->UpdateTransform();
     }
 }
 
@@ -1011,7 +1011,7 @@ void TransformGizmo::TranslateSelectedObjects(EditorState* pEditorState, Vector3
 {
     for( unsigned int i=0; i<pEditorState->m_pSelectedObjects.size(); i++ )
     {
-        ComponentTransform* pTransform = pEditorState->m_pSelectedObjects[i]->m_pComponentTransform;
+        ComponentTransform* pTransform = pEditorState->m_pSelectedObjects[i]->GetTransform();
 
         // if this object has a selected parent, don't move it, only move the parent.
         if( pTransform && pTransform->IsAnyParentInList( pEditorState->m_pSelectedObjects ) == false )
@@ -1048,7 +1048,7 @@ void TransformGizmo::ScaleSelectedObjects(EngineCore* pGame, EditorState* pEdito
             }
             else
             {
-                Vector3 gizmopos = m_pTranslate1Axis[0]->m_pComponentTransform->GetWorldPosition();
+                Vector3 gizmopos = m_pTranslate1Axis[0]->GetTransform()->GetWorldPosition();
                 pEditorState->m_WorldSpacePivot = gizmopos;
             }
 
@@ -1089,7 +1089,7 @@ void TransformGizmo::ScaleSelectedObjects(EditorState* pEditorState, Vector3 sca
 {
     for( unsigned int i=0; i<pEditorState->m_pSelectedObjects.size(); i++ )
     {
-        ComponentTransform* pTransform = pEditorState->m_pSelectedObjects[i]->m_pComponentTransform;
+        ComponentTransform* pTransform = pEditorState->m_pSelectedObjects[i]->GetTransform();
 
         // if this object has a selected parent, don't move it, only move the parent.
         if( pTransform && pTransform->IsAnyParentInList( pEditorState->m_pSelectedObjects ) == false )
@@ -1162,7 +1162,7 @@ void TransformGizmo::RotateSelectedObjects(EngineCore* pGame, EditorState* pEdit
                 else
                 {
                     // set the pivot to match the current gizmo.
-                    Vector3 gizmopos = m_pTranslate1Axis[0]->m_pComponentTransform->GetWorldPosition();
+                    Vector3 gizmopos = m_pTranslate1Axis[0]->GetTransform()->GetWorldPosition();
                     pEditorState->m_WorldSpacePivot = gizmopos;
                 }
 
@@ -1262,7 +1262,7 @@ void TransformGizmo::RotateSelectedObjects(EditorState* pEditorState, Vector3 eu
 {
     for( unsigned int i=0; i<pEditorState->m_pSelectedObjects.size(); i++ )
     {
-        ComponentTransform* pTransform = pEditorState->m_pSelectedObjects[i]->m_pComponentTransform;
+        ComponentTransform* pTransform = pEditorState->m_pSelectedObjects[i]->GetTransform();
 
         // if this object has a selected parent, don't move it, only move the parent.
         if( pTransform && pTransform->IsAnyParentInList( pEditorState->m_pSelectedObjects ) == false )

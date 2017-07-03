@@ -467,8 +467,8 @@ void Component2DCollisionObject::CreateBody()
         // if this is the first component of this type, create the body, otherwise get the body from the first component.
         if( pComponentWithBody == this )
         {
-            Vector3 pos = m_pGameObject->m_pComponentTransform->GetWorldPosition();
-            Vector3 rot = m_pGameObject->m_pComponentTransform->GetWorldRotation();
+            Vector3 pos = m_pGameObject->GetTransform()->GetWorldPosition();
+            Vector3 rot = m_pGameObject->GetTransform()->GetWorldRotation();
 
             b2BodyDef bodydef;
         
@@ -482,7 +482,7 @@ void Component2DCollisionObject::CreateBody()
             m_pBody = m_pBox2DWorld->m_pWorld->CreateBody( &bodydef );
             m_pBody->SetUserData( this );
 
-            m_Scale = m_pGameObject->m_pComponentTransform->GetWorldScale();
+            m_Scale = m_pGameObject->GetTransform()->GetWorldScale();
 
             pBody = m_pBody;
         }
@@ -603,11 +603,11 @@ void Component2DCollisionObject::TickCallback(double TimePassed)
 
     MyMatrix matWorld;
 
-    Vector3 oldpos = m_pGameObject->m_pComponentTransform->GetWorldPosition();
-    Vector3 oldrot = m_pGameObject->m_pComponentTransform->GetWorldRotation();
+    Vector3 oldpos = m_pGameObject->GetTransform()->GetWorldPosition();
+    Vector3 oldrot = m_pGameObject->GetTransform()->GetWorldRotation();
 
     matWorld.CreateSRT( m_Scale, Vector3( 0, 0, angle ), Vector3( pos.x, pos.y, oldpos.z ) );
-    m_pGameObject->m_pComponentTransform->SetWorldTransform( &matWorld );
+    m_pGameObject->GetTransform()->SetWorldTransform( &matWorld );
 }
 
 #if MYFW_USING_WX

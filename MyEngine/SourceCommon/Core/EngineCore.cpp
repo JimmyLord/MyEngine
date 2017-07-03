@@ -1150,9 +1150,9 @@ void EngineCore::CreateDefaultEditorSceneObjects()
         pGameObject = m_pComponentSystemManager->CreateGameObject( false, ENGINE_SCENE_ID ); // not managed.
         pGameObject->SetName( "Editor Camera" );
 #if MYFW_RIGHTHANDED
-        pGameObject->m_pComponentTransform->SetWorldPosition( Vector3( 0, 0, 10 ) );
+        pGameObject->GetTransform()->SetWorldPosition( Vector3( 0, 0, 10 ) );
 #else
-        pGameObject->m_pComponentTransform->SetWorldPosition( Vector3( 0, 0, -10 ) );
+        pGameObject->GetTransform()->SetWorldPosition( Vector3( 0, 0, -10 ) );
 #endif
 
         // add an editor scene camera
@@ -1200,9 +1200,9 @@ void EngineCore::CreateDefaultSceneObjects()
         pGameObject->SetName( "Main Camera" );
         pGameObject->SetFlags( 1<<0 );
 #if MYFW_RIGHTHANDED
-        pGameObject->m_pComponentTransform->SetWorldPosition( Vector3( 0, 0, 10 ) );
+        pGameObject->GetTransform()->SetWorldPosition( Vector3( 0, 0, 10 ) );
 #else
-        pGameObject->m_pComponentTransform->SetWorldPosition( Vector3( 0, 0, -10 ) );
+        pGameObject->GetTransform()->SetWorldPosition( Vector3( 0, 0, -10 ) );
 #endif
 
         pComponentCamera = (ComponentCamera*)pGameObject->AddNewComponent( ComponentType_Camera, 1 );
@@ -1491,9 +1491,9 @@ void EngineCore::Editor_OnSurfaceChanged(unsigned int startx, unsigned int start
     {
         if( m_pEditorState && m_pEditorState->m_pEditorCamera )
         {
-            for( unsigned int i=0; i<m_pEditorState->m_pEditorCamera->m_Components.Count(); i++ )
+            for( unsigned int i=0; i<m_pEditorState->m_pEditorCamera->GetComponentCount(); i++ )
             {
-                ComponentCamera* pCamera = dynamic_cast<ComponentCamera*>( m_pEditorState->m_pEditorCamera->m_Components[i] );
+                ComponentCamera* pCamera = dynamic_cast<ComponentCamera*>( m_pEditorState->m_pEditorCamera->GetComponentByIndex( i ) );
                 MyAssert( pCamera != 0 );
                 if( pCamera )
                     pCamera->OnSurfaceChanged( startx, starty, width, height, (unsigned int)m_GameWidth, (unsigned int)m_GameHeight );
@@ -1575,9 +1575,9 @@ void EngineCore::RenderSingleObject(GameObject* pObject)
 
     // draw all editor camera components.
     ComponentCamera* pCamera = 0;
-    for( unsigned int i=0; i<m_pEditorState->m_pEditorCamera->m_Components.Count(); i++ )
+    for( unsigned int i=0; i<m_pEditorState->m_pEditorCamera->GetComponentCount(); i++ )
     {
-        pCamera = dynamic_cast<ComponentCamera*>( m_pEditorState->m_pEditorCamera->m_Components[i] );
+        pCamera = dynamic_cast<ComponentCamera*>( m_pEditorState->m_pEditorCamera->GetComponentByIndex( i ) );
         if( pCamera )
         {
             Vector3 objpos = pObject->GetTransform()->GetWorldPosition();
@@ -1764,29 +1764,10 @@ void EngineCore::OnObjectListTreeMultipleSelection() //StaticOnObjectListTreeMul
     {
         GameObject* pFirstGameObject = m_pEditorState->m_pSelectedObjects[0];
 
-        for( unsigned int componentindex=0; componentindex<pFirstGameObject->m_Components.Count()+2; componentindex++ )
+        // Search all components including GameObject properties and transform.
+        for( unsigned int i=0; i<pFirstGameObject->GetComponentCountIncludingCore(); i++ )
         {
-            // Figure out which component we want to check other gameobjects for, special case for transform component.
-            ComponentBase* pComponentToLookFor = 0;
-
-            if( componentindex == 0 )
-            {
-                if( pFirstGameObject->GetPropertiesComponent() == 0 )
-                    continue;
-
-                pComponentToLookFor = pFirstGameObject->GetPropertiesComponent();
-            }
-            else if( componentindex == 1 )
-            {
-                if( pFirstGameObject->m_pComponentTransform == 0 )
-                    continue;
-
-                pComponentToLookFor = pFirstGameObject->m_pComponentTransform;
-            }
-            else
-            {
-                pComponentToLookFor = pFirstGameObject->m_Components[componentindex-2];
-            }
+            ComponentBase* pComponentToLookFor = pFirstGameObject->GetComponentByIndexIncludingCore( i );
 
             MyAssert( pComponentToLookFor );
 
@@ -1797,16 +1778,9 @@ void EngineCore::OnObjectListTreeMultipleSelection() //StaticOnObjectListTreeMul
                 GameObject* pGameObject = m_pEditorState->m_pSelectedObjects[i];
 
                 bool hascomponent = false;
-                for( unsigned int i=0; i<pGameObject->m_Components.Count()+2; i++ )
+                for( unsigned int i=0; i<pGameObject->GetComponentCountIncludingCore(); i++ )
                 {
-                    ComponentBase* pOtherComponent;
-
-                    if( i == 0 )
-                        pOtherComponent = pGameObject->GetPropertiesComponent();
-                    else if( i == 1 )
-                        pOtherComponent = pGameObject->m_pComponentTransform;
-                    else
-                        pOtherComponent = pGameObject->m_Components[i-2];
+                    ComponentBase* pOtherComponent = pGameObject->GetComponentByIndexIncludingCore( i );
 
                     if( pOtherComponent && pOtherComponent->IsA( pComponentToLookFor->GetClassname() ) == true )
                     {

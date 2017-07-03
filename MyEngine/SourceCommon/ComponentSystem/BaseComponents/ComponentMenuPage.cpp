@@ -128,7 +128,7 @@ void ComponentMenuPage::Reset()
 
     ComponentRenderable::Reset();
 
-    m_pComponentTransform = m_pGameObject->m_pComponentTransform;
+    m_pComponentTransform = m_pGameObject->GetTransform();
 
     m_LayersThisExistsOn = Layer_HUD;
 

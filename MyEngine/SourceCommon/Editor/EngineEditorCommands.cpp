@@ -34,9 +34,11 @@ void EditorCommand_MoveObjects::Do()
 {
     for( unsigned int i=0; i<m_ObjectsMoved.size(); i++ )
     {
-        Vector3 newpos = m_ObjectsMoved[i]->m_pComponentTransform->GetLocalTransform()->GetTranslation() + m_DistanceMoved;
-        m_ObjectsMoved[i]->m_pComponentTransform->SetPositionByEditor( newpos );
-        m_ObjectsMoved[i]->m_pComponentTransform->UpdateTransform();
+        ComponentTransform* pTransform = m_ObjectsMoved[i]->GetTransform();
+
+        Vector3 newpos = pTransform->GetLocalTransform()->GetTranslation() + m_DistanceMoved;
+        pTransform->SetPositionByEditor( newpos );
+        pTransform->UpdateTransform();
     }
 }
 
@@ -45,9 +47,11 @@ void EditorCommand_MoveObjects::Undo()
     //LOGInfo( LOGTag, "EditorCommand_MoveObjects::Undo %f,%f,%f\n", m_DistanceMoved.x, m_DistanceMoved.y, m_DistanceMoved.z );
     for( unsigned int i=0; i<m_ObjectsMoved.size(); i++ )
     {
-        Vector3 newpos = m_ObjectsMoved[i]->m_pComponentTransform->GetLocalTransform()->GetTranslation() - m_DistanceMoved;
-        m_ObjectsMoved[i]->m_pComponentTransform->SetPositionByEditor( newpos );
-        m_ObjectsMoved[i]->m_pComponentTransform->UpdateTransform();
+        ComponentTransform* pTransform = m_ObjectsMoved[i]->GetTransform();
+
+        Vector3 newpos = pTransform->GetLocalTransform()->GetTranslation() - m_DistanceMoved;
+        pTransform->SetPositionByEditor( newpos );
+        pTransform->UpdateTransform();
     }
 }
 
@@ -86,7 +90,7 @@ void EditorCommand_ScaleObjects::Do()
 {
     for( unsigned int i=0; i<m_ObjectsScaled.size(); i++ )
     {
-        ComponentTransform* pTransform = m_ObjectsScaled[i]->m_pComponentTransform;
+        ComponentTransform* pTransform = m_ObjectsScaled[i]->GetTransform();
 
         // only scale in local space
         //if( m_TransformedInLocalSpace == true )
@@ -110,7 +114,7 @@ void EditorCommand_ScaleObjects::Undo()
     //LOGInfo( LOGTag, "EditorCommand_ScaleObjects::Undo %f,%f,%f\n", m_AmountScaled.x, m_AmountScaled.y, m_AmountScaled.z );
     for( unsigned int i=0; i<m_ObjectsScaled.size(); i++ )
     {
-        ComponentTransform* pTransform = m_ObjectsScaled[i]->m_pComponentTransform;
+        ComponentTransform* pTransform = m_ObjectsScaled[i]->GetTransform();
 
         // only scale in local space
         //if( m_TransformedInLocalSpace == true )
@@ -164,7 +168,7 @@ void EditorCommand_RotateObjects::Do()
 {
     for( unsigned int i=0; i<m_ObjectsRotated.size(); i++ )
     {
-        ComponentTransform* pTransform = m_ObjectsRotated[i]->m_pComponentTransform;
+        ComponentTransform* pTransform = m_ObjectsRotated[i]->GetTransform();
 
         if( m_TransformedInLocalSpace == true )
         {
@@ -197,7 +201,7 @@ void EditorCommand_RotateObjects::Undo()
     //LOGInfo( LOGTag, "EditorCommand_RotateObjects::Undo %f,%f,%f\n", m_AmountRotated.x, m_AmountRotated.y, m_AmountRotated.z );
     for( unsigned int i=0; i<m_ObjectsRotated.size(); i++ )
     {
-        ComponentTransform* pTransform = m_ObjectsRotated[i]->m_pComponentTransform;
+        ComponentTransform* pTransform = m_ObjectsRotated[i]->GetTransform();
 
         if( m_TransformedInLocalSpace == true )
         {
@@ -705,9 +709,9 @@ EditorCommand_ChangeAllScriptsOnGameObject::~EditorCommand_ChangeAllScriptsOnGam
 
 void EditorCommand_ChangeAllScriptsOnGameObject::Do()
 {
-    for( unsigned int i=0; i<m_pGameObject->m_Components.Count(); i++ )
+    for( unsigned int i=0; i<m_pGameObject->GetComponentCount(); i++ )
     {
-        ComponentLuaScript* pLuaComponent = dynamic_cast<ComponentLuaScript*>( m_pGameObject->m_Components[i] );
+        ComponentLuaScript* pLuaComponent = dynamic_cast<ComponentLuaScript*>( m_pGameObject->GetComponentByIndex( i ) );
 
         if( pLuaComponent )
         {

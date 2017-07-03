@@ -638,7 +638,7 @@ bool EditorInterface_SceneManagement::HandleInput(int keyaction, int keycode, in
                         std::vector<GameObject*> selectedobjects;
                         for( unsigned int i=0; i<pEditorState->m_pSelectedObjects.size(); i++ )
                         {
-                            ComponentTransform* pTransform = pEditorState->m_pSelectedObjects[i]->m_pComponentTransform;
+                            ComponentTransform* pTransform = pEditorState->m_pSelectedObjects[i]->GetTransform();
 
                             // if this object has a selected parent, don't move it, only move the parent.
                             if( pTransform && pTransform->IsAnyParentInList( pEditorState->m_pSelectedObjects ) == false )
@@ -667,7 +667,7 @@ bool EditorInterface_SceneManagement::HandleInput(int keyaction, int keycode, in
                         std::vector<GameObject*> selectedobjects;
                         for( unsigned int i=0; i<pEditorState->m_pSelectedObjects.size(); i++ )
                         {
-                            ComponentTransform* pTransform = pEditorState->m_pSelectedObjects[i]->m_pComponentTransform;
+                            ComponentTransform* pTransform = pEditorState->m_pSelectedObjects[i]->GetTransform();
 
                             // if this object has a selected parent, don't move it, only move the parent.
                             if( pTransform && pTransform->IsAnyParentInList( pEditorState->m_pSelectedObjects ) == false )
@@ -693,7 +693,7 @@ bool EditorInterface_SceneManagement::HandleInput(int keyaction, int keycode, in
                         std::vector<GameObject*> selectedobjects;
                         for( unsigned int i=0; i<pEditorState->m_pSelectedObjects.size(); i++ )
                         {
-                            ComponentTransform* pTransform = pEditorState->m_pSelectedObjects[i]->m_pComponentTransform;
+                            ComponentTransform* pTransform = pEditorState->m_pSelectedObjects[i]->GetTransform();
 
                             // if this object has a selected parent, don't move it, only move the parent.
                             if( pTransform && pTransform->IsAnyParentInList( pEditorState->m_pSelectedObjects ) == false )

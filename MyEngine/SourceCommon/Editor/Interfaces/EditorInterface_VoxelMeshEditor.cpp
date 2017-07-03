@@ -340,7 +340,7 @@ bool EditorInterface_VoxelMeshEditor::RayCast(Vector2 mousepos, VoxelRayCastResu
     if( m_pVoxelMesh )
     {
         // transform ray to chunk space.
-        MyMatrix transform = *m_pVoxelMesh->m_pGameObject->m_pComponentTransform->GetWorldTransform();
+        MyMatrix transform = *m_pVoxelMesh->m_pGameObject->GetTransform()->GetWorldTransform();
         transform.Inverse();
         Vector3 chunkspacestart = transform * start;
         Vector3 chunkspaceend = transform * end;

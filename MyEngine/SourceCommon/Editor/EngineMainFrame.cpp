@@ -1358,7 +1358,7 @@ void EngineMainFrame::OnDrop(int controlid, wxCoord x, wxCoord y)
             if( pObjectDroppedOn && pObjectDroppedOn->GetMaterial() )
             {
                 // Place it just above of the object selected otherwise place it at 0,0,0... for now.
-                Vector3 pos = pObjectDroppedOn->m_pComponentTransform->GetWorldPosition();
+                Vector3 pos = pObjectDroppedOn->GetTransform()->GetWorldPosition();
 
                 ComponentRenderable* pComponentMeshDroppedOn = (ComponentRenderable*)pObjectDroppedOn->GetFirstComponentOfBaseType( BaseComponentType_Renderable );
                 if( pComponentMeshDroppedOn )
@@ -1367,8 +1367,8 @@ void EngineMainFrame::OnDrop(int controlid, wxCoord x, wxCoord y)
                     pos.y += pMesh->GetBounds()->GetHalfSize().y;
                 }
 
-                pGameObject->m_pComponentTransform->SetWorldPosition( pos );
-                pGameObject->m_pComponentTransform->UpdateTransform();
+                pGameObject->GetTransform()->SetWorldPosition( pos );
+                pGameObject->GetTransform()->UpdateTransform();
             }
 
             // Undo/redo

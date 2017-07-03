@@ -241,9 +241,9 @@ void EditorState::LockCameraToGameObject(GameObject* pGameObject)
         m_CameraState = EditorCameraState_LockedToObject;
         m_pGameObjectCameraIsFollowing = pGameObject;
 
-        MyMatrix GOTransform = *m_pGameObjectCameraIsFollowing->m_pComponentTransform->GetWorldTransform();
+        MyMatrix GOTransform = *m_pGameObjectCameraIsFollowing->GetTransform()->GetWorldTransform();
         GOTransform.Inverse();
-        MyMatrix CamTransform = *m_pEditorCamera->m_pComponentTransform->GetWorldTransform();
+        MyMatrix CamTransform = *m_pEditorCamera->GetTransform()->GetWorldTransform();
 
         m_OffsetFromObject = GOTransform * CamTransform;
 
@@ -266,12 +266,12 @@ void EditorState::UpdateCamera(double TimePassed)
 
         if( m_pGameObjectCameraIsFollowing )
         {
-            m_pGameObjectCameraIsFollowing->m_pComponentTransform->UpdateTransform();
+            m_pGameObjectCameraIsFollowing->GetTransform()->UpdateTransform();
 
-            MyMatrix GOTransform = *m_pGameObjectCameraIsFollowing->m_pComponentTransform->GetWorldTransform();
+            MyMatrix GOTransform = *m_pGameObjectCameraIsFollowing->GetTransform()->GetWorldTransform();
             MyMatrix newtransform = GOTransform * m_OffsetFromObject;
 
-            m_pEditorCamera->m_pComponentTransform->SetWorldTransform( &newtransform );
+            m_pEditorCamera->GetTransform()->SetWorldTransform( &newtransform );
         }
     }
 }

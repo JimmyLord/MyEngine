@@ -18,7 +18,7 @@ cJSON* ExportGameObject(cJSON* jGameObjectArray, GameObject* pGameObject)
         jGameObject = cJSON_CreateObject();
         cJSON_AddStringToObject( jGameObject, "Name", pGameObject->GetName() );
 
-        ComponentTransform* pTransform = pGameObject->m_pComponentTransform;
+        ComponentTransform* pTransform = pGameObject->GetTransform();
         Vector3 pos = pTransform->GetWorldPosition();
         Vector3 rot = pTransform->GetWorldRotation();
         Vector3 scale = pTransform->GetWorldScale();
@@ -38,13 +38,13 @@ cJSON* ExportGameObject(cJSON* jGameObjectArray, GameObject* pGameObject)
             }
         }
 
-        if( pGameObject->m_Components.Count() > 0 )
+        if( pGameObject->GetComponentCount() > 0 )
         {
             cJSON* jComponentArray = 0;
 
-            for( unsigned int i=0; i<pGameObject->m_Components.Count(); i++ )
+            for( unsigned int i=0; i<pGameObject->GetComponentCount(); i++ )
             {
-                ComponentBase* pComponent = pGameObject->m_Components[i];
+                ComponentBase* pComponent = pGameObject->GetComponentByIndex( i );
 
                 if( pComponent->IsA( "2DCollisionObjectComponent" ) ||
                     pComponent->IsA( "2DJoint-Revolute" ) ||
