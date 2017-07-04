@@ -169,6 +169,7 @@ void GameObject::ShowInWatchPanel()
     g_pPanelWatch->AddSpace( tempname, this, GameObject::StaticOnTitleLabelClicked );
 
     // Add variables from ComponentGameObjectProperties.
+    m_Properties.m_MultiSelectedComponents.clear();
     m_Properties.FillPropertiesWindow( false );
 
     // Add variables from ComponentTransform.

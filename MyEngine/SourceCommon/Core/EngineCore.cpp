@@ -1771,6 +1771,8 @@ void EngineCore::OnObjectListTreeMultipleSelection() //StaticOnObjectListTreeMul
 
             MyAssert( pComponentToLookFor );
 
+            pComponentToLookFor->m_MultiSelectedComponents.clear();
+
             // Loop through selected gameobjects and check if they all have to least one of this component type on them.
             bool allgameobjectshavecomponent = true;
             for( unsigned int i=1; i<m_pEditorState->m_pSelectedObjects.size(); i++ )

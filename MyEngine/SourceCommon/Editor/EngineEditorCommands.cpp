@@ -16,6 +16,8 @@
 
 EditorCommand_MoveObjects::EditorCommand_MoveObjects(Vector3 distancemoved, const std::vector<GameObject*>& selectedobjects)
 {
+    m_Name = "EditorCommand_MoveObjects";
+
     m_DistanceMoved = distancemoved;
 
     //LOGInfo( LOGTag, "EditorCommand_MoveObjects:: %f,%f,%f\n", m_DistanceMoved.x, m_DistanceMoved.y, m_DistanceMoved.z );
@@ -70,6 +72,8 @@ EditorCommand* EditorCommand_MoveObjects::Repeat()
 
 EditorCommand_ScaleObjects::EditorCommand_ScaleObjects(Vector3 amountscaled, bool localspace, Vector3 pivot, const std::vector<GameObject*>& selectedobjects)
 {
+    m_Name = "EditorCommand_ScaleObjects";
+
     m_AmountScaled = amountscaled;
     m_TransformedInLocalSpace = localspace;
     m_WorldSpacePivot = pivot;
@@ -148,6 +152,8 @@ EditorCommand* EditorCommand_ScaleObjects::Repeat()
 
 EditorCommand_RotateObjects::EditorCommand_RotateObjects(Vector3 amountRotated, bool localspace, Vector3 pivot, const std::vector<GameObject*>& selectedobjects)
 {
+    m_Name = "EditorCommand_RotateObjects";
+
     m_AmountRotated = amountRotated;
     m_TransformedInLocalSpace = localspace;
     m_WorldSpacePivot = pivot;
@@ -242,6 +248,8 @@ EditorCommand* EditorCommand_RotateObjects::Repeat()
 
 EditorCommand_DeleteObjects::EditorCommand_DeleteObjects(const std::vector<GameObject*>& selectedobjects)
 {
+    m_Name = "EditorCommand_DeleteObjects";
+
     MyAssert( selectedobjects.size() > 0 );
 
     for( unsigned int i=0; i<selectedobjects.size(); i++ )
@@ -343,6 +351,8 @@ EditorCommand* EditorCommand_DeleteObjects::Repeat()
 
 EditorCommand_DeleteComponents::EditorCommand_DeleteComponents(const std::vector<ComponentBase*>& selectedcomponents)
 {
+    m_Name = "EditorCommand_DeleteComponents";
+
     for( unsigned int i=0; i<selectedcomponents.size(); i++ )
     {
         // can't delete an objects transform component.
@@ -404,6 +414,8 @@ EditorCommand* EditorCommand_DeleteComponents::Repeat()
 
 EditorCommand_CreateGameObject::EditorCommand_CreateGameObject(GameObject* objectcreated)
 {
+    m_Name = "EditorCommand_CreateGameObject";
+
     MyAssert( m_ObjectCreated );
     m_ObjectCreated = objectcreated;
 }
@@ -441,6 +453,8 @@ EditorCommand* EditorCommand_CreateGameObject::Repeat()
 
 EditorCommand_CopyGameObject::EditorCommand_CopyGameObject(GameObject* objecttocopy, bool NewObjectInheritsFromOld)
 {
+    m_Name = "EditorCommand_CopyGameObject";
+
     m_ObjectToCopy = objecttocopy;
     m_ObjectCreated = 0;
     m_DeleteGameObjectWhenDestroyed = false;
@@ -546,6 +560,8 @@ EditorCommand* EditorCommand_CopyGameObject::Repeat()
 
 EditorCommand_EnableObject::EditorCommand_EnableObject(GameObject* pObject, bool enabled)
 {
+    m_Name = "EditorCommand_EnableObject";
+
     m_pGameObject = pObject;
     m_ObjectWasEnabled = enabled;
 }
@@ -579,6 +595,8 @@ EditorCommand* EditorCommand_EnableObject::Repeat()
 
 EditorCommand_ChangeMaterialOnMesh::EditorCommand_ChangeMaterialOnMesh(ComponentRenderable* pComponent, ComponentVariable* pVar, int submeshindex, MaterialDefinition* pMaterial)
 {
+    m_Name = "EditorCommand_ChangeMaterialOnMesh";
+
     MyAssert( m_pComponent );
 
     m_pComponent = pComponent;
@@ -633,6 +651,8 @@ EditorCommand* EditorCommand_ChangeMaterialOnMesh::Repeat()
 
 EditorCommand_ChangeTextureOnMaterial::EditorCommand_ChangeTextureOnMaterial(MaterialDefinition* material, TextureDefinition* texture)
 {
+    m_Name = "EditorCommand_ChangeTextureOnMaterial";
+
     m_pMaterial = material;
     m_pNewTexture = texture;
 }
@@ -666,6 +686,8 @@ EditorCommand* EditorCommand_ChangeTextureOnMaterial::Repeat()
 
 EditorCommand_ChangeShaderOnMaterial::EditorCommand_ChangeShaderOnMaterial(MaterialDefinition* material, ShaderGroup* shadergroup)
 {
+    m_Name = "EditorCommand_ChangeShaderOnMaterial";
+
     m_pMaterial = material;
     m_pNewShaderGroup = shadergroup;
 }
@@ -699,6 +721,8 @@ EditorCommand* EditorCommand_ChangeShaderOnMaterial::Repeat()
 
 EditorCommand_ChangeAllScriptsOnGameObject::EditorCommand_ChangeAllScriptsOnGameObject(GameObject* object, MyFileObject* scriptfile)
 {
+    m_Name = "EditorCommand_ChangeAllScriptsOnGameObject";
+
     m_pGameObject = object;
     m_pNewScriptFile = scriptfile;
 }
@@ -750,6 +774,8 @@ EditorCommand* EditorCommand_ChangeAllScriptsOnGameObject::Repeat()
 
 EditorCommand_ChangeSoundCue::EditorCommand_ChangeSoundCue(ComponentAudioPlayer* pComponent, SoundCue* pSoundCue)
 {
+    m_Name = "EditorCommand_ChangeSoundCue";
+
     m_pComponent = pComponent;
     m_pSoundCue = pSoundCue;
 
@@ -783,6 +809,8 @@ EditorCommand* EditorCommand_ChangeSoundCue::Repeat()
 
 EditorCommand_Move2DPoint::EditorCommand_Move2DPoint(b2Vec2 distancemoved, Component2DCollisionObject* pCollisionObject, int indexmoved)
 {
+    m_Name = "EditorCommand_Move2DPoint";
+
     MyAssert( m_pCollisionObject );
     MyAssert( indexmoved >= 0 && indexmoved < (int)pCollisionObject->m_Vertices.size() );
 
@@ -824,6 +852,8 @@ EditorCommand* EditorCommand_Move2DPoint::Repeat()
 
 EditorCommand_Insert2DPoint::EditorCommand_Insert2DPoint(Component2DCollisionObject* pCollisionObject, int indexinserted)
 {
+    m_Name = "EditorCommand_Insert2DPoint";
+
     MyAssert( m_pCollisionObject );
     MyAssert( indexinserted >= 0 && indexinserted < (int)pCollisionObject->m_Vertices.size() );
 
@@ -860,6 +890,8 @@ EditorCommand* EditorCommand_Insert2DPoint::Repeat()
 
 EditorCommand_Delete2DPoint::EditorCommand_Delete2DPoint(Component2DCollisionObject* pCollisionObject, int indexdeleted, b2Vec2 position)
 {
+    m_Name = "EditorCommand_Delete2DPoint";
+
     MyAssert( m_pCollisionObject );
     MyAssert( indexdeleted >= 0 && indexdeleted < (int)pCollisionObject->m_Vertices.size() );
 
@@ -897,6 +929,8 @@ EditorCommand* EditorCommand_Delete2DPoint::Repeat()
 
 EditorCommand_ComponentVariablePointerChanged::EditorCommand_ComponentVariablePointerChanged(ComponentBase* pComponent, ComponentVariable* pVar, ComponentVariableValue newvalue)
 {
+    m_Name = "EditorCommand_ComponentVariablePointerChanged";
+
     MyAssert( pComponent && pVar );
 
     m_pComponent = pComponent;
@@ -937,6 +971,8 @@ EditorCommand* EditorCommand_ComponentVariablePointerChanged::Repeat()
 
 EditorCommand_LuaExposedVariablePointerChanged::EditorCommand_LuaExposedVariablePointerChanged(void* newvalue, ExposedVariableDesc* pVar, LuaExposedVarValueChangedCallback callbackfunc, void* callbackobj)
 {
+    m_Name = "EditorCommand_LuaExposedVariablePointerChanged";
+
     m_NewValue = newvalue;
     m_pVar = pVar;
 
@@ -981,6 +1017,8 @@ EditorCommand* EditorCommand_LuaExposedVariablePointerChanged::Repeat()
 
 EditorCommand_DeletePrefabs::EditorCommand_DeletePrefabs(const std::vector<PrefabObject*>& selectedprefabs)
 {
+    m_Name = "EditorCommand_DeletePrefabs";
+
     MyAssert( selectedprefabs.size() > 0 );
 
     for( unsigned int i=0; i<selectedprefabs.size(); i++ )
@@ -1067,6 +1105,8 @@ EditorCommand* EditorCommand_DeletePrefabs::Repeat()
 
 EditorCommand_DivorceOrMarryComponentVariable::EditorCommand_DivorceOrMarryComponentVariable(ComponentBase* pComponent, ComponentVariable* pVar, bool divorcethevariable)
 {
+    m_Name = "EditorCommand_DivorceOrMarryComponentVariable";
+
     MyAssert( pComponent && pVar );
 
     m_pComponent = pComponent;
@@ -1096,21 +1136,23 @@ void EditorCommand_DivorceOrMarryComponentVariable::Do()
     {
         // Divorce the variables.
         m_pComponent->SetDivorced( m_pVar->m_Index, true );
-        if( m_pVar->m_ControlID >= 0 )
-        {
-            g_pPanelWatch->ChangeStaticTextFontStyle( m_pVar->m_ControlID, wxFONTSTYLE_ITALIC, wxFONTWEIGHT_BOLD );
-            g_pPanelWatch->ChangeStaticTextBGColor( m_pVar->m_ControlID, wxColour( 255, 200, 200, 255 ) );
-        }
+        //if( m_pVar->m_ControlID >= 0 )
+        //{
+        //    g_pPanelWatch->ChangeStaticTextFontStyle( m_pVar->m_ControlID, wxFONTSTYLE_ITALIC, wxFONTWEIGHT_BOLD );
+        //    g_pPanelWatch->ChangeStaticTextBGColor( m_pVar->m_ControlID, wxColour( 255, 200, 200, 255 ) );
+        //}
+
+        g_pPanelWatch->SetNeedsRefresh();
     }
     else
     {
         // Marry the variables.
         m_pComponent->SetDivorced( m_pVar->m_Index, false );
-        if( m_pVar->m_ControlID >= 0 )
-        {
-            g_pPanelWatch->ChangeStaticTextFontStyle( m_pVar->m_ControlID, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL );
-            g_pPanelWatch->ChangeStaticTextBGColor( m_pVar->m_ControlID, wxNullColour );
-        }
+        //if( m_pVar->m_ControlID >= 0 )
+        //{
+        //    g_pPanelWatch->ChangeStaticTextFontStyle( m_pVar->m_ControlID, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL );
+        //    g_pPanelWatch->ChangeStaticTextBGColor( m_pVar->m_ControlID, wxNullColour );
+        //}
 
         // Set this components value to the parent's value.
         ComponentBase* pParentComponent = m_pComponent->FindMatchingComponentInParent();
@@ -1135,21 +1177,23 @@ void EditorCommand_DivorceOrMarryComponentVariable::Undo()
     {
         // Marry the variables.
         m_pComponent->SetDivorced( m_pVar->m_Index, false );
-        if( m_pVar->m_ControlID >= 0 )
-        {
-            g_pPanelWatch->ChangeStaticTextFontStyle( m_pVar->m_ControlID, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL );
-            g_pPanelWatch->ChangeStaticTextBGColor( m_pVar->m_ControlID, wxNullColour );
-        }
+        //if( m_pVar->m_ControlID >= 0 )
+        //{
+        //    g_pPanelWatch->ChangeStaticTextFontStyle( m_pVar->m_ControlID, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL );
+        //    g_pPanelWatch->ChangeStaticTextBGColor( m_pVar->m_ControlID, wxNullColour );
+        //}
+
+        g_pPanelWatch->SetNeedsRefresh();
     }
     else
     {
         // Divorce the variables.
         m_pComponent->SetDivorced( m_pVar->m_Index, true );
-        if( m_pVar->m_ControlID >= 0 )
-        {
-            g_pPanelWatch->ChangeStaticTextFontStyle( m_pVar->m_ControlID, wxFONTSTYLE_ITALIC, wxFONTWEIGHT_BOLD );
-            g_pPanelWatch->ChangeStaticTextBGColor( m_pVar->m_ControlID, wxColour( 255, 200, 200, 255 ) );
-        }
+        //if( m_pVar->m_ControlID >= 0 )
+        //{
+        //    g_pPanelWatch->ChangeStaticTextFontStyle( m_pVar->m_ControlID, wxFONTSTYLE_ITALIC, wxFONTWEIGHT_BOLD );
+        //    g_pPanelWatch->ChangeStaticTextBGColor( m_pVar->m_ControlID, wxColour( 255, 200, 200, 255 ) );
+        //}
 
         // Update and inform component and children.
         m_OldValue.UpdateComponentAndChildrenWithValue( m_pComponent, m_pVar );
@@ -1169,6 +1213,8 @@ EditorCommand* EditorCommand_DivorceOrMarryComponentVariable::Repeat()
 
 EditorCommand_ComponentVariableIndirectPointerChanged::EditorCommand_ComponentVariableIndirectPointerChanged(ComponentBase* pComponent, ComponentVariable* pVar, void* newvalue)
 {
+    m_Name = "EditorCommand_ComponentVariableIndirectPointerChanged";
+
     MyAssert( pComponent && pVar );
 
     m_pComponent = pComponent;
@@ -1209,6 +1255,8 @@ EditorCommand* EditorCommand_ComponentVariableIndirectPointerChanged::Repeat()
 
 EditorCommand_ReorderOrReparentGameObjects::EditorCommand_ReorderOrReparentGameObjects(const std::vector<GameObject*>& selectedobjects, GameObject* pObjectDroppedOn, uint32 sceneid, bool setaschild)
 {
+    m_Name = "EditorCommand_ReorderOrReparentGameObjects";
+
     for( unsigned int i=0; i<selectedobjects.size(); i++ )
     {
         m_SelectedObjects.push_back( selectedobjects[i] );
