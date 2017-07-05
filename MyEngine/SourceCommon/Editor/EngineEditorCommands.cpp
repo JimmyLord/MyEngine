@@ -927,7 +927,7 @@ EditorCommand* EditorCommand_Delete2DPoint::Repeat()
 // EditorCommand_ComponentVariablePointerChanged
 //====================================================================================================
 
-EditorCommand_ComponentVariablePointerChanged::EditorCommand_ComponentVariablePointerChanged(ComponentBase* pComponent, ComponentVariable* pVar, ComponentVariableValue newvalue)
+EditorCommand_ComponentVariablePointerChanged::EditorCommand_ComponentVariablePointerChanged(ComponentBase* pComponent, ComponentVariable* pVar, ComponentVariableValue* pNewValue)
 {
     m_Name = "EditorCommand_ComponentVariablePointerChanged";
 
@@ -936,8 +936,8 @@ EditorCommand_ComponentVariablePointerChanged::EditorCommand_ComponentVariablePo
     m_pComponent = pComponent;
     m_pVar = pVar;
 
-    m_pNewPointer = newvalue;
-    m_pOldPointer.GetValueFromVariable( pComponent, pVar );
+    m_NewPointer = *pNewValue;
+    m_OldPointer.GetValueFromVariable( pComponent, pVar );
 }
 
 EditorCommand_ComponentVariablePointerChanged::~EditorCommand_ComponentVariablePointerChanged()
@@ -949,7 +949,7 @@ void EditorCommand_ComponentVariablePointerChanged::Do()
     g_pPanelWatch->UpdatePanel();
 
     // this could likely be dangerous, the object might not be in focus anymore and how it handles callbacks could cause issues.
-    (m_pComponent->*(m_pVar->m_pOnValueChangedCallbackFunc))( m_pVar, false, true, 0, m_pNewPointer );
+    (m_pComponent->*(m_pVar->m_pOnValueChangedCallbackFunc))( m_pVar, false, true, 0, &m_NewPointer );
 }
 
 void EditorCommand_ComponentVariablePointerChanged::Undo()
@@ -957,7 +957,7 @@ void EditorCommand_ComponentVariablePointerChanged::Undo()
     g_pPanelWatch->UpdatePanel();
 
     // this could likely be dangerous, the object might not be in focus anymore and how it handles callbacks could cause issues.
-    (m_pComponent->*(m_pVar->m_pOnValueChangedCallbackFunc))( m_pVar, false, true, 0, m_pOldPointer );
+    (m_pComponent->*(m_pVar->m_pOnValueChangedCallbackFunc))( m_pVar, false, true, 0, &m_OldPointer );
 }
 
 EditorCommand* EditorCommand_ComponentVariablePointerChanged::Repeat()

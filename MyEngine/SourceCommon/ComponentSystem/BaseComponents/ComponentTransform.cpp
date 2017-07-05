@@ -231,7 +231,7 @@ void* ComponentTransform::OnDropTransform(ComponentVariable* pVar, wxCoord x, wx
     return oldvalue;
 }
 
-void* ComponentTransform::OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue newvalue)
+void* ComponentTransform::OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue* pNewValue)
 {
     void* oldpointer = 0;
 
@@ -247,11 +247,11 @@ void* ComponentTransform::OnValueChanged(ComponentVariable* pVar, bool changedby
                 this->SetParentTransform( 0 );
             }
         }
-        else if( newvalue.GetComponentPtr() != 0 )
+        else //if( pNewValue->GetComponentPtr() != 0 )
         {
             MyAssert( false ); // this block is untested
             oldpointer = this->GetParentTransform();
-            this->SetParentTransform( (ComponentTransform*)newvalue.GetComponentPtr() );
+            this->SetParentTransform( pNewValue ? (ComponentTransform*)pNewValue->GetComponentPtr() : 0 );
         }
     }
     else

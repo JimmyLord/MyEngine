@@ -159,7 +159,7 @@ void* Component2DJointRevolute::OnDrop(ComponentVariable* pVar, wxCoord x, wxCoo
     return oldvalue;
 }
 
-void* Component2DJointRevolute::OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue newvalue)
+void* Component2DJointRevolute::OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue* pNewValue)
 {
     void* oldpointer = 0;
 
@@ -177,7 +177,7 @@ void* Component2DJointRevolute::OnValueChanged(ComponentVariable* pVar, bool cha
                 g_pPanelWatch->SetNeedsRefresh();
             }
         }
-        else if( newvalue.GetComponentPtr() != 0 )
+        else if( pNewValue->GetComponentPtr() != 0 )
         {
             MyAssert( false );
             // TODO: implement this block

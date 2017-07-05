@@ -129,7 +129,7 @@ void* Component2DJointWeld::OnDrop(ComponentVariable* pVar, wxCoord x, wxCoord y
     return oldvalue;
 }
 
-void* Component2DJointWeld::OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue newvalue)
+void* Component2DJointWeld::OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue* pNewValue)
 {
     void* oldpointer = 0;
 
@@ -147,7 +147,7 @@ void* Component2DJointWeld::OnValueChanged(ComponentVariable* pVar, bool changed
                 g_pPanelWatch->SetNeedsRefresh();
             }
         }
-        else if( newvalue.GetComponentPtr() != 0 )
+        else if( pNewValue->GetComponentPtr() != 0 )
         {
             MyAssert( false );
             // TODO: implement this block

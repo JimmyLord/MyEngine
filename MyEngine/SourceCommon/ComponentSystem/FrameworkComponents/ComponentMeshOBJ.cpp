@@ -147,7 +147,7 @@ void ComponentMeshOBJ::FillPropertiesWindow(bool clear, bool addcomponentvariabl
     }
 }
 
-void* ComponentMeshOBJ::OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue newvalue)
+void* ComponentMeshOBJ::OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue* pNewValue)
 {
     void* oldpointer = 0;
 
@@ -164,8 +164,18 @@ void* ComponentMeshOBJ::OnValueChanged(ComponentVariable* pVar, bool changedbyin
 
                     if( m_pMesh )
                         oldpointer = m_pMesh->m_pSourceFile;
-                    SetMesh( 0 );
+
+                    g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_ComponentVariableIndirectPointerChanged( this, pVar, 0 ) );
                 }
+            }
+            else
+            {
+                oldpointer = m_pMesh ? m_pMesh->m_pSourceFile : 0;
+
+                MyFileObject* pFile = pNewValue ? (MyFileObject*)pNewValue->GetPointerIndirect() : 0;
+
+                MyMesh* pNewMesh = pFile ? g_pMeshManager->FindMeshBySourceFile( pFile ) : 0;
+                SetMesh( pNewMesh );
             }
         }
     }

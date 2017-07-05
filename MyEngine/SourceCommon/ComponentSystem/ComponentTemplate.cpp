@@ -112,7 +112,7 @@ void* ComponentTemplate::OnDrop(ComponentVariable* pVar, wxCoord x, wxCoord y)
     return oldpointer;
 }
 
-void* ComponentTemplate::OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue newvalue)
+void* ComponentTemplate::OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue* pNewValue)
 {
     void* oldpointer = 0;
 

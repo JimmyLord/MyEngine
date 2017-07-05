@@ -228,7 +228,7 @@ void* ComponentVoxelWorld::OnDrop(ComponentVariable* pVar, wxCoord x, wxCoord y)
     return oldvalue;
 }
 
-void* ComponentVoxelWorld::OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue newvalue)
+void* ComponentVoxelWorld::OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue* pNewValue)
 {
     void* oldpointer = 0;
 
@@ -245,7 +245,7 @@ void* ComponentVoxelWorld::OnValueChanged(ComponentVariable* pVar, bool changedb
                 SetMaterial( 0 );
             }
         }
-        else if( newvalue.GetMaterialPtr() != 0 )
+        else if( pNewValue && pNewValue->GetMaterialPtr() != 0 )
         {
             MyAssert( false );
             // TODO: implement this block

@@ -236,7 +236,7 @@ bool ComponentCollisionObject::ShouldVariableBeAddedToWatchPanel(ComponentVariab
     return false;
 }
 
-void* ComponentCollisionObject::OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue newvalue)
+void* ComponentCollisionObject::OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue* pNewValue)
 {
     void* oldpointer = 0;
 

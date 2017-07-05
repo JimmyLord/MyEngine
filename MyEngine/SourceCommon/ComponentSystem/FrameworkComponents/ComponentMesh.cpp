@@ -168,7 +168,7 @@ bool ComponentMesh::ShouldVariableBeAddedToWatchPanel(ComponentVariable* pVar)
     return true;
 }
 
-void* ComponentMesh::OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue newvalue)
+void* ComponentMesh::OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue* pNewValue)
 {
     void* oldpointer = 0;
 
@@ -194,10 +194,10 @@ void* ComponentMesh::OnValueChanged(ComponentVariable* pVar, bool changedbyinter
                     g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_ChangeMaterialOnMesh( this, pVar, materialthatchanged, 0 ) );
                 }
             }
-            else if( newvalue.GetMaterialPtr() != 0 )
+            else //if( pNewValue->GetMaterialPtr() != 0 )
             {
                 oldpointer = GetMaterial( materialthatchanged );
-                MaterialDefinition* pNewMaterial = newvalue.GetMaterialPtr();
+                MaterialDefinition* pNewMaterial = pNewValue ? pNewValue->GetMaterialPtr() : 0;
                 SetMaterial( pNewMaterial, 0 );
             }
         }
@@ -215,7 +215,7 @@ void* ComponentMesh::OnValueChanged(ComponentVariable* pVar, bool changedbyinter
 
 void* ComponentMesh::OnDropMaterial(ComponentVariable* pVar, wxCoord x, wxCoord y)
 {
-    void* oldvalue = 0;
+    void* oldpointer = 0;
 
     DragAndDropItem* pDropItem = g_DragAndDropStruct.GetItem( 0 );
 
@@ -235,17 +235,19 @@ void* ComponentMesh::OnDropMaterial(ComponentVariable* pVar, wxCoord x, wxCoord 
         if( materialthatchanged != -1 )
         {
             MaterialDefinition* pMaterial = (MaterialDefinition*)pDropItem->m_Value;
-            MyAssert( pMaterial );
 
-            oldvalue = GetMaterial( materialthatchanged );
+            oldpointer = GetMaterial( materialthatchanged );
             g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_ChangeMaterialOnMesh( this, pVar, materialthatchanged, pMaterial ) );
 
             // update the panel so new Material name shows up.
-            g_pPanelWatch->GetVariableProperties( g_DragAndDropStruct.GetControlID() )->m_Description = pMaterial->GetName();
+            if( pMaterial != 0 )
+                g_pPanelWatch->GetVariableProperties( g_DragAndDropStruct.GetControlID() )->m_Description = pMaterial->GetName();
+            else
+                g_pPanelWatch->GetVariableProperties( g_DragAndDropStruct.GetControlID() )->m_Description = 0;
         }
     }
 
-    return oldvalue;
+    return oldpointer;
 }
 #endif //MYFW_USING_WX
 

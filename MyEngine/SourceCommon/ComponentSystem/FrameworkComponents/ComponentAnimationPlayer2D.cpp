@@ -146,7 +146,7 @@ void* ComponentAnimationPlayer2D::OnDrop(ComponentVariable* pVar, wxCoord x, wxC
     return oldpointer;
 }
 
-void* ComponentAnimationPlayer2D::OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue newvalue)
+void* ComponentAnimationPlayer2D::OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue* pNewValue)
 {
     void* oldpointer = 0;
 
@@ -167,7 +167,7 @@ void* ComponentAnimationPlayer2D::OnValueChanged(ComponentVariable* pVar, bool c
                 this->SetAnimationFile( 0 );
             }
         }
-        else if( newvalue.GetFilePtr() != 0 )
+        else if( pNewValue->GetFilePtr() != 0 )
         {
             MyAssert( false );
             // TODO: implement this block

@@ -231,7 +231,7 @@ void* ComponentVoxelMesh::OnDrop(ComponentVariable* pVar, wxCoord x, wxCoord y)
     return oldpointer;
 }
 
-void* ComponentVoxelMesh::OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue newvalue)
+void* ComponentVoxelMesh::OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue* pNewValue)
 {
     void* oldpointer = 0;
 
@@ -274,7 +274,7 @@ void* ComponentVoxelMesh::OnValueChanged(ComponentVariable* pVar, bool changedby
                     SetMesh( 0 );
                 }
             }
-            else if( newvalue.GetFilePtr() != 0 )
+            else if( pNewValue->GetFilePtr() != 0 )
             {
                 MyAssert( false );
                 // TODO: implement this block

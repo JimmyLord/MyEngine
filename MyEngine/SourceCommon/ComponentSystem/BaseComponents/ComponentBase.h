@@ -154,8 +154,8 @@ public:
 
     // Watch panel callbacks for component variables.
     // if any variables value changed, then react.
-    static void StaticOnValueChangedVariable(void* pObjectPtr, int controlid, bool directlychanged, bool finishedchanging, double oldvalue) { ((ComponentBase*)pObjectPtr)->OnValueChangedVariable( controlid, directlychanged, finishedchanging, oldvalue ); }
-    void OnValueChangedVariable(int controlid, bool directlychanged, bool finishedchanging, double oldvalue);
+    static void StaticOnValueChangedVariable(void* pObjectPtr, int controlid, bool directlychanged, bool finishedchanging, double oldvalue) { ((ComponentBase*)pObjectPtr)->OnValueChangedVariable( controlid, directlychanged, finishedchanging, oldvalue, 0 ); }
+    void OnValueChangedVariable(int controlid, bool directlychanged, bool finishedchanging, double oldvalue, ComponentVariableValue* pNewValue);
 
     static void StaticOnDropVariable(void* pObjectPtr, int controlid, wxCoord x, wxCoord y) { ((ComponentBase*)pObjectPtr)->OnDropVariable(controlid, x, y); }
     void OnDropVariable(int controlid, wxCoord x, wxCoord y);
@@ -171,8 +171,7 @@ public:
     void UpdateChildrenInGameObjectListWithNewValue(GameObject* first, bool fromdraganddrop, ComponentVariable* pVar, int controlcomponent, bool finishedchanging, double oldvalue, void* oldpointer, wxCoord x, wxCoord y, void* newpointer);
     void UpdateGameObjectWithNewValue(GameObject* pGameObject, bool fromdraganddrop, ComponentVariable* pVar, int controlcomponent, bool finishedchanging, double oldvalue, void* oldpointer, wxCoord x, wxCoord y, void* newpointer);
     void UpdateOtherComponentWithNewValue(ComponentBase* pComponent, bool directlychanged, bool ignoreDivorceStatus, bool fromdraganddrop, ComponentVariable* pVar, int controlcomponent, bool finishedchanging, double oldvalue, void* oldpointer, wxCoord x, wxCoord y, void* newpointer);
-    void CopyValueFromOtherGameObject(ComponentVariable* pVar, GameObject* pOtherGO);
-    void CopyValueFromOtherComponent(ComponentVariable* pVar, ComponentBase* pOtherComponent);
+    void CopyValueFromOtherComponentWithUndo(ComponentVariable* pVar, ComponentBase* pOtherComponent);
 
     // to show/hide the components controls in watch panel
     //static bool m_PanelWatchBlockVisible; // each class needs it's own static bool, so if one component of this type is off, they all are.

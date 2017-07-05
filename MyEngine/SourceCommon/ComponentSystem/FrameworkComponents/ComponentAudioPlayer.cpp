@@ -136,7 +136,7 @@ void* ComponentAudioPlayer::OnDrop(ComponentVariable* pVar, wxCoord x, wxCoord y
     return oldvalue;
 }
 
-void* ComponentAudioPlayer::OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue newvalue)
+void* ComponentAudioPlayer::OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue* pNewValue)
 {
     void* oldpointer = 0;
 
@@ -155,11 +155,11 @@ void* ComponentAudioPlayer::OnValueChanged(ComponentVariable* pVar, bool changed
                 g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_ChangeSoundCue( this, 0 ) );
             }
         }
-        else if( newvalue.GetSoundCuePtr() != 0 )
+        else //if( pNewValue->GetSoundCuePtr() != 0 )
         {
             oldpointer = m_pSoundCue;
 
-            SetSoundCue( newvalue.GetSoundCuePtr() );
+            SetSoundCue( pNewValue ? pNewValue->GetSoundCuePtr() : 0 );
         }
     }
 

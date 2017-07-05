@@ -203,7 +203,7 @@ void* Component2DCollisionObject::OnDrop(ComponentVariable* pVar, wxCoord x, wxC
     return oldvalue;
 }
 
-void* Component2DCollisionObject::OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue newvalue)
+void* Component2DCollisionObject::OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue* pNewValue)
 {
     void* oldpointer = 0;
 

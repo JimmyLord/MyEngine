@@ -351,7 +351,7 @@ void* ComponentLuaScript::OnDrop(ComponentVariable* pVar, wxCoord x, wxCoord y)
     return oldvalue;
 }
 
-void* ComponentLuaScript::OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue newvalue)
+void* ComponentLuaScript::OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue* pNewValue)
 {
     void* oldpointer = 0;
 
