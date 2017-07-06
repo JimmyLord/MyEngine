@@ -1456,18 +1456,13 @@ void ComponentBase::OnValueChangedVariable(int controlid, bool directlychanged, 
 
         UpdateChildrenWithNewValue( false, pVar, controlcomponent, finishedchanging, oldvalue, oldpointer, -1, -1, 0 );
 
-        // Deal with multiple selections
-        for( unsigned int i=0; i<m_MultiSelectedComponents.size(); i++ )
+        // Deal with multiple selections only if changed by the interface, not if we undo/redo.
+        if( directlychanged )
         {
-            if( directlychanged )
+            for( unsigned int i=0; i<m_MultiSelectedComponents.size(); i++ )
             {
                 // Will add to undo/redo stack.
                 m_MultiSelectedComponents[i]->CopyValueFromOtherComponentWithUndo( pVar, this );
-            }
-            else
-            {
-                // Won't add to undo/redo stack.
-                UpdateOtherComponentWithNewValue( m_MultiSelectedComponents[i], directlychanged, true, false, pVar, controlcomponent, finishedchanging, oldvalue, oldpointer, 0, 0, 0 );
             }
         }
     }
