@@ -305,8 +305,12 @@ ComponentCollisionObject& ComponentCollisionObject::operator=(const ComponentCol
 
     ComponentBase::operator=( other );
 
-    m_Mass = other.m_Mass;
     m_PrimitiveType = other.m_PrimitiveType;
+
+    m_Mass = other.m_Mass;
+    m_Scale = other.m_Scale;
+
+    SetMesh( other.m_pMesh );
 
     return *this;
 }
