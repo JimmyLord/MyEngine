@@ -428,6 +428,10 @@ void ComponentMesh::SetMaterial(MaterialDefinition* pMaterial, int submeshindex)
             else
                 flags = (SceneGraphFlags)(flags | SceneGraphFlag_Opaque);
         }
+        else
+        {
+            flags = (SceneGraphFlags)(flags | SceneGraphFlag_Opaque);
+        }
 
         m_pSceneGraphObjects[submeshindex]->m_pMaterial = pMaterial;
         m_pSceneGraphObjects[submeshindex]->m_Flags = flags;
