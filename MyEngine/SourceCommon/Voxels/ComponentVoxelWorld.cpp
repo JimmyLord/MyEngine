@@ -242,6 +242,7 @@ void* ComponentVoxelWorld::OnValueChanged(ComponentVariable* pVar, bool changedb
                 g_pPanelWatch->ChangeDescriptionForPointerWithDescription( pVar->m_ControlID, "none" );
 
                 oldpointer = GetMaterial();
+                // TODO: undo/redo
                 SetMaterial( 0 );
             }
         }

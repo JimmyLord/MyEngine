@@ -364,8 +364,15 @@ void* ComponentLuaScript::OnValueChanged(ComponentVariable* pVar, bool changedby
             {
                 g_pPanelWatch->ChangeDescriptionForPointerWithDescription( pVar->m_ControlID, "no script" );
                 oldpointer = m_pScriptFile;
+
+                // TODO: undo/redo
                 this->SetScriptFile( 0 );
             }
+        }
+        else
+        {
+            MyAssert( false );
+            // TODO: implement this block
         }
     }
 

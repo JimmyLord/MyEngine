@@ -164,10 +164,11 @@ void* ComponentAnimationPlayer2D::OnValueChanged(ComponentVariable* pVar, bool c
             {
                 g_pPanelWatch->ChangeDescriptionForPointerWithDescription( pVar->m_ControlID, "no file" );
                 oldpointer = m_pAnimationFile;
+                // TODO: undo/redo
                 this->SetAnimationFile( 0 );
             }
         }
-        else if( pNewValue->GetFilePtr() != 0 )
+        else
         {
             MyAssert( false );
             // TODO: implement this block

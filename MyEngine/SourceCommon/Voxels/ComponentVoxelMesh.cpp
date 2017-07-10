@@ -271,6 +271,8 @@ void* ComponentVoxelMesh::OnValueChanged(ComponentVariable* pVar, bool changedby
 
                     if( m_pMesh )
                         oldpointer = m_pMesh->m_pSourceFile;
+
+                    // TODO: undo/redo
                     SetMesh( 0 );
                 }
             }

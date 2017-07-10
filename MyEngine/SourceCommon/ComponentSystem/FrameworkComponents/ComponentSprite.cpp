@@ -219,8 +219,10 @@ void* ComponentSprite::OnValueChanged(ComponentVariable* pVar, bool changedbyint
         }
         else if( pNewValue->GetMaterialPtr() != 0 )
         {
-            MyAssert( false );
-            // TODO: implement this block
+            oldpointer = GetMaterial( 0 );
+
+            MaterialDefinition* pNewMaterial = pNewValue ? pNewValue->GetMaterialPtr() : 0;
+            SetMaterial( pNewMaterial, 0 );
         }
     }
 

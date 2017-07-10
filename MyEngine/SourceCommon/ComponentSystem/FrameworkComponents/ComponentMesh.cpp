@@ -180,8 +180,12 @@ void* ComponentMesh::OnValueChanged(ComponentVariable* pVar, bool changedbyinter
             for( int i=0; i<MAX_SUBMESHES; i++ )
             {
                 if( pVar->m_Label == g_MaterialLabels[i] )
+                {
                     materialthatchanged = i;
+                    break;
+                }
             }
+            MyAssert( materialthatchanged != -1 );
 
             if( changedbyinterface )
             {
@@ -194,11 +198,11 @@ void* ComponentMesh::OnValueChanged(ComponentVariable* pVar, bool changedbyinter
                     g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_ChangeMaterialOnMesh( this, pVar, materialthatchanged, 0 ) );
                 }
             }
-            else //if( pNewValue->GetMaterialPtr() != 0 )
+            else
             {
                 oldpointer = GetMaterial( materialthatchanged );
                 MaterialDefinition* pNewMaterial = pNewValue ? pNewValue->GetMaterialPtr() : 0;
-                SetMaterial( pNewMaterial, 0 );
+                SetMaterial( pNewMaterial, materialthatchanged );
             }
         }
 

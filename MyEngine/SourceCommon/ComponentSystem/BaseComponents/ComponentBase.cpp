@@ -1454,7 +1454,7 @@ void ComponentBase::OnValueChangedVariable(int controlid, bool directlychanged, 
             }
         }
 
-        UpdateChildrenWithNewValue( false, pVar, controlcomponent, finishedchanging, oldvalue, oldpointer, -1, -1, 0 );
+        UpdateChildrenWithNewValue( false, pVar, controlcomponent, directlychanged, finishedchanging, oldvalue, oldpointer, -1, -1, 0 );
 
         // Deal with multiple selections only if changed by the interface, not if we undo/redo.
         if( directlychanged )
@@ -1496,7 +1496,7 @@ void ComponentBase::OnDropVariable(ComponentVariable* pVar, int controlcomponent
         }
 
         // OnDropCallback will grab the new value from g_DragAndDropStruct
-        UpdateChildrenWithNewValue( true, pVar, controlcomponent, true, 0, oldpointer, x, y, 0 );
+        UpdateChildrenWithNewValue( true, pVar, false, controlcomponent, true, 0, oldpointer, x, y, 0 );
 
         // deal with multiple selections
         for( unsigned int i=0; i<m_MultiSelectedComponents.size(); i++ )
@@ -1852,7 +1852,7 @@ ComponentVariable* ComponentBase::FindComponentVariableByLabel(CPPListHead* list
     return 0;
 }
 
-void ComponentBase::UpdateChildrenWithNewValue(bool fromdraganddrop, ComponentVariable* pVar, int controlcomponent, bool finishedchanging, double oldvalue, void* oldpointer, wxCoord x, wxCoord y, void* newpointer)
+void ComponentBase::UpdateChildrenWithNewValue(bool fromdraganddrop, ComponentVariable* pVar, int controlcomponent, bool directlychanged, bool finishedchanging, double oldvalue, void* oldpointer, wxCoord x, wxCoord y, void* newpointer)
 {
 #if 0 //MYFW_USING_WX
     typedef std::map<int, SceneInfo>::iterator it_type;
@@ -1872,12 +1872,12 @@ void ComponentBase::UpdateChildrenWithNewValue(bool fromdraganddrop, ComponentVa
         if( (GameObject*)pSceneInfo->m_GameObjects.GetHead() )
         {
             GameObject* first = (GameObject*)pSceneInfo->m_GameObjects.GetHead();
-            UpdateChildrenInGameObjectListWithNewValue( first, fromdraganddrop, pVar, controlcomponent, finishedchanging, oldvalue, oldpointer, x, y, newpointer );
+            UpdateChildrenInGameObjectListWithNewValue( first, fromdraganddrop, pVar, controlcomponent, directlychanged, finishedchanging, oldvalue, oldpointer, x, y, newpointer );
         }
     }
 }
 
-void ComponentBase::UpdateChildrenInGameObjectListWithNewValue(GameObject* first, bool fromdraganddrop, ComponentVariable* pVar, int controlcomponent, bool finishedchanging, double oldvalue, void* oldpointer, wxCoord x, wxCoord y, void* newpointer)
+void ComponentBase::UpdateChildrenInGameObjectListWithNewValue(GameObject* first, bool fromdraganddrop, ComponentVariable* pVar, int controlcomponent, bool directlychanged, bool finishedchanging, double oldvalue, void* oldpointer, wxCoord x, wxCoord y, void* newpointer)
 {
     // find children of this gameobject and change their values as well, if their value matches the old value.
     for( CPPListNode* pNode = first; pNode; pNode = pNode->GetNext() )
@@ -1887,18 +1887,18 @@ void ComponentBase::UpdateChildrenInGameObjectListWithNewValue(GameObject* first
         MyAssert( this->m_pGameObject != 0 );
         if( pGameObject->GetGameObjectThisInheritsFrom() == this->m_pGameObject )
         {
-            UpdateGameObjectWithNewValue( pGameObject, fromdraganddrop, pVar, controlcomponent, finishedchanging, oldvalue, oldpointer, x, y, newpointer );
+            UpdateGameObjectWithNewValue( pGameObject, fromdraganddrop, pVar, controlcomponent, directlychanged, finishedchanging, oldvalue, oldpointer, x, y, newpointer );
         }
 
         GameObject* pFirstChild = pGameObject->GetFirstChild();
         if( pFirstChild )
         {
-            UpdateChildrenInGameObjectListWithNewValue( pFirstChild, fromdraganddrop, pVar, controlcomponent, finishedchanging, oldvalue, oldpointer, x, y, newpointer );
+            UpdateChildrenInGameObjectListWithNewValue( pFirstChild, fromdraganddrop, pVar, controlcomponent, directlychanged, finishedchanging, oldvalue, oldpointer, x, y, newpointer );
         }
     }
 }
 
-void ComponentBase::UpdateGameObjectWithNewValue(GameObject* pGameObject, bool fromdraganddrop, ComponentVariable* pVar, int controlcomponent, bool finishedchanging, double oldvalue, void* oldpointer, wxCoord x, wxCoord y, void* newpointer)
+void ComponentBase::UpdateGameObjectWithNewValue(GameObject* pGameObject, bool fromdraganddrop, ComponentVariable* pVar, int controlcomponent, bool directlychanged, bool finishedchanging, double oldvalue, void* oldpointer, wxCoord x, wxCoord y, void* newpointer)
 {
     MyAssert( this->m_pGameObject != 0 );
     MyAssert( pGameObject->GetGameObjectThisInheritsFrom() == this->m_pGameObject );
@@ -1920,7 +1920,7 @@ void ComponentBase::UpdateGameObjectWithNewValue(GameObject* pGameObject, bool f
                 if( pChildComponent->IsDivorced( pVar->m_Index ) )
                     return;
 
-                UpdateOtherComponentWithNewValue( pChildComponent, false, false, fromdraganddrop, pVar, controlcomponent, finishedchanging, oldvalue, oldpointer, x, y, newpointer );
+                UpdateOtherComponentWithNewValue( pChildComponent, directlychanged, false, fromdraganddrop, pVar, controlcomponent, finishedchanging, oldvalue, oldpointer, x, y, newpointer );
             }
         }
     }
@@ -1953,7 +1953,7 @@ void ComponentBase::UpdateOtherComponentWithNewValue(ComponentBase* pComponent, 
             if( pVar->m_pOnValueChangedCallbackFunc )
                 (pChildComponent->*pVar->m_pOnValueChangedCallbackFunc)( pVar, directlychanged, finishedchanging, oldvalue, 0 );
 
-            pChildComponent->UpdateChildrenWithNewValue( fromdraganddrop, pVar, controlcomponent, finishedchanging, oldvalue, oldpointer, x, y, newpointer );
+            pChildComponent->UpdateChildrenWithNewValue( fromdraganddrop, pVar, controlcomponent, directlychanged, finishedchanging, oldvalue, oldpointer, x, y, newpointer );
         }
         break;
 
@@ -1970,7 +1970,7 @@ void ComponentBase::UpdateOtherComponentWithNewValue(ComponentBase* pComponent, 
             if( pVar->m_pOnValueChangedCallbackFunc )
                 (pChildComponent->*pVar->m_pOnValueChangedCallbackFunc)( pVar, directlychanged, finishedchanging, oldvalue, 0 );
 
-            pChildComponent->UpdateChildrenWithNewValue( fromdraganddrop, pVar, controlcomponent, finishedchanging, oldvalue, oldpointer, x, y, newpointer );
+            pChildComponent->UpdateChildrenWithNewValue( fromdraganddrop, pVar, controlcomponent, directlychanged, finishedchanging, oldvalue, oldpointer, x, y, newpointer );
         }
         break;
 
@@ -1989,7 +1989,7 @@ void ComponentBase::UpdateOtherComponentWithNewValue(ComponentBase* pComponent, 
             if( pVar->m_pOnValueChangedCallbackFunc )
                 (pChildComponent->*pVar->m_pOnValueChangedCallbackFunc)( pVar, directlychanged, finishedchanging, oldvalue, 0 );
 
-            pChildComponent->UpdateChildrenWithNewValue( fromdraganddrop, pVar, controlcomponent, finishedchanging, oldvalue, oldpointer, x, y, newpointer );
+            pChildComponent->UpdateChildrenWithNewValue( fromdraganddrop, pVar, controlcomponent, directlychanged, finishedchanging, oldvalue, oldpointer, x, y, newpointer );
         }
         break;
 
@@ -2005,7 +2005,7 @@ void ComponentBase::UpdateOtherComponentWithNewValue(ComponentBase* pComponent, 
             if( pVar->m_pOnValueChangedCallbackFunc )
                 (pChildComponent->*pVar->m_pOnValueChangedCallbackFunc)( pVar, directlychanged, finishedchanging, oldvalue, 0 );
 
-            pChildComponent->UpdateChildrenWithNewValue( fromdraganddrop, pVar, controlcomponent, finishedchanging, oldvalue, oldpointer, x, y, newpointer );
+            pChildComponent->UpdateChildrenWithNewValue( fromdraganddrop, pVar, controlcomponent, directlychanged, finishedchanging, oldvalue, oldpointer, x, y, newpointer );
         }
         break;
 
@@ -2043,7 +2043,7 @@ void ComponentBase::UpdateOtherComponentWithNewValue(ComponentBase* pComponent, 
                     (pChildComponent->*pVar->m_pOnValueChangedCallbackFunc)( pVar, directlychanged, finishedchanging, oldvalue, 0 );
             }
 
-            pChildComponent->UpdateChildrenWithNewValue( fromdraganddrop, pVar, controlcomponent, finishedchanging, oldvalue, oldpointer, x, y, newpointer );
+            pChildComponent->UpdateChildrenWithNewValue( fromdraganddrop, pVar, controlcomponent, directlychanged, finishedchanging, oldvalue, oldpointer, x, y, newpointer );
         }
         break;
 
@@ -2060,7 +2060,7 @@ void ComponentBase::UpdateOtherComponentWithNewValue(ComponentBase* pComponent, 
             if( pVar->m_pOnValueChangedCallbackFunc )
                 (pChildComponent->*pVar->m_pOnValueChangedCallbackFunc)( pVar, directlychanged, finishedchanging, oldvalue, 0 );
 
-            pChildComponent->UpdateChildrenWithNewValue( fromdraganddrop, pVar, controlcomponent, finishedchanging, oldvalue, oldpointer, x, y, newpointer );
+            pChildComponent->UpdateChildrenWithNewValue( fromdraganddrop, pVar, controlcomponent, directlychanged, finishedchanging, oldvalue, oldpointer, x, y, newpointer );
         }
         break;
 
@@ -2077,7 +2077,7 @@ void ComponentBase::UpdateOtherComponentWithNewValue(ComponentBase* pComponent, 
             if( pVar->m_pOnValueChangedCallbackFunc )
                 (pChildComponent->*pVar->m_pOnValueChangedCallbackFunc)( pVar, directlychanged, finishedchanging, oldvalue, 0 );
 
-            pChildComponent->UpdateChildrenWithNewValue( fromdraganddrop, pVar, controlcomponent, finishedchanging, oldvalue, oldpointer, x, y, newpointer );
+            pChildComponent->UpdateChildrenWithNewValue( fromdraganddrop, pVar, controlcomponent, directlychanged, finishedchanging, oldvalue, oldpointer, x, y, newpointer );
         }
         break;
 
@@ -2124,7 +2124,7 @@ void ComponentBase::UpdateOtherComponentWithNewValue(ComponentBase* pComponent, 
                 }
             }
 
-            pChildComponent->UpdateChildrenWithNewValue( fromdraganddrop, pVar, controlcomponent, finishedchanging, oldvalue, oldpointer, x, y, &newpointer );
+            pChildComponent->UpdateChildrenWithNewValue( fromdraganddrop, pVar, controlcomponent, directlychanged, finishedchanging, oldvalue, oldpointer, x, y, &newpointer );
         }
         break;
 
@@ -2162,7 +2162,7 @@ void ComponentBase::UpdateOtherComponentWithNewValue(ComponentBase* pComponent, 
                 }
             }
 
-            pChildComponent->UpdateChildrenWithNewValue( fromdraganddrop, pVar, controlcomponent, finishedchanging, oldvalue, oldpointer, x, y, &newpointer );
+            pChildComponent->UpdateChildrenWithNewValue( fromdraganddrop, pVar, controlcomponent, directlychanged, finishedchanging, oldvalue, oldpointer, x, y, &newpointer );
         }
         break;
 

@@ -155,11 +155,12 @@ void* ComponentAudioPlayer::OnValueChanged(ComponentVariable* pVar, bool changed
                 g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_ChangeSoundCue( this, 0 ) );
             }
         }
-        else //if( pNewValue->GetSoundCuePtr() != 0 )
+        else
         {
             oldpointer = m_pSoundCue;
 
-            SetSoundCue( pNewValue ? pNewValue->GetSoundCuePtr() : 0 );
+            SoundCue* pNewSoundCue = pNewValue ? pNewValue->GetSoundCuePtr() : 0;
+            SetSoundCue( pNewSoundCue );
         }
     }
 
