@@ -88,6 +88,7 @@ void ComponentMesh::RegisterVariables(CPPListHead* pList, ComponentMesh* pThis) 
 
 #if MYFW_USING_WX
         pVar->AddCallback_ShouldVariableBeAdded( (CVarFunc_ShouldVariableBeAdded)(&ComponentMesh::ShouldVariableBeAddedToWatchPanel) );
+        pVar->AddCallback_VariableAddedToInterface( (CVarFunc_VariableAddedToInterface)(&ComponentMesh::VariableAddedToWatchPanel) );
 #endif
     }
 
@@ -166,6 +167,18 @@ bool ComponentMesh::ShouldVariableBeAddedToWatchPanel(ComponentVariable* pVar)
     }
 
     return true;
+}
+
+void ComponentMesh::VariableAddedToWatchPanel(ComponentVariable* pVar)
+{
+    for( unsigned int i=0; i<MAX_SUBMESHES; i++ )
+    {
+        // only show enough material variables for the number of submeshes in the mesh.
+        if( pVar->m_Label == g_MaterialLabels[i] )
+        {
+            GetMaterial( i )->AddToWatchPanel( false );
+        }
+    }
 }
 
 void* ComponentMesh::OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue* pNewValue)

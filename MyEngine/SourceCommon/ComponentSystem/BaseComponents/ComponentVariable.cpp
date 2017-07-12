@@ -34,6 +34,7 @@ ComponentVariable::ComponentVariable(const char* label, ComponentVariableTypes t
     m_pOnValueChangedCallbackFunc = pOnValueChangedCallBackFunc;
 
     m_pShouldVariableBeAddedCallbackFunc = 0;
+    m_pVariableAddedToInterfaceCallbackFunc = 0;
     m_pOnRightClickCallbackFunc = 0;
     m_pOnPopupClickCallbackFunc = 0;
 #endif //MYFW_USING_WX
@@ -51,6 +52,11 @@ ComponentVariable::ComponentVariable(const char* label, ComponentVariableTypes t
 void ComponentVariable::AddCallback_ShouldVariableBeAdded(CVarFunc_ShouldVariableBeAdded pFunc)
 {
     m_pShouldVariableBeAddedCallbackFunc = pFunc;
+}
+
+void ComponentVariable::AddCallback_VariableAddedToInterface(CVarFunc_VariableAddedToInterface pFunc)
+{
+    m_pVariableAddedToInterfaceCallbackFunc = pFunc;
 }
 
 void ComponentVariable::AddCallback_OnRightClick(CVarFunc_wxMenu pRightClickFunc, CVarFunc_Int pPopupClickFunc)

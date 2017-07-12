@@ -114,6 +114,7 @@ public:
     void OnLeftClick(unsigned int count, bool clear);
     virtual void FillPropertiesWindow(bool clear, bool addcomponentvariables = false, bool ignoreblockvisibleflag = false);
     virtual bool ShouldVariableBeAddedToWatchPanel(ComponentVariable* pVar);
+    virtual void VariableAddedToWatchPanel(ComponentVariable* pVar);
     
     // Component variable callbacks. //_VARIABLE_LIST
     void* OnDropMaterial(ComponentVariable* pVar, wxCoord x, wxCoord y);

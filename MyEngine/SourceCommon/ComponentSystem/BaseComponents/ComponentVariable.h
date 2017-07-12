@@ -66,6 +66,7 @@ typedef const char* (ComponentBase::*CVarFunc_GetPointerDesc)(ComponentVariable*
 typedef void (ComponentBase::*CVarFunc_SetPointerDesc)(ComponentVariable* pVar, const char* newdesc);
 
 typedef bool (ComponentBase::*CVarFunc_ShouldVariableBeAdded)(ComponentVariable* pVar);
+typedef void (ComponentBase::*CVarFunc_VariableAddedToInterface)(ComponentVariable* pVar);
 
 class ComponentVariable : public CPPListNode
 {
@@ -88,6 +89,7 @@ public:
     CVarFunc_ValueChanged m_pOnValueChangedCallbackFunc;
 
     CVarFunc_ShouldVariableBeAdded m_pShouldVariableBeAddedCallbackFunc;
+    CVarFunc_VariableAddedToInterface m_pVariableAddedToInterfaceCallbackFunc;
     CVarFunc_wxMenu m_pOnRightClickCallbackFunc;
     CVarFunc_Int m_pOnPopupClickCallbackFunc;
 #endif //MYFW_USING_WX
@@ -108,6 +110,7 @@ public:
 
 #if MYFW_USING_WX
     void AddCallback_ShouldVariableBeAdded(CVarFunc_ShouldVariableBeAdded pFunc);
+    void AddCallback_VariableAddedToInterface(CVarFunc_VariableAddedToInterface pFunc);
     void AddCallback_OnRightClick(CVarFunc_wxMenu pRightClickFunc, CVarFunc_Int pPopupClickFunc);
 
     void SetEditorLimits(float lowerlimit, float upperlimit);

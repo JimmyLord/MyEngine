@@ -600,6 +600,11 @@ void ComponentBase::AddVariableToPropertiesWindow(ComponentVariable* pVar)
             g_pPanelWatch->ChangeStaticTextBGColor( pVar->m_ControlID, wxColour( 200, 200, 255, 255 ) );
         }
     }
+
+    if( pVar->m_pVariableAddedToInterfaceCallbackFunc )
+    {
+        (this->*pVar->m_pVariableAddedToInterfaceCallbackFunc)( pVar );
+    }
 }
 
 int ComponentBase::FindVariablesControlIDByLabel(const char* label)
