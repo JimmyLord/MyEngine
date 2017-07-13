@@ -104,6 +104,8 @@ protected:
 public:
 #if MYFW_USING_WX
     static bool m_PanelWatchBlockVisible;
+    int m_MaterialExpandButtonControlIDs[MAX_SUBMESHES];
+    bool m_MaterialExpanded[MAX_SUBMESHES];
 
     virtual ComponentVariable* GetComponentVariableForMaterial(int submeshindex);
 
@@ -115,7 +117,11 @@ public:
     virtual void FillPropertiesWindow(bool clear, bool addcomponentvariables = false, bool ignoreblockvisibleflag = false);
     virtual bool ShouldVariableBeAddedToWatchPanel(ComponentVariable* pVar);
     virtual void VariableAddedToWatchPanel(ComponentVariable* pVar);
-    
+
+    // Watch panel callbacks.
+    static void StaticOnExpandMaterialClicked(void* pObjectPtr, int controlid, bool directlychanged, bool finishedchanging, double oldvalue) { ((ComponentMesh*)pObjectPtr)->OnExpandMaterialClicked( controlid ); }
+    void OnExpandMaterialClicked(int controlid);
+
     // Component variable callbacks. //_VARIABLE_LIST
     void* OnDropMaterial(ComponentVariable* pVar, wxCoord x, wxCoord y);
     void* OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue* pNewValue);

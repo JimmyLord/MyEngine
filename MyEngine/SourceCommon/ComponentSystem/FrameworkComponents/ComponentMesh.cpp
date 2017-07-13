@@ -48,6 +48,9 @@ ComponentMesh::ComponentMesh()
     {
         m_pSceneGraphObjects[i] = 0;
         m_MaterialList[i] = 0;
+#if MYFW_USING_WX
+        m_MaterialExpanded[i] = false;
+#endif
     }
 
     m_GLPrimitiveType = GL_TRIANGLES;
@@ -108,6 +111,9 @@ void ComponentMesh::Reset()
 
 #if MYFW_USING_WX
     m_pPanelWatchBlockVisible = &m_PanelWatchBlockVisible;
+
+    for( unsigned int i=0; i<MAX_SUBMESHES; i++ )
+        m_MaterialExpanded[i] = false;
 #endif //MYFW_USING_WX
 }
 
@@ -173,10 +179,36 @@ void ComponentMesh::VariableAddedToWatchPanel(ComponentVariable* pVar)
 {
     for( unsigned int i=0; i<MAX_SUBMESHES; i++ )
     {
-        // only show enough material variables for the number of submeshes in the mesh.
+        m_MaterialExpandButtonControlIDs[i] = -1;
+
         if( pVar->m_Label == g_MaterialLabels[i] )
         {
-            GetMaterial( i )->AddToWatchPanel( false );
+            int oldpaddingleft = g_pPanelWatch->m_PaddingLeft;
+            g_pPanelWatch->m_PaddingLeft = 110;
+
+            if( m_MaterialExpanded[i] == false )
+            {
+                m_MaterialExpandButtonControlIDs[i] = g_pPanelWatch->AddSpace( "+Expand", this, &ComponentMesh::StaticOnExpandMaterialClicked );
+                g_pPanelWatch->m_PaddingLeft = oldpaddingleft;
+            }
+            else
+            {
+                m_MaterialExpandButtonControlIDs[i] = g_pPanelWatch->AddSpace( "+Collapse", this, &ComponentMesh::StaticOnExpandMaterialClicked );
+                g_pPanelWatch->m_PaddingLeft = oldpaddingleft;
+                GetMaterial( i )->AddToWatchPanel( false );
+            }
+        }
+    }
+}
+
+void ComponentMesh::OnExpandMaterialClicked(int controlid)
+{
+    for( unsigned int i=0; i<MAX_SUBMESHES; i++ )
+    {
+        if( m_MaterialExpandButtonControlIDs[i] == controlid )
+        {
+            m_MaterialExpanded[i] = !m_MaterialExpanded[i];
+            g_pPanelWatch->SetNeedsRefresh();
         }
     }
 }
