@@ -195,7 +195,7 @@ void ComponentMesh::VariableAddedToWatchPanel(ComponentVariable* pVar)
             {
                 m_MaterialExpandButtonControlIDs[i] = g_pPanelWatch->AddSpace( "+Collapse", this, &ComponentMesh::StaticOnExpandMaterialClicked );
                 g_pPanelWatch->m_PaddingLeft = oldpaddingleft;
-                GetMaterial( i )->AddToWatchPanel( false );
+                GetMaterial( i )->AddToWatchPanel( false, false, true );
             }
         }
     }
