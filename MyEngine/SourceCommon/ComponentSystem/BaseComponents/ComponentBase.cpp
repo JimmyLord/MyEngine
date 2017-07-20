@@ -1501,7 +1501,7 @@ void ComponentBase::OnDropVariable(ComponentVariable* pVar, int controlcomponent
         }
 
         // OnDropCallback will grab the new value from g_DragAndDropStruct
-        UpdateChildrenWithNewValue( true, pVar, false, controlcomponent, true, 0, oldpointer, x, y, 0 );
+        UpdateChildrenWithNewValue( true, pVar, controlcomponent, false, true, 0, oldpointer, x, y, 0 );
 
         // deal with multiple selections
         for( unsigned int i=0; i<m_MultiSelectedComponents.size(); i++ )
