@@ -289,10 +289,13 @@ void* ComponentMesh::OnDropMaterial(ComponentVariable* pVar, wxCoord x, wxCoord 
             g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_ChangeMaterialOnMesh( this, pVar, materialthatchanged, pMaterial ) );
 
             // update the panel so new Material name shows up.
-            if( pMaterial != 0 )
-                g_pPanelWatch->GetVariableProperties( g_DragAndDropStruct.GetControlID() )->m_Description = pMaterial->GetName();
-            else
-                g_pPanelWatch->GetVariableProperties( g_DragAndDropStruct.GetControlID() )->m_Description = 0;
+            if( g_DragAndDropStruct.GetControlID() != -1 )
+            {
+                if( pMaterial != 0 )
+                    g_pPanelWatch->GetVariableProperties( g_DragAndDropStruct.GetControlID() )->m_Description = pMaterial->GetName();
+                else
+                    g_pPanelWatch->GetVariableProperties( g_DragAndDropStruct.GetControlID() )->m_Description = 0;
+            }
         }
     }
 
