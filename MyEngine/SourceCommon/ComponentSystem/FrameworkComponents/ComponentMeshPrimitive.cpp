@@ -270,9 +270,9 @@ void ComponentMeshPrimitive::CreatePrimitive()
             createtriangles = false;
 
         if( m_Plane_UVsPerQuad )
-            m_pMesh->CreatePlaneUVsNotShared( Vector3(-m_Plane_Size.x/2, 0, -m_Plane_Size.y/2), m_Plane_Size, m_Plane_VertCount, m_Plane_UVStart, m_Plane_UVRange, createtriangles );
+            m_pMesh->CreatePlaneUVsNotShared( Vector3(-m_Plane_Size.x/2, 0, m_Plane_Size.y/2), m_Plane_Size, m_Plane_VertCount, m_Plane_UVStart, m_Plane_UVRange, createtriangles );
         else
-            m_pMesh->CreatePlane( Vector3(-m_Plane_Size.x/2, 0, -m_Plane_Size.y/2), m_Plane_Size, m_Plane_VertCount, m_Plane_UVStart, m_Plane_UVRange, createtriangles );
+            m_pMesh->CreatePlane( Vector3(-m_Plane_Size.x/2, 0, m_Plane_Size.y/2), m_Plane_Size, m_Plane_VertCount, m_Plane_UVStart, m_Plane_UVRange, createtriangles );
     }
     else if( m_MeshPrimitiveType == ComponentMeshPrimitive_Icosphere )
     {
