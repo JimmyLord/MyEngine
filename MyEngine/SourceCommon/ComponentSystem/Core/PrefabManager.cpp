@@ -223,14 +223,18 @@ PrefabFile::~PrefabFile()
         // delete the cJSON* jPrefab object, it should have been detached from any cJSON branch when loaded/saved
         cJSON_Delete( pPrefab->m_jPrefab );
 
+#if MYFW_USING_WX
         RemovePrefab( pPrefab );
+#endif
 
         delete pPrefab;
     }
 
     m_pFile->Release();
 
+#if MYFW_USING_WX
     g_pPanelObjectList->RemoveObject( this );
+#endif
 }
 
 uint32 PrefabFile::GetNextPrefabIDAndIncrement()
