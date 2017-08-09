@@ -183,22 +183,22 @@ void ComponentMesh::VariableAddedToWatchPanel(ComponentVariable* pVar)
 
         if( pVar->m_Label == g_MaterialLabels[i] )
         {
-            int oldpaddingleft = g_pPanelWatch->m_PaddingLeft;
-            g_pPanelWatch->m_PaddingLeft = 110;
-
             if( m_pMaterials[i]->m_UniformValues[0].m_Type != ExposedUniformType_NotSet )
             {
+                int oldpaddingleft = g_pPanelWatch->m_PaddingLeft;
+                g_pPanelWatch->m_PaddingLeft = 110;
+
                 if( m_MaterialExpanded[i] == false )
                 {
                     m_MaterialExpandButtonControlIDs[i] = g_pPanelWatch->AddSpace( "+Expand", this, &ComponentMesh::StaticOnExpandMaterialClicked );
-                    g_pPanelWatch->m_PaddingLeft = oldpaddingleft;
                 }
                 else
                 {
                     m_MaterialExpandButtonControlIDs[i] = g_pPanelWatch->AddSpace( "+Collapse", this, &ComponentMesh::StaticOnExpandMaterialClicked );
-                    g_pPanelWatch->m_PaddingLeft = oldpaddingleft;
                     GetMaterial( i )->AddToWatchPanel( false, false, true );
                 }
+
+                g_pPanelWatch->m_PaddingLeft = oldpaddingleft;
             }
         }
     }
