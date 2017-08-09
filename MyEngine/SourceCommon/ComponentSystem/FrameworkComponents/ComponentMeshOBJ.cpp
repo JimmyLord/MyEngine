@@ -316,7 +316,7 @@ void ComponentMeshOBJ::SetMesh(MyMesh* pMesh)
     //    {
     //        for( unsigned int i=0; i<MAX_SUBMESHES; i++ )
     //        {
-    //            if( m_MaterialList[i] == 0 ) // if we don't already have a material set:
+    //            if( m_pMaterials[i] == 0 ) // if we don't already have a material set:
     //            {
     //                if( i < pMesh->m_SubmeshList.Count() ) // check if the new mesh has a known material and set it:
     //                {

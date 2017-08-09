@@ -185,7 +185,7 @@ void ComponentSystemManager::RegisterComponentCallback_Draw(ComponentCallbackStr
     //{
     //    MyMesh* pMesh = pComponent->m_pMesh;
     //    for( unsigned int i=0; i<pMesh->m_SubmeshList.Count(); i++ )
-    //        m_pSceneGraph->AddRenderableObject( pWorldTransform, pMesh, pMesh->m_SubmeshList[i], pComponent->m_MaterialList[i] );
+    //        m_pSceneGraph->AddRenderableObject( pWorldTransform, pMesh, pMesh->m_SubmeshList[i], pComponent->m_pMaterials[i] );
     //}
 }
 

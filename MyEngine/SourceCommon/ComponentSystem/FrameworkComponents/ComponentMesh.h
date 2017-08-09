@@ -29,7 +29,7 @@ public:
 
     bool m_WaitingToAddToSceneGraph;
     SceneGraphObject* m_pSceneGraphObjects[MAX_SUBMESHES];
-    MaterialDefinition* m_MaterialList[MAX_SUBMESHES];
+    MaterialDefinition* m_pMaterials[MAX_SUBMESHES];
     int m_GLPrimitiveType;
     int m_PointSize;
 
@@ -66,7 +66,7 @@ public:
     //virtual void OnGameObjectDisabled();
 
     // ComponentRenderable overrides
-    virtual MaterialDefinition* GetMaterial(int submeshindex) { return m_MaterialList[submeshindex]; }
+    virtual MaterialDefinition* GetMaterial(int submeshindex) { return m_pMaterials[submeshindex]; }
     virtual void SetMaterial(MaterialDefinition* pMaterial, int submeshindex);
 
     virtual void SetVisible(bool visible);

@@ -47,7 +47,7 @@ ComponentMesh::ComponentMesh()
     for( int i=0; i<MAX_SUBMESHES; i++ )
     {
         m_pSceneGraphObjects[i] = 0;
-        m_MaterialList[i] = 0;
+        m_pMaterials[i] = 0;
 #if MYFW_USING_WX
         m_MaterialExpanded[i] = false;
 #endif
@@ -73,7 +73,7 @@ ComponentMesh::~ComponentMesh()
         if( m_pSceneGraphObjects[i] != 0 )
             g_pComponentSystemManager->RemoveObjectFromSceneGraph( m_pSceneGraphObjects[i] );
         m_pSceneGraphObjects[i] = 0;
-        SAFE_RELEASE( m_MaterialList[i] );
+        SAFE_RELEASE( m_pMaterials[i] );
     }
 }
 
@@ -86,7 +86,7 @@ void ComponentMesh::RegisterVariables(CPPListHead* pList, ComponentMesh* pThis) 
         // materials are not automatically saved/loaded
         MyAssert( MAX_SUBMESHES == 4 );
         ComponentVariable* pVar = AddVar( pList, g_MaterialLabels[i], ComponentVariableType_MaterialPtr,
-                                               MyOffsetOf( pThis, &pThis->m_MaterialList[i] ), false, true, 
+                                               MyOffsetOf( pThis, &pThis->m_pMaterials[i] ), false, true, 
                                                0, (CVarFunc_ValueChanged)&ComponentMesh::OnValueChanged, (CVarFunc_DropTarget)&ComponentMesh::OnDropMaterial, 0 );
 
 #if MYFW_USING_WX
@@ -105,7 +105,7 @@ void ComponentMesh::Reset()
 
     SAFE_RELEASE( m_pMesh );
     for( unsigned int i=0; i<MAX_SUBMESHES; i++ )
-        SAFE_RELEASE( m_MaterialList[i] );
+        SAFE_RELEASE( m_pMaterials[i] );
 
     m_pComponentLuaScript = 0;
 
@@ -186,16 +186,19 @@ void ComponentMesh::VariableAddedToWatchPanel(ComponentVariable* pVar)
             int oldpaddingleft = g_pPanelWatch->m_PaddingLeft;
             g_pPanelWatch->m_PaddingLeft = 110;
 
-            if( m_MaterialExpanded[i] == false )
+            if( m_pMaterials[i]->m_UniformValues[0].m_Type != ExposedUniformType_NotSet )
             {
-                m_MaterialExpandButtonControlIDs[i] = g_pPanelWatch->AddSpace( "+Expand", this, &ComponentMesh::StaticOnExpandMaterialClicked );
-                g_pPanelWatch->m_PaddingLeft = oldpaddingleft;
-            }
-            else
-            {
-                m_MaterialExpandButtonControlIDs[i] = g_pPanelWatch->AddSpace( "+Collapse", this, &ComponentMesh::StaticOnExpandMaterialClicked );
-                g_pPanelWatch->m_PaddingLeft = oldpaddingleft;
-                GetMaterial( i )->AddToWatchPanel( false, false, true );
+                if( m_MaterialExpanded[i] == false )
+                {
+                    m_MaterialExpandButtonControlIDs[i] = g_pPanelWatch->AddSpace( "+Expand", this, &ComponentMesh::StaticOnExpandMaterialClicked );
+                    g_pPanelWatch->m_PaddingLeft = oldpaddingleft;
+                }
+                else
+                {
+                    m_MaterialExpandButtonControlIDs[i] = g_pPanelWatch->AddSpace( "+Collapse", this, &ComponentMesh::StaticOnExpandMaterialClicked );
+                    g_pPanelWatch->m_PaddingLeft = oldpaddingleft;
+                    GetMaterial( i )->AddToWatchPanel( false, false, true );
+                }
             }
         }
     }
@@ -312,11 +315,11 @@ cJSON* ComponentMesh::ExportAsJSONObject(bool savesceneid, bool saveid)
 
     for( unsigned int i=0; i<MAX_SUBMESHES; i++ )
     {
-        MyAssert( m_MaterialList[i] == 0 || m_MaterialList[i]->GetFile() ); // new materials should be saved as files before the state is saved.
+        MyAssert( m_pMaterials[i] == 0 || m_pMaterials[i]->GetFile() ); // new materials should be saved as files before the state is saved.
 
         cJSON* jMaterial = 0;
-        if( m_MaterialList[i] && m_MaterialList[i]->GetFile() )
-            jMaterial = cJSON_CreateString( m_MaterialList[i]->GetMaterialDescription() );
+        if( m_pMaterials[i] && m_pMaterials[i]->GetFile() )
+            jMaterial = cJSON_CreateString( m_pMaterials[i]->GetMaterialDescription() );
 
         if( jMaterial )
             cJSON_AddItemToArray( jMaterialArray, jMaterial );
@@ -349,7 +352,7 @@ void ComponentMesh::ImportFromJSONObject(cJSON* jComponentMesh, unsigned int sce
     {
         int nummaterials = cJSON_GetArraySize( jMaterialArray );
 
-        //for( int i=0; i<MAX_SUBMESHES; i++ ) { MyAssert( m_MaterialList[i] == 0 ); }
+        //for( int i=0; i<MAX_SUBMESHES; i++ ) { MyAssert( m_pMaterials[i] == 0 ); }
 
         for( int i=0; i<nummaterials; i++ )
         {
@@ -376,10 +379,9 @@ ComponentMesh& ComponentMesh::operator=(const ComponentMesh& other)
     ComponentRenderable::operator=( other );
 
     //const ComponentMesh* pOther = &other;
-    //MyAssert( other.m_MaterialList.Count() == m_MaterialList.Count() );
     for( unsigned int i=0; i<MAX_SUBMESHES; i++ )
     {
-        SetMaterial( other.m_MaterialList[i], i );
+        SetMaterial( other.m_pMaterials[i], i );
     }
 
     m_GLPrimitiveType = other.m_GLPrimitiveType;
@@ -445,9 +447,9 @@ bool ComponentMesh::OnEvent(MyEvent* pEvent)
     {
         for( int i=0; i<MAX_SUBMESHES; i++ )
         {
-            if( m_MaterialList[i] )
+            if( m_pMaterials[i] )
             {
-                SetMaterial( m_MaterialList[i], i );
+                SetMaterial( m_pMaterials[i], i );
             }
         }
         return false; // keep propagating the event.
@@ -464,8 +466,8 @@ void ComponentMesh::SetMaterial(MaterialDefinition* pMaterial, int submeshindex)
 
     if( pMaterial )
         pMaterial->AddRef();
-    SAFE_RELEASE( m_MaterialList[submeshindex] );
-    m_MaterialList[submeshindex] = pMaterial;
+    SAFE_RELEASE( m_pMaterials[submeshindex] );
+    m_pMaterials[submeshindex] = pMaterial;
 
     if( m_pSceneGraphObjects[submeshindex] )
     {
@@ -475,7 +477,7 @@ void ComponentMesh::SetMaterial(MaterialDefinition* pMaterial, int submeshindex)
         flags = (SceneGraphFlags)(flags & ~(SceneGraphFlag_Opaque | SceneGraphFlag_Transparent));
         if( pMaterial )
         {
-            if( m_MaterialList[submeshindex]->IsTransparent() )
+            if( m_pMaterials[submeshindex]->IsTransparent() )
                 flags = (SceneGraphFlags)(flags | SceneGraphFlag_Transparent);
             else
                 flags = (SceneGraphFlags)(flags | SceneGraphFlag_Opaque);
@@ -553,7 +555,7 @@ void ComponentMesh::AddToSceneGraph()
         {
             SceneGraphFlags flags = SceneGraphFlag_Opaque; // TODO: check if opaque or transparent
             unsigned int layers = m_LayersThisExistsOn;
-            g_pComponentSystemManager->AddMeshToSceneGraph( this, m_pMesh, m_MaterialList, m_GLPrimitiveType, m_PointSize, flags, layers, m_pSceneGraphObjects );
+            g_pComponentSystemManager->AddMeshToSceneGraph( this, m_pMesh, m_pMaterials, m_GLPrimitiveType, m_PointSize, flags, layers, m_pSceneGraphObjects );
         }
 
         m_WaitingToAddToSceneGraph = false;
@@ -728,7 +730,7 @@ void ComponentMesh::DrawCallback(ComponentCamera* pCamera, MyMatrix* pMatViewPro
 
         for( unsigned int i=0; i<m_pMesh->m_SubmeshList.Count(); i++ )
         {
-            m_pMesh->SetMaterial( m_MaterialList[i], i );
+            m_pMesh->SetMaterial( m_pMaterials[i], i );
             m_pMesh->m_SubmeshList[i]->m_PrimitiveType = m_GLPrimitiveType;
             m_pMesh->m_SubmeshList[i]->m_PointSize = m_PointSize;
         }
