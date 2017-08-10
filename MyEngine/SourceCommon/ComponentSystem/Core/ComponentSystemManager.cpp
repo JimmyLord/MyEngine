@@ -34,6 +34,7 @@ ComponentSystemManager::ComponentSystemManager(ComponentTypeManager* typemanager
 
 #if MYFW_USING_WX
     g_pMaterialManager->RegisterMaterialCreatedCallback( this, StaticOnMaterialCreated );
+    g_pFileManager->RegisterFileUnloadedCallback( this, StaticOnFileUnloaded );
     g_pGameCore->m_pSoundManager->RegisterSoundCueCreatedCallback( this, StaticOnSoundCueCreated );
     g_pGameCore->m_pSoundManager->RegisterSoundCueUnloadedCallback( this, StaticOnSoundCueUnloaded );
 
@@ -334,7 +335,7 @@ void ComponentSystemManager::OnSoundCueCreated(SoundCue* pSoundCue)
     }
 }
 
-void ComponentSystemManager::OnSoundCueUnloaded(SoundCue* pSoundCue)
+void ComponentSystemManager::OnSoundCueUnloaded(SoundCue* pSoundCue) // StaticOnSoundCueUnloaded
 {
     MyAssert( pSoundCue );
 
@@ -360,6 +361,49 @@ void ComponentSystemManager::OnSoundCueUnloaded(SoundCue* pSoundCue)
                 // Unload the file.
                 FreeDataFile( pFileInfo );
             }
+        }
+    }
+}
+
+void ComponentSystemManager::OnFileUnloaded(MyFileObject* pFile) // StaticOnFileUnloaded
+{
+    MyAssert( pFile );
+
+    // Loop through both lists of files and unload all files referencing this sound cue.
+    for( int filelist=0; filelist<2; filelist++ )
+    {
+        CPPListNode* pFirstNode = 0;
+
+        if( filelist == 0 )
+            pFirstNode = m_Files.GetHead();
+        else
+            pFirstNode = m_FilesStillLoading.GetHead();
+        
+        CPPListNode* pNextNode;
+        for( CPPListNode* pNode = pFirstNode; pNode; pNode = pNextNode )
+        {
+            pNextNode = pNode->GetNext();
+
+            MyFileInfo* pFileInfo = (MyFileInfo*)pNode;
+
+            // Unload the file.
+            if( pFileInfo->m_pFile == pFile )
+            {
+                FreeDataFile( pFileInfo );
+            }
+            //MyMesh* m_pMesh; // a mesh may have been created alongside the file.
+            //ShaderGroup* m_pShaderGroup; // a shadergroup may have been created alongside the file.
+            //TextureDefinition* m_pTexture; //a texture may have been created alongside the file.
+            else if( pFileInfo->m_pMaterial && pFileInfo->m_pMaterial->GetFile() == pFile )
+            {
+                FreeDataFile( pFileInfo );
+            }
+            else if( pFileInfo->m_pSoundCue && pFileInfo->m_pSoundCue->m_pFile == pFile )
+            {
+                FreeDataFile( pFileInfo );
+            }
+            //SpriteSheet* m_pSpriteSheet; //a sprite sheet may have been created alongside the file.
+            //PrefabFile* m_pPrefabFile; // a prefab file may have been created alongside the file
         }
     }
 }
@@ -651,6 +695,7 @@ MyFileInfo* ComponentSystemManager::AddToFileList(MyFileObject* pFile, MyMesh* p
     pFileInfo->m_pMaterial = pMaterial;
     pFileInfo->m_pSoundCue = pSoundCue;
     pFileInfo->m_pSpriteSheet = pSpriteSheet;
+    pFileInfo->m_pPrefabFile = 0;
 
     pFileInfo->m_SceneID = sceneid;
 

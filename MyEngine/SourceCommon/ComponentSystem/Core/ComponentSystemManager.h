@@ -298,6 +298,9 @@ public:
 
     static void StaticOnSoundCueUnloaded(void* pObjectPtr, SoundCue* pSoundCue) { ((ComponentSystemManager*)pObjectPtr)->OnSoundCueUnloaded( pSoundCue ); }
     void OnSoundCueUnloaded(SoundCue* pSoundCue);
+
+    static void StaticOnFileUnloaded(void* pObjectPtr, MyFileObject* pFile) { ((ComponentSystemManager*)pObjectPtr)->OnFileUnloaded( pFile ); }
+    void OnFileUnloaded(MyFileObject* pFile);
 #endif //MYFW_USING_WX
 };
 
