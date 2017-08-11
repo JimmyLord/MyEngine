@@ -387,23 +387,18 @@ void ComponentSystemManager::OnFileUnloaded(MyFileObject* pFile) // StaticOnFile
             MyFileInfo* pFileInfo = (MyFileInfo*)pNode;
 
             // Unload the file.
-            if( pFileInfo->m_pFile == pFile )
+            if( pFileInfo->m_pFile == pFile
+                || (pFileInfo->m_pMesh          && pFileInfo->m_pMesh->m_pSourceFile        == pFile)
+                || (pFileInfo->m_pShaderGroup   && pFileInfo->m_pShaderGroup->GetFile()     == pFile)
+                || (pFileInfo->m_pTexture       && pFileInfo->m_pTexture->m_pFile           == pFile)
+                || (pFileInfo->m_pMaterial      && pFileInfo->m_pMaterial->GetFile()        == pFile)
+                || (pFileInfo->m_pSoundCue      && pFileInfo->m_pSoundCue->m_pFile          == pFile)
+                || (pFileInfo->m_pSpriteSheet   && pFileInfo->m_pSpriteSheet->GetJSONFile() == pFile)
+                || (pFileInfo->m_pPrefabFile    && pFileInfo->m_pPrefabFile->GetFile()      == pFile)
+              )
             {
                 FreeDataFile( pFileInfo );
             }
-            //MyMesh* m_pMesh; // a mesh may have been created alongside the file.
-            //ShaderGroup* m_pShaderGroup; // a shadergroup may have been created alongside the file.
-            //TextureDefinition* m_pTexture; //a texture may have been created alongside the file.
-            else if( pFileInfo->m_pMaterial && pFileInfo->m_pMaterial->GetFile() == pFile )
-            {
-                FreeDataFile( pFileInfo );
-            }
-            else if( pFileInfo->m_pSoundCue && pFileInfo->m_pSoundCue->m_pFile == pFile )
-            {
-                FreeDataFile( pFileInfo );
-            }
-            //SpriteSheet* m_pSpriteSheet; //a sprite sheet may have been created alongside the file.
-            //PrefabFile* m_pPrefabFile; // a prefab file may have been created alongside the file
         }
     }
 }
