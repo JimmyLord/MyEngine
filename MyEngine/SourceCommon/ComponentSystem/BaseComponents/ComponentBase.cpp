@@ -421,7 +421,7 @@ bool ComponentBase::DoAllMultiSelectedVariabledHaveTheSameValue(ComponentVariabl
         case ComponentVariableType_SoundCuePtr:
             for( unsigned int i=0; i<m_MultiSelectedComponents.size(); i++ )
             {
-                if( *((char*)this + pVar->m_Offset) != *((char*)m_MultiSelectedComponents[i] + pVar->m_Offset) )
+                if( *(void**)((char*)this + pVar->m_Offset) != *(void**)((char*)m_MultiSelectedComponents[i] + pVar->m_Offset) )
                     allComponentsHaveSameValue = false;
             }
             break;
@@ -2176,6 +2176,43 @@ void ComponentBase::UpdateOtherComponentWithNewValue(ComponentBase* pComponent, 
         MyAssert( false );
         break;
     }
+}
+
+bool ComponentBase::IsReferencingFile(MyFileObject* pFile)
+{
+    for( CPPListNode* pNode = GetComponentVariableList()->GetHead(); pNode; pNode = pNode->GetNext() )
+    {
+        ComponentVariable* pVar = (ComponentVariable*)pNode;
+        MyAssert( pVar );
+
+        //if( pVar->m_Type == ComponentVariableType_GameObjectPtr )
+        //if( pVar->m_Type == ComponentVariableType_ComponentPtr )
+        if( pVar->m_Type == ComponentVariableType_FilePtr )
+        {
+            MyFileObject* pFileFromComponent = (MyFileObject*)(*(void**)((char*)this + pVar->m_Offset));
+            if( pFileFromComponent && pFileFromComponent == pFile )
+                return true;
+        }
+        else if( pVar->m_Type == ComponentVariableType_MaterialPtr )
+        {
+            MaterialDefinition* pMaterial = (MaterialDefinition*)(*(void**)((char*)this + pVar->m_Offset));
+            if( pMaterial && pMaterial->GetFile() == pFile )
+                return true;
+        }
+        else if( pVar->m_Type == ComponentVariableType_SoundCuePtr )
+        {
+            SoundCue* pSoundCue = (SoundCue*)(*(void**)((char*)this + pVar->m_Offset));
+            if( pSoundCue && pSoundCue->m_pFile == pFile )
+                return true;
+        }
+        else if( pVar->m_Type == ComponentVariableType_PointerIndirect )
+        {
+            if( (this->*pVar->m_pGetPointerValueCallBackFunc)( pVar ) == pFile )
+                return true;
+        }
+    }
+
+    return false;
 }
 
 void ComponentBase::OnComponentTitleLabelClicked(int id, bool finishedchanging)

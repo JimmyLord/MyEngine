@@ -369,6 +369,11 @@ void ComponentSystemManager::OnFileUnloaded(MyFileObject* pFile) // StaticOnFile
 {
     MyAssert( pFile );
 
+    //if( pFile->GetRefCount() > 1 )
+    {
+        LogAllReferencesForFile( pFile );
+    }
+
     // Loop through both lists of files and unload all files referencing this sound cue.
     for( int filelist=0; filelist<2; filelist++ )
     {
@@ -398,6 +403,8 @@ void ComponentSystemManager::OnFileUnloaded(MyFileObject* pFile) // StaticOnFile
               )
             {
                 FreeDataFile( pFileInfo );
+                LOGInfo( LOGTag, "File removed from scene file list: %s\n", pFile->GetFullPath() );
+
             }
         }
     }
@@ -2427,6 +2434,44 @@ void ComponentSystemManager::Editor_GetListOfGameObjectsThatUsePrefab(std::vecto
             }
         }
     }
+}
+
+void ComponentSystemManager::LogAllReferencesForFile(MyFileObject* pFile)
+{
+    LOGInfo( LOGTag, "Finding references to %s in all scenes:\n", pFile->GetFullPath() );
+
+    int numrefs = 0;
+
+    // Check all gameobjects/components in all scenes for a reference to the file.
+    //   ATM: this only checks variables registered as "component vars".
+    for( unsigned int sceneindex=0; sceneindex<MAX_SCENES_LOADED; sceneindex++ )
+    {
+        if( m_pSceneInfoMap[sceneindex].m_InUse == false )
+            continue;
+
+        for( CPPListNode* pNode = m_pSceneInfoMap[sceneindex].m_GameObjects.GetHead(); pNode; pNode = pNode->GetNext() )
+        {
+            GameObject* pGameObject = (GameObject*)pNode;
+
+            for( unsigned int componentindex=0; componentindex<pGameObject->GetComponentCountIncludingCore(); componentindex++ )
+            {
+                ComponentBase* pComponent = pGameObject->GetComponentByIndexIncludingCore( componentindex );
+
+                if( pComponent )
+                {
+                    if( pComponent->IsReferencingFile( pFile ) )
+                    {
+                        LOGInfo( LOGTag, "    %s :: %s :: %s (0x%x)\n", m_pSceneInfoMap[sceneindex].m_FullPath, pGameObject->GetName(), pComponent->GetClassname(), pComponent );
+                        numrefs++;
+                    }
+                }
+            }
+        }
+    }
+
+    // TODO: Check materials for references to files.
+
+    LOGInfo( LOGTag, "Done: %d references found\n", numrefs );
 }
 
 //SceneInfo* ComponentSystemManager::GetSceneInfo(int sceneid)

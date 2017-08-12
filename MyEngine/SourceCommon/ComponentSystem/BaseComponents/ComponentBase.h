@@ -173,6 +173,8 @@ public:
     void UpdateOtherComponentWithNewValue(ComponentBase* pComponent, bool directlychanged, bool ignoreDivorceStatus, bool fromdraganddrop, ComponentVariable* pVar, int controlcomponent, bool finishedchanging, double oldvalue, void* oldpointer, wxCoord x, wxCoord y, void* newpointer);
     void CopyValueFromOtherComponentWithUndo(ComponentVariable* pVar, ComponentBase* pOtherComponent);
 
+    virtual bool IsReferencingFile(MyFileObject* pFile);
+
     // to show/hide the components controls in watch panel
     //static bool m_PanelWatchBlockVisible; // each class needs it's own static bool, so if one component of this type is off, they all are.
     bool* m_pPanelWatchBlockVisible; // pointer to the bool above, must be set by each component.
