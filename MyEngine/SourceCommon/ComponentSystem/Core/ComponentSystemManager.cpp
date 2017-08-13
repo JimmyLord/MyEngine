@@ -402,9 +402,8 @@ void ComponentSystemManager::OnFileUnloaded(MyFileObject* pFile) // StaticOnFile
                 || (pFileInfo->m_pPrefabFile    && pFileInfo->m_pPrefabFile->GetFile()      == pFile)
               )
             {
-                FreeDataFile( pFileInfo );
                 LOGInfo( LOGTag, "File removed from scene file list: %s\n", pFile->GetFullPath() );
-
+                FreeDataFile( pFileInfo );
             }
         }
     }
@@ -2443,7 +2442,7 @@ void ComponentSystemManager::LogAllReferencesForFile(MyFileObject* pFile)
     int numrefs = 0;
 
     // Check all gameobjects/components in all scenes for a reference to the file.
-    //   ATM: this only checks variables registered as "component vars".
+    //   ATM: This only checks variables registered as "component vars".
     for( unsigned int sceneindex=0; sceneindex<MAX_SCENES_LOADED; sceneindex++ )
     {
         if( m_pSceneInfoMap[sceneindex].m_InUse == false )
@@ -2461,7 +2460,7 @@ void ComponentSystemManager::LogAllReferencesForFile(MyFileObject* pFile)
                 {
                     if( pComponent->IsReferencingFile( pFile ) )
                     {
-                        LOGInfo( LOGTag, "    %s :: %s :: %s (0x%x)\n", m_pSceneInfoMap[sceneindex].m_FullPath, pGameObject->GetName(), pComponent->GetClassname(), pComponent );
+                        LOGInfo( LOGTag, "    GameObject: %s :: %s :: %s (0x%x)\n", m_pSceneInfoMap[sceneindex].m_FullPath, pGameObject->GetName(), pComponent->GetClassname(), pComponent );
                         numrefs++;
                     }
                 }
@@ -2469,7 +2468,22 @@ void ComponentSystemManager::LogAllReferencesForFile(MyFileObject* pFile)
         }
     }
 
-    // TODO: Check materials for references to files.
+    // Check materials for references to files.
+    MaterialDefinition* pMaterial = g_pMaterialManager->GetFirstMaterial();
+    while( pMaterial != 0 )
+    {
+        if( pMaterial->IsReferencingFile( pFile ) )
+        {
+            if( pMaterial->GetFile() )
+                LOGInfo( LOGTag, "    Material: %s (0x%x)\n", pMaterial->GetFile()->GetFullPath(), pMaterial );
+            else
+                LOGInfo( LOGTag, "    Unsaved Material: %s (0x%x)\n", pMaterial->GetName(), pMaterial );
+
+            numrefs++;
+        }
+
+        pMaterial = (MaterialDefinition*)pMaterial->GetNext();
+    }
 
     LOGInfo( LOGTag, "Done: %d references found\n", numrefs );
 }
