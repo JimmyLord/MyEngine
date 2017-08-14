@@ -35,6 +35,7 @@ ComponentSystemManager::ComponentSystemManager(ComponentTypeManager* typemanager
 #if MYFW_USING_WX
     g_pMaterialManager->RegisterMaterialCreatedCallback( this, StaticOnMaterialCreated );
     g_pFileManager->RegisterFileUnloadedCallback( this, StaticOnFileUnloaded );
+    g_pFileManager->RegisterFindAllReferencesCallback( this, StaticOnFindAllReferences );
     g_pGameCore->m_pSoundManager->RegisterSoundCueCreatedCallback( this, StaticOnSoundCueCreated );
     g_pGameCore->m_pSoundManager->RegisterSoundCueUnloadedCallback( this, StaticOnSoundCueUnloaded );
 
@@ -369,11 +370,6 @@ void ComponentSystemManager::OnFileUnloaded(MyFileObject* pFile) // StaticOnFile
 {
     MyAssert( pFile );
 
-    //if( pFile->GetRefCount() > 1 )
-    {
-        LogAllReferencesForFile( pFile );
-    }
-
     // Loop through both lists of files and unload all files referencing this sound cue.
     for( int filelist=0; filelist<2; filelist++ )
     {
@@ -402,11 +398,28 @@ void ComponentSystemManager::OnFileUnloaded(MyFileObject* pFile) // StaticOnFile
                 || (pFileInfo->m_pPrefabFile    && pFileInfo->m_pPrefabFile->GetFile()      == pFile)
               )
             {
+                //if( pFile->GetRefCount() > 1 )
+                //{
+                //    LOGInfo( LOGTag, "File removed from scene file list: %s\n", pFile->GetFullPath() );
+                //    LOGInfo( LOGTag, "Remove the following references to unload completely:\n" );
+                //    LogAllReferencesForFile( pFile );
+                //}
+                //else
+                //{
+                //    LOGInfo( LOGTag, "File unloaded: %s\n", pFile->GetFullPath() );
+                //}
+
                 LOGInfo( LOGTag, "File removed from scene file list: %s\n", pFile->GetFullPath() );
+
                 FreeDataFile( pFileInfo );
             }
         }
     }
+}
+
+void ComponentSystemManager::OnFindAllReferences(MyFileObject* pFile) // StaticOnFindAllReferences
+{
+    LogAllReferencesForFile( pFile );
 }
 #endif //MYFW_USING_WX
 
@@ -2460,7 +2473,7 @@ void ComponentSystemManager::LogAllReferencesForFile(MyFileObject* pFile)
                 {
                     if( pComponent->IsReferencingFile( pFile ) )
                     {
-                        LOGInfo( LOGTag, "    GameObject: %s :: %s :: %s (0x%x)\n", m_pSceneInfoMap[sceneindex].m_FullPath, pGameObject->GetName(), pComponent->GetClassname(), pComponent );
+                        LOGInfo( LOGTag, "    (GameObject) %s :: %s :: %s (0x%x)\n", m_pSceneInfoMap[sceneindex].m_FullPath, pGameObject->GetName(), pComponent->GetClassname(), pComponent );
                         numrefs++;
                     }
                 }
@@ -2475,9 +2488,9 @@ void ComponentSystemManager::LogAllReferencesForFile(MyFileObject* pFile)
         if( pMaterial->IsReferencingFile( pFile ) )
         {
             if( pMaterial->GetFile() )
-                LOGInfo( LOGTag, "    Material: %s (0x%x)\n", pMaterial->GetFile()->GetFullPath(), pMaterial );
+                LOGInfo( LOGTag, "    (Material) %s (0x%x)\n", pMaterial->GetFile()->GetFullPath(), pMaterial );
             else
-                LOGInfo( LOGTag, "    Unsaved Material: %s (0x%x)\n", pMaterial->GetName(), pMaterial );
+                LOGInfo( LOGTag, "    (Unsaved Material) %s (0x%x)\n", pMaterial->GetName(), pMaterial );
 
             numrefs++;
         }

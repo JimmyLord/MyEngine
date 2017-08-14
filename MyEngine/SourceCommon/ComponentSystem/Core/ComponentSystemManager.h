@@ -302,6 +302,9 @@ public:
 
     static void StaticOnFileUnloaded(void* pObjectPtr, MyFileObject* pFile) { ((ComponentSystemManager*)pObjectPtr)->OnFileUnloaded( pFile ); }
     void OnFileUnloaded(MyFileObject* pFile);
+
+    static void StaticOnFindAllReferences(void* pObjectPtr, MyFileObject* pFile) { ((ComponentSystemManager*)pObjectPtr)->OnFindAllReferences( pFile ); }
+    void OnFindAllReferences(MyFileObject* pFile);    
 #endif //MYFW_USING_WX
 };
 
