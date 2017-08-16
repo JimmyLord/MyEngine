@@ -179,6 +179,9 @@ void ComponentMesh::VariableAddedToWatchPanel(ComponentVariable* pVar)
 {
     for( unsigned int i=0; i<MAX_SUBMESHES; i++ )
     {
+        if( m_pMaterials[i] == 0 )
+            continue;
+
         m_MaterialExpandButtonControlIDs[i] = -1;
 
         if( pVar->m_Label == g_MaterialLabels[i] )

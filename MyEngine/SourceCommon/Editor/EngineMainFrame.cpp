@@ -110,6 +110,7 @@ void EngineMainFrame_MessageLogForReal(int logtype, const char* tag, const char*
             pCustomLogTextCtrl = new wxTextCtrl( g_pEngineMainFrame->m_pLogPane, -1, wxEmptyString,
                                          wxDefaultPosition, wxDefaultSize,
                                          wxTE_READONLY | wxNO_BORDER | wxTE_MULTILINE );
+            pCustomLogTextCtrl->Bind( wxEVT_LEFT_DCLICK, &EngineMainFrame::OnTextCtrlLeftDoubleClick, g_pEngineMainFrame );
             g_pEngineMainFrame->m_pLogPane->AddPage( pCustomLogTextCtrl, tag );
         }
 
@@ -458,16 +459,19 @@ void EngineMainFrame::AddPanes()
     m_pLogMain = new wxTextCtrl( m_pLogPane, -1, wxEmptyString,
                                  wxDefaultPosition, wxDefaultSize,
                                  wxTE_READONLY | wxNO_BORDER | wxTE_MULTILINE );
+    m_pLogMain->Bind( wxEVT_LEFT_DCLICK, &EngineMainFrame::OnTextCtrlLeftDoubleClick, this );
     m_pLogPane->AddPage( m_pLogMain, "Main Log" );
 
     m_pLogInfo = new wxTextCtrl( m_pLogPane, -1, wxEmptyString,
                                  wxDefaultPosition, wxDefaultSize,
                                  wxTE_READONLY | wxNO_BORDER | wxTE_MULTILINE );
+    m_pLogInfo->Bind( wxEVT_LEFT_DCLICK, &EngineMainFrame::OnTextCtrlLeftDoubleClick, this );
     m_pLogPane->AddPage( m_pLogInfo, "Info" );
 
     m_pLogErrors = new wxTextCtrl( m_pLogPane, -1, wxEmptyString,
                                  wxDefaultPosition, wxDefaultSize,
                                  wxTE_READONLY | wxNO_BORDER | wxTE_MULTILINE );
+    m_pLogErrors->Bind( wxEVT_LEFT_DCLICK, &EngineMainFrame::OnTextCtrlLeftDoubleClick, this );
     m_pLogPane->AddPage( m_pLogErrors, "Errors" );
 }
 
@@ -1423,6 +1427,56 @@ void EngineMainFrame::OnDrop(int controlid, wxCoord x, wxCoord y)
     //    // update the panel so new gameobject name shows up.
     //    g_pPanelWatch->GetVariableProperties( g_DragAndDropStruct.GetControlID() )->m_Description = pGameObject->GetName();
     //}
+}
+
+// Internal event handling functions
+void EngineMainFrame::OnTextCtrlLeftDoubleClick(wxMouseEvent& evt)
+{
+    wxTextCtrl* pTextCtrl = (wxTextCtrl*)evt.GetEventObject();
+
+    wxPoint pos = evt.GetPosition();
+
+    wxTextCoord col, row;
+    pTextCtrl->HitTest( pos, &col, &row );
+
+    wxString line = pTextCtrl->GetLineText( row );
+
+    // Parse the line and select the gameobject/material.
+    char scenename[100];
+    char gameobjectname[100];
+    char componentname[100];
+
+    int num = sscanf( line.c_str(), " (GameObject) %99[^:] :: %99[^:] :: %99s", scenename, gameobjectname, componentname );
+    if( num == 3 )
+    {
+        // Remove the space from the end of the scene/gameobject name.
+        int scenenamelen = strlen(scenename);
+        if( scenenamelen > 1 )
+        {
+            if( scenename[scenenamelen-1] == ' ' )
+                scenename[scenenamelen-1] = 0;
+        }
+
+        int gameobjectnamelen = strlen(gameobjectname);
+        if( gameobjectnamelen > 1 )
+        {
+            if( gameobjectname[gameobjectnamelen-1] == ' ' )
+                gameobjectname[gameobjectnamelen-1] = 0;
+        }
+
+        int sceneid = g_pComponentSystemManager->FindSceneID( scenename );
+
+        if( sceneid != UINT_MAX )
+        {
+            GameObject* pGameObject = g_pComponentSystemManager->FindGameObjectByNameInScene( sceneid, gameobjectname );
+
+            if( pGameObject )
+            {
+                g_pEngineCore->m_pEditorState->ClearSelectedObjectsAndComponents();
+                g_pEngineCore->m_pEditorState->SelectGameObject( pGameObject );
+            }
+        }
+    }
 }
 
 #endif //MYFW_USING_WX

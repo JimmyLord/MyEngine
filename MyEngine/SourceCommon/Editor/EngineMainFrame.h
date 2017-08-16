@@ -180,6 +180,9 @@ public:
 
     static void StaticOnDrop(void* pObjectPtr, int controlid, wxCoord x, wxCoord y) { ((EngineMainFrame*)pObjectPtr)->OnDrop(controlid, x, y); }
     void OnDrop(int controlid, wxCoord x, wxCoord y);
+
+    // Internal event handling functions
+    void OnTextCtrlLeftDoubleClick(wxMouseEvent& evt);
 };
 
 #endif //__EngineMainFrame_H__

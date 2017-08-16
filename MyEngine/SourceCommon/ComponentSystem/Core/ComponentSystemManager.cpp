@@ -1479,6 +1479,20 @@ bool ComponentSystemManager::IsSceneLoaded(const char* fullpath)
     return false;
 }
 
+unsigned int ComponentSystemManager::FindSceneID(const char* fullpath)
+{
+    for( int i=1; i<MAX_SCENES_LOADED; i++ )
+    {
+        if( m_pSceneInfoMap[i].m_InUse )
+        {
+            if( strcmp( m_pSceneInfoMap[i].m_FullPath, fullpath ) == 0 )
+                return i;
+        }
+    }
+
+    return UINT_MAX;
+}
+
 GameObject* ComponentSystemManager::CreateGameObject(bool manageobject, int sceneid, bool isfolder, bool hastransform, PrefabObject* pPrefab)
 {
     GameObject* pGameObject = MyNew GameObject( manageobject, sceneid, isfolder, hastransform, pPrefab );
@@ -1856,6 +1870,24 @@ GameObject* ComponentSystemManager::FindGameObjectByName(const char* name)
             if( pGameObjectFound )
                 return pGameObjectFound;
         }
+    }
+
+    return 0;
+}
+
+GameObject* ComponentSystemManager::FindGameObjectByNameInScene(unsigned int sceneid, const char* name)
+{
+    MyAssert( sceneid < MAX_SCENES_LOADED );
+
+    MyAssert( m_pSceneInfoMap[sceneid].m_InUse == true );
+
+    SceneInfo* pSceneInfo = &m_pSceneInfoMap[sceneid];
+
+    if( pSceneInfo->m_GameObjects.GetHead() )
+    {
+        GameObject* pGameObjectFound = FindGameObjectByNameFromList( (GameObject*)pSceneInfo->m_GameObjects.GetHead(), name );
+        if( pGameObjectFound )
+            return pGameObjectFound;
     }
 
     return 0;

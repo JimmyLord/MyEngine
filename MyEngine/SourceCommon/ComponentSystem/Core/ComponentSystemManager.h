@@ -184,6 +184,7 @@ public:
     // unmanaged components are mainly editor objects and deleted objects in undo stack of editor... might want to rethink that.
     void UnloadScene(unsigned int sceneidtoclear = UINT_MAX, bool clearunmanagedcomponents = true);
     bool IsSceneLoaded(const char* fullpath);
+    unsigned int FindSceneID(const char* fullpath);
 
     GameObject* CreateGameObject(bool manageobject = true, int sceneid = 0, bool isfolder = false, bool hastransform = true, PrefabObject* pPrefab = 0);
     GameObject* CreateGameObjectFromPrefab(PrefabObject* pPrefab, bool manageobject, int sceneid);
@@ -205,6 +206,7 @@ public:
     GameObject* FindGameObjectByID(unsigned int sceneid, unsigned int goid);
     GameObject* FindGameObjectByIDFromList(GameObject* list, unsigned int goid);
     GameObject* FindGameObjectByName(const char* name);
+    GameObject* FindGameObjectByNameInScene(unsigned int sceneid, const char* name);
     GameObject* FindGameObjectByNameFromList(GameObject* list, const char* name);
     GameObject* FindGameObjectByJSONRef(cJSON* pJSONGameObjectRef, unsigned int defaultsceneid);
     ComponentBase* FindComponentByJSONRef(cJSON* pJSONComponentRef, unsigned int defaultsceneid);
