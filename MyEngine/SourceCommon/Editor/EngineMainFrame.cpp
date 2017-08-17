@@ -1442,40 +1442,11 @@ void EngineMainFrame::OnTextCtrlLeftDoubleClick(wxMouseEvent& evt)
     wxString line = pTextCtrl->GetLineText( row );
 
     // Parse the line and select the gameobject/material.
-    char scenename[100];
-    char gameobjectname[100];
-    char componentname[100];
-
-    int num = sscanf( line.c_str(), " (GameObject) %99[^:] :: %99[^:] :: %99s", scenename, gameobjectname, componentname );
-    if( num == 3 )
+    GameObject* pGameObject = g_pComponentSystemManager->ParseLog_GameObject( line.c_str() );
+    if( pGameObject )
     {
-        // Remove the space from the end of the scene/gameobject name.
-        int scenenamelen = strlen(scenename);
-        if( scenenamelen > 1 )
-        {
-            if( scenename[scenenamelen-1] == ' ' )
-                scenename[scenenamelen-1] = 0;
-        }
-
-        int gameobjectnamelen = strlen(gameobjectname);
-        if( gameobjectnamelen > 1 )
-        {
-            if( gameobjectname[gameobjectnamelen-1] == ' ' )
-                gameobjectname[gameobjectnamelen-1] = 0;
-        }
-
-        int sceneid = g_pComponentSystemManager->FindSceneID( scenename );
-
-        if( sceneid != UINT_MAX )
-        {
-            GameObject* pGameObject = g_pComponentSystemManager->FindGameObjectByNameInScene( sceneid, gameobjectname );
-
-            if( pGameObject )
-            {
-                g_pEngineCore->m_pEditorState->ClearSelectedObjectsAndComponents();
-                g_pEngineCore->m_pEditorState->SelectGameObject( pGameObject );
-            }
-        }
+        g_pEngineCore->m_pEditorState->ClearSelectedObjectsAndComponents();
+        g_pEngineCore->m_pEditorState->SelectGameObject( pGameObject );
     }
 }
 

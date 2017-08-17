@@ -2505,7 +2505,17 @@ void ComponentSystemManager::LogAllReferencesForFile(MyFileObject* pFile)
                 {
                     if( pComponent->IsReferencingFile( pFile ) )
                     {
-                        LOGInfo( LOGTag, "    (GameObject) %s :: %s :: %s (0x%x)\n", m_pSceneInfoMap[sceneindex].m_FullPath, pGameObject->GetName(), pComponent->GetClassname(), pComponent );
+                        if( sceneindex == 0 )
+                        {
+                            if( pGameObject->GetPrefab() )
+                            {
+                                LOGInfo( LOGTag, "    (Prefab) %s :: %s :: %s (0x%x)\n", pGameObject->GetPrefab()->GetPrefabFile()->GetFile()->GetFullPath(), pGameObject->GetName(), pComponent->GetClassname(), pComponent );
+                            }
+                        }
+                        else
+                        {
+                            LOGInfo( LOGTag, "    (GameObject) %s :: %s :: %s (0x%x)\n", m_pSceneInfoMap[sceneindex].m_FullPath, pGameObject->GetName(), pComponent->GetClassname(), pComponent );
+                        }
                         numrefs++;
                     }
                 }
@@ -2531,6 +2541,62 @@ void ComponentSystemManager::LogAllReferencesForFile(MyFileObject* pFile)
     }
 
     LOGInfo( LOGTag, "Done: %d references found\n", numrefs );
+}
+
+GameObject* ComponentSystemManager::ParseLog_GameObject(const char* line)
+{
+    // Example strings to parse.
+    // "    (GameObject)  :: GameObjectName :: ComponentName"
+    // "    (GameObject) SceneFileName :: GameObjectName :: ComponentName"
+    // "    (GameObject) PrefabFileName :: GameObjectName :: ComponentName"
+
+    int pos = 0;
+    char scenename[100] = "";
+    char gameobjectname[100] = "";
+    char componentname[100] = "";
+
+    // First, make sure this is a GameObject or Prefab.
+    {
+        const char* pos2 = strstr( line, "(GameObject) " );
+        if( pos2 == 0 ) return 0;
+        pos = pos2 - line + strlen("(GameObject) ");
+    }
+
+    // Grab the Scene/Prefab filename (can contain spaces)
+    {
+        const char* pos2 = strstr( &line[pos], " :: " );
+        if( pos2 == 0 ) return 0;
+        strncpy_s( scenename, 100, &line[pos], pos2 - &line[pos] );
+        pos += pos2 - &line[pos] + strlen(" :: ");
+    }
+
+    // Grab the GameObject name (can contain spaces)
+    {
+        const char* pos2 = strstr( &line[pos], " :: " );
+        if( pos2 == 0 ) return 0;
+        strncpy_s( gameobjectname, 100, &line[pos], pos2 - &line[pos] );
+        pos += pos2 - &line[pos] + strlen(" :: ");
+    }
+
+    // Grab the Component name (won't contain spaces)
+    {
+        const char* pos2 = strstr( &line[pos], " " );
+        if( pos2 == 0 ) return 0;
+        strncpy_s( componentname, 100, &line[pos], pos2 - &line[pos] );
+    }
+
+    // Find the GameObject.
+    {
+        int sceneid = g_pComponentSystemManager->FindSceneID( scenename );
+
+        if( sceneid != UINT_MAX )
+        {
+            GameObject* pGameObject = g_pComponentSystemManager->FindGameObjectByNameInScene( sceneid, gameobjectname );
+            return pGameObject;
+        }
+    }
+
+    return 0;
 }
 
 //SceneInfo* ComponentSystemManager::GetSceneInfo(int sceneid)

@@ -267,6 +267,7 @@ public:
     GameObjectTemplateManager* m_pGameObjectTemplateManager;
     void Editor_GetListOfGameObjectsThatUsePrefab(std::vector<GameObject*>* pGameObjectList, PrefabObject* pPrefabToFind);
     void LogAllReferencesForFile(MyFileObject* pFile);
+    GameObject* ParseLog_GameObject(const char* line);
 #endif
     PrefabManager* m_pPrefabManager;
     SceneInfo m_pSceneInfoMap[MAX_SCENES_LOADED];
