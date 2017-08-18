@@ -1442,11 +1442,29 @@ void EngineMainFrame::OnTextCtrlLeftDoubleClick(wxMouseEvent& evt)
     wxString line = pTextCtrl->GetLineText( row );
 
     // Parse the line and select the gameobject/material.
-    GameObject* pGameObject = g_pComponentSystemManager->ParseLog_GameObject( line.c_str() );
-    if( pGameObject )
     {
-        g_pEngineCore->m_pEditorState->ClearSelectedObjectsAndComponents();
-        g_pEngineCore->m_pEditorState->SelectGameObject( pGameObject );
+        // Check if the line is a GameObject or Prefab.
+        GameObject* pGameObject = g_pComponentSystemManager->ParseLog_GameObject( line.c_str() );
+        if( pGameObject )
+        {
+            g_pEngineCore->m_pEditorState->ClearSelectedObjectsAndComponents();
+            g_pEngineCore->m_pEditorState->SelectGameObject( pGameObject );
+
+            // Select the object in the object tree.
+            if( pGameObject->IsPrefab() )
+                g_pPanelObjectList->SelectObject( pGameObject->GetPrefab() );
+            else
+                g_pPanelObjectList->SelectObject( pGameObject );
+        }
+
+        // Check if the line is a Material.
+        MaterialDefinition* pMaterial = g_pComponentSystemManager->ParseLog_Material( line.c_str() );
+        if( pMaterial )
+        {
+            pMaterial->AddToWatchPanel( true, true, true );
+
+            // TODO: MAYBE? select the material in the memory panel.
+        }
     }
 }
 

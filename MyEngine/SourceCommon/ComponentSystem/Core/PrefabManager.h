@@ -160,9 +160,8 @@ public:
     void SetNumberOfFiles(unsigned int numfiles); // for non-editor build, on scene load, allocate enough entries for # of files.
 
     PrefabFile* GetLoadedPrefabFileByIndex(unsigned int fileindex);
+    PrefabFile* GetLoadedPrefabFileByFullPath(const char* fullpath);
     PrefabFile* RequestFile(const char* prefabfilename);
-
-    PrefabFile* GetPrefabFileForFileObject(const char* prefabfilename);
 
     void UnloadAllPrefabFiles();
 

@@ -454,6 +454,21 @@ PrefabFile* PrefabManager::GetLoadedPrefabFileByIndex(unsigned int fileindex)
     return m_pPrefabFiles[fileindex];
 }
 
+PrefabFile* PrefabManager::GetLoadedPrefabFileByFullPath(const char* fullpath)
+{
+    unsigned int numprefabfiles = m_pPrefabFiles.size();
+
+    for( unsigned int i=0; i<numprefabfiles; i++ )
+    {
+        if( strcmp( m_pPrefabFiles[i]->GetFile()->GetFullPath(), fullpath ) == 0 )
+        {
+            return m_pPrefabFiles[i];
+        }
+    }
+
+    return 0;
+}
+
 PrefabFile* PrefabManager::RequestFile(const char* prefabfilename)
 {
     MyFileObject* pFile = g_pFileManager->RequestFile( prefabfilename );
@@ -469,21 +484,6 @@ PrefabFile* PrefabManager::RequestFile(const char* prefabfilename)
 #endif
 
     return pPrefabFile;
-}
-
-PrefabFile* PrefabManager::GetPrefabFileForFileObject(const char* prefabfilename)
-{
-    unsigned int numprefabfiles = m_pPrefabFiles.size();
-
-    for( unsigned int i=0; i<numprefabfiles; i++ )
-    {
-        if( strcmp( m_pPrefabFiles[i]->GetFile()->GetFullPath(), prefabfilename ) == 0 )
-        {
-            return m_pPrefabFiles[i];
-        }
-    }
-
-    return 0;
 }
 
 void PrefabManager::UnloadAllPrefabFiles()

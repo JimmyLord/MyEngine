@@ -466,7 +466,7 @@ void GameObject::FinishLoadingPrefab(PrefabFile* pPrefabFile, uint32 prefabid)
 
 void GameObject::OnPrefabFileFinishedLoading(MyFileObject* pFile)
 {
-    PrefabFile* pPrefabFile = g_pComponentSystemManager->m_pPrefabManager->GetPrefabFileForFileObject( pFile->GetFullPath() );
+    PrefabFile* pPrefabFile = g_pComponentSystemManager->m_pPrefabManager->GetLoadedPrefabFileByFullPath( pFile->GetFullPath() );
     FinishLoadingPrefab( pPrefabFile, m_PrefabID );
 
     pFile->UnregisterFileFinishedLoadingCallback( this );
@@ -575,7 +575,7 @@ void GameObject::ImportFromJSONObject(cJSON* jGameObject, unsigned int sceneid)
         {
             m_PrefabID = jPrefabID->valueint;
 
-            PrefabFile* pPrefabFile = g_pComponentSystemManager->m_pPrefabManager->GetPrefabFileForFileObject( jPrefabFile->valuestring );
+            PrefabFile* pPrefabFile = g_pComponentSystemManager->m_pPrefabManager->GetLoadedPrefabFileByFullPath( jPrefabFile->valuestring );
             
             // prefab file load must have been initiated by scene load
             // might want to consider triggering a load here if it's not in the file list.

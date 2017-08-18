@@ -2546,20 +2546,36 @@ void ComponentSystemManager::LogAllReferencesForFile(MyFileObject* pFile)
 GameObject* ComponentSystemManager::ParseLog_GameObject(const char* line)
 {
     // Example strings to parse.
-    // "    (GameObject)  :: GameObjectName :: ComponentName"
     // "    (GameObject) SceneFileName :: GameObjectName :: ComponentName"
-    // "    (GameObject) PrefabFileName :: GameObjectName :: ComponentName"
+    // "    (Prefab) PrefabFileName :: GameObjectName :: ComponentName"
 
     int pos = 0;
     char scenename[100] = "";
     char gameobjectname[100] = "";
     char componentname[100] = "";
 
+    bool isgameobject = false;
+    bool isprefab = false;
+
     // First, make sure this is a GameObject or Prefab.
     {
         const char* pos2 = strstr( line, "(GameObject) " );
-        if( pos2 == 0 ) return 0;
-        pos = pos2 - line + strlen("(GameObject) ");
+        const char* pos3 = strstr( line, "(Prefab) " );
+
+        if( pos2 )
+        {
+            isgameobject = true;
+            pos = pos2 - line + strlen("(GameObject) ");
+        }
+        else if( pos3 )
+        {
+            isprefab = true;
+            pos = pos3 - line + strlen("(Prefab) ");
+        }
+        else
+        {
+            return 0;
+        }
     }
 
     // Grab the Scene/Prefab filename (can contain spaces)
@@ -2586,6 +2602,7 @@ GameObject* ComponentSystemManager::ParseLog_GameObject(const char* line)
     }
 
     // Find the GameObject.
+    if( isgameobject )
     {
         int sceneid = g_pComponentSystemManager->FindSceneID( scenename );
 
@@ -2594,6 +2611,53 @@ GameObject* ComponentSystemManager::ParseLog_GameObject(const char* line)
             GameObject* pGameObject = g_pComponentSystemManager->FindGameObjectByNameInScene( sceneid, gameobjectname );
             return pGameObject;
         }
+    }
+    else if( isprefab )
+    {
+        PrefabFile* pPrefabFile = g_pComponentSystemManager->m_pPrefabManager->GetLoadedPrefabFileByFullPath( scenename );
+
+        if( pPrefabFile )
+        {
+            PrefabObject* pPrefab = pPrefabFile->GetFirstPrefabByName( gameobjectname );
+
+            if( pPrefab )
+            {
+                return pPrefab->GetGameObject();
+            }
+        }
+    }
+
+    return 0;
+}
+
+MaterialDefinition* ComponentSystemManager::ParseLog_Material(const char* line)
+{
+    // Example strings to parse.
+    // "    (GameObject) SceneFileName :: GameObjectName :: ComponentName"
+    // "    (Prefab) PrefabFileName :: GameObjectName :: ComponentName"
+
+    int pos = 0;
+    char materialname[100] = "";
+
+    // First, make sure this is a Material.
+    {
+        const char* pos2 = strstr( line, "(Material) " );
+        if( pos2 == 0 ) return 0;
+        pos = pos2 - line + strlen("(Material) ");
+    }
+
+    // Grab the Material filename (can contain spaces)
+    {
+        const char* pos2 = strstr( &line[pos], " (" );
+        if( pos2 == 0 ) return 0;
+        strncpy_s( materialname, 100, &line[pos], pos2 - &line[pos] );
+    }
+
+    // Find the GameObject.
+    {
+        MaterialDefinition* pMaterial = g_pMaterialManager->FindMaterialByFilename( materialname );
+
+        return pMaterial;
     }
 
     return 0;
