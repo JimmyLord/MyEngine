@@ -593,7 +593,7 @@ void TransformGizmo::CreateAxisObjects(unsigned int sceneid, float scale, Editor
             pComponentMesh->SetMaterial( m_pMaterial_Translate2Axis[0], 0 );
             pComponentMesh->SetLayersThisExistsOn( Layer_EditorFG );
             pComponentMesh->m_pMesh = MyNew MyMesh();
-            pComponentMesh->m_pMesh->CreatePlane( Vector3(0,0,0), Vector2(1,1), Vector2Int(2,2), Vector2(0,0), Vector2(1,1) );
+            pComponentMesh->m_pMesh->CreatePlane( Vector3(0,0,1), Vector2(1,1), Vector2Int(2,2), Vector2(0,0), Vector2(1,1) );
             pComponentMesh->m_GLPrimitiveType = pComponentMesh->m_pMesh->m_SubmeshList[0]->m_PrimitiveType;
             pComponentMesh->AddToSceneGraph();
         }
@@ -611,7 +611,7 @@ void TransformGizmo::CreateAxisObjects(unsigned int sceneid, float scale, Editor
             pComponentMesh->SetMaterial( m_pMaterial_Translate2Axis[1], 0 );
             pComponentMesh->SetLayersThisExistsOn( Layer_EditorFG );
             pComponentMesh->m_pMesh = MyNew MyMesh();
-            pComponentMesh->m_pMesh->CreatePlane( Vector3(0,0,0), Vector2(1,1), Vector2Int(2,2), Vector2(0,0), Vector2(1,1) );
+            pComponentMesh->m_pMesh->CreatePlane( Vector3(0,0,1), Vector2(1,1), Vector2Int(2,2), Vector2(0,0), Vector2(1,1) );
             pComponentMesh->m_GLPrimitiveType = pComponentMesh->m_pMesh->m_SubmeshList[0]->m_PrimitiveType;
             pComponentMesh->AddToSceneGraph();
         }
@@ -629,7 +629,7 @@ void TransformGizmo::CreateAxisObjects(unsigned int sceneid, float scale, Editor
             pComponentMesh->SetMaterial( m_pMaterial_Translate2Axis[2], 0 );
             pComponentMesh->SetLayersThisExistsOn( Layer_EditorFG );
             pComponentMesh->m_pMesh = MyNew MyMesh();
-            pComponentMesh->m_pMesh->CreatePlane( Vector3(0,0,0), Vector2(1,1), Vector2Int(2,2), Vector2(0,0), Vector2(1,1) );
+            pComponentMesh->m_pMesh->CreatePlane( Vector3(0,0,1), Vector2(1,1), Vector2Int(2,2), Vector2(0,0), Vector2(1,1) );
             pComponentMesh->m_GLPrimitiveType = pComponentMesh->m_pMesh->m_SubmeshList[0]->m_PrimitiveType;
             pComponentMesh->AddToSceneGraph();
         }
