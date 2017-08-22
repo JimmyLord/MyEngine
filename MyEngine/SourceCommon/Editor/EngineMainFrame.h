@@ -65,7 +65,9 @@ enum EngineMenuIDs
     myIDEngine_View_EditorCameraLayers,
     myIDEngine_View_EditorCameraLayer,
         // g_NumberOfVisibilityLayers more items here
-    myIDEngine_DebugShowMousePickerFBO = myIDEngine_View_EditorCameraLayer + g_NumberOfVisibilityLayers,
+    myIDEngine_View_FullScreenEditor = myIDEngine_View_EditorCameraLayer + g_NumberOfVisibilityLayers,
+    myIDEngine_View_FullScreenGame,
+    myIDEngine_DebugShowMousePickerFBO,
     myIDEngine_EditorWindow_FirstWindow,
     myIDEngine_EditorWindow_Editor = myIDEngine_EditorWindow_FirstWindow,
     myIDEngine_EditorWindow_LogPane,
@@ -87,6 +89,8 @@ struct GridSettings
 class EngineMainFrame : public MainFrame
 {
 public:
+    wxFrame* m_pFullScreenFrame; // m_pGLCanvas will be parented to this to go fullscreen.
+
     MainGLCanvas* m_pGLCanvasEditor;
     wxNotebook* m_pLogPane;
     wxTextCtrl* m_pLogMain;

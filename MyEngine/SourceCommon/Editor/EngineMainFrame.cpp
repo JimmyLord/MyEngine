@@ -140,6 +140,8 @@ void EngineMainFrame_DumpCachedMessagesToLogPane()
 EngineMainFrame::EngineMainFrame()
 : MainFrame(0)
 {
+    m_pFullScreenFrame = MyNew wxFrame( this, -1, "Fullscreen Frame", wxPoint( -1, -1 ), wxSize( 1, 1 ), wxDEFAULT_FRAME_STYLE );
+
     m_pCommandStack = 0;
     m_pGLCanvasEditor = 0;
     m_pLogPane = 0;
@@ -196,6 +198,8 @@ EngineMainFrame::~EngineMainFrame()
 {
     SAFE_DELETE( m_pCommandStack );
     SAFE_DELETE( m_pGLCanvasEditor );
+
+    SAFE_DELETE( m_pFullScreenFrame );
 
     for( int i=0; i<4; i++ )
     {
@@ -378,6 +382,9 @@ void EngineMainFrame::InitFrame()
     
     m_View->Append( myIDEngine_View_EditorCameraLayers, "Editor &Camera Layers", m_EditorCameraLayers );
 
+    m_View->Append( myIDEngine_View_FullScreenEditor, wxT("&Fullscreen Editor\tF10") );
+    m_View->Append( myIDEngine_View_FullScreenGame, wxT("&Fullscreen Game") );
+
     Connect( myIDEngine_NewScene,               wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );
     Connect( myIDEngine_LoadScene,              wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );
     Connect( myIDEngine_CreateAdditionalScene,  wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );
@@ -405,6 +412,8 @@ void EngineMainFrame::InitFrame()
     Connect( myIDEngine_View_ShowEditorIcons,               wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );
     Connect( myIDEngine_View_SelectedObjects_ShowWireframe, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );
     Connect( myIDEngine_View_SelectedObjects_ShowEffect,    wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );
+    Connect( myIDEngine_View_FullScreenEditor,              wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );
+    Connect( myIDEngine_View_FullScreenGame,                wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );
 
     Connect( myIDEngine_DebugShowMousePickerFBO,       wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );
     Connect( myIDEngine_DebugShowSelectedAnimatedMesh, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );
@@ -424,6 +433,8 @@ void EngineMainFrame::InitFrame()
     }
 
     UpdateMenuItemStates();
+
+    m_pFullScreenFrame->SetAcceleratorTable( *m_MenuBar->GetAcceleratorTable() );
 }
 
 void EngineMainFrame::AddPanes()
@@ -1016,6 +1027,29 @@ void EngineMainFrame::OnMenu_Engine(wxCommandEvent& event)
 
     case myIDEngine_DebugShowProfilingInfo:
         g_pEngineCore->m_Debug_ShowProfilingInfo = !g_pEngineCore->m_Debug_ShowProfilingInfo;
+        break;
+
+    case myIDEngine_View_FullScreenEditor:
+        {
+            // If editor is not full screen.
+            if( m_pGLCanvasEditor->GetParent() == this )
+            {
+                m_pGLCanvasEditor->Reparent( m_pFullScreenFrame );
+                m_pFullScreenFrame->ShowFullScreen( true );
+                m_pFullScreenFrame->Show();
+            }
+            // If it's already full screen.
+            else if( m_pGLCanvasEditor->GetParent() == m_pFullScreenFrame )
+            {
+                m_pFullScreenFrame->ShowFullScreen( false );
+                m_pFullScreenFrame->Show( false );
+                m_pGLCanvasEditor->Reparent( this );
+                m_AUIManager.Update();
+            }
+        }
+        break;
+
+    case myIDEngine_View_FullScreenGame:
         break;
     }
 }
