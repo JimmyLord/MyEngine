@@ -137,10 +137,26 @@ void EngineMainFrame_DumpCachedMessagesToLogPane()
     pthread_mutex_unlock( &g_MessageLogMutex );
 }
 
+FullScreenFrame::FullScreenFrame(wxWindow* pParent)
+: wxFrame( pParent, -1, "Fullscreen Frame", wxPoint( -1, -1 ), wxSize( 100, 100 ), wxDEFAULT_FRAME_STYLE )
+{
+    m_pCurrentCanvas = 0;
+
+    Connect( wxEVT_CLOSE_WINDOW, wxCloseEventHandler(FullScreenFrame::OnCloseWindow) );
+}
+
+void FullScreenFrame::OnCloseWindow(wxCloseEvent& event)
+{
+    ((EngineMainFrame*)GetParent())->SetGLCanvasFullScreenMode( 0, false );
+
+    //event.Skip();
+}
+
 EngineMainFrame::EngineMainFrame()
 : MainFrame(0)
 {
-    m_pFullScreenFrame = MyNew wxFrame( this, -1, "Fullscreen Frame", wxPoint( -1, -1 ), wxSize( 1, 1 ), wxDEFAULT_FRAME_STYLE );
+    m_pFullScreenFrame = MyNew FullScreenFrame( this );
+    //m_pFullScreenFrame->Show( true );
 
     m_pCommandStack = 0;
     m_pGLCanvasEditor = 0;
@@ -382,8 +398,8 @@ void EngineMainFrame::InitFrame()
     
     m_View->Append( myIDEngine_View_EditorCameraLayers, "Editor &Camera Layers", m_EditorCameraLayers );
 
-    m_View->Append( myIDEngine_View_FullScreenEditor, wxT("&Fullscreen Editor\tF10") );
-    m_View->Append( myIDEngine_View_FullScreenGame, wxT("&Fullscreen Game") );
+    m_View->Append( myIDEngine_View_FullScreenEditor, wxT("&Fullscreen Editor\tF11") );
+    m_View->Append( myIDEngine_View_FullScreenGame, wxT("&Fullscreen Game\tCtrl-F11") );
 
     Connect( myIDEngine_NewScene,               wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );
     Connect( myIDEngine_LoadScene,              wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );
@@ -1030,27 +1046,64 @@ void EngineMainFrame::OnMenu_Engine(wxCommandEvent& event)
         break;
 
     case myIDEngine_View_FullScreenEditor:
-        {
-            // If editor is not full screen.
-            if( m_pGLCanvasEditor->GetParent() == this )
-            {
-                m_pGLCanvasEditor->Reparent( m_pFullScreenFrame );
-                m_pFullScreenFrame->ShowFullScreen( true );
-                m_pFullScreenFrame->Show();
-            }
-            // If it's already full screen.
-            else if( m_pGLCanvasEditor->GetParent() == m_pFullScreenFrame )
-            {
-                m_pFullScreenFrame->ShowFullScreen( false );
-                m_pFullScreenFrame->Show( false );
-                m_pGLCanvasEditor->Reparent( this );
-                m_AUIManager.Update();
-            }
-        }
+        if( m_pGLCanvasEditor->GetParent() == m_pFullScreenFrame )
+            SetGLCanvasFullScreenMode( 0, false );
+        else
+            SetGLCanvasFullScreenMode( m_pGLCanvasEditor, true );
         break;
 
     case myIDEngine_View_FullScreenGame:
+        if( m_pGLCanvas->GetParent() == m_pFullScreenFrame )
+            SetGLCanvasFullScreenMode( 0, false );
+        else
+            SetGLCanvasFullScreenMode( m_pGLCanvas, true );
         break;
+    }
+}
+
+void EngineMainFrame::SetGLCanvasFullScreenMode(MainGLCanvas* canvas, bool show)
+{
+    wxWindow* pCurrentCanvas = m_pFullScreenFrame->m_pCurrentCanvas;
+
+    // If fullscreen canvas matches current one, do nothing.
+    if( pCurrentCanvas == canvas && show == true )
+        return;
+
+    // Otherwise, reparent the current fullscreen canvas to the main window, if there was one.
+    if( pCurrentCanvas )
+    {
+        m_pFullScreenFrame->m_pCurrentCanvas = 0;
+        pCurrentCanvas->Reparent( this );
+
+        //m_pFullScreenFrame->ShowFullScreen( false );
+        m_pFullScreenFrame->Show( false );
+        m_AUIManager.Update();
+        m_pFullScreenFrame->Refresh();
+    }
+
+    // Close the fullscreen frame if we're not showing a new canvas.
+    if( show == false )
+    {
+        //m_pFullScreenFrame->ShowFullScreen( false );
+        m_pFullScreenFrame->Show( false );
+        m_AUIManager.Update();
+        m_pFullScreenFrame->Refresh();
+        return;
+    }
+    else
+    {
+        // Show the new canvas.
+        MyAssert( canvas->GetParent() == this );
+
+        m_pFullScreenFrame->m_pCurrentCanvas = canvas;
+        canvas->Reparent( m_pFullScreenFrame );
+
+        // Removed ShowFullScreen( false )'s from above, was causing the window title bar to stick on screen.
+        // Was needed here otherwise the GLCanvas wasn't resized properly.
+        m_pFullScreenFrame->ShowFullScreen( false );
+
+        m_pFullScreenFrame->ShowFullScreen( true );
+        m_pFullScreenFrame->Show();
     }
 }
 

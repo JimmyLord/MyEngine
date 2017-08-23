@@ -86,10 +86,21 @@ struct GridSettings
     Vector3 stepsize;
 };
 
+class FullScreenFrame : public wxFrame
+{
+public:
+    MainGLCanvas* m_pCurrentCanvas;
+
+public:
+    FullScreenFrame(wxWindow* pParent);
+
+    void OnCloseWindow(wxCloseEvent& event);
+};
+
 class EngineMainFrame : public MainFrame
 {
 public:
-    wxFrame* m_pFullScreenFrame; // m_pGLCanvas will be parented to this to go fullscreen.
+    FullScreenFrame* m_pFullScreenFrame; // m_pGLCanvas will be parented to this to go fullscreen.
 
     MainGLCanvas* m_pGLCanvasEditor;
     wxNotebook* m_pLogPane;
@@ -166,6 +177,8 @@ public:
     virtual void ProcessAllGLCanvasInputEventQueues();
 
     void OnMenu_Engine(wxCommandEvent& event);
+
+    void SetGLCanvasFullScreenMode(MainGLCanvas* canvas, bool show);
     void SetWindowPerspectiveToDefault(bool forceswitch = false);
     int GetCurrentPerspectiveIndex();
     int GetDefaultEditorPerspectiveIndex();
