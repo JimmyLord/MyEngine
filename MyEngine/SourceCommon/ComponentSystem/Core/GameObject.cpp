@@ -155,16 +155,16 @@ void GameObject::ShowInWatchPanel()
     if( m_Enabled )
     {
         if( m_pGameObjectThisInheritsFrom == 0 )
-            snprintf_s( tempname, 100, "%s", m_Name );
+            sprintf_s( tempname, 100, "%s", m_Name );
         else
-            snprintf_s( tempname, 100, "%s (%s)", m_Name, m_pGameObjectThisInheritsFrom->m_Name );
+            sprintf_s( tempname, 100, "%s (%s)", m_Name, m_pGameObjectThisInheritsFrom->m_Name );
     }
     else
     {
         if( m_pGameObjectThisInheritsFrom == 0 )
-            snprintf_s( tempname, 100, "** DISABLED ** %s ** DISABLED **", m_Name );
+            sprintf_s( tempname, 100, "** DISABLED ** %s ** DISABLED **", m_Name );
         else
-            snprintf_s( tempname, 100, "** DISABLED ** %s (%s) ** DISABLED **", m_Name, m_pGameObjectThisInheritsFrom->m_Name );
+            sprintf_s( tempname, 100, "** DISABLED ** %s (%s) ** DISABLED **", m_Name, m_pGameObjectThisInheritsFrom->m_Name );
     }
     g_pPanelWatch->AddSpace( tempname, this, GameObject::StaticOnTitleLabelClicked );
 

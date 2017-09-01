@@ -305,7 +305,11 @@ void ComponentMenuPage::SaveMenuPageToDisk(const char* fullpath)
     SaveCurrentLayoutToJSON();
 
     FILE* pFile = 0;
+#if MYFW_WINDOWS
     fopen_s( &pFile, fullpath, "wb" );
+#else
+    pFile = fopen( fullpath, "wb" );
+#endif
     if( pFile == 0 )
     {
         // TODO: handle creation of folders if user types in something that doesn't exist.

@@ -221,11 +221,11 @@ void ComponentSystemManager::CheckForUpdatedDataSourceFiles(bool initialcheck)
         if( pFileInfo->m_pFile == 0 )
             continue;
 
+#if MYFW_WINDOWS
         if( (initialcheck == false || pFileInfo->m_DidInitialCheckIfSourceFileWasUpdated == false) && // haven't done initial check
             pFileInfo->m_pFile->GetFileLastWriteTime().dwHighDateTime != 0 && // converted file has been loaded
             pFileInfo->m_SourceFileFullPath[0] != 0 )                      // we have a source file
         {
-#if MYFW_WINDOWS
             WIN32_FIND_DATAA data;
             memset( &data, 0, sizeof( data ) );
 
@@ -246,7 +246,7 @@ void ComponentSystemManager::CheckForUpdatedDataSourceFiles(bool initialcheck)
         }
 #endif
     }
-
+    
     // TODO: check for updates to files that are still loading?
     //m_FilesStillLoading
 }

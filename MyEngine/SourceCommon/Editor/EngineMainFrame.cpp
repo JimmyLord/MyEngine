@@ -11,7 +11,7 @@
 
 #if MYFW_USING_WX
 
-#include "../../../Framework/MyFramework/SourceWindows/MYFWWinMainWx.h"
+#include "../../../Framework/MyFramework/SourceWidgets/MYFWMainWx.h"
 #include "EngineMainFrame.h"
 
 EngineMainFrame* g_pEngineMainFrame = 0;
@@ -30,7 +30,7 @@ const char* g_DefaultEngineEditorWindowTypeMenuLabels[EngineEditorWindow_NumType
     "&Log Panel",
 };
 
-char* g_DefaultPerspectives[Perspective_NumPerspectives] =
+const char* g_DefaultPerspectives[Perspective_NumPerspectives] =
 {
     "layout2|name=GLCanvas;caption=Game;state=2099196;dir=4;layer=1;row=0;pos=1;prop=100000;bestw=600;besth=600;minw=-1;minh=-1;maxw=-1;maxh=-1;floatx=-253;floaty=231;floatw=680;floath=748|name=PanelWatch;caption=Watch;state=2099196;dir=2;layer=3;row=0;pos=0;prop=130560;bestw=300;besth=600;minw=-1;minh=-1;maxw=-1;maxh=-1;floatx=1274;floaty=143;floatw=316;floath=632|name=PanelMemory;caption=Memory;state=2099196;dir=2;layer=3;row=0;pos=1;prop=69440;bestw=300;besth=600;minw=-1;minh=-1;maxw=-1;maxh=-1;floatx=1023;floaty=335;floatw=316;floath=632|name=PanelObjectList;caption=Objects;state=2099196;dir=4;layer=1;row=0;pos=0;prop=100000;bestw=300;besth=600;minw=-1;minh=-1;maxw=-1;maxh=-1;floatx=-1;floaty=-1;floatw=-1;floath=-1|name=GLCanvasEditor;caption=Editor;state=2099196;dir=3;layer=0;row=0;pos=0;prop=100000;bestw=600;besth=600;minw=-1;minh=-1;maxw=-1;maxh=-1;floatx=-1;floaty=-1;floatw=-1;floath=-1|name=Log;caption=Log;state=2099196;dir=3;layer=2;row=0;pos=0;prop=100000;bestw=183;besth=150;minw=-1;minh=-1;maxw=-1;maxh=-1;floatx=543;floaty=588;floatw=199;floath=182|dock_size(4,1,0)=302|dock_size(3,0,0)=1560|dock_size(3,2,0)=140|dock_size(2,3,0)=321|",
     "layout2|name=GLCanvas;caption=Game;state=2099196;dir=3;layer=0;row=0;pos=0;prop=97635;bestw=600;besth=600;minw=-1;minh=-1;maxw=-1;maxh=-1;floatx=-253;floaty=231;floatw=680;floath=748|name=PanelWatch;caption=Watch;state=2099196;dir=2;layer=3;row=0;pos=0;prop=113200;bestw=300;besth=600;minw=-1;minh=-1;maxw=-1;maxh=-1;floatx=1274;floaty=143;floatw=316;floath=632|name=PanelMemory;caption=Memory;state=2099196;dir=2;layer=3;row=0;pos=1;prop=86800;bestw=300;besth=600;minw=-1;minh=-1;maxw=-1;maxh=-1;floatx=1023;floaty=335;floatw=316;floath=632|name=PanelObjectList;caption=Objects;state=2099196;dir=4;layer=1;row=0;pos=0;prop=100000;bestw=300;besth=600;minw=-1;minh=-1;maxw=-1;maxh=-1;floatx=-1;floaty=-1;floatw=-1;floath=-1|name=GLCanvasEditor;caption=Editor;state=2099196;dir=4;layer=1;row=0;pos=1;prop=102365;bestw=600;besth=600;minw=-1;minh=-1;maxw=-1;maxh=-1;floatx=-7;floaty=330;floatw=616;floath=632|name=Log;caption=Log;state=2099196;dir=3;layer=2;row=0;pos=0;prop=100000;bestw=183;besth=150;minw=-1;minh=-1;maxw=-1;maxh=-1;floatx=543;floaty=588;floatw=199;floath=182|dock_size(4,1,0)=253|dock_size(3,0,0)=1560|dock_size(3,2,0)=140|dock_size(2,3,0)=307|",
@@ -40,10 +40,10 @@ char* g_DefaultPerspectives[Perspective_NumPerspectives] =
 
 char* g_SavedPerspectives[Perspective_NumPerspectives] =
 {
-    g_DefaultPerspectives[0],
-    g_DefaultPerspectives[1],
-    g_DefaultPerspectives[2],
-    g_DefaultPerspectives[3],
+    (char*)g_DefaultPerspectives[0],
+    (char*)g_DefaultPerspectives[1],
+    (char*)g_DefaultPerspectives[2],
+    (char*)g_DefaultPerspectives[3],
 };
 
 struct MessageLog
@@ -953,7 +953,7 @@ void EngineMainFrame::OnMenu_Engine(wxCommandEvent& event)
             if( g_SavedPerspectives[currentperspective] != g_DefaultPerspectives[currentperspective] )
                 delete[] g_SavedPerspectives[currentperspective];
 
-            g_SavedPerspectives[currentperspective] = g_DefaultPerspectives[currentperspective];
+            g_SavedPerspectives[currentperspective] = (char*)g_DefaultPerspectives[currentperspective];
             m_AUIManager.LoadPerspective( g_SavedPerspectives[currentperspective] );
         }
         break;
@@ -1467,7 +1467,7 @@ void EngineMainFrame::OnDrop(int controlid, wxCoord x, wxCoord y)
         }
     }
 
-    if( pDropItem->m_Type == DragAndDropTypeEngine_Prefab )
+    if( (int)pDropItem->m_Type == (int)DragAndDropTypeEngine_Prefab )
     {
         PrefabObject* pPrefab = (PrefabObject*)pDropItem->m_Value;
 
@@ -1501,7 +1501,7 @@ void EngineMainFrame::OnDrop(int controlid, wxCoord x, wxCoord y)
         }
     }
 
-    //if( pDropItem->m_Type == DragAndDropType_GameObjectPointer )
+    //if( (int)pDropItem->m_Type == (int)DragAndDropType_GameObjectPointer )
     //{
     //    GameObject* pGameObject = (GameObject*)pDropItem->m_Value;
     //    MyAssert( pGameObject );

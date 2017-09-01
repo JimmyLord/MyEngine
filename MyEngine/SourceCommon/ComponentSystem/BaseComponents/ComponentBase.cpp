@@ -1672,7 +1672,7 @@ void ComponentBase::CopyValueFromOtherComponentWithUndo(ComponentVariable* pVar,
             // send the pointer to that var via callback in the double.
             // TODO: make 64-bit friendly, along with potentially a lot of other things.
             double oldvalue;
-            *(int*)&oldvalue = (int)&oldcolor;
+            *(int*)&oldvalue = (long)&oldcolor;
 
             // notify component and it's children that the value changed.
             OnValueChangedVariable( pVar->m_ControlID, false, true, oldvalue, 0 );
@@ -2027,7 +2027,7 @@ void ComponentBase::UpdateOtherComponentWithNewValue(ComponentBase* pComponent, 
                 if( oldvalue != 0 )
                 {
                     int offset = pVar->m_Offset;
-                    ColorByte* oldcolor = (ColorByte*)*(int*)&oldvalue;
+                    ColorByte* oldcolor = (ColorByte*)*(long*)&oldvalue;
                     ColorByte* childcolor = (ColorByte*)((char*)pChildComponent + offset);
                     
                     // copy the value, call the callback function and update children.

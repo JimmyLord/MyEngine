@@ -58,12 +58,13 @@ ComponentLuaScript::~ComponentLuaScript()
 void ComponentLuaScript::RegisterVariables(CPPListHead* pList, ComponentLuaScript* pThis) //_VARIABLE_LIST
 {
     // just want to make sure these are the same on all compilers.  They should be since this is a simple class.
-#if MYFW_IOS || MYFW_OSX || MYFW_NACL
+#if __GNUC__
+#pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Winvalid-offsetof"
 #endif
     MyAssert( offsetof( ComponentLuaScript, m_pScriptFile ) == MyOffsetOf( pThis, &pThis->m_pScriptFile ) );
-#if MYFW_IOS || MYFW_OSX
-#pragma GCC diagnostic default "-Winvalid-offsetof"
+#if __GNUC__
+#pragma GCC diagnostic pop
 #endif
 
     // script is not automatically saved/loaded
@@ -141,7 +142,11 @@ void ComponentLuaScript::CreateNewScriptFile()
             // TODO: create a template file.
             {
                 FILE* file;
+#if MYFW_WINDOWS
                 fopen_s( &file, fullpath, "wb" );
+#else
+                file = fopen( fullpath, "wb" );
+#endif
 
                 if( file )
                 {

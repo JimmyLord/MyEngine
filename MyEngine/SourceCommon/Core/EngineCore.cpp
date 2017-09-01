@@ -195,7 +195,7 @@ void EngineCore::InitializeGameObjectFlagStrings(cJSON* jStringsArray)
 {
     if( jStringsArray == 0 )
     {
-        char* strings[32] =
+        const char* strings[32] =
         {
             "Camera-Main", "Camera-HUD", "Player", "Enemy", "Target", "5", "6", "7", "8", "9",
             "10", "11", "12", "13", "14", "15", "16", "17", "18", "19",
@@ -638,6 +638,7 @@ void EngineCore::OnDrawFrame(unsigned int canvasid)
             }
         }
 
+#if MYFW_WINDOWS
         // Draw Main ram memory usage.
         {
             unsigned int bytesused = MyMemory_GetNumberOfBytesAllocated();
@@ -660,6 +661,7 @@ void EngineCore::OnDrawFrame(unsigned int canvasid)
 
             m_TotalMemoryAllocatedLastFrame = bytesused;
         }
+#endif
 
         // Draw single frame stack ram memory usage.
         {
@@ -1756,7 +1758,7 @@ void EngineCore::OnObjectListTreeMultipleSelection() //StaticOnObjectListTreeMul
 
     // Add a spacer saying how many objects were selected.
     char temp[30];
-    snprintf_s( temp, 29, "%d objects selected", m_pEditorState->m_pSelectedObjects.size() );
+    sprintf_s( temp, 30, "%d objects selected", m_pEditorState->m_pSelectedObjects.size() );
     g_pPanelWatch->AddSpace( temp, 0, 0, 0 );
 
     // Show common components of all selected Gameobjects:

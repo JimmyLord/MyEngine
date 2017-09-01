@@ -204,7 +204,7 @@ void SceneHandler::OnDrop(wxTreeItemId treeid, int controlid, wxCoord x, wxCoord
     {
         DragAndDropItem* pDropItem = g_DragAndDropStruct.GetItem( 0 );
 
-        if( pDropItem->m_Type == DragAndDropTypeEngine_Prefab )
+        if( (int)pDropItem->m_Type == (int)DragAndDropTypeEngine_Prefab )
         {
             PrefabObject* pPrefab = (PrefabObject*)pDropItem->m_Value;
 

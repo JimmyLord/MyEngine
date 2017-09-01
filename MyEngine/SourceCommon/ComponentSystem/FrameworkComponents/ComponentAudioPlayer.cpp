@@ -41,12 +41,13 @@ ComponentAudioPlayer::~ComponentAudioPlayer()
 void ComponentAudioPlayer::RegisterVariables(CPPListHead* pList, ComponentAudioPlayer* pThis) //_VARIABLE_LIST
 {
     // just want to make sure these are the same on all compilers.  They should be since this is a simple class.
-#if MYFW_IOS || MYFW_OSX || MYFW_NACL
+#if __GNUC__
+#pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Winvalid-offsetof"
 #endif
     MyAssert( offsetof( ComponentAudioPlayer, m_pSoundCue ) == MyOffsetOf( pThis, &pThis->m_pSoundCue ) );
-#if MYFW_IOS || MYFW_OSX
-#pragma GCC diagnostic default "-Winvalid-offsetof"
+#if __GNUC__
+#pragma GCC diagnostic pop
 #endif
 
     AddVar( pList, "Cue", ComponentVariableType_SoundCuePtr, MyOffsetOf( pThis, &pThis->m_pSoundCue ), false, true, 0, (CVarFunc_ValueChanged)&ComponentAudioPlayer::OnValueChanged, (CVarFunc_DropTarget)&ComponentAudioPlayer::OnDrop, 0 );

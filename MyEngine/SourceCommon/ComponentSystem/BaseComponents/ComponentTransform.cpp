@@ -42,7 +42,8 @@ ComponentTransform::~ComponentTransform()
 void ComponentTransform::RegisterVariables(CPPListHead* pList, ComponentTransform* pThis) //_VARIABLE_LIST
 {
     // just want to make sure these are the same on all compilers.  They should be since this is a simple class.
-#if MYFW_IOS || MYFW_OSX || MYFW_NACL
+#if __GNUC__
+#pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Winvalid-offsetof"
 #endif
     //MyAssert( offsetof( ComponentTransform, m_pParentGameObject ) == MyOffsetOf( pThis, &pThis->m_pParentGameObject ) );
@@ -50,8 +51,8 @@ void ComponentTransform::RegisterVariables(CPPListHead* pList, ComponentTransfor
     MyAssert( offsetof( ComponentTransform, m_LocalPosition )     == MyOffsetOf( pThis, &pThis->m_LocalPosition )     );
     MyAssert( offsetof( ComponentTransform, m_LocalRotation )     == MyOffsetOf( pThis, &pThis->m_LocalRotation )     );
     MyAssert( offsetof( ComponentTransform, m_LocalScale )        == MyOffsetOf( pThis, &pThis->m_LocalScale )        );
-#if MYFW_IOS || MYFW_OSX
-#pragma GCC diagnostic default "-Winvalid-offsetof"
+#if __GNUC__
+#pragma GCC diagnostic pop
 #endif
 
     //AddVar( pList, "ParentGOID",      ComponentVariableType_GameObjectPtr,    MyOffsetOf( pThis, &pThis->m_pParentGameObject ),  true, false, 0,                  (CVarFunc_ValueChanged)&ComponentTransform::OnValueChanged,                                                         0, 0 );

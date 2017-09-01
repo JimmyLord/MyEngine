@@ -19,7 +19,7 @@ const int g_NumberOfVisibilityLayers = 8;
 // framework code
 #include "../../../Framework/MyFramework/SourceCommon/CommonHeader.h"
 #if MYFW_USING_WX
-#include "../../../Framework/MyFramework/SourceWindows/MYFWWinMainWx.h"
+#include "../../../Framework/MyFramework/SourceWidgets/MYFWMainWx.h"
 #include "Editor/EngineMainFrame.h"
 #include "../../../Framework/MyFramework/SourceWidgets/EditorCommands.h"
 #include "../../../Framework/MyFramework/SourceWidgets/CommandStack.h"
@@ -49,6 +49,7 @@ extern "C"
     #include "../../Libraries/Lua/src/lauxlib.h"
 }
 #undef Nil
+#undef None // defined in X.h
 #pragma warning( push )
 #pragma warning( disable : 4640 )
 #include "../../Libraries/LuaBridge/LuaBridge.h"
@@ -110,7 +111,7 @@ extern "C"
 #include "Physics/EngineBox2DContactListener.h"
 
 // misc engine code
-#include "ComponentSystem\Core\PrefabManager.h"
+#include "ComponentSystem/Core/PrefabManager.h"
 
 #include "Camera/Camera3D.h"
 #include "Camera/Camera2D.h"

@@ -36,12 +36,13 @@ ComponentGameObjectProperties::~ComponentGameObjectProperties()
 void ComponentGameObjectProperties::RegisterVariables(CPPListHead* pList, ComponentGameObjectProperties* pThis) //_VARIABLE_LIST
 {
     // just want to make sure these are the same on all compilers.  They should be since this is a simple class.
-#if MYFW_IOS || MYFW_OSX || MYFW_NACL
+#if __GNUC__
+#pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Winvalid-offsetof"
 #endif
     //MyAssert( offsetof( ComponentGameObjectProperties, m_SampleVector3 ) == MyOffsetOf( pThis, &pThis->m_SampleVector3 ) );
-#if MYFW_IOS || MYFW_OSX
-#pragma GCC diagnostic default "-Winvalid-offsetof"
+#if __GNUC__
+#pragma GCC diagnostic pop
 #endif
 
     const char** strings = (const char**)g_pEngineCore->m_GameObjectFlagStrings;
