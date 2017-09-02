@@ -27,7 +27,15 @@ if [[ $CleanBuild == clean ]]; then
     exit 1
 fi
 
-# TODO: Build bullet.
+# Build bullet3. Clean must be done manually.
+if [ ! -d "Libraries/bullet3/bin" ]; then
+    echo "$(tput setaf 5)==> Building Bullet3... this could take a while$(tput sgr0)"
+    pushd Libraries/bullet3/build3 > /dev/null
+        ./premake4_linux64 gmake --double
+        cd gmake
+	    make
+    popd > /dev/null
+fi
 
 # Build MyEngine.
 let NumJobs=$(nproc)*2

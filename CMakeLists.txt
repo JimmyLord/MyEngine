@@ -7,20 +7,23 @@ project( MyEngine_Project VERSION 0.1 LANGUAGES C CXX )
 file( GLOB_RECURSE sourcefiles
     "MyEngine/SourceCommon/*.cpp"
     "Libraries/imgui/imgui.cpp"
+    "Libraries/imgui/imgui_draw.cpp"
     "Libraries/Lua/src/*.c"
-    "../SharedGameCore/Core/RenderTextQuick.cpp"
-    "../SharedGameCore/Menus/MenuItem.cpp"
-    "../SharedGameCore/Core/MeshShapes.cpp"
-    "../SharedGameCore/Menus/LanguageTable.cpp"
-    "../SharedGameCore/Menus/MenuButton.cpp"
-    "../SharedGameCore/Menus/MenuCheckBox.cpp"
-    "../SharedGameCore/Menus/MenuSprite.cpp"
-    "../SharedGameCore/Menus/MenuText.cpp"
-    "../SharedGameCore/Menus/MenuInputBox.cpp"
-    "../SharedGameCore/Menus/MenuScrollingText.cpp"
-    "../SharedGameCore/Menus/Menu_Helpers.cpp"
+    "../SharedGameCode/Core/RenderTextQuick.cpp"
+    "../SharedGameCode/Menus/MenuItem.cpp"
+    "../SharedGameCode/Core/MeshShapes.cpp"
+    "../SharedGameCode/Menus/LanguageTable.cpp"
+    "../SharedGameCode/Menus/MenuButton.cpp"
+    "../SharedGameCode/Menus/MenuCheckBox.cpp"
+    "../SharedGameCode/Menus/MenuSprite.cpp"
+    "../SharedGameCode/Menus/MenuText.cpp"
+    "../SharedGameCode/Menus/MenuInputBox.cpp"
+    "../SharedGameCode/Menus/MenuScrollingText.cpp"
+    "../SharedGameCode/Menus/MenuScrollBox.cpp"
+    "../SharedGameCode/Menus/Menu_Helpers.cpp"
 )
-#list( REMOVE_ITEM sourcefiles "${CMAKE_SOURCE_DIR}/MyEngine/SourceCommon/SomeFileIDon'tWant.cpp" )
+list( REMOVE_ITEM sourcefiles "${CMAKE_SOURCE_DIR}/Libraries/Lua/src/lua.c" )
+list( REMOVE_ITEM sourcefiles "${CMAKE_SOURCE_DIR}/Libraries/Lua/src/luac.c" )
 
 # Library
 add_library( MyEngine ${sourcefiles} )
@@ -34,8 +37,9 @@ target_include_directories( MyEngine PUBLIC
     "Libraries/Lua/src"
     "Libraries/LuaBridge"
     "Libraries/bullet3/src/"
-    "../SharedGameCore/Core"
-    "../SharedGameCore/Menus"
+    "Libraries/SharedGameCode"
+    "../SharedGameCode/Core"
+    "../SharedGameCode/Menus"
 )
 
 # MyFramework include directories.
