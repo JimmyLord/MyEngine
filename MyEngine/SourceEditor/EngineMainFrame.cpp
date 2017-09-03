@@ -155,8 +155,7 @@ void FullScreenFrame::OnCloseWindow(wxCloseEvent& event)
 EngineMainFrame::EngineMainFrame()
 : MainFrame(0)
 {
-    m_pFullScreenFrame = MyNew FullScreenFrame( this );
-    //m_pFullScreenFrame->Show( true );
+    m_pFullScreenFrame = 0;
 
     m_pCommandStack = 0;
     m_pGLCanvasEditor = 0;
@@ -231,6 +230,8 @@ EngineMainFrame::~EngineMainFrame()
 void EngineMainFrame::InitFrame()
 {
     g_pEngineMainFrame = this;
+
+    m_pFullScreenFrame = MyNew FullScreenFrame( this );
 
     FILE* file = 0;
 #if MYFW_WINDOWS
@@ -459,7 +460,9 @@ void EngineMainFrame::AddPanes()
 
     MainFrame::AddPanes();
 
-    // create the editor opengl canvas
+    // TODO: Currently crashes on Linux
+#if !MYFW_LINUX
+    // Create the editor opengl canvas.
     {
         int args[] = { WX_GL_RGBA, WX_GL_DOUBLEBUFFER, WX_GL_DEPTH_SIZE, 16, 0 };
         m_pGLCanvasEditor = MyNew MainGLCanvas( (wxFrame*)this, args, 1, false );
@@ -473,6 +476,7 @@ void EngineMainFrame::AddPanes()
     }
 
     m_AUIManager.AddPane( m_pGLCanvasEditor, wxAuiPaneInfo().Name("GLCanvasEditor").Bottom().Caption("Editor") );//.CaptionVisible(false) );
+#endif //MYFW_LINUX
 
     m_pLogPane = MyNew wxNotebook( this, wxID_ANY, wxPoint(0,0), wxDefaultSize );
     m_AUIManager.AddPane( m_pLogPane, wxAuiPaneInfo().Name("Log").Bottom().Caption("Log") );//.CaptionVisible(false) );
@@ -692,6 +696,9 @@ bool EngineMainFrame::FilterGlobalEvents(wxEvent& event)
 
 void EngineMainFrame::OnGLCanvasShownOrHidden(bool shown)
 {
+    if( m_pGLCanvasEditor == 0 )
+        return;
+
     if( shown )
     {
         m_pGLCanvasEditor->m_TickGameCore = false;
@@ -717,7 +724,8 @@ void EngineMainFrame::ResizeViewport()
     unsigned int activecanvas = g_GLCanvasIDActive;
 
     MainFrame::ResizeViewport();
-    m_pGLCanvasEditor->ResizeViewport();
+    if( m_pGLCanvasEditor )
+        m_pGLCanvasEditor->ResizeViewport();
 
     g_GLCanvasIDActive = activecanvas;
 }
@@ -767,7 +775,8 @@ void EngineMainFrame::ProcessAllGLCanvasInputEventQueues()
 {
     MainFrame::ProcessAllGLCanvasInputEventQueues();
 
-    m_pGLCanvasEditor->ProcessInputEventQueue();
+    if( m_pGLCanvasEditor )
+        m_pGLCanvasEditor->ProcessInputEventQueue();
 }
 
 void EngineMainFrame::OnMenu_Engine(wxCommandEvent& event)

@@ -15,7 +15,7 @@
 #include "../../../Framework/MyFramework/SourceCommon/SceneGraphs/SceneGraph_Octree.h"
 
 #if MYFW_USING_WX
-#include "Editor/Exporters/ExportBox2DScene.h"
+#include "../SourceEditor/Exporters/ExportBox2DScene.h"
 #endif //MYFW_USING_WX
 
 ComponentSystemManager* g_pComponentSystemManager = 0;
@@ -1466,12 +1466,15 @@ bool ComponentSystemManager::IsSceneLoaded(const char* fullpath)
     {
         if( m_pSceneInfoMap[i].m_InUse )
         {
-            if( strcmp( m_pSceneInfoMap[i].m_FullPath, fullpath ) == 0 )
-                return true;
+            if( m_pSceneInfoMap[i].m_FullPath[0] != 0 )
+            {
+                if( strcmp( m_pSceneInfoMap[i].m_FullPath, fullpath ) == 0 )
+                    return true;
 
-            const char* relativepath = GetRelativePath( m_pSceneInfoMap[i].m_FullPath );
-            if( relativepath != 0 && strcmp( relativepath, fullpath ) == 0 )
-                return true;
+                const char* relativepath = GetRelativePath( m_pSceneInfoMap[i].m_FullPath );
+                if( relativepath != 0 && strcmp( relativepath, fullpath ) == 0 )
+                    return true;
+            }
         }
     }
 #endif

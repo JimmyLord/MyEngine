@@ -24,6 +24,13 @@ file( GLOB_RECURSE sourcefiles
 )
 list( REMOVE_ITEM sourcefiles "${CMAKE_SOURCE_DIR}/Libraries/Lua/src/lua.c" )
 list( REMOVE_ITEM sourcefiles "${CMAKE_SOURCE_DIR}/Libraries/Lua/src/luac.c" )
+list( REMOVE_ITEM sourcefiles "${CMAKE_SOURCE_DIR}/Libraries/Lua/src/luac.c" )
+
+# Extra files specific to Editor (wxWidgets) builds.
+if( CMAKE_BUILD_TYPE MATCHES wxDebug OR CMAKE_BUILD_TYPE MATCHES wxRelease )
+    file( GLOB_RECURSE editorfiles "MyEngine/SourceEditor/*.cpp" )
+    set( sourcefiles ${sourcefiles} ${editorfiles} )
+endif()
 
 # Library
 add_library( MyEngine ${sourcefiles} )

@@ -8,9 +8,9 @@
 // 3. This notice may not be removed or altered from any source distribution.
 
 #include "EngineCommonHeader.h"
-#include "../../Voxels/VoxelBlock.h"
-#include "../../Voxels/VoxelChunk.h"
-#include "../../Voxels/VoxelWorld.h"
+#include "../../SourceCommon/Voxels/VoxelBlock.h"
+#include "../../SourceCommon/Voxels/VoxelChunk.h"
+#include "../../SourceCommon/Voxels/VoxelWorld.h"
 
 EditorInterface_VoxelMeshEditor::EditorInterface_VoxelMeshEditor()
 {

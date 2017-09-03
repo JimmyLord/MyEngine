@@ -20,7 +20,7 @@ const int g_NumberOfVisibilityLayers = 8;
 #include "../../../Framework/MyFramework/SourceCommon/CommonHeader.h"
 #if MYFW_USING_WX
 #include "../../../Framework/MyFramework/SourceWidgets/MYFWMainWx.h"
-#include "Editor/EngineMainFrame.h"
+#include "../SourceEditor/EngineMainFrame.h"
 #include "../../../Framework/MyFramework/SourceWidgets/EditorCommands.h"
 #include "../../../Framework/MyFramework/SourceWidgets/CommandStack.h"
 #endif
@@ -134,17 +134,17 @@ extern "C"
 #include "../../../SharedGameCode/Menus/Menu_Helpers.h"
 
 #if MYFW_USING_WX
-#include "Core/EditorState.h"
-#include "Editor/DragAndDropHackeryExtended.h"
-#include "Editor/GameObjectTemplateManager.h"
-#include "Editor/EngineCommandStack.h"
-#include "Editor/EngineEditorCommands.h"
-#include "Editor/TransformGizmo.h"
-#include "Editor/Dialogs/DialogGridSettings.h"
-#include "Editor/Interfaces/EditorInterface.h"
-#include "Editor/Interfaces/EditorInterface_SceneManagement.h"
-#include "Editor/Interfaces/EditorInterface_2DPointEditor.h"
-#include "Editor/Interfaces/EditorInterface_VoxelMeshEditor.h"
+#include "../SourceEditor/EditorState.h"
+#include "../SourceEditor/DragAndDropHackeryExtended.h"
+#include "../SourceEditor/GameObjectTemplateManager.h"
+#include "../SourceEditor/EngineCommandStack.h"
+#include "../SourceEditor/EngineEditorCommands.h"
+#include "../SourceEditor/TransformGizmo.h"
+#include "../SourceEditor/Dialogs/DialogGridSettings.h"
+#include "../SourceEditor/Interfaces/EditorInterface.h"
+#include "../SourceEditor/Interfaces/EditorInterface_SceneManagement.h"
+#include "../SourceEditor/Interfaces/EditorInterface_2DPointEditor.h"
+#include "../SourceEditor/Interfaces/EditorInterface_VoxelMeshEditor.h"
 #endif
 
 #include "Core/EngineCore.h"
