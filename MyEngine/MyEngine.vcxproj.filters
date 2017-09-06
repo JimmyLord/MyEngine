@@ -34,9 +34,6 @@
     <Filter Include="Source\Camera">
       <UniqueIdentifier>{2f790bfa-acfa-4f4d-9fb7-6e30e3376aea}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Editor">
-      <UniqueIdentifier>{23826f0c-8cd4-4b10-a2d4-567f146d1856}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source - Platform\Source - Windows">
       <UniqueIdentifier>{a02d5de6-1291-401b-9c89-4e92bba8be9b}</UniqueIdentifier>
     </Filter>
@@ -55,20 +52,11 @@
     <Filter Include="Source\ComponentSystem\Core Files">
       <UniqueIdentifier>{b95a7673-d27e-4745-a5a9-38c786fb8498}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source\Editor\Dialogs">
-      <UniqueIdentifier>{1f213d6b-3236-473c-8399-67ae08e140d5}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Source\Physics">
       <UniqueIdentifier>{60a0e06f-d005-4c7b-aa0c-b07250ed8713}</UniqueIdentifier>
     </Filter>
     <Filter Include="Source\ComponentSystem\Framework Components\Physics2D">
       <UniqueIdentifier>{87d4e2d2-c11f-408c-80bf-e553af8dc6b6}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Editor\Interfaces">
-      <UniqueIdentifier>{b2675a48-2ea1-48e2-9485-6fa399f712ab}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source\Editor\Exporters">
-      <UniqueIdentifier>{02837739-8d7a-47e0-9809-10810feb1f20}</UniqueIdentifier>
     </Filter>
     <Filter Include="Libraries">
       <UniqueIdentifier>{c96d9a69-b683-4c9b-a0e5-833aa8f4f3ab}</UniqueIdentifier>
@@ -93,6 +81,18 @@
     </Filter>
     <Filter Include="Source\Voxels">
       <UniqueIdentifier>{f05a8088-df72-4a72-b8cb-fadb1ff4b905}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source - Editor">
+      <UniqueIdentifier>{672250a4-0e5f-4a04-bd12-aab1ebdaebc4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source - Editor\Dialogs">
+      <UniqueIdentifier>{1f213d6b-3236-473c-8399-67ae08e140d5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source - Editor\Interfaces">
+      <UniqueIdentifier>{b2675a48-2ea1-48e2-9485-6fa399f712ab}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source - Editor\Exporters">
+      <UniqueIdentifier>{02837739-8d7a-47e0-9809-10810feb1f20}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -207,12 +207,6 @@
     <ClCompile Include="SourceCommon\Core\LuaGameState.cpp">
       <Filter>Source\Core Files</Filter>
     </ClCompile>
-    <ClCompile Include="SourceCommon\Core\EditorState.cpp">
-      <Filter>Source\Core Files</Filter>
-    </ClCompile>
-    <ClCompile Include="SourceCommon\Editor\TransformGizmo.cpp">
-      <Filter>Source\Editor</Filter>
-    </ClCompile>
     <ClCompile Include="SourceCommon\EngineCommonHeader.cpp">
       <Filter>Source</Filter>
     </ClCompile>
@@ -282,17 +276,8 @@
     <ClCompile Include="SourceCommon\ComponentSystem\Core\GameObject.cpp">
       <Filter>Source\ComponentSystem\Core Files</Filter>
     </ClCompile>
-    <ClCompile Include="SourceCommon\Editor\EngineEditorCommands.cpp">
-      <Filter>Source\Editor</Filter>
-    </ClCompile>
-    <ClCompile Include="SourceCommon\Editor\EngineCommandStack.cpp">
-      <Filter>Source\Editor</Filter>
-    </ClCompile>
     <ClCompile Include="SourceCommon\ComponentSystem\FrameworkComponents\ComponentPostEffect.cpp">
       <Filter>Source\ComponentSystem\Framework Components</Filter>
-    </ClCompile>
-    <ClCompile Include="SourceCommon\Editor\Dialogs\DialogGridSettings.cpp">
-      <Filter>Source\Editor\Dialogs</Filter>
     </ClCompile>
     <ClCompile Include="SourceCommon\ComponentSystem\Core\EngineFileManager.cpp">
       <Filter>Source\ComponentSystem\Core Files</Filter>
@@ -324,29 +309,11 @@
     <ClCompile Include="SourceCommon\ComponentSystem\FrameworkComponents\Physics2D\Component2DJointPrismatic.cpp">
       <Filter>Source\ComponentSystem\Framework Components\Physics2D</Filter>
     </ClCompile>
-    <ClCompile Include="SourceCommon\Editor\Interfaces\EditorInterface.cpp">
-      <Filter>Source\Editor\Interfaces</Filter>
-    </ClCompile>
-    <ClCompile Include="SourceCommon\Editor\Interfaces\EditorInterface_SceneManagement.cpp">
-      <Filter>Source\Editor\Interfaces</Filter>
-    </ClCompile>
-    <ClCompile Include="SourceCommon\Editor\Interfaces\EditorInterface_2DPointEditor.cpp">
-      <Filter>Source\Editor\Interfaces</Filter>
-    </ClCompile>
-    <ClCompile Include="SourceCommon\Editor\EngineMainFrame.cpp">
-      <Filter>Source\Editor</Filter>
-    </ClCompile>
     <ClCompile Include="SourceCommon\ComponentSystem\FrameworkComponents\Physics2D\Component2DJointWeld.cpp">
       <Filter>Source\ComponentSystem\Framework Components\Physics2D</Filter>
     </ClCompile>
     <ClCompile Include="SourceCommon\ComponentSystem\FrameworkComponents\ComponentAudioPlayer.cpp">
       <Filter>Source\ComponentSystem\Framework Components</Filter>
-    </ClCompile>
-    <ClCompile Include="SourceCommon\Editor\GameObjectTemplateManager.cpp">
-      <Filter>Source\Editor</Filter>
-    </ClCompile>
-    <ClCompile Include="SourceCommon\Editor\Exporters\ExportBox2DScene.cpp">
-      <Filter>Source\Editor\Exporters</Filter>
     </ClCompile>
     <ClCompile Include="SourceCommon\ComponentSystem\BaseComponents\ComponentGameObjectProperties.cpp">
       <Filter>Source\ComponentSystem\Base Components</Filter>
@@ -375,9 +342,6 @@
     <ClCompile Include="SourceCommon\Voxels\ComponentVoxelMesh.cpp">
       <Filter>Source\Voxels</Filter>
     </ClCompile>
-    <ClCompile Include="SourceCommon\Editor\Interfaces\EditorInterface_VoxelMeshEditor.cpp">
-      <Filter>Source\Editor\Interfaces</Filter>
-    </ClCompile>
     <ClCompile Include="SourceCommon\ComponentSystem\FrameworkComponents\ComponentAnimationPlayer2D.cpp">
       <Filter>Source\ComponentSystem\Framework Components</Filter>
     </ClCompile>
@@ -401,6 +365,42 @@
     </ClCompile>
     <ClCompile Include="SourceCommon\Core\LuaGLFunctions.cpp">
       <Filter>Source\Core Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceEditor\EditorState.cpp">
+      <Filter>Source - Editor</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceEditor\EngineCommandStack.cpp">
+      <Filter>Source - Editor</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceEditor\EngineEditorCommands.cpp">
+      <Filter>Source - Editor</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceEditor\EngineMainFrame.cpp">
+      <Filter>Source - Editor</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceEditor\GameObjectTemplateManager.cpp">
+      <Filter>Source - Editor</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceEditor\TransformGizmo.cpp">
+      <Filter>Source - Editor</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceEditor\Dialogs\DialogGridSettings.cpp">
+      <Filter>Source - Editor\Dialogs</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceEditor\Exporters\ExportBox2DScene.cpp">
+      <Filter>Source - Editor\Exporters</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceEditor\Interfaces\EditorInterface.cpp">
+      <Filter>Source - Editor\Interfaces</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceEditor\Interfaces\EditorInterface_2DPointEditor.cpp">
+      <Filter>Source - Editor\Interfaces</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceEditor\Interfaces\EditorInterface_SceneManagement.cpp">
+      <Filter>Source - Editor\Interfaces</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceEditor\Interfaces\EditorInterface_VoxelMeshEditor.cpp">
+      <Filter>Source - Editor\Interfaces</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -539,12 +539,6 @@
     <ClInclude Include="SourceCommon\Core\LuaGameState.h">
       <Filter>Source\Core Files</Filter>
     </ClInclude>
-    <ClInclude Include="SourceCommon\Core\EditorState.h">
-      <Filter>Source\Core Files</Filter>
-    </ClInclude>
-    <ClInclude Include="SourceCommon\Editor\TransformGizmo.h">
-      <Filter>Source\Editor</Filter>
-    </ClInclude>
     <ClInclude Include="SourceCommon\EngineCommonHeader.h">
       <Filter>Source</Filter>
     </ClInclude>
@@ -614,17 +608,8 @@
     <ClInclude Include="SourceCommon\ComponentSystem\Core\GameObject.h">
       <Filter>Source\ComponentSystem\Core Files</Filter>
     </ClInclude>
-    <ClInclude Include="SourceCommon\Editor\EngineEditorCommands.h">
-      <Filter>Source\Editor</Filter>
-    </ClInclude>
-    <ClInclude Include="SourceCommon\Editor\EngineCommandStack.h">
-      <Filter>Source\Editor</Filter>
-    </ClInclude>
     <ClInclude Include="SourceCommon\ComponentSystem\FrameworkComponents\ComponentPostEffect.h">
       <Filter>Source\ComponentSystem\Framework Components</Filter>
-    </ClInclude>
-    <ClInclude Include="SourceCommon\Editor\Dialogs\DialogGridSettings.h">
-      <Filter>Source\Editor\Dialogs</Filter>
     </ClInclude>
     <ClInclude Include="SourceCommon\ComponentSystem\Core\EngineFileManager.h">
       <Filter>Source\ComponentSystem\Core Files</Filter>
@@ -659,29 +644,11 @@
     <ClInclude Include="SourceCommon\ComponentSystem\FrameworkComponents\Physics2D\Component2DJointPrismatic.h">
       <Filter>Source\ComponentSystem\Framework Components\Physics2D</Filter>
     </ClInclude>
-    <ClInclude Include="SourceCommon\Editor\Interfaces\EditorInterface.h">
-      <Filter>Source\Editor\Interfaces</Filter>
-    </ClInclude>
-    <ClInclude Include="SourceCommon\Editor\Interfaces\EditorInterface_SceneManagement.h">
-      <Filter>Source\Editor\Interfaces</Filter>
-    </ClInclude>
-    <ClInclude Include="SourceCommon\Editor\Interfaces\EditorInterface_2DPointEditor.h">
-      <Filter>Source\Editor\Interfaces</Filter>
-    </ClInclude>
-    <ClInclude Include="SourceCommon\Editor\EngineMainFrame.h">
-      <Filter>Source\Editor</Filter>
-    </ClInclude>
     <ClInclude Include="SourceCommon\ComponentSystem\FrameworkComponents\Physics2D\Component2DJointWeld.h">
       <Filter>Source\ComponentSystem\Framework Components\Physics2D</Filter>
     </ClInclude>
     <ClInclude Include="SourceCommon\ComponentSystem\FrameworkComponents\ComponentAudioPlayer.h">
       <Filter>Source\ComponentSystem\Framework Components</Filter>
-    </ClInclude>
-    <ClInclude Include="SourceCommon\Editor\GameObjectTemplateManager.h">
-      <Filter>Source\Editor</Filter>
-    </ClInclude>
-    <ClInclude Include="SourceCommon\Editor\Exporters\ExportBox2DScene.h">
-      <Filter>Source\Editor\Exporters</Filter>
     </ClInclude>
     <ClInclude Include="SourceCommon\ComponentSystem\BaseComponents\ComponentGameObjectProperties.h">
       <Filter>Source\ComponentSystem\Base Components</Filter>
@@ -722,9 +689,6 @@
     <ClInclude Include="SourceCommon\Voxels\ComponentVoxelMesh.h">
       <Filter>Source\Voxels</Filter>
     </ClInclude>
-    <ClInclude Include="SourceCommon\Editor\Interfaces\EditorInterface_VoxelMeshEditor.h">
-      <Filter>Source\Editor\Interfaces</Filter>
-    </ClInclude>
     <ClInclude Include="SourceCommon\Voxels\VoxelRayCast.h">
       <Filter>Source\Voxels</Filter>
     </ClInclude>
@@ -736,9 +700,6 @@
     </ClInclude>
     <ClInclude Include="SourceCommon\ComponentSystem\Core\PrefabManager.h">
       <Filter>Source\ComponentSystem\Core Files</Filter>
-    </ClInclude>
-    <ClInclude Include="SourceCommon\Editor\DragAndDropHackeryExtended.h">
-      <Filter>Source\Editor</Filter>
     </ClInclude>
     <ClInclude Include="SourceCommon\Physics\BulletDebugDraw.h">
       <Filter>Source\Physics</Filter>
@@ -754,6 +715,45 @@
     </ClInclude>
     <ClInclude Include="SourceCommon\Core\LuaGLFunctions.h">
       <Filter>Source\Core Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceEditor\DragAndDropHackeryExtended.h">
+      <Filter>Source - Editor</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceEditor\EditorState.h">
+      <Filter>Source - Editor</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceEditor\EngineCommandStack.h">
+      <Filter>Source - Editor</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceEditor\EngineEditorCommands.h">
+      <Filter>Source - Editor</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceEditor\EngineMainFrame.h">
+      <Filter>Source - Editor</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceEditor\GameObjectTemplateManager.h">
+      <Filter>Source - Editor</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceEditor\TransformGizmo.h">
+      <Filter>Source - Editor</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceEditor\Dialogs\DialogGridSettings.h">
+      <Filter>Source - Editor\Dialogs</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceEditor\Exporters\ExportBox2DScene.h">
+      <Filter>Source - Editor\Exporters</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceEditor\Interfaces\EditorInterface.h">
+      <Filter>Source - Editor\Interfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceEditor\Interfaces\EditorInterface_2DPointEditor.h">
+      <Filter>Source - Editor\Interfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceEditor\Interfaces\EditorInterface_SceneManagement.h">
+      <Filter>Source - Editor\Interfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceEditor\Interfaces\EditorInterface_VoxelMeshEditor.h">
+      <Filter>Source - Editor\Interfaces</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
