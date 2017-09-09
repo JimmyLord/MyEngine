@@ -2180,6 +2180,9 @@ void ComponentBase::UpdateOtherComponentWithNewValue(ComponentBase* pComponent, 
 
 bool ComponentBase::IsReferencingFile(MyFileObject* pFile)
 {
+    if( GetComponentVariableList() == 0 )
+        return false;
+
     for( CPPListNode* pNode = GetComponentVariableList()->GetHead(); pNode; pNode = pNode->GetNext() )
     {
         ComponentVariable* pVar = (ComponentVariable*)pNode;

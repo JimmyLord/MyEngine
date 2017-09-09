@@ -141,6 +141,7 @@ void EditorInterface_SceneManagement::OnDrawFrame(unsigned int canvasid)
 
                 MyMatrix matviewproj = matproj * matview;
                 Vector3 campos = matview.GetTranslation() * -1;
+                Vector3 camrot( 0, 0, 0 );
 
                 float time = (float)MyTime_GetRunningTime();
 
@@ -158,7 +159,7 @@ void EditorInterface_SceneManagement::OnDrawFrame(unsigned int canvasid)
                 light2.m_Position.Set( 2*cos(PI+time), 1, 2*sin(PI+time) );
 
                 MyLight* lights[] = { &light1, &light2 };
-                g_pEngineCore->m_pMaterialBallMesh->Draw( 0, &matviewproj, &campos, 0, lights, 2, 0, 0, 0, 0 );
+                g_pEngineCore->m_pMaterialBallMesh->Draw( 0, &matviewproj, &campos, &camrot, lights, 2, 0, 0, 0, 0 );
 
                 pEditorState->m_pDebugViewFBO->Unbind( true );
             }
