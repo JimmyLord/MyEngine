@@ -831,8 +831,17 @@ bool EngineCore::OnTouch(int action, int id, float x, float y, float pressure, f
             {
                 ComponentCamera* pCamera = m_pEditorState->GetEditorCamera();
 
-                // prefer 0,0 at bottom left.
-                y = pCamera->m_WindowHeight - y;
+                if( g_pEngineMainFrame->m_pGLCanvasEditor->m_SystemMouseIsLocked && action == GCBA_Held )
+                {
+                    // Mouse held messages while the mouse is locked are relative.
+                    // Flip the y direction, up should be positive, down negative.
+                    y *= -1;
+                }
+                else
+                {
+                    // prefer 0,0 at bottom left.
+                    y = pCamera->m_WindowHeight - y;
+                }
 
                 if( HandleEditorInput( g_GLCanvasIDActive, -1, -1, action, id, x, y, pressure ) )
                     return true;
@@ -967,9 +976,9 @@ void EngineCore::OnModeTogglePlayStop()
         // Set focus to gameplay window.
         if( g_pEngineMainFrame->m_Mode_SwitchFocusOnPlayStop )
         {
-            g_pEngineMainFrame->m_pGLCanvas->SetFocus();
+                g_pEngineMainFrame->m_pGLCanvas->SetFocus();
+            }
         }
-    }
     else
     {
         OnModeStop();
@@ -977,9 +986,9 @@ void EngineCore::OnModeTogglePlayStop()
         // Set focus to editor window.
         if( g_pEngineMainFrame->m_Mode_SwitchFocusOnPlayStop )
         {
-            g_pEngineMainFrame->m_pGLCanvasEditor->SetFocus();
+                g_pEngineMainFrame->m_pGLCanvasEditor->SetFocus();
+            }
         }
-    }
 #endif //MYFW_USING_WX
 }
 

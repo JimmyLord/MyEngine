@@ -271,11 +271,20 @@ void EditorInterface::ClearModifierKeyStates(int keyaction, int keycode, int mou
             pEditorState->m_MouseDownLocation[id] = Vector2( -1, -1 );
 
             if( id == 0 )
+            {
                 pEditorState->m_ModifierKeyStates &= ~MODIFIERKEY_LeftMouse;
+            }
             else if( id == 1 )
+            {
                 pEditorState->m_ModifierKeyStates &= ~MODIFIERKEY_RightMouse;
+
+                // Unlock the mouse, even if it wasn't locked.
+                g_pEngineMainFrame->m_pGLCanvasEditor->LockMouse( false );
+            }
             else if( id == 2 )
+            {
                 pEditorState->m_ModifierKeyStates &= ~MODIFIERKEY_MiddleMouse;
+            }
 
             pEditorState->m_HasMouseMovedSinceButtonPressed[id] = false;
         }
@@ -356,57 +365,66 @@ bool EditorInterface::HandleInputForEditorCamera(int keyaction, int keycode, int
         else if( pEditorState->m_EditorActionState == EDITORACTIONSTATE_None &&
                  (mods & MODIFIERKEY_RightMouse) )
         {
-            // get the direction the mouse moved
-            Vector2 dir = pEditorState->m_CurrentMousePosition - pEditorState->m_LastMousePosition;
-
-            if( dir.LengthSquared() > 0 )
+            // Try to lock the editor mouse cursor so we can move camera with raw mouse input.
+            if( g_pEngineMainFrame->m_pGLCanvasEditor->IsMouseLocked() == false )
             {
-                Vector3 pivot;
-                float distancefrompivot;
+                g_pEngineMainFrame->m_pGLCanvasEditor->LockMouse( true );
+            }
 
-                // different pivot and distance from pivot depending if Alt is held.
-                if( mods & MODIFIERKEY_Alt && pEditorState->m_pSelectedObjects.size() > 0 && pEditorState->m_pTransformGizmo->m_pTranslate1Axis[0] )
+            if( mouseaction == GCBA_Held )
+            {
+                // Get the direction the mouse moved.
+                Vector2 dir( x, y );
+
+                if( dir.LengthSquared() > 0 )
                 {
-                    // pivot around the transform gizmo
-                    pivot = pEditorState->m_pTransformGizmo->m_pTranslate1Axis[0]->GetTransform()->GetWorldTransform()->GetTranslation();
-                    distancefrompivot = (matCamera->GetTranslation() - pivot).Length();
-                }
-                else
-                {
-                    // pivot on the camera, just change rotation.
-                    pivot = matCamera->GetTranslation();
-                    distancefrompivot = 0;
-                }
+                    Vector3 pivot;
+                    float distancefrompivot;
 
-                //LOGInfo( LOGTag, "dir (%0.2f, %0.2f)\n", dir.x, dir.y );
+                    // different pivot and distance from pivot depending if Alt is held.
+                    if( mods & MODIFIERKEY_Alt && pEditorState->m_pSelectedObjects.size() > 0 && pEditorState->m_pTransformGizmo->m_pTranslate1Axis[0] )
+                    {
+                        // pivot around the transform gizmo
+                        pivot = pEditorState->m_pTransformGizmo->m_pTranslate1Axis[0]->GetTransform()->GetWorldTransform()->GetTranslation();
+                        distancefrompivot = (matCamera->GetTranslation() - pivot).Length();
+                    }
+                    else
+                    {
+                        // pivot on the camera, just change rotation.
+                        pivot = matCamera->GetTranslation();
+                        distancefrompivot = 0;
+                    }
 
-                Vector3 angle = pCamera->m_pComponentTransform->GetLocalRotation();
+                    //LOGInfo( LOGTag, "dir (%0.2f, %0.2f)\n", dir.x, dir.y );
 
-                // TODO: make this degrees per inch
-                float degreesperpixel = 1.0f;
+                    Vector3 angle = pCamera->m_pComponentTransform->GetLocalRotation();
+
+                    // TODO: make this degrees per inch
+                    float degreesperpixel = 0.125f;
 
 #if MYFW_RIGHTHANDED
-                angle.y += dir.x * degreesperpixel;
-                angle.x -= dir.y * degreesperpixel;
+                    angle.y += dir.x * degreesperpixel;
+                    angle.x -= dir.y * degreesperpixel;
 #else
-                angle.y -= dir.x * degreesperpixel;
-                angle.x += dir.y * degreesperpixel;
+                    angle.y -= dir.x * degreesperpixel;
+                    angle.x += dir.y * degreesperpixel;
 #endif
-                MyClamp( angle.x, -90.0f, 90.0f );
+                    MyClamp( angle.x, -90.0f, 90.0f );
 
-                // Create a new local transform
-                matCamera->SetIdentity();
+                    // Create a new local transform
+                    matCamera->SetIdentity();
 #if MYFW_RIGHTHANDED
-                matCamera->Translate( 0, 0, distancefrompivot );
+                    matCamera->Translate( 0, 0, distancefrompivot );
 #else
-                matCamera->Translate( 0, 0, -distancefrompivot );
+                    matCamera->Translate( 0, 0, -distancefrompivot );
 #endif
-                matCamera->Rotate( angle.x, 1, 0, 0 );
-                matCamera->Rotate( angle.y, 0, 1, 0 );
-                matCamera->Translate( pivot );
+                    matCamera->Rotate( angle.x, 1, 0, 0 );
+                    matCamera->Rotate( angle.y, 0, 1, 0 );
+                    matCamera->Translate( pivot );
 
-                // Update the local scale/rotation/translation from the local transform
-                pCamera->m_pComponentTransform->UpdateLocalSRT();
+                    // Update the local scale/rotation/translation from the local transform
+                    pCamera->m_pComponentTransform->UpdateLocalSRT();
+                }
             }
         }
 
