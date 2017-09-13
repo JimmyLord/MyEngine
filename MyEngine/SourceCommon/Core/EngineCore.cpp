@@ -976,9 +976,16 @@ void EngineCore::OnModeTogglePlayStop()
         // Set focus to gameplay window.
         if( g_pEngineMainFrame->m_Mode_SwitchFocusOnPlayStop )
         {
+            if( g_pEngineMainFrame->m_pGLCanvasEditor->GetParent() == g_pEngineMainFrame->m_pFullScreenFrame )
+            {
+                g_pEngineMainFrame->SetGLCanvasFullScreenMode( g_pEngineMainFrame->m_pGLCanvas, true );
+            }
+            else
+            {
                 g_pEngineMainFrame->m_pGLCanvas->SetFocus();
             }
         }
+    }
     else
     {
         OnModeStop();
@@ -986,9 +993,16 @@ void EngineCore::OnModeTogglePlayStop()
         // Set focus to editor window.
         if( g_pEngineMainFrame->m_Mode_SwitchFocusOnPlayStop )
         {
+            if( g_pEngineMainFrame->m_pGLCanvas->GetParent() == g_pEngineMainFrame->m_pFullScreenFrame )
+            {
+                g_pEngineMainFrame->SetGLCanvasFullScreenMode( g_pEngineMainFrame->m_pGLCanvasEditor, true );
+            }
+            else
+            {
                 g_pEngineMainFrame->m_pGLCanvasEditor->SetFocus();
             }
         }
+    }
 #endif //MYFW_USING_WX
 }
 
