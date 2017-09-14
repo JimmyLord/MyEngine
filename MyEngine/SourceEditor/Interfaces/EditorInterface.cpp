@@ -224,7 +224,7 @@ void EditorInterface::SetModifierKeyStates(int keyaction, int keycode, int mouse
             }
         }
 
-        if( mouseaction == GCBA_Held )
+        if( mouseaction == GCBA_Held || mouseaction == GCBA_RelativeMovement )
         {
             if( pEditorState->m_ModifierKeyStates & MODIFIERKEY_LeftMouse )
             {
@@ -277,14 +277,14 @@ void EditorInterface::ClearModifierKeyStates(int keyaction, int keycode, int mou
             else if( id == 1 )
             {
                 pEditorState->m_ModifierKeyStates &= ~MODIFIERKEY_RightMouse;
-
-                // Unlock the mouse, even if it wasn't locked.
-                g_pEngineMainFrame->m_pGLCanvasEditor->LockMouse( false );
             }
             else if( id == 2 )
             {
                 pEditorState->m_ModifierKeyStates &= ~MODIFIERKEY_MiddleMouse;
             }
+
+            // Unlock the mouse, even if it wasn't locked.
+            g_pEngineMainFrame->m_pGLCanvasEditor->LockMouse( false );
 
             pEditorState->m_HasMouseMovedSinceButtonPressed[id] = false;
         }
@@ -332,10 +332,23 @@ bool EditorInterface::HandleInputForEditorCamera(int keyaction, int keycode, int
         // if space is held, left button will pan the camera around.  or just middle button
         if( ( (mods & MODIFIERKEY_LeftMouse) && (mods & MODIFIERKEY_Space) ) || (mods & MODIFIERKEY_MiddleMouse) )
         {
-            Vector2 dir = pEditorState->m_LastMousePosition - pEditorState->m_CurrentMousePosition;
+            // Try to lock the editor mouse cursor so we can move camera with raw mouse input.
+            if( g_pEngineMainFrame->m_pGLCanvasEditor->IsMouseLocked() == false )
+            {
+                g_pEngineMainFrame->m_pGLCanvasEditor->LockMouse( true );
+            }
 
-            if( dir.LengthSquared() > 0 )
-                matCamera->TranslatePreRotScale( dir * 0.05f );
+            if( mouseaction == GCBA_RelativeMovement )
+            {
+                Vector2 dir( -x, -y );
+                if( abs(x) > 100 )
+                    int bp = 1;
+                //LOGInfo( LOGTag, "dir (%0.2f, %0.2f)\n", dir.x, dir.y );
+                //Vector2 dir = pEditorState->m_LastMousePosition - pEditorState->m_CurrentMousePosition;
+
+                if( dir.LengthSquared() > 0 )
+                    matCamera->TranslatePreRotScale( dir * 0.05f );
+            }
         }
         else if( mouseaction == GCBA_Held &&
                  pEditorState->m_EditorActionState == EDITORACTIONSTATE_GroupSelectingObjects &&
@@ -371,7 +384,7 @@ bool EditorInterface::HandleInputForEditorCamera(int keyaction, int keycode, int
                 g_pEngineMainFrame->m_pGLCanvasEditor->LockMouse( true );
             }
 
-            if( mouseaction == GCBA_Held )
+            if( mouseaction == GCBA_RelativeMovement )
             {
                 // Get the direction the mouse moved.
                 Vector2 dir( x, y );

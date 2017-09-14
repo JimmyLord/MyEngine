@@ -831,7 +831,7 @@ bool EngineCore::OnTouch(int action, int id, float x, float y, float pressure, f
             {
                 ComponentCamera* pCamera = m_pEditorState->GetEditorCamera();
 
-                if( g_pEngineMainFrame->m_pGLCanvasEditor->m_SystemMouseIsLocked && action == GCBA_Held )
+                if( action == GCBA_RelativeMovement )
                 {
                     // Mouse held messages while the mouse is locked are relative.
                     // Flip the y direction, up should be positive, down negative.
@@ -879,11 +879,11 @@ bool EngineCore::OnTouch(int action, int id, float x, float y, float pressure, f
 
     // if the mouse is locked and it's a mouse held message, leave the x/y as is
     //     otherwise, convert to camera space.
-    if( g_pGameCore->IsMouseLocked() && action == GCBA_Held )
+    if( action == GCBA_RelativeMovement )
     {
         // x/y should be showing diffs in position, so leave them as is.
     }
-    else //if( g_pGameCore->IsMouseLocked() == false || action != GCBA_Held )
+    else
     {
         // prefer 0,0 at bottom left.
         y = pCamera->m_WindowHeight - y;
