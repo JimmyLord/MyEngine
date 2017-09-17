@@ -88,7 +88,7 @@ void TransformGizmo::Tick(double TimePassed, EditorState* pEditorState)
         else
         {
             m_GizmoWorldTransform.SetIdentity();
-            m_GizmoWorldTransform.Translate( pTransform->GetWorldPosition() );
+            m_GizmoWorldTransform.Translate( Vector3( 0, 0, 0 ) );
 
             m_GizmoWorldRotation.Set( 0, 0, 0 );
         }

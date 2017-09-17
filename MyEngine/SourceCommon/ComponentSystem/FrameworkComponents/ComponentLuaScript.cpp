@@ -29,6 +29,9 @@ ComponentLuaScript::ComponentLuaScript()
     m_Type = ComponentType_LuaScript;
 
     m_pScriptFile = 0;
+#if !MYFW_USING_WX
+    m_pLuaString_OnPlay = 0;
+#endif
 
     m_ExposedVars.AllocateObjects( MAX_EXPOSED_VARS ); // hard coded nonsense for now, max of 4 exposed vars in a script.
 
@@ -67,11 +70,17 @@ void ComponentLuaScript::RegisterVariables(CPPListHead* pList, ComponentLuaScrip
 #pragma GCC diagnostic pop
 #endif
 
-    // script is not automatically saved/loaded
+    // Script is not automatically saved/loaded
     ComponentVariable* pVar = AddVar( pList, "Script", ComponentVariableType_FilePtr, MyOffsetOf( pThis, &pThis->m_pScriptFile ), false, true, 0, (CVarFunc_ValueChanged)&ComponentLuaScript::OnValueChanged, (CVarFunc_DropTarget)&ComponentLuaScript::OnDrop, 0 );
 #if MYFW_USING_WX
     pVar->AddCallback_OnRightClick( (CVarFunc_wxMenu)&ComponentLuaScript::OnRightClickCallback, (CVarFunc_Int)&ComponentLuaScript::OnPopupClickCallback );
 #endif
+
+    // m_pLuaString_OnPlay is not automatically saved/loaded
+    pVar = AddVarPointer( pList, "OnPlay", false, true, 0, 
+        (CVarFunc_GetPointerValue)&ComponentLuaScript::GetPointerValue, (CVarFunc_SetPointerValue)&ComponentLuaScript::SetPointerValue,
+        (CVarFunc_GetPointerDesc)&ComponentLuaScript::GetPointerDesc, (CVarFunc_SetPointerDesc)&ComponentLuaScript::SetPointerDesc,
+        (CVarFunc_ValueChanged)&ComponentLuaScript::OnValueChanged, 0, 0 );
 }
 
 void ComponentLuaScript::Reset()
@@ -97,6 +106,28 @@ void ComponentLuaScript::Reset()
     m_pPanelWatchBlockVisible = &m_PanelWatchBlockVisible;
     m_ControlIDOfFirstExtern = -1;
 #endif //MYFW_USING_WX
+}
+
+void* ComponentLuaScript::GetPointerValue(ComponentVariable* pVar) //_VARIABLE_LIST
+{
+    return 0;
+}
+
+void ComponentLuaScript::SetPointerValue(ComponentVariable* pVar, void* newvalue) //_VARIABLE_LIST
+{
+}
+
+const char* ComponentLuaScript::GetPointerDesc(ComponentVariable* pVar) //_VARIABLE_LIST
+{
+#if MYFW_USING_WX
+    return m_pLuaString_OnPlay.c_str();
+#endif
+
+    return "fix me";
+}
+
+void ComponentLuaScript::SetPointerDesc(ComponentVariable* pVar, const char* newdesc) //_VARIABLE_LIST
+{
 }
 
 #if MYFW_USING_WX
@@ -379,6 +410,11 @@ void* ComponentLuaScript::OnValueChanged(ComponentVariable* pVar, bool changedby
             MyAssert( false );
             // TODO: implement this block
         }
+    }
+
+    if( strcmp( pVar->m_Label, "OnPlay" ) == 0 )
+    {
+        m_pLuaString_OnPlay = g_pPanelWatch->GetVariableProperties( pVar->m_ControlID )->GetTextCtrl()->GetValue();
     }
 
     return oldpointer;
@@ -971,42 +1007,54 @@ cJSON* ComponentLuaScript::ExportAsJSONObject(bool savesceneid, bool saveid)
     if( m_pScriptFile )
         cJSON_AddStringToObject( jComponent, "Script", m_pScriptFile->GetFullPath() );
 
-    // save the array of exposed variables
-    cJSON* exposedvararray = cJSON_CreateArray();
-    cJSON_AddItemToObject( jComponent, "ExposedVars", exposedvararray );
-    for( unsigned int i=0; i<m_ExposedVars.Count(); i++ )
+#if MYFW_USING_WX
+    m_pLuaString_OnPlay.Trim( false );
+    m_pLuaString_OnPlay.Trim( true );
+    if( m_pLuaString_OnPlay.Length() > 0 )
     {
-        ExposedVariableDesc* pVar = m_ExposedVars[i];
+        cJSON_AddStringToObject( jComponent, "LuaString_OnPlay", m_pLuaString_OnPlay.c_str() );
+    }
+#endif
+
+    // save the array of exposed variables
+    if( m_ExposedVars.Count() > 0 )
+    {
+        cJSON* exposedvararray = cJSON_CreateArray();
+        cJSON_AddItemToObject( jComponent, "ExposedVars", exposedvararray );
+        for( unsigned int i=0; i<m_ExposedVars.Count(); i++ )
+        {
+            ExposedVariableDesc* pVar = m_ExposedVars[i];
         
-        cJSON* jExposedVar = cJSON_CreateObject();
-        cJSON_AddItemToArray( exposedvararray, jExposedVar );
+            cJSON* jExposedVar = cJSON_CreateObject();
+            cJSON_AddItemToArray( exposedvararray, jExposedVar );
 
-        cJSON_AddStringToObject( jExposedVar, "Name", pVar->name.c_str() );
-        cJSON_AddNumberToObject( jExposedVar, "Type", pVar->type );
+            cJSON_AddStringToObject( jExposedVar, "Name", pVar->name.c_str() );
+            cJSON_AddNumberToObject( jExposedVar, "Type", pVar->type );
 
-        if( pVar->type == ExposedVariableType_Float )
-        {
-            cJSON_AddNumberToObject( jExposedVar, "Value", pVar->valuedouble );
-        }
-        if( pVar->type == ExposedVariableType_Bool )
-        {
-            cJSON_AddNumberToObject( jExposedVar, "Value", pVar->valuebool );
-        }
-        if( pVar->type == ExposedVariableType_Vector3 )
-        {
-            cJSONExt_AddFloatArrayToObject( jExposedVar, "Value", pVar->valuevector3, 3 );
-        }
-        else if( pVar->type == ExposedVariableType_GameObject && pVar->pointer )
-        {
-            cJSON* gameobjectref = ((GameObject*)pVar->pointer)->ExportReferenceAsJSONObject( m_SceneIDLoadedFrom );
-            cJSON_AddItemToObject( jExposedVar, "Value", gameobjectref );
+            if( pVar->type == ExposedVariableType_Float )
+            {
+                cJSON_AddNumberToObject( jExposedVar, "Value", pVar->valuedouble );
+            }
+            if( pVar->type == ExposedVariableType_Bool )
+            {
+                cJSON_AddNumberToObject( jExposedVar, "Value", pVar->valuebool );
+            }
+            if( pVar->type == ExposedVariableType_Vector3 )
+            {
+                cJSONExt_AddFloatArrayToObject( jExposedVar, "Value", pVar->valuevector3, 3 );
+            }
+            else if( pVar->type == ExposedVariableType_GameObject && pVar->pointer )
+            {
+                cJSON* gameobjectref = ((GameObject*)pVar->pointer)->ExportReferenceAsJSONObject( m_SceneIDLoadedFrom );
+                cJSON_AddItemToObject( jExposedVar, "Value", gameobjectref );
 
-            // TODO: find a way to uniquely identify a game object...
-            //cJSON_AddStringToObject( jExposedVar, "Value", ((GameObject*)pVar->pointer)->GetName() );
-        }
+                // TODO: find a way to uniquely identify a game object...
+                //cJSON_AddStringToObject( jExposedVar, "Value", ((GameObject*)pVar->pointer)->GetName() );
+            }
 
-        if( pVar->divorced )
-            cJSON_AddNumberToObject( jExposedVar, "Divorced", pVar->divorced );
+            if( pVar->divorced )
+                cJSON_AddNumberToObject( jExposedVar, "Divorced", pVar->divorced );
+        }
     }
 
     return jComponent;
@@ -1028,71 +1076,85 @@ void ComponentLuaScript::ImportFromJSONObject(cJSON* jsonobj, unsigned int scene
         }
     }
 
-    // load the array of exposed variables
-    cJSON* exposedvararray = cJSON_GetObjectItem( jsonobj, "ExposedVars" );
-    int numvars = cJSON_GetArraySize( exposedvararray );
-    for( int i=0; i<numvars; i++ )
+    cJSON* string_onplay = cJSON_GetObjectItem( jsonobj, "LuaString_OnPlay" );
+    if( string_onplay )
     {
-        cJSON* jsonvar = cJSON_GetArrayItem( exposedvararray, i );
+#if MYFW_USING_WX
+        m_pLuaString_OnPlay = string_onplay->valuestring;
+#else
+        assert( false ); // TODO: In stand-alone build, allocate memory and make a copy of the string.
+        m_pLuaString_OnPlay = 
+#endif
+    }
 
-        cJSON* obj = cJSON_GetObjectItem( jsonvar, "Name" );
-        MyAssert( obj );
-        if( obj == 0 )
-            continue;
-
-        // by name, check if the variable is already in our list
-        ExposedVariableDesc* pVar = 0;
-        for( unsigned int i=0; i<m_ExposedVars.Count(); i++ )
+    // Load the array of exposed variables
+    cJSON* exposedvararray = cJSON_GetObjectItem( jsonobj, "ExposedVars" );
+    if( exposedvararray )
+    {
+        int numvars = cJSON_GetArraySize( exposedvararray );
+        for( int i=0; i<numvars; i++ )
         {
-            MyAssert( m_ExposedVars[i] );
-            if( m_ExposedVars[i]->name == obj->valuestring )
+            cJSON* jsonvar = cJSON_GetArrayItem( exposedvararray, i );
+
+            cJSON* obj = cJSON_GetObjectItem( jsonvar, "Name" );
+            MyAssert( obj );
+            if( obj == 0 )
+                continue;
+
+            // by name, check if the variable is already in our list
+            ExposedVariableDesc* pVar = 0;
+            for( unsigned int i=0; i<m_ExposedVars.Count(); i++ )
             {
-                pVar = m_ExposedVars[i];
-                break;
-            }
-        }
-
-        // if not, create and add it.
-        if( pVar == 0 )
-        {
-            pVar = MyNew ExposedVariableDesc();
-            m_ExposedVars.Add( pVar );
-        }
-
-        pVar->Reset();
-
-        pVar->name = obj->valuestring;
-        cJSONExt_GetInt( jsonvar, "Type", (int*)&pVar->type );
-
-        if( pVar->type == ExposedVariableType_Float )
-        {
-            cJSONExt_GetDouble( jsonvar, "Value", &pVar->valuedouble );
-        }
-        if( pVar->type == ExposedVariableType_Bool )
-        {
-            cJSONExt_GetBool( jsonvar, "Value", &pVar->valuebool );
-        }
-        if( pVar->type == ExposedVariableType_Vector3 )
-        {
-            cJSONExt_GetFloatArray( jsonvar, "Value", pVar->valuevector3, 3 );
-        }
-        else if( pVar->type == ExposedVariableType_GameObject )
-        {
-            cJSON* obj = cJSON_GetObjectItem( jsonvar, "Value" );
-            if( obj )
-            {
-                pVar->pointer = g_pComponentSystemManager->FindGameObjectByJSONRef( obj, m_pGameObject->GetSceneID() );
-
-                // TODO: handle cases where scene containing the gameobject referenced isn't loaded
-                MyAssert( pVar->pointer != 0 );
-                if( pVar->pointer )
+                MyAssert( m_ExposedVars[i] );
+                if( m_ExposedVars[i]->name == obj->valuestring )
                 {
-                    ((GameObject*)pVar->pointer)->RegisterOnDeleteCallback( this, StaticOnGameObjectDeleted );
+                    pVar = m_ExposedVars[i];
+                    break;
                 }
             }
-        }
 
-        cJSONExt_GetBool( jsonvar, "Divorced", &pVar->divorced );
+            // if not, create and add it.
+            if( pVar == 0 )
+            {
+                pVar = MyNew ExposedVariableDesc();
+                m_ExposedVars.Add( pVar );
+            }
+
+            pVar->Reset();
+
+            pVar->name = obj->valuestring;
+            cJSONExt_GetInt( jsonvar, "Type", (int*)&pVar->type );
+
+            if( pVar->type == ExposedVariableType_Float )
+            {
+                cJSONExt_GetDouble( jsonvar, "Value", &pVar->valuedouble );
+            }
+            if( pVar->type == ExposedVariableType_Bool )
+            {
+                cJSONExt_GetBool( jsonvar, "Value", &pVar->valuebool );
+            }
+            if( pVar->type == ExposedVariableType_Vector3 )
+            {
+                cJSONExt_GetFloatArray( jsonvar, "Value", pVar->valuevector3, 3 );
+            }
+            else if( pVar->type == ExposedVariableType_GameObject )
+            {
+                cJSON* obj = cJSON_GetObjectItem( jsonvar, "Value" );
+                if( obj )
+                {
+                    pVar->pointer = g_pComponentSystemManager->FindGameObjectByJSONRef( obj, m_pGameObject->GetSceneID() );
+
+                    // TODO: handle cases where scene containing the gameobject referenced isn't loaded
+                    MyAssert( pVar->pointer != 0 );
+                    if( pVar->pointer )
+                    {
+                        ((GameObject*)pVar->pointer)->RegisterOnDeleteCallback( this, StaticOnGameObjectDeleted );
+                    }
+                }
+            }
+
+            cJSONExt_GetBool( jsonvar, "Divorced", &pVar->divorced );
+        }
     }
 }
 

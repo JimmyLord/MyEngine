@@ -92,6 +92,11 @@ protected:
     const ComponentLuaScript* m_pCopyExternsFromThisComponentAfterLoadingScript;
 
     MyFileObject* m_pScriptFile;
+#if MYFW_USING_WX
+    wxString m_pLuaString_OnPlay;
+#else
+    const char* m_pLuaString_OnPlay; // If this isn't 0, this string will get run instead of the OnPlay function in the lua file.
+#endif
     MyList<ExposedVariableDesc*> m_ExposedVars;
 
 public:
@@ -144,6 +149,13 @@ protected:
     MYFW_DECLARE_COMPONENT_CALLBACK_ONBUTTONS(); // OnButtonsCallback
     //MYFW_DECLARE_COMPONENT_CALLBACK_ONKEYS(); // OnKeysCallback
     //MYFW_DECLARE_COMPONENT_CALLBACK_ONFILERENAMED(); // OnFileRenamedCallback
+
+public:
+    // Runtime component variable callbacks. //_VARIABLE_LIST
+    void* GetPointerValue(ComponentVariable* pVar);
+    void SetPointerValue(ComponentVariable* pVar, void* newvalue);
+    const char* GetPointerDesc(ComponentVariable* pVar);
+    void SetPointerDesc(ComponentVariable* pVar, const char* newdesc);
 
 public:
 #if MYFW_USING_WX

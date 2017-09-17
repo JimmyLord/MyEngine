@@ -1090,132 +1090,141 @@ void ComponentSystemManager::LoadSceneFromJSON(const char* scenename, const char
     bool getsceneidfromeachobject = (sceneid == UINT_MAX);
 
     // create/init all the game objects
-    for( int i=0; i<cJSON_GetArraySize( gameobjectarray ); i++ )
+    if( gameobjectarray )
     {
-        cJSON* jGameObject = cJSON_GetArrayItem( gameobjectarray, i );
-
-        if( getsceneidfromeachobject )
-            cJSONExt_GetUnsignedInt( jGameObject, "SceneID", &sceneid );
-
-        unsigned int id = -1;
-        cJSONExt_GetUnsignedInt( jGameObject, "ID", &id );
-        MyAssert( id != -1 );
-
-        // LEGACY: support for old scene files with folders in them, now stored as "SubType"
-        bool isfolder = false;
-        cJSONExt_GetBool( jGameObject, "IsFolder", &isfolder );
-
-        bool hastransform = true;
-        cJSON* jSubtype = cJSON_GetObjectItem( jGameObject, "SubType" );
-        if( jSubtype )
+        for( int i=0; i<cJSON_GetArraySize( gameobjectarray ); i++ )
         {
-            if( strcmp( jSubtype->valuestring, "Folder" ) == 0 )
+            cJSON* jGameObject = cJSON_GetArrayItem( gameobjectarray, i );
+
+            if( getsceneidfromeachobject )
+                cJSONExt_GetUnsignedInt( jGameObject, "SceneID", &sceneid );
+
+            unsigned int id = -1;
+            cJSONExt_GetUnsignedInt( jGameObject, "ID", &id );
+            MyAssert( id != -1 );
+
+            // LEGACY: support for old scene files with folders in them, now stored as "SubType"
+            bool isfolder = false;
+            cJSONExt_GetBool( jGameObject, "IsFolder", &isfolder );
+
+            bool hastransform = true;
+            cJSON* jSubtype = cJSON_GetObjectItem( jGameObject, "SubType" );
+            if( jSubtype )
             {
-                isfolder = true;
-                hastransform = false;
-            }
-            else if( strcmp( jSubtype->valuestring, "Logic" ) == 0 )
-            {
-                hastransform = false;
-            }
-        }
-
-        // find an existing game object with the same id or create a new one.
-        GameObject* pGameObject = FindGameObjectByID( sceneid, id );
-        if( pGameObject ) { MyAssert( pGameObject->GetSceneID() == sceneid ); }
-
-        if( pGameObject == 0 )
-        {
-            pGameObject = CreateGameObject( true, sceneid, isfolder, hastransform );
-        }
-
-        pGameObject->ImportFromJSONObject( jGameObject, sceneid );
-        
-        unsigned int gameobjectid = pGameObject->GetID();
-        if( gameobjectid > m_pSceneInfoMap[sceneid].m_NextGameObjectID )
-            m_pSceneInfoMap[sceneid].m_NextGameObjectID = gameobjectid + 1;
-    }
-
-    // setup all the game object transforms
-    for( int i=0; i<cJSON_GetArraySize( transformarray ); i++ )
-    {
-        cJSON* transformobj = cJSON_GetArrayItem( transformarray, i );
-        
-        if( getsceneidfromeachobject )
-            cJSONExt_GetUnsignedInt( transformobj, "SceneID", &sceneid );
-
-        unsigned int goid = 0;
-        cJSONExt_GetUnsignedInt( transformobj, "GOID", &goid );
-        MyAssert( goid > 0 );
-
-        GameObject* pGameObject = FindGameObjectByID( sceneid, goid );
-        MyAssert( pGameObject );
-
-        if( pGameObject )
-        {
-            pGameObject->SetID( goid );
-
-            if( pGameObject->GetTransform() )
-            {
-                pGameObject->GetTransform()->ImportFromJSONObject( transformobj, sceneid );
-            }
-            else
-            {
-                unsigned int parentgoid = 0;
-                cJSONExt_GetUnsignedInt( transformobj, "ParentGOID", &parentgoid );
-                
-                if( parentgoid > 0 )
+                if( strcmp( jSubtype->valuestring, "Folder" ) == 0 )
                 {
-                    GameObject* pParentGameObject = FindGameObjectByID( sceneid, parentgoid );
-                    MyAssert( pParentGameObject );
-
-                    pGameObject->SetParentGameObject( pParentGameObject );
-                    if( pGameObject->GetTransform() )
-                    {
-                        pGameObject->GetTransform()->SetWorldTransformIsDirty();
-                    }
+                    isfolder = true;
+                    hastransform = false;
+                }
+                else if( strcmp( jSubtype->valuestring, "Logic" ) == 0 )
+                {
+                    hastransform = false;
                 }
             }
 
-            if( goid >= m_pSceneInfoMap[sceneid].m_NextGameObjectID )
-                m_pSceneInfoMap[sceneid].m_NextGameObjectID = goid + 1;
+            // find an existing game object with the same id or create a new one.
+            GameObject* pGameObject = FindGameObjectByID( sceneid, id );
+            if( pGameObject ) { MyAssert( pGameObject->GetSceneID() == sceneid ); }
+
+            if( pGameObject == 0 )
+            {
+                pGameObject = CreateGameObject( true, sceneid, isfolder, hastransform );
+            }
+
+            pGameObject->ImportFromJSONObject( jGameObject, sceneid );
+        
+            unsigned int gameobjectid = pGameObject->GetID();
+            if( gameobjectid > m_pSceneInfoMap[sceneid].m_NextGameObjectID )
+                m_pSceneInfoMap[sceneid].m_NextGameObjectID = gameobjectid + 1;
+        }
+    }
+
+    // setup all the game object transforms
+    if( transformarray )
+    {
+        for( int i=0; i<cJSON_GetArraySize( transformarray ); i++ )
+        {
+            cJSON* transformobj = cJSON_GetArrayItem( transformarray, i );
+        
+            if( getsceneidfromeachobject )
+                cJSONExt_GetUnsignedInt( transformobj, "SceneID", &sceneid );
+
+            unsigned int goid = 0;
+            cJSONExt_GetUnsignedInt( transformobj, "GOID", &goid );
+            MyAssert( goid > 0 );
+
+            GameObject* pGameObject = FindGameObjectByID( sceneid, goid );
+            MyAssert( pGameObject );
+
+            if( pGameObject )
+            {
+                pGameObject->SetID( goid );
+
+                if( pGameObject->GetTransform() )
+                {
+                    pGameObject->GetTransform()->ImportFromJSONObject( transformobj, sceneid );
+                }
+                else
+                {
+                    unsigned int parentgoid = 0;
+                    cJSONExt_GetUnsignedInt( transformobj, "ParentGOID", &parentgoid );
+                
+                    if( parentgoid > 0 )
+                    {
+                        GameObject* pParentGameObject = FindGameObjectByID( sceneid, parentgoid );
+                        MyAssert( pParentGameObject );
+
+                        pGameObject->SetParentGameObject( pParentGameObject );
+                        if( pGameObject->GetTransform() )
+                        {
+                            pGameObject->GetTransform()->SetWorldTransformIsDirty();
+                        }
+                    }
+                }
+
+                if( goid >= m_pSceneInfoMap[sceneid].m_NextGameObjectID )
+                    m_pSceneInfoMap[sceneid].m_NextGameObjectID = goid + 1;
+            }
         }
     }
 
     // create all the other components, not loading component properties
-    for( int i=0; i<cJSON_GetArraySize( componentarray ); i++ )
+    if( componentarray )
     {
-        cJSON* componentobj = cJSON_GetArrayItem( componentarray, i );
-        
-        if( getsceneidfromeachobject )
-            cJSONExt_GetUnsignedInt( componentobj, "SceneID", &sceneid );
-
-        unsigned int id = 0;
-        cJSONExt_GetUnsignedInt( componentobj, "GOID", &id );
-        MyAssert( id > 0 );
-        GameObject* pGameObject = FindGameObjectByID( sceneid, id );
-        MyAssert( pGameObject );
-
-        CreateComponentFromJSONObject( pGameObject, componentobj );
-    }
-
-    // load all the components properties, to ensure components are already loaded
-    for( int i=0; i<cJSON_GetArraySize( componentarray ); i++ )
-    {
-        cJSON* componentobj = cJSON_GetArrayItem( componentarray, i );
-        
-        if( getsceneidfromeachobject )
-            cJSONExt_GetUnsignedInt( componentobj, "SceneID", &sceneid );
-
-        unsigned int id;
-        cJSONExt_GetUnsignedInt( componentobj, "ID", &id );
-
-        ComponentBase* pComponent = FindComponentByID( id, sceneid );
-        MyAssert( pComponent );
-
-        if( pComponent )
+        for( int i=0; i<cJSON_GetArraySize( componentarray ); i++ )
         {
-            pComponent->ImportFromJSONObject( componentobj, sceneid );
+            cJSON* componentobj = cJSON_GetArrayItem( componentarray, i );
+        
+            if( getsceneidfromeachobject )
+                cJSONExt_GetUnsignedInt( componentobj, "SceneID", &sceneid );
+
+            unsigned int id = 0;
+            cJSONExt_GetUnsignedInt( componentobj, "GOID", &id );
+            MyAssert( id > 0 );
+            GameObject* pGameObject = FindGameObjectByID( sceneid, id );
+            MyAssert( pGameObject );
+
+            CreateComponentFromJSONObject( pGameObject, componentobj );
+        }
+
+        // load all the components properties, to ensure components are already loaded
+        for( int i=0; i<cJSON_GetArraySize( componentarray ); i++ )
+        {
+            cJSON* componentobj = cJSON_GetArrayItem( componentarray, i );
+        
+            if( getsceneidfromeachobject )
+                cJSONExt_GetUnsignedInt( componentobj, "SceneID", &sceneid );
+
+            unsigned int id;
+            cJSONExt_GetUnsignedInt( componentobj, "ID", &id );
+
+            ComponentBase* pComponent = FindComponentByID( id, sceneid );
+            MyAssert( pComponent );
+
+            if( pComponent )
+            {
+                pComponent->ImportFromJSONObject( componentobj, sceneid );
+            }
         }
     }
 
