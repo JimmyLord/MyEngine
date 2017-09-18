@@ -132,6 +132,7 @@ public:
     float m_GameHeight;
 
 protected:
+    bool m_UnloadAllScenesNextTick;
     bool m_SceneReloadRequested;
     RequestedSceneInfo m_pSceneFilesLoading[MAX_SCENE_FILES_QUEUED_UP]; // TODO: replace this monstrosity with an ordered list.
 
@@ -201,6 +202,7 @@ public:
     void ReloadSceneInternal(unsigned int sceneid);
     void RequestScene(const char* fullpath);
     RequestedSceneInfo* RequestSceneInternal(const char* fullpath);
+    void SwitchScene(const char* fullpath);
     void SaveScene(const char* fullpath, unsigned int sceneid);
     void ExportBox2DScene(const char* fullpath, unsigned int sceneid);
     void UnloadScene(unsigned int sceneid, bool cleareditorobjects);

@@ -30,7 +30,7 @@ ComponentLuaScript::ComponentLuaScript()
 
     m_pScriptFile = 0;
 #if !MYFW_USING_WX
-    m_pLuaString_OnPlay = 0;
+    m_pLuaInlineScript_OnPlay = 0;
 #endif
 
     m_ExposedVars.AllocateObjects( MAX_EXPOSED_VARS ); // hard coded nonsense for now, max of 4 exposed vars in a script.
@@ -76,7 +76,7 @@ void ComponentLuaScript::RegisterVariables(CPPListHead* pList, ComponentLuaScrip
     pVar->AddCallback_OnRightClick( (CVarFunc_wxMenu)&ComponentLuaScript::OnRightClickCallback, (CVarFunc_Int)&ComponentLuaScript::OnPopupClickCallback );
 #endif
 
-    // m_pLuaString_OnPlay is not automatically saved/loaded
+    // m_pLuaInlineScript_OnPlay is not automatically saved/loaded
     pVar = AddVarPointer( pList, "OnPlay", false, true, 0, 
         (CVarFunc_GetPointerValue)&ComponentLuaScript::GetPointerValue, (CVarFunc_SetPointerValue)&ComponentLuaScript::SetPointerValue,
         (CVarFunc_GetPointerDesc)&ComponentLuaScript::GetPointerDesc, (CVarFunc_SetPointerDesc)&ComponentLuaScript::SetPointerDesc,
@@ -110,24 +110,37 @@ void ComponentLuaScript::Reset()
 
 void* ComponentLuaScript::GetPointerValue(ComponentVariable* pVar) //_VARIABLE_LIST
 {
+    //if( strcmp( pVar->m_Label, "OnPlay" ) == 0 )
+    //{
+    //}
+
     return 0;
 }
 
 void ComponentLuaScript::SetPointerValue(ComponentVariable* pVar, void* newvalue) //_VARIABLE_LIST
 {
+    //if( strcmp( pVar->m_Label, "OnPlay" ) == 0 )
+    //{
+    //}
 }
 
 const char* ComponentLuaScript::GetPointerDesc(ComponentVariable* pVar) //_VARIABLE_LIST
 {
+    if( strcmp( pVar->m_Label, "OnPlay" ) == 0 )
+    {
 #if MYFW_USING_WX
-    return m_pLuaString_OnPlay.c_str();
+        return m_pLuaInlineScript_OnPlay.c_str();
 #endif
+    }
 
     return "fix me";
 }
 
 void ComponentLuaScript::SetPointerDesc(ComponentVariable* pVar, const char* newdesc) //_VARIABLE_LIST
 {
+    //if( strcmp( pVar->m_Label, "OnPlay" ) == 0 )
+    //{
+    //}
 }
 
 #if MYFW_USING_WX
@@ -414,7 +427,7 @@ void* ComponentLuaScript::OnValueChanged(ComponentVariable* pVar, bool changedby
 
     if( strcmp( pVar->m_Label, "OnPlay" ) == 0 )
     {
-        m_pLuaString_OnPlay = g_pPanelWatch->GetVariableProperties( pVar->m_ControlID )->GetTextCtrl()->GetValue();
+        m_pLuaInlineScript_OnPlay = g_pPanelWatch->GetVariableProperties( pVar->m_ControlID )->GetTextCtrl()->GetValue();
     }
 
     return oldpointer;
@@ -1008,11 +1021,11 @@ cJSON* ComponentLuaScript::ExportAsJSONObject(bool savesceneid, bool saveid)
         cJSON_AddStringToObject( jComponent, "Script", m_pScriptFile->GetFullPath() );
 
 #if MYFW_USING_WX
-    m_pLuaString_OnPlay.Trim( false );
-    m_pLuaString_OnPlay.Trim( true );
-    if( m_pLuaString_OnPlay.Length() > 0 )
+    m_pLuaInlineScript_OnPlay.Trim( false );
+    m_pLuaInlineScript_OnPlay.Trim( true );
+    if( m_pLuaInlineScript_OnPlay.Length() > 0 )
     {
-        cJSON_AddStringToObject( jComponent, "LuaString_OnPlay", m_pLuaString_OnPlay.c_str() );
+        cJSON_AddStringToObject( jComponent, "LuaString_OnPlay", m_pLuaInlineScript_OnPlay.c_str() );
     }
 #endif
 
@@ -1080,10 +1093,10 @@ void ComponentLuaScript::ImportFromJSONObject(cJSON* jsonobj, unsigned int scene
     if( string_onplay )
     {
 #if MYFW_USING_WX
-        m_pLuaString_OnPlay = string_onplay->valuestring;
+        m_pLuaInlineScript_OnPlay = string_onplay->valuestring;
 #else
         assert( false ); // TODO: In stand-alone build, allocate memory and make a copy of the string.
-        m_pLuaString_OnPlay = 
+        m_pLuaInlineScript_OnPlay = 
 #endif
     }
 
@@ -1216,75 +1229,125 @@ void ComponentLuaScript::SetScriptFile(MyFileObject* script)
 
 void ComponentLuaScript::LoadScript()
 {
-    if( m_pScriptFile == 0 || m_ScriptLoaded == true )
+    if( m_ScriptLoaded == true )
         return;
 
     // Script is ready, so run it.
-    if( m_pScriptFile->GetFileLoadStatus() == FileLoadStatus_Success )
+    if( m_pScriptFile != 0 )
     {
-        LOGInfo( LOGTag, "luaL_loadstring: %s\n", m_pScriptFile->GetFilenameWithoutExtension() );
+        if( m_pScriptFile->GetFileLoadStatus() == FileLoadStatus_Success )
+        {
+            LOGInfo( LOGTag, "luaL_loadstring: %s\n", m_pScriptFile->GetFilenameWithoutExtension() );
 
-        // Mark script as loaded. "OnLoad" can be called if no errors occur otherwise m_ErrorInScript will be set as well.
-        m_ScriptLoaded = true;
+            // Mark script as loaded. "OnLoad" can be called if no errors occur otherwise m_ErrorInScript will be set as well.
+            m_ScriptLoaded = true;
 
-        // Load the string from the file.
-        int loadretcode = luaL_loadstring( m_pLuaGameState->m_pLuaState, m_pScriptFile->GetBuffer() );
-        //LOGInfo( LOGTag, "luaL_loadstring) %s last 3 bytes -> %d %d %d\n", m_pScriptFile->GetFullPath(), m_pScriptFile->GetBuffer()[m_pScriptFile->m_FileLength-2], m_pScriptFile->GetBuffer()[m_pScriptFile->m_FileLength-1], m_pScriptFile->GetBuffer()[m_pScriptFile->m_FileLength] );
+            // Load the string from the file.
+            int loadretcode = luaL_loadstring( m_pLuaGameState->m_pLuaState, m_pScriptFile->GetBuffer() );
+            //LOGInfo( LOGTag, "luaL_loadstring) %s last 3 bytes -> %d %d %d\n", m_pScriptFile->GetFullPath(), m_pScriptFile->GetBuffer()[m_pScriptFile->m_FileLength-2], m_pScriptFile->GetBuffer()[m_pScriptFile->m_FileLength-1], m_pScriptFile->GetBuffer()[m_pScriptFile->m_FileLength] );
+            if( loadretcode == LUA_OK )
+            {
+                // Run the code to do initial parsing.
+                int exeretcode = lua_pcall( m_pLuaGameState->m_pLuaState, 0, LUA_MULTRET, 0 );
+                if( exeretcode == LUA_OK )
+                {
+                    luabridge::LuaRef LuaObject = luabridge::getGlobal( m_pLuaGameState->m_pLuaState, m_pScriptFile->GetFilenameWithoutExtension() );
+
+                    if( LuaObject.isTable() )
+                    {
+                        // Create a table to store local variables unique to this component.
+                        char gameobjectname[100];
+                        sprintf_s( gameobjectname, 100, "_GameObject_%d_%d", m_pGameObject->GetSceneID(), m_pGameObject->GetID() );
+                        luabridge::LuaRef datatable = luabridge::getGlobal( m_pLuaGameState->m_pLuaState, gameobjectname );
+
+                        if( datatable.isTable() == false )
+                        {
+                            luabridge::LuaRef newdatatable = luabridge::newTable( m_pLuaGameState->m_pLuaState );
+                            luabridge::setGlobal( m_pLuaGameState->m_pLuaState, newdatatable, gameobjectname );
+                            newdatatable["gameobject"] = m_pGameObject;
+                        }
+
+                        ParseExterns( LuaObject );
+
+                        // Call the OnLoad function in the Lua script.
+                        CallFunctionEvenIfGameplayInactive( "OnLoad" );
+                    }
+                }
+                else
+                {
+                    if( exeretcode == LUA_ERRRUN )
+                    {
+                        const char* errorstr = lua_tostring( m_pLuaGameState->m_pLuaState, -1 );
+                        HandleLuaError( "LUA_ERRRUN", errorstr );
+                    }
+                    else
+                    {
+                        MyAssert( false ); // Assert until I hit this and deal with it better.
+                        const char* errorstr = lua_tostring( m_pLuaGameState->m_pLuaState, -1 );
+                        HandleLuaError( "!LUA_ERRRUN", errorstr );
+                    }
+                }
+            }
+            else
+            {
+                if( loadretcode == LUA_ERRSYNTAX )
+                {
+                    const char* errorstr = lua_tostring( m_pLuaGameState->m_pLuaState, -1 );
+                    HandleLuaError( "LUA_ERRSYNTAX", errorstr );
+                }
+                else
+                {
+                    MyAssert( false );
+                    const char* errorstr = lua_tostring( m_pLuaGameState->m_pLuaState, -1 );
+                    HandleLuaError( "!LUA_ERRSYNTAX", errorstr );
+                }
+            }
+        }
+    }
+}
+
+void ComponentLuaScript::LoadInLineScripts()
+{
+    // Add the OnPlay string to the lua state and parse it.
+#if MYFW_USING_WX
+    if( m_pLuaInlineScript_OnPlay.Length() > 0 )
+    {
+        const char* pScript = m_pLuaInlineScript_OnPlay.c_str();
+#else
+    if( m_pLuaInlineScript_OnPlay != 0 && m_pLuaInlineScript_OnPlay[0] != 0 )
+    {
+        const char* pScript = m_pLuaInlineScript_OnPlay;
+#endif
+
+        // Generate a unique name for an object/table the function can exist in.
+        char inlinescriptname[100];
+        sprintf_s( inlinescriptname, 100, "_InlineScript_GameObject_%d_%d", m_pGameObject->GetSceneID(), m_pGameObject->GetID() );
+
+        // Create a small lua script to create the object/table which will contain an OnPlay function.
+        char inlinescript[200];
+        sprintf_s( inlinescript, 200, "%s = { OnPlay = function() %s end }", inlinescriptname, pScript );
+
+        // Load the new script into the lua state.
+        int loadretcode = luaL_loadstring( m_pLuaGameState->m_pLuaState, inlinescript );
+
         if( loadretcode == LUA_OK )
         {
             // Run the code to do initial parsing.
             int exeretcode = lua_pcall( m_pLuaGameState->m_pLuaState, 0, LUA_MULTRET, 0 );
             if( exeretcode == LUA_OK )
             {
-                luabridge::LuaRef LuaObject = luabridge::getGlobal( m_pLuaGameState->m_pLuaState, m_pScriptFile->GetFilenameWithoutExtension() );
+                // Check if the _InlineScript_GameObject_X_X object exists, otherwise something went wrong.
+                luabridge::LuaRef LuaObject = luabridge::getGlobal( m_pLuaGameState->m_pLuaState, inlinescriptname );
 
-                if( LuaObject.isTable() )
+                if( LuaObject.isTable() == false )
                 {
-                    // Create a table to store local variables unique to this component.
-                    char gameobjectname[100];
-                    sprintf_s( gameobjectname, 100, "_GameObject_%d_%d", m_pGameObject->GetSceneID(), m_pGameObject->GetID() );
-                    luabridge::LuaRef datatable = luabridge::getGlobal( m_pLuaGameState->m_pLuaState, gameobjectname );
-
-                    if( datatable.isTable() == false )
-                    {
-                        luabridge::LuaRef newdatatable = luabridge::newTable( m_pLuaGameState->m_pLuaState );
-                        luabridge::setGlobal( m_pLuaGameState->m_pLuaState, newdatatable, gameobjectname );
-                        newdatatable["gameobject"] = m_pGameObject;
-                    }
-
-                    ParseExterns( LuaObject );
-
-                    // Call the OnLoad function in the Lua script.
-                    CallFunctionEvenIfGameplayInactive( "OnLoad" );
+                    LOGError( LOGTag, "Inline lua script failed to compile: %s", inlinescriptname );
                 }
-            }
-            else
-            {
-                if( exeretcode == LUA_ERRRUN )
+
+                if( LuaObject["OnPlay"].isFunction() == false )
                 {
-                    const char* errorstr = lua_tostring( m_pLuaGameState->m_pLuaState, -1 );
-                    HandleLuaError( "LUA_ERRRUN", errorstr );
+                    LOGError( LOGTag, "Inline lua script failed to compile: %s", inlinescriptname );
                 }
-                else
-                {
-                    MyAssert( false ); // Assert until I hit this and deal with it better.
-                    const char* errorstr = lua_tostring( m_pLuaGameState->m_pLuaState, -1 );
-                    HandleLuaError( "!LUA_ERRRUN", errorstr );
-                }
-            }
-        }
-        else
-        {
-            if( loadretcode == LUA_ERRSYNTAX )
-            {
-                const char* errorstr = lua_tostring( m_pLuaGameState->m_pLuaState, -1 );
-                HandleLuaError( "LUA_ERRSYNTAX", errorstr );
-            }
-            else
-            {
-                MyAssert( false );
-                const char* errorstr = lua_tostring( m_pLuaGameState->m_pLuaState, -1 );
-                HandleLuaError( "!LUA_ERRSYNTAX", errorstr );
             }
         }
     }
@@ -1466,12 +1529,38 @@ void ComponentLuaScript::OnPlay()
     if( m_ErrorInScript )
         return;
 
-    if( m_pScriptFile->GetFileLoadStatus() != FileLoadStatus_Success )
+    if( m_pScriptFile && m_pScriptFile->GetFileLoadStatus() != FileLoadStatus_Success )
     {
         LOGInfo( LOGTag, "Script warning: OnPlay, script not loaded: %s\n", m_pScriptFile->GetFilenameWithoutExtension() );
     }
 
     m_CallLuaOnPlayNextTickOrAfterScriptIsFinishedLoading = true;
+
+    LoadInLineScripts();
+
+    // Check for an inline OnPlay function and call it.
+    {
+        // Generate the name for the object/table that contains our inline scripts.
+        char inlinescriptname[100];
+        sprintf_s( inlinescriptname, 100, "_InlineScript_GameObject_%d_%d", m_pGameObject->GetSceneID(), m_pGameObject->GetID() );
+
+        luabridge::LuaRef LuaObject = luabridge::getGlobal( m_pLuaGameState->m_pLuaState, inlinescriptname );
+        
+        if( LuaObject.isTable() )
+        {
+            if( LuaObject["OnPlay"].isFunction() )
+            {
+                try
+                {
+                    LuaObject["OnPlay"]();
+                }
+                catch(luabridge::LuaException const& e)
+                {
+                    HandleLuaError( "OnPlay - inline", e.what() );
+                }
+            }
+        }
+    }
 }
 
 void ComponentLuaScript::OnStop()
@@ -1485,7 +1574,6 @@ void ComponentLuaScript::OnStop()
 
     m_ScriptLoaded = false;
     m_ErrorInScript = false;
-    //LoadScript();
     m_Playing = false;
 }
 
@@ -1576,25 +1664,28 @@ void ComponentLuaScript::TickCallback(double TimePassed)
         m_CallLuaOnPlayNextTickOrAfterScriptIsFinishedLoading = false;
 
         // find the OnPlay function and call it, look for a table that matched our filename.
-        luabridge::LuaRef LuaObject = luabridge::getGlobal( m_pLuaGameState->m_pLuaState, m_pScriptFile->GetFilenameWithoutExtension() );
-        
-        if( LuaObject.isNil() == false )
+        if( m_pScriptFile )
         {
-            if( LuaObject["OnPlay"].isFunction() )
+            luabridge::LuaRef LuaObject = luabridge::getGlobal( m_pLuaGameState->m_pLuaState, m_pScriptFile->GetFilenameWithoutExtension() );
+        
+            if( LuaObject.isNil() == false )
             {
-                // program the exposed variable values in the table, don't just set the table to be active.
-                ProgramVariables( LuaObject, true );
-                try
+                if( LuaObject["OnPlay"].isFunction() )
                 {
-                    LuaObject["OnPlay"]();
+                    // program the exposed variable values in the table, don't just set the table to be active.
+                    ProgramVariables( LuaObject, true );
+                    try
+                    {
+                        LuaObject["OnPlay"]();
+                    }
+                    catch(luabridge::LuaException const& e)
+                    {
+                        HandleLuaError( "OnPlay", e.what() );
+                    }
                 }
-                catch(luabridge::LuaException const& e)
-                {
-                    HandleLuaError( "OnPlay", e.what() );
-                }
-            }
 
-            m_Playing = true;
+                m_Playing = true;
+            }
         }
     }
 

@@ -93,9 +93,9 @@ protected:
 
     MyFileObject* m_pScriptFile;
 #if MYFW_USING_WX
-    wxString m_pLuaString_OnPlay;
+    wxString m_pLuaInlineScript_OnPlay;
 #else
-    const char* m_pLuaString_OnPlay; // If this isn't 0, this string will get run instead of the OnPlay function in the lua file.
+    const char* m_pLuaInlineScript_OnPlay; // If this isn't 0, this string will get run instead of the OnPlay function in the lua file.
 #endif
     MyList<ExposedVariableDesc*> m_ExposedVars;
 
@@ -119,6 +119,7 @@ public:
     MyFileObject* GetScriptFile() { return m_pScriptFile; }
     void SetScriptFile(MyFileObject* script);
     void LoadScript();
+    void LoadInLineScripts();
     void ParseExterns(luabridge::LuaRef LuaObject);
     void ProgramVariables(luabridge::LuaRef LuaObject, bool updateexposedvariables = false);
 

@@ -42,6 +42,7 @@ EngineCore::EngineCore()
     m_GameWidth = 0;
     m_GameHeight = 0;
 
+    m_UnloadAllScenesNextTick = false;
     m_SceneReloadRequested = false;
     for( int i=0; i<MAX_SCENE_FILES_QUEUED_UP; i++ )
     {
@@ -168,6 +169,7 @@ void EngineCore::LuaRegister(lua_State* luastate)
     luabridge::getGlobalNamespace( luastate )
         .beginClass<EngineCore>( "EngineCore" )
             .addFunction( "RequestScene", &EngineCore::RequestScene )
+            .addFunction( "SwitchScene", &EngineCore::SwitchScene )
             .addFunction( "ReloadScene", &EngineCore::ReloadScene )
             //.addFunction( "SetMousePosition", &EngineCore::SetMousePosition )
         .endClass();
@@ -343,17 +345,25 @@ double EngineCore::Tick(double TimePassed)
         g_pImGuiManager->StartTick( TimePassed );
     }
 
+    if( m_UnloadAllScenesNextTick )
+    {
+        UnloadScene( -1, true );
+        m_UnloadAllScenesNextTick = false;
+        return 0;
+    }
+
+    if( m_SceneReloadRequested )
+    {
+        ReloadSceneInternal( 1 );
+        m_SceneReloadRequested = false;
+        return 0;
+    }
+
 #if MYFW_USING_WX
     m_pCurrentEditorInterface->Tick( TimePassed );
 
     EngineMainFrame_DumpCachedMessagesToLogPane();
 #endif
-
-    if( m_SceneReloadRequested )
-    {
-        ReloadSceneInternal( 1 );
-        return 0;
-    }
 
     {
         static int numframes = 0;
@@ -1312,6 +1322,12 @@ RequestedSceneInfo* EngineCore::RequestSceneInternal(const char* fullpath)
     m_pSceneFilesLoading[i].m_SceneID = -1;
 
     return &m_pSceneFilesLoading[i];
+}
+
+void EngineCore::SwitchScene(const char* fullpath)
+{
+    m_UnloadAllScenesNextTick = true;
+    RequestSceneInternal( fullpath );
 }
 
 void EngineCore::SaveScene(const char* fullpath, unsigned int sceneid)
