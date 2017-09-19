@@ -227,8 +227,8 @@ public:
     void OnFileRenamed(const char* fullpathbefore, const char* fullpathafter);
 
     void OnLoad(unsigned int sceneid);
-    void OnPlay();
-    void OnStop();
+    void OnPlay(unsigned int sceneid);
+    void OnStop(unsigned int sceneid);
 
     bool OnEvent(MyEvent* pEvent);
 

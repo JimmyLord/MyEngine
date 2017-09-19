@@ -55,6 +55,10 @@ ComponentLuaScript::~ComponentLuaScript()
         delete pVariable;
     }
 
+#if !MYFW_USING_WX
+    delete[] m_pLuaInlineScript_OnPlay;
+#endif
+
     SAFE_RELEASE( m_pScriptFile );
 }
 
@@ -1095,8 +1099,11 @@ void ComponentLuaScript::ImportFromJSONObject(cJSON* jsonobj, unsigned int scene
 #if MYFW_USING_WX
         m_pLuaInlineScript_OnPlay = string_onplay->valuestring;
 #else
-        assert( false ); // TODO: In stand-alone build, allocate memory and make a copy of the string.
-        m_pLuaInlineScript_OnPlay = 
+        // In stand-alone build, allocate memory and make a copy of the string.
+        int len = strlen( string_onplay->valuestring );
+
+        m_pLuaInlineScript_OnPlay = MyNew char[len+1];
+        strcpy_s( m_pLuaInlineScript_OnPlay, len+1, string_onplay->valuestring );
 #endif
     }
 

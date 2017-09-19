@@ -95,7 +95,7 @@ protected:
 #if MYFW_USING_WX
     wxString m_pLuaInlineScript_OnPlay;
 #else
-    const char* m_pLuaInlineScript_OnPlay; // If this isn't 0, this string will get run instead of the OnPlay function in the lua file.
+    char* m_pLuaInlineScript_OnPlay; // If this isn't 0, this string will get run instead of the OnPlay function in the lua file.
 #endif
     MyList<ExposedVariableDesc*> m_ExposedVars;
 

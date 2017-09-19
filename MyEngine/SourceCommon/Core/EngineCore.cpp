@@ -1028,7 +1028,7 @@ void EngineCore::OnModePlay()
         m_EditorMode = false;
         m_Paused = false;
         g_pEngineMainFrame->SetWindowPerspectiveToDefault();
-        m_pComponentSystemManager->OnPlay();
+        m_pComponentSystemManager->OnPlay( -1 );
 
         RegisterGameplayButtons();
     }
@@ -1041,7 +1041,7 @@ void EngineCore::OnModeStop()
     if( m_EditorMode == false )
     {
         // Call OnStop() for all components.
-        m_pComponentSystemManager->OnStop();
+        m_pComponentSystemManager->OnStop( -1 );
 
         // Unload all runtime created objects.
         UnloadScene( 0, false );
@@ -1511,9 +1511,12 @@ void EngineCore::LoadSceneFromJSON(const char* scenename, const char* jsonstr, u
     // Tell all the cameras loaded in the scene the dimensions of the window. // TODO: move this into camera's onload.
     OnSurfaceChanged( (unsigned int)m_WindowStartX, (unsigned int)m_WindowStartY, (unsigned int)m_WindowWidth, (unsigned int)m_WindowHeight );
 
-    // Finish loading, calls onload and onplay.
+    // FinishLoading calls OnLoad and OnPlay for all components in scene.
 #if MYFW_USING_WX
-    g_pComponentSystemManager->FinishLoading( false, sceneid, m_AllowGameToRunInEditorMode );
+    if( m_EditorMode )
+        g_pComponentSystemManager->FinishLoading( false, sceneid, m_AllowGameToRunInEditorMode );
+    else
+        g_pComponentSystemManager->FinishLoading( false, sceneid, true );
 #else
     g_pComponentSystemManager->FinishLoading( false, sceneid, true );
 #endif

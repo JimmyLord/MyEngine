@@ -1316,7 +1316,7 @@ void ComponentSystemManager::FinishLoading(bool lockwhileloading, unsigned int s
     if( playwhenfinishedloading )
     {
         g_pEngineCore->RegisterGameplayButtons();
-        OnPlay();
+        OnPlay( sceneid );
         m_StartGamePlayWhenDoneLoading = false;
     }
 }
@@ -2745,13 +2745,16 @@ void ComponentSystemManager::OnLoad(unsigned int sceneid)
         for( CPPListNode* node = m_Components[i].GetHead(); node != 0; node = node->GetNext() )
         {
             ComponentBase* pComponent = (ComponentBase*)node;
-            if( pComponent->GetSceneID() == sceneid )
-                pComponent->OnLoad();
+            
+            if( sceneid != -1 && pComponent->GetSceneID() != sceneid )
+                continue;
+
+            pComponent->OnLoad();
         }
     }
 }
 
-void ComponentSystemManager::OnPlay()
+void ComponentSystemManager::OnPlay(unsigned int sceneid)
 {
     // TODO: find a better solution than 2 passes, sort the OnPlay callback lists(once OnPlay is a callback of course...)
 
@@ -2763,6 +2766,9 @@ void ComponentSystemManager::OnPlay()
             ComponentBase* pComponent = (ComponentBase*)node;
 
             //MyAssert( pComponent->IsEnabled() == true );
+
+            if( sceneid != -1 && pComponent->GetSceneID() != sceneid )
+                continue;
 
             if( pComponent->m_pGameObject->IsEnabled() == true )
             {
@@ -2780,7 +2786,10 @@ void ComponentSystemManager::OnPlay()
             ComponentBase* pComponent = (ComponentBase*)node;
 
             //MyAssert( pComponent->IsEnabled() == true );
-        
+
+            if( sceneid != -1 && pComponent->GetSceneID() != sceneid )
+                continue;
+
             if( pComponent->m_pGameObject->IsEnabled() == true )
             {
                 if( pComponent->IsA( "2DJoint-" ) == true )
@@ -2790,7 +2799,7 @@ void ComponentSystemManager::OnPlay()
     }
 }
 
-void ComponentSystemManager::OnStop()
+void ComponentSystemManager::OnStop(unsigned int sceneid)
 {
     SetTimeScale( 1 );
 #if MYFW_USING_WX
@@ -2802,6 +2811,10 @@ void ComponentSystemManager::OnStop()
         for( CPPListNode* node = m_Components[i].GetHead(); node != 0; node = node->GetNext() )
         {
             ComponentBase* pComponent = (ComponentBase*)node;
+
+            if( sceneid != -1 && pComponent->GetSceneID() != sceneid )
+                continue;
+
             pComponent->OnStop();
         }
     }
