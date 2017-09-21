@@ -2577,12 +2577,12 @@ GameObject* ComponentSystemManager::ParseLog_GameObject(const char* line)
         if( pos2 )
         {
             isgameobject = true;
-            pos = pos2 - line + strlen("(GameObject) ");
+            pos = (int)(pos2 - line) + (int)strlen("(GameObject) ");
         }
         else if( pos3 )
         {
             isprefab = true;
-            pos = pos3 - line + strlen("(Prefab) ");
+            pos = (int)(pos3 - line) + (int)strlen("(Prefab) ");
         }
         else
         {
@@ -2595,7 +2595,7 @@ GameObject* ComponentSystemManager::ParseLog_GameObject(const char* line)
         const char* pos2 = strstr( &line[pos], " :: " );
         if( pos2 == 0 ) return 0;
         strncpy_s( scenename, 100, &line[pos], pos2 - &line[pos] );
-        pos += pos2 - &line[pos] + strlen(" :: ");
+        pos += (int)(pos2 - &line[pos]) + (int)strlen(" :: ");
     }
 
     // Grab the GameObject name (can contain spaces)
@@ -2603,7 +2603,7 @@ GameObject* ComponentSystemManager::ParseLog_GameObject(const char* line)
         const char* pos2 = strstr( &line[pos], " :: " );
         if( pos2 == 0 ) return 0;
         strncpy_s( gameobjectname, 100, &line[pos], pos2 - &line[pos] );
-        pos += pos2 - &line[pos] + strlen(" :: ");
+        pos += (int)(pos2 - &line[pos]) + (int)strlen(" :: ");
     }
 
     // Grab the Component name (won't contain spaces)
@@ -2655,7 +2655,7 @@ MaterialDefinition* ComponentSystemManager::ParseLog_Material(const char* line)
     {
         const char* pos2 = strstr( line, "(Material) " );
         if( pos2 == 0 ) return 0;
-        pos = pos2 - line + strlen("(Material) ");
+        pos = (int)(pos2 - line) + (int)strlen("(Material) ");
     }
 
     // Grab the Material filename (can contain spaces)

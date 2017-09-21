@@ -1268,7 +1268,7 @@ EditorCommand_ReorderOrReparentGameObjects::~EditorCommand_ReorderOrReparentGame
 void EditorCommand_ReorderOrReparentGameObjects::Do()
 {
     // Move/Reparent all of the selected items.
-    for( int i=m_SelectedObjects.size()-1; i>=0; i-- )
+    for( int i=(int)m_SelectedObjects.size()-1; i>=0; i-- )
     {
         GameObject* pGameObject = (GameObject*)m_SelectedObjects[i];
 

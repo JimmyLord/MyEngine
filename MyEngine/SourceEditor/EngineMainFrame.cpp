@@ -261,7 +261,7 @@ void EngineMainFrame::InitFrame()
                 cJSON* layout = cJSON_GetObjectItem( m_pEditorPrefs, name );
                 if( layout )
                 {
-                    int len = strlen( layout->valuestring );
+                    int len = (int)strlen( layout->valuestring );
                     g_SavedPerspectives[i] = MyNew char[len+1];
                     strcpy_s( g_SavedPerspectives[i], len+1, layout->valuestring );
                 }
@@ -942,7 +942,7 @@ void EngineMainFrame::OnMenu_Engine(wxCommandEvent& event)
                 delete[] g_SavedPerspectives[currentperspective];
 
             wxString wxPerspective = m_AUIManager.SavePerspective();
-            int len = wxPerspective.Length();
+            int len = (int)wxPerspective.Length();
             g_SavedPerspectives[currentperspective] = MyNew char[len+1];
             strcpy_s( g_SavedPerspectives[currentperspective], len+1, wxPerspective.c_str() );
         }

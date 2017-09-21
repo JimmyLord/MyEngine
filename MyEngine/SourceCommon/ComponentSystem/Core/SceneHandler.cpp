@@ -18,7 +18,7 @@ void SceneInfo::ChangePath(const char* newfullpath)
     {
         const char* filenamestart;
         int i;
-        for( i=strlen(newfullpath)-1; i>=0; i-- )
+        for( i=(int)strlen(newfullpath)-1; i>=0; i-- )
         {
             if( newfullpath[i] == '\\' || newfullpath[i] == '/' )
                 break;

@@ -298,9 +298,9 @@ cJSON* Component2DCollisionObject::ExportAsJSONObject(bool savesceneid, bool sav
     cJSON* jComponent = ComponentBase::ExportAsJSONObject( savesceneid, saveid );
 
 #if MYFW_USING_WX
-    int count = m_Vertices.size();
+    int count = (int)m_Vertices.size();
 #else
-    int count = m_Vertices.Count();
+    int count = (int)m_Vertices.Count();
 #endif
 
     if( count > 0 )
@@ -558,7 +558,7 @@ void Component2DCollisionObject::CreateBody()
                 b2ChainShape chainshape;
 
 #if MYFW_USING_WX
-                int count = m_Vertices.size();
+                int count = (int)m_Vertices.size();
 
                 if( count == 0 )
                 {
@@ -672,7 +672,7 @@ void Component2DCollisionObject::DrawCallback(ComponentCamera* pCamera, MyMatrix
         //glDisable( GL_CULL_FACE );
         //glDisable( GL_DEPTH_TEST );
 
-        MyDrawArrays( GL_LINE_STRIP, 0, m_Vertices.size() );
+        MyDrawArrays( GL_LINE_STRIP, 0, (int)m_Vertices.size() );
 
         glLineWidth( 1 );
 

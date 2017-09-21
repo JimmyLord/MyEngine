@@ -1100,7 +1100,7 @@ void ComponentLuaScript::ImportFromJSONObject(cJSON* jsonobj, unsigned int scene
         m_pLuaInlineScript_OnPlay = string_onplay->valuestring;
 #else
         // In stand-alone build, allocate memory and make a copy of the string.
-        int len = strlen( string_onplay->valuestring );
+        int len = (int)strlen( string_onplay->valuestring );
 
         m_pLuaInlineScript_OnPlay = MyNew char[len+1];
         strcpy_s( m_pLuaInlineScript_OnPlay, len+1, string_onplay->valuestring );

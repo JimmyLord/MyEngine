@@ -437,7 +437,7 @@ PrefabManager::~PrefabManager()
 
 unsigned int PrefabManager::GetNumberOfFiles()
 {
-    return m_pPrefabFiles.size();
+    return (unsigned int)m_pPrefabFiles.size();
 }
 
 void PrefabManager::SetNumberOfFiles(unsigned int numfiles)
@@ -456,7 +456,7 @@ PrefabFile* PrefabManager::GetLoadedPrefabFileByIndex(unsigned int fileindex)
 
 PrefabFile* PrefabManager::GetLoadedPrefabFileByFullPath(const char* fullpath)
 {
-    unsigned int numprefabfiles = m_pPrefabFiles.size();
+    unsigned int numprefabfiles = (unsigned int)m_pPrefabFiles.size();
 
     for( unsigned int i=0; i<numprefabfiles; i++ )
     {
@@ -488,7 +488,7 @@ PrefabFile* PrefabManager::RequestFile(const char* prefabfilename)
 
 void PrefabManager::UnloadAllPrefabFiles()
 {
-    unsigned int numprefabfiles = m_pPrefabFiles.size();
+    unsigned int numprefabfiles = (unsigned int)m_pPrefabFiles.size();
 
     while( m_pPrefabFiles.size() )
     {
@@ -594,7 +594,7 @@ bool PrefabManager::CreateOrLoadFile()
 
 void PrefabManager::SaveAllPrefabs(bool saveunchanged)
 {
-    unsigned int numprefabfiles = m_pPrefabFiles.size();
+    unsigned int numprefabfiles = (unsigned int)m_pPrefabFiles.size();
 
     for( unsigned int i=0; i<numprefabfiles; i++ )
     {

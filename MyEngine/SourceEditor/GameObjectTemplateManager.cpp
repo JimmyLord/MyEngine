@@ -50,7 +50,7 @@ void GameObjectTemplateManager::AddTemplatesToVector(cJSON* jTemplateArray)
 
 unsigned int GameObjectTemplateManager::GetNumberOfTemplates()
 {
-    return m_jTemplates.size();
+    return (unsigned int)m_jTemplates.size();
 }
 
 bool GameObjectTemplateManager::IsTemplateAFolder(unsigned int templateid)

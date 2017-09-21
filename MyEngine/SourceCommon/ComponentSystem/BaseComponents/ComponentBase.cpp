@@ -1020,7 +1020,7 @@ bool ComponentBase::DoesVariableMatchParent(ComponentVariable* pVar, int control
 
         if( strcmp( pThisCompClassName, pOtherCompClassName ) == 0 )
         {
-            int offset = pVar->m_Offset;
+            size_t offset = pVar->m_Offset;
 
             switch( pVar->m_Type )
             {
@@ -1127,7 +1127,7 @@ void ComponentBase::SyncVariable(ComponentBase* pChildComponent, ComponentVariab
     case ComponentVariableType_Int:
     case ComponentVariableType_Enum:
         {
-            int offset = pVar->m_Offset;
+            size_t offset = pVar->m_Offset;
 
             double oldvalue = *(int*)((char*)pChildComponent + offset);
 
@@ -1146,7 +1146,7 @@ void ComponentBase::SyncVariable(ComponentBase* pChildComponent, ComponentVariab
     case ComponentVariableType_UnsignedInt:
     case ComponentVariableType_Flags:
         {
-            int offset = pVar->m_Offset;
+            size_t offset = pVar->m_Offset;
 
             double oldvalue = *(unsigned int*)((char*)pChildComponent + offset);
 
@@ -1167,7 +1167,7 @@ void ComponentBase::SyncVariable(ComponentBase* pChildComponent, ComponentVariab
 
     case ComponentVariableType_Bool:
         {
-            int offset = pVar->m_Offset;
+            size_t offset = pVar->m_Offset;
 
             double oldvalue = *(bool*)((char*)pChildComponent + offset);
 
@@ -1185,7 +1185,7 @@ void ComponentBase::SyncVariable(ComponentBase* pChildComponent, ComponentVariab
 
     case ComponentVariableType_Float:
         {
-            int offset = pVar->m_Offset;
+            size_t offset = pVar->m_Offset;
             
             double oldvalue = *(float*)((char*)pChildComponent + offset);
 
@@ -1207,7 +1207,7 @@ void ComponentBase::SyncVariable(ComponentBase* pChildComponent, ComponentVariab
     case ComponentVariableType_ColorByte:
         for( int component = 0; component < 4; component++ )
         {
-            int offset = pVar->m_Offset + sizeof(unsigned char)*component;
+            size_t offset = pVar->m_Offset + sizeof(unsigned char)*component;
 
             double oldvalue = *(unsigned char*)((char*)pChildComponent + offset);
 
@@ -1230,7 +1230,7 @@ void ComponentBase::SyncVariable(ComponentBase* pChildComponent, ComponentVariab
             if( pVar->m_Type == ComponentVariableType_Vector2 && component >= 2 )
                 continue;
 
-            int offset = pVar->m_Offset + component*4;
+            size_t offset = pVar->m_Offset + component*4;
 
             double oldvalue = *(float*)((char*)pChildComponent + offset);
 
@@ -1253,7 +1253,7 @@ void ComponentBase::SyncVariable(ComponentBase* pChildComponent, ComponentVariab
             if( pVar->m_Type == ComponentVariableType_Vector2 && component >= 2 )
                 continue;
 
-            int offset = pVar->m_Offset + component*4;
+            size_t offset = pVar->m_Offset + component*4;
             
             double oldvalue = *(int*)((char*)pChildComponent + offset);
 
@@ -1278,7 +1278,7 @@ void ComponentBase::SyncVariable(ComponentBase* pChildComponent, ComponentVariab
     case ComponentVariableType_MaterialPtr:
     case ComponentVariableType_SoundCuePtr:
         {
-            int offset = pVar->m_Offset;
+            size_t offset = pVar->m_Offset;
 
             // call the callback function (which will copy the value) and update children.
             MyAssert( pVar->m_pOnValueChangedCallbackFunc );
@@ -1582,7 +1582,7 @@ void ComponentBaseEventHandlerForComponentVariables::OnPopupClick(wxEvent &evt)
 
 void ComponentBase::CopyValueFromOtherComponentWithUndo(ComponentVariable* pVar, ComponentBase* pOtherComponent)
 {
-    int offset = pVar->m_Offset;
+    size_t offset = pVar->m_Offset;
 
     switch( pVar->m_Type )
     {
@@ -1670,9 +1670,8 @@ void ComponentBase::CopyValueFromOtherComponentWithUndo(ComponentVariable* pVar,
 
             // store the old color in a local var.
             // send the pointer to that var via callback in the double.
-            // TODO: make 64-bit friendly, along with potentially a lot of other things.
             double oldvalue;
-            *(int*)&oldvalue = (long)&oldcolor;
+            *(uintptr_t*)&oldvalue = (uintptr_t)&oldcolor;
 
             // notify component and it's children that the value changed.
             OnValueChangedVariable( pVar->m_ControlID, false, true, oldvalue, 0 );
@@ -1951,7 +1950,7 @@ void ComponentBase::UpdateOtherComponentWithNewValue(ComponentBase* pComponent, 
 
         if( fromdraganddrop == false )
         {
-            int offset = pVar->m_Offset;
+            size_t offset = pVar->m_Offset;
 
             // copy the value, call the callback function and update children.
             *(int*)((char*)pChildComponent + offset) = *(int*)((char*)this + offset);
@@ -1968,7 +1967,7 @@ void ComponentBase::UpdateOtherComponentWithNewValue(ComponentBase* pComponent, 
 
         if( fromdraganddrop == false )
         {
-            int offset = pVar->m_Offset;
+            size_t offset = pVar->m_Offset;
 
             // copy the value, call the callback function and update children.
             *(unsigned int*)((char*)pChildComponent + offset) = *(unsigned int*)((char*)this + offset);
@@ -1987,7 +1986,7 @@ void ComponentBase::UpdateOtherComponentWithNewValue(ComponentBase* pComponent, 
 
         if( fromdraganddrop == false )
         {
-            int offset = pVar->m_Offset;
+            size_t offset = pVar->m_Offset;
 
             // copy the value, call the callback function and update children.
             *(bool*)((char*)pChildComponent + offset) = *(bool*)((char*)this + offset);
@@ -2003,7 +2002,7 @@ void ComponentBase::UpdateOtherComponentWithNewValue(ComponentBase* pComponent, 
 
         if( fromdraganddrop == false )
         {
-            int offset = pVar->m_Offset;
+            size_t offset = pVar->m_Offset;
             
             // copy the value, call the callback function and update children.
             *(float*)((char*)pChildComponent + offset) = *(float*)((char*)this + offset);
@@ -2026,7 +2025,8 @@ void ComponentBase::UpdateOtherComponentWithNewValue(ComponentBase* pComponent, 
             {
                 if( oldvalue != 0 )
                 {
-                    int offset = pVar->m_Offset;
+                    size_t offset = pVar->m_Offset;
+
                     ColorByte* oldcolor = (ColorByte*)*(long*)&oldvalue;
                     ColorByte* childcolor = (ColorByte*)((char*)pChildComponent + offset);
                     
@@ -2041,7 +2041,7 @@ void ComponentBase::UpdateOtherComponentWithNewValue(ComponentBase* pComponent, 
             {
                 MyAssert( controlcomponent == 1 ); // alpha control is next to the color picker box
 
-                int offset = pVar->m_Offset + sizeof(unsigned char)*3; // offset of the alpha in ColorByte
+                size_t offset = pVar->m_Offset + sizeof(unsigned char)*3; // offset of the alpha in ColorByte
 
                 *(unsigned char*)((char*)pChildComponent + offset) = *(unsigned char*)((char*)this + offset);
                 if( pVar->m_pOnValueChangedCallbackFunc )
@@ -2058,7 +2058,7 @@ void ComponentBase::UpdateOtherComponentWithNewValue(ComponentBase* pComponent, 
 
         if( fromdraganddrop == false )
         {
-            int offset = pVar->m_Offset + controlcomponent*4;
+            size_t offset = pVar->m_Offset + controlcomponent*4;
 
             // copy the value, call the callback function and update children.
             *(float*)((char*)pChildComponent + offset) = *(float*)((char*)this + offset);
@@ -2075,7 +2075,7 @@ void ComponentBase::UpdateOtherComponentWithNewValue(ComponentBase* pComponent, 
 
         if( fromdraganddrop == false )
         {
-            int offset = pVar->m_Offset + controlcomponent*4;
+            size_t offset = pVar->m_Offset + controlcomponent*4;
             
             // copy the value, call the callback function and update children.
             *(int*)((char*)pChildComponent + offset) = *(int*)((char*)this + offset);
@@ -2097,7 +2097,7 @@ void ComponentBase::UpdateOtherComponentWithNewValue(ComponentBase* pComponent, 
         {
             if( fromdraganddrop )
             {
-                int offset = pVar->m_Offset;
+                size_t offset = pVar->m_Offset;
 
                 // OnDropCallback will grab the new value from g_DragAndDropStruct
                 MyAssert( pVar->m_pOnDropCallbackFunc );
@@ -2115,7 +2115,7 @@ void ComponentBase::UpdateOtherComponentWithNewValue(ComponentBase* pComponent, 
             }
             else
             {
-                int offset = pVar->m_Offset;
+                size_t offset = pVar->m_Offset;
                 
                 // call the callback function and update children.
                 MyAssert( pVar->m_pOnValueChangedCallbackFunc );
@@ -2137,7 +2137,7 @@ void ComponentBase::UpdateOtherComponentWithNewValue(ComponentBase* pComponent, 
         {
             if( fromdraganddrop )
             {
-                int offset = pVar->m_Offset;
+                size_t offset = pVar->m_Offset;
 
                 // OnDropCallback will grab the new value from g_DragAndDropStruct
                 MyAssert( pVar->m_pOnDropCallbackFunc );

@@ -91,7 +91,7 @@ public:
     float m_DebugFPS;
     int m_LuaMemoryUsedLastFrame;
     int m_LuaMemoryUsedThisFrame;
-    unsigned int m_TotalMemoryAllocatedLastFrame;
+    size_t m_TotalMemoryAllocatedLastFrame;
     unsigned int m_SingleFrameStackSizeLastFrame;
     unsigned int m_SingleFrameStackSizeThisFrame;
 

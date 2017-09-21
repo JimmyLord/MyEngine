@@ -207,7 +207,7 @@ void EngineCore::InitializeGameObjectFlagStrings(cJSON* jStringsArray)
         
         for( int i=0; i<32; i++ )
         {
-            int len = strlen( strings[i] ) + 1;
+            int len = (int)strlen( strings[i] ) + 1;
             m_GameObjectFlagStrings[i] = new char[len];
             strcpy_s( m_GameObjectFlagStrings[i], len, strings[i] );
         }
@@ -226,7 +226,7 @@ void EngineCore::InitializeGameObjectFlagStrings(cJSON* jStringsArray)
         {
             cJSON* jGameObjectFlagsString = cJSON_GetArrayItem( jStringsArray, i );
             
-            int len = strlen( jGameObjectFlagsString->valuestring ) + 1;
+            int len = (int)strlen( jGameObjectFlagsString->valuestring ) + 1;
             m_GameObjectFlagStrings[i] = new char[len];
             strcpy_s( m_GameObjectFlagStrings[i], len, jGameObjectFlagsString->valuestring );
         }
@@ -651,12 +651,12 @@ void EngineCore::OnDrawFrame(unsigned int canvasid)
 #if MYFW_WINDOWS
         // Draw Main ram memory usage.
         {
-            unsigned int bytesused = MyMemory_GetNumberOfBytesAllocated();
-            int megs = bytesused/1000000;
-            int kilos = (bytesused - megs*1000000)/1000;
+            size_t bytesused = MyMemory_GetNumberOfBytesAllocated();
+            int megs = (int)(bytesused/1000000);
+            int kilos = (int)((bytesused - megs*1000000)/1000);
             int bytes = bytesused%1000;
 
-            int change = bytesused - m_TotalMemoryAllocatedLastFrame;
+            int change = (int)(bytesused - m_TotalMemoryAllocatedLastFrame);
 
             if( megs == 0 )
             {
@@ -1420,7 +1420,7 @@ unsigned int EngineCore::LoadSceneFromFile(const char* fullpath)
 
             const char* filenamestart;
             int i;
-            for( i=strlen(fullpath)-1; i>=0; i-- )
+            for( i=(int)strlen(fullpath)-1; i>=0; i-- )
             {
                 if( fullpath[i] == '\\' || fullpath[i] == '/' )
                     break;
@@ -1845,7 +1845,7 @@ void EngineCore::OnObjectListTreeMultipleSelection() //StaticOnObjectListTreeMul
 
             if( allgameobjectshavecomponent == true )
             {
-                pComponentToLookFor->OnLeftClick( m_pEditorState->m_pSelectedObjects.size(), false );
+                pComponentToLookFor->OnLeftClick( (unsigned int)m_pEditorState->m_pSelectedObjects.size(), false );
             }
         }
     }
