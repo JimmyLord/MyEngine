@@ -1046,10 +1046,10 @@ void EngineCore::OnModeStop()
         // Unload all runtime created objects.
         UnloadScene( 0, false );
 
-        Editor_QuickLoadScene( "temp_editor_onplay.scene" );
-
         m_EditorMode = true;
         m_Paused = false;
+
+        Editor_QuickLoadScene( "temp_editor_onplay.scene" );
 
         g_pEngineMainFrame->SetWindowPerspectiveToDefault();
         m_pEditorState->ClearKeyAndActionStates();

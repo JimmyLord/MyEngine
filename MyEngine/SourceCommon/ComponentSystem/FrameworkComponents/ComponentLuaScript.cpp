@@ -267,7 +267,9 @@ void ComponentLuaScript::OnFileUpdated(MyFileObject* pFile)
         m_ErrorInScript = false;
 
         if( m_Playing )
+        {
             m_CallLuaOnPlayNextTickOrAfterScriptIsFinishedLoading = true;
+        }
     }
 }
 
