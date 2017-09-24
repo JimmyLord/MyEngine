@@ -297,13 +297,15 @@ bool EditorInterface::HandleInputForEditorCamera(int keyaction, int keycode, int
 {
     EditorState* pEditorState = g_pEngineCore->m_pEditorState;
 
+    ComponentCamera* pCamera = pEditorState->GetEditorCamera();
+    MyMatrix StartCamTransform = *pCamera->m_pComponentTransform->GetLocalTransform( false );
+
     // if mouse message. down, up, dragging or wheel.
     if( mouseaction != -1 )
     {
         unsigned int mods = pEditorState->m_ModifierKeyStates;
 
         // get the editor camera's local transform.
-        ComponentCamera* pCamera = pEditorState->GetEditorCamera();
         MyMatrix* matCamera = pCamera->m_pComponentTransform->GetLocalTransform( true );
 
         // move camera in/out if mousewheel spinning
@@ -450,7 +452,6 @@ bool EditorInterface::HandleInputForEditorCamera(int keyaction, int keycode, int
     if( keyaction == GCBA_Held )
     {
         // get the editor camera's local transform.
-        ComponentCamera* pCamera = pEditorState->GetEditorCamera();
         MyMatrix* matCamera = pCamera->m_pComponentTransform->GetLocalTransform( true );
 
         // WASD to move camera
@@ -471,6 +472,19 @@ bool EditorInterface::HandleInputForEditorCamera(int keyaction, int keycode, int
 
         pCamera->m_pComponentTransform->UpdateLocalSRT();
         pCamera->m_pComponentTransform->UpdateTransform();
+    }
+
+    // If the camera is locked to an object,
+    //     apply any changes we made to the editor camera to the offset from the locked object.
+    if( pEditorState->m_CameraState == EditorCameraState_LockedToObject )
+    {
+        MyMatrix EndCamTransform = *pCamera->m_pComponentTransform->GetLocalTransform( false );
+        MyMatrix StartCamInverseTransform = StartCamTransform.GetInverse();
+
+        MyMatrix ChangeInCamTransform = StartCamInverseTransform * EndCamTransform;
+        MyMatrix newtransform = pEditorState->m_OffsetFromObject * ChangeInCamTransform;
+
+        pEditorState->m_OffsetFromObject = newtransform;
     }
 
     return false;

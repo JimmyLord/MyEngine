@@ -466,6 +466,7 @@ void EngineMainFrame::AddPanes()
     {
         int args[] = { WX_GL_RGBA, WX_GL_DOUBLEBUFFER, WX_GL_DEPTH_SIZE, 16, 0 };
         m_pGLCanvasEditor = MyNew MainGLCanvas( (wxFrame*)this, args, 1, false );
+        m_pGLCanvasEditor->RequestRawMouseAccess();
         m_pGLCanvasEditor->SetSize( 600, 600 );
 
         PanelWatchDropTarget* pDropTarget = MyNew PanelWatchDropTarget;
