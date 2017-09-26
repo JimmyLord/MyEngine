@@ -195,7 +195,7 @@ cJSON* ComponentAudioPlayer::ExportAsJSONObject(bool savesceneid, bool saveid)
     {
         if( m_pSoundCue )
         {
-            MyAssert( strcmp( m_SoundCueName, m_pSoundCue->m_Name ) == 0 );
+            MyAssert( strcmp( m_SoundCueName, m_pSoundCue->GetName() ) == 0 );
         }
 
         cJSON_AddStringToObject( jComponent, "Cue", m_SoundCueName );
@@ -328,7 +328,7 @@ void ComponentAudioPlayer::SetSoundCue(SoundCue* pCue)
     {
         m_pSoundCue = pCue;
 
-        strcpy_s( m_SoundCueName, MAX_SOUND_CUE_NAME_LEN, pCue->m_Name );
+        strcpy_s( m_SoundCueName, MAX_SOUND_CUE_NAME_LEN, pCue->GetName() );
     }
     else
     {

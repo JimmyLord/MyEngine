@@ -568,7 +568,7 @@ void ComponentBase::AddVariableToPropertiesWindow(ComponentVariable* pVar)
 
                 const char* desc = "no sound cue";
                 if( pCue != 0 )
-                    desc = pCue->m_Name;
+                    desc = pCue->GetName();
 
                 pVar->m_ControlID = g_pPanelWatch->AddPointerWithDescription( pVar->m_WatchLabel, pCue, desc, this, ComponentBase::StaticOnDropVariable, ComponentBase::StaticOnValueChangedVariable, ComponentBase::StaticOnRightClickVariable );
             }
@@ -2205,7 +2205,7 @@ bool ComponentBase::IsReferencingFile(MyFileObject* pFile)
         else if( pVar->m_Type == ComponentVariableType_SoundCuePtr )
         {
             SoundCue* pSoundCue = (SoundCue*)(*(void**)((char*)this + pVar->m_Offset));
-            if( pSoundCue && pSoundCue->m_pFile == pFile )
+            if( pSoundCue && pSoundCue->GetFile() == pFile )
                 return true;
         }
         else if( pVar->m_Type == ComponentVariableType_PointerIndirect )

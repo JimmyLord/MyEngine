@@ -327,12 +327,12 @@ void ComponentSystemManager::OnSoundCueCreated(SoundCue* pSoundCue)
         pSoundCue->AddRef();
     }
 
-    // if this material doesn't have a file and it has a name, then save it.
-    if( pSoundCue && pSoundCue->m_pFile )
+    // If this sound cue doesn't have a file and it has a name, then save it.
+    if( pSoundCue && pSoundCue->GetFile() )
     {
-        // Add the material to the file list, so it can be freed on shutdown.
-        AddToFileList( pSoundCue->m_pFile, 0, 0, 0, 0, pSoundCue, 0, 1 );
-        pSoundCue->m_pFile->AddRef();
+        // Add the sound cue to the file list, so it can be freed on shutdown.
+        AddToFileList( pSoundCue->GetFile(), 0, 0, 0, 0, pSoundCue, 0, 1 );
+        pSoundCue->GetFile()->AddRef();
     }
 }
 
@@ -393,7 +393,7 @@ void ComponentSystemManager::OnFileUnloaded(MyFileObject* pFile) // StaticOnFile
                 || (pFileInfo->m_pShaderGroup   && pFileInfo->m_pShaderGroup->GetFile()     == pFile)
                 || (pFileInfo->m_pTexture       && pFileInfo->m_pTexture->m_pFile           == pFile)
                 || (pFileInfo->m_pMaterial      && pFileInfo->m_pMaterial->GetFile()        == pFile)
-                || (pFileInfo->m_pSoundCue      && pFileInfo->m_pSoundCue->m_pFile          == pFile)
+                || (pFileInfo->m_pSoundCue      && pFileInfo->m_pSoundCue->GetFile()        == pFile)
                 || (pFileInfo->m_pSpriteSheet   && pFileInfo->m_pSpriteSheet->GetJSONFile() == pFile)
                 || (pFileInfo->m_pPrefabFile    && pFileInfo->m_pPrefabFile->GetFile()      == pFile)
               )
@@ -816,7 +816,7 @@ MyFileObject* ComponentSystemManager::LoadDataFile(const char* relativepath, uns
             pCue->SaveSoundCue( 0 );
 
             pFileInfo->m_pSoundCue = pCue;
-            pFileInfo->m_pFile = pCue->m_pFile;
+            pFileInfo->m_pFile = pCue->GetFile();
             pFileInfo->m_pFile->AddRef();
             //strcpy_s( pFileInfo->m_SourceFileFullPath, MAX_PATH, relativepath );
 #endif //!MYFW_USING_WX
