@@ -111,6 +111,8 @@ ComponentCamera* EditorState::GetEditorCamera()
 
 void EditorState::ClearEditorState(bool clearselectedobjectandcomponents)
 {
+    m_pGameObjectCameraIsFollowing = 0;
+
     if( clearselectedobjectandcomponents )
     {
         m_pSelectedObjects.clear();

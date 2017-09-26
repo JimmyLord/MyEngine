@@ -913,7 +913,11 @@ void EngineMainFrame::OnMenu_Engine(wxCommandEvent& event)
         break;
 
     case myIDEngine_Mode_LaunchGame:
+#if _WIN64
+        LaunchApplication( "MyEngine_Game_x64.exe", g_pComponentSystemManager->GetSceneInfo( 1 )->m_FullPath );
+#else
         LaunchApplication( "MyEngine_Game.exe", g_pComponentSystemManager->GetSceneInfo( 1 )->m_FullPath );
+#endif
         break;
 
     case myIDEngine_RecordMacro:
