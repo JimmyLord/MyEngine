@@ -882,7 +882,19 @@ void GameObject::SetManaged(bool managed)
     {
         if( g_pPanelObjectList )
         {
-            g_pPanelObjectList->RemoveObject( m_pComponentTransform );
+            // Remove transform component from object list.
+            if( m_pComponentTransform )
+            {
+                g_pPanelObjectList->RemoveObject( m_pComponentTransform );
+            }
+
+            // Remove other components from object list.
+            for( unsigned int i=0; i<m_Components.Count(); i++ )
+            {
+                g_pPanelObjectList->RemoveObject( m_Components[i] );
+            }
+
+            // Remove the gameobject itself from the object list.
             g_pPanelObjectList->RemoveObject( this );
         }
         return;

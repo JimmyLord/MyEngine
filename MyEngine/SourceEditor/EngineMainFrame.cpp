@@ -573,6 +573,8 @@ void EngineMainFrame::OnPostInit()
 
     if( sceneloaded == false )
     {
+        g_pEngineCore->m_pEditorState->ClearKeyAndActionStates();
+        g_pEngineCore->m_pEditorState->ClearSelectedObjectsAndComponents();
         g_pComponentSystemManager->CreateNewScene( "Unsaved.scene", 1 );
         g_pEngineCore->CreateDefaultSceneObjects();
     }
@@ -800,6 +802,10 @@ void EngineMainFrame::OnMenu_Engine(wxCommandEvent& event)
 
             if( answer == wxID_YES )
             {
+                g_pEngineCore->m_pEditorState->ClearKeyAndActionStates();
+                g_pEngineCore->m_pEditorState->ClearSelectedObjectsAndComponents();
+                g_pEngineCore->SetEditorInterface( EditorInterfaceType_SceneManagement );
+
                 this->SetTitle( "New scene" );
                 g_pEngineCore->UnloadScene( UINT_MAX, false );
                 g_pComponentSystemManager->CreateNewScene( "Unsaved.scene", 1 );
