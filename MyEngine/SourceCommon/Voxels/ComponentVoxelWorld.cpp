@@ -12,6 +12,8 @@
 #include "VoxelChunk.h"
 #include "VoxelWorld.h"
 
+#include "../../../Framework/MyFramework/SourceCommon/SceneGraphs/SceneGraph_Octree.h"
+
 #if MYFW_USING_WX
 bool ComponentVoxelWorld::m_PanelWatchBlockVisible = true;
 #endif
@@ -442,6 +444,10 @@ void ComponentVoxelWorld::TickCallback(double TimePassed)
     Vector3 pos = pPlayer->GetTransform()->GetWorldPosition();
 
     m_pVoxelWorld->SetWorldCenter( pos );
+    SceneGraph_Base* pSceneGraph = g_pComponentSystemManager->GetSceneGraph();
+
+    // TODO: not this...
+    ((SceneGraph_Octree*)pSceneGraph)->Resize( pos.x-32, pos.y-32, pos.z-32, pos.x+32, pos.y+32, pos.z+32 );
 }
 
 #if _DEBUG

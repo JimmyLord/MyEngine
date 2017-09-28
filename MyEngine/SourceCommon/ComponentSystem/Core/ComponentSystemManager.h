@@ -274,6 +274,7 @@ public:
     SceneInfo m_pSceneInfoMap[MAX_SCENES_LOADED];
 
     // SceneGraph Functions
+    SceneGraph_Base* GetSceneGraph() { return m_pSceneGraph; }
     void AddMeshToSceneGraph(ComponentBase* pComponent, MyMesh* pMesh, MaterialDefinition** pMaterialList, int primitive, int pointsize, SceneGraphFlags flags, unsigned int layers, SceneGraphObject** pOutputList);
     SceneGraphObject* AddSubmeshToSceneGraph(ComponentBase* pComponent, MySubmesh* pSubmesh, MaterialDefinition* pMaterial, int primitive, int pointsize, SceneGraphFlags flags, unsigned int layers);
     void RemoveObjectFromSceneGraph(SceneGraphObject* pSceneGraphObject);
