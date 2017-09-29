@@ -446,7 +446,10 @@ void ComponentVoxelWorld::TickCallback(double TimePassed)
     m_pVoxelWorld->SetWorldCenter( pos );
     SceneGraph_Base* pSceneGraph = g_pComponentSystemManager->GetSceneGraph();
 
-    // TODO: not this...
+    // Change the octree dimensions if the player moves too far from the previous center.
+    pos.x = MyRoundToMultipleOf( pos.x, 16 );
+    pos.y = MyRoundToMultipleOf( pos.y, 16 );
+    pos.z = MyRoundToMultipleOf( pos.z, 16 );
     ((SceneGraph_Octree*)pSceneGraph)->Resize( pos.x-32, pos.y-32, pos.z-32, pos.x+32, pos.y+32, pos.z+32 );
 }
 
