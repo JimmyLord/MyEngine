@@ -1371,3 +1371,21 @@ void VoxelWorld::ChangeBlockState(Vector3Int worldpos, unsigned int type, bool e
 
     LOGInfo( LOGTag, "Chunks rebuilt: %d\n", chunksrebuilt );
 }
+
+// ============================================================================================================================
+// Rendering
+// ============================================================================================================================
+void VoxelWorld::AddToSceneGraph()
+{
+    // Nothing here, the UpdateVisibility() in Tick() will add the nodes to the scene graph
+}
+
+void VoxelWorld::RemoveFromSceneGraph()
+{
+    for( unsigned int i=0; i<m_NumChunkPointersAllocated; i++ )
+    {
+        VoxelChunk* pChunk = m_pActiveWorldChunkPtrs[i];
+
+        pChunk->RemoveFromSceneGraph();
+    }
+}

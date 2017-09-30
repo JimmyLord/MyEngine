@@ -132,6 +132,10 @@ public:
 
     // Add/Remove blocks
     void ChangeBlockState(Vector3Int worldpos, unsigned int type, bool enabled);
+
+    // Rendering
+    void AddToSceneGraph();
+    void RemoveFromSceneGraph();
 };
 
 #endif //__VoxelWorld_H__

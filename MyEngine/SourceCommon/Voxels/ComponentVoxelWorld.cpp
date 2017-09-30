@@ -22,7 +22,7 @@ bool ComponentVoxelWorld::m_PanelWatchBlockVisible = true;
 MYFW_COMPONENT_IMPLEMENT_VARIABLE_LIST( ComponentVoxelWorld ); //_VARIABLE_LIST
 
 ComponentVoxelWorld::ComponentVoxelWorld()
-: ComponentBase()
+: ComponentRenderable()
 {
     MYFW_COMPONENT_VARIABLE_LIST_CONSTRUCTOR(); //_VARIABLE_LIST
 
@@ -81,7 +81,7 @@ void ComponentVoxelWorld::RegisterVariables(CPPListHead* pList, ComponentVoxelWo
 
 void ComponentVoxelWorld::Reset()
 {
-    ComponentBase::Reset();
+    ComponentRenderable::Reset();
 
     //m_SampleVector3.Set( 0, 0, 0 );
     SAFE_RELEASE( m_pMaterial );
@@ -119,7 +119,7 @@ void ComponentVoxelWorld::SetPointerValue(ComponentVariable* pVar, void* newvalu
 {
     if( strcmp( pVar->m_Label, "Material" ) == 0 )
     {
-        return SetMaterial( (MaterialDefinition*)newvalue );
+        return SetVoxelMeshMaterial( (MaterialDefinition*)newvalue );
     }
 }
 
@@ -149,7 +149,7 @@ void ComponentVoxelWorld::SetPointerDesc(ComponentVariable* pVar, const char* ne
         if( newdesc )
         {
             MaterialDefinition* pMaterial = g_pMaterialManager->LoadMaterial( newdesc );
-            SetMaterial( pMaterial );
+            SetVoxelMeshMaterial( pMaterial );
             pMaterial->Release();
         }
     }
@@ -159,21 +159,21 @@ void ComponentVoxelWorld::SetPointerDesc(ComponentVariable* pVar, const char* ne
 void ComponentVoxelWorld::AddToObjectsPanel(wxTreeItemId gameobjectid)
 {
     //wxTreeItemId id =
-    g_pPanelObjectList->AddObject( this, ComponentVoxelWorld::StaticOnLeftClick, ComponentBase::StaticOnRightClick, gameobjectid, "VoxelWorld", ObjectListIcon_Component );
+    g_pPanelObjectList->AddObject( this, ComponentVoxelWorld::StaticOnLeftClick, ComponentRenderable::StaticOnRightClick, gameobjectid, "VoxelWorld", ObjectListIcon_Component );
 }
 
 void ComponentVoxelWorld::OnLeftClick(unsigned int count, bool clear)
 {
-    ComponentBase::OnLeftClick( count, clear );
+    ComponentRenderable::OnLeftClick( count, clear );
 }
 
 void ComponentVoxelWorld::FillPropertiesWindow(bool clear, bool addcomponentvariables, bool ignoreblockvisibleflag)
 {
-    m_ControlID_ComponentTitleLabel = g_pPanelWatch->AddSpace( "VoxelWorld", this, ComponentBase::StaticOnComponentTitleLabelClicked );
+    m_ControlID_ComponentTitleLabel = g_pPanelWatch->AddSpace( "VoxelWorld", this, ComponentRenderable::StaticOnComponentTitleLabelClicked );
 
     if( m_PanelWatchBlockVisible || ignoreblockvisibleflag == true )
     {
-        ComponentBase::FillPropertiesWindow( clear );
+        ComponentRenderable::FillPropertiesWindow( clear );
 
         if( m_BakeWorld )
         {
@@ -205,7 +205,7 @@ void* ComponentVoxelWorld::OnDrop(ComponentVariable* pVar, wxCoord x, wxCoord y)
 
     if( pDropItem->m_Type == DragAndDropType_ComponentPointer )
     {
-        (ComponentBase*)pDropItem->m_Value;
+        (ComponentRenderable*)pDropItem->m_Value;
     }
 
     if( pDropItem->m_Type == DragAndDropType_GameObjectPointer )
@@ -219,7 +219,7 @@ void* ComponentVoxelWorld::OnDrop(ComponentVariable* pVar, wxCoord x, wxCoord y)
         MyAssert( pMaterial );
 
         oldvalue = m_pMaterial;
-        SetMaterial( pMaterial );
+        SetVoxelMeshMaterial( pMaterial );
 
         // update the panel so new Material name shows up.
         const char* shortdesc = pMaterial->GetMaterialShortDescription();
@@ -243,9 +243,9 @@ void* ComponentVoxelWorld::OnValueChanged(ComponentVariable* pVar, bool changedb
             {
                 g_pPanelWatch->ChangeDescriptionForPointerWithDescription( pVar->m_ControlID, "none" );
 
-                oldpointer = GetMaterial();
+                oldpointer = GetVoxelMeshMaterial();
                 // TODO: undo/redo
-                SetMaterial( 0 );
+                SetVoxelMeshMaterial( 0 );
             }
         }
         else if( pNewValue && pNewValue->GetMaterialPtr() != 0 )
@@ -331,7 +331,7 @@ void ComponentVoxelWorld::OnButtonEditMesh(int buttonid)
 
 cJSON* ComponentVoxelWorld::ExportAsJSONObject(bool savesceneid, bool saveid)
 {
-    cJSON* jComponent = ComponentBase::ExportAsJSONObject( savesceneid, saveid );
+    cJSON* jComponent = ComponentRenderable::ExportAsJSONObject( savesceneid, saveid );
 
     if( m_pSaveFile )
         cJSON_AddStringToObject( jComponent, "Save File", m_pSaveFile->GetFullPath() );
@@ -341,7 +341,7 @@ cJSON* ComponentVoxelWorld::ExportAsJSONObject(bool savesceneid, bool saveid)
 
 void ComponentVoxelWorld::ImportFromJSONObject(cJSON* jComponent, unsigned int sceneid)
 {
-    ComponentBase::ImportFromJSONObject( jComponent, sceneid );
+    ComponentRenderable::ImportFromJSONObject( jComponent, sceneid );
 
     ImportVariablesFromJSON( jComponent ); //_VARIABLE_LIST
 
@@ -364,7 +364,7 @@ ComponentVoxelWorld& ComponentVoxelWorld::operator=(const ComponentVoxelWorld& o
 {
     MyAssert( &other != this );
 
-    ComponentBase::operator=( other );
+    ComponentRenderable::operator=( other );
 
     // TODO: replace this with a CopyComponentVariablesFromOtherObject... or something similar.
     //m_SampleVector3 = other.m_SampleVector3;
@@ -420,7 +420,7 @@ void ComponentVoxelWorld::SetSaveFile(MyFileObject* pFile)
     m_pSaveFile = pFile;
 }
 
-void ComponentVoxelWorld::SetMaterial(MaterialDefinition* pMaterial)
+void ComponentVoxelWorld::SetVoxelMeshMaterial(MaterialDefinition* pMaterial)
 {
     if( pMaterial )
         pMaterial->AddRef();
@@ -541,4 +541,24 @@ void ComponentVoxelWorld::DeleteTileInFocus(Vector2 mousepos)
 
         m_pVoxelWorld->ChangeBlockState( result.m_BlockWorldPosition, 1, false );
     }
+}
+
+void ComponentVoxelWorld::AddToSceneGraph()
+{
+    if( m_pVoxelWorld == 0 )
+        return;
+
+    m_pVoxelWorld->AddToSceneGraph();
+}
+
+void ComponentVoxelWorld::RemoveFromSceneGraph()
+{
+    if( m_pVoxelWorld == 0 )
+        return;
+
+    m_pVoxelWorld->RemoveFromSceneGraph();
+}
+
+void ComponentVoxelWorld::PushChangesToSceneGraphObjects()
+{
 }

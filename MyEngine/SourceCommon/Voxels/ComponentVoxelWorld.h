@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016 Jimmy Lord http://www.flatheadgames.com
+// Copyright (c) 2016-2017 Jimmy Lord http://www.flatheadgames.com
 //
 // This software is provided 'as-is', without any express or implied warranty.  In no event will the authors be held liable for any damages arising from the use of this software.
 // Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -12,7 +12,7 @@
 
 class VoxelWorld;
 
-class ComponentVoxelWorld : public ComponentBase
+class ComponentVoxelWorld : public ComponentRenderable
 {
 private:
     // Component Variable List
@@ -48,15 +48,22 @@ public:
     void SetSaveFile(MyFileObject* pFile);
 
     // Rendering
-    virtual MaterialDefinition* GetMaterial() { return m_pMaterial; }
-    virtual void SetMaterial(MaterialDefinition* pMaterial);
+    virtual MaterialDefinition* GetVoxelMeshMaterial() { return m_pMaterial; }
+    virtual void SetVoxelMeshMaterial(MaterialDefinition* pMaterial);
 
     // Queries
     VoxelWorld* GetWorld() { return m_pVoxelWorld; }
     bool IsBlockEnabledAroundLocation(Vector3 scenepos, float radius);
     float GetSceneYForNextBlockBelowPosition(Vector3 scenepos, float radius);
+
+    // Editing
     void AddTileToTileInFocus(Vector2 mousepos);
     void DeleteTileInFocus(Vector2 mousepos);
+
+    // ComponentRenderable overrides
+    virtual void AddToSceneGraph();
+    virtual void RemoveFromSceneGraph();
+    virtual void PushChangesToSceneGraphObjects();
 
 protected:
     // Callback functions for various events.
