@@ -348,6 +348,10 @@ double EngineCore::Tick(double TimePassed)
     if( m_UnloadAllScenesNextTick )
     {
         UnloadScene( -1, true );
+#if MYFW_USING_WX
+        // If switching scene while in the editor, delete the quick save.
+        Editor_DeleteQuickScene( "temp_editor_onplay.scene" );
+#endif
         m_UnloadAllScenesNextTick = false;
         return 0;
     }
@@ -400,7 +404,22 @@ double EngineCore::Tick(double TimePassed)
         g_pComponentSystemManager->m_pSceneInfoMap[sceneid].m_InUse = true;
         g_pComponentSystemManager->m_pSceneInfoMap[sceneid].ChangePath( pFile->GetFullPath() );
 
-        LoadSceneFromJSON( pFile->GetFilenameWithoutExtension(), pFile->GetBuffer(), sceneid );
+        // Loading an additional scene, or a lua script requested a scene.
+        //     so if we're in editor mode, don't call "play" when loading is finished.
+        bool playwhenfinishedloading = false;
+
+#if MYFW_USING_WX
+        if( m_EditorMode == true )
+        {
+            playwhenfinishedloading = false;
+        }
+        else
+#endif
+        {
+            playwhenfinishedloading = true;
+        }
+
+        LoadSceneFromJSON( pFile->GetFilenameWithoutExtension(), pFile->GetBuffer(), sceneid, playwhenfinishedloading );
 
         SAFE_RELEASE( m_pSceneFilesLoading[0].m_pFile );
 
@@ -1046,10 +1065,13 @@ void EngineCore::OnModeStop()
         // Unload all runtime created objects.
         UnloadScene( 0, false );
 
-        m_EditorMode = true;
         m_Paused = false;
 
+        // Reload the scene objects from the state they were in before "play" was pressed.
         Editor_QuickLoadScene( "temp_editor_onplay.scene" );
+
+        // Set to true after quick load, so any actions (e.g. changing material when loaded) won't be added to undo stack.
+        m_EditorMode = true;
 
         g_pEngineMainFrame->SetWindowPerspectiveToDefault();
         m_pEditorState->ClearKeyAndActionStates();
@@ -1427,12 +1449,32 @@ unsigned int EngineCore::LoadSceneFromFile(const char* fullpath)
             }
             filenamestart = &fullpath[i+1];
 
-            LoadSceneFromJSON( filenamestart, jsonstr, sceneid );
+            // If we're loading additional scenes, don't call "play",
+            //     otherwise we need to decide if "play" should be called.
+            bool playwhenfinishedloading = false;
+
+            if( sceneid != 1 )
+            {
+                playwhenfinishedloading = false;
+            }
+#if MYFW_USING_WX
+            else if( m_EditorMode )
+            {
+                playwhenfinishedloading = m_AllowGameToRunInEditorMode;
+            }
+            else
+#endif
+            {
+                playwhenfinishedloading = true;
+            }
+
+            LoadSceneFromJSON( filenamestart, jsonstr, sceneid, playwhenfinishedloading );
+
             g_pComponentSystemManager->m_pSceneInfoMap[sceneid].m_InUse = true;
             strcpy_s( g_pComponentSystemManager->m_pSceneInfoMap[sceneid].m_FullPath, MAX_PATH, fullpath );
 
-            // probably should bother with a rewind, might cause issues in future if LoadSceneFromJSON()
-            //   uses stack and wants to keep info around
+            // Probably shouldn't bother with a rewind,
+            //   might cause issues in future if LoadSceneFromJSON() uses stack and wants to keep info around
             m_SingleFrameMemoryStack.RewindStack( stackpointer );
         }
 
@@ -1486,19 +1528,31 @@ void EngineCore::Editor_QuickLoadScene(const char* fullpath)
             fread( jsonstr, length, 1, filehandle );
             jsonstr[length] = 0;
 
-            LoadSceneFromJSON( fullpath, jsonstr, UINT_MAX );
+            // We're quickloading a temp scene, so don't call "play" in editor builds.
+            bool playwhenfinishedloading = false;
 
-            // probably should bother with a rewind, might cause issues in future if LoadSceneFromJSON()
-            //   uses stack and wants to keep info around
+#if !MYFW_USING_WX
+            playwhenfinishedloading = true;
+#endif
+
+            LoadSceneFromJSON( fullpath, jsonstr, UINT_MAX, playwhenfinishedloading );
+
+            // Probably shouldn't bother with a rewind,
+            //   might cause issues in future if LoadSceneFromJSON() uses stack and wants to keep info around
             m_SingleFrameMemoryStack.RewindStack( stackpointer );
         }
 
         fclose( filehandle );
     }
 }
+
+void EngineCore::Editor_DeleteQuickScene(const char* fullpath)
+{
+    remove( fullpath );
+}
 #endif //MYFW_USING_WX
 
-void EngineCore::LoadSceneFromJSON(const char* scenename, const char* jsonstr, unsigned int sceneid)
+void EngineCore::LoadSceneFromJSON(const char* scenename, const char* jsonstr, unsigned int sceneid, bool playwhenfinishedloading)
 {
     LOGInfo( LOGTag, "Loading scene file(%d): %s\n", sceneid, scenename );
     // reset the editorstate structure.
@@ -1512,14 +1566,7 @@ void EngineCore::LoadSceneFromJSON(const char* scenename, const char* jsonstr, u
     OnSurfaceChanged( (unsigned int)m_WindowStartX, (unsigned int)m_WindowStartY, (unsigned int)m_WindowWidth, (unsigned int)m_WindowHeight );
 
     // FinishLoading calls OnLoad and OnPlay for all components in scene.
-#if MYFW_USING_WX
-    if( m_EditorMode )
-        g_pComponentSystemManager->FinishLoading( false, sceneid, m_AllowGameToRunInEditorMode );
-    else
-        g_pComponentSystemManager->FinishLoading( false, sceneid, true );
-#else
-    g_pComponentSystemManager->FinishLoading( false, sceneid, true );
-#endif
+    g_pComponentSystemManager->FinishLoading( false, sceneid, playwhenfinishedloading );
 
 #if MYFW_USING_WX
     g_pEngineMainFrame->ResizeViewport();

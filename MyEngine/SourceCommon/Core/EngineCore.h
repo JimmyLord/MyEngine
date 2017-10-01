@@ -210,8 +210,9 @@ public:
     unsigned int LoadSceneFromFile(const char* fullpath);
     void Editor_QuickSaveScene(const char* fullpath);
     void Editor_QuickLoadScene(const char* fullpath);
+    void Editor_DeleteQuickScene(const char* fullpath);
 #endif //MYFW_USING_WX
-    void LoadSceneFromJSON(const char* scenename, const char* jsonstr, unsigned int sceneid);
+    void LoadSceneFromJSON(const char* scenename, const char* jsonstr, unsigned int sceneid, bool playwhenfinishedloading);
 
 #if MYFW_USING_WX
     void Editor_OnSurfaceChanged(unsigned int startx, unsigned int starty, unsigned int width, unsigned int height);
