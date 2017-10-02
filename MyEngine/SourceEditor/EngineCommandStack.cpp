@@ -20,19 +20,19 @@ EngineCommandStack::~EngineCommandStack()
 
 void EngineCommandStack::Undo(unsigned int levels)
 {
-    if( g_pEngineCore->m_EditorMode )
+    if( g_pEngineCore->IsInEditorMode() )
         CommandStack::Undo( levels );
 }
 
 void EngineCommandStack::Redo(unsigned int levels)
 {
-    if( g_pEngineCore->m_EditorMode )
+    if( g_pEngineCore->IsInEditorMode() )
         CommandStack::Redo( levels );
 }
 
 void EngineCommandStack::Do(EditorCommand* pCommand, bool linktoprevious, bool autolinkifsameframeasprevious)
 {
-    if( g_pEngineCore->m_EditorMode )
+    if( g_pEngineCore->IsInEditorMode() )
     {
         // if editor mode, add to undo stack then do command.
         CommandStack::Do( pCommand, linktoprevious, autolinkifsameframeasprevious );
@@ -47,7 +47,7 @@ void EngineCommandStack::Do(EditorCommand* pCommand, bool linktoprevious, bool a
 
 void EngineCommandStack::Add(EditorCommand* pCommand, bool linktoprevious, bool autolinkifsameframeasprevious)
 {
-    if( g_pEngineCore->m_EditorMode )
+    if( g_pEngineCore->IsInEditorMode() )
         return CommandStack::Add( pCommand, linktoprevious, autolinkifsameframeasprevious );
 
     delete pCommand;

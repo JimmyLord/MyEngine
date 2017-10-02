@@ -1519,7 +1519,7 @@ GameObject* ComponentSystemManager::CreateGameObject(bool manageobject, int scen
         }
 
         // if we're not in editor mode, place this gameobject in scene 0 so it will be destroyed when gameplay is stopped.
-        if( g_pEngineCore->m_EditorMode == false )
+        if( g_pEngineCore->IsInEditorMode() == false )
         {
             pGameObject->SetSceneID( 0 );
         }
@@ -1640,9 +1640,9 @@ void ComponentSystemManager::ManageGameObject(GameObject* pObject)
 void ComponentSystemManager::DeleteGameObject(GameObject* pObject, bool deletecomponents)
 {
 #if MYFW_USING_WX
-    if( g_pEngineCore->m_pEditorState->IsGameObjectSelected( pObject ) )
+    if( g_pEngineCore->GetEditorState()->IsGameObjectSelected( pObject ) )
     {
-        g_pEngineCore->m_pEditorState->ClearSelectedObjectsAndComponents();
+        g_pEngineCore->GetEditorState()->ClearSelectedObjectsAndComponents();
     }
 #endif
 
@@ -1653,9 +1653,9 @@ void ComponentSystemManager::DeleteGameObject(GameObject* pObject, bool deleteco
             ComponentBase* pComponent = pObject->m_Components.RemoveIndex( 0 );
 
 #if MYFW_USING_WX
-            if( g_pEngineCore->m_pEditorState->IsComponentSelected( pComponent ) )
+            if( g_pEngineCore->GetEditorState()->IsComponentSelected( pComponent ) )
             {
-                g_pEngineCore->m_pEditorState->ClearSelectedObjectsAndComponents();
+                g_pEngineCore->GetEditorState()->ClearSelectedObjectsAndComponents();
             }
 #endif
 
@@ -1673,7 +1673,7 @@ GameObject* ComponentSystemManager::EditorCopyGameObject(GameObject* pObject, bo
     GameObject* newgameobject = 0;
 
     EditorCommand_CopyGameObject* pCommand = MyNew EditorCommand_CopyGameObject( pObject, NewObjectInheritsFromOld );
-    if( g_pEngineCore->m_EditorMode )
+    if( g_pEngineCore->IsInEditorMode() )
     {
         g_pEngineMainFrame->m_pCommandStack->Do( pCommand );
         newgameobject = pCommand->GetCreatedObject();
@@ -1697,7 +1697,7 @@ GameObject* ComponentSystemManager::CopyGameObject(GameObject* pObject, const ch
 
     // place the new object in the unmanaged scene, unless we're in the editor.
     unsigned int sceneid = 0;
-    if( g_pEngineCore->m_EditorMode )
+    if( g_pEngineCore->IsInEditorMode() )
         sceneid = pObject->GetSceneID();
 
     GameObject* pNewObject = CreateGameObject( true, sceneid, pObject->IsFolder(), pObject->GetTransform() ? true : false, pObject->GetPrefab() );
@@ -1709,7 +1709,7 @@ GameObject* ComponentSystemManager::CopyGameObject(GameObject* pObject, const ch
     pNewObject->SetPhysicsSceneID( pObject->GetPhysicsSceneID() );
     pNewObject->SetFlags( pObject->GetFlags() );
 
-    if( g_pEngineCore->m_EditorMode )
+    if( g_pEngineCore->IsInEditorMode() )
     {
         pNewObject->SetGameObjectThisInheritsFrom( pObject->GetGameObjectThisInheritsFrom() );
     }
@@ -1718,7 +1718,7 @@ GameObject* ComponentSystemManager::CopyGameObject(GameObject* pObject, const ch
     {
         ComponentBase* pComponent = 0;
 
-        if( g_pEngineCore->m_EditorMode )
+        if( g_pEngineCore->IsInEditorMode() )
             pComponent = pNewObject->AddNewComponent( pObject->GetComponentByIndex( i )->m_Type, pNewObject->GetSceneID() );
         else
             pComponent = pNewObject->AddNewComponent( pObject->GetComponentByIndex( i )->m_Type, 0 );
@@ -1729,7 +1729,7 @@ GameObject* ComponentSystemManager::CopyGameObject(GameObject* pObject, const ch
     }
 
     // Call OnPlay for all components.
-    if( g_pEngineCore->m_EditorMode == false )
+    if( g_pEngineCore->IsInEditorMode() == false )
     {
         if( pNewObject->IsEnabled() == true )
         {
@@ -1970,9 +1970,9 @@ ComponentBase* ComponentSystemManager::FindComponentByJSONRef(cJSON* pJSONCompon
 ComponentCamera* ComponentSystemManager::GetFirstCamera(bool prefereditorcam)
 {
 #if MYFW_USING_WX
-    if( prefereditorcam && g_pEngineCore->m_EditorMode )
+    if( prefereditorcam && g_pEngineCore->IsInEditorMode() )
     {
-        return g_pEngineCore->m_pEditorState->GetEditorCamera();
+        return g_pEngineCore->GetEditorState()->GetEditorCamera();
     }
     else
 #endif
@@ -2408,8 +2408,8 @@ void ComponentSystemManager::CreateNewScene(const char* scenename, unsigned int 
     m_pSceneInfoMap[sceneid].m_TreeID = treeid;
 
     // create the box2d world, pass in a material for the debug renderer.
-    ComponentCamera* pCamera = g_pEngineCore->m_pEditorState->GetEditorCamera();
-    m_pSceneInfoMap[sceneid].m_pBox2DWorld = MyNew Box2DWorld( g_pEngineCore->m_pMaterial_Box2DDebugDraw, &pCamera->m_Camera3D.m_matViewProj, new EngineBox2DContactListener );
+    ComponentCamera* pCamera = g_pEngineCore->GetEditorState()->GetEditorCamera();
+    m_pSceneInfoMap[sceneid].m_pBox2DWorld = MyNew Box2DWorld( g_pEngineCore->GetMaterial_Box2DDebugDraw(), &pCamera->m_Camera3D.m_matViewProj, new EngineBox2DContactListener );
 }
 
 wxTreeItemId ComponentSystemManager::GetTreeIDForScene(int sceneid)

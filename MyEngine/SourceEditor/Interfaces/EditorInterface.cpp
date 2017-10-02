@@ -49,17 +49,17 @@ void EditorInterface::OnDeactivated()
 void EditorInterface::Tick(double TimePassed)
 {
     // Force compile of m_pShader_TintColor (0 lights, 4 bones) to avoid stall on first click in mouse picker code.
-    if( g_pEngineCore->m_pShader_TintColor )
+    if( g_pEngineCore->GetShader_TintColor() )
     {
         Shader_Base* pShader;
 
         // No lights, 4 bones. Used by mouse picker.
-        pShader = (Shader_Base*)g_pEngineCore->m_pShader_TintColor->GlobalPass( 0, 4 );
+        pShader = (Shader_Base*)g_pEngineCore->GetShader_TintColor()->GlobalPass( 0, 4 );
         if( pShader->m_Initialized == false )
             pShader->CompileShader();
 
         // 4 lights, 0 bones. Used by transform gizmo.
-        pShader = (Shader_Base*)g_pEngineCore->m_pShader_TintColor->GlobalPass( 4, 0 );
+        pShader = (Shader_Base*)g_pEngineCore->GetShader_TintColor()->GlobalPass( 4, 0 );
         if( pShader->m_Initialized == false )
             pShader->CompileShader();
     }
@@ -94,7 +94,7 @@ void EditorInterface::OnDrawFrame(unsigned int canvasid)
 {
     MyAssert( canvasid == 1 );
 
-    EditorState* pEditorState = g_pEngineCore->m_pEditorState;
+    EditorState* pEditorState = g_pEngineCore->GetEditorState();
 
     MyAssert( pEditorState->m_pEditorCamera );
     if( pEditorState->m_pEditorCamera )
@@ -115,7 +115,7 @@ void EditorInterface::OnDrawFrame(unsigned int canvasid)
                     glDepthFunc( GL_LEQUAL );
 
                     // Draw selected objects in editor view.
-                    ShaderGroup* pShaderOverride = g_pEngineCore->m_pShader_SelectedObjects;
+                    ShaderGroup* pShaderOverride = g_pEngineCore->GetShader_SelectedObjects();
 
                     Shader_Base* pShader = (Shader_Base*)pShaderOverride->GlobalPass( 0, 4 );
                     if( pShader->ActivateAndProgramShader() )
@@ -123,7 +123,7 @@ void EditorInterface::OnDrawFrame(unsigned int canvasid)
                         for( unsigned int i=0; i<pEditorState->m_pSelectedObjects.size(); i++ )
                         {
                             // draw an outline around the selected object
-                            if( g_pEngineMainFrame->m_SelectedObjects_ShowWireframe )
+                            if( g_pEngineMainFrame->SelectedObjects_ShowWireframe() )
                             {
                                 glEnable( GL_BLEND );
                                 glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
@@ -143,7 +143,7 @@ void EditorInterface::OnDrawFrame(unsigned int canvasid)
                             }
                             
                             // draw the entire selected shape with the shader
-                            if( g_pEngineMainFrame->m_SelectedObjects_ShowEffect )
+                            if( g_pEngineMainFrame->SelectedObjects_ShowEffect() )
                             {
                                 glEnable( GL_BLEND );
                                 glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
@@ -170,21 +170,23 @@ void EditorInterface::OnDrawFrame(unsigned int canvasid)
     }
 
     // Draw our mouse picker frame over the screen
-    if( g_pEngineCore->m_Debug_DrawMousePickerFBO && g_GLCanvasIDActive == 1 )
+    if( g_pEngineCore->GetDebug_DrawMousePickerFBO() && g_GLCanvasIDActive == 1 )
     {
-        if( g_pEngineCore->m_pDebugQuadSprite == 0 )
-            g_pEngineCore->m_pDebugQuadSprite = MyNew MySprite( false );
+        MySprite* pDebugQuad = g_pEngineCore->GetSprite_DebugQuad();
 
-        g_pEngineCore->m_pDebugQuadSprite->CreateInPlace( "debug", 0.75f, 0.75f, 0.5f, 0.5f, 0, 1, 1, 0, Justify_Center, false );
-        g_pEngineCore->m_pMaterial_MousePicker->SetTextureColor( pEditorState->m_pMousePickerFBO->m_pColorTexture );
-        g_pEngineCore->m_pDebugQuadSprite->SetMaterial( g_pEngineCore->m_pMaterial_MousePicker );
-        g_pEngineCore->m_pDebugQuadSprite->Draw( 0, 0 );
+        if( pDebugQuad )
+        {
+            pDebugQuad->CreateInPlace( "debug", 0.75f, 0.75f, 0.5f, 0.5f, 0, 1, 1, 0, Justify_Center, false );
+            g_pEngineCore->GetMaterial_MousePicker()->SetTextureColor( pEditorState->m_pMousePickerFBO->m_pColorTexture );
+            pDebugQuad->SetMaterial( g_pEngineCore->GetMaterial_MousePicker() );
+            pDebugQuad->Draw( 0, 0 );
+        }
     }
 }
 
 void EditorInterface::SetModifierKeyStates(int keyaction, int keycode, int mouseaction, int id, float x, float y, float pressure)
 {
-    EditorState* pEditorState = g_pEngineCore->m_pEditorState;
+    EditorState* pEditorState = g_pEngineCore->GetEditorState();
 
     if( keyaction == GCBA_Down )
     {
@@ -247,7 +249,7 @@ void EditorInterface::SetModifierKeyStates(int keyaction, int keycode, int mouse
 
 void EditorInterface::ClearModifierKeyStates(int keyaction, int keycode, int mouseaction, int id, float x, float y, float pressure)
 {
-    EditorState* pEditorState = g_pEngineCore->m_pEditorState;
+    EditorState* pEditorState = g_pEngineCore->GetEditorState();
 
     if( keyaction == GCBA_Up )
     {
@@ -284,7 +286,7 @@ void EditorInterface::ClearModifierKeyStates(int keyaction, int keycode, int mou
             }
 
             // Unlock the mouse, even if it wasn't locked.
-            g_pEngineMainFrame->m_pGLCanvasEditor->LockMouse( false );
+            g_pEngineMainFrame->GetGLCanvasEditor()->LockMouse( false );
 
             pEditorState->m_HasMouseMovedSinceButtonPressed[id] = false;
         }
@@ -295,7 +297,7 @@ void EditorInterface::ClearModifierKeyStates(int keyaction, int keycode, int mou
 
 bool EditorInterface::HandleInputForEditorCamera(int keyaction, int keycode, int mouseaction, int id, float x, float y, float pressure)
 {
-    EditorState* pEditorState = g_pEngineCore->m_pEditorState;
+    EditorState* pEditorState = g_pEngineCore->GetEditorState();
 
     ComponentCamera* pCamera = pEditorState->GetEditorCamera();
     MyMatrix StartCamTransform = *pCamera->m_pComponentTransform->GetLocalTransform( false );
@@ -335,9 +337,9 @@ bool EditorInterface::HandleInputForEditorCamera(int keyaction, int keycode, int
         if( ( (mods & MODIFIERKEY_LeftMouse) && (mods & MODIFIERKEY_Space) ) || (mods & MODIFIERKEY_MiddleMouse) )
         {
             // Try to lock the editor mouse cursor so we can move camera with raw mouse input.
-            if( g_pEngineMainFrame->m_pGLCanvasEditor->IsMouseLocked() == false )
+            if( g_pEngineMainFrame->GetGLCanvasEditor()->IsMouseLocked() == false )
             {
-                g_pEngineMainFrame->m_pGLCanvasEditor->LockMouse( true );
+                g_pEngineMainFrame->GetGLCanvasEditor()->LockMouse( true );
             }
 
             if( mouseaction == GCBA_RelativeMovement )
@@ -381,9 +383,9 @@ bool EditorInterface::HandleInputForEditorCamera(int keyaction, int keycode, int
                  (mods & MODIFIERKEY_RightMouse) )
         {
             // Try to lock the editor mouse cursor so we can move camera with raw mouse input.
-            if( g_pEngineMainFrame->m_pGLCanvasEditor->IsMouseLocked() == false )
+            if( g_pEngineMainFrame->GetGLCanvasEditor()->IsMouseLocked() == false )
             {
-                g_pEngineMainFrame->m_pGLCanvasEditor->LockMouse( true );
+                g_pEngineMainFrame->GetGLCanvasEditor()->LockMouse( true );
             }
 
             if( mouseaction == GCBA_RelativeMovement )
@@ -492,7 +494,7 @@ bool EditorInterface::HandleInputForEditorCamera(int keyaction, int keycode, int
 
 void EditorInterface::RenderObjectIDsToFBO()
 {
-    EditorState* pEditorState = g_pEngineCore->m_pEditorState;
+    EditorState* pEditorState = g_pEngineCore->GetEditorState();
 
     if( pEditorState->m_pMousePickerFBO->IsFullyLoaded() == false )
         return;
@@ -515,7 +517,7 @@ void EditorInterface::RenderObjectIDsToFBO()
         pCamera = dynamic_cast<ComponentCamera*>( pEditorState->m_pEditorCamera->GetComponentByIndex( i ) );
         if( pCamera )
         {
-            g_pComponentSystemManager->DrawMousePickerFrame( pCamera, &pCamera->m_Camera3D.m_matViewProj, g_pEngineCore->m_pShader_TintColor );
+            g_pComponentSystemManager->DrawMousePickerFrame( pCamera, &pCamera->m_Camera3D.m_matViewProj, g_pEngineCore->GetShader_TintColor() );
             glClear( GL_DEPTH_BUFFER_BIT );
         }
     }
@@ -527,7 +529,7 @@ void EditorInterface::RenderObjectIDsToFBO()
 
 unsigned int EditorInterface::GetIDAtPixel(unsigned int x, unsigned int y, bool createnewbitmap, bool includetransformgizmo)
 {
-    EditorState* pEditorState = g_pEngineCore->m_pEditorState;
+    EditorState* pEditorState = g_pEngineCore->GetEditorState();
 
     if( pEditorState->m_pMousePickerFBO->IsFullyLoaded() == false )
         return 0;
@@ -579,7 +581,7 @@ unsigned int EditorInterface::GetIDAtPixel(unsigned int x, unsigned int y, bool 
 
 GameObject* EditorInterface::GetObjectAtPixel(unsigned int x, unsigned int y, bool createnewbitmap, bool includetransformgizmo)
 {
-    EditorState* pEditorState = g_pEngineCore->m_pEditorState;
+    EditorState* pEditorState = g_pEngineCore->GetEditorState();
 
     unsigned int id = GetIDAtPixel( x, y, createnewbitmap, includetransformgizmo );
 
@@ -627,7 +629,7 @@ GameObject* EditorInterface::GetObjectAtPixel(unsigned int x, unsigned int y, bo
 
 void EditorInterface::SelectObjectsInRectangle(unsigned int sx, unsigned int sy, unsigned int ex, unsigned int ey)
 {
-    EditorState* pEditorState = g_pEngineCore->m_pEditorState;
+    EditorState* pEditorState = g_pEngineCore->GetEditorState();
 
     int smallerx = sx > ex ? ex : sx;
     int biggerx = sx < ex ? ex : sx;

@@ -135,7 +135,7 @@ void GameObject::OnLeftClick(unsigned int count, bool clear)
 
 void GameObject::ShowInWatchPanel()
 {
-    if( g_pEngineCore->m_pEditorState == 0 )
+    if( g_pEngineCore->GetEditorState() == 0 )
         return;
 
     if( m_IsFolder )
@@ -145,8 +145,8 @@ void GameObject::ShowInWatchPanel()
     g_pEngineCore->OnObjectListTreeSelectionChanged();
 
     // Select this GameObject in the editor window.
-    if( g_pEngineCore->m_pEditorState->IsGameObjectSelected( this ) == false )
-        g_pEngineCore->m_pEditorState->m_pSelectedObjects.push_back( this );
+    if( g_pEngineCore->GetEditorState()->IsGameObjectSelected( this ) == false )
+        g_pEngineCore->GetEditorState()->m_pSelectedObjects.push_back( this );
 
     g_pPanelWatch->SetObjectBeingWatched( this );
 
@@ -279,7 +279,7 @@ void GameObject::OnPopupClick(wxEvent &evt)
         int type = id; // could be EngineComponentTypes or GameComponentTypes type.
 
         ComponentBase* pComponent = 0;
-        if( g_pEngineCore->m_EditorMode )
+        if( g_pEngineCore->IsInEditorMode() )
             pComponent = pGameObject->AddNewComponent( type, pGameObject->GetSceneID() );
         else
             pComponent = pGameObject->AddNewComponent( type, 0 );
@@ -288,7 +288,7 @@ void GameObject::OnPopupClick(wxEvent &evt)
     }
     else if( id == RightClick_DuplicateGameObject )
     {
-        if( g_pEngineCore->m_EditorMode )
+        if( g_pEngineCore->IsInEditorMode() )
             g_pComponentSystemManager->EditorCopyGameObject( pGameObject, false );
         else
             g_pComponentSystemManager->CopyGameObject( pGameObject, "runtime duplicate" );
@@ -324,7 +324,7 @@ void GameObject::OnPopupClick(wxEvent &evt)
     }
     else if( id == RightClick_DeleteGameObject )
     {
-        EditorState* pEditorState = g_pEngineCore->m_pEditorState;
+        EditorState* pEditorState = g_pEngineCore->GetEditorState();
 
         // if the object isn't selected, delete just the one object, otherwise delete all selected objects.
         if( pEditorState->IsGameObjectSelected( pGameObject ) )
@@ -350,7 +350,7 @@ void GameObject::OnPopupClick(wxEvent &evt)
     }
     else if( id == RightClick_DuplicateFolder )
     {
-        if( g_pEngineCore->m_EditorMode )
+        if( g_pEngineCore->IsInEditorMode() )
             g_pComponentSystemManager->EditorCopyGameObject( pGameObject, false );
         else
             g_pComponentSystemManager->CopyGameObject( pGameObject, "runtime duplicate" );

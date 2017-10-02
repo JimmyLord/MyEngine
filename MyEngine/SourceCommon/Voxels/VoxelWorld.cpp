@@ -878,8 +878,8 @@ void VoxelWorld::BuildSharedIndexBuffer()
     unsigned int numquads = 65536 / 4;
     unsigned int indexbuffersize = numquads * 6;
         
-    MyStackAllocator::MyStackPointer memstart = g_pEngineCore->m_SingleFrameMemoryStack.GetCurrentLocation();
-    unsigned short* pIndices = (unsigned short*)g_pEngineCore->m_SingleFrameMemoryStack.AllocateBlock( indexbuffersize );
+    MyStackAllocator::MyStackPointer memstart = g_pEngineCore->GetSingleFrameMemoryStack().GetCurrentLocation();
+    unsigned short* pIndices = (unsigned short*)g_pEngineCore->GetSingleFrameMemoryStack().AllocateBlock( indexbuffersize );
 
     for( unsigned int i=0; i<numquads; i++ )
     {
@@ -893,7 +893,7 @@ void VoxelWorld::BuildSharedIndexBuffer()
 
     m_pSharedIndexBuffer->TempBufferData( numquads * 6, pIndices );
 
-    g_pEngineCore->m_SingleFrameMemoryStack.RewindStack( memstart );
+    g_pEngineCore->GetSingleFrameMemoryStack().RewindStack( memstart );
 }
 
 bool VoxelWorld::IsChunkActive(Vector3Int chunkpos)

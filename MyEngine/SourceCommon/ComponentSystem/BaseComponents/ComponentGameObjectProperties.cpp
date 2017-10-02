@@ -45,7 +45,7 @@ void ComponentGameObjectProperties::RegisterVariables(CPPListHead* pList, Compon
 #pragma GCC diagnostic pop
 #endif
 
-    const char** strings = (const char**)g_pEngineCore->m_GameObjectFlagStrings;
+    const char** strings = g_pEngineCore->GetGameObjectFlagStringArray();
     AddVarFlags( pList, "Flags", MyOffsetOf( pThis, &pThis->m_Flags ), true, true, 0, 32, strings, (CVarFunc_ValueChanged)&ComponentGameObjectProperties::OnValueChanged, (CVarFunc_DropTarget)&ComponentGameObjectProperties::OnDrop, 0 );
 }
 

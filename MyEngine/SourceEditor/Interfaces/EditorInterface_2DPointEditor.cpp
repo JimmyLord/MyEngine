@@ -40,11 +40,11 @@ EditorInterface_2DPointEditor::~EditorInterface_2DPointEditor()
 void EditorInterface_2DPointEditor::Initialize()
 {
     if( m_pMaterials[Mat_Lines] == 0 )
-        m_pMaterials[Mat_Lines] = MyNew MaterialDefinition( g_pEngineCore->m_pShader_TintColor, ColorByte(255,0,0,255) );
+        m_pMaterials[Mat_Lines] = MyNew MaterialDefinition( g_pEngineCore->GetShader_TintColor(), ColorByte(255,0,0,255) );
     if( m_pMaterials[Mat_Points] == 0 )
-        m_pMaterials[Mat_Points] = MyNew MaterialDefinition( g_pEngineCore->m_pShader_TintColor, ColorByte(255,255,0,255) );
+        m_pMaterials[Mat_Points] = MyNew MaterialDefinition( g_pEngineCore->GetShader_TintColor(), ColorByte(255,255,0,255) );
     if( m_pMaterials[Mat_SelectedPoint] == 0 )
-        m_pMaterials[Mat_SelectedPoint] = MyNew MaterialDefinition( g_pEngineCore->m_pShader_TintColor, ColorByte(255,255,255,255) );
+        m_pMaterials[Mat_SelectedPoint] = MyNew MaterialDefinition( g_pEngineCore->GetShader_TintColor(), ColorByte(255,255,255,255) );
 }
 
 void EditorInterface_2DPointEditor::OnActivated()
@@ -110,7 +110,7 @@ void EditorInterface_2DPointEditor::OnDrawFrame(unsigned int canvasid)
 
         m_pPoint->GetTransform()->SetLocalPosition( worldpos );
 
-        ComponentCamera* pCamera = g_pEngineCore->m_pEditorState->GetEditorCamera();
+        ComponentCamera* pCamera = g_pEngineCore->GetEditorState()->GetEditorCamera();
         MyMatrix* pEditorMatViewProj = &pCamera->m_Camera3D.m_matViewProj;
 
         float distance = (pCamera->m_pComponentTransform->GetLocalPosition() - worldpos).Length();
@@ -127,7 +127,7 @@ void EditorInterface_2DPointEditor::OnDrawFrame(unsigned int canvasid)
     }
 
     // Draw Box2D debug data
-    if( g_pEngineCore->m_Debug_DrawPhysicsDebugShapes && g_GLCanvasIDActive == 1 )
+    if( g_pEngineCore->GetDebug_DrawPhysicsDebugShapes() && g_GLCanvasIDActive == 1 )
     {
         for( int i=0; i<g_pComponentSystemManager->MAX_SCENES_LOADED; i++ )
         {
@@ -155,7 +155,7 @@ void EditorInterface_2DPointEditor::CancelCurrentOperation()
 
 bool EditorInterface_2DPointEditor::HandleInput(int keyaction, int keycode, int mouseaction, int id, float x, float y, float pressure)
 {
-    EditorState* pEditorState = g_pEngineCore->m_pEditorState;
+    EditorState* pEditorState = g_pEngineCore->GetEditorState();
 
     if( keyaction == GCBA_Up && keycode == MYKEYCODE_ESC )
     {
@@ -284,11 +284,11 @@ bool EditorInterface_2DPointEditor::HandleInput(int keyaction, int keycode, int 
                     newpos.x = currentresult.x - pParentMatrix->GetTranslation().x;
                     newpos.y = currentresult.y - pParentMatrix->GetTranslation().y;
 
-                    if( g_pEngineMainFrame->m_GridSettings.snapenabled )
+                    if( g_pEngineMainFrame->GetGridSettings()->snapenabled )
                     {
                         // snap point to grid.
-                        newpos.x = MyRoundToMultipleOf( newpos.x, g_pEngineMainFrame->m_GridSettings.stepsize.x );
-                        newpos.y = MyRoundToMultipleOf( newpos.y, g_pEngineMainFrame->m_GridSettings.stepsize.y );
+                        newpos.x = MyRoundToMultipleOf( newpos.x, g_pEngineMainFrame->GetGridSettings()->stepsize.x );
+                        newpos.y = MyRoundToMultipleOf( newpos.y, g_pEngineMainFrame->GetGridSettings()->stepsize.y );
                     }
 
                     if( createnewvertex )
@@ -327,7 +327,7 @@ void EditorInterface_2DPointEditor::RenderObjectIDsToFBO()
 {
     //EditorInterface::RenderObjectIDsToFBO();
 
-    EditorState* pEditorState = g_pEngineCore->m_pEditorState;
+    EditorState* pEditorState = g_pEngineCore->GetEditorState();
 
     if( pEditorState->m_pMousePickerFBO->IsFullyLoaded() == false )
         return;
@@ -350,19 +350,19 @@ void EditorInterface_2DPointEditor::RenderObjectIDsToFBO()
     //    pCamera = dynamic_cast<ComponentCamera*>( pEditorState->m_pEditorCamera->m_Components[i] );
     //    if( pCamera )
     //    {
-    //        g_pComponentSystemManager->DrawMousePickerFrame( pCamera, &pCamera->m_Camera3D.m_matViewProj, g_pEngineCore->m_pShader_TintColor );
+    //        g_pComponentSystemManager->DrawMousePickerFrame( pCamera, &pCamera->m_Camera3D.m_matViewProj, g_pEngineCore->GetShader_TintColor() );
     //        glClear( GL_DEPTH_BUFFER_BIT );
     //    }
     //}
 
     // Draw a circle at each vertex position.
     {
-        ShaderGroup* pShaderOverride = g_pEngineCore->m_pShader_TintColor;
+        ShaderGroup* pShaderOverride = g_pEngineCore->GetShader_TintColor();
         Shader_Base* pShader = (Shader_Base*)pShaderOverride->GlobalPass( 0, 4 );
     
         if( pShader->ActivateAndProgramShader() )
         {
-            ComponentCamera* pCamera = g_pEngineCore->m_pEditorState->GetEditorCamera();
+            ComponentCamera* pCamera = g_pEngineCore->GetEditorState()->GetEditorCamera();
             MyMatrix* pEditorMatViewProj = &pCamera->m_Camera3D.m_matViewProj;
 
             for( unsigned int i=0; i<m_pCollisionObject->m_Vertices.size(); i++ )
@@ -376,7 +376,7 @@ void EditorInterface_2DPointEditor::RenderObjectIDsToFBO()
 
                 m_pPoint->GetTransform()->SetLocalPosition( worldpos );
 
-                ComponentCamera* pCamera = g_pEngineCore->m_pEditorState->GetEditorCamera();
+                ComponentCamera* pCamera = g_pEngineCore->GetEditorState()->GetEditorCamera();
                 MyMatrix* pEditorMatViewProj = &pCamera->m_Camera3D.m_matViewProj;
 
                 float distance = (pCamera->m_pComponentTransform->GetLocalPosition() - pos3d).Length();

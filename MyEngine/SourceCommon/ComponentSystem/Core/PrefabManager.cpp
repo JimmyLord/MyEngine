@@ -115,7 +115,7 @@ void PrefabObject::OnRightClick(wxTreeItemId treeid)
 
     // Count how many prefabs are selected, ignore other selected objects that aren't prefabs.
     int numprefabsselected = 0;
-    EditorState* pEditorState = g_pEngineCore->m_pEditorState;
+    EditorState* pEditorState = g_pEngineCore->GetEditorState();
     for( unsigned int i=0; i<pEditorState->m_pSelectedObjects.size(); i++ )
     {
         PrefabObject* pSelectedPrefab = g_pComponentSystemManager->m_pPrefabManager->FindPrefabContainingGameObject( pEditorState->m_pSelectedObjects[i] );
@@ -159,7 +159,7 @@ void PrefabObjectWxEventHandler::OnPopupClick(wxEvent &evt)
         // Create a temp vector to pass into command.
         std::vector<PrefabObject*> prefabs;
 
-        EditorState* pEditorState = g_pEngineCore->m_pEditorState;
+        EditorState* pEditorState = g_pEngineCore->GetEditorState();
         if( pEditorState->m_pSelectedObjects.size() > 0 )
         {
             for( unsigned int i=0; i<pEditorState->m_pSelectedObjects.size(); i++ )

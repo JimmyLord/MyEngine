@@ -23,13 +23,13 @@ void EditorInterface_SceneManagement::Initialize()
 
 void EditorInterface_SceneManagement::OnActivated()
 {
-    EditorState* pEditorState = g_pEngineCore->m_pEditorState;
+    EditorState* pEditorState = g_pEngineCore->GetEditorState();
     pEditorState->m_pTransformGizmo->m_VisibleIfObjectsSelected = true;
 }
 
 void EditorInterface_SceneManagement::OnDeactivated()
 {
-    EditorState* pEditorState = g_pEngineCore->m_pEditorState;
+    EditorState* pEditorState = g_pEngineCore->GetEditorState();
     pEditorState->m_pTransformGizmo->m_VisibleIfObjectsSelected = false;
 }
 
@@ -37,15 +37,18 @@ void EditorInterface_SceneManagement::OnDrawFrame(unsigned int canvasid)
 {
     MyAssert( canvasid == 1 );
 
-    EditorState* pEditorState = g_pEngineCore->m_pEditorState;
+    EditorState* pEditorState = g_pEngineCore->GetEditorState();
 
     float windowwidth = g_pEngineCore->m_WindowWidth;
     float windowheight = g_pEngineCore->m_WindowHeight;
 
-    // EditorInterface class will draw the main editor view
+    // EditorInterface class will draw the main editor view.
     EditorInterface::OnDrawFrame( canvasid );
 
-    if( g_pEngineCore->m_Debug_DrawSelectedAnimatedMesh && g_GLCanvasIDActive == 1 )
+    // Get/Create a debug quad sprite.
+    MySprite* debugquad = g_pEngineCore->GetSprite_DebugQuad();
+
+    if( g_pEngineCore->GetDebug_DrawSelectedAnimatedMesh() && g_GLCanvasIDActive == 1 )
     {
         if( pEditorState->m_pSelectedObjects.size() > 0 )
         {
@@ -68,29 +71,23 @@ void EditorInterface_SceneManagement::OnDrawFrame(unsigned int canvasid)
                 pAnim->m_AnimationIndex = backupindex;
                 pAnim->m_AnimationTime = backuptime;
 
-                if( g_pEngineCore->m_pDebugQuadSprite == 0 )
-                    g_pEngineCore->m_pDebugQuadSprite = MyNew MySprite( false );
-
                 float maxu = (float)pEditorState->m_pDebugViewFBO->m_Width / pEditorState->m_pDebugViewFBO->m_TextureWidth;
                 float maxv = (float)pEditorState->m_pDebugViewFBO->m_Height / pEditorState->m_pDebugViewFBO->m_TextureHeight;
 
-                g_pEngineCore->m_pDebugQuadSprite->CreateInPlace( "debug", 0.5f, 0.5f, 1.0f, 1.0f, 0, maxu, maxv, 0, Justify_Center, false );
-                g_pEngineCore->m_pMaterial_ClipSpaceTexture->SetTextureColor( pEditorState->m_pDebugViewFBO->m_pColorTexture );
-                g_pEngineCore->m_pDebugQuadSprite->SetMaterial( g_pEngineCore->m_pMaterial_ClipSpaceTexture );
-                g_pEngineCore->m_pDebugQuadSprite->Draw( 0, 0 );
+                debugquad->CreateInPlace( "debug", 0.5f, 0.5f, 1.0f, 1.0f, 0, maxu, maxv, 0, Justify_Center, false );
+                g_pEngineCore->GetMaterial_ClipSpaceTexture()->SetTextureColor( pEditorState->m_pDebugViewFBO->m_pColorTexture );
+                debugquad->SetMaterial( g_pEngineCore->GetMaterial_ClipSpaceTexture() );
+                debugquad->Draw( 0, 0 );
             }
 
             // if it's a shadow cam, render the depth texture
             ComponentCameraShadow* pCamera = dynamic_cast<ComponentCameraShadow*>( pObject->GetFirstComponentOfBaseType( BaseComponentType_Camera ) );
             if( pCamera )
             {
-                if( g_pEngineCore->m_pDebugQuadSprite == 0 )
-                    g_pEngineCore->m_pDebugQuadSprite = MyNew MySprite( false );
-
-                g_pEngineCore->m_pDebugQuadSprite->CreateInPlace( "debug", 0.5f, 0.5f, 1.0f, 1.0f, 0, 1, 1, 0, Justify_Center, false );
-                g_pEngineCore->m_pMaterial_ClipSpaceTexture->SetTextureColor( pCamera->GetFBO()->m_pDepthTexture );
-                g_pEngineCore->m_pDebugQuadSprite->SetMaterial( g_pEngineCore->m_pMaterial_ClipSpaceTexture );
-                g_pEngineCore->m_pDebugQuadSprite->Draw( 0, 0 );
+                debugquad->CreateInPlace( "debug", 0.5f, 0.5f, 1.0f, 1.0f, 0, 1, 1, 0, Justify_Center, false );
+                g_pEngineCore->GetMaterial_ClipSpaceTexture()->SetTextureColor( pCamera->GetFBO()->m_pDepthTexture );
+                debugquad->SetMaterial( g_pEngineCore->GetMaterial_ClipSpaceTexture() );
+                debugquad->Draw( 0, 0 );
             }
         }
     }
@@ -101,21 +98,9 @@ void EditorInterface_SceneManagement::OnDrawFrame(unsigned int canvasid)
 
         if( pMaterial )
         {
-            if( g_pEngineCore->m_pMaterialBallMesh == 0 )
-            {
-                g_pEngineCore->m_pMaterialBallMesh = MyNew MyMesh();
-                g_pEngineCore->m_pSphereMeshFile = RequestFile( "Data/DataEngine/Meshes/sphere.obj.mymesh" );
-            }
+            MyMesh* pMeshBall = g_pEngineCore->GetMesh_MaterialBall();
 
-            if( g_pEngineCore->m_pMaterialBallMesh && g_pEngineCore->m_pMaterialBallMesh->m_MeshReady == false )
-            {
-                if( g_pEngineCore->m_pSphereMeshFile->GetFileLoadStatus() == FileLoadStatus_Success )
-                {
-                    g_pEngineCore->m_pMaterialBallMesh->SetSourceFile( g_pEngineCore->m_pSphereMeshFile );
-                }
-            }
-
-            if( g_pEngineCore->m_pMaterialBallMesh && g_pEngineCore->m_pMaterialBallMesh->m_MeshReady )
+            if( pMeshBall )
             {
                 pEditorState->m_pDebugViewFBO->Bind( true );
 
@@ -125,7 +110,7 @@ void EditorInterface_SceneManagement::OnDrawFrame(unsigned int canvasid)
                 glClearColor( 0.2f, 0.2f, 0.2f, 1.0f );
                 glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
-                g_pEngineCore->m_pMaterialBallMesh->SetMaterial( pMaterial, 0 );
+                pMeshBall->SetMaterial( pMaterial, 0 );
 
                 MyMatrix matview;
                 matview.SetIdentity();
@@ -159,25 +144,22 @@ void EditorInterface_SceneManagement::OnDrawFrame(unsigned int canvasid)
                 light2.m_Position.Set( 2*cos(PI+time), 1, 2*sin(PI+time) );
 
                 MyLight* lights[] = { &light1, &light2 };
-                g_pEngineCore->m_pMaterialBallMesh->Draw( 0, &matviewproj, &campos, &camrot, lights, 2, 0, 0, 0, 0 );
+                pMeshBall->Draw( 0, &matviewproj, &campos, &camrot, lights, 2, 0, 0, 0, 0 );
 
                 pEditorState->m_pDebugViewFBO->Unbind( true );
             }
 
-            if( g_pEngineCore->m_pDebugQuadSprite == 0 )
-                g_pEngineCore->m_pDebugQuadSprite = MyNew MySprite( false );
-
             float u = (float)pEditorState->m_pMousePickerFBO->m_Width / pEditorState->m_pMousePickerFBO->m_TextureWidth;
             float v = (float)pEditorState->m_pMousePickerFBO->m_Height / pEditorState->m_pMousePickerFBO->m_TextureHeight;
-            g_pEngineCore->m_pDebugQuadSprite->CreateInPlace( "debug", 0.5f, 0.5f, 1.0f, 1.0f, 0, u, v, 0, Justify_Center, false );
-            g_pEngineCore->m_pMaterial_ClipSpaceTexture->SetTextureColor( pEditorState->m_pDebugViewFBO->m_pColorTexture );
-            g_pEngineCore->m_pDebugQuadSprite->SetMaterial( g_pEngineCore->m_pMaterial_ClipSpaceTexture );
-            g_pEngineCore->m_pDebugQuadSprite->Draw( 0, 0 );
+            debugquad->CreateInPlace( "debug", 0.5f, 0.5f, 1.0f, 1.0f, 0, u, v, 0, Justify_Center, false );
+            g_pEngineCore->GetMaterial_ClipSpaceTexture()->SetTextureColor( pEditorState->m_pDebugViewFBO->m_pColorTexture );
+            debugquad->SetMaterial( g_pEngineCore->GetMaterial_ClipSpaceTexture() );
+            debugquad->Draw( 0, 0 );
         }
     }
 
     // Draw Box2D debug data
-    if( g_pEngineCore->m_Debug_DrawPhysicsDebugShapes && g_GLCanvasIDActive == 1 )
+    if( g_pEngineCore->GetDebug_DrawPhysicsDebugShapes() && g_GLCanvasIDActive == 1 )
     {
         for( int i=0; i<g_pComponentSystemManager->MAX_SCENES_LOADED; i++ )
         {
@@ -185,13 +167,13 @@ void EditorInterface_SceneManagement::OnDrawFrame(unsigned int canvasid)
                 g_pComponentSystemManager->m_pSceneInfoMap[i].m_pBox2DWorld->m_pWorld->DrawDebugData();
         }
 
-        g_pEngineCore->m_pBulletWorld->m_pDynamicsWorld->debugDrawWorld();
+        g_pEngineCore->GetBulletWorld()->m_pDynamicsWorld->debugDrawWorld();
     }
 }
 
 bool EditorInterface_SceneManagement::HandleInput(int keyaction, int keycode, int mouseaction, int id, float x, float y, float pressure)
 {
-    EditorState* pEditorState = g_pEngineCore->m_pEditorState;
+    EditorState* pEditorState = g_pEngineCore->GetEditorState();
 
     EditorInterface::SetModifierKeyStates( keyaction, keycode, mouseaction, id, x, y, pressure );
 
@@ -317,7 +299,7 @@ bool EditorInterface_SceneManagement::HandleInput(int keyaction, int keycode, in
                         continue;
 
                     GameObject* pNewObject = g_pComponentSystemManager->EditorCopyGameObject( selectedobjects[i], false );
-                    if( g_pEngineCore->m_EditorMode )
+                    if( g_pEngineCore->IsInEditorMode() )
                     {
                         pNewObject->SetSceneID( selectedobjects[i]->GetSceneID() );
                     }
@@ -338,7 +320,7 @@ bool EditorInterface_SceneManagement::HandleInput(int keyaction, int keycode, in
             }
 
             // if we didn't select the gizmo and gameplay is running.
-            if( selectedgizmo == false && g_pEngineCore->m_EditorMode == false )
+            if( selectedgizmo == false && g_pEngineCore->IsInEditorMode() == false )
             {
                 // check if we selected a physics object then grab it.
                 //if( pEditorState->m_ModifierKeyStates & MODIFIERKEY_Shift )

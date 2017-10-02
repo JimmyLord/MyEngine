@@ -25,19 +25,19 @@ DialogGridSettings::DialogGridSettings(wxWindow* parent, wxWindowID id, const wx
     
     new wxStaticText( this, -1, "X", pos );
     pos.x += 10;
-    sprintf_s( tempstr, 20, "%0.02f", g_pEngineMainFrame->m_GridSettings.stepsize.x );
+    sprintf_s( tempstr, 20, "%0.02f", g_pEngineMainFrame->GetGridSettings()->stepsize.x );
     m_GridStepX = new wxTextCtrl( this, -1, tempstr, wxPoint( pos.x, pos.y - 3 ), wxSize(40, 20) );
     pos.x += 50;
 
     new wxStaticText( this, -1, "Y", pos );
     pos.x += 10;
-    sprintf_s( tempstr, 20, "%0.02f", g_pEngineMainFrame->m_GridSettings.stepsize.y );
+    sprintf_s( tempstr, 20, "%0.02f", g_pEngineMainFrame->GetGridSettings()->stepsize.y );
     m_GridStepY = new wxTextCtrl( this, -1, tempstr, wxPoint( pos.x, pos.y - 3 ), wxSize(40, 20) );
     pos.x += 50;
 
     new wxStaticText( this, -1, "Z", pos );
     pos.x += 10;
-    sprintf_s( tempstr, 20, "%0.02f", g_pEngineMainFrame->m_GridSettings.stepsize.z );
+    sprintf_s( tempstr, 20, "%0.02f", g_pEngineMainFrame->GetGridSettings()->stepsize.z );
     m_GridStepZ = new wxTextCtrl( this, -1, tempstr, wxPoint( pos.x, pos.y - 3 ), wxSize(40, 20) );
     pos.x += 50;
 
@@ -66,7 +66,7 @@ void DialogGridSettings::OnOk(wxCommandEvent& event)
     m_GridStepZ->GetValue().ToDouble( &value );
     float z = (float)value;
 
-    g_pEngineMainFrame->m_GridSettings.stepsize.Set( x, y, z );
+    g_pEngineMainFrame->GetGridSettings()->stepsize.Set( x, y, z );
 
     event.Skip();
 }

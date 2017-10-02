@@ -630,14 +630,14 @@ void Component2DCollisionObject::DrawCallback(ComponentCamera* pCamera, MyMatrix
     }
     else
     {
-        if( g_pEngineCore->m_Debug_DrawPhysicsDebugShapes == false )
+        if( g_pEngineCore->GetDebug_DrawPhysicsDebugShapes() == false )
             return;
     }
 
-    //ComponentCamera* pCamera = g_pEngineCore->m_pEditorState->GetEditorCamera();
+    //ComponentCamera* pCamera = g_pEngineCore->GetEditorState()->GetEditorCamera();
     MyMatrix* pEditorMatViewProj = &pCamera->m_Camera3D.m_matViewProj;
 
-    //MaterialDefinition* pMaterial = g_pEngineCore->m_pEditorState->m_pTransformGizmo->m_pMaterial_Translate1Axis[1];
+    //MaterialDefinition* pMaterial = g_pEngineCore->GetEditorState()->m_pTransformGizmo->m_pMaterial_Translate1Axis[1];
     EditorInterface_2DPointEditor* pInterface = ((EditorInterface_2DPointEditor*)g_pEngineCore->GetEditorInterface(EditorInterfaceType_2DPointEditor));
     MyAssert( pInterface );
     MaterialDefinition* pMaterial = pInterface->GetMaterial( EditorInterface_2DPointEditor::Mat_Lines );

@@ -78,28 +78,28 @@ void EngineMainFrame_MessageLogForReal(int logtype, const char* tag, const char*
     if( logtype != 2 )
     {
         if( logtype == 1 )
-            g_pEngineMainFrame->m_pLogMain->AppendText( "ERROR: " );
-        g_pEngineMainFrame->m_pLogMain->AppendText( message );
+            g_pEngineMainFrame->GetLogMain()->AppendText( "ERROR: " );
+        g_pEngineMainFrame->GetLogMain()->AppendText( message );
     }
 
     // All warnings go into the "Info" log.
     if( logtype == 0 )
-        g_pEngineMainFrame->m_pLogInfo->AppendText( message );
+        g_pEngineMainFrame->GetLogInfo()->AppendText( message );
 
     // All errors go into the "Errors" log.
     if( logtype == 1 )
-        g_pEngineMainFrame->m_pLogErrors->AppendText( message );
+        g_pEngineMainFrame->GetLogErrors()->AppendText( message );
 
     // If the default tag wasn't used, find or create an extra log window for that tag.
     wxTextCtrl* pCustomLogTextCtrl = 0;
     if( tag != LOGTag )
     {
         // Find custom box if it exists.
-        for( unsigned int i=0; i<g_pEngineMainFrame->m_pLogPane->GetPageCount(); i++ )
+        for( unsigned int i=0; i<g_pEngineMainFrame->GetLogPane()->GetPageCount(); i++ )
         {
-            if( g_pEngineMainFrame->m_pLogPane->GetPageText( i ) == tag )
+            if( g_pEngineMainFrame->GetLogPane()->GetPageText( i ) == tag )
             {
-                pCustomLogTextCtrl = (wxTextCtrl*)g_pEngineMainFrame->m_pLogPane->GetPage( i );
+                pCustomLogTextCtrl = (wxTextCtrl*)g_pEngineMainFrame->GetLogPane()->GetPage( i );
                 break;
             }
         }
@@ -107,11 +107,11 @@ void EngineMainFrame_MessageLogForReal(int logtype, const char* tag, const char*
         // if not, create it.
         if( pCustomLogTextCtrl == 0 )
         {
-            pCustomLogTextCtrl = new wxTextCtrl( g_pEngineMainFrame->m_pLogPane, -1, wxEmptyString,
+            pCustomLogTextCtrl = new wxTextCtrl( g_pEngineMainFrame->GetLogPane(), -1, wxEmptyString,
                                          wxDefaultPosition, wxDefaultSize,
                                          wxTE_READONLY | wxNO_BORDER | wxTE_MULTILINE );
             pCustomLogTextCtrl->Bind( wxEVT_LEFT_DCLICK, &EngineMainFrame::OnTextCtrlLeftDoubleClick, g_pEngineMainFrame );
-            g_pEngineMainFrame->m_pLogPane->AddPage( pCustomLogTextCtrl, tag );
+            g_pEngineMainFrame->GetLogPane()->AddPage( pCustomLogTextCtrl, tag );
         }
 
         // write the message to the custom box, error check shouldn't be needed.
@@ -161,7 +161,7 @@ EngineMainFrame::EngineMainFrame()
     m_pGLCanvasEditor = 0;
     m_pLogPane = 0;
 
-    m_StackDepthAtLastSave = 0;
+    m_UndoStackDepthAtLastSave = 0;
 
     m_EditorPerspectives = 0;
     m_GameplayPerspectives = 0;
@@ -536,7 +536,7 @@ void EngineMainFrame::OnPostInit()
 
         obj = cJSON_GetObjectItem( m_pEditorPrefs, "EditorCam" );
         if( obj )
-            g_pEngineCore->m_pEditorState->GetEditorCamera()->m_pComponentTransform->ImportFromJSONObject( obj, EngineCore::ENGINE_SCENE_ID );
+            g_pEngineCore->GetEditorState()->GetEditorCamera()->m_pComponentTransform->ImportFromJSONObject( obj, EngineCore::ENGINE_SCENE_ID );
 
         extern GLViewTypes g_CurrentGLViewType;
         cJSONExt_GetInt( m_pEditorPrefs, "GameAspectRatio", (int*)&g_CurrentGLViewType );
@@ -573,8 +573,8 @@ void EngineMainFrame::OnPostInit()
 
     if( sceneloaded == false )
     {
-        g_pEngineCore->m_pEditorState->ClearKeyAndActionStates();
-        g_pEngineCore->m_pEditorState->ClearSelectedObjectsAndComponents();
+        g_pEngineCore->GetEditorState()->ClearKeyAndActionStates();
+        g_pEngineCore->GetEditorState()->ClearSelectedObjectsAndComponents();
         g_pComponentSystemManager->CreateNewScene( "Unsaved.scene", 1 );
         g_pEngineCore->CreateDefaultSceneObjects();
     }
@@ -588,7 +588,7 @@ bool EngineMainFrame::OnClose()
 {
     int answer = wxID_YES;
 
-    if( m_pCommandStack->GetUndoStackSize() != m_StackDepthAtLastSave )
+    if( m_pCommandStack->GetUndoStackSize() != m_UndoStackDepthAtLastSave )
     {
         //answer = wxMessageBox( "Some changes aren't saved.\nQuit anyway?", "Confirm", wxYES_NO, this );
         wxMessageDialog dlg( this, "Some changes aren't saved.\nQuit anyway?", "Confirm", wxYES_NO | wxNO_DEFAULT );
@@ -603,8 +603,8 @@ bool EngineMainFrame::OnClose()
         if( g_pEngineCore == 0 )
             return parentwantstoclose;
 
-        g_pEngineCore->m_pEditorState->ClearKeyAndActionStates();
-        g_pEngineCore->m_pEditorState->ClearSelectedObjectsAndComponents();
+        g_pEngineCore->GetEditorState()->ClearKeyAndActionStates();
+        g_pEngineCore->GetEditorState()->ClearSelectedObjectsAndComponents();
 
         FILE* file = 0;
 #if MYFW_WINDOWS
@@ -642,7 +642,7 @@ bool EngineMainFrame::OnClose()
                 cJSON_AddStringToObject( pPrefs, "LastSceneLoaded", relativepath );
             else
                 cJSON_AddStringToObject( pPrefs, "LastSceneLoaded", g_pComponentSystemManager->GetSceneInfo( 1 )->m_FullPath );
-            cJSON_AddItemToObject( pPrefs, "EditorCam", g_pEngineCore->m_pEditorState->GetEditorCamera()->m_pComponentTransform->ExportAsJSONObject( false, true ) );
+            cJSON_AddItemToObject( pPrefs, "EditorCam", g_pEngineCore->GetEditorState()->GetEditorCamera()->m_pComponentTransform->ExportAsJSONObject( false, true ) );
             cJSON_AddNumberToObject( pPrefs, "EditorLayout", GetDefaultEditorPerspectiveIndex() );
             cJSON_AddNumberToObject( pPrefs, "GameplayLayout", GetDefaultGameplayPerspectiveIndex() );
             extern GLViewTypes g_CurrentGLViewType;
@@ -652,7 +652,7 @@ bool EngineMainFrame::OnClose()
             cJSON_AddNumberToObject( pPrefs, "GridSnapEnabled", m_GridSettings.snapenabled );
             cJSONExt_AddFloatArrayToObject( pPrefs, "GridStepSize", &m_GridSettings.stepsize.x, 3 );
 
-            cJSON* jGameObjectFlagsArray = cJSON_CreateStringArray( (const char**)g_pEngineCore->m_GameObjectFlagStrings, 32 );
+            cJSON* jGameObjectFlagsArray = cJSON_CreateStringArray( g_pEngineCore->GetGameObjectFlagStringArray(), 32 );
             cJSON_AddItemToObject( pPrefs, "GameObjectFlags", jGameObjectFlagsArray );
 
             char* string = cJSON_Print( pPrefs );
@@ -758,19 +758,19 @@ void EngineMainFrame::UpdateMenuItemStates()
     if( g_pEngineCore )
     {
         if( m_MenuItem_Debug_DrawMousePickerFBO )
-            m_MenuItem_Debug_DrawMousePickerFBO->Check( g_pEngineCore->m_Debug_DrawMousePickerFBO );
+            m_MenuItem_Debug_DrawMousePickerFBO->Check( g_pEngineCore->GetDebug_DrawMousePickerFBO() );
 
         if( m_MenuItem_Debug_DrawSelectedAnimatedMesh )
-            m_MenuItem_Debug_DrawSelectedAnimatedMesh->Check( g_pEngineCore->m_Debug_DrawSelectedAnimatedMesh );
+            m_MenuItem_Debug_DrawSelectedAnimatedMesh->Check( g_pEngineCore->GetDebug_DrawSelectedAnimatedMesh() );
 
         if( m_MenuItem_Debug_DrawGLStats )
-            m_MenuItem_Debug_DrawGLStats->Check( g_pEngineCore->m_Debug_DrawGLStats );
+            m_MenuItem_Debug_DrawGLStats->Check( g_pEngineCore->GetDebug_DrawGLStats() );
 
         if( m_MenuItem_Debug_DrawPhysicsDebugShapes )
-            m_MenuItem_Debug_DrawPhysicsDebugShapes->Check( g_pEngineCore->m_Debug_DrawPhysicsDebugShapes );
+            m_MenuItem_Debug_DrawPhysicsDebugShapes->Check( g_pEngineCore->GetDebug_DrawPhysicsDebugShapes() );
 
         if( m_MenuItem_Debug_ShowProfilingInfo )
-            m_MenuItem_Debug_ShowProfilingInfo->Check( g_pEngineCore->m_Debug_ShowProfilingInfo );
+            m_MenuItem_Debug_ShowProfilingInfo->Check( g_pEngineCore->GetDebug_ShowProfilingInfo() );
     }
 }
 
@@ -780,6 +780,11 @@ void EngineMainFrame::ProcessAllGLCanvasInputEventQueues()
 
     if( m_pGLCanvasEditor )
         m_pGLCanvasEditor->ProcessInputEventQueue();
+}
+
+void EngineMainFrame::StoreCurrentUndoStackSize()
+{
+    m_UndoStackDepthAtLastSave = m_pCommandStack->GetUndoStackSize();
 }
 
 void EngineMainFrame::OnMenu_Engine(wxCommandEvent& event)
@@ -792,7 +797,7 @@ void EngineMainFrame::OnMenu_Engine(wxCommandEvent& event)
         {
             int answer = wxID_YES;
 
-            if( m_pCommandStack->GetUndoStackSize() != m_StackDepthAtLastSave )
+            if( m_pCommandStack->GetUndoStackSize() != m_UndoStackDepthAtLastSave )
             {
                 //answer = wxMessageBox( "Some changes aren't saved.\nCreate a new scene?", "Confirm", wxYES_NO, this );
                 wxMessageDialog dlg( g_pEngineMainFrame, "Some changes aren't saved.\nCreate a new scene?", "Confirm", wxYES_NO | wxNO_DEFAULT );
@@ -802,8 +807,8 @@ void EngineMainFrame::OnMenu_Engine(wxCommandEvent& event)
 
             if( answer == wxID_YES )
             {
-                g_pEngineCore->m_pEditorState->ClearKeyAndActionStates();
-                g_pEngineCore->m_pEditorState->ClearSelectedObjectsAndComponents();
+                g_pEngineCore->GetEditorState()->ClearKeyAndActionStates();
+                g_pEngineCore->GetEditorState()->ClearSelectedObjectsAndComponents();
                 g_pEngineCore->SetEditorInterface( EditorInterfaceType_SceneManagement );
 
                 this->SetTitle( "New scene" );
@@ -820,7 +825,7 @@ void EngineMainFrame::OnMenu_Engine(wxCommandEvent& event)
         {
             int answer = wxID_YES;
 
-            if( m_pCommandStack->GetUndoStackSize() != m_StackDepthAtLastSave )
+            if( m_pCommandStack->GetUndoStackSize() != m_UndoStackDepthAtLastSave )
             {
                 //answer = wxMessageBox( "Some changes aren't saved.\nLoad anyway?", "Confirm", wxYES_NO, this );
                 wxMessageDialog dlg( g_pEngineMainFrame, "Some changes aren't saved.\nLoad anyway?", "Confirm", wxYES_NO | wxNO_DEFAULT );
@@ -852,7 +857,7 @@ void EngineMainFrame::OnMenu_Engine(wxCommandEvent& event)
         break;
 
     case myIDEngine_SaveScene:
-        m_StackDepthAtLastSave = m_pCommandStack->GetUndoStackSize();
+        StoreCurrentUndoStackSize();
         g_pMaterialManager->SaveAllMaterials();
         g_pComponentSystemManager->m_pPrefabManager->SaveAllPrefabs();
         g_pGameCore->m_pSoundManager->SaveAllCues();
@@ -860,7 +865,7 @@ void EngineMainFrame::OnMenu_Engine(wxCommandEvent& event)
         break;
 
     case myIDEngine_SaveSceneAs:
-        m_StackDepthAtLastSave = m_pCommandStack->GetUndoStackSize();
+        StoreCurrentUndoStackSize();
         g_pMaterialManager->SaveAllMaterials();
         g_pComponentSystemManager->m_pPrefabManager->SaveAllPrefabs();
         g_pGameCore->m_pSoundManager->SaveAllCues();
@@ -887,7 +892,7 @@ void EngineMainFrame::OnMenu_Engine(wxCommandEvent& event)
     case myIDEngine_Grid_Settings:
         {
             // should be in an "gl frame lost focus" state handling.
-            g_pEngineCore->m_pEditorState->ClearKeyAndActionStates();
+            g_pEngineCore->GetEditorState()->ClearKeyAndActionStates();
 
             DialogGridSettings dialog( this, -1, _("Grid Settings"), GetPosition() + wxPoint(60,60), wxSize(200, 200) );
             dialog.ShowModal();
@@ -983,7 +988,7 @@ void EngineMainFrame::OnMenu_Engine(wxCommandEvent& event)
     case myIDEngine_View_EditorPerspective + 2:
     case myIDEngine_View_EditorPerspective + 3:
         SetDefaultEditorPerspectiveIndex( id - myIDEngine_View_EditorPerspective );
-        if( g_pEngineCore->m_EditorMode == true )
+        if( g_pEngineCore->IsInEditorMode() == true )
             SetWindowPerspectiveToDefault( true );
         break;
 
@@ -992,7 +997,7 @@ void EngineMainFrame::OnMenu_Engine(wxCommandEvent& event)
     case myIDEngine_View_GameplayPerspective + 2:
     case myIDEngine_View_GameplayPerspective + 3:
         SetDefaultGameplayPerspectiveIndex( id - myIDEngine_View_GameplayPerspective );
-        if( g_pEngineCore->m_EditorMode == false )
+        if( g_pEngineCore->IsInEditorMode() == true )
             SetWindowPerspectiveToDefault( true );
         break;
 
@@ -1007,9 +1012,9 @@ void EngineMainFrame::OnMenu_Engine(wxCommandEvent& event)
         {
             int layerindex = id - myIDEngine_View_EditorCameraLayer;
             if( m_EditorCameraLayerOptions[layerindex]->IsChecked() )
-                g_pEngineCore->m_pEditorState->GetEditorCamera()->m_LayersToRender |= (1 << layerindex);
+                g_pEngineCore->GetEditorState()->GetEditorCamera()->m_LayersToRender |= (1 << layerindex);
             else
-                g_pEngineCore->m_pEditorState->GetEditorCamera()->m_LayersToRender &= ~(1 << layerindex);
+                g_pEngineCore->GetEditorState()->GetEditorCamera()->m_LayersToRender &= ~(1 << layerindex);
         }
         break;
 
@@ -1132,7 +1137,7 @@ void EngineMainFrame::SetWindowPerspectiveToDefault(bool forceswitch)
     // change menubar color scheme when in gameplay mode
     {
         wxColour bgcolour = m_MenuBar->GetBackgroundColour();
-        if( g_pEngineCore->m_EditorMode )
+        if( g_pEngineCore->IsInEditorMode() )
         {
             //m_pGLCanvasEditor->SetBackgroundColour( wxColour( 240, 240, 240, 255 ) );
             //m_pGLCanvasEditor->Refresh();
@@ -1173,7 +1178,7 @@ int EngineMainFrame::GetCurrentPerspectiveIndex()
     int editor = GetDefaultEditorPerspectiveIndex();
     int gameplay = GetDefaultGameplayPerspectiveIndex();
 
-    if( g_pEngineCore->m_EditorMode )
+    if( g_pEngineCore->IsInEditorMode() )
     {
         currentperspective = editor;
     }
@@ -1229,7 +1234,7 @@ void EngineMainFrame::SetDefaultGameplayPerspectiveIndex(int index)
 
 void EngineMainFrame::SaveScene()
 {
-    if( g_pEngineCore->m_EditorMode == false )
+    if( g_pEngineCore->IsInEditorMode() == false )
     {
         LOGInfo( LOGTag, "Can't save when gameplay is active... use \"Save As\"\n" );
     }
@@ -1334,8 +1339,8 @@ void EngineMainFrame::LoadScene(const char* scenename, bool unloadscenes)
         g_pComponentSystemManager->ResetSceneIDCounter();
 
         // if we're unloading the old scene(s), clear all selected items.
-        g_pEngineCore->m_pEditorState->ClearKeyAndActionStates();
-        g_pEngineCore->m_pEditorState->ClearSelectedObjectsAndComponents();
+        g_pEngineCore->GetEditorState()->ClearKeyAndActionStates();
+        g_pEngineCore->GetEditorState()->ClearSelectedObjectsAndComponents();
         g_pEngineCore->SetEditorInterface( EditorInterfaceType_SceneManagement );
 
         g_pEngineCore->UnloadScene( UINT_MAX, false ); // don't unload editor objects.
@@ -1386,13 +1391,13 @@ void EngineMainFrame::LoadDatafile(wxString filename)
         return;
     }
 
-    g_pEngineCore->m_pComponentSystemManager->LoadDataFile( relativepath, 1, filename, true );
+    g_pEngineCore->GetComponentSystemManager()->LoadDataFile( relativepath, 1, filename, true );
 }
 
 void EngineMainFrame::OnDrop(int controlid, wxCoord x, wxCoord y)
 {
     // get the GameObject the mouse was hovering over.
-    ComponentCamera* pCamera = g_pEngineCore->m_pEditorState->GetEditorCamera();
+    ComponentCamera* pCamera = g_pEngineCore->GetEditorState()->GetEditorCamera();
     y = pCamera->m_WindowHeight - y; // prefer 0,0 at bottom left.
     GameObject* pObjectDroppedOn = g_pEngineCore->GetCurrentEditorInterface()->GetObjectAtPixel( x, y, true, false );
 
@@ -1507,8 +1512,8 @@ void EngineMainFrame::OnDrop(int controlid, wxCoord x, wxCoord y)
             g_pEngineMainFrame->m_pCommandStack->Add( MyNew EditorCommand_CreateGameObject( pGameObjectCreated ) );
 
             // Select the object dropped
-            g_pEngineCore->m_pEditorState->ClearSelectedObjectsAndComponents();
-            g_pEngineCore->m_pEditorState->SelectGameObject( pGameObjectCreated );
+            g_pEngineCore->GetEditorState()->ClearSelectedObjectsAndComponents();
+            g_pEngineCore->GetEditorState()->SelectGameObject( pGameObjectCreated );
 
             // Move the new object to the same spot as the one it was dropped on
             if( pObjectDroppedOn )
@@ -1554,8 +1559,8 @@ void EngineMainFrame::OnTextCtrlLeftDoubleClick(wxMouseEvent& evt)
         GameObject* pGameObject = g_pComponentSystemManager->ParseLog_GameObject( line.c_str() );
         if( pGameObject )
         {
-            g_pEngineCore->m_pEditorState->ClearSelectedObjectsAndComponents();
-            g_pEngineCore->m_pEditorState->SelectGameObject( pGameObject );
+            g_pEngineCore->GetEditorState()->ClearSelectedObjectsAndComponents();
+            g_pEngineCore->GetEditorState()->SelectGameObject( pGameObject );
 
             // Select the object in the object tree.
             if( pGameObject->IsPrefab() )

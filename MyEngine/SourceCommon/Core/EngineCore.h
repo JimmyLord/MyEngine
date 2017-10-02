@@ -66,12 +66,14 @@ extern void OnFileUpdated_CallbackFunction(MyFileObject* pFile);
 
 class EngineCore : public GameCore
 {
+    friend class EngineMainFrame;
+
 public:
     static const int MAX_FRAMES_TO_STORE = 60*30; // 30 seconds @ 60fps
     static const int ENGINE_SCENE_ID = 9; //9879;
     static const int MAX_SCENE_FILES_QUEUED_UP = 10;
 
-public:
+protected:
     ComponentSystemManager* m_pComponentSystemManager;
     MyStackAllocator m_SingleFrameMemoryStack;
 
@@ -99,20 +101,6 @@ public:
 
     bool m_Debug_DrawWireframe;
 
-#if MYFW_USING_WX
-    EditorState* m_pEditorState;
-    bool m_Debug_DrawMousePickerFBO;
-    bool m_Debug_DrawSelectedAnimatedMesh;
-    bool m_Debug_DrawSelectedMaterial;
-    bool m_Debug_DrawPhysicsDebugShapes;
-    bool m_Debug_ShowProfilingInfo;
-    bool m_Debug_DrawGLStats;
-    MyFileObject* m_pSphereMeshFile;
-    MySprite* m_pDebugQuadSprite;
-    MyMesh* m_pMaterialBallMesh;
-    FontDefinition* m_pDebugFont;
-    MyMeshText* m_pDebugTextMesh; // DEBUG_HACK_SHOWGLSTATS
-#endif //MYFW_USING_WX
     bool m_FreeAllMaterialsAndTexturesWhenUnloadingScene;
 
     double m_TimeSinceLastPhysicsStep;
@@ -136,32 +124,66 @@ protected:
     bool m_SceneReloadRequested;
     RequestedSceneInfo m_pSceneFilesLoading[MAX_SCENE_FILES_QUEUED_UP]; // TODO: replace this monstrosity with an ordered list.
 
-#if MYFW_USING_WX
-    EditorInterface* m_pEditorInterfaces[EditorInterfaceType_NumInterfaces];
-    EditorInterfaceTypes m_CurrentEditorInterfaceType;
-    EditorInterface* m_pCurrentEditorInterface;
-#endif //MYFW_USING_WX
-
 #if MYFW_PROFILING_ENABLED
     FrameTimingInfo m_FrameTimingInfo[MAX_FRAMES_TO_STORE];
     unsigned int m_FrameTimingNextEntry;
 #endif
 
+#if MYFW_USING_WX
+    EditorState* m_pEditorState;
+
+    bool m_Debug_DrawMousePickerFBO;
+    bool m_Debug_DrawSelectedAnimatedMesh;
+    bool m_Debug_DrawSelectedMaterial;
+    bool m_Debug_DrawPhysicsDebugShapes;
+    bool m_Debug_ShowProfilingInfo;
+    bool m_Debug_DrawGLStats;
+
+    MyFileObject* m_pSphereMeshFile;
+    MySprite* m_pSprite_DebugQuad;
+    MyMesh* m_pMesh_MaterialBall;
+    FontDefinition* m_pDebugFont;
+    MyMeshText* m_pDebugTextMesh; // DEBUG_HACK_SHOWGLSTATS
+
+    EditorInterface* m_pEditorInterfaces[EditorInterfaceType_NumInterfaces];
+    EditorInterfaceTypes m_CurrentEditorInterfaceType;
+    EditorInterface* m_pCurrentEditorInterface;
+#endif //MYFW_USING_WX
+
 public:
     EngineCore();
     virtual ~EngineCore();
 
+    // EngineCore Getters/Setters
+    ComponentSystemManager* GetComponentSystemManager() { return m_pComponentSystemManager; }
+    MyStackAllocator GetSingleFrameMemoryStack() { return m_SingleFrameMemoryStack; }
+
+    BulletWorld* GetBulletWorld() { return m_pBulletWorld; }
+
+    bool IsInEditorMode() { return m_EditorMode; }
+
+    const char** GetGameObjectFlagStringArray() { return (const char**)m_GameObjectFlagStrings; }
+    const char* GetGameObjectFlagString(unsigned int num) { MyAssert( num < 32 ); return m_GameObjectFlagStrings[num]; }
+
+    bool GetDebug_DrawWireframe() { return m_Debug_DrawWireframe; }
+
+    ShaderGroup* GetShader_TintColor()       { return m_pShader_TintColor; }
+    ShaderGroup* GetShader_SelectedObjects() { return m_pShader_SelectedObjects; }
+
+    MaterialDefinition* GetMaterial_Box2DDebugDraw()   { return m_pMaterial_Box2DDebugDraw; }
+    MaterialDefinition* GetMaterial_MousePicker()      { return m_pMaterial_MousePicker; }
+    MaterialDefinition* GetMaterial_ClipSpaceTexture() { return m_pMaterial_ClipSpaceTexture; }
+
+    // EngineCore Methods
 #if MYFW_USING_LUA
     static void LuaRegister(lua_State* luastate);
+    virtual LuaGameState* CreateLuaGameState() { return MyNew LuaGameState; }
 #endif //MYFW_USING_LUA
 
     virtual void InitializeManagers();
     void InitializeGameObjectFlagStrings(cJSON* jStringsArray);
 
     virtual ComponentTypeManager* CreateComponentTypeManager() = 0;
-#if MYFW_USING_LUA
-    virtual LuaGameState* CreateLuaGameState() { return MyNew LuaGameState; }
-#endif //MYFW_USING_LUA
 
     virtual void OneTimeInit();
     virtual bool IsReadyToRender();
@@ -191,10 +213,6 @@ public:
 
     virtual void RegisterGameplayButtons();
     virtual void UnregisterGameplayButtons();
-#if MYFW_USING_WX
-    bool HandleImGuiInput(int canvasid, int keyaction, int keycode, int mouseaction, int id, float x, float y, float pressure);
-    bool HandleEditorInput(int canvasid, int keyaction, int keycode, int mouseaction, int id, float x, float y, float pressure);
-#endif //MYFW_USING_WX
 
     void CreateDefaultEditorSceneObjects();
     void CreateDefaultSceneObjects();
@@ -206,15 +224,30 @@ public:
     void SaveScene(const char* fullpath, unsigned int sceneid);
     void ExportBox2DScene(const char* fullpath, unsigned int sceneid);
     void UnloadScene(unsigned int sceneid, bool cleareditorobjects);
+    void LoadSceneFromJSON(const char* scenename, const char* jsonstr, unsigned int sceneid, bool playwhenfinishedloading);
+
 #if MYFW_USING_WX
+    // Editor Getters/Setters
+    EditorState* GetEditorState() { return m_pEditorState; }
+
+    bool GetDebug_DrawMousePickerFBO()       { return m_Debug_DrawMousePickerFBO; }
+    bool GetDebug_DrawSelectedAnimatedMesh() { return m_Debug_DrawSelectedAnimatedMesh; }
+    bool GetDebug_DrawPhysicsDebugShapes()   { return m_Debug_DrawPhysicsDebugShapes; }
+    bool GetDebug_ShowProfilingInfo()        { return m_Debug_ShowProfilingInfo; }
+    bool GetDebug_DrawGLStats()              { return m_Debug_DrawGLStats; }
+
+    MySprite* GetSprite_DebugQuad(); // Will create the sprite if it doesn't exist
+    MyMesh* GetMesh_MaterialBall(); // Will create the mesh if it doesn't exist
+
+    // Editor Methods
+    bool HandleImGuiInput(int canvasid, int keyaction, int keycode, int mouseaction, int id, float x, float y, float pressure);
+    bool HandleEditorInput(int canvasid, int keyaction, int keycode, int mouseaction, int id, float x, float y, float pressure);
+
     unsigned int LoadSceneFromFile(const char* fullpath);
     void Editor_QuickSaveScene(const char* fullpath);
     void Editor_QuickLoadScene(const char* fullpath);
     void Editor_DeleteQuickScene(const char* fullpath);
-#endif //MYFW_USING_WX
-    void LoadSceneFromJSON(const char* scenename, const char* jsonstr, unsigned int sceneid, bool playwhenfinishedloading);
 
-#if MYFW_USING_WX
     void Editor_OnSurfaceChanged(unsigned int startx, unsigned int starty, unsigned int width, unsigned int height);
 
     void RenderSingleObject(GameObject* pObject);
@@ -226,9 +259,7 @@ public:
     EditorInterface* GetEditorInterface(EditorInterfaceTypes type);
     EditorInterface* GetCurrentEditorInterface();
     EditorInterfaceTypes GetCurrentEditorInterfaceType() { return m_CurrentEditorInterfaceType; }
-#endif //MYFW_USING_WX
 
-#if MYFW_USING_WX
     static void StaticOnObjectListTreeSelectionChanged(void* pObjectPtr) { ((EngineCore*)pObjectPtr)->OnObjectListTreeSelectionChanged(); }
     void OnObjectListTreeSelectionChanged();
     static void StaticOnObjectListTreeMultipleSelection(void* pObjectPtr) { ((EngineCore*)pObjectPtr)->OnObjectListTreeMultipleSelection(); }

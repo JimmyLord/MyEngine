@@ -552,10 +552,10 @@ bool ComponentCamera::ExistsOnLayer(unsigned int layerflags)
 #if MYFW_USING_WX
 void ComponentCamera::DrawCallback(ComponentCamera* pCamera, MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride)
 {
-    if( g_pEngineMainFrame->m_ShowEditorIcons == false )
+    if( g_pEngineMainFrame->ShowEditorIcons() == false )
         return;
 
-    MySprite* pSprite = g_pEngineCore->m_pEditorState->m_pEditorIcons[EditorIcon_Camera];
+    MySprite* pSprite = g_pEngineCore->GetEditorState()->m_pEditorIcons[EditorIcon_Camera];
     if( pSprite == 0 )
         return;
 
@@ -575,7 +575,7 @@ void ComponentCamera::DrawCallback(ComponentCamera* pCamera, MyMatrix* pMatViewP
     glDisable( GL_CULL_FACE );
     pSprite->Draw( &transform, pMatViewProj, pShaderOverride );
     glEnable( GL_CULL_FACE );
-    if( g_pEngineCore->m_Debug_DrawWireframe )
+    if( g_pEngineCore->GetDebug_DrawWireframe() )
         glPolygonMode( GL_FRONT, GL_LINE );
 }
 #endif

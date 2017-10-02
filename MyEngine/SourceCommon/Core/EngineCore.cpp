@@ -71,8 +71,8 @@ EngineCore::EngineCore()
     m_Debug_ShowProfilingInfo = true;
     m_Debug_DrawGLStats = false;
     m_pSphereMeshFile = 0;
-    m_pDebugQuadSprite = 0;
-    m_pMaterialBallMesh = 0;
+    m_pSprite_DebugQuad = 0;
+    m_pMesh_MaterialBall = 0;
     m_FreeAllMaterialsAndTexturesWhenUnloadingScene = false;
     m_pDebugFont = 0;
     m_pDebugTextMesh = 0;
@@ -135,8 +135,8 @@ EngineCore::~EngineCore()
 #if MYFW_USING_WX
     SAFE_DELETE( m_pEditorState );
     SAFE_RELEASE( m_pSphereMeshFile );
-    SAFE_RELEASE( m_pDebugQuadSprite );
-    SAFE_RELEASE( m_pMaterialBallMesh );
+    SAFE_RELEASE( m_pSprite_DebugQuad );
+    SAFE_RELEASE( m_pMesh_MaterialBall );
     SAFE_RELEASE( m_pDebugFont );
     SAFE_RELEASE( m_pDebugTextMesh );
 #endif //MYFW_USING_WX
@@ -315,8 +315,8 @@ void EngineCore::OneTimeInit()
     // disable debug draw in non-editor builds
     m_pBulletWorld = MyNew BulletWorld( 0, 0 );
 #else
-    ComponentCamera* pCamera = g_pEngineCore->m_pEditorState->GetEditorCamera();
-    m_pBulletWorld = MyNew BulletWorld( g_pEngineCore->m_pMaterial_Box2DDebugDraw, &pCamera->m_Camera3D.m_matViewProj );
+    ComponentCamera* pCamera = m_pEditorState->GetEditorCamera();
+    m_pBulletWorld = MyNew BulletWorld( m_pMaterial_Box2DDebugDraw, &pCamera->m_Camera3D.m_matViewProj );
 #endif
 
 #if !MYFW_USING_WX
@@ -736,7 +736,7 @@ void EngineCore::OnDrawFrame(unsigned int canvasid)
 #endif
 
 #if MYFW_USING_WX
-    if( g_GLCanvasIDActive == 1 && g_pEngineCore->m_Debug_ShowProfilingInfo )
+    if( g_GLCanvasIDActive == 1 && m_Debug_ShowProfilingInfo )
 #endif
     {
         ImGui::SetNextWindowSize( ImVec2(150,50), ImGuiSetCond_FirstUseEver );
@@ -1003,11 +1003,11 @@ void EngineCore::OnModeTogglePlayStop()
         OnModePlay();
         
         // Set focus to gameplay window.
-        if( g_pEngineMainFrame->m_Mode_SwitchFocusOnPlayStop )
+        if( g_pEngineMainFrame->Mode_SwitchFocusOnPlayStop() )
         {
-            if( g_pEngineMainFrame->m_pGLCanvasEditor->GetParent() == g_pEngineMainFrame->m_pFullScreenFrame )
+            if( g_pEngineMainFrame->GetGLCanvasEditor()->GetParent() == g_pEngineMainFrame->GetFullScreenFrame() )
             {
-                g_pEngineMainFrame->SetGLCanvasFullScreenMode( g_pEngineMainFrame->m_pGLCanvas, true );
+                g_pEngineMainFrame->SetGLCanvasFullScreenMode( g_pEngineMainFrame->GetGLCanvas(), true );
             }
             else
             {
@@ -1020,15 +1020,15 @@ void EngineCore::OnModeTogglePlayStop()
         OnModeStop();
 
         // Set focus to editor window.
-        if( g_pEngineMainFrame->m_Mode_SwitchFocusOnPlayStop )
+        if( g_pEngineMainFrame->Mode_SwitchFocusOnPlayStop() )
         {
-            if( g_pEngineMainFrame->m_pGLCanvas->GetParent() == g_pEngineMainFrame->m_pFullScreenFrame )
+            if( g_pEngineMainFrame->m_pGLCanvas->GetParent() == g_pEngineMainFrame->GetFullScreenFrame() )
             {
-                g_pEngineMainFrame->SetGLCanvasFullScreenMode( g_pEngineMainFrame->m_pGLCanvasEditor, true );
+                g_pEngineMainFrame->SetGLCanvasFullScreenMode( g_pEngineMainFrame->GetGLCanvasEditor(), true );
             }
             else
             {
-                g_pEngineMainFrame->m_pGLCanvasEditor->SetFocus();
+                g_pEngineMainFrame->GetGLCanvasEditor()->SetFocus();
             }
         }
     }
@@ -1148,6 +1148,40 @@ void EngineCore::UnregisterGameplayButtons()
 }
 
 #if MYFW_USING_WX
+MySprite* EngineCore::GetSprite_DebugQuad()
+{
+    if( m_pSprite_DebugQuad == 0 )
+    {
+        m_pSprite_DebugQuad = MyNew MySprite( false );
+    }
+
+    return m_pSprite_DebugQuad;
+}
+
+MyMesh* EngineCore::GetMesh_MaterialBall()
+{
+    if( m_pMesh_MaterialBall == 0 )
+    {
+        m_pMesh_MaterialBall = MyNew MyMesh();
+        MyAssert( m_pSphereMeshFile == 0 );
+        m_pSphereMeshFile = RequestFile( "Data/DataEngine/Meshes/sphere.obj.mymesh" );
+
+        return 0;
+    }
+
+    if( m_pMesh_MaterialBall && m_pMesh_MaterialBall->m_MeshReady == false )
+    {
+        if( g_pEngineCore->m_pSphereMeshFile->GetFileLoadStatus() == FileLoadStatus_Success )
+        {
+            m_pMesh_MaterialBall->SetSourceFile( g_pEngineCore->m_pSphereMeshFile );
+        }
+
+        return 0;
+    }
+
+    return m_pMesh_MaterialBall;
+}
+
 bool EngineCore::HandleEditorInput(int canvasid, int keyaction, int keycode, int mouseaction, int id, float x, float y, float pressure)
 {
     float toplefty = m_pEditorState->m_EditorWindowRect.h - y;
@@ -1182,7 +1216,7 @@ void EngineCore::CreateDefaultEditorSceneObjects()
         pComponentMesh = (ComponentMesh*)pGameObject->AddNewComponent( ComponentType_Mesh, ENGINE_SCENE_ID );
         if( pComponentMesh )
         {
-            pComponentMesh->SetVisible( g_pEngineMainFrame->m_GridSettings.visible );
+            pComponentMesh->SetVisible( g_pEngineMainFrame->GetGridSettings()->visible );
             pComponentMesh->SetMaterial( m_pMaterial_3DGrid, 0 ); //( m_pShader_TransformGizmo );
             pComponentMesh->SetLayersThisExistsOn( Layer_Editor | Layer_EditorUnselectable );
             pComponentMesh->m_pMesh = MyNew MyMesh();
@@ -1348,8 +1382,22 @@ RequestedSceneInfo* EngineCore::RequestSceneInternal(const char* fullpath)
 
 void EngineCore::SwitchScene(const char* fullpath)
 {
-    m_UnloadAllScenesNextTick = true;
-    RequestSceneInternal( fullpath );
+#if MYFW_USING_WX
+    int answer = wxID_YES;
+
+    if( m_pCommandStack->GetUndoStackSize() != g_pEngineMainFrame->GetUndoStackDepthAtLastSave() )
+    {
+        wxMessageDialog dlg( g_pEngineMainFrame, "Some changes aren't saved.\nLoad anyway?", "Confirm", wxYES_NO | wxNO_DEFAULT );
+        dlg.SetYesNoLabels( "Load/Lose changes", "Return to editor" );
+        answer = dlg.ShowModal();
+    }
+
+    if( answer == wxID_YES )
+#endif
+    {
+        m_UnloadAllScenesNextTick = true;
+        RequestSceneInternal( fullpath );
+    }
 }
 
 void EngineCore::SaveScene(const char* fullpath, unsigned int sceneid)
@@ -1407,7 +1455,7 @@ void EngineCore::UnloadScene(unsigned int sceneid, bool cleareditorobjects)
     if( sceneid != 0 )
     {
         g_pEngineMainFrame->m_pCommandStack->ClearStacks();
-        g_pEngineMainFrame->m_StackDepthAtLastSave = 0;
+        g_pEngineMainFrame->StoreCurrentUndoStackSize();
     }
     m_pEditorState->ClearEditorState( false );
 #endif //MYFW_USING_WX
@@ -1734,8 +1782,8 @@ void EngineCore::SetGridVisible(bool visible)
 {
     if( m_pEditorState->m_p3DGridPlane )
     {
-        ComponentMesh* pComponentMesh = (ComponentMesh*)g_pEngineCore->m_pEditorState->m_p3DGridPlane->GetFirstComponentOfType( "MeshComponent" );
-        pComponentMesh->SetVisible( g_pEngineMainFrame->m_GridSettings.visible );
+        ComponentMesh* pComponentMesh = (ComponentMesh*)m_pEditorState->m_p3DGridPlane->GetFirstComponentOfType( "MeshComponent" );
+        pComponentMesh->SetVisible( g_pEngineMainFrame->GetGridSettings()->visible );
     }
 }
 
@@ -1830,8 +1878,8 @@ void EngineCore::OnObjectListTreeMultipleSelection() //StaticOnObjectListTreeMul
         {
             if( pGameObject->IsFolder() == false )
             {
-                if( g_pEngineCore->m_pEditorState->IsGameObjectSelected( pGameObject ) == false )
-                    g_pEngineCore->m_pEditorState->m_pSelectedObjects.push_back( pGameObject );
+                if( m_pEditorState->IsGameObjectSelected( pGameObject ) == false )
+                    m_pEditorState->m_pSelectedObjects.push_back( pGameObject );
             }
 
             // If this is a folder, select all objects inside.
@@ -1839,7 +1887,7 @@ void EngineCore::OnObjectListTreeMultipleSelection() //StaticOnObjectListTreeMul
             {
                 for( CPPListNode* pNode = pGameObject->GetChildList()->GetHead(); pNode; pNode = pNode->GetNext() )
                 {
-                    ((GameObject*)pNode)->AddToList( &g_pEngineCore->m_pEditorState->m_pSelectedObjects );
+                    ((GameObject*)pNode)->AddToList( &m_pEditorState->m_pSelectedObjects );
                 }
             }
         }
@@ -1929,7 +1977,7 @@ void EngineCore::OnObjectListTreeDeleteSelection() //StaticOnObjectListTreeDelet
 
         if( pGameObject )
         {
-            pGameObject->AddToList( &g_pEngineCore->m_pEditorState->m_pSelectedObjects );
+            pGameObject->AddToList( &m_pEditorState->m_pSelectedObjects );
         }
     }
 

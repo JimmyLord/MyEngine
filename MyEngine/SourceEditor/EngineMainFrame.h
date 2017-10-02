@@ -99,7 +99,7 @@ public:
 
 class EngineMainFrame : public MainFrame
 {
-public:
+protected:
     FullScreenFrame* m_pFullScreenFrame; // m_pGLCanvas will be parented to this to go fullscreen.
 
     MainGLCanvas* m_pGLCanvasEditor;
@@ -108,7 +108,7 @@ public:
     wxTextCtrl* m_pLogInfo;
     wxTextCtrl* m_pLogErrors;
 
-    unsigned int m_StackDepthAtLastSave;
+    unsigned int m_UndoStackDepthAtLastSave;
 
     // Engine specific windows tacked onto m_EditorWindows list.
     wxMenuItem* m_EngineEditorWindowOptions[EngineEditorWindow_NumTypes];
@@ -159,6 +159,24 @@ public:
     EngineMainFrame();
     ~EngineMainFrame();
 
+    // EngineMainFrame Getters
+    FullScreenFrame* GetFullScreenFrame() { return m_pFullScreenFrame; }
+
+    MainGLCanvas* GetGLCanvasEditor() { return m_pGLCanvasEditor; }
+    wxNotebook* GetLogPane() { return m_pLogPane; }
+    wxTextCtrl* GetLogMain() { return m_pLogMain; }
+    wxTextCtrl* GetLogInfo() { return m_pLogInfo; }
+    wxTextCtrl* GetLogErrors() { return m_pLogErrors; }
+
+    unsigned int GetUndoStackDepthAtLastSave() { return m_UndoStackDepthAtLastSave; }
+
+    bool ShowEditorIcons() { return m_ShowEditorIcons; }
+    bool SelectedObjects_ShowWireframe() { return m_SelectedObjects_ShowWireframe; }
+    bool SelectedObjects_ShowEffect() { return m_SelectedObjects_ShowEffect; }
+    bool Mode_SwitchFocusOnPlayStop() { return m_Mode_SwitchFocusOnPlayStop; }
+    GridSettings* GetGridSettings() { return &m_GridSettings; }
+
+    // EngineMainFrame Methods
     virtual void InitFrame();
     virtual void AddPanes();
     virtual bool UpdateAUIManagerAndLoadPerspective();
@@ -175,6 +193,8 @@ public:
     virtual void UpdateMenuItemStates();
 
     virtual void ProcessAllGLCanvasInputEventQueues();
+
+    void StoreCurrentUndoStackSize();
 
     void OnMenu_Engine(wxCommandEvent& event);
 

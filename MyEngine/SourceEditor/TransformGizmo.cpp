@@ -517,9 +517,9 @@ void TransformGizmo::CreateAxisObjects(unsigned int sceneid, float scale, Editor
     GameObject* pGameObject;
     ComponentMesh* pComponentMesh;
 
-    m_pMaterial_Translate1Axis[0] = MyNew MaterialDefinition( g_pEngineCore->m_pShader_TintColor, ColorByte(255,0,0,255) );
-    m_pMaterial_Translate1Axis[1] = MyNew MaterialDefinition( g_pEngineCore->m_pShader_TintColor, ColorByte(0,255,0,255) );
-    m_pMaterial_Translate1Axis[2] = MyNew MaterialDefinition( g_pEngineCore->m_pShader_TintColor, ColorByte(0,0,255,255) );
+    m_pMaterial_Translate1Axis[0] = MyNew MaterialDefinition( g_pEngineCore->GetShader_TintColor(), ColorByte(255,0,0,255) );
+    m_pMaterial_Translate1Axis[1] = MyNew MaterialDefinition( g_pEngineCore->GetShader_TintColor(), ColorByte(0,255,0,255) );
+    m_pMaterial_Translate1Axis[2] = MyNew MaterialDefinition( g_pEngineCore->GetShader_TintColor(), ColorByte(0,0,255,255) );
 
     // Create single axis translators.
     {
@@ -577,9 +577,9 @@ void TransformGizmo::CreateAxisObjects(unsigned int sceneid, float scale, Editor
         pEditorState->m_pTransformGizmo->m_pTranslate1Axis[2] = pGameObject;
     }
 
-    m_pMaterial_Translate2Axis[0] = MyNew MaterialDefinition( g_pEngineCore->m_pShader_TintColor, ColorByte(255,0,0,100) );
-    m_pMaterial_Translate2Axis[1] = MyNew MaterialDefinition( g_pEngineCore->m_pShader_TintColor, ColorByte(0,255,0,100) );
-    m_pMaterial_Translate2Axis[2] = MyNew MaterialDefinition( g_pEngineCore->m_pShader_TintColor, ColorByte(0,0,255,100) );
+    m_pMaterial_Translate2Axis[0] = MyNew MaterialDefinition( g_pEngineCore->GetShader_TintColor(), ColorByte(255,0,0,100) );
+    m_pMaterial_Translate2Axis[1] = MyNew MaterialDefinition( g_pEngineCore->GetShader_TintColor(), ColorByte(0,255,0,100) );
+    m_pMaterial_Translate2Axis[2] = MyNew MaterialDefinition( g_pEngineCore->GetShader_TintColor(), ColorByte(0,0,255,100) );
 
     // Create 2 axis translators
     {
@@ -637,9 +637,9 @@ void TransformGizmo::CreateAxisObjects(unsigned int sceneid, float scale, Editor
         pEditorState->m_pTransformGizmo->m_pTranslate2Axis[0] = pGameObject;
     }
 
-    m_pMaterial_Scale1Axis[0] = MyNew MaterialDefinition( g_pEngineCore->m_pShader_TintColor, ColorByte(255,0,0,255) );
-    m_pMaterial_Scale1Axis[1] = MyNew MaterialDefinition( g_pEngineCore->m_pShader_TintColor, ColorByte(0,255,0,255) );
-    m_pMaterial_Scale1Axis[2] = MyNew MaterialDefinition( g_pEngineCore->m_pShader_TintColor, ColorByte(0,0,255,255) );
+    m_pMaterial_Scale1Axis[0] = MyNew MaterialDefinition( g_pEngineCore->GetShader_TintColor(), ColorByte(255,0,0,255) );
+    m_pMaterial_Scale1Axis[1] = MyNew MaterialDefinition( g_pEngineCore->GetShader_TintColor(), ColorByte(0,255,0,255) );
+    m_pMaterial_Scale1Axis[2] = MyNew MaterialDefinition( g_pEngineCore->GetShader_TintColor(), ColorByte(0,0,255,255) );
 
     Vector3 scaleboxsize( 0.7f, 0.7f, 0.7f );
 
@@ -699,7 +699,7 @@ void TransformGizmo::CreateAxisObjects(unsigned int sceneid, float scale, Editor
         pEditorState->m_pTransformGizmo->m_pScale1Axis[2] = pGameObject;
     }
 
-    m_pMaterial_Scale3Axis = MyNew MaterialDefinition( g_pEngineCore->m_pShader_TintColor, ColorByte(255,0,0,100) );
+    m_pMaterial_Scale3Axis = MyNew MaterialDefinition( g_pEngineCore->GetShader_TintColor(), ColorByte(255,0,0,100) );
 
     // Create 3 axis scaler
     {
@@ -721,9 +721,9 @@ void TransformGizmo::CreateAxisObjects(unsigned int sceneid, float scale, Editor
         pEditorState->m_pTransformGizmo->m_pScale3Axis = pGameObject;
     }
 
-    m_pMaterial_Rotate1Axis[0] = MyNew MaterialDefinition( g_pEngineCore->m_pShader_TintColor, ColorByte(255,0,0,255) );
-    m_pMaterial_Rotate1Axis[1] = MyNew MaterialDefinition( g_pEngineCore->m_pShader_TintColor, ColorByte(0,255,0,255) );
-    m_pMaterial_Rotate1Axis[2] = MyNew MaterialDefinition( g_pEngineCore->m_pShader_TintColor, ColorByte(0,0,255,255) );
+    m_pMaterial_Rotate1Axis[0] = MyNew MaterialDefinition( g_pEngineCore->GetShader_TintColor(), ColorByte(255,0,0,255) );
+    m_pMaterial_Rotate1Axis[1] = MyNew MaterialDefinition( g_pEngineCore->GetShader_TintColor(), ColorByte(0,255,0,255) );
+    m_pMaterial_Rotate1Axis[2] = MyNew MaterialDefinition( g_pEngineCore->GetShader_TintColor(), ColorByte(0,0,255,255) );
 
     float startradius = 2.8f;
     float endradius = 3.0f;
@@ -949,7 +949,7 @@ void TransformGizmo::TranslateSelectedObjects(EngineCore* pGame, EditorState* pE
                 Vector3 diff = currentresult - lastresult;
 
                 // if snapping to grid is enabled, then use m_LastIntersectResultUsed instead of last frames result.
-                if( g_pEngineMainFrame->m_GridSettings.snapenabled || pEditorState->m_ModifierKeyStates & MODIFIERKEY_Alt )
+                if( g_pEngineMainFrame->GetGridSettings()->snapenabled || pEditorState->m_ModifierKeyStates & MODIFIERKEY_Alt )
                 {
                     // snap object 0 to grid, all other will stay relative.
                     Vector3 pos = m_GizmoWorldTransform.GetTranslation();
@@ -964,9 +964,9 @@ void TransformGizmo::TranslateSelectedObjects(EngineCore* pGame, EditorState* pE
 
                     Vector3 finalpos = pos + diff/2;
                     Vector3 newfinalpos;
-                    newfinalpos.x = MyRoundToMultipleOf( finalpos.x, g_pEngineMainFrame->m_GridSettings.stepsize.x );
-                    newfinalpos.y = MyRoundToMultipleOf( finalpos.y, g_pEngineMainFrame->m_GridSettings.stepsize.y );
-                    newfinalpos.z = MyRoundToMultipleOf( finalpos.z, g_pEngineMainFrame->m_GridSettings.stepsize.z );
+                    newfinalpos.x = MyRoundToMultipleOf( finalpos.x, g_pEngineMainFrame->GetGridSettings()->stepsize.x );
+                    newfinalpos.y = MyRoundToMultipleOf( finalpos.y, g_pEngineMainFrame->GetGridSettings()->stepsize.y );
+                    newfinalpos.z = MyRoundToMultipleOf( finalpos.z, g_pEngineMainFrame->GetGridSettings()->stepsize.z );
 
                     diff = newfinalpos - pos;
 

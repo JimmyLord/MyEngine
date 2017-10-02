@@ -2236,7 +2236,7 @@ void ComponentBase::OnLeftClick(unsigned int count, bool clear)
         m_MultiSelectedComponents.clear();
 
     // select this Component in the editor window.
-    g_pEngineCore->m_pEditorState->m_pSelectedComponents.push_back( this );
+    g_pEngineCore->GetEditorState()->m_pSelectedComponents.push_back( this );
 
     if( clear )
         g_pPanelWatch->ClearAllVariables();
@@ -2270,7 +2270,7 @@ void ComponentBase::OnPopupClick(wxEvent &evt)
     int id = evt.GetId();
     if( id == RightClick_DeleteComponent )
     {
-        EditorState* pEditorState = g_pEngineCore->m_pEditorState;
+        EditorState* pEditorState = g_pEngineCore->GetEditorState();
 
         // if anything is still selected, delete it/them.
         if( pEditorState->m_pSelectedComponents.size() > 0 )

@@ -33,7 +33,7 @@ cJSON* ExportGameObject(cJSON* jGameObjectArray, GameObject* pGameObject)
             unsigned int flags = pGameObject->GetFlags();
             if( flags & (1<<i) )
             {
-                cJSON* jFlag = cJSON_CreateString( g_pEngineCore->m_GameObjectFlagStrings[i] );
+                cJSON* jFlag = cJSON_CreateString( g_pEngineCore->GetGameObjectFlagString( i ) );
                 cJSON_AddItemToArray( jFlagsArray, jFlag );
             }
         }

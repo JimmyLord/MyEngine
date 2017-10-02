@@ -274,7 +274,7 @@ EditorCommand_DeleteObjects::~EditorCommand_DeleteObjects()
 
 void EditorCommand_DeleteObjects::Do()
 {
-    g_pEngineCore->m_pEditorState->ClearSelectedObjectsAndComponents();
+    g_pEngineCore->GetEditorState()->ClearSelectedObjectsAndComponents();
 
     for( unsigned int i=0; i<m_ObjectsDeleted.size(); i++ )
     {
@@ -289,7 +289,7 @@ void EditorCommand_DeleteObjects::Do()
 
 void EditorCommand_DeleteObjects::Undo()
 {
-    g_pEngineCore->m_pEditorState->ClearSelectedObjectsAndComponents();
+    g_pEngineCore->GetEditorState()->ClearSelectedObjectsAndComponents();
 
     for( unsigned int i=0; i<m_ObjectsDeleted.size(); i++ )
     {
@@ -381,7 +381,7 @@ EditorCommand_DeleteComponents::~EditorCommand_DeleteComponents()
 
 void EditorCommand_DeleteComponents::Do()
 {
-    g_pEngineCore->m_pEditorState->ClearSelectedObjectsAndComponents();
+    g_pEngineCore->GetEditorState()->ClearSelectedObjectsAndComponents();
 
     for( unsigned int i=0; i<m_ComponentsDeleted.size(); i++ )
     {
@@ -392,7 +392,7 @@ void EditorCommand_DeleteComponents::Do()
 
 void EditorCommand_DeleteComponents::Undo()
 {
-    g_pEngineCore->m_pEditorState->ClearSelectedObjectsAndComponents();
+    g_pEngineCore->GetEditorState()->ClearSelectedObjectsAndComponents();
 
     for( unsigned int i=0; i<m_ComponentsDeleted.size(); i++ )
     {
@@ -432,7 +432,7 @@ void EditorCommand_CreateGameObject::Do()
 
 void EditorCommand_CreateGameObject::Undo()
 {
-    g_pEngineCore->m_pEditorState->ClearSelectedObjectsAndComponents();
+    g_pEngineCore->GetEditorState()->ClearSelectedObjectsAndComponents();
 
     g_pComponentSystemManager->UnmanageGameObject( m_ObjectCreated );
     m_ObjectCreated->SetEnabled( false );
@@ -536,7 +536,7 @@ void EditorCommand_CopyGameObject::Do()
 
 void EditorCommand_CopyGameObject::Undo()
 {
-    g_pEngineCore->m_pEditorState->ClearSelectedObjectsAndComponents();
+    g_pEngineCore->GetEditorState()->ClearSelectedObjectsAndComponents();
 
     g_pComponentSystemManager->UnmanageGameObject( m_ObjectCreated );
     m_ObjectCreated->SetEnabled( false );
@@ -1037,7 +1037,7 @@ EditorCommand_DeletePrefabs::~EditorCommand_DeletePrefabs()
 
 void EditorCommand_DeletePrefabs::Do()
 {
-    g_pEngineCore->m_pEditorState->ClearSelectedObjectsAndComponents();
+    g_pEngineCore->GetEditorState()->ClearSelectedObjectsAndComponents();
 
     for( unsigned int i=0; i<m_PrefabInfo.size(); i++ )
     {
@@ -1059,7 +1059,7 @@ void EditorCommand_DeletePrefabs::Do()
 
 void EditorCommand_DeletePrefabs::Undo()
 {
-    g_pEngineCore->m_pEditorState->ClearSelectedObjectsAndComponents();
+    g_pEngineCore->GetEditorState()->ClearSelectedObjectsAndComponents();
 
     for( unsigned int i=0; i<m_PrefabInfo.size(); i++ )
     {

@@ -1589,7 +1589,7 @@ void ComponentLuaScript::OnStop()
 void ComponentLuaScript::OnGameObjectEnabled()
 {
     ComponentBase::OnGameObjectEnabled();
-    if( g_pEngineCore->m_EditorMode == false )
+    if( g_pEngineCore->IsInEditorMode() == false )
         OnPlay();
 }
 

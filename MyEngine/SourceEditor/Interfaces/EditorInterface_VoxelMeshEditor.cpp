@@ -159,7 +159,7 @@ void EditorInterface_VoxelMeshEditor::SaveVoxelMesh()
 
 bool EditorInterface_VoxelMeshEditor::HandleInput(int keyaction, int keycode, int mouseaction, int id, float x, float y, float pressure)
 {
-    EditorState* pEditorState = g_pEngineCore->m_pEditorState;
+    EditorState* pEditorState = g_pEngineCore->GetEditorState();
 
     VoxelChunk* pChunk = 0;
     if( m_pVoxelMesh )

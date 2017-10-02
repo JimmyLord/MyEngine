@@ -769,9 +769,9 @@ void ComponentMesh::DrawCallback(ComponentCamera* pCamera, MyMatrix* pMatViewPro
         Vector3 campos;
         Vector3 camrot;
 #if MYFW_USING_WX
-        if( g_pEngineCore->m_EditorMode )
+        if( g_pEngineCore->IsInEditorMode() )
         {
-            ComponentCamera* pCamera = g_pEngineCore->m_pEditorState->GetEditorCamera();
+            ComponentCamera* pCamera = g_pEngineCore->GetEditorState()->GetEditorCamera();
 
             campos = pCamera->m_pComponentTransform->GetLocalPosition();
             camrot = pCamera->m_pComponentTransform->GetLocalRotation();

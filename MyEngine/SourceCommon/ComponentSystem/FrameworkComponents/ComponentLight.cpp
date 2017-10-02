@@ -251,10 +251,10 @@ bool ComponentLight::ExistsOnLayer(unsigned int layerflags)
 #if MYFW_USING_WX
 void ComponentLight::DrawCallback(ComponentCamera* pCamera, MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride)
 {
-    if( g_pEngineMainFrame->m_ShowEditorIcons == false )
+    if( g_pEngineMainFrame->ShowEditorIcons() == false )
         return;
 
-    MySprite* pSprite = g_pEngineCore->m_pEditorState->m_pEditorIcons[EditorIcon_Light];
+    MySprite* pSprite = g_pEngineCore->GetEditorState()->m_pEditorIcons[EditorIcon_Light];
     if( pSprite == 0 )
         return;
 
@@ -279,7 +279,7 @@ void ComponentLight::DrawCallback(ComponentCamera* pCamera, MyMatrix* pMatViewPr
 
     pSprite->Draw( &transform, pMatViewProj, pShaderOverride );
 
-    if( g_pEngineCore->m_Debug_DrawWireframe )
+    if( g_pEngineCore->GetDebug_DrawWireframe() )
         glPolygonMode( GL_FRONT, GL_LINE );
 }
 #endif
