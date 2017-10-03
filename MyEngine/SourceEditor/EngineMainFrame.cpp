@@ -860,7 +860,7 @@ void EngineMainFrame::OnMenu_Engine(wxCommandEvent& event)
         StoreCurrentUndoStackSize();
         g_pMaterialManager->SaveAllMaterials();
         g_pComponentSystemManager->m_pPrefabManager->SaveAllPrefabs();
-        g_pGameCore->m_pSoundManager->SaveAllCues();
+        g_pGameCore->GetSoundManager()->SaveAllCues();
         SaveScene();
         break;
 
@@ -868,7 +868,7 @@ void EngineMainFrame::OnMenu_Engine(wxCommandEvent& event)
         StoreCurrentUndoStackSize();
         g_pMaterialManager->SaveAllMaterials();
         g_pComponentSystemManager->m_pPrefabManager->SaveAllPrefabs();
-        g_pGameCore->m_pSoundManager->SaveAllCues();
+        g_pGameCore->GetSoundManager()->SaveAllCues();
         SaveSceneAs( 1 );
         break;
 
@@ -1284,7 +1284,7 @@ void EngineMainFrame::SaveSceneAs(unsigned int sceneid)
 
     g_pMaterialManager->SaveAllMaterials();
     g_pComponentSystemManager->m_pPrefabManager->SaveAllPrefabs();
-    g_pGameCore->m_pSoundManager->SaveAllCues();
+    g_pGameCore->GetSoundManager()->SaveAllCues();
     g_pEngineCore->SaveScene( g_pComponentSystemManager->GetSceneInfo( sceneid )->m_FullPath, sceneid );
 
     this->SetTitle( g_pComponentSystemManager->GetSceneInfo( sceneid )->m_FullPath );

@@ -36,12 +36,12 @@ ComponentSystemManager::ComponentSystemManager(ComponentTypeManager* typemanager
     g_pMaterialManager->RegisterMaterialCreatedCallback( this, StaticOnMaterialCreated );
     g_pFileManager->RegisterFileUnloadedCallback( this, StaticOnFileUnloaded );
     g_pFileManager->RegisterFindAllReferencesCallback( this, StaticOnFindAllReferences );
-    g_pGameCore->m_pSoundManager->RegisterSoundCueCreatedCallback( this, StaticOnSoundCueCreated );
-    g_pGameCore->m_pSoundManager->RegisterSoundCueUnloadedCallback( this, StaticOnSoundCueUnloaded );
+    g_pGameCore->GetSoundManager()->RegisterSoundCueCreatedCallback( this, StaticOnSoundCueCreated );
+    g_pGameCore->GetSoundManager()->RegisterSoundCueUnloadedCallback( this, StaticOnSoundCueUnloaded );
 
     // This class adds to SoundCue's refcount when storing cue in m_Files
     //    so increment this number to prevent editor from allowing it to be unloaded if ref'ed by game code
-    g_pGameCore->m_pSoundManager->m_NumRefsPlacedOnSoundCueBySystem += 1;
+    g_pGameCore->GetSoundManager()->m_NumRefsPlacedOnSoundCueBySystem += 1;
 #endif
 
     m_NextSceneID = 1;
@@ -811,8 +811,8 @@ MyFileObject* ComponentSystemManager::LoadDataFile(const char* relativepath, uns
             MyAssert( false );
 #else
             // Let SoundPlayer (SDL on windows) load the wav files
-            SoundCue* pCue = g_pGameCore->m_pSoundManager->CreateCue( "new cue" );
-            g_pGameCore->m_pSoundManager->AddSoundToCue( pCue, relativepath );
+            SoundCue* pCue = g_pGameCore->GetSoundManager()->CreateCue( "new cue" );
+            g_pGameCore->GetSoundManager()->AddSoundToCue( pCue, relativepath );
             pCue->SaveSoundCue( 0 );
 
             pFileInfo->m_pSoundCue = pCue;
@@ -904,7 +904,7 @@ MyFileObject* ComponentSystemManager::LoadDataFile(const char* relativepath, uns
         // if we're loading a .mycue file, create a Sound Cue.
         if( strcmp( pFile->GetExtensionWithDot(), ".mycue" ) == 0 )
         {
-            pFileInfo->m_pSoundCue = g_pGameCore->m_pSoundManager->LoadCue( pFile->GetFullPath() );
+            pFileInfo->m_pSoundCue = g_pGameCore->GetSoundManager()->LoadCue( pFile->GetFullPath() );
         }
     }
 

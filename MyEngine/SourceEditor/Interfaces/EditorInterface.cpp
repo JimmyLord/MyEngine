@@ -324,7 +324,7 @@ bool EditorInterface::HandleInputForEditorCamera(int keyaction, int keycode, int
                 speed *= 5;
 
             if( dir.LengthSquared() > 0 )
-                matCamera->TranslatePreRotScale( dir * speed * 1/60.0f); //* g_pEngineCore->m_TimePassedUnpausedLastFrame );
+                matCamera->TranslatePreRotScale( dir * speed * 1/60.0f); //* g_pEngineCore->GetTimePassedUnpausedLastFrame() );
         }
 
         // if left mouse down, reset the transform gizmo tool.
@@ -470,7 +470,7 @@ bool EditorInterface::HandleInputForEditorCamera(int keyaction, int keycode, int
             speed *= 5;
 
         if( dir.LengthSquared() > 0 )
-            matCamera->TranslatePreRotScale( dir * speed * g_pEngineCore->m_TimePassedUnpausedLastFrame );
+            matCamera->TranslatePreRotScale( dir * speed * g_pEngineCore->GetTimePassedUnpausedLastFrame() );
 
         pCamera->m_pComponentTransform->UpdateLocalSRT();
         pCamera->m_pComponentTransform->UpdateTransform();

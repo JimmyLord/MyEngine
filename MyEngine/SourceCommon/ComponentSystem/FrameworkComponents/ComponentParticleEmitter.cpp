@@ -419,7 +419,7 @@ void ComponentParticleEmitter::CreateBurst(int number, Vector3 offset)
 void ComponentParticleEmitter::TickCallback(double TimePassed)
 {
     if( m_RunInEditor )
-        TimePassed = g_pGameCore->m_TimePassedUnpausedLastFrame;
+        TimePassed = g_pGameCore->GetTimePassedUnpausedLastFrame();
 
     // TODO: if we want to share particle renderers, then don't reset like this.
     m_pParticleRenderer->Reset();

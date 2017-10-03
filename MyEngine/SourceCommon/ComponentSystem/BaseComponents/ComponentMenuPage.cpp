@@ -1950,7 +1950,7 @@ void ComponentMenuPage::ShowPage()
     if( m_ItemSelected != -1 && m_pMenuItems[m_ItemSelected] && m_pMenuItems[m_ItemSelected]->m_Enabled == false )
         m_ItemSelected = -1;
 
-    if( m_ItemSelected == -1 && g_pEngineCore->m_LastInputMethodUsed != InputMethod_Touch )
+    if( m_ItemSelected == -1 && g_pEngineCore->GetLastInputMethodUsed() != InputMethod_Touch )
     {
         ResetSelectedItemToDefault();
     }

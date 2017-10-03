@@ -39,8 +39,8 @@ void EditorInterface_SceneManagement::OnDrawFrame(unsigned int canvasid)
 
     EditorState* pEditorState = g_pEngineCore->GetEditorState();
 
-    float windowwidth = g_pEngineCore->m_WindowWidth;
-    float windowheight = g_pEngineCore->m_WindowHeight;
+    float windowwidth = g_pEngineCore->GetWindowWidth();
+    float windowheight = g_pEngineCore->GetWindowHeight();
 
     // EditorInterface class will draw the main editor view.
     EditorInterface::OnDrawFrame( canvasid );

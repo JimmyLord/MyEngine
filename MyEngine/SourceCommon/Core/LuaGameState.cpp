@@ -233,7 +233,7 @@ void LuaGameState::RegisterClasses()
     luabridge::setGlobal( m_pLuaState, g_pEngineCore, "g_pEngineCore" );
     luabridge::setGlobal( m_pLuaState, g_pComponentSystemManager, "g_pComponentSystemManager" );
     luabridge::setGlobal( m_pLuaState, g_pFileManager, "g_pFileManager" );
-    luabridge::setGlobal( m_pLuaState, g_pGameCore->m_pSoundManager, "g_pSoundManager" );
+    luabridge::setGlobal( m_pLuaState, g_pGameCore->GetSoundManager(), "g_pSoundManager" );
 }
 
 #endif //MYFW_USING_LUA

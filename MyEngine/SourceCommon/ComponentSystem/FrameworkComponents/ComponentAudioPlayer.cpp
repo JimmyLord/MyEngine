@@ -96,7 +96,7 @@ void ComponentAudioPlayer::FillPropertiesWindow(bool clear, bool addcomponentvar
     // Check for the sound cue if it's null, it might not have been set on initial load if sound cue file wasn't loaded.
     if( m_pSoundCue == 0 && m_SoundCueName[0] != 0 )
     {
-        SetSoundCue( g_pGameCore->m_pSoundManager->FindCueByName( m_SoundCueName ) );
+        SetSoundCue( g_pGameCore->GetSoundManager()->FindCueByName( m_SoundCueName ) );
     }
 
     if( m_PanelWatchBlockVisible || ignoreblockvisibleflag == true )
@@ -173,7 +173,7 @@ void ComponentAudioPlayer::OnButtonPlaySound(int buttonid)
     // Check for the sound cue if it's null, it might not have been set on initial load if sound cue file wasn't loaded.
     if( m_pSoundCue == 0 && m_SoundCueName[0] != 0 )
     {
-        SetSoundCue( g_pGameCore->m_pSoundManager->FindCueByName( m_SoundCueName ) );
+        SetSoundCue( g_pGameCore->GetSoundManager()->FindCueByName( m_SoundCueName ) );
         if( m_pSoundCue )
             g_pPanelWatch->SetNeedsRefresh();
     }
@@ -182,8 +182,8 @@ void ComponentAudioPlayer::OnButtonPlaySound(int buttonid)
         return;
 
     if( m_ChannelSoundIsPlayingOn != -1 )
-        g_pGameCore->m_pSoundPlayer->StopSound( m_ChannelSoundIsPlayingOn );
-    m_ChannelSoundIsPlayingOn = g_pGameCore->m_pSoundManager->PlayCue( m_pSoundCue );
+        g_pGameCore->GetSoundPlayer()->StopSound( m_ChannelSoundIsPlayingOn );
+    m_ChannelSoundIsPlayingOn = g_pGameCore->GetSoundManager()->PlayCue( m_pSoundCue );
 }
 #endif //MYFW_USING_WX
 
@@ -211,7 +211,7 @@ void ComponentAudioPlayer::ImportFromJSONObject(cJSON* jComponent, unsigned int 
     cJSON* scriptstringobj = cJSON_GetObjectItem( jComponent, "Cue" );
     if( scriptstringobj )
     {
-        SoundCue* pSoundCue = g_pGameCore->m_pSoundManager->FindCueByName( m_SoundCueName );
+        SoundCue* pSoundCue = g_pGameCore->GetSoundManager()->FindCueByName( m_SoundCueName );
         if( pSoundCue )
         {
             SetSoundCue( pSoundCue );
@@ -281,7 +281,7 @@ void ComponentAudioPlayer::TickCallback(double TimePassed)
     // In editor mode, continually check for sound cue pointer then unregister tick callback one found.
     if( m_pSoundCue == 0 && m_SoundCueName[0] != 0 )
     {
-        SoundCue* pSoundCue = g_pGameCore->m_pSoundManager->FindCueByName( m_SoundCueName );
+        SoundCue* pSoundCue = g_pGameCore->GetSoundManager()->FindCueByName( m_SoundCueName );
 
         if( pSoundCue )
         {
@@ -301,7 +301,7 @@ void ComponentAudioPlayer::PlaySound(bool fireAndForget)
     // Check for the sound cue if it's null, it might not have been set on initial load if sound cue file wasn't loaded.
     if( m_pSoundCue == 0 && m_SoundCueName[0] != 0 )
     {
-        SetSoundCue( g_pGameCore->m_pSoundManager->FindCueByName( m_SoundCueName ) );
+        SetSoundCue( g_pGameCore->GetSoundManager()->FindCueByName( m_SoundCueName ) );
     }
 
     if( m_pSoundCue == 0 )
@@ -309,12 +309,12 @@ void ComponentAudioPlayer::PlaySound(bool fireAndForget)
 
     if( fireAndForget == false )
     {
-        g_pGameCore->m_pSoundPlayer->StopSound( m_ChannelSoundIsPlayingOn );
-        m_ChannelSoundIsPlayingOn = g_pGameCore->m_pSoundManager->PlayCue( m_pSoundCue );
+        g_pGameCore->GetSoundPlayer()->StopSound( m_ChannelSoundIsPlayingOn );
+        m_ChannelSoundIsPlayingOn = g_pGameCore->GetSoundManager()->PlayCue( m_pSoundCue );
     }
     else
     {
-        g_pGameCore->m_pSoundManager->PlayCue( m_pSoundCue );
+        g_pGameCore->GetSoundManager()->PlayCue( m_pSoundCue );
     }
 }
 
