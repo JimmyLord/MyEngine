@@ -167,7 +167,7 @@ bool ComponentMesh::ShouldVariableBeAddedToWatchPanel(ComponentVariable* pVar)
         // only show enough material variables for the number of submeshes in the mesh.
         if( pVar->m_Label == g_MaterialLabels[i] )
         {
-            if( m_pMesh == 0 || i >= m_pMesh->m_SubmeshList.Count() )
+            if( m_pMesh == 0 || i >= m_pMesh->GetSubmeshListCount() )
                 return false;
         }
     }
@@ -533,7 +533,7 @@ void ComponentMesh::SetMesh(MyMesh* pMesh)
 
 bool ComponentMesh::IsMeshReady()
 {
-    return m_pMesh->m_MeshReady;
+    return m_pMesh->IsReady();
 }
 
 void ComponentMesh::MeshFinishedLoading()
@@ -548,13 +548,13 @@ void ComponentMesh::AddToSceneGraph()
     if( m_pGameObject->IsEnabled() == false )
         return;
 
-    if( m_pMesh->m_MeshReady )
+    if( m_pMesh->IsReady() )
     {
-        MyAssert( m_pMesh->m_SubmeshList.Count() > 0 );
+        MyAssert( m_pMesh->GetSubmeshListCount() > 0 );
         MyAssert( m_pSceneGraphObjects[0] == 0 );
 
         // Add the Mesh to the main scene graph
-        if( m_pMesh->m_SubmeshList.Count() > 0 )
+        if( m_pMesh->GetSubmeshListCount() > 0 )
         {
             SceneGraphFlags flags = SceneGraphFlag_Opaque; // TODO: check if opaque or transparent
             unsigned int layers = m_LayersThisExistsOn;
@@ -586,9 +586,9 @@ void ComponentMesh::RemoveFromSceneGraph()
     }
 
     MyAssert( m_pMesh );
-    //MyAssert( m_pMesh->m_SubmeshList.Count() > 0 );
+    //MyAssert( m_pMesh->GetSubmeshListCount() > 0 );
 
-    for( unsigned int i=0; i<m_pMesh->m_SubmeshList.Count(); i++ )
+    for( unsigned int i=0; i<m_pMesh->GetSubmeshListCount(); i++ )
     {
         if( m_pSceneGraphObjects[i] != 0 )
         {
@@ -731,11 +731,11 @@ void ComponentMesh::DrawCallback(ComponentCamera* pCamera, MyMatrix* pMatViewPro
                 return;
         }
 
-        for( unsigned int i=0; i<m_pMesh->m_SubmeshList.Count(); i++ )
+        for( unsigned int i=0; i<m_pMesh->GetSubmeshListCount(); i++ )
         {
             m_pMesh->SetMaterial( m_pMaterials[i], i );
-            m_pMesh->m_SubmeshList[i]->m_PrimitiveType = m_GLPrimitiveType;
-            m_pMesh->m_SubmeshList[i]->m_PointSize = m_PointSize;
+            m_pMesh->GetSubmesh( i )->m_PrimitiveType = m_GLPrimitiveType;
+            m_pMesh->GetSubmesh( i )->m_PointSize = m_PointSize;
         }
 
         //m_pMesh->SetTransform( worldtransform );

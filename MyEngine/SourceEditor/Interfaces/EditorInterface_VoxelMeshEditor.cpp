@@ -144,9 +144,9 @@ void EditorInterface_VoxelMeshEditor::SaveVoxelMesh()
 
         FILE* pFile;
 #if MYFW_WINDOWS
-        fopen_s( &pFile, m_pVoxelMesh->m_pMesh->m_pSourceFile->GetFullPath(), "wb" );
+        fopen_s( &pFile, m_pVoxelMesh->m_pMesh->GetFile()->GetFullPath(), "wb" );
 #else
-        pFile = fopen( m_pVoxelMesh->m_pMesh->m_pSourceFile->GetFullPath(), "wb" );
+        pFile = fopen( m_pVoxelMesh->m_pMesh->GetFile()->GetFullPath(), "wb" );
 #endif
         fprintf( pFile, "%s", string );
         fclose( pFile );

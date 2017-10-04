@@ -105,7 +105,7 @@ void* ComponentCollisionObject::GetPointerValue(ComponentVariable* pVar) //_VARI
     if( strcmp( pVar->m_Label, "OBJ" ) == 0 )
     {
         if( m_pMesh )
-            return m_pMesh->m_pSourceFile;
+            return m_pMesh->GetFile();
     }
 
     return 0;
@@ -128,7 +128,7 @@ const char* ComponentCollisionObject::GetPointerDesc(ComponentVariable* pVar) //
         if( m_pMesh == 0 )
             return "none";
 
-        MyFileObject* pFile = m_pMesh->m_pSourceFile;
+        MyFileObject* pFile = m_pMesh->GetFile();
         if( pFile )
             return pFile->GetFullPath();
         else
@@ -271,7 +271,7 @@ void* ComponentCollisionObject::OnDropOBJ(ComponentVariable* pVar, wxCoord x, wx
         if( strcmp( filenameext, ".obj" ) == 0 )
         {
             if( m_pMesh )
-                oldpointer = m_pMesh->m_pSourceFile;
+                oldpointer = m_pMesh->GetFile();
 
             g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_ComponentVariableIndirectPointerChanged( this, pVar, pFile ) );
         }
@@ -378,7 +378,7 @@ void ComponentCollisionObject::CreateBody()
         
         if( m_PrimitiveType == PhysicsPrimitiveType_ConvexHull )
         {
-            if( m_pMesh && m_pMesh->m_MeshReady )
+            if( m_pMesh && m_pMesh->IsReady() )
             {
                 //btStridingMeshInterface meshinterface;
                 //colShape = new btBvhTriangleMeshShape( meshinterface );

@@ -91,7 +91,7 @@ void* ComponentVoxelMesh::GetPointerValue(ComponentVariable* pVar) //_VARIABLE_L
     if( strcmp( pVar->m_Label, "File" ) == 0 )
     {
         if( m_pMesh )
-            return m_pMesh->m_pSourceFile;
+            return m_pMesh->GetFile();
     }
 
     return 0;
@@ -114,7 +114,7 @@ const char* ComponentVoxelMesh::GetPointerDesc(ComponentVariable* pVar) //_VARIA
         if( m_pMesh == 0 )
             return "none";
 
-        MyFileObject* pFile = m_pMesh->m_pSourceFile;
+        MyFileObject* pFile = m_pMesh->GetFile();
         if( pFile )
             return pFile->GetFullPath();
         else
@@ -181,7 +181,7 @@ void ComponentVoxelMesh::FillPropertiesWindow(bool clear, bool addcomponentvaria
 
         FillPropertiesWindowWithVariables(); //_VARIABLE_LIST
 
-        if( m_pMesh == 0 || m_pMesh->m_pSourceFile == 0 )
+        if( m_pMesh == 0 || m_pMesh->GetFile() == 0 )
             g_pPanelWatch->AddButton( "Create Mesh", this, -1, ComponentVoxelMesh::StaticOnButtonCreateMesh );
         else
             g_pPanelWatch->AddButton( "Edit Mesh", this, -1, ComponentVoxelMesh::StaticOnButtonEditMesh );
@@ -216,13 +216,13 @@ void* ComponentVoxelMesh::OnDrop(ComponentVariable* pVar, wxCoord x, wxCoord y)
         if( strcmp( filenameext, ".myvoxelmesh" ) == 0 )
         {
             if( m_pMesh )
-                oldpointer = m_pMesh->m_pSourceFile;
+                oldpointer = m_pMesh->GetFile();
 
             MyMesh* pMesh = g_pMeshManager->FindMeshBySourceFile( pFile );
             SetMesh( pMesh );
 
             // update the panel so new OBJ name shows up.
-            g_pPanelWatch->GetVariableProperties( g_DragAndDropStruct.GetControlID() )->m_Description = m_pMesh->m_pSourceFile->GetFullPath();
+            g_pPanelWatch->GetVariableProperties( g_DragAndDropStruct.GetControlID() )->m_Description = m_pMesh->GetFile()->GetFullPath();
         }
 
         g_pPanelWatch->SetNeedsRefresh();
@@ -270,7 +270,7 @@ void* ComponentVoxelMesh::OnValueChanged(ComponentVariable* pVar, bool changedby
                     g_pPanelWatch->ChangeDescriptionForPointerWithDescription( pVar->m_ControlID, "none" );
 
                     if( m_pMesh )
-                        oldpointer = m_pMesh->m_pSourceFile;
+                        oldpointer = m_pMesh->GetFile();
 
                     // TODO: undo/redo
                     SetMesh( 0 );
@@ -289,7 +289,7 @@ void* ComponentVoxelMesh::OnValueChanged(ComponentVariable* pVar, bool changedby
 
 void ComponentVoxelMesh::OnButtonCreateMesh(int buttonid)
 {
-    MyAssert( m_pMesh == 0 || m_pMesh->m_pSourceFile == 0 );
+    MyAssert( m_pMesh == 0 || m_pMesh->GetFile() == 0 );
 
     // pop up a file selector dialog.
     {
@@ -315,8 +315,7 @@ void ComponentVoxelMesh::OnButtonCreateMesh(int buttonid)
 
                 CreateMesh();
 
-                pFile->AddRef();
-                m_pMesh->m_pSourceFile = pFile;
+                m_pMesh->SetSourceFile( pFile );
 
                 g_pPanelWatch->SetNeedsRefresh();
             }

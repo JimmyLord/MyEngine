@@ -1169,7 +1169,7 @@ MyMesh* EngineCore::GetMesh_MaterialBall()
         return 0;
     }
 
-    if( m_pMesh_MaterialBall && m_pMesh_MaterialBall->m_MeshReady == false )
+    if( m_pMesh_MaterialBall && m_pMesh_MaterialBall->IsReady() == false )
     {
         if( g_pEngineCore->m_pSphereMeshFile->GetFileLoadStatus() == FileLoadStatus_Success )
         {
@@ -1223,7 +1223,7 @@ void EngineCore::CreateDefaultEditorSceneObjects()
             pComponentMesh->m_pMesh->CreateEditorLineGridXZ( Vector3(0,0,0), 1, 5 );
             // TODOMaterials: put this back for plane.
             //pComponentMesh->m_pMesh->m_Tint.Set( 150, 150, 150, 255 );
-            pComponentMesh->m_GLPrimitiveType = pComponentMesh->m_pMesh->m_SubmeshList[0]->m_PrimitiveType;
+            pComponentMesh->m_GLPrimitiveType = pComponentMesh->m_pMesh->GetSubmesh( 0 )->m_PrimitiveType;
             pComponentMesh->AddToSceneGraph();
         }
 

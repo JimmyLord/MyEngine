@@ -66,7 +66,7 @@ void EditorInterface_2DPointEditor::OnActivated()
             pComponentMesh->SetLayersThisExistsOn( Layer_EditorFG );
             pComponentMesh->m_pMesh = MyNew MyMesh();
             pComponentMesh->m_pMesh->Create2DCircle( 0.25f, 20 );
-            pComponentMesh->m_GLPrimitiveType = pComponentMesh->m_pMesh->m_SubmeshList[0]->m_PrimitiveType;
+            pComponentMesh->m_GLPrimitiveType = pComponentMesh->m_pMesh->GetSubmesh( 0 )->m_PrimitiveType;
 
             // remove this from the main list of renderable components.
             pComponentMesh->UnregisterCallbacks();

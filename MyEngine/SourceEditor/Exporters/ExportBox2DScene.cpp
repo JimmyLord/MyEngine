@@ -108,21 +108,21 @@ cJSON* ExportGameObject(cJSON* jGameObjectArray, GameObject* pGameObject)
                         ComponentMeshOBJ* pMesh = (ComponentMeshOBJ*)pComponent;
                         pMaterial = pMesh->GetMaterial( 0 );
 
-                        if( pMesh->m_pMesh && pMesh->m_pMesh->m_pSourceFile )
-                            cJSON_AddStringToObject( jComponent, "OBJFilename", pMesh->m_pMesh->m_pSourceFile->GetFilenameWithoutExtension() );
+                        if( pMesh->m_pMesh && pMesh->m_pMesh->GetFile() )
+                            cJSON_AddStringToObject( jComponent, "OBJFilename", pMesh->m_pMesh->GetFile()->GetFilenameWithoutExtension() );
                     }
 
                     if( pMaterial )
                     {
                         if( pMaterial )
                         {
-                            char* name = pMaterial->GetTextureColor()->m_Filename;
+                            const char* name = pMaterial->GetTextureColor()->GetFilename();
                             cJSON_AddStringToObject( jComponent, "Material", pMaterial->GetName() );
                         }
 
                         if( pMaterial->GetTextureColor() )
                         {
-                            char* name = pMaterial->GetTextureColor()->m_Filename;
+                            const char* name = pMaterial->GetTextureColor()->GetFilename();
                             cJSON_AddStringToObject( jComponent, "Texture", name );
                         }
                                             

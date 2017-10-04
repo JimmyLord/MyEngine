@@ -178,17 +178,6 @@ void ComponentSystemManager::RegisterComponentCallback_Draw(ComponentCallbackStr
 {
     MyAssert( pCallbackStruct->pFunc != 0 && pCallbackStruct->pObj != 0 );
     m_pComponentCallbackList_Draw.AddTail( pCallbackStruct );
-
-    //GameObject* pGameObject = pCallbackStruct->pObj->m_pGameObject;
-    //MyMatrix* pWorldTransform = pGameObject->GetTransform()->GetWorldTransform();
-
-    //ComponentMesh* pComponent = (ComponentMesh*)pGameObject->GetFirstComponentOfType( "MeshComponent" );
-    //if( pComponent && pComponent->m_pMesh )
-    //{
-    //    MyMesh* pMesh = pComponent->m_pMesh;
-    //    for( unsigned int i=0; i<pMesh->m_SubmeshList.Count(); i++ )
-    //        m_pSceneGraph->AddRenderableObject( pWorldTransform, pMesh, pMesh->m_SubmeshList[i], pComponent->m_pMaterials[i] );
-    //}
 }
 
 void ComponentSystemManager::UnregisterComponentCallback_Draw(ComponentCallbackStruct_Draw* pCallbackStruct)
@@ -389,9 +378,9 @@ void ComponentSystemManager::OnFileUnloaded(MyFileObject* pFile) // StaticOnFile
 
             // Unload the file.
             if( pFileInfo->m_pFile == pFile
-                || (pFileInfo->m_pMesh          && pFileInfo->m_pMesh->m_pSourceFile        == pFile)
+                || (pFileInfo->m_pMesh          && pFileInfo->m_pMesh->GetFile()            == pFile)
                 || (pFileInfo->m_pShaderGroup   && pFileInfo->m_pShaderGroup->GetFile()     == pFile)
-                || (pFileInfo->m_pTexture       && pFileInfo->m_pTexture->m_pFile           == pFile)
+                || (pFileInfo->m_pTexture       && pFileInfo->m_pTexture->GetFile()         == pFile)
                 || (pFileInfo->m_pMaterial      && pFileInfo->m_pMaterial->GetFile()        == pFile)
                 || (pFileInfo->m_pSoundCue      && pFileInfo->m_pSoundCue->GetFile()        == pFile)
                 || (pFileInfo->m_pSpriteSheet   && pFileInfo->m_pSpriteSheet->GetJSONFile() == pFile)
@@ -786,8 +775,8 @@ MyFileObject* ComponentSystemManager::LoadDataFile(const char* relativepath, uns
                 pFileInfo->m_pFile = pFile;
 
                 pTexture = g_pTextureManager->CreateTexture( pFile );
-                MyAssert( pFile == pTexture->m_pFile );
-                pFile = pTexture->m_pFile;
+                MyAssert( pFile == pTexture->GetFile() );
+                pFile = pTexture->GetFile();
 
                 // Update the fileinfo block with the texture.
                 pFileInfo->m_pTexture = pTexture;
@@ -800,7 +789,7 @@ MyFileObject* ComponentSystemManager::LoadDataFile(const char* relativepath, uns
                 pFileInfo->m_pTexture = pTexture;
 
                 // Add a ref to the file for our scene file list.
-                pFile = pTexture->m_pFile;
+                pFile = pTexture->GetFile();
                 pFile->AddRef();
             }
         }
@@ -2709,16 +2698,16 @@ void ComponentSystemManager::AddMeshToSceneGraph(ComponentBase* pComponent, MyMe
     MyAssert( pMesh != 0 );
     MyAssert( pMaterialList != 0 );
     MyAssert( pOutputList != 0 );
-    MyAssert( pMesh->m_SubmeshList.Count() > 0 );
+    MyAssert( pMesh->GetSubmeshListCount() > 0 );
 
     MyMatrix* pWorldTransform = pComponent->m_pGameObject->GetTransform()->GetWorldTransform();
 
-    for( unsigned int i=0; i<pMesh->m_SubmeshList.Count(); i++ )
+    for( unsigned int i=0; i<pMesh->GetSubmeshListCount(); i++ )
     {
         if( pMaterialList[i] && pMaterialList[i]->IsTransparent() )
             flags = SceneGraphFlag_Transparent;
         MyAssert( pOutputList[i] == 0 );
-        pOutputList[i] = m_pSceneGraph->AddObject( pWorldTransform, pMesh, pMesh->m_SubmeshList[i], pMaterialList[i], primitive, pointsize, flags, layers, pComponent );
+        pOutputList[i] = m_pSceneGraph->AddObject( pWorldTransform, pMesh, pMesh->GetSubmesh( i ), pMaterialList[i], primitive, pointsize, flags, layers, pComponent );
     }
 }
 

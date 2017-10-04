@@ -260,8 +260,8 @@ void ComponentMeshPrimitive::CreatePrimitive()
     else
         RemoveFromSceneGraph();
 
-    if( m_pMesh->m_SubmeshList.Count() > 0 )
-        m_pMesh->m_SubmeshList[0]->m_PrimitiveType = m_GLPrimitiveType;
+    if( m_pMesh->GetSubmeshListCount() > 0 )
+        m_pMesh->GetSubmesh( 0 )->m_PrimitiveType = m_GLPrimitiveType;
 
     if( m_MeshPrimitiveType == ComponentMeshPrimitive_Plane )
     {

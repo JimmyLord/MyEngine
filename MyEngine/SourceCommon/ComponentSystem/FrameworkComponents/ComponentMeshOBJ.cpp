@@ -54,7 +54,7 @@ void* ComponentMeshOBJ::GetPointerValue(ComponentVariable* pVar) //_VARIABLE_LIS
     if( strcmp( pVar->m_Label, "OBJ" ) == 0 )
     {
         if( m_pMesh )
-            return m_pMesh->m_pSourceFile;
+            return m_pMesh->GetFile();
     }
 
     return 0;
@@ -77,7 +77,7 @@ const char* ComponentMeshOBJ::GetPointerDesc(ComponentVariable* pVar) //_VARIABL
         if( m_pMesh == 0 )
             return "none";
 
-        MyFileObject* pFile = m_pMesh->m_pSourceFile;
+        MyFileObject* pFile = m_pMesh->GetFile();
         if( pFile )
             return pFile->GetFullPath();
         else
@@ -136,8 +136,8 @@ void ComponentMeshOBJ::FillPropertiesWindow(bool clear, bool addcomponentvariabl
         ComponentMesh::FillPropertiesWindow( clear );
 
         //const char* desc = "no mesh";
-        //if( m_pMesh && m_pMesh->m_pSourceFile )
-        //    desc = m_pMesh->m_pSourceFile->GetFullPath();
+        //if( m_pMesh && m_pMesh->GetFile() )
+        //    desc = m_pMesh->GetFile()->GetFullPath();
         //g_pPanelWatch->AddPointerWithDescription( "File", 0, desc, this, ComponentMeshOBJ::StaticOnDropOBJ );
 
         if( addcomponentvariables )
@@ -163,14 +163,14 @@ void* ComponentMeshOBJ::OnValueChanged(ComponentVariable* pVar, bool changedbyin
                     g_pPanelWatch->ChangeDescriptionForPointerWithDescription( pVar->m_ControlID, "none" );
 
                     if( m_pMesh )
-                        oldpointer = m_pMesh->m_pSourceFile;
+                        oldpointer = m_pMesh->GetFile();
 
                     g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_ComponentVariableIndirectPointerChanged( this, pVar, 0 ) );
                 }
             }
             else
             {
-                oldpointer = m_pMesh ? m_pMesh->m_pSourceFile : 0;
+                oldpointer = m_pMesh ? m_pMesh->GetFile() : 0;
 
                 MyFileObject* pFile = pNewValue ? (MyFileObject*)pNewValue->GetPointerIndirect() : 0;
 
@@ -201,7 +201,7 @@ void* ComponentMeshOBJ::OnDropOBJ(ComponentVariable* pVar, wxCoord x, wxCoord y)
         if( strcmp( filenameext, ".obj" ) == 0 )
         {
             if( m_pMesh )
-                oldpointer = m_pMesh->m_pSourceFile;
+                oldpointer = m_pMesh->GetFile();
 
             // This EditorCommand will call ::SetPointerValue which is expecting a pointer to the new file.
             g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_ComponentVariableIndirectPointerChanged( this, pVar, pFile ) );
@@ -210,7 +210,7 @@ void* ComponentMeshOBJ::OnDropOBJ(ComponentVariable* pVar, wxCoord x, wxCoord y)
         if( strcmp( filenameext, ".mymesh" ) == 0 )
         {
             if( m_pMesh )
-                oldpointer = m_pMesh->m_pSourceFile;
+                oldpointer = m_pMesh->GetFile();
 
             // This EditorCommand will call ::SetPointerValue which is expecting a pointer to the new file.
             g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_ComponentVariableIndirectPointerChanged( this, pVar, pFile ) );
@@ -227,8 +227,8 @@ cJSON* ComponentMeshOBJ::ExportAsJSONObject(bool savesceneid, bool saveid)
 {
     cJSON* component = ComponentMesh::ExportAsJSONObject( savesceneid, saveid );
 
-    //if( m_pMesh && m_pMesh->m_pSourceFile )
-    //    cJSON_AddStringToObject( component, "OBJ", m_pMesh->m_pSourceFile->GetFullPath() );
+    //if( m_pMesh && m_pMesh->GetFile() )
+    //    cJSON_AddStringToObject( component, "OBJ", m_pMesh->GetFile()->GetFullPath() );
 
     return component;
 }
@@ -307,21 +307,21 @@ void ComponentMeshOBJ::SetMesh(MyMesh* pMesh)
     //if( pMesh )
     //{
     //    // parse the mesh file in case this is the first instance of it.
-    //    if( pMesh->m_MeshReady == false )
+    //    if( pMesh->IsReady() == false )
     //        pMesh->ParseFile();
 
     //    // if we didn't already have a material set for any submesh, use the default material from the new mesh's submesh.
     //    // TODO: this doesn't happen elsewhere if the mesh isn't ready because the file was still loading.
-    //    if( pMesh->m_MeshReady == true )
+    //    if( pMesh->IsReady() == true )
     //    {
     //        for( unsigned int i=0; i<MAX_SUBMESHES; i++ )
     //        {
     //            if( m_pMaterials[i] == 0 ) // if we don't already have a material set:
     //            {
-    //                if( i < pMesh->m_SubmeshList.Count() ) // check if the new mesh has a known material and set it:
+    //                if( i < pMesh->GetSubmeshListCount() ) // check if the new mesh has a known material and set it:
     //                {
-    //                    MyAssert( pMesh->m_SubmeshList[i] );
-    //                    MaterialDefinition* pMaterial = pMesh->m_SubmeshList[i]->GetMaterial();
+    //                    MyAssert( pMesh->GetSubmesh( i ) );
+    //                    MaterialDefinition* pMaterial = pMesh->GetSubmesh( i )->GetMaterial();
     //                    if( pMaterial )
     //                        SetMaterial( pMaterial, i );
     //                }
