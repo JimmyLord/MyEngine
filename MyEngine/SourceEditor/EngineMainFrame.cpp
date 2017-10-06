@@ -380,7 +380,10 @@ void EngineMainFrame::InitFrame()
     for( int i=0; i<g_NumberOfVisibilityLayers; i++ )
     {
         wxString label;
-        label << "(&" << i+1 << ") " << g_pVisibilityLayerStrings[i] << "\tCtrl-Alt-" << i+1;
+        if( i < 9 )
+            label << "(&" << i+1 << ") " << g_pVisibilityLayerStrings[i] << "\tCtrl-Alt-" << i+1;
+        else
+            label << "(&" << i+1 << ") " << g_pVisibilityLayerStrings[i];
         m_EditorCameraLayerOptions[i] = m_EditorCameraLayers->AppendCheckItem( myIDEngine_View_EditorCameraLayer + i, label, wxEmptyString );
         Connect( myIDEngine_View_EditorCameraLayer + i, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );
     }

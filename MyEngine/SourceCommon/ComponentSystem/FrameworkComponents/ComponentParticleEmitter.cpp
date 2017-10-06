@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2016 Jimmy Lord http://www.flatheadgames.com
+// Copyright (c) 2015-2017 Jimmy Lord http://www.flatheadgames.com
 //
 // This software is provided 'as-is', without any express or implied warranty.  In no event will the authors be held liable for any damages arising from the use of this software.
 // Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -418,8 +418,10 @@ void ComponentParticleEmitter::CreateBurst(int number, Vector3 offset)
 
 void ComponentParticleEmitter::TickCallback(double TimePassed)
 {
-    if( m_RunInEditor )
+#if MYFW_USING_WX
+    if( m_RunInEditor && g_pEngineCore->IsInEditorMode() )
         TimePassed = g_pGameCore->GetTimePassedUnpausedLastFrame();
+#endif
 
     // TODO: if we want to share particle renderers, then don't reset like this.
     m_pParticleRenderer->Reset();
