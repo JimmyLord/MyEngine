@@ -34,25 +34,14 @@ enum EngineEditorWindowTypes
 
 enum EngineMenuIDs
 {
-    myIDEngine_NewScene = myID_LastID,
-    myIDEngine_LoadScene,
-    myIDEngine_CreateAdditionalScene,
-    myIDEngine_LoadAdditionalScene,
-    myIDEngine_SaveScene,
-    myIDEngine_SaveSceneAs,
-    myIDEngine_ExportBox2DScene,
-    myIDEngine_AddDatafile,
-    myIDEngine_Grid_VisibleOnOff,
-    myIDEngine_Grid_SnapOnOff,
-    myIDEngine_Grid_Settings,
-    myIDEngine_Mode_SwitchFocusOnPlayStop,
-    myIDEngine_Mode_PlayStop,
-    myIDEngine_Mode_Pause,
-    myIDEngine_Mode_Advance1Frame,
-    myIDEngine_Mode_Advance1Second,
-    myIDEngine_Mode_LaunchGame,
-    myIDEngine_RecordMacro,
-    myIDEngine_ExecuteMacro,
+    myIDEngine_File_NewScene = myID_LastID,
+    myIDEngine_File_LoadScene,
+    myIDEngine_File_CreateAdditionalScene,
+    myIDEngine_File_LoadAdditionalScene,
+    myIDEngine_File_SaveScene,
+    myIDEngine_File_SaveSceneAs,
+    myIDEngine_File_ExportBox2DScene,
+
     myIDEngine_View_EditorPerspectives,
     myIDEngine_View_GameplayPerspectives,
     myIDEngine_View_EditorPerspective,
@@ -67,15 +56,38 @@ enum EngineMenuIDs
         // g_NumberOfVisibilityLayers more items here
     myIDEngine_View_FullScreenEditor = myIDEngine_View_EditorCameraLayer + g_NumberOfVisibilityLayers,
     myIDEngine_View_FullScreenGame,
-    myIDEngine_DebugShowMousePickerFBO,
-    myIDEngine_EditorWindow_FirstWindow,
-    myIDEngine_EditorWindow_Editor = myIDEngine_EditorWindow_FirstWindow,
-    myIDEngine_EditorWindow_LogPane,
-    myIDEngine_DebugShowSelectedAnimatedMesh,
-    myIDEngine_DebugShowGLStats,
-    myIDEngine_DebugDrawWireframe,
-    myIDEngine_DebugShowPhysicsShapes,
-    myIDEngine_DebugShowProfilingInfo,
+
+    // Editor window toggles extended from m_EditorWindows in MainFrame, must have as many as EngineEditorWindow_NumTypes
+    myIDEngine_View_EditorWindow_FirstWindow,
+    myIDEngine_View_EditorWindow_Editor = myIDEngine_View_EditorWindow_FirstWindow,
+    myIDEngine_View_EditorWindow_LogPane,
+
+    myIDEngine_Grid_VisibleOnOff,
+    myIDEngine_Grid_SnapOnOff,
+    myIDEngine_Grid_Settings,
+
+    myIDEngine_Mode_SwitchFocusOnPlayStop,
+    myIDEngine_Mode_PlayStop,
+    myIDEngine_Mode_Pause,
+    myIDEngine_Mode_Advance1Frame,
+    myIDEngine_Mode_Advance1Second,
+    myIDEngine_Mode_LaunchPlatform_Win32,
+    myIDEngine_Mode_LaunchPlatform_Win64,
+    myIDEngine_Mode_LaunchPlatform_NaCl,
+    myIDEngine_Mode_LaunchGame,
+
+    myIDEngine_Data_AddDatafile,
+
+    myIDEngine_Hackery_RecordMacro,
+    myIDEngine_Hackery_ExecuteMacro,
+
+    myIDEngine_Debug_ShowMousePickerFBO,
+    myIDEngine_Debug_ShowSelectedAnimatedMesh,
+    myIDEngine_Debug_ShowGLStats,
+    myIDEngine_Debug_DrawWireframe,
+    myIDEngine_Debug_ShowPhysicsShapes,
+    myIDEngine_Debug_ShowProfilingInfo,
+
     myIDEngine_LastID,
 };
 
@@ -111,31 +123,35 @@ protected:
     unsigned int m_UndoStackDepthAtLastSave;
 
     // Engine specific windows tacked onto m_EditorWindows list.
-    wxMenuItem* m_EngineEditorWindowOptions[EngineEditorWindow_NumTypes];
+    wxMenuItem* m_MenuItem_View_EngineEditorWindowOptions[EngineEditorWindow_NumTypes];
 
-    wxMenu* m_EditorPerspectives;
-    wxMenu* m_GameplayPerspectives;
-    wxMenu* m_EditorCameraLayers;
+    wxMenu* m_SubMenu_View_EditorPerspectives;
+    wxMenu* m_SubMenu_View_GameplayPerspectives;
+    wxMenu* m_SubMenu_View_EditorCameraLayers;
 
-    wxMenuItem* m_EditorPerspectiveOptions[Perspective_NumPerspectives];
-    wxMenuItem* m_GameplayPerspectiveOptions[Perspective_NumPerspectives];
-    wxMenuItem* m_EditorCameraLayerOptions[g_NumberOfVisibilityLayers];
+    wxMenuItem* m_MenuItem_View_EditorPerspectiveOptions[Perspective_NumPerspectives];
+    wxMenuItem* m_MenuItem_View_GameplayPerspectiveOptions[Perspective_NumPerspectives];
+    wxMenuItem* m_MenuItem_View_EditorCameraLayerOptions[g_NumberOfVisibilityLayers];
 
     //char m_CurrentSceneName[MAX_PATH];
 
-    wxMenu* m_Grid;
-    wxMenu* m_PlayPauseStop;
-    wxMenu* m_Data;
-    wxMenu* m_Hackery;
-    wxMenu* m_Debug;
+    // Engine specific menus
+    wxMenu* m_Menu_Grid;
+    wxMenu* m_Menu_Mode;
+    wxMenu* m_Menu_Data;
+    wxMenu* m_Menu_Hackery;
+    wxMenu* m_Menu_Debug;
 
-    wxMenuItem* m_MenuItem_GridVisible;
-    wxMenuItem* m_MenuItem_GridSnapEnabled;
-    wxMenuItem* m_MenuItem_ShowEditorIcons;
-    wxMenuItem* m_MenuItem_SelectedObjects_ShowWireframe;
-    wxMenuItem* m_MenuItem_SelectedObjects_ShowEffect;
+    // Engine specific menu items
+    wxMenuItem* m_MenuItem_View_ShowEditorIcons;
+    wxMenuItem* m_MenuItem_View_SelectedObjects_ShowWireframe;
+    wxMenuItem* m_MenuItem_View_SelectedObjects_ShowEffect;
+
+    wxMenuItem* m_MenuItem_Grid_Visible;
+    wxMenuItem* m_MenuItem_Grid_SnapEnabled;
 
     wxMenuItem* m_MenuItem_Mode_SwitchFocusOnPlayStop;
+    wxMenu* m_SubMenu_Mode_LaunchPlatform;
 
     wxMenuItem* m_MenuItem_Debug_DrawMousePickerFBO;
     wxMenuItem* m_MenuItem_Debug_DrawSelectedAnimatedMesh;
