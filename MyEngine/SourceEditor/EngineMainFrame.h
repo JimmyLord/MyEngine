@@ -32,6 +32,15 @@ enum EngineEditorWindowTypes
     EngineEditorWindow_NumTypes,
 };
 
+enum LaunchPlatforms
+{
+    LaunchPlatform_Win32,
+    LaunchPlatform_Win64,
+    LaunchPlatform_NaCl,
+    // AddNewLaunchPlatform
+    LaunchPlatform_NumPlatforms,
+};
+
 enum EngineMenuIDs
 {
     myIDEngine_File_NewScene = myID_LastID,
@@ -71,10 +80,9 @@ enum EngineMenuIDs
     myIDEngine_Mode_Pause,
     myIDEngine_Mode_Advance1Frame,
     myIDEngine_Mode_Advance1Second,
-    myIDEngine_Mode_LaunchPlatform_Win32,
-    myIDEngine_Mode_LaunchPlatform_Win64,
-    myIDEngine_Mode_LaunchPlatform_NaCl,
-    myIDEngine_Mode_LaunchGame,
+    myIDEngine_Mode_LaunchPlatforms,
+        // LaunchPlatform_NumPlatforms more items here
+    myIDEngine_Mode_LaunchGame = myIDEngine_Mode_LaunchPlatforms + LaunchPlatform_NumPlatforms,
 
     myIDEngine_Data_AddDatafile,
 
@@ -112,15 +120,16 @@ public:
 class EngineMainFrame : public MainFrame
 {
 protected:
-    FullScreenFrame* m_pFullScreenFrame; // m_pGLCanvas will be parented to this to go fullscreen.
+    // Fullscreen frame used for using editor in full screen mode.
+    // When fullscreen, the m_pGLCanvas will be parented to this.
+    FullScreenFrame* m_pFullScreenFrame;
 
+    // Editor windows
     MainGLCanvas* m_pGLCanvasEditor;
     wxNotebook* m_pLogPane;
     wxTextCtrl* m_pLogMain;
     wxTextCtrl* m_pLogInfo;
     wxTextCtrl* m_pLogErrors;
-
-    unsigned int m_UndoStackDepthAtLastSave;
 
     // Engine specific windows tacked onto m_EditorWindows list.
     wxMenuItem* m_MenuItem_View_EngineEditorWindowOptions[EngineEditorWindow_NumTypes];
@@ -132,8 +141,6 @@ protected:
     wxMenuItem* m_MenuItem_View_EditorPerspectiveOptions[Perspective_NumPerspectives];
     wxMenuItem* m_MenuItem_View_GameplayPerspectiveOptions[Perspective_NumPerspectives];
     wxMenuItem* m_MenuItem_View_EditorCameraLayerOptions[g_NumberOfVisibilityLayers];
-
-    //char m_CurrentSceneName[MAX_PATH];
 
     // Engine specific menus
     wxMenu* m_Menu_Grid;
@@ -152,6 +159,7 @@ protected:
 
     wxMenuItem* m_MenuItem_Mode_SwitchFocusOnPlayStop;
     wxMenu* m_SubMenu_Mode_LaunchPlatform;
+    wxMenuItem* m_MenuItem_Mode_LaunchPlatformOptions[LaunchPlatform_NumPlatforms];
 
     wxMenuItem* m_MenuItem_Debug_DrawMousePickerFBO;
     wxMenuItem* m_MenuItem_Debug_DrawSelectedAnimatedMesh;
@@ -160,15 +168,17 @@ protected:
     wxMenuItem* m_MenuItem_Debug_DrawPhysicsDebugShapes;
     wxMenuItem* m_MenuItem_Debug_ShowProfilingInfo;
 
+    // Editor preferences
     cJSON* m_pEditorPrefs;
 
-    // Editor preferences
     bool m_ShowEditorIcons;
     bool m_SelectedObjects_ShowWireframe;
     bool m_SelectedObjects_ShowEffect;
-    bool m_Mode_SwitchFocusOnPlayStop;
     GridSettings m_GridSettings;
+    bool m_Mode_SwitchFocusOnPlayStop;
 
+    // Editor state values we don't save to disk
+    unsigned int m_UndoStackDepthAtLastSave;
     int m_Hackery_Record_StackDepth;
 
 public:
@@ -221,6 +231,9 @@ public:
     int GetDefaultGameplayPerspectiveIndex();
     void SetDefaultEditorPerspectiveIndex(int index);
     void SetDefaultGameplayPerspectiveIndex(int index);
+
+    int GetLaunchPlatformIndex();
+    void SetLaunchPlatformIndex(int index);
 
     void SaveScene();
     void SaveSceneAs(unsigned int sceneid);

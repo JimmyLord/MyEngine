@@ -30,6 +30,14 @@ const char* g_DefaultEngineEditorWindowTypeMenuLabels[EngineEditorWindow_NumType
     "&Log Panel",
 };
 
+const char* g_LaunchPlatformsMenuLabels[LaunchPlatform_NumPlatforms] =
+{
+    "&Win32",
+    "Win&64",
+    "&NaCl",
+    // AddNewLaunchPlatform
+};
+
 const char* g_DefaultPerspectives[Perspective_NumPerspectives] =
 {
     "layout2|name=GLCanvas;caption=Game;state=2099196;dir=4;layer=1;row=0;pos=1;prop=100000;bestw=600;besth=600;minw=-1;minh=-1;maxw=-1;maxh=-1;floatx=-253;floaty=231;floatw=680;floath=748|name=PanelWatch;caption=Watch;state=2099196;dir=2;layer=3;row=0;pos=0;prop=130560;bestw=300;besth=600;minw=-1;minh=-1;maxw=-1;maxh=-1;floatx=1274;floaty=143;floatw=316;floath=632|name=PanelMemory;caption=Memory;state=2099196;dir=2;layer=3;row=0;pos=1;prop=69440;bestw=300;besth=600;minw=-1;minh=-1;maxw=-1;maxh=-1;floatx=1023;floaty=335;floatw=316;floath=632|name=PanelObjectList;caption=Objects;state=2099196;dir=4;layer=1;row=0;pos=0;prop=100000;bestw=300;besth=600;minw=-1;minh=-1;maxw=-1;maxh=-1;floatx=-1;floaty=-1;floatw=-1;floath=-1|name=GLCanvasEditor;caption=Editor;state=2099196;dir=3;layer=0;row=0;pos=0;prop=100000;bestw=600;besth=600;minw=-1;minh=-1;maxw=-1;maxh=-1;floatx=-1;floaty=-1;floatw=-1;floath=-1|name=Log;caption=Log;state=2099196;dir=3;layer=2;row=0;pos=0;prop=100000;bestw=183;besth=150;minw=-1;minh=-1;maxw=-1;maxh=-1;floatx=543;floaty=588;floatw=199;floath=182|dock_size(4,1,0)=302|dock_size(3,0,0)=1560|dock_size(3,2,0)=140|dock_size(2,3,0)=321|",
@@ -193,6 +201,10 @@ EngineMainFrame::EngineMainFrame()
 
     m_MenuItem_Mode_SwitchFocusOnPlayStop = 0;
     m_SubMenu_Mode_LaunchPlatform = 0;
+    for( int i=0; i<LaunchPlatform_NumPlatforms; i++ )
+    {
+        m_MenuItem_Mode_LaunchPlatformOptions[i] = 0;
+    }
 
     m_MenuItem_Debug_DrawMousePickerFBO = 0;
     m_MenuItem_Debug_DrawSelectedAnimatedMesh = 0;
@@ -399,10 +411,12 @@ void EngineMainFrame::InitFrame()
 
         m_SubMenu_Mode_LaunchPlatform = MyNew wxMenu;
         m_Menu_Mode->Append( myIDEngine_View_EditorCameraLayers, "L&aunch Platforms", m_SubMenu_Mode_LaunchPlatform );
-
-        m_SubMenu_Mode_LaunchPlatform->Append( myIDEngine_Mode_LaunchPlatform_Win32, wxT("&Win32") );
-        m_SubMenu_Mode_LaunchPlatform->Append( myIDEngine_Mode_LaunchPlatform_Win64, wxT("Win&64") );
-        m_SubMenu_Mode_LaunchPlatform->Append( myIDEngine_Mode_LaunchPlatform_NaCl, wxT("&NaCl") );
+        for( int i=0; i<LaunchPlatform_NumPlatforms; i++ )
+        {
+            m_MenuItem_Mode_LaunchPlatformOptions[i] = m_SubMenu_Mode_LaunchPlatform->AppendCheckItem( myIDEngine_Mode_LaunchPlatforms + i, g_LaunchPlatformsMenuLabels[i], wxEmptyString );
+            Connect( myIDEngine_Mode_LaunchPlatforms + i, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );
+        }
+        m_MenuItem_Mode_LaunchPlatformOptions[0]->Check();
 
         m_Menu_Mode->Append( myIDEngine_Mode_LaunchGame, wxT("&Launch Game\tCtrl-F5") );
     }
@@ -479,11 +493,16 @@ void EngineMainFrame::InitFrame()
     if( m_pEditorPrefs )
     {
         int layouteditor = 0;
-        int layoutgameplay = 0;
         cJSONExt_GetInt( m_pEditorPrefs, "EditorLayout", &layouteditor );
-        cJSONExt_GetInt( m_pEditorPrefs, "GameplayLayout", &layoutgameplay );
         SetDefaultEditorPerspectiveIndex( layouteditor );
+
+        int layoutgameplay = 0;
+        cJSONExt_GetInt( m_pEditorPrefs, "GameplayLayout", &layoutgameplay );
         SetDefaultGameplayPerspectiveIndex( layoutgameplay );
+
+        int launchplatform = 0;
+        cJSONExt_GetInt( m_pEditorPrefs, "LaunchPlatform", &launchplatform );
+        SetLaunchPlatformIndex( launchplatform );
     }
 
     UpdateMenuItemStates();
@@ -664,33 +683,42 @@ bool EngineMainFrame::OnClose()
                 }
             }
 
+            // General options
             cJSON_AddNumberToObject( pPrefs, "WindowX", m_WindowX );
             cJSON_AddNumberToObject( pPrefs, "WindowY", m_WindowY );
             cJSON_AddNumberToObject( pPrefs, "ClientWidth", m_ClientWidth );
             cJSON_AddNumberToObject( pPrefs, "ClientHeight", m_ClientHeight );
             cJSON_AddNumberToObject( pPrefs, "IsMaximized", m_Maximized );
-            cJSON_AddNumberToObject( pPrefs, "ShowIcons", m_ShowEditorIcons );
-            cJSON_AddNumberToObject( pPrefs, "SelectedObjects_ShowWireframe", m_SelectedObjects_ShowWireframe );
-            cJSON_AddNumberToObject( pPrefs, "SelectedObjects_ShowEffect", m_SelectedObjects_ShowEffect );
-            cJSON_AddNumberToObject( pPrefs, "Mode_SwitchFocusOnPlayStop", m_Mode_SwitchFocusOnPlayStop );
 
             const char* relativepath = GetRelativePath( g_pComponentSystemManager->GetSceneInfo( 1 )->m_FullPath );
             if( relativepath )
                 cJSON_AddStringToObject( pPrefs, "LastSceneLoaded", relativepath );
             else
                 cJSON_AddStringToObject( pPrefs, "LastSceneLoaded", g_pComponentSystemManager->GetSceneInfo( 1 )->m_FullPath );
+
             cJSON_AddItemToObject( pPrefs, "EditorCam", g_pEngineCore->GetEditorState()->GetEditorCamera()->m_pComponentTransform->ExportAsJSONObject( false, true ) );
+
+            cJSON* jGameObjectFlagsArray = cJSON_CreateStringArray( g_pEngineCore->GetGameObjectFlagStringArray(), 32 );
+            cJSON_AddItemToObject( pPrefs, "GameObjectFlags", jGameObjectFlagsArray );
+
+            // View menu options
             cJSON_AddNumberToObject( pPrefs, "EditorLayout", GetDefaultEditorPerspectiveIndex() );
             cJSON_AddNumberToObject( pPrefs, "GameplayLayout", GetDefaultGameplayPerspectiveIndex() );
             extern GLViewTypes g_CurrentGLViewType;
             cJSON_AddNumberToObject( pPrefs, "GameAspectRatio", g_CurrentGLViewType );
 
+            cJSON_AddNumberToObject( pPrefs, "ShowIcons", m_ShowEditorIcons );
+            cJSON_AddNumberToObject( pPrefs, "SelectedObjects_ShowWireframe", m_SelectedObjects_ShowWireframe );
+            cJSON_AddNumberToObject( pPrefs, "SelectedObjects_ShowEffect", m_SelectedObjects_ShowEffect );
+
+            // Grid menu options
             cJSON_AddNumberToObject( pPrefs, "GridVisible", m_GridSettings.visible );
             cJSON_AddNumberToObject( pPrefs, "GridSnapEnabled", m_GridSettings.snapenabled );
             cJSONExt_AddFloatArrayToObject( pPrefs, "GridStepSize", &m_GridSettings.stepsize.x, 3 );
 
-            cJSON* jGameObjectFlagsArray = cJSON_CreateStringArray( g_pEngineCore->GetGameObjectFlagStringArray(), 32 );
-            cJSON_AddItemToObject( pPrefs, "GameObjectFlags", jGameObjectFlagsArray );
+            // Mode menu options
+            cJSON_AddNumberToObject( pPrefs, "Mode_SwitchFocusOnPlayStop", m_Mode_SwitchFocusOnPlayStop );
+            cJSON_AddNumberToObject( pPrefs, "LaunchPlatform", GetLaunchPlatformIndex() );
 
             char* string = cJSON_Print( pPrefs );
             cJSON_Delete( pPrefs );
@@ -1066,14 +1094,14 @@ void EngineMainFrame::OnMenu_Engine(wxCommandEvent& event)
         g_pEngineCore->OnModeAdvanceTime( 1.0f );
         break;
 
-    case myIDEngine_Mode_LaunchPlatform_Win32:
-    case myIDEngine_Mode_LaunchPlatform_Win64:
-    case myIDEngine_Mode_LaunchPlatform_NaCl:
-        //for( int i=0; i<Mode_NumLaunchPlatforms; i++ )
-        //{
-        //    m_MenuItem_Mode_LaunchPlatforms[i]->Check( false );
-        //}
-        //m_MenuItem_Mode_LaunchPlatforms[0]->Check( true );
+    case myIDEngine_Mode_LaunchPlatforms + 0:
+    case myIDEngine_Mode_LaunchPlatforms + 1:
+    case myIDEngine_Mode_LaunchPlatforms + 2:
+        // AddNewLaunchPlatform
+        {
+            int platformindex = id - myIDEngine_Mode_LaunchPlatforms;
+            SetLaunchPlatformIndex( platformindex );
+        }
         break;
 
     case myIDEngine_Mode_LaunchGame:
@@ -1267,7 +1295,11 @@ void EngineMainFrame::SetDefaultEditorPerspectiveIndex(int index)
     {
         m_MenuItem_View_EditorPerspectiveOptions[i]->Check( false );
     }
-    m_MenuItem_View_EditorPerspectiveOptions[index]->Check( true );
+
+    if( index < Perspective_NumPerspectives )
+        m_MenuItem_View_EditorPerspectiveOptions[index]->Check( true );
+    else
+        m_MenuItem_View_EditorPerspectiveOptions[0]->Check( true );
 }
 
 void EngineMainFrame::SetDefaultGameplayPerspectiveIndex(int index)
@@ -1276,7 +1308,36 @@ void EngineMainFrame::SetDefaultGameplayPerspectiveIndex(int index)
     {
         m_MenuItem_View_GameplayPerspectiveOptions[i]->Check( false );
     }
-    m_MenuItem_View_GameplayPerspectiveOptions[index]->Check( true );
+
+    if( index < Perspective_NumPerspectives )
+        m_MenuItem_View_GameplayPerspectiveOptions[index]->Check( true );
+    else
+        m_MenuItem_View_GameplayPerspectiveOptions[0]->Check( true );
+}
+
+int EngineMainFrame::GetLaunchPlatformIndex()
+{
+    for( int i=0; i<LaunchPlatform_NumPlatforms; i++ )
+    {
+        if( m_MenuItem_Mode_LaunchPlatformOptions[i]->IsChecked() )
+            return i;
+    }
+
+    MyAssert( false );
+    return -1;
+}
+
+void EngineMainFrame::SetLaunchPlatformIndex(int index)
+{
+    for( int i=0; i<LaunchPlatform_NumPlatforms; i++ )
+    {
+        m_MenuItem_Mode_LaunchPlatformOptions[i]->Check( false );
+    }
+
+    if( index < LaunchPlatform_NumPlatforms )
+        m_MenuItem_Mode_LaunchPlatformOptions[index]->Check( true );
+    else
+        m_MenuItem_Mode_LaunchPlatformOptions[0]->Check( true );
 }
 
 void EngineMainFrame::SaveScene()
