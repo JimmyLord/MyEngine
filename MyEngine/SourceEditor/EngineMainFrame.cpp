@@ -1105,11 +1105,7 @@ void EngineMainFrame::OnMenu_Engine(wxCommandEvent& event)
         break;
 
     case myIDEngine_Mode_LaunchGame:
-#if _WIN64
-        LaunchApplication( "MyEngine_Game_x64.exe", g_pComponentSystemManager->GetSceneInfo( 1 )->m_FullPath );
-#else
-        LaunchApplication( "MyEngine_Game.exe", g_pComponentSystemManager->GetSceneInfo( 1 )->m_FullPath );
-#endif
+        LaunchGame();
         break;
 
     case myIDEngine_Data_AddDatafile:
@@ -1685,6 +1681,33 @@ void EngineMainFrame::OnTextCtrlLeftDoubleClick(wxMouseEvent& evt)
 
             // TODO: MAYBE? select the material in the memory panel.
         }
+    }
+}
+
+void EngineMainFrame::LaunchGame()
+{
+    int platform = GetLaunchPlatformIndex();
+
+    switch( platform )
+    {
+    case LaunchPlatform_Win32:
+        {
+            LaunchApplication( "MyEngine_Game.exe", g_pComponentSystemManager->GetSceneInfo( 1 )->m_FullPath );
+        }
+        break;
+
+    case LaunchPlatform_Win64:
+        {
+            LaunchApplication( "MyEngine_Game_x64.exe", g_pComponentSystemManager->GetSceneInfo( 1 )->m_FullPath );
+        }
+        break;
+
+    case LaunchPlatform_NaCl:
+        {
+            LaunchApplication( "cmd.exe", "/C cd Web & RunWebServer.bat" );
+            LaunchApplication( "Chrome", "http://localhost:5103/game.html" );
+        }
+        break;
     }
 }
 

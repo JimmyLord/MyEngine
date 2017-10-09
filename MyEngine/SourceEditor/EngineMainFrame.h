@@ -249,6 +249,9 @@ public:
 
     // Internal event handling functions
     void OnTextCtrlLeftDoubleClick(wxMouseEvent& evt);
+
+protected:
+    void LaunchGame();
 };
 
 #endif //__EngineMainFrame_H__
