@@ -1078,7 +1078,7 @@ void ComponentSystemManager::LoadSceneFromJSON(const char* scenename, const char
 
     bool getsceneidfromeachobject = (sceneid == UINT_MAX);
 
-    // create/init all the game objects
+    // Create/init all the game objects
     if( gameobjectarray )
     {
         for( int i=0; i<cJSON_GetArraySize( gameobjectarray ); i++ )
@@ -1111,9 +1111,12 @@ void ComponentSystemManager::LoadSceneFromJSON(const char* scenename, const char
                 }
             }
 
-            // find an existing game object with the same id or create a new one.
+            // Find an existing game object with the same id or create a new one.
             GameObject* pGameObject = FindGameObjectByID( sceneid, id );
-            if( pGameObject ) { MyAssert( pGameObject->GetSceneID() == sceneid ); }
+            if( pGameObject )
+            {
+                MyAssert( pGameObject->GetSceneID() == sceneid );
+            }
 
             if( pGameObject == 0 )
             {
@@ -1174,6 +1177,25 @@ void ComponentSystemManager::LoadSceneFromJSON(const char* scenename, const char
                 if( goid >= m_pSceneInfoMap[sceneid].m_NextGameObjectID )
                     m_pSceneInfoMap[sceneid].m_NextGameObjectID = goid + 1;
             }
+        }
+    }
+
+    // Load inheritance info (i.e. Parent GameObjects) for objects that inherit from others.
+    if( gameobjectarray )
+    {
+        for( int i=0; i<cJSON_GetArraySize( gameobjectarray ); i++ )
+        {
+            cJSON* jGameObject = cJSON_GetArrayItem( gameobjectarray, i );
+
+            unsigned int id = -1;
+            cJSONExt_GetUnsignedInt( jGameObject, "ID", &id );
+            MyAssert( id != -1 );
+
+            // Find the existing game object with the same id.
+            GameObject* pGameObject = FindGameObjectByID( sceneid, id );
+            MyAssert( pGameObject );
+
+            pGameObject->ImportInheritanceInfoFromJSONObject( jGameObject );
         }
     }
 

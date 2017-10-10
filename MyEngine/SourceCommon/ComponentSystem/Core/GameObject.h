@@ -75,6 +75,7 @@ public:
 
     cJSON* ExportAsJSONObject(bool savesceneid);
     void ImportFromJSONObject(cJSON* jGameObject, unsigned int sceneid);
+    void ImportInheritanceInfoFromJSONObject(cJSON* jGameObject);
     cJSON* ExportReferenceAsJSONObject(unsigned int refsceneid);
     cJSON* ExportAsJSONPrefab();
 

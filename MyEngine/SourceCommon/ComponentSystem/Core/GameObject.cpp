@@ -563,6 +563,9 @@ cJSON* GameObject::ExportAsJSONObject(bool savesceneid)
 
 void GameObject::ImportFromJSONObject(cJSON* jGameObject, unsigned int sceneid)
 {
+    // Load the correct GameObject ID
+    cJSONExt_GetUnsignedInt( jGameObject, "ID", &m_ID );
+
     // Deal with prefabs // only in editor builds, game builds don't much care.
 #if MYFW_USING_WX
     cJSON* jPrefabID = cJSON_GetObjectItem( jGameObject, "PrefabID" );
@@ -594,15 +597,6 @@ void GameObject::ImportFromJSONObject(cJSON* jGameObject, unsigned int sceneid)
     }
 #endif // MYFW_USING_WX
 
-    cJSON* jParentGO = cJSON_GetObjectItem( jGameObject, "ParentGO" );
-    if( jParentGO )
-    {
-        m_pGameObjectThisInheritsFrom = g_pComponentSystemManager->FindGameObjectByJSONRef( jParentGO, m_SceneID );
-
-        // if this trips, then other object might be loaded after this or come from another scene that isn't loaded.
-        MyAssert( m_pGameObjectThisInheritsFrom != 0 );
-    }
-
     unsigned int parentgoid = 0;
     cJSONExt_GetUnsignedInt( jGameObject, "ParentGOID", &parentgoid );
     if( parentgoid != 0 )
@@ -626,8 +620,6 @@ void GameObject::ImportFromJSONObject(cJSON* jGameObject, unsigned int sceneid)
     //    now stored as "SubType", handled in ComponentSystemManager::LoadSceneFromJSON()
     cJSONExt_GetBool( jGameObject, "IsFolder", &m_IsFolder );
 
-    cJSONExt_GetUnsignedInt( jGameObject, "ID", &m_ID );
-
     cJSON* jName = cJSON_GetObjectItem( jGameObject, "Name" );
     if( jName )
     {
@@ -645,6 +637,18 @@ void GameObject::ImportFromJSONObject(cJSON* jGameObject, unsigned int sceneid)
     cJSON* jProperties = cJSON_GetObjectItem( jGameObject, "Properties" );
     if( jProperties )
         m_Properties.ImportFromJSONObject( jProperties, sceneid );
+}
+
+void GameObject::ImportInheritanceInfoFromJSONObject(cJSON* jGameObject)
+{
+    cJSON* jParentGO = cJSON_GetObjectItem( jGameObject, "ParentGO" );
+    if( jParentGO )
+    {
+        m_pGameObjectThisInheritsFrom = g_pComponentSystemManager->FindGameObjectByJSONRef( jParentGO, m_SceneID );
+
+        // If this trips, then the other object might come from another scene that isn't loaded.
+        MyAssert( m_pGameObjectThisInheritsFrom != 0 );
+    }
 }
 
 cJSON* GameObject::ExportReferenceAsJSONObject(unsigned int refsceneid)
