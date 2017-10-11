@@ -34,16 +34,13 @@ PrefabObject::~PrefabObject()
 
 void PrefabObject::Init(PrefabFile* pFile, const char* name, uint32 prefabid)
 {
-#if MYFW_USING_WX
-    wxTreeItemId rootid = pFile->m_TreeID;
-    m_TreeID = g_pPanelObjectList->AddObject( this, PrefabObject::StaticOnLeftClick, PrefabObject::StaticOnRightClick, rootid, m_Name, ObjectListIcon_GameObject );
-    g_pPanelObjectList->SetDragAndDropFunctions( m_TreeID, PrefabObject::StaticOnDrag, PrefabObject::StaticOnDrop );
-    g_pPanelObjectList->SetIcon( m_TreeID, ObjectListIcon_Prefab );
-#endif
-
     m_pPrefabFile = pFile;
     SetName( name );
     m_PrefabID = prefabid;
+
+#if MYFW_USING_WX
+    AddToObjectList();
+#endif
 }
 
 void PrefabObject::SetName(const char* name)
@@ -96,14 +93,14 @@ void PrefabObject::AddToObjectList() // Used by undo/redo to add/remove from tre
     g_pPanelObjectList->SetIcon( m_TreeID, ObjectListIcon_Prefab );
 }
 
-void PrefabObject::OnLeftClick(wxTreeItemId treeid, unsigned int count, bool clear)
+void PrefabObject::OnLeftClick(wxTreeItemId treeid, unsigned int count, bool clear) // StaticOnLeftClick
 {
     g_pPanelWatch->ClearAllVariables();
 
     m_pGameObject->OnLeftClick( 1, false );
 }
 
-void PrefabObject::OnRightClick(wxTreeItemId treeid)
+void PrefabObject::OnRightClick(wxTreeItemId treeid) // StaticOnRightClick
 {
  	wxMenu menu;
     menu.SetClientData( &m_WxEventHandler );
@@ -388,11 +385,11 @@ void PrefabFile::AddExistingPrefab(PrefabObject* pPrefab, PrefabObject* pPreviou
     }
 }
 
-void PrefabFile::OnLeftClick(wxTreeItemId treeid, unsigned int count, bool clear)
+void PrefabFile::OnLeftClick(wxTreeItemId treeid, unsigned int count, bool clear) // StaticOnLeftClick
 {
 }
 
-void PrefabFile::OnRightClick(wxTreeItemId treeid)
+void PrefabFile::OnRightClick(wxTreeItemId treeid) // StaticOnRightClick
 {
  	wxMenu menu;
     menu.SetClientData( this );
@@ -516,8 +513,6 @@ void PrefabManager::LoadFileNow(const char* prefabfilename)
 
 void PrefabManager::CreatePrefabInFile(unsigned int fileindex, const char* prefabname, GameObject* pGameObject)
 {
-    cJSON* jGameObject = pGameObject->ExportAsJSONPrefab();
-
     PrefabFile* pFile = m_pPrefabFiles[fileindex];
 
     // Check if a prefab with this name already exists and fail if it does
@@ -533,6 +528,7 @@ void PrefabManager::CreatePrefabInFile(unsigned int fileindex, const char* prefa
 
     // Initialize its values
     pPrefab->Init( pFile, prefabname, pFile->GetNextPrefabIDAndIncrement() );
+    cJSON* jGameObject = pGameObject->ExportAsJSONPrefab();
     pPrefab->SetPrefabJSONObject( jGameObject );
 
     // Kick off immediate save of prefab file.

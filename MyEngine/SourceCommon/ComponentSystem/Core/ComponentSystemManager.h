@@ -188,6 +188,7 @@ public:
 
     GameObject* CreateGameObject(bool manageobject = true, int sceneid = 0, bool isfolder = false, bool hastransform = true, PrefabObject* pPrefab = 0);
     GameObject* CreateGameObjectFromPrefab(PrefabObject* pPrefab, bool manageobject, int sceneid);
+    GameObject* CreateGameObjectFromPrefab(PrefabObject* pPrefab, cJSON* jPrefab, bool manageobject, int sceneid);
 #if MYFW_USING_WX
     GameObject* CreateGameObjectFromTemplate(unsigned int templateid, int sceneid);
 #endif

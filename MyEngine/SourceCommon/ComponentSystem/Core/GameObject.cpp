@@ -677,17 +677,20 @@ cJSON* GameObject::ExportAsJSONPrefab()
     unsigned int sceneidbackup = GetSceneID();
     SetSceneID( 0, false );
 
-    // Transform/Heirarchy parent must be in the same scene.
-    if( m_pParentGameObject )
-        cJSON_AddNumberToObject( jGameObject, "ParentGOID", m_pParentGameObject->GetID() );
+    // Don't export the ParentGOID, we'll ignore that it was parented at all.
+    //// Transform/Heirarchy parent must be in the same scene.
+    //if( m_pParentGameObject )
+    //    cJSON_AddNumberToObject( jGameObject, "ParentGOID", m_pParentGameObject->GetID() );
+
+    cJSON_AddStringToObject( jGameObject, "Name", GetName() );
 
     if( m_IsFolder == true )
         cJSON_AddStringToObject( jGameObject, "SubType", "Folder" );
     else if( m_pComponentTransform == false )
         cJSON_AddStringToObject( jGameObject, "SubType", "Logic" );
 
+    // Export properties, if none were saved, don't add the block to jGameObject
     cJSON* jProperties = m_Properties.ExportAsJSONObject( false, false );
-    // if no properties were saved, don't write it out to disk
     if( jProperties->child == 0 )
     {
         cJSON_Delete( jProperties );
@@ -697,7 +700,7 @@ cJSON* GameObject::ExportAsJSONPrefab()
         cJSON_AddItemToObject( jGameObject, "Properties", jProperties );
     }
 
-    // export components
+    // Export components
     if( m_Components.Count() > 0 )
     {
         cJSON* jComponentArray = cJSON_CreateArray();
@@ -707,6 +710,22 @@ cJSON* GameObject::ExportAsJSONPrefab()
             cJSON* jComponent = m_Components[i]->ExportAsJSONObject( false, false );
 
             cJSON_AddItemToArray( jComponentArray, jComponent );
+        }
+    }
+
+    // Loop through children and add them to jGameObject.
+    if( m_ChildList.GetHead() != 0 )
+    {
+        cJSON* jChildrenArray = cJSON_CreateArray();
+        cJSON_AddItemToObject( jGameObject, "Children", jChildrenArray );
+        
+        for( CPPListNode* pNode = m_ChildList.GetHead(); pNode; pNode = pNode->GetNext() )
+        {
+            GameObject* pChildObject = (GameObject*)pNode;
+
+            cJSON* jChildObject = pChildObject->ExportAsJSONPrefab();
+            MyAssert( jChildObject );
+            cJSON_AddItemToArray( jChildrenArray, jChildObject );
         }
     }
 

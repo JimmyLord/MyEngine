@@ -1541,13 +1541,21 @@ GameObject* ComponentSystemManager::CreateGameObject(bool manageobject, int scen
 
 GameObject* ComponentSystemManager::CreateGameObjectFromPrefab(PrefabObject* pPrefab, bool manageobject, int sceneid)
 {
+    return CreateGameObjectFromPrefab( pPrefab, pPrefab->GetJSONObject(), manageobject, sceneid );
+}
+
+GameObject* ComponentSystemManager::CreateGameObjectFromPrefab(PrefabObject* pPrefab, cJSON* jPrefab, bool manageobject, int sceneid)
+{
     MyAssert( pPrefab != 0 );
 
     GameObject* pGameObject = CreateGameObject( manageobject, sceneid, false, true, pPrefab );
     
-    pGameObject->SetName( pPrefab->GetName() );
+    cJSON* jName = cJSON_GetObjectItem( jPrefab, "Name" );
+    if( jName )
+        pGameObject->SetName( jName->valuestring );
+    else
+        pGameObject->SetName( pPrefab->GetName() );
 
-    cJSON* jPrefab = pPrefab->GetJSONObject();
     if( jPrefab )
     {
         //Vector3 scale(1);
@@ -1555,9 +1563,9 @@ GameObject* ComponentSystemManager::CreateGameObjectFromPrefab(PrefabObject* pPr
         //pGameObject->GetTransform()->SetLocalScale( scale );
 
         cJSON* jComponentArray = cJSON_GetObjectItem( jPrefab, "Components" );
-        int arraysize = cJSON_GetArraySize( jComponentArray );
+        int componentarraysize = cJSON_GetArraySize( jComponentArray );
 
-        for( int i=0; i<arraysize; i++ )
+        for( int i=0; i<componentarraysize; i++ )
         {
             cJSON* jComponent = cJSON_GetArrayItem( jComponentArray, i );
 
@@ -1567,6 +1575,43 @@ GameObject* ComponentSystemManager::CreateGameObjectFromPrefab(PrefabObject* pPr
             {
                 pComponent->ImportFromJSONObject( jComponent, sceneid );
                 pComponent->OnLoad();
+            }
+        }
+
+        // Create children
+        cJSON* jChildrenArray = cJSON_GetObjectItem( jPrefab, "Children" );
+        if( jChildrenArray )
+        {
+            int childarraysize = cJSON_GetArraySize( jChildrenArray );
+
+            for( int i=0; i<childarraysize; i++ )
+            {
+                cJSON* jChildGameObject = cJSON_GetArrayItem( jChildrenArray, i );
+
+                // Create the child game object.
+                if( sceneid == 0 )
+                {
+                    GameObject* pChildObject = CreateGameObjectFromPrefab( pPrefab, jChildGameObject, false, 0 );
+                    pChildObject->SetEnabled( false );
+                    pChildObject->SetParentGameObject( pGameObject );
+                }
+                else
+                {
+#if MYFW_USING_WX
+                    GameObject* pLastChild = (GameObject*)pGameObject->GetChildList()->GetTail();
+#endif
+
+                    GameObject* pChildObject = CreateGameObjectFromPrefab( pPrefab, jChildGameObject, true, sceneid );
+                    pChildObject->SetParentGameObject( pGameObject );
+
+#if MYFW_USING_WX
+                    // Move as last item in parent
+                    if( pLastChild != 0 )
+                        g_pPanelObjectList->Tree_MoveObject( pChildObject, pLastChild, false );
+                    else
+                        g_pPanelObjectList->Tree_MoveObject( pChildObject, pGameObject, true );
+#endif
+                }
             }
         }
     }
