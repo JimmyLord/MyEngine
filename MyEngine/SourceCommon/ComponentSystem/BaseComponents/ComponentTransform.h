@@ -58,6 +58,7 @@ public:
 
     // Used by Prefab export for children of base prefab object.
     virtual cJSON* ExportLocalTransformAsJSONObject();
+    virtual void ImportLocalTransformFromJSONObject(cJSON* jsonobj);
 
     virtual void Reset();
     virtual void CopyFromSameType_Dangerous(ComponentBase* pObject) { *this = (ComponentTransform&)*pObject; }

@@ -371,6 +371,16 @@ cJSON* ComponentTransform::ExportLocalTransformAsJSONObject()
     return jComponent;
 }
 
+void ComponentTransform::ImportLocalTransformFromJSONObject(cJSON* jsonobj)
+{
+    cJSONExt_GetFloatArray( jsonobj, "Pos", &this->m_LocalPosition.x, 3 );
+    cJSONExt_GetFloatArray( jsonobj, "Rot", &this->m_LocalRotation.x, 3 );
+    cJSONExt_GetFloatArray( jsonobj, "Scale", &this->m_LocalScale.x, 3 );
+
+    m_LocalTransformIsDirty = true;
+    UpdateTransform();
+}
+
 ComponentTransform& ComponentTransform::operator=(const ComponentTransform& other)
 {
     MyAssert( &other != this );

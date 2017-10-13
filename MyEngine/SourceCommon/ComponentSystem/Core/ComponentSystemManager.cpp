@@ -1587,29 +1587,32 @@ GameObject* ComponentSystemManager::CreateGameObjectFromPrefab(PrefabObject* pPr
             for( int i=0; i<childarraysize; i++ )
             {
                 cJSON* jChildGameObject = cJSON_GetArrayItem( jChildrenArray, i );
+                GameObject* pChildGameObject = 0;
 
                 // Create the child game object.
                 if( sceneid == 0 )
                 {
-                    GameObject* pChildObject = CreateGameObjectFromPrefab( pPrefab, jChildGameObject, false, 0 );
-                    pChildObject->SetEnabled( false );
-                    pChildObject->SetParentGameObject( pGameObject );
+                    pChildGameObject = CreateGameObjectFromPrefab( pPrefab, jChildGameObject, false, 0 );
+                    pChildGameObject->SetEnabled( false );
                 }
                 else
                 {
-                    GameObject* pChildObject = CreateGameObjectFromPrefab( pPrefab, jChildGameObject, true, sceneid );
+                    pChildGameObject = CreateGameObjectFromPrefab( pPrefab, jChildGameObject, true, sceneid );
 
 #if MYFW_USING_WX
                     // Move as last item in parent
                     GameObject* pLastChild = (GameObject*)pGameObject->GetChildList()->GetTail();
                     if( pLastChild != 0 )
-                        g_pPanelObjectList->Tree_MoveObject( pChildObject, pLastChild, false );
+                        g_pPanelObjectList->Tree_MoveObject( pChildGameObject, pLastChild, false );
                     else
-                        g_pPanelObjectList->Tree_MoveObject( pChildObject, pGameObject, true );
+                        g_pPanelObjectList->Tree_MoveObject( pChildGameObject, pGameObject, true );
 #endif
-
-                    pChildObject->SetParentGameObject( pGameObject );
                 }
+                MyAssert( pChildGameObject != 0 );
+
+                pChildGameObject->SetParentGameObject( pGameObject );
+                cJSON* jTransform = cJSON_GetObjectItem( jChildGameObject, "LocalTransform" );
+                pChildGameObject->m_pComponentTransform->ImportLocalTransformFromJSONObject( jTransform );
             }
         }
     }
