@@ -357,6 +357,20 @@ void ComponentTransform::ImportFromJSONObject(cJSON* jsonobj, unsigned int scene
     }
 }
 
+cJSON* ComponentTransform::ExportLocalTransformAsJSONObject()
+{
+    cJSON* jComponent = cJSON_CreateObject();
+
+    //AddVar( pList, "Pos",             ComponentVariableType_Vector3,          MyOffsetOf( pThis, &pThis->m_LocalPosition ),      true, false, "Local Pos",        (CVarFunc_ValueChanged)&ComponentTransform::OnValueChanged,                                                         0, 0 );
+    //AddVar( pList, "Rot",             ComponentVariableType_Vector3,          MyOffsetOf( pThis, &pThis->m_LocalRotation ),      true, false, "Local Rot",        (CVarFunc_ValueChanged)&ComponentTransform::OnValueChanged,                                                         0, 0 );
+    //AddVar( pList, "Scale",           ComponentVariableType_Vector3,          MyOffsetOf( pThis, &pThis->m_LocalScale ),         true, false, "Local Scale",      (CVarFunc_ValueChanged)&ComponentTransform::OnValueChanged,                                                         0, 0 );
+    cJSONExt_AddFloatArrayToObject( jComponent, "Pos",   &this->m_LocalPosition.x, 3 );
+    cJSONExt_AddFloatArrayToObject( jComponent, "Rot",   &this->m_LocalRotation.x, 3 );
+    cJSONExt_AddFloatArrayToObject( jComponent, "Scale", &this->m_LocalScale.x, 3 );
+
+    return jComponent;
+}
+
 ComponentTransform& ComponentTransform::operator=(const ComponentTransform& other)
 {
     MyAssert( &other != this );

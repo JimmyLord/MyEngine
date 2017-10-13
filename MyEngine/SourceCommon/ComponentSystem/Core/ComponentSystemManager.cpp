@@ -1597,20 +1597,18 @@ GameObject* ComponentSystemManager::CreateGameObjectFromPrefab(PrefabObject* pPr
                 }
                 else
                 {
-#if MYFW_USING_WX
-                    GameObject* pLastChild = (GameObject*)pGameObject->GetChildList()->GetTail();
-#endif
-
                     GameObject* pChildObject = CreateGameObjectFromPrefab( pPrefab, jChildGameObject, true, sceneid );
-                    pChildObject->SetParentGameObject( pGameObject );
 
 #if MYFW_USING_WX
                     // Move as last item in parent
+                    GameObject* pLastChild = (GameObject*)pGameObject->GetChildList()->GetTail();
                     if( pLastChild != 0 )
                         g_pPanelObjectList->Tree_MoveObject( pChildObject, pLastChild, false );
                     else
                         g_pPanelObjectList->Tree_MoveObject( pChildObject, pGameObject, true );
 #endif
+
+                    pChildObject->SetParentGameObject( pGameObject );
                 }
             }
         }

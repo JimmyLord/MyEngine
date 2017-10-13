@@ -726,6 +726,14 @@ cJSON* GameObject::ExportAsJSONPrefab()
             cJSON* jChildObject = pChildObject->ExportAsJSONPrefab();
             MyAssert( jChildObject );
             cJSON_AddItemToArray( jChildrenArray, jChildObject );
+
+            // Add the child's offset from the parent
+            ComponentTransform* pTransform = pChildObject->GetTransform();
+            if( pTransform )
+            {
+                cJSON* jTransform = pTransform->ExportLocalTransformAsJSONObject();
+                cJSON_AddItemToObject( jChildObject, "LocalTransform", jTransform );
+            }
         }
     }
 

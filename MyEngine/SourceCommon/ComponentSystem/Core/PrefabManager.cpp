@@ -28,6 +28,11 @@ PrefabObject::PrefabObject()
 PrefabObject::~PrefabObject()
 {
 #if MYFW_USING_WX
+    if( m_jPrefab )
+    {
+        cJSON_Delete( m_jPrefab );
+    }
+
     delete m_pGameObject;
 #endif
 }
@@ -219,6 +224,7 @@ PrefabFile::~PrefabFile()
 
         // delete the cJSON* jPrefab object, it should have been detached from any cJSON branch when loaded/saved
         cJSON_Delete( pPrefab->m_jPrefab );
+        pPrefab->m_jPrefab = 0;
 
 #if MYFW_USING_WX
         RemovePrefab( pPrefab );

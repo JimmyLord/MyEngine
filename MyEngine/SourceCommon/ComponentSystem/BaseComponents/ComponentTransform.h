@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2014-2016 Jimmy Lord http://www.flatheadgames.com
+// Copyright (c) 2014-2017 Jimmy Lord http://www.flatheadgames.com
 //
 // This software is provided 'as-is', without any express or implied warranty.  In no event will the authors be held liable for any damages arising from the use of this software.
 // Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -55,6 +55,9 @@ public:
 
     virtual cJSON* ExportAsJSONObject(bool savesceneid, bool saveid);
     virtual void ImportFromJSONObject(cJSON* jsonobj, unsigned int sceneid);
+
+    // Used by Prefab export for children of base prefab object.
+    virtual cJSON* ExportLocalTransformAsJSONObject();
 
     virtual void Reset();
     virtual void CopyFromSameType_Dangerous(ComponentBase* pObject) { *this = (ComponentTransform&)*pObject; }
