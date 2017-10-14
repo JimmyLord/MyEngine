@@ -233,23 +233,24 @@ void GameObject::OnRightClick()
 
             lastcategory = g_pComponentTypeManager->GetTypeCategory( i );
         }
-    
-#if _DEBUG // TODO: enable this in release mode once it's further along.
-        wxMenu* prefabmenu = MyNew wxMenu;
-        menu.AppendSubMenu( prefabmenu, "Create Prefab in" );
 
-        unsigned int numprefabfiles = g_pComponentSystemManager->m_pPrefabManager->GetNumberOfFiles();
-        for( unsigned int i=0; i<numprefabfiles; i++ )
+        // Create prefab menu and submenus for each file.
         {
-            PrefabFile* pPrefabFile = g_pComponentSystemManager->m_pPrefabManager->GetLoadedPrefabFileByIndex( i );
-            MyFileObject* pFile = pPrefabFile->GetFile();
-            MyAssert( pFile != 0 );
+            wxMenu* prefabmenu = MyNew wxMenu;
+            menu.AppendSubMenu( prefabmenu, "Create Prefab in" );
 
-            prefabmenu->Append( RightClick_CreatePrefab + i, pFile->GetFilenameWithoutExtension() );
+            unsigned int numprefabfiles = g_pComponentSystemManager->m_pPrefabManager->GetNumberOfFiles();
+            for( unsigned int i=0; i<numprefabfiles; i++ )
+            {
+                PrefabFile* pPrefabFile = g_pComponentSystemManager->m_pPrefabManager->GetLoadedPrefabFileByIndex( i );
+                MyFileObject* pFile = pPrefabFile->GetFile();
+                MyAssert( pFile != 0 );
+
+                prefabmenu->Append( RightClick_CreatePrefab + i, pFile->GetFilenameWithoutExtension() );
+            }
+
+            prefabmenu->Append( RightClick_CreatePrefab + numprefabfiles, "New/Load Prefab file..." );
         }
-
-        prefabmenu->Append( RightClick_CreatePrefab + numprefabfiles, "New/Load Prefab file..." );
-#endif
 
         menu.Append( RightClick_DeleteGameObject, "Delete GameObject" );
     }

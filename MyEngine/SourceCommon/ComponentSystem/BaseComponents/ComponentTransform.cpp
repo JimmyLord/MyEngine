@@ -379,6 +379,13 @@ void ComponentTransform::ImportLocalTransformFromJSONObject(cJSON* jsonobj)
 
     m_LocalTransformIsDirty = true;
     UpdateTransform();
+
+    for( CPPListNode* pNode = m_TransformChangedCallbackList.GetHead(); pNode != 0; pNode = pNode->GetNext() )
+    {
+        TransformChangedCallbackStruct* pCallbackStruct = (TransformChangedCallbackStruct*)pNode;
+
+        pCallbackStruct->pFunc( pCallbackStruct->pObj, m_WorldPosition, m_WorldRotation, m_WorldScale, true );
+    }
 }
 
 ComponentTransform& ComponentTransform::operator=(const ComponentTransform& other)
