@@ -1845,16 +1845,23 @@ void EngineCore::OnObjectListTreeMultipleSelection() //StaticOnObjectListTreeMul
         MyAssert( pData && pData->m_pObject );
 
         GameObject* pGameObject = 0;
+        bool isprefab = false;
         
         if( pData->m_pLeftClickFunction == GameObject::StaticOnLeftClick )
+        {
             pGameObject = (GameObject*)pData->m_pObject;
+        }
         else if( pData->m_pLeftClickFunction == PrefabObject::StaticOnLeftClick )
+        {
+            // Allow prefabs in watch panel.
+            isprefab = true;
             pGameObject = ((PrefabObject*)pData->m_pObject)->GetGameObject();
+        }
 
         // Show this GameObject in the watch panel, if it's not a folder
         if( pGameObject && pGameObject->IsFolder() == false )
         {
-            pGameObject->ShowInWatchPanel();
+            pGameObject->ShowInWatchPanel( isprefab );
             return;
         }
     }
@@ -1870,9 +1877,16 @@ void EngineCore::OnObjectListTreeMultipleSelection() //StaticOnObjectListTreeMul
         GameObject* pGameObject = 0;
         
         if( pData->m_pLeftClickFunction == GameObject::StaticOnLeftClick )
+        {
             pGameObject = (GameObject*)pData->m_pObject;
+        }
         else if( pData->m_pLeftClickFunction == PrefabObject::StaticOnLeftClick )
-            pGameObject = ((PrefabObject*)pData->m_pObject)->GetGameObject();
+        {
+            // Don't allow multi-selection of prefabs in watch panel.
+            // TODO: revisit this...
+            //pGameObject = ((PrefabObject*)pData->m_pObject)->GetGameObject();
+            pGameObject = 0;
+        }
 
         if( pGameObject )
         {

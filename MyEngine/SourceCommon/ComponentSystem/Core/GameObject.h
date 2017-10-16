@@ -164,7 +164,7 @@ public:
 
     static void StaticOnLeftClick(void* pObjectPtr, wxTreeItemId id, unsigned int count) { ((GameObject*)pObjectPtr)->OnLeftClick( count, true ); }
     void OnLeftClick(unsigned int count, bool clear);
-    void ShowInWatchPanel();
+    void ShowInWatchPanel(bool isprefab);
 
     static void StaticOnRightClick(void* pObjectPtr, wxTreeItemId id) { ((GameObject*)pObjectPtr)->OnRightClick(); }
     void OnRightClick();

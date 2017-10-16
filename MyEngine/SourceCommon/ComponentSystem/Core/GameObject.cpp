@@ -121,7 +121,7 @@ void GameObject::LuaRegister(lua_State* luastate)
 #endif //MYFW_USING_LUA
 
 #if MYFW_USING_WX
-void GameObject::OnTitleLabelClicked(int controlid, bool finishedchanging)
+void GameObject::OnTitleLabelClicked(int controlid, bool finishedchanging) // StaticOnTitleLabelClicked
 {
     g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_EnableObject( this, !m_Enabled ) );
     g_pPanelWatch->SetNeedsRefresh();
@@ -133,7 +133,7 @@ void GameObject::OnLeftClick(unsigned int count, bool clear)
     return;
 }
 
-void GameObject::ShowInWatchPanel()
+void GameObject::ShowInWatchPanel(bool isprefab)
 {
     if( g_pEngineCore->GetEditorState() == 0 )
         return;
@@ -144,8 +144,8 @@ void GameObject::ShowInWatchPanel()
     g_pPanelWatch->ClearAllVariables();
     g_pEngineCore->OnObjectListTreeSelectionChanged();
 
-    // Select this GameObject in the editor window.
-    if( g_pEngineCore->GetEditorState()->IsGameObjectSelected( this ) == false )
+    // Select this GameObject in the editor window if it's not a prefab.
+    if( g_pEngineCore->GetEditorState()->IsGameObjectSelected( this ) == false && isprefab == false )
         g_pEngineCore->GetEditorState()->m_pSelectedObjects.push_back( this );
 
     g_pPanelWatch->SetObjectBeingWatched( this );
@@ -166,7 +166,16 @@ void GameObject::ShowInWatchPanel()
         else
             sprintf_s( tempname, 100, "** DISABLED ** %s (%s) ** DISABLED **", m_Name, m_pGameObjectThisInheritsFrom->m_Name );
     }
-    g_pPanelWatch->AddSpace( tempname, this, GameObject::StaticOnTitleLabelClicked );
+
+    // Only allow enable/disable click on regular non-prefab objects.
+    if( isprefab )
+    {
+        g_pPanelWatch->AddSpace( tempname, this, 0 );
+    }
+    else
+    {
+        g_pPanelWatch->AddSpace( tempname, this, GameObject::StaticOnTitleLabelClicked );
+    }
 
     // Add variables from ComponentGameObjectProperties.
     m_Properties.m_MultiSelectedComponents.clear();
