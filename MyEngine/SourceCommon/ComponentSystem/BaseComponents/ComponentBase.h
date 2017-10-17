@@ -171,7 +171,7 @@ public:
     void UpdateChildrenInGameObjectListWithNewValue(GameObject* first, bool fromdraganddrop, ComponentVariable* pVar, int controlcomponent, bool directlychanged, bool finishedchanging, double oldvalue, void* oldpointer, wxCoord x, wxCoord y, void* newpointer);
     void UpdateGameObjectWithNewValue(GameObject* pGameObject, bool fromdraganddrop, ComponentVariable* pVar, int controlcomponent, bool directlychanged, bool finishedchanging, double oldvalue, void* oldpointer, wxCoord x, wxCoord y, void* newpointer);
     void UpdateOtherComponentWithNewValue(ComponentBase* pComponent, bool directlychanged, bool ignoreDivorceStatus, bool fromdraganddrop, ComponentVariable* pVar, int controlcomponent, bool finishedchanging, double oldvalue, void* oldpointer, wxCoord x, wxCoord y, void* newpointer);
-    void CopyValueFromOtherComponentWithUndo(ComponentVariable* pVar, ComponentBase* pOtherComponent);
+    void CopyValueFromOtherComponent(ComponentVariable* pVar, ComponentBase* pOtherComponent, bool addundocommand, bool applydifference = false, double difference = 0, int controlcomponent = 0);
 
     virtual bool IsReferencingFile(MyFileObject* pFile);
 
