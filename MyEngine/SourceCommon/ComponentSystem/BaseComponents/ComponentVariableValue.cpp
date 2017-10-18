@@ -96,7 +96,7 @@ void ComponentVariableValue::UpdateComponentAndChildrenWithValue(ComponentBase* 
     // Inform component it's value changed.
     for( int i=0; i<numberofcomponents; i++ )
     {
-        pComponent->OnValueChangedVariable( pVar->m_ControlID+i, false, true, 0, this );
+        pComponent->OnValueChangedVariable( pVar->m_ControlID+i, false, true, 0, false, this );
     }
 }
 #endif //MYFW_USING_WX

@@ -195,7 +195,7 @@ public:
     void OnDropExposedVar(int controlid, wxCoord x, wxCoord y);
     void* ProcessOnDropExposedVar(int controlid, wxCoord x, wxCoord y);
     
-    static void StaticOnPanelWatchExposedVarValueChanged(void* pObjectPtr, int controlid, bool directlychanged, bool finishedchanging, double oldvalue) { ((ComponentLuaScript*)pObjectPtr)->OnPanelWatchExposedVarValueChanged( controlid, finishedchanging, oldvalue ); }
+    static void StaticOnPanelWatchExposedVarValueChanged(void* pObjectPtr, int controlid, bool directlychanged, bool finishedchanging, double oldvalue, bool valuewaschangedbydragging) { ((ComponentLuaScript*)pObjectPtr)->OnPanelWatchExposedVarValueChanged( controlid, finishedchanging, oldvalue ); }
     void OnPanelWatchExposedVarValueChanged(int controlid, bool finishedchanging, double oldvalue);
 
     // exposed variable changed callback (not from watch panel)

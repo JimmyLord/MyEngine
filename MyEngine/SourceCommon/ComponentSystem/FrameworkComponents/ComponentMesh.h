@@ -119,7 +119,7 @@ public:
     virtual void VariableAddedToWatchPanel(ComponentVariable* pVar);
 
     // Watch panel callbacks.
-    static void StaticOnExpandMaterialClicked(void* pObjectPtr, int controlid, bool directlychanged, bool finishedchanging, double oldvalue) { ((ComponentMesh*)pObjectPtr)->OnExpandMaterialClicked( controlid ); }
+    static void StaticOnExpandMaterialClicked(void* pObjectPtr, int controlid, bool directlychanged, bool finishedchanging, double oldvalue, bool valuewaschangedbydragging) { ((ComponentMesh*)pObjectPtr)->OnExpandMaterialClicked( controlid ); }
     void OnExpandMaterialClicked(int controlid);
 
     // Component variable callbacks. //_VARIABLE_LIST
