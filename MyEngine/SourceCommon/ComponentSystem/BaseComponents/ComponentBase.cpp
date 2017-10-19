@@ -1464,25 +1464,31 @@ void ComponentBase::OnValueChangedVariable(int controlid, bool directlychanged, 
         // Deal with multiple selections only if changed by the interface, not if we undo/redo.
         if( directlychanged )
         {
-            double newvalue = GetCurrentValueFromVariable( pVar, controlcomponent );
-            double difference = newvalue - oldvalue;
-
             for( unsigned int i=0; i<m_MultiSelectedComponents.size(); i++ )
             {
-                if( finishedchanging )
+                if( valuewaschangedbydragging )
                 {
-                    if( valuewaschangedbydragging )
+                    double newvalue = GetCurrentValueFromVariable( pVar, controlcomponent );
+                    double difference = newvalue - oldvalue;
+
+                    if( finishedchanging )
                     {
-                        m_MultiSelectedComponents[i]->CopyValueFromOtherComponent( pVar, this, true, true, difference, controlcomponent );
+                        // Apply total change in value, with undo
+                        m_MultiSelectedComponents[i]->ChangeValueInNonPointerVariable( pVar, controlcomponent, true, 0, difference );
                     }
                     else
                     {
-                        m_MultiSelectedComponents[i]->CopyValueFromOtherComponent( pVar, this, true, false, 0, controlcomponent );
+                        // Apply change in value, no undo
+                        m_MultiSelectedComponents[i]->ChangeValueInNonPointerVariable( pVar, controlcomponent, false, difference, difference );
                     }
                 }
                 else
                 {
-                    m_MultiSelectedComponents[i]->CopyValueFromOtherComponent( pVar, this, false, true, difference, controlcomponent );
+                    if( finishedchanging )
+                    {
+                        // Apply original component value, with undo
+                        m_MultiSelectedComponents[i]->CopyValueFromOtherComponent( pVar, controlcomponent, this, true );
+                    }
                 }
             }
         }
@@ -1635,7 +1641,208 @@ double ComponentBase::GetCurrentValueFromVariable(ComponentVariable* pVar, int c
     return value;
 }
 
-void ComponentBase::CopyValueFromOtherComponent(ComponentVariable* pVar, ComponentBase* pOtherComponent, bool addundocommand, bool applydifference, double difference, int controlcomponent)
+void ComponentBase::ChangeValueInNonPointerVariable(ComponentVariable* pVar, int controlcomponent, bool addundocommand, double changetoapply, double changeforundo)
+{
+    size_t offset = pVar->m_Offset;
+
+    switch( pVar->m_Type )
+    {
+    case ComponentVariableType_Int:
+    case ComponentVariableType_Enum:
+        {
+            int oldvalue = *(int*)((char*)this + offset);
+            *(int*)((char*)this + offset) = oldvalue + (int)changetoapply;
+
+            // notify component and it's children that the value changed.
+            OnValueChangedVariable( pVar->m_ControlID, false, true, oldvalue, false, 0 );
+
+            if( addundocommand )
+            {
+                g_pEngineMainFrame->m_pCommandStack->Add( MyNew EditorCommand_PanelWatchNumberValueChanged(
+                    changeforundo, PanelWatchType_Int, ((char*)this + offset), pVar->m_ControlID, false,
+                    ComponentBase::StaticOnValueChangedVariable, this ) );
+            }
+        }
+        break;
+
+    case ComponentVariableType_UnsignedInt:
+    case ComponentVariableType_Flags:
+        {
+            unsigned int oldvalue = *(unsigned int*)((char*)this + offset);
+            *(unsigned int*)((char*)this + offset) = oldvalue + (unsigned int)changetoapply;
+
+            // notify component and it's children that the value changed.
+            OnValueChangedVariable( pVar->m_ControlID, false, true, oldvalue, false, 0 );
+
+            if( addundocommand )
+            {
+                g_pEngineMainFrame->m_pCommandStack->Add( MyNew EditorCommand_PanelWatchNumberValueChanged(
+                    changeforundo, PanelWatchType_UnsignedInt, ((char*)this + offset), pVar->m_ControlID, false,
+                    ComponentBase::StaticOnValueChangedVariable, this ) );
+            }
+        }
+        break;
+
+    //ComponentVariableType_Char,
+    //    break;
+
+    //ComponentVariableType_UnsignedChar,
+    //    break;
+
+    case ComponentVariableType_Bool:
+        {
+            // This function should only be used if mouse if dragging a value, which shouldn't be possible with bools.
+            MyAssert( false );
+
+            bool oldvalue = *(bool*)((char*)this + offset);
+            *(bool*)((char*)this + offset) = (oldvalue + changetoapply) > 0 ? true : false;
+
+            // notify component and it's children that the value changed.
+            OnValueChangedVariable( pVar->m_ControlID, false, true, oldvalue, false, 0 );
+
+            if( addundocommand )
+            {
+                g_pEngineMainFrame->m_pCommandStack->Add( MyNew EditorCommand_PanelWatchNumberValueChanged(
+                    changeforundo, PanelWatchType_Bool, ((char*)this + offset), pVar->m_ControlID, false,
+                    ComponentBase::StaticOnValueChangedVariable, this ) );
+            }
+        }
+        break;
+
+    case ComponentVariableType_Float:
+        {
+            float oldvalue = *(float*)((char*)this + offset);
+            *(float*)((char*)this + offset) = oldvalue + (float)changetoapply;
+
+            // notify component and it's children that the value changed.
+            OnValueChangedVariable( pVar->m_ControlID, false, true, oldvalue, false, 0 );
+
+            if( addundocommand )
+            {
+                g_pEngineMainFrame->m_pCommandStack->Add( MyNew EditorCommand_PanelWatchNumberValueChanged(
+                    changeforundo, PanelWatchType_Float, ((char*)this + offset), pVar->m_ControlID, false,
+                    ComponentBase::StaticOnValueChangedVariable, this ) );
+            }
+        }
+        break;
+
+    //ComponentVariableType_Double,
+    //    break;
+
+    //ComponentVariableType_ColorFloat,
+    //    break;
+
+    case ComponentVariableType_ColorByte:
+        {
+            MyAssert( false );
+            //ColorByte* thiscolor = (ColorByte*)((char*)this + offset);
+            //ColorByte* parentcolor = (ColorByte*)((char*)pOtherComponent + offset);
+
+            //ColorByte oldcolor = *thiscolor;
+            //*thiscolor = *parentcolor;
+
+            //// store the old color in a local var.
+            //// send the pointer to that var via callback in the double.
+            //double oldvalue;
+            //*(uintptr_t*)&oldvalue = (uintptr_t)&oldcolor;
+
+            //// notify component and it's children that the value changed.
+            //OnValueChangedVariable( pVar->m_ControlID, false, true, oldvalue, false, 0 );
+
+            //// TODO: add to undo stack
+            //assert( addundocommand == true );
+            //if( addundocommand )
+            //{
+            //}
+        }                
+        break;
+
+    case ComponentVariableType_Vector2:
+        {
+            float oldvalue = (*(Vector2*)((char*)this + offset))[controlcomponent];
+            (*(Vector2*)((char*)this + offset))[controlcomponent] = oldvalue + (float)changetoapply;
+
+            // Notify component and it's children that the value changed.
+            OnValueChangedVariable( pVar->m_ControlID+controlcomponent, false, true, oldvalue, false, 0 );
+
+            if( addundocommand )
+            {
+                g_pEngineMainFrame->m_pCommandStack->Add( MyNew EditorCommand_PanelWatchNumberValueChanged(
+                    changeforundo, PanelWatchType_Float, ((char*)this + offset + sizeof(float)*controlcomponent),
+                    pVar->m_ControlID+controlcomponent, false,
+                    ComponentBase::StaticOnValueChangedVariable, this ) );
+            }
+        }
+        break;
+
+    case ComponentVariableType_Vector3:
+        {
+            float oldvalue = (*(Vector3*)((char*)this + offset))[controlcomponent];
+            (*(Vector3*)((char*)this + offset))[controlcomponent] = oldvalue + (float)changetoapply;
+
+            // Notify component and it's children that the value changed.
+            OnValueChangedVariable( pVar->m_ControlID+controlcomponent, false, true, oldvalue, false, 0 );
+
+            if( addundocommand )
+            {
+                g_pEngineMainFrame->m_pCommandStack->Add( MyNew EditorCommand_PanelWatchNumberValueChanged(
+                    changeforundo, PanelWatchType_Float, ((char*)this + offset + sizeof(float)*controlcomponent),
+                    pVar->m_ControlID+controlcomponent, false,
+                    ComponentBase::StaticOnValueChangedVariable, this ) );
+            }
+        }
+        break;
+
+    case ComponentVariableType_Vector2Int:
+        {
+            int oldvalue = (*(Vector2Int*)((char*)this + offset))[controlcomponent];
+            (*(Vector2Int*)((char*)this + offset))[controlcomponent] = oldvalue + (int)changetoapply;
+
+            // Notify component and it's children that the value changed.
+            OnValueChangedVariable( pVar->m_ControlID+controlcomponent, false, true, oldvalue, false, 0 );
+
+            if( addundocommand )
+            {
+                g_pEngineMainFrame->m_pCommandStack->Add( MyNew EditorCommand_PanelWatchNumberValueChanged(
+                    changeforundo, PanelWatchType_Int, ((char*)this + offset + sizeof(int)*controlcomponent),
+                    pVar->m_ControlID+controlcomponent, false,
+                    ComponentBase::StaticOnValueChangedVariable, this ) );
+            }
+        }
+        break;
+
+    case ComponentVariableType_Vector3Int:
+        {
+            int oldvalue = (*(Vector3Int*)((char*)this + offset))[controlcomponent];
+            (*(Vector3Int*)((char*)this + offset))[controlcomponent] = oldvalue + (int)changetoapply;
+
+            // Notify component and it's children that the value changed.
+            OnValueChangedVariable( pVar->m_ControlID+controlcomponent, false, true, oldvalue, false, 0 );
+
+            if( addundocommand )
+            {
+                g_pEngineMainFrame->m_pCommandStack->Add( MyNew EditorCommand_PanelWatchNumberValueChanged(
+                    changeforundo, PanelWatchType_Int, ((char*)this + offset + sizeof(int)*controlcomponent),
+                    pVar->m_ControlID+controlcomponent, false,
+                    ComponentBase::StaticOnValueChangedVariable, this ) );
+            }
+        }
+        break;
+
+    case ComponentVariableType_GameObjectPtr:
+    case ComponentVariableType_FilePtr:
+    case ComponentVariableType_MaterialPtr:
+    case ComponentVariableType_SoundCuePtr:
+    case ComponentVariableType_ComponentPtr:
+    case ComponentVariableType_PointerIndirect:
+    case ComponentVariableType_NumTypes:
+    default:
+        MyAssert( false );
+        break;
+    }
+}
+
+void ComponentBase::CopyValueFromOtherComponent(ComponentVariable* pVar, int controlcomponent, ComponentBase* pOtherComponent, bool addundocommand)
 {
     size_t offset = pVar->m_Offset;
 
@@ -1647,11 +1854,6 @@ void ComponentBase::CopyValueFromOtherComponent(ComponentVariable* pVar, Compone
             int oldvalue = *(int*)((char*)this + offset);
             int newvalue = *(int*)((char*)pOtherComponent + offset);
             *(int*)((char*)this + offset) = newvalue;
-
-            if( applydifference )
-            {
-                oldvalue -= (int)difference;
-            }
 
             // notify component and it's children that the value changed.
             OnValueChangedVariable( pVar->m_ControlID, false, true, oldvalue, false, 0 );
@@ -1671,11 +1873,6 @@ void ComponentBase::CopyValueFromOtherComponent(ComponentVariable* pVar, Compone
             unsigned int oldvalue = *(unsigned int*)((char*)this + offset);
             unsigned int newvalue = *(unsigned int*)((char*)pOtherComponent + offset);
             *(unsigned int*)((char*)this + offset) = newvalue;
-
-            if( applydifference )
-            {
-                oldvalue -= (unsigned int)difference;
-            }
 
             // notify component and it's children that the value changed.
             OnValueChangedVariable( pVar->m_ControlID, false, true, oldvalue, false, 0 );
@@ -1701,12 +1898,6 @@ void ComponentBase::CopyValueFromOtherComponent(ComponentVariable* pVar, Compone
             bool newvalue = *(bool*)((char*)pOtherComponent + offset);
             *(bool*)((char*)this + offset) = newvalue;
 
-            if( applydifference )
-            {
-                if( fequal( difference, 1 ) )
-                    oldvalue = !oldvalue;
-            }
-
             // notify component and it's children that the value changed.
             OnValueChangedVariable( pVar->m_ControlID, false, true, oldvalue, false, 0 );
 
@@ -1724,11 +1915,6 @@ void ComponentBase::CopyValueFromOtherComponent(ComponentVariable* pVar, Compone
             float oldvalue = *(float*)((char*)this + offset);
             float newvalue = *(float*)((char*)pOtherComponent + offset);
             *(float*)((char*)this + offset) = newvalue;
-
-            if( applydifference )
-            {
-                oldvalue -= (float)difference;
-            }
 
             // notify component and it's children that the value changed.
             OnValueChangedVariable( pVar->m_ControlID, false, true, oldvalue, false, 0 );
@@ -1778,11 +1964,6 @@ void ComponentBase::CopyValueFromOtherComponent(ComponentVariable* pVar, Compone
             Vector2 newvalue = *(Vector2*)((char*)pOtherComponent + offset);
             *(Vector2*)((char*)this + offset) = newvalue;
 
-            if( applydifference )
-            {
-                oldvalue[controlcomponent] -= (float)difference;
-            }
-
             // notify component and it's children that the value changed.
             OnValueChangedVariable( pVar->m_ControlID+0, false, true, oldvalue.x, false, 0 );
             OnValueChangedVariable( pVar->m_ControlID+1, false, true, oldvalue.y, false, 0 );
@@ -1803,17 +1984,6 @@ void ComponentBase::CopyValueFromOtherComponent(ComponentVariable* pVar, Compone
         {
             float oldvalue = (*(Vector3*)((char*)this + offset))[controlcomponent];
             float newvalue = (*(Vector3*)((char*)pOtherComponent + offset))[controlcomponent];
-
-            float valueoffsetforundo = newvalue - oldvalue;
-            if( applydifference )
-            {
-                valueoffsetforundo = (float)difference;
-                if( addundocommand == false )
-                    newvalue = oldvalue + (float)difference;
-                else
-                    newvalue = oldvalue;
-            }
-
             (*(Vector3*)((char*)this + offset))[controlcomponent] = newvalue;
 
             // Notify component and it's children that the value changed.
@@ -1822,42 +1992,10 @@ void ComponentBase::CopyValueFromOtherComponent(ComponentVariable* pVar, Compone
             if( addundocommand )
             {
                 g_pEngineMainFrame->m_pCommandStack->Add( MyNew EditorCommand_PanelWatchNumberValueChanged(
-                    valueoffsetforundo, PanelWatchType_Float, ((char*)this + offset + 4*controlcomponent), pVar->m_ControlID+controlcomponent, false,
+                    newvalue - oldvalue, PanelWatchType_Float, ((char*)this + offset + 4*controlcomponent),
+                    pVar->m_ControlID+controlcomponent, false,
                     ComponentBase::StaticOnValueChangedVariable, this ) );
             }
-            //Vector3 oldvalue = *(Vector3*)((char*)this + offset);
-            //Vector3 newvalue = *(Vector3*)((char*)pOtherComponent + offset);
-
-            //Vector3 valueoffsetforundo = newvalue - oldvalue;
-            //if( applydifference )
-            //{
-            //    valueoffsetforundo[controlcomponent] = (float)difference;
-            //    //oldvalue[controlcomponent] -= (float)difference;
-            //    if( addundocommand == false )
-            //        newvalue[controlcomponent] = oldvalue[controlcomponent] + (float)difference;
-            //    else
-            //        newvalue = oldvalue;
-            //}
-
-            //*(Vector3*)((char*)this + offset) = newvalue;
-
-            //// notify component and it's children that the value changed.
-            //OnValueChangedVariable( pVar->m_ControlID+0, false, true, oldvalue.x, false, 0 );
-            //OnValueChangedVariable( pVar->m_ControlID+1, false, true, oldvalue.y, false, 0 );
-            //OnValueChangedVariable( pVar->m_ControlID+2, false, true, oldvalue.z, false, 0 );
-
-            //if( addundocommand )
-            //{
-            //    g_pEngineMainFrame->m_pCommandStack->Add( MyNew EditorCommand_PanelWatchNumberValueChanged(
-            //        valueoffsetforundo.x, PanelWatchType_Float, ((char*)this + offset + 4*0), pVar->m_ControlID+0, false,
-            //        ComponentBase::StaticOnValueChangedVariable, this ) );
-            //    g_pEngineMainFrame->m_pCommandStack->Add( MyNew EditorCommand_PanelWatchNumberValueChanged(
-            //        valueoffsetforundo.y, PanelWatchType_Float, ((char*)this + offset + 4*1), pVar->m_ControlID+1, false,
-            //        ComponentBase::StaticOnValueChangedVariable, this ), true );
-            //    g_pEngineMainFrame->m_pCommandStack->Add( MyNew EditorCommand_PanelWatchNumberValueChanged(
-            //        valueoffsetforundo.z, PanelWatchType_Float, ((char*)this + offset + 4*2), pVar->m_ControlID+2, false,
-            //        ComponentBase::StaticOnValueChangedVariable, this ), true );
-            //}
         }
         break;
 
@@ -1866,11 +2004,6 @@ void ComponentBase::CopyValueFromOtherComponent(ComponentVariable* pVar, Compone
             Vector2Int oldvalue = *(Vector2Int*)((char*)this + offset);
             Vector2Int newvalue = *(Vector2Int*)((char*)pOtherComponent + offset);
             *(Vector2Int*)((char*)this + offset) = newvalue;
-
-            if( applydifference )
-            {
-                oldvalue[controlcomponent] -= (int)difference;
-            }
 
             // notify component and it's children that the value changed.
             OnValueChangedVariable( pVar->m_ControlID+0, false, true, oldvalue.x, false, 0 );
@@ -1893,11 +2026,6 @@ void ComponentBase::CopyValueFromOtherComponent(ComponentVariable* pVar, Compone
             Vector3Int oldvalue = *(Vector3Int*)((char*)this + offset);
             Vector3Int newvalue = *(Vector3Int*)((char*)pOtherComponent + offset);
             *(Vector3Int*)((char*)this + offset) = newvalue;
-
-            if( applydifference )
-            {
-                oldvalue[controlcomponent] -= (int)difference;
-            }
 
             // notify component and it's children that the value changed.
             OnValueChangedVariable( pVar->m_ControlID+0, false, true, oldvalue.x, false, 0 );

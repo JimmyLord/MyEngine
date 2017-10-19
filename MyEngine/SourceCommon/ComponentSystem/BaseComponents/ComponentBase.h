@@ -172,7 +172,8 @@ public:
     void UpdateGameObjectWithNewValue(GameObject* pGameObject, bool fromdraganddrop, ComponentVariable* pVar, int controlcomponent, bool directlychanged, bool finishedchanging, double oldvalue, void* oldpointer, wxCoord x, wxCoord y, void* newpointer);
     void UpdateOtherComponentWithNewValue(ComponentBase* pComponent, bool directlychanged, bool ignoreDivorceStatus, bool fromdraganddrop, ComponentVariable* pVar, int controlcomponent, bool finishedchanging, double oldvalue, void* oldpointer, wxCoord x, wxCoord y, void* newpointer);
     double GetCurrentValueFromVariable(ComponentVariable* pVar, int controlcomponent);
-    void CopyValueFromOtherComponent(ComponentVariable* pVar, ComponentBase* pOtherComponent, bool addundocommand, bool applydifference = false, double difference = 0, int controlcomponent = 0);
+    void ChangeValueInNonPointerVariable(ComponentVariable* pVar, int controlcomponent, bool addundocommand, double changetoapply, double changeforundo);
+    void CopyValueFromOtherComponent(ComponentVariable* pVar, int controlcomponent, ComponentBase* pOtherComponent, bool addundocommand);
 
     virtual bool IsReferencingFile(MyFileObject* pFile);
 
