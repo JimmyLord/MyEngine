@@ -35,6 +35,28 @@ public:
 };
 #endif
 
+class PrefabReference
+{
+public:
+    PrefabObject* m_pPrefab;
+
+//protected:
+//    // Always points to the root prefab object.
+//    PrefabFile* m_pRootPrefabFile;
+//    PrefabObject* m_pRootPrefab;
+//    
+//    // These variables could point to the root prefab object or any of it's children.
+//    uint32 m_PrefabID;
+//    cJSON* m_jPrefab;
+//    GameObject* m_pGameObject;
+//
+//public:
+//    PrefabObject* GetRootPrefab() { return m_pRootPrefab; }
+//
+//    cJSON* GetJSONObject() { return m_jPrefab; }
+//    GameObject* GetGameObject() { return m_pGameObject; }
+};
+
 class PrefabObject : public CPPListNode
 {
     friend class PrefabFile;
@@ -49,7 +71,7 @@ protected:
     PrefabFile* m_pPrefabFile;
     uint32 m_PrefabID;
 #if MYFW_USING_WX
-    GameObject* m_pGameObject; // each prefab is instantiated in editor so inheritance code can compare values.
+    GameObject* m_pGameObject; // Each prefab is instantiated in editor so inheritance code can compare values.
 #endif
 
 public:

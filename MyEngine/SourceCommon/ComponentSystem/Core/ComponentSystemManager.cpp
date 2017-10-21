@@ -1518,7 +1518,9 @@ unsigned int ComponentSystemManager::FindSceneID(const char* fullpath)
 
 GameObject* ComponentSystemManager::CreateGameObject(bool manageobject, int sceneid, bool isfolder, bool hastransform, PrefabObject* pPrefab)
 {
-    GameObject* pGameObject = MyNew GameObject( manageobject, sceneid, isfolder, hastransform, pPrefab );
+    PrefabReference prefabRef;
+    prefabRef.m_pPrefab = pPrefab;
+    GameObject* pGameObject = MyNew GameObject( manageobject, sceneid, isfolder, hastransform, &prefabRef );
     
     {
         unsigned int id = GetNextGameObjectIDAndIncrement( sceneid );
@@ -1757,7 +1759,10 @@ GameObject* ComponentSystemManager::CopyGameObject(GameObject* pObject, const ch
     if( g_pEngineCore->IsInEditorMode() )
         sceneid = pObject->GetSceneID();
 
-    GameObject* pNewObject = CreateGameObject( true, sceneid, pObject->IsFolder(), pObject->GetTransform() ? true : false, pObject->GetPrefab() );
+    //PrefabReference prefabRef;
+    //prefabRef.m_pPrefab = pObject->GetPrefab();
+    PrefabObject* pPrefab = pObject->GetPrefab()->m_pPrefab;
+    GameObject* pNewObject = CreateGameObject( true, sceneid, pObject->IsFolder(), pObject->GetTransform() ? true : false, pPrefab );
 
     if( newname )
         pNewObject->SetName( newname );
@@ -2541,7 +2546,7 @@ void ComponentSystemManager::Editor_GetListOfGameObjectsThatUsePrefab(std::vecto
         {
             GameObject* pGameObject = (GameObject*)pNode;
 
-            if( pGameObject->GetPrefab() == pPrefabToFind )
+            if( pGameObject->GetPrefab()->m_pPrefab == pPrefabToFind )
             {
                 pGameObjectList->push_back( pGameObject );
             }
@@ -2578,7 +2583,7 @@ void ComponentSystemManager::LogAllReferencesForFile(MyFileObject* pFile)
                         {
                             if( pGameObject->GetPrefab() )
                             {
-                                LOGInfo( LOGTag, "    (Prefab) %s :: %s :: %s (0x%x)\n", pGameObject->GetPrefab()->GetPrefabFile()->GetFile()->GetFullPath(), pGameObject->GetName(), pComponent->GetClassname(), pComponent );
+                                LOGInfo( LOGTag, "    (Prefab) %s :: %s :: %s (0x%x)\n", pGameObject->GetPrefab()->m_pPrefab->GetPrefabFile()->GetFile()->GetFullPath(), pGameObject->GetName(), pComponent->GetClassname(), pComponent );
                             }
                         }
                         else

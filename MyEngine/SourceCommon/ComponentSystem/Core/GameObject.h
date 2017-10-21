@@ -28,7 +28,7 @@ class GameObject : public CPPListNode
     static const int MAX_COMPONENTS = 8; // TODO: fix this hardcodedness
 
 protected:
-    PrefabObject* m_pPrefab;
+    PrefabReference m_PrefabRef;
     GameObject* m_pGameObjectThisInheritsFrom; // for variables, if set, any changes to the parent will be reflected in this object.
 
     GameObject* m_pParentGameObject;
@@ -53,12 +53,12 @@ protected:
     void NotifyOthersThisWasDeleted();
 
 public:
-    GameObject(bool managed, int sceneid, bool isfolder, bool hastransform, PrefabObject* pPrefab);
+    GameObject(bool managed, int sceneid, bool isfolder, bool hastransform, PrefabReference* pPrefabRef);
     virtual ~GameObject();
     SetClassnameBase( "GameObject" ); // only first 8 character count.
 
-    PrefabObject* GetPrefab() { return m_pPrefab; }
-    bool IsPrefab() { return m_pPrefab != 0; }
+    PrefabReference* GetPrefab() { return &m_PrefabRef; }
+    bool IsPrefab() { return m_PrefabRef.m_pPrefab != 0; }
 
     bool IsFolder() { return m_IsFolder; }
     GameObject* GetGameObjectThisInheritsFrom() { return m_pGameObjectThisInheritsFrom; }
@@ -187,7 +187,7 @@ public:
     static void StaticOnPrefabFileFinishedLoading(void* pObjectPtr, MyFileObject* pFile) { ((GameObject*)pObjectPtr)->OnPrefabFileFinishedLoading( pFile ); }
     void OnPrefabFileFinishedLoading(MyFileObject* pFile);
 
-    void Editor_SetPrefab(PrefabObject* pPrefab) { m_pPrefab = pPrefab; UpdateObjectListIcon(); } // used when deleting prefabs
+    void Editor_SetPrefab(PrefabReference* pPrefabRef) { m_PrefabRef = *pPrefabRef; UpdateObjectListIcon(); } // used when deleting prefabs
     void Editor_SetMaterial(MaterialDefinition* pMaterial);
 
     // Editor functions

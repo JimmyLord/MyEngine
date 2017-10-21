@@ -11,17 +11,18 @@
 
 #include "PrefabManager.h"
 
-GameObject::GameObject(bool managed, int sceneid, bool isfolder, bool hastransform, PrefabObject* pPrefab)
+GameObject::GameObject(bool managed, int sceneid, bool isfolder, bool hastransform, PrefabReference* pPrefabRef)
 {
     ClassnameSanityCheck();
 
     m_pGameObjectThisInheritsFrom = 0;
 
 #if MYFW_USING_WX
-    if( pPrefab != 0 )
+    if( pPrefabRef && pPrefabRef->m_pPrefab )
     {
-        m_pGameObjectThisInheritsFrom = pPrefab->GetGameObject();
+        m_pGameObjectThisInheritsFrom = pPrefabRef->m_pPrefab->GetGameObject();
     }
+    m_PrefabID = UINT_MAX;
 #endif
 
     m_pParentGameObject = 0;
@@ -30,7 +31,7 @@ GameObject::GameObject(bool managed, int sceneid, bool isfolder, bool hastransfo
     m_Properties.m_pGameObject = this;
 
     m_Enabled = true;
-    m_pPrefab = pPrefab;
+    m_PrefabRef = *pPrefabRef;
     m_IsFolder = isfolder;
     m_SceneID = sceneid;
     m_ID = 0;
@@ -434,7 +435,7 @@ void GameObject::UpdateObjectListIcon()
 {
     // Set the icon for the gameobject in the objectlist panel tree.
     int iconindex = ObjectListIcon_GameObject;
-    if( m_pPrefab != 0 )
+    if( m_PrefabRef.m_pPrefab != 0 )
         iconindex = ObjectListIcon_Prefab;
     else if( m_IsFolder )
         iconindex = ObjectListIcon_Folder;
@@ -448,18 +449,18 @@ void GameObject::UpdateObjectListIcon()
 
 void GameObject::FinishLoadingPrefab(PrefabFile* pPrefabFile, uint32 prefabid)
 {
-    // link to the correct prefab
-    m_pPrefab = pPrefabFile->GetPrefabByID( prefabid );
+    // Link to the correct prefab
+    m_PrefabRef.m_pPrefab = pPrefabFile->GetPrefabByID( prefabid );
 
 #if MYFW_USING_WX
-    m_pGameObjectThisInheritsFrom = m_pPrefab->GetGameObject();
+    m_pGameObjectThisInheritsFrom = m_PrefabRef.m_pPrefab->GetGameObject();
 #endif
 
-    // TODO: check the if the gameobect(s) in the prefab are completely different and deal with it
+    // TODO: Check the if the gameobect(s) in the prefab are completely different and deal with it
 
-    // otherwise, importing same prefab, so update all undivorced variables to match prefab file
+    // Otherwise, importing same prefab, so update all undivorced variables to match prefab file
     {
-        GameObject* pPrefabGameObject = m_pPrefab->GetGameObject();
+        GameObject* pPrefabGameObject = m_PrefabRef.m_pPrefab->GetGameObject();
         MyAssert( pPrefabGameObject );
 
         for( unsigned int i=0; i<m_Components.Count(); i++ )
@@ -525,8 +526,8 @@ cJSON* GameObject::ExportAsJSONObject(bool savesceneid)
     {
 #if MYFW_USING_WX
         // don't save parentGO if it's the prefab.
-        if( m_pPrefab == 0 ||
-            (m_pGameObjectThisInheritsFrom != m_pPrefab->GetGameObject()) )
+        if( m_PrefabRef.m_pPrefab == 0 ||
+            (m_pGameObjectThisInheritsFrom != m_PrefabRef.m_pPrefab->GetGameObject()) )
 #endif
         {
             cJSON_AddItemToObject( jGameObject, "ParentGO", m_pGameObjectThisInheritsFrom->ExportReferenceAsJSONObject( m_SceneID ) );
@@ -546,10 +547,10 @@ cJSON* GameObject::ExportAsJSONObject(bool savesceneid)
     if( m_SceneID != m_PhysicsSceneID )
         cJSON_AddNumberToObject( jGameObject, "PhysicsSceneID", m_PhysicsSceneID );
 
-    if( m_pPrefab != 0 )
+    if( m_PrefabRef.m_pPrefab != 0 )
     {
-        cJSON_AddStringToObject( jGameObject, "PrefabFile", m_pPrefab->GetPrefabFile()->GetFile()->GetFullPath() );
-        cJSON_AddNumberToObject( jGameObject, "PrefabID", m_pPrefab->GetID() );
+        cJSON_AddStringToObject( jGameObject, "PrefabFile", m_PrefabRef.m_pPrefab->GetPrefabFile()->GetFile()->GetFullPath() );
+        cJSON_AddNumberToObject( jGameObject, "PrefabID", m_PrefabRef.m_pPrefab->GetID() );
     }
     
     if( m_IsFolder == true )
