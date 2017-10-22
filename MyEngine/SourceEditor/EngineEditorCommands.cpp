@@ -1047,7 +1047,10 @@ void EditorCommand_DeletePrefabs::Do()
         // Loop through gameobjects and unset which prefab they inherit from.
         for( unsigned int j=0; j<m_PrefabInfo[i].m_pListOfGameObjectsThatUsedPrefab.size(); j++ )
         {
-            m_PrefabInfo[i].m_pListOfGameObjectsThatUsedPrefab[j]->Editor_SetPrefab( 0 );
+            GameObject* pGameObject = m_PrefabInfo[i].m_pListOfGameObjectsThatUsedPrefab[j];
+            PrefabReference prefabRef;
+            prefabRef.m_pPrefab = 0;
+            pGameObject->Editor_SetPrefab( &prefabRef );
         }
         
         // Remove prefab from PrefabFile

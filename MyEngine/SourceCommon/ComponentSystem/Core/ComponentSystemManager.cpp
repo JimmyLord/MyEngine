@@ -1553,10 +1553,8 @@ GameObject* ComponentSystemManager::CreateGameObjectFromPrefab(PrefabObject* pPr
     GameObject* pGameObject = CreateGameObject( manageobject, sceneid, false, true, pPrefab );
     
     cJSON* jName = cJSON_GetObjectItem( jPrefab, "Name" );
-    if( jName )
-        pGameObject->SetName( jName->valuestring );
-    else
-        pGameObject->SetName( pPrefab->GetName() );
+    MyAssert( jName ); // If this trips, prefab file is likely old, every object should now have a name field.
+    pGameObject->SetName( jName->valuestring );
 
     if( jPrefab )
     {

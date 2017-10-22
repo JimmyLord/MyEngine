@@ -99,7 +99,7 @@ public:
 
     wxTreeItemId m_TreeID;
 
-    void AddToObjectList();
+    void AddToObjectList(wxTreeItemId parent, cJSON* jPrefab, GameObject* pGameObject);
 
     // Object panel callbacks.
     static void StaticOnLeftClick(void* pObjectPtr, wxTreeItemId treeid, unsigned int count) { ((PrefabObject*)pObjectPtr)->OnLeftClick( treeid, count, true ); }

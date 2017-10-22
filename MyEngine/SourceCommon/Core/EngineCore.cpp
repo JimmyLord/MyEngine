@@ -1855,7 +1855,7 @@ void EngineCore::OnObjectListTreeMultipleSelection() //StaticOnObjectListTreeMul
         {
             // Allow prefabs in watch panel.
             isprefab = true;
-            pGameObject = ((PrefabObject*)pData->m_pObject)->GetGameObject();
+            pGameObject = (GameObject*)pData->m_pUserData;
         }
 
         // Show this GameObject in the watch panel, if it's not a folder

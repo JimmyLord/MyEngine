@@ -32,7 +32,7 @@ protected:
     GameObject* m_pGameObjectThisInheritsFrom; // for variables, if set, any changes to the parent will be reflected in this object.
 
     GameObject* m_pParentGameObject;
-    CPPListHead m_ChildList; // child game objects
+    CPPListHead m_ChildList; // Child game objects, contains the only copy of pointers to each child.
 
     ComponentGameObjectProperties m_Properties;
 
@@ -162,8 +162,9 @@ public:
     static void StaticOnTitleLabelClicked(void* pObjectPtr, int controlid, bool directlychanged, bool finishedchanging, double oldvalue, bool valuewaschangedbydragging) { ((GameObject*)pObjectPtr)->OnTitleLabelClicked( controlid, finishedchanging ); }
     void OnTitleLabelClicked(int controlid, bool finishedchanging);
 
-    static void StaticOnLeftClick(void* pObjectPtr, wxTreeItemId id, unsigned int count) { ((GameObject*)pObjectPtr)->OnLeftClick( count, true ); }
-    void OnLeftClick(unsigned int count, bool clear);
+    //static void StaticOnLeftClick(void* pObjectPtr, wxTreeItemId id, unsigned int count) { ((GameObject*)pObjectPtr)->OnLeftClick( count, true ); }
+    static void StaticOnLeftClick(void* pObjectPtr, wxTreeItemId id, unsigned int count) { GameObject::OnLeftClick( count, true ); }
+    static void OnLeftClick(unsigned int count, bool clear);
     void ShowInWatchPanel(bool isprefab);
 
     static void StaticOnRightClick(void* pObjectPtr, wxTreeItemId id) { ((GameObject*)pObjectPtr)->OnRightClick(); }

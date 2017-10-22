@@ -42,10 +42,6 @@ void PrefabObject::Init(PrefabFile* pFile, const char* name, uint32 prefabid)
     m_pPrefabFile = pFile;
     SetName( name );
     m_PrefabID = prefabid;
-
-#if MYFW_USING_WX
-    AddToObjectList();
-#endif
 }
 
 void PrefabObject::SetName(const char* name)
@@ -68,14 +64,20 @@ void PrefabObject::SetPrefabJSONObject(cJSON* jPrefab)
     }
 
     m_jPrefab = jPrefab;
+
 #if MYFW_USING_WX
-    // This might cause some "undo" actions, so wipe them out once the load is complete.
+    // In editor, create a GameObject for this prefab, also creates a GameObject for each child.
+    //     Pointers to children are stored in a list inside GameObject.
+    // This might cause some undo actions, so wipe them out once the load is complete.
     unsigned int numItemsInUndoStack = g_pEngineMainFrame->m_pCommandStack->GetUndoStackSize();
 
     m_pGameObject = g_pComponentSystemManager->CreateGameObjectFromPrefab( this, false, 0 );
     m_pGameObject->SetEnabled( false );
 
     g_pEngineMainFrame->m_pCommandStack->ClearUndoStack( numItemsInUndoStack );
+
+    // Add the prefab and all it's children to the object panel.
+    AddToObjectList( m_pPrefabFile->m_TreeID, m_jPrefab, m_pGameObject );
 #endif
 }
 
@@ -90,19 +92,56 @@ cJSON* PrefabObject::GetJSONObject()
 }
 
 #if MYFW_USING_WX
-void PrefabObject::AddToObjectList() // Used by undo/redo to add/remove from tree
+void PrefabObject::AddToObjectList(wxTreeItemId parent, cJSON* jPrefab, GameObject* pGameObject) // Used when prefab created and by undo/redo to add/remove from tree
 {
-    wxTreeItemId rootid = m_pPrefabFile->m_TreeID;
-    m_TreeID = g_pPanelObjectList->AddObject( this, PrefabObject::StaticOnLeftClick, PrefabObject::StaticOnRightClick, rootid, m_Name, ObjectListIcon_GameObject );
-    g_pPanelObjectList->SetDragAndDropFunctions( m_TreeID, PrefabObject::StaticOnDrag, PrefabObject::StaticOnDrop );
-    g_pPanelObjectList->SetIcon( m_TreeID, ObjectListIcon_Prefab );
+    cJSON* jName = cJSON_GetObjectItem( jPrefab, "Name" );
+    MyAssert( jName ); // If this trips, prefab file is likely old, every object should now have a name field.
+
+    // Non-comprehensive assert that this gameobject is the same as the json object we're about to add.
+    MyAssert( strcmp( pGameObject->GetName(), jName->valuestring ) == 0 );
+
+    // Add this object to the list.
+    wxTreeItemId treeID = g_pPanelObjectList->AddObject( this, PrefabObject::StaticOnLeftClick,
+                                                         PrefabObject::StaticOnRightClick, parent,
+                                                         jName->valuestring, ObjectListIcon_Prefab );
+
+    // Set the correct GameObject as user data for this tree item.
+    g_pPanelObjectList->SetUserData( treeID, pGameObject );
+
+    // If this is the root of the prefab, store the tree id and add drag/drop functionality.
+    // TODO: drag/drop children, not sure why, but why not?
+    if( parent == m_pPrefabFile->m_TreeID )
+    {
+        m_TreeID = treeID;
+        g_pPanelObjectList->SetDragAndDropFunctions( treeID, PrefabObject::StaticOnDrag, PrefabObject::StaticOnDrop );
+    }
+
+    // Add children to the list.
+    cJSON* jChildrenArray = cJSON_GetObjectItem( jPrefab, "Children" );
+    if( jChildrenArray )
+    {
+        int childarraysize = cJSON_GetArraySize( jChildrenArray );
+
+        // Get the child list from the GameObject, this should line up with the children in the json struct.
+        CPPListHead* pChildGameObjectList = pGameObject->GetChildList();
+        GameObject* pChildGameObject = (GameObject*)pChildGameObjectList->GetHead();
+
+        for( int i=0; i<childarraysize; i++ )
+        {
+            cJSON* jChildGameObject = cJSON_GetArrayItem( jChildrenArray, i );
+            AddToObjectList( treeID, jChildGameObject, pChildGameObject );
+
+            pChildGameObject = (GameObject*)pChildGameObject->GetNext();
+        }
+    }
 }
 
 void PrefabObject::OnLeftClick(wxTreeItemId treeid, unsigned int count, bool clear) // StaticOnLeftClick
 {
     g_pPanelWatch->ClearAllVariables();
 
-    m_pGameObject->OnLeftClick( 1, false );
+    // GameObject::OnLeftClick will check which objects in the tree are selected.
+    GameObject::OnLeftClick( 1, false );
 }
 
 void PrefabObject::OnRightClick(wxTreeItemId treeid) // StaticOnRightClick
@@ -379,8 +418,8 @@ void PrefabFile::AddExistingPrefab(PrefabObject* pPrefab, PrefabObject* pPreviou
         m_Prefabs.AddHead( pPrefab );
     }
 
-    // Add prefab to Object List tree
-    pPrefab->AddToObjectList();
+    // Add prefab to Object List tree inside TreeID of this file.
+    pPrefab->AddToObjectList( this->m_TreeID, pPrefab->m_jPrefab, pPrefab->m_pGameObject );
     if( pPreviousPrefab != 0 )
     {
         g_pPanelObjectList->Tree_MoveObject( pPrefab, pPreviousPrefab, false );
