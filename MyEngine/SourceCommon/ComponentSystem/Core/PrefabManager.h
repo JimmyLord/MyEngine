@@ -38,23 +38,29 @@ public:
 class PrefabReference
 {
 public:
+    // Always points to the root prefab object.
     PrefabObject* m_pPrefab;
-
-//protected:
-//    // Always points to the root prefab object.
+    
 //    PrefabFile* m_pRootPrefabFile;
 //    PrefabObject* m_pRootPrefab;
 //    
 //    // These variables could point to the root prefab object or any of it's children.
 //    uint32 m_PrefabID;
 //    cJSON* m_jPrefab;
-//    GameObject* m_pGameObject;
+    GameObject* m_pGameObject;
 //
 //public:
 //    PrefabObject* GetRootPrefab() { return m_pRootPrefab; }
 //
 //    cJSON* GetJSONObject() { return m_jPrefab; }
 //    GameObject* GetGameObject() { return m_pGameObject; }
+
+public:
+    PrefabReference()
+    {
+        m_pPrefab = 0;
+        m_pGameObject = 0;
+    }
 };
 
 class PrefabObject : public CPPListNode

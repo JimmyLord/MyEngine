@@ -1516,11 +1516,9 @@ unsigned int ComponentSystemManager::FindSceneID(const char* fullpath)
     return UINT_MAX;
 }
 
-GameObject* ComponentSystemManager::CreateGameObject(bool manageobject, int sceneid, bool isfolder, bool hastransform, PrefabObject* pPrefab)
+GameObject* ComponentSystemManager::CreateGameObject(bool manageobject, int sceneid, bool isfolder, bool hastransform, PrefabReference* pPrefabRef)
 {
-    PrefabReference prefabRef;
-    prefabRef.m_pPrefab = pPrefab;
-    GameObject* pGameObject = MyNew GameObject( manageobject, sceneid, isfolder, hastransform, &prefabRef );
+    GameObject* pGameObject = MyNew GameObject( manageobject, sceneid, isfolder, hastransform, pPrefabRef );
     
     {
         unsigned int id = GetNextGameObjectIDAndIncrement( sceneid );
@@ -1543,14 +1541,17 @@ GameObject* ComponentSystemManager::CreateGameObject(bool manageobject, int scen
 
 GameObject* ComponentSystemManager::CreateGameObjectFromPrefab(PrefabObject* pPrefab, bool manageobject, int sceneid)
 {
-    return CreateGameObjectFromPrefab( pPrefab, pPrefab->GetJSONObject(), manageobject, sceneid );
+    return CreateGameObjectFromPrefab( pPrefab, pPrefab->GetJSONObject(), pPrefab->GetGameObject(), manageobject, sceneid );
 }
 
-GameObject* ComponentSystemManager::CreateGameObjectFromPrefab(PrefabObject* pPrefab, cJSON* jPrefab, bool manageobject, int sceneid)
+GameObject* ComponentSystemManager::CreateGameObjectFromPrefab(PrefabObject* pPrefab, cJSON* jPrefab, GameObject* pPrefabGameObject, bool manageobject, int sceneid)
 {
     MyAssert( pPrefab != 0 );
 
-    GameObject* pGameObject = CreateGameObject( manageobject, sceneid, false, true, pPrefab );
+    PrefabReference prefabRef;
+    prefabRef.m_pPrefab = pPrefab;
+    prefabRef.m_pGameObject = pPrefabGameObject;
+    GameObject* pGameObject = CreateGameObject( manageobject, sceneid, false, true, &prefabRef );
     
     cJSON* jName = cJSON_GetObjectItem( jPrefab, "Name" );
     MyAssert( jName ); // If this trips, prefab file is likely old, every object should now have a name field.
@@ -1582,6 +1583,14 @@ GameObject* ComponentSystemManager::CreateGameObjectFromPrefab(PrefabObject* pPr
         cJSON* jChildrenArray = cJSON_GetObjectItem( jPrefab, "Children" );
         if( jChildrenArray )
         {
+            // Get the child list from the GameObject, this should line up with the children in the json struct.
+            GameObject* pChildPrefabGameObject = 0;
+            if( pPrefabGameObject )
+            {
+                CPPListHead* pChildPrefabGameObjectList = pPrefabGameObject->GetChildList();
+                pChildPrefabGameObject = (GameObject*)pChildPrefabGameObjectList->GetHead();
+            }
+
             int childarraysize = cJSON_GetArraySize( jChildrenArray );
 
             for( int i=0; i<childarraysize; i++ )
@@ -1592,12 +1601,12 @@ GameObject* ComponentSystemManager::CreateGameObjectFromPrefab(PrefabObject* pPr
                 // Create the child game object.
                 if( sceneid == 0 )
                 {
-                    pChildGameObject = CreateGameObjectFromPrefab( pPrefab, jChildGameObject, false, 0 );
+                    pChildGameObject = CreateGameObjectFromPrefab( pPrefab, jChildGameObject, pChildPrefabGameObject, false, 0 );
                     pChildGameObject->SetEnabled( false );
                 }
                 else
                 {
-                    pChildGameObject = CreateGameObjectFromPrefab( pPrefab, jChildGameObject, true, sceneid );
+                    pChildGameObject = CreateGameObjectFromPrefab( pPrefab, jChildGameObject, pChildPrefabGameObject, true, sceneid );
 
 #if MYFW_USING_WX
                     // Move as last item in parent
@@ -1613,6 +1622,11 @@ GameObject* ComponentSystemManager::CreateGameObjectFromPrefab(PrefabObject* pPr
                 pChildGameObject->SetParentGameObject( pGameObject );
                 cJSON* jTransform = cJSON_GetObjectItem( jChildGameObject, "LocalTransform" );
                 pChildGameObject->m_pComponentTransform->ImportLocalTransformFromJSONObject( jTransform );
+
+                if( pChildPrefabGameObject != 0 )
+                {
+                    pChildPrefabGameObject = (GameObject*)pChildPrefabGameObject->GetNext();
+                }
             }
         }
     }
@@ -1760,7 +1774,7 @@ GameObject* ComponentSystemManager::CopyGameObject(GameObject* pObject, const ch
     //PrefabReference prefabRef;
     //prefabRef.m_pPrefab = pObject->GetPrefab();
     PrefabObject* pPrefab = pObject->GetPrefab()->m_pPrefab;
-    GameObject* pNewObject = CreateGameObject( true, sceneid, pObject->IsFolder(), pObject->GetTransform() ? true : false, pPrefab );
+    GameObject* pNewObject = CreateGameObject( true, sceneid, pObject->IsFolder(), pObject->GetTransform() ? true : false, pObject->GetPrefab() );
 
     if( newname )
         pNewObject->SetName( newname );

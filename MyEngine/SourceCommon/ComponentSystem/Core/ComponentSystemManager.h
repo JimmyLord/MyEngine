@@ -14,6 +14,7 @@ class ComponentSystemManager;
 class PrefabManager;
 class PrefabFile;
 class PrefabObject;
+class PrefabReference;
 class GameObjectTemplateManager;
 class SceneHandler;
 class GameObject;
@@ -186,9 +187,9 @@ public:
     bool IsSceneLoaded(const char* fullpath);
     unsigned int FindSceneID(const char* fullpath);
 
-    GameObject* CreateGameObject(bool manageobject = true, int sceneid = 0, bool isfolder = false, bool hastransform = true, PrefabObject* pPrefab = 0);
+    GameObject* CreateGameObject(bool manageobject = true, int sceneid = 0, bool isfolder = false, bool hastransform = true, PrefabReference* pPrefabRef = 0);
     GameObject* CreateGameObjectFromPrefab(PrefabObject* pPrefab, bool manageobject, int sceneid);
-    GameObject* CreateGameObjectFromPrefab(PrefabObject* pPrefab, cJSON* jPrefab, bool manageobject, int sceneid);
+    GameObject* CreateGameObjectFromPrefab(PrefabObject* pPrefab, cJSON* jPrefab, GameObject* pPrefabGameObject, bool manageobject, int sceneid);
 #if MYFW_USING_WX
     GameObject* CreateGameObjectFromTemplate(unsigned int templateid, int sceneid);
 #endif

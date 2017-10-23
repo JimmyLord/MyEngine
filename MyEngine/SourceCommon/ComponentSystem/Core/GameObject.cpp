@@ -20,7 +20,7 @@ GameObject::GameObject(bool managed, int sceneid, bool isfolder, bool hastransfo
 #if MYFW_USING_WX
     if( pPrefabRef && pPrefabRef->m_pPrefab )
     {
-        m_pGameObjectThisInheritsFrom = pPrefabRef->m_pPrefab->GetGameObject();
+        m_pGameObjectThisInheritsFrom = pPrefabRef->m_pGameObject;
     }
     m_PrefabID = UINT_MAX;
 #endif
@@ -31,7 +31,8 @@ GameObject::GameObject(bool managed, int sceneid, bool isfolder, bool hastransfo
     m_Properties.m_pGameObject = this;
 
     m_Enabled = true;
-    m_PrefabRef = *pPrefabRef;
+    if( pPrefabRef != 0 )
+        m_PrefabRef = *pPrefabRef;
     m_IsFolder = isfolder;
     m_SceneID = sceneid;
     m_ID = 0;
@@ -452,8 +453,11 @@ void GameObject::FinishLoadingPrefab(PrefabFile* pPrefabFile, uint32 prefabid)
     // Link to the correct prefab
     m_PrefabRef.m_pPrefab = pPrefabFile->GetPrefabByID( prefabid );
 
+    // TODONOW: find the correct GameObject from the prefab.
+    m_PrefabRef.m_pGameObject = m_PrefabRef.m_pPrefab->GetGameObject();
+
 #if MYFW_USING_WX
-    m_pGameObjectThisInheritsFrom = m_PrefabRef.m_pPrefab->GetGameObject();
+    m_pGameObjectThisInheritsFrom = m_PrefabRef.m_pGameObject;
 #endif
 
     // TODO: Check the if the gameobect(s) in the prefab are completely different and deal with it
@@ -527,7 +531,7 @@ cJSON* GameObject::ExportAsJSONObject(bool savesceneid)
 #if MYFW_USING_WX
         // don't save parentGO if it's the prefab.
         if( m_PrefabRef.m_pPrefab == 0 ||
-            (m_pGameObjectThisInheritsFrom != m_PrefabRef.m_pPrefab->GetGameObject()) )
+            (m_pGameObjectThisInheritsFrom != m_PrefabRef.m_pGameObject) )
 #endif
         {
             cJSON_AddItemToObject( jGameObject, "ParentGO", m_pGameObjectThisInheritsFrom->ExportReferenceAsJSONObject( m_SceneID ) );
