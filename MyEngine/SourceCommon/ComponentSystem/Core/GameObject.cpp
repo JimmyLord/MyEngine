@@ -22,7 +22,6 @@ GameObject::GameObject(bool managed, int sceneid, bool isfolder, bool hastransfo
     {
         m_pGameObjectThisInheritsFrom = pPrefabRef->m_pGameObject;
     }
-    m_PrefabID = UINT_MAX;
 #endif
 
     m_pParentGameObject = 0;
@@ -448,23 +447,23 @@ void GameObject::UpdateObjectListIcon()
         g_pPanelObjectList->SetIcon( gameobjectid, iconindex );
 }
 
-void GameObject::FinishLoadingPrefab(PrefabFile* pPrefabFile, uint32 prefabid)
+void GameObject::FinishLoadingPrefab(PrefabFile* pPrefabFile)
 {
-    // Link to the correct prefab
-    m_PrefabRef.m_pPrefab = pPrefabFile->GetPrefabByID( prefabid );
+    // Link to the correct prefab.
+    m_PrefabRef.m_pPrefab = pPrefabFile->GetPrefabByID( m_PrefabRef.m_PrefabID );
 
-    // TODONOW: find the correct GameObject from the prefab.
-    m_PrefabRef.m_pGameObject = m_PrefabRef.m_pPrefab->GetGameObject();
+    // Find the correct GameObject from the prefab.
+    m_PrefabRef.m_pGameObject = m_PrefabRef.m_pPrefab->GetGameObject( m_PrefabRef.m_ChildID );
 
 #if MYFW_USING_WX
     m_pGameObjectThisInheritsFrom = m_PrefabRef.m_pGameObject;
 #endif
 
-    // TODO: Check the if the gameobect(s) in the prefab are completely different and deal with it
+    // TODO: Check the if the gameobect(s) in the prefab are completely different and deal with it.
 
-    // Otherwise, importing same prefab, so update all undivorced variables to match prefab file
+    // Otherwise, importing same prefab, so update all undivorced variables to match prefab file.
     {
-        GameObject* pPrefabGameObject = m_PrefabRef.m_pPrefab->GetGameObject();
+        GameObject* pPrefabGameObject = m_PrefabRef.m_pGameObject;
         MyAssert( pPrefabGameObject );
 
         for( unsigned int i=0; i<m_Components.Count(); i++ )
@@ -482,7 +481,7 @@ void GameObject::FinishLoadingPrefab(PrefabFile* pPrefabFile, uint32 prefabid)
 void GameObject::OnPrefabFileFinishedLoading(MyFileObject* pFile)
 {
     PrefabFile* pPrefabFile = g_pComponentSystemManager->m_pPrefabManager->GetLoadedPrefabFileByFullPath( pFile->GetFullPath() );
-    FinishLoadingPrefab( pPrefabFile, m_PrefabID );
+    FinishLoadingPrefab( pPrefabFile );
 
     pFile->UnregisterFileFinishedLoadingCallback( this );
 }
@@ -529,7 +528,7 @@ cJSON* GameObject::ExportAsJSONObject(bool savesceneid)
     if( m_pGameObjectThisInheritsFrom )
     {
 #if MYFW_USING_WX
-        // don't save parentGO if it's the prefab.
+        // Don't save parentGO if it's the prefab.
         if( m_PrefabRef.m_pPrefab == 0 ||
             (m_pGameObjectThisInheritsFrom != m_PrefabRef.m_pGameObject) )
 #endif
@@ -555,6 +554,11 @@ cJSON* GameObject::ExportAsJSONObject(bool savesceneid)
     {
         cJSON_AddStringToObject( jGameObject, "PrefabFile", m_PrefabRef.m_pPrefab->GetPrefabFile()->GetFile()->GetFullPath() );
         cJSON_AddNumberToObject( jGameObject, "PrefabID", m_PrefabRef.m_pPrefab->GetID() );
+        
+        if( m_PrefabRef.m_ChildID != 0 )
+        {
+            cJSON_AddNumberToObject( jGameObject, "PrefabChildID", m_PrefabRef.m_ChildID );
+        }
     }
     
     if( m_IsFolder == true )
@@ -591,7 +595,8 @@ void GameObject::ImportFromJSONObject(cJSON* jGameObject, unsigned int sceneid)
 
         if( jPrefabFile )
         {
-            m_PrefabID = jPrefabID->valueint;
+            m_PrefabRef.m_PrefabID = jPrefabID->valueint;
+            cJSONExt_GetUnsignedInt( jGameObject, "PrefabChildID", &m_PrefabRef.m_ChildID );
 
             PrefabFile* pPrefabFile = g_pComponentSystemManager->m_pPrefabManager->GetLoadedPrefabFileByFullPath( jPrefabFile->valuestring );
             
@@ -606,7 +611,7 @@ void GameObject::ImportFromJSONObject(cJSON* jGameObject, unsigned int sceneid)
             }
             else
             {
-                FinishLoadingPrefab( pPrefabFile, m_PrefabID );
+                FinishLoadingPrefab( pPrefabFile );
             }
         }
     }
@@ -682,7 +687,7 @@ cJSON* GameObject::ExportReferenceAsJSONObject(unsigned int refsceneid)
     return gameobjectref;
 }
 
-cJSON* GameObject::ExportAsJSONPrefab()
+cJSON* GameObject::ExportAsJSONPrefab(PrefabObject* pPrefab)
 {
     cJSON* jGameObject = cJSON_CreateObject();
 
@@ -736,14 +741,16 @@ cJSON* GameObject::ExportAsJSONPrefab()
         
         for( CPPListNode* pNode = m_ChildList.GetHead(); pNode; pNode = pNode->GetNext() )
         {
-            GameObject* pChildObject = (GameObject*)pNode;
+            GameObject* pChildGameObject = (GameObject*)pNode;
 
-            cJSON* jChildObject = pChildObject->ExportAsJSONPrefab();
+            cJSON* jChildObject = pChildGameObject->ExportAsJSONPrefab( pPrefab );
             MyAssert( jChildObject );
             cJSON_AddItemToArray( jChildrenArray, jChildObject );
 
+            cJSON_AddNumberToObject( jChildObject, "ChildID", pPrefab->GetNextChildPrefabIDAndIncrement() );
+
             // Add the child's offset from the parent
-            ComponentTransform* pTransform = pChildObject->GetTransform();
+            ComponentTransform* pTransform = pChildGameObject->GetTransform();
             if( pTransform )
             {
                 cJSON* jTransform = pTransform->ExportLocalTransformAsJSONObject();
@@ -1058,11 +1065,11 @@ ComponentBase* GameObject::AddExistingComponent(ComponentBase* pComponent, bool 
         for( CPPListNode* pNode = m_ChildList.GetHead(); pNode; pNode = pNode->GetNext() )
         {
             // TODO: recurse through children
-            GameObject* pChildObject = (GameObject*)pNode;
+            GameObject* pChildGameObject = (GameObject*)pNode;
 
-            if( pChildObject->m_pComponentTransform )
+            if( pChildGameObject->m_pComponentTransform )
             {
-                pChildObject->m_pComponentTransform->SetParentTransform( m_pComponentTransform );
+                pChildGameObject->m_pComponentTransform->SetParentTransform( m_pComponentTransform );
             }
         }
 
@@ -1123,11 +1130,11 @@ ComponentBase* GameObject::RemoveComponent(ComponentBase* pComponent)
         for( CPPListNode* pNode = m_ChildList.GetHead(); pNode; pNode = pNode->GetNext() )
         {
             // TODO: recurse through children
-            GameObject* pChildObject = (GameObject*)pNode;
+            GameObject* pChildGameObject = (GameObject*)pNode;
 
-            if( pChildObject->m_pComponentTransform )
+            if( pChildGameObject->m_pComponentTransform )
             {
-                pChildObject->m_pComponentTransform->SetParentTransform( 0 );
+                pChildGameObject->m_pComponentTransform->SetParentTransform( 0 );
             }
         }
 

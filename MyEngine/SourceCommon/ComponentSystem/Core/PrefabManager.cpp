@@ -20,6 +20,9 @@ PrefabObject::PrefabObject()
     m_jPrefab = 0;
     m_pPrefabFile = 0;
 
+    m_PrefabID = 0;
+    m_NextChildPrefabID = 1;
+
 #if MYFW_USING_WX
     m_pGameObject = 0;
 #endif
@@ -92,6 +95,38 @@ cJSON* PrefabObject::GetJSONObject()
 }
 
 #if MYFW_USING_WX
+uint32 PrefabObject::GetNextChildPrefabIDAndIncrement()
+{
+    m_NextChildPrefabID++;
+
+    return m_NextChildPrefabID - 1;
+}
+
+GameObject* PrefabObject::GetGameObject(uint32 childid)
+{
+    if( childid == 0 )
+    {
+        // Return the root prefab gameobject.
+        return m_pGameObject;
+    }
+    else
+    {
+        // Search through children to find the correct gameobject.
+        CPPListNode* pNextNode;
+        for( CPPListNode* pNode = m_pGameObject->GetChildList()->GetHead(); pNode != 0; pNode = pNextNode )
+        {
+            pNextNode = pNode->GetNext();
+
+            GameObject* pGameObject = (GameObject*)pNode;
+
+            if( pGameObject->GetPrefab()->m_ChildID == childid )
+                return pGameObject;
+        }
+    }
+
+    return 0;
+}
+
 void PrefabObject::AddToObjectList(wxTreeItemId parent, cJSON* jPrefab, GameObject* pGameObject) // Used when prefab created and by undo/redo to add/remove from tree
 {
     cJSON* jName = cJSON_GetObjectItem( jPrefab, "Name" );
@@ -348,6 +383,10 @@ void PrefabFile::OnFileFinishedLoading(MyFileObject* pFile)
         pPrefab->Init( this, jPrefab->string, prefabid );
         pPrefab->SetPrefabJSONObject( jPrefabObject );
 
+        // TODO: Once prefab editing is a thing, make sure m_NextChildPrefabID is one higher than highest found. 
+        //if( childprefabid > pPrefab->m_NextChildPrefabID )
+        //    pPrefab->m_NextChildPrefabID = childprefabid + 1;
+
         // Detach the object from the json branch.  We don't want it deleted since it's stored in the PrefabObject
         cJSON_DetachItemFromObject( jPrefab, "Object" );
 
@@ -573,7 +612,7 @@ void PrefabManager::CreatePrefabInFile(unsigned int fileindex, const char* prefa
 
     // Initialize its values
     pPrefab->Init( pFile, prefabname, pFile->GetNextPrefabIDAndIncrement() );
-    cJSON* jGameObject = pGameObject->ExportAsJSONPrefab();
+    cJSON* jGameObject = pGameObject->ExportAsJSONPrefab( pPrefab );
     pPrefab->SetPrefabJSONObject( jGameObject );
 
     // Kick off immediate save of prefab file.

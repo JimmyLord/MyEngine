@@ -77,7 +77,7 @@ public:
     void ImportFromJSONObject(cJSON* jGameObject, unsigned int sceneid);
     void ImportInheritanceInfoFromJSONObject(cJSON* jGameObject);
     cJSON* ExportReferenceAsJSONObject(unsigned int refsceneid);
-    cJSON* ExportAsJSONPrefab();
+    cJSON* ExportAsJSONPrefab(PrefabObject* pPrefab);
 
     void SetFlags(unsigned int flags) { return m_Properties.SetFlags( flags ); }
     unsigned int GetFlags() { return m_Properties.GetFlags(); }
@@ -182,9 +182,8 @@ public:
 
     void UpdateObjectListIcon();
 
-    // Prefab Loading Vars
-    uint32 m_PrefabID;
-    void FinishLoadingPrefab(PrefabFile* pPrefabFile, uint32 prefabid);
+    // Prefab Loading Vars // Variables moved into prefabref object.
+    void FinishLoadingPrefab(PrefabFile* pPrefabFile);
     static void StaticOnPrefabFileFinishedLoading(void* pObjectPtr, MyFileObject* pFile) { ((GameObject*)pObjectPtr)->OnPrefabFileFinishedLoading( pFile ); }
     void OnPrefabFileFinishedLoading(MyFileObject* pFile);
 

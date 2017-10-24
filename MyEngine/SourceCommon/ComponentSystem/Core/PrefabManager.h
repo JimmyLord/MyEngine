@@ -40,15 +40,17 @@ class PrefabReference
 public:
     // Always points to the root prefab object.
     PrefabObject* m_pPrefab;
+    uint32 m_PrefabID; // Needed for loading, but should otherwise match up with m_pPrefab->GetID()
     
 //    PrefabFile* m_pRootPrefabFile;
 //    PrefabObject* m_pRootPrefab;
 //    
-//    // These variables could point to the root prefab object or any of it's children.
+    // These variables could point to the root prefab object or any of it's children.
 //    uint32 m_PrefabID;
 //    cJSON* m_jPrefab;
     GameObject* m_pGameObject;
-//
+    uint32 m_ChildID; // 0 if pointing to root of prefab. // Used during load
+
 //public:
 //    PrefabObject* GetRootPrefab() { return m_pRootPrefab; }
 //
@@ -59,7 +61,10 @@ public:
     PrefabReference()
     {
         m_pPrefab = 0;
+        m_PrefabID = 0;
+
         m_pGameObject = 0;
+        m_ChildID = 0;
     }
 };
 
@@ -75,10 +80,8 @@ protected:
     char m_Name[MAX_PREFAB_NAME_LENGTH];
     cJSON* m_jPrefab;
     PrefabFile* m_pPrefabFile;
+
     uint32 m_PrefabID;
-#if MYFW_USING_WX
-    GameObject* m_pGameObject; // Each prefab is instantiated in editor so inheritance code can compare values.
-#endif
 
 public:
     PrefabObject();
@@ -95,15 +98,18 @@ public:
     PrefabFile* GetPrefabFile() { return m_pPrefabFile; }
 
 #if MYFW_USING_WX
+protected:
+    uint32 m_NextChildPrefabID;
+    GameObject* m_pGameObject; // Each prefab is instantiated in editor so inheritance code can compare values.
+
     // Event handler for right click menu.
-    friend class SoundManagerWxEventHandler;
     PrefabObjectWxEventHandler m_WxEventHandler;
-
-    GameObject* GetGameObject() { return m_pGameObject; }
-
-    void Save();
-
     wxTreeItemId m_TreeID;
+
+public:
+    uint32 GetNextChildPrefabIDAndIncrement();
+
+    GameObject* GetGameObject(uint32 childid = 0);
 
     void AddToObjectList(wxTreeItemId parent, cJSON* jPrefab, GameObject* pGameObject);
 

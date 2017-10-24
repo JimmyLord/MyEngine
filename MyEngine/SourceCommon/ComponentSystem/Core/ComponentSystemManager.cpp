@@ -1623,6 +1623,8 @@ GameObject* ComponentSystemManager::CreateGameObjectFromPrefab(PrefabObject* pPr
                 cJSON* jTransform = cJSON_GetObjectItem( jChildGameObject, "LocalTransform" );
                 pChildGameObject->m_pComponentTransform->ImportLocalTransformFromJSONObject( jTransform );
 
+                cJSONExt_GetUnsignedInt( jChildGameObject, "ChildID", &pChildGameObject->GetPrefab()->m_ChildID );
+
                 if( pChildPrefabGameObject != 0 )
                 {
                     pChildPrefabGameObject = (GameObject*)pChildPrefabGameObject->GetNext();
@@ -1771,10 +1773,8 @@ GameObject* ComponentSystemManager::CopyGameObject(GameObject* pObject, const ch
     if( g_pEngineCore->IsInEditorMode() )
         sceneid = pObject->GetSceneID();
 
-    //PrefabReference prefabRef;
-    //prefabRef.m_pPrefab = pObject->GetPrefab();
-    PrefabObject* pPrefab = pObject->GetPrefab()->m_pPrefab;
-    GameObject* pNewObject = CreateGameObject( true, sceneid, pObject->IsFolder(), pObject->GetTransform() ? true : false, pObject->GetPrefab() );
+    GameObject* pNewObject = CreateGameObject( true, sceneid, pObject->IsFolder(),
+                                               pObject->GetTransform() ? true : false, pObject->GetPrefab() );
 
     if( newname )
         pNewObject->SetName( newname );
