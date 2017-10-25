@@ -111,17 +111,32 @@ GameObject* PrefabObject::GetGameObject(uint32 childid)
     }
     else
     {
-        // Search through children to find the correct gameobject.
-        CPPListNode* pNextNode;
-        for( CPPListNode* pNode = m_pGameObject->GetChildList()->GetHead(); pNode != 0; pNode = pNextNode )
-        {
-            pNextNode = pNode->GetNext();
+        GameObject* pGameObject = FindChildGameObject( m_pGameObject, childid );
+        return pGameObject;
+    }
 
-            GameObject* pGameObject = (GameObject*)pNode;
+    return 0;
+}
 
-            if( pGameObject->GetPrefab()->m_ChildID == childid )
-                return pGameObject;
-        }
+GameObject* PrefabObject::FindChildGameObject(GameObject* pRootObject, uint32 childid)
+{
+    MyAssert( childid != 0 );
+
+    // Search through children to find the correct gameobject.
+    CPPListNode* pNextNode;
+    for( CPPListNode* pNode = pRootObject->GetChildList()->GetHead(); pNode != 0; pNode = pNextNode )
+    {
+        pNextNode = pNode->GetNext();
+
+        GameObject* pGameObject = (GameObject*)pNode;
+
+        if( pGameObject->GetPrefab()->m_ChildID == childid )
+            return pGameObject;
+
+        // Recurse through children
+        GameObject* pFoundGameObject = FindChildGameObject( pGameObject, childid );
+        if( pFoundGameObject )
+            return pFoundGameObject;
     }
 
     return 0;

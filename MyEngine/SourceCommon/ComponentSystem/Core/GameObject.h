@@ -187,6 +187,8 @@ public:
     static void StaticOnPrefabFileFinishedLoading(void* pObjectPtr, MyFileObject* pFile) { ((GameObject*)pObjectPtr)->OnPrefabFileFinishedLoading( pFile ); }
     void OnPrefabFileFinishedLoading(MyFileObject* pFile);
 
+    GameObject* FindRootGameObjectOfPrefabInstance();
+
     void Editor_SetPrefab(PrefabReference* pPrefabRef) { m_PrefabRef = *pPrefabRef; UpdateObjectListIcon(); } // used when deleting prefabs
     void Editor_SetMaterial(MaterialDefinition* pMaterial);
 

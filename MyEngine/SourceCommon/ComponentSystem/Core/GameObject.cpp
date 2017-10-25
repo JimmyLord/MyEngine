@@ -486,6 +486,18 @@ void GameObject::OnPrefabFileFinishedLoading(MyFileObject* pFile)
     pFile->UnregisterFileFinishedLoadingCallback( this );
 }
 
+// Returns the gameobject in the scene that lines up with the root of the prefab.
+// Useful for prefab subobjects(children) to quickly find the starting point of the prefab instance.
+GameObject* GameObject::FindRootGameObjectOfPrefabInstance()
+{
+    MyAssert( m_PrefabRef.m_pPrefab != 0 );
+
+    if( m_PrefabRef.m_ChildID == 0 )
+        return this;
+
+    return m_pParentGameObject->FindRootGameObjectOfPrefabInstance();
+}
+
 // Set the material on all renderable components attached to this object.
 void GameObject::Editor_SetMaterial(MaterialDefinition* pMaterial)
 {

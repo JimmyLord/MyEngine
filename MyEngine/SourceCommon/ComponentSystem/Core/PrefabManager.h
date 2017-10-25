@@ -110,6 +110,7 @@ public:
     uint32 GetNextChildPrefabIDAndIncrement();
 
     GameObject* GetGameObject(uint32 childid = 0);
+    GameObject* FindChildGameObject(GameObject* pRootObject, uint32 childid);
 
     void AddToObjectList(wxTreeItemId parent, cJSON* jPrefab, GameObject* pGameObject);
 

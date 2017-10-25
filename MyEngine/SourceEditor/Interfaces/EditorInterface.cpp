@@ -712,6 +712,12 @@ void EditorInterface::SelectObjectsInRectangle(unsigned int sx, unsigned int sy,
 
             if( pObject )
             {
+                // When selecting with mouse, don't allow selection of subobjects of a prefab, always pick the root of the prefab instance.
+                if( pObject->GetPrefab()->m_pPrefab != 0 )
+                {
+                    pObject = pObject->FindRootGameObjectOfPrefabInstance();
+                }
+
                 bool objectselected = pEditorState->IsGameObjectSelected( pObject );
 
                 // if we're selecting objects, then select the unselected objects.
