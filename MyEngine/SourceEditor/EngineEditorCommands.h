@@ -395,6 +395,7 @@ protected:
         PrefabObject* m_pPrefab;
         PrefabObject* m_pPreviousPrefabInObjectList; // to reinsert at the right place.
         std::vector<GameObject*> m_pListOfGameObjectsThatUsedPrefab; // for undo
+        std::vector<PrefabReference> m_CopyOfPrefabRefsInEachGameObjectBeforePrefabWasDeleted;
     };
 
     // IF this is in undo stack, then this stores the only reference to the deleted prefab.

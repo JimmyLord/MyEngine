@@ -37,35 +37,33 @@ public:
 
 class PrefabReference
 {
-public:
+private:
+    uint32 m_PrefabID; // Needed for loading, but should otherwise match up with m_pPrefab->GetID()
+
+protected:
     // Always points to the root prefab object.
     PrefabObject* m_pPrefab;
-    uint32 m_PrefabID; // Needed for loading, but should otherwise match up with m_pPrefab->GetID()
     
-//    PrefabFile* m_pRootPrefabFile;
-//    PrefabObject* m_pRootPrefab;
-//    
     // These variables could point to the root prefab object or any of it's children.
-//    uint32 m_PrefabID;
-//    cJSON* m_jPrefab;
+    uint32 m_ChildID; // 0 if pointing to root of prefab.
     GameObject* m_pGameObject;
-    uint32 m_ChildID; // 0 if pointing to root of prefab. // Used during load
-
-//public:
-//    PrefabObject* GetRootPrefab() { return m_pRootPrefab; }
-//
-//    cJSON* GetJSONObject() { return m_jPrefab; }
-//    GameObject* GetGameObject() { return m_pGameObject; }
 
 public:
-    PrefabReference()
-    {
-        m_pPrefab = 0;
-        m_PrefabID = 0;
+    PrefabReference();
+    PrefabReference(PrefabObject* m_pPrefab, uint32 childid, bool setgameobject);
+    
+    // Getters
+    PrefabObject* GetPrefab() { return m_pPrefab; }
+    GameObject* GetGameObject() { return m_pGameObject; }
+    uint32 GetChildID() { return m_ChildID; }
 
-        m_pGameObject = 0;
-        m_ChildID = 0;
-    }
+    // Methods used by GameObject during load in cases where scene was loaded before Prefab file.
+    void StoreIDsWhileLoading(uint32 prefabid, uint32 childid);
+    void FinishLoadingPrefab(PrefabFile* pPrefabFile);
+
+#if MYFW_USING_WX
+    bool IsGameObjectPartOfTheEditorInstanceOfPrefab();
+#endif
 };
 
 class PrefabObject : public CPPListNode

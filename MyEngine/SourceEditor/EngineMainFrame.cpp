@@ -1667,8 +1667,8 @@ void EngineMainFrame::OnTextCtrlLeftDoubleClick(wxMouseEvent& evt)
             g_pEngineCore->GetEditorState()->SelectGameObject( pGameObject );
 
             // Select the object in the object tree.
-            if( pGameObject->IsPrefab() )
-                g_pPanelObjectList->SelectObject( pGameObject->GetPrefab() );
+            if( pGameObject->IsPrefabInstance() )
+                g_pPanelObjectList->SelectObject( pGameObject->GetPrefabRef()->GetGameObject() );
             else
                 g_pPanelObjectList->SelectObject( pGameObject );
         }

@@ -11,6 +11,66 @@
 #include "PrefabManager.h"
 
 // ============================================================================================================================
+// PrefabReference
+// ============================================================================================================================
+
+PrefabReference::PrefabReference()
+{
+    m_pPrefab = 0;
+    m_PrefabID = 0;
+
+    m_pGameObject = 0;
+    m_ChildID = 0;
+}
+
+PrefabReference::PrefabReference(PrefabObject* m_pPrefab, uint32 childid, bool setgameobject)
+{
+    MyAssert( m_pPrefab != 0 );
+
+    m_pPrefab = m_pPrefab;
+    m_PrefabID = 0;
+
+    m_pGameObject = 0;
+    m_ChildID = childid;
+
+    if( setgameobject )
+        m_pGameObject = m_pPrefab->FindChildGameObject( m_pPrefab->GetGameObject(), childid );
+}
+
+void PrefabReference::StoreIDsWhileLoading(uint32 prefabid, uint32 childid)
+{
+    MyAssert( m_pPrefab == 0 );
+    MyAssert( m_PrefabID == 0 );
+    MyAssert( m_pGameObject == 0 );
+    MyAssert( m_ChildID == 0 );
+
+    m_PrefabID = prefabid;
+    m_ChildID = childid;
+}
+
+void PrefabReference::FinishLoadingPrefab(PrefabFile* pPrefabFile)
+{
+    MyAssert( m_pPrefab == 0 );
+    MyAssert( m_PrefabID != 0 );
+    MyAssert( m_pGameObject == 0 );
+
+    // Link to the correct prefab.
+    m_pPrefab = pPrefabFile->GetPrefabByID( m_PrefabID );
+    MyAssert( m_pPrefab );
+
+    // Find the correct GameObject from the prefab.
+    m_pGameObject = m_pPrefab->GetGameObject( m_ChildID );
+    MyAssert( m_pGameObject );
+}
+
+#if MYFW_USING_WX
+bool PrefabReference::IsGameObjectPartOfTheEditorInstanceOfPrefab()
+{
+    return false;
+}
+#endif //MYFW_USING_WX
+
+// ============================================================================================================================
 // PrefabObject
 // ============================================================================================================================
 
@@ -104,23 +164,14 @@ uint32 PrefabObject::GetNextChildPrefabIDAndIncrement()
 
 GameObject* PrefabObject::GetGameObject(uint32 childid)
 {
-    if( childid == 0 )
-    {
-        // Return the root prefab gameobject.
-        return m_pGameObject;
-    }
-    else
-    {
-        GameObject* pGameObject = FindChildGameObject( m_pGameObject, childid );
-        return pGameObject;
-    }
-
-    return 0;
+    return FindChildGameObject( m_pGameObject, childid );
 }
 
 GameObject* PrefabObject::FindChildGameObject(GameObject* pRootObject, uint32 childid)
 {
-    MyAssert( childid != 0 );
+    // Return the root prefab gameobject.
+    if( childid == 0 )
+        return pRootObject;
 
     // Search through children to find the correct gameobject.
     CPPListNode* pNextNode;
@@ -130,7 +181,7 @@ GameObject* PrefabObject::FindChildGameObject(GameObject* pRootObject, uint32 ch
 
         GameObject* pGameObject = (GameObject*)pNode;
 
-        if( pGameObject->GetPrefab()->m_ChildID == childid )
+        if( pGameObject->GetPrefabRef()->GetChildID() == childid )
             return pGameObject;
 
         // Recurse through children

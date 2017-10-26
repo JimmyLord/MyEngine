@@ -57,8 +57,8 @@ public:
     virtual ~GameObject();
     SetClassnameBase( "GameObject" ); // only first 8 character count.
 
-    PrefabReference* GetPrefab() { return &m_PrefabRef; }
-    bool IsPrefab() { return m_PrefabRef.m_pPrefab != 0; }
+    PrefabReference* GetPrefabRef() { return &m_PrefabRef; }
+    bool IsPrefabInstance() { return m_PrefabRef.GetPrefab() != 0; }
 
     bool IsFolder() { return m_IsFolder; }
     GameObject* GetGameObjectThisInheritsFrom() { return m_pGameObjectThisInheritsFrom; }

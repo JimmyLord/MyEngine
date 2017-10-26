@@ -1541,17 +1541,27 @@ GameObject* ComponentSystemManager::CreateGameObject(bool manageobject, int scen
 
 GameObject* ComponentSystemManager::CreateGameObjectFromPrefab(PrefabObject* pPrefab, bool manageobject, int sceneid)
 {
-    return CreateGameObjectFromPrefab( pPrefab, pPrefab->GetJSONObject(), pPrefab->GetGameObject(), manageobject, sceneid );
+    return CreateGameObjectFromPrefab( pPrefab, pPrefab->GetJSONObject(), 0, manageobject, sceneid );
 }
 
-GameObject* ComponentSystemManager::CreateGameObjectFromPrefab(PrefabObject* pPrefab, cJSON* jPrefab, GameObject* pPrefabGameObject, bool manageobject, int sceneid)
+GameObject* ComponentSystemManager::CreateGameObjectFromPrefab(PrefabObject* pPrefab, cJSON* jPrefab, uint32 prefabchildid, bool manageobject, int sceneid)
 {
     MyAssert( pPrefab != 0 );
+    GameObject* pGameObject = 0;
 
-    PrefabReference prefabRef;
-    prefabRef.m_pPrefab = pPrefab;
-    prefabRef.m_pGameObject = pPrefabGameObject;
-    GameObject* pGameObject = CreateGameObject( manageobject, sceneid, false, true, &prefabRef );
+    if( sceneid == 0 )
+    {
+        // Sceneid should only be 0 if this is the temporary prefab gameobject created for the editor.
+        MyAssert( manageobject == false );
+
+        PrefabReference prefabRef( pPrefab, prefabchildid, false );
+        pGameObject = CreateGameObject( manageobject, sceneid, false, true, &prefabRef );
+    }
+    else
+    {
+        PrefabReference prefabRef( pPrefab, prefabchildid, true );
+        pGameObject = CreateGameObject( manageobject, sceneid, false, true, &prefabRef );
+    }
     
     cJSON* jName = cJSON_GetObjectItem( jPrefab, "Name" );
     MyAssert( jName ); // If this trips, prefab file is likely old, every object should now have a name field.
@@ -1584,12 +1594,12 @@ GameObject* ComponentSystemManager::CreateGameObjectFromPrefab(PrefabObject* pPr
         if( jChildrenArray )
         {
             // Get the child list from the GameObject, this should line up with the children in the json struct.
-            GameObject* pChildPrefabGameObject = 0;
-            if( pPrefabGameObject )
-            {
-                CPPListHead* pChildPrefabGameObjectList = pPrefabGameObject->GetChildList();
-                pChildPrefabGameObject = (GameObject*)pChildPrefabGameObjectList->GetHead();
-            }
+            //GameObject* pChildPrefabGameObject = 0;
+            //if( pPrefabGameObject )
+            //{
+            //    CPPListHead* pChildPrefabGameObjectList = pPrefabGameObject->GetChildList();
+            //    pChildPrefabGameObject = (GameObject*)pChildPrefabGameObjectList->GetHead();
+            //}
 
             int childarraysize = cJSON_GetArraySize( jChildrenArray );
 
@@ -1597,16 +1607,22 @@ GameObject* ComponentSystemManager::CreateGameObjectFromPrefab(PrefabObject* pPr
             {
                 cJSON* jChildGameObject = cJSON_GetArrayItem( jChildrenArray, i );
                 GameObject* pChildGameObject = 0;
+            
+                uint32 prefabchildid = 0;
+                cJSONExt_GetUnsignedInt( jChildGameObject, "ChildID", &prefabchildid );
 
                 // Create the child game object.
                 if( sceneid == 0 )
                 {
-                    pChildGameObject = CreateGameObjectFromPrefab( pPrefab, jChildGameObject, pChildPrefabGameObject, false, 0 );
+                    // Sceneid should only be 0 if this is the temporary prefab gameobject created for the editor.
+                    MyAssert( manageobject == false );
+
+                    pChildGameObject = CreateGameObjectFromPrefab( pPrefab, jChildGameObject, prefabchildid, false, 0 );
                     pChildGameObject->SetEnabled( false );
                 }
                 else
                 {
-                    pChildGameObject = CreateGameObjectFromPrefab( pPrefab, jChildGameObject, pChildPrefabGameObject, true, sceneid );
+                    pChildGameObject = CreateGameObjectFromPrefab( pPrefab, jChildGameObject, prefabchildid, true, sceneid );
 
 #if MYFW_USING_WX
                     // Move as last item in parent
@@ -1623,12 +1639,14 @@ GameObject* ComponentSystemManager::CreateGameObjectFromPrefab(PrefabObject* pPr
                 cJSON* jTransform = cJSON_GetObjectItem( jChildGameObject, "LocalTransform" );
                 pChildGameObject->m_pComponentTransform->ImportLocalTransformFromJSONObject( jTransform );
 
-                cJSONExt_GetUnsignedInt( jChildGameObject, "ChildID", &pChildGameObject->GetPrefab()->m_ChildID );
+                //uint32 prefabchildid = 0;
+                //cJSONExt_GetUnsignedInt( jChildGameObject, "ChildID", &prefabchildid );
+                //pChildGameObject->GetPrefabRef()->m_pChildID = prefabchildid;
 
-                if( pChildPrefabGameObject != 0 )
-                {
-                    pChildPrefabGameObject = (GameObject*)pChildPrefabGameObject->GetNext();
-                }
+                //if( pChildPrefabGameObject != 0 )
+                //{
+                //    pChildPrefabGameObject = (GameObject*)pChildPrefabGameObject->GetNext();
+                //}
             }
         }
     }
@@ -1774,7 +1792,7 @@ GameObject* ComponentSystemManager::CopyGameObject(GameObject* pObject, const ch
         sceneid = pObject->GetSceneID();
 
     GameObject* pNewObject = CreateGameObject( true, sceneid, pObject->IsFolder(),
-                                               pObject->GetTransform() ? true : false, pObject->GetPrefab() );
+                                               pObject->GetTransform() ? true : false, pObject->GetPrefabRef() );
 
     if( newname )
         pNewObject->SetName( newname );
@@ -2558,7 +2576,7 @@ void ComponentSystemManager::Editor_GetListOfGameObjectsThatUsePrefab(std::vecto
         {
             GameObject* pGameObject = (GameObject*)pNode;
 
-            if( pGameObject->GetPrefab()->m_pPrefab == pPrefabToFind )
+            if( pGameObject->GetPrefabRef()->GetPrefab() == pPrefabToFind )
             {
                 pGameObjectList->push_back( pGameObject );
             }
@@ -2593,9 +2611,9 @@ void ComponentSystemManager::LogAllReferencesForFile(MyFileObject* pFile)
                     {
                         if( sceneindex == 0 )
                         {
-                            if( pGameObject->GetPrefab() )
+                            if( pGameObject->IsPrefabInstance() )
                             {
-                                LOGInfo( LOGTag, "    (Prefab) %s :: %s :: %s (0x%x)\n", pGameObject->GetPrefab()->m_pPrefab->GetPrefabFile()->GetFile()->GetFullPath(), pGameObject->GetName(), pComponent->GetClassname(), pComponent );
+                                LOGInfo( LOGTag, "    (Prefab) %s :: %s :: %s (0x%x)\n", pGameObject->GetPrefabRef()->GetPrefab()->GetPrefabFile()->GetFile()->GetFullPath(), pGameObject->GetName(), pComponent->GetClassname(), pComponent );
                             }
                         }
                         else

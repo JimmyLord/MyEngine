@@ -18,9 +18,9 @@ GameObject::GameObject(bool managed, int sceneid, bool isfolder, bool hastransfo
     m_pGameObjectThisInheritsFrom = 0;
 
 #if MYFW_USING_WX
-    if( pPrefabRef && pPrefabRef->m_pPrefab )
+    if( pPrefabRef && pPrefabRef->GetPrefab() )
     {
-        m_pGameObjectThisInheritsFrom = pPrefabRef->m_pGameObject;
+        m_pGameObjectThisInheritsFrom = pPrefabRef->GetGameObject();
     }
 #endif
 
@@ -435,7 +435,7 @@ void GameObject::UpdateObjectListIcon()
 {
     // Set the icon for the gameobject in the objectlist panel tree.
     int iconindex = ObjectListIcon_GameObject;
-    if( m_PrefabRef.m_pPrefab != 0 )
+    if( m_PrefabRef.GetPrefab() != 0 )
         iconindex = ObjectListIcon_Prefab;
     else if( m_IsFolder )
         iconindex = ObjectListIcon_Folder;
@@ -449,21 +449,18 @@ void GameObject::UpdateObjectListIcon()
 
 void GameObject::FinishLoadingPrefab(PrefabFile* pPrefabFile)
 {
-    // Link to the correct prefab.
-    m_PrefabRef.m_pPrefab = pPrefabFile->GetPrefabByID( m_PrefabRef.m_PrefabID );
-
-    // Find the correct GameObject from the prefab.
-    m_PrefabRef.m_pGameObject = m_PrefabRef.m_pPrefab->GetGameObject( m_PrefabRef.m_ChildID );
+    // Link the PrefabRef to the correct prefab and GameObject now that the file is finished loading.
+    m_PrefabRef.FinishLoadingPrefab( pPrefabFile );
 
 #if MYFW_USING_WX
-    m_pGameObjectThisInheritsFrom = m_PrefabRef.m_pGameObject;
+    m_pGameObjectThisInheritsFrom = m_PrefabRef.GetGameObject();
 #endif
 
     // TODO: Check the if the gameobect(s) in the prefab are completely different and deal with it.
 
     // Otherwise, importing same prefab, so update all undivorced variables to match prefab file.
     {
-        GameObject* pPrefabGameObject = m_PrefabRef.m_pGameObject;
+        GameObject* pPrefabGameObject = m_PrefabRef.GetGameObject();
         MyAssert( pPrefabGameObject );
 
         for( unsigned int i=0; i<m_Components.Count(); i++ )
@@ -490,9 +487,9 @@ void GameObject::OnPrefabFileFinishedLoading(MyFileObject* pFile)
 // Useful for prefab subobjects(children) to quickly find the starting point of the prefab instance.
 GameObject* GameObject::FindRootGameObjectOfPrefabInstance()
 {
-    MyAssert( m_PrefabRef.m_pPrefab != 0 );
+    MyAssert( m_PrefabRef.GetPrefab() != 0 );
 
-    if( m_PrefabRef.m_ChildID == 0 )
+    if( m_PrefabRef.GetChildID() == 0 )
         return this;
 
     return m_pParentGameObject->FindRootGameObjectOfPrefabInstance();
@@ -541,8 +538,8 @@ cJSON* GameObject::ExportAsJSONObject(bool savesceneid)
     {
 #if MYFW_USING_WX
         // Don't save parentGO if it's the prefab.
-        if( m_PrefabRef.m_pPrefab == 0 ||
-            (m_pGameObjectThisInheritsFrom != m_PrefabRef.m_pGameObject) )
+        if( m_PrefabRef.GetPrefab() == 0 ||
+            (m_pGameObjectThisInheritsFrom != m_PrefabRef.GetGameObject()) )
 #endif
         {
             cJSON_AddItemToObject( jGameObject, "ParentGO", m_pGameObjectThisInheritsFrom->ExportReferenceAsJSONObject( m_SceneID ) );
@@ -562,14 +559,14 @@ cJSON* GameObject::ExportAsJSONObject(bool savesceneid)
     if( m_SceneID != m_PhysicsSceneID )
         cJSON_AddNumberToObject( jGameObject, "PhysicsSceneID", m_PhysicsSceneID );
 
-    if( m_PrefabRef.m_pPrefab != 0 )
+    if( m_PrefabRef.GetPrefab() != 0 )
     {
-        cJSON_AddStringToObject( jGameObject, "PrefabFile", m_PrefabRef.m_pPrefab->GetPrefabFile()->GetFile()->GetFullPath() );
-        cJSON_AddNumberToObject( jGameObject, "PrefabID", m_PrefabRef.m_pPrefab->GetID() );
+        cJSON_AddStringToObject( jGameObject, "PrefabFile", m_PrefabRef.GetPrefab()->GetPrefabFile()->GetFile()->GetFullPath() );
+        cJSON_AddNumberToObject( jGameObject, "PrefabID", m_PrefabRef.GetPrefab()->GetID() );
         
-        if( m_PrefabRef.m_ChildID != 0 )
+        if( m_PrefabRef.GetChildID() != 0 )
         {
-            cJSON_AddNumberToObject( jGameObject, "PrefabChildID", m_PrefabRef.m_ChildID );
+            cJSON_AddNumberToObject( jGameObject, "PrefabChildID", m_PrefabRef.GetChildID() );
         }
     }
     
@@ -607,8 +604,9 @@ void GameObject::ImportFromJSONObject(cJSON* jGameObject, unsigned int sceneid)
 
         if( jPrefabFile )
         {
-            m_PrefabRef.m_PrefabID = jPrefabID->valueint;
-            cJSONExt_GetUnsignedInt( jGameObject, "PrefabChildID", &m_PrefabRef.m_ChildID );
+            // Store the PrefabId and PrefabChildID in the gameobject so they can be used when loading is complete.
+            cJSON* jPrefabChildID = cJSON_GetObjectItem( jGameObject, "PrefabChildID" );
+            m_PrefabRef.StoreIDsWhileLoading( jPrefabID->valueint, jPrefabChildID ? jPrefabChildID->valueint : 0 );
 
             PrefabFile* pPrefabFile = g_pComponentSystemManager->m_pPrefabManager->GetLoadedPrefabFileByFullPath( jPrefabFile->valuestring );
             
