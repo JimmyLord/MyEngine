@@ -495,6 +495,15 @@ GameObject* GameObject::FindRootGameObjectOfPrefabInstance()
     return m_pParentGameObject->FindRootGameObjectOfPrefabInstance();
 }
 
+// Used when deleting prefabs.
+void GameObject::Editor_SetPrefab(PrefabReference* pPrefabRef)
+{
+    m_PrefabRef = *pPrefabRef;
+    m_pGameObjectThisInheritsFrom = m_PrefabRef.GetGameObject();
+
+    UpdateObjectListIcon();
+}
+
 // Set the material on all renderable components attached to this object.
 void GameObject::Editor_SetMaterial(MaterialDefinition* pMaterial)
 {

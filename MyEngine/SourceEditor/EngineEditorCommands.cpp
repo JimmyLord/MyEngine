@@ -1019,9 +1019,9 @@ EditorCommand_DeletePrefabs::EditorCommand_DeletePrefabs(const std::vector<Prefa
         g_pComponentSystemManager->Editor_GetListOfGameObjectsThatUsePrefab( &info.m_pListOfGameObjectsThatUsedPrefab, pPrefab );
 
         // Make a copy of the PrefabReference in each GameObject, for undo.
-        for( unsigned int j=0; j<m_PrefabInfo[i].m_pListOfGameObjectsThatUsedPrefab.size(); j++ )
+        for( unsigned int j=0; j<info.m_pListOfGameObjectsThatUsedPrefab.size(); j++ )
         {
-            GameObject* pGameObject = m_PrefabInfo[i].m_pListOfGameObjectsThatUsedPrefab[j];
+            GameObject* pGameObject = info.m_pListOfGameObjectsThatUsedPrefab[j];
             info.m_CopyOfPrefabRefsInEachGameObjectBeforePrefabWasDeleted.push_back( *pGameObject->GetPrefabRef() );
         }
 

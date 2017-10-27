@@ -189,7 +189,7 @@ public:
 
     GameObject* FindRootGameObjectOfPrefabInstance();
 
-    void Editor_SetPrefab(PrefabReference* pPrefabRef) { m_PrefabRef = *pPrefabRef; UpdateObjectListIcon(); } // used when deleting prefabs
+    void Editor_SetPrefab(PrefabReference* pPrefabRef); // Used when deleting prefabs.
     void Editor_SetMaterial(MaterialDefinition* pMaterial);
 
     // Editor functions

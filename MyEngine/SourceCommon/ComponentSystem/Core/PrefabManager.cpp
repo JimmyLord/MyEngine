@@ -63,13 +63,6 @@ void PrefabReference::FinishLoadingPrefab(PrefabFile* pPrefabFile)
     MyAssert( m_pGameObject );
 }
 
-#if MYFW_USING_WX
-bool PrefabReference::IsGameObjectPartOfTheEditorInstanceOfPrefab()
-{
-    return false;
-}
-#endif //MYFW_USING_WX
-
 // ============================================================================================================================
 // PrefabObject
 // ============================================================================================================================

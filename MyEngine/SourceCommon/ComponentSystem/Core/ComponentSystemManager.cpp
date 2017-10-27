@@ -1555,6 +1555,7 @@ GameObject* ComponentSystemManager::CreateGameObjectFromPrefab(PrefabObject* pPr
         MyAssert( manageobject == false );
 
         PrefabReference prefabRef( pPrefab, prefabchildid, false );
+        prefabRef.SetAsMasterPrefabGameObject();
         pGameObject = CreateGameObject( manageobject, sceneid, false, true, &prefabRef );
     }
     else
@@ -2565,6 +2566,26 @@ unsigned int ComponentSystemManager::GetNumberOfScenesLoaded()
     return numloaded;
 }
 
+void EditorInternal_GetListOfGameObjectsThatUsePrefab(std::vector<GameObject*>* pGameObjectList, CPPListNode* pListToSearch, PrefabObject* pPrefabToFind)
+{
+    for( CPPListNode* pNode = pListToSearch; pNode; pNode = pNode->GetNext() )
+    {
+        GameObject* pGameObject = (GameObject*)pNode;
+
+        if( pGameObject->GetPrefabRef()->GetPrefab() == pPrefabToFind )
+        {
+            pGameObjectList->push_back( pGameObject );
+        }
+
+        // Search children of GameObject.
+        CPPListHead* pChildList = pGameObject->GetChildList();
+        if( pChildList->GetHead() )
+        {
+            EditorInternal_GetListOfGameObjectsThatUsePrefab( pGameObjectList, pChildList->GetHead(), pPrefabToFind );
+        }
+    }
+}
+
 void ComponentSystemManager::Editor_GetListOfGameObjectsThatUsePrefab(std::vector<GameObject*>* pGameObjectList, PrefabObject* pPrefabToFind)
 {
     for( unsigned int i=0; i<MAX_SCENES_LOADED; i++ )
@@ -2572,15 +2593,7 @@ void ComponentSystemManager::Editor_GetListOfGameObjectsThatUsePrefab(std::vecto
         if( m_pSceneInfoMap[i].m_InUse == false )
             continue;
 
-        for( CPPListNode* pNode = m_pSceneInfoMap[i].m_GameObjects.GetHead(); pNode; pNode = pNode->GetNext() )
-        {
-            GameObject* pGameObject = (GameObject*)pNode;
-
-            if( pGameObject->GetPrefabRef()->GetPrefab() == pPrefabToFind )
-            {
-                pGameObjectList->push_back( pGameObject );
-            }
-        }
+        EditorInternal_GetListOfGameObjectsThatUsePrefab( pGameObjectList, m_pSceneInfoMap[i].m_GameObjects.GetHead(), pPrefabToFind );
     }
 }
 

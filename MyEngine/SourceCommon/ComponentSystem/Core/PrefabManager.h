@@ -62,7 +62,13 @@ public:
     void FinishLoadingPrefab(PrefabFile* pPrefabFile);
 
 #if MYFW_USING_WX
-    bool IsGameObjectPartOfTheEditorInstanceOfPrefab();
+protected:
+    // Indicated whether or not m_pGameObject is part of the editor instance of the prefab.
+    bool m_IsMasterPrefabGameObject;
+
+public:
+    void SetAsMasterPrefabGameObject() { m_IsMasterPrefabGameObject = true; }
+    bool IsMasterPrefabGameObject() { return m_IsMasterPrefabGameObject; }
 #endif
 };
 
