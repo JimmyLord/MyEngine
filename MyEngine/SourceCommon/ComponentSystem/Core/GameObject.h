@@ -77,7 +77,7 @@ public:
     void ImportFromJSONObject(cJSON* jGameObject, unsigned int sceneid);
     void ImportInheritanceInfoFromJSONObject(cJSON* jGameObject);
     cJSON* ExportReferenceAsJSONObject(unsigned int refsceneid);
-    cJSON* ExportAsJSONPrefab(PrefabObject* pPrefab);
+    cJSON* ExportAsJSONPrefab(PrefabObject* pPrefab, bool assignnewchildids);
 
     void SetFlags(unsigned int flags) { return m_Properties.SetFlags( flags ); }
     unsigned int GetFlags() { return m_Properties.GetFlags(); }

@@ -50,7 +50,7 @@ protected:
 
 public:
     PrefabReference();
-    PrefabReference(PrefabObject* m_pPrefab, uint32 childid, bool setgameobject);
+    PrefabReference(PrefabObject* pPrefab, uint32 childid, bool setgameobject);
     
     // Getters
     PrefabObject* GetPrefab() { return m_pPrefab; }
@@ -92,7 +92,7 @@ public:
     ~PrefabObject();
     void Init(PrefabFile* pFile, const char* name, uint32 prefabid);
     void SetName(const char* name);
-    void SetPrefabJSONObject(cJSON* jPrefab);
+    void SetPrefabJSONObject(cJSON* jPrefab, bool createmastergameobjects);
     void SetPrefabID(uint32 prefabid) { m_PrefabID = prefabid; }
     
     const char* GetName();
@@ -117,6 +117,8 @@ public:
     GameObject* FindChildGameObject(GameObject* pRootObject, uint32 childid);
 
     void AddToObjectList(wxTreeItemId parent, cJSON* jPrefab, GameObject* pGameObject);
+
+    void RebuildPrefabJSONObjectFromMasterGameObject();
 
     // Object panel callbacks.
     static void StaticOnLeftClick(void* pObjectPtr, wxTreeItemId treeid, unsigned int count) { ((PrefabObject*)pObjectPtr)->OnLeftClick( treeid, count, true ); }

@@ -706,7 +706,7 @@ cJSON* GameObject::ExportReferenceAsJSONObject(unsigned int refsceneid)
     return gameobjectref;
 }
 
-cJSON* GameObject::ExportAsJSONPrefab(PrefabObject* pPrefab)
+cJSON* GameObject::ExportAsJSONPrefab(PrefabObject* pPrefab, bool assignnewchildids)
 {
     cJSON* jGameObject = cJSON_CreateObject();
 
@@ -762,13 +762,24 @@ cJSON* GameObject::ExportAsJSONPrefab(PrefabObject* pPrefab)
         {
             GameObject* pChildGameObject = (GameObject*)pNode;
 
-            cJSON* jChildObject = pChildGameObject->ExportAsJSONPrefab( pPrefab );
+            cJSON* jChildObject = pChildGameObject->ExportAsJSONPrefab( pPrefab, true );
             MyAssert( jChildObject );
             cJSON_AddItemToArray( jChildrenArray, jChildObject );
 
-            cJSON_AddNumberToObject( jChildObject, "ChildID", pPrefab->GetNextChildPrefabIDAndIncrement() );
+            // Add ChildID.
+            {
+                uint32 childid = 0;
 
-            // Add the child's offset from the parent
+                if( assignnewchildids )
+                    childid = pPrefab->GetNextChildPrefabIDAndIncrement();
+                else
+                    childid = pChildGameObject->GetPrefabRef()->GetChildID();
+
+                MyAssert( childid != 0 );
+                cJSON_AddNumberToObject( jChildObject, "ChildID", childid );
+            }
+
+            // Add the child's offset from the parent.
             ComponentTransform* pTransform = pChildGameObject->GetTransform();
             if( pTransform )
             {

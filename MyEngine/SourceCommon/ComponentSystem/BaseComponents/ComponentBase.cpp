@@ -1493,6 +1493,12 @@ void ComponentBase::OnValueChangedVariable(int controlid, bool directlychanged, 
             }
         }
     }
+
+    // If this is a prefab, rebuild it.
+    if( m_pGameObject->GetPrefabRef()->IsMasterPrefabGameObject() )
+    {
+        m_pGameObject->GetPrefabRef()->GetPrefab()->RebuildPrefabJSONObjectFromMasterGameObject();
+    }
 }
 
 void ComponentBase::OnDropVariable(int controlid, wxCoord x, wxCoord y)

@@ -21,13 +21,15 @@ PrefabReference::PrefabReference()
 
     m_pGameObject = 0;
     m_ChildID = 0;
+
+    m_IsMasterPrefabGameObject = false;
 }
 
-PrefabReference::PrefabReference(PrefabObject* m_pPrefab, uint32 childid, bool setgameobject)
+PrefabReference::PrefabReference(PrefabObject* pPrefab, uint32 childid, bool setgameobject)
 {
     MyAssert( m_pPrefab != 0 );
 
-    m_pPrefab = m_pPrefab;
+    m_pPrefab = pPrefab;
     m_PrefabID = 0;
 
     m_pGameObject = 0;
@@ -109,13 +111,16 @@ void PrefabObject::SetName(const char* name)
 #endif
 }
 
-void PrefabObject::SetPrefabJSONObject(cJSON* jPrefab)
+void PrefabObject::SetPrefabJSONObject(cJSON* jPrefab, bool createmastergameobjects)
 {
     if( m_jPrefab )
     {
         cJSON_Delete( m_jPrefab );
 #if MYFW_USING_WX
-        delete m_pGameObject;
+        if( createmastergameobjects )
+        {
+            delete m_pGameObject;
+        }
 #endif
     }
 
@@ -125,15 +130,18 @@ void PrefabObject::SetPrefabJSONObject(cJSON* jPrefab)
     // In editor, create a GameObject for this prefab, also creates a GameObject for each child.
     //     Pointers to children are stored in a list inside GameObject.
     // This might cause some undo actions, so wipe them out once the load is complete.
-    unsigned int numItemsInUndoStack = g_pEngineMainFrame->m_pCommandStack->GetUndoStackSize();
+    if( createmastergameobjects )
+    {
+        unsigned int numItemsInUndoStack = g_pEngineMainFrame->m_pCommandStack->GetUndoStackSize();
 
-    m_pGameObject = g_pComponentSystemManager->CreateGameObjectFromPrefab( this, false, 0 );
-    m_pGameObject->SetEnabled( false );
+        m_pGameObject = g_pComponentSystemManager->CreateGameObjectFromPrefab( this, false, 0 );
+        m_pGameObject->SetEnabled( false );
 
-    g_pEngineMainFrame->m_pCommandStack->ClearUndoStack( numItemsInUndoStack );
+        g_pEngineMainFrame->m_pCommandStack->ClearUndoStack( numItemsInUndoStack );
 
-    // Add the prefab and all it's children to the object panel.
-    AddToObjectList( m_pPrefabFile->m_TreeID, m_jPrefab, m_pGameObject );
+        // Add the prefab and all it's children to the object panel.
+        AddToObjectList( m_pPrefabFile->m_TreeID, m_jPrefab, m_pGameObject );
+    }
 #endif
 }
 
@@ -228,6 +236,15 @@ void PrefabObject::AddToObjectList(wxTreeItemId parent, cJSON* jPrefab, GameObje
             pChildGameObject = (GameObject*)pChildGameObject->GetNext();
         }
     }
+}
+
+void PrefabObject::RebuildPrefabJSONObjectFromMasterGameObject()
+{
+    // Rebuild the JSON objects without changing any childid's
+    cJSON* jGameObject = m_pGameObject->ExportAsJSONPrefab( this, false );
+    SetPrefabJSONObject( jGameObject, false );
+
+    m_pPrefabFile->SetHasAnythingChanged();
 }
 
 void PrefabObject::OnLeftClick(wxTreeItemId treeid, unsigned int count, bool clear) // StaticOnLeftClick
@@ -440,7 +457,7 @@ void PrefabFile::OnFileFinishedLoading(MyFileObject* pFile)
         cJSON* jPrefabObject = cJSON_GetObjectItem( jPrefab, "Object" );
 
         pPrefab->Init( this, jPrefab->string, prefabid );
-        pPrefab->SetPrefabJSONObject( jPrefabObject );
+        pPrefab->SetPrefabJSONObject( jPrefabObject, true );
 
         // TODO: Once prefab editing is a thing, make sure m_NextChildPrefabID is one higher than highest found. 
         //if( childprefabid > pPrefab->m_NextChildPrefabID )
@@ -671,8 +688,8 @@ void PrefabManager::CreatePrefabInFile(unsigned int fileindex, const char* prefa
 
     // Initialize its values
     pPrefab->Init( pFile, prefabname, pFile->GetNextPrefabIDAndIncrement() );
-    cJSON* jGameObject = pGameObject->ExportAsJSONPrefab( pPrefab );
-    pPrefab->SetPrefabJSONObject( jGameObject );
+    cJSON* jGameObject = pGameObject->ExportAsJSONPrefab( pPrefab, true );
+    pPrefab->SetPrefabJSONObject( jGameObject, true );
 
     // Kick off immediate save of prefab file.
     pFile->Save();
