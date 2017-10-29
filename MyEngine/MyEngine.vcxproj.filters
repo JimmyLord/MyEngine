@@ -760,5 +760,6 @@
     <None Include="..\Libraries\imgui\README.md">
       <Filter>Libraries\imgui</Filter>
     </None>
+    <None Include="..\README.md" />
   </ItemGroup>
 </Project>
