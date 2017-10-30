@@ -254,8 +254,28 @@ EditorCommand_DeleteObjects::EditorCommand_DeleteObjects(const std::vector<GameO
 
     for( unsigned int i=0; i<selectedobjects.size(); i++ )
     {
-        m_PreviousGameObjectsInObjectList.push_back( (GameObject*)selectedobjects[i]->GetPrev() );
-        m_ObjectsDeleted.push_back( selectedobjects[i] );
+        GameObject* pObject = selectedobjects[i];
+
+        // Don't allow same object to be in the list twice.
+        if( std::find( m_ObjectsDeleted.begin(), m_ObjectsDeleted.end(), pObject ) == m_ObjectsDeleted.end() )
+        {
+            m_PreviousGameObjectsInObjectList.push_back( (GameObject*)pObject->GetPrev() );
+            m_ObjectsDeleted.push_back( pObject );
+        }
+
+        // Also add all children to the deleted list
+        GameObject* pChild = pObject->GetFirstChild();
+        while( pChild )
+        {
+            // Don't allow same object to be in the list twice.
+            if( std::find( m_ObjectsDeleted.begin(), m_ObjectsDeleted.end(), pChild ) == m_ObjectsDeleted.end() )
+            {
+                m_PreviousGameObjectsInObjectList.push_back( (GameObject*)pChild->GetPrev() );
+                m_ObjectsDeleted.push_back( pChild );
+            }
+
+            pChild = (GameObject*)pChild->GetNext();
+        }
     }
 
     m_DeleteGameObjectsWhenDestroyed = false;

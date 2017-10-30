@@ -624,6 +624,8 @@ void ComponentSystemManager::SaveGameObjectListToJSONArray(cJSON* gameobjectarra
     for( CPPListNode* pNode = first; pNode; pNode = pNode->GetNext() )
     {
         GameObject* pGameObject = (GameObject*)pNode;
+
+        // Only save managed GameObjects, they will be marked as unmanaged if deleted and still in undo list.
         if( pGameObject->IsManaged() )
         {
             cJSON_AddItemToArray( gameobjectarray, pGameObject->ExportAsJSONObject( savesceneid ) );
@@ -631,12 +633,12 @@ void ComponentSystemManager::SaveGameObjectListToJSONArray(cJSON* gameobjectarra
             ComponentBase* pComponent = pGameObject->GetTransform();
             if( pComponent )
                 cJSON_AddItemToArray( transformarray, pComponent->ExportAsJSONObject( savesceneid, true ) );
-        }
 
-        GameObject* pFirstChild = pGameObject->GetFirstChild();
-        if( pFirstChild )
-        {
-            SaveGameObjectListToJSONArray( gameobjectarray, transformarray, pFirstChild, savesceneid );
+            GameObject* pFirstChild = pGameObject->GetFirstChild();
+            if( pFirstChild )
+            {
+                SaveGameObjectListToJSONArray( gameobjectarray, transformarray, pFirstChild, savesceneid );
+            }
         }
     }
 }

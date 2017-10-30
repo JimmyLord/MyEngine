@@ -641,6 +641,7 @@ void GameObject::ImportFromJSONObject(cJSON* jGameObject, unsigned int sceneid)
     if( parentgoid != 0 )
     {
         GameObject* pParentGameObject = g_pComponentSystemManager->FindGameObjectByID( sceneid, parentgoid );
+        MyAssert( pParentGameObject );
 
         GameObject* pLastChild = (GameObject*)pParentGameObject->GetChildList()->GetTail();
 

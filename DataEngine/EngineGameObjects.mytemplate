@@ -6,6 +6,14 @@
 					"Cue":	"Music"
 				}]
 		}, {
+			"Name":	"Point Light",
+			"Components":	[{
+			        "Type":	"Light",
+			        "LightType":	"Point",
+			        "Color":	[1, 1, 1, 1],
+			        "Atten":	[0, 0, 0.090000]
+				}]
+        }, {
 			"Name":	"2D Physics Objects",
 			"Templates":	[{
 					"Name":	"2D Physics Sprite",
