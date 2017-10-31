@@ -672,7 +672,7 @@ void GameObject::ImportFromJSONObject(cJSON* jGameObject, unsigned int sceneid)
 
     bool enabled = true;
     cJSONExt_GetBool( jGameObject, "Enabled", &enabled );
-    SetEnabled( enabled );
+    SetEnabled( enabled, false );
 
     cJSON* jProperties = cJSON_GetObjectItem( jGameObject, "Properties" );
     if( jProperties )
@@ -796,20 +796,20 @@ cJSON* GameObject::ExportAsJSONPrefab(PrefabObject* pPrefab, bool assignnewchild
     return jGameObject;
 }
 
-void GameObject::SetEnabled(bool enabled)
+void GameObject::SetEnabled(bool enabled, bool affectchildren)
 {
     if( m_Enabled == enabled )
         return;
 
     m_Enabled = enabled;
 
-    // un/register all component callbacks
+    // Un/register all component callbacks.
     if( m_Enabled )
         RegisterAllComponentCallbacks( false );
     else
         UnregisterAllComponentCallbacks( false );
 
-    // loop through all components and call OnGameObjectEnabled/OnGameObjectDisabled
+    // Loop through all components and call OnGameObjectEnabled/OnGameObjectDisabled.
     for( unsigned int i=0; i<m_Components.Count(); i++ )
     {
         if( m_Enabled )
@@ -817,11 +817,23 @@ void GameObject::SetEnabled(bool enabled)
         else
             m_Components[i]->OnGameObjectDisabled();
     }
+
+    // Recurse through children.
+    if( affectchildren )
+    {
+        GameObject* pChild = GetFirstChild();
+
+        while( pChild )
+        {
+            pChild->SetEnabled( enabled, true );
+            pChild = (GameObject*)pChild->GetNext();
+        }
+    }
 }
 
 void GameObject::RegisterAllComponentCallbacks(bool ignoreenabledflag)
 {
-    // loop through all components and register/unregister their callbacks.
+    // Loop through all components and register/unregister their callbacks.
     for( unsigned int i=0; i<m_Components.Count(); i++ )
     {
         if( m_Components[i]->IsEnabled() || ignoreenabledflag )
@@ -831,7 +843,7 @@ void GameObject::RegisterAllComponentCallbacks(bool ignoreenabledflag)
 
 void GameObject::UnregisterAllComponentCallbacks(bool ignoreenabledflag)
 {
-    // loop through all components and register/unregister their callbacks.
+    // Loop through all components and register/unregister their callbacks.
     for( unsigned int i=0; i<m_Components.Count(); i++ )
     {
         if( m_Components[i]->IsEnabled() || ignoreenabledflag )
@@ -846,7 +858,7 @@ void GameObject::SetSceneID(unsigned int sceneid, bool assignnewgoid)
 
     m_SceneID = sceneid;
 
-    // Loop through components and change the sceneid in each
+    // Loop through components and change the sceneid in each.
     for( unsigned int i=0; i<m_Components.Count(); i++ )
     {
         m_Components[i]->SetSceneID( sceneid );
@@ -927,6 +939,19 @@ void GameObject::SetParentGameObject(GameObject* pParentGameObject)
     }
 }
 
+bool GameObject::IsParentedTo(GameObject* pPotentialParent, bool onlycheckdirectparent)
+{
+    GameObject* pParent = GetParentGameObject();
+
+    if( pParent == pPotentialParent )
+        return true;
+
+    if( pParent == 0 || onlycheckdirectparent )
+        return false;
+
+    return pParent->IsParentedTo( pPotentialParent, false );
+}
+
 void GameObject::SetManaged(bool managed)
 {
     MyAssert( m_Managed != managed );
@@ -940,15 +965,26 @@ void GameObject::SetManaged(bool managed)
     {
         if( g_pPanelObjectList )
         {
-            // Add this game object to the root of the objects tree
-            //wxTreeItemId rootid = g_pPanelObjectList->GetTreeRoot();
+            // Add this game object to the root of the objects tree.
             wxTreeItemId rootid = g_pComponentSystemManager->GetTreeIDForScene( m_SceneID );
             MyAssert( rootid.IsOk() );
+
             wxTreeItemId gameobjectid = g_pPanelObjectList->AddObject( this, GameObject::StaticOnLeftClick, GameObject::StaticOnRightClick, rootid, m_Name );
             g_pPanelObjectList->SetDragAndDropFunctions( gameobjectid, GameObject::StaticOnDrag, GameObject::StaticOnDrop );
             g_pPanelObjectList->SetLabelEditFunction( gameobjectid, GameObject::StaticOnLabelEdit );
             UpdateObjectListIcon();
             
+            // Place the child under the parent in the object list.
+            if( m_pParentGameObject )
+            {
+                GameObject* pPrevChild = (GameObject*)GetPrev();
+
+                if( pPrevChild != 0 )
+                    gameobjectid = g_pPanelObjectList->Tree_MoveObject( this, pPrevChild, false );
+                else
+                    gameobjectid = g_pPanelObjectList->Tree_MoveObject( this, m_pParentGameObject, true );                
+            }
+
             if( m_pComponentTransform )
             {
                 m_pComponentTransform->AddToObjectsPanel( gameobjectid );

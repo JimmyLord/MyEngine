@@ -246,6 +246,19 @@ EditorCommand* EditorCommand_RotateObjects::Repeat()
 // EditorCommand_DeleteObjects
 //====================================================================================================
 
+bool IsAnyParentAlreadyInList(const std::vector<GameObject*>& selectedobjects, GameObject* pObject)
+{
+    for( unsigned int i=0; i<selectedobjects.size(); i++ )
+    {
+        if( pObject->IsParentedTo( selectedobjects[i], false ) )
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 EditorCommand_DeleteObjects::EditorCommand_DeleteObjects(const std::vector<GameObject*>& selectedobjects)
 {
     m_Name = "EditorCommand_DeleteObjects";
@@ -256,25 +269,15 @@ EditorCommand_DeleteObjects::EditorCommand_DeleteObjects(const std::vector<GameO
     {
         GameObject* pObject = selectedobjects[i];
 
+        // Skip over objects if any parent is also in list.
+        if( IsAnyParentAlreadyInList( selectedobjects, pObject ) )
+            continue;
+
         // Don't allow same object to be in the list twice.
         if( std::find( m_ObjectsDeleted.begin(), m_ObjectsDeleted.end(), pObject ) == m_ObjectsDeleted.end() )
         {
             m_PreviousGameObjectsInObjectList.push_back( (GameObject*)pObject->GetPrev() );
             m_ObjectsDeleted.push_back( pObject );
-        }
-
-        // Also add all children to the deleted list
-        GameObject* pChild = pObject->GetFirstChild();
-        while( pChild )
-        {
-            // Don't allow same object to be in the list twice.
-            if( std::find( m_ObjectsDeleted.begin(), m_ObjectsDeleted.end(), pChild ) == m_ObjectsDeleted.end() )
-            {
-                m_PreviousGameObjectsInObjectList.push_back( (GameObject*)pChild->GetPrev() );
-                m_ObjectsDeleted.push_back( pChild );
-            }
-
-            pChild = (GameObject*)pChild->GetNext();
         }
     }
 
@@ -299,8 +302,8 @@ void EditorCommand_DeleteObjects::Do()
     for( unsigned int i=0; i<m_ObjectsDeleted.size(); i++ )
     {
         m_ObjectsDeleted[i]->UnregisterAllComponentCallbacks( true );
-        m_ObjectsDeleted[i]->SetEnabled( false );
-        g_pComponentSystemManager->UnmanageGameObject( m_ObjectsDeleted[i] );
+        m_ObjectsDeleted[i]->SetEnabled( false, true );
+        g_pComponentSystemManager->UnmanageGameObject( m_ObjectsDeleted[i], true );
         m_ObjectsDeleted[i]->GetSceneInfo()->m_GameObjects.MoveTail( m_ObjectsDeleted[i] );
         m_ObjectsDeleted[i]->NotifyOthersThisWasDeleted();
     }
@@ -311,9 +314,10 @@ void EditorCommand_DeleteObjects::Undo()
 {
     g_pEngineCore->GetEditorState()->ClearSelectedObjectsAndComponents();
 
+    // Undo delete in opposite order, so editor can place things in correct order in tree.
     for( unsigned int i=0; i<m_ObjectsDeleted.size(); i++ )
     {
-        // Place gameobject in old spot in tree.
+        // Place gameobject in old spot in scene's GameObject list.
         if( m_PreviousGameObjectsInObjectList[i] == 0 )
         {
             if( m_ObjectsDeleted[i]->GetParentGameObject() )
@@ -331,8 +335,8 @@ void EditorCommand_DeleteObjects::Undo()
         }
 
         // Undo everything we did to "delete" this object
-        g_pComponentSystemManager->ManageGameObject( m_ObjectsDeleted[i] );
-        m_ObjectsDeleted[i]->SetEnabled( true );
+        g_pComponentSystemManager->ManageGameObject( m_ObjectsDeleted[i], true );
+        m_ObjectsDeleted[i]->SetEnabled( true, true );
         m_ObjectsDeleted[i]->RegisterAllComponentCallbacks( false );
 
         // Place gameobject in old spot in tree.
@@ -447,15 +451,16 @@ EditorCommand_CreateGameObject::~EditorCommand_CreateGameObject()
 
 void EditorCommand_CreateGameObject::Do()
 {
-    g_pComponentSystemManager->ManageGameObject( m_ObjectCreated );
+    g_pComponentSystemManager->ManageGameObject( m_ObjectCreated, true );
+    m_ObjectCreated->SetEnabled( true, true );
 }
 
 void EditorCommand_CreateGameObject::Undo()
 {
     g_pEngineCore->GetEditorState()->ClearSelectedObjectsAndComponents();
 
-    g_pComponentSystemManager->UnmanageGameObject( m_ObjectCreated );
-    m_ObjectCreated->SetEnabled( false );
+    g_pComponentSystemManager->UnmanageGameObject( m_ObjectCreated, true );
+    m_ObjectCreated->SetEnabled( false, true );
 }
 
 EditorCommand* EditorCommand_CreateGameObject::Repeat()
@@ -492,7 +497,7 @@ void CreateUniqueName(char* newname, int SizeInBytes, const char* oldname)
 {
     int oldnamelen = (int)strlen( oldname );
 
-    // find number at end of string
+    // Find number at end of string.
     int indexofnumber = -1;
     {
         for( int i=oldnamelen-1; i>=0; i-- )
@@ -508,16 +513,16 @@ void CreateUniqueName(char* newname, int SizeInBytes, const char* oldname)
         }
     }
 
-    // find the old number, or 0 if one didn't exist
+    // Find the old number, or 0 if one didn't exist.
     int number = 0;
     if( indexofnumber != -1 )
         number = atoi( &oldname[indexofnumber] );
 
-    // if the string didn't end with a number, set the offset to the end of the string
+    // If the string didn't end with a number, set the offset to the end of the string.
     if( indexofnumber == -1 )
         indexofnumber = oldnamelen;
 
-    // keep incrementing number until unique name is found
+    // Keep incrementing number until unique name is found.
     do
     {
         number += 1;
@@ -533,12 +538,12 @@ void EditorCommand_CopyGameObject::Do()
         char newname[50];
         const char* oldname = m_ObjectToCopy->GetName();
 
-        if( m_NewObjectInheritsFromOld == false ) // if making a copy
+        if( m_NewObjectInheritsFromOld == false ) // If making a copy.
         {
             CreateUniqueName( newname, 50, oldname );
             m_ObjectCreated = g_pComponentSystemManager->CopyGameObject( m_ObjectToCopy, newname );
         }
-        else // if making a child object
+        else // If making a child object.
         {
             snprintf_s( newname, 50, 49, "%s - child", m_ObjectToCopy->GetName() );
             m_ObjectCreated = g_pComponentSystemManager->CopyGameObject( m_ObjectToCopy, newname );
@@ -546,11 +551,11 @@ void EditorCommand_CopyGameObject::Do()
     }
     else
     {
-        g_pComponentSystemManager->ManageGameObject( m_ObjectCreated );
-        m_ObjectCreated->SetEnabled( m_ObjectToCopy->IsEnabled() );
+        g_pComponentSystemManager->ManageGameObject( m_ObjectCreated, true );
+        m_ObjectCreated->SetEnabled( m_ObjectToCopy->IsEnabled(), true );
     }
 
-    // if done/redone, then object exists in the scene, don't destroy it if undo stack get wiped.
+    // If done/redone, then object exists in the scene, don't destroy it if undo stack get wiped.
     m_DeleteGameObjectWhenDestroyed = false;
 }
 
@@ -558,10 +563,10 @@ void EditorCommand_CopyGameObject::Undo()
 {
     g_pEngineCore->GetEditorState()->ClearSelectedObjectsAndComponents();
 
-    g_pComponentSystemManager->UnmanageGameObject( m_ObjectCreated );
-    m_ObjectCreated->SetEnabled( false );
+    g_pComponentSystemManager->UnmanageGameObject( m_ObjectCreated, true );
+    m_ObjectCreated->SetEnabled( false, true );
 
-    // if undone and redo stack gets wiped, then object only exist here, destroy it when this command gets deleted.
+    // If undone then object only exists here, destroy object when this command gets deleted (when redo stack gets wiped).
     m_DeleteGameObjectWhenDestroyed = true;
 }
 
@@ -592,13 +597,13 @@ EditorCommand_EnableObject::~EditorCommand_EnableObject()
 
 void EditorCommand_EnableObject::Do()
 {
-    m_pGameObject->SetEnabled( m_ObjectWasEnabled );
+    m_pGameObject->SetEnabled( m_ObjectWasEnabled, false );
     g_pPanelWatch->SetNeedsRefresh();
 }
 
 void EditorCommand_EnableObject::Undo()
 {
-    m_pGameObject->SetEnabled( !m_ObjectWasEnabled );
+    m_pGameObject->SetEnabled( !m_ObjectWasEnabled, false );
     g_pPanelWatch->SetNeedsRefresh();
 }
 

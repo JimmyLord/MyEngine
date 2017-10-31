@@ -9,6 +9,41 @@
 
 #include "EngineCommonHeader.h"
 
+SceneInfo::SceneInfo()
+{
+    m_pBox2DWorld = 0;
+
+    Reset();
+}
+
+void SceneInfo::Reset()
+{
+#if MYFW_USING_WX
+    m_TreeID.Unset();
+#endif
+
+    // Delete any managed objects from the scene.
+    while( m_GameObjects.GetHead() )
+    {
+        GameObject* pObject = (GameObject*)m_GameObjects.RemHead();
+
+        // Ignore unmanaged object, they should be deleted elsewhere.
+        if( pObject->IsManaged() == false )
+            continue;
+
+        delete pObject;
+    }
+
+    SAFE_DELETE( m_pBox2DWorld );
+
+    m_FullPath[0] = 0;
+
+    m_NextGameObjectID = 1;
+    m_NextComponentID = 1;
+
+    m_InUse = false;
+}
+
 void SceneInfo::ChangePath(const char* newfullpath)
 {
     sprintf_s( m_FullPath, MAX_PATH, "%s", newfullpath ); 

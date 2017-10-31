@@ -193,8 +193,8 @@ public:
 #if MYFW_USING_WX
     GameObject* CreateGameObjectFromTemplate(unsigned int templateid, int sceneid);
 #endif
-    void UnmanageGameObject(GameObject* pObject);
-    void ManageGameObject(GameObject* pObject);
+    void UnmanageGameObject(GameObject* pObject, bool unmanagechildren);
+    void ManageGameObject(GameObject* pObject, bool managechildren);
     void DeleteGameObject(GameObject* pObject, bool deletecomponents);
 #if MYFW_USING_WX
     GameObject* EditorCopyGameObject(GameObject* pObject, bool NewObjectInheritsFromOld);

@@ -83,13 +83,16 @@ public:
     unsigned int GetFlags() { return m_Properties.GetFlags(); }
     ComponentGameObjectProperties* GetPropertiesComponent() { return &m_Properties; }
 
-    void SetEnabled(bool enabled);
+    void SetEnabled(bool enabled, bool affectchildren);
     void RegisterAllComponentCallbacks(bool ignoreenabledflag);
     void UnregisterAllComponentCallbacks(bool ignoreenabledflag);
     void SetSceneID(unsigned int sceneid, bool assignnewgoid = true);
     void SetID(unsigned int id);
     void SetName(const char* name);
+
     void SetParentGameObject(GameObject* pParentGameObject);
+    bool IsParentedTo(GameObject* pPotentialParent, bool onlycheckdirectparent);
+
     void SetManaged(bool managed);
     bool IsManaged() { return m_Managed; }
 

@@ -1621,7 +1621,7 @@ GameObject* ComponentSystemManager::CreateGameObjectFromPrefab(PrefabObject* pPr
                     MyAssert( manageobject == false );
 
                     pChildGameObject = CreateGameObjectFromPrefab( pPrefab, jChildGameObject, prefabchildid, false, 0 );
-                    pChildGameObject->SetEnabled( false );
+                    pChildGameObject->SetEnabled( false, false );
                 }
                 else
                 {
@@ -1700,35 +1700,59 @@ GameObject* ComponentSystemManager::CreateGameObjectFromTemplate(unsigned int te
 }
 #endif //MYFW_USING_WX
 
-void ComponentSystemManager::UnmanageGameObject(GameObject* pObject)
+void ComponentSystemManager::UnmanageGameObject(GameObject* pObject, bool unmanagechildren)
 {
     MyAssert( pObject && pObject->IsManaged() == true );
 
-    // remove all components from their respective component lists.
+    // Remove all components from their respective component lists.
     for( unsigned int i=0; i<pObject->GetComponentCount(); i++ )
     {
         ComponentBase* pComponent = pObject->GetComponentByIndex( i );
 
-        // remove from list and clear CPPListNode prev/next
+        // Remove from list and clear CPPListNode prev/next.
         pComponent->Remove();
         pComponent->Prev = 0;
         pComponent->Next = 0;
     }
 
     pObject->SetManaged( false );
+
+    // Recurse through children.
+    if( unmanagechildren )
+    {
+        GameObject* pChild = pObject->GetFirstChild();
+
+        while( pChild )
+        {
+            UnmanageGameObject( pChild, true );
+            pChild = (GameObject*)pChild->GetNext();
+        }
+    }
 }
 
-void ComponentSystemManager::ManageGameObject(GameObject* pObject)
+void ComponentSystemManager::ManageGameObject(GameObject* pObject, bool managechildren)
 {
     MyAssert( pObject && pObject->IsManaged() == false );
 
-    // add all the gameobject's components back into the component lists.
+    // Add all the gameobject's components back into the component lists.
     for( unsigned int i=0; i<pObject->GetComponentCount(); i++ )
     {
         AddComponent( pObject->GetComponentByIndex( i ) );
     }
 
     pObject->SetManaged( true );
+
+    // Recurse through children.
+    if( managechildren )
+    {
+        GameObject* pChild = pObject->GetFirstChild();
+
+        while( pChild )
+        {
+            ManageGameObject( pChild, true );
+            pChild = (GameObject*)pChild->GetNext();
+        }
+    }
 }
 
 void ComponentSystemManager::DeleteGameObject(GameObject* pObject, bool deletecomponents)
@@ -1800,7 +1824,7 @@ GameObject* ComponentSystemManager::CopyGameObject(GameObject* pObject, const ch
     if( newname )
         pNewObject->SetName( newname );
 
-    pNewObject->SetEnabled( pObject->IsEnabled() );
+    pNewObject->SetEnabled( pObject->IsEnabled(), false );
     pNewObject->SetPhysicsSceneID( pObject->GetPhysicsSceneID() );
     pNewObject->SetFlags( pObject->GetFlags() );
 
