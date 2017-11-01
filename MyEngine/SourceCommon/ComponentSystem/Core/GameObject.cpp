@@ -245,35 +245,51 @@ void GameObject::OnRightClick()
         }
 
         // Create prefab menu and submenus for each file.
-        {
-            wxMenu* prefabmenu = MyNew wxMenu;
-            menu.AppendSubMenu( prefabmenu, "Create Prefab in" );
-
-            unsigned int numprefabfiles = g_pComponentSystemManager->m_pPrefabManager->GetNumberOfFiles();
-            for( unsigned int i=0; i<numprefabfiles; i++ )
-            {
-                PrefabFile* pPrefabFile = g_pComponentSystemManager->m_pPrefabManager->GetLoadedPrefabFileByIndex( i );
-                MyFileObject* pFile = pPrefabFile->GetFile();
-                MyAssert( pFile != 0 );
-
-                prefabmenu->Append( RightClick_CreatePrefab + i, pFile->GetFilenameWithoutExtension() );
-            }
-
-            prefabmenu->Append( RightClick_CreatePrefab + numprefabfiles, "New/Load Prefab file..." );
-        }
+        AddPrefabSubmenusToMenu( &menu, RightClick_CreatePrefab );
 
         menu.Append( RightClick_DeleteGameObject, "Delete GameObject" );
     }
     else
     {
+        // Add folder specific options to menu.
         menu.Append( RightClick_DuplicateFolder, "Duplicate Folder and all contents" );
         menu.Append( RightClick_DeleteFolder, "Delete Folder and all contents" );
+
+        // Have SceneHandler add all of it's options to the menu (Create GameObject, etc...).
+        wxTreeItemId treeid = this->GetSceneInfo()->m_TreeID;
+        unsigned int sceneid = g_pComponentSystemManager->GetSceneIDFromSceneTreeID( treeid );
+
+        SceneHandler* pSceneHandler = g_pComponentSystemManager->m_pSceneHandler;
+        pSceneHandler->AddGameObjectMenuOptionsToMenu( &menu, RightClick_AdditionalSceneHandlerOptions, sceneid );
+
+        // TODONOW: fix creating prefabs from folders and add this back in.
+        // Create prefab menu and submenus for each file.
+        //AddPrefabSubmenusToMenu( &menu, RightClick_CreatePrefab );
     }
 
     menu.Connect( wxEVT_COMMAND_MENU_SELECTED, (wxObjectEventFunction)&GameObject::OnPopupClick );
     
     // blocking call. // should delete all categorymenu's new'd above when done.
  	g_pPanelWatch->PopupMenu( &menu ); // there's no reason this is using g_pPanelWatch other than convenience.
+}
+
+void GameObject::AddPrefabSubmenusToMenu(wxMenu* menu, int itemidoffset)
+{
+    // Create prefab menu and submenus for each file.
+    wxMenu* prefabmenu = MyNew wxMenu;
+    menu->AppendSubMenu( prefabmenu, "Create Prefab in" );
+
+    unsigned int numprefabfiles = g_pComponentSystemManager->m_pPrefabManager->GetNumberOfFiles();
+    for( unsigned int i=0; i<numprefabfiles; i++ )
+    {
+        PrefabFile* pPrefabFile = g_pComponentSystemManager->m_pPrefabManager->GetLoadedPrefabFileByIndex( i );
+        MyFileObject* pFile = pPrefabFile->GetFile();
+        MyAssert( pFile != 0 );
+
+        prefabmenu->Append( itemidoffset + i, pFile->GetFilenameWithoutExtension() );
+    }
+
+    prefabmenu->Append( itemidoffset + numprefabfiles, "New/Load Prefab file..." );
 }
 
 void GameObject::OnPopupClick(wxEvent &evt)
@@ -365,6 +381,13 @@ void GameObject::OnPopupClick(wxEvent &evt)
             g_pComponentSystemManager->EditorCopyGameObject( pGameObject, false );
         else
             g_pComponentSystemManager->CopyGameObject( pGameObject, "runtime duplicate" );
+    }
+    else if( id >= RightClick_AdditionalSceneHandlerOptions && id < RightClick_EndOfAdditionalSceneHandlerOptions )
+    {
+        int idForSceneHandler = id - RightClick_AdditionalSceneHandlerOptions;
+        
+        SceneHandler* pSceneHandler = g_pComponentSystemManager->m_pSceneHandler;
+        pSceneHandler->HandleRightClickCommand( idForSceneHandler, pGameObject );
     }
 }
 
@@ -643,17 +666,16 @@ void GameObject::ImportFromJSONObject(cJSON* jGameObject, unsigned int sceneid)
         GameObject* pParentGameObject = g_pComponentSystemManager->FindGameObjectByID( sceneid, parentgoid );
         MyAssert( pParentGameObject );
 
-        GameObject* pLastChild = (GameObject*)pParentGameObject->GetChildList()->GetTail();
-
-        SetParentGameObject( pParentGameObject );
-
 #if MYFW_USING_WX
-        // move as last item in parent
+        // Move as last item in parent.
+        GameObject* pLastChild = (GameObject*)pParentGameObject->GetChildList()->GetTail();
         if( pLastChild != 0 )
             g_pPanelObjectList->Tree_MoveObject( this, pLastChild, false );
         else
-            g_pPanelObjectList->Tree_MoveObject( this, m_pParentGameObject, true );
+            g_pPanelObjectList->Tree_MoveObject( this, pParentGameObject, true );
 #endif
+
+        SetParentGameObject( pParentGameObject );
     }
 
     // LEGACY: support for old scene files with folders in them

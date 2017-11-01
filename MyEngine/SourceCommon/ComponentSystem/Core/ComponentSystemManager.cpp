@@ -1628,7 +1628,7 @@ GameObject* ComponentSystemManager::CreateGameObjectFromPrefab(PrefabObject* pPr
                     pChildGameObject = CreateGameObjectFromPrefab( pPrefab, jChildGameObject, prefabchildid, true, sceneid );
 
 #if MYFW_USING_WX
-                    // Move as last item in parent
+                    // Move as last item in parent.
                     GameObject* pLastChild = (GameObject*)pGameObject->GetChildList()->GetTail();
                     if( pLastChild != 0 )
                         g_pPanelObjectList->Tree_MoveObject( pChildGameObject, pLastChild, false );

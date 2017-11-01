@@ -10,6 +10,8 @@
 #ifndef __SceneHandler_H__
 #define __SceneHandler_H__
 
+class GameObject;
+
 struct SceneInfo
 {
 public:
@@ -54,8 +56,10 @@ public:
         RightClick_AddFolder,
         RightClick_AddLogicGameObject,
 
-        RightClick_AddGameObjectFromTemplate = 10000,
-        // all higher values reserved for different templates.
+        RightClick_AddGameObjectFromTemplate,
+            // all higher values reserved for different templates.
+
+        // Note: Don't add anything larger than 100000 without changing GameObject.h's RightClickOptions
     };
 
     // Object panel callbacks.
@@ -64,8 +68,10 @@ public:
 
     static void StaticOnRightClick(void* pObjectPtr, wxTreeItemId treeid) { ((SceneHandler*)pObjectPtr)->OnRightClick( treeid ); }
     void OnRightClick(wxTreeItemId treeid);
-    int AddGameObjectTemplatesToMenu(wxMenu* menu, int startindex);
+    void AddGameObjectMenuOptionsToMenu(wxMenu* menu, int itemidoffset, unsigned int sceneid);
+    int AddGameObjectTemplatesToMenu(wxMenu* menu, int itemidoffset, int startindex);
     void OnPopupClick(wxEvent &evt); // used as callback for wxEvtHandler, can't be virtual(will crash, haven't looked into it).
+    void HandleRightClickCommand(int id, GameObject* pParentGameObject);
 
     static void StaticOnDrag(void* pObjectPtr) { ((SceneHandler*)pObjectPtr)->OnDrag(); }
     void OnDrag();

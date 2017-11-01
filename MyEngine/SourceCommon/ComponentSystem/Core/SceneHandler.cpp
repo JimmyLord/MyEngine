@@ -88,14 +88,7 @@ void SceneHandler::OnRightClick(wxTreeItemId treeid)
     
     m_SceneIDBeingAffected = g_pComponentSystemManager->GetSceneIDFromSceneTreeID( treeid );
     
-    menu.Append( RightClick_AddGameObject, "Add Game Object" );
-
-    wxMenu* templatesmenu = MyNew wxMenu;
-    menu.AppendSubMenu( templatesmenu, "Add Game Object Template" );
-    AddGameObjectTemplatesToMenu( templatesmenu, 0 );
-
-    menu.Append( RightClick_AddFolder, "Add Folder" );
-    menu.Append( RightClick_AddLogicGameObject, "Add Logical Game Object" );
+    AddGameObjectMenuOptionsToMenu( &menu, 0, m_SceneIDBeingAffected );
     menu.Append( RightClick_UnloadScene, "Unload scene" );
 
     menu.Connect( wxEVT_COMMAND_MENU_SELECTED, (wxObjectEventFunction)&SceneHandler::OnPopupClick );
@@ -104,7 +97,21 @@ void SceneHandler::OnRightClick(wxTreeItemId treeid)
     g_pPanelWatch->PopupMenu( &menu ); // there's no reason this is using g_pPanelWatch other than convenience.
 }
 
-int SceneHandler::AddGameObjectTemplatesToMenu(wxMenu* menu, int startindex)
+void SceneHandler::AddGameObjectMenuOptionsToMenu(wxMenu* menu, int itemidoffset, unsigned int sceneid)
+{
+    m_SceneIDBeingAffected = sceneid;
+
+    menu->Append( itemidoffset + RightClick_AddGameObject, "Add Game Object" );
+
+    wxMenu* templatesmenu = MyNew wxMenu;
+    menu->AppendSubMenu( templatesmenu, "Add Game Object Template" );
+    AddGameObjectTemplatesToMenu( templatesmenu, itemidoffset + RightClick_AddGameObjectFromTemplate, 0 );
+
+    menu->Append( itemidoffset + RightClick_AddFolder, "Add Folder" );
+    menu->Append( itemidoffset + RightClick_AddLogicGameObject, "Add Logical Game Object" );
+}
+
+int SceneHandler::AddGameObjectTemplatesToMenu(wxMenu* menu, int itemidoffset, int startindex)
 {
     GameObjectTemplateManager* pManager = g_pComponentSystemManager->m_pGameObjectTemplateManager;
     
@@ -124,11 +131,11 @@ int SceneHandler::AddGameObjectTemplatesToMenu(wxMenu* menu, int startindex)
             wxMenu* submenu = MyNew wxMenu;
             menu->AppendSubMenu( submenu, name );
 
-            i = AddGameObjectTemplatesToMenu( submenu, i+1 );
+            i = AddGameObjectTemplatesToMenu( submenu, itemidoffset, i+1 );
         }
         else
         {
-            menu->Append( RightClick_AddGameObjectFromTemplate + i, name );
+            menu->Append( itemidoffset + i, name );
         }
 
         i++;
@@ -139,35 +146,41 @@ int SceneHandler::AddGameObjectTemplatesToMenu(wxMenu* menu, int startindex)
 
 void SceneHandler::OnPopupClick(wxEvent &evt)
 {
-    GameObject* pGameObjectCreated = 0;
     SceneHandler* pSceneHandler = (SceneHandler*)static_cast<wxMenu*>(evt.GetEventObject())->GetClientData();
 
     int id = evt.GetId();
+    pSceneHandler->HandleRightClickCommand( id, 0 );
+}
+
+void SceneHandler::HandleRightClickCommand(int id, GameObject* pParentGameObject)
+{
+    GameObject* pGameObjectCreated = 0;
+
     switch( id )
     {
     case RightClick_UnloadScene:
         {
-            g_pComponentSystemManager->UnloadScene( pSceneHandler->m_SceneIDBeingAffected );
+            g_pComponentSystemManager->UnloadScene( m_SceneIDBeingAffected );
         }
         break;
 
     case RightClick_AddGameObject:
         {
-            pGameObjectCreated = g_pComponentSystemManager->CreateGameObject( true, pSceneHandler->m_SceneIDBeingAffected );
+            pGameObjectCreated = g_pComponentSystemManager->CreateGameObject( true, m_SceneIDBeingAffected );
             pGameObjectCreated->SetName( "New Game Object" );
         }
         break;
 
     case RightClick_AddFolder:
         {
-            pGameObjectCreated = g_pComponentSystemManager->CreateGameObject( true, pSceneHandler->m_SceneIDBeingAffected, true, false );
+            pGameObjectCreated = g_pComponentSystemManager->CreateGameObject( true, m_SceneIDBeingAffected, true, false );
             pGameObjectCreated->SetName( "New Folder" );
         }
         break;
 
     case RightClick_AddLogicGameObject:
         {
-            pGameObjectCreated = g_pComponentSystemManager->CreateGameObject( true, pSceneHandler->m_SceneIDBeingAffected, false, false );
+            pGameObjectCreated = g_pComponentSystemManager->CreateGameObject( true, m_SceneIDBeingAffected, false, false );
             pGameObjectCreated->SetName( "New Logical Game Object" );
         }
         break;
@@ -180,12 +193,26 @@ void SceneHandler::OnPopupClick(wxEvent &evt)
     if( id >= RightClick_AddGameObjectFromTemplate )
     {
         int templateid = id - RightClick_AddGameObjectFromTemplate;
-        pGameObjectCreated = g_pComponentSystemManager->CreateGameObjectFromTemplate( templateid, pSceneHandler->m_SceneIDBeingAffected );
+        pGameObjectCreated = g_pComponentSystemManager->CreateGameObjectFromTemplate( templateid, m_SceneIDBeingAffected );
     }
 
     if( pGameObjectCreated )
     {
         g_pEngineMainFrame->m_pCommandStack->Add( MyNew EditorCommand_CreateGameObject( pGameObjectCreated ) );
+
+        if( pParentGameObject )
+        {
+#if MYFW_USING_WX
+            // Move as last item in parent.
+            GameObject* pLastChild = (GameObject*)pParentGameObject->GetChildList()->GetTail();
+            if( pLastChild != 0 )
+                g_pPanelObjectList->Tree_MoveObject( pGameObjectCreated, pLastChild, false );
+            else
+                g_pPanelObjectList->Tree_MoveObject( pGameObjectCreated, pParentGameObject, true );
+#endif
+
+            pGameObjectCreated->SetParentGameObject( pParentGameObject );
+        }
     }
 }
 

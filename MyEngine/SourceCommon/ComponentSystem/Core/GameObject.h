@@ -156,10 +156,13 @@ public:
         RightClick_CreateChild,
         RightClick_ClearParent,
         RightClick_CreatePrefab,
-            // next 10000 values reserved for prefab scenes that are open. 10000 also hardcoded in cpp file
+            // Next 10000 values reserved for prefab scenes that are open. 10000 also hardcoded in cpp file
         RightClick_DeleteGameObject = RightClick_CreatePrefab + 10000,
         RightClick_DeleteFolder,
         RightClick_DuplicateFolder,
+        RightClick_AdditionalSceneHandlerOptions,
+            // Next 100000 value reserved for additional options added by SceneHandler
+        RightClick_EndOfAdditionalSceneHandlerOptions = RightClick_AdditionalSceneHandlerOptions + 100000,
     };
 
     static void StaticOnTitleLabelClicked(void* pObjectPtr, int controlid, bool directlychanged, bool finishedchanging, double oldvalue, bool valuewaschangedbydragging) { ((GameObject*)pObjectPtr)->OnTitleLabelClicked( controlid, finishedchanging ); }
@@ -172,6 +175,7 @@ public:
 
     static void StaticOnRightClick(void* pObjectPtr, wxTreeItemId id) { ((GameObject*)pObjectPtr)->OnRightClick(); }
     void OnRightClick();
+    void AddPrefabSubmenusToMenu(wxMenu* menu, int itemidoffset);
     void OnPopupClick(wxEvent &evt); // used as callback for wxEvtHandler, can't be virtual(will crash, haven't looked into it).
 
     static void StaticOnDrag(void* pObjectPtr) { ((GameObject*)pObjectPtr)->OnDrag(); }
