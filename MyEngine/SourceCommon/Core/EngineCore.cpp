@@ -1822,8 +1822,23 @@ void EngineCore::OnObjectListTreeSelectionChanged() //StaticOnObjectListTreeSele
     }
 }
 
-void EngineCore::OnObjectListTreeMultipleSelection() //StaticOnObjectListTreeMultipleSelection
+void EngineCore::OnObjectListTreeMultipleSelection(bool prepForDraggingCopy) //StaticOnObjectListTreeMultipleSelection
 {
+    bool allowFolderSelection = false;
+    bool selectContentsOfSelectedFolders = true;
+    bool allowPrefabSelection = true;
+    bool updateWatchWindowWithNewSelection = true;
+    bool allowChildrenToBeSelectedIfParentIsSelected = true;
+    
+    if( prepForDraggingCopy == true )
+    {
+        allowFolderSelection = true;
+        selectContentsOfSelectedFolders = false;
+        allowPrefabSelection = false;
+        updateWatchWindowWithNewSelection = false;
+        allowChildrenToBeSelectedIfParentIsSelected = false;
+    }
+
     if( m_pEditorState == 0 )
         return;
 
@@ -1859,10 +1874,13 @@ void EngineCore::OnObjectListTreeMultipleSelection() //StaticOnObjectListTreeMul
         }
 
         // Show this GameObject in the watch panel, if it's not a folder
-        if( pGameObject && pGameObject->IsFolder() == false )
+        if( updateWatchWindowWithNewSelection )
         {
-            pGameObject->ShowInWatchPanel( isprefab );
-            return;
+            if( pGameObject && pGameObject->IsFolder() == false )
+            {
+                pGameObject->ShowInWatchPanel( isprefab );
+                return;
+            }
         }
     }
 
@@ -1885,76 +1903,114 @@ void EngineCore::OnObjectListTreeMultipleSelection() //StaticOnObjectListTreeMul
             // Don't allow multi-selection of prefabs in watch panel.
             // TODO: revisit this...
             //pGameObject = ((PrefabObject*)pData->m_pObject)->GetGameObject();
-            pGameObject = 0;
+            continue;
         }
 
         if( pGameObject )
         {
-            if( pGameObject->IsFolder() == false )
+            // Skip children if their parents are selected.
+            if( allowChildrenToBeSelectedIfParentIsSelected == false )
+            {
+                bool parentfound = false;
+
+                for( unsigned int i=0; i<numselected; i++ )
+                {
+                    wxTreeItemId id = selecteditems[i].GetID();
+                    TreeItemDataGenericObjectInfo* pData = (TreeItemDataGenericObjectInfo*)g_pPanelObjectList->m_pTree_Objects->GetItemData( id );
+                    MyAssert( pData && pData->m_pObject );
+
+                    // Only check gameobjects, not prefabs.
+                    if( pData->m_pLeftClickFunction == GameObject::StaticOnLeftClick )
+                    {
+                        if( pGameObject->IsParentedTo( (GameObject*)pData->m_pObject, false ) )
+                        {
+                            parentfound = true;
+                        }
+                    }
+                }
+
+                if( parentfound )
+                {
+                    // Skip this child.
+                    continue;
+                }
+            }
+
+            // Select the GameObject (also select folders if allowed).
+            if( allowFolderSelection || pGameObject->IsFolder() == false )
             {
                 if( m_pEditorState->IsGameObjectSelected( pGameObject ) == false )
                     m_pEditorState->m_pSelectedObjects.push_back( pGameObject );
             }
 
             // If this is a folder, select all objects inside.
-            if( pGameObject->IsFolder() )
+            if( selectContentsOfSelectedFolders && pGameObject->IsFolder() )
             {
                 for( CPPListNode* pNode = pGameObject->GetChildList()->GetHead(); pNode; pNode = pNode->GetNext() )
                 {
-                    ((GameObject*)pNode)->AddToList( &m_pEditorState->m_pSelectedObjects );
+                    GameObject* pGameObject = (GameObject*)pNode;
+
+                    if( pGameObject->IsManaged() )
+                    {
+                        pGameObject->AddToList( &m_pEditorState->m_pSelectedObjects );
+                    }
                 }
             }
         }
     }
 
-    // Add a spacer saying how many objects were selected.
-    char temp[30];
-    sprintf_s( temp, 30, "%d objects selected", m_pEditorState->m_pSelectedObjects.size() );
-    g_pPanelWatch->AddSpace( temp, 0, 0, 0 );
-
-    // Show common components of all selected Gameobjects:
-    if( m_pEditorState->m_pSelectedObjects.size() > 0 )
+    // Update watch panel with multiple selections.
+    if( updateWatchWindowWithNewSelection )
     {
-        GameObject* pFirstGameObject = m_pEditorState->m_pSelectedObjects[0];
+        // Add a spacer saying how many objects were selected.
+        char temp[30];
+        sprintf_s( temp, 30, "%d objects selected", m_pEditorState->m_pSelectedObjects.size() );
+        g_pPanelWatch->AddSpace( temp, 0, 0, 0 );
 
-        // Search all components including GameObject properties and transform.
-        for( unsigned int i=0; i<pFirstGameObject->GetComponentCountIncludingCore(); i++ )
+        // Show common components of all selected Gameobjects:
+        if( m_pEditorState->m_pSelectedObjects.size() > 0 )
         {
-            ComponentBase* pComponentToLookFor = pFirstGameObject->GetComponentByIndexIncludingCore( i );
+            GameObject* pFirstGameObject = m_pEditorState->m_pSelectedObjects[0];
 
-            MyAssert( pComponentToLookFor );
-
-            pComponentToLookFor->m_MultiSelectedComponents.clear();
-
-            // Loop through selected gameobjects and check if they all have to least one of this component type on them.
-            bool allgameobjectshavecomponent = true;
-            for( unsigned int i=1; i<m_pEditorState->m_pSelectedObjects.size(); i++ )
+            // Search all components including GameObject properties and transform.
+            for( unsigned int i=0; i<pFirstGameObject->GetComponentCountIncludingCore(); i++ )
             {
-                GameObject* pGameObject = m_pEditorState->m_pSelectedObjects[i];
+                ComponentBase* pComponentToLookFor = pFirstGameObject->GetComponentByIndexIncludingCore( i );
 
-                bool hascomponent = false;
-                for( unsigned int i=0; i<pGameObject->GetComponentCountIncludingCore(); i++ )
+                MyAssert( pComponentToLookFor );
+
+                pComponentToLookFor->m_MultiSelectedComponents.clear();
+
+                // Loop through selected gameobjects and check if they all have to least one of this component type on them.
+                bool allgameobjectshavecomponent = true;
+                for( unsigned int i=1; i<m_pEditorState->m_pSelectedObjects.size(); i++ )
                 {
-                    ComponentBase* pOtherComponent = pGameObject->GetComponentByIndexIncludingCore( i );
+                    GameObject* pGameObject = m_pEditorState->m_pSelectedObjects[i];
 
-                    if( pOtherComponent && pOtherComponent->IsA( pComponentToLookFor->GetClassname() ) == true )
+                    bool hascomponent = false;
+                    for( unsigned int i=0; i<pGameObject->GetComponentCountIncludingCore(); i++ )
                     {
-                        pComponentToLookFor->m_MultiSelectedComponents.push_back( pOtherComponent );
-                        hascomponent = true;
+                        ComponentBase* pOtherComponent = pGameObject->GetComponentByIndexIncludingCore( i );
+
+                        if( pOtherComponent && pOtherComponent->IsA( pComponentToLookFor->GetClassname() ) == true )
+                        {
+                            pComponentToLookFor->m_MultiSelectedComponents.push_back( pOtherComponent );
+                            hascomponent = true;
+                            break;
+                        }
+                    }
+
+                    if( hascomponent == false )
+                    {
+                        allgameobjectshavecomponent = false;
                         break;
                     }
                 }
 
-                if( hascomponent == false )
+                if( allgameobjectshavecomponent == true )
                 {
-                    allgameobjectshavecomponent = false;
-                    break;
+                    pComponentToLookFor->OnLeftClick( (unsigned int)m_pEditorState->m_pSelectedObjects.size(), false );
                 }
-            }
-
-            if( allgameobjectshavecomponent == true )
-            {
-                pComponentToLookFor->OnLeftClick( (unsigned int)m_pEditorState->m_pSelectedObjects.size(), false );
             }
         }
     }

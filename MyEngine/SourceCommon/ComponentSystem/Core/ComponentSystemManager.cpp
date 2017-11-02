@@ -1551,19 +1551,36 @@ GameObject* ComponentSystemManager::CreateGameObjectFromPrefab(PrefabObject* pPr
     MyAssert( pPrefab != 0 );
     GameObject* pGameObject = 0;
 
+    // Set values based on SubType.
+    bool isfolder = false;
+    bool hastransform = true;
+    cJSON* jSubtype = cJSON_GetObjectItem( jPrefab, "SubType" );
+    if( jSubtype )
+    {
+        if( strcmp( jSubtype->valuestring, "Folder" ) == 0 )
+        {
+            isfolder = true;
+            hastransform = false;
+        }
+        else if( strcmp( jSubtype->valuestring, "Logic" ) == 0 )
+        {
+            hastransform = false;
+        }
+    }
+
     if( sceneid == 0 )
     {
-        // Sceneid should only be 0 if this is the temporary prefab gameobject created for the editor.
+        // Sceneid should only be 0 if this is the master prefab gameobject created for the editor.
         MyAssert( manageobject == false );
 
         PrefabReference prefabRef( pPrefab, prefabchildid, false );
         prefabRef.SetAsMasterPrefabGameObject();
-        pGameObject = CreateGameObject( manageobject, sceneid, false, true, &prefabRef );
+        pGameObject = CreateGameObject( manageobject, sceneid, isfolder, hastransform, &prefabRef );
     }
     else
     {
         PrefabReference prefabRef( pPrefab, prefabchildid, true );
-        pGameObject = CreateGameObject( manageobject, sceneid, false, true, &prefabRef );
+        pGameObject = CreateGameObject( manageobject, sceneid, isfolder, hastransform, &prefabRef );
     }
     
     cJSON* jName = cJSON_GetObjectItem( jPrefab, "Name" );
@@ -1572,23 +1589,22 @@ GameObject* ComponentSystemManager::CreateGameObjectFromPrefab(PrefabObject* pPr
 
     if( jPrefab )
     {
-        //Vector3 scale(1);
-        //cJSONExt_GetFloatArray( jPrefab, "Scale", &scale.x, 3 );
-        //pGameObject->GetTransform()->SetLocalScale( scale );
-
         cJSON* jComponentArray = cJSON_GetObjectItem( jPrefab, "Components" );
-        int componentarraysize = cJSON_GetArraySize( jComponentArray );
-
-        for( int i=0; i<componentarraysize; i++ )
+        if( jComponentArray )
         {
-            cJSON* jComponent = cJSON_GetArrayItem( jComponentArray, i );
+            int componentarraysize = cJSON_GetArraySize( jComponentArray );
 
-            ComponentBase* pComponent = CreateComponentFromJSONObject( pGameObject, jComponent );
-            MyAssert( pComponent );
-            if( pComponent )
+            for( int i=0; i<componentarraysize; i++ )
             {
-                pComponent->ImportFromJSONObject( jComponent, sceneid );
-                pComponent->OnLoad();
+                cJSON* jComponent = cJSON_GetArrayItem( jComponentArray, i );
+
+                ComponentBase* pComponent = CreateComponentFromJSONObject( pGameObject, jComponent );
+                MyAssert( pComponent );
+                if( pComponent )
+                {
+                    pComponent->ImportFromJSONObject( jComponent, sceneid );
+                    pComponent->OnLoad();
+                }
             }
         }
 
@@ -1596,14 +1612,6 @@ GameObject* ComponentSystemManager::CreateGameObjectFromPrefab(PrefabObject* pPr
         cJSON* jChildrenArray = cJSON_GetObjectItem( jPrefab, "Children" );
         if( jChildrenArray )
         {
-            // Get the child list from the GameObject, this should line up with the children in the json struct.
-            //GameObject* pChildPrefabGameObject = 0;
-            //if( pPrefabGameObject )
-            //{
-            //    CPPListHead* pChildPrefabGameObjectList = pPrefabGameObject->GetChildList();
-            //    pChildPrefabGameObject = (GameObject*)pChildPrefabGameObjectList->GetHead();
-            //}
-
             int childarraysize = cJSON_GetArraySize( jChildrenArray );
 
             for( int i=0; i<childarraysize; i++ )
@@ -1641,15 +1649,6 @@ GameObject* ComponentSystemManager::CreateGameObjectFromPrefab(PrefabObject* pPr
                 pChildGameObject->SetParentGameObject( pGameObject );
                 cJSON* jTransform = cJSON_GetObjectItem( jChildGameObject, "LocalTransform" );
                 pChildGameObject->m_pComponentTransform->ImportLocalTransformFromJSONObject( jTransform );
-
-                //uint32 prefabchildid = 0;
-                //cJSONExt_GetUnsignedInt( jChildGameObject, "ChildID", &prefabchildid );
-                //pChildGameObject->GetPrefabRef()->m_pChildID = prefabchildid;
-
-                //if( pChildPrefabGameObject != 0 )
-                //{
-                //    pChildPrefabGameObject = (GameObject*)pChildPrefabGameObject->GetNext();
-                //}
             }
         }
     }

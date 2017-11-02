@@ -262,8 +262,8 @@ public:
 
     static void StaticOnObjectListTreeSelectionChanged(void* pObjectPtr) { ((EngineCore*)pObjectPtr)->OnObjectListTreeSelectionChanged(); }
     void OnObjectListTreeSelectionChanged();
-    static void StaticOnObjectListTreeMultipleSelection(void* pObjectPtr) { ((EngineCore*)pObjectPtr)->OnObjectListTreeMultipleSelection(); }
-    void OnObjectListTreeMultipleSelection();
+    static void StaticOnObjectListTreeMultipleSelection(void* pObjectPtr) { ((EngineCore*)pObjectPtr)->OnObjectListTreeMultipleSelection( false ); }
+    void OnObjectListTreeMultipleSelection(bool prepForDraggingCopy);
     static void StaticOnObjectListTreeDeleteSelection(void* pObjectPtr) { ((EngineCore*)pObjectPtr)->OnObjectListTreeDeleteSelection(); }
     void OnObjectListTreeDeleteSelection();
 #endif //MYFW_USING_WX

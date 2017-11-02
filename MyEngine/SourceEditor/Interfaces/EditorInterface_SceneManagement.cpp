@@ -287,17 +287,20 @@ bool EditorInterface_SceneManagement::HandleInput(int keyaction, int keycode, in
                 pEditorState->m_EditorActionState = EDITORACTIONSTATE_GroupSelectingObjects;
             }
 
-            // if shift is held, make a copy of the object and control that one.
+            // If shift is held, make a copy of the object and control that one.
             if( selectedgizmo && pEditorState->m_ModifierKeyStates & MODIFIERKEY_Shift )
             {
+                // Reselect all objects selected in the object list.
+                //    Select the actual folders instead of objects inside them.
+                //    Don't allow children to be selected if parent is.
+                g_pEngineCore->OnObjectListTreeMultipleSelection( true );
+
+                // Make a copy of the selected objects and clear what the editor thinks is selected.
                 std::vector<GameObject*> selectedobjects = pEditorState->m_pSelectedObjects;
                 pEditorState->ClearSelectedObjectsAndComponents();
+
                 for( unsigned int i=0; i<selectedobjects.size(); i++ )
                 {
-                    // don't copy folders, only the objects selected inside them.
-                    if( selectedobjects[i]->IsFolder() )
-                        continue;
-
                     GameObject* pNewObject = g_pComponentSystemManager->EditorCopyGameObject( selectedobjects[i], false );
                     if( g_pEngineCore->IsInEditorMode() )
                     {

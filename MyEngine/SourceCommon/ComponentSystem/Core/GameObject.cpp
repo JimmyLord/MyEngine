@@ -130,7 +130,7 @@ void GameObject::OnTitleLabelClicked(int controlid, bool finishedchanging) // St
 
 void GameObject::OnLeftClick(unsigned int count, bool clear)
 {
-    g_pEngineCore->OnObjectListTreeMultipleSelection();
+    g_pEngineCore->OnObjectListTreeMultipleSelection( false );
     return;
 }
 
@@ -244,7 +244,7 @@ void GameObject::OnRightClick()
             lastcategory = g_pComponentTypeManager->GetTypeCategory( i );
         }
 
-        // Create prefab menu and submenus for each file.
+        // Create prefab menu and submenus.
         AddPrefabSubmenusToMenu( &menu, RightClick_CreatePrefab );
 
         menu.Append( RightClick_DeleteGameObject, "Delete GameObject" );
@@ -262,9 +262,8 @@ void GameObject::OnRightClick()
         SceneHandler* pSceneHandler = g_pComponentSystemManager->m_pSceneHandler;
         pSceneHandler->AddGameObjectMenuOptionsToMenu( &menu, RightClick_AdditionalSceneHandlerOptions, sceneid );
 
-        // TODONOW: fix creating prefabs from folders and add this back in.
-        // Create prefab menu and submenus for each file.
-        //AddPrefabSubmenusToMenu( &menu, RightClick_CreatePrefab );
+        // Create prefab menu and submenus.
+        AddPrefabSubmenusToMenu( &menu, RightClick_CreatePrefab );
     }
 
     menu.Connect( wxEVT_COMMAND_MENU_SELECTED, (wxObjectEventFunction)&GameObject::OnPopupClick );
@@ -498,7 +497,7 @@ void GameObject::FinishLoadingPrefab(PrefabFile* pPrefabFile)
     UpdateObjectListIcon();
 }
 
-void GameObject::OnPrefabFileFinishedLoading(MyFileObject* pFile)
+void GameObject::OnPrefabFileFinishedLoading(MyFileObject* pFile) // StaticOnPrefabFileFinishedLoading
 {
     PrefabFile* pPrefabFile = g_pComponentSystemManager->m_pPrefabManager->GetLoadedPrefabFileByFullPath( pFile->GetFullPath() );
     FinishLoadingPrefab( pPrefabFile );

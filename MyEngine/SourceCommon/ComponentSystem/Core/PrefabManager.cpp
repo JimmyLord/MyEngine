@@ -446,7 +446,7 @@ void PrefabFile::OnFileFinishedLoading(MyFileObject* pFile)
         uint32 prefabid = 0;
         cJSONExt_GetUnsignedInt( jPrefab, "ID", &prefabid );
 
-        if( prefabid > m_NextPrefabID )
+        if( prefabid >= m_NextPrefabID )
             m_NextPrefabID = prefabid + 1;
 
         // if PrefabID is zero or a duplicate of other objects id, things will break
@@ -460,7 +460,7 @@ void PrefabFile::OnFileFinishedLoading(MyFileObject* pFile)
         pPrefab->SetPrefabJSONObject( jPrefabObject, true );
 
         // TODO: Once prefab editing is a thing, make sure m_NextChildPrefabID is one higher than highest found. 
-        //if( childprefabid > pPrefab->m_NextChildPrefabID )
+        //if( childprefabid >= pPrefab->m_NextChildPrefabID )
         //    pPrefab->m_NextChildPrefabID = childprefabid + 1;
 
         // Detach the object from the json branch.  We don't want it deleted since it's stored in the PrefabObject
