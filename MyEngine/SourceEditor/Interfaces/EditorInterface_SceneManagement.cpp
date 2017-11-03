@@ -299,6 +299,8 @@ bool EditorInterface_SceneManagement::HandleInput(int keyaction, int keycode, in
                 std::vector<GameObject*> selectedobjects = pEditorState->m_pSelectedObjects;
                 pEditorState->ClearSelectedObjectsAndComponents();
 
+                g_pPanelObjectList->Freeze();
+
                 for( unsigned int i=0; i<selectedobjects.size(); i++ )
                 {
                     GameObject* pNewObject = g_pComponentSystemManager->EditorCopyGameObject( selectedobjects[i], false );
@@ -311,6 +313,8 @@ bool EditorInterface_SceneManagement::HandleInput(int keyaction, int keycode, in
                     // select the object in the object tree.
                     g_pPanelObjectList->SelectObject( pNewObject );
                 }
+
+                g_pPanelObjectList->Thaw();
             }
 
             // if ctrl is held, transform in world space

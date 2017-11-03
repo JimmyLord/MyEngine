@@ -48,6 +48,9 @@ protected:
     uint32 m_ChildID; // 0 if pointing to root of prefab.
     GameObject* m_pGameObject;
 
+    // Indicates whether or not m_pGameObject is part of the editor instance of the prefab.
+    bool m_IsMasterPrefabGameObject;
+
 public:
     PrefabReference();
     PrefabReference(PrefabObject* pPrefab, uint32 childid, bool setgameobject);
@@ -61,15 +64,8 @@ public:
     void StoreIDsWhileLoading(uint32 prefabid, uint32 childid);
     void FinishLoadingPrefab(PrefabFile* pPrefabFile);
 
-#if MYFW_USING_WX
-protected:
-    // Indicated whether or not m_pGameObject is part of the editor instance of the prefab.
-    bool m_IsMasterPrefabGameObject;
-
-public:
     void SetAsMasterPrefabGameObject() { m_IsMasterPrefabGameObject = true; }
     bool IsMasterPrefabGameObject() { return m_IsMasterPrefabGameObject; }
-#endif
 };
 
 class PrefabObject : public CPPListNode
@@ -86,6 +82,7 @@ protected:
     PrefabFile* m_pPrefabFile;
 
     uint32 m_PrefabID;
+    uint32 m_NextChildPrefabID;
 
 public:
     PrefabObject();
@@ -101,9 +98,10 @@ public:
 
     PrefabFile* GetPrefabFile() { return m_pPrefabFile; }
 
+    uint32 GetNextChildPrefabIDAndIncrement();
+
 #if MYFW_USING_WX
 protected:
-    uint32 m_NextChildPrefabID;
     GameObject* m_pGameObject; // Each prefab is instantiated in editor so inheritance code can compare values.
 
     // Event handler for right click menu.
@@ -111,8 +109,6 @@ protected:
     wxTreeItemId m_TreeID;
 
 public:
-    uint32 GetNextChildPrefabIDAndIncrement();
-
     GameObject* GetGameObject(uint32 childid = 0);
     GameObject* FindChildGameObject(GameObject* pRootObject, uint32 childid);
 

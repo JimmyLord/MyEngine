@@ -35,8 +35,10 @@ PrefabReference::PrefabReference(PrefabObject* pPrefab, uint32 childid, bool set
     m_pGameObject = 0;
     m_ChildID = childid;
 
+#if MYFW_USING_WX
     if( setgameobject )
         m_pGameObject = m_pPrefab->FindChildGameObject( m_pPrefab->GetGameObject(), childid );
+#endif
 }
 
 void PrefabReference::StoreIDsWhileLoading(uint32 prefabid, uint32 childid)
@@ -60,9 +62,11 @@ void PrefabReference::FinishLoadingPrefab(PrefabFile* pPrefabFile)
     m_pPrefab = pPrefabFile->GetPrefabByID( m_PrefabID );
     MyAssert( m_pPrefab );
 
+#if MYFW_USING_WX
     // Find the correct GameObject from the prefab.
     m_pGameObject = m_pPrefab->GetGameObject( m_ChildID );
     MyAssert( m_pGameObject );
+#endif
 }
 
 // ============================================================================================================================
@@ -76,9 +80,10 @@ PrefabObject::PrefabObject()
     m_pPrefabFile = 0;
 
     m_PrefabID = 0;
-    m_NextChildPrefabID = 1;
 
 #if MYFW_USING_WX
+    m_NextChildPrefabID = 1;
+
     m_pGameObject = 0;
 #endif
 }
@@ -155,7 +160,6 @@ cJSON* PrefabObject::GetJSONObject()
     return m_jPrefab;
 }
 
-#if MYFW_USING_WX
 uint32 PrefabObject::GetNextChildPrefabIDAndIncrement()
 {
     m_NextChildPrefabID++;
@@ -163,6 +167,7 @@ uint32 PrefabObject::GetNextChildPrefabIDAndIncrement()
     return m_NextChildPrefabID - 1;
 }
 
+#if MYFW_USING_WX
 GameObject* PrefabObject::GetGameObject(uint32 childid)
 {
     return FindChildGameObject( m_pGameObject, childid );
