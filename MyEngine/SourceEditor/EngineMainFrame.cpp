@@ -35,6 +35,7 @@ const char* g_LaunchPlatformsMenuLabels[LaunchPlatform_NumPlatforms] =
     "&Win32",
     "Win&64",
     "&NaCl",
+    "&Android",
     // AddNewLaunchPlatform
 };
 
@@ -1097,6 +1098,7 @@ void EngineMainFrame::OnMenu_Engine(wxCommandEvent& event)
     case myIDEngine_Mode_LaunchPlatforms + 0:
     case myIDEngine_Mode_LaunchPlatforms + 1:
     case myIDEngine_Mode_LaunchPlatforms + 2:
+    case myIDEngine_Mode_LaunchPlatforms + 3:
         // AddNewLaunchPlatform
         {
             int platformindex = id - myIDEngine_Mode_LaunchPlatforms;
@@ -1708,6 +1710,14 @@ void EngineMainFrame::LaunchGame()
             LaunchApplication( "Chrome", "http://localhost:5103/game.html" );
         }
         break;
+
+    case LaunchPlatform_Android:
+        {
+            LaunchApplication( "cmd.exe", "/C cd Android & BuildAndLaunch.bat" );
+        }
+        break;
+
+    // AddNewLaunchPlatform
     }
 }
 
