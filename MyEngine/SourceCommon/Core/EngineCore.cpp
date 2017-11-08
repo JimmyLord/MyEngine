@@ -1519,7 +1519,7 @@ unsigned int EngineCore::LoadSceneFromFile(const char* fullpath)
             LoadSceneFromJSON( filenamestart, jsonstr, sceneid, playwhenfinishedloading );
 
             g_pComponentSystemManager->m_pSceneInfoMap[sceneid].m_InUse = true;
-            strcpy_s( g_pComponentSystemManager->m_pSceneInfoMap[sceneid].m_FullPath, MAX_PATH, fullpath );
+            g_pComponentSystemManager->m_pSceneInfoMap[sceneid].ChangePath( fullpath );
 
             // Probably shouldn't bother with a rewind,
             //   might cause issues in future if LoadSceneFromJSON() uses stack and wants to keep info around

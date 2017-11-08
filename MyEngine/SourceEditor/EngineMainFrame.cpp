@@ -1713,7 +1713,14 @@ void EngineMainFrame::LaunchGame()
 
     case LaunchPlatform_Android:
         {
-            LaunchApplication( "cmd.exe", "/C cd Android & BuildAndLaunch.bat" );
+            char tempstr[255];
+            sprintf_s( tempstr, 255, "/C cd Android & BuildAndLaunch.bat %s", g_pComponentSystemManager->GetSceneInfo( 1 )->m_FullPath );
+            for( unsigned int i=0; i<strlen(tempstr); i++ )
+            {
+                if( tempstr[i] == '\\' )
+                    tempstr[i] = '/';
+            }
+            LaunchApplication( "cmd.exe", tempstr );
         }
         break;
 

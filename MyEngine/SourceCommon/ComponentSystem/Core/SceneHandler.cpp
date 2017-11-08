@@ -46,7 +46,10 @@ void SceneInfo::Reset()
 
 void SceneInfo::ChangePath(const char* newfullpath)
 {
-    sprintf_s( m_FullPath, MAX_PATH, "%s", newfullpath ); 
+    // Store a relative path, rather than the full path.
+    const char* relativepath = GetRelativePath( newfullpath );
+
+    sprintf_s( m_FullPath, MAX_PATH, "%s", relativepath );
 
 #if MYFW_USING_WX
     if( m_TreeID.IsOk() )
