@@ -38,6 +38,7 @@ enum LaunchPlatforms
     LaunchPlatform_Win64,
     LaunchPlatform_NaCl,
     LaunchPlatform_Android,
+    LaunchPlatform_Emscripten,
     // AddNewLaunchPlatform
     LaunchPlatform_NumPlatforms,
 };

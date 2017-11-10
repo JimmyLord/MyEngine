@@ -48,6 +48,7 @@ void SceneInfo::ChangePath(const char* newfullpath)
 {
     // Store a relative path, rather than the full path.
     const char* relativepath = GetRelativePath( newfullpath );
+    MyAssert( relativepath != 0 );
 
     sprintf_s( m_FullPath, MAX_PATH, "%s", relativepath );
 

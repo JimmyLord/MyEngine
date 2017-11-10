@@ -36,6 +36,7 @@ const char* g_LaunchPlatformsMenuLabels[LaunchPlatform_NumPlatforms] =
     "Win&64",
     "&NaCl",
     "&Android",
+    "&Emscripten",
     // AddNewLaunchPlatform
 };
 
@@ -1095,10 +1096,11 @@ void EngineMainFrame::OnMenu_Engine(wxCommandEvent& event)
         g_pEngineCore->OnModeAdvanceTime( 1.0f );
         break;
 
-    case myIDEngine_Mode_LaunchPlatforms + 0:
-    case myIDEngine_Mode_LaunchPlatforms + 1:
-    case myIDEngine_Mode_LaunchPlatforms + 2:
-    case myIDEngine_Mode_LaunchPlatforms + 3:
+    case myIDEngine_Mode_LaunchPlatforms + LaunchPlatform_Win32:
+    case myIDEngine_Mode_LaunchPlatforms + LaunchPlatform_Win64:
+    case myIDEngine_Mode_LaunchPlatforms + LaunchPlatform_NaCl:
+    case myIDEngine_Mode_LaunchPlatforms + LaunchPlatform_Android:
+    case myIDEngine_Mode_LaunchPlatforms + LaunchPlatform_Emscripten:
         // AddNewLaunchPlatform
         {
             int platformindex = id - myIDEngine_Mode_LaunchPlatforms;
@@ -1425,7 +1427,8 @@ void EngineMainFrame::LoadSceneDialog(bool unloadscenes)
     // load the file chosen by the user
     // TODO: typecasting will likely cause issues with multibyte names
     wxString wxpath = FileDialog.GetPath();
-    LoadScene( wxpath, unloadscenes );
+    const char* relativepath = GetRelativePath( wxpath );
+    LoadScene( relativepath, unloadscenes );
 }
 
 void EngineMainFrame::LoadScene(const char* scenename, bool unloadscenes)
@@ -1455,10 +1458,14 @@ void EngineMainFrame::LoadScene(const char* scenename, bool unloadscenes)
     // Load the scene from file.
     // This might cause some "undo" actions, so wipe them out once the load is complete.
     unsigned int numItemsInUndoStack = g_pEngineMainFrame->m_pCommandStack->GetUndoStackSize();
-    unsigned int sceneid = g_pEngineCore->LoadSceneFromFile( scenename );
+
+    char fullpath[MAX_PATH];
+    GetFullPath( scenename, fullpath, MAX_PATH );
+    unsigned int sceneid = g_pEngineCore->LoadSceneFromFile( fullpath );
+
     g_pEngineMainFrame->m_pCommandStack->ClearUndoStack( numItemsInUndoStack );
 
-    this->SetTitle( g_pComponentSystemManager->GetSceneInfo( sceneid )->m_FullPath );
+    this->SetTitle( scenename ); //g_pComponentSystemManager->GetSceneInfo( sceneid )->m_FullPath );
 }
 
 void EngineMainFrame::AddDatafilesToScene()
@@ -1721,6 +1728,12 @@ void EngineMainFrame::LaunchGame()
                     tempstr[i] = '/';
             }
             LaunchApplication( "cmd.exe", tempstr );
+        }
+        break;
+
+    case LaunchPlatform_Emscripten:
+        {
+            LaunchApplication( "cmd.exe", "/C cd Emscripten & BuildAndLaunch.bat" );
         }
         break;
 
