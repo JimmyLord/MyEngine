@@ -72,7 +72,7 @@ void ComponentAudioPlayer::LuaRegister(lua_State* luastate)
     luabridge::getGlobalNamespace( luastate )
         .beginClass<ComponentAudioPlayer>( "ComponentAudioPlayer" )
             //.addData( "m_SampleVector3", &ComponentAudioPlayer::m_SampleVector3 )
-            .addFunction( "PlaySound", &ComponentAudioPlayer::PlaySound )
+            .addFunction( "PlaySound", &ComponentAudioPlayer::PlaySound ) // void ComponentAudioPlayer::PlaySound(bool fireAndForget)
         .endClass();
 }
 #endif //MYFW_USING_LUA
@@ -296,6 +296,7 @@ void ComponentAudioPlayer::TickCallback(double TimePassed)
 }
 #endif //MYFW_USING_WX
 
+// Exposed to Lua, change elsewhere if function signature changes.
 void ComponentAudioPlayer::PlaySound(bool fireAndForget)
 {
     // Check for the sound cue if it's null, it might not have been set on initial load if sound cue file wasn't loaded.

@@ -107,20 +107,20 @@ void ComponentTransform::LuaRegister(lua_State* luastate)
     luabridge::getGlobalNamespace( luastate )
         .beginClass<ComponentTransform>( "ComponentTransform" )
             //.addData( "localmatrix", &ComponentTransform::m_LocalTransform )
-            .addFunction( "GetWorldTransform", &ComponentTransform::GetWorldTransform )
-            .addFunction( "SetWorldTransform", &ComponentTransform::SetWorldTransform )
-            .addFunction( "UpdateWorldSRT", &ComponentTransform::UpdateWorldSRT )
+            .addFunction( "GetWorldTransform", &ComponentTransform::GetWorldTransform ) // MyMatrix* ComponentTransform::GetWorldTransform(bool markdirty)
+            .addFunction( "SetWorldTransform", &ComponentTransform::SetWorldTransform ) // void ComponentTransform::SetWorldTransform(MyMatrix* mat)
+            .addFunction( "UpdateWorldSRT", &ComponentTransform::UpdateWorldSRT ) // void ComponentTransform::UpdateWorldSRT()
 
-            .addFunction( "GetLocalTransform", &ComponentTransform::GetLocalTransform )
-            .addFunction( "SetLocalTransform", &ComponentTransform::SetLocalTransform )
-            .addFunction( "UpdateLocalSRT", &ComponentTransform::UpdateLocalSRT )
+            .addFunction( "GetLocalTransform", &ComponentTransform::GetLocalTransform ) // MyMatrix* ComponentTransform::GetLocalTransform(bool markdirty)
+            .addFunction( "SetLocalTransform", &ComponentTransform::SetLocalTransform ) // void ComponentTransform::SetLocalTransform(MyMatrix* mat)
+            .addFunction( "UpdateLocalSRT", &ComponentTransform::UpdateLocalSRT ) // void ComponentTransform::UpdateLocalSRT()
 
-            .addFunction( "SetLocalPosition", &ComponentTransform::SetLocalPosition )
-            .addFunction( "SetLocalRotation", &ComponentTransform::SetLocalRotation )
-            .addFunction( "GetLocalPosition", &ComponentTransform::GetLocalPosition )
-            .addFunction( "GetLocalRotation", &ComponentTransform::GetLocalRotation )
+            .addFunction( "SetLocalPosition", &ComponentTransform::SetLocalPosition ) // void ComponentTransform::SetLocalPosition(Vector3 pos)
+            .addFunction( "SetLocalRotation", &ComponentTransform::SetLocalRotation ) // void ComponentTransform::SetLocalRotation(Vector3 rot)
+            .addFunction( "GetLocalPosition", &ComponentTransform::GetLocalPosition ) // Vector3 ComponentTransform::GetLocalPosition()
+            .addFunction( "GetLocalRotation", &ComponentTransform::GetLocalRotation ) // Vector3 ComponentTransform::GetLocalRotation()
 
-            .addFunction( "LookAt", &ComponentTransform::LookAt )
+            .addFunction( "LookAt", &ComponentTransform::LookAt ) // void ComponentTransform::LookAt(Vector3 pos)
         .endClass();
 }
 #endif //MYFW_USING_LUA
@@ -529,6 +529,7 @@ void ComponentTransform::SetWorldScale(Vector3 scale)
     }
 }
 
+// Exposed to Lua, change elsewhere if function signature changes.
 void ComponentTransform::SetLocalTransform(MyMatrix* mat)
 {
     m_LocalTransform = *mat;
@@ -549,6 +550,7 @@ void ComponentTransform::SetLocalTransform(MyMatrix* mat)
     }
 }
 
+// Exposed to Lua, change elsewhere if function signature changes.
 void ComponentTransform::SetLocalPosition(Vector3 pos)
 {
     m_LocalPosition = pos;
@@ -569,6 +571,7 @@ void ComponentTransform::SetLocalPosition(Vector3 pos)
     }
 }
 
+// Exposed to Lua, change elsewhere if function signature changes.
 void ComponentTransform::SetLocalRotation(Vector3 rot)
 {
     m_LocalRotation = rot;
@@ -595,6 +598,7 @@ void ComponentTransform::SetLocalScale(Vector3 scale)
     UpdateTransform();
 }
 
+// Exposed to Lua, change elsewhere if function signature changes.
 void ComponentTransform::SetWorldTransform(MyMatrix* mat)
 {
     //MyAssert( false );
@@ -621,6 +625,7 @@ void ComponentTransform::SetWorldTransform(MyMatrix* mat)
     }
 }
 
+// Exposed to Lua, change elsewhere if function signature changes.
 MyMatrix* ComponentTransform::GetWorldTransform(bool markdirty)
 {
     UpdateTransform();
@@ -658,6 +663,7 @@ MyMatrix ComponentTransform::GetWorldRotPosMatrix()
     return world;
 }
 
+// Exposed to Lua, change elsewhere if function signature changes.
 MyMatrix* ComponentTransform::GetLocalTransform(bool markdirty)
 {
     UpdateTransform();
@@ -668,6 +674,7 @@ MyMatrix* ComponentTransform::GetLocalTransform(bool markdirty)
     return &m_LocalTransform;
 }
 
+// Exposed to Lua, change elsewhere if function signature changes.
 Vector3 ComponentTransform::GetLocalPosition()
 {
     //return m_LocalTransform.GetTranslation();
@@ -678,6 +685,7 @@ Vector3 ComponentTransform::GetLocalScale()
     //return m_LocalTransform.GetScale();
     return m_LocalScale;
 }
+// Exposed to Lua, change elsewhere if function signature changes.
 Vector3 ComponentTransform::GetLocalRotation()
 {
     //return m_LocalTransform.GetEulerAngles();
@@ -712,6 +720,7 @@ void ComponentTransform::Rotate(MyMatrix* pRotMatrix, Vector3 pivot)
     SetWorldTransform( &worldTransform );
 }
 
+// Exposed to Lua, change elsewhere if function signature changes.
 void ComponentTransform::LookAt(Vector3 pos)
 {
     MyMatrix temp;
@@ -775,6 +784,7 @@ void ComponentTransform::SetParentTransform(ComponentTransform* pNewParentTransf
     UpdateWorldSRT();
 }
 
+// Exposed to Lua, change elsewhere if function signature changes.
 void ComponentTransform::UpdateWorldSRT()
 {
     m_WorldPosition = m_WorldTransform.GetTranslation();
@@ -782,6 +792,7 @@ void ComponentTransform::UpdateWorldSRT()
     m_WorldScale = m_WorldTransform.GetScale();
 }
 
+// Exposed to Lua, change elsewhere if function signature changes.
 void ComponentTransform::UpdateLocalSRT()
 {
     m_LocalPosition = m_LocalTransform.GetTranslation();

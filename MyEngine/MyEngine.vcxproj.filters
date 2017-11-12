@@ -761,5 +761,8 @@
       <Filter>Libraries\imgui</Filter>
     </None>
     <None Include="..\README.md" />
+    <None Include="SourceCommon\Core\LuaSnippets.txt">
+      <Filter>Source\Core Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

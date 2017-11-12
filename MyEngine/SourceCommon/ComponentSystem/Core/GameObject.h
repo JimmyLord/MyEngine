@@ -123,9 +123,11 @@ public:
     ComponentBase* GetFirstComponentOfType(const char* type);
     ComponentBase* GetNextComponentOfType(ComponentBase* pLastComponent);
 
+    // Exposed to Lua, change elsewhere if function signature changes.
     ComponentTransform* GetTransform() { return m_pComponentTransform; }
 
     // TODO: find a way to find an arbitrary component type that would be accessible from lua script.
+    // Exposed to Lua, change elsewhere if function signature changes.
     ComponentAnimationPlayer* GetAnimationPlayer()      { return (ComponentAnimationPlayer*)GetFirstComponentOfType( "AnimPlayerComponent" ); }
     ComponentCollisionObject* GetCollisionObject()      { return (ComponentCollisionObject*)GetFirstComponentOfType( "CollisionObjectComponent" ); }
     Component2DCollisionObject* Get2DCollisionObject()  { return (Component2DCollisionObject*)GetFirstComponentOfType( "2DCollisionObjectComponent" ); }

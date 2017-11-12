@@ -171,8 +171,8 @@ void ComponentCollisionObject::LuaRegister(lua_State* luastate)
 {
     luabridge::getGlobalNamespace( luastate )
         .beginClass<ComponentCollisionObject>( "ComponentCollisionObject" )
-            .addData( "mass", &ComponentCollisionObject::m_Mass )            
-            .addFunction( "ApplyForce", &ComponentCollisionObject::ApplyForce )
+            .addData( "mass", &ComponentCollisionObject::m_Mass ) // float
+            .addFunction( "ApplyForce", &ComponentCollisionObject::ApplyForce ) // void ComponentCollisionObject::ApplyForce(Vector3 force, Vector3 relpos)
         .endClass();
 }
 #endif //MYFW_USING_LUA
@@ -532,6 +532,7 @@ void ComponentCollisionObject::SyncRigidBodyToTransform()
     g_pBulletWorld->m_pDynamicsWorld->addRigidBody( m_pBody );
 }
 
+// Exposed to Lua, change elsewhere if function signature changes.
 void ComponentCollisionObject::ApplyForce(Vector3 force, Vector3 relpos)
 {
     btVector3 btforce( force.x, force.y, force.z );

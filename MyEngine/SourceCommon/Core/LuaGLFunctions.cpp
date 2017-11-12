@@ -25,15 +25,15 @@ void LuaRegisterGLFunctions(lua_State* luastate)
 {
     // Register some GL functions.
     luabridge::getGlobalNamespace( luastate )
-        .addFunction( "glGetUniformLocation", MyGetUniformLocation )
-        .addFunction( "glUniform1f",  MyUniform1f )
-        .addFunction( "glUniform2f",  MyUniform2f )
-        .addFunction( "glUniform3f",  MyUniform3f )
-        .addFunction( "glUniform4f",  MyUniform4f )
-        .addFunction( "glUniform1fv", MyUniform1fv )
-        .addFunction( "glUniform2fv", MyUniform2fv )
-        .addFunction( "glUniform3fv", MyUniform3fv )
-        .addFunction( "glUniform4fv", MyUniform4fv );
+        .addFunction( "glGetUniformLocation", MyGetUniformLocation ) // int MyGetUniformLocation(uint32 program, const char* name)
+        .addFunction( "glUniform1f",  MyUniform1f ) // void MyUniform1f(GLint location, GLfloat v0)
+        .addFunction( "glUniform2f",  MyUniform2f ) // void MyUniform2f(GLint location, GLfloat v0, GLfloat v1)
+        .addFunction( "glUniform3f",  MyUniform3f ) // void MyUniform3f(GLint location, GLfloat v0, GLfloat v1, GLfloat v2)
+        .addFunction( "glUniform4f",  MyUniform4f ) // void MyUniform4f(GLint location, GLfloat v0, GLfloat v1, GLfloat v2, GLfloat v3)
+        .addFunction( "glUniform1fv", MyUniform1fv ) // void MyUniform1fv(GLint location, GLsizei count, const luabridge::LuaRef value)
+        .addFunction( "glUniform2fv", MyUniform2fv ) // void MyUniform2fv(GLint location, GLsizei count, const luabridge::LuaRef value)
+        .addFunction( "glUniform3fv", MyUniform3fv ) // void MyUniform3fv(GLint location, GLsizei count, const luabridge::LuaRef value)
+        .addFunction( "glUniform4fv", MyUniform4fv ); // void MyUniform4fv(GLint location, GLsizei count, const luabridge::LuaRef value)
 }
 
 int MyGetUniformLocation(uint32 program, const char* name)

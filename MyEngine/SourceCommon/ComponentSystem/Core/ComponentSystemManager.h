@@ -161,6 +161,7 @@ public:
     static void LuaRegister(lua_State* luastate);
 #endif //MYFW_USING_LUA
 
+    // Exposed to Lua, change elsewhere if function signature changes.
     void SetTimeScale(float scale) { m_TimeScale = scale; }
 
     void MoveAllFilesNeededForLoadingScreenToStartOfFileList(GameObject* first);

@@ -66,6 +66,7 @@ protected:
     //MYFW_DECLARE_COMPONENT_CALLBACK_ONFILERENAMED(); // OnFileRenamedCallback
 
 public:
+    // Exposed to Lua, change elsewhere if function signature changes.
     MySprite* GetSprite() { return m_pSprite; }
 
     // Runtime component variable callbacks. //_VARIABLE_LIST

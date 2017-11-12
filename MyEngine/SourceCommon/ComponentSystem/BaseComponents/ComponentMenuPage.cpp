@@ -155,20 +155,20 @@ ComponentMenuPage* CastAs_ComponentMenuPage(ComponentBase* pComponent)
 #if MYFW_USING_LUA
 void ComponentMenuPage::LuaRegister(lua_State* luastate)
 {
-    luabridge::getGlobalNamespace( luastate ).addFunction( "CastAs_ComponentMenuPage", CastAs_ComponentMenuPage );
+    luabridge::getGlobalNamespace( luastate ).addFunction( "CastAs_ComponentMenuPage", CastAs_ComponentMenuPage ); // ComponentMenuPage* CastAs_ComponentMenuPage(ComponentBase* pComponent)
 
     luabridge::getGlobalNamespace( luastate )
         .beginClass<ComponentMenuPage>( "ComponentMenuPage" )
             //.addData( "localmatrix", &ComponentMenuPage::m_LocalTransform )
             
-            .addFunction( "GetMenuItemByName", &ComponentMenuPage::GetMenuItemByName )
-            .addFunction( "IsEnabled", &ComponentMenuPage::IsEnabled )
+            .addFunction( "GetMenuItemByName", &ComponentMenuPage::GetMenuItemByName ) // MenuItem* ComponentMenuPage::GetMenuItemByName(const char* name)
+            .addFunction( "IsEnabled", &ComponentMenuPage::IsEnabled ) // bool ComponentMenuPage::IsEnabled()
             
-            .addFunction( "SetSceneID", &ComponentMenuPage::SetSceneID )
-            .addFunction( "GetSceneID", &ComponentMenuPage::GetSceneID )
+            .addFunction( "SetSceneID", &ComponentMenuPage::SetSceneID ) // void ComponentMenuPage::SetSceneID(unsigned int sceneid)
+            .addFunction( "GetSceneID", &ComponentMenuPage::GetSceneID ) // unsigned int ComponentMenuPage::GetSceneID()
             
-            .addFunction( "SetID", &ComponentMenuPage::SetID )
-            .addFunction( "GetID", &ComponentMenuPage::GetID )
+            .addFunction( "SetID", &ComponentMenuPage::SetID ) // void ComponentMenuPage::SetID(unsigned int id)
+            .addFunction( "GetID", &ComponentMenuPage::GetID ) // unsigned int ComponentMenuPage::GetID()
         .endClass();
 }
 #endif //MYFW_USING_LUA
@@ -1689,6 +1689,7 @@ void ComponentMenuPage::SetMenuLayoutFile(MyFileObject* pFile)
     m_pMenuLayoutFile = pFile;
 }
 
+// Exposed to Lua, change elsewhere if function signature changes.
 MenuItem* ComponentMenuPage::GetMenuItemByName(const char* name)
 {
     for( int i=0; i<MAX_MENU_ITEMS; i++ )

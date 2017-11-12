@@ -13,6 +13,7 @@
 
 LuaGameState* g_pLuaGameState = 0;
 
+// Exposed to Lua, change elsewhere if function signature changes.
 void LUA_LogInfo(const char* str)
 {
     LOGInfo( LOGTag, str );
@@ -84,11 +85,11 @@ void LuaGameState::Rebuild()
 
 void LuaGameState::RegisterClasses()
 {
-    // register a loginfo function.
-    luabridge::getGlobalNamespace( m_pLuaState ).addFunction( "LogInfo", LUA_LogInfo );
-    luabridge::getGlobalNamespace( m_pLuaState ).addFunction( "GetSystemTime", MyTime_GetSystemTime );
-    luabridge::getGlobalNamespace( m_pLuaState ).addFunction( "GetRunningTime", MyTime_GetRunningTime );
-    luabridge::getGlobalNamespace( m_pLuaState ).addFunction( "GetUnpausedTime", MyTime_GetUnpausedTime );
+    // Register a loginfo function.
+    luabridge::getGlobalNamespace( m_pLuaState ).addFunction( "LogInfo", LUA_LogInfo ); // void LUA_LogInfo(const char* str)
+    luabridge::getGlobalNamespace( m_pLuaState ).addFunction( "GetSystemTime", MyTime_GetSystemTime ); // double MyTime_GetSystemTime(bool realtime)
+    luabridge::getGlobalNamespace( m_pLuaState ).addFunction( "GetRunningTime", MyTime_GetRunningTime ); // double MyTime_GetRunningTime()
+    luabridge::getGlobalNamespace( m_pLuaState ).addFunction( "GetUnpausedTime", MyTime_GetUnpausedTime ); // double MyTime_GetUnpausedTime()
 
     // Register some GL functions.
     LuaRegisterGLFunctions( m_pLuaState );
@@ -96,101 +97,101 @@ void LuaGameState::RegisterClasses()
     // register Framework classes.
     luabridge::getGlobalNamespace( m_pLuaState )
         .beginClass<MyMatrix>( "MyMatrix" )
-            .addConstructor<void(*) ()>()
-            .addData( "m11", &MyMatrix::m11 )
-            .addData( "m12", &MyMatrix::m12 )
-            .addData( "m13", &MyMatrix::m13 )
-            .addData( "m14", &MyMatrix::m24 )
-            .addData( "m21", &MyMatrix::m21 )
-            .addData( "m22", &MyMatrix::m22 )
-            .addData( "m23", &MyMatrix::m23 )
-            .addData( "m24", &MyMatrix::m34 )
-            .addData( "m31", &MyMatrix::m31 )
-            .addData( "m32", &MyMatrix::m32 )
-            .addData( "m33", &MyMatrix::m33 )
-            .addData( "m34", &MyMatrix::m44 )
-            .addData( "m41", &MyMatrix::m41 )
-            .addData( "m42", &MyMatrix::m42 )
-            .addData( "m43", &MyMatrix::m43 )
-            .addData( "m44", &MyMatrix::m44 )
-            .addFunction( "CreateLookAtView", &MyMatrix::CreateLookAtView )
-            .addFunction( "CreateLookAtWorld", &MyMatrix::CreateLookAtWorld )
-            .addFunction( "Scale", (void (MyMatrix::*)(float angle)) &MyMatrix::Scale )
-            .addFunction( "Rotate", (void (MyMatrix::*)(float angle, float x, float y, float z)) &MyMatrix::Rotate )
-            .addFunction( "Translate", (void (MyMatrix::*)(Vector3 pos)) &MyMatrix::Translate )
-            .addFunction( "SetIdentity", &MyMatrix::SetIdentity )
-            .addFunction( "CreateSRT", (void (MyMatrix::*)(Vector3 scale, Vector3 rot, Vector3 pos)) &MyMatrix::CreateSRT )
-            .addFunction( "Multiply", (MyMatrix (MyMatrix::*)(const MyMatrix o) const) &MyMatrix::operator* )
-            .addFunction( "CopyFrom", (MyMatrix& (MyMatrix::*)(const MyMatrix& o)) &MyMatrix::operator= )            
+            .addConstructor<void(*) ()>() // MyMatrix()
+            .addData( "m11", &MyMatrix::m11 ) // float
+            .addData( "m12", &MyMatrix::m12 ) // float
+            .addData( "m13", &MyMatrix::m13 ) // float
+            .addData( "m14", &MyMatrix::m24 ) // float
+            .addData( "m21", &MyMatrix::m21 ) // float
+            .addData( "m22", &MyMatrix::m22 ) // float
+            .addData( "m23", &MyMatrix::m23 ) // float
+            .addData( "m24", &MyMatrix::m34 ) // float
+            .addData( "m31", &MyMatrix::m31 ) // float
+            .addData( "m32", &MyMatrix::m32 ) // float
+            .addData( "m33", &MyMatrix::m33 ) // float
+            .addData( "m34", &MyMatrix::m44 ) // float
+            .addData( "m41", &MyMatrix::m41 ) // float
+            .addData( "m42", &MyMatrix::m42 ) // float
+            .addData( "m43", &MyMatrix::m43 ) // float
+            .addData( "m44", &MyMatrix::m44 ) // float
+            .addFunction( "CreateLookAtView", &MyMatrix::CreateLookAtView ) // void MyMatrix::CreateLookAtView(const Vector3 &eye, const Vector3 &up, const Vector3 &at)
+            .addFunction( "CreateLookAtWorld", &MyMatrix::CreateLookAtWorld ) // void MyMatrix::CreateLookAtWorld(const Vector3& objpos, const Vector3& up, const Vector3& at)
+            .addFunction( "Scale", (void (MyMatrix::*)(float scale)) &MyMatrix::Scale ) // void MyMatrix::Scale(float scale);
+            .addFunction( "Rotate", (void (MyMatrix::*)(float angle, float x, float y, float z)) &MyMatrix::Rotate ) // void MyMatrix::Rotate(float angle, float x, float y, float z);
+            .addFunction( "Translate", (void (MyMatrix::*)(Vector3 pos)) &MyMatrix::Translate ) // void MyMatrix::Translate(Vector3 pos);
+            .addFunction( "SetIdentity", &MyMatrix::SetIdentity ) // void MyMatrix::SetIdentity();
+            .addFunction( "CreateSRT", (void (MyMatrix::*)(Vector3 scale, Vector3 rot, Vector3 pos)) &MyMatrix::CreateSRT ) // void MyMatrix::CreateSRT(float scale, Vector3 rot, Vector3 pos);
+            .addFunction( "Multiply", (MyMatrix (MyMatrix::*)(const MyMatrix o) const) &MyMatrix::operator* ) // MyMatrix MyMatrix::operator *(const float o) const
+            .addFunction( "CopyFrom", (MyMatrix& (MyMatrix::*)(const MyMatrix& o)) &MyMatrix::operator= ) // MyMatrix& MyMatrix::operator =(const MyMatrix& o)
         .endClass();
 
     luabridge::getGlobalNamespace( m_pLuaState )
         .beginClass<Vector4>( "Vector4" )
-            .addConstructor<void(*) (float x, float y, float z, float w)>()
-            .addData( "x", &Vector4::x )
-            .addData( "y", &Vector4::y )
-            .addData( "z", &Vector4::z )
-            .addData( "w", &Vector4::w )
-            .addFunction( "Set", &Vector4::Set )
-            .addFunction( "Add", &Vector4::Add )
-            .addFunction( "Sub", &Vector4::Sub )
-            .addFunction( "Scale", &Vector4::Scale )
-            .addFunction( "Dot", &Vector4::Dot )
+            .addConstructor<void(*) (float x, float y, float z, float w)>() // Vector4(float nx, float ny, float nz, float nw)
+            .addData( "x", &Vector4::x ) // float
+            .addData( "y", &Vector4::y ) // float
+            .addData( "z", &Vector4::z ) // float
+            .addData( "w", &Vector4::w ) // float
+            .addFunction( "Set", &Vector4::Set ) // void Vector4::Set(float nx, float ny, float nz, float nw)
+            .addFunction( "Add", &Vector4::Add ) // Vector4 Vector4::Add(const Vector4& o) const
+            .addFunction( "Sub", &Vector4::Sub ) // Vector4 Vector4::Sub(const Vector4& o) const
+            .addFunction( "Scale", &Vector4::Scale ) // Vector4 Vector4::Scale(const float o) const
+            .addFunction( "Dot", &Vector4::Dot ) // float Vector4::Dot(const Vector4 &o) const
             //.addFunction( "Cross", &Vector4::Cross )
-            .addFunction( "Length", &Vector4::Length )
-            .addFunction( "LengthSquared", &Vector4::LengthSquared )
-            .addFunction( "Normalize", &Vector4::Normalize )
+            .addFunction( "Length", &Vector4::Length ) // float Vector4::Length() const
+            .addFunction( "LengthSquared", &Vector4::LengthSquared ) // float Vector4::LengthSquared() const
+            .addFunction( "Normalize", &Vector4::Normalize ) // Vector4 Vector4::Normalize()
         .endClass();
 
     luabridge::getGlobalNamespace( m_pLuaState )
         .beginClass<Vector3>( "Vector3" )
-            .addConstructor<void(*) (float x, float y, float z)>()
-            .addData( "x", &Vector3::x )
-            .addData( "y", &Vector3::y )
-            .addData( "z", &Vector3::z )
-            .addFunction( "Set", &Vector3::Set )
-            .addFunction( "Add", &Vector3::Add )
-            .addFunction( "Sub", &Vector3::Sub )
-            .addFunction( "Scale", &Vector3::Scale )
-            .addFunction( "Dot", &Vector3::Dot )
-            .addFunction( "Cross", &Vector3::Cross )
-            .addFunction( "Length", &Vector3::Length )
-            .addFunction( "LengthSquared", &Vector3::LengthSquared )
-            .addFunction( "Normalize", &Vector3::Normalize )
+            .addConstructor<void(*) (float x, float y, float z)>() // Vector3(float nx, float ny, float nz)
+            .addData( "x", &Vector3::x ) // float
+            .addData( "y", &Vector3::y ) // float
+            .addData( "z", &Vector3::z ) // float
+            .addFunction( "Set", &Vector3::Set ) // void Vector3::Set(float nx, float ny, float nz)
+            .addFunction( "Add", &Vector3::Add ) // Vector3 Vector3::Add(const Vector3& o) const
+            .addFunction( "Sub", &Vector3::Sub ) // Vector3 Vector3::Sub(const Vector3& o) const
+            .addFunction( "Scale", &Vector3::Scale ) // Vector3 Vector3::Scale(const float o) const
+            .addFunction( "Dot", &Vector3::Dot ) // float Vector3::Dot(const Vector3 &o) const
+            .addFunction( "Cross", &Vector3::Cross ) // Vector3 Vector3::Cross(const Vector3& o) const
+            .addFunction( "Length", &Vector3::Length ) // float Vector3::Length() const
+            .addFunction( "LengthSquared", &Vector3::LengthSquared ) // float Vector3::LengthSquared() const
+            .addFunction( "Normalize", &Vector3::Normalize ) // Vector3 Vector3::Normalize()
         .endClass();
 
     luabridge::getGlobalNamespace( m_pLuaState )
         .beginClass<Vector2>( "Vector2" )
-            .addConstructor<void(*) (float x, float y)>()
-            .addData( "x", &Vector2::x )
-            .addData( "y", &Vector2::y )
-            .addFunction( "Set", &Vector2::Set )
-            .addFunction( "Add", &Vector2::Add )
-            .addFunction( "Sub", &Vector2::Sub )
-            .addFunction( "Scale", &Vector2::Scale )
-            .addFunction( "Dot", &Vector2::Dot )
-            .addFunction( "Length", &Vector2::Length )
-            .addFunction( "LengthSquared", &Vector2::LengthSquared )
-            .addFunction( "Normalize", &Vector2::Normalize )
+            .addConstructor<void(*) (float x, float y)>() // Vector2(float nx, float ny)
+            .addData( "x", &Vector2::x ) // float
+            .addData( "y", &Vector2::y ) // float
+            .addFunction( "Set", &Vector2::Set ) // void Vector2::Set(float nx, float ny)
+            .addFunction( "Add", &Vector2::Add ) // Vector2 Vector2::Add(const Vector2& o) const
+            .addFunction( "Sub", &Vector2::Sub ) // Vector2 Vector2::Sub(const Vector2& o) const
+            .addFunction( "Scale", &Vector2::Scale ) // Vector2 Vector2::Scale(const float o) const
+            .addFunction( "Dot", &Vector2::Dot ) // float Vector2::Dot(const Vector2 &o) const
+            .addFunction( "Length", &Vector2::Length ) // float Vector2::Length()
+            .addFunction( "LengthSquared", &Vector2::LengthSquared ) // float Vector2::LengthSquared()
+            .addFunction( "Normalize", &Vector2::Normalize ) // Vector2 Vector2::Normalize()
         .endClass();
 
     //luabridge::getGlobalNamespace( m_pLuaState )
     //    .beginClass<MySprite>( "MySprite" )
     //        .addFunction( "SetZRotation", &MySprite::SetZRotation )
-    //    .endClass();    
+    //    .endClass();
 
     luabridge::getGlobalNamespace( m_pLuaState )
         .beginClass<MyFileObject>( "MyFileObject" )
-        .endClass();    
+        .endClass();
 
     luabridge::getGlobalNamespace( m_pLuaState )
         .beginClass<FileManager>( "FileManager" )
-            .addFunction( "RequestFile", &FileManager::RequestFile )
+            .addFunction( "RequestFile", &FileManager::RequestFile ) // MyFileObject* FileManager::RequestFile(const char* filename)
         .endClass();
 
     luabridge::getGlobalNamespace( m_pLuaState )
         .beginClass<SoundManager>( "SoundManager" )
-            .addFunction( "PlayCueByName", &SoundManager::PlayCueByName )
+            .addFunction( "PlayCueByName", &SoundManager::PlayCueByName ) // int SoundManager::PlayCueByName(const char* name)
         .endClass();
 
     // Have some entity/component classes register themselves. // ADDING_NEW_ComponentType
@@ -230,10 +231,10 @@ void LuaGameState::RegisterClasses()
     MenuText::LuaRegister( m_pLuaState );
 
     // register global managers
-    luabridge::setGlobal( m_pLuaState, g_pEngineCore, "g_pEngineCore" );
-    luabridge::setGlobal( m_pLuaState, g_pComponentSystemManager, "g_pComponentSystemManager" );
-    luabridge::setGlobal( m_pLuaState, g_pFileManager, "g_pFileManager" );
-    luabridge::setGlobal( m_pLuaState, g_pGameCore->GetSoundManager(), "g_pSoundManager" );
+    luabridge::setGlobal( m_pLuaState, g_pEngineCore, "g_pEngineCore" ); // EngineCore*
+    luabridge::setGlobal( m_pLuaState, g_pComponentSystemManager, "g_pComponentSystemManager" ); // ComponentSystemManager*
+    luabridge::setGlobal( m_pLuaState, g_pFileManager, "g_pFileManager" ); // FileManager*
+    luabridge::setGlobal( m_pLuaState, g_pGameCore->GetSoundManager(), "g_pSoundManager" ); // SoundManager*
 }
 
 #endif //MYFW_USING_LUA

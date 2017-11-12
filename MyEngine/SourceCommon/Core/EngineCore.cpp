@@ -153,11 +153,13 @@ EngineCore::~EngineCore()
 }
 
 // Helper functions for some global namespace lua binding.
+// Exposed to Lua, change elsewhere if function signature changes.
 void EngineCoreSetMousePosition(float x, float y)
 {
     g_pEngineCore->SetMousePosition( x, y );
 }
 
+// Exposed to Lua, change elsewhere if function signature changes.
 void EngineCoreSetMouseLock(bool lock)
 {
     g_pEngineCore->SetMouseLock( lock );
@@ -168,14 +170,14 @@ void EngineCore::LuaRegister(lua_State* luastate)
 {
     luabridge::getGlobalNamespace( luastate )
         .beginClass<EngineCore>( "EngineCore" )
-            .addFunction( "RequestScene", &EngineCore::RequestScene )
-            .addFunction( "SwitchScene", &EngineCore::SwitchScene )
-            .addFunction( "ReloadScene", &EngineCore::ReloadScene )
+            .addFunction( "RequestScene", &EngineCore::RequestScene ) // void EngineCore::RequestScene(const char* fullpath)
+            .addFunction( "SwitchScene", &EngineCore::SwitchScene ) // void EngineCore::SwitchScene(const char* fullpath)
+            .addFunction( "ReloadScene", &EngineCore::ReloadScene ) // void EngineCore::ReloadScene(unsigned int sceneid)
             //.addFunction( "SetMousePosition", &EngineCore::SetMousePosition )
         .endClass();
     
-    luabridge::getGlobalNamespace( luastate ).addFunction( "SetMousePosition", EngineCoreSetMousePosition );    
-    luabridge::getGlobalNamespace( luastate ).addFunction( "SetMouseLock", EngineCoreSetMouseLock );    
+    luabridge::getGlobalNamespace( luastate ).addFunction( "SetMousePosition", EngineCoreSetMousePosition ); // void EngineCoreSetMousePosition(float x, float y)
+    luabridge::getGlobalNamespace( luastate ).addFunction( "SetMouseLock", EngineCoreSetMouseLock ); // void EngineCoreSetMouseLock(bool lock)
 }
 #endif //MYFW_USING_LUA
 
@@ -1317,6 +1319,7 @@ void EngineCore::CreateDefaultSceneObjects()
     }
 }
 
+// Exposed to Lua, change elsewhere if function signature changes.
 void EngineCore::ReloadScene(unsigned int sceneid)
 {
     m_SceneReloadRequested = true;
@@ -1342,6 +1345,7 @@ void EngineCore::ReloadSceneInternal(unsigned int sceneid)
     checkGlError( "end of ReloadSceneInternal" );
 }
 
+// Exposed to Lua, change elsewhere if function signature changes.
 void EngineCore::RequestScene(const char* fullpath)
 {
     RequestSceneInternal( fullpath );
@@ -1380,6 +1384,7 @@ RequestedSceneInfo* EngineCore::RequestSceneInternal(const char* fullpath)
     return &m_pSceneFilesLoading[i];
 }
 
+// Exposed to Lua, change elsewhere if function signature changes.
 void EngineCore::SwitchScene(const char* fullpath)
 {
 #if MYFW_USING_WX

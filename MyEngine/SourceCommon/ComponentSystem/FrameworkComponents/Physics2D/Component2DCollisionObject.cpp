@@ -125,11 +125,11 @@ void Component2DCollisionObject::LuaRegister(lua_State* luastate)
 {
     luabridge::getGlobalNamespace( luastate )
         .beginClass<Component2DCollisionObject>( "Component2DCollisionObject" )
-            .addData( "density", &Component2DCollisionObject::m_Density )
-            .addFunction( "ApplyForce", &Component2DCollisionObject::ApplyForce )
-            .addFunction( "ApplyLinearImpulse", &Component2DCollisionObject::ApplyLinearImpulse )
-            .addFunction( "GetLinearVelocity", &Component2DCollisionObject::GetLinearVelocity )
-            .addFunction( "GetMass", &Component2DCollisionObject::GetMass )            
+            .addData( "density", &Component2DCollisionObject::m_Density ) // float
+            .addFunction( "ApplyForce", &Component2DCollisionObject::ApplyForce ) // void Component2DCollisionObject::ApplyForce(Vector2 force, Vector2 localpoint)
+            .addFunction( "ApplyLinearImpulse", &Component2DCollisionObject::ApplyLinearImpulse ) // void Component2DCollisionObject::ApplyLinearImpulse(Vector2 impulse, Vector2 localpoint)
+            .addFunction( "GetLinearVelocity", &Component2DCollisionObject::GetLinearVelocity ) // Vector2 Component2DCollisionObject::GetLinearVelocity()
+            .addFunction( "GetMass", &Component2DCollisionObject::GetMass ) // float Component2DCollisionObject::GetMass()
         .endClass();
 }
 #endif //MYFW_USING_LUA
@@ -690,6 +690,7 @@ void Component2DCollisionObject::SyncRigidBodyToTransform()
         return;
 }
 
+// Exposed to Lua, change elsewhere if function signature changes.
 void Component2DCollisionObject::ApplyForce(Vector2 force, Vector2 localpoint)
 {
     b2Vec2 b2force = b2Vec2( force.x, force.y );
@@ -702,6 +703,7 @@ void Component2DCollisionObject::ApplyForce(Vector2 force, Vector2 localpoint)
     m_pBody->ApplyForce( b2force, worldpoint, true );
 }
 
+// Exposed to Lua, change elsewhere if function signature changes.
 void Component2DCollisionObject::ApplyLinearImpulse(Vector2 impulse, Vector2 localpoint)
 {
     b2Vec2 b2impulse = b2Vec2( impulse.x, impulse.y );
@@ -714,12 +716,14 @@ void Component2DCollisionObject::ApplyLinearImpulse(Vector2 impulse, Vector2 loc
     m_pBody->ApplyLinearImpulse( b2impulse, worldpoint, true );
 }
 
+// Exposed to Lua, change elsewhere if function signature changes.
 Vector2 Component2DCollisionObject::GetLinearVelocity()
 {
     b2Vec2 b2velocity = m_pBody->GetLinearVelocity();
     return Vector2( b2velocity.x, b2velocity.y );
 }
 
+// Exposed to Lua, change elsewhere if function signature changes.
 float Component2DCollisionObject::GetMass()
 {
     return m_pBody->GetMass();

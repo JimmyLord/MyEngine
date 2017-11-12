@@ -103,20 +103,20 @@ void GameObject::LuaRegister(lua_State* luastate)
 {
     luabridge::getGlobalNamespace( luastate )
         .beginClass<GameObject>( "GameObject" )
-            .addData( "ComponentTransform", &GameObject::m_pComponentTransform )
-            .addData( "name", &GameObject::m_Name )
-            .addData( "id", &GameObject::m_ID )            
-            .addFunction( "SetEnabled", &GameObject::SetEnabled )
-            .addFunction( "SetName", &GameObject::SetName )
-            .addFunction( "GetTransform", &GameObject::GetTransform )
-            .addFunction( "GetFirstComponentOfBaseType", &GameObject::GetFirstComponentOfBaseType )
-            .addFunction( "GetFirstComponentOfType", &GameObject::GetFirstComponentOfType )
-            .addFunction( "GetAnimationPlayer", &GameObject::GetAnimationPlayer )
-            .addFunction( "GetCollisionObject", &GameObject::GetCollisionObject )
-            .addFunction( "Get2DCollisionObject", &GameObject::Get2DCollisionObject )
-            .addFunction( "GetParticleEmitter", &GameObject::GetParticleEmitter )
-            .addFunction( "GetVoxelWorld", &GameObject::GetVoxelWorld )
-            .addFunction( "GetAudioPlayer", &GameObject::GetAudioPlayer )
+            .addData( "ComponentTransform", &GameObject::m_pComponentTransform ) // ComponentTransform*
+            .addData( "name", &GameObject::m_Name ) // char*
+            .addData( "id", &GameObject::m_ID ) // unsigned int
+            .addFunction( "SetEnabled", &GameObject::SetEnabled ) // void GameObject::SetEnabled(bool enabled, bool affectchildren)
+            .addFunction( "SetName", &GameObject::SetName ) // void GameObject::SetName(const char* name)
+            .addFunction( "GetTransform", &GameObject::GetTransform ) // ComponentTransform* GameObject::GetTransform()
+            .addFunction( "GetFirstComponentOfBaseType", &GameObject::GetFirstComponentOfBaseType ) // ComponentBase* GameObject::GetFirstComponentOfBaseType(BaseComponentTypes basetype)
+            .addFunction( "GetFirstComponentOfType", &GameObject::GetFirstComponentOfType ) // ComponentBase* GameObject::GetFirstComponentOfType(const char* type)
+            .addFunction( "GetAnimationPlayer", &GameObject::GetAnimationPlayer ) // ComponentAnimationPlayer* GameObject::GetAnimationPlayer()    
+            .addFunction( "GetCollisionObject", &GameObject::GetCollisionObject ) // ComponentCollisionObject* GameObject::GetCollisionObject()    
+            .addFunction( "Get2DCollisionObject", &GameObject::Get2DCollisionObject ) // Component2DCollisionObject* GameObject::Get2DCollisionObject()
+            .addFunction( "GetParticleEmitter", &GameObject::GetParticleEmitter ) // ComponentParticleEmitter* GameObject::GetParticleEmitter()    
+            .addFunction( "GetVoxelWorld", &GameObject::GetVoxelWorld ) // ComponentVoxelWorld* GameObject::GetVoxelWorld()              
+            .addFunction( "GetAudioPlayer", &GameObject::GetAudioPlayer ) // ComponentAudioPlayer* GameObject::GetAudioPlayer()            
         .endClass();
 }
 #endif //MYFW_USING_LUA
@@ -817,6 +817,7 @@ cJSON* GameObject::ExportAsJSONPrefab(PrefabObject* pPrefab, bool assignnewchild
     return jGameObject;
 }
 
+// Exposed to Lua, change elsewhere if function signature changes.
 void GameObject::SetEnabled(bool enabled, bool affectchildren)
 {
     if( m_Enabled == enabled )
@@ -896,6 +897,7 @@ void GameObject::SetID(unsigned int id)
     m_ID = id;
 }
 
+// Exposed to Lua, change elsewhere if function signature changes.
 void GameObject::SetName(const char* name)
 {
     MyAssert( name );
@@ -1334,6 +1336,7 @@ void GameObject::SetScriptFile(MyFileObject* pFile)
     }
 }
 
+// Exposed to Lua, change elsewhere if function signature changes.
 ComponentBase* GameObject::GetFirstComponentOfBaseType(BaseComponentTypes basetype)
 {
     for( unsigned int i=0; i<m_Components.Count(); i++ )
@@ -1367,6 +1370,7 @@ ComponentBase* GameObject::GetNextComponentOfBaseType(ComponentBase* pLastCompon
     return 0; // component not found.
 }
 
+// Exposed to Lua, change elsewhere if function signature changes.
 ComponentBase* GameObject::GetFirstComponentOfType(const char* type)
 {
     for( unsigned int i=0; i<m_Components.Count(); i++ )

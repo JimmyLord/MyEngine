@@ -191,11 +191,11 @@ void ComponentSystemManager::LuaRegister(lua_State* luastate)
 {
     luabridge::getGlobalNamespace( luastate )
         .beginClass<ComponentSystemManager>( "ComponentSystemManager" )
-            .addFunction( "SetTimeScale", &ComponentSystemManager::SetTimeScale )
-            .addFunction( "CreateGameObject", &ComponentSystemManager::CreateGameObject )
-            .addFunction( "DeleteGameObject", &ComponentSystemManager::DeleteGameObject )
-            .addFunction( "CopyGameObject", &ComponentSystemManager::CopyGameObject )
-            .addFunction( "FindGameObjectByName", &ComponentSystemManager::FindGameObjectByName )
+            .addFunction( "SetTimeScale", &ComponentSystemManager::SetTimeScale ) // void ComponentSystemManager::SetTimeScale(float scale)
+            .addFunction( "CreateGameObject", &ComponentSystemManager::CreateGameObject ) // GameObject* ComponentSystemManager::CreateGameObject(bool manageobject, int sceneid, bool isfolder, bool hastransform, PrefabReference* pPrefabRef)
+            .addFunction( "DeleteGameObject", &ComponentSystemManager::DeleteGameObject ) // void ComponentSystemManager::DeleteGameObject(GameObject* pObject, bool deletecomponents)
+            .addFunction( "CopyGameObject", &ComponentSystemManager::CopyGameObject ) // GameObject* ComponentSystemManager::CopyGameObject(GameObject* pObject, const char* newname)
+            .addFunction( "FindGameObjectByName", &ComponentSystemManager::FindGameObjectByName ) // GameObject* ComponentSystemManager::FindGameObjectByName(const char* name)
         .endClass();
 }
 #endif //MYFW_USING_LUA
@@ -1518,6 +1518,7 @@ unsigned int ComponentSystemManager::FindSceneID(const char* fullpath)
     return UINT_MAX;
 }
 
+// Exposed to Lua, change elsewhere if function signature changes.
 GameObject* ComponentSystemManager::CreateGameObject(bool manageobject, int sceneid, bool isfolder, bool hastransform, PrefabReference* pPrefabRef)
 {
     GameObject* pGameObject = MyNew GameObject( manageobject, sceneid, isfolder, hastransform, pPrefabRef );
@@ -1754,6 +1755,7 @@ void ComponentSystemManager::ManageGameObject(GameObject* pObject, bool managech
     }
 }
 
+// Exposed to Lua, change elsewhere if function signature changes.
 void ComponentSystemManager::DeleteGameObject(GameObject* pObject, bool deletecomponents)
 {
 #if MYFW_USING_WX
@@ -1807,6 +1809,7 @@ GameObject* ComponentSystemManager::EditorCopyGameObject(GameObject* pObject, bo
 }
 #endif
 
+// Exposed to Lua, change elsewhere if function signature changes.
 GameObject* ComponentSystemManager::CopyGameObject(GameObject* pObject, const char* newname)
 {
     if( pObject == 0 )
@@ -1977,6 +1980,7 @@ GameObject* ComponentSystemManager::FindGameObjectByIDFromList(GameObject* list,
     return 0;
 }
 
+// Exposed to Lua, change elsewhere if function signature changes.
 GameObject* ComponentSystemManager::FindGameObjectByName(const char* name)
 {
 #if 0 //MYFW_USING_WX

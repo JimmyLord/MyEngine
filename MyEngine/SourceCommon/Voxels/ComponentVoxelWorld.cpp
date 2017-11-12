@@ -97,10 +97,10 @@ void ComponentVoxelWorld::LuaRegister(lua_State* luastate)
     luabridge::getGlobalNamespace( luastate )
         .beginClass<ComponentVoxelWorld>( "ComponentVoxelWorld" )
             //.addData( "m_SampleVector3", &ComponentVoxelWorld::m_SampleVector3 )
-            .addFunction( "IsBlockEnabledAroundLocation", &ComponentVoxelWorld::IsBlockEnabledAroundLocation )
-            .addFunction( "GetSceneYForNextBlockBelowPosition", &ComponentVoxelWorld::GetSceneYForNextBlockBelowPosition )
-            .addFunction( "AddTileToTileInFocus", &ComponentVoxelWorld::AddTileToTileInFocus )            
-            .addFunction( "DeleteTileInFocus", &ComponentVoxelWorld::DeleteTileInFocus )            
+            .addFunction( "IsBlockEnabledAroundLocation", &ComponentVoxelWorld::IsBlockEnabledAroundLocation ) // bool ComponentVoxelWorld::IsBlockEnabledAroundLocation(Vector3 scenepos, float radius)
+            .addFunction( "GetSceneYForNextBlockBelowPosition", &ComponentVoxelWorld::GetSceneYForNextBlockBelowPosition ) // float ComponentVoxelWorld::GetSceneYForNextBlockBelowPosition(Vector3 scenepos, float radius)
+            .addFunction( "AddTileToTileInFocus", &ComponentVoxelWorld::AddTileToTileInFocus ) // void ComponentVoxelWorld::AddTileToTileInFocus(Vector2 mousepos)           
+            .addFunction( "DeleteTileInFocus", &ComponentVoxelWorld::DeleteTileInFocus ) // void ComponentVoxelWorld::DeleteTileInFocus(Vector2 mousepos)
         .endClass();
 }
 #endif //MYFW_USING_LUA
@@ -476,6 +476,7 @@ void ComponentVoxelWorld::DrawCallback(ComponentCamera* pCamera, MyMatrix* pMatV
 }
 #endif
 
+// Exposed to Lua, change elsewhere if function signature changes.
 bool ComponentVoxelWorld::IsBlockEnabledAroundLocation(Vector3 scenepos, float radius)
 {
     if( m_pVoxelWorld == 0 )
@@ -489,6 +490,7 @@ bool ComponentVoxelWorld::IsBlockEnabledAroundLocation(Vector3 scenepos, float r
     return false;
 }
 
+// Exposed to Lua, change elsewhere if function signature changes.
 float ComponentVoxelWorld::GetSceneYForNextBlockBelowPosition(Vector3 scenepos, float radius)
 {
     if( m_pVoxelWorld == 0 )
@@ -497,6 +499,7 @@ float ComponentVoxelWorld::GetSceneYForNextBlockBelowPosition(Vector3 scenepos, 
     return m_pVoxelWorld->GetSceneYForNextBlockBelowPosition( scenepos, radius );
 }
 
+// Exposed to Lua, change elsewhere if function signature changes.
 void ComponentVoxelWorld::AddTileToTileInFocus(Vector2 mousepos)
 {
     if( m_pVoxelWorld == 0 )
@@ -526,6 +529,7 @@ void ComponentVoxelWorld::AddTileToTileInFocus(Vector2 mousepos)
     }
 }
 
+// Exposed to Lua, change elsewhere if function signature changes.
 void ComponentVoxelWorld::DeleteTileInFocus(Vector2 mousepos)
 {
     if( m_pVoxelWorld == 0 )

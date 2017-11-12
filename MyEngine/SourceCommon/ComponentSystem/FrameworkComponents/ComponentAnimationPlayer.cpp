@@ -51,7 +51,7 @@ void ComponentAnimationPlayer::LuaRegister(lua_State* luastate)
     luabridge::getGlobalNamespace( luastate )
         .beginClass<ComponentAnimationPlayer>( "ComponentAnimationPlayer" )
             //.addData( "localmatrix", &ComponentAnimationPlayer::m_LocalTransform )
-            .addFunction( "SetCurrentAnimation", &ComponentAnimationPlayer::SetCurrentAnimation )
+            .addFunction( "SetCurrentAnimation", &ComponentAnimationPlayer::SetCurrentAnimation ) // void ComponentAnimationPlayer::SetCurrentAnimation(unsigned int anim)
         .endClass();
 }
 #endif //MYFW_USING_LUA
@@ -168,6 +168,7 @@ void ComponentAnimationPlayer::Tick(double TimePassed)
     //    LOGInfo( "Animation", "Blend Perc: %0.2f - %d-%d\n", perc, m_AnimationIndex, m_LastAnimationIndex );
 }
 
+// Exposed to Lua, change elsewhere if function signature changes.
 void ComponentAnimationPlayer::SetCurrentAnimation(unsigned int anim)
 {
     if( anim == m_AnimationIndex )

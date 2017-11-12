@@ -105,7 +105,7 @@ void ComponentParticleEmitter::LuaRegister(lua_State* luastate)
 {
     luabridge::getGlobalNamespace( luastate )
         .beginClass<ComponentParticleEmitter>( "ComponentParticleEmitter" )
-            .addFunction( "CreateBurst", &ComponentParticleEmitter::CreateBurst )
+            .addFunction( "CreateBurst", &ComponentParticleEmitter::CreateBurst ) // void ComponentParticleEmitter::CreateBurst(int number, Vector3 offset)
         .endClass();
 }
 #endif //MYFW_USING_LUA
@@ -367,6 +367,7 @@ void ComponentParticleEmitter::PushChangesToSceneGraphObjects()
     }
 }
 
+// Exposed to Lua, change elsewhere if function signature changes.
 void ComponentParticleEmitter::CreateBurst(int number, Vector3 offset)
 {
     while( number )

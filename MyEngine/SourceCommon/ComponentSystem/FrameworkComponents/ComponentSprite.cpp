@@ -76,13 +76,12 @@ void ComponentSprite::Reset()
 #if MYFW_USING_LUA
 void ComponentSprite::LuaRegister(lua_State* luastate)
 {
-    luabridge::getGlobalNamespace( luastate ).addFunction( "CastAs_ComponentSprite", CastAs_ComponentSprite );
+    luabridge::getGlobalNamespace( luastate ).addFunction( "CastAs_ComponentSprite", CastAs_ComponentSprite ); // ComponentSprite* CastAs_ComponentSprite(ComponentBase* pComponent)
 
     luabridge::getGlobalNamespace( luastate )
         .beginClass<ComponentSprite>( "ComponentSprite" )
             //.addData( "localmatrix", &ComponentSprite::m_LocalTransform )
-            
-            .addFunction( "GetSprite", &ComponentSprite::GetSprite )
+            .addFunction( "GetSprite", &ComponentSprite::GetSprite ) // MySprite* ComponentSprite::GetSprite()
         .endClass();
 }
 #endif //MYFW_USING_LUA
