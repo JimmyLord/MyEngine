@@ -121,7 +121,7 @@ void LuaGameState::RegisterClasses()
             .addFunction( "Translate", (void (MyMatrix::*)(Vector3 pos)) &MyMatrix::Translate ) // void MyMatrix::Translate(Vector3 pos);
             .addFunction( "SetIdentity", &MyMatrix::SetIdentity ) // void MyMatrix::SetIdentity();
             .addFunction( "CreateSRT", (void (MyMatrix::*)(Vector3 scale, Vector3 rot, Vector3 pos)) &MyMatrix::CreateSRT ) // void MyMatrix::CreateSRT(float scale, Vector3 rot, Vector3 pos);
-            .addFunction( "Multiply", (MyMatrix (MyMatrix::*)(const MyMatrix o) const) &MyMatrix::operator* ) // MyMatrix MyMatrix::operator *(const float o) const
+            .addFunction( "Multiply", (MyMatrix (MyMatrix::*)(const MyMatrix o) const) &MyMatrix::operator* ) // MyMatrix MyMatrix::operator *(const MyMatrix o) const
             .addFunction( "CopyFrom", (MyMatrix& (MyMatrix::*)(const MyMatrix& o)) &MyMatrix::operator= ) // MyMatrix& MyMatrix::operator =(const MyMatrix& o)
         .endClass();
 

@@ -1,0 +1,945 @@
+To get some form of autocomplete in vscode for lua scripts,
+I've created this block of snippets that can be pasted into vscode under:
+    File->Preferences->User Snippets->Lua
+
+    //luabridge::getGlobalNamespace( m_pLuaState ).addFunction( "LogInfo", LUA_LogInfo ); // void LUA_LogInfo(const char* str)
+    //luabridge::getGlobalNamespace( m_pLuaState ).addFunction( "GetSystemTime", MyTime_GetSystemTime ); // double MyTime_GetSystemTime(bool realtime)
+    //luabridge::getGlobalNamespace( m_pLuaState ).addFunction( "GetRunningTime", MyTime_GetRunningTime ); // double MyTime_GetRunningTime()
+    //luabridge::getGlobalNamespace( m_pLuaState ).addFunction( "GetUnpausedTime", MyTime_GetUnpausedTime ); // double MyTime_GetUnpausedTime()
+
+    "LogInfo": {
+		"prefix": "LogInfo",
+        "body": "LogInfo( ${1:string} )",
+        "description": "Output a string to the log window."
+    },
+    "GetSystemTime": {
+		"prefix": "GetSystemTime",
+        "body": "GetSystemTime( ${1:bool realtime} )",
+        "description": "Get system time."
+    },
+    "GetRunningTime": {
+		"prefix": "GetRunningTime",
+        "body": "GetRunningTime()",
+        "description": "Get amount of time the game has been running."
+    },
+    "GetUnpausedTime": {
+		"prefix": "GetUnpausedTime",
+        "body": "GetUnpausedTime()",
+        "description": "Get amount of time the game has been running unpaused."
+    },
+	
+    //luabridge::getGlobalNamespace( luastate )
+    //    .addFunction( "glGetUniformLocation", MyGetUniformLocation ) // int MyGetUniformLocation(uint32 program, const char* name)
+    //    .addFunction( "glUniform1f",  MyUniform1f ) // void MyUniform1f(GLint location, GLfloat v0)
+    //    .addFunction( "glUniform2f",  MyUniform2f ) // void MyUniform2f(GLint location, GLfloat v0, GLfloat v1)
+    //    .addFunction( "glUniform3f",  MyUniform3f ) // void MyUniform3f(GLint location, GLfloat v0, GLfloat v1, GLfloat v2)
+    //    .addFunction( "glUniform4f",  MyUniform4f ) // void MyUniform4f(GLint location, GLfloat v0, GLfloat v1, GLfloat v2, GLfloat v3)
+    //    .addFunction( "glUniform1fv", MyUniform1fv ) // void MyUniform1fv(GLint location, GLsizei count, const luabridge::LuaRef value)
+    //    .addFunction( "glUniform2fv", MyUniform2fv ) // void MyUniform2fv(GLint location, GLsizei count, const luabridge::LuaRef value)
+    //    .addFunction( "glUniform3fv", MyUniform3fv ) // void MyUniform3fv(GLint location, GLsizei count, const luabridge::LuaRef value)
+    //    .addFunction( "glUniform4fv", MyUniform4fv ); // void MyUniform4fv(GLint location, GLsizei count, const luabridge::LuaRef value)
+
+    "glGetUniformLocation": {
+		"prefix": "glGetUniformLocation",
+        "body": "glGetUniformLocation( ${1:uint32 program}, ${2:const char* name} )",
+        "description": "Only use during SetupCustomUniforms callback."
+    },
+    "glUniform1f": {
+		"prefix": "glUniform1f",
+        "body": "glUniform1f( ${1:GLint location}, ${2:GLfloat v0} )",
+        "description": "Only use during SetupCustomUniforms callback."
+    },
+    "glUniform2f": {
+		"prefix": "glUniform2f",
+        "body": "glUniform2f( ${1:GLint location}, ${2:GLfloat v0}, ${3:GLfloat v1} )",
+        "description": "Only use during SetupCustomUniforms callback."
+    },
+    "glUniform3f": {
+		"prefix": "glUniform3f",
+        "body": "glUniform3f( ${1:GLint location}, ${2:GLfloat v0}, ${3:GLfloat v1}, ${4:GLfloat v2} )",
+        "description": "Only use during SetupCustomUniforms callback."
+    },
+    "glUniform4f": {
+		"prefix": "glUniform4f",
+        "body": "glUniform4f( ${1:GLint location}, ${2:GLfloat v0}, ${3:GLfloat v1}, ${4:GLfloat v2}, ${5:GLfloat v3} )",
+        "description": "Only use during SetupCustomUniforms callback."
+    },
+    "glUniform1fv": {
+		"prefix": "glUniform1fv",
+        "body": "glUniform1fv( ${1:GLint location}, ${2:GLsizei count}, ${3:floatArray} )",
+        "description": "Only use during SetupCustomUniforms callback. Pass an array of floats."
+    },
+    "glUniform2fv": {
+		"prefix": "glUniform2fv",
+        "body": "glUniform2fv( ${1:GLint location}, ${2:GLsizei count}, ${3:Vector2Array} )",
+        "description": "Only use during SetupCustomUniforms callback. Pass an array of Vector2s."
+    },
+    "glUniform3fv": {
+		"prefix": "glUniform3fv",
+        "body": "glUniform3fv( ${1:GLint location}, ${2:GLsizei count}, ${3:Vector3Array} )",
+        "description": "Only use during SetupCustomUniforms callback. Pass an array of Vector3s."
+    },
+    "glUniform4fv": {
+		"prefix": "glUniform4fv",
+        "body": "glUniform4fv( ${1:GLint location}, ${2:GLsizei count}, ${3:Vector4Array} )",
+        "description": "Only use during SetupCustomUniforms callback. Pass an array of Vector4s."
+    },
+
+    //luabridge::getGlobalNamespace( m_pLuaState )
+    //    .beginClass<MyMatrix>( "MyMatrix" )
+    //        .addConstructor<void(*) ()>() // MyMatrix()
+    //        .addData( "m11", &MyMatrix::m11 ) // float
+    //        .addData( "m12", &MyMatrix::m12 ) // float
+    //        .addData( "m13", &MyMatrix::m13 ) // float
+    //        .addData( "m14", &MyMatrix::m24 ) // float
+    //        .addData( "m21", &MyMatrix::m21 ) // float
+    //        .addData( "m22", &MyMatrix::m22 ) // float
+    //        .addData( "m23", &MyMatrix::m23 ) // float
+    //        .addData( "m24", &MyMatrix::m34 ) // float
+    //        .addData( "m31", &MyMatrix::m31 ) // float
+    //        .addData( "m32", &MyMatrix::m32 ) // float
+    //        .addData( "m33", &MyMatrix::m33 ) // float
+    //        .addData( "m34", &MyMatrix::m44 ) // float
+    //        .addData( "m41", &MyMatrix::m41 ) // float
+    //        .addData( "m42", &MyMatrix::m42 ) // float
+    //        .addData( "m43", &MyMatrix::m43 ) // float
+    //        .addData( "m44", &MyMatrix::m44 ) // float
+    //        .addFunction( "CreateLookAtView", &MyMatrix::CreateLookAtView ) // void MyMatrix::CreateLookAtView(const Vector3 &eye, const Vector3 &up, const Vector3 &at)
+    //        .addFunction( "CreateLookAtWorld", &MyMatrix::CreateLookAtWorld ) // void MyMatrix::CreateLookAtWorld(const Vector3& objpos, const Vector3& up, const Vector3& at)
+    //        .addFunction( "Scale", (void (MyMatrix::*)(float scale)) &MyMatrix::Scale ) // void MyMatrix::Scale(float scale);
+    //        .addFunction( "Rotate", (void (MyMatrix::*)(float angle, float x, float y, float z)) &MyMatrix::Rotate ) // void MyMatrix::Rotate(float angle, float x, float y, float z);
+    //        .addFunction( "Translate", (void (MyMatrix::*)(Vector3 pos)) &MyMatrix::Translate ) // void MyMatrix::Translate(Vector3 pos);
+    //        .addFunction( "SetIdentity", &MyMatrix::SetIdentity ) // void MyMatrix::SetIdentity();
+    //        .addFunction( "CreateSRT", (void (MyMatrix::*)(Vector3 scale, Vector3 rot, Vector3 pos)) &MyMatrix::CreateSRT ) // void MyMatrix::CreateSRT(float scale, Vector3 rot, Vector3 pos);
+    //        .addFunction( "Multiply", (MyMatrix (MyMatrix::*)(const MyMatrix o) const) &MyMatrix::operator* ) // MyMatrix MyMatrix::operator *(const MyMatrix o) const
+    //        .addFunction( "CopyFrom", (MyMatrix& (MyMatrix::*)(const MyMatrix& o)) &MyMatrix::operator= ) // MyMatrix& MyMatrix::operator =(const MyMatrix& o)
+    //    .endClass();
+
+    "MyMatrix": {
+		"prefix": "MyMatrix",
+        "body": "local ${1:MyMatrix* instance} = MyMatrix()",
+        "description": "MyMatrix constuctor."
+    },
+    "MyMatrix:CreateLookAtView": {
+        "prefix": "MyMatrix:CreateLookAtView",
+        "body": "${1:MyMatrix* instance}:CreateLookAtView( ${2:Vector3 eye}, ${3:Vector3 up}, ${4:Vector3 at} )",
+        "description": "Set this matrix with view space look at values."
+    },
+    "MyMatrix:CreateLookAtWorld": {
+        "prefix": "MyMatrix:CreateLookAtWorld",
+        "body": "${1:MyMatrix* instance}:CreateLookAtWorld( ${2:Vector3 eye}, ${3:Vector3 up}, ${4:Vector3 at} )",
+        "description": "Set this matrix with world space look at values."
+    },
+    "MyMatrix:Scale": {
+        "prefix": "MyMatrix:Scale",
+        "body": "${1:MyMatrix* instance}:Scale( ${2:float scale} )",
+        "description": "Uniformly scale this matrix."
+    },
+    "MyMatrix:Rotate": {
+        "prefix": "MyMatrix:Rotate",
+        "body": "${1:MyMatrix* instance}:Rotate( ${2:float angle}, ${3:float x}, ${4:float y}, ${5:float z} )",
+        "description": "Rotate this matrix."
+    },
+    "MyMatrix:Translate": {
+        "prefix": "MyMatrix:Translate",
+        "body": "${1:MyMatrix* instance}:Translate( ${2:Vector3 pos} )",
+        "description": "Translate this matrix."
+    },
+    "MyMatrix:SetIdentity": {
+        "prefix": "MyMatrix:SetIdentity",
+        "body": "${1:MyMatrix* instance}:SetIdentity()",
+        "description": "Set this matrix to identity."
+    },
+    "MyMatrix:CreateSRT": {
+        "prefix": "MyMatrix:CreateSRT",
+        "body": "${1:MyMatrix* instance}:CreateSRT( ${2:Vector3 scale}, ${3:Vector3 rot}, ${4:Vector3 pos} )",
+        "description": "Set this matrix with scale/rot/trans info."
+    },
+    "MyMatrix:Multiply": {
+        "prefix": "MyMatrix:Multiply",
+        "body": "${1:MyMatrix* instance}:Multiply( ${2:MyMatrix othermatrix} )",
+        "description": "Set this matrix with scale/rot/trans info."
+    },
+    "MyMatrix:CopyFrom": {
+        "prefix": "MyMatrix:CopyFrom",
+        "body": "${1:MyMatrix* instance}:CopyFrom( ${2:MyMatrix othermatrix} )",
+        "description": "Copy other matrix info into this matrix."
+    },
+	
+    //luabridge::getGlobalNamespace( m_pLuaState )
+    //    .beginClass<Vector4>( "Vector4" )
+    //        .addConstructor<void(*) (float x, float y, float z, float w)>() // Vector4(float nx, float ny, float nz, float nw)
+    //        .addData( "x", &Vector4::x ) // float
+    //        .addData( "y", &Vector4::y ) // float
+    //        .addData( "z", &Vector4::z ) // float
+    //        .addData( "w", &Vector4::w ) // float
+    //        .addFunction( "Set", &Vector4::Set ) // void Vector4::Set(float nx, float ny, float nz, float nw)
+    //        .addFunction( "Add", &Vector4::Add ) // Vector4 Vector4::Add(const Vector4& o) const
+    //        .addFunction( "Sub", &Vector4::Sub ) // Vector4 Vector4::Sub(const Vector4& o) const
+    //        .addFunction( "Scale", &Vector4::Scale ) // Vector4 Vector4::Scale(const float o) const
+    //        .addFunction( "Dot", &Vector4::Dot ) // float Vector4::Dot(const Vector4 &o) const
+    //        //.addFunction( "Cross", &Vector4::Cross )
+    //        .addFunction( "Length", &Vector4::Length ) // float Vector4::Length() const
+    //        .addFunction( "LengthSquared", &Vector4::LengthSquared ) // float Vector4::LengthSquared() const
+    //        .addFunction( "Normalize", &Vector4::Normalize ) // Vector4::Vector4 Normalize()
+    //    .endClass();
+
+    "Vector4": {
+		"prefix": "Vector4",
+        "body": "local ${1:Vector4* instance} = Vector4( ${2:float x}, ${3:float y}, ${4:float z}, ${4:float w} )",
+        "description": "Vector4 constuctor."
+    },
+    "Vector4:Set": {
+        "prefix": "Vector4:Set",
+        "body": "${1:Vector4* instance}:Set( ${2:float x}, ${3:float y}, ${4:float z}, ${4:float w} )",
+        "description": "Replace the values in this vector."
+    },
+    "Vector4:Add": {
+        "prefix": "Vector4:Add",
+        "body": "${1:Vector4* instance}:Add( ${2:Vector4 othervector} )",
+        "description": "Adds other vector to this vector."
+    },
+    "Vector4:Sub": {
+        "prefix": "Vector4:Sub",
+        "body": "${1:Vector4* instance}:Sub( ${2:Vector4 othervector} )",
+        "description": "Subtracts other vector from this vector."
+    },
+    "Vector4:Scale": {
+        "prefix": "Vector4:Scale",
+        "body": "${1:Vector4* instance}:Scale( ${2:float scale} )",
+        "description": "Scales this vector."
+    },
+    "Vector4:Dot": {
+        "prefix": "Vector4:Dot",
+        "body": "${1:Vector4* instance}:Dot( ${2:Vector4 othervector} )",
+        "description": "Returns the dot product of the 2 vectors."
+    },
+    "Vector4:Length": {
+        "prefix": "Vector4:Length",
+        "body": "${1:Vector4* instance}:Length()",
+        "description": "Returns the length of the vector."
+    },
+    "Vector4:LengthSquared": {
+        "prefix": "Vector4:LengthSquared",
+        "body": "${1:Vector4* instance}:LengthSquared()",
+        "description": "Returns the squared length of the vector."
+    },
+    "Vector4:Normalize": {
+        "prefix": "Vector4:Normalize",
+        "body": "${1:Vector4* instance}:Normalize()",
+        "description": "Normalizes this vector."
+    },
+	
+    //luabridge::getGlobalNamespace( m_pLuaState )
+    //    .beginClass<Vector3>( "Vector3" )
+    //        .addConstructor<void(*) (float x, float y, float z)>() // Vector3(float nx, float ny, float nz)
+    //        .addData( "x", &Vector3::x ) // float
+    //        .addData( "y", &Vector3::y ) // float
+    //        .addData( "z", &Vector3::z ) // float
+    //        .addFunction( "Set", &Vector3::Set ) // void Vector3::Set(float nx, float ny, float nz)
+    //        .addFunction( "Add", &Vector3::Add ) // Vector3 Vector3::Add(const Vector3& o) const
+    //        .addFunction( "Sub", &Vector3::Sub ) // Vector3 Vector3::Sub(const Vector3& o) const
+    //        .addFunction( "Scale", &Vector3::Scale ) // Vector3 Vector3::Scale(const float o) const
+    //        .addFunction( "Dot", &Vector3::Dot ) // float Vector3::Dot(const Vector3 &o) const
+    //        .addFunction( "Cross", &Vector3::Cross ) // Vector3 Vector3::Cross(const Vector3& o) const
+    //        .addFunction( "Length", &Vector3::Length ) // float Vector3::Length() const
+    //        .addFunction( "LengthSquared", &Vector3::LengthSquared ) // float Vector3::LengthSquared() const
+    //        .addFunction( "Normalize", &Vector3::Normalize ) // Vector3 Vector3::Normalize()
+    //    .endClass();
+
+    "Vector3": {
+		"prefix": "Vector3",
+        "body": "local ${1:Vector3* instance} = Vector3( ${2:float x}, ${3:float y}, ${4:float z} )",
+        "description": "Vector3 constuctor."
+    },
+    "Vector3:Set": {
+        "prefix": "Vector3:Set",
+        "body": "${1:Vector3* instance}:Set( ${2:float x}, ${3:float y}, ${4:float z} )",
+        "description": "Replace the values in this vector."
+    },
+    "Vector3:Add": {
+        "prefix": "Vector3:Add",
+        "body": "${1:Vector3* instance}:Add( ${2:Vector3 othervector} )",
+        "description": "Adds other vector to this vector."
+    },
+    "Vector3:Sub": {
+        "prefix": "Vector3:Sub",
+        "body": "${1:Vector3* instance}:Sub( ${2:Vector3 othervector} )",
+        "description": "Subtracts other vector from this vector."
+    },
+    "Vector3:Scale": {
+        "prefix": "Vector3:Scale",
+        "body": "${1:Vector3* instance}:Scale( ${2:float scale} )",
+        "description": "Scales this vector."
+    },
+    "Vector3:Dot": {
+        "prefix": "Vector3:Dot",
+        "body": "${1:Vector3* instance}:Dot( ${2:Vector3 othervector} )",
+        "description": "Returns the dot product of the 2 vectors."
+    },
+    "Vector3:Cross": {
+        "prefix": "Vector3:Cross",
+        "body": "${1:Vector3* instance}:Cross( ${2:Vector3 othervector} )",
+        "description": "Returns the cross product of the 2 vectors."
+    },
+    "Vector3:Length": {
+        "prefix": "Vector3:Length",
+        "body": "${1:Vector3* instance}:Length()",
+        "description": "Returns the length of the vector."
+    },
+    "Vector3:LengthSquared": {
+        "prefix": "Vector3:LengthSquared",
+        "body": "${1:Vector3* instance}:LengthSquared()",
+        "description": "Returns the squared length of the vector."
+    },
+    "Vector3:Normalize": {
+        "prefix": "Vector3:Normalize",
+        "body": "${1:Vector3* instance}:Normalize()",
+        "description": "Normalizes this vector."
+    },
+	
+    //luabridge::getGlobalNamespace( m_pLuaState )
+    //    .beginClass<Vector2>( "Vector2" )
+    //        .addConstructor<void(*) (float x, float y)>() // Vector2(float nx, float ny)
+    //        .addData( "x", &Vector2::x ) // float
+    //        .addData( "y", &Vector2::y ) // float
+    //        .addFunction( "Set", &Vector2::Set ) // void Vector2::Set(float nx, float ny)
+    //        .addFunction( "Add", &Vector2::Add ) // Vector2 Vector2::Add(const Vector2& o) const
+    //        .addFunction( "Sub", &Vector2::Sub ) // Vector2 Vector2::Sub(const Vector2& o) const
+    //        .addFunction( "Scale", &Vector2::Scale ) // Vector2 Vector2::Scale(const float o) const
+    //        .addFunction( "Dot", &Vector2::Dot ) // float Vector2::Dot(const Vector2 &o) const
+    //        .addFunction( "Length", &Vector2::Length ) // float Vector2::Length()
+    //        .addFunction( "LengthSquared", &Vector2::LengthSquared ) // float Vector2::LengthSquared()
+    //        .addFunction( "Normalize", &Vector2::Normalize ) // Vector2 Vector2::Normalize()
+    //    .endClass();
+
+    "Vector2": {
+		"prefix": "Vector2",
+        "body": "local ${1:Vector2* instance} = Vector2( ${2:float x}, ${3:float y} )",
+        "description": "Vector2 constuctor."
+    },
+    "Vector2:Set": {
+        "prefix": "Vector2:Set",
+        "body": "${1:Vector2* instance}:Set( ${2:float x}, ${3:float y} )",
+        "description": "Replace the values in this vector."
+    },
+    "Vector2:Add": {
+        "prefix": "Vector2:Add",
+        "body": "${1:Vector2* instance}:Add( ${2:Vector2 othervector} )",
+        "description": "Adds other vector to this vector."
+    },
+    "Vector2:Sub": {
+        "prefix": "Vector2:Sub",
+        "body": "${1:Vector2* instance}:Sub( ${2:Vector2 othervector} )",
+        "description": "Subtracts other vector from this vector."
+    },
+    "Vector2:Scale": {
+        "prefix": "Vector2:Scale",
+        "body": "${1:Vector2* instance}:Scale( ${2:float scale} )",
+        "description": "Scales this vector."
+    },
+    "Vector2:Dot": {
+        "prefix": "Vector2:Dot",
+        "body": "${1:Vector2* instance}:Dot( ${2:Vector2 othervector} )",
+        "description": "Returns the dot product of the 2 vectors."
+    },
+    "Vector2:Length": {
+        "prefix": "Vector2:Length",
+        "body": "${1:Vector2* instance}:Length()",
+        "description": "Returns the length of the vector."
+    },
+    "Vector2:LengthSquared": {
+        "prefix": "Vector2:LengthSquared",
+        "body": "${1:Vector2* instance}:LengthSquared()",
+        "description": "Returns the squared length of the vector."
+    },
+    "Vector2:Normalize": {
+        "prefix": "Vector2:Normalize",
+        "body": "${1:Vector2* instance}:Normalize()",
+        "description": "Normalizes this vector."
+    },
+	
+    ////luabridge::getGlobalNamespace( m_pLuaState )
+    ////    .beginClass<MySprite>( "MySprite" )
+    ////        .addFunction( "SetZRotation", &MySprite::SetZRotation )
+    ////    .endClass();    
+
+    //luabridge::getGlobalNamespace( m_pLuaState )
+    //    .beginClass<MyFileObject>( "MyFileObject" )
+    //    .endClass();    
+
+    //luabridge::getGlobalNamespace( m_pLuaState )
+    //    .beginClass<FileManager>( "FileManager" )
+    //        .addFunction( "RequestFile", &FileManager::RequestFile ) // MyFileObject* FileManager::RequestFile(const char* filename)
+    //    .endClass();
+
+    //luabridge::getGlobalNamespace( m_pLuaState )
+    //    .beginClass<SoundManager>( "SoundManager" )
+    //        .addFunction( "PlayCueByName", &SoundManager::PlayCueByName ) // int SoundManager::PlayCueByName(const char* name)
+    //    .endClass();
+
+    //// Have some entity/component classes register themselves. // ADDING_NEW_ComponentType
+    //EngineCore::LuaRegister( m_pLuaState );
+    //    luabridge::getGlobalNamespace( luastate )
+    //        .beginClass<EngineCore>( "EngineCore" )
+    //            .addFunction( "RequestScene", &EngineCore::RequestScene ) // void EngineCore::RequestScene(const char* fullpath)
+    //            .addFunction( "SwitchScene", &EngineCore::SwitchScene ) // void EngineCore::SwitchScene(const char* fullpath)
+    //            .addFunction( "ReloadScene", &EngineCore::ReloadScene ) // void EngineCore::ReloadScene(unsigned int sceneid)
+    //            //.addFunction( "SetMousePosition", &EngineCore::SetMousePosition )
+    //        .endClass();
+    //
+    //    luabridge::getGlobalNamespace( luastate ).addFunction( "SetMousePosition", EngineCoreSetMousePosition ); // void EngineCoreSetMousePosition(float x, float y)
+    //    luabridge::getGlobalNamespace( luastate ).addFunction( "SetMouseLock", EngineCoreSetMouseLock ); // void EngineCoreSetMouseLock(bool lock)
+
+	"g_pEngineCore:RequestScene": {
+		"prefix": "g_pEngineCore:RequestScene",
+        "body": "g_pEngineCore:RequestScene( ${1:scene name} )",
+        "description": "Request a new scene."
+    },
+	
+    //GameObject::LuaRegister( m_pLuaState );
+    //    luabridge::getGlobalNamespace( luastate )
+    //        .beginClass<GameObject>( "GameObject" )
+    //            .addData( "ComponentTransform", &GameObject::m_pComponentTransform ) // ComponentTransform*
+    //            .addData( "name", &GameObject::m_Name ) // char*
+    //            .addData( "id", &GameObject::m_ID ) // unsigned int
+    //            .addFunction( "SetEnabled", &GameObject::SetEnabled ) // void GameObject::SetEnabled(bool enabled, bool affectchildren)
+    //            .addFunction( "SetName", &GameObject::SetName ) // void GameObject::SetName(const char* name)
+    //            .addFunction( "GetTransform", &GameObject::GetTransform ) // ComponentTransform* GameObject::GetTransform()
+    //            .addFunction( "GetFirstComponentOfBaseType", &GameObject::GetFirstComponentOfBaseType ) // ComponentBase* GameObject::GetFirstComponentOfBaseType(BaseComponentTypes basetype)
+    //            .addFunction( "GetFirstComponentOfType", &GameObject::GetFirstComponentOfType ) // ComponentBase* GameObject::GetFirstComponentOfType(const char* type)
+    //            .addFunction( "GetAnimationPlayer", &GameObject::GetAnimationPlayer ) // ComponentAnimationPlayer* GameObject::GetAnimationPlayer()    
+    //            .addFunction( "GetCollisionObject", &GameObject::GetCollisionObject ) // ComponentCollisionObject* GameObject::GetCollisionObject()    
+    //            .addFunction( "Get2DCollisionObject", &GameObject::Get2DCollisionObject ) // Component2DCollisionObject* GameObject::Get2DCollisionObject()
+    //            .addFunction( "GetParticleEmitter", &GameObject::GetParticleEmitter ) // ComponentParticleEmitter* GameObject::GetParticleEmitter()    
+    //            .addFunction( "GetVoxelWorld", &GameObject::GetVoxelWorld ) // ComponentVoxelWorld* GameObject::GetVoxelWorld()              
+    //            .addFunction( "GetAudioPlayer", &GameObject::GetAudioPlayer ) // ComponentAudioPlayer* GameObject::GetAudioPlayer()            
+    //        .endClass();
+
+	"GameObject:GetTransform": {
+		"prefix": "GameObject::GetTransform",
+        "body": "${1:GameObject instance}:GetTransform()",
+        "description": "Gets the transform component from a GameObject."
+    },
+
+    //ComponentBase::LuaRegister( m_pLuaState );
+    //    luabridge::getGlobalNamespace( luastate )
+    //        .beginClass<ComponentBase>( "ComponentBase" )
+    //            //.addData( "localmatrix", &ComponentBase::m_LocalTransform )
+    //        
+    //            .addFunction( "SetEnabled", &ComponentBase::SetEnabled ) // void ComponentBase::SetEnabled(bool enabled)
+    //            .addFunction( "IsEnabled", &ComponentBase::IsEnabled ) // bool ComponentBase::IsEnabled()
+    //        
+    //            .addFunction( "SetSceneID", &ComponentBase::SetSceneID ) // void ComponentBase::SetSceneID(unsigned int sceneid)
+    //            .addFunction( "GetSceneID", &ComponentBase::GetSceneID ) // unsigned int ComponentBase::GetSceneID()
+    //        
+    //            .addFunction( "SetID", &ComponentBase::SetID ) // void ComponentBase::SetID(unsigned int id)
+    //            .addFunction( "GetID", &ComponentBase::GetID ) // unsigned int ComponentBase::GetID()
+	//        .endClass();
+	
+	"ComponentBase:SetEnabled": {
+		"prefix": "ComponentBase:SetEnabled",
+        "body": "${1:ComponentBase instance}:SetEnabled( ${2:bool isEnabled} )",
+        "description": "Set whether or not this component is enabled."
+    },
+	"ComponentBase:IsEnabled": {
+		"prefix": "ComponentBase:IsEnabled",
+        "body": "${1:ComponentBase instance}:IsEnabled()",
+        "description": "Returns whether or not this component is enabled."
+    },
+	"ComponentBase:SetSceneID": {
+		"prefix": "ComponentBase:SetSceneID",
+        "body": "${1:ComponentBase instance}:SetSceneID( ${2:new ID} )",
+        "description": "Set the SceneID of this component."
+    },
+	"ComponentBase:GetSceneID": {
+		"prefix": "ComponentBase:GetSceneID",
+        "body": "${1:ComponentBase instance}:GetSceneID()",
+        "description": "Get the SceneID of this component."
+    },
+	"ComponentBase:SetID": {
+		"prefix": "ComponentBase:SetID",
+        "body": "${1:ComponentBase instance}:SetID( ${2:new ID} )",
+        "description": "Set the ID of this component."
+    },
+	"ComponentBase:GetID": {
+		"prefix": "ComponentBase:GetID",
+        "body": "${1:ComponentBase instance}:GetID()",
+        "description": "Get the ID of this component."
+	},
+	
+    //ComponentTransform::LuaRegister( m_pLuaState );
+    //    luabridge::getGlobalNamespace( luastate )
+    //        .beginClass<ComponentTransform>( "ComponentTransform" )
+    //            //.addData( "localmatrix", &ComponentTransform::m_LocalTransform )
+    //            .addFunction( "GetWorldTransform", &ComponentTransform::GetWorldTransform ) // MyMatrix* ComponentTransform::GetWorldTransform(bool markdirty)
+    //            .addFunction( "SetWorldTransform", &ComponentTransform::SetWorldTransform ) // void ComponentTransform::SetWorldTransform(MyMatrix* mat)
+    //            .addFunction( "UpdateWorldSRT", &ComponentTransform::UpdateWorldSRT ) // void ComponentTransform::UpdateWorldSRT()
+    //
+    //            .addFunction( "GetLocalTransform", &ComponentTransform::GetLocalTransform ) // MyMatrix* ComponentTransform::GetLocalTransform(bool markdirty)
+    //            .addFunction( "SetLocalTransform", &ComponentTransform::SetLocalTransform ) // void ComponentTransform::SetLocalTransform(MyMatrix* mat)
+    //            .addFunction( "UpdateLocalSRT", &ComponentTransform::UpdateLocalSRT ) // void ComponentTransform::UpdateLocalSRT()
+    //
+    //            .addFunction( "SetLocalPosition", &ComponentTransform::SetLocalPosition ) // void ComponentTransform::SetLocalPosition(Vector3 pos)
+    //            .addFunction( "SetLocalRotation", &ComponentTransform::SetLocalRotation ) // void ComponentTransform::SetLocalRotation(Vector3 rot)
+    //            .addFunction( "GetLocalPosition", &ComponentTransform::GetLocalPosition ) // Vector3 ComponentTransform::GetLocalPosition()
+    //            .addFunction( "GetLocalRotation", &ComponentTransform::GetLocalRotation ) // Vector3 ComponentTransform::GetLocalRotation()
+    //
+    //            .addFunction( "LookAt", &ComponentTransform::LookAt ) // void ComponentTransform::LookAt(Vector3 pos)
+    //        .endClass();
+
+	"ComponentTransform:GetWorldTransform": {
+		"prefix": "ComponentTransform:GetWorldTransform",
+        "body": "${1:ComponentTransform instance}:GetWorldTransform( ${2:bool markTransformAsDirty} )",
+        "description": "Get the world transform and possibly mark it as dirty."
+	},
+	"ComponentTransform:SetWorldTransform": {
+		"prefix": "ComponentTransform:SetWorldTransform",
+        "body": "${1:ComponentTransform instance}:SetWorldTransform( ${2:matrix} )",
+        "description": "Set the world transform."
+	},
+	"ComponentTransform:UpdateWorldSRT": {
+		"prefix": "ComponentTransform:UpdateWorldSRT",
+        "body": "${1:ComponentTransform instance}:UpdateWorldSRT()",
+        "description": "Force the scale/rotation/translation values to match values in the world transform."
+	},
+	"ComponentTransform:Get3LocalTransform": {
+		"prefix": "ComponentTransform:GetLocalTransform",
+        "body": "${1:ComponentTransform instance}:GetLocalTransform( ${2:bool markTransformAsDirty} )",
+        "description": "Get the local transform and possibly mark it as dirty."
+	},
+	"ComponentTransform:SetLocalTransform": {
+		"prefix": "ComponentTransform:SetLocalTransform",
+        "body": "${1:ComponentTransform instance}:SetLocalTransform( ${2:matrix} )",
+        "description": "Set the local transform."
+	},
+	"ComponentTransform:UpdateLocalSRT": {
+		"prefix": "ComponentTransform:UpdateLocalSRT",
+        "body": "${1:ComponentTransform instance}:UpdateLocalSRT()",
+        "description": "Force the scale/rotation/translation values to match values in the local transform."
+	},
+	"ComponentTransform:SetLocalPosition": {
+		"prefix": "ComponentTransform:SetLocalPosition",
+        "body": "${1:ComponentTransform instance}:SetLocalPosition( ${2:Vector3 new position} )",
+        "description": "Set the local position."
+	},
+	"ComponentTransform:SetLocalRotation": {
+		"prefix": "ComponentTransform:SetLocalRotation",
+        "body": "${1:ComponentTransform instance}:SetLocalRotation( ${2:Vector3 new rotation} )",
+        "description": "Set the local rotation."
+	},
+	"ComponentTransform:GetLocalPosition": {
+		"prefix": "ComponentTransform:GetLocalPosition",
+        "body": "${1:ComponentTransform instance}:GetLocalPosition()",
+        "description": "Get the local position."
+	},
+	"ComponentTransform:GetLocalRotation": {
+		"prefix": "ComponentTransform:GetLocalRotation",
+        "body": "${1:ComponentTransform instance}:GetLocalRotation()",
+        "description": "Get the local rotation."
+	},
+	"ComponentTransform:LookAt": {
+		"prefix": "ComponentTransform:LookAt",
+        "body": "${1:ComponentTransform instance}:LookAt( ${2:Vector3 position to look at} )",
+        "description": "Rotate the transform so it looks at a given position."
+	},
+	
+    //ComponentGameObjectProperties::LuaRegister( m_pLuaState );
+
+    //ComponentSystemManager::LuaRegister( m_pLuaState );
+    //    luabridge::getGlobalNamespace( luastate )
+    //        .beginClass<ComponentSystemManager>( "ComponentSystemManager" )
+    //            .addFunction( "SetTimeScale", &ComponentSystemManager::SetTimeScale ) // void ComponentSystemManager::SetTimeScale(float scale)
+    //            .addFunction( "CreateGameObject", &ComponentSystemManager::CreateGameObject ) // GameObject* ComponentSystemManager::CreateGameObject(bool manageobject, int sceneid, bool isfolder, bool hastransform, PrefabReference* pPrefabRef)
+    //            .addFunction( "DeleteGameObject", &ComponentSystemManager::DeleteGameObject ) // void ComponentSystemManager::DeleteGameObject(GameObject* pObject, bool deletecomponents)
+    //            .addFunction( "CopyGameObject", &ComponentSystemManager::CopyGameObject ) // GameObject* ComponentSystemManager::CopyGameObject(GameObject* pObject, const char* newname)
+    //            .addFunction( "FindGameObjectByName", &ComponentSystemManager::FindGameObjectByName ) // GameObject* ComponentSystemManager::FindGameObjectByName(const char* name)
+    //        .endClass();
+
+	"g_pComponentSystemManager:SetTimeScale": {
+		"prefix": "g_pComponentSystemManager:SetTimeScale",
+        "body": "g_pComponentSystemManager:SetTimeScale( ${1:new time scale} )",
+        "description": "Speed up or slow down time."
+	},
+	"g_pComponentSystemManager:CreateGameObject": {
+		"prefix": "g_pComponentSystemManager:CreateGameObject",
+        "body": "g_pComponentSystemManager:CreateGameObject( ${1:bool manageobject}, ${2:int sceneid}, ${3:bool isfolder}, ${4:bool hastransform}, ${5:PrefabReference* pPrefabRef} )",
+        "description": "Create a new game object."
+	},
+	"g_pComponentSystemManager:DeleteGameObject": {
+		"prefix": "g_pComponentSystemManager:DeleteGameObject",
+        "body": "g_pComponentSystemManager:DeleteGameObject( ${1:GameObject* pObject}, ${2:bool deletecomponents} )",
+        "description": "delete a game object."
+	},
+	"g_pComponentSystemManager:CopyGameObject": {
+		"prefix": "g_pComponentSystemManager:CopyGameObject",
+        "body": "g_pComponentSystemManager:CopyGameObject( ${1:GameObject* pObject}, ${2:const char* newname} )",
+        "description": "Make a copy of a game object."
+	},
+	"g_pComponentSystemManager:FindGameObjectByName": {
+		"prefix": "g_pComponentSystemManager:FindGameObjectByName",
+        "body": "g_pComponentSystemManager:FindGameObjectByName( ${1:name} )",
+        "description": "Find a game object in any scene by name."
+	},
+	
+    ////ComponentType_Camera,
+
+    //ComponentSprite::LuaRegister( m_pLuaState );
+    //    luabridge::getGlobalNamespace( luastate ).addFunction( "CastAs_ComponentSprite", CastAs_ComponentSprite ); // ComponentSprite* CastAs_ComponentSprite(ComponentBase* pComponent)
+    //    luabridge::getGlobalNamespace( luastate )
+    //        .beginClass<ComponentSprite>( "ComponentSprite" )
+    //            //.addData( "localmatrix", &ComponentSprite::m_LocalTransform )
+    //            .addFunction( "GetSprite", &ComponentSprite::GetSprite ) // MySprite* ComponentSprite::GetSprite()
+    //        .endClass();
+
+	"ComponentSprite:GetSprite": {
+		"prefix": "ComponentSprite:GetSprite",
+        "body": "${1:ComponentSprite instance}::GetSprite()",
+        "description": "Get the MySprite object from a sprite component."
+	},
+	
+    //ComponentMesh::LuaRegister( m_pLuaState );
+    ////ComponentType_MeshOBJ,
+    ////ComponentType_MeshPrimitive,
+    //ComponentVoxelMesh::LuaRegister( m_pLuaState );
+
+    //ComponentVoxelWorld::LuaRegister( m_pLuaState );
+    //    luabridge::getGlobalNamespace( luastate )
+    //        .beginClass<ComponentVoxelWorld>( "ComponentVoxelWorld" )
+    //            //.addData( "m_SampleVector3", &ComponentVoxelWorld::m_SampleVector3 )
+    //            .addFunction( "IsBlockEnabledAroundLocation", &ComponentVoxelWorld::IsBlockEnabledAroundLocation ) // bool ComponentVoxelWorld::IsBlockEnabledAroundLocation(Vector3 scenepos, float radius)
+    //            .addFunction( "GetSceneYForNextBlockBelowPosition", &ComponentVoxelWorld::GetSceneYForNextBlockBelowPosition ) // float ComponentVoxelWorld::GetSceneYForNextBlockBelowPosition(Vector3 scenepos, float radius)
+    //            .addFunction( "AddTileToTileInFocus", &ComponentVoxelWorld::AddTileToTileInFocus ) // void ComponentVoxelWorld::AddTileToTileInFocus(Vector2 mousepos)           
+    //            .addFunction( "DeleteTileInFocus", &ComponentVoxelWorld::DeleteTileInFocus ) // void ComponentVoxelWorld::DeleteTileInFocus(Vector2 mousepos)
+    //        .endClass();
+
+	"ComponentVoxelWorld:IsBlockEnabledAroundLocation": {
+		"prefix": "ComponentVoxelWorld:IsBlockEnabledAroundLocation",
+        "body": "${1:ComponentVoxelWorld instance}::IsBlockEnabledAroundLocation( ${2:Vector3 scenepos}, ${3:float radius} )",
+        "description": "Check whether or not there's an active block within a radius of a location."
+	},
+	"ComponentVoxelWorld:GetSceneYForNextBlockBelowPosition": {
+		"prefix": "ComponentVoxelWorld:GetSceneYForNextBlockBelowPosition",
+        "body": "${1:ComponentVoxelWorld instance}::GetSceneYForNextBlockBelowPosition( ${2:Vector3 scenepos}, ${3:float radius} )",
+        "description": "Get the height of the block below you."
+	},
+	"ComponentVoxelWorld:AddTileToTileInFocus": {
+		"prefix": "ComponentVoxelWorld:AddTileToTileInFocus",
+        "body": "${1:ComponentVoxelWorld instance}::AddTileToTileInFocus( ${2:Vector2 mousepos} )",
+        "description": "Add a block where the mouse is pointing."
+	},
+	"ComponentVoxelWorld:DeleteTileInFocus": {
+		"prefix": "ComponentVoxelWorld:DeleteTileInFocus",
+        "body": "${1:ComponentVoxelWorld instance}::DeleteTileInFocus( ${2:Vector2 mousepos} )",
+        "description": "Remove a block where the mouse is pointing."
+	},
+	
+    ////ComponentType_Light,
+    ////ComponentType_CameraShadow,
+    ////ComponentType_PostEffect,
+
+    //ComponentCollisionObject::LuaRegister( m_pLuaState );
+    //    luabridge::getGlobalNamespace( luastate )
+    //        .beginClass<ComponentCollisionObject>( "ComponentCollisionObject" )
+    //            .addData( "mass", &ComponentCollisionObject::m_Mass ) // float
+    //            .addFunction( "ApplyForce", &ComponentCollisionObject::ApplyForce ) // void ComponentCollisionObject::ApplyForce(Vector3 force, Vector3 relpos)
+	//        .endClass();
+
+	"ComponentCollisionObject:ApplyForce": {
+		"prefix": "ComponentCollisionObject:ApplyForce",
+        "body": "${1:ComponentCollisionObject instance}:ApplyForce( ${2:Vector3 force}, ${2:Vector3 relativepos} )",
+        "description": "Apply a force to a 3D physics object."
+    },
+	
+    //Component2DCollisionObject::LuaRegister( m_pLuaState );
+    //    luabridge::getGlobalNamespace( luastate )
+    //        .beginClass<Component2DCollisionObject>( "Component2DCollisionObject" )
+    //            .addData( "density", &Component2DCollisionObject::m_Density ) // float
+    //            .addFunction( "ApplyForce", &Component2DCollisionObject::ApplyForce ) // void Component2DCollisionObject::ApplyForce(Vector2 force, Vector2 localpoint)
+    //            .addFunction( "ApplyLinearImpulse", &Component2DCollisionObject::ApplyLinearImpulse ) // void Component2DCollisionObject::ApplyLinearImpulse(Vector2 impulse, Vector2 localpoint)
+    //            .addFunction( "GetLinearVelocity", &Component2DCollisionObject::GetLinearVelocity ) // Vector2 Component2DCollisionObject::GetLinearVelocity()
+    //            .addFunction( "GetMass", &Component2DCollisionObject::GetMass ) // float Component2DCollisionObject::GetMass()
+    //        .endClass();
+
+	"Component2DCollisionObject:ApplyForce": {
+		"prefix": "Component2DCollisionObject:ApplyForce",
+        "body": "${1:Component2DCollisionObject instance}:ApplyForce( ${2:Vector2 force}, ${2:Vector2 localpoint} )",
+        "description": "Apply a force to a 2D physics object."
+    },
+	"Component2DCollisionObject:ApplyLinearImpulse": {
+		"prefix": "Component2DCollisionObject:ApplyLinearImpulse",
+        "body": "${1:Component2DCollisionObject instance}:ApplyLinearImpulse( ${2:Vector2 impulse}, ${2:Vector2 localpoint} )",
+        "description": "Apply an impulse to a 2D physics object."
+    },
+	"Component2DCollisionObject:GetLinearVelocity": {
+		"prefix": "Component2DCollisionObject:GetLinearVelocity",
+        "body": "${1:Component2DCollisionObject instance}:GetLinearVelocity()",
+        "description": "Returns a Vector2."
+    },
+	"Component2DCollisionObject:GetMass": {
+		"prefix": "Component2DCollisionObject:GetMass",
+        "body": "${1:Component2DCollisionObject instance}:GetMass()",
+        "description": "Returns a float."
+    },
+	
+    ////ComponentType_2DJointRevolute,
+    ////ComponentType_2DJointPrismatic,
+    ////ComponentType_2DJointWeld,
+    ////ComponentType_LuaScript,
+    
+    //ComponentParticleEmitter::LuaRegister( m_pLuaState );
+    //    luabridge::getGlobalNamespace( luastate )
+    //        .beginClass<ComponentParticleEmitter>( "ComponentParticleEmitter" )
+    //            .addFunction( "CreateBurst", &ComponentParticleEmitter::CreateBurst ) // void ComponentParticleEmitter::CreateBurst(int number, Vector3 offset)
+    //        .endClass();
+
+	"ComponentParticleEmitter:CreateBurst": {
+		"prefix": "ComponentParticleEmitter:CreateBurst",
+        "body": "${1:ComponentParticleEmitter instance}:CreateBurst( ${2:number of particles}, ${2:Vector3 offset} )",
+        "description": "Trigger a burst of particles at a given offset."
+    },
+	
+    //ComponentAnimationPlayer::LuaRegister( m_pLuaState );
+    //    luabridge::getGlobalNamespace( luastate )
+    //        .beginClass<ComponentAnimationPlayer>( "ComponentAnimationPlayer" )
+    //            //.addData( "localmatrix", &ComponentAnimationPlayer::m_LocalTransform )
+    //            .addFunction( "SetCurrentAnimation", &ComponentAnimationPlayer::SetCurrentAnimation ) // void ComponentAnimationPlayer::SetCurrentAnimation(unsigned int anim)
+    //        .endClass();
+
+	"ComponentAnimationPlayer:SetCurrentAnimation": {
+		"prefix": "ComponentAnimationPlayer:SetCurrentAnimation",
+        "body": "${1:ComponentAnimationPlayer instance}:SetCurrentAnimation( ${2:animation index} )",
+        "description": "Change the animation index this component."
+    },
+	
+    //ComponentAnimationPlayer2D::LuaRegister( m_pLuaState );
+	//    .beginClass<ComponentAnimationPlayer2D>( "ComponentAnimationPlayer2D" )
+	//        //.addData( "m_TimeBetweenFrames", &ComponentAnimationPlayer2D::m_TimeBetweenFrames )
+	//        //m_AnimationIndex
+	//        //m_AnimationTime
+	//        //m_FrameIndex
+	//        //.addFunction( "GetTimeBetweenFrames", &ComponentAnimationPlayer2D::GetTimeBetweenFrames )
+	//    .endClass();
+
+    //ComponentAudioPlayer::LuaRegister( m_pLuaState );
+    //    luabridge::getGlobalNamespace( luastate )
+    //        .beginClass<ComponentAudioPlayer>( "ComponentAudioPlayer" )
+    //            //.addData( "m_SampleVector3", &ComponentAudioPlayer::m_SampleVector3 )
+    //            .addFunction( "PlaySound", &ComponentAudioPlayer::PlaySound ) // void ComponentAudioPlayer::PlaySound(bool fireAndForget)
+    //        .endClass();
+
+	"ComponentAudioPlayer:PlaySound": {
+		"prefix": "ComponentAudioPlayer:PlaySound",
+        "body": "${1:ComponentAudioPlayer instance}:PlaySound( ${2:bool fireAndForget} )",
+        "description": "Have this audio player component play its sound."
+    },
+
+    //ComponentMenuPage::LuaRegister( m_pLuaState );
+    //    luabridge::getGlobalNamespace( luastate ).addFunction( "CastAs_ComponentMenuPage", CastAs_ComponentMenuPage ); // ComponentMenuPage* CastAs_ComponentMenuPage(ComponentBase* pComponent)
+    //    luabridge::getGlobalNamespace( luastate )
+    //        .beginClass<ComponentMenuPage>( "ComponentMenuPage" )
+    //            //.addData( "localmatrix", &ComponentMenuPage::m_LocalTransform )
+    //        
+    //            .addFunction( "GetMenuItemByName", &ComponentMenuPage::GetMenuItemByName ) // MenuItem* ComponentMenuPage::GetMenuItemByName(const char* name)
+    //            .addFunction( "IsEnabled", &ComponentMenuPage::IsEnabled ) // bool ComponentMenuPage::IsEnabled()
+    //        
+    //            .addFunction( "SetSceneID", &ComponentMenuPage::SetSceneID ) // void ComponentMenuPage::SetSceneID(unsigned int sceneid)
+    //            .addFunction( "GetSceneID", &ComponentMenuPage::GetSceneID ) // unsigned int ComponentMenuPage::GetSceneID()
+    //        
+    //            .addFunction( "SetID", &ComponentMenuPage::SetID ) // void ComponentMenuPage::SetID(unsigned int id)
+    //            .addFunction( "GetID", &ComponentMenuPage::GetID ) // unsigned int ComponentMenuPage::GetID()
+    //        .endClass();
+
+	"ComponentMenuPage:GetMenuItemByName": {
+		"prefix": "ComponentMenuPage:GetMenuItemByName",
+        "body": "${1:ComponentMenuPage instance}:GetMenuItemByName( ${2:MenuItem name} )",
+        "description": "Get the MenuItem object with matching name from this page."
+    },
+	"ComponentMenuPage:IsEnabled": {
+		"prefix": "ComponentMenuPage:IsEnabled",
+        "body": "${1:ComponentMenuPage instance}:IsEnabled()",
+        "description": "Returns whether or not this menu page is enabled."
+    },
+	"ComponentMenuPage:SetSceneID": {
+		"prefix": "ComponentMenuPage:SetSceneID",
+        "body": "${1:ComponentMenuPage instance}:SetSceneID( ${2:new ID} )",
+        "description": "Set the SceneID of this menu page."
+    },
+	"ComponentMenuPage:GetSceneID": {
+		"prefix": "ComponentMenuPage:GetSceneID",
+        "body": "${1:ComponentMenuPage instance}:GetSceneID()",
+        "description": "Get the SceneID of this menu page."
+    },
+	"ComponentMenuPage:SetID": {
+		"prefix": "ComponentMenuPage:SetID",
+        "body": "${1:ComponentMenuPage instance}:SetID( ${2:new ID} )",
+        "description": "Set the ID of this menu page."
+    },
+	"ComponentMenuPage:GetID": {
+		"prefix": "ComponentMenuPage:GetID",
+        "body": "${1:ComponentMenuPage instance}:GetID()",
+        "description": "Get the ID of this menu page."
+    },
+	
+    //// Register the MenuItem types.
+    //MenuItem::LuaRegister( m_pLuaState );
+    //    luabridge::getGlobalNamespace( luastate )
+    //        .beginClass<MenuItem>( "MenuItem" )
+    //            //.addData( "localmatrix", &ComponentMenuPage::m_LocalTransform )
+    //
+    //            .addFunction( "SetName", &MenuItem::SetName ) // void MenuItem::SetName(const char* name)
+    //
+    //            .addFunction( "SetPosition", &MenuItem::SetPosition ) // void MenuItem::SetPosition(float x, float y)
+    //            .addFunction( "SetSize", &MenuItem::SetSize ) // void MenuItem::SetSize(float w, float h, float inputw, float inputh)
+    //            .addFunction( "SetPositionAndSize", &MenuItem::SetPositionAndSize ) // void MenuItem::SetPositionAndSize(float x, float y, float w, float h, float inputw, float inputh)
+    //            .addFunction( "SetAnchorPoint", &MenuItem::SetAnchorPoint ) // void MenuItem::SetAnchorPoint(MenuItemAnchorPoint anchortype)
+    //
+    //            .addFunction( "GetSize", &MenuItem::GetSize ) // Vector2 MenuItem::GetSize()
+    //
+    //            .addFunction( "SetVisible", &MenuItem::SetVisible ) // void MenuItem::SetVisible(bool visible)
+    //            .addFunction( "SetEnabled", &MenuItem::SetEnabled ) // void MenuItem::SetEnabled(bool enabled)
+    //            .addFunction( "SetVisibleAndEnabled", &MenuItem::SetVisibleAndEnabled ) // void MenuItem::SetVisibleAndEnabled(bool value)
+    //
+    //            .addFunction( "GetBoundingRect", &MenuItem::GetBoundingRect ) // MyRect MenuItem::GetBoundingRect()
+    //        .endClass();
+
+	"MenuItem:SetName": {
+		"prefix": "MenuItem:SetName",
+        "body": "${1:MenuItem instance}:SetName( ${2:name} )",
+        "description": "Set the name for this menu item."
+    },
+	"MenuItem:SetPosition": {
+		"prefix": "MenuItem:SetPosition",
+        "body": "${1:MenuItem instance}:SetPosition( ${2:x}, ${3:y} )",
+        "description": "Set the position for this menu item."
+    },
+	"MenuItem:SetSize": {
+		"prefix": "MenuItem:SetSize",
+        "body": "${1:MenuItem instance}:SetSize( ${2:width}, ${3:height}, ${4:inputwidth}, ${5:inputheight} )",
+        "description": "Set the size and size of touch detection for this menu item."
+    },
+	"MenuItem:SetPositionAndSize": {
+		"prefix": "MenuItem:SetPositionAndSize",
+        "body": "${1:MenuItem instance}:SetPositionAndSize( ${2:x}, ${3:y}, ${4:width}, ${5:height}, ${6:inputwidth}, ${7:inputheight} )",
+        "description": "Set the position, size and size of touch detection for this menu item."
+    },
+	"MenuItem:SetAnchorPoint": {
+		"prefix": "MenuItem:SetAnchorPoint",
+        "body": "${1:MenuItem instance}:SetAnchorPoint( ${2:anchortype} )",
+        "description": "Set the anchor type for this menu item."
+    },
+	"MenuItem:GetSize": {
+		"prefix": "MenuItem:GetSize",
+        "body": "${1:MenuItem instance}:GetSize()",
+        "description": "Returns a Vector2."
+    },
+	"MenuItem:SetVisible": {
+		"prefix": "MenuItem:SetVisible",
+        "body": "${1:MenuItem instance}:SetVisible( ${2:bool value} )",
+        "description": "Set whether or not this menu item will be rendered."
+    },
+	"MenuItem:SetEnabled": {
+		"prefix": "MenuItem:SetEnabled",
+        "body": "${1:MenuItem instance}:SetEnabled( ${2:bool value} )",
+        "description": "Set whether or not this menu item is active."
+    },
+	"MenuItem:SetVisibleAndEnabled": {
+		"prefix": "MenuItem:SetVisibleAndEnabled",
+        "body": "${1:MenuItem instance}:SetVisibleAndEnabled( ${2:bool value} )",
+        "description": "Set whether or not this menu item will be rendered and is active."
+    },
+	"MenuItem:GetBoundingRect": {
+		"prefix": "MenuItem:GetBoundingRect",
+        "body": "${1:MenuItem instance}:GetBoundingRect()",
+        "description": "Returns a MyRect."
+    },
+	
+    //MenuButton::LuaRegister( m_pLuaState );
+    //    luabridge::getGlobalNamespace( luastate )
+    //        .beginClass<MenuButton>( "MenuButton" )
+    //            //.addData( "localmatrix", &MenuButton::m_LocalTransform )
+    //
+    //            .addFunction( "SetSize", &MenuButton::SetSize ) // void MenuButton::SetSize(float w, float h, float inputw, float inputh)
+    //            .addFunction( "SetPositionAndSize", &MenuButton::SetPositionAndSize ) // void MenuButton::SetPositionAndSize(float x, float y, float w, float h, float inputw, float inputh)
+    //            .addFunction( "SetString", &MenuButton::SetString ) // void MenuButton::SetString(const char* str1, const char* str2, const char* str3)
+    //            .addFunction( "SetStringNumber", &MenuButton::SetStringNumber ) // void MenuButton::SetStringNumber(int stringnumber, const char* str1)
+    //
+    //            .addFunction( "GetSize", &MenuButton::GetSize ) // Vector2 MenuButton::GetSize()
+    //            .addFunction( "GetBGSize", &MenuButton::GetBGSize ) // Vector2 MenuButton::GetBGSize()
+    //        .endClass();
+
+	"MenuButton:SetSize": {
+		"prefix": "MenuButton:SetSize",
+        "body": "${1:MenuButton instance}:SetSize( ${2:width}, ${3:height}, ${4:inputwidth}, ${5:inputheight} )",
+        "description": "Set the size and size of touch detection for this menu item."
+    },
+	"MenuButton:SetPositionAndSize": {
+		"prefix": "MenuButton:SetPositionAndSize",
+        "body": "${1:MenuButton instance}:SetPositionAndSize( ${2:x}, ${3:y}, ${4:width}, ${5:height}, ${6:inputwidth}, ${7:inputheight} )",
+        "description": "Set the position, size and size of touch detection for this menu item."
+    },
+	"MenuButton:SetString": {
+		"prefix": "MenuButton:SetString",
+        "body": "${1:MenuButton instance}:SetString( ${2:new string 1}, ${3:new string 2}, ${4:new string 3} )",
+        "description": "Change the strings on this menu button."
+    },
+	"MenuButton:SetStringNumber": {
+		"prefix": "MenuButton:SetStringNumber",
+        "body": "${1:MenuButton instance}:SetStringNumber( ${2:string number}, ${3:new string} )",
+        "description": "Change one string on this menu button."
+    },
+	"MenuButton:GetSize": {
+		"prefix": "MenuButton:GetSize",
+        "body": "${1:MenuButton instance}:GetSize()",
+        "description": "Returns a Vector2."
+    },
+	"MenuButton:GetBGSize": {
+		"prefix": "MenuButton:GetBGSize",
+        "body": "${1:MenuButton instance}:GetBGSize()",
+        "description": "Returns a Vector2."
+    },
+	
+    //MenuSprite::LuaRegister( m_pLuaState );
+    //    luabridge::getGlobalNamespace( luastate )
+    //        .beginClass<MenuSprite>( "MenuSprite" )
+    //            //.addData( "localmatrix", &MenuSprite::m_LocalTransform )
+    //            .addFunction( "SetPositionAndSize", &MenuSprite::SetPositionAndSize ) // void MenuSprite::SetPositionAndSize(float x, float y, float w, float h, float inputw, float inputh)
+    //        .endClass();
+
+	"MenuSprite:SetPositionAndSize": {
+		"prefix": "MenuSprite:SetPositionAndSize",
+        "body": "${1:MenuSprite instance}:SetPositionAndSize( ${2:x}, ${3:y}, ${4:width}, ${5:height}, ${6:inputwidth}, ${7:inputheight} )",
+        "description": "Set the position, size and size of touch detection for this menu item."
+    },
+	
+    //MenuText::LuaRegister( m_pLuaState );
+    //    luabridge::getGlobalNamespace( luastate ).addFunction( "CastAs_MenuText", CastAs_MenuText ); // MenuText* CastAs_MenuText(MenuItem* pMenuItem)
+    //    luabridge::getGlobalNamespace( luastate )
+    //        .beginClass<MenuText>( "MenuText" )
+    //            //.addData( "localmatrix", &MenuText::m_LocalTransform )
+    //            .addFunction( "SetPositionAndSize", &MenuText::SetPositionAndSize ) // void MenuText::SetPositionAndSize(float x, float y, float w, float h, float inputw, float inputh)
+    //            .addFunction( "SetString", &MenuText::SetString ) // void MenuText::SetString(const char* str)
+    //        .endClass();
+
+	"MenuText:SetPositionAndSize": {
+		"prefix": "MenuText:SetPositionAndSize",
+        "body": "${1:MenuText instance}:SetPositionAndSize( ${2:x}, ${3:y}, ${4:width}, ${5:height}, ${6:inputwidth}, ${7:inputheight} )",
+        "description": "Set the position, size and size of touch detection for this menu item."
+    },
+	"MenuText:SetString": {
+		"prefix": "MenuText:SetString",
+        "body": "${1:MenuText instance}:SetString( ${2:new string} )",
+        "description": "Change the string on this menu text item."
+    }
+	
+    //// register global managers
+    //luabridge::setGlobal( m_pLuaState, g_pEngineCore, "g_pEngineCore" ); // EngineCore*
+    //luabridge::setGlobal( m_pLuaState, g_pComponentSystemManager, "g_pComponentSystemManager" ); // ComponentSystemManager*
+    //luabridge::setGlobal( m_pLuaState, g_pFileManager, "g_pFileManager" ); // FileManager*
+	//luabridge::setGlobal( m_pLuaState, g_pGameCore->GetSoundManager(), "g_pSoundManager" ); // SoundManager*
+
+	// "g_pEngineCore": {
+	// 	"prefix": "g_pEngineCore",
+    //     "body": "g_pEngineCore",
+    //     "description": "The global engine core object."
+    // }
