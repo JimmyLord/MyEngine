@@ -164,10 +164,7 @@ void ComponentMenuPage::LuaRegister(lua_State* luastate)
             .addFunction( "GetMenuItemByName", &ComponentMenuPage::GetMenuItemByName ) // MenuItem* ComponentMenuPage::GetMenuItemByName(const char* name)
             .addFunction( "IsEnabled", &ComponentMenuPage::IsEnabled ) // bool ComponentMenuPage::IsEnabled()
             
-            .addFunction( "SetSceneID", &ComponentMenuPage::SetSceneID ) // void ComponentMenuPage::SetSceneID(unsigned int sceneid)
             .addFunction( "GetSceneID", &ComponentMenuPage::GetSceneID ) // unsigned int ComponentMenuPage::GetSceneID()
-            
-            .addFunction( "SetID", &ComponentMenuPage::SetID ) // void ComponentMenuPage::SetID(unsigned int id)
             .addFunction( "GetID", &ComponentMenuPage::GetID ) // unsigned int ComponentMenuPage::GetID()
         .endClass();
 }

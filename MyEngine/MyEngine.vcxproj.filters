@@ -94,6 +94,9 @@
     <Filter Include="Source - Editor\Exporters">
       <UniqueIdentifier>{02837739-8d7a-47e0-9809-10810feb1f20}</UniqueIdentifier>
     </Filter>
+    <Filter Include="VSCode-MyEngineLua">
+      <UniqueIdentifier>{6871882b-794a-4eae-8245-88a7a105d8ad}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="SourceCommon\Camera\Camera3D.cpp">
@@ -761,8 +764,20 @@
       <Filter>Libraries\imgui</Filter>
     </None>
     <None Include="..\README.md" />
-    <None Include="SourceCommon\Core\LuaSnippets.txt">
-      <Filter>Source\Core Files</Filter>
+    <None Include="..\VSCode-MyEngineLua\BuildVSIX.bat">
+      <Filter>VSCode-MyEngineLua</Filter>
+    </None>
+    <None Include="..\VSCode-MyEngineLua\CHANGELOG.md">
+      <Filter>VSCode-MyEngineLua</Filter>
+    </None>
+    <None Include="..\VSCode-MyEngineLua\package.json">
+      <Filter>VSCode-MyEngineLua</Filter>
+    </None>
+    <None Include="..\VSCode-MyEngineLua\README.md">
+      <Filter>VSCode-MyEngineLua</Filter>
+    </None>
+    <None Include="..\VSCode-MyEngineLua\snippets\snippets.json">
+      <Filter>VSCode-MyEngineLua</Filter>
     </None>
   </ItemGroup>
 </Project>

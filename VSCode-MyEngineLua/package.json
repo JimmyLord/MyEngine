@@ -1,0 +1,21 @@
+{
+    "name": "myenginelua",
+    "displayName": "MyEngineLua",
+    "description": "Lua bindings for MyEngine",
+    "version": "0.0.1",
+    "publisher": "JimmyLord",
+    "engines": {
+        "vscode": "^1.18.0"
+    },
+    "categories": [
+        "Snippets"
+    ],
+    "contributes": {
+        "snippets": [
+            {
+                "language": "lua",
+                "path": "./snippets/snippets.json"
+            }
+        ]
+    }
+}

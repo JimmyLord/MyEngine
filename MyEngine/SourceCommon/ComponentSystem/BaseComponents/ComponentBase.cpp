@@ -69,10 +69,7 @@ void ComponentBase::LuaRegister(lua_State* luastate)
             .addFunction( "SetEnabled", &ComponentBase::SetEnabled ) // void ComponentBase::SetEnabled(bool enabled)
             .addFunction( "IsEnabled", &ComponentBase::IsEnabled ) // bool ComponentBase::IsEnabled()
             
-            .addFunction( "SetSceneID", &ComponentBase::SetSceneID ) // void ComponentBase::SetSceneID(unsigned int sceneid)
             .addFunction( "GetSceneID", &ComponentBase::GetSceneID ) // unsigned int ComponentBase::GetSceneID()
-            
-            .addFunction( "SetID", &ComponentBase::SetID ) // void ComponentBase::SetID(unsigned int id)
             .addFunction( "GetID", &ComponentBase::GetID ) // unsigned int ComponentBase::GetID()
         .endClass();
 }

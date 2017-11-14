@@ -10,6 +10,7 @@
 *.opensdf
 *.sdf
 *.ipch
+*.vsix
 xcuserdata
 /GameEntityComponentTest/Output
 /GameEntityComponentTest/Game/SourceAndroid/AndroidApk/assets

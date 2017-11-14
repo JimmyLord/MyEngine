@@ -2082,7 +2082,11 @@
   <ItemGroup>
     <None Include="..\Libraries\imgui\README.md" />
     <None Include="..\README.md" />
-    <None Include="SourceCommon\Core\LuaSnippets.txt" />
+    <None Include="..\VSCode-MyEngineLua\BuildVSIX.bat" />
+    <None Include="..\VSCode-MyEngineLua\CHANGELOG.md" />
+    <None Include="..\VSCode-MyEngineLua\package.json" />
+    <None Include="..\VSCode-MyEngineLua\README.md" />
+    <None Include="..\VSCode-MyEngineLua\snippets\snippets.json" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

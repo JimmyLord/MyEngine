@@ -1,7 +1,214 @@
-To get some form of autocomplete in vscode for lua scripts,
-I've created this block of snippets that can be pasted into vscode under:
-    File->Preferences->User Snippets->Lua
+{
+    //=========================================================================
+    //
+    //  Built-in Lua functions (mostly just the math functions for now)
+    //
+    //=========================================================================
 
+    "math.abs": {
+		"prefix": "math.abs",
+        "body": "math.abs( ${1:x} )",
+        "description": "Returns the absolute value of x."
+    },
+    
+    "math.acos": {
+		"prefix": "math.acos",
+        "body": "math.acos( ${1:x} )",
+        "description": "Returns the arc cosine of x (in radians)."
+    },
+    
+    "math.asin": {
+		"prefix": "math.asin",
+        "body": "math.asin( ${1:x} )",
+        "description": "Returns the arc sine of x (in radians)."
+    },
+    
+    "math.atan": {
+		"prefix": "math.atan",
+        "body": "math.atan( ${1:x} )",
+        "description": "Returns the arc tangent of x (in radians)."
+    },
+    
+    "math.atan2": {
+		"prefix": "math.atan2",
+        "body": "math.atan2( ${1:y}, ${2:x} )",
+        "description": "Returns the arc tangent of y/x (in radians), but uses the signs of both parameters to find the quadrant of the result. (It also handles correctly the case of x being zero.)"
+    },
+    
+    "math.ceil": {
+		"prefix": "math.ceil",
+        "body": "math.ceil( ${1:x} )",
+        "description": "Returns the smallest integer larger than or equal to x."
+    },
+    
+    "math.cos": {
+		"prefix": "math.cos",
+        "body": "math.cos( ${1:x} )",
+        "description": "Returns the cosine of x (assumed to be in radians)."
+    },
+    
+    "math.cosh": {
+		"prefix": "math.cosh",
+        "body": "math.cosh( ${1:x} )",
+        "description": "Returns the hyperbolic cosine of x."
+    },
+    
+    "math.deg": {
+		"prefix": "math.deg",
+        "body": "math.deg( ${1:x} )",
+        "description": "Returns the angle x (given in radians) in degrees."
+    },
+    
+    "math.exp": {
+		"prefix": "math.exp",
+        "body": "math.exp( ${1:x} )",
+        "description": "Returns the value e^x."
+    },
+    
+    "math.floor": {
+		"prefix": "math.floor",
+        "body": "math.floor( ${1:x} )",
+        "description": "Returns the largest integer smaller than or equal to x."
+    },
+    
+    "math.fmod": {
+		"prefix": "math.fmod",
+        "body": "math.fmod( ${1:x}, ${2:y} )",
+        "description": "Returns the remainder of the division of x by y that rounds the quotient towards zero."
+    },
+    
+    "math.frexp": {
+        "prefix": "math.frexp",
+        "body": "math.frexp( ${1:x} )",
+        "description": "Returns m and e such that x = m2^e, e is an integer and the absolute value of m is in the range [0.5, 1) (or zero when x is zero)."
+    },
+            
+    "math.huge": {
+		"prefix": "math.huge",
+        "body": "math.huge()",
+        "description": "The value HUGE_VAL, a value larger than or equal to any other numerical value."
+    },
+    
+    "math.ldexp": {
+		"prefix": "math.ldexp",
+        "body": "math.ldexp( ${1:m}, ${2:e} )",
+        "description": "Returns m2^e (e should be an integer)."
+    },
+    
+    "math.log": {
+		"prefix": "math.log",
+        "body": "math.log( ${1:x} )",
+        "description": "Returns the natural logarithm of x."
+    },
+    
+    "math.log10": {
+		"prefix": "math.log10",
+        "body": "math.log10( ${1:x} )",
+        "description": "Returns the base-10 logarithm of x."
+    },
+    
+    "math.max": {
+		"prefix": "math.max",
+        "body": "math.max( ${1:x1}, ${2:x2, x3, x4, etc...} )",
+        "description": "Returns the maximum value among its arguments."
+    },
+    
+    "math.min": {
+		"prefix": "math.min",
+        "body": "math.min( ${1:x}, ${2:x2, x3, x4, etc...} )",
+        "description": "Returns the minimum value among its arguments."
+    },
+    
+    "math.modf": {
+		"prefix": "math.modf",
+        "body": "math.modf( ${1:x} )",
+        "description": "Returns two numbers, the integral part of x and the fractional part of x."
+    },
+    
+    "math.pi": {
+		"prefix": "math.pi",
+        "body": "math.pi()",
+        "description": "The value of pi."
+    },
+    
+    "math.pow": {
+		"prefix": "math.pow",
+        "body": "math.pow( ${1:x}, ${2:y} )",
+        "description": "Returns x^y. (You can also use the expression x^y to compute this value.)"
+    },
+    
+    "math.rad": {
+		"prefix": "math.rad",
+        "body": "math.rad( ${1:x} )",
+        "description": "Returns the angle x (given in degrees) in radians."
+    },
+    
+    "math.random0to1": {
+		"prefix": "math.random0to1",
+        "body": "math.random()",
+        "description": "Returns a uniform pseudo-random real number in the range [0,1]."
+    },
+
+    "math.random1toMax": {
+		"prefix": "math.random1toMax",
+        "body": "math.random( ${1:Max} )",
+        "description": "Returns a uniform pseudo-random integer in the range [1, Max]."
+    },
+
+    "math.randomMintoMax": {
+		"prefix": "math.randomMintoMax",
+        "body": "math.random( ${1:Min}, ${2:Max} )",
+        "description": "Returns a uniform pseudo-random integer in the range [Min, Max]."
+    },
+    
+    "math.randomseed": {
+		"prefix": "math.randomseed",
+        "body": "math.randomseed( ${1:x} )",
+        "description": "Sets x as the 'seed' for the pseudo-random generator: equal seeds produce equal sequences of numbers."
+    },
+    
+    "math.sin": {
+		"prefix": "math.sin",
+        "body": "math.sin( ${1:x} )",
+        "description": "Returns the sine of x (assumed to be in radians)."
+    },
+    
+    "math.sinh": {
+		"prefix": "math.sinh",
+        "body": "math.sinh( ${1:x} )",
+        "description": "Returns the hyperbolic sine of x."
+    },
+    
+    "math.sqrt": {
+		"prefix": "math.sqrt",
+        "body": "math.sqrt( ${1:x} )",
+        "description": "Returns the square root of x. (You can also use the expression x^0.5 to compute this value.)."
+    },
+    
+    "math.tan": {
+		"prefix": "math.tan",
+        "body": "math.tan( ${1:x} )",
+        "description": "Returns the tangent of x (assumed to be in radians)."
+    },
+    
+    "math.tanh": {
+		"prefix": "math.tanh",
+        "body": "math.tanh( ${1:x} )",
+        "description": "Returns the hyperbolic tangent of x."
+    },
+
+    "os.time": {
+		"prefix": "os.time",
+        "body": "os.time()",
+        "description": "Returns the current time when called without arguments."
+    },
+
+    //=========================================================================
+    //
+    //  Functions exposed to Lua from MyEngine
+    //
+    //=========================================================================
+    
     //luabridge::getGlobalNamespace( m_pLuaState ).addFunction( "LogInfo", LUA_LogInfo ); // void LUA_LogInfo(const char* str)
     //luabridge::getGlobalNamespace( m_pLuaState ).addFunction( "GetSystemTime", MyTime_GetSystemTime ); // double MyTime_GetSystemTime(bool realtime)
     //luabridge::getGlobalNamespace( m_pLuaState ).addFunction( "GetRunningTime", MyTime_GetRunningTime ); // double MyTime_GetRunningTime()
@@ -430,10 +637,7 @@ I've created this block of snippets that can be pasted into vscode under:
     //            .addFunction( "SetEnabled", &ComponentBase::SetEnabled ) // void ComponentBase::SetEnabled(bool enabled)
     //            .addFunction( "IsEnabled", &ComponentBase::IsEnabled ) // bool ComponentBase::IsEnabled()
     //        
-    //            .addFunction( "SetSceneID", &ComponentBase::SetSceneID ) // void ComponentBase::SetSceneID(unsigned int sceneid)
     //            .addFunction( "GetSceneID", &ComponentBase::GetSceneID ) // unsigned int ComponentBase::GetSceneID()
-    //        
-    //            .addFunction( "SetID", &ComponentBase::SetID ) // void ComponentBase::SetID(unsigned int id)
     //            .addFunction( "GetID", &ComponentBase::GetID ) // unsigned int ComponentBase::GetID()
 	//        .endClass();
 	
@@ -447,20 +651,10 @@ I've created this block of snippets that can be pasted into vscode under:
         "body": "${1:ComponentBase instance}:IsEnabled()",
         "description": "Returns whether or not this component is enabled."
     },
-	"ComponentBase:SetSceneID": {
-		"prefix": "ComponentBase:SetSceneID",
-        "body": "${1:ComponentBase instance}:SetSceneID( ${2:new ID} )",
-        "description": "Set the SceneID of this component."
-    },
 	"ComponentBase:GetSceneID": {
 		"prefix": "ComponentBase:GetSceneID",
         "body": "${1:ComponentBase instance}:GetSceneID()",
         "description": "Get the SceneID of this component."
-    },
-	"ComponentBase:SetID": {
-		"prefix": "ComponentBase:SetID",
-        "body": "${1:ComponentBase instance}:SetID( ${2:new ID} )",
-        "description": "Set the ID of this component."
     },
 	"ComponentBase:GetID": {
 		"prefix": "ComponentBase:GetID",
@@ -592,11 +786,12 @@ I've created this block of snippets that can be pasted into vscode under:
     //            .addFunction( "GetSprite", &ComponentSprite::GetSprite ) // MySprite* ComponentSprite::GetSprite()
     //        .endClass();
 
-	"ComponentSprite:GetSprite": {
-		"prefix": "ComponentSprite:GetSprite",
-        "body": "${1:ComponentSprite instance}::GetSprite()",
-        "description": "Get the MySprite object from a sprite component."
-	},
+    // Hidden since MySprite isn't useful at the moment.
+	// "ComponentSprite:GetSprite": {
+	// 	"prefix": "ComponentSprite:GetSprite",
+    //     "body": "${1:ComponentSprite instance}::GetSprite()",
+    //     "description": "Get the MySprite object from a sprite component."
+	// },
 	
     //ComponentMesh::LuaRegister( m_pLuaState );
     ////ComponentType_MeshOBJ,
@@ -709,7 +904,7 @@ I've created this block of snippets that can be pasted into vscode under:
 	"ComponentAnimationPlayer:SetCurrentAnimation": {
 		"prefix": "ComponentAnimationPlayer:SetCurrentAnimation",
         "body": "${1:ComponentAnimationPlayer instance}:SetCurrentAnimation( ${2:animation index} )",
-        "description": "Change the animation index this component."
+        "description": "Change the animation index of this component."
     },
 	
     //ComponentAnimationPlayer2D::LuaRegister( m_pLuaState );
@@ -743,10 +938,7 @@ I've created this block of snippets that can be pasted into vscode under:
     //            .addFunction( "GetMenuItemByName", &ComponentMenuPage::GetMenuItemByName ) // MenuItem* ComponentMenuPage::GetMenuItemByName(const char* name)
     //            .addFunction( "IsEnabled", &ComponentMenuPage::IsEnabled ) // bool ComponentMenuPage::IsEnabled()
     //        
-    //            .addFunction( "SetSceneID", &ComponentMenuPage::SetSceneID ) // void ComponentMenuPage::SetSceneID(unsigned int sceneid)
     //            .addFunction( "GetSceneID", &ComponentMenuPage::GetSceneID ) // unsigned int ComponentMenuPage::GetSceneID()
-    //        
-    //            .addFunction( "SetID", &ComponentMenuPage::SetID ) // void ComponentMenuPage::SetID(unsigned int id)
     //            .addFunction( "GetID", &ComponentMenuPage::GetID ) // unsigned int ComponentMenuPage::GetID()
     //        .endClass();
 
@@ -760,20 +952,10 @@ I've created this block of snippets that can be pasted into vscode under:
         "body": "${1:ComponentMenuPage instance}:IsEnabled()",
         "description": "Returns whether or not this menu page is enabled."
     },
-	"ComponentMenuPage:SetSceneID": {
-		"prefix": "ComponentMenuPage:SetSceneID",
-        "body": "${1:ComponentMenuPage instance}:SetSceneID( ${2:new ID} )",
-        "description": "Set the SceneID of this menu page."
-    },
 	"ComponentMenuPage:GetSceneID": {
 		"prefix": "ComponentMenuPage:GetSceneID",
         "body": "${1:ComponentMenuPage instance}:GetSceneID()",
         "description": "Get the SceneID of this menu page."
-    },
-	"ComponentMenuPage:SetID": {
-		"prefix": "ComponentMenuPage:SetID",
-        "body": "${1:ComponentMenuPage instance}:SetID( ${2:new ID} )",
-        "description": "Set the ID of this menu page."
     },
 	"ComponentMenuPage:GetID": {
 		"prefix": "ComponentMenuPage:GetID",
@@ -848,11 +1030,12 @@ I've created this block of snippets that can be pasted into vscode under:
         "body": "${1:MenuItem instance}:SetVisibleAndEnabled( ${2:bool value} )",
         "description": "Set whether or not this menu item will be rendered and is active."
     },
-	"MenuItem:GetBoundingRect": {
-		"prefix": "MenuItem:GetBoundingRect",
-        "body": "${1:MenuItem instance}:GetBoundingRect()",
-        "description": "Returns a MyRect."
-    },
+    // Hidden since MyRect isn't defined in Lua.
+	// "MenuItem:GetBoundingRect": {
+	// 	"prefix": "MenuItem:GetBoundingRect",
+    //     "body": "${1:MenuItem instance}:GetBoundingRect()",
+    //     "description": "Returns a MyRect."
+    // },
 	
     //MenuButton::LuaRegister( m_pLuaState );
     //    luabridge::getGlobalNamespace( luastate )
@@ -943,3 +1126,4 @@ I've created this block of snippets that can be pasted into vscode under:
     //     "body": "g_pEngineCore",
     //     "description": "The global engine core object."
     // }
+}
