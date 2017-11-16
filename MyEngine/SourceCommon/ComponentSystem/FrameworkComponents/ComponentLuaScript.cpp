@@ -1251,9 +1251,14 @@ void ComponentLuaScript::LoadScript()
             // Mark script as loaded. "OnLoad" can be called if no errors occur otherwise m_ErrorInScript will be set as well.
             m_ScriptLoaded = true;
 
+            const char* filename = m_pScriptFile->GetFullPath();
+            char label[MAX_PATH+1];
+            sprintf_s( label, MAX_PATH+1, "@%s", filename );
+
             // Load the string from the file.
-            int loadretcode = luaL_loadstring( m_pLuaGameState->m_pLuaState, m_pScriptFile->GetBuffer() );
-            //LOGInfo( LOGTag, "luaL_loadstring) %s last 3 bytes -> %d %d %d\n", m_pScriptFile->GetFullPath(), m_pScriptFile->GetBuffer()[m_pScriptFile->m_FileLength-2], m_pScriptFile->GetBuffer()[m_pScriptFile->m_FileLength-1], m_pScriptFile->GetBuffer()[m_pScriptFile->m_FileLength] );
+            int filelen = m_pScriptFile->GetFileLength() - 1;
+            int loadretcode = luaL_loadbuffer( m_pLuaGameState->m_pLuaState, m_pScriptFile->GetBuffer(), filelen, label );
+
             if( loadretcode == LUA_OK )
             {
                 // Run the code to do initial parsing.

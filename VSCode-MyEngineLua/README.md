@@ -4,13 +4,9 @@
 
 Just a bunch of snippets.
 
-## Known Issues
+### 0.0.2
 
-None!
-
-## Release Notes
-
-First version!
+Working on Lua Debugger... will take a while.
 
 ### 0.0.1
 

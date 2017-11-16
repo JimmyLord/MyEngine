@@ -342,6 +342,8 @@ double EngineCore::Tick(double TimePassed)
     double Timing_Start = MyTime_GetSystemTime();
 #endif
 
+    m_pLuaGameState->Tick();
+
     if( g_pImGuiManager )
     {
         g_pImGuiManager->StartTick( TimePassed );

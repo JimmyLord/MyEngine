@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2014 Jimmy Lord http://www.flatheadgames.com
+// Copyright (c) 2014-2017 Jimmy Lord http://www.flatheadgames.com
 //
 // This software is provided 'as-is', without any express or implied warranty.  In no event will the authors be held liable for any damages arising from the use of this software.
 // Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -21,12 +21,19 @@ class LuaGameState
 public:
     lua_State* m_pLuaState;
 
+    int m_ListenSocket;
+    int m_DebugSocket;
+
 public:
     LuaGameState();
     virtual ~LuaGameState();
 
     virtual void Rebuild();
     virtual void RegisterClasses();
+
+    void Tick();
+    void CheckForDebugNetworkMessages(bool block);
+    bool DealWithDebugNetworkMessages(char* message);
 };
 
 #endif //__LuaGameState_H__

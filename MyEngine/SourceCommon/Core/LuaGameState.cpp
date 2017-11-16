@@ -11,6 +11,8 @@
 
 #if MYFW_USING_LUA
 
+#define LUA_DEBUG_PORT 19542
+
 LuaGameState* g_pLuaGameState = 0;
 
 // Exposed to Lua, change elsewhere if function signature changes.
@@ -56,6 +58,8 @@ LuaGameState::LuaGameState()
     g_pLuaGameState = this;
 
     m_pLuaState = 0;
+    m_ListenSocket = 0;
+    m_DebugSocket = 0;
 
     // don't build on init, Rebuild is called after a scene is loaded.
     //Rebuild();
@@ -70,6 +74,147 @@ LuaGameState::~LuaGameState()
         lua_close( m_pLuaState );
 }
 
+void SetSocketBlockingState(int socket, bool block)
+{
+    if( block )
+    {
+        // Set socket as blocking.
+        DWORD value = 0;
+        ioctlsocket( socket, FIONBIO, &value );
+        //const int flags = fcntl( m_ListenSocket, F_GETFL, 0 );
+        //fcntl( m_DebugSocket, F_SETFL, flags & ~O_NONBLOCK );
+    }
+    else
+    {
+        // Set socket as non-blocking.
+        DWORD value = 1;
+        ioctlsocket( socket, FIONBIO, &value );
+        //const int flags = fcntl( m_ListenSocket, F_GETFL, 0 );
+        //fcntl( m_DebugSocket, F_SETFL, flags & O_NONBLOCK );
+    }
+}
+
+void DebugHookFunction(lua_State* luastate, lua_Debug* ar)
+{
+    if( ar->event == LUA_HOOKLINE )
+    {
+        lua_getinfo( luastate, "S", ar );
+
+        if( g_pLuaGameState->m_DebugSocket > 0 )
+        {
+            cJSON* message = cJSON_CreateObject();
+            cJSON_AddStringToObject( message, "Source", ar->source );
+            cJSON_AddNumberToObject( message, "Line", ar->currentline );
+
+            char* jsonstr = cJSON_Print( message );
+            send( g_pLuaGameState->m_DebugSocket, jsonstr, strlen(jsonstr), 0 );
+            //LOGInfo( "LuaDebug", "Send data (size:%d) (value:%s)\n", strlen(jsonstr), jsonstr );
+
+            cJSON_Delete( message );
+            cJSONExt_free( jsonstr );
+        }
+
+        // Block and wait for debugger messages.
+        g_pLuaGameState->CheckForDebugNetworkMessages( true );
+    }
+}
+
+void LuaGameState::Tick()
+{
+    CheckForDebugNetworkMessages( false );
+}
+
+void LuaGameState::CheckForDebugNetworkMessages(bool block)
+{
+    char buffer[1000];
+    int buffersize = 1000;
+
+    // Check for incoming connection requests. (Only allow 1 debugger)
+    if( m_ListenSocket != 0 && m_DebugSocket == 0 )
+    {
+        sockaddr_in saddr;
+        int fromLength = sizeof( sockaddr_in );
+        
+        int socket = accept( m_ListenSocket, (sockaddr*)&saddr, &fromLength );
+        if( socket != -1 )
+        {
+            LOGInfo( "LuaDebug", "Received incoming connection (socket:%d) (port:%d)\n", socket, saddr.sin_port );
+
+            // Set the socket for debug communication and set it to non-blocking.
+            m_DebugSocket = socket;
+            SetSocketBlockingState( m_DebugSocket, false );
+
+            // For now, immediately break into the current lua script.
+            lua_sethook( m_pLuaState, DebugHookFunction, LUA_MASKLINE, 0 );
+        }
+    }
+
+    // Kick out if we don't have a debug connection.
+    if( m_DebugSocket <= 0 )
+        return;
+
+    int bytes = -2;
+    while( bytes != -1 )
+    {
+        if( block )
+        {
+            SetSocketBlockingState( m_DebugSocket, true );
+
+            //while( 1 )
+            {
+                //Sleep( 100 );
+                ////usleep( 5000 );
+                
+                bytes = (int)recv( m_DebugSocket, buffer, 1000, 0 );
+
+                //if( bytes != -1 )
+                //{
+                //    break;
+                //}
+            }
+        }
+        else
+        {
+            SetSocketBlockingState( m_DebugSocket, false );
+
+            bytes = (int)recv( m_DebugSocket, buffer, 1000, 0 );
+        }
+
+        if( bytes != -1 )
+        {
+            // Received a packet.
+            if( bytes < 1000 )
+                buffer[bytes] = 0;
+            else
+                buffer[999] = 0;
+
+            LOGInfo( "LuaDebug", "Received a packet (size:%d) (value:%s)\n", bytes, buffer );
+            block = DealWithDebugNetworkMessages( buffer );
+        }
+
+        if( bytes == 0 )
+        {
+            m_DebugSocket = 0;
+        }
+    }
+}
+
+// Returns true if we should continue blocking, false otherwise.
+bool LuaGameState::DealWithDebugNetworkMessages(char* message)
+{
+    if( strcmp( message, "continue" ) == 0 )
+    {
+        lua_sethook( m_pLuaState, DebugHookFunction, 0, 0 );
+        return false;
+    }
+    if( strcmp( message, "step" ) == 0 )
+    {
+        return false;
+    }
+
+    return true;
+}
+
 void LuaGameState::Rebuild()
 {
     if( m_pLuaState != 0 )
@@ -81,6 +226,25 @@ void LuaGameState::Rebuild()
     luaL_openlibs( m_pLuaState );
 
     RegisterClasses();
+
+    if( m_ListenSocket == 0 )
+    {        
+        // Create a socket for debugging.
+        m_ListenSocket = (int)socket( AF_INET, SOCK_STREAM, 0 );//IPPROTO_TCP );
+
+        // Bind our socket to a local addr/port.
+        sockaddr_in localaddr;
+        localaddr.sin_family = AF_INET;
+        localaddr.sin_addr.s_addr = INADDR_ANY;
+        localaddr.sin_port = htons( LUA_DEBUG_PORT );
+
+        bind( m_ListenSocket, (const sockaddr*)&localaddr, sizeof(sockaddr_in) );
+
+        SetSocketBlockingState( m_ListenSocket, false );
+        listen( m_ListenSocket, 10 );
+
+        LOGInfo( "LuaDebug", "Lua debug listen socket created (sock:%d) (port:%d)\n", m_ListenSocket, LUA_DEBUG_PORT );
+    }
 }
 
 void LuaGameState::RegisterClasses()
