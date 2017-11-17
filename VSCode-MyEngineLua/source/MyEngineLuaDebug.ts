@@ -14,8 +14,7 @@ import {
 import { DebugProtocol } from 'vscode-debugprotocol';
 import { basename } from 'path';
 import { MyEngineLuaRuntime, MyEngineLuaBreakpoint } from './MyEngineLuaRuntime';
-//import * as net from 'net';
-
+import * as net from 'net';
 
 /**
  * This interface describes the myenginelua-debug specific launch attributes
@@ -32,8 +31,8 @@ interface LaunchRequestArguments extends DebugProtocol.LaunchRequestArguments {
 	trace?: boolean;
 }
 
-class MyEngineLuaDebugSession extends LoggingDebugSession {
-
+class MyEngineLuaDebugSession extends LoggingDebugSession
+{
 	// we don't support multiple threads, so we can use a hardcoded ID for the default thread
 	private static THREAD_ID = 1;
 
@@ -41,6 +40,11 @@ class MyEngineLuaDebugSession extends LoggingDebugSession {
 	private _runtime: MyEngineLuaRuntime;
 
 	private _variableHandles = new Handles<string>();
+
+	private _socket: net.Socket;
+
+	private _stackTraceResponse: DebugProtocol.StackTraceResponse;
+	private _waitingToSendStackTraceResponse = false;
 
 	/**
 	 * Creates a new debug adapter that is used for one debug session.
@@ -78,9 +82,14 @@ class MyEngineLuaDebugSession extends LoggingDebugSession {
 			e.body.column = this.convertDebuggerColumnToClient(column);
 			this.sendEvent(e);
 		});
-		this._runtime.on('end', () => {
-			this.sendEvent(new TerminatedEvent());
-		});
+		this._runtime.on('end', () =>
+			{
+				// Close our socket.
+				this._socket.end();
+
+				this.sendEvent( new TerminatedEvent() );
+			}
+		);
 	}
 
 	/**
@@ -103,33 +112,72 @@ class MyEngineLuaDebugSession extends LoggingDebugSession {
 		// make VS Code to use 'evaluate' when hovering over source
 		response.body.supportsEvaluateForHovers = true;
 
-		// make VS Code to show a 'step back' button
-		response.body.supportsStepBack = true;
+		// Make VS Code not show a 'step back' button.
+		response.body.supportsStepBack = false;
 
 		this.sendResponse(response);
 	}
 
+	protected dealWithIncomingData(data)
+	{
+		var textChunk = data.toString('utf8');
+		//console.log( textChunk );
+
+		let jMessage = JSON.parse( textChunk );
+		//console.log( jMessage );
+
+		// if( jMessage.StopOnBreakpoint )
+		// {
+		//  	this.sendEvent(new StoppedEvent( 'breakpoint', MyEngineLuaDebugSession.THREAD_ID) );
+		// }
+
+		if( typeof jMessage.StackNumLevels !== 'undefined' )
+		{
+			console.log( "Received stack info" );
+
+			if( this._waitingToSendStackTraceResponse )
+			{
+				if( jMessage.StackNumLevels == 0 )
+				{
+					var frames = new Array<any>();
+					frames.push( new StackFrame( 0, "stack not available" ) );
+
+					this._stackTraceResponse.body =
+					{
+						stackFrames: frames,
+						totalFrames: 1
+					};
+
+					this.sendResponse( this._stackTraceResponse );
+				}
+				else
+				{
+					var stackframe = new StackFrame( 0, "functionName()", this.createSource(jMessage.Source), jMessage.Line, 0 );
+
+					var frames = new Array<any>();
+					frames.push( stackframe );
+
+					this._stackTraceResponse.body =
+					{
+						stackFrames: frames,
+						totalFrames: 1
+					};
+
+					this.sendResponse( this._stackTraceResponse );
+				}
+
+				this._waitingToSendStackTraceResponse = false;
+			}
+		}
+	}
+
 	protected launchRequest(response: DebugProtocol.LaunchResponse, args: LaunchRequestArguments): void
 	{
-		//let connected = false;
+		this._socket = new net.Socket();
+		this._socket.connect( 19542, '127.0.0.1' );
 
-		// const socket = new net.Socket();
-		// socket.connect( 19542, '127.0.0.1' );
-
-		// socket.on( 'connect',
-		// 	function()
-		// 	{
-		// 		console.log( 'connected' );
-		// 	}
-		// );
-
-		// socket.on( 'data',
-		// 	function(data)
-		// 	{
-		// 		var textChunk = data.toString('utf8');
-		// 		console.log( textChunk );
-		// 	}
-		// );
+		this._socket.on( 'connect', () => { console.log( 'connected' ); } );
+		//this._socket.on( 'data', data => { this.dealWithIncomingData( data ); } );
 
 		// make sure to 'Stop' the buffered logging if 'trace' is not set
 		logger.setup(args.trace ? Logger.LogLevel.Verbose : Logger.LogLevel.Stop, false);
@@ -163,30 +211,45 @@ class MyEngineLuaDebugSession extends LoggingDebugSession {
 		this.sendResponse(response);
 	}
 
-	protected threadsRequest(response: DebugProtocol.ThreadsResponse): void {
-
+	protected threadsRequest(response: DebugProtocol.ThreadsResponse): void
+	{
 		// runtime supports now threads so just return a default thread.
 		response.body = {
 			threads: [
-				new Thread(MyEngineLuaDebugSession.THREAD_ID, "thread 1")
+				new Thread( MyEngineLuaDebugSession.THREAD_ID, "thread 1" )
 			]
 		};
 		this.sendResponse(response);
 	}
 
-	protected stackTraceRequest(response: DebugProtocol.StackTraceResponse, args: DebugProtocol.StackTraceArguments): void {
+	protected stackTraceRequest(response: DebugProtocol.StackTraceResponse, args: DebugProtocol.StackTraceArguments): void
+	{
+		console.log( "stackTraceRequest" );
 
 		const startFrame = typeof args.startFrame === 'number' ? args.startFrame : 0;
 		const maxLevels = typeof args.levels === 'number' ? args.levels : 1000;
 		const endFrame = startFrame + maxLevels;
 
-		const stk = this._runtime.stack(startFrame, endFrame);
+		//console.log( startFrame + "," + endFrame );
 
-		response.body = {
-			stackFrames: stk.frames.map(f => new StackFrame(f.index, f.name, this.createSource(f.file), this.convertDebuggerLineToClient(f.line))),
-			totalFrames: stk.count
-		};
-		this.sendResponse(response);
+		var stackrequest =  { "stackstart":startFrame, "stackend":endFrame };
+		this._socket.write( JSON.stringify( stackrequest ) );
+
+		// Some attempt at waiting for a response from the socket,
+		//  works, but isn't good.
+		this._stackTraceResponse = response;
+		this._waitingToSendStackTraceResponse = true;
+
+		// const stk = this._runtime.stack(startFrame, endFrame);
+		// console.log( stk );
+
+		// response.body =
+		// {
+		// 	stackFrames: stk.frames.map(f => new StackFrame(f.index, f.name, this.createSource(f.file), this.convertDebuggerLineToClient(f.line))),
+		// 	totalFrames: stk.count
+		// };
+
+		// this.sendResponse( response );
 	}
 
 	protected scopesRequest(response: DebugProtocol.ScopesResponse, args: DebugProtocol.ScopesArguments): void {
@@ -239,22 +302,30 @@ class MyEngineLuaDebugSession extends LoggingDebugSession {
 		this.sendResponse(response);
 	}
 
-	protected continueRequest(response: DebugProtocol.ContinueResponse, args: DebugProtocol.ContinueArguments): void {
+	protected continueRequest(response: DebugProtocol.ContinueResponse, args: DebugProtocol.ContinueArguments): void
+	{
+		console.log( "continue" );
+		this._socket.write( "continue" );
 		this._runtime.continue();
-		this.sendResponse(response);
+		this.sendResponse( response );
 	}
 
-	protected reverseContinueRequest(response: DebugProtocol.ReverseContinueResponse, args: DebugProtocol.ReverseContinueArguments) : void {
-		this._runtime.continue(true);
-		this.sendResponse(response);
+	protected reverseContinueRequest(response: DebugProtocol.ReverseContinueResponse, args: DebugProtocol.ReverseContinueArguments) : void
+	{
+		this._runtime.continue( true );
+		this.sendResponse( response );
  	}
 
-	protected nextRequest(response: DebugProtocol.NextResponse, args: DebugProtocol.NextArguments): void {
+	protected nextRequest(response: DebugProtocol.NextResponse, args: DebugProtocol.NextArguments): void
+	{
+		console.log( "step" );
+		this._socket.write( "step" );
 		this._runtime.step();
 		this.sendResponse(response);
 	}
 
-	protected stepBackRequest(response: DebugProtocol.StepBackResponse, args: DebugProtocol.StepBackArguments): void {
+	protected stepBackRequest(response: DebugProtocol.StepBackResponse, args: DebugProtocol.StepBackArguments): void
+	{
 		this._runtime.step(true);
 		this.sendResponse(response);
 	}

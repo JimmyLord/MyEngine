@@ -34,6 +34,8 @@ public:
     void Tick();
     void CheckForDebugNetworkMessages(bool block);
     bool DealWithDebugNetworkMessages(char* message);
+
+    int SendStackToDebugger();
 };
 
 #endif //__LuaGameState_H__

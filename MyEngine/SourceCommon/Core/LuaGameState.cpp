@@ -72,6 +72,9 @@ LuaGameState::~LuaGameState()
 
     if( m_pLuaState )
         lua_close( m_pLuaState );
+
+    closesocket( m_ListenSocket );
+    closesocket( m_DebugSocket );
 }
 
 void SetSocketBlockingState(int socket, bool block)
@@ -102,8 +105,16 @@ void DebugHookFunction(lua_State* luastate, lua_Debug* ar)
 
         if( g_pLuaGameState->m_DebugSocket > 0 )
         {
+            char fullpath[MAX_PATH];
+            fullpath[0] = 0;
+
+            if( ar->source[0] == '@' )
+            {
+                GetFullPath( &ar->source[1], fullpath, MAX_PATH );                
+            }
+
             cJSON* message = cJSON_CreateObject();
-            cJSON_AddStringToObject( message, "Source", ar->source );
+            cJSON_AddStringToObject( message, "Source", fullpath );
             cJSON_AddNumberToObject( message, "Line", ar->currentline );
 
             char* jsonstr = cJSON_Print( message );
@@ -126,6 +137,9 @@ void LuaGameState::Tick()
 
 void LuaGameState::CheckForDebugNetworkMessages(bool block)
 {
+    if( m_ListenSocket <= 0 )
+        return;
+
     char buffer[1000];
     int buffersize = 1000;
 
@@ -180,6 +194,14 @@ void LuaGameState::CheckForDebugNetworkMessages(bool block)
             bytes = (int)recv( m_DebugSocket, buffer, 1000, 0 );
         }
 
+        // If we were blocking and there was an error, or the connection was closed nicely,
+        //    set the socket to 0 and remove the lua hook.
+        if( (block && bytes == -1) || bytes == 0 )
+        {
+            lua_sethook( m_pLuaState, DebugHookFunction, 0, 0 );
+            m_DebugSocket = 0;
+        }
+
         if( bytes != -1 )
         {
             // Received a packet.
@@ -191,12 +213,48 @@ void LuaGameState::CheckForDebugNetworkMessages(bool block)
             LOGInfo( "LuaDebug", "Received a packet (size:%d) (value:%s)\n", bytes, buffer );
             block = DealWithDebugNetworkMessages( buffer );
         }
-
-        if( bytes == 0 )
-        {
-            m_DebugSocket = 0;
-        }
     }
+}
+
+// Returns how many stack frames sent.
+int LuaGameState::SendStackToDebugger()
+{
+    int ret = 0;
+
+    lua_Debug ar;
+    ret = lua_getstack( m_pLuaState, 0, &ar );
+            
+    if( ret == 0 )
+    {
+        char* jsonstr = "{ \"StackNumLevels\": 0 }";
+        send( g_pLuaGameState->m_DebugSocket, jsonstr, strlen(jsonstr), 0 );
+    }
+    else if( ret == 1 )
+    {
+        lua_getinfo( m_pLuaState, "Sl", &ar );
+
+        char fullpath[MAX_PATH];
+        fullpath[0] = 0;
+
+        if( ar.source[0] == '@' )
+        {
+            //GetFullPath( "Data/Scripts/CharacterController_2DPhysics.lua", fullpath, MAX_PATH );                
+            GetFullPath( &ar.source[1], fullpath, MAX_PATH );                
+        }
+
+        cJSON* jMessageOut = cJSON_CreateObject();
+        cJSON_AddNumberToObject( jMessageOut, "StackNumLevels", 1 );
+        cJSON_AddStringToObject( jMessageOut, "Source", fullpath );
+        cJSON_AddNumberToObject( jMessageOut, "Line", ar.currentline );
+
+        char* jsonstr = cJSON_Print( jMessageOut );
+        send( g_pLuaGameState->m_DebugSocket, jsonstr, strlen(jsonstr), 0 );
+
+        cJSON_Delete( jMessageOut );
+        cJSONExt_free( jsonstr );
+    }
+
+    return ret;
 }
 
 // Returns true if we should continue blocking, false otherwise.
@@ -210,6 +268,26 @@ bool LuaGameState::DealWithDebugNetworkMessages(char* message)
     if( strcmp( message, "step" ) == 0 )
     {
         return false;
+    }
+    if( message[0] == '{' )
+    {
+        cJSON* jMessageIn = cJSON_Parse( message );
+        cJSON* jStackStart = cJSON_GetObjectItem( jMessageIn, "stackstart" );
+        cJSON* jStackEnd = cJSON_GetObjectItem( jMessageIn, "stackend" );
+
+        if( jStackStart && jStackEnd )
+        {
+            int stackstart = jStackStart->valueint;
+            int stackend = jStackEnd->valueint;
+
+            cJSON_Delete( jMessageIn );
+
+            int numstackframes = SendStackToDebugger();
+        
+            // If lua isn't running, stop blocking.
+            if( numstackframes == 0 )
+                return false;
+        }
     }
 
     return true;

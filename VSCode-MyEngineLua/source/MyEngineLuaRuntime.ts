@@ -7,7 +7,6 @@
 
 import { readFileSync } from 'fs';
 import { EventEmitter } from 'events';
-import * as net from 'net';
 
 export interface MyEngineLuaBreakpoint {
 	id: number;
@@ -39,8 +38,6 @@ export class MyEngineLuaRuntime extends EventEmitter {
 	// so that the frontend can match events with breakpoints.
 	private _breakpointId = 1;
 
-	private _socket: net.Socket;
-
 
 	constructor()
 	{
@@ -52,24 +49,6 @@ export class MyEngineLuaRuntime extends EventEmitter {
 	 */
 	public start(program: string, stopOnEntry: boolean)
 	{
-		this._socket = new net.Socket();
-		this._socket.connect( 19542, '127.0.0.1' );
-
-		this._socket.on( 'connect',
-			function()
-			{
-				console.log( 'connected' );
-			}
-		);
-
-		this._socket.on( 'data',
-			function(data)
-			{
-				var textChunk = data.toString('utf8');
-				console.log( textChunk );
-			}
-		);
-
 		this.loadSource(program);
 		this._currentLine = -1;
 
@@ -93,8 +72,6 @@ export class MyEngineLuaRuntime extends EventEmitter {
 	public continue(reverse = false)
 	{
 		this.run(reverse, undefined);
-
-		this._socket.write( "continue" );
 	}
 
 	/**
@@ -103,8 +80,6 @@ export class MyEngineLuaRuntime extends EventEmitter {
 	public step(reverse = false, event = 'stopOnStep')
 	{
 		this.run(reverse, event);
-
-		this._socket.write( "step" );
 	}
 
 	/**
@@ -205,9 +180,6 @@ export class MyEngineLuaRuntime extends EventEmitter {
 			}
 			// no more lines: run to end
 			this.sendEvent('end');
-
-			// Close our socket.
-			this._socket.end();
 		}
 	}
 
