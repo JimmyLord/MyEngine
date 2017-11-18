@@ -99,31 +99,12 @@ void SetSocketBlockingState(int socket, bool block)
 
 void DebugHookFunction(lua_State* luastate, lua_Debug* ar)
 {
+    if( g_pLuaGameState->m_DebugSocket <= 0 )
+        return;
+
     if( ar->event == LUA_HOOKLINE )
     {
-        lua_getinfo( luastate, "S", ar );
-
-        if( g_pLuaGameState->m_DebugSocket > 0 )
-        {
-            char fullpath[MAX_PATH];
-            fullpath[0] = 0;
-
-            if( ar->source[0] == '@' )
-            {
-                GetFullPath( &ar->source[1], fullpath, MAX_PATH );                
-            }
-
-            cJSON* message = cJSON_CreateObject();
-            cJSON_AddStringToObject( message, "Source", fullpath );
-            cJSON_AddNumberToObject( message, "Line", ar->currentline );
-
-            char* jsonstr = cJSON_Print( message );
-            send( g_pLuaGameState->m_DebugSocket, jsonstr, strlen(jsonstr), 0 );
-            //LOGInfo( "LuaDebug", "Send data (size:%d) (value:%s)\n", strlen(jsonstr), jsonstr );
-
-            cJSON_Delete( message );
-            cJSONExt_free( jsonstr );
-        }
+        g_pLuaGameState->SendStoppedMessage();
 
         // Block and wait for debugger messages.
         g_pLuaGameState->CheckForDebugNetworkMessages( true );
@@ -158,8 +139,8 @@ void LuaGameState::CheckForDebugNetworkMessages(bool block)
             m_DebugSocket = socket;
             SetSocketBlockingState( m_DebugSocket, false );
 
-            // For now, immediately break into the current lua script.
-            lua_sethook( m_pLuaState, DebugHookFunction, LUA_MASKLINE, 0 );
+            //// For now, immediately break into the current lua script.
+            //lua_sethook( m_pLuaState, DebugHookFunction, LUA_MASKLINE, 0 );
         }
     }
 
@@ -198,6 +179,8 @@ void LuaGameState::CheckForDebugNetworkMessages(bool block)
         //    set the socket to 0 and remove the lua hook.
         if( (block && bytes == -1) || bytes == 0 )
         {
+            LOGInfo( "LuaDebug", "m_DebugSocket was closed\n" );
+
             lua_sethook( m_pLuaState, DebugHookFunction, 0, 0 );
             m_DebugSocket = 0;
         }
@@ -216,18 +199,33 @@ void LuaGameState::CheckForDebugNetworkMessages(bool block)
     }
 }
 
+void LuaGameState::SendStoppedMessage()
+{
+    // Send a 'Stopped' message to the debugger.
+    cJSON* jMessageOut = cJSON_CreateObject();
+    cJSON_AddStringToObject( jMessageOut, "Type", "Stopped" );
+    int numstackframes = AddStackToJSONMessage( jMessageOut );
+
+    char* jsonstr = cJSON_PrintUnformatted( jMessageOut );
+    send( m_DebugSocket, jsonstr, strlen(jsonstr), 0 );
+    
+    LOGInfo( "LuaDebug", "Sending 'Stopped' (numframes:%d)\n", numstackframes );
+    
+    cJSON_Delete( jMessageOut );
+    cJSONExt_free( jsonstr );
+}
+
 // Returns how many stack frames sent.
-int LuaGameState::SendStackToDebugger()
+int LuaGameState::AddStackToJSONMessage(cJSON* jMessage)
 {
     int ret = 0;
 
     lua_Debug ar;
     ret = lua_getstack( m_pLuaState, 0, &ar );
-            
+
     if( ret == 0 )
     {
-        char* jsonstr = "{ \"StackNumLevels\": 0 }";
-        send( g_pLuaGameState->m_DebugSocket, jsonstr, strlen(jsonstr), 0 );
+        cJSON_AddNumberToObject( jMessage, "StackNumLevels", 0 );
     }
     else if( ret == 1 )
     {
@@ -238,20 +236,13 @@ int LuaGameState::SendStackToDebugger()
 
         if( ar.source[0] == '@' )
         {
-            //GetFullPath( "Data/Scripts/CharacterController_2DPhysics.lua", fullpath, MAX_PATH );                
             GetFullPath( &ar.source[1], fullpath, MAX_PATH );                
         }
 
-        cJSON* jMessageOut = cJSON_CreateObject();
-        cJSON_AddNumberToObject( jMessageOut, "StackNumLevels", 1 );
-        cJSON_AddStringToObject( jMessageOut, "Source", fullpath );
-        cJSON_AddNumberToObject( jMessageOut, "Line", ar.currentline );
-
-        char* jsonstr = cJSON_Print( jMessageOut );
-        send( g_pLuaGameState->m_DebugSocket, jsonstr, strlen(jsonstr), 0 );
-
-        cJSON_Delete( jMessageOut );
-        cJSONExt_free( jsonstr );
+        cJSON_AddNumberToObject( jMessage, "StackNumLevels", 1 );
+        cJSON_AddStringToObject( jMessage, "FunctionName", "functionName" );
+        cJSON_AddStringToObject( jMessage, "Source", fullpath );
+        cJSON_AddNumberToObject( jMessage, "Line", ar.currentline );
     }
 
     return ret;
@@ -262,33 +253,55 @@ bool LuaGameState::DealWithDebugNetworkMessages(char* message)
 {
     if( strcmp( message, "continue" ) == 0 )
     {
+        // Remove the lua hook for now on continue command.
+        // TODO: keep the hook and continue to check for breakpoints.
         lua_sethook( m_pLuaState, DebugHookFunction, 0, 0 );
         return false;
     }
-    if( strcmp( message, "step" ) == 0 )
+    if( strcmp( message, "step" ) == 0 ) // also used by pause
     {
+        // Set the lua hook (might already be set).
+        lua_sethook( m_pLuaState, DebugHookFunction, LUA_MASKLINE, 0 );
+
+        // TODO: Only send this if Lua isn't currently running to let debugger know we've paused execution.
+        //   'Stopped' will be sent twice when Lua script isn't currently running. (Once here, once in debug hook)
+        //   This stack check will prevent 'Stopped' from being sent twice if we're already stepping through Lua code.
+        lua_Debug ar;
+        if( lua_getstack( m_pLuaState, 0, &ar ) == 0 )
+            SendStoppedMessage();
+
         return false;
     }
-    if( message[0] == '{' )
-    {
-        cJSON* jMessageIn = cJSON_Parse( message );
-        cJSON* jStackStart = cJSON_GetObjectItem( jMessageIn, "stackstart" );
-        cJSON* jStackEnd = cJSON_GetObjectItem( jMessageIn, "stackend" );
+    //if( message[0] == '{' )
+    //{
+    //    cJSON* jMessageIn = cJSON_Parse( message );
+    //    cJSON* jStackStart = cJSON_GetObjectItem( jMessageIn, "stackstart" );
+    //    cJSON* jStackEnd = cJSON_GetObjectItem( jMessageIn, "stackend" );
 
-        if( jStackStart && jStackEnd )
-        {
-            int stackstart = jStackStart->valueint;
-            int stackend = jStackEnd->valueint;
+    //    if( jStackStart && jStackEnd )
+    //    {
+    //        int stackstart = jStackStart->valueint;
+    //        int stackend = jStackEnd->valueint;
 
-            cJSON_Delete( jMessageIn );
+    //        cJSON_Delete( jMessageIn );
 
-            int numstackframes = SendStackToDebugger();
-        
-            // If lua isn't running, stop blocking.
-            if( numstackframes == 0 )
-                return false;
-        }
-    }
+    //        // Create a StackInfo message to reply to the stackrequest.
+    //        cJSON* jMessageOut = cJSON_CreateObject();
+    //        cJSON_AddStringToObject( jMessageOut, "Type", "StackInfo" );
+    //        int numstackframes = AddStackToJSONMessage( jMessageOut );
+    //        char* jsonstr = cJSON_PrintUnformatted( jMessageOut );
+    //        send( g_pLuaGameState->m_DebugSocket, jsonstr, strlen(jsonstr), 0 );
+
+    //        LOGInfo( "LuaDebug", "Sending stack info (numframes:%d)\n", numstackframes );
+
+    //        cJSON_Delete( jMessageOut );
+    //        cJSONExt_free( jsonstr );
+
+    //        // If lua isn't running, stop blocking.
+    //        if( numstackframes == 0 )
+    //            return false;
+    //    }
+    //}
 
     return true;
 }

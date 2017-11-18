@@ -35,7 +35,8 @@ public:
     void CheckForDebugNetworkMessages(bool block);
     bool DealWithDebugNetworkMessages(char* message);
 
-    int SendStackToDebugger();
+    void SendStoppedMessage();
+    int AddStackToJSONMessage(cJSON* jMessage);
 };
 
 #endif //__LuaGameState_H__

@@ -54,33 +54,25 @@ export class MyEngineLuaRuntime extends EventEmitter {
 
 		this.verifyBreakpoints(this._sourceFile);
 
-		if( stopOnEntry )
-		{
-			// we step once
-			this.step(false, 'stopOnEntry');
-		}
-		else
-		{
-			// we just start to run until we hit a breakpoint or an exception
-			this.continue();
-		}
-	}
-
-	/**
-	 * Continue execution to the end/beginning.
-	 */
-	public continue(reverse = false)
-	{
-		this.run(reverse, undefined);
+		// if( stopOnEntry )
+		// {
+		// 	// we step once
+		// 	this.step( false, 'stopOnEntry' );
+		// }
+		// else
+		// {
+		// 	// we just start to run until we hit a breakpoint or an exception
+		// 	//this.continue();
+		// }
 	}
 
 	/**
 	 * Step to the next/previous non empty line.
 	 */
-	public step(reverse = false, event = 'stopOnStep')
-	{
-		this.run(reverse, event);
-	}
+	// public step(reverse = false, event = 'stopOnStep')
+	// {
+	// 	this.sendEvent( 'stopOnStep' );
+	// }
 
 	/**
 	 * Returns a fake 'stacktrace' where every 'stackframe' is a word from the current line.
@@ -156,33 +148,6 @@ export class MyEngineLuaRuntime extends EventEmitter {
 		}
 	}
 
-	/**
-	 * Run through the file.
-	 * If stepEvent is specified only run a single step and emit the stepEvent.
-	 */
-	private run(reverse = false, stepEvent?: string) {
-		if (reverse) {
-			for (let ln = this._currentLine-1; ln >= 0; ln--) {
-				if (this.fireEventsForLine(ln, stepEvent)) {
-					this._currentLine = ln;
-					return;
-				}
-			}
-			// no more lines: stop at first line
-			this._currentLine = 0;
-			this.sendEvent('stopOnEntry');
-		} else {
-			for (let ln = this._currentLine+1; ln < this._sourceLines.length; ln++) {
-				if (this.fireEventsForLine(ln, stepEvent)) {
-					this._currentLine = ln;
-					return true;
-				}
-			}
-			// no more lines: run to end
-			this.sendEvent('end');
-		}
-	}
-
 	private verifyBreakpoints(path: string) : void {
 		let bps = this._breakPoints.get(path);
 		if (bps) {
@@ -208,55 +173,6 @@ export class MyEngineLuaRuntime extends EventEmitter {
 				}
 			});
 		}
-	}
-
-	/**
-	 * Fire events if line has a breakpoint or the word 'exception' is found.
-	 * Returns true is execution needs to stop.
-	 */
-	private fireEventsForLine(ln: number, stepEvent?: string): boolean {
-
-		const line = this._sourceLines[ln].trim();
-
-		// if 'log(...)' found in source -> send argument to debug console
-		const matches = /log\((.*)\)/.exec(line);
-		if (matches && matches.length === 2) {
-			this.sendEvent('output', matches[1], this._sourceFile, ln, matches.index)
-		}
-
-		// if word 'exception' found in source -> throw exception
-		if (line.indexOf('exception') >= 0) {
-			this.sendEvent('stopOnException');
-			return true;
-		}
-
-		// is there a breakpoint?
-		const breakpoints = this._breakPoints.get(this._sourceFile);
-		if (breakpoints) {
-			const bps = breakpoints.filter(bp => bp.line === ln);
-			if (bps.length > 0) {
-
-				// send 'stopped' event
-				this.sendEvent('stopOnBreakpoint');
-
-				// the following shows the use of 'breakpoint' events to update properties of a breakpoint in the UI
-				// if breakpoint is not yet verified, verify it now and send a 'breakpoint' update event
-				if (!bps[0].verified) {
-					bps[0].verified = true;
-					this.sendEvent('breakpointValidated', bps[0]);
-				}
-				return true;
-			}
-		}
-
-		// non-empty line
-		if (stepEvent && line.length > 0) {
-			this.sendEvent(stepEvent);
-			return true;
-		}
-
-		// nothing interesting found -> continue
-		return false;
 	}
 
 	private sendEvent(event: string, ... args: any[]) {
