@@ -39,8 +39,7 @@
 		{
 			"type": "myenginelua",
 			"request": "launch",
-			"name": "MyEngineLua Sample",
-			"program": "${workspaceFolder}/${command:AskForProgramName}",
+			"name": "MyEngineLua Debugger",
 			"stopOnEntry": true
 		}
 	],

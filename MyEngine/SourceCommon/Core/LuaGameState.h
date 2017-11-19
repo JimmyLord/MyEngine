@@ -32,11 +32,14 @@ public:
     virtual void RegisterClasses();
 
     void Tick();
+
     void CheckForDebugNetworkMessages(bool block);
     bool DealWithDebugNetworkMessages(char* message);
 
     void SendStoppedMessage();
     int AddStackToJSONMessage(cJSON* jMessage);
+    void AddValueAtTopOfStackToJSONObject(cJSON* jObject, const char* name);
+    int AddLocalVarsToStackInJSONMessage(cJSON* jStack, lua_Debug* ar);
 };
 
 #endif //__LuaGameState_H__

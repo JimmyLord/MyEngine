@@ -47,23 +47,11 @@ export class MyEngineLuaRuntime extends EventEmitter {
 	/**
 	 * Start executing the given program.
 	 */
-	public start(program: string, stopOnEntry: boolean)
+	public start()
 	{
-		this.loadSource(program);
 		this._currentLine = -1;
 
 		this.verifyBreakpoints(this._sourceFile);
-
-		// if( stopOnEntry )
-		// {
-		// 	// we step once
-		// 	this.step( false, 'stopOnEntry' );
-		// }
-		// else
-		// {
-		// 	// we just start to run until we hit a breakpoint or an exception
-		// 	//this.continue();
-		// }
 	}
 
 	/**

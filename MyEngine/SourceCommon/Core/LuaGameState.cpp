@@ -138,9 +138,6 @@ void LuaGameState::CheckForDebugNetworkMessages(bool block)
             // Set the socket for debug communication and set it to non-blocking.
             m_DebugSocket = socket;
             SetSocketBlockingState( m_DebugSocket, false );
-
-            //// For now, immediately break into the current lua script.
-            //lua_sethook( m_pLuaState, DebugHookFunction, LUA_MASKLINE, 0 );
         }
     }
 
@@ -218,34 +215,165 @@ void LuaGameState::SendStoppedMessage()
 // Returns how many stack frames sent.
 int LuaGameState::AddStackToJSONMessage(cJSON* jMessage)
 {
-    int ret = 0;
+    int numlevels = 0;
 
-    lua_Debug ar;
-    ret = lua_getstack( m_pLuaState, 0, &ar );
-
-    if( ret == 0 )
+    cJSON* jStackArray = 0;
+    
+    int validstack = 1;
+    while( validstack == 1 )
     {
-        cJSON_AddNumberToObject( jMessage, "StackNumLevels", 0 );
-    }
-    else if( ret == 1 )
-    {
-        lua_getinfo( m_pLuaState, "Sl", &ar );
+        lua_Debug ar;
+        validstack = lua_getstack( m_pLuaState, numlevels, &ar );
 
-        char fullpath[MAX_PATH];
-        fullpath[0] = 0;
-
-        if( ar.source[0] == '@' )
+        if( validstack )
         {
-            GetFullPath( &ar.source[1], fullpath, MAX_PATH );                
+            lua_getinfo( m_pLuaState, "nSl", &ar );
+
+            char fullpath[MAX_PATH];
+            fullpath[0] = 0;
+
+            if( ar.source[0] == '@' )
+            {
+                GetFullPath( &ar.source[1], fullpath, MAX_PATH );                
+            }
+
+            cJSON* jStack = cJSON_CreateObject();
+            if( ar.name )
+            {
+                cJSON_AddStringToObject( jStack, "FunctionName", ar.name );
+            }
+            else
+            {
+                // TODO: functions called directly from C++ aren't getting their 'name' field filled in.
+                cJSON_AddStringToObject( jStack, "FunctionName", "?" );
+            }
+            cJSON_AddStringToObject( jStack, "Source", fullpath );
+            cJSON_AddNumberToObject( jStack, "Line", ar.currentline );
+
+            if( jStackArray == 0 )
+                jStackArray = cJSON_CreateArray();
+            cJSON_AddItemToArray( jStackArray, jStack );
+
+            // Add Local variables to this stack frame.
+            //if( numlevels == 0 )
+            {
+                AddLocalVarsToStackInJSONMessage( jStack, &ar );
+            }
+
+            numlevels++;
+        }
+    }
+
+    cJSON_AddNumberToObject( jMessage, "StackNumLevels", numlevels );
+    if( jStackArray )
+        cJSON_AddItemToObject( jMessage, "StackFrames", jStackArray );
+
+    return numlevels;
+}
+
+void LuaGameState::AddValueAtTopOfStackToJSONObject(cJSON* jObject, const char* name)
+{
+    cJSON_AddStringToObject( jObject, "Name", name );
+
+    if( lua_isnumber( m_pLuaState, -1 ) )
+    {
+        double value = lua_tonumber( m_pLuaState, -1 );
+        cJSON_AddNumberToObject( jObject, "Value", value );
+    }
+    else if( lua_isboolean( m_pLuaState, -1 ) )
+    {
+        bool value = lua_toboolean( m_pLuaState, -1 ) ? true : false;
+        cJSON_AddBoolToObject( jObject, "Value", value );
+    }
+    else if( lua_isstring( m_pLuaState, -1 ) )
+    {
+        const char* value = lua_tostring( m_pLuaState, -1 );
+        cJSON_AddStringToObject( jObject, "Value", value );
+    }
+    else if( lua_istable( m_pLuaState, -1 ) )
+    {
+        // TODO:
+        cJSON_AddStringToObject( jObject, "Value", "<object>" );
+    }
+    else
+    {
+        // TODO:
+        cJSON_AddStringToObject( jObject, "Value", "<other>" );
+    }
+}
+
+int LuaGameState::AddLocalVarsToStackInJSONMessage(cJSON* jStack, lua_Debug* ar)
+{
+    int i = 0;
+    int numlocals = 0;
+
+    // Add all members of "this" to the message.
+    cJSON* jThisesArray = 0;
+    {
+        lua_getglobal( m_pLuaState, "this" );
+
+        lua_pushnil( m_pLuaState ); // Start searching from the start of the "this" table.
+        while( lua_next( m_pLuaState, -2 ) != 0 ) // Pops the key from stack, pushes new key and value.
+        {
+            cJSON* jThis = 0;
+
+            // -2 is key, -1 is value.
+            // Only add if -2 is a string type... they should all be.
+            if( lua_isstring( m_pLuaState, -2 ) )
+            {
+                if( jThisesArray == 0 )
+                    jThisesArray = cJSON_CreateArray();
+
+                // This will break lua_next if -2 isn't a string type.
+                const char* localname = lua_tostring( m_pLuaState, -2 );
+
+                jThis = cJSON_CreateObject();
+                AddValueAtTopOfStackToJSONObject( jThis, localname );
+            }
+
+            lua_pop( m_pLuaState, 1 ); // Pop the value off the stack.
+
+            if( jThis )
+                cJSON_AddItemToArray( jThisesArray, jThis );
         }
 
-        cJSON_AddNumberToObject( jMessage, "StackNumLevels", 1 );
-        cJSON_AddStringToObject( jMessage, "FunctionName", "functionName" );
-        cJSON_AddStringToObject( jMessage, "Source", fullpath );
-        cJSON_AddNumberToObject( jMessage, "Line", ar.currentline );
+        lua_pop( m_pLuaState, 1 ); // Pop "this" off the stack.
     }
 
-    return ret;
+    if( jThisesArray )
+        cJSON_AddItemToObject( jStack, "This", jThisesArray );
+
+    // Add all locals to the message.
+    cJSON* jLocalsArray = 0;
+    while( true )
+    {
+        const char* localname = lua_getlocal( m_pLuaState, ar, i+1 );
+
+        if( localname == 0 )
+            break;
+
+        if( localname[0] != '(' )
+        {
+            if( jLocalsArray == 0 )
+                jLocalsArray = cJSON_CreateArray();
+
+            cJSON* jLocal = cJSON_CreateObject();
+
+            AddValueAtTopOfStackToJSONObject( jLocal, localname );
+
+            cJSON_AddItemToArray( jLocalsArray, jLocal );
+
+            numlocals++;
+        }
+
+        lua_pop( m_pLuaState, 1 ); // Pop the value off the stack.
+        i++;
+    }
+
+    if( jLocalsArray )
+        cJSON_AddItemToObject( jStack, "Local", jLocalsArray );
+
+    return numlocals;
 }
 
 // Returns true if we should continue blocking, false otherwise.
@@ -272,36 +400,6 @@ bool LuaGameState::DealWithDebugNetworkMessages(char* message)
 
         return false;
     }
-    //if( message[0] == '{' )
-    //{
-    //    cJSON* jMessageIn = cJSON_Parse( message );
-    //    cJSON* jStackStart = cJSON_GetObjectItem( jMessageIn, "stackstart" );
-    //    cJSON* jStackEnd = cJSON_GetObjectItem( jMessageIn, "stackend" );
-
-    //    if( jStackStart && jStackEnd )
-    //    {
-    //        int stackstart = jStackStart->valueint;
-    //        int stackend = jStackEnd->valueint;
-
-    //        cJSON_Delete( jMessageIn );
-
-    //        // Create a StackInfo message to reply to the stackrequest.
-    //        cJSON* jMessageOut = cJSON_CreateObject();
-    //        cJSON_AddStringToObject( jMessageOut, "Type", "StackInfo" );
-    //        int numstackframes = AddStackToJSONMessage( jMessageOut );
-    //        char* jsonstr = cJSON_PrintUnformatted( jMessageOut );
-    //        send( g_pLuaGameState->m_DebugSocket, jsonstr, strlen(jsonstr), 0 );
-
-    //        LOGInfo( "LuaDebug", "Sending stack info (numframes:%d)\n", numstackframes );
-
-    //        cJSON_Delete( jMessageOut );
-    //        cJSONExt_free( jsonstr );
-
-    //        // If lua isn't running, stop blocking.
-    //        if( numstackframes == 0 )
-    //            return false;
-    //    }
-    //}
 
     return true;
 }

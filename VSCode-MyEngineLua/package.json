@@ -1,7 +1,7 @@
 {
 	"name": "myenginelua",
 	"displayName": "MyEngineLua",
-	"description": "Lua bindings for MyEngine and very early in-progress debugger.",
+	"description": "Lua bindings for MyEngine and early in-progress debugger.",
 	"version": "0.0.2",
 	"publisher": "JimmyLord",
 	"engines": {
@@ -38,8 +38,7 @@
 	},
 	"main": "./out/extension",
 	"activationEvents": [
-		"onDebug",
-		"onCommand:extension.myenginelua-debug.getProgramName"
+		"onDebug"
 	],
 	"contributes": {
 		"snippets": [
@@ -62,14 +61,8 @@
 				"configurationAttributes": {
 					"launch": {
 						"required": [
-							"program"
 						],
 						"properties": {
-							"program": {
-								"type": "string",
-								"description": "Absolute path to a text file.",
-								"default": "${workspaceFolder}/${command:AskForProgramName}"
-							},
 							"stopOnEntry": {
 								"type": "boolean",
 								"description": "Automatically stop after launch.",
@@ -87,25 +80,22 @@
 					{
 						"type": "myenginelua",
 						"request": "launch",
-						"name": "Ask for file name",
-						"program": "${workspaceFolder}/${command:AskForProgramName}",
+						"name": "MyEngine Lua",
 						"stopOnEntry": true
 					}
 				],
 				"configurationSnippets": [
 					{
-						"label": "MyEngine Lua Debug: Launch",
-						"description": "A new configuration for launching a myenginelua debug program",
+						"label": "MyEngine Lua Debugger: Launch",
+						"description": "A new configuration for launching the MyEngine Lua debugger",
 						"body": {
 							"type": "myenginelua",
 							"request": "launch",
-							"name": "${2:Launch Program}",
-							"program": "^\"\\${workspaceFolder}/${1:Program}\""
+							"name": "${2:Launch Program}"
 						}
 					}
 				],
 				"variables": {
-					"AskForProgramName": "extension.myenginelua-debug.getProgramName"
 				}
 			}
 		]

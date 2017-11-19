@@ -12,17 +12,6 @@ import { WorkspaceFolder, DebugConfiguration, ProviderResult, CancellationToken 
 
 export function activate(context: vscode.ExtensionContext)
 {
-	context.subscriptions.push( vscode.commands.registerCommand( 'extension.myenginelua-debug.getProgramName', config =>
-		{
-			return vscode.window.showInputBox(
-				{
-					placeHolder: "Please enter the name of a lua file in the workspace folder",
-					value: "test.lua"
-				}
-			);
-		} )
-	);
-
 	// register a configuration provider for 'myenginelua' debug type
 	context.subscriptions.push(
 		vscode.debug.registerDebugConfigurationProvider( 'myenginelua', new MyEngineLuaConfigurationProvider() ) );
@@ -50,18 +39,8 @@ class MyEngineLuaConfigurationProvider implements vscode.DebugConfigurationProvi
 					config.type = 'myenginelua';
 					config.name = 'Launch';
 					config.request = 'launch';
-					config.program = '${file}';
 					config.stopOnEntry = true;
 				}
-			}
-
-			if( !config.program )
-			{
-				return vscode.window.showInformationMessage("Cannot find a program to debug").then(_ =>
-					{
-						return undefined; // abort launch
-					}
-				);
 			}
 
 			return config;
