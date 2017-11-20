@@ -28,9 +28,6 @@ export class MyEngineLuaRuntime extends EventEmitter {
 	// the contents (= lines) of the one and only file
 	private _sourceLines: string[];
 
-	// This is the next line that will be 'executed'
-	private _currentLine = 0;
-
 	// maps from sourceFile to array of MyEngineLua breakpoints
 	private _breakPoints = new Map<string, MyEngineLuaBreakpoint[]>();
 
@@ -49,8 +46,6 @@ export class MyEngineLuaRuntime extends EventEmitter {
 	 */
 	public start()
 	{
-		this._currentLine = -1;
-
 		this.verifyBreakpoints(this._sourceFile);
 	}
 
@@ -61,30 +56,6 @@ export class MyEngineLuaRuntime extends EventEmitter {
 	// {
 	// 	this.sendEvent( 'stopOnStep' );
 	// }
-
-	/**
-	 * Returns a fake 'stacktrace' where every 'stackframe' is a word from the current line.
-	 */
-	public stack(startFrame: number, endFrame: number): any {
-
-		const words = this._sourceLines[this._currentLine].trim().split(/\s+/);
-
-		const frames = new Array<any>();
-		// every word of the current line becomes a stack frame.
-		for (let i = startFrame; i < Math.min(endFrame, words.length); i++) {
-			const name = words[i];	// use a word of the line as the stackframe name
-			frames.push({
-				index: i,
-				name: `${name}(${i})`,
-				file: this._sourceFile,
-				line: this._currentLine
-			});
-		}
-		return {
-			frames: frames,
-			count: words.length
-		};
-	}
 
 	/*
 	 * Set breakpoint in file with given line.

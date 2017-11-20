@@ -1,4 +1,14 @@
-.vscode/**
-.vscode-test/**
-.gitignore
-vsc-extension-quickstart.md
+# Ignore all files.
+*
+*/**
+
+# Include the following files.
+!node_modules/vscode-debugadapter/**/*
+!node_modules/vscode-debugprotocol/**/*
+!out/extension.js
+!out/MyEngineLuaDebug.js
+!out/MyEngineLuaRuntime.js
+!snippets/snippets.json
+!CHANGELOG.md
+!package.json
+!README.md

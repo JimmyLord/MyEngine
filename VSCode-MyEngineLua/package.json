@@ -60,8 +60,7 @@
 				"runtime": "node",
 				"configurationAttributes": {
 					"launch": {
-						"required": [
-						],
+						"required": [],
 						"properties": {
 							"stopOnEntry": {
 								"type": "boolean",
@@ -95,8 +94,7 @@
 						}
 					}
 				],
-				"variables": {
-				}
+				"variables": {}
 			}
 		]
 	}

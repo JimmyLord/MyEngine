@@ -97,6 +97,9 @@ void SetSocketBlockingState(int socket, bool block)
     }
 }
 
+int g_NextLineToBreakOn = -1;
+char g_NextSourceFileToBreakOn[MAX_PATH];
+
 void DebugHookFunction(lua_State* luastate, lua_Debug* ar)
 {
     if( g_pLuaGameState->m_DebugSocket <= 0 )
@@ -104,10 +107,19 @@ void DebugHookFunction(lua_State* luastate, lua_Debug* ar)
 
     if( ar->event == LUA_HOOKLINE )
     {
-        g_pLuaGameState->SendStoppedMessage();
+        lua_getinfo( g_pLuaGameState->m_pLuaState, "Sl", ar ); // (S)ource and (l)ine.
 
-        // Block and wait for debugger messages.
-        g_pLuaGameState->CheckForDebugNetworkMessages( true );
+        // TODO: Check for breakpoints.
+        
+        // If this is the next line to break on, then break.
+        if( g_NextLineToBreakOn == -1 ||
+            ( g_NextLineToBreakOn <= ar->currentline && strcmp( g_NextSourceFileToBreakOn, ar->source ) == 0 ) )
+        {
+            g_pLuaGameState->SendStoppedMessage();
+
+            // Block and wait for debugger messages.
+            g_pLuaGameState->CheckForDebugNetworkMessages( true );
+        }
     }
 }
 
@@ -227,7 +239,7 @@ int LuaGameState::AddStackToJSONMessage(cJSON* jMessage)
 
         if( validstack )
         {
-            lua_getinfo( m_pLuaState, "nSl", &ar );
+            lua_getinfo( m_pLuaState, "nSl", &ar ); // Function (n)ame, (S)ource and (l)ine.
 
             char fullpath[MAX_PATH];
             fullpath[0] = 0;
@@ -381,13 +393,17 @@ bool LuaGameState::DealWithDebugNetworkMessages(char* message)
 {
     if( strcmp( message, "continue" ) == 0 )
     {
-        // Remove the lua hook for now on continue command.
-        // TODO: keep the hook and continue to check for breakpoints.
-        lua_sethook( m_pLuaState, DebugHookFunction, 0, 0 );
+        g_NextLineToBreakOn = INT_MAX; // Continue (only stop on Breakpoints).
+        //// Remove the lua hook for now on continue command.
+        //// TODO: keep the hook and continue to check for breakpoints.
+        //lua_sethook( m_pLuaState, DebugHookFunction, 0, 0 );
         return false;
     }
-    if( strcmp( message, "step" ) == 0 ) // also used by pause
+    if( strcmp( message, "stepin" ) == 0 ) // used by step-in, pause and break on entry.
     {
+        // Break on whatever the next line is.
+        g_NextLineToBreakOn = -1;
+
         // Set the lua hook (might already be set).
         lua_sethook( m_pLuaState, DebugHookFunction, LUA_MASKLINE, 0 );
 
@@ -397,6 +413,48 @@ bool LuaGameState::DealWithDebugNetworkMessages(char* message)
         lua_Debug ar;
         if( lua_getstack( m_pLuaState, 0, &ar ) == 0 )
             SendStoppedMessage();
+
+        return false;
+    }
+    if( strcmp( message, "stepover" ) == 0 )
+    {
+        // Set the lua hook (might already be set).
+        lua_sethook( m_pLuaState, DebugHookFunction, LUA_MASKLINE, 0 );
+
+        lua_Debug ar;
+        lua_getstack( m_pLuaState, 0, &ar );
+        lua_getinfo( g_pLuaGameState->m_pLuaState, "Sl", &ar ); // (S)ource and (l)ine.
+
+        // Break on whatever the next line is.
+        if( ar.currentline < ar.lastlinedefined )
+            g_NextLineToBreakOn = ar.currentline + 1;
+        else
+            g_NextLineToBreakOn = -1; // If this was the last line of the function, step to next statement.
+        strcpy_s( g_NextSourceFileToBreakOn, MAX_PATH, ar.source );
+
+        return false;
+    }
+    if( strcmp( message, "stepout" ) == 0 )
+    {
+        // Set the lua hook (might already be set).
+        lua_sethook( m_pLuaState, DebugHookFunction, LUA_MASKLINE, 0 );
+
+        lua_Debug ar;
+        int isThereAStackFrame1 = lua_getstack( m_pLuaState, 1, &ar );
+        
+        if( isThereAStackFrame1 == 0 )
+        {
+            // If there is no stack frame 1, 'continue'
+            g_NextLineToBreakOn = INT_MAX; // Continue (only stop on Breakpoints).
+        }
+        else
+        {
+            lua_getinfo( g_pLuaGameState->m_pLuaState, "Sl", &ar ); // (S)ource and (l)ine.
+
+            // Break on the next line of stack frame 1.
+            g_NextLineToBreakOn = ar.currentline + 1;
+            strcpy_s( g_NextSourceFileToBreakOn, MAX_PATH, ar.source );
+        }
 
         return false;
     }

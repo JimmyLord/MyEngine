@@ -48,7 +48,7 @@ class MyEngineLuaDebugSession extends LoggingDebugSession
 	 */
 	public constructor()
 	{
-		super("myenginelua-debug.txt");
+		super( "myenginelua-debug.txt" );
 
 		// this debugger uses zero-based lines and columns
 		this.setDebuggerLinesStartAt1( false );
@@ -117,7 +117,7 @@ class MyEngineLuaDebugSession extends LoggingDebugSession
 		if( typeof jMessage.Type === 'undefined' )
 			return;
 
-		// Received a 'Stopped' message, could be on entry or step.
+		// Received a 'Stopped' message, could be on entry/stepin/stepout/stepover/pause/breakpoint.
 		if( jMessage.Type == 'Stopped' )
 		{
 			this.logInfo( "Received 'Stopped'." );
@@ -126,6 +126,7 @@ class MyEngineLuaDebugSession extends LoggingDebugSession
 
 			// Stopped messages will contain the entire stack, so store a copy of the message.
 			// We'll send the stack to VSCode when it asks for it.
+			// This also includes locals and vars inside 'this' object.
 			this._lastStackJSONMessage = jMessage;
 		}
 	}
@@ -150,9 +151,9 @@ class MyEngineLuaDebugSession extends LoggingDebugSession
 
 				if( !!args.stopOnEntry )
 				{
-					// Send a 'step' command to the Game, which will pause execution.
-					this._socket.write( "step" );
-					this.logInfo( "Sending 'step'." );
+					// Send a 'stepin' command to the Game, which will pause execution.
+					this._socket.write( "stepin" );
+					this.logInfo( "Sending 'stepin'." );
 				}
 			}
 		);
@@ -236,7 +237,7 @@ class MyEngineLuaDebugSession extends LoggingDebugSession
 			};
 
 			this.sendResponse( response );
-	}
+		}
 	}
 
 	protected scopesRequest(response: DebugProtocol.ScopesResponse, args: DebugProtocol.ScopesArguments): void
@@ -290,35 +291,12 @@ class MyEngineLuaDebugSession extends LoggingDebugSession
 		// const id = this._variableHandles.get(args.variablesReference);
 		// if (id !== null) {
 		// 	variables.push({
-		// 		name: "blarg",
-		// 		type: "integer",
-		// 		value: "123",
-		// 		variablesReference: 0
-		// 	});
-		// 	variables.push({
-		// 		name: id + "_f",
-		// 		type: "float",
-		// 		value: "3.14",
-		// 		variablesReference: 0
-		// 	});
-		// 	variables.push({
-		// 		name: id + "_s",
-		// 		type: "string",
-		// 		value: "hello world",
-		// 		variablesReference: 0
-		// 	});
-		// 	variables.push({
 		// 		name: id + "_o",
 		// 		type: "object",
 		// 		value: "Object",
 		// 		variablesReference: this._variableHandles.create("object_")
 		// 	});
 		// }
-
-		// response.body = {
-		// 	variables: variables
-		// };
-		// this.sendResponse(response);
 	}
 
 	protected continueRequest(response: DebugProtocol.ContinueResponse, args: DebugProtocol.ContinueArguments): void
@@ -331,17 +309,34 @@ class MyEngineLuaDebugSession extends LoggingDebugSession
 
 	protected nextRequest(response: DebugProtocol.NextResponse, args: DebugProtocol.NextArguments): void
 	{
-		this._socket.write( "step" );
-		this.logInfo( "Sending 'step'." );
+		this._socket.write( "stepover" );
+		this.logInfo( "Sending 'stepover'." );
+
+		this.sendResponse(response);
+	}
+
+	protected stepInRequest(response: DebugProtocol.StepInResponse, args: DebugProtocol.StepInArguments): void
+	{
+		this._socket.write( "stepin" );
+		this.logInfo( "Sending 'stepin'." );
+
+		this.sendResponse(response);
+	}
+
+	protected stepOutRequest(response: DebugProtocol.StepOutResponse, args: DebugProtocol.StepOutArguments): void
+	{
+		// TODO: change to stepout.
+		this._socket.write( "stepout" );
+		this.logInfo( "Sending 'stepout'." );
 
 		this.sendResponse(response);
 	}
 
 	protected pauseRequest(response: DebugProtocol.PauseResponse, args: DebugProtocol.PauseArguments): void
 	{
-		// No difference between step and pause.
-		this._socket.write( "step" );
-		this.logInfo( "Sending 'step'." );
+		// No difference between stepin and pause.
+		this._socket.write( "stepin" );
+		this.logInfo( "Sending 'stepin'." );
 
 		this.sendResponse(response);
 	}
@@ -354,20 +349,54 @@ class MyEngineLuaDebugSession extends LoggingDebugSession
 		this.sendResponse(response);
 	}
 
-	protected evaluateRequest(response: DebugProtocol.EvaluateResponse, args: DebugProtocol.EvaluateArguments): void {
-
+	protected evaluateRequest(response: DebugProtocol.EvaluateResponse, args: DebugProtocol.EvaluateArguments): void
+	{
 		let reply: string | undefined = undefined;
 
-		if (args.context === 'repl') {
+		// {expression: "collisionobject", frameId: 1, context: "hover"}
+		//console.log( args );
+		if( args.context === 'hover' && typeof args.frameId !== 'undefined' )
+		{
+			let jMessage = this._lastStackJSONMessage;
+			let frameindex = args.frameId;
+			let scope = 'Local';
+			if( typeof jMessage.StackFrames[frameindex][scope] !== 'undefined' )
+			{
+				for( let i=0; i<jMessage.StackFrames[frameindex][scope].length; i++ )
+				{
+					if( jMessage.StackFrames[frameindex][scope][i].Name == args.expression )
+					{
+						reply = jMessage.StackFrames[frameindex][scope][i].Value;
+					}
+				}
+			}
+			scope = 'This';
+			if( typeof jMessage.StackFrames[frameindex][scope] !== 'undefined' )
+			{
+				for( let i=0; i<jMessage.StackFrames[frameindex][scope].length; i++ )
+				{
+					if( "this." + jMessage.StackFrames[frameindex][scope][i].Name == args.expression )
+					{
+						reply = "" + jMessage.StackFrames[frameindex][scope][i].Value;
+					}
+				}
+			}
+		}
+
+		if( args.context === 'repl' )
+		{
 			// 'evaluate' supports to create and delete breakpoints from the 'repl':
 			const matches = /new +([0-9]+)/.exec(args.expression);
-			if (matches && matches.length === 2) {
+			if( matches && matches.length === 2 )
+			{
 				const mbp = this._runtime.setBreakPoint(this._runtime.sourceFile, this.convertClientLineToDebugger(parseInt(matches[1])));
 				const bp = <DebugProtocol.Breakpoint> new Breakpoint(mbp.verified, this.convertDebuggerLineToClient(mbp.line), undefined, this.createSource(this._runtime.sourceFile));
 				bp.id= mbp.id;
 				this.sendEvent(new BreakpointEvent('new', bp));
 				reply = `breakpoint created`;
-			} else {
+			}
+			else
+			{
 				const matches = /del +([0-9]+)/.exec(args.expression);
 				if (matches && matches.length === 2) {
 					const mbp = this._runtime.clearBreakPoint(this._runtime.sourceFile, this.convertClientLineToDebugger(parseInt(matches[1])));
@@ -381,11 +410,15 @@ class MyEngineLuaDebugSession extends LoggingDebugSession
 			}
 		}
 
-		response.body = {
-			result: reply ? reply : `evaluate(context: '${args.context}', '${args.expression}')`,
-			variablesReference: 0
-		};
-		this.sendResponse(response);
+		if( reply )
+		{
+			response.body =
+			{
+				result: reply, // ? reply : `evaluate(context: '${args.context}', '${args.expression}')`,
+				variablesReference: 0
+			};
+			this.sendResponse( response );
+		}
 	}
 
 	//---- helpers
