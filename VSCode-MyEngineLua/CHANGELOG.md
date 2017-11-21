@@ -1,11 +1,18 @@
 
 ## [0.0.2] [Unreleased]
 ### Added
-- Early work on adding a custom Lua debugger for MyEngine.
+- Adding a custom Lua debugger for MyEngine.
 - Done:
-	- Attach/detach/play/pause/step-over/step-in/step-out/callstack/variables(locals,this,hover)
+	- Attach/detach
+	- Breakpoints(buggy)
+	- Play/pause/step-over/step-in/step-out
+	- Callstack
+	- Variables(locals,this,hover)
 - Todo:
-	- Breakpoints/variables(globals)/watch/immediate/more...
+	- Breakpoints(not buggy)
+	- Variables(globals)/watch
+	- Immediate
+	- More...
 
 ## [0.0.1] - 2017-11-13
 ### Added

@@ -19,10 +19,23 @@ void LuaBridgeExt_LogExceptionFormattedForVisualStudioOutputWindow(const char* u
 class LuaGameState
 {
 public:
+    struct Breakpoint
+    {
+        char file[MAX_PATH];
+        int line;
+    };
+
     lua_State* m_pLuaState;
 
     int m_ListenSocket;
     int m_DebugSocket;
+
+    // Used by step-in/out/over.
+    int m_NextLineToBreakOn;
+    char m_NextSourceFileToBreakOn[MAX_PATH];
+
+    // For breakpoints.
+    std::vector<Breakpoint> m_Breakpoints;
 
 public:
     LuaGameState();
@@ -40,6 +53,10 @@ public:
     int AddStackToJSONMessage(cJSON* jMessage);
     void AddValueAtTopOfStackToJSONObject(cJSON* jObject, const char* name);
     int AddLocalVarsToStackInJSONMessage(cJSON* jStack, lua_Debug* ar);
+
+    void ClearAllBreakpoints();
+    void ClearAllBreakpointsFromFile(char* fullpath);
+    void AddBreakpoint(char* fullpath, int line);
 };
 
 #endif //__LuaGameState_H__

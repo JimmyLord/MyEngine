@@ -87,11 +87,6 @@ class MyEngineLuaDebugSession extends LoggingDebugSession
 	 */
 	protected initializeRequest(response: DebugProtocol.InitializeResponse, args: DebugProtocol.InitializeRequestArguments): void
 	{
-		// since this debug adapter can accept configuration requests like 'setBreakpoint' at any time,
-		// we request them early by sending an 'initializeRequest' to the frontend.
-		// The frontend will end the configuration sequence by calling 'configurationDone' request.
-		this.sendEvent(new InitializedEvent());
-
 		// build and return the capabilities of this debug adapter:
 		response.body = response.body || {};
 
@@ -152,7 +147,7 @@ class MyEngineLuaDebugSession extends LoggingDebugSession
 				if( !!args.stopOnEntry )
 				{
 					// Send a 'stepin' command to the Game, which will pause execution.
-					this._socket.write( "stepin" );
+					this._socket.write( "stepin" + '\n' );
 					this.logInfo( "Sending 'stepin'." );
 				}
 			}
@@ -167,28 +162,47 @@ class MyEngineLuaDebugSession extends LoggingDebugSession
 		this._runtime.start();
 
 		this.sendResponse(response);
+
+		// since this debug adapter can accept configuration requests like 'setBreakpoint' at any time,
+		// we request them early by sending an 'initializeRequest' to the frontend.
+		// The frontend will end the configuration sequence by calling 'configurationDone' request.
+		this.sendEvent( new InitializedEvent() );
 	}
 
-	protected setBreakPointsRequest(response: DebugProtocol.SetBreakpointsResponse, args: DebugProtocol.SetBreakpointsArguments): void {
+	protected setBreakPointsRequest(response: DebugProtocol.SetBreakpointsResponse, args: DebugProtocol.SetBreakpointsArguments): void
+	{
+		if( typeof this._socket === 'undefined' )
+			return;
 
 		const path = <string>args.source.path;
 		const clientLines = args.lines || [];
 
 		// clear all breakpoints for this file
-		this._runtime.clearBreakpoints(path);
+		//this._runtime.clearBreakpoints(path);
+		var request =  { "command":"breakpoint_ClearAllFromFile", "file":path };
+		this._socket.write( JSON.stringify( request ) + '\n' );
+		this.logInfo( "Sending 'breakpoint_ClearAllFromFile': " + path + "." );
 
 		// set and verify breakpoint locations
-		const actualBreakpoints = clientLines.map(l => {
-			let { verified, line, id } = this._runtime.setBreakPoint(path, this.convertClientLineToDebugger(l));
-			const bp = <DebugProtocol.Breakpoint> new Breakpoint(verified, this.convertDebuggerLineToClient(line));
-			bp.id= id;
-			return bp;
-		});
+		const actualBreakpoints = clientLines.map( line =>
+			{
+				//let debuggerline = this.convertClientLineToDebugger(l);
+				//let { verified, line, id } =
+				//	this._runtime.setBreakPoint( path, debuggerline );
+				//let clientline = this.convertDebuggerLineToClient(line);
+				var request =  { "command":"breakpoint_Set", "file":path, "line":line };
+				this._socket.write( JSON.stringify( request ) + '\n' );
+				this.logInfo( "Sending 'breakpoint_Set': " + path + "(" + line + ")." );
+
+				let verified = true;
+				const bp = <DebugProtocol.Breakpoint>new Breakpoint( verified, line );
+				//bp.id = id;
+				return bp;
+			}
+		);
 
 		// send back the actual breakpoint positions
-		response.body = {
-			breakpoints: actualBreakpoints
-		};
+		response.body = { breakpoints: actualBreakpoints };
 		this.sendResponse(response);
 	}
 
@@ -301,7 +315,7 @@ class MyEngineLuaDebugSession extends LoggingDebugSession
 
 	protected continueRequest(response: DebugProtocol.ContinueResponse, args: DebugProtocol.ContinueArguments): void
 	{
-		this._socket.write( "continue" );
+		this._socket.write( "continue" + '\n' );
 		this.logInfo( "Sending 'continue'." );
 
 		this.sendResponse( response );
@@ -309,7 +323,7 @@ class MyEngineLuaDebugSession extends LoggingDebugSession
 
 	protected nextRequest(response: DebugProtocol.NextResponse, args: DebugProtocol.NextArguments): void
 	{
-		this._socket.write( "stepover" );
+		this._socket.write( "stepover" + '\n' );
 		this.logInfo( "Sending 'stepover'." );
 
 		this.sendResponse(response);
@@ -317,7 +331,7 @@ class MyEngineLuaDebugSession extends LoggingDebugSession
 
 	protected stepInRequest(response: DebugProtocol.StepInResponse, args: DebugProtocol.StepInArguments): void
 	{
-		this._socket.write( "stepin" );
+		this._socket.write( "stepin" + '\n' );
 		this.logInfo( "Sending 'stepin'." );
 
 		this.sendResponse(response);
@@ -326,7 +340,7 @@ class MyEngineLuaDebugSession extends LoggingDebugSession
 	protected stepOutRequest(response: DebugProtocol.StepOutResponse, args: DebugProtocol.StepOutArguments): void
 	{
 		// TODO: change to stepout.
-		this._socket.write( "stepout" );
+		this._socket.write( "stepout" + '\n' );
 		this.logInfo( "Sending 'stepout'." );
 
 		this.sendResponse(response);
@@ -335,7 +349,7 @@ class MyEngineLuaDebugSession extends LoggingDebugSession
 	protected pauseRequest(response: DebugProtocol.PauseResponse, args: DebugProtocol.PauseArguments): void
 	{
 		// No difference between stepin and pause.
-		this._socket.write( "stepin" );
+		this._socket.write( "stepin" + '\n' );
 		this.logInfo( "Sending 'stepin'." );
 
 		this.sendResponse(response);
@@ -383,32 +397,32 @@ class MyEngineLuaDebugSession extends LoggingDebugSession
 			}
 		}
 
-		if( args.context === 'repl' )
-		{
-			// 'evaluate' supports to create and delete breakpoints from the 'repl':
-			const matches = /new +([0-9]+)/.exec(args.expression);
-			if( matches && matches.length === 2 )
-			{
-				const mbp = this._runtime.setBreakPoint(this._runtime.sourceFile, this.convertClientLineToDebugger(parseInt(matches[1])));
-				const bp = <DebugProtocol.Breakpoint> new Breakpoint(mbp.verified, this.convertDebuggerLineToClient(mbp.line), undefined, this.createSource(this._runtime.sourceFile));
-				bp.id= mbp.id;
-				this.sendEvent(new BreakpointEvent('new', bp));
-				reply = `breakpoint created`;
-			}
-			else
-			{
-				const matches = /del +([0-9]+)/.exec(args.expression);
-				if (matches && matches.length === 2) {
-					const mbp = this._runtime.clearBreakPoint(this._runtime.sourceFile, this.convertClientLineToDebugger(parseInt(matches[1])));
-					if (mbp) {
-						const bp = <DebugProtocol.Breakpoint> new Breakpoint(false);
-						bp.id= mbp.id;
-						this.sendEvent(new BreakpointEvent('removed', bp));
-						reply = `breakpoint deleted`;
-					}
-				}
-			}
-		}
+		// if( args.context === 'repl' )
+		// {
+		// 	// 'evaluate' supports to create and delete breakpoints from the 'repl':
+		// 	const matches = /new +([0-9]+)/.exec(args.expression);
+		// 	if( matches && matches.length === 2 )
+		// 	{
+		// 		const mbp = this._runtime.setBreakPoint(this._runtime.sourceFile, this.convertClientLineToDebugger(parseInt(matches[1])));
+		// 		const bp = <DebugProtocol.Breakpoint> new Breakpoint(mbp.verified, this.convertDebuggerLineToClient(mbp.line), undefined, this.createSource(this._runtime.sourceFile));
+		// 		bp.id= mbp.id;
+		// 		this.sendEvent(new BreakpointEvent('new', bp));
+		// 		reply = `breakpoint created`;
+		// 	}
+		// 	else
+		// 	{
+		// 		const matches = /del +([0-9]+)/.exec(args.expression);
+		// 		if (matches && matches.length === 2) {
+		// 			const mbp = this._runtime.clearBreakPoint(this._runtime.sourceFile, this.convertClientLineToDebugger(parseInt(matches[1])));
+		// 			if (mbp) {
+		// 				const bp = <DebugProtocol.Breakpoint> new Breakpoint(false);
+		// 				bp.id= mbp.id;
+		// 				this.sendEvent(new BreakpointEvent('removed', bp));
+		// 				reply = `breakpoint deleted`;
+		// 			}
+		// 		}
+		// 	}
+		// }
 
 		if( reply )
 		{

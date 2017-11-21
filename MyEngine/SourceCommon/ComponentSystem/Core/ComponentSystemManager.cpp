@@ -387,17 +387,6 @@ void ComponentSystemManager::OnFileUnloaded(MyFileObject* pFile) // StaticOnFile
                 || (pFileInfo->m_pPrefabFile    && pFileInfo->m_pPrefabFile->GetFile()      == pFile)
               )
             {
-                //if( pFile->GetRefCount() > 1 )
-                //{
-                //    LOGInfo( LOGTag, "File removed from scene file list: %s\n", pFile->GetFullPath() );
-                //    LOGInfo( LOGTag, "Remove the following references to unload completely:\n" );
-                //    LogAllReferencesForFile( pFile );
-                //}
-                //else
-                //{
-                //    LOGInfo( LOGTag, "File unloaded: %s\n", pFile->GetFullPath() );
-                //}
-
                 LOGInfo( LOGTag, "File removed from scene file list: %s\n", pFile->GetFullPath() );
 
                 FreeDataFile( pFileInfo );
@@ -829,7 +818,9 @@ MyFileObject* ComponentSystemManager::LoadDataFile(const char* relativepath, uns
         if( rellen > 4 && fulllen > 4 &&
             ( strcmp( &relativepath[rellen-4], &fullsourcefilepath[fulllen-4] ) != 0 ) )
         {
-            const char* relativepath = GetRelativePath( fullsourcefilepath );
+            char path[MAX_PATH];
+            strcpy_s( path, MAX_PATH, fullsourcefilepath );
+            const char* relativepath = GetRelativePath( path );
 
             // store the relative path if the file is relative... otherwise store the full path.
             if( relativepath == 0 )
@@ -837,11 +828,7 @@ MyFileObject* ComponentSystemManager::LoadDataFile(const char* relativepath, uns
             else
                 strcpy_s( pFileInfo->m_SourceFileFullPath, MAX_PATH, relativepath );
 
-            for( unsigned int i=0; i<strlen(pFileInfo->m_SourceFileFullPath); i++ )
-            {
-                if( pFileInfo->m_SourceFileFullPath[i] == '\\' )
-                    pFileInfo->m_SourceFileFullPath[i] = '/';
-            }
+            FixSlashesInPath( pFileInfo->m_SourceFileFullPath );
         }
 
         // if we're loading a mesh file type, create a mesh.

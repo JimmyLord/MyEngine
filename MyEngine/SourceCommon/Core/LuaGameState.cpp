@@ -63,6 +63,9 @@ LuaGameState::LuaGameState()
 
     // don't build on init, Rebuild is called after a scene is loaded.
     //Rebuild();
+
+    m_NextLineToBreakOn = -1;
+    m_NextSourceFileToBreakOn[0] = 0;
 }
 
 LuaGameState::~LuaGameState()
@@ -97,9 +100,6 @@ void SetSocketBlockingState(int socket, bool block)
     }
 }
 
-int g_NextLineToBreakOn = -1;
-char g_NextSourceFileToBreakOn[MAX_PATH];
-
 void DebugHookFunction(lua_State* luastate, lua_Debug* ar)
 {
     if( g_pLuaGameState->m_DebugSocket <= 0 )
@@ -109,11 +109,24 @@ void DebugHookFunction(lua_State* luastate, lua_Debug* ar)
     {
         lua_getinfo( g_pLuaGameState->m_pLuaState, "Sl", ar ); // (S)ource and (l)ine.
 
-        // TODO: Check for breakpoints.
+        bool breakpoint = false;
+
+        // Check for breakpoints.
+        for( unsigned int i=0; i<g_pLuaGameState->m_Breakpoints.size(); i++ )
+        {
+            if( g_pLuaGameState->m_Breakpoints[i].line == ar->currentline &&
+                strcmp( g_pLuaGameState->m_Breakpoints[i].file, &ar->source[1] ) == 0 )
+            {
+                breakpoint = true;
+                LOGInfo( "LuaDebug", "Stopped at breakpoint\n" );
+            }
+        }
         
         // If this is the next line to break on, then break.
-        if( g_NextLineToBreakOn == -1 ||
-            ( g_NextLineToBreakOn <= ar->currentline && strcmp( g_NextSourceFileToBreakOn, ar->source ) == 0 ) )
+        if( breakpoint ||
+            g_pLuaGameState->m_NextLineToBreakOn == -1 ||
+            ( g_pLuaGameState->m_NextLineToBreakOn <= ar->currentline &&
+              strcmp( g_pLuaGameState->m_NextSourceFileToBreakOn, ar->source ) == 0 ) )
         {
             g_pLuaGameState->SendStoppedMessage();
 
@@ -132,9 +145,6 @@ void LuaGameState::CheckForDebugNetworkMessages(bool block)
 {
     if( m_ListenSocket <= 0 )
         return;
-
-    char buffer[1000];
-    int buffersize = 1000;
 
     // Check for incoming connection requests. (Only allow 1 debugger)
     if( m_ListenSocket != 0 && m_DebugSocket == 0 )
@@ -157,31 +167,35 @@ void LuaGameState::CheckForDebugNetworkMessages(bool block)
     if( m_DebugSocket <= 0 )
         return;
 
+    // Deal with TCP messages, separated by '\n' character.
+    char buffer[1000];
+    int buffersize = 1000;
+
     int bytes = -2;
     while( bytes != -1 )
     {
         if( block )
         {
             SetSocketBlockingState( m_DebugSocket, true );
-
-            //while( 1 )
-            {
-                //Sleep( 100 );
-                ////usleep( 5000 );
-                
-                bytes = (int)recv( m_DebugSocket, buffer, 1000, 0 );
-
-                //if( bytes != -1 )
-                //{
-                //    break;
-                //}
-            }
         }
         else
         {
             SetSocketBlockingState( m_DebugSocket, false );
+        }
 
-            bytes = (int)recv( m_DebugSocket, buffer, 1000, 0 );
+        // Read until a '\n'.
+        {
+            bytes = (int)recv( m_DebugSocket, buffer, 1000, MSG_PEEK );
+                
+            int i;
+            for( i=0; i<bytes; i++ )
+            {
+                if( buffer[i] == '\n' )
+                    break;
+            }
+
+            (int)recv( m_DebugSocket, buffer, i+1, 0 );
+            buffer[i] = 0;
         }
 
         // If we were blocking and there was an error, or the connection was closed nicely,
@@ -192,6 +206,7 @@ void LuaGameState::CheckForDebugNetworkMessages(bool block)
 
             lua_sethook( m_pLuaState, DebugHookFunction, 0, 0 );
             m_DebugSocket = 0;
+            ClearAllBreakpoints();
         }
 
         if( bytes != -1 )
@@ -206,6 +221,103 @@ void LuaGameState::CheckForDebugNetworkMessages(bool block)
             block = DealWithDebugNetworkMessages( buffer );
         }
     }
+}
+
+// Returns true if we should continue blocking, false otherwise.
+bool LuaGameState::DealWithDebugNetworkMessages(char* message)
+{
+    if( strcmp( message, "continue" ) == 0 )
+    {
+        m_NextLineToBreakOn = INT_MAX; // Continue (only stop on Breakpoints).
+        //// Remove the lua hook for now on continue command.
+        //// TODO: keep the hook and continue to check for breakpoints.
+        //lua_sethook( m_pLuaState, DebugHookFunction, 0, 0 );
+        return false;
+    }
+    if( strcmp( message, "stepin" ) == 0 ) // used by step-in, pause and break on entry.
+    {
+        // Break on whatever the next line is.
+        m_NextLineToBreakOn = -1;
+
+        // Set the lua hook (might already be set).
+        lua_sethook( m_pLuaState, DebugHookFunction, LUA_MASKLINE, 0 );
+
+        // TODO: Only send this if Lua isn't currently running to let debugger know we've paused execution.
+        //   'Stopped' will be sent twice when Lua script isn't currently running. (Once here, once in debug hook)
+        //   This stack check will prevent 'Stopped' from being sent twice if we're already stepping through Lua code.
+        lua_Debug ar;
+        if( lua_getstack( m_pLuaState, 0, &ar ) == 0 )
+            SendStoppedMessage();
+
+        return false;
+    }
+    if( strcmp( message, "stepover" ) == 0 )
+    {
+        // Set the lua hook (might already be set).
+        lua_sethook( m_pLuaState, DebugHookFunction, LUA_MASKLINE, 0 );
+
+        lua_Debug ar;
+        lua_getstack( m_pLuaState, 0, &ar );
+        lua_getinfo( g_pLuaGameState->m_pLuaState, "Sl", &ar ); // (S)ource and (l)ine.
+
+        // Break on whatever the next line is.
+        if( ar.currentline < ar.lastlinedefined )
+            m_NextLineToBreakOn = ar.currentline + 1;
+        else
+            m_NextLineToBreakOn = -1; // If this was the last line of the function, step to next statement.
+        strcpy_s( m_NextSourceFileToBreakOn, MAX_PATH, ar.source );
+
+        return false;
+    }
+    if( strcmp( message, "stepout" ) == 0 )
+    {
+        // Set the lua hook (might already be set).
+        lua_sethook( m_pLuaState, DebugHookFunction, LUA_MASKLINE, 0 );
+
+        lua_Debug ar;
+        int isThereAStackFrame1 = lua_getstack( m_pLuaState, 1, &ar );
+        
+        if( isThereAStackFrame1 == 0 )
+        {
+            // If there is no stack frame 1, 'continue'
+            m_NextLineToBreakOn = INT_MAX; // Continue (only stop on Breakpoints).
+        }
+        else
+        {
+            lua_getinfo( g_pLuaGameState->m_pLuaState, "Sl", &ar ); // (S)ource and (l)ine.
+
+            // Break on the next line of stack frame 1.
+            m_NextLineToBreakOn = ar.currentline + 1;
+            strcpy_s( m_NextSourceFileToBreakOn, MAX_PATH, ar.source );
+        }
+
+        return false;
+    }
+    if( message[0] == '{' )
+    {
+        cJSON* jMessage = cJSON_Parse( message );
+
+        cJSON* jCommand = cJSON_GetObjectItem( jMessage, "command" );
+        if( jCommand )
+        {
+            if( strcmp( jCommand->valuestring, "breakpoint_ClearAllFromFile" ) == 0 )
+            {
+                cJSON* jFile = cJSON_GetObjectItem( jMessage, "file" );
+                ClearAllBreakpointsFromFile( jFile->valuestring );
+            }
+            else if( strcmp( jCommand->valuestring, "breakpoint_Set" ) == 0 )
+            {
+                cJSON* jFile = cJSON_GetObjectItem( jMessage, "file" );
+                cJSON* jLine = cJSON_GetObjectItem( jMessage, "line" );
+                AddBreakpoint( jFile->valuestring, jLine->valueint );
+            }
+        }
+
+        cJSON_Delete( jMessage );
+        return false;
+    }
+
+    return true;
 }
 
 void LuaGameState::SendStoppedMessage()
@@ -388,78 +500,34 @@ int LuaGameState::AddLocalVarsToStackInJSONMessage(cJSON* jStack, lua_Debug* ar)
     return numlocals;
 }
 
-// Returns true if we should continue blocking, false otherwise.
-bool LuaGameState::DealWithDebugNetworkMessages(char* message)
+void LuaGameState::ClearAllBreakpoints()
 {
-    if( strcmp( message, "continue" ) == 0 )
+    m_Breakpoints.clear();
+}
+
+void LuaGameState::ClearAllBreakpointsFromFile(char* fullpath)
+{
+    const char* relativepath = GetRelativePath( fullpath );
+    for( unsigned int i=0; i<m_Breakpoints.size(); i++ )
     {
-        g_NextLineToBreakOn = INT_MAX; // Continue (only stop on Breakpoints).
-        //// Remove the lua hook for now on continue command.
-        //// TODO: keep the hook and continue to check for breakpoints.
-        //lua_sethook( m_pLuaState, DebugHookFunction, 0, 0 );
-        return false;
-    }
-    if( strcmp( message, "stepin" ) == 0 ) // used by step-in, pause and break on entry.
-    {
-        // Break on whatever the next line is.
-        g_NextLineToBreakOn = -1;
-
-        // Set the lua hook (might already be set).
-        lua_sethook( m_pLuaState, DebugHookFunction, LUA_MASKLINE, 0 );
-
-        // TODO: Only send this if Lua isn't currently running to let debugger know we've paused execution.
-        //   'Stopped' will be sent twice when Lua script isn't currently running. (Once here, once in debug hook)
-        //   This stack check will prevent 'Stopped' from being sent twice if we're already stepping through Lua code.
-        lua_Debug ar;
-        if( lua_getstack( m_pLuaState, 0, &ar ) == 0 )
-            SendStoppedMessage();
-
-        return false;
-    }
-    if( strcmp( message, "stepover" ) == 0 )
-    {
-        // Set the lua hook (might already be set).
-        lua_sethook( m_pLuaState, DebugHookFunction, LUA_MASKLINE, 0 );
-
-        lua_Debug ar;
-        lua_getstack( m_pLuaState, 0, &ar );
-        lua_getinfo( g_pLuaGameState->m_pLuaState, "Sl", &ar ); // (S)ource and (l)ine.
-
-        // Break on whatever the next line is.
-        if( ar.currentline < ar.lastlinedefined )
-            g_NextLineToBreakOn = ar.currentline + 1;
-        else
-            g_NextLineToBreakOn = -1; // If this was the last line of the function, step to next statement.
-        strcpy_s( g_NextSourceFileToBreakOn, MAX_PATH, ar.source );
-
-        return false;
-    }
-    if( strcmp( message, "stepout" ) == 0 )
-    {
-        // Set the lua hook (might already be set).
-        lua_sethook( m_pLuaState, DebugHookFunction, LUA_MASKLINE, 0 );
-
-        lua_Debug ar;
-        int isThereAStackFrame1 = lua_getstack( m_pLuaState, 1, &ar );
-        
-        if( isThereAStackFrame1 == 0 )
+        if( strcmp( m_Breakpoints[i].file, relativepath ) == 0 )
         {
-            // If there is no stack frame 1, 'continue'
-            g_NextLineToBreakOn = INT_MAX; // Continue (only stop on Breakpoints).
+            m_Breakpoints[i] = m_Breakpoints[m_Breakpoints.size()-1];
+            m_Breakpoints.pop_back();
+            i--;
         }
-        else
-        {
-            lua_getinfo( g_pLuaGameState->m_pLuaState, "Sl", &ar ); // (S)ource and (l)ine.
-
-            // Break on the next line of stack frame 1.
-            g_NextLineToBreakOn = ar.currentline + 1;
-            strcpy_s( g_NextSourceFileToBreakOn, MAX_PATH, ar.source );
-        }
-
-        return false;
     }
+}
 
-    return true;
+void LuaGameState::AddBreakpoint(char* fullpath, int line)
+{
+    const char* relativepath = GetRelativePath( fullpath );
+
+    Breakpoint bp;
+    strcpy_s( bp.file, MAX_PATH, relativepath );
+    bp.line = line;
+
+    m_Breakpoints.push_back( bp );
 }
 
 void LuaGameState::Rebuild()

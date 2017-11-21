@@ -1427,7 +1427,9 @@ void EngineMainFrame::LoadSceneDialog(bool unloadscenes)
     // load the file chosen by the user
     // TODO: typecasting will likely cause issues with multibyte names
     wxString wxpath = FileDialog.GetPath();
-    const char* relativepath = GetRelativePath( wxpath );
+    char path[MAX_PATH];
+    strcpy_s( path, MAX_PATH, wxpath );
+    const char* relativepath = GetRelativePath( path );
     LoadScene( relativepath, unloadscenes );
 }
 
