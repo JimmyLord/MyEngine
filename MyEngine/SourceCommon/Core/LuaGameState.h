@@ -47,7 +47,7 @@ public:
     void Tick();
 
     void CheckForDebugNetworkMessages(bool block);
-    bool DealWithDebugNetworkMessages(char* message);
+    bool DealWithDebugNetworkMessages(char* message, bool wasblocking);
 
     void SendStoppedMessage();
     int AddStackToJSONMessage(cJSON* jMessage);

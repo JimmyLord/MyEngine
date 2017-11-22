@@ -218,13 +218,13 @@ void LuaGameState::CheckForDebugNetworkMessages(bool block)
                 buffer[999] = 0;
 
             LOGInfo( "LuaDebug", "Received a packet (size:%d) (value:%s)\n", bytes, buffer );
-            block = DealWithDebugNetworkMessages( buffer );
+            block = DealWithDebugNetworkMessages( buffer, block );
         }
     }
 }
 
 // Returns true if we should continue blocking, false otherwise.
-bool LuaGameState::DealWithDebugNetworkMessages(char* message)
+bool LuaGameState::DealWithDebugNetworkMessages(char* message, bool wasblocking)
 {
     if( strcmp( message, "continue" ) == 0 )
     {
@@ -307,6 +307,10 @@ bool LuaGameState::DealWithDebugNetworkMessages(char* message)
             }
             else if( strcmp( jCommand->valuestring, "breakpoint_Set" ) == 0 )
             {
+                // Set the lua hook (might already be set).
+                lua_sethook( m_pLuaState, DebugHookFunction, LUA_MASKLINE, 0 );
+                m_NextLineToBreakOn = INT_MAX; // Only stop on Breakpoints.
+
                 cJSON* jFile = cJSON_GetObjectItem( jMessage, "file" );
                 cJSON* jLine = cJSON_GetObjectItem( jMessage, "line" );
                 AddBreakpoint( jFile->valuestring, jLine->valueint );
@@ -314,7 +318,8 @@ bool LuaGameState::DealWithDebugNetworkMessages(char* message)
         }
 
         cJSON_Delete( jMessage );
-        return false;
+        
+        return wasblocking;
     }
 
     return true;
@@ -417,7 +422,12 @@ void LuaGameState::AddValueAtTopOfStackToJSONObject(cJSON* jObject, const char* 
     else if( lua_istable( m_pLuaState, -1 ) )
     {
         // TODO:
-        cJSON_AddStringToObject( jObject, "Value", "<object>" );
+        cJSON_AddStringToObject( jObject, "Value", "<table>" );
+    }
+    else if( lua_isuserdata( m_pLuaState, -1 ) )
+    {
+        // TODO:
+        cJSON_AddStringToObject( jObject, "Value", "<userdata>" );
     }
     else
     {

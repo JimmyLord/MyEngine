@@ -99,6 +99,9 @@ class MyEngineLuaDebugSession extends LoggingDebugSession
 		// Make VS Code not show a 'step back' button.
 		response.body.supportsStepBack = false;
 
+		// Tell VSCode we support restart requests.
+		response.body.supportsRestartRequest = true;
+
 		this.sendResponse(response);
 	}
 
@@ -154,6 +157,7 @@ class MyEngineLuaDebugSession extends LoggingDebugSession
 		);
 		this._socket.on( 'data', data => { this.dealWithIncomingData( data ); } );
 		this._socket.on( 'error', () => { this.TerminateDebugger() } );
+		this._socket.on( 'close', () => { this.TerminateDebugger() } );
 
 		// make sure to 'Stop' the buffered logging if 'trace' is not set
 		logger.setup( args.trace ? Logger.LogLevel.Verbose : Logger.LogLevel.Stop, false );
@@ -311,6 +315,14 @@ class MyEngineLuaDebugSession extends LoggingDebugSession
 		// 		variablesReference: this._variableHandles.create("object_")
 		// 	});
 		// }
+	}
+
+	protected restartRequest(response: DebugProtocol.RestartResponse, args: DebugProtocol.RestartArguments): void
+	{
+		this._socket.write( "restart" + '\n' );
+		this.logInfo( "Sending 'restart'." );
+
+		this.sendResponse( response );
 	}
 
 	protected continueRequest(response: DebugProtocol.ContinueResponse, args: DebugProtocol.ContinueArguments): void
