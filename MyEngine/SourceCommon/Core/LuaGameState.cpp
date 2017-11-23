@@ -226,6 +226,10 @@ void LuaGameState::CheckForDebugNetworkMessages(bool block)
 // Returns true if we should continue blocking, false otherwise.
 bool LuaGameState::DealWithDebugNetworkMessages(char* message, bool wasblocking)
 {
+    // On any debug message, check for updated scripts.
+    // Scripts changes will be applied on next tick (on reentry to the function changed).
+    g_pFileManager->ReloadAnyUpdatedFiles( OnFileUpdated_CallbackFunction );
+
     if( strcmp( message, "continue" ) == 0 )
     {
         m_NextLineToBreakOn = INT_MAX; // Continue (only stop on Breakpoints).

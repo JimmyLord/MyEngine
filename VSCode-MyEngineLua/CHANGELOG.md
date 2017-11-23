@@ -4,13 +4,12 @@
 - Adding a custom Lua debugger for MyEngine.
 - Done:
 	- Attach/detach
-	- Breakpoints(buggy)
+	- Breakpoints
 	- Play/pause/step-over/step-in/step-out
 	- Callstack
 	- Variables(locals,this,hover)
 - Todo:
-	- Breakpoints(not buggy)
-	- Variables(globals)/watch
+	- Variables(globals/userdata)/watch
 	- Immediate
 	- More...
 
