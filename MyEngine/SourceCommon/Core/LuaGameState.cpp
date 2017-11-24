@@ -233,9 +233,6 @@ bool LuaGameState::DealWithDebugNetworkMessages(char* message, bool wasblocking)
     if( strcmp( message, "continue" ) == 0 )
     {
         m_NextLineToBreakOn = INT_MAX; // Continue (only stop on Breakpoints).
-        //// Remove the lua hook for now on continue command.
-        //// TODO: keep the hook and continue to check for breakpoints.
-        //lua_sethook( m_pLuaState, DebugHookFunction, 0, 0 );
         return false;
     }
     if( strcmp( message, "stepin" ) == 0 ) // used by step-in, pause and break on entry.
@@ -431,7 +428,33 @@ void LuaGameState::AddValueAtTopOfStackToJSONObject(cJSON* jObject, const char* 
     else if( lua_isuserdata( m_pLuaState, -1 ) )
     {
         // TODO:
-        cJSON_AddStringToObject( jObject, "Value", "<userdata>" );
+        bool isfull = luabridge::isfulluserdata( m_pLuaState, -1 );
+
+        luabridge::LuaRef LuaObject = luabridge::LuaRef::fromStack( m_pLuaState, -1 );
+
+        if( LuaObject.isUserdata() )
+        {
+            //GameObject* v = LuaObject.cast<GameObject*>();
+
+            int ret = lua_getmetatable( m_pLuaState, -1 );
+            if( ret == 1 )
+            {
+                lua_rawgetp( m_pLuaState, -1, luabridge::getIdentityKey() );
+                if( lua_isboolean( m_pLuaState, -1 ) )
+                {
+                    lua_pop( m_pLuaState, 1 ); // Pop the bool.
+                    
+                    luabridge::rawgetfield( m_pLuaState, -1, "__type" );
+                    const char* type = lua_tostring( m_pLuaState, -1 );
+                    lua_pop( m_pLuaState, 1 ); // Pop the type.
+
+                    cJSON_AddStringToObject( jObject, "Value", type );
+                    int bp = 1;
+                }
+
+                lua_pop( m_pLuaState, 1 ); // Pop the metatable.
+            }
+        }
     }
     else
     {
