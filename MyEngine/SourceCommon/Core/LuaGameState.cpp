@@ -401,16 +401,79 @@ int LuaGameState::AddStackToJSONMessage(cJSON* jMessage)
     return numlevels;
 }
 
-void LuaGameState::AddValueAtTopOfStackToJSONObject(cJSON* jObject, const char* name)
+void LuaGameState::AddUserDataToJSONArray(cJSON* jArray, cJSON* jObject, const char* name)
 {
+    // Create a LuaRef from the userdata object, this will be used when querying the properties.
+    luabridge::LuaRef LuaObject = luabridge::LuaRef::fromStack( m_pLuaState, -1 );
+
+    if( LuaObject.isUserdata() )
+    {
+        // LuaBridge stores properties for registered classes in the metatable.
+        int ret = lua_getmetatable( m_pLuaState, -1 );
+        if( ret == 1 )
+        {
+            lua_rawgetp( m_pLuaState, -1, luabridge::getIdentityKey() );
+            if( lua_isboolean( m_pLuaState, -1 ) )
+            {
+                lua_pop( m_pLuaState, 1 ); // Pop the bool.
+
+                // Get the type registered with LuaBridge. ("MyMatrix", "GameObject", "Vector2", etc...)
+                luabridge::rawgetfield( m_pLuaState, -1, "__type" );
+                const char* type = lua_tostring( m_pLuaState, -1 );
+                lua_pop( m_pLuaState, 1 ); // Pop the __type.
+
+                cJSON_AddStringToObject( jObject, "Value", type );
+
+                // Get the property getter function table.
+                luabridge::rawgetfield( m_pLuaState, -1, "__propget" );
+
+                if( lua_type( m_pLuaState, -1 ) == LUA_TTABLE )
+                {
+                    // Walk over the table, adding each property into the array.
+                    // TODO: Place the properties in an array under the current object.
+                    lua_pushnil( m_pLuaState );
+                    while( lua_next( m_pLuaState, -2 ) != 0 )
+                    {
+                        const char* propertyname = lua_tostring( m_pLuaState, -2 );
+
+                        //luabridge::LuaRef LuaGetPropertyFunction = luabridge::LuaRef::fromStack( m_pLuaState, -1 );
+                        if( lua_type( m_pLuaState, -1 ) == LUA_TFUNCTION ) //LuaGetPropertyFunction.isFunction() )
+                        {
+                            LuaObject.push( m_pLuaState ); // Push the object pointer as the first arg to the function.
+                            lua_call( m_pLuaState, 1, 1 ); // Pops the argument and the function.
+
+                            // Add this property to the JSON Array.
+                            // TODO: Add it to an array of properties to this object instead.
+                            AddValueAtTopOfStackToJSONArray( jArray, propertyname );
+
+                            lua_pop( m_pLuaState, 1 ); // Pop the property value.
+                        }
+                    }
+
+                    lua_pop( m_pLuaState, 1 ); // Pop the __propget table.
+                }
+            }
+
+            lua_pop( m_pLuaState, 1 ); // Pop the metatable.
+        }
+    }
+}
+
+void LuaGameState::AddValueAtTopOfStackToJSONArray(cJSON* jArray, const char* name)
+{
+    cJSON* jObject = cJSON_CreateObject();
+    cJSON_AddItemToArray( jArray, jObject );
+
     cJSON_AddStringToObject( jObject, "Name", name );
 
-    if( lua_isnumber( m_pLuaState, -1 ) )
+    int type = lua_type( m_pLuaState, -1 );
+
+    if( type == LUA_TNUMBER )
     {
         double value = lua_tonumber( m_pLuaState, -1 );
         cJSON_AddNumberToObject( jObject, "Value", value );
     }
-    else if( lua_isboolean( m_pLuaState, -1 ) )
+    else if( type == LUA_TBOOLEAN )
     {
         bool value = lua_toboolean( m_pLuaState, -1 ) ? true : false;
         cJSON_AddBoolToObject( jObject, "Value", value );
@@ -420,41 +483,17 @@ void LuaGameState::AddValueAtTopOfStackToJSONObject(cJSON* jObject, const char* 
         const char* value = lua_tostring( m_pLuaState, -1 );
         cJSON_AddStringToObject( jObject, "Value", value );
     }
-    else if( lua_istable( m_pLuaState, -1 ) )
+    else if( type == LUA_TTABLE )
     {
         // TODO:
         cJSON_AddStringToObject( jObject, "Value", "<table>" );
     }
     else if( lua_isuserdata( m_pLuaState, -1 ) )
     {
-        // TODO:
-        bool isfull = luabridge::isfulluserdata( m_pLuaState, -1 );
-
-        luabridge::LuaRef LuaObject = luabridge::LuaRef::fromStack( m_pLuaState, -1 );
-
-        if( LuaObject.isUserdata() )
-        {
-            //GameObject* v = LuaObject.cast<GameObject*>();
-
-            int ret = lua_getmetatable( m_pLuaState, -1 );
-            if( ret == 1 )
-            {
-                lua_rawgetp( m_pLuaState, -1, luabridge::getIdentityKey() );
-                if( lua_isboolean( m_pLuaState, -1 ) )
-                {
-                    lua_pop( m_pLuaState, 1 ); // Pop the bool.
-                    
-                    luabridge::rawgetfield( m_pLuaState, -1, "__type" );
-                    const char* type = lua_tostring( m_pLuaState, -1 );
-                    lua_pop( m_pLuaState, 1 ); // Pop the type.
-
-                    cJSON_AddStringToObject( jObject, "Value", type );
-                    int bp = 1;
-                }
-
-                lua_pop( m_pLuaState, 1 ); // Pop the metatable.
-            }
-        }
+        AddUserDataToJSONArray( jArray, jObject, name );
+    }
+    else if( type == LUA_TFUNCTION ) //lua_isfunction( m_pLuaState, -1 ) )
+    {
     }
     else
     {
@@ -476,8 +515,6 @@ int LuaGameState::AddLocalVarsToStackInJSONMessage(cJSON* jStack, lua_Debug* ar)
         lua_pushnil( m_pLuaState ); // Start searching from the start of the "this" table.
         while( lua_next( m_pLuaState, -2 ) != 0 ) // Pops the key from stack, pushes new key and value.
         {
-            cJSON* jThis = 0;
-
             // -2 is key, -1 is value.
             // Only add if -2 is a string type... they should all be.
             if( lua_isstring( m_pLuaState, -2 ) )
@@ -488,14 +525,10 @@ int LuaGameState::AddLocalVarsToStackInJSONMessage(cJSON* jStack, lua_Debug* ar)
                 // This will break lua_next if -2 isn't a string type.
                 const char* localname = lua_tostring( m_pLuaState, -2 );
 
-                jThis = cJSON_CreateObject();
-                AddValueAtTopOfStackToJSONObject( jThis, localname );
+                AddValueAtTopOfStackToJSONArray( jThisesArray, localname );
             }
 
             lua_pop( m_pLuaState, 1 ); // Pop the value off the stack.
-
-            if( jThis )
-                cJSON_AddItemToArray( jThisesArray, jThis );
         }
 
         lua_pop( m_pLuaState, 1 ); // Pop "this" off the stack.
@@ -518,11 +551,7 @@ int LuaGameState::AddLocalVarsToStackInJSONMessage(cJSON* jStack, lua_Debug* ar)
             if( jLocalsArray == 0 )
                 jLocalsArray = cJSON_CreateArray();
 
-            cJSON* jLocal = cJSON_CreateObject();
-
-            AddValueAtTopOfStackToJSONObject( jLocal, localname );
-
-            cJSON_AddItemToArray( jLocalsArray, jLocal );
+            AddValueAtTopOfStackToJSONArray( jLocalsArray, localname );
 
             numlocals++;
         }

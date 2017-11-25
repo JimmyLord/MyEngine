@@ -51,7 +51,8 @@ public:
 
     void SendStoppedMessage();
     int AddStackToJSONMessage(cJSON* jMessage);
-    void AddValueAtTopOfStackToJSONObject(cJSON* jObject, const char* name);
+    void AddUserDataToJSONArray(cJSON* jArray, cJSON* jObject, const char* name);
+    void AddValueAtTopOfStackToJSONArray(cJSON* jArray, const char* name);
     int AddLocalVarsToStackInJSONMessage(cJSON* jStack, lua_Debug* ar);
 
     void ClearAllBreakpoints();

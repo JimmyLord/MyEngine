@@ -7,9 +7,9 @@
 	- Breakpoints
 	- Play/pause/step-over/step-in/step-out
 	- Callstack
-	- Variables(locals,this,hover)
+	- Variables(locals,this,hover,object types w/properties hacked in)
 - Todo:
-	- Variables(globals/userdata)/watch
+	- Variables(globals/object types w/properties not hacked in)/watch
 	- Immediate
 	- More...
 

@@ -104,7 +104,7 @@ void GameObject::LuaRegister(lua_State* luastate)
     luabridge::getGlobalNamespace( luastate )
         .beginClass<GameObject>( "GameObject" )
             .addData( "ComponentTransform", &GameObject::m_pComponentTransform ) // ComponentTransform*
-            .addData( "name", &GameObject::m_Name ) // char*
+            //.addData( "name", &GameObject::m_Name ) // char*
             .addData( "id", &GameObject::m_ID ) // unsigned int
             .addFunction( "SetEnabled", &GameObject::SetEnabled ) // void GameObject::SetEnabled(bool enabled, bool affectchildren)
             .addFunction( "SetName", &GameObject::SetName ) // void GameObject::SetName(const char* name)
