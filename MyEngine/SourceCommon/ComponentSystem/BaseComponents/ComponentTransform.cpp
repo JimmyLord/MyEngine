@@ -106,7 +106,8 @@ void ComponentTransform::LuaRegister(lua_State* luastate)
 {
     luabridge::getGlobalNamespace( luastate )
         .beginClass<ComponentTransform>( "ComponentTransform" )
-            //.addData( "localmatrix", &ComponentTransform::m_LocalTransform )
+            .addData( "localtransform", &ComponentTransform::m_LocalTransform ) // MyMatrix
+
             .addFunction( "GetWorldTransform", &ComponentTransform::GetWorldTransform ) // MyMatrix* ComponentTransform::GetWorldTransform(bool markdirty)
             .addFunction( "SetWorldTransform", &ComponentTransform::SetWorldTransform ) // void ComponentTransform::SetWorldTransform(MyMatrix* mat)
             .addFunction( "UpdateWorldSRT", &ComponentTransform::UpdateWorldSRT ) // void ComponentTransform::UpdateWorldSRT()

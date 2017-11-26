@@ -381,7 +381,11 @@ int LuaGameState::AddStackToJSONMessage(cJSON* jMessage)
             cJSON_AddNumberToObject( jStack, "Line", ar.currentline );
 
             if( jStackArray == 0 )
+            {
                 jStackArray = cJSON_CreateArray();
+                cJSON_AddItemToObject( jMessage, "StackFrames", jStackArray );
+            }
+
             cJSON_AddItemToArray( jStackArray, jStack );
 
             // Add Local variables to this stack frame.
@@ -395,8 +399,6 @@ int LuaGameState::AddStackToJSONMessage(cJSON* jMessage)
     }
 
     cJSON_AddNumberToObject( jMessage, "StackNumLevels", numlevels );
-    if( jStackArray )
-        cJSON_AddItemToObject( jMessage, "StackFrames", jStackArray );
 
     return numlevels;
 }
@@ -429,28 +431,57 @@ void LuaGameState::AddUserDataToJSONArray(cJSON* jArray, cJSON* jObject, const c
 
                 if( lua_type( m_pLuaState, -1 ) == LUA_TTABLE )
                 {
-                    // Walk over the table, adding each property into the array.
-                    // TODO: Place the properties in an array under the current object.
+                    cJSON* jPropertiesArray = 0;
+
+                    // Walk over the table, adding each property into a properties array.
                     lua_pushnil( m_pLuaState );
                     while( lua_next( m_pLuaState, -2 ) != 0 )
                     {
                         const char* propertyname = lua_tostring( m_pLuaState, -2 );
 
-                        //luabridge::LuaRef LuaGetPropertyFunction = luabridge::LuaRef::fromStack( m_pLuaState, -1 );
-                        if( lua_type( m_pLuaState, -1 ) == LUA_TFUNCTION ) //LuaGetPropertyFunction.isFunction() )
+                        if( lua_type( m_pLuaState, -1 ) == LUA_TFUNCTION )
                         {
+                            if( jPropertiesArray == 0 )
+                            {
+                                jPropertiesArray = cJSON_CreateArray();
+                                cJSON_AddItemToObject( jObject, "Properties", jPropertiesArray );
+                            }
+
                             LuaObject.push( m_pLuaState ); // Push the object pointer as the first arg to the function.
                             lua_call( m_pLuaState, 1, 1 ); // Pops the argument and the function.
 
                             // Add this property to the JSON Array.
-                            // TODO: Add it to an array of properties to this object instead.
-                            AddValueAtTopOfStackToJSONArray( jArray, propertyname );
+                            AddValueAtTopOfStackToJSONArray( jPropertiesArray, propertyname );
 
                             lua_pop( m_pLuaState, 1 ); // Pop the property value.
                         }
                     }
 
                     lua_pop( m_pLuaState, 1 ); // Pop the __propget table.
+
+                    // Properties don't come out in the order they were added, so sort alphabetically at least.
+                    if( jPropertiesArray )
+                    {
+                        // Bubble sort
+                        int numproperties = cJSON_GetArraySize( jPropertiesArray );
+                        for( int i=0; i<numproperties-1; i++ )
+                        {
+                            for( int j=0; j<numproperties-i-1; j++ )
+                            {
+                                cJSON* jCurrentObject = cJSON_GetArrayItem( jPropertiesArray, j );
+                                char* currentname = cJSON_GetObjectItem( jCurrentObject, "Name" )->valuestring;
+
+                                cJSON* jNextObject = cJSON_GetArrayItem( jPropertiesArray, j+1 );
+                                char* nextname = cJSON_GetObjectItem( jNextObject, "Name" )->valuestring;
+
+                                if( _stricmp( currentname, nextname ) > 0 )
+                                {
+                                    cJSON_DetachItemFromArray( jPropertiesArray, j );
+                                    cJSON_InsertItemInArray( jPropertiesArray, j+1, jCurrentObject );
+                                }
+                            }
+                        }
+                    }
                 }
             }
 
@@ -492,8 +523,9 @@ void LuaGameState::AddValueAtTopOfStackToJSONArray(cJSON* jArray, const char* na
     {
         AddUserDataToJSONArray( jArray, jObject, name );
     }
-    else if( type == LUA_TFUNCTION ) //lua_isfunction( m_pLuaState, -1 ) )
+    else if( type == LUA_TFUNCTION )
     {
+        // TODO:
     }
     else
     {
@@ -520,7 +552,10 @@ int LuaGameState::AddLocalVarsToStackInJSONMessage(cJSON* jStack, lua_Debug* ar)
             if( lua_isstring( m_pLuaState, -2 ) )
             {
                 if( jThisesArray == 0 )
+                {
                     jThisesArray = cJSON_CreateArray();
+                    cJSON_AddItemToObject( jStack, "This", jThisesArray );
+                }
 
                 // This will break lua_next if -2 isn't a string type.
                 const char* localname = lua_tostring( m_pLuaState, -2 );
@@ -534,9 +569,6 @@ int LuaGameState::AddLocalVarsToStackInJSONMessage(cJSON* jStack, lua_Debug* ar)
         lua_pop( m_pLuaState, 1 ); // Pop "this" off the stack.
     }
 
-    if( jThisesArray )
-        cJSON_AddItemToObject( jStack, "This", jThisesArray );
-
     // Add all locals to the message.
     cJSON* jLocalsArray = 0;
     while( true )
@@ -549,7 +581,10 @@ int LuaGameState::AddLocalVarsToStackInJSONMessage(cJSON* jStack, lua_Debug* ar)
         if( localname[0] != '(' )
         {
             if( jLocalsArray == 0 )
+            {
                 jLocalsArray = cJSON_CreateArray();
+                cJSON_AddItemToObject( jStack, "Local", jLocalsArray );
+            }
 
             AddValueAtTopOfStackToJSONArray( jLocalsArray, localname );
 
@@ -559,9 +594,6 @@ int LuaGameState::AddLocalVarsToStackInJSONMessage(cJSON* jStack, lua_Debug* ar)
         lua_pop( m_pLuaState, 1 ); // Pop the value off the stack.
         i++;
     }
-
-    if( jLocalsArray )
-        cJSON_AddItemToObject( jStack, "Local", jLocalsArray );
 
     return numlocals;
 }

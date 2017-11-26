@@ -283,19 +283,49 @@ class MyEngineLuaDebugSession extends LoggingDebugSession
 			var scope = pieces[0];
 			var frameindex = pieces[1];
 
-			if( typeof jMessage.StackFrames[frameindex][scope] !== 'undefined' )
+			if( scope == 'props' )
 			{
-				for( let i=0; i<jMessage.StackFrames[frameindex][scope].length; i++ )
+				// jsonprefix should look like: StackFrames[frameindex][scope][i].Properties
+				let jsonprefix = pieces[1];
+
+				let jPropsArray = this.findJSONObjectByString( jMessage, jsonprefix );
+
+				for( let i=0; i<jPropsArray.length; i++ )
 				{
-					let varname = jMessage.StackFrames[frameindex][scope][i].Name;
-					let varvalue = jMessage.StackFrames[frameindex][scope][i].Value;
+					let varname = jPropsArray[i].Name;
+					let varvalue = jPropsArray[i].Value;
+					let varprops = jPropsArray[i].Properties;
+					let hasprops = (typeof varprops !== 'undefined') ? true : false;
+					let varpropsjsonprefix = `${jsonprefix}[${i}].Properties`;
 
 					variables.push(
 						{
 							name: varname,
 							type: "string",
 							value: "" + varvalue,
-							variablesReference: 0
+							//evaluateName:
+							variablesReference: hasprops ? this._variableHandles.create( `props_${varpropsjsonprefix}` ) : 0
+						}
+					);
+				}
+			}
+			else if( typeof jMessage.StackFrames[frameindex][scope] !== 'undefined' )
+			{
+				for( let i=0; i<jMessage.StackFrames[frameindex][scope].length; i++ )
+				{
+					let varname = jMessage.StackFrames[frameindex][scope][i].Name;
+					let varvalue = jMessage.StackFrames[frameindex][scope][i].Value;
+					let varprops = jMessage.StackFrames[frameindex][scope][i].Properties;
+					let hasprops = (typeof varprops !== 'undefined') ? true : false;
+					let varpropsjsonprefix = `StackFrames[${frameindex}][${scope}][${i}].Properties`;
+
+					variables.push(
+						{
+							name: varname,
+							type: "string",
+							value: "" + varvalue,
+							//evaluateName:
+							variablesReference: hasprops ? this._variableHandles.create( `props_${varpropsjsonprefix}` ) : 0
 						}
 					);
 				}
@@ -456,6 +486,27 @@ class MyEngineLuaDebugSession extends LoggingDebugSession
 	private logInfo(message)
 	{
 		this.sendEvent( new OutputEvent( message + '\n' ) );
+	}
+
+	// Code found here and reformatted:
+	// https://stackoverflow.com/questions/6491463/accessing-nested-javascript-objects-with-string-key
+	private findJSONObjectByString = function(o, s)
+	{
+		s = s.replace( /\[(\w+)\]/g, '.$1' ); // convert indexes to properties
+		s = s.replace( /^\./, '' );           // strip a leading dot
+		var a = s.split( '.' );
+
+		for( var i=0, n=a.length; i<n; ++i )
+		{
+			var k = a[i];
+
+			if( k in o )
+				o = o[k];
+			else
+				return;
+		}
+
+		return o;
 	}
 }
 
