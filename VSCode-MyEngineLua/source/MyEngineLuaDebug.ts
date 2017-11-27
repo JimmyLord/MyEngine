@@ -120,7 +120,7 @@ class MyEngineLuaDebugSession extends LoggingDebugSession
 
 		this.sendResponse(response);
 
-		this._showDebugLog = !!args.trace;
+		this._showDebugLog = !!args.showDebugLog;
 
 		// Since this debug adapter can accept configuration requests like 'setBreakpoint' at any time,
 		//     we request them early by sending an 'initializeRequest' to the frontend.
