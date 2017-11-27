@@ -1,7 +1,7 @@
 {
 	"name": "myenginelua",
 	"displayName": "MyEngineLua",
-	"description": "Lua bindings for MyEngine and early in-progress debugger.",
+	"description": "Lua debugger and snippets for MyEngine.",
 	"version": "0.0.2",
 	"publisher": "JimmyLord",
 	"engines": {
@@ -67,10 +67,10 @@
 								"description": "Automatically stop after launch.",
 								"default": true
 							},
-							"trace": {
+							"showDebugLog": {
 								"type": "boolean",
-								"description": "Enable logging of the Debug Adapter Protocol.",
-								"default": true
+								"description": "Enable logging of network communication (for debugging debugger).",
+								"default": false
 							}
 						}
 					}

@@ -7,7 +7,6 @@
 !node_modules/vscode-debugprotocol/**/*
 !out/extension.js
 !out/MyEngineLuaDebug.js
-!out/MyEngineLuaRuntime.js
 !snippets/snippets.json
 !CHANGELOG.md
 !package.json

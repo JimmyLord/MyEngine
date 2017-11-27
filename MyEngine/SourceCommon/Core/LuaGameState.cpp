@@ -13,6 +13,7 @@
 
 #define LUA_DEBUG_PORT 19542
 
+bool g_OutputLuaDebugLog = false;
 LuaGameState* g_pLuaGameState = 0;
 
 // Exposed to Lua, change elsewhere if function signature changes.
@@ -118,7 +119,8 @@ void DebugHookFunction(lua_State* luastate, lua_Debug* ar)
                 strcmp( g_pLuaGameState->m_Breakpoints[i].file, &ar->source[1] ) == 0 )
             {
                 breakpoint = true;
-                LOGInfo( "LuaDebug", "Stopped at breakpoint\n" );
+                if( g_OutputLuaDebugLog )
+                    LOGInfo( "LuaDebug", "Stopped at breakpoint\n" );
             }
         }
         
@@ -155,7 +157,8 @@ void LuaGameState::CheckForDebugNetworkMessages(bool block)
         int socket = accept( m_ListenSocket, (sockaddr*)&saddr, &fromLength );
         if( socket != -1 )
         {
-            LOGInfo( "LuaDebug", "Received incoming connection (socket:%d) (port:%d)\n", socket, saddr.sin_port );
+            if( g_OutputLuaDebugLog )
+                LOGInfo( "LuaDebug", "Received incoming connection (socket:%d) (port:%d)\n", socket, saddr.sin_port );
 
             // Set the socket for debug communication and set it to non-blocking.
             m_DebugSocket = socket;
@@ -202,7 +205,8 @@ void LuaGameState::CheckForDebugNetworkMessages(bool block)
         //    set the socket to 0 and remove the lua hook.
         if( (block && bytes == -1) || bytes == 0 )
         {
-            LOGInfo( "LuaDebug", "m_DebugSocket was closed\n" );
+            if( g_OutputLuaDebugLog )
+                LOGInfo( "LuaDebug", "m_DebugSocket was closed\n" );
 
             lua_sethook( m_pLuaState, DebugHookFunction, 0, 0 );
             m_DebugSocket = 0;
@@ -217,7 +221,9 @@ void LuaGameState::CheckForDebugNetworkMessages(bool block)
             else
                 buffer[999] = 0;
 
-            LOGInfo( "LuaDebug", "Received a packet (size:%d) (value:%s)\n", bytes, buffer );
+            if( g_OutputLuaDebugLog )
+                LOGInfo( "LuaDebug", "Received a packet (size:%d) (value:%s)\n", bytes, buffer );
+    
             block = DealWithDebugNetworkMessages( buffer, block );
         }
     }
@@ -294,6 +300,10 @@ bool LuaGameState::DealWithDebugNetworkMessages(char* message, bool wasblocking)
 
         return false;
     }
+    if( strcmp( message, "restart" ) == 0 )
+    {
+        // TODO: Stop/Start gameplay, break only on breakpoints or on first command if already stopped.
+    }
     if( message[0] == '{' )
     {
         cJSON* jMessage = cJSON_Parse( message );
@@ -336,7 +346,8 @@ void LuaGameState::SendStoppedMessage()
     char* jsonstr = cJSON_PrintUnformatted( jMessageOut );
     send( m_DebugSocket, jsonstr, strlen(jsonstr), 0 );
     
-    LOGInfo( "LuaDebug", "Sending 'Stopped' (numframes:%d)\n", numstackframes );
+    if( g_OutputLuaDebugLog )
+        LOGInfo( "LuaDebug", "Sending 'Stopped' (numframes:%d)\n", numstackframes );
     
     cJSON_Delete( jMessageOut );
     cJSONExt_free( jsonstr );
@@ -656,7 +667,8 @@ void LuaGameState::Rebuild()
         SetSocketBlockingState( m_ListenSocket, false );
         listen( m_ListenSocket, 10 );
 
-        LOGInfo( "LuaDebug", "Lua debug listen socket created (sock:%d) (port:%d)\n", m_ListenSocket, LUA_DEBUG_PORT );
+        if( g_OutputLuaDebugLog )
+            LOGInfo( "LuaDebug", "Lua debug listen socket created (sock:%d) (port:%d)\n", m_ListenSocket, LUA_DEBUG_PORT );
     }
 }
 

@@ -1,106 +1,65 @@
-/*---------------------------------------------------------
- * Copyright (C) Microsoft Corporation. All rights reserved.
- *--------------------------------------------------------*/
-
-// from vscode-mock-debug
-// will be customized to debug lua scripts in MyEngine
+//
+// Copyright (c) 2017 Jimmy Lord http://www.flatheadgames.com
+//
+// This software is provided 'as-is', without any express or implied warranty.  In no event will the authors be held liable for any damages arising from the use of this software.
+// Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
+// 1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
+// 2. Altered source versions must be plainly marked as such, and must not be misrepresented as being the original software.
+// 3. This notice may not be removed or altered from any source distribution.
 
 import {
-	Logger, logger,
 	DebugSession, LoggingDebugSession,
-	InitializedEvent, TerminatedEvent, StoppedEvent, BreakpointEvent, OutputEvent,
+	InitializedEvent, TerminatedEvent, StoppedEvent, OutputEvent,
 	Thread, StackFrame, Scope, Source, Handles, Breakpoint
 } from 'vscode-debugadapter';
 import { DebugProtocol } from 'vscode-debugprotocol';
 import { basename } from 'path';
-import { MyEngineLuaRuntime, MyEngineLuaBreakpoint } from './MyEngineLuaRuntime';
 import * as net from 'net';
 
-/**
- * This interface describes the myenginelua-debug specific launch attributes
- * (which are not part of the Debug Adapter Protocol).
- * The schema for these attributes lives in the package.json of the myenginelua-debug extension.
- * The interface should always match this schema.
- */
+// This interface describes extension specific launch attributes (which are not part of the Debug Adapter Protocol).
+// The schema for these attributes lives in the package.json of the myenginelua-debug extension.
+// The interface should always match this schema.
 interface LaunchRequestArguments extends DebugProtocol.LaunchRequestArguments
 {
-	stopOnEntry?: boolean; // Automatically stop target after launch. If not specified, target does not stop.
-	trace?: boolean; // Enable logging the Debug Adapter Protocol
+	stopOnEntry?: boolean; // Automatically attach to target after launch. If not specified, target does not stop.
+	showDebugLog?: boolean; // Output some debug info on network traffic between this debugger and the game.
 }
 
 class MyEngineLuaDebugSession extends LoggingDebugSession
 {
-	// we don't support multiple threads, so we can use a hardcoded ID for the default thread
+	// We don't support multiple threads, so we can use a hardcoded ID for the default thread.
 	private static THREAD_ID = 1;
 
-	// a MyEngineLua runtime (or debugger)
-	private _runtime: MyEngineLuaRuntime;
-
 	private _variableHandles = new Handles<string>();
-
 	private _socket: net.Socket;
+	private _showDebugLog;
 
-	private _lastStackJSONMessage;
+	// Nothing is dynamically requested, so this is the current state of the debugger.
+	// Currently stores all stack frames/variables(local/this)/properties.
+	private _lastJSONMessage;
 
-	/**
-	 * Creates a new debug adapter that is used for one debug session.
-	 * We configure the default implementation of a debug adapter here.
-	 */
+	// Creates a new debug adapter that is used for one debug session.
+	// We configure the default implementation of a debug adapter here.
 	public constructor()
 	{
 		super( "myenginelua-debug.txt" );
 
-		// this debugger uses zero-based lines and columns
+		// This debugger uses zero-based lines and columns.
 		this.setDebuggerLinesStartAt1( false );
 		this.setDebuggerColumnsStartAt1( false );
-
-		this._runtime = new MyEngineLuaRuntime();
-
-		// setup event handlers
-		// this._runtime.on('stopOnEntry', () => {
-		//  	this.sendEvent(new StoppedEvent('entry', MyEngineLuaDebugSession.THREAD_ID));
-		// });
-		// this._runtime.on('stopOnStep', () => {
-		// 	this.sendEvent(new StoppedEvent('step', MyEngineLuaDebugSession.THREAD_ID));
-		// });
-		// this._runtime.on('stopOnBreakpoint', () => {
-		// 	this.sendEvent(new StoppedEvent('breakpoint', MyEngineLuaDebugSession.THREAD_ID));
-		// });
-		// this._runtime.on('stopOnException', () => {
-		// 	this.sendEvent(new StoppedEvent('exception', MyEngineLuaDebugSession.THREAD_ID));
-		// });
-		this._runtime.on('breakpointValidated', (bp: MyEngineLuaBreakpoint) => {
-			this.sendEvent(new BreakpointEvent('changed', <DebugProtocol.Breakpoint>{ verified: bp.verified, id: bp.id }));
-		});
-		// this._runtime.on('output', (text, filePath, line, column) => {
-		// 	const e: DebugProtocol.OutputEvent = new OutputEvent(`${text}\n`);
-		// 	e.body.source = this.createSource(filePath);
-		// 	e.body.line = this.convertDebuggerLineToClient(line);
-		// 	e.body.column = this.convertDebuggerColumnToClient(column);
-		// 	this.sendEvent(e);
-		// });
 	}
 
-	/**
-	 * The 'initialize' request is the first request called by the frontend
-	 * to interrogate the features the debug adapter provides.
-	 */
+	// The 'initialize' request is the first request called by the frontend
+	//     to interrogate the features the debug adapter provides.
 	protected initializeRequest(response: DebugProtocol.InitializeResponse, args: DebugProtocol.InitializeRequestArguments): void
 	{
-		// build and return the capabilities of this debug adapter:
+		// Build and return the capabilities of this debug adapter:
 		response.body = response.body || {};
 
-		// the adapter implements the configurationDoneRequest.
-		response.body.supportsConfigurationDoneRequest = true;
-
-		// make VS Code to use 'evaluate' when hovering over source
-		response.body.supportsEvaluateForHovers = true;
-
-		// Make VS Code not show a 'step back' button.
-		response.body.supportsStepBack = false;
-
-		// Tell VSCode we support restart requests.
-		response.body.supportsRestartRequest = true;
+		response.body.supportsConfigurationDoneRequest = true; // The adapter implements the configurationDoneRequest.
+		response.body.supportsEvaluateForHovers = true;        // Make VS Code to use 'evaluate' when hovering over source.
+		response.body.supportsStepBack = false;                // Make VS Code not show a 'step back' button.
+		response.body.supportsRestartRequest = true;           // Tell VSCode we support restart requests.
 
 		this.sendResponse(response);
 	}
@@ -122,10 +81,10 @@ class MyEngineLuaDebugSession extends LoggingDebugSession
 
 			this.sendEvent( new StoppedEvent( 'breakpoint', MyEngineLuaDebugSession.THREAD_ID ) );
 
-			// Stopped messages will contain the entire stack, so store a copy of the message.
-			// We'll send the stack to VSCode when it asks for it.
+			// Stopped messages will contain the entire relevant lua state, so store a copy of the message.
+			// We'll send the stack and variables to VSCode when it asks for it.
 			// This also includes locals and vars inside 'this' object.
-			this._lastStackJSONMessage = jMessage;
+			this._lastJSONMessage = jMessage;
 		}
 	}
 
@@ -159,16 +118,12 @@ class MyEngineLuaDebugSession extends LoggingDebugSession
 		this._socket.on( 'error', () => { this.TerminateDebugger() } );
 		this._socket.on( 'close', () => { this.TerminateDebugger() } );
 
-		// make sure to 'Stop' the buffered logging if 'trace' is not set
-		logger.setup( args.trace ? Logger.LogLevel.Verbose : Logger.LogLevel.Stop, false );
-
-		// start the program in the runtime
-		this._runtime.start();
-
 		this.sendResponse(response);
 
-		// since this debug adapter can accept configuration requests like 'setBreakpoint' at any time,
-		// we request them early by sending an 'initializeRequest' to the frontend.
+		this._showDebugLog = !!args.trace;
+
+		// Since this debug adapter can accept configuration requests like 'setBreakpoint' at any time,
+		//     we request them early by sending an 'initializeRequest' to the frontend.
 		// The frontend will end the configuration sequence by calling 'configurationDone' request.
 		this.sendEvent( new InitializedEvent() );
 	}
@@ -181,31 +136,25 @@ class MyEngineLuaDebugSession extends LoggingDebugSession
 		const path = <string>args.source.path;
 		const clientLines = args.lines || [];
 
-		// clear all breakpoints for this file
-		//this._runtime.clearBreakpoints(path);
+		// Clear all breakpoints for this file.
 		var request =  { "command":"breakpoint_ClearAllFromFile", "file":path };
 		this._socket.write( JSON.stringify( request ) + '\n' );
 		this.logInfo( "Sending 'breakpoint_ClearAllFromFile': " + path + "." );
 
-		// set and verify breakpoint locations
+		// Set and verify breakpoint locations.
 		const actualBreakpoints = clientLines.map( line =>
 			{
-				//let debuggerline = this.convertClientLineToDebugger(l);
-				//let { verified, line, id } =
-				//	this._runtime.setBreakPoint( path, debuggerline );
-				//let clientline = this.convertDebuggerLineToClient(line);
 				var request =  { "command":"breakpoint_Set", "file":path, "line":line };
 				this._socket.write( JSON.stringify( request ) + '\n' );
 				this.logInfo( "Sending 'breakpoint_Set': " + path + "(" + line + ")." );
 
 				let verified = true;
 				const bp = <DebugProtocol.Breakpoint>new Breakpoint( verified, line );
-				//bp.id = id;
 				return bp;
 			}
 		);
 
-		// send back the actual breakpoint positions
+		// Send back the actual breakpoint positions.
 		response.body = { breakpoints: actualBreakpoints };
 		this.sendResponse(response);
 	}
@@ -223,13 +172,13 @@ class MyEngineLuaDebugSession extends LoggingDebugSession
 
 	protected stackTraceRequest(response: DebugProtocol.StackTraceResponse, args: DebugProtocol.StackTraceArguments): void
 	{
-		if( typeof this._lastStackJSONMessage === 'undefined' )
+		if( typeof this._lastJSONMessage === 'undefined' )
 		{
 			this.sendErrorResponse( response, 0, "No Lua script running." );
 			return;
 		}
 
-		let jMessage = this._lastStackJSONMessage;
+		let jMessage = this._lastJSONMessage;
 
 		if( jMessage.StackNumLevels == 0 )
 		{
@@ -272,7 +221,7 @@ class MyEngineLuaDebugSession extends LoggingDebugSession
 
 	protected variablesRequest(response: DebugProtocol.VariablesResponse, args: DebugProtocol.VariablesArguments): void
 	{
-		let jMessage = this._lastStackJSONMessage;
+		let jMessage = this._lastJSONMessage;
 
 		const variables = new Array<DebugProtocol.Variable>();
 
@@ -334,21 +283,11 @@ class MyEngineLuaDebugSession extends LoggingDebugSession
 
 		response.body = { variables: variables };
 		this.sendResponse( response );
-
-		// const variables = new Array<DebugProtocol.Variable>();
-		// const id = this._variableHandles.get(args.variablesReference);
-		// if (id !== null) {
-		// 	variables.push({
-		// 		name: id + "_o",
-		// 		type: "object",
-		// 		value: "Object",
-		// 		variablesReference: this._variableHandles.create("object_")
-		// 	});
-		// }
 	}
 
 	protected restartRequest(response: DebugProtocol.RestartResponse, args: DebugProtocol.RestartArguments): void
 	{
+		// TODO: on game side, this isn't doing anything.
 		this._socket.write( "restart" + '\n' );
 		this.logInfo( "Sending 'restart'." );
 
@@ -381,7 +320,6 @@ class MyEngineLuaDebugSession extends LoggingDebugSession
 
 	protected stepOutRequest(response: DebugProtocol.StepOutResponse, args: DebugProtocol.StepOutArguments): void
 	{
-		// TODO: change to stepout.
 		this._socket.write( "stepout" + '\n' );
 		this.logInfo( "Sending 'stepout'." );
 
@@ -413,7 +351,7 @@ class MyEngineLuaDebugSession extends LoggingDebugSession
 		//console.log( args );
 		if( args.context === 'hover' && typeof args.frameId !== 'undefined' )
 		{
-			let jMessage = this._lastStackJSONMessage;
+			let jMessage = this._lastJSONMessage;
 			let frameindex = args.frameId;
 			let scope = 'Local';
 			if( typeof jMessage.StackFrames[frameindex][scope] !== 'undefined' )
@@ -439,45 +377,21 @@ class MyEngineLuaDebugSession extends LoggingDebugSession
 			}
 		}
 
-		// if( args.context === 'repl' )
-		// {
-		// 	// 'evaluate' supports to create and delete breakpoints from the 'repl':
-		// 	const matches = /new +([0-9]+)/.exec(args.expression);
-		// 	if( matches && matches.length === 2 )
-		// 	{
-		// 		const mbp = this._runtime.setBreakPoint(this._runtime.sourceFile, this.convertClientLineToDebugger(parseInt(matches[1])));
-		// 		const bp = <DebugProtocol.Breakpoint> new Breakpoint(mbp.verified, this.convertDebuggerLineToClient(mbp.line), undefined, this.createSource(this._runtime.sourceFile));
-		// 		bp.id= mbp.id;
-		// 		this.sendEvent(new BreakpointEvent('new', bp));
-		// 		reply = `breakpoint created`;
-		// 	}
-		// 	else
-		// 	{
-		// 		const matches = /del +([0-9]+)/.exec(args.expression);
-		// 		if (matches && matches.length === 2) {
-		// 			const mbp = this._runtime.clearBreakPoint(this._runtime.sourceFile, this.convertClientLineToDebugger(parseInt(matches[1])));
-		// 			if (mbp) {
-		// 				const bp = <DebugProtocol.Breakpoint> new Breakpoint(false);
-		// 				bp.id= mbp.id;
-		// 				this.sendEvent(new BreakpointEvent('removed', bp));
-		// 				reply = `breakpoint deleted`;
-		// 			}
-		// 		}
-		// 	}
-		// }
-
 		if( reply )
 		{
 			response.body =
 			{
-				result: reply, // ? reply : `evaluate(context: '${args.context}', '${args.expression}')`,
+				result: reply,
 				variablesReference: 0
 			};
 			this.sendResponse( response );
 		}
 	}
 
-	//---- helpers
+	//----------------------------------------------
+	//---- Helpers
+	//----------------------------------------------
+
 	private createSource(filePath: string): Source
 	{
 		return new Source( basename(filePath), this.convertDebuggerPathToClient(filePath), undefined, undefined, 'myenginelua-adapter-data' );
@@ -485,15 +399,16 @@ class MyEngineLuaDebugSession extends LoggingDebugSession
 
 	private logInfo(message)
 	{
-		this.sendEvent( new OutputEvent( message + '\n' ) );
+		if( this._showDebugLog )
+			this.sendEvent( new OutputEvent( message + '\n' ) );
 	}
 
 	// Code found here and reformatted:
 	// https://stackoverflow.com/questions/6491463/accessing-nested-javascript-objects-with-string-key
 	private findJSONObjectByString = function(o, s)
 	{
-		s = s.replace( /\[(\w+)\]/g, '.$1' ); // convert indexes to properties
-		s = s.replace( /^\./, '' );           // strip a leading dot
+		s = s.replace( /\[(\w+)\]/g, '.$1' ); // Convert indexes to properties.
+		s = s.replace( /^\./, '' );           // Strip a leading dot.
 		var a = s.split( '.' );
 
 		for( var i=0, n=a.length; i<n; ++i )
@@ -510,4 +425,4 @@ class MyEngineLuaDebugSession extends LoggingDebugSession
 	}
 }
 
-DebugSession.run(MyEngineLuaDebugSession);
+DebugSession.run( MyEngineLuaDebugSession );
