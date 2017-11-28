@@ -37,6 +37,10 @@ public:
     // For breakpoints.
     std::vector<Breakpoint> m_Breakpoints;
 
+    // For Restart.
+    bool m_RestartOnNextTick;
+    bool m_WasPausedBeforeRestart;
+
 public:
     LuaGameState();
     virtual ~LuaGameState();

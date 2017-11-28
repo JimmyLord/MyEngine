@@ -65,8 +65,11 @@ LuaGameState::LuaGameState()
     // don't build on init, Rebuild is called after a scene is loaded.
     //Rebuild();
 
-    m_NextLineToBreakOn = -1;
+    m_NextLineToBreakOn = INT_MAX; // Only stop on breakpoints.
     m_NextSourceFileToBreakOn[0] = 0;
+
+    m_RestartOnNextTick = false;
+    m_WasPausedBeforeRestart = false;
 }
 
 LuaGameState::~LuaGameState()
@@ -140,6 +143,23 @@ void DebugHookFunction(lua_State* luastate, lua_Debug* ar)
 
 void LuaGameState::Tick()
 {
+    if( m_RestartOnNextTick )
+    {
+        // Remove the lua hook.
+        lua_sethook( m_pLuaState, DebugHookFunction, 0, 0 );
+
+        m_RestartOnNextTick = false;
+        g_pEngineCore->OnModeStop();
+        g_pEngineCore->OnModePlay();
+        if( m_WasPausedBeforeRestart )
+            m_NextLineToBreakOn = -1; // Stop on the next line we reach in any file.
+        else
+            m_NextLineToBreakOn = INT_MAX; // Only stop on breakpoints.
+
+        // Set the lua hook (might already be set).
+        lua_sethook( m_pLuaState, DebugHookFunction, LUA_MASKLINE, 0 );
+    }
+
     CheckForDebugNetworkMessages( false );
 }
 
@@ -208,6 +228,7 @@ void LuaGameState::CheckForDebugNetworkMessages(bool block)
             if( g_OutputLuaDebugLog )
                 LOGInfo( "LuaDebug", "m_DebugSocket was closed\n" );
 
+            // Remove the lua hook.
             lua_sethook( m_pLuaState, DebugHookFunction, 0, 0 );
             m_DebugSocket = 0;
             ClearAllBreakpoints();
@@ -238,13 +259,13 @@ bool LuaGameState::DealWithDebugNetworkMessages(char* message, bool wasblocking)
 
     if( strcmp( message, "continue" ) == 0 )
     {
-        m_NextLineToBreakOn = INT_MAX; // Continue (only stop on Breakpoints).
+        m_NextLineToBreakOn = INT_MAX; // Only stop on breakpoints.
         return false;
     }
     if( strcmp( message, "stepin" ) == 0 ) // used by step-in, pause and break on entry.
     {
         // Break on whatever the next line is.
-        m_NextLineToBreakOn = -1;
+        m_NextLineToBreakOn = -1; // Stop on the next line we reach in any file.
 
         // Set the lua hook (might already be set).
         lua_sethook( m_pLuaState, DebugHookFunction, LUA_MASKLINE, 0 );
@@ -271,7 +292,7 @@ bool LuaGameState::DealWithDebugNetworkMessages(char* message, bool wasblocking)
         if( ar.currentline < ar.lastlinedefined )
             m_NextLineToBreakOn = ar.currentline + 1;
         else
-            m_NextLineToBreakOn = -1; // If this was the last line of the function, step to next statement.
+            m_NextLineToBreakOn = -1; // If this was the last line of the function, step to next statement in calling function.
         strcpy_s( m_NextSourceFileToBreakOn, MAX_PATH, ar.source );
 
         return false;
@@ -287,7 +308,7 @@ bool LuaGameState::DealWithDebugNetworkMessages(char* message, bool wasblocking)
         if( isThereAStackFrame1 == 0 )
         {
             // If there is no stack frame 1, 'continue'
-            m_NextLineToBreakOn = INT_MAX; // Continue (only stop on Breakpoints).
+            m_NextLineToBreakOn = INT_MAX; // Only stop on breakpoints.
         }
         else
         {
@@ -303,6 +324,10 @@ bool LuaGameState::DealWithDebugNetworkMessages(char* message, bool wasblocking)
     if( strcmp( message, "restart" ) == 0 )
     {
         // TODO: Stop/Start gameplay, break only on breakpoints or on first command if already stopped.
+        m_RestartOnNextTick = true;
+        m_NextLineToBreakOn = INT_MAX; // Only stop on breakpoints.
+        m_WasPausedBeforeRestart = wasblocking;
+        return false;
     }
     if( message[0] == '{' )
     {
@@ -320,7 +345,7 @@ bool LuaGameState::DealWithDebugNetworkMessages(char* message, bool wasblocking)
             {
                 // Set the lua hook (might already be set).
                 lua_sethook( m_pLuaState, DebugHookFunction, LUA_MASKLINE, 0 );
-                m_NextLineToBreakOn = INT_MAX; // Only stop on Breakpoints.
+                m_NextLineToBreakOn = INT_MAX; // Only stop on breakpoints.
 
                 cJSON* jFile = cJSON_GetObjectItem( jMessage, "file" );
                 cJSON* jLine = cJSON_GetObjectItem( jMessage, "line" );
@@ -555,26 +580,30 @@ int LuaGameState::AddLocalVarsToStackInJSONMessage(cJSON* jStack, lua_Debug* ar)
     {
         lua_getglobal( m_pLuaState, "this" );
 
-        lua_pushnil( m_pLuaState ); // Start searching from the start of the "this" table.
-        while( lua_next( m_pLuaState, -2 ) != 0 ) // Pops the key from stack, pushes new key and value.
+        // Make sure "this" has a value.
+        if( !lua_isnil( m_pLuaState, -1 ) )
         {
-            // -2 is key, -1 is value.
-            // Only add if -2 is a string type... they should all be.
-            if( lua_isstring( m_pLuaState, -2 ) )
+            lua_pushnil( m_pLuaState ); // Start searching from the start of the "this" table.
+            while( lua_next( m_pLuaState, -2 ) != 0 ) // Pops the key from stack, pushes new key and value.
             {
-                if( jThisesArray == 0 )
+                // -2 is key, -1 is value.
+                // Only add if -2 is a string type... they should all be.
+                if( lua_isstring( m_pLuaState, -2 ) )
                 {
-                    jThisesArray = cJSON_CreateArray();
-                    cJSON_AddItemToObject( jStack, "This", jThisesArray );
+                    if( jThisesArray == 0 )
+                    {
+                        jThisesArray = cJSON_CreateArray();
+                        cJSON_AddItemToObject( jStack, "This", jThisesArray );
+                    }
+
+                    // This will break lua_next if -2 isn't a string type.
+                    const char* localname = lua_tostring( m_pLuaState, -2 );
+
+                    AddValueAtTopOfStackToJSONArray( jThisesArray, localname );
                 }
 
-                // This will break lua_next if -2 isn't a string type.
-                const char* localname = lua_tostring( m_pLuaState, -2 );
-
-                AddValueAtTopOfStackToJSONArray( jThisesArray, localname );
+                lua_pop( m_pLuaState, 1 ); // Pop the value off the stack.
             }
-
-            lua_pop( m_pLuaState, 1 ); // Pop the value off the stack.
         }
 
         lua_pop( m_pLuaState, 1 ); // Pop "this" off the stack.
