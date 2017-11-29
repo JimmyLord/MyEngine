@@ -50,6 +50,9 @@ public:
 
     void Tick();
 
+    // For use to avoid debug breakpoints
+    void SetIsDebuggerAllowedToStop(bool isallowed);
+
     void CheckForDebugNetworkMessages(bool block);
     bool DealWithDebugNetworkMessages(char* message, bool wasblocking);
 

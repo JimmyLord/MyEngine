@@ -145,9 +145,6 @@ void LuaGameState::Tick()
 {
     if( m_RestartOnNextTick )
     {
-        // Remove the lua hook.
-        lua_sethook( m_pLuaState, DebugHookFunction, 0, 0 );
-
         m_RestartOnNextTick = false;
         g_pEngineCore->OnModeStop();
         g_pEngineCore->OnModePlay();
@@ -155,12 +152,24 @@ void LuaGameState::Tick()
             m_NextLineToBreakOn = -1; // Stop on the next line we reach in any file.
         else
             m_NextLineToBreakOn = INT_MAX; // Only stop on breakpoints.
-
-        // Set the lua hook (might already be set).
-        lua_sethook( m_pLuaState, DebugHookFunction, LUA_MASKLINE, 0 );
     }
 
     CheckForDebugNetworkMessages( false );
+}
+
+void LuaGameState::SetIsDebuggerAllowedToStop(bool isallowed)
+{
+    if( m_DebugSocket == 0 )
+        return;
+
+    if( isallowed )
+    {
+        lua_sethook( m_pLuaState, DebugHookFunction, LUA_MASKLINE, 0 );
+    }
+    else
+    {
+        lua_sethook( m_pLuaState, DebugHookFunction, 0, 0 );
+    }
 }
 
 void LuaGameState::CheckForDebugNetworkMessages(bool block)

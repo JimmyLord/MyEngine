@@ -130,6 +130,8 @@ class MyEngineLuaDebugSession extends LoggingDebugSession
 
 	protected setBreakPointsRequest(response: DebugProtocol.SetBreakpointsResponse, args: DebugProtocol.SetBreakpointsArguments): void
 	{
+		this.logInfo( "setBreakPointsRequest." );
+
 		if( typeof this._socket === 'undefined' )
 			return;
 
@@ -161,6 +163,8 @@ class MyEngineLuaDebugSession extends LoggingDebugSession
 
 	protected threadsRequest(response: DebugProtocol.ThreadsResponse): void
 	{
+		this.logInfo( "threadsRequest." );
+
 		// No thread support, so just return a default thread.
 		response.body = {
 			threads: [
@@ -172,6 +176,8 @@ class MyEngineLuaDebugSession extends LoggingDebugSession
 
 	protected stackTraceRequest(response: DebugProtocol.StackTraceResponse, args: DebugProtocol.StackTraceArguments): void
 	{
+		this.logInfo( "stackTraceRequest." );
+
 		if( typeof this._lastJSONMessage === 'undefined' )
 		{
 			this.sendErrorResponse( response, 0, "No Lua script running." );
@@ -209,6 +215,8 @@ class MyEngineLuaDebugSession extends LoggingDebugSession
 
 	protected scopesRequest(response: DebugProtocol.ScopesResponse, args: DebugProtocol.ScopesArguments): void
 	{
+		this.logInfo( "scopesRequest." );
+
 		const frameReference = args.frameId;
 		const scopes = new Array<Scope>();
 		scopes.push( new Scope( "Local", this._variableHandles.create("Local_" + frameReference), false ) );
@@ -221,6 +229,8 @@ class MyEngineLuaDebugSession extends LoggingDebugSession
 
 	protected variablesRequest(response: DebugProtocol.VariablesResponse, args: DebugProtocol.VariablesArguments): void
 	{
+		this.logInfo( "variablesRequest." );
+
 		let jMessage = this._lastJSONMessage;
 
 		const variables = new Array<DebugProtocol.Variable>();
@@ -287,7 +297,6 @@ class MyEngineLuaDebugSession extends LoggingDebugSession
 
 	protected restartRequest(response: DebugProtocol.RestartResponse, args: DebugProtocol.RestartArguments): void
 	{
-		// TODO: on game side, this isn't doing anything.
 		this._socket.write( "restart" + '\n' );
 		this.logInfo( "Sending 'restart'." );
 
@@ -345,6 +354,8 @@ class MyEngineLuaDebugSession extends LoggingDebugSession
 
 	protected evaluateRequest(response: DebugProtocol.EvaluateResponse, args: DebugProtocol.EvaluateArguments): void
 	{
+		this.logInfo( "evaluateRequest." );
+
 		let reply: string | undefined = undefined;
 
 		// {expression: "collisionobject", frameId: 1, context: "hover"}

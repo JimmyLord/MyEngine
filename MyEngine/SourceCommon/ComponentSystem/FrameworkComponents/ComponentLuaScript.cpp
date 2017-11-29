@@ -1255,6 +1255,9 @@ void ComponentLuaScript::LoadScript()
             char label[MAX_PATH+1];
             sprintf_s( label, MAX_PATH+1, "@%s", filename );
 
+            // Prevent the debugger from stopping while parsing script files.
+            m_pLuaGameState->SetIsDebuggerAllowedToStop( false );
+
             // Load the string from the file.
             int filelen = m_pScriptFile->GetFileLength() - 1;
             int loadretcode = luaL_loadbuffer( m_pLuaGameState->m_pLuaState, m_pScriptFile->GetBuffer(), filelen, label );
@@ -1316,6 +1319,9 @@ void ComponentLuaScript::LoadScript()
                     HandleLuaError( "!LUA_ERRSYNTAX", errorstr );
                 }
             }
+
+            // Reenable the debugger.
+            m_pLuaGameState->SetIsDebuggerAllowedToStop( true );
         }
     }
 }
