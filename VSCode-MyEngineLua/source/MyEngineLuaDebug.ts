@@ -252,7 +252,7 @@ class MyEngineLuaDebugSession extends LoggingDebugSession
 				for( let i=0; i<jPropsArray.length; i++ )
 				{
 					let varname = jPropsArray[i].Name;
-					let varvalue = jPropsArray[i].Value;
+					let varvalue = "" + jPropsArray[i].Value;
 					let varprops = jPropsArray[i].Properties;
 					let hasprops = (typeof varprops !== 'undefined') ? true : false;
 					let varpropsjsonprefix = `${jsonprefix}[${i}].Properties`;
@@ -273,7 +273,7 @@ class MyEngineLuaDebugSession extends LoggingDebugSession
 				for( let i=0; i<jMessage.StackFrames[frameindex][scope].length; i++ )
 				{
 					let varname = jMessage.StackFrames[frameindex][scope][i].Name;
-					let varvalue = jMessage.StackFrames[frameindex][scope][i].Value;
+					let varvalue = "" + jMessage.StackFrames[frameindex][scope][i].Value;
 					let varprops = jMessage.StackFrames[frameindex][scope][i].Properties;
 					let hasprops = (typeof varprops !== 'undefined') ? true : false;
 					let varpropsjsonprefix = `StackFrames[${frameindex}][${scope}][${i}].Properties`;
@@ -357,10 +357,9 @@ class MyEngineLuaDebugSession extends LoggingDebugSession
 		this.logInfo( "evaluateRequest." );
 
 		let reply: string | undefined = undefined;
+		let varRef = 0;
 
-		// {expression: "collisionobject", frameId: 1, context: "hover"}
-		//console.log( args );
-		if( args.context === 'hover' && typeof args.frameId !== 'undefined' )
+		if( typeof args.frameId !== 'undefined' )
 		{
 			let jMessage = this._lastJSONMessage;
 			let frameindex = args.frameId;
@@ -371,7 +370,16 @@ class MyEngineLuaDebugSession extends LoggingDebugSession
 				{
 					if( jMessage.StackFrames[frameindex][scope][i].Name == args.expression )
 					{
-						reply = jMessage.StackFrames[frameindex][scope][i].Value;
+						let varvalue = "" + jMessage.StackFrames[frameindex][scope][i].Value;
+						let varprops = jMessage.StackFrames[frameindex][scope][i].Properties;
+						let hasprops = (typeof varprops !== 'undefined') ? true : false;
+						let varpropsjsonprefix = `StackFrames[${frameindex}][${scope}][${i}].Properties`;
+
+						reply = varvalue;
+						if( hasprops )
+						{
+							varRef = this._variableHandles.create( `props_${varpropsjsonprefix}` )
+						}
 					}
 				}
 			}
@@ -382,7 +390,16 @@ class MyEngineLuaDebugSession extends LoggingDebugSession
 				{
 					if( "this." + jMessage.StackFrames[frameindex][scope][i].Name == args.expression )
 					{
-						reply = "" + jMessage.StackFrames[frameindex][scope][i].Value;
+						let varvalue = "" + jMessage.StackFrames[frameindex][scope][i].Value;
+						let varprops = jMessage.StackFrames[frameindex][scope][i].Properties;
+						let hasprops = (typeof varprops !== 'undefined') ? true : false;
+						let varpropsjsonprefix = `StackFrames[${frameindex}][${scope}][${i}].Properties`;
+
+						reply = varvalue;
+						if( hasprops )
+						{
+							varRef = this._variableHandles.create( `props_${varpropsjsonprefix}` )
+						}
 					}
 				}
 			}
@@ -393,10 +410,11 @@ class MyEngineLuaDebugSession extends LoggingDebugSession
 			response.body =
 			{
 				result: reply,
-				variablesReference: 0
+				variablesReference: varRef,
 			};
-			this.sendResponse( response );
 		}
+
+		this.sendResponse( response );
 	}
 
 	//----------------------------------------------

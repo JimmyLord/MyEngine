@@ -13,6 +13,10 @@
 	- Immediate
 	- More...
 
+### Issues
+- 'Restart' button when debugger paused doesn't focus on correct stack frame.
+	- Work-around: Select stack frame.
+
 ## [0.0.1] - 2017-11-13
 ### Added
 - Initial release.
