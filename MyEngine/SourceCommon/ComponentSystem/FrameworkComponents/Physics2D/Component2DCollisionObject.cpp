@@ -313,7 +313,6 @@ void Component2DCollisionObject::ImportFromJSONObject(cJSON* jsonobj, unsigned i
 {
     ComponentBase::ImportFromJSONObject( jsonobj, sceneid );
 
-    unsigned int chasingid = 0;
     cJSON* jVertexArray = cJSON_GetObjectItem( jsonobj, "Vertices" );
     if( jVertexArray )
     {
@@ -604,7 +603,7 @@ void Component2DCollisionObject::TickCallback(double TimePassed)
     MyMatrix matWorld;
 
     Vector3 oldpos = m_pGameObject->GetTransform()->GetWorldPosition();
-    Vector3 oldrot = m_pGameObject->GetTransform()->GetWorldRotation();
+    //Vector3 oldrot = m_pGameObject->GetTransform()->GetWorldRotation();
 
     matWorld.CreateSRT( m_Scale, Vector3( 0, 0, angle ), Vector3( pos.x, pos.y, oldpos.z ) );
     m_pGameObject->GetTransform()->SetWorldTransform( &matWorld );

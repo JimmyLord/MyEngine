@@ -418,11 +418,11 @@ unsigned int VoxelChunk::DefaultGenerateMapFunc(Vector3Int worldpos)
 
     if( 0 )
     {
-        float freq = 1/50.0f;
+        //float freq = 1/50.0f;
 
-        double value = SimplexNoise( worldpos.x * freq, worldpos.y * freq, worldpos.z * freq );
+        //double value = SimplexNoise( worldpos.x * freq, worldpos.y * freq, worldpos.z * freq );
 
-        enabled = value > 0.0f;
+        //enabled = value > 0.0f;
     }
     else
     {
@@ -651,7 +651,7 @@ bool VoxelChunk::RebuildMesh(unsigned int increment, Vertex_XYZUVNorm_RGBA* pPre
     //Sleep( 1000 );
 
     // Grab the pointer to the current position of our stack allocator, we'll rewind at the end.
-    MyStackAllocator::MyStackPointer memstart;
+    MyStackAllocator::MyStackPointer memstart = 0;
     if( pPreallocatedVerts == 0 )
     {
         memstart = g_pEngineCore->GetSingleFrameMemoryStack().GetCurrentLocation();
@@ -686,7 +686,7 @@ bool VoxelChunk::RebuildMesh(unsigned int increment, Vertex_XYZUVNorm_RGBA* pPre
         int TileSides_Row[] = { 1, 1, 1, 1, 1, 1 };
 
         int vertcount = 0;
-        int indexcount = 0;
+        //int indexcount = 0;
         int count = 0;
         for( int z=0; z<m_ChunkSize.z; z++ )
         {
@@ -1308,7 +1308,7 @@ bool VoxelChunk::RebuildMesh(unsigned int increment, Vertex_XYZUVNorm_RGBA* pPre
 void VoxelChunk::CopyVertsIntoVBO(Vertex_XYZUVNorm_RGBA* pVerts, int vertcount)
 {
 #if MYFW_PROFILING_ENABLED
-    double Timing_Start = MyTime_GetSystemTime();
+    //double Timing_Start = MyTime_GetSystemTime();
 #endif
 
     int numblocks = m_ChunkSize.x * m_ChunkSize.y * m_ChunkSize.z;
@@ -1405,7 +1405,7 @@ void VoxelChunk::CopyVertsIntoVBO(Vertex_XYZUVNorm_RGBA* pVerts, int vertcount)
     m_MeshReady = true;
 
 #if MYFW_PROFILING_ENABLED
-    double Timing_End = MyTime_GetSystemTime();
+    //double Timing_End = MyTime_GetSystemTime();
 
     //LOGInfo( "VoxelChunk", "Chunk offset (%d, %d, %d) - time to copy to VBO %f\n",
     //                       m_ChunkOffset.x, m_ChunkOffset.y, m_ChunkOffset.z,

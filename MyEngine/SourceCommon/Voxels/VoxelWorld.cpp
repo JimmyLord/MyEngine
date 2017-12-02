@@ -150,7 +150,7 @@ void VoxelWorld::Initialize(Vector3Int visibleworldsize)
     
     SetWorldSize( visibleworldsize );
 
-    Vector3 chunkoffset = m_ChunkSize.MultiplyComponents( m_BlockSize );
+    //Vector3 chunkoffset = m_ChunkSize.MultiplyComponents( m_BlockSize );
 
     // make 0,0,0 the bottom left corner. TODO: pass in an offset
     m_WorldOffset.Set( 0, 0, 0 );
@@ -516,7 +516,7 @@ void VoxelWorld::SetWorldCenterForReal(Vector3Int newworldcenter)
 
     //LOGInfo( "VoxelWorld", "SetWorldCenter: %d, %d, %d\n", newworldcenter.x, newworldcenter.y, newworldcenter.z );
 
-    int numchunks = m_WorldSize.x * m_WorldSize.y * m_WorldSize.z;
+    //int numchunks = m_WorldSize.x * m_WorldSize.y * m_WorldSize.z;
 
     // shift the current chunks on the x-axis
     {
@@ -732,7 +732,7 @@ void VoxelWorld::UpdateVisibility(void* pUserData)
         if( pChunk->IsReady() && pChunk->MeshHasVerts() == false )
         {
             // don't add prepped but empty chunks back to scene graph
-            int bp = 1;
+            //int bp = 1;
         }
         else
         {
@@ -1121,7 +1121,7 @@ bool VoxelWorld::IsBlockEnabledAroundLocation(Vector3 scenepos, float radius, bo
         if( i == 0 )      { xoff = radius * -1; zoff = radius * -1; }
         else if( i == 1 ) { xoff = radius * -1; zoff = radius *  1; }
         else if( i == 2 ) { xoff = radius *  1; zoff = radius * -1; }
-        else if( i == 3 ) { xoff = radius *  1; zoff = radius *  1; }
+        else              { xoff = radius *  1; zoff = radius *  1; }
 
         Vector3 cornerscenepos( scenepos.x + xoff, scenepos.y, scenepos.z + zoff );
         if( IsBlockEnabled( GetWorldPosition( cornerscenepos ), blockexistsifnotready ) )
@@ -1325,7 +1325,7 @@ void VoxelWorld::ChangeBlockState(Vector3Int worldpos, unsigned int type, bool e
     pChunk->RebuildMesh( 1 );
 
     VoxelChunk* pChunksToRebuild[7] = { 0, 0, 0, 0, 0, 0, 0 };
-    int numchunkstorebuild = 0;
+    //int numchunkstorebuild = 0;
 
     // Create a list of up to 7 chunks to rebuild
     for( int x = -1; x <= 1; x++ )

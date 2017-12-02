@@ -289,7 +289,7 @@ void ComponentMeshPrimitive::CreatePrimitive()
 
     // Add the Mesh to the main scene graph
     // TODO: remove the old mesh from the scene graph
-    SceneGraphFlags flags = SceneGraphFlag_Opaque; // TODO: check if opaque or transparent
+    //SceneGraphFlags flags = SceneGraphFlag_Opaque; // TODO: check if opaque or transparent
     AddToSceneGraph();
 }
 

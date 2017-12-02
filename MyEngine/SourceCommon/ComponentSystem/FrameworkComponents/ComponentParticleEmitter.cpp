@@ -408,11 +408,11 @@ void ComponentParticleEmitter::CreateBurst(int number, Vector3 offset)
                 pParticle->timetolive += (rand()%10000-5000)/10000.0f * m_TimeToLiveVariation;
 
             //if( m_InitialSpeedBoost )
-            if( 0 )
-            {
-                pParticle->pos.x += pParticle->dir.x * m_InitialSpeedBoost;
-                pParticle->pos.y += pParticle->dir.y * m_InitialSpeedBoost;
-            }
+            //if( 0 )
+            //{
+            //    pParticle->pos.x += pParticle->dir.x * m_InitialSpeedBoost;
+            //    pParticle->pos.y += pParticle->dir.y * m_InitialSpeedBoost;
+            //}
         }
     }
 }

@@ -1,0 +1,618 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 48;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		0450258F1FD0E5A500E7691E /* LanguageTable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0450254F1FD0E5A500E7691E /* LanguageTable.cpp */; };
+		045025901FD0E5A500E7691E /* LanguageTable.h in Headers */ = {isa = PBXBuildFile; fileRef = 045025501FD0E5A500E7691E /* LanguageTable.h */; };
+		045025911FD0E5A500E7691E /* Menu_Helpers.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 045025511FD0E5A500E7691E /* Menu_Helpers.cpp */; };
+		045025921FD0E5A500E7691E /* Menu_Helpers.h in Headers */ = {isa = PBXBuildFile; fileRef = 045025521FD0E5A500E7691E /* Menu_Helpers.h */; };
+		045025931FD0E5A500E7691E /* MenuButton.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 045025531FD0E5A500E7691E /* MenuButton.cpp */; };
+		045025941FD0E5A500E7691E /* MenuButton.h in Headers */ = {isa = PBXBuildFile; fileRef = 045025541FD0E5A500E7691E /* MenuButton.h */; };
+		045025951FD0E5A500E7691E /* MenuCheckBox.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 045025551FD0E5A500E7691E /* MenuCheckBox.cpp */; };
+		045025961FD0E5A500E7691E /* MenuCheckBox.h in Headers */ = {isa = PBXBuildFile; fileRef = 045025561FD0E5A500E7691E /* MenuCheckBox.h */; };
+		045025991FD0E5A500E7691E /* MenuInputBox.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 045025591FD0E5A500E7691E /* MenuInputBox.cpp */; };
+		0450259A1FD0E5A500E7691E /* MenuInputBox.h in Headers */ = {isa = PBXBuildFile; fileRef = 0450255A1FD0E5A500E7691E /* MenuInputBox.h */; };
+		0450259B1FD0E5A500E7691E /* MenuItem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0450255B1FD0E5A500E7691E /* MenuItem.cpp */; };
+		0450259C1FD0E5A500E7691E /* MenuItem.h in Headers */ = {isa = PBXBuildFile; fileRef = 0450255C1FD0E5A500E7691E /* MenuItem.h */; };
+		0450259F1FD0E5A500E7691E /* MenuScrollingText.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0450255F1FD0E5A500E7691E /* MenuScrollingText.cpp */; };
+		045025A01FD0E5A500E7691E /* MenuScrollingText.h in Headers */ = {isa = PBXBuildFile; fileRef = 045025601FD0E5A500E7691E /* MenuScrollingText.h */; };
+		045025A31FD0E5A500E7691E /* MenuSprite.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 045025631FD0E5A500E7691E /* MenuSprite.cpp */; };
+		045025A41FD0E5A500E7691E /* MenuSprite.h in Headers */ = {isa = PBXBuildFile; fileRef = 045025641FD0E5A500E7691E /* MenuSprite.h */; };
+		045025A51FD0E5A500E7691E /* MenuText.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 045025651FD0E5A500E7691E /* MenuText.cpp */; };
+		045025A61FD0E5A500E7691E /* MenuText.h in Headers */ = {isa = PBXBuildFile; fileRef = 045025661FD0E5A500E7691E /* MenuText.h */; };
+		045025B51FD0E5A500E7691E /* MeshShapes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 045025791FD0E5A500E7691E /* MeshShapes.cpp */; };
+		045025B61FD0E5A500E7691E /* MeshShapes.h in Headers */ = {isa = PBXBuildFile; fileRef = 0450257A1FD0E5A500E7691E /* MeshShapes.h */; };
+		045025B71FD0E5A500E7691E /* RenderTextQuick.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0450257B1FD0E5A500E7691E /* RenderTextQuick.cpp */; };
+		045025B81FD0E5A500E7691E /* RenderTextQuick.h in Headers */ = {isa = PBXBuildFile; fileRef = 0450257C1FD0E5A500E7691E /* RenderTextQuick.h */; };
+		045025DB1FD0E66B00E7691E /* Menu_Helpers.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 045025511FD0E5A500E7691E /* Menu_Helpers.cpp */; };
+		045025DC1FD0E66B00E7691E /* MeshShapes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 045025791FD0E5A500E7691E /* MeshShapes.cpp */; };
+		045025DD1FD0E66B00E7691E /* MenuItem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0450255B1FD0E5A500E7691E /* MenuItem.cpp */; };
+		045025E11FD0E66B00E7691E /* MenuText.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 045025651FD0E5A500E7691E /* MenuText.cpp */; };
+		045025E41FD0E66B00E7691E /* MenuCheckBox.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 045025551FD0E5A500E7691E /* MenuCheckBox.cpp */; };
+		045025E51FD0E66B00E7691E /* MenuInputBox.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 045025591FD0E5A500E7691E /* MenuInputBox.cpp */; };
+		045025E71FD0E66B00E7691E /* MenuSprite.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 045025631FD0E5A500E7691E /* MenuSprite.cpp */; };
+		045025EA1FD0E66B00E7691E /* MenuScrollingText.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0450255F1FD0E5A500E7691E /* MenuScrollingText.cpp */; };
+		045025EC1FD0E66B00E7691E /* MenuButton.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 045025531FD0E5A500E7691E /* MenuButton.cpp */; };
+		045025ED1FD0E66B00E7691E /* LanguageTable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0450254F1FD0E5A500E7691E /* LanguageTable.cpp */; };
+		045025F31FD0E66B00E7691E /* RenderTextQuick.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0450257B1FD0E5A500E7691E /* RenderTextQuick.cpp */; };
+		045025FC1FD0E66B00E7691E /* MenuCheckBox.h in Headers */ = {isa = PBXBuildFile; fileRef = 045025561FD0E5A500E7691E /* MenuCheckBox.h */; };
+		045025FF1FD0E66B00E7691E /* MenuSprite.h in Headers */ = {isa = PBXBuildFile; fileRef = 045025641FD0E5A500E7691E /* MenuSprite.h */; };
+		045026001FD0E66B00E7691E /* MenuItem.h in Headers */ = {isa = PBXBuildFile; fileRef = 0450255C1FD0E5A500E7691E /* MenuItem.h */; };
+		045026031FD0E66B00E7691E /* RenderTextQuick.h in Headers */ = {isa = PBXBuildFile; fileRef = 0450257C1FD0E5A500E7691E /* RenderTextQuick.h */; };
+		045026081FD0E66B00E7691E /* MenuInputBox.h in Headers */ = {isa = PBXBuildFile; fileRef = 0450255A1FD0E5A500E7691E /* MenuInputBox.h */; };
+		0450260A1FD0E66B00E7691E /* MeshShapes.h in Headers */ = {isa = PBXBuildFile; fileRef = 0450257A1FD0E5A500E7691E /* MeshShapes.h */; };
+		0450260B1FD0E66B00E7691E /* LanguageTable.h in Headers */ = {isa = PBXBuildFile; fileRef = 045025501FD0E5A500E7691E /* LanguageTable.h */; };
+		045026101FD0E66B00E7691E /* MenuButton.h in Headers */ = {isa = PBXBuildFile; fileRef = 045025541FD0E5A500E7691E /* MenuButton.h */; };
+		045026111FD0E66B00E7691E /* Menu_Helpers.h in Headers */ = {isa = PBXBuildFile; fileRef = 045025521FD0E5A500E7691E /* Menu_Helpers.h */; };
+		045026121FD0E66B00E7691E /* MenuText.h in Headers */ = {isa = PBXBuildFile; fileRef = 045025661FD0E5A500E7691E /* MenuText.h */; };
+		045026131FD0E66B00E7691E /* MenuScrollingText.h in Headers */ = {isa = PBXBuildFile; fileRef = 045025601FD0E5A500E7691E /* MenuScrollingText.h */; };
+		04CDECAB1FD253F9006D7D06 /* MenuScrollBox.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04CDECAA1FD253F9006D7D06 /* MenuScrollBox.cpp */; };
+		04CDECAC1FD253FE006D7D06 /* MenuScrollBox.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04CDECAA1FD253F9006D7D06 /* MenuScrollBox.cpp */; };
+		04CDECAD1FD253FE006D7D06 /* MenuScrollBox.h in Headers */ = {isa = PBXBuildFile; fileRef = 04CDECA91FD253F8006D7D06 /* MenuScrollBox.h */; };
+		04CDECAE1FD253FE006D7D06 /* MenuScrollBox.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04CDECAA1FD253F9006D7D06 /* MenuScrollBox.cpp */; };
+		04CDECAF1FD253FE006D7D06 /* MenuScrollBox.h in Headers */ = {isa = PBXBuildFile; fileRef = 04CDECA91FD253F8006D7D06 /* MenuScrollBox.h */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		045025CB1FD0E65B00E7691E /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "include/$(PRODUCT_NAME)";
+			dstSubfolderSpec = 16;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		045025421FD0E4D600E7691E /* libSharedGameCode-OSX.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libSharedGameCode-OSX.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		0450254F1FD0E5A500E7691E /* LanguageTable.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = LanguageTable.cpp; sourceTree = "<group>"; };
+		045025501FD0E5A500E7691E /* LanguageTable.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LanguageTable.h; sourceTree = "<group>"; };
+		045025511FD0E5A500E7691E /* Menu_Helpers.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Menu_Helpers.cpp; sourceTree = "<group>"; };
+		045025521FD0E5A500E7691E /* Menu_Helpers.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Menu_Helpers.h; sourceTree = "<group>"; };
+		045025531FD0E5A500E7691E /* MenuButton.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MenuButton.cpp; sourceTree = "<group>"; };
+		045025541FD0E5A500E7691E /* MenuButton.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MenuButton.h; sourceTree = "<group>"; };
+		045025551FD0E5A500E7691E /* MenuCheckBox.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MenuCheckBox.cpp; sourceTree = "<group>"; };
+		045025561FD0E5A500E7691E /* MenuCheckBox.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MenuCheckBox.h; sourceTree = "<group>"; };
+		045025591FD0E5A500E7691E /* MenuInputBox.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MenuInputBox.cpp; sourceTree = "<group>"; };
+		0450255A1FD0E5A500E7691E /* MenuInputBox.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MenuInputBox.h; sourceTree = "<group>"; };
+		0450255B1FD0E5A500E7691E /* MenuItem.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MenuItem.cpp; sourceTree = "<group>"; };
+		0450255C1FD0E5A500E7691E /* MenuItem.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MenuItem.h; sourceTree = "<group>"; };
+		0450255F1FD0E5A500E7691E /* MenuScrollingText.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MenuScrollingText.cpp; sourceTree = "<group>"; };
+		045025601FD0E5A500E7691E /* MenuScrollingText.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MenuScrollingText.h; sourceTree = "<group>"; };
+		045025631FD0E5A500E7691E /* MenuSprite.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MenuSprite.cpp; sourceTree = "<group>"; };
+		045025641FD0E5A500E7691E /* MenuSprite.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MenuSprite.h; sourceTree = "<group>"; };
+		045025651FD0E5A500E7691E /* MenuText.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MenuText.cpp; sourceTree = "<group>"; };
+		045025661FD0E5A500E7691E /* MenuText.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MenuText.h; sourceTree = "<group>"; };
+		045025791FD0E5A500E7691E /* MeshShapes.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MeshShapes.cpp; sourceTree = "<group>"; };
+		0450257A1FD0E5A500E7691E /* MeshShapes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MeshShapes.h; sourceTree = "<group>"; };
+		0450257B1FD0E5A500E7691E /* RenderTextQuick.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RenderTextQuick.cpp; sourceTree = "<group>"; };
+		0450257C1FD0E5A500E7691E /* RenderTextQuick.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RenderTextQuick.h; sourceTree = "<group>"; };
+		045025CD1FD0E65B00E7691E /* libSharedGameCode-iOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libSharedGameCode-iOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		045026171FD0E66B00E7691E /* libSharedGameCode-wx.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libSharedGameCode-wx.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		04CDECA91FD253F8006D7D06 /* MenuScrollBox.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MenuScrollBox.h; sourceTree = "<group>"; };
+		04CDECAA1FD253F9006D7D06 /* MenuScrollBox.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MenuScrollBox.cpp; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		0450253F1FD0E4D600E7691E /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		045025CA1FD0E65B00E7691E /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		045025F51FD0E66B00E7691E /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		045025391FD0E4D600E7691E = {
+			isa = PBXGroup;
+			children = (
+				045025761FD0E5A500E7691E /* Core */,
+				0450254E1FD0E5A500E7691E /* Menus */,
+				045025431FD0E4D600E7691E /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		045025431FD0E4D600E7691E /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				045025421FD0E4D600E7691E /* libSharedGameCode-OSX.a */,
+				045025CD1FD0E65B00E7691E /* libSharedGameCode-iOS.a */,
+				045026171FD0E66B00E7691E /* libSharedGameCode-wx.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		0450254E1FD0E5A500E7691E /* Menus */ = {
+			isa = PBXGroup;
+			children = (
+				0450254F1FD0E5A500E7691E /* LanguageTable.cpp */,
+				045025501FD0E5A500E7691E /* LanguageTable.h */,
+				045025511FD0E5A500E7691E /* Menu_Helpers.cpp */,
+				045025521FD0E5A500E7691E /* Menu_Helpers.h */,
+				045025531FD0E5A500E7691E /* MenuButton.cpp */,
+				045025541FD0E5A500E7691E /* MenuButton.h */,
+				045025551FD0E5A500E7691E /* MenuCheckBox.cpp */,
+				045025561FD0E5A500E7691E /* MenuCheckBox.h */,
+				045025591FD0E5A500E7691E /* MenuInputBox.cpp */,
+				0450255A1FD0E5A500E7691E /* MenuInputBox.h */,
+				0450255B1FD0E5A500E7691E /* MenuItem.cpp */,
+				0450255C1FD0E5A500E7691E /* MenuItem.h */,
+				04CDECAA1FD253F9006D7D06 /* MenuScrollBox.cpp */,
+				04CDECA91FD253F8006D7D06 /* MenuScrollBox.h */,
+				0450255F1FD0E5A500E7691E /* MenuScrollingText.cpp */,
+				045025601FD0E5A500E7691E /* MenuScrollingText.h */,
+				045025631FD0E5A500E7691E /* MenuSprite.cpp */,
+				045025641FD0E5A500E7691E /* MenuSprite.h */,
+				045025651FD0E5A500E7691E /* MenuText.cpp */,
+				045025661FD0E5A500E7691E /* MenuText.h */,
+			);
+			name = Menus;
+			path = ../../../SharedGameCode/Menus;
+			sourceTree = "<group>";
+		};
+		045025761FD0E5A500E7691E /* Core */ = {
+			isa = PBXGroup;
+			children = (
+				045025791FD0E5A500E7691E /* MeshShapes.cpp */,
+				0450257A1FD0E5A500E7691E /* MeshShapes.h */,
+				0450257B1FD0E5A500E7691E /* RenderTextQuick.cpp */,
+				0450257C1FD0E5A500E7691E /* RenderTextQuick.h */,
+			);
+			name = Core;
+			path = ../../../SharedGameCode/Core;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXHeadersBuildPhase section */
+		045025401FD0E4D600E7691E /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				045025961FD0E5A500E7691E /* MenuCheckBox.h in Headers */,
+				045025A41FD0E5A500E7691E /* MenuSprite.h in Headers */,
+				0450259C1FD0E5A500E7691E /* MenuItem.h in Headers */,
+				045025B81FD0E5A500E7691E /* RenderTextQuick.h in Headers */,
+				0450259A1FD0E5A500E7691E /* MenuInputBox.h in Headers */,
+				045025B61FD0E5A500E7691E /* MeshShapes.h in Headers */,
+				045025901FD0E5A500E7691E /* LanguageTable.h in Headers */,
+				045025941FD0E5A500E7691E /* MenuButton.h in Headers */,
+				045025921FD0E5A500E7691E /* Menu_Helpers.h in Headers */,
+				045025A61FD0E5A500E7691E /* MenuText.h in Headers */,
+				04CDECAD1FD253FE006D7D06 /* MenuScrollBox.h in Headers */,
+				045025A01FD0E5A500E7691E /* MenuScrollingText.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		045025F61FD0E66B00E7691E /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				045025FC1FD0E66B00E7691E /* MenuCheckBox.h in Headers */,
+				045025FF1FD0E66B00E7691E /* MenuSprite.h in Headers */,
+				045026001FD0E66B00E7691E /* MenuItem.h in Headers */,
+				045026031FD0E66B00E7691E /* RenderTextQuick.h in Headers */,
+				045026081FD0E66B00E7691E /* MenuInputBox.h in Headers */,
+				0450260A1FD0E66B00E7691E /* MeshShapes.h in Headers */,
+				0450260B1FD0E66B00E7691E /* LanguageTable.h in Headers */,
+				045026101FD0E66B00E7691E /* MenuButton.h in Headers */,
+				045026111FD0E66B00E7691E /* Menu_Helpers.h in Headers */,
+				045026121FD0E66B00E7691E /* MenuText.h in Headers */,
+				04CDECAF1FD253FE006D7D06 /* MenuScrollBox.h in Headers */,
+				045026131FD0E66B00E7691E /* MenuScrollingText.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
+
+/* Begin PBXNativeTarget section */
+		045025411FD0E4D600E7691E /* SharedGameCode-OSX */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 0450254B1FD0E4D600E7691E /* Build configuration list for PBXNativeTarget "SharedGameCode-OSX" */;
+			buildPhases = (
+				0450253E1FD0E4D600E7691E /* Sources */,
+				0450253F1FD0E4D600E7691E /* Frameworks */,
+				045025401FD0E4D600E7691E /* Headers */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "SharedGameCode-OSX";
+			productName = SharedGameCode;
+			productReference = 045025421FD0E4D600E7691E /* libSharedGameCode-OSX.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+		045025CC1FD0E65B00E7691E /* SharedGameCode-iOS */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 045025D31FD0E65B00E7691E /* Build configuration list for PBXNativeTarget "SharedGameCode-iOS" */;
+			buildPhases = (
+				045025C91FD0E65B00E7691E /* Sources */,
+				045025CA1FD0E65B00E7691E /* Frameworks */,
+				045025CB1FD0E65B00E7691E /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "SharedGameCode-iOS";
+			productName = SharedGameCode;
+			productReference = 045025CD1FD0E65B00E7691E /* libSharedGameCode-iOS.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+		045025D61FD0E66B00E7691E /* SharedGameCode-wx */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 045026141FD0E66B00E7691E /* Build configuration list for PBXNativeTarget "SharedGameCode-wx" */;
+			buildPhases = (
+				045025D71FD0E66B00E7691E /* Sources */,
+				045025F51FD0E66B00E7691E /* Frameworks */,
+				045025F61FD0E66B00E7691E /* Headers */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "SharedGameCode-wx";
+			productName = SharedGameCode;
+			productReference = 045026171FD0E66B00E7691E /* libSharedGameCode-wx.a */;
+			productType = "com.apple.product-type.library.static";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		0450253A1FD0E4D600E7691E /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0910;
+				ORGANIZATIONNAME = Me;
+				TargetAttributes = {
+					045025411FD0E4D600E7691E = {
+						CreatedOnToolsVersion = 9.1;
+						ProvisioningStyle = Automatic;
+					};
+					045025CC1FD0E65B00E7691E = {
+						CreatedOnToolsVersion = 9.1;
+						ProvisioningStyle = Automatic;
+					};
+					045025D61FD0E66B00E7691E = {
+						ProvisioningStyle = Automatic;
+					};
+				};
+			};
+			buildConfigurationList = 0450253D1FD0E4D600E7691E /* Build configuration list for PBXProject "SharedGameCode" */;
+			compatibilityVersion = "Xcode 8.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = 045025391FD0E4D600E7691E;
+			productRefGroup = 045025431FD0E4D600E7691E /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				045025CC1FD0E65B00E7691E /* SharedGameCode-iOS */,
+				045025411FD0E4D600E7691E /* SharedGameCode-OSX */,
+				045025D61FD0E66B00E7691E /* SharedGameCode-wx */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		0450253E1FD0E4D600E7691E /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				045025911FD0E5A500E7691E /* Menu_Helpers.cpp in Sources */,
+				045025B51FD0E5A500E7691E /* MeshShapes.cpp in Sources */,
+				0450259B1FD0E5A500E7691E /* MenuItem.cpp in Sources */,
+				045025A51FD0E5A500E7691E /* MenuText.cpp in Sources */,
+				045025951FD0E5A500E7691E /* MenuCheckBox.cpp in Sources */,
+				045025991FD0E5A500E7691E /* MenuInputBox.cpp in Sources */,
+				045025A31FD0E5A500E7691E /* MenuSprite.cpp in Sources */,
+				0450259F1FD0E5A500E7691E /* MenuScrollingText.cpp in Sources */,
+				045025931FD0E5A500E7691E /* MenuButton.cpp in Sources */,
+				0450258F1FD0E5A500E7691E /* LanguageTable.cpp in Sources */,
+				045025B71FD0E5A500E7691E /* RenderTextQuick.cpp in Sources */,
+				04CDECAC1FD253FE006D7D06 /* MenuScrollBox.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		045025C91FD0E65B00E7691E /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				04CDECAB1FD253F9006D7D06 /* MenuScrollBox.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		045025D71FD0E66B00E7691E /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				045025DB1FD0E66B00E7691E /* Menu_Helpers.cpp in Sources */,
+				045025DC1FD0E66B00E7691E /* MeshShapes.cpp in Sources */,
+				045025DD1FD0E66B00E7691E /* MenuItem.cpp in Sources */,
+				045025E11FD0E66B00E7691E /* MenuText.cpp in Sources */,
+				045025E41FD0E66B00E7691E /* MenuCheckBox.cpp in Sources */,
+				045025E51FD0E66B00E7691E /* MenuInputBox.cpp in Sources */,
+				045025E71FD0E66B00E7691E /* MenuSprite.cpp in Sources */,
+				045025EA1FD0E66B00E7691E /* MenuScrollingText.cpp in Sources */,
+				045025EC1FD0E66B00E7691E /* MenuButton.cpp in Sources */,
+				045025ED1FD0E66B00E7691E /* LanguageTable.cpp in Sources */,
+				045025F31FD0E66B00E7691E /* RenderTextQuick.cpp in Sources */,
+				04CDECAE1FD253FE006D7D06 /* MenuScrollBox.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		045025491FD0E4D600E7691E /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"_DEBUG=1",
+					"MYFW_USING_MYENGINE=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.13;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+				USER_HEADER_SEARCH_PATHS = ". ../../../Framework/Libraries/b2Settings ../../../Framework/Libraries/Box2D/Box2D ../../../Engine/Libraries/bullet3/src";
+			};
+			name = Debug;
+		};
+		0450254A1FD0E4D600E7691E /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "-";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_PREPROCESSOR_DEFINITIONS = "MYFW_USING_MYENGINE=1";
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.13;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = macosx;
+				USER_HEADER_SEARCH_PATHS = ". ../../../Framework/Libraries/b2Settings ../../../Framework/Libraries/Box2D/Box2D ../../../Engine/Libraries/bullet3/src";
+			};
+			name = Release;
+		};
+		0450254C1FD0E4D600E7691E /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				EXECUTABLE_PREFIX = lib;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"MYFW_OSX=1",
+					"$(inherited)",
+				);
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		0450254D1FD0E4D600E7691E /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				EXECUTABLE_PREFIX = lib;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"MYFW_OSX=1",
+					"$(inherited)",
+				);
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+		045025D41FD0E65B00E7691E /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"MYFW_IOS=1",
+					"MYFW_OPENGLES2=1",
+					"$(inherited)",
+				);
+				IPHONEOS_DEPLOYMENT_TARGET = 11.1;
+				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		045025D51FD0E65B00E7691E /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"MYFW_IOS=1",
+					"MYFW_OPENGLES2=1",
+					"$(inherited)",
+				);
+				IPHONEOS_DEPLOYMENT_TARGET = 11.1;
+				OTHER_LDFLAGS = "-ObjC";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		045026151FD0E66B00E7691E /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				EXECUTABLE_PREFIX = lib;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"MYFW_OSX=1",
+					"MYFW_USING_WX=1",
+					__WXOSX_COCOA__,
+					"$(inherited)",
+				);
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		045026161FD0E66B00E7691E /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				EXECUTABLE_PREFIX = lib;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"MYFW_OSX=1",
+					"MYFW_USING_WX=1",
+					__WXOSX_COCOA__,
+					"$(inherited)",
+				);
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		0450253D1FD0E4D600E7691E /* Build configuration list for PBXProject "SharedGameCode" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				045025491FD0E4D600E7691E /* Debug */,
+				0450254A1FD0E4D600E7691E /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		0450254B1FD0E4D600E7691E /* Build configuration list for PBXNativeTarget "SharedGameCode-OSX" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				0450254C1FD0E4D600E7691E /* Debug */,
+				0450254D1FD0E4D600E7691E /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		045025D31FD0E65B00E7691E /* Build configuration list for PBXNativeTarget "SharedGameCode-iOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				045025D41FD0E65B00E7691E /* Debug */,
+				045025D51FD0E65B00E7691E /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		045026141FD0E66B00E7691E /* Build configuration list for PBXNativeTarget "SharedGameCode-wx" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				045026151FD0E66B00E7691E /* Debug */,
+				045026161FD0E66B00E7691E /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 0450253A1FD0E4D600E7691E /* Project object */;
+}

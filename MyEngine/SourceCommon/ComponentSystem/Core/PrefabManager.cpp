@@ -650,8 +650,6 @@ PrefabFile* PrefabManager::RequestFile(const char* prefabfilename)
 
 void PrefabManager::UnloadAllPrefabFiles()
 {
-    unsigned int numprefabfiles = (unsigned int)m_pPrefabFiles.size();
-
     while( m_pPrefabFiles.size() )
     {
         delete m_pPrefabFiles[0];

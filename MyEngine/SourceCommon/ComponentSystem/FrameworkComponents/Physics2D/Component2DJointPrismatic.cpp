@@ -328,8 +328,8 @@ void Component2DJointPrismatic::OnPlay()
 
         if( m_pSecondBody )
         {
-            Vector3 posA = m_pGameObject->GetTransform()->GetWorldPosition();
-            Vector3 posB = m_pSecondCollisionObject->m_pGameObject->GetTransform()->GetWorldPosition();
+            //Vector3 posA = m_pGameObject->GetTransform()->GetWorldPosition();
+            //Vector3 posB = m_pSecondCollisionObject->m_pGameObject->GetTransform()->GetWorldPosition();
             //b2Vec2 anchorpos( posB.x - posA.x + m_AnchorA.x, posB.y - posA.y + m_AnchorA.y );
             //b2Vec2 anchorpos( (posB.x - m_AnchorB.x) - posA.x, (posB.y - m_AnchorB.y) - posA.y );
 

@@ -1473,7 +1473,7 @@ void GameObject::OnGameObjectDeleted(GameObject* pGameObject)
 
 void GameObject::OnTransformChanged(Vector3& newpos, Vector3& newrot, Vector3& newscale, bool changedbyuserineditor)
 {
-    int bp = 1;
+    //int bp = 1;
 }
 
 #if MYFW_USING_WX

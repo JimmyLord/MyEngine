@@ -462,9 +462,9 @@ double EngineCore::Tick(double TimePassed)
 
     if( m_EditorMode == false || m_AllowGameToRunInEditorMode )
     {
-#if MYFW_PROFILING_ENABLED
+#if MYFW_PROFILING_ENABLED && MYFW_USING_WX
         double Physics_Timing_Start = MyTime_GetSystemTime();
-#endif // MYFW_PROFILING_ENABLED
+#endif // MYFW_PROFILING_ENABLED && MYFW_USING_WX
 
         m_pBulletWorld->PhysicsUpdate( (float)TimePassed );
 
@@ -484,15 +484,12 @@ double EngineCore::Tick(double TimePassed)
             }
         }
 
-#if MYFW_PROFILING_ENABLED
+#if MYFW_PROFILING_ENABLED && MYFW_USING_WX
         double Physics_Timing_End = MyTime_GetSystemTime();
 
-#if MYFW_USING_WX
         if( g_GLCanvasIDActive == 0 )
             m_FrameTimingInfo[m_FrameTimingNextEntry].Update_Physics = (float)((Physics_Timing_End - Physics_Timing_Start)*1000);
-#else
-#endif // MYFW_USING_WX
-#endif // MYFW_PROFILING_ENABLED
+#endif // MYFW_PROFILING_ENABLED && MYFW_USING_WX
     }
 
     // tick all components.

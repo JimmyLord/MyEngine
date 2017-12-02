@@ -80,8 +80,8 @@ LuaGameState::~LuaGameState()
     if( m_pLuaState )
         lua_close( m_pLuaState );
 
-    closesocket( m_ListenSocket );
-    closesocket( m_DebugSocket );
+    close( m_ListenSocket );
+    close( m_DebugSocket );
 }
 
 void SetSocketBlockingState(int socket, bool block)
@@ -89,23 +89,30 @@ void SetSocketBlockingState(int socket, bool block)
     if( block )
     {
         // Set socket as blocking.
+#if MYFW_WINDOWS
         DWORD value = 0;
         ioctlsocket( socket, FIONBIO, &value );
-        //const int flags = fcntl( m_ListenSocket, F_GETFL, 0 );
-        //fcntl( m_DebugSocket, F_SETFL, flags & ~O_NONBLOCK );
+#else
+        const int flags = fcntl( socket, F_GETFL, 0 );
+        fcntl( socket, F_SETFL, flags & ~O_NONBLOCK );
+#endif
     }
     else
     {
         // Set socket as non-blocking.
+#if MYFW_WINDOWS
         DWORD value = 1;
         ioctlsocket( socket, FIONBIO, &value );
-        //const int flags = fcntl( m_ListenSocket, F_GETFL, 0 );
-        //fcntl( m_DebugSocket, F_SETFL, flags & O_NONBLOCK );
+#else
+        const int flags = fcntl( socket, F_GETFL, 0 );
+        fcntl( socket, F_SETFL, flags & O_NONBLOCK );
+#endif
     }
 }
 
 void DebugHookFunction(lua_State* luastate, lua_Debug* ar)
 {
+#if _DEBUG
     if( g_pLuaGameState->m_DebugSocket <= 0 )
         return;
 
@@ -139,6 +146,7 @@ void DebugHookFunction(lua_State* luastate, lua_Debug* ar)
             g_pLuaGameState->CheckForDebugNetworkMessages( true );
         }
     }
+#endif
 }
 
 void LuaGameState::Tick()
@@ -183,7 +191,7 @@ void LuaGameState::CheckForDebugNetworkMessages(bool block)
         sockaddr_in saddr;
         int fromLength = sizeof( sockaddr_in );
         
-        int socket = accept( m_ListenSocket, (sockaddr*)&saddr, &fromLength );
+        int socket = accept( m_ListenSocket, (sockaddr*)&saddr, (socklen_t*)&fromLength );
         if( socket != -1 )
         {
             if( g_OutputLuaDebugLog )
@@ -226,7 +234,7 @@ void LuaGameState::CheckForDebugNetworkMessages(bool block)
                     break;
             }
 
-            (int)recv( m_DebugSocket, buffer, i+1, 0 );
+            recv( m_DebugSocket, buffer, i+1, 0 );
             buffer[i] = 0;
         }
 
@@ -246,10 +254,10 @@ void LuaGameState::CheckForDebugNetworkMessages(bool block)
         if( bytes != -1 )
         {
             // Received a packet.
-            if( bytes < 1000 )
+            if( bytes < buffersize )
                 buffer[bytes] = 0;
             else
-                buffer[999] = 0;
+                buffer[buffersize-1] = 0;
 
             if( g_OutputLuaDebugLog )
                 LOGInfo( "LuaDebug", "Received a packet (size:%d) (value:%s)\n", bytes, buffer );
@@ -649,11 +657,14 @@ int LuaGameState::AddLocalVarsToStackInJSONMessage(cJSON* jStack, lua_Debug* ar)
 
 void LuaGameState::ClearAllBreakpoints()
 {
+#if _DEBUG
     m_Breakpoints.clear();
+#endif
 }
 
 void LuaGameState::ClearAllBreakpointsFromFile(char* fullpath)
 {
+#if _DEBUG
     const char* relativepath = GetRelativePath( fullpath );
     for( unsigned int i=0; i<m_Breakpoints.size(); i++ )
     {
@@ -664,10 +675,12 @@ void LuaGameState::ClearAllBreakpointsFromFile(char* fullpath)
             i--;
         }
     }
+#endif
 }
 
 void LuaGameState::AddBreakpoint(char* fullpath, int line)
 {
+#if _DEBUG
     const char* relativepath = GetRelativePath( fullpath );
 
     Breakpoint bp;
@@ -675,6 +688,7 @@ void LuaGameState::AddBreakpoint(char* fullpath, int line)
     bp.line = line;
 
     m_Breakpoints.push_back( bp );
+#endif
 }
 
 void LuaGameState::Rebuild()

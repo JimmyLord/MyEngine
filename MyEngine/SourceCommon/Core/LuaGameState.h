@@ -16,6 +16,10 @@ extern LuaGameState* g_pLuaGameState;
 
 void LuaBridgeExt_LogExceptionFormattedForVisualStudioOutputWindow(const char* userdata, const char* fullpath, const char* what);
 
+#if _DEBUG
+#include <vector>
+#endif
+
 class LuaGameState
 {
 public:
@@ -35,7 +39,9 @@ public:
     char m_NextSourceFileToBreakOn[MAX_PATH];
 
     // For breakpoints.
+#if _DEBUG
     std::vector<Breakpoint> m_Breakpoints;
+#endif
 
     // For Restart.
     bool m_RestartOnNextTick;
