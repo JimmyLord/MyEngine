@@ -98,7 +98,6 @@
 		049CB4731FD1AD850038B582 /* lutf8lib.c in Sources */ = {isa = PBXBuildFile; fileRef = 049CAFCE1FD1AD7B0038B582 /* lutf8lib.c */; };
 		049CB4741FD1AD850038B582 /* lvm.c in Sources */ = {isa = PBXBuildFile; fileRef = 049CAFCF1FD1AD7B0038B582 /* lvm.c */; };
 		049CB4751FD1AD850038B582 /* lzio.c in Sources */ = {isa = PBXBuildFile; fileRef = 049CAFD11FD1AD7B0038B582 /* lzio.c */; };
-		049CB4761FD1AD850038B582 /* Makefile in Sources */ = {isa = PBXBuildFile; fileRef = 049CAFD31FD1AD7B0038B582 /* Makefile */; };
 		049CB4771FD1AD850038B582 /* SharedCommonHeader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 049CAFE91FD1AD7B0038B582 /* SharedCommonHeader.cpp */; };
 		049CF1E51FD21BC50038B582 /* imgui.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 049CAF861FD1AD7A0038B582 /* imgui.cpp */; };
 		049CF1E61FD21BC60038B582 /* imgui.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 049CAF861FD1AD7A0038B582 /* imgui.cpp */; };
@@ -163,7 +162,6 @@
 		049CF2211FD21BF20038B582 /* lvm.h in Headers */ = {isa = PBXBuildFile; fileRef = 049CAFD01FD1AD7B0038B582 /* lvm.h */; };
 		049CF2221FD21BF20038B582 /* lzio.c in Sources */ = {isa = PBXBuildFile; fileRef = 049CAFD11FD1AD7B0038B582 /* lzio.c */; };
 		049CF2231FD21BF20038B582 /* lzio.h in Headers */ = {isa = PBXBuildFile; fileRef = 049CAFD21FD1AD7B0038B582 /* lzio.h */; };
-		049CF2241FD21BF20038B582 /* Makefile in Sources */ = {isa = PBXBuildFile; fileRef = 049CAFD31FD1AD7B0038B582 /* Makefile */; };
 		049CF2251FD21BF20038B582 /* lapi.c in Sources */ = {isa = PBXBuildFile; fileRef = 049CAF961FD1AD7A0038B582 /* lapi.c */; };
 		049CF2261FD21BF20038B582 /* lapi.h in Headers */ = {isa = PBXBuildFile; fileRef = 049CAF971FD1AD7A0038B582 /* lapi.h */; };
 		049CF2271FD21BF20038B582 /* lauxlib.c in Sources */ = {isa = PBXBuildFile; fileRef = 049CAF981FD1AD7A0038B582 /* lauxlib.c */; };
@@ -223,7 +221,6 @@
 		049CF25D1FD21BF20038B582 /* lvm.h in Headers */ = {isa = PBXBuildFile; fileRef = 049CAFD01FD1AD7B0038B582 /* lvm.h */; };
 		049CF25E1FD21BF20038B582 /* lzio.c in Sources */ = {isa = PBXBuildFile; fileRef = 049CAFD11FD1AD7B0038B582 /* lzio.c */; };
 		049CF25F1FD21BF20038B582 /* lzio.h in Headers */ = {isa = PBXBuildFile; fileRef = 049CAFD21FD1AD7B0038B582 /* lzio.h */; };
-		049CF2601FD21BF20038B582 /* Makefile in Sources */ = {isa = PBXBuildFile; fileRef = 049CAFD31FD1AD7B0038B582 /* Makefile */; };
 		049CF2611FD21C030038B582 /* SharedCommonHeader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 049CAFE91FD1AD7B0038B582 /* SharedCommonHeader.cpp */; };
 		049CF2621FD21C040038B582 /* SharedCommonHeader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 049CAFE91FD1AD7B0038B582 /* SharedCommonHeader.cpp */; };
 		049CF2631FD21C0D0038B582 /* Camera2D.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0450271F1FD1A74200E7691E /* Camera2D.cpp */; };
@@ -639,7 +636,6 @@
 		049CAFD01FD1AD7B0038B582 /* lvm.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lvm.h; sourceTree = "<group>"; };
 		049CAFD11FD1AD7B0038B582 /* lzio.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = lzio.c; sourceTree = "<group>"; };
 		049CAFD21FD1AD7B0038B582 /* lzio.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = lzio.h; sourceTree = "<group>"; };
-		049CAFD31FD1AD7B0038B582 /* Makefile */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.make; path = Makefile; sourceTree = "<group>"; };
 		049CAFD61FD1AD7B0038B582 /* CFunctions.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CFunctions.h; sourceTree = "<group>"; };
 		049CAFD71FD1AD7B0038B582 /* ClassInfo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ClassInfo.h; sourceTree = "<group>"; };
 		049CAFD81FD1AD7B0038B582 /* Constructor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Constructor.h; sourceTree = "<group>"; };
@@ -1005,7 +1001,6 @@
 				049CAFD01FD1AD7B0038B582 /* lvm.h */,
 				049CAFD11FD1AD7B0038B582 /* lzio.c */,
 				049CAFD21FD1AD7B0038B582 /* lzio.h */,
-				049CAFD31FD1AD7B0038B582 /* Makefile */,
 			);
 			path = src;
 			sourceTree = "<group>";
@@ -1287,7 +1282,7 @@
 		044C62161ADDE85700BABD53 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0630;
+				LastUpgradeCheck = 0910;
 				ORGANIZATIONNAME = Me;
 				TargetAttributes = {
 					044C621D1ADDE85700BABD53 = {
@@ -1335,7 +1330,6 @@
 				049CF2311FD21BF20038B582 /* ldebug.c in Sources */,
 				049CF2A71FD21C270038B582 /* ComponentSystemManager.cpp in Sources */,
 				049CF28B1FD21C1D0038B582 /* ComponentInputHandler.cpp in Sources */,
-				049CF2601FD21BF20038B582 /* Makefile in Sources */,
 				049CF23B1FD21BF20038B582 /* liolib.c in Sources */,
 				049CF30D1FD21C410038B582 /* ImGuiManager.cpp in Sources */,
 				049CF3171FD21C460038B582 /* BulletWorld.cpp in Sources */,
@@ -1459,7 +1453,6 @@
 				045027681FD1A74300E7691E /* VoxelWorld.cpp in Sources */,
 				049CB4591FD1AD850038B582 /* lctype.c in Sources */,
 				0450276A1FD1A74300E7691E /* BulletWorld.cpp in Sources */,
-				049CB4761FD1AD850038B582 /* Makefile in Sources */,
 				049CB4581FD1AD850038B582 /* lcorolib.c in Sources */,
 				049CB4561FD1AD850038B582 /* lbitlib.c in Sources */,
 				0450275A1FD1A74300E7691E /* Component2DJointRevolute.cpp in Sources */,
@@ -1532,7 +1525,6 @@
 				049CF1F51FD21BF20038B582 /* ldebug.c in Sources */,
 				049CF29B1FD21C260038B582 /* ComponentSystemManager.cpp in Sources */,
 				049CF2731FD21C1D0038B582 /* ComponentInputHandler.cpp in Sources */,
-				049CF2241FD21BF20038B582 /* Makefile in Sources */,
 				049CF1FF1FD21BF20038B582 /* liolib.c in Sources */,
 				049CF30B1FD21C410038B582 /* ImGuiManager.cpp in Sources */,
 				049CF3111FD21C460038B582 /* BulletWorld.cpp in Sources */,
@@ -1620,15 +1612,12 @@
 		0423AB531AE2FD5F00C1AE29 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				COMBINE_HIDPI_IMAGES = YES;
-				EXECUTABLE_PREFIX = lib;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"MYFW_OSX=1",
 					"MYFW_USING_WX=1",
 					__WXOSX_COCOA__,
 					"$(inherited)",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 10.5;
 				PRODUCT_NAME = "MyEngine-wx";
 				SDKROOT = macosx;
 				USER_HEADER_SEARCH_PATHS = "$(inherited) ../../wxWidgets/include ../../wxWidgets/build-cocoa-debug/lib/wx/include/osx_cocoa-unicode-3.1";
@@ -1638,16 +1627,12 @@
 		0423AB541AE2FD5F00C1AE29 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				COMBINE_HIDPI_IMAGES = YES;
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				EXECUTABLE_PREFIX = lib;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"MYFW_OSX=1",
 					"MYFW_USING_WX=1",
 					__WXOSX_COCOA__,
 					"$(inherited)",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 10.5;
 				PRODUCT_NAME = "MyEngine-wx";
 				SDKROOT = macosx;
 				USER_HEADER_SEARCH_PATHS = "$(inherited) ../../wxWidgets/include ../../wxWidgets/build-cocoa-debug/lib/wx/include/osx_cocoa-unicode-3.1";
@@ -1657,39 +1642,15 @@
 		044C62301ADDE85700BABD53 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				CLANG_ENABLE_MODULES = YES;
-				CLANG_ENABLE_OBJC_ARC = NO;
-				CLANG_WARN_BOOL_CONVERSION = YES;
-				CLANG_WARN_CONSTANT_CONVERSION = YES;
-				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
-				CLANG_WARN_EMPTY_BODY = YES;
-				CLANG_WARN_ENUM_CONVERSION = YES;
-				CLANG_WARN_INT_CONVERSION = YES;
-				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
-				CLANG_WARN_UNREACHABLE_CODE = YES;
-				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				COPY_PHASE_STRIP = NO;
-				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
-				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PREPROCESSOR_DEFINITIONS = (
-					"DEBUG=1",
 					"_DEBUG=1",
 					"MYFW_USING_MYENGINE=1",
 				);
-				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
-				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
-				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
-				GCC_WARN_UNDECLARED_SELECTOR = YES;
-				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
-				GCC_WARN_UNUSED_FUNCTION = YES;
-				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 8.2;
-				MTL_ENABLE_DEBUG_INFO = YES;
-				ONLY_ACTIVE_ARCH = YES;
-				SDKROOT = iphoneos;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				MACOSX_DEPLOYMENT_TARGET = 10.7;
+				PRODUCT_NAME = MyEngine;
 				USER_HEADER_SEARCH_PATHS = "./SourceCommon . ${SRCROOT}/../Libraries/bullet3/src ../../Framework/Libraries/b2Settings ../../Framework/Libraries/Box2D/Box2D";
 			};
 			name = Debug;
@@ -1697,102 +1658,60 @@
 		044C62311ADDE85700BABD53 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ALWAYS_SEARCH_USER_PATHS = NO;
-				CLANG_ENABLE_MODULES = YES;
-				CLANG_ENABLE_OBJC_ARC = NO;
-				CLANG_WARN_BOOL_CONVERSION = YES;
-				CLANG_WARN_CONSTANT_CONVERSION = YES;
-				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
-				CLANG_WARN_EMPTY_BODY = YES;
-				CLANG_WARN_ENUM_CONVERSION = YES;
-				CLANG_WARN_INT_CONVERSION = YES;
-				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
-				CLANG_WARN_UNREACHABLE_CODE = YES;
-				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
-				COPY_PHASE_STRIP = NO;
-				ENABLE_NS_ASSERTIONS = NO;
-				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_PREPROCESSOR_DEFINITIONS = "MYFW_USING_MYENGINE=1";
-				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
-				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
-				GCC_WARN_UNDECLARED_SELECTOR = YES;
-				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
-				GCC_WARN_UNUSED_FUNCTION = YES;
-				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 8.2;
-				MTL_ENABLE_DEBUG_INFO = NO;
-				SDKROOT = iphoneos;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				MACOSX_DEPLOYMENT_TARGET = 10.7;
+				PRODUCT_NAME = MyEngine;
 				USER_HEADER_SEARCH_PATHS = "./SourceCommon . ${SRCROOT}/../Libraries/bullet3/src ../../Framework/Libraries/b2Settings ../../Framework/Libraries/Box2D/Box2D";
-				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;
 		};
 		044C62331ADDE85700BABD53 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				GCC_PREFIX_HEADER = "";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"MYFW_IOS=1",
 					"MYFW_OPENGLES2=1",
 					"$(inherited)",
 				);
-				IPHONEOS_DEPLOYMENT_TARGET = 5.1;
-				OTHER_LDFLAGS = "-ObjC";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SKIP_INSTALL = YES;
-				USER_HEADER_SEARCH_PATHS = "$(inherited)";
+				PRODUCT_NAME = "MyEngine-iOS";
 			};
 			name = Debug;
 		};
 		044C62341ADDE85700BABD53 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				COPY_PHASE_STRIP = YES;
-				GCC_PREFIX_HEADER = "";
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"MYFW_IOS=1",
 					"MYFW_OPENGLES2=1",
 					"$(inherited)",
 				);
-				IPHONEOS_DEPLOYMENT_TARGET = 5.1;
-				OTHER_LDFLAGS = "-ObjC";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				SKIP_INSTALL = YES;
-				USER_HEADER_SEARCH_PATHS = "$(inherited)";
+				PRODUCT_NAME = "MyEngine-iOS";
 			};
 			name = Release;
 		};
 		044C64051ADED35900BABD53 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				COMBINE_HIDPI_IMAGES = YES;
-				EXECUTABLE_PREFIX = lib;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"MYFW_OSX=1",
 					"$(inherited)",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 10.5;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = "MyEngine-OSX";
 				SDKROOT = macosx;
-				USER_HEADER_SEARCH_PATHS = "$(inherited)";
 			};
 			name = Debug;
 		};
 		044C64061ADED35900BABD53 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				COMBINE_HIDPI_IMAGES = YES;
-				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				EXECUTABLE_PREFIX = lib;
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"MYFW_OSX=1",
 					"$(inherited)",
 				);
-				MACOSX_DEPLOYMENT_TARGET = 10.5;
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = "MyEngine-OSX";
 				SDKROOT = macosx;
-				USER_HEADER_SEARCH_PATHS = "$(inherited)";
 			};
 			name = Release;
 		};

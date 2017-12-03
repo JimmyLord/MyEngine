@@ -191,7 +191,7 @@ void LuaGameState::CheckForDebugNetworkMessages(bool block)
         sockaddr_in saddr;
         int fromLength = sizeof( sockaddr_in );
         
-        int socket = accept( m_ListenSocket, (sockaddr*)&saddr, (socklen_t*)&fromLength );
+        int socket = -1;//accept( m_ListenSocket, (sockaddr*)&saddr, (socklen_t*)&fromLength );
         if( socket != -1 )
         {
             if( g_OutputLuaDebugLog )
