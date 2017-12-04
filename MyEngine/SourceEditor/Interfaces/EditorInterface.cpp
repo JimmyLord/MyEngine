@@ -345,7 +345,7 @@ bool EditorInterface::HandleInputForEditorCamera(int keyaction, int keycode, int
             if( mouseaction == GCBA_RelativeMovement )
             {
                 Vector2 dir( -x, -y );
-                if( abs(x) > 100 )
+                if( fabs(x) > 100 )
                     int bp = 1;
                 //LOGInfo( LOGTag, "dir (%0.2f, %0.2f)\n", dir.x, dir.y );
                 //Vector2 dir = pEditorState->m_LastMousePosition - pEditorState->m_CurrentMousePosition;

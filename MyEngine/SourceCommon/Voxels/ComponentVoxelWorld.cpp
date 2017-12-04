@@ -205,12 +205,12 @@ void* ComponentVoxelWorld::OnDrop(ComponentVariable* pVar, wxCoord x, wxCoord y)
 
     if( pDropItem->m_Type == DragAndDropType_ComponentPointer )
     {
-        (ComponentRenderable*)pDropItem->m_Value;
+        //(ComponentRenderable*)pDropItem->m_Value;
     }
 
     if( pDropItem->m_Type == DragAndDropType_GameObjectPointer )
     {
-        (GameObject*)pDropItem->m_Value;
+        //(GameObject*)pDropItem->m_Value;
     }
 
     if( pDropItem->m_Type == DragAndDropType_MaterialDefinitionPointer )

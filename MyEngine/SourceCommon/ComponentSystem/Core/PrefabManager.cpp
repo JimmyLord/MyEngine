@@ -654,7 +654,7 @@ void PrefabManager::UnloadAllPrefabFiles()
     {
         delete m_pPrefabFiles[0];
 #if MYFW_USING_WX
-        m_pPrefabFiles.front() = std::move( m_pPrefabFiles.back() );
+        m_pPrefabFiles[0] = m_pPrefabFiles.back();
         m_pPrefabFiles.pop_back();
 #else
         m_pPrefabFiles.RemoveIndex( 0 );

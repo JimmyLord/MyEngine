@@ -50,9 +50,12 @@ void SceneInfo::ChangePath(const char* newfullpath)
     char path[MAX_PATH];
     strcpy_s( path, MAX_PATH, newfullpath );
     const char* relativepath = GetRelativePath( path );
-    MyAssert( relativepath != 0 );
 
-    sprintf_s( m_FullPath, MAX_PATH, "%s", relativepath );
+    // If newfullpath was full, store the relative part. Otherwise, assume it was already relative.
+    if( relativepath )
+        sprintf_s( m_FullPath, MAX_PATH, "%s", relativepath );
+    else
+        sprintf_s( m_FullPath, MAX_PATH, "%s", newfullpath );
 
 #if MYFW_USING_WX
     if( m_TreeID.IsOk() )

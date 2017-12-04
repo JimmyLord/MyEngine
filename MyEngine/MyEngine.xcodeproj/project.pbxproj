@@ -8,6 +8,31 @@
 
 /* Begin PBXBuildFile section */
 		0423AB431AE2FD5F00C1AE29 /* EngineCommonHeader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 044C627E1ADDE98F00BABD53 /* EngineCommonHeader.cpp */; };
+		04316D051FD48328009DCA2E /* DialogGridSettings.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04316CEA1FD48328009DCA2E /* DialogGridSettings.cpp */; };
+		04316D061FD48328009DCA2E /* DialogGridSettings.h in Headers */ = {isa = PBXBuildFile; fileRef = 04316CEB1FD48328009DCA2E /* DialogGridSettings.h */; };
+		04316D071FD48328009DCA2E /* DragAndDropHackeryExtended.h in Headers */ = {isa = PBXBuildFile; fileRef = 04316CEC1FD48328009DCA2E /* DragAndDropHackeryExtended.h */; };
+		04316D081FD48328009DCA2E /* EditorState.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04316CED1FD48328009DCA2E /* EditorState.cpp */; };
+		04316D091FD48328009DCA2E /* EditorState.h in Headers */ = {isa = PBXBuildFile; fileRef = 04316CEE1FD48328009DCA2E /* EditorState.h */; };
+		04316D0A1FD48328009DCA2E /* EngineCommandStack.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04316CEF1FD48328009DCA2E /* EngineCommandStack.cpp */; };
+		04316D0B1FD48328009DCA2E /* EngineCommandStack.h in Headers */ = {isa = PBXBuildFile; fileRef = 04316CF01FD48328009DCA2E /* EngineCommandStack.h */; };
+		04316D0C1FD48328009DCA2E /* EngineEditorCommands.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04316CF11FD48328009DCA2E /* EngineEditorCommands.cpp */; };
+		04316D0D1FD48328009DCA2E /* EngineEditorCommands.h in Headers */ = {isa = PBXBuildFile; fileRef = 04316CF21FD48328009DCA2E /* EngineEditorCommands.h */; };
+		04316D0E1FD48328009DCA2E /* EngineMainFrame.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04316CF31FD48328009DCA2E /* EngineMainFrame.cpp */; };
+		04316D0F1FD48328009DCA2E /* EngineMainFrame.h in Headers */ = {isa = PBXBuildFile; fileRef = 04316CF41FD48328009DCA2E /* EngineMainFrame.h */; };
+		04316D101FD48328009DCA2E /* ExportBox2DScene.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04316CF61FD48328009DCA2E /* ExportBox2DScene.cpp */; };
+		04316D111FD48328009DCA2E /* ExportBox2DScene.h in Headers */ = {isa = PBXBuildFile; fileRef = 04316CF71FD48328009DCA2E /* ExportBox2DScene.h */; };
+		04316D121FD48328009DCA2E /* GameObjectTemplateManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04316CF81FD48328009DCA2E /* GameObjectTemplateManager.cpp */; };
+		04316D131FD48328009DCA2E /* GameObjectTemplateManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 04316CF91FD48328009DCA2E /* GameObjectTemplateManager.h */; };
+		04316D141FD48328009DCA2E /* EditorInterface.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04316CFB1FD48328009DCA2E /* EditorInterface.cpp */; };
+		04316D151FD48328009DCA2E /* EditorInterface.h in Headers */ = {isa = PBXBuildFile; fileRef = 04316CFC1FD48328009DCA2E /* EditorInterface.h */; };
+		04316D161FD48328009DCA2E /* EditorInterface_2DPointEditor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04316CFD1FD48328009DCA2E /* EditorInterface_2DPointEditor.cpp */; };
+		04316D171FD48328009DCA2E /* EditorInterface_2DPointEditor.h in Headers */ = {isa = PBXBuildFile; fileRef = 04316CFE1FD48328009DCA2E /* EditorInterface_2DPointEditor.h */; };
+		04316D181FD48328009DCA2E /* EditorInterface_SceneManagement.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04316CFF1FD48328009DCA2E /* EditorInterface_SceneManagement.cpp */; };
+		04316D191FD48328009DCA2E /* EditorInterface_SceneManagement.h in Headers */ = {isa = PBXBuildFile; fileRef = 04316D001FD48328009DCA2E /* EditorInterface_SceneManagement.h */; };
+		04316D1A1FD48328009DCA2E /* EditorInterface_VoxelMeshEditor.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04316D011FD48328009DCA2E /* EditorInterface_VoxelMeshEditor.cpp */; };
+		04316D1B1FD48328009DCA2E /* EditorInterface_VoxelMeshEditor.h in Headers */ = {isa = PBXBuildFile; fileRef = 04316D021FD48328009DCA2E /* EditorInterface_VoxelMeshEditor.h */; };
+		04316D1C1FD48328009DCA2E /* TransformGizmo.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04316D031FD48328009DCA2E /* TransformGizmo.cpp */; };
+		04316D1D1FD48328009DCA2E /* TransformGizmo.h in Headers */ = {isa = PBXBuildFile; fileRef = 04316D041FD48328009DCA2E /* TransformGizmo.h */; };
 		044C629F1ADDE98F00BABD53 /* EngineCommonHeader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 044C627E1ADDE98F00BABD53 /* EngineCommonHeader.cpp */; };
 		044C64DB1ADED4CD00BABD53 /* EngineCommonHeader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 044C627E1ADDE98F00BABD53 /* EngineCommonHeader.cpp */; };
 		045027381FD1A74300E7691E /* ImGuiManager.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 045026C61FD1A74200E7691E /* ImGuiManager.cpp */; };
@@ -452,6 +477,31 @@
 
 /* Begin PBXFileReference section */
 		0423AB551AE2FD5F00C1AE29 /* libMyEngine-wx.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libMyEngine-wx.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		04316CEA1FD48328009DCA2E /* DialogGridSettings.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DialogGridSettings.cpp; sourceTree = "<group>"; };
+		04316CEB1FD48328009DCA2E /* DialogGridSettings.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DialogGridSettings.h; sourceTree = "<group>"; };
+		04316CEC1FD48328009DCA2E /* DragAndDropHackeryExtended.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DragAndDropHackeryExtended.h; sourceTree = "<group>"; };
+		04316CED1FD48328009DCA2E /* EditorState.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EditorState.cpp; sourceTree = "<group>"; };
+		04316CEE1FD48328009DCA2E /* EditorState.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EditorState.h; sourceTree = "<group>"; };
+		04316CEF1FD48328009DCA2E /* EngineCommandStack.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EngineCommandStack.cpp; sourceTree = "<group>"; };
+		04316CF01FD48328009DCA2E /* EngineCommandStack.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EngineCommandStack.h; sourceTree = "<group>"; };
+		04316CF11FD48328009DCA2E /* EngineEditorCommands.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EngineEditorCommands.cpp; sourceTree = "<group>"; };
+		04316CF21FD48328009DCA2E /* EngineEditorCommands.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EngineEditorCommands.h; sourceTree = "<group>"; };
+		04316CF31FD48328009DCA2E /* EngineMainFrame.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EngineMainFrame.cpp; sourceTree = "<group>"; };
+		04316CF41FD48328009DCA2E /* EngineMainFrame.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EngineMainFrame.h; sourceTree = "<group>"; };
+		04316CF61FD48328009DCA2E /* ExportBox2DScene.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ExportBox2DScene.cpp; sourceTree = "<group>"; };
+		04316CF71FD48328009DCA2E /* ExportBox2DScene.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ExportBox2DScene.h; sourceTree = "<group>"; };
+		04316CF81FD48328009DCA2E /* GameObjectTemplateManager.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GameObjectTemplateManager.cpp; sourceTree = "<group>"; };
+		04316CF91FD48328009DCA2E /* GameObjectTemplateManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GameObjectTemplateManager.h; sourceTree = "<group>"; };
+		04316CFB1FD48328009DCA2E /* EditorInterface.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EditorInterface.cpp; sourceTree = "<group>"; };
+		04316CFC1FD48328009DCA2E /* EditorInterface.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EditorInterface.h; sourceTree = "<group>"; };
+		04316CFD1FD48328009DCA2E /* EditorInterface_2DPointEditor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EditorInterface_2DPointEditor.cpp; sourceTree = "<group>"; };
+		04316CFE1FD48328009DCA2E /* EditorInterface_2DPointEditor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EditorInterface_2DPointEditor.h; sourceTree = "<group>"; };
+		04316CFF1FD48328009DCA2E /* EditorInterface_SceneManagement.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EditorInterface_SceneManagement.cpp; sourceTree = "<group>"; };
+		04316D001FD48328009DCA2E /* EditorInterface_SceneManagement.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EditorInterface_SceneManagement.h; sourceTree = "<group>"; };
+		04316D011FD48328009DCA2E /* EditorInterface_VoxelMeshEditor.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EditorInterface_VoxelMeshEditor.cpp; sourceTree = "<group>"; };
+		04316D021FD48328009DCA2E /* EditorInterface_VoxelMeshEditor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EditorInterface_VoxelMeshEditor.h; sourceTree = "<group>"; };
+		04316D031FD48328009DCA2E /* TransformGizmo.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TransformGizmo.cpp; sourceTree = "<group>"; };
+		04316D041FD48328009DCA2E /* TransformGizmo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TransformGizmo.h; sourceTree = "<group>"; };
 		044C621E1ADDE85700BABD53 /* libMyEngine-iOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libMyEngine-iOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		044C627E1ADDE98F00BABD53 /* EngineCommonHeader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EngineCommonHeader.cpp; sourceTree = "<group>"; };
 		044C627F1ADDE98F00BABD53 /* EngineCommonHeader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EngineCommonHeader.h; sourceTree = "<group>"; };
@@ -683,11 +733,68 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		04316CE81FD48328009DCA2E /* SourceEditor */ = {
+			isa = PBXGroup;
+			children = (
+				04316CE91FD48328009DCA2E /* Dialogs */,
+				04316CEC1FD48328009DCA2E /* DragAndDropHackeryExtended.h */,
+				04316CED1FD48328009DCA2E /* EditorState.cpp */,
+				04316CEE1FD48328009DCA2E /* EditorState.h */,
+				04316CEF1FD48328009DCA2E /* EngineCommandStack.cpp */,
+				04316CF01FD48328009DCA2E /* EngineCommandStack.h */,
+				04316CF11FD48328009DCA2E /* EngineEditorCommands.cpp */,
+				04316CF21FD48328009DCA2E /* EngineEditorCommands.h */,
+				04316CF31FD48328009DCA2E /* EngineMainFrame.cpp */,
+				04316CF41FD48328009DCA2E /* EngineMainFrame.h */,
+				04316CF51FD48328009DCA2E /* Exporters */,
+				04316CF81FD48328009DCA2E /* GameObjectTemplateManager.cpp */,
+				04316CF91FD48328009DCA2E /* GameObjectTemplateManager.h */,
+				04316CFA1FD48328009DCA2E /* Interfaces */,
+				04316D031FD48328009DCA2E /* TransformGizmo.cpp */,
+				04316D041FD48328009DCA2E /* TransformGizmo.h */,
+			);
+			path = SourceEditor;
+			sourceTree = "<group>";
+		};
+		04316CE91FD48328009DCA2E /* Dialogs */ = {
+			isa = PBXGroup;
+			children = (
+				04316CEA1FD48328009DCA2E /* DialogGridSettings.cpp */,
+				04316CEB1FD48328009DCA2E /* DialogGridSettings.h */,
+			);
+			path = Dialogs;
+			sourceTree = "<group>";
+		};
+		04316CF51FD48328009DCA2E /* Exporters */ = {
+			isa = PBXGroup;
+			children = (
+				04316CF61FD48328009DCA2E /* ExportBox2DScene.cpp */,
+				04316CF71FD48328009DCA2E /* ExportBox2DScene.h */,
+			);
+			path = Exporters;
+			sourceTree = "<group>";
+		};
+		04316CFA1FD48328009DCA2E /* Interfaces */ = {
+			isa = PBXGroup;
+			children = (
+				04316CFB1FD48328009DCA2E /* EditorInterface.cpp */,
+				04316CFC1FD48328009DCA2E /* EditorInterface.h */,
+				04316CFD1FD48328009DCA2E /* EditorInterface_2DPointEditor.cpp */,
+				04316CFE1FD48328009DCA2E /* EditorInterface_2DPointEditor.h */,
+				04316CFF1FD48328009DCA2E /* EditorInterface_SceneManagement.cpp */,
+				04316D001FD48328009DCA2E /* EditorInterface_SceneManagement.h */,
+				04316D011FD48328009DCA2E /* EditorInterface_VoxelMeshEditor.cpp */,
+				04316D021FD48328009DCA2E /* EditorInterface_VoxelMeshEditor.h */,
+			);
+			path = Interfaces;
+			sourceTree = "<group>";
+		};
 		044C62151ADDE85700BABD53 = {
 			isa = PBXGroup;
 			children = (
 				049C9FD61FD1AD6A0038B582 /* Libraries */,
 				044C62381ADDE98F00BABD53 /* SourceCommon */,
+				04316CE81FD48328009DCA2E /* SourceEditor */,
 				044C621F1ADDE85700BABD53 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -1071,6 +1178,8 @@
 				049CF2D61FD21C2D0038B582 /* ComponentCollisionObject.h in Headers */,
 				049CF2E61FD21C2D0038B582 /* ComponentSprite.h in Headers */,
 				049CF2F41FD21C330038B582 /* Component2DJointRevolute.h in Headers */,
+				04316D191FD48328009DCA2E /* EditorInterface_SceneManagement.h in Headers */,
+				04316D171FD48328009DCA2E /* EditorInterface_2DPointEditor.h in Headers */,
 				049CF2941FD21C1D0038B582 /* ComponentUpdateable.h in Headers */,
 				049CF2861FD21C1D0038B582 /* ComponentCamera.h in Headers */,
 				049CF28A1FD21C1D0038B582 /* ComponentGameObjectProperties.h in Headers */,
@@ -1081,6 +1190,7 @@
 				049CF2261FD21BF20038B582 /* lapi.h in Headers */,
 				049CF2541FD21BF20038B582 /* ltm.h in Headers */,
 				049CF26A1FD21C0E0038B582 /* Camera3D.h in Headers */,
+				04316D091FD48328009DCA2E /* EditorState.h in Headers */,
 				049CF3021FD21C3C0038B582 /* EngineComponentTypeManager.h in Headers */,
 				049CF2DC1FD21C2D0038B582 /* ComponentMesh.h in Headers */,
 				049CF2961FD21C1D0038B582 /* ComponentVariable.h in Headers */,
@@ -1091,6 +1201,8 @@
 				049CF1E81FD21BCD0038B582 /* imgui.h in Headers */,
 				049CF30A1FD21C3C0038B582 /* LuaGLFunctions.h in Headers */,
 				049CF23D1FD21BF20038B582 /* llex.h in Headers */,
+				04316D071FD48328009DCA2E /* DragAndDropHackeryExtended.h in Headers */,
+				04316D111FD48328009DCA2E /* ExportBox2DScene.h in Headers */,
 				049CF2981FD21C1D0038B582 /* ComponentVariableValue.h in Headers */,
 				049CF2581FD21BF20038B582 /* lualib.h in Headers */,
 				049CF2441FD21BF20038B582 /* lobject.h in Headers */,
@@ -1103,8 +1215,12 @@
 				049CF25D1FD21BF20038B582 /* lvm.h in Headers */,
 				049CF2A81FD21C270038B582 /* ComponentSystemManager.h in Headers */,
 				049CF2881FD21C1D0038B582 /* ComponentData.h in Headers */,
+				04316D061FD48328009DCA2E /* DialogGridSettings.h in Headers */,
 				049CF32D1FD21C4C0038B582 /* VoxelBlock.h in Headers */,
+				04316D0B1FD48328009DCA2E /* EngineCommandStack.h in Headers */,
+				04316D1B1FD48328009DCA2E /* EditorInterface_VoxelMeshEditor.h in Headers */,
 				049CF32F1FD21C4C0038B582 /* VoxelChunk.h in Headers */,
+				04316D0D1FD48328009DCA2E /* EngineEditorCommands.h in Headers */,
 				049CF3321FD21C4C0038B582 /* VoxelRayCast.h in Headers */,
 				049CF2321FD21BF20038B582 /* ldebug.h in Headers */,
 				049CF2AA1FD21C270038B582 /* ComponentTypeManager.h in Headers */,
@@ -1113,11 +1229,15 @@
 				049CF2AC1FD21C270038B582 /* EngineFileManager.h in Headers */,
 				049CF2341FD21BF20038B582 /* ldo.h in Headers */,
 				049CF30E1FD21C410038B582 /* ImGuiManager.h in Headers */,
+				04316D0F1FD48328009DCA2E /* EngineMainFrame.h in Headers */,
 				049CF2841FD21C1D0038B582 /* ComponentBase.h in Headers */,
 				049CF2411FD21BF20038B582 /* lmem.h in Headers */,
 				049CF2901FD21C1D0038B582 /* ComponentRenderable.h in Headers */,
 				049CF3041FD21C3C0038B582 /* EngineCore.h in Headers */,
 				049CF3081FD21C3C0038B582 /* LuaGameState.h in Headers */,
+				04316D151FD48328009DCA2E /* EditorInterface.h in Headers */,
+				04316D131FD48328009DCA2E /* GameObjectTemplateManager.h in Headers */,
+				04316D1D1FD48328009DCA2E /* TransformGizmo.h in Headers */,
 				049CF2D01FD21C2D0038B582 /* ComponentAnimationPlayer2D.h in Headers */,
 				049CF2E01FD21C2D0038B582 /* ComponentMeshPrimitive.h in Headers */,
 				049CF32B1FD21C4C0038B582 /* ComponentVoxelWorld.h in Headers */,
@@ -1336,6 +1456,7 @@
 				049CF2851FD21C1D0038B582 /* ComponentCamera.cpp in Sources */,
 				049CF3301FD21C4C0038B582 /* VoxelJobs.cpp in Sources */,
 				049CF2471FD21BF20038B582 /* loslib.c in Sources */,
+				04316D181FD48328009DCA2E /* EditorInterface_SceneManagement.cpp in Sources */,
 				049CF28F1FD21C1D0038B582 /* ComponentRenderable.cpp in Sources */,
 				049CF2E51FD21C2D0038B582 /* ComponentSprite.cpp in Sources */,
 				049CF2E11FD21C2D0038B582 /* ComponentParticleEmitter.cpp in Sources */,
@@ -1350,8 +1471,12 @@
 				049CF22A1FD21BF20038B582 /* lbitlib.c in Sources */,
 				049CF25C1FD21BF20038B582 /* lvm.c in Sources */,
 				049CF2621FD21C040038B582 /* SharedCommonHeader.cpp in Sources */,
+				04316D051FD48328009DCA2E /* DialogGridSettings.cpp in Sources */,
 				049CF2CD1FD21C2D0038B582 /* ComponentAnimationPlayer.cpp in Sources */,
+				04316D161FD48328009DCA2E /* EditorInterface_2DPointEditor.cpp in Sources */,
 				049CF23A1FD21BF20038B582 /* linit.c in Sources */,
+				04316D0A1FD48328009DCA2E /* EngineCommandStack.cpp in Sources */,
+				04316D0C1FD48328009DCA2E /* EngineEditorCommands.cpp in Sources */,
 				049CF2EF1FD21C330038B582 /* Component2DCollisionObject.cpp in Sources */,
 				049CF3031FD21C3C0038B582 /* EngineCore.cpp in Sources */,
 				049CF2401FD21BF20038B582 /* lmem.c in Sources */,
@@ -1367,6 +1492,8 @@
 				049CF25E1FD21BF20038B582 /* lzio.c in Sources */,
 				049CF24D1FD21BF20038B582 /* lstring.c in Sources */,
 				049CF2251FD21BF20038B582 /* lapi.c in Sources */,
+				04316D101FD48328009DCA2E /* ExportBox2DScene.cpp in Sources */,
+				04316D1A1FD48328009DCA2E /* EditorInterface_VoxelMeshEditor.cpp in Sources */,
 				049CF24B1FD21BF20038B582 /* lstate.c in Sources */,
 				049CF3331FD21C4C0038B582 /* VoxelWorld.cpp in Sources */,
 				049CF2F11FD21C330038B582 /* Component2DJointPrismatic.cpp in Sources */,
@@ -1385,13 +1512,18 @@
 				049CF2831FD21C1D0038B582 /* ComponentBase.cpp in Sources */,
 				049CF2D71FD21C2D0038B582 /* ComponentLight.cpp in Sources */,
 				049CF3051FD21C3C0038B582 /* InputFinger.cpp in Sources */,
+				04316D081FD48328009DCA2E /* EditorState.cpp in Sources */,
 				049CF2D51FD21C2D0038B582 /* ComponentCollisionObject.cpp in Sources */,
+				04316D0E1FD48328009DCA2E /* EngineMainFrame.cpp in Sources */,
+				04316D1C1FD48328009DCA2E /* TransformGizmo.cpp in Sources */,
 				049CF24F1FD21BF20038B582 /* lstrlib.c in Sources */,
 				049CF2CF1FD21C2D0038B582 /* ComponentAnimationPlayer2D.cpp in Sources */,
+				04316D141FD48328009DCA2E /* EditorInterface.cpp in Sources */,
 				049CF3191FD21C460038B582 /* EngineBox2DContactListener.cpp in Sources */,
 				049CF2911FD21C1D0038B582 /* ComponentTransform.cpp in Sources */,
 				049CF2951FD21C1D0038B582 /* ComponentVariable.cpp in Sources */,
 				049CF28D1FD21C1D0038B582 /* ComponentMenuPage.cpp in Sources */,
+				04316D121FD48328009DCA2E /* GameObjectTemplateManager.cpp in Sources */,
 				049CF23F1FD21BF20038B582 /* lmathlib.c in Sources */,
 				049CF2381FD21BF20038B582 /* lgc.c in Sources */,
 				049CF22E1FD21BF20038B582 /* lctype.c in Sources */,
@@ -1620,7 +1752,7 @@
 				);
 				PRODUCT_NAME = "MyEngine-wx";
 				SDKROOT = macosx;
-				USER_HEADER_SEARCH_PATHS = "$(inherited) ../../wxWidgets/include ../../wxWidgets/build-cocoa-debug/lib/wx/include/osx_cocoa-unicode-3.1";
+				USER_HEADER_SEARCH_PATHS = "$(inherited) ../../Framework/Libraries/wxWidgets/include ../../Framework/Libraries/wxWidgets/build-cocoa-debug/lib/wx/include/osx_cocoa-unicode-3.1";
 			};
 			name = Debug;
 		};
@@ -1635,7 +1767,7 @@
 				);
 				PRODUCT_NAME = "MyEngine-wx";
 				SDKROOT = macosx;
-				USER_HEADER_SEARCH_PATHS = "$(inherited) ../../wxWidgets/include ../../wxWidgets/build-cocoa-debug/lib/wx/include/osx_cocoa-unicode-3.1";
+				USER_HEADER_SEARCH_PATHS = "$(inherited) ../../Framework/Libraries/wxWidgets/include ../../Framework/Libraries/wxWidgets/build-cocoa-debug/lib/wx/include/osx_cocoa-unicode-3.1";
 			};
 			name = Release;
 		};

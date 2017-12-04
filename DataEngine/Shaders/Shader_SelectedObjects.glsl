@@ -40,7 +40,7 @@ void main()
     //                       once for fill (u_TextureTintColor = 0,0,0,0)
 
     // make 10x10 pixel checkboard, slowly moving
-	vec2 offset = floor( (gl_FragCoord.xy + u_Time*5) / vec2(10, 10) );
+	vec2 offset = floor( (gl_FragCoord.xy + u_Time*5.0) / vec2(10, 10) );
     float color = mod( offset.x + offset.y, 2.0 );
 
     // output solid white for outlines, and very transparent checkerboard for fill

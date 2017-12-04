@@ -103,12 +103,12 @@ void* ComponentGameObjectProperties::OnDrop(ComponentVariable* pVar, wxCoord x, 
 
     if( pDropItem->m_Type == DragAndDropType_ComponentPointer )
     {
-        (ComponentBase*)pDropItem->m_Value;
+        //(ComponentBase*)pDropItem->m_Value;
     }
 
     if( pDropItem->m_Type == DragAndDropType_GameObjectPointer )
     {
-        (GameObject*)pDropItem->m_Value;
+        //(GameObject*)pDropItem->m_Value;
     }
 
     return oldvalue;

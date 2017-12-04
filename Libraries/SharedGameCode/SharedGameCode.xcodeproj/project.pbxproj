@@ -458,6 +458,7 @@
 				);
 				PRODUCT_NAME = "SharedGameCode-wx";
 				SDKROOT = macosx;
+				USER_HEADER_SEARCH_PATHS = "$(inherited) ../../../Framework/Libraries/wxWidgets/include ../../../Framework/Libraries/wxWidgets/build-cocoa-debug/lib/wx/include/osx_cocoa-unicode-3.1";
 			};
 			name = Debug;
 		};
@@ -472,6 +473,7 @@
 				);
 				PRODUCT_NAME = "SharedGameCode-wx";
 				SDKROOT = macosx;
+				USER_HEADER_SEARCH_PATHS = "$(inherited) ../../../Framework/Libraries/wxWidgets/include ../../../Framework/Libraries/wxWidgets/build-cocoa-debug/lib/wx/include/osx_cocoa-unicode-3.1";
 			};
 			name = Release;
 		};
