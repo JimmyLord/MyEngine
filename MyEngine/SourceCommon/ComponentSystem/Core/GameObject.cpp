@@ -68,11 +68,16 @@ GameObject::~GameObject()
 
     MyAssert( m_pOnDeleteCallbacks.GetHead() == 0 );
 
-    // if it's in a list, remove it.
+    // If we still have a parent gameobject, then we're likely still registered in it's OnDeleted callback list.
+    // Unregister ourselves.
+    SetParentGameObject( 0 );
+    MyAssert( m_pParentGameObject == 0 );
+
+    // If it's in a list, remove it.
     if( this->Prev != 0 )
         Remove();
 
-    // Delete components
+    // Delete components.
     {
         while( m_Components.Count() )
         {
@@ -93,7 +98,7 @@ GameObject::~GameObject()
 
     SAFE_DELETE_ARRAY( m_Name );
 
-    // delete all children.
+    // Delete all children.
     while( m_ChildList.GetHead() )
         delete m_ChildList.RemHead();
 }
@@ -925,23 +930,23 @@ void GameObject::SetName(const char* name)
 
 void GameObject::SetParentGameObject(GameObject* pParentGameObject)
 {
-    // if the old parent is the same as the new one, kick out.
+    // If the old parent is the same as the new one, kick out.
     if( m_pParentGameObject == pParentGameObject )
         return;
 
-    // if we had an old parent:
+    // If we had an old parent:
     if( m_pParentGameObject != 0 )
     {
-        // stop it's gameobject from reporting it's deletion
+        // Stop the parent's gameobject from reporting it's deletion.
         m_pParentGameObject->UnregisterOnDeleteCallback( this, StaticOnGameObjectDeleted );
     }
 
     m_pParentGameObject = pParentGameObject;
 
-    // if we have a new parent
+    // If we have a new parent
     if( m_pParentGameObject != 0 )
     {
-        // register the gameobject of the parent to notify us of it's deletion.
+        // Register with the parent's gameobject to notify us of it's deletion.
         pParentGameObject->RegisterOnDeleteCallback( this, StaticOnGameObjectDeleted );
 
         pParentGameObject->m_ChildList.MoveTail( this );

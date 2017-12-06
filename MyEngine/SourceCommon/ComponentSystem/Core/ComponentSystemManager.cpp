@@ -112,8 +112,11 @@ ComponentSystemManager::~ComponentSystemManager()
     // Prefab objects are in scene 0, so let the PrefabManager delete them before the sceneinfo does below.
     SAFE_DELETE( m_pPrefabManager );
 
+    // Unload all runtime created objects.
+    UnloadScene( 0, false );
+
     // Reset all scenes, i.e. Delete all GameObjects from each scene
-    for( unsigned int i=0; i<MAX_SCENES_LOADED; i++ )
+    for( unsigned int i=1; i<MAX_SCENES_LOADED; i++ )
     {
         if( m_pSceneInfoMap[i].m_InUse == false )
             continue;
