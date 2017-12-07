@@ -16,6 +16,10 @@
 bool g_OutputLuaDebugLog = false;
 LuaGameState* g_pLuaGameState = 0;
 
+#if MYFW_WINDOWS
+#define close closesocket
+#endif
+
 // Exposed to Lua, change elsewhere if function signature changes.
 void LUA_LogInfo(const char* str)
 {
@@ -191,7 +195,11 @@ void LuaGameState::CheckForDebugNetworkMessages(bool block)
         sockaddr_in saddr;
         int fromLength = sizeof( sockaddr_in );
         
-        int socket = -1;//accept( m_ListenSocket, (sockaddr*)&saddr, (socklen_t*)&fromLength );
+#if MYFW_OSX
+        int socket = -1; // TODO: Fix on OSX, call to accept is blocking, even though non-blocking was set below: SetSocketBlockingState( m_ListenSocket, false );
+#else
+        int socket = accept( m_ListenSocket, (sockaddr*)&saddr, (socklen_t*)&fromLength );
+#endif
         if( socket != -1 )
         {
             if( g_OutputLuaDebugLog )
