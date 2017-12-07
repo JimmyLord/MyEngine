@@ -622,7 +622,7 @@ EditorCommand_ChangeMaterialOnMesh::EditorCommand_ChangeMaterialOnMesh(Component
 {
     m_Name = "EditorCommand_ChangeMaterialOnMesh";
 
-    MyAssert( m_pComponent );
+    MyAssert( pComponent );
 
     m_pComponent = pComponent;
     m_SubmeshIndex = submeshindex;
