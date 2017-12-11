@@ -405,8 +405,9 @@ void EngineMainFrame::InitFrame()
     {
         m_Menu_Mode = MyNew wxMenu;
         m_MenuBar->Append( m_Menu_Mode, wxT("&Mode") );
-        m_MenuItem_Mode_SwitchFocusOnPlayStop = m_Menu_Mode->AppendCheckItem( myIDEngine_Mode_SwitchFocusOnPlayStop, wxT("Switch &Focus on Play/Stop") );    
-        m_Menu_Mode->Append( myIDEngine_Mode_PlayStop, wxT("&Play/Stop\tCtrl-SPACE") );
+        m_MenuItem_Mode_SwitchFocusOnPlayStop = m_Menu_Mode->AppendCheckItem( myIDEngine_Mode_SwitchFocusOnPlayStop, wxT("Switch &Focus on Play/Stop") );
+        // Since Command-Space is "Spotlight Search" on OSX, use the actual control key on OSX as well as Windows/Linux.
+        m_Menu_Mode->Append( myIDEngine_Mode_PlayStop, wxT("&Play/Stop\tRAWCTRL-SPACE") );
         m_Menu_Mode->Append( myIDEngine_Mode_Pause, wxT("Pause\tCtrl-.") );
         m_Menu_Mode->Append( myIDEngine_Mode_Advance1Frame, wxT("Advance 1 Frame\tCtrl-]") );
         m_Menu_Mode->Append( myIDEngine_Mode_Advance1Second, wxT("Advance 1 Second\tCtrl-[") );

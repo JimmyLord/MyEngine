@@ -383,7 +383,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				PRODUCT_NAME = SharedGameCode;
-				USER_HEADER_SEARCH_PATHS = ". ../../../Framework/Libraries/b2Settings ../../../Framework/Libraries/Box2D/Box2D ../../../Engine/Libraries/bullet3/src";
+				USER_HEADER_SEARCH_PATHS = ". .. ../../../Framework/Libraries/b2Settings ../../../Framework/Libraries/Box2D/Box2D ../../../Engine/Libraries/bullet3/src";
 			};
 			name = Debug;
 		};
@@ -395,7 +395,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				PRODUCT_NAME = SharedGameCode;
-				USER_HEADER_SEARCH_PATHS = ". ../../../Framework/Libraries/b2Settings ../../../Framework/Libraries/Box2D/Box2D ../../../Engine/Libraries/bullet3/src";
+				USER_HEADER_SEARCH_PATHS = ". .. ../../../Framework/Libraries/b2Settings ../../../Framework/Libraries/Box2D/Box2D ../../../Engine/Libraries/bullet3/src";
 			};
 			name = Release;
 		};
