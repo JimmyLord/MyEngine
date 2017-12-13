@@ -117,8 +117,6 @@
 		049CB46D1FD1AD850038B582 /* ltable.c in Sources */ = {isa = PBXBuildFile; fileRef = 049CAFC11FD1AD7B0038B582 /* ltable.c */; };
 		049CB46E1FD1AD850038B582 /* ltablib.c in Sources */ = {isa = PBXBuildFile; fileRef = 049CAFC31FD1AD7B0038B582 /* ltablib.c */; };
 		049CB46F1FD1AD850038B582 /* ltm.c in Sources */ = {isa = PBXBuildFile; fileRef = 049CAFC41FD1AD7B0038B582 /* ltm.c */; };
-		049CB4701FD1AD850038B582 /* lua.c in Sources */ = {isa = PBXBuildFile; fileRef = 049CAFC61FD1AD7B0038B582 /* lua.c */; };
-		049CB4711FD1AD850038B582 /* luac.c in Sources */ = {isa = PBXBuildFile; fileRef = 049CAFC91FD1AD7B0038B582 /* luac.c */; };
 		049CB4721FD1AD850038B582 /* lundump.c in Sources */ = {isa = PBXBuildFile; fileRef = 049CAFCC1FD1AD7B0038B582 /* lundump.c */; };
 		049CB4731FD1AD850038B582 /* lutf8lib.c in Sources */ = {isa = PBXBuildFile; fileRef = 049CAFCE1FD1AD7B0038B582 /* lutf8lib.c */; };
 		049CB4741FD1AD850038B582 /* lvm.c in Sources */ = {isa = PBXBuildFile; fileRef = 049CAFCF1FD1AD7B0038B582 /* lvm.c */; };
@@ -177,7 +175,6 @@
 		049CF2171FD21BF20038B582 /* ltm.c in Sources */ = {isa = PBXBuildFile; fileRef = 049CAFC41FD1AD7B0038B582 /* ltm.c */; };
 		049CF2181FD21BF20038B582 /* ltm.h in Headers */ = {isa = PBXBuildFile; fileRef = 049CAFC51FD1AD7B0038B582 /* ltm.h */; };
 		049CF2191FD21BF20038B582 /* lua.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 049CAFC81FD1AD7B0038B582 /* lua.hpp */; };
-		049CF21A1FD21BF20038B582 /* luac.c in Sources */ = {isa = PBXBuildFile; fileRef = 049CAFC91FD1AD7B0038B582 /* luac.c */; };
 		049CF21B1FD21BF20038B582 /* luaconf.h in Headers */ = {isa = PBXBuildFile; fileRef = 049CAFCA1FD1AD7B0038B582 /* luaconf.h */; };
 		049CF21C1FD21BF20038B582 /* lualib.h in Headers */ = {isa = PBXBuildFile; fileRef = 049CAFCB1FD1AD7B0038B582 /* lualib.h */; };
 		049CF21D1FD21BF20038B582 /* lundump.c in Sources */ = {isa = PBXBuildFile; fileRef = 049CAFCC1FD1AD7B0038B582 /* lundump.c */; };
@@ -236,7 +233,6 @@
 		049CF2531FD21BF20038B582 /* ltm.c in Sources */ = {isa = PBXBuildFile; fileRef = 049CAFC41FD1AD7B0038B582 /* ltm.c */; };
 		049CF2541FD21BF20038B582 /* ltm.h in Headers */ = {isa = PBXBuildFile; fileRef = 049CAFC51FD1AD7B0038B582 /* ltm.h */; };
 		049CF2551FD21BF20038B582 /* lua.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 049CAFC81FD1AD7B0038B582 /* lua.hpp */; };
-		049CF2561FD21BF20038B582 /* luac.c in Sources */ = {isa = PBXBuildFile; fileRef = 049CAFC91FD1AD7B0038B582 /* luac.c */; };
 		049CF2571FD21BF20038B582 /* luaconf.h in Headers */ = {isa = PBXBuildFile; fileRef = 049CAFCA1FD1AD7B0038B582 /* luaconf.h */; };
 		049CF2581FD21BF20038B582 /* lualib.h in Headers */ = {isa = PBXBuildFile; fileRef = 049CAFCB1FD1AD7B0038B582 /* lualib.h */; };
 		049CF2591FD21BF20038B582 /* lundump.c in Sources */ = {isa = PBXBuildFile; fileRef = 049CAFCC1FD1AD7B0038B582 /* lundump.c */; };
@@ -1531,7 +1527,6 @@
 				049CF2AD1FD21C270038B582 /* GameObject.cpp in Sources */,
 				049CF2AB1FD21C270038B582 /* EngineFileManager.cpp in Sources */,
 				049CF2D91FD21C2D0038B582 /* ComponentLuaScript.cpp in Sources */,
-				049CF2561FD21BF20038B582 /* luac.c in Sources */,
 				049CF3011FD21C3C0038B582 /* EngineComponentTypeManager.cpp in Sources */,
 				049CF2271FD21BF20038B582 /* lauxlib.c in Sources */,
 				049CF2691FD21C0E0038B582 /* Camera3D.cpp in Sources */,
@@ -1607,12 +1602,10 @@
 				0450273B1FD1A74300E7691E /* ComponentData.cpp in Sources */,
 				049CB4641FD1AD850038B582 /* lmem.c in Sources */,
 				045027541FD1A74300E7691E /* ComponentMeshPrimitive.cpp in Sources */,
-				049CB4701FD1AD850038B582 /* lua.c in Sources */,
 				045027551FD1A74300E7691E /* ComponentParticleEmitter.cpp in Sources */,
 				049CB4671FD1AD850038B582 /* lopcodes.c in Sources */,
 				049CB4531FD1AD850038B582 /* lapi.c in Sources */,
 				049CB46D1FD1AD850038B582 /* ltable.c in Sources */,
-				049CB4711FD1AD850038B582 /* luac.c in Sources */,
 				0450273C1FD1A74300E7691E /* ComponentGameObjectProperties.cpp in Sources */,
 				045027461FD1A74300E7691E /* ComponentTypeManager.cpp in Sources */,
 				049CB4551FD1AD850038B582 /* lbaselib.c in Sources */,
@@ -1726,7 +1719,6 @@
 				049CF2A11FD21C260038B582 /* GameObject.cpp in Sources */,
 				049CF29F1FD21C260038B582 /* EngineFileManager.cpp in Sources */,
 				049CF2BF1FD21C2D0038B582 /* ComponentLuaScript.cpp in Sources */,
-				049CF21A1FD21BF20038B582 /* luac.c in Sources */,
 				049CF2F71FD21C3B0038B582 /* EngineComponentTypeManager.cpp in Sources */,
 				049CF1EB1FD21BF20038B582 /* lauxlib.c in Sources */,
 				049CF2651FD21C0D0038B582 /* Camera3D.cpp in Sources */,
