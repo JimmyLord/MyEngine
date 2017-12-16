@@ -184,9 +184,8 @@ static int math_log (lua_State *L) {
   else {
     lua_Number base = luaL_checknumber(L, 2);
 #if !defined(LUA_USE_C89)
-// Next two lines commented out by me, was causing issues on Android, log2 not defined
-//    if (base == l_mathop(2.0))
-//      res = l_mathop(log2)(x); else
+    if (base == l_mathop(2.0))
+      res = l_mathop(log2)(x); else
 #endif
     if (base == l_mathop(10.0))
       res = l_mathop(log10)(x);

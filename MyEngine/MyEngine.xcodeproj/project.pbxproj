@@ -101,7 +101,6 @@
 		049CB45D1FD1AD850038B582 /* ldump.c in Sources */ = {isa = PBXBuildFile; fileRef = 049CAFA61FD1AD7A0038B582 /* ldump.c */; };
 		049CB45E1FD1AD850038B582 /* lfunc.c in Sources */ = {isa = PBXBuildFile; fileRef = 049CAFA71FD1AD7A0038B582 /* lfunc.c */; };
 		049CB45F1FD1AD850038B582 /* lgc.c in Sources */ = {isa = PBXBuildFile; fileRef = 049CAFA91FD1AD7A0038B582 /* lgc.c */; };
-		049CB4601FD1AD850038B582 /* linit.c in Sources */ = {isa = PBXBuildFile; fileRef = 049CAFAB1FD1AD7A0038B582 /* linit.c */; };
 		049CB4611FD1AD850038B582 /* liolib.c in Sources */ = {isa = PBXBuildFile; fileRef = 049CAFAC1FD1AD7A0038B582 /* liolib.c */; };
 		049CB4621FD1AD850038B582 /* llex.c in Sources */ = {isa = PBXBuildFile; fileRef = 049CAFAD1FD1AD7A0038B582 /* llex.c */; };
 		049CB4631FD1AD850038B582 /* lmathlib.c in Sources */ = {isa = PBXBuildFile; fileRef = 049CAFB01FD1AD7A0038B582 /* lmathlib.c */; };
@@ -109,7 +108,6 @@
 		049CB4651FD1AD850038B582 /* loadlib.c in Sources */ = {isa = PBXBuildFile; fileRef = 049CAFB31FD1AD7A0038B582 /* loadlib.c */; };
 		049CB4661FD1AD850038B582 /* lobject.c in Sources */ = {isa = PBXBuildFile; fileRef = 049CAFB41FD1AD7A0038B582 /* lobject.c */; };
 		049CB4671FD1AD850038B582 /* lopcodes.c in Sources */ = {isa = PBXBuildFile; fileRef = 049CAFB61FD1AD7B0038B582 /* lopcodes.c */; };
-		049CB4681FD1AD850038B582 /* loslib.c in Sources */ = {isa = PBXBuildFile; fileRef = 049CAFB81FD1AD7B0038B582 /* loslib.c */; };
 		049CB4691FD1AD850038B582 /* lparser.c in Sources */ = {isa = PBXBuildFile; fileRef = 049CAFB91FD1AD7B0038B582 /* lparser.c */; };
 		049CB46A1FD1AD850038B582 /* lstate.c in Sources */ = {isa = PBXBuildFile; fileRef = 049CAFBC1FD1AD7B0038B582 /* lstate.c */; };
 		049CB46B1FD1AD850038B582 /* lstring.c in Sources */ = {isa = PBXBuildFile; fileRef = 049CAFBE1FD1AD7B0038B582 /* lstring.c */; };
@@ -454,6 +452,8 @@
 		049CF3321FD21C4C0038B582 /* VoxelRayCast.h in Headers */ = {isa = PBXBuildFile; fileRef = 0450272E1FD1A74300E7691E /* VoxelRayCast.h */; };
 		049CF3331FD21C4C0038B582 /* VoxelWorld.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0450272F1FD1A74300E7691E /* VoxelWorld.cpp */; };
 		049CF3341FD21C4C0038B582 /* VoxelWorld.h in Headers */ = {isa = PBXBuildFile; fileRef = 045027301FD1A74300E7691E /* VoxelWorld.h */; };
+		04A4F95F1FE55045002AA24B /* linit.c in Sources */ = {isa = PBXBuildFile; fileRef = 049CAFAB1FD1AD7A0038B582 /* linit.c */; };
+		04A4F9601FE55093002AA24B /* loslib.c in Sources */ = {isa = PBXBuildFile; fileRef = 049CAFB81FD1AD7B0038B582 /* loslib.c */; };
 		04CDECA61FD253CF006D7D06 /* imgui_draw.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 049CAF891FD1AD7A0038B582 /* imgui_draw.cpp */; };
 		04CDECA71FD253D0006D7D06 /* imgui_draw.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 049CAF891FD1AD7A0038B582 /* imgui_draw.cpp */; };
 		04CDECA81FD253D0006D7D06 /* imgui_draw.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 049CAF891FD1AD7A0038B582 /* imgui_draw.cpp */; };
@@ -1398,7 +1398,7 @@
 		044C62161ADDE85700BABD53 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0910;
+				LastUpgradeCheck = 0920;
 				ORGANIZATIONNAME = Me;
 				TargetAttributes = {
 					044C621D1ADDE85700BABD53 = {
@@ -1563,11 +1563,9 @@
 				045027381FD1A74300E7691E /* ImGuiManager.cpp in Sources */,
 				045027501FD1A74300E7691E /* ComponentLight.cpp in Sources */,
 				0450273D1FD1A74300E7691E /* ComponentInputHandler.cpp in Sources */,
-				049CB4681FD1AD850038B582 /* loslib.c in Sources */,
 				045027481FD1A74300E7691E /* GameObject.cpp in Sources */,
 				045027451FD1A74300E7691E /* ComponentSystemManager.cpp in Sources */,
 				0450275F1FD1A74300E7691E /* LuaGameState.cpp in Sources */,
-				049CB4601FD1AD850038B582 /* linit.c in Sources */,
 				0450274F1FD1A74300E7691E /* ComponentCollisionObject.cpp in Sources */,
 				049CB45E1FD1AD850038B582 /* lfunc.c in Sources */,
 				049CB4751FD1AD850038B582 /* lzio.c in Sources */,
@@ -1582,8 +1580,10 @@
 				0450276A1FD1A74300E7691E /* BulletWorld.cpp in Sources */,
 				049CB4581FD1AD850038B582 /* lcorolib.c in Sources */,
 				049CB4561FD1AD850038B582 /* lbitlib.c in Sources */,
+				04A4F9601FE55093002AA24B /* loslib.c in Sources */,
 				0450275A1FD1A74300E7691E /* Component2DJointRevolute.cpp in Sources */,
 				045027581FD1A74300E7691E /* Component2DCollisionObject.cpp in Sources */,
+				04A4F95F1FE55045002AA24B /* linit.c in Sources */,
 				049CB46A1FD1AD850038B582 /* lstate.c in Sources */,
 				049CB46E1FD1AD850038B582 /* ltablib.c in Sources */,
 				045027491FD1A74300E7691E /* PrefabManager.cpp in Sources */,
@@ -1766,6 +1766,7 @@
 		044C62301ADDE85700BABD53 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ENABLE_TESTABILITY = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -1774,6 +1775,7 @@
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
+				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_NAME = MyEngine;
 				USER_HEADER_SEARCH_PATHS = "./SourceCommon . ${SRCROOT}/../Libraries/bullet3/src ../../Framework/Libraries/b2Settings ../../Framework/Libraries/Box2D/Box2D";
 			};
@@ -1800,6 +1802,7 @@
 					"$(inherited)",
 				);
 				PRODUCT_NAME = "MyEngine-iOS";
+				SDKROOT = iphoneos;
 			};
 			name = Debug;
 		};
@@ -1812,6 +1815,7 @@
 					"$(inherited)",
 				);
 				PRODUCT_NAME = "MyEngine-iOS";
+				SDKROOT = iphoneos;
 			};
 			name = Release;
 		};

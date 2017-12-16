@@ -670,8 +670,7 @@
 ** macro must include header 'locale.h'.)
 */
 #if !defined(lua_getlocaledecpoint)
-// changed by me, was causing issues on Android and might have caused issues in general with lua scripts running in different locales?
-#define lua_getlocaledecpoint()		'.' //(localeconv()->decimal_point[0])
+#define lua_getlocaledecpoint()		(localeconv()->decimal_point[0])
 #endif
 
 /* }================================================================== */

@@ -51,6 +51,17 @@
 		045026111FD0E66B00E7691E /* Menu_Helpers.h in Headers */ = {isa = PBXBuildFile; fileRef = 045025521FD0E5A500E7691E /* Menu_Helpers.h */; };
 		045026121FD0E66B00E7691E /* MenuText.h in Headers */ = {isa = PBXBuildFile; fileRef = 045025661FD0E5A500E7691E /* MenuText.h */; };
 		045026131FD0E66B00E7691E /* MenuScrollingText.h in Headers */ = {isa = PBXBuildFile; fileRef = 045025601FD0E5A500E7691E /* MenuScrollingText.h */; };
+		04A4F9541FE54FA5002AA24B /* LanguageTable.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0450254F1FD0E5A500E7691E /* LanguageTable.cpp */; };
+		04A4F9551FE54FA5002AA24B /* Menu_Helpers.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 045025511FD0E5A500E7691E /* Menu_Helpers.cpp */; };
+		04A4F9561FE54FA5002AA24B /* MenuButton.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 045025531FD0E5A500E7691E /* MenuButton.cpp */; };
+		04A4F9571FE54FA5002AA24B /* MenuCheckBox.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 045025551FD0E5A500E7691E /* MenuCheckBox.cpp */; };
+		04A4F9581FE54FA5002AA24B /* MenuInputBox.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 045025591FD0E5A500E7691E /* MenuInputBox.cpp */; };
+		04A4F9591FE54FA5002AA24B /* MenuItem.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0450255B1FD0E5A500E7691E /* MenuItem.cpp */; };
+		04A4F95A1FE54FA5002AA24B /* MenuScrollingText.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0450255F1FD0E5A500E7691E /* MenuScrollingText.cpp */; };
+		04A4F95B1FE54FA5002AA24B /* MenuSprite.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 045025631FD0E5A500E7691E /* MenuSprite.cpp */; };
+		04A4F95C1FE54FA5002AA24B /* MenuText.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 045025651FD0E5A500E7691E /* MenuText.cpp */; };
+		04A4F95D1FE54FAB002AA24B /* MeshShapes.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 045025791FD0E5A500E7691E /* MeshShapes.cpp */; };
+		04A4F95E1FE54FAB002AA24B /* RenderTextQuick.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 0450257B1FD0E5A500E7691E /* RenderTextQuick.cpp */; };
 		04CDECAB1FD253F9006D7D06 /* MenuScrollBox.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04CDECAA1FD253F9006D7D06 /* MenuScrollBox.cpp */; };
 		04CDECAC1FD253FE006D7D06 /* MenuScrollBox.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04CDECAA1FD253F9006D7D06 /* MenuScrollBox.cpp */; };
 		04CDECAD1FD253FE006D7D06 /* MenuScrollBox.h in Headers */ = {isa = PBXBuildFile; fileRef = 04CDECA91FD253F8006D7D06 /* MenuScrollBox.h */; };
@@ -285,7 +296,7 @@
 		0450253A1FD0E4D600E7691E /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0910;
+				LastUpgradeCheck = 0920;
 				ORGANIZATIONNAME = Me;
 				TargetAttributes = {
 					045025411FD0E4D600E7691E = {
@@ -344,7 +355,18 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				04A4F9561FE54FA5002AA24B /* MenuButton.cpp in Sources */,
+				04A4F95D1FE54FAB002AA24B /* MeshShapes.cpp in Sources */,
+				04A4F95E1FE54FAB002AA24B /* RenderTextQuick.cpp in Sources */,
+				04A4F9541FE54FA5002AA24B /* LanguageTable.cpp in Sources */,
+				04A4F9591FE54FA5002AA24B /* MenuItem.cpp in Sources */,
 				04CDECAB1FD253F9006D7D06 /* MenuScrollBox.cpp in Sources */,
+				04A4F9581FE54FA5002AA24B /* MenuInputBox.cpp in Sources */,
+				04A4F95C1FE54FA5002AA24B /* MenuText.cpp in Sources */,
+				04A4F95B1FE54FA5002AA24B /* MenuSprite.cpp in Sources */,
+				04A4F95A1FE54FA5002AA24B /* MenuScrollingText.cpp in Sources */,
+				04A4F9551FE54FA5002AA24B /* Menu_Helpers.cpp in Sources */,
+				04A4F9571FE54FA5002AA24B /* MenuCheckBox.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -373,6 +395,7 @@
 		045025491FD0E4D600E7691E /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ENABLE_TESTABILITY = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -382,6 +405,7 @@
 				);
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
+				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_NAME = SharedGameCode;
 				USER_HEADER_SEARCH_PATHS = ". .. ../../../Framework/Libraries/b2Settings ../../../Framework/Libraries/Box2D/Box2D ../../../Engine/Libraries/bullet3/src";
 			};
@@ -432,6 +456,7 @@
 					"$(inherited)",
 				);
 				PRODUCT_NAME = "SharedGameCode-iOS";
+				SDKROOT = iphoneos;
 			};
 			name = Debug;
 		};
@@ -444,6 +469,7 @@
 					"$(inherited)",
 				);
 				PRODUCT_NAME = "SharedGameCode-iOS";
+				SDKROOT = iphoneos;
 			};
 			name = Release;
 		};

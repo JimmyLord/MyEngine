@@ -793,7 +793,7 @@
 		08FB7793FE84155DC02AAC07 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0910;
+				LastUpgradeCheck = 0920;
 			};
 			buildConfigurationList = 1DEB928908733DD80010E9CD /* Build configuration list for PBXProject "BulletCollision" */;
 			compatibilityVersion = "Xcode 3.2";
@@ -806,8 +806,8 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				093125950A0820A9720965AD /* BulletCollision-OSX */,
 				04316C4D1FD30DF9009DCA2E /* BulletCollision-iOS */,
+				093125950A0820A9720965AD /* BulletCollision-OSX */,
 			);
 		};
 /* End PBXProject section */
@@ -1042,7 +1042,7 @@
 			buildSettings = {
 				GCC_MODEL_TUNING = G5;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = macosx;
+				SDKROOT = iphoneos;
 			};
 			name = Release;
 		};
@@ -1051,7 +1051,7 @@
 			buildSettings = {
 				GCC_MODEL_TUNING = G5;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SDKROOT = macosx;
+				SDKROOT = iphoneos;
 			};
 			name = Debug;
 		};
@@ -1059,12 +1059,14 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				COPY_PHASE_STRIP = NO;
+				ENABLE_TESTABILITY = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PREPROCESSOR_DEFINITIONS = "_DEBUG=1";
 				HEADER_SEARCH_PATHS = bullet3/src;
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
+				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CFLAGS = "-ffast-math";
 				STANDARD_C_PLUS_PLUS_LIBRARY_TYPE = static;
 			};

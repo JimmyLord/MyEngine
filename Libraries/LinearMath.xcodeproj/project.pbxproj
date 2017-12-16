@@ -17,6 +17,16 @@
 		04316C3C1FD307AC009DCA2E /* btSerializer64.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04316C2A1FD307AC009DCA2E /* btSerializer64.cpp */; };
 		04316C3D1FD307AC009DCA2E /* btThreads.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04316C2D1FD307AC009DCA2E /* btThreads.cpp */; };
 		04316C3E1FD307AC009DCA2E /* btVector3.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04316C311FD307AC009DCA2E /* btVector3.cpp */; };
+		04FC20691FE4C1CD00120D0C /* btSerializer64.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04316C2A1FD307AC009DCA2E /* btSerializer64.cpp */; };
+		04FC206A1FE4C1CD00120D0C /* btGeometryUtil.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04316C151FD307AC009DCA2E /* btGeometryUtil.cpp */; };
+		04FC206B1FE4C1CD00120D0C /* btConvexHull.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04316C0F1FD307AC009DCA2E /* btConvexHull.cpp */; };
+		04FC206C1FE4C1CD00120D0C /* btThreads.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04316C2D1FD307AC009DCA2E /* btThreads.cpp */; };
+		04FC206D1FE4C1CD00120D0C /* btAlignedAllocator.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04316C0C1FD307AC009DCA2E /* btAlignedAllocator.cpp */; };
+		04FC206E1FE4C1CD00120D0C /* btPolarDecomposition.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04316C1F1FD307AC009DCA2E /* btPolarDecomposition.cpp */; };
+		04FC206F1FE4C1CD00120D0C /* btConvexHullComputer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04316C111FD307AC009DCA2E /* btConvexHullComputer.cpp */; };
+		04FC20701FE4C1CD00120D0C /* btQuickprof.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04316C241FD307AC009DCA2E /* btQuickprof.cpp */; };
+		04FC20711FE4C1CD00120D0C /* btSerializer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04316C281FD307AC009DCA2E /* btSerializer.cpp */; };
+		04FC20721FE4C1CD00120D0C /* btVector3.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 04316C311FD307AC009DCA2E /* btVector3.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -62,10 +72,18 @@
 		04316C321FD307AC009DCA2E /* btVector3.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = btVector3.h; sourceTree = "<group>"; };
 		04316C331FD307AC009DCA2E /* CMakeLists.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = CMakeLists.txt; sourceTree = "<group>"; };
 		04316C341FD307AC009DCA2E /* premake4.lua */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = premake4.lua; sourceTree = "<group>"; };
+		04FC20771FE4C1CD00120D0C /* libLinearMath-iOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libLinearMath-iOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		4F7877D97BCE189A484C0A0D /* libLinearMath-OSX.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libLinearMath-OSX.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		04FC20731FE4C1CD00120D0C /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		0A4D5E5A0009080C54F129E5 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -139,6 +157,7 @@
 			isa = PBXGroup;
 			children = (
 				4F7877D97BCE189A484C0A0D /* libLinearMath-OSX.a */,
+				04FC20771FE4C1CD00120D0C /* libLinearMath-iOS.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -146,6 +165,23 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		04FC20661FE4C1CD00120D0C /* LinearMath-iOS */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 04FC20741FE4C1CD00120D0C /* Build configuration list for PBXNativeTarget "LinearMath-iOS" */;
+			buildPhases = (
+				04FC20671FE4C1CD00120D0C /* Resources */,
+				04FC20681FE4C1CD00120D0C /* Sources */,
+				04FC20731FE4C1CD00120D0C /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "LinearMath-iOS";
+			productName = LinearMath;
+			productReference = 04FC20771FE4C1CD00120D0C /* libLinearMath-iOS.a */;
+			productType = "com.apple.product-type.library.static";
+		};
 		6F7D36364504461B326C653B /* LinearMath-OSX */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 46A4652771D21823587F1B79 /* Build configuration list for PBXNativeTarget "LinearMath-OSX" */;
@@ -169,7 +205,7 @@
 		08FB7793FE84155DC02AAC07 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0910;
+				LastUpgradeCheck = 0920;
 			};
 			buildConfigurationList = 1DEB928908733DD80010E9CD /* Build configuration list for PBXProject "LinearMath" */;
 			compatibilityVersion = "Xcode 3.2";
@@ -182,12 +218,20 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
+				04FC20661FE4C1CD00120D0C /* LinearMath-iOS */,
 				6F7D36364504461B326C653B /* LinearMath-OSX */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		04FC20671FE4C1CD00120D0C /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		5C232EEE1D475FC25F683A1C /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -198,6 +242,23 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		04FC20681FE4C1CD00120D0C /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				04FC20691FE4C1CD00120D0C /* btSerializer64.cpp in Sources */,
+				04FC206A1FE4C1CD00120D0C /* btGeometryUtil.cpp in Sources */,
+				04FC206B1FE4C1CD00120D0C /* btConvexHull.cpp in Sources */,
+				04FC206C1FE4C1CD00120D0C /* btThreads.cpp in Sources */,
+				04FC206D1FE4C1CD00120D0C /* btAlignedAllocator.cpp in Sources */,
+				04FC206E1FE4C1CD00120D0C /* btPolarDecomposition.cpp in Sources */,
+				04FC206F1FE4C1CD00120D0C /* btConvexHullComputer.cpp in Sources */,
+				04FC20701FE4C1CD00120D0C /* btQuickprof.cpp in Sources */,
+				04FC20711FE4C1CD00120D0C /* btSerializer.cpp in Sources */,
+				04FC20721FE4C1CD00120D0C /* btVector3.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		11D405F04F9E48413689091D /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -227,6 +288,24 @@
 			};
 			name = Debug;
 		};
+		04FC20751FE4C1CD00120D0C /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				GCC_MODEL_TUNING = G5;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+			};
+			name = Release;
+		};
+		04FC20761FE4C1CD00120D0C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				GCC_MODEL_TUNING = G5;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+			};
+			name = Debug;
+		};
 		42361CEF2AE13C1F513E7CAF /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -252,12 +331,14 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				COPY_PHASE_STRIP = NO;
+				ENABLE_TESTABILITY = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PREPROCESSOR_DEFINITIONS = "_DEBUG=1";
 				HEADER_SEARCH_PATHS = bullet3/src;
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
+				ONLY_ACTIVE_ARCH = YES;
 				OTHER_CFLAGS = "-ffast-math";
 				STANDARD_C_PLUS_PLUS_LIBRARY_TYPE = static;
 			};
@@ -266,6 +347,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		04FC20741FE4C1CD00120D0C /* Build configuration list for PBXNativeTarget "LinearMath-iOS" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				04FC20751FE4C1CD00120D0C /* Release */,
+				04FC20761FE4C1CD00120D0C /* Debug */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		1DEB928908733DD80010E9CD /* Build configuration list for PBXProject "LinearMath" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
