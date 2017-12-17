@@ -195,7 +195,7 @@ void LuaGameState::CheckForDebugNetworkMessages(bool block)
         sockaddr_in saddr;
         int fromLength = sizeof( sockaddr_in );
         
-#if MYFW_OSX
+#if MYFW_OSX || MYFW_IOS
         int socket = -1; // TODO: Fix on OSX, call to accept is blocking, even though non-blocking was set below: SetSocketBlockingState( m_ListenSocket, false );
 #else
         int socket = accept( m_ListenSocket, (sockaddr*)&saddr, (socklen_t*)&fromLength );
