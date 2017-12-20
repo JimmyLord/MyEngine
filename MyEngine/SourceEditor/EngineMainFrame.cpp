@@ -32,11 +32,16 @@ const char* g_DefaultEngineEditorWindowTypeMenuLabels[EngineEditorWindow_NumType
 
 const char* g_LaunchPlatformsMenuLabels[LaunchPlatform_NumPlatforms] =
 {
+#if MYFW_WINDOWS
     "&Win32",
     "Win&64",
     "&NaCl",
     "&Android",
     "&Emscripten",
+#elif MYFW_OSX
+    "&OSX",
+    "iOS&Simulator",
+#endif
     // AddNewLaunchPlatform
 };
 
@@ -1099,11 +1104,16 @@ void EngineMainFrame::OnMenu_Engine(wxCommandEvent& event)
         g_pEngineCore->OnModeAdvanceTime( 1.0f );
         break;
 
+#if MYFW_WINDOWS
     case myIDEngine_Mode_LaunchPlatforms + LaunchPlatform_Win32:
     case myIDEngine_Mode_LaunchPlatforms + LaunchPlatform_Win64:
     case myIDEngine_Mode_LaunchPlatforms + LaunchPlatform_NaCl:
     case myIDEngine_Mode_LaunchPlatforms + LaunchPlatform_Android:
     case myIDEngine_Mode_LaunchPlatforms + LaunchPlatform_Emscripten:
+#elif MYFW_OSX
+    case myIDEngine_Mode_LaunchPlatforms + LaunchPlatform_OSX:
+    case myIDEngine_Mode_LaunchPlatforms + LaunchPlatform_iOSSimulator:
+#endif
         // AddNewLaunchPlatform
         {
             int platformindex = id - myIDEngine_Mode_LaunchPlatforms;
@@ -1704,6 +1714,7 @@ void EngineMainFrame::LaunchGame()
 
     switch( platform )
     {
+#if MYFW_WINDOWS
     case LaunchPlatform_Win32:
         {
             LaunchApplication( "MyEngine_Game.exe", g_pComponentSystemManager->GetSceneInfo( 1 )->m_FullPath );
@@ -1741,6 +1752,19 @@ void EngineMainFrame::LaunchGame()
             LaunchApplication( "cmd.exe", "/C cd Emscripten & BuildAndLaunch.bat" );
         }
         break;
+#elif MYFW_OSX
+    case LaunchPlatform_OSX:
+        {
+            LaunchApplication( "MyEngine_Game.app", g_pComponentSystemManager->GetSceneInfo( 1 )->m_FullPath );
+        }
+        break;
+
+    case LaunchPlatform_iOSSimulator:
+        {
+            LaunchApplication( "cd iOS && ./BuildAndLaunch-Simulator.sh", 0 );
+        }
+        break;
+#endif
 
     // AddNewLaunchPlatform
     }

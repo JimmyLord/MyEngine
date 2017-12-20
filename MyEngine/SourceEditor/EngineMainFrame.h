@@ -34,11 +34,16 @@ enum EngineEditorWindowTypes
 
 enum LaunchPlatforms
 {
+#if MYFW_WINDOWS
     LaunchPlatform_Win32,
     LaunchPlatform_Win64,
     LaunchPlatform_NaCl,
     LaunchPlatform_Android,
     LaunchPlatform_Emscripten,
+#elif MYFW_OSX
+    LaunchPlatform_OSX,
+    LaunchPlatform_iOSSimulator,
+#endif
     // AddNewLaunchPlatform
     LaunchPlatform_NumPlatforms,
 };
