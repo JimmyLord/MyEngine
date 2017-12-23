@@ -270,6 +270,7 @@ public:
     GameObjectTemplateManager* m_pGameObjectTemplateManager;
     void Editor_GetListOfGameObjectsThatUsePrefab(std::vector<GameObject*>* pGameObjectList, PrefabObject* pPrefabToFind);
     void LogAllReferencesForFile(MyFileObject* pFile);
+    int LogAllReferencesForFileInGameObject(MyFileObject* pFile, GameObject* pGameObject);
     GameObject* ParseLog_GameObject(const char* line);
     MaterialDefinition* ParseLog_Material(const char* line);
 #endif

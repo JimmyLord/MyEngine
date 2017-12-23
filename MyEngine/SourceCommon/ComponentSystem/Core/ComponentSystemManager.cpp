@@ -2633,29 +2633,7 @@ void ComponentSystemManager::LogAllReferencesForFile(MyFileObject* pFile)
         {
             GameObject* pGameObject = (GameObject*)pNode;
 
-            for( unsigned int componentindex=0; componentindex<pGameObject->GetComponentCountIncludingCore(); componentindex++ )
-            {
-                ComponentBase* pComponent = pGameObject->GetComponentByIndexIncludingCore( componentindex );
-
-                if( pComponent )
-                {
-                    if( pComponent->IsReferencingFile( pFile ) )
-                    {
-                        if( sceneindex == 0 )
-                        {
-                            if( pGameObject->IsPrefabInstance() )
-                            {
-                                LOGInfo( LOGTag, "    (Prefab) %s :: %s :: %s (0x%x)\n", pGameObject->GetPrefabRef()->GetPrefab()->GetPrefabFile()->GetFile()->GetFullPath(), pGameObject->GetName(), pComponent->GetClassname(), pComponent );
-                            }
-                        }
-                        else
-                        {
-                            LOGInfo( LOGTag, "    (GameObject) %s :: %s :: %s (0x%x)\n", m_pSceneInfoMap[sceneindex].m_FullPath, pGameObject->GetName(), pComponent->GetClassname(), pComponent );
-                        }
-                        numrefs++;
-                    }
-                }
-            }
+            numrefs += LogAllReferencesForFileInGameObject( pFile, pGameObject );
         }
     }
 
@@ -2677,6 +2655,49 @@ void ComponentSystemManager::LogAllReferencesForFile(MyFileObject* pFile)
     }
 
     LOGInfo( LOGTag, "Done: %d references found\n", numrefs );
+}
+
+// Returns number of references
+int ComponentSystemManager::LogAllReferencesForFileInGameObject(MyFileObject* pFile, GameObject* pGameObject)
+{
+    int numrefs = 0;
+
+    for( unsigned int componentindex=0; componentindex<pGameObject->GetComponentCountIncludingCore(); componentindex++ )
+    {
+        ComponentBase* pComponent = pGameObject->GetComponentByIndexIncludingCore( componentindex );
+
+        if( pComponent )
+        {
+            if( pComponent->IsReferencingFile( pFile ) )
+            {
+                int sceneindex = pComponent->GetSceneID();
+
+                if( sceneindex == 0 )
+                {
+                    if( pGameObject->IsPrefabInstance() )
+                    {
+                        LOGInfo( LOGTag, "    (Prefab) %s :: %s :: %s (0x%x)\n", pGameObject->GetPrefabRef()->GetPrefab()->GetPrefabFile()->GetFile()->GetFullPath(), pGameObject->GetName(), pComponent->GetClassname(), pComponent );
+                    }
+                }
+                else
+                {
+                    LOGInfo( LOGTag, "    (GameObject) %s :: %s :: %s (0x%x)\n", m_pSceneInfoMap[sceneindex].m_FullPath, pGameObject->GetName(), pComponent->GetClassname(), pComponent );
+                }
+                numrefs++;
+            }
+        }
+    }
+
+    // Recurse through children.
+    GameObject* pChild = pGameObject->GetFirstChild();
+    while( pChild )
+    {
+        numrefs += LogAllReferencesForFileInGameObject( pFile, pChild );
+
+        pChild = (GameObject*)pChild->GetNext();
+    }
+
+    return numrefs;
 }
 
 GameObject* ComponentSystemManager::ParseLog_GameObject(const char* line)
