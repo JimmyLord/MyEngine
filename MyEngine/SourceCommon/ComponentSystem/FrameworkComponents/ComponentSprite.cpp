@@ -47,9 +47,9 @@ void ComponentSprite::RegisterVariables(CPPListHead* pList, ComponentSprite* pTh
 
     AddVar( pList, "Tint",     ComponentVariableType_ColorByte, MyOffsetOf( pThis, &pThis->m_Tint ),  true,  true, 0, (CVarFunc_ValueChanged)&ComponentSprite::OnValueChanged, (CVarFunc_DropTarget)&ComponentSprite::OnDrop, 0 );
     AddVar( pList, "Size",     ComponentVariableType_Vector2,   MyOffsetOf( pThis, &pThis->m_Size ),  true,  true, 0, (CVarFunc_ValueChanged)&ComponentSprite::OnValueChanged, (CVarFunc_DropTarget)&ComponentSprite::OnDrop, 0 );
-    AddVarPointer( pList, "Material",                                                                 true,  true, 0,
-        (CVarFunc_GetPointerValue)&ComponentSprite::GetPointerValue, (CVarFunc_SetPointerValue)&ComponentSprite::SetPointerValue, (CVarFunc_GetPointerDesc)&ComponentSprite::GetPointerDesc, (CVarFunc_SetPointerDesc)&ComponentSprite::SetPointerDesc,
-        (CVarFunc_ValueChanged)&ComponentSprite::OnValueChanged, (CVarFunc_DropTarget)&ComponentSprite::OnDrop, 0 );
+    AddVarPointer( pList, "Material", true,  true, 0,
+       (CVarFunc_GetPointerValue)&ComponentSprite::GetPointerValue, (CVarFunc_SetPointerValue)&ComponentSprite::SetPointerValue, (CVarFunc_GetPointerDesc)&ComponentSprite::GetPointerDesc, (CVarFunc_SetPointerDesc)&ComponentSprite::SetPointerDesc,
+       (CVarFunc_ValueChanged)&ComponentSprite::OnValueChanged, (CVarFunc_DropTarget)&ComponentSprite::OnDrop, 0 );
 }
 
 ComponentSprite* CastAs_ComponentSprite(ComponentBase* pComponent)
@@ -86,7 +86,7 @@ void ComponentSprite::LuaRegister(lua_State* luastate)
 }
 #endif //MYFW_USING_LUA
 
-void* ComponentSprite::GetPointerValue(ComponentVariable* pVar) //_VARIABLE_LIST
+void* ComponentSprite::GetPointerValue(ComponentVariable* pVar) //_VARIABLE_LIST // StaticGetPointerValue
 {
     if( strcmp( pVar->m_Label, "Material" ) == 0 )
     {
@@ -103,7 +103,7 @@ void* ComponentSprite::GetPointerValue(ComponentVariable* pVar) //_VARIABLE_LIST
     return 0;
 }
 
-void ComponentSprite::SetPointerValue(ComponentVariable* pVar, void* newvalue)
+void ComponentSprite::SetPointerValue(ComponentVariable* pVar, void* newvalue) // StaticSetPointerValue
 {
     if( strcmp( pVar->m_Label, "Material" ) == 0 )
     {
@@ -115,7 +115,7 @@ void ComponentSprite::SetPointerValue(ComponentVariable* pVar, void* newvalue)
     }
 }
 
-const char* ComponentSprite::GetPointerDesc(ComponentVariable* pVar) //_VARIABLE_LIST
+const char* ComponentSprite::GetPointerDesc(ComponentVariable* pVar) //_VARIABLE_LIST // StaticGetPointerDesc
 {
     if( strcmp( pVar->m_Label, "Material" ) == 0 )
     {
@@ -130,7 +130,7 @@ const char* ComponentSprite::GetPointerDesc(ComponentVariable* pVar) //_VARIABLE
     return "fix me";
 }
 
-void ComponentSprite::SetPointerDesc(ComponentVariable* pVar, const char* newdesc) //_VARIABLE_LIST
+void ComponentSprite::SetPointerDesc(ComponentVariable* pVar, const char* newdesc) //_VARIABLE_LIST  // StaticSetPointerDesc
 {
     if( strcmp( pVar->m_Label, "Material" ) == 0 )
     {
@@ -160,7 +160,15 @@ void ComponentSprite::AddToObjectsPanel(wxTreeItemId gameobjectid)
     g_pPanelObjectList->AddObject( this, ComponentSprite::StaticOnLeftClick, ComponentBase::StaticOnRightClick, gameobjectid, "Sprite", ObjectListIcon_Component );
 }
 
-void ComponentSprite::OnLeftClick(unsigned int count, bool clear)
+bool ComponentSprite::IsReferencingFile(MyFileObject* pFile)
+{
+    if( m_pSprite->GetMaterial() && m_pSprite->GetMaterial()->GetFile() == pFile )
+        return true;
+
+    return ComponentBase::IsReferencingFile( pFile );
+}
+
+void ComponentSprite::OnLeftClick(unsigned int count, bool clear) // StaticOnLeftClick
 {
     ComponentRenderable::OnLeftClick( count, clear );
 }

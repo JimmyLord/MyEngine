@@ -2523,7 +2523,8 @@ bool ComponentBase::IsReferencingFile(MyFileObject* pFile)
         }
         else if( pVar->m_Type == ComponentVariableType_PointerIndirect )
         {
-            if( (this->*pVar->m_pGetPointerValueCallBackFunc)( pVar ) == pFile )
+            void* ptr = (this->*pVar->m_pGetPointerValueCallBackFunc)( pVar );
+            if( ptr == pFile )
                 return true;
         }
     }
