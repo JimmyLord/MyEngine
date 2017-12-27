@@ -202,7 +202,7 @@ void GameObject::ShowInWatchPanel(bool isprefab)
     }
 }
 
-void GameObject::OnRightClick()
+void GameObject::OnRightClick() // StaticOnRightClick
 {
  	wxMenu menu;
     menu.SetClientData( this );
@@ -234,6 +234,12 @@ void GameObject::OnRightClick()
             {
                 categorymenu = MyNew wxMenu;
                 menu.AppendSubMenu( categorymenu, g_pComponentTypeManager->GetTypeCategory( i ) );
+
+#if MYFW_OSX
+                // Not needed on Windows build, but seems OSX doesn't call OnPopupClick callback for submenus without this.
+                categorymenu->SetClientData( this );
+                categorymenu->Connect( wxEVT_COMMAND_MENU_SELECTED, (wxObjectEventFunction)&GameObject::OnPopupClick );
+#endif
             }
 
             if( i == ComponentType_Mesh )
@@ -282,6 +288,12 @@ void GameObject::AddPrefabSubmenusToMenu(wxMenu* menu, int itemidoffset)
     // Create prefab menu and submenus for each file.
     wxMenu* prefabmenu = MyNew wxMenu;
     menu->AppendSubMenu( prefabmenu, "Create Prefab in" );
+
+#if MYFW_OSX
+    // Not needed on Windows build, but seems OSX doesn't call OnPopupClick callback for submenus without this.
+    menu->SetClientData( this );
+    menu->Connect( wxEVT_COMMAND_MENU_SELECTED, (wxObjectEventFunction)&GameObject::OnPopupClick );
+#endif
 
     unsigned int numprefabfiles = g_pComponentSystemManager->m_pPrefabManager->GetNumberOfFiles();
     for( unsigned int i=0; i<numprefabfiles; i++ )
