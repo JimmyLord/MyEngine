@@ -518,16 +518,21 @@ void CreateUniqueName(char* newname, int SizeInBytes, const char* oldname)
     if( indexofnumber != -1 )
         number = atoi( &oldname[indexofnumber] );
 
-    // If the string didn't end with a number, set the offset to the end of the string.
-    if( indexofnumber == -1 )
-        indexofnumber = oldnamelen;
-
     // Keep incrementing number until unique name is found.
     do
     {
         number += 1;
-        snprintf_s( newname, SizeInBytes, indexofnumber, "%s", oldname );
-        snprintf_s( newname+indexofnumber, SizeInBytes-indexofnumber, SizeInBytes-1-indexofnumber, "%d", number );
+        if( indexofnumber == -1 )
+        {
+            // If the string didn't end with a number, print the whole name followed by a number.
+            sprintf_s( newname, SizeInBytes, "%s%d", oldname, number );
+        }
+        else
+        {
+            // If the string did end with a number, copy the name then print a number.
+            sprintf_s( newname, SizeInBytes, "%s", oldname );
+            snprintf_s( newname+indexofnumber, SizeInBytes-indexofnumber, SizeInBytes-1-indexofnumber, "%d", number );
+        }
     } while( g_pComponentSystemManager->FindGameObjectByName( newname ) != 0 );
 }
 
