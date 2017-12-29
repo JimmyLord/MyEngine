@@ -1677,33 +1677,38 @@ void EngineMainFrame::OnTextCtrlLeftDoubleClick(wxMouseEvent& evt)
     wxPoint pos = evt.GetPosition();
 
     wxTextCoord col, row;
-    pTextCtrl->HitTest( pos, &col, &row );
+    wxTextCtrlHitTestResult result = pTextCtrl->HitTest( pos, &col, &row );
 
-    wxString line = pTextCtrl->GetLineText( row );
+    // TODO: wxTextCtrl::HitTest doesn't seem to be implemented on OSX, fix somehow...
 
-    // Parse the line and select the gameobject/material.
+    if( result != wxTE_HT_UNKNOWN )
     {
-        // Check if the line is a GameObject or Prefab.
-        GameObject* pGameObject = g_pComponentSystemManager->ParseLog_GameObject( line.c_str() );
-        if( pGameObject )
+        wxString line = pTextCtrl->GetLineText( row );
+
+        // Parse the line and select the gameobject/material.
         {
-            g_pEngineCore->GetEditorState()->ClearSelectedObjectsAndComponents();
-            g_pEngineCore->GetEditorState()->SelectGameObject( pGameObject );
+            // Check if the line is a GameObject or Prefab.
+            GameObject* pGameObject = g_pComponentSystemManager->ParseLog_GameObject( line.c_str() );
+            if( pGameObject )
+            {
+                g_pEngineCore->GetEditorState()->ClearSelectedObjectsAndComponents();
+                g_pEngineCore->GetEditorState()->SelectGameObject( pGameObject );
 
-            // Select the object in the object tree.
-            if( pGameObject->IsPrefabInstance() )
-                g_pPanelObjectList->SelectObject( pGameObject->GetPrefabRef()->GetGameObject() );
-            else
-                g_pPanelObjectList->SelectObject( pGameObject );
-        }
+                // Select the object in the object tree.
+                if( pGameObject->IsPrefabInstance() )
+                    g_pPanelObjectList->SelectObject( pGameObject->GetPrefabRef()->GetGameObject() );
+                else
+                    g_pPanelObjectList->SelectObject( pGameObject );
+            }
 
-        // Check if the line is a Material.
-        MaterialDefinition* pMaterial = g_pComponentSystemManager->ParseLog_Material( line.c_str() );
-        if( pMaterial )
-        {
-            pMaterial->AddToWatchPanel( true, true, true );
+            // Check if the line is a Material.
+            MaterialDefinition* pMaterial = g_pComponentSystemManager->ParseLog_Material( line.c_str() );
+            if( pMaterial )
+            {
+                pMaterial->AddToWatchPanel( true, true, true );
 
-            // TODO: MAYBE? select the material in the memory panel.
+                // TODO: MAYBE? select the material in the memory panel.
+            }
         }
     }
 }

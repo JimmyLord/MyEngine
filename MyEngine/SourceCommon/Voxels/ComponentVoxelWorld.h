@@ -69,7 +69,7 @@ protected:
     // Callback functions for various events.
     MYFW_DECLARE_COMPONENT_CALLBACK_TICK(); // TickCallback
     //MYFW_DECLARE_COMPONENT_CALLBACK_ONSURFACECHANGED(); // OnSurfaceChangedCallback
-#if _DEBUG
+#if MYFW_USING_WX
     MYFW_DECLARE_COMPONENT_CALLBACK_DRAW(); // DrawCallback
 #endif
     //MYFW_DECLARE_COMPONENT_CALLBACK_ONTOUCH(); // OnTouchCallback

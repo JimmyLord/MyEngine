@@ -52,6 +52,11 @@ struct FileUpdatedCallbackStruct
     { \
         ComponentBase* pObj; \
         ComponentCallbackFunc_##CallbackType pFunc; \
+        ComponentCallbackStruct_##CallbackType() \
+        { \
+            pObj = 0; \
+            pFunc = 0; \
+        } \
     };
 
 // Callback registration function macros.

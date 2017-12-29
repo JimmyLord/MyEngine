@@ -383,7 +383,7 @@ void ComponentVoxelWorld::RegisterCallbacks()
 
         MYFW_REGISTER_COMPONENT_CALLBACK( ComponentVoxelWorld, Tick );
         //MYFW_REGISTER_COMPONENT_CALLBACK( ComponentVoxelWorld, OnSurfaceChanged );
-#if _DEBUG
+#if MYFW_USING_WX
         MYFW_REGISTER_COMPONENT_CALLBACK( ComponentVoxelWorld, Draw );
 #endif
         //MYFW_REGISTER_COMPONENT_CALLBACK( ComponentVoxelWorld, OnTouch );
@@ -399,7 +399,7 @@ void ComponentVoxelWorld::UnregisterCallbacks()
     {
         MYFW_UNREGISTER_COMPONENT_CALLBACK( Tick );
         //MYFW_UNREGISTER_COMPONENT_CALLBACK( OnSurfaceChanged );
-#if _DEBUG
+#if MYFW_USING_WX
         MYFW_UNREGISTER_COMPONENT_CALLBACK( Draw );
 #endif
         //MYFW_UNREGISTER_COMPONENT_CALLBACK( OnTouch );
@@ -453,7 +453,7 @@ void ComponentVoxelWorld::TickCallback(double TimePassed)
     ((SceneGraph_Octree*)pSceneGraph)->Resize( pos.x-32, pos.y-32, pos.z-32, pos.x+32, pos.y+32, pos.z+32 );
 }
 
-#if _DEBUG
+#if MYFW_USING_WX
 static Vector3 g_RayStart;
 static Vector3 g_RayEnd;
 
@@ -508,7 +508,7 @@ void ComponentVoxelWorld::AddTileToTileInFocus(Vector2 mousepos)
     Vector3 start, end;
     m_pVoxelWorld->GetMouseRayBadly( mousepos, &start, &end );
 
-#if _DEBUG
+#if MYFW_USING_WX
     g_RayStart = start;
     g_RayEnd = end;
 #endif
