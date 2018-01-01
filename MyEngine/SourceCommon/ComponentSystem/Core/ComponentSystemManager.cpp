@@ -236,6 +236,21 @@ void ComponentSystemManager::CheckForUpdatedDataSourceFiles(bool initialcheck)
 
             pFileInfo->m_DidInitialCheckIfSourceFileWasUpdated = true;
         }
+#else
+        if( (initialcheck == false || pFileInfo->m_DidInitialCheckIfSourceFileWasUpdated == false) && 
+            pFileInfo->m_pFile->GetFileLastWriteTime() != 0 && // converted file has been loaded
+            pFileInfo->m_SourceFileFullPath[0] != 0 )                      // we have a source file
+        {
+            struct stat data;
+            stat( pFileInfo->m_SourceFileFullPath, &data );
+            if( data.st_mtime == pFileInfo->m_pFile->GetFileLastWriteTime() )
+            {
+                ImportDataFile( pFileInfo->m_SceneID, pFileInfo->m_SourceFileFullPath );
+                bool updated = true;
+            }
+
+            pFileInfo->m_DidInitialCheckIfSourceFileWasUpdated = true;
+        }
 #endif
     }
     
@@ -724,7 +739,6 @@ MyFileObject* ComponentSystemManager::LoadDataFile(const char* relativepath, uns
         size_t rellen = strlen( relativepath );
 
 #if MYFW_USING_WX && MYFW_WINDOWS
-        // TODO: Fix this to work on MYFW_OSX/MYFW_LINUX and any other editor builds in future.
         if( convertifrequired && fullsourcefilepath )
         {
             WIN32_FIND_DATAA datafiledata;
@@ -743,6 +757,26 @@ MyFileObject* ComponentSystemManager::LoadDataFile(const char* relativepath, uns
             if( sourcefiledata.ftLastWriteTime.dwHighDateTime >= datafiledata.ftLastWriteTime.dwHighDateTime ||
                 ( sourcefiledata.ftLastWriteTime.dwHighDateTime == datafiledata.ftLastWriteTime.dwHighDateTime &&
                   sourcefiledata.ftLastWriteTime.dwLowDateTime >= datafiledata.ftLastWriteTime.dwLowDateTime ) )
+            {
+                MyFileObject* pFile = ImportDataFile( sceneid, fullsourcefilepath );
+
+                if( pFile )
+                    return pFile;
+            }
+        }
+#else
+        if( convertifrequired && fullsourcefilepath )
+        {
+            struct stat datafiledata;
+            memset( &datafiledata, 0, sizeof( datafiledata ) );
+            stat( relativepath, &datafiledata );
+
+            struct stat sourcefiledata;
+            memset( &sourcefiledata, 0, sizeof( sourcefiledata ) );
+            stat( fullsourcefilepath, &sourcefiledata );
+
+            // If the source file is newer than the data file (or data file doesn't exist), reimport it.
+            if( sourcefiledata.st_mtime >= datafiledata.st_mtime )
             {
                 MyFileObject* pFile = ImportDataFile( sceneid, fullsourcefilepath );
 
@@ -937,7 +971,7 @@ MyFileObject* ComponentSystemManager::ImportDataFile(unsigned int sceneid, const
         LOGInfo( LOGTag, "Converting %s to mymesh %s\n", fullsourcefilepath, params );
 
 #if MYFW_WINDOWS
-        SHELLEXECUTEINFOA info = {0};
+        SHELLEXECUTEINFOA info = { 0 };
         info.cbSize = sizeof( SHELLEXECUTEINFOA );
         info.fMask = SEE_MASK_NOASYNC; //SEE_MASK_NOCLOSEPROCESS;
         info.hwnd = 0;
@@ -948,27 +982,44 @@ MyFileObject* ComponentSystemManager::ImportDataFile(unsigned int sceneid, const
         info.nShow = SW_SHOWNOACTIVATE;
         info.hInstApp = 0;
 
-        if( ShellExecuteExA( &info ) == 0 )
-        //if( ShellExecuteA( 0, "open", "Tools/MeshTool.exe", params, workingdir, SW_SHOWNOACTIVATE ) != 0 )
+        DWORD errorcode = 1;
+        bool success = ShellExecuteExA( &info );
+        if( info.hProcess )
         {
-            LOGError( LOGTag, "Something went wrong with conversion\n" );
+            WaitForSingleObject( info.hProcess, INFINITE );
+            GetExitCodeProcess( info.hProcess, &errorcode ); // Get actual return value from MeshTool.
+            //TerminateProcess( info.hProcess );
+            CloseHandle( info.hProcess );
+        }
+#elif MYFW_OSX
+        char commandwithparams[PATH_MAX*3];
+        sprintf( commandwithparams, "Tools/MeshTool %s", params );
+        int errorcode = system( commandwithparams );
+#else
+        int errorcode = 1;
+        LOGError( LOGTag, "Mesh conversion only works on Windows and OSX ATM\n" );
+#endif
+
+        if( errorcode != 0 )
+        {
+            LOGError( LOGTag, "Something went wrong with conversion: error(%d) %s\n", errorcode, fullsourcefilepath );
         }
         else
         {
-            LOGInfo( LOGTag, "Conversion complete\n" );
+            LOGInfo( LOGTag, "Conversion complete: %s\n", fullsourcefilepath );
 
-            // file isn't found by loading code if this sleep isn't here. TODO: find better solution.
-            Sleep( 500 );
+#if MYFW_WINDOWS
+            // The output file isn't found by loading code on Windows if this sleep isn't here.
+            // TODO: find better solution.
+            Sleep( 500 ); // Might not be needed since calling "WaitForSingleObject" above.
+#endif
 
-            // create a new relative path.
+            // Create a new relative path.
             char newrelativepath[MAX_PATH];
             sprintf_s( newrelativepath, MAX_PATH, "Data/Meshes/%s.mymesh", filename );
 
             return LoadDataFile( newrelativepath, sceneid, fullsourcefilepath, false );
         }
-#else
-        LOGError( LOGTag, "Mesh conversion only works on Windows ATM\n" );
-#endif
     }
 
     return 0;
