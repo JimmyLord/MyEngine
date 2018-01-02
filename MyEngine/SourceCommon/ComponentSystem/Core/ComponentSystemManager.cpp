@@ -738,7 +738,8 @@ MyFileObject* ComponentSystemManager::LoadDataFile(const char* relativepath, uns
             fulllen = strlen( fullsourcefilepath );
         size_t rellen = strlen( relativepath );
 
-#if MYFW_USING_WX && MYFW_WINDOWS
+#if MYFW_USING_WX
+#if MYFW_WINDOWS
         if( convertifrequired && fullsourcefilepath )
         {
             WIN32_FIND_DATAA datafiledata;
@@ -784,7 +785,8 @@ MyFileObject* ComponentSystemManager::LoadDataFile(const char* relativepath, uns
                     return pFile;
             }
         }
-#endif
+#endif // Windows vs OSX/Linux
+#endif // MYFW_USING_WX
         
         // store pFile so we can free it afterwards.
         MyFileInfo* pFileInfo = AddToFileList( pFile, 0, 0, 0, 0, 0, 0, sceneid );
