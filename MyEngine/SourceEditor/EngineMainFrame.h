@@ -43,6 +43,8 @@ enum LaunchPlatforms
 #elif MYFW_OSX
     LaunchPlatform_OSX,
     LaunchPlatform_iOSSimulator,
+    LaunchPlatform_iOSDevice,
+    LaunchPlatform_iOSDevice_iOS6,
 #endif
     // AddNewLaunchPlatform
     LaunchPlatform_NumPlatforms,

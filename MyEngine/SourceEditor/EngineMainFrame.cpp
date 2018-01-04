@@ -40,7 +40,9 @@ const char* g_LaunchPlatformsMenuLabels[LaunchPlatform_NumPlatforms] =
     "&Emscripten",
 #elif MYFW_OSX
     "&OSX",
-    "iOS&Simulator",
+    "iOS &Simulator",
+    "&iOS Device",
+    "iOS&6 Device (Needs Xcode 7.3.1)"
 #endif
     // AddNewLaunchPlatform
 };
@@ -1113,6 +1115,8 @@ void EngineMainFrame::OnMenu_Engine(wxCommandEvent& event)
 #elif MYFW_OSX
     case myIDEngine_Mode_LaunchPlatforms + LaunchPlatform_OSX:
     case myIDEngine_Mode_LaunchPlatforms + LaunchPlatform_iOSSimulator:
+    case myIDEngine_Mode_LaunchPlatforms + LaunchPlatform_iOSDevice:
+    case myIDEngine_Mode_LaunchPlatforms + LaunchPlatform_iOSDevice_iOS6:
 #endif
         // AddNewLaunchPlatform
         {
@@ -1767,6 +1771,18 @@ void EngineMainFrame::LaunchGame()
     case LaunchPlatform_iOSSimulator:
         {
             LaunchApplication( "cd iOS && ./BuildAndLaunch-Simulator.sh", 0 );
+        }
+        break;
+
+    case LaunchPlatform_iOSDevice:
+        {
+            LaunchApplication( "cd iOS && ./BuildAndLaunch-Device.sh", 0 );
+        }
+        break;
+
+    case LaunchPlatform_iOSDevice_iOS6:
+        {
+            LaunchApplication( "cd iOS && ./BuildAndLaunch-DeviceiOS6.sh", 0 );
         }
         break;
 #endif
