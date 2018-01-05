@@ -1,1 +1,2 @@
+npm install
 vsce package

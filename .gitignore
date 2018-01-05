@@ -25,6 +25,8 @@ xcuserdata
 /GameEntityComponentTest/Game/SourceBlackBerry/Simulator-*
 /GameEntityComponentTest/Game/SourceBlackBerry/PlayBook-*
 /GameEntityComponentTest/Game/SourceBada/.Target*
+VSCode-MyEngineLua/node_modules
+VSCode-MyEngineLua/out
 /MyLocalInclude.h
 /Bullet/obj
 /Bullet/*.user

@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2014-2017 Jimmy Lord http://www.flatheadgames.com
+// Copyright (c) 2014-2018 Jimmy Lord http://www.flatheadgames.com
 //
 // This software is provided 'as-is', without any express or implied warranty.  In no event will the authors be held liable for any damages arising from the use of this software.
 // Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -109,7 +109,7 @@ void SetSocketBlockingState(int socket, bool block)
         ioctlsocket( socket, FIONBIO, &value );
 #else
         const int flags = fcntl( socket, F_GETFL, 0 );
-        fcntl( socket, F_SETFL, flags & O_NONBLOCK );
+        fcntl( socket, F_SETFL, flags | O_NONBLOCK );
 #endif
     }
 }
@@ -195,11 +195,7 @@ void LuaGameState::CheckForDebugNetworkMessages(bool block)
         sockaddr_in saddr;
         int fromLength = sizeof( sockaddr_in );
         
-#if MYFW_OSX || MYFW_IOS
-        int socket = -1; // TODO: Fix on OSX, call to accept is blocking, even though non-blocking was set below: SetSocketBlockingState( m_ListenSocket, false );
-#else
         int socket = accept( m_ListenSocket, (sockaddr*)&saddr, (socklen_t*)&fromLength );
-#endif
         if( socket != -1 )
         {
             if( g_OutputLuaDebugLog )
