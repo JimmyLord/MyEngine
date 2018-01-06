@@ -422,7 +422,7 @@ bool EditorInterface_SceneManagement::HandleInput(int keyaction, int keycode, in
             }
         }
 
-        if( mouseaction == GCBA_Held && id == 1 << 0 )
+        if( mouseaction == GCBA_Held && id == 0 ) //id == 1 << 0 )
         {
             // gameplay is running and we picked up a physics object in the editor view, so move it around.
             if( pEditorState->m_MousePicker_PickConstraint && g_pBulletWorld->m_pDynamicsWorld )

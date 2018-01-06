@@ -223,7 +223,7 @@ bool EditorInterface_2DPointEditor::HandleInput(int keyaction, int keycode, int 
             }
         }
 
-        if( mouseaction == GCBA_Held && id & 1 << 0 ) // left mouse button moved
+        if( mouseaction == GCBA_Held && id == 0 ) //id & 1 << 0 ) // left mouse button moved
         {
             bool createnewvertex = false;
             if( m_NewMousePress && pEditorState->m_ModifierKeyStates & MODIFIERKEY_Shift )
