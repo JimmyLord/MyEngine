@@ -730,11 +730,34 @@ void LuaGameState::Rebuild()
 
 void LuaGameState::RegisterClasses()
 {
+    // Register all relevant Engine enums/defines.
+    const char* definesScript = "\
+BUTTONACTION_Down             = 0;\
+BUTTONACTION_Up               = 1;\
+BUTTONACTION_Held             = 2;\
+BUTTONACTION_Wheel            = 3;\
+BUTTONACTION_RelativeMovement = 4;\
+\
+BUTTONID_Back                 = 0;\
+BUTTONID_Left                 = 1;\
+BUTTONID_Right                = 2;\
+BUTTONID_Up                   = 3;\
+BUTTONID_Down                 = 4;\
+BUTTONID_ButtonA              = 5;\
+BUTTONID_ButtonB              = 6;\
+BUTTONID_ButtonC              = 7;\
+BUTTONID_ButtonD              = 8;\
+BUTTONID_NumButtons           = 9;\
+";
+    int load_stat = luaL_loadbuffer( m_pLuaState, definesScript, strlen(definesScript), "LuaGameState::RegisterClasses -> Defines" );
+    lua_pcall( m_pLuaState, 0, LUA_MULTRET, 0 );
+
     // Register a loginfo function.
-    luabridge::getGlobalNamespace( m_pLuaState ).addFunction( "LogInfo", LUA_LogInfo ); // void LUA_LogInfo(const char* str)
-    luabridge::getGlobalNamespace( m_pLuaState ).addFunction( "GetSystemTime", MyTime_GetSystemTime ); // double MyTime_GetSystemTime(bool realtime)
-    luabridge::getGlobalNamespace( m_pLuaState ).addFunction( "GetRunningTime", MyTime_GetRunningTime ); // double MyTime_GetRunningTime()
-    luabridge::getGlobalNamespace( m_pLuaState ).addFunction( "GetUnpausedTime", MyTime_GetUnpausedTime ); // double MyTime_GetUnpausedTime()
+    luabridge::getGlobalNamespace( m_pLuaState )
+        .addFunction( "LogInfo", LUA_LogInfo ) // void LUA_LogInfo(const char* str)
+        .addFunction( "GetSystemTime", MyTime_GetSystemTime ) // double MyTime_GetSystemTime(bool realtime)
+        .addFunction( "GetRunningTime", MyTime_GetRunningTime ) // double MyTime_GetRunningTime()
+        .addFunction( "GetUnpausedTime", MyTime_GetUnpausedTime ); // double MyTime_GetUnpausedTime()
 
     // Register some GL functions.
     LuaRegisterGLFunctions( m_pLuaState );

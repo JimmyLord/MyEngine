@@ -31,7 +31,7 @@
     
     "math.atan2": {
 		"prefix": "math.atan2",
-        "body": "math.atan2( ${1:y}, ${2:x} )",
+        "body": "math.atan( ${1:y}, ${2:x} )",
         "description": "Returns the arc tangent of y/x (in radians), but uses the signs of both parameters to find the quadrant of the result. (It also handles correctly the case of x being zero.)"
     },
     
@@ -46,13 +46,7 @@
         "body": "math.cos( ${1:x} )",
         "description": "Returns the cosine of x (assumed to be in radians)."
     },
-    
-    "math.cosh": {
-		"prefix": "math.cosh",
-        "body": "math.cosh( ${1:x} )",
-        "description": "Returns the hyperbolic cosine of x."
-    },
-    
+        
     "math.deg": {
 		"prefix": "math.deg",
         "body": "math.deg( ${1:x} )",
@@ -76,12 +70,6 @@
         "body": "math.fmod( ${1:x}, ${2:y} )",
         "description": "Returns the remainder of the division of x by y that rounds the quotient towards zero."
     },
-    
-    "math.frexp": {
-        "prefix": "math.frexp",
-        "body": "math.frexp( ${1:x} )",
-        "description": "Returns m and e such that x = m2^e, e is an integer and the absolute value of m is in the range [0.5, 1) (or zero when x is zero)."
-    },
             
     "math.huge": {
 		"prefix": "math.huge",
@@ -91,8 +79,8 @@
     
     "math.ldexp": {
 		"prefix": "math.ldexp",
-        "body": "math.ldexp( ${1:m}, ${2:e} )",
-        "description": "Returns m2^e (e should be an integer)."
+        "body": "${1:x} * 2.0^${2:e} )",
+        "description": "Returns x2^e (e should be an integer)."
     },
     
     "math.log": {
@@ -133,7 +121,7 @@
     
     "math.pow": {
 		"prefix": "math.pow",
-        "body": "math.pow( ${1:x}, ${2:y} )",
+        "body": "${1:x}^${2:y}",
         "description": "Returns x^y. (You can also use the expression x^y to compute this value.)"
     },
     
@@ -172,13 +160,7 @@
         "body": "math.sin( ${1:x} )",
         "description": "Returns the sine of x (assumed to be in radians)."
     },
-    
-    "math.sinh": {
-		"prefix": "math.sinh",
-        "body": "math.sinh( ${1:x} )",
-        "description": "Returns the hyperbolic sine of x."
-    },
-    
+        
     "math.sqrt": {
 		"prefix": "math.sqrt",
         "body": "math.sqrt( ${1:x} )",
@@ -191,12 +173,6 @@
         "description": "Returns the tangent of x (assumed to be in radians)."
     },
     
-    "math.tanh": {
-		"prefix": "math.tanh",
-        "body": "math.tanh( ${1:x} )",
-        "description": "Returns the hyperbolic tangent of x."
-    },
-
     "os.time": {
 		"prefix": "os.time",
         "body": "os.time()",
@@ -208,7 +184,84 @@
     //  Functions exposed to Lua from MyEngine
     //
     //=========================================================================
+
+    "BUTTONACTION_Down": {
+        "prefix": "BUTTONACTION_Down",
+        "body": "BUTTONACTION_Down",
+        "description": "GameCoreButtonAction: Define used for button and touch actions."
+    },
+    "BUTTONACTION_Up": {
+        "prefix": "BUTTONACTION_Up",
+        "body": "BUTTONACTION_Up",
+        "description": "GameCoreButtonAction: Define used for button and touch actions."
+    },
+    "BUTTONACTION_Held": {
+        "prefix": "BUTTONACTION_Held",
+        "body": "BUTTONACTION_Held",
+        "description": "GameCoreButtonAction: Define used for button and touch actions."
+    },
+    "BUTTONACTION_Wheel": {
+        "prefix": "BUTTONACTION_Wheel",
+        "body": "BUTTONACTION_Wheel",
+        "description": "GameCoreButtonAction: Define used for button and touch actions."
+    },
+    "BUTTONACTION_RelativeMovement": {
+        "prefix": "BUTTONACTION_RelativeMovement",
+        "body": "BUTTONACTION_RelativeMovement",
+        "description": "GameCoreButtonAction: Define used for button and touch actions."
+    },
     
+    "BUTTONID_Back": {
+        "prefix": "BUTTONID_Back",
+        "body": "BUTTONID_Back",
+        "description": "GameCoreButtonID: Define used for buttons."
+    },
+    "BUTTONID_Left": {
+        "prefix": "BUTTONID_Left",
+        "body": "BUTTONID_Left",
+        "description": "GameCoreButtonID: Define used for buttons."
+    },
+    "BUTTONID_Right": {
+        "prefix": "BUTTONID_Right",
+        "body": "BUTTONID_Right",
+        "description": "GameCoreButtonID: Define used for buttons."
+    },
+    "BUTTONID_Up": {
+        "prefix": "BUTTONID_Up",
+        "body": "BUTTONID_Up",
+        "description": "GameCoreButtonID: Define used for buttons."
+    },
+    "BUTTONID_Down": {
+        "prefix": "BUTTONID_Down",
+        "body": "BUTTONID_Down",
+        "description": "GameCoreButtonID: Define used for buttons."
+    },
+    "BUTTONID_ButtonA": {
+        "prefix": "BUTTONID_ButtonA",
+        "body": "BUTTONID_ButtonA",
+        "description": "GameCoreButtonID: Define used for buttons."
+    },
+    "BUTTONID_ButtonB": {
+        "prefix": "BUTTONID_ButtonB",
+        "body": "BUTTONID_ButtonB",
+        "description": "GameCoreButtonID: Define used for buttons."
+    },
+    "BUTTONID_ButtonC": {
+        "prefix": "BUTTONID_ButtonC",
+        "body": "BUTTONID_ButtonC",
+        "description": "GameCoreButtonID: Define used for buttons."
+    },
+    "BUTTONID_ButtonD": {
+        "prefix": "BUTTONID_ButtonD",
+        "body": "BUTTONID_ButtonD",
+        "description": "GameCoreButtonID: Define used for buttons."
+    },
+    "BUTTONID_NumButtons": {
+        "prefix": "BUTTONID_NumButtons",
+        "body": "BUTTONID_NumButtons",
+        "description": "GameCoreButtonID: Number of buttons defined."
+    },
+
     //luabridge::getGlobalNamespace( m_pLuaState ).addFunction( "LogInfo", LUA_LogInfo ); // void LUA_LogInfo(const char* str)
     //luabridge::getGlobalNamespace( m_pLuaState ).addFunction( "GetSystemTime", MyTime_GetSystemTime ); // double MyTime_GetSystemTime(bool realtime)
     //luabridge::getGlobalNamespace( m_pLuaState ).addFunction( "GetRunningTime", MyTime_GetRunningTime ); // double MyTime_GetRunningTime()
