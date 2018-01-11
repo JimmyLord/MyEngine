@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2014-2017 Jimmy Lord http://www.flatheadgames.com
+// Copyright (c) 2014-2018 Jimmy Lord http://www.flatheadgames.com
 //
 // This software is provided 'as-is', without any express or implied warranty.  In no event will the authors be held liable for any damages arising from the use of this software.
 // Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -95,15 +95,19 @@ ComponentSystemManager::ComponentSystemManager(ComponentTypeManager* typemanager
     // Add click callbacks to the root of the objects tree
     g_pPanelObjectList->SetTreeRootData( this, ComponentSystemManager::StaticOnLeftClick, ComponentSystemManager::StaticOnRightClick );
 
-    // Create a scene for "Unmanaged" objects.
+    // Create a scene for "Unmanaged/Runtime" objects.
     wxTreeItemId rootid = g_pPanelObjectList->GetTreeRoot();
     wxTreeItemId treeid = g_pPanelObjectList->AddObject( m_pSceneHandler, SceneHandler::StaticOnLeftClick, SceneHandler::StaticOnRightClick, rootid, "Unmanaged", ObjectListIcon_Scene );
     g_pPanelObjectList->SetDragAndDropFunctions( treeid, SceneHandler::StaticOnDrag, SceneHandler::StaticOnDrop );
     SceneInfo scene;
-    m_pSceneInfoMap[0].m_InUse = true;
-    m_pSceneInfoMap[0].m_TreeID = treeid;
+    m_pSceneInfoMap[EngineCore::UNMANAGED_SCENE_ID].m_InUse = true;
+    m_pSceneInfoMap[EngineCore::UNMANAGED_SCENE_ID].m_TreeID = treeid;
 
+    // Mark the scene for engine object as being used, so it will be unloaded.
     m_pSceneInfoMap[EngineCore::ENGINE_SCENE_ID].m_InUse = true;
+#else
+    // Create a scene for "Unmanaged/Runtime" objects.
+    m_pSceneInfoMap[EngineCore::UNMANAGED_SCENE_ID].m_InUse = true;
 #endif //MYFW_USING_WX
 }
 
@@ -985,7 +989,7 @@ MyFileObject* ComponentSystemManager::ImportDataFile(unsigned int sceneid, const
         info.hInstApp = 0;
 
         DWORD errorcode = 1;
-        bool success = ShellExecuteExA( &info );
+        BOOL success = ShellExecuteExA( &info );
         if( info.hProcess )
         {
             WaitForSingleObject( info.hProcess, INFINITE );
@@ -1472,7 +1476,7 @@ void ComponentSystemManager::UnloadScene(unsigned int sceneidtoclear, bool clear
         // Don't clear scene 0 (unmanaged objects).
         for( int sceneid=1; sceneid<MAX_SCENES_LOADED; sceneid++ )
         {
-            if( sceneid == 0 || sceneid == EngineCore::ENGINE_SCENE_ID )
+            if( sceneid == EngineCore::UNMANAGED_SCENE_ID || sceneid == EngineCore::ENGINE_SCENE_ID )
                 continue;
 
             if( m_pSceneInfoMap[sceneid].m_InUse == false )
@@ -1612,9 +1616,9 @@ GameObject* ComponentSystemManager::CreateGameObjectFromPrefab(PrefabObject* pPr
         }
     }
 
-    if( sceneid == 0 )
+    if( sceneid == EngineCore::UNMANAGED_SCENE_ID )
     {
-        // Sceneid should only be 0 if this is the master prefab gameobject created for the editor.
+        // Sceneid should only be EngineCore::UNMANAGED_SCENE_ID if this is the master prefab gameobject created for the editor.
         MyAssert( manageobject == false );
 
         PrefabReference prefabRef( pPrefab, prefabchildid, false );
@@ -1667,9 +1671,9 @@ GameObject* ComponentSystemManager::CreateGameObjectFromPrefab(PrefabObject* pPr
                 cJSONExt_GetUnsignedInt( jChildGameObject, "ChildID", &prefabchildid );
 
                 // Create the child game object.
-                if( sceneid == 0 )
+                if( sceneid == EngineCore::UNMANAGED_SCENE_ID )
                 {
-                    // Sceneid should only be 0 if this is the temporary prefab gameobject created for the editor.
+                    // Sceneid should only be EngineCore::UNMANAGED_SCENE_ID if this is the temporary prefab gameobject created for the editor.
                     MyAssert( manageobject == false );
 
                     pChildGameObject = CreateGameObjectFromPrefab( pPrefab, jChildGameObject, prefabchildid, false, 0 );

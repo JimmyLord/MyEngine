@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2012-2017 Jimmy Lord http://www.flatheadgames.com
+// Copyright (c) 2012-2018 Jimmy Lord http://www.flatheadgames.com
 //
 // This software is provided 'as-is', without any express or implied warranty.  In no event will the authors be held liable for any damages arising from the use of this software.
 // Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -70,6 +70,7 @@ class EngineCore : public GameCore
 
 public:
     static const int MAX_FRAMES_TO_STORE = 60*30; // 30 seconds @ 60fps
+    static const int UNMANAGED_SCENE_ID = 0; // For unmanaged/runtime objects, might still be hard-coded as 0 in some places.
     static const int ENGINE_SCENE_ID = 9; //9879;
     static const int MAX_SCENE_FILES_QUEUED_UP = 10;
 

@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2017 Jimmy Lord http://www.flatheadgames.com
+// Copyright (c) 2015-2018 Jimmy Lord http://www.flatheadgames.com
 //
 // This software is provided 'as-is', without any express or implied warranty.  In no event will the authors be held liable for any damages arising from the use of this software.
 // Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -235,7 +235,7 @@ void SceneHandler::OnDrop(wxTreeItemId treeid, int controlid, wxCoord x, wxCoord
     unsigned int sceneid = g_pComponentSystemManager->GetSceneIDFromSceneTreeID( treeid );
 
     // Don't allow gameobjects or prefabs to be dropped onto "Unmanaged" scene
-    if( sceneid == 0 )
+    if( sceneid == EngineCore::UNMANAGED_SCENE_ID )
         return;
 
     // Check for both gameobjects and prefabs, if a mix is found, ignore the prefabs.
@@ -280,7 +280,7 @@ void SceneHandler::OnDrop(wxTreeItemId treeid, int controlid, wxCoord x, wxCoord
             PrefabObject* pPrefab = (PrefabObject*)pDropItem->m_Value;
 
             // Don't allow gameobjects to be dropped onto "Unmanaged" scene
-            if( sceneid == 0 )
+            if( sceneid == EngineCore::UNMANAGED_SCENE_ID )
                 return;
 
             // Create the game object
