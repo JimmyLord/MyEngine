@@ -1246,7 +1246,7 @@ void ComponentLuaScript::LoadScript()
     {
         if( m_pScriptFile->GetFileLoadStatus() == FileLoadStatus_Success )
         {
-            LOGInfo( LOGTag, "luaL_loadstring: %s\n", m_pScriptFile->GetFilenameWithoutExtension() );
+            //LOGInfo( LOGTag, "luaL_loadstring: %s\n", m_pScriptFile->GetFilenameWithoutExtension() );
 
             // Mark script as loaded. "OnLoad" can be called if no errors occur otherwise m_ErrorInScript will be set as well.
             m_ScriptLoaded = true;

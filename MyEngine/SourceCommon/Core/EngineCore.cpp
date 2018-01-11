@@ -1606,7 +1606,11 @@ void EngineCore::Editor_DeleteQuickScene(const char* fullpath)
 
 void EngineCore::LoadSceneFromJSON(const char* scenename, const char* jsonstr, unsigned int sceneid, bool playwhenfinishedloading)
 {
-    LOGInfo( LOGTag, "Loading scene file(%d): %s\n", sceneid, scenename );
+    if( sceneid != -1 ) // -1 is the temp save when hitting play/stop.
+    {
+        LOGInfo( LOGTag, "Loading scene file(%d): %s\n", sceneid, scenename );
+    }
+
     // reset the editorstate structure.
 #if MYFW_USING_WX
     m_pEditorState->ClearEditorState( false );
