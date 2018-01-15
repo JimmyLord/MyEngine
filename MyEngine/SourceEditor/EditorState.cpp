@@ -77,6 +77,7 @@ EditorState::EditorState()
         else
         {
             MyFileObject* pFile = g_pEngineFileManager->RequestFile_UntrackedByScene( "Data/DataEngine/Shaders/Shader_TextureTint.glsl" );
+            pFile->MemoryPanel_Hide();
             MyAssert( pFile->IsA( "MyFileShader" ) );
             if( pFile->IsA( "MyFileShader" ) )
             {
