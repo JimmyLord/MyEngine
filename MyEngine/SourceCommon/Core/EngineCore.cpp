@@ -267,9 +267,11 @@ void EngineCore::OneTimeInit()
     m_pShaderFile_TintColor = g_pEngineFileManager->RequestFile_UntrackedByScene( "Data/DataEngine/Shaders/Shader_TintColor.glsl" );
     m_pShaderFile_SelectedObjects = g_pEngineFileManager->RequestFile_UntrackedByScene( "Data/DataEngine/Shaders/Shader_SelectedObjects.glsl" );
     m_pShaderFile_ClipSpaceTexture = g_pEngineFileManager->RequestFile_UntrackedByScene( "Data/DataEngine/Shaders/Shader_ClipSpaceTexture.glsl" );
+#if MYFW_USING_WX
     m_pShaderFile_TintColor->MemoryPanel_Hide();
     m_pShaderFile_SelectedObjects->MemoryPanel_Hide();
     m_pShaderFile_ClipSpaceTexture->MemoryPanel_Hide();
+#endif //MYFW_USING_WX
     m_pShader_TintColor = MyNew ShaderGroup( m_pShaderFile_TintColor );
     m_pShader_SelectedObjects = MyNew ShaderGroup( m_pShaderFile_SelectedObjects );
     m_pShader_ClipSpaceTexture = MyNew ShaderGroup( m_pShaderFile_ClipSpaceTexture );
