@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2014-2017 Jimmy Lord http://www.flatheadgames.com
+// Copyright (c) 2014-2018 Jimmy Lord http://www.flatheadgames.com
 //
 // This software is provided 'as-is', without any express or implied warranty.  In no event will the authors be held liable for any damages arising from the use of this software.
 // Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -9,6 +9,13 @@
 
 #ifndef __LuaGameState_H__
 #define __LuaGameState_H__
+
+// Enable lua debugging in debug and editor builds. TODO: fix lua debugging in NaCl builds
+#if (_DEBUG || MYFW_USING_WX) && !MYFW_NACL
+#define MYFW_ENABLE_LUA_DEBUGGER 1
+#else
+#define MYFW_ENABLE_LUA_DEBUGGER 0
+#endif
 
 class LuaGameState;
 
@@ -31,6 +38,7 @@ public:
 
     lua_State* m_pLuaState;
 
+#if MYFW_ENABLE_LUA_DEBUGGER
     int m_ListenSocket;
     int m_DebugSocket;
 
@@ -39,7 +47,6 @@ public:
     char m_NextSourceFileToBreakOn[MAX_PATH];
 
     // For breakpoints.
-#if _DEBUG
     std::vector<Breakpoint> m_Breakpoints;
 #endif
 
@@ -57,6 +64,7 @@ public:
     void Tick();
 
     // For use to avoid debug breakpoints
+#if MYFW_ENABLE_LUA_DEBUGGER
     void SetIsDebuggerAllowedToStop(bool isallowed);
 
     void CheckForDebugNetworkMessages(bool block);
@@ -71,6 +79,7 @@ public:
     void ClearAllBreakpoints();
     void ClearAllBreakpointsFromFile(char* fullpath);
     void AddBreakpoint(char* fullpath, int line);
+#endif
 };
 
 #endif //__LuaGameState_H__

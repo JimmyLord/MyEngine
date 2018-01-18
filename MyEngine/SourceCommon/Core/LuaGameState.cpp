@@ -63,14 +63,16 @@ LuaGameState::LuaGameState()
     g_pLuaGameState = this;
 
     m_pLuaState = 0;
+#if MYFW_ENABLE_LUA_DEBUGGER
     m_ListenSocket = 0;
     m_DebugSocket = 0;
 
-    // don't build on init, Rebuild is called after a scene is loaded.
-    //Rebuild();
-
     m_NextLineToBreakOn = INT_MAX; // Only stop on breakpoints.
     m_NextSourceFileToBreakOn[0] = 0;
+#endif // MYFW_ENABLE_LUA_DEBUGGER
+
+    // don't build on init, Rebuild is called after a scene is loaded.
+    //Rebuild();
 
     m_RestartOnNextTick = false;
     m_WasPausedBeforeRestart = false;
@@ -84,10 +86,13 @@ LuaGameState::~LuaGameState()
     if( m_pLuaState )
         lua_close( m_pLuaState );
 
+#if MYFW_ENABLE_LUA_DEBUGGER
     close( m_ListenSocket );
     close( m_DebugSocket );
+#endif
 }
 
+#if MYFW_ENABLE_LUA_DEBUGGER
 void SetSocketBlockingState(int socket, bool block)
 {
     if( block )
@@ -116,7 +121,6 @@ void SetSocketBlockingState(int socket, bool block)
 
 void DebugHookFunction(lua_State* luastate, lua_Debug* ar)
 {
-#if _DEBUG
     if( g_pLuaGameState->m_DebugSocket <= 0 )
         return;
 
@@ -150,8 +154,8 @@ void DebugHookFunction(lua_State* luastate, lua_Debug* ar)
             g_pLuaGameState->CheckForDebugNetworkMessages( true );
         }
     }
-#endif
 }
+#endif // MYFW_ENABLE_LUA_DEBUGGER
 
 void LuaGameState::Tick()
 {
@@ -160,15 +164,21 @@ void LuaGameState::Tick()
         m_RestartOnNextTick = false;
         g_pEngineCore->OnModeStop();
         g_pEngineCore->OnModePlay();
+
+#if MYFW_ENABLE_LUA_DEBUGGER
         if( m_WasPausedBeforeRestart )
             m_NextLineToBreakOn = -1; // Stop on the next line we reach in any file.
         else
             m_NextLineToBreakOn = INT_MAX; // Only stop on breakpoints.
+#endif // MYFW_ENABLE_LUA_DEBUGGER
     }
 
+#if MYFW_ENABLE_LUA_DEBUGGER
     CheckForDebugNetworkMessages( false );
+#endif // MYFW_ENABLE_LUA_DEBUGGER
 }
 
+#if MYFW_ENABLE_LUA_DEBUGGER
 void LuaGameState::SetIsDebuggerAllowedToStop(bool isallowed)
 {
     if( m_DebugSocket == 0 )
@@ -195,7 +205,8 @@ void LuaGameState::CheckForDebugNetworkMessages(bool block)
         sockaddr_in saddr;
         int fromLength = sizeof( sockaddr_in );
         
-        int socket = accept( m_ListenSocket, (sockaddr*)&saddr, (socklen_t*)&fromLength );
+        // Typecast to int for 64-bit: return values might be truncated. TODO: fix this.
+        int socket = (int)accept( m_ListenSocket, (sockaddr*)&saddr, (socklen_t*)&fromLength );
         if( socket != -1 )
         {
             if( g_OutputLuaDebugLog )
@@ -390,7 +401,7 @@ void LuaGameState::SendStoppedMessage()
     int numstackframes = AddStackToJSONMessage( jMessageOut );
 
     char* jsonstr = cJSON_PrintUnformatted( jMessageOut );
-    send( m_DebugSocket, jsonstr, strlen(jsonstr), 0 );
+    send( m_DebugSocket, jsonstr, (int)strlen(jsonstr), 0 );
     
     if( g_OutputLuaDebugLog )
         LOGInfo( "LuaDebug", "Sending 'Stopped' (numframes:%d)\n", numstackframes );
@@ -661,14 +672,11 @@ int LuaGameState::AddLocalVarsToStackInJSONMessage(cJSON* jStack, lua_Debug* ar)
 
 void LuaGameState::ClearAllBreakpoints()
 {
-#if _DEBUG
     m_Breakpoints.clear();
-#endif
 }
 
 void LuaGameState::ClearAllBreakpointsFromFile(char* fullpath)
 {
-#if _DEBUG
     const char* relativepath = GetRelativePath( fullpath );
     for( unsigned int i=0; i<m_Breakpoints.size(); i++ )
     {
@@ -679,12 +687,10 @@ void LuaGameState::ClearAllBreakpointsFromFile(char* fullpath)
             i--;
         }
     }
-#endif
 }
 
 void LuaGameState::AddBreakpoint(char* fullpath, int line)
 {
-#if _DEBUG
     const char* relativepath = GetRelativePath( fullpath );
 
     Breakpoint bp;
@@ -692,8 +698,8 @@ void LuaGameState::AddBreakpoint(char* fullpath, int line)
     bp.line = line;
 
     m_Breakpoints.push_back( bp );
-#endif
 }
+#endif //MYFW_ENABLE_LUA_DEBUGGER
 
 void LuaGameState::Rebuild()
 {
@@ -707,6 +713,7 @@ void LuaGameState::Rebuild()
 
     RegisterClasses();
 
+#if MYFW_ENABLE_LUA_DEBUGGER
     if( m_ListenSocket == 0 )
     {        
         // Create a socket for debugging.
@@ -726,6 +733,7 @@ void LuaGameState::Rebuild()
         if( g_OutputLuaDebugLog )
             LOGInfo( "LuaDebug", "Lua debug listen socket created (sock:%d) (port:%d)\n", m_ListenSocket, LUA_DEBUG_PORT );
     }
+#endif // MYFW_ENABLE_LUA_DEBUGGER
 }
 
 void LuaGameState::RegisterClasses()
