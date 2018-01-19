@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016-2017 Jimmy Lord http://www.flatheadgames.com
+// Copyright (c) 2016-2018 Jimmy Lord http://www.flatheadgames.com
 //
 // This software is provided 'as-is', without any express or implied warranty.  In no event will the authors be held liable for any damages arising from the use of this software.
 // Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -21,6 +21,19 @@ protected:
 
     bool m_FrameStarted;
 
+    GLuint m_FontTexture;
+    int m_ShaderHandle;
+    int m_VertHandle;
+    int m_FragHandle;
+    int m_AttribLocationTex;
+    int m_AttribLocationProjMtx;
+    int m_AttribLocationPosition;
+    int m_AttribLocationUV;
+    int m_AttribLocationColor;
+    unsigned int m_VboHandle;
+    unsigned int m_VaoHandle;
+    unsigned int m_ElementsHandle;
+
 public:
     ImGuiManager();
     virtual ~ImGuiManager();
@@ -28,7 +41,6 @@ public:
     void Init();
     void Shutdown();
 
-    //void OnFocusGained();
     void OnFocusLost();
 
     bool HandleInput(int keyaction, int keycode, int mouseaction, int id, float x, float y, float pressure);
@@ -38,9 +50,11 @@ public:
     void StartFrame();
     void EndFrame(float width, float height, bool draw);
 
-    bool IsFrameStarted() { return m_FrameStarted; }
+    void RenderDrawLists(ImDrawData* draw_data);
 
-    static void RenderDrawLists(ImDrawData* draw_data);
+    bool CreateFontsTexture();
+    bool CreateDeviceObjects();
+    void InvalidateDeviceObjects();
 };
 
 #endif //__ImGuiManager_H__
