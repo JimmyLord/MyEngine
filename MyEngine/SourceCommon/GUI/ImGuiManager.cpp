@@ -128,11 +128,6 @@ bool ImGuiManager::HandleInput(int keyaction, int keycode, int mouseaction, int 
         if( mouseaction == GCBA_Up )
             io.MouseDown[id] = false;
 
-        if( mouseaction == GCBA_Held || mouseaction == GCBA_Wheel || mouseaction == GCBA_RelativeMovement )
-        {
-            io.MouseDown[id] = true;
-        }
-
         io.MouseWheel = pressure;
     }
     else

@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016-2017 Jimmy Lord http://www.flatheadgames.com
+// Copyright (c) 2016-2018 Jimmy Lord http://www.flatheadgames.com
 //
 // This software is provided 'as-is', without any express or implied warranty.  In no event will the authors be held liable for any damages arising from the use of this software.
 // Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -338,24 +338,22 @@ bool EditorInterface::HandleInputForEditorCamera(int keyaction, int keycode, int
         // if space is held, left button will pan the camera around.  or just middle button
         if( ( (mods & MODIFIERKEY_LeftMouse) && (mods & MODIFIERKEY_Space) ) || (mods & MODIFIERKEY_MiddleMouse) )
         {
+#if MYFW_OSX
+            // TODO: fix OSX to support locked mouse cursor.
+            Vector3 dir = pEditorState->m_LastMousePosition - pEditorState->m_CurrentMousePosition;
+#else
             // Try to lock the editor mouse cursor so we can move camera with raw mouse input.
             if( g_pEngineMainFrame->GetGLCanvasEditor()->IsMouseLocked() == false )
             {
-#if !MYFW_OSX
                 g_pEngineMainFrame->GetGLCanvasEditor()->LockMouse( true );
-#endif
             }
 
             Vector2 dir( 0, 0 );
-
             if( mouseaction == GCBA_RelativeMovement )
             {
                 dir.Set( -x, -y );
             }
-            else
-            {
-                dir = pEditorState->m_LastMousePosition - pEditorState->m_CurrentMousePosition;
-            }
+#endif
 
             //LOGInfo( LOGTag, "dir (%0.2f, %0.2f)\n", dir.x, dir.y );
             if( dir.LengthSquared() > 0 )
@@ -389,25 +387,22 @@ bool EditorInterface::HandleInputForEditorCamera(int keyaction, int keycode, int
         else if( pEditorState->m_EditorActionState == EDITORACTIONSTATE_None &&
                  (mods & MODIFIERKEY_RightMouse) )
         {
+#if MYFW_OSX
+            // TODO: fix OSX to support locked mouse cursor.
+            Vector3 dir = (pEditorState->m_LastMousePosition - pEditorState->m_CurrentMousePosition) * -1;
+#else
             // Try to lock the editor mouse cursor so we can move camera with raw mouse input.
             if( g_pEngineMainFrame->GetGLCanvasEditor()->IsMouseLocked() == false )
             {
-#if !MYFW_OSX
                 g_pEngineMainFrame->GetGLCanvasEditor()->LockMouse( true );
-#endif
             }
 
-            Vector2 dir( x, y );
-
+            Vector2 dir( 0, 0 );
             if( mouseaction == GCBA_RelativeMovement )
             {
-                // Get the direction the mouse moved.
                 dir.Set( x, y );
             }
-            else
-            {
-                dir = (pEditorState->m_LastMousePosition - pEditorState->m_CurrentMousePosition) * -1;
-            }
+#endif
 
             if( dir.LengthSquared() > 0 )
             {
