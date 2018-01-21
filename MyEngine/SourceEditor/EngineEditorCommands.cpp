@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2017 Jimmy Lord http://www.flatheadgames.com
+// Copyright (c) 2015-2018 Jimmy Lord http://www.flatheadgames.com
 //
 // This software is provided 'as-is', without any express or implied warranty.  In no event will the authors be held liable for any damages arising from the use of this software.
 // Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -387,6 +387,7 @@ EditorCommand_DeleteComponents::EditorCommand_DeleteComponents(const std::vector
         //}
         
         m_ComponentsDeleted.push_back( selectedcomponents[i] );
+        m_ComponentWasDisabled.push_back( selectedcomponents[i]->IsEnabled() );
     }
 
     m_DeleteComponentsWhenDestroyed = false;
@@ -410,6 +411,7 @@ void EditorCommand_DeleteComponents::Do()
     for( unsigned int i=0; i<m_ComponentsDeleted.size(); i++ )
     {
         m_ComponentsDeleted[i]->m_pGameObject->RemoveComponent( m_ComponentsDeleted[i] );
+        m_ComponentsDeleted[i]->SetEnabled( false );
     }
     m_DeleteComponentsWhenDestroyed = true;
 }
@@ -421,6 +423,7 @@ void EditorCommand_DeleteComponents::Undo()
     for( unsigned int i=0; i<m_ComponentsDeleted.size(); i++ )
     {
         m_ComponentsDeleted[i]->m_pGameObject->AddExistingComponent( m_ComponentsDeleted[i], false );
+        m_ComponentsDeleted[i]->SetEnabled( m_ComponentWasDisabled[i] );
     }
     m_DeleteComponentsWhenDestroyed = false;
 }
