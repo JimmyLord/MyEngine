@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2014-2017 Jimmy Lord http://www.flatheadgames.com
+// Copyright (c) 2014-2018 Jimmy Lord http://www.flatheadgames.com
 //
 // This software is provided 'as-is', without any express or implied warranty.  In no event will the authors be held liable for any damages arising from the use of this software.
 // Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -129,7 +129,7 @@ public:
     // TODO: find a way to find an arbitrary component type that would be accessible from lua script.
     // Exposed to Lua, change elsewhere if function signature changes.
     ComponentAnimationPlayer* GetAnimationPlayer()      { return (ComponentAnimationPlayer*)GetFirstComponentOfType( "AnimPlayerComponent" ); }
-    ComponentCollisionObject* GetCollisionObject()      { return (ComponentCollisionObject*)GetFirstComponentOfType( "CollisionObjectComponent" ); }
+    Component3DCollisionObject* Get3DCollisionObject()  { return (Component3DCollisionObject*)GetFirstComponentOfType( "3DCollisionObjectComponent" ); }
     Component2DCollisionObject* Get2DCollisionObject()  { return (Component2DCollisionObject*)GetFirstComponentOfType( "2DCollisionObjectComponent" ); }
     ComponentParticleEmitter* GetParticleEmitter()      { return (ComponentParticleEmitter*)GetFirstComponentOfType( "ParticleEmitterComponent" ); }
     ComponentVoxelWorld* GetVoxelWorld()                { return (ComponentVoxelWorld*)GetFirstComponentOfType( "VoxelWorldComponent" ); }

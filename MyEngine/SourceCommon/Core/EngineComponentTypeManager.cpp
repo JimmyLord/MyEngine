@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2014-2016 Jimmy Lord http://www.flatheadgames.com
+// Copyright (c) 2014-2018 Jimmy Lord http://www.flatheadgames.com
 //
 // This software is provided 'as-is', without any express or implied warranty.  In no event will the authors be held liable for any damages arising from the use of this software.
 // Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -14,28 +14,29 @@
 // name(2nd column) is saved into the scene files, changing it will break objects.
 ComponentTypeInfo g_EngineComponentTypeInfo[Component_NumEngineComponentTypes] = // ADDING_NEW_ComponentType
 {
-    { "Base",           "Transform",            },  //ComponentType_Transform,
-    { "Camera",         "Camera",               },  //ComponentType_Camera,
-    { "Renderables",    "Sprite",               },  //ComponentType_Sprite,
-    { "Renderables",    "Mesh",                 },  //ComponentType_Mesh,
-    { "Renderables",    "Mesh-OBJ",             },  //ComponentType_MeshOBJ,
-    { "Renderables",    "Mesh-Primitive",       },  //ComponentType_MeshPrimitive,
-    { "Renderables",    "Voxel Mesh",           },  //ComponentType_VoxelMesh,
-    { "Renderables",    "Voxel World",          },  //ComponentType_VoxelWorld,
-    { "Lighting",       "Light",                },  //ComponentType_Light,
-    { "Lighting",       "Shadow Dir Light",     },  //ComponentType_CameraShadow,
-    { "Effects",        "Post Effect Quad",     },  //ComponentType_PostEffect,
-    { "Physics",        "Collision Object",     },  //ComponentType_CollisionObject,
-    { "Physics",        "2D Collision Object",  },  //ComponentType_2DCollisionObject,
-    { "Physics",        "2D Joint - Revolute",  },  //ComponentType_2DJointRevolute,
-    { "Physics",        "2D Joint - Prismatic", },  //ComponentType_2DJointPrismatic,
-    { "Physics",        "2D Joint - Weld",      },  //ComponentType_2DJointWeld,
-    { "Scripts",        "Lua Script",           },  //ComponentType_LuaScript,
-    { "Particles",      "Particle Emitter",     },  //ComponentType_ParticleEmitter,
-    { "Animation",      "Animation Player",     },  //ComponentType_AnimationPlayer,
-    { "Animation",      "2D Animation Player",  },  //ComponentType_AnimationPlayer2D,
-    { "Audio",          "Audio Player",         },  //ComponentType_AudioPlayer,
-    { "Menus",          "Menu Page",            },  //ComponentType_MenuPage,
+    { "Base",           "Transform",               },  //ComponentType_Transform,
+    { "Camera",         "Camera",                  },  //ComponentType_Camera,
+    { "Renderables",    "Sprite",                  },  //ComponentType_Sprite,
+    { "Renderables",    "Mesh",                    },  //ComponentType_Mesh,
+    { "Renderables",    "Mesh-OBJ",                },  //ComponentType_MeshOBJ,
+    { "Renderables",    "Mesh-Primitive",          },  //ComponentType_MeshPrimitive,
+    { "Renderables",    "Voxel Mesh",              },  //ComponentType_VoxelMesh,
+    { "Renderables",    "Voxel World",             },  //ComponentType_VoxelWorld,
+    { "Lighting",       "Light",                   },  //ComponentType_Light,
+    { "Lighting",       "Shadow Dir Light",        },  //ComponentType_CameraShadow,
+    { "Effects",        "Post Effect Quad",        },  //ComponentType_PostEffect,
+    { "Physics",        "3D Collision Object",     },  //ComponentType_3DCollisionObject,
+    { "Physics",        "3D Joint - Point2Point",  },  //ComponentType_3DJointPoint2Point,
+    { "Physics",        "2D Collision Object",     },  //ComponentType_2DCollisionObject,
+    { "Physics",        "2D Joint - Revolute",     },  //ComponentType_2DJointRevolute,
+    { "Physics",        "2D Joint - Prismatic",    },  //ComponentType_2DJointPrismatic,
+    { "Physics",        "2D Joint - Weld",         },  //ComponentType_2DJointWeld,
+    { "Scripts",        "Lua Script",              },  //ComponentType_LuaScript,
+    { "Particles",      "Particle Emitter",        },  //ComponentType_ParticleEmitter,
+    { "Animation",      "Animation Player",        },  //ComponentType_AnimationPlayer,
+    { "Animation",      "2D Animation Player",     },  //ComponentType_AnimationPlayer2D,
+    { "Audio",          "Audio Player",            },  //ComponentType_AudioPlayer,
+    { "Menus",          "Menu Page",               },  //ComponentType_MenuPage,
 };
 
 ComponentBase* EngineComponentTypeManager::CreateComponent(int type)
@@ -57,7 +58,8 @@ ComponentBase* EngineComponentTypeManager::CreateComponent(int type)
     case ComponentType_Light:               pComponent = MyNew ComponentLight;              break;
     case ComponentType_CameraShadow:        pComponent = MyNew ComponentCameraShadow;       break;
     case ComponentType_PostEffect:          pComponent = MyNew ComponentPostEffect;         break;
-    case ComponentType_CollisionObject:     pComponent = MyNew ComponentCollisionObject;    break;
+    case ComponentType_3DCollisionObject:   pComponent = MyNew Component3DCollisionObject;  break;
+    case ComponentType_3DJointPoint2Point:  pComponent = MyNew Component3DJointPoint2Point; break;
     case ComponentType_2DCollisionObject:   pComponent = MyNew Component2DCollisionObject;  break;
     case ComponentType_2DJointRevolute:     pComponent = MyNew Component2DJointRevolute;    break;
     case ComponentType_2DJointPrismatic:    pComponent = MyNew Component2DJointPrismatic;   break;

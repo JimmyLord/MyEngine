@@ -97,6 +97,9 @@
     <Filter Include="VSCode-MyEngineLua">
       <UniqueIdentifier>{6871882b-794a-4eae-8245-88a7a105d8ad}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\ComponentSystem\Framework Components\Physics3D">
+      <UniqueIdentifier>{850576cc-ed86-4f0b-812c-dd9f7422bfc0}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="SourceCommon\Camera\Camera3D.cpp">
@@ -244,9 +247,6 @@
       <Filter>Source\ComponentSystem\Framework Components</Filter>
     </ClCompile>
     <ClCompile Include="SourceCommon\ComponentSystem\FrameworkComponents\ComponentCameraShadow.cpp">
-      <Filter>Source\ComponentSystem\Framework Components</Filter>
-    </ClCompile>
-    <ClCompile Include="SourceCommon\ComponentSystem\FrameworkComponents\ComponentCollisionObject.cpp">
       <Filter>Source\ComponentSystem\Framework Components</Filter>
     </ClCompile>
     <ClCompile Include="SourceCommon\ComponentSystem\FrameworkComponents\ComponentLight.cpp">
@@ -404,6 +404,18 @@
     </ClCompile>
     <ClCompile Include="SourceEditor\Interfaces\EditorInterface_VoxelMeshEditor.cpp">
       <Filter>Source - Editor\Interfaces</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCommon\ComponentSystem\FrameworkComponents\Physics3D\Component3DCollisionObject.cpp">
+      <Filter>Source\ComponentSystem\Framework Components\Physics3D</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCommon\ComponentSystem\FrameworkComponents\Physics3D\Component3DJointPrismatic.cpp">
+      <Filter>Source\ComponentSystem\Framework Components\Physics3D</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCommon\ComponentSystem\FrameworkComponents\Physics3D\Component3DJointRevolute.cpp">
+      <Filter>Source\ComponentSystem\Framework Components\Physics3D</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCommon\ComponentSystem\FrameworkComponents\Physics3D\Component3DJointPoint2Point.cpp">
+      <Filter>Source\ComponentSystem\Framework Components\Physics3D</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -576,9 +588,6 @@
       <Filter>Source\ComponentSystem\Framework Components</Filter>
     </ClInclude>
     <ClInclude Include="SourceCommon\ComponentSystem\FrameworkComponents\ComponentCameraShadow.h">
-      <Filter>Source\ComponentSystem\Framework Components</Filter>
-    </ClInclude>
-    <ClInclude Include="SourceCommon\ComponentSystem\FrameworkComponents\ComponentCollisionObject.h">
       <Filter>Source\ComponentSystem\Framework Components</Filter>
     </ClInclude>
     <ClInclude Include="SourceCommon\ComponentSystem\FrameworkComponents\ComponentLight.h">
@@ -757,6 +766,21 @@
     </ClInclude>
     <ClInclude Include="SourceEditor\Interfaces\EditorInterface_VoxelMeshEditor.h">
       <Filter>Source - Editor\Interfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCommon\ComponentSystem\FrameworkComponents\Physics3D\Component3DCollisionObject.h">
+      <Filter>Source\ComponentSystem\Framework Components\Physics3D</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCommon\ComponentSystem\FrameworkComponents\Physics3D\Component3DJointPrismatic.h">
+      <Filter>Source\ComponentSystem\Framework Components\Physics3D</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCommon\ComponentSystem\FrameworkComponents\Physics3D\Component3DJointRevolute.h">
+      <Filter>Source\ComponentSystem\Framework Components\Physics3D</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCommon\ComponentSystem\FrameworkComponents\Physics3D\Component3DJointPoint2Point.h">
+      <Filter>Source\ComponentSystem\Framework Components\Physics3D</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCommon\ComponentSystem\FrameworkComponents\Physics3D\Component3DJointBase.h">
+      <Filter>Source\ComponentSystem\Framework Components\Physics3D</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

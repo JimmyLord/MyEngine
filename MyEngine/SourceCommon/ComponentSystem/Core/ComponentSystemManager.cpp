@@ -1385,9 +1385,9 @@ void ComponentSystemManager::SyncAllRigidBodiesToObjectTransforms()
 {
     for( CPPListNode* pNode = m_Components[BaseComponentType_Updateable].GetHead(); pNode; pNode = pNode->GetNext() )
     {
-        if( ((ComponentBase*)pNode)->m_Type == ComponentType_CollisionObject )
+        if( ((ComponentBase*)pNode)->m_Type == ComponentType_3DCollisionObject )
         {
-            ComponentCollisionObject* pComponent = (ComponentCollisionObject*)pNode;
+            Component3DCollisionObject* pComponent = (Component3DCollisionObject*)pNode;
 
             pComponent->SyncRigidBodyToTransform();
         }

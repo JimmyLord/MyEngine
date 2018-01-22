@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2014-2017 Jimmy Lord http://www.flatheadgames.com
+// Copyright (c) 2014-2018 Jimmy Lord http://www.flatheadgames.com
 //
 // This software is provided 'as-is', without any express or implied warranty.  In no event will the authors be held liable for any damages arising from the use of this software.
 // Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -7,8 +7,8 @@
 // 2. Altered source versions must be plainly marked as such, and must not be misrepresented as being the original software.
 // 3. This notice may not be removed or altered from any source distribution.
 
-#ifndef __ComponentCollisionObject_H__
-#define __ComponentCollisionObject_H__
+#ifndef __Component3DCollisionObject_H__
+#define __Component3DCollisionObject_H__
 
 enum PhysicsPrimitiveTypes //ADDING_NEW_PhysicsPrimitiveType - order doesn't matter, saved as string.
 {
@@ -21,11 +21,11 @@ enum PhysicsPrimitiveTypes //ADDING_NEW_PhysicsPrimitiveType - order doesn't mat
 
 extern const char* PhysicsPrimitiveTypeStrings[PhysicsPrimitive_NumTypes];
 
-class ComponentCollisionObject : public ComponentBase
+class Component3DCollisionObject : public ComponentBase
 {
 private:
     // Component Variable List
-    MYFW_COMPONENT_DECLARE_VARIABLE_LIST( ComponentCollisionObject );
+    MYFW_COMPONENT_DECLARE_VARIABLE_LIST( Component3DCollisionObject );
 
 protected:
     btRigidBody* m_pBody;
@@ -41,9 +41,9 @@ protected:
     void CreateBody();
 
 public:
-    ComponentCollisionObject();
-    virtual ~ComponentCollisionObject();
-    SetClassnameBase( "CollisionObjectComponent" ); // only first 8 character count.
+    Component3DCollisionObject();
+    virtual ~Component3DCollisionObject();
+    SetClassnameBase( "3DCollisionObjectComponent" ); // only first 8 character count.
 
 #if MYFW_USING_LUA
     static void LuaRegister(lua_State* luastate);
@@ -53,8 +53,8 @@ public:
     virtual void ImportFromJSONObject(cJSON* jsonobj, unsigned int sceneid);
 
     virtual void Reset();
-    virtual void CopyFromSameType_Dangerous(ComponentBase* pObject) { *this = (ComponentCollisionObject&)*pObject; }
-    ComponentCollisionObject& operator=(const ComponentCollisionObject& other);
+    virtual void CopyFromSameType_Dangerous(ComponentBase* pObject) { *this = (Component3DCollisionObject&)*pObject; }
+    Component3DCollisionObject& operator=(const Component3DCollisionObject& other);
 
     virtual void RegisterCallbacks();
     virtual void UnregisterCallbacks();
@@ -70,6 +70,8 @@ protected:
     //MYFW_DECLARE_COMPONENT_CALLBACK_ONFILERENAMED(); // OnFileRenamedCallback
 
 public:
+    btRigidBody* GetBody() { return m_pBody; }
+
     void SetMesh(MyMesh* pMesh);
 
     virtual void OnPlay();
@@ -93,18 +95,18 @@ public:
 
     // Object panel callbacks.
     virtual void AddToObjectsPanel(wxTreeItemId gameobjectid);
-    static void StaticOnLeftClick(void* pObjectPtr, wxTreeItemId id, unsigned int count) { ((ComponentCollisionObject*)pObjectPtr)->OnLeftClick( count, true ); }
+    static void StaticOnLeftClick(void* pObjectPtr, wxTreeItemId id, unsigned int count) { ((Component3DCollisionObject*)pObjectPtr)->OnLeftClick( count, true ); }
     void OnLeftClick(unsigned int count, bool clear);
     virtual void FillPropertiesWindow(bool clear, bool addcomponentvariables = false, bool ignoreblockvisibleflag = false);
 
     // Watch panel callbacks.
-    //static void StaticOnValueChanged(void* pObjectPtr, int controlid, bool directlychanged, bool finishedchanging, double oldvalue, bool valuewaschangedbydragging) { ((ComponentCollisionObject*)pObjectPtr)->OnValueChanged( controlid, finishedchanging ); }
+    //static void StaticOnValueChanged(void* pObjectPtr, int controlid, bool directlychanged, bool finishedchanging, double oldvalue, bool valuewaschangedbydragging) { ((Component3DCollisionObject*)pObjectPtr)->OnValueChanged( controlid, finishedchanging ); }
     //void OnValueChanged(int controlid, bool finishedchanging);
 
-    //static void StaticOnDropOBJ(void* pObjectPtr, int controlid, wxCoord x, wxCoord y) { ((ComponentCollisionObject*)pObjectPtr)->OnDropOBJ(controlid, x, y); }
+    //static void StaticOnDropOBJ(void* pObjectPtr, int controlid, wxCoord x, wxCoord y) { ((Component3DCollisionObject*)pObjectPtr)->OnDropOBJ(controlid, x, y); }
     //void OnDropOBJ(int controlid, wxCoord x, wxCoord y);
 
-    static void StaticOnTransformChanged(void* pObjectPtr, Vector3& newpos, Vector3& newrot, Vector3& newscale, bool changedbyuserineditor) { ((ComponentCollisionObject*)pObjectPtr)->OnTransformChanged( newpos, newrot, newscale, changedbyuserineditor ); }
+    static void StaticOnTransformChanged(void* pObjectPtr, Vector3& newpos, Vector3& newrot, Vector3& newscale, bool changedbyuserineditor) { ((Component3DCollisionObject*)pObjectPtr)->OnTransformChanged( newpos, newrot, newscale, changedbyuserineditor ); }
     void OnTransformChanged(Vector3& newpos, Vector3& newrot, Vector3& newscale, bool changedbyuserineditor);
 
     // Component variable callbacks. //_VARIABLE_LIST
@@ -114,4 +116,4 @@ public:
 #endif //MYFW_USING_WX
 };
 
-#endif //__ComponentCollisionObject_H__
+#endif //__Component3DCollisionObject_H__

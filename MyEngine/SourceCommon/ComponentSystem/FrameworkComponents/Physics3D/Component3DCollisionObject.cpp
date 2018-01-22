@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2014-2017 Jimmy Lord http://www.flatheadgames.com
+// Copyright (c) 2014-2018 Jimmy Lord http://www.flatheadgames.com
 //
 // This software is provided 'as-is', without any express or implied warranty.  In no event will the authors be held liable for any damages arising from the use of this software.
 // Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -11,11 +11,11 @@
 #include "BulletCollision/CollisionShapes/btShapeHull.h"
 
 #if MYFW_USING_WX
-bool ComponentCollisionObject::m_PanelWatchBlockVisible = true;
+bool Component3DCollisionObject::m_PanelWatchBlockVisible = true;
 #endif
 
 // Component Variable List
-MYFW_COMPONENT_IMPLEMENT_VARIABLE_LIST( ComponentCollisionObject );
+MYFW_COMPONENT_IMPLEMENT_VARIABLE_LIST( Component3DCollisionObject );
 
 const char* PhysicsPrimitiveTypeStrings[PhysicsPrimitive_NumTypes] = //ADDING_NEW_PhysicsPrimitiveType
 {
@@ -25,7 +25,7 @@ const char* PhysicsPrimitiveTypeStrings[PhysicsPrimitive_NumTypes] = //ADDING_NE
     "Convex Hull",
 };
 
-ComponentCollisionObject::ComponentCollisionObject()
+Component3DCollisionObject::Component3DCollisionObject()
 : ComponentBase()
 {
     MYFW_COMPONENT_VARIABLE_LIST_CONSTRUCTOR();
@@ -33,7 +33,7 @@ ComponentCollisionObject::ComponentCollisionObject()
     ClassnameSanityCheck();
 
     m_BaseType = BaseComponentType_Data;
-    m_Type = ComponentType_CollisionObject;
+    m_Type = ComponentType_3DCollisionObject;
 
     m_pBody = 0;
 
@@ -41,7 +41,7 @@ ComponentCollisionObject::ComponentCollisionObject()
     m_pMesh = 0;
 }
 
-ComponentCollisionObject::~ComponentCollisionObject()
+Component3DCollisionObject::~Component3DCollisionObject()
 {
     m_pGameObject->GetTransform()->UnregisterTransformChangedCallbacks( this );
 
@@ -56,33 +56,33 @@ ComponentCollisionObject::~ComponentCollisionObject()
     MYFW_COMPONENT_VARIABLE_LIST_DESTRUCTOR();
 }
 
-void ComponentCollisionObject::RegisterVariables(CPPListHead* pList, ComponentCollisionObject* pThis) //_VARIABLE_LIST
+void Component3DCollisionObject::RegisterVariables(CPPListHead* pList, Component3DCollisionObject* pThis) //_VARIABLE_LIST
 {
     ComponentVariable* pVar;
 
-    AddVar( pList, "Mass", ComponentVariableType_Float, MyOffsetOf( pThis, &pThis->m_Mass ), true, true, 0, (CVarFunc_ValueChanged)&ComponentCollisionObject::OnValueChanged, 0, 0 );
+    AddVar( pList, "Mass", ComponentVariableType_Float, MyOffsetOf( pThis, &pThis->m_Mass ), true, true, 0, (CVarFunc_ValueChanged)&Component3DCollisionObject::OnValueChanged, 0, 0 );
     
-    AddVarEnum( pList, "Primitive", MyOffsetOf( pThis, &pThis->m_PrimitiveType ), true, true, "Primitive Type", PhysicsPrimitive_NumTypes, PhysicsPrimitiveTypeStrings, (CVarFunc_ValueChanged)&ComponentCollisionObject::OnValueChanged, 0, 0 );
+    AddVarEnum( pList, "Primitive", MyOffsetOf( pThis, &pThis->m_PrimitiveType ), true, true, "Primitive Type", PhysicsPrimitive_NumTypes, PhysicsPrimitiveTypeStrings, (CVarFunc_ValueChanged)&Component3DCollisionObject::OnValueChanged, 0, 0 );
 
     pVar = AddVar( pList, "Scale", ComponentVariableType_Vector3, MyOffsetOf( pThis, &pThis->m_Scale ), true, true, "Scale", (CVarFunc_ValueChanged)&ComponentTransform::OnValueChanged, 0, 0 );
 #if MYFW_USING_WX
-    pVar->AddCallback_ShouldVariableBeAdded( (CVarFunc_ShouldVariableBeAdded)(&ComponentCollisionObject::ShouldVariableBeAddedToWatchPanel) );
+    pVar->AddCallback_ShouldVariableBeAdded( (CVarFunc_ShouldVariableBeAdded)(&Component3DCollisionObject::ShouldVariableBeAddedToWatchPanel) );
 #endif
 
     pVar = AddVar( pList, "ScaleX", ComponentVariableType_Float, MyOffsetOf( pThis, &pThis->m_Scale ), false, true, "Scale", (CVarFunc_ValueChanged)&ComponentTransform::OnValueChanged, 0, 0 );
 #if MYFW_USING_WX
-    pVar->AddCallback_ShouldVariableBeAdded( (CVarFunc_ShouldVariableBeAdded)(&ComponentCollisionObject::ShouldVariableBeAddedToWatchPanel) );
+    pVar->AddCallback_ShouldVariableBeAdded( (CVarFunc_ShouldVariableBeAdded)(&Component3DCollisionObject::ShouldVariableBeAddedToWatchPanel) );
 #endif
 
     pVar = AddVarPointer( pList, "OBJ", true, true, "Collision Mesh",
-        (CVarFunc_GetPointerValue)&ComponentCollisionObject::GetPointerValue, (CVarFunc_SetPointerValue)&ComponentCollisionObject::SetPointerValue, (CVarFunc_GetPointerDesc)&ComponentCollisionObject::GetPointerDesc, (CVarFunc_SetPointerDesc)&ComponentCollisionObject::SetPointerDesc,
-        (CVarFunc_ValueChanged)&ComponentCollisionObject::OnValueChanged, (CVarFunc_DropTarget)&ComponentCollisionObject::OnDropOBJ, 0 );
+        (CVarFunc_GetPointerValue)&Component3DCollisionObject::GetPointerValue, (CVarFunc_SetPointerValue)&Component3DCollisionObject::SetPointerValue, (CVarFunc_GetPointerDesc)&Component3DCollisionObject::GetPointerDesc, (CVarFunc_SetPointerDesc)&Component3DCollisionObject::SetPointerDesc,
+        (CVarFunc_ValueChanged)&Component3DCollisionObject::OnValueChanged, (CVarFunc_DropTarget)&Component3DCollisionObject::OnDropOBJ, 0 );
 #if MYFW_USING_WX
-    pVar->AddCallback_ShouldVariableBeAdded( (CVarFunc_ShouldVariableBeAdded)(&ComponentCollisionObject::ShouldVariableBeAddedToWatchPanel) );
+    pVar->AddCallback_ShouldVariableBeAdded( (CVarFunc_ShouldVariableBeAdded)(&Component3DCollisionObject::ShouldVariableBeAddedToWatchPanel) );
 #endif
 }
 
-void ComponentCollisionObject::Reset()
+void Component3DCollisionObject::Reset()
 {
     ComponentBase::Reset();
 
@@ -100,7 +100,7 @@ void ComponentCollisionObject::Reset()
 #endif //MYFW_USING_WX
 }
 
-void* ComponentCollisionObject::GetPointerValue(ComponentVariable* pVar) //_VARIABLE_LIST
+void* Component3DCollisionObject::GetPointerValue(ComponentVariable* pVar) //_VARIABLE_LIST
 {
     if( strcmp( pVar->m_Label, "OBJ" ) == 0 )
     {
@@ -111,7 +111,7 @@ void* ComponentCollisionObject::GetPointerValue(ComponentVariable* pVar) //_VARI
     return 0;
 }
 
-void ComponentCollisionObject::SetPointerValue(ComponentVariable* pVar, void* newvalue) //_VARIABLE_LIST
+void Component3DCollisionObject::SetPointerValue(ComponentVariable* pVar, void* newvalue) //_VARIABLE_LIST
 {
     if( strcmp( pVar->m_Label, "OBJ" ) == 0 )
     {
@@ -120,7 +120,7 @@ void ComponentCollisionObject::SetPointerValue(ComponentVariable* pVar, void* ne
     }
 }
 
-const char* ComponentCollisionObject::GetPointerDesc(ComponentVariable* pVar) //_VARIABLE_LIST
+const char* Component3DCollisionObject::GetPointerDesc(ComponentVariable* pVar) //_VARIABLE_LIST
 {
     if( strcmp( pVar->m_Label, "OBJ" ) == 0 )
     {
@@ -138,7 +138,7 @@ const char* ComponentCollisionObject::GetPointerDesc(ComponentVariable* pVar) //
     return "fix me";
 }
 
-void ComponentCollisionObject::SetPointerDesc(ComponentVariable* pVar, const char* newdesc) //_VARIABLE_LIST
+void Component3DCollisionObject::SetPointerDesc(ComponentVariable* pVar, const char* newdesc) //_VARIABLE_LIST
 {
     if( strcmp( pVar->m_Label, "OBJ" ) == 0 )
     {
@@ -167,31 +167,31 @@ void ComponentCollisionObject::SetPointerDesc(ComponentVariable* pVar, const cha
 }
 
 #if MYFW_USING_LUA
-void ComponentCollisionObject::LuaRegister(lua_State* luastate)
+void Component3DCollisionObject::LuaRegister(lua_State* luastate)
 {
     luabridge::getGlobalNamespace( luastate )
-        .beginClass<ComponentCollisionObject>( "ComponentCollisionObject" )
-            .addData( "mass", &ComponentCollisionObject::m_Mass ) // float
-            .addFunction( "ApplyForce", &ComponentCollisionObject::ApplyForce ) // void ComponentCollisionObject::ApplyForce(Vector3 force, Vector3 relpos)
+        .beginClass<Component3DCollisionObject>( "Component3DCollisionObject" )
+            .addData( "mass", &Component3DCollisionObject::m_Mass ) // float
+            .addFunction( "ApplyForce", &Component3DCollisionObject::ApplyForce ) // void Component3DCollisionObject::ApplyForce(Vector3 force, Vector3 relpos)
         .endClass();
 }
 #endif //MYFW_USING_LUA
 
 #if MYFW_USING_WX
-void ComponentCollisionObject::AddToObjectsPanel(wxTreeItemId gameobjectid)
+void Component3DCollisionObject::AddToObjectsPanel(wxTreeItemId gameobjectid)
 {
     //wxTreeItemId id =
-    g_pPanelObjectList->AddObject( this, ComponentCollisionObject::StaticOnLeftClick, ComponentBase::StaticOnRightClick, gameobjectid, "Collision object", ObjectListIcon_Component );
+    g_pPanelObjectList->AddObject( this, Component3DCollisionObject::StaticOnLeftClick, ComponentBase::StaticOnRightClick, gameobjectid, "3D Collision object", ObjectListIcon_Component );
 }
 
-void ComponentCollisionObject::OnLeftClick(unsigned int count, bool clear)
+void Component3DCollisionObject::OnLeftClick(unsigned int count, bool clear)
 {
     ComponentBase::OnLeftClick( count, clear );
 }
 
-void ComponentCollisionObject::FillPropertiesWindow(bool clear, bool addcomponentvariables, bool ignoreblockvisibleflag)
+void Component3DCollisionObject::FillPropertiesWindow(bool clear, bool addcomponentvariables, bool ignoreblockvisibleflag)
 {
-    m_ControlID_ComponentTitleLabel = g_pPanelWatch->AddSpace( "Collision Object", this, ComponentBase::StaticOnComponentTitleLabelClicked );
+    m_ControlID_ComponentTitleLabel = g_pPanelWatch->AddSpace( "3D Collision Object", this, ComponentBase::StaticOnComponentTitleLabelClicked );
 
     if( m_PanelWatchBlockVisible || ignoreblockvisibleflag == true )
     {
@@ -201,7 +201,7 @@ void ComponentCollisionObject::FillPropertiesWindow(bool clear, bool addcomponen
     }
 }
 
-bool ComponentCollisionObject::ShouldVariableBeAddedToWatchPanel(ComponentVariable* pVar)
+bool Component3DCollisionObject::ShouldVariableBeAddedToWatchPanel(ComponentVariable* pVar)
 {
     switch( m_PrimitiveType )
     {
@@ -236,7 +236,7 @@ bool ComponentCollisionObject::ShouldVariableBeAddedToWatchPanel(ComponentVariab
     return false;
 }
 
-void* ComponentCollisionObject::OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue* pNewValue)
+void* Component3DCollisionObject::OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue* pNewValue)
 {
     void* oldpointer = 0;
 
@@ -252,7 +252,7 @@ void* ComponentCollisionObject::OnValueChanged(ComponentVariable* pVar, bool cha
     return oldpointer;
 }
 
-void* ComponentCollisionObject::OnDropOBJ(ComponentVariable* pVar, wxCoord x, wxCoord y)
+void* Component3DCollisionObject::OnDropOBJ(ComponentVariable* pVar, wxCoord x, wxCoord y)
 {
     void* oldpointer = 0;
 
@@ -280,26 +280,26 @@ void* ComponentCollisionObject::OnDropOBJ(ComponentVariable* pVar, wxCoord x, wx
     return oldpointer;
 }
 
-void ComponentCollisionObject::OnTransformChanged(Vector3& newpos, Vector3& newrot, Vector3& newscale, bool changedbyuserineditor)
+void Component3DCollisionObject::OnTransformChanged(Vector3& newpos, Vector3& newrot, Vector3& newscale, bool changedbyuserineditor)
 {
     if( changedbyuserineditor )
         SyncRigidBodyToTransform();
 }
 #endif //MYFW_USING_WX
 
-cJSON* ComponentCollisionObject::ExportAsJSONObject(bool savesceneid, bool saveid)
+cJSON* Component3DCollisionObject::ExportAsJSONObject(bool savesceneid, bool saveid)
 {
     cJSON* component = ComponentBase::ExportAsJSONObject( savesceneid, saveid );
 
     return component;
 }
 
-void ComponentCollisionObject::ImportFromJSONObject(cJSON* jsonobj, unsigned int sceneid)
+void Component3DCollisionObject::ImportFromJSONObject(cJSON* jsonobj, unsigned int sceneid)
 {
     ComponentBase::ImportFromJSONObject( jsonobj, sceneid );
 }
 
-ComponentCollisionObject& ComponentCollisionObject::operator=(const ComponentCollisionObject& other)
+Component3DCollisionObject& Component3DCollisionObject::operator=(const Component3DCollisionObject& other)
 {
     MyAssert( &other != this );
 
@@ -315,23 +315,23 @@ ComponentCollisionObject& ComponentCollisionObject::operator=(const ComponentCol
     return *this;
 }
 
-void ComponentCollisionObject::RegisterCallbacks()
+void Component3DCollisionObject::RegisterCallbacks()
 {
     if( m_Enabled && m_CallbacksRegistered == false )
     {
         m_CallbacksRegistered = true;
 
-        MYFW_REGISTER_COMPONENT_CALLBACK( ComponentCollisionObject, Tick );
-        //MYFW_REGISTER_COMPONENT_CALLBACK( ComponentCollisionObject, OnSurfaceChanged );
-        //MYFW_REGISTER_COMPONENT_CALLBACK( ComponentCollisionObject, Draw );
-        //MYFW_REGISTER_COMPONENT_CALLBACK( ComponentCollisionObject, OnTouch );
-        //MYFW_REGISTER_COMPONENT_CALLBACK( ComponentCollisionObject, OnButtons );
-        //MYFW_REGISTER_COMPONENT_CALLBACK( ComponentCollisionObject, OnKeys );
-        //MYFW_REGISTER_COMPONENT_CALLBACK( ComponentCollisionObject, OnFileRenamed );
+        MYFW_REGISTER_COMPONENT_CALLBACK( Component3DCollisionObject, Tick );
+        //MYFW_REGISTER_COMPONENT_CALLBACK( Component3DCollisionObject, OnSurfaceChanged );
+        //MYFW_REGISTER_COMPONENT_CALLBACK( Component3DCollisionObject, Draw );
+        //MYFW_REGISTER_COMPONENT_CALLBACK( Component3DCollisionObject, OnTouch );
+        //MYFW_REGISTER_COMPONENT_CALLBACK( Component3DCollisionObject, OnButtons );
+        //MYFW_REGISTER_COMPONENT_CALLBACK( Component3DCollisionObject, OnKeys );
+        //MYFW_REGISTER_COMPONENT_CALLBACK( Component3DCollisionObject, OnFileRenamed );
     }
 }
 
-void ComponentCollisionObject::UnregisterCallbacks()
+void Component3DCollisionObject::UnregisterCallbacks()
 {
     if( m_CallbacksRegistered == true )
     {
@@ -347,7 +347,7 @@ void ComponentCollisionObject::UnregisterCallbacks()
     }
 }
 
-void ComponentCollisionObject::SetMesh(MyMesh* pMesh)
+void Component3DCollisionObject::SetMesh(MyMesh* pMesh)
 {
     if( pMesh )
         pMesh->AddRef();
@@ -356,7 +356,7 @@ void ComponentCollisionObject::SetMesh(MyMesh* pMesh)
     m_pMesh = pMesh;
 }
 
-void ComponentCollisionObject::OnPlay()
+void Component3DCollisionObject::OnPlay()
 {
     ComponentBase::OnPlay();
 
@@ -369,7 +369,7 @@ void ComponentCollisionObject::OnPlay()
     CreateBody();
 }
 
-void ComponentCollisionObject::CreateBody()
+void Component3DCollisionObject::CreateBody()
 {
     // create a rigidbody on start
     if( m_pBody == 0 )
@@ -453,11 +453,20 @@ void ComponentCollisionObject::CreateBody()
     }
 }
 
-void ComponentCollisionObject::OnStop()
+void Component3DCollisionObject::OnStop()
 {
     ComponentBase::OnStop();
 
-    // shouldn't get hit, all objects are deleted/recreated when gameplay is stopped.
+    // Loop through joints/constraints on this gameobject and remove them before removing body.
+    for( unsigned int i=0; i<m_pGameObject->GetComponentCount(); i++ )
+    {
+        ComponentBase* pComponent = m_pGameObject->GetComponentByIndex( i );
+        if( pComponent->IsA( "3DJoint-" ) )
+        {
+            ((Component3DJointBase*)pComponent)->RemoveJointFromWorld();
+        }
+    }
+
     if( m_pBody )
     {
         g_pBulletWorld->m_pDynamicsWorld->removeRigidBody( m_pBody );
@@ -465,7 +474,7 @@ void ComponentCollisionObject::OnStop()
     }
 }
 
-void ComponentCollisionObject::TickCallback(double TimePassed)
+void Component3DCollisionObject::TickCallback(double TimePassed)
 {
     if( TimePassed == 0 )
     {
@@ -511,7 +520,7 @@ void ComponentCollisionObject::TickCallback(double TimePassed)
     //m_pGameObject->GetTransform()->SetRotation( Vector3( rot.g, pos.getY(), pos.getZ() ) );
 }
 
-void ComponentCollisionObject::SyncRigidBodyToTransform()
+void Component3DCollisionObject::SyncRigidBodyToTransform()
 {
     if( m_pBody == 0 )
         return;
@@ -533,7 +542,7 @@ void ComponentCollisionObject::SyncRigidBodyToTransform()
 }
 
 // Exposed to Lua, change elsewhere if function signature changes.
-void ComponentCollisionObject::ApplyForce(Vector3 force, Vector3 relpos)
+void Component3DCollisionObject::ApplyForce(Vector3 force, Vector3 relpos)
 {
     btVector3 btforce( force.x, force.y, force.z );
     btVector3 btrelpos( relpos.x, relpos.y, relpos.z );

@@ -669,7 +669,7 @@
     //            .addFunction( "GetFirstComponentOfBaseType", &GameObject::GetFirstComponentOfBaseType ) // ComponentBase* GameObject::GetFirstComponentOfBaseType(BaseComponentTypes basetype)
     //            .addFunction( "GetFirstComponentOfType", &GameObject::GetFirstComponentOfType ) // ComponentBase* GameObject::GetFirstComponentOfType(const char* type)
     //            .addFunction( "GetAnimationPlayer", &GameObject::GetAnimationPlayer ) // ComponentAnimationPlayer* GameObject::GetAnimationPlayer()    
-    //            .addFunction( "GetCollisionObject", &GameObject::GetCollisionObject ) // ComponentCollisionObject* GameObject::GetCollisionObject()    
+    //            .addFunction( "Get3DCollisionObject", &GameObject::Get3DCollisionObject ) // Component3DCollisionObject* GameObject::Get3DCollisionObject()
     //            .addFunction( "Get2DCollisionObject", &GameObject::Get2DCollisionObject ) // Component2DCollisionObject* GameObject::Get2DCollisionObject()
     //            .addFunction( "GetParticleEmitter", &GameObject::GetParticleEmitter ) // ComponentParticleEmitter* GameObject::GetParticleEmitter()    
     //            .addFunction( "GetVoxelWorld", &GameObject::GetVoxelWorld ) // ComponentVoxelWorld* GameObject::GetVoxelWorld()              
@@ -886,16 +886,16 @@
     ////ComponentType_CameraShadow,
     ////ComponentType_PostEffect,
 
-    //ComponentCollisionObject::LuaRegister( m_pLuaState );
+    //Component3DCollisionObject::LuaRegister( m_pLuaState );
     //    luabridge::getGlobalNamespace( luastate )
-    //        .beginClass<ComponentCollisionObject>( "ComponentCollisionObject" )
-    //            .addData( "mass", &ComponentCollisionObject::m_Mass ) // float
-    //            .addFunction( "ApplyForce", &ComponentCollisionObject::ApplyForce ) // void ComponentCollisionObject::ApplyForce(Vector3 force, Vector3 relpos)
+    //        .beginClass<Component3DCollisionObject>( "Component3DCollisionObject" )
+    //            .addData( "mass", &Component3DCollisionObject::m_Mass ) // float
+    //            .addFunction( "ApplyForce", &Component3DCollisionObject::ApplyForce ) // void Component3DCollisionObject::ApplyForce(Vector3 force, Vector3 relpos)
 	//        .endClass();
 
-	"ComponentCollisionObject:ApplyForce": {
-		"prefix": "ComponentCollisionObject:ApplyForce",
-        "body": "${1:ComponentCollisionObject instance}:ApplyForce( ${2:Vector3 force}, ${2:Vector3 relativepos} )",
+	"Component3DCollisionObject:ApplyForce": {
+		"prefix": "Component3DCollisionObject:ApplyForce",
+        "body": "${1:Component3DCollisionObject instance}:ApplyForce( ${2:Vector3 force}, ${2:Vector3 relativepos} )",
         "description": "Apply a force to a 3D physics object."
     },
 	

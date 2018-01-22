@@ -1626,7 +1626,6 @@
     <ClCompile Include="SourceCommon\ComponentSystem\FrameworkComponents\ComponentAnimationPlayer2D.cpp" />
     <ClCompile Include="SourceCommon\ComponentSystem\FrameworkComponents\ComponentAudioPlayer.cpp" />
     <ClCompile Include="SourceCommon\ComponentSystem\FrameworkComponents\ComponentCameraShadow.cpp" />
-    <ClCompile Include="SourceCommon\ComponentSystem\FrameworkComponents\ComponentCollisionObject.cpp" />
     <ClCompile Include="SourceCommon\ComponentSystem\FrameworkComponents\ComponentLight.cpp" />
     <ClCompile Include="SourceCommon\ComponentSystem\FrameworkComponents\ComponentLuaScript.cpp" />
     <ClCompile Include="SourceCommon\ComponentSystem\FrameworkComponents\ComponentMesh.cpp" />
@@ -1639,6 +1638,10 @@
     <ClCompile Include="SourceCommon\ComponentSystem\FrameworkComponents\Physics2D\Component2DJointPrismatic.cpp" />
     <ClCompile Include="SourceCommon\ComponentSystem\FrameworkComponents\Physics2D\Component2DJointRevolute.cpp" />
     <ClCompile Include="SourceCommon\ComponentSystem\FrameworkComponents\Physics2D\Component2DJointWeld.cpp" />
+    <ClCompile Include="SourceCommon\ComponentSystem\FrameworkComponents\Physics3D\Component3DCollisionObject.cpp" />
+    <ClCompile Include="SourceCommon\ComponentSystem\FrameworkComponents\Physics3D\Component3DJointPrismatic.cpp" />
+    <ClCompile Include="SourceCommon\ComponentSystem\FrameworkComponents\Physics3D\Component3DJointRevolute.cpp" />
+    <ClCompile Include="SourceCommon\ComponentSystem\FrameworkComponents\Physics3D\Component3DJointPoint2Point.cpp" />
     <ClCompile Include="SourceCommon\Core\EngineComponentTypeManager.cpp" />
     <ClCompile Include="SourceCommon\Core\EngineCore.cpp" />
     <ClCompile Include="SourceCommon\Core\InputFinger.cpp" />
@@ -1891,7 +1894,6 @@
     <ClInclude Include="SourceCommon\ComponentSystem\FrameworkComponents\ComponentAnimationPlayer2D.h" />
     <ClInclude Include="SourceCommon\ComponentSystem\FrameworkComponents\ComponentAudioPlayer.h" />
     <ClInclude Include="SourceCommon\ComponentSystem\FrameworkComponents\ComponentCameraShadow.h" />
-    <ClInclude Include="SourceCommon\ComponentSystem\FrameworkComponents\ComponentCollisionObject.h" />
     <ClInclude Include="SourceCommon\ComponentSystem\FrameworkComponents\ComponentLight.h" />
     <ClInclude Include="SourceCommon\ComponentSystem\FrameworkComponents\ComponentLuaScript.h" />
     <ClInclude Include="SourceCommon\ComponentSystem\FrameworkComponents\ComponentMesh.h" />
@@ -1904,6 +1906,11 @@
     <ClInclude Include="SourceCommon\ComponentSystem\FrameworkComponents\Physics2D\Component2DJointPrismatic.h" />
     <ClInclude Include="SourceCommon\ComponentSystem\FrameworkComponents\Physics2D\Component2DJointRevolute.h" />
     <ClInclude Include="SourceCommon\ComponentSystem\FrameworkComponents\Physics2D\Component2DJointWeld.h" />
+    <ClInclude Include="SourceCommon\ComponentSystem\FrameworkComponents\Physics3D\Component3DCollisionObject.h" />
+    <ClInclude Include="SourceCommon\ComponentSystem\FrameworkComponents\Physics3D\Component3DJointBase.h" />
+    <ClInclude Include="SourceCommon\ComponentSystem\FrameworkComponents\Physics3D\Component3DJointPrismatic.h" />
+    <ClInclude Include="SourceCommon\ComponentSystem\FrameworkComponents\Physics3D\Component3DJointRevolute.h" />
+    <ClInclude Include="SourceCommon\ComponentSystem\FrameworkComponents\Physics3D\Component3DJointPoint2Point.h" />
     <ClInclude Include="SourceCommon\Core\EngineComponentTypeManager.h" />
     <ClInclude Include="SourceCommon\Core\EngineCore.h" />
     <ClInclude Include="SourceCommon\Core\InputFinger.h" />
