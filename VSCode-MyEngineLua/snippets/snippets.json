@@ -899,6 +899,9 @@
         "description": "Apply a force to a 3D physics object."
     },
 	
+    ////ComponentType_3DJointPoint2Point,
+    ////ComponentType_3DJointHinge,
+
     //Component2DCollisionObject::LuaRegister( m_pLuaState );
     //    luabridge::getGlobalNamespace( luastate )
     //        .beginClass<Component2DCollisionObject>( "Component2DCollisionObject" )

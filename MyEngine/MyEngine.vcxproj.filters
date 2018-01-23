@@ -411,10 +411,10 @@
     <ClCompile Include="SourceCommon\ComponentSystem\FrameworkComponents\Physics3D\Component3DJointPrismatic.cpp">
       <Filter>Source\ComponentSystem\Framework Components\Physics3D</Filter>
     </ClCompile>
-    <ClCompile Include="SourceCommon\ComponentSystem\FrameworkComponents\Physics3D\Component3DJointRevolute.cpp">
+    <ClCompile Include="SourceCommon\ComponentSystem\FrameworkComponents\Physics3D\Component3DJointPoint2Point.cpp">
       <Filter>Source\ComponentSystem\Framework Components\Physics3D</Filter>
     </ClCompile>
-    <ClCompile Include="SourceCommon\ComponentSystem\FrameworkComponents\Physics3D\Component3DJointPoint2Point.cpp">
+    <ClCompile Include="SourceCommon\ComponentSystem\FrameworkComponents\Physics3D\Component3DJointHinge.cpp">
       <Filter>Source\ComponentSystem\Framework Components\Physics3D</Filter>
     </ClCompile>
   </ItemGroup>
@@ -773,13 +773,13 @@
     <ClInclude Include="SourceCommon\ComponentSystem\FrameworkComponents\Physics3D\Component3DJointPrismatic.h">
       <Filter>Source\ComponentSystem\Framework Components\Physics3D</Filter>
     </ClInclude>
-    <ClInclude Include="SourceCommon\ComponentSystem\FrameworkComponents\Physics3D\Component3DJointRevolute.h">
-      <Filter>Source\ComponentSystem\Framework Components\Physics3D</Filter>
-    </ClInclude>
     <ClInclude Include="SourceCommon\ComponentSystem\FrameworkComponents\Physics3D\Component3DJointPoint2Point.h">
       <Filter>Source\ComponentSystem\Framework Components\Physics3D</Filter>
     </ClInclude>
     <ClInclude Include="SourceCommon\ComponentSystem\FrameworkComponents\Physics3D\Component3DJointBase.h">
+      <Filter>Source\ComponentSystem\Framework Components\Physics3D</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCommon\ComponentSystem\FrameworkComponents\Physics3D\Component3DJointHinge.h">
       <Filter>Source\ComponentSystem\Framework Components\Physics3D</Filter>
     </ClInclude>
   </ItemGroup>

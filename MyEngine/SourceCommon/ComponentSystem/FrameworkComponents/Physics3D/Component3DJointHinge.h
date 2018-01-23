@@ -7,20 +7,20 @@
 // 2. Altered source versions must be plainly marked as such, and must not be misrepresented as being the original software.
 // 3. This notice may not be removed or altered from any source distribution.
 
-#ifndef __Component3DJointRevolute_H__
-#define __Component3DJointRevolute_H__
+#ifndef __Component3DJointHinge_H__
+#define __Component3DJointHinge_H__
 
-class Component3DJointRevolute : public ComponentBase
+class Component3DJointHinge : public ComponentBase
 {
 private:
     // Component Variable List
-    MYFW_COMPONENT_DECLARE_VARIABLE_LIST( Component3DJointRevolute );
+    MYFW_COMPONENT_DECLARE_VARIABLE_LIST( Component3DJointHinge );
 
 public:
     Component3DCollisionObject* m_pSecondCollisionObject;
 
-    Vector2 m_AnchorA;
-    Vector2 m_AnchorB;
+    Vector3 m_PivotA;
+    Vector3 m_PivotB;
     bool m_MotorEnabled;
     float m_MotorSpeed;
     float m_MotorMaxTorque;
@@ -31,15 +31,15 @@ public:
     float m_BreakForce;
 
     // runtime vars, filled in OnPlay();
-    b2RevoluteJoint* m_pJoint;
-    b2Body* m_pBody;
-    b2Body* m_pSecondBody;
+    btHingeConstraint* m_pJoint;
+    btRigidBody* m_pBody;
+    btRigidBody* m_pSecondBody;
 
 public:
-    Component3DJointRevolute();
-    virtual ~Component3DJointRevolute();
-    SetClassnameBase( "3DJoint-RevoluteComponent" ); // only first 8 character count. // "3DJoint-"
-    //SetClassnameWithParent( "3DRevoluteComponent", "3DJoint" ); // only first 8 character count.
+    Component3DJointHinge();
+    virtual ~Component3DJointHinge();
+    SetClassnameBase( "3DJoint-HingeComponent" ); // only first 8 character count. // "3DJoint-"
+    //SetClassnameWithParent( "3DHingeComponent", "3DJoint" ); // only first 8 character count.
 
 #if MYFW_USING_LUA
     static void LuaRegister(lua_State* luastate);
@@ -49,14 +49,16 @@ public:
     //virtual void ImportFromJSONObject(cJSON* jsonobj, unsigned int sceneid);
 
     virtual void Reset();
-    virtual void CopyFromSameType_Dangerous(ComponentBase* pObject) { *this = (Component3DJointRevolute&)*pObject; }
-    Component3DJointRevolute& operator=(const Component3DJointRevolute& other);
+    virtual void CopyFromSameType_Dangerous(ComponentBase* pObject) { *this = (Component3DJointHinge&)*pObject; }
+    Component3DJointHinge& operator=(const Component3DJointHinge& other);
 
     virtual void RegisterCallbacks();
     virtual void UnregisterCallbacks();
 
     virtual void OnPlay();
     virtual void OnStop();
+
+    virtual void RemoveJointFromWorld();
 
 protected:
     // Callback functions for various events.
@@ -75,7 +77,7 @@ public:
     virtual void AddToObjectsPanel(wxTreeItemId gameobjectid);
 
     // Object panel callbacks.
-    static void StaticOnLeftClick(void* pObjectPtr, wxTreeItemId id, unsigned int count) { ((Component3DJointRevolute*)pObjectPtr)->OnLeftClick( count, true ); }
+    static void StaticOnLeftClick(void* pObjectPtr, wxTreeItemId id, unsigned int count) { ((Component3DJointHinge*)pObjectPtr)->OnLeftClick( count, true ); }
     void OnLeftClick(unsigned int count, bool clear);
     virtual void FillPropertiesWindow(bool clear, bool addcomponentvariables = false, bool ignoreblockvisibleflag = false);
 
@@ -85,4 +87,4 @@ public:
 #endif //MYFW_USING_WX
 };
 
-#endif //__Component3DJointRevolute_H__
+#endif //__Component3DJointHinge_H__

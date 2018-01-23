@@ -27,6 +27,7 @@ ComponentTypeInfo g_EngineComponentTypeInfo[Component_NumEngineComponentTypes] =
     { "Effects",        "Post Effect Quad",        },  //ComponentType_PostEffect,
     { "Physics",        "3D Collision Object",     },  //ComponentType_3DCollisionObject,
     { "Physics",        "3D Joint - Point2Point",  },  //ComponentType_3DJointPoint2Point,
+    { "Physics",        "3D Joint - Hinge",        },  //ComponentType_3DJointHinge,
     { "Physics",        "2D Collision Object",     },  //ComponentType_2DCollisionObject,
     { "Physics",        "2D Joint - Revolute",     },  //ComponentType_2DJointRevolute,
     { "Physics",        "2D Joint - Prismatic",    },  //ComponentType_2DJointPrismatic,
@@ -60,6 +61,7 @@ ComponentBase* EngineComponentTypeManager::CreateComponent(int type)
     case ComponentType_PostEffect:          pComponent = MyNew ComponentPostEffect;         break;
     case ComponentType_3DCollisionObject:   pComponent = MyNew Component3DCollisionObject;  break;
     case ComponentType_3DJointPoint2Point:  pComponent = MyNew Component3DJointPoint2Point; break;
+    case ComponentType_3DJointHinge:        pComponent = MyNew Component3DJointHinge;       break;
     case ComponentType_2DCollisionObject:   pComponent = MyNew Component2DCollisionObject;  break;
     case ComponentType_2DJointRevolute:     pComponent = MyNew Component2DJointRevolute;    break;
     case ComponentType_2DJointPrismatic:    pComponent = MyNew Component2DJointPrismatic;   break;

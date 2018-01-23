@@ -889,6 +889,8 @@ BUTTONID_NumButtons           = 9;\
     //ComponentType_CameraShadow,
     //ComponentType_PostEffect,
     Component3DCollisionObject::LuaRegister( m_pLuaState );
+    //ComponentType_3DJointPoint2Point,
+    //ComponentType_3DJointHinge,
     Component2DCollisionObject::LuaRegister( m_pLuaState );
     //ComponentType_2DJointRevolute,
     //ComponentType_2DJointPrismatic,

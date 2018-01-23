@@ -10,13 +10,13 @@
 #include "EngineCommonHeader.h"
 
 #if MYFW_USING_WX
-bool Component3DJointRevolute::m_PanelWatchBlockVisible = true;
+bool Component3DJointHinge::m_PanelWatchBlockVisible = true;
 #endif
 
 // Component Variable List
-MYFW_COMPONENT_IMPLEMENT_VARIABLE_LIST( Component3DJointRevolute ); //_VARIABLE_LIST
+MYFW_COMPONENT_IMPLEMENT_VARIABLE_LIST( Component3DJointHinge ); //_VARIABLE_LIST
 
-Component3DJointRevolute::Component3DJointRevolute()
+Component3DJointHinge::Component3DJointHinge()
 : ComponentBase()
 {
     MYFW_COMPONENT_VARIABLE_LIST_CONSTRUCTOR(); //_VARIABLE_LIST
@@ -27,8 +27,8 @@ Component3DJointRevolute::Component3DJointRevolute()
 
     m_pSecondCollisionObject = 0;
     
-    m_AnchorA.Set( 0, 0 );
-    m_AnchorB.Set( 0, 0 );
+    m_PivotA.Set( 0, 0, 0 );
+    m_PivotB.Set( 0, 0, 0 );
 
     m_MotorEnabled = false;
     m_MotorSpeed = 0;
@@ -45,39 +45,39 @@ Component3DJointRevolute::Component3DJointRevolute()
     m_pSecondBody = 0;
 }
 
-Component3DJointRevolute::~Component3DJointRevolute()
+Component3DJointHinge::~Component3DJointHinge()
 {
     MYFW_COMPONENT_VARIABLE_LIST_DESTRUCTOR(); //_VARIABLE_LIST
 }
 
-void Component3DJointRevolute::RegisterVariables(CPPListHead* pList, Component3DJointRevolute* pThis) //_VARIABLE_LIST
+void Component3DJointHinge::RegisterVariables(CPPListHead* pList, Component3DJointHinge* pThis) //_VARIABLE_LIST
 {
     AddVar( pList, "SecondCollisionObject", ComponentVariableType_ComponentPtr,
         MyOffsetOf( pThis, &pThis->m_pSecondCollisionObject ), true, true, 0,
-        (CVarFunc_ValueChanged)&Component3DJointRevolute::OnValueChanged, (CVarFunc_DropTarget)&Component3DJointRevolute::OnDrop, 0 );
+        (CVarFunc_ValueChanged)&Component3DJointHinge::OnValueChanged, (CVarFunc_DropTarget)&Component3DJointHinge::OnDrop, 0 );
 
-    AddVar( pList, "AnchorA", ComponentVariableType_Vector2, MyOffsetOf( pThis, &pThis->m_AnchorA ), true, true, 0, (CVarFunc_ValueChanged)&Component3DJointRevolute::OnValueChanged, 0, 0 );
-    AddVar( pList, "AnchorB", ComponentVariableType_Vector2, MyOffsetOf( pThis, &pThis->m_AnchorB ), true, true, 0, (CVarFunc_ValueChanged)&Component3DJointRevolute::OnValueChanged, 0, 0 );
+    AddVar( pList, "PivotA", ComponentVariableType_Vector2, MyOffsetOf( pThis, &pThis->m_PivotA ), true, true, 0, (CVarFunc_ValueChanged)&Component3DJointHinge::OnValueChanged, 0, 0 );
+    AddVar( pList, "PivotB", ComponentVariableType_Vector2, MyOffsetOf( pThis, &pThis->m_PivotB ), true, true, 0, (CVarFunc_ValueChanged)&Component3DJointHinge::OnValueChanged, 0, 0 );
 
-    AddVar( pList, "MotorEnabled", ComponentVariableType_Bool, MyOffsetOf( pThis, &pThis->m_MotorEnabled ), true, true, "Motor Enabled", (CVarFunc_ValueChanged)&Component3DJointRevolute::OnValueChanged, 0, 0 );
-    AddVar( pList, "MotorSpeed", ComponentVariableType_Float, MyOffsetOf( pThis, &pThis->m_MotorSpeed ), true, true, "Motor Speed", (CVarFunc_ValueChanged)&Component3DJointRevolute::OnValueChanged, 0, 0 );
-    AddVar( pList, "MotorMaxTorque", ComponentVariableType_Float, MyOffsetOf( pThis, &pThis->m_MotorMaxTorque ), true, true, "Motor Max Torque", (CVarFunc_ValueChanged)&Component3DJointRevolute::OnValueChanged, 0, 0 );
+    AddVar( pList, "MotorEnabled", ComponentVariableType_Bool, MyOffsetOf( pThis, &pThis->m_MotorEnabled ), true, true, "Motor Enabled", (CVarFunc_ValueChanged)&Component3DJointHinge::OnValueChanged, 0, 0 );
+    AddVar( pList, "MotorSpeed", ComponentVariableType_Float, MyOffsetOf( pThis, &pThis->m_MotorSpeed ), true, true, "Motor Speed", (CVarFunc_ValueChanged)&Component3DJointHinge::OnValueChanged, 0, 0 );
+    AddVar( pList, "MotorMaxTorque", ComponentVariableType_Float, MyOffsetOf( pThis, &pThis->m_MotorMaxTorque ), true, true, "Motor Max Torque", (CVarFunc_ValueChanged)&Component3DJointHinge::OnValueChanged, 0, 0 );
 
-    AddVar( pList, "LimitEnabled", ComponentVariableType_Bool, MyOffsetOf( pThis, &pThis->m_AngleLimitEnabled ), true, true, "Angle Limit Enabled", (CVarFunc_ValueChanged)&Component3DJointRevolute::OnValueChanged, 0, 0 );
-    AddVar( pList, "LimitMin", ComponentVariableType_Float, MyOffsetOf( pThis, &pThis->m_AngleLimitMin ), true, true, "Min Angle", (CVarFunc_ValueChanged)&Component3DJointRevolute::OnValueChanged, 0, 0 );
-    AddVar( pList, "LimitMax", ComponentVariableType_Float, MyOffsetOf( pThis, &pThis->m_AngleLimitMax ), true, true, "Max Angle", (CVarFunc_ValueChanged)&Component3DJointRevolute::OnValueChanged, 0, 0 );
+    AddVar( pList, "LimitEnabled", ComponentVariableType_Bool, MyOffsetOf( pThis, &pThis->m_AngleLimitEnabled ), true, true, "Angle Limit Enabled", (CVarFunc_ValueChanged)&Component3DJointHinge::OnValueChanged, 0, 0 );
+    AddVar( pList, "LimitMin", ComponentVariableType_Float, MyOffsetOf( pThis, &pThis->m_AngleLimitMin ), true, true, "Min Angle", (CVarFunc_ValueChanged)&Component3DJointHinge::OnValueChanged, 0, 0 );
+    AddVar( pList, "LimitMax", ComponentVariableType_Float, MyOffsetOf( pThis, &pThis->m_AngleLimitMax ), true, true, "Max Angle", (CVarFunc_ValueChanged)&Component3DJointHinge::OnValueChanged, 0, 0 );
 
-    AddVar( pList, "BreakForce", ComponentVariableType_Float, MyOffsetOf( pThis, &pThis->m_BreakForce ), true, true, "Break Force", (CVarFunc_ValueChanged)&Component3DJointRevolute::OnValueChanged, 0, 0 );
+    AddVar( pList, "BreakForce", ComponentVariableType_Float, MyOffsetOf( pThis, &pThis->m_BreakForce ), true, true, "Break Force", (CVarFunc_ValueChanged)&Component3DJointHinge::OnValueChanged, 0, 0 );
 }
 
-void Component3DJointRevolute::Reset()
+void Component3DJointHinge::Reset()
 {
     ComponentBase::Reset();
 
     m_pSecondCollisionObject = 0;
 
-    m_AnchorA.Set( 0, 0 );
-    m_AnchorB.Set( 0, 0 );
+    m_PivotA.Set( 0, 0, 0 );
+    m_PivotB.Set( 0, 0, 0 );
 
     m_MotorEnabled = false;
     m_MotorSpeed = 0;
@@ -99,31 +99,31 @@ void Component3DJointRevolute::Reset()
 }
 
 #if MYFW_USING_LUA
-void Component3DJointRevolute::LuaRegister(lua_State* luastate)
+void Component3DJointHinge::LuaRegister(lua_State* luastate)
 {
     //luabridge::getGlobalNamespace( luastate )
-    //    .beginClass<Component3DJointRevolute>( "Component3DJointRevolute" )
-    //        .addData( "density", &Component3DJointRevolute::m_Density )
-    //        .addFunction( "GetMass", &Component3DJointRevolute::GetMass )            
+    //    .beginClass<Component3DJointHinge>( "Component3DJointHinge" )
+    //        .addData( "density", &Component3DJointHinge::m_Density )
+    //        .addFunction( "GetMass", &Component3DJointHinge::GetMass )            
     //    .endClass();
 }
 #endif //MYFW_USING_LUA
 
 #if MYFW_USING_WX
-void Component3DJointRevolute::AddToObjectsPanel(wxTreeItemId gameobjectid)
+void Component3DJointHinge::AddToObjectsPanel(wxTreeItemId gameobjectid)
 {
     //wxTreeItemId id =
-    g_pPanelObjectList->AddObject( this, Component3DJointRevolute::StaticOnLeftClick, ComponentBase::StaticOnRightClick, gameobjectid, "3DJointRevolute", ObjectListIcon_Component );
+    g_pPanelObjectList->AddObject( this, Component3DJointHinge::StaticOnLeftClick, ComponentBase::StaticOnRightClick, gameobjectid, "3DJointHinge", ObjectListIcon_Component );
 }
 
-void Component3DJointRevolute::OnLeftClick(unsigned int count, bool clear)
+void Component3DJointHinge::OnLeftClick(unsigned int count, bool clear)
 {
     ComponentBase::OnLeftClick( count, clear );
 }
 
-void Component3DJointRevolute::FillPropertiesWindow(bool clear, bool addcomponentvariables, bool ignoreblockvisibleflag)
+void Component3DJointHinge::FillPropertiesWindow(bool clear, bool addcomponentvariables, bool ignoreblockvisibleflag)
 {
-    m_ControlID_ComponentTitleLabel = g_pPanelWatch->AddSpace( "3D Revolute Joint", this, ComponentBase::StaticOnComponentTitleLabelClicked );
+    m_ControlID_ComponentTitleLabel = g_pPanelWatch->AddSpace( "3D Hinge Joint", this, ComponentBase::StaticOnComponentTitleLabelClicked );
 
     if( m_PanelWatchBlockVisible || ignoreblockvisibleflag == true )
     {
@@ -133,7 +133,7 @@ void Component3DJointRevolute::FillPropertiesWindow(bool clear, bool addcomponen
     }
 }
 
-void* Component3DJointRevolute::OnDrop(ComponentVariable* pVar, wxCoord x, wxCoord y)
+void* Component3DJointHinge::OnDrop(ComponentVariable* pVar, wxCoord x, wxCoord y)
 {
     void* oldvalue = m_pSecondCollisionObject;
 
@@ -159,7 +159,7 @@ void* Component3DJointRevolute::OnDrop(ComponentVariable* pVar, wxCoord x, wxCoo
     return oldvalue;
 }
 
-void* Component3DJointRevolute::OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue* pNewValue)
+void* Component3DJointHinge::OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue* pNewValue)
 {
     void* oldpointer = 0;
 
@@ -204,47 +204,44 @@ void* Component3DJointRevolute::OnValueChanged(ComponentVariable* pVar, bool cha
         {
             if( fequal( m_MotorSpeed, 0 ) == false )
             {
-                m_pJoint->EnableMotor( true );
-                m_pJoint->SetMotorSpeed( m_MotorSpeed );
-                m_pJoint->SetMaxMotorTorque( m_MotorMaxTorque );
+                m_pJoint->enableAngularMotor( true, m_MotorSpeed, m_MotorMaxTorque );
             }
             else
             {
-                m_pJoint->EnableMotor( false );
+                m_pJoint->enableAngularMotor( false, 0, 0 );
             }
         }
 
         if( pVar->m_Offset == MyOffsetOf( this, &m_MotorSpeed ) )
         {
-            m_pJoint->SetMotorSpeed( m_MotorSpeed );
+            m_pJoint->setMotorTargetVelocity( m_MotorSpeed );
         }
 
         if( pVar->m_Offset == MyOffsetOf( this, &m_MotorMaxTorque ) )
         {
-            m_pJoint->SetMaxMotorTorque( m_MotorMaxTorque );
+            m_pJoint->setMaxMotorImpulse( m_MotorMaxTorque );
         }
 
         if( pVar->m_Offset == MyOffsetOf( this, &m_AngleLimitEnabled ) )
         {
             if( fequal( m_MotorSpeed, 0 ) == false )
             {
-                m_pJoint->EnableLimit( true );
-                m_pJoint->SetLimits( m_AngleLimitMin * PI/180, m_AngleLimitMax * PI/180 );
+                m_pJoint->setLimit( m_AngleLimitMin * PI/180, m_AngleLimitMax * PI/180 );
             }
             else
             {
-                m_pJoint->EnableMotor( false );
+                m_pJoint->setLimit( 0, 0 );
             }
         }
 
         if( pVar->m_Offset == MyOffsetOf( this, &m_AngleLimitMin ) )
         {
-            m_pJoint->SetLimits( m_AngleLimitMin * PI/180, m_AngleLimitMax * PI/180 );
+            m_pJoint->setLimit( m_AngleLimitMin * PI/180, m_AngleLimitMax * PI/180 );
         }
 
         if( pVar->m_Offset == MyOffsetOf( this, &m_AngleLimitMax ) )
         {
-            m_pJoint->SetLimits( m_AngleLimitMin * PI/180, m_AngleLimitMax * PI/180 );
+            m_pJoint->setLimit( m_AngleLimitMin * PI/180, m_AngleLimitMax * PI/180 );
         }
     }
 
@@ -252,7 +249,7 @@ void* Component3DJointRevolute::OnValueChanged(ComponentVariable* pVar, bool cha
 }
 #endif //MYFW_USING_WX
 
-Component3DJointRevolute& Component3DJointRevolute::operator=(const Component3DJointRevolute& other)
+Component3DJointHinge& Component3DJointHinge::operator=(const Component3DJointHinge& other)
 {
     MyAssert( &other != this );
 
@@ -261,8 +258,8 @@ Component3DJointRevolute& Component3DJointRevolute::operator=(const Component3DJ
     // TODO: replace this with a CopyComponentVariablesFromOtherObject... or something similar.
     m_pSecondCollisionObject = other.m_pSecondCollisionObject;
 
-    m_AnchorA = other.m_AnchorA;
-    m_AnchorB = other.m_AnchorB;
+    m_PivotA = other.m_PivotA;
+    m_PivotB = other.m_PivotB;
 
     m_MotorEnabled = other.m_MotorEnabled;
     m_MotorSpeed = other.m_MotorSpeed;
@@ -281,23 +278,23 @@ Component3DJointRevolute& Component3DJointRevolute::operator=(const Component3DJ
     return *this;
 }
 
-void Component3DJointRevolute::RegisterCallbacks()
+void Component3DJointHinge::RegisterCallbacks()
 {
     if( m_Enabled && m_CallbacksRegistered == false )
     {
         m_CallbacksRegistered = true;
 
-        MYFW_REGISTER_COMPONENT_CALLBACK( Component3DJointRevolute, Tick );
-        //MYFW_REGISTER_COMPONENT_CALLBACK( Component3DJointRevolute, OnSurfaceChanged );
-        //MYFW_REGISTER_COMPONENT_CALLBACK( Component3DJointRevolute, Draw );
-        //MYFW_REGISTER_COMPONENT_CALLBACK( Component3DJointRevolute, OnTouch );
-        //MYFW_REGISTER_COMPONENT_CALLBACK( Component3DJointRevolute, OnButtons );
-        //MYFW_REGISTER_COMPONENT_CALLBACK( Component3DJointRevolute, OnKeys );
-        //MYFW_REGISTER_COMPONENT_CALLBACK( Component3DJointRevolute, OnFileRenamed );
+        MYFW_REGISTER_COMPONENT_CALLBACK( Component3DJointHinge, Tick );
+        //MYFW_REGISTER_COMPONENT_CALLBACK( Component3DJointHinge, OnSurfaceChanged );
+        //MYFW_REGISTER_COMPONENT_CALLBACK( Component3DJointHinge, Draw );
+        //MYFW_REGISTER_COMPONENT_CALLBACK( Component3DJointHinge, OnTouch );
+        //MYFW_REGISTER_COMPONENT_CALLBACK( Component3DJointHinge, OnButtons );
+        //MYFW_REGISTER_COMPONENT_CALLBACK( Component3DJointHinge, OnKeys );
+        //MYFW_REGISTER_COMPONENT_CALLBACK( Component3DJointHinge, OnFileRenamed );
     }
 }
 
-void Component3DJointRevolute::UnregisterCallbacks()
+void Component3DJointHinge::UnregisterCallbacks()
 {
     if( m_CallbacksRegistered == true )
     {
@@ -313,7 +310,7 @@ void Component3DJointRevolute::UnregisterCallbacks()
     }
 }
 
-void Component3DJointRevolute::TickCallback(double TimePassed)
+void Component3DJointHinge::TickCallback(double TimePassed)
 {
     if( m_BreakForce <= 0 )
         return;
@@ -332,18 +329,16 @@ void Component3DJointRevolute::TickCallback(double TimePassed)
     //}
 }
 
-void Component3DJointRevolute::OnPlay()
+void Component3DJointHinge::OnPlay()
 {
     ComponentBase::OnPlay();
 
-    //m_pBody = m_pGameObject->Get3DCollisionObject()->m_pBody;
-    //if( m_pSecondCollisionObject )
-    //    m_pSecondBody = m_pSecondCollisionObject->m_pBody;
+    m_pBody = m_pGameObject->Get3DCollisionObject()->GetBody();
+    if( m_pSecondCollisionObject )
+        m_pSecondBody = m_pSecondCollisionObject->GetBody();
 
-    //Box3DWorld* pBox3DWorld = m_pGameObject->Get3DCollisionObject()->m_pBox3DWorld;
-
-    //if( m_pBody )
-    //{
+    if( m_pBody )
+    {
     //    b2RevoluteJointDef jointdef;
 
     //    if( m_pSecondBody )
@@ -384,14 +379,47 @@ void Component3DJointRevolute::OnPlay()
     //    }
 
     //    m_pJoint = (b2RevoluteJoint*)pBox3DWorld->m_pWorld->CreateJoint( &jointdef );
-    //}
+
+        if( m_pSecondBody )
+        {
+            btVector3 pivotInA( m_PivotA.x, m_PivotA.y, m_PivotA.z );
+            btVector3 pivotInB( m_PivotB.x, m_PivotB.y, m_PivotB.z );
+            btVector3 axisInA( 0, 1, 0 );
+            btVector3 axisInB( 0, 1, 0 );
+            m_pJoint = new btHingeConstraint( *m_pBody, *m_pSecondBody, pivotInA, pivotInB, axisInA, axisInB );
+            g_pBulletWorld->m_pDynamicsWorld->addConstraint( m_pJoint, true );
+        }
+        else
+        {
+            btVector3 pivotInA( m_PivotA.x, m_PivotA.y, m_PivotA.z );
+            btVector3 axisInA( 0, 1, 0 );
+            m_pJoint = new btHingeConstraint( *m_pBody, pivotInA, axisInA );
+            g_pBulletWorld->m_pDynamicsWorld->addConstraint( m_pJoint, true );
+        }
+
+        if( m_pJoint )
+        {
+            if( m_MotorEnabled )
+                m_pJoint->enableAngularMotor( true, m_MotorSpeed, m_MotorMaxTorque );
+            else
+                m_pJoint->enableAngularMotor( false, 0, 0 );
+        }
+    }
 }
 
-void Component3DJointRevolute::OnStop()
+void Component3DJointHinge::OnStop()
 {
     ComponentBase::OnStop();
 
     m_pJoint = 0;
     m_pBody = 0;
     m_pSecondBody = 0;
+}
+
+void Component3DJointHinge::RemoveJointFromWorld()
+{
+    if( m_pJoint )
+    {
+        g_pBulletWorld->m_pDynamicsWorld->removeConstraint( m_pJoint );
+    }
 }
