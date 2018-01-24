@@ -28,6 +28,7 @@ enum EngineComponentTypes // search for ADDING_NEW_ComponentType
     ComponentType_3DCollisionObject,
     ComponentType_3DJointPoint2Point,
     ComponentType_3DJointHinge,
+    ComponentType_3DJointSlider,
     ComponentType_2DCollisionObject,
     ComponentType_2DJointRevolute,
     ComponentType_2DJointPrismatic,

@@ -10,13 +10,13 @@
 #include "EngineCommonHeader.h"
 
 #if MYFW_USING_WX
-bool Component3DJointPrismatic::m_PanelWatchBlockVisible = true;
+bool Component3DJointSlider::m_PanelWatchBlockVisible = true;
 #endif
 
 // Component Variable List
-MYFW_COMPONENT_IMPLEMENT_VARIABLE_LIST( Component3DJointPrismatic ); //_VARIABLE_LIST
+MYFW_COMPONENT_IMPLEMENT_VARIABLE_LIST( Component3DJointSlider ); //_VARIABLE_LIST
 
-Component3DJointPrismatic::Component3DJointPrismatic()
+Component3DJointSlider::Component3DJointSlider()
 : ComponentBase()
 {
     MYFW_COMPONENT_VARIABLE_LIST_CONSTRUCTOR(); //_VARIABLE_LIST
@@ -27,9 +27,8 @@ Component3DJointPrismatic::Component3DJointPrismatic()
 
     m_pSecondCollisionObject = 0;
     
-    m_Up.Set( 0, 1 );
-    m_AnchorA.Set( 0, 0 );
-    m_AnchorB.Set( 0, 0 );
+    m_AxisA.Set( 0, 0, 0 );
+    m_AxisB.Set( 0, 0, 0 );
 
     m_MotorEnabled = false;
     m_MotorSpeed = 0;
@@ -44,41 +43,37 @@ Component3DJointPrismatic::Component3DJointPrismatic()
     m_pSecondBody = 0;
 }
 
-Component3DJointPrismatic::~Component3DJointPrismatic()
+Component3DJointSlider::~Component3DJointSlider()
 {
     MYFW_COMPONENT_VARIABLE_LIST_DESTRUCTOR(); //_VARIABLE_LIST
 }
 
-void Component3DJointPrismatic::RegisterVariables(CPPListHead* pList, Component3DJointPrismatic* pThis) //_VARIABLE_LIST
+void Component3DJointSlider::RegisterVariables(CPPListHead* pList, Component3DJointSlider* pThis) //_VARIABLE_LIST
 {
     AddVar( pList, "SecondCollisionObject", ComponentVariableType_ComponentPtr,
         MyOffsetOf( pThis, &pThis->m_pSecondCollisionObject ), true, true, 0,
-        (CVarFunc_ValueChanged)&Component3DJointPrismatic::OnValueChanged, (CVarFunc_DropTarget)&Component3DJointPrismatic::OnDrop, 0 );
+        (CVarFunc_ValueChanged)&Component3DJointSlider::OnValueChanged, (CVarFunc_DropTarget)&Component3DJointSlider::OnDrop, 0 );
 
-    AddVar( pList, "Up", ComponentVariableType_Vector2, MyOffsetOf( pThis, &pThis->m_Up ), true, true, 0, (CVarFunc_ValueChanged)&Component3DJointPrismatic::OnValueChanged, 0, 0 );
+    AddVar( pList, "AxisA", ComponentVariableType_Vector3, MyOffsetOf( pThis, &pThis->m_AxisA ), true, true, 0, (CVarFunc_ValueChanged)&Component3DJointSlider::OnValueChanged, 0, 0 );
+    AddVar( pList, "AxisB", ComponentVariableType_Vector3, MyOffsetOf( pThis, &pThis->m_AxisB ), true, true, 0, (CVarFunc_ValueChanged)&Component3DJointSlider::OnValueChanged, 0, 0 );
 
-    AddVar( pList, "AnchorA", ComponentVariableType_Vector2, MyOffsetOf( pThis, &pThis->m_AnchorA ), true, true, 0, (CVarFunc_ValueChanged)&Component3DJointPrismatic::OnValueChanged, 0, 0 );
-    AddVar( pList, "AnchorB", ComponentVariableType_Vector2, MyOffsetOf( pThis, &pThis->m_AnchorB ), true, true, 0, (CVarFunc_ValueChanged)&Component3DJointPrismatic::OnValueChanged, 0, 0 );
+    AddVar( pList, "MotorEnabled", ComponentVariableType_Bool, MyOffsetOf( pThis, &pThis->m_MotorEnabled ), true, true, "Motor Enabled", (CVarFunc_ValueChanged)&Component3DJointSlider::OnValueChanged, 0, 0 );
+    AddVar( pList, "MotorSpeed", ComponentVariableType_Float, MyOffsetOf( pThis, &pThis->m_MotorSpeed ), true, true, "Motor Speed", (CVarFunc_ValueChanged)&Component3DJointSlider::OnValueChanged, 0, 0 );
+    AddVar( pList, "MotorMaxForce", ComponentVariableType_Float, MyOffsetOf( pThis, &pThis->m_MotorMaxForce ), true, true, "Motor Max Force", (CVarFunc_ValueChanged)&Component3DJointSlider::OnValueChanged, 0, 0 );
 
-    AddVar( pList, "MotorEnabled", ComponentVariableType_Bool, MyOffsetOf( pThis, &pThis->m_MotorEnabled ), true, true, "Motor Enabled", (CVarFunc_ValueChanged)&Component3DJointPrismatic::OnValueChanged, 0, 0 );
-    AddVar( pList, "MotorSpeed", ComponentVariableType_Float, MyOffsetOf( pThis, &pThis->m_MotorSpeed ), true, true, "Motor Speed", (CVarFunc_ValueChanged)&Component3DJointPrismatic::OnValueChanged, 0, 0 );
-    AddVar( pList, "MotorMaxForce", ComponentVariableType_Float, MyOffsetOf( pThis, &pThis->m_MotorMaxForce ), true, true, "Motor Max Force", (CVarFunc_ValueChanged)&Component3DJointPrismatic::OnValueChanged, 0, 0 );
-
-    AddVar( pList, "LimitEnabled", ComponentVariableType_Bool, MyOffsetOf( pThis, &pThis->m_TranslationLimitEnabled ), true, true, "Limit Enabled", (CVarFunc_ValueChanged)&Component3DJointPrismatic::OnValueChanged, 0, 0 );
-    AddVar( pList, "LimitMin", ComponentVariableType_Float, MyOffsetOf( pThis, &pThis->m_TranslationLimitMin ), true, true, "Min Translation", (CVarFunc_ValueChanged)&Component3DJointPrismatic::OnValueChanged, 0, 0 );
-    AddVar( pList, "LimitMax", ComponentVariableType_Float, MyOffsetOf( pThis, &pThis->m_TranslationLimitMax ), true, true, "Max Translation", (CVarFunc_ValueChanged)&Component3DJointPrismatic::OnValueChanged, 0, 0 );
+    AddVar( pList, "LimitEnabled", ComponentVariableType_Bool, MyOffsetOf( pThis, &pThis->m_TranslationLimitEnabled ), true, true, "Limit Enabled", (CVarFunc_ValueChanged)&Component3DJointSlider::OnValueChanged, 0, 0 );
+    AddVar( pList, "LimitMin", ComponentVariableType_Float, MyOffsetOf( pThis, &pThis->m_TranslationLimitMin ), true, true, "Min Translation", (CVarFunc_ValueChanged)&Component3DJointSlider::OnValueChanged, 0, 0 );
+    AddVar( pList, "LimitMax", ComponentVariableType_Float, MyOffsetOf( pThis, &pThis->m_TranslationLimitMax ), true, true, "Max Translation", (CVarFunc_ValueChanged)&Component3DJointSlider::OnValueChanged, 0, 0 );
 }
 
-void Component3DJointPrismatic::Reset()
+void Component3DJointSlider::Reset()
 {
     ComponentBase::Reset();
 
     m_pSecondCollisionObject = 0;
 
-    m_Up.Set( 0, 1 );
-
-    m_AnchorA.Set( 0, 0 );
-    m_AnchorB.Set( 0, 0 );
+    m_AxisA.Set( 0, 0, 0 );
+    m_AxisB.Set( 0, 0, 0 );
 
     m_MotorEnabled = false;
     m_MotorSpeed = 0;
@@ -98,31 +93,31 @@ void Component3DJointPrismatic::Reset()
 }
 
 #if MYFW_USING_LUA
-void Component3DJointPrismatic::LuaRegister(lua_State* luastate)
+void Component3DJointSlider::LuaRegister(lua_State* luastate)
 {
     //luabridge::getGlobalNamespace( luastate )
-    //    .beginClass<Component3DJointPrismatic>( "Component3DJointPrismatic" )
-    //        .addData( "density", &Component3DJointPrismatic::m_Density )
-    //        .addFunction( "GetMass", &Component3DJointPrismatic::GetMass )            
+    //    .beginClass<Component3DJointSlider>( "Component3DJointSlider" )
+    //        .addData( "density", &Component3DJointSlider::m_Density )
+    //        .addFunction( "GetMass", &Component3DJointSlider::GetMass )            
     //    .endClass();
 }
 #endif //MYFW_USING_LUA
 
 #if MYFW_USING_WX
-void Component3DJointPrismatic::AddToObjectsPanel(wxTreeItemId gameobjectid)
+void Component3DJointSlider::AddToObjectsPanel(wxTreeItemId gameobjectid)
 {
     //wxTreeItemId id =
-    g_pPanelObjectList->AddObject( this, Component3DJointPrismatic::StaticOnLeftClick, ComponentBase::StaticOnRightClick, gameobjectid, "3DJointPrismatic", ObjectListIcon_Component );
+    g_pPanelObjectList->AddObject( this, Component3DJointSlider::StaticOnLeftClick, ComponentBase::StaticOnRightClick, gameobjectid, "3DJointSlider", ObjectListIcon_Component );
 }
 
-void Component3DJointPrismatic::OnLeftClick(unsigned int count, bool clear)
+void Component3DJointSlider::OnLeftClick(unsigned int count, bool clear)
 {
     ComponentBase::OnLeftClick( count, clear );
 }
 
-void Component3DJointPrismatic::FillPropertiesWindow(bool clear, bool addcomponentvariables, bool ignoreblockvisibleflag)
+void Component3DJointSlider::FillPropertiesWindow(bool clear, bool addcomponentvariables, bool ignoreblockvisibleflag)
 {
-    m_ControlID_ComponentTitleLabel = g_pPanelWatch->AddSpace( "3D Prismatic Joint", this, ComponentBase::StaticOnComponentTitleLabelClicked );
+    m_ControlID_ComponentTitleLabel = g_pPanelWatch->AddSpace( "3D Slider Joint", this, ComponentBase::StaticOnComponentTitleLabelClicked );
 
     if( m_PanelWatchBlockVisible || ignoreblockvisibleflag == true )
     {
@@ -132,7 +127,7 @@ void Component3DJointPrismatic::FillPropertiesWindow(bool clear, bool addcompone
     }
 }
 
-void* Component3DJointPrismatic::OnDrop(ComponentVariable* pVar, wxCoord x, wxCoord y)
+void* Component3DJointSlider::OnDrop(ComponentVariable* pVar, wxCoord x, wxCoord y)
 {
     void* oldvalue = m_pSecondCollisionObject;
 
@@ -158,7 +153,7 @@ void* Component3DJointPrismatic::OnDrop(ComponentVariable* pVar, wxCoord x, wxCo
     return oldvalue;
 }
 
-void* Component3DJointPrismatic::OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue* pNewValue)
+void* Component3DJointSlider::OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue* pNewValue)
 {
     void* oldpointer = 0;
 
@@ -203,47 +198,47 @@ void* Component3DJointPrismatic::OnValueChanged(ComponentVariable* pVar, bool ch
         {
             if( fequal( m_MotorSpeed, 0 ) == false )
             {
-                m_pJoint->EnableMotor( true );
-                m_pJoint->SetMotorSpeed( m_MotorSpeed );
-                m_pJoint->SetMaxMotorForce( m_MotorMaxForce );
+                //m_pJoint->EnableMotor( true );
+                //m_pJoint->SetMotorSpeed( m_MotorSpeed );
+                //m_pJoint->SetMaxMotorForce( m_MotorMaxForce );
             }
             else
             {
-                m_pJoint->EnableMotor( false );
+                //m_pJoint->EnableMotor( false );
             }
         }
 
         if( pVar->m_Offset == MyOffsetOf( this, &m_MotorSpeed ) )
         {
-            m_pJoint->SetMotorSpeed( m_MotorSpeed );
+            //m_pJoint->SetMotorSpeed( m_MotorSpeed );
         }
 
         if( pVar->m_Offset == MyOffsetOf( this, &m_MotorMaxForce ) )
         {
-            m_pJoint->SetMaxMotorForce( m_MotorMaxForce );
+            //m_pJoint->SetMaxMotorForce( m_MotorMaxForce );
         }
 
         if( pVar->m_Offset == MyOffsetOf( this, &m_TranslationLimitEnabled ) )
         {
             if( fequal( m_MotorSpeed, 0 ) == false )
             {
-                m_pJoint->EnableLimit( true );
-                m_pJoint->SetLimits( m_TranslationLimitMin, m_TranslationLimitMax );
+                //m_pJoint->EnableLimit( true );
+                //m_pJoint->SetLimits( m_TranslationLimitMin, m_TranslationLimitMax );
             }
             else
             {
-                m_pJoint->EnableMotor( false );
+                //m_pJoint->EnableMotor( false );
             }
         }
 
         if( pVar->m_Offset == MyOffsetOf( this, &m_TranslationLimitMin ) )
         {
-            m_pJoint->SetLimits( m_TranslationLimitMin, m_TranslationLimitMax );
+            //m_pJoint->SetLimits( m_TranslationLimitMin, m_TranslationLimitMax );
         }
 
         if( pVar->m_Offset == MyOffsetOf( this, &m_TranslationLimitMax ) )
         {
-            m_pJoint->SetLimits( m_TranslationLimitMin, m_TranslationLimitMax );
+            //m_pJoint->SetLimits( m_TranslationLimitMin, m_TranslationLimitMax );
         }
     }
 
@@ -251,7 +246,7 @@ void* Component3DJointPrismatic::OnValueChanged(ComponentVariable* pVar, bool ch
 }
 #endif //MYFW_USING_WX
 
-Component3DJointPrismatic& Component3DJointPrismatic::operator=(const Component3DJointPrismatic& other)
+Component3DJointSlider& Component3DJointSlider::operator=(const Component3DJointSlider& other)
 {
     MyAssert( &other != this );
 
@@ -260,10 +255,8 @@ Component3DJointPrismatic& Component3DJointPrismatic::operator=(const Component3
     // TODO: replace this with a CopyComponentVariablesFromOtherObject... or something similar.
     m_pSecondCollisionObject = other.m_pSecondCollisionObject;
 
-    m_Up = other.m_Up;
-
-    m_AnchorA = other.m_AnchorA;
-    m_AnchorB = other.m_AnchorB;
+    m_AxisA = other.m_AxisA;
+    m_AxisB = other.m_AxisB;
 
     m_MotorEnabled = other.m_MotorEnabled;
     m_MotorSpeed = other.m_MotorSpeed;
@@ -280,23 +273,23 @@ Component3DJointPrismatic& Component3DJointPrismatic::operator=(const Component3
     return *this;
 }
 
-void Component3DJointPrismatic::RegisterCallbacks()
+void Component3DJointSlider::RegisterCallbacks()
 {
     if( m_Enabled && m_CallbacksRegistered == false )
     {
         m_CallbacksRegistered = true;
 
-        //MYFW_REGISTER_COMPONENT_CALLBACK( Component3DJointPrismatic, Tick );
-        //MYFW_REGISTER_COMPONENT_CALLBACK( Component3DJointPrismatic, OnSurfaceChanged );
-        //MYFW_REGISTER_COMPONENT_CALLBACK( Component3DJointPrismatic, Draw );
-        //MYFW_REGISTER_COMPONENT_CALLBACK( Component3DJointPrismatic, OnTouch );
-        //MYFW_REGISTER_COMPONENT_CALLBACK( Component3DJointPrismatic, OnButtons );
-        //MYFW_REGISTER_COMPONENT_CALLBACK( Component3DJointPrismatic, OnKeys );
-        //MYFW_REGISTER_COMPONENT_CALLBACK( Component3DJointPrismatic, OnFileRenamed );
+        //MYFW_REGISTER_COMPONENT_CALLBACK( Component3DJointSlider, Tick );
+        //MYFW_REGISTER_COMPONENT_CALLBACK( Component3DJointSlider, OnSurfaceChanged );
+        //MYFW_REGISTER_COMPONENT_CALLBACK( Component3DJointSlider, Draw );
+        //MYFW_REGISTER_COMPONENT_CALLBACK( Component3DJointSlider, OnTouch );
+        //MYFW_REGISTER_COMPONENT_CALLBACK( Component3DJointSlider, OnButtons );
+        //MYFW_REGISTER_COMPONENT_CALLBACK( Component3DJointSlider, OnKeys );
+        //MYFW_REGISTER_COMPONENT_CALLBACK( Component3DJointSlider, OnFileRenamed );
     }
 }
 
-void Component3DJointPrismatic::UnregisterCallbacks()
+void Component3DJointSlider::UnregisterCallbacks()
 {
     if( m_CallbacksRegistered == true )
     {
@@ -312,19 +305,17 @@ void Component3DJointPrismatic::UnregisterCallbacks()
     }
 }
 
-void Component3DJointPrismatic::OnPlay()
+void Component3DJointSlider::OnPlay()
 {
     ComponentBase::OnPlay();
 
-    //m_pBody = m_pGameObject->Get3DCollisionObject()->m_pBody;
-    //if( m_pSecondCollisionObject )
-    //    m_pSecondBody = m_pSecondCollisionObject->m_pBody;
+    m_pBody = m_pGameObject->Get3DCollisionObject()->GetBody();
+    if( m_pSecondCollisionObject )
+        m_pSecondBody = m_pSecondCollisionObject->GetBody();
 
-    //Box3DWorld* pBox3DWorld = m_pGameObject->Get3DCollisionObject()->m_pBox3DWorld;
-
-    //if( m_pBody )
-    //{
-    //    b2PrismaticJointDef jointdef;
+    if( m_pBody )
+    {
+    //    b2SliderJointDef jointdef;
 
     //    if( m_pSecondBody )
     //    {
@@ -366,15 +357,72 @@ void Component3DJointPrismatic::OnPlay()
     //        jointdef.upperTranslation = m_TranslationLimitMax;
     //    }
 
-    //    m_pJoint = (b2PrismaticJoint*)pBox3DWorld->m_pWorld->CreateJoint( &jointdef );
-    //}
+    //    m_pJoint = (b2SliderJoint*)pBox3DWorld->m_pWorld->CreateJoint( &jointdef );
+
+        if( m_pSecondBody )
+        {
+            btVector3 axisA( m_AxisA.x, m_AxisA.y, m_AxisA.z );
+            btVector3 axisB( m_AxisB.x, m_AxisB.y, m_AxisB.z );
+
+            if( m_AxisA.LengthSquared() == 0 )
+                axisA.setY( 1 );
+            if( m_AxisB.LengthSquared() == 0 )
+                axisB.setY( 1 );
+
+            btTransform frameInA;
+            btTransform frameInB;
+            frameInA.setIdentity();
+            frameInA.setRotation( btQuaternion( axisA, 0 ) );
+            frameInB.setIdentity();
+            frameInB.setRotation( btQuaternion( axisB, 0 ) );
+            m_pJoint = new btSliderConstraint( *m_pBody, *m_pSecondBody, frameInA, frameInB, false );
+            g_pBulletWorld->m_pDynamicsWorld->addConstraint( m_pJoint, true );
+        }
+        else
+        {
+            btVector3 axisA( m_AxisA.x, m_AxisA.y, m_AxisA.z );
+
+            if( m_AxisA.LengthSquared() == 0 )
+                axisA.setY( 1 );
+
+            btTransform frameInA;
+            frameInA.setIdentity();
+            //frameInA.getBasis().setEulerZYX( 0, 45, 45 );
+            //frameInA.setRotation( btQuaternion( axisA, 0 ) );
+            m_pJoint = new btSliderConstraint( *m_pBody, frameInA, false );
+            g_pBulletWorld->m_pDynamicsWorld->addConstraint( m_pJoint, true );
+        }
+
+        if( m_pJoint )
+        {
+            // Angular motor not working.
+            if( m_MotorEnabled )
+            {
+                m_pJoint->setPoweredAngMotor( true );
+                m_pJoint->setMaxAngMotorForce( m_MotorMaxForce );
+                m_pJoint->setTargetAngMotorVelocity( m_MotorSpeed );
+            }
+            else
+            {
+                m_pJoint->setPoweredAngMotor( false );
+            }
+        }
+    }
 }
 
-void Component3DJointPrismatic::OnStop()
+void Component3DJointSlider::OnStop()
 {
     ComponentBase::OnStop();
 
     m_pJoint = 0;
     m_pBody = 0;
     m_pSecondBody = 0;
+}
+
+void Component3DJointSlider::RemoveJointFromWorld()
+{
+    if( m_pJoint )
+    {
+        g_pBulletWorld->m_pDynamicsWorld->removeConstraint( m_pJoint );
+    }
 }

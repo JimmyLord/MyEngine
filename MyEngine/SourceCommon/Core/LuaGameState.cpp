@@ -891,6 +891,7 @@ BUTTONID_NumButtons           = 9;\
     Component3DCollisionObject::LuaRegister( m_pLuaState );
     //ComponentType_3DJointPoint2Point,
     //ComponentType_3DJointHinge,
+    //ComponentType_3DJointSlider,
     Component2DCollisionObject::LuaRegister( m_pLuaState );
     //ComponentType_2DJointRevolute,
     //ComponentType_2DJointPrismatic,

@@ -10,8 +10,6 @@
 #ifndef __ComponentAnimationPlayer2D_H__
 #define __ComponentAnimationPlayer2D_H__
 
-// search for ADDING_NEW_ComponentType to find some changes needed for engine.
-
 class ComponentAnimationPlayer2D : public ComponentBase
 {
 private:

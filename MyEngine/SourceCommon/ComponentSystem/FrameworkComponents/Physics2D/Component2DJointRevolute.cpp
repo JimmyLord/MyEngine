@@ -233,7 +233,7 @@ void* Component2DJointRevolute::OnValueChanged(ComponentVariable* pVar, bool cha
             }
             else
             {
-                m_pJoint->EnableMotor( false );
+                m_pJoint->EnableLimit( false );
             }
         }
 

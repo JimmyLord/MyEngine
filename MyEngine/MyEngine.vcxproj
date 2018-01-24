@@ -1639,7 +1639,7 @@
     <ClCompile Include="SourceCommon\ComponentSystem\FrameworkComponents\Physics2D\Component2DJointRevolute.cpp" />
     <ClCompile Include="SourceCommon\ComponentSystem\FrameworkComponents\Physics2D\Component2DJointWeld.cpp" />
     <ClCompile Include="SourceCommon\ComponentSystem\FrameworkComponents\Physics3D\Component3DCollisionObject.cpp" />
-    <ClCompile Include="SourceCommon\ComponentSystem\FrameworkComponents\Physics3D\Component3DJointPrismatic.cpp" />
+    <ClCompile Include="SourceCommon\ComponentSystem\FrameworkComponents\Physics3D\Component3DJointSlider.cpp" />
     <ClCompile Include="SourceCommon\ComponentSystem\FrameworkComponents\Physics3D\Component3DJointHinge.cpp" />
     <ClCompile Include="SourceCommon\ComponentSystem\FrameworkComponents\Physics3D\Component3DJointPoint2Point.cpp" />
     <ClCompile Include="SourceCommon\Core\EngineComponentTypeManager.cpp" />
@@ -1908,7 +1908,7 @@
     <ClInclude Include="SourceCommon\ComponentSystem\FrameworkComponents\Physics2D\Component2DJointWeld.h" />
     <ClInclude Include="SourceCommon\ComponentSystem\FrameworkComponents\Physics3D\Component3DCollisionObject.h" />
     <ClInclude Include="SourceCommon\ComponentSystem\FrameworkComponents\Physics3D\Component3DJointBase.h" />
-    <ClInclude Include="SourceCommon\ComponentSystem\FrameworkComponents\Physics3D\Component3DJointPrismatic.h" />
+    <ClInclude Include="SourceCommon\ComponentSystem\FrameworkComponents\Physics3D\Component3DJointSlider.h" />
     <ClInclude Include="SourceCommon\ComponentSystem\FrameworkComponents\Physics3D\Component3DJointHinge.h" />
     <ClInclude Include="SourceCommon\ComponentSystem\FrameworkComponents\Physics3D\Component3DJointPoint2Point.h" />
     <ClInclude Include="SourceCommon\Core\EngineComponentTypeManager.h" />

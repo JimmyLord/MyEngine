@@ -901,6 +901,7 @@
 	
     ////ComponentType_3DJointPoint2Point,
     ////ComponentType_3DJointHinge,
+    ////ComponentType_3DJointSlider,
 
     //Component2DCollisionObject::LuaRegister( m_pLuaState );
     //    luabridge::getGlobalNamespace( luastate )

@@ -7,21 +7,20 @@
 // 2. Altered source versions must be plainly marked as such, and must not be misrepresented as being the original software.
 // 3. This notice may not be removed or altered from any source distribution.
 
-#ifndef __Component3DJointPrismatic_H__
-#define __Component3DJointPrismatic_H__
+#ifndef __Component3DJointSlider_H__
+#define __Component3DJointSlider_H__
 
-class Component3DJointPrismatic : public ComponentBase
+class Component3DJointSlider : public ComponentBase
 {
 private:
     // Component Variable List
-    MYFW_COMPONENT_DECLARE_VARIABLE_LIST( Component3DJointPrismatic );
+    MYFW_COMPONENT_DECLARE_VARIABLE_LIST( Component3DJointSlider );
 
 public:
     Component3DCollisionObject* m_pSecondCollisionObject;
 
-    Vector2 m_Up; // up vector is in object space.
-    Vector2 m_AnchorA;
-    Vector2 m_AnchorB;
+    Vector3 m_AxisA;
+    Vector3 m_AxisB;
     bool m_MotorEnabled;
     float m_MotorSpeed;
     float m_MotorMaxForce;
@@ -30,15 +29,15 @@ public:
     float m_TranslationLimitMax;
 
     // runtime vars, filled in OnPlay();
-    b2PrismaticJoint* m_pJoint;
-    b2Body* m_pBody;
-    b2Body* m_pSecondBody;
+    btSliderConstraint* m_pJoint;
+    btRigidBody* m_pBody;
+    btRigidBody* m_pSecondBody;
 
 public:
-    Component3DJointPrismatic();
-    virtual ~Component3DJointPrismatic();
-    SetClassnameBase( "3DJoint-PrismaticComponent" ); // only first 8 character count. // "3DJoint-"
-    //SetClassnameWithParent( "3DPrismaticComponent", "3DJoint" ); // only first 8 character count.
+    Component3DJointSlider();
+    virtual ~Component3DJointSlider();
+    SetClassnameBase( "3DJoint-SliderComponent" ); // only first 8 character count. // "3DJoint-"
+    //SetClassnameWithParent( "3DSliderComponent", "3DJoint" ); // only first 8 character count.
 
 #if MYFW_USING_LUA
     static void LuaRegister(lua_State* luastate);
@@ -48,14 +47,16 @@ public:
     //virtual void ImportFromJSONObject(cJSON* jsonobj, unsigned int sceneid);
 
     virtual void Reset();
-    virtual void CopyFromSameType_Dangerous(ComponentBase* pObject) { *this = (Component3DJointPrismatic&)*pObject; }
-    Component3DJointPrismatic& operator=(const Component3DJointPrismatic& other);
+    virtual void CopyFromSameType_Dangerous(ComponentBase* pObject) { *this = (Component3DJointSlider&)*pObject; }
+    Component3DJointSlider& operator=(const Component3DJointSlider& other);
 
     virtual void RegisterCallbacks();
     virtual void UnregisterCallbacks();
 
     virtual void OnPlay();
     virtual void OnStop();
+
+    virtual void RemoveJointFromWorld();
 
 protected:
     // Callback functions for various events.
@@ -74,7 +75,7 @@ public:
     virtual void AddToObjectsPanel(wxTreeItemId gameobjectid);
 
     // Object panel callbacks.
-    static void StaticOnLeftClick(void* pObjectPtr, wxTreeItemId id, unsigned int count) { ((Component3DJointPrismatic*)pObjectPtr)->OnLeftClick( count, true ); }
+    static void StaticOnLeftClick(void* pObjectPtr, wxTreeItemId id, unsigned int count) { ((Component3DJointSlider*)pObjectPtr)->OnLeftClick( count, true ); }
     void OnLeftClick(unsigned int count, bool clear);
     virtual void FillPropertiesWindow(bool clear, bool addcomponentvariables = false, bool ignoreblockvisibleflag = false);
 
@@ -84,4 +85,4 @@ public:
 #endif //MYFW_USING_WX
 };
 
-#endif //__Component3DJointPrismatic_H__
+#endif //__Component3DJointSlider_H__
