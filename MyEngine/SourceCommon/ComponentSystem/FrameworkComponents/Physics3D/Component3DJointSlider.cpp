@@ -359,36 +359,50 @@ void Component3DJointSlider::OnPlay()
 
     //    m_pJoint = (b2SliderJoint*)pBox3DWorld->m_pWorld->CreateJoint( &jointdef );
 
+        btTransform frameInA;
+
+        // Convert axisA (direction vector) into rotation matrix
+        {
+            // If axis is (0,0,0), change direction to up
+            Vector3 axisA = m_AxisA;
+            if( axisA.LengthSquared() == 0 )
+                axisA.y = 1;
+
+            // Convert direction vector into yaw and pitch (no roll).
+            float roty = atan2( axisA.z, axisA.x ) * -1;
+            float rotz = atan2( axisA.y, axisA.x );
+
+            //LOGInfo( LOGTag, "Axis: (%0.2f, %0.2f, %0.2f)\n", axisA.x, axisA.y, axisA.z );
+            //LOGInfo( LOGTag, "Angle:(0, %0.2f, %0.2f)\n", roty, rotz );
+
+            frameInA.setIdentity();
+            frameInA.getBasis().setEulerZYX( 0, roty, rotz );
+        }
+
         if( m_pSecondBody )
         {
-            btVector3 axisA( m_AxisA.x, m_AxisA.y, m_AxisA.z );
-            btVector3 axisB( m_AxisB.x, m_AxisB.y, m_AxisB.z );
-
-            if( m_AxisA.LengthSquared() == 0 )
-                axisA.setY( 1 );
-            if( m_AxisB.LengthSquared() == 0 )
-                axisB.setY( 1 );
-
-            btTransform frameInA;
             btTransform frameInB;
-            frameInA.setIdentity();
-            frameInA.setRotation( btQuaternion( axisA, 0 ) );
-            frameInB.setIdentity();
-            frameInB.setRotation( btQuaternion( axisB, 0 ) );
+
+            // Convert axisB (direction vector) into rotation matrix
+            {
+                // If axis is (0,0,0), change direction to up
+                Vector3 axisB = m_AxisB;
+                if( axisB.LengthSquared() == 0 )
+                    axisB.y = 1;
+
+                // Convert direction vector into yaw and pitch (no roll).
+                float roty = atan2( axisB.z, axisB.x ) * -1;
+                float rotz = atan2( axisB.y, axisB.x );
+
+                frameInB.setIdentity();
+                frameInB.getBasis().setEulerZYX( 0, roty, rotz );
+            }
+
             m_pJoint = new btSliderConstraint( *m_pBody, *m_pSecondBody, frameInA, frameInB, false );
             g_pBulletWorld->m_pDynamicsWorld->addConstraint( m_pJoint, true );
         }
         else
         {
-            btVector3 axisA( m_AxisA.x, m_AxisA.y, m_AxisA.z );
-
-            if( m_AxisA.LengthSquared() == 0 )
-                axisA.setY( 1 );
-
-            btTransform frameInA;
-            frameInA.setIdentity();
-            //frameInA.getBasis().setEulerZYX( 0, 45, 45 );
-            //frameInA.setRotation( btQuaternion( axisA, 0 ) );
             m_pJoint = new btSliderConstraint( *m_pBody, frameInA, false );
             g_pBulletWorld->m_pDynamicsWorld->addConstraint( m_pJoint, true );
         }
