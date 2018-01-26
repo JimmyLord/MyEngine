@@ -561,7 +561,7 @@ char* ComponentSystemManager::SaveSceneToJSON(unsigned int sceneid)
                 continue;
 
             SceneInfo* pSceneInfo = &m_pSceneInfoMap[i];
-#endif // MYFW_USING_WX
+#endif //MYFW_USING_WX
 
             if( (GameObject*)pSceneInfo->m_GameObjects.GetHead() )
             {
@@ -588,7 +588,7 @@ char* ComponentSystemManager::SaveSceneToJSON(unsigned int sceneid)
                 continue;
 
             SceneInfo* pSceneInfo = &m_pSceneInfoMap[i];
-#endif // MYFW_USING_WX
+#endif //MYFW_USING_WX
 
             GameObject* first = (GameObject*)pSceneInfo->m_GameObjects.GetHead();
             if( first && ( first->GetSceneID() == sceneid || savingallscenes ) )
@@ -790,7 +790,7 @@ MyFileObject* ComponentSystemManager::LoadDataFile(const char* relativepath, uns
             }
         }
 #endif // Windows vs OSX/Linux
-#endif // MYFW_USING_WX
+#endif //MYFW_USING_WX
         
         // store pFile so we can free it afterwards.
         MyFileInfo* pFileInfo = AddToFileList( pFile, 0, 0, 0, 0, 0, 0, sceneid );
@@ -2043,7 +2043,7 @@ GameObject* ComponentSystemManager::FindGameObjectByName(const char* name)
             continue;
 
         SceneInfo* pSceneInfo = &m_pSceneInfoMap[i];
-#endif // MYFW_USING_WX
+#endif //MYFW_USING_WX
 
         if( pSceneInfo->m_GameObjects.GetHead() )
         {

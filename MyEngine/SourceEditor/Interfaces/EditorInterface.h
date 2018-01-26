@@ -10,6 +10,7 @@
 #ifndef __EditorInterface_H__
 #define __EditorInterface_H__
 
+#if MYFW_USING_WX
 class EditorInterfaceWxEventHandler : public wxEvtHandler
 {
 public:
@@ -31,13 +32,16 @@ public:
     };
     void OnPopupClick(wxEvent &evt);
 };
+#endif //MYFW_USING_WX
 
 class EditorInterface
 {
 protected:
     bool m_ShowRightClickMenu;
     GameObject* m_pGameObjectRightClicked;
+#if MYFW_USING_WX
     EditorInterfaceWxEventHandler m_EditorInterfaceWxEventHandler;
+#endif //MYFW_USING_WX
 
 public:
     EditorInterface();

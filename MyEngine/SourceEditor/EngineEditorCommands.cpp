@@ -342,10 +342,13 @@ void EditorCommand_DeleteObjects::Undo()
         // Place gameobject in old spot in tree.
         if( m_ObjectsDeleted[i]->Prev && m_ObjectsDeleted[i]->GetPrev() != 0 )
         {
+#if MYFW_USING_WX // TODO_FIX_EDITOR
             g_pPanelObjectList->Tree_MoveObject( m_ObjectsDeleted[i], m_ObjectsDeleted[i]->GetPrev(), false );
+#endif //MYFW_USING_WX
         }
         else
         {
+#if MYFW_USING_WX // TODO_FIX_EDITOR
             if( m_ObjectsDeleted[i]->GetParentGameObject() )
             {
                 g_pPanelObjectList->Tree_MoveObject( m_ObjectsDeleted[i], m_ObjectsDeleted[i]->GetParentGameObject(), true );
@@ -356,6 +359,7 @@ void EditorCommand_DeleteObjects::Undo()
                 wxTreeItemId rootid = g_pComponentSystemManager->GetTreeIDForScene( m_ObjectsDeleted[i]->GetSceneID() );
                 g_pPanelObjectList->Tree_MoveObject( treeidtomove, rootid, true );
             }
+#endif //MYFW_USING_WX
         }
     }
 
@@ -606,13 +610,17 @@ EditorCommand_EnableObject::~EditorCommand_EnableObject()
 void EditorCommand_EnableObject::Do()
 {
     m_pGameObject->SetEnabled( m_ObjectWasEnabled, false );
+#if MYFW_USING_WX // TODO_FIX_EDITOR
     g_pPanelWatch->SetNeedsRefresh();
+#endif
 }
 
 void EditorCommand_EnableObject::Undo()
 {
     m_pGameObject->SetEnabled( !m_ObjectWasEnabled, false );
+#if MYFW_USING_WX // TODO_FIX_EDITOR
     g_pPanelWatch->SetNeedsRefresh();
+#endif
 }
 
 EditorCommand* EditorCommand_EnableObject::Repeat()
@@ -650,13 +658,17 @@ void EditorCommand_ChangeMaterialOnMesh::Do()
 
     m_pComponent->SetMaterial( m_pNewMaterial, m_SubmeshIndex );
 
+#if MYFW_USING_WX
     g_pPanelWatch->SetNeedsRefresh();
+#endif
 }
 
 void EditorCommand_ChangeMaterialOnMesh::Undo()
 {
     m_pComponent->SetMaterial( m_pOldMaterial, m_SubmeshIndex );
+#if MYFW_USING_WX
     g_pPanelWatch->SetNeedsRefresh();
+#endif
 }
 
 EditorCommand* EditorCommand_ChangeMaterialOnMesh::Repeat()
@@ -888,14 +900,18 @@ EditorCommand_Insert2DPoint::~EditorCommand_Insert2DPoint()
 
 void EditorCommand_Insert2DPoint::Do()
 {
+#if MYFW_USING_WX // TODO_FIX_EDITOR
     std::vector<b2Vec2>::iterator it = m_pCollisionObject->m_Vertices.begin();
     m_pCollisionObject->m_Vertices.insert( it + m_IndexOfPointInserted, m_pCollisionObject->m_Vertices[m_IndexOfPointInserted] );
+#endif
 }
 
 void EditorCommand_Insert2DPoint::Undo()
 {
+#if MYFW_USING_WX // TODO_FIX_EDITOR
     std::vector<b2Vec2>::iterator it = m_pCollisionObject->m_Vertices.begin();
     m_pCollisionObject->m_Vertices.erase( it + m_IndexOfPointInserted );
+#endif
 }
 
 EditorCommand* EditorCommand_Insert2DPoint::Repeat()
@@ -927,14 +943,18 @@ EditorCommand_Delete2DPoint::~EditorCommand_Delete2DPoint()
 
 void EditorCommand_Delete2DPoint::Do()
 {
+#if MYFW_USING_WX // TODO_FIX_EDITOR
     std::vector<b2Vec2>::iterator it = m_pCollisionObject->m_Vertices.begin();
     m_pCollisionObject->m_Vertices.erase( it + m_IndexOfPointDeleted );
+#endif
 }
 
 void EditorCommand_Delete2DPoint::Undo()
 {
+#if MYFW_USING_WX // TODO_FIX_EDITOR
     std::vector<b2Vec2>::iterator it = m_pCollisionObject->m_Vertices.begin();
     m_pCollisionObject->m_Vertices.insert( it + m_IndexOfPointDeleted, m_Position );
+#endif
 }
 
 EditorCommand* EditorCommand_Delete2DPoint::Repeat()
@@ -967,18 +987,22 @@ EditorCommand_ComponentVariablePointerChanged::~EditorCommand_ComponentVariableP
 
 void EditorCommand_ComponentVariablePointerChanged::Do()
 {
+#if MYFW_USING_WX // TODO_FIX_EDITOR
     g_pPanelWatch->UpdatePanel();
 
     // this could likely be dangerous, the object might not be in focus anymore and how it handles callbacks could cause issues.
     (m_pComponent->*(m_pVar->m_pOnValueChangedCallbackFunc))( m_pVar, false, true, 0, &m_NewPointer );
+#endif
 }
 
 void EditorCommand_ComponentVariablePointerChanged::Undo()
 {
+#if MYFW_USING_WX // TODO_FIX_EDITOR
     g_pPanelWatch->UpdatePanel();
 
     // this could likely be dangerous, the object might not be in focus anymore and how it handles callbacks could cause issues.
     (m_pComponent->*(m_pVar->m_pOnValueChangedCallbackFunc))( m_pVar, false, true, 0, &m_OldPointer );
+#endif
 }
 
 EditorCommand* EditorCommand_ComponentVariablePointerChanged::Repeat()
@@ -1011,7 +1035,9 @@ void EditorCommand_LuaExposedVariablePointerChanged::Do()
 {
     m_pVar->pointer = m_NewValue;
 
+#if MYFW_USING_WX // TODO_FIX_EDITOR
     g_pPanelWatch->UpdatePanel();
+#endif
 
     if( m_pCallbackObj && m_pOnValueChangedCallBackFunc )
         m_pOnValueChangedCallBackFunc( m_pCallbackObj, m_pVar, 0, true, 0, m_OldValue );
@@ -1021,7 +1047,9 @@ void EditorCommand_LuaExposedVariablePointerChanged::Undo()
 {
     m_pVar->pointer = m_OldValue;
 
+#if MYFW_USING_WX // TODO_FIX_EDITOR
     g_pPanelWatch->UpdatePanel();
+#endif
 
     if( m_pCallbackObj && m_pOnValueChangedCallBackFunc )
         m_pOnValueChangedCallBackFunc( m_pCallbackObj, m_pVar, 0, true, 0, m_NewValue );
@@ -1049,7 +1077,9 @@ EditorCommand_DeletePrefabs::EditorCommand_DeletePrefabs(const std::vector<Prefa
         PrefabInfo info;
         info.m_pPrefab = pPrefab;
         info.m_pPreviousPrefabInObjectList = (PrefabObject*)pPrefab->GetPrev();
+#if MYFW_USING_WX // TODO_FIX_EDITOR
         g_pComponentSystemManager->Editor_GetListOfGameObjectsThatUsePrefab( &info.m_pListOfGameObjectsThatUsedPrefab, pPrefab );
+#endif
 
         // Make a copy of the PrefabReference in each GameObject, for undo.
         for( unsigned int j=0; j<info.m_pListOfGameObjectsThatUsedPrefab.size(); j++ )
@@ -1091,11 +1121,15 @@ void EditorCommand_DeletePrefabs::Do()
 
             // Set each GameObject to a blank PrefabReference.
             PrefabReference prefabRef;
+#if MYFW_USING_WX // TODO_FIX_EDITOR
             pGameObject->Editor_SetPrefab( &prefabRef );
+#endif
         }
         
+#if MYFW_USING_WX // TODO_FIX_EDITOR
         // Remove prefab from PrefabFile
         pFile->RemovePrefab( pPrefab );
+#endif
     }
 
     m_DeletePrefabsWhenDestroyed = true;
@@ -1112,6 +1146,7 @@ void EditorCommand_DeletePrefabs::Undo()
         PrefabFile* pFile = pPrefab->GetPrefabFile();
 
         // Place prefab in old spot in PrefabFile and object list
+#if MYFW_USING_WX // TODO_FIX_EDITOR
         pFile->AddExistingPrefab( pPrefab, pPreviousPrefab );
 
         // Loop through gameobjects and reset which prefab they inherited from.
@@ -1119,6 +1154,7 @@ void EditorCommand_DeletePrefabs::Undo()
         {
             m_PrefabInfo[i].m_pListOfGameObjectsThatUsedPrefab[j]->Editor_SetPrefab( &m_PrefabInfo[i].m_CopyOfPrefabRefsInEachGameObjectBeforePrefabWasDeleted[j] );
         }
+#endif
     }
 
     m_DeletePrefabsWhenDestroyed = false;
@@ -1174,7 +1210,9 @@ void EditorCommand_DivorceOrMarryComponentVariable::Do()
         //    g_pPanelWatch->ChangeStaticTextBGColor( m_pVar->m_ControlID, wxColour( 255, 200, 200, 255 ) );
         //}
 
+#if MYFW_USING_WX // TODO_FIX_EDITOR
         g_pPanelWatch->SetNeedsRefresh();
+#endif
     }
     else
     {
@@ -1195,10 +1233,14 @@ void EditorCommand_DivorceOrMarryComponentVariable::Do()
             ComponentVariableValue newvalue( pParentComponent, m_pVar );
 
             // Update and inform component and children.
+#if MYFW_USING_WX // TODO_FIX_EDITOR
             newvalue.UpdateComponentAndChildrenWithValue( m_pComponent, m_pVar );
+#endif
         }
 
+#if MYFW_USING_WX // TODO_FIX_EDITOR
         g_pPanelWatch->SetNeedsRefresh();
+#endif
     }
 }
 
@@ -1215,7 +1257,9 @@ void EditorCommand_DivorceOrMarryComponentVariable::Undo()
         //    g_pPanelWatch->ChangeStaticTextBGColor( m_pVar->m_ControlID, wxNullColour );
         //}
 
+#if MYFW_USING_WX // TODO_FIX_EDITOR
         g_pPanelWatch->SetNeedsRefresh();
+#endif
     }
     else
     {
@@ -1228,9 +1272,11 @@ void EditorCommand_DivorceOrMarryComponentVariable::Undo()
         //}
 
         // Update and inform component and children.
+#if MYFW_USING_WX // TODO_FIX_EDITOR
         m_OldValue.UpdateComponentAndChildrenWithValue( m_pComponent, m_pVar );
 
         g_pPanelWatch->SetNeedsRefresh();
+#endif
     }
 }
 
@@ -1265,7 +1311,9 @@ void EditorCommand_ComponentVariableIndirectPointerChanged::Do()
     // Set the value in the component.
     (m_pComponent->*(m_pVar->m_pSetPointerValueCallBackFunc))( m_pVar, m_NewValue );
 
+#if MYFW_USING_WX // TODO_FIX_EDITOR
     g_pPanelWatch->SetNeedsRefresh();
+#endif
 }
 
 void EditorCommand_ComponentVariableIndirectPointerChanged::Undo()
@@ -1273,7 +1321,9 @@ void EditorCommand_ComponentVariableIndirectPointerChanged::Undo()
     // Set the value in the component.
     (m_pComponent->*(m_pVar->m_pSetPointerValueCallBackFunc))( m_pVar, m_OldValue );
 
+#if MYFW_USING_WX // TODO_FIX_EDITOR
     g_pPanelWatch->SetNeedsRefresh();
+#endif
 }
 
 EditorCommand* EditorCommand_ComponentVariableIndirectPointerChanged::Repeat()
@@ -1322,7 +1372,9 @@ void EditorCommand_ReorderOrReparentGameObjects::Do()
         if( m_MakeSelectedObjectsChildren == false )
         {
             // Move below the selected item.
+#if MYFW_USING_WX // TODO_FIX_EDITOR
             g_pPanelObjectList->Tree_MoveObject( pGameObject, m_pObjectDroppedOn, false );
+#endif
             pGameObject->MoveAfter( m_pObjectDroppedOn );
             GameObject* thisparent = m_pObjectDroppedOn->GetParentGameObject();
             pGameObject->SetParentGameObject( thisparent );
@@ -1335,7 +1387,9 @@ void EditorCommand_ReorderOrReparentGameObjects::Do()
                 pGameObject->SetParentGameObject( m_pObjectDroppedOn );
 
                 // Move as first item in parent.
+#if MYFW_USING_WX // TODO_FIX_EDITOR
                 g_pPanelObjectList->Tree_MoveObject( pGameObject, m_pObjectDroppedOn, true );
+#endif
             }
             else
             {
@@ -1348,8 +1402,10 @@ void EditorCommand_ReorderOrReparentGameObjects::Do()
                 pSceneInfo->m_GameObjects.MoveHead( pGameObject );
 
                 // Move the wx tree item to the correct spot.
+#if MYFW_USING_WX // TODO_FIX_EDITOR
                 wxTreeItemId treeidtomove = g_pPanelObjectList->FindObject( pGameObject );
                 g_pPanelObjectList->Tree_MoveObject( treeidtomove, pSceneInfo->m_TreeID, true );
+#endif
             }
         }
     }
@@ -1369,9 +1425,11 @@ void EditorCommand_ReorderOrReparentGameObjects::Undo()
         if( m_OldPreviousObjectInList[i] != 0 )
         {
             // Move back to old position.
+#if MYFW_USING_WX // TODO_FIX_EDITOR
             g_pPanelObjectList->Tree_MoveObject( pGameObject, m_OldPreviousObjectInList[i], false );
             pGameObject->SetParentGameObject( m_OldParent[i] );
             pGameObject->MoveAfter( m_OldPreviousObjectInList[i] );
+#endif
 
             MyAssert( m_OldPreviousObjectInList[i]->GetParentGameObject() == m_OldParent[i] );
         }
@@ -1385,9 +1443,11 @@ void EditorCommand_ReorderOrReparentGameObjects::Undo()
                 g_pComponentSystemManager->GetSceneInfo( m_OldSceneIDs[i] )->m_GameObjects.MoveHead( pGameObject );
 
                 // Move the wx tree item to the correct spot.
+#if MYFW_USING_WX // TODO_FIX_EDITOR
                 wxTreeItemId treeidtomove = g_pPanelObjectList->FindObject( pGameObject );
                 wxTreeItemId scenetreeid = g_pComponentSystemManager->GetSceneInfo( m_OldSceneIDs[i] )->m_TreeID;
                 g_pPanelObjectList->Tree_MoveObject( treeidtomove, scenetreeid, true );
+#endif
             }
             else // This was the first child of a parent.
             {
@@ -1395,7 +1455,9 @@ void EditorCommand_ReorderOrReparentGameObjects::Undo()
                 pGameObject->SetParentGameObject( m_OldParent[i] );
 
                 // Move as first item in parent.
+#if MYFW_USING_WX // TODO_FIX_EDITOR
                 g_pPanelObjectList->Tree_MoveObject( pGameObject, m_OldParent[i], true );
+#endif
             }
         }
     }

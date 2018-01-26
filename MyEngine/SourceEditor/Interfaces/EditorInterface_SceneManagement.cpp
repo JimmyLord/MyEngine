@@ -94,7 +94,11 @@ void EditorInterface_SceneManagement::OnDrawFrame(unsigned int canvasid)
 
     if( /*m_Debug_DrawSelectedMaterial &&*/ g_GLCanvasIDActive == 1 )
     {
+#if MYFW_USING_WX // TODO_FIX_EDITOR
         MaterialDefinition* pMaterial = g_pPanelMemory->GetSelectedMaterial();
+#else
+        MaterialDefinition* pMaterial = 0;
+#endif
 
         if( pMaterial )
         {
@@ -302,6 +306,7 @@ bool EditorInterface_SceneManagement::HandleInput(int keyaction, int keycode, in
                 std::vector<GameObject*> selectedobjects = pEditorState->m_pSelectedObjects;
                 pEditorState->ClearSelectedObjectsAndComponents();
 
+#if MYFW_USING_WX // TODO_FIX_EDITOR
                 g_pPanelObjectList->Freeze();
 
                 for( unsigned int i=0; i<selectedobjects.size(); i++ )
@@ -318,6 +323,7 @@ bool EditorInterface_SceneManagement::HandleInput(int keyaction, int keycode, in
                 }
 
                 g_pPanelObjectList->Thaw();
+#endif
             }
 
             // if ctrl is held, transform in world space
@@ -642,7 +648,9 @@ bool EditorInterface_SceneManagement::HandleInput(int keyaction, int keycode, in
 
                         if( selectedobjects.size() > 0 )
                         {
+#if MYFW_USING_WX // TODO_FIX_EDITOR
                             g_pEngineMainFrame->m_pCommandStack->Add( MyNew EditorCommand_MoveObjects( pEditorState->m_DistanceTranslated, selectedobjects ) );
+#endif
                         }
                     }
                 }
@@ -671,7 +679,9 @@ bool EditorInterface_SceneManagement::HandleInput(int keyaction, int keycode, in
 
                         if( selectedobjects.size() > 0 )
                         {
+#if MYFW_USING_WX // TODO_FIX_EDITOR
                             g_pEngineMainFrame->m_pCommandStack->Add( MyNew EditorCommand_ScaleObjects( pEditorState->m_AmountScaled, pEditorState->m_TransformedInLocalSpace, pEditorState->m_WorldSpacePivot, selectedobjects ) );
+#endif
                         }
                     }
                 }
@@ -697,8 +707,10 @@ bool EditorInterface_SceneManagement::HandleInput(int keyaction, int keycode, in
 
                         if( selectedobjects.size() > 0 )
                         {
+#if MYFW_USING_WX // TODO_FIX_EDITOR
                             g_pEngineMainFrame->m_pCommandStack->Add(
                                 MyNew EditorCommand_RotateObjects( pEditorState->m_DistanceRotated, pEditorState->m_TransformedInLocalSpace, pEditorState->m_WorldSpacePivot, selectedobjects ) );
+#endif
                         }
                     }
                 }

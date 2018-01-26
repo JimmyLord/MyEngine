@@ -11,6 +11,7 @@
 
 GameObjectTemplateManager::GameObjectTemplateManager()
 {
+#if MYFW_USING_WX // TODO_FIX_EDITOR
     char* filestring = PlatformSpecific_LoadFile( "Data/DataEngine/EngineGameObjects.mytemplate", 0 );
     if( filestring == 0 )
         return;
@@ -21,6 +22,7 @@ GameObjectTemplateManager::GameObjectTemplateManager()
     AddTemplatesToVector( m_jRootTemplatesArray );
 
     delete[] filestring;
+#endif //MYFW_USING_WX
 }
 
 GameObjectTemplateManager::~GameObjectTemplateManager()

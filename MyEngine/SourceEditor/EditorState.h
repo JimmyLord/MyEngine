@@ -12,7 +12,7 @@
 
 class TransformGizmo;
 
-#if MYFW_USING_WX
+#if MYFW_EDITOR
 enum EditorActionState
 {
     EDITORACTIONSTATE_None,
@@ -120,6 +120,6 @@ public:
 
     //void SyncFromObjectPanelSelectedItems();
 };
-#endif //MYFW_USING_WX
+#endif //MYFW_EDITOR
 
 #endif //__EditorState_H__

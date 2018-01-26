@@ -21,8 +21,10 @@ const int g_NumberOfVisibilityLayers = 8;
 #if MYFW_USING_WX
 #include "../../../Framework/MyFramework/SourceWidgets/MYFWMainWx.h"
 #include "../SourceEditor/EngineMainFrame.h"
-#include "../../../Framework/MyFramework/SourceWidgets/EditorCommands.h"
-#include "../../../Framework/MyFramework/SourceWidgets/CommandStack.h"
+#endif
+#if MYFW_EDITOR
+#include "../../../Framework/MyFramework/SourceEditor/EditorCommands.h"
+#include "../../../Framework/MyFramework/SourceEditor/CommandStack.h"
 #endif
 
 // bullet
@@ -137,14 +139,18 @@ extern "C"
 
 #include "../../../SharedGameCode/Menus/Menu_Helpers.h"
 
-#if MYFW_USING_WX
+#if MYFW_EDITOR
 #include "../SourceEditor/EditorState.h"
 #include "../SourceEditor/DragAndDropHackeryExtended.h"
 #include "../SourceEditor/GameObjectTemplateManager.h"
 #include "../SourceEditor/EngineCommandStack.h"
 #include "../SourceEditor/EngineEditorCommands.h"
 #include "../SourceEditor/TransformGizmo.h"
+
+#if MYFW_USING_WX
 #include "../SourceEditor/Dialogs/DialogGridSettings.h"
+#endif
+
 #include "../SourceEditor/Interfaces/EditorInterface.h"
 #include "../SourceEditor/Interfaces/EditorInterface_SceneManagement.h"
 #include "../SourceEditor/Interfaces/EditorInterface_2DPointEditor.h"

@@ -673,7 +673,7 @@ void GameObject::ImportFromJSONObject(cJSON* jGameObject, unsigned int sceneid)
             }
         }
     }
-#endif // MYFW_USING_WX
+#endif //MYFW_USING_WX
 
     unsigned int parentgoid = 0;
     cJSONExt_GetUnsignedInt( jGameObject, "ParentGOID", &parentgoid );

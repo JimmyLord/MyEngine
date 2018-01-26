@@ -9,6 +9,7 @@
 
 #include "EngineCommonHeader.h"
 
+#if MYFW_USING_WX // TODO_FIX_EDITOR
 void EditorInterfaceWxEventHandler::OnPopupClick(wxEvent &evt)
 {
     EditorInterfaceWxEventHandler* pEvtHandler = (EditorInterfaceWxEventHandler*)static_cast<wxMenu*>(evt.GetEventObject())->GetClientData();
@@ -27,6 +28,7 @@ void EditorInterfaceWxEventHandler::OnPopupClick(wxEvent &evt)
         }
     }
 }
+#endif
 
 EditorInterface::EditorInterface()
 {
@@ -70,6 +72,7 @@ void EditorInterface::Tick(double TimePassed)
 
         if( m_pGameObjectRightClicked )
         {
+#if MYFW_USING_WX // TODO_FIX_EDITOR
             wxMenu menu;
             menu.SetClientData( &m_EditorInterfaceWxEventHandler );
 
@@ -86,6 +89,7 @@ void EditorInterface::Tick(double TimePassed)
 
             // blocking call.
             g_pPanelWatch->PopupMenu( &menu ); // there's no reason this is using g_pPanelWatch other than convenience.
+#endif
         }
     }
 }
@@ -123,6 +127,7 @@ void EditorInterface::OnDrawFrame(unsigned int canvasid)
                         for( unsigned int i=0; i<pEditorState->m_pSelectedObjects.size(); i++ )
                         {
                             // draw an outline around the selected object
+#if MYFW_USING_WX // TODO_FIX_EDITOR
                             if( g_pEngineMainFrame->SelectedObjects_ShowWireframe() )
                             {
                                 glEnable( GL_BLEND );
@@ -154,6 +159,7 @@ void EditorInterface::OnDrawFrame(unsigned int canvasid)
                                                                              pEditorState->m_pSelectedObjects[i],
                                                                              pShaderOverride );
                             }
+#endif
                         }
                     }
 
@@ -287,7 +293,9 @@ void EditorInterface::ClearModifierKeyStates(int keyaction, int keycode, int mou
 
             // Unlock the mouse, even if it wasn't locked.
 #if !MYFW_OSX
+#if MYFW_USING_WX // TODO_FIX_EDITOR
             g_pEngineMainFrame->GetGLCanvasEditor()->LockMouse( false );
+#endif
 #endif
 
             pEditorState->m_HasMouseMovedSinceButtonPressed[id] = false;
@@ -343,11 +351,12 @@ bool EditorInterface::HandleInputForEditorCamera(int keyaction, int keycode, int
             Vector3 dir = pEditorState->m_LastMousePosition - pEditorState->m_CurrentMousePosition;
 #else
             // Try to lock the editor mouse cursor so we can move camera with raw mouse input.
+#if MYFW_USING_WX // TODO_FIX_EDITOR
             if( g_pEngineMainFrame->GetGLCanvasEditor()->IsMouseLocked() == false )
             {
                 g_pEngineMainFrame->GetGLCanvasEditor()->LockMouse( true );
             }
-
+#endif
             Vector2 dir( 0, 0 );
             if( mouseaction == GCBA_RelativeMovement )
             {
@@ -392,11 +401,12 @@ bool EditorInterface::HandleInputForEditorCamera(int keyaction, int keycode, int
             Vector3 dir = (pEditorState->m_LastMousePosition - pEditorState->m_CurrentMousePosition) * -1;
 #else
             // Try to lock the editor mouse cursor so we can move camera with raw mouse input.
+#if MYFW_USING_WX // TODO_FIX_EDITOR
             if( g_pEngineMainFrame->GetGLCanvasEditor()->IsMouseLocked() == false )
             {
                 g_pEngineMainFrame->GetGLCanvasEditor()->LockMouse( true );
             }
-
+#endif
             Vector2 dir( 0, 0 );
             if( mouseaction == GCBA_RelativeMovement )
             {
@@ -684,7 +694,9 @@ void EditorInterface::SelectObjectsInRectangle(unsigned int sx, unsigned int sy,
         pEditorState->ClearSelectedObjectsAndComponents();
 
     // potentially about to multi-select, so disable tree callbacks.
+#if MYFW_USING_WX // TODO_FIX_EDITOR
     g_pPanelObjectList->m_UpdatePanelWatchOnSelection = false;
+#endif
 
     //unsigned int pixelsbeingtested = (biggerx - smallerx) * (biggery - smallery);
 
@@ -725,7 +737,9 @@ void EditorInterface::SelectObjectsInRectangle(unsigned int sx, unsigned int sy,
                 // When selecting with mouse, don't allow selection of subobjects of a prefab, always pick the root of the prefab instance.
                 if( pObject->GetPrefabRef()->GetPrefab() != 0 )
                 {
+#if MYFW_USING_WX // TODO_FIX_EDITOR
                     pObject = pObject->FindRootGameObjectOfPrefabInstance();
+#endif
                 }
 
                 bool objectselected = pEditorState->IsGameObjectSelected( pObject );
@@ -739,7 +753,9 @@ void EditorInterface::SelectObjectsInRectangle(unsigned int sx, unsigned int sy,
                         pEditorState->SelectGameObject( pObject );
 
                         // select the object in the object tree.
+#if MYFW_USING_WX // TODO_FIX_EDITOR
                         g_pPanelObjectList->SelectObject( pObject );
+#endif //MYFW_USING_WX
                     }
                 }
                 else if( controlheld ) // if the first object was already selected, deselect all dragged if control is held.
@@ -747,15 +763,19 @@ void EditorInterface::SelectObjectsInRectangle(unsigned int sx, unsigned int sy,
                     if( objectselected == true )
                     {
                         pEditorState->UnselectGameObject( pObject );
+#if MYFW_USING_WX // TODO_FIX_EDITOR
                         g_pPanelObjectList->UnselectObject( pObject );
+#endif //MYFW_USING_WX
                     }
                 }
             }
         }
     }
 
+#if MYFW_USING_WX // TODO_FIX_EDITOR
     g_pPanelObjectList->m_UpdatePanelWatchOnSelection = true;
     UpdatePanelWatchWithSelectedItems(); // will reset and update pEditorState->m_pSelectedObjects
+#endif //MYFW_USING_WX
 
     //LOGInfo( LOGTag, "Done selecting objects.\n" );
 

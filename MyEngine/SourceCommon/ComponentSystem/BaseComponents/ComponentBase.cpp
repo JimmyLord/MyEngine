@@ -2184,7 +2184,7 @@ void ComponentBase::UpdateChildrenWithNewValue(bool fromdraganddrop, ComponentVa
             continue;
 
         SceneInfo* pSceneInfo = &g_pComponentSystemManager->m_pSceneInfoMap[i];
-#endif // MYFW_USING_WX
+#endif //MYFW_USING_WX
 
         if( (GameObject*)pSceneInfo->m_GameObjects.GetHead() )
         {

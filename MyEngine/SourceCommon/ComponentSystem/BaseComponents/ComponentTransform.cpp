@@ -412,7 +412,7 @@ ComponentTransform& ComponentTransform::operator=(const ComponentTransform& othe
     return *this;
 }
 
-#if MYFW_USING_WX
+#if MYFW_EDITOR
 void ComponentTransform::SetPositionByEditor(Vector3 pos)
 {
     m_LocalPosition = pos;
@@ -481,7 +481,7 @@ void ComponentTransform::SetRotationByEditor(Vector3 eulerangles)
         pCallbackStruct->pFunc( pCallbackStruct->pObj, m_WorldPosition, m_WorldRotation, m_WorldScale, true );
     }
 }
-#endif
+#endif //MYFW_EDITOR
 
 void ComponentTransform::SetWorldPosition(Vector3 pos)
 {

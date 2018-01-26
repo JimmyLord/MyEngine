@@ -130,7 +130,7 @@ protected:
     unsigned int m_FrameTimingNextEntry;
 #endif
 
-#if MYFW_USING_WX
+#if MYFW_EDITOR
     EditorState* m_pEditorState;
 
     bool m_Debug_DrawMousePickerFBO;
@@ -149,7 +149,7 @@ protected:
     EditorInterface* m_pEditorInterfaces[EditorInterfaceType_NumInterfaces];
     EditorInterfaceTypes m_CurrentEditorInterfaceType;
     EditorInterface* m_pCurrentEditorInterface;
-#endif //MYFW_USING_WX
+#endif //MYFW_EDITOR
 
 public:
     EngineCore();
@@ -227,7 +227,7 @@ public:
     void UnloadScene(unsigned int sceneid, bool cleareditorobjects);
     void LoadSceneFromJSON(const char* scenename, const char* jsonstr, unsigned int sceneid, bool playwhenfinishedloading);
 
-#if MYFW_USING_WX
+#if MYFW_EDITOR
     // Editor Getters/Setters
     EditorState* GetEditorState() { return m_pEditorState; }
 
@@ -267,7 +267,7 @@ public:
     void OnObjectListTreeMultipleSelection(bool prepForDraggingCopy);
     static void StaticOnObjectListTreeDeleteSelection(void* pObjectPtr) { ((EngineCore*)pObjectPtr)->OnObjectListTreeDeleteSelection(); }
     void OnObjectListTreeDeleteSelection();
-#endif //MYFW_USING_WX
+#endif //MYFW_EDITOR
 };
 
 #endif //__EngineCore_H__

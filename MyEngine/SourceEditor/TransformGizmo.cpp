@@ -949,7 +949,11 @@ void TransformGizmo::TranslateSelectedObjects(EngineCore* pGame, EditorState* pE
                 Vector3 diff = currentresult - lastresult;
 
                 // if snapping to grid is enabled, then use m_LastIntersectResultUsed instead of last frames result.
+#if MYFW_USING_WX // TODO_FIX_EDITOR
                 if( g_pEngineMainFrame->GetGridSettings()->snapenabled || pEditorState->m_ModifierKeyStates & MODIFIERKEY_Alt )
+#else
+                if( pEditorState->m_ModifierKeyStates & MODIFIERKEY_Alt )
+#endif
                 {
                     // snap object 0 to grid, all other will stay relative.
                     Vector3 pos = m_GizmoWorldTransform.GetTranslation();
@@ -964,9 +968,15 @@ void TransformGizmo::TranslateSelectedObjects(EngineCore* pGame, EditorState* pE
 
                     Vector3 finalpos = pos + diff/2;
                     Vector3 newfinalpos;
+#if MYFW_USING_WX // TODO_FIX_EDITOR
                     newfinalpos.x = MyRoundToMultipleOf( finalpos.x, g_pEngineMainFrame->GetGridSettings()->stepsize.x );
                     newfinalpos.y = MyRoundToMultipleOf( finalpos.y, g_pEngineMainFrame->GetGridSettings()->stepsize.y );
                     newfinalpos.z = MyRoundToMultipleOf( finalpos.z, g_pEngineMainFrame->GetGridSettings()->stepsize.z );
+#else
+                    newfinalpos.x = MyRoundToMultipleOf( finalpos.x, 5 );
+                    newfinalpos.y = MyRoundToMultipleOf( finalpos.y, 5 );
+                    newfinalpos.z = MyRoundToMultipleOf( finalpos.z, 5 );
+#endif //MYFW_USING_WX
 
                     diff = newfinalpos - pos;
 

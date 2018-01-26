@@ -120,7 +120,7 @@ protected:
     void ExportVariablesToJSON(cJSON* jComponent);
     void ImportVariablesFromJSON(cJSON* jsonobj, const char* singlelabeltoimport = 0);
 
-#if MYFW_USING_WX
+#if MYFW_EDITOR
 public:
     enum RightClickOptions
     {
@@ -134,7 +134,9 @@ public:
     };
 
     //virtual bool ShouldVariableBeAddedToWatchPanel(ComponentVariable* pVar) { return true; }
+#if MYFW_USING_WX
     virtual void AddToObjectsPanel(wxTreeItemId gameobjectid);
+#endif
 
     // an array of all components of this type selected (when more than 1 is selected)
     std::vector<ComponentBase*> m_MultiSelectedComponents;
@@ -151,7 +153,9 @@ public:
     void SyncVariableInGameObjectWithNewValue(GameObject* pGameObject, ComponentVariable* pVar);
 
     ComponentBase* FindMatchingComponentInParent();
+#endif //MYFW_EDITOR
 
+#if MYFW_USING_WX
     // Watch panel callbacks for component variables.
     // if any variables value changed, then react.
     static void StaticOnValueChangedVariable(void* pObjectPtr, int controlid, bool directlychanged, bool finishedchanging, double oldvalue, bool valuewaschangedbydragging) { ((ComponentBase*)pObjectPtr)->OnValueChangedVariable( controlid, directlychanged, finishedchanging, oldvalue, valuewaschangedbydragging, 0 ); }

@@ -67,7 +67,7 @@ public:
     virtual void RegisterCallbacks() {} // TODO: change this component to use callbacks.
     virtual void UnregisterCallbacks() {} // TODO: change this component to use callbacks.
 
-#if MYFW_USING_WX
+#if MYFW_EDITOR
     void SetPositionByEditor(Vector3 pos);
     void SetScaleByEditor(Vector3 scale);
     void SetRotationByEditor(Vector3 eulerangles);
@@ -118,12 +118,13 @@ public:
     void OnParentTransformChanged(Vector3& newpos, Vector3& newrot, Vector3& newscale, bool changedbyuserineditor);
 
 public:
-#if MYFW_USING_WX
+#if MYFW_EDITOR
     static bool m_PanelWatchBlockVisible;
     //int m_ControlID_ParentTransform;
 
     bool IsAnyParentInList(std::vector<GameObject*>& gameobjects);
 
+#if MYFW_USING_WX
     virtual void AddToObjectsPanel(wxTreeItemId gameobjectid);
     
     // Object panel callbacks.
@@ -134,7 +135,8 @@ public:
     // Component variable callbacks.
     void* OnDropTransform(ComponentVariable* pVar, wxCoord x, wxCoord y);
     void* OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue* pNewValue);
-#endif //MYFW_USING_WX
+#endif
+#endif //MYFW_EDITOR
 };
 
 #endif //__ComponentTransform_H__

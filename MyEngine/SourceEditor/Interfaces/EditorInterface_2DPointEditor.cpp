@@ -120,7 +120,9 @@ void EditorInterface_2DPointEditor::OnDrawFrame(unsigned int canvasid)
         if( i == (unsigned int)m_IndexOfPointBeingDragged )
             m_pPoint->SetMaterial( m_pMaterials[Mat_SelectedPoint] );
 
+#if MYFW_USING_WX // TODO_FIX_EDITOR
         g_pComponentSystemManager->DrawSingleObject( pEditorMatViewProj, m_pPoint, 0 );
+#endif
 
         if( i == (unsigned int)m_IndexOfPointBeingDragged )
             m_pPoint->SetMaterial( m_pMaterials[Mat_Points] );
@@ -143,7 +145,9 @@ void EditorInterface_2DPointEditor::CancelCurrentOperation()
     {
         if( m_AddedVertexWhenMouseWasDragged )
         {
+#if MYFW_USING_WX // TODO_FIX_EDITOR
             g_pEngineMainFrame->m_pCommandStack->Undo( 1 );
+#endif
         }
         else
         {
@@ -174,7 +178,9 @@ bool EditorInterface_2DPointEditor::HandleInput(int keyaction, int keycode, int 
             if( pEditorState->m_ModifierKeyStates & MODIFIERKEY_LeftMouse )
                 position = m_PositionMouseWentDown;
 
+#if MYFW_USING_WX // TODO_FIX_EDITOR
             g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_Delete2DPoint( m_pCollisionObject, m_IndexOfPointBeingDragged, position ) );
+#endif
             m_IndexOfPointBeingDragged = -1;
         }
     }
@@ -219,7 +225,11 @@ bool EditorInterface_2DPointEditor::HandleInput(int keyaction, int keycode, int 
                 // add command to stack for undo/redo.                    
                 b2Vec2 distmoved = m_pCollisionObject->m_Vertices[m_IndexOfPointBeingDragged] - m_PositionMouseWentDown;
                 if( distmoved.LengthSquared() != 0 )
+                {
+#if MYFW_USING_WX // TODO_FIX_EDITOR
                     g_pEngineMainFrame->m_pCommandStack->Add( MyNew EditorCommand_Move2DPoint( distmoved, m_pCollisionObject, m_IndexOfPointBeingDragged ), m_AddedVertexWhenMouseWasDragged );
+#endif
+                }
             }
         }
 
@@ -284,16 +294,20 @@ bool EditorInterface_2DPointEditor::HandleInput(int keyaction, int keycode, int 
                     newpos.x = currentresult.x - pParentMatrix->GetTranslation().x;
                     newpos.y = currentresult.y - pParentMatrix->GetTranslation().y;
 
+#if MYFW_USING_WX // TODO_FIX_EDITOR
                     if( g_pEngineMainFrame->GetGridSettings()->snapenabled )
                     {
                         // snap point to grid.
                         newpos.x = MyRoundToMultipleOf( newpos.x, g_pEngineMainFrame->GetGridSettings()->stepsize.x );
                         newpos.y = MyRoundToMultipleOf( newpos.y, g_pEngineMainFrame->GetGridSettings()->stepsize.y );
                     }
+#endif
 
                     if( createnewvertex )
                     {
+#if MYFW_USING_WX // TODO_FIX_EDITOR
                         g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_Insert2DPoint( m_pCollisionObject, m_IndexOfPointBeingDragged ) );
+#endif
                         m_AddedVertexWhenMouseWasDragged = true;
                     }
                     else
@@ -319,7 +333,9 @@ void EditorInterface_2DPointEditor::Set2DCollisionObjectToEdit(Component2DCollis
 
     if( m_pCollisionObject->m_Vertices.size() == 0 )
     {
+#if MYFW_USING_WX // TODO_FIX_EDITOR
         m_pCollisionObject->m_Vertices.push_back( b2Vec2(0,0) );
+#endif
     }
 }
 
@@ -393,7 +409,9 @@ void EditorInterface_2DPointEditor::RenderObjectIDsToFBO()
 
                 pShader->ProgramTint( tint );
 
+#if MYFW_USING_WX // TODO_FIX_EDITOR
                 g_pComponentSystemManager->DrawSingleObject( pEditorMatViewProj, m_pPoint, pShaderOverride );
+#endif
             }
         }
     }
