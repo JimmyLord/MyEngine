@@ -221,8 +221,6 @@ EngineMainFrame::EngineMainFrame()
     m_MenuItem_Debug_DrawPhysicsDebugShapes = 0;
     m_MenuItem_Debug_ShowProfilingInfo = 0;
 
-    m_pEditorPrefs = 0;
-
     m_ShowEditorIcons = true;
     m_SelectedObjects_ShowWireframe = true;
     m_SelectedObjects_ShowEffect = true;
@@ -257,65 +255,57 @@ void EngineMainFrame::InitFrame()
 
     m_pFullScreenFrame = MyNew FullScreenFrame( this );
 
-    FILE* file = 0;
-#if MYFW_WINDOWS
-    fopen_s( &file, "EditorPrefs.ini", "rb" );
-#else
-    file = fopen( "EditorPrefs.ini", "rb" );
-#endif
-    if( file )
+    EditorPrefs* pEditorPrefs = g_pEditorPrefs;
+    if( pEditorPrefs == 0 )
     {
-        char* string = MyNew char[10000];
-        size_t len = fread( string, 1, 10000, file );
-        string[len] = 0;
-        fclose( file );
+        pEditorPrefs = MyNew EditorPrefs();
+        pEditorPrefs->Init();
+    }
 
-        m_pEditorPrefs = cJSON_Parse( string );
-        delete[] string;
+    if( pEditorPrefs )
+    {
+        cJSON* jEditorPrefs = pEditorPrefs->GetEditorPrefsJSONString();
 
-        if( m_pEditorPrefs )
+        // load any customized layouts.
+        for( int i=0; i<4; i++ )
         {
-            // load any customized layouts.
-            for( int i=0; i<4; i++ )
+            MyAssert( g_SavedPerspectives[i] == g_DefaultPerspectives[i] );
+
+            char name[10];
+            sprintf_s( name, 10, "Layout%d", i );
+            cJSON* layout = cJSON_GetObjectItem( jEditorPrefs, name );
+            if( layout )
             {
-                MyAssert( g_SavedPerspectives[i] == g_DefaultPerspectives[i] );
-
-                char name[10];
-                sprintf_s( name, 10, "Layout%d", i );
-                cJSON* layout = cJSON_GetObjectItem( m_pEditorPrefs, name );
-                if( layout )
-                {
-                    int len = (int)strlen( layout->valuestring );
-                    g_SavedPerspectives[i] = MyNew char[len+1];
-                    strcpy_s( g_SavedPerspectives[i], len+1, layout->valuestring );
-                }
+                int len = (int)strlen( layout->valuestring );
+                g_SavedPerspectives[i] = MyNew char[len+1];
+                strcpy_s( g_SavedPerspectives[i], len+1, layout->valuestring );
             }
-
-            int windowx = -9999;
-            int windowy = -9999;
-            int clientwidth = 0;
-            int clientheight = 0;
-            bool maximized = false;
-            bool showicons = false;
-            cJSONExt_GetInt( m_pEditorPrefs, "WindowX", &windowx );
-            cJSONExt_GetInt( m_pEditorPrefs, "WindowY", &windowy );
-            cJSONExt_GetInt( m_pEditorPrefs, "ClientWidth", &clientwidth );
-            cJSONExt_GetInt( m_pEditorPrefs, "ClientHeight", &clientheight );
-            cJSONExt_GetBool( m_pEditorPrefs, "IsMaximized", &maximized );
-
-            if( clientwidth != 0 )
-                m_ClientWidth = clientwidth;
-            if( clientheight != 0 )
-                m_ClientHeight = clientheight;
-
-            if( windowx != -9999 )
-                m_WindowX = windowx;
-                
-            if( windowy != -9999 )
-                m_WindowY = windowy;
-
-            m_Maximized = maximized;
         }
+
+        int windowx = -9999;
+        int windowy = -9999;
+        int clientwidth = 0;
+        int clientheight = 0;
+        bool maximized = false;
+        bool showicons = false;
+        cJSONExt_GetInt( jEditorPrefs, "WindowX", &windowx );
+        cJSONExt_GetInt( jEditorPrefs, "WindowY", &windowy );
+        cJSONExt_GetInt( jEditorPrefs, "ClientWidth", &clientwidth );
+        cJSONExt_GetInt( jEditorPrefs, "ClientHeight", &clientheight );
+        cJSONExt_GetBool( jEditorPrefs, "IsMaximized", &maximized );
+
+        if( clientwidth != 0 )
+            m_ClientWidth = clientwidth;
+        if( clientheight != 0 )
+            m_ClientHeight = clientheight;
+
+        if( windowx != -9999 )
+            m_WindowX = windowx;
+                
+        if( windowy != -9999 )
+            m_WindowY = windowy;
+
+        m_Maximized = maximized;
     }
 
     MainFrame::InitFrame();
@@ -500,19 +490,25 @@ void EngineMainFrame::InitFrame()
     Connect( myIDEngine_Debug_ShowPhysicsShapes,        wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );
     Connect( myIDEngine_Debug_ShowProfilingInfo,        wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );
 
-    if( m_pEditorPrefs )
+    if( g_pEngineCore )
     {
-        int layouteditor = 0;
-        cJSONExt_GetInt( m_pEditorPrefs, "EditorLayout", &layouteditor );
-        SetDefaultEditorPerspectiveIndex( layouteditor );
+        EditorPrefs* pEditorPrefs = g_pEngineCore->GetEditorPrefs();
 
-        int layoutgameplay = 0;
-        cJSONExt_GetInt( m_pEditorPrefs, "GameplayLayout", &layoutgameplay );
-        SetDefaultGameplayPerspectiveIndex( layoutgameplay );
+        if( pEditorPrefs )
+        {
+            cJSON* jEditorPrefs = pEditorPrefs->GetEditorPrefsJSONString();
+            int layouteditor = 0;
+            cJSONExt_GetInt( jEditorPrefs, "EditorLayout", &layouteditor );
+            SetDefaultEditorPerspectiveIndex( layouteditor );
 
-        int launchplatform = 0;
-        cJSONExt_GetInt( m_pEditorPrefs, "LaunchPlatform", &launchplatform );
-        SetLaunchPlatformIndex( launchplatform );
+            int layoutgameplay = 0;
+            cJSONExt_GetInt( jEditorPrefs, "GameplayLayout", &layoutgameplay );
+            SetDefaultGameplayPerspectiveIndex( layoutgameplay );
+
+            int launchplatform = 0;
+            cJSONExt_GetInt( jEditorPrefs, "LaunchPlatform", &launchplatform );
+            SetLaunchPlatformIndex( launchplatform );
+        }
     }
 
     UpdateMenuItemStates();
@@ -598,45 +594,38 @@ void EngineMainFrame::OnPostInit()
 
     bool sceneloaded = false;
 
-    if( m_pEditorPrefs )
+    EditorPrefs* pEditorPrefs = g_pEngineCore->GetEditorPrefs();
+
+    if( pEditorPrefs )
     {
+        cJSON* jEditorPrefs = pEditorPrefs->GetEditorPrefsJSONString();
         cJSON* obj;
 
-        obj = cJSON_GetObjectItem( m_pEditorPrefs, "EditorCam" );
+        obj = cJSON_GetObjectItem( jEditorPrefs, "EditorCam" );
         if( obj )
             g_pEngineCore->GetEditorState()->GetEditorCamera()->m_pComponentTransform->ImportFromJSONObject( obj, EngineCore::ENGINE_SCENE_ID );
 
         extern GLViewTypes g_CurrentGLViewType;
-        cJSONExt_GetInt( m_pEditorPrefs, "GameAspectRatio", (int*)&g_CurrentGLViewType );
+        cJSONExt_GetInt( jEditorPrefs, "GameAspectRatio", (int*)&g_CurrentGLViewType );
 
-        cJSONExt_GetBool( m_pEditorPrefs, "ShowIcons", &m_ShowEditorIcons );
-        cJSONExt_GetBool( m_pEditorPrefs, "SelectedObjects_ShowWireframe", &m_SelectedObjects_ShowWireframe );
-        cJSONExt_GetBool( m_pEditorPrefs, "SelectedObjects_ShowEffect", &m_SelectedObjects_ShowEffect );
-        cJSONExt_GetBool( m_pEditorPrefs, "Mode_SwitchFocusOnPlayStop", &m_Mode_SwitchFocusOnPlayStop );
+        cJSONExt_GetBool( jEditorPrefs, "ShowIcons", &m_ShowEditorIcons );
+        cJSONExt_GetBool( jEditorPrefs, "SelectedObjects_ShowWireframe", &m_SelectedObjects_ShowWireframe );
+        cJSONExt_GetBool( jEditorPrefs, "SelectedObjects_ShowEffect", &m_SelectedObjects_ShowEffect );
+        cJSONExt_GetBool( jEditorPrefs, "Mode_SwitchFocusOnPlayStop", &m_Mode_SwitchFocusOnPlayStop );
 
-        cJSONExt_GetBool( m_pEditorPrefs, "GridVisible", &m_GridSettings.visible );
+        cJSONExt_GetBool( jEditorPrefs, "GridVisible", &m_GridSettings.visible );
         g_pEngineCore->SetGridVisible( m_GridSettings.visible );
 
-        cJSONExt_GetBool( m_pEditorPrefs, "GridSnapEnabled", &m_GridSettings.snapenabled );
-        cJSONExt_GetFloatArray( m_pEditorPrefs, "GridStepSize", &m_GridSettings.stepsize.x, 3 );
-
-        cJSON* jGameObjectFlagsArray = cJSON_GetObjectItem( m_pEditorPrefs, "GameObjectFlags" );
-        g_pEngineCore->InitializeGameObjectFlagStrings( jGameObjectFlagsArray );
+        cJSONExt_GetBool( jEditorPrefs, "GridSnapEnabled", &m_GridSettings.snapenabled );
+        cJSONExt_GetFloatArray( jEditorPrefs, "GridStepSize", &m_GridSettings.stepsize.x, 3 );
 
         // Load the scene at the end.
-        obj = cJSON_GetObjectItem( m_pEditorPrefs, "LastSceneLoaded" );
+        obj = cJSON_GetObjectItem( jEditorPrefs, "LastSceneLoaded" );
         if( obj && obj->valuestring[0] != 0 )
         {
             LoadScene( obj->valuestring, false ); // this is only parsed on startup, so no need to unload scene.
             sceneloaded = true;
         }
-
-        cJSON_Delete( m_pEditorPrefs );
-        m_pEditorPrefs = 0;
-    }
-    else
-    {
-        g_pEngineCore->InitializeGameObjectFlagStrings( 0 );
     }
 
     if( sceneloaded == false )

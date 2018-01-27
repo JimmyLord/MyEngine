@@ -140,7 +140,9 @@ extern "C"
 #include "../../../SharedGameCode/Menus/Menu_Helpers.h"
 
 #if MYFW_EDITOR
+#include "../SourceEditor/EditorPrefs.h"
 #include "../SourceEditor/EditorState.h"
+#include "../SourceEditor/EditorImGuiMainFrame.h"
 #include "../SourceEditor/DragAndDropHackeryExtended.h"
 #include "../SourceEditor/GameObjectTemplateManager.h"
 #include "../SourceEditor/EngineCommandStack.h"

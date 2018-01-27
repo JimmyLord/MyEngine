@@ -10,7 +10,7 @@
 #ifndef __EngineCore_H__
 #define __EngineCore_H__
 
-#if _DEBUG || MYFW_USING_WX
+#if _DEBUG || MYFW_EDITOR
 #define MYFW_PROFILING_ENABLED 1
 #endif
 
@@ -131,7 +131,11 @@ protected:
 #endif
 
 #if MYFW_EDITOR
+    EditorPrefs* m_pEditorPrefs;
     EditorState* m_pEditorState;
+#if MYFW_USING_IMGUI
+    EditorImGuiMainFrame* m_pEditorImGuiMainFrame;
+#endif //MYFW_USING_IMGUI
 
     bool m_Debug_DrawMousePickerFBO;
     bool m_Debug_DrawSelectedAnimatedMesh;
@@ -229,6 +233,7 @@ public:
 
 #if MYFW_EDITOR
     // Editor Getters/Setters
+    EditorPrefs* GetEditorPrefs() { return m_pEditorPrefs; }
     EditorState* GetEditorState() { return m_pEditorState; }
 
     bool GetDebug_DrawMousePickerFBO()       { return m_Debug_DrawMousePickerFBO; }

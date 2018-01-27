@@ -177,9 +177,6 @@ protected:
     wxMenuItem* m_MenuItem_Debug_DrawPhysicsDebugShapes;
     wxMenuItem* m_MenuItem_Debug_ShowProfilingInfo;
 
-    // Editor preferences
-    cJSON* m_pEditorPrefs;
-
     bool m_ShowEditorIcons;
     bool m_SelectedObjects_ShowWireframe;
     bool m_SelectedObjects_ShowEffect;

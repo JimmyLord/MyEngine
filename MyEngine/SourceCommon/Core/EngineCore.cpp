@@ -17,7 +17,7 @@ EngineCore::EngineCore()
 
     m_pComponentSystemManager = 0;
 
-#if MYFW_USING_WX
+#if MYFW_EDITOR
     m_EditorMode = true;
 #else
     m_EditorMode = false;
@@ -62,8 +62,13 @@ EngineCore::EngineCore()
 
     m_Debug_DrawWireframe = false;
 
-#if MYFW_USING_WX
+#if MYFW_EDITOR
+    m_pEditorPrefs = 0;
     m_pEditorState = 0;
+#if MYFW_USING_IMGUI
+    m_pEditorImGuiMainFrame = 0;
+#endif //MYFW_USING_IMGUI
+
     m_Debug_DrawMousePickerFBO = false;
     m_Debug_DrawSelectedAnimatedMesh = false;
     m_Debug_DrawSelectedMaterial = false;
@@ -77,17 +82,19 @@ EngineCore::EngineCore()
     m_pDebugFont = 0;
     m_pDebugTextMesh = 0;
 
+#if MYFW_USING_WX
     g_pPanelObjectList->m_pCallbackFunctionObject = this;
     g_pPanelObjectList->m_pOnTreeSelectionChangedFunction = StaticOnObjectListTreeSelectionChanged;
     g_pPanelObjectList->m_pOnTreeMultipleSelectionFunction = StaticOnObjectListTreeMultipleSelection;
     g_pPanelObjectList->m_pOnTreeDeleteSelectionFunction = StaticOnObjectListTreeDeleteSelection;
+#endif
 
     m_pEditorInterfaces[EditorInterfaceType_SceneManagement] = MyNew EditorInterface_SceneManagement();
     m_pEditorInterfaces[EditorInterfaceType_2DPointEditor] = MyNew EditorInterface_2DPointEditor();
     m_pEditorInterfaces[EditorInterfaceType_VoxelMeshEditor] = MyNew EditorInterface_VoxelMeshEditor();
     m_CurrentEditorInterfaceType = EditorInterfaceType_NumInterfaces;
     m_pCurrentEditorInterface = 0;
-#endif //MYFW_USING_WX
+#endif //MYFW_EDITOR
 
 #if MYFW_PROFILING_ENABLED
     m_FrameTimingNextEntry = 0;
@@ -116,10 +123,10 @@ EngineCore::~EngineCore()
     SAFE_DELETE( m_pLuaGameState );
 #endif //MYFW_USING_LUA
 
-#if MYFW_USING_WX
+#if MYFW_EDITOR
     for( int i=0; i<EditorInterfaceType_NumInterfaces; i++ )
         SAFE_DELETE( m_pEditorInterfaces[i] );
-#endif //MYFW_USING_WX
+#endif //MYFW_EDITOR
 
     g_pFileManager->FreeFile( m_pShaderFile_TintColor );
     g_pFileManager->FreeFile( m_pShaderFile_SelectedObjects );
@@ -132,14 +139,19 @@ EngineCore::~EngineCore()
     SAFE_RELEASE( m_pMaterial_MousePicker );
     SAFE_RELEASE( m_pMaterial_ClipSpaceTexture );
 
-#if MYFW_USING_WX
+#if MYFW_EDITOR
+    SAFE_DELETE( m_pEditorPrefs );
     SAFE_DELETE( m_pEditorState );
+#if MYFW_USING_IMGUI
+    SAFE_DELETE( m_pEditorImGuiMainFrame );
+#endif //MYFW_USING_IMGUI
+
     SAFE_RELEASE( m_pSphereMeshFile );
     SAFE_RELEASE( m_pSprite_DebugQuad );
     SAFE_RELEASE( m_pMesh_MaterialBall );
     SAFE_RELEASE( m_pDebugFont );
     SAFE_RELEASE( m_pDebugTextMesh );
-#endif //MYFW_USING_WX
+#endif //MYFW_EDITOR
 
     SAFE_DELETE( m_pComponentSystemManager );
     SAFE_DELETE( m_pBulletWorld );
@@ -243,16 +255,24 @@ void EngineCore::OneTimeInit()
     //  TODO: expose size, hardcoded to 5meg for now... used by editor mode scene load and voxel world creation
     m_SingleFrameMemoryStack.Initialize( 5000000 );
 
-#if MYFW_USING_WX
-    m_pEditorState = MyNew EditorState;
+#if MYFW_EDITOR
+    m_pEditorPrefs = g_pEditorPrefs;
+    if( m_pEditorPrefs == 0 )
+    {
+        m_pEditorPrefs = MyNew EditorPrefs;
+        m_pEditorPrefs->Init();
+    }
 
+    m_pEditorState = MyNew EditorState;
     m_pEditorState->m_pDebugViewFBO = g_pTextureManager->CreateFBO( 0, 0, GL_NEAREST, GL_NEAREST, false, 0, false, true );
     m_pEditorState->m_pMousePickerFBO = g_pTextureManager->CreateFBO( 0, 0, GL_NEAREST, GL_NEAREST, false, 0, false, true );
 
     if( m_pDebugFont == 0 )
     {
         m_pDebugFont = g_pFontManager->CreateFont( "Data/DataEngine/Fonts/Nevis60.fnt" );
+#if MYFW_USING_WX
         m_pDebugFont->m_pFile->MemoryPanel_Hide();
+#endif
     }
 
     if( m_pDebugTextMesh == 0 )
@@ -261,7 +281,7 @@ void EngineCore::OneTimeInit()
     }
 
     SetEditorInterface( EditorInterfaceType_SceneManagement );
-#endif //MYFW_USING_WX
+#endif //MYFW_EDITOR
 
     // setup our shaders
     m_pShaderFile_TintColor = g_pEngineFileManager->RequestFile_UntrackedByScene( "Data/DataEngine/Shaders/Shader_TintColor.glsl" );
@@ -271,7 +291,7 @@ void EngineCore::OneTimeInit()
     m_pShaderFile_TintColor->MemoryPanel_Hide();
     m_pShaderFile_SelectedObjects->MemoryPanel_Hide();
     m_pShaderFile_ClipSpaceTexture->MemoryPanel_Hide();
-#endif //MYFW_USING_WX
+#endif
     m_pShader_TintColor = MyNew ShaderGroup( m_pShaderFile_TintColor );
     m_pShader_SelectedObjects = MyNew ShaderGroup( m_pShaderFile_SelectedObjects );
     m_pShader_ClipSpaceTexture = MyNew ShaderGroup( m_pShaderFile_ClipSpaceTexture );
@@ -289,7 +309,7 @@ void EngineCore::OneTimeInit()
     m_pLuaGameState->Rebuild(); // reset the lua state.
 #endif //MYFW_USING_LUA
 
-#if MYFW_USING_WX
+#if MYFW_EDITOR
 //    m_pComponentSystemManager->CreateNewScene( "Unsaved.scene", 1 );
     CreateDefaultEditorSceneObjects();
 
@@ -298,7 +318,7 @@ void EngineCore::OneTimeInit()
     {
         m_pEditorInterfaces[i]->Initialize();
     }
-#endif //MYFW_USING_WX
+#endif //MYFW_EDITOR
 
     // create the box2d world, pass in a material for the debug renderer.
     //ComponentCamera* pCamera = m_pEditorState->GetEditorCamera();
@@ -311,15 +331,19 @@ void EngineCore::OneTimeInit()
     if( g_pImGuiManager )
     {
         g_pImGuiManager->Init();
-#if MYFW_USING_WX
+#if MYFW_EDITOR
+#if MYFW_USING_IMGUI
+        m_pEditorImGuiMainFrame = MyNew EditorImGuiMainFrame();
+#endif
+
         // For editor build, start the next frame immediately, so imgui calls can be made in tick callbacks.
         // Tick happens before game(0) window is drawn, g_pImGuiManager's draw only happens on editor(1) window.
         g_pImGuiManager->StartFrame();
-#endif //MYFW_USING_WX
+#endif //MYFW_EDITOR
     }
 
     // Create one bullet world shared between all scenes.
-#if !MYFW_USING_WX
+#if !MYFW_EDITOR
     // disable debug draw in non-editor builds
     m_pBulletWorld = MyNew BulletWorld( 0, 0 );
 #else
@@ -327,7 +351,20 @@ void EngineCore::OneTimeInit()
     m_pBulletWorld = MyNew BulletWorld( m_pMaterial_Box2DDebugDraw, &pCamera->m_Camera3D.m_matViewProj );
 #endif
 
-#if !MYFW_USING_WX
+#if MYFW_EDITOR
+    // Load in some editor preferences.
+    if( g_pEditorPrefs && g_pEditorPrefs->GetEditorPrefsJSONString() )
+    {
+        cJSON* jEditorPrefs = g_pEditorPrefs->GetEditorPrefsJSONString();
+
+        cJSON* jGameObjectFlagsArray = cJSON_GetObjectItem( jEditorPrefs, "GameObjectFlags" );
+        g_pEngineCore->InitializeGameObjectFlagStrings( jGameObjectFlagsArray );
+    }
+    else
+    {
+        g_pEngineCore->InitializeGameObjectFlagStrings( 0 );
+    }
+#else
     // TODO: fix! this won't work if flags were customized and saved into editorprefs.ini
     InitializeGameObjectFlagStrings( 0 );
 #endif
@@ -355,10 +392,17 @@ double EngineCore::Tick(double TimePassed)
         g_pImGuiManager->StartTick( TimePassed );
     }
 
+#if MYFW_USING_IMGUI
+    if( m_pEditorImGuiMainFrame )
+    {
+        m_pEditorImGuiMainFrame->AddEverything();
+    }
+#endif
+
     if( m_UnloadAllScenesNextTick )
     {
         UnloadScene( -1, true );
-#if MYFW_USING_WX
+#if MYFW_EDITOR
         // If switching scene while in the editor, delete the quick save.
         Editor_DeleteQuickScene( "temp_editor_onplay.scene" );
 #endif
@@ -373,10 +417,12 @@ double EngineCore::Tick(double TimePassed)
         return 0;
     }
 
-#if MYFW_USING_WX
+#if MYFW_EDITOR
     m_pCurrentEditorInterface->Tick( TimePassed );
 
+#if MYFW_USING_WX
     EngineMainFrame_DumpCachedMessagesToLogPane();
+#endif
 #endif
 
     {
@@ -418,10 +464,11 @@ double EngineCore::Tick(double TimePassed)
         //     so if we're in editor mode, don't call "play" when loading is finished.
         bool playwhenfinishedloading = false;
 
-#if MYFW_USING_WX
+#if MYFW_EDITOR
         if( m_EditorMode == true )
         {
-            playwhenfinishedloading = false;
+            //playwhenfinishedloading = false;
+            playwhenfinishedloading = true;
         }
         else
 #endif
@@ -441,12 +488,12 @@ double EngineCore::Tick(double TimePassed)
         m_pSceneFilesLoading[MAX_SCENE_FILES_QUEUED_UP-1].m_pFile = 0;
         m_pSceneFilesLoading[MAX_SCENE_FILES_QUEUED_UP-1].m_SceneID = 0;
 
-#if !MYFW_USING_WX
+#if !MYFW_EDITOR
         RegisterGameplayButtons();
 #endif
     }
 
-#if MYFW_USING_WX
+#if MYFW_EDITOR
     m_pEditorState->m_pTransformGizmo->Tick( TimePassed, m_pEditorState );
     m_pEditorState->UpdateCamera( TimePassed );
 #endif
@@ -468,9 +515,9 @@ double EngineCore::Tick(double TimePassed)
 
     if( m_EditorMode == false || m_AllowGameToRunInEditorMode )
     {
-#if MYFW_PROFILING_ENABLED && MYFW_USING_WX
+#if MYFW_PROFILING_ENABLED && MYFW_EDITOR
         double Physics_Timing_Start = MyTime_GetSystemTime();
-#endif // MYFW_PROFILING_ENABLED && MYFW_USING_WX
+#endif // MYFW_PROFILING_ENABLED && MYFW_EDITOR
 
         m_pBulletWorld->PhysicsUpdate( (float)TimePassed );
 
@@ -490,12 +537,12 @@ double EngineCore::Tick(double TimePassed)
             }
         }
 
-#if MYFW_PROFILING_ENABLED && MYFW_USING_WX
+#if MYFW_PROFILING_ENABLED && MYFW_EDITOR
         double Physics_Timing_End = MyTime_GetSystemTime();
 
         if( g_GLCanvasIDActive == 0 )
             m_FrameTimingInfo[m_FrameTimingNextEntry].Update_Physics = (float)((Physics_Timing_End - Physics_Timing_Start)*1000);
-#endif // MYFW_PROFILING_ENABLED && MYFW_USING_WX
+#endif // MYFW_PROFILING_ENABLED && MYFW_EDITOR
     }
 
     // tick all components.
@@ -531,8 +578,10 @@ double EngineCore::Tick(double TimePassed)
 
 void OnFileUpdated_CallbackFunction(MyFileObject* pFile)
 {
+#if MYFW_EDITOR
 #if MYFW_USING_WX
     g_pComponentSystemManager->OnFileUpdated( pFile );
+#endif
 
     LOGInfo( LOGTag, "OnFileUpdated_CallbackFunction pFile = %s\n", pFile->GetFullPath() );
 
@@ -555,13 +604,18 @@ void OnFileUpdated_CallbackFunction(MyFileObject* pFile)
 
 void EngineCore::OnFocusGained()
 {
+    if( this->HasOneTimeInitBeenCalled() == false )
+        return;
+
     GameCore::OnFocusGained();
 
-#if MYFW_USING_WX
+#if MYFW_EDITOR
     m_pEditorState->ClearKeyAndActionStates();
 
+#if MYFW_USING_WX
     // check if any of the "source" files, like .fbx's were updated, they aren't loaded by FileManager so wouldn't be detected there.
     g_pComponentSystemManager->CheckForUpdatedDataSourceFiles( false );
+#endif
 #endif
 
     // reload any files that changed while we were out of focus.
@@ -582,7 +636,7 @@ void EngineCore::OnFocusLost()
 {
     GameCore::OnFocusLost();
 
-#if MYFW_USING_WX
+#if MYFW_EDITOR
     m_pEditorState->OnFocusLost();
 #endif
 
@@ -593,12 +647,12 @@ void EngineCore::OnDrawFrameStart(unsigned int canvasid)
 {
     GameCore::OnDrawFrameStart( canvasid );
 
-#if !MYFW_USING_WX
+#if !MYFW_EDITOR
     if( g_pImGuiManager )
     {
         g_pImGuiManager->StartFrame();
     }
-#endif //!MYFW_USING_WX
+#endif //!MYFW_EDITOR
 }
 
 void EngineCore::OnDrawFrame(unsigned int canvasid)
@@ -609,14 +663,23 @@ void EngineCore::OnDrawFrame(unsigned int canvasid)
 
 #if !MYFW_OPENGLES2
     if( m_Debug_DrawWireframe )
+    {
         glPolygonMode( GL_FRONT, GL_LINE );
+    }
 #endif
+
+#if MYFW_USING_IMGUI
+    if( m_pEditorImGuiMainFrame )
+    {
+        m_pEditorImGuiMainFrame->DrawGameAndEditorWindows( this );
+    }
+#endif //MYFW_USING_IMGUI
 
     GameCore::OnDrawFrame( canvasid );
 
     MyRect windowrect( 0, 0, 0, 0 );
 
-#if MYFW_USING_WX
+#if MYFW_EDITOR
     if( g_GLCanvasIDActive == 1 )
     {
         m_pCurrentEditorInterface->OnDrawFrame( canvasid );
@@ -625,7 +688,7 @@ void EngineCore::OnDrawFrame(unsigned int canvasid)
     else
 #endif
     {
-        // draw all components.
+        // Draw all components.
         m_pComponentSystemManager->OnDrawFrame();
         windowrect.Set( (int)m_WindowStartX, (int)m_WindowStartY, (int)m_WindowWidth, (int)m_WindowHeight );
     }
@@ -635,7 +698,7 @@ void EngineCore::OnDrawFrame(unsigned int canvasid)
         glPolygonMode( GL_FRONT, GL_FILL );
 #endif
 
-#if MYFW_USING_WX
+#if MYFW_EDITOR
     if( m_Debug_DrawGLStats && m_pDebugTextMesh )// && g_GLCanvasIDActive == 1 )
     {
         if( m_pDebugTextMesh->GetMaterial( 0 ) == 0 )
@@ -733,7 +796,7 @@ void EngineCore::OnDrawFrame(unsigned int canvasid)
 #if MYFW_PROFILING_ENABLED
     double Timing_End = MyTime_GetSystemTime();
 
-#if MYFW_USING_WX
+#if MYFW_EDITOR
     if( g_GLCanvasIDActive == 0 )
         m_FrameTimingInfo[m_FrameTimingNextEntry].Render_Game = (float)((Timing_End - Timing_Start)*1000);
     else if( g_GLCanvasIDActive == 1 )
@@ -742,7 +805,7 @@ void EngineCore::OnDrawFrame(unsigned int canvasid)
     m_FrameTimingInfo[m_FrameTimingNextEntry].Render_Game = (float)((Timing_End - Timing_Start)*1000);
 #endif
 
-#if MYFW_USING_WX
+#if MYFW_EDITOR
     if( g_GLCanvasIDActive == 1 && m_Debug_ShowProfilingInfo )
 #endif
     {
@@ -780,7 +843,7 @@ void EngineCore::OnDrawFrame(unsigned int canvasid)
         ImGui::PlotLines( "Tick",          &m_FrameTimingInfo[start].Tick,              numsamplestoshow, 0, "", 0.0f, 1000/60.0f, ImVec2(0,20), sizeof(FrameTimingInfo) );
 
         ImGui::PlotLines( "Physics",       &m_FrameTimingInfo[start].Update_Physics,    numsamplestoshow, 0, "", 0.0f, 1000/60.0f, ImVec2(0,20), sizeof(FrameTimingInfo) );
-#if MYFW_USING_WX
+#if MYFW_EDITOR
         ImGui::PlotLines( "Render Editor", &m_FrameTimingInfo[start].Render_Editor,     numsamplestoshow, 0, "", 0.0f, 1000/60.0f, ImVec2(0,20), sizeof(FrameTimingInfo) );
 #endif
         ImGui::PlotLines( "Render Game",   &m_FrameTimingInfo[start].Render_Game,       numsamplestoshow, 0, "", 0.0f, 1000/60.0f, ImVec2(0,20), sizeof(FrameTimingInfo) );
@@ -792,13 +855,13 @@ void EngineCore::OnDrawFrame(unsigned int canvasid)
     if( g_pImGuiManager )
     {
 #if MYFW_USING_WX
-        // In editor builds, only draw imgui interface over editor window.
+        // In wx editor builds, only draw imgui interface over editor window.
         if( canvasid == 1 )
 #endif
         {
             g_pImGuiManager->EndFrame( (float)windowrect.w, (float)windowrect.h, true );
 
-#if MYFW_USING_WX
+#if MYFW_EDITOR
             // For editor build, start the next frame immediately, so imgui calls can be made in tick callbacks.
             // Tick happens before game(0) window is drawn, g_pImGuiManager's draw only happens on editor(1) window.
             g_pImGuiManager->StartFrame();
@@ -815,7 +878,7 @@ void EngineCore::OnDrawFrameDone()
     m_SingleFrameStackSizeThisFrame = m_SingleFrameMemoryStack.GetBytesUsed();
     m_SingleFrameMemoryStack.Clear();
 
-#if MYFW_USING_WX
+#if MYFW_EDITOR
     //if( g_GLCanvasIDActive == 1 )
 #endif
     //{
@@ -858,10 +921,12 @@ bool EngineCore::OnTouch(int action, int id, float x, float y, float pressure, f
     if( GameCore::OnTouch( action, id, x, y, pressure, size ) )
         return true;
 
-#if MYFW_USING_WX
+#if MYFW_EDITOR
     //if( m_EditorMode )
     {
+#if MYFW_USING_WX
         if( g_GLCanvasIDActive == 1 )
+#endif
         {
             if( m_pEditorState->m_pEditorCamera )
             {
@@ -876,7 +941,11 @@ bool EngineCore::OnTouch(int action, int id, float x, float y, float pressure, f
                 else
                 {
                     // prefer 0,0 at bottom left.
+#if MYFW_USING_WX
                     y = pCamera->m_WindowHeight - y;
+#else
+                    y = y;//m_WindowHeight - y;
+#endif
                 }
 
                 if( HandleEditorInput( g_GLCanvasIDActive, -1, -1, action, id, x, y, pressure ) )
@@ -893,7 +962,7 @@ bool EngineCore::OnTouch(int action, int id, float x, float y, float pressure, f
     }
 #endif
 
-#if !MYFW_USING_WX
+#if !MYFW_EDITOR
     if( g_pGameCore->IsMouseLocked() == false )
     {
         float toplefty = y;
@@ -947,8 +1016,10 @@ bool EngineCore::OnButtons(GameCoreButtonActions action, GameCoreButtonIDs id)
 
 bool EngineCore::OnKeys(GameCoreButtonActions action, int keycode, int unicodechar)
 {
+#if MYFW_EDITOR
 #if MYFW_USING_WX
     if( g_GLCanvasIDActive == 1 )
+#endif
     {
         // not calling GameCore::OnKeys( action, keycode, unicodechar ) which translates keypresses to joystick input
 
@@ -970,11 +1041,11 @@ bool EngineCore::OnKeys(GameCoreButtonActions action, int keycode, int unicodech
     }
 #endif
 
-#if MYFW_USING_WX
+#if MYFW_EDITOR
     if( g_GLCanvasIDActive == 0 )
 #endif
     {
-#if !MYFW_USING_WX
+#if !MYFW_EDITOR
         if( g_pImGuiManager->HandleInput( action, keycode, -1, -1, -1, -1, -1 ) )
             return true;
 #endif
@@ -1004,11 +1075,12 @@ bool EngineCore::OnChar(unsigned int c)
 
 void EngineCore::OnModeTogglePlayStop()
 {
-#if MYFW_USING_WX
+#if MYFW_EDITOR
     if( m_EditorMode )
     {
         OnModePlay();
         
+#if MYFW_USING_WX
         // Set focus to gameplay window.
         if( g_pEngineMainFrame->Mode_SwitchFocusOnPlayStop() )
         {
@@ -1021,11 +1093,13 @@ void EngineCore::OnModeTogglePlayStop()
                 g_pEngineMainFrame->m_pGLCanvas->SetFocus();
             }
         }
+#endif
     }
     else
     {
         OnModeStop();
 
+#if MYFW_USING_WX
         // Set focus to editor window.
         if( g_pEngineMainFrame->Mode_SwitchFocusOnPlayStop() )
         {
@@ -1038,22 +1112,27 @@ void EngineCore::OnModeTogglePlayStop()
                 g_pEngineMainFrame->GetGLCanvasEditor()->SetFocus();
             }
         }
+#endif
     }
-#endif //MYFW_USING_WX
+#endif //MYFW_EDITOR
 }
 
 void EngineCore::OnModePlay()
 {
-#if MYFW_USING_WX
+#if MYFW_EDITOR
     if( m_EditorMode )
     {
+#if MYFW_USING_WX
         g_pMaterialManager->SaveAllMaterials();
         //m_pComponentSystemManager->m_pPrefabManager->SaveAllPrefabs();
         m_pSoundManager->SaveAllCues();
+#endif
         Editor_QuickSaveScene( "temp_editor_onplay.scene" );
         m_EditorMode = false;
         m_Paused = false;
+#if MYFW_USING_WX
         g_pEngineMainFrame->SetWindowPerspectiveToDefault();
+#endif
         m_pComponentSystemManager->OnPlay( -1 );
 
         RegisterGameplayButtons();
@@ -1063,7 +1142,7 @@ void EngineCore::OnModePlay()
 
 void EngineCore::OnModeStop()
 {
-#if MYFW_USING_WX
+#if MYFW_EDITOR
     if( m_EditorMode == false )
     {
         // Call OnStop() for all components.
@@ -1080,7 +1159,9 @@ void EngineCore::OnModeStop()
         // Set to true after quick load, so any actions (e.g. changing material when loaded) won't be added to undo stack.
         m_EditorMode = true;
 
+#if MYFW_USING_WX
         g_pEngineMainFrame->SetWindowPerspectiveToDefault();
+#endif
         m_pEditorState->ClearKeyAndActionStates();
         //m_pEditorState->ClearSelectedObjectsAndComponents();
 
@@ -1154,7 +1235,7 @@ void EngineCore::UnregisterGameplayButtons()
     }
 }
 
-#if MYFW_USING_WX
+#if MYFW_EDITOR
 MySprite* EngineCore::GetSprite_DebugQuad()
 {
     if( m_pSprite_DebugQuad == 0 )
@@ -1191,7 +1272,11 @@ MyMesh* EngineCore::GetMesh_MaterialBall()
 
 bool EngineCore::HandleEditorInput(int canvasid, int keyaction, int keycode, int mouseaction, int id, float x, float y, float pressure)
 {
+#if MYFW_USING_WX
     float toplefty = m_pEditorState->m_EditorWindowRect.h - y;
+#else
+    float toplefty = y;
+#endif
     if( g_pImGuiManager->HandleInput( keyaction, keycode, mouseaction, id, x, toplefty, pressure ) )
         return true;
 
@@ -1206,11 +1291,11 @@ bool EngineCore::HandleEditorInput(int canvasid, int keyaction, int keycode, int
 
     return false;
 }
-#endif //MYFW_USING_WX
+#endif //MYFW_EDITOR
 
 void EngineCore::CreateDefaultEditorSceneObjects()
 {
-#if MYFW_USING_WX
+#if MYFW_EDITOR
     GameObject* pGameObject;
     ComponentCamera* pComponentCamera;
     ComponentMesh* pComponentMesh;
@@ -1223,7 +1308,9 @@ void EngineCore::CreateDefaultEditorSceneObjects()
         pComponentMesh = (ComponentMesh*)pGameObject->AddNewComponent( ComponentType_Mesh, ENGINE_SCENE_ID );
         if( pComponentMesh )
         {
+#if MYFW_USING_WX
             pComponentMesh->SetVisible( g_pEngineMainFrame->GetGridSettings()->visible );
+#endif
             pComponentMesh->SetMaterial( m_pMaterial_3DGrid, 0 ); //( m_pShader_TransformGizmo );
             pComponentMesh->SetLayersThisExistsOn( Layer_Editor | Layer_EditorUnselectable );
             pComponentMesh->m_pMesh = MyNew MyMesh();
@@ -1461,17 +1548,19 @@ void EngineCore::UnloadScene(unsigned int sceneid, bool cleareditorobjects)
     }
 
     // reset the editorstate structure.
-#if MYFW_USING_WX
+#if MYFW_EDITOR
     if( sceneid != EngineCore::UNMANAGED_SCENE_ID )
     {
+#if MYFW_USING_WX
         g_pEngineMainFrame->m_pCommandStack->ClearStacks();
         g_pEngineMainFrame->StoreCurrentUndoStackSize();
+#endif
     }
     m_pEditorState->ClearEditorState( false );
-#endif //MYFW_USING_WX
+#endif //MYFW_EDITOR
 }
 
-#if MYFW_USING_WX
+#if MYFW_EDITOR
 unsigned int EngineCore::LoadSceneFromFile(const char* fullpath)
 {
     unsigned int sceneid = g_pComponentSystemManager->GetNextSceneID();
@@ -1515,7 +1604,7 @@ unsigned int EngineCore::LoadSceneFromFile(const char* fullpath)
             {
                 playwhenfinishedloading = false;
             }
-#if MYFW_USING_WX
+#if MYFW_EDITOR
             else if( m_EditorMode )
             {
                 playwhenfinishedloading = m_AllowGameToRunInEditorMode;
@@ -1589,7 +1678,7 @@ void EngineCore::Editor_QuickLoadScene(const char* fullpath)
             // We're quickloading a temp scene, so don't call "play" in editor builds.
             bool playwhenfinishedloading = false;
 
-#if !MYFW_USING_WX
+#if !MYFW_EDITOR
             playwhenfinishedloading = true;
 #endif
 
@@ -1608,7 +1697,7 @@ void EngineCore::Editor_DeleteQuickScene(const char* fullpath)
 {
     remove( fullpath );
 }
-#endif //MYFW_USING_WX
+#endif //MYFW_EDITOR
 
 void EngineCore::LoadSceneFromJSON(const char* scenename, const char* jsonstr, unsigned int sceneid, bool playwhenfinishedloading)
 {
@@ -1618,9 +1707,9 @@ void EngineCore::LoadSceneFromJSON(const char* scenename, const char* jsonstr, u
     }
 
     // reset the editorstate structure.
-#if MYFW_USING_WX
+#if MYFW_EDITOR
     m_pEditorState->ClearEditorState( false );
-#endif //MYFW_USING_WX
+#endif //MYFW_EDITOR
 
     g_pComponentSystemManager->LoadSceneFromJSON( scenename, jsonstr, sceneid );
 
@@ -1635,7 +1724,7 @@ void EngineCore::LoadSceneFromJSON(const char* scenename, const char* jsonstr, u
 #endif
 }
 
-#if MYFW_USING_WX
+#if MYFW_EDITOR
 void EngineCore::Editor_OnSurfaceChanged(unsigned int startx, unsigned int starty, unsigned int width, unsigned int height)
 {
     MyAssert( g_GLCanvasIDActive != 0 );
@@ -1656,17 +1745,17 @@ void EngineCore::Editor_OnSurfaceChanged(unsigned int startx, unsigned int start
         }
     }
 }
-#endif //MYFW_USING_WX
+#endif //MYFW_EDITOR
 
 void EngineCore::OnSurfaceChanged(unsigned int startx, unsigned int starty, unsigned int width, unsigned int height)
 {
-#if MYFW_USING_WX
+#if MYFW_EDITOR
     if( g_GLCanvasIDActive == 1 )
     {
         Editor_OnSurfaceChanged( startx, starty, width, height );
         return;
     }
-#endif //MYFW_USING_WX
+#endif //MYFW_EDITOR
 
     GameCore::OnSurfaceChanged( startx, starty, width, height );
 
@@ -1705,7 +1794,7 @@ void EngineCore::OnSurfaceChanged(unsigned int startx, unsigned int starty, unsi
     // reset the viewport sizes of the game or editor cameras.
     if( m_pComponentSystemManager )
     {
-#if MYFW_USING_WX
+#if MYFW_EDITOR
         MyAssert( g_GLCanvasIDActive == 0 );
 #endif
         {
@@ -1714,7 +1803,7 @@ void EngineCore::OnSurfaceChanged(unsigned int startx, unsigned int starty, unsi
     }
 }
 
-#if MYFW_USING_WX
+#if MYFW_EDITOR
 void EngineCore::RenderSingleObject(GameObject* pObject)
 {
     // render the scene to an FBO.
@@ -1752,7 +1841,9 @@ void EngineCore::RenderSingleObject(GameObject* pObject)
 
             MyMatrix matViewProj = matProj * matView;
 
+#if MYFW_USING_WX
             m_pComponentSystemManager->DrawSingleObject( &matViewProj, pObject, 0 );
+#endif
 
             glClear( GL_DEPTH_BUFFER_BIT );
         }
@@ -1797,7 +1888,9 @@ void EngineCore::SetGridVisible(bool visible)
     if( m_pEditorState->m_p3DGridPlane )
     {
         ComponentMesh* pComponentMesh = (ComponentMesh*)m_pEditorState->m_p3DGridPlane->GetFirstComponentOfType( "MeshComponent" );
+#if MYFW_USING_WX
         pComponentMesh->SetVisible( g_pEngineMainFrame->GetGridSettings()->visible );
+#endif
     }
 }
 
@@ -1823,9 +1916,9 @@ EditorInterface* EngineCore::GetCurrentEditorInterface()
 {
     return m_pCurrentEditorInterface;
 }
-#endif //MYFW_USING_WX
+#endif //MYFW_EDITOR
 
-#if MYFW_USING_WX
+#if MYFW_EDITOR
 void EngineCore::OnObjectListTreeSelectionChanged() //StaticOnObjectListTreeSelectionChanged
 {
     if( m_pEditorState )
@@ -1838,6 +1931,7 @@ void EngineCore::OnObjectListTreeSelectionChanged() //StaticOnObjectListTreeSele
 
 void EngineCore::OnObjectListTreeMultipleSelection(bool prepForDraggingCopy) //StaticOnObjectListTreeMultipleSelection
 {
+#if MYFW_USING_WX
     bool allowFolderSelection = false;
     bool selectContentsOfSelectedFolders = true;
     bool allowPrefabSelection = true;
@@ -2028,10 +2122,12 @@ void EngineCore::OnObjectListTreeMultipleSelection(bool prepForDraggingCopy) //S
             }
         }
     }
+#endif
 }
 
 void EngineCore::OnObjectListTreeDeleteSelection() //StaticOnObjectListTreeDeleteSelection
 {
+#if MYFW_USING_WX
     if( m_pEditorState == 0 )
         return;
 
@@ -2067,5 +2163,6 @@ void EngineCore::OnObjectListTreeDeleteSelection() //StaticOnObjectListTreeDelet
 
     // Delete the current selected gameobjects.
     m_pEditorState->DeleteSelectedObjects();
+#endif
 }
-#endif //MYFW_USING_WX
+#endif //MYFW_EDITOR

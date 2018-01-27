@@ -126,7 +126,7 @@ void ComponentTransform::LuaRegister(lua_State* luastate)
 }
 #endif //MYFW_USING_LUA
 
-#if MYFW_USING_WX
+#if MYFW_EDITOR
 bool ComponentTransform::IsAnyParentInList(std::vector<GameObject*>& gameobjects)
 {
     ComponentTransform* pTransform = m_pParentTransform;
@@ -147,7 +147,9 @@ bool ComponentTransform::IsAnyParentInList(std::vector<GameObject*>& gameobjects
 
     return false;
 }
+#endif //MYFW_EDITOR
 
+#if MYFW_USING_WX
 void ComponentTransform::AddToObjectsPanel(wxTreeItemId gameobjectid)
 {
     wxTreeItemId id = g_pPanelObjectList->AddObject( this, ComponentTransform::StaticOnLeftClick, ComponentBase::StaticOnRightClick, gameobjectid, "Transform", ObjectListIcon_Component );

@@ -417,6 +417,15 @@
     <ClCompile Include="SourceCommon\ComponentSystem\FrameworkComponents\Physics3D\Component3DJointSlider.cpp">
       <Filter>Source\ComponentSystem\Framework Components\Physics3D</Filter>
     </ClCompile>
+    <ClCompile Include="SourceEditor\EditorPrefs.cpp">
+      <Filter>Source - Editor</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceEditor\EditorImGuiMainFrame.cpp">
+      <Filter>Source - Editor</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Libraries\imgui\imgui_demo.cpp">
+      <Filter>Libraries\imgui</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SourceCommon\Camera\Camera3D.h">
@@ -781,6 +790,12 @@
     </ClInclude>
     <ClInclude Include="SourceCommon\ComponentSystem\FrameworkComponents\Physics3D\Component3DJointSlider.h">
       <Filter>Source\ComponentSystem\Framework Components\Physics3D</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceEditor\EditorPrefs.h">
+      <Filter>Source - Editor</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceEditor\EditorImGuiMainFrame.h">
+      <Filter>Source - Editor</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

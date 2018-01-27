@@ -9,7 +9,7 @@
 
 #include "EngineCommonHeader.h"
 
-#if MYFW_USING_WX
+#if MYFW_EDITOR
 
 const char* EditorIconFilenames[EditorIcon_NumIcons] =
 {
@@ -61,9 +61,13 @@ EditorState::EditorState()
         pMaterial->SetBlendType( MaterialBlendType_On );
 
         MyFileObject* pFile = g_pEngineFileManager->RequestFile_UntrackedByScene( EditorIconFilenames[i] );
+#if MYFW_USING_WX
         pFile->MemoryPanel_Hide();
+#endif
         TextureDefinition* pTexture = g_pTextureManager->CreateTexture( pFile );
+#if MYFW_USING_WX
         pTexture->MemoryPanel_Hide();
+#endif
         pFile->Release();
 
         pMaterial->SetTextureColor( pTexture );
@@ -77,7 +81,9 @@ EditorState::EditorState()
         else
         {
             MyFileObject* pFile = g_pEngineFileManager->RequestFile_UntrackedByScene( "Data/DataEngine/Shaders/Shader_TextureTint.glsl" );
+#if MYFW_USING_WX
             pFile->MemoryPanel_Hide();
+#endif
             MyAssert( pFile->IsA( "MyFileShader" ) );
             if( pFile->IsA( "MyFileShader" ) )
             {
@@ -203,8 +209,10 @@ bool EditorState::IsGameObjectSelected(GameObject* pObject)
 
 void EditorState::DeleteSelectedObjects()
 {
+#if MYFW_USING_WX
     if( m_pSelectedObjects.size() > 0 )
         g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_DeleteObjects( m_pSelectedObjects ) );
+#endif
 }
 
 bool EditorState::IsComponentSelected(ComponentBase* pComponent)
@@ -229,8 +237,10 @@ void EditorState::ClearSelectedObjectsAndComponents()
     m_pSelectedObjects.clear();
     m_pSelectedComponents.clear();
 
+#if MYFW_USING_WX
     g_pPanelObjectList->SelectObject( 0 );
     g_pPanelWatch->ClearAllVariables();
+#endif
 }
 
 void EditorState::LockCameraToGameObject(GameObject* pGameObject)
@@ -307,4 +317,4 @@ bool EditorState::HasMouseMovedSinceButtonPressed(int buttonid)
 //    }
 //}
 
-#endif //MYFW_USING_WX
+#endif //MYFW_EDITOR
