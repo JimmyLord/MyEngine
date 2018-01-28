@@ -9,10 +9,32 @@
 
 #include "EngineCommonHeader.h"
 
+enum EditorWindowTypes
+{
+    EditorWindow_Game,
+    EditorWindow_PanelObjectList,
+    EditorWindow_PanelWatch,
+    EditorWindow_PanelMemory,
+    EditorWindow_NumTypes,
+};
+
+const char* g_DefaultEditorWindowTypeMenuLabels[EditorWindow_NumTypes] =
+{
+    "&Game View",
+    "&Object List Panel",
+    "&Watch Panel",
+    "&Files Panel",
+};
+
 EditorImGuiMainFrame::EditorImGuiMainFrame()
 {
     m_pGameFBO = g_pTextureManager->CreateFBO( 1024, 1024, GL_NEAREST, GL_NEAREST, true, 32, true );
     m_pEditorFBO = g_pTextureManager->CreateFBO( 1024, 1024, GL_NEAREST, GL_NEAREST, true, 32, true );
+
+    m_GameWindowPos.Set( -1, -1 );
+    m_EditorWindowPos.Set( -1, -1 );
+    m_GameWindowSize.Set( 0, 0 );
+    m_EditorWindowSize.Set( 0, 0 );
 }
 
 EditorImGuiMainFrame::~EditorImGuiMainFrame()
@@ -21,9 +43,61 @@ EditorImGuiMainFrame::~EditorImGuiMainFrame()
     SAFE_RELEASE( m_pEditorFBO );
 }
 
+Vector2 EditorImGuiMainFrame::GetEditorWindowCenterPosition()
+{
+    return m_EditorWindowPos + m_EditorWindowSize/2;
+}
+
+bool EditorImGuiMainFrame::HandleInput(int keyaction, int keycode, int mouseaction, int id, float x, float y, float pressure)
+{
+    if( ImGui::IsMouseHoveringAnyWindow() )
+    {
+        float mouseabsx = x;
+        float mouseabsy = y;
+        float localx = x - m_EditorWindowPos.x;
+        float localy = y - m_EditorWindowPos.y;
+
+        if( mouseaction == GCBA_RelativeMovement )
+        {
+            ImGuiIO& io = ImGui::GetIO();
+            mouseabsx = io.MousePos.x;
+            mouseabsy = io.MousePos.y;
+            localx = x;
+            localy = y;
+        }
+
+        if( mouseabsx >= m_GameWindowPos.x && mouseabsx < m_GameWindowPos.x + m_GameWindowSize.x &&
+            mouseabsy >= m_GameWindowPos.y && mouseabsy < m_GameWindowPos.y + m_GameWindowSize.y )
+        {
+            ImGui::Begin( "Debug" );
+            ImGui::Text( "In Game Window" );
+            ImGui::End();
+        }
+
+        if( mouseabsx >= m_EditorWindowPos.x && mouseabsx < m_EditorWindowPos.x + m_EditorWindowSize.x &&
+            mouseabsy >= m_EditorWindowPos.y && mouseabsy < m_EditorWindowPos.y + m_EditorWindowSize.y )
+        {
+            //ImGui::Begin( "Debug" );
+            //ImGui::Text( "In Editor Window" );
+            //ImGui::End();
+            if( g_pEngineCore->GetCurrentEditorInterface()->HandleInput( keyaction, keycode, mouseaction, id, localx, localy, pressure ) )
+                return true;
+
+            if( g_pEngineCore->GetEditorState()->m_pTransformGizmo->HandleInput( g_pEngineCore, -1, -1, mouseaction, id, localx, localy, pressure ) )
+                return true;
+
+            // Clear modifier key and mouse button states.
+            g_pEngineCore->GetCurrentEditorInterface()->ClearModifierKeyStates( keyaction, keycode, mouseaction, id, x, y, pressure );
+        }
+    }
+
+    return false;
+}
+
 void EditorImGuiMainFrame::AddEverything()
 {
     AddMainMenuBar();
+    AddGameAndEditorWindows();
 }
 
 void EditorImGuiMainFrame::AddMainMenuBar()
@@ -32,24 +106,48 @@ void EditorImGuiMainFrame::AddMainMenuBar()
     {
         if( ImGui::BeginMenu( "File" ) )
         {
-            if( ImGui::MenuItem( "&New", "CTRL+N" ) )
-            {
-                int bp = 1;
-            }
+            if( ImGui::MenuItem( "&New", "CTRL+N" ) ) {}
             if( ImGui::MenuItem( "&Open...", "CTRL+O" ) ) {}
             ImGui::Separator();
             if( ImGui::MenuItem( "&Test...", "CTRL+T" ) ) {}
+            if( ImGui::MenuItem( "&Quit" ) ) {}
+
             ImGui::EndMenu();
         }
 
         if( ImGui::BeginMenu( "Edit" ) )
         {
-            if( ImGui::MenuItem( "Undo", "CTRL+Z" ) ) {}
-            if( ImGui::MenuItem( "Redo", "CTRL+Y", false, false ) ) {}  // Disabled item
-            ImGui::Separator();
-            if( ImGui::MenuItem( "Cut", "CTRL+X" ) ) {}
-            if( ImGui::MenuItem( "Copy", "CTRL+C" ) ) {}
-            if( ImGui::MenuItem( "Paste", "CTRL+V" ) ) {}
+            if( ImGui::MenuItem( "&Undo", "CTRL+Z" ) ) {}
+            if( ImGui::MenuItem( "&Redo", "CTRL+Y" ) ) {}
+
+            ImGui::EndMenu();
+        }
+
+        if( ImGui::BeginMenu( "View" ) )
+        {
+            if( ImGui::MenuItem( "&Save window layout" ) ) {}
+            if( ImGui::MenuItem( "&Load window layout" ) ) {}
+            if( ImGui::MenuItem( "&Reset window layout" ) ) {}
+
+            if( ImGui::BeginMenu( "Editor Windows" ) )
+            {
+                for( int i=0; i<EditorWindow_NumTypes; i++ )
+                {
+                    if( ImGui::MenuItem( g_DefaultEditorWindowTypeMenuLabels[i] ) ) {}
+                }
+                ImGui::EndMenu();
+            }
+
+            ImGui::EndMenu();
+        }
+
+        if( ImGui::BeginMenu( "Aspect" ) )
+        {
+            if( ImGui::MenuItem( "&Fill", "Alt+1" ) ) {}
+            if( ImGui::MenuItem( "&Tall", "Alt+2" ) ) {}
+            if( ImGui::MenuItem( "&Square", "Alt+3" ) ) {}
+            if( ImGui::MenuItem( "&Wide", "Alt+4" ) ) {}
+
             ImGui::EndMenu();
         }
 
@@ -57,17 +155,27 @@ void EditorImGuiMainFrame::AddMainMenuBar()
     }
 }
 
-void EditorImGuiMainFrame::DrawGameAndEditorWindows(EngineCore* pEngineCore)
+void EditorImGuiMainFrame::AddGameAndEditorWindows()
 {
-    float windowwidth = pEngineCore->GetWindowWidth();
-    float windowheight = pEngineCore->GetWindowHeight();
-
     if( ImGui::Begin( "Game" ) )
     {
-        float w = ImGui::GetWindowContentRegionMax().x - ImGui::GetWindowContentRegionMin().x;
-        float h = ImGui::GetWindowContentRegionMax().y - ImGui::GetWindowContentRegionMin().y;
-        if( w > 0 && h > 0 )
+        ImVec2 min = ImGui::GetWindowContentRegionMin();
+        ImVec2 max = ImGui::GetWindowContentRegionMax();
+        float w = max.x - min.x;
+        float h = max.y - min.y;
+
+        if( w <= 0 || h <= 0 )
         {
+            m_GameWindowPos.Set( -1, -1 );
+            m_GameWindowSize.Set( 0, 0 );
+        }
+        else
+        {
+            ImVec2 pos = ImGui::GetWindowPos();
+            m_GameWindowPos.Set( pos.x + min.x, pos.y + min.y );
+            m_GameWindowSize.Set( w, h );
+
+            // Resize our FBO if the window is larger than it ever was.
             if( w > m_pGameFBO->m_TextureWidth || h > m_pGameFBO->m_TextureHeight )
             {
                 // The FBO will be recreated during the TextureManager tick.
@@ -77,30 +185,33 @@ void EditorImGuiMainFrame::DrawGameAndEditorWindows(EngineCore* pEngineCore)
 
             if( m_pGameFBO->m_pColorTexture )
             {
-                // Draw game view.
-                m_pGameFBO->Bind( false );
-                pEngineCore->OnSurfaceChanged( 0, 0, (unsigned int)w, (unsigned int)h );
-
-                pEngineCore->GetComponentSystemManager()->OnDrawFrame();
-                glBindFramebuffer( GL_FRAMEBUFFER, 0 );
-            }
-
-            if( m_pGameFBO->m_pColorTexture )
-            {
                 TextureDefinition* tex = m_pGameFBO->m_pColorTexture;
-                ImGui::Image( (void*)tex->GetTextureID(), ImVec2( w, h ), ImVec2(0,h/m_pGameFBO->m_TextureHeight), ImVec2(w/m_pGameFBO->m_TextureWidth,0) );
+                ImGui::ImageButton( (void*)tex->GetTextureID(), ImVec2( w, h ), ImVec2(0,h/m_pGameFBO->m_TextureHeight), ImVec2(w/m_pGameFBO->m_TextureWidth,0), 0 );
             }
         }
-    }
-    ImGui::End();
 
-    // Draw the editor window into a texture.
+        ImGui::End();
+    }
+
     if( ImGui::Begin( "Editor" ) )
     {
-        float w = ImGui::GetWindowContentRegionMax().x - ImGui::GetWindowContentRegionMin().x;
-        float h = ImGui::GetWindowContentRegionMax().y - ImGui::GetWindowContentRegionMin().y;
-        if( w > 0 && h > 0 )
+        ImVec2 min = ImGui::GetWindowContentRegionMin();
+        ImVec2 max = ImGui::GetWindowContentRegionMax();
+        float w = max.x - min.x;
+        float h = max.y - min.y;
+
+        if( w <= 0 || h <= 0 )
         {
+            m_EditorWindowPos.Set( -1, -1 );
+            m_EditorWindowSize.Set( 0, 0 );
+        }
+        else
+        {
+            ImVec2 pos = ImGui::GetWindowPos();
+            m_EditorWindowPos.Set( pos.x + min.x, pos.y + min.y );
+            m_EditorWindowSize.Set( w, h );
+
+            // Resize our FBO if the window is larger than it ever was.
             if( w > m_pEditorFBO->m_TextureWidth || h > m_pEditorFBO->m_TextureHeight )
             {
                 // The FBO will be recreated during the TextureManager tick.
@@ -110,26 +221,43 @@ void EditorImGuiMainFrame::DrawGameAndEditorWindows(EngineCore* pEngineCore)
 
             if( m_pEditorFBO->m_pColorTexture )
             {
-                g_GLCanvasIDActive = 1;
-                pEngineCore->Editor_OnSurfaceChanged( 0, 0, (unsigned int)w, (unsigned int)h );
-
-                // Draw editor view.
-                m_pEditorFBO->Bind( false );
-                pEngineCore->GetCurrentEditorInterface()->OnDrawFrame( 1 );
-                glBindFramebuffer( GL_FRAMEBUFFER, 0 );
-
-                g_GLCanvasIDActive = 0;
-            }
-
-            if( m_pEditorFBO->m_pColorTexture )
-            {
                 TextureDefinition* tex = m_pEditorFBO->m_pColorTexture;
-                ImGui::Image( (void*)tex->GetTextureID(), ImVec2( w, h ), ImVec2(0,h/m_pEditorFBO->m_TextureHeight), ImVec2(w/m_pEditorFBO->m_TextureWidth,0) );
+                ImGui::ImageButton( (void*)tex->GetTextureID(), ImVec2( w, h ), ImVec2(0,h/m_pEditorFBO->m_TextureHeight), ImVec2(w/m_pEditorFBO->m_TextureWidth,0), 0 );
             }
         }
-    }
-    ImGui::End();
 
-    // Reset to full window size.
-    pEngineCore->OnSurfaceChanged( 0, 0, (unsigned int)windowwidth, (unsigned int)windowheight );
+        ImGui::End();
+    }
+}
+
+void EditorImGuiMainFrame::DrawGameAndEditorWindows(EngineCore* pEngineCore)
+{
+    if( m_GameWindowSize.LengthSquared() != 0 )
+    {
+        if( m_pGameFBO->m_pColorTexture )
+        {
+            // Draw game view.
+            m_pGameFBO->Bind( false );
+            pEngineCore->OnSurfaceChanged( 0, 0, (unsigned int)m_GameWindowSize.x, (unsigned int)m_GameWindowSize.y );
+
+            pEngineCore->GetComponentSystemManager()->OnDrawFrame();
+            glBindFramebuffer( GL_FRAMEBUFFER, 0 );
+        }
+    }
+
+    if( m_EditorWindowSize.LengthSquared() != 0 )
+    {
+        if( m_pEditorFBO->m_pColorTexture )
+        {
+            // Draw editor view.
+            g_GLCanvasIDActive = 1;
+            pEngineCore->Editor_OnSurfaceChanged( 0, 0, (unsigned int)m_EditorWindowSize.x, (unsigned int)m_EditorWindowSize.y );
+
+            m_pEditorFBO->Bind( false );
+            pEngineCore->GetCurrentEditorInterface()->OnDrawFrame( 1 );
+            glBindFramebuffer( GL_FRAMEBUFFER, 0 );
+
+            g_GLCanvasIDActive = 0;
+        }
+    }
 }

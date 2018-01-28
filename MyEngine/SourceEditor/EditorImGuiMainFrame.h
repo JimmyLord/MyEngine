@@ -17,13 +17,22 @@ class EditorImGuiMainFrame
 protected:
     FBODefinition* m_pGameFBO;
     FBODefinition* m_pEditorFBO;
+    Vector2 m_GameWindowPos;
+    Vector2 m_EditorWindowPos;
+    Vector2 m_GameWindowSize;
+    Vector2 m_EditorWindowSize;
 
 public:
     EditorImGuiMainFrame();
     ~EditorImGuiMainFrame();
 
+    Vector2 GetEditorWindowCenterPosition();
+
+    bool HandleInput(int keyaction, int keycode, int mouseaction, int id, float x, float y, float pressure);
+
     void AddEverything();
     void AddMainMenuBar();
+    void AddGameAndEditorWindows();
 
     void DrawGameAndEditorWindows(EngineCore* pEngineCore);
 };

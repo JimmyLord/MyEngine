@@ -292,11 +292,14 @@ void EditorInterface::ClearModifierKeyStates(int keyaction, int keycode, int mou
             }
 
             // Unlock the mouse, even if it wasn't locked.
-#if !MYFW_OSX
-#if MYFW_USING_WX // TODO_FIX_EDITOR
+#if !(MYFW_OSX && MYFW_USING_WX)
+#if MYFW_USING_WX
             g_pEngineMainFrame->GetGLCanvasEditor()->LockMouse( false );
-#endif
-#endif
+#elif MYFW_USING_IMGUI
+            //LOGInfo( LOGTag, "Request mouse unlock\n" );
+            SetMouseLock( false, Vector2(-1,-1) );
+#endif //MYFW_USING_WX
+#endif //!(MYFW_OSX && MYFW_USING_WX)
 
             pEditorState->m_HasMouseMovedSinceButtonPressed[id] = false;
         }
@@ -346,23 +349,30 @@ bool EditorInterface::HandleInputForEditorCamera(int keyaction, int keycode, int
         // if space is held, left button will pan the camera around.  or just middle button
         if( ( (mods & MODIFIERKEY_LeftMouse) && (mods & MODIFIERKEY_Space) ) || (mods & MODIFIERKEY_MiddleMouse) )
         {
-#if MYFW_OSX
+#if MYFW_OSX && MYFW_USING_WX
             // TODO: fix OSX to support locked mouse cursor.
             Vector3 dir = pEditorState->m_LastMousePosition - pEditorState->m_CurrentMousePosition;
-#else
+#else //MYFW_OSX && MYFW_USING_WX
             // Try to lock the editor mouse cursor so we can move camera with raw mouse input.
 #if MYFW_USING_WX // TODO_FIX_EDITOR
             if( g_pEngineMainFrame->GetGLCanvasEditor()->IsMouseLocked() == false )
             {
                 g_pEngineMainFrame->GetGLCanvasEditor()->LockMouse( true );
             }
-#endif
+#elif MYFW_USING_IMGUI
+            if( IsMouseLocked() == false )
+            {
+                //LOGInfo( LOGTag, "Request mouse lock\n" );
+                SetMouseLock( true, g_pEngineCore->GetEditorImGuiMainFrame()->GetEditorWindowCenterPosition() );
+            }
+#endif //MYFW_USING_WX
             Vector2 dir( 0, 0 );
             if( mouseaction == GCBA_RelativeMovement )
             {
+                //LOGInfo( LOGTag, "relative movement.\n" );
                 dir.Set( -x, -y );
             }
-#endif
+#endif //MYFW_OSX && MYFW_USING_WX
 
             //LOGInfo( LOGTag, "dir (%0.2f, %0.2f)\n", dir.x, dir.y );
             if( dir.LengthSquared() > 0 )
@@ -396,23 +406,30 @@ bool EditorInterface::HandleInputForEditorCamera(int keyaction, int keycode, int
         else if( pEditorState->m_EditorActionState == EDITORACTIONSTATE_None &&
                  (mods & MODIFIERKEY_RightMouse) )
         {
-#if MYFW_OSX
+#if MYFW_USING_WX && MYFW_OSX
             // TODO: fix OSX to support locked mouse cursor.
             Vector3 dir = (pEditorState->m_LastMousePosition - pEditorState->m_CurrentMousePosition) * -1;
-#else
+#else //MYFW_USING_WX && MYFW_OSX
             // Try to lock the editor mouse cursor so we can move camera with raw mouse input.
-#if MYFW_USING_WX // TODO_FIX_EDITOR
+#if MYFW_USING_WX
             if( g_pEngineMainFrame->GetGLCanvasEditor()->IsMouseLocked() == false )
             {
                 g_pEngineMainFrame->GetGLCanvasEditor()->LockMouse( true );
             }
-#endif
+#elif MYFW_USING_IMGUI
+            if( IsMouseLocked() == false )
+            {
+                //LOGInfo( LOGTag, "Request mouse lock\n" );
+                SetMouseLock( true, g_pEngineCore->GetEditorImGuiMainFrame()->GetEditorWindowCenterPosition() );
+            }
+#endif //MYFW_USING_WX
             Vector2 dir( 0, 0 );
             if( mouseaction == GCBA_RelativeMovement )
             {
+                //LOGInfo( LOGTag, "Relative Movement\n" );
                 dir.Set( x, y );
             }
-#endif
+#endif //MYFW_USING_WX && MYFW_OSX
 
             if( dir.LengthSquared() > 0 )
             {

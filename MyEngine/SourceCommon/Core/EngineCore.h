@@ -236,6 +236,10 @@ public:
     EditorPrefs* GetEditorPrefs() { return m_pEditorPrefs; }
     EditorState* GetEditorState() { return m_pEditorState; }
 
+#if MYFW_USING_IMGUI
+    EditorImGuiMainFrame* GetEditorImGuiMainFrame() { return m_pEditorImGuiMainFrame; }
+#endif
+
     bool GetDebug_DrawMousePickerFBO()       { return m_Debug_DrawMousePickerFBO; }
     bool GetDebug_DrawSelectedAnimatedMesh() { return m_Debug_DrawSelectedAnimatedMesh; }
     bool GetDebug_DrawPhysicsDebugShapes()   { return m_Debug_DrawPhysicsDebugShapes; }

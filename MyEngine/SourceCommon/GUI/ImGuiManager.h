@@ -38,7 +38,7 @@ public:
     ImGuiManager();
     virtual ~ImGuiManager();
 
-    void Init();
+    void Init(float width, float height);
     void Shutdown();
 
     void OnFocusLost();

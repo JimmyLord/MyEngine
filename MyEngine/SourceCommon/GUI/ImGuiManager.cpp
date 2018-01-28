@@ -37,15 +37,15 @@ ImGuiManager::~ImGuiManager()
     Shutdown();
 }
 
-void ImGuiManager::Init()
+void ImGuiManager::Init(float width, float height)
 {
     //ImGui::StyleColorsClassic();
 
     CreateDeviceObjects();
 
     ImGuiIO& io = ImGui::GetIO();
-    io.DisplaySize.x = 300;
-    io.DisplaySize.y = 300;
+    io.DisplaySize.x = width;
+    io.DisplaySize.y = height;
     //io.IniFilename = "imgui.ini";
     
     // Set no render callback, we manually render in Draw.
@@ -120,8 +120,12 @@ bool ImGuiManager::HandleInput(int keyaction, int keycode, int mouseaction, int 
     {
         MyAssert( keyaction == -1 && keycode == -1 );
 
-        io.MousePos.x = x;
-        io.MousePos.y = y;
+        // If giving relative movement to the game/editor, then let ImGui think it has the original position.
+        if( mouseaction != GCBA_RelativeMovement )
+        {
+            io.MousePos.x = x;
+            io.MousePos.y = y;
+        }
 
         if( mouseaction == GCBA_Down )
             io.MouseDown[id] = true;

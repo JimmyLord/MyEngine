@@ -330,7 +330,7 @@ void EngineCore::OneTimeInit()
 
     if( g_pImGuiManager )
     {
-        g_pImGuiManager->Init();
+        g_pImGuiManager->Init( m_WindowWidth, m_WindowHeight );
 #if MYFW_EDITOR
 #if MYFW_USING_IMGUI
         m_pEditorImGuiMainFrame = MyNew EditorImGuiMainFrame();
@@ -671,7 +671,30 @@ void EngineCore::OnDrawFrame(unsigned int canvasid)
 #if MYFW_USING_IMGUI
     if( m_pEditorImGuiMainFrame )
     {
+        // Backup the window width/height.
+        float windowwidth = GetWindowWidth();
+        float windowheight = GetWindowHeight();
+
+        // Draw the game and editor contents into textures.
         m_pEditorImGuiMainFrame->DrawGameAndEditorWindows( this );
+
+        // Reset to full window size.
+        OnSurfaceChanged( 0, 0, (unsigned int)windowwidth, (unsigned int)windowheight );
+
+        // Render out the ImGui command list to the full window.
+        glClearColor( 0.0f, 0.0f, 0.2f, 1.0f );
+        glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+
+        if( g_pImGuiManager )
+        {
+            g_pImGuiManager->EndFrame( m_WindowWidth, m_WindowHeight, true );
+            
+            // For editor build, start the next frame immediately, so imgui calls can be made in tick callbacks.
+            // Tick happens before game(0) window is drawn, g_pImGuiManager's draw only happens on editor(1) window.
+            g_pImGuiManager->StartFrame();
+        }
+
+        return;
     }
 #endif //MYFW_USING_IMGUI
 
@@ -1278,8 +1301,15 @@ bool EngineCore::HandleEditorInput(int canvasid, int keyaction, int keycode, int
     float toplefty = y;
 #endif
     if( g_pImGuiManager->HandleInput( keyaction, keycode, mouseaction, id, x, toplefty, pressure ) )
+    {
+#if MYFW_USING_IMGUI
+        // Mouse is hovering an imgui windows, handle it here:
+        m_pEditorImGuiMainFrame->HandleInput( keyaction, keycode, mouseaction, id, x, toplefty, pressure );
+#endif
         return true;
+    }
 
+#if !MYFW_USING_IMGUI
     if( m_pCurrentEditorInterface->HandleInput( keyaction, keycode, mouseaction, id, x, y, pressure ) )
         return true;
 
@@ -1288,6 +1318,7 @@ bool EngineCore::HandleEditorInput(int canvasid, int keyaction, int keycode, int
 
     // clear modifier key and mouse button states.
     m_pCurrentEditorInterface->ClearModifierKeyStates( keyaction, keycode, mouseaction, id, x, y, pressure );
+#endif
 
     return false;
 }
