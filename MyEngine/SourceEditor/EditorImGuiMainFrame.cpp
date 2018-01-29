@@ -35,6 +35,9 @@ EditorImGuiMainFrame::EditorImGuiMainFrame()
     m_EditorWindowPos.Set( -1, -1 );
     m_GameWindowSize.Set( 0, 0 );
     m_EditorWindowSize.Set( 0, 0 );
+
+    m_GameWindowFocused = false;
+    m_EditorWindowFocused = false;
 }
 
 EditorImGuiMainFrame::~EditorImGuiMainFrame()
@@ -52,37 +55,51 @@ bool EditorImGuiMainFrame::HandleInput(int keyaction, int keycode, int mouseacti
 {
     if( ImGui::IsMouseHoveringAnyWindow() )
     {
-        float mouseabsx = x;
-        float mouseabsy = y;
-        float localx = x - m_EditorWindowPos.x;
-        float localy = y - m_EditorWindowPos.y;
+        // For keyboard and other non-mouse events, localx/y will be -1.
+        float localx = -1;
+        float localy = -1;
 
         if( mouseaction == GCBA_RelativeMovement )
         {
-            ImGuiIO& io = ImGui::GetIO();
-            mouseabsx = io.MousePos.x;
-            mouseabsy = io.MousePos.y;
+            // localx/y will hold relative movement in this case.
             localx = x;
             localy = y;
         }
 
+        // Read the absolute x/y from the ImGui structure, since non-mouse messages will have x,y of -1,-1.
+        ImGuiIO& io = ImGui::GetIO();
+        float mouseabsx = io.MousePos.x;
+        float mouseabsy = io.MousePos.y;
+
+        // Are absolute x/y over the game window.
         if( mouseabsx >= m_GameWindowPos.x && mouseabsx < m_GameWindowPos.x + m_GameWindowSize.x &&
             mouseabsy >= m_GameWindowPos.y && mouseabsy < m_GameWindowPos.y + m_GameWindowSize.y )
         {
-            ImGui::Begin( "Debug" );
-            ImGui::Text( "In Game Window" );
-            ImGui::End();
+            //ImGui::Begin( "Debug" );
+            //ImGui::Text( "In Game Window" );
+            //ImGui::End();
         }
 
+        // Are absolute x/y over the editor window.
         if( mouseabsx >= m_EditorWindowPos.x && mouseabsx < m_EditorWindowPos.x + m_EditorWindowSize.x &&
             mouseabsy >= m_EditorWindowPos.y && mouseabsy < m_EditorWindowPos.y + m_EditorWindowSize.y )
         {
-            //ImGui::Begin( "Debug" );
-            //ImGui::Text( "In Editor Window" );
-            //ImGui::End();
+            // If this is a mouse message and not a relative movement,
+            //     calculate mouse x/y relative to this window.
+            if( mouseaction != -1 && mouseaction != GCBA_RelativeMovement )
+            {
+                localx = x - m_EditorWindowPos.x;
+                localy = y - m_EditorWindowPos.y;
+            }
+
+            if( keycode != -1 )
+                int bp = 1;
+
+            // First, pass the input into the current editor interface.
             if( g_pEngineCore->GetCurrentEditorInterface()->HandleInput( keyaction, keycode, mouseaction, id, localx, localy, pressure ) )
                 return true;
 
+            // If it wasn't used, pass it to the transform gizmo.
             if( g_pEngineCore->GetEditorState()->m_pTransformGizmo->HandleInput( g_pEngineCore, -1, -1, mouseaction, id, localx, localy, pressure ) )
                 return true;
 
@@ -98,6 +115,17 @@ void EditorImGuiMainFrame::AddEverything()
 {
     AddMainMenuBar();
     AddGameAndEditorWindows();
+
+    ImGuiIO& io = ImGui::GetIO();
+    ImGui::Begin( "Stuff" );
+    ImGui::Text( "WantCaptureKeyboard %d", io.WantCaptureKeyboard );
+    ImGui::Text( "WantCaptureMouse %d", io.WantCaptureMouse );
+    ImGui::Text( "WantMoveMouse %d", io.WantMoveMouse );
+    ImGui::Text( "WantTextInput %d", io.WantTextInput );
+    ImGui::Text( "m_GameWindowFocused %d", m_GameWindowFocused );
+    ImGui::Text( "m_EditorWindowFocused %d", m_EditorWindowFocused );
+    
+    ImGui::End();
 }
 
 void EditorImGuiMainFrame::AddMainMenuBar()
@@ -159,6 +187,8 @@ void EditorImGuiMainFrame::AddGameAndEditorWindows()
 {
     if( ImGui::Begin( "Game" ) )
     {
+        m_GameWindowFocused = ImGui::IsWindowFocused();
+
         ImVec2 min = ImGui::GetWindowContentRegionMin();
         ImVec2 max = ImGui::GetWindowContentRegionMax();
         float w = max.x - min.x;
@@ -195,6 +225,8 @@ void EditorImGuiMainFrame::AddGameAndEditorWindows()
 
     if( ImGui::Begin( "Editor" ) )
     {
+        m_EditorWindowFocused = ImGui::IsWindowFocused();
+
         ImVec2 min = ImGui::GetWindowContentRegionMin();
         ImVec2 max = ImGui::GetWindowContentRegionMax();
         float w = max.x - min.x;

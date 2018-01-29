@@ -11,22 +11,47 @@
 #define __EditorPrefs_H__
 
 class EditorPrefs;
+class EngineCore;
 
 extern EditorPrefs* g_pEditorPrefs;
 
 class EditorPrefs
 {
+private:
+    FILE* m_pSaveFile; // Stored temporarily between SaveStart and Save Finish.
+
 protected:
-    // Editor preferences
+    // Editor preferences JSON object
     cJSON* m_jEditorPrefs;
+
+    // Editor preferences
+    int m_WindowX;
+    int m_WindowY;
+    int m_WindowWidth;
+    int m_WindowHeight;
+    bool m_IsWindowMaximized;
 
 public:
     EditorPrefs();
     ~EditorPrefs();
 
     void Init();
+    void LoadWindowSizePrefs();
+    void LoadPrefs();
+    cJSON* SaveStart();
+    void SaveFinish(cJSON* pPrefs);
 
     cJSON* GetEditorPrefsJSONString() { return m_jEditorPrefs; }
+
+    // Preference Setters
+    void SetWindowProperties(int x, int y, int w, int h, bool maximized)
+    {
+        m_WindowX = x;
+        m_WindowY = y;
+        m_WindowWidth = w;
+        m_WindowHeight = h;
+        m_IsWindowMaximized = false;
+    }
 };
 
 #endif //__EditorPrefs_H__

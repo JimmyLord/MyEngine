@@ -496,6 +496,8 @@ void EngineMainFrame::InitFrame()
 
         if( pEditorPrefs )
         {
+            pEditorPrefs->LoadPrefs();
+
             cJSON* jEditorPrefs = pEditorPrefs->GetEditorPrefsJSONString();
             int layouteditor = 0;
             cJSONExt_GetInt( jEditorPrefs, "EditorLayout", &layouteditor );
@@ -665,9 +667,9 @@ bool EngineMainFrame::OnClose()
 
         FILE* file = 0;
 #if MYFW_WINDOWS
-        fopen_s( &file, "EditorPrefs.ini", "wb" );
+        fopen_s( &file, "wxEditorPrefs.ini", "wb" );
 #else
-        file = fopen( "EditorPrefs.ini", "wb" );
+        file = fopen( "wxEditorPrefs.ini", "wb" );
 #endif
         if( file )
         {

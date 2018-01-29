@@ -115,6 +115,8 @@ EngineCore::EngineCore()
 
 EngineCore::~EngineCore()
 {
+    SaveEditorPrefs();
+
     SAFE_DELETE( g_pImGuiManager );
 
     SAFE_DELETE( g_pRTQGlobals );
@@ -162,6 +164,57 @@ EngineCore::~EngineCore()
     }
 
     m_SingleFrameMemoryStack.Cleanup();
+}
+
+void EngineCore::SaveEditorPrefs()
+{
+#if MYFW_USING_IMGUI
+    cJSON* jPrefs = m_pEditorPrefs->SaveStart();
+
+    //// Save Layout strings.
+    //for( int i=0; i<4; i++ )
+    //{
+    //    if( g_SavedPerspectives[i] != g_DefaultPerspectives[i] )
+    //    {
+    //        char name[10];
+    //        sprintf_s( name, 10, "Layout%d", i );
+    //        cJSON_AddStringToObject( pPrefs, name, g_SavedPerspectives[i] );
+    //    }
+    //}
+
+    // General options
+    //const char* relativepath = GetRelativePath( g_pComponentSystemManager->GetSceneInfo( 1 )->m_FullPath );
+    //if( relativepath )
+    //    cJSON_AddStringToObject( pPrefs, "LastSceneLoaded", relativepath );
+    //else
+    //    cJSON_AddStringToObject( pPrefs, "LastSceneLoaded", g_pComponentSystemManager->GetSceneInfo( 1 )->m_FullPath );
+
+    //cJSON_AddItemToObject( pPrefs, "EditorCam", g_pEngineCore->GetEditorState()->GetEditorCamera()->m_pComponentTransform->ExportAsJSONObject( false, true ) );
+
+    //cJSON* jGameObjectFlagsArray = cJSON_CreateStringArray( g_pEngineCore->GetGameObjectFlagStringArray(), 32 );
+    //cJSON_AddItemToObject( pPrefs, "GameObjectFlags", jGameObjectFlagsArray );
+
+    //// View menu options
+    //cJSON_AddNumberToObject( pPrefs, "EditorLayout", GetDefaultEditorPerspectiveIndex() );
+    //cJSON_AddNumberToObject( pPrefs, "GameplayLayout", GetDefaultGameplayPerspectiveIndex() );
+    //extern GLViewTypes g_CurrentGLViewType;
+    //cJSON_AddNumberToObject( pPrefs, "GameAspectRatio", g_CurrentGLViewType );
+
+    //cJSON_AddNumberToObject( pPrefs, "ShowIcons", m_ShowEditorIcons );
+    //cJSON_AddNumberToObject( pPrefs, "SelectedObjects_ShowWireframe", m_SelectedObjects_ShowWireframe );
+    //cJSON_AddNumberToObject( pPrefs, "SelectedObjects_ShowEffect", m_SelectedObjects_ShowEffect );
+
+    //// Grid menu options
+    //cJSON_AddNumberToObject( pPrefs, "GridVisible", m_GridSettings.visible );
+    //cJSON_AddNumberToObject( pPrefs, "GridSnapEnabled", m_GridSettings.snapenabled );
+    //cJSONExt_AddFloatArrayToObject( pPrefs, "GridStepSize", &m_GridSettings.stepsize.x, 3 );
+
+    //// Mode menu options
+    //cJSON_AddNumberToObject( pPrefs, "Mode_SwitchFocusOnPlayStop", m_Mode_SwitchFocusOnPlayStop );
+    //cJSON_AddNumberToObject( pPrefs, "LaunchPlatform", GetLaunchPlatformIndex() );
+
+    m_pEditorPrefs->SaveFinish( jPrefs );
+#endif //MYFW_USING_IMGUI
 }
 
 // Helper functions for some global namespace lua binding.
@@ -256,13 +309,6 @@ void EngineCore::OneTimeInit()
     m_SingleFrameMemoryStack.Initialize( 5000000 );
 
 #if MYFW_EDITOR
-    m_pEditorPrefs = g_pEditorPrefs;
-    if( m_pEditorPrefs == 0 )
-    {
-        m_pEditorPrefs = MyNew EditorPrefs;
-        m_pEditorPrefs->Init();
-    }
-
     m_pEditorState = MyNew EditorState;
     m_pEditorState->m_pDebugViewFBO = g_pTextureManager->CreateFBO( 0, 0, GL_NEAREST, GL_NEAREST, false, 0, false, true );
     m_pEditorState->m_pMousePickerFBO = g_pTextureManager->CreateFBO( 0, 0, GL_NEAREST, GL_NEAREST, false, 0, false, true );
@@ -330,15 +376,19 @@ void EngineCore::OneTimeInit()
 
     if( g_pImGuiManager )
     {
-        g_pImGuiManager->Init( m_WindowWidth, m_WindowHeight );
 #if MYFW_EDITOR
 #if MYFW_USING_IMGUI
+        g_pImGuiManager->Init( m_WindowWidth, m_WindowHeight );
         m_pEditorImGuiMainFrame = MyNew EditorImGuiMainFrame();
+#elif MYFW_USING_WX
+        g_pImGuiManager->Init( 1000, 1000 );
 #endif
 
         // For editor build, start the next frame immediately, so imgui calls can be made in tick callbacks.
         // Tick happens before game(0) window is drawn, g_pImGuiManager's draw only happens on editor(1) window.
         g_pImGuiManager->StartFrame();
+#else
+        g_pImGuiManager->Init( m_WindowWidth, m_WindowHeight );
 #endif //MYFW_EDITOR
     }
 
@@ -352,6 +402,17 @@ void EngineCore::OneTimeInit()
 #endif
 
 #if MYFW_EDITOR
+    m_pEditorPrefs = g_pEditorPrefs;
+    if( m_pEditorPrefs == 0 )
+    {
+        // This should be the editor pref load point for ImGui Editor builds.
+        // wx builds should load prefs in EngineMainFrame.cpp
+        m_pEditorPrefs = MyNew EditorPrefs;
+        m_pEditorPrefs->Init();
+        m_pEditorPrefs->LoadWindowSizePrefs();
+        m_pEditorPrefs->LoadPrefs();
+    }
+
     // Load in some editor preferences.
     if( g_pEditorPrefs && g_pEditorPrefs->GetEditorPrefsJSONString() )
     {
@@ -378,6 +439,11 @@ bool EngineCore::IsReadyToRender()
 double EngineCore::Tick(double TimePassed)
 {
     checkGlError( "EngineCore::Tick" );
+
+    ImGui::Begin( "Keys" );
+    ImGui::Text( "Q %d", IsKeyHeld( 'Q' ) );
+    ImGui::Text( "W %d", IsKeyHeld( 'W' ) );
+    ImGui::End();
 
 #if MYFW_PROFILING_ENABLED
     static double Timing_LastFrameTime = 0;
@@ -1059,8 +1125,18 @@ bool EngineCore::OnKeys(GameCoreButtonActions action, int keycode, int unicodech
             }
         }
 
+        if( action == GCBA_Down )
+        {
+            if( keycode >= 0 && keycode < 255 )
+            {
+                m_KeysHeld[keycode] = true;
+            }
+        }
+
         if( HandleEditorInput( g_GLCanvasIDActive, action, keycode, -1, -1, -1, -1, -1 ) )
+        {
             return true;
+        }
     }
 #endif
 
@@ -1781,6 +1857,18 @@ void EngineCore::Editor_OnSurfaceChanged(unsigned int startx, unsigned int start
 void EngineCore::OnSurfaceChanged(unsigned int startx, unsigned int starty, unsigned int width, unsigned int height)
 {
 #if MYFW_EDITOR
+    //if( windowWasResized )
+    //{
+    //    RECT rect;
+    //    if( GetWindowRect( hWnd, &rect ) )
+    //    {
+    //        if( m_pEditorPrefs )
+    //        {
+    //            m_pEditorPrefs->SetWindowProperties( rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top, false );
+    //        }
+    //    }
+    //}
+
     if( g_GLCanvasIDActive == 1 )
     {
         Editor_OnSurfaceChanged( startx, starty, width, height );

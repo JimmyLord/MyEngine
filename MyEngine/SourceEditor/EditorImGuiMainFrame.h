@@ -22,6 +22,9 @@ protected:
     Vector2 m_GameWindowSize;
     Vector2 m_EditorWindowSize;
 
+    bool m_GameWindowFocused;
+    bool m_EditorWindowFocused;
+
 public:
     EditorImGuiMainFrame();
     ~EditorImGuiMainFrame();

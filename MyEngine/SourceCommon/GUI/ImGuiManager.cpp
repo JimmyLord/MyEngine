@@ -145,9 +145,20 @@ bool ImGuiManager::HandleInput(int keyaction, int keycode, int mouseaction, int 
             io.KeysDown[keycode] = false;
     }
 
+#if MYFW_USING_IMGUI
+    // In ImGui editor mode, if we're hovering over any window, return true
+    // message will then be passed to m_pEditorImGuiMainFrame->HandleInput;
+    if( ImGui::IsMouseHoveringAnyWindow() )
+    {
+        return true;
+    }
+#endif
+
     // If a window is hovered, don't let mouse events pass through it.
     if( mouseaction != -1 && ImGui::IsMouseHoveringAnyWindow() )
+    {
         return true;
+    }
 
     // TODO: ignore key messages if we're entering text in an edit box.
 

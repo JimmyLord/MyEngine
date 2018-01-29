@@ -180,6 +180,8 @@ public:
     MaterialDefinition* GetMaterial_ClipSpaceTexture() { return m_pMaterial_ClipSpaceTexture; }
 
     // EngineCore Methods
+    void SaveEditorPrefs();
+
 #if MYFW_USING_LUA
     static void LuaRegister(lua_State* luastate);
     virtual LuaGameState* CreateLuaGameState() { return MyNew LuaGameState; }
