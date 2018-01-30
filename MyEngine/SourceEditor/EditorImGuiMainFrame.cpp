@@ -185,7 +185,8 @@ void EditorImGuiMainFrame::AddMainMenuBar()
 
 void EditorImGuiMainFrame::AddGameAndEditorWindows()
 {
-    if( ImGui::Begin( "Game" ) )
+    ImGui::SetNextWindowPos( ImVec2(9, 302) );
+    if( ImGui::Begin( "Game", 0, ImVec2(256, 171) ) )
     {
         m_GameWindowFocused = ImGui::IsWindowFocused();
 
@@ -219,11 +220,11 @@ void EditorImGuiMainFrame::AddGameAndEditorWindows()
                 ImGui::ImageButton( (void*)tex->GetTextureID(), ImVec2( w, h ), ImVec2(0,h/m_pGameFBO->m_TextureHeight), ImVec2(w/m_pGameFBO->m_TextureWidth,0), 0 );
             }
         }
-
-        ImGui::End();
     }
+    ImGui::End();
 
-    if( ImGui::Begin( "Editor" ) )
+    ImGui::SetNextWindowPos( ImVec2(269, 24) );
+    if( ImGui::Begin( "Editor", 0, ImVec2(579, 397) ) )
     {
         m_EditorWindowFocused = ImGui::IsWindowFocused();
 
@@ -257,9 +258,8 @@ void EditorImGuiMainFrame::AddGameAndEditorWindows()
                 ImGui::ImageButton( (void*)tex->GetTextureID(), ImVec2( w, h ), ImVec2(0,h/m_pEditorFBO->m_TextureHeight), ImVec2(w/m_pEditorFBO->m_TextureWidth,0), 0 );
             }
         }
-
-        ImGui::End();
     }
+    ImGui::End();
 }
 
 void EditorImGuiMainFrame::DrawGameAndEditorWindows(EngineCore* pEngineCore)
