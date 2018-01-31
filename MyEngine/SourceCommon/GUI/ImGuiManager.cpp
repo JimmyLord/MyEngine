@@ -95,6 +95,8 @@ void ImGuiManager::ClearInput()
         io.KeysDown[i] = false;
     }
 
+    io.MouseWheel = 0;
+
     io.KeyCtrl = false;
     io.KeyShift = false;
     io.KeyAlt = false;
@@ -132,7 +134,7 @@ bool ImGuiManager::HandleInput(int keyaction, int keycode, int mouseaction, int 
         if( mouseaction == GCBA_Up )
             io.MouseDown[id] = false;
 
-        io.MouseWheel = pressure;
+        io.MouseWheel += pressure;
     }
     else
     {
@@ -146,12 +148,8 @@ bool ImGuiManager::HandleInput(int keyaction, int keycode, int mouseaction, int 
     }
 
 #if MYFW_USING_IMGUI
-    // In ImGui editor mode, if we're hovering over any window, return true
-    // message will then be passed to m_pEditorImGuiMainFrame->HandleInput;
-    if( ImGui::IsMouseHoveringAnyWindow() )
-    {
-        return true;
-    }
+    // In ImGui editor mode, we ignore the return value, all inputs will go to EditorImGuiMainFrame
+    return true;
 #endif
 
     // If a window is hovered, don't let mouse events pass through it.

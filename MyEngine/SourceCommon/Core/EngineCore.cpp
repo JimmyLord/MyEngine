@@ -438,12 +438,11 @@ bool EngineCore::IsReadyToRender()
 
 double EngineCore::Tick(double TimePassed)
 {
-    checkGlError( "EngineCore::Tick" );
+#if MYFW_USING_IMGUI
+    g_pImGuiManager->StartFrame();
+#endif
 
-    ImGui::Begin( "Keys" );
-    ImGui::Text( "Q %d", IsKeyHeld( 'Q' ) );
-    ImGui::Text( "W %d", IsKeyHeld( 'W' ) );
-    ImGui::End();
+    checkGlError( "EngineCore::Tick" );
 
 #if MYFW_PROFILING_ENABLED
     static double Timing_LastFrameTime = 0;
@@ -755,9 +754,11 @@ void EngineCore::OnDrawFrame(unsigned int canvasid)
         {
             g_pImGuiManager->EndFrame( m_WindowWidth, m_WindowHeight, true );
             
+#if MYFW_USING_WX
             // For editor build, start the next frame immediately, so imgui calls can be made in tick callbacks.
             // Tick happens before game(0) window is drawn, g_pImGuiManager's draw only happens on editor(1) window.
             g_pImGuiManager->StartFrame();
+#endif
         }
 
         return;
@@ -1371,21 +1372,25 @@ MyMesh* EngineCore::GetMesh_MaterialBall()
 
 bool EngineCore::HandleEditorInput(int canvasid, int keyaction, int keycode, int mouseaction, int id, float x, float y, float pressure)
 {
+#if MYFW_USING_IMGUI
+    // Fill the imgui io structure.
+    g_pImGuiManager->HandleInput( keyaction, keycode, mouseaction, id, x, y, pressure );
+
+    // Pass all inputs to our imgui frame, which will deliver it to the correct window (game, editor or widget).
+    m_pEditorImGuiMainFrame->HandleInput( keyaction, keycode, mouseaction, id, x, y, pressure );
+
+    // Since imgui is our main window frame, don't let other code get this input event.
+    return true;
+#endif
+
 #if MYFW_USING_WX
     float toplefty = m_pEditorState->m_EditorWindowRect.h - y;
-#else
-    float toplefty = y;
-#endif
+
     if( g_pImGuiManager->HandleInput( keyaction, keycode, mouseaction, id, x, toplefty, pressure ) )
     {
-#if MYFW_USING_IMGUI
-        // Mouse is hovering an imgui windows, handle it here:
-        m_pEditorImGuiMainFrame->HandleInput( keyaction, keycode, mouseaction, id, x, toplefty, pressure );
-#endif
         return true;
     }
 
-#if !MYFW_USING_IMGUI
     if( m_pCurrentEditorInterface->HandleInput( keyaction, keycode, mouseaction, id, x, y, pressure ) )
         return true;
 

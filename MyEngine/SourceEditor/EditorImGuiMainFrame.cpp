@@ -53,59 +53,64 @@ Vector2 EditorImGuiMainFrame::GetEditorWindowCenterPosition()
 
 bool EditorImGuiMainFrame::HandleInput(int keyaction, int keycode, int mouseaction, int id, float x, float y, float pressure)
 {
-    if( ImGui::IsMouseHoveringAnyWindow() )
+    // For keyboard and other non-mouse events, localx/y will be -1.
+    float localx = -1;
+    float localy = -1;
+
+    if( mouseaction == GCBA_RelativeMovement )
     {
-        // For keyboard and other non-mouse events, localx/y will be -1.
-        float localx = -1;
-        float localy = -1;
+        // localx/y will hold relative movement in this case.
+        localx = x;
+        localy = y;
+    }
 
-        if( mouseaction == GCBA_RelativeMovement )
+    // Read the absolute x/y from the ImGui structure, since non-mouse messages will have x,y of -1,-1.
+    ImGuiIO& io = ImGui::GetIO();
+    float mouseabsx = io.MousePos.x;
+    float mouseabsy = io.MousePos.y;
+
+    // Are absolute x/y over the game window or it's a keyaction and the window is in focus.
+    if( ( keyaction != -1 && m_GameWindowFocused ) ||
+        ( mouseaction != -1 &&
+            mouseabsx >= m_GameWindowPos.x && mouseabsx < m_GameWindowPos.x + m_GameWindowSize.x &&
+            mouseabsy >= m_GameWindowPos.y && mouseabsy < m_GameWindowPos.y + m_GameWindowSize.y ) )
+    {
+        //ImGui::Begin( "Debug" );
+        //ImGui::Text( "In Game Window" );
+        //ImGui::End();
+    }
+
+    // Are absolute x/y over the editor window or it's a keyaction and the window is in focus.
+    if( ( keyaction != -1 && m_EditorWindowFocused ) ||
+        ( mouseaction != -1 &&
+            mouseabsx >= m_EditorWindowPos.x && mouseabsx < m_EditorWindowPos.x + m_EditorWindowSize.x &&
+            mouseabsy >= m_EditorWindowPos.y && mouseabsy < m_EditorWindowPos.y + m_EditorWindowSize.y ) )
+    {
+        // If this is a mouse message and not a relative movement,
+        //     calculate mouse x/y relative to this window.
+        if( mouseaction != -1 && mouseaction != GCBA_RelativeMovement )
         {
-            // localx/y will hold relative movement in this case.
-            localx = x;
-            localy = y;
+            localx = x - m_EditorWindowPos.x;
+            localy = y - m_EditorWindowPos.y;
         }
 
-        // Read the absolute x/y from the ImGui structure, since non-mouse messages will have x,y of -1,-1.
-        ImGuiIO& io = ImGui::GetIO();
-        float mouseabsx = io.MousePos.x;
-        float mouseabsy = io.MousePos.y;
-
-        // Are absolute x/y over the game window.
-        if( mouseabsx >= m_GameWindowPos.x && mouseabsx < m_GameWindowPos.x + m_GameWindowSize.x &&
-            mouseabsy >= m_GameWindowPos.y && mouseabsy < m_GameWindowPos.y + m_GameWindowSize.y )
+        // If the right or middle mouse buttons were clicked on this window, set it as having focus.
+        // Needed since those buttons don't focus ImGui window directly.
+        if( mouseaction == GCBA_Down && id != 0 )
         {
-            //ImGui::Begin( "Debug" );
-            //ImGui::Text( "In Game Window" );
-            //ImGui::End();
+            ImGui::SetWindowFocus( "Editor" );
         }
 
-        // Are absolute x/y over the editor window.
-        if( mouseabsx >= m_EditorWindowPos.x && mouseabsx < m_EditorWindowPos.x + m_EditorWindowSize.x &&
-            mouseabsy >= m_EditorWindowPos.y && mouseabsy < m_EditorWindowPos.y + m_EditorWindowSize.y )
-        {
-            // If this is a mouse message and not a relative movement,
-            //     calculate mouse x/y relative to this window.
-            if( mouseaction != -1 && mouseaction != GCBA_RelativeMovement )
-            {
-                localx = x - m_EditorWindowPos.x;
-                localy = y - m_EditorWindowPos.y;
-            }
+        // First, pass the input into the current editor interface.
+        if( g_pEngineCore->GetCurrentEditorInterface()->HandleInput( keyaction, keycode, mouseaction, id, localx, localy, pressure ) )
+            return true;
 
-            if( keycode != -1 )
-                int bp = 1;
+        // If it wasn't used, pass it to the transform gizmo.
+        if( g_pEngineCore->GetEditorState()->m_pTransformGizmo->HandleInput( g_pEngineCore, -1, -1, mouseaction, id, localx, localy, pressure ) )
+            return true;
 
-            // First, pass the input into the current editor interface.
-            if( g_pEngineCore->GetCurrentEditorInterface()->HandleInput( keyaction, keycode, mouseaction, id, localx, localy, pressure ) )
-                return true;
-
-            // If it wasn't used, pass it to the transform gizmo.
-            if( g_pEngineCore->GetEditorState()->m_pTransformGizmo->HandleInput( g_pEngineCore, -1, -1, mouseaction, id, localx, localy, pressure ) )
-                return true;
-
-            // Clear modifier key and mouse button states.
-            g_pEngineCore->GetCurrentEditorInterface()->ClearModifierKeyStates( keyaction, keycode, mouseaction, id, x, y, pressure );
-        }
+        // Clear modifier key and mouse button states.
+        g_pEngineCore->GetCurrentEditorInterface()->ClearModifierKeyStates( keyaction, keycode, mouseaction, id, x, y, pressure );
     }
 
     return false;
@@ -115,6 +120,7 @@ void EditorImGuiMainFrame::AddEverything()
 {
     AddMainMenuBar();
     AddGameAndEditorWindows();
+    AddObjectList();
 
     ImGuiIO& io = ImGui::GetIO();
     ImGui::Begin( "Stuff" );
@@ -124,6 +130,9 @@ void EditorImGuiMainFrame::AddEverything()
     ImGui::Text( "WantTextInput %d", io.WantTextInput );
     ImGui::Text( "m_GameWindowFocused %d", m_GameWindowFocused );
     ImGui::Text( "m_EditorWindowFocused %d", m_EditorWindowFocused );
+    ImGui::Text( "MouseWheel %0.2f", io.MouseWheel );
+
+    ImGui::ShowDemoWindow();
     
     ImGui::End();
 }
@@ -256,6 +265,32 @@ void EditorImGuiMainFrame::AddGameAndEditorWindows()
             {
                 TextureDefinition* tex = m_pEditorFBO->m_pColorTexture;
                 ImGui::ImageButton( (void*)tex->GetTextureID(), ImVec2( w, h ), ImVec2(0,h/m_pEditorFBO->m_TextureHeight), ImVec2(w/m_pEditorFBO->m_TextureWidth,0), 0 );
+            }
+        }
+    }
+    ImGui::End();
+}
+
+void EditorImGuiMainFrame::AddObjectList()
+{
+    ImGui::SetNextWindowPos( ImVec2(4, 28) );
+    if( ImGui::Begin( "Objects", 0, ImVec2(258, 266) ) )
+    {
+        if( ImGui::CollapsingHeader( "All scenes" ) )
+        {
+            if( ImGui::TreeNode( "Scene 1" ) )
+            {
+                for( int i=0; i<5; i++ )
+                {
+                    if( ImGui::TreeNode( (void*)(intptr_t)i, "Object %d", i ) )
+                    {
+                        ImGui::Text( "Component 1" );
+                        ImGui::SameLine(); 
+                        if( ImGui::SmallButton( "button" ) ) {};
+                        ImGui::TreePop();
+                    }
+                }
+                ImGui::TreePop();
             }
         }
     }
