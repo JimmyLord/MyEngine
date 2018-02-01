@@ -37,6 +37,8 @@ public:
     void AddMainMenuBar();
     void AddGameAndEditorWindows();
     void AddObjectList();
+    void AddGameObjectToObjectList(GameObject* pGameObject);
+    void AddWatchPanel();
 
     void DrawGameAndEditorWindows(EngineCore* pEngineCore);
 };

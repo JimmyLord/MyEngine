@@ -121,6 +121,7 @@ void EditorImGuiMainFrame::AddEverything()
     AddMainMenuBar();
     AddGameAndEditorWindows();
     AddObjectList();
+    AddWatchPanel();
 
     ImGuiIO& io = ImGui::GetIO();
     ImGui::Begin( "Stuff" );
@@ -194,7 +195,7 @@ void EditorImGuiMainFrame::AddMainMenuBar()
 
 void EditorImGuiMainFrame::AddGameAndEditorWindows()
 {
-    ImGui::SetNextWindowPos( ImVec2(9, 302) );
+    ImGui::SetNextWindowPos( ImVec2(9, 302), ImGuiCond_FirstUseEver );
     if( ImGui::Begin( "Game", 0, ImVec2(256, 171) ) )
     {
         m_GameWindowFocused = ImGui::IsWindowFocused();
@@ -232,7 +233,7 @@ void EditorImGuiMainFrame::AddGameAndEditorWindows()
     }
     ImGui::End();
 
-    ImGui::SetNextWindowPos( ImVec2(269, 24) );
+    ImGui::SetNextWindowPos( ImVec2(269, 24), ImGuiCond_FirstUseEver );
     if( ImGui::Begin( "Editor", 0, ImVec2(579, 397) ) )
     {
         m_EditorWindowFocused = ImGui::IsWindowFocused();
@@ -273,25 +274,136 @@ void EditorImGuiMainFrame::AddGameAndEditorWindows()
 
 void EditorImGuiMainFrame::AddObjectList()
 {
-    ImGui::SetNextWindowPos( ImVec2(4, 28) );
+    ImGuiTreeNodeFlags baseNodeFlags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick;
+
+    ImGui::SetNextWindowPos( ImVec2(4, 28), ImGuiCond_FirstUseEver );
     if( ImGui::Begin( "Objects", 0, ImVec2(258, 266) ) )
     {
-        if( ImGui::CollapsingHeader( "All scenes" ) )
+        if( ImGui::CollapsingHeader( "All scenes", ImGuiTreeNodeFlags_DefaultOpen ) )
         {
-            if( ImGui::TreeNode( "Scene 1" ) )
+            // Add all active scenes.
+            for( int sceneindex=0; sceneindex<ComponentSystemManager::MAX_SCENES_LOADED; sceneindex++ )
             {
-                for( int i=0; i<5; i++ )
+                SceneInfo* pSceneInfo = g_pComponentSystemManager->GetSceneInfo( sceneindex );
+                if( pSceneInfo->m_InUse == true )
                 {
-                    if( ImGui::TreeNode( (void*)(intptr_t)i, "Object %d", i ) )
+                    static char* pUnmanagedName = "Unmanaged";
+                    char* scenename = pUnmanagedName;
+                    if( pSceneInfo->m_FullPath[0] != 0 )
                     {
-                        ImGui::Text( "Component 1" );
-                        ImGui::SameLine(); 
-                        if( ImGui::SmallButton( "button" ) ) {};
+                        int i;
+                        for( i=(int)strlen(pSceneInfo->m_FullPath)-1; i>=0; i-- )
+                        {
+                            if( scenename[i] == '\\' || pSceneInfo->m_FullPath[i] == '/' )
+                                break;
+                        }
+                        scenename = &pSceneInfo->m_FullPath[i+1];
+                    }
+
+                    ImGuiTreeNodeFlags node_flags = baseNodeFlags;
+                    if( ImGui::TreeNodeEx( scenename, node_flags ) )
+                    {
+                        // Add GameObjects that are in root
+                        GameObject* pGameObject = (GameObject*)pSceneInfo->m_GameObjects.GetHead();
+                        while( pGameObject )
+                        {
+                            // Add GameObjects, their children and their components
+                            AddGameObjectToObjectList( pGameObject );
+
+                            pGameObject = (GameObject*)pGameObject->GetNext();
+                        }
                         ImGui::TreePop();
                     }
                 }
-                ImGui::TreePop();
             }
+        }
+    }
+    ImGui::End();
+}
+
+void EditorImGuiMainFrame::AddGameObjectToObjectList(GameObject* pGameObject)
+{
+    EditorState* pEditorState = g_pEngineCore->GetEditorState();
+
+    ImGuiTreeNodeFlags baseNodeFlags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick;
+
+    ImGuiTreeNodeFlags node_flags = baseNodeFlags;
+    if( pEditorState->IsGameObjectSelected( pGameObject ) )
+    {
+        node_flags |= ImGuiTreeNodeFlags_Selected;
+    }
+
+    bool treeNodeIsOpen = ImGui::TreeNodeEx( pGameObject, node_flags, pGameObject->GetName() );
+    if( ImGui::IsItemClicked() )
+    {
+        if( ImGui::GetIO().KeyCtrl == false )
+        {
+            pEditorState->ClearSelectedObjectsAndComponents();
+        }
+
+        if( ImGui::GetIO().KeyShift == false )
+        {
+            // TODO: select all GameObjects between last object in list and this one.
+        }
+
+        if( pEditorState->IsGameObjectSelected( pGameObject ) )
+        {
+            pEditorState->UnselectGameObject( pGameObject );
+        }
+        else
+        {
+            pEditorState->SelectGameObject( pGameObject );
+        }
+    }
+    if( treeNodeIsOpen )
+    {
+        // Add Child GameObjects
+        GameObject* pChildGameObject = pGameObject->GetFirstChild();
+        while( pChildGameObject )
+        {
+            AddGameObjectToObjectList( pChildGameObject );
+            pChildGameObject = (GameObject*)pChildGameObject->GetNext();
+        }
+
+        // Add Components
+        for( unsigned int ci=0; ci<pGameObject->GetComponentCountIncludingCore(); ci++ )
+        {
+            ComponentBase* pComponent = pGameObject->GetComponentByIndexIncludingCore( ci );
+            if( pComponent )
+            {
+                ImGui::TreeNodeEx( pComponent, ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen, pComponent->GetClassname() );
+            }
+        }
+        ImGui::TreePop();
+    }
+}
+
+void EditorImGuiMainFrame::AddWatchPanel()
+{
+    ImGui::SetNextWindowPos( ImVec2(852, 25), ImGuiCond_FirstUseEver );
+    if( ImGui::Begin( "Watch", 0, ImVec2(333, 395) ) )
+    {
+        int numselected = g_pEngineCore->GetEditorState()->m_pSelectedObjects.size();
+
+        if( numselected == 1 )
+        {
+            ImGui::Text( "%d object selected.", numselected );
+
+            GameObject* pGameObject = g_pEngineCore->GetEditorState()->m_pSelectedObjects[0];
+            for( unsigned int i=0; i<pGameObject->GetComponentCountIncludingCore(); i++ )
+            {
+                ComponentBase* pComponent = pGameObject->GetComponentByIndexIncludingCore( i );
+                
+                if( ImGui::CollapsingHeader( pComponent->GetClassname(), ImGuiTreeNodeFlags_DefaultOpen ) )
+                {
+                    //ImGui::Text( "TODO: Component Info." );
+                    pComponent->AddAllVariablesToWatchPanel();
+                }
+            }
+        }
+        else
+        {
+            ImGui::Text( "%d objects selected.", numselected );
         }
     }
     ImGui::End();
