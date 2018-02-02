@@ -685,6 +685,10 @@ void ComponentBase::AddVariableToWatchPanel(ComponentVariable* pVar)
         case ComponentVariableType_Float:
             ImGui::DragFloat( pVar->m_WatchLabel, (float*)((char*)this + pVar->m_Offset) );
             //pVar->m_ControlID = g_pPanelWatch->AddFloat( pVar->m_WatchLabel, (float*)((char*)this + pVar->m_Offset), pVar->m_FloatLowerLimit, pVar->m_FloatUpperLimit, this, ComponentBase::StaticOnValueChangedVariable, ComponentBase::StaticOnRightClickVariable );
+            //if( pVar->m_pOnValueChangedCallbackFunc )
+            //{
+            //    oldpointer = (this->*pVar->m_pOnValueChangedCallbackFunc)( pVar, directlychanged, finishedchanging, oldvalue, pNewValue );
+            //}
             break;
 
     //    //ComponentVariableType_Double,
@@ -1600,9 +1604,12 @@ ComponentBase* ComponentBase::FindMatchingComponentInParent()
 
     return 0;
 }
+#endif //MYFW_USING_WX
 
+#if MYFW_EDITOR
 void ComponentBase::OnValueChangedVariable(int controlid, bool directlychanged, bool finishedchanging, double oldvalue, bool valuewaschangedbydragging, ComponentVariableValue* pNewValue) // StaticOnValueChangedVariable
 {
+#if MYFW_USING_WX
     ComponentVariable* pVar = FindComponentVariableForControl( controlid );
 
     if( pVar )
@@ -1680,8 +1687,11 @@ void ComponentBase::OnValueChangedVariable(int controlid, bool directlychanged, 
     {
         m_pGameObject->GetPrefabRef()->GetPrefab()->RebuildPrefabJSONObjectFromMasterGameObject();
     }
+#endif //MYFW_USING_WX
 }
+#endif //MYFW_EDITOR
 
+#if MYFW_USING_WX
 void ComponentBase::OnDropVariable(int controlid, wxCoord x, wxCoord y)
 {
     ComponentVariable* pVar = FindComponentVariableForControl( controlid );

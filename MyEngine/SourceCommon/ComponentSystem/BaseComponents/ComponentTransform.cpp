@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2014-2017 Jimmy Lord http://www.flatheadgames.com
+// Copyright (c) 2014-2018 Jimmy Lord http://www.flatheadgames.com
 //
 // This software is provided 'as-is', without any express or implied warranty.  In no event will the authors be held liable for any damages arising from the use of this software.
 // Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -234,7 +234,9 @@ void* ComponentTransform::OnDropTransform(ComponentVariable* pVar, wxCoord x, wx
 
     return oldvalue;
 }
+#endif //MYFW_USING_WX
 
+#if MYFW_EDITOR
 void* ComponentTransform::OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue* pNewValue)
 {
     void* oldpointer = 0;
@@ -243,6 +245,7 @@ void* ComponentTransform::OnValueChanged(ComponentVariable* pVar, bool changedby
     {
         if( changedbyinterface )
         {
+#if MYFW_USING_WX
             wxString text = g_pPanelWatch->GetVariableProperties( pVar->m_ControlID )->GetTextCtrl()->GetValue();
             if( text == "" || text == "none" )
             {
@@ -250,6 +253,7 @@ void* ComponentTransform::OnValueChanged(ComponentVariable* pVar, bool changedby
                 oldpointer = this->m_pParentTransform;
                 this->SetParentTransform( 0 );
             }
+#endif //MYFW_USING_WX
         }
         else //if( pNewValue->GetComponentPtr() != 0 )
         {
@@ -312,7 +316,7 @@ void* ComponentTransform::OnValueChanged(ComponentVariable* pVar, bool changedby
 
     return oldpointer;
 }
-#endif //MYFW_USING_WX
+#endif //MYFW_EDITOR
 
 cJSON* ComponentTransform::ExportAsJSONObject(bool savesceneid, bool saveid)
 {

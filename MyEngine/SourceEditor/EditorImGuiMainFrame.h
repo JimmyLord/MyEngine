@@ -39,6 +39,7 @@ public:
     void AddObjectList();
     void AddGameObjectToObjectList(GameObject* pGameObject);
     void AddWatchPanel();
+    void AddDebug_MousePicker();
 
     void DrawGameAndEditorWindows(EngineCore* pEngineCore);
 };

@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2014-2017 Jimmy Lord http://www.flatheadgames.com
+// Copyright (c) 2014-2018 Jimmy Lord http://www.flatheadgames.com
 //
 // This software is provided 'as-is', without any express or implied warranty.  In no event will the authors be held liable for any damages arising from the use of this software.
 // Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -390,6 +390,9 @@ ComponentPostEffect* ComponentCamera::GetNextPostEffect(ComponentPostEffect* pLa
 
 void ComponentCamera::OnDrawFrame()
 {
+    // Store the old FBO, we will restore it on the way out (if it changes).
+    unsigned int startingFBO = g_GLStats.m_CurrentFramebuffer;
+
     // TODO: Clean up, make func other than tick to this.
     // Update camera view/proj before drawing.
     Tick( 0 );
@@ -533,7 +536,11 @@ void ComponentCamera::OnDrawFrame()
         pPostEffect = pNextPostEffect;
     }
 
-    MyBindFramebuffer( GL_FRAMEBUFFER, 0, m_WindowWidth, m_WindowHeight );
+    // Restore the FBO to what was set when we entered this method.
+    if( startingFBO != g_GLStats.m_CurrentFramebuffer )
+    {
+        MyBindFramebuffer( GL_FRAMEBUFFER, startingFBO, m_WindowWidth, m_WindowHeight );
+    }
 }
 
 bool ComponentCamera::IsVisible()

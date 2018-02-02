@@ -91,7 +91,7 @@ bool EditorImGuiMainFrame::HandleInput(int keyaction, int keycode, int mouseacti
         if( mouseaction != -1 && mouseaction != GCBA_RelativeMovement )
         {
             localx = x - m_EditorWindowPos.x;
-            localy = y - m_EditorWindowPos.y;
+            localy = m_EditorWindowSize.y - (y - m_EditorWindowPos.y);
         }
 
         // If the right or middle mouse buttons were clicked on this window, set it as having focus.
@@ -110,7 +110,7 @@ bool EditorImGuiMainFrame::HandleInput(int keyaction, int keycode, int mouseacti
             return true;
 
         // Clear modifier key and mouse button states.
-        g_pEngineCore->GetCurrentEditorInterface()->ClearModifierKeyStates( keyaction, keycode, mouseaction, id, x, y, pressure );
+        g_pEngineCore->GetCurrentEditorInterface()->ClearModifierKeyStates( keyaction, keycode, mouseaction, id, localx, localy, pressure );
     }
 
     return false;
@@ -122,6 +122,7 @@ void EditorImGuiMainFrame::AddEverything()
     AddGameAndEditorWindows();
     AddObjectList();
     AddWatchPanel();
+    AddDebug_MousePicker();
 
     ImGuiIO& io = ImGui::GetIO();
     ImGui::Begin( "Stuff" );
@@ -132,6 +133,12 @@ void EditorImGuiMainFrame::AddEverything()
     ImGui::Text( "m_GameWindowFocused %d", m_GameWindowFocused );
     ImGui::Text( "m_EditorWindowFocused %d", m_EditorWindowFocused );
     ImGui::Text( "MouseWheel %0.2f", io.MouseWheel );
+
+    GameObject* pGO = g_pComponentSystemManager->FindGameObjectByName( "Player" );
+    if( pGO )
+    {
+        ImGui::Text( "PlayerX %0.2f", pGO->GetTransform()->GetWorldTransform()->m41 );
+    }
 
     ImGui::ShowDemoWindow();
     
@@ -420,7 +427,7 @@ void EditorImGuiMainFrame::DrawGameAndEditorWindows(EngineCore* pEngineCore)
             pEngineCore->OnSurfaceChanged( 0, 0, (unsigned int)m_GameWindowSize.x, (unsigned int)m_GameWindowSize.y );
 
             pEngineCore->GetComponentSystemManager()->OnDrawFrame();
-            glBindFramebuffer( GL_FRAMEBUFFER, 0 );
+            MyBindFramebuffer( GL_FRAMEBUFFER, 0, 0, 0 );
         }
     }
 
@@ -434,9 +441,27 @@ void EditorImGuiMainFrame::DrawGameAndEditorWindows(EngineCore* pEngineCore)
 
             m_pEditorFBO->Bind( false );
             pEngineCore->GetCurrentEditorInterface()->OnDrawFrame( 1 );
-            glBindFramebuffer( GL_FRAMEBUFFER, 0 );
+            MyBindFramebuffer( GL_FRAMEBUFFER, 0, 0, 0 );
 
             g_GLCanvasIDActive = 0;
         }
     }
+}
+
+void EditorImGuiMainFrame::AddDebug_MousePicker()
+{
+    if( ImGui::Begin( "Mouse Picker", 0, ImVec2(150, 150), 1 ) )
+    {
+        TextureDefinition* pTexture = g_pEngineCore->GetEditorState()->m_pMousePickerFBO->m_pColorTexture;
+        int texw = g_pEngineCore->GetEditorState()->m_pMousePickerFBO->m_TextureWidth;
+        int texh = g_pEngineCore->GetEditorState()->m_pMousePickerFBO->m_TextureHeight;
+
+        if( pTexture )
+        {
+            int w = pTexture->GetWidth();
+            int h = pTexture->GetHeight();
+            ImGui::Image( (void*)pTexture->GetTextureID(), ImVec2( 150, 150 ), ImVec2(0,(float)h/texh), ImVec2((float)w/texw,0) );
+        }
+    }
+    ImGui::End();
 }

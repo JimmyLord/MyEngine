@@ -112,7 +112,7 @@ void EditorInterface::OnDrawFrame(unsigned int canvasid)
             {
                 pCamera->OnDrawFrame();
 
-                if( pCamera->m_LayersToRender & 1 << 0 ) // only draw selected objects over "main" layer
+                if( pCamera->m_LayersToRender & Layer_MainScene ) // only draw selected objects over "main" layer
                 {
                     //glDisable( GL_DEPTH_TEST );
                     glDisable( GL_CULL_FACE );
