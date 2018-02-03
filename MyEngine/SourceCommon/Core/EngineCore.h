@@ -134,7 +134,7 @@ protected:
     EditorPrefs* m_pEditorPrefs;
     EditorState* m_pEditorState;
 #if MYFW_USING_IMGUI
-    EditorImGuiMainFrame* m_pEditorImGuiMainFrame;
+    EditorMainFrame_ImGui* m_pEditorMainFrame_ImGui;
 #endif //MYFW_USING_IMGUI
 
     bool m_Debug_DrawMousePickerFBO;
@@ -239,7 +239,7 @@ public:
     EditorState* GetEditorState() { return m_pEditorState; }
 
 #if MYFW_USING_IMGUI
-    EditorImGuiMainFrame* GetEditorImGuiMainFrame() { return m_pEditorImGuiMainFrame; }
+    EditorMainFrame_ImGui* GetEditorMainFrame_ImGui() { return m_pEditorMainFrame_ImGui; }
 #endif
 
     bool GetDebug_DrawMousePickerFBO()       { return m_Debug_DrawMousePickerFBO; }

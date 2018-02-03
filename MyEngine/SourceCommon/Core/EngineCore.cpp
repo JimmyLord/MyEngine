@@ -66,7 +66,7 @@ EngineCore::EngineCore()
     m_pEditorPrefs = 0;
     m_pEditorState = 0;
 #if MYFW_USING_IMGUI
-    m_pEditorImGuiMainFrame = 0;
+    m_pEditorMainFrame_ImGui = 0;
 #endif //MYFW_USING_IMGUI
 
     m_Debug_DrawMousePickerFBO = false;
@@ -145,7 +145,7 @@ EngineCore::~EngineCore()
     SAFE_DELETE( m_pEditorPrefs );
     SAFE_DELETE( m_pEditorState );
 #if MYFW_USING_IMGUI
-    SAFE_DELETE( m_pEditorImGuiMainFrame );
+    SAFE_DELETE( m_pEditorMainFrame_ImGui );
 #endif //MYFW_USING_IMGUI
 
     SAFE_RELEASE( m_pSphereMeshFile );
@@ -379,7 +379,7 @@ void EngineCore::OneTimeInit()
 #if MYFW_EDITOR
 #if MYFW_USING_IMGUI
         g_pImGuiManager->Init( m_WindowWidth, m_WindowHeight );
-        m_pEditorImGuiMainFrame = MyNew EditorImGuiMainFrame();
+        m_pEditorMainFrame_ImGui = MyNew EditorMainFrame_ImGui();
 #elif MYFW_USING_WX
         g_pImGuiManager->Init( 1000, 1000 );
 #endif
@@ -460,9 +460,9 @@ double EngineCore::Tick(double TimePassed)
     }
 
 #if MYFW_USING_IMGUI
-    if( m_pEditorImGuiMainFrame )
+    if( m_pEditorMainFrame_ImGui )
     {
-        m_pEditorImGuiMainFrame->AddEverything();
+        m_pEditorMainFrame_ImGui->AddEverything();
     }
 #endif
 
@@ -736,14 +736,14 @@ void EngineCore::OnDrawFrame(unsigned int canvasid)
 #endif
 
 #if MYFW_USING_IMGUI
-    if( m_pEditorImGuiMainFrame )
+    if( m_pEditorMainFrame_ImGui )
     {
         // Backup the window width/height.
         float windowwidth = GetWindowWidth();
         float windowheight = GetWindowHeight();
 
         // Draw the game and editor contents into textures.
-        m_pEditorImGuiMainFrame->DrawGameAndEditorWindows( this );
+        m_pEditorMainFrame_ImGui->DrawGameAndEditorWindows( this );
 
         // Reset to full window size.
         OnSurfaceChanged( 0, 0, (unsigned int)windowwidth, (unsigned int)windowheight );
@@ -1379,7 +1379,7 @@ bool EngineCore::HandleEditorInput(int canvasid, int keyaction, int keycode, int
     g_pImGuiManager->HandleInput( keyaction, keycode, mouseaction, id, x, y, pressure );
 
     // Pass all inputs to our imgui frame, which will deliver it to the correct window (game, editor or widget).
-    m_pEditorImGuiMainFrame->HandleInput( keyaction, keycode, mouseaction, id, x, y, pressure );
+    m_pEditorMainFrame_ImGui->HandleInput( keyaction, keycode, mouseaction, id, x, y, pressure );
 
     // Since imgui is our main window frame, don't let other code get this input event.
     return true;

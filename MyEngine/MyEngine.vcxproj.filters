@@ -381,9 +381,6 @@
     <ClCompile Include="SourceEditor\EngineEditorCommands.cpp">
       <Filter>Source - Editor</Filter>
     </ClCompile>
-    <ClCompile Include="SourceEditor\EngineMainFrame.cpp">
-      <Filter>Source - Editor</Filter>
-    </ClCompile>
     <ClCompile Include="SourceEditor\GameObjectTemplateManager.cpp">
       <Filter>Source - Editor</Filter>
     </ClCompile>
@@ -423,9 +420,6 @@
     <ClCompile Include="SourceEditor\EditorPrefs.cpp">
       <Filter>Source - Editor</Filter>
     </ClCompile>
-    <ClCompile Include="SourceEditor\EditorImGuiMainFrame.cpp">
-      <Filter>Source - Editor</Filter>
-    </ClCompile>
     <ClCompile Include="..\Libraries\imgui\imgui_demo.cpp">
       <Filter>Libraries\imgui</Filter>
     </ClCompile>
@@ -433,6 +427,15 @@
       <Filter>Source - Editor\PlatformSpecific</Filter>
     </ClCompile>
     <ClCompile Include="SourceEditor\EditorMenuCommands.cpp">
+      <Filter>Source - Editor</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceEditor\EditorMainFrame.cpp">
+      <Filter>Source - Editor</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceEditor\EditorMainFrame_ImGui.cpp">
+      <Filter>Source - Editor</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceEditor\EditorMainFrame_Wx.cpp">
       <Filter>Source - Editor</Filter>
     </ClCompile>
   </ItemGroup>
@@ -758,9 +761,6 @@
     <ClInclude Include="SourceEditor\EngineEditorCommands.h">
       <Filter>Source - Editor</Filter>
     </ClInclude>
-    <ClInclude Include="SourceEditor\EngineMainFrame.h">
-      <Filter>Source - Editor</Filter>
-    </ClInclude>
     <ClInclude Include="SourceEditor\GameObjectTemplateManager.h">
       <Filter>Source - Editor</Filter>
     </ClInclude>
@@ -803,13 +803,19 @@
     <ClInclude Include="SourceEditor\EditorPrefs.h">
       <Filter>Source - Editor</Filter>
     </ClInclude>
-    <ClInclude Include="SourceEditor\EditorImGuiMainFrame.h">
-      <Filter>Source - Editor</Filter>
-    </ClInclude>
     <ClInclude Include="SourceEditor\PlatformSpecific\FileOpenDialog.h">
       <Filter>Source - Editor\PlatformSpecific</Filter>
     </ClInclude>
     <ClInclude Include="SourceEditor\EditorMenuCommands.h">
+      <Filter>Source - Editor</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceEditor\EditorMainFrame.h">
+      <Filter>Source - Editor</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceEditor\EditorMainFrame_ImGui.h">
+      <Filter>Source - Editor</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceEditor\EditorMainFrame_Wx.h">
       <Filter>Source - Editor</Filter>
     </ClInclude>
   </ItemGroup>

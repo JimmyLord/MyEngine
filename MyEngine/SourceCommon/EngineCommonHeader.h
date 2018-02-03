@@ -20,7 +20,6 @@ const int g_NumberOfVisibilityLayers = 8;
 #include "../../../Framework/MyFramework/SourceCommon/CommonHeader.h"
 #if MYFW_USING_WX
 #include "../../../Framework/MyFramework/SourceWidgets/MYFWMainWx.h"
-#include "../SourceEditor/EngineMainFrame.h"
 #endif
 #if MYFW_EDITOR
 #include "../../../Framework/MyFramework/SourceEditor/EditorCommands.h"
@@ -142,7 +141,8 @@ extern "C"
 #if MYFW_EDITOR
 #include "../SourceEditor/EditorPrefs.h"
 #include "../SourceEditor/EditorState.h"
-#include "../SourceEditor/EditorImGuiMainFrame.h"
+#include "../SourceEditor/EditorMainFrame.h"
+#include "../SourceEditor/EditorMainFrame_ImGui.h"
 #include "../SourceEditor/DragAndDropHackeryExtended.h"
 #include "../SourceEditor/GameObjectTemplateManager.h"
 #include "../SourceEditor/EngineCommandStack.h"
@@ -150,6 +150,7 @@ extern "C"
 #include "../SourceEditor/TransformGizmo.h"
 
 #if MYFW_USING_WX
+#include "../SourceEditor/EditorMainFrame_Wx.h"
 #include "../SourceEditor/Dialogs/DialogGridSettings.h"
 #endif
 

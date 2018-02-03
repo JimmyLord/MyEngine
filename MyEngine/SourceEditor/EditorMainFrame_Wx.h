@@ -126,7 +126,7 @@ public:
     void OnCloseWindow(wxCloseEvent& event);
 };
 
-class EngineMainFrame : public MainFrame
+class EngineMainFrame : public MainFrame, public EditorMainFrame
 {
 protected:
     // Fullscreen frame used for using editor in full screen mode.

@@ -148,7 +148,7 @@ bool ImGuiManager::HandleInput(int keyaction, int keycode, int mouseaction, int 
     }
 
 #if MYFW_USING_IMGUI
-    // In ImGui editor mode, we ignore the return value, all inputs will go to EditorImGuiMainFrame
+    // In ImGui editor mode, we ignore the return value, all inputs will go to EditorMainFrame_ImGui
     return true;
 #endif
 

@@ -12,7 +12,7 @@
 #if MYFW_USING_WX
 
 #include "../../../Framework/MyFramework/SourceWidgets/MYFWMainWx.h"
-#include "EngineMainFrame.h"
+#include "EditorMainFrame_Wx.h"
 
 EngineMainFrame* g_pEngineMainFrame = 0;
 

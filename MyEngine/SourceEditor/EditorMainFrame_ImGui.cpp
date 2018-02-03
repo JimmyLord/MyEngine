@@ -27,7 +27,7 @@ const char* g_DefaultEditorWindowTypeMenuLabels[EditorWindow_NumTypes] =
     "&Files Panel",
 };
 
-EditorImGuiMainFrame::EditorImGuiMainFrame()
+EditorMainFrame_ImGui::EditorMainFrame_ImGui()
 {
     m_pGameFBO = g_pTextureManager->CreateFBO( 1024, 1024, GL_NEAREST, GL_NEAREST, true, 32, true );
     m_pEditorFBO = g_pTextureManager->CreateFBO( 1024, 1024, GL_NEAREST, GL_NEAREST, true, 32, true );
@@ -47,18 +47,18 @@ EditorImGuiMainFrame::EditorImGuiMainFrame()
     m_KeyDownCommand = false;
 }
 
-EditorImGuiMainFrame::~EditorImGuiMainFrame()
+EditorMainFrame_ImGui::~EditorMainFrame_ImGui()
 {
     SAFE_RELEASE( m_pGameFBO );
     SAFE_RELEASE( m_pEditorFBO );
 }
 
-Vector2 EditorImGuiMainFrame::GetEditorWindowCenterPosition()
+Vector2 EditorMainFrame_ImGui::GetEditorWindowCenterPosition()
 {
     return m_EditorWindowPos + m_EditorWindowSize/2;
 }
 
-bool EditorImGuiMainFrame::HandleInput(int keyaction, int keycode, int mouseaction, int id, float x, float y, float pressure)
+bool EditorMainFrame_ImGui::HandleInput(int keyaction, int keycode, int mouseaction, int id, float x, float y, float pressure)
 {
     if( keyaction != -1 )
     {
@@ -129,7 +129,7 @@ bool EditorImGuiMainFrame::HandleInput(int keyaction, int keycode, int mouseacti
     return false;
 }
 
-bool EditorImGuiMainFrame::CheckForHotkeys(int keyaction, int keycode)
+bool EditorMainFrame_ImGui::CheckForHotkeys(int keyaction, int keycode)
 {
     if( keyaction == GCBA_Down )
     {
@@ -158,7 +158,7 @@ bool EditorImGuiMainFrame::CheckForHotkeys(int keyaction, int keycode)
     return false;
 }
 
-void EditorImGuiMainFrame::AddEverything()
+void EditorMainFrame_ImGui::AddEverything()
 {
     AddMainMenuBar();
     AddGameAndEditorWindows();
@@ -188,7 +188,7 @@ void EditorImGuiMainFrame::AddEverything()
     ImGui::End();
 }
 
-void EditorImGuiMainFrame::AddMainMenuBar()
+void EditorMainFrame_ImGui::AddMainMenuBar()
 {
     if( ImGui::BeginMainMenuBar() )
     {
@@ -225,9 +225,9 @@ void EditorImGuiMainFrame::AddMainMenuBar()
 
         if( ImGui::BeginMenu( "View" ) )
         {
-            if( ImGui::MenuItem( "&Save window layout" ) ) {}
-            if( ImGui::MenuItem( "&Load window layout" ) ) {}
-            if( ImGui::MenuItem( "&Reset window layout" ) ) {}
+            if( ImGui::MenuItem( "&Save window layout" ) ) {} // { EditorMenuCommand( myID_View_SavePerspective ); }
+            if( ImGui::MenuItem( "&Load window layout" ) ) {} // { EditorMenuCommand( myID_View_LoadPerspective ); }
+            if( ImGui::MenuItem( "&Reset window layout" ) ) {} // { EditorMenuCommand( myID_View_ResetPerspective ); }
 
             if( ImGui::BeginMenu( "Editor Windows" ) )
             {
@@ -238,12 +238,14 @@ void EditorImGuiMainFrame::AddMainMenuBar()
                 ImGui::EndMenu();
             }
 
-            //// View menu
+            //if( ImGui::BeginMenu( "Editor Perspectives" ) )
             //{
-            //    // Override these menu options from the main frame,
-            //    Connect( myID_View_SavePerspective, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );
-            //    Connect( myID_View_LoadPerspective, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );
-            //    Connect( myID_View_ResetPerspective, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );
+            //    for( int i=0; i<Perspective_NumPerspectives; i++ )
+            //    {
+            //        if( ImGui::MenuItem( g_DefaultEditorWindowTypeMenuLabels[i] ) ) {}
+            //    }
+            //    ImGui::EndMenu();
+            //}
 
             //    m_SubMenu_View_EditorPerspectives = MyNew wxMenu;
             //    for( int i=0; i<Perspective_NumPerspectives; i++ )
@@ -368,7 +370,7 @@ void EditorImGuiMainFrame::AddMainMenuBar()
     }
 }
 
-void EditorImGuiMainFrame::AddGameAndEditorWindows()
+void EditorMainFrame_ImGui::AddGameAndEditorWindows()
 {
     ImGui::SetNextWindowPos( ImVec2(9, 302), ImGuiCond_FirstUseEver );
     if( ImGui::Begin( "Game", 0, ImVec2(256, 171) ) )
@@ -448,7 +450,7 @@ void EditorImGuiMainFrame::AddGameAndEditorWindows()
     ImGui::End();
 }
 
-void EditorImGuiMainFrame::AddObjectList()
+void EditorMainFrame_ImGui::AddObjectList()
 {
     ImGuiTreeNodeFlags baseNodeFlags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick;
 
@@ -500,7 +502,7 @@ void EditorImGuiMainFrame::AddObjectList()
     ImGui::End();
 }
 
-void EditorImGuiMainFrame::AddGameObjectToObjectList(GameObject* pGameObject)
+void EditorMainFrame_ImGui::AddGameObjectToObjectList(GameObject* pGameObject)
 {
     EditorState* pEditorState = g_pEngineCore->GetEditorState();
 
@@ -557,7 +559,7 @@ void EditorImGuiMainFrame::AddGameObjectToObjectList(GameObject* pGameObject)
     }
 }
 
-void EditorImGuiMainFrame::AddWatchPanel()
+void EditorMainFrame_ImGui::AddWatchPanel()
 {
     ImGui::SetNextWindowPos( ImVec2(852, 25), ImGuiCond_FirstUseEver );
     if( ImGui::Begin( "Watch", 0, ImVec2(333, 395) ) )
@@ -588,7 +590,7 @@ void EditorImGuiMainFrame::AddWatchPanel()
     ImGui::End();
 }
 
-void EditorImGuiMainFrame::DrawGameAndEditorWindows(EngineCore* pEngineCore)
+void EditorMainFrame_ImGui::DrawGameAndEditorWindows(EngineCore* pEngineCore)
 {
     if( m_GameWindowSize.LengthSquared() != 0 )
     {
@@ -620,7 +622,7 @@ void EditorImGuiMainFrame::DrawGameAndEditorWindows(EngineCore* pEngineCore)
     }
 }
 
-void EditorImGuiMainFrame::AddDebug_MousePicker()
+void EditorMainFrame_ImGui::AddDebug_MousePicker()
 {
     if( ImGui::Begin( "Mouse Picker", 0, ImVec2(150, 150), 1 ) )
     {

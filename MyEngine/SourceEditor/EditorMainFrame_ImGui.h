@@ -7,12 +7,12 @@
 // 2. Altered source versions must be plainly marked as such, and must not be misrepresented as being the original software.
 // 3. This notice may not be removed or altered from any source distribution.
 
-#ifndef __EditorImGuiMainFrame_H__
-#define __EditorImGuiMainFrame_H__
+#ifndef __EditorMainFrame_ImGui_H__
+#define __EditorMainFrame_ImGui_H__
 
 class EngineCore;
 
-class EditorImGuiMainFrame
+class EditorMainFrame_ImGui : public EditorMainFrame
 {
 protected:
     FBODefinition* m_pGameFBO;
@@ -33,8 +33,8 @@ protected:
     bool m_KeyDownCommand;
 
 public:
-    EditorImGuiMainFrame();
-    ~EditorImGuiMainFrame();
+    EditorMainFrame_ImGui();
+    ~EditorMainFrame_ImGui();
 
     Vector2 GetEditorWindowCenterPosition();
 
@@ -52,4 +52,4 @@ public:
     void DrawGameAndEditorWindows(EngineCore* pEngineCore);
 };
 
-#endif //__EditorImGuiMainFrame_H__
+#endif //__EditorMainFrame_ImGui_H__

@@ -363,7 +363,7 @@ bool EditorInterface::HandleInputForEditorCamera(int keyaction, int keycode, int
             if( IsMouseLocked() == false )
             {
                 //LOGInfo( LOGTag, "Request mouse lock\n" );
-                SetMouseLock( true, g_pEngineCore->GetEditorImGuiMainFrame()->GetEditorWindowCenterPosition() );
+                SetMouseLock( true, g_pEngineCore->GetEditorMainFrame_ImGui()->GetEditorWindowCenterPosition() );
             }
 #endif //MYFW_USING_WX
             Vector2 dir( 0, 0 );
@@ -420,7 +420,7 @@ bool EditorInterface::HandleInputForEditorCamera(int keyaction, int keycode, int
             if( IsMouseLocked() == false )
             {
                 //LOGInfo( LOGTag, "Request mouse lock\n" );
-                SetMouseLock( true, g_pEngineCore->GetEditorImGuiMainFrame()->GetEditorWindowCenterPosition() );
+                SetMouseLock( true, g_pEngineCore->GetEditorMainFrame_ImGui()->GetEditorWindowCenterPosition() );
             }
 #endif //MYFW_USING_WX
             Vector2 dir( 0, 0 );
