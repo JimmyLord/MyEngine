@@ -425,6 +425,8 @@ void EngineCore::OneTimeInit()
     {
         g_pEngineCore->InitializeGameObjectFlagStrings( 0 );
     }
+
+    m_pEditorPrefs->LoadLastSceneLoaded();
 #else
     // TODO: fix! this won't work if flags were customized and saved into editorprefs.ini
     InitializeGameObjectFlagStrings( 0 );
@@ -532,8 +534,8 @@ double EngineCore::Tick(double TimePassed)
 #if MYFW_EDITOR
         if( m_EditorMode == true )
         {
-            //playwhenfinishedloading = false;
-            playwhenfinishedloading = true;
+            playwhenfinishedloading = false;
+            //playwhenfinishedloading = true;
         }
         else
 #endif
@@ -1668,7 +1670,9 @@ void EngineCore::UnloadScene(unsigned int sceneid, bool cleareditorobjects)
         g_pEngineMainFrame->StoreCurrentUndoStackSize();
 #endif
     }
-    m_pEditorState->ClearEditorState( false );
+    
+    // TODO: only unselect object from the scene being unloaded.
+    m_pEditorState->ClearEditorState( cleareditorobjects );
 #endif //MYFW_EDITOR
 }
 

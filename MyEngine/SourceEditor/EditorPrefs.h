@@ -38,6 +38,7 @@ public:
     void Init();
     void LoadWindowSizePrefs();
     void LoadPrefs();
+    void LoadLastSceneLoaded();
     cJSON* SaveStart();
     void SaveFinish(cJSON* pPrefs);
 

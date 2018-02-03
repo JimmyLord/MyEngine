@@ -1375,6 +1375,10 @@ void ComponentSystemManager::FinishLoading(bool lockwhileloading, unsigned int s
 
     if( playwhenfinishedloading )
     {
+#if MYFW_EDITOR
+        g_pEngineCore->Editor_QuickSaveScene( "temp_editor_onplay.scene" );
+#endif
+
         g_pEngineCore->RegisterGameplayButtons();
         OnPlay( sceneid );
         m_StartGamePlayWhenDoneLoading = false;
@@ -2565,22 +2569,25 @@ unsigned int ComponentSystemManager::GetSceneIDFromFullpath(const char* fullpath
     return -1;
 }
 //#else
-#if MYFW_USING_WX
+#if MYFW_EDITOR
 void ComponentSystemManager::CreateNewScene(const char* scenename, unsigned int sceneid)
 {
+#if MYFW_USING_WX
     MyAssert( m_pSceneInfoMap[sceneid].m_TreeID.IsOk() == false );
 
     wxTreeItemId rootid = g_pPanelObjectList->GetTreeRoot();
     wxTreeItemId treeid = g_pPanelObjectList->AddObject( m_pSceneHandler, SceneHandler::StaticOnLeftClick, SceneHandler::StaticOnRightClick, rootid, scenename, ObjectListIcon_Scene );
     g_pPanelObjectList->SetDragAndDropFunctions( treeid, SceneHandler::StaticOnDrag, SceneHandler::StaticOnDrop );
-    m_pSceneInfoMap[sceneid].m_InUse = true;
     m_pSceneInfoMap[sceneid].m_TreeID = treeid;
+#endif // MYFW_USING_WX
+    m_pSceneInfoMap[sceneid].m_InUse = true;
 
     // create the box2d world, pass in a material for the debug renderer.
     ComponentCamera* pCamera = g_pEngineCore->GetEditorState()->GetEditorCamera();
     m_pSceneInfoMap[sceneid].m_pBox2DWorld = MyNew Box2DWorld( g_pEngineCore->GetMaterial_Box2DDebugDraw(), &pCamera->m_Camera3D.m_matViewProj, new EngineBox2DContactListener );
 }
-
+#endif // MYFW_EDITOR
+#if MYFW_USING_WX
 wxTreeItemId ComponentSystemManager::GetTreeIDForScene(int sceneid)
 {
     return m_pSceneInfoMap[sceneid].m_TreeID;

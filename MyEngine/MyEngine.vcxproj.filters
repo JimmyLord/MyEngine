@@ -100,6 +100,9 @@
     <Filter Include="Source\ComponentSystem\Framework Components\Physics3D">
       <UniqueIdentifier>{850576cc-ed86-4f0b-812c-dd9f7422bfc0}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source - Editor\PlatformSpecific">
+      <UniqueIdentifier>{74cc688a-db99-4581-8ed9-1fe44b3649f9}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="SourceCommon\Camera\Camera3D.cpp">
@@ -425,6 +428,12 @@
     </ClCompile>
     <ClCompile Include="..\Libraries\imgui\imgui_demo.cpp">
       <Filter>Libraries\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceEditor\PlatformSpecific\FileOpenDialog.cpp">
+      <Filter>Source - Editor\PlatformSpecific</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceEditor\EditorMenuCommands.cpp">
+      <Filter>Source - Editor</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -795,6 +804,12 @@
       <Filter>Source - Editor</Filter>
     </ClInclude>
     <ClInclude Include="SourceEditor\EditorImGuiMainFrame.h">
+      <Filter>Source - Editor</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceEditor\PlatformSpecific\FileOpenDialog.h">
+      <Filter>Source - Editor\PlatformSpecific</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceEditor\EditorMenuCommands.h">
       <Filter>Source - Editor</Filter>
     </ClInclude>
   </ItemGroup>

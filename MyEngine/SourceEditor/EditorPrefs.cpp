@@ -93,6 +93,52 @@ void EditorPrefs::LoadPrefs()
     jObject = cJSON_GetObjectItem( m_jEditorPrefs, "EditorCam" );
     if( jObject )
         g_pEngineCore->GetEditorState()->GetEditorCamera()->m_pComponentTransform->ImportFromJSONObject( jObject, EngineCore::ENGINE_SCENE_ID );
+
+    //extern GLViewTypes g_CurrentGLViewType;
+    //cJSONExt_GetInt( jEditorPrefs, "GameAspectRatio", (int*)&g_CurrentGLViewType );
+
+    //cJSONExt_GetBool( jEditorPrefs, "ShowIcons", &m_ShowEditorIcons );
+    //cJSONExt_GetBool( jEditorPrefs, "SelectedObjects_ShowWireframe", &m_SelectedObjects_ShowWireframe );
+    //cJSONExt_GetBool( jEditorPrefs, "SelectedObjects_ShowEffect", &m_SelectedObjects_ShowEffect );
+    //cJSONExt_GetBool( jEditorPrefs, "Mode_SwitchFocusOnPlayStop", &m_Mode_SwitchFocusOnPlayStop );
+
+    //cJSONExt_GetBool( jEditorPrefs, "GridVisible", &m_GridSettings.visible );
+    //g_pEngineCore->SetGridVisible( m_GridSettings.visible );
+
+    //cJSONExt_GetBool( jEditorPrefs, "GridSnapEnabled", &m_GridSettings.snapenabled );
+    //cJSONExt_GetFloatArray( jEditorPrefs, "GridStepSize", &m_GridSettings.stepsize.x, 3 );
+}
+
+void EditorPrefs::LoadLastSceneLoaded()
+{
+    // Load the scene at the end.
+    cJSON* jObject = cJSON_GetObjectItem( m_jEditorPrefs, "LastSceneLoaded" );
+    if( jObject && jObject->valuestring[0] != 0 )
+    {
+        char* scenename = jObject->valuestring;
+
+        if( g_pEngineCore == 0 )
+            return;
+
+        // Load the scene from file.
+        // This might cause some "undo" actions, so wipe them out once the load is complete.
+        //unsigned int numItemsInUndoStack = g_pEngineMainFrame->m_pCommandStack->GetUndoStackSize();
+
+        char fullpath[MAX_PATH];
+        GetFullPath( scenename, fullpath, MAX_PATH );
+        unsigned int sceneid = g_pEngineCore->LoadSceneFromFile( fullpath );
+
+        //g_pEngineMainFrame->m_pCommandStack->ClearUndoStack( numItemsInUndoStack );
+
+        //this->SetTitle( scenename ); //g_pComponentSystemManager->GetSceneInfo( sceneid )->m_FullPath );
+    }
+    else
+    {
+        g_pEngineCore->GetEditorState()->ClearKeyAndActionStates();
+        g_pEngineCore->GetEditorState()->ClearSelectedObjectsAndComponents();
+        g_pComponentSystemManager->CreateNewScene( "Unsaved.scene", 1 );
+        g_pEngineCore->CreateDefaultSceneObjects();
+    }
 }
 
 cJSON* EditorPrefs::SaveStart()
@@ -131,7 +177,35 @@ cJSON* EditorPrefs::SaveStart()
         cJSON_AddNumberToObject( jPrefs, "WindowHeight", m_WindowHeight );
         cJSON_AddNumberToObject( jPrefs, "IsMaximized", m_IsWindowMaximized );
 
+        const char* relativepath = GetRelativePath( g_pComponentSystemManager->GetSceneInfo( 1 )->m_FullPath );
+        if( relativepath )
+            cJSON_AddStringToObject( jPrefs, "LastSceneLoaded", relativepath );
+        else
+            cJSON_AddStringToObject( jPrefs, "LastSceneLoaded", g_pComponentSystemManager->GetSceneInfo( 1 )->m_FullPath );
+
         cJSON_AddItemToObject( jPrefs, "EditorCam", g_pEngineCore->GetEditorState()->GetEditorCamera()->m_pComponentTransform->ExportAsJSONObject( false, true ) );
+
+        //cJSON* jGameObjectFlagsArray = cJSON_CreateStringArray( g_pEngineCore->GetGameObjectFlagStringArray(), 32 );
+        //cJSON_AddItemToObject( pPrefs, "GameObjectFlags", jGameObjectFlagsArray );
+
+        //// View menu options
+        //cJSON_AddNumberToObject( pPrefs, "EditorLayout", GetDefaultEditorPerspectiveIndex() );
+        //cJSON_AddNumberToObject( pPrefs, "GameplayLayout", GetDefaultGameplayPerspectiveIndex() );
+        //extern GLViewTypes g_CurrentGLViewType;
+        //cJSON_AddNumberToObject( pPrefs, "GameAspectRatio", g_CurrentGLViewType );
+
+        //cJSON_AddNumberToObject( pPrefs, "ShowIcons", m_ShowEditorIcons );
+        //cJSON_AddNumberToObject( pPrefs, "SelectedObjects_ShowWireframe", m_SelectedObjects_ShowWireframe );
+        //cJSON_AddNumberToObject( pPrefs, "SelectedObjects_ShowEffect", m_SelectedObjects_ShowEffect );
+
+        //// Grid menu options
+        //cJSON_AddNumberToObject( pPrefs, "GridVisible", m_GridSettings.visible );
+        //cJSON_AddNumberToObject( pPrefs, "GridSnapEnabled", m_GridSettings.snapenabled );
+        //cJSONExt_AddFloatArrayToObject( pPrefs, "GridStepSize", &m_GridSettings.stepsize.x, 3 );
+
+        //// Mode menu options
+        //cJSON_AddNumberToObject( pPrefs, "Mode_SwitchFocusOnPlayStop", m_Mode_SwitchFocusOnPlayStop );
+        //cJSON_AddNumberToObject( pPrefs, "LaunchPlatform", GetLaunchPlatformIndex() );
 
         return jPrefs;
     }

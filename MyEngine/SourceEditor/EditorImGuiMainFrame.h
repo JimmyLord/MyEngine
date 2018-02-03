@@ -23,7 +23,14 @@ protected:
     Vector2 m_EditorWindowSize;
 
     bool m_GameWindowFocused;
+    bool m_EditorWindowHovered;
     bool m_EditorWindowFocused;
+
+    // Modifier key states
+    bool m_KeyDownCtrl;
+    bool m_KeyDownAlt;
+    bool m_KeyDownShift;
+    bool m_KeyDownCommand;
 
 public:
     EditorImGuiMainFrame();
@@ -32,6 +39,7 @@ public:
     Vector2 GetEditorWindowCenterPosition();
 
     bool HandleInput(int keyaction, int keycode, int mouseaction, int id, float x, float y, float pressure);
+    bool CheckForHotkeys(int keyaction, int keycode);
 
     void AddEverything();
     void AddMainMenuBar();

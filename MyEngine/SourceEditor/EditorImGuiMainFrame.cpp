@@ -8,6 +8,7 @@
 // 3. This notice may not be removed or altered from any source distribution.
 
 #include "EngineCommonHeader.h"
+#include "EditorMenuCommands.h"
 
 enum EditorWindowTypes
 {
@@ -37,7 +38,13 @@ EditorImGuiMainFrame::EditorImGuiMainFrame()
     m_EditorWindowSize.Set( 0, 0 );
 
     m_GameWindowFocused = false;
+    m_EditorWindowHovered = false;
     m_EditorWindowFocused = false;
+
+    m_KeyDownCtrl = false;
+    m_KeyDownAlt = false;
+    m_KeyDownShift = false;
+    m_KeyDownCommand = false;
 }
 
 EditorImGuiMainFrame::~EditorImGuiMainFrame()
@@ -53,6 +60,12 @@ Vector2 EditorImGuiMainFrame::GetEditorWindowCenterPosition()
 
 bool EditorImGuiMainFrame::HandleInput(int keyaction, int keycode, int mouseaction, int id, float x, float y, float pressure)
 {
+    if( keyaction != -1 )
+    {
+        if( CheckForHotkeys( keyaction, keycode ) )
+            return true;
+    }
+
     // For keyboard and other non-mouse events, localx/y will be -1.
     float localx = -1;
     float localy = -1;
@@ -82,7 +95,7 @@ bool EditorImGuiMainFrame::HandleInput(int keyaction, int keycode, int mouseacti
 
     // Are absolute x/y over the editor window or it's a keyaction and the window is in focus.
     if( ( keyaction != -1 && m_EditorWindowFocused ) ||
-        ( mouseaction != -1 &&
+        ( ( m_EditorWindowHovered || m_EditorWindowFocused ) && mouseaction != -1 &&
             mouseabsx >= m_EditorWindowPos.x && mouseabsx < m_EditorWindowPos.x + m_EditorWindowSize.x &&
             mouseabsy >= m_EditorWindowPos.y && mouseabsy < m_EditorWindowPos.y + m_EditorWindowSize.y ) )
     {
@@ -116,6 +129,35 @@ bool EditorImGuiMainFrame::HandleInput(int keyaction, int keycode, int mouseacti
     return false;
 }
 
+bool EditorImGuiMainFrame::CheckForHotkeys(int keyaction, int keycode)
+{
+    if( keyaction == GCBA_Down )
+    {
+        if( keycode == MYKEYCODE_LCTRL || keycode == MYKEYCODE_RCTRL )
+            m_KeyDownCtrl = true;
+
+        if( keycode == MYKEYCODE_LALT || keycode == MYKEYCODE_RALT )
+            m_KeyDownAlt = true;
+    }
+    
+    if( keyaction == GCBA_Up )
+    {
+        if( keycode == MYKEYCODE_LCTRL || keycode == MYKEYCODE_RCTRL )
+            m_KeyDownCtrl = false;
+
+        if( keycode == MYKEYCODE_LALT || keycode == MYKEYCODE_RALT )
+            m_KeyDownAlt = false;
+    }
+
+    if( m_KeyDownCtrl == true && keyaction == GCBA_Down && keycode == ' ' )
+    {
+        g_pEngineCore->OnModeTogglePlayStop();
+        return true;
+    }
+
+    return false;
+}
+
 void EditorImGuiMainFrame::AddEverything()
 {
     AddMainMenuBar();
@@ -131,6 +173,7 @@ void EditorImGuiMainFrame::AddEverything()
     ImGui::Text( "WantMoveMouse %d", io.WantMoveMouse );
     ImGui::Text( "WantTextInput %d", io.WantTextInput );
     ImGui::Text( "m_GameWindowFocused %d", m_GameWindowFocused );
+    ImGui::Text( "m_EditorWindowHovered %d", m_EditorWindowHovered );    
     ImGui::Text( "m_EditorWindowFocused %d", m_EditorWindowFocused );
     ImGui::Text( "MouseWheel %0.2f", io.MouseWheel );
 
@@ -151,10 +194,22 @@ void EditorImGuiMainFrame::AddMainMenuBar()
     {
         if( ImGui::BeginMenu( "File" ) )
         {
-            if( ImGui::MenuItem( "&New", "CTRL+N" ) ) {}
-            if( ImGui::MenuItem( "&Open...", "CTRL+O" ) ) {}
-            ImGui::Separator();
-            if( ImGui::MenuItem( "&Test...", "CTRL+T" ) ) {}
+            //if( ImGui::MenuItem( "&New", "CTRL-N" ) ) {}
+            //if( ImGui::MenuItem( "&Open...", "CTRL-O" ) ) {}
+            //ImGui::Separator();
+            //if( ImGui::MenuItem( "&Test...", "CTRL-T" ) ) {}
+            if( ImGui::MenuItem( "&New Scene" ) ) {}
+            if( ImGui::MenuItem( "&Load Scene..." ) ) { EditorMenuCommand( EditorMenuCommand_LoadScene ); }
+            if( ImGui::MenuItem( "&Create Additional Scene" ) ) {}
+            if( ImGui::MenuItem( "&Load Additional Scene..." ) ) {}
+            if( ImGui::MenuItem( "&Save Scene", "Ctrl-S" ) ) {}
+            if( ImGui::MenuItem( "Save Scene &As..." ) ) {}
+
+            if( ImGui::BeginMenu( "E&xport" ) )
+            {
+                if( ImGui::MenuItem( "Box2D Scene...", "Ctrl-Shift-E" ) ) {}
+                ImGui::EndMenu();
+            }
             if( ImGui::MenuItem( "&Quit" ) ) {}
 
             ImGui::EndMenu();
@@ -162,8 +217,8 @@ void EditorImGuiMainFrame::AddMainMenuBar()
 
         if( ImGui::BeginMenu( "Edit" ) )
         {
-            if( ImGui::MenuItem( "&Undo", "CTRL+Z" ) ) {}
-            if( ImGui::MenuItem( "&Redo", "CTRL+Y" ) ) {}
+            if( ImGui::MenuItem( "&Undo", "CTRL-Z" ) ) {}
+            if( ImGui::MenuItem( "&Redo", "CTRL-Y" ) ) {}
 
             ImGui::EndMenu();
         }
@@ -183,16 +238,129 @@ void EditorImGuiMainFrame::AddMainMenuBar()
                 ImGui::EndMenu();
             }
 
+            //// View menu
+            //{
+            //    // Override these menu options from the main frame,
+            //    Connect( myID_View_SavePerspective, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );
+            //    Connect( myID_View_LoadPerspective, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );
+            //    Connect( myID_View_ResetPerspective, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );
+
+            //    m_SubMenu_View_EditorPerspectives = MyNew wxMenu;
+            //    for( int i=0; i<Perspective_NumPerspectives; i++ )
+            //    {
+            //        m_MenuItem_View_EditorPerspectiveOptions[i] = m_SubMenu_View_EditorPerspectives->AppendCheckItem( myIDEngine_View_EditorPerspective + i, g_DefaultPerspectiveMenuLabels[i], wxEmptyString );
+            //        Connect( myIDEngine_View_EditorPerspective + i, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );
+            //    }
+
+            //    m_SubMenu_View_GameplayPerspectives = MyNew wxMenu;
+            //    for( int i=0; i<Perspective_NumPerspectives; i++ )
+            //    {
+            //        m_MenuItem_View_GameplayPerspectiveOptions[i] = m_SubMenu_View_GameplayPerspectives->AppendCheckItem( myIDEngine_View_GameplayPerspective + i, g_DefaultPerspectiveMenuLabels[i], wxEmptyString );
+            //        Connect( myIDEngine_View_GameplayPerspective + i, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );
+            //    }
+
+            //    m_MenuItem_View_EditorPerspectiveOptions[0]->Check();
+            //    m_MenuItem_View_GameplayPerspectiveOptions[0]->Check();
+
+            //    m_View->Append( myIDEngine_View_EditorPerspectives, "Editor Layouts", m_SubMenu_View_EditorPerspectives );
+            //    m_View->Append( myIDEngine_View_GameplayPerspectives, "Gameplay Layouts", m_SubMenu_View_GameplayPerspectives );
+
+            //    m_MenuItem_View_ShowEditorIcons = m_View->AppendCheckItem( myIDEngine_View_ShowEditorIcons, wxT("Show &Editor Icons\tShift-F7") );
+
+            //    wxMenu* pMenuSelectedObjects = MyNew wxMenu;
+            //    m_View->AppendSubMenu( pMenuSelectedObjects, "Selected Objects" );
+            //    m_MenuItem_View_SelectedObjects_ShowWireframe = pMenuSelectedObjects->AppendCheckItem( myIDEngine_View_SelectedObjects_ShowWireframe, wxT("Show &Wireframe") );
+            //    m_MenuItem_View_SelectedObjects_ShowEffect = pMenuSelectedObjects->AppendCheckItem( myIDEngine_View_SelectedObjects_ShowEffect, wxT("Show &Effect") );
+
+            //    {
+            //        m_SubMenu_View_EditorCameraLayers = MyNew wxMenu;
+            //        for( int i=0; i<g_NumberOfVisibilityLayers; i++ )
+            //        {
+            //            wxString label;
+            //            if( i < 9 )
+            //                label << "(&" << i+1 << ") " << g_pVisibilityLayerStrings[i] << "\tCtrl-Alt-" << i+1;
+            //            else
+            //                label << "(&" << i+1 << ") " << g_pVisibilityLayerStrings[i];
+            //            m_MenuItem_View_EditorCameraLayerOptions[i] = m_SubMenu_View_EditorCameraLayers->AppendCheckItem( myIDEngine_View_EditorCameraLayer + i, label, wxEmptyString );
+            //            Connect( myIDEngine_View_EditorCameraLayer + i, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );
+            //        }
+            //    
+            //        m_MenuItem_View_EditorCameraLayerOptions[0]->Check();
+
+            //        m_View->Append( myIDEngine_View_EditorCameraLayers, "Editor &Camera Layers", m_SubMenu_View_EditorCameraLayers );
+            //    }
+
+            //    m_View->Append( myIDEngine_View_FullScreenEditor, wxT("&Fullscreen Editor\tF11") );
+            //    m_View->Append( myIDEngine_View_FullScreenGame, wxT("&Fullscreen Game\tCtrl-F11") );
+            //}
+
             ImGui::EndMenu();
         }
 
         if( ImGui::BeginMenu( "Aspect" ) )
         {
-            if( ImGui::MenuItem( "&Fill", "Alt+1" ) ) {}
-            if( ImGui::MenuItem( "&Tall", "Alt+2" ) ) {}
-            if( ImGui::MenuItem( "&Square", "Alt+3" ) ) {}
-            if( ImGui::MenuItem( "&Wide", "Alt+4" ) ) {}
+            if( ImGui::MenuItem( "&Fill", "Alt-1" ) ) {}
+            if( ImGui::MenuItem( "&Tall", "Alt-2" ) ) {}
+            if( ImGui::MenuItem( "&Square", "Alt-3" ) ) {}
+            if( ImGui::MenuItem( "&Wide", "Alt-4" ) ) {}
 
+            ImGui::EndMenu();
+        }
+
+        if( ImGui::BeginMenu( "Grid" ) )
+        {
+            if( ImGui::MenuItem( "Grid &On/Off", "Ctrl-Shift-V", true ) ) {} // { EditorMenuCommand( myIDEngine_Grid_VisibleOnOff ); }
+            if( ImGui::MenuItem( "Grid Snap &On/Off", "Ctrl-G", true ) ) {} // { EditorMenuCommand( myIDEngine_Grid_SnapOnOff ); }
+            if( ImGui::MenuItem( "Grid &Settings", "Ctrl-Shift-G" ) ) {}
+
+            ImGui::EndMenu();
+        }
+
+        if( ImGui::BeginMenu( "Mode" ) )
+        {
+            if( ImGui::MenuItem( "Switch &Focus on Play/Stop", 0, true ) ) {} // { EditorMenuCommand( myIDEngine_Mode_SwitchFocusOnPlayStop ); }
+            //// Since Command-Space is "Spotlight Search" on OSX, use the actual control key on OSX as well as Windows/Linux.
+            if( ImGui::MenuItem( "&Play/Stop", "CTRL-SPACE" ) ) {} // { EditorMenuCommand( myIDEngine_Mode_PlayStop ); }
+            if( ImGui::MenuItem( "Pause", "Ctrl-." ) ) {} // { EditorMenuCommand( myIDEngine_Mode_Pause ); }
+            if( ImGui::MenuItem( "Advance 1 Frame", "Ctrl-]" ) ) {} // { EditorMenuCommand( myIDEngine_Mode_Advance1Frame ); }
+            if( ImGui::MenuItem( "Advance 1 Second", "Ctrl-[" ) ) {} // { EditorMenuCommand( myIDEngine_Mode_Advance1Second ); }
+
+            if( ImGui::BeginMenu( "L&aunch Platforms" ) )
+            {
+                //for( int i=0; i<LaunchPlatform_NumPlatforms; i++ )
+                //{
+                //    if( ImGui::MenuItem( g_LaunchPlatformsMenuLabels[i], 0, true ) ) {} // { EditorMenuCommand( myIDEngine_Mode_LaunchPlatforms + i ); }
+                //}
+
+                ImGui::EndMenu();
+            }
+
+            if( ImGui::MenuItem( "&Launch Game", "tCtrl-F5" ) ) {} // { EditorMenuCommand( myIDEngine_Mode_LaunchGame ); }
+
+            ImGui::EndMenu();
+        }
+
+        if( ImGui::BeginMenu( "Data" ) )
+        {
+            if( ImGui::MenuItem( "&Load Datafiles" ) ) {} // { EditorMenuCommand( myIDEngine_Data_AddDatafile ); }
+            ImGui::EndMenu();
+        }
+
+        if( ImGui::BeginMenu( "Hackery" ) )
+        {
+            if( ImGui::MenuItem( "&Record", "Ctrl-R" ) ) {} // { EditorMenuCommand( myIDEngine_Hackery_RecordMacro ); }
+            if( ImGui::MenuItem( "Stop recording and &Execute", "Ctrl-E" ) ) {} // { EditorMenuCommand( myIDEngine_Hackery_ExecuteMacro ); }
+            ImGui::EndMenu();
+        }
+
+        if( ImGui::BeginMenu( "Debug views" ) )
+        {
+            if( ImGui::MenuItem( "Show &Mouse Picker FBO", "F9" ) ) {} // { EditorMenuCommand( myIDEngine_Debug_ShowMousePickerFBO ); }
+            if( ImGui::MenuItem( "Show &Animated Debug View for Selection", "F8" ) ) {} // { EditorMenuCommand( myIDEngine_Debug_ShowSelectedAnimatedMesh ); }
+            if( ImGui::MenuItem( "Show &GL Stats", "Shift-F9" ) ) {} // { EditorMenuCommand( myIDEngine_Debug_ShowGLStats ); }
+            if( ImGui::MenuItem( "Draw &Wireframe", "Ctrl-F9" ) ) {} // { EditorMenuCommand( myIDEngine_Debug_DrawWireframe ); }
+            if( ImGui::MenuItem( "Show &Physics debug shapes", "Shift-F8" ) ) {} // { EditorMenuCommand( myIDEngine_Debug_ShowPhysicsShapes ); }
+            if( ImGui::MenuItem( "Show profiling &Info", "Ctrl-F8" ) ) {} // { EditorMenuCommand( myIDEngine_Debug_ShowProfilingInfo ); }
             ImGui::EndMenu();
         }
 
@@ -244,6 +412,7 @@ void EditorImGuiMainFrame::AddGameAndEditorWindows()
     if( ImGui::Begin( "Editor", 0, ImVec2(579, 397) ) )
     {
         m_EditorWindowFocused = ImGui::IsWindowFocused();
+        m_EditorWindowHovered = ImGui::IsWindowHovered();
 
         ImVec2 min = ImGui::GetWindowContentRegionMin();
         ImVec2 max = ImGui::GetWindowContentRegionMax();
@@ -295,7 +464,10 @@ void EditorImGuiMainFrame::AddObjectList()
                 if( pSceneInfo->m_InUse == true )
                 {
                     static char* pUnmanagedName = "Unmanaged";
+                    static char* pUnsavedName = "Unsaved scene";
                     char* scenename = pUnmanagedName;
+                    if( sceneindex != 0 )
+                        scenename = pUnsavedName;
                     if( pSceneInfo->m_FullPath[0] != 0 )
                     {
                         int i;

@@ -1,0 +1,72 @@
+//
+// Copyright (c) 2018 Jimmy Lord http://www.flatheadgames.com
+//
+// This software is provided 'as-is', without any express or implied warranty.  In no event will the authors be held liable for any damages arising from the use of this software.
+// Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
+// 1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
+// 2. Altered source versions must be plainly marked as such, and must not be misrepresented as being the original software.
+// 3. This notice may not be removed or altered from any source distribution.
+
+#include "EngineCommonHeader.h"
+#include "PlatformSpecific/FileOpenDialog.h"
+#include "EditorMenuCommands.h"
+
+void LoadScene(const char* scenename, bool unloadscenes)
+{
+    if( g_pEngineCore == 0 )
+        return;
+
+    MyAssert( scenename != 0 );
+
+    // clear out the old scene before loading.
+    if( unloadscenes )
+    {
+        // Make sure gameplay is stopped before loading
+        g_pEngineCore->OnModeStop();
+
+        // Reset the scene counter, so the new "first" scene loaded will be 1.
+        g_pComponentSystemManager->ResetSceneIDCounter();
+
+        // if we're unloading the old scene(s), clear all selected items.
+        g_pEngineCore->GetEditorState()->ClearKeyAndActionStates();
+        g_pEngineCore->GetEditorState()->ClearSelectedObjectsAndComponents();
+        g_pEngineCore->SetEditorInterface( EditorInterfaceType_SceneManagement );
+
+        g_pEngineCore->UnloadScene( UINT_MAX, false ); // don't unload editor objects.
+    }
+
+    // Load the scene from file.
+    // This might cause some "undo" actions, so wipe them out once the load is complete.
+    //unsigned int numItemsInUndoStack = g_pEngineMainFrame->m_pCommandStack->GetUndoStackSize();
+
+    char fullpath[MAX_PATH];
+    GetFullPath( scenename, fullpath, MAX_PATH );
+    unsigned int sceneid = g_pEngineCore->LoadSceneFromFile( fullpath );
+
+    //g_pEngineMainFrame->m_pCommandStack->ClearUndoStack( numItemsInUndoStack );
+
+    //this->SetTitle( scenename ); //g_pComponentSystemManager->GetSceneInfo( sceneid )->m_FullPath );
+}
+
+void EditorMenuCommand(EditorMenuCommands command)
+{
+    switch( command )
+    {
+    case EditorMenuCommand_LoadScene:
+        {
+            const char* filename = FileOpenDialog( "Data\\Scenes\\", "Scene\0*.scene\0All\0*.*\0" );
+            if( filename[0] != 0 )
+            {
+                char path[MAX_PATH];
+                strcpy_s( path, MAX_PATH, filename );
+                const char* relativepath = GetRelativePath( path );
+                LoadScene( relativepath, true );
+            }
+        }
+        break;
+
+    default:
+        MyAssert( false );
+        break;
+    }
+}

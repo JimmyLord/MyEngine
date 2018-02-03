@@ -410,7 +410,7 @@ void EngineMainFrame::InitFrame()
         m_Menu_Mode->Append( myIDEngine_Mode_Advance1Second, wxT("Advance 1 Second\tCtrl-[") );
 
         m_SubMenu_Mode_LaunchPlatform = MyNew wxMenu;
-        m_Menu_Mode->Append( myIDEngine_View_EditorCameraLayers, "L&aunch Platforms", m_SubMenu_Mode_LaunchPlatform );
+        m_Menu_Mode->Append( myIDEngine_Mode_LaunchPlatforms, "L&aunch Platforms", m_SubMenu_Mode_LaunchPlatform );
         for( int i=0; i<LaunchPlatform_NumPlatforms; i++ )
         {
             m_MenuItem_Mode_LaunchPlatformOptions[i] = m_SubMenu_Mode_LaunchPlatform->AppendCheckItem( myIDEngine_Mode_LaunchPlatforms + i, g_LaunchPlatformsMenuLabels[i], wxEmptyString );
