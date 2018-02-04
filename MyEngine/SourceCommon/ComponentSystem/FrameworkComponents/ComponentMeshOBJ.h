@@ -60,6 +60,7 @@ public:
     void SetPointerDesc(ComponentVariable* pVar, const char* newdesc);
 
 public:
+#if MYFW_EDITOR
 #if MYFW_USING_WX
     static bool m_PanelWatchBlockVisible;
 
@@ -71,9 +72,10 @@ public:
     virtual void FillPropertiesWindow(bool clear, bool addcomponentvariables = false, bool ignoreblockvisibleflag = false);
     
     // Component variable callbacks. //_VARIABLE_LIST
-    void* OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue* pNewValue);
     void* OnDropOBJ(ComponentVariable* pVar, wxCoord x, wxCoord y);
 #endif //MYFW_USING_WX
+    void* OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue* pNewValue);
+#endif //MYFW_EDITOR
 };
 
 #endif //__ComponentMeshOBJ_H__

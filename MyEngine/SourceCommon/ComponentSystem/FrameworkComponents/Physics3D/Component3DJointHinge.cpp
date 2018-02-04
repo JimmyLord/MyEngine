@@ -52,9 +52,15 @@ Component3DJointHinge::~Component3DJointHinge()
 
 void Component3DJointHinge::RegisterVariables(CPPListHead* pList, Component3DJointHinge* pThis) //_VARIABLE_LIST
 {
+#if MYFW_USING_WX
     AddVar( pList, "SecondCollisionObject", ComponentVariableType_ComponentPtr,
         MyOffsetOf( pThis, &pThis->m_pSecondCollisionObject ), true, true, 0,
         (CVarFunc_ValueChanged)&Component3DJointHinge::OnValueChanged, (CVarFunc_DropTarget)&Component3DJointHinge::OnDrop, 0 );
+#else
+    AddVar( pList, "SecondCollisionObject", ComponentVariableType_ComponentPtr,
+        MyOffsetOf( pThis, &pThis->m_pSecondCollisionObject ), true, true, 0,
+        (CVarFunc_ValueChanged)&Component3DJointHinge::OnValueChanged, 0, 0 );
+#endif
 
     AddVar( pList, "PivotA", ComponentVariableType_Vector2, MyOffsetOf( pThis, &pThis->m_PivotA ), true, true, 0, (CVarFunc_ValueChanged)&Component3DJointHinge::OnValueChanged, 0, 0 );
     AddVar( pList, "PivotB", ComponentVariableType_Vector2, MyOffsetOf( pThis, &pThis->m_PivotB ), true, true, 0, (CVarFunc_ValueChanged)&Component3DJointHinge::OnValueChanged, 0, 0 );
@@ -158,7 +164,9 @@ void* Component3DJointHinge::OnDrop(ComponentVariable* pVar, wxCoord x, wxCoord 
 
     return oldvalue;
 }
+#endif //MYFW_USING_WX
 
+#if MYFW_EDITOR
 void* Component3DJointHinge::OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue* pNewValue)
 {
     void* oldpointer = 0;
@@ -167,6 +175,7 @@ void* Component3DJointHinge::OnValueChanged(ComponentVariable* pVar, bool change
     {
         if( changedbyinterface )
         {
+#if MYFW_USING_WX
             wxString text = g_pPanelWatch->GetVariableProperties( pVar->m_ControlID )->GetTextCtrl()->GetValue();
             if( text == "" || text == "none" )
             {
@@ -176,6 +185,7 @@ void* Component3DJointHinge::OnValueChanged(ComponentVariable* pVar, bool change
 
                 g_pPanelWatch->SetNeedsRefresh();
             }
+#endif //MYFW_USING_WX
         }
         else if( pNewValue->GetComponentPtr() != 0 )
         {
@@ -247,7 +257,7 @@ void* Component3DJointHinge::OnValueChanged(ComponentVariable* pVar, bool change
 
     return oldpointer;
 }
-#endif //MYFW_USING_WX
+#endif //MYFW_EDITOR
 
 Component3DJointHinge& Component3DJointHinge::operator=(const Component3DJointHinge& other)
 {

@@ -42,9 +42,15 @@ Component3DJointPoint2Point::~Component3DJointPoint2Point()
 
 void Component3DJointPoint2Point::RegisterVariables(CPPListHead* pList, Component3DJointPoint2Point* pThis) //_VARIABLE_LIST
 {
+#if MYFW_USING_WX
     AddVar( pList, "SecondCollisionObject", ComponentVariableType_ComponentPtr,
         MyOffsetOf( pThis, &pThis->m_pSecondCollisionObject ), true, true, 0,
         (CVarFunc_ValueChanged)&Component3DJointPoint2Point::OnValueChanged, (CVarFunc_DropTarget)&Component3DJointPoint2Point::OnDrop, 0 );
+#else
+    AddVar( pList, "SecondCollisionObject", ComponentVariableType_ComponentPtr,
+        MyOffsetOf( pThis, &pThis->m_pSecondCollisionObject ), true, true, 0,
+        (CVarFunc_ValueChanged)&Component3DJointPoint2Point::OnValueChanged, 0, 0 );
+#endif
 
     AddVar( pList, "PivotA", ComponentVariableType_Vector3, MyOffsetOf( pThis, &pThis->m_PivotA ), true, true, 0, (CVarFunc_ValueChanged)&Component3DJointPoint2Point::OnValueChanged, 0, 0 );
     AddVar( pList, "PivotB", ComponentVariableType_Vector3, MyOffsetOf( pThis, &pThis->m_PivotB ), true, true, 0, (CVarFunc_ValueChanged)&Component3DJointPoint2Point::OnValueChanged, 0, 0 );
@@ -134,7 +140,9 @@ void* Component3DJointPoint2Point::OnDrop(ComponentVariable* pVar, wxCoord x, wx
 
     return oldvalue;
 }
+#endif //MYFW_USING_WX
 
+#if MYFW_EDITOR
 void* Component3DJointPoint2Point::OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue* pNewValue)
 {
     void* oldpointer = 0;
@@ -143,6 +151,7 @@ void* Component3DJointPoint2Point::OnValueChanged(ComponentVariable* pVar, bool 
     {
         if( changedbyinterface )
         {
+#if MYFW_USING_WX
             wxString text = g_pPanelWatch->GetVariableProperties( pVar->m_ControlID )->GetTextCtrl()->GetValue();
             if( text == "" || text == "none" )
             {
@@ -152,6 +161,7 @@ void* Component3DJointPoint2Point::OnValueChanged(ComponentVariable* pVar, bool 
 
                 g_pPanelWatch->SetNeedsRefresh();
             }
+#endif //MYFW_USING_WX
         }
         else if( pNewValue->GetComponentPtr() != 0 )
         {
@@ -167,7 +177,7 @@ void* Component3DJointPoint2Point::OnValueChanged(ComponentVariable* pVar, bool 
 
     return oldpointer;
 }
-#endif //MYFW_USING_WX
+#endif //MYFW_EDITOR
 
 Component3DJointPoint2Point& Component3DJointPoint2Point::operator=(const Component3DJointPoint2Point& other)
 {

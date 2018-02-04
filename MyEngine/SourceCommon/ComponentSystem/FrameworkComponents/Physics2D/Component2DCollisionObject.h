@@ -45,7 +45,7 @@ public:
     float m_Friction;
     float m_Restitution;
 
-#if MYFW_USING_WX
+#if MYFW_EDITOR
     std::vector<b2Vec2> m_Vertices;
 #else
     MyList<b2Vec2> m_Vertices;
@@ -87,7 +87,7 @@ protected:
     // Callback functions for various events.
     MYFW_DECLARE_COMPONENT_CALLBACK_TICK(); // TickCallback
     //MYFW_DECLARE_COMPONENT_CALLBACK_ONSURFACECHANGED(); // OnSurfaceChangedCallback
-#if MYFW_USING_WX
+#if MYFW_EDITOR
     MYFW_DECLARE_COMPONENT_CALLBACK_DRAW(); // DrawCallback
 #endif
     //MYFW_DECLARE_COMPONENT_CALLBACK_ONTOUCH(); // OnTouchCallback
@@ -96,6 +96,7 @@ protected:
     //MYFW_DECLARE_COMPONENT_CALLBACK_ONFILERENAMED(); // OnFileRenamedCallback
 
 public:
+#if MYFW_EDITOR
 #if MYFW_USING_WX
     static bool m_PanelWatchBlockVisible;
 
@@ -109,6 +110,7 @@ public:
 
     // Component variable callbacks.
     void* OnDrop(ComponentVariable* pVar, wxCoord x, wxCoord y);
+#endif //MYFW_USING_WX
     void* OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue* pNewValue);
 
     static void StaticOnTransformChanged(void* pObjectPtr, Vector3& newpos, Vector3& newrot, Vector3& newscale, bool changedbyuserineditor) { ((Component2DCollisionObject*)pObjectPtr)->OnTransformChanged( newpos, newrot, newscale, changedbyuserineditor ); }

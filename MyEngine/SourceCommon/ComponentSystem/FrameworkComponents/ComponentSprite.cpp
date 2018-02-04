@@ -45,11 +45,19 @@ void ComponentSprite::RegisterVariables(CPPListHead* pList, ComponentSprite* pTh
 {
     ComponentRenderable::RegisterVariables( pList, pThis );
 
+#if MYFW_USING_WX
     AddVar( pList, "Tint",     ComponentVariableType_ColorByte, MyOffsetOf( pThis, &pThis->m_Tint ),  true,  true, 0, (CVarFunc_ValueChanged)&ComponentSprite::OnValueChanged, (CVarFunc_DropTarget)&ComponentSprite::OnDrop, 0 );
     AddVar( pList, "Size",     ComponentVariableType_Vector2,   MyOffsetOf( pThis, &pThis->m_Size ),  true,  true, 0, (CVarFunc_ValueChanged)&ComponentSprite::OnValueChanged, (CVarFunc_DropTarget)&ComponentSprite::OnDrop, 0 );
     AddVarPointer( pList, "Material", true,  true, 0,
        (CVarFunc_GetPointerValue)&ComponentSprite::GetPointerValue, (CVarFunc_SetPointerValue)&ComponentSprite::SetPointerValue, (CVarFunc_GetPointerDesc)&ComponentSprite::GetPointerDesc, (CVarFunc_SetPointerDesc)&ComponentSprite::SetPointerDesc,
        (CVarFunc_ValueChanged)&ComponentSprite::OnValueChanged, (CVarFunc_DropTarget)&ComponentSprite::OnDrop, 0 );
+#else
+    AddVar( pList, "Tint",     ComponentVariableType_ColorByte, MyOffsetOf( pThis, &pThis->m_Tint ),  true,  true, 0, (CVarFunc_ValueChanged)&ComponentSprite::OnValueChanged, 0, 0 );
+    AddVar( pList, "Size",     ComponentVariableType_Vector2,   MyOffsetOf( pThis, &pThis->m_Size ),  true,  true, 0, (CVarFunc_ValueChanged)&ComponentSprite::OnValueChanged, 0, 0 );
+    AddVarPointer( pList, "Material", true,  true, 0,
+       (CVarFunc_GetPointerValue)&ComponentSprite::GetPointerValue, (CVarFunc_SetPointerValue)&ComponentSprite::SetPointerValue, (CVarFunc_GetPointerDesc)&ComponentSprite::GetPointerDesc, (CVarFunc_SetPointerDesc)&ComponentSprite::SetPointerDesc,
+       (CVarFunc_ValueChanged)&ComponentSprite::OnValueChanged, 0, 0 );
+#endif
 }
 
 ComponentSprite* CastAs_ComponentSprite(ComponentBase* pComponent)
@@ -206,7 +214,9 @@ void* ComponentSprite::OnDrop(ComponentVariable* pVar, wxCoord x, wxCoord y)
 
     return oldvalue;
 }
+#endif //MYFW_USING_WX
 
+#if MYFW_EDITOR
 void* ComponentSprite::OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue* pNewValue)
 {
     void* oldpointer = 0;
@@ -215,6 +225,7 @@ void* ComponentSprite::OnValueChanged(ComponentVariable* pVar, bool changedbyint
     {
         if( changedbyinterface )
         {
+#if MYFW_USING_WX
             wxString text = g_pPanelWatch->GetVariableProperties( pVar->m_ControlID )->GetTextCtrl()->GetValue();
             if( text == "" || text == "none" )
             {
@@ -223,6 +234,7 @@ void* ComponentSprite::OnValueChanged(ComponentVariable* pVar, bool changedbyint
                 oldpointer = m_pSprite->GetMaterial();
                 g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_ChangeMaterialOnMesh( this, pVar, 0, 0 ) );
             }
+#endif //MYFW_USING_WX
         }
         else if( pNewValue->GetMaterialPtr() != 0 )
         {
@@ -242,7 +254,7 @@ void* ComponentSprite::OnValueChanged(ComponentVariable* pVar, bool changedbyint
 
     return oldpointer;
 }
-#endif //MYFW_USING_WX
+#endif //MYFW_EDITOR
 
 cJSON* ComponentSprite::ExportAsJSONObject(bool savesceneid, bool saveid)
 {

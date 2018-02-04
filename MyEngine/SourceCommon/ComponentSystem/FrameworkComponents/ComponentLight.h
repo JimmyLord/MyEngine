@@ -59,6 +59,7 @@ protected:
     //MYFW_DECLARE_COMPONENT_CALLBACK_ONFILERENAMED(); // OnFileRenamedCallback
 
 public:
+#if MYFW_EDITOR
 #if MYFW_USING_WX
     static bool m_PanelWatchBlockVisible;
 
@@ -67,9 +68,10 @@ public:
     void OnLeftClick(unsigned int count, bool clear);
     virtual void FillPropertiesWindow(bool clear, bool addcomponentvariables = false, bool ignoreblockvisibleflag = false);
 
-    void* OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue* pNewValue);
     void* OnDrop(ComponentVariable* pVar, wxCoord x, wxCoord y);
 #endif //MYFW_USING_WX
+    void* OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue* pNewValue);
+#endif //MYFW_EDITOR
 };
 
 #endif //__ComponentLight_H__

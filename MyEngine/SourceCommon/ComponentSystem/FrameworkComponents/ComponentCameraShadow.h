@@ -52,6 +52,7 @@ public:
     virtual void OnDrawFrame();
 
 public:
+#if MYFW_EDITOR
 #if MYFW_USING_WX
     static bool m_PanelWatchBlockVisible;
 
@@ -59,9 +60,10 @@ public:
     static void StaticOnLeftClick(void* pObjectPtr, wxTreeItemId id, unsigned int count) { ((ComponentCameraShadow*)pObjectPtr)->OnLeftClick( count, true ); }
     void OnLeftClick(unsigned int count, bool clear);
     virtual void FillPropertiesWindow(bool clear, bool addcomponentvariables = false, bool ignoreblockvisibleflag = false);
+#endif //MYFW_USING_WX
     static void StaticOnValueChanged(void* pObjectPtr, int controlid, bool directlychanged, bool finishedchanging, double oldvalue, bool valuewaschangedbydragging) { ((ComponentCameraShadow*)pObjectPtr)->OnValueChanged( controlid, finishedchanging ); }
     void OnValueChanged(int controlid, bool finishedchanging);
-#endif //MYFW_USING_WX
+#endif //MYFW_EDITOR
 };
 
 #endif //__ComponentCameraShadow_H__

@@ -25,7 +25,7 @@ ComponentVariable::ComponentVariable(const char* label, ComponentVariableTypes t
     m_NumEnumStrings = 0;
     m_ppEnumStrings = 0;
 
-#if MYFW_USING_WX
+#if MYFW_EDITOR
     m_FloatLowerLimit = 0;
     m_FloatUpperLimit = 0;
 
@@ -37,7 +37,7 @@ ComponentVariable::ComponentVariable(const char* label, ComponentVariableTypes t
     m_pVariableAddedToInterfaceCallbackFunc = 0;
     m_pOnRightClickCallbackFunc = 0;
     m_pOnPopupClickCallbackFunc = 0;
-#endif //MYFW_USING_WX
+#endif //MYFW_EDITOR
 
     m_pGetPointerValueCallBackFunc = pGetPointerValueCallBackFunc;
     m_pSetPointerValueCallBackFunc = pSetPointerValueCallBackFunc;
@@ -48,7 +48,7 @@ ComponentVariable::ComponentVariable(const char* label, ComponentVariableTypes t
     m_Index = -1;
 }
 
-#if MYFW_USING_WX
+#if MYFW_EDITOR
 void ComponentVariable::AddCallback_ShouldVariableBeAdded(CVarFunc_ShouldVariableBeAdded pFunc)
 {
     m_pShouldVariableBeAddedCallbackFunc = pFunc;
@@ -70,4 +70,4 @@ void ComponentVariable::SetEditorLimits(float lowerlimit, float upperlimit)
     m_FloatLowerLimit = lowerlimit;
     m_FloatUpperLimit = upperlimit;
 }
-#endif //MYFW_USING_WX
+#endif //MYFW_EDITOR

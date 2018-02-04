@@ -75,6 +75,7 @@ public:
     void SetPointerDesc(ComponentVariable* pVar, const char* newdesc);
 
 public:
+#if MYFW_EDITOR
 #if MYFW_USING_WX
     static bool m_PanelWatchBlockVisible;
 
@@ -87,6 +88,7 @@ public:
 
     // Component variable callbacks.
     void* OnDrop(ComponentVariable* pVar, wxCoord x, wxCoord y);
+#endif //MYFW_USING_WX
     void* OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue* pNewValue);
 
     static void StaticOnButtonCreateMesh(void* pObjectPtr, int buttonid) { ((ComponentVoxelMesh*)pObjectPtr)->OnButtonCreateMesh( buttonid ); }
@@ -94,7 +96,7 @@ public:
 
     static void StaticOnButtonEditMesh(void* pObjectPtr, int buttonid) { ((ComponentVoxelMesh*)pObjectPtr)->OnButtonEditMesh( buttonid ); }
     void OnButtonEditMesh(int buttonid);
-#endif //MYFW_USING_WX
+#endif //MYFW_EDITOR
 };
 
 #endif //__ComponentVoxelMesh_H__

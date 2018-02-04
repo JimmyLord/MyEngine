@@ -75,6 +75,7 @@ void ComponentLuaScript::RegisterVariables(CPPListHead* pList, ComponentLuaScrip
 #endif
 
     // Script is not automatically saved/loaded
+#if MYFW_USING_WX
     ComponentVariable* pVar = AddVar( pList, "Script", ComponentVariableType_FilePtr, MyOffsetOf( pThis, &pThis->m_pScriptFile ), false, true, 0, (CVarFunc_ValueChanged)&ComponentLuaScript::OnValueChanged, (CVarFunc_DropTarget)&ComponentLuaScript::OnDrop, 0 );
 #if MYFW_USING_WX
     pVar->AddCallback_OnRightClick( (CVarFunc_wxMenu)&ComponentLuaScript::OnRightClickCallback, (CVarFunc_Int)&ComponentLuaScript::OnPopupClickCallback );
@@ -85,6 +86,18 @@ void ComponentLuaScript::RegisterVariables(CPPListHead* pList, ComponentLuaScrip
         (CVarFunc_GetPointerValue)&ComponentLuaScript::GetPointerValue, (CVarFunc_SetPointerValue)&ComponentLuaScript::SetPointerValue,
         (CVarFunc_GetPointerDesc)&ComponentLuaScript::GetPointerDesc, (CVarFunc_SetPointerDesc)&ComponentLuaScript::SetPointerDesc,
         (CVarFunc_ValueChanged)&ComponentLuaScript::OnValueChanged, 0, 0 );
+#else
+    ComponentVariable* pVar = AddVar( pList, "Script", ComponentVariableType_FilePtr, MyOffsetOf( pThis, &pThis->m_pScriptFile ), false, true, 0, (CVarFunc_ValueChanged)&ComponentLuaScript::OnValueChanged, 0, 0 );
+#if MYFW_USING_WX
+    pVar->AddCallback_OnRightClick( (CVarFunc_wxMenu)&ComponentLuaScript::OnRightClickCallback, (CVarFunc_Int)&ComponentLuaScript::OnPopupClickCallback );
+#endif
+
+    // m_pLuaInlineScript_OnPlay is not automatically saved/loaded
+    pVar = AddVarPointer( pList, "OnPlay", false, true, 0, 
+        (CVarFunc_GetPointerValue)&ComponentLuaScript::GetPointerValue, (CVarFunc_SetPointerValue)&ComponentLuaScript::SetPointerValue,
+        (CVarFunc_GetPointerDesc)&ComponentLuaScript::GetPointerDesc, (CVarFunc_SetPointerDesc)&ComponentLuaScript::SetPointerDesc,
+        (CVarFunc_ValueChanged)&ComponentLuaScript::OnValueChanged, 0, 0 );
+#endif
 }
 
 void ComponentLuaScript::Reset()
@@ -405,7 +418,9 @@ void* ComponentLuaScript::OnDrop(ComponentVariable* pVar, wxCoord x, wxCoord y)
 
     return oldvalue;
 }
+#endif //MYFW_USING_WX
 
+#if MYFW_EDITOR
 void* ComponentLuaScript::OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue* pNewValue)
 {
     void* oldpointer = 0;
@@ -414,6 +429,7 @@ void* ComponentLuaScript::OnValueChanged(ComponentVariable* pVar, bool changedby
     {
         if( changedbyinterface )
         {
+#if MYFW_USING_WX
             wxString text = g_pPanelWatch->GetVariableProperties( pVar->m_ControlID )->GetTextCtrl()->GetValue();
             if( text == "" || text == "none" || text == "no script" )
             {
@@ -423,6 +439,7 @@ void* ComponentLuaScript::OnValueChanged(ComponentVariable* pVar, bool changedby
                 // TODO: undo/redo
                 this->SetScriptFile( 0 );
             }
+#endif //MYFW_USING_WX
         }
         else
         {
@@ -433,12 +450,16 @@ void* ComponentLuaScript::OnValueChanged(ComponentVariable* pVar, bool changedby
 
     if( strcmp( pVar->m_Label, "OnPlay" ) == 0 )
     {
+#if MYFW_USING_WX
         m_pLuaInlineScript_OnPlay = g_pPanelWatch->GetVariableProperties( pVar->m_ControlID )->GetTextCtrl()->GetValue();
+#endif //MYFW_USING_WX
     }
 
     return oldpointer;
 }
+#endif //MYFW_EDITOR
 
+#if MYFW_USING_WX
 void ComponentLuaScript::OnRightClickCallback(ComponentVariable* pVar, wxMenu* pMenu)
 {
     if( m_pScriptFile == 0 )

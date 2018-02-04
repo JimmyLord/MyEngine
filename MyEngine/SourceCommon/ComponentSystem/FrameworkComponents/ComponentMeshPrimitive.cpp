@@ -156,7 +156,9 @@ bool ComponentMeshPrimitive::ShouldVariableBeAddedToWatchPanel(ComponentVariable
 
     return ComponentMesh::ShouldVariableBeAddedToWatchPanel( pVar );
 }
+#endif //MYFW_USING_WX
 
+#if MYFW_EDITOR
 void* ComponentMeshPrimitive::OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue* pNewValue)
 {
     void* oldpointer = 0;
@@ -165,17 +167,19 @@ void* ComponentMeshPrimitive::OnValueChanged(ComponentVariable* pVar, bool chang
     {
         CreatePrimitive();
 
+#if MYFW_USING_WX
         if( changedbyinterface && pVar->m_ControlID == m_ControlID_MeshPrimitiveType )
         {
             g_pPanelWatch->SetNeedsRefresh();
         }
+#endif //MYFW_USING_WX
 
         PushChangesToSceneGraphObjects();
     }
 
     return oldpointer;
 }
-#endif //MYFW_USING_WX
+#endif //MYFW_EDITOR
 
 cJSON* ComponentMeshPrimitive::ExportAsJSONObject(bool savesceneid, bool saveid)
 {

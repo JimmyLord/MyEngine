@@ -27,6 +27,7 @@ public:
     virtual void UnregisterCallbacks() {} // TODO: change this component to use callbacks.
 
 public:
+#if MYFW_EDITOR
 #if MYFW_USING_WX
     static bool m_PanelWatchBlockVisible;
 
@@ -35,6 +36,7 @@ public:
     void OnLeftClick(unsigned int count, bool clear);
     virtual void FillPropertiesWindow(bool clear, bool addcomponentvariables = false, bool ignoreblockvisibleflag = false);
 #endif //MYFW_USING_WX
+#endif //MYFW_EDITOR
 };
 
 #endif //__ComponentData_H__

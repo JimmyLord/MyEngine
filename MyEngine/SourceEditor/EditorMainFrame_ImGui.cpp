@@ -45,10 +45,15 @@ EditorMainFrame_ImGui::EditorMainFrame_ImGui()
     m_KeyDownAlt = false;
     m_KeyDownShift = false;
     m_KeyDownCommand = false;
+
+    m_pCommandStack = MyNew CommandStack;
+    g_pEngineCore->SetCommandStack( m_pCommandStack );
 }
 
 EditorMainFrame_ImGui::~EditorMainFrame_ImGui()
 {
+    SAFE_DELETE( m_pCommandStack );
+
     SAFE_RELEASE( m_pGameFBO );
     SAFE_RELEASE( m_pEditorFBO );
 }
@@ -63,7 +68,11 @@ bool EditorMainFrame_ImGui::HandleInput(int keyaction, int keycode, int mouseact
     if( keyaction != -1 )
     {
         if( CheckForHotkeys( keyaction, keycode ) )
+        {
+            // If a hotkey was pressed, unset that key so 'held' and 'up' messages won't get sent.
+            g_pEngineCore->ForceKeyRelease( keycode );
             return true;
+        }
     }
 
     // For keyboard and other non-mouse events, localx/y will be -1.
@@ -138,6 +147,9 @@ bool EditorMainFrame_ImGui::CheckForHotkeys(int keyaction, int keycode)
 
         if( keycode == MYKEYCODE_LALT || keycode == MYKEYCODE_RALT )
             m_KeyDownAlt = true;
+
+        if( keycode == MYKEYCODE_LSHIFT || keycode == MYKEYCODE_RSHIFT )
+            m_KeyDownShift = true;
     }
     
     if( keyaction == GCBA_Up )
@@ -147,12 +159,20 @@ bool EditorMainFrame_ImGui::CheckForHotkeys(int keyaction, int keycode)
 
         if( keycode == MYKEYCODE_LALT || keycode == MYKEYCODE_RALT )
             m_KeyDownAlt = false;
+
+        if( keycode == MYKEYCODE_LSHIFT || keycode == MYKEYCODE_RSHIFT )
+            m_KeyDownShift = false;
     }
 
-    if( m_KeyDownCtrl == true && keyaction == GCBA_Down && keycode == ' ' )
+    if( keyaction == GCBA_Down )
     {
-        g_pEngineCore->OnModeTogglePlayStop();
-        return true;
+        bool C  =  m_KeyDownCtrl && !m_KeyDownAlt && !m_KeyDownShift && !m_KeyDownCommand; // Ctrl
+        bool CS =  m_KeyDownCtrl && !m_KeyDownAlt &&  m_KeyDownShift && !m_KeyDownCommand; // Ctrl-Shift
+
+        if( C  && keycode == ' ' ) { EditorMenuCommand( EditorMenuCommand_TogglePlayStop ); return true; }
+        if( C  && keycode == 'Z' ) { EditorMenuCommand( EditorMenuCommand_Undo );           return true; }
+        if( C  && keycode == 'Y' ) { EditorMenuCommand( EditorMenuCommand_Redo );           return true; }
+        if( CS && keycode == 'Z' ) { EditorMenuCommand( EditorMenuCommand_Redo );           return true; }
     }
 
     return false;

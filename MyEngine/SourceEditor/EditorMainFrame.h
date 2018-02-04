@@ -12,6 +12,40 @@
 
 class EngineCore;
 
+enum DefaultPerspectives
+{
+    Perspective_CenterEditor,
+    Perspective_CenterGame,
+    Perspective_CenterSideBySide,
+    Perspective_FullFrameGame,
+    Perspective_NumPerspectives,
+};
+
+enum EngineEditorWindowTypes
+{
+    EngineEditorWindow_Editor,
+    EngineEditorWindow_PanelLog,
+    EngineEditorWindow_NumTypes,
+};
+
+enum LaunchPlatforms
+{
+#if MYFW_WINDOWS
+    LaunchPlatform_Win32,
+    LaunchPlatform_Win64,
+    LaunchPlatform_NaCl,
+    LaunchPlatform_Android,
+    LaunchPlatform_Emscripten,
+#elif MYFW_OSX
+    LaunchPlatform_OSX,
+    LaunchPlatform_iOSSimulator,
+    LaunchPlatform_iOSDevice,
+    LaunchPlatform_iOSDevice_iOS6,
+#endif
+    // AddNewLaunchPlatform
+    LaunchPlatform_NumPlatforms,
+};
+
 class EditorMainFrame
 {
 protected:

@@ -52,8 +52,13 @@ void ComponentLight::RegisterVariables(CPPListHead* pList, ComponentLight* pThis
     //cJSONExt_AddFloatArrayToObject( jComponent, "Color", &m_pLight->m_Color.r, 4 );
     //cJSONExt_AddFloatArrayToObject( jComponent, "Atten", &m_pLight->m_Attenuation.x, 3 );
 
+#if MYFW_USING_WX
     AddVarEnum( pList, "LightType", MyOffsetOf( pThis, &pThis->m_LightType ), true, true, "Type", 3, g_LightTypeStrings,
         (CVarFunc_ValueChanged)&ComponentLight::OnValueChanged, (CVarFunc_DropTarget)&ComponentLight::OnDrop, 0 );
+#else
+    AddVarEnum( pList, "LightType", MyOffsetOf( pThis, &pThis->m_LightType ), true, true, "Type", 3, g_LightTypeStrings,
+        (CVarFunc_ValueChanged)&ComponentLight::OnValueChanged, 0, 0 );
+#endif
 }
 
 void ComponentLight::Reset()
@@ -108,20 +113,6 @@ void ComponentLight::FillPropertiesWindow(bool clear, bool addcomponentvariables
     }
 }
 
-void* ComponentLight::OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue* pNewValue)
-{
-    void* oldpointer = 0;
-
-    if( pVar->m_Offset == MyOffsetOf( this, &m_LightType ) )
-    {
-        MyAssert( m_pLight != 0 );
-
-        m_pLight->m_LightType = m_LightType;
-    }
-
-    return oldpointer;
-}
-
 void* ComponentLight::OnDrop(ComponentVariable* pVar, wxCoord x, wxCoord y)
 {
     void* oldpointer = 0;
@@ -135,6 +126,22 @@ void* ComponentLight::OnDrop(ComponentVariable* pVar, wxCoord x, wxCoord y)
     return oldpointer;
 }
 #endif //MYFW_USING_WX
+
+#if MYFW_EDITOR
+void* ComponentLight::OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue* pNewValue)
+{
+    void* oldpointer = 0;
+
+    if( pVar->m_Offset == MyOffsetOf( this, &m_LightType ) )
+    {
+        MyAssert( m_pLight != 0 );
+
+        m_pLight->m_LightType = m_LightType;
+    }
+
+    return oldpointer;
+}
+#endif //MYFW_EDITOR
 
 cJSON* ComponentLight::ExportAsJSONObject(bool savesceneid, bool saveid)
 {

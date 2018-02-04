@@ -63,7 +63,7 @@ Component2DCollisionObject::~Component2DCollisionObject()
         m_pBox2DWorld->m_pWorld->DestroyBody( m_pBody );
     }
 
-#if !MYFW_USING_WX
+#if !MYFW_EDITOR
     m_Vertices.FreeAllInList();
 #endif
 }
@@ -84,10 +84,10 @@ void Component2DCollisionObject::RegisterVariables(CPPListHead* pList, Component
     AddVar( pList, "Restitution",   ComponentVariableType_Float, MyOffsetOf( pThis, &pThis->m_Restitution ),     true, true, 0, (CVarFunc_ValueChanged)&Component2DCollisionObject::OnValueChanged, 0, 0 );
 
     //AddVar( pList, "Scale",         ComponentVariableType_Float, MyOffsetOf( pThis, &pThis->m_Scale ),           true, true, 0, (CVarFunc_ValueChanged)&Component2DCollisionObject::OnValueChanged, 0, 0 );
-#if MYFW_USING_WX
+#if MYFW_EDITOR
     //for( int i=0; i<6; i++ )
     //    pVars[i]->AddCallback_ShouldVariableBeAdded( (CVarFunc_ShouldVariableBeAdded)(&Component2DCollisionObject::ShouldVariableBeAddedToWatchPanel) );
-#endif //MYFW_USING_WX
+#endif //MYFW_EDITOR
 }
 
 void Component2DCollisionObject::Reset()
@@ -202,15 +202,19 @@ void* Component2DCollisionObject::OnDrop(ComponentVariable* pVar, wxCoord x, wxC
 
     return oldvalue;
 }
+#endif //MYFW_USING_WX
 
+#if MYFW_EDITOR
 void* Component2DCollisionObject::OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue* pNewValue)
 {
     void* oldpointer = 0;
 
     if( pVar->m_Offset == MyOffsetOf( this, &m_PrimitiveType ) )
     {
+#if MYFW_USING_WX
         // TODO: rethink this, doesn't need refresh if panel isn't visible.
         g_pPanelWatch->SetNeedsRefresh();
+#endif //MYFW_USING_WX
     }
 
     // limit some properties
@@ -291,13 +295,13 @@ void Component2DCollisionObject::OnButtonEditChain(int buttonid)
     g_pEngineCore->SetEditorInterface( EditorInterfaceType_2DPointEditor );
     ((EditorInterface_2DPointEditor*)g_pEngineCore->GetCurrentEditorInterface())->Set2DCollisionObjectToEdit( this );
 }
-#endif //MYFW_USING_WX
+#endif //MYFW_EDITOR
 
 cJSON* Component2DCollisionObject::ExportAsJSONObject(bool savesceneid, bool saveid)
 {
     cJSON* jComponent = ComponentBase::ExportAsJSONObject( savesceneid, saveid );
 
-#if MYFW_USING_WX
+#if MYFW_EDITOR
     int count = (int)m_Vertices.size();
 #else
     int count = (int)m_Vertices.Count();
@@ -318,7 +322,7 @@ void Component2DCollisionObject::ImportFromJSONObject(cJSON* jsonobj, unsigned i
     {
         int arraysize = cJSON_GetArraySize( jVertexArray );
 
-#if MYFW_USING_WX
+#if MYFW_EDITOR
         m_Vertices.resize( arraysize / 2 );
 #else
         m_Vertices.FreeAllInList();
@@ -351,7 +355,7 @@ Component2DCollisionObject& Component2DCollisionObject::operator=(const Componen
     m_Restitution = other.m_Restitution;
 
     // copy vertices
-#if MYFW_USING_WX
+#if MYFW_EDITOR
     m_Vertices = other.m_Vertices;
 #else
     m_Vertices.FreeAllInList();
@@ -371,7 +375,7 @@ void Component2DCollisionObject::RegisterCallbacks()
 
         MYFW_REGISTER_COMPONENT_CALLBACK( Component2DCollisionObject, Tick );
         //MYFW_REGISTER_COMPONENT_CALLBACK( Component2DCollisionObject, OnSurfaceChanged );
-#if MYFW_USING_WX
+#if MYFW_EDITOR
         //MYFW_FILL_COMPONENT_CALLBACK_STRUCT( Component2DCollisionObject, Draw );
         MYFW_REGISTER_COMPONENT_CALLBACK( Component2DCollisionObject, Draw );
 #endif
@@ -388,7 +392,7 @@ void Component2DCollisionObject::UnregisterCallbacks()
     {
         MYFW_UNREGISTER_COMPONENT_CALLBACK( Tick );
         //MYFW_UNREGISTER_COMPONENT_CALLBACK( OnSurfaceChanged );
-#if MYFW_USING_WX
+#if MYFW_EDITOR
         MYFW_UNREGISTER_COMPONENT_CALLBACK( Draw );
 #endif
         //MYFW_UNREGISTER_COMPONENT_CALLBACK( OnTouch );
@@ -556,7 +560,7 @@ void Component2DCollisionObject::CreateBody()
             {
                 b2ChainShape chainshape;
 
-#if MYFW_USING_WX
+#if MYFW_EDITOR
                 int count = (int)m_Vertices.size();
 
                 if( count == 0 )
@@ -609,7 +613,7 @@ void Component2DCollisionObject::TickCallback(double TimePassed)
     m_pGameObject->GetTransform()->SetWorldTransform( &matWorld );
 }
 
-#if MYFW_USING_WX
+#if MYFW_EDITOR
 void Component2DCollisionObject::DrawCallback(ComponentCamera* pCamera, MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride)
 {
     if( m_Vertices.size() == 0 )
@@ -681,7 +685,7 @@ void Component2DCollisionObject::DrawCallback(ComponentCamera* pCamera, MyMatrix
         glDisable( GL_BLEND );
     }
 }
-#endif
+#endif //MYFW_EDITOR
 
 void Component2DCollisionObject::SyncRigidBodyToTransform()
 {

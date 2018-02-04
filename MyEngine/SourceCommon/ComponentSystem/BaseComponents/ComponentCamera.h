@@ -104,6 +104,7 @@ protected:
     //MYFW_DECLARE_COMPONENT_CALLBACK_ONFILERENAMED(); // OnFileRenamedCallback
 
 public:
+#if MYFW_EDITOR
 #if MYFW_USING_WX
     static bool m_PanelWatchBlockVisible;
 
@@ -112,11 +113,12 @@ public:
     static void StaticOnLeftClick(void* pObjectPtr, wxTreeItemId id, unsigned int count) { ((ComponentCamera*)pObjectPtr)->OnLeftClick( count, true ); }
     void OnLeftClick(unsigned int count, bool clear);
     virtual void FillPropertiesWindow(bool clear, bool addcomponentvariables = false, bool ignoreblockvisibleflag = false);
+#endif //MYFW_USING_WX
 
     // Component variable callbacks. //_VARIABLE_LIST
     virtual bool ShouldVariableBeAddedToWatchPanel(ComponentVariable* pVar);
     void* OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue* pNewValue);
-#endif //MYFW_USING_WX
+#endif //MYFW_EDITOR
 };
 
 #endif //__ComponentCamera_H__

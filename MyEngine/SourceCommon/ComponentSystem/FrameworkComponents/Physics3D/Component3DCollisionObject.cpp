@@ -74,10 +74,16 @@ void Component3DCollisionObject::RegisterVariables(CPPListHead* pList, Component
     pVar->AddCallback_ShouldVariableBeAdded( (CVarFunc_ShouldVariableBeAdded)(&Component3DCollisionObject::ShouldVariableBeAddedToWatchPanel) );
 #endif
 
+#if MYFW_USING_WX
     pVar = AddVarPointer( pList, "OBJ", true, true, "Collision Mesh",
         (CVarFunc_GetPointerValue)&Component3DCollisionObject::GetPointerValue, (CVarFunc_SetPointerValue)&Component3DCollisionObject::SetPointerValue, (CVarFunc_GetPointerDesc)&Component3DCollisionObject::GetPointerDesc, (CVarFunc_SetPointerDesc)&Component3DCollisionObject::SetPointerDesc,
         (CVarFunc_ValueChanged)&Component3DCollisionObject::OnValueChanged, (CVarFunc_DropTarget)&Component3DCollisionObject::OnDropOBJ, 0 );
-#if MYFW_USING_WX
+#else
+    pVar = AddVarPointer( pList, "OBJ", true, true, "Collision Mesh",
+        (CVarFunc_GetPointerValue)&Component3DCollisionObject::GetPointerValue, (CVarFunc_SetPointerValue)&Component3DCollisionObject::SetPointerValue, (CVarFunc_GetPointerDesc)&Component3DCollisionObject::GetPointerDesc, (CVarFunc_SetPointerDesc)&Component3DCollisionObject::SetPointerDesc,
+        (CVarFunc_ValueChanged)&Component3DCollisionObject::OnValueChanged, 0, 0 );
+#endif
+#if MYFW_EDITOR
     pVar->AddCallback_ShouldVariableBeAdded( (CVarFunc_ShouldVariableBeAdded)(&Component3DCollisionObject::ShouldVariableBeAddedToWatchPanel) );
 #endif
 }
@@ -201,6 +207,42 @@ void Component3DCollisionObject::FillPropertiesWindow(bool clear, bool addcompon
     }
 }
 
+void Component3DCollisionObject::OnTransformChanged(Vector3& newpos, Vector3& newrot, Vector3& newscale, bool changedbyuserineditor)
+{
+    if( changedbyuserineditor )
+        SyncRigidBodyToTransform();
+}
+
+void* Component3DCollisionObject::OnDropOBJ(ComponentVariable* pVar, wxCoord x, wxCoord y)
+{
+    void* oldpointer = 0;
+
+    DragAndDropItem* pDropItem = g_DragAndDropStruct.GetItem( 0 );
+
+    if( pDropItem->m_Type == DragAndDropType_FileObjectPointer )
+    {
+        MyFileObject* pFile = (MyFileObject*)pDropItem->m_Value;
+        MyAssert( pFile );
+        //MyAssert( m_pMesh );
+
+        const char* pPath = pFile->GetFullPath();
+        size_t len = strlen( pPath );
+        const char* filenameext = &pPath[len-4];
+
+        if( strcmp( filenameext, ".obj" ) == 0 )
+        {
+            if( m_pMesh )
+                oldpointer = m_pMesh->GetFile();
+
+            g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_ComponentVariableIndirectPointerChanged( this, pVar, pFile ) );
+        }
+    }
+
+    return oldpointer;
+}
+#endif //MYFW_USING_WX
+
+#if MYFW_EDITOR
 bool Component3DCollisionObject::ShouldVariableBeAddedToWatchPanel(ComponentVariable* pVar)
 {
     switch( m_PrimitiveType )
@@ -245,47 +287,15 @@ void* Component3DCollisionObject::OnValueChanged(ComponentVariable* pVar, bool c
         if( strcmp( pVar->m_Label, "Primitive" ) == 0 )
         {
             // TODO: rethink this, doesn't need refresh if panel isn't visible.
+#if MYFW_USING_WX
             g_pPanelWatch->SetNeedsRefresh();
-        }
-    }
-
-    return oldpointer;
-}
-
-void* Component3DCollisionObject::OnDropOBJ(ComponentVariable* pVar, wxCoord x, wxCoord y)
-{
-    void* oldpointer = 0;
-
-    DragAndDropItem* pDropItem = g_DragAndDropStruct.GetItem( 0 );
-
-    if( pDropItem->m_Type == DragAndDropType_FileObjectPointer )
-    {
-        MyFileObject* pFile = (MyFileObject*)pDropItem->m_Value;
-        MyAssert( pFile );
-        //MyAssert( m_pMesh );
-
-        const char* pPath = pFile->GetFullPath();
-        size_t len = strlen( pPath );
-        const char* filenameext = &pPath[len-4];
-
-        if( strcmp( filenameext, ".obj" ) == 0 )
-        {
-            if( m_pMesh )
-                oldpointer = m_pMesh->GetFile();
-
-            g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_ComponentVariableIndirectPointerChanged( this, pVar, pFile ) );
-        }
-    }
-
-    return oldpointer;
-}
-
-void Component3DCollisionObject::OnTransformChanged(Vector3& newpos, Vector3& newrot, Vector3& newscale, bool changedbyuserineditor)
-{
-    if( changedbyuserineditor )
-        SyncRigidBodyToTransform();
-}
 #endif //MYFW_USING_WX
+        }
+    }
+
+    return oldpointer;
+}
+#endif //MYFW_EDITOR
 
 cJSON* Component3DCollisionObject::ExportAsJSONObject(bool savesceneid, bool saveid)
 {

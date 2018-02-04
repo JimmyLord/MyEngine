@@ -148,7 +148,9 @@ void ComponentCamera::FillPropertiesWindow(bool clear, bool addcomponentvariable
         FillPropertiesWindowWithVariables(); //_VARIABLE_LIST
     }
 }
+#endif //MYFW_USING_WX
 
+#if MYFW_EDITOR
 bool ComponentCamera::ShouldVariableBeAddedToWatchPanel(ComponentVariable* pVar)
 {
     if( m_Orthographic == true )
@@ -176,14 +178,16 @@ void* ComponentCamera::OnValueChanged(ComponentVariable* pVar, bool changedbyint
 
     if( finishedchanging )
     {
+#if MYFW_USING_WX
         m_FullClearsRequired = 2;
 
         g_pPanelWatch->SetNeedsRefresh();
+#endif //MYFW_USING_WX
     }
 
     return oldpointer;
 }
-#endif //MYFW_USING_WX
+#endif //MYFW_EDITOR
 
 cJSON* ComponentCamera::ExportAsJSONObject(bool savesceneid, bool saveid)
 {

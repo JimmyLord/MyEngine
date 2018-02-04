@@ -55,6 +55,7 @@ ComponentVoxelWorld::~ComponentVoxelWorld()
 void ComponentVoxelWorld::RegisterVariables(CPPListHead* pList, ComponentVoxelWorld* pThis) //_VARIABLE_LIST
 {
     //AddVar( pList, "SampleFloat", ComponentVariableType_Vector3, MyOffsetOf( pThis, &pThis->m_SampleVector3 ), true, true, 0, (CVarFunc_ValueChanged)&ComponentVoxelWorld::OnValueChanged, (CVarFunc_DropTarget)&ComponentVoxelWorld::OnDrop, 0 );
+#if MYFW_USING_WX
     AddVarPointer( pList, "Material",  true,  true, 0,
         (CVarFunc_GetPointerValue)&ComponentVoxelWorld::GetPointerValue,
         (CVarFunc_SetPointerValue)&ComponentVoxelWorld::SetPointerValue,
@@ -62,20 +63,47 @@ void ComponentVoxelWorld::RegisterVariables(CPPListHead* pList, ComponentVoxelWo
         (CVarFunc_SetPointerDesc)&ComponentVoxelWorld::SetPointerDesc,
         (CVarFunc_ValueChanged)&ComponentVoxelWorld::OnValueChanged,
         (CVarFunc_DropTarget)&ComponentVoxelWorld::OnDrop, 0 );
+#else
+    AddVarPointer( pList, "Material",  true,  true, 0,
+        (CVarFunc_GetPointerValue)&ComponentVoxelWorld::GetPointerValue,
+        (CVarFunc_SetPointerValue)&ComponentVoxelWorld::SetPointerValue,
+        (CVarFunc_GetPointerDesc)&ComponentVoxelWorld::GetPointerDesc,
+        (CVarFunc_SetPointerDesc)&ComponentVoxelWorld::SetPointerDesc,
+        (CVarFunc_ValueChanged)&ComponentVoxelWorld::OnValueChanged,
+        0, 0 );
+#endif
 
+#if MYFW_USING_WX
     AddVar( pList, "Bake World", ComponentVariableType_Bool, MyOffsetOf( pThis, &pThis->m_BakeWorld ),
             true, true, 0, (CVarFunc_ValueChanged)&ComponentVoxelWorld::OnValueChanged,
             (CVarFunc_DropTarget)&ComponentVoxelWorld::OnDrop, 0 );
+#else
+    AddVar( pList, "Bake World", ComponentVariableType_Bool, MyOffsetOf( pThis, &pThis->m_BakeWorld ),
+            true, true, 0, (CVarFunc_ValueChanged)&ComponentVoxelWorld::OnValueChanged,
+            0, 0 );
+#endif
 
     // These are only displayed if "Bake World" is checked.
     {
+#if MYFW_USING_WX
         AddVar( pList, "Max World Size", ComponentVariableType_Vector3Int, MyOffsetOf( pThis, &pThis->m_MaxWorldSize ),
                 true, false, 0, (CVarFunc_ValueChanged)&ComponentVoxelWorld::OnValueChanged,
                 (CVarFunc_DropTarget)&ComponentVoxelWorld::OnDrop, 0 );
+#else
+        AddVar( pList, "Max World Size", ComponentVariableType_Vector3Int, MyOffsetOf( pThis, &pThis->m_MaxWorldSize ),
+                true, false, 0, (CVarFunc_ValueChanged)&ComponentVoxelWorld::OnValueChanged,
+                0, 0 );
+#endif
 
+#if MYFW_USING_WX
         AddVar( pList, "Save File", ComponentVariableType_FilePtr, MyOffsetOf( pThis, &pThis->m_pSaveFile ),
                 false, false, 0, (CVarFunc_ValueChanged)&ComponentVoxelWorld::OnValueChanged,
                 (CVarFunc_DropTarget)&ComponentVoxelWorld::OnDrop, 0 );
+#else
+        AddVar( pList, "Save File", ComponentVariableType_FilePtr, MyOffsetOf( pThis, &pThis->m_pSaveFile ),
+                false, false, 0, (CVarFunc_ValueChanged)&ComponentVoxelWorld::OnValueChanged,
+                0, 0 );
+#endif
     }
 }
 
@@ -229,7 +257,9 @@ void* ComponentVoxelWorld::OnDrop(ComponentVariable* pVar, wxCoord x, wxCoord y)
 
     return oldvalue;
 }
+#endif //MYFW_USING_WX
 
+#if MYFW_EDITOR
 void* ComponentVoxelWorld::OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue* pNewValue)
 {
     void* oldpointer = 0;
@@ -238,6 +268,7 @@ void* ComponentVoxelWorld::OnValueChanged(ComponentVariable* pVar, bool changedb
     {
         if( changedbyinterface )
         {
+#if MYFW_USING_WX
             wxString text = g_pPanelWatch->GetVariableProperties( pVar->m_ControlID )->GetTextCtrl()->GetValue();
             if( text == "" || text == "none" )
             {
@@ -247,6 +278,7 @@ void* ComponentVoxelWorld::OnValueChanged(ComponentVariable* pVar, bool changedb
                 // TODO: undo/redo
                 SetVoxelMeshMaterial( 0 );
             }
+#endif //MYFW_USING_WX
         }
         else if( pNewValue && pNewValue->GetMaterialPtr() != 0 )
         {
@@ -257,11 +289,14 @@ void* ComponentVoxelWorld::OnValueChanged(ComponentVariable* pVar, bool changedb
 
     if( strncmp( pVar->m_Label, "Bake World", strlen("Bake World") ) == 0 )
     {
+#if MYFW_USING_WX
         g_pPanelWatch->SetNeedsRefresh();
+#endif //MYFW_USING_WX
     }
 
     if( strcmp( pVar->m_Label, "Save File" ) == 0 )
     {
+#if MYFW_USING_WX
         wxString text = g_pPanelWatch->GetVariableProperties( pVar->m_ControlID )->GetTextCtrl()->GetValue();
         if( text == "" || text == "none" || text == "no file" )
         {
@@ -269,6 +304,7 @@ void* ComponentVoxelWorld::OnValueChanged(ComponentVariable* pVar, bool changedb
             oldpointer = m_pSaveFile;
             this->SetSaveFile( 0 );
         }
+#endif //MYFW_USING_WX
     }
 
     return oldpointer;
@@ -281,6 +317,7 @@ void ComponentVoxelWorld::OnButtonCreateSaveFile(int buttonid)
     // pop up a file selector dialog.
     {
         // generally offer to create scripts in Scripts folder.
+#if MYFW_USING_WX
         wxString initialpath = "./Data/Meshes";
 
         wxFileDialog FileDialog( g_pEngineMainFrame, _("Create Voxel world file"), initialpath, "", "Voxel world files (*.myvoxelworld)|*.myvoxelworld", wxFD_SAVE|wxFD_OVERWRITE_PROMPT);
@@ -319,6 +356,7 @@ void ComponentVoxelWorld::OnButtonCreateSaveFile(int buttonid)
                 g_pPanelWatch->SetNeedsRefresh();
             }
         }
+#endif //MYFW_USING_WX
     }
 }
 
@@ -327,7 +365,7 @@ void ComponentVoxelWorld::OnButtonEditMesh(int buttonid)
     g_pEngineCore->SetEditorInterface( EditorInterfaceType_VoxelMeshEditor );
     ((EditorInterface_VoxelMeshEditor*)g_pEngineCore->GetCurrentEditorInterface())->SetWorldToEdit( this );
 }
-#endif //MYFW_USING_WX
+#endif //MYFW_EDITOR
 
 cJSON* ComponentVoxelWorld::ExportAsJSONObject(bool savesceneid, bool saveid)
 {
@@ -383,7 +421,7 @@ void ComponentVoxelWorld::RegisterCallbacks()
 
         MYFW_REGISTER_COMPONENT_CALLBACK( ComponentVoxelWorld, Tick );
         //MYFW_REGISTER_COMPONENT_CALLBACK( ComponentVoxelWorld, OnSurfaceChanged );
-#if MYFW_USING_WX
+#if MYFW_EDITOR
         MYFW_REGISTER_COMPONENT_CALLBACK( ComponentVoxelWorld, Draw );
 #endif
         //MYFW_REGISTER_COMPONENT_CALLBACK( ComponentVoxelWorld, OnTouch );
@@ -399,7 +437,7 @@ void ComponentVoxelWorld::UnregisterCallbacks()
     {
         MYFW_UNREGISTER_COMPONENT_CALLBACK( Tick );
         //MYFW_UNREGISTER_COMPONENT_CALLBACK( OnSurfaceChanged );
-#if MYFW_USING_WX
+#if MYFW_EDITOR
         MYFW_UNREGISTER_COMPONENT_CALLBACK( Draw );
 #endif
         //MYFW_UNREGISTER_COMPONENT_CALLBACK( OnTouch );
@@ -453,7 +491,7 @@ void ComponentVoxelWorld::TickCallback(double TimePassed)
     ((SceneGraph_Octree*)pSceneGraph)->Resize( pos.x-32, pos.y-32, pos.z-32, pos.x+32, pos.y+32, pos.z+32 );
 }
 
-#if MYFW_USING_WX
+#if MYFW_EDITOR
 static Vector3 g_RayStart;
 static Vector3 g_RayEnd;
 
@@ -508,7 +546,7 @@ void ComponentVoxelWorld::AddTileToTileInFocus(Vector2 mousepos)
     Vector3 start, end;
     m_pVoxelWorld->GetMouseRayBadly( mousepos, &start, &end );
 
-#if MYFW_USING_WX
+#if MYFW_EDITOR
     g_RayStart = start;
     g_RayEnd = end;
 #endif

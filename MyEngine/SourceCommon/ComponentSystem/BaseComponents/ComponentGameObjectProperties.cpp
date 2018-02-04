@@ -46,7 +46,11 @@ void ComponentGameObjectProperties::RegisterVariables(CPPListHead* pList, Compon
 #endif
 
     const char** strings = g_pEngineCore->GetGameObjectFlagStringArray();
+#if MYFW_USING_WX
     AddVarFlags( pList, "Flags", MyOffsetOf( pThis, &pThis->m_Flags ), true, true, 0, 32, strings, (CVarFunc_ValueChanged)&ComponentGameObjectProperties::OnValueChanged, (CVarFunc_DropTarget)&ComponentGameObjectProperties::OnDrop, 0 );
+#else
+    AddVarFlags( pList, "Flags", MyOffsetOf( pThis, &pThis->m_Flags ), true, true, 0, 32, strings, (CVarFunc_ValueChanged)&ComponentGameObjectProperties::OnValueChanged, 0, 0 );
+#endif
 }
 
 void ComponentGameObjectProperties::Reset()
@@ -113,14 +117,16 @@ void* ComponentGameObjectProperties::OnDrop(ComponentVariable* pVar, wxCoord x, 
 
     return oldvalue;
 }
+#endif //MYFW_USING_WX
 
+#if MYFW_EDITOR
 void* ComponentGameObjectProperties::OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue* pNewValue)
 {
     void* oldpointer = 0;
 
     return oldpointer;
 }
-#endif //MYFW_USING_WX
+#endif //MYFW_EDITOR
 
 cJSON* ComponentGameObjectProperties::ExportAsJSONObject(bool savesceneid, bool saveid)
 {

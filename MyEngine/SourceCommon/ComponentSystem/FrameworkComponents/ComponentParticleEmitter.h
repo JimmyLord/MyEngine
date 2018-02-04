@@ -111,6 +111,7 @@ protected:
     //MYFW_DECLARE_COMPONENT_CALLBACK_ONFILERENAMED(); // OnFileRenamedCallback
 
 public:
+#if MYFW_EDITOR
 #if MYFW_USING_WX
     static bool m_PanelWatchBlockVisible;
 
@@ -127,6 +128,7 @@ public:
     static void StaticOnDropMaterial(void* pObjectPtr, int controlid, wxCoord x, wxCoord y) { ((ComponentParticleEmitter*)pObjectPtr)->OnDropMaterial(controlid, x, y); }
     void OnDropMaterial(int controlid, wxCoord x, wxCoord y);
 #endif //MYFW_USING_WX
+#endif //MYFW_EDITOR
 };
 
 #endif //__ComponentParticleEmitter_H__

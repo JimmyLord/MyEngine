@@ -159,6 +159,7 @@ public:
     void SetPointerDesc(ComponentVariable* pVar, const char* newdesc);
 
 public:
+#if MYFW_EDITOR
 #if MYFW_USING_WX
     enum RightClickOptions
     {
@@ -186,7 +187,9 @@ public:
 
     // Component variable callbacks.
     void* OnDrop(ComponentVariable* pVar, wxCoord x, wxCoord y);
+#endif //MYFW_USING_WX
     void* OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue* pNewValue);
+#if MYFW_USING_WX
     void OnRightClickCallback(ComponentVariable* pVar, wxMenu* pMenu);
     void OnPopupClickCallback(ComponentVariable* pVar, int id);
 
@@ -194,6 +197,7 @@ public:
     static void StaticOnDropExposedVar(void* pObjectPtr, int controlid, wxCoord x, wxCoord y) { ((ComponentLuaScript*)pObjectPtr)->OnDropExposedVar(controlid, x, y); }
     void OnDropExposedVar(int controlid, wxCoord x, wxCoord y);
     void* ProcessOnDropExposedVar(int controlid, wxCoord x, wxCoord y);
+#endif //MYFW_USING_WX
     
     static void StaticOnPanelWatchExposedVarValueChanged(void* pObjectPtr, int controlid, bool directlychanged, bool finishedchanging, double oldvalue, bool valuewaschangedbydragging) { ((ComponentLuaScript*)pObjectPtr)->OnPanelWatchExposedVarValueChanged( controlid, finishedchanging, oldvalue ); }
     void OnPanelWatchExposedVarValueChanged(int controlid, bool finishedchanging, double oldvalue);
@@ -202,7 +206,9 @@ public:
     static void StaticOnExposedVarValueChanged(void* pObjectPtr, ExposedVariableDesc* pVar, int component, bool finishedchanging, double oldvalue, void* oldpointer) { ((ComponentLuaScript*)pObjectPtr)->OnExposedVarValueChanged( pVar, component, finishedchanging, oldvalue, oldpointer ); }
     void OnExposedVarValueChanged(ExposedVariableDesc* pVar, int component, bool finishedchanging, double oldvalue, void* oldpointer);
 
+#if MYFW_USING_WX
     ComponentLuaScriptEventHandlerForExposedVariables m_ComponentLuaScriptEventHandlerForExposedVariables;
+#endif //MYFW_USING_WX
     static void StaticOnRightClickExposedVariable(void* pObjectPtr, int controlid) { ((ComponentLuaScript*)pObjectPtr)->OnRightClickExposedVariable( controlid ); }
     void OnRightClickExposedVariable(int controlid);
 
@@ -211,7 +217,7 @@ public:
     void UpdateChildrenInGameObjectListWithNewValue(ExposedVariableDesc* pVar, unsigned int varindex, GameObject* first, bool finishedchanging, double oldvalue, void* oldpointer);
     void UpdateChildGameObjectWithNewValue(ExposedVariableDesc* pVar, unsigned int varindex, GameObject* pChildGameObject, bool finishedchanging, double oldvalue, void* oldpointer);
     void CopyExposedVarValueFromParent(ExposedVariableDesc* pVar);
-#endif //MYFW_USING_WX
+#endif //MYFW_EDITOR
 
 public:
     bool CallFunctionEvenIfGameplayInactive(const char* pFuncName)

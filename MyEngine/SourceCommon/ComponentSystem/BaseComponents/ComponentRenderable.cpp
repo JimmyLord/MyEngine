@@ -192,7 +192,9 @@ void ComponentRenderable::FillPropertiesWindow(bool clear, bool addcomponentvari
 //    void* oldvalue = 0;
 //    return oldvalue;
 //}
+#endif //MYFW_USING_WX
 
+#if MYFW_EDITOR
 void* ComponentRenderable::OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue* pNewValue)
 {
     void* oldpointer = 0;
@@ -204,4 +206,4 @@ void* ComponentRenderable::OnValueChanged(ComponentVariable* pVar, bool changedb
 
     return oldpointer;
 }
-#endif //MYFW_USING_WX
+#endif //MYFW_EDITOR

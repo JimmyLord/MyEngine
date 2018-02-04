@@ -35,9 +35,15 @@ void ComponentMeshOBJ::RegisterVariables(CPPListHead* pList, ComponentMeshOBJ* p
 {
     ComponentMesh::RegisterVariables( pList, pThis );
 
+#if MYFW_USING_WX
     AddVarPointer( pList, "OBJ", true, true, "File",
         (CVarFunc_GetPointerValue)&ComponentMeshOBJ::GetPointerValue, (CVarFunc_SetPointerValue)&ComponentMeshOBJ::SetPointerValue, (CVarFunc_GetPointerDesc)&ComponentMeshOBJ::GetPointerDesc, (CVarFunc_SetPointerDesc)&ComponentMeshOBJ::SetPointerDesc,
         (CVarFunc_ValueChanged)&ComponentMeshOBJ::OnValueChanged, (CVarFunc_DropTarget)&ComponentMeshOBJ::OnDropOBJ, 0 );
+#else
+    AddVarPointer( pList, "OBJ", true, true, "File",
+        (CVarFunc_GetPointerValue)&ComponentMeshOBJ::GetPointerValue, (CVarFunc_SetPointerValue)&ComponentMeshOBJ::SetPointerValue, (CVarFunc_GetPointerDesc)&ComponentMeshOBJ::GetPointerDesc, (CVarFunc_SetPointerDesc)&ComponentMeshOBJ::SetPointerDesc,
+        (CVarFunc_ValueChanged)&ComponentMeshOBJ::OnValueChanged, 0, 0 );
+#endif //MYFW_USING_WX
 }
 
 void ComponentMeshOBJ::Reset()
@@ -147,42 +153,6 @@ void ComponentMeshOBJ::FillPropertiesWindow(bool clear, bool addcomponentvariabl
     }
 }
 
-void* ComponentMeshOBJ::OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue* pNewValue)
-{
-    void* oldpointer = 0;
-
-    if( finishedchanging )
-    {
-        if( strcmp( pVar->m_Label, "OBJ" ) == 0 )
-        {
-            if( changedbyinterface )
-            {
-                wxString text = g_pPanelWatch->GetVariableProperties( pVar->m_ControlID )->GetTextCtrl()->GetValue();
-                if( text == "" || text == "none" )
-                {
-                    g_pPanelWatch->ChangeDescriptionForPointerWithDescription( pVar->m_ControlID, "none" );
-
-                    if( m_pMesh )
-                        oldpointer = m_pMesh->GetFile();
-
-                    g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_ComponentVariableIndirectPointerChanged( this, pVar, 0 ) );
-                }
-            }
-            else
-            {
-                oldpointer = m_pMesh ? m_pMesh->GetFile() : 0;
-
-                MyFileObject* pFile = pNewValue ? (MyFileObject*)pNewValue->GetPointerIndirect() : 0;
-
-                MyMesh* pNewMesh = pFile ? g_pMeshManager->FindMeshBySourceFile( pFile ) : 0;
-                SetMesh( pNewMesh );
-            }
-        }
-    }
-
-    return oldpointer;
-}
-
 void* ComponentMeshOBJ::OnDropOBJ(ComponentVariable* pVar, wxCoord x, wxCoord y)
 {
     void* oldpointer = 0;
@@ -222,6 +192,46 @@ void* ComponentMeshOBJ::OnDropOBJ(ComponentVariable* pVar, wxCoord x, wxCoord y)
     return oldpointer;
 }
 #endif //MYFW_USING_WX
+
+#if MYFW_EDITOR
+void* ComponentMeshOBJ::OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue* pNewValue)
+{
+    void* oldpointer = 0;
+
+    if( finishedchanging )
+    {
+        if( strcmp( pVar->m_Label, "OBJ" ) == 0 )
+        {
+            if( changedbyinterface )
+            {
+#if MYFW_USING_WX
+                wxString text = g_pPanelWatch->GetVariableProperties( pVar->m_ControlID )->GetTextCtrl()->GetValue();
+                if( text == "" || text == "none" )
+                {
+                    g_pPanelWatch->ChangeDescriptionForPointerWithDescription( pVar->m_ControlID, "none" );
+
+                    if( m_pMesh )
+                        oldpointer = m_pMesh->GetFile();
+
+                    g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_ComponentVariableIndirectPointerChanged( this, pVar, 0 ) );
+                }
+#endif //MYFW_USING_WX
+            }
+            else
+            {
+                oldpointer = m_pMesh ? m_pMesh->GetFile() : 0;
+
+                MyFileObject* pFile = pNewValue ? (MyFileObject*)pNewValue->GetPointerIndirect() : 0;
+
+                MyMesh* pNewMesh = pFile ? g_pMeshManager->FindMeshBySourceFile( pFile ) : 0;
+                SetMesh( pNewMesh );
+            }
+        }
+    }
+
+    return oldpointer;
+}
+#endif //MYFW_EDITOR
 
 cJSON* ComponentMeshOBJ::ExportAsJSONObject(bool savesceneid, bool saveid)
 {

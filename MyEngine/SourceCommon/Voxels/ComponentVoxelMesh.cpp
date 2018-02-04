@@ -49,6 +49,7 @@ void ComponentVoxelMesh::RegisterVariables(CPPListHead* pList, ComponentVoxelMes
     //    (CVarFunc_ValueChanged)&ComponentVoxelMesh::OnValueChanged,
     //    (CVarFunc_DropTarget)&ComponentVoxelMesh::OnDrop, 0 );
 
+#if MYFW_USING_WX
     AddVar( pList, "TextureTileCount", ComponentVariableType_Vector2Int, MyOffsetOf( pThis, &pThis->m_TextureTileCount ), false, true, 0, (CVarFunc_ValueChanged)&ComponentVoxelMesh::OnValueChanged, (CVarFunc_DropTarget)&ComponentVoxelMesh::OnDrop, 0 );
     AddVar( pList, "MaxSize", ComponentVariableType_Vector3Int, MyOffsetOf( pThis, &pThis->m_ChunkSize ), false, true, 0, (CVarFunc_ValueChanged)&ComponentVoxelMesh::OnValueChanged, (CVarFunc_DropTarget)&ComponentVoxelMesh::OnDrop, 0 );
     AddVar( pList, "BlockSize", ComponentVariableType_Vector3, MyOffsetOf( pThis, &pThis->m_BlockSize ), false, true, 0, (CVarFunc_ValueChanged)&ComponentVoxelMesh::OnValueChanged, (CVarFunc_DropTarget)&ComponentVoxelMesh::OnDrop, 0 );
@@ -60,6 +61,19 @@ void ComponentVoxelMesh::RegisterVariables(CPPListHead* pList, ComponentVoxelMes
         (CVarFunc_SetPointerDesc)&ComponentVoxelMesh::SetPointerDesc,
         (CVarFunc_ValueChanged)&ComponentVoxelMesh::OnValueChanged,
         (CVarFunc_DropTarget)&ComponentVoxelMesh::OnDrop, 0 );
+#else
+    AddVar( pList, "TextureTileCount", ComponentVariableType_Vector2Int, MyOffsetOf( pThis, &pThis->m_TextureTileCount ), false, true, 0, (CVarFunc_ValueChanged)&ComponentVoxelMesh::OnValueChanged, 0, 0 );
+    AddVar( pList, "MaxSize", ComponentVariableType_Vector3Int, MyOffsetOf( pThis, &pThis->m_ChunkSize ), false, true, 0, (CVarFunc_ValueChanged)&ComponentVoxelMesh::OnValueChanged, 0, 0 );
+    AddVar( pList, "BlockSize", ComponentVariableType_Vector3, MyOffsetOf( pThis, &pThis->m_BlockSize ), false, true, 0, (CVarFunc_ValueChanged)&ComponentVoxelMesh::OnValueChanged, 0, 0 );
+
+    AddVarPointer( pList, "File", true, true, "File",
+        (CVarFunc_GetPointerValue)&ComponentVoxelMesh::GetPointerValue,
+        (CVarFunc_SetPointerValue)&ComponentVoxelMesh::SetPointerValue,
+        (CVarFunc_GetPointerDesc)&ComponentVoxelMesh::GetPointerDesc,
+        (CVarFunc_SetPointerDesc)&ComponentVoxelMesh::SetPointerDesc,
+        (CVarFunc_ValueChanged)&ComponentVoxelMesh::OnValueChanged,
+        0, 0 );
+#endif
 }
 
 void ComponentVoxelMesh::Reset()
@@ -230,7 +244,9 @@ void* ComponentVoxelMesh::OnDrop(ComponentVariable* pVar, wxCoord x, wxCoord y)
 
     return oldpointer;
 }
+#endif //MYFW_USING_WX
 
+#if MYFW_EDITOR
 void* ComponentVoxelMesh::OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue* pNewValue)
 {
     void* oldpointer = 0;
@@ -264,6 +280,7 @@ void* ComponentVoxelMesh::OnValueChanged(ComponentVariable* pVar, bool changedby
         {
             if( changedbyinterface ) // controlid will only be set if the control itself was changed.
             {
+#if MYFW_USING_WX
                 wxString text = g_pPanelWatch->GetVariableProperties( pVar->m_ControlID )->GetTextCtrl()->GetValue();
                 if( text == "" || text == "none" )
                 {
@@ -275,6 +292,7 @@ void* ComponentVoxelMesh::OnValueChanged(ComponentVariable* pVar, bool changedby
                     // TODO: undo/redo
                     SetMesh( 0 );
                 }
+#endif //MYFW_USING_WX
             }
             else if( pNewValue->GetFilePtr() != 0 )
             {
@@ -293,6 +311,7 @@ void ComponentVoxelMesh::OnButtonCreateMesh(int buttonid)
 
     // pop up a file selector dialog.
     {
+#if MYFW_USING_WX
         // generally offer to create scripts in Scripts folder.
         wxString initialpath = "./Data/Meshes";
 
@@ -342,6 +361,7 @@ void ComponentVoxelMesh::OnButtonCreateMesh(int buttonid)
                 cJSONExt_free( string );
             }
         }
+#endif //MYFW_USING_WX
     }
 }
 
@@ -350,7 +370,7 @@ void ComponentVoxelMesh::OnButtonEditMesh(int buttonid)
     g_pEngineCore->SetEditorInterface( EditorInterfaceType_VoxelMeshEditor );
     ((EditorInterface_VoxelMeshEditor*)g_pEngineCore->GetCurrentEditorInterface())->SetMeshToEdit( this );
 }
-#endif //MYFW_USING_WX
+#endif //MYFW_EDITOR
 
 //cJSON* ComponentVoxelMesh::ExportAsJSONObject(bool savesceneid, bool saveid)
 //{

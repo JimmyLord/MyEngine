@@ -60,6 +60,7 @@ protected:
     //MYFW_DECLARE_COMPONENT_CALLBACK_ONFILERENAMED(); // OnFileRenamedCallback
 
 public:
+#if MYFW_EDITOR
 #if MYFW_USING_WX
     static bool m_PanelWatchBlockVisible;
 
@@ -75,12 +76,15 @@ public:
 
     // Component variable callbacks.
     void* OnDrop(ComponentVariable* pVar, wxCoord x, wxCoord y);
+#endif //MYFW_USING_WX
     void* OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue* pNewValue);
 
+#if MYFW_USING_WX
     // Scene right-click options
     virtual void AddRightClickOptionsToMenu(wxMenu* pMenu, int baseid);
     virtual void OnRightClickOptionClicked(wxEvent &evt, int baseid);
 #endif //MYFW_USING_WX
+#endif //MYFW_EDITOR
 };
 
 #endif //__ComponentAnimationPlayer2D_H__

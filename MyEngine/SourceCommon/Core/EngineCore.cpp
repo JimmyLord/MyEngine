@@ -426,7 +426,10 @@ void EngineCore::OneTimeInit()
         g_pEngineCore->InitializeGameObjectFlagStrings( 0 );
     }
 
+#if MYFW_USING_IMGUI
     m_pEditorPrefs->LoadLastSceneLoaded();
+#endif //MYFW_USING_WX
+
 #else
     // TODO: fix! this won't work if flags were customized and saved into editorprefs.ini
     InitializeGameObjectFlagStrings( 0 );

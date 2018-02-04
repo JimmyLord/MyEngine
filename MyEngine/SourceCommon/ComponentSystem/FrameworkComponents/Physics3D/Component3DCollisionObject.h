@@ -89,6 +89,7 @@ public:
     void SetPointerDesc(ComponentVariable* pVar, const char* newdesc);
 
 public:
+#if MYFW_EDITOR
 #if MYFW_USING_WX
     static bool m_PanelWatchBlockVisible;
     int m_ControlID_PrimitiveType;
@@ -110,10 +111,11 @@ public:
     void OnTransformChanged(Vector3& newpos, Vector3& newrot, Vector3& newscale, bool changedbyuserineditor);
 
     // Component variable callbacks. //_VARIABLE_LIST
-    virtual bool ShouldVariableBeAddedToWatchPanel(ComponentVariable* pVar);
-    void* OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue* pNewValue);
     void* OnDropOBJ(ComponentVariable* pVar, wxCoord x, wxCoord y);
 #endif //MYFW_USING_WX
+    virtual bool ShouldVariableBeAddedToWatchPanel(ComponentVariable* pVar);
+    void* OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue* pNewValue);
+#endif //MYFW_EDITOR
 };
 
 #endif //__Component3DCollisionObject_H__

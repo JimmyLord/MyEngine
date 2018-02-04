@@ -65,6 +65,26 @@ void EditorMenuCommand(EditorMenuCommands command)
         }
         break;
 
+    case EditorMenuCommand_TogglePlayStop:
+        {
+            g_pEngineCore->OnModeTogglePlayStop();
+        }
+        break;
+
+    case EditorMenuCommand_Undo:
+        {
+            if( g_pEngineCore->GetCommandStack()->GetUndoStackSize() > 0 )
+                g_pEngineCore->GetCommandStack()->Undo( 1 );
+        }
+        break;
+
+    case EditorMenuCommand_Redo:
+        {
+            if( g_pEngineCore->GetCommandStack()->GetRedoStackSize() > 0 )
+                g_pEngineCore->GetCommandStack()->Redo( 1 );
+        }
+        break;
+
     default:
         MyAssert( false );
         break;

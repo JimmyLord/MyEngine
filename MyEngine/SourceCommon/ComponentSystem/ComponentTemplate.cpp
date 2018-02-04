@@ -45,7 +45,11 @@ void ComponentTemplate::RegisterVariables(CPPListHead* pList, ComponentTemplate*
 #pragma GCC diagnostic pop
 #endif
 
+#if MYFW_USING_WX
     AddVar( pList, "SampleFloat", ComponentVariableType_Vector3, MyOffsetOf( pThis, &pThis->m_SampleVector3 ), true, true, 0, (CVarFunc_ValueChanged)&ComponentTemplate::OnValueChanged, (CVarFunc_DropTarget)&ComponentTemplate::OnDrop, 0 );
+#else
+    AddVar( pList, "SampleFloat", ComponentVariableType_Vector3, MyOffsetOf( pThis, &pThis->m_SampleVector3 ), true, true, 0, (CVarFunc_ValueChanged)&ComponentTemplate::OnValueChanged, 0, 0 );
+#endif
 }
 
 void ComponentTemplate::Reset()
@@ -112,7 +116,9 @@ void* ComponentTemplate::OnDrop(ComponentVariable* pVar, wxCoord x, wxCoord y)
 
     return oldpointer;
 }
+#endif //MYFW_USING_WX
 
+#if MYFW_EDITOR
 void* ComponentTemplate::OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue* pNewValue)
 {
     void* oldpointer = 0;
@@ -123,7 +129,7 @@ void* ComponentTemplate::OnValueChanged(ComponentVariable* pVar, bool changedbyi
 
     return oldpointer;
 }
-#endif //MYFW_USING_WX
+#endif //MYFW_EDITOR
 
 //cJSON* ComponentTemplate::ExportAsJSONObject(bool savesceneid, bool saveid)
 //{

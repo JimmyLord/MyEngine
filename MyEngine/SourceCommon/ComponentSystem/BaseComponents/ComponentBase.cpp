@@ -9,6 +9,8 @@
 
 #include "EngineCommonHeader.h"
 
+#include "../../../SourceEditor/ImGuiExtensions.h"
+
 ComponentBase::ComponentBase()
 : m_SceneIDLoadedFrom( 0 )
 , m_BaseType( BaseComponentType_None )
@@ -685,10 +687,6 @@ void ComponentBase::AddVariableToWatchPanel(ComponentVariable* pVar)
         case ComponentVariableType_Float:
             ImGui::DragFloat( pVar->m_WatchLabel, (float*)((char*)this + pVar->m_Offset) );
             //pVar->m_ControlID = g_pPanelWatch->AddFloat( pVar->m_WatchLabel, (float*)((char*)this + pVar->m_Offset), pVar->m_FloatLowerLimit, pVar->m_FloatUpperLimit, this, ComponentBase::StaticOnValueChangedVariable, ComponentBase::StaticOnRightClickVariable );
-            //if( pVar->m_pOnValueChangedCallbackFunc )
-            //{
-            //    oldpointer = (this->*pVar->m_pOnValueChangedCallbackFunc)( pVar, directlychanged, finishedchanging, oldvalue, pNewValue );
-            //}
             break;
 
     //    //ComponentVariableType_Double,
@@ -1159,7 +1157,9 @@ void ComponentBase::AddToObjectsPanel(wxTreeItemId gameobjectid)
     wxTreeItemId id = g_pPanelObjectList->AddObject( this, ComponentBase::StaticOnLeftClick, ComponentBase::StaticOnRightClick, gameobjectid, "Unknown component", ObjectListIcon_Component );
     g_pPanelObjectList->SetDragAndDropFunctions( id, ComponentBase::StaticOnDrag, ComponentBase::StaticOnDrop );
 }
+#endif //MYFW_USING_WX
 
+#if MYFW_EDITOR
 bool ComponentBase::IsDivorced(int index)
 {
     if( (m_DivorcedVariables & (1 << index)) != 0 )
@@ -1306,6 +1306,7 @@ void ComponentBase::SyncVariable(ComponentBase* pChildComponent, ComponentVariab
     if( pChildComponent->IsDivorced( pVar->m_Index ) == true )
         return;
 
+#if MYFW_USING_WX
     // Compare the variable.
     switch( pVar->m_Type )
     {
@@ -1513,6 +1514,7 @@ void ComponentBase::SyncVariable(ComponentBase* pChildComponent, ComponentVariab
         MyAssert( false );
         break;
     }
+#endif //MYFW_USING_WX
 }
 
 void ComponentBase::SyncVariableInChildren(ComponentVariable* pVar)
@@ -1604,7 +1606,7 @@ ComponentBase* ComponentBase::FindMatchingComponentInParent()
 
     return 0;
 }
-#endif //MYFW_USING_WX
+#endif //MYFW_EDITOR
 
 #if MYFW_EDITOR
 void ComponentBase::OnValueChangedVariable(int controlid, bool directlychanged, bool finishedchanging, double oldvalue, bool valuewaschangedbydragging, ComponentVariableValue* pNewValue) // StaticOnValueChangedVariable

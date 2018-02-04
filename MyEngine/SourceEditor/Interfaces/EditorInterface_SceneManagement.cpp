@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016-2017 Jimmy Lord http://www.flatheadgames.com
+// Copyright (c) 2016-2018 Jimmy Lord http://www.flatheadgames.com
 //
 // This software is provided 'as-is', without any express or implied warranty.  In no event will the authors be held liable for any damages arising from the use of this software.
 // Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -648,8 +648,8 @@ bool EditorInterface_SceneManagement::HandleInput(int keyaction, int keycode, in
 
                         if( selectedobjects.size() > 0 )
                         {
-#if MYFW_USING_WX // TODO_FIX_EDITOR
-                            g_pEngineMainFrame->m_pCommandStack->Add( MyNew EditorCommand_MoveObjects( pEditorState->m_DistanceTranslated, selectedobjects ) );
+#if MYFW_EDITOR
+                            g_pEngineCore->GetCommandStack()->Add( MyNew EditorCommand_MoveObjects( pEditorState->m_DistanceTranslated, selectedobjects ) );
 #endif
                         }
                     }
@@ -679,8 +679,8 @@ bool EditorInterface_SceneManagement::HandleInput(int keyaction, int keycode, in
 
                         if( selectedobjects.size() > 0 )
                         {
-#if MYFW_USING_WX // TODO_FIX_EDITOR
-                            g_pEngineMainFrame->m_pCommandStack->Add( MyNew EditorCommand_ScaleObjects( pEditorState->m_AmountScaled, pEditorState->m_TransformedInLocalSpace, pEditorState->m_WorldSpacePivot, selectedobjects ) );
+#if MYFW_EDITOR
+                            g_pEngineCore->GetCommandStack()->Add( MyNew EditorCommand_ScaleObjects( pEditorState->m_AmountScaled, pEditorState->m_TransformedInLocalSpace, pEditorState->m_WorldSpacePivot, selectedobjects ) );
 #endif
                         }
                     }
@@ -707,8 +707,8 @@ bool EditorInterface_SceneManagement::HandleInput(int keyaction, int keycode, in
 
                         if( selectedobjects.size() > 0 )
                         {
-#if MYFW_USING_WX // TODO_FIX_EDITOR
-                            g_pEngineMainFrame->m_pCommandStack->Add(
+#if MYFW_EDITOR
+                            g_pEngineCore->GetCommandStack()->Add(
                                 MyNew EditorCommand_RotateObjects( pEditorState->m_DistanceRotated, pEditorState->m_TransformedInLocalSpace, pEditorState->m_WorldSpacePivot, selectedobjects ) );
 #endif
                         }

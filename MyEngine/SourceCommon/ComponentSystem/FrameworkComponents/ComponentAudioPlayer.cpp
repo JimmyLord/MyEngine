@@ -50,7 +50,11 @@ void ComponentAudioPlayer::RegisterVariables(CPPListHead* pList, ComponentAudioP
 #pragma GCC diagnostic pop
 #endif
 
+#if MYFW_USING_WX
     AddVar( pList, "Cue", ComponentVariableType_SoundCuePtr, MyOffsetOf( pThis, &pThis->m_pSoundCue ), false, true, 0, (CVarFunc_ValueChanged)&ComponentAudioPlayer::OnValueChanged, (CVarFunc_DropTarget)&ComponentAudioPlayer::OnDrop, 0 );
+#else
+    AddVar( pList, "Cue", ComponentVariableType_SoundCuePtr, MyOffsetOf( pThis, &pThis->m_pSoundCue ), false, true, 0, (CVarFunc_ValueChanged)&ComponentAudioPlayer::OnValueChanged, 0, 0 );
+#endif
 }
 
 void ComponentAudioPlayer::Reset()
@@ -136,7 +140,9 @@ void* ComponentAudioPlayer::OnDrop(ComponentVariable* pVar, wxCoord x, wxCoord y
 
     return oldvalue;
 }
+#endif //MYFW_USING_WX
 
+#if MYFW_EDITOR
 void* ComponentAudioPlayer::OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue* pNewValue)
 {
     void* oldpointer = 0;
@@ -145,6 +151,7 @@ void* ComponentAudioPlayer::OnValueChanged(ComponentVariable* pVar, bool changed
     {
         if( changedbyinterface )
         {
+#if MYFW_USING_WX
             wxString text = g_pPanelWatch->GetVariableProperties( pVar->m_ControlID )->GetTextCtrl()->GetValue();
             if( text == "" || text == "none" )
             {
@@ -155,6 +162,7 @@ void* ComponentAudioPlayer::OnValueChanged(ComponentVariable* pVar, bool changed
                 // Set the current sound cue to null.
                 g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_ChangeSoundCue( this, 0 ) );
             }
+#endif //MYFW_USING_WX
         }
         else
         {
@@ -175,7 +183,11 @@ void ComponentAudioPlayer::OnButtonPlaySound(int buttonid)
     {
         SetSoundCue( g_pGameCore->GetSoundManager()->FindCueByName( m_SoundCueName ) );
         if( m_pSoundCue )
+        {
+#if MYFW_USING_WX
             g_pPanelWatch->SetNeedsRefresh();
+#endif //MYFW_USING_WX
+        }
     }
 
     if( m_pSoundCue == 0 )
@@ -185,7 +197,7 @@ void ComponentAudioPlayer::OnButtonPlaySound(int buttonid)
         g_pGameCore->GetSoundPlayer()->StopSound( m_ChannelSoundIsPlayingOn );
     m_ChannelSoundIsPlayingOn = g_pGameCore->GetSoundManager()->PlayCue( m_pSoundCue );
 }
-#endif //MYFW_USING_WX
+#endif //MYFW_EDITOR
 
 cJSON* ComponentAudioPlayer::ExportAsJSONObject(bool savesceneid, bool saveid)
 {

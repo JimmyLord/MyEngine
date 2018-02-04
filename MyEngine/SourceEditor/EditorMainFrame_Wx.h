@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2014-2017 Jimmy Lord http://www.flatheadgames.com
+// Copyright (c) 2014-2018 Jimmy Lord http://www.flatheadgames.com
 //
 // This software is provided 'as-is', without any express or implied warranty.  In no event will the authors be held liable for any damages arising from the use of this software.
 // Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -15,40 +15,6 @@ class EngineMainFrame;
 extern EngineMainFrame* g_pEngineMainFrame;
 
 void EngineMainFrame_DumpCachedMessagesToLogPane();
-
-enum DefaultPerspectives
-{
-    Perspective_CenterEditor,
-    Perspective_CenterGame,
-    Perspective_CenterSideBySide,
-    Perspective_FullFrameGame,
-    Perspective_NumPerspectives,
-};
-
-enum EngineEditorWindowTypes
-{
-    EngineEditorWindow_Editor,
-    EngineEditorWindow_PanelLog,
-    EngineEditorWindow_NumTypes,
-};
-
-enum LaunchPlatforms
-{
-#if MYFW_WINDOWS
-    LaunchPlatform_Win32,
-    LaunchPlatform_Win64,
-    LaunchPlatform_NaCl,
-    LaunchPlatform_Android,
-    LaunchPlatform_Emscripten,
-#elif MYFW_OSX
-    LaunchPlatform_OSX,
-    LaunchPlatform_iOSSimulator,
-    LaunchPlatform_iOSDevice,
-    LaunchPlatform_iOSDevice_iOS6,
-#endif
-    // AddNewLaunchPlatform
-    LaunchPlatform_NumPlatforms,
-};
 
 enum EngineMenuIDs
 {

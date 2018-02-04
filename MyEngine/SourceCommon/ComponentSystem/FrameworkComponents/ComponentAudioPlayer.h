@@ -58,6 +58,7 @@ protected:
     //MYFW_DECLARE_COMPONENT_CALLBACK_ONFILERENAMED(); // OnFileRenamedCallback
 
 public:
+#if MYFW_EDITOR
 #if MYFW_USING_WX
     static bool m_PanelWatchBlockVisible;
 
@@ -70,11 +71,12 @@ public:
 
     // Component variable callbacks.
     void* OnDrop(ComponentVariable* pVar, wxCoord x, wxCoord y);
+#endif //MYFW_USING_WX
     void* OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue* pNewValue);
 
     static void StaticOnButtonPlaySound(void* pObjectPtr, int buttonid) { ((ComponentAudioPlayer*)pObjectPtr)->OnButtonPlaySound( buttonid ); }
     void OnButtonPlaySound(int buttonid);
-#endif //MYFW_USING_WX
+#endif //MYFW_EDITOR
 };
 
 #endif //__ComponentAudioPlayer_H__

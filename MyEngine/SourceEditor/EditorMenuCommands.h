@@ -13,6 +13,9 @@
 enum EditorMenuCommands
 {
     EditorMenuCommand_LoadScene,
+    EditorMenuCommand_TogglePlayStop,
+    EditorMenuCommand_Undo,
+    EditorMenuCommand_Redo,
 };
 
 void EditorMenuCommand(EditorMenuCommands command);

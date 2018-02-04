@@ -85,9 +85,15 @@ void ComponentMesh::RegisterVariables(CPPListHead* pList, ComponentMesh* pThis) 
     {
         // materials are not automatically saved/loaded
         MyAssert( MAX_SUBMESHES == 4 );
+#if MYFW_USING_WX
         ComponentVariable* pVar = AddVar( pList, g_MaterialLabels[i], ComponentVariableType_MaterialPtr,
                                                MyOffsetOf( pThis, &pThis->m_pMaterials[i] ), false, true, 
                                                0, (CVarFunc_ValueChanged)&ComponentMesh::OnValueChanged, (CVarFunc_DropTarget)&ComponentMesh::OnDropMaterial, 0 );
+#else
+        ComponentVariable* pVar = AddVar( pList, g_MaterialLabels[i], ComponentVariableType_MaterialPtr,
+                                               MyOffsetOf( pThis, &pThis->m_pMaterials[i] ), false, true, 
+                                               0, (CVarFunc_ValueChanged)&ComponentMesh::OnValueChanged, 0, 0 );
+#endif
 
 #if MYFW_USING_WX
         pVar->AddCallback_ShouldVariableBeAdded( (CVarFunc_ShouldVariableBeAdded)(&ComponentMesh::ShouldVariableBeAddedToWatchPanel) );
@@ -218,7 +224,9 @@ void ComponentMesh::OnExpandMaterialClicked(int controlid)
         }
     }
 }
+#endif //MYFW_USING_WX
 
+#if MYFW_EDITOR
 void* ComponentMesh::OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue* pNewValue)
 {
     void* oldpointer = 0;
@@ -240,6 +248,7 @@ void* ComponentMesh::OnValueChanged(ComponentVariable* pVar, bool changedbyinter
 
             if( changedbyinterface )
             {
+#if MYFW_USING_WX
                 wxString text = g_pPanelWatch->GetVariableProperties( pVar->m_ControlID )->GetTextCtrl()->GetValue();
                 if( text == "" || text == "none" )
                 {
@@ -248,6 +257,7 @@ void* ComponentMesh::OnValueChanged(ComponentVariable* pVar, bool changedbyinter
                     oldpointer = GetMaterial( materialthatchanged );
                     g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_ChangeMaterialOnMesh( this, pVar, materialthatchanged, 0 ) );
                 }
+#endif //MYFW_USING_WX
             }
             else
             {
@@ -259,7 +269,9 @@ void* ComponentMesh::OnValueChanged(ComponentVariable* pVar, bool changedbyinter
 
         //if( controlid == m_ControlID_PrimitiveType )
         {
+#if MYFW_USING_WX
             g_pPanelWatch->SetNeedsRefresh();
+#endif //MYFW_USING_WX
         }
 
         PushChangesToSceneGraphObjects();
@@ -267,7 +279,9 @@ void* ComponentMesh::OnValueChanged(ComponentVariable* pVar, bool changedbyinter
 
     return oldpointer;
 }
+#endif //MYFW_EDITOR
 
+#if MYFW_USING_WX
 void* ComponentMesh::OnDropMaterial(ComponentVariable* pVar, wxCoord x, wxCoord y)
 {
     void* oldpointer = 0;

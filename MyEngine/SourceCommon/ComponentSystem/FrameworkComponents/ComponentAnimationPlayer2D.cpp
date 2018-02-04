@@ -43,12 +43,21 @@ ComponentAnimationPlayer2D::~ComponentAnimationPlayer2D()
 
 void ComponentAnimationPlayer2D::RegisterVariables(CPPListHead* pList, ComponentAnimationPlayer2D* pThis) //_VARIABLE_LIST
 {
+#if MYFW_USING_WX
     AddVar( pList, "Animation Index", ComponentVariableType_UnsignedInt, MyOffsetOf( pThis, &pThis->m_AnimationIndex ), true, true, 0, (CVarFunc_ValueChanged)&ComponentAnimationPlayer2D::OnValueChanged, (CVarFunc_DropTarget)&ComponentAnimationPlayer2D::OnDrop, 0 );
     AddVar( pList, "Animation Frame", ComponentVariableType_Float, MyOffsetOf( pThis, &pThis->m_AnimationTime ), true, true, 0, (CVarFunc_ValueChanged)&ComponentAnimationPlayer2D::OnValueChanged, (CVarFunc_DropTarget)&ComponentAnimationPlayer2D::OnDrop, 0 );
     AddVar( pList, "Frame Index", ComponentVariableType_UnsignedInt, MyOffsetOf( pThis, &pThis->m_FrameIndex ), true, true, 0, (CVarFunc_ValueChanged)&ComponentAnimationPlayer2D::OnValueChanged, (CVarFunc_DropTarget)&ComponentAnimationPlayer2D::OnDrop, 0 );
 
     // Animation File is not automatically saved/loaded
     AddVar( pList, "Animation File", ComponentVariableType_FilePtr, MyOffsetOf( pThis, &pThis->m_pAnimationFile ), false, true, 0, (CVarFunc_ValueChanged)&ComponentAnimationPlayer2D::OnValueChanged, (CVarFunc_DropTarget)&ComponentAnimationPlayer2D::OnDrop, 0 );
+#else
+    AddVar( pList, "Animation Index", ComponentVariableType_UnsignedInt, MyOffsetOf( pThis, &pThis->m_AnimationIndex ), true, true, 0, (CVarFunc_ValueChanged)&ComponentAnimationPlayer2D::OnValueChanged, 0, 0 );
+    AddVar( pList, "Animation Frame", ComponentVariableType_Float, MyOffsetOf( pThis, &pThis->m_AnimationTime ), true, true, 0, (CVarFunc_ValueChanged)&ComponentAnimationPlayer2D::OnValueChanged, 0, 0 );
+    AddVar( pList, "Frame Index", ComponentVariableType_UnsignedInt, MyOffsetOf( pThis, &pThis->m_FrameIndex ), true, true, 0, (CVarFunc_ValueChanged)&ComponentAnimationPlayer2D::OnValueChanged, 0, 0 );
+
+    // Animation File is not automatically saved/loaded
+    AddVar( pList, "Animation File", ComponentVariableType_FilePtr, MyOffsetOf( pThis, &pThis->m_pAnimationFile ), false, true, 0, (CVarFunc_ValueChanged)&ComponentAnimationPlayer2D::OnValueChanged, 0, 0 );
+#endif
 }
 
 void ComponentAnimationPlayer2D::Reset()
@@ -145,7 +154,9 @@ void* ComponentAnimationPlayer2D::OnDrop(ComponentVariable* pVar, wxCoord x, wxC
 
     return oldpointer;
 }
+#endif //MYFW_USING_WX
 
+#if MYFW_EDITOR
 void* ComponentAnimationPlayer2D::OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue* pNewValue)
 {
     void* oldpointer = 0;
@@ -159,6 +170,7 @@ void* ComponentAnimationPlayer2D::OnValueChanged(ComponentVariable* pVar, bool c
     {
         if( changedbyinterface )
         {
+#if MYFW_USING_WX
             wxString text = g_pPanelWatch->GetVariableProperties( pVar->m_ControlID )->GetTextCtrl()->GetValue();
             if( text == "" || text == "none" || text == "no file" )
             {
@@ -167,6 +179,7 @@ void* ComponentAnimationPlayer2D::OnValueChanged(ComponentVariable* pVar, bool c
                 // TODO: undo/redo
                 this->SetAnimationFile( 0 );
             }
+#endif //MYFW_USING_WX
         }
         else
         {
@@ -177,7 +190,9 @@ void* ComponentAnimationPlayer2D::OnValueChanged(ComponentVariable* pVar, bool c
 
     return oldpointer;
 }
+#endif //MYFW_EDITOR
 
+#if MYFW_USING_WX
 void ComponentAnimationPlayer2D::AddRightClickOptionsToMenu(wxMenu* pMenu, int baseid)
 {
     pMenu->Append( baseid + 1, "Edit 2D Animation Info" );

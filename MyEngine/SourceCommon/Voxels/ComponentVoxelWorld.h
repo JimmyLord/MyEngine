@@ -69,7 +69,7 @@ protected:
     // Callback functions for various events.
     MYFW_DECLARE_COMPONENT_CALLBACK_TICK(); // TickCallback
     //MYFW_DECLARE_COMPONENT_CALLBACK_ONSURFACECHANGED(); // OnSurfaceChangedCallback
-#if MYFW_USING_WX
+#if MYFW_EDITOR
     MYFW_DECLARE_COMPONENT_CALLBACK_DRAW(); // DrawCallback
 #endif
     //MYFW_DECLARE_COMPONENT_CALLBACK_ONTOUCH(); // OnTouchCallback
@@ -85,6 +85,7 @@ public:
     void SetPointerDesc(ComponentVariable* pVar, const char* newdesc);
 
 public:
+#if MYFW_EDITOR
 #if MYFW_USING_WX
     static bool m_PanelWatchBlockVisible;
 
@@ -97,6 +98,7 @@ public:
 
     // Component variable callbacks.
     void* OnDrop(ComponentVariable* pVar, wxCoord x, wxCoord y);
+#endif //MYFW_USING_WX
     void* OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue* pNewValue);
 
     static void StaticOnButtonCreateSaveFile(void* pObjectPtr, int buttonid) { ((ComponentVoxelWorld*)pObjectPtr)->OnButtonCreateSaveFile( buttonid ); }
@@ -104,7 +106,7 @@ public:
 
     static void StaticOnButtonEditMesh(void* pObjectPtr, int buttonid) { ((ComponentVoxelWorld*)pObjectPtr)->OnButtonEditMesh( buttonid ); }
     void OnButtonEditMesh(int buttonid);
-#endif //MYFW_USING_WX
+#endif //MYFW_EDITOR
 };
 
 #endif //__ComponentVoxelWorld_H__

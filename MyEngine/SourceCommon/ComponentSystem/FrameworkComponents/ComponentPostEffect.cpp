@@ -93,14 +93,16 @@ void ComponentPostEffect::OnDropMaterial(int controlid, wxCoord x, wxCoord y)
             g_pPanelWatch->GetVariableProperties( g_DragAndDropStruct.GetControlID() )->m_Description = pMaterial->GetMaterialShortDescription();
     }
 }
+#endif //MYFW_USING_WX
 
+#if MYFW_EDITOR
 void* ComponentPostEffect::OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue* pNewValue)
 {
     void* oldpointer = 0;
 
     return oldpointer;
 }
-#endif //MYFW_USING_WX
+#endif //MYFW_EDITOR
 
 cJSON* ComponentPostEffect::ExportAsJSONObject(bool savesceneid, bool saveid)
 {

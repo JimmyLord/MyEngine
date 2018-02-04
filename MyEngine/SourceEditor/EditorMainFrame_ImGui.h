@@ -32,6 +32,9 @@ protected:
     bool m_KeyDownShift;
     bool m_KeyDownCommand;
 
+    // Master Undo/Redo Stack for ImGui editor builds.
+    CommandStack* m_pCommandStack;
+
 public:
     EditorMainFrame_ImGui();
     ~EditorMainFrame_ImGui();

@@ -83,6 +83,7 @@ public:
     void SetPointerDesc(ComponentVariable* pVar, const char* newdesc);
 
 public:
+#if MYFW_EDITOR
 #if MYFW_USING_WX
     static bool m_PanelWatchBlockVisible;
 
@@ -99,8 +100,9 @@ public:
 
     // Component variable callbacks. //_VARIABLE_LIST
     void* OnDrop(ComponentVariable* pVar, wxCoord x, wxCoord y);
-    void* OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue* pNewValue);
 #endif //MYFW_USING_WX
+    void* OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue* pNewValue);
+#endif //MYFW_EDITOR
 };
 
 #endif //__ComponentSprite_H__

@@ -52,9 +52,15 @@ Component2DJointRevolute::~Component2DJointRevolute()
 
 void Component2DJointRevolute::RegisterVariables(CPPListHead* pList, Component2DJointRevolute* pThis) //_VARIABLE_LIST
 {
+#if MYFW_USING_WX
     AddVar( pList, "SecondCollisionObject", ComponentVariableType_ComponentPtr,
         MyOffsetOf( pThis, &pThis->m_pSecondCollisionObject ), true, true, 0,
         (CVarFunc_ValueChanged)&Component2DJointRevolute::OnValueChanged, (CVarFunc_DropTarget)&Component2DJointRevolute::OnDrop, 0 );
+#else
+    AddVar( pList, "SecondCollisionObject", ComponentVariableType_ComponentPtr,
+        MyOffsetOf( pThis, &pThis->m_pSecondCollisionObject ), true, true, 0,
+        (CVarFunc_ValueChanged)&Component2DJointRevolute::OnValueChanged, 0, 0 );
+#endif
 
     AddVar( pList, "AnchorA", ComponentVariableType_Vector2, MyOffsetOf( pThis, &pThis->m_AnchorA ), true, true, 0, (CVarFunc_ValueChanged)&Component2DJointRevolute::OnValueChanged, 0, 0 );
     AddVar( pList, "AnchorB", ComponentVariableType_Vector2, MyOffsetOf( pThis, &pThis->m_AnchorB ), true, true, 0, (CVarFunc_ValueChanged)&Component2DJointRevolute::OnValueChanged, 0, 0 );
@@ -158,7 +164,9 @@ void* Component2DJointRevolute::OnDrop(ComponentVariable* pVar, wxCoord x, wxCoo
 
     return oldvalue;
 }
+#endif //MYFW_USING_WX
 
+#if MYFW_EDITOR
 void* Component2DJointRevolute::OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue* pNewValue)
 {
     void* oldpointer = 0;
@@ -167,6 +175,7 @@ void* Component2DJointRevolute::OnValueChanged(ComponentVariable* pVar, bool cha
     {
         if( changedbyinterface )
         {
+#if MYFW_USING_WX
             wxString text = g_pPanelWatch->GetVariableProperties( pVar->m_ControlID )->GetTextCtrl()->GetValue();
             if( text == "" || text == "none" )
             {
@@ -176,6 +185,7 @@ void* Component2DJointRevolute::OnValueChanged(ComponentVariable* pVar, bool cha
 
                 g_pPanelWatch->SetNeedsRefresh();
             }
+#endif //MYFW_USING_WX
         }
         else if( pNewValue->GetComponentPtr() != 0 )
         {
@@ -250,7 +260,7 @@ void* Component2DJointRevolute::OnValueChanged(ComponentVariable* pVar, bool cha
 
     return oldpointer;
 }
-#endif //MYFW_USING_WX
+#endif //MYFW_EDITOR
 
 Component2DJointRevolute& Component2DJointRevolute::operator=(const Component2DJointRevolute& other)
 {

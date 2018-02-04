@@ -47,6 +47,7 @@ public:
     void Render(FBODefinition* pFBO);
 
 public:
+#if MYFW_EDITOR
 #if MYFW_USING_WX
     static bool m_PanelWatchBlockVisible;
 
@@ -64,8 +65,9 @@ public:
     void OnDropMaterial(int controlid, wxCoord x, wxCoord y);
     
     //void* OnDrop(ComponentVariable* pVar, wxCoord x, wxCoord y);    
-    void* OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue* pNewValue);
 #endif //MYFW_USING_WX
+    void* OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue* pNewValue);
+#endif //MYFW_EDITOR
 };
 
 #endif //__ComponentPostEffect_H__

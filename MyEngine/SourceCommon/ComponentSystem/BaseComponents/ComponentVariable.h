@@ -80,7 +80,7 @@ public:
     int m_NumEnumStrings;
     const char** m_ppEnumStrings;
 
-#if MYFW_USING_WX
+#if MYFW_EDITOR
     float m_FloatLowerLimit;
     float m_FloatUpperLimit;
 
@@ -92,7 +92,7 @@ public:
     CVarFunc_VariableAddedToInterface m_pVariableAddedToInterfaceCallbackFunc;
     CVarFunc_wxMenu m_pOnRightClickCallbackFunc;
     CVarFunc_Int m_pOnPopupClickCallbackFunc;
-#endif //MYFW_USING_WX
+#endif //MYFW_EDITOR
 
     CVarFunc_GetPointerValue m_pGetPointerValueCallBackFunc;
     CVarFunc_SetPointerValue m_pSetPointerValueCallBackFunc;
@@ -108,16 +108,16 @@ public:
         CVarFunc_GetPointerDesc pGetPointerDescCallBackFunc, CVarFunc_SetPointerDesc pSetPointerDescCallBackFunc,
         CVarFunc_ValueChanged pOnValueChangedCallBackFunc, CVarFunc_DropTarget pOnDropCallBackFunc, CVarFunc pOnButtonPressedCallBackFunc );
 
-#if MYFW_USING_WX
+#if MYFW_EDITOR
     void AddCallback_ShouldVariableBeAdded(CVarFunc_ShouldVariableBeAdded pFunc);
     void AddCallback_VariableAddedToInterface(CVarFunc_VariableAddedToInterface pFunc);
     void AddCallback_OnRightClick(CVarFunc_wxMenu pRightClickFunc, CVarFunc_Int pPopupClickFunc);
 
     void SetEditorLimits(float lowerlimit, float upperlimit);
-#endif //MYFW_USING_WX
+#endif //MYFW_EDITOR
 };
 
-#if MYFW_USING_WX
+#if MYFW_EDITOR
 #define AddVar(pList,label,type,offset,saveload,displayinwatch,watchlabel, onvaluechanged,ondrop,onbuttonpressed) AddVariable(pList,label,type,offset,saveload,displayinwatch,watchlabel, onvaluechanged,ondrop,onbuttonpressed);
 #define AddVarPointer(pList,label,saveload,displayinwatch,watchlabel,getptrvalue,setptrvalue,getptrdesc,setptrdesc, onvaluechanged,ondrop,onbuttonpressed) AddVariablePointer(pList,label,saveload,displayinwatch,watchlabel,getptrvalue,setptrvalue,getptrdesc,setptrdesc, onvaluechanged,ondrop,onbuttonpressed);
 #define AddVarEnum(pList,label,offset,saveload,displayinwatch,watchlabel,numenums,ppStrings, onvaluechanged,ondrop,onbuttonpressed) AddVariableEnum(pList,label,offset,saveload,displayinwatch,watchlabel,numenums,ppStrings, onvaluechanged,ondrop,onbuttonpressed);
