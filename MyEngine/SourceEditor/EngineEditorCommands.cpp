@@ -10,6 +10,355 @@
 #include "EngineCommonHeader.h"
 #include "EngineEditorCommands.h"
 
+#if MYFW_USING_IMGUI
+//====================================================================================================
+// EditorCommand_ImGuiPanelWatchNumberValueChanged
+//====================================================================================================
+
+//EditorCommand_ImGuiPanelWatchNumberValueChanged::EditorCommand_ImGuiPanelWatchNumberValueChanged(double difference, PanelWatch_Types type, void* pointer, int controlid, bool directlychanged, PanelWatchCallbackValueChanged callbackfunc, void* callbackobj)
+//EditorCommand_ImGuiPanelWatchNumberValueChanged::EditorCommand_ImGuiPanelWatchNumberValueChanged(ComponentBase* pCallbackObj, ComponentVariable* pVar, double difference, bool directlychanged)
+EditorCommand_ImGuiPanelWatchNumberValueChanged::EditorCommand_ImGuiPanelWatchNumberValueChanged(ComponentBase* pCallbackObj, ComponentVariable* pVar, ComponentVariableValue newvalue, ComponentVariableValue oldvalue, bool directlychanged)
+{
+    m_Name = "EditorCommand_ImGuiPanelWatchNumberValueChanged";
+
+    m_pCallbackObj = pCallbackObj;
+    m_pVar = pVar;
+
+    m_NewValue = newvalue;
+    m_OldValue = oldvalue;
+    //m_Difference = difference;
+    m_DirectlyChanged = directlychanged;
+}
+
+EditorCommand_ImGuiPanelWatchNumberValueChanged::~EditorCommand_ImGuiPanelWatchNumberValueChanged()
+{
+}
+
+void EditorCommand_ImGuiPanelWatchNumberValueChanged::Do()
+{
+    double previousvalue = 0;
+
+    switch( m_pVar->m_Type )
+    {
+    //case PanelWatchType_Int:
+    //case PanelWatchType_Enum:
+    //case PanelWatchType_Flags:
+    //    oldvalue = *(double*)m_pVar->m_Offset;
+    //    *(double*)m_pVar->m_Offset += (double)m_Difference;
+    //    break;
+
+    //case PanelWatchType_UnsignedInt:
+    //    oldvalue = *(unsigned int*)m_pVar->m_Offset;
+    //    *(unsigned int*)m_pVar->m_Offset += (unsigned int)m_Difference;
+    //    break;
+
+    //case PanelWatchType_Char:
+    //    oldvalue = *(char*)m_pVar->m_Offset;
+    //    *(char*)m_pVar->m_Offset += (char)m_Difference;
+    //    break;
+
+    //case PanelWatchType_UnsignedChar:
+    //    oldvalue = *(unsigned char*)m_pVar->m_Offset;
+    //    *(unsigned char*)m_pVar->m_Offset += (unsigned char)m_Difference;
+    //    break;
+
+    //case PanelWatchType_Bool:
+    //    oldvalue = *(char*)m_pVar->m_Offset;
+    //    *(char*)m_pVar->m_Offset += (char)m_Difference; // treating bools as char to avoid warning/error. safe?
+    //    break;
+
+    case ComponentVariableType_Float:
+        previousvalue = (double)m_OldValue.GetFloat();
+        m_NewValue.CopyValueIntoVariable( m_pCallbackObj, m_pVar );
+        break;
+
+    //case PanelWatchType_Double:
+    //    oldvalue = *(double*)m_pVar->m_Offset;
+    //    *(double*)m_pVar->m_Offset += m_Difference;
+    //    break;
+
+    //case PanelWatchType_ColorFloat:
+    //case PanelWatchType_ColorByte:
+    //case PanelWatchType_PointerWithDesc:
+    //case PanelWatchType_SpaceWithLabel:
+    //case PanelWatchType_Button:
+    //case PanelWatchType_String:
+    //    //ADDING_NEW_WatchVariableType
+    //case PanelWatchType_Unknown:
+    //case PanelWatchType_NumTypes:
+
+    case ComponentVariableType_Int:
+    case ComponentVariableType_Enum:
+    case ComponentVariableType_Flags:
+    case ComponentVariableType_UnsignedInt:
+    case ComponentVariableType_Bool:
+    //case ComponentVariableType_Float:
+    case ComponentVariableType_ColorByte:
+    case ComponentVariableType_Vector2:
+    case ComponentVariableType_Vector3:
+    case ComponentVariableType_Vector2Int:
+    case ComponentVariableType_Vector3Int:
+    case ComponentVariableType_GameObjectPtr:
+    case ComponentVariableType_ComponentPtr:
+    case ComponentVariableType_FilePtr:
+    case ComponentVariableType_MaterialPtr:
+    case ComponentVariableType_SoundCuePtr:
+    case ComponentVariableType_PointerIndirect:
+    case ComponentVariableType_NumTypes:
+    default:
+        MyAssert( false );
+    }
+
+    // this could likely be dangerous, the object might not be in focus anymore and how it handles callbacks could cause issues.
+    if( m_pCallbackObj && m_pVar->m_pOnValueChangedCallbackFunc )
+    {
+        (m_pCallbackObj->*(m_pVar->m_pOnValueChangedCallbackFunc))( m_pVar, m_DirectlyChanged, true, previousvalue, &m_NewValue );
+        m_DirectlyChanged = false; // always pass false if this isn't the first time 'Do' is called
+    }
+}
+
+void EditorCommand_ImGuiPanelWatchNumberValueChanged::Undo()
+{
+    double previousvalue = 0;
+
+    switch( m_pVar->m_Type )
+    {
+    //case PanelWatchType_Int:
+    //case PanelWatchType_Enum:
+    //case PanelWatchType_Flags:
+    //    oldvalue = *(int*)m_Pointer;
+    //    *(int*)m_Pointer -= (int)m_Difference;
+    //    break;
+
+    //case PanelWatchType_UnsignedInt:
+    //    oldvalue = *(unsigned int*)m_Pointer;
+    //    *(unsigned int*)m_Pointer -= (unsigned int)m_Difference;
+    //    break;
+
+    //case PanelWatchType_Char:
+    //    oldvalue = *(char*)m_Pointer;
+    //    *(char*)m_Pointer -= (char)m_Difference;
+    //    break;
+
+    //case PanelWatchType_UnsignedChar:
+    //    oldvalue = *(unsigned char*)m_Pointer;
+    //    *(unsigned char*)m_Pointer -= (unsigned char)m_Difference;
+    //    break;
+
+    //case PanelWatchType_Bool:
+    //    oldvalue = *(char*)m_Pointer;
+    //    *(char*)m_Pointer -= (char)m_Difference; // treating bools as char to avoid warning/error. safe?
+    //    break;
+
+    case ComponentVariableType_Float:
+        previousvalue = (double)m_NewValue.GetFloat();
+        m_OldValue.CopyValueIntoVariable( m_pCallbackObj, m_pVar );
+        break;
+
+    //case PanelWatchType_Double:
+    //    oldvalue = *(double*)m_Pointer;
+    //    *(double*)m_Pointer -= m_Difference;
+    //    break;
+
+    //case PanelWatchType_ColorFloat:
+    //case PanelWatchType_ColorByte:
+    //case PanelWatchType_PointerWithDesc:
+    //case PanelWatchType_SpaceWithLabel:
+    //case PanelWatchType_Button:
+    //case PanelWatchType_String:
+    //    //ADDING_NEW_WatchVariableType
+    //case PanelWatchType_Unknown:
+    //case PanelWatchType_NumTypes:
+
+    case ComponentVariableType_Int:
+    case ComponentVariableType_Enum:
+    case ComponentVariableType_Flags:
+    case ComponentVariableType_UnsignedInt:
+    case ComponentVariableType_Bool:
+    //case ComponentVariableType_Float:
+    case ComponentVariableType_ColorByte:
+    case ComponentVariableType_Vector2:
+    case ComponentVariableType_Vector3:
+    case ComponentVariableType_Vector2Int:
+    case ComponentVariableType_Vector3Int:
+    case ComponentVariableType_GameObjectPtr:
+    case ComponentVariableType_ComponentPtr:
+    case ComponentVariableType_FilePtr:
+    case ComponentVariableType_MaterialPtr:
+    case ComponentVariableType_SoundCuePtr:
+    case ComponentVariableType_PointerIndirect:
+    case ComponentVariableType_NumTypes:
+    default:
+        MyAssert( false );
+    }
+
+    //g_pPanelWatch->UpdatePanel();
+
+    // this could likely be dangerous, the object might not be in focus anymore and how it handles callbacks could cause issues.
+    if( m_pCallbackObj && m_pVar->m_pOnValueChangedCallbackFunc )
+    {
+        (m_pCallbackObj->*(m_pVar->m_pOnValueChangedCallbackFunc))( m_pVar, m_DirectlyChanged, true, previousvalue, &m_NewValue );
+        m_DirectlyChanged = false; // always pass false if this isn't the first time 'Do' is called
+    }
+}
+
+EditorCommand* EditorCommand_ImGuiPanelWatchNumberValueChanged::Repeat()
+{
+    EditorCommand_ImGuiPanelWatchNumberValueChanged* pCommand;
+    pCommand = MyNew EditorCommand_ImGuiPanelWatchNumberValueChanged( *this );
+
+    pCommand->Do();
+    return pCommand;
+}
+
+//====================================================================================================
+// EditorCommand_ImGuiPanelWatchColorChanged
+//====================================================================================================
+
+EditorCommand_ImGuiPanelWatchColorChanged::EditorCommand_ImGuiPanelWatchColorChanged(ColorFloat newcolor, PanelWatch_Types type, void* pointer, int controlid, bool directlychanged, PanelWatchCallbackValueChanged callbackfunc, void* callbackobj)
+{
+    m_Name = "EditorCommand_ImGuiPanelWatchColorChanged";
+
+    MyAssert( type == PanelWatchType_ColorFloat || type == PanelWatchType_ColorByte );
+
+    m_NewColor = newcolor;
+    m_Type = type;
+    m_Pointer = pointer;
+    m_ControlID = controlid;
+    m_DirectlyChanged = directlychanged;
+
+    if( m_Type == PanelWatchType_ColorFloat )
+        m_OldColor = *(ColorFloat*)pointer;
+    else
+        m_OldColor = ((ColorByte*)pointer)->AsColorFloat();
+
+    m_pOnValueChangedCallBackFunc = callbackfunc;
+    m_pCallbackObj = callbackobj;
+}
+
+EditorCommand_ImGuiPanelWatchColorChanged::~EditorCommand_ImGuiPanelWatchColorChanged()
+{
+}
+
+void EditorCommand_ImGuiPanelWatchColorChanged::Do()
+{
+    MyAssert( m_Type == PanelWatchType_ColorFloat || m_Type == PanelWatchType_ColorByte );
+
+    double oldvalue = 0;
+
+    if( m_Type == PanelWatchType_ColorFloat )
+    {
+        *(ColorFloat*)m_Pointer = m_NewColor;
+
+        // TODO: same as below for colorfloats
+    }
+    else
+    {
+        // store the old color in a local var.
+        // send the pointer to that var via callback in the double.
+        ColorByte oldcolor = *(ColorByte*)m_Pointer;
+        *(uintptr_t*)&oldvalue = (uintptr_t)&oldcolor;
+
+        // Update the ColorByte stored at the pointer.
+        *(ColorByte*)m_Pointer = m_NewColor.AsColorByte();
+    }
+
+    //g_pPanelWatch->UpdatePanel();
+
+    // this could likely be dangerous, the object might not be in focus anymore and how it handles callbacks could cause issues.
+    if( m_pCallbackObj && m_pOnValueChangedCallBackFunc )
+    {
+        m_pOnValueChangedCallBackFunc( m_pCallbackObj, m_ControlID, m_DirectlyChanged, true, oldvalue, false );
+        m_DirectlyChanged = false; // always pass false if this isn't the first time 'Do' is called
+    }
+}
+
+void EditorCommand_ImGuiPanelWatchColorChanged::Undo()
+{
+    MyAssert( m_Type == PanelWatchType_ColorFloat || m_Type == PanelWatchType_ColorByte );
+
+    if( m_Type == PanelWatchType_ColorFloat )
+        *(ColorFloat*)m_Pointer = m_OldColor;
+    else
+        *(ColorByte*)m_Pointer = m_OldColor.AsColorByte();
+
+    //g_pPanelWatch->UpdatePanel();
+
+    // this could likely be dangerous, the object might not be in focus anymore and how it handles callbacks could cause issues.
+    if( m_pCallbackObj && m_pOnValueChangedCallBackFunc )
+    {
+        m_pOnValueChangedCallBackFunc( m_pCallbackObj, m_ControlID, false, true, 0, false );
+    }
+}
+
+EditorCommand* EditorCommand_ImGuiPanelWatchColorChanged::Repeat()
+{
+    return 0;
+}
+
+//====================================================================================================
+// EditorCommand_ImGuiPanelWatchPointerChanged
+//====================================================================================================
+
+EditorCommand_ImGuiPanelWatchPointerChanged::EditorCommand_ImGuiPanelWatchPointerChanged(void* newvalue, PanelWatch_Types type, void** ppointer, int controlid, bool directlychanged, PanelWatchCallbackValueChanged callbackfunc, void* callbackobj)
+{
+    m_Name = "EditorCommand_ImGuiPanelWatchPointerChanged";
+
+    MyAssert( type == PanelWatchType_PointerWithDesc );
+
+    m_NewValue = newvalue;
+    m_Type = type;
+    m_pPointer = ppointer;
+    m_ControlID = controlid;
+    m_DirectlyChanged = directlychanged;
+
+    m_OldValue = *ppointer;
+
+    m_pOnValueChangedCallBackFunc = callbackfunc;
+    m_pCallbackObj = callbackobj;
+}
+
+EditorCommand_ImGuiPanelWatchPointerChanged::~EditorCommand_ImGuiPanelWatchPointerChanged()
+{
+}
+
+void EditorCommand_ImGuiPanelWatchPointerChanged::Do()
+{
+    MyAssert( m_Type == PanelWatchType_PointerWithDesc );
+
+    *m_pPointer = m_NewValue;
+
+    //g_pPanelWatch->UpdatePanel();
+
+    // this could likely be dangerous, the object might not be in focus anymore and how it handles callbacks could cause issues.
+    if( m_pCallbackObj && m_pOnValueChangedCallBackFunc )
+    {
+        m_pOnValueChangedCallBackFunc( m_pCallbackObj, m_ControlID, m_DirectlyChanged, true, 0, false );
+        m_DirectlyChanged = false; // always pass false if this isn't the first time 'Do' is called
+    }
+}
+
+void EditorCommand_ImGuiPanelWatchPointerChanged::Undo()
+{
+    MyAssert( m_Type == PanelWatchType_PointerWithDesc );
+
+    *m_pPointer = m_OldValue;
+
+    //g_pPanelWatch->UpdatePanel();
+
+    // this could likely be dangerous, the object might not be in focus anymore and how it handles callbacks could cause issues.
+    if( m_pCallbackObj && m_pOnValueChangedCallBackFunc )
+    {
+        m_pOnValueChangedCallBackFunc( m_pCallbackObj, m_ControlID, false, true, 0, false );
+    }
+}
+
+EditorCommand* EditorCommand_ImGuiPanelWatchPointerChanged::Repeat()
+{
+    return 0;
+}
+#endif //MYFW_USING_IMGUI
+
 //====================================================================================================
 // EditorCommand_MoveObjects
 //====================================================================================================

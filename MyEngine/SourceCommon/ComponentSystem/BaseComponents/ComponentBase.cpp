@@ -9,7 +9,7 @@
 
 #include "EngineCommonHeader.h"
 
-#include "../../../SourceEditor/ImGuiExtensions.h"
+#include "../../../SourceEditor/ImGuiExtensions/ImGuiExtensions.h"
 
 ComponentBase::ComponentBase()
 : m_SceneIDLoadedFrom( 0 )
@@ -685,8 +685,24 @@ void ComponentBase::AddVariableToWatchPanel(ComponentVariable* pVar)
             break;
 
         case ComponentVariableType_Float:
-            ImGui::DragFloat( pVar->m_WatchLabel, (float*)((char*)this + pVar->m_Offset) );
-            //pVar->m_ControlID = g_pPanelWatch->AddFloat( pVar->m_WatchLabel, (float*)((char*)this + pVar->m_Offset), pVar->m_FloatLowerLimit, pVar->m_FloatUpperLimit, this, ComponentBase::StaticOnValueChangedVariable, ComponentBase::StaticOnRightClickVariable );
+            {
+                ImGui::DragFloat( pVar->m_WatchLabel, (float*)((char*)this + pVar->m_Offset) );
+                static ComponentVariableValue startvalue;
+                if( ImGuiExt::WasItemActiveLastFrame() == false && ImGui::IsItemActive() == true )
+                {
+                    startvalue.GetValueFromVariable( this, pVar );
+                }
+                if( ImGuiExt::WasItemActiveLastFrame() == true && ImGui::IsItemActive() == false )
+                {
+                    if( pVar->m_pOnValueChangedCallbackFunc )
+                    {
+                        ComponentVariableValue endvalue( this, pVar );
+                        g_pEngineCore->GetCommandStack()->Do(
+                            MyNew EditorCommand_ImGuiPanelWatchNumberValueChanged(
+                                this, pVar, endvalue, startvalue, true ) );
+                    }
+                }
+            }
             break;
 
     //    //ComponentVariableType_Double,

@@ -10,6 +10,9 @@
 #ifndef __EngineEditorCommands_H__
 #define __EngineEditorCommands_H__
 
+class EditorCommand_ImGuiPanelWatchNumberValueChanged;
+class EditorCommand_ImGuiPanelWatchColorChanged;
+class EditorCommand_ImGuiPanelWatchPointerChanged;
 class EditorCommand_MoveObjects;
 class EditorCommand_ScaleObjects;
 class EditorCommand_RotateObjects;
@@ -32,6 +35,102 @@ class EditorCommand_DeletePrefabs;
 class EditorCommand_DivorceOrMarryComponentVariable;
 class EditorCommand_ComponentVariableIndirectPointerChanged;
 class EditorCommand_ReorderOrReparentGameObjects;
+
+#if MYFW_USING_IMGUI
+typedef void (*PanelWatchCallbackValueChanged)(void* pObjectPtr, int controlid, bool directlychanged, bool finishedchanging, double oldvalue, bool valuewaschangedbydragging);
+
+enum PanelWatch_Types
+{
+    PanelWatchType_Int,
+    PanelWatchType_UnsignedInt,
+    PanelWatchType_Char,
+    PanelWatchType_UnsignedChar,
+    PanelWatchType_Bool,
+    PanelWatchType_Float,
+    PanelWatchType_Double,
+    //PanelWatchType_Vector3,
+    PanelWatchType_ColorFloat,
+    PanelWatchType_ColorByte,
+    PanelWatchType_PointerWithDesc,
+    PanelWatchType_Enum,
+    PanelWatchType_Flags,
+    PanelWatchType_SpaceWithLabel,
+    PanelWatchType_Button,
+    PanelWatchType_String,
+
+    //ADDING_NEW_WatchVariableType
+
+    PanelWatchType_Unknown,
+    PanelWatchType_NumTypes,
+};
+
+class EditorCommand_ImGuiPanelWatchNumberValueChanged : public EditorCommand
+{
+protected:
+    ComponentBase* m_pCallbackObj;
+    ComponentVariable* m_pVar;
+
+    ComponentVariableValue m_NewValue;
+    ComponentVariableValue m_OldValue;
+    bool m_DirectlyChanged;
+
+public:
+    EditorCommand_ImGuiPanelWatchNumberValueChanged(ComponentBase* pCallbackObj, ComponentVariable* pVar, ComponentVariableValue newvalue, ComponentVariableValue oldvalue, bool directlychanged);
+    virtual ~EditorCommand_ImGuiPanelWatchNumberValueChanged();
+
+    virtual void Do();
+    virtual void Undo();
+    virtual EditorCommand* Repeat();
+};
+
+//====================================================================================================
+
+class EditorCommand_ImGuiPanelWatchColorChanged : public EditorCommand
+{
+protected:
+    ColorFloat m_NewColor;
+    ColorFloat m_OldColor;
+    PanelWatch_Types m_Type;
+    void* m_Pointer;
+    int m_ControlID;
+    bool m_DirectlyChanged;
+
+    PanelWatchCallbackValueChanged m_pOnValueChangedCallBackFunc;
+    void* m_pCallbackObj;
+
+public:
+    EditorCommand_ImGuiPanelWatchColorChanged(ColorFloat newcolor, PanelWatch_Types type, void* pointer, int controlid, bool directlychanged, PanelWatchCallbackValueChanged callbackfunc, void* callbackobj);
+    virtual ~EditorCommand_ImGuiPanelWatchColorChanged();
+
+    virtual void Do();
+    virtual void Undo();
+    virtual EditorCommand* Repeat();
+};
+
+//====================================================================================================
+
+class EditorCommand_ImGuiPanelWatchPointerChanged : public EditorCommand
+{
+protected:
+    void* m_NewValue;
+    void* m_OldValue;
+    PanelWatch_Types m_Type;
+    void** m_pPointer;
+    int m_ControlID;
+    bool m_DirectlyChanged;
+
+    PanelWatchCallbackValueChanged m_pOnValueChangedCallBackFunc;
+    void* m_pCallbackObj;
+
+public:
+    EditorCommand_ImGuiPanelWatchPointerChanged(void* newvalue, PanelWatch_Types type, void** ppointer, int controlid, bool directlychanged, PanelWatchCallbackValueChanged callbackfunc, void* callbackobj);
+    virtual ~EditorCommand_ImGuiPanelWatchPointerChanged();
+
+    virtual void Do();
+    virtual void Undo();
+    virtual EditorCommand* Repeat();
+};
+#endif //MYFW_USING_IMGUI
 
 //====================================================================================================
 

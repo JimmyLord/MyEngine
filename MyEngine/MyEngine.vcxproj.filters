@@ -103,6 +103,9 @@
     <Filter Include="Source - Editor\PlatformSpecific">
       <UniqueIdentifier>{74cc688a-db99-4581-8ed9-1fe44b3649f9}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source - Editor\ImGuiExtensions">
+      <UniqueIdentifier>{9efa3e1d-094c-467a-a24d-a93fb6ce0b97}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="SourceCommon\Camera\Camera3D.cpp">
@@ -437,6 +440,9 @@
     </ClCompile>
     <ClCompile Include="SourceEditor\EditorMainFrame_Wx.cpp">
       <Filter>Source - Editor</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceEditor\ImGuiExtensions\ImGuiExtensions.cpp">
+      <Filter>Source - Editor\ImGuiExtensions</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -817,6 +823,9 @@
     </ClInclude>
     <ClInclude Include="SourceEditor\EditorMainFrame_Wx.h">
       <Filter>Source - Editor</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceEditor\ImGuiExtensions\ImGuiExtensions.h">
+      <Filter>Source - Editor\ImGuiExtensions</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
