@@ -72,6 +72,16 @@ void EditorCommand_ImGuiPanelWatchNumberValueChanged::Do()
         m_NewValue.CopyValueIntoVariable( m_pCallbackObj, m_pVar );
         break;
 
+    case ComponentVariableType_Vector2:
+        //Vector2 previousvalue = m_OldValue.GetVector2();
+        m_NewValue.CopyValueIntoVariable( m_pCallbackObj, m_pVar );
+        break;
+
+    case ComponentVariableType_Vector3:
+        //Vector3 previousvalue = m_OldValue.GetVector3();
+        m_NewValue.CopyValueIntoVariable( m_pCallbackObj, m_pVar );
+        break;
+
     //case PanelWatchType_Double:
     //    oldvalue = *(double*)m_pVar->m_Offset;
     //    *(double*)m_pVar->m_Offset += m_Difference;
@@ -94,8 +104,6 @@ void EditorCommand_ImGuiPanelWatchNumberValueChanged::Do()
     case ComponentVariableType_Bool:
     //case ComponentVariableType_Float:
     case ComponentVariableType_ColorByte:
-    case ComponentVariableType_Vector2:
-    case ComponentVariableType_Vector3:
     case ComponentVariableType_Vector2Int:
     case ComponentVariableType_Vector3Int:
     case ComponentVariableType_GameObjectPtr:
@@ -155,6 +163,16 @@ void EditorCommand_ImGuiPanelWatchNumberValueChanged::Undo()
         m_OldValue.CopyValueIntoVariable( m_pCallbackObj, m_pVar );
         break;
 
+    case ComponentVariableType_Vector2:
+        //Vector2 previousvalue = m_OldValue.GetVector2();
+        m_OldValue.CopyValueIntoVariable( m_pCallbackObj, m_pVar );
+        break;
+
+    case ComponentVariableType_Vector3:
+        //Vector3 previousvalue = m_OldValue.GetVector3();
+        m_OldValue.CopyValueIntoVariable( m_pCallbackObj, m_pVar );
+        break;
+
     //case PanelWatchType_Double:
     //    oldvalue = *(double*)m_Pointer;
     //    *(double*)m_Pointer -= m_Difference;
@@ -177,8 +195,6 @@ void EditorCommand_ImGuiPanelWatchNumberValueChanged::Undo()
     case ComponentVariableType_Bool:
     //case ComponentVariableType_Float:
     case ComponentVariableType_ColorByte:
-    case ComponentVariableType_Vector2:
-    case ComponentVariableType_Vector3:
     case ComponentVariableType_Vector2Int:
     case ComponentVariableType_Vector3Int:
     case ComponentVariableType_GameObjectPtr:

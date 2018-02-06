@@ -13,6 +13,8 @@
 namespace ImGuiExt
 {
     bool WasItemActiveLastFrame();
+    ImGuiID GetActiveItemId();
+    ImGuiID GetLastItemId();
 }
 
 #endif //__ImGuiExtensions_H__

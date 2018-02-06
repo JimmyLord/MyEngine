@@ -122,6 +122,11 @@ public:
     //virtual void FillPropertiesWindow(bool clear, bool addcomponentvariables = false, bool ignoreblockvisibleflag = false) {};
     void AddAllVariablesToWatchPanel();
 protected:
+    ComponentVariableValue m_ComponentVariableValueWhenControlSelected;
+    ImGuiID m_ImGuiControlIDForCurrentlySelectedVariable;
+    bool m_LinkNextUndoCommandToPrevious;
+
+    void TestForVariableModificationAndCreateUndoCommand(ImGuiID id, bool modified, ComponentVariable* pVar);
     void AddVariableToWatchPanel(ComponentVariable* pVar);
 #endif
     void ExportVariablesToJSON(cJSON* jComponent);

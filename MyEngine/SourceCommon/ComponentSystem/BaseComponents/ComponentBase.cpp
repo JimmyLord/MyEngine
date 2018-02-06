@@ -634,6 +634,38 @@ void ComponentBase::AddAllVariablesToWatchPanel()
     }
 }
 
+void ComponentBase::TestForVariableModificationAndCreateUndoCommand(ImGuiID id, bool modified, ComponentVariable* pVar)
+{
+    // If the id passed in is different than the last known value, then assume a new control was selected.
+    if( id != m_ImGuiControlIDForCurrentlySelectedVariable )
+    {
+        // If a new control was selected, store the starting value and start a new undo chain.
+        m_ComponentVariableValueWhenControlSelected.GetValueFromVariable( this, pVar );
+        m_LinkNextUndoCommandToPrevious = false;
+        m_ImGuiControlIDForCurrentlySelectedVariable = id;
+    }
+
+    // If the control returned true to indicate it was modified, then create an undo command.
+    if( modified && id != 0 )
+    {
+        MyAssert( id == m_ImGuiControlIDForCurrentlySelectedVariable );
+
+        // Store the end value.
+        ComponentVariableValue endvalue( this, pVar );
+
+        // Add an undo action.
+        g_pEngineCore->GetCommandStack()->Do(
+            MyNew EditorCommand_ImGuiPanelWatchNumberValueChanged(
+                                        this, pVar, endvalue, m_ComponentVariableValueWhenControlSelected, true ),
+            m_LinkNextUndoCommandToPrevious );
+
+        // Link the next undo command to this one.
+        // TODO: since we're passing in the starting value,
+        //       we can actually replace the old command rather than link to it.
+        m_LinkNextUndoCommandToPrevious = true;
+    }
+}
+
 void ComponentBase::AddVariableToWatchPanel(ComponentVariable* pVar)
 {
     if( pVar->m_DisplayInWatch == false )
@@ -686,22 +718,23 @@ void ComponentBase::AddVariableToWatchPanel(ComponentVariable* pVar)
 
         case ComponentVariableType_Float:
             {
-                ImGui::DragFloat( pVar->m_WatchLabel, (float*)((char*)this + pVar->m_Offset) );
-                static ComponentVariableValue startvalue;
-                if( ImGuiExt::WasItemActiveLastFrame() == false && ImGui::IsItemActive() == true )
-                {
-                    startvalue.GetValueFromVariable( this, pVar );
-                }
-                if( ImGuiExt::WasItemActiveLastFrame() == true && ImGui::IsItemActive() == false )
-                {
-                    if( pVar->m_pOnValueChangedCallbackFunc )
-                    {
-                        ComponentVariableValue endvalue( this, pVar );
-                        g_pEngineCore->GetCommandStack()->Do(
-                            MyNew EditorCommand_ImGuiPanelWatchNumberValueChanged(
-                                this, pVar, endvalue, startvalue, true ) );
-                    }
-                }
+                float speed = 0.1f;
+                if( pVar->m_FloatUpperLimit - pVar->m_FloatLowerLimit > 0 )
+                    speed = (pVar->m_FloatUpperLimit - pVar->m_FloatLowerLimit) / 300.0f;
+                bool modified = ImGui::DragFloat( pVar->m_WatchLabel, (float*)((char*)this + pVar->m_Offset), speed, pVar->m_FloatLowerLimit, pVar->m_FloatUpperLimit );
+                TestForVariableModificationAndCreateUndoCommand( ImGuiExt::GetActiveItemId(), modified, pVar );
+                //static ComponentVariableValue startvalue;
+                //if( ImGuiExt::WasItemActiveLastFrame() == false && ImGui::IsItemActive() == true )
+                //{
+                //    startvalue.GetValueFromVariable( this, pVar );
+                //}
+                //if( ImGuiExt::WasItemActiveLastFrame() == true && ImGui::IsItemActive() == false )
+                //{
+                //    ComponentVariableValue endvalue( this, pVar );
+                //    g_pEngineCore->GetCommandStack()->Do(
+                //        MyNew EditorCommand_ImGuiPanelWatchNumberValueChanged(
+                //            this, pVar, endvalue, startvalue, true ) );
+                //}
             }
             break;
 
@@ -713,13 +746,17 @@ void ComponentBase::AddVariableToWatchPanel(ComponentVariable* pVar)
     //        break;
 
         case ComponentVariableType_Vector2:
-            ImGui::DragFloat2( pVar->m_WatchLabel, (float*)((char*)this + pVar->m_Offset) );
-            //pVar->m_ControlID = g_pPanelWatch->AddVector2( pVar->m_WatchLabel, (Vector2*)((char*)this + pVar->m_Offset), pVar->m_FloatLowerLimit, pVar->m_FloatUpperLimit, this, ComponentBase::StaticOnValueChangedVariable, ComponentBase::StaticOnRightClickVariable );
+            {
+                bool modified = ImGui::DragFloat2( pVar->m_WatchLabel, (float*)((char*)this + pVar->m_Offset), 0.1f, pVar->m_FloatLowerLimit, pVar->m_FloatUpperLimit );
+                TestForVariableModificationAndCreateUndoCommand( ImGuiExt::GetActiveItemId(), modified, pVar );
+            }
             break;
 
         case ComponentVariableType_Vector3:
-            ImGui::DragFloat3( pVar->m_WatchLabel, (float*)((char*)this + pVar->m_Offset) );
-            //pVar->m_ControlID = g_pPanelWatch->AddVector3( pVar->m_WatchLabel, (Vector3*)((char*)this + pVar->m_Offset), pVar->m_FloatLowerLimit, pVar->m_FloatUpperLimit, this, ComponentBase::StaticOnValueChangedVariable, ComponentBase::StaticOnRightClickVariable );
+            {
+                bool modified = ImGui::DragFloat3( pVar->m_WatchLabel, (float*)((char*)this + pVar->m_Offset), 0.1f, pVar->m_FloatLowerLimit, pVar->m_FloatUpperLimit );
+                TestForVariableModificationAndCreateUndoCommand( ImGuiExt::GetActiveItemId(), modified, pVar );
+            }
             break;
 
         case ComponentVariableType_Vector2Int:

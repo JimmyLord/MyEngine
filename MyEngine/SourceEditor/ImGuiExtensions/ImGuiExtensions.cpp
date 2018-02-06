@@ -34,4 +34,22 @@ bool WasItemActiveLastFrame()
     return false;
 }
 
+ImGuiID GetActiveItemId()
+{
+    ImGuiContext& g = *GImGui;
+    
+    return g.ActiveId;
+}
+
+ImGuiID GetLastItemId()
+{
+    ImGuiContext& g = *GImGui;
+
+    ImGuiWindow* window = g.CurrentWindow;
+    if( window )
+        return window->DC.LastItemId;
+
+    return 0;
+}
+
 }
