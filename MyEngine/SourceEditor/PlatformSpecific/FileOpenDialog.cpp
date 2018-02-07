@@ -37,3 +37,30 @@ char* FileOpenDialog(char* initialDir, const char* filter)
 
     return fullpath;
 }
+
+char* FileSaveDialog(char* initialDir, const char* filter)
+{
+#if MYFW_WINDOWS
+    static char fullpath[MAX_PATH];
+    fullpath[0] = 0;
+
+    OPENFILENAMEA ofn;
+	ZeroMemory( &ofn, sizeof(ofn) );
+	ofn.lStructSize = sizeof(ofn);
+	ofn.hwndOwner = 0;
+	ofn.lpstrFile = fullpath;
+	ofn.nMaxFile = MAX_PATH;
+	ofn.lpstrFilter = filter;
+	ofn.nFilterIndex = 1;
+	ofn.lpstrFileTitle = 0;
+	ofn.nMaxFileTitle = 0;
+	ofn.lpstrInitialDir = initialDir;
+    ofn.Flags = OFN_OVERWRITEPROMPT | OFN_NOCHANGEDIR;
+                
+    GetOpenFileNameA( &ofn );
+#else
+    LOGError( LOGTag, "TODO: Implement me!\n" );
+#endif
+
+    return fullpath;
+}

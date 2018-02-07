@@ -52,15 +52,74 @@ void EditorMenuCommand(EditorMenuCommands command)
 {
     switch( command )
     {
-    case EditorMenuCommand_LoadScene:
+    case EditorMenuCommand_File_SaveScene:
         {
-            const char* filename = FileOpenDialog( "Data\\Scenes\\", "Scene\0*.scene\0All\0*.*\0" );
+            if( g_pEngineCore->IsInEditorMode() == false )
+            {
+                LOGInfo( LOGTag, "Can't save when gameplay is active... use \"Save As\"\n" );
+            }
+            else
+            {
+                for( unsigned int i=0; i<ComponentSystemManager::MAX_SCENES_LOADED; i++ )
+                {
+                    if( g_pComponentSystemManager->m_pSceneInfoMap[i].m_InUse == false )
+                        continue;
+
+                    unsigned int sceneid = i;
+                    SceneInfo* pSceneInfo = &g_pComponentSystemManager->m_pSceneInfoMap[i];
+
+                    if( sceneid != EngineCore::UNMANAGED_SCENE_ID && sceneid != EngineCore::ENGINE_SCENE_ID )
+                    {
+                        if( g_pComponentSystemManager->GetSceneInfo( sceneid )->m_FullPath[0] == 0 )
+                        {
+                            // TODO:
+                            //SaveSceneAs( sceneid );
+                        }
+                        else
+                        {
+                            LOGInfo( LOGTag, "Saving scene... %s\n", pSceneInfo->m_FullPath );
+                            g_pEngineCore->SaveScene( pSceneInfo->m_FullPath, sceneid );
+                        }
+                    }
+                }
+            }
+        }
+        break;
+
+    case EditorMenuCommand_File_LoadScene:
+        {
+            const char* filename = FileOpenDialog( "Data\\Scenes\\", "Scene Files\0*.scene\0All\0*.*\0" );
             if( filename[0] != 0 )
             {
                 char path[MAX_PATH];
                 strcpy_s( path, MAX_PATH, filename );
                 const char* relativepath = GetRelativePath( path );
                 LoadScene( relativepath, true );
+            }
+        }
+        break;
+
+    case EditorMenuCommand_File_Export_Box2DScene:
+        {
+            const char* filename = FileSaveDialog( "", "Box2D Scene Files\0*.box2dscene\0All\0*.*\0" );
+            if( filename[0] != 0 )
+            {
+                char filenameWithExtension[MAX_PATH];
+
+                int len = strlen( filename );
+                const char* ext = ".box2dscene";
+                int extlen = strlen( ext );
+
+                if( len > extlen && strcmp( &filename[len-extlen], ext ) == 0 )
+                {
+                    sprintf_s( filenameWithExtension, MAX_PATH, "%s", filename );
+                }
+                else
+                {
+                    sprintf_s( filenameWithExtension, MAX_PATH, "%s%s", filename, ext );
+                }
+
+                g_pEngineCore->ExportBox2DScene( filenameWithExtension, 1 );
             }
         }
         break;

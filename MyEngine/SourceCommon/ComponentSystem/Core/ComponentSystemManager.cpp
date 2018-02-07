@@ -14,9 +14,9 @@
 #include "../../../Framework/MyFramework/SourceCommon/SceneGraphs/SceneGraph_Flat.h"
 #include "../../../Framework/MyFramework/SourceCommon/SceneGraphs/SceneGraph_Octree.h"
 
-#if MYFW_USING_WX
+#if MYFW_EDITOR
 #include "../SourceEditor/Exporters/ExportBox2DScene.h"
-#endif //MYFW_USING_WX
+#endif //MYFW_EDITOR
 
 ComponentSystemManager* g_pComponentSystemManager = 0;
 
@@ -623,11 +623,11 @@ char* ComponentSystemManager::SaveSceneToJSON(unsigned int sceneid)
 
 char* ComponentSystemManager::ExportBox2DSceneToJSON(unsigned int sceneid)
 {
-#if MYFW_USING_WX
+#if MYFW_EDITOR
     return ::ExportBox2DSceneToJSON( this, sceneid );
 #else
     return 0;
-#endif //MYFW_USING_WX
+#endif //MYFW_EDITOR
 }
 
 void ComponentSystemManager::SaveGameObjectListToJSONArray(cJSON* gameobjectarray, cJSON* transformarray, GameObject* first, bool savesceneid)

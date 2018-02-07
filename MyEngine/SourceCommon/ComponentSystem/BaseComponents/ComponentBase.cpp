@@ -695,9 +695,43 @@ void ComponentBase::AddVariableToWatchPanel(ComponentVariable* pVar)
             //pVar->m_ControlID = g_pPanelWatch->AddInt( pVar->m_WatchLabel, (int*)((char*)this + pVar->m_Offset), -65535, 65535, this, ComponentBase::StaticOnValueChangedVariable, ComponentBase::StaticOnRightClickVariable );
             break;
 
-    //    case ComponentVariableType_Enum:
-    //        pVar->m_ControlID = g_pPanelWatch->AddEnum( pVar->m_WatchLabel, (int*)((char*)this + pVar->m_Offset), pVar->m_NumEnumStrings, pVar->m_ppEnumStrings, this, ComponentBase::StaticOnValueChangedVariable, ComponentBase::StaticOnRightClickVariable );
-    //        break;
+        case ComponentVariableType_Enum:
+            {
+                //pVar->m_ControlID = g_pPanelWatch->AddEnum( pVar->m_WatchLabel, (int*)((char*)this + pVar->m_Offset), pVar->m_NumEnumStrings, pVar->m_ppEnumStrings, this, ComponentBase::StaticOnValueChangedVariable, ComponentBase::StaticOnRightClickVariable );
+                const char** items = pVar->m_ppEnumStrings;
+                int currentItem = *(int*)((char*)this + pVar->m_Offset);
+                const char* currentItemStr = pVar->m_ppEnumStrings[currentItem];
+                if( ImGui::BeginCombo( pVar->m_WatchLabel, currentItemStr ) )
+                {
+                    for( int n = 0; n < pVar->m_NumEnumStrings; n++ )
+                    {
+                        bool is_selected = (n == currentItem);
+                        if( ImGui::Selectable( items[n], is_selected ) )
+                        {
+                            // Store the old value.
+                            ComponentVariableValue oldvalue( this, pVar );
+
+                            // Change the value.
+                            *(int*)((char*)this + pVar->m_Offset) = n;
+
+                            // Store the new value.
+                            ComponentVariableValue newvalue( this, pVar );
+
+                            g_pEngineCore->GetCommandStack()->Do(
+                                MyNew EditorCommand_ImGuiPanelWatchNumberValueChanged(
+                                                            this, pVar, newvalue, oldvalue, true ),
+                                false );
+                        }
+                        if( is_selected )
+                        {
+                            // Set the initial focus when opening the combo (scrolling + for keyboard navigation support in the upcoming navigation branch)
+                            ImGui::SetItemDefaultFocus();
+                        }
+                    }
+                    ImGui::EndCombo();
+                }
+            }
+            break;
 
     //    case ComponentVariableType_Flags:
             //ImGui::CheckboxFlags( pVar->m_WatchLabel, (unsigned int*)((char*)this + pVar->m_Offset) );
@@ -712,8 +746,24 @@ void ComponentBase::AddVariableToWatchPanel(ComponentVariable* pVar)
     //    //ComponentVariableType_UnsignedChar,
 
         case ComponentVariableType_Bool:
-            ImGui::Checkbox( pVar->m_WatchLabel, (bool*)((char*)this + pVar->m_Offset) );
-            //pVar->m_ControlID = g_pPanelWatch->AddBool( pVar->m_WatchLabel, (bool*)((char*)this + pVar->m_Offset), 0, 1, this, ComponentBase::StaticOnValueChangedVariable, ComponentBase::StaticOnRightClickVariable );
+            {
+                bool modified = ImGui::Checkbox( pVar->m_WatchLabel, (bool*)((char*)this + pVar->m_Offset) );
+                if( modified )
+                {
+                    // Flip the bool to store the old value, then flip is back.
+                    *(bool*)((char*)this + pVar->m_Offset) = !*(bool*)((char*)this + pVar->m_Offset);
+                    ComponentVariableValue oldvalue( this, pVar );
+                    *(bool*)((char*)this + pVar->m_Offset) = !*(bool*)((char*)this + pVar->m_Offset);
+
+                    // Store the new value.
+                    ComponentVariableValue newvalue( this, pVar );
+
+                    g_pEngineCore->GetCommandStack()->Do(
+                        MyNew EditorCommand_ImGuiPanelWatchNumberValueChanged(
+                                                    this, pVar, newvalue, oldvalue, true ),
+                        false );
+                }
+            }
             break;
 
         case ComponentVariableType_Float:
@@ -723,18 +773,6 @@ void ComponentBase::AddVariableToWatchPanel(ComponentVariable* pVar)
                     speed = (pVar->m_FloatUpperLimit - pVar->m_FloatLowerLimit) / 300.0f;
                 bool modified = ImGui::DragFloat( pVar->m_WatchLabel, (float*)((char*)this + pVar->m_Offset), speed, pVar->m_FloatLowerLimit, pVar->m_FloatUpperLimit );
                 TestForVariableModificationAndCreateUndoCommand( ImGuiExt::GetActiveItemId(), modified, pVar );
-                //static ComponentVariableValue startvalue;
-                //if( ImGuiExt::WasItemActiveLastFrame() == false && ImGui::IsItemActive() == true )
-                //{
-                //    startvalue.GetValueFromVariable( this, pVar );
-                //}
-                //if( ImGuiExt::WasItemActiveLastFrame() == true && ImGui::IsItemActive() == false )
-                //{
-                //    ComponentVariableValue endvalue( this, pVar );
-                //    g_pEngineCore->GetCommandStack()->Do(
-                //        MyNew EditorCommand_ImGuiPanelWatchNumberValueChanged(
-                //            this, pVar, endvalue, startvalue, true ) );
-                //}
             }
             break;
 

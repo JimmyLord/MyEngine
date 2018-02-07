@@ -12,7 +12,9 @@
 
 enum EditorMenuCommands
 {
-    EditorMenuCommand_LoadScene,
+    EditorMenuCommand_File_SaveScene,
+    EditorMenuCommand_File_LoadScene,
+    EditorMenuCommand_File_Export_Box2DScene,
     EditorMenuCommand_TogglePlayStop,
     EditorMenuCommand_Undo,
     EditorMenuCommand_Redo,

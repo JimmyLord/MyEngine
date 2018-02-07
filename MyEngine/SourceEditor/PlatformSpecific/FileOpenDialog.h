@@ -11,5 +11,6 @@
 #define __FileOpenDialog_H__
 
 char* FileOpenDialog(char* initialDir, const char* filter);
+char* FileSaveDialog(char* initialDir, const char* filter);
 
 #endif //__FileOpenDialog_H__

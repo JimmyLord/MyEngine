@@ -169,10 +169,12 @@ bool EditorMainFrame_ImGui::CheckForHotkeys(int keyaction, int keycode)
         bool C  =  m_KeyDownCtrl && !m_KeyDownAlt && !m_KeyDownShift && !m_KeyDownCommand; // Ctrl
         bool CS =  m_KeyDownCtrl && !m_KeyDownAlt &&  m_KeyDownShift && !m_KeyDownCommand; // Ctrl-Shift
 
-        if( C  && keycode == ' ' ) { EditorMenuCommand( EditorMenuCommand_TogglePlayStop ); return true; }
-        if( C  && keycode == 'Z' ) { EditorMenuCommand( EditorMenuCommand_Undo );           return true; }
-        if( C  && keycode == 'Y' ) { EditorMenuCommand( EditorMenuCommand_Redo );           return true; }
-        if( CS && keycode == 'Z' ) { EditorMenuCommand( EditorMenuCommand_Redo );           return true; }
+        if( C  && keycode == 'S' ) { EditorMenuCommand( EditorMenuCommand_File_SaveScene );         return true; }
+        if( CS && keycode == 'E' ) { EditorMenuCommand( EditorMenuCommand_File_Export_Box2DScene ); return true; }
+        if( C  && keycode == ' ' ) { EditorMenuCommand( EditorMenuCommand_TogglePlayStop );         return true; }
+        if( C  && keycode == 'Z' ) { EditorMenuCommand( EditorMenuCommand_Undo );                   return true; }
+        if( C  && keycode == 'Y' ) { EditorMenuCommand( EditorMenuCommand_Redo );                   return true; }
+        if( CS && keycode == 'Z' ) { EditorMenuCommand( EditorMenuCommand_Redo );                   return true; }
     }
 
     return false;
@@ -218,16 +220,16 @@ void EditorMainFrame_ImGui::AddMainMenuBar()
             //if( ImGui::MenuItem( "&Open...", "CTRL-O" ) ) {}
             //ImGui::Separator();
             //if( ImGui::MenuItem( "&Test...", "CTRL-T" ) ) {}
-            if( ImGui::MenuItem( "&New Scene" ) ) {}
-            if( ImGui::MenuItem( "&Load Scene..." ) ) { EditorMenuCommand( EditorMenuCommand_LoadScene ); }
+            if( ImGui::MenuItem( "&New Scene" ) ) {  }
+            if( ImGui::MenuItem( "&Load Scene..." ) ) { EditorMenuCommand( EditorMenuCommand_File_LoadScene ); }
             if( ImGui::MenuItem( "&Create Additional Scene" ) ) {}
             if( ImGui::MenuItem( "&Load Additional Scene..." ) ) {}
-            if( ImGui::MenuItem( "&Save Scene", "Ctrl-S" ) ) {}
+            if( ImGui::MenuItem( "&Save Scene", "Ctrl-S" ) ) { EditorMenuCommand( EditorMenuCommand_File_SaveScene ); }
             if( ImGui::MenuItem( "Save Scene &As..." ) ) {}
 
             if( ImGui::BeginMenu( "E&xport" ) )
             {
-                if( ImGui::MenuItem( "Box2D Scene...", "Ctrl-Shift-E" ) ) {}
+                if( ImGui::MenuItem( "Box2D Scene...", "Ctrl-Shift-E" ) ) { EditorMenuCommand( EditorMenuCommand_File_Export_Box2DScene ); }
                 ImGui::EndMenu();
             }
             if( ImGui::MenuItem( "&Quit" ) ) {}

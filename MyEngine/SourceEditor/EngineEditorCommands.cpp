@@ -40,12 +40,20 @@ void EditorCommand_ImGuiPanelWatchNumberValueChanged::Do()
 
     switch( m_pVar->m_Type )
     {
-    //case PanelWatchType_Int:
-    //case PanelWatchType_Enum:
-    //case PanelWatchType_Flags:
-    //    oldvalue = *(double*)m_pVar->m_Offset;
-    //    *(double*)m_pVar->m_Offset += (double)m_Difference;
-    //    break;
+    case ComponentVariableType_Int:
+        previousvalue = (double)m_OldValue.GetInt();
+        m_NewValue.CopyValueIntoVariable( m_pCallbackObj, m_pVar );
+        break;
+
+    case ComponentVariableType_Enum:
+        previousvalue = (double)m_OldValue.GetEnum();
+        m_NewValue.CopyValueIntoVariable( m_pCallbackObj, m_pVar );
+        break;
+
+    case ComponentVariableType_Flags:
+        previousvalue = (double)m_OldValue.GetFlags();
+        m_NewValue.CopyValueIntoVariable( m_pCallbackObj, m_pVar );
+        break;
 
     //case PanelWatchType_UnsignedInt:
     //    oldvalue = *(unsigned int*)m_pVar->m_Offset;
@@ -62,10 +70,10 @@ void EditorCommand_ImGuiPanelWatchNumberValueChanged::Do()
     //    *(unsigned char*)m_pVar->m_Offset += (unsigned char)m_Difference;
     //    break;
 
-    //case PanelWatchType_Bool:
-    //    oldvalue = *(char*)m_pVar->m_Offset;
-    //    *(char*)m_pVar->m_Offset += (char)m_Difference; // treating bools as char to avoid warning/error. safe?
-    //    break;
+    case ComponentVariableType_Bool:
+        previousvalue = (double)m_OldValue.GetBool();
+        m_NewValue.CopyValueIntoVariable( m_pCallbackObj, m_pVar );
+        break;
 
     case ComponentVariableType_Float:
         previousvalue = (double)m_OldValue.GetFloat();
@@ -97,13 +105,15 @@ void EditorCommand_ImGuiPanelWatchNumberValueChanged::Do()
     //case PanelWatchType_Unknown:
     //case PanelWatchType_NumTypes:
 
-    case ComponentVariableType_Int:
-    case ComponentVariableType_Enum:
-    case ComponentVariableType_Flags:
+    //case ComponentVariableType_Int:
+    //case ComponentVariableType_Enum:
+    //case ComponentVariableType_Flags:
     case ComponentVariableType_UnsignedInt:
-    case ComponentVariableType_Bool:
+    //case ComponentVariableType_Bool:
     //case ComponentVariableType_Float:
     case ComponentVariableType_ColorByte:
+    //case ComponentVariableType_Vector2:
+    //case ComponentVariableType_Vector3:
     case ComponentVariableType_Vector2Int:
     case ComponentVariableType_Vector3Int:
     case ComponentVariableType_GameObjectPtr:
@@ -131,12 +141,20 @@ void EditorCommand_ImGuiPanelWatchNumberValueChanged::Undo()
 
     switch( m_pVar->m_Type )
     {
-    //case PanelWatchType_Int:
-    //case PanelWatchType_Enum:
-    //case PanelWatchType_Flags:
-    //    oldvalue = *(int*)m_Pointer;
-    //    *(int*)m_Pointer -= (int)m_Difference;
-    //    break;
+    case ComponentVariableType_Int:
+        previousvalue = (double)m_NewValue.GetInt();
+        m_OldValue.CopyValueIntoVariable( m_pCallbackObj, m_pVar );
+        break;
+
+    case ComponentVariableType_Enum:
+        previousvalue = (double)m_NewValue.GetEnum();
+        m_OldValue.CopyValueIntoVariable( m_pCallbackObj, m_pVar );
+        break;
+
+    case ComponentVariableType_Flags:
+        previousvalue = (double)m_NewValue.GetFlags();
+        m_OldValue.CopyValueIntoVariable( m_pCallbackObj, m_pVar );
+        break;
 
     //case PanelWatchType_UnsignedInt:
     //    oldvalue = *(unsigned int*)m_Pointer;
@@ -153,10 +171,10 @@ void EditorCommand_ImGuiPanelWatchNumberValueChanged::Undo()
     //    *(unsigned char*)m_Pointer -= (unsigned char)m_Difference;
     //    break;
 
-    //case PanelWatchType_Bool:
-    //    oldvalue = *(char*)m_Pointer;
-    //    *(char*)m_Pointer -= (char)m_Difference; // treating bools as char to avoid warning/error. safe?
-    //    break;
+    case ComponentVariableType_Bool:
+        previousvalue = (double)m_NewValue.GetBool();
+        m_OldValue.CopyValueIntoVariable( m_pCallbackObj, m_pVar );
+        break;
 
     case ComponentVariableType_Float:
         previousvalue = (double)m_NewValue.GetFloat();
@@ -188,13 +206,15 @@ void EditorCommand_ImGuiPanelWatchNumberValueChanged::Undo()
     //case PanelWatchType_Unknown:
     //case PanelWatchType_NumTypes:
 
-    case ComponentVariableType_Int:
-    case ComponentVariableType_Enum:
-    case ComponentVariableType_Flags:
+    //case ComponentVariableType_Int:
+    //case ComponentVariableType_Enum:
+    //case ComponentVariableType_Flags:
     case ComponentVariableType_UnsignedInt:
-    case ComponentVariableType_Bool:
+    //case ComponentVariableType_Bool:
     //case ComponentVariableType_Float:
     case ComponentVariableType_ColorByte:
+    //case ComponentVariableType_Vector2:
+    //case ComponentVariableType_Vector3:
     case ComponentVariableType_Vector2Int:
     case ComponentVariableType_Vector3Int:
     case ComponentVariableType_GameObjectPtr:
