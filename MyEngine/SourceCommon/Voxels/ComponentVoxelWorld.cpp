@@ -143,7 +143,7 @@ void* ComponentVoxelWorld::GetPointerValue(ComponentVariable* pVar) //_VARIABLE_
     return 0;
 }
 
-void ComponentVoxelWorld::SetPointerValue(ComponentVariable* pVar, void* newvalue)
+void ComponentVoxelWorld::SetPointerValue(ComponentVariable* pVar, const void* newvalue)
 {
     if( strcmp( pVar->m_Label, "Material" ) == 0 )
     {

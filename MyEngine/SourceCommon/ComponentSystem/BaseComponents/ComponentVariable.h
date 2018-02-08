@@ -61,7 +61,7 @@ typedef void* (ComponentBase::*CVarFunc_ValueChanged)(ComponentVariable* pVar, b
 typedef void* (ComponentBase::*CVarFunc_Pointer)(ComponentVariable* pVar);
 
 typedef void* (ComponentBase::*CVarFunc_GetPointerValue)(ComponentVariable* pVar);
-typedef void (ComponentBase::*CVarFunc_SetPointerValue)(ComponentVariable* pVar, void* newvalue);
+typedef void (ComponentBase::*CVarFunc_SetPointerValue)(ComponentVariable* pVar, const void* newvalue);
 typedef const char* (ComponentBase::*CVarFunc_GetPointerDesc)(ComponentVariable* pVar);
 typedef void (ComponentBase::*CVarFunc_SetPointerDesc)(ComponentVariable* pVar, const char* newdesc);
 

@@ -134,7 +134,7 @@ void* ComponentLuaScript::GetPointerValue(ComponentVariable* pVar) //_VARIABLE_L
     return 0;
 }
 
-void ComponentLuaScript::SetPointerValue(ComponentVariable* pVar, void* newvalue) //_VARIABLE_LIST
+void ComponentLuaScript::SetPointerValue(ComponentVariable* pVar, const void* newvalue) //_VARIABLE_LIST
 {
     //if( strcmp( pVar->m_Label, "OnPlay" ) == 0 )
     //{

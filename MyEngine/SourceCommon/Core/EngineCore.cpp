@@ -752,7 +752,7 @@ void EngineCore::OnDrawFrame(unsigned int canvasid)
         OnSurfaceChanged( 0, 0, (unsigned int)windowwidth, (unsigned int)windowheight );
 
         // Render out the ImGui command list to the full window.
-        glClearColor( 0.0f, 0.0f, 0.2f, 1.0f );
+        glClearColor( 0.0f, 0.1f, 0.2f, 1.0f );
         glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
         if( g_pImGuiManager )
@@ -1935,13 +1935,17 @@ void EngineCore::OnSurfaceChanged(unsigned int startx, unsigned int starty, unsi
 }
 
 #if MYFW_EDITOR
-void EngineCore::RenderSingleObject(GameObject* pObject)
+void EngineCore::RenderSingleObject(GameObject* pObject, FBODefinition* pFBOToUse)
 {
+    FBODefinition* pFBO = pFBOToUse;
+    if( pFBO == 0 )
+        pFBO = m_pEditorState->m_pDebugViewFBO;
+
     // render the scene to an FBO.
-    m_pEditorState->m_pDebugViewFBO->Bind( true );
+    pFBO->Bind( true );
 
     glDisable( GL_SCISSOR_TEST );
-    glViewport( 0, 0, m_pEditorState->m_pDebugViewFBO->m_Width, m_pEditorState->m_pDebugViewFBO->m_Height );
+    glViewport( 0, 0, pFBO->m_Width, pFBO->m_Height );
 
     glClearColor( 0, 0, 0, 0 );
     glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
@@ -1967,7 +1971,7 @@ void EngineCore::RenderSingleObject(GameObject* pObject)
             matView.CreateLookAtView( objpos + center + Vector3(0, 2, -5), Vector3(0,1,0), objpos + center );
 
             MyMatrix matProj;
-            float aspect = (float)m_pEditorState->m_pDebugViewFBO->m_Width / m_pEditorState->m_pDebugViewFBO->m_Height;
+            float aspect = (float)pFBO->m_Width / pFBO->m_Height;
             matProj.CreatePerspectiveHFoV( 45, aspect, 0.1f, 1000.0f );
 
             MyMatrix matViewProj = matProj * matView;
@@ -1980,7 +1984,7 @@ void EngineCore::RenderSingleObject(GameObject* pObject)
         }
     }
 
-    m_pEditorState->m_pDebugViewFBO->Unbind( true );
+    pFBO->Unbind( true );
 }
 
 void EngineCore::GetMouseRay(Vector2 mousepos, Vector3* start, Vector3* end)

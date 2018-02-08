@@ -17,6 +17,9 @@ class EditorMainFrame_ImGui : public EditorMainFrame
 protected:
     FBODefinition* m_pGameFBO;
     FBODefinition* m_pEditorFBO;
+    FBODefinition* m_pMaterialPreviewFBO;
+    MaterialDefinition* m_pMaterialToPreview;
+
     Vector2 m_GameWindowPos;
     Vector2 m_EditorWindowPos;
     Vector2 m_GameWindowSize;
@@ -25,6 +28,8 @@ protected:
     bool m_GameWindowFocused;
     bool m_EditorWindowHovered;
     bool m_EditorWindowFocused;
+
+    int m_CurrentMemoryPanelPage;
 
     // Modifier key states
     bool m_KeyDownCtrl;
@@ -50,6 +55,9 @@ public:
     void AddObjectList();
     void AddGameObjectToObjectList(GameObject* pGameObject);
     void AddWatchPanel();
+    void AddMemoryPanel();
+    
+    void AddMaterialPreview(bool createWindow, ImVec2 requestedSize, ImVec4 tint);
     void AddDebug_MousePicker();
 
     void DrawGameAndEditorWindows(EngineCore* pEngineCore);

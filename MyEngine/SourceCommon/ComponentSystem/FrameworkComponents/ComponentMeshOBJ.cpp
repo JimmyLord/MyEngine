@@ -66,7 +66,7 @@ void* ComponentMeshOBJ::GetPointerValue(ComponentVariable* pVar) //_VARIABLE_LIS
     return 0;
 }
 
-void ComponentMeshOBJ::SetPointerValue(ComponentVariable* pVar, void* newvalue) //_VARIABLE_LIST
+void ComponentMeshOBJ::SetPointerValue(ComponentVariable* pVar, const void* newvalue) //_VARIABLE_LIST
 {
     if( strcmp( pVar->m_Label, "OBJ" ) == 0 )
     {

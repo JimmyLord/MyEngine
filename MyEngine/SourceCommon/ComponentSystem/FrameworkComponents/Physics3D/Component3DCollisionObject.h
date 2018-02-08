@@ -84,7 +84,7 @@ public:
 public:
     // Runtime component variable callbacks. //_VARIABLE_LIST
     void* GetPointerValue(ComponentVariable* pVar);
-    void SetPointerValue(ComponentVariable* pVar, void* newvalue);
+    void SetPointerValue(ComponentVariable* pVar, const void* newvalue);
     const char* GetPointerDesc(ComponentVariable* pVar);
     void SetPointerDesc(ComponentVariable* pVar, const char* newdesc);
 

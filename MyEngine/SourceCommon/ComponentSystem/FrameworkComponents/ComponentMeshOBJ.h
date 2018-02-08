@@ -50,8 +50,8 @@ public:
     //static void* StaticGetPointerValue(void* pObjectPtr, ComponentVariable* pVar) { return ((ComponentMeshOBJ*)pObjectPtr)->GetPointerValue(pVar); }
     void* GetPointerValue(ComponentVariable* pVar);
 
-    //static void StaticSetPointerValue(void* pObjectPtr, ComponentVariable* pVar, void* newvalue) { return ((ComponentMeshOBJ*)pObjectPtr)->SetPointerValue(pVar, newvalue); }
-    void SetPointerValue(ComponentVariable* pVar, void* newvalue);
+    //static void StaticSetPointerValue(void* pObjectPtr, ComponentVariable* pVar, const void* newvalue) { return ((ComponentMeshOBJ*)pObjectPtr)->SetPointerValue(pVar, newvalue); }
+    void SetPointerValue(ComponentVariable* pVar, const void* newvalue);
 
     //static const char* StaticGetPointerDesc(void* pObjectPtr, ComponentVariable* pVar) { return ((ComponentMeshOBJ*)pObjectPtr)->GetPointerDesc( pVar ); }
     const char* GetPointerDesc(ComponentVariable* pVar);

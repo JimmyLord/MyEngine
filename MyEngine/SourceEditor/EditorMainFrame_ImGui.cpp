@@ -27,10 +27,36 @@ const char* g_DefaultEditorWindowTypeMenuLabels[EditorWindow_NumTypes] =
     "&Files Panel",
 };
 
+enum PanelMemoryPages
+{
+    PanelMemoryPage_Materials,
+    PanelMemoryPage_Textures,
+    PanelMemoryPage_ShaderGroups,
+    PanelMemoryPage_SoundCues,
+    PanelMemoryPage_Files,
+    PanelMemoryPage_Buffers,
+    PanelMemoryPage_DrawCalls,
+    PanelMemoryPage_NumTypes
+};
+
+const char* g_PanelMemoryPagesMenuLabels[PanelMemoryPage_NumTypes] =
+{
+    "Materials",
+    "Textures",
+    "Shaders",
+    "Sound Cues",
+    "Files",
+    "Buffers",
+    "Draw Calls",
+};
+
 EditorMainFrame_ImGui::EditorMainFrame_ImGui()
 {
     m_pGameFBO = g_pTextureManager->CreateFBO( 1024, 1024, GL_NEAREST, GL_NEAREST, true, 32, true );
     m_pEditorFBO = g_pTextureManager->CreateFBO( 1024, 1024, GL_NEAREST, GL_NEAREST, true, 32, true );
+    
+    m_pMaterialPreviewFBO = g_pTextureManager->CreateFBO( 1024, 1024, GL_NEAREST, GL_NEAREST, true, 32, true );
+    m_pMaterialToPreview = 0;
 
     m_GameWindowPos.Set( -1, -1 );
     m_EditorWindowPos.Set( -1, -1 );
@@ -40,6 +66,8 @@ EditorMainFrame_ImGui::EditorMainFrame_ImGui()
     m_GameWindowFocused = false;
     m_EditorWindowHovered = false;
     m_EditorWindowFocused = false;
+
+    m_CurrentMemoryPanelPage = PanelMemoryPage_Materials;
 
     m_KeyDownCtrl = false;
     m_KeyDownAlt = false;
@@ -56,6 +84,7 @@ EditorMainFrame_ImGui::~EditorMainFrame_ImGui()
 
     SAFE_RELEASE( m_pGameFBO );
     SAFE_RELEASE( m_pEditorFBO );
+    SAFE_RELEASE( m_pMaterialPreviewFBO )
 }
 
 Vector2 EditorMainFrame_ImGui::GetEditorWindowCenterPosition()
@@ -186,6 +215,7 @@ void EditorMainFrame_ImGui::AddEverything()
     AddGameAndEditorWindows();
     AddObjectList();
     AddWatchPanel();
+    AddMemoryPanel();
     AddDebug_MousePicker();
 
     ImGuiIO& io = ImGui::GetIO();
@@ -216,42 +246,38 @@ void EditorMainFrame_ImGui::AddMainMenuBar()
     {
         if( ImGui::BeginMenu( "File" ) )
         {
-            //if( ImGui::MenuItem( "&New", "CTRL-N" ) ) {}
-            //if( ImGui::MenuItem( "&Open...", "CTRL-O" ) ) {}
-            //ImGui::Separator();
-            //if( ImGui::MenuItem( "&Test...", "CTRL-T" ) ) {}
-            if( ImGui::MenuItem( "&New Scene" ) ) {  }
-            if( ImGui::MenuItem( "&Load Scene..." ) ) { EditorMenuCommand( EditorMenuCommand_File_LoadScene ); }
-            if( ImGui::MenuItem( "&Create Additional Scene" ) ) {}
-            if( ImGui::MenuItem( "&Load Additional Scene..." ) ) {}
-            if( ImGui::MenuItem( "&Save Scene", "Ctrl-S" ) ) { EditorMenuCommand( EditorMenuCommand_File_SaveScene ); }
-            if( ImGui::MenuItem( "Save Scene &As..." ) ) {}
+            if( ImGui::MenuItem( "New Scene (TODO)" ) ) {  }
+            if( ImGui::MenuItem( "Load Scene..." ) ) { EditorMenuCommand( EditorMenuCommand_File_LoadScene ); }
+            if( ImGui::MenuItem( "Create Additional Scene (TODO)" ) ) {}
+            if( ImGui::MenuItem( "Load Additional Scene... (TODO)" ) ) {}
+            if( ImGui::MenuItem( "Save Scene", "Ctrl-S" ) ) { EditorMenuCommand( EditorMenuCommand_File_SaveScene ); }
+            if( ImGui::MenuItem( "Save Scene As... (TODO)" ) ) {}
 
-            if( ImGui::BeginMenu( "E&xport" ) )
+            if( ImGui::BeginMenu( "Export" ) )
             {
                 if( ImGui::MenuItem( "Box2D Scene...", "Ctrl-Shift-E" ) ) { EditorMenuCommand( EditorMenuCommand_File_Export_Box2DScene ); }
                 ImGui::EndMenu();
             }
-            if( ImGui::MenuItem( "&Quit" ) ) {}
+            if( ImGui::MenuItem( "Quit (TODO)" ) ) {}
 
             ImGui::EndMenu();
         }
 
         if( ImGui::BeginMenu( "Edit" ) )
         {
-            if( ImGui::MenuItem( "&Undo", "CTRL-Z" ) ) {}
-            if( ImGui::MenuItem( "&Redo", "CTRL-Y" ) ) {}
+            if( ImGui::MenuItem( "Undo", "CTRL-Z" ) ) {}
+            if( ImGui::MenuItem( "Redo", "CTRL-Y" ) ) {}
 
             ImGui::EndMenu();
         }
 
         if( ImGui::BeginMenu( "View" ) )
         {
-            if( ImGui::MenuItem( "&Save window layout" ) ) {} // { EditorMenuCommand( myID_View_SavePerspective ); }
-            if( ImGui::MenuItem( "&Load window layout" ) ) {} // { EditorMenuCommand( myID_View_LoadPerspective ); }
-            if( ImGui::MenuItem( "&Reset window layout" ) ) {} // { EditorMenuCommand( myID_View_ResetPerspective ); }
+            if( ImGui::MenuItem( "Save window layout (TODO)" ) ) {} // { EditorMenuCommand( myID_View_SavePerspective ); }
+            if( ImGui::MenuItem( "Load window layout (TODO)" ) ) {} // { EditorMenuCommand( myID_View_LoadPerspective ); }
+            if( ImGui::MenuItem( "Reset window layout (TODO)" ) ) {} // { EditorMenuCommand( myID_View_ResetPerspective ); }
 
-            if( ImGui::BeginMenu( "Editor Windows" ) )
+            if( ImGui::BeginMenu( "Editor Windows (TODO)" ) )
             {
                 for( int i=0; i<EditorWindow_NumTypes; i++ )
                 {
@@ -323,33 +349,33 @@ void EditorMainFrame_ImGui::AddMainMenuBar()
 
         if( ImGui::BeginMenu( "Aspect" ) )
         {
-            if( ImGui::MenuItem( "&Fill", "Alt-1" ) ) {}
-            if( ImGui::MenuItem( "&Tall", "Alt-2" ) ) {}
-            if( ImGui::MenuItem( "&Square", "Alt-3" ) ) {}
-            if( ImGui::MenuItem( "&Wide", "Alt-4" ) ) {}
+            if( ImGui::MenuItem( "Fill (TODO)", "Alt-1" ) ) {}
+            if( ImGui::MenuItem( "Tall (TODO)", "Alt-2" ) ) {}
+            if( ImGui::MenuItem( "Square (TODO)", "Alt-3" ) ) {}
+            if( ImGui::MenuItem( "Wide (TODO)", "Alt-4" ) ) {}
 
             ImGui::EndMenu();
         }
 
         if( ImGui::BeginMenu( "Grid" ) )
         {
-            if( ImGui::MenuItem( "Grid &On/Off", "Ctrl-Shift-V", true ) ) {} // { EditorMenuCommand( myIDEngine_Grid_VisibleOnOff ); }
-            if( ImGui::MenuItem( "Grid Snap &On/Off", "Ctrl-G", true ) ) {} // { EditorMenuCommand( myIDEngine_Grid_SnapOnOff ); }
-            if( ImGui::MenuItem( "Grid &Settings", "Ctrl-Shift-G" ) ) {}
+            if( ImGui::MenuItem( "Grid On/Off (TODO)", "Ctrl-Shift-V", true ) ) {} // { EditorMenuCommand( myIDEngine_Grid_VisibleOnOff ); }
+            if( ImGui::MenuItem( "Grid Snap On/Off (TODO)", "Ctrl-G", true ) ) {} // { EditorMenuCommand( myIDEngine_Grid_SnapOnOff ); }
+            if( ImGui::MenuItem( "Grid Settings (TODO)", "Ctrl-Shift-G" ) ) {}
 
             ImGui::EndMenu();
         }
 
         if( ImGui::BeginMenu( "Mode" ) )
         {
-            if( ImGui::MenuItem( "Switch &Focus on Play/Stop", 0, true ) ) {} // { EditorMenuCommand( myIDEngine_Mode_SwitchFocusOnPlayStop ); }
+            if( ImGui::MenuItem( "Switch Focus on Play/Stop (TODO)", 0, true ) ) {} // { EditorMenuCommand( myIDEngine_Mode_SwitchFocusOnPlayStop ); }
             //// Since Command-Space is "Spotlight Search" on OSX, use the actual control key on OSX as well as Windows/Linux.
-            if( ImGui::MenuItem( "&Play/Stop", "CTRL-SPACE" ) ) {} // { EditorMenuCommand( myIDEngine_Mode_PlayStop ); }
-            if( ImGui::MenuItem( "Pause", "Ctrl-." ) ) {} // { EditorMenuCommand( myIDEngine_Mode_Pause ); }
-            if( ImGui::MenuItem( "Advance 1 Frame", "Ctrl-]" ) ) {} // { EditorMenuCommand( myIDEngine_Mode_Advance1Frame ); }
-            if( ImGui::MenuItem( "Advance 1 Second", "Ctrl-[" ) ) {} // { EditorMenuCommand( myIDEngine_Mode_Advance1Second ); }
+            if( ImGui::MenuItem( "Play/Stop", "CTRL-SPACE" ) ) {} // { EditorMenuCommand( myIDEngine_Mode_PlayStop ); }
+            if( ImGui::MenuItem( "Pause (TODO)", "Ctrl-." ) ) {} // { EditorMenuCommand( myIDEngine_Mode_Pause ); }
+            if( ImGui::MenuItem( "Advance 1 Frame (TODO)", "Ctrl-]" ) ) {} // { EditorMenuCommand( myIDEngine_Mode_Advance1Frame ); }
+            if( ImGui::MenuItem( "Advance 1 Second (TODO)", "Ctrl-[" ) ) {} // { EditorMenuCommand( myIDEngine_Mode_Advance1Second ); }
 
-            if( ImGui::BeginMenu( "L&aunch Platforms" ) )
+            if( ImGui::BeginMenu( "Launch Platforms" ) )
             {
                 //for( int i=0; i<LaunchPlatform_NumPlatforms; i++ )
                 //{
@@ -359,32 +385,32 @@ void EditorMainFrame_ImGui::AddMainMenuBar()
                 ImGui::EndMenu();
             }
 
-            if( ImGui::MenuItem( "&Launch Game", "tCtrl-F5" ) ) {} // { EditorMenuCommand( myIDEngine_Mode_LaunchGame ); }
+            if( ImGui::MenuItem( "Launch Game (TODO)", "tCtrl-F5" ) ) {} // { EditorMenuCommand( myIDEngine_Mode_LaunchGame ); }
 
             ImGui::EndMenu();
         }
 
         if( ImGui::BeginMenu( "Data" ) )
         {
-            if( ImGui::MenuItem( "&Load Datafiles" ) ) {} // { EditorMenuCommand( myIDEngine_Data_AddDatafile ); }
+            if( ImGui::MenuItem( "Load Datafiles (TODO)" ) ) {} // { EditorMenuCommand( myIDEngine_Data_AddDatafile ); }
             ImGui::EndMenu();
         }
 
         if( ImGui::BeginMenu( "Hackery" ) )
         {
-            if( ImGui::MenuItem( "&Record", "Ctrl-R" ) ) {} // { EditorMenuCommand( myIDEngine_Hackery_RecordMacro ); }
-            if( ImGui::MenuItem( "Stop recording and &Execute", "Ctrl-E" ) ) {} // { EditorMenuCommand( myIDEngine_Hackery_ExecuteMacro ); }
+            if( ImGui::MenuItem( "Record (TODO)", "Ctrl-R" ) ) {} // { EditorMenuCommand( myIDEngine_Hackery_RecordMacro ); }
+            if( ImGui::MenuItem( "Stop recording and Execute (TODO)", "Ctrl-E" ) ) {} // { EditorMenuCommand( myIDEngine_Hackery_ExecuteMacro ); }
             ImGui::EndMenu();
         }
 
         if( ImGui::BeginMenu( "Debug views" ) )
         {
-            if( ImGui::MenuItem( "Show &Mouse Picker FBO", "F9" ) ) {} // { EditorMenuCommand( myIDEngine_Debug_ShowMousePickerFBO ); }
-            if( ImGui::MenuItem( "Show &Animated Debug View for Selection", "F8" ) ) {} // { EditorMenuCommand( myIDEngine_Debug_ShowSelectedAnimatedMesh ); }
-            if( ImGui::MenuItem( "Show &GL Stats", "Shift-F9" ) ) {} // { EditorMenuCommand( myIDEngine_Debug_ShowGLStats ); }
-            if( ImGui::MenuItem( "Draw &Wireframe", "Ctrl-F9" ) ) {} // { EditorMenuCommand( myIDEngine_Debug_DrawWireframe ); }
-            if( ImGui::MenuItem( "Show &Physics debug shapes", "Shift-F8" ) ) {} // { EditorMenuCommand( myIDEngine_Debug_ShowPhysicsShapes ); }
-            if( ImGui::MenuItem( "Show profiling &Info", "Ctrl-F8" ) ) {} // { EditorMenuCommand( myIDEngine_Debug_ShowProfilingInfo ); }
+            if( ImGui::MenuItem( "Show Mouse Picker FBO (TODO)", "F9" ) ) {} // { EditorMenuCommand( myIDEngine_Debug_ShowMousePickerFBO ); }
+            if( ImGui::MenuItem( "Show Animated Debug View for Selection (TODO)", "F8" ) ) {} // { EditorMenuCommand( myIDEngine_Debug_ShowSelectedAnimatedMesh ); }
+            if( ImGui::MenuItem( "Show GL Stats (TODO)", "Shift-F9" ) ) {} // { EditorMenuCommand( myIDEngine_Debug_ShowGLStats ); }
+            if( ImGui::MenuItem( "Draw Wireframe (TODO)", "Ctrl-F9" ) ) {} // { EditorMenuCommand( myIDEngine_Debug_DrawWireframe ); }
+            if( ImGui::MenuItem( "Show Physics debug shapes (TODO)", "Shift-F8" ) ) {} // { EditorMenuCommand( myIDEngine_Debug_ShowPhysicsShapes ); }
+            if( ImGui::MenuItem( "Show profiling Info (TODO)", "Ctrl-F8" ) ) {} // { EditorMenuCommand( myIDEngine_Debug_ShowProfilingInfo ); }
             ImGui::EndMenu();
         }
 
@@ -537,6 +563,77 @@ void EditorMainFrame_ImGui::AddGameObjectToObjectList(GameObject* pGameObject)
     }
 
     bool treeNodeIsOpen = ImGui::TreeNodeEx( pGameObject, node_flags, pGameObject->GetName() );
+        
+    ImGui::PushID( pGameObject );
+    if( ImGui::BeginPopupContextItem( "ContextPopup", 1 ) )
+    {
+        int numselected = g_pEngineCore->GetEditorState()->m_pSelectedObjects.size();
+
+        if( numselected > 1 )
+        {
+            if( ImGui::MenuItem( "Duplicate GameObjects (TODO)" ) )    { ImGui::CloseCurrentPopup(); }
+            if( ImGui::MenuItem( "Create Child GameObjects (TODO)" ) ) { ImGui::CloseCurrentPopup(); }
+            if( ImGui::MenuItem( "Delete GameObjects (TODO)" ) )       { ImGui::CloseCurrentPopup(); }
+        }
+        else
+        {
+            //ImGui::Text( pGameObject->GetName() );
+            if( ImGui::MenuItem( "Duplicate GameObject (TODO)" ) )    { ImGui::CloseCurrentPopup(); }
+            if( ImGui::MenuItem( "Create Child GameObject (TODO)" ) ) { ImGui::CloseCurrentPopup(); }
+            if( pGameObject->GetGameObjectThisInheritsFrom() )
+            {
+                if( ImGui::MenuItem( "Clear Parent (TODO)" ) )        { ImGui::CloseCurrentPopup(); }
+            }
+            //if( ImGui::MenuItem( "Add Component with submenus... (TODO)" ) )    { ImGui::CloseCurrentPopup(); }
+            {
+                int first = 0;
+                if( pGameObject->GetTransform() != 0 )
+                    first = 1;
+
+                const char* lastcategory = 0;
+                bool menuopen = false;
+
+                unsigned int numtypes = g_pComponentTypeManager->GetNumberOfComponentTypes();
+                for( unsigned int i=first; i<numtypes; i++ )
+                {
+                    const char* currentcategory = g_pComponentTypeManager->GetTypeCategory( i );
+                    const char* nextcategory = 0;
+                    if( i < numtypes-1 )
+                        nextcategory = g_pComponentTypeManager->GetTypeCategory( i+1 );
+
+                    if( lastcategory != currentcategory )
+                    {
+                        menuopen = ImGui::BeginMenu( currentcategory );
+                    }
+
+                    if( menuopen )
+                    {
+                        if( i == ComponentType_Mesh )
+                        {
+                            // don't include ComponentType_Mesh in the right-click menu.
+                            // TODO: if more exceptions are made, improve this system.
+                        }
+                        else
+                        {
+                            if( ImGui::MenuItem( g_pComponentTypeManager->GetTypeName( i ) ) ) { ImGui::CloseCurrentPopup(); }
+                        }
+                    }
+
+                    if( menuopen && currentcategory != nextcategory )
+                    {
+                        ImGui::EndMenu();
+                    }
+
+                    lastcategory = currentcategory;
+                }
+            }
+            if( ImGui::MenuItem( "Prefab Stuff (TODO)" ) )      { ImGui::CloseCurrentPopup(); }
+            if( ImGui::MenuItem( "Delete GameObject (TODO)" ) ) { ImGui::CloseCurrentPopup(); }
+        }
+        ImGui::EndPopup();
+    }
+    ImGui::PopID();
+
     if( ImGui::IsItemClicked() )
     {
         if( ImGui::GetIO().KeyCtrl == false )
@@ -574,7 +671,15 @@ void EditorMainFrame_ImGui::AddGameObjectToObjectList(GameObject* pGameObject)
             ComponentBase* pComponent = pGameObject->GetComponentByIndexIncludingCore( ci );
             if( pComponent )
             {
-                ImGui::TreeNodeEx( pComponent, ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen, pComponent->GetClassname() );
+                if( ImGui::TreeNodeEx( pComponent, ImGuiTreeNodeFlags_Leaf, pComponent->GetClassname() ) )
+                {
+                    if( ImGui::BeginPopupContextItem( "ContextPopup", 1 ) )
+                    {
+                        if( ImGui::MenuItem( "Delete Component (TODO)" ) ) { ImGui::CloseCurrentPopup(); }
+                        ImGui::EndPopup();
+                    }
+                    ImGui::TreePop();
+                }
             }
         }
         ImGui::TreePop();
@@ -612,6 +717,123 @@ void EditorMainFrame_ImGui::AddWatchPanel()
     ImGui::End();
 }
 
+void EditorMainFrame_ImGui::AddMemoryPanel()
+{
+    ImGui::SetNextWindowPos( ImVec2(853, 424), ImGuiCond_FirstUseEver );
+    if( ImGui::Begin( "Memory", 0, ImVec2(334, 220) ) )
+    {
+        for( int i=0; i<PanelMemoryPage_NumTypes; i++ )
+        {
+            if( i > 0 && i != 4 )
+                ImGui::SameLine();
+            
+            if( m_CurrentMemoryPanelPage == i )
+            {
+                ImGui::PushStyleColor( ImGuiCol_Button, (ImVec4)ImColor::HSV(0.3f, 0.6f, 0.6f) );
+                if( ImGui::SmallButton( g_PanelMemoryPagesMenuLabels[i] ) )
+                    m_CurrentMemoryPanelPage = i;
+                ImGui::PopStyleColor(1);
+            }
+            else
+            {
+                if( ImGui::SmallButton( g_PanelMemoryPagesMenuLabels[i] ) )
+                    m_CurrentMemoryPanelPage = i;
+            }
+        }
+
+        switch( m_CurrentMemoryPanelPage )
+        {
+        case PanelMemoryPage_Materials:
+            {
+                m_pMaterialToPreview = 0;
+
+                MaterialDefinition* pMat = g_pMaterialManager->GetFirstMaterial();
+
+                ImGuiTreeNodeFlags baseNodeFlags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick;
+
+                ImGuiTreeNodeFlags node_flags = baseNodeFlags;
+                if( ImGui::TreeNodeEx( "All Materials", node_flags | ImGuiTreeNodeFlags_DefaultOpen ) )
+                {
+                    // TODO: folders for materials.
+                    //const char* foldername = pMat->GetFile()->GetNameOfDeepestFolderPath();
+
+                    while( pMat )
+                    {
+                        if( ImGui::TreeNodeEx( pMat->GetName(), ImGuiTreeNodeFlags_Leaf | node_flags ) )
+                        {
+                            if( ImGui::BeginPopupContextItem( "ContextPopup", 1 ) )
+                            {
+                                if( ImGui::MenuItem( "Edit Material (TODO)" ) )   { ImGui::CloseCurrentPopup(); }
+                                if( ImGui::MenuItem( "Unload File (TODO)" ) )     { ImGui::CloseCurrentPopup(); }
+                                if( ImGui::MenuItem( "Find References (TODO)" ) ) { ImGui::CloseCurrentPopup(); } ;// (%d)", pMat->GetRefCount() ) {}
+                                ImGui::EndPopup();
+                            }
+
+                            if( ImGui::IsItemHovered() )
+                            {
+                                ImGui::BeginTooltip();
+                                m_pMaterialToPreview = pMat;
+                                ImGui::Text( "%s", m_pMaterialToPreview->GetName() );
+                                AddMaterialPreview( false, ImVec2( 100, 100 ), ImVec4( 1, 1, 1, 1 ) );
+                                ImGui::EndTooltip();
+                            }
+
+                            if( ImGui::BeginDragDropSource() )
+                            {
+                                ImGui::SetDragDropPayload( "Material", &pMat, sizeof(pMat), ImGuiCond_Once );
+                                m_pMaterialToPreview = pMat;
+                                ImGui::Text( "%s", m_pMaterialToPreview->GetName() );
+                                AddMaterialPreview( false, ImVec2( 100, 100 ), ImVec4( 1, 1, 1, 0.5f ) );
+                                ImGui::EndDragDropSource();
+                            }
+
+                            ImGui::TreePop();
+                        }
+                        pMat = (MaterialDefinition*)pMat->GetNext();
+                    }
+                    ImGui::TreePop();
+                }
+            }
+            break;
+
+        case PanelMemoryPage_Textures:
+            {
+            }
+            break;
+
+        case PanelMemoryPage_ShaderGroups:
+            {
+            }
+            break;
+
+        case PanelMemoryPage_SoundCues:
+            {
+            }
+            break;
+
+        case PanelMemoryPage_Files:
+            {
+            }
+            break;
+
+        case PanelMemoryPage_Buffers:
+            {
+            }
+            break;
+
+        case PanelMemoryPage_DrawCalls:
+            {
+            }
+            break;
+
+        case PanelMemoryPage_NumTypes:
+            MyAssert( 0 );
+            break;
+        }
+    }
+    ImGui::End();
+}
+
 void EditorMainFrame_ImGui::DrawGameAndEditorWindows(EngineCore* pEngineCore)
 {
     if( m_GameWindowSize.LengthSquared() != 0 )
@@ -642,6 +864,95 @@ void EditorMainFrame_ImGui::DrawGameAndEditorWindows(EngineCore* pEngineCore)
             g_GLCanvasIDActive = 0;
         }
     }
+
+    if( m_pMaterialToPreview != 0 )
+    {
+        if( m_pMaterialPreviewFBO->m_pColorTexture )
+        {
+            // Draw game view.
+            m_pMaterialPreviewFBO->Bind( false );
+            
+            MyMesh* pMeshBall = g_pEngineCore->GetMesh_MaterialBall();
+
+            if( pMeshBall )
+            {
+                m_pMaterialPreviewFBO->Bind( true );
+
+                glDisable( GL_SCISSOR_TEST );
+                glViewport( 0, 0, m_pMaterialPreviewFBO->m_Width, m_pMaterialPreviewFBO->m_Height );
+
+                glClearColor( 0.0f, 0.0f, 0.2f, 1.0f );
+                glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+
+                pMeshBall->SetMaterial( m_pMaterialToPreview, 0 );
+
+                MyMatrix matview;
+                matview.SetIdentity();
+#if MYFW_RIGHTHANDED
+                matview.Translate( 0, 0, -4 );
+#else
+                matview.Translate( 0, 0, 4 );
+#endif
+
+                float aspect = (float)m_pMaterialPreviewFBO->m_Width / m_pMaterialPreviewFBO->m_Height;
+                MyMatrix matproj;
+                matproj.CreatePerspectiveVFoV( 45, aspect, 0.01f, 100 );
+
+                MyMatrix matviewproj = matproj * matview;
+                Vector3 campos = matview.GetTranslation() * -1;
+                Vector3 camrot( 0, 0, 0 );
+
+                float time = (float)MyTime_GetRunningTime();
+
+                // Create 2 rotating lights for material render.
+                MyLight light1;
+                light1.m_Attenuation.Set( 1, 0.1f, 0.01f );
+                light1.m_Color.Set( 1, 1, 1, 1 );
+                light1.m_LightType = LightType_Point;
+                light1.m_Position.Set( 2*cos(time), 1, 2*sin(time) );
+
+                MyLight light2;
+                light2.m_Attenuation.Set( 1, 0.1f, 0.01f );
+                light2.m_Color.Set( 1, 1, 1, 1 );
+                light2.m_LightType = LightType_Point;
+                light2.m_Position.Set( 2*cos(PI+time), 1, 2*sin(PI+time) );
+
+                MyLight* lights[] = { &light1, &light2 };
+                pMeshBall->Draw( 0, &matviewproj, &campos, &camrot, lights, 2, 0, 0, 0, 0 );
+
+                m_pMaterialPreviewFBO->Unbind( true );
+            }
+        }
+    }
+}
+
+void EditorMainFrame_ImGui::AddMaterialPreview(bool createWindow, ImVec2 requestedSize, ImVec4 tint)
+{
+    if( createWindow == false || ImGui::Begin( "Material", 0, ImVec2(150, 150), 1 ) )
+    {
+        TextureDefinition* pTexture = m_pMaterialPreviewFBO->m_pColorTexture;
+        int texw = m_pMaterialPreviewFBO->m_TextureWidth;
+        int texh = m_pMaterialPreviewFBO->m_TextureHeight;
+
+        ImVec2 size = requestedSize;
+        if( size.x == 0 )
+            size = ImGui::GetContentRegionAvail();
+        if( size.x > size.y ) size.x = size.y;
+        if( size.y > size.x ) size.y = size.x;
+
+        if( pTexture )
+        {
+            int w = pTexture->GetWidth();
+            int h = pTexture->GetHeight();
+            //ImGui::ImageButton( (void*)pTexture->GetTextureID(), size, ImVec2(0,(float)h/texh), ImVec2((float)w/texw,0), -1, ImVec4(0,0,0,1) );
+            ImGui::Image( (void*)pTexture->GetTextureID(), size, ImVec2(0,(float)h/texh), ImVec2((float)w/texw,0), tint );
+        }
+    }
+
+    if( createWindow == true )
+    {
+        ImGui::End(); // ImGui::Begin( "Material"...
+    }
 }
 
 void EditorMainFrame_ImGui::AddDebug_MousePicker()
@@ -652,11 +963,15 @@ void EditorMainFrame_ImGui::AddDebug_MousePicker()
         int texw = g_pEngineCore->GetEditorState()->m_pMousePickerFBO->m_TextureWidth;
         int texh = g_pEngineCore->GetEditorState()->m_pMousePickerFBO->m_TextureHeight;
 
+        ImVec2 size = ImGui::GetContentRegionAvail();
+        if( size.x > size.y ) size.x = size.y;
+        if( size.y > size.x ) size.y = size.x;
+
         if( pTexture )
         {
             int w = pTexture->GetWidth();
             int h = pTexture->GetHeight();
-            ImGui::Image( (void*)pTexture->GetTextureID(), ImVec2( 150, 150 ), ImVec2(0,(float)h/texh), ImVec2((float)w/texw,0) );
+            ImGui::Image( (void*)pTexture->GetTextureID(), size, ImVec2(0,(float)h/texh), ImVec2((float)w/texw,0) );
         }
     }
     ImGui::End();

@@ -73,8 +73,8 @@ public:
     static void* StaticGetPointerValue(void* pObjectPtr, ComponentVariable* pVar) { return ((ComponentSprite*)pObjectPtr)->GetPointerValue(pVar); }
     void* GetPointerValue(ComponentVariable* pVar);
 
-    static void StaticSetPointerValue(void* pObjectPtr, ComponentVariable* pVar, void* newvalue) { return ((ComponentSprite*)pObjectPtr)->SetPointerValue(pVar, newvalue); }
-    void SetPointerValue(ComponentVariable* pVar, void* newvalue);
+    static void StaticSetPointerValue(void* pObjectPtr, ComponentVariable* pVar, const void* newvalue) { return ((ComponentSprite*)pObjectPtr)->SetPointerValue(pVar, newvalue); }
+    void SetPointerValue(ComponentVariable* pVar, const void* newvalue);
 
     static const char* StaticGetPointerDesc(void* pObjectPtr, ComponentVariable* pVar) { return ((ComponentSprite*)pObjectPtr)->GetPointerDesc( pVar ); }
     const char* GetPointerDesc(ComponentVariable* pVar);
@@ -101,6 +101,9 @@ public:
     // Component variable callbacks. //_VARIABLE_LIST
     void* OnDrop(ComponentVariable* pVar, wxCoord x, wxCoord y);
 #endif //MYFW_USING_WX
+#if MYFW_USING_IMGUI
+    void* OnDrop(ComponentVariable* pVar, float x, float y);
+#endif //MYFW_USING_IMGUI
     void* OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue* pNewValue);
 #endif //MYFW_EDITOR
 };

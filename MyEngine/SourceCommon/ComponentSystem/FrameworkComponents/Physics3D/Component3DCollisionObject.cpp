@@ -117,7 +117,7 @@ void* Component3DCollisionObject::GetPointerValue(ComponentVariable* pVar) //_VA
     return 0;
 }
 
-void Component3DCollisionObject::SetPointerValue(ComponentVariable* pVar, void* newvalue) //_VARIABLE_LIST
+void Component3DCollisionObject::SetPointerValue(ComponentVariable* pVar, const void* newvalue) //_VARIABLE_LIST
 {
     if( strcmp( pVar->m_Label, "OBJ" ) == 0 )
     {

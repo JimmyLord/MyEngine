@@ -55,8 +55,13 @@ void ComponentSprite::RegisterVariables(CPPListHead* pList, ComponentSprite* pTh
     AddVar( pList, "Tint",     ComponentVariableType_ColorByte, MyOffsetOf( pThis, &pThis->m_Tint ),  true,  true, 0, (CVarFunc_ValueChanged)&ComponentSprite::OnValueChanged, 0, 0 );
     AddVar( pList, "Size",     ComponentVariableType_Vector2,   MyOffsetOf( pThis, &pThis->m_Size ),  true,  true, 0, (CVarFunc_ValueChanged)&ComponentSprite::OnValueChanged, 0, 0 );
     AddVarPointer( pList, "Material", true,  true, 0,
-       (CVarFunc_GetPointerValue)&ComponentSprite::GetPointerValue, (CVarFunc_SetPointerValue)&ComponentSprite::SetPointerValue, (CVarFunc_GetPointerDesc)&ComponentSprite::GetPointerDesc, (CVarFunc_SetPointerDesc)&ComponentSprite::SetPointerDesc,
-       (CVarFunc_ValueChanged)&ComponentSprite::OnValueChanged, 0, 0 );
+       (CVarFunc_GetPointerValue)&ComponentSprite::GetPointerValue,
+       (CVarFunc_SetPointerValue)&ComponentSprite::SetPointerValue,
+       (CVarFunc_GetPointerDesc)&ComponentSprite::GetPointerDesc,
+       (CVarFunc_SetPointerDesc)&ComponentSprite::SetPointerDesc,
+       (CVarFunc_ValueChanged)&ComponentSprite::OnValueChanged,
+       (CVarFunc_DropTarget)&ComponentSprite::OnDrop, 0 );
+    //AddVar( pList, "Material", ComponentVariableType_MaterialPtr, MyOffsetOf( pThis, &pThis->m_m )
 #endif
 }
 
@@ -111,12 +116,12 @@ void* ComponentSprite::GetPointerValue(ComponentVariable* pVar) //_VARIABLE_LIST
     return 0;
 }
 
-void ComponentSprite::SetPointerValue(ComponentVariable* pVar, void* newvalue) // StaticSetPointerValue
+void ComponentSprite::SetPointerValue(ComponentVariable* pVar, const void* newvalue) // StaticSetPointerValue
 {
     if( strcmp( pVar->m_Label, "Material" ) == 0 )
     {
-#if MYFW_USING_WX
-        g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_ChangeMaterialOnMesh( this, pVar, 0, (MaterialDefinition*)newvalue ) );
+#if MYFW_EDITOR
+        g_pEngineCore->GetCommandStack()->Do( MyNew EditorCommand_ChangeMaterialOnMesh( this, pVar, 0, (MaterialDefinition*)newvalue ) );
 #else
         SetMaterial( (MaterialDefinition*)newvalue, 0 );
 #endif
@@ -146,8 +151,8 @@ void ComponentSprite::SetPointerDesc(ComponentVariable* pVar, const char* newdes
         if( newdesc )
         {
             MaterialDefinition* pMaterial = g_pMaterialManager->LoadMaterial( newdesc );
-#if MYFW_USING_WX
-            g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_ChangeMaterialOnMesh( this, pVar, 0, pMaterial ) );
+#if MYFW_EDITOR
+            g_pEngineCore->GetCommandStack()->Do( MyNew EditorCommand_ChangeMaterialOnMesh( this, pVar, 0, pMaterial ) );
 #else
             SetMaterial( pMaterial, 0 );
 #endif
@@ -193,8 +198,14 @@ void ComponentSprite::FillPropertiesWindow(bool clear, bool addcomponentvariable
             FillPropertiesWindowWithVariables(); //_VARIABLE_LIST
     }
 }
+#endif //MYFW_USING_WX
 
+#if MYFW_EDITOR
+#if MYFW_USING_WX
 void* ComponentSprite::OnDrop(ComponentVariable* pVar, wxCoord x, wxCoord y)
+#elif MYFW_EDITOR
+void* ComponentSprite::OnDrop(ComponentVariable* pVar, float x, float y)
+#endif
 {
     void* oldvalue = 0;
 
@@ -207,16 +218,17 @@ void* ComponentSprite::OnDrop(ComponentVariable* pVar, wxCoord x, wxCoord y)
         MyAssert( m_pSprite );
 
         oldvalue = m_pSprite->GetMaterial();
+
+#if MYFW_USING_WX
         g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_ChangeMaterialOnMesh( this, pVar, 0, pMaterial ) );
 
         g_pPanelWatch->SetNeedsRefresh();
+#endif //MYFW_USING_WX
     }
 
     return oldvalue;
 }
-#endif //MYFW_USING_WX
 
-#if MYFW_EDITOR
 void* ComponentSprite::OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue* pNewValue)
 {
     void* oldpointer = 0;

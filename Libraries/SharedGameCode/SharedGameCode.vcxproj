@@ -41,6 +41,26 @@
       <Configuration>EditorDebug</Configuration>
       <Platform>x64</Platform>
     </ProjectConfiguration>
+    <ProjectConfiguration Include="EditorRelease|Android">
+      <Configuration>EditorRelease</Configuration>
+      <Platform>Android</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="EditorRelease|Emscripten">
+      <Configuration>EditorRelease</Configuration>
+      <Platform>Emscripten</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="EditorRelease|PNaCl">
+      <Configuration>EditorRelease</Configuration>
+      <Platform>PNaCl</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="EditorRelease|Win32">
+      <Configuration>EditorRelease</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="EditorRelease|x64">
+      <Configuration>EditorRelease</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
     <ProjectConfiguration Include="Release|Android">
       <Configuration>Release</Configuration>
       <Platform>Android</Platform>
@@ -188,7 +208,19 @@
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='EditorRelease|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='EditorRelease|x64'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <WholeProgramOptimization>true</WholeProgramOptimization>
@@ -200,13 +232,31 @@
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='EditorRelease|Emscripten'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|PNaCl'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='EditorRelease|PNaCl'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Android'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='EditorRelease|Android'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <WholeProgramOptimization>true</WholeProgramOptimization>
@@ -293,16 +343,31 @@
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='EditorRelease|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='EditorRelease|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Emscripten'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='EditorRelease|Emscripten'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|PNaCl'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='EditorRelease|PNaCl'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Android'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='EditorRelease|Android'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='WxRelease|Win32'" Label="PropertySheets">
@@ -407,12 +472,27 @@
     <IntDir>$(SolutionDir)Output\Intermediate\$(PlatformName)\$(TargetName)\$(Configuration)\</IntDir>
     <TargetName>$(ProjectName)_$(Configuration)</TargetName>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='EditorRelease|Win32'">
+    <OutDir>$(SolutionDir)Output\$(PlatformName)\$(TargetName)\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)Output\Intermediate\$(PlatformName)\$(TargetName)\$(Configuration)\</IntDir>
+    <TargetName>$(ProjectName)_$(Configuration)</TargetName>
+  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <OutDir>$(SolutionDir)Output\$(PlatformName)\$(TargetName)\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)Output\Intermediate\$(PlatformName)\$(TargetName)\$(Configuration)\</IntDir>
     <TargetName>$(ProjectName)_$(Configuration)</TargetName>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='EditorRelease|x64'">
+    <OutDir>$(SolutionDir)Output\$(PlatformName)\$(TargetName)\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)Output\Intermediate\$(PlatformName)\$(TargetName)\$(Configuration)\</IntDir>
+    <TargetName>$(ProjectName)_$(Configuration)</TargetName>
+  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Emscripten'">
+    <OutDir>$(SolutionDir)Output\$(PlatformName)\$(TargetName)\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)Output\Intermediate\$(PlatformName)\$(TargetName)\$(Configuration)\</IntDir>
+    <TargetName>$(ProjectName)_$(Configuration)</TargetName>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='EditorRelease|Emscripten'">
     <OutDir>$(SolutionDir)Output\$(PlatformName)\$(TargetName)\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)Output\Intermediate\$(PlatformName)\$(TargetName)\$(Configuration)\</IntDir>
     <TargetName>$(ProjectName)_$(Configuration)</TargetName>
@@ -423,7 +503,19 @@
     <TargetName>lib$(ProjectName)_$(Configuration)</TargetName>
     <NaClAddInVersion>1</NaClAddInVersion>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='EditorRelease|PNaCl'">
+    <OutDir>$(SolutionDir)Output\$(PlatformName)\$(TargetName)\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)Output\Intermediate\$(PlatformName)\$(TargetName)\$(Configuration)\</IntDir>
+    <TargetName>lib$(ProjectName)_$(Configuration)</TargetName>
+    <NaClAddInVersion>1</NaClAddInVersion>
+  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Android'">
+    <OutDir>$(SolutionDir)Output\$(PlatformName)\$(TargetName)\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)Output\Intermediate\$(PlatformName)\$(TargetName)\$(Configuration)\</IntDir>
+    <TargetName>$(ProjectName)</TargetName>
+    <NaClAddInVersion>1</NaClAddInVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='EditorRelease|Android'">
     <OutDir>$(SolutionDir)Output\$(PlatformName)\$(TargetName)\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)Output\Intermediate\$(PlatformName)\$(TargetName)\$(Configuration)\</IntDir>
     <TargetName>$(ProjectName)</TargetName>
@@ -710,6 +802,26 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
   </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='EditorRelease|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>SharedCommonHeader.h</PrecompiledHeaderFile>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <AdditionalIncludeDirectories>$(SolutionDir)../Engine/MyEngine/SourceCommon;$(SolutionDir)../Engine/Libraries/bullet3/src/;$(SolutionDir)../Engine/Libraries/SharedGameCode;$(SolutionDir)../SharedGameCode;$(SolutionDir)../Framework/Libraries/b2Settings;$(SolutionDir)../Framework/Libraries/Box2D/Box2D;$(SolutionDir)../Framework/Libraries/wxWidgets/include/msvc;$(SolutionDir)../Framework/Libraries/wxWidgets/include;$(DXSDK_DIR)Include</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>MYFW_WINDOWS;MYFW_EDITOR;MYFW_USING_IMGUI;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <DebugInformationFormat>
+      </DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
@@ -732,7 +844,47 @@
       <OptimizeReferences>true</OptimizeReferences>
     </Link>
   </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='EditorRelease|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Full</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>SharedCommonHeader.h</PrecompiledHeaderFile>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <AdditionalIncludeDirectories>$(SolutionDir)../Engine/MyEngine/SourceCommon;$(SolutionDir)../Engine/Libraries/bullet3/src/;$(SolutionDir)../Engine/Libraries/SharedGameCode;$(SolutionDir)../SharedGameCode;$(SolutionDir)../Framework/Libraries/b2Settings;$(SolutionDir)../Framework/Libraries/Box2D/Box2D;$(SolutionDir)../Framework/Libraries/wxWidgets/include/msvc;$(SolutionDir)../Framework/Libraries/wxWidgets/include;$(DXSDK_DIR)Include</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>MYFW_WINDOWS;MYFW_EDITOR;MYFW_USING_IMGUI;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <TreatWarningAsError>true</TreatWarningAsError>
+      <FloatingPointModel>Fast</FloatingPointModel>
+      <DebugInformationFormat>
+      </DebugInformationFormat>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Emscripten'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>SharedCommonHeader.h</PrecompiledHeaderFile>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <AdditionalIncludeDirectories>$(SolutionDir)../Engine/MyEngine/SourceCommon;$(SolutionDir)../Engine/Libraries/SharedGameCode;$(SolutionDir)../Engine/Libraries/bullet3/src/;$(SolutionDir)../SharedGameCode;$(SolutionDir)../Framework/Libraries/b2Settings;$(SolutionDir)../Framework/Libraries/Box2D/Box2D;$(SolutionDir)../Framework/Libraries/wxWidgets/include/msvc;$(SolutionDir)../Framework/Libraries/wxWidgets/include;$(DXSDK_DIR)Include</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>MYFW_EMSCRIPTEN;NDEBUG</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='EditorRelease|Emscripten'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>MaxSpeed</Optimization>
@@ -770,7 +922,48 @@
       <AdditionalDependencies>ppapi_cpp;ppapi;</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='EditorRelease|PNaCl'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>SharedCommonHeader.h</PrecompiledHeaderFile>
+      <RuntimeTypeInfo>false</RuntimeTypeInfo>
+      <AdditionalIncludeDirectories>$(SolutionDir)../Engine/MyEngine/SourceNaCL;$(SolutionDir)../Engine/MyEngine/SourceCommon;$(SolutionDir)../Engine/Libraries/SharedGameCode;$(SolutionDir)../SharedGameCode;$(SolutionDir)../Framework/Libraries/b2Settings;$(SolutionDir)../Framework/Libraries/Box2D/Box2D;$(SolutionDir)../Framework/Libraries/wxWidgets/include/msvc;$(SolutionDir)../Framework/Libraries/wxWidgets/include;$(SolutionDir)../Engine/Libraries/bullet3/src/</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>MYFW_NACL;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalOptions>-DLUA_32BITS %(AdditionalOptions)</AdditionalOptions>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>ppapi_cpp;ppapi;</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Android'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>SharedCommonHeader.h</PrecompiledHeaderFile>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <AdditionalIncludeDirectories>$(SolutionDir)../Engine/MyEngine/SourceNaCL;$(SolutionDir)../Engine/MyEngine/SourceCommon;$(SolutionDir)../Engine/Libraries/SharedGameCode;$(SolutionDir)../SharedGameCode;$(SolutionDir)../Framework/Libraries/b2Settings;$(SolutionDir)../Framework/Libraries/Box2D/Box2D;$(SolutionDir)../Framework/Libraries/wxWidgets/include/msvc;$(SolutionDir)../Framework/Libraries/wxWidgets/include;$(SolutionDir)../Engine/Libraries/bullet3/src/</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>MYFW_ANDROID;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalOptions>-DLUA_32BITS %(AdditionalOptions)</AdditionalOptions>
+      <GccExceptionHandling>true</GccExceptionHandling>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalDependencies>ppapi_cpp;ppapi;</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='EditorRelease|Android'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>MaxSpeed</Optimization>
@@ -925,10 +1118,15 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='WxDebug|Android'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='EditorDebug|Android'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='EditorRelease|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='EditorRelease|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Emscripten'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='EditorRelease|Emscripten'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|PNaCl'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='EditorRelease|PNaCl'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Android'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='EditorRelease|Android'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='WxRelease|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='WxRelease|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='WxRelease|Emscripten'">Create</PrecompiledHeader>
@@ -940,10 +1138,15 @@
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|PNaCl'">SharedCommonHeader.h</PrecompiledHeaderFile>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Android'">SharedCommonHeader.h</PrecompiledHeaderFile>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">SharedCommonHeader.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='EditorRelease|Win32'">SharedCommonHeader.h</PrecompiledHeaderFile>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">SharedCommonHeader.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='EditorRelease|x64'">SharedCommonHeader.h</PrecompiledHeaderFile>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|Emscripten'">SharedCommonHeader.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='EditorRelease|Emscripten'">SharedCommonHeader.h</PrecompiledHeaderFile>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|PNaCl'">SharedCommonHeader.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='EditorRelease|PNaCl'">SharedCommonHeader.h</PrecompiledHeaderFile>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Release|Android'">SharedCommonHeader.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='EditorRelease|Android'">SharedCommonHeader.h</PrecompiledHeaderFile>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='WxDebug|Win32'">SharedCommonHeader.h</PrecompiledHeaderFile>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='EditorDebug|Win32'">SharedCommonHeader.h</PrecompiledHeaderFile>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='WxDebug|x64'">SharedCommonHeader.h</PrecompiledHeaderFile>

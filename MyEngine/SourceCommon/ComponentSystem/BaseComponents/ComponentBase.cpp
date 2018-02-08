@@ -625,7 +625,11 @@ int ComponentBase::FindVariablesControlIDByLabel(const char* label)
 #if MYFW_USING_IMGUI
 void ComponentBase::AddAllVariablesToWatchPanel()
 {
-    for( CPPListNode* pNode = GetComponentVariableList()->GetHead(); pNode; pNode = pNode->GetNext() )
+    CPPListHead* pComponentVariableList = GetComponentVariableList();
+    if( pComponentVariableList == 0 )
+        return;
+
+    for( CPPListNode* pNode = pComponentVariableList->GetHead(); pNode; pNode = pNode->GetNext() )
     {
         ComponentVariable* pVar = (ComponentVariable*)pNode;
         MyAssert( pVar );
@@ -863,13 +867,25 @@ void ComponentBase::AddVariableToWatchPanel(ComponentVariable* pVar)
     //        }
     //        break;
 
-    //    case ComponentVariableType_PointerIndirect:
-    //        {
-    //            void* pPtr = (this->*pVar->m_pGetPointerValueCallBackFunc)( pVar );
-    //            const char* pDesc = (this->*pVar->m_pGetPointerDescCallBackFunc)( pVar );
-    //            pVar->m_ControlID = g_pPanelWatch->AddPointerWithDescription( pVar->m_WatchLabel, pPtr, pDesc, this, ComponentBase::StaticOnDropVariable, ComponentBase::StaticOnValueChangedVariable, ComponentBase::StaticOnRightClickVariable );
-    //        }
-    //        break;
+        case ComponentVariableType_PointerIndirect:
+            {
+                //void* pPtr = (this->*pVar->m_pGetPointerValueCallBackFunc)( pVar );
+                const char* pDesc = (this->*pVar->m_pGetPointerDescCallBackFunc)( pVar );
+                if( ImGui::Button( pDesc ) )
+                {
+                    // TODO: pop up a material picker window.
+                }
+
+                if( ImGui::BeginDragDropTarget() )
+                {
+                    if( const ImGuiPayload* payload = ImGui::AcceptDragDropPayload( "Material" ) )
+                    {
+                        (this->*pVar->m_pSetPointerValueCallBackFunc)( pVar, *(void**)payload->Data );
+                    }
+                    ImGui::EndDragDropTarget();
+                }
+            }
+            break;
 
         case ComponentVariableType_NumTypes:
         //default:
@@ -1829,8 +1845,8 @@ void ComponentBase::OnRightClickVariable(int controlid)
     if( pVar == 0 )
         return;
 
-    // the only right-click options involve this components gameobject having a parent, so quick early if it doesn't
-    // also if there's a callback function, we'll still create the menu.
+    // The only right-click options involve this components gameobject having a parent, so quit early if it doesn't
+    //    also if there's a callback function, we'll still create the menu.
     if( m_pGameObject->GetGameObjectThisInheritsFrom() == 0 && pVar->m_pOnRightClickCallbackFunc == 0 )
         return;
 

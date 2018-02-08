@@ -262,7 +262,7 @@ public:
 
     void Editor_OnSurfaceChanged(unsigned int startx, unsigned int starty, unsigned int width, unsigned int height);
 
-    void RenderSingleObject(GameObject* pObject);
+    void RenderSingleObject(GameObject* pObject, FBODefinition* pFBOToUse = 0);
     void GetMouseRay(Vector2 mousepos, Vector3* start, Vector3* end);
 
     void SetGridVisible(bool visible);

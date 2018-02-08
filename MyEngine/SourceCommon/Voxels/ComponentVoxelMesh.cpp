@@ -111,7 +111,7 @@ void* ComponentVoxelMesh::GetPointerValue(ComponentVariable* pVar) //_VARIABLE_L
     return 0;
 }
 
-void ComponentVoxelMesh::SetPointerValue(ComponentVariable* pVar, void* newvalue)
+void ComponentVoxelMesh::SetPointerValue(ComponentVariable* pVar, const void* newvalue)
 {
     if( strcmp( pVar->m_Label, "File" ) == 0 )
     {
