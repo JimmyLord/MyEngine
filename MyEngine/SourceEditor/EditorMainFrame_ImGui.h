@@ -20,6 +20,9 @@ protected:
     FBODefinition* m_pMaterialPreviewFBO;
     MaterialDefinition* m_pMaterialToPreview;
 
+    MaterialDefinition* m_pMaterialBeingEdited;
+    bool m_IsMaterialEditorOpen;
+
     Vector2 m_GameWindowPos;
     Vector2 m_EditorWindowPos;
     Vector2 m_GameWindowSize;
@@ -56,7 +59,9 @@ public:
     void AddGameObjectToObjectList(GameObject* pGameObject);
     void AddWatchPanel();
     void AddMemoryPanel();
-    
+
+    void AddMaterialEditor();
+
     void AddMaterialPreview(bool createWindow, ImVec2 requestedSize, ImVec4 tint);
     void AddDebug_MousePicker();
 

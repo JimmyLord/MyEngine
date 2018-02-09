@@ -58,6 +58,9 @@ EditorMainFrame_ImGui::EditorMainFrame_ImGui()
     m_pMaterialPreviewFBO = g_pTextureManager->CreateFBO( 1024, 1024, GL_NEAREST, GL_NEAREST, true, 32, true );
     m_pMaterialToPreview = 0;
 
+    m_pMaterialBeingEdited = 0;
+    m_IsMaterialEditorOpen = false;
+
     m_GameWindowPos.Set( -1, -1 );
     m_EditorWindowPos.Set( -1, -1 );
     m_GameWindowSize.Set( 0, 0 );
@@ -217,6 +220,9 @@ void EditorMainFrame_ImGui::AddEverything()
     AddWatchPanel();
     AddMemoryPanel();
     AddDebug_MousePicker();
+
+    if( m_IsMaterialEditorOpen )
+        AddMaterialEditor();
 
     ImGuiIO& io = ImGui::GetIO();
     ImGui::Begin( "Stuff" );
@@ -763,14 +769,23 @@ void EditorMainFrame_ImGui::AddMemoryPanel()
                         {
                             if( ImGui::BeginPopupContextItem( "ContextPopup", 1 ) )
                             {
-                                if( ImGui::MenuItem( "Edit Material (TODO)" ) )   { ImGui::CloseCurrentPopup(); }
-                                if( ImGui::MenuItem( "Unload File (TODO)" ) )     { ImGui::CloseCurrentPopup(); }
-                                if( ImGui::MenuItem( "Find References (TODO)" ) ) { ImGui::CloseCurrentPopup(); } ;// (%d)", pMat->GetRefCount() ) {}
+                                if( ImGui::MenuItem( "Edit Material", 0, &m_IsMaterialEditorOpen ) )
+                                {
+                                    m_pMaterialBeingEdited = pMat; ImGui::CloseCurrentPopup();
+                                }
+                                if( ImGui::MenuItem( "Unload File (TODO)" ) )                        { ImGui::CloseCurrentPopup(); }
+                                if( ImGui::MenuItem( "Find References (TODO)" ) )                    { ImGui::CloseCurrentPopup(); } ;// (%d)", pMat->GetRefCount() ) {}
                                 ImGui::EndPopup();
                             }
 
                             if( ImGui::IsItemHovered() )
                             {
+                                if( ImGui::IsMouseDoubleClicked( 0 ) )
+                                {
+                                    m_IsMaterialEditorOpen = true;
+                                    m_pMaterialBeingEdited = pMat;
+                                }
+
                                 ImGui::BeginTooltip();
                                 m_pMaterialToPreview = pMat;
                                 ImGui::Text( "%s", m_pMaterialToPreview->GetName() );
@@ -974,5 +989,188 @@ void EditorMainFrame_ImGui::AddDebug_MousePicker()
             ImGui::Image( (void*)pTexture->GetTextureID(), size, ImVec2(0,(float)h/texh), ImVec2((float)w/texw,0) );
         }
     }
+    ImGui::End();
+}
+
+void EditorMainFrame_ImGui::AddMaterialEditor()
+{
+    ImGui::SetNextWindowPos( ImVec2(856, 71), ImGuiCond_FirstUseEver );
+    ImGui::SetNextWindowSize( ImVec2(339, 349), ImGuiCond_FirstUseEver );
+    if( !ImGui::Begin( "Material Editor",  &m_IsMaterialEditorOpen ) )
+    {
+        ImGui::End();
+        return;
+    }
+
+    // Create a context menu only available from the title bar.
+    if( ImGui::BeginPopupContextItem() )
+    {
+        if( ImGui::MenuItem( "Close" ) )
+            m_IsMaterialEditorOpen = false;
+
+        ImGui::EndPopup();
+    }
+
+    {
+        MaterialDefinition* pMat = m_pMaterialBeingEdited;
+        bool showbuiltinuniforms = true;
+        bool showexposeduniforms = true;
+        ShaderGroup* pShaderGroup = pMat->GetShader();
+        ShaderGroup* pShaderGroupInstanced = pMat->GetShaderInstanced();
+
+        ImGui::Text( "WORK IN PROGRESS - NO UNDO - MANUAL SAVE" );
+        ImGui::Text( pMat->GetName() );
+
+        if( showbuiltinuniforms )
+        {
+            //g_pPanelWatch->AddEnum( "Blend", (int*)&m_BlendType, MaterialBlendType_NumTypes, MaterialBlendTypeStrings );
+            const char** items = MaterialBlendTypeStrings;
+            int currentItem = pMat->m_BlendType;
+            const char* currentItemStr = MaterialBlendTypeStrings[currentItem];
+            if( ImGui::BeginCombo( "Blend", currentItemStr ) )
+            {
+                for( int n = 0; n < MaterialBlendType_NumTypes; n++ )
+                {
+                    bool is_selected = (n == currentItem);
+                    if( ImGui::Selectable( items[n], is_selected ) )
+                    {
+                        //// Store the old value.
+                        //ComponentVariableValue oldvalue( this, pVar );
+
+                        //// Change the value.
+                        pMat->m_BlendType = (MaterialBlendType)n;
+
+                        //// Store the new value.
+                        //ComponentVariableValue newvalue( this, pVar );
+
+                        //g_pEngineCore->GetCommandStack()->Do(
+                        //    MyNew EditorCommand_ImGuiPanelWatchNumberValueChanged(
+                        //                                this, pVar, newvalue, oldvalue, true ),
+                        //    false );
+                    }
+                    if( is_selected )
+                    {
+                        // Set the initial focus when opening the combo (scrolling + for keyboard navigation support in the upcoming navigation branch)
+                        ImGui::SetItemDefaultFocus();
+                    }
+                }
+                ImGui::EndCombo();
+            }
+
+            ImGui::DragFloat2( "UVScale", &pMat->m_UVScale.x, 0.01f, 0, 1 );
+            ImGui::DragFloat2( "UVOffset", &pMat->m_UVOffset.x, 0.01f, 0, 1 );
+
+            const char* desc = "no shader";
+            if( pShaderGroup && pShaderGroup->GetShader( ShaderPass_Main )->m_pFile )
+                desc = pShaderGroup->GetShader( ShaderPass_Main )->m_pFile->GetFilenameWithoutExtension();
+            ImGui::Button( desc, ImVec2( ImGui::GetWindowWidth() * 0.65f, 0 ) );
+            ImGui::SameLine();
+            ImGui::Text( "Shader" );
+            //m_ControlID_Shader = g_pPanelWatch->AddPointerWithDescription( "Shader", 0, desc, this, MaterialDefinition::StaticOnDropShader, 0, MaterialDefinition::StaticOnRightClickShader );
+
+            desc = "no shader";
+            if( pShaderGroupInstanced && pShaderGroupInstanced->GetShader( ShaderPass_Main )->m_pFile )
+                desc = pShaderGroupInstanced->GetShader( ShaderPass_Main )->m_pFile->GetFilenameWithoutExtension();
+            ImGui::Button( desc, ImVec2( ImGui::GetWindowWidth() * 0.65f, 0 ) );
+            ImGui::SameLine();
+            ImGui::Text( "Instanced Shader" );
+            //m_ControlID_ShaderInstanced = g_pPanelWatch->AddPointerWithDescription( "Shader Instanced", 0, desc, this, MaterialDefinition::StaticOnDropShader, 0, MaterialDefinition::StaticOnRightClickShader );
+
+            TextureDefinition* pTextureColor = pMat->GetTextureColor();
+            desc = "no color texture";
+            if( pTextureColor )
+                desc = pTextureColor->GetFilename();
+            ImGui::Button( desc, ImVec2( ImGui::GetWindowWidth() * 0.65f, 0 ) );
+            ImGui::SameLine();
+            ImGui::Text( "Color Texture" );
+            //g_pPanelWatch->AddPointerWithDescription( "Color Texture", 0, desc, this, MaterialDefinition::StaticOnDropTexture, 0, MaterialDefinition::StaticOnRightClickTexture );
+
+            // TODO: Copies of these colors are changing, fix that.
+            ColorFloat ambientColorFloat = pMat->m_ColorAmbient.AsColorFloat();
+            if( ImGui::ColorEdit4( "Ambient Color", &ambientColorFloat.r ) )
+            {
+                pMat->m_ColorAmbient.SetFromColorFloat( ambientColorFloat );
+            }
+
+            ColorFloat diffuseColorFloat = pMat->m_ColorDiffuse.AsColorFloat();
+            if( ImGui::ColorEdit4( "Diffuse Color", &diffuseColorFloat.r ) )
+            {
+                pMat->m_ColorDiffuse.SetFromColorFloat( diffuseColorFloat );
+            }
+
+            ColorFloat specularColorFloat = pMat->m_ColorSpecular.AsColorFloat();
+            if( ImGui::ColorEdit4( "Specular Color", &specularColorFloat.r ) )
+            {
+                pMat->m_ColorSpecular.SetFromColorFloat( specularColorFloat );
+            }
+
+            ImGui::DragFloat( "Shininess", &pMat->m_Shininess );
+        }
+
+        if( showexposeduniforms && pShaderGroup )
+        {
+            MyFileObjectShader* pShaderFile = pShaderGroup->GetFile();
+            if( pShaderFile )
+            {
+                for( unsigned int i=0; i<pShaderFile->m_NumExposedUniforms; i++ )
+                {
+                    char tempname[32];
+
+                    // Hardcoding to remove the 'u_' I like to stick at the start of my uniform names.
+                    if( pShaderFile->m_ExposedUniforms[i].m_Name[1] == '_' )
+                        strcpy_s( tempname, 32, &pShaderFile->m_ExposedUniforms[i].m_Name[2] );
+                    else
+                        strcpy_s( tempname, 32, pShaderFile->m_ExposedUniforms[i].m_Name );
+
+                    switch( pShaderFile->m_ExposedUniforms[i].m_Type )
+                    {
+                    case ExposedUniformType_Float:
+                        //g_pPanelWatch->AddFloat( tempname, &m_UniformValues[i].m_Float, 0, 1 );
+                        break;
+
+                    case ExposedUniformType_Vec2:
+                        //g_pPanelWatch->AddVector2( tempname, (Vector2*)&m_UniformValues[i].m_Vec2, 0, 1 );
+                        break;
+
+                    case ExposedUniformType_Vec3:
+                        //g_pPanelWatch->AddVector3( tempname, (Vector3*)&m_UniformValues[i].m_Vec3, 0, 1 );
+                        break;
+
+                    case ExposedUniformType_Vec4:
+                        //g_pPanelWatch->AddVector4( tempname, (Vector4*)&m_UniformValues[i].m_Vec4, 0, 1 );
+                        break;
+
+                    case ExposedUniformType_ColorByte:
+                        //g_pPanelWatch->AddColorByte( tempname, (ColorByte*)&m_UniformValues[i].m_ColorByte, 0, 255 );
+                        break;
+
+                    case ExposedUniformType_Sampler2D:
+                        //m_UniformValues[i].m_ControlID = g_pPanelWatch->AddPointerWithDescription(
+                        //    tempname, m_UniformValues[i].m_pTexture,
+                        //    m_UniformValues[i].m_pTexture ? m_UniformValues[i].m_pTexture->GetFilename() : "Texture Not Set",
+                        //    this, MaterialDefinition::StaticOnDropTexture, 0, 0 );                    
+                        break;
+
+                    case ExposedUniformType_NotSet:
+                    default:
+                        MyAssert( false );
+                        break;
+                    }
+                }
+            }
+
+            {
+                ImGui::Separator();
+                ImGui::Text( "MANUAL SAVE" );
+                if( ImGui::Button( "Save" ) )
+                {
+                    pMat->SaveMaterial( 0 );
+                }
+                ImGui::SameLine();
+                ImGui::Text( "<- MANUAL SAVE" );
+            }
+        }
+    }
+
     ImGui::End();
 }
