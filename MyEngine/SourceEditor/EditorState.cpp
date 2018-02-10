@@ -61,11 +61,11 @@ EditorState::EditorState()
         pMaterial->SetBlendType( MaterialBlendType_On );
 
         MyFileObject* pFile = g_pEngineFileManager->RequestFile_UntrackedByScene( EditorIconFilenames[i] );
-#if MYFW_USING_WX
+#if MYFW_EDITOR
         pFile->MemoryPanel_Hide();
 #endif
         TextureDefinition* pTexture = g_pTextureManager->CreateTexture( pFile );
-#if MYFW_USING_WX
+#if MYFW_EDITOR
         pTexture->MemoryPanel_Hide();
 #endif
         pFile->Release();
@@ -81,7 +81,7 @@ EditorState::EditorState()
         else
         {
             MyFileObject* pFile = g_pEngineFileManager->RequestFile_UntrackedByScene( "Data/DataEngine/Shaders/Shader_TextureTint.glsl" );
-#if MYFW_USING_WX
+#if MYFW_EDITOR
             pFile->MemoryPanel_Hide();
 #endif
             MyAssert( pFile->IsA( "MyFileShader" ) );
@@ -213,6 +213,16 @@ void EditorState::DeleteSelectedObjects()
     if( m_pSelectedObjects.size() > 0 )
         g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_DeleteObjects( m_pSelectedObjects ) );
 #endif
+}
+
+void EditorState::SelectComponent(ComponentBase* pComponent)
+{
+    m_pSelectedComponents.push_back( pComponent );
+}
+
+void EditorState::UnselectComponent(ComponentBase* pComponent)
+{
+    m_pSelectedComponents.erase( std::remove( m_pSelectedComponents.begin(), m_pSelectedComponents.end(), pComponent ) );
 }
 
 bool EditorState::IsComponentSelected(ComponentBase* pComponent)

@@ -1798,7 +1798,6 @@ void ComponentBase::OnValueChangedVariable(int controlid, bool directlychanged, 
     }
 #endif //MYFW_USING_WX
 }
-#endif //MYFW_EDITOR
 
 #if MYFW_USING_WX
 void ComponentBase::OnDropVariable(int controlid, wxCoord x, wxCoord y)
@@ -2884,17 +2883,26 @@ void ComponentBase::OnPopupClick(wxEvent &evt)
     //ComponentBase* pComponent = (ComponentBase*)static_cast<wxMenu*>(evt.GetEventObject())->GetClientData();
 
     int id = evt.GetId();
-    if( id == RightClick_DeleteComponent )
+
+    OnRightClickAction( id );
+}
+#endif //MYFW_USING_WX
+
+void ComponentBase::OnRightClickAction(int action)
+{
+    if( action == RightClick_DeleteComponent )
     {
         EditorState* pEditorState = g_pEngineCore->GetEditorState();
 
         // if anything is still selected, delete it/them.
         if( pEditorState->m_pSelectedComponents.size() > 0 )
         {
-            g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_DeleteComponents( pEditorState->m_pSelectedComponents ) );
+            g_pEngineCore->GetCommandStack()->Do( MyNew EditorCommand_DeleteComponents( pEditorState->m_pSelectedComponents ) );
         }
     }
 }
+
+#if MYFW_USING_WX
 
 void ComponentBase::OnDrag()
 {
@@ -2905,3 +2913,4 @@ void ComponentBase::OnDrop(int controlid, wxCoord x, wxCoord y)
 {
 }
 #endif //MYFW_USING_WX
+#endif //MYFW_EDITOR

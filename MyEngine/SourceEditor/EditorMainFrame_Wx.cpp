@@ -16,36 +16,36 @@
 
 EngineMainFrame* g_pEngineMainFrame = 0;
 
-const char* g_DefaultPerspectiveMenuLabels[Perspective_NumPerspectives] =
-{
-    "Center &Editor",
-    "Center &Game",
-    "&Side by Side",
-    "&Full Frame Game",
-};
-
-const char* g_DefaultEngineEditorWindowTypeMenuLabels[EngineEditorWindow_NumTypes] =
-{
-    "&Editor View",
-    "&Log Panel",
-};
-
-const char* g_LaunchPlatformsMenuLabels[LaunchPlatform_NumPlatforms] =
-{
-#if MYFW_WINDOWS
-    "&Win32",
-    "Win&64",
-    "&NaCl",
-    "&Android",
-    "&Emscripten",
-#elif MYFW_OSX
-    "&OSX",
-    "iOS &Simulator",
-    "&iOS Device",
-    "iOS&6 Device (Needs Xcode 7.3.1)"
-#endif
-    // AddNewLaunchPlatform
-};
+//const char* g_DefaultPerspectiveMenuLabels[Perspective_NumPerspectives] =
+//{
+//    "Center &Editor",
+//    "Center &Game",
+//    "&Side by Side",
+//    "&Full Frame Game",
+//};
+//
+//const char* g_DefaultEngineEditorWindowTypeMenuLabels[EngineEditorWindow_NumTypes] =
+//{
+//    "&Editor View",
+//    "&Log Panel",
+//};
+//
+//const char* g_LaunchPlatformsMenuLabels[LaunchPlatform_NumPlatforms] =
+//{
+//#if MYFW_WINDOWS
+//    "&Win32",
+//    "Win&64",
+//    "&NaCl",
+//    "&Android",
+//    "&Emscripten",
+//#elif MYFW_OSX
+//    "&OSX",
+//    "iOS &Simulator",
+//    "&iOS Device",
+//    "iOS&6 Device (Needs Xcode 7.3.1)"
+//#endif
+//    // AddNewLaunchPlatform
+//};
 
 const char* g_DefaultPerspectives[Perspective_NumPerspectives] =
 {

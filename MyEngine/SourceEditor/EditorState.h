@@ -108,6 +108,8 @@ public:
     bool IsGameObjectSelected(GameObject* pObject);
     void DeleteSelectedObjects();
 
+    void SelectComponent(ComponentBase* pComponent);
+    void UnselectComponent(ComponentBase* pComponent);
     bool IsComponentSelected(ComponentBase* pComponent);
 
     void ClearKeyAndActionStates();

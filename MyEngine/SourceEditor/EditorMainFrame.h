@@ -46,6 +46,10 @@ enum LaunchPlatforms
     LaunchPlatform_NumPlatforms,
 };
 
+extern const char* g_DefaultPerspectiveMenuLabels[Perspective_NumPerspectives];
+extern const char* g_DefaultEngineEditorWindowTypeMenuLabels[EngineEditorWindow_NumTypes];
+extern const char* g_LaunchPlatformsMenuLabels[LaunchPlatform_NumPlatforms];
+
 class EditorMainFrame
 {
 protected:

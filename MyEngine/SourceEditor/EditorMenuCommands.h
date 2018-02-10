@@ -15,9 +15,9 @@ enum EditorMenuCommands
     EditorMenuCommand_File_SaveScene,
     EditorMenuCommand_File_LoadScene,
     EditorMenuCommand_File_Export_Box2DScene,
-    EditorMenuCommand_TogglePlayStop,
-    EditorMenuCommand_Undo,
-    EditorMenuCommand_Redo,
+    EditorMenuCommand_Mode_TogglePlayStop,
+    EditorMenuCommand_Edit_Undo,
+    EditorMenuCommand_Edit_Redo,
 };
 
 void EditorMenuCommand(EditorMenuCommands command);

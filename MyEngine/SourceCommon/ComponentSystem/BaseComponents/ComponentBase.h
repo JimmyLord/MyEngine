@@ -170,7 +170,6 @@ public:
     // if any variables value changed, then react.
     static void StaticOnValueChangedVariable(void* pObjectPtr, int controlid, bool directlychanged, bool finishedchanging, double oldvalue, bool valuewaschangedbydragging) { ((ComponentBase*)pObjectPtr)->OnValueChangedVariable( controlid, directlychanged, finishedchanging, oldvalue, valuewaschangedbydragging, 0 ); }
     void OnValueChangedVariable(int controlid, bool directlychanged, bool finishedchanging, double oldvalue, bool valuewaschangedbydragging, ComponentVariableValue* pNewValue);
-#endif //MYFW_EDITOR
 
 #if MYFW_USING_WX
     static void StaticOnDropVariable(void* pObjectPtr, int controlid, wxCoord x, wxCoord y) { ((ComponentBase*)pObjectPtr)->OnDropVariable(controlid, x, y); }
@@ -209,7 +208,10 @@ public:
     virtual void OnRightClick();
     virtual void AppendItemsToRightClickMenu(wxMenu* pMenu);
     void OnPopupClick(wxEvent &evt); // used as callback for wxEvtHandler, can't be virtual(will crash, haven't looked into it).
+#endif //MYFW_USING_WX
+    void OnRightClickAction(int action);
 
+#if MYFW_USING_WX
     static void StaticOnDrag(void* pObjectPtr) { ((ComponentBase*)pObjectPtr)->OnDrag(); }
     void OnDrag();
 
@@ -220,6 +222,7 @@ public:
     virtual void AddRightClickOptionsToMenu(wxMenu* pMenu, int baseid) {}
     virtual void OnRightClickOptionClicked(wxEvent &evt, int baseid) {}
 #endif //MYFW_USING_WX
+#endif //MYFW_EDITOR
 };
 
 #endif //__ComponentBase_H__

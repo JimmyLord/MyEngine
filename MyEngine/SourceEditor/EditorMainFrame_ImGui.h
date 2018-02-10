@@ -60,9 +60,13 @@ public:
     void AddWatchPanel();
     void AddMemoryPanel();
 
+    void AddMemoryPanel_Materials();
+    void AddMemoryPanel_Textures();
+
     void AddMaterialEditor();
 
     void AddMaterialPreview(bool createWindow, ImVec2 requestedSize, ImVec4 tint);
+    void AddTexturePreview(bool createWindow, TextureDefinition* pTex, ImVec2 requestedSize, ImVec4 tint);
     void AddDebug_MousePicker();
 
     void DrawGameAndEditorWindows(EngineCore* pEngineCore);

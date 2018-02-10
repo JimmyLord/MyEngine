@@ -316,7 +316,7 @@ void EngineCore::OneTimeInit()
     if( m_pDebugFont == 0 )
     {
         m_pDebugFont = g_pFontManager->CreateFont( "Data/DataEngine/Fonts/Nevis60.fnt" );
-#if MYFW_USING_WX
+#if MYFW_EDITOR
         m_pDebugFont->m_pFile->MemoryPanel_Hide();
 #endif
     }
@@ -333,7 +333,7 @@ void EngineCore::OneTimeInit()
     m_pShaderFile_TintColor = g_pEngineFileManager->RequestFile_UntrackedByScene( "Data/DataEngine/Shaders/Shader_TintColor.glsl" );
     m_pShaderFile_SelectedObjects = g_pEngineFileManager->RequestFile_UntrackedByScene( "Data/DataEngine/Shaders/Shader_SelectedObjects.glsl" );
     m_pShaderFile_ClipSpaceTexture = g_pEngineFileManager->RequestFile_UntrackedByScene( "Data/DataEngine/Shaders/Shader_ClipSpaceTexture.glsl" );
-#if MYFW_USING_WX
+#if MYFW_EDITOR
     m_pShaderFile_TintColor->MemoryPanel_Hide();
     m_pShaderFile_SelectedObjects->MemoryPanel_Hide();
     m_pShaderFile_ClipSpaceTexture->MemoryPanel_Hide();
@@ -986,6 +986,27 @@ void EngineCore::OnFileRenamed(const char* fullpathbefore, const char* fullpatha
 {
     g_pComponentSystemManager->OnFileRenamed( fullpathbefore, fullpathafter );
 }
+
+void EngineCore::OnDropFile(const char* filename)
+{
+    char fullpath[MAX_PATH];
+
+    sprintf_s( fullpath, MAX_PATH, "%s", (const char*)filename );
+
+    // If the datafile is in our working directory, then load it... otherwise TODO: copy it in?
+    const char* relativepath = GetRelativePath( fullpath );
+    if( relativepath == 0 )
+    {
+        // File is not in our working directory.
+        // TODO: copy the file into our data folder?
+        LOGError( LOGTag, "File must be in working directory\n" );
+        //MyAssert( false );
+        return;
+    }
+
+    g_pEngineCore->GetComponentSystemManager()->LoadDataFile( relativepath, 1, filename, true );
+}
+
 
 bool EngineCore::OnEvent(MyEvent* pEvent)
 {

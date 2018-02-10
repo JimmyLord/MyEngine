@@ -204,6 +204,8 @@ public:
     virtual void OnDrawFrameDone();
     virtual void OnFileRenamed(const char* fullpathbefore, const char* fullpathafter);
 
+    virtual void OnDropFile(const char* filename);
+
     virtual bool OnEvent(MyEvent* pEvent);
 
     void SetMousePosition(float x, float y);
