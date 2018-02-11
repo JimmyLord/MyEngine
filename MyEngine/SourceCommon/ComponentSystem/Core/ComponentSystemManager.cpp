@@ -2543,7 +2543,6 @@ void ComponentSystemManager::DrawMousePickerFrame(ComponentCamera* pCamera, MyMa
     }
 }
 
-//#if !MYFW_USING_WX
 SceneInfo* ComponentSystemManager::GetSceneInfo(int sceneid)
 {
     MyAssert( sceneid >= 0 && sceneid < MAX_SCENES_LOADED );
@@ -2568,7 +2567,7 @@ unsigned int ComponentSystemManager::GetSceneIDFromFullpath(const char* fullpath
     MyAssert( false ); // fullpath not found, that's fine when used from gameobject loading.
     return -1;
 }
-//#else
+
 #if MYFW_EDITOR
 void ComponentSystemManager::CreateNewScene(const char* scenename, unsigned int sceneid)
 {
@@ -2586,7 +2585,7 @@ void ComponentSystemManager::CreateNewScene(const char* scenename, unsigned int 
     ComponentCamera* pCamera = g_pEngineCore->GetEditorState()->GetEditorCamera();
     m_pSceneInfoMap[sceneid].m_pBox2DWorld = MyNew Box2DWorld( g_pEngineCore->GetMaterial_Box2DDebugDraw(), &pCamera->m_Camera3D.m_matViewProj, new EngineBox2DContactListener );
 }
-#endif // MYFW_EDITOR
+
 #if MYFW_USING_WX
 wxTreeItemId ComponentSystemManager::GetTreeIDForScene(int sceneid)
 {
@@ -2636,6 +2635,7 @@ unsigned int ComponentSystemManager::GetSceneIDFromSceneTreeID(wxTreeItemId tree
     MyAssert( false ); // fullpath not found, that's fine when used from gameobject loading.
     return -1;
 }
+#endif //MYFW_USING_WX
 
 unsigned int ComponentSystemManager::GetNumberOfScenesLoaded()
 {
@@ -2883,6 +2883,7 @@ MaterialDefinition* ComponentSystemManager::ParseLog_Material(const char* line)
 
     return 0;
 }
+#endif //MYFW_EDITOR
 
 //SceneInfo* ComponentSystemManager::GetSceneInfo(int sceneid)
 //{
@@ -2892,6 +2893,7 @@ MaterialDefinition* ComponentSystemManager::ParseLog_Material(const char* line)
 
 //void ComponentSystemManager::m_pGameObjectTemplateManager
 
+#if MYFW_EDITOR
 void ComponentSystemManager::DrawSingleObject(MyMatrix* pMatViewProj, GameObject* pObject, ShaderGroup* pShaderOverride)
 {
     for( unsigned int i=0; i<pObject->GetComponentCount(); i++ )
@@ -2912,7 +2914,7 @@ void ComponentSystemManager::DrawSingleObject(MyMatrix* pMatViewProj, GameObject
         }
     }
 }
-#endif //MYFW_USING_WX
+#endif //MYFW_EDITOR
 
 void ComponentSystemManager::AddMeshToSceneGraph(ComponentBase* pComponent, MyMesh* pMesh, MaterialDefinition** pMaterialList, int primitive, int pointsize, SceneGraphFlags flags, unsigned int layers, SceneGraphObject** pOutputList)
 {

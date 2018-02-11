@@ -267,10 +267,10 @@ public:
 #if MYFW_EDITOR
     SceneHandler* m_pSceneHandler;
     void CreateNewScene(const char* scenename, unsigned int sceneid);
-#endif
 #if MYFW_USING_WX
     wxTreeItemId GetTreeIDForScene(int sceneid);
     unsigned int GetSceneIDFromSceneTreeID(wxTreeItemId treeid);
+#endif //MYFW_USING_WX
     unsigned int GetNumberOfScenesLoaded();
     //std::map<int, SceneInfo> m_pSceneInfoMap;
 
@@ -280,7 +280,7 @@ public:
     int LogAllReferencesForFileInGameObject(MyFileObject* pFile, GameObject* pGameObject);
     GameObject* ParseLog_GameObject(const char* line);
     MaterialDefinition* ParseLog_Material(const char* line);
-#endif
+#endif //MYFW_EDITOR
     PrefabManager* m_pPrefabManager;
     SceneInfo m_pSceneInfoMap[MAX_SCENES_LOADED];
 
@@ -291,9 +291,10 @@ public:
     void RemoveObjectFromSceneGraph(SceneGraphObject* pSceneGraphObject);
 
 public:
-#if MYFW_USING_WX
+#if MYFW_EDITOR
     void DrawSingleObject(MyMatrix* pMatViewProj, GameObject* pObject, ShaderGroup* pShaderOverride); // used to draw an animated mesh into the debug FBO
 
+#if MYFW_USING_WX
     void CheckForUpdatedDataSourceFiles(bool initialcheck);
     void OnFileUpdated(MyFileObject* pFile);
     void Editor_RegisterFileUpdatedCallback(FileUpdatedCallbackFunction pFunc, void* pObj);
@@ -322,6 +323,7 @@ public:
     static void StaticOnFindAllReferences(void* pObjectPtr, MyFileObject* pFile) { ((ComponentSystemManager*)pObjectPtr)->OnFindAllReferences( pFile ); }
     void OnFindAllReferences(MyFileObject* pFile);    
 #endif //MYFW_USING_WX
+#endif //MYFW_EDITOR
 };
 
 class MyFileInfo : public CPPListNode

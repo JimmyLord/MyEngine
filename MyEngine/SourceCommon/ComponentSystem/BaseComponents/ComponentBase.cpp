@@ -2792,47 +2792,6 @@ void ComponentBase::UpdateOtherComponentWithNewValue(ComponentBase* pComponent, 
     }
 }
 
-bool ComponentBase::IsReferencingFile(MyFileObject* pFile)
-{
-    if( GetComponentVariableList() == 0 )
-        return false;
-
-    for( CPPListNode* pNode = GetComponentVariableList()->GetHead(); pNode; pNode = pNode->GetNext() )
-    {
-        ComponentVariable* pVar = (ComponentVariable*)pNode;
-        MyAssert( pVar );
-
-        //if( pVar->m_Type == ComponentVariableType_GameObjectPtr )
-        //if( pVar->m_Type == ComponentVariableType_ComponentPtr )
-        if( pVar->m_Type == ComponentVariableType_FilePtr )
-        {
-            MyFileObject* pFileFromComponent = (MyFileObject*)(*(void**)((char*)this + pVar->m_Offset));
-            if( pFileFromComponent && pFileFromComponent == pFile )
-                return true;
-        }
-        else if( pVar->m_Type == ComponentVariableType_MaterialPtr )
-        {
-            MaterialDefinition* pMaterial = (MaterialDefinition*)(*(void**)((char*)this + pVar->m_Offset));
-            if( pMaterial && pMaterial->GetFile() == pFile )
-                return true;
-        }
-        else if( pVar->m_Type == ComponentVariableType_SoundCuePtr )
-        {
-            SoundCue* pSoundCue = (SoundCue*)(*(void**)((char*)this + pVar->m_Offset));
-            if( pSoundCue && pSoundCue->GetFile() == pFile )
-                return true;
-        }
-        else if( pVar->m_Type == ComponentVariableType_PointerIndirect )
-        {
-            void* ptr = (this->*pVar->m_pGetPointerValueCallBackFunc)( pVar );
-            if( ptr == pFile )
-                return true;
-        }
-    }
-
-    return false;
-}
-
 void ComponentBase::OnComponentTitleLabelClicked(int id, bool finishedchanging)
 {
     if( id != -1 && id == m_ControlID_ComponentTitleLabel )
@@ -2886,7 +2845,57 @@ void ComponentBase::OnPopupClick(wxEvent &evt)
 
     OnRightClickAction( id );
 }
+
+void ComponentBase::OnDrag()
+{
+    g_DragAndDropStruct.Add( DragAndDropType_ComponentPointer, this );
+}
+
+void ComponentBase::OnDrop(int controlid, wxCoord x, wxCoord y)
+{
+}
 #endif //MYFW_USING_WX
+
+bool ComponentBase::IsReferencingFile(MyFileObject* pFile)
+{
+    if( GetComponentVariableList() == 0 )
+        return false;
+
+    for( CPPListNode* pNode = GetComponentVariableList()->GetHead(); pNode; pNode = pNode->GetNext() )
+    {
+        ComponentVariable* pVar = (ComponentVariable*)pNode;
+        MyAssert( pVar );
+
+        //if( pVar->m_Type == ComponentVariableType_GameObjectPtr )
+        //if( pVar->m_Type == ComponentVariableType_ComponentPtr )
+        if( pVar->m_Type == ComponentVariableType_FilePtr )
+        {
+            MyFileObject* pFileFromComponent = (MyFileObject*)(*(void**)((char*)this + pVar->m_Offset));
+            if( pFileFromComponent && pFileFromComponent == pFile )
+                return true;
+        }
+        else if( pVar->m_Type == ComponentVariableType_MaterialPtr )
+        {
+            MaterialDefinition* pMaterial = (MaterialDefinition*)(*(void**)((char*)this + pVar->m_Offset));
+            if( pMaterial && pMaterial->GetFile() == pFile )
+                return true;
+        }
+        else if( pVar->m_Type == ComponentVariableType_SoundCuePtr )
+        {
+            SoundCue* pSoundCue = (SoundCue*)(*(void**)((char*)this + pVar->m_Offset));
+            if( pSoundCue && pSoundCue->GetFile() == pFile )
+                return true;
+        }
+        else if( pVar->m_Type == ComponentVariableType_PointerIndirect )
+        {
+            void* ptr = (this->*pVar->m_pGetPointerValueCallBackFunc)( pVar );
+            if( ptr == pFile )
+                return true;
+        }
+    }
+
+    return false;
+}
 
 void ComponentBase::OnRightClickAction(int action)
 {
@@ -2902,15 +2911,4 @@ void ComponentBase::OnRightClickAction(int action)
     }
 }
 
-#if MYFW_USING_WX
-
-void ComponentBase::OnDrag()
-{
-    g_DragAndDropStruct.Add( DragAndDropType_ComponentPointer, this );
-}
-
-void ComponentBase::OnDrop(int controlid, wxCoord x, wxCoord y)
-{
-}
-#endif //MYFW_USING_WX
 #endif //MYFW_EDITOR

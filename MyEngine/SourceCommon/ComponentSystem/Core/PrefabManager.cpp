@@ -167,7 +167,7 @@ uint32 PrefabObject::GetNextChildPrefabIDAndIncrement()
     return m_NextChildPrefabID - 1;
 }
 
-#if MYFW_USING_WX
+#if MYFW_EDITOR
 GameObject* PrefabObject::GetGameObject(uint32 childid)
 {
     return FindChildGameObject( m_pGameObject, childid );
@@ -199,6 +199,7 @@ GameObject* PrefabObject::FindChildGameObject(GameObject* pRootObject, uint32 ch
     return 0;
 }
 
+#if MYFW_USING_WX
 void PrefabObject::AddToObjectList(wxTreeItemId parent, cJSON* jPrefab, GameObject* pGameObject) // Used when prefab created and by undo/redo to add/remove from tree
 {
     cJSON* jName = cJSON_GetObjectItem( jPrefab, "Name" );
@@ -242,6 +243,7 @@ void PrefabObject::AddToObjectList(wxTreeItemId parent, cJSON* jPrefab, GameObje
         }
     }
 }
+#endif //MYFW_USING_WX
 
 void PrefabObject::RebuildPrefabJSONObjectFromMasterGameObject()
 {
@@ -252,6 +254,7 @@ void PrefabObject::RebuildPrefabJSONObjectFromMasterGameObject()
     m_pPrefabFile->SetHasAnythingChanged();
 }
 
+#if MYFW_USING_WX
 void PrefabObject::OnLeftClick(wxTreeItemId treeid, unsigned int count, bool clear) // StaticOnLeftClick
 {
     g_pPanelWatch->ClearAllVariables();
@@ -345,7 +348,8 @@ void PrefabObject::OnDrag()
 void PrefabObject::OnDrop(int controlid, wxCoord x, wxCoord y)
 {
 }
-#endif
+#endif //MYFW_USING_WX
+#endif //MYFW_EDITOR
 
 // ============================================================================================================================
 // PrefabFile

@@ -100,22 +100,27 @@ public:
 
     uint32 GetNextChildPrefabIDAndIncrement();
 
-#if MYFW_USING_WX
+#if MYFW_EDITOR
 protected:
     GameObject* m_pGameObject; // Each prefab is instantiated in editor so inheritance code can compare values.
 
+#if MYFW_USING_WX
     // Event handler for right click menu.
     PrefabObjectWxEventHandler m_WxEventHandler;
     wxTreeItemId m_TreeID;
+#endif //MYFW_USING_WX
 
 public:
     GameObject* GetGameObject(uint32 childid = 0);
     GameObject* FindChildGameObject(GameObject* pRootObject, uint32 childid);
 
+#if MYFW_USING_WX
     void AddToObjectList(wxTreeItemId parent, cJSON* jPrefab, GameObject* pGameObject);
+#endif //MYFW_USING_WX
 
     void RebuildPrefabJSONObjectFromMasterGameObject();
 
+#if MYFW_USING_WX
     // Object panel callbacks.
     static void StaticOnLeftClick(void* pObjectPtr, wxTreeItemId treeid, unsigned int count) { ((PrefabObject*)pObjectPtr)->OnLeftClick( treeid, count, true ); }
     void OnLeftClick(wxTreeItemId treeid, unsigned int count, bool clear);
@@ -128,7 +133,8 @@ public:
 
     static void StaticOnDrop(void* pObjectPtr, wxTreeItemId id, int controlid, wxCoord x, wxCoord y) { ((PrefabObject*)pObjectPtr)->OnDrop(controlid, x, y); }
     void OnDrop(int controlid, wxCoord x, wxCoord y);
-#endif
+#endif //MYFW_USING_WX
+#endif //MYFW_EDITOR
 };
 
 class PrefabFile

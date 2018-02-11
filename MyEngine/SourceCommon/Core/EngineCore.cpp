@@ -1689,6 +1689,9 @@ void EngineCore::UnloadScene(unsigned int sceneid, bool cleareditorobjects)
 #if MYFW_EDITOR
     if( sceneid != EngineCore::UNMANAGED_SCENE_ID )
     {
+#if MYFW_USING_IMGUI
+        m_pEditorMainFrame_ImGui->StoreCurrentUndoStackSize();
+#endif
 #if MYFW_USING_WX
         g_pEngineMainFrame->m_pCommandStack->ClearStacks();
         g_pEngineMainFrame->StoreCurrentUndoStackSize();

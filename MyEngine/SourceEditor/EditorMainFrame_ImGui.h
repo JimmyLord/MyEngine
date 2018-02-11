@@ -34,6 +34,8 @@ protected:
 
     int m_CurrentMemoryPanelPage;
 
+    unsigned int m_UndoStackDepthAtLastSave;
+
     // Modifier key states
     bool m_KeyDownCtrl;
     bool m_KeyDownAlt;
@@ -48,6 +50,9 @@ public:
     ~EditorMainFrame_ImGui();
 
     Vector2 GetEditorWindowCenterPosition();
+
+    void StoreCurrentUndoStackSize();
+    unsigned int GetUndoStackDepthAtLastSave() { return m_UndoStackDepthAtLastSave; }
 
     bool HandleInput(int keyaction, int keycode, int mouseaction, int id, float x, float y, float pressure);
     bool CheckForHotkeys(int keyaction, int keycode);

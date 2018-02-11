@@ -190,8 +190,6 @@ public:
     void ChangeValueInNonPointerVariable(ComponentVariable* pVar, int controlcomponent, bool addundocommand, double changetoapply, double changeforundo);
     void CopyValueFromOtherComponent(ComponentVariable* pVar, int controlcomponent, ComponentBase* pOtherComponent, bool addundocommand);
 
-    virtual bool IsReferencingFile(MyFileObject* pFile);
-
     // to show/hide the components controls in watch panel
     //static bool m_PanelWatchBlockVisible; // each class needs it's own static bool, so if one component of this type is off, they all are.
     bool* m_pPanelWatchBlockVisible; // pointer to the bool above, must be set by each component.
@@ -208,10 +206,7 @@ public:
     virtual void OnRightClick();
     virtual void AppendItemsToRightClickMenu(wxMenu* pMenu);
     void OnPopupClick(wxEvent &evt); // used as callback for wxEvtHandler, can't be virtual(will crash, haven't looked into it).
-#endif //MYFW_USING_WX
-    void OnRightClickAction(int action);
 
-#if MYFW_USING_WX
     static void StaticOnDrag(void* pObjectPtr) { ((ComponentBase*)pObjectPtr)->OnDrag(); }
     void OnDrag();
 
@@ -222,6 +217,9 @@ public:
     virtual void AddRightClickOptionsToMenu(wxMenu* pMenu, int baseid) {}
     virtual void OnRightClickOptionClicked(wxEvent &evt, int baseid) {}
 #endif //MYFW_USING_WX
+
+    virtual bool IsReferencingFile(MyFileObject* pFile);
+    void OnRightClickAction(int action);
 #endif //MYFW_EDITOR
 };
 
