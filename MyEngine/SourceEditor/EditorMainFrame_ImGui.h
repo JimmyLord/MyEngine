@@ -23,6 +23,10 @@ protected:
     MaterialDefinition* m_pMaterialBeingEdited;
     bool m_IsMaterialEditorOpen;
 
+    // For renaming a gameobject.
+    GameObject* m_pGameObjectWhoseNameIsBeingEdited;
+    char m_GameObjectNameBeingEdited[100];
+
     Vector2 m_GameWindowPos;
     Vector2 m_EditorWindowPos;
     Vector2 m_GameWindowSize;
@@ -67,6 +71,7 @@ public:
 
     void AddMemoryPanel_Materials();
     void AddMemoryPanel_Textures();
+    void AddMemoryPanel_ShaderGroups();
 
     void AddMaterialEditor();
 

@@ -61,6 +61,9 @@ EditorMainFrame_ImGui::EditorMainFrame_ImGui()
     m_pMaterialBeingEdited = 0;
     m_IsMaterialEditorOpen = false;
 
+    m_pGameObjectWhoseNameIsBeingEdited = 0;
+    m_GameObjectNameBeingEdited[0] = 0;
+
     m_GameWindowPos.Set( -1, -1 );
     m_EditorWindowPos.Set( -1, -1 );
     m_GameWindowSize.Set( 0, 0 );
@@ -205,8 +208,21 @@ bool EditorMainFrame_ImGui::CheckForHotkeys(int keyaction, int keycode)
 
     if( keyaction == GCBA_Down )
     {
+        bool N  = !m_KeyDownCtrl && !m_KeyDownAlt && !m_KeyDownShift && !m_KeyDownCommand; // No modifiers held
         bool C  =  m_KeyDownCtrl && !m_KeyDownAlt && !m_KeyDownShift && !m_KeyDownCommand; // Ctrl
         bool CS =  m_KeyDownCtrl && !m_KeyDownAlt &&  m_KeyDownShift && !m_KeyDownCommand; // Ctrl-Shift
+
+        // Handle GameObject renaming, not the best idea to do this here, but okay for a start.
+        // TODO: Check if F2 or Enter was pressed when menuitem has focus.
+        if( N  && keycode == VK_F2 || N  && keycode == MYKEYCODE_ENTER )
+        {
+            EditorState* pEditorState = g_pEngineCore->GetEditorState();
+            if( pEditorState->m_pSelectedObjects.size() > 0 )
+            {
+                m_pGameObjectWhoseNameIsBeingEdited = pEditorState->m_pSelectedObjects[0];
+                strncpy_s( m_GameObjectNameBeingEdited, m_pGameObjectWhoseNameIsBeingEdited->GetName(), 100 );
+            }
+        }
 
         if( C  && keycode == 'S' ) { EditorMenuCommand( EditorMenuCommand_File_SaveScene );         return true; }
         if( CS && keycode == 'E' ) { EditorMenuCommand( EditorMenuCommand_File_Export_Box2DScene ); return true; }
@@ -601,54 +617,64 @@ void EditorMainFrame_ImGui::AddObjectList()
                     ImGuiTreeNodeFlags node_flags = baseNodeFlags;
                     bool treeNodeIsOpen = ImGui::TreeNodeEx( scenename, node_flags );
 
-                    ImGui::PushID( scenename );
-                    if( ImGui::BeginPopupContextItem( "ContextPopup", 1 ) )
+                    // Right-click menu, don't show for the unmanaged scene
+                    if( sceneindex != EngineCore::UNMANAGED_SCENE_ID )
                     {
-                        if( ImGui::MenuItem( "Add GameObject (TODO)" ) )          { ImGui::CloseCurrentPopup(); }
-                        
-                        if( ImGui::BeginMenu( "Add GameObject Template (TODO)" ) )
+                        ImGui::PushID( scenename );
+                        if( ImGui::BeginPopupContextItem( "ContextPopup", 1 ) )
                         {
-                            GameObjectTemplateManager* pManager = g_pComponentSystemManager->m_pGameObjectTemplateManager;
+                            if( ImGui::MenuItem( "Add GameObject" ) )
+                            {
+                                GameObject* pGameObjectCreated = g_pComponentSystemManager->CreateGameObject( true, sceneindex );
+                                pGameObjectCreated->SetName( "New Game Object" );
+
+                                ImGui::CloseCurrentPopup();
+                            }
+                        
+                            if( ImGui::BeginMenu( "Add GameObject from Template (TODO)" ) )
+                            {
+                                GameObjectTemplateManager* pManager = g_pComponentSystemManager->m_pGameObjectTemplateManager;
     
-                            //cJSON* jFirstParent = pManager->GetParentTemplateJSONObject( startindex );
+                                //cJSON* jFirstParent = pManager->GetParentTemplateJSONObject( startindex );
 
-                            //unsigned int i = startindex;
-                            //while( i < pManager->GetNumberOfTemplates() )
-                            //{
-                            //    bool isfolder = pManager->IsTemplateAFolder( i );
-                            //    const char* name = pManager->GetTemplateName( i );
+                                //unsigned int i = startindex;
+                                //while( i < pManager->GetNumberOfTemplates() )
+                                //{
+                                //    bool isfolder = pManager->IsTemplateAFolder( i );
+                                //    const char* name = pManager->GetTemplateName( i );
 
-                            //    if( pManager->GetParentTemplateJSONObject( i ) != jFirstParent )
-                            //        return i;
+                                //    if( pManager->GetParentTemplateJSONObject( i ) != jFirstParent )
+                                //        return i;
 
-                            //    if( isfolder )
-                            //    {
-                            //        wxMenu* submenu = MyNew wxMenu;
-                            //        menu->AppendSubMenu( submenu, name );
+                                //    if( isfolder )
+                                //    {
+                                //        wxMenu* submenu = MyNew wxMenu;
+                                //        menu->AppendSubMenu( submenu, name );
 
-                            //        i = AddGameObjectTemplatesToMenu( submenu, itemidoffset, i+1 );
-                            //    }
-                            //    else
-                            //    {
-                            //        menu->Append( itemidoffset + i, name );
-                            //    }
+                                //        i = AddGameObjectTemplatesToMenu( submenu, itemidoffset, i+1 );
+                                //    }
+                                //    else
+                                //    {
+                                //        menu->Append( itemidoffset + i, name );
+                                //    }
 
-                            //    i++;
-                            //}
+                                //    i++;
+                                //}
 
-                            //return i;
+                                //return i;
 
-                            ImGui::EndMenu();
+                                ImGui::EndMenu();
+                            }
+
+                            if( ImGui::MenuItem( "Add Folder (TODO)" ) )               { ImGui::CloseCurrentPopup(); }
+                            if( ImGui::MenuItem( "Add Logical GameObject (TODO)" ) )   { ImGui::CloseCurrentPopup(); }
+
+                            if( ImGui::MenuItem( "Unload scene (TODO)" ) )             { ImGui::CloseCurrentPopup(); }
+
+                            ImGui::EndPopup();
                         }
-
-                        if( ImGui::MenuItem( "Add Folder (TODO)" ) )               { ImGui::CloseCurrentPopup(); }
-                        if( ImGui::MenuItem( "Add Logical GameObject (TODO)" ) )   { ImGui::CloseCurrentPopup(); }
-
-                        if( ImGui::MenuItem( "Unload scene (TODO)" ) )             { ImGui::CloseCurrentPopup(); }
-
-                        ImGui::EndPopup();
+                        ImGui::PopID();
                     }
-                    ImGui::PopID();
 
                     if( treeNodeIsOpen )
                     {
@@ -672,181 +698,194 @@ void EditorMainFrame_ImGui::AddObjectList()
 
 void EditorMainFrame_ImGui::AddGameObjectToObjectList(GameObject* pGameObject)
 {
-    EditorState* pEditorState = g_pEngineCore->GetEditorState();
-
-    ImGuiTreeNodeFlags baseNodeFlags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick;
-
-    ImGuiTreeNodeFlags node_flags = baseNodeFlags;
-    if( pEditorState->IsGameObjectSelected( pGameObject ) )
+    if( pGameObject == m_pGameObjectWhoseNameIsBeingEdited )
     {
-        node_flags |= ImGuiTreeNodeFlags_Selected;
-    }
-
-    bool treeNodeIsOpen = ImGui::TreeNodeEx( pGameObject, node_flags, pGameObject->GetName() );
-        
-    ImGui::PushID( pGameObject );
-    if( ImGui::BeginPopupContextItem( "ContextPopup", 1 ) )
-    {
-        int numselected = g_pEngineCore->GetEditorState()->m_pSelectedObjects.size();
-
-        if( numselected > 1 )
+        if( ImGui::InputText( "New name", m_GameObjectNameBeingEdited, 100, ImGuiInputTextFlags_AutoSelectAll|ImGuiInputTextFlags_EnterReturnsTrue ) )
         {
-            if( ImGui::MenuItem( "Duplicate GameObjects (TODO)" ) )    { ImGui::CloseCurrentPopup(); }
-            if( ImGui::MenuItem( "Create Child GameObjects (TODO)" ) ) { ImGui::CloseCurrentPopup(); }
-            if( ImGui::MenuItem( "Delete GameObjects (TODO)" ) )       { ImGui::CloseCurrentPopup(); }
+            m_pGameObjectWhoseNameIsBeingEdited->SetName( m_GameObjectNameBeingEdited );
+            m_pGameObjectWhoseNameIsBeingEdited = 0;
         }
-        else
+
+        ImGui::SetKeyboardFocusHere();
+    }
+    else
+    {
+        EditorState* pEditorState = g_pEngineCore->GetEditorState();
+
+        ImGuiTreeNodeFlags baseNodeFlags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick;
+
+        ImGuiTreeNodeFlags node_flags = baseNodeFlags;
+        if( pEditorState->IsGameObjectSelected( pGameObject ) )
         {
-            //ImGui::Text( pGameObject->GetName() );
-            if( ImGui::MenuItem( "Duplicate GameObject (TODO)" ) )    { ImGui::CloseCurrentPopup(); }
-            if( ImGui::MenuItem( "Create Child GameObject (TODO)" ) ) { ImGui::CloseCurrentPopup(); }
-            if( pGameObject->GetGameObjectThisInheritsFrom() )
+            node_flags |= ImGuiTreeNodeFlags_Selected;
+        }
+
+        bool treeNodeIsOpen = ImGui::TreeNodeEx( pGameObject, node_flags, pGameObject->GetName() );
+
+        ImGui::PushID( pGameObject );
+        if( ImGui::BeginPopupContextItem( "ContextPopup", 1 ) )
+        {
+            int numselected = g_pEngineCore->GetEditorState()->m_pSelectedObjects.size();
+
+            if( numselected > 1 )
             {
-                if( ImGui::MenuItem( "Clear Parent (TODO)" ) )        { ImGui::CloseCurrentPopup(); }
+                if( ImGui::MenuItem( "Duplicate GameObjects (TODO)" ) )    { ImGui::CloseCurrentPopup(); }
+                if( ImGui::MenuItem( "Create Child GameObjects (TODO)" ) ) { ImGui::CloseCurrentPopup(); }
+                if( ImGui::MenuItem( "Delete GameObjects (TODO)" ) )       { ImGui::CloseCurrentPopup(); }
             }
-            //if( ImGui::MenuItem( "Add Component with submenus... (TODO)" ) )    { ImGui::CloseCurrentPopup(); }
+            else
             {
-                int first = 0;
-                if( pGameObject->GetTransform() != 0 )
-                    first = 1;
-
-                const char* lastcategory = 0;
-                bool menuopen = false;
-
-                unsigned int numtypes = g_pComponentTypeManager->GetNumberOfComponentTypes();
-                for( unsigned int i=first; i<numtypes; i++ )
+                //ImGui::Text( pGameObject->GetName() );
+                if( ImGui::MenuItem( "Duplicate GameObject (TODO)" ) )    { ImGui::CloseCurrentPopup(); }
+                if( ImGui::MenuItem( "Create Child GameObject (TODO)" ) ) { ImGui::CloseCurrentPopup(); }
+                if( pGameObject->GetGameObjectThisInheritsFrom() )
                 {
-                    const char* currentcategory = g_pComponentTypeManager->GetTypeCategory( i );
-                    const char* nextcategory = 0;
-                    if( i < numtypes-1 )
-                        nextcategory = g_pComponentTypeManager->GetTypeCategory( i+1 );
+                    if( ImGui::MenuItem( "Clear Parent (TODO)" ) )        { ImGui::CloseCurrentPopup(); }
+                }
+                //if( ImGui::MenuItem( "Add Component with submenus... (TODO)" ) )    { ImGui::CloseCurrentPopup(); }
+                {
+                    int first = 0;
+                    if( pGameObject->GetTransform() != 0 )
+                        first = 1;
 
-                    if( lastcategory != currentcategory )
+                    const char* lastcategory = 0;
+                    bool menuopen = false;
+
+                    unsigned int numtypes = g_pComponentTypeManager->GetNumberOfComponentTypes();
+                    for( unsigned int i=first; i<numtypes; i++ )
                     {
-                        menuopen = ImGui::BeginMenu( currentcategory );
+                        const char* currentcategory = g_pComponentTypeManager->GetTypeCategory( i );
+                        const char* nextcategory = 0;
+                        if( i < numtypes-1 )
+                            nextcategory = g_pComponentTypeManager->GetTypeCategory( i+1 );
+
+                        if( lastcategory != currentcategory )
+                        {
+                            menuopen = ImGui::BeginMenu( currentcategory );
+                        }
+
+                        if( menuopen )
+                        {
+                            if( i == ComponentType_Mesh )
+                            {
+                                // don't include ComponentType_Mesh in the right-click menu.
+                                // TODO: if more exceptions are made, improve this system.
+                            }
+                            else
+                            {
+                                if( ImGui::MenuItem( g_pComponentTypeManager->GetTypeName( i ) ) )
+                                {
+                                    ComponentBase* pComponent = 0;
+                                    if( g_pEngineCore->IsInEditorMode() )
+                                        pComponent = pGameObject->AddNewComponent( i, pGameObject->GetSceneID() );
+                                    else
+                                        pComponent = pGameObject->AddNewComponent( i, 0 );
+
+                                    ImGui::CloseCurrentPopup();
+                                }
+                            }
+                        }
+
+                        if( menuopen && currentcategory != nextcategory )
+                        {
+                            ImGui::EndMenu();
+                        }
+
+                        lastcategory = currentcategory;
+                    }
+                }
+                if( ImGui::MenuItem( "Prefab Stuff (TODO)" ) )      { ImGui::CloseCurrentPopup(); }
+                if( ImGui::MenuItem( "Delete GameObject (TODO)" ) ) { ImGui::CloseCurrentPopup(); }
+            }
+            ImGui::EndPopup();
+        }
+        ImGui::PopID();
+
+        if( ImGui::IsItemClicked() )
+        {
+            if( ImGui::GetIO().KeyCtrl == false )
+            {
+                pEditorState->ClearSelectedObjectsAndComponents();
+            }
+
+            if( ImGui::GetIO().KeyShift == false )
+            {
+                // TODO: select all GameObjects between last object in list and this one.
+            }
+
+            if( pEditorState->IsGameObjectSelected( pGameObject ) )
+            {
+                pEditorState->UnselectGameObject( pGameObject );
+            }
+            else
+            {
+                pEditorState->SelectGameObject( pGameObject );
+            }
+        }
+        if( treeNodeIsOpen )
+        {
+            // Add Child GameObjects
+            GameObject* pChildGameObject = pGameObject->GetFirstChild();
+            while( pChildGameObject )
+            {
+                AddGameObjectToObjectList( pChildGameObject );
+                pChildGameObject = (GameObject*)pChildGameObject->GetNext();
+            }
+
+            // Add Components
+            for( unsigned int ci=0; ci<pGameObject->GetComponentCountIncludingCore(); ci++ )
+            {
+                ComponentBase* pComponent = pGameObject->GetComponentByIndexIncludingCore( ci );
+                if( pComponent )
+                {
+                    ImGuiTreeNodeFlags nodeFlags = ImGuiTreeNodeFlags_Leaf;
+                    if( pEditorState->IsComponentSelected( pComponent ) )
+                    {
+                        nodeFlags |= ImGuiTreeNodeFlags_Selected;
                     }
 
-                    if( menuopen )
+                    if( ImGui::TreeNodeEx( pComponent, nodeFlags, pComponent->GetClassname() ) )
                     {
-                        if( i == ComponentType_Mesh )
+                        if( ImGui::BeginPopupContextItem( "ContextPopup", 1 ) )
                         {
-                            // don't include ComponentType_Mesh in the right-click menu.
-                            // TODO: if more exceptions are made, improve this system.
+                            char* label = "Delete Component";
+                            if( pEditorState->m_pSelectedComponents.size() > 1 )
+                                label = "Delete Selected Components";
+                            if( ImGui::MenuItem( label ) )
+                            {
+                                pComponent->OnRightClickAction( ComponentBase::RightClick_DeleteComponent );
+                                ImGui::CloseCurrentPopup();
+                            }
+                            ImGui::EndPopup();
+                        }
+                        ImGui::TreePop();
+                    }
+
+                    if( ImGui::IsItemClicked() )
+                    {
+                        if( ImGui::GetIO().KeyCtrl == false )
+                        {
+                            pEditorState->ClearSelectedObjectsAndComponents();
+                        }
+
+                        if( ImGui::GetIO().KeyShift == false )
+                        {
+                            // TODO: select all Components between last object in list and this one.
+                        }
+
+                        if( pEditorState->IsComponentSelected( pComponent ) )
+                        {
+                            pEditorState->UnselectComponent( pComponent );
                         }
                         else
                         {
-                            if( ImGui::MenuItem( g_pComponentTypeManager->GetTypeName( i ) ) )
-                            {
-                                ComponentBase* pComponent = 0;
-                                if( g_pEngineCore->IsInEditorMode() )
-                                    pComponent = pGameObject->AddNewComponent( i, pGameObject->GetSceneID() );
-                                else
-                                    pComponent = pGameObject->AddNewComponent( i, 0 );
-
-                                ImGui::CloseCurrentPopup();
-                            }
+                            pEditorState->SelectComponent( pComponent );
                         }
-                    }
-
-                    if( menuopen && currentcategory != nextcategory )
-                    {
-                        ImGui::EndMenu();
-                    }
-
-                    lastcategory = currentcategory;
-                }
-            }
-            if( ImGui::MenuItem( "Prefab Stuff (TODO)" ) )      { ImGui::CloseCurrentPopup(); }
-            if( ImGui::MenuItem( "Delete GameObject (TODO)" ) ) { ImGui::CloseCurrentPopup(); }
-        }
-        ImGui::EndPopup();
-    }
-    ImGui::PopID();
-
-    if( ImGui::IsItemClicked() )
-    {
-        if( ImGui::GetIO().KeyCtrl == false )
-        {
-            pEditorState->ClearSelectedObjectsAndComponents();
-        }
-
-        if( ImGui::GetIO().KeyShift == false )
-        {
-            // TODO: select all GameObjects between last object in list and this one.
-        }
-
-        if( pEditorState->IsGameObjectSelected( pGameObject ) )
-        {
-            pEditorState->UnselectGameObject( pGameObject );
-        }
-        else
-        {
-            pEditorState->SelectGameObject( pGameObject );
-        }
-    }
-    if( treeNodeIsOpen )
-    {
-        // Add Child GameObjects
-        GameObject* pChildGameObject = pGameObject->GetFirstChild();
-        while( pChildGameObject )
-        {
-            AddGameObjectToObjectList( pChildGameObject );
-            pChildGameObject = (GameObject*)pChildGameObject->GetNext();
-        }
-
-        // Add Components
-        for( unsigned int ci=0; ci<pGameObject->GetComponentCountIncludingCore(); ci++ )
-        {
-            ComponentBase* pComponent = pGameObject->GetComponentByIndexIncludingCore( ci );
-            if( pComponent )
-            {
-                ImGuiTreeNodeFlags nodeFlags = ImGuiTreeNodeFlags_Leaf;
-                if( pEditorState->IsComponentSelected( pComponent ) )
-                {
-                    nodeFlags |= ImGuiTreeNodeFlags_Selected;
-                }
-
-                if( ImGui::TreeNodeEx( pComponent, nodeFlags, pComponent->GetClassname() ) )
-                {
-                    if( ImGui::BeginPopupContextItem( "ContextPopup", 1 ) )
-                    {
-                        char* label = "Delete Component";
-                        if( pEditorState->m_pSelectedComponents.size() > 1 )
-                            label = "Delete Selected Components";
-                        if( ImGui::MenuItem( label ) )
-                        {
-                            pComponent->OnRightClickAction( ComponentBase::RightClick_DeleteComponent );
-                            ImGui::CloseCurrentPopup();
-                        }
-                        ImGui::EndPopup();
-                    }
-                    ImGui::TreePop();
-                }
-
-                if( ImGui::IsItemClicked() )
-                {
-                    if( ImGui::GetIO().KeyCtrl == false )
-                    {
-                        pEditorState->ClearSelectedObjectsAndComponents();
-                    }
-
-                    if( ImGui::GetIO().KeyShift == false )
-                    {
-                        // TODO: select all Components between last object in list and this one.
-                    }
-
-                    if( pEditorState->IsComponentSelected( pComponent ) )
-                    {
-                        pEditorState->UnselectComponent( pComponent );
-                    }
-                    else
-                    {
-                        pEditorState->SelectComponent( pComponent );
                     }
                 }
             }
+            ImGui::TreePop();
         }
-        ImGui::TreePop();
     }
 }
 
@@ -943,6 +982,7 @@ void EditorMainFrame_ImGui::AddMemoryPanel()
 
         case PanelMemoryPage_ShaderGroups:
             {
+                AddMemoryPanel_ShaderGroups();
             }
             break;
 
@@ -1046,12 +1086,11 @@ void EditorMainFrame_ImGui::AddMemoryPanel_Textures()
         {
             ImGuiTreeNodeFlags baseNodeFlags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick;
 
-            ImGuiTreeNodeFlags node_flags = baseNodeFlags;
             char* label = "Textures - Loading";
             if( i == 1 )
-                label = "Textures";
+                label = "All Textures";
 
-            if( ImGui::TreeNodeEx( label, node_flags | ImGuiTreeNodeFlags_DefaultOpen ) )
+            if( ImGui::TreeNodeEx( label, baseNodeFlags | ImGuiTreeNodeFlags_DefaultOpen ) )
             {
                 while( pTex )
                 {
@@ -1059,7 +1098,7 @@ void EditorMainFrame_ImGui::AddMemoryPanel_Textures()
                     {
                         numtextureshown++;
 
-                        if( ImGui::TreeNodeEx( pTex->GetFilename(), ImGuiTreeNodeFlags_Leaf | node_flags ) )
+                        if( ImGui::TreeNodeEx( pTex->GetFilename(), ImGuiTreeNodeFlags_Leaf | baseNodeFlags ) )
                         {
                             if( ImGui::BeginPopupContextItem( "ContextPopup", 1 ) )
                             {
@@ -1098,6 +1137,62 @@ void EditorMainFrame_ImGui::AddMemoryPanel_Textures()
     if( numtextureshown == 0 )
     {
         ImGui::TreeNodeEx( "No textures loaded.", ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen );
+    }
+}
+
+void EditorMainFrame_ImGui::AddMemoryPanel_ShaderGroups()
+{
+    bool numShadersShown = 0;
+
+    {
+        ShaderGroup* pShaderGroup = (ShaderGroup*)g_pShaderGroupManager->m_ShaderGroupList.GetHead();
+
+        if( pShaderGroup )
+        {
+            ImGuiTreeNodeFlags baseNodeFlags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick;
+
+            if( ImGui::TreeNodeEx( "All Shaders", baseNodeFlags | ImGuiTreeNodeFlags_DefaultOpen ) )
+            {
+                while( pShaderGroup )
+                {
+                    if( pShaderGroup->GetFile() )
+                    {
+                        if( pShaderGroup->GetFile()->m_ShowInMemoryPanel )
+                        {
+                            numShadersShown++;
+
+                            if( ImGui::TreeNodeEx( pShaderGroup->GetFile()->GetFilenameWithoutExtension(), ImGuiTreeNodeFlags_Leaf | baseNodeFlags ) )
+                            {
+                                if( ImGui::BeginPopupContextItem( "ContextPopup", 1 ) )
+                                {
+                                    if( ImGui::MenuItem( "Open File (TODO)" ) )       { ImGui::CloseCurrentPopup(); }
+                                    if( ImGui::MenuItem( "Unload File (TODO)" ) )     { ImGui::CloseCurrentPopup(); }
+                                    if( ImGui::MenuItem( "Find References (TODO)" ) ) { ImGui::CloseCurrentPopup(); } ;// (%d)", pMat->GetRefCount() ) {}
+                                    ImGui::EndPopup();
+                                }
+
+                                if( ImGui::BeginDragDropSource() )
+                                {
+                                    ImGui::SetDragDropPayload( "ShaderGroup", &pShaderGroup, sizeof(pShaderGroup), ImGuiCond_Once );
+                                    ImGui::Text( "%s", pShaderGroup->GetFile()->GetFullPath() );
+                                    ImGui::EndDragDropSource();
+                                }
+
+                                ImGui::TreePop();
+                            }
+                        }
+                    }
+
+                    pShaderGroup = (ShaderGroup*)pShaderGroup->GetNext();
+                }
+                ImGui::TreePop();
+            }
+        }
+    }
+
+    if( numShadersShown == 0 )
+    {
+        ImGui::TreeNodeEx( "No shaders loaded.", ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen );
     }
 }
 
@@ -1342,53 +1437,98 @@ void EditorMainFrame_ImGui::AddMaterialEditor()
                 ImGui::DragFloat2( "UVScale", &pMat->m_UVScale.x, 0.01f, 0, 1 );
                 ImGui::DragFloat2( "UVOffset", &pMat->m_UVOffset.x, 0.01f, 0, 1 );
 
-                const char* desc = "no shader";
-                if( pShaderGroup && pShaderGroup->GetShader( ShaderPass_Main )->m_pFile )
-                    desc = pShaderGroup->GetShader( ShaderPass_Main )->m_pFile->GetFilenameWithoutExtension();
-                ImGui::Button( desc, ImVec2( ImGui::GetWindowWidth() * 0.65f, 0 ) );
-                ImGui::SameLine();
-                ImGui::Text( "Shader" );
-                //m_ControlID_Shader = g_pPanelWatch->AddPointerWithDescription( "Shader", 0, desc, this, MaterialDefinition::StaticOnDropShader, 0, MaterialDefinition::StaticOnRightClickShader );
-
-                desc = "no shader";
-                if( pShaderGroupInstanced && pShaderGroupInstanced->GetShader( ShaderPass_Main )->m_pFile )
-                    desc = pShaderGroupInstanced->GetShader( ShaderPass_Main )->m_pFile->GetFilenameWithoutExtension();
-                ImGui::Button( desc, ImVec2( ImGui::GetWindowWidth() * 0.65f, 0 ) );
-                ImGui::SameLine();
-                ImGui::Text( "Instanced Shader" );
-                //m_ControlID_ShaderInstanced = g_pPanelWatch->AddPointerWithDescription( "Shader Instanced", 0, desc, this, MaterialDefinition::StaticOnDropShader, 0, MaterialDefinition::StaticOnRightClickShader );
-
-                TextureDefinition* pTextureColor = pMat->GetTextureColor();
-                desc = "no color texture";
-                if( pTextureColor )
-                    desc = pTextureColor->GetFilename();
-                ImGui::Button( desc, ImVec2( ImGui::GetWindowWidth() * 0.65f, 0 ) );
-                if( ImGui::BeginDragDropTarget() )
                 {
-                    if( const ImGuiPayload* payload = ImGui::AcceptDragDropPayload( "Texture" ) )
+                    const char* desc = "no shader";
+                    if( pShaderGroup && pShaderGroup->GetShader( ShaderPass_Main )->m_pFile )
+                        desc = pShaderGroup->GetShader( ShaderPass_Main )->m_pFile->GetFilenameWithoutExtension();
+                    ImGui::Button( desc, ImVec2( ImGui::GetWindowWidth() * 0.65f, 0 ) );
+
+                    if( ImGui::BeginDragDropTarget() )
                     {
-                        pMat->SetTextureColor( (TextureDefinition*)*(void**)payload->Data );
+                        if( const ImGuiPayload* payload = ImGui::AcceptDragDropPayload( "ShaderGroup" ) )
+                        {
+                            pMat->SetShader( (ShaderGroup*)*(void**)payload->Data );
+                        }
+                        ImGui::EndDragDropTarget();
                     }
-                    ImGui::EndDragDropTarget();
+
+                    if( ImGui::IsItemHovered() )
+                    {
+                        if( ImGui::IsMouseDoubleClicked( 0 ) )
+                        {
+                            pMat->SetShader( 0 );
+                        }
+                    }
+
+                    ImGui::SameLine();
+                    ImGui::Text( "Shader" );
+                    //m_ControlID_Shader = g_pPanelWatch->AddPointerWithDescription( "Shader", 0, desc, this, MaterialDefinition::StaticOnDropShader, 0, MaterialDefinition::StaticOnRightClickShader );
                 }
-                if( ImGui::IsItemHovered() )
+
                 {
+                    const char* desc = "no shader";
+                    if( pShaderGroupInstanced && pShaderGroupInstanced->GetShader( ShaderPass_Main )->m_pFile )
+                        desc = pShaderGroupInstanced->GetShader( ShaderPass_Main )->m_pFile->GetFilenameWithoutExtension();
+                    ImGui::Button( desc, ImVec2( ImGui::GetWindowWidth() * 0.65f, 0 ) );
+
+                    if( ImGui::BeginDragDropTarget() )
+                    {
+                        if( const ImGuiPayload* payload = ImGui::AcceptDragDropPayload( "ShaderGroup" ) )
+                        {
+                            pMat->SetShaderInstanced( (ShaderGroup*)*(void**)payload->Data );
+                        }
+                        ImGui::EndDragDropTarget();
+                    }
+
+                    if( ImGui::IsItemHovered() )
+                    {
+                        if( ImGui::IsMouseDoubleClicked( 0 ) )
+                        {
+                            pMat->SetShaderInstanced( 0 );
+                        }
+                    }
+
+                    ImGui::SameLine();
+                    ImGui::Text( "Instanced Shader" );
+                    //m_ControlID_ShaderInstanced = g_pPanelWatch->AddPointerWithDescription( "Shader Instanced", 0, desc, this, MaterialDefinition::StaticOnDropShader, 0, MaterialDefinition::StaticOnRightClickShader );
+                }
+
+                {
+                    const char* desc = "no color texture";
+                    TextureDefinition* pTextureColor = pMat->GetTextureColor();
                     if( pTextureColor )
+                        desc = pTextureColor->GetFilename();
+                    ImGui::Button( desc, ImVec2( ImGui::GetWindowWidth() * 0.65f, 0 ) );
+
+                    if( ImGui::BeginDragDropTarget() )
                     {
-                        ImGui::BeginTooltip();
-                        //ImGui::Text( "%s", pTex->GetFilename() );
-                        AddTexturePreview( false, pTextureColor, ImVec2( 100, 100 ), ImVec4( 1, 1, 1, 1 ) );
-                        ImGui::EndTooltip();
+                        if( const ImGuiPayload* payload = ImGui::AcceptDragDropPayload( "Texture" ) )
+                        {
+                            pMat->SetTextureColor( (TextureDefinition*)*(void**)payload->Data );
+                        }
+                        ImGui::EndDragDropTarget();
                     }
 
-                    if( ImGui::IsMouseDoubleClicked( 0 ) )
+                    if( ImGui::IsItemHovered() )
                     {
-                        pMat->SetTextureColor( 0 );
+                        if( pTextureColor )
+                        {
+                            ImGui::BeginTooltip();
+                            //ImGui::Text( "%s", pTex->GetFilename() );
+                            AddTexturePreview( false, pTextureColor, ImVec2( 100, 100 ), ImVec4( 1, 1, 1, 1 ) );
+                            ImGui::EndTooltip();
+                        }
+
+                        if( ImGui::IsMouseDoubleClicked( 0 ) )
+                        {
+                            pMat->SetTextureColor( 0 );
+                        }
                     }
+
+                    ImGui::SameLine();
+                    ImGui::Text( "Color Texture" );
+                    //g_pPanelWatch->AddPointerWithDescription( "Color Texture", 0, desc, this, MaterialDefinition::StaticOnDropTexture, 0, MaterialDefinition::StaticOnRightClickTexture );
                 }
-                ImGui::SameLine();
-                ImGui::Text( "Color Texture" );
-                //g_pPanelWatch->AddPointerWithDescription( "Color Texture", 0, desc, this, MaterialDefinition::StaticOnDropTexture, 0, MaterialDefinition::StaticOnRightClickTexture );
 
                 // TODO: Copies of these colors are changing, fix that.
                 ColorFloat ambientColorFloat = pMat->m_ColorAmbient.AsColorFloat();
