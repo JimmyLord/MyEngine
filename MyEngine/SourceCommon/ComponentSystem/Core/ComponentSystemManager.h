@@ -202,7 +202,7 @@ public:
     void UnmanageGameObject(GameObject* pObject, bool unmanagechildren);
     void ManageGameObject(GameObject* pObject, bool managechildren);
     void DeleteGameObject(GameObject* pObject, bool deletecomponents);
-#if MYFW_USING_WX
+#if MYFW_EDITOR
     GameObject* EditorCopyGameObject(GameObject* pObject, bool NewObjectInheritsFromOld);
 #endif
     GameObject* CopyGameObject(GameObject* pObject, const char* newname);
@@ -307,6 +307,7 @@ public:
 
     static void StaticOnMemoryPanelFileSelectedLeftClick(void* pObjectPtr) { ((ComponentSystemManager*)pObjectPtr)->OnMemoryPanelFileSelectedLeftClick(); }
     void OnMemoryPanelFileSelectedLeftClick();
+#endif //MYFW_USING_WX
 
     static void StaticOnMaterialCreated(void* pObjectPtr, MaterialDefinition* pMaterial) { ((ComponentSystemManager*)pObjectPtr)->OnMaterialCreated( pMaterial ); }
     void OnMaterialCreated(MaterialDefinition* pMaterial);
@@ -321,8 +322,7 @@ public:
     void OnFileUnloaded(MyFileObject* pFile);
 
     static void StaticOnFindAllReferences(void* pObjectPtr, MyFileObject* pFile) { ((ComponentSystemManager*)pObjectPtr)->OnFindAllReferences( pFile ); }
-    void OnFindAllReferences(MyFileObject* pFile);    
-#endif //MYFW_USING_WX
+    void OnFindAllReferences(MyFileObject* pFile);
 #endif //MYFW_EDITOR
 };
 

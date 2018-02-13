@@ -19,6 +19,8 @@ class ImGuiManager
 protected:
     void ClearInput();
 
+    ImGuiContext* m_pImGuiContext;
+
     bool m_FrameStarted;
 
     GLuint m_FontTexture;

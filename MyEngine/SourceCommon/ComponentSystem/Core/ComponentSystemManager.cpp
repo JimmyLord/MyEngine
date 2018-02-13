@@ -32,7 +32,7 @@ ComponentSystemManager::ComponentSystemManager(ComponentTypeManager* typemanager
 
     m_pPrefabManager = MyNew PrefabManager();
 
-#if MYFW_USING_WX
+#if MYFW_EDITOR
     g_pMaterialManager->RegisterMaterialCreatedCallback( this, StaticOnMaterialCreated );
     g_pFileManager->RegisterFileUnloadedCallback( this, StaticOnFileUnloaded );
     g_pFileManager->RegisterFindAllReferencesCallback( this, StaticOnFindAllReferences );
@@ -41,7 +41,7 @@ ComponentSystemManager::ComponentSystemManager(ComponentTypeManager* typemanager
 
     // This class adds to SoundCue's refcount when storing cue in m_Files
     //    so increment this number to prevent editor from allowing it to be unloaded if ref'ed by game code
-    g_pGameCore->GetSoundManager()->m_NumRefsPlacedOnSoundCueBySystem += 1;
+    g_pGameCore->GetSoundManager()->Editor_AddToNumRefsPlacedOnSoundCueBySystem();
 #endif
 
     m_NextSceneID = 1;
@@ -206,222 +206,6 @@ void ComponentSystemManager::LuaRegister(lua_State* luastate)
         .endClass();
 }
 #endif //MYFW_USING_LUA
-
-#if MYFW_USING_WX
-void ComponentSystemManager::CheckForUpdatedDataSourceFiles(bool initialcheck)
-{
-    for( CPPListNode* pNode = m_Files.GetHead(); pNode; pNode = pNode->GetNext() )
-    {
-        MyFileInfo* pFileInfo = (MyFileInfo*)pNode;
-
-        if( pFileInfo->m_pFile == 0 )
-            continue;
-
-#if MYFW_WINDOWS
-        if( (initialcheck == false || pFileInfo->m_DidInitialCheckIfSourceFileWasUpdated == false) && // haven't done initial check
-            pFileInfo->m_pFile->GetFileLastWriteTime().dwHighDateTime != 0 && // converted file has been loaded
-            pFileInfo->m_SourceFileFullPath[0] != 0 )                      // we have a source file
-        {
-            WIN32_FIND_DATAA data;
-            memset( &data, 0, sizeof( data ) );
-
-            HANDLE handle = FindFirstFileA( pFileInfo->m_SourceFileFullPath, &data );
-            if( handle != INVALID_HANDLE_VALUE )
-                FindClose( handle );
-
-            // if the source file is newer than the data file, reimport it.
-            if( data.ftLastWriteTime.dwHighDateTime > pFileInfo->m_pFile->GetFileLastWriteTime().dwHighDateTime ||
-                ( data.ftLastWriteTime.dwHighDateTime == pFileInfo->m_pFile->GetFileLastWriteTime().dwHighDateTime &&
-                  data.ftLastWriteTime.dwLowDateTime > pFileInfo->m_pFile->GetFileLastWriteTime().dwLowDateTime ) )
-            {
-                ImportDataFile( pFileInfo->m_SceneID, pFileInfo->m_SourceFileFullPath );
-                bool updated = true;
-            }
-
-            pFileInfo->m_DidInitialCheckIfSourceFileWasUpdated = true;
-        }
-#else
-        if( (initialcheck == false || pFileInfo->m_DidInitialCheckIfSourceFileWasUpdated == false) && 
-            pFileInfo->m_pFile->GetFileLastWriteTime() != 0 && // converted file has been loaded
-            pFileInfo->m_SourceFileFullPath[0] != 0 )                      // we have a source file
-        {
-            struct stat data;
-            stat( pFileInfo->m_SourceFileFullPath, &data );
-            if( data.st_mtime == pFileInfo->m_pFile->GetFileLastWriteTime() )
-            {
-                ImportDataFile( pFileInfo->m_SceneID, pFileInfo->m_SourceFileFullPath );
-                bool updated = true;
-            }
-
-            pFileInfo->m_DidInitialCheckIfSourceFileWasUpdated = true;
-        }
-#endif
-    }
-    
-    // TODO: check for updates to files that are still loading?
-    //m_FilesStillLoading
-}
-
-void ComponentSystemManager::OnFileUpdated(MyFileObject* pFile)
-{
-    for( unsigned int i=0; i<m_pFileUpdatedCallbackList.size(); i++ )
-    {
-        m_pFileUpdatedCallbackList[i].pFunc( m_pFileUpdatedCallbackList[i].pObj, pFile );
-    }
-}
-
-void ComponentSystemManager::Editor_RegisterFileUpdatedCallback(FileUpdatedCallbackFunction pFunc, void* pObj)
-{
-    MyAssert( pFunc != 0 );
-    MyAssert( pObj != 0 );
-
-    FileUpdatedCallbackStruct callbackstruct;
-    callbackstruct.pFunc = pFunc;
-    callbackstruct.pObj = pObj;
-
-    m_pFileUpdatedCallbackList.push_back( callbackstruct );
-}
-
-void ComponentSystemManager::OnLeftClick(unsigned int count, bool clear)
-{
-    if( clear )
-        g_pPanelWatch->ClearAllVariables();
-}
-
-void ComponentSystemManager::OnRightClick()
-{
-    //wxMenu menu;
-    //menu.SetClientData( this );
-
-    //menu.Append( 1000, "Add Game Object" );
-    //menu.Connect( wxEVT_COMMAND_MENU_SELECTED, (wxObjectEventFunction)&ComponentSystemManager::OnPopupClick );
-
-    //// blocking call. // should delete all categorymenu's new'd above when done.
-    //g_pPanelWatch->PopupMenu( &menu ); // there's no reason this is using g_pPanelWatch other than convenience.
-}
-
-void ComponentSystemManager::OnPopupClick(wxEvent &evt)
-{
-    //int id = evt.GetId();
-    //if( id == 1000 )
-    //{
-    //    GameObject* pGameObject = g_pComponentSystemManager->CreateGameObject();
-    //    pGameObject->SetName( "New Game Object" );
-    //}
-}
-
-void ComponentSystemManager::OnMemoryPanelFileSelectedLeftClick()
-{
-    // not sure why I put this in anymore... might be handy later.
-    //int bp = 1;
-}
-
-void ComponentSystemManager::OnMaterialCreated(MaterialDefinition* pMaterial)
-{
-    MyAssert( pMaterial );
-
-    // if this material doesn't have a file and it has a name, then save it.
-    if( pMaterial && pMaterial->GetFile() )
-    {
-        // Add the material to the file list, so it can be freed on shutdown.
-        AddToFileList( pMaterial->GetFile(), 0, 0, 0, pMaterial, 0, 0, 1 );
-        pMaterial->GetFile()->AddRef();
-    }
-}
-
-void ComponentSystemManager::OnSoundCueCreated(SoundCue* pSoundCue)
-{
-    MyAssert( pSoundCue );
-
-    if( pSoundCue )
-    {
-        pSoundCue->AddRef();
-    }
-
-    // If this sound cue doesn't have a file and it has a name, then save it.
-    if( pSoundCue && pSoundCue->GetFile() )
-    {
-        // Add the sound cue to the file list, so it can be freed on shutdown.
-        AddToFileList( pSoundCue->GetFile(), 0, 0, 0, 0, pSoundCue, 0, 1 );
-        pSoundCue->GetFile()->AddRef();
-    }
-}
-
-void ComponentSystemManager::OnSoundCueUnloaded(SoundCue* pSoundCue) // StaticOnSoundCueUnloaded
-{
-    MyAssert( pSoundCue );
-
-    // Loop through both lists of files and unload all files referencing this sound cue.
-    for( int filelist=0; filelist<2; filelist++ )
-    {
-        CPPListNode* pFirstNode = 0;
-
-        if( filelist == 0 )
-            pFirstNode = m_Files.GetHead();
-        else
-            pFirstNode = m_FilesStillLoading.GetHead();
-        
-        CPPListNode* pNextNode;
-        for( CPPListNode* pNode = pFirstNode; pNode; pNode = pNextNode )
-        {
-            pNextNode = pNode->GetNext();
-
-            MyFileInfo* pFileInfo = (MyFileInfo*)pNode;
-
-            if( pFileInfo->m_pSoundCue == pSoundCue )
-            {
-                // Unload the file.
-                FreeDataFile( pFileInfo );
-            }
-        }
-    }
-}
-
-void ComponentSystemManager::OnFileUnloaded(MyFileObject* pFile) // StaticOnFileUnloaded
-{
-    MyAssert( pFile );
-
-    // Loop through both lists of files and unload all files referencing this sound cue.
-    for( int filelist=0; filelist<2; filelist++ )
-    {
-        CPPListNode* pFirstNode = 0;
-
-        if( filelist == 0 )
-            pFirstNode = m_Files.GetHead();
-        else
-            pFirstNode = m_FilesStillLoading.GetHead();
-        
-        CPPListNode* pNextNode;
-        for( CPPListNode* pNode = pFirstNode; pNode; pNode = pNextNode )
-        {
-            pNextNode = pNode->GetNext();
-
-            MyFileInfo* pFileInfo = (MyFileInfo*)pNode;
-
-            // Unload the file.
-            if( pFileInfo->m_pFile == pFile
-                || (pFileInfo->m_pMesh          && pFileInfo->m_pMesh->GetFile()            == pFile)
-                || (pFileInfo->m_pShaderGroup   && pFileInfo->m_pShaderGroup->GetFile()     == pFile)
-                || (pFileInfo->m_pTexture       && pFileInfo->m_pTexture->GetFile()         == pFile)
-                || (pFileInfo->m_pMaterial      && pFileInfo->m_pMaterial->GetFile()        == pFile)
-                || (pFileInfo->m_pSoundCue      && pFileInfo->m_pSoundCue->GetFile()        == pFile)
-                || (pFileInfo->m_pSpriteSheet   && pFileInfo->m_pSpriteSheet->GetJSONFile() == pFile)
-                || (pFileInfo->m_pPrefabFile    && pFileInfo->m_pPrefabFile->GetFile()      == pFile)
-              )
-            {
-                LOGInfo( LOGTag, "File removed from scene file list: %s\n", pFile->GetFullPath() );
-
-                FreeDataFile( pFileInfo );
-            }
-        }
-    }
-}
-
-void ComponentSystemManager::OnFindAllReferences(MyFileObject* pFile) // StaticOnFindAllReferences
-{
-    LogAllReferencesForFile( pFile );
-}
-#endif //MYFW_USING_WX
 
 void ComponentSystemManager::MoveAllFilesNeededForLoadingScreenToStartOfFileList(GameObject* first)
 {
@@ -1837,7 +1621,7 @@ void ComponentSystemManager::DeleteGameObject(GameObject* pObject, bool deleteco
     SAFE_DELETE( pObject );
 }
 
-#if MYFW_USING_WX
+#if MYFW_EDITOR
 GameObject* ComponentSystemManager::EditorCopyGameObject(GameObject* pObject, bool NewObjectInheritsFromOld)
 {
     GameObject* newgameobject = 0;
@@ -1845,7 +1629,7 @@ GameObject* ComponentSystemManager::EditorCopyGameObject(GameObject* pObject, bo
     EditorCommand_CopyGameObject* pCommand = MyNew EditorCommand_CopyGameObject( pObject, NewObjectInheritsFromOld );
     if( g_pEngineCore->IsInEditorMode() )
     {
-        g_pEngineMainFrame->m_pCommandStack->Do( pCommand );
+        g_pEngineCore->GetCommandStack()->Do( pCommand );
         newgameobject = pCommand->GetCreatedObject();
     }
     else
@@ -2893,29 +2677,6 @@ MaterialDefinition* ComponentSystemManager::ParseLog_Material(const char* line)
 
 //void ComponentSystemManager::m_pGameObjectTemplateManager
 
-#if MYFW_EDITOR
-void ComponentSystemManager::DrawSingleObject(MyMatrix* pMatViewProj, GameObject* pObject, ShaderGroup* pShaderOverride)
-{
-    for( unsigned int i=0; i<pObject->GetComponentCount(); i++ )
-    {
-        ComponentRenderable* pComponent = dynamic_cast<ComponentRenderable*>( pObject->GetComponentByIndex( i ) );
-
-        if( pComponent )
-        {
-            pComponent->Draw( pMatViewProj );
-
-            ComponentCallbackStruct_Draw* pCallbackStruct = pComponent->GetDrawCallback();
-
-            ComponentBase* pCallbackComponent = (ComponentBase*)pCallbackStruct->pObj;
-            if( pCallbackComponent != 0 && pCallbackStruct->pFunc != 0 )
-            {
-                (pCallbackComponent->*pCallbackStruct->pFunc)( 0, pMatViewProj, pShaderOverride );
-            }
-        }
-    }
-}
-#endif //MYFW_EDITOR
-
 void ComponentSystemManager::AddMeshToSceneGraph(ComponentBase* pComponent, MyMesh* pMesh, MaterialDefinition** pMaterialList, int primitive, int pointsize, SceneGraphFlags flags, unsigned int layers, SceneGraphObject** pOutputList)
 {
     MyAssert( pComponent != 0 );
@@ -3162,3 +2923,242 @@ bool ComponentSystemManager::OnKeys(GameCoreButtonActions action, int keycode, i
 
     return false;
 }
+
+#if MYFW_EDITOR
+void ComponentSystemManager::DrawSingleObject(MyMatrix* pMatViewProj, GameObject* pObject, ShaderGroup* pShaderOverride)
+{
+    for( unsigned int i=0; i<pObject->GetComponentCount(); i++ )
+    {
+        ComponentRenderable* pComponent = dynamic_cast<ComponentRenderable*>( pObject->GetComponentByIndex( i ) );
+
+        if( pComponent )
+        {
+            pComponent->Draw( pMatViewProj );
+
+            ComponentCallbackStruct_Draw* pCallbackStruct = pComponent->GetDrawCallback();
+
+            ComponentBase* pCallbackComponent = (ComponentBase*)pCallbackStruct->pObj;
+            if( pCallbackComponent != 0 && pCallbackStruct->pFunc != 0 )
+            {
+                (pCallbackComponent->*pCallbackStruct->pFunc)( 0, pMatViewProj, pShaderOverride );
+            }
+        }
+    }
+}
+
+#if MYFW_USING_WX
+void ComponentSystemManager::CheckForUpdatedDataSourceFiles(bool initialcheck)
+{
+    for( CPPListNode* pNode = m_Files.GetHead(); pNode; pNode = pNode->GetNext() )
+    {
+        MyFileInfo* pFileInfo = (MyFileInfo*)pNode;
+
+        if( pFileInfo->m_pFile == 0 )
+            continue;
+
+#if MYFW_WINDOWS
+        if( (initialcheck == false || pFileInfo->m_DidInitialCheckIfSourceFileWasUpdated == false) && // haven't done initial check
+            pFileInfo->m_pFile->GetFileLastWriteTime().dwHighDateTime != 0 && // converted file has been loaded
+            pFileInfo->m_SourceFileFullPath[0] != 0 )                      // we have a source file
+        {
+            WIN32_FIND_DATAA data;
+            memset( &data, 0, sizeof( data ) );
+
+            HANDLE handle = FindFirstFileA( pFileInfo->m_SourceFileFullPath, &data );
+            if( handle != INVALID_HANDLE_VALUE )
+                FindClose( handle );
+
+            // if the source file is newer than the data file, reimport it.
+            if( data.ftLastWriteTime.dwHighDateTime > pFileInfo->m_pFile->GetFileLastWriteTime().dwHighDateTime ||
+                ( data.ftLastWriteTime.dwHighDateTime == pFileInfo->m_pFile->GetFileLastWriteTime().dwHighDateTime &&
+                  data.ftLastWriteTime.dwLowDateTime > pFileInfo->m_pFile->GetFileLastWriteTime().dwLowDateTime ) )
+            {
+                ImportDataFile( pFileInfo->m_SceneID, pFileInfo->m_SourceFileFullPath );
+                bool updated = true;
+            }
+
+            pFileInfo->m_DidInitialCheckIfSourceFileWasUpdated = true;
+        }
+#else
+        if( (initialcheck == false || pFileInfo->m_DidInitialCheckIfSourceFileWasUpdated == false) && 
+            pFileInfo->m_pFile->GetFileLastWriteTime() != 0 && // converted file has been loaded
+            pFileInfo->m_SourceFileFullPath[0] != 0 )                      // we have a source file
+        {
+            struct stat data;
+            stat( pFileInfo->m_SourceFileFullPath, &data );
+            if( data.st_mtime == pFileInfo->m_pFile->GetFileLastWriteTime() )
+            {
+                ImportDataFile( pFileInfo->m_SceneID, pFileInfo->m_SourceFileFullPath );
+                bool updated = true;
+            }
+
+            pFileInfo->m_DidInitialCheckIfSourceFileWasUpdated = true;
+        }
+#endif
+    }
+    
+    // TODO: check for updates to files that are still loading?
+    //m_FilesStillLoading
+}
+
+void ComponentSystemManager::OnFileUpdated(MyFileObject* pFile)
+{
+    for( unsigned int i=0; i<m_pFileUpdatedCallbackList.size(); i++ )
+    {
+        m_pFileUpdatedCallbackList[i].pFunc( m_pFileUpdatedCallbackList[i].pObj, pFile );
+    }
+}
+
+void ComponentSystemManager::Editor_RegisterFileUpdatedCallback(FileUpdatedCallbackFunction pFunc, void* pObj)
+{
+    MyAssert( pFunc != 0 );
+    MyAssert( pObj != 0 );
+
+    FileUpdatedCallbackStruct callbackstruct;
+    callbackstruct.pFunc = pFunc;
+    callbackstruct.pObj = pObj;
+
+    m_pFileUpdatedCallbackList.push_back( callbackstruct );
+}
+
+void ComponentSystemManager::OnLeftClick(unsigned int count, bool clear)
+{
+    if( clear )
+        g_pPanelWatch->ClearAllVariables();
+}
+
+void ComponentSystemManager::OnRightClick()
+{
+    //wxMenu menu;
+    //menu.SetClientData( this );
+
+    //menu.Append( 1000, "Add Game Object" );
+    //menu.Connect( wxEVT_COMMAND_MENU_SELECTED, (wxObjectEventFunction)&ComponentSystemManager::OnPopupClick );
+
+    //// blocking call. // should delete all categorymenu's new'd above when done.
+    //g_pPanelWatch->PopupMenu( &menu ); // there's no reason this is using g_pPanelWatch other than convenience.
+}
+
+void ComponentSystemManager::OnPopupClick(wxEvent &evt)
+{
+    //int id = evt.GetId();
+    //if( id == 1000 )
+    //{
+    //    GameObject* pGameObject = g_pComponentSystemManager->CreateGameObject();
+    //    pGameObject->SetName( "New Game Object" );
+    //}
+}
+
+void ComponentSystemManager::OnMemoryPanelFileSelectedLeftClick()
+{
+    // not sure why I put this in anymore... might be handy later.
+    //int bp = 1;
+}
+#endif //MYFW_USING_WX
+
+void ComponentSystemManager::OnMaterialCreated(MaterialDefinition* pMaterial)
+{
+    MyAssert( pMaterial );
+
+    // if this material has a file and it has a name, then save it.
+    if( pMaterial && pMaterial->GetFile() )
+    {
+        // Add the material to the file list, so it can be freed on shutdown.
+        AddToFileList( pMaterial->GetFile(), 0, 0, 0, pMaterial, 0, 0, 1 );
+        pMaterial->GetFile()->AddRef();
+    }
+}
+
+void ComponentSystemManager::OnSoundCueCreated(SoundCue* pSoundCue)
+{
+    MyAssert( pSoundCue );
+
+    if( pSoundCue )
+    {
+        pSoundCue->AddRef();
+    }
+
+    // If this sound cue doesn't have a file and it has a name, then save it.
+    if( pSoundCue && pSoundCue->GetFile() )
+    {
+        // Add the sound cue to the file list, so it can be freed on shutdown.
+        AddToFileList( pSoundCue->GetFile(), 0, 0, 0, 0, pSoundCue, 0, 1 );
+        pSoundCue->GetFile()->AddRef();
+    }
+}
+
+void ComponentSystemManager::OnSoundCueUnloaded(SoundCue* pSoundCue) // StaticOnSoundCueUnloaded
+{
+    MyAssert( pSoundCue );
+
+    // Loop through both lists of files and unload all files referencing this sound cue.
+    for( int filelist=0; filelist<2; filelist++ )
+    {
+        CPPListNode* pFirstNode = 0;
+
+        if( filelist == 0 )
+            pFirstNode = m_Files.GetHead();
+        else
+            pFirstNode = m_FilesStillLoading.GetHead();
+        
+        CPPListNode* pNextNode;
+        for( CPPListNode* pNode = pFirstNode; pNode; pNode = pNextNode )
+        {
+            pNextNode = pNode->GetNext();
+
+            MyFileInfo* pFileInfo = (MyFileInfo*)pNode;
+
+            if( pFileInfo->m_pSoundCue == pSoundCue )
+            {
+                // Unload the file.
+                FreeDataFile( pFileInfo );
+            }
+        }
+    }
+}
+
+void ComponentSystemManager::OnFileUnloaded(MyFileObject* pFile) // StaticOnFileUnloaded
+{
+    MyAssert( pFile );
+
+    // Loop through both lists of files and unload all files referencing this sound cue.
+    for( int filelist=0; filelist<2; filelist++ )
+    {
+        CPPListNode* pFirstNode = 0;
+
+        if( filelist == 0 )
+            pFirstNode = m_Files.GetHead();
+        else
+            pFirstNode = m_FilesStillLoading.GetHead();
+        
+        CPPListNode* pNextNode;
+        for( CPPListNode* pNode = pFirstNode; pNode; pNode = pNextNode )
+        {
+            pNextNode = pNode->GetNext();
+
+            MyFileInfo* pFileInfo = (MyFileInfo*)pNode;
+
+            // Unload the file.
+            if( pFileInfo->m_pFile == pFile
+                || (pFileInfo->m_pMesh          && pFileInfo->m_pMesh->GetFile()            == pFile)
+                || (pFileInfo->m_pShaderGroup   && pFileInfo->m_pShaderGroup->GetFile()     == pFile)
+                || (pFileInfo->m_pTexture       && pFileInfo->m_pTexture->GetFile()         == pFile)
+                || (pFileInfo->m_pMaterial      && pFileInfo->m_pMaterial->GetFile()        == pFile)
+                || (pFileInfo->m_pSoundCue      && pFileInfo->m_pSoundCue->GetFile()        == pFile)
+                || (pFileInfo->m_pSpriteSheet   && pFileInfo->m_pSpriteSheet->GetJSONFile() == pFile)
+                || (pFileInfo->m_pPrefabFile    && pFileInfo->m_pPrefabFile->GetFile()      == pFile)
+              )
+            {
+                LOGInfo( LOGTag, "File removed from scene file list: %s\n", pFile->GetFullPath() );
+
+                FreeDataFile( pFileInfo );
+            }
+        }
+    }
+}
+
+void ComponentSystemManager::OnFindAllReferences(MyFileObject* pFile) // StaticOnFindAllReferences
+{
+    LogAllReferencesForFile( pFile );
+}
+#endif //MYFW_EDITOR

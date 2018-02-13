@@ -111,28 +111,36 @@ void EditorPrefs::LoadPrefs()
 
 void EditorPrefs::LoadLastSceneLoaded()
 {
+	bool scenewasloaded = false;
+
     // Load the scene at the end.
-    cJSON* jObject = cJSON_GetObjectItem( m_jEditorPrefs, "LastSceneLoaded" );
-    if( jObject && jObject->valuestring[0] != 0 )
-    {
-        char* scenename = jObject->valuestring;
+	if( m_jEditorPrefs != 0 )
+	{
+		cJSON* jObject = cJSON_GetObjectItem( m_jEditorPrefs, "LastSceneLoaded" );
+		if( jObject && jObject->valuestring[0] != 0 )
+		{
+			char* scenename = jObject->valuestring;
 
-        if( g_pEngineCore == 0 )
-            return;
+			if( g_pEngineCore == 0 )
+				return;
 
-        // Load the scene from file.
-        // This might cause some "undo" actions, so wipe them out once the load is complete.
-        //unsigned int numItemsInUndoStack = g_pEngineMainFrame->m_pCommandStack->GetUndoStackSize();
+			// Load the scene from file.
+			// This might cause some "undo" actions, so wipe them out once the load is complete.
+			unsigned int numItemsInUndoStack = g_pEngineCore->GetCommandStack()->GetUndoStackSize();
 
-        char fullpath[MAX_PATH];
-        GetFullPath( scenename, fullpath, MAX_PATH );
-        unsigned int sceneid = g_pEngineCore->LoadSceneFromFile( fullpath );
+			char fullpath[MAX_PATH];
+			GetFullPath( scenename, fullpath, MAX_PATH );
+			unsigned int sceneid = g_pEngineCore->LoadSceneFromFile( fullpath );
 
-        //g_pEngineMainFrame->m_pCommandStack->ClearUndoStack( numItemsInUndoStack );
+			scenewasloaded = true;
 
-        //this->SetTitle( scenename ); //g_pComponentSystemManager->GetSceneInfo( sceneid )->m_FullPath );
-    }
-    else
+			g_pEngineCore->GetCommandStack()->ClearUndoStack( numItemsInUndoStack );
+
+			//this->SetTitle( scenename ); //g_pComponentSystemManager->GetSceneInfo( sceneid )->m_FullPath );
+		}
+	}
+    
+	if( scenewasloaded == false )
     {
         g_pEngineCore->GetEditorState()->ClearKeyAndActionStates();
         g_pEngineCore->GetEditorState()->ClearSelectedObjectsAndComponents();

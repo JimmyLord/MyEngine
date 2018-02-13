@@ -23,9 +23,11 @@ protected:
     MaterialDefinition* m_pMaterialBeingEdited;
     bool m_IsMaterialEditorOpen;
 
-    // For renaming a gameobject.
+    // For renaming things
+    bool m_RenamePressedThisFrame;
     GameObject* m_pGameObjectWhoseNameIsBeingEdited;
-    char m_GameObjectNameBeingEdited[100];
+    MaterialDefinition* m_pMaterialWhoseNameIsBeingEdited;
+    char m_NameBeingEdited[100];
 
     Vector2 m_GameWindowPos;
     Vector2 m_EditorWindowPos;

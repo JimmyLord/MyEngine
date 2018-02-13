@@ -13,6 +13,8 @@ ImGuiManager* g_pImGuiManager = 0;
 
 ImGuiManager::ImGuiManager()
 {
+    m_pImGuiContext = 0;
+
     m_FrameStarted = false;
 
     m_FontTexture = 0;
@@ -39,6 +41,10 @@ ImGuiManager::~ImGuiManager()
 
 void ImGuiManager::Init(float width, float height)
 {
+    MyAssert( m_pImGuiContext == 0 );
+
+    m_pImGuiContext = ImGui::CreateContext();
+
     //ImGui::StyleColorsClassic();
 
     CreateDeviceObjects();
@@ -76,9 +82,9 @@ void ImGuiManager::Init(float width, float height)
 
 void ImGuiManager::Shutdown()
 {
-    ImGui::Shutdown();
-
     InvalidateDeviceObjects();
+
+    ImGui::DestroyContext( m_pImGuiContext );
 }
 
 void ImGuiManager::ClearInput()

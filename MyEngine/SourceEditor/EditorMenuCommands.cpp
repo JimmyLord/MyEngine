@@ -37,13 +37,13 @@ void LoadScene(const char* scenename, bool unloadscenes)
 
     // Load the scene from file.
     // This might cause some "undo" actions, so wipe them out once the load is complete.
-    //unsigned int numItemsInUndoStack = g_pEngineMainFrame->m_pCommandStack->GetUndoStackSize();
+    unsigned int numItemsInUndoStack = g_pEngineCore->GetCommandStack()->GetUndoStackSize();
 
     char fullpath[MAX_PATH];
     GetFullPath( scenename, fullpath, MAX_PATH );
     unsigned int sceneid = g_pEngineCore->LoadSceneFromFile( fullpath );
 
-    //g_pEngineMainFrame->m_pCommandStack->ClearUndoStack( numItemsInUndoStack );
+    g_pEngineCore->GetCommandStack()->ClearUndoStack( numItemsInUndoStack );
 
     //this->SetTitle( scenename ); //g_pComponentSystemManager->GetSceneInfo( sceneid )->m_FullPath );
 }

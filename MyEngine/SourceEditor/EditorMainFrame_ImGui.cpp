@@ -61,8 +61,10 @@ EditorMainFrame_ImGui::EditorMainFrame_ImGui()
     m_pMaterialBeingEdited = 0;
     m_IsMaterialEditorOpen = false;
 
+    m_RenamePressedThisFrame = false;
     m_pGameObjectWhoseNameIsBeingEdited = 0;
-    m_GameObjectNameBeingEdited[0] = 0;
+    m_pMaterialWhoseNameIsBeingEdited = 0;
+    m_NameBeingEdited[0] = 0;
 
     m_GameWindowPos.Set( -1, -1 );
     m_EditorWindowPos.Set( -1, -1 );
@@ -216,12 +218,8 @@ bool EditorMainFrame_ImGui::CheckForHotkeys(int keyaction, int keycode)
         // TODO: Check if F2 or Enter was pressed when menuitem has focus.
         if( N  && keycode == VK_F2 || N  && keycode == MYKEYCODE_ENTER )
         {
-            EditorState* pEditorState = g_pEngineCore->GetEditorState();
-            if( pEditorState->m_pSelectedObjects.size() > 0 )
-            {
-                m_pGameObjectWhoseNameIsBeingEdited = pEditorState->m_pSelectedObjects[0];
-                strncpy_s( m_GameObjectNameBeingEdited, m_pGameObjectWhoseNameIsBeingEdited->GetName(), 100 );
-            }
+            m_RenamePressedThisFrame = true;
+            return true;
         }
 
         if( C  && keycode == 'S' ) { EditorMenuCommand( EditorMenuCommand_File_SaveScene );         return true; }
@@ -267,6 +265,8 @@ void EditorMainFrame_ImGui::AddEverything()
     ImGui::ShowDemoWindow();
     
     ImGui::End();
+
+    m_RenamePressedThisFrame = false;
 }
 
 void EditorMainFrame_ImGui::AddMainMenuBar()
@@ -614,8 +614,8 @@ void EditorMainFrame_ImGui::AddObjectList()
                         scenename = &pSceneInfo->m_FullPath[i+1];
                     }
 
-                    ImGuiTreeNodeFlags node_flags = baseNodeFlags;
-                    bool treeNodeIsOpen = ImGui::TreeNodeEx( scenename, node_flags );
+                    ImGuiTreeNodeFlags nodeFlags = baseNodeFlags;
+                    bool treeNodeIsOpen = ImGui::TreeNodeEx( scenename, nodeFlags );
 
                     // Right-click menu, don't show for the unmanaged scene
                     if( sceneindex != EngineCore::UNMANAGED_SCENE_ID )
@@ -698,15 +698,21 @@ void EditorMainFrame_ImGui::AddObjectList()
 
 void EditorMainFrame_ImGui::AddGameObjectToObjectList(GameObject* pGameObject)
 {
+    if( pGameObject->IsManaged() == false )
+        return;
+
     if( pGameObject == m_pGameObjectWhoseNameIsBeingEdited )
     {
-        if( ImGui::InputText( "New name", m_GameObjectNameBeingEdited, 100, ImGuiInputTextFlags_AutoSelectAll|ImGuiInputTextFlags_EnterReturnsTrue ) )
+        ImGui::PushID( pGameObject );
+        if( ImGui::InputText( "New name", m_NameBeingEdited, 100, ImGuiInputTextFlags_AutoSelectAll|ImGuiInputTextFlags_EnterReturnsTrue ) )
         {
-            m_pGameObjectWhoseNameIsBeingEdited->SetName( m_GameObjectNameBeingEdited );
+            m_pGameObjectWhoseNameIsBeingEdited->SetName( m_NameBeingEdited );
             m_pGameObjectWhoseNameIsBeingEdited = 0;
+            m_RenamePressedThisFrame = false;
         }
 
         ImGui::SetKeyboardFocusHere();
+        ImGui::PopID();
     }
     else
     {
@@ -714,15 +720,31 @@ void EditorMainFrame_ImGui::AddGameObjectToObjectList(GameObject* pGameObject)
 
         ImGuiTreeNodeFlags baseNodeFlags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick;
 
-        ImGuiTreeNodeFlags node_flags = baseNodeFlags;
+        ImGuiTreeNodeFlags nodeFlags = baseNodeFlags;
         if( pEditorState->IsGameObjectSelected( pGameObject ) )
         {
-            node_flags |= ImGuiTreeNodeFlags_Selected;
+            nodeFlags |= ImGuiTreeNodeFlags_Selected;
         }
 
-        bool treeNodeIsOpen = ImGui::TreeNodeEx( pGameObject, node_flags, pGameObject->GetName() );
+        bool treeNodeIsOpen = ImGui::TreeNodeEx( pGameObject, nodeFlags, pGameObject->GetName() );
 
         ImGui::PushID( pGameObject );
+
+        // Start rename process on the first selected GameObject.
+        // Since 'enter' is a rename key, make sure the object wasn't already being renamed.
+        // TODO: handle 'escape' to cancel rename.
+        // TODO: handle click elsewhere to confirm.
+        if( pEditorState->m_pSelectedObjects.size() > 0 )
+        {
+            if( ImGui::IsRootWindowOrAnyChildFocused() && m_RenamePressedThisFrame &&
+                pEditorState->m_pSelectedObjects[0] != m_pGameObjectWhoseNameIsBeingEdited )
+            {
+                m_pGameObjectWhoseNameIsBeingEdited = pEditorState->m_pSelectedObjects[0];
+                m_pMaterialWhoseNameIsBeingEdited = 0;
+                strncpy_s( m_NameBeingEdited, m_pGameObjectWhoseNameIsBeingEdited->GetName(), 100 );
+            }
+        }
+
         if( ImGui::BeginPopupContextItem( "ContextPopup", 1 ) )
         {
             int numselected = g_pEngineCore->GetEditorState()->m_pSelectedObjects.size();
@@ -1022,50 +1044,99 @@ void EditorMainFrame_ImGui::AddMemoryPanel_Materials()
 
     ImGuiTreeNodeFlags baseNodeFlags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick;
 
-    ImGuiTreeNodeFlags node_flags = baseNodeFlags;
-    if( ImGui::TreeNodeEx( "All Materials", node_flags | ImGuiTreeNodeFlags_DefaultOpen ) )
+    ImGuiTreeNodeFlags nodeFlags = baseNodeFlags;
+    if( ImGui::TreeNodeEx( "All Materials", nodeFlags | ImGuiTreeNodeFlags_DefaultOpen ) )
     {
-        // TODO: folders for materials.
+        // TODO: Add folders for materials.
         //const char* foldername = pMat->GetFile()->GetNameOfDeepestFolderPath();
+
+        if( ImGui::BeginPopupContextItem( "ContextPopup", 1 ) )
+        {
+            if( ImGui::MenuItem( "Create New Material" ) )
+            {
+                ImGui::CloseCurrentPopup();
+                MaterialDefinition* pMaterial = g_pMaterialManager->CreateMaterial( "new" );
+
+                // TODO: Fix path based on folders.
+                char tempstr[MAX_PATH];
+                sprintf_s( tempstr, MAX_PATH, "Data/Materials" );
+                pMaterial->SaveMaterial( tempstr );
+
+                // Essentially, tell the ComponentSystemManager that a new material was loaded.
+                //  This will add it to the scene's file list, which will free the material.
+                g_pMaterialManager->CallMaterialCreatedCallbacks( pMaterial );
+            }
+            ImGui::EndPopup();
+        }
 
         while( pMat )
         {
-            if( ImGui::TreeNodeEx( pMat->GetName(), ImGuiTreeNodeFlags_Leaf | node_flags ) )
+            if( pMat == m_pMaterialWhoseNameIsBeingEdited )
             {
-                if( ImGui::BeginPopupContextItem( "ContextPopup", 1 ) )
+                if( ImGui::InputText( "New name", m_NameBeingEdited, 100, ImGuiInputTextFlags_AutoSelectAll|ImGuiInputTextFlags_EnterReturnsTrue ) )
                 {
-                    if( ImGui::MenuItem( "Edit Material", 0, &m_IsMaterialEditorOpen ) ) { m_pMaterialBeingEdited = pMat; ImGui::CloseCurrentPopup(); }
-                    if( ImGui::MenuItem( "Unload File (TODO)" ) )                        { ImGui::CloseCurrentPopup(); }
-                    if( ImGui::MenuItem( "Find References (TODO)" ) )                    { ImGui::CloseCurrentPopup(); } ;// (%d)", pMat->GetRefCount() ) {}
-                    ImGui::EndPopup();
+                    m_pMaterialWhoseNameIsBeingEdited->SetName( m_NameBeingEdited );
+                    m_pMaterialWhoseNameIsBeingEdited = 0;
                 }
 
-                if( ImGui::IsItemHovered() )
+                ImGui::SetKeyboardFocusHere();
+            }
+            else
+            {
+                if( ImGui::TreeNodeEx( pMat->GetName(), ImGuiTreeNodeFlags_Leaf | nodeFlags ) )
                 {
-                    if( ImGui::IsMouseDoubleClicked( 0 ) )
+                    // TODO: Find a better answer than IsItemHovered().
+                    if( ImGui::IsItemHovered() && m_RenamePressedThisFrame )
                     {
-                        m_IsMaterialEditorOpen = true;
-                        m_pMaterialBeingEdited = pMat;
+                        m_pGameObjectWhoseNameIsBeingEdited = 0;
+                        m_pMaterialWhoseNameIsBeingEdited = pMat;
+                        strncpy_s( m_NameBeingEdited, pMat->GetName(), 100 );
                     }
 
-                    ImGui::BeginTooltip();
-                    m_pMaterialToPreview = pMat;
-                    ImGui::Text( "%s", m_pMaterialToPreview->GetName() );
-                    AddMaterialPreview( false, ImVec2( 100, 100 ), ImVec4( 1, 1, 1, 1 ) );
-                    ImGui::EndTooltip();
-                }
+                    if( ImGui::BeginPopupContextItem( "ContextPopup", 1 ) )
+                    {
+                        if( ImGui::MenuItem( "Edit Material", 0, &m_IsMaterialEditorOpen ) ) { m_pMaterialBeingEdited = pMat; ImGui::CloseCurrentPopup(); }
+                        if( ImGui::MenuItem( "Unload File (TODO)" ) )                        { ImGui::CloseCurrentPopup(); }
+                        if( ImGui::MenuItem( "Find References (TODO)" ) )                    { ImGui::CloseCurrentPopup(); } // (%d)", pMat->GetRefCount() ) {}
+                        if( ImGui::MenuItem( "Rename" ) )
+                        {
+                            m_pGameObjectWhoseNameIsBeingEdited = 0;
+                            m_pMaterialWhoseNameIsBeingEdited = pMat;
+                            strncpy_s( m_NameBeingEdited, pMat->GetName(), 100 );
 
-                if( ImGui::BeginDragDropSource() )
-                {
-                    ImGui::SetDragDropPayload( "Material", &pMat, sizeof(pMat), ImGuiCond_Once );
-                    m_pMaterialToPreview = pMat;
-                    ImGui::Text( "%s", m_pMaterialToPreview->GetName() );
-                    AddMaterialPreview( false, ImVec2( 100, 100 ), ImVec4( 1, 1, 1, 0.5f ) );
-                    ImGui::EndDragDropSource();
-                }
+                            ImGui::CloseCurrentPopup();
+                        }
+                        ImGui::EndPopup();
+                    }
 
-                ImGui::TreePop();
+                    if( ImGui::IsItemHovered() )
+                    {
+                        if( ImGui::IsMouseDoubleClicked( 0 ) )
+                        {
+                            m_IsMaterialEditorOpen = true;
+                            m_pMaterialBeingEdited = pMat;
+                        }
+
+                        ImGui::BeginTooltip();
+                        m_pMaterialToPreview = pMat;
+                        ImGui::Text( "%s", m_pMaterialToPreview->GetName() );
+                        AddMaterialPreview( false, ImVec2( 100, 100 ), ImVec4( 1, 1, 1, 1 ) );
+                        ImGui::EndTooltip();
+                    }
+
+                    if( ImGui::BeginDragDropSource() )
+                    {
+                        ImGui::SetDragDropPayload( "Material", &pMat, sizeof(pMat), ImGuiCond_Once );
+                        m_pMaterialToPreview = pMat;
+                        ImGui::Text( "%s", m_pMaterialToPreview->GetName() );
+                        AddMaterialPreview( false, ImVec2( 100, 100 ), ImVec4( 1, 1, 1, 0.5f ) );
+                        ImGui::EndDragDropSource();
+                    }
+
+                    ImGui::TreePop();
+                }
             }
+
             pMat = (MaterialDefinition*)pMat->GetNext();
         }
         ImGui::TreePop();

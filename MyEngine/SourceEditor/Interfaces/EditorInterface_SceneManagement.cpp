@@ -306,8 +306,9 @@ bool EditorInterface_SceneManagement::HandleInput(int keyaction, int keycode, in
                 std::vector<GameObject*> selectedobjects = pEditorState->m_pSelectedObjects;
                 pEditorState->ClearSelectedObjectsAndComponents();
 
-#if MYFW_USING_WX // TODO_FIX_EDITOR
+#if MYFW_USING_WX
                 g_pPanelObjectList->Freeze();
+#endif
 
                 for( unsigned int i=0; i<selectedobjects.size(); i++ )
                 {
@@ -319,9 +320,12 @@ bool EditorInterface_SceneManagement::HandleInput(int keyaction, int keycode, in
 
                     pEditorState->m_pSelectedObjects.push_back( pNewObject );
                     // select the object in the object tree.
+#if MYFW_USING_WX
                     g_pPanelObjectList->SelectObject( pNewObject );
+#endif
                 }
 
+#if MYFW_USING_WX
                 g_pPanelObjectList->Thaw();
 #endif
             }
