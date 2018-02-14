@@ -74,6 +74,7 @@ public:
     void AddMemoryPanel_Materials();
     void AddMemoryPanel_Textures();
     void AddMemoryPanel_ShaderGroups();
+    void AddMemoryPanel_Files();
 
     void AddMaterialEditor();
 

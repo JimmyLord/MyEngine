@@ -1379,6 +1379,7 @@ MyMesh* EngineCore::GetMesh_MaterialBall()
         m_pMesh_MaterialBall = MyNew MyMesh();
         MyAssert( m_pSphereMeshFile == 0 );
         m_pSphereMeshFile = RequestFile( "Data/DataEngine/Meshes/sphere.obj.mymesh" );
+        m_pSphereMeshFile->m_ShowInMemoryPanel = false;
 
         return 0;
     }

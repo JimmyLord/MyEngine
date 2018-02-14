@@ -882,6 +882,12 @@ void ComponentBase::AddVariableToWatchPanel(ComponentVariable* pVar)
                     {
                         (this->*pVar->m_pSetPointerValueCallBackFunc)( pVar, *(void**)payload->Data );
                     }
+
+                    if( const ImGuiPayload* payload = ImGui::AcceptDragDropPayload( "File" ) )
+                    {
+                        (this->*pVar->m_pSetPointerValueCallBackFunc)( pVar, *(void**)payload->Data );
+                    }
+
                     ImGui::EndDragDropTarget();
                 }
             }

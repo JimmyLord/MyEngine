@@ -1015,6 +1015,7 @@ void EditorMainFrame_ImGui::AddMemoryPanel()
 
         case PanelMemoryPage_Files:
             {
+                AddMemoryPanel_Files();
             }
             break;
 
@@ -1145,7 +1146,7 @@ void EditorMainFrame_ImGui::AddMemoryPanel_Materials()
 
 void EditorMainFrame_ImGui::AddMemoryPanel_Textures()
 {
-    bool numtextureshown = 0;
+    unsigned int numtextureshown = 0;
 
     for( int i=0; i<2; i++ )
     {
@@ -1213,7 +1214,7 @@ void EditorMainFrame_ImGui::AddMemoryPanel_Textures()
 
 void EditorMainFrame_ImGui::AddMemoryPanel_ShaderGroups()
 {
-    bool numShadersShown = 0;
+    unsigned int numShadersShown = 0;
 
     {
         ShaderGroup* pShaderGroup = (ShaderGroup*)g_pShaderGroupManager->m_ShaderGroupList.GetHead();
@@ -1264,6 +1265,92 @@ void EditorMainFrame_ImGui::AddMemoryPanel_ShaderGroups()
     if( numShadersShown == 0 )
     {
         ImGui::TreeNodeEx( "No shaders loaded.", ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen );
+    }
+}
+
+void EditorMainFrame_ImGui::AddMemoryPanel_Files()
+{
+    unsigned int numFilesShown = 0;
+
+    // TODO: Don't do this every frame.
+    g_pFileManager->SortFileLists();
+
+    for( int i=0; i<2; i++ )
+    {
+        MyFileObject* pFile = (MyFileObject*)g_pFileManager->GetFirstFileStillLoading();
+        if( i == 1 )
+            pFile = (MyFileObject*)g_pFileManager->GetFirstFileLoaded();
+
+        if( pFile )
+        {
+            ImGuiTreeNodeFlags baseNodeFlags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick;
+
+            char* label = "Files - Loading";
+            if( i == 1 )
+                label = "All Files";
+
+            if( ImGui::TreeNodeEx( label, baseNodeFlags | ImGuiTreeNodeFlags_DefaultOpen ) )
+            {
+                const char* previousFileType = 0;
+                bool fileTypeOpen = false;
+                while( pFile )
+                {
+                    if( pFile->m_ShowInMemoryPanel )
+                    {
+                        numFilesShown++;
+
+                        if( previousFileType == 0 || strcmp( previousFileType, pFile->GetExtensionWithDot() ) != 0 )
+                        {
+                            if( fileTypeOpen && previousFileType != 0 )
+                            {
+                                ImGui::TreePop(); // "File Type"
+                            }
+
+                            previousFileType = pFile->GetExtensionWithDot();
+
+                            fileTypeOpen = ImGui::TreeNodeEx( previousFileType, baseNodeFlags );
+                        }
+
+                        if( fileTypeOpen )
+                        {
+                            if( ImGui::TreeNodeEx( pFile->GetFilenameWithoutExtension(), ImGuiTreeNodeFlags_Leaf | baseNodeFlags ) )
+                            {
+                                if( ImGui::BeginPopupContextItem( "ContextPopup", 1 ) )
+                                {
+                                    if( ImGui::MenuItem( "Open File (TODO)" ) )       { ImGui::CloseCurrentPopup(); }
+                                    if( ImGui::MenuItem( "Unload File (TODO)" ) )     { ImGui::CloseCurrentPopup(); }
+                                    if( ImGui::MenuItem( "Find References (TODO)" ) ) { ImGui::CloseCurrentPopup(); } ;// (%d)", pMat->GetRefCount() ) {}
+                                    ImGui::EndPopup();
+                                }
+
+                                if( ImGui::BeginDragDropSource() )
+                                {
+                                    ImGui::SetDragDropPayload( "File", &pFile, sizeof(pFile), ImGuiCond_Once );
+                                    ImGui::Text( "%s", pFile->GetFullPath() );
+                                    ImGui::EndDragDropSource();
+                                }
+
+                                ImGui::TreePop();
+                            }
+                        }
+                    }
+
+                    pFile = (MyFileObject*)pFile->GetNext();
+                }
+
+                if( fileTypeOpen && previousFileType != 0 )
+                {
+                    ImGui::TreePop(); // "File Type"
+                }
+
+                ImGui::TreePop(); // "All Files"
+            }
+        }
+    }
+
+    if( numFilesShown == 0 )
+    {
+        ImGui::TreeNodeEx( "No files loaded.", ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen );
     }
 }
 
