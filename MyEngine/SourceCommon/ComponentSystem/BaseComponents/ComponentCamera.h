@@ -71,7 +71,7 @@ public:
     SetClassnameBase( "CameraComponent" ); // only first 8 character count.
 
     virtual cJSON* ExportAsJSONObject(bool savesceneid, bool saveid);
-    virtual void ImportFromJSONObject(cJSON* jComponent, unsigned int sceneid);
+    virtual void ImportFromJSONObject(cJSON* jComponent, SceneID sceneid);
 
     virtual void Reset();
     virtual void CopyFromSameType_Dangerous(ComponentBase* pObject) { *this = (ComponentCamera&)*pObject; }
@@ -95,9 +95,9 @@ protected:
     // Callback functions for various events.
     //MYFW_DECLARE_COMPONENT_CALLBACK_TICK(); // TickCallback
     //MYFW_DECLARE_COMPONENT_CALLBACK_ONSURFACECHANGED(); // OnSurfaceChangedCallback
-#if MYFW_USING_WX
+#if MYFW_EDITOR
     MYFW_DECLARE_COMPONENT_CALLBACK_DRAW(); // DrawCallback
-#endif //MYFW_USING_WX
+#endif //MYFW_EDITOR
     //MYFW_DECLARE_COMPONENT_CALLBACK_ONTOUCH(); // OnTouchCallback
     //MYFW_DECLARE_COMPONENT_CALLBACK_ONBUTTONS(); // OnButtonsCallback
     //MYFW_DECLARE_COMPONENT_CALLBACK_ONKEYS(); // OnKeysCallback

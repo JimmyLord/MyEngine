@@ -110,78 +110,6 @@ void ComponentParticleEmitter::LuaRegister(lua_State* luastate)
 }
 #endif //MYFW_USING_LUA
 
-#if MYFW_USING_WX
-ComponentVariable* ComponentParticleEmitter::GetComponentVariableForMaterial(int submeshindex)
-{
-    return 0; //FindComponentVariableByLabel( &m_ComponentVariableList_ComponentParticleEmitter, "Material" );
-}
-
-void ComponentParticleEmitter::AddToObjectsPanel(wxTreeItemId gameobjectid)
-{
-    //wxTreeItemId id =
-    g_pPanelObjectList->AddObject( this, ComponentParticleEmitter::StaticOnLeftClick, ComponentBase::StaticOnRightClick, gameobjectid, "Particle Emitter", ObjectListIcon_Component );
-}
-
-void ComponentParticleEmitter::OnLeftClick(unsigned int count, bool clear)
-{
-    ComponentBase::OnLeftClick( count, clear );
-}
-
-void ComponentParticleEmitter::FillPropertiesWindow(bool clear, bool addcomponentvariables, bool ignoreblockvisibleflag)
-{
-    m_ControlID_ComponentTitleLabel = g_pPanelWatch->AddSpace( "Particle Emitter", this, ComponentBase::StaticOnComponentTitleLabelClicked );
-
-    if( m_PanelWatchBlockVisible || ignoreblockvisibleflag == true )
-    {
-        ComponentRenderable::FillPropertiesWindow( clear );
-
-        if( addcomponentvariables )
-            FillPropertiesWindowWithVariables(); //_VARIABLE_LIST
-
-        g_pPanelWatch->AddBool( "Run in editor", &m_RunInEditor, 0, 1 );
-
-        g_pPanelWatch->AddBool( "Spawn on timer", &m_ContinuousSpawn, 0, 1 );
-
-        g_pPanelWatch->AddBool( "Billboard", &m_BillboardSprites, 0, 1 );
-
-        g_pPanelWatch->AddVector3( "Offset", &m_InitialOffset, 0, 0 );
-        g_pPanelWatch->AddFloat( "size", &m_Size, 0, 0 );
-        g_pPanelWatch->AddFloat( "sizevariation", &m_SizeVariation, 0, 0 );
-        g_pPanelWatch->AddFloat( "timetolive", &m_TimeToLive, 0.01f, 5000 );
-        g_pPanelWatch->AddVector2( "center variation", &m_CenterVariation, 0, 20 );
-        g_pPanelWatch->AddVector3( "dir", &m_Dir, -100, 100 );
-        g_pPanelWatch->AddVector3( "dirvariation", &m_DirVariation, -100, 100 );
-
-        g_pPanelWatch->AddBool( "usecolorsasoptions", &m_UseColorsAsOptions, 0, 1 );
-
-        g_pPanelWatch->AddColorFloat( "color1", &m_Color1, 0, 1 );
-        g_pPanelWatch->AddColorFloat( "color2", &m_Color2, 0, 1 );
-
-        const char* desc = "no material";
-        if( m_pMaterial && m_pMaterial->GetFile() )
-            desc = m_pMaterial->GetMaterialShortDescription();
-        g_pPanelWatch->AddPointerWithDescription( "Material", 0, desc, this, ComponentParticleEmitter::StaticOnDropMaterial );
-    }
-}
-
-void ComponentParticleEmitter::OnDropMaterial(int controlid, wxCoord x, wxCoord y)
-{
-    DragAndDropItem* pDropItem = g_DragAndDropStruct.GetItem( 0 );
-
-    if( pDropItem->m_Type == DragAndDropType_MaterialDefinitionPointer )
-    {
-        MaterialDefinition* pMaterial = (MaterialDefinition*)pDropItem->m_Value;
-        MyAssert( pMaterial );
-
-        SetMaterial( pMaterial, 0 );
-
-        // update the panel so new Material name shows up.
-        if( pMaterial->GetFile() )
-            g_pPanelWatch->GetVariableProperties( g_DragAndDropStruct.GetControlID() )->m_Description = pMaterial->GetMaterialShortDescription();
-    }
-}
-#endif //MYFW_USING_WX
-
 cJSON* ComponentParticleEmitter::ExportAsJSONObject(bool savesceneid, bool saveid)
 {
     cJSON* component = ComponentRenderable::ExportAsJSONObject( savesceneid, saveid );
@@ -209,7 +137,7 @@ cJSON* ComponentParticleEmitter::ExportAsJSONObject(bool savesceneid, bool savei
     return component;
 }
 
-void ComponentParticleEmitter::ImportFromJSONObject(cJSON* jsonobj, unsigned int sceneid)
+void ComponentParticleEmitter::ImportFromJSONObject(cJSON* jsonobj, SceneID sceneid)
 {
     ComponentRenderable::ImportFromJSONObject( jsonobj, sceneid );
 
@@ -519,3 +447,77 @@ void ComponentParticleEmitter::DrawCallback(ComponentCamera* pCamera, MyMatrix* 
 
     m_pParticleRenderer->DrawParticles( campos, camrot, pMatViewProj, pShaderOverride );
 }
+
+#if MYFW_EDITOR
+ComponentVariable* ComponentParticleEmitter::GetComponentVariableForMaterial(int submeshindex)
+{
+    return 0; //FindComponentVariableByLabel( &m_ComponentVariableList_ComponentParticleEmitter, "Material" );
+}
+
+#if MYFW_USING_WX
+void ComponentParticleEmitter::AddToObjectsPanel(wxTreeItemId gameobjectid)
+{
+    //wxTreeItemId id =
+    g_pPanelObjectList->AddObject( this, ComponentParticleEmitter::StaticOnLeftClick, ComponentBase::StaticOnRightClick, gameobjectid, "Particle Emitter", ObjectListIcon_Component );
+}
+
+void ComponentParticleEmitter::OnLeftClick(unsigned int count, bool clear)
+{
+    ComponentBase::OnLeftClick( count, clear );
+}
+
+void ComponentParticleEmitter::FillPropertiesWindow(bool clear, bool addcomponentvariables, bool ignoreblockvisibleflag)
+{
+    m_ControlID_ComponentTitleLabel = g_pPanelWatch->AddSpace( "Particle Emitter", this, ComponentBase::StaticOnComponentTitleLabelClicked );
+
+    if( m_PanelWatchBlockVisible || ignoreblockvisibleflag == true )
+    {
+        ComponentRenderable::FillPropertiesWindow( clear );
+
+        if( addcomponentvariables )
+            FillPropertiesWindowWithVariables(); //_VARIABLE_LIST
+
+        g_pPanelWatch->AddBool( "Run in editor", &m_RunInEditor, 0, 1 );
+
+        g_pPanelWatch->AddBool( "Spawn on timer", &m_ContinuousSpawn, 0, 1 );
+
+        g_pPanelWatch->AddBool( "Billboard", &m_BillboardSprites, 0, 1 );
+
+        g_pPanelWatch->AddVector3( "Offset", &m_InitialOffset, 0, 0 );
+        g_pPanelWatch->AddFloat( "size", &m_Size, 0, 0 );
+        g_pPanelWatch->AddFloat( "sizevariation", &m_SizeVariation, 0, 0 );
+        g_pPanelWatch->AddFloat( "timetolive", &m_TimeToLive, 0.01f, 5000 );
+        g_pPanelWatch->AddVector2( "center variation", &m_CenterVariation, 0, 20 );
+        g_pPanelWatch->AddVector3( "dir", &m_Dir, -100, 100 );
+        g_pPanelWatch->AddVector3( "dirvariation", &m_DirVariation, -100, 100 );
+
+        g_pPanelWatch->AddBool( "usecolorsasoptions", &m_UseColorsAsOptions, 0, 1 );
+
+        g_pPanelWatch->AddColorFloat( "color1", &m_Color1, 0, 1 );
+        g_pPanelWatch->AddColorFloat( "color2", &m_Color2, 0, 1 );
+
+        const char* desc = "no material";
+        if( m_pMaterial && m_pMaterial->GetFile() )
+            desc = m_pMaterial->GetMaterialShortDescription();
+        g_pPanelWatch->AddPointerWithDescription( "Material", 0, desc, this, ComponentParticleEmitter::StaticOnDropMaterial );
+    }
+}
+
+void ComponentParticleEmitter::OnDropMaterial(int controlid, wxCoord x, wxCoord y)
+{
+    DragAndDropItem* pDropItem = g_DragAndDropStruct.GetItem( 0 );
+
+    if( pDropItem->m_Type == DragAndDropType_MaterialDefinitionPointer )
+    {
+        MaterialDefinition* pMaterial = (MaterialDefinition*)pDropItem->m_Value;
+        MyAssert( pMaterial );
+
+        SetMaterial( pMaterial, 0 );
+
+        // update the panel so new Material name shows up.
+        if( pMaterial->GetFile() )
+            g_pPanelWatch->GetVariableProperties( g_DragAndDropStruct.GetControlID() )->m_Description = pMaterial->GetMaterialShortDescription();
+    }
+}
+#endif //MYFW_USING_WX
+#endif //MYFW_EDITOR

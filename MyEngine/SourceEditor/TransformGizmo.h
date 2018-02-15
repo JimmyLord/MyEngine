@@ -44,7 +44,7 @@ public:
 
     bool HandleInput(EngineCore* pGame, int keydown, int keycode, int action, int id, float x, float y, float pressure);
 
-    void CreateAxisObjects(unsigned int sceneid, float scale, EditorState* pEditorState);
+    void CreateAxisObjects(SceneID sceneid, float scale, EditorState* pEditorState);
     void ScaleGizmosForMousePickRendering(bool doscale);
 
     void CancelCurrentOperation(EditorState* pEditorState);

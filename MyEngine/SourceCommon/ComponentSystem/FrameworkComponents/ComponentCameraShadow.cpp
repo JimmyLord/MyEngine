@@ -89,7 +89,7 @@ cJSON* ComponentCameraShadow::ExportAsJSONObject(bool savesceneid, bool saveid)
     return jComponent;
 }
 
-void ComponentCameraShadow::ImportFromJSONObject(cJSON* jsonobj, unsigned int sceneid)
+void ComponentCameraShadow::ImportFromJSONObject(cJSON* jsonobj, SceneID sceneid)
 {
     ComponentCamera::ImportFromJSONObject( jsonobj, sceneid );
 

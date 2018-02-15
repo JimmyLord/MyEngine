@@ -377,7 +377,7 @@ cJSON* ComponentVoxelWorld::ExportAsJSONObject(bool savesceneid, bool saveid)
     return jComponent;
 }
 
-void ComponentVoxelWorld::ImportFromJSONObject(cJSON* jComponent, unsigned int sceneid)
+void ComponentVoxelWorld::ImportFromJSONObject(cJSON* jComponent, SceneID sceneid)
 {
     ComponentRenderable::ImportFromJSONObject( jComponent, sceneid );
 

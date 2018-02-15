@@ -188,7 +188,7 @@ cJSON* ComponentMeshPrimitive::ExportAsJSONObject(bool savesceneid, bool saveid)
     return component;
 }
 
-void ComponentMeshPrimitive::ImportFromJSONObject(cJSON* jsonobj, unsigned int sceneid)
+void ComponentMeshPrimitive::ImportFromJSONObject(cJSON* jsonobj, SceneID sceneid)
 {
     ComponentMesh::ImportFromJSONObject( jsonobj, sceneid );
 

@@ -138,7 +138,7 @@ public:
 #endif //MYFW_USING_LUA
 
     virtual cJSON* ExportAsJSONObject(bool savesceneid, bool saveid);
-    virtual void ImportFromJSONObject(cJSON* jComponent, unsigned int sceneid);
+    virtual void ImportFromJSONObject(cJSON* jComponent, SceneID sceneid);
 
     virtual void Reset();
     virtual void CopyFromSameType_Dangerous(ComponentBase* pObject) { *this = (ComponentMenuPage&)*pObject; }

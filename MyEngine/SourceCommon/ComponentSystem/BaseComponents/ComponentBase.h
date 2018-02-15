@@ -41,7 +41,7 @@ class ComponentBase : public CPPListNode
 {
 protected:
     bool m_Enabled;
-    unsigned int m_SceneIDLoadedFrom; // 0 for runtime generated.
+    SceneID m_SceneIDLoadedFrom;
     unsigned int m_ID;
 
     // an unsigned int of all divorced components variables, only maintained in editor builds.
@@ -68,7 +68,7 @@ public:
 #endif //MYFW_USING_LUA
 
     virtual cJSON* ExportAsJSONObject(bool savesceneid, bool saveid);
-    virtual void ImportFromJSONObject(cJSON* jsonobj, unsigned int sceneid);
+    virtual void ImportFromJSONObject(cJSON* jsonobj, SceneID sceneid);
     virtual cJSON* ExportReferenceAsJSONObject();
 
     virtual void Reset();
@@ -88,11 +88,11 @@ public:
     virtual void OnGameObjectEnabled();
     virtual void OnGameObjectDisabled();
     virtual void SetEnabled(bool enabled);
-    void SetSceneID(unsigned int sceneid) { m_SceneIDLoadedFrom = sceneid; }
+    void SetSceneID(SceneID sceneid) { m_SceneIDLoadedFrom = sceneid; }
     void SetID(unsigned int id) { m_ID = id; }
 
     bool IsEnabled() { return m_Enabled; }
-    unsigned int GetSceneID() { return m_SceneIDLoadedFrom; }
+    SceneID GetSceneID() { return m_SceneIDLoadedFrom; }
     SceneInfo* GetSceneInfo();
     unsigned int GetID() { return m_ID; }
 
@@ -171,6 +171,8 @@ public:
     static void StaticOnValueChangedVariable(void* pObjectPtr, int controlid, bool directlychanged, bool finishedchanging, double oldvalue, bool valuewaschangedbydragging) { ((ComponentBase*)pObjectPtr)->OnValueChangedVariable( controlid, directlychanged, finishedchanging, oldvalue, valuewaschangedbydragging, 0 ); }
     void OnValueChangedVariable(int controlid, bool directlychanged, bool finishedchanging, double oldvalue, bool valuewaschangedbydragging, ComponentVariableValue* pNewValue);
 
+    static ComponentVariable* FindComponentVariableByLabel(CPPListHead* list, const char* label);
+
 #if MYFW_USING_WX
     static void StaticOnDropVariable(void* pObjectPtr, int controlid, wxCoord x, wxCoord y) { ((ComponentBase*)pObjectPtr)->OnDropVariable(controlid, x, y); }
     void OnDropVariable(int controlid, wxCoord x, wxCoord y);
@@ -181,7 +183,6 @@ public:
     void OnRightClickVariable(int controlid);
 
     ComponentVariable* FindComponentVariableForControl(int controlid);
-    static ComponentVariable* FindComponentVariableByLabel(CPPListHead* list, const char* label);
     void UpdateChildrenWithNewValue(bool fromdraganddrop, ComponentVariable* pVar, int controlcomponent, bool directlychanged, bool finishedchanging, double oldvalue, void* oldpointer, wxCoord x, wxCoord y, void* newpointer);
     void UpdateChildrenInGameObjectListWithNewValue(GameObject* first, bool fromdraganddrop, ComponentVariable* pVar, int controlcomponent, bool directlychanged, bool finishedchanging, double oldvalue, void* oldpointer, wxCoord x, wxCoord y, void* newpointer);
     void UpdateGameObjectWithNewValue(GameObject* pGameObject, bool fromdraganddrop, ComponentVariable* pVar, int controlcomponent, bool directlychanged, bool finishedchanging, double oldvalue, void* oldpointer, wxCoord x, wxCoord y, void* newpointer);

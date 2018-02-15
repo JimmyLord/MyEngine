@@ -12,7 +12,7 @@
 #include "../../../SourceEditor/ImGuiExtensions/ImGuiExtensions.h"
 
 ComponentBase::ComponentBase()
-: m_SceneIDLoadedFrom( 0 )
+: m_SceneIDLoadedFrom( SCENEID_NotSet )
 , m_BaseType( BaseComponentType_None )
 , m_pGameObject( 0 )
 , m_Type(-1)
@@ -113,11 +113,11 @@ cJSON* ComponentBase::ExportAsJSONObject(bool savesceneid, bool saveid)
     return jComponent;
 }
 
-void ComponentBase::ImportFromJSONObject(cJSON* jsonobj, unsigned int sceneid)
+void ComponentBase::ImportFromJSONObject(cJSON* jsonobj, SceneID sceneid)
 {
     cJSONExt_GetUnsignedInt( jsonobj, "ID", &m_ID );
 
-    MyAssert( m_SceneIDLoadedFrom == 0 || m_SceneIDLoadedFrom == sceneid );
+    MyAssert( m_SceneIDLoadedFrom == SCENEID_NotSet || m_SceneIDLoadedFrom == sceneid );
     SetSceneID( sceneid );
 
     // TODO: this will break if more variables are added to a component or it's parents.
@@ -1632,7 +1632,7 @@ void ComponentBase::SyncVariable(ComponentBase* pChildComponent, ComponentVariab
 
 void ComponentBase::SyncVariableInChildren(ComponentVariable* pVar)
 {
-    for( unsigned int i=0; i<ComponentSystemManager::MAX_SCENES_LOADED; i++ )
+    for( unsigned int i=0; i<MAX_SCENES_LOADED_INCLUDING_UNMANAGED; i++ )
     {
         if( g_pComponentSystemManager->m_pSceneInfoMap[i].m_InUse == false )
             continue;
@@ -1719,9 +1719,7 @@ ComponentBase* ComponentBase::FindMatchingComponentInParent()
 
     return 0;
 }
-#endif //MYFW_EDITOR
 
-#if MYFW_EDITOR
 void ComponentBase::OnValueChangedVariable(int controlid, bool directlychanged, bool finishedchanging, double oldvalue, bool valuewaschangedbydragging, ComponentVariableValue* pNewValue) // StaticOnValueChangedVariable
 {
 #if MYFW_USING_WX
@@ -1803,6 +1801,23 @@ void ComponentBase::OnValueChangedVariable(int controlid, bool directlychanged, 
         m_pGameObject->GetPrefabRef()->GetPrefab()->RebuildPrefabJSONObjectFromMasterGameObject();
     }
 #endif //MYFW_USING_WX
+}
+
+
+ComponentVariable* ComponentBase::FindComponentVariableByLabel(CPPListHead* list, const char* label)
+{
+    for( CPPListNode* pNode = list->GetHead(); pNode; pNode = pNode->GetNext() )
+    {
+        ComponentVariable* pVar = (ComponentVariable*)pNode;
+        MyAssert( pVar );
+
+        if( strcmp( pVar->m_Label, label ) == 0 )
+        {
+            return pVar;
+        }
+    }
+
+    return 0;
 }
 
 #if MYFW_USING_WX
@@ -2460,32 +2475,16 @@ ComponentVariable* ComponentBase::FindComponentVariableForControl(int controlid)
     return 0;
 }
 
-ComponentVariable* ComponentBase::FindComponentVariableByLabel(CPPListHead* list, const char* label)
-{
-    for( CPPListNode* pNode = list->GetHead(); pNode; pNode = pNode->GetNext() )
-    {
-        ComponentVariable* pVar = (ComponentVariable*)pNode;
-        MyAssert( pVar );
-
-        if( strcmp( pVar->m_Label, label ) == 0 )
-        {
-            return pVar;
-        }
-    }
-
-    return 0;
-}
-
 void ComponentBase::UpdateChildrenWithNewValue(bool fromdraganddrop, ComponentVariable* pVar, int controlcomponent, bool directlychanged, bool finishedchanging, double oldvalue, void* oldpointer, wxCoord x, wxCoord y, void* newpointer)
 {
 #if 0 //MYFW_USING_WX
     typedef std::map<int, SceneInfo>::iterator it_type;
     for( it_type iterator = g_pComponentSystemManager->m_pSceneInfoMap.begin(); iterator != g_pComponentSystemManager->m_pSceneInfoMap.end(); )
     {
-        unsigned int sceneid = iterator->first;
+        SceneID sceneid = iterator->first;
         SceneInfo* pSceneInfo = &iterator->second;
 #else
-    for( unsigned int i=0; i<ComponentSystemManager::MAX_SCENES_LOADED; i++ )
+    for( unsigned int i=0; i<MAX_SCENES_LOADED_INCLUDING_UNMANAGED; i++ )
     {
         if( g_pComponentSystemManager->m_pSceneInfoMap[i].m_InUse == false )
             continue;

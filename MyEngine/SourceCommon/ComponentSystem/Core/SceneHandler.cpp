@@ -96,17 +96,20 @@ void SceneHandler::OnRightClick(wxTreeItemId treeid)
     wxString itemname = g_pPanelObjectList->m_pTree_Objects->GetItemText( treeid );
     
     m_SceneIDBeingAffected = g_pComponentSystemManager->GetSceneIDFromSceneTreeID( treeid );
-    
-    AddGameObjectMenuOptionsToMenu( &menu, 0, m_SceneIDBeingAffected );
-    menu.Append( RightClick_UnloadScene, "Unload scene" );
 
-    menu.Connect( wxEVT_COMMAND_MENU_SELECTED, (wxObjectEventFunction)&SceneHandler::OnPopupClick );
+    if( m_SceneIDBeingAffected != SCENEID_NotFound )
+    {
+        AddGameObjectMenuOptionsToMenu( &menu, 0, m_SceneIDBeingAffected );
+        menu.Append( RightClick_UnloadScene, "Unload scene" );
 
-    // blocking call.
-    g_pPanelWatch->PopupMenu( &menu ); // there's no reason this is using g_pPanelWatch other than convenience.
+        menu.Connect( wxEVT_COMMAND_MENU_SELECTED, (wxObjectEventFunction)&SceneHandler::OnPopupClick );
+
+        // blocking call.
+        g_pPanelWatch->PopupMenu( &menu ); // there's no reason this is using g_pPanelWatch other than convenience.
+    }
 }
 
-void SceneHandler::AddGameObjectMenuOptionsToMenu(wxMenu* menu, int itemidoffset, unsigned int sceneid)
+void SceneHandler::AddGameObjectMenuOptionsToMenu(wxMenu* menu, int itemidoffset, SceneID sceneid)
 {
     m_SceneIDBeingAffected = sceneid;
 
@@ -232,10 +235,10 @@ void SceneHandler::OnDrag()
 void SceneHandler::OnDrop(wxTreeItemId treeid, int controlid, wxCoord x, wxCoord y)
 {
     // Figure out the sceneid for the scene objects were dropped on.
-    unsigned int sceneid = g_pComponentSystemManager->GetSceneIDFromSceneTreeID( treeid );
+    SceneID sceneid = g_pComponentSystemManager->GetSceneIDFromSceneTreeID( treeid );
 
     // Don't allow gameobjects or prefabs to be dropped onto "Unmanaged" scene
-    if( sceneid == EngineCore::UNMANAGED_SCENE_ID )
+    if( sceneid == SCENEID_Unmanaged || sceneid == SCENEID_NotFound )
         return;
 
     // Check for both gameobjects and prefabs, if a mix is found, ignore the prefabs.
@@ -280,7 +283,7 @@ void SceneHandler::OnDrop(wxTreeItemId treeid, int controlid, wxCoord x, wxCoord
             PrefabObject* pPrefab = (PrefabObject*)pDropItem->m_Value;
 
             // Don't allow gameobjects to be dropped onto "Unmanaged" scene
-            if( sceneid == EngineCore::UNMANAGED_SCENE_ID )
+            if( sceneid == SCENEID_Unmanaged )
                 return;
 
             // Create the game object

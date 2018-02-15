@@ -23,6 +23,8 @@ protected:
     MaterialDefinition* m_pMaterialBeingEdited;
     bool m_IsMaterialEditorOpen;
 
+    bool m_ShowCloseEditorWarning;
+
     // For renaming things
     bool m_RenamePressedThisFrame;
     GameObject* m_pGameObjectWhoseNameIsBeingEdited;
@@ -41,6 +43,9 @@ protected:
     int m_CurrentMemoryPanelPage;
 
     unsigned int m_UndoStackDepthAtLastSave;
+
+    unsigned int m_CurrentMouseInEditorWindow_X;
+    unsigned int m_CurrentMouseInEditorWindow_Y;
 
     // Modifier key states
     bool m_KeyDownCtrl;
@@ -63,8 +68,15 @@ public:
     bool HandleInput(int keyaction, int keycode, int mouseaction, int id, float x, float y, float pressure);
     bool CheckForHotkeys(int keyaction, int keycode);
 
+    void RequestCloseWindow();
+
     void AddEverything();
+
+    void DrawGameAndEditorWindows(EngineCore* pEngineCore);
+
+protected:
     void AddMainMenuBar();
+    void AddLoseChangesWarningPopups();
     void AddGameAndEditorWindows();
     void AddObjectList();
     void AddGameObjectToObjectList(GameObject* pGameObject);
@@ -82,7 +94,7 @@ public:
     void AddTexturePreview(bool createWindow, TextureDefinition* pTex, ImVec2 requestedSize, ImVec4 tint);
     void AddDebug_MousePicker();
 
-    void DrawGameAndEditorWindows(EngineCore* pEngineCore);
+    void OnDropEditorWindow();
 };
 
 #endif //__EditorMainFrame_ImGui_H__

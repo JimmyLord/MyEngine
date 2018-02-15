@@ -512,7 +512,7 @@ bool TransformGizmo::HandleInput(EngineCore* pGame, int keydown, int keycode, in
     return false;
 }
 
-void TransformGizmo::CreateAxisObjects(unsigned int sceneid, float scale, EditorState* pEditorState)
+void TransformGizmo::CreateAxisObjects(SceneID sceneid, float scale, EditorState* pEditorState)
 {
     GameObject* pGameObject;
     ComponentMesh* pComponentMesh;

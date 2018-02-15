@@ -18,6 +18,8 @@ enum EditorMenuCommands
     EditorMenuCommand_Mode_TogglePlayStop,
     EditorMenuCommand_Edit_Undo,
     EditorMenuCommand_Edit_Redo,
+    EditorMenuCommand_Debug_DrawWireframe,
+    EditorMenuCommand_Debug_ShowPhysicsShapes,
 };
 
 void EditorMenuCommand(EditorMenuCommands command);

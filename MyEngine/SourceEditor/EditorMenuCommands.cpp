@@ -32,7 +32,7 @@ void LoadScene(const char* scenename, bool unloadscenes)
         g_pEngineCore->GetEditorState()->ClearSelectedObjectsAndComponents();
         g_pEngineCore->SetEditorInterface( EditorInterfaceType_SceneManagement );
 
-        g_pEngineCore->UnloadScene( UINT_MAX, false ); // don't unload editor objects.
+        g_pEngineCore->UnloadScene( SCENEID_AllScenes, false ); // don't unload editor objects.
     }
 
     // Load the scene from file.
@@ -41,7 +41,7 @@ void LoadScene(const char* scenename, bool unloadscenes)
 
     char fullpath[MAX_PATH];
     GetFullPath( scenename, fullpath, MAX_PATH );
-    unsigned int sceneid = g_pEngineCore->LoadSceneFromFile( fullpath );
+    SceneID sceneid = g_pEngineCore->LoadSceneFromFile( fullpath );
 
     g_pEngineCore->GetCommandStack()->ClearUndoStack( numItemsInUndoStack );
 
@@ -54,21 +54,25 @@ void EditorMenuCommand(EditorMenuCommands command)
     {
     case EditorMenuCommand_File_SaveScene:
         {
+#if MYFW_USING_IMGUI
+            g_pEngineCore->GetEditorMainFrame_ImGui()->StoreCurrentUndoStackSize();
+#endif
+
             if( g_pEngineCore->IsInEditorMode() == false )
             {
                 LOGInfo( LOGTag, "Can't save when gameplay is active... use \"Save As\"\n" );
             }
             else
             {
-                for( unsigned int i=0; i<ComponentSystemManager::MAX_SCENES_LOADED; i++ )
+                for( unsigned int i=0; i<MAX_SCENES_LOADED_INCLUDING_UNMANAGED; i++ )
                 {
                     if( g_pComponentSystemManager->m_pSceneInfoMap[i].m_InUse == false )
                         continue;
 
-                    unsigned int sceneid = i;
+                    SceneID sceneid = (SceneID)i;
                     SceneInfo* pSceneInfo = &g_pComponentSystemManager->m_pSceneInfoMap[i];
 
-                    if( sceneid != EngineCore::UNMANAGED_SCENE_ID && sceneid != EngineCore::ENGINE_SCENE_ID )
+                    if( sceneid != SCENEID_Unmanaged && sceneid != SCENEID_EngineObjects )
                     {
                         if( g_pComponentSystemManager->GetSceneInfo( sceneid )->m_FullPath[0] == 0 )
                         {
@@ -119,7 +123,7 @@ void EditorMenuCommand(EditorMenuCommands command)
                     sprintf_s( filenameWithExtension, MAX_PATH, "%s%s", filename, ext );
                 }
 
-                g_pEngineCore->ExportBox2DScene( filenameWithExtension, 1 );
+                g_pEngineCore->ExportBox2DScene( filenameWithExtension, SCENEID_MainScene );
             }
         }
         break;
@@ -143,6 +147,18 @@ void EditorMenuCommand(EditorMenuCommands command)
                 g_pEngineCore->GetCommandStack()->Redo( 1 );
         }
         break;
+
+    case EditorMenuCommand_Debug_DrawWireframe:
+        {
+            g_pEngineCore->ToggleDebug_DrawWireframe();
+        }
+        break;
+
+    case EditorMenuCommand_Debug_ShowPhysicsShapes:
+        {
+            g_pEngineCore->ToggleDebug_DrawPhysicsDebugShapes();
+            break;
+        }
 
     default:
         MyAssert( false );

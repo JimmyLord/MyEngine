@@ -92,7 +92,7 @@ void EditorPrefs::LoadPrefs()
 
     jObject = cJSON_GetObjectItem( m_jEditorPrefs, "EditorCam" );
     if( jObject )
-        g_pEngineCore->GetEditorState()->GetEditorCamera()->m_pComponentTransform->ImportFromJSONObject( jObject, EngineCore::ENGINE_SCENE_ID );
+        g_pEngineCore->GetEditorState()->GetEditorCamera()->m_pComponentTransform->ImportFromJSONObject( jObject, SCENEID_EngineObjects );
 
     //extern GLViewTypes g_CurrentGLViewType;
     //cJSONExt_GetInt( jEditorPrefs, "GameAspectRatio", (int*)&g_CurrentGLViewType );
@@ -111,40 +111,40 @@ void EditorPrefs::LoadPrefs()
 
 void EditorPrefs::LoadLastSceneLoaded()
 {
-	bool scenewasloaded = false;
+    bool scenewasloaded = false;
 
     // Load the scene at the end.
-	if( m_jEditorPrefs != 0 )
-	{
-		cJSON* jObject = cJSON_GetObjectItem( m_jEditorPrefs, "LastSceneLoaded" );
-		if( jObject && jObject->valuestring[0] != 0 )
-		{
-			char* scenename = jObject->valuestring;
+    if( m_jEditorPrefs != 0 )
+    {
+        cJSON* jObject = cJSON_GetObjectItem( m_jEditorPrefs, "LastSceneLoaded" );
+        if( jObject && jObject->valuestring[0] != 0 )
+        {
+            char* scenename = jObject->valuestring;
 
-			if( g_pEngineCore == 0 )
-				return;
+            if( g_pEngineCore == 0 )
+                return;
 
-			// Load the scene from file.
-			// This might cause some "undo" actions, so wipe them out once the load is complete.
-			unsigned int numItemsInUndoStack = g_pEngineCore->GetCommandStack()->GetUndoStackSize();
+            // Load the scene from file.
+            // This might cause some "undo" actions, so wipe them out once the load is complete.
+            unsigned int numItemsInUndoStack = g_pEngineCore->GetCommandStack()->GetUndoStackSize();
 
-			char fullpath[MAX_PATH];
-			GetFullPath( scenename, fullpath, MAX_PATH );
-			unsigned int sceneid = g_pEngineCore->LoadSceneFromFile( fullpath );
+            char fullpath[MAX_PATH];
+            GetFullPath( scenename, fullpath, MAX_PATH );
+            SceneID sceneid = g_pEngineCore->LoadSceneFromFile( fullpath );
 
-			scenewasloaded = true;
+            scenewasloaded = true;
 
-			g_pEngineCore->GetCommandStack()->ClearUndoStack( numItemsInUndoStack );
+            g_pEngineCore->GetCommandStack()->ClearUndoStack( numItemsInUndoStack );
 
-			//this->SetTitle( scenename ); //g_pComponentSystemManager->GetSceneInfo( sceneid )->m_FullPath );
-		}
-	}
-    
-	if( scenewasloaded == false )
+            //this->SetTitle( scenename ); //g_pComponentSystemManager->GetSceneInfo( sceneid )->m_FullPath );
+        }
+    }
+
+    if( scenewasloaded == false )
     {
         g_pEngineCore->GetEditorState()->ClearKeyAndActionStates();
         g_pEngineCore->GetEditorState()->ClearSelectedObjectsAndComponents();
-        g_pComponentSystemManager->CreateNewScene( "Unsaved.scene", 1 );
+        g_pComponentSystemManager->CreateNewScene( "Unsaved.scene", SCENEID_MainScene );
         g_pEngineCore->CreateDefaultSceneObjects();
     }
 }
@@ -185,11 +185,11 @@ cJSON* EditorPrefs::SaveStart()
         cJSON_AddNumberToObject( jPrefs, "WindowHeight", m_WindowHeight );
         cJSON_AddNumberToObject( jPrefs, "IsMaximized", m_IsWindowMaximized );
 
-        const char* relativepath = GetRelativePath( g_pComponentSystemManager->GetSceneInfo( 1 )->m_FullPath );
+        const char* relativepath = GetRelativePath( g_pComponentSystemManager->GetSceneInfo( SCENEID_MainScene )->m_FullPath );
         if( relativepath )
             cJSON_AddStringToObject( jPrefs, "LastSceneLoaded", relativepath );
         else
-            cJSON_AddStringToObject( jPrefs, "LastSceneLoaded", g_pComponentSystemManager->GetSceneInfo( 1 )->m_FullPath );
+            cJSON_AddStringToObject( jPrefs, "LastSceneLoaded", g_pComponentSystemManager->GetSceneInfo( SCENEID_MainScene )->m_FullPath );
 
         cJSON_AddItemToObject( jPrefs, "EditorCam", g_pEngineCore->GetEditorState()->GetEditorCamera()->m_pComponentTransform->ExportAsJSONObject( false, true ) );
 

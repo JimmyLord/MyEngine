@@ -927,7 +927,7 @@ cJSON* ComponentMenuPage::ExportAsJSONObject(bool savesceneid, bool saveid)
 #endif //MYFW_USING_WX
 }
 
-void ComponentMenuPage::ImportFromJSONObject(cJSON* jComponent, unsigned int sceneid)
+void ComponentMenuPage::ImportFromJSONObject(cJSON* jComponent, SceneID sceneid)
 {
     ComponentRenderable::ImportFromJSONObject( jComponent, sceneid );
 

@@ -314,7 +314,7 @@ cJSON* Component2DCollisionObject::ExportAsJSONObject(bool savesceneid, bool sav
     return jComponent;
 }
 
-void Component2DCollisionObject::ImportFromJSONObject(cJSON* jsonobj, unsigned int sceneid)
+void Component2DCollisionObject::ImportFromJSONObject(cJSON* jsonobj, SceneID sceneid)
 {
     ComponentBase::ImportFromJSONObject( jsonobj, sceneid );
 
@@ -414,7 +414,7 @@ void Component2DCollisionObject::OnPlay()
         m_pComponentLuaScript = (ComponentLuaScript*)m_pGameObject->GetFirstComponentOfType( "LuaScriptComponent" );
     }
 
-    MyAssert( m_pGameObject->GetPhysicsSceneID() != 0 );
+    MyAssert( m_pGameObject->GetPhysicsSceneID() < MAX_SCENES_LOADED );
     SceneInfo* pSceneInfo = g_pComponentSystemManager->GetSceneInfo( m_pGameObject->GetPhysicsSceneID() );
     if( pSceneInfo )
     {

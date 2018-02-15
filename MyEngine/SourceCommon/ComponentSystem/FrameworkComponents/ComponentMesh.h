@@ -48,7 +48,7 @@ public:
 
     // ComponentBase overrides
     virtual cJSON* ExportAsJSONObject(bool savesceneid, bool saveid);
-    virtual void ImportFromJSONObject(cJSON* jComponentMesh, unsigned int sceneid);
+    virtual void ImportFromJSONObject(cJSON* jComponentMesh, SceneID sceneid);
 
     virtual void Reset();
     virtual void CopyFromSameType_Dangerous(ComponentBase* pObject) { *this = (ComponentMesh&)*pObject; }
@@ -103,12 +103,12 @@ protected:
 
 public:
 #if MYFW_EDITOR
+    virtual ComponentVariable* GetComponentVariableForMaterial(int submeshindex);
+
 #if MYFW_USING_WX
     static bool m_PanelWatchBlockVisible;
     int m_MaterialExpandButtonControlIDs[MAX_SUBMESHES];
     bool m_MaterialExpanded[MAX_SUBMESHES];
-
-    virtual ComponentVariable* GetComponentVariableForMaterial(int submeshindex);
 
     virtual void AddToObjectsPanel(wxTreeItemId gameobjectid);
     

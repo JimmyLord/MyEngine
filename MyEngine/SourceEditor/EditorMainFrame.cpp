@@ -43,6 +43,14 @@ const char* g_LaunchPlatformsMenuLabels[LaunchPlatform_NumPlatforms] =
 
 EditorMainFrame::EditorMainFrame()
 {
+    m_ShowEditorIcons = true;
+    m_SelectedObjects_ShowWireframe = true;
+    m_SelectedObjects_ShowEffect = true;
+    m_Mode_SwitchFocusOnPlayStop = true;
+
+    m_GridSettings.visible = true;
+    m_GridSettings.snapenabled = false;
+    m_GridSettings.stepsize.Set( 5, 5, 5 );
 }
 
 EditorMainFrame::~EditorMainFrame()

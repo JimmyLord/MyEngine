@@ -21,7 +21,7 @@ public:
     virtual ~EngineFileManager();
 
     virtual MyFileObject* RequestFile(const char* filename);
-    virtual MyFileObject* RequestFile(const char* filename, unsigned int sceneid);
+    virtual MyFileObject* RequestFile(const char* filename, SceneID sceneid);
 
     MyFileObject* RequestFile_UntrackedByScene(const char* filename);
 };

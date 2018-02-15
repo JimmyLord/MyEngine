@@ -63,6 +63,23 @@ extern "C"
 #include "../../Libraries/imgui/imgui.h"
 #include "GUI/ImGuiManager.h"
 
+static const int MAX_SCENES_LOADED = 10;
+static const int MAX_SCENES_LOADED_INCLUDING_UNMANAGED = 11;
+static const int MAX_SCENES_CREATED = 12; // Includes Unmanaged and Editor Object Scenes.
+
+enum SceneID
+{
+    SCENEID_MainScene     = 0, // First scene that should be loaded // Must be 0.
+    // Scenes 0-MAX_SCENES_LOADED are all valid, but will need to be typecast when used.
+    SCENEID_Unmanaged     = MAX_SCENES_LOADED,   // For unmanaged/runtime objects.
+    SCENEID_EngineObjects = MAX_SCENES_LOADED+1, // For Editor Objects (Transform Gizmo, Editor cam, etc)
+    SCENEID_TempPlayStop  = 12345, // Used to load temp scene, which contains objects from all scenes.
+    SCENEID_AllScenes     = 23456, // ID passed in to indicate all scenes (when saving/unloading).
+    SCENEID_NotFound      = 34567, // ID returned when an object isn't found.
+    SCENEID_NotSet        = 45678, // ID to initialize to if required.
+    SCENEID_Any           = 56789, // ID passed in when requesting to load a scene into any slot.
+};
+
 // core component system code
 #include "ComponentSystem/Core/EngineFileManager.h"
 #include "ComponentSystem/Core/ComponentTypeManager.h"

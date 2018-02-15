@@ -165,7 +165,7 @@ void EditorInterface_SceneManagement::OnDrawFrame(unsigned int canvasid)
     // Draw Box2D debug data
     if( g_pEngineCore->GetDebug_DrawPhysicsDebugShapes() && g_GLCanvasIDActive == 1 )
     {
-        for( int i=0; i<g_pComponentSystemManager->MAX_SCENES_LOADED; i++ )
+        for( int i=0; i<MAX_SCENES_LOADED_INCLUDING_UNMANAGED; i++ )
         {
             if( g_pComponentSystemManager->m_pSceneInfoMap[i].m_InUse && g_pComponentSystemManager->m_pSceneInfoMap[i].m_pBox2DWorld )
                 g_pComponentSystemManager->m_pSceneInfoMap[i].m_pBox2DWorld->m_pWorld->DrawDebugData();

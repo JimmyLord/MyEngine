@@ -644,7 +644,7 @@
     //        .beginClass<EngineCore>( "EngineCore" )
     //            .addFunction( "RequestScene", &EngineCore::RequestScene ) // void EngineCore::RequestScene(const char* fullpath)
     //            .addFunction( "SwitchScene", &EngineCore::SwitchScene ) // void EngineCore::SwitchScene(const char* fullpath)
-    //            .addFunction( "ReloadScene", &EngineCore::ReloadScene ) // void EngineCore::ReloadScene(unsigned int sceneid)
+    //            .addFunction( "ReloadScene", &EngineCore::ReloadScene ) // void EngineCore::ReloadScene(SceneID sceneid)
     //            //.addFunction( "SetMousePosition", &EngineCore::SetMousePosition )
     //        .endClass();
     //
@@ -797,7 +797,7 @@
     //    luabridge::getGlobalNamespace( luastate )
     //        .beginClass<ComponentSystemManager>( "ComponentSystemManager" )
     //            .addFunction( "SetTimeScale", &ComponentSystemManager::SetTimeScale ) // void ComponentSystemManager::SetTimeScale(float scale)
-    //            .addFunction( "CreateGameObject", &ComponentSystemManager::CreateGameObject ) // GameObject* ComponentSystemManager::CreateGameObject(bool manageobject, int sceneid, bool isfolder, bool hastransform, PrefabReference* pPrefabRef)
+    //            .addFunction( "CreateGameObject", &ComponentSystemManager::CreateGameObject ) // GameObject* ComponentSystemManager::CreateGameObject(bool manageobject, SceneID sceneid, bool isfolder, bool hastransform, PrefabReference* pPrefabRef)
     //            .addFunction( "DeleteGameObject", &ComponentSystemManager::DeleteGameObject ) // void ComponentSystemManager::DeleteGameObject(GameObject* pObject, bool deletecomponents)
     //            .addFunction( "CopyGameObject", &ComponentSystemManager::CopyGameObject ) // GameObject* ComponentSystemManager::CopyGameObject(GameObject* pObject, const char* newname)
     //            .addFunction( "FindGameObjectByName", &ComponentSystemManager::FindGameObjectByName ) // GameObject* ComponentSystemManager::FindGameObjectByName(const char* name)
@@ -810,7 +810,7 @@
 	},
 	"g_pComponentSystemManager:CreateGameObject": {
 		"prefix": "g_pComponentSystemManager:CreateGameObject",
-        "body": "g_pComponentSystemManager:CreateGameObject( ${1:bool manageobject}, ${2:int sceneid}, ${3:bool isfolder}, ${4:bool hastransform}, ${5:PrefabReference* pPrefabRef} )",
+        "body": "g_pComponentSystemManager:CreateGameObject( ${1:bool manageobject}, ${2:SceneID sceneid}, ${3:bool isfolder}, ${4:bool hastransform}, ${5:PrefabReference* pPrefabRef} )",
         "description": "Create a new game object."
 	},
 	"g_pComponentSystemManager:DeleteGameObject": {

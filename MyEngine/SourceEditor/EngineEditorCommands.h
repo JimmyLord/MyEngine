@@ -558,15 +558,15 @@ class EditorCommand_ReorderOrReparentGameObjects : public EditorCommand
 protected:
     std::vector<GameObject*> m_SelectedObjects;
     GameObject* m_pObjectDroppedOn;
-    uint32 m_SceneIDDroppedOn;
+    SceneID m_SceneIDDroppedOn;
     bool m_MakeSelectedObjectsChildren;
 
-    std::vector<unsigned int> m_OldSceneIDs;
+    std::vector<SceneID> m_OldSceneIDs;
     std::vector<GameObject*> m_OldPreviousObjectInList;
     std::vector<GameObject*> m_OldParent;
 
 public:
-    EditorCommand_ReorderOrReparentGameObjects(const std::vector<GameObject*>& selectedobjects, GameObject* pObjectDroppedOn, uint32 sceneid, bool setaschild);
+    EditorCommand_ReorderOrReparentGameObjects(const std::vector<GameObject*>& selectedobjects, GameObject* pObjectDroppedOn, SceneID sceneid, bool setaschild);
     virtual ~EditorCommand_ReorderOrReparentGameObjects();
 
     virtual void Do();

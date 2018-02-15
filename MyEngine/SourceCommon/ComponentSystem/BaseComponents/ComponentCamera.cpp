@@ -196,7 +196,7 @@ cJSON* ComponentCamera::ExportAsJSONObject(bool savesceneid, bool saveid)
     return jComponent;
 }
 
-void ComponentCamera::ImportFromJSONObject(cJSON* jComponent, unsigned int sceneid)
+void ComponentCamera::ImportFromJSONObject(cJSON* jComponent, SceneID sceneid)
 {
     // if we're loading a camera, start the layers flags at 0, so we set the flags when loading.
     m_LayersToRender = 0;
@@ -273,10 +273,10 @@ void ComponentCamera::RegisterCallbacks()
 
         //MYFW_REGISTER_COMPONENT_CALLBACK( ComponentCamera, Tick );
         //MYFW_REGISTER_COMPONENT_CALLBACK( ComponentCamera, OnSurfaceChanged );
-#if MYFW_USING_WX
+#if MYFW_EDITOR
         //MYFW_FILL_COMPONENT_CALLBACK_STRUCT( ComponentCamera, Draw );
         MYFW_REGISTER_COMPONENT_CALLBACK( ComponentCamera, Draw );
-#endif //MYFW_USING_WX
+#endif //MYFW_EDITOR
         //MYFW_REGISTER_COMPONENT_CALLBACK( ComponentCamera, OnTouch );
         //MYFW_REGISTER_COMPONENT_CALLBACK( ComponentCamera, OnButtons );
         //MYFW_REGISTER_COMPONENT_CALLBACK( ComponentCamera, OnKeys );
@@ -290,9 +290,9 @@ void ComponentCamera::UnregisterCallbacks()
     {
         //MYFW_UNREGISTER_COMPONENT_CALLBACK( Tick );
         //MYFW_UNREGISTER_COMPONENT_CALLBACK( OnSurfaceChanged );
-#if MYFW_USING_WX
+#if MYFW_EDITOR
         MYFW_UNREGISTER_COMPONENT_CALLBACK( Draw );
-#endif //MYFW_USING_WX
+#endif //MYFW_EDITOR
         //MYFW_UNREGISTER_COMPONENT_CALLBACK( OnTouch );
         //MYFW_UNREGISTER_COMPONENT_CALLBACK( OnButtons );
         //MYFW_UNREGISTER_COMPONENT_CALLBACK( OnKeys );
@@ -560,10 +560,10 @@ bool ComponentCamera::ExistsOnLayer(unsigned int layerflags)
     return false;
 }
 
-#if MYFW_USING_WX
+#if MYFW_EDITOR
 void ComponentCamera::DrawCallback(ComponentCamera* pCamera, MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride)
 {
-    if( g_pEngineMainFrame->ShowEditorIcons() == false )
+    if( g_pEngineCore->GetEditorMainFrame()->ShowEditorIcons() == false )
         return;
 
     MySprite* pSprite = g_pEngineCore->GetEditorState()->m_pEditorIcons[EditorIcon_Camera];
@@ -589,4 +589,4 @@ void ComponentCamera::DrawCallback(ComponentCamera* pCamera, MyMatrix* pMatViewP
     if( g_pEngineCore->GetDebug_DrawWireframe() )
         glPolygonMode( GL_FRONT, GL_LINE );
 }
-#endif
+#endif //MYFW_EDITOR

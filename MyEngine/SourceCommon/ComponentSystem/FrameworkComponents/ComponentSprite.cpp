@@ -161,113 +161,6 @@ void ComponentSprite::SetPointerDesc(ComponentVariable* pVar, const char* newdes
     }
 }
 
-#if MYFW_USING_WX
-ComponentVariable* ComponentSprite::GetComponentVariableForMaterial(int submeshindex)
-{
-    return FindComponentVariableByLabel( &m_ComponentVariableList_ComponentSprite, "Material" );
-}
-
-void ComponentSprite::AddToObjectsPanel(wxTreeItemId gameobjectid)
-{
-    //wxTreeItemId id =
-    g_pPanelObjectList->AddObject( this, ComponentSprite::StaticOnLeftClick, ComponentBase::StaticOnRightClick, gameobjectid, "Sprite", ObjectListIcon_Component );
-}
-
-bool ComponentSprite::IsReferencingFile(MyFileObject* pFile)
-{
-    if( m_pSprite->GetMaterial() && m_pSprite->GetMaterial()->GetFile() == pFile )
-        return true;
-
-    return ComponentBase::IsReferencingFile( pFile );
-}
-
-void ComponentSprite::OnLeftClick(unsigned int count, bool clear) // StaticOnLeftClick
-{
-    ComponentRenderable::OnLeftClick( count, clear );
-}
-
-void ComponentSprite::FillPropertiesWindow(bool clear, bool addcomponentvariables, bool ignoreblockvisibleflag)
-{
-    m_ControlID_ComponentTitleLabel = g_pPanelWatch->AddSpace( "Sprite", this, ComponentBase::StaticOnComponentTitleLabelClicked );
-
-    if( m_PanelWatchBlockVisible || ignoreblockvisibleflag == true )
-    {
-        ComponentRenderable::FillPropertiesWindow( clear );
-
-        if( addcomponentvariables )
-            FillPropertiesWindowWithVariables(); //_VARIABLE_LIST
-    }
-}
-#endif //MYFW_USING_WX
-
-#if MYFW_EDITOR
-#if MYFW_USING_WX
-void* ComponentSprite::OnDrop(ComponentVariable* pVar, wxCoord x, wxCoord y)
-#elif MYFW_EDITOR
-void* ComponentSprite::OnDrop(ComponentVariable* pVar, float x, float y)
-#endif
-{
-    void* oldvalue = 0;
-
-    DragAndDropItem* pDropItem = g_DragAndDropStruct.GetItem( 0 );
-
-    if( pDropItem->m_Type == DragAndDropType_MaterialDefinitionPointer )
-    {
-        MaterialDefinition* pMaterial = (MaterialDefinition*)pDropItem->m_Value;
-        MyAssert( pMaterial );
-        MyAssert( m_pSprite );
-
-        oldvalue = m_pSprite->GetMaterial();
-
-#if MYFW_USING_WX
-        g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_ChangeMaterialOnMesh( this, pVar, 0, pMaterial ) );
-
-        g_pPanelWatch->SetNeedsRefresh();
-#endif //MYFW_USING_WX
-    }
-
-    return oldvalue;
-}
-
-void* ComponentSprite::OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue* pNewValue)
-{
-    void* oldpointer = 0;
-
-    if( strcmp( pVar->m_Label, "Material" ) == 0 )
-    {
-        if( changedbyinterface )
-        {
-#if MYFW_USING_WX
-            wxString text = g_pPanelWatch->GetVariableProperties( pVar->m_ControlID )->GetTextCtrl()->GetValue();
-            if( text == "" || text == "none" )
-            {
-                g_pPanelWatch->ChangeDescriptionForPointerWithDescription( pVar->m_ControlID, "none" );
-
-                oldpointer = m_pSprite->GetMaterial();
-                g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_ChangeMaterialOnMesh( this, pVar, 0, 0 ) );
-            }
-#endif //MYFW_USING_WX
-        }
-        else if( pNewValue->GetMaterialPtr() != 0 )
-        {
-            oldpointer = GetMaterial( 0 );
-
-            MaterialDefinition* pNewMaterial = pNewValue ? pNewValue->GetMaterialPtr() : 0;
-            SetMaterial( pNewMaterial, 0 );
-        }
-    }
-
-    //if( strcmp( pVar->m_Label, "Size" ) == 0 )
-    {
-        m_pSprite->Create( "ComponentSprite", m_Size.x, m_Size.y, 0, 1, 0, 1, Justify_Center, false );
-    }
-
-    PushChangesToSceneGraphObjects();
-
-    return oldpointer;
-}
-#endif //MYFW_EDITOR
-
 cJSON* ComponentSprite::ExportAsJSONObject(bool savesceneid, bool saveid)
 {
     cJSON* jComponent = ComponentRenderable::ExportAsJSONObject( savesceneid, saveid );
@@ -275,7 +168,7 @@ cJSON* ComponentSprite::ExportAsJSONObject(bool savesceneid, bool saveid)
     return jComponent;
 }
 
-void ComponentSprite::ImportFromJSONObject(cJSON* jsonobj, unsigned int sceneid)
+void ComponentSprite::ImportFromJSONObject(cJSON* jsonobj, SceneID sceneid)
 {
     ComponentRenderable::ImportFromJSONObject( jsonobj, sceneid );
 }
@@ -409,3 +302,110 @@ void ComponentSprite::DrawCallback(ComponentCamera* pCamera, MyMatrix* pMatViewP
     //m_pSprite->Create( "ComponentSprite", m_Size.x, m_Size.y, 0, 1, 0, 1, Justify_Center, false );
     m_pSprite->Draw( m_pComponentTransform->GetWorldTransform(), pMatViewProj, pShaderOverride );
 }
+
+#if MYFW_EDITOR
+ComponentVariable* ComponentSprite::GetComponentVariableForMaterial(int submeshindex)
+{
+    return FindComponentVariableByLabel( &m_ComponentVariableList_ComponentSprite, "Material" );
+}
+
+#if MYFW_USING_WX
+void ComponentSprite::AddToObjectsPanel(wxTreeItemId gameobjectid)
+{
+    //wxTreeItemId id =
+    g_pPanelObjectList->AddObject( this, ComponentSprite::StaticOnLeftClick, ComponentBase::StaticOnRightClick, gameobjectid, "Sprite", ObjectListIcon_Component );
+}
+
+bool ComponentSprite::IsReferencingFile(MyFileObject* pFile)
+{
+    if( m_pSprite->GetMaterial() && m_pSprite->GetMaterial()->GetFile() == pFile )
+        return true;
+
+    return ComponentBase::IsReferencingFile( pFile );
+}
+
+void ComponentSprite::OnLeftClick(unsigned int count, bool clear) // StaticOnLeftClick
+{
+    ComponentRenderable::OnLeftClick( count, clear );
+}
+
+void ComponentSprite::FillPropertiesWindow(bool clear, bool addcomponentvariables, bool ignoreblockvisibleflag)
+{
+    m_ControlID_ComponentTitleLabel = g_pPanelWatch->AddSpace( "Sprite", this, ComponentBase::StaticOnComponentTitleLabelClicked );
+
+    if( m_PanelWatchBlockVisible || ignoreblockvisibleflag == true )
+    {
+        ComponentRenderable::FillPropertiesWindow( clear );
+
+        if( addcomponentvariables )
+            FillPropertiesWindowWithVariables(); //_VARIABLE_LIST
+    }
+}
+#endif //MYFW_USING_WX
+
+#if MYFW_USING_WX
+void* ComponentSprite::OnDrop(ComponentVariable* pVar, wxCoord x, wxCoord y)
+#elif MYFW_EDITOR
+void* ComponentSprite::OnDrop(ComponentVariable* pVar, float x, float y)
+#endif
+{
+    void* oldvalue = 0;
+
+    DragAndDropItem* pDropItem = g_DragAndDropStruct.GetItem( 0 );
+
+    if( pDropItem->m_Type == DragAndDropType_MaterialDefinitionPointer )
+    {
+        MaterialDefinition* pMaterial = (MaterialDefinition*)pDropItem->m_Value;
+        MyAssert( pMaterial );
+        MyAssert( m_pSprite );
+
+        oldvalue = m_pSprite->GetMaterial();
+
+#if MYFW_USING_WX
+        g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_ChangeMaterialOnMesh( this, pVar, 0, pMaterial ) );
+
+        g_pPanelWatch->SetNeedsRefresh();
+#endif //MYFW_USING_WX
+    }
+
+    return oldvalue;
+}
+
+void* ComponentSprite::OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue* pNewValue)
+{
+    void* oldpointer = 0;
+
+    if( strcmp( pVar->m_Label, "Material" ) == 0 )
+    {
+        if( changedbyinterface )
+        {
+#if MYFW_USING_WX
+            wxString text = g_pPanelWatch->GetVariableProperties( pVar->m_ControlID )->GetTextCtrl()->GetValue();
+            if( text == "" || text == "none" )
+            {
+                g_pPanelWatch->ChangeDescriptionForPointerWithDescription( pVar->m_ControlID, "none" );
+
+                oldpointer = m_pSprite->GetMaterial();
+                g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_ChangeMaterialOnMesh( this, pVar, 0, 0 ) );
+            }
+#endif //MYFW_USING_WX
+        }
+        else if( pNewValue->GetMaterialPtr() != 0 )
+        {
+            oldpointer = GetMaterial( 0 );
+
+            MaterialDefinition* pNewMaterial = pNewValue ? pNewValue->GetMaterialPtr() : 0;
+            SetMaterial( pNewMaterial, 0 );
+        }
+    }
+
+    //if( strcmp( pVar->m_Label, "Size" ) == 0 )
+    {
+        m_pSprite->Create( "ComponentSprite", m_Size.x, m_Size.y, 0, 1, 0, 1, Justify_Center, false );
+    }
+
+    PushChangesToSceneGraphObjects();
+
+    return oldpointer;
+}
+#endif //MYFW_EDITOR

@@ -923,10 +923,10 @@ void ComponentLuaScript::UpdateChildrenWithNewValue(ExposedVariableDesc* pVar, b
             typedef std::map<int, SceneInfo>::iterator it_type;
             for( it_type iterator = g_pComponentSystemManager->m_pSceneInfoMap.begin(); iterator != g_pComponentSystemManager->m_pSceneInfoMap.end(); )
             {
-                unsigned int sceneid = iterator->first;
+                SceneID sceneid = iterator->first;
                 SceneInfo* pSceneInfo = &iterator->second;
 #else
-            for( unsigned int i=0; i<ComponentSystemManager::MAX_SCENES_LOADED; i++ )
+            for( unsigned int i=0; i<MAX_SCENES_LOADED_INCLUDING_UNMANAGED; i++ )
             {
                 if( g_pComponentSystemManager->m_pSceneInfoMap[i].m_InUse == false )
                     continue;
@@ -1100,7 +1100,7 @@ cJSON* ComponentLuaScript::ExportAsJSONObject(bool savesceneid, bool saveid)
     return jComponent;
 }
 
-void ComponentLuaScript::ImportFromJSONObject(cJSON* jsonobj, unsigned int sceneid)
+void ComponentLuaScript::ImportFromJSONObject(cJSON* jsonobj, SceneID sceneid)
 {
     //ComponentUpdateable::ImportFromJSONObject( jsonobj, sceneid );
 

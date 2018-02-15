@@ -139,7 +139,7 @@ void PrefabObject::SetPrefabJSONObject(cJSON* jPrefab, bool createmastergameobje
     {
         unsigned int numItemsInUndoStack = g_pEngineMainFrame->m_pCommandStack->GetUndoStackSize();
 
-        m_pGameObject = g_pComponentSystemManager->CreateGameObjectFromPrefab( this, false, 0 );
+        m_pGameObject = g_pComponentSystemManager->CreateGameObjectFromPrefab( this, false, SCENEID_Unmanaged );
         m_pGameObject->SetEnabled( false, true );
 
         g_pEngineMainFrame->m_pCommandStack->ClearUndoStack( numItemsInUndoStack );
@@ -567,6 +567,7 @@ void PrefabFile::OnRightClick(wxTreeItemId treeid) // StaticOnRightClick
     wxString itemname = g_pPanelObjectList->m_pTree_Objects->GetItemText( treeid );
     
     //m_SceneIDBeingAffected = g_pComponentSystemManager->GetSceneIDFromSceneTreeID( treeid );
+    //if( m_SceneIDBeingAffected != SCENEID_NotFound...
     //
     //menu.Append( RightClick_AddGameObject, "Add Game Object" );
 

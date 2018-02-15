@@ -25,12 +25,12 @@ EngineFileManager::~EngineFileManager()
 MyFileObject* EngineFileManager::RequestFile(const char* filename)
 {
     // add any files requested to the list of files needed by the (first) scene.
-    MyFileObject* pFile = RequestFile( filename, 1 );
+    MyFileObject* pFile = RequestFile( filename, SCENEID_MainScene );
 
     return pFile;
 }
 
-MyFileObject* EngineFileManager::RequestFile(const char* filename, unsigned int sceneid)
+MyFileObject* EngineFileManager::RequestFile(const char* filename, SceneID sceneid)
 {
     MyFileObject* pFile = 0;
 

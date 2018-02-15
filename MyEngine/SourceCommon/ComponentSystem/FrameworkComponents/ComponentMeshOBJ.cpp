@@ -243,7 +243,7 @@ cJSON* ComponentMeshOBJ::ExportAsJSONObject(bool savesceneid, bool saveid)
     return component;
 }
 
-void ComponentMeshOBJ::ImportFromJSONObject(cJSON* jsonobj, unsigned int sceneid)
+void ComponentMeshOBJ::ImportFromJSONObject(cJSON* jsonobj, SceneID sceneid)
 {
     ComponentMesh::ImportFromJSONObject( jsonobj, sceneid );
 

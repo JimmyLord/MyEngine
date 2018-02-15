@@ -71,7 +71,7 @@ cJSON* ComponentRenderable::ExportAsJSONObject(bool savesceneid, bool saveid)
     return jComponent;
 }
 
-void ComponentRenderable::ImportFromJSONObject(cJSON* jsonobj, unsigned int sceneid)
+void ComponentRenderable::ImportFromJSONObject(cJSON* jsonobj, SceneID sceneid)
 {
     ComponentBase::ImportFromJSONObject( jsonobj, sceneid );
 

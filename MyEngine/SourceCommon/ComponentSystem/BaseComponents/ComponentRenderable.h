@@ -31,7 +31,7 @@ public:
     SetClassnameBase( "RenderableComponent" ); // only first 8 character count.
 
     virtual cJSON* ExportAsJSONObject(bool savesceneid, bool saveid);
-    virtual void ImportFromJSONObject(cJSON* jsonobj, unsigned int sceneid);
+    virtual void ImportFromJSONObject(cJSON* jsonobj, SceneID sceneid);
 
     virtual void Reset();
     virtual void CopyFromSameType_Dangerous(ComponentBase* pObject) { *this = (ComponentRenderable&)*pObject; }
@@ -73,10 +73,9 @@ public:
 
 public:
 #if MYFW_EDITOR
+    virtual ComponentVariable* GetComponentVariableForMaterial(int submeshindex) { return 0; }
 #if MYFW_USING_WX
     static bool m_PanelWatchBlockVisible;
-
-    virtual ComponentVariable* GetComponentVariableForMaterial(int submeshindex) { return 0; }
 
     virtual void AddToObjectsPanel(wxTreeItemId gameobjectid);
 

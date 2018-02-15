@@ -220,15 +220,6 @@ EngineMainFrame::EngineMainFrame()
     m_MenuItem_Debug_DrawGLStats = 0;
     m_MenuItem_Debug_DrawPhysicsDebugShapes = 0;
     m_MenuItem_Debug_ShowProfilingInfo = 0;
-
-    m_ShowEditorIcons = true;
-    m_SelectedObjects_ShowWireframe = true;
-    m_SelectedObjects_ShowEffect = true;
-    m_Mode_SwitchFocusOnPlayStop = true;
-
-    m_GridSettings.visible = true;
-    m_GridSettings.snapenabled = false;
-    m_GridSettings.stepsize.Set( 5, 5, 5 );
 }
 
 EngineMainFrame::~EngineMainFrame()
@@ -605,7 +596,7 @@ void EngineMainFrame::OnPostInit()
 
         obj = cJSON_GetObjectItem( jEditorPrefs, "EditorCam" );
         if( obj )
-            g_pEngineCore->GetEditorState()->GetEditorCamera()->m_pComponentTransform->ImportFromJSONObject( obj, EngineCore::ENGINE_SCENE_ID );
+            g_pEngineCore->GetEditorState()->GetEditorCamera()->m_pComponentTransform->ImportFromJSONObject( obj, SCENEID_EngineObjects );
 
         extern GLViewTypes g_CurrentGLViewType;
         cJSONExt_GetInt( jEditorPrefs, "GameAspectRatio", (int*)&g_CurrentGLViewType );
@@ -634,7 +625,7 @@ void EngineMainFrame::OnPostInit()
     {
         g_pEngineCore->GetEditorState()->ClearKeyAndActionStates();
         g_pEngineCore->GetEditorState()->ClearSelectedObjectsAndComponents();
-        g_pComponentSystemManager->CreateNewScene( "Unsaved.scene", 1 );
+        g_pComponentSystemManager->CreateNewScene( "Unsaved.scene", SCENEID_MainScene );
         g_pEngineCore->CreateDefaultSceneObjects();
     }
 
@@ -693,11 +684,11 @@ bool EngineMainFrame::OnClose()
             cJSON_AddNumberToObject( pPrefs, "ClientHeight", m_ClientHeight );
             cJSON_AddNumberToObject( pPrefs, "IsMaximized", m_Maximized );
 
-            const char* relativepath = GetRelativePath( g_pComponentSystemManager->GetSceneInfo( 1 )->m_FullPath );
+            const char* relativepath = GetRelativePath( g_pComponentSystemManager->GetSceneInfo( SCENEID_MainScene )->m_FullPath );
             if( relativepath )
                 cJSON_AddStringToObject( pPrefs, "LastSceneLoaded", relativepath );
             else
-                cJSON_AddStringToObject( pPrefs, "LastSceneLoaded", g_pComponentSystemManager->GetSceneInfo( 1 )->m_FullPath );
+                cJSON_AddStringToObject( pPrefs, "LastSceneLoaded", g_pComponentSystemManager->GetSceneInfo( SCENEID_MainScene )->m_FullPath );
 
             cJSON_AddItemToObject( pPrefs, "EditorCam", g_pEngineCore->GetEditorState()->GetEditorCamera()->m_pComponentTransform->ExportAsJSONObject( false, true ) );
 
@@ -880,9 +871,9 @@ void EngineMainFrame::OnMenu_Engine(wxCommandEvent& event)
                 g_pEngineCore->SetEditorInterface( EditorInterfaceType_SceneManagement );
 
                 this->SetTitle( "New scene" );
-                g_pEngineCore->UnloadScene( UINT_MAX, false );
-                g_pComponentSystemManager->CreateNewScene( "Unsaved.scene", 1 );
-                g_pComponentSystemManager->GetSceneInfo( 1 )->m_FullPath[0] = 0;
+                g_pEngineCore->UnloadScene( SCENEID_AllScenes, false );
+                g_pComponentSystemManager->CreateNewScene( "Unsaved.scene", SCENEID_MainScene );
+                g_pComponentSystemManager->GetSceneInfo( SCENEID_MainScene )->m_FullPath[0] = 0;
                 g_pEngineCore->CreateDefaultSceneObjects();
                 ResizeViewport();
             }
@@ -911,7 +902,7 @@ void EngineMainFrame::OnMenu_Engine(wxCommandEvent& event)
 
     case myIDEngine_File_CreateAdditionalScene:
         {
-            unsigned int sceneid = g_pComponentSystemManager->GetNextSceneID();
+            SceneID sceneid = g_pComponentSystemManager->GetNextSceneID();
             g_pComponentSystemManager->CreateNewScene( "Unsaved.scene", sceneid );
             g_pComponentSystemManager->GetSceneInfo( sceneid )->m_FullPath[0] = 0;
         }
@@ -937,11 +928,11 @@ void EngineMainFrame::OnMenu_Engine(wxCommandEvent& event)
         g_pMaterialManager->SaveAllMaterials();
         g_pComponentSystemManager->m_pPrefabManager->SaveAllPrefabs();
         g_pGameCore->GetSoundManager()->SaveAllCues();
-        SaveSceneAs( 1 );
+        SaveSceneAs( SCENEID_MainScene );
         break;
 
     case myIDEngine_File_ExportBox2DScene:
-        ExportBox2DScene( 1 );
+        ExportBox2DScene( SCENEID_MainScene );
         break;
 
     case myID_View_SavePerspective:
@@ -1359,17 +1350,17 @@ void EngineMainFrame::SaveScene()
         //typedef std::map<int, SceneInfo>::iterator it_type;
         //for( it_type iterator = g_pComponentSystemManager->m_pSceneInfoMap.begin(); iterator != g_pComponentSystemManager->m_pSceneInfoMap.end(); iterator++ )
         //{
-        //    unsigned int sceneid = iterator->first;
+        //    SceneID sceneid = iterator->first;
         //    SceneInfo* pSceneInfo = &iterator->second;
-        for( unsigned int i=0; i<ComponentSystemManager::MAX_SCENES_LOADED; i++ )
+        for( unsigned int i=0; i<MAX_SCENES_LOADED_INCLUDING_UNMANAGED; i++ )
         {
             if( g_pComponentSystemManager->m_pSceneInfoMap[i].m_InUse == false )
                 continue;
 
-            unsigned int sceneid = i;
+            SceneID sceneid = (SceneID)i;
             SceneInfo* pSceneInfo = &g_pComponentSystemManager->m_pSceneInfoMap[i];
 
-            if( sceneid != EngineCore::UNMANAGED_SCENE_ID && sceneid != EngineCore::ENGINE_SCENE_ID )
+            if( sceneid != SCENEID_Unmanaged && sceneid != SCENEID_EngineObjects )
             {
                 if( g_pComponentSystemManager->GetSceneInfo( sceneid )->m_FullPath[0] == 0 )
                 {
@@ -1385,7 +1376,7 @@ void EngineMainFrame::SaveScene()
     }
 }
 
-void EngineMainFrame::SaveSceneAs(unsigned int sceneid)
+void EngineMainFrame::SaveSceneAs(SceneID sceneid)
 {
     wxFileDialog FileDialog( this, _("Save Scene file"), "./Data/Scenes", "", "Scene files (*.scene)|*.scene", wxFD_SAVE|wxFD_OVERWRITE_PROMPT);
     
@@ -1406,7 +1397,7 @@ void EngineMainFrame::SaveSceneAs(unsigned int sceneid)
     this->SetTitle( g_pComponentSystemManager->GetSceneInfo( sceneid )->m_FullPath );
 }
 
-void EngineMainFrame::ExportBox2DScene(unsigned int sceneid)
+void EngineMainFrame::ExportBox2DScene(SceneID sceneid)
 {
     wxFileDialog FileDialog( this, _("Export Box2D Scene file"), "", "", "Box2D Scene files (*.box2dscene)|*.box2dscene", wxFD_SAVE|wxFD_OVERWRITE_PROMPT);
     
@@ -1462,7 +1453,7 @@ void EngineMainFrame::LoadScene(const char* scenename, bool unloadscenes)
         g_pEngineCore->GetEditorState()->ClearSelectedObjectsAndComponents();
         g_pEngineCore->SetEditorInterface( EditorInterfaceType_SceneManagement );
 
-        g_pEngineCore->UnloadScene( UINT_MAX, false ); // don't unload editor objects.
+        g_pEngineCore->UnloadScene( SCENEID_AllScenes, false ); // don't unload editor objects.
     }
 
     // Load the scene from file.
@@ -1471,7 +1462,7 @@ void EngineMainFrame::LoadScene(const char* scenename, bool unloadscenes)
 
     char fullpath[MAX_PATH];
     GetFullPath( scenename, fullpath, MAX_PATH );
-    unsigned int sceneid = g_pEngineCore->LoadSceneFromFile( fullpath );
+    SceneID sceneid = g_pEngineCore->LoadSceneFromFile( fullpath );
 
     g_pEngineMainFrame->m_pCommandStack->ClearUndoStack( numItemsInUndoStack );
 
@@ -1514,7 +1505,7 @@ void EngineMainFrame::LoadDatafile(wxString filename)
         return;
     }
 
-    g_pEngineCore->GetComponentSystemManager()->LoadDataFile( relativepath, 1, filename, true );
+    g_pEngineCore->GetComponentSystemManager()->LoadDataFile( relativepath, SCENEID_MainScene, filename, true );
 }
 
 void EngineMainFrame::OnDrop(int controlid, wxCoord x, wxCoord y)
@@ -1586,10 +1577,10 @@ void EngineMainFrame::OnDrop(int controlid, wxCoord x, wxCoord y)
             // Create a new gameobject using this obj.
             MyMesh* pMesh = g_pMeshManager->FindMeshBySourceFile( pFile );
 
-            GameObject* pGameObject = g_pComponentSystemManager->CreateGameObject( true, 1 );
+            GameObject* pGameObject = g_pComponentSystemManager->CreateGameObject( true, SCENEID_MainScene );
             pGameObject->SetName( "New mesh" );
-            ComponentMeshOBJ* pComponentMeshOBJ = (ComponentMeshOBJ*)pGameObject->AddNewComponent( ComponentType_MeshOBJ, 1 );
-            pComponentMeshOBJ->SetSceneID( 1 );
+            ComponentMeshOBJ* pComponentMeshOBJ = (ComponentMeshOBJ*)pGameObject->AddNewComponent( ComponentType_MeshOBJ, SCENEID_MainScene );
+            pComponentMeshOBJ->SetSceneID( SCENEID_MainScene );
             pComponentMeshOBJ->SetMaterial( g_pMaterialManager->GetFirstMaterial(), 0 );
             pComponentMeshOBJ->SetMesh( pMesh );
             pComponentMeshOBJ->SetLayersThisExistsOn( Layer_MainScene );
@@ -1619,8 +1610,8 @@ void EngineMainFrame::OnDrop(int controlid, wxCoord x, wxCoord y)
     {
         PrefabObject* pPrefab = (PrefabObject*)pDropItem->m_Value;
 
-        // Default to drop into scene 1, but prefer putting in same scene as the object dropped on.
-        unsigned int sceneid = 1;
+        // Default to drop into main scene, but prefer putting in same scene as the object dropped on.
+        SceneID sceneid = SCENEID_MainScene;
         if( pObjectDroppedOn )
         {
             sceneid = pObjectDroppedOn->GetSceneID();
@@ -1717,13 +1708,13 @@ void EngineMainFrame::LaunchGame()
 #if MYFW_WINDOWS
     case LaunchPlatform_Win32:
         {
-            LaunchApplication( "MyEngine_Game.exe", g_pComponentSystemManager->GetSceneInfo( 1 )->m_FullPath );
+            LaunchApplication( "MyEngine_Game.exe", g_pComponentSystemManager->GetSceneInfo( SCENEID_MainScene )->m_FullPath );
         }
         break;
 
     case LaunchPlatform_Win64:
         {
-            LaunchApplication( "MyEngine_Game_x64.exe", g_pComponentSystemManager->GetSceneInfo( 1 )->m_FullPath );
+            LaunchApplication( "MyEngine_Game_x64.exe", g_pComponentSystemManager->GetSceneInfo( SCENEID_MainScene )->m_FullPath );
         }
         break;
 
@@ -1737,7 +1728,7 @@ void EngineMainFrame::LaunchGame()
     case LaunchPlatform_Android:
         {
             char tempstr[255];
-            sprintf_s( tempstr, 255, "/C cd Android & BuildAndLaunch.bat %s", g_pComponentSystemManager->GetSceneInfo( 1 )->m_FullPath );
+            sprintf_s( tempstr, 255, "/C cd Android & BuildAndLaunch.bat %s", g_pComponentSystemManager->GetSceneInfo( SCENEID_MainScene )->m_FullPath );
             for( unsigned int i=0; i<strlen(tempstr); i++ )
             {
                 if( tempstr[i] == '\\' )

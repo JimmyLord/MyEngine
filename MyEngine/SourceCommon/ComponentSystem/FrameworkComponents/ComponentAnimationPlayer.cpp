@@ -110,7 +110,7 @@ cJSON* ComponentAnimationPlayer::ExportAsJSONObject(bool savesceneid, bool savei
     return component;
 }
 
-void ComponentAnimationPlayer::ImportFromJSONObject(cJSON* jsonobj, unsigned int sceneid)
+void ComponentAnimationPlayer::ImportFromJSONObject(cJSON* jsonobj, SceneID sceneid)
 {
     ComponentUpdateable::ImportFromJSONObject( jsonobj, sceneid );
 

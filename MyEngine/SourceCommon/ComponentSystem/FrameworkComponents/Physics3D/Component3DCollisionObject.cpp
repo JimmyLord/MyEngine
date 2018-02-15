@@ -304,7 +304,7 @@ cJSON* Component3DCollisionObject::ExportAsJSONObject(bool savesceneid, bool sav
     return component;
 }
 
-void Component3DCollisionObject::ImportFromJSONObject(cJSON* jsonobj, unsigned int sceneid)
+void Component3DCollisionObject::ImportFromJSONObject(cJSON* jsonobj, SceneID sceneid)
 {
     ComponentBase::ImportFromJSONObject( jsonobj, sceneid );
 }

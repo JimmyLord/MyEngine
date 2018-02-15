@@ -41,7 +41,7 @@ class SceneHandler
 #endif
 {
 protected:
-    unsigned int m_SceneIDBeingAffected;
+    SceneID m_SceneIDBeingAffected;
 
 public:
     SceneHandler();
@@ -68,7 +68,7 @@ public:
 
     static void StaticOnRightClick(void* pObjectPtr, wxTreeItemId treeid) { ((SceneHandler*)pObjectPtr)->OnRightClick( treeid ); }
     void OnRightClick(wxTreeItemId treeid);
-    void AddGameObjectMenuOptionsToMenu(wxMenu* menu, int itemidoffset, unsigned int sceneid);
+    void AddGameObjectMenuOptionsToMenu(wxMenu* menu, int itemidoffset, SceneID sceneid);
     int AddGameObjectTemplatesToMenu(wxMenu* menu, int itemidoffset, int startindex);
     void OnPopupClick(wxEvent &evt); // used as callback for wxEvtHandler, can't be virtual(will crash, haven't looked into it).
     void HandleRightClickCommand(int id, GameObject* pParentGameObject);

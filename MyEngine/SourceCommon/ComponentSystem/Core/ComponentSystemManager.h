@@ -131,9 +131,6 @@ class ComponentSystemManager
 #endif //MYFW_USING_WX
 {
 public:
-    static const int MAX_SCENES_LOADED = 10;
-
-public:
     ComponentTypeManager* m_pComponentTypeManager; // memory managed, delete this.
 
     // List of files used including a scene id and the source file (if applicable)
@@ -155,8 +152,8 @@ protected:
     std::vector<FileUpdatedCallbackStruct> m_pFileUpdatedCallbackList;
 #endif //MYFW_USING_WX
 
-    MyFileInfo* GetFileInfoIfUsedByScene(const char* fullpath, unsigned int sceneid);
-    MyFileObject* GetFileObjectIfUsedByScene(const char* fullpath, unsigned int sceneid);
+    MyFileInfo* GetFileInfoIfUsedByScene(const char* fullpath, SceneID sceneid);
+    MyFileObject* GetFileObjectIfUsedByScene(const char* fullpath, SceneID sceneid);
 
 public:
     ComponentSystemManager(ComponentTypeManager* typemanager);
@@ -170,34 +167,34 @@ public:
     void SetTimeScale(float scale) { m_TimeScale = scale; }
 
     void MoveAllFilesNeededForLoadingScreenToStartOfFileList(GameObject* first);
-    void AddListOfFilesUsedToJSONObject(unsigned int sceneid, cJSON* filearray);
-    char* SaveSceneToJSON(unsigned int sceneid);
-    char* ExportBox2DSceneToJSON(unsigned int sceneid);
+    void AddListOfFilesUsedToJSONObject(SceneID sceneid, cJSON* filearray);
+    char* SaveSceneToJSON(SceneID sceneid);
+    char* ExportBox2DSceneToJSON(SceneID sceneid);
     void SaveGameObjectListToJSONArray(cJSON* gameobjectarray, cJSON* transformarray, GameObject* first, bool savesceneid);
     
-    MyFileInfo* AddToFileList(MyFileObject* pFile, MyMesh* pMesh, ShaderGroup* pShaderGroup, TextureDefinition* pTexture, MaterialDefinition* pMaterial, SoundCue* pSoundCue, SpriteSheet* pSpriteSheet, unsigned int sceneid);
-    MyFileObject* LoadDataFile(const char* relativepath, unsigned int sceneid, const char* fullsourcefilepath, bool convertifrequired);
-    MyFileObject* ImportDataFile(unsigned int sceneid, const char* fullsourcefilepath);
+    MyFileInfo* AddToFileList(MyFileObject* pFile, MyMesh* pMesh, ShaderGroup* pShaderGroup, TextureDefinition* pTexture, MaterialDefinition* pMaterial, SoundCue* pSoundCue, SpriteSheet* pSpriteSheet, SceneID sceneid);
+    MyFileObject* LoadDataFile(const char* relativepath, SceneID sceneid, const char* fullsourcefilepath, bool convertifrequired);
+    MyFileObject* ImportDataFile(SceneID sceneid, const char* fullsourcefilepath);
     void FreeDataFile(MyFileInfo* pFileInfo);
-    void FreeAllDataFiles(unsigned int sceneidtoclear);
+    void FreeAllDataFiles(SceneID sceneidtoclear);
 
-    void LoadSceneFromJSON(const char* scenename, const char* jsonstr, unsigned int sceneid);
+    void LoadSceneFromJSON(const char* scenename, const char* jsonstr, SceneID sceneid);
     ComponentBase* CreateComponentFromJSONObject(GameObject* pGameObject, cJSON* jComponent);
-    void FinishLoading(bool lockwhileloading, unsigned int sceneid, bool playwhenfinishedloading);
+    void FinishLoading(bool lockwhileloading, SceneID sceneid, bool playwhenfinishedloading);
 
     void SyncAllRigidBodiesToObjectTransforms();
 
     // can clear everything except editor objects/components
     // unmanaged components are mainly editor objects and deleted objects in undo stack of editor... might want to rethink that.
-    void UnloadScene(unsigned int sceneidtoclear = UINT_MAX, bool clearunmanagedcomponents = true);
+    void UnloadScene(SceneID sceneidtoclear = SCENEID_AllScenes, bool clearunmanagedcomponents = true);
     bool IsSceneLoaded(const char* fullpath);
-    unsigned int FindSceneID(const char* fullpath);
+    SceneID FindSceneID(const char* fullpath);
 
-    GameObject* CreateGameObject(bool manageobject = true, int sceneid = 0, bool isfolder = false, bool hastransform = true, PrefabReference* pPrefabRef = 0);
-    GameObject* CreateGameObjectFromPrefab(PrefabObject* pPrefab, bool manageobject, int sceneid);
-    GameObject* CreateGameObjectFromPrefab(PrefabObject* pPrefab, cJSON* jPrefab, uint32 prefabchildid, bool manageobject, int sceneid);
+    GameObject* CreateGameObject(bool manageobject = true, SceneID sceneid = SCENEID_Unmanaged, bool isfolder = false, bool hastransform = true, PrefabReference* pPrefabRef = 0);
+    GameObject* CreateGameObjectFromPrefab(PrefabObject* pPrefab, bool manageobject, SceneID sceneid);
+    GameObject* CreateGameObjectFromPrefab(PrefabObject* pPrefab, cJSON* jPrefab, uint32 prefabchildid, bool manageobject, SceneID sceneid);
 #if MYFW_USING_WX
-    GameObject* CreateGameObjectFromTemplate(unsigned int templateid, int sceneid);
+    GameObject* CreateGameObjectFromTemplate(unsigned int templateid, SceneID sceneid);
 #endif
     void UnmanageGameObject(GameObject* pObject, bool unmanagechildren);
     void ManageGameObject(GameObject* pObject, bool managechildren);
@@ -207,17 +204,17 @@ public:
 #endif
     GameObject* CopyGameObject(GameObject* pObject, const char* newname);
 
-    unsigned int GetNextGameObjectIDAndIncrement(unsigned int sceneid);
-    unsigned int GetNextComponentIDAndIncrement(unsigned int sceneid);
+    unsigned int GetNextGameObjectIDAndIncrement(SceneID sceneid);
+    unsigned int GetNextComponentIDAndIncrement(SceneID sceneid);
 
-    GameObject* GetFirstGameObjectFromScene(unsigned int sceneid);
-    GameObject* FindGameObjectByID(unsigned int sceneid, unsigned int goid);
+    GameObject* GetFirstGameObjectFromScene(SceneID sceneid);
+    GameObject* FindGameObjectByID(SceneID sceneid, unsigned int goid);
     GameObject* FindGameObjectByIDFromList(GameObject* list, unsigned int goid);
     GameObject* FindGameObjectByName(const char* name);
-    GameObject* FindGameObjectByNameInScene(unsigned int sceneid, const char* name);
+    GameObject* FindGameObjectByNameInScene(SceneID sceneid, const char* name);
     GameObject* FindGameObjectByNameFromList(GameObject* list, const char* name);
-    GameObject* FindGameObjectByJSONRef(cJSON* pJSONGameObjectRef, unsigned int defaultsceneid);
-    ComponentBase* FindComponentByJSONRef(cJSON* pJSONComponentRef, unsigned int defaultsceneid);
+    GameObject* FindGameObjectByJSONRef(cJSON* pJSONGameObjectRef, SceneID defaultsceneid);
+    ComponentBase* FindComponentByJSONRef(cJSON* pJSONComponentRef, SceneID defaultsceneid);
     ComponentCamera* GetFirstCamera(bool prefereditorcam = false);
     ComponentBase* GetFirstComponentOfType(const char* type);
     ComponentBase* GetNextComponentOfType(ComponentBase* pLastComponent);
@@ -225,7 +222,7 @@ public:
     ComponentBase* AddComponent(ComponentBase* pComponent);
     void DeleteComponent(ComponentBase* pComponent);
 
-    ComponentBase* FindComponentByID(unsigned int id, unsigned int sceneid = UINT_MAX);
+    ComponentBase* FindComponentByID(unsigned int id, SceneID sceneid = SCENEID_AllScenes);
 
     // Main events, most should call component callbacks.
     void Tick(double TimePassed);
@@ -234,9 +231,9 @@ public:
     void OnDrawFrame(ComponentCamera* pCamera, MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride);
     void OnFileRenamed(const char* fullpathbefore, const char* fullpathafter);
 
-    void OnLoad(unsigned int sceneid);
-    void OnPlay(unsigned int sceneid);
-    void OnStop(unsigned int sceneid);
+    void OnLoad(SceneID sceneid);
+    void OnPlay(SceneID sceneid);
+    void OnStop(SceneID sceneid);
 
     bool OnEvent(MyEvent* pEvent);
 
@@ -259,17 +256,17 @@ public:
     void DrawMousePickerFrame(ComponentCamera* pCamera, MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride);
 
     // Scene management.
-    unsigned int m_NextSceneID;
-    unsigned int GetNextSceneID() { return m_NextSceneID++; }
-    void ResetSceneIDCounter() { m_NextSceneID = 1; }
-    SceneInfo* GetSceneInfo(int sceneid);
-    unsigned int GetSceneIDFromFullpath(const char* fullpath);
+    SceneID m_NextSceneID;
+    SceneID GetNextSceneID();
+    void ResetSceneIDCounter();
+    SceneInfo* GetSceneInfo(SceneID sceneid);
+    SceneID GetSceneIDFromFullpath(const char* fullpath); // Returns SCENEID_NotFound if scene isn't found.
 #if MYFW_EDITOR
     SceneHandler* m_pSceneHandler;
-    void CreateNewScene(const char* scenename, unsigned int sceneid);
+    void CreateNewScene(const char* scenename, SceneID sceneid);
 #if MYFW_USING_WX
-    wxTreeItemId GetTreeIDForScene(int sceneid);
-    unsigned int GetSceneIDFromSceneTreeID(wxTreeItemId treeid);
+    wxTreeItemId GetTreeIDForScene(SceneID sceneid);
+    SceneID GetSceneIDFromSceneTreeID(wxTreeItemId treeid);
 #endif //MYFW_USING_WX
     unsigned int GetNumberOfScenesLoaded();
     //std::map<int, SceneInfo> m_pSceneInfoMap;
@@ -282,7 +279,7 @@ public:
     MaterialDefinition* ParseLog_Material(const char* line);
 #endif //MYFW_EDITOR
     PrefabManager* m_pPrefabManager;
-    SceneInfo m_pSceneInfoMap[MAX_SCENES_LOADED];
+    SceneInfo m_pSceneInfoMap[MAX_SCENES_CREATED];
 
     // SceneGraph Functions
     SceneGraph_Base* GetSceneGraph() { return m_pSceneGraph; }
@@ -332,7 +329,7 @@ public:
     // m_pFile might be 0 (for wav's for example, but m_SourceFileFullPath should be set in those cases)
     MyFileObject* m_pFile;
     char m_SourceFileFullPath[MAX_PATH];
-    unsigned int m_SceneID;
+    SceneID m_SceneID;
 
     MyMesh* m_pMesh; // a mesh may have been created alongside the file.
     ShaderGroup* m_pShaderGroup; // a shadergroup may have been created alongside the file.
@@ -349,7 +346,7 @@ public:
     {
         m_pFile = 0;
         m_SourceFileFullPath[0] = 0; // store the source file (fbx, obj, etc) that the data file was converted from.
-        m_SceneID = 0;
+        m_SceneID = SCENEID_NotSet;
 
         m_pMesh = 0;
         m_pShaderGroup = 0;

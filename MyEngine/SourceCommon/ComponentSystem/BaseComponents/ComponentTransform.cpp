@@ -329,7 +329,7 @@ cJSON* ComponentTransform::ExportAsJSONObject(bool savesceneid, bool saveid)
     return jComponent;
 }
 
-void ComponentTransform::ImportFromJSONObject(cJSON* jsonobj, unsigned int sceneid)
+void ComponentTransform::ImportFromJSONObject(cJSON* jsonobj, SceneID sceneid)
 {
     // moved into GameObject, here for old scene files.
     {

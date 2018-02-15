@@ -1720,7 +1720,7 @@ EditorCommand* EditorCommand_ComponentVariableIndirectPointerChanged::Repeat()
 // EditorCommand_ReorderOrReparentGameObjects
 //====================================================================================================
 
-EditorCommand_ReorderOrReparentGameObjects::EditorCommand_ReorderOrReparentGameObjects(const std::vector<GameObject*>& selectedobjects, GameObject* pObjectDroppedOn, uint32 sceneid, bool setaschild)
+EditorCommand_ReorderOrReparentGameObjects::EditorCommand_ReorderOrReparentGameObjects(const std::vector<GameObject*>& selectedobjects, GameObject* pObjectDroppedOn, SceneID sceneid, bool setaschild)
 {
     m_Name = "EditorCommand_ReorderOrReparentGameObjects";
 

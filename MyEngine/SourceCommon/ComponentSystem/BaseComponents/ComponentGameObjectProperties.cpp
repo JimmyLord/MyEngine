@@ -148,7 +148,7 @@ cJSON* ComponentGameObjectProperties::ExportAsJSONObject(bool savesceneid, bool 
     return jComponent;
 }
 
-void ComponentGameObjectProperties::ImportFromJSONObject(cJSON* jComponent, unsigned int sceneid)
+void ComponentGameObjectProperties::ImportFromJSONObject(cJSON* jComponent, SceneID sceneid)
 {
     ComponentBase::ImportFromJSONObject( jComponent, sceneid );
 

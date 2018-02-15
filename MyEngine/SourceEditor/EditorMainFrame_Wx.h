@@ -74,13 +74,6 @@ enum EngineMenuIDs
     myIDEngine_LastID,
 };
 
-struct GridSettings
-{
-    bool visible;
-    bool snapenabled;
-    Vector3 stepsize;
-};
-
 class FullScreenFrame : public wxFrame
 {
 public:
@@ -143,12 +136,6 @@ protected:
     wxMenuItem* m_MenuItem_Debug_DrawPhysicsDebugShapes;
     wxMenuItem* m_MenuItem_Debug_ShowProfilingInfo;
 
-    bool m_ShowEditorIcons;
-    bool m_SelectedObjects_ShowWireframe;
-    bool m_SelectedObjects_ShowEffect;
-    GridSettings m_GridSettings;
-    bool m_Mode_SwitchFocusOnPlayStop;
-
     // Editor state values we don't save to disk
     unsigned int m_UndoStackDepthAtLastSave;
     int m_Hackery_Record_StackDepth;
@@ -167,12 +154,6 @@ public:
     wxTextCtrl* GetLogErrors() { return m_pLogErrors; }
 
     unsigned int GetUndoStackDepthAtLastSave() { return m_UndoStackDepthAtLastSave; }
-
-    bool ShowEditorIcons() { return m_ShowEditorIcons; }
-    bool SelectedObjects_ShowWireframe() { return m_SelectedObjects_ShowWireframe; }
-    bool SelectedObjects_ShowEffect() { return m_SelectedObjects_ShowEffect; }
-    bool Mode_SwitchFocusOnPlayStop() { return m_Mode_SwitchFocusOnPlayStop; }
-    GridSettings* GetGridSettings() { return &m_GridSettings; }
 
     // EngineMainFrame Methods
     virtual void InitFrame();
@@ -208,8 +189,8 @@ public:
     void SetLaunchPlatformIndex(int index);
 
     void SaveScene();
-    void SaveSceneAs(unsigned int sceneid);
-    void ExportBox2DScene(unsigned int sceneid);
+    void SaveSceneAs(SceneID sceneid);
+    void ExportBox2DScene(SceneID sceneid);
     void LoadSceneDialog(bool unloadscenes);
     void LoadScene(const char* scenename, bool unloadscenes);
 

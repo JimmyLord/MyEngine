@@ -11,7 +11,7 @@
 
 #include "PrefabManager.h"
 
-GameObject::GameObject(bool managed, int sceneid, bool isfolder, bool hastransform, PrefabReference* pPrefabRef)
+GameObject::GameObject(bool managed, SceneID sceneid, bool isfolder, bool hastransform, PrefabReference* pPrefabRef)
 {
     ClassnameSanityCheck();
 
@@ -126,6 +126,7 @@ void GameObject::LuaRegister(lua_State* luastate)
 }
 #endif //MYFW_USING_LUA
 
+#if MYFW_EDITOR
 #if MYFW_USING_WX
 void GameObject::OnTitleLabelClicked(int controlid, bool finishedchanging) // StaticOnTitleLabelClicked
 {
@@ -268,13 +269,16 @@ void GameObject::OnRightClick() // StaticOnRightClick
 
         // Have SceneHandler add all of it's options to the menu (Create GameObject, etc...).
         wxTreeItemId treeid = this->GetSceneInfo()->m_TreeID;
-        unsigned int sceneid = g_pComponentSystemManager->GetSceneIDFromSceneTreeID( treeid );
+        SceneID sceneid = g_pComponentSystemManager->GetSceneIDFromSceneTreeID( treeid );
 
-        SceneHandler* pSceneHandler = g_pComponentSystemManager->m_pSceneHandler;
-        pSceneHandler->AddGameObjectMenuOptionsToMenu( &menu, RightClick_AdditionalSceneHandlerOptions, sceneid );
+        if( sceneid != SCENEID_NotFound )
+        {
+            SceneHandler* pSceneHandler = g_pComponentSystemManager->m_pSceneHandler;
+            pSceneHandler->AddGameObjectMenuOptionsToMenu( &menu, RightClick_AdditionalSceneHandlerOptions, sceneid );
 
-        // Create prefab menu and submenus.
-        AddPrefabSubmenusToMenu( &menu, RightClick_CreatePrefab );
+            // Create prefab menu and submenus.
+            AddPrefabSubmenusToMenu( &menu, RightClick_CreatePrefab );
+        }
     }
 
     menu.Connect( wxEVT_COMMAND_MENU_SELECTED, (wxObjectEventFunction)&GameObject::OnPopupClick );
@@ -325,7 +329,7 @@ void GameObject::OnPopupClick(wxEvent &evt)
         if( g_pEngineCore->IsInEditorMode() )
             pComponent = pGameObject->AddNewComponent( type, pGameObject->GetSceneID() );
         else
-            pComponent = pGameObject->AddNewComponent( type, 0 );
+            pComponent = pGameObject->AddNewComponent( type, SCENEID_Unmanaged );
 
         pComponent->OnLoad();
     }
@@ -485,6 +489,7 @@ void GameObject::UpdateObjectListIcon()
     if( gameobjectid.IsOk() )
         g_pPanelObjectList->SetIcon( gameobjectid, iconindex );
 }
+#endif //MYFW_USING_WX
 
 void GameObject::FinishLoadingPrefab(PrefabFile* pPrefabFile)
 {
@@ -511,7 +516,9 @@ void GameObject::FinishLoadingPrefab(PrefabFile* pPrefabFile)
         }
     }
 
+#if MYFW_USING_WX
     UpdateObjectListIcon();
+#endif //MYFW_USING_WX
 }
 
 void GameObject::OnPrefabFileFinishedLoading(MyFileObject* pFile) // StaticOnPrefabFileFinishedLoading
@@ -540,7 +547,9 @@ void GameObject::Editor_SetPrefab(PrefabReference* pPrefabRef)
     m_PrefabRef = *pPrefabRef;
     m_pGameObjectThisInheritsFrom = m_PrefabRef.GetGameObject();
 
+#if MYFW_USING_WX
     UpdateObjectListIcon();
+#endif //MYFW_USING_WX
 }
 
 // Set the material on all renderable components attached to this object.
@@ -562,16 +571,20 @@ void GameObject::Editor_SetMaterial(MaterialDefinition* pMaterial)
                 // Go through same code to drop a material on the component, so inheritance and undo/redo will be handled
                 ComponentVariable* pVar = pRenderable->GetComponentVariableForMaterial( submeshindex );
 
+#if MYFW_USING_WX
                 g_DragAndDropStruct.Clear();
                 g_DragAndDropStruct.SetControlID( pVar->m_ControlID );
                 g_DragAndDropStruct.Add( DragAndDropType_MaterialDefinitionPointer, pMaterial );
 
                 pRenderable->OnDropVariable( pVar, 0, -1, -1 );
+#else
+
+#endif //MYFW_USING_WX
             }
         }
     }
 }
-#endif //MYFW_USING_WX
+#endif //MYFW_EDITOR
 
 cJSON* GameObject::ExportAsJSONObject(bool savesceneid)
 {
@@ -637,7 +650,7 @@ cJSON* GameObject::ExportAsJSONObject(bool savesceneid)
     return jGameObject;
 }
 
-void GameObject::ImportFromJSONObject(cJSON* jGameObject, unsigned int sceneid)
+void GameObject::ImportFromJSONObject(cJSON* jGameObject, SceneID sceneid)
 {
     // Load the correct GameObject ID
     cJSONExt_GetUnsignedInt( jGameObject, "ID", &m_ID );
@@ -706,7 +719,7 @@ void GameObject::ImportFromJSONObject(cJSON* jGameObject, unsigned int sceneid)
     SetSceneID( sceneid, false ); // set new scene, but don't assign a new GOID.
 
     m_PhysicsSceneID = m_SceneID;
-    cJSONExt_GetUnsignedInt( jGameObject, "PhysicsSceneID", &m_PhysicsSceneID );
+    cJSONExt_GetUnsignedInt( jGameObject, "PhysicsSceneID", (unsigned int*)&m_PhysicsSceneID );
 
     bool enabled = true;
     cJSONExt_GetBool( jGameObject, "Enabled", &enabled );
@@ -729,7 +742,7 @@ void GameObject::ImportInheritanceInfoFromJSONObject(cJSON* jGameObject)
     }
 }
 
-cJSON* GameObject::ExportReferenceAsJSONObject(unsigned int refsceneid)
+cJSON* GameObject::ExportReferenceAsJSONObject(SceneID refsceneid)
 {
     // see ComponentSystemManager::FindGameObjectByJSONRef
 
@@ -752,8 +765,8 @@ cJSON* GameObject::ExportAsJSONPrefab(PrefabObject* pPrefab, bool assignnewchild
     // Back-up sceneid.
     // Set gameobject to scene zero, so any gameobject references will store the sceneid when serialized (since they will differ)
     // Set it back later, without changing gameobject id.
-    unsigned int sceneidbackup = GetSceneID();
-    SetSceneID( 0, false );
+    SceneID sceneidbackup = GetSceneID();
+    SetSceneID( SCENEID_Unmanaged, false );
 
     // Don't export the ParentGOID, we'll ignore that it was parented at all.
     //// Transform/Heirarchy parent must be in the same scene.
@@ -890,7 +903,7 @@ void GameObject::UnregisterAllComponentCallbacks(bool ignoreenabledflag)
     }
 }
 
-void GameObject::SetSceneID(unsigned int sceneid, bool assignnewgoid)
+void GameObject::SetSceneID(SceneID sceneid, bool assignnewgoid)
 {
     if( m_SceneID == sceneid )
         return;
@@ -1110,7 +1123,7 @@ ComponentBase* GameObject::GetComponentByIndexIncludingCore(unsigned int index)
     }
 }
 
-ComponentBase* GameObject::AddNewComponent(int componenttype, unsigned int sceneid, ComponentSystemManager* pComponentSystemManager)
+ComponentBase* GameObject::AddNewComponent(int componenttype, SceneID sceneid, ComponentSystemManager* pComponentSystemManager)
 {
     MyAssert( componenttype != -1 );
 
@@ -1138,13 +1151,13 @@ ComponentBase* GameObject::AddNewComponent(int componenttype, unsigned int scene
         }
     }
 
-    if( sceneid != EngineCore::UNMANAGED_SCENE_ID )
+    if( sceneid != SCENEID_Unmanaged )
     {
         unsigned int id = pComponentSystemManager->GetNextComponentIDAndIncrement( sceneid );
         pComponent->SetID( id );
     }
 
-    MyAssert( sceneid == EngineCore::UNMANAGED_SCENE_ID || m_SceneID == sceneid );
+    MyAssert( sceneid == SCENEID_Unmanaged || m_SceneID == sceneid );
     pComponent->SetSceneID( sceneid );
 
     AddExistingComponent( pComponent, true );
@@ -1208,7 +1221,8 @@ ComponentBase* GameObject::AddExistingComponent(ComponentBase* pComponent, bool 
     // register this components callbacks.
     pComponent->RegisterCallbacks();
 
-    MyAssert( pComponent->GetSceneID() == 0 || m_SceneID == pComponent->GetSceneID() );
+    // pComponent->GetSceneID() == SCENEID_Unmanaged || 
+    MyAssert( m_SceneID == pComponent->GetSceneID() );
 
 #if MYFW_USING_WX
     if( m_Managed )

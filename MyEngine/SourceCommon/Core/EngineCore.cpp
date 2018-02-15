@@ -44,10 +44,10 @@ EngineCore::EngineCore()
 
     m_UnloadAllScenesNextTick = false;
     m_SceneReloadRequested = false;
-    for( int i=0; i<MAX_SCENE_FILES_QUEUED_UP; i++ )
+    for( int i=0; i<MAX_SCENES_QUEUED_TO_LOAD; i++ )
     {
         m_pSceneFilesLoading[i].m_pFile = 0;
-        m_pSceneFilesLoading[i].m_SceneID = -1;
+        m_pSceneFilesLoading[i].m_SceneID = SCENEID_NotSet;
     }
 
     m_pBulletWorld = 0;
@@ -65,9 +65,7 @@ EngineCore::EngineCore()
 #if MYFW_EDITOR
     m_pEditorPrefs = 0;
     m_pEditorState = 0;
-#if MYFW_USING_IMGUI
-    m_pEditorMainFrame_ImGui = 0;
-#endif //MYFW_USING_IMGUI
+    m_pEditorMainFrame = 0;
 
     m_Debug_DrawMousePickerFBO = false;
     m_Debug_DrawSelectedAnimatedMesh = false;
@@ -145,7 +143,7 @@ EngineCore::~EngineCore()
     SAFE_DELETE( m_pEditorPrefs );
     SAFE_DELETE( m_pEditorState );
 #if MYFW_USING_IMGUI
-    SAFE_DELETE( m_pEditorMainFrame_ImGui );
+    SAFE_DELETE( m_pEditorMainFrame );
 #endif //MYFW_USING_IMGUI
 
     SAFE_RELEASE( m_pSphereMeshFile );
@@ -237,7 +235,7 @@ void EngineCore::LuaRegister(lua_State* luastate)
         .beginClass<EngineCore>( "EngineCore" )
             .addFunction( "RequestScene", &EngineCore::RequestScene ) // void EngineCore::RequestScene(const char* fullpath)
             .addFunction( "SwitchScene", &EngineCore::SwitchScene ) // void EngineCore::SwitchScene(const char* fullpath)
-            .addFunction( "ReloadScene", &EngineCore::ReloadScene ) // void EngineCore::ReloadScene(unsigned int sceneid)
+            .addFunction( "ReloadScene", &EngineCore::ReloadScene ) // void EngineCore::ReloadScene(SceneID sceneid)
             //.addFunction( "SetMousePosition", &EngineCore::SetMousePosition )
         .endClass();
     
@@ -379,8 +377,9 @@ void EngineCore::OneTimeInit()
 #if MYFW_EDITOR
 #if MYFW_USING_IMGUI
         g_pImGuiManager->Init( m_WindowWidth, m_WindowHeight );
-        m_pEditorMainFrame_ImGui = MyNew EditorMainFrame_ImGui();
+        m_pEditorMainFrame = MyNew EditorMainFrame_ImGui();
 #elif MYFW_USING_WX
+        m_pEditorMainFrame = g_pEngineMainFrame;
         g_pImGuiManager->Init( 1000, 1000 );
 #endif
 
@@ -441,6 +440,15 @@ bool EngineCore::IsReadyToRender()
     return true;
 }
 
+void EngineCore::RequestClose()
+{
+#if MYFW_USING_IMGUI
+    ((EditorMainFrame_ImGui*)m_pEditorMainFrame)->RequestCloseWindow();
+#else
+    GameCore::RequestClose();
+#endif
+}
+
 double EngineCore::Tick(double TimePassed)
 {
 #if MYFW_USING_IMGUI
@@ -463,15 +471,15 @@ double EngineCore::Tick(double TimePassed)
     }
 
 #if MYFW_USING_IMGUI
-    if( m_pEditorMainFrame_ImGui )
+    if( m_pEditorMainFrame )
     {
-        m_pEditorMainFrame_ImGui->AddEverything();
+        ((EditorMainFrame_ImGui*)m_pEditorMainFrame)->AddEverything();
     }
 #endif
 
     if( m_UnloadAllScenesNextTick )
     {
-        UnloadScene( -1, true );
+        UnloadScene( SCENEID_AllScenes, true );
 #if MYFW_EDITOR
         // If switching scene while in the editor, delete the quick save.
         Editor_DeleteQuickScene( "temp_editor_onplay.scene" );
@@ -482,7 +490,7 @@ double EngineCore::Tick(double TimePassed)
 
     if( m_SceneReloadRequested )
     {
-        ReloadSceneInternal( 1 );
+        ReloadSceneInternal( SCENEID_MainScene );
         m_SceneReloadRequested = false;
         return 0;
     }
@@ -524,7 +532,7 @@ double EngineCore::Tick(double TimePassed)
     MyFileObject* pFile = m_pSceneFilesLoading[0].m_pFile;
     if( pFile && pFile->GetFileLoadStatus() == FileLoadStatus_Success )
     {
-        unsigned int sceneid = g_pComponentSystemManager->GetNextSceneID();
+        SceneID sceneid = g_pComponentSystemManager->GetNextSceneID();
 
         g_pComponentSystemManager->m_pSceneInfoMap[sceneid].Reset();
         g_pComponentSystemManager->m_pSceneInfoMap[sceneid].m_InUse = true;
@@ -551,12 +559,12 @@ double EngineCore::Tick(double TimePassed)
         SAFE_RELEASE( m_pSceneFilesLoading[0].m_pFile );
 
         // Shift all objects up a slot in the queue.
-        for( int i=0; i<MAX_SCENE_FILES_QUEUED_UP-1; i++ )
+        for( int i=0; i<MAX_SCENES_QUEUED_TO_LOAD-1; i++ )
         {
             m_pSceneFilesLoading[i] = m_pSceneFilesLoading[i+1];
         }
-        m_pSceneFilesLoading[MAX_SCENE_FILES_QUEUED_UP-1].m_pFile = 0;
-        m_pSceneFilesLoading[MAX_SCENE_FILES_QUEUED_UP-1].m_SceneID = 0;
+        m_pSceneFilesLoading[MAX_SCENES_QUEUED_TO_LOAD-1].m_pFile = 0;
+        m_pSceneFilesLoading[MAX_SCENES_QUEUED_TO_LOAD-1].m_SceneID = SCENEID_NotSet;
 
 #if !MYFW_EDITOR
         RegisterGameplayButtons();
@@ -597,7 +605,7 @@ double EngineCore::Tick(double TimePassed)
             m_TimeSinceLastPhysicsStep -= 1/60.0f;
             //m_pBulletWorld->PhysicsStep();
 
-            for( int i=0; i<g_pComponentSystemManager->MAX_SCENES_LOADED; i++ )
+            for( int i=0; i<MAX_SCENES_LOADED_INCLUDING_UNMANAGED; i++ )
             {
                 if( g_pComponentSystemManager->m_pSceneInfoMap[i].m_InUse && g_pComponentSystemManager->m_pSceneInfoMap[i].m_pBox2DWorld )
                 {
@@ -739,14 +747,14 @@ void EngineCore::OnDrawFrame(unsigned int canvasid)
 #endif
 
 #if MYFW_USING_IMGUI
-    if( m_pEditorMainFrame_ImGui )
+    if( m_pEditorMainFrame )
     {
         // Backup the window width/height.
         float windowwidth = GetWindowWidth();
         float windowheight = GetWindowHeight();
 
         // Draw the game and editor contents into textures.
-        m_pEditorMainFrame_ImGui->DrawGameAndEditorWindows( this );
+        ((EditorMainFrame_ImGui*)m_pEditorMainFrame)->DrawGameAndEditorWindows( this );
 
         // Reset to full window size.
         OnSurfaceChanged( 0, 0, (unsigned int)windowwidth, (unsigned int)windowheight );
@@ -1004,7 +1012,7 @@ void EngineCore::OnDropFile(const char* filename)
         return;
     }
 
-    g_pEngineCore->GetComponentSystemManager()->LoadDataFile( relativepath, 1, filename, true );
+    g_pEngineCore->GetComponentSystemManager()->LoadDataFile( relativepath, SCENEID_MainScene, filename, true );
 }
 
 
@@ -1259,7 +1267,7 @@ void EngineCore::OnModePlay()
 #if MYFW_USING_WX
         g_pEngineMainFrame->SetWindowPerspectiveToDefault();
 #endif
-        m_pComponentSystemManager->OnPlay( -1 );
+        m_pComponentSystemManager->OnPlay( SCENEID_AllScenes );
 
         RegisterGameplayButtons();
     }
@@ -1272,10 +1280,10 @@ void EngineCore::OnModeStop()
     if( m_EditorMode == false )
     {
         // Call OnStop() for all components.
-        m_pComponentSystemManager->OnStop( -1 );
+        m_pComponentSystemManager->OnStop( SCENEID_AllScenes );
 
         // Unload all runtime created objects.
-        UnloadScene( 0, false );
+        UnloadScene( SCENEID_Unmanaged, false );
 
         m_Paused = false;
 
@@ -1404,10 +1412,10 @@ bool EngineCore::HandleEditorInput(int canvasid, int keyaction, int keycode, int
     g_pImGuiManager->HandleInput( keyaction, keycode, mouseaction, id, x, y, pressure );
 
     // Pass all inputs to our imgui frame, which will deliver it to the correct window (game, editor or widget).
-    m_pEditorMainFrame_ImGui->HandleInput( keyaction, keycode, mouseaction, id, x, y, pressure );
+    bool inputused = ((EditorMainFrame_ImGui*)m_pEditorMainFrame)->HandleInput( keyaction, keycode, mouseaction, id, x, y, pressure );
 
-    // Since imgui is our main window frame, don't let other code get this input event.
-    return true;
+    // inputused will be false if the game window was in focus and the input event wasn't a hotkey.
+    return inputused;
 #endif
 
 #if MYFW_USING_WX
@@ -1441,10 +1449,10 @@ void EngineCore::CreateDefaultEditorSceneObjects()
 
     // create a 3D X/Z plane grid
     {
-        pGameObject = m_pComponentSystemManager->CreateGameObject( false, ENGINE_SCENE_ID ); // not managed.
+        pGameObject = m_pComponentSystemManager->CreateGameObject( false, SCENEID_EngineObjects ); // not managed.
         pGameObject->SetName( "3D Grid Plane" );
 
-        pComponentMesh = (ComponentMesh*)pGameObject->AddNewComponent( ComponentType_Mesh, ENGINE_SCENE_ID );
+        pComponentMesh = (ComponentMesh*)pGameObject->AddNewComponent( ComponentType_Mesh, SCENEID_EngineObjects );
         if( pComponentMesh )
         {
 #if MYFW_USING_WX
@@ -1467,11 +1475,11 @@ void EngineCore::CreateDefaultEditorSceneObjects()
     }
 
     // create a 3d transform gizmo for each axis.
-    m_pEditorState->m_pTransformGizmo->CreateAxisObjects( ENGINE_SCENE_ID, 0.03f, m_pEditorState );
+    m_pEditorState->m_pTransformGizmo->CreateAxisObjects( SCENEID_EngineObjects, 0.03f, m_pEditorState );
 
     // create a 3D editor camera, renders editor view.
     {
-        pGameObject = m_pComponentSystemManager->CreateGameObject( false, ENGINE_SCENE_ID ); // not managed.
+        pGameObject = m_pComponentSystemManager->CreateGameObject( false, SCENEID_EngineObjects ); // not managed.
         pGameObject->SetName( "Editor Camera" );
 #if MYFW_RIGHTHANDED
         pGameObject->GetTransform()->SetWorldPosition( Vector3( 0, 0, 10 ) );
@@ -1481,7 +1489,7 @@ void EngineCore::CreateDefaultEditorSceneObjects()
 
         // add an editor scene camera
         {
-            pComponentCamera = (ComponentCamera*)pGameObject->AddNewComponent( ComponentType_Camera, ENGINE_SCENE_ID );
+            pComponentCamera = (ComponentCamera*)pGameObject->AddNewComponent( ComponentType_Camera, SCENEID_EngineObjects );
             pComponentCamera->SetDesiredAspectRatio( 640, 960 );
             pComponentCamera->m_Orthographic = false;
             pComponentCamera->m_LayersToRender = Layer_Editor | Layer_MainScene;
@@ -1495,7 +1503,7 @@ void EngineCore::CreateDefaultEditorSceneObjects()
 
         // add a foreground camera for the transform gizmo only ATM.
         {
-            pComponentCamera = (ComponentCamera*)pGameObject->AddNewComponent( ComponentType_Camera, ENGINE_SCENE_ID );
+            pComponentCamera = (ComponentCamera*)pGameObject->AddNewComponent( ComponentType_Camera, SCENEID_EngineObjects );
             pComponentCamera->SetDesiredAspectRatio( 640, 960 );
             pComponentCamera->m_Orthographic = false;
             pComponentCamera->m_LayersToRender = Layer_EditorFG;
@@ -1520,7 +1528,7 @@ void EngineCore::CreateDefaultSceneObjects()
 
     // create a 3D camera, renders first... created first so GetFirstCamera() will get the game cam.
     {
-        pGameObject = m_pComponentSystemManager->CreateGameObject( true, 1 );
+        pGameObject = m_pComponentSystemManager->CreateGameObject( true, SCENEID_MainScene );
         pGameObject->SetName( "Main Camera" );
         pGameObject->SetFlags( 1<<0 );
 #if MYFW_RIGHTHANDED
@@ -1529,7 +1537,7 @@ void EngineCore::CreateDefaultSceneObjects()
         pGameObject->GetTransform()->SetWorldPosition( Vector3( 0, 0, -10 ) );
 #endif
 
-        pComponentCamera = (ComponentCamera*)pGameObject->AddNewComponent( ComponentType_Camera, 1 );
+        pComponentCamera = (ComponentCamera*)pGameObject->AddNewComponent( ComponentType_Camera, SCENEID_MainScene );
         pComponentCamera->SetDesiredAspectRatio( 640, 960 );
         pComponentCamera->m_Orthographic = false;
         pComponentCamera->m_LayersToRender = Layer_MainScene;
@@ -1537,11 +1545,11 @@ void EngineCore::CreateDefaultSceneObjects()
 
     // create a 2D camera, renders after 3d, for hud.
     {
-        pGameObject = m_pComponentSystemManager->CreateGameObject( true, 1 );
+        pGameObject = m_pComponentSystemManager->CreateGameObject( true, SCENEID_MainScene );
         pGameObject->SetName( "Hud Camera" );
         pGameObject->SetFlags( 1<<1 );
 
-        pComponentCamera = (ComponentCamera*)pGameObject->AddNewComponent( ComponentType_Camera, 1 );
+        pComponentCamera = (ComponentCamera*)pGameObject->AddNewComponent( ComponentType_Camera, SCENEID_MainScene );
         pComponentCamera->SetDesiredAspectRatio( 640, 960 );
         pComponentCamera->m_Orthographic = true;
         pComponentCamera->m_LayersToRender = Layer_HUD;
@@ -1551,12 +1559,12 @@ void EngineCore::CreateDefaultSceneObjects()
 }
 
 // Exposed to Lua, change elsewhere if function signature changes.
-void EngineCore::ReloadScene(unsigned int sceneid)
+void EngineCore::ReloadScene(SceneID sceneid)
 {
     m_SceneReloadRequested = true;
 }
 
-void EngineCore::ReloadSceneInternal(unsigned int sceneid)
+void EngineCore::ReloadSceneInternal(SceneID sceneid)
 {
     checkGlError( "start of ReloadSceneInternal" );
 
@@ -1565,7 +1573,7 @@ void EngineCore::ReloadSceneInternal(unsigned int sceneid)
     OnModeStop();
     char oldscenepath[MAX_PATH];
     sprintf_s( oldscenepath, MAX_PATH, "%s", g_pComponentSystemManager->m_pSceneInfoMap[sceneid].m_FullPath );
-    UnloadScene( -1, true );
+    UnloadScene( SCENEID_AllScenes, true );
     RequestedSceneInfo* pRequestedSceneInfo = RequestSceneInternal( oldscenepath );
     MyAssert( pRequestedSceneInfo );
     if( pRequestedSceneInfo )
@@ -1590,7 +1598,7 @@ RequestedSceneInfo* EngineCore::RequestSceneInternal(const char* fullpath)
 
     // check if scene is already queued up
     {
-        for( int i=0; i<MAX_SCENE_FILES_QUEUED_UP; i++ )
+        for( int i=0; i<MAX_SCENES_QUEUED_TO_LOAD; i++ )
         {
             MyFileObject* pFile = m_pSceneFilesLoading[i].m_pFile;
             if( pFile && strcmp( pFile->GetFullPath(), fullpath ) == 0 )
@@ -1599,18 +1607,18 @@ RequestedSceneInfo* EngineCore::RequestSceneInternal(const char* fullpath)
     }
 
     int i;
-    for( i=0; i<MAX_SCENE_FILES_QUEUED_UP; i++ )
+    for( i=0; i<MAX_SCENES_QUEUED_TO_LOAD; i++ )
     {
         if( m_pSceneFilesLoading[i].m_pFile == 0 )
             break;
     }
     
-    MyAssert( i != MAX_SCENE_FILES_QUEUED_UP ); // Too many scenes queued up.
-    if( i == MAX_SCENE_FILES_QUEUED_UP )
+    MyAssert( i != MAX_SCENES_QUEUED_TO_LOAD ); // Too many scenes queued up.
+    if( i == MAX_SCENES_QUEUED_TO_LOAD )
         return 0;
 
     m_pSceneFilesLoading[i].m_pFile = g_pEngineFileManager->RequestFile_UntrackedByScene( fullpath );
-    m_pSceneFilesLoading[i].m_SceneID = -1;
+    m_pSceneFilesLoading[i].m_SceneID = SCENEID_NotSet;
 
     return &m_pSceneFilesLoading[i];
 }
@@ -1636,7 +1644,7 @@ void EngineCore::SwitchScene(const char* fullpath)
     }
 }
 
-void EngineCore::SaveScene(const char* fullpath, unsigned int sceneid)
+void EngineCore::SaveScene(const char* fullpath, SceneID sceneid)
 {
     char* savestring = g_pComponentSystemManager->SaveSceneToJSON( sceneid );
 
@@ -1655,7 +1663,7 @@ void EngineCore::SaveScene(const char* fullpath, unsigned int sceneid)
     cJSONExt_free( savestring );
 }
 
-void EngineCore::ExportBox2DScene(const char* fullpath, unsigned int sceneid)
+void EngineCore::ExportBox2DScene(const char* fullpath, SceneID sceneid)
 {
     char* savestring = g_pComponentSystemManager->ExportBox2DSceneToJSON( sceneid );
 
@@ -1674,13 +1682,13 @@ void EngineCore::ExportBox2DScene(const char* fullpath, unsigned int sceneid)
     cJSONExt_free( savestring );
 }
 
-void EngineCore::UnloadScene(unsigned int sceneid, bool cleareditorobjects)
+void EngineCore::UnloadScene(SceneID sceneid, bool cleareditorobjects)
 {
     m_pLuaGameState->Rebuild(); // reset the lua state.
 
     g_pComponentSystemManager->UnloadScene( sceneid, false );
 
-    if( sceneid == UINT_MAX && m_FreeAllMaterialsAndTexturesWhenUnloadingScene )
+    if( sceneid == SCENEID_AllScenes && m_FreeAllMaterialsAndTexturesWhenUnloadingScene )
     {
         // temp code while RTQGlobals is a thing.
         SAFE_RELEASE( g_pRTQGlobals->m_pMaterial );
@@ -1688,10 +1696,10 @@ void EngineCore::UnloadScene(unsigned int sceneid, bool cleareditorobjects)
 
     // reset the editorstate structure.
 #if MYFW_EDITOR
-    if( sceneid != EngineCore::UNMANAGED_SCENE_ID )
+    if( sceneid != SCENEID_Unmanaged )
     {
 #if MYFW_USING_IMGUI
-        m_pEditorMainFrame_ImGui->StoreCurrentUndoStackSize();
+        ((EditorMainFrame_ImGui*)m_pEditorMainFrame)->StoreCurrentUndoStackSize();
 #endif
 #if MYFW_USING_WX
         g_pEngineMainFrame->m_pCommandStack->ClearStacks();
@@ -1705,9 +1713,9 @@ void EngineCore::UnloadScene(unsigned int sceneid, bool cleareditorobjects)
 }
 
 #if MYFW_EDITOR
-unsigned int EngineCore::LoadSceneFromFile(const char* fullpath)
+SceneID EngineCore::LoadSceneFromFile(const char* fullpath)
 {
-    unsigned int sceneid = g_pComponentSystemManager->GetNextSceneID();
+    SceneID sceneid = g_pComponentSystemManager->GetNextSceneID();
 
     FILE* filehandle;
 #if MYFW_WINDOWS
@@ -1744,8 +1752,9 @@ unsigned int EngineCore::LoadSceneFromFile(const char* fullpath)
             //     otherwise we need to decide if "play" should be called.
             bool playwhenfinishedloading = false;
 
-            if( sceneid != 1 )
+            if( sceneid != SCENEID_MainScene )
             {
+                // Only start playing if the main scene is loaded, but secondary-scenes.
                 playwhenfinishedloading = false;
             }
 #if MYFW_EDITOR
@@ -1777,7 +1786,7 @@ unsigned int EngineCore::LoadSceneFromFile(const char* fullpath)
 
 void EngineCore::Editor_QuickSaveScene(const char* fullpath)
 {
-    char* savestring = g_pComponentSystemManager->SaveSceneToJSON( UINT_MAX );
+    char* savestring = g_pComponentSystemManager->SaveSceneToJSON( SCENEID_TempPlayStop );
 
     FILE* filehandle;
 #if MYFW_WINDOWS
@@ -1826,7 +1835,7 @@ void EngineCore::Editor_QuickLoadScene(const char* fullpath)
             playwhenfinishedloading = true;
 #endif
 
-            LoadSceneFromJSON( fullpath, jsonstr, UINT_MAX, playwhenfinishedloading );
+            LoadSceneFromJSON( fullpath, jsonstr, SCENEID_TempPlayStop, playwhenfinishedloading );
 
             // Probably shouldn't bother with a rewind,
             //   might cause issues in future if LoadSceneFromJSON() uses stack and wants to keep info around
@@ -1843,9 +1852,9 @@ void EngineCore::Editor_DeleteQuickScene(const char* fullpath)
 }
 #endif //MYFW_EDITOR
 
-void EngineCore::LoadSceneFromJSON(const char* scenename, const char* jsonstr, unsigned int sceneid, bool playwhenfinishedloading)
+void EngineCore::LoadSceneFromJSON(const char* scenename, const char* jsonstr, SceneID sceneid, bool playwhenfinishedloading)
 {
-    if( sceneid != -1 ) // -1 is the temp save when hitting play/stop.
+    if( sceneid != SCENEID_TempPlayStop )
     {
         LOGInfo( LOGTag, "Loading scene file(%d): %s\n", sceneid, scenename );
     }

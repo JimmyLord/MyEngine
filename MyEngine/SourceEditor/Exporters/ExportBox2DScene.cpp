@@ -151,18 +151,18 @@ cJSON* ExportGameObject(cJSON* jGameObjectArray, GameObject* pGameObject)
     return jGameObject;
 }
 
-char* ExportBox2DSceneToJSON(ComponentSystemManager* pComponentSystemManager, unsigned int sceneid)
+char* ExportBox2DSceneToJSON(ComponentSystemManager* pComponentSystemManager, SceneID sceneid)
 {
     cJSON* jRoot = cJSON_CreateObject();
     
     cJSON* jGameObjectArray = cJSON_CreateArray();
     cJSON_AddItemToObject( jRoot, "GameObjects", jGameObjectArray );
 
-    bool savingallscenes = (sceneid == UINT_MAX);
+    bool savingallscenes = (sceneid == SCENEID_AllScenes);
 
     // add the game objects and their transform components.
     {
-        for( unsigned int i=0; i<ComponentSystemManager::MAX_SCENES_LOADED; i++ )
+        for( unsigned int i=0; i<MAX_SCENES_LOADED_INCLUDING_UNMANAGED; i++ )
         {
             if( pComponentSystemManager->m_pSceneInfoMap[i].m_InUse == false )
                 continue;

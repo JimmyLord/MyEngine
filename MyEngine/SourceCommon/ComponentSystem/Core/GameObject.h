@@ -38,9 +38,9 @@ protected:
 
     bool m_Enabled;
     bool m_IsFolder;
-    unsigned int m_SceneID; // 0 for runtime generated.
+    SceneID m_SceneID;
     unsigned int m_ID;
-    unsigned int m_PhysicsSceneID; // can't be 0 (runtime scene) if a collision component exists
+    SceneID m_PhysicsSceneID; // can't be SCENEID_Unmanaged (runtime scene) if a collision component exists
     char* m_Name; // this a copy of the string passed in.
     bool m_Managed;
 
@@ -53,7 +53,7 @@ protected:
     void NotifyOthersThisWasDeleted();
 
 public:
-    GameObject(bool managed, int sceneid, bool isfolder, bool hastransform, PrefabReference* pPrefabRef);
+    GameObject(bool managed, SceneID sceneid, bool isfolder, bool hastransform, PrefabReference* pPrefabRef);
     virtual ~GameObject();
     SetClassnameBase( "GameObject" ); // only first 8 character count.
 
@@ -74,9 +74,9 @@ public:
 #endif //MYFW_USING_LUA
 
     cJSON* ExportAsJSONObject(bool savesceneid);
-    void ImportFromJSONObject(cJSON* jGameObject, unsigned int sceneid);
+    void ImportFromJSONObject(cJSON* jGameObject, SceneID sceneid);
     void ImportInheritanceInfoFromJSONObject(cJSON* jGameObject);
-    cJSON* ExportReferenceAsJSONObject(unsigned int refsceneid);
+    cJSON* ExportReferenceAsJSONObject(SceneID refsceneid);
     cJSON* ExportAsJSONPrefab(PrefabObject* pPrefab, bool assignnewchildids);
 
     void SetFlags(unsigned int flags) { return m_Properties.SetFlags( flags ); }
@@ -86,7 +86,7 @@ public:
     void SetEnabled(bool enabled, bool affectchildren);
     void RegisterAllComponentCallbacks(bool ignoreenabledflag);
     void UnregisterAllComponentCallbacks(bool ignoreenabledflag);
-    void SetSceneID(unsigned int sceneid, bool assignnewgoid = true);
+    void SetSceneID(SceneID sceneid, bool assignnewgoid = true);
     void SetID(unsigned int id);
     void SetName(const char* name);
 
@@ -97,13 +97,13 @@ public:
     bool IsManaged() { return m_Managed; }
 
     bool IsEnabled() { return m_Enabled; }
-    unsigned int GetSceneID() { return m_SceneID; }
+    SceneID GetSceneID() { return m_SceneID; }
     SceneInfo* GetSceneInfo() { return g_pComponentSystemManager->GetSceneInfo( m_SceneID ); }
     unsigned int GetID() { return m_ID; }
     const char* GetName() { return m_Name; }
 
-    void SetPhysicsSceneID(unsigned int id) { m_PhysicsSceneID = id; }
-    unsigned int GetPhysicsSceneID() { return m_PhysicsSceneID; }
+    void SetPhysicsSceneID(SceneID id) { m_PhysicsSceneID = id; }
+    SceneID GetPhysicsSceneID() { return m_PhysicsSceneID; }
 
     unsigned int GetComponentCountIncludingCore();
     ComponentBase* GetComponentByIndexIncludingCore(unsigned int index);
@@ -111,7 +111,7 @@ public:
     unsigned int GetComponentCount();
     ComponentBase* GetComponentByIndex(unsigned int index);
 
-    ComponentBase* AddNewComponent(int componenttype, unsigned int sceneid, ComponentSystemManager* pComponentSystemManager = g_pComponentSystemManager);
+    ComponentBase* AddNewComponent(int componenttype, SceneID sceneid, ComponentSystemManager* pComponentSystemManager = g_pComponentSystemManager);
     ComponentBase* AddExistingComponent(ComponentBase* pComponent, bool resetcomponent);
     ComponentBase* RemoveComponent(ComponentBase* pComponent);
 
@@ -151,6 +151,7 @@ public:
     void OnTransformChanged(Vector3& newpos, Vector3& newrot, Vector3& newscale, bool changedbyuserineditor);
 
 public:
+#if MYFW_EDITOR
 #if MYFW_USING_WX
     enum RightClickOptions
     {
@@ -190,6 +191,7 @@ public:
     void OnLabelEdit(wxString newlabel);
 
     void UpdateObjectListIcon();
+#endif //MYFW_USING_WX
 
     // Prefab Loading Vars // Variables moved into prefabref object.
     void FinishLoadingPrefab(PrefabFile* pPrefabFile);
@@ -203,7 +205,7 @@ public:
 
     // Editor functions
     void AddToList(std::vector<GameObject*>* pList);
-#endif //MYFW_USING_WX
+#endif //MYFW_EDITOR
 };
 
 #endif //__GameObject_H__

@@ -379,7 +379,7 @@ void ComponentVoxelMesh::OnButtonEditMesh(int buttonid)
 //    return jComponent;
 //}
 
-void ComponentVoxelMesh::ImportFromJSONObject(cJSON* jComponent, unsigned int sceneid)
+void ComponentVoxelMesh::ImportFromJSONObject(cJSON* jComponent, SceneID sceneid)
 {
     ComponentMesh::ImportFromJSONObject( jComponent, sceneid );
 }

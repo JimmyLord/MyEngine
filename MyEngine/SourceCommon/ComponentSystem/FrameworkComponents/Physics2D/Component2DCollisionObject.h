@@ -61,7 +61,7 @@ public:
 #endif //MYFW_USING_LUA
 
     virtual cJSON* ExportAsJSONObject(bool savesceneid, bool saveid);
-    virtual void ImportFromJSONObject(cJSON* jsonobj, unsigned int sceneid);
+    virtual void ImportFromJSONObject(cJSON* jsonobj, SceneID sceneid);
 
     virtual void Reset();
     virtual void CopyFromSameType_Dangerous(ComponentBase* pObject) { *this = (Component2DCollisionObject&)*pObject; }

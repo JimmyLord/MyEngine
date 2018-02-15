@@ -55,10 +55,10 @@ void EditorInterface_2DPointEditor::OnActivated()
         GameObject* pGameObject;
         ComponentMesh* pComponentMesh;
 
-        pGameObject = g_pComponentSystemManager->CreateGameObject( false, EngineCore::ENGINE_SCENE_ID ); // not managed.
+        pGameObject = g_pComponentSystemManager->CreateGameObject( false, SCENEID_EngineObjects ); // not managed.
         pGameObject->SetName( "2D point editor - point" );
 
-        pComponentMesh = (ComponentMesh*)pGameObject->AddNewComponent( ComponentType_Mesh, EngineCore::ENGINE_SCENE_ID );
+        pComponentMesh = (ComponentMesh*)pGameObject->AddNewComponent( ComponentType_Mesh, SCENEID_EngineObjects );
         if( pComponentMesh )
         {
             pComponentMesh->SetVisible( true );
@@ -131,7 +131,7 @@ void EditorInterface_2DPointEditor::OnDrawFrame(unsigned int canvasid)
     // Draw Box2D debug data
     if( g_pEngineCore->GetDebug_DrawPhysicsDebugShapes() && g_GLCanvasIDActive == 1 )
     {
-        for( int i=0; i<g_pComponentSystemManager->MAX_SCENES_LOADED; i++ )
+        for( int i=0; i<MAX_SCENES_LOADED_INCLUDING_UNMANAGED; i++ )
         {
             if( g_pComponentSystemManager->m_pSceneInfoMap[i].m_InUse && g_pComponentSystemManager->m_pSceneInfoMap[i].m_pBox2DWorld )
                 g_pComponentSystemManager->m_pSceneInfoMap[i].m_pBox2DWorld->m_pWorld->DrawDebugData();

@@ -622,7 +622,7 @@ GameObject* EditorInterface::GetObjectAtPixel(unsigned int x, unsigned int y, bo
 
     unsigned int id = GetIDAtPixel( x, y, createnewbitmap, includetransformgizmo );
 
-    unsigned int sceneid = (unsigned int)(id / 100000);
+    SceneID sceneid = (SceneID)(id / 100000);
     id = id % 100000;
 
     // find the object clicked on.
@@ -725,7 +725,7 @@ void EditorInterface::SelectObjectsInRectangle(unsigned int sx, unsigned int sy,
         unsigned long long id = pixels[offset+0] + pixels[offset+1]*256 + pixels[offset+2]*256*256 + pixels[offset+3]*256*256*256;
         id = (((uint64_t)UINT_MAX+1) * (id % 641) + id) / 641; // 1, 641, 6700417, 4294967297,
 
-        unsigned int sceneid = (unsigned int)id / 100000;
+        SceneID sceneid = (SceneID)(id / 100000);
         id = id % 100000;
 
         // if the object's not already selected, select it.
@@ -743,7 +743,7 @@ void EditorInterface::SelectObjectsInRectangle(unsigned int sx, unsigned int sy,
             unsigned long long id = pixels[offset+0] + pixels[offset+1]*256 + pixels[offset+2]*256*256 + pixels[offset+3]*256*256*256;
             id = (((uint64_t)UINT_MAX+1) * (id % 641) + id) / 641; // 1, 641, 6700417, 4294967297,
 
-            unsigned int sceneid = (unsigned int)id / 100000;
+            SceneID sceneid = (SceneID)(id / 100000);
             id = id % 100000;
 
             // if the object's not already selected, select it.

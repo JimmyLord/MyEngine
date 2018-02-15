@@ -216,7 +216,7 @@ cJSON* ComponentAudioPlayer::ExportAsJSONObject(bool savesceneid, bool saveid)
     return jComponent;
 }
 
-void ComponentAudioPlayer::ImportFromJSONObject(cJSON* jComponent, unsigned int sceneid)
+void ComponentAudioPlayer::ImportFromJSONObject(cJSON* jComponent, SceneID sceneid)
 {
     ComponentBase::ImportFromJSONObject( jComponent, sceneid );
 

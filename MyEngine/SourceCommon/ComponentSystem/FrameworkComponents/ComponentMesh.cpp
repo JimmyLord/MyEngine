@@ -129,7 +129,7 @@ void ComponentMesh::LuaRegister(lua_State* luastate)
 }
 #endif //MYFW_USING_LUA
 
-#if MYFW_USING_WX
+#if MYFW_EDITOR
 ComponentVariable* ComponentMesh::GetComponentVariableForMaterial(int submeshindex)
 {
     char temp[20];
@@ -138,6 +138,7 @@ ComponentVariable* ComponentMesh::GetComponentVariableForMaterial(int submeshind
     return FindComponentVariableByLabel( &m_ComponentVariableList_ComponentMesh, temp );
 }
 
+#if MYFW_USING_WX
 void ComponentMesh::AddToObjectsPanel(wxTreeItemId gameobjectid)
 {
     MyAssert( gameobjectid.IsOk() );
@@ -226,7 +227,6 @@ void ComponentMesh::OnExpandMaterialClicked(int controlid)
 }
 #endif //MYFW_USING_WX
 
-#if MYFW_EDITOR
 void* ComponentMesh::OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue* pNewValue)
 {
     void* oldpointer = 0;
@@ -348,7 +348,7 @@ cJSON* ComponentMesh::ExportAsJSONObject(bool savesceneid, bool saveid)
     return jComponent;
 }
 
-void ComponentMesh::ImportFromJSONObject(cJSON* jComponentMesh, unsigned int sceneid)
+void ComponentMesh::ImportFromJSONObject(cJSON* jComponentMesh, SceneID sceneid)
 {
     ComponentRenderable::ImportFromJSONObject( jComponentMesh, sceneid );
 

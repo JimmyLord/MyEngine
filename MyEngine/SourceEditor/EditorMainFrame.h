@@ -50,13 +50,31 @@ extern const char* g_DefaultPerspectiveMenuLabels[Perspective_NumPerspectives];
 extern const char* g_DefaultEngineEditorWindowTypeMenuLabels[EngineEditorWindow_NumTypes];
 extern const char* g_LaunchPlatformsMenuLabels[LaunchPlatform_NumPlatforms];
 
+struct GridSettings
+{
+    bool visible;
+    bool snapenabled;
+    Vector3 stepsize;
+};
+
 class EditorMainFrame
 {
 protected:
+    bool m_ShowEditorIcons;
+    bool m_SelectedObjects_ShowWireframe;
+    bool m_SelectedObjects_ShowEffect;
+    bool m_Mode_SwitchFocusOnPlayStop;
+    GridSettings m_GridSettings;
 
 public:
     EditorMainFrame();
-    ~EditorMainFrame();
+    virtual ~EditorMainFrame();
+
+    bool ShowEditorIcons() { return m_ShowEditorIcons; }
+    bool SelectedObjects_ShowWireframe() { return m_SelectedObjects_ShowWireframe; }
+    bool SelectedObjects_ShowEffect() { return m_SelectedObjects_ShowEffect; }
+    bool Mode_SwitchFocusOnPlayStop() { return m_Mode_SwitchFocusOnPlayStop; }
+    GridSettings* GetGridSettings() { return &m_GridSettings; }
 };
 
 #endif //__EditorMainFrame_H__

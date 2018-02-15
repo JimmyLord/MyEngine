@@ -44,66 +44,6 @@ void ComponentPostEffect::RegisterVariables(CPPListHead* pList, ComponentPostEff
             0, 0 ); //ComponentPostEffect::StaticOnDrop, 0 );
 }
 
-#if MYFW_USING_WX
-ComponentVariable* ComponentPostEffect::GetComponentVariableForMaterial(int submeshindex)
-{
-    return 0; //FindComponentVariableByLabel( &m_ComponentVariableList_ComponentPostEffect, "Material" );
-}
-
-void ComponentPostEffect::AddToObjectsPanel(wxTreeItemId gameobjectid)
-{
-    g_pPanelObjectList->AddObject( this, ComponentPostEffect::StaticOnLeftClick, ComponentData::StaticOnRightClick, gameobjectid, "Post Effect", ObjectListIcon_Component );
-}
-
-void ComponentPostEffect::OnLeftClick(unsigned int count, bool clear)
-{
-    ComponentData::OnLeftClick( count, clear );
-}
-
-void ComponentPostEffect::FillPropertiesWindow(bool clear, bool addcomponentvariables, bool ignoreblockvisibleflag)
-{
-    m_ControlID_ComponentTitleLabel = g_pPanelWatch->AddSpace( "Post Effect", this, ComponentData::StaticOnComponentTitleLabelClicked );
-
-    if( m_PanelWatchBlockVisible || ignoreblockvisibleflag == true )
-    {
-        ComponentData::FillPropertiesWindow( clear );
-
-        FillPropertiesWindowWithVariables(); //_VARIABLE_LIST
-
-        const char* desc = "no material";
-        if( m_pMaterial && m_pMaterial->GetFile() )
-            desc = m_pMaterial->GetMaterialShortDescription();
-        g_pPanelWatch->AddPointerWithDescription( "Material", 0, desc, this, ComponentPostEffect::StaticOnDropMaterial );
-    }
-}
-
-void ComponentPostEffect::OnDropMaterial(int controlid, wxCoord x, wxCoord y)
-{
-    DragAndDropItem* pDropItem = g_DragAndDropStruct.GetItem( 0 );
-
-    if( pDropItem->m_Type == DragAndDropType_MaterialDefinitionPointer )
-    {
-        MaterialDefinition* pMaterial = (MaterialDefinition*)pDropItem->m_Value;
-        MyAssert( pMaterial );
-
-        SetMaterial( pMaterial );
-
-        // update the panel so new Material name shows up.
-        if( pMaterial->GetFile() )
-            g_pPanelWatch->GetVariableProperties( g_DragAndDropStruct.GetControlID() )->m_Description = pMaterial->GetMaterialShortDescription();
-    }
-}
-#endif //MYFW_USING_WX
-
-#if MYFW_EDITOR
-void* ComponentPostEffect::OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue* pNewValue)
-{
-    void* oldpointer = 0;
-
-    return oldpointer;
-}
-#endif //MYFW_EDITOR
-
 cJSON* ComponentPostEffect::ExportAsJSONObject(bool savesceneid, bool saveid)
 {
     cJSON* component = ComponentData::ExportAsJSONObject( savesceneid, saveid );
@@ -114,7 +54,7 @@ cJSON* ComponentPostEffect::ExportAsJSONObject(bool savesceneid, bool saveid)
     return component;
 }
 
-void ComponentPostEffect::ImportFromJSONObject(cJSON* jsonobj, unsigned int sceneid)
+void ComponentPostEffect::ImportFromJSONObject(cJSON* jsonobj, SceneID sceneid)
 {
     ComponentData::ImportFromJSONObject( jsonobj, sceneid );
 
@@ -193,3 +133,63 @@ void ComponentPostEffect::Render(FBODefinition* pFBO)
         m_pFullScreenQuad->DeactivateShader();
     }
 }
+
+#if MYFW_EDITOR
+ComponentVariable* ComponentPostEffect::GetComponentVariableForMaterial(int submeshindex)
+{
+    return 0; //FindComponentVariableByLabel( &m_ComponentVariableList_ComponentPostEffect, "Material" );
+}
+
+#if MYFW_USING_WX
+void ComponentPostEffect::AddToObjectsPanel(wxTreeItemId gameobjectid)
+{
+    g_pPanelObjectList->AddObject( this, ComponentPostEffect::StaticOnLeftClick, ComponentData::StaticOnRightClick, gameobjectid, "Post Effect", ObjectListIcon_Component );
+}
+
+void ComponentPostEffect::OnLeftClick(unsigned int count, bool clear)
+{
+    ComponentData::OnLeftClick( count, clear );
+}
+
+void ComponentPostEffect::FillPropertiesWindow(bool clear, bool addcomponentvariables, bool ignoreblockvisibleflag)
+{
+    m_ControlID_ComponentTitleLabel = g_pPanelWatch->AddSpace( "Post Effect", this, ComponentData::StaticOnComponentTitleLabelClicked );
+
+    if( m_PanelWatchBlockVisible || ignoreblockvisibleflag == true )
+    {
+        ComponentData::FillPropertiesWindow( clear );
+
+        FillPropertiesWindowWithVariables(); //_VARIABLE_LIST
+
+        const char* desc = "no material";
+        if( m_pMaterial && m_pMaterial->GetFile() )
+            desc = m_pMaterial->GetMaterialShortDescription();
+        g_pPanelWatch->AddPointerWithDescription( "Material", 0, desc, this, ComponentPostEffect::StaticOnDropMaterial );
+    }
+}
+
+void ComponentPostEffect::OnDropMaterial(int controlid, wxCoord x, wxCoord y)
+{
+    DragAndDropItem* pDropItem = g_DragAndDropStruct.GetItem( 0 );
+
+    if( pDropItem->m_Type == DragAndDropType_MaterialDefinitionPointer )
+    {
+        MaterialDefinition* pMaterial = (MaterialDefinition*)pDropItem->m_Value;
+        MyAssert( pMaterial );
+
+        SetMaterial( pMaterial );
+
+        // update the panel so new Material name shows up.
+        if( pMaterial->GetFile() )
+            g_pPanelWatch->GetVariableProperties( g_DragAndDropStruct.GetControlID() )->m_Description = pMaterial->GetMaterialShortDescription();
+    }
+}
+#endif //MYFW_USING_WX
+
+void* ComponentPostEffect::OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue* pNewValue)
+{
+    void* oldpointer = 0;
+
+    return oldpointer;
+}
+#endif //MYFW_EDITOR

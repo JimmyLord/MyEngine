@@ -138,7 +138,7 @@ void* ComponentTemplate::OnValueChanged(ComponentVariable* pVar, bool changedbyi
 //    return jComponent;
 //}
 //
-//void ComponentTemplate::ImportFromJSONObject(cJSON* jComponent, unsigned int sceneid)
+//void ComponentTemplate::ImportFromJSONObject(cJSON* jComponent, SceneID sceneid)
 //{
 //    ComponentBase::ImportFromJSONObject( jComponent, sceneid );
 //}

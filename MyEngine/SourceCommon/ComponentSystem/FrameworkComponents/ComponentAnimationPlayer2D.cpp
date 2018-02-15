@@ -220,7 +220,7 @@ cJSON* ComponentAnimationPlayer2D::ExportAsJSONObject(bool savesceneid, bool sav
     return jComponent;
 }
 
-void ComponentAnimationPlayer2D::ImportFromJSONObject(cJSON* jComponent, unsigned int sceneid)
+void ComponentAnimationPlayer2D::ImportFromJSONObject(cJSON* jComponent, SceneID sceneid)
 {
     ComponentBase::ImportFromJSONObject( jComponent, sceneid );
 

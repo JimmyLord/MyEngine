@@ -50,7 +50,7 @@ enum EditorInterfaceTypes
 struct RequestedSceneInfo
 {
     MyFileObject* m_pFile; // acts as a flag whether or not scene was requested.
-    unsigned int m_SceneID; // generally -1, unless scene requested for specific slot.
+    SceneID m_SceneID; // generally -1, unless scene requested for specific slot.
 };
 
 struct FrameTimingInfo
@@ -67,12 +67,11 @@ extern void OnFileUpdated_CallbackFunction(MyFileObject* pFile);
 class EngineCore : public GameCore
 {
     friend class EngineMainFrame;
+    friend class EditorMainFrame_ImGui;
 
 public:
+    static const int MAX_SCENES_QUEUED_TO_LOAD = 5;
     static const int MAX_FRAMES_TO_STORE = 60*30; // 30 seconds @ 60fps
-    static const int UNMANAGED_SCENE_ID = 0; // For unmanaged/runtime objects, might still be hard-coded as 0 in some places.
-    static const int ENGINE_SCENE_ID = 9; //9879;
-    static const int MAX_SCENE_FILES_QUEUED_UP = 10;
 
 protected:
     ComponentSystemManager* m_pComponentSystemManager;
@@ -123,7 +122,9 @@ protected:
 protected:
     bool m_UnloadAllScenesNextTick;
     bool m_SceneReloadRequested;
-    RequestedSceneInfo m_pSceneFilesLoading[MAX_SCENE_FILES_QUEUED_UP]; // TODO: replace this monstrosity with an ordered list.
+    
+    // TODO: replace this monstrosity with an ordered list.
+    RequestedSceneInfo m_pSceneFilesLoading[MAX_SCENES_QUEUED_TO_LOAD];
 
 #if MYFW_PROFILING_ENABLED
     FrameTimingInfo m_FrameTimingInfo[MAX_FRAMES_TO_STORE];
@@ -133,9 +134,7 @@ protected:
 #if MYFW_EDITOR
     EditorPrefs* m_pEditorPrefs;
     EditorState* m_pEditorState;
-#if MYFW_USING_IMGUI
-    EditorMainFrame_ImGui* m_pEditorMainFrame_ImGui;
-#endif //MYFW_USING_IMGUI
+    EditorMainFrame* m_pEditorMainFrame;
 
     bool m_Debug_DrawMousePickerFBO;
     bool m_Debug_DrawSelectedAnimatedMesh;
@@ -171,6 +170,7 @@ public:
     const char* GetGameObjectFlagString(unsigned int num) { MyAssert( num < 32 ); return m_GameObjectFlagStrings[num]; }
 
     bool GetDebug_DrawWireframe() { return m_Debug_DrawWireframe; }
+    void ToggleDebug_DrawWireframe() { m_Debug_DrawWireframe = !m_Debug_DrawWireframe; }
 
     ShaderGroup* GetShader_TintColor()       { return m_pShader_TintColor; }
     ShaderGroup* GetShader_SelectedObjects() { return m_pShader_SelectedObjects; }
@@ -194,6 +194,8 @@ public:
 
     virtual void OneTimeInit();
     virtual bool IsReadyToRender();
+
+    virtual void RequestClose(); // Override GameCore, will popup a confirm dialog in ImGui Editor builds.
 
     virtual double Tick(double TimePassed);
     virtual void OnFocusGained();
@@ -225,23 +227,24 @@ public:
 
     void CreateDefaultEditorSceneObjects();
     void CreateDefaultSceneObjects();
-    void ReloadScene(unsigned int sceneid);
-    void ReloadSceneInternal(unsigned int sceneid);
+    void ReloadScene(SceneID sceneid);
+    void ReloadSceneInternal(SceneID sceneid);
     void RequestScene(const char* fullpath);
     RequestedSceneInfo* RequestSceneInternal(const char* fullpath);
     void SwitchScene(const char* fullpath);
-    void SaveScene(const char* fullpath, unsigned int sceneid);
-    void ExportBox2DScene(const char* fullpath, unsigned int sceneid);
-    void UnloadScene(unsigned int sceneid, bool cleareditorobjects);
-    void LoadSceneFromJSON(const char* scenename, const char* jsonstr, unsigned int sceneid, bool playwhenfinishedloading);
+    void SaveScene(const char* fullpath, SceneID sceneid);
+    void ExportBox2DScene(const char* fullpath, SceneID sceneid);
+    void UnloadScene(SceneID sceneid, bool cleareditorobjects);
+    void LoadSceneFromJSON(const char* scenename, const char* jsonstr, SceneID sceneid, bool playwhenfinishedloading);
 
 #if MYFW_EDITOR
     // Editor Getters/Setters
     EditorPrefs* GetEditorPrefs() { return m_pEditorPrefs; }
     EditorState* GetEditorState() { return m_pEditorState; }
 
+    EditorMainFrame* GetEditorMainFrame() { return m_pEditorMainFrame; }
 #if MYFW_USING_IMGUI
-    EditorMainFrame_ImGui* GetEditorMainFrame_ImGui() { return m_pEditorMainFrame_ImGui; }
+    EditorMainFrame_ImGui* GetEditorMainFrame_ImGui() { return (EditorMainFrame_ImGui*)m_pEditorMainFrame; }
 #endif
 
     bool GetDebug_DrawMousePickerFBO()       { return m_Debug_DrawMousePickerFBO; }
@@ -250,6 +253,12 @@ public:
     bool GetDebug_ShowProfilingInfo()        { return m_Debug_ShowProfilingInfo; }
     bool GetDebug_DrawGLStats()              { return m_Debug_DrawGLStats; }
 
+    void ToggleDebug_DrawMousePickerFBO()       { m_Debug_DrawMousePickerFBO = !m_Debug_DrawMousePickerFBO; }
+    void ToggleDebug_DrawSelectedAnimatedMesh() { m_Debug_DrawSelectedAnimatedMesh = !m_Debug_DrawSelectedAnimatedMesh; }
+    void ToggleDebug_DrawPhysicsDebugShapes()   { m_Debug_DrawPhysicsDebugShapes = !m_Debug_DrawPhysicsDebugShapes; }
+    void ToggleDebug_ShowProfilingInfo()        { m_Debug_ShowProfilingInfo = !m_Debug_ShowProfilingInfo; }
+    void ToggleDebug_DrawGLStats()              { m_Debug_DrawGLStats = !m_Debug_DrawGLStats; }
+
     MySprite* GetSprite_DebugQuad(); // Will create the sprite if it doesn't exist
     MyMesh* GetMesh_MaterialBall(); // Will create the mesh if it doesn't exist
 
@@ -257,7 +266,7 @@ public:
     bool HandleImGuiInput(int canvasid, int keyaction, int keycode, int mouseaction, int id, float x, float y, float pressure);
     bool HandleEditorInput(int canvasid, int keyaction, int keycode, int mouseaction, int id, float x, float y, float pressure);
 
-    unsigned int LoadSceneFromFile(const char* fullpath);
+    SceneID LoadSceneFromFile(const char* fullpath);
     void Editor_QuickSaveScene(const char* fullpath);
     void Editor_QuickLoadScene(const char* fullpath);
     void Editor_DeleteQuickScene(const char* fullpath);

@@ -10,6 +10,10 @@
 #include "EngineCommonHeader.h"
 #include "EditorMenuCommands.h"
 
+//====================================================================================================
+// Various enums and matching strings (some unused)
+//====================================================================================================
+
 enum EditorWindowTypes
 {
     EditorWindow_Game,
@@ -21,10 +25,10 @@ enum EditorWindowTypes
 
 const char* g_DefaultEditorWindowTypeMenuLabels[EditorWindow_NumTypes] =
 {
-    "&Game View",
-    "&Object List Panel",
-    "&Watch Panel",
-    "&Files Panel",
+    "Game View",
+    "Object List Panel",
+    "Watch Panel",
+    "Files Panel",
 };
 
 enum PanelMemoryPages
@@ -50,6 +54,10 @@ const char* g_PanelMemoryPagesMenuLabels[PanelMemoryPage_NumTypes] =
     "Draw Calls",
 };
 
+//====================================================================================================
+// Public methods
+//====================================================================================================
+
 EditorMainFrame_ImGui::EditorMainFrame_ImGui()
 {
     m_pGameFBO = g_pTextureManager->CreateFBO( 1024, 1024, GL_NEAREST, GL_NEAREST, true, 32, true );
@@ -60,6 +68,8 @@ EditorMainFrame_ImGui::EditorMainFrame_ImGui()
 
     m_pMaterialBeingEdited = 0;
     m_IsMaterialEditorOpen = false;
+
+    m_ShowCloseEditorWarning = false;
 
     m_RenamePressedThisFrame = false;
     m_pGameObjectWhoseNameIsBeingEdited = 0;
@@ -79,12 +89,15 @@ EditorMainFrame_ImGui::EditorMainFrame_ImGui()
 
     m_UndoStackDepthAtLastSave = 0;
 
+    m_CurrentMouseInEditorWindow_X = -1;
+    m_CurrentMouseInEditorWindow_Y = -1;
+
     m_KeyDownCtrl = false;
     m_KeyDownAlt = false;
     m_KeyDownShift = false;
     m_KeyDownCommand = false;
 
-    m_pCommandStack = MyNew CommandStack;
+    m_pCommandStack = MyNew EngineCommandStack();
     g_pEngineCore->SetCommandStack( m_pCommandStack );
 }
 
@@ -141,9 +154,24 @@ bool EditorMainFrame_ImGui::HandleInput(int keyaction, int keycode, int mouseact
             mouseabsx >= m_GameWindowPos.x && mouseabsx < m_GameWindowPos.x + m_GameWindowSize.x &&
             mouseabsy >= m_GameWindowPos.y && mouseabsy < m_GameWindowPos.y + m_GameWindowSize.y ) )
     {
-        //ImGui::Begin( "Debug" );
-        //ImGui::Text( "In Game Window" );
-        //ImGui::End();
+        return false; // Let event continue to the game window.
+    }
+
+    // Are absolute x/y over the editor window or it's a keyaction and the window is in focus.
+    if( mouseaction != -1 &&
+        mouseabsx >= m_EditorWindowPos.x && mouseabsx < m_EditorWindowPos.x + m_EditorWindowSize.x &&
+        mouseabsy >= m_EditorWindowPos.y && mouseabsy < m_EditorWindowPos.y + m_EditorWindowSize.y )
+    {
+        // If this is a mouse message and not a relative movement,
+        //     calculate mouse x/y relative to this window.
+        if( mouseaction != -1 && mouseaction != GCBA_RelativeMovement )
+        {
+            localx = x - m_EditorWindowPos.x;
+            localy = m_EditorWindowSize.y - (y - m_EditorWindowPos.y);
+        }
+
+        m_CurrentMouseInEditorWindow_X = (unsigned int)localx;
+        m_CurrentMouseInEditorWindow_Y = (unsigned int)localy;
     }
 
     // Are absolute x/y over the editor window or it's a keyaction and the window is in focus.
@@ -159,6 +187,9 @@ bool EditorMainFrame_ImGui::HandleInput(int keyaction, int keycode, int mouseact
             localx = x - m_EditorWindowPos.x;
             localy = m_EditorWindowSize.y - (y - m_EditorWindowPos.y);
         }
+
+        m_CurrentMouseInEditorWindow_X = (unsigned int)localx;
+        m_CurrentMouseInEditorWindow_Y = (unsigned int)localy;
 
         // If the right or middle mouse buttons were clicked on this window, set it as having focus.
         // Needed since those buttons don't focus ImGui window directly.
@@ -179,7 +210,8 @@ bool EditorMainFrame_ImGui::HandleInput(int keyaction, int keycode, int mouseact
         g_pEngineCore->GetCurrentEditorInterface()->ClearModifierKeyStates( keyaction, keycode, mouseaction, id, localx, localy, pressure );
     }
 
-    return false;
+    // Absorb the message, even if we didn't do anything with it.
+    return true;
 }
 
 bool EditorMainFrame_ImGui::CheckForHotkeys(int keyaction, int keycode)
@@ -212,6 +244,7 @@ bool EditorMainFrame_ImGui::CheckForHotkeys(int keyaction, int keycode)
     {
         bool N  = !m_KeyDownCtrl && !m_KeyDownAlt && !m_KeyDownShift && !m_KeyDownCommand; // No modifiers held
         bool C  =  m_KeyDownCtrl && !m_KeyDownAlt && !m_KeyDownShift && !m_KeyDownCommand; // Ctrl
+        bool S  = !m_KeyDownCtrl && !m_KeyDownAlt &&  m_KeyDownShift && !m_KeyDownCommand; // Shift
         bool CS =  m_KeyDownCtrl && !m_KeyDownAlt &&  m_KeyDownShift && !m_KeyDownCommand; // Ctrl-Shift
 
         // Handle GameObject renaming, not the best idea to do this here, but okay for a start.
@@ -222,15 +255,26 @@ bool EditorMainFrame_ImGui::CheckForHotkeys(int keyaction, int keycode)
             return true;
         }
 
-        if( C  && keycode == 'S' ) { EditorMenuCommand( EditorMenuCommand_File_SaveScene );         return true; }
-        if( CS && keycode == 'E' ) { EditorMenuCommand( EditorMenuCommand_File_Export_Box2DScene ); return true; }
-        if( C  && keycode == ' ' ) { EditorMenuCommand( EditorMenuCommand_Mode_TogglePlayStop );    return true; }
-        if( C  && keycode == 'Z' ) { EditorMenuCommand( EditorMenuCommand_Edit_Undo );              return true; }
-        if( C  && keycode == 'Y' ) { EditorMenuCommand( EditorMenuCommand_Edit_Redo );              return true; }
-        if( CS && keycode == 'Z' ) { EditorMenuCommand( EditorMenuCommand_Edit_Redo );              return true; }
+        if( C  && keycode == 'S' )   { EditorMenuCommand( EditorMenuCommand_File_SaveScene );          return true; }
+        if( CS && keycode == 'E' )   { EditorMenuCommand( EditorMenuCommand_File_Export_Box2DScene );  return true; }
+        if( C  && keycode == ' ' )   { EditorMenuCommand( EditorMenuCommand_Mode_TogglePlayStop );     return true; }
+        if( C  && keycode == 'Z' )   { EditorMenuCommand( EditorMenuCommand_Edit_Undo );               return true; }
+        if( C  && keycode == 'Y' )   { EditorMenuCommand( EditorMenuCommand_Edit_Redo );               return true; }
+        if( CS && keycode == 'Z' )   { EditorMenuCommand( EditorMenuCommand_Edit_Redo );               return true; }
+        if( S  && keycode == VK_F7 ) { m_ShowEditorIcons = !m_ShowEditorIcons;                         return true; }
+        if( C  && keycode == VK_F9 ) { EditorMenuCommand( EditorMenuCommand_Debug_DrawWireframe );     return true; }
+        if( S  && keycode == VK_F8 ) { EditorMenuCommand( EditorMenuCommand_Debug_ShowPhysicsShapes ); return true; }
     }
 
     return false;
+}
+
+void EditorMainFrame_ImGui::RequestCloseWindow()
+{
+    if( m_pCommandStack->GetUndoStackSize() != m_UndoStackDepthAtLastSave )
+        m_ShowCloseEditorWarning = true;
+    else
+        g_pGameCore->SetGameConfirmedCloseIsOkay();
 }
 
 void EditorMainFrame_ImGui::AddEverything()
@@ -245,6 +289,8 @@ void EditorMainFrame_ImGui::AddEverything()
     if( m_IsMaterialEditorOpen )
         AddMaterialEditor();
 
+    AddLoseChangesWarningPopups();
+
     ImGuiIO& io = ImGui::GetIO();
     ImGui::Begin( "Stuff" );
     ImGui::Text( "WantCaptureKeyboard %d", io.WantCaptureKeyboard );
@@ -255,6 +301,9 @@ void EditorMainFrame_ImGui::AddEverything()
     ImGui::Text( "m_EditorWindowHovered %d", m_EditorWindowHovered );    
     ImGui::Text( "m_EditorWindowFocused %d", m_EditorWindowFocused );
     ImGui::Text( "MouseWheel %0.2f", io.MouseWheel );
+    ImGui::Text( "m_CurrentMouseInEditorWindow_X %d", m_CurrentMouseInEditorWindow_X );
+    ImGui::Text( "m_CurrentMouseInEditorWindow_Y %d", m_CurrentMouseInEditorWindow_Y );
+
 
     GameObject* pGO = g_pComponentSystemManager->FindGameObjectByName( "Player" );
     if( pGO && pGO->GetTransform() )
@@ -268,6 +317,102 @@ void EditorMainFrame_ImGui::AddEverything()
 
     m_RenamePressedThisFrame = false;
 }
+
+void EditorMainFrame_ImGui::DrawGameAndEditorWindows(EngineCore* pEngineCore)
+{
+    if( m_GameWindowSize.LengthSquared() != 0 )
+    {
+        if( m_pGameFBO->m_pColorTexture )
+        {
+            // Draw game view.
+            m_pGameFBO->Bind( false );
+            pEngineCore->OnSurfaceChanged( 0, 0, (unsigned int)m_GameWindowSize.x, (unsigned int)m_GameWindowSize.y );
+
+            pEngineCore->GetComponentSystemManager()->OnDrawFrame();
+            MyBindFramebuffer( GL_FRAMEBUFFER, 0, 0, 0 );
+        }
+    }
+
+    if( m_EditorWindowSize.LengthSquared() != 0 )
+    {
+        if( m_pEditorFBO->m_pColorTexture )
+        {
+            // Draw editor view.
+            g_GLCanvasIDActive = 1;
+            pEngineCore->Editor_OnSurfaceChanged( 0, 0, (unsigned int)m_EditorWindowSize.x, (unsigned int)m_EditorWindowSize.y );
+
+            m_pEditorFBO->Bind( false );
+            pEngineCore->GetCurrentEditorInterface()->OnDrawFrame( 1 );
+            MyBindFramebuffer( GL_FRAMEBUFFER, 0, 0, 0 );
+
+            g_GLCanvasIDActive = 0;
+        }
+    }
+
+    if( m_pMaterialToPreview != 0 )
+    {
+        if( m_pMaterialPreviewFBO->m_pColorTexture )
+        {
+            // Draw game view.
+            m_pMaterialPreviewFBO->Bind( false );
+            
+            MyMesh* pMeshBall = g_pEngineCore->GetMesh_MaterialBall();
+
+            if( pMeshBall )
+            {
+                m_pMaterialPreviewFBO->Bind( true );
+
+                glDisable( GL_SCISSOR_TEST );
+                glViewport( 0, 0, m_pMaterialPreviewFBO->m_Width, m_pMaterialPreviewFBO->m_Height );
+
+                glClearColor( 0.0f, 0.0f, 0.2f, 1.0f );
+                glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+
+                pMeshBall->SetMaterial( m_pMaterialToPreview, 0 );
+
+                MyMatrix matview;
+                matview.SetIdentity();
+#if MYFW_RIGHTHANDED
+                matview.Translate( 0, 0, -4 );
+#else
+                matview.Translate( 0, 0, 4 );
+#endif
+
+                float aspect = (float)m_pMaterialPreviewFBO->m_Width / m_pMaterialPreviewFBO->m_Height;
+                MyMatrix matproj;
+                matproj.CreatePerspectiveVFoV( 45, aspect, 0.01f, 100 );
+
+                MyMatrix matviewproj = matproj * matview;
+                Vector3 campos = matview.GetTranslation() * -1;
+                Vector3 camrot( 0, 0, 0 );
+
+                float time = (float)MyTime_GetRunningTime();
+
+                // Create 2 rotating lights for material render.
+                MyLight light1;
+                light1.m_Attenuation.Set( 1, 0.1f, 0.01f );
+                light1.m_Color.Set( 1, 1, 1, 1 );
+                light1.m_LightType = LightType_Point;
+                light1.m_Position.Set( 2*cos(time), 1, 2*sin(time) );
+
+                MyLight light2;
+                light2.m_Attenuation.Set( 1, 0.1f, 0.01f );
+                light2.m_Color.Set( 1, 1, 1, 1 );
+                light2.m_LightType = LightType_Point;
+                light2.m_Position.Set( 2*cos(PI+time), 1, 2*sin(PI+time) );
+
+                MyLight* lights[] = { &light1, &light2 };
+                pMeshBall->Draw( 0, &matviewproj, &campos, &camrot, lights, 2, 0, 0, 0, 0 );
+
+                m_pMaterialPreviewFBO->Unbind( true );
+            }
+        }
+    }
+}
+
+//====================================================================================================
+// Internal methods
+//====================================================================================================
 
 void EditorMainFrame_ImGui::AddMainMenuBar()
 {
@@ -304,7 +449,7 @@ void EditorMainFrame_ImGui::AddMainMenuBar()
                 if( ImGui::MenuItem( "Box2D Scene...", "Ctrl-Shift-E" ) ) { EditorMenuCommand( EditorMenuCommand_File_Export_Box2DScene ); }
                 ImGui::EndMenu();
             }
-            if( ImGui::MenuItem( "Quit (TODO)" ) ) {}
+            if( ImGui::MenuItem( "Quit" ) ) { RequestCloseWindow(); }
 
             ImGui::EndMenu();
         }
@@ -356,8 +501,6 @@ void EditorMainFrame_ImGui::AddMainMenuBar()
                 ImGui::EndMenu();
             }
 
-            ImGui::MenuItem( "Show Editor Icons (TODO)", "Shift-F7" );
-
             if( ImGui::BeginMenu( "Selected Objects (TODO)" ) )
             {
                 if( ImGui::MenuItem( "Show Wireframe (TODO)" ) ) {}
@@ -404,6 +547,8 @@ void EditorMainFrame_ImGui::AddMainMenuBar()
             ImGui::MenuItem( "Fullscreen Editor (TODO)", "F11" );
             ImGui::MenuItem( "Fullscreen Game (TODO)", "Ctrl-F11" );
 
+            ImGui::MenuItem( "Show Editor Icons", "Shift-F7", &m_ShowEditorIcons );
+
             ImGui::EndMenu();
         }
 
@@ -428,7 +573,7 @@ void EditorMainFrame_ImGui::AddMainMenuBar()
 
         if( ImGui::BeginMenu( "Mode" ) )
         {
-            if( ImGui::MenuItem( "Switch Focus on Play/Stop (TODO)", 0, true ) ) {} // { EditorMenuCommand( myIDEngine_Mode_SwitchFocusOnPlayStop ); }
+            if( ImGui::MenuItem( "Switch Focus on Play/Stop (TODO)" ) ) {}//{ EditorMenuCommand( myIDEngine_Mode_SwitchFocusOnPlayStop ); }
             //// Since Command-Space is "Spotlight Search" on OSX, use the actual control key on OSX as well as Windows/Linux.
             if( ImGui::MenuItem( "Play/Stop", "CTRL-SPACE" ) ) { EditorMenuCommand( EditorMenuCommand_Mode_TogglePlayStop ); }
             if( ImGui::MenuItem( "Pause (TODO)", "Ctrl-." ) ) {} // { EditorMenuCommand( myIDEngine_Mode_Pause ); }
@@ -468,8 +613,8 @@ void EditorMainFrame_ImGui::AddMainMenuBar()
             if( ImGui::MenuItem( "Show Mouse Picker FBO (TODO)", "F9" ) ) {} // { EditorMenuCommand( myIDEngine_Debug_ShowMousePickerFBO ); }
             if( ImGui::MenuItem( "Show Animated Debug View for Selection (TODO)", "F8" ) ) {} // { EditorMenuCommand( myIDEngine_Debug_ShowSelectedAnimatedMesh ); }
             if( ImGui::MenuItem( "Show GL Stats (TODO)", "Shift-F9" ) ) {} // { EditorMenuCommand( myIDEngine_Debug_ShowGLStats ); }
-            if( ImGui::MenuItem( "Draw Wireframe (TODO)", "Ctrl-F9" ) ) {} // { EditorMenuCommand( myIDEngine_Debug_DrawWireframe ); }
-            if( ImGui::MenuItem( "Show Physics debug shapes (TODO)", "Shift-F8" ) ) {} // { EditorMenuCommand( myIDEngine_Debug_ShowPhysicsShapes ); }
+            if( ImGui::MenuItem( "Draw Wireframe", "Ctrl-F9", &g_pEngineCore->m_Debug_DrawWireframe ) ) {} // { EditorMenuCommand( EditorMenuCommand_Debug_DrawWireframe ); }
+            if( ImGui::MenuItem( "Show Physics Debug Shapes", "Shift-F8", &g_pEngineCore->m_Debug_DrawPhysicsDebugShapes ) ) {} //{ EditorMenuCommand( EditorMenuCommand_Debug_ShowPhysicsShapes ); }
             if( ImGui::MenuItem( "Show profiling Info (TODO)", "Ctrl-F8" ) ) {} // { EditorMenuCommand( myIDEngine_Debug_ShowProfilingInfo ); }
             ImGui::EndMenu();
         }
@@ -477,12 +622,16 @@ void EditorMainFrame_ImGui::AddMainMenuBar()
         ImGui::EndMainMenuBar();
     }
 
-    // TODO: Warnings for quit and new scene.
-
     if( ShowLoadSceneWarning )
     {
         ImGui::OpenPopup( "Load Scene Warning" );
     }
+}
+
+void EditorMainFrame_ImGui::AddLoseChangesWarningPopups()
+{
+    // TODO: Warnings for quit and new scene.
+
     if( ImGui::BeginPopupModal( "Load Scene Warning" ) )
     {
         ImGui::Text( "Some changes aren't saved." );
@@ -492,6 +641,29 @@ void EditorMainFrame_ImGui::AddMainMenuBar()
         {
             EditorMenuCommand( EditorMenuCommand_File_LoadScene );
             ImGui::CloseCurrentPopup();
+        }
+
+        if( ImGui::Button( "Cancel / Return to editor" ) )
+        {
+            ImGui::CloseCurrentPopup();
+        }
+
+        ImGui::EndPopup();
+    }
+
+    if( m_ShowCloseEditorWarning )
+    {
+        m_ShowCloseEditorWarning = false;
+        ImGui::OpenPopup( "Close Editor Warning" );
+    }
+    if( ImGui::BeginPopupModal( "Close Editor Warning" ) )
+    {
+        ImGui::Text( "Some changes aren't saved." );
+        ImGui::Dummy( ImVec2( 0, 10 ) );
+        
+        if( ImGui::Button( "Quit / Lose changes" ) )
+        {
+            g_pGameCore->SetGameConfirmedCloseIsOkay();
         }
 
         if( ImGui::Button( "Cancel / Return to editor" ) )
@@ -577,6 +749,12 @@ void EditorMainFrame_ImGui::AddGameAndEditorWindows()
             {
                 TextureDefinition* tex = m_pEditorFBO->m_pColorTexture;
                 ImGui::ImageButton( (void*)tex->GetTextureID(), ImVec2( w, h ), ImVec2(0,h/m_pEditorFBO->m_TextureHeight), ImVec2(w/m_pEditorFBO->m_TextureWidth,0), 0 );
+
+                if( ImGui::BeginDragDropTarget() )
+                {
+                    OnDropEditorWindow();
+                    ImGui::EndDragDropTarget();
+                }
             }
         }
     }
@@ -593,15 +771,23 @@ void EditorMainFrame_ImGui::AddObjectList()
         if( ImGui::CollapsingHeader( "All scenes", ImGuiTreeNodeFlags_DefaultOpen ) )
         {
             // Add all active scenes.
-            for( int sceneindex=0; sceneindex<ComponentSystemManager::MAX_SCENES_LOADED; sceneindex++ )
+            for( int i=0; i<MAX_SCENES_LOADED_INCLUDING_UNMANAGED; i++ )
             {
-                SceneInfo* pSceneInfo = g_pComponentSystemManager->GetSceneInfo( sceneindex );
+                // Show Unmanaged scene first.
+                unsigned int sceneindex;
+                if( i == 0 )
+                    sceneindex = SCENEID_Unmanaged;
+                else
+                    sceneindex = i-1;
+
+                SceneInfo* pSceneInfo = g_pComponentSystemManager->GetSceneInfo( (SceneID)sceneindex );
+
                 if( pSceneInfo->m_InUse == true )
                 {
                     static char* pUnmanagedName = "Unmanaged";
                     static char* pUnsavedName = "Unsaved scene";
                     char* scenename = pUnmanagedName;
-                    if( sceneindex != 0 )
+                    if( sceneindex != SCENEID_Unmanaged )
                         scenename = pUnsavedName;
                     if( pSceneInfo->m_FullPath[0] != 0 )
                     {
@@ -618,14 +804,14 @@ void EditorMainFrame_ImGui::AddObjectList()
                     bool treeNodeIsOpen = ImGui::TreeNodeEx( scenename, nodeFlags );
 
                     // Right-click menu, don't show for the unmanaged scene
-                    if( sceneindex != EngineCore::UNMANAGED_SCENE_ID )
+                    if( sceneindex != SCENEID_Unmanaged )
                     {
                         ImGui::PushID( scenename );
                         if( ImGui::BeginPopupContextItem( "ContextPopup", 1 ) )
                         {
                             if( ImGui::MenuItem( "Add GameObject" ) )
                             {
-                                GameObject* pGameObjectCreated = g_pComponentSystemManager->CreateGameObject( true, sceneindex );
+                                GameObject* pGameObjectCreated = g_pComponentSystemManager->CreateGameObject( true, (SceneID)sceneindex );
                                 pGameObjectCreated->SetName( "New Game Object" );
 
                                 ImGui::CloseCurrentPopup();
@@ -801,7 +987,7 @@ void EditorMainFrame_ImGui::AddGameObjectToObjectList(GameObject* pGameObject)
                                     if( g_pEngineCore->IsInEditorMode() )
                                         pComponent = pGameObject->AddNewComponent( i, pGameObject->GetSceneID() );
                                     else
-                                        pComponent = pGameObject->AddNewComponent( i, 0 );
+                                        pComponent = pGameObject->AddNewComponent( i, SCENEID_Unmanaged );
 
                                     ImGui::CloseCurrentPopup();
                                 }
@@ -1354,98 +1540,6 @@ void EditorMainFrame_ImGui::AddMemoryPanel_Files()
     }
 }
 
-void EditorMainFrame_ImGui::DrawGameAndEditorWindows(EngineCore* pEngineCore)
-{
-    if( m_GameWindowSize.LengthSquared() != 0 )
-    {
-        if( m_pGameFBO->m_pColorTexture )
-        {
-            // Draw game view.
-            m_pGameFBO->Bind( false );
-            pEngineCore->OnSurfaceChanged( 0, 0, (unsigned int)m_GameWindowSize.x, (unsigned int)m_GameWindowSize.y );
-
-            pEngineCore->GetComponentSystemManager()->OnDrawFrame();
-            MyBindFramebuffer( GL_FRAMEBUFFER, 0, 0, 0 );
-        }
-    }
-
-    if( m_EditorWindowSize.LengthSquared() != 0 )
-    {
-        if( m_pEditorFBO->m_pColorTexture )
-        {
-            // Draw editor view.
-            g_GLCanvasIDActive = 1;
-            pEngineCore->Editor_OnSurfaceChanged( 0, 0, (unsigned int)m_EditorWindowSize.x, (unsigned int)m_EditorWindowSize.y );
-
-            m_pEditorFBO->Bind( false );
-            pEngineCore->GetCurrentEditorInterface()->OnDrawFrame( 1 );
-            MyBindFramebuffer( GL_FRAMEBUFFER, 0, 0, 0 );
-
-            g_GLCanvasIDActive = 0;
-        }
-    }
-
-    if( m_pMaterialToPreview != 0 )
-    {
-        if( m_pMaterialPreviewFBO->m_pColorTexture )
-        {
-            // Draw game view.
-            m_pMaterialPreviewFBO->Bind( false );
-            
-            MyMesh* pMeshBall = g_pEngineCore->GetMesh_MaterialBall();
-
-            if( pMeshBall )
-            {
-                m_pMaterialPreviewFBO->Bind( true );
-
-                glDisable( GL_SCISSOR_TEST );
-                glViewport( 0, 0, m_pMaterialPreviewFBO->m_Width, m_pMaterialPreviewFBO->m_Height );
-
-                glClearColor( 0.0f, 0.0f, 0.2f, 1.0f );
-                glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
-
-                pMeshBall->SetMaterial( m_pMaterialToPreview, 0 );
-
-                MyMatrix matview;
-                matview.SetIdentity();
-#if MYFW_RIGHTHANDED
-                matview.Translate( 0, 0, -4 );
-#else
-                matview.Translate( 0, 0, 4 );
-#endif
-
-                float aspect = (float)m_pMaterialPreviewFBO->m_Width / m_pMaterialPreviewFBO->m_Height;
-                MyMatrix matproj;
-                matproj.CreatePerspectiveVFoV( 45, aspect, 0.01f, 100 );
-
-                MyMatrix matviewproj = matproj * matview;
-                Vector3 campos = matview.GetTranslation() * -1;
-                Vector3 camrot( 0, 0, 0 );
-
-                float time = (float)MyTime_GetRunningTime();
-
-                // Create 2 rotating lights for material render.
-                MyLight light1;
-                light1.m_Attenuation.Set( 1, 0.1f, 0.01f );
-                light1.m_Color.Set( 1, 1, 1, 1 );
-                light1.m_LightType = LightType_Point;
-                light1.m_Position.Set( 2*cos(time), 1, 2*sin(time) );
-
-                MyLight light2;
-                light2.m_Attenuation.Set( 1, 0.1f, 0.01f );
-                light2.m_Color.Set( 1, 1, 1, 1 );
-                light2.m_LightType = LightType_Point;
-                light2.m_Position.Set( 2*cos(PI+time), 1, 2*sin(PI+time) );
-
-                MyLight* lights[] = { &light1, &light2 };
-                pMeshBall->Draw( 0, &matviewproj, &campos, &camrot, lights, 2, 0, 0, 0, 0 );
-
-                m_pMaterialPreviewFBO->Unbind( true );
-            }
-        }
-    }
-}
-
 void EditorMainFrame_ImGui::AddMaterialPreview(bool createWindow, ImVec2 requestedSize, ImVec4 tint)
 {
     if( createWindow == false || ImGui::Begin( "Material", 0, ImVec2(150, 150), 1 ) )
@@ -1790,4 +1884,180 @@ void EditorMainFrame_ImGui::AddMaterialEditor()
 
     ImGui::End();
     ImGui::PopStyleColor();
+}
+
+void EditorMainFrame_ImGui::OnDropEditorWindow()
+{
+    unsigned int x = m_CurrentMouseInEditorWindow_X;
+    unsigned int y = m_CurrentMouseInEditorWindow_Y;
+
+    // get the GameObject the mouse was hovering over.
+    ComponentCamera* pCamera = g_pEngineCore->GetEditorState()->GetEditorCamera();
+    //y = pCamera->m_WindowHeight - y; // prefer 0,0 at bottom left.
+    GameObject* pObjectDroppedOn = g_pEngineCore->GetCurrentEditorInterface()->GetObjectAtPixel( x, y, true, false );
+
+    if( const ImGuiPayload* payload = ImGui::AcceptDragDropPayload( "Material" ) )
+    {
+        //DragAndDropItem* pDropItem = g_DragAndDropStruct.GetItem( 0 );
+
+        //if( pDropItem->m_Type == DragAndDropType_MaterialDefinitionPointer )
+        {
+            MaterialDefinition* pMaterial = (MaterialDefinition*)*(void**)payload->Data; //pDropItem->m_Value;
+
+            if( pMaterial && pObjectDroppedOn )
+            {
+                // TODO: Fix Editor_SetMaterial for ImGui and Undo
+                //       or write EditorCommand_ChangeMaterialOnGameObject()
+                //pObjectDroppedOn->Editor_SetMaterial( pMaterial );
+                pObjectDroppedOn->SetMaterial( pMaterial );
+                //g_pGameCore->GetCommandStack()->Do( MyNew EditorCommand_ChangeMaterialOnGameObject( pObjectDroppedOn, pMaterial ) ); 
+
+#if MYFW_USING_WX
+                pObjectDroppedOn->Editor_SetMaterial( pMaterial );
+                g_pPanelWatch->SetNeedsRefresh();
+#endif
+            }
+        }
+    }
+
+    if( const ImGuiPayload* payload = ImGui::AcceptDragDropPayload( "Texture" ) )
+    {
+        //if( pDropItem->m_Type == DragAndDropType_TextureDefinitionPointer )
+        {
+            TextureDefinition* pTexture = (TextureDefinition*)*(void**)payload->Data; //pDropItem->m_Value;
+
+            if( pTexture && pObjectDroppedOn && pObjectDroppedOn->GetMaterial() )
+            {
+                g_pGameCore->GetCommandStack()->Do( MyNew EditorCommand_ChangeTextureOnMaterial( pObjectDroppedOn->GetMaterial(), pTexture ) );
+            }
+        }
+    }
+
+    if( const ImGuiPayload* payload = ImGui::AcceptDragDropPayload( "ShaderGroup" ) )
+    {
+        //if( pDropItem->m_Type == DragAndDropType_ShaderGroupPointer )
+        {
+            ShaderGroup* pShader = (ShaderGroup*)*(void**)payload->Data; //pDropItem->m_Value;
+
+            if( pShader && pObjectDroppedOn && pObjectDroppedOn->GetMaterial() )
+            {
+                g_pGameCore->GetCommandStack()->Do( MyNew EditorCommand_ChangeShaderOnMaterial( pObjectDroppedOn->GetMaterial(), pShader ) );
+            }
+        }
+    }
+
+    if( const ImGuiPayload* payload = ImGui::AcceptDragDropPayload( "File" ) )
+    {
+        //if( pDropItem->m_Type == DragAndDropType_FileObjectPointer )
+        {
+            MyFileObject* pFile = (MyFileObject*)*(void**)payload->Data; //pDropItem->m_Value;
+            MyAssert( pFile );
+
+            if( pFile && strcmp( pFile->GetExtensionWithDot(), ".lua" ) == 0 )
+            {
+                if( pObjectDroppedOn )
+                {
+                    g_pGameCore->GetCommandStack()->Do( MyNew EditorCommand_ChangeAllScriptsOnGameObject( pObjectDroppedOn, pFile ) );
+                }
+            }
+
+            if( pFile && strcmp( pFile->GetExtensionWithDot(), ".glsl" ) == 0 )
+            {
+                if( pObjectDroppedOn && pObjectDroppedOn->GetMaterial() )
+                {
+                    ShaderGroup* pShader = g_pShaderGroupManager->FindShaderGroupByFile( pFile );
+                    g_pGameCore->GetCommandStack()->Do( MyNew EditorCommand_ChangeShaderOnMaterial( pObjectDroppedOn->GetMaterial(), pShader ) );
+                }
+            }
+
+            if( pFile &&
+                ( strcmp( pFile->GetExtensionWithDot(), ".obj" ) == 0 || strcmp( pFile->GetExtensionWithDot(), ".mymesh" ) == 0 )
+              )
+            {
+                // Create a new gameobject using this obj.
+                MyMesh* pMesh = g_pMeshManager->FindMeshBySourceFile( pFile );
+
+                GameObject* pGameObject = g_pComponentSystemManager->CreateGameObject( true, SCENEID_MainScene );
+                pGameObject->SetName( "New mesh" );
+                ComponentMeshOBJ* pComponentMeshOBJ = (ComponentMeshOBJ*)pGameObject->AddNewComponent( ComponentType_MeshOBJ, SCENEID_MainScene );
+                pComponentMeshOBJ->SetSceneID( SCENEID_MainScene );
+                pComponentMeshOBJ->SetMaterial( g_pMaterialManager->GetFirstMaterial(), 0 );
+                pComponentMeshOBJ->SetMesh( pMesh );
+                pComponentMeshOBJ->SetLayersThisExistsOn( Layer_MainScene );
+
+                if( pObjectDroppedOn && pObjectDroppedOn->GetMaterial() )
+                {
+                    // Place it just above of the object selected otherwise place it at 0,0,0... for now.
+                    Vector3 pos = pObjectDroppedOn->GetTransform()->GetWorldPosition();
+
+                    ComponentRenderable* pComponentMeshDroppedOn = (ComponentRenderable*)pObjectDroppedOn->GetFirstComponentOfBaseType( BaseComponentType_Renderable );
+                    if( pComponentMeshDroppedOn )
+                    {
+                        pos.y += pComponentMeshDroppedOn->GetBounds()->GetHalfSize().y;
+                        pos.y += pMesh->GetBounds()->GetHalfSize().y;
+                    }
+
+                    pGameObject->GetTransform()->SetWorldPosition( pos );
+                    pGameObject->GetTransform()->UpdateTransform();
+                }
+
+                // Undo/redo
+                g_pGameCore->GetCommandStack()->Add( MyNew EditorCommand_CreateGameObject( pGameObject ) );
+            }
+        }
+    }
+
+    if( const ImGuiPayload* payload = ImGui::AcceptDragDropPayload( "Prefab" ) )
+    {
+        //if( (int)pDropItem->m_Type == (int)DragAndDropTypeEngine_Prefab )
+        {
+            PrefabObject* pPrefab = (PrefabObject*)*(void**)payload->Data; //pDropItem->m_Value;
+
+            // Default to drop into main scene, but prefer putting in same scene as the object dropped on.
+            SceneID sceneid = SCENEID_MainScene;
+            if( pObjectDroppedOn )
+            {
+                sceneid = pObjectDroppedOn->GetSceneID();
+            }
+
+            // Create the game object
+            GameObject* pGameObjectCreated = g_pComponentSystemManager->CreateGameObjectFromPrefab( pPrefab, true, sceneid );
+
+            if( pGameObjectCreated )
+            {
+                // Undo/Redo
+                g_pGameCore->GetCommandStack()->Add( MyNew EditorCommand_CreateGameObject( pGameObjectCreated ) );
+
+                // Select the object dropped
+                g_pEngineCore->GetEditorState()->ClearSelectedObjectsAndComponents();
+                g_pEngineCore->GetEditorState()->SelectGameObject( pGameObjectCreated );
+
+                // Move the new object to the same spot as the one it was dropped on
+                if( pObjectDroppedOn )
+                {
+                    std::vector<GameObject*> selectedobjects;
+                    selectedobjects.push_back( pGameObjectCreated );
+                    Vector3 worldpos = pObjectDroppedOn->GetTransform()->GetWorldPosition();
+                    g_pGameCore->GetCommandStack()->Do( MyNew EditorCommand_MoveObjects( worldpos, selectedobjects ), true );
+                }
+            }
+        }
+    }
+
+    if( const ImGuiPayload* payload = ImGui::AcceptDragDropPayload( "GameObject" ) )
+    {
+        //if( (int)pDropItem->m_Type == (int)DragAndDropType_GameObjectPointer )
+        //{
+        //    GameObject* pGameObject = (GameObject*)*(void**)payload->Data; //pDropItem->m_Value;
+        //    MyAssert( pGameObject );
+
+        //    int id = g_DragAndDropStruct.GetControlID() - m_ControlIDOfFirstExtern;
+        //    
+        //    // TODO: this will make a mess of memory if different types of objects can be dragged in...
+        //    m_ExposedVars[id]->pointer = pGameObject;
+
+        //    // update the panel so new gameobject name shows up.
+        //    g_pPanelWatch->GetVariableProperties( g_DragAndDropStruct.GetControlID() )->m_Description = pGameObject->GetName();
+        //}
+    }
 }

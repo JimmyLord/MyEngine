@@ -44,7 +44,7 @@ ComponentSystemManager::ComponentSystemManager(ComponentTypeManager* typemanager
     g_pGameCore->GetSoundManager()->Editor_AddToNumRefsPlacedOnSoundCueBySystem();
 #endif
 
-    m_NextSceneID = 1;
+    m_NextSceneID = SCENEID_MainScene;
 
     m_WaitingForFilesToFinishLoading = false;
     m_StartGamePlayWhenDoneLoading = false;
@@ -55,12 +55,10 @@ ComponentSystemManager::ComponentSystemManager(ComponentTypeManager* typemanager
     int depth = 3;
     m_pSceneGraph = MyNew SceneGraph_Octree( depth, -32, -32, -32, 32, 32, 32 );
 
-#if 1 //!MYFW_USING_WX
-    for( int i=0; i<MAX_SCENES_LOADED; i++ )
+    for( int i=0; i<MAX_SCENES_LOADED_INCLUDING_UNMANAGED; i++ )
     {
         m_pSceneInfoMap[i].Reset();
     }
-#endif //!MYFW_USING_WX
 
 #if MYFW_USING_WX
     // Add icons to the object list tree
@@ -100,14 +98,14 @@ ComponentSystemManager::ComponentSystemManager(ComponentTypeManager* typemanager
     wxTreeItemId treeid = g_pPanelObjectList->AddObject( m_pSceneHandler, SceneHandler::StaticOnLeftClick, SceneHandler::StaticOnRightClick, rootid, "Unmanaged", ObjectListIcon_Scene );
     g_pPanelObjectList->SetDragAndDropFunctions( treeid, SceneHandler::StaticOnDrag, SceneHandler::StaticOnDrop );
     SceneInfo scene;
-    m_pSceneInfoMap[EngineCore::UNMANAGED_SCENE_ID].m_InUse = true;
-    m_pSceneInfoMap[EngineCore::UNMANAGED_SCENE_ID].m_TreeID = treeid;
+    m_pSceneInfoMap[SCENEID_Unmanaged].m_InUse = true;
+    m_pSceneInfoMap[SCENEID_Unmanaged].m_TreeID = treeid;
 
     // Mark the scene for engine object as being used, so it will be unloaded.
-    m_pSceneInfoMap[EngineCore::ENGINE_SCENE_ID].m_InUse = true;
+    m_pSceneInfoMap[SCENEID_EngineObjects].m_InUse = true;
 #else
     // Create a scene for "Unmanaged/Runtime" objects.
-    m_pSceneInfoMap[EngineCore::UNMANAGED_SCENE_ID].m_InUse = true;
+    m_pSceneInfoMap[SCENEID_Unmanaged].m_InUse = true;
 #endif //MYFW_USING_WX
 }
 
@@ -117,10 +115,10 @@ ComponentSystemManager::~ComponentSystemManager()
     SAFE_DELETE( m_pPrefabManager );
 
     // Unload all runtime created objects.
-    UnloadScene( 0, false );
+    UnloadScene( SCENEID_Unmanaged, false );
 
     // Reset all scenes, i.e. Delete all GameObjects from each scene
-    for( unsigned int i=1; i<MAX_SCENES_LOADED; i++ )
+    for( unsigned int i=0; i<MAX_SCENES_LOADED; i++ )
     {
         if( m_pSceneInfoMap[i].m_InUse == false )
             continue;
@@ -199,7 +197,7 @@ void ComponentSystemManager::LuaRegister(lua_State* luastate)
     luabridge::getGlobalNamespace( luastate )
         .beginClass<ComponentSystemManager>( "ComponentSystemManager" )
             .addFunction( "SetTimeScale", &ComponentSystemManager::SetTimeScale ) // void ComponentSystemManager::SetTimeScale(float scale)
-            .addFunction( "CreateGameObject", &ComponentSystemManager::CreateGameObject ) // GameObject* ComponentSystemManager::CreateGameObject(bool manageobject, int sceneid, bool isfolder, bool hastransform, PrefabReference* pPrefabRef)
+            .addFunction( "CreateGameObject", &ComponentSystemManager::CreateGameObject ) // GameObject* ComponentSystemManager::CreateGameObject(bool manageobject, SceneID sceneid, bool isfolder, bool hastransform, PrefabReference* pPrefabRef)
             .addFunction( "DeleteGameObject", &ComponentSystemManager::DeleteGameObject ) // void ComponentSystemManager::DeleteGameObject(GameObject* pObject, bool deletecomponents)
             .addFunction( "CopyGameObject", &ComponentSystemManager::CopyGameObject ) // GameObject* ComponentSystemManager::CopyGameObject(GameObject* pObject, const char* newname)
             .addFunction( "FindGameObjectByName", &ComponentSystemManager::FindGameObjectByName ) // GameObject* ComponentSystemManager::FindGameObjectByName(const char* name)
@@ -255,7 +253,7 @@ void ComponentSystemManager::MoveAllFilesNeededForLoadingScreenToStartOfFileList
     }
 }
 
-void ComponentSystemManager::AddListOfFilesUsedToJSONObject(unsigned int sceneid, cJSON* filearray)
+void ComponentSystemManager::AddListOfFilesUsedToJSONObject(SceneID sceneid, cJSON* filearray)
 {
     // TODO: there are currently many ways a file can be loaded into a secondary scene without being in this list.
     //       need to adjust code in various components to account for this.
@@ -315,7 +313,7 @@ void ComponentSystemManager::AddListOfFilesUsedToJSONObject(unsigned int sceneid
     }
 }
 
-char* ComponentSystemManager::SaveSceneToJSON(unsigned int sceneid)
+char* ComponentSystemManager::SaveSceneToJSON(SceneID sceneid)
 {
     cJSON* root = cJSON_CreateObject();
     cJSON* filearray = cJSON_CreateArray();
@@ -328,7 +326,7 @@ char* ComponentSystemManager::SaveSceneToJSON(unsigned int sceneid)
     cJSON_AddItemToObject( root, "Transforms", transformarray );
     cJSON_AddItemToObject( root, "Components", componentarray );
 
-    bool savingallscenes = (sceneid == UINT_MAX);
+    bool savingallscenes = (sceneid == SCENEID_TempPlayStop);
 
     // move files used by gameobjects that start with "Load" to front of file list.
     {
@@ -336,10 +334,10 @@ char* ComponentSystemManager::SaveSceneToJSON(unsigned int sceneid)
         typedef std::map<int, SceneInfo>::iterator it_type;
         for( it_type iterator = m_pSceneInfoMap.begin(); iterator != m_pSceneInfoMap.end(); )
         {
-            unsigned int sceneid = iterator->first;
+            SceneID sceneid = iterator->first;
             SceneInfo* pSceneInfo = &iterator->second;
 #else
-        for( unsigned int i=0; i<MAX_SCENES_LOADED; i++ )
+        for( unsigned int i=0; i<MAX_SCENES_LOADED_INCLUDING_UNMANAGED; i++ )
         {
             if( m_pSceneInfoMap[i].m_InUse == false )
                 continue;
@@ -363,10 +361,10 @@ char* ComponentSystemManager::SaveSceneToJSON(unsigned int sceneid)
         typedef std::map<int, SceneInfo>::iterator it_type;
         for( it_type iterator = m_pSceneInfoMap.begin(); iterator != m_pSceneInfoMap.end(); )
         {
-            unsigned int sceneid = iterator->first;
+            SceneID sceneid = iterator->first;
             SceneInfo* pSceneInfo = &iterator->second;
 #else
-        for( unsigned int i=0; i<MAX_SCENES_LOADED; i++ )
+        for( unsigned int i=0; i<MAX_SCENES_LOADED_INCLUDING_UNMANAGED; i++ )
         {
             if( m_pSceneInfoMap[i].m_InUse == false )
                 continue;
@@ -405,7 +403,7 @@ char* ComponentSystemManager::SaveSceneToJSON(unsigned int sceneid)
     return savestring;
 }
 
-char* ComponentSystemManager::ExportBox2DSceneToJSON(unsigned int sceneid)
+char* ComponentSystemManager::ExportBox2DSceneToJSON(SceneID sceneid)
 {
 #if MYFW_EDITOR
     return ::ExportBox2DSceneToJSON( this, sceneid );
@@ -438,7 +436,7 @@ void ComponentSystemManager::SaveGameObjectListToJSONArray(cJSON* gameobjectarra
     }
 }
 
-MyFileInfo* ComponentSystemManager::GetFileInfoIfUsedByScene(const char* fullpath, unsigned int sceneid)
+MyFileInfo* ComponentSystemManager::GetFileInfoIfUsedByScene(const char* fullpath, SceneID sceneid)
 {
     // loop through both lists of files
     for( int filelist=0; filelist<2; filelist++ )
@@ -454,7 +452,7 @@ MyFileInfo* ComponentSystemManager::GetFileInfoIfUsedByScene(const char* fullpat
         {
             MyFileInfo* pFileInfo = (MyFileInfo*)pNode;
 
-            if( sceneid == -1 || pFileInfo->m_SceneID == sceneid )
+            if( sceneid == SCENEID_AllScenes || pFileInfo->m_SceneID == sceneid )
             {
                 if( pFileInfo->m_pFile == 0 )
                 {
@@ -473,7 +471,7 @@ MyFileInfo* ComponentSystemManager::GetFileInfoIfUsedByScene(const char* fullpat
     return 0;
 }
 
-MyFileObject* ComponentSystemManager::GetFileObjectIfUsedByScene(const char* fullpath, unsigned int sceneid)
+MyFileObject* ComponentSystemManager::GetFileObjectIfUsedByScene(const char* fullpath, SceneID sceneid)
 {
     MyFileInfo* pFileInfo = GetFileInfoIfUsedByScene( fullpath, sceneid );
 
@@ -483,7 +481,7 @@ MyFileObject* ComponentSystemManager::GetFileObjectIfUsedByScene(const char* ful
     return 0;
 }
 
-MyFileInfo* ComponentSystemManager::AddToFileList(MyFileObject* pFile, MyMesh* pMesh, ShaderGroup* pShaderGroup, TextureDefinition* pTexture, MaterialDefinition* pMaterial, SoundCue* pSoundCue, SpriteSheet* pSpriteSheet, unsigned int sceneid)
+MyFileInfo* ComponentSystemManager::AddToFileList(MyFileObject* pFile, MyMesh* pMesh, ShaderGroup* pShaderGroup, TextureDefinition* pTexture, MaterialDefinition* pMaterial, SoundCue* pSoundCue, SpriteSheet* pSpriteSheet, SceneID sceneid)
 {
     // store pFile so we can free it afterwards.
     MyFileInfo* pFileInfo = MyNew MyFileInfo();
@@ -504,7 +502,7 @@ MyFileInfo* ComponentSystemManager::AddToFileList(MyFileObject* pFile, MyMesh* p
     return pFileInfo;
 }
 
-MyFileObject* ComponentSystemManager::LoadDataFile(const char* relativepath, unsigned int sceneid, const char* fullsourcefilepath, bool convertifrequired)
+MyFileObject* ComponentSystemManager::LoadDataFile(const char* relativepath, SceneID sceneid, const char* fullsourcefilepath, bool convertifrequired)
 {
     MyAssert( relativepath );
 
@@ -717,7 +715,7 @@ MyFileObject* ComponentSystemManager::LoadDataFile(const char* relativepath, uns
 }
 
 #if MYFW_USING_WX
-MyFileObject* ComponentSystemManager::ImportDataFile(unsigned int sceneid, const char* fullsourcefilepath)
+MyFileObject* ComponentSystemManager::ImportDataFile(SceneID sceneid, const char* fullsourcefilepath)
 {
     MyAssert( fullsourcefilepath );
     if( fullsourcefilepath == 0 )
@@ -821,7 +819,7 @@ void ComponentSystemManager::FreeDataFile(MyFileInfo* pFileInfo)
     delete pFileInfo;
 }
 
-void ComponentSystemManager::FreeAllDataFiles(unsigned int sceneidtoclear)
+void ComponentSystemManager::FreeAllDataFiles(SceneID sceneidtoclear)
 {
     // loop through both lists of files
     for( int filelist=0; filelist<2; filelist++ )
@@ -838,7 +836,7 @@ void ComponentSystemManager::FreeAllDataFiles(unsigned int sceneidtoclear)
             MyFileInfo* pFile = (MyFileInfo*)pNode;
             pNode = pNode->GetNext();
 
-            if( sceneidtoclear == UINT_MAX || pFile->m_SceneID == sceneidtoclear )
+            if( sceneidtoclear == SCENEID_AllScenes || pFile->m_SceneID == sceneidtoclear )
             {
                 delete pFile;
             }
@@ -846,7 +844,7 @@ void ComponentSystemManager::FreeAllDataFiles(unsigned int sceneidtoclear)
     }
 }
 
-void ComponentSystemManager::LoadSceneFromJSON(const char* scenename, const char* jsonstr, unsigned int sceneid)
+void ComponentSystemManager::LoadSceneFromJSON(const char* scenename, const char* jsonstr, SceneID sceneid)
 {
     checkGlError( "ComponentSystemManager::LoadSceneFromJSON" );
 
@@ -860,18 +858,20 @@ void ComponentSystemManager::LoadSceneFromJSON(const char* scenename, const char
     cJSON* transformarray = cJSON_GetObjectItem( root, "Transforms" );
     cJSON* componentarray = cJSON_GetObjectItem( root, "Components" );
 
-#if MYFW_USING_WX
-    if( sceneid != UINT_MAX )
+#if MYFW_EDITOR
+    if( sceneid != SCENEID_TempPlayStop )
     {
         CreateNewScene( scenename, sceneid );
     }
 #else
     // create the box2d world.
+    MyAssert( sceneid >= SCENEID_MainScene && sceneid < MAX_SCENES_LOADED_INCLUDING_UNMANAGED );
+    MyAssert( m_pSceneInfoMap[sceneid].m_pBox2DWorld == 0 );
     m_pSceneInfoMap[sceneid].m_pBox2DWorld = MyNew Box2DWorld( 0, 0, new EngineBox2DContactListener );
-#endif //MYFW_USING_WX
+#endif //MYFW_EDITOR
 
     // request all files used by scene.
-    if( filearray && sceneid != UINT_MAX )
+    if( filearray && sceneid != SCENEID_TempPlayStop )
     {
         for( int i=0; i<cJSON_GetArraySize( filearray ); i++ )
         {
@@ -887,15 +887,19 @@ void ComponentSystemManager::LoadSceneFromJSON(const char* scenename, const char
                 cJSON* jSourcePath = cJSON_GetObjectItem( jFile, "SourcePath" );
                 if( jPath )
                 {
+                    SceneID scenetosearch = sceneid;
+                    if( sceneid == SCENEID_TempPlayStop )
+                        scenetosearch = SCENEID_AllScenes;
+
                     // Pass the source path in the LoadDataFile call.
                     // If the file is missing or the source file is newer, we can re-import.
                     if( jSourcePath == 0 )
-                        LoadDataFile( jPath->valuestring, sceneid, 0, false );
+                        LoadDataFile( jPath->valuestring, scenetosearch, 0, false );
                     else
-                        LoadDataFile( jPath->valuestring, sceneid, jSourcePath->valuestring, true );
+                        LoadDataFile( jPath->valuestring, scenetosearch, jSourcePath->valuestring, true );
 
                     // Find the file object and set it's source path.
-                    MyFileInfo* pFileInfo = GetFileInfoIfUsedByScene( jPath->valuestring, sceneid );
+                    MyFileInfo* pFileInfo = GetFileInfoIfUsedByScene( jPath->valuestring, scenetosearch );
                     MyAssert( pFileInfo );
                     if( pFileInfo )
                     {
@@ -909,7 +913,7 @@ void ComponentSystemManager::LoadSceneFromJSON(const char* scenename, const char
         }
     }
 
-    bool getsceneidfromeachobject = (sceneid == UINT_MAX);
+    bool getsceneidfromeachobject = (sceneid == SCENEID_TempPlayStop);
 
     // Create/init all the game objects
     if( gameobjectarray )
@@ -919,7 +923,7 @@ void ComponentSystemManager::LoadSceneFromJSON(const char* scenename, const char
             cJSON* jGameObject = cJSON_GetArrayItem( gameobjectarray, i );
 
             if( getsceneidfromeachobject )
-                cJSONExt_GetUnsignedInt( jGameObject, "SceneID", &sceneid );
+                cJSONExt_GetUnsignedInt( jGameObject, "SceneID", (unsigned int*)&sceneid );
 
             unsigned int id = -1;
             cJSONExt_GetUnsignedInt( jGameObject, "ID", &id );
@@ -972,7 +976,7 @@ void ComponentSystemManager::LoadSceneFromJSON(const char* scenename, const char
             cJSON* transformobj = cJSON_GetArrayItem( transformarray, i );
         
             if( getsceneidfromeachobject )
-                cJSONExt_GetUnsignedInt( transformobj, "SceneID", &sceneid );
+                cJSONExt_GetUnsignedInt( transformobj, "SceneID", (unsigned int*)&sceneid );
 
             unsigned int goid = 0;
             cJSONExt_GetUnsignedInt( transformobj, "GOID", &goid );
@@ -1040,7 +1044,7 @@ void ComponentSystemManager::LoadSceneFromJSON(const char* scenename, const char
             cJSON* componentobj = cJSON_GetArrayItem( componentarray, i );
         
             if( getsceneidfromeachobject )
-                cJSONExt_GetUnsignedInt( componentobj, "SceneID", &sceneid );
+                cJSONExt_GetUnsignedInt( componentobj, "SceneID", (unsigned int*)&sceneid );
 
             unsigned int id = 0;
             cJSONExt_GetUnsignedInt( componentobj, "GOID", &id );
@@ -1057,7 +1061,7 @@ void ComponentSystemManager::LoadSceneFromJSON(const char* scenename, const char
             cJSON* componentobj = cJSON_GetArrayItem( componentarray, i );
         
             if( getsceneidfromeachobject )
-                cJSONExt_GetUnsignedInt( componentobj, "SceneID", &sceneid );
+                cJSONExt_GetUnsignedInt( componentobj, "SceneID", (unsigned int*)&sceneid );
 
             unsigned int id;
             cJSONExt_GetUnsignedInt( componentobj, "ID", &id );
@@ -1079,7 +1083,7 @@ void ComponentSystemManager::LoadSceneFromJSON(const char* scenename, const char
 
 ComponentBase* ComponentSystemManager::CreateComponentFromJSONObject(GameObject* pGameObject, cJSON* jComponent)
 {
-    unsigned int sceneid = pGameObject->GetSceneID();
+    SceneID sceneid = pGameObject->GetSceneID();
 
     cJSON* typeobj = cJSON_GetObjectItem( jComponent, "Type" );
     MyAssert( typeobj );
@@ -1133,7 +1137,7 @@ ComponentBase* ComponentSystemManager::CreateComponentFromJSONObject(GameObject*
     return 0;
 }
 
-void ComponentSystemManager::FinishLoading(bool lockwhileloading, unsigned int sceneid, bool playwhenfinishedloading)
+void ComponentSystemManager::FinishLoading(bool lockwhileloading, SceneID sceneid, bool playwhenfinishedloading)
 {
     m_StartGamePlayWhenDoneLoading = playwhenfinishedloading;
     m_WaitingForFilesToFinishLoading = lockwhileloading;
@@ -1182,7 +1186,7 @@ void ComponentSystemManager::SyncAllRigidBodiesToObjectTransforms()
     }
 }
 
-void ComponentSystemManager::UnloadScene(unsigned int sceneidtoclear, bool clearunmanagedcomponents)
+void ComponentSystemManager::UnloadScene(SceneID sceneidtoclear, bool clearunmanagedcomponents)
 {
     checkGlError( "start of ComponentSystemManager::UnloadScene" );
 
@@ -1196,10 +1200,10 @@ void ComponentSystemManager::UnloadScene(unsigned int sceneidtoclear, bool clear
                 
                 pNode = pNode->GetNext();
 
-                unsigned int sceneid = pComponent->GetSceneID();
+                SceneID sceneid = pComponent->GetSceneID();
 
                 if( (pComponent->m_pGameObject->IsManaged() || clearunmanagedcomponents) &&
-                    (sceneidtoclear == UINT_MAX || sceneid == sceneidtoclear) )
+                    (sceneidtoclear == SCENEID_AllScenes || sceneid == sceneidtoclear) )
                 {
                     DeleteComponent( pComponent );
                 }
@@ -1214,14 +1218,14 @@ void ComponentSystemManager::UnloadScene(unsigned int sceneidtoclear, bool clear
     }
 
     // Delete all game objects from the scene (or all scenes).
-    for( unsigned int i=0; i<MAX_SCENES_LOADED; i++ )
+    for( unsigned int i=0; i<MAX_SCENES_LOADED_INCLUDING_UNMANAGED; i++ )
     {
         if( m_pSceneInfoMap[i].m_InUse == false )
             continue;
 
         SceneInfo* pSceneInfo = &m_pSceneInfoMap[i];
 
-        if( sceneidtoclear == UINT_MAX || i == sceneidtoclear )
+        if( sceneidtoclear == SCENEID_AllScenes || (SceneID)i == sceneidtoclear )
         {
             for( CPPListNode* pNode = pSceneInfo->m_GameObjects.GetHead(); pNode;  )
             {
@@ -1229,10 +1233,10 @@ void ComponentSystemManager::UnloadScene(unsigned int sceneidtoclear, bool clear
 
                 pNode = pNode->GetNext();
 
-                unsigned int sceneid = pGameObject->GetSceneID();
+                SceneID sceneid = pGameObject->GetSceneID();
                 unsigned int gameobjectid = pGameObject->GetID();
 
-                MyAssert( i == sceneid );
+                MyAssert( (SceneID)i == sceneid );
 
                 if( (pGameObject->IsManaged() || clearunmanagedcomponents) )
                 {
@@ -1247,7 +1251,7 @@ void ComponentSystemManager::UnloadScene(unsigned int sceneidtoclear, bool clear
     }
 
     // If unloading all scenes, unload all prefab files.
-    if( sceneidtoclear == UINT_MAX )
+    if( sceneidtoclear == SCENEID_AllScenes )
     {
         m_pPrefabManager->UnloadAllPrefabFiles();
     }
@@ -1256,15 +1260,15 @@ void ComponentSystemManager::UnloadScene(unsigned int sceneidtoclear, bool clear
     FreeAllDataFiles( sceneidtoclear );
 
     // If clearing all scenes, 
-    if( sceneidtoclear == UINT_MAX )
+    if( sceneidtoclear == SCENEID_AllScenes )
     {
         // Reset the scene counter, so the new "first" scene loaded will be 1.
         g_pComponentSystemManager->ResetSceneIDCounter();
 
-        // Don't clear scene 0 (unmanaged objects).
-        for( int sceneid=1; sceneid<MAX_SCENES_LOADED; sceneid++ )
+        // Don't clear unmanaged objects.
+        for( int sceneid=0; sceneid<MAX_SCENES_LOADED; sceneid++ )
         {
-            if( sceneid == EngineCore::UNMANAGED_SCENE_ID || sceneid == EngineCore::ENGINE_SCENE_ID )
+            if( sceneid == SCENEID_Unmanaged || sceneid == SCENEID_EngineObjects )
                 continue;
 
             if( m_pSceneInfoMap[sceneid].m_InUse == false )
@@ -1281,7 +1285,7 @@ void ComponentSystemManager::UnloadScene(unsigned int sceneidtoclear, bool clear
             m_pSceneInfoMap[sceneid].Reset();
         }
     }
-    else if( sceneidtoclear != 0 ) // If clearing any scene other than 0 (unmanaged objects).
+    else if( sceneidtoclear != SCENEID_Unmanaged ) // If clearing any scene other than the unmanaged scene.
     {
 #if MYFW_USING_WX
         MyAssert( m_pSceneInfoMap[sceneidtoclear].m_TreeID.IsOk() );
@@ -1319,7 +1323,7 @@ bool ComponentSystemManager::IsSceneLoaded(const char* fullpath)
         }
     }
 #else
-    for( int i=1; i<MAX_SCENES_LOADED; i++ )
+    for( int i=0; i<MAX_SCENES_LOADED; i++ )
     {
         if( m_pSceneInfoMap[i].m_InUse )
         {
@@ -1339,22 +1343,22 @@ bool ComponentSystemManager::IsSceneLoaded(const char* fullpath)
     return false;
 }
 
-unsigned int ComponentSystemManager::FindSceneID(const char* fullpath)
+SceneID ComponentSystemManager::FindSceneID(const char* fullpath)
 {
-    for( int i=1; i<MAX_SCENES_LOADED; i++ )
+    for( int i=0; i<MAX_SCENES_LOADED; i++ )
     {
         if( m_pSceneInfoMap[i].m_InUse )
         {
             if( strcmp( m_pSceneInfoMap[i].m_FullPath, fullpath ) == 0 )
-                return i;
+                return (SceneID)i;
         }
     }
 
-    return UINT_MAX;
+    return SCENEID_NotFound;
 }
 
 // Exposed to Lua, change elsewhere if function signature changes.
-GameObject* ComponentSystemManager::CreateGameObject(bool manageobject, int sceneid, bool isfolder, bool hastransform, PrefabReference* pPrefabRef)
+GameObject* ComponentSystemManager::CreateGameObject(bool manageobject, SceneID sceneid, bool isfolder, bool hastransform, PrefabReference* pPrefabRef)
 {
     GameObject* pGameObject = MyNew GameObject( manageobject, sceneid, isfolder, hastransform, pPrefabRef );
     
@@ -1367,22 +1371,22 @@ GameObject* ComponentSystemManager::CreateGameObject(bool manageobject, int scen
             GetSceneInfo( sceneid )->m_GameObjects.AddTail( pGameObject );
         }
 
-        // if we're not in editor mode, place this gameobject in scene 0 so it will be destroyed when gameplay is stopped.
+        // if we're not in editor mode, place this gameobject in unmanaged scene so it will be destroyed when gameplay is stopped.
         if( g_pEngineCore->IsInEditorMode() == false )
         {
-            pGameObject->SetSceneID( 0 );
+            pGameObject->SetSceneID( SCENEID_Unmanaged );
         }
     }
 
     return pGameObject;
 }
 
-GameObject* ComponentSystemManager::CreateGameObjectFromPrefab(PrefabObject* pPrefab, bool manageobject, int sceneid)
+GameObject* ComponentSystemManager::CreateGameObjectFromPrefab(PrefabObject* pPrefab, bool manageobject, SceneID sceneid)
 {
     return CreateGameObjectFromPrefab( pPrefab, pPrefab->GetJSONObject(), 0, manageobject, sceneid );
 }
 
-GameObject* ComponentSystemManager::CreateGameObjectFromPrefab(PrefabObject* pPrefab, cJSON* jPrefab, uint32 prefabchildid, bool manageobject, int sceneid)
+GameObject* ComponentSystemManager::CreateGameObjectFromPrefab(PrefabObject* pPrefab, cJSON* jPrefab, uint32 prefabchildid, bool manageobject, SceneID sceneid)
 {
     MyAssert( pPrefab != 0 );
     GameObject* pGameObject = 0;
@@ -1404,9 +1408,9 @@ GameObject* ComponentSystemManager::CreateGameObjectFromPrefab(PrefabObject* pPr
         }
     }
 
-    if( sceneid == EngineCore::UNMANAGED_SCENE_ID )
+    if( sceneid == SCENEID_Unmanaged )
     {
-        // Sceneid should only be EngineCore::UNMANAGED_SCENE_ID if this is the master prefab gameobject created for the editor.
+        // Sceneid should only be SCENEID_Unmanaged if this is the master prefab gameobject created for the editor.
         MyAssert( manageobject == false );
 
         PrefabReference prefabRef( pPrefab, prefabchildid, false );
@@ -1459,12 +1463,12 @@ GameObject* ComponentSystemManager::CreateGameObjectFromPrefab(PrefabObject* pPr
                 cJSONExt_GetUnsignedInt( jChildGameObject, "ChildID", &prefabchildid );
 
                 // Create the child game object.
-                if( sceneid == EngineCore::UNMANAGED_SCENE_ID )
+                if( sceneid == SCENEID_Unmanaged )
                 {
-                    // Sceneid should only be EngineCore::UNMANAGED_SCENE_ID if this is the temporary prefab gameobject created for the editor.
+                    // Sceneid should only be SCENEID_Unmanaged if this is the temporary prefab gameobject created for the editor.
                     MyAssert( manageobject == false );
 
-                    pChildGameObject = CreateGameObjectFromPrefab( pPrefab, jChildGameObject, prefabchildid, false, 0 );
+                    pChildGameObject = CreateGameObjectFromPrefab( pPrefab, jChildGameObject, prefabchildid, false, SCENEID_Unmanaged );
                     pChildGameObject->SetEnabled( false, false );
                 }
                 else
@@ -1495,7 +1499,7 @@ GameObject* ComponentSystemManager::CreateGameObjectFromPrefab(PrefabObject* pPr
 }
 
 #if MYFW_USING_WX
-GameObject* ComponentSystemManager::CreateGameObjectFromTemplate(unsigned int templateid, int sceneid)
+GameObject* ComponentSystemManager::CreateGameObjectFromTemplate(unsigned int templateid, SceneID sceneid)
 {
     MyAssert( templateid < m_pGameObjectTemplateManager->GetNumberOfTemplates() );
 
@@ -1651,7 +1655,7 @@ GameObject* ComponentSystemManager::CopyGameObject(GameObject* pObject, const ch
         return 0;
 
     // place the new object in the unmanaged scene, unless we're in the editor.
-    unsigned int sceneid = 0;
+    SceneID sceneid = SCENEID_Unmanaged;
     if( g_pEngineCore->IsInEditorMode() )
         sceneid = pObject->GetSceneID();
 
@@ -1677,7 +1681,7 @@ GameObject* ComponentSystemManager::CopyGameObject(GameObject* pObject, const ch
         if( g_pEngineCore->IsInEditorMode() )
             pComponent = pNewObject->AddNewComponent( pObject->GetComponentByIndex( i )->m_Type, pNewObject->GetSceneID() );
         else
-            pComponent = pNewObject->AddNewComponent( pObject->GetComponentByIndex( i )->m_Type, 0 );
+            pComponent = pNewObject->AddNewComponent( pObject->GetComponentByIndex( i )->m_Type, SCENEID_Unmanaged );
 
         pComponent->CopyFromSameType_Dangerous( pObject->GetComponentByIndex( i ) );
 
@@ -1738,7 +1742,7 @@ GameObject* ComponentSystemManager::CopyGameObject(GameObject* pObject, const ch
     return pNewObject;
 }
 
-unsigned int ComponentSystemManager::GetNextGameObjectIDAndIncrement(unsigned int sceneid)
+unsigned int ComponentSystemManager::GetNextGameObjectIDAndIncrement(SceneID sceneid)
 {
     SceneInfo* pSceneInfo = g_pComponentSystemManager->GetSceneInfo( sceneid );
     
@@ -1750,7 +1754,7 @@ unsigned int ComponentSystemManager::GetNextGameObjectIDAndIncrement(unsigned in
     return pSceneInfo->m_NextGameObjectID-1;
 }
 
-unsigned int ComponentSystemManager::GetNextComponentIDAndIncrement(unsigned int sceneid)
+unsigned int ComponentSystemManager::GetNextComponentIDAndIncrement(SceneID sceneid)
 {
     SceneInfo* pSceneInfo = g_pComponentSystemManager->GetSceneInfo( sceneid );
     
@@ -1762,7 +1766,7 @@ unsigned int ComponentSystemManager::GetNextComponentIDAndIncrement(unsigned int
     return pSceneInfo->m_NextComponentID-1;
 }
 
-GameObject* ComponentSystemManager::GetFirstGameObjectFromScene(unsigned int sceneid)
+GameObject* ComponentSystemManager::GetFirstGameObjectFromScene(SceneID sceneid)
 {
     SceneInfo* pSceneInfo = GetSceneInfo( sceneid );
     if( pSceneInfo == 0 )
@@ -1778,7 +1782,7 @@ GameObject* ComponentSystemManager::GetFirstGameObjectFromScene(unsigned int sce
     return 0;
 }
 
-GameObject* ComponentSystemManager::FindGameObjectByID(unsigned int sceneid, unsigned int goid)
+GameObject* ComponentSystemManager::FindGameObjectByID(SceneID sceneid, unsigned int goid)
 {
     SceneInfo* pSceneInfo = GetSceneInfo( sceneid );
     if( pSceneInfo == 0 )
@@ -1822,10 +1826,10 @@ GameObject* ComponentSystemManager::FindGameObjectByName(const char* name)
     typedef std::map<int, SceneInfo>::iterator it_type;
     for( it_type iterator = m_pSceneInfoMap.begin(); iterator != m_pSceneInfoMap.end(); )
     {
-        unsigned int sceneid = iterator->first;
+        SceneID sceneid = iterator->first;
         SceneInfo* pSceneInfo = &iterator->second;
 #else
-    for( unsigned int i=0; i<MAX_SCENES_LOADED; i++ )
+    for( unsigned int i=0; i<MAX_SCENES_LOADED_INCLUDING_UNMANAGED; i++ )
     {
         if( m_pSceneInfoMap[i].m_InUse == false )
             continue;
@@ -1844,9 +1848,9 @@ GameObject* ComponentSystemManager::FindGameObjectByName(const char* name)
     return 0;
 }
 
-GameObject* ComponentSystemManager::FindGameObjectByNameInScene(unsigned int sceneid, const char* name)
+GameObject* ComponentSystemManager::FindGameObjectByNameInScene(SceneID sceneid, const char* name)
 {
-    MyAssert( sceneid < MAX_SCENES_LOADED );
+    MyAssert( sceneid < MAX_SCENES_LOADED_INCLUDING_UNMANAGED );
 
     MyAssert( m_pSceneInfoMap[sceneid].m_InUse == true );
 
@@ -1887,16 +1891,16 @@ GameObject* ComponentSystemManager::FindGameObjectByNameFromList(GameObject* lis
     return 0;
 }
 
-GameObject* ComponentSystemManager::FindGameObjectByJSONRef(cJSON* pJSONGameObjectRef, unsigned int defaultsceneid)
+GameObject* ComponentSystemManager::FindGameObjectByJSONRef(cJSON* pJSONGameObjectRef, SceneID defaultsceneid)
 {
     // see GameObject::ExportReferenceAsJSONObject
 
     cJSON* jScenePath = cJSON_GetObjectItem( pJSONGameObjectRef, "Scene" );
-    unsigned int sceneid = defaultsceneid;
+    SceneID sceneid = defaultsceneid;
     if( jScenePath )
     {
         sceneid = GetSceneIDFromFullpath( jScenePath->valuestring );
-        if( sceneid == -1 )
+        if( sceneid == SCENEID_NotFound )
             return 0; // scene isn't loaded, so object can't be found.
         //TODO: saving will throw all reference info away and piss people off :)
     }
@@ -1908,7 +1912,7 @@ GameObject* ComponentSystemManager::FindGameObjectByJSONRef(cJSON* pJSONGameObje
     return FindGameObjectByID( sceneid, goid );
 }
 
-ComponentBase* ComponentSystemManager::FindComponentByJSONRef(cJSON* pJSONComponentRef, unsigned int defaultsceneid)
+ComponentBase* ComponentSystemManager::FindComponentByJSONRef(cJSON* pJSONComponentRef, SceneID defaultsceneid)
 {
     GameObject* pGameObject = FindGameObjectByJSONRef( pJSONComponentRef, defaultsceneid );
     MyAssert( pGameObject );
@@ -2008,7 +2012,7 @@ void ComponentSystemManager::DeleteComponent(ComponentBase* pComponent)
     SAFE_DELETE( pComponent );
 }
 
-ComponentBase* ComponentSystemManager::FindComponentByID(unsigned int id, unsigned int sceneid)
+ComponentBase* ComponentSystemManager::FindComponentByID(unsigned int id, SceneID sceneid)
 {
     for( unsigned int i=0; i<BaseComponentType_NumTypes; i++ )
     {
@@ -2029,7 +2033,7 @@ void ComponentSystemManager::Tick(double TimePassed)
     if( m_WaitingForFilesToFinishLoading )
     {
         // TODO: this is hardcoded to the first scene.
-        FinishLoading( true, 1, m_StartGamePlayWhenDoneLoading );
+        FinishLoading( true, SCENEID_MainScene, m_StartGamePlayWhenDoneLoading );
     }
 
     // tick the files that are still loading, if handled by us (spritesheets only ATM)
@@ -2242,7 +2246,7 @@ void ProgramSceneIDs(ComponentBase* pComponent, ShaderGroup* pShaderOverride)
 
     ColorByte tint( 0, 0, 0, 0 );
 
-    unsigned int sceneid = pComponent->m_pGameObject->GetSceneID();
+    SceneID sceneid = pComponent->m_pGameObject->GetSceneID();
     unsigned int id = pComponent->m_pGameObject->GetID();
                     
     id = (sceneid * 100000 + id) * 641; // 1, 641, 6700417, 4294967297, 
@@ -2300,7 +2304,7 @@ void ComponentSystemManager::DrawMousePickerFrame(ComponentCamera* pCamera, MyMa
                 {
                     ColorByte tint( 0, 0, 0, 0 );
 
-                    unsigned int sceneid = pComponent->m_pGameObject->GetSceneID();
+                    SceneID sceneid = pComponent->m_pGameObject->GetSceneID();
                     unsigned int id = pComponent->m_pGameObject->GetID();
                     
                     id = (sceneid * 100000 + id) * 641; // 1, 641, 6700417, 4294967297, 
@@ -2327,17 +2331,34 @@ void ComponentSystemManager::DrawMousePickerFrame(ComponentCamera* pCamera, MyMa
     }
 }
 
-SceneInfo* ComponentSystemManager::GetSceneInfo(int sceneid)
+SceneID ComponentSystemManager::GetNextSceneID()
 {
-    MyAssert( sceneid >= 0 && sceneid < MAX_SCENES_LOADED );
+    // TODO: search through list for an unused scene and return that ID.
+    SceneID nextid = m_NextSceneID;
+
+    m_NextSceneID = (SceneID)(m_NextSceneID+1);
+
+    MyAssert( nextid >= SCENEID_MainScene && nextid < MAX_SCENES_LOADED );
+    
+    return nextid;
+}
+
+void ComponentSystemManager::ResetSceneIDCounter()
+{
+    m_NextSceneID = SCENEID_MainScene;
+}
+
+SceneInfo* ComponentSystemManager::GetSceneInfo(SceneID sceneid)
+{
+    MyAssert( sceneid >= 0 && sceneid < MAX_SCENES_CREATED );
     return &m_pSceneInfoMap[sceneid];
 }
 
-unsigned int ComponentSystemManager::GetSceneIDFromFullpath(const char* fullpath)
+SceneID ComponentSystemManager::GetSceneIDFromFullpath(const char* fullpath)
 {
     for( int i=0; i<MAX_SCENES_LOADED; i++ )
     {
-        unsigned int sceneid = i;
+        SceneID sceneid = (SceneID)i;
         SceneInfo* pSceneInfo = &m_pSceneInfoMap[i];
 
         if( strcmp( pSceneInfo->m_FullPath, fullpath ) == 0 )
@@ -2349,12 +2370,13 @@ unsigned int ComponentSystemManager::GetSceneIDFromFullpath(const char* fullpath
     }
 
     MyAssert( false ); // fullpath not found, that's fine when used from gameobject loading.
-    return -1;
+    return SCENEID_NotFound;
 }
 
 #if MYFW_EDITOR
-void ComponentSystemManager::CreateNewScene(const char* scenename, unsigned int sceneid)
+void ComponentSystemManager::CreateNewScene(const char* scenename, SceneID sceneid)
 {
+    MyAssert( sceneid >= SCENEID_MainScene && sceneid < MAX_SCENES_LOADED );
 #if MYFW_USING_WX
     MyAssert( m_pSceneInfoMap[sceneid].m_TreeID.IsOk() == false );
 
@@ -2371,17 +2393,17 @@ void ComponentSystemManager::CreateNewScene(const char* scenename, unsigned int 
 }
 
 #if MYFW_USING_WX
-wxTreeItemId ComponentSystemManager::GetTreeIDForScene(int sceneid)
+wxTreeItemId ComponentSystemManager::GetTreeIDForScene(SceneID sceneid)
 {
     return m_pSceneInfoMap[sceneid].m_TreeID;
 }
 
-//unsigned int ComponentSystemManager::GetSceneIDFromFullpath(const char* fullpath)
+//SceneID ComponentSystemManager::GetSceneIDFromFullpath(const char* fullpath)
 //{
 //    typedef std::map<int, SceneInfo>::iterator it_type;
 //    for( it_type iterator = m_pSceneInfoMap.begin(); iterator != m_pSceneInfoMap.end(); iterator++ )
 //    {
-//        unsigned int sceneid = iterator->first;
+//        SceneID sceneid = iterator->first;
 //        SceneInfo* pSceneInfo = &iterator->second;
 //
 //        if( strcmp( pSceneInfo->m_FullPath, fullpath ) == 0 )
@@ -2393,15 +2415,15 @@ wxTreeItemId ComponentSystemManager::GetTreeIDForScene(int sceneid)
 //    }
 //
 //    MyAssert( false ); // fullpath not found, that's fine when used from gameobject loading.
-//    return -1;
+//    return SCENEID_NotFound;
 //}
 
-unsigned int ComponentSystemManager::GetSceneIDFromSceneTreeID(wxTreeItemId treeid)
+SceneID ComponentSystemManager::GetSceneIDFromSceneTreeID(wxTreeItemId treeid)
 {
     //typedef std::map<int, SceneInfo>::iterator it_type;
     //for( it_type iterator = m_pSceneInfoMap.begin(); iterator != m_pSceneInfoMap.end(); iterator++ )
     //{
-    //    unsigned int sceneid = iterator->first;
+    //    SceneID sceneid = iterator->first;
     //    SceneInfo* pSceneInfo = &iterator->second;
 
     //    if( pSceneInfo->m_TreeID == treeid )
@@ -2410,14 +2432,14 @@ unsigned int ComponentSystemManager::GetSceneIDFromSceneTreeID(wxTreeItemId tree
 
     //MyAssert( false ); // treeid not found, it should be.
     //return -1;
-    for( int i=0; i<MAX_SCENES_LOADED; i++ )
+    for( int i=0; i<MAX_SCENES_LOADED_INCLUDING_UNMANAGED; i++ )
     {
         if( m_pSceneInfoMap[i].m_InUse && m_pSceneInfoMap[i].m_TreeID == treeid )
-            return i;
+            return (SceneID)i;
     }
 
     MyAssert( false ); // fullpath not found, that's fine when used from gameobject loading.
-    return -1;
+    return SCENEID_NotFound;
 }
 #endif //MYFW_USING_WX
 
@@ -2455,7 +2477,7 @@ void EditorInternal_GetListOfGameObjectsThatUsePrefab(std::vector<GameObject*>* 
 
 void ComponentSystemManager::Editor_GetListOfGameObjectsThatUsePrefab(std::vector<GameObject*>* pGameObjectList, PrefabObject* pPrefabToFind)
 {
-    for( unsigned int i=0; i<MAX_SCENES_LOADED; i++ )
+    for( unsigned int i=0; i<MAX_SCENES_LOADED_INCLUDING_UNMANAGED; i++ )
     {
         if( m_pSceneInfoMap[i].m_InUse == false )
             continue;
@@ -2472,7 +2494,7 @@ void ComponentSystemManager::LogAllReferencesForFile(MyFileObject* pFile)
 
     // Check all gameobjects/components in all scenes for a reference to the file.
     //   ATM: This only checks variables registered as "component vars".
-    for( unsigned int sceneindex=0; sceneindex<MAX_SCENES_LOADED; sceneindex++ )
+    for( unsigned int sceneindex=0; sceneindex<MAX_SCENES_LOADED_INCLUDING_UNMANAGED; sceneindex++ )
     {
         if( m_pSceneInfoMap[sceneindex].m_InUse == false )
             continue;
@@ -2609,10 +2631,12 @@ GameObject* ComponentSystemManager::ParseLog_GameObject(const char* line)
     // Find the GameObject.
     if( isgameobject )
     {
-        int sceneid = g_pComponentSystemManager->FindSceneID( scenename );
+        SceneID sceneid = g_pComponentSystemManager->FindSceneID( scenename );
 
-        if( sceneid != UINT_MAX )
+        if( sceneid != SCENEID_NotFound )
         {
+            MyAssert( sceneid >= 0 && sceneid < MAX_SCENES_LOADED_INCLUDING_UNMANAGED );
+
             GameObject* pGameObject = g_pComponentSystemManager->FindGameObjectByNameInScene( sceneid, gameobjectname );
             return pGameObject;
         }
@@ -2669,7 +2693,7 @@ MaterialDefinition* ComponentSystemManager::ParseLog_Material(const char* line)
 }
 #endif //MYFW_EDITOR
 
-//SceneInfo* ComponentSystemManager::GetSceneInfo(int sceneid)
+//SceneInfo* ComponentSystemManager::GetSceneInfo(SceneID sceneid)
 //{
 //    MyAssert( m_pSceneInfoMap[sceneid].m_InUse == true );
 //    return &m_pSceneInfoMap[sceneid];
@@ -2713,7 +2737,7 @@ void ComponentSystemManager::RemoveObjectFromSceneGraph(SceneGraphObject* pScene
     m_pSceneGraph->RemoveObject( pSceneGraphObject );
 }
 
-void ComponentSystemManager::OnLoad(unsigned int sceneid)
+void ComponentSystemManager::OnLoad(SceneID sceneid)
 {
     for( unsigned int i=0; i<BaseComponentType_NumTypes; i++ )
     {
@@ -2721,7 +2745,7 @@ void ComponentSystemManager::OnLoad(unsigned int sceneid)
         {
             ComponentBase* pComponent = (ComponentBase*)node;
             
-            if( sceneid != -1 && pComponent->GetSceneID() != sceneid )
+            if( sceneid != SCENEID_AllScenes && pComponent->GetSceneID() != sceneid )
                 continue;
 
             pComponent->OnLoad();
@@ -2729,7 +2753,7 @@ void ComponentSystemManager::OnLoad(unsigned int sceneid)
     }
 }
 
-void ComponentSystemManager::OnPlay(unsigned int sceneid)
+void ComponentSystemManager::OnPlay(SceneID sceneid)
 {
     // TODO: find a better solution than 2 passes, sort the OnPlay callback lists(once OnPlay is a callback of course...)
 
@@ -2742,7 +2766,7 @@ void ComponentSystemManager::OnPlay(unsigned int sceneid)
 
             //MyAssert( pComponent->IsEnabled() == true );
 
-            if( sceneid != -1 && pComponent->GetSceneID() != sceneid )
+            if( sceneid != SCENEID_AllScenes && pComponent->GetSceneID() != sceneid )
                 continue;
 
             if( pComponent->m_pGameObject->IsEnabled() == true )
@@ -2762,7 +2786,7 @@ void ComponentSystemManager::OnPlay(unsigned int sceneid)
 
             //MyAssert( pComponent->IsEnabled() == true );
 
-            if( sceneid != -1 && pComponent->GetSceneID() != sceneid )
+            if( sceneid != SCENEID_AllScenes && pComponent->GetSceneID() != sceneid )
                 continue;
 
             if( pComponent->m_pGameObject->IsEnabled() == true )
@@ -2774,7 +2798,7 @@ void ComponentSystemManager::OnPlay(unsigned int sceneid)
     }
 }
 
-void ComponentSystemManager::OnStop(unsigned int sceneid)
+void ComponentSystemManager::OnStop(SceneID sceneid)
 {
     SetTimeScale( 1 );
 #if MYFW_USING_WX
@@ -2787,7 +2811,7 @@ void ComponentSystemManager::OnStop(unsigned int sceneid)
         {
             ComponentBase* pComponent = (ComponentBase*)node;
 
-            if( sceneid != -1 && pComponent->GetSceneID() != sceneid )
+            if( sceneid != SCENEID_AllScenes && pComponent->GetSceneID() != sceneid )
                 continue;
 
             pComponent->OnStop();
@@ -3064,7 +3088,7 @@ void ComponentSystemManager::OnMaterialCreated(MaterialDefinition* pMaterial)
     if( pMaterial && pMaterial->GetFile() )
     {
         // Add the material to the file list, so it can be freed on shutdown.
-        AddToFileList( pMaterial->GetFile(), 0, 0, 0, pMaterial, 0, 0, 1 );
+        AddToFileList( pMaterial->GetFile(), 0, 0, 0, pMaterial, 0, 0, SCENEID_MainScene );
         pMaterial->GetFile()->AddRef();
     }
 }
@@ -3082,7 +3106,7 @@ void ComponentSystemManager::OnSoundCueCreated(SoundCue* pSoundCue)
     if( pSoundCue && pSoundCue->GetFile() )
     {
         // Add the sound cue to the file list, so it can be freed on shutdown.
-        AddToFileList( pSoundCue->GetFile(), 0, 0, 0, 0, pSoundCue, 0, 1 );
+        AddToFileList( pSoundCue->GetFile(), 0, 0, 0, 0, pSoundCue, 0, SCENEID_MainScene );
         pSoundCue->GetFile()->AddRef();
     }
 }
