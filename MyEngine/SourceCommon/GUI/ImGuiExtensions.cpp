@@ -22,7 +22,6 @@ namespace ImGuiExt
 {
 
 // Idea taken from: https://github.com/ocornut/imgui/issues/1351
-// TODO: Fix when tab is pressed to finalize change.
 bool WasItemActiveLastFrame()
 {
     ImGuiContext& g = *GImGui;

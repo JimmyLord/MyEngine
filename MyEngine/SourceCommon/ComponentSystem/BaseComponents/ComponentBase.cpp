@@ -9,7 +9,7 @@
 
 #include "EngineCommonHeader.h"
 
-#include "../../../SourceEditor/ImGuiExtensions/ImGuiExtensions.h"
+#include "../../../SourceCommon/GUI/ImGuiExtensions.h"
 
 ComponentBase::ComponentBase()
 : m_SceneIDLoadedFrom( SCENEID_NotSet )

@@ -2481,6 +2481,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Emscripten'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='EditorRelease|Emscripten'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="SourceCommon\GUI\ImGuiExtensions.cpp" />
     <ClCompile Include="SourceCommon\GUI\ImGuiManager.cpp" />
     <ClCompile Include="SourceCommon\Physics\BulletDebugDraw.cpp" />
     <ClCompile Include="SourceCommon\Physics\BulletWorld.cpp" />
@@ -2697,7 +2698,6 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Emscripten'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='EditorRelease|Emscripten'">true</ExcludedFromBuild>
     </ClCompile>
-    <ClCompile Include="SourceEditor\ImGuiExtensions\ImGuiExtensions.cpp" />
     <ClCompile Include="SourceEditor\Interfaces\EditorInterface.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
@@ -2899,6 +2899,7 @@
     <ClInclude Include="SourceCommon\Core\LuaGameState.h" />
     <ClInclude Include="SourceCommon\Core\LuaGLFunctions.h" />
     <ClInclude Include="SourceCommon\EngineCommonHeader.h" />
+    <ClInclude Include="SourceCommon\GUI\ImGuiExtensions.h" />
     <ClInclude Include="SourceCommon\GUI\ImGuiManager.h" />
     <ClInclude Include="SourceCommon\Physics\BulletDebugDraw.h" />
     <ClInclude Include="SourceCommon\Physics\BulletWorld.h" />
@@ -3131,7 +3132,6 @@
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Emscripten'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='EditorRelease|Emscripten'">true</ExcludedFromBuild>
     </ClInclude>
-    <ClInclude Include="SourceEditor\ImGuiExtensions\ImGuiExtensions.h" />
     <ClInclude Include="SourceEditor\Interfaces\EditorInterface.h">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>

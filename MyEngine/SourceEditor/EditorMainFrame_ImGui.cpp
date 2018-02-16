@@ -1270,14 +1270,18 @@ void EditorMainFrame_ImGui::AddMemoryPanel_Materials()
             }
             else
             {
-                if( ImGui::TreeNodeEx( pMat->GetName(), ImGuiTreeNodeFlags_Leaf | nodeFlags ) )
+                const char* matName = "No file";
+                if( pMat->GetFile() )
+                    matName = pMat->GetFile()->GetFilenameWithoutExtension();
+
+                if( ImGui::TreeNodeEx( matName, ImGuiTreeNodeFlags_Leaf | nodeFlags ) )
                 {
                     // TODO: Find a better answer than IsItemHovered().
                     if( ImGui::IsItemHovered() && m_RenamePressedThisFrame )
                     {
                         m_pGameObjectWhoseNameIsBeingEdited = 0;
                         m_pMaterialWhoseNameIsBeingEdited = pMat;
-                        strncpy_s( m_NameBeingEdited, pMat->GetName(), 100 );
+                        strncpy_s( m_NameBeingEdited, matName, 100 );
                     }
 
                     if( ImGui::BeginPopupContextItem( "ContextPopup", 1 ) )
@@ -1289,7 +1293,7 @@ void EditorMainFrame_ImGui::AddMemoryPanel_Materials()
                         {
                             m_pGameObjectWhoseNameIsBeingEdited = 0;
                             m_pMaterialWhoseNameIsBeingEdited = pMat;
-                            strncpy_s( m_NameBeingEdited, pMat->GetName(), 100 );
+                            strncpy_s( m_NameBeingEdited, matName, 100 );
 
                             ImGui::CloseCurrentPopup();
                         }
