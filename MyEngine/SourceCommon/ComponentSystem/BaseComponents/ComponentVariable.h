@@ -49,14 +49,13 @@ enum ComponentVariableTypes
 };
 
 #if !MYFW_USING_WX
-#define wxCoord float
 #define wxMenu void
 #endif //MYFW_USING_WX
 
 typedef void (ComponentBase::*CVarFunc)(ComponentVariable* pVar);
 typedef void (ComponentBase::*CVarFunc_Int)(ComponentVariable* pVar, int someint);
 typedef void (ComponentBase::*CVarFunc_wxMenu)(ComponentVariable* pVar, wxMenu* pMenu);
-typedef void* (ComponentBase::*CVarFunc_DropTarget)(ComponentVariable* pVar, wxCoord x, wxCoord y);
+typedef void* (ComponentBase::*CVarFunc_DropTarget)(ComponentVariable* pVar, int x, int y);
 typedef void* (ComponentBase::*CVarFunc_ValueChanged)(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue* pNewValue);
 typedef void* (ComponentBase::*CVarFunc_Pointer)(ComponentVariable* pVar);
 

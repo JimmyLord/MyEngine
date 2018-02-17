@@ -116,16 +116,19 @@ public:
     static void StaticOnLeftClick(void* pObjectPtr, wxTreeItemId id, unsigned int count) { ((ComponentMesh*)pObjectPtr)->OnLeftClick( count, true ); }
     void OnLeftClick(unsigned int count, bool clear);
     virtual void FillPropertiesWindow(bool clear, bool addcomponentvariables = false, bool ignoreblockvisibleflag = false);
+#endif //MYFW_USING_WX
     virtual bool ShouldVariableBeAddedToWatchPanel(ComponentVariable* pVar);
     virtual void VariableAddedToWatchPanel(ComponentVariable* pVar);
 
+#if MYFW_USING_WX
     // Watch panel callbacks.
     static void StaticOnExpandMaterialClicked(void* pObjectPtr, int controlid, bool directlychanged, bool finishedchanging, double oldvalue, bool valuewaschangedbydragging) { ((ComponentMesh*)pObjectPtr)->OnExpandMaterialClicked( controlid ); }
     void OnExpandMaterialClicked(int controlid);
 
-    // Component variable callbacks. //_VARIABLE_LIST
-    void* OnDropMaterial(ComponentVariable* pVar, wxCoord x, wxCoord y);
 #endif //MYFW_USING_WX
+
+    // Component variable callbacks. //_VARIABLE_LIST
+    void* OnDropMaterial(ComponentVariable* pVar, int x, int y);
     void* OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue* pNewValue);
 #endif //MYFW_EDITOR
 };

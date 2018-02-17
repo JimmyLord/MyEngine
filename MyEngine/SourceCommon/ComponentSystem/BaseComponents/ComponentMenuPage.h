@@ -270,8 +270,8 @@ public:
     static void StaticOnMenuItemDeleted(void* pObjectPtr, MenuItem* pMenuItem) { ((ComponentMenuPage*)pObjectPtr)->OnMenuItemDeleted( pMenuItem ); }
     void OnMenuItemDeleted(MenuItem* pMenuItem);
 
-    static void StaticOnDropComponent(void* pObjectPtr, int controlid, wxCoord x, wxCoord y) { ((ComponentMenuPage*)pObjectPtr)->OnDropComponent(controlid, x, y); }
-    void OnDropComponent(int controlid, wxCoord x, wxCoord y);
+    static void StaticOnDropComponent(void* pObjectPtr, int controlid, int x, int y) { ((ComponentMenuPage*)pObjectPtr)->OnDropComponent(controlid, x, y); }
+    void OnDropComponent(int controlid, int x, int y);
 
     // Object panel callbacks for menu items in our list.
     MYFW_PANELOBJECTLIST_DEFINE_CALLBACK_ONDROP(OnDropMenuItemOnMenuItem, ComponentMenuPage);

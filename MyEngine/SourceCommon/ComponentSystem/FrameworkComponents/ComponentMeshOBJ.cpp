@@ -121,6 +121,7 @@ void ComponentMeshOBJ::SetPointerDesc(ComponentVariable* pVar, const char* newde
     }
 }
 
+#if MYFW_EDITOR
 #if MYFW_USING_WX
 void ComponentMeshOBJ::AddToObjectsPanel(wxTreeItemId gameobjectid)
 {
@@ -152,8 +153,9 @@ void ComponentMeshOBJ::FillPropertiesWindow(bool clear, bool addcomponentvariabl
         }
     }
 }
+#endif //MYFW_USING_WX
 
-void* ComponentMeshOBJ::OnDropOBJ(ComponentVariable* pVar, wxCoord x, wxCoord y)
+void* ComponentMeshOBJ::OnDropOBJ(ComponentVariable* pVar, int x, int y)
 {
     void* oldpointer = 0;
 
@@ -174,7 +176,7 @@ void* ComponentMeshOBJ::OnDropOBJ(ComponentVariable* pVar, wxCoord x, wxCoord y)
                 oldpointer = m_pMesh->GetFile();
 
             // This EditorCommand will call ::SetPointerValue which is expecting a pointer to the new file.
-            g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_ComponentVariableIndirectPointerChanged( this, pVar, pFile ) );
+            g_pGameCore->GetCommandStack()->Do( MyNew EditorCommand_ComponentVariableIndirectPointerChanged( this, pVar, pFile ) );
         }
 
         if( strcmp( filenameext, ".mymesh" ) == 0 )
@@ -183,17 +185,17 @@ void* ComponentMeshOBJ::OnDropOBJ(ComponentVariable* pVar, wxCoord x, wxCoord y)
                 oldpointer = m_pMesh->GetFile();
 
             // This EditorCommand will call ::SetPointerValue which is expecting a pointer to the new file.
-            g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_ComponentVariableIndirectPointerChanged( this, pVar, pFile ) );
+            g_pGameCore->GetCommandStack()->Do( MyNew EditorCommand_ComponentVariableIndirectPointerChanged( this, pVar, pFile ) );
         }
 
+#if MYFW_USING_WX
         g_pPanelWatch->SetNeedsRefresh();
+#endif //MYFW_USING_WX
     }
 
     return oldpointer;
 }
-#endif //MYFW_USING_WX
 
-#if MYFW_EDITOR
 void* ComponentMeshOBJ::OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue* pNewValue)
 {
     void* oldpointer = 0;
@@ -213,7 +215,7 @@ void* ComponentMeshOBJ::OnValueChanged(ComponentVariable* pVar, bool changedbyin
                     if( m_pMesh )
                         oldpointer = m_pMesh->GetFile();
 
-                    g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_ComponentVariableIndirectPointerChanged( this, pVar, 0 ) );
+                    g_pGameCore->GetCommandStack()->Do( MyNew EditorCommand_ComponentVariableIndirectPointerChanged( this, pVar, 0 ) );
                 }
 #endif //MYFW_USING_WX
             }

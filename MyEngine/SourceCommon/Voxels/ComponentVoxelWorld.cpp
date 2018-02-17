@@ -183,6 +183,7 @@ void ComponentVoxelWorld::SetPointerDesc(ComponentVariable* pVar, const char* ne
     }
 }
 
+#if MYFW_EDITOR
 #if MYFW_USING_WX
 void ComponentVoxelWorld::AddToObjectsPanel(wxTreeItemId gameobjectid)
 {
@@ -224,8 +225,9 @@ void ComponentVoxelWorld::FillPropertiesWindow(bool clear, bool addcomponentvari
         }
     }
 }
+#endif //MYFW_USING_WX
 
-void* ComponentVoxelWorld::OnDrop(ComponentVariable* pVar, wxCoord x, wxCoord y)
+void* ComponentVoxelWorld::OnDrop(ComponentVariable* pVar, int x, int y)
 {
     void* oldvalue = 0;
 
@@ -249,17 +251,17 @@ void* ComponentVoxelWorld::OnDrop(ComponentVariable* pVar, wxCoord x, wxCoord y)
         oldvalue = m_pMaterial;
         SetVoxelMeshMaterial( pMaterial );
 
+#if MYFW_USING_WX
         // update the panel so new Material name shows up.
         const char* shortdesc = pMaterial->GetMaterialShortDescription();
         if( shortdesc )
             g_pPanelWatch->GetVariableProperties( g_DragAndDropStruct.GetControlID() )->m_Description = shortdesc;
+#endif //MYFW_USING_WX
     }
 
     return oldvalue;
 }
-#endif //MYFW_USING_WX
 
-#if MYFW_EDITOR
 void* ComponentVoxelWorld::OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue* pNewValue)
 {
     void* oldpointer = 0;

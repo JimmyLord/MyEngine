@@ -89,6 +89,7 @@ void ComponentAnimationPlayer2D::LuaRegister(lua_State* luastate)
 }
 #endif //MYFW_USING_LUA
 
+#if MYFW_EDITOR
 #if MYFW_USING_WX
 void ComponentAnimationPlayer2D::OnFileUpdated(MyFileObject* pFile)
 {
@@ -120,8 +121,9 @@ void ComponentAnimationPlayer2D::FillPropertiesWindow(bool clear, bool addcompon
         FillPropertiesWindowWithVariables(); //_VARIABLE_LIST
     }
 }
+#endif //MYFW_USING_WX
 
-void* ComponentAnimationPlayer2D::OnDrop(ComponentVariable* pVar, wxCoord x, wxCoord y)
+void* ComponentAnimationPlayer2D::OnDrop(ComponentVariable* pVar, int x, int y)
 {
     void* oldpointer = 0;
 
@@ -147,16 +149,16 @@ void* ComponentAnimationPlayer2D::OnDrop(ComponentVariable* pVar, wxCoord x, wxC
             oldpointer = m_pAnimationFile;
             SetAnimationFile( pFile );
 
+#if MYFW_USING_WX
             // update the panel so new filename shows up.
             g_pPanelWatch->GetVariableProperties( pVar->m_ControlID )->m_Description = m_pAnimationFile->GetFullPath();
+#endif //MYFW_USING_WX
         }
     }
 
     return oldpointer;
 }
-#endif //MYFW_USING_WX
 
-#if MYFW_EDITOR
 void* ComponentAnimationPlayer2D::OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue* pNewValue)
 {
     void* oldpointer = 0;

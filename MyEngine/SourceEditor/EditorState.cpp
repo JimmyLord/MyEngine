@@ -211,7 +211,7 @@ void EditorState::DeleteSelectedObjects()
 {
 #if MYFW_USING_WX
     if( m_pSelectedObjects.size() > 0 )
-        g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_DeleteObjects( m_pSelectedObjects ) );
+        g_pGameCore->GetCommandStack()->Do( MyNew EditorCommand_DeleteObjects( m_pSelectedObjects ) );
 #endif
 }
 

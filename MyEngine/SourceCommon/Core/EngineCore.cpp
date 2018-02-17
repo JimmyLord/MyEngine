@@ -1702,7 +1702,7 @@ void EngineCore::UnloadScene(SceneID sceneid, bool cleareditorobjects)
         ((EditorMainFrame_ImGui*)m_pEditorMainFrame)->StoreCurrentUndoStackSize();
 #endif
 #if MYFW_USING_WX
-        g_pEngineMainFrame->m_pCommandStack->ClearStacks();
+        g_pGameCore->GetCommandStack()->ClearStacks();
         g_pEngineMainFrame->StoreCurrentUndoStackSize();
 #endif
     }

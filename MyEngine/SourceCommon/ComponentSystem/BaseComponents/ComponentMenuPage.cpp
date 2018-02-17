@@ -727,7 +727,7 @@ void ComponentMenuPage::OnMenuItemDeleted(MenuItem* pMenuItem)
     MyAssert( found );
 }
 
-void ComponentMenuPage::OnDropComponent(int controlid, wxCoord x, wxCoord y)
+void ComponentMenuPage::OnDropComponent(int controlid, int x, int y)
 {
     ComponentBase* pComponent = 0;
 

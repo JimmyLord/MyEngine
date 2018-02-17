@@ -75,6 +75,7 @@ void ComponentGameObjectProperties::LuaRegister(lua_State* luastate)
 }
 #endif //MYFW_USING_LUA
 
+#if MYFW_EDITOR
 #if MYFW_USING_WX
 void ComponentGameObjectProperties::AddToObjectsPanel(wxTreeItemId gameobjectid)
 {
@@ -98,8 +99,9 @@ void ComponentGameObjectProperties::FillPropertiesWindow(bool clear, bool addcom
         FillPropertiesWindowWithVariables(); //_VARIABLE_LIST
     }
 }
+#endif //MYFW_USING_WX
 
-void* ComponentGameObjectProperties::OnDrop(ComponentVariable* pVar, wxCoord x, wxCoord y)
+void* ComponentGameObjectProperties::OnDrop(ComponentVariable* pVar, int x, int y)
 {
     void* oldvalue = 0;
 
@@ -117,9 +119,7 @@ void* ComponentGameObjectProperties::OnDrop(ComponentVariable* pVar, wxCoord x, 
 
     return oldvalue;
 }
-#endif //MYFW_USING_WX
 
-#if MYFW_EDITOR
 void* ComponentGameObjectProperties::OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue* pNewValue)
 {
     void* oldpointer = 0;

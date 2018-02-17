@@ -107,10 +107,10 @@ public:
     void OnLeftClick(unsigned int count, bool clear);
     virtual void FillPropertiesWindow(bool clear, bool addcomponentvariables = false, bool ignoreblockvisibleflag = false);
     virtual bool ShouldVariableBeAddedToWatchPanel(ComponentVariable* pVar);
+#endif //MYFW_USING_WX
 
     // Component variable callbacks.
-    void* OnDrop(ComponentVariable* pVar, wxCoord x, wxCoord y);
-#endif //MYFW_USING_WX
+    void* OnDrop(ComponentVariable* pVar, int x, int y);
     void* OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue* pNewValue);
 
     static void StaticOnTransformChanged(void* pObjectPtr, Vector3& newpos, Vector3& newrot, Vector3& newscale, bool changedbyuserineditor) { ((Component2DCollisionObject*)pObjectPtr)->OnTransformChanged( newpos, newrot, newscale, changedbyuserineditor ); }

@@ -115,6 +115,7 @@ void Component3DJointHinge::LuaRegister(lua_State* luastate)
 }
 #endif //MYFW_USING_LUA
 
+#if MYFW_EDITOR
 #if MYFW_USING_WX
 void Component3DJointHinge::AddToObjectsPanel(wxTreeItemId gameobjectid)
 {
@@ -138,8 +139,9 @@ void Component3DJointHinge::FillPropertiesWindow(bool clear, bool addcomponentva
         FillPropertiesWindowWithVariables(); //_VARIABLE_LIST
     }
 }
+#endif //MYFW_USING_WX
 
-void* Component3DJointHinge::OnDrop(ComponentVariable* pVar, wxCoord x, wxCoord y)
+void* Component3DJointHinge::OnDrop(ComponentVariable* pVar, int x, int y)
 {
     void* oldvalue = m_pSecondCollisionObject;
 
@@ -164,9 +166,7 @@ void* Component3DJointHinge::OnDrop(ComponentVariable* pVar, wxCoord x, wxCoord 
 
     return oldvalue;
 }
-#endif //MYFW_USING_WX
 
-#if MYFW_EDITOR
 void* Component3DJointHinge::OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue* pNewValue)
 {
     void* oldpointer = 0;

@@ -137,12 +137,12 @@ void PrefabObject::SetPrefabJSONObject(cJSON* jPrefab, bool createmastergameobje
     // This might cause some undo actions, so wipe them out once the load is complete.
     if( createmastergameobjects )
     {
-        unsigned int numItemsInUndoStack = g_pEngineMainFrame->m_pCommandStack->GetUndoStackSize();
+        unsigned int numItemsInUndoStack = g_pGameCore->GetCommandStack()->GetUndoStackSize();
 
         m_pGameObject = g_pComponentSystemManager->CreateGameObjectFromPrefab( this, false, SCENEID_Unmanaged );
         m_pGameObject->SetEnabled( false, true );
 
-        g_pEngineMainFrame->m_pCommandStack->ClearUndoStack( numItemsInUndoStack );
+        g_pGameCore->GetCommandStack()->ClearUndoStack( numItemsInUndoStack );
 
         // Add the prefab and all it's children to the object panel.
         AddToObjectList( m_pPrefabFile->m_TreeID, m_jPrefab, m_pGameObject );
@@ -336,7 +336,7 @@ void PrefabObjectWxEventHandler::OnPopupClick(wxEvent &evt)
             prefabs.push_back( pPrefabObject );
         }
 
-        g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_DeletePrefabs( prefabs ) );
+        g_pGameCore->GetCommandStack()->Do( MyNew EditorCommand_DeletePrefabs( prefabs ) );
     }
 }
 
@@ -345,7 +345,7 @@ void PrefabObject::OnDrag()
     g_DragAndDropStruct.Add( (DragAndDropTypes)DragAndDropTypeEngine_Prefab, this );
 }
 
-void PrefabObject::OnDrop(int controlid, wxCoord x, wxCoord y)
+void PrefabObject::OnDrop(int controlid, int x, int y)
 {
 }
 #endif //MYFW_USING_WX

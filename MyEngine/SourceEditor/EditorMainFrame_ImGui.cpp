@@ -291,29 +291,31 @@ void EditorMainFrame_ImGui::AddEverything()
 
     AddLoseChangesWarningPopups();
 
+#if _DEBUG
     ImGuiIO& io = ImGui::GetIO();
-    ImGui::Begin( "Stuff" );
-    ImGui::Text( "WantCaptureKeyboard %d", io.WantCaptureKeyboard );
-    ImGui::Text( "WantCaptureMouse %d", io.WantCaptureMouse );
-    ImGui::Text( "WantMoveMouse %d", io.WantMoveMouse );
-    ImGui::Text( "WantTextInput %d", io.WantTextInput );
-    ImGui::Text( "m_GameWindowFocused %d", m_GameWindowFocused );
-    ImGui::Text( "m_EditorWindowHovered %d", m_EditorWindowHovered );    
-    ImGui::Text( "m_EditorWindowFocused %d", m_EditorWindowFocused );
-    ImGui::Text( "MouseWheel %0.2f", io.MouseWheel );
-    ImGui::Text( "m_CurrentMouseInEditorWindow_X %d", m_CurrentMouseInEditorWindow_X );
-    ImGui::Text( "m_CurrentMouseInEditorWindow_Y %d", m_CurrentMouseInEditorWindow_Y );
-
-
-    GameObject* pGO = g_pComponentSystemManager->FindGameObjectByName( "Player" );
-    if( pGO && pGO->GetTransform() )
+    if( ImGui::Begin( "Stuff" ) )
     {
-        ImGui::Text( "PlayerX %0.2f", pGO->GetTransform()->GetWorldTransform()->m41 );
-    }
+        ImGui::Text( "WantCaptureKeyboard %d", io.WantCaptureKeyboard );
+        ImGui::Text( "WantCaptureMouse %d", io.WantCaptureMouse );
+        ImGui::Text( "WantMoveMouse %d", io.WantMoveMouse );
+        ImGui::Text( "WantTextInput %d", io.WantTextInput );
+        ImGui::Text( "m_GameWindowFocused %d", m_GameWindowFocused );
+        ImGui::Text( "m_EditorWindowHovered %d", m_EditorWindowHovered );    
+        ImGui::Text( "m_EditorWindowFocused %d", m_EditorWindowFocused );
+        ImGui::Text( "MouseWheel %0.2f", io.MouseWheel );
+        ImGui::Text( "m_CurrentMouseInEditorWindow_X %d", m_CurrentMouseInEditorWindow_X );
+        ImGui::Text( "m_CurrentMouseInEditorWindow_Y %d", m_CurrentMouseInEditorWindow_Y );
 
-    ImGui::ShowDemoWindow();
-    
+        GameObject* pGO = g_pComponentSystemManager->FindGameObjectByName( "Player" );
+        if( pGO && pGO->GetTransform() )
+        {
+            ImGui::Text( "PlayerX %0.2f", pGO->GetTransform()->GetWorldTransform()->m41 );
+        }
+
+        ImGui::ShowDemoWindow();
+    }    
     ImGui::End();
+#endif
 
     m_RenamePressedThisFrame = false;
 }
@@ -789,6 +791,7 @@ void EditorMainFrame_ImGui::AddObjectList()
                     char* scenename = pUnmanagedName;
                     if( sceneindex != SCENEID_Unmanaged )
                         scenename = pUnsavedName;
+
                     if( pSceneInfo->m_FullPath[0] != 0 )
                     {
                         int i;
@@ -801,6 +804,9 @@ void EditorMainFrame_ImGui::AddObjectList()
                     }
 
                     ImGuiTreeNodeFlags nodeFlags = baseNodeFlags;
+                    if( sceneindex != SCENEID_Unmanaged )
+                        nodeFlags |= ImGuiTreeNodeFlags_DefaultOpen;
+
                     bool treeNodeIsOpen = ImGui::TreeNodeEx( scenename, nodeFlags );
 
                     // Right-click menu, don't show for the unmanaged scene
@@ -1910,11 +1916,7 @@ void EditorMainFrame_ImGui::OnDropEditorWindow()
 
             if( pMaterial && pObjectDroppedOn )
             {
-                // TODO: Fix Editor_SetMaterial for ImGui and Undo
-                //       or write EditorCommand_ChangeMaterialOnGameObject()
-                //pObjectDroppedOn->Editor_SetMaterial( pMaterial );
-                pObjectDroppedOn->SetMaterial( pMaterial );
-                //g_pGameCore->GetCommandStack()->Do( MyNew EditorCommand_ChangeMaterialOnGameObject( pObjectDroppedOn, pMaterial ) ); 
+                pObjectDroppedOn->Editor_SetMaterial( pMaterial );
 
 #if MYFW_USING_WX
                 pObjectDroppedOn->Editor_SetMaterial( pMaterial );

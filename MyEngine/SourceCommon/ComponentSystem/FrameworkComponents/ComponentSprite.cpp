@@ -343,11 +343,7 @@ void ComponentSprite::FillPropertiesWindow(bool clear, bool addcomponentvariable
 }
 #endif //MYFW_USING_WX
 
-#if MYFW_USING_WX
-void* ComponentSprite::OnDrop(ComponentVariable* pVar, wxCoord x, wxCoord y)
-#elif MYFW_EDITOR
-void* ComponentSprite::OnDrop(ComponentVariable* pVar, float x, float y)
-#endif
+void* ComponentSprite::OnDrop(ComponentVariable* pVar, int x, int y)
 {
     void* oldvalue = 0;
 
@@ -361,9 +357,9 @@ void* ComponentSprite::OnDrop(ComponentVariable* pVar, float x, float y)
 
         oldvalue = m_pSprite->GetMaterial();
 
-#if MYFW_USING_WX
-        g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_ChangeMaterialOnMesh( this, pVar, 0, pMaterial ) );
+        g_pGameCore->GetCommandStack()->Do( MyNew EditorCommand_ChangeMaterialOnMesh( this, pVar, 0, pMaterial ) );
 
+#if MYFW_USING_WX
         g_pPanelWatch->SetNeedsRefresh();
 #endif //MYFW_USING_WX
     }
@@ -386,7 +382,7 @@ void* ComponentSprite::OnValueChanged(ComponentVariable* pVar, bool changedbyint
                 g_pPanelWatch->ChangeDescriptionForPointerWithDescription( pVar->m_ControlID, "none" );
 
                 oldpointer = m_pSprite->GetMaterial();
-                g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_ChangeMaterialOnMesh( this, pVar, 0, 0 ) );
+                g_pGameCore->GetCommandStack()->Do( MyNew EditorCommand_ChangeMaterialOnMesh( this, pVar, 0, 0 ) );
             }
 #endif //MYFW_USING_WX
         }

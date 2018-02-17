@@ -184,19 +184,20 @@ public:
 
     virtual void AppendItemsToRightClickMenu(wxMenu* pMenu);
     void OnPopupClick(wxEvent &evt);
+#endif //MYFW_USING_WX
 
     // Component variable callbacks.
-    void* OnDrop(ComponentVariable* pVar, wxCoord x, wxCoord y);
-#endif //MYFW_USING_WX
+    void* OnDrop(ComponentVariable* pVar, int x, int y);
     void* OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue* pNewValue);
+
 #if MYFW_USING_WX
     void OnRightClickCallback(ComponentVariable* pVar, wxMenu* pMenu);
     void OnPopupClickCallback(ComponentVariable* pVar, int id);
 
     // Watch panel callbacks for exposed variables.
-    static void StaticOnDropExposedVar(void* pObjectPtr, int controlid, wxCoord x, wxCoord y) { ((ComponentLuaScript*)pObjectPtr)->OnDropExposedVar(controlid, x, y); }
-    void OnDropExposedVar(int controlid, wxCoord x, wxCoord y);
-    void* ProcessOnDropExposedVar(int controlid, wxCoord x, wxCoord y);
+    static void StaticOnDropExposedVar(void* pObjectPtr, int controlid, int x, int y) { ((ComponentLuaScript*)pObjectPtr)->OnDropExposedVar(controlid, x, y); }
+    void OnDropExposedVar(int controlid, int x, int y);
+    void* ProcessOnDropExposedVar(int controlid, int x, int y);
 #endif //MYFW_USING_WX
     
     static void StaticOnPanelWatchExposedVarValueChanged(void* pObjectPtr, int controlid, bool directlychanged, bool finishedchanging, double oldvalue, bool valuewaschangedbydragging) { ((ComponentLuaScript*)pObjectPtr)->OnPanelWatchExposedVarValueChanged( controlid, finishedchanging, oldvalue ); }

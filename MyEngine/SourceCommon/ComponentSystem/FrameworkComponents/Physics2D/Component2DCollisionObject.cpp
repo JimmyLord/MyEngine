@@ -135,6 +135,7 @@ void Component2DCollisionObject::LuaRegister(lua_State* luastate)
 }
 #endif //MYFW_USING_LUA
 
+#if MYFW_EDITOR
 #if MYFW_USING_WX
 void Component2DCollisionObject::AddToObjectsPanel(wxTreeItemId gameobjectid)
 {
@@ -184,8 +185,9 @@ bool Component2DCollisionObject::ShouldVariableBeAddedToWatchPanel(ComponentVari
     //}
     return true;
 }
+#endif //MYFW_USING_WX
 
-void* Component2DCollisionObject::OnDrop(ComponentVariable* pVar, wxCoord x, wxCoord y)
+void* Component2DCollisionObject::OnDrop(ComponentVariable* pVar, int x, int y)
 {
     void* oldvalue = 0;
 
@@ -203,9 +205,7 @@ void* Component2DCollisionObject::OnDrop(ComponentVariable* pVar, wxCoord x, wxC
 
     return oldvalue;
 }
-#endif //MYFW_USING_WX
 
-#if MYFW_EDITOR
 void* Component2DCollisionObject::OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue* pNewValue)
 {
     void* oldpointer = 0;

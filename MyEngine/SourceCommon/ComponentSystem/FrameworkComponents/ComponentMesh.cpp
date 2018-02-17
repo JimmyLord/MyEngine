@@ -85,17 +85,11 @@ void ComponentMesh::RegisterVariables(CPPListHead* pList, ComponentMesh* pThis) 
     {
         // materials are not automatically saved/loaded
         MyAssert( MAX_SUBMESHES == 4 );
-#if MYFW_USING_WX
         ComponentVariable* pVar = AddVar( pList, g_MaterialLabels[i], ComponentVariableType_MaterialPtr,
                                                MyOffsetOf( pThis, &pThis->m_pMaterials[i] ), false, true, 
                                                0, (CVarFunc_ValueChanged)&ComponentMesh::OnValueChanged, (CVarFunc_DropTarget)&ComponentMesh::OnDropMaterial, 0 );
-#else
-        ComponentVariable* pVar = AddVar( pList, g_MaterialLabels[i], ComponentVariableType_MaterialPtr,
-                                               MyOffsetOf( pThis, &pThis->m_pMaterials[i] ), false, true, 
-                                               0, (CVarFunc_ValueChanged)&ComponentMesh::OnValueChanged, 0, 0 );
-#endif
 
-#if MYFW_USING_WX
+#if MYFW_EDITOR
         pVar->AddCallback_ShouldVariableBeAdded( (CVarFunc_ShouldVariableBeAdded)(&ComponentMesh::ShouldVariableBeAddedToWatchPanel) );
         pVar->AddCallback_VariableAddedToInterface( (CVarFunc_VariableAddedToInterface)(&ComponentMesh::VariableAddedToWatchPanel) );
 #endif
@@ -166,6 +160,7 @@ void ComponentMesh::FillPropertiesWindow(bool clear, bool addcomponentvariables,
         }
     }
 }
+#endif //MYFW_USING_WX
 
 bool ComponentMesh::ShouldVariableBeAddedToWatchPanel(ComponentVariable* pVar)
 {
@@ -189,6 +184,7 @@ void ComponentMesh::VariableAddedToWatchPanel(ComponentVariable* pVar)
         if( m_pMaterials[i] == 0 )
             continue;
 
+#if MYFW_USING_WX
         m_MaterialExpandButtonControlIDs[i] = -1;
 
         if( pVar->m_Label == g_MaterialLabels[i] )
@@ -211,9 +207,11 @@ void ComponentMesh::VariableAddedToWatchPanel(ComponentVariable* pVar)
                 g_pPanelWatch->m_PaddingLeft = oldpaddingleft;
             }
         }
+#endif //MYFW_USING_WX
     }
 }
 
+#if MYFW_USING_WX
 void ComponentMesh::OnExpandMaterialClicked(int controlid)
 {
     for( unsigned int i=0; i<MAX_SUBMESHES; i++ )
@@ -226,6 +224,48 @@ void ComponentMesh::OnExpandMaterialClicked(int controlid)
     }
 }
 #endif //MYFW_USING_WX
+
+void* ComponentMesh::OnDropMaterial(ComponentVariable* pVar, int x, int y)
+{
+    void* oldpointer = 0;
+
+    DragAndDropItem* pDropItem = g_DragAndDropStruct.GetItem( 0 );
+
+    if( pDropItem->m_Type == DragAndDropType_MaterialDefinitionPointer )
+    {
+        int materialthatchanged = -1;
+        for( int i=0; i<MAX_SUBMESHES; i++ )
+        {
+            if( pVar->m_Label == g_MaterialLabels[i] )
+            {
+                materialthatchanged = i;
+                break;
+            }
+        }
+
+        MyAssert( materialthatchanged != -1 );
+        if( materialthatchanged != -1 )
+        {
+            MaterialDefinition* pMaterial = (MaterialDefinition*)pDropItem->m_Value;
+
+            oldpointer = GetMaterial( materialthatchanged );
+            g_pGameCore->GetCommandStack()->Do( MyNew EditorCommand_ChangeMaterialOnMesh( this, pVar, materialthatchanged, pMaterial ) );
+
+#if MYFW_USING_WX
+            // update the panel so new Material name shows up.
+            if( g_DragAndDropStruct.GetControlID() != -1 )
+            {
+                if( pMaterial != 0 )
+                    g_pPanelWatch->GetVariableProperties( g_DragAndDropStruct.GetControlID() )->m_Description = pMaterial->GetName();
+                else
+                    g_pPanelWatch->GetVariableProperties( g_DragAndDropStruct.GetControlID() )->m_Description = 0;
+            }
+#endif //MYFW_USING_WX
+        }
+    }
+
+    return oldpointer;
+}
 
 void* ComponentMesh::OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue* pNewValue)
 {
@@ -255,7 +295,7 @@ void* ComponentMesh::OnValueChanged(ComponentVariable* pVar, bool changedbyinter
                     g_pPanelWatch->ChangeDescriptionForPointerWithDescription( pVar->m_ControlID, "none" );
 
                     oldpointer = GetMaterial( materialthatchanged );
-                    g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_ChangeMaterialOnMesh( this, pVar, materialthatchanged, 0 ) );
+                    g_pGameCore->GetCommandStack()->Do( MyNew EditorCommand_ChangeMaterialOnMesh( this, pVar, materialthatchanged, 0 ) );
                 }
 #endif //MYFW_USING_WX
             }
@@ -280,48 +320,6 @@ void* ComponentMesh::OnValueChanged(ComponentVariable* pVar, bool changedbyinter
     return oldpointer;
 }
 #endif //MYFW_EDITOR
-
-#if MYFW_USING_WX
-void* ComponentMesh::OnDropMaterial(ComponentVariable* pVar, wxCoord x, wxCoord y)
-{
-    void* oldpointer = 0;
-
-    DragAndDropItem* pDropItem = g_DragAndDropStruct.GetItem( 0 );
-
-    if( pDropItem->m_Type == DragAndDropType_MaterialDefinitionPointer )
-    {
-        int materialthatchanged = -1;
-        for( int i=0; i<MAX_SUBMESHES; i++ )
-        {
-            if( pVar->m_Label == g_MaterialLabels[i] )
-            {
-                materialthatchanged = i;
-                break;
-            }
-        }
-
-        MyAssert( materialthatchanged != -1 );
-        if( materialthatchanged != -1 )
-        {
-            MaterialDefinition* pMaterial = (MaterialDefinition*)pDropItem->m_Value;
-
-            oldpointer = GetMaterial( materialthatchanged );
-            g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_ChangeMaterialOnMesh( this, pVar, materialthatchanged, pMaterial ) );
-
-            // update the panel so new Material name shows up.
-            if( g_DragAndDropStruct.GetControlID() != -1 )
-            {
-                if( pMaterial != 0 )
-                    g_pPanelWatch->GetVariableProperties( g_DragAndDropStruct.GetControlID() )->m_Description = pMaterial->GetName();
-                else
-                    g_pPanelWatch->GetVariableProperties( g_DragAndDropStruct.GetControlID() )->m_Description = 0;
-            }
-        }
-    }
-
-    return oldpointer;
-}
-#endif //MYFW_USING_WX
 
 cJSON* ComponentMesh::ExportAsJSONObject(bool savesceneid, bool saveid)
 {

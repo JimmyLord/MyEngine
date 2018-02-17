@@ -210,7 +210,7 @@ void SceneHandler::HandleRightClickCommand(int id, GameObject* pParentGameObject
 
     if( pGameObjectCreated )
     {
-        g_pEngineMainFrame->m_pCommandStack->Add( MyNew EditorCommand_CreateGameObject( pGameObjectCreated ) );
+        g_pGameCore->GetCommandStack()->Add( MyNew EditorCommand_CreateGameObject( pGameObjectCreated ) );
 
         if( pParentGameObject )
         {
@@ -232,7 +232,7 @@ void SceneHandler::OnDrag()
 {
 }
 
-void SceneHandler::OnDrop(wxTreeItemId treeid, int controlid, wxCoord x, wxCoord y)
+void SceneHandler::OnDrop(wxTreeItemId treeid, int controlid, int x, int y)
 {
     // Figure out the sceneid for the scene objects were dropped on.
     SceneID sceneid = g_pComponentSystemManager->GetSceneIDFromSceneTreeID( treeid );
@@ -272,7 +272,7 @@ void SceneHandler::OnDrop(wxTreeItemId treeid, int controlid, wxCoord x, wxCoord
             }
         }
 
-        g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_ReorderOrReparentGameObjects( selectedObjects, 0, sceneid, true ) );
+        g_pGameCore->GetCommandStack()->Do( MyNew EditorCommand_ReorderOrReparentGameObjects( selectedObjects, 0, sceneid, true ) );
     }
     else if( foundprefabs )
     {
@@ -292,7 +292,7 @@ void SceneHandler::OnDrop(wxTreeItemId treeid, int controlid, wxCoord x, wxCoord
             if( pGameObjectCreated )
             {
                 // Undo/Redo
-                g_pEngineMainFrame->m_pCommandStack->Add( MyNew EditorCommand_CreateGameObject( pGameObjectCreated ) );
+                g_pGameCore->GetCommandStack()->Add( MyNew EditorCommand_CreateGameObject( pGameObjectCreated ) );
             }
         }
     }

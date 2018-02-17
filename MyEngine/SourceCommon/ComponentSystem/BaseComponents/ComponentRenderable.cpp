@@ -159,6 +159,7 @@ void ComponentRenderable::Draw(MyMatrix* pMatViewProj, ShaderGroup* pShaderOverr
 {
 }
 
+#if MYFW_EDITOR
 #if MYFW_USING_WX
 void ComponentRenderable::AddToObjectsPanel(wxTreeItemId gameobjectid)
 {
@@ -186,15 +187,14 @@ void ComponentRenderable::FillPropertiesWindow(bool clear, bool addcomponentvari
         //g_pPanelWatch->AddUnsignedInt( "Layers", &m_LayersThisExistsOn, 0, 65535 );
     }
 }
+#endif //MYFW_USING_WX
 
-//void* ComponentSprite::OnDrop(ComponentVariable* pVar, wxCoord x, wxCoord y)
+//void* ComponentRenderable::OnDrop(ComponentVariable* pVar, int x, int y)
 //{
 //    void* oldvalue = 0;
 //    return oldvalue;
 //}
-#endif //MYFW_USING_WX
 
-#if MYFW_EDITOR
 void* ComponentRenderable::OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue* pNewValue)
 {
     void* oldpointer = 0;

@@ -168,7 +168,7 @@ void ComponentPostEffect::FillPropertiesWindow(bool clear, bool addcomponentvari
     }
 }
 
-void ComponentPostEffect::OnDropMaterial(int controlid, wxCoord x, wxCoord y)
+void ComponentPostEffect::OnDropMaterial(int controlid, int x, int y)
 {
     DragAndDropItem* pDropItem = g_DragAndDropStruct.GetItem( 0 );
 

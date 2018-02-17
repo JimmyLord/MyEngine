@@ -76,8 +76,8 @@ public:
     static void StaticOnDrag(void* pObjectPtr) { ((SceneHandler*)pObjectPtr)->OnDrag(); }
     void OnDrag();
 
-    static void StaticOnDrop(void* pObjectPtr, wxTreeItemId treeid, int controlid, wxCoord x, wxCoord y) { ((SceneHandler*)pObjectPtr)->OnDrop( treeid, controlid, x, y ); }
-    void OnDrop(wxTreeItemId treeid, int controlid, wxCoord x, wxCoord y);
+    static void StaticOnDrop(void* pObjectPtr, wxTreeItemId treeid, int controlid, int x, int y) { ((SceneHandler*)pObjectPtr)->OnDrop( treeid, controlid, x, y ); }
+    void OnDrop(wxTreeItemId treeid, int controlid, int x, int y);
 
     static void StaticOnLabelEdit(void* pObjectPtr, wxTreeItemId treeid, wxString newlabel) { ((SceneHandler*)pObjectPtr)->OnLabelEdit( treeid, newlabel ); }
     void OnLabelEdit(wxTreeItemId treeid, wxString newlabel);

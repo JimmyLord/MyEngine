@@ -166,6 +166,7 @@ void ComponentVoxelMesh::SetPointerDesc(ComponentVariable* pVar, const char* new
     }
 }
 
+#if MYFW_EDITOR
 #if MYFW_USING_WX
 void ComponentVoxelMesh::AddToObjectsPanel(wxTreeItemId gameobjectid)
 {
@@ -201,8 +202,9 @@ void ComponentVoxelMesh::FillPropertiesWindow(bool clear, bool addcomponentvaria
             g_pPanelWatch->AddButton( "Edit Mesh", this, -1, ComponentVoxelMesh::StaticOnButtonEditMesh );
     }
 }
+#endif //MYFW_USING_WX
 
-void* ComponentVoxelMesh::OnDrop(ComponentVariable* pVar, wxCoord x, wxCoord y)
+void* ComponentVoxelMesh::OnDrop(ComponentVariable* pVar, int x, int y)
 {
     void* oldpointer = 0;
 
@@ -235,18 +237,20 @@ void* ComponentVoxelMesh::OnDrop(ComponentVariable* pVar, wxCoord x, wxCoord y)
             MyMesh* pMesh = g_pMeshManager->FindMeshBySourceFile( pFile );
             SetMesh( pMesh );
 
+#if MYFW_USING_WX
             // update the panel so new OBJ name shows up.
             g_pPanelWatch->GetVariableProperties( g_DragAndDropStruct.GetControlID() )->m_Description = m_pMesh->GetFile()->GetFullPath();
+#endif //MYFW_USING_WX
         }
 
+#if MYFW_USING_WX
         g_pPanelWatch->SetNeedsRefresh();
+#endif //MYFW_USING_WX
     }
 
     return oldpointer;
 }
-#endif //MYFW_USING_WX
 
-#if MYFW_EDITOR
 void* ComponentVoxelMesh::OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue* pNewValue)
 {
     void* oldpointer = 0;

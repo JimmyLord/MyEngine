@@ -82,6 +82,7 @@ void ComponentLight::Reset()
 #endif //MYFW_USING_WX
 }
 
+#if MYFW_EDITOR
 #if MYFW_USING_WX
 void ComponentLight::AddToObjectsPanel(wxTreeItemId gameobjectid)
 {
@@ -112,8 +113,9 @@ void ComponentLight::FillPropertiesWindow(bool clear, bool addcomponentvariables
         }
     }
 }
+#endif //MYFW_USING_WX
 
-void* ComponentLight::OnDrop(ComponentVariable* pVar, wxCoord x, wxCoord y)
+void* ComponentLight::OnDrop(ComponentVariable* pVar, int x, int y)
 {
     void* oldpointer = 0;
 
@@ -125,9 +127,7 @@ void* ComponentLight::OnDrop(ComponentVariable* pVar, wxCoord x, wxCoord y)
 
     return oldpointer;
 }
-#endif //MYFW_USING_WX
 
-#if MYFW_EDITOR
 void* ComponentLight::OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue* pNewValue)
 {
     void* oldpointer = 0;

@@ -203,7 +203,7 @@ void ComponentTransform::FillPropertiesWindow(bool clear, bool addcomponentvaria
     }
 }
 
-void* ComponentTransform::OnDropTransform(ComponentVariable* pVar, wxCoord x, wxCoord y)
+void* ComponentTransform::OnDropTransform(ComponentVariable* pVar, int x, int y)
 {
     void* oldvalue = 0;
 

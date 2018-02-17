@@ -184,8 +184,8 @@ public:
     static void StaticOnDrag(void* pObjectPtr) { ((GameObject*)pObjectPtr)->OnDrag(); }
     void OnDrag();
 
-    static void StaticOnDrop(void* pObjectPtr, wxTreeItemId id, int controlid, wxCoord x, wxCoord y) { ((GameObject*)pObjectPtr)->OnDrop(controlid, x, y); }
-    void OnDrop(int controlid, wxCoord x, wxCoord y);
+    static void StaticOnDrop(void* pObjectPtr, wxTreeItemId id, int controlid, int x, int y) { ((GameObject*)pObjectPtr)->OnDrop(controlid, x, y); }
+    void OnDrop(int controlid, int x, int y);
 
     static void StaticOnLabelEdit(void* pObjectPtr, wxTreeItemId id, wxString newlabel) { ((GameObject*)pObjectPtr)->OnLabelEdit( newlabel ); }
     void OnLabelEdit(wxString newlabel);

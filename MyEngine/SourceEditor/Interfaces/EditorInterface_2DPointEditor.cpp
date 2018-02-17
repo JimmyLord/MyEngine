@@ -146,7 +146,7 @@ void EditorInterface_2DPointEditor::CancelCurrentOperation()
         if( m_AddedVertexWhenMouseWasDragged )
         {
 #if MYFW_USING_WX // TODO_FIX_EDITOR
-            g_pEngineMainFrame->m_pCommandStack->Undo( 1 );
+            g_pGameCore->GetCommandStack()->Undo( 1 );
 #endif
         }
         else
@@ -179,7 +179,7 @@ bool EditorInterface_2DPointEditor::HandleInput(int keyaction, int keycode, int 
                 position = m_PositionMouseWentDown;
 
 #if MYFW_USING_WX // TODO_FIX_EDITOR
-            g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_Delete2DPoint( m_pCollisionObject, m_IndexOfPointBeingDragged, position ) );
+            g_pGameCore->GetCommandStack()->Do( MyNew EditorCommand_Delete2DPoint( m_pCollisionObject, m_IndexOfPointBeingDragged, position ) );
 #endif
             m_IndexOfPointBeingDragged = -1;
         }
@@ -227,7 +227,7 @@ bool EditorInterface_2DPointEditor::HandleInput(int keyaction, int keycode, int 
                 if( distmoved.LengthSquared() != 0 )
                 {
 #if MYFW_USING_WX // TODO_FIX_EDITOR
-                    g_pEngineMainFrame->m_pCommandStack->Add( MyNew EditorCommand_Move2DPoint( distmoved, m_pCollisionObject, m_IndexOfPointBeingDragged ), m_AddedVertexWhenMouseWasDragged );
+                    g_pGameCore->GetCommandStack()->Add( MyNew EditorCommand_Move2DPoint( distmoved, m_pCollisionObject, m_IndexOfPointBeingDragged ), m_AddedVertexWhenMouseWasDragged );
 #endif
                 }
             }
@@ -306,7 +306,7 @@ bool EditorInterface_2DPointEditor::HandleInput(int keyaction, int keycode, int 
                     if( createnewvertex )
                     {
 #if MYFW_USING_WX // TODO_FIX_EDITOR
-                        g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_Insert2DPoint( m_pCollisionObject, m_IndexOfPointBeingDragged ) );
+                        g_pGameCore->GetCommandStack()->Do( MyNew EditorCommand_Insert2DPoint( m_pCollisionObject, m_IndexOfPointBeingDragged ) );
 #endif
                         m_AddedVertexWhenMouseWasDragged = true;
                     }

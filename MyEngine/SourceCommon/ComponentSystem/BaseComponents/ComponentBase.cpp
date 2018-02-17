@@ -21,9 +21,11 @@ ComponentBase::ComponentBase()
 {
     ClassnameSanityCheck();
 
-#if MYFW_USING_WX
+#if MYFW_EDITOR
     m_DivorcedVariables = 0;
+#endif
 
+#if MYFW_USING_WX
     m_ControlID_ComponentTitleLabel = -1;
     m_pPanelWatchBlockVisible = 0;
 #endif
@@ -679,15 +681,29 @@ void ComponentBase::AddVariableToWatchPanel(ComponentVariable* pVar)
         return;
     }
 
-    //if( pVar->m_pShouldVariableBeAddedCallbackFunc )
+    if( pVar->m_pShouldVariableBeAddedCallbackFunc )
+    {
+        if( (this->*pVar->m_pShouldVariableBeAddedCallbackFunc)( pVar ) == false )
+        {
+            pVar->m_ControlID = -10; // less than -4 since vec4's add 3 in FindComponentVariableForControl()
+            return;
+        }
+    }
+
+    int numStylesPushed = 0;
+
+    if( IsDivorced( pVar->m_Index ) )
+    {
+        ImGui::PushStyleColor( ImGuiCol_Text, ImVec4( 1.0f, 0.5f, 0.0f, 1.0f ) );
+        numStylesPushed++;
+        //g_pPanelWatch->ChangeStaticTextFontStyle( pVar->m_ControlID, wxFONTSTYLE_ITALIC, wxFONTWEIGHT_BOLD );
+        //g_pPanelWatch->ChangeStaticTextBGColor( pVar->m_ControlID, wxColour( 255, 200, 200, 255 ) );
+    }
+
+    //if( DoAllMultiSelectedVariabledHaveTheSameValue( pVar ) == false )
     //{
-    //    //CVarFunc_ShouldVariableBeAdded func = pVar->m_pShouldVariableBeAddedCallbackFunc;
-    //    //if( (pVar->m_pComponentObject->*func)( pVar ) == false )
-    //    if( (this->*pVar->m_pShouldVariableBeAddedCallbackFunc)( pVar ) == false )
-    //    {
-    //        pVar->m_ControlID = -10; // less than -4 since vec4's add 3 in FindComponentVariableForControl()
-    //        return;
-    //    }
+    //    //g_pPanelWatch->ChangeStaticTextFontStyle( pVar->m_ControlID, wxFONTSTYLE_ITALIC, wxFONTWEIGHT_BOLD );
+    //    //g_pPanelWatch->ChangeStaticTextBGColor( pVar->m_ControlID, wxColour( 200, 200, 255, 255 ) );
     //}
 
 #pragma warning( disable : 4062 )
@@ -737,18 +753,23 @@ void ComponentBase::AddVariableToWatchPanel(ComponentVariable* pVar)
             }
             break;
 
-    //    case ComponentVariableType_Flags:
-            //ImGui::CheckboxFlags( pVar->m_WatchLabel, (unsigned int*)((char*)this + pVar->m_Offset) );
-    //        pVar->m_ControlID = g_pPanelWatch->AddFlags( pVar->m_WatchLabel, (unsigned int*)((char*)this + pVar->m_Offset), pVar->m_NumEnumStrings, pVar->m_ppEnumStrings, this, ComponentBase::StaticOnValueChangedVariable, ComponentBase::StaticOnRightClickVariable );
-    //        break;
+        case ComponentVariableType_Flags:
+            {
+                ImGui::Text( "Flags: %s (TODO)", pVar->m_Label );
+                //ImGui::CheckboxFlags( pVar->m_WatchLabel, (unsigned int*)((char*)this + pVar->m_Offset) );
+                //pVar->m_ControlID = g_pPanelWatch->AddFlags( pVar->m_WatchLabel, (unsigned int*)((char*)this + pVar->m_Offset), pVar->m_NumEnumStrings, pVar->m_ppEnumStrings, this, ComponentBase::StaticOnValueChangedVariable, ComponentBase::StaticOnRightClickVariable );
+            }
+            break;
 
-    //    case ComponentVariableType_UnsignedInt:
-    //        pVar->m_ControlID = g_pPanelWatch->AddUnsignedInt( pVar->m_WatchLabel, (unsigned int*)((char*)this + pVar->m_Offset), 0, 65535, this, ComponentBase::StaticOnValueChangedVariable, ComponentBase::StaticOnRightClickVariable );
-    //        break;
+        case ComponentVariableType_UnsignedInt:
+            {
+                ImGui::Text( "UnsignedInt: %s (TODO)", pVar->m_Label );
+                //pVar->m_ControlID = g_pPanelWatch->AddUnsignedInt( pVar->m_WatchLabel, (unsigned int*)((char*)this + pVar->m_Offset), 0, 65535, this, ComponentBase::StaticOnValueChangedVariable, ComponentBase::StaticOnRightClickVariable );
+            }
+            break;
 
-    //    //ComponentVariableType_Char,
-    //    //ComponentVariableType_UnsignedChar,
-
+        //ComponentVariableType_Char,
+        //ComponentVariableType_UnsignedChar,
         case ComponentVariableType_Bool:
             {
                 bool modified = ImGui::Checkbox( pVar->m_WatchLabel, (bool*)((char*)this + pVar->m_Offset) );
@@ -780,12 +801,15 @@ void ComponentBase::AddVariableToWatchPanel(ComponentVariable* pVar)
             }
             break;
 
-    //    //ComponentVariableType_Double,
-    //    //ComponentVariableType_ColorFloat,
+        //ComponentVariableType_Double,
+        //ComponentVariableType_ColorFloat,
 
-    //    case ComponentVariableType_ColorByte:
-    //        pVar->m_ControlID = g_pPanelWatch->AddColorByte( pVar->m_WatchLabel, (ColorByte*)((char*)this + pVar->m_Offset), 0.0f, 0.0f, this, ComponentBase::StaticOnValueChangedVariable, ComponentBase::StaticOnRightClickVariable );
-    //        break;
+        case ComponentVariableType_ColorByte:
+            {
+                ImGui::Text( "ColorByte: %s (TODO)", pVar->m_Label );
+                //pVar->m_ControlID = g_pPanelWatch->AddColorByte( pVar->m_WatchLabel, (ColorByte*)((char*)this + pVar->m_Offset), 0.0f, 0.0f, this, ComponentBase::StaticOnValueChangedVariable, ComponentBase::StaticOnRightClickVariable );
+            }
+            break;
 
         case ComponentVariableType_Vector2:
             {
@@ -811,67 +835,102 @@ void ComponentBase::AddVariableToWatchPanel(ComponentVariable* pVar)
             //pVar->m_ControlID = g_pPanelWatch->AddVector3Int( pVar->m_WatchLabel, (Vector3Int*)((char*)this + pVar->m_Offset), 0.0f, 0.0f, this, ComponentBase::StaticOnValueChangedVariable, ComponentBase::StaticOnRightClickVariable );
             break;
 
-    //    case ComponentVariableType_GameObjectPtr:
-    //        MyAssert( false );
-    //        break;
+        case ComponentVariableType_GameObjectPtr:
+            {
+                ImGui::Text( "GameObjectPtr: %s (TODO)", pVar->m_Label );
+                //MyAssert( false );
+            }
+            break;
 
-    //    case ComponentVariableType_ComponentPtr:
-    //        {
-    //            ComponentTransform* pTransformComponent = *(ComponentTransform**)((char*)this + pVar->m_Offset);
+        case ComponentVariableType_ComponentPtr:
+            {
+                ImGui::Text( "ComponentPtr: %s (TODO)", pVar->m_Label );
+                //ComponentTransform* pTransformComponent = *(ComponentTransform**)((char*)this + pVar->m_Offset);
 
-    //            const char* desc = "none";
-    //            if( pTransformComponent )
-    //            {
-    //                desc = pTransformComponent->m_pGameObject->GetName();
-    //            }
+                //const char* desc = "none";
+                //if( pTransformComponent )
+                //{
+                //    desc = pTransformComponent->m_pGameObject->GetName();
+                //}
 
-    //            pVar->m_ControlID = g_pPanelWatch->AddPointerWithDescription( pVar->m_WatchLabel, pTransformComponent, desc, this, ComponentBase::StaticOnDropVariable, ComponentBase::StaticOnValueChangedVariable, ComponentBase::StaticOnRightClickVariable );
-    //        }
-    //        break;
+                //pVar->m_ControlID = g_pPanelWatch->AddPointerWithDescription( pVar->m_WatchLabel, pTransformComponent, desc, this, ComponentBase::StaticOnDropVariable, ComponentBase::StaticOnValueChangedVariable, ComponentBase::StaticOnRightClickVariable );
+            }
+            break;
 
-    //    case ComponentVariableType_FilePtr:
-    //        {
-    //            MyFileObject* pFile = *(MyFileObject**)((char*)this + pVar->m_Offset);
+        case ComponentVariableType_FilePtr:
+            {
+                ImGui::Text( "FilePtr: %s (TODO)", pVar->m_Label );
+                //MyFileObject* pFile = *(MyFileObject**)((char*)this + pVar->m_Offset);
 
-    //            const char* desc = "none";
-    //            if( pFile )
-    //            {
-    //                desc = pFile->GetFullPath();
-    //            }
+                //const char* desc = "none";
+                //if( pFile )
+                //{
+                //    desc = pFile->GetFullPath();
+                //}
 
-    //            pVar->m_ControlID = g_pPanelWatch->AddPointerWithDescription( pVar->m_WatchLabel, pFile, desc, this, ComponentBase::StaticOnDropVariable, ComponentBase::StaticOnValueChangedVariable, ComponentBase::StaticOnRightClickVariable );
-    //        }
-    //        break;
+                //pVar->m_ControlID = g_pPanelWatch->AddPointerWithDescription( pVar->m_WatchLabel, pFile, desc, this, ComponentBase::StaticOnDropVariable, ComponentBase::StaticOnValueChangedVariable, ComponentBase::StaticOnRightClickVariable );
+            }
+            break;
 
-    //    case ComponentVariableType_MaterialPtr:
-    //        {
-    //            MaterialDefinition* pMaterial = *(MaterialDefinition**)((char*)this + pVar->m_Offset);
+        case ComponentVariableType_MaterialPtr:
+            {
+                MaterialDefinition* pMaterial = *(MaterialDefinition**)((char*)this + pVar->m_Offset);
 
-    //            const char* desc = "no material";
-    //            if( pMaterial != 0 )
-    //                desc = pMaterial->GetName();
+                const char* pDesc = "no material";
+                if( pMaterial != 0 )
+                    pDesc = pMaterial->GetName();
 
-    //            pVar->m_ControlID = g_pPanelWatch->AddPointerWithDescription( pVar->m_WatchLabel, pMaterial, desc, this, ComponentBase::StaticOnDropVariable, ComponentBase::StaticOnValueChangedVariable, ComponentBase::StaticOnRightClickVariable );
-    //        }
-    //        break;
+                if( ImGui::Button( pDesc, ImVec2( ImGui::GetWindowWidth() * 0.65f, 0 ) ) )
+                {
+                    // TODO: pop up a material picker window.
+                }
 
-    //    case ComponentVariableType_SoundCuePtr:
-    //        {
-    //            SoundCue* pCue = *(SoundCue**)((char*)this + pVar->m_Offset);
+                if( ImGui::BeginDragDropTarget() )
+                {
+                    if( const ImGuiPayload* payload = ImGui::AcceptDragDropPayload( "Material" ) )
+                    {
+                        MaterialDefinition* pNewMat = (MaterialDefinition*)*(void**)payload->Data;
 
-    //            const char* desc = "no sound cue";
-    //            if( pCue != 0 )
-    //                desc = pCue->GetName();
+                        g_DragAndDropStruct.Clear();
+                        g_DragAndDropStruct.SetControlID( pVar->m_ControlID );
+                        g_DragAndDropStruct.Add( DragAndDropType_MaterialDefinitionPointer, pNewMat );
 
-    //            pVar->m_ControlID = g_pPanelWatch->AddPointerWithDescription( pVar->m_WatchLabel, pCue, desc, this, ComponentBase::StaticOnDropVariable, ComponentBase::StaticOnValueChangedVariable, ComponentBase::StaticOnRightClickVariable );
-    //        }
-    //        break;
+                        OnDropVariable( pVar, 0, -1, -1 );
+                    }
+
+                    if( const ImGuiPayload* payload = ImGui::AcceptDragDropPayload( "File" ) )
+                    {
+                        //(this->*pVar->m_pSetPointerValueCallBackFunc)( pVar, *(void**)payload->Data );
+                    }
+
+                    ImGui::EndDragDropTarget();
+                }
+
+                ImGui::SameLine();
+                ImGui::Text( pVar->m_Label );
+
+                //pVar->m_ControlID = g_pPanelWatch->AddPointerWithDescription( pVar->m_WatchLabel, pMaterial, desc, this, ComponentBase::StaticOnDropVariable, ComponentBase::StaticOnValueChangedVariable, ComponentBase::StaticOnRightClickVariable );
+            }
+            break;
+
+        case ComponentVariableType_SoundCuePtr:
+            {
+                ImGui::Text( "FilePtr: %s (TODO)", pVar->m_Label );
+                //SoundCue* pCue = *(SoundCue**)((char*)this + pVar->m_Offset);
+
+                //const char* desc = "no sound cue";
+                //if( pCue != 0 )
+                //    desc = pCue->GetName();
+
+                //pVar->m_ControlID = g_pPanelWatch->AddPointerWithDescription( pVar->m_WatchLabel, pCue, desc, this, ComponentBase::StaticOnDropVariable, ComponentBase::StaticOnValueChangedVariable, ComponentBase::StaticOnRightClickVariable );
+            }
+            break;
 
         case ComponentVariableType_PointerIndirect:
             {
                 //void* pPtr = (this->*pVar->m_pGetPointerValueCallBackFunc)( pVar );
                 const char* pDesc = (this->*pVar->m_pGetPointerDescCallBackFunc)( pVar );
-                if( ImGui::Button( pDesc ) )
+                if( ImGui::Button( pDesc, ImVec2( ImGui::GetWindowWidth() * 0.65f, 0 ) ) )
                 {
                     // TODO: pop up a material picker window.
                 }
@@ -890,6 +949,9 @@ void ComponentBase::AddVariableToWatchPanel(ComponentVariable* pVar)
 
                     ImGui::EndDragDropTarget();
                 }
+
+                ImGui::SameLine();
+                ImGui::Text( pVar->m_Label );
             }
             break;
 
@@ -899,16 +961,57 @@ void ComponentBase::AddVariableToWatchPanel(ComponentVariable* pVar)
             break;
         }
 
-    //    if( IsDivorced( pVar->m_Index ) )
-    //    {
-    //        g_pPanelWatch->ChangeStaticTextFontStyle( pVar->m_ControlID, wxFONTSTYLE_ITALIC, wxFONTWEIGHT_BOLD );
-    //        g_pPanelWatch->ChangeStaticTextBGColor( pVar->m_ControlID, wxColour( 255, 200, 200, 255 ) );
-    //    }
+        ImGui::PopStyleColor( numStylesPushed );
+        numStylesPushed = 0;
 
-    //    if( DoAllMultiSelectedVariabledHaveTheSameValue( pVar ) == false )
-    //    {
-    //        g_pPanelWatch->ChangeStaticTextFontStyle( pVar->m_ControlID, wxFONTSTYLE_ITALIC, wxFONTWEIGHT_BOLD );
-    //        g_pPanelWatch->ChangeStaticTextBGColor( pVar->m_ControlID, wxColour( 200, 200, 255, 255 ) );
+        // Right-click menu, for divorce/marry.
+        // Will attach to last control used, which should either be the entire control or the label.
+        // TODO: Find way to show context menu if the button of a "Pointer type" is right-clicked, not just label.
+        {
+            ImGui::PushID( pVar );
+            if( ImGui::BeginPopupContextItem( "ContextPopup", 1 ) )
+            {
+                if( IsDivorced( pVar->m_Index ) == false )
+                {
+                    if( ImGui::MenuItem( "Divorce value from parent" ) )
+                    {
+                        g_pGameCore->GetCommandStack()->Do( MyNew EditorCommand_DivorceOrMarryComponentVariable( this, pVar, true ) );
+
+                        ImGui::CloseCurrentPopup();
+                    }
+                }
+                else
+                {                        
+                    if( ImGui::MenuItem( "Reset value to parent" ) )
+                    {
+                        g_pGameCore->GetCommandStack()->Do( MyNew EditorCommand_DivorceOrMarryComponentVariable( this, pVar, false ) );
+
+                        ImGui::CloseCurrentPopup();
+                    }
+                }
+
+                // TODO: This pVar callback needs to be called, not sure what's using it.
+                //if( pVar->m_pOnRightClickCallbackFunc )
+                //{
+                //    (this->*(pVar->m_pOnRightClickCallbackFunc))( pVar, &menu );
+                //}
+
+                ImGui::EndPopup();
+            }
+            ImGui::PopID();
+        }
+
+        //if( IsDivorced( pVar->m_Index ) )
+        //{
+        //    g_pPanelWatch->ChangeStaticTextFontStyle( pVar->m_ControlID, wxFONTSTYLE_ITALIC, wxFONTWEIGHT_BOLD );
+        //    g_pPanelWatch->ChangeStaticTextBGColor( pVar->m_ControlID, wxColour( 255, 200, 200, 255 ) );
+        //}
+
+        //if( DoAllMultiSelectedVariabledHaveTheSameValue( pVar ) == false )
+        //{
+        //    g_pPanelWatch->ChangeStaticTextFontStyle( pVar->m_ControlID, wxFONTSTYLE_ITALIC, wxFONTWEIGHT_BOLD );
+        //    g_pPanelWatch->ChangeStaticTextBGColor( pVar->m_ControlID, wxColour( 200, 200, 255, 255 ) );
+        //}
     }
 
     //if( pVar->m_pVariableAddedToInterfaceCallbackFunc )
@@ -1725,12 +1828,20 @@ void ComponentBase::OnValueChangedVariable(int controlid, bool directlychanged, 
 #if MYFW_USING_WX
     ComponentVariable* pVar = FindComponentVariableForControl( controlid );
 
+    // Figure out which component of a multi-component control(e.g. vector3, vector2, colorbyte, etc) this is.
+    int controlcomponent = controlid - pVar->m_ControlID;
+
+    OnValueChangedVariable( pVar, controlcomponent, directlychanged, finishedchanging, oldvalue, valuewaschangedbydragging, pNewValue );
+#else
+    MyAssert( false );
+#endif
+}
+
+void ComponentBase::OnValueChangedVariable(ComponentVariable* pVar, int controlcomponent, bool directlychanged, bool finishedchanging, double oldvalue, bool valuewaschangedbydragging, ComponentVariableValue* pNewValue) // StaticOnValueChangedVariable
+{
     if( pVar )
     {
         void* oldpointer = 0;
-
-        // Figure out which component of a multi-component control(e.g. vector3, vector2, colorbyte, etc) this is.
-        int controlcomponent = controlid - pVar->m_ControlID;
 
         if( pVar->m_pOnValueChangedCallbackFunc )
         {
@@ -1747,7 +1858,7 @@ void ComponentBase::OnValueChangedVariable(int controlid, bool directlychanged, 
                 {
                     if( finishedchanging && IsDivorced( pVar->m_Index ) == false )
                     {
-                        g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_DivorceOrMarryComponentVariable( this, pVar, true ) );
+                        g_pGameCore->GetCommandStack()->Do( MyNew EditorCommand_DivorceOrMarryComponentVariable( this, pVar, true ) );
                     }
                 }
                 else
@@ -1755,7 +1866,9 @@ void ComponentBase::OnValueChangedVariable(int controlid, bool directlychanged, 
                     SetDivorced( pVar->m_Index, true );
                     //g_pPanelWatch->ChangeStaticTextFontStyle( pVar->m_ControlID, wxFONTSTYLE_ITALIC, wxFONTWEIGHT_BOLD );
                     //g_pPanelWatch->ChangeStaticTextBGColor( pVar->m_ControlID, wxColour( 255, 200, 200, 255 ) );
+#if MYFW_USING_WX
                     g_pPanelWatch->SetNeedsRefresh();
+#endif //MYFW_USING_WX
                 }
             }
         }
@@ -1800,7 +1913,7 @@ void ComponentBase::OnValueChangedVariable(int controlid, bool directlychanged, 
     {
         m_pGameObject->GetPrefabRef()->GetPrefab()->RebuildPrefabJSONObjectFromMasterGameObject();
     }
-#endif //MYFW_USING_WX
+//#endif //MYFW_USING_WX
 }
 
 
@@ -1821,14 +1934,15 @@ ComponentVariable* ComponentBase::FindComponentVariableByLabel(CPPListHead* list
 }
 
 #if MYFW_USING_WX
-void ComponentBase::OnDropVariable(int controlid, wxCoord x, wxCoord y)
+void ComponentBase::OnDropVariable(int controlid, int x, int y)
 {
     ComponentVariable* pVar = FindComponentVariableForControl( controlid );
 
     OnDropVariable( pVar, controlid - pVar->m_ControlID, x, y );
 }
+#endif //MYFW_USING_WX
 
-void ComponentBase::OnDropVariable(ComponentVariable* pVar, int controlcomponent, wxCoord x, wxCoord y)
+void ComponentBase::OnDropVariable(ComponentVariable* pVar, int controlcomponent, int x, int y)
 {
     if( pVar )
     {
@@ -1844,7 +1958,7 @@ void ComponentBase::OnDropVariable(ComponentVariable* pVar, int controlcomponent
                 DoesVariableMatchParent( pVar, controlcomponent ) == false ) // Returns true if no parent was found.
             {
                 // Since the variable no longer matches the parent, then divorce it.
-                g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_DivorceOrMarryComponentVariable( this, pVar, true ) );
+                g_pGameCore->GetCommandStack()->Do( MyNew EditorCommand_DivorceOrMarryComponentVariable( this, pVar, true ) );
             }
         }
 
@@ -1859,6 +1973,7 @@ void ComponentBase::OnDropVariable(ComponentVariable* pVar, int controlcomponent
     }
 }
 
+#if MYFW_USING_WX
 void ComponentBase::OnRightClickVariable(int controlid)
 {
     ComponentVariable* pVar = FindComponentVariableForControl( controlid );
@@ -1911,13 +2026,13 @@ void ComponentBaseEventHandlerForComponentVariables::OnPopupClick(wxEvent &evt)
     {
     case ComponentBase::RightClick_DivorceVariable:
         {
-            g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_DivorceOrMarryComponentVariable( pComponent, pVar, true ) );
+            g_pGameCore->GetCommandStack()->Do( MyNew EditorCommand_DivorceOrMarryComponentVariable( pComponent, pVar, true ) );
         }
         break;
 
     case ComponentBase::RightClick_MarryVariable:
         {
-            g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_DivorceOrMarryComponentVariable( pComponent, pVar, false ) );
+            g_pGameCore->GetCommandStack()->Do( MyNew EditorCommand_DivorceOrMarryComponentVariable( pComponent, pVar, false ) );
         }
         break;
     }
@@ -1927,6 +2042,29 @@ void ComponentBaseEventHandlerForComponentVariables::OnPopupClick(wxEvent &evt)
         (pComponent->*(pVar->m_pOnPopupClickCallbackFunc))( pVar, id );
     }
 }
+
+ComponentVariable* ComponentBase::FindComponentVariableForControl(int controlid)
+{
+    for( CPPListNode* pNode = GetComponentVariableList()->GetHead(); pNode; pNode = pNode->GetNext() )
+    {
+        ComponentVariable* pVar = (ComponentVariable*)pNode;
+        MyAssert( pVar );
+
+        if( pVar->m_ControlID == controlid ||
+            (pVar->m_Type == ComponentVariableType_Vector2Int && (pVar->m_ControlID+1 == controlid) ) ||
+            (pVar->m_Type == ComponentVariableType_Vector3Int && (pVar->m_ControlID+1 == controlid || pVar->m_ControlID+2 == controlid) ) ||
+            (pVar->m_Type == ComponentVariableType_Vector3 && (pVar->m_ControlID+1 == controlid || pVar->m_ControlID+2 == controlid) ) ||
+            (pVar->m_Type == ComponentVariableType_Vector2 && (pVar->m_ControlID+1 == controlid) ) ||
+            (pVar->m_Type == ComponentVariableType_ColorByte && (pVar->m_ControlID+1 == controlid) )
+          )
+        {
+            return pVar;
+        }
+    }
+
+    return 0;
+}
+#endif //MYFW_USING_WX
 
 double ComponentBase::GetCurrentValueFromVariable(ComponentVariable* pVar, int controlcomponent)
 {
@@ -1969,6 +2107,11 @@ double ComponentBase::GetCurrentValueFromVariable(ComponentVariable* pVar, int c
 
 void ComponentBase::ChangeValueInNonPointerVariable(ComponentVariable* pVar, int controlcomponent, bool addundocommand, double changetoapply, double changeforundo)
 {
+#if MYFW_USING_IMGUI
+    MyAssert( false );
+#endif
+
+#if MYFW_USING_WX
     size_t offset = pVar->m_Offset;
 
     switch( pVar->m_Type )
@@ -1984,9 +2127,14 @@ void ComponentBase::ChangeValueInNonPointerVariable(ComponentVariable* pVar, int
 
             if( addundocommand )
             {
-                g_pEngineMainFrame->m_pCommandStack->Add( MyNew EditorCommand_PanelWatchNumberValueChanged(
+#if MYFW_USING_WX
+                g_pGameCore->GetCommandStack()->Add( MyNew EditorCommand_PanelWatchNumberValueChanged(
                     changeforundo, PanelWatchType_Int, ((char*)this + offset), pVar->m_ControlID, false,
                     ComponentBase::StaticOnValueChangedVariable, this ) );
+#else
+                g_pGameCore->GetCommandStack()->Add( MyNew EditorCommand_ImGuiPanelWatchNumberValueChanged(
+                    this, pVar, oldvalue + changeforundo, oldvalue, false ) );
+#endif
             }
         }
         break;
@@ -2002,7 +2150,7 @@ void ComponentBase::ChangeValueInNonPointerVariable(ComponentVariable* pVar, int
 
             if( addundocommand )
             {
-                g_pEngineMainFrame->m_pCommandStack->Add( MyNew EditorCommand_PanelWatchNumberValueChanged(
+                g_pGameCore->GetCommandStack()->Add( MyNew EditorCommand_PanelWatchNumberValueChanged(
                     changeforundo, PanelWatchType_UnsignedInt, ((char*)this + offset), pVar->m_ControlID, false,
                     ComponentBase::StaticOnValueChangedVariable, this ) );
             }
@@ -2028,7 +2176,7 @@ void ComponentBase::ChangeValueInNonPointerVariable(ComponentVariable* pVar, int
 
             if( addundocommand )
             {
-                g_pEngineMainFrame->m_pCommandStack->Add( MyNew EditorCommand_PanelWatchNumberValueChanged(
+                g_pGameCore->GetCommandStack()->Add( MyNew EditorCommand_PanelWatchNumberValueChanged(
                     changeforundo, PanelWatchType_Bool, ((char*)this + offset), pVar->m_ControlID, false,
                     ComponentBase::StaticOnValueChangedVariable, this ) );
             }
@@ -2045,7 +2193,7 @@ void ComponentBase::ChangeValueInNonPointerVariable(ComponentVariable* pVar, int
 
             if( addundocommand )
             {
-                g_pEngineMainFrame->m_pCommandStack->Add( MyNew EditorCommand_PanelWatchNumberValueChanged(
+                g_pGameCore->GetCommandStack()->Add( MyNew EditorCommand_PanelWatchNumberValueChanged(
                     changeforundo, PanelWatchType_Float, ((char*)this + offset), pVar->m_ControlID, false,
                     ComponentBase::StaticOnValueChangedVariable, this ) );
             }
@@ -2093,7 +2241,7 @@ void ComponentBase::ChangeValueInNonPointerVariable(ComponentVariable* pVar, int
 
             if( addundocommand )
             {
-                g_pEngineMainFrame->m_pCommandStack->Add( MyNew EditorCommand_PanelWatchNumberValueChanged(
+                g_pGameCore->GetCommandStack()->Add( MyNew EditorCommand_PanelWatchNumberValueChanged(
                     changeforundo, PanelWatchType_Float, ((char*)this + offset + sizeof(float)*controlcomponent),
                     pVar->m_ControlID+controlcomponent, false,
                     ComponentBase::StaticOnValueChangedVariable, this ) );
@@ -2111,7 +2259,7 @@ void ComponentBase::ChangeValueInNonPointerVariable(ComponentVariable* pVar, int
 
             if( addundocommand )
             {
-                g_pEngineMainFrame->m_pCommandStack->Add( MyNew EditorCommand_PanelWatchNumberValueChanged(
+                g_pGameCore->GetCommandStack()->Add( MyNew EditorCommand_PanelWatchNumberValueChanged(
                     changeforundo, PanelWatchType_Float, ((char*)this + offset + sizeof(float)*controlcomponent),
                     pVar->m_ControlID+controlcomponent, false,
                     ComponentBase::StaticOnValueChangedVariable, this ) );
@@ -2129,7 +2277,7 @@ void ComponentBase::ChangeValueInNonPointerVariable(ComponentVariable* pVar, int
 
             if( addundocommand )
             {
-                g_pEngineMainFrame->m_pCommandStack->Add( MyNew EditorCommand_PanelWatchNumberValueChanged(
+                g_pGameCore->GetCommandStack()->Add( MyNew EditorCommand_PanelWatchNumberValueChanged(
                     changeforundo, PanelWatchType_Int, ((char*)this + offset + sizeof(int)*controlcomponent),
                     pVar->m_ControlID+controlcomponent, false,
                     ComponentBase::StaticOnValueChangedVariable, this ) );
@@ -2147,7 +2295,7 @@ void ComponentBase::ChangeValueInNonPointerVariable(ComponentVariable* pVar, int
 
             if( addundocommand )
             {
-                g_pEngineMainFrame->m_pCommandStack->Add( MyNew EditorCommand_PanelWatchNumberValueChanged(
+                g_pGameCore->GetCommandStack()->Add( MyNew EditorCommand_PanelWatchNumberValueChanged(
                     changeforundo, PanelWatchType_Int, ((char*)this + offset + sizeof(int)*controlcomponent),
                     pVar->m_ControlID+controlcomponent, false,
                     ComponentBase::StaticOnValueChangedVariable, this ) );
@@ -2166,10 +2314,12 @@ void ComponentBase::ChangeValueInNonPointerVariable(ComponentVariable* pVar, int
         MyAssert( false );
         break;
     }
+#endif //MYFW_USING_WX
 }
 
 void ComponentBase::CopyValueFromOtherComponent(ComponentVariable* pVar, int controlcomponent, ComponentBase* pOtherComponent, bool addundocommand)
 {
+#if MYFW_USING_WX
     size_t offset = pVar->m_Offset;
 
     switch( pVar->m_Type )
@@ -2186,7 +2336,7 @@ void ComponentBase::CopyValueFromOtherComponent(ComponentVariable* pVar, int con
 
             if( addundocommand )
             {
-                g_pEngineMainFrame->m_pCommandStack->Add( MyNew EditorCommand_PanelWatchNumberValueChanged(
+                g_pGameCore->GetCommandStack()->Add( MyNew EditorCommand_PanelWatchNumberValueChanged(
                     newvalue - oldvalue, PanelWatchType_Int, ((char*)this + offset), pVar->m_ControlID, false,
                     ComponentBase::StaticOnValueChangedVariable, this ) );
             }
@@ -2205,7 +2355,7 @@ void ComponentBase::CopyValueFromOtherComponent(ComponentVariable* pVar, int con
 
             if( addundocommand )
             {
-                g_pEngineMainFrame->m_pCommandStack->Add( MyNew EditorCommand_PanelWatchNumberValueChanged(
+                g_pGameCore->GetCommandStack()->Add( MyNew EditorCommand_PanelWatchNumberValueChanged(
                     newvalue - oldvalue, PanelWatchType_UnsignedInt, ((char*)this + offset), pVar->m_ControlID, false,
                     ComponentBase::StaticOnValueChangedVariable, this ) );
             }
@@ -2229,7 +2379,7 @@ void ComponentBase::CopyValueFromOtherComponent(ComponentVariable* pVar, int con
 
             if( addundocommand )
             {
-                g_pEngineMainFrame->m_pCommandStack->Add( MyNew EditorCommand_PanelWatchNumberValueChanged(
+                g_pGameCore->GetCommandStack()->Add( MyNew EditorCommand_PanelWatchNumberValueChanged(
                     newvalue - oldvalue, PanelWatchType_Bool, ((char*)this + offset), pVar->m_ControlID, false,
                     ComponentBase::StaticOnValueChangedVariable, this ) );
             }
@@ -2247,7 +2397,7 @@ void ComponentBase::CopyValueFromOtherComponent(ComponentVariable* pVar, int con
 
             if( addundocommand )
             {
-                g_pEngineMainFrame->m_pCommandStack->Add( MyNew EditorCommand_PanelWatchNumberValueChanged(
+                g_pGameCore->GetCommandStack()->Add( MyNew EditorCommand_PanelWatchNumberValueChanged(
                     newvalue - oldvalue, PanelWatchType_Float, ((char*)this + offset), pVar->m_ControlID, false,
                     ComponentBase::StaticOnValueChangedVariable, this ) );
             }
@@ -2296,10 +2446,10 @@ void ComponentBase::CopyValueFromOtherComponent(ComponentVariable* pVar, int con
 
             if( addundocommand )
             {
-                g_pEngineMainFrame->m_pCommandStack->Add( MyNew EditorCommand_PanelWatchNumberValueChanged(
+                g_pGameCore->GetCommandStack()->Add( MyNew EditorCommand_PanelWatchNumberValueChanged(
                     newvalue.x - oldvalue.x, PanelWatchType_Float, ((char*)this + offset + 4*0), pVar->m_ControlID+0, false,
                     ComponentBase::StaticOnValueChangedVariable, this ) );
-                g_pEngineMainFrame->m_pCommandStack->Add( MyNew EditorCommand_PanelWatchNumberValueChanged(
+                g_pGameCore->GetCommandStack()->Add( MyNew EditorCommand_PanelWatchNumberValueChanged(
                     newvalue.y - oldvalue.y, PanelWatchType_Float, ((char*)this + offset + 4*1), pVar->m_ControlID+1, false,
                     ComponentBase::StaticOnValueChangedVariable, this ), true );
             }
@@ -2317,7 +2467,7 @@ void ComponentBase::CopyValueFromOtherComponent(ComponentVariable* pVar, int con
 
             if( addundocommand )
             {
-                g_pEngineMainFrame->m_pCommandStack->Add( MyNew EditorCommand_PanelWatchNumberValueChanged(
+                g_pGameCore->GetCommandStack()->Add( MyNew EditorCommand_PanelWatchNumberValueChanged(
                     newvalue - oldvalue, PanelWatchType_Float, ((char*)this + offset + 4*controlcomponent),
                     pVar->m_ControlID+controlcomponent, false,
                     ComponentBase::StaticOnValueChangedVariable, this ) );
@@ -2337,10 +2487,10 @@ void ComponentBase::CopyValueFromOtherComponent(ComponentVariable* pVar, int con
 
             if( addundocommand )
             {
-                g_pEngineMainFrame->m_pCommandStack->Add( MyNew EditorCommand_PanelWatchNumberValueChanged(
+                g_pGameCore->GetCommandStack()->Add( MyNew EditorCommand_PanelWatchNumberValueChanged(
                     newvalue.x - oldvalue.x, PanelWatchType_Int, ((char*)this + offset + 4*0), pVar->m_ControlID+0, false,
                     ComponentBase::StaticOnValueChangedVariable, this ) );
-                g_pEngineMainFrame->m_pCommandStack->Add( MyNew EditorCommand_PanelWatchNumberValueChanged(
+                g_pGameCore->GetCommandStack()->Add( MyNew EditorCommand_PanelWatchNumberValueChanged(
                     newvalue.y - oldvalue.y, PanelWatchType_Int, ((char*)this + offset + 4*1), pVar->m_ControlID+1, false,
                     ComponentBase::StaticOnValueChangedVariable, this ), true );
             }
@@ -2360,13 +2510,13 @@ void ComponentBase::CopyValueFromOtherComponent(ComponentVariable* pVar, int con
 
             if( addundocommand )
             {
-                g_pEngineMainFrame->m_pCommandStack->Add( MyNew EditorCommand_PanelWatchNumberValueChanged(
+                g_pGameCore->GetCommandStack()->Add( MyNew EditorCommand_PanelWatchNumberValueChanged(
                     newvalue.x - oldvalue.x, PanelWatchType_Int, ((char*)this + offset + 4*0), pVar->m_ControlID+0, false,
                     ComponentBase::StaticOnValueChangedVariable, this ) );
-                g_pEngineMainFrame->m_pCommandStack->Add( MyNew EditorCommand_PanelWatchNumberValueChanged(
+                g_pGameCore->GetCommandStack()->Add( MyNew EditorCommand_PanelWatchNumberValueChanged(
                     newvalue.y - oldvalue.y, PanelWatchType_Int, ((char*)this + offset + 4*1), pVar->m_ControlID+1, false,
                     ComponentBase::StaticOnValueChangedVariable, this ), true );
-                g_pEngineMainFrame->m_pCommandStack->Add( MyNew EditorCommand_PanelWatchNumberValueChanged(
+                g_pGameCore->GetCommandStack()->Add( MyNew EditorCommand_PanelWatchNumberValueChanged(
                     newvalue.z - oldvalue.z, PanelWatchType_Int, ((char*)this + offset + 4*2), pVar->m_ControlID+2, false,
                     ComponentBase::StaticOnValueChangedVariable, this ), true );
             }
@@ -2442,7 +2592,7 @@ void ComponentBase::CopyValueFromOtherComponent(ComponentVariable* pVar, int con
             assert( addundocommand == true );
 
             void* pParentValue = (pOtherComponent->*pVar->m_pGetPointerValueCallBackFunc)( pVar );
-            g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_ComponentVariableIndirectPointerChanged( this, pVar, pParentValue ) );
+            g_pGameCore->GetCommandStack()->Do( MyNew EditorCommand_ComponentVariableIndirectPointerChanged( this, pVar, pParentValue ) );
         }
         break;
 
@@ -2451,31 +2601,10 @@ void ComponentBase::CopyValueFromOtherComponent(ComponentVariable* pVar, int con
         MyAssert( false );
         break;
     }
+#endif //MYFW_USING_WX
 }
 
-ComponentVariable* ComponentBase::FindComponentVariableForControl(int controlid)
-{
-    for( CPPListNode* pNode = GetComponentVariableList()->GetHead(); pNode; pNode = pNode->GetNext() )
-    {
-        ComponentVariable* pVar = (ComponentVariable*)pNode;
-        MyAssert( pVar );
-
-        if( pVar->m_ControlID == controlid ||
-            (pVar->m_Type == ComponentVariableType_Vector2Int && (pVar->m_ControlID+1 == controlid) ) ||
-            (pVar->m_Type == ComponentVariableType_Vector3Int && (pVar->m_ControlID+1 == controlid || pVar->m_ControlID+2 == controlid) ) ||
-            (pVar->m_Type == ComponentVariableType_Vector3 && (pVar->m_ControlID+1 == controlid || pVar->m_ControlID+2 == controlid) ) ||
-            (pVar->m_Type == ComponentVariableType_Vector2 && (pVar->m_ControlID+1 == controlid) ) ||
-            (pVar->m_Type == ComponentVariableType_ColorByte && (pVar->m_ControlID+1 == controlid) )
-          )
-        {
-            return pVar;
-        }
-    }
-
-    return 0;
-}
-
-void ComponentBase::UpdateChildrenWithNewValue(bool fromdraganddrop, ComponentVariable* pVar, int controlcomponent, bool directlychanged, bool finishedchanging, double oldvalue, void* oldpointer, wxCoord x, wxCoord y, void* newpointer)
+void ComponentBase::UpdateChildrenWithNewValue(bool fromdraganddrop, ComponentVariable* pVar, int controlcomponent, bool directlychanged, bool finishedchanging, double oldvalue, void* oldpointer, int x, int y, void* newpointer)
 {
 #if 0 //MYFW_USING_WX
     typedef std::map<int, SceneInfo>::iterator it_type;
@@ -2500,7 +2629,7 @@ void ComponentBase::UpdateChildrenWithNewValue(bool fromdraganddrop, ComponentVa
     }
 }
 
-void ComponentBase::UpdateChildrenInGameObjectListWithNewValue(GameObject* first, bool fromdraganddrop, ComponentVariable* pVar, int controlcomponent, bool directlychanged, bool finishedchanging, double oldvalue, void* oldpointer, wxCoord x, wxCoord y, void* newpointer)
+void ComponentBase::UpdateChildrenInGameObjectListWithNewValue(GameObject* first, bool fromdraganddrop, ComponentVariable* pVar, int controlcomponent, bool directlychanged, bool finishedchanging, double oldvalue, void* oldpointer, int x, int y, void* newpointer)
 {
     // find children of this gameobject and change their values as well, if their value matches the old value.
     for( CPPListNode* pNode = first; pNode; pNode = pNode->GetNext() )
@@ -2521,7 +2650,7 @@ void ComponentBase::UpdateChildrenInGameObjectListWithNewValue(GameObject* first
     }
 }
 
-void ComponentBase::UpdateGameObjectWithNewValue(GameObject* pGameObject, bool fromdraganddrop, ComponentVariable* pVar, int controlcomponent, bool directlychanged, bool finishedchanging, double oldvalue, void* oldpointer, wxCoord x, wxCoord y, void* newpointer)
+void ComponentBase::UpdateGameObjectWithNewValue(GameObject* pGameObject, bool fromdraganddrop, ComponentVariable* pVar, int controlcomponent, bool directlychanged, bool finishedchanging, double oldvalue, void* oldpointer, int x, int y, void* newpointer)
 {
     MyAssert( this->m_pGameObject != 0 );
     MyAssert( pGameObject->GetGameObjectThisInheritsFrom() == this->m_pGameObject );
@@ -2549,7 +2678,7 @@ void ComponentBase::UpdateGameObjectWithNewValue(GameObject* pGameObject, bool f
     }
 }
 
-void ComponentBase::UpdateOtherComponentWithNewValue(ComponentBase* pComponent, bool directlychanged, bool ignoreDivorceStatus, bool fromdraganddrop, ComponentVariable* pVar, int controlcomponent, bool finishedchanging, double oldvalue, void* oldpointer, wxCoord x, wxCoord y, void* newpointer)
+void ComponentBase::UpdateOtherComponentWithNewValue(ComponentBase* pComponent, bool directlychanged, bool ignoreDivorceStatus, bool fromdraganddrop, ComponentVariable* pVar, int controlcomponent, bool finishedchanging, double oldvalue, void* oldpointer, int x, int y, void* newpointer)
 {
     ComponentBase* pChildComponent = pComponent;
 
@@ -2797,6 +2926,7 @@ void ComponentBase::UpdateOtherComponentWithNewValue(ComponentBase* pComponent, 
     }
 }
 
+#if MYFW_USING_WX
 void ComponentBase::OnComponentTitleLabelClicked(int id, bool finishedchanging)
 {
     if( id != -1 && id == m_ControlID_ComponentTitleLabel )
@@ -2856,7 +2986,7 @@ void ComponentBase::OnDrag()
     g_DragAndDropStruct.Add( DragAndDropType_ComponentPointer, this );
 }
 
-void ComponentBase::OnDrop(int controlid, wxCoord x, wxCoord y)
+void ComponentBase::OnDrop(int controlid, int x, int y)
 {
 }
 #endif //MYFW_USING_WX
@@ -2915,5 +3045,4 @@ void ComponentBase::OnRightClickAction(int action)
         }
     }
 }
-
 #endif //MYFW_EDITOR

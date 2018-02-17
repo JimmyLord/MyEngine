@@ -81,6 +81,7 @@ void ComponentAudioPlayer::LuaRegister(lua_State* luastate)
 }
 #endif //MYFW_USING_LUA
 
+#if MYFW_EDITOR
 #if MYFW_USING_WX
 void ComponentAudioPlayer::AddToObjectsPanel(wxTreeItemId gameobjectid)
 {
@@ -112,8 +113,9 @@ void ComponentAudioPlayer::FillPropertiesWindow(bool clear, bool addcomponentvar
         g_pPanelWatch->AddButton( "Play Sound", this, -1, ComponentAudioPlayer::StaticOnButtonPlaySound );
     }
 }
+#endif //MYFW_USING_WX
 
-void* ComponentAudioPlayer::OnDrop(ComponentVariable* pVar, wxCoord x, wxCoord y)
+void* ComponentAudioPlayer::OnDrop(ComponentVariable* pVar, int x, int y)
 {
     void* oldvalue = 0;
 
@@ -121,11 +123,13 @@ void* ComponentAudioPlayer::OnDrop(ComponentVariable* pVar, wxCoord x, wxCoord y
 
     if( pDropItem->m_Type == DragAndDropType_SoundCuePointer )
     {
+#if MYFW_USING_WX
         //SetSoundCue( (SoundCue*)pDropItem->m_Value );
-        g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_ChangeSoundCue( this, (SoundCue*)pDropItem->m_Value ) );
+        g_pGameCore->GetCommandStack()->Do( MyNew EditorCommand_ChangeSoundCue( this, (SoundCue*)pDropItem->m_Value ) );
 
         // update the panel so new sound cue name shows up.
         g_pPanelWatch->ChangeDescriptionForPointerWithDescription( pVar->m_ControlID, m_SoundCueName );
+#endif //MYFW_USING_WX
     }
 
     //if( pDropItem->m_Type == DragAndDropType_ComponentPointer )
@@ -140,9 +144,7 @@ void* ComponentAudioPlayer::OnDrop(ComponentVariable* pVar, wxCoord x, wxCoord y
 
     return oldvalue;
 }
-#endif //MYFW_USING_WX
 
-#if MYFW_EDITOR
 void* ComponentAudioPlayer::OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue* pNewValue)
 {
     void* oldpointer = 0;
@@ -160,7 +162,7 @@ void* ComponentAudioPlayer::OnValueChanged(ComponentVariable* pVar, bool changed
                 oldpointer = m_pSoundCue;
                 
                 // Set the current sound cue to null.
-                g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_ChangeSoundCue( this, 0 ) );
+                g_pGameCore->GetCommandStack()->Do( MyNew EditorCommand_ChangeSoundCue( this, 0 ) );
             }
 #endif //MYFW_USING_WX
         }

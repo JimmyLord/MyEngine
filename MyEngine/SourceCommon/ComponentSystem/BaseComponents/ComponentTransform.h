@@ -133,7 +133,7 @@ public:
     virtual void FillPropertiesWindow(bool clear, bool addcomponentvariables = false, bool ignoreblockvisibleflag = false);
 
     // Component variable callbacks.
-    void* OnDropTransform(ComponentVariable* pVar, wxCoord x, wxCoord y);
+    void* OnDropTransform(ComponentVariable* pVar, int x, int y);
 #endif
     void* OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue* pNewValue);
 #endif //MYFW_EDITOR

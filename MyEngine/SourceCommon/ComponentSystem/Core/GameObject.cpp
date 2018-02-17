@@ -130,7 +130,7 @@ void GameObject::LuaRegister(lua_State* luastate)
 #if MYFW_USING_WX
 void GameObject::OnTitleLabelClicked(int controlid, bool finishedchanging) // StaticOnTitleLabelClicked
 {
-    g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_EnableObject( this, !m_Enabled ) );
+    g_pGameCore->GetCommandStack()->Do( MyNew EditorCommand_EnableObject( this, !m_Enabled ) );
     g_pPanelWatch->SetNeedsRefresh();
 }
 
@@ -383,7 +383,7 @@ void GameObject::OnPopupClick(wxEvent &evt)
             // create a temp vector to pass into command.
             std::vector<GameObject*> gameobjects;
             gameobjects.push_back( pGameObject );
-            g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_DeleteObjects( gameobjects ) );
+            g_pGameCore->GetCommandStack()->Do( MyNew EditorCommand_DeleteObjects( gameobjects ) );
         }
     }
     else if( id == RightClick_DeleteFolder )
@@ -393,7 +393,7 @@ void GameObject::OnPopupClick(wxEvent &evt)
 
         pGameObject->AddToList( &gameobjects );
 
-        g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_DeleteObjects( gameobjects ) );
+        g_pGameCore->GetCommandStack()->Do( MyNew EditorCommand_DeleteObjects( gameobjects ) );
     }
     else if( id == RightClick_DuplicateFolder )
     {
@@ -416,7 +416,7 @@ void GameObject::OnDrag()
     g_DragAndDropStruct.Add( DragAndDropType_GameObjectPointer, this );
 }
 
-void GameObject::OnDrop(int controlid, wxCoord x, wxCoord y)
+void GameObject::OnDrop(int controlid, int x, int y)
 {
     // If you drop a game object on another, parent them or move above/below depending on the "y".
     // The bounding rect will change once the first item is moved, so get the rect once before moving things.
@@ -461,7 +461,7 @@ void GameObject::OnDrop(int controlid, wxCoord x, wxCoord y)
 
     if( selectedObjects.size() > 0 )
     {
-        g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_ReorderOrReparentGameObjects( selectedObjects, this, GetSceneID(), setaschild ) );
+        g_pGameCore->GetCommandStack()->Do( MyNew EditorCommand_ReorderOrReparentGameObjects( selectedObjects, this, GetSceneID(), setaschild ) );
     }
 }
 
@@ -571,15 +571,11 @@ void GameObject::Editor_SetMaterial(MaterialDefinition* pMaterial)
                 // Go through same code to drop a material on the component, so inheritance and undo/redo will be handled
                 ComponentVariable* pVar = pRenderable->GetComponentVariableForMaterial( submeshindex );
 
-#if MYFW_USING_WX
                 g_DragAndDropStruct.Clear();
                 g_DragAndDropStruct.SetControlID( pVar->m_ControlID );
                 g_DragAndDropStruct.Add( DragAndDropType_MaterialDefinitionPointer, pMaterial );
 
                 pRenderable->OnDropVariable( pVar, 0, -1, -1 );
-#else
-
-#endif //MYFW_USING_WX
             }
         }
     }

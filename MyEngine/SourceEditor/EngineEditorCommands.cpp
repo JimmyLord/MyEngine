@@ -1595,7 +1595,7 @@ void EditorCommand_DivorceOrMarryComponentVariable::Do()
         //    g_pPanelWatch->ChangeStaticTextBGColor( m_pVar->m_ControlID, wxColour( 255, 200, 200, 255 ) );
         //}
 
-#if MYFW_USING_WX // TODO_FIX_EDITOR
+#if MYFW_USING_WX
         g_pPanelWatch->SetNeedsRefresh();
 #endif
     }
@@ -1603,11 +1603,6 @@ void EditorCommand_DivorceOrMarryComponentVariable::Do()
     {
         // Marry the variables.
         m_pComponent->SetDivorced( m_pVar->m_Index, false );
-        //if( m_pVar->m_ControlID >= 0 )
-        //{
-        //    g_pPanelWatch->ChangeStaticTextFontStyle( m_pVar->m_ControlID, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL );
-        //    g_pPanelWatch->ChangeStaticTextBGColor( m_pVar->m_ControlID, wxNullColour );
-        //}
 
         // Set this components value to the parent's value.
         ComponentBase* pParentComponent = m_pComponent->FindMatchingComponentInParent();
@@ -1618,12 +1613,10 @@ void EditorCommand_DivorceOrMarryComponentVariable::Do()
             ComponentVariableValue newvalue( pParentComponent, m_pVar );
 
             // Update and inform component and children.
-#if MYFW_USING_WX // TODO_FIX_EDITOR
             newvalue.UpdateComponentAndChildrenWithValue( m_pComponent, m_pVar );
-#endif
         }
 
-#if MYFW_USING_WX // TODO_FIX_EDITOR
+#if MYFW_USING_WX
         g_pPanelWatch->SetNeedsRefresh();
 #endif
     }
@@ -1657,9 +1650,9 @@ void EditorCommand_DivorceOrMarryComponentVariable::Undo()
         //}
 
         // Update and inform component and children.
-#if MYFW_USING_WX // TODO_FIX_EDITOR
         m_OldValue.UpdateComponentAndChildrenWithValue( m_pComponent, m_pVar );
 
+#if MYFW_USING_WX // TODO_FIX_EDITOR
         g_pPanelWatch->SetNeedsRefresh();
 #endif
     }

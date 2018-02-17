@@ -183,6 +183,7 @@ void Component3DCollisionObject::LuaRegister(lua_State* luastate)
 }
 #endif //MYFW_USING_LUA
 
+#if MYFW_EDITOR
 #if MYFW_USING_WX
 void Component3DCollisionObject::AddToObjectsPanel(wxTreeItemId gameobjectid)
 {
@@ -212,8 +213,9 @@ void Component3DCollisionObject::OnTransformChanged(Vector3& newpos, Vector3& ne
     if( changedbyuserineditor )
         SyncRigidBodyToTransform();
 }
+#endif //MYFW_USING_WX
 
-void* Component3DCollisionObject::OnDropOBJ(ComponentVariable* pVar, wxCoord x, wxCoord y)
+void* Component3DCollisionObject::OnDropOBJ(ComponentVariable* pVar, int x, int y)
 {
     void* oldpointer = 0;
 
@@ -234,15 +236,13 @@ void* Component3DCollisionObject::OnDropOBJ(ComponentVariable* pVar, wxCoord x, 
             if( m_pMesh )
                 oldpointer = m_pMesh->GetFile();
 
-            g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_ComponentVariableIndirectPointerChanged( this, pVar, pFile ) );
+            g_pGameCore->GetCommandStack()->Do( MyNew EditorCommand_ComponentVariableIndirectPointerChanged( this, pVar, pFile ) );
         }
     }
 
     return oldpointer;
 }
-#endif //MYFW_USING_WX
 
-#if MYFW_EDITOR
 bool Component3DCollisionObject::ShouldVariableBeAddedToWatchPanel(ComponentVariable* pVar)
 {
     switch( m_PrimitiveType )

@@ -114,6 +114,7 @@ void Component2DJointPrismatic::LuaRegister(lua_State* luastate)
 }
 #endif //MYFW_USING_LUA
 
+#if MYFW_EDITOR
 #if MYFW_USING_WX
 void Component2DJointPrismatic::AddToObjectsPanel(wxTreeItemId gameobjectid)
 {
@@ -137,8 +138,9 @@ void Component2DJointPrismatic::FillPropertiesWindow(bool clear, bool addcompone
         FillPropertiesWindowWithVariables(); //_VARIABLE_LIST
     }
 }
+#endif //MYFW_USING_WX
 
-void* Component2DJointPrismatic::OnDrop(ComponentVariable* pVar, wxCoord x, wxCoord y)
+void* Component2DJointPrismatic::OnDrop(ComponentVariable* pVar, int x, int y)
 {
     void* oldvalue = m_pSecondCollisionObject;
 
@@ -163,9 +165,7 @@ void* Component2DJointPrismatic::OnDrop(ComponentVariable* pVar, wxCoord x, wxCo
 
     return oldvalue;
 }
-#endif //MYFW_USING_WX
 
-#if MYFW_EDITOR
 void* Component2DJointPrismatic::OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue* pNewValue)
 {
     void* oldpointer = 0;

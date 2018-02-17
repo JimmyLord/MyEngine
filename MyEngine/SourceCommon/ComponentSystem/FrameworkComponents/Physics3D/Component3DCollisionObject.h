@@ -104,15 +104,16 @@ public:
     //static void StaticOnValueChanged(void* pObjectPtr, int controlid, bool directlychanged, bool finishedchanging, double oldvalue, bool valuewaschangedbydragging) { ((Component3DCollisionObject*)pObjectPtr)->OnValueChanged( controlid, finishedchanging ); }
     //void OnValueChanged(int controlid, bool finishedchanging);
 
-    //static void StaticOnDropOBJ(void* pObjectPtr, int controlid, wxCoord x, wxCoord y) { ((Component3DCollisionObject*)pObjectPtr)->OnDropOBJ(controlid, x, y); }
-    //void OnDropOBJ(int controlid, wxCoord x, wxCoord y);
+    //static void StaticOnDropOBJ(void* pObjectPtr, int controlid, int x, int y) { ((Component3DCollisionObject*)pObjectPtr)->OnDropOBJ(controlid, x, y); }
+    //void OnDropOBJ(int controlid, int x, int y);
 
     static void StaticOnTransformChanged(void* pObjectPtr, Vector3& newpos, Vector3& newrot, Vector3& newscale, bool changedbyuserineditor) { ((Component3DCollisionObject*)pObjectPtr)->OnTransformChanged( newpos, newrot, newscale, changedbyuserineditor ); }
     void OnTransformChanged(Vector3& newpos, Vector3& newrot, Vector3& newscale, bool changedbyuserineditor);
+#endif //MYFW_USING_WX
 
     // Component variable callbacks. //_VARIABLE_LIST
-    void* OnDropOBJ(ComponentVariable* pVar, wxCoord x, wxCoord y);
-#endif //MYFW_USING_WX
+    void* OnDropOBJ(ComponentVariable* pVar, int x, int y);
+
     virtual bool ShouldVariableBeAddedToWatchPanel(ComponentVariable* pVar);
     void* OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue* pNewValue);
 #endif //MYFW_EDITOR

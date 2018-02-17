@@ -68,10 +68,10 @@ public:
     static void StaticOnLeftClick(void* pObjectPtr, wxTreeItemId id, unsigned int count) { ((ComponentAudioPlayer*)pObjectPtr)->OnLeftClick( count, true ); }
     void OnLeftClick(unsigned int count, bool clear);
     virtual void FillPropertiesWindow(bool clear, bool addcomponentvariables = false, bool ignoreblockvisibleflag = false);
+#endif //MYFW_USING_WX
 
     // Component variable callbacks.
-    void* OnDrop(ComponentVariable* pVar, wxCoord x, wxCoord y);
-#endif //MYFW_USING_WX
+    void* OnDrop(ComponentVariable* pVar, int x, int y);
     void* OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue* pNewValue);
 
     static void StaticOnButtonPlaySound(void* pObjectPtr, int buttonid) { ((ComponentAudioPlayer*)pObjectPtr)->OnButtonPlaySound( buttonid ); }

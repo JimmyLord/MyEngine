@@ -153,8 +153,6 @@ public:
     // an array of all components of this type selected (when more than 1 is selected)
     std::vector<ComponentBase*> m_MultiSelectedComponents;
 
-    // an unsigned int of all divorced components variables, only maintained in editor builds.
-    //unsigned int m_DivorcedVariables; // moved outside USING_WX block to allow load/save in game mode.
     bool IsDivorced(int index);
     void SetDivorced(int index, bool divorced);
     bool DoesVariableMatchParent(ComponentVariable* pVar, int controlcomponent);
@@ -170,27 +168,34 @@ public:
     // if any variables value changed, then react.
     static void StaticOnValueChangedVariable(void* pObjectPtr, int controlid, bool directlychanged, bool finishedchanging, double oldvalue, bool valuewaschangedbydragging) { ((ComponentBase*)pObjectPtr)->OnValueChangedVariable( controlid, directlychanged, finishedchanging, oldvalue, valuewaschangedbydragging, 0 ); }
     void OnValueChangedVariable(int controlid, bool directlychanged, bool finishedchanging, double oldvalue, bool valuewaschangedbydragging, ComponentVariableValue* pNewValue);
+    void OnValueChangedVariable(ComponentVariable* pVar, int controlcomponent, bool directlychanged, bool finishedchanging, double oldvalue, bool valuewaschangedbydragging, ComponentVariableValue* pNewValue);
 
     static ComponentVariable* FindComponentVariableByLabel(CPPListHead* list, const char* label);
 
 #if MYFW_USING_WX
-    static void StaticOnDropVariable(void* pObjectPtr, int controlid, wxCoord x, wxCoord y) { ((ComponentBase*)pObjectPtr)->OnDropVariable(controlid, x, y); }
-    void OnDropVariable(int controlid, wxCoord x, wxCoord y);
-    void OnDropVariable(ComponentVariable* pVar, int controlcomponent, wxCoord x, wxCoord y);
+    static void StaticOnDropVariable(void* pObjectPtr, int controlid, int x, int y) { ((ComponentBase*)pObjectPtr)->OnDropVariable(controlid, x, y); }
+    void OnDropVariable(int controlid, int x, int y);
+#endif //MYFW_USING_WX
+    void OnDropVariable(ComponentVariable* pVar, int controlcomponent, int x, int y);
 
+#if MYFW_USING_WX
     ComponentBaseEventHandlerForComponentVariables m_ComponentBaseEventHandlerForComponentVariables;
     static void StaticOnRightClickVariable(void* pObjectPtr, int controlid) { ((ComponentBase*)pObjectPtr)->OnRightClickVariable(controlid); }
     void OnRightClickVariable(int controlid);
 
     ComponentVariable* FindComponentVariableForControl(int controlid);
-    void UpdateChildrenWithNewValue(bool fromdraganddrop, ComponentVariable* pVar, int controlcomponent, bool directlychanged, bool finishedchanging, double oldvalue, void* oldpointer, wxCoord x, wxCoord y, void* newpointer);
-    void UpdateChildrenInGameObjectListWithNewValue(GameObject* first, bool fromdraganddrop, ComponentVariable* pVar, int controlcomponent, bool directlychanged, bool finishedchanging, double oldvalue, void* oldpointer, wxCoord x, wxCoord y, void* newpointer);
-    void UpdateGameObjectWithNewValue(GameObject* pGameObject, bool fromdraganddrop, ComponentVariable* pVar, int controlcomponent, bool directlychanged, bool finishedchanging, double oldvalue, void* oldpointer, wxCoord x, wxCoord y, void* newpointer);
-    void UpdateOtherComponentWithNewValue(ComponentBase* pComponent, bool directlychanged, bool ignoreDivorceStatus, bool fromdraganddrop, ComponentVariable* pVar, int controlcomponent, bool finishedchanging, double oldvalue, void* oldpointer, wxCoord x, wxCoord y, void* newpointer);
+#endif //MYFW_USING_WX
+
     double GetCurrentValueFromVariable(ComponentVariable* pVar, int controlcomponent);
     void ChangeValueInNonPointerVariable(ComponentVariable* pVar, int controlcomponent, bool addundocommand, double changetoapply, double changeforundo);
     void CopyValueFromOtherComponent(ComponentVariable* pVar, int controlcomponent, ComponentBase* pOtherComponent, bool addundocommand);
 
+    void UpdateChildrenWithNewValue(bool fromdraganddrop, ComponentVariable* pVar, int controlcomponent, bool directlychanged, bool finishedchanging, double oldvalue, void* oldpointer, int x, int y, void* newpointer);
+    void UpdateChildrenInGameObjectListWithNewValue(GameObject* first, bool fromdraganddrop, ComponentVariable* pVar, int controlcomponent, bool directlychanged, bool finishedchanging, double oldvalue, void* oldpointer, int x, int y, void* newpointer);
+    void UpdateGameObjectWithNewValue(GameObject* pGameObject, bool fromdraganddrop, ComponentVariable* pVar, int controlcomponent, bool directlychanged, bool finishedchanging, double oldvalue, void* oldpointer, int x, int y, void* newpointer);
+    void UpdateOtherComponentWithNewValue(ComponentBase* pComponent, bool directlychanged, bool ignoreDivorceStatus, bool fromdraganddrop, ComponentVariable* pVar, int controlcomponent, bool finishedchanging, double oldvalue, void* oldpointer, int x, int y, void* newpointer);
+
+#if MYFW_USING_WX
     // to show/hide the components controls in watch panel
     //static bool m_PanelWatchBlockVisible; // each class needs it's own static bool, so if one component of this type is off, they all are.
     bool* m_pPanelWatchBlockVisible; // pointer to the bool above, must be set by each component.
@@ -211,8 +216,8 @@ public:
     static void StaticOnDrag(void* pObjectPtr) { ((ComponentBase*)pObjectPtr)->OnDrag(); }
     void OnDrag();
 
-    static void StaticOnDrop(void* pObjectPtr, wxTreeItemId id, int controlid, wxCoord x, wxCoord y) { ((ComponentBase*)pObjectPtr)->OnDrop(controlid, x, y); }
-    void OnDrop(int controlid, wxCoord x, wxCoord y);
+    static void StaticOnDrop(void* pObjectPtr, wxTreeItemId id, int controlid, int x, int y) { ((ComponentBase*)pObjectPtr)->OnDrop(controlid, x, y); }
+    void OnDrop(int controlid, int x, int y);
 
     // Scene right-click options
     virtual void AddRightClickOptionsToMenu(wxMenu* pMenu, int baseid) {}

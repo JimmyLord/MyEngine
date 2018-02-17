@@ -97,13 +97,10 @@ public:
     static void StaticOnLeftClick(void* pObjectPtr, wxTreeItemId id, unsigned int count) { ((ComponentSprite*)pObjectPtr)->OnLeftClick( count, true ); }
     void OnLeftClick(unsigned int count, bool clear);
     virtual void FillPropertiesWindow(bool clear, bool addcomponentvariables = false, bool ignoreblockvisibleflag = false);
+#endif //MYFW_USING_WX
 
     // Component variable callbacks. //_VARIABLE_LIST
-    void* OnDrop(ComponentVariable* pVar, wxCoord x, wxCoord y);
-#endif //MYFW_USING_WX
-#if MYFW_USING_IMGUI
-    void* OnDrop(ComponentVariable* pVar, float x, float y);
-#endif //MYFW_USING_IMGUI
+    void* OnDrop(ComponentVariable* pVar, int x, int y);
     void* OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue* pNewValue);
 #endif //MYFW_EDITOR
 };

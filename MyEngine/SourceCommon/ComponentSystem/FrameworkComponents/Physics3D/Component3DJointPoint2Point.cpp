@@ -91,6 +91,7 @@ void Component3DJointPoint2Point::LuaRegister(lua_State* luastate)
 }
 #endif //MYFW_USING_LUA
 
+#if MYFW_EDITOR
 #if MYFW_USING_WX
 void Component3DJointPoint2Point::AddToObjectsPanel(wxTreeItemId gameobjectid)
 {
@@ -114,8 +115,9 @@ void Component3DJointPoint2Point::FillPropertiesWindow(bool clear, bool addcompo
         FillPropertiesWindowWithVariables(); //_VARIABLE_LIST
     }
 }
+#endif //MYFW_USING_WX
 
-void* Component3DJointPoint2Point::OnDrop(ComponentVariable* pVar, wxCoord x, wxCoord y)
+void* Component3DJointPoint2Point::OnDrop(ComponentVariable* pVar, int x, int y)
 {
     void* oldvalue = m_pSecondCollisionObject;
 
@@ -140,9 +142,7 @@ void* Component3DJointPoint2Point::OnDrop(ComponentVariable* pVar, wxCoord x, wx
 
     return oldvalue;
 }
-#endif //MYFW_USING_WX
 
-#if MYFW_EDITOR
 void* Component3DJointPoint2Point::OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue* pNewValue)
 {
     void* oldpointer = 0;

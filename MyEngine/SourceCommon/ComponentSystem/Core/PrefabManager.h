@@ -131,8 +131,8 @@ public:
     static void StaticOnDrag(void* pObjectPtr) { ((PrefabObject*)pObjectPtr)->OnDrag(); }
     void OnDrag();
 
-    static void StaticOnDrop(void* pObjectPtr, wxTreeItemId id, int controlid, wxCoord x, wxCoord y) { ((PrefabObject*)pObjectPtr)->OnDrop(controlid, x, y); }
-    void OnDrop(int controlid, wxCoord x, wxCoord y);
+    static void StaticOnDrop(void* pObjectPtr, wxTreeItemId id, int controlid, int x, int y) { ((PrefabObject*)pObjectPtr)->OnDrop(controlid, x, y); }
+    void OnDrop(int controlid, int x, int y);
 #endif //MYFW_USING_WX
 #endif //MYFW_EDITOR
 };

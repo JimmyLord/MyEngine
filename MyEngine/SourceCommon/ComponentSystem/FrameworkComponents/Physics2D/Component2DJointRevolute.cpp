@@ -115,6 +115,7 @@ void Component2DJointRevolute::LuaRegister(lua_State* luastate)
 }
 #endif //MYFW_USING_LUA
 
+#if MYFW_EDITOR
 #if MYFW_USING_WX
 void Component2DJointRevolute::AddToObjectsPanel(wxTreeItemId gameobjectid)
 {
@@ -138,8 +139,9 @@ void Component2DJointRevolute::FillPropertiesWindow(bool clear, bool addcomponen
         FillPropertiesWindowWithVariables(); //_VARIABLE_LIST
     }
 }
+#endif //MYFW_USING_WX
 
-void* Component2DJointRevolute::OnDrop(ComponentVariable* pVar, wxCoord x, wxCoord y)
+void* Component2DJointRevolute::OnDrop(ComponentVariable* pVar, int x, int y)
 {
     void* oldvalue = m_pSecondCollisionObject;
 
@@ -164,9 +166,7 @@ void* Component2DJointRevolute::OnDrop(ComponentVariable* pVar, wxCoord x, wxCoo
 
     return oldvalue;
 }
-#endif //MYFW_USING_WX
 
-#if MYFW_EDITOR
 void* Component2DJointRevolute::OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue* pNewValue)
 {
     void* oldpointer = 0;

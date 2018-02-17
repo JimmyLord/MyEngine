@@ -197,8 +197,8 @@ public:
     void AddDatafilesToScene();
     void LoadDatafile(wxString filename);
 
-    static void StaticOnDrop(void* pObjectPtr, int controlid, wxCoord x, wxCoord y) { ((EngineMainFrame*)pObjectPtr)->OnDrop(controlid, x, y); }
-    void OnDrop(int controlid, wxCoord x, wxCoord y);
+    static void StaticOnDrop(void* pObjectPtr, int controlid, int x, int y) { ((EngineMainFrame*)pObjectPtr)->OnDrop(controlid, x, y); }
+    void OnDrop(int controlid, int x, int y);
 
     // Internal event handling functions
     void OnTextCtrlLeftDoubleClick(wxMouseEvent& evt);

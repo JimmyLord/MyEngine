@@ -1458,13 +1458,13 @@ void EngineMainFrame::LoadScene(const char* scenename, bool unloadscenes)
 
     // Load the scene from file.
     // This might cause some "undo" actions, so wipe them out once the load is complete.
-    unsigned int numItemsInUndoStack = g_pEngineMainFrame->m_pCommandStack->GetUndoStackSize();
+    unsigned int numItemsInUndoStack = g_pGameCore->GetCommandStack()->GetUndoStackSize();
 
     char fullpath[MAX_PATH];
     GetFullPath( scenename, fullpath, MAX_PATH );
     SceneID sceneid = g_pEngineCore->LoadSceneFromFile( fullpath );
 
-    g_pEngineMainFrame->m_pCommandStack->ClearUndoStack( numItemsInUndoStack );
+    g_pGameCore->GetCommandStack()->ClearUndoStack( numItemsInUndoStack );
 
     this->SetTitle( scenename ); //g_pComponentSystemManager->GetSceneInfo( sceneid )->m_FullPath );
 }
@@ -1508,7 +1508,7 @@ void EngineMainFrame::LoadDatafile(wxString filename)
     g_pEngineCore->GetComponentSystemManager()->LoadDataFile( relativepath, SCENEID_MainScene, filename, true );
 }
 
-void EngineMainFrame::OnDrop(int controlid, wxCoord x, wxCoord y)
+void EngineMainFrame::OnDrop(int controlid, int x, int y)
 {
     // get the GameObject the mouse was hovering over.
     ComponentCamera* pCamera = g_pEngineCore->GetEditorState()->GetEditorCamera();
@@ -1534,7 +1534,7 @@ void EngineMainFrame::OnDrop(int controlid, wxCoord x, wxCoord y)
 
         if( pTexture && pObjectDroppedOn && pObjectDroppedOn->GetMaterial() )
         {
-            g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_ChangeTextureOnMaterial( pObjectDroppedOn->GetMaterial(), pTexture ) );
+            g_pGameCore->GetCommandStack()->Do( MyNew EditorCommand_ChangeTextureOnMaterial( pObjectDroppedOn->GetMaterial(), pTexture ) );
         }
     }
 
@@ -1544,7 +1544,7 @@ void EngineMainFrame::OnDrop(int controlid, wxCoord x, wxCoord y)
 
         if( pShader && pObjectDroppedOn && pObjectDroppedOn->GetMaterial() )
         {
-            g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_ChangeShaderOnMaterial( pObjectDroppedOn->GetMaterial(), pShader ) );
+            g_pGameCore->GetCommandStack()->Do( MyNew EditorCommand_ChangeShaderOnMaterial( pObjectDroppedOn->GetMaterial(), pShader ) );
         }
     }
 
@@ -1557,7 +1557,7 @@ void EngineMainFrame::OnDrop(int controlid, wxCoord x, wxCoord y)
         {
             if( pObjectDroppedOn )
             {
-                g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_ChangeAllScriptsOnGameObject( pObjectDroppedOn, pFile ) );
+                g_pGameCore->GetCommandStack()->Do( MyNew EditorCommand_ChangeAllScriptsOnGameObject( pObjectDroppedOn, pFile ) );
             }
         }
 
@@ -1566,7 +1566,7 @@ void EngineMainFrame::OnDrop(int controlid, wxCoord x, wxCoord y)
             if( pObjectDroppedOn && pObjectDroppedOn->GetMaterial() )
             {
                 ShaderGroup* pShader = g_pShaderGroupManager->FindShaderGroupByFile( pFile );
-                g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_ChangeShaderOnMaterial( pObjectDroppedOn->GetMaterial(), pShader ) );
+                g_pGameCore->GetCommandStack()->Do( MyNew EditorCommand_ChangeShaderOnMaterial( pObjectDroppedOn->GetMaterial(), pShader ) );
             }
         }
 
@@ -1602,7 +1602,7 @@ void EngineMainFrame::OnDrop(int controlid, wxCoord x, wxCoord y)
             }
 
             // Undo/redo
-            g_pEngineMainFrame->m_pCommandStack->Add( MyNew EditorCommand_CreateGameObject( pGameObject ) );
+            g_pGameCore->GetCommandStack()->Add( MyNew EditorCommand_CreateGameObject( pGameObject ) );
         }
     }
 
@@ -1623,7 +1623,7 @@ void EngineMainFrame::OnDrop(int controlid, wxCoord x, wxCoord y)
         if( pGameObjectCreated )
         {
             // Undo/Redo
-            g_pEngineMainFrame->m_pCommandStack->Add( MyNew EditorCommand_CreateGameObject( pGameObjectCreated ) );
+            g_pGameCore->GetCommandStack()->Add( MyNew EditorCommand_CreateGameObject( pGameObjectCreated ) );
 
             // Select the object dropped
             g_pEngineCore->GetEditorState()->ClearSelectedObjectsAndComponents();
@@ -1635,7 +1635,7 @@ void EngineMainFrame::OnDrop(int controlid, wxCoord x, wxCoord y)
                 std::vector<GameObject*> selectedobjects;
                 selectedobjects.push_back( pGameObjectCreated );
                 Vector3 worldpos = pObjectDroppedOn->GetTransform()->GetWorldPosition();
-                g_pEngineMainFrame->m_pCommandStack->Do( MyNew EditorCommand_MoveObjects( worldpos, selectedobjects ), true );
+                g_pGameCore->GetCommandStack()->Do( MyNew EditorCommand_MoveObjects( worldpos, selectedobjects ), true );
             }
         }
     }
