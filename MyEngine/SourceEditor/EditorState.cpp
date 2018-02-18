@@ -209,10 +209,8 @@ bool EditorState::IsGameObjectSelected(GameObject* pObject)
 
 void EditorState::DeleteSelectedObjects()
 {
-#if MYFW_USING_WX
     if( m_pSelectedObjects.size() > 0 )
         g_pGameCore->GetCommandStack()->Do( MyNew EditorCommand_DeleteObjects( m_pSelectedObjects ) );
-#endif
 }
 
 void EditorState::SelectComponent(ComponentBase* pComponent)

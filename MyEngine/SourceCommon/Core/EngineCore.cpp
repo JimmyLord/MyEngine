@@ -1256,11 +1256,10 @@ void EngineCore::OnModePlay()
 #if MYFW_EDITOR
     if( m_EditorMode )
     {
-#if MYFW_USING_WX
         g_pMaterialManager->SaveAllMaterials();
         //m_pComponentSystemManager->m_pPrefabManager->SaveAllPrefabs();
         m_pSoundManager->SaveAllCues();
-#endif
+
         Editor_QuickSaveScene( "temp_editor_onplay.scene" );
         m_EditorMode = false;
         m_Paused = false;

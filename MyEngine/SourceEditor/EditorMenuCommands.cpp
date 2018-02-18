@@ -54,10 +54,6 @@ void EditorMenuCommand(EditorMenuCommands command)
     {
     case EditorMenuCommand_File_SaveScene:
         {
-#if MYFW_USING_IMGUI
-            g_pEngineCore->GetEditorMainFrame_ImGui()->StoreCurrentUndoStackSize();
-#endif
-
             if( g_pEngineCore->IsInEditorMode() == false )
             {
                 LOGInfo( LOGTag, "Can't save when gameplay is active... use \"Save As\"\n" );
@@ -82,6 +78,14 @@ void EditorMenuCommand(EditorMenuCommands command)
                         else
                         {
                             LOGInfo( LOGTag, "Saving scene... %s\n", pSceneInfo->m_FullPath );
+
+#if MYFW_USING_IMGUI
+                            g_pEngineCore->GetEditorMainFrame_ImGui()->StoreCurrentUndoStackSize();
+#endif
+                            g_pMaterialManager->SaveAllMaterials();
+                            //g_pComponentSystemManager->m_pPrefabManager->SaveAllPrefabs(); // TODO:
+                            g_pGameCore->GetSoundManager()->SaveAllCues();
+
                             g_pEngineCore->SaveScene( pSceneInfo->m_FullPath, sceneid );
                         }
                     }

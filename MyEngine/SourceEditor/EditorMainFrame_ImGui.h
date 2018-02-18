@@ -25,6 +25,10 @@ protected:
 
     bool m_ShowCloseEditorWarning;
 
+    // Object list filter
+    bool m_SetFilterBoxInFocus;
+    char m_ObjectListFilter[100];
+
     // For renaming things
     bool m_RenamePressedThisFrame;
     GameObject* m_pGameObjectWhoseNameIsBeingEdited;

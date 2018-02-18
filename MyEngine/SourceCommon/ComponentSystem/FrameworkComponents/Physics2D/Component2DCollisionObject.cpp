@@ -47,7 +47,7 @@ Component2DCollisionObject::Component2DCollisionObject()
     m_Scale.Set( 1,1,1 );
 
     m_Static = false;
-    m_Density = 0;
+    m_Density = 1.0f;
     m_IsSensor = false;
     m_Friction = 0.2f;
     m_Restitution = 0;

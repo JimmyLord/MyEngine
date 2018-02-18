@@ -71,6 +71,9 @@ EditorMainFrame_ImGui::EditorMainFrame_ImGui()
 
     m_ShowCloseEditorWarning = false;
 
+    m_SetFilterBoxInFocus = false;
+    m_ObjectListFilter[0] = 0;
+
     m_RenamePressedThisFrame = false;
     m_pGameObjectWhoseNameIsBeingEdited = 0;
     m_pMaterialWhoseNameIsBeingEdited = 0;
@@ -122,7 +125,9 @@ void EditorMainFrame_ImGui::StoreCurrentUndoStackSize()
 
 bool EditorMainFrame_ImGui::HandleInput(int keyaction, int keycode, int mouseaction, int id, float x, float y, float pressure)
 {
-    if( keyaction != -1 )
+    ImGuiIO& io = ImGui::GetIO();
+
+    if( keyaction != -1 && io.WantTextInput == false )
     {
         if( CheckForHotkeys( keyaction, keycode ) )
         {
@@ -144,7 +149,6 @@ bool EditorMainFrame_ImGui::HandleInput(int keyaction, int keycode, int mouseact
     }
 
     // Read the absolute x/y from the ImGui structure, since non-mouse messages will have x,y of -1,-1.
-    ImGuiIO& io = ImGui::GetIO();
     float mouseabsx = io.MousePos.x;
     float mouseabsy = io.MousePos.y;
 
@@ -255,15 +259,16 @@ bool EditorMainFrame_ImGui::CheckForHotkeys(int keyaction, int keycode)
             return true;
         }
 
-        if( C  && keycode == 'S' )   { EditorMenuCommand( EditorMenuCommand_File_SaveScene );          return true; }
-        if( CS && keycode == 'E' )   { EditorMenuCommand( EditorMenuCommand_File_Export_Box2DScene );  return true; }
-        if( C  && keycode == ' ' )   { EditorMenuCommand( EditorMenuCommand_Mode_TogglePlayStop );     return true; }
-        if( C  && keycode == 'Z' )   { EditorMenuCommand( EditorMenuCommand_Edit_Undo );               return true; }
-        if( C  && keycode == 'Y' )   { EditorMenuCommand( EditorMenuCommand_Edit_Redo );               return true; }
-        if( CS && keycode == 'Z' )   { EditorMenuCommand( EditorMenuCommand_Edit_Redo );               return true; }
-        if( S  && keycode == VK_F7 ) { m_ShowEditorIcons = !m_ShowEditorIcons;                         return true; }
-        if( C  && keycode == VK_F9 ) { EditorMenuCommand( EditorMenuCommand_Debug_DrawWireframe );     return true; }
-        if( S  && keycode == VK_F8 ) { EditorMenuCommand( EditorMenuCommand_Debug_ShowPhysicsShapes ); return true; }
+        if( C  && keycode == 'F' )   { ImGui::SetWindowFocus( "Objects" ); m_SetFilterBoxInFocus = true; return true; }
+        if( C  && keycode == 'S' )   { EditorMenuCommand( EditorMenuCommand_File_SaveScene );            return true; }
+        if( CS && keycode == 'E' )   { EditorMenuCommand( EditorMenuCommand_File_Export_Box2DScene );    return true; }
+        if( C  && keycode == ' ' )   { EditorMenuCommand( EditorMenuCommand_Mode_TogglePlayStop );       return true; }
+        if( C  && keycode == 'Z' )   { EditorMenuCommand( EditorMenuCommand_Edit_Undo );                 return true; }
+        if( C  && keycode == 'Y' )   { EditorMenuCommand( EditorMenuCommand_Edit_Redo );                 return true; }
+        if( CS && keycode == 'Z' )   { EditorMenuCommand( EditorMenuCommand_Edit_Redo );                 return true; }
+        if( S  && keycode == VK_F7 ) { m_ShowEditorIcons = !m_ShowEditorIcons;                           return true; }
+        if( C  && keycode == VK_F9 ) { EditorMenuCommand( EditorMenuCommand_Debug_DrawWireframe );       return true; }
+        if( S  && keycode == VK_F8 ) { EditorMenuCommand( EditorMenuCommand_Debug_ShowPhysicsShapes );   return true; }
     }
 
     return false;
@@ -770,7 +775,33 @@ void EditorMainFrame_ImGui::AddObjectList()
     ImGui::SetNextWindowPos( ImVec2(4, 28), ImGuiCond_FirstUseEver );
     if( ImGui::Begin( "Objects", 0, ImVec2(258, 266) ) )
     {
-        if( ImGui::CollapsingHeader( "All scenes", ImGuiTreeNodeFlags_DefaultOpen ) )
+        // Add an input box for object list filter.
+        // For now, it will always auto-select the text when given focus.
+        // TODO: Only auto-select when Ctrl-F is pressed, not if clicked by mouse.
+        {
+            ImGuiInputTextFlags inputTextFlags = ImGuiInputTextFlags_AutoSelectAll;
+            if( m_SetFilterBoxInFocus )
+            {
+                //inputTextFlags |= ImGuiInputTextFlags_AutoSelectAll;
+                ImGui::SetKeyboardFocusHere();
+                m_SetFilterBoxInFocus = false;
+            }
+            ImGui::InputText( "Filter", m_ObjectListFilter, 100, inputTextFlags );
+            ImGui::SameLine();
+            if( ImGui::Button( "X" ) )
+            {
+                m_ObjectListFilter[0] = 0;
+            }
+        }
+
+        bool forceOpen = false;
+        if( m_ObjectListFilter[0] != 0 )
+        {
+            ImGui::PushID( "FilteredList" );
+            forceOpen = true;
+        }
+
+        if( ImGui::CollapsingHeader( "All scenes", ImGuiTreeNodeFlags_DefaultOpen ) || forceOpen )
         {
             // Add all active scenes.
             for( int i=0; i<MAX_SCENES_LOADED_INCLUDING_UNMANAGED; i++ )
@@ -806,6 +837,11 @@ void EditorMainFrame_ImGui::AddObjectList()
                     ImGuiTreeNodeFlags nodeFlags = baseNodeFlags;
                     if( sceneindex != SCENEID_Unmanaged )
                         nodeFlags |= ImGuiTreeNodeFlags_DefaultOpen;
+
+                    if( forceOpen )
+                    {
+                        ImGui::SetNextTreeNodeOpen( true );
+                    }
 
                     bool treeNodeIsOpen = ImGui::TreeNodeEx( scenename, nodeFlags );
 
@@ -884,6 +920,11 @@ void EditorMainFrame_ImGui::AddObjectList()
                 }
             }
         }
+
+        if( m_ObjectListFilter[0] != 0 )
+        {
+            ImGui::PopID(); // "FilteredList"
+        }
     }
     ImGui::End();
 }
@@ -908,6 +949,14 @@ void EditorMainFrame_ImGui::AddGameObjectToObjectList(GameObject* pGameObject)
     }
     else
     {
+        if( m_ObjectListFilter[0] != 0 )
+        {
+            if( CheckIfMultipleSubstringsAreInString( pGameObject->GetName(), m_ObjectListFilter ) == 0 )
+            {
+                return;
+            }
+        }
+
         EditorState* pEditorState = g_pEngineCore->GetEditorState();
 
         ImGuiTreeNodeFlags baseNodeFlags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick;
@@ -1008,8 +1057,22 @@ void EditorMainFrame_ImGui::AddGameObjectToObjectList(GameObject* pGameObject)
                         lastcategory = currentcategory;
                     }
                 }
-                if( ImGui::MenuItem( "Prefab Stuff (TODO)" ) )      { ImGui::CloseCurrentPopup(); }
-                if( ImGui::MenuItem( "Delete GameObject (TODO)" ) ) { ImGui::CloseCurrentPopup(); }
+                if( ImGui::MenuItem( "Prefab Stuff (TODO)" ) ) { ImGui::CloseCurrentPopup(); }
+                if( ImGui::MenuItem( "Delete GameObject" ) )
+                {
+                    // if the object isn't selected, delete just the one object, otherwise delete all selected objects.
+                    if( pEditorState->IsGameObjectSelected( pGameObject ) )
+                    {
+                        pEditorState->DeleteSelectedObjects();
+                    }
+                    else
+                    {
+                        // create a temp vector to pass into command.
+                        std::vector<GameObject*> gameobjects;
+                        gameobjects.push_back( pGameObject );
+                        g_pGameCore->GetCommandStack()->Do( MyNew EditorCommand_DeleteObjects( gameobjects ) );
+                    }
+                }
             }
             ImGui::EndPopup();
         }
