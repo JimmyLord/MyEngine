@@ -258,7 +258,7 @@ bool ComponentLight::ExistsOnLayer(unsigned int layerflags)
 #if MYFW_EDITOR
 void ComponentLight::DrawCallback(ComponentCamera* pCamera, MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride)
 {
-    if( g_pEngineCore->GetEditorMainFrame()->ShowEditorIcons() == false )
+    if( g_pEngineCore->GetEditorPrefs()->GetView_ShowEditorIcons() == false )
         return;
 
     MySprite* pSprite = g_pEngineCore->GetEditorState()->m_pEditorIcons[EditorIcon_Light];

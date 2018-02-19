@@ -262,11 +262,13 @@ bool EditorMainFrame_ImGui::CheckForHotkeys(int keyaction, int keycode)
         if( C  && keycode == 'F' )   { ImGui::SetWindowFocus( "Objects" ); m_SetFilterBoxInFocus = true; return true; }
         if( C  && keycode == 'S' )   { EditorMenuCommand( EditorMenuCommand_File_SaveScene );            return true; }
         if( CS && keycode == 'E' )   { EditorMenuCommand( EditorMenuCommand_File_Export_Box2DScene );    return true; }
-        if( C  && keycode == ' ' )   { EditorMenuCommand( EditorMenuCommand_Mode_TogglePlayStop );       return true; }
         if( C  && keycode == 'Z' )   { EditorMenuCommand( EditorMenuCommand_Edit_Undo );                 return true; }
         if( C  && keycode == 'Y' )   { EditorMenuCommand( EditorMenuCommand_Edit_Redo );                 return true; }
         if( CS && keycode == 'Z' )   { EditorMenuCommand( EditorMenuCommand_Edit_Redo );                 return true; }
-        if( S  && keycode == VK_F7 ) { m_ShowEditorIcons = !m_ShowEditorIcons;                           return true; }
+        if( S  && keycode == VK_F7 ) { EditorMenuCommand( EditorMenuCommand_View_ShowEditorIcons );      return true; }
+        if( CS && keycode == 'V' )   { EditorMenuCommand( EditorMenuCommand_Grid_Visible );              return true; }
+        if( C  && keycode == 'G' )   { EditorMenuCommand( EditorMenuCommand_Grid_SnapEnabled );          return true; }
+        if( C  && keycode == ' ' )   { EditorMenuCommand( EditorMenuCommand_Mode_TogglePlayStop );       return true; }
         if( C  && keycode == VK_F9 ) { EditorMenuCommand( EditorMenuCommand_Debug_DrawWireframe );       return true; }
         if( S  && keycode == VK_F8 ) { EditorMenuCommand( EditorMenuCommand_Debug_ShowPhysicsShapes );   return true; }
     }
@@ -423,13 +425,20 @@ void EditorMainFrame_ImGui::DrawGameAndEditorWindows(EngineCore* pEngineCore)
 
 void EditorMainFrame_ImGui::AddMainMenuBar()
 {
+    bool ShowNewSceneWarning = false;
     bool ShowLoadSceneWarning = false;
 
     if( ImGui::BeginMainMenuBar() )
     {
         if( ImGui::BeginMenu( "File" ) )
         {
-            if( ImGui::MenuItem( "New Scene (TODO)" ) ) {  }
+            if( ImGui::MenuItem( "New Scene" ) )
+            {
+                if( m_pCommandStack->GetUndoStackSize() != m_UndoStackDepthAtLastSave )
+                    ShowNewSceneWarning = true;
+                else
+                    EditorMenuCommand( EditorMenuCommand_File_NewScene );
+            }
             if( ImGui::MenuItem( "Load Scene..." ) )
             {
                 if( m_pCommandStack->GetUndoStackSize() != m_UndoStackDepthAtLastSave )
@@ -442,13 +451,11 @@ void EditorMainFrame_ImGui::AddMainMenuBar()
             if( ImGui::MenuItem( "Load Additional Scene... (TODO)" ) ) {}
             if( ImGui::MenuItem( "Save Scene", "Ctrl-S" ) )
             {
-                m_UndoStackDepthAtLastSave = m_pCommandStack->GetUndoStackSize();
                 EditorMenuCommand( EditorMenuCommand_File_SaveScene );
             }
-            if( ImGui::MenuItem( "Save Scene As... (TODO)" ) )
+            if( ImGui::MenuItem( "Save Scene As..." ) )
             {
-                m_UndoStackDepthAtLastSave = m_pCommandStack->GetUndoStackSize();
-                //EditorMenuCommand( EditorMenuCommand_File_SaveSceneAs );
+                EditorMenuCommand( EditorMenuCommand_File_SaveSceneAs );
             }
 
             if( ImGui::BeginMenu( "Export" ) )
@@ -554,7 +561,7 @@ void EditorMainFrame_ImGui::AddMainMenuBar()
             ImGui::MenuItem( "Fullscreen Editor (TODO)", "F11" );
             ImGui::MenuItem( "Fullscreen Game (TODO)", "Ctrl-F11" );
 
-            ImGui::MenuItem( "Show Editor Icons", "Shift-F7", &m_ShowEditorIcons );
+            if( ImGui::MenuItem( "Show Editor Icons", "Shift-F7", g_pEngineCore->GetEditorPrefs()->GetView_ShowEditorIcons() ) ) { EditorMenuCommand( EditorMenuCommand_View_ShowEditorIcons ); }
 
             ImGui::EndMenu();
         }
@@ -571,8 +578,14 @@ void EditorMainFrame_ImGui::AddMainMenuBar()
 
         if( ImGui::BeginMenu( "Grid" ) )
         {
-            if( ImGui::MenuItem( "Grid On/Off (TODO)", "Ctrl-Shift-V", true ) ) {} // { EditorMenuCommand( myIDEngine_Grid_VisibleOnOff ); }
-            if( ImGui::MenuItem( "Grid Snap On/Off (TODO)", "Ctrl-G", true ) ) {} // { EditorMenuCommand( myIDEngine_Grid_SnapOnOff ); }
+            if( ImGui::MenuItem( "Grid Visible", "Ctrl-Shift-V", g_pEngineCore->GetEditorPrefs()->GetGrid_Visible() ) )
+            {
+                EditorMenuCommand( EditorMenuCommand_Grid_Visible );
+            }
+            if( ImGui::MenuItem( "Grid Snap Enabled", "Ctrl-G", g_pEngineCore->GetEditorPrefs()->GetGrid_SnapEnabled() ) )
+            {
+                EditorMenuCommand( EditorMenuCommand_Grid_SnapEnabled );
+            }
             if( ImGui::MenuItem( "Grid Settings (TODO)", "Ctrl-Shift-G" ) ) {}
 
             ImGui::EndMenu();
@@ -621,12 +634,17 @@ void EditorMainFrame_ImGui::AddMainMenuBar()
             if( ImGui::MenuItem( "Show Animated Debug View for Selection (TODO)", "F8" ) ) {} // { EditorMenuCommand( myIDEngine_Debug_ShowSelectedAnimatedMesh ); }
             if( ImGui::MenuItem( "Show GL Stats (TODO)", "Shift-F9" ) ) {} // { EditorMenuCommand( myIDEngine_Debug_ShowGLStats ); }
             if( ImGui::MenuItem( "Draw Wireframe", "Ctrl-F9", &g_pEngineCore->m_Debug_DrawWireframe ) ) {} // { EditorMenuCommand( EditorMenuCommand_Debug_DrawWireframe ); }
-            if( ImGui::MenuItem( "Show Physics Debug Shapes", "Shift-F8", &g_pEngineCore->m_Debug_DrawPhysicsDebugShapes ) ) {} //{ EditorMenuCommand( EditorMenuCommand_Debug_ShowPhysicsShapes ); }
+            if( ImGui::MenuItem( "Show Physics Debug Shapes", "Shift-F8", g_pEngineCore->GetEditorPrefs()->GetDebug_DrawPhysicsDebugShapes() ) ) { EditorMenuCommand( EditorMenuCommand_Debug_ShowPhysicsShapes ); }
             if( ImGui::MenuItem( "Show profiling Info (TODO)", "Ctrl-F8" ) ) {} // { EditorMenuCommand( myIDEngine_Debug_ShowProfilingInfo ); }
             ImGui::EndMenu();
         }
 
         ImGui::EndMainMenuBar();
+    }
+
+    if( ShowNewSceneWarning )
+    {
+        ImGui::OpenPopup( "New Scene Warning" );
     }
 
     if( ShowLoadSceneWarning )
@@ -637,7 +655,24 @@ void EditorMainFrame_ImGui::AddMainMenuBar()
 
 void EditorMainFrame_ImGui::AddLoseChangesWarningPopups()
 {
-    // TODO: Warnings for quit and new scene.
+    if( ImGui::BeginPopupModal( "New Scene Warning" ) )
+    {
+        ImGui::Text( "Some changes aren't saved." );
+        ImGui::Dummy( ImVec2( 0, 10 ) );
+        
+        if( ImGui::Button( "Create new scene anyway / Lose changes" ) )
+        {
+            EditorMenuCommand( EditorMenuCommand_File_NewScene );
+            ImGui::CloseCurrentPopup();
+        }
+
+        if( ImGui::Button( "Cancel / Return to editor" ) )
+        {
+            ImGui::CloseCurrentPopup();
+        }
+
+        ImGui::EndPopup();
+    }
 
     if( ImGui::BeginPopupModal( "Load Scene Warning" ) )
     {
@@ -937,6 +972,7 @@ void EditorMainFrame_ImGui::AddGameObjectToObjectList(GameObject* pGameObject)
     if( pGameObject == m_pGameObjectWhoseNameIsBeingEdited )
     {
         ImGui::PushID( pGameObject );
+        ImGui::SetKeyboardFocusHere();
         if( ImGui::InputText( "New name", m_NameBeingEdited, 100, ImGuiInputTextFlags_AutoSelectAll|ImGuiInputTextFlags_EnterReturnsTrue ) )
         {
             m_pGameObjectWhoseNameIsBeingEdited->SetName( m_NameBeingEdited );
@@ -944,7 +980,6 @@ void EditorMainFrame_ImGui::AddGameObjectToObjectList(GameObject* pGameObject)
             m_RenamePressedThisFrame = false;
         }
 
-        ImGui::SetKeyboardFocusHere();
         ImGui::PopID();
     }
     else
@@ -1294,118 +1329,141 @@ void EditorMainFrame_ImGui::AddMemoryPanel()
 
 void EditorMainFrame_ImGui::AddMemoryPanel_Materials()
 {
+    unsigned int numMaterialsShown = 0;
+
     m_pMaterialToPreview = 0;
 
-    MaterialDefinition* pMat = g_pMaterialManager->GetFirstMaterial();
-
-    ImGuiTreeNodeFlags baseNodeFlags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick;
-
-    ImGuiTreeNodeFlags nodeFlags = baseNodeFlags;
-    if( ImGui::TreeNodeEx( "All Materials", nodeFlags | ImGuiTreeNodeFlags_DefaultOpen ) )
+    for( int i=0; i<2; i++ )
     {
-        // TODO: Add folders for materials.
-        //const char* foldername = pMat->GetFile()->GetNameOfDeepestFolderPath();
+        //MaterialDefinition* pMat = g_pMaterialManager->GetFirstMaterial();
+        MaterialDefinition* pMat = g_pMaterialManager->Editor_GetFirstMaterialStillLoading();
+        if( i == 1 )
+            pMat = g_pMaterialManager->Editor_GetFirstMaterialLoaded();
 
-        if( ImGui::BeginPopupContextItem( "ContextPopup", 1 ) )
+        ImGuiTreeNodeFlags baseNodeFlags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick;
+
+        char* label = "Materials - Loading";
+        ImGuiTreeNodeFlags nodeFlags = baseNodeFlags;
+        if( i == 1 )
         {
-            if( ImGui::MenuItem( "Create New Material" ) )
-            {
-                ImGui::CloseCurrentPopup();
-                MaterialDefinition* pMaterial = g_pMaterialManager->CreateMaterial( "new" );
-
-                // TODO: Fix path based on folders.
-                char tempstr[MAX_PATH];
-                sprintf_s( tempstr, MAX_PATH, "Data/Materials" );
-                pMaterial->SaveMaterial( tempstr );
-
-                // Essentially, tell the ComponentSystemManager that a new material was loaded.
-                //  This will add it to the scene's file list, which will free the material.
-                g_pMaterialManager->CallMaterialCreatedCallbacks( pMaterial );
-            }
-            ImGui::EndPopup();
+            label = "All Materials";
+            nodeFlags |= ImGuiTreeNodeFlags_DefaultOpen;
         }
 
-        while( pMat )
+        if( ImGui::TreeNodeEx( label, nodeFlags ) )
         {
-            if( pMat == m_pMaterialWhoseNameIsBeingEdited )
+            // TODO: Add folders for materials.
+            //const char* foldername = pMat->GetFile()->GetNameOfDeepestFolderPath();
+
+            if( ImGui::BeginPopupContextItem( "ContextPopup", 1 ) )
             {
-                if( ImGui::InputText( "New name", m_NameBeingEdited, 100, ImGuiInputTextFlags_AutoSelectAll|ImGuiInputTextFlags_EnterReturnsTrue ) )
+                if( ImGui::MenuItem( "Create New Material" ) )
                 {
-                    m_pMaterialWhoseNameIsBeingEdited->SetName( m_NameBeingEdited );
-                    m_pMaterialWhoseNameIsBeingEdited = 0;
+                    ImGui::CloseCurrentPopup();
+                    MaterialDefinition* pMaterial = g_pMaterialManager->CreateMaterial( "new" );
+
+                    // TODO: Fix path based on folders.
+                    char tempstr[MAX_PATH];
+                    sprintf_s( tempstr, MAX_PATH, "Data/Materials" );
+                    pMaterial->SaveMaterial( tempstr );
+
+                    // Essentially, tell the ComponentSystemManager that a new material was loaded.
+                    //  This will add it to the scene's file list, which will free the material.
+                    g_pMaterialManager->CallMaterialCreatedCallbacks( pMaterial );
                 }
-
-                ImGui::SetKeyboardFocusHere();
-            }
-            else
-            {
-                const char* matName = "No file";
-                if( pMat->GetFile() )
-                    matName = pMat->GetFile()->GetFilenameWithoutExtension();
-
-                if( ImGui::TreeNodeEx( matName, ImGuiTreeNodeFlags_Leaf | nodeFlags ) )
-                {
-                    // TODO: Find a better answer than IsItemHovered().
-                    if( ImGui::IsItemHovered() && m_RenamePressedThisFrame )
-                    {
-                        m_pGameObjectWhoseNameIsBeingEdited = 0;
-                        m_pMaterialWhoseNameIsBeingEdited = pMat;
-                        strncpy_s( m_NameBeingEdited, matName, 100 );
-                    }
-
-                    if( ImGui::BeginPopupContextItem( "ContextPopup", 1 ) )
-                    {
-                        if( ImGui::MenuItem( "Edit Material", 0, &m_IsMaterialEditorOpen ) ) { m_pMaterialBeingEdited = pMat; ImGui::CloseCurrentPopup(); }
-                        if( ImGui::MenuItem( "Unload File (TODO)" ) )                        { ImGui::CloseCurrentPopup(); }
-                        if( ImGui::MenuItem( "Find References (TODO)" ) )                    { ImGui::CloseCurrentPopup(); } // (%d)", pMat->GetRefCount() ) {}
-                        if( ImGui::MenuItem( "Rename" ) )
-                        {
-                            m_pGameObjectWhoseNameIsBeingEdited = 0;
-                            m_pMaterialWhoseNameIsBeingEdited = pMat;
-                            strncpy_s( m_NameBeingEdited, matName, 100 );
-
-                            ImGui::CloseCurrentPopup();
-                        }
-                        ImGui::EndPopup();
-                    }
-
-                    if( ImGui::IsItemHovered() )
-                    {
-                        if( ImGui::IsMouseDoubleClicked( 0 ) )
-                        {
-                            m_IsMaterialEditorOpen = true;
-                            m_pMaterialBeingEdited = pMat;
-                        }
-
-                        ImGui::BeginTooltip();
-                        m_pMaterialToPreview = pMat;
-                        ImGui::Text( "%s", m_pMaterialToPreview->GetName() );
-                        AddMaterialPreview( false, ImVec2( 100, 100 ), ImVec4( 1, 1, 1, 1 ) );
-                        ImGui::EndTooltip();
-                    }
-
-                    if( ImGui::BeginDragDropSource() )
-                    {
-                        ImGui::SetDragDropPayload( "Material", &pMat, sizeof(pMat), ImGuiCond_Once );
-                        m_pMaterialToPreview = pMat;
-                        ImGui::Text( "%s", m_pMaterialToPreview->GetName() );
-                        AddMaterialPreview( false, ImVec2( 100, 100 ), ImVec4( 1, 1, 1, 0.5f ) );
-                        ImGui::EndDragDropSource();
-                    }
-
-                    ImGui::TreePop();
-                }
+                ImGui::EndPopup();
             }
 
-            pMat = (MaterialDefinition*)pMat->GetNext();
+            while( pMat )
+            {
+                if( pMat == m_pMaterialWhoseNameIsBeingEdited )
+                {
+                    if( ImGui::InputText( "New name", m_NameBeingEdited, 100, ImGuiInputTextFlags_AutoSelectAll|ImGuiInputTextFlags_EnterReturnsTrue ) )
+                    {
+                        m_pMaterialWhoseNameIsBeingEdited->SetName( m_NameBeingEdited );
+                        m_pMaterialWhoseNameIsBeingEdited = 0;
+                    }
+
+                    ImGui::SetKeyboardFocusHere();
+                }
+                else
+                {
+                    if( pMat->GetFile() )
+                    {
+                        numMaterialsShown++;
+
+                        const char* matName = pMat->GetFile()->GetFilenameWithoutExtension();
+
+                        if( ImGui::TreeNodeEx( matName, baseNodeFlags | ImGuiTreeNodeFlags_Leaf ) )
+                        {
+                            // TODO: Find a better answer than IsItemHovered().
+                            if( ImGui::IsItemHovered() && m_RenamePressedThisFrame )
+                            {
+                                m_pGameObjectWhoseNameIsBeingEdited = 0;
+                                m_pMaterialWhoseNameIsBeingEdited = pMat;
+                                strncpy_s( m_NameBeingEdited, matName, 100 );
+                            }
+
+                            if( ImGui::BeginPopupContextItem( "ContextPopup", 1 ) )
+                            {
+                                if( ImGui::MenuItem( "Edit Material", 0, &m_IsMaterialEditorOpen ) ) { m_pMaterialBeingEdited = pMat; ImGui::CloseCurrentPopup(); }
+                                if( ImGui::MenuItem( "Unload File (TODO)" ) )                        { ImGui::CloseCurrentPopup(); }
+                                if( ImGui::MenuItem( "Find References (TODO)" ) )                    { ImGui::CloseCurrentPopup(); } // (%d)", pMat->GetRefCount() ) {}
+                                if( ImGui::MenuItem( "Rename" ) )
+                                {
+                                    m_pGameObjectWhoseNameIsBeingEdited = 0;
+                                    m_pMaterialWhoseNameIsBeingEdited = pMat;
+                                    strncpy_s( m_NameBeingEdited, matName, 100 );
+
+                                    ImGui::CloseCurrentPopup();
+                                }
+                                ImGui::EndPopup();
+                            }
+
+                            if( ImGui::IsItemHovered() )
+                            {
+                                if( ImGui::IsMouseDoubleClicked( 0 ) )
+                                {
+                                    m_IsMaterialEditorOpen = true;
+                                    m_pMaterialBeingEdited = pMat;
+                                }
+
+                                ImGui::BeginTooltip();
+                                m_pMaterialToPreview = pMat;
+                                ImGui::Text( "%s", m_pMaterialToPreview->GetName() );
+                                AddMaterialPreview( false, ImVec2( 100, 100 ), ImVec4( 1, 1, 1, 1 ) );
+                                ImGui::EndTooltip();
+                            }
+
+                            if( ImGui::BeginDragDropSource() )
+                            {
+                                ImGui::SetDragDropPayload( "Material", &pMat, sizeof(pMat), ImGuiCond_Once );
+                                m_pMaterialToPreview = pMat;
+                                ImGui::Text( "%s", m_pMaterialToPreview->GetName() );
+                                AddMaterialPreview( false, ImVec2( 100, 100 ), ImVec4( 1, 1, 1, 0.5f ) );
+                                ImGui::EndDragDropSource();
+                            }
+
+                            ImGui::TreePop();
+                        }
+                    }
+                }
+
+                pMat = (MaterialDefinition*)pMat->GetNext();
+            }
+            ImGui::TreePop();
         }
-        ImGui::TreePop();
+    }
+
+    if( numMaterialsShown == 0 )
+    {
+        ImGui::TreeNodeEx( "No materials loaded.", ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen );
     }
 }
 
 void EditorMainFrame_ImGui::AddMemoryPanel_Textures()
 {
-    unsigned int numtextureshown = 0;
+    unsigned int numTexturesShown = 0;
 
     for( int i=0; i<2; i++ )
     {
@@ -1427,7 +1485,7 @@ void EditorMainFrame_ImGui::AddMemoryPanel_Textures()
                 {
                     if( pTex->m_ShowInMemoryPanel )
                     {
-                        numtextureshown++;
+                        numTexturesShown++;
 
                         if( ImGui::TreeNodeEx( pTex->GetFilename(), ImGuiTreeNodeFlags_Leaf | baseNodeFlags ) )
                         {
@@ -1465,7 +1523,7 @@ void EditorMainFrame_ImGui::AddMemoryPanel_Textures()
         }
     }
 
-    if( numtextureshown == 0 )
+    if( numTexturesShown == 0 )
     {
         ImGui::TreeNodeEx( "No textures loaded.", ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen );
     }

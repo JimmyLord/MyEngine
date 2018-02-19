@@ -9,7 +9,7 @@
 
 #include "EngineCommonHeader.h"
 
-#if MYFW_USING_WX // TODO_FIX_EDITOR
+#if MYFW_USING_WX
 void EditorInterfaceWxEventHandler::OnPopupClick(wxEvent &evt)
 {
     EditorInterfaceWxEventHandler* pEvtHandler = (EditorInterfaceWxEventHandler*)static_cast<wxMenu*>(evt.GetEventObject())->GetClientData();
@@ -72,7 +72,7 @@ void EditorInterface::Tick(double TimePassed)
 
         if( m_pGameObjectRightClicked )
         {
-#if MYFW_USING_WX // TODO_FIX_EDITOR
+#if MYFW_USING_WX
             wxMenu menu;
             menu.SetClientData( &m_EditorInterfaceWxEventHandler );
 
@@ -128,7 +128,7 @@ void EditorInterface::OnDrawFrame(unsigned int canvasid)
                         {
                             // draw an outline around the selected object
 #if MYFW_USING_WX // TODO_FIX_EDITOR
-                            if( g_pEngineMainFrame->SelectedObjects_ShowWireframe() )
+                            if( g_pEngineCore->GetEditorPrefs()->GetView_SelectedObjects_ShowWireframe() )
                             {
                                 glEnable( GL_BLEND );
                                 glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
@@ -148,7 +148,7 @@ void EditorInterface::OnDrawFrame(unsigned int canvasid)
                             }
                             
                             // draw the entire selected shape with the shader
-                            if( g_pEngineMainFrame->SelectedObjects_ShowEffect() )
+                            if( g_pEngineCore->GetEditorPrefs()->GetView_SelectedObjects_ShowEffect() )
                             {
                                 glEnable( GL_BLEND );
                                 glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
@@ -711,7 +711,7 @@ void EditorInterface::SelectObjectsInRectangle(unsigned int sx, unsigned int sy,
         pEditorState->ClearSelectedObjectsAndComponents();
 
     // potentially about to multi-select, so disable tree callbacks.
-#if MYFW_USING_WX // TODO_FIX_EDITOR
+#if MYFW_USING_WX
     g_pPanelObjectList->m_UpdatePanelWatchOnSelection = false;
 #endif
 
@@ -754,9 +754,7 @@ void EditorInterface::SelectObjectsInRectangle(unsigned int sx, unsigned int sy,
                 // When selecting with mouse, don't allow selection of subobjects of a prefab, always pick the root of the prefab instance.
                 if( pObject->GetPrefabRef()->GetPrefab() != 0 )
                 {
-#if MYFW_USING_WX // TODO_FIX_EDITOR
                     pObject = pObject->FindRootGameObjectOfPrefabInstance();
-#endif
                 }
 
                 bool objectselected = pEditorState->IsGameObjectSelected( pObject );
@@ -770,7 +768,7 @@ void EditorInterface::SelectObjectsInRectangle(unsigned int sx, unsigned int sy,
                         pEditorState->SelectGameObject( pObject );
 
                         // select the object in the object tree.
-#if MYFW_USING_WX // TODO_FIX_EDITOR
+#if MYFW_USING_WX
                         g_pPanelObjectList->SelectObject( pObject );
 #endif //MYFW_USING_WX
                     }
@@ -780,7 +778,7 @@ void EditorInterface::SelectObjectsInRectangle(unsigned int sx, unsigned int sy,
                     if( objectselected == true )
                     {
                         pEditorState->UnselectGameObject( pObject );
-#if MYFW_USING_WX // TODO_FIX_EDITOR
+#if MYFW_USING_WX
                         g_pPanelObjectList->UnselectObject( pObject );
 #endif //MYFW_USING_WX
                     }
@@ -789,7 +787,7 @@ void EditorInterface::SelectObjectsInRectangle(unsigned int sx, unsigned int sy,
         }
     }
 
-#if MYFW_USING_WX // TODO_FIX_EDITOR
+#if MYFW_USING_WX
     g_pPanelObjectList->m_UpdatePanelWatchOnSelection = true;
     UpdatePanelWatchWithSelectedItems(); // will reset and update pEditorState->m_pSelectedObjects
 #endif //MYFW_USING_WX

@@ -52,6 +52,34 @@ void EditorMenuCommand(EditorMenuCommands command)
 {
     switch( command )
     {
+    case EditorMenuCommand_File_NewScene:
+        {
+            g_pEngineCore->GetEditorState()->ClearKeyAndActionStates();
+            g_pEngineCore->GetEditorState()->ClearSelectedObjectsAndComponents();
+            g_pEngineCore->SetEditorInterface( EditorInterfaceType_SceneManagement );
+
+            //this->SetTitle( "New scene" );
+            g_pEngineCore->UnloadScene( SCENEID_AllScenes, false );
+            g_pComponentSystemManager->CreateNewScene( "Unsaved.scene", SCENEID_MainScene );
+            g_pComponentSystemManager->GetSceneInfo( SCENEID_MainScene )->m_FullPath[0] = 0;
+            g_pEngineCore->CreateDefaultSceneObjects();
+            //ResizeViewport();
+        }
+        break;
+
+    case EditorMenuCommand_File_LoadScene:
+        {
+            const char* filename = FileOpenDialog( "Data\\Scenes\\", "Scene Files\0*.scene\0All\0*.*\0" );
+            if( filename[0] != 0 )
+            {
+                char path[MAX_PATH];
+                strcpy_s( path, MAX_PATH, filename );
+                const char* relativepath = GetRelativePath( path );
+                LoadScene( relativepath, true );
+            }
+        }
+        break;
+
     case EditorMenuCommand_File_SaveScene:
         {
             if( g_pEngineCore->IsInEditorMode() == false )
@@ -72,8 +100,7 @@ void EditorMenuCommand(EditorMenuCommands command)
                     {
                         if( g_pComponentSystemManager->GetSceneInfo( sceneid )->m_FullPath[0] == 0 )
                         {
-                            // TODO:
-                            //SaveSceneAs( sceneid );
+                            EditorMenuCommand( EditorMenuCommand_File_SaveSceneAs );
                         }
                         else
                         {
@@ -94,15 +121,36 @@ void EditorMenuCommand(EditorMenuCommands command)
         }
         break;
 
-    case EditorMenuCommand_File_LoadScene:
+    case EditorMenuCommand_File_SaveSceneAs:
         {
-            const char* filename = FileOpenDialog( "Data\\Scenes\\", "Scene Files\0*.scene\0All\0*.*\0" );
+            const char* filename = FileSaveDialog( "Data\\Scenes\\", "Scene Files\0*.scene\0All\0*.*\0" );
             if( filename[0] != 0 )
             {
+                int len = strlen( filename );
+
+                // Append '.scene' to end of filename if it wasn't already there.
                 char path[MAX_PATH];
-                strcpy_s( path, MAX_PATH, filename );
+                if( strcmp( &filename[len-6], ".scene" ) == 0 )
+                {
+                    strcpy_s( path, MAX_PATH, filename );
+                }
+                else
+                {
+                    sprintf_s( path, MAX_PATH, "%s.scene", filename );
+                }
+                
                 const char* relativepath = GetRelativePath( path );
-                LoadScene( relativepath, true );
+
+                g_pComponentSystemManager->GetSceneInfo( SCENEID_MainScene )->ChangePath( relativepath );
+
+#if MYFW_USING_IMGUI
+                g_pEngineCore->GetEditorMainFrame_ImGui()->StoreCurrentUndoStackSize();
+#endif
+                g_pMaterialManager->SaveAllMaterials();
+                //g_pComponentSystemManager->m_pPrefabManager->SaveAllPrefabs(); // TODO:
+                g_pGameCore->GetSoundManager()->SaveAllCues();
+
+                g_pEngineCore->SaveScene( relativepath, SCENEID_MainScene );
             }
         }
         break;
@@ -129,6 +177,24 @@ void EditorMenuCommand(EditorMenuCommands command)
 
                 g_pEngineCore->ExportBox2DScene( filenameWithExtension, SCENEID_MainScene );
             }
+        }
+        break;
+
+    case EditorMenuCommand_View_ShowEditorIcons:
+        {
+            g_pEngineCore->GetEditorPrefs()->ToggleView_ShowEditorIcons();
+        }
+        break;
+
+    case EditorMenuCommand_Grid_Visible:
+        {
+            g_pEngineCore->GetEditorPrefs()->ToggleGrid_Visible();
+        }
+        break;
+
+    case EditorMenuCommand_Grid_SnapEnabled:
+        {
+            g_pEngineCore->GetEditorPrefs()->ToggleGrid_SnapEnabled();
         }
         break;
 
@@ -160,7 +226,7 @@ void EditorMenuCommand(EditorMenuCommands command)
 
     case EditorMenuCommand_Debug_ShowPhysicsShapes:
         {
-            g_pEngineCore->ToggleDebug_DrawPhysicsDebugShapes();
+            g_pEngineCore->GetEditorPrefs()->ToggleDebug_DrawPhysicsDebugShapes();
             break;
         }
 

@@ -481,9 +481,9 @@ void EngineMainFrame::InitFrame()
     Connect( myIDEngine_Debug_ShowPhysicsShapes,        wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );
     Connect( myIDEngine_Debug_ShowProfilingInfo,        wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );
 
-    if( g_pEngineCore )
+    //if( g_pEngineCore )
     {
-        EditorPrefs* pEditorPrefs = g_pEngineCore->GetEditorPrefs();
+        EditorPrefs* pEditorPrefs = g_pEditorPrefs; //g_pEngineCore->GetEditorPrefs();
 
         if( pEditorPrefs )
         {
@@ -601,16 +601,16 @@ void EngineMainFrame::OnPostInit()
         extern GLViewTypes g_CurrentGLViewType;
         cJSONExt_GetInt( jEditorPrefs, "GameAspectRatio", (int*)&g_CurrentGLViewType );
 
-        cJSONExt_GetBool( jEditorPrefs, "ShowIcons", &m_ShowEditorIcons );
-        cJSONExt_GetBool( jEditorPrefs, "SelectedObjects_ShowWireframe", &m_SelectedObjects_ShowWireframe );
-        cJSONExt_GetBool( jEditorPrefs, "SelectedObjects_ShowEffect", &m_SelectedObjects_ShowEffect );
-        cJSONExt_GetBool( jEditorPrefs, "Mode_SwitchFocusOnPlayStop", &m_Mode_SwitchFocusOnPlayStop );
+        //cJSONExt_GetBool( jEditorPrefs, "ShowIcons", &m_ShowEditorIcons );
+        //cJSONExt_GetBool( jEditorPrefs, "SelectedObjects_ShowWireframe", &m_SelectedObjects_ShowWireframe );
+        //cJSONExt_GetBool( jEditorPrefs, "SelectedObjects_ShowEffect", &m_SelectedObjects_ShowEffect );
+        //cJSONExt_GetBool( jEditorPrefs, "Mode_SwitchFocusOnPlayStop", &m_Mode_SwitchFocusOnPlayStop );
 
-        cJSONExt_GetBool( jEditorPrefs, "GridVisible", &m_GridSettings.visible );
-        g_pEngineCore->SetGridVisible( m_GridSettings.visible );
+        //cJSONExt_GetBool( jEditorPrefs, "GridVisible", &m_GridSettings.visible );
+        g_pEngineCore->SetGridVisible( pEditorPrefs->GetGridSettings()->visible );
 
-        cJSONExt_GetBool( jEditorPrefs, "GridSnapEnabled", &m_GridSettings.snapenabled );
-        cJSONExt_GetFloatArray( jEditorPrefs, "GridStepSize", &m_GridSettings.stepsize.x, 3 );
+        //cJSONExt_GetBool( jEditorPrefs, "GridSnapEnabled", &m_GridSettings.snapenabled );
+        //cJSONExt_GetFloatArray( jEditorPrefs, "GridStepSize", &m_GridSettings.stepsize.x, 3 );
 
         // Load the scene at the end.
         obj = cJSON_GetObjectItem( jEditorPrefs, "LastSceneLoaded" );
@@ -656,16 +656,20 @@ bool EngineMainFrame::OnClose()
         g_pEngineCore->GetEditorState()->ClearKeyAndActionStates();
         g_pEngineCore->GetEditorState()->ClearSelectedObjectsAndComponents();
 
-        FILE* file = 0;
-#if MYFW_WINDOWS
-        fopen_s( &file, "wxEditorPrefs.ini", "wb" );
-#else
-        file = fopen( "wxEditorPrefs.ini", "wb" );
-#endif
-        if( file )
-        {
-            cJSON* pPrefs = cJSON_CreateObject();
+//        FILE* file = 0;
+//#if MYFW_WINDOWS
+//        fopen_s( &file, "wxEditorPrefs.ini", "wb" );
+//#else
+//        file = fopen( "wxEditorPrefs.ini", "wb" );
+//#endif
+//        if( file )
+//        {
+//            cJSON* pPrefs = cJSON_CreateObject();
 
+        cJSON* pPrefs = g_pEngineCore->GetEditorPrefs()->SaveStart();
+
+        if( pPrefs )
+        {
             // Save Layout strings.
             for( int i=0; i<4; i++ )
             {
@@ -701,26 +705,28 @@ bool EngineMainFrame::OnClose()
             extern GLViewTypes g_CurrentGLViewType;
             cJSON_AddNumberToObject( pPrefs, "GameAspectRatio", g_CurrentGLViewType );
 
-            cJSON_AddNumberToObject( pPrefs, "ShowIcons", m_ShowEditorIcons );
-            cJSON_AddNumberToObject( pPrefs, "SelectedObjects_ShowWireframe", m_SelectedObjects_ShowWireframe );
-            cJSON_AddNumberToObject( pPrefs, "SelectedObjects_ShowEffect", m_SelectedObjects_ShowEffect );
+            //cJSON_AddNumberToObject( pPrefs, "ShowIcons", g_pEngineCore->GetEditorPrefs()->GetView_ShowEditorIcons() );
+            //cJSON_AddNumberToObject( pPrefs, "SelectedObjects_ShowWireframe", g_pEngineCore->GetEditorPrefs()->GetSelectedObjects_ShowWireframe() );
+            //cJSON_AddNumberToObject( pPrefs, "SelectedObjects_ShowEffect", g_pEngineCore->GetEditorPrefs()->GetSelectedObjects_ShowEffect() );
 
-            // Grid menu options
-            cJSON_AddNumberToObject( pPrefs, "GridVisible", m_GridSettings.visible );
-            cJSON_AddNumberToObject( pPrefs, "GridSnapEnabled", m_GridSettings.snapenabled );
-            cJSONExt_AddFloatArrayToObject( pPrefs, "GridStepSize", &m_GridSettings.stepsize.x, 3 );
+            //// Grid menu options
+            //cJSON_AddNumberToObject( pPrefs, "GridVisible", g_pEngineCore->GetEditorPrefs()->GetGridSettings()->visible );
+            //cJSON_AddNumberToObject( pPrefs, "GridSnapEnabled", g_pEngineCore->GetEditorPrefs()->GetGridSettings()->snapenabled );
+            //cJSONExt_AddFloatArrayToObject( pPrefs, "GridStepSize", &g_pEngineCore->GetEditorPrefs()->GetGridSettings()->stepsize.x, 3 );
 
             // Mode menu options
-            cJSON_AddNumberToObject( pPrefs, "Mode_SwitchFocusOnPlayStop", m_Mode_SwitchFocusOnPlayStop );
+            //cJSON_AddNumberToObject( pPrefs, "Mode_SwitchFocusOnPlayStop", g_pEngineCore->GetEditorPrefs()->GetMode_SwitchFocusOnPlayStop() );
             cJSON_AddNumberToObject( pPrefs, "LaunchPlatform", GetLaunchPlatformIndex() );
 
-            char* string = cJSON_Print( pPrefs );
-            cJSON_Delete( pPrefs );
+            g_pEngineCore->GetEditorPrefs()->SaveFinish( pPrefs );
 
-            fprintf( file, "%s", string );
-            fclose( file );
+            //char* string = cJSON_Print( pPrefs );
+            //cJSON_Delete( pPrefs );
 
-            cJSONExt_free( string );
+            //fprintf( file, "%s", string );
+            //fclose( file );
+
+            //cJSONExt_free( string );
         }
 
         return parentwantstoclose;
@@ -796,23 +802,25 @@ void EngineMainFrame::UpdateMenuItemStates()
 {
     MainFrame::UpdateMenuItemStates();
 
+    EditorPrefs* pPrefs = g_pEditorPrefs; //g_pEngineCore->GetEditorPrefs();
+
     if( m_MenuItem_View_ShowEditorIcons )
-        m_MenuItem_View_ShowEditorIcons->Check( m_ShowEditorIcons );
+        m_MenuItem_View_ShowEditorIcons->Check( pPrefs->GetView_ShowEditorIcons() );
 
     if( m_MenuItem_View_SelectedObjects_ShowWireframe )
-        m_MenuItem_View_SelectedObjects_ShowWireframe->Check( m_SelectedObjects_ShowWireframe );
+        m_MenuItem_View_SelectedObjects_ShowWireframe->Check( pPrefs->GetView_SelectedObjects_ShowWireframe() );
 
     if( m_MenuItem_View_SelectedObjects_ShowEffect )
-        m_MenuItem_View_SelectedObjects_ShowEffect->Check( m_SelectedObjects_ShowEffect );
+        m_MenuItem_View_SelectedObjects_ShowEffect->Check( pPrefs->GetView_SelectedObjects_ShowEffect() );
 
     if( m_MenuItem_Grid_Visible )
-        m_MenuItem_Grid_Visible->Check( m_GridSettings.visible );
+        m_MenuItem_Grid_Visible->Check( pPrefs->GetGridSettings()->visible );
 
     if( m_MenuItem_Grid_SnapEnabled )
-        m_MenuItem_Grid_SnapEnabled->Check( m_GridSettings.snapenabled );
+        m_MenuItem_Grid_SnapEnabled->Check( pPrefs->GetGridSettings()->snapenabled );
 
     if( m_MenuItem_Mode_SwitchFocusOnPlayStop )
-        m_MenuItem_Mode_SwitchFocusOnPlayStop->Check( m_Mode_SwitchFocusOnPlayStop );
+        m_MenuItem_Mode_SwitchFocusOnPlayStop->Check( pPrefs->GetMode_SwitchFocusOnPlayStop() );
 
     if( g_pEngineCore )
     {
@@ -826,7 +834,7 @@ void EngineMainFrame::UpdateMenuItemStates()
             m_MenuItem_Debug_DrawGLStats->Check( g_pEngineCore->GetDebug_DrawGLStats() );
 
         if( m_MenuItem_Debug_DrawPhysicsDebugShapes )
-            m_MenuItem_Debug_DrawPhysicsDebugShapes->Check( g_pEngineCore->GetDebug_DrawPhysicsDebugShapes() );
+            m_MenuItem_Debug_DrawPhysicsDebugShapes->Check( g_pEngineCore->GetEditorPrefs()->GetDebug_DrawPhysicsDebugShapes() );
 
         if( m_MenuItem_Debug_ShowProfilingInfo )
             m_MenuItem_Debug_ShowProfilingInfo->Check( g_pEngineCore->GetDebug_ShowProfilingInfo() );
@@ -848,6 +856,8 @@ void EngineMainFrame::StoreCurrentUndoStackSize()
 
 void EngineMainFrame::OnMenu_Engine(wxCommandEvent& event)
 {
+    EditorPrefs* pEditorPrefs = g_pEngineCore->GetEditorPrefs();
+
     int id = event.GetId();
 
     switch( id )
@@ -1004,15 +1014,18 @@ void EngineMainFrame::OnMenu_Engine(wxCommandEvent& event)
         break;
 
     case myIDEngine_View_ShowEditorIcons:
-        m_ShowEditorIcons = !m_ShowEditorIcons;
+        pEditorPrefs->ToggleView_ShowEditorIcons();
+        //m_ShowEditorIcons = !m_ShowEditorIcons;
         break;
 
     case myIDEngine_View_SelectedObjects_ShowWireframe:
-        m_SelectedObjects_ShowWireframe = !m_SelectedObjects_ShowWireframe;
+        pEditorPrefs->ToggleView_SelectedObjects_ShowWireframe();
+        //m_SelectedObjects_ShowWireframe = !m_SelectedObjects_ShowWireframe;
         break;
 
     case myIDEngine_View_SelectedObjects_ShowEffect:
-        m_SelectedObjects_ShowEffect = !m_SelectedObjects_ShowEffect;
+        pEditorPrefs->ToggleView_SelectedObjects_ShowEffect();
+        //m_SelectedObjects_ShowEffect = !m_SelectedObjects_ShowEffect;
         break;
 
     case myIDEngine_View_EditorWindow_Editor:
@@ -1046,12 +1059,14 @@ void EngineMainFrame::OnMenu_Engine(wxCommandEvent& event)
         break;
 
     case myIDEngine_Grid_VisibleOnOff:
-        m_GridSettings.visible = !m_GridSettings.visible;
-        g_pEngineCore->SetGridVisible( m_GridSettings.visible );
+        pEditorPrefs->ToggleGrid_Visible();
+        //m_GridSettings.visible = !m_GridSettings.visible;
+        g_pEngineCore->SetGridVisible( pEditorPrefs->GetGridSettings()->visible );
         break;
 
     case myIDEngine_Grid_SnapOnOff:
-        m_GridSettings.snapenabled = !m_GridSettings.snapenabled;
+        pEditorPrefs->ToggleGrid_SnapEnabled();
+        //m_GridSettings.snapenabled = !m_GridSettings.snapenabled;
         break;
 
     case myIDEngine_Grid_Settings:
@@ -1069,7 +1084,8 @@ void EngineMainFrame::OnMenu_Engine(wxCommandEvent& event)
         break;
 
     case myIDEngine_Mode_SwitchFocusOnPlayStop:
-        m_Mode_SwitchFocusOnPlayStop = !m_Mode_SwitchFocusOnPlayStop;
+        pEditorPrefs->ToggleMode_SwitchFocusOnPlayStop();
+        //m_Mode_SwitchFocusOnPlayStop = !m_Mode_SwitchFocusOnPlayStop;
         break;
 
     case myIDEngine_Mode_PlayStop:
@@ -1151,7 +1167,8 @@ void EngineMainFrame::OnMenu_Engine(wxCommandEvent& event)
         break;
 
     case myIDEngine_Debug_ShowPhysicsShapes:
-        g_pEngineCore->m_Debug_DrawPhysicsDebugShapes = !g_pEngineCore->m_Debug_DrawPhysicsDebugShapes;
+        pEditorPrefs->ToggleDebug_DrawPhysicsDebugShapes();
+        //g_pEngineCore->m_Debug_DrawPhysicsDebugShapes = !g_pEngineCore->m_Debug_DrawPhysicsDebugShapes;
         break;
 
     case myIDEngine_Debug_ShowProfilingInfo:

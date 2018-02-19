@@ -139,7 +139,6 @@ protected:
     bool m_Debug_DrawMousePickerFBO;
     bool m_Debug_DrawSelectedAnimatedMesh;
     bool m_Debug_DrawSelectedMaterial;
-    bool m_Debug_DrawPhysicsDebugShapes;
     bool m_Debug_ShowProfilingInfo;
     bool m_Debug_DrawGLStats;
 
@@ -249,13 +248,11 @@ public:
 
     bool GetDebug_DrawMousePickerFBO()       { return m_Debug_DrawMousePickerFBO; }
     bool GetDebug_DrawSelectedAnimatedMesh() { return m_Debug_DrawSelectedAnimatedMesh; }
-    bool GetDebug_DrawPhysicsDebugShapes()   { return m_Debug_DrawPhysicsDebugShapes; }
     bool GetDebug_ShowProfilingInfo()        { return m_Debug_ShowProfilingInfo; }
     bool GetDebug_DrawGLStats()              { return m_Debug_DrawGLStats; }
 
     void ToggleDebug_DrawMousePickerFBO()       { m_Debug_DrawMousePickerFBO = !m_Debug_DrawMousePickerFBO; }
     void ToggleDebug_DrawSelectedAnimatedMesh() { m_Debug_DrawSelectedAnimatedMesh = !m_Debug_DrawSelectedAnimatedMesh; }
-    void ToggleDebug_DrawPhysicsDebugShapes()   { m_Debug_DrawPhysicsDebugShapes = !m_Debug_DrawPhysicsDebugShapes; }
     void ToggleDebug_ShowProfilingInfo()        { m_Debug_ShowProfilingInfo = !m_Debug_ShowProfilingInfo; }
     void ToggleDebug_DrawGLStats()              { m_Debug_DrawGLStats = !m_Debug_DrawGLStats; }
 

@@ -70,7 +70,6 @@ EngineCore::EngineCore()
     m_Debug_DrawMousePickerFBO = false;
     m_Debug_DrawSelectedAnimatedMesh = false;
     m_Debug_DrawSelectedMaterial = false;
-    m_Debug_DrawPhysicsDebugShapes = true;
     m_Debug_ShowProfilingInfo = true;
     m_Debug_DrawGLStats = false;
     m_pSphereMeshFile = 0;
@@ -198,14 +197,8 @@ void EngineCore::SaveEditorPrefs()
     //extern GLViewTypes g_CurrentGLViewType;
     //cJSON_AddNumberToObject( pPrefs, "GameAspectRatio", g_CurrentGLViewType );
 
-    //cJSON_AddNumberToObject( pPrefs, "ShowIcons", m_ShowEditorIcons );
     //cJSON_AddNumberToObject( pPrefs, "SelectedObjects_ShowWireframe", m_SelectedObjects_ShowWireframe );
     //cJSON_AddNumberToObject( pPrefs, "SelectedObjects_ShowEffect", m_SelectedObjects_ShowEffect );
-
-    //// Grid menu options
-    //cJSON_AddNumberToObject( pPrefs, "GridVisible", m_GridSettings.visible );
-    //cJSON_AddNumberToObject( pPrefs, "GridSnapEnabled", m_GridSettings.snapenabled );
-    //cJSONExt_AddFloatArrayToObject( pPrefs, "GridStepSize", &m_GridSettings.stepsize.x, 3 );
 
     //// Mode menu options
     //cJSON_AddNumberToObject( pPrefs, "Mode_SwitchFocusOnPlayStop", m_Mode_SwitchFocusOnPlayStop );
@@ -301,6 +294,10 @@ void EngineCore::InitializeGameObjectFlagStrings(cJSON* jStringsArray)
 void EngineCore::OneTimeInit()
 {
     GameCore::OneTimeInit();
+
+#if MYFW_USING_WX
+    m_pEditorPrefs = g_pEditorPrefs;
+#endif
 
     // allocate one meg of ram for now, this stack gets wiped each frame in OnDrawFrameDone()
     //  TODO: expose size, hardcoded to 5meg for now... used by editor mode scene load and voxel world creation
@@ -1216,7 +1213,7 @@ void EngineCore::OnModeTogglePlayStop()
         
 #if MYFW_USING_WX
         // Set focus to gameplay window.
-        if( g_pEngineMainFrame->Mode_SwitchFocusOnPlayStop() )
+        if( g_pEngineCore->GetEditorPrefs()->GetMode_SwitchFocusOnPlayStop() )
         {
             if( g_pEngineMainFrame->GetGLCanvasEditor()->GetParent() == g_pEngineMainFrame->GetFullScreenFrame() )
             {
@@ -1235,7 +1232,7 @@ void EngineCore::OnModeTogglePlayStop()
 
 #if MYFW_USING_WX
         // Set focus to editor window.
-        if( g_pEngineMainFrame->Mode_SwitchFocusOnPlayStop() )
+        if( g_pEngineCore->GetEditorPrefs()->GetMode_SwitchFocusOnPlayStop() )
         {
             if( g_pEngineMainFrame->m_pGLCanvas->GetParent() == g_pEngineMainFrame->GetFullScreenFrame() )
             {
@@ -1454,9 +1451,11 @@ void EngineCore::CreateDefaultEditorSceneObjects()
         pComponentMesh = (ComponentMesh*)pGameObject->AddNewComponent( ComponentType_Mesh, SCENEID_EngineObjects );
         if( pComponentMesh )
         {
-#if MYFW_USING_WX
-            pComponentMesh->SetVisible( g_pEngineMainFrame->GetGridSettings()->visible );
-#endif
+            if( g_pEngineCore->GetEditorPrefs() )
+            {
+                pComponentMesh->SetVisible( g_pEngineCore->GetEditorPrefs()->GetGridSettings()->visible );
+            }
+
             pComponentMesh->SetMaterial( m_pMaterial_3DGrid, 0 ); //( m_pShader_TransformGizmo );
             pComponentMesh->SetLayersThisExistsOn( Layer_Editor | Layer_EditorUnselectable );
             pComponentMesh->m_pMesh = MyNew MyMesh();
@@ -2056,9 +2055,7 @@ void EngineCore::SetGridVisible(bool visible)
     if( m_pEditorState->m_p3DGridPlane )
     {
         ComponentMesh* pComponentMesh = (ComponentMesh*)m_pEditorState->m_p3DGridPlane->GetFirstComponentOfType( "MeshComponent" );
-#if MYFW_USING_WX
-        pComponentMesh->SetVisible( g_pEngineMainFrame->GetGridSettings()->visible );
-#endif
+        pComponentMesh->SetVisible( visible );
     }
 }
 

@@ -25,6 +25,16 @@ EditorPrefs::EditorPrefs()
     m_WindowWidth = 1280;
     m_WindowHeight = 600;
     m_IsWindowMaximized = false;
+
+    m_View_ShowEditorIcons = true;
+    m_Debug_DrawPhysicsDebugShapes = true;
+    m_SelectedObjects_ShowWireframe = true;
+    m_SelectedObjects_ShowEffect = true;
+    m_Mode_SwitchFocusOnPlayStop = true;
+
+    m_GridSettings.visible = true;
+    m_GridSettings.snapenabled = false;
+    m_GridSettings.stepsize.Set( 1, 1, 1 );
 }
 
 EditorPrefs::~EditorPrefs()
@@ -90,23 +100,29 @@ void EditorPrefs::LoadPrefs()
 
     cJSON* jObject;
 
-    jObject = cJSON_GetObjectItem( m_jEditorPrefs, "EditorCam" );
-    if( jObject )
-        g_pEngineCore->GetEditorState()->GetEditorCamera()->m_pComponentTransform->ImportFromJSONObject( jObject, SCENEID_EngineObjects );
+    if( g_pEngineCore )
+    {
+        jObject = cJSON_GetObjectItem( m_jEditorPrefs, "EditorCam" );
+        if( jObject )
+            g_pEngineCore->GetEditorState()->GetEditorCamera()->m_pComponentTransform->ImportFromJSONObject( jObject, SCENEID_EngineObjects );
+    }
 
     //extern GLViewTypes g_CurrentGLViewType;
     //cJSONExt_GetInt( jEditorPrefs, "GameAspectRatio", (int*)&g_CurrentGLViewType );
 
-    //cJSONExt_GetBool( jEditorPrefs, "ShowIcons", &m_ShowEditorIcons );
-    //cJSONExt_GetBool( jEditorPrefs, "SelectedObjects_ShowWireframe", &m_SelectedObjects_ShowWireframe );
-    //cJSONExt_GetBool( jEditorPrefs, "SelectedObjects_ShowEffect", &m_SelectedObjects_ShowEffect );
-    //cJSONExt_GetBool( jEditorPrefs, "Mode_SwitchFocusOnPlayStop", &m_Mode_SwitchFocusOnPlayStop );
+    cJSONExt_GetBool( m_jEditorPrefs, "View_ShowEditorIcons", &m_View_ShowEditorIcons );
+    cJSONExt_GetBool( m_jEditorPrefs, "Debug_DrawPhysicsDebugShapes", &m_Debug_DrawPhysicsDebugShapes );
+    cJSONExt_GetBool( m_jEditorPrefs, "SelectedObjects_ShowWireframe", &m_SelectedObjects_ShowWireframe );
+    cJSONExt_GetBool( m_jEditorPrefs, "SelectedObjects_ShowEffect", &m_SelectedObjects_ShowEffect );
+    cJSONExt_GetBool( m_jEditorPrefs, "Mode_SwitchFocusOnPlayStop", &m_Mode_SwitchFocusOnPlayStop );
 
-    //cJSONExt_GetBool( jEditorPrefs, "GridVisible", &m_GridSettings.visible );
-    //g_pEngineCore->SetGridVisible( m_GridSettings.visible );
-
-    //cJSONExt_GetBool( jEditorPrefs, "GridSnapEnabled", &m_GridSettings.snapenabled );
-    //cJSONExt_GetFloatArray( jEditorPrefs, "GridStepSize", &m_GridSettings.stepsize.x, 3 );
+    cJSONExt_GetBool( m_jEditorPrefs, "Grid_Visible", &m_GridSettings.visible );
+    if( g_pEngineCore )
+    {
+        g_pEngineCore->SetGridVisible( m_GridSettings.visible );
+    }
+    cJSONExt_GetBool( m_jEditorPrefs, "Grid_SnapEnabled", &m_GridSettings.snapenabled );
+    cJSONExt_GetFloatArray( m_jEditorPrefs, "Grid_StepSize", &m_GridSettings.stepsize.x, 3 );
 }
 
 void EditorPrefs::LoadLastSceneLoaded()
@@ -154,7 +170,11 @@ cJSON* EditorPrefs::SaveStart()
     MyAssert( m_pSaveFile == 0 );
 
 #if MYFW_WINDOWS
+#if MYFW_USING_WX
+    fopen_s( &m_pSaveFile, "wxEditorPrefs.ini", "wb" );
+#else
     fopen_s( &m_pSaveFile, "EditorPrefs.ini", "wb" );
+#endif
 #else
     m_pSaveFile = fopen( "EditorPrefs.ini", "wb" );
 #endif
@@ -202,18 +222,19 @@ cJSON* EditorPrefs::SaveStart()
         //extern GLViewTypes g_CurrentGLViewType;
         //cJSON_AddNumberToObject( pPrefs, "GameAspectRatio", g_CurrentGLViewType );
 
-        //cJSON_AddNumberToObject( pPrefs, "ShowIcons", m_ShowEditorIcons );
-        //cJSON_AddNumberToObject( pPrefs, "SelectedObjects_ShowWireframe", m_SelectedObjects_ShowWireframe );
-        //cJSON_AddNumberToObject( pPrefs, "SelectedObjects_ShowEffect", m_SelectedObjects_ShowEffect );
+        cJSON_AddNumberToObject( jPrefs, "View_ShowEditorIcons", m_View_ShowEditorIcons );
+        cJSON_AddNumberToObject( jPrefs, "Debug_DrawPhysicsDebugShapes", m_Debug_DrawPhysicsDebugShapes );
+        cJSON_AddNumberToObject( jPrefs, "SelectedObjects_ShowWireframe", m_SelectedObjects_ShowWireframe );
+        cJSON_AddNumberToObject( jPrefs, "SelectedObjects_ShowEffect", m_SelectedObjects_ShowEffect );
 
         //// Grid menu options
-        //cJSON_AddNumberToObject( pPrefs, "GridVisible", m_GridSettings.visible );
-        //cJSON_AddNumberToObject( pPrefs, "GridSnapEnabled", m_GridSettings.snapenabled );
-        //cJSONExt_AddFloatArrayToObject( pPrefs, "GridStepSize", &m_GridSettings.stepsize.x, 3 );
+        cJSON_AddNumberToObject( jPrefs, "Grid_Visible", m_GridSettings.visible );
+        cJSON_AddNumberToObject( jPrefs, "Grid_SnapEnabled", m_GridSettings.snapenabled );
+        cJSONExt_AddFloatArrayToObject( jPrefs, "Grid_StepSize", &m_GridSettings.stepsize.x, 3 );
 
         //// Mode menu options
-        //cJSON_AddNumberToObject( pPrefs, "Mode_SwitchFocusOnPlayStop", m_Mode_SwitchFocusOnPlayStop );
-        //cJSON_AddNumberToObject( pPrefs, "LaunchPlatform", GetLaunchPlatformIndex() );
+        cJSON_AddNumberToObject( jPrefs, "Mode_SwitchFocusOnPlayStop", m_Mode_SwitchFocusOnPlayStop );
+        //cJSON_AddNumberToObject( jPrefs, "LaunchPlatform", GetLaunchPlatformIndex() );
 
         return jPrefs;
     }
@@ -221,17 +242,28 @@ cJSON* EditorPrefs::SaveStart()
     return 0;
 }
 
-void EditorPrefs::SaveFinish(cJSON* pPrefs)
+void EditorPrefs::SaveFinish(cJSON* jPrefs)
 {
     MyAssert( m_pSaveFile != 0 );
-    MyAssert( pPrefs != 0 );
+    MyAssert( jPrefs != 0 );
 
-    char* string = cJSON_Print( pPrefs );
-    cJSON_Delete( pPrefs );
+    char* string = cJSON_Print( jPrefs );
+    cJSON_Delete( jPrefs );
 
     fprintf( m_pSaveFile, "%s", string );
     fclose( m_pSaveFile );
     m_pSaveFile = 0;
 
     cJSONExt_free( string );
+}
+
+void EditorPrefs::ToggleGrid_Visible()
+{
+    m_GridSettings.visible = !m_GridSettings.visible;
+    g_pEngineCore->SetGridVisible( m_GridSettings.visible );
+}
+
+void EditorPrefs::ToggleGrid_SnapEnabled()
+{
+    m_GridSettings.snapenabled = !m_GridSettings.snapenabled;
 }
