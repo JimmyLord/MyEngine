@@ -11,6 +11,7 @@
 #define __EditorMainFrame_ImGui_H__
 
 class EngineCore;
+class EditorLogWindow_ImGui;
 
 class EditorMainFrame_ImGui : public EditorMainFrame
 {
@@ -24,6 +25,9 @@ protected:
     bool m_IsMaterialEditorOpen;
 
     bool m_ShowCloseEditorWarning;
+
+    // Log Window.
+    EditorLogWindow_ImGui* m_pLogWindow;
 
     // Object list filter.
     bool m_SetFilterBoxInFocus;
@@ -78,6 +82,8 @@ public:
 
     void DrawGameAndEditorWindows(EngineCore* pEngineCore);
 
+    void EditMaterial(MaterialDefinition* pMaterial);
+
 protected:
     void AddMainMenuBar();
     void AddLoseChangesWarningPopups();
@@ -85,6 +91,7 @@ protected:
     void AddObjectList();
     void AddGameObjectToObjectList(GameObject* pGameObject);
     void AddWatchPanel();
+    void AddLogWindow();
     void AddMemoryPanel();
 
     void AddMemoryPanel_Materials();

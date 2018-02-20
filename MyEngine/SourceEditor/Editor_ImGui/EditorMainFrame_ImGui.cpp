@@ -8,7 +8,7 @@
 // 3. This notice may not be removed or altered from any source distribution.
 
 #include "EngineCommonHeader.h"
-#include "EditorMenuCommands.h"
+#include "../EditorMenuCommands.h"
 
 //====================================================================================================
 // Various enums and matching strings (some unused)
@@ -71,9 +71,14 @@ EditorMainFrame_ImGui::EditorMainFrame_ImGui()
 
     m_ShowCloseEditorWarning = false;
 
+    // Log Window
+    m_pLogWindow = MyNew EditorLogWindow_ImGui;
+
+    // Object list filter.
     m_SetFilterBoxInFocus = false;
     m_ObjectListFilter[0] = 0;
 
+    // For renaming things.
     m_RenamePressedThisFrame = false;
     m_pGameObjectWhoseNameIsBeingEdited = 0;
     m_pMaterialWhoseNameIsBeingEdited = 0;
@@ -107,10 +112,11 @@ EditorMainFrame_ImGui::EditorMainFrame_ImGui()
 EditorMainFrame_ImGui::~EditorMainFrame_ImGui()
 {
     SAFE_DELETE( m_pCommandStack );
+    SAFE_DELETE( m_pLogWindow );
 
     SAFE_RELEASE( m_pGameFBO );
     SAFE_RELEASE( m_pEditorFBO );
-    SAFE_RELEASE( m_pMaterialPreviewFBO )
+    SAFE_RELEASE( m_pMaterialPreviewFBO );
 }
 
 Vector2 EditorMainFrame_ImGui::GetEditorWindowCenterPosition()
@@ -290,7 +296,9 @@ void EditorMainFrame_ImGui::AddEverything()
     AddGameAndEditorWindows();
     AddObjectList();
     AddWatchPanel();
+    AddLogWindow();
     AddMemoryPanel();
+
     AddDebug_MousePicker();
 
     if( m_IsMaterialEditorOpen )
@@ -318,10 +326,10 @@ void EditorMainFrame_ImGui::AddEverything()
         {
             ImGui::Text( "PlayerX %0.2f", pGO->GetTransform()->GetWorldTransform()->m41 );
         }
-
-        ImGui::ShowDemoWindow();
-    }    
+    }
     ImGui::End();
+
+    ImGui::ShowDemoWindow();
 #endif
 
     m_RenamePressedThisFrame = false;
@@ -417,6 +425,12 @@ void EditorMainFrame_ImGui::DrawGameAndEditorWindows(EngineCore* pEngineCore)
             }
         }
     }
+}
+
+void EditorMainFrame_ImGui::EditMaterial(MaterialDefinition* pMaterial)
+{
+    m_pMaterialBeingEdited = pMaterial;
+    m_IsMaterialEditorOpen = true;
 }
 
 //====================================================================================================
@@ -561,7 +575,7 @@ void EditorMainFrame_ImGui::AddMainMenuBar()
             ImGui::MenuItem( "Fullscreen Editor (TODO)", "F11" );
             ImGui::MenuItem( "Fullscreen Game (TODO)", "Ctrl-F11" );
 
-            if( ImGui::MenuItem( "Show Editor Icons", "Shift-F7", g_pEngineCore->GetEditorPrefs()->GetView_ShowEditorIcons() ) ) { EditorMenuCommand( EditorMenuCommand_View_ShowEditorIcons ); }
+            if( ImGui::MenuItem( "Show Editor Icons", "Shift-F7", g_pEngineCore->GetEditorPrefs()->Get_View_ShowEditorIcons() ) ) { EditorMenuCommand( EditorMenuCommand_View_ShowEditorIcons ); }
 
             ImGui::EndMenu();
         }
@@ -578,14 +592,8 @@ void EditorMainFrame_ImGui::AddMainMenuBar()
 
         if( ImGui::BeginMenu( "Grid" ) )
         {
-            if( ImGui::MenuItem( "Grid Visible", "Ctrl-Shift-V", g_pEngineCore->GetEditorPrefs()->GetGrid_Visible() ) )
-            {
-                EditorMenuCommand( EditorMenuCommand_Grid_Visible );
-            }
-            if( ImGui::MenuItem( "Grid Snap Enabled", "Ctrl-G", g_pEngineCore->GetEditorPrefs()->GetGrid_SnapEnabled() ) )
-            {
-                EditorMenuCommand( EditorMenuCommand_Grid_SnapEnabled );
-            }
+            if( ImGui::MenuItem( "Grid Visible", "Ctrl-Shift-V", g_pEngineCore->GetEditorPrefs()->Get_Grid_Visible() ) ) { EditorMenuCommand( EditorMenuCommand_Grid_Visible ); }
+            if( ImGui::MenuItem( "Grid Snap Enabled", "Ctrl-G", g_pEngineCore->GetEditorPrefs()->Get_Grid_SnapEnabled() ) ) { EditorMenuCommand( EditorMenuCommand_Grid_SnapEnabled ); }
             if( ImGui::MenuItem( "Grid Settings (TODO)", "Ctrl-Shift-G" ) ) {}
 
             ImGui::EndMenu();
@@ -593,8 +601,8 @@ void EditorMainFrame_ImGui::AddMainMenuBar()
 
         if( ImGui::BeginMenu( "Mode" ) )
         {
-            if( ImGui::MenuItem( "Switch Focus on Play/Stop (TODO)" ) ) {}//{ EditorMenuCommand( myIDEngine_Mode_SwitchFocusOnPlayStop ); }
-            //// Since Command-Space is "Spotlight Search" on OSX, use the actual control key on OSX as well as Windows/Linux.
+            if( ImGui::MenuItem( "Switch Focus on Play/Stop", 0, g_pEngineCore->GetEditorPrefs()->Get_Mode_SwitchFocusOnPlayStop() ) ) { EditorMenuCommand( EditorMenuCommand_Mode_SwitchFocusOnPlayStop ); }
+            // Since Command-Space is "Spotlight Search" on OSX, use the actual control key on OSX as well as Windows/Linux.
             if( ImGui::MenuItem( "Play/Stop", "CTRL-SPACE" ) ) { EditorMenuCommand( EditorMenuCommand_Mode_TogglePlayStop ); }
             if( ImGui::MenuItem( "Pause (TODO)", "Ctrl-." ) ) {} // { EditorMenuCommand( myIDEngine_Mode_Pause ); }
             if( ImGui::MenuItem( "Advance 1 Frame (TODO)", "Ctrl-]" ) ) {} // { EditorMenuCommand( myIDEngine_Mode_Advance1Frame ); }
@@ -634,7 +642,7 @@ void EditorMainFrame_ImGui::AddMainMenuBar()
             if( ImGui::MenuItem( "Show Animated Debug View for Selection (TODO)", "F8" ) ) {} // { EditorMenuCommand( myIDEngine_Debug_ShowSelectedAnimatedMesh ); }
             if( ImGui::MenuItem( "Show GL Stats (TODO)", "Shift-F9" ) ) {} // { EditorMenuCommand( myIDEngine_Debug_ShowGLStats ); }
             if( ImGui::MenuItem( "Draw Wireframe", "Ctrl-F9", &g_pEngineCore->m_Debug_DrawWireframe ) ) {} // { EditorMenuCommand( EditorMenuCommand_Debug_DrawWireframe ); }
-            if( ImGui::MenuItem( "Show Physics Debug Shapes", "Shift-F8", g_pEngineCore->GetEditorPrefs()->GetDebug_DrawPhysicsDebugShapes() ) ) { EditorMenuCommand( EditorMenuCommand_Debug_ShowPhysicsShapes ); }
+            if( ImGui::MenuItem( "Show Physics Debug Shapes", "Shift-F8", g_pEngineCore->GetEditorPrefs()->Get_Debug_DrawPhysicsDebugShapes() ) ) { EditorMenuCommand( EditorMenuCommand_Debug_ShowPhysicsShapes ); }
             if( ImGui::MenuItem( "Show profiling Info (TODO)", "Ctrl-F8" ) ) {} // { EditorMenuCommand( myIDEngine_Debug_ShowProfilingInfo ); }
             ImGui::EndMenu();
         }
@@ -1254,6 +1262,13 @@ void EditorMainFrame_ImGui::AddWatchPanel()
     ImGui::End();
 }
 
+void EditorMainFrame_ImGui::AddLogWindow()
+{
+    ImGui::SetNextWindowSize( ImVec2(842, 167), ImGuiCond_FirstUseEver );
+    ImGui::SetNextWindowPos( ImVec2(6, 476), ImGuiCond_FirstUseEver );
+    m_pLogWindow->Draw( "Log" );
+}
+
 void EditorMainFrame_ImGui::AddMemoryPanel()
 {
     ImGui::SetNextWindowPos( ImVec2(853, 424), ImGuiCond_FirstUseEver );
@@ -1636,7 +1651,7 @@ void EditorMainFrame_ImGui::AddMemoryPanel_Files()
                                 {
                                     if( ImGui::MenuItem( "Open File (TODO)" ) )       { ImGui::CloseCurrentPopup(); }
                                     if( ImGui::MenuItem( "Unload File (TODO)" ) )     { ImGui::CloseCurrentPopup(); }
-                                    if( ImGui::MenuItem( "Find References (TODO)" ) ) { ImGui::CloseCurrentPopup(); } ;// (%d)", pMat->GetRefCount() ) {}
+                                    if( ImGui::MenuItem( "Find References" ) ) { g_pFileManager->Editor_FindAllReferences( pFile ); ImGui::CloseCurrentPopup(); } ;// (%d)", pMat->GetRefCount() ) {}
                                     ImGui::EndPopup();
                                 }
 
@@ -1753,6 +1768,9 @@ void EditorMainFrame_ImGui::AddDebug_MousePicker()
 
 void EditorMainFrame_ImGui::AddMaterialEditor()
 {
+    ImVec4 defaultButtonColor = ImGui::GetStyleColorVec4( ImGuiCol_Button );
+    ImVec4 defaultTextColor = ImGui::GetStyleColorVec4( ImGuiCol_Text );
+
     ImGui::SetNextWindowPos( ImVec2(856, 71), ImGuiCond_FirstUseEver );
     ImGui::SetNextWindowSize( ImVec2(339, 349), ImGuiCond_FirstUseEver );
     
@@ -1822,9 +1840,18 @@ void EditorMainFrame_ImGui::AddMaterialEditor()
 
                 {
                     const char* desc = "no shader";
+                    ImVec4 buttonColor( defaultButtonColor.x*0.5f, defaultButtonColor.y*0.5f, defaultButtonColor.z*0.5f, 1.0f );
+                    ImVec4 textColor( defaultTextColor.x*0.5f, defaultTextColor.y*0.5f, defaultTextColor.z*0.5f, 1.0f );
                     if( pShaderGroup && pShaderGroup->GetShader( ShaderPass_Main )->m_pFile )
+                    {
                         desc = pShaderGroup->GetShader( ShaderPass_Main )->m_pFile->GetFilenameWithoutExtension();
+                        buttonColor = defaultButtonColor;
+                        textColor = defaultTextColor;
+                    }
+                    ImGui::PushStyleColor( ImGuiCol_Button, buttonColor );
+                    ImGui::PushStyleColor( ImGuiCol_Text, textColor );
                     ImGui::Button( desc, ImVec2( ImGui::GetWindowWidth() * 0.65f, 0 ) );
+                    ImGui::PopStyleColor( 2 );
 
                     if( ImGui::BeginDragDropTarget() )
                     {
@@ -1850,9 +1877,18 @@ void EditorMainFrame_ImGui::AddMaterialEditor()
 
                 {
                     const char* desc = "no shader";
+                    ImVec4 buttonColor( defaultButtonColor.x*0.5f, defaultButtonColor.y*0.5f, defaultButtonColor.z*0.5f, 1.0f );
+                    ImVec4 textColor( defaultTextColor.x*0.5f, defaultTextColor.y*0.5f, defaultTextColor.z*0.5f, 1.0f );
                     if( pShaderGroupInstanced && pShaderGroupInstanced->GetShader( ShaderPass_Main )->m_pFile )
+                    {
                         desc = pShaderGroupInstanced->GetShader( ShaderPass_Main )->m_pFile->GetFilenameWithoutExtension();
+                        buttonColor = defaultButtonColor;
+                        textColor = defaultTextColor;
+                    }
+                    ImGui::PushStyleColor( ImGuiCol_Button, buttonColor );
+                    ImGui::PushStyleColor( ImGuiCol_Text, textColor );
                     ImGui::Button( desc, ImVec2( ImGui::GetWindowWidth() * 0.65f, 0 ) );
+                    ImGui::PopStyleColor( 2 );
 
                     if( ImGui::BeginDragDropTarget() )
                     {
@@ -1878,10 +1914,19 @@ void EditorMainFrame_ImGui::AddMaterialEditor()
 
                 {
                     const char* desc = "no color texture";
+                    ImVec4 buttonColor( defaultButtonColor.x*0.5f, defaultButtonColor.y*0.5f, defaultButtonColor.z*0.5f, 1.0f );
+                    ImVec4 textColor( defaultTextColor.x*0.5f, defaultTextColor.y*0.5f, defaultTextColor.z*0.5f, 1.0f );
                     TextureDefinition* pTextureColor = pMat->GetTextureColor();
                     if( pTextureColor )
+                    {
                         desc = pTextureColor->GetFilename();
+                        buttonColor = defaultButtonColor;
+                        textColor = defaultTextColor;
+                    }
+                    ImGui::PushStyleColor( ImGuiCol_Button, buttonColor );
+                    ImGui::PushStyleColor( ImGuiCol_Text, textColor );
                     ImGui::Button( desc, ImVec2( ImGui::GetWindowWidth() * 0.65f, 0 ) );
+                    ImGui::PopStyleColor( 2 );
 
                     if( ImGui::BeginDragDropTarget() )
                     {

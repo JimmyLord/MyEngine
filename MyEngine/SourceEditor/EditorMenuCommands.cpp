@@ -182,19 +182,25 @@ void EditorMenuCommand(EditorMenuCommands command)
 
     case EditorMenuCommand_View_ShowEditorIcons:
         {
-            g_pEngineCore->GetEditorPrefs()->ToggleView_ShowEditorIcons();
+            g_pEngineCore->GetEditorPrefs()->Toggle_View_ShowEditorIcons();
         }
         break;
 
     case EditorMenuCommand_Grid_Visible:
         {
-            g_pEngineCore->GetEditorPrefs()->ToggleGrid_Visible();
+            g_pEngineCore->GetEditorPrefs()->Toggle_Grid_Visible();
         }
         break;
 
     case EditorMenuCommand_Grid_SnapEnabled:
         {
-            g_pEngineCore->GetEditorPrefs()->ToggleGrid_SnapEnabled();
+            g_pEngineCore->GetEditorPrefs()->Toggle_Grid_SnapEnabled();
+        }
+        break;
+
+    case EditorMenuCommand_Mode_SwitchFocusOnPlayStop:
+        {
+            g_pEngineCore->GetEditorPrefs()->Toggle_Mode_SwitchFocusOnPlayStop();
         }
         break;
 
@@ -226,7 +232,7 @@ void EditorMenuCommand(EditorMenuCommands command)
 
     case EditorMenuCommand_Debug_ShowPhysicsShapes:
         {
-            g_pEngineCore->GetEditorPrefs()->ToggleDebug_DrawPhysicsDebugShapes();
+            g_pEngineCore->GetEditorPrefs()->Toggle_Debug_DrawPhysicsDebugShapes();
             break;
         }
 

@@ -103,6 +103,9 @@
     <Filter Include="Source - Editor\PlatformSpecific">
       <UniqueIdentifier>{74cc688a-db99-4581-8ed9-1fe44b3649f9}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source - Editor\Editor_ImGui">
+      <UniqueIdentifier>{bbe95fa7-a89c-483e-ac87-480b1bc8a40b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="SourceCommon\Camera\Camera3D.cpp">
@@ -432,14 +435,17 @@
     <ClCompile Include="SourceEditor\EditorMainFrame.cpp">
       <Filter>Source - Editor</Filter>
     </ClCompile>
-    <ClCompile Include="SourceEditor\EditorMainFrame_ImGui.cpp">
-      <Filter>Source - Editor</Filter>
-    </ClCompile>
     <ClCompile Include="SourceEditor\EditorMainFrame_Wx.cpp">
       <Filter>Source - Editor</Filter>
     </ClCompile>
     <ClCompile Include="SourceCommon\GUI\ImGuiExtensions.cpp">
       <Filter>Source\GUI</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceEditor\Editor_ImGui\EditorMainFrame_ImGui.cpp">
+      <Filter>Source - Editor\Editor_ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceEditor\Editor_ImGui\EditorLogWindow_ImGui.cpp">
+      <Filter>Source - Editor\Editor_ImGui</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -815,14 +821,17 @@
     <ClInclude Include="SourceEditor\EditorMainFrame.h">
       <Filter>Source - Editor</Filter>
     </ClInclude>
-    <ClInclude Include="SourceEditor\EditorMainFrame_ImGui.h">
-      <Filter>Source - Editor</Filter>
-    </ClInclude>
     <ClInclude Include="SourceEditor\EditorMainFrame_Wx.h">
       <Filter>Source - Editor</Filter>
     </ClInclude>
     <ClInclude Include="SourceCommon\GUI\ImGuiExtensions.h">
       <Filter>Source\GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceEditor\Editor_ImGui\EditorLogWindow_ImGui.h">
+      <Filter>Source - Editor\Editor_ImGui</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceEditor\Editor_ImGui\EditorMainFrame_ImGui.h">
+      <Filter>Source - Editor\Editor_ImGui</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

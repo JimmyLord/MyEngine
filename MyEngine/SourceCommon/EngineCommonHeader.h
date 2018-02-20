@@ -159,12 +159,16 @@ enum SceneID
 #include "../SourceEditor/EditorPrefs.h"
 #include "../SourceEditor/EditorState.h"
 #include "../SourceEditor/EditorMainFrame.h"
-#include "../SourceEditor/EditorMainFrame_ImGui.h"
 #include "../SourceEditor/DragAndDropHackeryExtended.h"
 #include "../SourceEditor/GameObjectTemplateManager.h"
 #include "../SourceEditor/EngineCommandStack.h"
 #include "../SourceEditor/EngineEditorCommands.h"
 #include "../SourceEditor/TransformGizmo.h"
+
+#if MYFW_USING_IMGUI
+#include "../SourceEditor/Editor_ImGui/EditorMainFrame_ImGui.h"
+#include "../SourceEditor/Editor_ImGui/EditorLogWindow_ImGui.h"
+#endif
 
 #if MYFW_USING_WX
 #include "../SourceEditor/EditorMainFrame_Wx.h"

@@ -7,27 +7,36 @@
 // 2. Altered source versions must be plainly marked as such, and must not be misrepresented as being the original software.
 // 3. This notice may not be removed or altered from any source distribution.
 
-#ifndef __EditorMenuCommands_H__
-#define __EditorMenuCommands_H__
+#ifndef __EditorLogWindow_ImGui_H__
+#define __EditorLogWindow_ImGui_H__
 
-enum EditorMenuCommands
+class EditorLogWindow_ImGui
 {
-    EditorMenuCommand_File_NewScene,
-    EditorMenuCommand_File_LoadScene,
-    EditorMenuCommand_File_SaveScene,
-    EditorMenuCommand_File_SaveSceneAs,
-    EditorMenuCommand_File_Export_Box2DScene,
-    EditorMenuCommand_View_ShowEditorIcons,
-    EditorMenuCommand_Grid_Visible,
-    EditorMenuCommand_Grid_SnapEnabled,
-    EditorMenuCommand_Mode_SwitchFocusOnPlayStop,
-    EditorMenuCommand_Mode_TogglePlayStop,
-    EditorMenuCommand_Edit_Undo,
-    EditorMenuCommand_Edit_Redo,
-    EditorMenuCommand_Debug_DrawWireframe,
-    EditorMenuCommand_Debug_ShowPhysicsShapes,
+public:
+    struct LogEntry
+    {
+        int logtype;
+        std::string tag;
+        std::string message;
+    };
+
+protected:
+    std::vector<LogEntry> m_LoggedMessages;
+    //ImGuiTextBuffer     m_TextBuffer;
+    //ImGuiTextFilter     m_Filter;
+    //ImVector<int>       m_LineOffsets;        // Index to lines offset
+    bool m_ScrollToBottom;
+    char m_Filter[100];
+
+    void DrawSingleLogEntry(unsigned int lineindex);
+
+public:
+    EditorLogWindow_ImGui();
+    ~EditorLogWindow_ImGui();
+
+    void Clear();
+    void AddLog(LogEntry logentry);
+    void Draw(const char* title, bool* p_open = 0);
 };
 
-void EditorMenuCommand(EditorMenuCommands command);
-
-#endif //__EditorMenuCommands_H__
+#endif //__EditorLogWindow_ImGui_H__

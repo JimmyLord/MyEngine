@@ -128,7 +128,7 @@ void EditorInterface::OnDrawFrame(unsigned int canvasid)
                         {
                             // draw an outline around the selected object
 #if MYFW_USING_WX // TODO_FIX_EDITOR
-                            if( g_pEngineCore->GetEditorPrefs()->GetView_SelectedObjects_ShowWireframe() )
+                            if( g_pEngineCore->GetEditorPrefs()->Get_View_SelectedObjects_ShowWireframe() )
                             {
                                 glEnable( GL_BLEND );
                                 glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
@@ -148,7 +148,7 @@ void EditorInterface::OnDrawFrame(unsigned int canvasid)
                             }
                             
                             // draw the entire selected shape with the shader
-                            if( g_pEngineCore->GetEditorPrefs()->GetView_SelectedObjects_ShowEffect() )
+                            if( g_pEngineCore->GetEditorPrefs()->Get_View_SelectedObjects_ShowEffect() )
                             {
                                 glEnable( GL_BLEND );
                                 glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );

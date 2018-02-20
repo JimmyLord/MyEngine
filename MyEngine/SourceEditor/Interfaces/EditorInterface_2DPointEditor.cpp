@@ -127,7 +127,7 @@ void EditorInterface_2DPointEditor::OnDrawFrame(unsigned int canvasid)
     }
 
     // Draw Box2D debug data
-    if( g_pEngineCore->GetEditorPrefs()->GetDebug_DrawPhysicsDebugShapes() && g_GLCanvasIDActive == 1 )
+    if( g_pEngineCore->GetEditorPrefs()->Get_Debug_DrawPhysicsDebugShapes() && g_GLCanvasIDActive == 1 )
     {
         for( int i=0; i<MAX_SCENES_LOADED_INCLUDING_UNMANAGED; i++ )
         {
@@ -286,7 +286,7 @@ bool EditorInterface_2DPointEditor::HandleInput(int keyaction, int keycode, int 
                     newpos.x = currentresult.x - pParentMatrix->GetTranslation().x;
                     newpos.y = currentresult.y - pParentMatrix->GetTranslation().y;
 
-                    if( g_pEngineCore->GetEditorPrefs()->GetGrid_SnapEnabled() )
+                    if( g_pEngineCore->GetEditorPrefs()->Get_Grid_SnapEnabled() )
                     {
                         // snap point to grid.
                         newpos.x = MyRoundToMultipleOf( newpos.x, g_pEngineCore->GetEditorPrefs()->GetGridSettings()->stepsize.x );

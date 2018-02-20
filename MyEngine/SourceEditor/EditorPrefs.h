@@ -77,11 +77,11 @@ protected:
     bool m_IsWindowMaximized;
 
     bool m_View_ShowEditorIcons;
-    bool m_Debug_DrawPhysicsDebugShapes;
-    bool m_SelectedObjects_ShowWireframe;
-    bool m_SelectedObjects_ShowEffect;
-    bool m_Mode_SwitchFocusOnPlayStop;
+    bool m_View_SelectedObjects_ShowWireframe;
+    bool m_View_SelectedObjects_ShowEffect;
     GridSettings m_GridSettings;
+    bool m_Mode_SwitchFocusOnPlayStop;
+    bool m_Debug_DrawPhysicsDebugShapes;
 
 public:
     EditorPrefs();
@@ -106,26 +106,23 @@ public:
         m_IsWindowMaximized = false;
     }
 
-    bool SelectedObjects_ShowWireframe() { return m_SelectedObjects_ShowWireframe; }
-    bool SelectedObjects_ShowEffect() { return m_SelectedObjects_ShowEffect; }
-    bool Mode_SwitchFocusOnPlayStop() { return m_Mode_SwitchFocusOnPlayStop; }
     GridSettings* GetGridSettings() { return &m_GridSettings; }
 
-    bool GetView_ShowEditorIcons() { return m_View_ShowEditorIcons; }
-    bool GetGrid_Visible() { return m_GridSettings.visible; }
-    bool GetGrid_SnapEnabled() { return m_GridSettings.snapenabled; }
-    bool GetDebug_DrawPhysicsDebugShapes() { return m_Debug_DrawPhysicsDebugShapes; }
-    bool GetView_SelectedObjects_ShowWireframe() { return m_SelectedObjects_ShowWireframe; }
-    bool GetView_SelectedObjects_ShowEffect() { return m_SelectedObjects_ShowEffect; }
-    bool GetMode_SwitchFocusOnPlayStop() { return m_Mode_SwitchFocusOnPlayStop; }
+    bool Get_View_ShowEditorIcons() { return m_View_ShowEditorIcons; }
+    bool Get_View_SelectedObjects_ShowWireframe() { return m_View_SelectedObjects_ShowWireframe; }
+    bool Get_View_SelectedObjects_ShowEffect() { return m_View_SelectedObjects_ShowEffect; }
+    bool Get_Grid_Visible() { return m_GridSettings.visible; }
+    bool Get_Grid_SnapEnabled() { return m_GridSettings.snapenabled; }
+    bool Get_Mode_SwitchFocusOnPlayStop() { return m_Mode_SwitchFocusOnPlayStop; }
+    bool Get_Debug_DrawPhysicsDebugShapes() { return m_Debug_DrawPhysicsDebugShapes; }
 
-    void ToggleView_ShowEditorIcons() { m_View_ShowEditorIcons = !m_View_ShowEditorIcons; }
-    void ToggleGrid_Visible();
-    void ToggleGrid_SnapEnabled();
-    void ToggleDebug_DrawPhysicsDebugShapes() { m_Debug_DrawPhysicsDebugShapes = !m_Debug_DrawPhysicsDebugShapes; }
-    void ToggleView_SelectedObjects_ShowWireframe() { m_SelectedObjects_ShowWireframe = !m_SelectedObjects_ShowWireframe; }
-    void ToggleView_SelectedObjects_ShowEffect() { m_SelectedObjects_ShowEffect = !m_SelectedObjects_ShowEffect; }
-    void ToggleMode_SwitchFocusOnPlayStop() { m_Mode_SwitchFocusOnPlayStop = !m_Mode_SwitchFocusOnPlayStop; }
+    void Toggle_View_ShowEditorIcons() { m_View_ShowEditorIcons = !m_View_ShowEditorIcons; }
+    void Toggle_View_SelectedObjects_ShowWireframe() { m_View_SelectedObjects_ShowWireframe = !m_View_SelectedObjects_ShowWireframe; }
+    void Toggle_View_SelectedObjects_ShowEffect() { m_View_SelectedObjects_ShowEffect = !m_View_SelectedObjects_ShowEffect; }
+    void Toggle_Grid_Visible();
+    void Toggle_Grid_SnapEnabled();
+    void Toggle_Mode_SwitchFocusOnPlayStop() { m_Mode_SwitchFocusOnPlayStop = !m_Mode_SwitchFocusOnPlayStop; }
+    void Toggle_Debug_DrawPhysicsDebugShapes() { m_Debug_DrawPhysicsDebugShapes = !m_Debug_DrawPhysicsDebugShapes; }
 };
 
 #endif //__EditorPrefs_H__

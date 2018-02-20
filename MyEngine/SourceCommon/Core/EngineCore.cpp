@@ -197,11 +197,7 @@ void EngineCore::SaveEditorPrefs()
     //extern GLViewTypes g_CurrentGLViewType;
     //cJSON_AddNumberToObject( pPrefs, "GameAspectRatio", g_CurrentGLViewType );
 
-    //cJSON_AddNumberToObject( pPrefs, "SelectedObjects_ShowWireframe", m_SelectedObjects_ShowWireframe );
-    //cJSON_AddNumberToObject( pPrefs, "SelectedObjects_ShowEffect", m_SelectedObjects_ShowEffect );
-
     //// Mode menu options
-    //cJSON_AddNumberToObject( pPrefs, "Mode_SwitchFocusOnPlayStop", m_Mode_SwitchFocusOnPlayStop );
     //cJSON_AddNumberToObject( pPrefs, "LaunchPlatform", GetLaunchPlatformIndex() );
 
     m_pEditorPrefs->SaveFinish( jPrefs );
@@ -1211,10 +1207,10 @@ void EngineCore::OnModeTogglePlayStop()
     {
         OnModePlay();
         
-#if MYFW_USING_WX
         // Set focus to gameplay window.
-        if( g_pEngineCore->GetEditorPrefs()->GetMode_SwitchFocusOnPlayStop() )
+        if( g_pEngineCore->GetEditorPrefs()->Get_Mode_SwitchFocusOnPlayStop() )
         {
+#if MYFW_USING_WX
             if( g_pEngineMainFrame->GetGLCanvasEditor()->GetParent() == g_pEngineMainFrame->GetFullScreenFrame() )
             {
                 g_pEngineMainFrame->SetGLCanvasFullScreenMode( g_pEngineMainFrame->GetGLCanvas(), true );
@@ -1223,17 +1219,23 @@ void EngineCore::OnModeTogglePlayStop()
             {
                 g_pEngineMainFrame->m_pGLCanvas->SetFocus();
             }
+#endif //MYFW_USING_WX
+
+#if MYFW_USING_IMGUI
+            {
+                ImGui::SetWindowFocus( "Game" );
+            }
+#endif //MYFW_USING_IMGUI
         }
-#endif
     }
     else
     {
         OnModeStop();
 
-#if MYFW_USING_WX
         // Set focus to editor window.
-        if( g_pEngineCore->GetEditorPrefs()->GetMode_SwitchFocusOnPlayStop() )
+        if( g_pEngineCore->GetEditorPrefs()->Get_Mode_SwitchFocusOnPlayStop() )
         {
+#if MYFW_USING_WX
             if( g_pEngineMainFrame->m_pGLCanvas->GetParent() == g_pEngineMainFrame->GetFullScreenFrame() )
             {
                 g_pEngineMainFrame->SetGLCanvasFullScreenMode( g_pEngineMainFrame->GetGLCanvasEditor(), true );
@@ -1242,8 +1244,13 @@ void EngineCore::OnModeTogglePlayStop()
             {
                 g_pEngineMainFrame->GetGLCanvasEditor()->SetFocus();
             }
+#endif //MYFW_USING_WX
+#if MYFW_USING_IMGUI
+            {
+                ImGui::SetWindowFocus( "Editor" );
+            }
+#endif //MYFW_USING_IMGUI
         }
-#endif
     }
 #endif //MYFW_EDITOR
 }

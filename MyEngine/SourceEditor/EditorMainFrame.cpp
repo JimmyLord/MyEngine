@@ -48,3 +48,38 @@ EditorMainFrame::EditorMainFrame()
 EditorMainFrame::~EditorMainFrame()
 {
 }
+
+void EditorMainFrame::ParseLogMessage(const char* message)
+{
+    // Parse the line and select the gameobject/material.
+    {
+        // Check if the line is a GameObject or Prefab.
+        GameObject* pGameObject = g_pComponentSystemManager->ParseLog_GameObject( message );
+        if( pGameObject )
+        {
+            g_pEngineCore->GetEditorState()->ClearSelectedObjectsAndComponents();
+            g_pEngineCore->GetEditorState()->SelectGameObject( pGameObject );
+
+#if MYFW_USING_WX
+            // Select the object in the object tree.
+            if( pGameObject->IsPrefabInstance() )
+                g_pPanelObjectList->SelectObject( pGameObject->GetPrefabRef()->GetGameObject() );
+            else
+                g_pPanelObjectList->SelectObject( pGameObject );
+#endif
+        }
+
+        // Check if the line is a Material.
+        MaterialDefinition* pMaterial = g_pComponentSystemManager->ParseLog_Material( message );
+        if( pMaterial )
+        {
+#if MYFW_USING_WX
+            pMaterial->AddToWatchPanel( true, true, true );
+#elif MYFW_USING_IMGUI
+            ((EditorMainFrame_ImGui*)this)->EditMaterial( pMaterial );
+#endif
+
+            // TODO: MAYBE? select the material in the memory panel.
+        }
+    }
+}

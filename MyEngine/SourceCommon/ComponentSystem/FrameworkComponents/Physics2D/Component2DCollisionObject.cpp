@@ -634,7 +634,7 @@ void Component2DCollisionObject::DrawCallback(ComponentCamera* pCamera, MyMatrix
     }
     else
     {
-        if( g_pEngineCore->GetEditorPrefs()->GetDebug_DrawPhysicsDebugShapes() == false )
+        if( g_pEngineCore->GetEditorPrefs()->Get_Debug_DrawPhysicsDebugShapes() == false )
             return;
     }
 

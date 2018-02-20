@@ -27,14 +27,15 @@ EditorPrefs::EditorPrefs()
     m_IsWindowMaximized = false;
 
     m_View_ShowEditorIcons = true;
-    m_Debug_DrawPhysicsDebugShapes = true;
-    m_SelectedObjects_ShowWireframe = true;
-    m_SelectedObjects_ShowEffect = true;
-    m_Mode_SwitchFocusOnPlayStop = true;
+    m_View_SelectedObjects_ShowWireframe = true;
+    m_View_SelectedObjects_ShowEffect = true;
 
     m_GridSettings.visible = true;
     m_GridSettings.snapenabled = false;
     m_GridSettings.stepsize.Set( 1, 1, 1 );
+
+    m_Mode_SwitchFocusOnPlayStop = true;
+    m_Debug_DrawPhysicsDebugShapes = true;
 }
 
 EditorPrefs::~EditorPrefs()
@@ -111,10 +112,8 @@ void EditorPrefs::LoadPrefs()
     //cJSONExt_GetInt( jEditorPrefs, "GameAspectRatio", (int*)&g_CurrentGLViewType );
 
     cJSONExt_GetBool( m_jEditorPrefs, "View_ShowEditorIcons", &m_View_ShowEditorIcons );
-    cJSONExt_GetBool( m_jEditorPrefs, "Debug_DrawPhysicsDebugShapes", &m_Debug_DrawPhysicsDebugShapes );
-    cJSONExt_GetBool( m_jEditorPrefs, "SelectedObjects_ShowWireframe", &m_SelectedObjects_ShowWireframe );
-    cJSONExt_GetBool( m_jEditorPrefs, "SelectedObjects_ShowEffect", &m_SelectedObjects_ShowEffect );
-    cJSONExt_GetBool( m_jEditorPrefs, "Mode_SwitchFocusOnPlayStop", &m_Mode_SwitchFocusOnPlayStop );
+    cJSONExt_GetBool( m_jEditorPrefs, "View_SelectedObjects_ShowWireframe", &m_View_SelectedObjects_ShowWireframe );
+    cJSONExt_GetBool( m_jEditorPrefs, "View_SelectedObjects_ShowEffect", &m_View_SelectedObjects_ShowEffect );
 
     cJSONExt_GetBool( m_jEditorPrefs, "Grid_Visible", &m_GridSettings.visible );
     if( g_pEngineCore )
@@ -123,6 +122,9 @@ void EditorPrefs::LoadPrefs()
     }
     cJSONExt_GetBool( m_jEditorPrefs, "Grid_SnapEnabled", &m_GridSettings.snapenabled );
     cJSONExt_GetFloatArray( m_jEditorPrefs, "Grid_StepSize", &m_GridSettings.stepsize.x, 3 );
+
+    cJSONExt_GetBool( m_jEditorPrefs, "Mode_SwitchFocusOnPlayStop", &m_Mode_SwitchFocusOnPlayStop );
+    cJSONExt_GetBool( m_jEditorPrefs, "Debug_DrawPhysicsDebugShapes", &m_Debug_DrawPhysicsDebugShapes );
 }
 
 void EditorPrefs::LoadLastSceneLoaded()
@@ -216,25 +218,27 @@ cJSON* EditorPrefs::SaveStart()
         //cJSON* jGameObjectFlagsArray = cJSON_CreateStringArray( g_pEngineCore->GetGameObjectFlagStringArray(), 32 );
         //cJSON_AddItemToObject( pPrefs, "GameObjectFlags", jGameObjectFlagsArray );
 
-        //// View menu options
+        // View menu options
         //cJSON_AddNumberToObject( pPrefs, "EditorLayout", GetDefaultEditorPerspectiveIndex() );
         //cJSON_AddNumberToObject( pPrefs, "GameplayLayout", GetDefaultGameplayPerspectiveIndex() );
         //extern GLViewTypes g_CurrentGLViewType;
         //cJSON_AddNumberToObject( pPrefs, "GameAspectRatio", g_CurrentGLViewType );
 
         cJSON_AddNumberToObject( jPrefs, "View_ShowEditorIcons", m_View_ShowEditorIcons );
-        cJSON_AddNumberToObject( jPrefs, "Debug_DrawPhysicsDebugShapes", m_Debug_DrawPhysicsDebugShapes );
-        cJSON_AddNumberToObject( jPrefs, "SelectedObjects_ShowWireframe", m_SelectedObjects_ShowWireframe );
-        cJSON_AddNumberToObject( jPrefs, "SelectedObjects_ShowEffect", m_SelectedObjects_ShowEffect );
+        cJSON_AddNumberToObject( jPrefs, "View_SelectedObjects_ShowWireframe", m_View_SelectedObjects_ShowWireframe );
+        cJSON_AddNumberToObject( jPrefs, "View_SelectedObjects_ShowEffect", m_View_SelectedObjects_ShowEffect );
 
-        //// Grid menu options
+        // Grid menu options
         cJSON_AddNumberToObject( jPrefs, "Grid_Visible", m_GridSettings.visible );
         cJSON_AddNumberToObject( jPrefs, "Grid_SnapEnabled", m_GridSettings.snapenabled );
         cJSONExt_AddFloatArrayToObject( jPrefs, "Grid_StepSize", &m_GridSettings.stepsize.x, 3 );
 
-        //// Mode menu options
+        // Mode menu options
         cJSON_AddNumberToObject( jPrefs, "Mode_SwitchFocusOnPlayStop", m_Mode_SwitchFocusOnPlayStop );
         //cJSON_AddNumberToObject( jPrefs, "LaunchPlatform", GetLaunchPlatformIndex() );
+
+        // Debug menu options
+        cJSON_AddNumberToObject( jPrefs, "Debug_DrawPhysicsDebugShapes", m_Debug_DrawPhysicsDebugShapes );
 
         return jPrefs;
     }
@@ -257,13 +261,13 @@ void EditorPrefs::SaveFinish(cJSON* jPrefs)
     cJSONExt_free( string );
 }
 
-void EditorPrefs::ToggleGrid_Visible()
+void EditorPrefs::Toggle_Grid_Visible()
 {
     m_GridSettings.visible = !m_GridSettings.visible;
     g_pEngineCore->SetGridVisible( m_GridSettings.visible );
 }
 
-void EditorPrefs::ToggleGrid_SnapEnabled()
+void EditorPrefs::Toggle_Grid_SnapEnabled()
 {
     m_GridSettings.snapenabled = !m_GridSettings.snapenabled;
 }

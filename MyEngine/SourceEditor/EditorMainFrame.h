@@ -19,6 +19,8 @@ protected:
 public:
     EditorMainFrame();
     virtual ~EditorMainFrame();
+
+    void ParseLogMessage(const char* message);
 };
 
 #endif //__EditorMainFrame_H__

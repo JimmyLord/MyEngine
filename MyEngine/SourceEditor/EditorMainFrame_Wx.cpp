@@ -601,16 +601,7 @@ void EngineMainFrame::OnPostInit()
         extern GLViewTypes g_CurrentGLViewType;
         cJSONExt_GetInt( jEditorPrefs, "GameAspectRatio", (int*)&g_CurrentGLViewType );
 
-        //cJSONExt_GetBool( jEditorPrefs, "ShowIcons", &m_ShowEditorIcons );
-        //cJSONExt_GetBool( jEditorPrefs, "SelectedObjects_ShowWireframe", &m_SelectedObjects_ShowWireframe );
-        //cJSONExt_GetBool( jEditorPrefs, "SelectedObjects_ShowEffect", &m_SelectedObjects_ShowEffect );
-        //cJSONExt_GetBool( jEditorPrefs, "Mode_SwitchFocusOnPlayStop", &m_Mode_SwitchFocusOnPlayStop );
-
-        //cJSONExt_GetBool( jEditorPrefs, "GridVisible", &m_GridSettings.visible );
         g_pEngineCore->SetGridVisible( pEditorPrefs->GetGridSettings()->visible );
-
-        //cJSONExt_GetBool( jEditorPrefs, "GridSnapEnabled", &m_GridSettings.snapenabled );
-        //cJSONExt_GetFloatArray( jEditorPrefs, "GridStepSize", &m_GridSettings.stepsize.x, 3 );
 
         // Load the scene at the end.
         obj = cJSON_GetObjectItem( jEditorPrefs, "LastSceneLoaded" );
@@ -705,17 +696,7 @@ bool EngineMainFrame::OnClose()
             extern GLViewTypes g_CurrentGLViewType;
             cJSON_AddNumberToObject( pPrefs, "GameAspectRatio", g_CurrentGLViewType );
 
-            //cJSON_AddNumberToObject( pPrefs, "ShowIcons", g_pEngineCore->GetEditorPrefs()->GetView_ShowEditorIcons() );
-            //cJSON_AddNumberToObject( pPrefs, "SelectedObjects_ShowWireframe", g_pEngineCore->GetEditorPrefs()->GetSelectedObjects_ShowWireframe() );
-            //cJSON_AddNumberToObject( pPrefs, "SelectedObjects_ShowEffect", g_pEngineCore->GetEditorPrefs()->GetSelectedObjects_ShowEffect() );
-
-            //// Grid menu options
-            //cJSON_AddNumberToObject( pPrefs, "GridVisible", g_pEngineCore->GetEditorPrefs()->GetGridSettings()->visible );
-            //cJSON_AddNumberToObject( pPrefs, "GridSnapEnabled", g_pEngineCore->GetEditorPrefs()->GetGridSettings()->snapenabled );
-            //cJSONExt_AddFloatArrayToObject( pPrefs, "GridStepSize", &g_pEngineCore->GetEditorPrefs()->GetGridSettings()->stepsize.x, 3 );
-
             // Mode menu options
-            //cJSON_AddNumberToObject( pPrefs, "Mode_SwitchFocusOnPlayStop", g_pEngineCore->GetEditorPrefs()->GetMode_SwitchFocusOnPlayStop() );
             cJSON_AddNumberToObject( pPrefs, "LaunchPlatform", GetLaunchPlatformIndex() );
 
             g_pEngineCore->GetEditorPrefs()->SaveFinish( pPrefs );
@@ -805,13 +786,13 @@ void EngineMainFrame::UpdateMenuItemStates()
     EditorPrefs* pPrefs = g_pEditorPrefs; //g_pEngineCore->GetEditorPrefs();
 
     if( m_MenuItem_View_ShowEditorIcons )
-        m_MenuItem_View_ShowEditorIcons->Check( pPrefs->GetView_ShowEditorIcons() );
+        m_MenuItem_View_ShowEditorIcons->Check( pPrefs->Get_View_ShowEditorIcons() );
 
     if( m_MenuItem_View_SelectedObjects_ShowWireframe )
-        m_MenuItem_View_SelectedObjects_ShowWireframe->Check( pPrefs->GetView_SelectedObjects_ShowWireframe() );
+        m_MenuItem_View_SelectedObjects_ShowWireframe->Check( pPrefs->Get_View_SelectedObjects_ShowWireframe() );
 
     if( m_MenuItem_View_SelectedObjects_ShowEffect )
-        m_MenuItem_View_SelectedObjects_ShowEffect->Check( pPrefs->GetView_SelectedObjects_ShowEffect() );
+        m_MenuItem_View_SelectedObjects_ShowEffect->Check( pPrefs->Get_View_SelectedObjects_ShowEffect() );
 
     if( m_MenuItem_Grid_Visible )
         m_MenuItem_Grid_Visible->Check( pPrefs->GetGridSettings()->visible );
@@ -820,7 +801,7 @@ void EngineMainFrame::UpdateMenuItemStates()
         m_MenuItem_Grid_SnapEnabled->Check( pPrefs->GetGridSettings()->snapenabled );
 
     if( m_MenuItem_Mode_SwitchFocusOnPlayStop )
-        m_MenuItem_Mode_SwitchFocusOnPlayStop->Check( pPrefs->GetMode_SwitchFocusOnPlayStop() );
+        m_MenuItem_Mode_SwitchFocusOnPlayStop->Check( pPrefs->Get_Mode_SwitchFocusOnPlayStop() );
 
     if( g_pEngineCore )
     {
@@ -834,7 +815,7 @@ void EngineMainFrame::UpdateMenuItemStates()
             m_MenuItem_Debug_DrawGLStats->Check( g_pEngineCore->GetDebug_DrawGLStats() );
 
         if( m_MenuItem_Debug_DrawPhysicsDebugShapes )
-            m_MenuItem_Debug_DrawPhysicsDebugShapes->Check( g_pEngineCore->GetEditorPrefs()->GetDebug_DrawPhysicsDebugShapes() );
+            m_MenuItem_Debug_DrawPhysicsDebugShapes->Check( g_pEngineCore->GetEditorPrefs()->Get_Debug_DrawPhysicsDebugShapes() );
 
         if( m_MenuItem_Debug_ShowProfilingInfo )
             m_MenuItem_Debug_ShowProfilingInfo->Check( g_pEngineCore->GetDebug_ShowProfilingInfo() );
@@ -1014,18 +995,15 @@ void EngineMainFrame::OnMenu_Engine(wxCommandEvent& event)
         break;
 
     case myIDEngine_View_ShowEditorIcons:
-        pEditorPrefs->ToggleView_ShowEditorIcons();
-        //m_ShowEditorIcons = !m_ShowEditorIcons;
+        pEditorPrefs->Toggle_View_ShowEditorIcons();
         break;
 
     case myIDEngine_View_SelectedObjects_ShowWireframe:
-        pEditorPrefs->ToggleView_SelectedObjects_ShowWireframe();
-        //m_SelectedObjects_ShowWireframe = !m_SelectedObjects_ShowWireframe;
+        pEditorPrefs->Toggle_View_SelectedObjects_ShowWireframe();
         break;
 
     case myIDEngine_View_SelectedObjects_ShowEffect:
-        pEditorPrefs->ToggleView_SelectedObjects_ShowEffect();
-        //m_SelectedObjects_ShowEffect = !m_SelectedObjects_ShowEffect;
+        pEditorPrefs->Toggle_View_SelectedObjects_ShowEffect();
         break;
 
     case myIDEngine_View_EditorWindow_Editor:
@@ -1059,14 +1037,12 @@ void EngineMainFrame::OnMenu_Engine(wxCommandEvent& event)
         break;
 
     case myIDEngine_Grid_VisibleOnOff:
-        pEditorPrefs->ToggleGrid_Visible();
-        //m_GridSettings.visible = !m_GridSettings.visible;
-        g_pEngineCore->SetGridVisible( pEditorPrefs->GetGridSettings()->visible );
+        pEditorPrefs->Toggle_Grid_Visible();
+        g_pEngineCore->SetGridVisible( pEditorPrefs->Get_Grid_Visible() );
         break;
 
     case myIDEngine_Grid_SnapOnOff:
-        pEditorPrefs->ToggleGrid_SnapEnabled();
-        //m_GridSettings.snapenabled = !m_GridSettings.snapenabled;
+        pEditorPrefs->Toggle_Grid_SnapEnabled();
         break;
 
     case myIDEngine_Grid_Settings:
@@ -1084,8 +1060,7 @@ void EngineMainFrame::OnMenu_Engine(wxCommandEvent& event)
         break;
 
     case myIDEngine_Mode_SwitchFocusOnPlayStop:
-        pEditorPrefs->ToggleMode_SwitchFocusOnPlayStop();
-        //m_Mode_SwitchFocusOnPlayStop = !m_Mode_SwitchFocusOnPlayStop;
+        pEditorPrefs->Toggle_Mode_SwitchFocusOnPlayStop();
         break;
 
     case myIDEngine_Mode_PlayStop:
@@ -1167,7 +1142,7 @@ void EngineMainFrame::OnMenu_Engine(wxCommandEvent& event)
         break;
 
     case myIDEngine_Debug_ShowPhysicsShapes:
-        pEditorPrefs->ToggleDebug_DrawPhysicsDebugShapes();
+        pEditorPrefs->Toggle_Debug_DrawPhysicsDebugShapes();
         //g_pEngineCore->m_Debug_DrawPhysicsDebugShapes = !g_pEngineCore->m_Debug_DrawPhysicsDebugShapes;
         break;
 
@@ -1688,31 +1663,33 @@ void EngineMainFrame::OnTextCtrlLeftDoubleClick(wxMouseEvent& evt)
     {
         wxString line = pTextCtrl->GetLineText( row );
 
-        // Parse the line and select the gameobject/material.
-        {
-            // Check if the line is a GameObject or Prefab.
-            GameObject* pGameObject = g_pComponentSystemManager->ParseLog_GameObject( line.c_str() );
-            if( pGameObject )
-            {
-                g_pEngineCore->GetEditorState()->ClearSelectedObjectsAndComponents();
-                g_pEngineCore->GetEditorState()->SelectGameObject( pGameObject );
+        g_pEngineCore->GetEditorMainFrame()->ParseLogMessage( line.c_str() );
 
-                // Select the object in the object tree.
-                if( pGameObject->IsPrefabInstance() )
-                    g_pPanelObjectList->SelectObject( pGameObject->GetPrefabRef()->GetGameObject() );
-                else
-                    g_pPanelObjectList->SelectObject( pGameObject );
-            }
+        //// Parse the line and select the gameobject/material.
+        //{
+        //    // Check if the line is a GameObject or Prefab.
+        //    GameObject* pGameObject = g_pComponentSystemManager->ParseLog_GameObject( line.c_str() );
+        //    if( pGameObject )
+        //    {
+        //        g_pEngineCore->GetEditorState()->ClearSelectedObjectsAndComponents();
+        //        g_pEngineCore->GetEditorState()->SelectGameObject( pGameObject );
 
-            // Check if the line is a Material.
-            MaterialDefinition* pMaterial = g_pComponentSystemManager->ParseLog_Material( line.c_str() );
-            if( pMaterial )
-            {
-                pMaterial->AddToWatchPanel( true, true, true );
+        //        // Select the object in the object tree.
+        //        if( pGameObject->IsPrefabInstance() )
+        //            g_pPanelObjectList->SelectObject( pGameObject->GetPrefabRef()->GetGameObject() );
+        //        else
+        //            g_pPanelObjectList->SelectObject( pGameObject );
+        //    }
 
-                // TODO: MAYBE? select the material in the memory panel.
-            }
-        }
+        //    // Check if the line is a Material.
+        //    MaterialDefinition* pMaterial = g_pComponentSystemManager->ParseLog_Material( line.c_str() );
+        //    if( pMaterial )
+        //    {
+        //        pMaterial->AddToWatchPanel( true, true, true );
+
+        //        // TODO: MAYBE? select the material in the memory panel.
+        //    }
+        //}
     }
 }
 
