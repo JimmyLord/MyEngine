@@ -309,19 +309,19 @@ ComponentVariable* ComponentSprite::GetComponentVariableForMaterial(int submeshi
     return FindComponentVariableByLabel( &m_ComponentVariableList_ComponentSprite, "Material" );
 }
 
-#if MYFW_USING_WX
-void ComponentSprite::AddToObjectsPanel(wxTreeItemId gameobjectid)
-{
-    //wxTreeItemId id =
-    g_pPanelObjectList->AddObject( this, ComponentSprite::StaticOnLeftClick, ComponentBase::StaticOnRightClick, gameobjectid, "Sprite", ObjectListIcon_Component );
-}
-
 bool ComponentSprite::IsReferencingFile(MyFileObject* pFile)
 {
     if( m_pSprite->GetMaterial() && m_pSprite->GetMaterial()->GetFile() == pFile )
         return true;
 
     return ComponentBase::IsReferencingFile( pFile );
+}
+
+#if MYFW_USING_WX
+void ComponentSprite::AddToObjectsPanel(wxTreeItemId gameobjectid)
+{
+    //wxTreeItemId id =
+    g_pPanelObjectList->AddObject( this, ComponentSprite::StaticOnLeftClick, ComponentBase::StaticOnRightClick, gameobjectid, "Sprite", ObjectListIcon_Component );
 }
 
 void ComponentSprite::OnLeftClick(unsigned int count, bool clear) // StaticOnLeftClick

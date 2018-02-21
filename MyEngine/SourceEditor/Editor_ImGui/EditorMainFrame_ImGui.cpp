@@ -265,6 +265,11 @@ bool EditorMainFrame_ImGui::CheckForHotkeys(int keyaction, int keycode)
             return true;
         }
 
+        if( keycode == MYKEYCODE_DELETE )
+        {
+            g_pEngineCore->GetEditorState()->DeleteSelectedObjects();
+        }
+
         if( C  && keycode == 'F' )   { ImGui::SetWindowFocus( "Objects" ); m_SetFilterBoxInFocus = true; return true; }
         if( C  && keycode == 'S' )   { EditorMenuCommand( EditorMenuCommand_File_SaveScene );            return true; }
         if( CS && keycode == 'E' )   { EditorMenuCommand( EditorMenuCommand_File_Export_Box2DScene );    return true; }
@@ -1403,11 +1408,13 @@ void EditorMainFrame_ImGui::AddMemoryPanel_Materials()
                 }
                 else
                 {
-                    if( pMat->GetFile() )
+                    MyFileObject* pFile = pMat->GetFile();
+
+                    if( pFile )
                     {
                         numMaterialsShown++;
 
-                        const char* matName = pMat->GetFile()->GetFilenameWithoutExtension();
+                        const char* matName = pFile->GetFilenameWithoutExtension();
 
                         if( ImGui::TreeNodeEx( matName, baseNodeFlags | ImGuiTreeNodeFlags_Leaf ) )
                         {
@@ -1423,7 +1430,7 @@ void EditorMainFrame_ImGui::AddMemoryPanel_Materials()
                             {
                                 if( ImGui::MenuItem( "Edit Material", 0, &m_IsMaterialEditorOpen ) ) { m_pMaterialBeingEdited = pMat; ImGui::CloseCurrentPopup(); }
                                 if( ImGui::MenuItem( "Unload File (TODO)" ) )                        { ImGui::CloseCurrentPopup(); }
-                                if( ImGui::MenuItem( "Find References (TODO)" ) )                    { ImGui::CloseCurrentPopup(); } // (%d)", pMat->GetRefCount() ) {}
+                                if( ImGui::MenuItem( "Find References" ) ) { g_pFileManager->Editor_FindAllReferences( pFile ); ImGui::CloseCurrentPopup(); } // (%d)", pMat->GetRefCount() ) {}
                                 if( ImGui::MenuItem( "Rename" ) )
                                 {
                                     m_pGameObjectWhoseNameIsBeingEdited = 0;
@@ -1498,6 +1505,8 @@ void EditorMainFrame_ImGui::AddMemoryPanel_Textures()
             {
                 while( pTex )
                 {
+                    MyFileObject* pFile = pTex->GetFile();
+
                     if( pTex->m_ShowInMemoryPanel )
                     {
                         numTexturesShown++;
@@ -1507,7 +1516,7 @@ void EditorMainFrame_ImGui::AddMemoryPanel_Textures()
                             if( ImGui::BeginPopupContextItem( "ContextPopup", 1 ) )
                             {
                                 if( ImGui::MenuItem( "Unload File (TODO)" ) )     { ImGui::CloseCurrentPopup(); }
-                                if( ImGui::MenuItem( "Find References (TODO)" ) ) { ImGui::CloseCurrentPopup(); } ;// (%d)", pMat->GetRefCount() ) {}
+                                if( ImGui::MenuItem( "Find References" ) ){ if( pFile ) g_pFileManager->Editor_FindAllReferences( pFile ); ImGui::CloseCurrentPopup(); } ;// (%d)", pMat->GetRefCount() ) {}
                                 ImGui::EndPopup();
                             }
 
@@ -1559,26 +1568,27 @@ void EditorMainFrame_ImGui::AddMemoryPanel_ShaderGroups()
             {
                 while( pShaderGroup )
                 {
-                    if( pShaderGroup->GetFile() )
+                    MyFileObjectShader* pFile = pShaderGroup->GetFile();
+                    if( pFile )
                     {
-                        if( pShaderGroup->GetFile()->m_ShowInMemoryPanel )
+                        if( pFile->m_ShowInMemoryPanel )
                         {
                             numShadersShown++;
 
-                            if( ImGui::TreeNodeEx( pShaderGroup->GetFile()->GetFilenameWithoutExtension(), ImGuiTreeNodeFlags_Leaf | baseNodeFlags ) )
+                            if( ImGui::TreeNodeEx( pFile->GetFilenameWithoutExtension(), ImGuiTreeNodeFlags_Leaf | baseNodeFlags ) )
                             {
                                 if( ImGui::BeginPopupContextItem( "ContextPopup", 1 ) )
                                 {
-                                    if( ImGui::MenuItem( "Open File (TODO)" ) )       { ImGui::CloseCurrentPopup(); }
-                                    if( ImGui::MenuItem( "Unload File (TODO)" ) )     { ImGui::CloseCurrentPopup(); }
-                                    if( ImGui::MenuItem( "Find References (TODO)" ) ) { ImGui::CloseCurrentPopup(); } ;// (%d)", pMat->GetRefCount() ) {}
+                                    if( ImGui::MenuItem( "Open File (TODO)" ) )   { ImGui::CloseCurrentPopup(); }
+                                    if( ImGui::MenuItem( "Unload File (TODO)" ) ) { ImGui::CloseCurrentPopup(); }
+                                    if( ImGui::MenuItem( "Find References" ) )    { g_pFileManager->Editor_FindAllReferences( pFile ); ImGui::CloseCurrentPopup(); } ;// (%d)", pMat->GetRefCount() ) {}
                                     ImGui::EndPopup();
                                 }
 
                                 if( ImGui::BeginDragDropSource() )
                                 {
                                     ImGui::SetDragDropPayload( "ShaderGroup", &pShaderGroup, sizeof(pShaderGroup), ImGuiCond_Once );
-                                    ImGui::Text( "%s", pShaderGroup->GetFile()->GetFullPath() );
+                                    ImGui::Text( "%s", pFile->GetFullPath() );
                                     ImGui::EndDragDropSource();
                                 }
 

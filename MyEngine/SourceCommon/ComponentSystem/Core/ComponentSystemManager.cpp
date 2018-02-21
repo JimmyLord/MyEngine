@@ -2540,9 +2540,9 @@ int ComponentSystemManager::LogAllReferencesForFileInGameObject(MyFileObject* pF
         {
             if( pComponent->IsReferencingFile( pFile ) )
             {
-                int sceneindex = pComponent->GetSceneID();
+                SceneID sceneindex = pComponent->GetSceneID();
 
-                if( sceneindex == 0 )
+                if( sceneindex == SCENEID_Unmanaged )
                 {
                     if( pGameObject->IsPrefabInstance() )
                     {

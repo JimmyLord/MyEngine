@@ -86,12 +86,12 @@ public:
 #if MYFW_EDITOR
     virtual ComponentVariable* GetComponentVariableForMaterial(int submeshindex);
 
+    virtual bool IsReferencingFile(MyFileObject* pFile);
+
 #if MYFW_USING_WX
     static bool m_PanelWatchBlockVisible;
 
     virtual void AddToObjectsPanel(wxTreeItemId gameobjectid);
-
-    virtual bool IsReferencingFile(MyFileObject* pFile);
 
     // Object panel callbacks.
     static void StaticOnLeftClick(void* pObjectPtr, wxTreeItemId id, unsigned int count) { ((ComponentSprite*)pObjectPtr)->OnLeftClick( count, true ); }
