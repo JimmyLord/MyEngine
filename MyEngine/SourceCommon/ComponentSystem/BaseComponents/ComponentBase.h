@@ -113,7 +113,9 @@ protected:
     virtual CPPListHead* GetComponentVariableList() { /*MyAssert( false );*/ return 0; } // = 0; TODO: make this pure virual once MYFW_COMPONENT_DECLARE_VARIABLE_LIST and MYFW_COMPONENT_IMPLEMENT_VARIABLE_LIST are in each component
 #if MYFW_USING_WX
     void FillPropertiesWindowWithVariables();
+#endif
     bool DoAllMultiSelectedVariabledHaveTheSameValue(ComponentVariable* pVar);
+#if MYFW_USING_WX
     void AddVariableToPropertiesWindow(ComponentVariable* pVar);
     int FindVariablesControlIDByLabel(const char* label);
 #endif
@@ -188,6 +190,8 @@ public:
 
     double GetCurrentValueFromVariable(ComponentVariable* pVar, int controlcomponent);
     void ChangeValueInNonPointerVariable(ComponentVariable* pVar, int controlcomponent, bool addundocommand, double changetoapply, double changeforundo);
+
+    // There are currently 2 versions of this, one for wx and one for imgui based editor.
     void CopyValueFromOtherComponent(ComponentVariable* pVar, int controlcomponent, ComponentBase* pOtherComponent, bool addundocommand);
 
     void UpdateChildrenWithNewValue(bool fromdraganddrop, ComponentVariable* pVar, int controlcomponent, bool directlychanged, bool finishedchanging, double oldvalue, void* oldpointer, int x, int y, void* newpointer);

@@ -324,6 +324,7 @@ void ComponentBase::FillPropertiesWindowWithVariables()
         AddVariableToPropertiesWindow( pVar );
     }
 }
+#endif //MYFW_USING_WX
 
 bool ComponentBase::DoAllMultiSelectedVariabledHaveTheSameValue(ComponentVariable* pVar)
 {
@@ -446,6 +447,7 @@ bool ComponentBase::DoAllMultiSelectedVariabledHaveTheSameValue(ComponentVariabl
     return allComponentsHaveSameValue;
 }
 
+#if MYFW_USING_WX
 void ComponentBase::AddVariableToPropertiesWindow(ComponentVariable* pVar)
 {
     if( pVar->m_DisplayInWatch == false )
@@ -696,15 +698,13 @@ void ComponentBase::AddVariableToWatchPanel(ComponentVariable* pVar)
     {
         ImGui::PushStyleColor( ImGuiCol_Text, ImVec4( 1.0f, 0.5f, 0.0f, 1.0f ) );
         numStylesPushed++;
-        //g_pPanelWatch->ChangeStaticTextFontStyle( pVar->m_ControlID, wxFONTSTYLE_ITALIC, wxFONTWEIGHT_BOLD );
-        //g_pPanelWatch->ChangeStaticTextBGColor( pVar->m_ControlID, wxColour( 255, 200, 200, 255 ) );
     }
 
-    //if( DoAllMultiSelectedVariabledHaveTheSameValue( pVar ) == false )
-    //{
-    //    //g_pPanelWatch->ChangeStaticTextFontStyle( pVar->m_ControlID, wxFONTSTYLE_ITALIC, wxFONTWEIGHT_BOLD );
-    //    //g_pPanelWatch->ChangeStaticTextBGColor( pVar->m_ControlID, wxColour( 200, 200, 255, 255 ) );
-    //}
+    if( DoAllMultiSelectedVariabledHaveTheSameValue( pVar ) == false )
+    {
+        ImGui::PushStyleColor( ImGuiCol_Text, ImVec4( 0.0f, 0.5f, 1.0f, 1.0f ) );
+        numStylesPushed++;
+    }
 
 #pragma warning( disable : 4062 )
     {
@@ -1000,18 +1000,6 @@ void ComponentBase::AddVariableToWatchPanel(ComponentVariable* pVar)
             }
             ImGui::PopID();
         }
-
-        //if( IsDivorced( pVar->m_Index ) )
-        //{
-        //    g_pPanelWatch->ChangeStaticTextFontStyle( pVar->m_ControlID, wxFONTSTYLE_ITALIC, wxFONTWEIGHT_BOLD );
-        //    g_pPanelWatch->ChangeStaticTextBGColor( pVar->m_ControlID, wxColour( 255, 200, 200, 255 ) );
-        //}
-
-        //if( DoAllMultiSelectedVariabledHaveTheSameValue( pVar ) == false )
-        //{
-        //    g_pPanelWatch->ChangeStaticTextFontStyle( pVar->m_ControlID, wxFONTSTYLE_ITALIC, wxFONTWEIGHT_BOLD );
-        //    g_pPanelWatch->ChangeStaticTextBGColor( pVar->m_ControlID, wxColour( 200, 200, 255, 255 ) );
-        //}
     }
 
     //if( pVar->m_pVariableAddedToInterfaceCallbackFunc )
@@ -2317,9 +2305,350 @@ void ComponentBase::ChangeValueInNonPointerVariable(ComponentVariable* pVar, int
 #endif //MYFW_USING_WX
 }
 
+#if MYFW_USING_IMGUI
 void ComponentBase::CopyValueFromOtherComponent(ComponentVariable* pVar, int controlcomponent, ComponentBase* pOtherComponent, bool addundocommand)
 {
+    size_t offset = pVar->m_Offset;
+
+    switch( pVar->m_Type )
+    {
+    case ComponentVariableType_Int:
+    case ComponentVariableType_Enum:
+        {
+            ComponentVariableValue oldComponentVarValue( this, pVar );
+
+            int oldvalue = *(int*)((char*)this + offset);
+            int newvalue = *(int*)((char*)pOtherComponent + offset);
+            *(int*)((char*)this + offset) = newvalue;
+
+            ComponentVariableValue newComponentVarValue( this, pVar );
+
+            // notify component and it's children that the value changed.
+            OnValueChangedVariable( pVar, 0, false, true, oldvalue, false, 0 );
+
+            if( addundocommand )
+            {
+                g_pGameCore->GetCommandStack()->Add( MyNew EditorCommand_ImGuiPanelWatchNumberValueChanged(
+                    this, pVar, newComponentVarValue, oldComponentVarValue, false ) );
+                //g_pGameCore->GetCommandStack()->Add( MyNew EditorCommand_PanelWatchNumberValueChanged(
+                //    newvalue - oldvalue, PanelWatchType_Int, ((char*)this + offset), pVar->m_ControlID, false,
+                //    ComponentBase::StaticOnValueChangedVariable, this ) );
+            }
+        }
+        break;
+
+    case ComponentVariableType_UnsignedInt:
+    case ComponentVariableType_Flags:
+        {
+            ComponentVariableValue oldComponentVarValue( this, pVar );
+
+            unsigned int oldvalue = *(unsigned int*)((char*)this + offset);
+            unsigned int newvalue = *(unsigned int*)((char*)pOtherComponent + offset);
+            *(unsigned int*)((char*)this + offset) = newvalue;
+
+            ComponentVariableValue newComponentVarValue( this, pVar );
+
+            // notify component and it's children that the value changed.
+            OnValueChangedVariable( pVar, 0, false, true, oldvalue, false, 0 );
+
+            if( addundocommand )
+            {
+                g_pGameCore->GetCommandStack()->Add( MyNew EditorCommand_ImGuiPanelWatchNumberValueChanged(
+                    this, pVar, newComponentVarValue, oldComponentVarValue, false ) );
+                //g_pGameCore->GetCommandStack()->Add( MyNew EditorCommand_PanelWatchNumberValueChanged(
+                //    newvalue - oldvalue, PanelWatchType_UnsignedInt, ((char*)this + offset), pVar->m_ControlID, false,
+                //    ComponentBase::StaticOnValueChangedVariable, this ) );
+            }
+        }
+        break;
+
+    //ComponentVariableType_Char,
+    //    break;
+
+    //ComponentVariableType_UnsignedChar,
+    //    break;
+
+    case ComponentVariableType_Bool:
+        {
+            ComponentVariableValue oldComponentVarValue( this, pVar );
+
+            bool oldvalue = *(bool*)((char*)this + offset);
+            bool newvalue = *(bool*)((char*)pOtherComponent + offset);
+            *(bool*)((char*)this + offset) = newvalue;
+
+            ComponentVariableValue newComponentVarValue( this, pVar );
+
+            // notify component and it's children that the value changed.
+            OnValueChangedVariable( pVar, 0, false, true, oldvalue, false, 0 );
+
+            if( addundocommand )
+            {
+                g_pGameCore->GetCommandStack()->Add( MyNew EditorCommand_ImGuiPanelWatchNumberValueChanged(
+                    this, pVar, newComponentVarValue, oldComponentVarValue, false ) );
+                //g_pGameCore->GetCommandStack()->Add( MyNew EditorCommand_PanelWatchNumberValueChanged(
+                //    newvalue - oldvalue, PanelWatchType_Bool, ((char*)this + offset), pVar->m_ControlID, false,
+                //    ComponentBase::StaticOnValueChangedVariable, this ) );
+            }
+        }
+        break;
+
+    case ComponentVariableType_Float:
+        {
+            ComponentVariableValue oldComponentVarValue( this, pVar );
+
+            float oldvalue = *(float*)((char*)this + offset);
+            float newvalue = *(float*)((char*)pOtherComponent + offset);
+            *(float*)((char*)this + offset) = newvalue;
+
+            ComponentVariableValue newComponentVarValue( this, pVar );
+
+            // notify component and it's children that the value changed.
+            OnValueChangedVariable( pVar, 0, false, true, oldvalue, false, 0 );
+
+            if( addundocommand )
+            {
+                g_pGameCore->GetCommandStack()->Add( MyNew EditorCommand_ImGuiPanelWatchNumberValueChanged(
+                    this, pVar, newComponentVarValue, oldComponentVarValue, false ) );
+                //g_pGameCore->GetCommandStack()->Add( MyNew EditorCommand_PanelWatchNumberValueChanged(
+                //    newvalue - oldvalue, PanelWatchType_Float, ((char*)this + offset), pVar->m_ControlID, false,
+                //    ComponentBase::StaticOnValueChangedVariable, this ) );
+            }
+        }
+        break;
+
+    //ComponentVariableType_Double,
+    //    break;
+
+    //ComponentVariableType_ColorFloat,
+    //    break;
+
+    case ComponentVariableType_ColorByte:
+        {
+            ComponentVariableValue oldComponentVarValue( this, pVar );
+
+            ColorByte* thiscolor = (ColorByte*)((char*)this + offset);
+            ColorByte* parentcolor = (ColorByte*)((char*)pOtherComponent + offset);
+
+            ColorByte oldcolor = *thiscolor;
+            *thiscolor = *parentcolor;
+
+            ComponentVariableValue newComponentVarValue( this, pVar );
+
+            // store the old color in a local var.
+            // send the pointer to that var via callback in the double.
+            double oldvalue;
+            *(uintptr_t*)&oldvalue = (uintptr_t)&oldcolor;
+
+            // notify component and it's children that the value changed.
+            OnValueChangedVariable( pVar, 0, false, true, oldvalue, false, 0 );
+
+            // TODO: add to undo stack
+            assert( addundocommand == true );
+            if( addundocommand )
+            {
+                g_pGameCore->GetCommandStack()->Add( MyNew EditorCommand_ImGuiPanelWatchNumberValueChanged(
+                    this, pVar, newComponentVarValue, oldComponentVarValue, false ) );
+            }
+        }                
+        break;
+
+    case ComponentVariableType_Vector2:
+        {
+            ComponentVariableValue oldComponentVarValue( this, pVar );
+
+            Vector2 oldvalue = *(Vector2*)((char*)this + offset);
+            Vector2 newvalue = *(Vector2*)((char*)pOtherComponent + offset);
+            *(Vector2*)((char*)this + offset) = newvalue;
+
+            ComponentVariableValue newComponentVarValue( this, pVar );
+
+            // notify component and it's children that the value changed.
+            OnValueChangedVariable( pVar, 0, false, true, oldvalue.x, false, 0 );
+            OnValueChangedVariable( pVar, 1, false, true, oldvalue.y, false, 0 );
+
+            if( addundocommand )
+            {
+                g_pGameCore->GetCommandStack()->Add( MyNew EditorCommand_ImGuiPanelWatchNumberValueChanged(
+                    this, pVar, newComponentVarValue, oldComponentVarValue, false ) );
+                //g_pGameCore->GetCommandStack()->Add( MyNew EditorCommand_PanelWatchNumberValueChanged(
+                //    newvalue.x - oldvalue.x, PanelWatchType_Float, ((char*)this + offset + 4*0), pVar->m_ControlID+0, false,
+                //    ComponentBase::StaticOnValueChangedVariable, this ) );
+                //g_pGameCore->GetCommandStack()->Add( MyNew EditorCommand_PanelWatchNumberValueChanged(
+                //    newvalue.y - oldvalue.y, PanelWatchType_Float, ((char*)this + offset + 4*1), pVar->m_ControlID+1, false,
+                //    ComponentBase::StaticOnValueChangedVariable, this ), true );
+            }
+        }
+        break;
+
+    case ComponentVariableType_Vector3:
+        {
+            ComponentVariableValue oldComponentVarValue( this, pVar );
+
+            float oldvalue = (*(Vector3*)((char*)this + offset))[controlcomponent];
+            float newvalue = (*(Vector3*)((char*)pOtherComponent + offset))[controlcomponent];
+            (*(Vector3*)((char*)this + offset))[controlcomponent] = newvalue;
+
+            ComponentVariableValue newComponentVarValue( this, pVar );
+
+            // Notify component and it's children that the value changed.
+            OnValueChangedVariable( pVar, controlcomponent, false, true, oldvalue, false, 0 );
+
+            if( addundocommand )
+            {
+                g_pGameCore->GetCommandStack()->Add( MyNew EditorCommand_ImGuiPanelWatchNumberValueChanged(
+                    this, pVar, newComponentVarValue, oldComponentVarValue, false ) );
+                //g_pGameCore->GetCommandStack()->Add( MyNew EditorCommand_PanelWatchNumberValueChanged(
+                //    newvalue - oldvalue, PanelWatchType_Float, ((char*)this + offset + 4*controlcomponent),
+                //    pVar->m_ControlID+controlcomponent, false,
+                //    ComponentBase::StaticOnValueChangedVariable, this ) );
+            }
+        }
+        break;
+
+    case ComponentVariableType_Vector2Int:
+        {
+            ComponentVariableValue oldComponentVarValue( this, pVar );
+
+            Vector2Int oldvalue = *(Vector2Int*)((char*)this + offset);
+            Vector2Int newvalue = *(Vector2Int*)((char*)pOtherComponent + offset);
+            *(Vector2Int*)((char*)this + offset) = newvalue;
+
+            ComponentVariableValue newComponentVarValue( this, pVar );
+
+            // notify component and it's children that the value changed.
+            OnValueChangedVariable( pVar, 0, false, true, oldvalue.x, false, 0 );
+            OnValueChangedVariable( pVar, 1, false, true, oldvalue.y, false, 0 );
+
+            if( addundocommand )
+            {
+                g_pGameCore->GetCommandStack()->Add( MyNew EditorCommand_ImGuiPanelWatchNumberValueChanged(
+                    this, pVar, newComponentVarValue, oldComponentVarValue, false ) );
+                //g_pGameCore->GetCommandStack()->Add( MyNew EditorCommand_PanelWatchNumberValueChanged(
+                //    newvalue.x - oldvalue.x, PanelWatchType_Int, ((char*)this + offset + 4*0), pVar->m_ControlID+0, false,
+                //    ComponentBase::StaticOnValueChangedVariable, this ) );
+                //g_pGameCore->GetCommandStack()->Add( MyNew EditorCommand_PanelWatchNumberValueChanged(
+                //    newvalue.y - oldvalue.y, PanelWatchType_Int, ((char*)this + offset + 4*1), pVar->m_ControlID+1, false,
+                //    ComponentBase::StaticOnValueChangedVariable, this ), true );
+            }
+        }
+        break;
+
+    case ComponentVariableType_Vector3Int:
+        {
+            ComponentVariableValue oldComponentVarValue( this, pVar );
+
+            Vector3Int oldvalue = *(Vector3Int*)((char*)this + offset);
+            Vector3Int newvalue = *(Vector3Int*)((char*)pOtherComponent + offset);
+            *(Vector3Int*)((char*)this + offset) = newvalue;
+
+            ComponentVariableValue newComponentVarValue( this, pVar );
+
+            // notify component and it's children that the value changed.
+            OnValueChangedVariable( pVar, 0, false, true, oldvalue.x, false, 0 );
+            OnValueChangedVariable( pVar, 1, false, true, oldvalue.y, false, 0 );
+            OnValueChangedVariable( pVar, 2, false, true, oldvalue.z, false, 0 );
+
+            if( addundocommand )
+            {
+                g_pGameCore->GetCommandStack()->Add( MyNew EditorCommand_ImGuiPanelWatchNumberValueChanged(
+                    this, pVar, newComponentVarValue, oldComponentVarValue, false ) );
+                //g_pGameCore->GetCommandStack()->Add( MyNew EditorCommand_PanelWatchNumberValueChanged(
+                //    newvalue.x - oldvalue.x, PanelWatchType_Int, ((char*)this + offset + 4*0), pVar->m_ControlID+0, false,
+                //    ComponentBase::StaticOnValueChangedVariable, this ) );
+                //g_pGameCore->GetCommandStack()->Add( MyNew EditorCommand_PanelWatchNumberValueChanged(
+                //    newvalue.y - oldvalue.y, PanelWatchType_Int, ((char*)this + offset + 4*1), pVar->m_ControlID+1, false,
+                //    ComponentBase::StaticOnValueChangedVariable, this ), true );
+                //g_pGameCore->GetCommandStack()->Add( MyNew EditorCommand_PanelWatchNumberValueChanged(
+                //    newvalue.z - oldvalue.z, PanelWatchType_Int, ((char*)this + offset + 4*2), pVar->m_ControlID+2, false,
+                //    ComponentBase::StaticOnValueChangedVariable, this ), true );
+            }
+        }
+        break;
+
+    // Pointers types needs to add to undo manually in their OnValueChanged callbacks.
+    case ComponentVariableType_GameObjectPtr:
+        {
+            // OnDrop will add an undo command, so this method shouldn't be called for this ComponentVariableType.
+            assert( addundocommand == true );
+
+            g_DragAndDropStruct.Clear();
+            g_DragAndDropStruct.SetControlID( pVar->m_ControlID );
+            g_DragAndDropStruct.Add( DragAndDropType_GameObjectPointer, *(MyFileObject**)((char*)pOtherComponent + offset) );
+            OnDropVariable( pVar, 0, 0, 0 );
+        }
+        break;
+
+    case ComponentVariableType_FilePtr:
+        {
+            // OnDrop will add an undo command, so this method shouldn't be called for this ComponentVariableType.
+            assert( addundocommand == true );
+
+            g_DragAndDropStruct.Clear();
+            g_DragAndDropStruct.SetControlID( pVar->m_ControlID );
+            g_DragAndDropStruct.Add( DragAndDropType_FileObjectPointer, *(MyFileObject**)((char*)pOtherComponent + offset) );
+            OnDropVariable( pVar, 0, 0, 0 );
+        }
+        break;
+
+    case ComponentVariableType_MaterialPtr:
+        {
+            // OnDrop will add an undo command, so this method shouldn't be called for this ComponentVariableType.
+            assert( addundocommand == true );
+
+            g_DragAndDropStruct.Clear();
+            g_DragAndDropStruct.SetControlID( pVar->m_ControlID );
+            g_DragAndDropStruct.Add( DragAndDropType_MaterialDefinitionPointer, *(void**)((char*)pOtherComponent + offset) );
+            OnDropVariable( pVar, 0, 0, 0 );
+        }
+        break;
+
+    case ComponentVariableType_SoundCuePtr:
+        {
+            // OnDrop will add an undo command, so this method shouldn't be called for this ComponentVariableType.
+            assert( addundocommand == true );
+
+            void* newvalue = *(void**)((char*)pOtherComponent + offset);
+
+            g_DragAndDropStruct.Clear();
+            g_DragAndDropStruct.SetControlID( pVar->m_ControlID );
+            g_DragAndDropStruct.Add( DragAndDropType_SoundCuePointer, newvalue );
+            OnDropVariable( pVar, 0, 0, 0 );
+        }
+        break;
+
+    case ComponentVariableType_ComponentPtr:
+        {
+            // OnDrop will add an undo command, so this method shouldn't be called for this ComponentVariableType.
+            assert( addundocommand == true );
+
+            g_DragAndDropStruct.Clear();
+            g_DragAndDropStruct.SetControlID( pVar->m_ControlID );
+            g_DragAndDropStruct.Add( DragAndDropType_ComponentPointer, *(MyFileObject**)((char*)pOtherComponent + offset) );
+            OnDropVariable( pVar, 0, 0, 0 );
+        }
+        break;
+
+    case ComponentVariableType_PointerIndirect:
+        {
+            // Will add an undo command, so this method shouldn't be called for this ComponentVariableType.
+            assert( addundocommand == true );
+
+            void* pParentValue = (pOtherComponent->*pVar->m_pGetPointerValueCallBackFunc)( pVar );
+            g_pGameCore->GetCommandStack()->Do( MyNew EditorCommand_ComponentVariableIndirectPointerChanged( this, pVar, pParentValue ) );
+        }
+        break;
+
+    case ComponentVariableType_NumTypes:
+    default:
+        MyAssert( false );
+        break;
+    }
+}
+#endif //MYFW_USING_IMGUI
+
 #if MYFW_USING_WX
+void ComponentBase::CopyValueFromOtherComponent(ComponentVariable* pVar, int controlcomponent, ComponentBase* pOtherComponent, bool addundocommand)
+{
     size_t offset = pVar->m_Offset;
 
     switch( pVar->m_Type )
@@ -2601,8 +2930,8 @@ void ComponentBase::CopyValueFromOtherComponent(ComponentVariable* pVar, int con
         MyAssert( false );
         break;
     }
-#endif //MYFW_USING_WX
 }
+#endif //MYFW_USING_WX
 
 void ComponentBase::UpdateChildrenWithNewValue(bool fromdraganddrop, ComponentVariable* pVar, int controlcomponent, bool directlychanged, bool finishedchanging, double oldvalue, void* oldpointer, int x, int y, void* newpointer)
 {

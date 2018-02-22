@@ -127,12 +127,8 @@ void EditorCommand_ImGuiPanelWatchNumberValueChanged::Do()
         MyAssert( false );
     }
 
-    // this could likely be dangerous, the object might not be in focus anymore and how it handles callbacks could cause issues.
-    if( m_pCallbackObj && m_pVar->m_pOnValueChangedCallbackFunc )
-    {
-        (m_pCallbackObj->*(m_pVar->m_pOnValueChangedCallbackFunc))( m_pVar, m_DirectlyChanged, true, previousvalue, &m_NewValue );
-        m_DirectlyChanged = false; // always pass false if this isn't the first time 'Do' is called
-    }
+    m_pCallbackObj->OnValueChangedVariable( m_pVar, 0, m_DirectlyChanged, true, previousvalue, false, &m_NewValue );
+    m_DirectlyChanged = false; // always pass false if this isn't the first time 'Do' is called
 }
 
 void EditorCommand_ImGuiPanelWatchNumberValueChanged::Undo()
@@ -228,14 +224,8 @@ void EditorCommand_ImGuiPanelWatchNumberValueChanged::Undo()
         MyAssert( false );
     }
 
-    //g_pPanelWatch->UpdatePanel();
-
-    // this could likely be dangerous, the object might not be in focus anymore and how it handles callbacks could cause issues.
-    if( m_pCallbackObj && m_pVar->m_pOnValueChangedCallbackFunc )
-    {
-        (m_pCallbackObj->*(m_pVar->m_pOnValueChangedCallbackFunc))( m_pVar, m_DirectlyChanged, true, previousvalue, &m_NewValue );
-        m_DirectlyChanged = false; // always pass false if this isn't the first time 'Do' is called
-    }
+    m_pCallbackObj->OnValueChangedVariable( m_pVar, 0, m_DirectlyChanged, true, previousvalue, false, &m_NewValue );
+    m_DirectlyChanged = false; // always pass false if this isn't the first time 'Do' is called
 }
 
 EditorCommand* EditorCommand_ImGuiPanelWatchNumberValueChanged::Repeat()

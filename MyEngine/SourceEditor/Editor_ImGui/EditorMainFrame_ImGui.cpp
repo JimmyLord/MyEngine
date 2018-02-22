@@ -1221,25 +1221,64 @@ void EditorMainFrame_ImGui::AddWatchPanel()
     {
         int numselected = g_pEngineCore->GetEditorState()->m_pSelectedObjects.size();
 
-        if( numselected == 1 )
+        if( numselected > 0 )
         {
-            ImGui::Text( "%d object selected.", numselected );
-
-            GameObject* pGameObject = g_pEngineCore->GetEditorState()->m_pSelectedObjects[0];
-            for( unsigned int i=0; i<pGameObject->GetComponentCountIncludingCore(); i++ )
+            if( numselected > 1 )
             {
-                ComponentBase* pComponent = pGameObject->GetComponentByIndexIncludingCore( i );
-                
-                if( ImGui::CollapsingHeader( pComponent->GetClassname(), ImGuiTreeNodeFlags_DefaultOpen ) )
+                ImGui::Text( "%d objects selected.", numselected );
+            }
+
+            EditorState* pEditorState = g_pEngineCore->GetEditorState();
+
+            // Show common components of all selected Gameobjects:
+            if( pEditorState->m_pSelectedObjects.size() > 0 )
+            {
+                GameObject* pFirstGameObject = pEditorState->m_pSelectedObjects[0];
+
+                // Search all components including GameObject properties and transform.
+                for( unsigned int i=0; i<pFirstGameObject->GetComponentCountIncludingCore(); i++ )
                 {
-                    //ImGui::Text( "TODO: Component Info." );
-                    pComponent->AddAllVariablesToWatchPanel();
+                    ComponentBase* pComponentToLookFor = pFirstGameObject->GetComponentByIndexIncludingCore( i );
+
+                    MyAssert( pComponentToLookFor );
+
+                    pComponentToLookFor->m_MultiSelectedComponents.clear();
+
+                    // Loop through selected gameobjects and check if they all have to least one of this component type on them.
+                    bool allgameobjectshavecomponent = true;
+                    for( unsigned int i=1; i<pEditorState->m_pSelectedObjects.size(); i++ )
+                    {
+                        GameObject* pGameObject = pEditorState->m_pSelectedObjects[i];
+
+                        bool hascomponent = false;
+                        for( unsigned int i=0; i<pGameObject->GetComponentCountIncludingCore(); i++ )
+                        {
+                            ComponentBase* pOtherComponent = pGameObject->GetComponentByIndexIncludingCore( i );
+
+                            if( pOtherComponent && pOtherComponent->IsA( pComponentToLookFor->GetClassname() ) == true )
+                            {
+                                pComponentToLookFor->m_MultiSelectedComponents.push_back( pOtherComponent );
+                                hascomponent = true;
+                                break;
+                            }
+                        }
+
+                        if( hascomponent == false )
+                        {
+                            allgameobjectshavecomponent = false;
+                            break;
+                        }
+                    }
+
+                    if( allgameobjectshavecomponent == true )
+                    {
+                        if( ImGui::CollapsingHeader( pComponentToLookFor->GetClassname(), ImGuiTreeNodeFlags_DefaultOpen ) )
+                        {
+                            pComponentToLookFor->AddAllVariablesToWatchPanel();
+                        }
+                    }
                 }
             }
-        }
-        else if( numselected > 1 )
-        {
-            ImGui::Text( "%d objects selected.", numselected );
         }
         else
         {
@@ -1261,6 +1300,50 @@ void EditorMainFrame_ImGui::AddWatchPanel()
             else
             {
                 ImGui::Text( "%d components selected.", numselected );
+
+                EditorState* pEditorState = g_pEngineCore->GetEditorState();
+
+                // Loop through all selected components:
+                for( unsigned int i=0; i<pEditorState->m_pSelectedComponents.size(); i++ )
+                {
+                    ComponentBase* pInitialComponent = pEditorState->m_pSelectedComponents[i];
+
+                    // Clear this components MultiSelected list.
+                    pInitialComponent->m_MultiSelectedComponents.clear();
+
+                    // Have we shown this type yet?
+                    bool alreadyShowedThisType = false;
+                    for( unsigned int j=0; j<i; j++ )
+                    {
+                        ComponentBase* pComponent = pEditorState->m_pSelectedComponents[j];
+                        if( pComponent && pComponent->IsA( pInitialComponent->GetClassname() ) == true )
+                            alreadyShowedThisType = true;
+                    }
+
+                    if( alreadyShowedThisType == false )
+                    {
+                        pInitialComponent->m_MultiSelectedComponents.push_back( pInitialComponent );
+
+                        // Loop through the rest of the selected components again to find common ones:
+                        for( unsigned int j=i+1; j<pEditorState->m_pSelectedComponents.size(); j++ )
+                        {
+                            ComponentBase* pComponent = pEditorState->m_pSelectedComponents[j];
+                            MyAssert( pComponent );
+
+                            // If they're the same type, fill the MultiSelected list with the other components. 
+                            if( pComponent && pComponent->IsA( pInitialComponent->GetClassname() ) == true )
+                            {
+                                pInitialComponent->m_MultiSelectedComponents.push_back( pComponent );
+                            }
+                        }
+
+                        // Show all the components in the watch window.
+                        if( ImGui::CollapsingHeader( pInitialComponent->GetClassname(), ImGuiTreeNodeFlags_DefaultOpen ) )
+                        {
+                            pInitialComponent->AddAllVariablesToWatchPanel();
+                        }
+                    }
+                }
             }
         }
     }
