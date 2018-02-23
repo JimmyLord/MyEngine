@@ -178,9 +178,10 @@ void* ComponentCamera::OnValueChanged(ComponentVariable* pVar, bool changedbyint
 
     if( finishedchanging )
     {
+        m_FullClearsRequired = 1;
+
 #if MYFW_USING_WX
         m_FullClearsRequired = 2;
-
         g_pPanelWatch->SetNeedsRefresh();
 #endif //MYFW_USING_WX
     }
@@ -233,6 +234,8 @@ void ComponentCamera::Reset()
 
     m_pPostEffectFBOs[0] = 0;
     m_pPostEffectFBOs[1] = 0;
+
+    m_FullClearsRequired = 1;
 
 #if MYFW_USING_WX
     m_FullClearsRequired = 2;
@@ -353,6 +356,9 @@ void ComponentCamera::Tick(double TimePassed)
 
 void ComponentCamera::OnSurfaceChanged(unsigned int startx, unsigned int starty, unsigned int width, unsigned int height, unsigned int desiredaspectwidth, unsigned int desiredaspectheight)
 {
+    if( m_WindowStartX == startx && m_WindowStartY == starty && m_WindowWidth == width && m_WindowHeight == height )
+        return;
+
     //m_DesiredWidth = (float)desiredaspectwidth;
     //m_DesiredHeight = (float)desiredaspectheight;
 
@@ -362,6 +368,8 @@ void ComponentCamera::OnSurfaceChanged(unsigned int startx, unsigned int starty,
     m_WindowHeight = height;
 
     ComputeProjectionMatrices();
+
+    m_FullClearsRequired = 1;
 
 #if MYFW_USING_WX
     m_FullClearsRequired = 2;
@@ -415,10 +423,10 @@ void ComponentCamera::OnDrawFrame()
     //    int bp = 1;
     ////MyBindFramebuffer( GL_FRAMEBUFFER, 0 );
 
-#if MYFW_USING_WX
+#if MYFW_EDITOR
     // if we resize the window and we're in a wx build, clear the entire backbuffer for 2 frames.
     // this is required since we're potentially GL_SCISSOR_TEST'ing an uncleared area.
-    if( m_FullClearsRequired > 0 )
+    if( m_ClearColorBuffer && m_FullClearsRequired > 0 )
     {
         glDisable( GL_SCISSOR_TEST );
         glClearColor( 0.0f, 0.0f, 0.0f, 1.0f );
@@ -426,7 +434,7 @@ void ComponentCamera::OnDrawFrame()
 
         m_FullClearsRequired--;
     }
-#endif
+#endif //MYFW_EDITOR
 
     // if there are any post effect components, render to a texture and pass that into the effect component.
 

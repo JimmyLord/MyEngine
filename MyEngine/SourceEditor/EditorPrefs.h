@@ -15,6 +15,15 @@ class EngineCore;
 
 extern EditorPrefs* g_pEditorPrefs;
 
+enum GLViewTypes
+{
+    GLView_Full,
+    GLView_Tall,
+    GLView_Square,
+    GLView_Wide,
+    GLView_NumTypes,
+};
+
 enum DefaultPerspectives
 {
     Perspective_CenterEditor,
@@ -79,6 +88,7 @@ protected:
     bool m_View_ShowEditorIcons;
     bool m_View_SelectedObjects_ShowWireframe;
     bool m_View_SelectedObjects_ShowEffect;
+    GLViewTypes m_Aspect_CurrentGameWindowAspectRatio;
     GridSettings m_GridSettings;
     bool m_Mode_SwitchFocusOnPlayStop;
     bool m_Debug_DrawPhysicsDebugShapes;
@@ -111,6 +121,7 @@ public:
     bool Get_View_ShowEditorIcons() { return m_View_ShowEditorIcons; }
     bool Get_View_SelectedObjects_ShowWireframe() { return m_View_SelectedObjects_ShowWireframe; }
     bool Get_View_SelectedObjects_ShowEffect() { return m_View_SelectedObjects_ShowEffect; }
+    GLViewTypes Get_Aspect_GameAspectRatio() { return m_Aspect_CurrentGameWindowAspectRatio; }
     bool Get_Grid_Visible() { return m_GridSettings.visible; }
     bool Get_Grid_SnapEnabled() { return m_GridSettings.snapenabled; }
     bool Get_Mode_SwitchFocusOnPlayStop() { return m_Mode_SwitchFocusOnPlayStop; }
@@ -119,6 +130,7 @@ public:
     void Toggle_View_ShowEditorIcons() { m_View_ShowEditorIcons = !m_View_ShowEditorIcons; }
     void Toggle_View_SelectedObjects_ShowWireframe() { m_View_SelectedObjects_ShowWireframe = !m_View_SelectedObjects_ShowWireframe; }
     void Toggle_View_SelectedObjects_ShowEffect() { m_View_SelectedObjects_ShowEffect = !m_View_SelectedObjects_ShowEffect; }
+    void Set_Aspect_GameAspectRatio(GLViewTypes newaspect) { m_Aspect_CurrentGameWindowAspectRatio = newaspect; }
     void Toggle_Grid_Visible();
     void Toggle_Grid_SnapEnabled();
     void Toggle_Mode_SwitchFocusOnPlayStop() { m_Mode_SwitchFocusOnPlayStop = !m_Mode_SwitchFocusOnPlayStop; }

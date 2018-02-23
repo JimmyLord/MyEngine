@@ -50,6 +50,7 @@ void ImGuiManager::Init(float width, float height)
     CreateDeviceObjects();
 
     ImGuiIO& io = ImGui::GetIO();
+    io.NavFlags |= ImGuiNavFlags_EnableKeyboard | ImGuiNavFlags_EnableGamepad;
     io.DisplaySize.x = width;
     io.DisplaySize.y = height;
     //io.IniFilename = "imgui.ini";
@@ -72,6 +73,7 @@ void ImGuiManager::Init(float width, float height)
     io.KeyMap[ImGuiKey_Backspace]   = MYKEYCODE_BACKSPACE;
     io.KeyMap[ImGuiKey_Enter]       = MYKEYCODE_ENTER;
     io.KeyMap[ImGuiKey_Escape]      = MYKEYCODE_ESC;
+    io.KeyMap[ImGuiKey_Space]       = ' ';
     io.KeyMap[ImGuiKey_A]           = 'A';
     io.KeyMap[ImGuiKey_C]           = 'C';
     io.KeyMap[ImGuiKey_V]           = 'V';

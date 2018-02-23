@@ -147,6 +147,8 @@ ComponentBase& ComponentBase::operator=(const ComponentBase& other)
 {
     MyAssert( &other != this );
 
+    m_DivorcedVariables = other.m_DivorcedVariables;
+
     return *this;
 }
 
@@ -706,6 +708,9 @@ void ComponentBase::AddVariableToWatchPanel(ComponentVariable* pVar)
         numStylesPushed++;
     }
 
+    if( pVar->m_Label != 0 )
+        ImGui::PushID( pVar->m_Label );
+
 #pragma warning( disable : 4062 )
     {
         switch( pVar->m_Type )
@@ -1001,6 +1006,9 @@ void ComponentBase::AddVariableToWatchPanel(ComponentVariable* pVar)
             ImGui::PopID();
         }
     }
+
+    if( pVar->m_Label != 0 )
+        ImGui::PopID(); // For ImGui::PushID( pVar->m_Label );
 
     //if( pVar->m_pVariableAddedToInterfaceCallbackFunc )
     //{

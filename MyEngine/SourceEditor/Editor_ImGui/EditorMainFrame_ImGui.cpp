@@ -254,6 +254,7 @@ bool EditorMainFrame_ImGui::CheckForHotkeys(int keyaction, int keycode)
     {
         bool N  = !m_KeyDownCtrl && !m_KeyDownAlt && !m_KeyDownShift && !m_KeyDownCommand; // No modifiers held
         bool C  =  m_KeyDownCtrl && !m_KeyDownAlt && !m_KeyDownShift && !m_KeyDownCommand; // Ctrl
+        bool A  = !m_KeyDownCtrl &&  m_KeyDownAlt && !m_KeyDownShift && !m_KeyDownCommand; // Alt
         bool S  = !m_KeyDownCtrl && !m_KeyDownAlt &&  m_KeyDownShift && !m_KeyDownCommand; // Shift
         bool CS =  m_KeyDownCtrl && !m_KeyDownAlt &&  m_KeyDownShift && !m_KeyDownCommand; // Ctrl-Shift
 
@@ -270,13 +271,20 @@ bool EditorMainFrame_ImGui::CheckForHotkeys(int keyaction, int keycode)
             g_pEngineCore->GetEditorState()->DeleteSelectedObjects();
         }
 
+        EditorPrefs* pEditorPrefs = g_pEngineCore->GetEditorPrefs();
+
         if( C  && keycode == 'F' )   { ImGui::SetWindowFocus( "Objects" ); m_SetFilterBoxInFocus = true; return true; }
+        if( N  && keycode == VK_F3 ) { ImGui::SetWindowFocus( "Objects" ); m_SetFilterBoxInFocus = true; return true; }
         if( C  && keycode == 'S' )   { EditorMenuCommand( EditorMenuCommand_File_SaveScene );            return true; }
         if( CS && keycode == 'E' )   { EditorMenuCommand( EditorMenuCommand_File_Export_Box2DScene );    return true; }
         if( C  && keycode == 'Z' )   { EditorMenuCommand( EditorMenuCommand_Edit_Undo );                 return true; }
         if( C  && keycode == 'Y' )   { EditorMenuCommand( EditorMenuCommand_Edit_Redo );                 return true; }
         if( CS && keycode == 'Z' )   { EditorMenuCommand( EditorMenuCommand_Edit_Redo );                 return true; }
         if( S  && keycode == VK_F7 ) { EditorMenuCommand( EditorMenuCommand_View_ShowEditorIcons );      return true; }
+        if( A  && keycode == '1' )   { pEditorPrefs->Set_Aspect_GameAspectRatio( GLView_Full );          return true; }
+        if( A  && keycode == '2' )   { pEditorPrefs->Set_Aspect_GameAspectRatio( GLView_Tall );          return true; }
+        if( A  && keycode == '3' )   { pEditorPrefs->Set_Aspect_GameAspectRatio( GLView_Square );        return true; }
+        if( A  && keycode == '4' )   { pEditorPrefs->Set_Aspect_GameAspectRatio( GLView_Wide );          return true; }
         if( CS && keycode == 'V' )   { EditorMenuCommand( EditorMenuCommand_Grid_Visible );              return true; }
         if( C  && keycode == 'G' )   { EditorMenuCommand( EditorMenuCommand_Grid_SnapEnabled );          return true; }
         if( C  && keycode == ' ' )   { EditorMenuCommand( EditorMenuCommand_Mode_TogglePlayStop );       return true; }
@@ -348,7 +356,59 @@ void EditorMainFrame_ImGui::DrawGameAndEditorWindows(EngineCore* pEngineCore)
         {
             // Draw game view.
             m_pGameFBO->Bind( false );
-            pEngineCore->OnSurfaceChanged( 0, 0, (unsigned int)m_GameWindowSize.x, (unsigned int)m_GameWindowSize.y );
+
+            unsigned int w = (unsigned int)m_GameWindowSize.x;
+            unsigned int h = (unsigned int)m_GameWindowSize.y;
+
+            EditorPrefs* pEditorPrefs = g_pEngineCore->GetEditorPrefs();
+
+            if( pEditorPrefs->Get_Aspect_GameAspectRatio() == GLView_Full )
+            {
+                //glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+
+                pEngineCore->OnSurfaceChanged( 0, 0, w, h );
+            }
+            else if( pEditorPrefs->Get_Aspect_GameAspectRatio() == GLView_Tall )
+            {
+                //glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+
+                if( w - h/1.5f >= 0 )
+                {
+                    g_pGameCore->OnSurfaceChanged( (unsigned int)( (w - h/1.5f) / 2.0f ), 0,
+                        (unsigned int)( h/1.5f ), (unsigned int)( h ) );
+                }
+                else
+                {
+                    g_pGameCore->OnSurfaceChanged( 0, 0, w, h );
+                }
+            }
+            else if( pEditorPrefs->Get_Aspect_GameAspectRatio() == GLView_Square )
+            {
+                //glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+
+                if( w < h )
+                {
+                    g_pGameCore->OnSurfaceChanged( 0, (h-w)/2, w, w );
+                }
+                else
+                {
+                    g_pGameCore->OnSurfaceChanged( (w-h)/2, 0, h, h );
+                }
+            }
+            else if( pEditorPrefs->Get_Aspect_GameAspectRatio() == GLView_Wide )
+            {
+                //glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+
+                if( h - w/1.5f >= 0 )
+                {
+                    g_pGameCore->OnSurfaceChanged( 0, (unsigned int)( ( h - w/1.5f ) / 2.0f ),
+                        (unsigned int)( w ), (unsigned int)( w/1.5f ) );
+                }
+                else
+                {
+                    g_pGameCore->OnSurfaceChanged( 0, 0, w, h );
+                }
+            }
 
             pEngineCore->GetComponentSystemManager()->OnDrawFrame();
             MyBindFramebuffer( GL_FRAMEBUFFER, 0, 0, 0 );
@@ -587,10 +647,15 @@ void EditorMainFrame_ImGui::AddMainMenuBar()
 
         if( ImGui::BeginMenu( "Aspect" ) )
         {
-            if( ImGui::MenuItem( "Fill (TODO)", "Alt-1" ) ) {}
-            if( ImGui::MenuItem( "Tall (TODO)", "Alt-2" ) ) {}
-            if( ImGui::MenuItem( "Square (TODO)", "Alt-3" ) ) {}
-            if( ImGui::MenuItem( "Wide (TODO)", "Alt-4" ) ) {}
+            unsigned int w = (unsigned int)m_EditorWindowSize.x;
+            unsigned int h = (unsigned int)m_EditorWindowSize.y;
+
+            EditorPrefs* pEditorPrefs = g_pEngineCore->GetEditorPrefs();
+
+            if( ImGui::MenuItem( "Fill",   "Alt-1", pEditorPrefs->Get_Aspect_GameAspectRatio() == GLView_Full   ) ) { pEditorPrefs->Set_Aspect_GameAspectRatio( GLView_Full );   }
+            if( ImGui::MenuItem( "Tall",   "Alt-2", pEditorPrefs->Get_Aspect_GameAspectRatio() == GLView_Tall   ) ) { pEditorPrefs->Set_Aspect_GameAspectRatio( GLView_Tall );   }
+            if( ImGui::MenuItem( "Square", "Alt-3", pEditorPrefs->Get_Aspect_GameAspectRatio() == GLView_Square ) ) { pEditorPrefs->Set_Aspect_GameAspectRatio( GLView_Square ); }
+            if( ImGui::MenuItem( "Wide",   "Alt-4", pEditorPrefs->Get_Aspect_GameAspectRatio() == GLView_Wide   ) ) { pEditorPrefs->Set_Aspect_GameAspectRatio( GLView_Wide );   }
 
             ImGui::EndMenu();
         }
@@ -1219,22 +1284,34 @@ void EditorMainFrame_ImGui::AddWatchPanel()
     ImGui::SetNextWindowPos( ImVec2(852, 25), ImGuiCond_FirstUseEver );
     if( ImGui::Begin( "Watch", 0, ImVec2(333, 395) ) )
     {
-        int numselected = g_pEngineCore->GetEditorState()->m_pSelectedObjects.size();
+        EditorState* pEditorState = g_pEngineCore->GetEditorState();
+
+        int numselected = pEditorState->m_pSelectedObjects.size();
 
         if( numselected > 0 )
         {
+            GameObject* pFirstGameObject = pEditorState->m_pSelectedObjects[0];
+
             if( numselected > 1 )
             {
                 ImGui::Text( "%d objects selected.", numselected );
             }
+            else
+            {
+                GameObject* pGameObjectThisInheritsFrom = pFirstGameObject->GetGameObjectThisInheritsFrom();
 
-            EditorState* pEditorState = g_pEngineCore->GetEditorState();
+                if( pGameObjectThisInheritsFrom == 0 )
+                {
+                    ImGui::Text( "%s", pFirstGameObject->GetName() );
+                }
+                else
+                {
+                    ImGui::Text( "%s (%s)", pFirstGameObject->GetName(), pGameObjectThisInheritsFrom->GetName() );
+                }
+            }
 
             // Show common components of all selected Gameobjects:
-            if( pEditorState->m_pSelectedObjects.size() > 0 )
             {
-                GameObject* pFirstGameObject = pEditorState->m_pSelectedObjects[0];
-
                 // Search all components including GameObject properties and transform.
                 for( unsigned int i=0; i<pFirstGameObject->GetComponentCountIncludingCore(); i++ )
                 {
@@ -1300,8 +1377,6 @@ void EditorMainFrame_ImGui::AddWatchPanel()
             else
             {
                 ImGui::Text( "%d components selected.", numselected );
-
-                EditorState* pEditorState = g_pEngineCore->GetEditorState();
 
                 // Loop through all selected components:
                 for( unsigned int i=0; i<pEditorState->m_pSelectedComponents.size(); i++ )

@@ -30,6 +30,8 @@ EditorPrefs::EditorPrefs()
     m_View_SelectedObjects_ShowWireframe = true;
     m_View_SelectedObjects_ShowEffect = true;
 
+    m_Aspect_CurrentGameWindowAspectRatio = GLView_Full;
+
     m_GridSettings.visible = true;
     m_GridSettings.snapenabled = false;
     m_GridSettings.stepsize.Set( 1, 1, 1 );
@@ -108,12 +110,11 @@ void EditorPrefs::LoadPrefs()
             g_pEngineCore->GetEditorState()->GetEditorCamera()->m_pComponentTransform->ImportFromJSONObject( jObject, SCENEID_EngineObjects );
     }
 
-    //extern GLViewTypes g_CurrentGLViewType;
-    //cJSONExt_GetInt( jEditorPrefs, "GameAspectRatio", (int*)&g_CurrentGLViewType );
-
     cJSONExt_GetBool( m_jEditorPrefs, "View_ShowEditorIcons", &m_View_ShowEditorIcons );
     cJSONExt_GetBool( m_jEditorPrefs, "View_SelectedObjects_ShowWireframe", &m_View_SelectedObjects_ShowWireframe );
     cJSONExt_GetBool( m_jEditorPrefs, "View_SelectedObjects_ShowEffect", &m_View_SelectedObjects_ShowEffect );
+
+    cJSONExt_GetInt( m_jEditorPrefs, "Aspect_GameAspectRatio", (int*)&m_Aspect_CurrentGameWindowAspectRatio );
 
     cJSONExt_GetBool( m_jEditorPrefs, "Grid_Visible", &m_GridSettings.visible );
     if( g_pEngineCore )
@@ -222,11 +223,12 @@ cJSON* EditorPrefs::SaveStart()
         //cJSON_AddNumberToObject( pPrefs, "EditorLayout", GetDefaultEditorPerspectiveIndex() );
         //cJSON_AddNumberToObject( pPrefs, "GameplayLayout", GetDefaultGameplayPerspectiveIndex() );
         //extern GLViewTypes g_CurrentGLViewType;
-        //cJSON_AddNumberToObject( pPrefs, "GameAspectRatio", g_CurrentGLViewType );
-
         cJSON_AddNumberToObject( jPrefs, "View_ShowEditorIcons", m_View_ShowEditorIcons );
         cJSON_AddNumberToObject( jPrefs, "View_SelectedObjects_ShowWireframe", m_View_SelectedObjects_ShowWireframe );
         cJSON_AddNumberToObject( jPrefs, "View_SelectedObjects_ShowEffect", m_View_SelectedObjects_ShowEffect );
+
+        // Aspect menu options
+        cJSON_AddNumberToObject( jPrefs, "Aspect_GameAspectRatio", m_Aspect_CurrentGameWindowAspectRatio );
 
         // Grid menu options
         cJSON_AddNumberToObject( jPrefs, "Grid_Visible", m_GridSettings.visible );

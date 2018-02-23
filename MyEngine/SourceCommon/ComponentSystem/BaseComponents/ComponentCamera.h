@@ -58,7 +58,7 @@ public:
 
     FBODefinition* m_pPostEffectFBOs[2];
 
-#if MYFW_USING_WX
+#if MYFW_EDITOR
     unsigned int m_FullClearsRequired;
 #endif
 
