@@ -10,7 +10,7 @@
 #ifndef __FileOpenDialog_H__
 #define __FileOpenDialog_H__
 
-char* FileOpenDialog(char* initialDir, const char* filter);
+char* FileOpenDialog(char* initialDir, const char* filter, bool* openedMultipleFiles = 0);
 char* FileSaveDialog(char* initialDir, const char* filter);
 
 #endif //__FileOpenDialog_H__

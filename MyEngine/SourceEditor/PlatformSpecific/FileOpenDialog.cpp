@@ -11,10 +11,13 @@
 
 #include <Commdlg.h>
 
-char* FileOpenDialog(char* initialDir, const char* filter)
+// To allow the dialog to open multiple files,
+//     pass a pointer to a bool that will be set to true if multiple files were selected
+//         or false if only 1 file was selected
+char* FileOpenDialog(char* initialDir, const char* filter, bool* openedMultipleFiles)
 {
 #if MYFW_WINDOWS
-    static char fullpath[MAX_PATH];
+    static char fullpath[2048]; // Allow for multiple files to be opened at once.
     fullpath[0] = 0;
 
     OPENFILENAMEA ofn;
@@ -22,15 +25,34 @@ char* FileOpenDialog(char* initialDir, const char* filter)
 	ofn.lStructSize = sizeof(ofn);
 	ofn.hwndOwner = 0;
 	ofn.lpstrFile = fullpath;
-	ofn.nMaxFile = MAX_PATH;
+	ofn.nMaxFile = 2048;
 	ofn.lpstrFilter = filter;
 	ofn.nFilterIndex = 1;
 	ofn.lpstrFileTitle = 0;
 	ofn.nMaxFileTitle = 0;
 	ofn.lpstrInitialDir = initialDir;
     ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_NOCHANGEDIR;
+    if( openedMultipleFiles != 0 )
+        ofn.Flags |= OFN_ALLOWMULTISELECT | OFN_EXPLORER;
                 
     GetOpenFileNameA( &ofn );
+
+    if( openedMultipleFiles != 0 && ofn.nFileOffset != 0 )
+    {
+        // If multiple files were selected, fullpath will look like:
+        //     "PathToFile0filename0filename0filename00"
+        // If a single file was selected, fullpath will look like:
+        //     "PathToFile\filename"
+
+        if( fullpath[ofn.nFileOffset-1] == 0 )
+        {
+            *openedMultipleFiles = true;
+        }
+        else
+        {
+            *openedMultipleFiles = false;
+        }
+    }
 #else
     LOGError( LOGTag, "TODO: Implement me!\n" );
 #endif

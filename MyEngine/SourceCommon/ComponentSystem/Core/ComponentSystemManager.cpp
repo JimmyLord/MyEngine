@@ -1024,6 +1024,9 @@ void ComponentSystemManager::LoadSceneFromJSON(const char* scenename, const char
         {
             cJSON* jGameObject = cJSON_GetArrayItem( gameobjectarray, i );
 
+            if( getsceneidfromeachobject )
+                cJSONExt_GetUnsignedInt( jGameObject, "SceneID", (unsigned int*)&sceneid );
+
             unsigned int id = -1;
             cJSONExt_GetUnsignedInt( jGameObject, "ID", &id );
             MyAssert( id != -1 );

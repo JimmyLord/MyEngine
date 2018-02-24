@@ -288,6 +288,9 @@ bool EditorMainFrame_ImGui::CheckForHotkeys(int keyaction, int keycode)
         if( CS && keycode == 'V' )   { EditorMenuCommand( EditorMenuCommand_Grid_Visible );              return true; }
         if( C  && keycode == 'G' )   { EditorMenuCommand( EditorMenuCommand_Grid_SnapEnabled );          return true; }
         if( C  && keycode == ' ' )   { EditorMenuCommand( EditorMenuCommand_Mode_TogglePlayStop );       return true; }
+        if( C  && keycode == '.' )   { EditorMenuCommand( EditorMenuCommand_Mode_Pause );                return true; }
+        if( C  && keycode == ']' )   { EditorMenuCommand( EditorMenuCommand_Mode_AdvanceOneFrame );      return true; }
+        if( C  && keycode == '[' )   { EditorMenuCommand( EditorMenuCommand_Mode_AdvanceOneSecond );     return true; }
         if( C  && keycode == VK_F9 ) { EditorMenuCommand( EditorMenuCommand_Debug_DrawWireframe );       return true; }
         if( S  && keycode == VK_F8 ) { EditorMenuCommand( EditorMenuCommand_Debug_ShowPhysicsShapes );   return true; }
     }
@@ -674,9 +677,9 @@ void EditorMainFrame_ImGui::AddMainMenuBar()
             if( ImGui::MenuItem( "Switch Focus on Play/Stop", 0, g_pEngineCore->GetEditorPrefs()->Get_Mode_SwitchFocusOnPlayStop() ) ) { EditorMenuCommand( EditorMenuCommand_Mode_SwitchFocusOnPlayStop ); }
             // Since Command-Space is "Spotlight Search" on OSX, use the actual control key on OSX as well as Windows/Linux.
             if( ImGui::MenuItem( "Play/Stop", "CTRL-SPACE" ) ) { EditorMenuCommand( EditorMenuCommand_Mode_TogglePlayStop ); }
-            if( ImGui::MenuItem( "Pause (TODO)", "Ctrl-." ) ) {} // { EditorMenuCommand( myIDEngine_Mode_Pause ); }
-            if( ImGui::MenuItem( "Advance 1 Frame (TODO)", "Ctrl-]" ) ) {} // { EditorMenuCommand( myIDEngine_Mode_Advance1Frame ); }
-            if( ImGui::MenuItem( "Advance 1 Second (TODO)", "Ctrl-[" ) ) {} // { EditorMenuCommand( myIDEngine_Mode_Advance1Second ); }
+            if( ImGui::MenuItem( "Pause", "Ctrl-." ) ) { EditorMenuCommand( EditorMenuCommand_Mode_Pause ); }
+            if( ImGui::MenuItem( "Advance 1 Frame", "Ctrl-]" ) ) { EditorMenuCommand( EditorMenuCommand_Mode_AdvanceOneFrame ); }
+            if( ImGui::MenuItem( "Advance 1 Second", "Ctrl-[" ) ) { EditorMenuCommand( EditorMenuCommand_Mode_AdvanceOneSecond ); }
 
             if( ImGui::BeginMenu( "Launch Platforms (TODO)" ) )
             {
@@ -695,7 +698,7 @@ void EditorMainFrame_ImGui::AddMainMenuBar()
 
         if( ImGui::BeginMenu( "Data" ) )
         {
-            if( ImGui::MenuItem( "Load Datafiles (TODO)" ) ) {} // { EditorMenuCommand( myIDEngine_Data_AddDatafile ); }
+            if( ImGui::MenuItem( "Load Datafiles" ) ) { EditorMenuCommand( EditorMenuCommand_Data_LoadDatafiles ); }
             ImGui::EndMenu();
         }
 

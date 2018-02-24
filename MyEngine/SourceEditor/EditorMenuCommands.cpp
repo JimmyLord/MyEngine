@@ -48,6 +48,68 @@ void LoadScene(const char* scenename, bool unloadscenes)
     //this->SetTitle( scenename ); //g_pComponentSystemManager->GetSceneInfo( sceneid )->m_FullPath );
 }
 
+void LoadMultipleDataFiles()
+{
+    bool openedMultipleFiles;
+    const char* filenames = FileOpenDialog( "Data\\", "All Files\0*.*\0", &openedMultipleFiles );
+
+    ComponentSystemManager* pComponentSystemManager = g_pEngineCore->GetComponentSystemManager();
+
+    if( filenames[0] != 0 )
+    {
+        char fullpathtofile[MAX_PATH];
+
+        if( openedMultipleFiles == false )
+        {
+            strcpy_s( fullpathtofile, MAX_PATH, filenames );
+            const char* relativepath = GetRelativePath( fullpathtofile );
+
+            if( relativepath == 0 )
+            {
+                LOGError( LOGTag, "Files must be in a path relative to the editor." );
+                return;
+            }
+
+            pComponentSystemManager->LoadDataFile( relativepath, SCENEID_MainScene, filenames, true );
+        }
+        else
+        {
+            // filename will look like: "PathToFile0filename0filename0filename00"
+
+            // First, copy out the path
+            char path[MAX_PATH];
+            strcpy_s( path, MAX_PATH, filenames );
+
+            int count = 0;
+
+            // Advance to next string.
+            while( filenames[count] != 0 )
+                count++;
+            count++;
+
+            // While there are strings.
+            while( filenames[count] != 0 )
+            {
+                sprintf_s( fullpathtofile, MAX_PATH, "%s\\%s", path, &filenames[count] );
+                const char* relativepath = GetRelativePath( fullpathtofile );
+
+                if( relativepath == 0 )
+                {
+                    LOGError( LOGTag, "Files must be in a path relative to the editor." );
+                    return;
+                }
+
+                pComponentSystemManager->LoadDataFile( relativepath, SCENEID_MainScene, fullpathtofile, true );
+
+                // advance to next string.
+                while( filenames[count] != 0 )
+                    count++;
+                count++;
+            }
+        }
+    }
+}
+
 void EditorMenuCommand(EditorMenuCommands command)
 {
     switch( command )
@@ -180,6 +242,20 @@ void EditorMenuCommand(EditorMenuCommands command)
         }
         break;
 
+    case EditorMenuCommand_Edit_Undo:
+        {
+            if( g_pEngineCore->GetCommandStack()->GetUndoStackSize() > 0 )
+                g_pEngineCore->GetCommandStack()->Undo( 1 );
+        }
+        break;
+
+    case EditorMenuCommand_Edit_Redo:
+        {
+            if( g_pEngineCore->GetCommandStack()->GetRedoStackSize() > 0 )
+                g_pEngineCore->GetCommandStack()->Redo( 1 );
+        }
+        break;
+
     case EditorMenuCommand_View_ShowEditorIcons:
         {
             g_pEngineCore->GetEditorPrefs()->Toggle_View_ShowEditorIcons();
@@ -210,17 +286,27 @@ void EditorMenuCommand(EditorMenuCommands command)
         }
         break;
 
-    case EditorMenuCommand_Edit_Undo:
+    case EditorMenuCommand_Mode_Pause:
         {
-            if( g_pEngineCore->GetCommandStack()->GetUndoStackSize() > 0 )
-                g_pEngineCore->GetCommandStack()->Undo( 1 );
+            g_pEngineCore->OnModePause();
         }
         break;
 
-    case EditorMenuCommand_Edit_Redo:
+    case EditorMenuCommand_Mode_AdvanceOneFrame:
         {
-            if( g_pEngineCore->GetCommandStack()->GetRedoStackSize() > 0 )
-                g_pEngineCore->GetCommandStack()->Redo( 1 );
+            g_pEngineCore->OnModeAdvanceTime( 1/60.0f );
+        }
+        break;
+
+    case EditorMenuCommand_Mode_AdvanceOneSecond:
+        {
+            g_pEngineCore->OnModeAdvanceTime( 1.0f );
+        }
+        break;
+
+    case EditorMenuCommand_Data_LoadDatafiles:
+        {
+            LoadMultipleDataFiles();
         }
         break;
 
