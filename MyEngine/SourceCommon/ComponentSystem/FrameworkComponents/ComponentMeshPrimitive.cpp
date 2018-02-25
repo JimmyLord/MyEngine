@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2017 Jimmy Lord http://www.flatheadgames.com
+// Copyright (c) 2015-2018 Jimmy Lord http://www.flatheadgames.com
 //
 // This software is provided 'as-is', without any express or implied warranty.  In no event will the authors be held liable for any damages arising from the use of this software.
 // Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -77,10 +77,14 @@ void ComponentMeshPrimitive::Reset()
 
     //CreatePrimitive();
 
+#if MYFW_EDITOR
+    m_PrimitiveSettingsChangedAtRuntime = false;
+
 #if MYFW_USING_WX
     m_pPanelWatchBlockVisible = &m_PanelWatchBlockVisible;
     m_ControlID_MeshPrimitiveType = -1;
 #endif //MYFW_USING_WX
+#endif //MYFW_EDITOR
 }
 
 #if MYFW_USING_WX
@@ -165,6 +169,11 @@ void* ComponentMeshPrimitive::OnValueChanged(ComponentVariable* pVar, bool chang
 
     if( finishedchanging )
     {
+        if( g_pEngineCore->IsInEditorMode() == false )
+        {
+            m_PrimitiveSettingsChangedAtRuntime = true;
+        }
+
         CreatePrimitive();
 
 #if MYFW_USING_WX
@@ -200,7 +209,17 @@ void ComponentMeshPrimitive::ImportFromJSONObject(cJSON* jsonobj, SceneID scenei
     cJSONExt_GetFloat( jsonobj, "PlaneUVRangex", &m_Plane_UVRange.x );
     cJSONExt_GetFloat( jsonobj, "PlaneUVRangey", &m_Plane_UVRange.y );
 
-    CreatePrimitive();
+    // This will be hit on initial load and on quickload.
+    // Only create the mesh on initial load.
+    // Also will rebuild if changes are made during runtime inside editor.
+    if( m_pMesh == 0
+#if MYFW_EDITOR
+        || m_PrimitiveSettingsChangedAtRuntime
+#endif
+      )
+    {
+        CreatePrimitive();
+    }
 }
 
 ComponentMeshPrimitive& ComponentMeshPrimitive::operator=(const ComponentMeshPrimitive& other)
