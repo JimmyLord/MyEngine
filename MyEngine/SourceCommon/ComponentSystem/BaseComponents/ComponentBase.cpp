@@ -864,14 +864,50 @@ void ComponentBase::AddVariableToWatchPanel(ComponentVariable* pVar)
 
         case ComponentVariableType_FilePtr:
             {
-                ImGui::Text( "FilePtr: %s (TODO)", pVar->m_Label );
-                //MyFileObject* pFile = *(MyFileObject**)((char*)this + pVar->m_Offset);
+                //ImGui::Text( "FilePtr: %s (TODO)", pVar->m_Label );
+                MyFileObject* pFile = *(MyFileObject**)((char*)this + pVar->m_Offset);
 
-                //const char* desc = "none";
-                //if( pFile )
-                //{
-                //    desc = pFile->GetFullPath();
-                //}
+                const char* pDesc = "none";
+                if( pFile )
+                {
+                    pDesc = pFile->GetFullPath();
+                }
+
+                if( ImGui::Button( pDesc, ImVec2( ImGui::GetWindowWidth() * 0.65f, 0 ) ) )
+                {
+                    // TODO: pop up a lua script file picker window.
+                }
+
+                if( ImGui::BeginDragDropTarget() )
+                {
+                    if( const ImGuiPayload* payload = ImGui::AcceptDragDropPayload( "File" ) )
+                    {
+                        MyFileObject* pNewFile = (MyFileObject*)*(void**)payload->Data;
+
+                        g_DragAndDropStruct.Clear();
+                        g_DragAndDropStruct.SetControlID( pVar->m_ControlID );
+                        g_DragAndDropStruct.Add( DragAndDropType_FileObjectPointer, pNewFile );
+
+                        MyFileObject* pOldFile = (MyFileObject*)OnDropVariable( pVar, 0, -1, -1 );
+
+                        // Drag/Drop of all types is inconsistantly handled.
+                        // Some drops like materials on renderables, obj files on 3d collision objects and others
+                        //   create the undo command manually in the Component.
+                        // I'd rather the undo be created here, so it will be more generic.
+                        // TODO: This will cause trouble with multiple commands being created in some cases.
+                        //       Some in the components and one here, this needs fixing ASAP.
+                        // TODO: The drag/drop struct can have multiple objects in it, which is currently ignored.
+                        //       Create a loop here and treat them like individual drag/drops for undo's sake.
+                        g_pGameCore->GetCommandStack()->Add(
+                            MyNew EditorCommand_DragAndDropEvent( this, pVar, 0, -1, -1,
+                                                                  DragAndDropType_FileObjectPointer, pNewFile, pOldFile ) );
+                    }
+
+                    ImGui::EndDragDropTarget();
+                }
+
+                ImGui::SameLine();
+                ImGui::Text( pVar->m_Label );
 
                 //pVar->m_ControlID = g_pPanelWatch->AddPointerWithDescription( pVar->m_WatchLabel, pFile, desc, this, ComponentBase::StaticOnDropVariable, ComponentBase::StaticOnValueChangedVariable, ComponentBase::StaticOnRightClickVariable );
             }
@@ -1938,7 +1974,7 @@ void ComponentBase::OnDropVariable(int controlid, int x, int y)
 }
 #endif //MYFW_USING_WX
 
-void ComponentBase::OnDropVariable(ComponentVariable* pVar, int controlcomponent, int x, int y)
+void* ComponentBase::OnDropVariable(ComponentVariable* pVar, int controlcomponent, int x, int y)
 {
     if( pVar )
     {
@@ -1966,7 +2002,11 @@ void ComponentBase::OnDropVariable(ComponentVariable* pVar, int controlcomponent
         {
             UpdateOtherComponentWithNewValue( m_MultiSelectedComponents[i], true, true, true, pVar, controlcomponent, true, 0, oldpointer, x, y, 0 );
         }
+
+        return oldpointer;
     }
+
+    return 0;
 }
 
 #if MYFW_USING_WX

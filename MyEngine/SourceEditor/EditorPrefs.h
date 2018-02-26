@@ -15,15 +15,6 @@ class EngineCore;
 
 extern EditorPrefs* g_pEditorPrefs;
 
-enum GLViewTypes
-{
-    GLView_Full,
-    GLView_Tall,
-    GLView_Square,
-    GLView_Wide,
-    GLView_NumTypes,
-};
-
 enum DefaultPerspectives
 {
     Perspective_CenterEditor,

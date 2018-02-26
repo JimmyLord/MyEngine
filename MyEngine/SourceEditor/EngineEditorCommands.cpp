@@ -1006,6 +1006,52 @@ EditorCommand* EditorCommand_EnableObject::Repeat()
 }
 
 //====================================================================================================
+// EditorCommand_DragAndDropEvent
+//====================================================================================================
+
+EditorCommand_DragAndDropEvent::EditorCommand_DragAndDropEvent(ComponentBase* pComponent, ComponentVariable* pVar, int controlcomponent, int x, int y, DragAndDropTypes type, void* newValue, void* oldValue)
+{
+    m_pComponent = pComponent;
+    m_pVar = pVar;
+    m_ControlComponent = controlcomponent;
+    m_X = x;
+    m_Y = y;
+
+    m_Type = type;
+    m_pNewValue = newValue;
+    m_pOldValue = oldValue;
+}
+
+EditorCommand_DragAndDropEvent::~EditorCommand_DragAndDropEvent()
+{
+}
+
+void EditorCommand_DragAndDropEvent::Do()
+{
+    g_DragAndDropStruct.Clear();
+    g_DragAndDropStruct.Add( m_Type, m_pNewValue );
+
+    void* pReturnedValue = m_pComponent->OnDropVariable( m_pVar, m_ControlComponent, m_X, m_Y );
+
+    MyAssert( pReturnedValue == m_pOldValue );
+}
+
+void EditorCommand_DragAndDropEvent::Undo()
+{
+    g_DragAndDropStruct.Clear();
+    g_DragAndDropStruct.Add( m_Type, m_pOldValue );
+
+    void* pReturnedValue = m_pComponent->OnDropVariable( m_pVar, m_ControlComponent, m_X, m_Y );
+
+    MyAssert( pReturnedValue == m_pNewValue );
+}
+
+EditorCommand* EditorCommand_DragAndDropEvent::Repeat()
+{
+    return 0;
+}
+
+//====================================================================================================
 // EditorCommand_ChangeMaterialOnMesh
 //====================================================================================================
 

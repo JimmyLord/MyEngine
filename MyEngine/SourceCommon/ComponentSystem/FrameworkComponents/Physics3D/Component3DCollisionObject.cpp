@@ -65,24 +65,18 @@ void Component3DCollisionObject::RegisterVariables(CPPListHead* pList, Component
     AddVarEnum( pList, "Primitive", MyOffsetOf( pThis, &pThis->m_PrimitiveType ), true, true, "Primitive Type", PhysicsPrimitive_NumTypes, PhysicsPrimitiveTypeStrings, (CVarFunc_ValueChanged)&Component3DCollisionObject::OnValueChanged, 0, 0 );
 
     pVar = AddVar( pList, "Scale", ComponentVariableType_Vector3, MyOffsetOf( pThis, &pThis->m_Scale ), true, true, "Scale", (CVarFunc_ValueChanged)&ComponentTransform::OnValueChanged, 0, 0 );
-#if MYFW_USING_WX
+#if MYFW_EDITOR
     pVar->AddCallback_ShouldVariableBeAdded( (CVarFunc_ShouldVariableBeAdded)(&Component3DCollisionObject::ShouldVariableBeAddedToWatchPanel) );
 #endif
 
     pVar = AddVar( pList, "ScaleX", ComponentVariableType_Float, MyOffsetOf( pThis, &pThis->m_Scale ), false, true, "Scale", (CVarFunc_ValueChanged)&ComponentTransform::OnValueChanged, 0, 0 );
-#if MYFW_USING_WX
+#if MYFW_EDITOR
     pVar->AddCallback_ShouldVariableBeAdded( (CVarFunc_ShouldVariableBeAdded)(&Component3DCollisionObject::ShouldVariableBeAddedToWatchPanel) );
 #endif
 
-#if MYFW_USING_WX
     pVar = AddVarPointer( pList, "OBJ", true, true, "Collision Mesh",
         (CVarFunc_GetPointerValue)&Component3DCollisionObject::GetPointerValue, (CVarFunc_SetPointerValue)&Component3DCollisionObject::SetPointerValue, (CVarFunc_GetPointerDesc)&Component3DCollisionObject::GetPointerDesc, (CVarFunc_SetPointerDesc)&Component3DCollisionObject::SetPointerDesc,
         (CVarFunc_ValueChanged)&Component3DCollisionObject::OnValueChanged, (CVarFunc_DropTarget)&Component3DCollisionObject::OnDropOBJ, 0 );
-#else
-    pVar = AddVarPointer( pList, "OBJ", true, true, "Collision Mesh",
-        (CVarFunc_GetPointerValue)&Component3DCollisionObject::GetPointerValue, (CVarFunc_SetPointerValue)&Component3DCollisionObject::SetPointerValue, (CVarFunc_GetPointerDesc)&Component3DCollisionObject::GetPointerDesc, (CVarFunc_SetPointerDesc)&Component3DCollisionObject::SetPointerDesc,
-        (CVarFunc_ValueChanged)&Component3DCollisionObject::OnValueChanged, 0, 0 );
-#endif
 #if MYFW_EDITOR
     pVar->AddCallback_ShouldVariableBeAdded( (CVarFunc_ShouldVariableBeAdded)(&Component3DCollisionObject::ShouldVariableBeAddedToWatchPanel) );
 #endif

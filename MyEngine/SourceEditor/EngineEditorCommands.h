@@ -21,6 +21,7 @@ class EditorCommand_DeleteComponents;
 class EditorCommand_CreateGameObject;
 class EditorCommand_CopyGameObject;
 class EditorCommand_EnableObject;
+class EditorCommand_DragAndDropEvent;
 class EditorCommand_ChangeMaterialOnMesh;
 class EditorCommand_ChangeTextureOnMaterial;
 class EditorCommand_ChangeShaderOnMaterial;
@@ -287,6 +288,30 @@ protected:
 public:
     EditorCommand_EnableObject(GameObject* pObject, bool enabled);
     virtual ~EditorCommand_EnableObject();
+
+    virtual void Do();
+    virtual void Undo();
+    virtual EditorCommand* Repeat();
+};
+
+//====================================================================================================
+
+class EditorCommand_DragAndDropEvent : public EditorCommand
+{
+protected:
+    ComponentBase* m_pComponent;
+    ComponentVariable* m_pVar;
+    int m_ControlComponent;
+    int m_X;
+    int m_Y;
+
+    DragAndDropTypes m_Type;
+    void* m_pNewValue;
+    void* m_pOldValue;
+
+public:
+    EditorCommand_DragAndDropEvent(ComponentBase* pComponent, ComponentVariable* pVar, int controlcomponent, int x, int y, DragAndDropTypes type, void* newValue, void* oldValue);
+    virtual ~EditorCommand_DragAndDropEvent();
 
     virtual void Do();
     virtual void Undo();
