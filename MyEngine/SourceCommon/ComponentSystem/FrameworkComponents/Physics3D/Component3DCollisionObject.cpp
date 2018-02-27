@@ -230,6 +230,8 @@ void* Component3DCollisionObject::OnDropOBJ(ComponentVariable* pVar, int x, int 
             if( m_pMesh )
                 oldpointer = m_pMesh->GetFile();
 
+            // TODO: remove this undo, and put it as a generic undo in ComponentBase.
+            MyAssert( false );
             g_pGameCore->GetCommandStack()->Do( MyNew EditorCommand_ComponentVariableIndirectPointerChanged( this, pVar, pFile ) );
         }
     }

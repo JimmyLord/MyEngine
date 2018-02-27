@@ -888,7 +888,7 @@ void ComponentBase::AddVariableToWatchPanel(ComponentVariable* pVar)
                         g_DragAndDropStruct.SetControlID( pVar->m_ControlID );
                         g_DragAndDropStruct.Add( DragAndDropType_FileObjectPointer, pNewFile );
 
-                        MyFileObject* pOldFile = (MyFileObject*)OnDropVariable( pVar, 0, -1, -1 );
+                        MyFileObject* pOldFile = (MyFileObject*)OnDropVariable( pVar, 0, -1, -1, true );
 
                         // Drag/Drop of all types is inconsistantly handled.
                         // Some drops like materials on renderables, obj files on 3d collision objects and others
@@ -898,9 +898,9 @@ void ComponentBase::AddVariableToWatchPanel(ComponentVariable* pVar)
                         //       Some in the components and one here, this needs fixing ASAP.
                         // TODO: The drag/drop struct can have multiple objects in it, which is currently ignored.
                         //       Create a loop here and treat them like individual drag/drops for undo's sake.
-                        g_pGameCore->GetCommandStack()->Add(
-                            MyNew EditorCommand_DragAndDropEvent( this, pVar, 0, -1, -1,
-                                                                  DragAndDropType_FileObjectPointer, pNewFile, pOldFile ) );
+                        //g_pGameCore->GetCommandStack()->Add(
+                        //    MyNew EditorCommand_DragAndDropEvent( this, pVar, 0, -1, -1,
+                        //                                          DragAndDropType_FileObjectPointer, pNewFile, pOldFile ) );
                     }
 
                     ImGui::EndDragDropTarget();
@@ -981,11 +981,30 @@ void ComponentBase::AddVariableToWatchPanel(ComponentVariable* pVar)
                     if( const ImGuiPayload* payload = ImGui::AcceptDragDropPayload( "Material" ) )
                     {
                         (this->*pVar->m_pSetPointerValueCallBackFunc)( pVar, *(void**)payload->Data );
+
+                        // TODO: Change to use OnDropVariable() like "File" handling below.
+                        // TODO: Create undo here, remove from callback.
                     }
 
                     if( const ImGuiPayload* payload = ImGui::AcceptDragDropPayload( "File" ) )
                     {
-                        (this->*pVar->m_pSetPointerValueCallBackFunc)( pVar, *(void**)payload->Data );
+                        MyFileObject* pNewFile = (MyFileObject*)*(void**)payload->Data;
+
+                        g_DragAndDropStruct.Clear();
+                        g_DragAndDropStruct.SetControlID( pVar->m_ControlID );
+                        g_DragAndDropStruct.Add( DragAndDropType_FileObjectPointer, pNewFile );
+
+                        MyFileObject* pOldFile = (MyFileObject*)OnDropVariable( pVar, 0, -1, -1, true );
+
+                        //g_pGameCore->GetCommandStack()->Add(
+                        //    MyNew EditorCommand_DragAndDropEvent( this, pVar, 0, -1, -1,
+                        //                                          DragAndDropType_FileObjectPointer, pNewFile, pOldFile ) );
+
+                        //(this->*pVar->m_pOnDropCallbackFunc)(pVar, -1, -1 );
+
+                        //(this->*pVar->m_pSetPointerValueCallBackFunc)( pVar, *(void**)payload->Data );
+
+                        // TODO: create undo here, remove from callback.
                     }
 
                     ImGui::EndDragDropTarget();
@@ -1970,23 +1989,36 @@ void ComponentBase::OnDropVariable(int controlid, int x, int y)
 {
     ComponentVariable* pVar = FindComponentVariableForControl( controlid );
 
-    OnDropVariable( pVar, controlid - pVar->m_ControlID, x, y );
+    OnDropVariable( pVar, controlid - pVar->m_ControlID, x, y, true );
 }
 #endif //MYFW_USING_WX
 
-void* ComponentBase::OnDropVariable(ComponentVariable* pVar, int controlcomponent, int x, int y)
+void* ComponentBase::OnDropVariable(ComponentVariable* pVar, int controlcomponent, int x, int y, bool addundocommand)
 {
     if( pVar )
     {
         void* oldpointer = 0;
 
         if( pVar->m_pOnDropCallbackFunc )
+        {
             oldpointer = (this->*pVar->m_pOnDropCallbackFunc)( pVar, x, y );
+
+            // Create an undo command for this drag/drop action.
+            if( addundocommand )
+            {
+                DragAndDropItem* pItem = g_DragAndDropStruct.GetItem( 0 );
+                MyAssert( pItem );
+
+                g_pGameCore->GetCommandStack()->Add(
+                    MyNew EditorCommand_DragAndDropEvent( this, pVar, 0, -1, -1, pItem->m_Type, pItem->m_Value, oldpointer ) );
+            }
+        }
 
         if( m_pGameObject && m_pGameObject->GetGameObjectThisInheritsFrom() )
         {
             // Divorce the child value from it's parent, if it no longer matches.. and it's not already divorced.
-            if( IsDivorced( pVar->m_Index ) == false &&
+            if( addundocommand &&
+                IsDivorced( pVar->m_Index ) == false &&
                 DoesVariableMatchParent( pVar, controlcomponent ) == false ) // Returns true if no parent was found.
             {
                 // Since the variable no longer matches the parent, then divorce it.

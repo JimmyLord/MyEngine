@@ -35,15 +35,9 @@ void ComponentMeshOBJ::RegisterVariables(CPPListHead* pList, ComponentMeshOBJ* p
 {
     ComponentMesh::RegisterVariables( pList, pThis );
 
-#if MYFW_USING_WX
     AddVarPointer( pList, "OBJ", true, true, "File",
         (CVarFunc_GetPointerValue)&ComponentMeshOBJ::GetPointerValue, (CVarFunc_SetPointerValue)&ComponentMeshOBJ::SetPointerValue, (CVarFunc_GetPointerDesc)&ComponentMeshOBJ::GetPointerDesc, (CVarFunc_SetPointerDesc)&ComponentMeshOBJ::SetPointerDesc,
         (CVarFunc_ValueChanged)&ComponentMeshOBJ::OnValueChanged, (CVarFunc_DropTarget)&ComponentMeshOBJ::OnDropOBJ, 0 );
-#else
-    AddVarPointer( pList, "OBJ", true, true, "File",
-        (CVarFunc_GetPointerValue)&ComponentMeshOBJ::GetPointerValue, (CVarFunc_SetPointerValue)&ComponentMeshOBJ::SetPointerValue, (CVarFunc_GetPointerDesc)&ComponentMeshOBJ::GetPointerDesc, (CVarFunc_SetPointerDesc)&ComponentMeshOBJ::SetPointerDesc,
-        (CVarFunc_ValueChanged)&ComponentMeshOBJ::OnValueChanged, 0, 0 );
-#endif //MYFW_USING_WX
 }
 
 void ComponentMeshOBJ::Reset()
@@ -163,20 +157,22 @@ void* ComponentMeshOBJ::OnDropOBJ(ComponentVariable* pVar, int x, int y)
 
     if( pDropItem->m_Type == DragAndDropType_FileObjectPointer )
     {
-        MyFileObject* pFile = (MyFileObject*)pDropItem->m_Value;
-        MyAssert( pFile );
+        MyFileObject* pNewFile = (MyFileObject*)pDropItem->m_Value;
+        MyAssert( pNewFile );
         //MyAssert( m_pMesh );
 
         //size_t len = strlen( pFile->GetFullPath() );
-        const char* filenameext = pFile->GetExtensionWithDot();
+        const char* filenameext = pNewFile->GetExtensionWithDot();
 
         if( strcmp( filenameext, ".obj" ) == 0 )
         {
             if( m_pMesh )
                 oldpointer = m_pMesh->GetFile();
 
-            // This EditorCommand will call ::SetPointerValue which is expecting a pointer to the new file.
-            g_pGameCore->GetCommandStack()->Do( MyNew EditorCommand_ComponentVariableIndirectPointerChanged( this, pVar, pFile ) );
+            SetPointerValue( pVar, pNewFile );
+
+            //// This EditorCommand will call ::SetPointerValue which is expecting a pointer to the new file.
+            //g_pGameCore->GetCommandStack()->Do( MyNew EditorCommand_ComponentVariableIndirectPointerChanged( this, pVar, pFile ) );
         }
 
         if( strcmp( filenameext, ".mymesh" ) == 0 )
@@ -184,8 +180,10 @@ void* ComponentMeshOBJ::OnDropOBJ(ComponentVariable* pVar, int x, int y)
             if( m_pMesh )
                 oldpointer = m_pMesh->GetFile();
 
-            // This EditorCommand will call ::SetPointerValue which is expecting a pointer to the new file.
-            g_pGameCore->GetCommandStack()->Do( MyNew EditorCommand_ComponentVariableIndirectPointerChanged( this, pVar, pFile ) );
+            SetPointerValue( pVar, pNewFile );
+
+            //// This EditorCommand will call ::SetPointerValue which is expecting a pointer to the new file.
+            //g_pGameCore->GetCommandStack()->Do( MyNew EditorCommand_ComponentVariableIndirectPointerChanged( this, pVar, pFile ) );
         }
 
 #if MYFW_USING_WX

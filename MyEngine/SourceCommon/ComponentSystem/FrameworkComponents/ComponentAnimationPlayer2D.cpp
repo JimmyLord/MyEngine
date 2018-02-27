@@ -43,21 +43,12 @@ ComponentAnimationPlayer2D::~ComponentAnimationPlayer2D()
 
 void ComponentAnimationPlayer2D::RegisterVariables(CPPListHead* pList, ComponentAnimationPlayer2D* pThis) //_VARIABLE_LIST
 {
-#if MYFW_USING_WX
     AddVar( pList, "Animation Index", ComponentVariableType_UnsignedInt, MyOffsetOf( pThis, &pThis->m_AnimationIndex ), true, true, 0, (CVarFunc_ValueChanged)&ComponentAnimationPlayer2D::OnValueChanged, (CVarFunc_DropTarget)&ComponentAnimationPlayer2D::OnDrop, 0 );
     AddVar( pList, "Animation Frame", ComponentVariableType_Float, MyOffsetOf( pThis, &pThis->m_AnimationTime ), true, true, 0, (CVarFunc_ValueChanged)&ComponentAnimationPlayer2D::OnValueChanged, (CVarFunc_DropTarget)&ComponentAnimationPlayer2D::OnDrop, 0 );
     AddVar( pList, "Frame Index", ComponentVariableType_UnsignedInt, MyOffsetOf( pThis, &pThis->m_FrameIndex ), true, true, 0, (CVarFunc_ValueChanged)&ComponentAnimationPlayer2D::OnValueChanged, (CVarFunc_DropTarget)&ComponentAnimationPlayer2D::OnDrop, 0 );
 
     // Animation File is not automatically saved/loaded
     AddVar( pList, "Animation File", ComponentVariableType_FilePtr, MyOffsetOf( pThis, &pThis->m_pAnimationFile ), false, true, 0, (CVarFunc_ValueChanged)&ComponentAnimationPlayer2D::OnValueChanged, (CVarFunc_DropTarget)&ComponentAnimationPlayer2D::OnDrop, 0 );
-#else
-    AddVar( pList, "Animation Index", ComponentVariableType_UnsignedInt, MyOffsetOf( pThis, &pThis->m_AnimationIndex ), true, true, 0, (CVarFunc_ValueChanged)&ComponentAnimationPlayer2D::OnValueChanged, 0, 0 );
-    AddVar( pList, "Animation Frame", ComponentVariableType_Float, MyOffsetOf( pThis, &pThis->m_AnimationTime ), true, true, 0, (CVarFunc_ValueChanged)&ComponentAnimationPlayer2D::OnValueChanged, 0, 0 );
-    AddVar( pList, "Frame Index", ComponentVariableType_UnsignedInt, MyOffsetOf( pThis, &pThis->m_FrameIndex ), true, true, 0, (CVarFunc_ValueChanged)&ComponentAnimationPlayer2D::OnValueChanged, 0, 0 );
-
-    // Animation File is not automatically saved/loaded
-    AddVar( pList, "Animation File", ComponentVariableType_FilePtr, MyOffsetOf( pThis, &pThis->m_pAnimationFile ), false, true, 0, (CVarFunc_ValueChanged)&ComponentAnimationPlayer2D::OnValueChanged, 0, 0 );
-#endif
 }
 
 void ComponentAnimationPlayer2D::Reset()
@@ -266,6 +257,9 @@ void ComponentAnimationPlayer2D::SetAnimationFile(MyFileObject* pFile)
 
     SAFE_RELEASE( m_pAnimationFile );
     m_pAnimationFile = pFile;
+
+    // Delete the old anim info, so the new file's info will be imported/applied.
+    SAFE_DELETE( m_pAnimInfo );
 }
 
 void ComponentAnimationPlayer2D::RegisterCallbacks()

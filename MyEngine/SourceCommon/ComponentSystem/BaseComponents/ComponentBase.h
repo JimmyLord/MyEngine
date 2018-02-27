@@ -178,7 +178,7 @@ public:
     static void StaticOnDropVariable(void* pObjectPtr, int controlid, int x, int y) { ((ComponentBase*)pObjectPtr)->OnDropVariable(controlid, x, y); }
     void OnDropVariable(int controlid, int x, int y);
 #endif //MYFW_USING_WX
-    void* OnDropVariable(ComponentVariable* pVar, int controlcomponent, int x, int y);
+    void* OnDropVariable(ComponentVariable* pVar, int controlcomponent, int x, int y, bool addundocommand = false);
 
 #if MYFW_USING_WX
     ComponentBaseEventHandlerForComponentVariables m_ComponentBaseEventHandlerForComponentVariables;
