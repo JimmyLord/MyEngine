@@ -936,7 +936,7 @@ void ComponentBase::AddVariableToWatchPanel(ComponentVariable* pVar)
                         g_DragAndDropStruct.SetControlID( pVar->m_ControlID );
                         g_DragAndDropStruct.Add( DragAndDropType_MaterialDefinitionPointer, pNewMat );
 
-                        OnDropVariable( pVar, 0, -1, -1 );
+                        OnDropVariable( pVar, 0, -1, -1, true );
                     }
 
                     if( const ImGuiPayload* payload = ImGui::AcceptDragDropPayload( "File" ) )
@@ -980,10 +980,13 @@ void ComponentBase::AddVariableToWatchPanel(ComponentVariable* pVar)
                 {
                     if( const ImGuiPayload* payload = ImGui::AcceptDragDropPayload( "Material" ) )
                     {
-                        (this->*pVar->m_pSetPointerValueCallBackFunc)( pVar, *(void**)payload->Data );
+                        MaterialDefinition* pMat = (MaterialDefinition*)*(void**)payload->Data;
 
-                        // TODO: Change to use OnDropVariable() like "File" handling below.
-                        // TODO: Create undo here, remove from callback.
+                        g_DragAndDropStruct.Clear();
+                        g_DragAndDropStruct.SetControlID( pVar->m_ControlID );
+                        g_DragAndDropStruct.Add( DragAndDropType_MaterialDefinitionPointer, pMat );
+
+                        OnDropVariable( pVar, 0, -1, -1, true );
                     }
 
                     if( const ImGuiPayload* payload = ImGui::AcceptDragDropPayload( "File" ) )
@@ -994,17 +997,7 @@ void ComponentBase::AddVariableToWatchPanel(ComponentVariable* pVar)
                         g_DragAndDropStruct.SetControlID( pVar->m_ControlID );
                         g_DragAndDropStruct.Add( DragAndDropType_FileObjectPointer, pNewFile );
 
-                        MyFileObject* pOldFile = (MyFileObject*)OnDropVariable( pVar, 0, -1, -1, true );
-
-                        //g_pGameCore->GetCommandStack()->Add(
-                        //    MyNew EditorCommand_DragAndDropEvent( this, pVar, 0, -1, -1,
-                        //                                          DragAndDropType_FileObjectPointer, pNewFile, pOldFile ) );
-
-                        //(this->*pVar->m_pOnDropCallbackFunc)(pVar, -1, -1 );
-
-                        //(this->*pVar->m_pSetPointerValueCallBackFunc)( pVar, *(void**)payload->Data );
-
-                        // TODO: create undo here, remove from callback.
+                        OnDropVariable( pVar, 0, -1, -1, true );
                     }
 
                     ImGui::EndDragDropTarget();

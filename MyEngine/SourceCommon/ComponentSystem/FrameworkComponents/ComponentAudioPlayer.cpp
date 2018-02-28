@@ -123,11 +123,14 @@ void* ComponentAudioPlayer::OnDrop(ComponentVariable* pVar, int x, int y)
 
     if( pDropItem->m_Type == DragAndDropType_SoundCuePointer )
     {
-#if MYFW_USING_WX
-        //SetSoundCue( (SoundCue*)pDropItem->m_Value );
-        g_pGameCore->GetCommandStack()->Do( MyNew EditorCommand_ChangeSoundCue( this, (SoundCue*)pDropItem->m_Value ) );
+        // Untested, but undo should now be created in ComponentBase.
+        oldvalue = GetSoundCue();
+        SetSoundCue( (SoundCue*)pDropItem->m_Value );
 
-        // update the panel so new sound cue name shows up.
+#if MYFW_USING_WX
+        //g_pGameCore->GetCommandStack()->Do( MyNew EditorCommand_ChangeSoundCue( this, (SoundCue*)pDropItem->m_Value ) );
+
+        // Update the panel so new sound cue name shows up.
         g_pPanelWatch->ChangeDescriptionForPointerWithDescription( pVar->m_ControlID, m_SoundCueName );
 #endif //MYFW_USING_WX
     }

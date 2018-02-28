@@ -357,7 +357,8 @@ void* ComponentSprite::OnDrop(ComponentVariable* pVar, int x, int y)
 
         oldvalue = m_pSprite->GetMaterial();
 
-        g_pGameCore->GetCommandStack()->Do( MyNew EditorCommand_ChangeMaterialOnMesh( this, pVar, 0, pMaterial ) );
+        m_pSprite->SetMaterial( pMaterial );
+        //g_pGameCore->GetCommandStack()->Do( MyNew EditorCommand_ChangeMaterialOnMesh( this, pVar, 0, pMaterial ) );
 
 #if MYFW_USING_WX
         g_pPanelWatch->SetNeedsRefresh();

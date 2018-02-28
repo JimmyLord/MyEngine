@@ -108,12 +108,14 @@ void* ComponentTemplate::OnDrop(ComponentVariable* pVar, int x, int y)
 
     if( pDropItem->m_Type == DragAndDropType_ComponentPointer )
     {
-        //(ComponentBase*)pDropItem->m_Value;
+        //oldpointer = m_Value;
+        //m_Value = (ComponentBase*)pDropItem->m_Value;
     }
 
     if( pDropItem->m_Type == DragAndDropType_GameObjectPointer )
     {
-        //(GameObject*)pDropItem->m_Value;
+        //oldpointer = m_Value;
+        //m_Value = (GameObject*)pDropItem->m_Value;
     }
 
     return oldpointer;

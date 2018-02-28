@@ -249,7 +249,8 @@ void* ComponentMesh::OnDropMaterial(ComponentVariable* pVar, int x, int y)
             MaterialDefinition* pMaterial = (MaterialDefinition*)pDropItem->m_Value;
 
             oldpointer = GetMaterial( materialthatchanged );
-            g_pGameCore->GetCommandStack()->Do( MyNew EditorCommand_ChangeMaterialOnMesh( this, pVar, materialthatchanged, pMaterial ) );
+            SetMaterial( pMaterial, materialthatchanged );
+            //g_pGameCore->GetCommandStack()->Do( MyNew EditorCommand_ChangeMaterialOnMesh( this, pVar, materialthatchanged, pMaterial ) );
 
 #if MYFW_USING_WX
             // update the panel so new Material name shows up.
