@@ -206,17 +206,19 @@ void ComponentVoxelMesh::FillPropertiesWindow(bool clear, bool addcomponentvaria
 
 void* ComponentVoxelMesh::OnDrop(ComponentVariable* pVar, int x, int y)
 {
-    void* oldpointer = 0;
+    void* oldPointer = 0;
 
     DragAndDropItem* pDropItem = g_DragAndDropStruct.GetItem( 0 );
 
     if( pDropItem->m_Type == DragAndDropType_ComponentPointer )
     {
+        //oldPointer = old component;
         //(ComponentBase*)pDropItem->m_Value;
     }
 
     if( pDropItem->m_Type == DragAndDropType_GameObjectPointer )
     {
+        //oldPointer = old GameObject;
         //(GameObject*)pDropItem->m_Value;
     }
 
@@ -232,7 +234,7 @@ void* ComponentVoxelMesh::OnDrop(ComponentVariable* pVar, int x, int y)
         if( strcmp( filenameext, ".myvoxelmesh" ) == 0 )
         {
             if( m_pMesh )
-                oldpointer = m_pMesh->GetFile();
+                oldPointer = m_pMesh->GetFile();
 
             MyMesh* pMesh = g_pMeshManager->FindMeshBySourceFile( pFile );
             SetMesh( pMesh );
@@ -248,7 +250,7 @@ void* ComponentVoxelMesh::OnDrop(ComponentVariable* pVar, int x, int y)
 #endif //MYFW_USING_WX
     }
 
-    return oldpointer;
+    return oldPointer;
 }
 
 void* ComponentVoxelMesh::OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue* pNewValue)

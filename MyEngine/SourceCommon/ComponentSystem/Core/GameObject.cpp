@@ -415,24 +415,32 @@ void GameObject::OnDrag()
 {
     g_DragAndDropStruct.Add( DragAndDropType_GameObjectPointer, this );
 }
+#endif //MYFW_USING_WX
 
-void GameObject::OnDrop(int controlid, int x, int y)
+void GameObject::OnDrop(int controlid, int x, int y, GameObjectOnDropActions action)
 {
+#if MYFW_USING_WX
     // If you drop a game object on another, parent them or move above/below depending on the "y".
     // The bounding rect will change once the first item is moved, so get the rect once before moving things.
     wxTreeItemId treeid = g_pPanelObjectList->FindObject( this );
     wxRect rect;
     g_pPanelObjectList->m_pTree_Objects->GetBoundingRect( treeid, rect, false );
+#endif //MYFW_USING_WX
 
     std::vector<GameObject*> selectedObjects;
 
     // Range must match code in PanelObjectListDropTarget::OnDragOver. // TODO: fix this
     bool setaschild = true;
+#if MYFW_USING_WX
     if( y > rect.GetBottom() - 10 )
     {
         // Move below the selected item.
         setaschild = false;
     }
+#else
+    if( action == GameObjectOnDropAction_Reorder )
+        setaschild = false;
+#endif //MYFW_USING_WX
 
     // Move/Reparent all of the selected items.
     for( unsigned int i=0; i<g_DragAndDropStruct.GetItemCount(); i++ )
@@ -465,6 +473,7 @@ void GameObject::OnDrop(int controlid, int x, int y)
     }
 }
 
+#if MYFW_USING_WX
 void GameObject::OnLabelEdit(wxString newlabel)
 {
     size_t len = newlabel.length();

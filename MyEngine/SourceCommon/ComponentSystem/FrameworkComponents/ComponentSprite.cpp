@@ -345,7 +345,7 @@ void ComponentSprite::FillPropertiesWindow(bool clear, bool addcomponentvariable
 
 void* ComponentSprite::OnDrop(ComponentVariable* pVar, int x, int y)
 {
-    void* oldvalue = 0;
+    void* oldPointer = 0;
 
     DragAndDropItem* pDropItem = g_DragAndDropStruct.GetItem( 0 );
 
@@ -355,17 +355,16 @@ void* ComponentSprite::OnDrop(ComponentVariable* pVar, int x, int y)
         MyAssert( pMaterial );
         MyAssert( m_pSprite );
 
-        oldvalue = m_pSprite->GetMaterial();
+        oldPointer = m_pSprite->GetMaterial();
 
         m_pSprite->SetMaterial( pMaterial );
-        //g_pGameCore->GetCommandStack()->Do( MyNew EditorCommand_ChangeMaterialOnMesh( this, pVar, 0, pMaterial ) );
 
 #if MYFW_USING_WX
         g_pPanelWatch->SetNeedsRefresh();
 #endif //MYFW_USING_WX
     }
 
-    return oldvalue;
+    return oldPointer;
 }
 
 void* ComponentSprite::OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue* pNewValue)

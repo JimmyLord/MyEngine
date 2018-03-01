@@ -849,22 +849,42 @@ void ComponentBase::AddVariableToWatchPanel(ComponentVariable* pVar)
 
         case ComponentVariableType_ComponentPtr:
             {
-                ImGui::Text( "ComponentPtr: %s (TODO)", pVar->m_Label );
-                //ComponentTransform* pTransformComponent = *(ComponentTransform**)((char*)this + pVar->m_Offset);
+                ComponentBase* pComponent = *(ComponentBase**)((char*)this + pVar->m_Offset);
 
-                //const char* desc = "none";
-                //if( pTransformComponent )
-                //{
-                //    desc = pTransformComponent->m_pGameObject->GetName();
-                //}
+                const char* pDesc = "none";
+                if( pComponent )
+                {
+                    pDesc = pComponent->m_pGameObject->GetName();
+                }
 
-                //pVar->m_ControlID = g_pPanelWatch->AddPointerWithDescription( pVar->m_WatchLabel, pTransformComponent, desc, this, ComponentBase::StaticOnDropVariable, ComponentBase::StaticOnValueChangedVariable, ComponentBase::StaticOnRightClickVariable );
+                if( ImGui::Button( pDesc, ImVec2( ImGui::GetWindowWidth() * 0.65f, 0 ) ) )
+                {
+                    // TODO: Pop up a component picker window.
+                }
+
+                if( ImGui::BeginDragDropTarget() )
+                {
+                    if( const ImGuiPayload* payload = ImGui::AcceptDragDropPayload( "GameObject" ) )
+                    {
+                        GameObject* pGameObject = (GameObject*)*(void**)payload->Data;
+
+                        g_DragAndDropStruct.Clear();
+                        g_DragAndDropStruct.SetControlID( pVar->m_ControlID );
+                        g_DragAndDropStruct.Add( DragAndDropType_GameObjectPointer, pGameObject );
+
+                        OnDropVariable( pVar, 0, -1, -1, true );
+                    }
+
+                    ImGui::EndDragDropTarget();
+                }
+
+                ImGui::SameLine();
+                ImGui::Text( pVar->m_Label );
             }
             break;
 
         case ComponentVariableType_FilePtr:
             {
-                //ImGui::Text( "FilePtr: %s (TODO)", pVar->m_Label );
                 MyFileObject* pFile = *(MyFileObject**)((char*)this + pVar->m_Offset);
 
                 const char* pDesc = "none";
@@ -888,19 +908,7 @@ void ComponentBase::AddVariableToWatchPanel(ComponentVariable* pVar)
                         g_DragAndDropStruct.SetControlID( pVar->m_ControlID );
                         g_DragAndDropStruct.Add( DragAndDropType_FileObjectPointer, pNewFile );
 
-                        MyFileObject* pOldFile = (MyFileObject*)OnDropVariable( pVar, 0, -1, -1, true );
-
-                        // Drag/Drop of all types is inconsistantly handled.
-                        // Some drops like materials on renderables, obj files on 3d collision objects and others
-                        //   create the undo command manually in the Component.
-                        // I'd rather the undo be created here, so it will be more generic.
-                        // TODO: This will cause trouble with multiple commands being created in some cases.
-                        //       Some in the components and one here, this needs fixing ASAP.
-                        // TODO: The drag/drop struct can have multiple objects in it, which is currently ignored.
-                        //       Create a loop here and treat them like individual drag/drops for undo's sake.
-                        //g_pGameCore->GetCommandStack()->Add(
-                        //    MyNew EditorCommand_DragAndDropEvent( this, pVar, 0, -1, -1,
-                        //                                          DragAndDropType_FileObjectPointer, pNewFile, pOldFile ) );
+                        OnDropVariable( pVar, 0, -1, -1, true );
                     }
 
                     ImGui::EndDragDropTarget();
@@ -908,8 +916,6 @@ void ComponentBase::AddVariableToWatchPanel(ComponentVariable* pVar)
 
                 ImGui::SameLine();
                 ImGui::Text( pVar->m_Label );
-
-                //pVar->m_ControlID = g_pPanelWatch->AddPointerWithDescription( pVar->m_WatchLabel, pFile, desc, this, ComponentBase::StaticOnDropVariable, ComponentBase::StaticOnValueChangedVariable, ComponentBase::StaticOnRightClickVariable );
             }
             break;
 
@@ -1990,11 +1996,11 @@ void* ComponentBase::OnDropVariable(ComponentVariable* pVar, int controlcomponen
 {
     if( pVar )
     {
-        void* oldpointer = 0;
+        void* oldPointer = 0;
 
         if( pVar->m_pOnDropCallbackFunc )
         {
-            oldpointer = (this->*pVar->m_pOnDropCallbackFunc)( pVar, x, y );
+            oldPointer = (this->*pVar->m_pOnDropCallbackFunc)( pVar, x, y );
 
             // Create an undo command for this drag/drop action.
             if( addundocommand )
@@ -2003,7 +2009,7 @@ void* ComponentBase::OnDropVariable(ComponentVariable* pVar, int controlcomponen
                 MyAssert( pItem );
 
                 g_pGameCore->GetCommandStack()->Add(
-                    MyNew EditorCommand_DragAndDropEvent( this, pVar, 0, -1, -1, pItem->m_Type, pItem->m_Value, oldpointer ) );
+                    MyNew EditorCommand_DragAndDropEvent( this, pVar, 0, -1, -1, pItem->m_Type, pItem->m_Value, oldPointer ) );
             }
         }
 
@@ -2020,15 +2026,15 @@ void* ComponentBase::OnDropVariable(ComponentVariable* pVar, int controlcomponen
         }
 
         // OnDropCallback will grab the new value from g_DragAndDropStruct
-        UpdateChildrenWithNewValue( true, pVar, controlcomponent, false, true, 0, oldpointer, x, y, 0 );
+        UpdateChildrenWithNewValue( true, pVar, controlcomponent, false, true, 0, oldPointer, x, y, 0 );
 
         // deal with multiple selections
         for( unsigned int i=0; i<m_MultiSelectedComponents.size(); i++ )
         {
-            UpdateOtherComponentWithNewValue( m_MultiSelectedComponents[i], true, true, true, pVar, controlcomponent, true, 0, oldpointer, x, y, 0 );
+            UpdateOtherComponentWithNewValue( m_MultiSelectedComponents[i], true, true, true, pVar, controlcomponent, true, 0, oldPointer, x, y, 0 );
         }
 
-        return oldpointer;
+        return oldPointer;
     }
 
     return 0;

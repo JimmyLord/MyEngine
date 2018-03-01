@@ -50,15 +50,9 @@ Component3DJointSlider::~Component3DJointSlider()
 
 void Component3DJointSlider::RegisterVariables(CPPListHead* pList, Component3DJointSlider* pThis) //_VARIABLE_LIST
 {
-#if MYFW_USING_WX
     AddVar( pList, "SecondCollisionObject", ComponentVariableType_ComponentPtr,
         MyOffsetOf( pThis, &pThis->m_pSecondCollisionObject ), true, true, 0,
         (CVarFunc_ValueChanged)&Component3DJointSlider::OnValueChanged, (CVarFunc_DropTarget)&Component3DJointSlider::OnDrop, 0 );
-#else
-    AddVar( pList, "SecondCollisionObject", ComponentVariableType_ComponentPtr,
-        MyOffsetOf( pThis, &pThis->m_pSecondCollisionObject ), true, true, 0,
-        (CVarFunc_ValueChanged)&Component3DJointSlider::OnValueChanged, 0, 0 );
-#endif //MYFW_USING_WX
 
     AddVar( pList, "AxisA", ComponentVariableType_Vector3, MyOffsetOf( pThis, &pThis->m_AxisA ), true, true, 0, (CVarFunc_ValueChanged)&Component3DJointSlider::OnValueChanged, 0, 0 );
     AddVar( pList, "AxisB", ComponentVariableType_Vector3, MyOffsetOf( pThis, &pThis->m_AxisB ), true, true, 0, (CVarFunc_ValueChanged)&Component3DJointSlider::OnValueChanged, 0, 0 );
@@ -137,7 +131,7 @@ void Component3DJointSlider::FillPropertiesWindow(bool clear, bool addcomponentv
 
 void* Component3DJointSlider::OnDrop(ComponentVariable* pVar, int x, int y)
 {
-    void* oldvalue = m_pSecondCollisionObject;
+    void* oldPointer = 0;
 
     DragAndDropItem* pDropItem = g_DragAndDropStruct.GetItem( 0 );
 
@@ -147,18 +141,23 @@ void* Component3DJointSlider::OnDrop(ComponentVariable* pVar, int x, int y)
 
         if( pComponent->IsA( "3DCollisionObjectComponent" ) )
         {
+            oldPointer = m_pSecondCollisionObject;
+
             m_pSecondCollisionObject = (Component3DCollisionObject*)pComponent;
         }        
     }
 
     if( pDropItem->m_Type == DragAndDropType_GameObjectPointer )
     {
+        if( m_pSecondCollisionObject )
+            oldPointer = m_pSecondCollisionObject->m_pGameObject;
+
         GameObject* pGameObject = (GameObject*)pDropItem->m_Value;
 
         m_pSecondCollisionObject = pGameObject->Get3DCollisionObject();
     }
 
-    return oldvalue;
+    return oldPointer;
 }
 
 void* Component3DJointSlider::OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue* pNewValue)

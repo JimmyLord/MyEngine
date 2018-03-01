@@ -211,7 +211,7 @@ void Component3DCollisionObject::OnTransformChanged(Vector3& newpos, Vector3& ne
 
 void* Component3DCollisionObject::OnDropOBJ(ComponentVariable* pVar, int x, int y)
 {
-    void* oldpointer = 0;
+    void* oldPointer = 0;
 
     DragAndDropItem* pDropItem = g_DragAndDropStruct.GetItem( 0 );
 
@@ -219,24 +219,21 @@ void* Component3DCollisionObject::OnDropOBJ(ComponentVariable* pVar, int x, int 
     {
         MyFileObject* pFile = (MyFileObject*)pDropItem->m_Value;
         MyAssert( pFile );
-        //MyAssert( m_pMesh );
 
-        const char* pPath = pFile->GetFullPath();
-        size_t len = strlen( pPath );
-        const char* filenameext = &pPath[len-4];
+        const char* pExtension = pFile->GetExtensionWithDot();
 
-        if( strcmp( filenameext, ".obj" ) == 0 )
+        if( strcmp( pExtension, ".obj" ) == 0 ||
+            strcmp( pExtension, ".mymesh" ) == 0 )
         {
             if( m_pMesh )
-                oldpointer = m_pMesh->GetFile();
+                oldPointer = m_pMesh->GetFile();
 
-            // TODO: remove this undo, and put it as a generic undo in ComponentBase.
-            MyAssert( false );
-            g_pGameCore->GetCommandStack()->Do( MyNew EditorCommand_ComponentVariableIndirectPointerChanged( this, pVar, pFile ) );
+            MyMesh* pNewMesh = g_pMeshManager->FindMeshBySourceFile( pFile );
+            SetMesh( pNewMesh );
         }
     }
 
-    return oldpointer;
+    return oldPointer;
 }
 
 bool Component3DCollisionObject::ShouldVariableBeAddedToWatchPanel(ComponentVariable* pVar)

@@ -116,17 +116,19 @@ void ComponentAnimationPlayer2D::FillPropertiesWindow(bool clear, bool addcompon
 
 void* ComponentAnimationPlayer2D::OnDrop(ComponentVariable* pVar, int x, int y)
 {
-    void* oldpointer = 0;
+    void* oldPointer = 0;
 
     DragAndDropItem* pDropItem = g_DragAndDropStruct.GetItem( 0 );
 
     if( pDropItem->m_Type == DragAndDropType_ComponentPointer )
     {
+        //oldPointer = old component
         //(ComponentBase*)pDropItem->m_Value;
     }
 
     if( pDropItem->m_Type == DragAndDropType_GameObjectPointer )
     {
+        //oldPointer = old gameobject
         //(GameObject*)pDropItem->m_Value;
     }
 
@@ -137,7 +139,7 @@ void* ComponentAnimationPlayer2D::OnDrop(ComponentVariable* pVar, int x, int y)
 
         if( strcmp( pFile->GetExtensionWithDot(), ".my2daniminfo" ) == 0 )
         {
-            oldpointer = m_pAnimationFile;
+            oldPointer = m_pAnimationFile;
             SetAnimationFile( pFile );
 
 #if MYFW_USING_WX
@@ -147,7 +149,7 @@ void* ComponentAnimationPlayer2D::OnDrop(ComponentVariable* pVar, int x, int y)
         }
     }
 
-    return oldpointer;
+    return oldPointer;
 }
 
 void* ComponentAnimationPlayer2D::OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue* pNewValue)

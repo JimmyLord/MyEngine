@@ -75,8 +75,12 @@ EditorMainFrame_ImGui::EditorMainFrame_ImGui()
     m_pLogWindow = MyNew EditorLogWindow_ImGui;
 
     // Object list filter.
-    m_SetFilterBoxInFocus = false;
+    m_SetObjectListFilterBoxInFocus = false;
     m_ObjectListFilter[0] = 0;
+
+    // Object list filter.
+    m_SetMemoryPanelFilterBoxInFocus = false;
+    m_MemoryPanelFilter[0] = 0;
 
     // For renaming things.
     m_RenamePressedThisFrame = false;
@@ -273,8 +277,8 @@ bool EditorMainFrame_ImGui::CheckForHotkeys(int keyaction, int keycode)
 
         EditorPrefs* pEditorPrefs = g_pEngineCore->GetEditorPrefs();
 
-        if( C  && keycode == 'F' )   { ImGui::SetWindowFocus( "Objects" ); m_SetFilterBoxInFocus = true; return true; }
-        if( N  && keycode == VK_F3 ) { ImGui::SetWindowFocus( "Objects" ); m_SetFilterBoxInFocus = true; return true; }
+        if( C  && keycode == 'F' )   { ImGui::SetWindowFocus( "Objects" ); m_SetObjectListFilterBoxInFocus = true; return true; }
+        if( N  && keycode == VK_F3 ) { ImGui::SetWindowFocus( "Objects" ); m_SetObjectListFilterBoxInFocus = true; return true; }
         if( C  && keycode == 'S' )   { EditorMenuCommand( EditorMenuCommand_File_SaveScene );            return true; }
         if( CS && keycode == 'E' )   { EditorMenuCommand( EditorMenuCommand_File_Export_Box2DScene );    return true; }
         if( C  && keycode == 'Z' )   { EditorMenuCommand( EditorMenuCommand_Edit_Undo );                 return true; }
@@ -896,11 +900,11 @@ void EditorMainFrame_ImGui::AddObjectList()
         // TODO: Only auto-select when Ctrl-F is pressed, not if clicked by mouse.
         {
             ImGuiInputTextFlags inputTextFlags = ImGuiInputTextFlags_AutoSelectAll;
-            if( m_SetFilterBoxInFocus )
+            if( m_SetObjectListFilterBoxInFocus )
             {
                 //inputTextFlags |= ImGuiInputTextFlags_AutoSelectAll;
                 ImGui::SetKeyboardFocusHere();
-                m_SetFilterBoxInFocus = false;
+                m_SetObjectListFilterBoxInFocus = false;
             }
             ImGui::InputText( "Filter", m_ObjectListFilter, 100, inputTextFlags );
             ImGui::SameLine();
@@ -1067,7 +1071,7 @@ void EditorMainFrame_ImGui::AddGameObjectToObjectList(GameObject* pGameObject)
     {
         if( m_ObjectListFilter[0] != 0 )
         {
-            if( CheckIfMultipleSubstringsAreInString( pGameObject->GetName(), m_ObjectListFilter ) == 0 )
+            if( CheckIfMultipleSubstringsAreInString( pGameObject->GetName(), m_ObjectListFilter ) == false )
             {
                 return;
             }
@@ -1083,6 +1087,7 @@ void EditorMainFrame_ImGui::AddGameObjectToObjectList(GameObject* pGameObject)
             nodeFlags |= ImGuiTreeNodeFlags_Selected;
         }
 
+        // Add the GameObject itself to the tree.
         bool treeNodeIsOpen = ImGui::TreeNodeEx( pGameObject, nodeFlags, pGameObject->GetName() );
 
         ImGui::PushID( pGameObject );
@@ -1192,9 +1197,53 @@ void EditorMainFrame_ImGui::AddGameObjectToObjectList(GameObject* pGameObject)
             }
             ImGui::EndPopup();
         }
-        ImGui::PopID();
 
-        if( ImGui::IsItemClicked() )
+        if( ImGui::BeginDragDropSource() )
+        {
+            ImGui::SetDragDropPayload( "GameObject", &pGameObject, sizeof(pGameObject), ImGuiCond_Once );
+            ImGui::Text( "%s", pGameObject->GetName() );
+            ImGui::Text( "Hold CTRL to reparent." );
+            ImGui::EndDragDropSource();
+        }
+
+        if( ImGui::BeginDragDropTarget() )
+        {
+            if( const ImGuiPayload* payload = ImGui::AcceptDragDropPayload( "GameObject" ) )
+            {
+                g_DragAndDropStruct.Clear();
+
+                GameObject* pDroppedGO = (GameObject*)*(void**)payload->Data;
+                if( pEditorState->IsGameObjectSelected( pDroppedGO ) == false )
+                {
+                    // If this GameObject wasn't selected, then only move this one.
+                    g_DragAndDropStruct.Add( DragAndDropType_GameObjectPointer, pDroppedGO );
+                }
+                else
+                {
+                    // If it was selected, move all selected objects.
+                    for( unsigned int i=0; i<pEditorState->m_pSelectedObjects.size(); i++ )
+                    {
+                        g_DragAndDropStruct.Add( DragAndDropType_GameObjectPointer, pEditorState->m_pSelectedObjects[i] );
+                    }
+                }
+
+                if( ImGui::GetIO().KeyCtrl == false )
+                {
+                    pGameObject->OnDrop( -1, -1, -1, GameObject::GameObjectOnDropAction_Reorder );
+                }
+                else
+                {
+                    pGameObject->OnDrop( -1, -1, -1, GameObject::GameObjectOnDropAction_Reparent );
+                }
+            }
+            ImGui::EndDragDropTarget();
+        }
+
+        ImGui::PopID(); // ImGui::PushID( pGameObject );
+
+        if( ImGui::IsMouseReleased( 0 ) && ImGui::IsItemHovered( ImGuiHoveredFlags_Default ) )
+        //if( ImGui::IsMouseClicked( 0 ) && ImGui::IsItemHovered( ImGuiHoveredFlags_Default ) )
+        //if( ImGui::IsItemClicked() )
         {
             if( ImGui::GetIO().KeyCtrl == false )
             {
@@ -1438,71 +1487,101 @@ void EditorMainFrame_ImGui::AddLogWindow()
 void EditorMainFrame_ImGui::AddMemoryPanel()
 {
     ImGui::SetNextWindowPos( ImVec2(853, 424), ImGuiCond_FirstUseEver );
-    if( ImGui::Begin( "Memory", 0, ImVec2(334, 220) ) )
+    if( ImGui::Begin( "Resources", 0, ImVec2(334, 220) ) )
     {
-        for( int i=0; i<PanelMemoryPage_NumTypes; i++ )
+        // Add an input box for memory panel filter.
+        // For now, it will always auto-select the text when given focus.
+        // TODO: Only auto-select when Ctrl-F is pressed, not if clicked by mouse.
         {
-            if( i > 0 && i != 4 )
-                ImGui::SameLine();
-            
-            if( m_CurrentMemoryPanelPage == i )
+            ImGuiInputTextFlags inputTextFlags = ImGuiInputTextFlags_AutoSelectAll;
+            if( m_SetMemoryPanelFilterBoxInFocus )
             {
-                ImGui::PushStyleColor( ImGuiCol_Button, (ImVec4)ImColor::HSV(0.3f, 0.6f, 0.6f) );
-                if( ImGui::SmallButton( g_PanelMemoryPagesMenuLabels[i] ) )
-                    m_CurrentMemoryPanelPage = i;
-                ImGui::PopStyleColor(1);
+                //inputTextFlags |= ImGuiInputTextFlags_AutoSelectAll;
+                ImGui::SetKeyboardFocusHere();
+                m_SetMemoryPanelFilterBoxInFocus = false;
             }
-            else
+            ImGui::InputText( "Filter", m_MemoryPanelFilter, 100, inputTextFlags );
+            ImGui::SameLine();
+            if( ImGui::Button( "X" ) )
             {
-                if( ImGui::SmallButton( g_PanelMemoryPagesMenuLabels[i] ) )
-                    m_CurrentMemoryPanelPage = i;
+                m_MemoryPanelFilter[0] = 0;
             }
         }
 
-        switch( m_CurrentMemoryPanelPage )
+        // If a filter is set, show all types.
+        if( m_MemoryPanelFilter[0] != 0 )
         {
-        case PanelMemoryPage_Materials:
+            AddMemoryPanel_Materials();
+            AddMemoryPanel_Textures();
+            AddMemoryPanel_ShaderGroups();
+            AddMemoryPanel_Files();
+        }
+        else
+        {
+            for( int i=0; i<PanelMemoryPage_NumTypes; i++ )
             {
-                AddMemoryPanel_Materials();
+                if( i > 0 && i != 4 )
+                    ImGui::SameLine();
+            
+                if( m_CurrentMemoryPanelPage == i )
+                {
+                    ImGui::PushStyleColor( ImGuiCol_Button, (ImVec4)ImColor::HSV(0.3f, 0.6f, 0.6f) );
+                    if( ImGui::SmallButton( g_PanelMemoryPagesMenuLabels[i] ) )
+                        m_CurrentMemoryPanelPage = i;
+                    ImGui::PopStyleColor(1);
+                }
+                else
+                {
+                    if( ImGui::SmallButton( g_PanelMemoryPagesMenuLabels[i] ) )
+                        m_CurrentMemoryPanelPage = i;
+                }
             }
-            break;
 
-        case PanelMemoryPage_Textures:
+            switch( m_CurrentMemoryPanelPage )
             {
-                AddMemoryPanel_Textures();
-            }
-            break;
+            case PanelMemoryPage_Materials:
+                {
+                    AddMemoryPanel_Materials();
+                }
+                break;
 
-        case PanelMemoryPage_ShaderGroups:
-            {
-                AddMemoryPanel_ShaderGroups();
-            }
-            break;
+            case PanelMemoryPage_Textures:
+                {
+                    AddMemoryPanel_Textures();
+                }
+                break;
 
-        case PanelMemoryPage_SoundCues:
-            {
-            }
-            break;
+            case PanelMemoryPage_ShaderGroups:
+                {
+                    AddMemoryPanel_ShaderGroups();
+                }
+                break;
 
-        case PanelMemoryPage_Files:
-            {
-                AddMemoryPanel_Files();
-            }
-            break;
+            case PanelMemoryPage_SoundCues:
+                {
+                }
+                break;
 
-        case PanelMemoryPage_Buffers:
-            {
-            }
-            break;
+            case PanelMemoryPage_Files:
+                {
+                    AddMemoryPanel_Files();
+                }
+                break;
 
-        case PanelMemoryPage_DrawCalls:
-            {
-            }
-            break;
+            case PanelMemoryPage_Buffers:
+                {
+                }
+                break;
 
-        case PanelMemoryPage_NumTypes:
-            MyAssert( 0 );
-            break;
+            case PanelMemoryPage_DrawCalls:
+                {
+                }
+                break;
+
+            case PanelMemoryPage_NumTypes:
+                MyAssert( 0 );
+                break;
+            }
         }
     }
     ImGui::End();
@@ -1510,6 +1589,9 @@ void EditorMainFrame_ImGui::AddMemoryPanel()
 
 void EditorMainFrame_ImGui::AddMemoryPanel_Materials()
 {
+    // Only show the headers if the filter is blank
+    bool showHeaders = (m_MemoryPanelFilter[0] == 0);
+
     unsigned int numMaterialsShown = 0;
 
     m_pMaterialToPreview = 0;
@@ -1521,6 +1603,9 @@ void EditorMainFrame_ImGui::AddMemoryPanel_Materials()
         if( i == 1 )
             pMat = g_pMaterialManager->Editor_GetFirstMaterialLoaded();
 
+        if( pMat == 0 )
+            continue;
+
         ImGuiTreeNodeFlags baseNodeFlags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick;
 
         char* label = "Materials - Loading";
@@ -1531,7 +1616,7 @@ void EditorMainFrame_ImGui::AddMemoryPanel_Materials()
             nodeFlags |= ImGuiTreeNodeFlags_DefaultOpen;
         }
 
-        if( ImGui::TreeNodeEx( label, nodeFlags ) )
+        if( showHeaders == false || ImGui::TreeNodeEx( label, nodeFlags ) )
         {
             // TODO: Add folders for materials.
             //const char* foldername = pMat->GetFile()->GetNameOfDeepestFolderPath();
@@ -1573,68 +1658,85 @@ void EditorMainFrame_ImGui::AddMemoryPanel_Materials()
 
                     if( pFile )
                     {
-                        numMaterialsShown++;
-
                         const char* matName = pFile->GetFilenameWithoutExtension();
 
-                        if( ImGui::TreeNodeEx( matName, baseNodeFlags | ImGuiTreeNodeFlags_Leaf ) )
-                        {
-                            // TODO: Find a better answer than IsItemHovered().
-                            if( ImGui::IsItemHovered() && m_RenamePressedThisFrame )
-                            {
-                                m_pGameObjectWhoseNameIsBeingEdited = 0;
-                                m_pMaterialWhoseNameIsBeingEdited = pMat;
-                                strncpy_s( m_NameBeingEdited, matName, 100 );
-                            }
+                        numMaterialsShown++;
 
-                            if( ImGui::BeginPopupContextItem( "ContextPopup", 1 ) )
+                        bool showThisItem = true;
+
+                        if( m_MemoryPanelFilter[0] != 0 )
+                        {
+                            if( CheckIfMultipleSubstringsAreInString( matName, m_MemoryPanelFilter ) == false )
                             {
-                                if( ImGui::MenuItem( "Edit Material", 0, &m_IsMaterialEditorOpen ) ) { m_pMaterialBeingEdited = pMat; ImGui::CloseCurrentPopup(); }
-                                if( ImGui::MenuItem( "Unload File (TODO)" ) )                        { ImGui::CloseCurrentPopup(); }
-                                if( ImGui::MenuItem( "Find References" ) ) { g_pFileManager->Editor_FindAllReferences( pFile ); ImGui::CloseCurrentPopup(); } // (%d)", pMat->GetRefCount() ) {}
-                                if( ImGui::MenuItem( "Rename" ) )
+                                showThisItem = false;
+                            }
+                        }
+
+                        if( showThisItem )
+                        {
+                            if( ImGui::TreeNodeEx( matName, baseNodeFlags | ImGuiTreeNodeFlags_Leaf ) )
+                            {
+                                // TODO: Find a better answer than IsItemHovered().
+                                if( ImGui::IsItemHovered() && m_RenamePressedThisFrame )
                                 {
                                     m_pGameObjectWhoseNameIsBeingEdited = 0;
                                     m_pMaterialWhoseNameIsBeingEdited = pMat;
                                     strncpy_s( m_NameBeingEdited, matName, 100 );
-
-                                    ImGui::CloseCurrentPopup();
                                 }
-                                ImGui::EndPopup();
-                            }
 
-                            if( ImGui::IsItemHovered() )
-                            {
-                                if( ImGui::IsMouseDoubleClicked( 0 ) )
+                                if( ImGui::BeginPopupContextItem( "ContextPopup", 1 ) )
                                 {
-                                    m_IsMaterialEditorOpen = true;
-                                    m_pMaterialBeingEdited = pMat;
+                                    if( ImGui::MenuItem( "Edit Material", 0, &m_IsMaterialEditorOpen ) ) { m_pMaterialBeingEdited = pMat; ImGui::CloseCurrentPopup(); }
+                                    if( ImGui::MenuItem( "Unload File (TODO)" ) )                        { ImGui::CloseCurrentPopup(); }
+                                    if( ImGui::MenuItem( "Find References" ) ) { g_pFileManager->Editor_FindAllReferences( pFile ); ImGui::CloseCurrentPopup(); } // (%d)", pMat->GetRefCount() ) {}
+                                    if( ImGui::MenuItem( "Rename" ) )
+                                    {
+                                        m_pGameObjectWhoseNameIsBeingEdited = 0;
+                                        m_pMaterialWhoseNameIsBeingEdited = pMat;
+                                        strncpy_s( m_NameBeingEdited, matName, 100 );
+
+                                        ImGui::CloseCurrentPopup();
+                                    }
+                                    ImGui::EndPopup();
                                 }
 
-                                ImGui::BeginTooltip();
-                                m_pMaterialToPreview = pMat;
-                                ImGui::Text( "%s", m_pMaterialToPreview->GetName() );
-                                AddMaterialPreview( false, ImVec2( 100, 100 ), ImVec4( 1, 1, 1, 1 ) );
-                                ImGui::EndTooltip();
-                            }
+                                if( ImGui::IsItemHovered() )
+                                {
+                                    if( ImGui::IsMouseDoubleClicked( 0 ) )
+                                    {
+                                        m_IsMaterialEditorOpen = true;
+                                        m_pMaterialBeingEdited = pMat;
+                                    }
 
-                            if( ImGui::BeginDragDropSource() )
-                            {
-                                ImGui::SetDragDropPayload( "Material", &pMat, sizeof(pMat), ImGuiCond_Once );
-                                m_pMaterialToPreview = pMat;
-                                ImGui::Text( "%s", m_pMaterialToPreview->GetName() );
-                                AddMaterialPreview( false, ImVec2( 100, 100 ), ImVec4( 1, 1, 1, 0.5f ) );
-                                ImGui::EndDragDropSource();
-                            }
+                                    ImGui::BeginTooltip();
+                                    m_pMaterialToPreview = pMat;
+                                    ImGui::Text( "%s", m_pMaterialToPreview->GetName() );
+                                    AddMaterialPreview( false, ImVec2( 100, 100 ), ImVec4( 1, 1, 1, 1 ) );
+                                    ImGui::EndTooltip();
+                                }
 
-                            ImGui::TreePop();
+                                if( ImGui::BeginDragDropSource() )
+                                {
+                                    ImGui::SetDragDropPayload( "Material", &pMat, sizeof(pMat), ImGuiCond_Once );
+                                    m_pMaterialToPreview = pMat;
+                                    ImGui::Text( "%s", m_pMaterialToPreview->GetName() );
+                                    AddMaterialPreview( false, ImVec2( 100, 100 ), ImVec4( 1, 1, 1, 0.5f ) );
+                                    ImGui::EndDragDropSource();
+                                }
+
+                                ImGui::TreePop();
+                            }
                         }
                     }
                 }
 
                 pMat = (MaterialDefinition*)pMat->GetNext();
             }
-            ImGui::TreePop();
+
+            if( showHeaders )
+            {
+                ImGui::TreePop();
+            }
         }
     }
 
@@ -1646,6 +1748,9 @@ void EditorMainFrame_ImGui::AddMemoryPanel_Materials()
 
 void EditorMainFrame_ImGui::AddMemoryPanel_Textures()
 {
+    // Only show the headers if the filter is blank
+    bool showHeaders = (m_MemoryPanelFilter[0] == 0);
+
     unsigned int numTexturesShown = 0;
 
     for( int i=0; i<2; i++ )
@@ -1662,7 +1767,7 @@ void EditorMainFrame_ImGui::AddMemoryPanel_Textures()
             if( i == 1 )
                 label = "All Textures";
 
-            if( ImGui::TreeNodeEx( label, baseNodeFlags | ImGuiTreeNodeFlags_DefaultOpen ) )
+            if( showHeaders == false || ImGui::TreeNodeEx( label, baseNodeFlags | ImGuiTreeNodeFlags_DefaultOpen ) )
             {
                 while( pTex )
                 {
@@ -1672,38 +1777,55 @@ void EditorMainFrame_ImGui::AddMemoryPanel_Textures()
                     {
                         numTexturesShown++;
 
-                        if( ImGui::TreeNodeEx( pTex->GetFilename(), ImGuiTreeNodeFlags_Leaf | baseNodeFlags ) )
+                        bool showThisItem = true;
+
+                        if( m_MemoryPanelFilter[0] != 0 )
                         {
-                            if( ImGui::BeginPopupContextItem( "ContextPopup", 1 ) )
+                            if( CheckIfMultipleSubstringsAreInString( pTex->GetFilename(), m_MemoryPanelFilter ) == false )
                             {
-                                if( ImGui::MenuItem( "Unload File (TODO)" ) )     { ImGui::CloseCurrentPopup(); }
-                                if( ImGui::MenuItem( "Find References" ) ){ if( pFile ) g_pFileManager->Editor_FindAllReferences( pFile ); ImGui::CloseCurrentPopup(); } ;// (%d)", pMat->GetRefCount() ) {}
-                                ImGui::EndPopup();
+                                showThisItem = false;
                             }
+                        }
 
-                            if( ImGui::IsItemHovered() )
+                        if( showThisItem )
+                        {
+                            if( ImGui::TreeNodeEx( pTex->GetFilename(), ImGuiTreeNodeFlags_Leaf | baseNodeFlags ) )
                             {
-                                ImGui::BeginTooltip();
-                                //ImGui::Text( "%s", pTex->GetFilename() );
-                                AddTexturePreview( false, pTex, ImVec2( 100, 100 ), ImVec4( 1, 1, 1, 1 ) );
-                                ImGui::EndTooltip();
-                            }
+                                if( ImGui::BeginPopupContextItem( "ContextPopup", 1 ) )
+                                {
+                                    if( ImGui::MenuItem( "Unload File (TODO)" ) )     { ImGui::CloseCurrentPopup(); }
+                                    if( ImGui::MenuItem( "Find References" ) ){ if( pFile ) g_pFileManager->Editor_FindAllReferences( pFile ); ImGui::CloseCurrentPopup(); } ;// (%d)", pMat->GetRefCount() ) {}
+                                    ImGui::EndPopup();
+                                }
 
-                            if( ImGui::BeginDragDropSource() )
-                            {
-                                ImGui::SetDragDropPayload( "Texture", &pTex, sizeof(pTex), ImGuiCond_Once );
-                                //ImGui::Text( "%s", pTex->GetFilename() );
-                                AddTexturePreview( false, pTex, ImVec2( 100, 100 ), ImVec4( 1, 1, 1, 1 ) );
-                                ImGui::EndDragDropSource();
-                            }
+                                if( ImGui::IsItemHovered() )
+                                {
+                                    ImGui::BeginTooltip();
+                                    //ImGui::Text( "%s", pTex->GetFilename() );
+                                    AddTexturePreview( false, pTex, ImVec2( 100, 100 ), ImVec4( 1, 1, 1, 1 ) );
+                                    ImGui::EndTooltip();
+                                }
 
-                            ImGui::TreePop();
+                                if( ImGui::BeginDragDropSource() )
+                                {
+                                    ImGui::SetDragDropPayload( "Texture", &pTex, sizeof(pTex), ImGuiCond_Once );
+                                    //ImGui::Text( "%s", pTex->GetFilename() );
+                                    AddTexturePreview( false, pTex, ImVec2( 100, 100 ), ImVec4( 1, 1, 1, 1 ) );
+                                    ImGui::EndDragDropSource();
+                                }
+
+                                ImGui::TreePop();
+                            }
                         }
                     }
 
                     pTex = (TextureDefinition*)pTex->GetNext();
                 }
-                ImGui::TreePop();
+
+                if( showHeaders )
+                {
+                    ImGui::TreePop();
+                }
             }
         }
     }
@@ -1716,6 +1838,9 @@ void EditorMainFrame_ImGui::AddMemoryPanel_Textures()
 
 void EditorMainFrame_ImGui::AddMemoryPanel_ShaderGroups()
 {
+    // Only show the headers if the filter is blank
+    bool showHeaders = (m_MemoryPanelFilter[0] == 0);
+
     unsigned int numShadersShown = 0;
 
     {
@@ -1725,7 +1850,7 @@ void EditorMainFrame_ImGui::AddMemoryPanel_ShaderGroups()
         {
             ImGuiTreeNodeFlags baseNodeFlags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick;
 
-            if( ImGui::TreeNodeEx( "All Shaders", baseNodeFlags | ImGuiTreeNodeFlags_DefaultOpen ) )
+            if( showHeaders == false || ImGui::TreeNodeEx( "All Shaders", baseNodeFlags | ImGuiTreeNodeFlags_DefaultOpen ) )
             {
                 while( pShaderGroup )
                 {
@@ -1736,31 +1861,48 @@ void EditorMainFrame_ImGui::AddMemoryPanel_ShaderGroups()
                         {
                             numShadersShown++;
 
-                            if( ImGui::TreeNodeEx( pFile->GetFilenameWithoutExtension(), ImGuiTreeNodeFlags_Leaf | baseNodeFlags ) )
+                            bool showThisItem = true;
+
+                            if( m_MemoryPanelFilter[0] != 0 )
                             {
-                                if( ImGui::BeginPopupContextItem( "ContextPopup", 1 ) )
+                                if( CheckIfMultipleSubstringsAreInString( pFile->GetFilenameWithoutExtension(), m_MemoryPanelFilter ) == false )
                                 {
-                                    if( ImGui::MenuItem( "Open File (TODO)" ) )   { ImGui::CloseCurrentPopup(); }
-                                    if( ImGui::MenuItem( "Unload File (TODO)" ) ) { ImGui::CloseCurrentPopup(); }
-                                    if( ImGui::MenuItem( "Find References" ) )    { g_pFileManager->Editor_FindAllReferences( pFile ); ImGui::CloseCurrentPopup(); } ;// (%d)", pMat->GetRefCount() ) {}
-                                    ImGui::EndPopup();
+                                    showThisItem = false;
                                 }
+                            }
 
-                                if( ImGui::BeginDragDropSource() )
+                            if( showThisItem )
+                            {
+                                if( ImGui::TreeNodeEx( pFile->GetFilenameWithoutExtension(), ImGuiTreeNodeFlags_Leaf | baseNodeFlags ) )
                                 {
-                                    ImGui::SetDragDropPayload( "ShaderGroup", &pShaderGroup, sizeof(pShaderGroup), ImGuiCond_Once );
-                                    ImGui::Text( "%s", pFile->GetFullPath() );
-                                    ImGui::EndDragDropSource();
-                                }
+                                    if( ImGui::BeginPopupContextItem( "ContextPopup", 1 ) )
+                                    {
+                                        if( ImGui::MenuItem( "Open File (TODO)" ) )   { ImGui::CloseCurrentPopup(); }
+                                        if( ImGui::MenuItem( "Unload File (TODO)" ) ) { ImGui::CloseCurrentPopup(); }
+                                        if( ImGui::MenuItem( "Find References" ) )    { g_pFileManager->Editor_FindAllReferences( pFile ); ImGui::CloseCurrentPopup(); } ;// (%d)", pMat->GetRefCount() ) {}
+                                        ImGui::EndPopup();
+                                    }
 
-                                ImGui::TreePop();
+                                    if( ImGui::BeginDragDropSource() )
+                                    {
+                                        ImGui::SetDragDropPayload( "ShaderGroup", &pShaderGroup, sizeof(pShaderGroup), ImGuiCond_Once );
+                                        ImGui::Text( "%s", pFile->GetFullPath() );
+                                        ImGui::EndDragDropSource();
+                                    }
+
+                                    ImGui::TreePop();
+                                }
                             }
                         }
                     }
 
                     pShaderGroup = (ShaderGroup*)pShaderGroup->GetNext();
                 }
-                ImGui::TreePop();
+
+                if( showHeaders )
+                {
+                    ImGui::TreePop();
+                }
             }
         }
     }
@@ -1773,6 +1915,9 @@ void EditorMainFrame_ImGui::AddMemoryPanel_ShaderGroups()
 
 void EditorMainFrame_ImGui::AddMemoryPanel_Files()
 {
+    // Only show the headers if the filter is blank
+    bool showHeaders = (m_MemoryPanelFilter[0] == 0);
+
     unsigned int numFilesShown = 0;
 
     // TODO: Don't do this every frame.
@@ -1792,7 +1937,7 @@ void EditorMainFrame_ImGui::AddMemoryPanel_Files()
             if( i == 1 )
                 label = "All Files";
 
-            if( ImGui::TreeNodeEx( label, baseNodeFlags | ImGuiTreeNodeFlags_DefaultOpen ) )
+            if( showHeaders == false || ImGui::TreeNodeEx( label, baseNodeFlags | ImGuiTreeNodeFlags_DefaultOpen ) )
             {
                 const char* previousFileType = 0;
                 bool fileTypeOpen = false;
@@ -1806,34 +1951,53 @@ void EditorMainFrame_ImGui::AddMemoryPanel_Files()
                         {
                             if( fileTypeOpen && previousFileType != 0 )
                             {
-                                ImGui::TreePop(); // "File Type"
+                                if( showHeaders )
+                                {
+                                    ImGui::TreePop(); // "File Type"
+                                }
                             }
 
                             previousFileType = pFile->GetExtensionWithDot();
 
-                            fileTypeOpen = ImGui::TreeNodeEx( previousFileType, baseNodeFlags );
+                            if( showHeaders )
+                            {
+                                fileTypeOpen = ImGui::TreeNodeEx( previousFileType, baseNodeFlags );
+                            }
                         }
 
                         if( fileTypeOpen )
                         {
-                            if( ImGui::TreeNodeEx( pFile->GetFilenameWithoutExtension(), ImGuiTreeNodeFlags_Leaf | baseNodeFlags ) )
+                            bool showThisItem = true;
+
+                            if( m_MemoryPanelFilter[0] != 0 )
                             {
-                                if( ImGui::BeginPopupContextItem( "ContextPopup", 1 ) )
+                                if( CheckIfMultipleSubstringsAreInString( pFile->GetFilenameWithoutExtension(), m_MemoryPanelFilter ) == false )
                                 {
-                                    if( ImGui::MenuItem( "Open File (TODO)" ) )       { ImGui::CloseCurrentPopup(); }
-                                    if( ImGui::MenuItem( "Unload File (TODO)" ) )     { ImGui::CloseCurrentPopup(); }
-                                    if( ImGui::MenuItem( "Find References" ) ) { g_pFileManager->Editor_FindAllReferences( pFile ); ImGui::CloseCurrentPopup(); } ;// (%d)", pMat->GetRefCount() ) {}
-                                    ImGui::EndPopup();
+                                    showThisItem = false;
                                 }
+                            }
 
-                                if( ImGui::BeginDragDropSource() )
+                            if( showThisItem )
+                            {
+                                if( ImGui::TreeNodeEx( pFile->GetFilenameWithoutExtension(), ImGuiTreeNodeFlags_Leaf | baseNodeFlags ) )
                                 {
-                                    ImGui::SetDragDropPayload( "File", &pFile, sizeof(pFile), ImGuiCond_Once );
-                                    ImGui::Text( "%s", pFile->GetFullPath() );
-                                    ImGui::EndDragDropSource();
-                                }
+                                    if( ImGui::BeginPopupContextItem( "ContextPopup", 1 ) )
+                                    {
+                                        if( ImGui::MenuItem( "Open File (TODO)" ) )       { ImGui::CloseCurrentPopup(); }
+                                        if( ImGui::MenuItem( "Unload File (TODO)" ) )     { ImGui::CloseCurrentPopup(); }
+                                        if( ImGui::MenuItem( "Find References" ) ) { g_pFileManager->Editor_FindAllReferences( pFile ); ImGui::CloseCurrentPopup(); } ;// (%d)", pMat->GetRefCount() ) {}
+                                        ImGui::EndPopup();
+                                    }
 
-                                ImGui::TreePop();
+                                    if( ImGui::BeginDragDropSource() )
+                                    {
+                                        ImGui::SetDragDropPayload( "File", &pFile, sizeof(pFile), ImGuiCond_Once );
+                                        ImGui::Text( "%s", pFile->GetFullPath() );
+                                        ImGui::EndDragDropSource();
+                                    }
+
+                                    ImGui::TreePop();
+                                }
                             }
                         }
                     }
@@ -1843,10 +2007,16 @@ void EditorMainFrame_ImGui::AddMemoryPanel_Files()
 
                 if( fileTypeOpen && previousFileType != 0 )
                 {
-                    ImGui::TreePop(); // "File Type"
+                    if( showHeaders )
+                    {
+                        ImGui::TreePop(); // "File Type"
+                    }
                 }
 
-                ImGui::TreePop(); // "All Files"
+                if( showHeaders )
+                {
+                    ImGui::TreePop(); // "All Files"
+                }
             }
         }
     }

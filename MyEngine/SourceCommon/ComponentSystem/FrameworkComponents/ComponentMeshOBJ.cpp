@@ -151,7 +151,7 @@ void ComponentMeshOBJ::FillPropertiesWindow(bool clear, bool addcomponentvariabl
 
 void* ComponentMeshOBJ::OnDropOBJ(ComponentVariable* pVar, int x, int y)
 {
-    void* oldpointer = 0;
+    void* oldPointer = 0;
 
     DragAndDropItem* pDropItem = g_DragAndDropStruct.GetItem( 0 );
 
@@ -167,7 +167,7 @@ void* ComponentMeshOBJ::OnDropOBJ(ComponentVariable* pVar, int x, int y)
         if( strcmp( filenameext, ".obj" ) == 0 )
         {
             if( m_pMesh )
-                oldpointer = m_pMesh->GetFile();
+                oldPointer = m_pMesh->GetFile();
 
             SetPointerValue( pVar, pNewFile );
 
@@ -178,7 +178,7 @@ void* ComponentMeshOBJ::OnDropOBJ(ComponentVariable* pVar, int x, int y)
         if( strcmp( filenameext, ".mymesh" ) == 0 )
         {
             if( m_pMesh )
-                oldpointer = m_pMesh->GetFile();
+                oldPointer = m_pMesh->GetFile();
 
             SetPointerValue( pVar, pNewFile );
 
@@ -191,7 +191,7 @@ void* ComponentMeshOBJ::OnDropOBJ(ComponentVariable* pVar, int x, int y)
 #endif //MYFW_USING_WX
     }
 
-    return oldpointer;
+    return oldPointer;
 }
 
 void* ComponentMeshOBJ::OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue* pNewValue)

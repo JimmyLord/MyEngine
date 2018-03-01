@@ -152,6 +152,13 @@ public:
 
 public:
 #if MYFW_EDITOR
+    enum GameObjectOnDropActions
+    {
+        GameObjectOnDropAction_Default,
+        GameObjectOnDropAction_Reorder,
+        GameObjectOnDropAction_Reparent,
+    };
+
 #if MYFW_USING_WX
     enum RightClickOptions
     {
@@ -184,8 +191,10 @@ public:
     static void StaticOnDrag(void* pObjectPtr) { ((GameObject*)pObjectPtr)->OnDrag(); }
     void OnDrag();
 
-    static void StaticOnDrop(void* pObjectPtr, wxTreeItemId id, int controlid, int x, int y) { ((GameObject*)pObjectPtr)->OnDrop(controlid, x, y); }
-    void OnDrop(int controlid, int x, int y);
+    static void StaticOnDrop(void* pObjectPtr, wxTreeItemId id, int controlid, int x, int y) { ((GameObject*)pObjectPtr)->OnDrop(controlid, x, y, GameObjectOnDropAction_Default); }
+#endif //MYFW_USING_WX
+    void OnDrop(int controlid, int x, int y, GameObjectOnDropActions action);
+#if MYFW_USING_WX
 
     static void StaticOnLabelEdit(void* pObjectPtr, wxTreeItemId id, wxString newlabel) { ((GameObject*)pObjectPtr)->OnLabelEdit( newlabel ); }
     void OnLabelEdit(wxString newlabel);

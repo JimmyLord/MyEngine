@@ -229,17 +229,19 @@ void ComponentVoxelWorld::FillPropertiesWindow(bool clear, bool addcomponentvari
 
 void* ComponentVoxelWorld::OnDrop(ComponentVariable* pVar, int x, int y)
 {
-    void* oldvalue = 0;
+    void* oldPointer = 0;
 
     DragAndDropItem* pDropItem = g_DragAndDropStruct.GetItem( 0 );
 
     if( pDropItem->m_Type == DragAndDropType_ComponentPointer )
     {
+        //oldPointer = old component;
         //(ComponentRenderable*)pDropItem->m_Value;
     }
 
     if( pDropItem->m_Type == DragAndDropType_GameObjectPointer )
     {
+        //oldPointer = old GameObject;
         //(GameObject*)pDropItem->m_Value;
     }
 
@@ -248,7 +250,7 @@ void* ComponentVoxelWorld::OnDrop(ComponentVariable* pVar, int x, int y)
         MaterialDefinition* pMaterial = (MaterialDefinition*)pDropItem->m_Value;
         MyAssert( pMaterial );
 
-        oldvalue = m_pMaterial;
+        oldPointer = m_pMaterial;
         SetVoxelMeshMaterial( pMaterial );
 
 #if MYFW_USING_WX
@@ -259,7 +261,7 @@ void* ComponentVoxelWorld::OnDrop(ComponentVariable* pVar, int x, int y)
 #endif //MYFW_USING_WX
     }
 
-    return oldvalue;
+    return oldPointer;
 }
 
 void* ComponentVoxelWorld::OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue* pNewValue)

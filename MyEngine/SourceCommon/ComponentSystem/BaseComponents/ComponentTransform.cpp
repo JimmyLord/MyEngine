@@ -202,10 +202,12 @@ void ComponentTransform::FillPropertiesWindow(bool clear, bool addcomponentvaria
             FillPropertiesWindowWithVariables(); //_VARIABLE_LIST
     }
 }
+#endif //MYFW_USING_WX
 
+#if MYFW_EDITOR
 void* ComponentTransform::OnDropTransform(ComponentVariable* pVar, int x, int y)
 {
-    void* oldvalue = 0;
+    void* oldPointer = 0;
 
     ComponentTransform* pComponent = 0;
 
@@ -228,19 +230,29 @@ void* ComponentTransform::OnDropTransform(ComponentVariable* pVar, int x, int y)
 
         if( pComponent->IsA( "TransformComponent" ) )
         {
-            oldvalue = this->m_pParentTransform;
+            if( pDropItem->m_Type == DragAndDropType_ComponentPointer )
+            {
+                oldPointer = this->m_pParentTransform;
+            }
+
+            if( pDropItem->m_Type == DragAndDropType_GameObjectPointer )
+            {
+                if( this->m_pParentTransform )
+                    oldPointer = this->m_pParentTransform->m_pGameObject;
+            }
+
             this->m_pGameObject->SetParentGameObject( pComponent->m_pGameObject );
         }
 
+#if MYFW_USING_WX
         // update the panel so new OBJ name shows up.
         g_pPanelWatch->GetVariableProperties( g_DragAndDropStruct.GetControlID() )->m_Description = m_pParentTransform->m_pGameObject->GetName();
+#endif //MYFW_USING_WX
     }
 
-    return oldvalue;
+    return oldPointer;
 }
-#endif //MYFW_USING_WX
 
-#if MYFW_EDITOR
 void* ComponentTransform::OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue* pNewValue)
 {
     void* oldpointer = 0;

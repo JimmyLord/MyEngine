@@ -385,7 +385,7 @@ void ComponentLuaScript::OnPopupClick(wxEvent &evt)
 
 void* ComponentLuaScript::OnDrop(ComponentVariable* pVar, int x, int y)
 {
-    void* oldvalue = 0;
+    void* oldPointer = 0;
 
     DragAndDropItem* pDropItem = g_DragAndDropStruct.GetItem( 0 );
 
@@ -396,7 +396,7 @@ void* ComponentLuaScript::OnDrop(ComponentVariable* pVar, int x, int y)
 
         if( strcmp( pFile->GetExtensionWithDot(), ".lua" ) == 0 )
         {
-            oldvalue = m_pScriptFile;
+            oldPointer = m_pScriptFile;
 
             // TODO: Add an undo command.
             SetScriptFile( pFile );
@@ -409,7 +409,7 @@ void* ComponentLuaScript::OnDrop(ComponentVariable* pVar, int x, int y)
         }
     }
 
-    return oldvalue;
+    return oldPointer;
 }
 
 void* ComponentLuaScript::OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue* pNewValue)

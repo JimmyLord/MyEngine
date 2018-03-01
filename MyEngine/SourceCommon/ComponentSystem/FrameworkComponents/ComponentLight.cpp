@@ -117,15 +117,16 @@ void ComponentLight::FillPropertiesWindow(bool clear, bool addcomponentvariables
 
 void* ComponentLight::OnDrop(ComponentVariable* pVar, int x, int y)
 {
-    void* oldpointer = 0;
+    void* oldPointer = 0;
 
     //DragAndDropItem* pDropItem = g_DragAndDropStruct.GetItem( 0 );
 
     //if( pDropItem->m_Type == DragAndDropType_ComponentPointer )
     //{
+    //    oldPointer = old component;
     //}
 
-    return oldpointer;
+    return oldPointer;
 }
 
 void* ComponentLight::OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue* pNewValue)

@@ -117,14 +117,14 @@ void ComponentAudioPlayer::FillPropertiesWindow(bool clear, bool addcomponentvar
 
 void* ComponentAudioPlayer::OnDrop(ComponentVariable* pVar, int x, int y)
 {
-    void* oldvalue = 0;
+    void* oldPointer = 0;
 
     DragAndDropItem* pDropItem = g_DragAndDropStruct.GetItem( 0 );
 
     if( pDropItem->m_Type == DragAndDropType_SoundCuePointer )
     {
         // Untested, but undo should now be created in ComponentBase.
-        oldvalue = GetSoundCue();
+        oldPointer = GetSoundCue();
         SetSoundCue( (SoundCue*)pDropItem->m_Value );
 
 #if MYFW_USING_WX
@@ -137,15 +137,17 @@ void* ComponentAudioPlayer::OnDrop(ComponentVariable* pVar, int x, int y)
 
     //if( pDropItem->m_Type == DragAndDropType_ComponentPointer )
     //{
+    //    oldPointer = old component;
     //    (ComponentBase*)pDropItem->m_Value;
     //}
 
     //if( pDropItem->m_Type == DragAndDropType_GameObjectPointer )
     //{
+    //    oldPointer = old GameObject;
     //    (GameObject*)pDropItem->m_Value;
     //}
 
-    return oldvalue;
+    return oldPointer;
 }
 
 void* ComponentAudioPlayer::OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue* pNewValue)

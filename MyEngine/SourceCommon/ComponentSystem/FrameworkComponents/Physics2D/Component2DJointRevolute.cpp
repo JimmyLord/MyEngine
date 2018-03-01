@@ -52,15 +52,9 @@ Component2DJointRevolute::~Component2DJointRevolute()
 
 void Component2DJointRevolute::RegisterVariables(CPPListHead* pList, Component2DJointRevolute* pThis) //_VARIABLE_LIST
 {
-#if MYFW_USING_WX
     AddVar( pList, "SecondCollisionObject", ComponentVariableType_ComponentPtr,
         MyOffsetOf( pThis, &pThis->m_pSecondCollisionObject ), true, true, 0,
         (CVarFunc_ValueChanged)&Component2DJointRevolute::OnValueChanged, (CVarFunc_DropTarget)&Component2DJointRevolute::OnDrop, 0 );
-#else
-    AddVar( pList, "SecondCollisionObject", ComponentVariableType_ComponentPtr,
-        MyOffsetOf( pThis, &pThis->m_pSecondCollisionObject ), true, true, 0,
-        (CVarFunc_ValueChanged)&Component2DJointRevolute::OnValueChanged, 0, 0 );
-#endif
 
     AddVar( pList, "AnchorA", ComponentVariableType_Vector2, MyOffsetOf( pThis, &pThis->m_AnchorA ), true, true, 0, (CVarFunc_ValueChanged)&Component2DJointRevolute::OnValueChanged, 0, 0 );
     AddVar( pList, "AnchorB", ComponentVariableType_Vector2, MyOffsetOf( pThis, &pThis->m_AnchorB ), true, true, 0, (CVarFunc_ValueChanged)&Component2DJointRevolute::OnValueChanged, 0, 0 );
@@ -143,7 +137,7 @@ void Component2DJointRevolute::FillPropertiesWindow(bool clear, bool addcomponen
 
 void* Component2DJointRevolute::OnDrop(ComponentVariable* pVar, int x, int y)
 {
-    void* oldvalue = m_pSecondCollisionObject;
+    void* oldPointer = 0;
 
     DragAndDropItem* pDropItem = g_DragAndDropStruct.GetItem( 0 );
 
@@ -153,18 +147,23 @@ void* Component2DJointRevolute::OnDrop(ComponentVariable* pVar, int x, int y)
 
         if( pComponent->IsA( "2DCollisionObjectComponent" ) )
         {
+            oldPointer = m_pSecondCollisionObject;
+
             m_pSecondCollisionObject = (Component2DCollisionObject*)pComponent;
         }        
     }
 
     if( pDropItem->m_Type == DragAndDropType_GameObjectPointer )
     {
+        if( m_pSecondCollisionObject )
+            oldPointer = m_pSecondCollisionObject->m_pGameObject;
+
         GameObject* pGameObject = (GameObject*)pDropItem->m_Value;
 
         m_pSecondCollisionObject = pGameObject->Get2DCollisionObject();
     }
 
-    return oldvalue;
+    return oldPointer;
 }
 
 void* Component2DJointRevolute::OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue* pNewValue)

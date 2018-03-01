@@ -102,23 +102,23 @@ void ComponentTemplate::FillPropertiesWindow(bool clear, bool addcomponentvariab
 
 void* ComponentTemplate::OnDrop(ComponentVariable* pVar, int x, int y)
 {
-    void* oldpointer = 0;
+    void* oldPointer = 0;
 
     DragAndDropItem* pDropItem = g_DragAndDropStruct.GetItem( 0 );
 
     if( pDropItem->m_Type == DragAndDropType_ComponentPointer )
     {
-        //oldpointer = m_Value;
+        //oldPointer = old component;
         //m_Value = (ComponentBase*)pDropItem->m_Value;
     }
 
     if( pDropItem->m_Type == DragAndDropType_GameObjectPointer )
     {
-        //oldpointer = m_Value;
+        //oldPointer = old gameobject;
         //m_Value = (GameObject*)pDropItem->m_Value;
     }
 
-    return oldpointer;
+    return oldPointer;
 }
 
 void* ComponentTemplate::OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue* pNewValue)

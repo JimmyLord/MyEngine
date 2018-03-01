@@ -227,7 +227,7 @@ void ComponentMesh::OnExpandMaterialClicked(int controlid)
 
 void* ComponentMesh::OnDropMaterial(ComponentVariable* pVar, int x, int y)
 {
-    void* oldpointer = 0;
+    void* oldPointer = 0;
 
     DragAndDropItem* pDropItem = g_DragAndDropStruct.GetItem( 0 );
 
@@ -248,7 +248,7 @@ void* ComponentMesh::OnDropMaterial(ComponentVariable* pVar, int x, int y)
         {
             MaterialDefinition* pMaterial = (MaterialDefinition*)pDropItem->m_Value;
 
-            oldpointer = GetMaterial( materialthatchanged );
+            oldPointer = GetMaterial( materialthatchanged );
             SetMaterial( pMaterial, materialthatchanged );
             //g_pGameCore->GetCommandStack()->Do( MyNew EditorCommand_ChangeMaterialOnMesh( this, pVar, materialthatchanged, pMaterial ) );
 
@@ -265,7 +265,7 @@ void* ComponentMesh::OnDropMaterial(ComponentVariable* pVar, int x, int y)
         }
     }
 
-    return oldpointer;
+    return oldPointer;
 }
 
 void* ComponentMesh::OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue* pNewValue)

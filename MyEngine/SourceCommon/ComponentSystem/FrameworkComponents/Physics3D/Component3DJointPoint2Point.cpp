@@ -42,15 +42,9 @@ Component3DJointPoint2Point::~Component3DJointPoint2Point()
 
 void Component3DJointPoint2Point::RegisterVariables(CPPListHead* pList, Component3DJointPoint2Point* pThis) //_VARIABLE_LIST
 {
-#if MYFW_USING_WX
     AddVar( pList, "SecondCollisionObject", ComponentVariableType_ComponentPtr,
         MyOffsetOf( pThis, &pThis->m_pSecondCollisionObject ), true, true, 0,
         (CVarFunc_ValueChanged)&Component3DJointPoint2Point::OnValueChanged, (CVarFunc_DropTarget)&Component3DJointPoint2Point::OnDrop, 0 );
-#else
-    AddVar( pList, "SecondCollisionObject", ComponentVariableType_ComponentPtr,
-        MyOffsetOf( pThis, &pThis->m_pSecondCollisionObject ), true, true, 0,
-        (CVarFunc_ValueChanged)&Component3DJointPoint2Point::OnValueChanged, 0, 0 );
-#endif
 
     AddVar( pList, "PivotA", ComponentVariableType_Vector3, MyOffsetOf( pThis, &pThis->m_PivotA ), true, true, 0, (CVarFunc_ValueChanged)&Component3DJointPoint2Point::OnValueChanged, 0, 0 );
     AddVar( pList, "PivotB", ComponentVariableType_Vector3, MyOffsetOf( pThis, &pThis->m_PivotB ), true, true, 0, (CVarFunc_ValueChanged)&Component3DJointPoint2Point::OnValueChanged, 0, 0 );
@@ -119,7 +113,7 @@ void Component3DJointPoint2Point::FillPropertiesWindow(bool clear, bool addcompo
 
 void* Component3DJointPoint2Point::OnDrop(ComponentVariable* pVar, int x, int y)
 {
-    void* oldvalue = m_pSecondCollisionObject;
+    void* oldPointer = 0;
 
     DragAndDropItem* pDropItem = g_DragAndDropStruct.GetItem( 0 );
 
@@ -129,18 +123,23 @@ void* Component3DJointPoint2Point::OnDrop(ComponentVariable* pVar, int x, int y)
 
         if( pComponent->IsA( "3DCollisionObjectComponent" ) )
         {
+            oldPointer = m_pSecondCollisionObject;
+
             m_pSecondCollisionObject = (Component3DCollisionObject*)pComponent;
         }        
     }
 
     if( pDropItem->m_Type == DragAndDropType_GameObjectPointer )
     {
+        if( m_pSecondCollisionObject )
+            oldPointer = m_pSecondCollisionObject;
+
         GameObject* pGameObject = (GameObject*)pDropItem->m_Value;
 
         m_pSecondCollisionObject = pGameObject->Get3DCollisionObject();
     }
 
-    return oldvalue;
+    return oldPointer;
 }
 
 void* Component3DJointPoint2Point::OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue* pNewValue)

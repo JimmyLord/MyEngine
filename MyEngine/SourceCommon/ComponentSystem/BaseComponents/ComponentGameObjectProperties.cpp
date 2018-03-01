@@ -103,7 +103,7 @@ void ComponentGameObjectProperties::FillPropertiesWindow(bool clear, bool addcom
 
 void* ComponentGameObjectProperties::OnDrop(ComponentVariable* pVar, int x, int y)
 {
-    void* oldvalue = 0;
+    void* oldPointer = 0;
 
     DragAndDropItem* pDropItem = g_DragAndDropStruct.GetItem( 0 );
 
@@ -117,7 +117,7 @@ void* ComponentGameObjectProperties::OnDrop(ComponentVariable* pVar, int x, int 
         //(GameObject*)pDropItem->m_Value;
     }
 
-    return oldvalue;
+    return oldPointer;
 }
 
 void* ComponentGameObjectProperties::OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue* pNewValue)

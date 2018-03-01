@@ -189,21 +189,23 @@ bool Component2DCollisionObject::ShouldVariableBeAddedToWatchPanel(ComponentVari
 
 void* Component2DCollisionObject::OnDrop(ComponentVariable* pVar, int x, int y)
 {
-    void* oldvalue = 0;
+    void* oldPointer = 0;
 
     DragAndDropItem* pDropItem = g_DragAndDropStruct.GetItem( 0 );
 
     if( pDropItem->m_Type == DragAndDropType_ComponentPointer )
     {
+        // oldPointer = pointer to component.
         //(ComponentBase*)pDropItem->m_Value;
     }
 
     if( pDropItem->m_Type == DragAndDropType_GameObjectPointer )
     {
+        // oldPointer = pointer to gameobject.
         //(GameObject*)pDropItem->m_Value;
     }
 
-    return oldvalue;
+    return oldPointer;
 }
 
 void* Component2DCollisionObject::OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue* pNewValue)

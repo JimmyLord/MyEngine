@@ -30,8 +30,12 @@ protected:
     EditorLogWindow_ImGui* m_pLogWindow;
 
     // Object list filter.
-    bool m_SetFilterBoxInFocus;
+    bool m_SetObjectListFilterBoxInFocus;
     char m_ObjectListFilter[100];
+
+    // Memory panel filter.
+    bool m_SetMemoryPanelFilterBoxInFocus;
+    char m_MemoryPanelFilter[100];
 
     // For renaming things.
     bool m_RenamePressedThisFrame;
