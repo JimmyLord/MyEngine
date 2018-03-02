@@ -8,6 +8,8 @@
 // 3. This notice may not be removed or altered from any source distribution.
 
 #include "EngineCommonHeader.h"
+#include "../SourceCommon/GUI/ImGuiExtensions.h"
+#include "../SourceEditor/Editor_ImGui/ImGuiStylePrefs.h"
 
 EditorPrefs* g_pEditorPrefs = 0;
 
@@ -38,6 +40,10 @@ EditorPrefs::EditorPrefs()
 
     m_Mode_SwitchFocusOnPlayStop = true;
     m_Debug_DrawPhysicsDebugShapes = true;
+
+#if MYFW_USING_IMGUI
+    m_pImGuiStylePrefs = MyNew( ImGuiStylePrefs );
+#endif
 }
 
 EditorPrefs::~EditorPrefs()
@@ -45,6 +51,10 @@ EditorPrefs::~EditorPrefs()
     MyAssert( m_pSaveFile == 0 );
 
     cJSON_Delete( m_jEditorPrefs );
+
+#if MYFW_USING_IMGUI
+    delete m_pImGuiStylePrefs;
+#endif
 }
 
 void EditorPrefs::Init()
@@ -126,6 +136,10 @@ void EditorPrefs::LoadPrefs()
 
     cJSONExt_GetBool( m_jEditorPrefs, "Mode_SwitchFocusOnPlayStop", &m_Mode_SwitchFocusOnPlayStop );
     cJSONExt_GetBool( m_jEditorPrefs, "Debug_DrawPhysicsDebugShapes", &m_Debug_DrawPhysicsDebugShapes );
+
+#if MYFW_USING_IMGUI
+    m_pImGuiStylePrefs->LoadPrefs( m_jEditorPrefs );
+#endif
 }
 
 void EditorPrefs::LoadLastSceneLoaded()
@@ -241,6 +255,10 @@ cJSON* EditorPrefs::SaveStart()
 
         // Debug menu options
         cJSON_AddNumberToObject( jPrefs, "Debug_DrawPhysicsDebugShapes", m_Debug_DrawPhysicsDebugShapes );
+
+#if MYFW_USING_IMGUI
+        m_pImGuiStylePrefs->SavePrefs( jPrefs );
+#endif
 
         return jPrefs;
     }

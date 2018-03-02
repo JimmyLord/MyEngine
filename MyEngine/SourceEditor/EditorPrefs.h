@@ -12,6 +12,7 @@
 
 class EditorPrefs;
 class EngineCore;
+class ImGuiStylePrefs;
 
 extern EditorPrefs* g_pEditorPrefs;
 
@@ -83,6 +84,10 @@ protected:
     GridSettings m_GridSettings;
     bool m_Mode_SwitchFocusOnPlayStop;
     bool m_Debug_DrawPhysicsDebugShapes;
+
+#if MYFW_USING_IMGUI
+    ImGuiStylePrefs* m_pImGuiStylePrefs;
+#endif
 
 public:
     EditorPrefs();

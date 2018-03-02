@@ -51,4 +51,10 @@ ImGuiID GetLastItemId()
     return 0;
 }
 
+void SetStyleColorVec4(ImGuiCol idx, ImVec4& color)
+{ 
+    ImGuiStyle& style = GImGui->Style;
+    style.Colors[idx] = color;
+}
+
 }

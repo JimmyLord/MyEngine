@@ -60,6 +60,7 @@ extern "C"
 #endif //MYFW_USING_LUA
 
 // dear ImGui
+#include "GUI/ImGuiConfig.h"
 #include "../../Libraries/imgui/imgui.h"
 #include "GUI/ImGuiManager.h"
 
