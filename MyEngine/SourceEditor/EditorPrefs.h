@@ -131,6 +131,10 @@ public:
     void Toggle_Grid_SnapEnabled();
     void Toggle_Mode_SwitchFocusOnPlayStop() { m_Mode_SwitchFocusOnPlayStop = !m_Mode_SwitchFocusOnPlayStop; }
     void Toggle_Debug_DrawPhysicsDebugShapes() { m_Debug_DrawPhysicsDebugShapes = !m_Debug_DrawPhysicsDebugShapes; }
+
+#if MYFW_USING_IMGUI
+    ImGuiStylePrefs* GetImGuiStylePrefs() { return m_pImGuiStylePrefs; }
+#endif
 };
 
 #endif //__EditorPrefs_H__

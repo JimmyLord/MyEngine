@@ -9,6 +9,7 @@
 
 #include "EngineCommonHeader.h"
 #include "../EditorMenuCommands.h"
+#include "ImGuiStylePrefs.h"
 
 //====================================================================================================
 // Various enums and matching strings (some unused)
@@ -281,6 +282,7 @@ bool EditorMainFrame_ImGui::CheckForHotkeys(int keyaction, int keycode)
         if( N  && keycode == VK_F3 ) { ImGui::SetWindowFocus( "Objects" ); m_SetObjectListFilterBoxInFocus = true; return true; }
         if( C  && keycode == 'S' )   { EditorMenuCommand( EditorMenuCommand_File_SaveScene );            return true; }
         if( CS && keycode == 'E' )   { EditorMenuCommand( EditorMenuCommand_File_Export_Box2DScene );    return true; }
+        if( CS && keycode == 'P' )   { g_pEngineCore->GetEditorPrefs()->GetImGuiStylePrefs()->Display(); return true; }
         if( C  && keycode == 'Z' )   { EditorMenuCommand( EditorMenuCommand_Edit_Undo );                 return true; }
         if( C  && keycode == 'Y' )   { EditorMenuCommand( EditorMenuCommand_Edit_Redo );                 return true; }
         if( CS && keycode == 'Z' )   { EditorMenuCommand( EditorMenuCommand_Edit_Redo );                 return true; }
@@ -325,6 +327,8 @@ void EditorMainFrame_ImGui::AddEverything()
         AddMaterialEditor();
 
     AddLoseChangesWarningPopups();
+
+    g_pEngineCore->GetEditorPrefs()->GetImGuiStylePrefs()->AddCustomizationDialog();
 
 #if _DEBUG
     ImGuiIO& io = ImGui::GetIO();
@@ -549,6 +553,9 @@ void EditorMainFrame_ImGui::AddMainMenuBar()
                 if( ImGui::MenuItem( "Box2D Scene...", "Ctrl-Shift-E" ) ) { EditorMenuCommand( EditorMenuCommand_File_Export_Box2DScene ); }
                 ImGui::EndMenu();
             }
+
+            if( ImGui::MenuItem( "Preferences...", "Ctrl-Shift-P" ) ) { g_pEngineCore->GetEditorPrefs()->GetImGuiStylePrefs()->Display(); }
+
             if( ImGui::MenuItem( "Quit" ) ) { RequestCloseWindow(); }
 
             ImGui::EndMenu();

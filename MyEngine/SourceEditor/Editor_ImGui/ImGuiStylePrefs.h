@@ -64,7 +64,14 @@ public:
     };
 
 protected:
-    Vector4 m_DefaultColors[StylePref_Num];
+    bool m_Visible;
+
+    int m_CurrentPreset;
+    const char** m_ppPresetNames;
+    int m_NumPresets;
+
+    Vector4 m_DefaultColors[4][StylePref_Num];
+    Vector4 m_Styles[4][StylePref_Num];
 
 public:
     ImGuiStylePrefs();
@@ -72,6 +79,9 @@ public:
 
     void LoadPrefs(cJSON* jPrefs);
     void SavePrefs(cJSON* jPrefs);
+
+    void Display();
+    void AddCustomizationDialog();
 };
 
 #endif //__ImGuiStylePrefs_H__
