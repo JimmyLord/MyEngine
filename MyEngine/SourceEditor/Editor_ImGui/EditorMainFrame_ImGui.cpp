@@ -1408,14 +1408,14 @@ void EditorMainFrame_ImGui::AddWatchPanel()
 
                     if( allgameobjectshavecomponent == true )
                     {
-                        ImGui::PushStyleColor( ImGuiCol_Header, (ImVec4)ImColor::ImColor(50,100,0,255) );
-                        ImGui::PushStyleColor( ImGuiCol_HeaderHovered, (ImVec4)ImColor::ImColor(50,70,0,255) );
-                        ImGui::PushStyleColor( ImGuiCol_HeaderActive, (ImVec4)ImColor::ImColor(50,30,0,255) );
+                        //ImGui::PushStyleColor( ImGuiCol_Header, (ImVec4)ImColor::ImColor(50,100,0,255) );
+                        //ImGui::PushStyleColor( ImGuiCol_HeaderHovered, (ImVec4)ImColor::ImColor(50,70,0,255) );
+                        //ImGui::PushStyleColor( ImGuiCol_HeaderActive, (ImVec4)ImColor::ImColor(50,30,0,255) );
                         if( ImGui::CollapsingHeader( pComponentToLookFor->GetClassname(), ImGuiTreeNodeFlags_DefaultOpen ) )
                         {
                             pComponentToLookFor->AddAllVariablesToWatchPanel();
                         }
-                        ImGui::PopStyleColor( 3 );
+                        //ImGui::PopStyleColor( 3 );
                     }
                 }
             }
@@ -1431,15 +1431,15 @@ void EditorMainFrame_ImGui::AddWatchPanel()
                 
                 ComponentBase* pComponent = g_pEngineCore->GetEditorState()->m_pSelectedComponents[0];
 
-                ImGui::PushStyleColor( ImGuiCol_Header, (ImVec4)ImColor::ImColor(50,100,0,255) );
-                ImGui::PushStyleColor( ImGuiCol_HeaderHovered, (ImVec4)ImColor::ImColor(50,70,0,255) );
-                ImGui::PushStyleColor( ImGuiCol_HeaderActive, (ImVec4)ImColor::ImColor(50,30,0,255) );
+                //ImGui::PushStyleColor( ImGuiCol_Header, (ImVec4)ImColor::ImColor(50,100,0,255) );
+                //ImGui::PushStyleColor( ImGuiCol_HeaderHovered, (ImVec4)ImColor::ImColor(50,70,0,255) );
+                //ImGui::PushStyleColor( ImGuiCol_HeaderActive, (ImVec4)ImColor::ImColor(50,30,0,255) );
                 if( ImGui::CollapsingHeader( pComponent->GetClassname(), ImGuiTreeNodeFlags_DefaultOpen ) )
                 {
                     //ImGui::Text( "TODO: Component Info." );
                     pComponent->AddAllVariablesToWatchPanel();
                 }
-                ImGui::PopStyleColor( 3 );
+                //ImGui::PopStyleColor( 3 );
             }
             else
             {
@@ -1480,14 +1480,14 @@ void EditorMainFrame_ImGui::AddWatchPanel()
                         }
 
                         // Show all the components in the watch window.
-                        ImGui::PushStyleColor( ImGuiCol_Header, (ImVec4)ImColor::ImColor(50,100,0,255) );
-                        ImGui::PushStyleColor( ImGuiCol_HeaderHovered, (ImVec4)ImColor::ImColor(50,70,0,255) );
-                        ImGui::PushStyleColor( ImGuiCol_HeaderActive, (ImVec4)ImColor::ImColor(50,30,0,255) );
+                        //ImGui::PushStyleColor( ImGuiCol_Header, (ImVec4)ImColor::ImColor(50,100,0,255) );
+                        //ImGui::PushStyleColor( ImGuiCol_HeaderHovered, (ImVec4)ImColor::ImColor(50,70,0,255) );
+                        //ImGui::PushStyleColor( ImGuiCol_HeaderActive, (ImVec4)ImColor::ImColor(50,30,0,255) );
                         if( ImGui::CollapsingHeader( pInitialComponent->GetClassname(), ImGuiTreeNodeFlags_DefaultOpen ) )
                         {
                             pInitialComponent->AddAllVariablesToWatchPanel();
                         }
-                        ImGui::PopStyleColor( 3 );
+                        //ImGui::PopStyleColor( 3 );
                     }
                 }
             }

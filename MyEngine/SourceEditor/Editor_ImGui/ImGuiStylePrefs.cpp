@@ -11,12 +11,70 @@
 #include "../SourceCommon/GUI/ImGuiExtensions.h"
 #include "../SourceEditor/Editor_ImGui/ImGuiStylePrefs.h"
 
+const char* g_StylePrefsStrings[ImGuiStylePrefs::StylePref_Num] =
+{
+    "Text",
+    "TextDisabled",
+    "WindowBg",
+    "ChildBg",
+    "PopupBg",
+    "Border",
+    "BorderShadow",
+    "FrameBg",
+    "FrameBgHovered",
+    "FrameBgActive",
+    "TitleBg",
+    "TitleBgActive",
+    "TitleBgCollapsed",
+    "MenuBarBg",
+    "ScrollbarBg",
+    "ScrollbarGrab",
+    "ScrollbarGrabHovered",
+    "ScrollbarGrabActive",
+    "CheckMark",
+    "SliderGrab",
+    "SliderGrabActive",
+    "Button",
+    "ButtonHovered",
+    "ButtonActive",
+    "Header",
+    "HeaderHovered",
+    "HeaderActive",
+    "Separator",
+    "SeparatorHovered",
+    "SeparatorActive",
+    "ResizeGrip",
+    "ResizeGripHovered",
+    "ResizeGripActive",
+    "CloseButton",
+    "CloseButtonHovered",
+    "CloseButtonActive",
+    "PlotLines",
+    "PlotLinesHovered",
+    "PlotHistogram",
+    "PlotHistogramHovered",
+    "TextSelectedBg",
+    "ModalWindowDarkening",
+    "DragDropTarget",
+    "NavHighlight",
+    "NavWindowingHighlight",
+
+    "DivorcedText",
+    "MultiSelectedVarDiffText",
+};
+
 ImGuiStylePrefs::ImGuiStylePrefs()
 {
     m_Visible = false;
 
-    for( int i=0; i<StylePref_Num; i++ )
+    // If this trips, imgui changed, so make fixes.
+    MyAssert( StylePref_NumImGuiStyleColors == 45 );
+
+    for( int i=0; i<StylePref_NumImGuiStyleColors; i++ )
     {
+        // If this trips, imgui changed, so make fixes.
+        MyAssert( g_StylePrefsStrings[i] == ImGui::GetStyleColorName(i) );
+
         ImGui::StyleColorsClassic();
         m_DefaultColors[0][i] = ImGui::GetStyleColorVec4( i ); // Custom
         m_DefaultColors[1][i] = ImGui::GetStyleColorVec4( i ); // Classic
@@ -30,23 +88,48 @@ ImGuiStylePrefs::ImGuiStylePrefs()
         ImGui::StyleColorsClassic();
     }
 
+    // Set default values for non-ImGui colors.
+    {
+        // Custom
+        m_DefaultColors[0][StylePref_Color_DivorcedVarText]         .Set( 1.0f, 0.5f, 0.0f, 1.0f );
+        m_DefaultColors[0][StylePref_Color_MultiSelectedVarDiffText].Set( 0.0f, 0.5f, 1.0f, 1.0f );
+
+        // Classic (Same as custom)
+        m_DefaultColors[1][StylePref_Color_DivorcedVarText]          = m_DefaultColors[0][StylePref_Color_DivorcedVarText];
+        m_DefaultColors[1][StylePref_Color_MultiSelectedVarDiffText] = m_DefaultColors[0][StylePref_Color_MultiSelectedVarDiffText];
+
+        // Dark
+        m_DefaultColors[2][StylePref_Color_DivorcedVarText]         .Set( 1.0f, 0.5f, 0.0f, 1.0f );
+        m_DefaultColors[2][StylePref_Color_MultiSelectedVarDiffText].Set( 0.0f, 0.5f, 1.0f, 1.0f );
+
+        // Light
+        m_DefaultColors[3][StylePref_Color_DivorcedVarText]         .Set( 1.0f, 0.5f, 0.0f, 1.0f );
+        m_DefaultColors[3][StylePref_Color_MultiSelectedVarDiffText].Set( 0.0f, 0.5f, 1.0f, 1.0f );
+    }
+
     static const char* presets[] = { "Custom", "Classic", "Dark", "Light" };
     m_ppPresetNames = presets;
     m_NumPresets = 4;
 
-    m_CurrentPreset = 0; // Default to custom, which should match Classic.
-
     for( int preset=0; preset<m_NumPresets; preset++ )
     {
-        for( int i=0; i<StylePref_Num; i++ )
-        {
-            m_Styles[preset][i] = m_DefaultColors[preset][i];
-        }
+        m_CurrentPreset = preset;
+        ResetCurrentPreset();
     }
+
+    m_CurrentPreset = 0; // Default to custom, which should match Classic.
 }
 
 ImGuiStylePrefs::~ImGuiStylePrefs()
 {
+}
+
+void ImGuiStylePrefs::ResetCurrentPreset()
+{
+    for( int i=0; i<StylePref_Num; i++ )
+    {
+        m_Styles[m_CurrentPreset][i] = m_DefaultColors[m_CurrentPreset][i];
+    }
 }
 
 void ImGuiStylePrefs::LoadPrefs(cJSON* jPrefs)
@@ -65,15 +148,15 @@ void ImGuiStylePrefs::LoadPrefs(cJSON* jPrefs)
             for( int i=0; i<StylePref_Num; i++ )
             {
                 ImVec4 color = m_DefaultColors[preset][i];
-                cJSONExt_GetFloatArray( jPreset, ImGui::GetStyleColorName(i), &color.x, 4 );
+                cJSONExt_GetFloatArray( jPreset, g_StylePrefsStrings[i], &color.x, 4 );
 
                 m_Styles[preset][i] = color;
             }
         }
     }
 
-    // Apply the current preset.
-    for( int i=0; i<StylePref_Num; i++ )
+    // Apply the current preset for all imgui style colors.
+    for( int i=0; i<StylePref_NumImGuiStyleColors; i++ )
     {
         ImVec4 color = m_Styles[m_CurrentPreset][i];
         ImGuiExt::SetStyleColorVec4( i, color );
@@ -95,11 +178,15 @@ void ImGuiStylePrefs::SavePrefs(cJSON* jPrefs)
         {
             if( m_Styles[preset][i] != m_DefaultColors[preset][i] )
             {
-                //cJSONExt_AddFloatArrayToArray( jColorArray, &color.x, 4 );
-                cJSONExt_AddFloatArrayToObject( jPreset, ImGui::GetStyleColorName(i), &m_Styles[preset][i].x, 4 );
+                cJSONExt_AddFloatArrayToObject( jPreset, g_StylePrefsStrings[i], &m_Styles[preset][i].x, 4 );
             }
         }
     }
+}
+
+Vector4 ImGuiStylePrefs::GetColor(ImGuiStylePrefs::StylePrefs index)
+{
+    return m_Styles[m_CurrentPreset][index];
 }
 
 void ImGuiStylePrefs::Display()
@@ -122,21 +209,9 @@ void ImGuiStylePrefs::AddCustomizationDialog()
 
     if( ImGui::Begin( "Editor Style Prefs", &m_Visible ) )
     {
-        if( ImGui::Combo( "Presets", &m_CurrentPreset, m_ppPresetNames, m_NumPresets ) )
-        {
-            for( int i=0; i<StylePref_Num; i++ )
-            {
-                colors[i] = m_Styles[m_CurrentPreset][i];
-            }
-        }
+        ImGui::Combo( "Presets", &m_CurrentPreset, m_ppPresetNames, m_NumPresets );
         ImGui::SameLine();
-        if( ImGui::Button( "Reset" ) )
-        {
-            for( int i=0; i<StylePref_Num; i++ )
-            {
-                colors[i] = m_DefaultColors[m_CurrentPreset][i];
-            }
-        }
+        if( ImGui::Button( "Reset" ) ) { ResetCurrentPreset(); }
 
         int numcols = 4;
         for( int i=0; i<StylePref_Num; i++ )
@@ -144,9 +219,11 @@ void ImGuiStylePrefs::AddCustomizationDialog()
             if( i%numcols != 0 )
                 ImGui::SameLine( 180.0f * (i%numcols) );
 
-            ImGui::ColorEdit4( ImGui::GetStyleColorName(i), &colors[i].x, ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_AlphaPreview | ImGuiColorEditFlags_AlphaBar );
-            
-            m_Styles[m_CurrentPreset][i] = colors[i];
+            ImGui::ColorEdit4( g_StylePrefsStrings[i], &m_Styles[m_CurrentPreset][i].x, ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_AlphaPreview | ImGuiColorEditFlags_AlphaBar );
+
+            // Copy the color to the ImGui state.
+            if( i < StylePref_NumImGuiStyleColors )
+                colors[i] = m_Styles[m_CurrentPreset][i];
         }
     }
     ImGui::End();

@@ -10,6 +10,9 @@
 #include "EngineCommonHeader.h"
 
 #include "../../../SourceCommon/GUI/ImGuiExtensions.h"
+#if MYFW_USING_IMGUI
+#include "../SourceEditor/Editor_ImGui/ImGuiStylePrefs.h"
+#endif
 
 ComponentBase::ComponentBase()
 : m_SceneIDLoadedFrom( SCENEID_NotSet )
@@ -698,13 +701,15 @@ void ComponentBase::AddVariableToWatchPanel(ComponentVariable* pVar)
 
     if( IsDivorced( pVar->m_Index ) )
     {
-        ImGui::PushStyleColor( ImGuiCol_Text, ImVec4( 1.0f, 0.5f, 0.0f, 1.0f ) );
+        Vector4 color = g_pEditorPrefs->GetImGuiStylePrefs()->GetColor( ImGuiStylePrefs::StylePref_Color_DivorcedVarText );
+        ImGui::PushStyleColor( ImGuiCol_Text, color ); //ImVec4( 1.0f, 0.5f, 0.0f, 1.0f ) );
         numStylesPushed++;
     }
 
     if( DoAllMultiSelectedVariabledHaveTheSameValue( pVar ) == false )
     {
-        ImGui::PushStyleColor( ImGuiCol_Text, ImVec4( 0.0f, 0.5f, 1.0f, 1.0f ) );
+        Vector4 color = g_pEditorPrefs->GetImGuiStylePrefs()->GetColor( ImGuiStylePrefs::StylePref_Color_MultiSelectedVarDiffText );
+        ImGui::PushStyleColor( ImGuiCol_Text, color ); //ImVec4( 0.0f, 0.5f, 1.0f, 1.0f ) );
         numStylesPushed++;
     }
 
