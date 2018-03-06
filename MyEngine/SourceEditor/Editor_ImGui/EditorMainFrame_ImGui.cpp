@@ -1413,7 +1413,9 @@ void EditorMainFrame_ImGui::AddWatchPanel()
                         //ImGui::PushStyleColor( ImGuiCol_HeaderActive, (ImVec4)ImColor::ImColor(50,30,0,255) );
                         if( ImGui::CollapsingHeader( pComponentToLookFor->GetClassname(), ImGuiTreeNodeFlags_DefaultOpen ) )
                         {
+                            ImGui::PushID( pComponentToLookFor );
                             pComponentToLookFor->AddAllVariablesToWatchPanel();
+                            ImGui::PopID();
                         }
                         //ImGui::PopStyleColor( 3 );
                     }
@@ -1437,7 +1439,9 @@ void EditorMainFrame_ImGui::AddWatchPanel()
                 if( ImGui::CollapsingHeader( pComponent->GetClassname(), ImGuiTreeNodeFlags_DefaultOpen ) )
                 {
                     //ImGui::Text( "TODO: Component Info." );
+                    ImGui::PushID( pComponent );
                     pComponent->AddAllVariablesToWatchPanel();
+                    ImGui::PopID();
                 }
                 //ImGui::PopStyleColor( 3 );
             }
@@ -1485,7 +1489,9 @@ void EditorMainFrame_ImGui::AddWatchPanel()
                         //ImGui::PushStyleColor( ImGuiCol_HeaderActive, (ImVec4)ImColor::ImColor(50,30,0,255) );
                         if( ImGui::CollapsingHeader( pInitialComponent->GetClassname(), ImGuiTreeNodeFlags_DefaultOpen ) )
                         {
+                            ImGui::PushID( pInitialComponent );
                             pInitialComponent->AddAllVariablesToWatchPanel();
+                            ImGui::PopID();
                         }
                         //ImGui::PopStyleColor( 3 );
                     }

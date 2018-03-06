@@ -765,9 +765,59 @@ void ComponentBase::AddVariableToWatchPanel(ComponentVariable* pVar)
 
         case ComponentVariableType_Flags:
             {
-                ImGui::Text( "Flags: %s (TODO)", pVar->m_Label );
-                //ImGui::CheckboxFlags( pVar->m_WatchLabel, (unsigned int*)((char*)this + pVar->m_Offset) );
-                //pVar->m_ControlID = g_pPanelWatch->AddFlags( pVar->m_WatchLabel, (unsigned int*)((char*)this + pVar->m_Offset), pVar->m_NumEnumStrings, pVar->m_ppEnumStrings, this, ComponentBase::StaticOnValueChangedVariable, ComponentBase::StaticOnRightClickVariable );
+                const char** items = pVar->m_ppEnumStrings;
+                unsigned int flags = *(int*)((char*)this + pVar->m_Offset);
+
+                // Build a string of all selected flags.
+                std::string str;
+                int count = 0;
+                for( int i=0; i<pVar->m_NumEnumStrings; i++ )
+                {
+                    if( flags & 1<<i )
+                    {
+                        if( count != 0 )
+                            str.append( "," );
+
+                        str.append( pVar->m_ppEnumStrings[i] );
+
+                        count++;
+                    }
+                }
+
+                // Display the combo box with checkboxes for each label.
+                if( ImGui::BeginCombo( pVar->m_WatchLabel, str.c_str() ) )
+                {
+                    for( int n = 0; n < pVar->m_NumEnumStrings; n++ )
+                    {
+                        bool is_selected = (flags & 1<<n) > 0;
+                        if( ImGui::CheckboxFlags( items[n], &flags, 1<<n ) )
+                        {
+                            // Store the old value.
+                            ComponentVariableValue oldvalue( this, pVar );
+
+                            // Change the value.
+                            if( is_selected )
+                                *(int*)((char*)this + pVar->m_Offset) &= ~(1<<n);
+                            else
+                                *(int*)((char*)this + pVar->m_Offset) |= 1<<n;
+
+                            // Store the new value.
+                            ComponentVariableValue newvalue( this, pVar );
+
+                            g_pEngineCore->GetCommandStack()->Do(
+                                MyNew EditorCommand_ImGuiPanelWatchNumberValueChanged(
+                                                            this, pVar, newvalue, oldvalue, true ),
+                                false );
+                        }
+                        if( is_selected )
+                        {
+                            // Set the initial focus when opening the combo (scrolling + for keyboard navigation support in the upcoming navigation branch)
+                            // Initial focus will be on the last selected item.
+                            ImGui::SetItemDefaultFocus();
+                        }
+                    }
+                    ImGui::EndCombo();
+                }
             }
             break;
 
