@@ -76,40 +76,49 @@ ImGuiStylePrefs::ImGuiStylePrefs()
         MyAssert( g_StylePrefsStrings[i] == ImGui::GetStyleColorName(i) );
 
         ImGui::StyleColorsClassic();
-        m_DefaultColors[0][i] = ImGui::GetStyleColorVec4( i ); // Custom
-        m_DefaultColors[1][i] = ImGui::GetStyleColorVec4( i ); // Classic
+        m_DefaultColors[0][i] = ImGui::GetStyleColorVec4( i ); // MyDefaults
+        m_DefaultColors[1][i] = ImGui::GetStyleColorVec4( i ); // Custom
+        m_DefaultColors[2][i] = ImGui::GetStyleColorVec4( i ); // Classic
 
         ImGui::StyleColorsDark();
-        m_DefaultColors[2][i] = ImGui::GetStyleColorVec4( i ); // Dark
+        m_DefaultColors[3][i] = ImGui::GetStyleColorVec4( i ); // Dark
 
         ImGui::StyleColorsLight();
-        m_DefaultColors[3][i] = ImGui::GetStyleColorVec4( i ); // Light
+        m_DefaultColors[4][i] = ImGui::GetStyleColorVec4( i ); // Light
 
         ImGui::StyleColorsClassic();
     }
 
     // Set default values for non-ImGui colors.
     {
-        // Custom
-        m_DefaultColors[0][StylePref_Color_DivorcedVarText]         .Set( 1.0f, 0.5f, 0.0f, 1.0f );
-        m_DefaultColors[0][StylePref_Color_MultiSelectedVarDiffText].Set( 0.0f, 0.5f, 1.0f, 1.0f );
+        // MyDefaults (Modified from Classic)
+		m_DefaultColors[0][StylePref_Color_WindowBg]                .Set( 0, 0, 0, 1 );
+		m_DefaultColors[0][StylePref_Color_Header]                  .Set( 0.260747f, 0.309392f, 0.222215f, 1 );
+		m_DefaultColors[0][StylePref_Color_HeaderHovered]           .Set( 0.334156f, 0.397790f, 0.290101f, 1 );
+		m_DefaultColors[0][StylePref_Color_HeaderActive]            .Set( 0.441434f, 0.535912f, 0.376026f, 1 );
+        m_DefaultColors[0][StylePref_Color_DivorcedVarText]         .Set( 1, 0.5f, 0, 1 );
+		m_DefaultColors[0][StylePref_Color_MultiSelectedVarDiffText].Set( 0.806630f, 1, 0, 1 );
 
-        // Classic (Same as custom)
-        m_DefaultColors[1][StylePref_Color_DivorcedVarText]          = m_DefaultColors[0][StylePref_Color_DivorcedVarText];
-        m_DefaultColors[1][StylePref_Color_MultiSelectedVarDiffText] = m_DefaultColors[0][StylePref_Color_MultiSelectedVarDiffText];
+        // Custom
+        m_DefaultColors[1][StylePref_Color_DivorcedVarText]         .Set( 1.0f, 0.5f, 0.0f, 1.0f );
+        m_DefaultColors[1][StylePref_Color_MultiSelectedVarDiffText].Set( 0.0f, 0.5f, 1.0f, 1.0f );
+
+        // Classic (Same as Custom)
+        m_DefaultColors[2][StylePref_Color_DivorcedVarText]          = m_DefaultColors[0][StylePref_Color_DivorcedVarText];
+        m_DefaultColors[2][StylePref_Color_MultiSelectedVarDiffText] = m_DefaultColors[0][StylePref_Color_MultiSelectedVarDiffText];
 
         // Dark
-        m_DefaultColors[2][StylePref_Color_DivorcedVarText]         .Set( 1.0f, 0.5f, 0.0f, 1.0f );
-        m_DefaultColors[2][StylePref_Color_MultiSelectedVarDiffText].Set( 0.0f, 0.5f, 1.0f, 1.0f );
-
-        // Light
         m_DefaultColors[3][StylePref_Color_DivorcedVarText]         .Set( 1.0f, 0.5f, 0.0f, 1.0f );
         m_DefaultColors[3][StylePref_Color_MultiSelectedVarDiffText].Set( 0.0f, 0.5f, 1.0f, 1.0f );
+
+        // Light
+        m_DefaultColors[4][StylePref_Color_DivorcedVarText]         .Set( 1.0f, 0.5f, 0.0f, 1.0f );
+        m_DefaultColors[4][StylePref_Color_MultiSelectedVarDiffText].Set( 0.0f, 0.5f, 1.0f, 1.0f );
     }
 
-    static const char* presets[] = { "Custom", "Classic", "Dark", "Light" };
+    static const char* presets[] = { "MyDefaults", "Custom", "Classic", "Dark", "Light" };
     m_ppPresetNames = presets;
-    m_NumPresets = 4;
+    m_NumPresets = 5;
 
     for( int preset=0; preset<m_NumPresets; preset++ )
     {
@@ -117,7 +126,7 @@ ImGuiStylePrefs::ImGuiStylePrefs()
         ResetCurrentPreset();
     }
 
-    m_CurrentPreset = 0; // Default to custom, which should match Classic.
+    m_CurrentPreset = 0; // Default to MyDefaults.
 }
 
 ImGuiStylePrefs::~ImGuiStylePrefs()
@@ -213,11 +222,11 @@ void ImGuiStylePrefs::AddCustomizationDialog()
         ImGui::SameLine();
         if( ImGui::Button( "Reset" ) ) { ResetCurrentPreset(); }
 
-        int numcols = 4;
+        int numColumns = 4;
         for( int i=0; i<StylePref_Num; i++ )
         {
-            if( i%numcols != 0 )
-                ImGui::SameLine( 180.0f * (i%numcols) );
+            if( i%numColumns != 0 )
+                ImGui::SameLine( 180.0f * (i%numColumns) );
 
             ImGui::ColorEdit4( g_StylePrefsStrings[i], &m_Styles[m_CurrentPreset][i].x, ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_AlphaPreview | ImGuiColorEditFlags_AlphaBar );
 

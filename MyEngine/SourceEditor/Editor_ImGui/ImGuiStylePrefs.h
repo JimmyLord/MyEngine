@@ -74,8 +74,8 @@ protected:
     const char** m_ppPresetNames;
     int m_NumPresets;
 
-    Vector4 m_DefaultColors[4][StylePref_Num];
-    Vector4 m_Styles[4][StylePref_Num];
+    Vector4 m_DefaultColors[5][StylePref_Num];
+    Vector4 m_Styles[5][StylePref_Num];
 
 public:
     ImGuiStylePrefs();
