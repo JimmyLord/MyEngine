@@ -1902,9 +1902,9 @@ void EditorMainFrame_ImGui::AddMemoryPanel_ShaderGroups()
                                 {
                                     if( ImGui::BeginPopupContextItem( "ContextPopup", 1 ) )
                                     {
-                                        if( ImGui::MenuItem( "Open File (TODO)" ) )   { ImGui::CloseCurrentPopup(); }
-                                        if( ImGui::MenuItem( "Unload File (TODO)" ) ) { ImGui::CloseCurrentPopup(); }
-                                        if( ImGui::MenuItem( "Find References" ) )    { g_pFileManager->Editor_FindAllReferences( pFile ); ImGui::CloseCurrentPopup(); } ;// (%d)", pMat->GetRefCount() ) {}
+                                        if( ImGui::MenuItem( "Open File" ) )              { pFile->OnPopupClick( pFile, MyFileObject::RightClick_OpenFile );             ImGui::CloseCurrentPopup(); }
+                                        if( ImGui::MenuItem( "Open containing folder" ) ) { pFile->OnPopupClick( pFile, MyFileObject::RightClick_OpenContainingFolder ); ImGui::CloseCurrentPopup(); }
+                                        if( ImGui::MenuItem( "Find References" ) )        { pFile->OnPopupClick( pFile, MyFileObject::RightClick_FindAllReferences );    ImGui::CloseCurrentPopup(); } // (%d)", pMat->GetRefCount() ) {}
                                         ImGui::EndPopup();
                                     }
 
@@ -2008,9 +2008,11 @@ void EditorMainFrame_ImGui::AddMemoryPanel_Files()
                                 {
                                     if( ImGui::BeginPopupContextItem( "ContextPopup", 1 ) )
                                     {
-                                        if( ImGui::MenuItem( "Open File (TODO)" ) )       { ImGui::CloseCurrentPopup(); }
-                                        if( ImGui::MenuItem( "Unload File (TODO)" ) )     { ImGui::CloseCurrentPopup(); }
-                                        if( ImGui::MenuItem( "Find References" ) ) { g_pFileManager->Editor_FindAllReferences( pFile ); ImGui::CloseCurrentPopup(); } ;// (%d)", pMat->GetRefCount() ) {}
+                                        if( ImGui::MenuItem( "View in Watch Window (TODO)" ) )   { pFile->OnPopupClick( pFile, MyFileObject::RightClick_ViewInWatchWindow );    ImGui::CloseCurrentPopup(); }
+                                        if( ImGui::MenuItem( "Open File" ) )              { pFile->OnPopupClick( pFile, MyFileObject::RightClick_OpenFile );             ImGui::CloseCurrentPopup(); }
+                                        if( ImGui::MenuItem( "Open containing folder" ) ) { pFile->OnPopupClick( pFile, MyFileObject::RightClick_OpenContainingFolder ); ImGui::CloseCurrentPopup(); }
+                                        if( ImGui::MenuItem( "Unload File" ) )            { pFile->OnPopupClick( pFile, MyFileObject::RightClick_UnloadFile );           ImGui::CloseCurrentPopup(); }
+                                        if( ImGui::MenuItem( "Find References" ) )        { pFile->OnPopupClick( pFile, MyFileObject::RightClick_FindAllReferences );    ImGui::CloseCurrentPopup(); } // (%d)", pMat->GetRefCount() ) {}
                                         ImGui::EndPopup();
                                     }
 
