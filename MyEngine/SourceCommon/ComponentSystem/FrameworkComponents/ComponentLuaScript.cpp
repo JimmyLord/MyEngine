@@ -29,7 +29,7 @@ ComponentLuaScript::ComponentLuaScript()
     m_Type = ComponentType_LuaScript;
 
     m_pScriptFile = 0;
-#if !MYFW_USING_WX
+#if !MYFW_EDITOR
     m_pLuaInlineScript_OnPlay = 0;
 #endif
 
@@ -55,7 +55,7 @@ ComponentLuaScript::~ComponentLuaScript()
         delete pVariable;
     }
 
-#if !MYFW_USING_WX
+#if !MYFW_EDITOR
     delete[] m_pLuaInlineScript_OnPlay;
 #endif
 
@@ -132,7 +132,7 @@ const char* ComponentLuaScript::GetPointerDesc(ComponentVariable* pVar) //_VARIA
 {
     if( strcmp( pVar->m_Label, "OnPlay" ) == 0 )
     {
-#if MYFW_USING_WX
+#if MYFW_EDITOR
         return m_pLuaInlineScript_OnPlay.c_str();
 #endif
     }
@@ -1038,10 +1038,12 @@ cJSON* ComponentLuaScript::ExportAsJSONObject(bool savesceneid, bool saveid)
     if( m_pScriptFile )
         cJSON_AddStringToObject( jComponent, "Script", m_pScriptFile->GetFullPath() );
 
-#if MYFW_USING_WX
-    m_pLuaInlineScript_OnPlay.Trim( false );
-    m_pLuaInlineScript_OnPlay.Trim( true );
-    if( m_pLuaInlineScript_OnPlay.Length() > 0 )
+#if MYFW_EDITOR
+    // Trim white-space before saving.
+    size_t left = m_pLuaInlineScript_OnPlay.find_first_not_of( " \t" );
+    size_t right = m_pLuaInlineScript_OnPlay.find_last_not_of( " \t" );
+    m_pLuaInlineScript_OnPlay = m_pLuaInlineScript_OnPlay.substr( left, right-left+1 );
+    if( m_pLuaInlineScript_OnPlay.length() > 0 )
     {
         cJSON_AddStringToObject( jComponent, "LuaString_OnPlay", m_pLuaInlineScript_OnPlay.c_str() );
     }
@@ -1110,7 +1112,7 @@ void ComponentLuaScript::ImportFromJSONObject(cJSON* jsonobj, SceneID sceneid)
     cJSON* string_onplay = cJSON_GetObjectItem( jsonobj, "LuaString_OnPlay" );
     if( string_onplay )
     {
-#if MYFW_USING_WX
+#if MYFW_EDITOR
         m_pLuaInlineScript_OnPlay = string_onplay->valuestring;
 #else
         // In stand-alone build, allocate memory and make a copy of the string.
@@ -1345,8 +1347,8 @@ void ComponentLuaScript::LoadScript()
 void ComponentLuaScript::LoadInLineScripts()
 {
     // Add the OnPlay string to the lua state and parse it.
-#if MYFW_USING_WX
-    if( m_pLuaInlineScript_OnPlay.Length() > 0 )
+#if MYFW_EDITOR
+    if( m_pLuaInlineScript_OnPlay.length() > 0 )
     {
         const char* pScript = m_pLuaInlineScript_OnPlay.c_str();
 #else

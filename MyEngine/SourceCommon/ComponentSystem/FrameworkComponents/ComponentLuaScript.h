@@ -92,8 +92,8 @@ protected:
     const ComponentLuaScript* m_pCopyExternsFromThisComponentAfterLoadingScript;
 
     MyFileObject* m_pScriptFile;
-#if MYFW_USING_WX
-    wxString m_pLuaInlineScript_OnPlay;
+#if MYFW_EDITOR
+    std::string m_pLuaInlineScript_OnPlay;
 #else
     char* m_pLuaInlineScript_OnPlay; // If this isn't 0, this string will get run instead of the OnPlay function in the lua file.
 #endif

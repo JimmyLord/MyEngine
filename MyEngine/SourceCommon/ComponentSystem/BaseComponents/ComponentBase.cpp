@@ -942,16 +942,24 @@ void ComponentBase::AddVariableToWatchPanel(ComponentVariable* pVar)
             {
                 MyFileObject* pFile = *(MyFileObject**)((char*)this + pVar->m_Offset);
 
+                Vector4 buttonColor = g_pEditorPrefs->GetImGuiStylePrefs()->GetColor( ImGuiStylePrefs::StylePref_Color_UnsetObjectButton );
+                Vector4 textColor = g_pEditorPrefs->GetImGuiStylePrefs()->GetColor( ImGuiStylePrefs::StylePref_Color_UnsetObjectText );
+
                 const char* pDesc = "none";
                 if( pFile )
                 {
                     pDesc = pFile->GetFullPath();
+                    buttonColor = g_pEditorPrefs->GetImGuiStylePrefs()->GetColor( ImGuiStylePrefs::StylePref_Color_Button );
+                    textColor = g_pEditorPrefs->GetImGuiStylePrefs()->GetColor( ImGuiStylePrefs::StylePref_Color_Text );
                 }
 
+                ImGui::PushStyleColor( ImGuiCol_Button, buttonColor );
+                ImGui::PushStyleColor( ImGuiCol_Text, textColor );
                 if( ImGui::Button( pDesc, ImVec2( ImGui::GetWindowWidth() * 0.65f, 0 ) ) )
                 {
                     // TODO: pop up a lua script file picker window.
                 }
+                ImGui::PopStyleColor( 2 );
 
                 if( ImGui::BeginDragDropTarget() )
                 {
@@ -1032,10 +1040,23 @@ void ComponentBase::AddVariableToWatchPanel(ComponentVariable* pVar)
             {
                 //void* pPtr = (this->*pVar->m_pGetPointerValueCallBackFunc)( pVar );
                 const char* pDesc = (this->*pVar->m_pGetPointerDescCallBackFunc)( pVar );
+
+                Vector4 buttonColor = g_pEditorPrefs->GetImGuiStylePrefs()->GetColor( ImGuiStylePrefs::StylePref_Color_UnsetObjectButton );
+                Vector4 textColor = g_pEditorPrefs->GetImGuiStylePrefs()->GetColor( ImGuiStylePrefs::StylePref_Color_UnsetObjectText );
+
+                if( pDesc != 0 && pDesc[0] != 0 )
+                {
+                    buttonColor = g_pEditorPrefs->GetImGuiStylePrefs()->GetColor( ImGuiStylePrefs::StylePref_Color_Button );
+                    textColor = g_pEditorPrefs->GetImGuiStylePrefs()->GetColor( ImGuiStylePrefs::StylePref_Color_Text );
+                }
+
+                ImGui::PushStyleColor( ImGuiCol_Button, buttonColor );
+                ImGui::PushStyleColor( ImGuiCol_Text, textColor );
                 if( ImGui::Button( pDesc, ImVec2( ImGui::GetWindowWidth() * 0.65f, 0 ) ) )
                 {
                     // TODO: pop up a material picker window.
                 }
+                ImGui::PopStyleColor( 2 );
 
                 if( ImGui::BeginDragDropTarget() )
                 {

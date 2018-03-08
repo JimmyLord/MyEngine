@@ -61,6 +61,8 @@ const char* g_StylePrefsStrings[ImGuiStylePrefs::StylePref_Num] =
 
     "DivorcedText",
     "MultiSelectedVarDiffText",
+    "UnsetObjectButton",
+    "UnsetObjectText",
 };
 
 ImGuiStylePrefs::ImGuiStylePrefs()
@@ -98,22 +100,32 @@ ImGuiStylePrefs::ImGuiStylePrefs()
 		m_DefaultColors[0][StylePref_Color_HeaderActive]            .Set( 0.441434f, 0.535912f, 0.376026f, 1 );
         m_DefaultColors[0][StylePref_Color_DivorcedVarText]         .Set( 1, 0.5f, 0, 1 );
 		m_DefaultColors[0][StylePref_Color_MultiSelectedVarDiffText].Set( 0.806630f, 1, 0, 1 );
+        m_DefaultColors[0][StylePref_Color_UnsetObjectButton]        = m_DefaultColors[0][StylePref_Color_Button] * 0.5f;
+        m_DefaultColors[0][StylePref_Color_UnsetObjectText]          = m_DefaultColors[0][StylePref_Color_Text] * 0.5f;
 
         // Custom
         m_DefaultColors[1][StylePref_Color_DivorcedVarText]         .Set( 1.0f, 0.5f, 0.0f, 1.0f );
         m_DefaultColors[1][StylePref_Color_MultiSelectedVarDiffText].Set( 0.0f, 0.5f, 1.0f, 1.0f );
+        m_DefaultColors[1][StylePref_Color_UnsetObjectButton]        = m_DefaultColors[1][StylePref_Color_Button] * 0.5f;
+        m_DefaultColors[1][StylePref_Color_UnsetObjectText]          = m_DefaultColors[1][StylePref_Color_Text] * 0.5f;
 
         // Classic (Same as Custom)
         m_DefaultColors[2][StylePref_Color_DivorcedVarText]          = m_DefaultColors[0][StylePref_Color_DivorcedVarText];
         m_DefaultColors[2][StylePref_Color_MultiSelectedVarDiffText] = m_DefaultColors[0][StylePref_Color_MultiSelectedVarDiffText];
+        m_DefaultColors[2][StylePref_Color_UnsetObjectButton]        = m_DefaultColors[2][StylePref_Color_Button] * 0.5f;
+        m_DefaultColors[2][StylePref_Color_UnsetObjectText]          = m_DefaultColors[2][StylePref_Color_Text] * 0.5f;
 
         // Dark
         m_DefaultColors[3][StylePref_Color_DivorcedVarText]         .Set( 1.0f, 0.5f, 0.0f, 1.0f );
         m_DefaultColors[3][StylePref_Color_MultiSelectedVarDiffText].Set( 0.0f, 0.5f, 1.0f, 1.0f );
+        m_DefaultColors[3][StylePref_Color_UnsetObjectButton]        = m_DefaultColors[3][StylePref_Color_Button] * 0.5f;
+        m_DefaultColors[3][StylePref_Color_UnsetObjectText]          = m_DefaultColors[3][StylePref_Color_Text] * 0.5f;
 
         // Light
         m_DefaultColors[4][StylePref_Color_DivorcedVarText]         .Set( 1.0f, 0.5f, 0.0f, 1.0f );
         m_DefaultColors[4][StylePref_Color_MultiSelectedVarDiffText].Set( 0.0f, 0.5f, 1.0f, 1.0f );
+        m_DefaultColors[4][StylePref_Color_UnsetObjectButton]        = m_DefaultColors[4][StylePref_Color_Button] * 0.5f;
+        m_DefaultColors[4][StylePref_Color_UnsetObjectText]          = m_DefaultColors[4][StylePref_Color_Text] * 0.5f;
     }
 
     static const char* presets[] = { "MyDefaults", "Custom", "Classic", "Dark", "Light" };

@@ -1516,7 +1516,6 @@ void EditorMainFrame_ImGui::AddMemoryPanel()
     {
         // Add an input box for memory panel filter.
         // For now, it will always auto-select the text when given focus.
-        // TODO: Only auto-select when Ctrl-F is pressed, not if clicked by mouse.
         {
             ImGuiInputTextFlags inputTextFlags = ImGuiInputTextFlags_AutoSelectAll;
             if( m_SetMemoryPanelFilterBoxInFocus )
@@ -1669,13 +1668,12 @@ void EditorMainFrame_ImGui::AddMemoryPanel_Materials()
             {
                 if( pMat == m_pMaterialWhoseNameIsBeingEdited )
                 {
+                    ImGui::SetKeyboardFocusHere();
                     if( ImGui::InputText( "New name", m_NameBeingEdited, 100, ImGuiInputTextFlags_AutoSelectAll|ImGuiInputTextFlags_EnterReturnsTrue ) )
                     {
                         m_pMaterialWhoseNameIsBeingEdited->SetName( m_NameBeingEdited );
                         m_pMaterialWhoseNameIsBeingEdited = 0;
                     }
-
-                    ImGui::SetKeyboardFocusHere();
                 }
                 else
                 {
@@ -2136,13 +2134,9 @@ void EditorMainFrame_ImGui::AddDebug_MousePicker()
 
 void EditorMainFrame_ImGui::AddMaterialEditor()
 {
-    ImVec4 defaultButtonColor = ImGui::GetStyleColorVec4( ImGuiCol_Button );
-    ImVec4 defaultTextColor = ImGui::GetStyleColorVec4( ImGuiCol_Text );
-
     ImGui::SetNextWindowPos( ImVec2(856, 71), ImGuiCond_FirstUseEver );
     ImGui::SetNextWindowSize( ImVec2(339, 349), ImGuiCond_FirstUseEver );
     
-    ImGui::PushStyleColor( ImGuiCol_WindowBg, ImVec4( 0.1f, 0.1f, 0.1f, 0.9f ) );
     if( ImGui::Begin( "Material Editor", &m_IsMaterialEditorOpen ) )
     {
         // Create a context menu only available from the title bar.
@@ -2164,7 +2158,17 @@ void EditorMainFrame_ImGui::AddMaterialEditor()
             ShaderGroup* pShaderGroup = pMat->GetShader();
             ShaderGroup* pShaderGroupInstanced = pMat->GetShaderInstanced();
 
-            ImGui::Text( "WORK IN PROGRESS - NO UNDO - MANUAL SAVE" );
+            {
+                ImGui::Text( "WORK IN PROGRESS - NO UNDO - MANUAL SAVE" );
+                if( ImGui::Button( "Save" ) )
+                {
+                    pMat->SaveMaterial( 0 );
+                }
+                ImGui::SameLine();
+                ImGui::Text( "<- MANUAL SAVE" );
+                ImGui::Separator();
+            }
+
             ImGui::Text( pMat->GetName() );
 
             if( showbuiltinuniforms )
@@ -2208,14 +2212,17 @@ void EditorMainFrame_ImGui::AddMaterialEditor()
 
                 {
                     const char* desc = "no shader";
-                    ImVec4 buttonColor( defaultButtonColor.x*0.5f, defaultButtonColor.y*0.5f, defaultButtonColor.z*0.5f, 1.0f );
-                    ImVec4 textColor( defaultTextColor.x*0.5f, defaultTextColor.y*0.5f, defaultTextColor.z*0.5f, 1.0f );
+
+                    Vector4 buttonColor = g_pEditorPrefs->GetImGuiStylePrefs()->GetColor( ImGuiStylePrefs::StylePref_Color_UnsetObjectButton );
+                    Vector4 textColor = g_pEditorPrefs->GetImGuiStylePrefs()->GetColor( ImGuiStylePrefs::StylePref_Color_UnsetObjectText );
+                    
                     if( pShaderGroup && pShaderGroup->GetShader( ShaderPass_Main )->m_pFile )
                     {
                         desc = pShaderGroup->GetShader( ShaderPass_Main )->m_pFile->GetFilenameWithoutExtension();
-                        buttonColor = defaultButtonColor;
-                        textColor = defaultTextColor;
+                        buttonColor = g_pEditorPrefs->GetImGuiStylePrefs()->GetColor( ImGuiStylePrefs::StylePref_Color_Button );
+                        textColor = g_pEditorPrefs->GetImGuiStylePrefs()->GetColor( ImGuiStylePrefs::StylePref_Color_Text );
                     }
+                    
                     ImGui::PushStyleColor( ImGuiCol_Button, buttonColor );
                     ImGui::PushStyleColor( ImGuiCol_Text, textColor );
                     ImGui::Button( desc, ImVec2( ImGui::GetWindowWidth() * 0.65f, 0 ) );
@@ -2245,14 +2252,17 @@ void EditorMainFrame_ImGui::AddMaterialEditor()
 
                 {
                     const char* desc = "no shader";
-                    ImVec4 buttonColor( defaultButtonColor.x*0.5f, defaultButtonColor.y*0.5f, defaultButtonColor.z*0.5f, 1.0f );
-                    ImVec4 textColor( defaultTextColor.x*0.5f, defaultTextColor.y*0.5f, defaultTextColor.z*0.5f, 1.0f );
+
+                    Vector4 buttonColor = g_pEditorPrefs->GetImGuiStylePrefs()->GetColor( ImGuiStylePrefs::StylePref_Color_UnsetObjectButton );
+                    Vector4 textColor = g_pEditorPrefs->GetImGuiStylePrefs()->GetColor( ImGuiStylePrefs::StylePref_Color_UnsetObjectText );
+
                     if( pShaderGroupInstanced && pShaderGroupInstanced->GetShader( ShaderPass_Main )->m_pFile )
                     {
                         desc = pShaderGroupInstanced->GetShader( ShaderPass_Main )->m_pFile->GetFilenameWithoutExtension();
-                        buttonColor = defaultButtonColor;
-                        textColor = defaultTextColor;
+                        buttonColor = g_pEditorPrefs->GetImGuiStylePrefs()->GetColor( ImGuiStylePrefs::StylePref_Color_Button );
+                        textColor = g_pEditorPrefs->GetImGuiStylePrefs()->GetColor( ImGuiStylePrefs::StylePref_Color_Text );
                     }
+
                     ImGui::PushStyleColor( ImGuiCol_Button, buttonColor );
                     ImGui::PushStyleColor( ImGuiCol_Text, textColor );
                     ImGui::Button( desc, ImVec2( ImGui::GetWindowWidth() * 0.65f, 0 ) );
@@ -2282,15 +2292,19 @@ void EditorMainFrame_ImGui::AddMaterialEditor()
 
                 {
                     const char* desc = "no color texture";
-                    ImVec4 buttonColor( defaultButtonColor.x*0.5f, defaultButtonColor.y*0.5f, defaultButtonColor.z*0.5f, 1.0f );
-                    ImVec4 textColor( defaultTextColor.x*0.5f, defaultTextColor.y*0.5f, defaultTextColor.z*0.5f, 1.0f );
+
+                    Vector4 buttonColor = g_pEditorPrefs->GetImGuiStylePrefs()->GetColor( ImGuiStylePrefs::StylePref_Color_UnsetObjectButton );
+                    Vector4 textColor = g_pEditorPrefs->GetImGuiStylePrefs()->GetColor( ImGuiStylePrefs::StylePref_Color_UnsetObjectText );
+
                     TextureDefinition* pTextureColor = pMat->GetTextureColor();
                     if( pTextureColor )
                     {
                         desc = pTextureColor->GetFilename();
-                        buttonColor = defaultButtonColor;
-                        textColor = defaultTextColor;
+
+                        buttonColor = g_pEditorPrefs->GetImGuiStylePrefs()->GetColor( ImGuiStylePrefs::StylePref_Color_Button );
+                        textColor = g_pEditorPrefs->GetImGuiStylePrefs()->GetColor( ImGuiStylePrefs::StylePref_Color_Text );
                     }
+
                     ImGui::PushStyleColor( ImGuiCol_Button, buttonColor );
                     ImGui::PushStyleColor( ImGuiCol_Text, textColor );
                     ImGui::Button( desc, ImVec2( ImGui::GetWindowWidth() * 0.65f, 0 ) );
@@ -2427,7 +2441,6 @@ void EditorMainFrame_ImGui::AddMaterialEditor()
     }
 
     ImGui::End();
-    ImGui::PopStyleColor();
 }
 
 void EditorMainFrame_ImGui::OnDropEditorWindow()

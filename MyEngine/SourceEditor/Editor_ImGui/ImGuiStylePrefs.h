@@ -64,6 +64,8 @@ public:
 
         StylePref_Color_DivorcedVarText = StylePref_NumImGuiStyleColors,
         StylePref_Color_MultiSelectedVarDiffText,
+        StylePref_Color_UnsetObjectButton,
+        StylePref_Color_UnsetObjectText,
         StylePref_Num,
     };
 
