@@ -1140,10 +1140,10 @@ void ComponentBase::AddVariableToWatchPanel(ComponentVariable* pVar)
     if( pVar->m_Label != 0 )
         ImGui::PopID(); // For ImGui::PushID( pVar->m_Label );
 
-    //if( pVar->m_pVariableAddedToInterfaceCallbackFunc )
-    //{
-    //    (this->*pVar->m_pVariableAddedToInterfaceCallbackFunc)( pVar );
-    //}
+    if( pVar->m_pVariableAddedToInterfaceCallbackFunc )
+    {
+        (this->*pVar->m_pVariableAddedToInterfaceCallbackFunc)( pVar );
+    }
 }
 #endif
 

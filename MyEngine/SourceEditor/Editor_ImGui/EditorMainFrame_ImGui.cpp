@@ -509,6 +509,95 @@ void EditorMainFrame_ImGui::EditMaterial(MaterialDefinition* pMaterial)
     m_IsMaterialEditorOpen = true;
 }
 
+void EditorMainFrame_ImGui::AddInlineMaterial(MaterialDefinition* pMaterial)
+{
+    ImGui::SameLine();
+    if( ImGui::CollapsingHeader( "" ) )
+    {
+        ImGui::Indent( 20 );
+
+        // Show Exposed Uniforms
+        if( pMaterial->m_pShaderGroup )
+        {
+            MyFileObjectShader* pShaderFile = pMaterial->m_pShaderGroup->GetFile();
+            if( pShaderFile )
+            {
+                for( unsigned int i=0; i<pShaderFile->m_NumExposedUniforms; i++ )
+                {
+                    char tempname[32];
+
+                    // Hardcoding to remove the 'u_' I like to stick at the start of my uniform names.
+                    if( pShaderFile->m_ExposedUniforms[i].m_Name[1] == '_' )
+                        strcpy_s( tempname, 32, &pShaderFile->m_ExposedUniforms[i].m_Name[2] );
+                    else
+                        strcpy_s( tempname, 32, pShaderFile->m_ExposedUniforms[i].m_Name );
+
+                    switch( pShaderFile->m_ExposedUniforms[i].m_Type )
+                    {
+                    case ExposedUniformType_Float:
+                        ImGui::DragFloat( tempname, &pMaterial->m_UniformValues[i].m_Float, 0.01f, 0, 1 );
+                        //g_pPanelWatch->AddFloat( tempname, &m_UniformValues[i].m_Float, 0, 1 );
+                        break;
+
+                    case ExposedUniformType_Vec2:
+                        ImGui::DragFloat2( tempname, pMaterial->m_UniformValues[i].m_Vec2, 0.01f, 0, 1 );
+                        //g_pPanelWatch->AddVector2( tempname, (Vector2*)&m_UniformValues[i].m_Vec2, 0, 1 );
+                        break;
+
+                    case ExposedUniformType_Vec3:
+                        ImGui::DragFloat3( tempname, pMaterial->m_UniformValues[i].m_Vec3, 0.01f, 0, 1 );
+                        //g_pPanelWatch->AddVector3( tempname, (Vector3*)&m_UniformValues[i].m_Vec3, 0, 1 );
+                        break;
+
+                    case ExposedUniformType_Vec4:
+                        ImGui::DragFloat4( tempname, pMaterial->m_UniformValues[i].m_Vec4, 0.01f, 0, 1 );
+                        //g_pPanelWatch->AddVector4( tempname, (Vector4*)&m_UniformValues[i].m_Vec4, 0, 1 );
+                        break;
+
+                    case ExposedUniformType_ColorByte:
+                        ImGui::Text( "Uniform ColorByte: (TODO)" );
+                        //ImGui::ColorEdit4( tempname, &pMaterial->m_UniformValues[i].m_ColorByte, 0.01f, 0, 1 );
+                        //g_pPanelWatch->AddColorByte( tempname, (ColorByte*)&m_UniformValues[i].m_ColorByte, 0, 255 );
+                        break;
+
+                    case ExposedUniformType_Sampler2D:
+                        ImGui::Text( "Uniform Sampler2D: (TODO)" );
+                        //m_UniformValues[i].m_ControlID = g_pPanelWatch->AddPointerWithDescription(
+                        //    tempname, m_UniformValues[i].m_pTexture,
+                        //    m_UniformValues[i].m_pTexture ? m_UniformValues[i].m_pTexture->GetFilename() : "Texture Not Set",
+                        //    this, MaterialDefinition::StaticOnDropTexture, 0, 0 );                    
+                        break;
+
+                    case ExposedUniformType_NotSet:
+                    default:
+                        MyAssert( false );
+                        break;
+                    }
+                }
+            }
+        }
+
+        ImGui::Unindent( 20 );
+    }
+    //TextureDefinition* pTexture = m_pMaterialPreviewFBO->m_pColorTexture;
+    //int texw = m_pMaterialPreviewFBO->m_TextureWidth;
+    //int texh = m_pMaterialPreviewFBO->m_TextureHeight;
+
+    //ImVec2 size( 50, 50 );
+    //if( size.x == 0 )
+    //    size = ImGui::GetContentRegionAvail();
+    //if( size.x > size.y ) size.x = size.y;
+    //if( size.y > size.x ) size.y = size.x;
+
+    //if( pTexture )
+    //{
+    //    int w = pTexture->GetWidth();
+    //    int h = pTexture->GetHeight();
+    //    ImVec4 tint( 1, 1, 1, 1 );
+    //    ImGui::Image( (void*)pTexture->GetTextureID(), size, ImVec2(0,(float)h/texh), ImVec2((float)w/texw,0), tint );
+    //}
+}
+
 //====================================================================================================
 // Internal methods
 //====================================================================================================

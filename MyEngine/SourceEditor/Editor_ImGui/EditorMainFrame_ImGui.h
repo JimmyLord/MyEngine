@@ -87,6 +87,7 @@ public:
     void DrawGameAndEditorWindows(EngineCore* pEngineCore);
 
     void EditMaterial(MaterialDefinition* pMaterial);
+    void AddInlineMaterial(MaterialDefinition* pMaterial);
 
 protected:
     void AddMainMenuBar();

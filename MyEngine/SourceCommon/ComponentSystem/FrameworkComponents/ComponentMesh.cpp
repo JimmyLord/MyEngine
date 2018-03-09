@@ -184,6 +184,16 @@ void ComponentMesh::VariableAddedToWatchPanel(ComponentVariable* pVar)
         if( m_pMaterials[i] == 0 )
             continue;
 
+#if MYFW_USING_IMGUI
+        if( pVar->m_Label == g_MaterialLabels[i] )
+        {
+            if( m_pMaterials[i]->m_UniformValues[0].m_Type != ExposedUniformType_NotSet )
+            {
+                g_pEngineCore->GetEditorMainFrame_ImGui()->AddInlineMaterial( m_pMaterials[i] );
+            }
+        }
+#endif //MYFW_USING_IMGUI
+
 #if MYFW_USING_WX
         m_MaterialExpandButtonControlIDs[i] = -1;
 
