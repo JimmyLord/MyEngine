@@ -536,36 +536,86 @@ void EditorMainFrame_ImGui::AddInlineMaterial(MaterialDefinition* pMaterial)
                     {
                     case ExposedUniformType_Float:
                         ImGui::DragFloat( tempname, &pMaterial->m_UniformValues[i].m_Float, 0.01f, 0, 1 );
-                        //g_pPanelWatch->AddFloat( tempname, &m_UniformValues[i].m_Float, 0, 1 );
                         break;
 
                     case ExposedUniformType_Vec2:
                         ImGui::DragFloat2( tempname, pMaterial->m_UniformValues[i].m_Vec2, 0.01f, 0, 1 );
-                        //g_pPanelWatch->AddVector2( tempname, (Vector2*)&m_UniformValues[i].m_Vec2, 0, 1 );
                         break;
 
                     case ExposedUniformType_Vec3:
                         ImGui::DragFloat3( tempname, pMaterial->m_UniformValues[i].m_Vec3, 0.01f, 0, 1 );
-                        //g_pPanelWatch->AddVector3( tempname, (Vector3*)&m_UniformValues[i].m_Vec3, 0, 1 );
                         break;
 
                     case ExposedUniformType_Vec4:
                         ImGui::DragFloat4( tempname, pMaterial->m_UniformValues[i].m_Vec4, 0.01f, 0, 1 );
-                        //g_pPanelWatch->AddVector4( tempname, (Vector4*)&m_UniformValues[i].m_Vec4, 0, 1 );
                         break;
 
                     case ExposedUniformType_ColorByte:
-                        ImGui::Text( "Uniform ColorByte: (TODO)" );
-                        //ImGui::ColorEdit4( tempname, &pMaterial->m_UniformValues[i].m_ColorByte, 0.01f, 0, 1 );
-                        //g_pPanelWatch->AddColorByte( tempname, (ColorByte*)&m_UniformValues[i].m_ColorByte, 0, 255 );
+                        {
+                            ColorByte* pColorByte = (ColorByte*)pMaterial->m_UniformValues[i].m_ColorByte;
+                            ColorFloat colorFloat = pColorByte->AsColorFloat();
+                            if( ImGui::ColorEdit4( "Ambient Color", &colorFloat.r ) )
+                            {
+                                pColorByte->SetFromColorFloat( colorFloat );
+                            }
+                        }
                         break;
 
                     case ExposedUniformType_Sampler2D:
-                        ImGui::Text( "Uniform Sampler2D: (TODO)" );
-                        //m_UniformValues[i].m_ControlID = g_pPanelWatch->AddPointerWithDescription(
-                        //    tempname, m_UniformValues[i].m_pTexture,
-                        //    m_UniformValues[i].m_pTexture ? m_UniformValues[i].m_pTexture->GetFilename() : "Texture Not Set",
-                        //    this, MaterialDefinition::StaticOnDropTexture, 0, 0 );                    
+                        //ImGui::Text( "Uniform Sampler2D: (TODO)" );
+                        {
+                            const char* desc = "no texture";
+
+                            Vector4 buttonColor = g_pEditorPrefs->GetImGuiStylePrefs()->GetColor( ImGuiStylePrefs::StylePref_Color_UnsetObjectButton );
+                            Vector4 textColor = g_pEditorPrefs->GetImGuiStylePrefs()->GetColor( ImGuiStylePrefs::StylePref_Color_UnsetObjectText );
+
+                            TextureDefinition* pTextureColor = pMaterial->m_UniformValues[i].m_pTexture; //pMat->GetTextureColor();
+                            if( pTextureColor )
+                            {
+                                desc = pTextureColor->GetFilename();
+
+                                buttonColor = g_pEditorPrefs->GetImGuiStylePrefs()->GetColor( ImGuiStylePrefs::StylePref_Color_Button );
+                                textColor = g_pEditorPrefs->GetImGuiStylePrefs()->GetColor( ImGuiStylePrefs::StylePref_Color_Text );
+                            }
+
+                            ImGui::PushStyleColor( ImGuiCol_Button, buttonColor );
+                            ImGui::PushStyleColor( ImGuiCol_Text, textColor );
+                            ImGui::Button( desc, ImVec2( ImGui::GetWindowWidth() * 0.65f, 0 ) );
+                            ImGui::PopStyleColor( 2 );
+
+                            if( ImGui::BeginDragDropTarget() )
+                            {
+                                if( const ImGuiPayload* payload = ImGui::AcceptDragDropPayload( "Texture" ) )
+                                {
+                                    TextureDefinition* pNewTexture = (TextureDefinition*)*(void**)payload->Data;
+                                    if( pNewTexture )
+                                        pNewTexture->AddRef();
+                                    SAFE_RELEASE( pMaterial->m_UniformValues[i].m_pTexture );
+                                    pMaterial->m_UniformValues[i].m_pTexture = pNewTexture;
+                                }
+                                ImGui::EndDragDropTarget();
+                            }
+
+                            if( ImGui::IsItemHovered() )
+                            {
+                                if( pTextureColor )
+                                {
+                                    ImGui::BeginTooltip();
+                                    //ImGui::Text( "%s", pTex->GetFilename() );
+                                    AddTexturePreview( false, pTextureColor, ImVec2( 100, 100 ), ImVec4( 1, 1, 1, 1 ) );
+                                    ImGui::EndTooltip();
+                                }
+
+                                if( ImGui::IsMouseDoubleClicked( 0 ) )
+                                {
+                                    SAFE_RELEASE( pMaterial->m_UniformValues[i].m_pTexture );
+                                    pMaterial->m_UniformValues[i].m_pTexture = 0;
+                                }
+                            }
+
+                            ImGui::SameLine();
+                            ImGui::Text( tempname );
+                        }
                         break;
 
                     case ExposedUniformType_NotSet:
@@ -579,23 +629,6 @@ void EditorMainFrame_ImGui::AddInlineMaterial(MaterialDefinition* pMaterial)
 
         ImGui::Unindent( 20 );
     }
-    //TextureDefinition* pTexture = m_pMaterialPreviewFBO->m_pColorTexture;
-    //int texw = m_pMaterialPreviewFBO->m_TextureWidth;
-    //int texh = m_pMaterialPreviewFBO->m_TextureHeight;
-
-    //ImVec2 size( 50, 50 );
-    //if( size.x == 0 )
-    //    size = ImGui::GetContentRegionAvail();
-    //if( size.x > size.y ) size.x = size.y;
-    //if( size.y > size.x ) size.y = size.x;
-
-    //if( pTexture )
-    //{
-    //    int w = pTexture->GetWidth();
-    //    int h = pTexture->GetHeight();
-    //    ImVec4 tint( 1, 1, 1, 1 );
-    //    ImGui::Image( (void*)pTexture->GetTextureID(), size, ImVec2(0,(float)h/texh), ImVec2((float)w/texw,0), tint );
-    //}
 }
 
 //====================================================================================================
