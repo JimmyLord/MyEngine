@@ -511,123 +511,115 @@ void EditorMainFrame_ImGui::EditMaterial(MaterialDefinition* pMaterial)
 
 void EditorMainFrame_ImGui::AddInlineMaterial(MaterialDefinition* pMaterial)
 {
-    ImGui::SameLine();
-    if( ImGui::CollapsingHeader( "" ) )
+    // Show Exposed Uniforms
+    if( pMaterial->m_pShaderGroup )
     {
-        ImGui::Indent( 20 );
-
-        // Show Exposed Uniforms
-        if( pMaterial->m_pShaderGroup )
+        MyFileObjectShader* pShaderFile = pMaterial->m_pShaderGroup->GetFile();
+        if( pShaderFile )
         {
-            MyFileObjectShader* pShaderFile = pMaterial->m_pShaderGroup->GetFile();
-            if( pShaderFile )
+            for( unsigned int i=0; i<pShaderFile->m_NumExposedUniforms; i++ )
             {
-                for( unsigned int i=0; i<pShaderFile->m_NumExposedUniforms; i++ )
+                char tempname[32];
+
+                // Hardcoding to remove the 'u_' I like to stick at the start of my uniform names.
+                if( pShaderFile->m_ExposedUniforms[i].m_Name[1] == '_' )
+                    strcpy_s( tempname, 32, &pShaderFile->m_ExposedUniforms[i].m_Name[2] );
+                else
+                    strcpy_s( tempname, 32, pShaderFile->m_ExposedUniforms[i].m_Name );
+
+                switch( pShaderFile->m_ExposedUniforms[i].m_Type )
                 {
-                    char tempname[32];
+                case ExposedUniformType_Float:
+                    ImGui::DragFloat( tempname, &pMaterial->m_UniformValues[i].m_Float, 0.01f, 0, 1 );
+                    break;
 
-                    // Hardcoding to remove the 'u_' I like to stick at the start of my uniform names.
-                    if( pShaderFile->m_ExposedUniforms[i].m_Name[1] == '_' )
-                        strcpy_s( tempname, 32, &pShaderFile->m_ExposedUniforms[i].m_Name[2] );
-                    else
-                        strcpy_s( tempname, 32, pShaderFile->m_ExposedUniforms[i].m_Name );
+                case ExposedUniformType_Vec2:
+                    ImGui::DragFloat2( tempname, pMaterial->m_UniformValues[i].m_Vec2, 0.01f, 0, 1 );
+                    break;
 
-                    switch( pShaderFile->m_ExposedUniforms[i].m_Type )
+                case ExposedUniformType_Vec3:
+                    ImGui::DragFloat3( tempname, pMaterial->m_UniformValues[i].m_Vec3, 0.01f, 0, 1 );
+                    break;
+
+                case ExposedUniformType_Vec4:
+                    ImGui::DragFloat4( tempname, pMaterial->m_UniformValues[i].m_Vec4, 0.01f, 0, 1 );
+                    break;
+
+                case ExposedUniformType_ColorByte:
                     {
-                    case ExposedUniformType_Float:
-                        ImGui::DragFloat( tempname, &pMaterial->m_UniformValues[i].m_Float, 0.01f, 0, 1 );
-                        break;
-
-                    case ExposedUniformType_Vec2:
-                        ImGui::DragFloat2( tempname, pMaterial->m_UniformValues[i].m_Vec2, 0.01f, 0, 1 );
-                        break;
-
-                    case ExposedUniformType_Vec3:
-                        ImGui::DragFloat3( tempname, pMaterial->m_UniformValues[i].m_Vec3, 0.01f, 0, 1 );
-                        break;
-
-                    case ExposedUniformType_Vec4:
-                        ImGui::DragFloat4( tempname, pMaterial->m_UniformValues[i].m_Vec4, 0.01f, 0, 1 );
-                        break;
-
-                    case ExposedUniformType_ColorByte:
+                        ColorByte* pColorByte = (ColorByte*)pMaterial->m_UniformValues[i].m_ColorByte;
+                        ColorFloat colorFloat = pColorByte->AsColorFloat();
+                        if( ImGui::ColorEdit4( "Ambient Color", &colorFloat.r ) )
                         {
-                            ColorByte* pColorByte = (ColorByte*)pMaterial->m_UniformValues[i].m_ColorByte;
-                            ColorFloat colorFloat = pColorByte->AsColorFloat();
-                            if( ImGui::ColorEdit4( "Ambient Color", &colorFloat.r ) )
-                            {
-                                pColorByte->SetFromColorFloat( colorFloat );
-                            }
+                            pColorByte->SetFromColorFloat( colorFloat );
                         }
-                        break;
+                    }
+                    break;
 
-                    case ExposedUniformType_Sampler2D:
-                        //ImGui::Text( "Uniform Sampler2D: (TODO)" );
+                case ExposedUniformType_Sampler2D:
+                    //ImGui::Text( "Uniform Sampler2D: (TODO)" );
+                    {
+                        const char* desc = "no texture";
+
+                        Vector4 buttonColor = g_pEditorPrefs->GetImGuiStylePrefs()->GetColor( ImGuiStylePrefs::StylePref_Color_UnsetObjectButton );
+                        Vector4 textColor = g_pEditorPrefs->GetImGuiStylePrefs()->GetColor( ImGuiStylePrefs::StylePref_Color_UnsetObjectText );
+
+                        TextureDefinition* pTextureColor = pMaterial->m_UniformValues[i].m_pTexture; //pMat->GetTextureColor();
+                        if( pTextureColor )
                         {
-                            const char* desc = "no texture";
+                            desc = pTextureColor->GetFilename();
 
-                            Vector4 buttonColor = g_pEditorPrefs->GetImGuiStylePrefs()->GetColor( ImGuiStylePrefs::StylePref_Color_UnsetObjectButton );
-                            Vector4 textColor = g_pEditorPrefs->GetImGuiStylePrefs()->GetColor( ImGuiStylePrefs::StylePref_Color_UnsetObjectText );
+                            buttonColor = g_pEditorPrefs->GetImGuiStylePrefs()->GetColor( ImGuiStylePrefs::StylePref_Color_Button );
+                            textColor = g_pEditorPrefs->GetImGuiStylePrefs()->GetColor( ImGuiStylePrefs::StylePref_Color_Text );
+                        }
 
-                            TextureDefinition* pTextureColor = pMaterial->m_UniformValues[i].m_pTexture; //pMat->GetTextureColor();
+                        ImGui::PushStyleColor( ImGuiCol_Button, buttonColor );
+                        ImGui::PushStyleColor( ImGuiCol_Text, textColor );
+                        ImGui::Button( desc, ImVec2( ImGui::GetWindowWidth() * 0.65f, 0 ) );
+                        ImGui::PopStyleColor( 2 );
+
+                        if( ImGui::BeginDragDropTarget() )
+                        {
+                            if( const ImGuiPayload* payload = ImGui::AcceptDragDropPayload( "Texture" ) )
+                            {
+                                TextureDefinition* pNewTexture = (TextureDefinition*)*(void**)payload->Data;
+                                if( pNewTexture )
+                                    pNewTexture->AddRef();
+                                SAFE_RELEASE( pMaterial->m_UniformValues[i].m_pTexture );
+                                pMaterial->m_UniformValues[i].m_pTexture = pNewTexture;
+                            }
+                            ImGui::EndDragDropTarget();
+                        }
+
+                        if( ImGui::IsItemHovered() )
+                        {
                             if( pTextureColor )
                             {
-                                desc = pTextureColor->GetFilename();
-
-                                buttonColor = g_pEditorPrefs->GetImGuiStylePrefs()->GetColor( ImGuiStylePrefs::StylePref_Color_Button );
-                                textColor = g_pEditorPrefs->GetImGuiStylePrefs()->GetColor( ImGuiStylePrefs::StylePref_Color_Text );
+                                ImGui::BeginTooltip();
+                                //ImGui::Text( "%s", pTex->GetFilename() );
+                                AddTexturePreview( false, pTextureColor, ImVec2( 100, 100 ), ImVec4( 1, 1, 1, 1 ) );
+                                ImGui::EndTooltip();
                             }
 
-                            ImGui::PushStyleColor( ImGuiCol_Button, buttonColor );
-                            ImGui::PushStyleColor( ImGuiCol_Text, textColor );
-                            ImGui::Button( desc, ImVec2( ImGui::GetWindowWidth() * 0.65f, 0 ) );
-                            ImGui::PopStyleColor( 2 );
-
-                            if( ImGui::BeginDragDropTarget() )
+                            if( ImGui::IsMouseDoubleClicked( 0 ) )
                             {
-                                if( const ImGuiPayload* payload = ImGui::AcceptDragDropPayload( "Texture" ) )
-                                {
-                                    TextureDefinition* pNewTexture = (TextureDefinition*)*(void**)payload->Data;
-                                    if( pNewTexture )
-                                        pNewTexture->AddRef();
-                                    SAFE_RELEASE( pMaterial->m_UniformValues[i].m_pTexture );
-                                    pMaterial->m_UniformValues[i].m_pTexture = pNewTexture;
-                                }
-                                ImGui::EndDragDropTarget();
+                                SAFE_RELEASE( pMaterial->m_UniformValues[i].m_pTexture );
+                                pMaterial->m_UniformValues[i].m_pTexture = 0;
                             }
-
-                            if( ImGui::IsItemHovered() )
-                            {
-                                if( pTextureColor )
-                                {
-                                    ImGui::BeginTooltip();
-                                    //ImGui::Text( "%s", pTex->GetFilename() );
-                                    AddTexturePreview( false, pTextureColor, ImVec2( 100, 100 ), ImVec4( 1, 1, 1, 1 ) );
-                                    ImGui::EndTooltip();
-                                }
-
-                                if( ImGui::IsMouseDoubleClicked( 0 ) )
-                                {
-                                    SAFE_RELEASE( pMaterial->m_UniformValues[i].m_pTexture );
-                                    pMaterial->m_UniformValues[i].m_pTexture = 0;
-                                }
-                            }
-
-                            ImGui::SameLine();
-                            ImGui::Text( tempname );
                         }
-                        break;
 
-                    case ExposedUniformType_NotSet:
-                    default:
-                        MyAssert( false );
-                        break;
+                        ImGui::SameLine();
+                        ImGui::Text( tempname );
                     }
+                    break;
+
+                case ExposedUniformType_NotSet:
+                default:
+                    MyAssert( false );
+                    break;
                 }
             }
         }
-
-        ImGui::Unindent( 20 );
     }
 }
 
@@ -2367,9 +2359,21 @@ void EditorMainFrame_ImGui::AddMaterialEditor()
                         }
                     }
 
-                    ImGui::SameLine();
-                    ImGui::Text( "Shader" );
-                    //m_ControlID_Shader = g_pPanelWatch->AddPointerWithDescription( "Shader", 0, desc, this, MaterialDefinition::StaticOnDropShader, 0, MaterialDefinition::StaticOnRightClickShader );
+                    if( pShaderGroup && pShaderGroup->GetFile() && pShaderGroup->GetFile()->m_NumExposedUniforms )
+                    {
+                        ImGui::SameLine();
+                        if( ImGui::CollapsingHeader( "Shader" ) )
+                        {
+                            ImGui::Indent( 20 );
+                            AddInlineMaterial( pMat );
+                            ImGui::Unindent( 20 );
+                        }
+                    }
+                    else
+                    {
+                        ImGui::SameLine();
+                        ImGui::Text( "Shader" );
+                    }
                 }
 
                 {
@@ -2407,9 +2411,22 @@ void EditorMainFrame_ImGui::AddMaterialEditor()
                         }
                     }
 
-                    ImGui::SameLine();
-                    ImGui::Text( "Instanced Shader" );
-                    //m_ControlID_ShaderInstanced = g_pPanelWatch->AddPointerWithDescription( "Shader Instanced", 0, desc, this, MaterialDefinition::StaticOnDropShader, 0, MaterialDefinition::StaticOnRightClickShader );
+                    // TODO: Instanced shaders can't use exposed uniforms.
+                    //if( pShaderGroupInstanced && pShaderGroupInstanced->GetFile() && pShaderGroupInstanced->GetFile()->m_NumExposedUniforms )
+                    //{
+                    //    ImGui::SameLine();
+                    //    if( ImGui::CollapsingHeader( "InstancedShader" ) )
+                    //    {
+                    //        ImGui::Indent( 20 );
+                    //        AddInlineMaterial( pMat );
+                    //        ImGui::Unindent( 20 );
+                    //    }
+                    //}
+                    //else
+                    {
+                        ImGui::SameLine();
+                        ImGui::Text( "InstancedShader" );
+                    }
                 }
 
                 {
@@ -2484,80 +2501,15 @@ void EditorMainFrame_ImGui::AddMaterialEditor()
                 ImGui::DragFloat( "Shininess", &pMat->m_Shininess );
             }
 
-            if( showexposeduniforms && pShaderGroup )
             {
-                MyFileObjectShader* pShaderFile = pShaderGroup->GetFile();
-                if( pShaderFile )
+                ImGui::Separator();
+                ImGui::Text( "MANUAL SAVE" );
+                if( ImGui::Button( "Save" ) )
                 {
-                    for( unsigned int i=0; i<pShaderFile->m_NumExposedUniforms; i++ )
-                    {
-                        char tempname[32];
-
-                        // Hardcoding to remove the 'u_' I like to stick at the start of my uniform names.
-                        if( pShaderFile->m_ExposedUniforms[i].m_Name[1] == '_' )
-                            strcpy_s( tempname, 32, &pShaderFile->m_ExposedUniforms[i].m_Name[2] );
-                        else
-                            strcpy_s( tempname, 32, pShaderFile->m_ExposedUniforms[i].m_Name );
-
-                        switch( pShaderFile->m_ExposedUniforms[i].m_Type )
-                        {
-                        case ExposedUniformType_Float:
-                            ImGui::DragFloat( tempname, &pMat->m_UniformValues[i].m_Float );
-                            //g_pPanelWatch->AddFloat( tempname, &m_UniformValues[i].m_Float, 0, 1 );
-                            break;
-
-                        case ExposedUniformType_Vec2:
-                            ImGui::DragFloat2( tempname, &pMat->m_UniformValues[i].m_Vec2[0] );
-                            //g_pPanelWatch->AddVector2( tempname, (Vector2*)&m_UniformValues[i].m_Vec2, 0, 1 );
-                            break;
-
-                        case ExposedUniformType_Vec3:
-                            ImGui::DragFloat3( tempname, &pMat->m_UniformValues[i].m_Vec3[0] );
-                            //g_pPanelWatch->AddVector3( tempname, (Vector3*)&m_UniformValues[i].m_Vec3, 0, 1 );
-                            break;
-
-                        case ExposedUniformType_Vec4:
-                            ImGui::DragFloat4( tempname, &pMat->m_UniformValues[i].m_Vec4[0] );
-                            //g_pPanelWatch->AddVector4( tempname, (Vector4*)&m_UniformValues[i].m_Vec4, 0, 1 );
-                            break;
-
-                        case ExposedUniformType_ColorByte:
-                            {
-                                ColorFloat color = ((ColorByte*)&pMat->m_UniformValues[i].m_ColorByte)->AsColorFloat();
-                                if( ImGui::ColorEdit4( tempname, &color.r ) )
-                                {
-                                    ((ColorByte*)&pMat->m_UniformValues[i].m_ColorByte)->SetFromColorFloat( color );
-                                }
-                                //g_pPanelWatch->AddColorByte( tempname, (ColorByte*)&m_UniformValues[i].m_ColorByte, 0, 255 );
-                            }
-                            break;
-
-                        case ExposedUniformType_Sampler2D:
-                            ImGui::Text( "%s (TODO) - Sampler2D", tempname );
-                            //m_UniformValues[i].m_ControlID = g_pPanelWatch->AddPointerWithDescription(
-                            //    tempname, m_UniformValues[i].m_pTexture,
-                            //    m_UniformValues[i].m_pTexture ? m_UniformValues[i].m_pTexture->GetFilename() : "Texture Not Set",
-                            //    this, MaterialDefinition::StaticOnDropTexture, 0, 0 );                    
-                            break;
-
-                        case ExposedUniformType_NotSet:
-                        default:
-                            MyAssert( false );
-                            break;
-                        }
-                    }
+                    pMat->SaveMaterial( 0 );
                 }
-
-                {
-                    ImGui::Separator();
-                    ImGui::Text( "MANUAL SAVE" );
-                    if( ImGui::Button( "Save" ) )
-                    {
-                        pMat->SaveMaterial( 0 );
-                    }
-                    ImGui::SameLine();
-                    ImGui::Text( "<- MANUAL SAVE" );
-                }
+                ImGui::SameLine();
+                ImGui::Text( "<- MANUAL SAVE" );
             }
         }
     }

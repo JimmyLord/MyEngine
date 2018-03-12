@@ -1041,11 +1041,14 @@ cJSON* ComponentLuaScript::ExportAsJSONObject(bool savesceneid, bool saveid)
 #if MYFW_EDITOR
     // Trim white-space before saving.
     size_t left = m_pLuaInlineScript_OnPlay.find_first_not_of( " \t" );
-    size_t right = m_pLuaInlineScript_OnPlay.find_last_not_of( " \t" );
-    m_pLuaInlineScript_OnPlay = m_pLuaInlineScript_OnPlay.substr( left, right-left+1 );
-    if( m_pLuaInlineScript_OnPlay.length() > 0 )
+    if( left != std::string::npos )
     {
-        cJSON_AddStringToObject( jComponent, "LuaString_OnPlay", m_pLuaInlineScript_OnPlay.c_str() );
+        size_t right = m_pLuaInlineScript_OnPlay.find_last_not_of( " \t" );
+        m_pLuaInlineScript_OnPlay = m_pLuaInlineScript_OnPlay.substr( left, right-left+1 );
+        if( m_pLuaInlineScript_OnPlay.length() > 0 )
+        {
+            cJSON_AddStringToObject( jComponent, "LuaString_OnPlay", m_pLuaInlineScript_OnPlay.c_str() );
+        }
     }
 #endif
 

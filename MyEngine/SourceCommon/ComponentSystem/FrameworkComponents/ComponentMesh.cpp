@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2014-2017 Jimmy Lord http://www.flatheadgames.com
+// Copyright (c) 2014-2018 Jimmy Lord http://www.flatheadgames.com
 //
 // This software is provided 'as-is', without any express or implied warranty.  In no event will the authors be held liable for any damages arising from the use of this software.
 // Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -189,7 +189,13 @@ void ComponentMesh::VariableAddedToWatchPanel(ComponentVariable* pVar)
         {
             if( m_pMaterials[i]->m_UniformValues[0].m_Type != ExposedUniformType_NotSet )
             {
-                g_pEngineCore->GetEditorMainFrame_ImGui()->AddInlineMaterial( m_pMaterials[i] );
+                ImGui::SameLine();
+                if( ImGui::CollapsingHeader( g_MaterialLabels[i] ) )
+                {
+                    ImGui::Indent( 20 );
+                    g_pEngineCore->GetEditorMainFrame_ImGui()->AddInlineMaterial( m_pMaterials[i] );
+                    ImGui::Unindent( 20 );
+                }
             }
         }
 #endif //MYFW_USING_IMGUI
