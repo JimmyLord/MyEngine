@@ -904,6 +904,9 @@ void ComponentBase::AddVariableToWatchPanel(ComponentVariable* pVar)
 
         case ComponentVariableType_ComponentPtr:
             {
+                // Group the button and the label into one "control", will make right-click context menu work on button.
+                ImGui::BeginGroup();
+
                 ComponentBase* pComponent = *(ComponentBase**)((char*)this + pVar->m_Offset);
 
                 const char* pDesc = "none";
@@ -935,11 +938,16 @@ void ComponentBase::AddVariableToWatchPanel(ComponentVariable* pVar)
 
                 ImGui::SameLine();
                 ImGui::Text( pVar->m_Label );
+
+                ImGui::EndGroup();
             }
             break;
 
         case ComponentVariableType_FilePtr:
             {
+                // Group the button and the label into one "control", will make right-click context menu work on button.
+                ImGui::BeginGroup();
+
                 MyFileObject* pFile = *(MyFileObject**)((char*)this + pVar->m_Offset);
 
                 Vector4 buttonColor = g_pEditorPrefs->GetImGuiStylePrefs()->GetColor( ImGuiStylePrefs::StylePref_Color_UnsetObjectButton );
@@ -979,11 +987,16 @@ void ComponentBase::AddVariableToWatchPanel(ComponentVariable* pVar)
 
                 ImGui::SameLine();
                 ImGui::Text( pVar->m_Label );
+
+                ImGui::EndGroup();
             }
             break;
 
         case ComponentVariableType_MaterialPtr:
             {
+                // Group the button and the label into one "control", will make right-click context menu work on button.
+                ImGui::BeginGroup();
+
                 MaterialDefinition* pMaterial = *(MaterialDefinition**)((char*)this + pVar->m_Offset);
 
                 const char* pDesc = "no material";
@@ -1019,7 +1032,7 @@ void ComponentBase::AddVariableToWatchPanel(ComponentVariable* pVar)
                 ImGui::SameLine();
                 ImGui::Text( pVar->m_Label );
 
-                //pVar->m_ControlID = g_pPanelWatch->AddPointerWithDescription( pVar->m_WatchLabel, pMaterial, desc, this, ComponentBase::StaticOnDropVariable, ComponentBase::StaticOnValueChangedVariable, ComponentBase::StaticOnRightClickVariable );
+                ImGui::EndGroup();
             }
             break;
 
@@ -1038,6 +1051,9 @@ void ComponentBase::AddVariableToWatchPanel(ComponentVariable* pVar)
 
         case ComponentVariableType_PointerIndirect:
             {
+                // Group the button and the label into one "control", will make right-click context menu work on button.
+                ImGui::BeginGroup();
+
                 //void* pPtr = (this->*pVar->m_pGetPointerValueCallBackFunc)( pVar );
                 const char* pDesc = (this->*pVar->m_pGetPointerDescCallBackFunc)( pVar );
 
@@ -1087,6 +1103,8 @@ void ComponentBase::AddVariableToWatchPanel(ComponentVariable* pVar)
 
                 ImGui::SameLine();
                 ImGui::Text( pVar->m_Label );
+
+                ImGui::EndGroup();
             }
             break;
 
@@ -1099,37 +1117,39 @@ void ComponentBase::AddVariableToWatchPanel(ComponentVariable* pVar)
         ImGui::PopStyleColor( numStylesPushed );
         numStylesPushed = 0;
 
-        // Right-click menu, for divorce/marry.
-        // Will attach to last control used, which should either be the entire control or the label.
-        // TODO: Find way to show context menu if the button of a "Pointer type" is right-clicked, not just label.
+        // Right-click menu, for divorce/marry and other things.
+        // Will attach to last control used, which should be the control and label which are grouped.
         {
             ImGui::PushID( pVar );
             if( ImGui::BeginPopupContextItem( "ContextPopup", 1 ) )
             {
-                if( IsDivorced( pVar->m_Index ) == false )
+                if( m_pGameObject->GetGameObjectThisInheritsFrom() )
                 {
-                    if( ImGui::MenuItem( "Divorce value from parent" ) )
+                    if( IsDivorced( pVar->m_Index ) == false )
                     {
-                        g_pGameCore->GetCommandStack()->Do( MyNew EditorCommand_DivorceOrMarryComponentVariable( this, pVar, true ) );
+                        if( ImGui::MenuItem( "Divorce value from parent" ) )
+                        {
+                            g_pGameCore->GetCommandStack()->Do( MyNew EditorCommand_DivorceOrMarryComponentVariable( this, pVar, true ) );
 
-                        ImGui::CloseCurrentPopup();
+                            ImGui::CloseCurrentPopup();
+                        }
                     }
-                }
-                else
-                {                        
-                    if( ImGui::MenuItem( "Reset value to parent" ) )
-                    {
-                        g_pGameCore->GetCommandStack()->Do( MyNew EditorCommand_DivorceOrMarryComponentVariable( this, pVar, false ) );
+                    else
+                    {                        
+                        if( ImGui::MenuItem( "Reset value to parent" ) )
+                        {
+                            g_pGameCore->GetCommandStack()->Do( MyNew EditorCommand_DivorceOrMarryComponentVariable( this, pVar, false ) );
 
-                        ImGui::CloseCurrentPopup();
+                            ImGui::CloseCurrentPopup();
+                        }
                     }
                 }
 
                 // TODO: This pVar callback needs to be called, not sure what's using it.
-                //if( pVar->m_pOnRightClickCallbackFunc )
-                //{
-                //    (this->*(pVar->m_pOnRightClickCallbackFunc))( pVar, &menu );
-                //}
+                if( pVar->m_pOnRightClickCallbackFunc )
+                {
+                    (this->*(pVar->m_pOnRightClickCallbackFunc))( pVar, 0 ); //&menu );
+                }
 
                 ImGui::EndPopup();
             }

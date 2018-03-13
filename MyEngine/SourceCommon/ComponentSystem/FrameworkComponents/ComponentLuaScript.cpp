@@ -8,6 +8,7 @@
 // 3. This notice may not be removed or altered from any source distribution.
 
 #include "EngineCommonHeader.h"
+#include "../../../SourceEditor/PlatformSpecific/FileOpenDialog.h"
 
 #if MYFW_USING_LUA
 
@@ -76,6 +77,9 @@ void ComponentLuaScript::RegisterVariables(CPPListHead* pList, ComponentLuaScrip
 
     // Script is not automatically saved/loaded
     ComponentVariable* pVar = AddVar( pList, "Script", ComponentVariableType_FilePtr, MyOffsetOf( pThis, &pThis->m_pScriptFile ), false, true, 0, (CVarFunc_ValueChanged)&ComponentLuaScript::OnValueChanged, (CVarFunc_DropTarget)&ComponentLuaScript::OnDrop, 0 );
+#if MYFW_USING_IMGUI
+    pVar->AddCallback_OnRightClick( (CVarFunc_wxMenu)&ComponentLuaScript::OnRightClickCallback, 0 );
+#endif
 #if MYFW_USING_WX
     pVar->AddCallback_OnRightClick( (CVarFunc_wxMenu)&ComponentLuaScript::OnRightClickCallback, (CVarFunc_Int)&ComponentLuaScript::OnPopupClickCallback );
 #endif
@@ -103,6 +107,11 @@ void ComponentLuaScript::Reset()
     while( m_ExposedVars.Count() )
     {
         ExposedVariableDesc* pVariable = m_ExposedVars.RemoveIndex( 0 );
+
+        // unregister gameobject deleted callback, if we registered one.
+        if( pVariable->type == ExposedVariableType_GameObject && pVariable->pointer )
+            ((GameObject*)pVariable->pointer)->UnregisterOnDeleteCallback( this, StaticOnGameObjectDeleted );
+
         delete pVariable;
     }
 
@@ -148,13 +157,16 @@ void ComponentLuaScript::SetPointerDesc(ComponentVariable* pVar, const char* new
 }
 
 #if MYFW_EDITOR
-#if MYFW_USING_WX
 void ComponentLuaScript::CreateNewScriptFile()
 {
     //if( m_pScriptFile == 0 )
     {
         // generally offer to create scripts in Scripts folder.
-        wxString initialpath = "./Data/Scripts";
+#if MYFW_USING_IMGUI
+        const char* initialpath = "Data\\Scripts\\";
+#elif MYFW_USING_WX
+        const char* initialpath = "./Data/Scripts";
+#endif
 
         bool ismenuactionscript = false;
         bool ismeshscript = false;
@@ -163,7 +175,11 @@ void ComponentLuaScript::CreateNewScriptFile()
         if( m_pGameObject->GetFirstComponentOfType( "MenuPageComponent" ) != 0 )
         {
             ismenuactionscript = true;
+#if MYFW_USING_IMGUI
+            initialpath = "Data\\Menus\\";
+#elif MYFW_USING_WX
             initialpath = "./Data/Menus";
+#endif
         }
 
         // If a ComponentMesh is attached to this game object, then add a SetupCustomUniforms callback.
@@ -172,6 +188,7 @@ void ComponentLuaScript::CreateNewScriptFile()
             ismeshscript = true;
         }
 
+#if MYFW_USING_WX
         wxFileDialog FileDialog( g_pEngineMainFrame, _("Create Lua script file"), initialpath, "", "Lua script files (*.lua)|*.lua", wxFD_SAVE|wxFD_OVERWRITE_PROMPT);
     
         if( FileDialog.ShowModal() != wxID_CANCEL )
@@ -179,14 +196,33 @@ void ComponentLuaScript::CreateNewScriptFile()
             wxString wxpath = FileDialog.GetPath();
             char fullpath[MAX_PATH];
             sprintf_s( fullpath, MAX_PATH, "%s", (const char*)wxpath );
+#else
+        const char* filename = FileSaveDialog( initialpath, "Lua script files\0*.lua\0All\0*.*\0" );
+        if( filename[0] != 0 )
+        {
+            int len = strlen( filename );
+
+            // Append '.lua' to end of filename if it wasn't already there.
+            char fullpath[MAX_PATH];
+            if( len > 4 && strcmp( &filename[len-4], ".lua" ) == 0 )
+            {
+                strcpy_s( fullpath, MAX_PATH, filename );
+            }
+            else
+            {
+                sprintf_s( fullpath, MAX_PATH, "%s.lua", filename );
+            }
+#endif
             const char* relativepath = GetRelativePath( fullpath );
 
             MyFileObject* pScriptFile = g_pComponentSystemManager->LoadDataFile( relativepath, m_pGameObject->GetSceneID(), 0, true );
             SetScriptFile( pScriptFile );
 
+#if MYFW_USING_WX
             // update the panel so new filename shows up. // TODO: this won't refresh lua variables, so maybe refresh the whole watch panel.
             int scriptcontrolid = FindVariablesControlIDByLabel( "Script" );
             g_pPanelWatch->GetVariableProperties( scriptcontrolid )->m_Description = m_pScriptFile->GetFullPath();
+#endif
 
             // TODO: create a template file.
             {
@@ -260,6 +296,7 @@ void ComponentLuaScript::CreateNewScriptFile()
     }
 }
 
+#if MYFW_USING_WX
 void ComponentLuaScript::OnFileUpdated(MyFileObject* pFile)
 {
     if( pFile == m_pScriptFile )
@@ -449,6 +486,26 @@ void* ComponentLuaScript::OnValueChanged(ComponentVariable* pVar, bool changedby
     return oldpointer;
 }
 #endif //MYFW_EDITOR
+
+#if MYFW_USING_IMGUI
+void ComponentLuaScript::OnRightClickCallback(ComponentVariable* pVar, void* pMenu)
+{
+    if( m_pScriptFile )
+    {
+        if( ImGui::MenuItem( "Edit script" ) )
+        {
+            m_pScriptFile->OSLaunchFile( true );
+            ImGui::CloseCurrentPopup();
+        }
+    }
+
+    if( ImGui::MenuItem( "Create new script" ) )
+    {
+        CreateNewScriptFile();
+        ImGui::CloseCurrentPopup();
+    }
+}
+#endif
 
 #if MYFW_USING_WX
 void ComponentLuaScript::OnRightClickCallback(ComponentVariable* pVar, wxMenu* pMenu)
@@ -1251,6 +1308,14 @@ void ComponentLuaScript::SetScriptFile(MyFileObject* script)
 
     SAFE_RELEASE( m_pScriptFile );
     m_pScriptFile = script;
+
+    m_ScriptLoaded = false;
+    m_ErrorInScript = false;
+
+    if( m_Playing )
+    {
+        m_CallLuaOnPlayNextTickOrAfterScriptIsFinishedLoading = true;
+    }
 }
 
 void ComponentLuaScript::LoadScript()
@@ -1507,7 +1572,13 @@ void ComponentLuaScript::ParseExterns(luabridge::LuaRef LuaObject)
     {
         if( m_ExposedVars[i]->inuse == false )
         {
-            m_ExposedVars.RemoveIndex_MaintainOrder( i );
+            ExposedVariableDesc* pVariable = m_ExposedVars.RemoveIndex_MaintainOrder( i );
+
+            // unregister gameobject deleted callback, if we registered one.
+            if( pVariable->type == ExposedVariableType_GameObject && pVariable->pointer )
+                ((GameObject*)pVariable->pointer)->UnregisterOnDeleteCallback( this, StaticOnGameObjectDeleted );
+
+            delete pVariable;
             i--;
         }
     }

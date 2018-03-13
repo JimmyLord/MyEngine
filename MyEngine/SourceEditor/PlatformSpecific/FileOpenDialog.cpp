@@ -14,7 +14,7 @@
 // To allow the dialog to open multiple files,
 //     pass a pointer to a bool that will be set to true if multiple files were selected
 //         or false if only 1 file was selected
-char* FileOpenDialog(char* initialDir, const char* filter, bool* openedMultipleFiles)
+char* FileOpenDialog(const char* initialDir, const char* filter, bool* openedMultipleFiles)
 {
 #if MYFW_WINDOWS
     static char fullpath[2048]; // Allow for multiple files to be opened at once.
@@ -60,7 +60,7 @@ char* FileOpenDialog(char* initialDir, const char* filter, bool* openedMultipleF
     return fullpath;
 }
 
-char* FileSaveDialog(char* initialDir, const char* filter)
+char* FileSaveDialog(const char* initialDir, const char* filter)
 {
 #if MYFW_WINDOWS
     static char fullpath[MAX_PATH];

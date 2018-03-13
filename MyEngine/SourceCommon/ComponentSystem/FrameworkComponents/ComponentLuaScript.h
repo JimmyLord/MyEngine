@@ -160,7 +160,6 @@ public:
 
 public:
 #if MYFW_EDITOR
-#if MYFW_USING_WX
     enum RightClickOptions
     {
         RightClick_CreateNewScriptFile = 2000,
@@ -169,6 +168,7 @@ public:
 
     void CreateNewScriptFile();
 
+#if MYFW_USING_WX
     static void StaticOnFileUpdated(void* pObjectPtr, MyFileObject* pFile) { ((ComponentLuaScript*)pObjectPtr)->OnFileUpdated( pFile ); }
     void OnFileUpdated(MyFileObject* pFile);
 
@@ -190,6 +190,9 @@ public:
     void* OnDrop(ComponentVariable* pVar, int x, int y);
     void* OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue* pNewValue);
 
+#if MYFW_USING_IMGUI
+    void OnRightClickCallback(ComponentVariable* pVar, void* pMenu);
+#endif
 #if MYFW_USING_WX
     void OnRightClickCallback(ComponentVariable* pVar, wxMenu* pMenu);
     void OnPopupClickCallback(ComponentVariable* pVar, int id);
