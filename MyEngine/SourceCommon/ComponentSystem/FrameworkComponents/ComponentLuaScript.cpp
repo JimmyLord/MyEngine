@@ -296,6 +296,68 @@ void ComponentLuaScript::CreateNewScriptFile()
     }
 }
 
+#if MYFW_USING_IMGUI
+void ComponentLuaScript::AddAllVariablesToWatchPanel()
+{
+    ComponentBase::AddAllVariablesToWatchPanel();
+
+    ImGui::Indent( 20 );
+
+    // Add all component variables.
+    for( unsigned int i=0; i<m_ExposedVars.Count(); i++ )
+    {
+        ExposedVariableDesc* pVar = m_ExposedVars[i];
+
+        switch( pVar->type )
+        {
+        case ExposedVariableType_Unused:
+            MyAssert( false );
+            break;
+
+        case ExposedVariableType_Float:
+            {
+                float afloat = (float)pVar->valuedouble;
+                bool modified = ImGui::DragFloat( pVar->name.c_str(), &afloat, 0.1f, 0, 0 );
+                pVar->valuedouble = afloat;
+                OnExposedVarValueChanged( pVar, 0, true, 0, 0 );
+                //id = g_pPanelWatch->AddDouble( pVar->name.c_str(), &pVar->valuedouble, 0, 0, this, ComponentLuaScript::StaticOnPanelWatchExposedVarValueChanged, ComponentLuaScript::StaticOnRightClickExposedVariable );
+            }
+            break;
+
+        case ExposedVariableType_Bool:
+            {
+                //id = g_pPanelWatch->AddBool( pVar->name.c_str(), &pVar->valuebool, 0, 0, this, ComponentLuaScript::StaticOnPanelWatchExposedVarValueChanged, ComponentLuaScript::StaticOnRightClickExposedVariable );
+            }
+            break;
+
+        case ExposedVariableType_Vector3:
+            {
+                //id = g_pPanelWatch->AddVector3( pVar->name.c_str(), (Vector3*)&pVar->valuevector3, 0, 0, this, ComponentLuaScript::StaticOnPanelWatchExposedVarValueChanged, ComponentLuaScript::StaticOnRightClickExposedVariable );
+            }
+            break;
+
+        case ExposedVariableType_GameObject:
+            {
+                // setup name and drag and drop of game objects.
+                //const char* desc = "no gameobject";
+                //if( pVar->pointer )
+                //    desc = ((GameObject*)pVar->pointer)->GetName();
+                //id = g_pPanelWatch->AddPointerWithDescription( pVar->name.c_str(), pVar->pointer, desc, this, ComponentLuaScript::StaticOnDropExposedVar, ComponentLuaScript::StaticOnPanelWatchExposedVarValueChanged, ComponentLuaScript::StaticOnRightClickExposedVariable );
+            }
+            break;
+        }
+
+        if( pVar->divorced )
+        {
+            //g_pPanelWatch->ChangeStaticTextFontStyle( id, wxFONTSTYLE_ITALIC, wxFONTWEIGHT_BOLD );
+            //g_pPanelWatch->ChangeStaticTextBGColor( id, wxColour( 255, 200, 200, 255 ) );
+        }
+    }
+
+    ImGui::Unindent( 20 );
+}
+#endif
+
 #if MYFW_USING_WX
 void ComponentLuaScript::OnFileUpdated(MyFileObject* pFile)
 {
@@ -485,7 +547,6 @@ void* ComponentLuaScript::OnValueChanged(ComponentVariable* pVar, bool changedby
 
     return oldpointer;
 }
-#endif //MYFW_EDITOR
 
 #if MYFW_USING_IMGUI
 void ComponentLuaScript::OnRightClickCallback(ComponentVariable* pVar, void* pMenu)
@@ -677,6 +738,7 @@ void ComponentLuaScript::OnPanelWatchExposedVarValueChanged(int controlid, bool 
     // deal with all types here (float, bool, vec3, GameObject)
     OnExposedVarValueChanged( pVar, component, finishedchanging, oldvalue, oldpointer );
 }
+#endif //MYFW_USING_WX
 
 void ComponentLuaScript::OnExposedVarValueChanged(ExposedVariableDesc* pVar, int component, bool finishedchanging, double oldvalue, void* oldpointer)
 {
@@ -706,14 +768,17 @@ void ComponentLuaScript::OnExposedVarValueChanged(ExposedVariableDesc* pVar, int
     {
         // if the variable no longer matches the parent, then divorce it.
         pVar->divorced = true;
+#if MYFW_USING_WX
         g_pPanelWatch->ChangeStaticTextFontStyle( pVar->controlID, wxFONTSTYLE_ITALIC, wxFONTWEIGHT_BOLD );
         g_pPanelWatch->ChangeStaticTextBGColor( pVar->controlID, wxColour( 255, 200, 200, 255 ) );
+#endif
     }
 
     UpdateChildrenWithNewValue( pVar, finishedchanging, oldvalue, 0 );
     ProgramVariables( m_pLuaGameState->m_pLuaState, true );
 }
 
+#if MYFW_USING_WX
 void ComponentLuaScript::OnRightClickExposedVariable(int controlid)
 {
     // the only right-click options involve this components gameobject having a parent, so quick early if it doesn't
@@ -794,108 +859,7 @@ void ComponentLuaScriptEventHandlerForExposedVariables::OnPopupClick(wxEvent &ev
         break;
     }
 }
-
-void ComponentLuaScript::CopyExposedVarValueFromParent(ExposedVariableDesc* pVar)
-{
-    MyAssert( m_pGameObject );
-    MyAssert( m_pGameObject->GetGameObjectThisInheritsFrom() );
-
-    GameObject* pParentGO = m_pGameObject->GetGameObjectThisInheritsFrom();
-    if( pParentGO == 0 )
-        return;
-    
-    // Found a game object, now find the matching component on it.
-    for( unsigned int i=0; i<pParentGO->GetComponentCount(); i++ )
-    {
-        ComponentBase* pOtherComponent = pParentGO->GetComponentByIndex( i );
-
-        const char* pThisCompClassName = GetClassname();
-        const char* pOtherCompClassName = pOtherComponent->GetClassname();
-
-        if( strcmp( pThisCompClassName, pOtherCompClassName ) == 0 )
-        {
-            ComponentLuaScript* pOtherLuaScript = (ComponentLuaScript*)pOtherComponent;
-
-            // find children of this gameobject and change their vars if needed.
-            for( unsigned int varindex=0; varindex<m_ExposedVars.Count(); varindex++ )
-            {
-                ExposedVariableDesc* pOtherVar = (ExposedVariableDesc*)pOtherLuaScript->m_ExposedVars[varindex];
-                MyAssert( pOtherVar );
-
-                if( pVar->name == pOtherVar->name )
-                {
-                    switch( pVar->type )
-                    {
-                    case ExposedVariableType_Float:
-                        {
-                            double oldvalue = pVar->valuedouble;
-                            double newvalue = pOtherVar->valuedouble;
-                            pVar->valuedouble = pOtherVar->valuedouble;
-
-                            // notify component and it's children that the value changed.
-                            OnExposedVarValueChanged( pVar, 0, true, oldvalue, 0 );
-
-                            g_pGameCore->GetCommandStack()->Add( MyNew EditorCommand_PanelWatchNumberValueChanged(
-                                newvalue - oldvalue, PanelWatchType_Double, ((char*)&pVar->valuedouble), pVar->controlID, false,
-                                g_pPanelWatch->GetVariableProperties( pVar->controlID )->m_pOnValueChangedCallbackFunc, g_pPanelWatch->GetVariableProperties( pVar->controlID )->m_pCallbackObj ) );
-                        }
-                        break;
-
-                    case ExposedVariableType_Bool:
-                        {
-                            bool oldvalue = pVar->valuebool;
-                            bool newvalue = pOtherVar->valuebool;
-                            pVar->valuedouble = pOtherVar->valuebool;
-
-                            // notify component and it's children that the value changed.
-                            OnExposedVarValueChanged( pVar, 0, true, oldvalue, 0 );
-
-                            g_pGameCore->GetCommandStack()->Add( MyNew EditorCommand_PanelWatchNumberValueChanged(
-                                newvalue - oldvalue, PanelWatchType_Bool, ((char*)&pVar->valuebool), pVar->controlID, false,
-                                g_pPanelWatch->GetVariableProperties( pVar->controlID )->m_pOnValueChangedCallbackFunc, g_pPanelWatch->GetVariableProperties( pVar->controlID )->m_pCallbackObj ) );
-                        }
-                        break;
-
-                    case ExposedVariableType_Vector3:
-                        {
-                            Vector3 oldvalue = *(Vector3*)&pVar->valuevector3;
-                            Vector3 newvalue = *(Vector3*)&pOtherVar->valuevector3;
-                            *(Vector3*)&pVar->valuevector3 = *(Vector3*)&pOtherVar->valuevector3;
-
-                            // notify component and it's children that the value changed.
-                            OnExposedVarValueChanged( pVar, 0, true, oldvalue.x, 0 );
-                            OnExposedVarValueChanged( pVar, 1, true, oldvalue.y, 0 );
-                            OnExposedVarValueChanged( pVar, 2, true, oldvalue.z, 0 );
-
-                            g_pGameCore->GetCommandStack()->Add( MyNew EditorCommand_PanelWatchNumberValueChanged(
-                                newvalue.x - oldvalue.x, PanelWatchType_Float, ((char*)&pVar->valuevector3[0]), pVar->controlID, false,
-                                g_pPanelWatch->GetVariableProperties( pVar->controlID )->m_pOnValueChangedCallbackFunc, g_pPanelWatch->GetVariableProperties( pVar->controlID )->m_pCallbackObj ) );
-                            g_pGameCore->GetCommandStack()->Add( MyNew EditorCommand_PanelWatchNumberValueChanged(
-                                newvalue.y - oldvalue.y, PanelWatchType_Float, ((char*)&pVar->valuevector3[1]), pVar->controlID, false,
-                                g_pPanelWatch->GetVariableProperties( pVar->controlID )->m_pOnValueChangedCallbackFunc, g_pPanelWatch->GetVariableProperties( pVar->controlID )->m_pCallbackObj ), true );
-                            g_pGameCore->GetCommandStack()->Add( MyNew EditorCommand_PanelWatchNumberValueChanged(
-                                newvalue.z - oldvalue.z, PanelWatchType_Float, ((char*)&pVar->valuevector3[2]), pVar->controlID, false,
-                                g_pPanelWatch->GetVariableProperties( pVar->controlID )->m_pOnValueChangedCallbackFunc, g_pPanelWatch->GetVariableProperties( pVar->controlID )->m_pCallbackObj ), true );
-                        }
-                        break;
-
-                    case ExposedVariableType_GameObject:
-                        g_DragAndDropStruct.Clear();
-                        g_DragAndDropStruct.SetControlID( pVar->controlID );
-                        g_DragAndDropStruct.Add( DragAndDropType_GameObjectPointer, pOtherVar->pointer );
-                        OnDropExposedVar( pVar->controlID, 0, 0 );
-                        break;
-
-                    case ExposedVariableType_Unused:
-                    default:
-                        MyAssert( false );
-                        break;
-                    }
-                }
-            }
-        }
-    }
-}
+#endif // MYFW_USING_WX
 
 bool ComponentLuaScript::DoesExposedVariableMatchParent(ExposedVariableDesc* pVar)
 {
@@ -1086,7 +1050,117 @@ void ComponentLuaScript::UpdateChildGameObjectWithNewValue(ExposedVariableDesc* 
         }
     }
 }
-#endif //MYFW_USING_WX
+
+void ComponentLuaScript::CopyExposedVarValueFromParent(ExposedVariableDesc* pVar)
+{
+    MyAssert( m_pGameObject );
+    MyAssert( m_pGameObject->GetGameObjectThisInheritsFrom() );
+
+    GameObject* pParentGO = m_pGameObject->GetGameObjectThisInheritsFrom();
+    if( pParentGO == 0 )
+        return;
+    
+    // Found a game object, now find the matching component on it.
+    for( unsigned int i=0; i<pParentGO->GetComponentCount(); i++ )
+    {
+        ComponentBase* pOtherComponent = pParentGO->GetComponentByIndex( i );
+
+        const char* pThisCompClassName = GetClassname();
+        const char* pOtherCompClassName = pOtherComponent->GetClassname();
+
+        if( strcmp( pThisCompClassName, pOtherCompClassName ) == 0 )
+        {
+            ComponentLuaScript* pOtherLuaScript = (ComponentLuaScript*)pOtherComponent;
+
+            // find children of this gameobject and change their vars if needed.
+            for( unsigned int varindex=0; varindex<m_ExposedVars.Count(); varindex++ )
+            {
+                ExposedVariableDesc* pOtherVar = (ExposedVariableDesc*)pOtherLuaScript->m_ExposedVars[varindex];
+                MyAssert( pOtherVar );
+
+                if( pVar->name == pOtherVar->name )
+                {
+                    switch( pVar->type )
+                    {
+                    case ExposedVariableType_Float:
+                        {
+                            double oldvalue = pVar->valuedouble;
+                            double newvalue = pOtherVar->valuedouble;
+                            pVar->valuedouble = pOtherVar->valuedouble;
+
+                            // notify component and it's children that the value changed.
+                            OnExposedVarValueChanged( pVar, 0, true, oldvalue, 0 );
+
+#if MYFW_USING_WX
+                            g_pGameCore->GetCommandStack()->Add( MyNew EditorCommand_PanelWatchNumberValueChanged(
+                                newvalue - oldvalue, PanelWatchType_Double, ((char*)&pVar->valuedouble), pVar->controlID, false,
+                                g_pPanelWatch->GetVariableProperties( pVar->controlID )->m_pOnValueChangedCallbackFunc, g_pPanelWatch->GetVariableProperties( pVar->controlID )->m_pCallbackObj ) );
+#endif
+                        }
+                        break;
+
+                    case ExposedVariableType_Bool:
+                        {
+                            bool oldvalue = pVar->valuebool;
+                            bool newvalue = pOtherVar->valuebool;
+                            pVar->valuedouble = pOtherVar->valuebool;
+
+                            // notify component and it's children that the value changed.
+                            OnExposedVarValueChanged( pVar, 0, true, oldvalue, 0 );
+
+#if MYFW_USING_WX
+                            g_pGameCore->GetCommandStack()->Add( MyNew EditorCommand_PanelWatchNumberValueChanged(
+                                newvalue - oldvalue, PanelWatchType_Bool, ((char*)&pVar->valuebool), pVar->controlID, false,
+                                g_pPanelWatch->GetVariableProperties( pVar->controlID )->m_pOnValueChangedCallbackFunc, g_pPanelWatch->GetVariableProperties( pVar->controlID )->m_pCallbackObj ) );
+#endif
+                        }
+                        break;
+
+                    case ExposedVariableType_Vector3:
+                        {
+                            Vector3 oldvalue = *(Vector3*)&pVar->valuevector3;
+                            Vector3 newvalue = *(Vector3*)&pOtherVar->valuevector3;
+                            *(Vector3*)&pVar->valuevector3 = *(Vector3*)&pOtherVar->valuevector3;
+
+                            // notify component and it's children that the value changed.
+                            OnExposedVarValueChanged( pVar, 0, true, oldvalue.x, 0 );
+                            OnExposedVarValueChanged( pVar, 1, true, oldvalue.y, 0 );
+                            OnExposedVarValueChanged( pVar, 2, true, oldvalue.z, 0 );
+
+#if MYFW_USING_WX
+                            g_pGameCore->GetCommandStack()->Add( MyNew EditorCommand_PanelWatchNumberValueChanged(
+                                newvalue.x - oldvalue.x, PanelWatchType_Float, ((char*)&pVar->valuevector3[0]), pVar->controlID, false,
+                                g_pPanelWatch->GetVariableProperties( pVar->controlID )->m_pOnValueChangedCallbackFunc, g_pPanelWatch->GetVariableProperties( pVar->controlID )->m_pCallbackObj ) );
+                            g_pGameCore->GetCommandStack()->Add( MyNew EditorCommand_PanelWatchNumberValueChanged(
+                                newvalue.y - oldvalue.y, PanelWatchType_Float, ((char*)&pVar->valuevector3[1]), pVar->controlID, false,
+                                g_pPanelWatch->GetVariableProperties( pVar->controlID )->m_pOnValueChangedCallbackFunc, g_pPanelWatch->GetVariableProperties( pVar->controlID )->m_pCallbackObj ), true );
+                            g_pGameCore->GetCommandStack()->Add( MyNew EditorCommand_PanelWatchNumberValueChanged(
+                                newvalue.z - oldvalue.z, PanelWatchType_Float, ((char*)&pVar->valuevector3[2]), pVar->controlID, false,
+                                g_pPanelWatch->GetVariableProperties( pVar->controlID )->m_pOnValueChangedCallbackFunc, g_pPanelWatch->GetVariableProperties( pVar->controlID )->m_pCallbackObj ), true );
+#endif
+                        }
+                        break;
+
+                    case ExposedVariableType_GameObject:
+                        g_DragAndDropStruct.Clear();
+                        g_DragAndDropStruct.SetControlID( pVar->controlID );
+                        g_DragAndDropStruct.Add( DragAndDropType_GameObjectPointer, pOtherVar->pointer );
+#if MYFW_USING_WX
+                        OnDropExposedVar( pVar->controlID, 0, 0 );
+#endif
+                        break;
+
+                    case ExposedVariableType_Unused:
+                    default:
+                        MyAssert( false );
+                        break;
+                    }
+                }
+            }
+        }
+    }
+}
+#endif //MYFW_EDITOR
 
 cJSON* ComponentLuaScript::ExportAsJSONObject(bool savesceneid, bool saveid)
 {

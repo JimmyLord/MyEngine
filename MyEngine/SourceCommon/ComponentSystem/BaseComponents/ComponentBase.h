@@ -122,7 +122,7 @@ protected:
 #if MYFW_USING_IMGUI
 public:
     //virtual void FillPropertiesWindow(bool clear, bool addcomponentvariables = false, bool ignoreblockvisibleflag = false) {};
-    void AddAllVariablesToWatchPanel();
+    virtual void AddAllVariablesToWatchPanel();
 protected:
     ComponentVariableValue m_ComponentVariableValueWhenControlSelected;
     ImGuiID m_ImGuiControlIDForCurrentlySelectedVariable;

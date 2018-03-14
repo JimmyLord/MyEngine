@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2014-2017 Jimmy Lord http://www.flatheadgames.com
+// Copyright (c) 2014-2018 Jimmy Lord http://www.flatheadgames.com
 //
 // This software is provided 'as-is', without any express or implied warranty.  In no event will the authors be held liable for any damages arising from the use of this software.
 // Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -168,6 +168,10 @@ public:
 
     void CreateNewScriptFile();
 
+#if MYFW_USING_IMGUI
+    virtual void AddAllVariablesToWatchPanel();
+#endif
+
 #if MYFW_USING_WX
     static void StaticOnFileUpdated(void* pObjectPtr, MyFileObject* pFile) { ((ComponentLuaScript*)pObjectPtr)->OnFileUpdated( pFile ); }
     void OnFileUpdated(MyFileObject* pFile);
@@ -201,11 +205,11 @@ public:
     static void StaticOnDropExposedVar(void* pObjectPtr, int controlid, int x, int y) { ((ComponentLuaScript*)pObjectPtr)->OnDropExposedVar(controlid, x, y); }
     void OnDropExposedVar(int controlid, int x, int y);
     void* ProcessOnDropExposedVar(int controlid, int x, int y);
-#endif //MYFW_USING_WX
-    
+
     static void StaticOnPanelWatchExposedVarValueChanged(void* pObjectPtr, int controlid, bool directlychanged, bool finishedchanging, double oldvalue, bool valuewaschangedbydragging) { ((ComponentLuaScript*)pObjectPtr)->OnPanelWatchExposedVarValueChanged( controlid, finishedchanging, oldvalue ); }
     void OnPanelWatchExposedVarValueChanged(int controlid, bool finishedchanging, double oldvalue);
-
+#endif //MYFW_USING_WX
+    
     // exposed variable changed callback (not from watch panel)
     static void StaticOnExposedVarValueChanged(void* pObjectPtr, ExposedVariableDesc* pVar, int component, bool finishedchanging, double oldvalue, void* oldpointer) { ((ComponentLuaScript*)pObjectPtr)->OnExposedVarValueChanged( pVar, component, finishedchanging, oldvalue, oldpointer ); }
     void OnExposedVarValueChanged(ExposedVariableDesc* pVar, int component, bool finishedchanging, double oldvalue, void* oldpointer);
