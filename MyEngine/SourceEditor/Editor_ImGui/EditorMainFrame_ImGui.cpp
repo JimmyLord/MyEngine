@@ -1241,11 +1241,11 @@ void EditorMainFrame_ImGui::AddGameObjectToObjectList(GameObject* pGameObject)
             else
             {
                 //ImGui::Text( pGameObject->GetName() );
-                if( ImGui::MenuItem( "Duplicate GameObject (TODO)" ) )    { ImGui::CloseCurrentPopup(); }
-                if( ImGui::MenuItem( "Create Child GameObject (TODO)" ) ) { ImGui::CloseCurrentPopup(); }
+                if( ImGui::MenuItem( "Duplicate GameObject" ) )    { pGameObject->OnPopupClick( pGameObject, GameObject::RightClick_DuplicateGameObject ); ImGui::CloseCurrentPopup(); }
+                if( ImGui::MenuItem( "Create Child GameObject" ) ) { pGameObject->OnPopupClick( pGameObject, GameObject::RightClick_CreateChild );         ImGui::CloseCurrentPopup(); }
                 if( pGameObject->GetGameObjectThisInheritsFrom() )
                 {
-                    if( ImGui::MenuItem( "Clear Parent (TODO)" ) )        { ImGui::CloseCurrentPopup(); }
+                    if( ImGui::MenuItem( "Clear Parent" ) )        { pGameObject->OnPopupClick( pGameObject, GameObject::RightClick_ClearParent );         ImGui::CloseCurrentPopup(); }
                 }
                 //if( ImGui::MenuItem( "Add Component with submenus... (TODO)" ) )    { ImGui::CloseCurrentPopup(); }
                 {

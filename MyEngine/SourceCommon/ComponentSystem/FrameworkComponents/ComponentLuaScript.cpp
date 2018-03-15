@@ -997,7 +997,8 @@ void ComponentLuaScript::UpdateChildGameObjectWithNewValue(ExposedVariableDesc* 
                 // find the first variable in the other object with the same name
                 for( unsigned int i=0; i<m_ExposedVars.Count(); i++ )
                 {
-                    if( m_ExposedVars[varindex]->name == pChildLuaScript->m_ExposedVars[i]->name )
+                    if( pChildLuaScript->m_ExposedVars.Count() > i &&
+                        m_ExposedVars[varindex]->name == pChildLuaScript->m_ExposedVars[i]->name )
                     {
                         pChildVar = pChildLuaScript->m_ExposedVars[i];
                         break;

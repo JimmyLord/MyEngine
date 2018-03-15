@@ -159,7 +159,6 @@ public:
         GameObjectOnDropAction_Reparent,
     };
 
-#if MYFW_USING_WX
     enum RightClickOptions
     {
         RightClick_DuplicateGameObject = 1000,
@@ -175,6 +174,9 @@ public:
         RightClick_EndOfAdditionalSceneHandlerOptions = RightClick_AdditionalSceneHandlerOptions + 100000,
     };
 
+    void OnPopupClick(GameObject* pGameObject, unsigned int id);
+
+#if MYFW_USING_WX
     static void StaticOnTitleLabelClicked(void* pObjectPtr, int controlid, bool directlychanged, bool finishedchanging, double oldvalue, bool valuewaschangedbydragging) { ((GameObject*)pObjectPtr)->OnTitleLabelClicked( controlid, finishedchanging ); }
     void OnTitleLabelClicked(int controlid, bool finishedchanging);
 

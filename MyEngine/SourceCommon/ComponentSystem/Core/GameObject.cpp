@@ -126,471 +126,6 @@ void GameObject::LuaRegister(lua_State* luastate)
 }
 #endif //MYFW_USING_LUA
 
-#if MYFW_EDITOR
-#if MYFW_USING_WX
-void GameObject::OnTitleLabelClicked(int controlid, bool finishedchanging) // StaticOnTitleLabelClicked
-{
-    g_pGameCore->GetCommandStack()->Do( MyNew EditorCommand_EnableObject( this, !m_Enabled ) );
-    g_pPanelWatch->SetNeedsRefresh();
-}
-
-void GameObject::OnLeftClick(unsigned int count, bool clear)
-{
-    g_pEngineCore->OnObjectListTreeMultipleSelection( false );
-    return;
-}
-
-void GameObject::ShowInWatchPanel(bool isprefab)
-{
-    if( g_pEngineCore->GetEditorState() == 0 )
-        return;
-
-    if( m_IsFolder )
-        return;
-
-    g_pPanelWatch->ClearAllVariables();
-    g_pEngineCore->OnObjectListTreeSelectionChanged();
-
-    // Select this GameObject in the editor window if it's not a prefab.
-    if( g_pEngineCore->GetEditorState()->IsGameObjectSelected( this ) == false && isprefab == false )
-        g_pEngineCore->GetEditorState()->m_pSelectedObjects.push_back( this );
-
-    g_pPanelWatch->SetObjectBeingWatched( this );
-
-    // Show the gameobject name and an enabled checkbox.
-    char tempname[100];
-    if( m_Enabled )
-    {
-        if( m_pGameObjectThisInheritsFrom == 0 )
-            sprintf_s( tempname, 100, "%s", m_Name );
-        else
-            sprintf_s( tempname, 100, "%s (%s)", m_Name, m_pGameObjectThisInheritsFrom->m_Name );
-    }
-    else
-    {
-        if( m_pGameObjectThisInheritsFrom == 0 )
-            sprintf_s( tempname, 100, "** DISABLED ** %s ** DISABLED **", m_Name );
-        else
-            sprintf_s( tempname, 100, "** DISABLED ** %s (%s) ** DISABLED **", m_Name, m_pGameObjectThisInheritsFrom->m_Name );
-    }
-
-    // Only allow enable/disable click on regular non-prefab objects.
-    if( isprefab )
-    {
-        g_pPanelWatch->AddSpace( tempname, this, 0 );
-    }
-    else
-    {
-        g_pPanelWatch->AddSpace( tempname, this, GameObject::StaticOnTitleLabelClicked );
-    }
-
-    // Add variables from ComponentGameObjectProperties.
-    m_Properties.m_MultiSelectedComponents.clear();
-    m_Properties.FillPropertiesWindow( false );
-
-    // Add variables from ComponentTransform.
-    if( m_pComponentTransform )
-    {
-        m_pComponentTransform->m_MultiSelectedComponents.clear();
-        m_pComponentTransform->FillPropertiesWindow( false, true );
-    }
-
-    // Add variables from all other components.
-    for( unsigned int i=0; i<m_Components.Count(); i++ )
-    {
-        m_Components[i]->m_MultiSelectedComponents.clear();
-        m_Components[i]->FillPropertiesWindow( false, true );
-    }
-}
-
-void GameObject::OnRightClick() // StaticOnRightClick
-{
- 	wxMenu menu;
-    menu.SetClientData( this );
-
-    wxMenu* categorymenu = 0;
-    const char* lastcategory = 0;
-
-    // if there are ever more than 1000 component types?!? increase the RightClick_* initial value in header.
-    MyAssert( g_pComponentTypeManager->GetNumberOfComponentTypes() < RightClick_DuplicateGameObject );
-
-    if( m_IsFolder == false )
-    {
-        menu.Append( RightClick_DuplicateGameObject, "Duplicate GameObject" );
-        menu.Append( RightClick_CreateChild, "Create Child GameObject" );
-        if( m_pGameObjectThisInheritsFrom )
-        {
-            menu.Append( RightClick_ClearParent, "Clear Parent" );
-        }
-
-        // Special handling of ComponentType_Transform, only offer option if GameObject doesn't have a transform
-        int first = 0;
-        if( m_pComponentTransform != 0 )
-            first = 1;
-
-        unsigned int numtypes = g_pComponentTypeManager->GetNumberOfComponentTypes();
-        for( unsigned int i=first; i<numtypes; i++ )
-        {
-            if( lastcategory != g_pComponentTypeManager->GetTypeCategory( i ) )
-            {
-                categorymenu = MyNew wxMenu;
-                menu.AppendSubMenu( categorymenu, g_pComponentTypeManager->GetTypeCategory( i ) );
-
-#if MYFW_OSX
-                // Not needed on Windows build, but seems OSX doesn't call OnPopupClick callback for submenus without this.
-                categorymenu->SetClientData( this );
-                categorymenu->Connect( wxEVT_COMMAND_MENU_SELECTED, (wxObjectEventFunction)&GameObject::OnPopupClick );
-#endif
-            }
-
-            if( i == ComponentType_Mesh )
-            {
-                // don't include ComponentType_Mesh in the right-click menu.
-                // TODO: if more exceptions are made, improve this system.
-            }
-            else
-            {
-                categorymenu->Append( i, g_pComponentTypeManager->GetTypeName( i ) );
-            }
-
-            lastcategory = g_pComponentTypeManager->GetTypeCategory( i );
-        }
-
-        // Create prefab menu and submenus.
-        AddPrefabSubmenusToMenu( &menu, RightClick_CreatePrefab );
-
-        menu.Append( RightClick_DeleteGameObject, "Delete GameObject" );
-    }
-    else
-    {
-        // Add folder specific options to menu.
-        menu.Append( RightClick_DuplicateFolder, "Duplicate Folder and all contents" );
-        menu.Append( RightClick_DeleteFolder, "Delete Folder and all contents" );
-
-        // Have SceneHandler add all of it's options to the menu (Create GameObject, etc...).
-        wxTreeItemId treeid = this->GetSceneInfo()->m_TreeID;
-        SceneID sceneid = g_pComponentSystemManager->GetSceneIDFromSceneTreeID( treeid );
-
-        if( sceneid != SCENEID_NotFound )
-        {
-            SceneHandler* pSceneHandler = g_pComponentSystemManager->m_pSceneHandler;
-            pSceneHandler->AddGameObjectMenuOptionsToMenu( &menu, RightClick_AdditionalSceneHandlerOptions, sceneid );
-
-            // Create prefab menu and submenus.
-            AddPrefabSubmenusToMenu( &menu, RightClick_CreatePrefab );
-        }
-    }
-
-    menu.Connect( wxEVT_COMMAND_MENU_SELECTED, (wxObjectEventFunction)&GameObject::OnPopupClick );
-    
-    // blocking call. // should delete all categorymenu's new'd above when done.
- 	g_pPanelWatch->PopupMenu( &menu ); // there's no reason this is using g_pPanelWatch other than convenience.
-}
-
-void GameObject::AddPrefabSubmenusToMenu(wxMenu* menu, int itemidoffset)
-{
-    // Create prefab menu and submenus for each file.
-    wxMenu* prefabmenu = MyNew wxMenu;
-    menu->AppendSubMenu( prefabmenu, "Create Prefab in" );
-
-#if MYFW_OSX
-    // Not needed on Windows build, but seems OSX doesn't call OnPopupClick callback for submenus without this.
-    menu->SetClientData( this );
-    menu->Connect( wxEVT_COMMAND_MENU_SELECTED, (wxObjectEventFunction)&GameObject::OnPopupClick );
-#endif
-
-    unsigned int numprefabfiles = g_pComponentSystemManager->m_pPrefabManager->GetNumberOfFiles();
-    for( unsigned int i=0; i<numprefabfiles; i++ )
-    {
-        PrefabFile* pPrefabFile = g_pComponentSystemManager->m_pPrefabManager->GetLoadedPrefabFileByIndex( i );
-        MyFileObject* pFile = pPrefabFile->GetFile();
-        MyAssert( pFile != 0 );
-
-        prefabmenu->Append( itemidoffset + i, pFile->GetFilenameWithoutExtension() );
-    }
-
-    prefabmenu->Append( itemidoffset + numprefabfiles, "New/Load Prefab file..." );
-}
-
-void GameObject::OnPopupClick(wxEvent &evt)
-{
-    GameObject* pGameObject = (GameObject*)static_cast<wxMenu*>(evt.GetEventObject())->GetClientData();
-
-    unsigned int id = evt.GetId();
-
-    if( id < g_pComponentTypeManager->GetNumberOfComponentTypes() )
-    {
-        if( pGameObject->m_Components.Count() >= pGameObject->m_Components.Length() )
-            return;
-
-        int type = id; // could be EngineComponentTypes or GameComponentTypes type.
-
-        ComponentBase* pComponent = 0;
-        if( g_pEngineCore->IsInEditorMode() )
-            pComponent = pGameObject->AddNewComponent( type, pGameObject->GetSceneID() );
-        else
-            pComponent = pGameObject->AddNewComponent( type, SCENEID_Unmanaged );
-
-        pComponent->OnLoad();
-    }
-    else if( id == RightClick_DuplicateGameObject )
-    {
-        if( g_pEngineCore->IsInEditorMode() )
-            g_pComponentSystemManager->EditorCopyGameObject( pGameObject, false );
-        else
-            g_pComponentSystemManager->CopyGameObject( pGameObject, "runtime duplicate" );
-    }
-    else if( id == RightClick_CreateChild )
-    {
-        GameObject* pNewObject = g_pComponentSystemManager->EditorCopyGameObject( pGameObject, true );
-        pNewObject->m_pGameObjectThisInheritsFrom = pGameObject;
-    }
-    else if( id == RightClick_ClearParent )
-    {
-        m_pGameObjectThisInheritsFrom = 0;
-    }
-    else if( id >= RightClick_CreatePrefab && id < RightClick_CreatePrefab + 10000 )
-    {
-        unsigned int numprefabfiles = g_pComponentSystemManager->m_pPrefabManager->GetNumberOfFiles();
-        if( id == RightClick_CreatePrefab + numprefabfiles )
-        {
-            // Load or create a new file.
-            if( g_pComponentSystemManager->m_pPrefabManager->CreateOrLoadFile() )
-            {
-                // Create a prefab based on selected object.
-                unsigned int fileindex = numprefabfiles;
-                g_pComponentSystemManager->m_pPrefabManager->CreatePrefabInFile( fileindex, pGameObject->GetName(), pGameObject );
-            }
-        }
-        else
-        {
-            // Create a prefab based on selected object.
-            unsigned int fileindex = id - RightClick_CreatePrefab;
-            g_pComponentSystemManager->m_pPrefabManager->CreatePrefabInFile( fileindex, pGameObject->GetName(), pGameObject );
-        }
-    }
-    else if( id == RightClick_DeleteGameObject )
-    {
-        EditorState* pEditorState = g_pEngineCore->GetEditorState();
-
-        // if the object isn't selected, delete just the one object, otherwise delete all selected objects.
-        if( pEditorState->IsGameObjectSelected( pGameObject ) )
-        {
-            pEditorState->DeleteSelectedObjects();
-        }
-        else
-        {
-            // create a temp vector to pass into command.
-            std::vector<GameObject*> gameobjects;
-            gameobjects.push_back( pGameObject );
-            g_pGameCore->GetCommandStack()->Do( MyNew EditorCommand_DeleteObjects( gameobjects ) );
-        }
-    }
-    else if( id == RightClick_DeleteFolder )
-    {
-        // delete all gameobjects in the folder, along with the folder itself.
-        std::vector<GameObject*> gameobjects;
-
-        pGameObject->AddToList( &gameobjects );
-
-        g_pGameCore->GetCommandStack()->Do( MyNew EditorCommand_DeleteObjects( gameobjects ) );
-    }
-    else if( id == RightClick_DuplicateFolder )
-    {
-        if( g_pEngineCore->IsInEditorMode() )
-            g_pComponentSystemManager->EditorCopyGameObject( pGameObject, false );
-        else
-            g_pComponentSystemManager->CopyGameObject( pGameObject, "runtime duplicate" );
-    }
-    else if( id >= RightClick_AdditionalSceneHandlerOptions && id < RightClick_EndOfAdditionalSceneHandlerOptions )
-    {
-        int idForSceneHandler = id - RightClick_AdditionalSceneHandlerOptions;
-        
-        SceneHandler* pSceneHandler = g_pComponentSystemManager->m_pSceneHandler;
-        pSceneHandler->HandleRightClickCommand( idForSceneHandler, pGameObject );
-    }
-}
-
-void GameObject::OnDrag()
-{
-    g_DragAndDropStruct.Add( DragAndDropType_GameObjectPointer, this );
-}
-#endif //MYFW_USING_WX
-
-void GameObject::OnDrop(int controlid, int x, int y, GameObjectOnDropActions action)
-{
-#if MYFW_USING_WX
-    // If you drop a game object on another, parent them or move above/below depending on the "y".
-    // The bounding rect will change once the first item is moved, so get the rect once before moving things.
-    wxTreeItemId treeid = g_pPanelObjectList->FindObject( this );
-    wxRect rect;
-    g_pPanelObjectList->m_pTree_Objects->GetBoundingRect( treeid, rect, false );
-#endif //MYFW_USING_WX
-
-    std::vector<GameObject*> selectedObjects;
-
-    // Range must match code in PanelObjectListDropTarget::OnDragOver. // TODO: fix this
-    bool setaschild = true;
-#if MYFW_USING_WX
-    if( y > rect.GetBottom() - 10 )
-    {
-        // Move below the selected item.
-        setaschild = false;
-    }
-#else
-    if( action == GameObjectOnDropAction_Reorder )
-        setaschild = false;
-#endif //MYFW_USING_WX
-
-    // Move/Reparent all of the selected items.
-    for( unsigned int i=0; i<g_DragAndDropStruct.GetItemCount(); i++ )
-    {
-        DragAndDropItem* pDropItem = g_DragAndDropStruct.GetItem( i );
-
-        if( pDropItem->m_Type == DragAndDropType_GameObjectPointer )
-        {
-            GameObject* pGameObject = (GameObject*)pDropItem->m_Value;
-
-            // If we're dropping this object on itself, kick out.
-            if( pGameObject == this )
-                continue;
-
-            // If we're attempting to set dragged objects as children,
-            //   don't allow folders to be children of non-folder gameobjects.
-            if( setaschild )
-            {
-                if( m_IsFolder == false && pGameObject->IsFolder() )
-                    continue;
-            }
-
-            selectedObjects.push_back( pGameObject );
-        }
-    }
-
-    if( selectedObjects.size() > 0 )
-    {
-        g_pGameCore->GetCommandStack()->Do( MyNew EditorCommand_ReorderOrReparentGameObjects( selectedObjects, this, GetSceneID(), setaschild ) );
-    }
-}
-
-#if MYFW_USING_WX
-void GameObject::OnLabelEdit(wxString newlabel)
-{
-    size_t len = newlabel.length();
-    if( len > 0 )
-    {
-        SetName( newlabel );
-    }
-}
-
-void GameObject::UpdateObjectListIcon()
-{
-    // Set the icon for the gameobject in the objectlist panel tree.
-    int iconindex = ObjectListIcon_GameObject;
-    if( m_PrefabRef.GetPrefab() != 0 )
-        iconindex = ObjectListIcon_Prefab;
-    else if( m_IsFolder )
-        iconindex = ObjectListIcon_Folder;
-    else if( m_pComponentTransform == 0 )
-        iconindex = ObjectListIcon_LogicObject;
-
-    wxTreeItemId gameobjectid = g_pPanelObjectList->FindObject( this );
-    if( gameobjectid.IsOk() )
-        g_pPanelObjectList->SetIcon( gameobjectid, iconindex );
-}
-#endif //MYFW_USING_WX
-
-void GameObject::FinishLoadingPrefab(PrefabFile* pPrefabFile)
-{
-    // Link the PrefabRef to the correct prefab and GameObject now that the file is finished loading.
-    m_PrefabRef.FinishLoadingPrefab( pPrefabFile );
-
-#if MYFW_USING_WX
-    m_pGameObjectThisInheritsFrom = m_PrefabRef.GetGameObject();
-#endif
-
-    // TODO: Check the if the gameobect(s) in the prefab are completely different and deal with it.
-
-    // Otherwise, importing same prefab, so update all undivorced variables to match prefab file.
-    {
-        GameObject* pPrefabGameObject = m_PrefabRef.GetGameObject();
-        MyAssert( pPrefabGameObject );
-
-        for( unsigned int i=0; i<m_Components.Count(); i++ )
-        {
-            ComponentBase* pComponent = m_Components[i];
-            ComponentBase* pPrefabComponent = pPrefabGameObject->m_Components[i];
-
-            pComponent->SyncUndivorcedVariables( pPrefabComponent );
-        }
-    }
-
-#if MYFW_USING_WX
-    UpdateObjectListIcon();
-#endif //MYFW_USING_WX
-}
-
-void GameObject::OnPrefabFileFinishedLoading(MyFileObject* pFile) // StaticOnPrefabFileFinishedLoading
-{
-    PrefabFile* pPrefabFile = g_pComponentSystemManager->m_pPrefabManager->GetLoadedPrefabFileByFullPath( pFile->GetFullPath() );
-    FinishLoadingPrefab( pPrefabFile );
-
-    pFile->UnregisterFileFinishedLoadingCallback( this );
-}
-
-// Returns the gameobject in the scene that lines up with the root of the prefab.
-// Useful for prefab subobjects(children) to quickly find the starting point of the prefab instance.
-GameObject* GameObject::FindRootGameObjectOfPrefabInstance()
-{
-    MyAssert( m_PrefabRef.GetPrefab() != 0 );
-
-    if( m_PrefabRef.GetChildID() == 0 )
-        return this;
-
-    return m_pParentGameObject->FindRootGameObjectOfPrefabInstance();
-}
-
-// Used when deleting prefabs.
-void GameObject::Editor_SetPrefab(PrefabReference* pPrefabRef)
-{
-    m_PrefabRef = *pPrefabRef;
-    m_pGameObjectThisInheritsFrom = m_PrefabRef.GetGameObject();
-
-#if MYFW_USING_WX
-    UpdateObjectListIcon();
-#endif //MYFW_USING_WX
-}
-
-// Set the material on all renderable components attached to this object.
-void GameObject::Editor_SetMaterial(MaterialDefinition* pMaterial)
-{
-    for( unsigned int i=0; i<m_Components.Count(); i++ )
-    {
-        if( m_Components[i]->m_BaseType == BaseComponentType_Renderable )
-        {
-            MyAssert( m_Components[i]->IsA( "RenderableComponent" ) );
-
-            ComponentRenderable* pRenderable = (ComponentRenderable*)m_Components[i];
-
-            if( pRenderable )
-            {
-                // TODO: Deal with more than just the first submeshes material.
-                int submeshindex = 0;
-
-                // Go through same code to drop a material on the component, so inheritance and undo/redo will be handled
-                ComponentVariable* pVar = pRenderable->GetComponentVariableForMaterial( submeshindex );
-
-                g_DragAndDropStruct.Clear();
-                g_DragAndDropStruct.SetControlID( pVar->m_ControlID );
-                g_DragAndDropStruct.Add( DragAndDropType_MaterialDefinitionPointer, pMaterial );
-
-                pRenderable->OnDropVariable( pVar, 0, -1, -1 );
-            }
-        }
-    }
-}
-#endif //MYFW_EDITOR
-
 cJSON* GameObject::ExportAsJSONObject(bool savesceneid)
 {
     cJSON* jGameObject = cJSON_CreateObject();
@@ -1512,7 +1047,479 @@ void GameObject::OnTransformChanged(Vector3& newpos, Vector3& newrot, Vector3& n
     //int bp = 1;
 }
 
+#if MYFW_EDITOR
+void GameObject::OnPopupClick(GameObject* pGameObject, unsigned int id)
+{
+    if( id < g_pComponentTypeManager->GetNumberOfComponentTypes() )
+    {
+        if( pGameObject->m_Components.Count() >= pGameObject->m_Components.Length() )
+            return;
+
+        int type = id; // could be EngineComponentTypes or GameComponentTypes type.
+
+        ComponentBase* pComponent = 0;
+        if( g_pEngineCore->IsInEditorMode() )
+            pComponent = pGameObject->AddNewComponent( type, pGameObject->GetSceneID() );
+        else
+            pComponent = pGameObject->AddNewComponent( type, SCENEID_Unmanaged );
+
+        pComponent->OnLoad();
+    }
+    else if( id == RightClick_DuplicateGameObject )
+    {
+        if( g_pEngineCore->IsInEditorMode() )
+            g_pComponentSystemManager->EditorCopyGameObject( pGameObject, false );
+        else
+            g_pComponentSystemManager->CopyGameObject( pGameObject, "runtime duplicate" );
+    }
+    else if( id == RightClick_CreateChild )
+    {
+        GameObject* pNewObject = g_pComponentSystemManager->EditorCopyGameObject( pGameObject, true );
+        pNewObject->m_pGameObjectThisInheritsFrom = pGameObject;
+    }
+    else if( id == RightClick_ClearParent )
+    {
+        m_pGameObjectThisInheritsFrom = 0;
+    }
+    else if( id >= RightClick_CreatePrefab && id < RightClick_CreatePrefab + 10000 )
+    {
 #if MYFW_USING_WX
+        unsigned int numprefabfiles = g_pComponentSystemManager->m_pPrefabManager->GetNumberOfFiles();
+        if( id == RightClick_CreatePrefab + numprefabfiles )
+        {
+            // Load or create a new file.
+            if( g_pComponentSystemManager->m_pPrefabManager->CreateOrLoadFile() )
+            {
+                // Create a prefab based on selected object.
+                unsigned int fileindex = numprefabfiles;
+                g_pComponentSystemManager->m_pPrefabManager->CreatePrefabInFile( fileindex, pGameObject->GetName(), pGameObject );
+            }
+        }
+        else
+        {
+            // Create a prefab based on selected object.
+            unsigned int fileindex = id - RightClick_CreatePrefab;
+            g_pComponentSystemManager->m_pPrefabManager->CreatePrefabInFile( fileindex, pGameObject->GetName(), pGameObject );
+        }
+#endif //MYFW_USING_WX
+    }
+    else if( id == RightClick_DeleteGameObject )
+    {
+        EditorState* pEditorState = g_pEngineCore->GetEditorState();
+
+        // if the object isn't selected, delete just the one object, otherwise delete all selected objects.
+        if( pEditorState->IsGameObjectSelected( pGameObject ) )
+        {
+            pEditorState->DeleteSelectedObjects();
+        }
+        else
+        {
+            // create a temp vector to pass into command.
+            std::vector<GameObject*> gameobjects;
+            gameobjects.push_back( pGameObject );
+            g_pGameCore->GetCommandStack()->Do( MyNew EditorCommand_DeleteObjects( gameobjects ) );
+        }
+    }
+    else if( id == RightClick_DeleteFolder )
+    {
+        // delete all gameobjects in the folder, along with the folder itself.
+        std::vector<GameObject*> gameobjects;
+
+        pGameObject->AddToList( &gameobjects );
+
+        g_pGameCore->GetCommandStack()->Do( MyNew EditorCommand_DeleteObjects( gameobjects ) );
+    }
+    else if( id == RightClick_DuplicateFolder )
+    {
+        if( g_pEngineCore->IsInEditorMode() )
+            g_pComponentSystemManager->EditorCopyGameObject( pGameObject, false );
+        else
+            g_pComponentSystemManager->CopyGameObject( pGameObject, "runtime duplicate" );
+    }
+    else if( id >= RightClick_AdditionalSceneHandlerOptions && id < RightClick_EndOfAdditionalSceneHandlerOptions )
+    {
+#if MYFW_USING_WX
+        int idForSceneHandler = id - RightClick_AdditionalSceneHandlerOptions;
+        
+        SceneHandler* pSceneHandler = g_pComponentSystemManager->m_pSceneHandler;
+        pSceneHandler->HandleRightClickCommand( idForSceneHandler, pGameObject );
+#endif //MYFW_USING_WX
+    }
+}
+
+#if MYFW_USING_WX
+void GameObject::OnTitleLabelClicked(int controlid, bool finishedchanging) // StaticOnTitleLabelClicked
+{
+    g_pGameCore->GetCommandStack()->Do( MyNew EditorCommand_EnableObject( this, !m_Enabled ) );
+    g_pPanelWatch->SetNeedsRefresh();
+}
+
+void GameObject::OnLeftClick(unsigned int count, bool clear)
+{
+    g_pEngineCore->OnObjectListTreeMultipleSelection( false );
+    return;
+}
+
+void GameObject::ShowInWatchPanel(bool isprefab)
+{
+    if( g_pEngineCore->GetEditorState() == 0 )
+        return;
+
+    if( m_IsFolder )
+        return;
+
+    g_pPanelWatch->ClearAllVariables();
+    g_pEngineCore->OnObjectListTreeSelectionChanged();
+
+    // Select this GameObject in the editor window if it's not a prefab.
+    if( g_pEngineCore->GetEditorState()->IsGameObjectSelected( this ) == false && isprefab == false )
+        g_pEngineCore->GetEditorState()->m_pSelectedObjects.push_back( this );
+
+    g_pPanelWatch->SetObjectBeingWatched( this );
+
+    // Show the gameobject name and an enabled checkbox.
+    char tempname[100];
+    if( m_Enabled )
+    {
+        if( m_pGameObjectThisInheritsFrom == 0 )
+            sprintf_s( tempname, 100, "%s", m_Name );
+        else
+            sprintf_s( tempname, 100, "%s (%s)", m_Name, m_pGameObjectThisInheritsFrom->m_Name );
+    }
+    else
+    {
+        if( m_pGameObjectThisInheritsFrom == 0 )
+            sprintf_s( tempname, 100, "** DISABLED ** %s ** DISABLED **", m_Name );
+        else
+            sprintf_s( tempname, 100, "** DISABLED ** %s (%s) ** DISABLED **", m_Name, m_pGameObjectThisInheritsFrom->m_Name );
+    }
+
+    // Only allow enable/disable click on regular non-prefab objects.
+    if( isprefab )
+    {
+        g_pPanelWatch->AddSpace( tempname, this, 0 );
+    }
+    else
+    {
+        g_pPanelWatch->AddSpace( tempname, this, GameObject::StaticOnTitleLabelClicked );
+    }
+
+    // Add variables from ComponentGameObjectProperties.
+    m_Properties.m_MultiSelectedComponents.clear();
+    m_Properties.FillPropertiesWindow( false );
+
+    // Add variables from ComponentTransform.
+    if( m_pComponentTransform )
+    {
+        m_pComponentTransform->m_MultiSelectedComponents.clear();
+        m_pComponentTransform->FillPropertiesWindow( false, true );
+    }
+
+    // Add variables from all other components.
+    for( unsigned int i=0; i<m_Components.Count(); i++ )
+    {
+        m_Components[i]->m_MultiSelectedComponents.clear();
+        m_Components[i]->FillPropertiesWindow( false, true );
+    }
+}
+
+void GameObject::OnRightClick() // StaticOnRightClick
+{
+ 	wxMenu menu;
+    menu.SetClientData( this );
+
+    wxMenu* categorymenu = 0;
+    const char* lastcategory = 0;
+
+    // if there are ever more than 1000 component types?!? increase the RightClick_* initial value in header.
+    MyAssert( g_pComponentTypeManager->GetNumberOfComponentTypes() < RightClick_DuplicateGameObject );
+
+    if( m_IsFolder == false )
+    {
+        menu.Append( RightClick_DuplicateGameObject, "Duplicate GameObject" );
+        menu.Append( RightClick_CreateChild, "Create Child GameObject" );
+        if( m_pGameObjectThisInheritsFrom )
+        {
+            menu.Append( RightClick_ClearParent, "Clear Parent" );
+        }
+
+        // Special handling of ComponentType_Transform, only offer option if GameObject doesn't have a transform
+        int first = 0;
+        if( m_pComponentTransform != 0 )
+            first = 1;
+
+        unsigned int numtypes = g_pComponentTypeManager->GetNumberOfComponentTypes();
+        for( unsigned int i=first; i<numtypes; i++ )
+        {
+            if( lastcategory != g_pComponentTypeManager->GetTypeCategory( i ) )
+            {
+                categorymenu = MyNew wxMenu;
+                menu.AppendSubMenu( categorymenu, g_pComponentTypeManager->GetTypeCategory( i ) );
+
+#if MYFW_OSX
+                // Not needed on Windows build, but seems OSX doesn't call OnPopupClick callback for submenus without this.
+                categorymenu->SetClientData( this );
+                categorymenu->Connect( wxEVT_COMMAND_MENU_SELECTED, (wxObjectEventFunction)&GameObject::OnPopupClick );
+#endif
+            }
+
+            if( i == ComponentType_Mesh )
+            {
+                // don't include ComponentType_Mesh in the right-click menu.
+                // TODO: if more exceptions are made, improve this system.
+            }
+            else
+            {
+                categorymenu->Append( i, g_pComponentTypeManager->GetTypeName( i ) );
+            }
+
+            lastcategory = g_pComponentTypeManager->GetTypeCategory( i );
+        }
+
+        // Create prefab menu and submenus.
+        AddPrefabSubmenusToMenu( &menu, RightClick_CreatePrefab );
+
+        menu.Append( RightClick_DeleteGameObject, "Delete GameObject" );
+    }
+    else
+    {
+        // Add folder specific options to menu.
+        menu.Append( RightClick_DuplicateFolder, "Duplicate Folder and all contents" );
+        menu.Append( RightClick_DeleteFolder, "Delete Folder and all contents" );
+
+        // Have SceneHandler add all of it's options to the menu (Create GameObject, etc...).
+        wxTreeItemId treeid = this->GetSceneInfo()->m_TreeID;
+        SceneID sceneid = g_pComponentSystemManager->GetSceneIDFromSceneTreeID( treeid );
+
+        if( sceneid != SCENEID_NotFound )
+        {
+            SceneHandler* pSceneHandler = g_pComponentSystemManager->m_pSceneHandler;
+            pSceneHandler->AddGameObjectMenuOptionsToMenu( &menu, RightClick_AdditionalSceneHandlerOptions, sceneid );
+
+            // Create prefab menu and submenus.
+            AddPrefabSubmenusToMenu( &menu, RightClick_CreatePrefab );
+        }
+    }
+
+    menu.Connect( wxEVT_COMMAND_MENU_SELECTED, (wxObjectEventFunction)&GameObject::OnPopupClick );
+    
+    // blocking call. // should delete all categorymenu's new'd above when done.
+ 	g_pPanelWatch->PopupMenu( &menu ); // there's no reason this is using g_pPanelWatch other than convenience.
+}
+
+void GameObject::AddPrefabSubmenusToMenu(wxMenu* menu, int itemidoffset)
+{
+    // Create prefab menu and submenus for each file.
+    wxMenu* prefabmenu = MyNew wxMenu;
+    menu->AppendSubMenu( prefabmenu, "Create Prefab in" );
+
+#if MYFW_OSX
+    // Not needed on Windows build, but seems OSX doesn't call OnPopupClick callback for submenus without this.
+    menu->SetClientData( this );
+    menu->Connect( wxEVT_COMMAND_MENU_SELECTED, (wxObjectEventFunction)&GameObject::OnPopupClick );
+#endif
+
+    unsigned int numprefabfiles = g_pComponentSystemManager->m_pPrefabManager->GetNumberOfFiles();
+    for( unsigned int i=0; i<numprefabfiles; i++ )
+    {
+        PrefabFile* pPrefabFile = g_pComponentSystemManager->m_pPrefabManager->GetLoadedPrefabFileByIndex( i );
+        MyFileObject* pFile = pPrefabFile->GetFile();
+        MyAssert( pFile != 0 );
+
+        prefabmenu->Append( itemidoffset + i, pFile->GetFilenameWithoutExtension() );
+    }
+
+    prefabmenu->Append( itemidoffset + numprefabfiles, "New/Load Prefab file..." );
+}
+
+void GameObject::OnPopupClick(wxEvent &evt)
+{
+    GameObject* pGameObject = (GameObject*)static_cast<wxMenu*>(evt.GetEventObject())->GetClientData();
+
+    unsigned int id = evt.GetId();
+
+    OnPopupClick( pGameObject, id );
+}
+
+void GameObject::OnDrag()
+{
+    g_DragAndDropStruct.Add( DragAndDropType_GameObjectPointer, this );
+}
+#endif //MYFW_USING_WX
+
+void GameObject::OnDrop(int controlid, int x, int y, GameObjectOnDropActions action)
+{
+#if MYFW_USING_WX
+    // If you drop a game object on another, parent them or move above/below depending on the "y".
+    // The bounding rect will change once the first item is moved, so get the rect once before moving things.
+    wxTreeItemId treeid = g_pPanelObjectList->FindObject( this );
+    wxRect rect;
+    g_pPanelObjectList->m_pTree_Objects->GetBoundingRect( treeid, rect, false );
+#endif //MYFW_USING_WX
+
+    std::vector<GameObject*> selectedObjects;
+
+    // Range must match code in PanelObjectListDropTarget::OnDragOver. // TODO: fix this
+    bool setaschild = true;
+#if MYFW_USING_WX
+    if( y > rect.GetBottom() - 10 )
+    {
+        // Move below the selected item.
+        setaschild = false;
+    }
+#else
+    if( action == GameObjectOnDropAction_Reorder )
+        setaschild = false;
+#endif //MYFW_USING_WX
+
+    // Move/Reparent all of the selected items.
+    for( unsigned int i=0; i<g_DragAndDropStruct.GetItemCount(); i++ )
+    {
+        DragAndDropItem* pDropItem = g_DragAndDropStruct.GetItem( i );
+
+        if( pDropItem->m_Type == DragAndDropType_GameObjectPointer )
+        {
+            GameObject* pGameObject = (GameObject*)pDropItem->m_Value;
+
+            // If we're dropping this object on itself, kick out.
+            if( pGameObject == this )
+                continue;
+
+            // If we're attempting to set dragged objects as children,
+            //   don't allow folders to be children of non-folder gameobjects.
+            if( setaschild )
+            {
+                if( m_IsFolder == false && pGameObject->IsFolder() )
+                    continue;
+            }
+
+            selectedObjects.push_back( pGameObject );
+        }
+    }
+
+    if( selectedObjects.size() > 0 )
+    {
+        g_pGameCore->GetCommandStack()->Do( MyNew EditorCommand_ReorderOrReparentGameObjects( selectedObjects, this, GetSceneID(), setaschild ) );
+    }
+}
+
+#if MYFW_USING_WX
+void GameObject::OnLabelEdit(wxString newlabel)
+{
+    size_t len = newlabel.length();
+    if( len > 0 )
+    {
+        SetName( newlabel );
+    }
+}
+
+void GameObject::UpdateObjectListIcon()
+{
+    // Set the icon for the gameobject in the objectlist panel tree.
+    int iconindex = ObjectListIcon_GameObject;
+    if( m_PrefabRef.GetPrefab() != 0 )
+        iconindex = ObjectListIcon_Prefab;
+    else if( m_IsFolder )
+        iconindex = ObjectListIcon_Folder;
+    else if( m_pComponentTransform == 0 )
+        iconindex = ObjectListIcon_LogicObject;
+
+    wxTreeItemId gameobjectid = g_pPanelObjectList->FindObject( this );
+    if( gameobjectid.IsOk() )
+        g_pPanelObjectList->SetIcon( gameobjectid, iconindex );
+}
+#endif //MYFW_USING_WX
+
+void GameObject::FinishLoadingPrefab(PrefabFile* pPrefabFile)
+{
+    // Link the PrefabRef to the correct prefab and GameObject now that the file is finished loading.
+    m_PrefabRef.FinishLoadingPrefab( pPrefabFile );
+
+#if MYFW_USING_WX
+    m_pGameObjectThisInheritsFrom = m_PrefabRef.GetGameObject();
+#endif
+
+    // TODO: Check the if the gameobect(s) in the prefab are completely different and deal with it.
+
+    // Otherwise, importing same prefab, so update all undivorced variables to match prefab file.
+    {
+        GameObject* pPrefabGameObject = m_PrefabRef.GetGameObject();
+        MyAssert( pPrefabGameObject );
+
+        for( unsigned int i=0; i<m_Components.Count(); i++ )
+        {
+            ComponentBase* pComponent = m_Components[i];
+            ComponentBase* pPrefabComponent = pPrefabGameObject->m_Components[i];
+
+            pComponent->SyncUndivorcedVariables( pPrefabComponent );
+        }
+    }
+
+#if MYFW_USING_WX
+    UpdateObjectListIcon();
+#endif //MYFW_USING_WX
+}
+
+void GameObject::OnPrefabFileFinishedLoading(MyFileObject* pFile) // StaticOnPrefabFileFinishedLoading
+{
+    PrefabFile* pPrefabFile = g_pComponentSystemManager->m_pPrefabManager->GetLoadedPrefabFileByFullPath( pFile->GetFullPath() );
+    FinishLoadingPrefab( pPrefabFile );
+
+    pFile->UnregisterFileFinishedLoadingCallback( this );
+}
+
+// Returns the gameobject in the scene that lines up with the root of the prefab.
+// Useful for prefab subobjects(children) to quickly find the starting point of the prefab instance.
+GameObject* GameObject::FindRootGameObjectOfPrefabInstance()
+{
+    MyAssert( m_PrefabRef.GetPrefab() != 0 );
+
+    if( m_PrefabRef.GetChildID() == 0 )
+        return this;
+
+    return m_pParentGameObject->FindRootGameObjectOfPrefabInstance();
+}
+
+// Used when deleting prefabs.
+void GameObject::Editor_SetPrefab(PrefabReference* pPrefabRef)
+{
+    m_PrefabRef = *pPrefabRef;
+    m_pGameObjectThisInheritsFrom = m_PrefabRef.GetGameObject();
+
+#if MYFW_USING_WX
+    UpdateObjectListIcon();
+#endif //MYFW_USING_WX
+}
+
+// Set the material on all renderable components attached to this object.
+void GameObject::Editor_SetMaterial(MaterialDefinition* pMaterial)
+{
+    for( unsigned int i=0; i<m_Components.Count(); i++ )
+    {
+        if( m_Components[i]->m_BaseType == BaseComponentType_Renderable )
+        {
+            MyAssert( m_Components[i]->IsA( "RenderableComponent" ) );
+
+            ComponentRenderable* pRenderable = (ComponentRenderable*)m_Components[i];
+
+            if( pRenderable )
+            {
+                // TODO: Deal with more than just the first submeshes material.
+                int submeshindex = 0;
+
+                // Go through same code to drop a material on the component, so inheritance and undo/redo will be handled
+                ComponentVariable* pVar = pRenderable->GetComponentVariableForMaterial( submeshindex );
+
+                g_DragAndDropStruct.Clear();
+                g_DragAndDropStruct.SetControlID( pVar->m_ControlID );
+                g_DragAndDropStruct.Add( DragAndDropType_MaterialDefinitionPointer, pMaterial );
+
+                pRenderable->OnDropVariable( pVar, 0, -1, -1 );
+            }
+        }
+    }
+}
+
 void GameObject::AddToList(std::vector<GameObject*>* pList)
 {
     // Don't allow same object to be in the list twice.
@@ -1532,4 +1539,4 @@ void GameObject::AddToList(std::vector<GameObject*>* pList)
         }
     }
 }
-#endif //MYFW_USING_WX
+#endif //MYFW_EDITOR
