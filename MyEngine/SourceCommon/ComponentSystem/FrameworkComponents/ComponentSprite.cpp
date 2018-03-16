@@ -237,6 +237,19 @@ void ComponentSprite::SetMaterial(MaterialDefinition* pMaterial, int submeshinde
     if( m_pSprite )
     {
         m_pSprite->SetMaterial( pMaterial );
+
+        // Create a scenegraph object if this is the first time we set the material.
+        if( m_pSceneGraphObject == 0 && pMaterial != 0 )
+        {
+            m_pSprite->Create( "ComponentSprite", m_Size.x, m_Size.y, 0, 1, 0, 1, Justify_Center, false );
+
+            AddToSceneGraph();
+        }
+
+        if( pMaterial == 0 )
+        {
+            RemoveFromSceneGraph();
+        }
     }
 
     if( m_pSceneGraphObject )
@@ -352,12 +365,12 @@ void* ComponentSprite::OnDrop(ComponentVariable* pVar, int x, int y)
     if( pDropItem->m_Type == DragAndDropType_MaterialDefinitionPointer )
     {
         MaterialDefinition* pMaterial = (MaterialDefinition*)pDropItem->m_Value;
-        MyAssert( pMaterial );
+        //MyAssert( pMaterial ); // Double-clicking material to clear drops a null material in imgui editor.
         MyAssert( m_pSprite );
 
         oldPointer = m_pSprite->GetMaterial();
 
-        m_pSprite->SetMaterial( pMaterial );
+        SetMaterial( pMaterial, 0 );
 
 #if MYFW_USING_WX
         g_pPanelWatch->SetNeedsRefresh();

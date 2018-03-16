@@ -1101,6 +1101,21 @@ void ComponentBase::AddVariableToWatchPanel(ComponentVariable* pVar)
                     ImGui::EndDragDropTarget();
                 }
 
+                // Clear material on double click.
+                if( ImGui::IsItemHovered() )
+                {
+                    if( ImGui::IsMouseDoubleClicked( 0 ) )
+                    {
+                        // Clear material by "dropping" at null material on the object.
+                        // This will create undo along with update divorce status and children.
+                        g_DragAndDropStruct.Clear();
+                        g_DragAndDropStruct.SetControlID( pVar->m_ControlID );
+                        g_DragAndDropStruct.Add( DragAndDropType_MaterialDefinitionPointer, 0 );
+
+                        OnDropVariable( pVar, 0, -1, -1, true );
+                    }
+                }
+
                 ImGui::SameLine();
                 ImGui::Text( pVar->m_Label );
 
