@@ -19,6 +19,8 @@ enum EditorMenuCommands
     EditorMenuCommand_File_Export_Box2DScene,
     EditorMenuCommand_Edit_Undo,
     EditorMenuCommand_Edit_Redo,
+    EditorMenuCommand_View_SelectedObjects_ShowWireframe,
+    EditorMenuCommand_View_SelectedObjects_ShowEffect,
     EditorMenuCommand_View_ShowEditorIcons,
     EditorMenuCommand_Grid_Visible,
     EditorMenuCommand_Grid_SnapEnabled,

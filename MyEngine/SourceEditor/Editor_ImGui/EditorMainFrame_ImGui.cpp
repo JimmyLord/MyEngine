@@ -112,6 +112,9 @@ EditorMainFrame_ImGui::EditorMainFrame_ImGui()
 
     m_pCommandStack = MyNew EngineCommandStack();
     g_pEngineCore->SetCommandStack( m_pCommandStack );
+
+    // Hacks for temporary window resizing.
+    m_HACK_WindowSize.Set( -1, -1 );
 }
 
 EditorMainFrame_ImGui::~EditorMainFrame_ImGui()
@@ -357,6 +360,9 @@ void EditorMainFrame_ImGui::AddEverything()
 #endif
 
     m_RenamePressedThisFrame = false;
+
+    // Hacks for temporary window resizing.
+    HACK_HandleWindowResize();
 }
 
 void EditorMainFrame_ImGui::DrawGameAndEditorWindows(EngineCore* pEngineCore)
@@ -722,10 +728,10 @@ void EditorMainFrame_ImGui::AddMainMenuBar()
                 ImGui::EndMenu();
             }
 
-            if( ImGui::BeginMenu( "Selected Objects (TODO)" ) )
+            if( ImGui::BeginMenu( "Selected Objects" ) )
             {
-                if( ImGui::MenuItem( "Show Wireframe (TODO)" ) ) {}
-                if( ImGui::MenuItem( "Show Effect (TODO)" ) ) {}
+                if( ImGui::MenuItem( "Show Wireframe", 0, g_pEngineCore->GetEditorPrefs()->Get_View_SelectedObjects_ShowWireframe() ) ) { EditorMenuCommand( EditorMenuCommand_View_SelectedObjects_ShowWireframe ); }
+                if( ImGui::MenuItem( "Show Effect", 0, g_pEngineCore->GetEditorPrefs()->Get_View_SelectedObjects_ShowEffect() ) ) { EditorMenuCommand( EditorMenuCommand_View_SelectedObjects_ShowEffect ); }
 
                 ImGui::EndMenu();
             }
@@ -2686,5 +2692,81 @@ void EditorMainFrame_ImGui::OnDropEditorWindow()
         //    // update the panel so new gameobject name shows up.
         //    g_pPanelWatch->GetVariableProperties( g_DragAndDropStruct.GetControlID() )->m_Description = pGameObject->GetName();
         //}
+    }
+}
+
+// Hacks for temporary window resizing.
+#include "../SourceCommon/GUI/ImGuiExtensions.h"
+
+void EditorMainFrame_ImGui::HACK_HandleWindowResize()
+{
+    // Store the initial settings.
+    if( m_HACK_WindowSize.x == -1 )
+    {
+        m_HACK_WindowSize.Set( g_pGameCore->GetWindowWidth(), g_pGameCore->GetWindowHeight() );
+        return;
+    }
+
+    // If the window changed size, resize all the internal windows
+    if( m_HACK_WindowSize.x != g_pGameCore->GetWindowWidth() ||
+        m_HACK_WindowSize.y != g_pGameCore->GetWindowHeight() )
+    {
+        m_HACK_WindowSize.Set( g_pGameCore->GetWindowWidth(), g_pGameCore->GetWindowHeight() );
+
+        ImVec2 Pos_Objects = ImGuiExt::GetWindowPos( "Objects" );
+        ImVec2 Size_Objects = ImGuiExt::GetWindowSize( "Objects" );
+
+        ImVec2 Pos_Game = ImGuiExt::GetWindowPos( "Game" );
+        ImVec2 Size_Game = ImGuiExt::GetWindowSize( "Game" );
+
+        ImVec2 Pos_Log = ImGuiExt::GetWindowPos( "Log" );
+        ImVec2 Size_Log = ImGuiExt::GetWindowSize( "Log" );
+
+        ImVec2 Pos_Editor = ImGuiExt::GetWindowPos( "Editor" );
+        ImVec2 Size_Editor = ImGuiExt::GetWindowSize( "Editor" );
+
+        ImVec2 Pos_Watch = ImGuiExt::GetWindowPos( "Watch" );
+        ImVec2 Size_Watch = ImGuiExt::GetWindowSize( "Watch" );
+
+        ImVec2 Pos_Resources = ImGuiExt::GetWindowPos( "Resources" );
+        ImVec2 Size_Resources = ImGuiExt::GetWindowSize( "Resources" );
+
+        // "Objects" will stay in place and expand on Y.
+        Size_Objects.y = m_HACK_WindowSize.y - Size_Game.y - Size_Log.y - Pos_Objects.y - 15;
+
+        // "Game" will move down and stay the same size.
+        Pos_Game.y = Pos_Objects.y + Size_Objects.y + 5;
+
+        // "Log" will move down and expand on X.
+        Pos_Log.y = m_HACK_WindowSize.y - Size_Log.y - 5;
+        Size_Log.x = m_HACK_WindowSize.x - Size_Resources.x - 10;
+
+        // "Editor" will stay in place and expand on XY.
+        Size_Editor.x = m_HACK_WindowSize.x - Size_Objects.x - Size_Watch.x - 15;
+        Size_Editor.y = m_HACK_WindowSize.y - Size_Log.y - Pos_Editor.y - 50;
+
+        // "Watch" will move to the right and expand on Y.
+        Pos_Watch.x = m_HACK_WindowSize.x - Size_Watch.x - 5;
+        Size_Watch.y = m_HACK_WindowSize.y - Size_Resources.y - Pos_Watch.y - 10;
+
+        // "Resources" will stick to the corner and stay the same size.
+        Pos_Resources.x = m_HACK_WindowSize.x - Size_Resources.x - 5;
+        Pos_Resources.y = m_HACK_WindowSize.y - Size_Resources.y - 5;
+
+
+        // Do the resizing.
+        ImGui::SetWindowSize( "Objects", Size_Objects, 0 );
+
+        ImGui::SetWindowPos( "Game", Pos_Game, 0 );
+
+        ImGui::SetWindowPos( "Log", Pos_Log, 0 );
+        ImGui::SetWindowSize( "Log", Size_Log, 0 );
+
+        ImGui::SetWindowSize( "Editor", Size_Editor, 0 );
+
+        ImGui::SetWindowPos( "Watch", Pos_Watch, 0 );
+        ImGui::SetWindowSize( "Watch", Size_Watch, 0 );
+
+        ImGui::SetWindowPos( "Resources", Pos_Resources, 0 );
     }
 }

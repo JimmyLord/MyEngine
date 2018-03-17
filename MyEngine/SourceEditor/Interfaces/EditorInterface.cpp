@@ -127,7 +127,6 @@ void EditorInterface::OnDrawFrame(unsigned int canvasid)
                         for( unsigned int i=0; i<pEditorState->m_pSelectedObjects.size(); i++ )
                         {
                             // draw an outline around the selected object
-#if MYFW_USING_WX // TODO_FIX_EDITOR
                             if( g_pEngineCore->GetEditorPrefs()->Get_View_SelectedObjects_ShowWireframe() )
                             {
                                 glEnable( GL_BLEND );
@@ -159,7 +158,6 @@ void EditorInterface::OnDrawFrame(unsigned int canvasid)
                                                                              pEditorState->m_pSelectedObjects[i],
                                                                              pShaderOverride );
                             }
-#endif
                         }
                     }
 

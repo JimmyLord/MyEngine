@@ -256,6 +256,18 @@ void EditorMenuCommand(EditorMenuCommands command)
         }
         break;
 
+    case EditorMenuCommand_View_SelectedObjects_ShowWireframe:
+        {
+            g_pEngineCore->GetEditorPrefs()->Toggle_View_SelectedObjects_ShowWireframe();
+        }
+        break;
+
+    case EditorMenuCommand_View_SelectedObjects_ShowEffect:
+        {
+            g_pEngineCore->GetEditorPrefs()->Toggle_View_SelectedObjects_ShowEffect();
+        }
+        break;        
+
     case EditorMenuCommand_View_ShowEditorIcons:
         {
             g_pEngineCore->GetEditorPrefs()->Toggle_View_ShowEditorIcons();

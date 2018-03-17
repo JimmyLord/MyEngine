@@ -111,6 +111,10 @@ protected:
     void AddDebug_MousePicker();
 
     void OnDropEditorWindow();
+
+    // Hacks for temporary window resizing.
+    Vector2 m_HACK_WindowSize;
+    void HACK_HandleWindowResize();
 };
 
 #endif //__EditorMainFrame_ImGui_H__

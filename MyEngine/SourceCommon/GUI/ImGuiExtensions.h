@@ -17,6 +17,9 @@ namespace ImGuiExt
     ImGuiID GetLastItemId();
     
     void SetStyleColorVec4(ImGuiCol idx, ImVec4& color);
+
+    ImVec2 GetWindowSize(const char* name);
+    ImVec2 GetWindowPos(const char* name);
 }
 
 #endif //__ImGuiExtensions_H__

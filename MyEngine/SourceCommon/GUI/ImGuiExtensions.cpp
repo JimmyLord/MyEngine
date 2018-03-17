@@ -57,4 +57,20 @@ void SetStyleColorVec4(ImGuiCol idx, ImVec4& color)
     style.Colors[idx] = color;
 }
 
+ImVec2 GetWindowSize(const char* name)
+{
+    if( ImGuiWindow* window = ImGui::FindWindowByName( name ) )
+        return window->Size;
+
+    return ImVec2(-1,-1);
+}
+
+ImVec2 GetWindowPos(const char* name)
+{
+    if( ImGuiWindow* window = ImGui::FindWindowByName( name ) )
+        return window->Pos;
+
+    return ImVec2(-1,-1);
+}
+
 }
