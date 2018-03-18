@@ -25,7 +25,7 @@ ComponentSystemManager::ComponentSystemManager(ComponentTypeManager* typemanager
     g_pComponentSystemManager = this;
 
     m_pComponentTypeManager = typemanager;
-#if MYFW_USING_WX
+#if MYFW_EDITOR
     m_pSceneHandler = MyNew SceneHandler();
     m_pGameObjectTemplateManager = MyNew GameObjectTemplateManager();
 #endif
@@ -134,7 +134,7 @@ ComponentSystemManager::~ComponentSystemManager()
     while( m_FilesStillLoading.GetHead() )
         delete m_FilesStillLoading.RemHead();
 
-#if MYFW_USING_WX
+#if MYFW_EDITOR
     SAFE_DELETE( m_pSceneHandler );
     SAFE_DELETE( m_pGameObjectTemplateManager );
 #endif
@@ -1501,7 +1501,7 @@ GameObject* ComponentSystemManager::CreateGameObjectFromPrefab(PrefabObject* pPr
     return pGameObject;
 }
 
-#if MYFW_USING_WX
+#if MYFW_EDITOR
 GameObject* ComponentSystemManager::CreateGameObjectFromTemplate(unsigned int templateid, SceneID sceneid)
 {
     MyAssert( templateid < m_pGameObjectTemplateManager->GetNumberOfTemplates() );

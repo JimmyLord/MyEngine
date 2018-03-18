@@ -1106,35 +1106,52 @@ void EditorMainFrame_ImGui::AddObjectList()
                                 ImGui::CloseCurrentPopup();
                             }
                         
-                            if( ImGui::BeginMenu( "Add GameObject from Template (TODO)" ) )
+                            if( ImGui::BeginMenu( "Add GameObject from Template" ) )
                             {
                                 GameObjectTemplateManager* pManager = g_pComponentSystemManager->m_pGameObjectTemplateManager;
     
-                                //cJSON* jFirstParent = pManager->GetParentTemplateJSONObject( startindex );
+                                cJSON* jFirstParent = pManager->GetParentTemplateJSONObject( 0 );//startindex );
 
-                                //unsigned int i = startindex;
-                                //while( i < pManager->GetNumberOfTemplates() )
-                                //{
-                                //    bool isfolder = pManager->IsTemplateAFolder( i );
-                                //    const char* name = pManager->GetTemplateName( i );
+                                unsigned int i = 0; //startindex;
+                                while( i < pManager->GetNumberOfTemplates() )
+                                {
+                                    bool isfolder = pManager->IsTemplateAFolder( i );
+                                    const char* name = pManager->GetTemplateName( i );
 
-                                //    if( pManager->GetParentTemplateJSONObject( i ) != jFirstParent )
-                                //        return i;
+                                    //if( pManager->GetParentTemplateJSONObject( i ) != jFirstParent )
+                                    //    return i;
 
-                                //    if( isfolder )
-                                //    {
-                                //        wxMenu* submenu = MyNew wxMenu;
-                                //        menu->AppendSubMenu( submenu, name );
+                                    if( isfolder )
+                                    {
+                                        //wxMenu* submenu = MyNew wxMenu;
+                                        //menu->AppendSubMenu( submenu, name );
 
-                                //        i = AddGameObjectTemplatesToMenu( submenu, itemidoffset, i+1 );
-                                //    }
-                                //    else
-                                //    {
-                                //        menu->Append( itemidoffset + i, name );
-                                //    }
+                                        //i = AddGameObjectTemplatesToMenu( submenu, itemidoffset, i+1 );
+                                    }
+                                    else
+                                    {
+                                        //menu->Append( itemidoffset + i, name );
+                                        if( ImGui::MenuItem( name ) )
+                                        {
+                                            GameObject* pGameObjectCreated = g_pComponentSystemManager->CreateGameObjectFromTemplate( i, (SceneID)sceneindex );
+                                            if( pGameObjectCreated )
+                                            {
+                                                g_pGameCore->GetCommandStack()->Add( MyNew EditorCommand_CreateGameObject( pGameObjectCreated ) );
 
-                                //    i++;
-                                //}
+                                                EditorState* pEditorState = g_pEngineCore->GetEditorState();
+                                                pEditorState->ClearSelectedObjectsAndComponents();
+                                                pEditorState->SelectGameObject( pGameObjectCreated );
+
+                                                //if( pParentGameObject )
+                                                //{
+                                                //    pGameObjectCreated->SetParentGameObject( pParentGameObject );
+                                                //}
+                                            }
+                                        }
+                                    }
+
+                                    i++;
+                                }
 
                                 //return i;
 

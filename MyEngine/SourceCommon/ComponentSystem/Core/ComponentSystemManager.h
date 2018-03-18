@@ -193,7 +193,7 @@ public:
     GameObject* CreateGameObject(bool manageobject = true, SceneID sceneid = SCENEID_Unmanaged, bool isfolder = false, bool hastransform = true, PrefabReference* pPrefabRef = 0);
     GameObject* CreateGameObjectFromPrefab(PrefabObject* pPrefab, bool manageobject, SceneID sceneid);
     GameObject* CreateGameObjectFromPrefab(PrefabObject* pPrefab, cJSON* jPrefab, uint32 prefabchildid, bool manageobject, SceneID sceneid);
-#if MYFW_USING_WX
+#if MYFW_EDITOR
     GameObject* CreateGameObjectFromTemplate(unsigned int templateid, SceneID sceneid);
 #endif
     void UnmanageGameObject(GameObject* pObject, bool unmanagechildren);
