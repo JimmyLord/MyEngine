@@ -344,6 +344,22 @@ bool EditorInterface::HandleInputForEditorCamera(int keyaction, int keycode, int
             pEditorState->m_pTransformGizmo->m_LastIntersectResultIsValid = false;
         }
 
+        // Enter/Exit RotatingEditorCamera camera state on right-click.
+        {
+            // If the right mouse button was clicked, switch to rotating editor camera state.
+            if( mouseaction == GCBA_Down && id == 1 )
+            {
+                pEditorState->m_EditorActionState = EDITORACTIONSTATE_RotatingEditorCamera;
+            }
+
+            // If we're in EDITORACTIONSTATE_RotatingEditorCamera and the right mouse goes up.
+            if( pEditorState->m_EditorActionState == EDITORACTIONSTATE_RotatingEditorCamera &&
+                mouseaction == GCBA_Up && id == 1 )
+            {
+                pEditorState->m_EditorActionState = EDITORACTIONSTATE_None;
+            }
+        }
+
         // if space is held, left button will pan the camera around.  or just middle button
         if( ( (mods & MODIFIERKEY_LeftMouse) && (mods & MODIFIERKEY_Space) ) || (mods & MODIFIERKEY_MiddleMouse) )
         {
@@ -401,7 +417,7 @@ bool EditorInterface::HandleInputForEditorCamera(int keyaction, int keycode, int
             //}
         }
         // if right mouse is down, rotate the camera around selected object or around it's current position
-        else if( pEditorState->m_EditorActionState == EDITORACTIONSTATE_None &&
+        else if( pEditorState->m_EditorActionState == EDITORACTIONSTATE_RotatingEditorCamera &&
                  (mods & MODIFIERKEY_RightMouse) )
         {
 #if MYFW_USING_WX && MYFW_OSX

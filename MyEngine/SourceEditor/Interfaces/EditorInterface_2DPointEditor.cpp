@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016-2017 Jimmy Lord http://www.flatheadgames.com
+// Copyright (c) 2016-2018 Jimmy Lord http://www.flatheadgames.com
 //
 // This software is provided 'as-is', without any express or implied warranty.  In no event will the authors be held liable for any damages arising from the use of this software.
 // Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -155,12 +155,16 @@ void EditorInterface_2DPointEditor::CancelCurrentOperation()
 
 bool EditorInterface_2DPointEditor::HandleInput(int keyaction, int keycode, int mouseaction, int id, float x, float y, float pressure)
 {
+    bool inputhandled = false;
+
     EditorState* pEditorState = g_pEngineCore->GetEditorState();
 
     if( keyaction == GCBA_Up && keycode == MYKEYCODE_ESC )
     {
-        CancelCurrentOperation();
-        g_pEngineCore->SetEditorInterface( EditorInterfaceType_SceneManagement );        
+        if( m_IndexOfPointBeingDragged != -1 )
+            CancelCurrentOperation();
+        else
+            g_pEngineCore->SetEditorInterface( EditorInterfaceType_SceneManagement );        
     }
 
     // TODO: store last used vertex and handle delete key
@@ -187,7 +191,9 @@ bool EditorInterface_2DPointEditor::HandleInput(int keyaction, int keycode, int 
         {
             if( id == 1 ) // right mouse button to cancel current operation
             {
+                LOGDebug( "2DPointEditor", "Cancelled operation on point %d\n", m_IndexOfPointBeingDragged );
                 CancelCurrentOperation();
+                inputhandled = true;
             }
         }
 
@@ -222,6 +228,8 @@ bool EditorInterface_2DPointEditor::HandleInput(int keyaction, int keycode, int 
                 {
                     g_pGameCore->GetCommandStack()->Add( MyNew EditorCommand_Move2DPoint( distmoved, m_pCollisionObject, m_IndexOfPointBeingDragged ), m_AddedVertexWhenMouseWasDragged );
                 }
+
+                m_IndexOfPointBeingDragged = -1;
             }
         }
 
@@ -310,7 +318,10 @@ bool EditorInterface_2DPointEditor::HandleInput(int keyaction, int keycode, int 
     }
 
     // handle camera movement, with both mouse and keyboard.
-    EditorInterface::HandleInputForEditorCamera( keyaction, keycode, mouseaction, id, x, y, pressure );
+    if( inputhandled == false )
+    {
+        EditorInterface::HandleInputForEditorCamera( keyaction, keycode, mouseaction, id, x, y, pressure );
+    }
 
     return false;
 }

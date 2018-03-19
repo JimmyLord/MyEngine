@@ -184,20 +184,22 @@ bool EditorInterface_SceneManagement::HandleInput(int keyaction, int keycode, in
 
     EditorInterface::SetModifierKeyStates( keyaction, keycode, mouseaction, id, x, y, pressure );
 
-    if( pEditorState->m_ModifierKeyStates & MODIFIERKEY_RightMouse )
+    // If this is a new right-click, cancel gizmo ops.
+    if( mouseaction == GCBA_Down && id == 1 )
     {
-        // cancel the current action
+        // Cancel the current action and return true to prevent click from starting a camera rotation (or other op).
         if( pEditorState->m_EditorActionState >= EDITORACTIONSTATE_TranslateX &&
             pEditorState->m_EditorActionState <= EDITORACTIONSTATE_RotateZ )
         {
             pEditorState->m_pTransformGizmo->CancelCurrentOperation( pEditorState );
+            pEditorState->m_EditorActionState = EDITORACTIONSTATE_None;
+            return true;
         }
         else if( pEditorState->m_EditorActionState == EDITORACTIONSTATE_GroupSelectingObjects )
         {
         }
 
         pEditorState->ClearConstraint();
-        pEditorState->m_EditorActionState = EDITORACTIONSTATE_None;
     }
 
     if( pEditorState->m_ModifierKeyStates & MODIFIERKEY_LeftMouse )

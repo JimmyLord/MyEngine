@@ -136,6 +136,23 @@ void Component2DCollisionObject::LuaRegister(lua_State* luastate)
 #endif //MYFW_USING_LUA
 
 #if MYFW_EDITOR
+
+#if MYFW_USING_IMGUI
+void Component2DCollisionObject::AddAllVariablesToWatchPanel()
+{
+    ComponentBase::AddAllVariablesToWatchPanel();
+
+    if( m_PrimitiveType == Physics2DPrimitiveType_Chain )
+    {
+        //g_pPanelWatch->AddButton( "Edit Chain", this, -1, Component2DCollisionObject::StaticOnButtonEditChain );
+        if( ImGui::Button( "Edit Chain" ) )
+        {
+            OnButtonEditChain( 0 );
+        }
+    }
+}
+#endif //MYFW_USING_IMGUI
+
 #if MYFW_USING_WX
 void Component2DCollisionObject::AddToObjectsPanel(wxTreeItemId gameobjectid)
 {
