@@ -81,7 +81,9 @@ void Component2DCollisionObject::RegisterVariables(CPPListHead* pList, Component
     AddVar( pList, "Density",       ComponentVariableType_Float, MyOffsetOf( pThis, &pThis->m_Density ),         true, true, 0, (CVarFunc_ValueChanged)&Component2DCollisionObject::OnValueChanged, 0, 0 );
     AddVar( pList, "IsSensor",      ComponentVariableType_Bool,  MyOffsetOf( pThis, &pThis->m_IsSensor ),        true, true, 0, (CVarFunc_ValueChanged)&Component2DCollisionObject::OnValueChanged, 0, 0 );
     pVar = AddVar( pList, "Friction",      ComponentVariableType_Float, MyOffsetOf( pThis, &pThis->m_Friction ),        true, true, 0, (CVarFunc_ValueChanged)&Component2DCollisionObject::OnValueChanged, 0, 0 );
+#if MYFW_EDITOR
     pVar->SetEditorLimits( 0, 1 );
+#endif //MYFW_EDITOR
     AddVar( pList, "Restitution",   ComponentVariableType_Float, MyOffsetOf( pThis, &pThis->m_Restitution ),     true, true, 0, (CVarFunc_ValueChanged)&Component2DCollisionObject::OnValueChanged, 0, 0 );
 
     //AddVar( pList, "Scale",         ComponentVariableType_Float, MyOffsetOf( pThis, &pThis->m_Scale ),           true, true, 0, (CVarFunc_ValueChanged)&Component2DCollisionObject::OnValueChanged, 0, 0 );

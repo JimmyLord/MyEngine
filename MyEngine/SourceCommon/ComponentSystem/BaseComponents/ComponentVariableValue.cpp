@@ -92,12 +92,14 @@ void ComponentVariableValue::UpdateComponentAndChildrenWithValue(ComponentBase* 
         break;
     }
 
+#if MYFW_EDITOR
     // Inform component it's value changed.
     for( int i=0; i<numberofcomponents; i++ )
     {
         //pComponent->OnValueChangedVariable( pVar->m_ControlID+i, false, true, 0, false, this );
         pComponent->OnValueChangedVariable( pVar, i, false, true, 0, false, this );
     }
+#endif //MYFW_EDITOR
 }
 
 void ComponentVariableValue::CopyNonPointerValueIntoVariable(ComponentBase* pComponent, ComponentVariable* pVar)

@@ -235,7 +235,9 @@ void ComponentCamera::Reset()
     m_pPostEffectFBOs[0] = 0;
     m_pPostEffectFBOs[1] = 0;
 
+#if MYFW_EDITOR
     m_FullClearsRequired = 1;
+#endif //MYFW_EDITOR
 
 #if MYFW_USING_WX
     m_FullClearsRequired = 2;
@@ -369,7 +371,9 @@ void ComponentCamera::OnSurfaceChanged(unsigned int startx, unsigned int starty,
 
     ComputeProjectionMatrices();
 
+#if MYFW_EDITOR
     m_FullClearsRequired = 1;
+#endif //MYFW_EDITOR
 
 #if MYFW_USING_WX
     m_FullClearsRequired = 2;

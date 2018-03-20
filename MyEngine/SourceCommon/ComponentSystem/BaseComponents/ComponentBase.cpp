@@ -331,6 +331,7 @@ void ComponentBase::FillPropertiesWindowWithVariables()
 }
 #endif //MYFW_USING_WX
 
+#if MYFW_EDITOR
 bool ComponentBase::DoAllMultiSelectedVariabledHaveTheSameValue(ComponentVariable* pVar)
 {
     bool allComponentsHaveSameValue = true;
@@ -451,6 +452,7 @@ bool ComponentBase::DoAllMultiSelectedVariabledHaveTheSameValue(ComponentVariabl
 
     return allComponentsHaveSameValue;
 }
+#endif //MYFW_EDITOR
 
 #if MYFW_USING_WX
 void ComponentBase::AddVariableToPropertiesWindow(ComponentVariable* pVar)
