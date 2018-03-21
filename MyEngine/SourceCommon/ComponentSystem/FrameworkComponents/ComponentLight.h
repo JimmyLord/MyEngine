@@ -60,6 +60,10 @@ protected:
 
 public:
 #if MYFW_EDITOR
+#if MYFW_USING_IMGUI
+    virtual void AddAllVariablesToWatchPanel();
+#endif
+
 #if MYFW_USING_WX
     static bool m_PanelWatchBlockVisible;
 

@@ -2641,7 +2641,7 @@ void EditorMainFrame_ImGui::OnDropEditorWindow()
                     Vector3 pos = pObjectDroppedOn->GetTransform()->GetWorldPosition();
 
                     ComponentRenderable* pComponentMeshDroppedOn = (ComponentRenderable*)pObjectDroppedOn->GetFirstComponentOfBaseType( BaseComponentType_Renderable );
-                    if( pComponentMeshDroppedOn )
+                    if( pComponentMeshDroppedOn && pComponentMeshDroppedOn->GetBounds() != 0 )
                     {
                         pos.y += pComponentMeshDroppedOn->GetBounds()->GetHalfSize().y;
                         pos.y += pMesh->GetBounds()->GetHalfSize().y;

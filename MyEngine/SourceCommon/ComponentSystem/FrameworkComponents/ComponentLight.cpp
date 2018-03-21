@@ -83,6 +83,21 @@ void ComponentLight::Reset()
 }
 
 #if MYFW_EDITOR
+#if MYFW_USING_IMGUI
+void ComponentLight::AddAllVariablesToWatchPanel()
+{
+    ComponentBase::AddAllVariablesToWatchPanel();
+
+    if( m_pLight )
+    {
+        if( ImGui::ColorEdit4( "Color", &m_pLight->m_Color.r ) )
+        {
+        }
+        ImGui::DragFloat3( "Attenuation", &m_pLight->m_Attenuation.x, 0.01f, 0, 20 );
+    }
+}
+#endif
+
 #if MYFW_USING_WX
 void ComponentLight::AddToObjectsPanel(wxTreeItemId gameobjectid)
 {

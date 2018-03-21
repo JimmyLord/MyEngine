@@ -3,7 +3,7 @@
 #endif
 
 #if NUM_DIR_LIGHTS > 0
-void DirLightContribution(vec3 vertpos, vec3 campos, vec3 normal, float shininess, inout vec3 finaldiffuse, inout vec3 finalspecular)
+void DirLightContribution(vec3 vertpos, vec3 campos, vec3 normal, float shininess, inout vec3 finalambient, inout vec3 finaldiffuse, inout vec3 finalspecular)
 {
     // vert, cam, normal and light positions are in world space.
     //vec3 vertpos = vertpos4.xyz / vertpos4.w; // w should be 1
@@ -14,6 +14,9 @@ void DirLightContribution(vec3 vertpos, vec3 campos, vec3 normal, float shinines
 
     vec3 unnormalizedlightdirvector = lightdir;
     vec3 lightdirvector = normalize( unnormalizedlightdirvector ) * -1.0;
+
+    // ambient
+    finalambient = lightcolor * 0.1;
 
     // diffuse
     float diffperc = max( dot( normal, lightdirvector ), 0.0 );
@@ -29,7 +32,7 @@ void DirLightContribution(vec3 vertpos, vec3 campos, vec3 normal, float shinines
 #endif
 
 #if NUM_LIGHTS > 0
-void PointLightContribution(vec3 lightpos, vec3 lightcolor, vec3 lightatten, vec3 vertpos, vec3 campos, vec3 normal, float shininess, inout vec3 finaldiffuse, inout vec3 finalspecular)
+void PointLightContribution(vec3 lightpos, vec3 lightcolor, vec3 lightatten, vec3 vertpos, vec3 campos, vec3 normal, float shininess, inout vec3 finalambient, inout vec3 finaldiffuse, inout vec3 finalspecular)
 {
     // vert, cam, normal and light positions are in world space.
     //vec3 vertpos = vertpos4.xyz / vertpos4.w; // w should be 1
@@ -44,7 +47,10 @@ void PointLightContribution(vec3 lightpos, vec3 lightcolor, vec3 lightatten, vec
 
     // attenuation
     float dist = length( unnormalizedlightdirvector );
-    float attenuation = 1.0 / (lightatten.x + dist*lightatten.y + dist*dist*lightatten.z);
+    float attenuation = 1.0 / (0.00001 + lightatten.x + dist*lightatten.y + dist*dist*lightatten.z);
+
+    // ambient
+    finalambient = lightcolor * 0.1;
 
     // diffuse
     float diffperc = max( dot( normal, lightdirvector ), 0.0 );
