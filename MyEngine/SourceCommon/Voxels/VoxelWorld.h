@@ -61,6 +61,9 @@ protected:
     VoxelMeshBuilder* m_pMeshBuilders[MAX_BUILDERS];
     int m_NumActiveMeshBuilders;
 
+    int64_t m_OpenSimpleNoiseSeed;
+    osn_context* m_pOpenSimpleNoiseContext;
+
 protected:
     void BuildSharedIndexBuffer();
 

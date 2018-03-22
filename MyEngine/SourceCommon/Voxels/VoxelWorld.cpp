@@ -49,10 +49,20 @@ VoxelWorld::VoxelWorld()
         m_pMeshBuilders[i] = MyNew VoxelMeshBuilder;
     }
     m_NumActiveMeshBuilders = 0;
+
+    m_OpenSimpleNoiseSeed = 1234;
+    int ret = open_simplex_noise( m_OpenSimpleNoiseSeed, &m_pOpenSimpleNoiseContext );
+    MyAssert( ret == 0 );
 }
 
 VoxelWorld::~VoxelWorld()
 {
+    if( m_pOpenSimpleNoiseContext )
+    {
+        open_simplex_noise_free( m_pOpenSimpleNoiseContext );
+        m_pOpenSimpleNoiseContext = 0;
+    }
+
     for( int i=0; i<MAX_GENERATORS; i++ )
     {
         delete m_pChunkGenerators[i];

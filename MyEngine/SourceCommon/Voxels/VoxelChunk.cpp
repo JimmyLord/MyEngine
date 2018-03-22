@@ -412,7 +412,7 @@ void VoxelChunk::ImportFromJSONObject(cJSON* jVoxelMesh)
 // ============================================================================================================================
 // Map/Blocks
 // ============================================================================================================================
-unsigned int VoxelChunk::DefaultGenerateMapFunc(Vector3Int worldpos)
+unsigned int VoxelChunk::DefaultGenerateMapFunc(VoxelWorld* pWorld, Vector3Int worldpos)
 {
     bool enabled = false;
 
@@ -420,15 +420,15 @@ unsigned int VoxelChunk::DefaultGenerateMapFunc(Vector3Int worldpos)
     {
         //float freq = 1/50.0f;
 
-        //double value = SimplexNoise( worldpos.x * freq, worldpos.y * freq, worldpos.z * freq );
+        //double value = open_simplex_noise3( pWorld->m_pOpenSimpleNoiseContext, worldpos.x * freq, worldpos.y * freq, worldpos.z * freq );
 
         //enabled = value > 0.0f;
     }
     else
     {
-        float freq = 1/50.0f;
+        float freq = 1/20.0f;
 
-        double value = SimplexNoise( worldpos.x * freq, worldpos.z * freq );
+        double value = open_simplex_noise2( pWorld->m_pOpenSimpleNoiseContext, worldpos.x * freq, worldpos.z * freq );
 
         //// shift -1 to 1 into range of 0.5 to 1.
         //double shiftedvalue = value * 0.25 + 0.75;
@@ -482,7 +482,7 @@ void VoxelChunk::GenerateMap()
                 if( pFunc != 0 )
                     blocktype = pFunc( worldpos );
                 else
-                    blocktype = VoxelChunk::DefaultGenerateMapFunc( worldpos );
+                    blocktype = VoxelChunk::DefaultGenerateMapFunc( m_pWorld, worldpos );
 
                 Vector3Int localpos = Vector3Int( x, y, z );
                 VoxelBlock* pBlock = GetBlockFromLocalPos( localpos );

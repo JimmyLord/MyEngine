@@ -80,7 +80,7 @@ public:
     void ImportFromJSONObject(cJSON* jVoxelMesh);
 
     // Map/Blocks
-    static unsigned int DefaultGenerateMapFunc(Vector3Int worldpos);
+    static unsigned int DefaultGenerateMapFunc(VoxelWorld* pWorld, Vector3Int worldpos);
     void GenerateMap(); // runs on a thread
     bool IsMapEdited() { return m_MapWasEdited; }
     bool IsInChunkSpace(Vector3Int worldpos);
