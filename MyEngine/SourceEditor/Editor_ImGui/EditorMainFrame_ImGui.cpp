@@ -1406,6 +1406,20 @@ void EditorMainFrame_ImGui::AddGameObjectToObjectList(GameObject* pGameObject)
             else
             {
                 pEditorState->SelectGameObject( pGameObject );
+
+                // If this is a folder and it's the only selection, then select all objects inside the folder as well.
+                if( pGameObject->IsFolder() && pEditorState->m_pSelectedObjects.size() == 1 )
+                {
+                    for( CPPListNode* pNode = pGameObject->GetChildList()->GetHead(); pNode; pNode = pNode->GetNext() )
+                    {
+                        GameObject* pGameObject = (GameObject*)pNode;
+
+                        if( pGameObject->IsManaged() )
+                        {
+                            pGameObject->AddToList( &pEditorState->m_pSelectedObjects );
+                        }
+                    }
+                }
             }
         }
         if( treeNodeIsOpen )
@@ -1424,6 +1438,9 @@ void EditorMainFrame_ImGui::AddGameObjectToObjectList(GameObject* pGameObject)
                 ComponentBase* pComponent = pGameObject->GetComponentByIndexIncludingCore( ci );
                 if( pComponent )
                 {
+                    if( pComponent->IsA( "GameObjectPropertiesComponent" ) )
+                        continue;
+
                     ImGuiTreeNodeFlags nodeFlags = ImGuiTreeNodeFlags_Leaf;
                     if( pEditorState->IsComponentSelected( pComponent ) )
                     {
