@@ -1501,9 +1501,19 @@ void EditorMainFrame_ImGui::AddWatchPanel()
 
         int numselected = pEditorState->m_pSelectedObjects.size();
 
+        // If multiple objects are selected, show their shared components.
+        // If only one object is selected, just show it's components (will show nothing for empty folders).
         if( numselected > 0 )
         {
+            // Pick the first game object, even it it's a folder.
             GameObject* pFirstGameObject = pEditorState->m_pSelectedObjects[0];
+
+            // Find the first non-folder object if there is one, since folders generally don't have components.
+            for( unsigned int i=0; i<pEditorState->m_pSelectedObjects.size(); i++ )
+            {
+                if( pEditorState->m_pSelectedObjects[i]->IsFolder() == false )
+                    pFirstGameObject = pEditorState->m_pSelectedObjects[i];
+            }
 
             if( numselected > 1 )
             {
@@ -1523,55 +1533,63 @@ void EditorMainFrame_ImGui::AddWatchPanel()
                 }
             }
 
-            // Show common components of all selected Gameobjects:
+            // Only show components for non-folder objects.
+            if( pFirstGameObject->IsFolder() == false )
             {
-                // Search all components including GameObject properties and transform.
-                for( unsigned int i=0; i<pFirstGameObject->GetComponentCountIncludingCore(); i++ )
+                // Show common components of all selected Gameobjects:
                 {
-                    ComponentBase* pComponentToLookFor = pFirstGameObject->GetComponentByIndexIncludingCore( i );
-
-                    MyAssert( pComponentToLookFor );
-
-                    pComponentToLookFor->m_MultiSelectedComponents.clear();
-
-                    // Loop through selected gameobjects and check if they all have to least one of this component type on them.
-                    bool allgameobjectshavecomponent = true;
-                    for( unsigned int i=1; i<pEditorState->m_pSelectedObjects.size(); i++ )
+                    // Search all components including GameObject properties and transform.
+                    for( unsigned int foci=0; foci<pFirstGameObject->GetComponentCountIncludingCore(); foci++ )
                     {
-                        GameObject* pGameObject = pEditorState->m_pSelectedObjects[i];
+                        ComponentBase* pComponentToLookFor = pFirstGameObject->GetComponentByIndexIncludingCore( foci );
 
-                        bool hascomponent = false;
-                        for( unsigned int i=0; i<pGameObject->GetComponentCountIncludingCore(); i++ )
+                        MyAssert( pComponentToLookFor );
+
+                        pComponentToLookFor->m_MultiSelectedComponents.clear();
+
+                        // Loop through selected gameobjects and check if they all have to least one of this component type on them.
+                        bool allgameobjectshavecomponent = true;
+                        for( unsigned int soi=1; soi<pEditorState->m_pSelectedObjects.size(); soi++ )
                         {
-                            ComponentBase* pOtherComponent = pGameObject->GetComponentByIndexIncludingCore( i );
+                            GameObject* pGameObject = pEditorState->m_pSelectedObjects[soi];
 
-                            if( pOtherComponent && pOtherComponent->IsA( pComponentToLookFor->GetClassname() ) == true )
+                            // Skip folders, since they generally don't have components.
+                            if( pGameObject->IsFolder() )
+                                continue;
+
+                            bool hascomponent = false;
+                            for( unsigned int soci=0; soci<pGameObject->GetComponentCountIncludingCore(); soci++ )
                             {
-                                pComponentToLookFor->m_MultiSelectedComponents.push_back( pOtherComponent );
-                                hascomponent = true;
+                                ComponentBase* pOtherComponent = pGameObject->GetComponentByIndexIncludingCore( soci );
+
+                                if( pOtherComponent && pOtherComponent->IsA( pComponentToLookFor->GetClassname() ) == true )
+                                {
+                                    pComponentToLookFor->m_MultiSelectedComponents.push_back( pOtherComponent );
+                                    hascomponent = true;
+                                    break;
+                                }
+                            }
+
+                            if( hascomponent == false )
+                            {
+                                allgameobjectshavecomponent = false;
                                 break;
                             }
                         }
 
-                        if( hascomponent == false )
+                        if( allgameobjectshavecomponent == true )
                         {
-                            allgameobjectshavecomponent = false;
-                            break;
+                            //ImGui::PushStyleColor( ImGuiCol_Header, (ImVec4)ImColor::ImColor(50,100,0,255) );
+                            //ImGui::PushStyleColor( ImGuiCol_HeaderHovered, (ImVec4)ImColor::ImColor(50,70,0,255) );
+                            //ImGui::PushStyleColor( ImGuiCol_HeaderActive, (ImVec4)ImColor::ImColor(50,30,0,255) );
+                            if( ImGui::CollapsingHeader( pComponentToLookFor->GetClassname(), ImGuiTreeNodeFlags_DefaultOpen ) )
+                            {
+                                ImGui::PushID( pComponentToLookFor );
+                                pComponentToLookFor->AddAllVariablesToWatchPanel();
+                                ImGui::PopID();
+                            }
+                            //ImGui::PopStyleColor( 3 );
                         }
-                    }
-
-                    if( allgameobjectshavecomponent == true )
-                    {
-                        //ImGui::PushStyleColor( ImGuiCol_Header, (ImVec4)ImColor::ImColor(50,100,0,255) );
-                        //ImGui::PushStyleColor( ImGuiCol_HeaderHovered, (ImVec4)ImColor::ImColor(50,70,0,255) );
-                        //ImGui::PushStyleColor( ImGuiCol_HeaderActive, (ImVec4)ImColor::ImColor(50,30,0,255) );
-                        if( ImGui::CollapsingHeader( pComponentToLookFor->GetClassname(), ImGuiTreeNodeFlags_DefaultOpen ) )
-                        {
-                            ImGui::PushID( pComponentToLookFor );
-                            pComponentToLookFor->AddAllVariablesToWatchPanel();
-                            ImGui::PopID();
-                        }
-                        //ImGui::PopStyleColor( 3 );
                     }
                 }
             }
