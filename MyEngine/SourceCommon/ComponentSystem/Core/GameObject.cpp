@@ -1360,16 +1360,16 @@ void GameObject::OnDrop(int controlid, int x, int y, GameObjectOnDropActions act
     std::vector<GameObject*> selectedObjects;
 
     // Range must match code in PanelObjectListDropTarget::OnDragOver. // TODO: fix this
-    bool setaschild = true;
+    bool setAsChild = true;
 #if MYFW_USING_WX
     if( y > rect.GetBottom() - 10 )
     {
         // Move below the selected item.
-        setaschild = false;
+        setAsChild = false;
     }
 #else
     if( action == GameObjectOnDropAction_Reorder )
-        setaschild = false;
+        setAsChild = false;
 #endif //MYFW_USING_WX
 
     // Move/Reparent all of the selected items.
@@ -1387,9 +1387,32 @@ void GameObject::OnDrop(int controlid, int x, int y, GameObjectOnDropActions act
 
             // If we're attempting to set dragged objects as children,
             //   don't allow folders to be children of non-folder gameobjects.
-            if( setaschild )
+            if( setAsChild )
             {
                 if( m_IsFolder == false && pGameObject->IsFolder() )
+                    continue;
+            }
+
+            // If this object's parent is in the list, don't add it to the selected list.
+            {
+                bool hasParentInList = false;
+                for( unsigned int j=0; j<g_DragAndDropStruct.GetItemCount(); j++ )
+                {
+                    DragAndDropItem* pDropItem = g_DragAndDropStruct.GetItem( j );
+
+                    if( pDropItem->m_Type == DragAndDropType_GameObjectPointer )
+                    {
+                        GameObject* pPotentialParentGameObject = (GameObject*)pDropItem->m_Value;
+
+                        if( pGameObject->IsParentedTo( pPotentialParentGameObject, true ) )
+                        {
+                            hasParentInList = true;
+                            break;
+                        }
+                    }
+                }
+
+                if( hasParentInList )
                     continue;
             }
 
@@ -1399,7 +1422,7 @@ void GameObject::OnDrop(int controlid, int x, int y, GameObjectOnDropActions act
 
     if( selectedObjects.size() > 0 )
     {
-        g_pGameCore->GetCommandStack()->Do( MyNew EditorCommand_ReorderOrReparentGameObjects( selectedObjects, this, GetSceneID(), setaschild ) );
+        g_pGameCore->GetCommandStack()->Do( MyNew EditorCommand_ReorderOrReparentGameObjects( selectedObjects, this, GetSceneID(), setAsChild ) );
     }
 }
 
