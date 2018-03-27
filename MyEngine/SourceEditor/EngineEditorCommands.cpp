@@ -1777,9 +1777,9 @@ void EditorCommand_ReorderOrReparentGameObjects::Do()
 #if MYFW_USING_WX
             g_pPanelObjectList->Tree_MoveObject( pGameObject, m_pObjectDroppedOn, false );
 #endif
-            pGameObject->MoveAfter( m_pObjectDroppedOn );
             GameObject* thisparent = m_pObjectDroppedOn->GetParentGameObject();
             pGameObject->SetParentGameObject( thisparent );
+            pGameObject->MoveAfter( m_pObjectDroppedOn );
         }
         else
         {
