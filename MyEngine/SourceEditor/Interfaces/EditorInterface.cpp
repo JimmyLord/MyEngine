@@ -181,7 +181,7 @@ void EditorInterface::OnDrawFrame(unsigned int canvasid)
         if( pDebugQuad )
         {
             pDebugQuad->CreateInPlace( "debug", 0.75f, 0.75f, 0.5f, 0.5f, 0, 1, 1, 0, Justify_Center, false );
-            g_pEngineCore->GetMaterial_MousePicker()->SetTextureColor( pEditorState->m_pMousePickerFBO->m_pColorTexture );
+            g_pEngineCore->GetMaterial_MousePicker()->SetTextureColor( pEditorState->m_pMousePickerFBO->GetColorTexture( 0 ) );
             pDebugQuad->SetMaterial( g_pEngineCore->GetMaterial_MousePicker() );
             pDebugQuad->Draw( 0, 0 );
         }
@@ -556,7 +556,7 @@ void EditorInterface::RenderObjectIDsToFBO()
     pEditorState->m_pTransformGizmo->ScaleGizmosForMousePickRendering( true );
 
     glDisable( GL_SCISSOR_TEST );
-    glViewport( 0, 0, pEditorState->m_pMousePickerFBO->m_Width, pEditorState->m_pMousePickerFBO->m_Height );
+    glViewport( 0, 0, pEditorState->m_pMousePickerFBO->GetWidth(), pEditorState->m_pMousePickerFBO->GetHeight() );
 
     glClearColor( 0, 0, 0, 0 );
     glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
@@ -585,8 +585,8 @@ unsigned int EditorInterface::GetIDAtPixel(unsigned int x, unsigned int y, bool 
     if( pEditorState->m_pMousePickerFBO->IsFullyLoaded() == false )
         return 0;
 
-    if( x >= pEditorState->m_pMousePickerFBO->m_Width ||
-        y >= pEditorState->m_pMousePickerFBO->m_Height )
+    if( x >= pEditorState->m_pMousePickerFBO->GetWidth() ||
+        y >= pEditorState->m_pMousePickerFBO->GetHeight() )
         return 0;
 
     if( createnewbitmap )
@@ -712,8 +712,8 @@ void EditorInterface::SelectObjectsInRectangle(unsigned int sx, unsigned int sy,
         return;
 
     // get a pixel from the FBO... use m_WindowStartX/m_WindowStartY from any camera component.
-    unsigned int fbowidth = pEditorState->m_pMousePickerFBO->m_Width;
-    unsigned int fboheight = pEditorState->m_pMousePickerFBO->m_Height;
+    unsigned int fbowidth = pEditorState->m_pMousePickerFBO->GetWidth();
+    unsigned int fboheight = pEditorState->m_pMousePickerFBO->GetHeight();
     unsigned char* pixels = MyNew unsigned char[fbowidth * fboheight * 4];
     glReadPixels( 0, 0, fbowidth, fboheight, GL_RGBA, GL_UNSIGNED_BYTE, pixels );
     pEditorState->m_pMousePickerFBO->Unbind( true );

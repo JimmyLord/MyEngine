@@ -1984,7 +1984,7 @@ void EngineCore::RenderSingleObject(GameObject* pObject, FBODefinition* pFBOToUs
     pFBO->Bind( true );
 
     glDisable( GL_SCISSOR_TEST );
-    glViewport( 0, 0, pFBO->m_Width, pFBO->m_Height );
+    glViewport( 0, 0, pFBO->GetWidth(), pFBO->GetHeight() );
 
     glClearColor( 0, 0, 0, 0 );
     glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
@@ -2010,7 +2010,7 @@ void EngineCore::RenderSingleObject(GameObject* pObject, FBODefinition* pFBOToUs
             matView.CreateLookAtView( objpos + center + Vector3(0, 2, -5), Vector3(0,1,0), objpos + center );
 
             MyMatrix matProj;
-            float aspect = (float)pFBO->m_Width / pFBO->m_Height;
+            float aspect = (float)pFBO->GetWidth() / pFBO->GetHeight();
             matProj.CreatePerspectiveHFoV( 45, aspect, 0.1f, 1000.0f );
 
             MyMatrix matViewProj = matProj * matView;

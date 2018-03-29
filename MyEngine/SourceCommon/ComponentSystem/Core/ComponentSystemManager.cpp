@@ -2184,9 +2184,9 @@ void ComponentSystemManager::OnDrawFrame(ComponentCamera* pCamera, MyMatrix* pMa
                     {
                         pShadowVP = pShadowCam->GetViewProjMatrix();
 #if 1
-                        pShadowTex = pShadowCam->GetFBO()->m_pDepthTexture;
+                        pShadowTex = pShadowCam->GetFBO()->GetDepthTexture();
 #else
-                        pShadowTex = pShadowCam->GetFBO()->m_pColorTexture;
+                        pShadowTex = pShadowCam->GetFBO()->GetColorTexture( 0 );
 #endif
                     }
                 }
@@ -3148,7 +3148,7 @@ void ComponentSystemManager::OnFileUnloaded(MyFileObject* pFile) // StaticOnFile
 {
     MyAssert( pFile );
 
-    // Loop through both lists of files and unload all files referencing this sound cue.
+    // Loop through both lists of files and unload all files referencing this file.
     for( int filelist=0; filelist<2; filelist++ )
     {
         CPPListNode* pFirstNode = 0;

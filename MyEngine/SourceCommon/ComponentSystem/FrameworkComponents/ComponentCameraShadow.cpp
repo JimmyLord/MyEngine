@@ -248,7 +248,7 @@ void ComponentCameraShadow::OnDrawFrame()
     checkGlError( "glDisable( GL_SCISSOR_TEST )" );
 
     m_pDepthFBO->Bind( false );
-    glViewport( 0, 0, m_pDepthFBO->m_Width, m_pDepthFBO->m_Height );
+    glViewport( 0, 0, m_pDepthFBO->GetWidth(), m_pDepthFBO->GetHeight() );
 
     checkGlError( "m_pDepthFBO->Bind()" );
 

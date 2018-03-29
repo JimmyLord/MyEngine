@@ -351,7 +351,7 @@ void EditorInterface_2DPointEditor::RenderObjectIDsToFBO()
     //pEditorState->m_pTransformGizmo->ScaleGizmosForMousePickRendering( true );
 
     glDisable( GL_SCISSOR_TEST );
-    glViewport( 0, 0, pEditorState->m_pMousePickerFBO->m_Width, pEditorState->m_pMousePickerFBO->m_Height );
+    glViewport( 0, 0, pEditorState->m_pMousePickerFBO->GetWidth(), pEditorState->m_pMousePickerFBO->GetHeight() );
 
     glClearColor( 0, 0, 0, 0 );
     glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );

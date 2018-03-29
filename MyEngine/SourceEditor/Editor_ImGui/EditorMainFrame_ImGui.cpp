@@ -369,7 +369,7 @@ void EditorMainFrame_ImGui::DrawGameAndEditorWindows(EngineCore* pEngineCore)
 {
     if( m_GameWindowSize.LengthSquared() != 0 )
     {
-        if( m_pGameFBO->m_pColorTexture )
+        if( m_pGameFBO->GetColorTexture( 0 ) )
         {
             // Draw game view.
             m_pGameFBO->Bind( false );
@@ -434,7 +434,7 @@ void EditorMainFrame_ImGui::DrawGameAndEditorWindows(EngineCore* pEngineCore)
 
     if( m_EditorWindowSize.LengthSquared() != 0 )
     {
-        if( m_pEditorFBO->m_pColorTexture )
+        if( m_pEditorFBO->GetColorTexture( 0 ) )
         {
             // Draw editor view.
             g_GLCanvasIDActive = 1;
@@ -450,7 +450,7 @@ void EditorMainFrame_ImGui::DrawGameAndEditorWindows(EngineCore* pEngineCore)
 
     if( m_pMaterialToPreview != 0 )
     {
-        if( m_pMaterialPreviewFBO->m_pColorTexture )
+        if( m_pMaterialPreviewFBO->GetColorTexture( 0 ) )
         {
             // Draw game view.
             m_pMaterialPreviewFBO->Bind( false );
@@ -462,7 +462,7 @@ void EditorMainFrame_ImGui::DrawGameAndEditorWindows(EngineCore* pEngineCore)
                 m_pMaterialPreviewFBO->Bind( true );
 
                 glDisable( GL_SCISSOR_TEST );
-                glViewport( 0, 0, m_pMaterialPreviewFBO->m_Width, m_pMaterialPreviewFBO->m_Height );
+                glViewport( 0, 0, m_pMaterialPreviewFBO->GetWidth(), m_pMaterialPreviewFBO->GetHeight() );
 
                 glClearColor( 0.0f, 0.0f, 0.2f, 1.0f );
                 glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
@@ -477,7 +477,7 @@ void EditorMainFrame_ImGui::DrawGameAndEditorWindows(EngineCore* pEngineCore)
                 matview.Translate( 0, 0, 4 );
 #endif
 
-                float aspect = (float)m_pMaterialPreviewFBO->m_Width / m_pMaterialPreviewFBO->m_Height;
+                float aspect = (float)m_pMaterialPreviewFBO->GetWidth() / m_pMaterialPreviewFBO->GetHeight();
                 MyMatrix matproj;
                 matproj.CreatePerspectiveVFoV( 45, aspect, 0.01f, 100 );
 
@@ -952,18 +952,20 @@ void EditorMainFrame_ImGui::AddGameAndEditorWindows()
             m_GameWindowPos.Set( pos.x + min.x, pos.y + min.y );
             m_GameWindowSize.Set( w, h );
 
-            // Resize our FBO if the window is larger than it ever was.
-            if( w > m_pGameFBO->m_TextureWidth || h > m_pGameFBO->m_TextureHeight )
-            {
-                // The FBO will be recreated during the TextureManager tick.
-                g_pTextureManager->InvalidateFBO( m_pGameFBO );
-                m_pGameFBO->Setup( (unsigned int)w, (unsigned int)h, GL_NEAREST, GL_NEAREST, true, 32, false );
-            }
+            g_pTextureManager->ReSetupFBO( m_pGameFBO, (unsigned int)w, (unsigned int)h, GL_NEAREST, GL_NEAREST, true, 32, false );
 
-            if( m_pGameFBO->m_pColorTexture )
+            //// Resize our FBO if the window is larger than it ever was.
+            //if( w > m_pGameFBO->GetTextureWidth() || h > m_pGameFBO->GetTextureHeight() )
+            //{
+            //    // The FBO will be recreated during the TextureManager tick.
+            //    g_pTextureManager->InvalidateFBO( m_pGameFBO );
+            //    m_pGameFBO->Setup( (unsigned int)w, (unsigned int)h, GL_NEAREST, GL_NEAREST, true, 32, false );
+            //}
+
+            if( m_pGameFBO->GetColorTexture( 0 ) )
             {
-                TextureDefinition* tex = m_pGameFBO->m_pColorTexture;
-                ImGui::ImageButton( (void*)tex->GetTextureID(), ImVec2( w, h ), ImVec2(0,h/m_pGameFBO->m_TextureHeight), ImVec2(w/m_pGameFBO->m_TextureWidth,0), 0 );
+                TextureDefinition* tex = m_pGameFBO->GetColorTexture( 0 );
+                ImGui::ImageButton( (void*)tex->GetTextureID(), ImVec2( w, h ), ImVec2(0,h/m_pGameFBO->GetTextureHeight()), ImVec2(w/m_pGameFBO->GetTextureWidth(),0), 0 );
             }
         }
     }
@@ -991,18 +993,20 @@ void EditorMainFrame_ImGui::AddGameAndEditorWindows()
             m_EditorWindowPos.Set( pos.x + min.x, pos.y + min.y );
             m_EditorWindowSize.Set( w, h );
 
-            // Resize our FBO if the window is larger than it ever was.
-            if( w > m_pEditorFBO->m_TextureWidth || h > m_pEditorFBO->m_TextureHeight )
-            {
-                // The FBO will be recreated during the TextureManager tick.
-                g_pTextureManager->InvalidateFBO( m_pEditorFBO );
-                m_pEditorFBO->Setup( (unsigned int)w, (unsigned int)h, GL_NEAREST, GL_NEAREST, true, 32, false );
-            }
+            g_pTextureManager->ReSetupFBO( m_pEditorFBO, (unsigned int)w, (unsigned int)h, GL_NEAREST, GL_NEAREST, true, 32, false );
 
-            if( m_pEditorFBO->m_pColorTexture )
+            //// Resize our FBO if the window is larger than it ever was.
+            //if( w > m_pEditorFBO->GetTextureWidth() || h > m_pEditorFBO->GetTextureHeight() )
+            //{
+            //    // The FBO will be recreated during the TextureManager tick.
+            //    g_pTextureManager->InvalidateFBO( m_pEditorFBO );
+            //    m_pEditorFBO->Setup( (unsigned int)w, (unsigned int)h, GL_NEAREST, GL_NEAREST, true, 32, false );
+            //}
+
+            if( m_pEditorFBO->GetColorTexture( 0 ) )
             {
-                TextureDefinition* tex = m_pEditorFBO->m_pColorTexture;
-                ImGui::ImageButton( (void*)tex->GetTextureID(), ImVec2( w, h ), ImVec2(0,h/m_pEditorFBO->m_TextureHeight), ImVec2(w/m_pEditorFBO->m_TextureWidth,0), 0 );
+                TextureDefinition* tex = m_pEditorFBO->GetColorTexture( 0 );
+                ImGui::ImageButton( (void*)tex->GetTextureID(), ImVec2( w, h ), ImVec2(0,h/m_pEditorFBO->GetTextureHeight()), ImVec2(w/m_pEditorFBO->GetTextureWidth(),0), 0 );
 
                 if( ImGui::BeginDragDropTarget() )
                 {
@@ -2228,9 +2232,9 @@ void EditorMainFrame_ImGui::AddMaterialPreview(bool createWindow, ImVec2 request
 {
     if( createWindow == false || ImGui::Begin( "Material", 0, ImVec2(150, 150), 1 ) )
     {
-        TextureDefinition* pTexture = m_pMaterialPreviewFBO->m_pColorTexture;
-        int texw = m_pMaterialPreviewFBO->m_TextureWidth;
-        int texh = m_pMaterialPreviewFBO->m_TextureHeight;
+        TextureDefinition* pTexture = m_pMaterialPreviewFBO->GetColorTexture( 0 );
+        int texw = m_pMaterialPreviewFBO->GetTextureWidth();
+        int texh = m_pMaterialPreviewFBO->GetTextureHeight();
 
         ImVec2 size = requestedSize;
         if( size.x == 0 )
@@ -2286,9 +2290,9 @@ void EditorMainFrame_ImGui::AddDebug_MousePicker()
 {
     if( ImGui::Begin( "Mouse Picker", 0, ImVec2(150, 150), 1 ) )
     {
-        TextureDefinition* pTexture = g_pEngineCore->GetEditorState()->m_pMousePickerFBO->m_pColorTexture;
-        int texw = g_pEngineCore->GetEditorState()->m_pMousePickerFBO->m_TextureWidth;
-        int texh = g_pEngineCore->GetEditorState()->m_pMousePickerFBO->m_TextureHeight;
+        TextureDefinition* pTexture = g_pEngineCore->GetEditorState()->m_pMousePickerFBO->GetColorTexture( 0 );
+        int texw = g_pEngineCore->GetEditorState()->m_pMousePickerFBO->GetTextureWidth();
+        int texh = g_pEngineCore->GetEditorState()->m_pMousePickerFBO->GetTextureHeight();
 
         ImVec2 size = ImGui::GetContentRegionAvail();
         if( size.x > size.y ) size.x = size.y;
@@ -2296,8 +2300,10 @@ void EditorMainFrame_ImGui::AddDebug_MousePicker()
 
         if( pTexture )
         {
-            int w = pTexture->GetWidth();
-            int h = pTexture->GetHeight();
+            //int w = pTexture->GetWidth();
+            //int h = pTexture->GetHeight();
+            int w = g_pEngineCore->GetEditorState()->m_pMousePickerFBO->GetWidth();
+            int h = g_pEngineCore->GetEditorState()->m_pMousePickerFBO->GetHeight();
             ImGui::Image( (void*)pTexture->GetTextureID(), size, ImVec2(0,(float)h/texh), ImVec2((float)w/texw,0) );
         }
     }

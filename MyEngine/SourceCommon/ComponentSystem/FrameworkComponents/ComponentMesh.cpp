@@ -787,9 +787,9 @@ void ComponentMesh::DrawCallback(ComponentCamera* pCamera, MyMatrix* pMatViewPro
                 {
                     pShadowVP = pShadowCam->GetViewProjMatrix();
 #if 1
-                    pShadowTex = pShadowCam->GetFBO()->m_pDepthTexture;
+                    pShadowTex = pShadowCam->GetFBO()->GetDepthTexture();
 #else
-                    pShadowTex = pShadowCam->GetFBO()->m_pColorTexture;
+                    pShadowTex = pShadowCam->GetFBO()->GetColorTexture( 0 );
 #endif
                 }
             }

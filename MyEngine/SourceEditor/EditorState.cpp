@@ -144,32 +144,38 @@ void EditorState::OnSurfaceChanged(unsigned int startx, unsigned int starty, uns
 
     if( m_pDebugViewFBO )
     {
-        if( m_pDebugViewFBO->m_TextureWidth < width || m_pDebugViewFBO->m_TextureHeight < height )
-        {
-            // the FBO will be recreated during the texturemanager tick.
-            g_pTextureManager->InvalidateFBO( m_pDebugViewFBO );
-            m_pDebugViewFBO->Setup( width, height, GL_NEAREST, GL_NEAREST, true, 32, false );
-        }
-        else
-        {
-            m_pDebugViewFBO->m_Width = width;
-            m_pDebugViewFBO->m_Height = height;
-        }
+        g_pTextureManager->ReSetupFBO( m_pDebugViewFBO, width, height, GL_NEAREST, GL_NEAREST, true, 32, false );
+        //m_pDebugViewFBO->Setup( width, height, GL_NEAREST, GL_NEAREST, true, 32, false );
+
+        //if( m_pDebugViewFBO->GetTextureWidth() < width || m_pDebugViewFBO->GetTextureHeight() < height )
+        //{
+        //    // the FBO will be recreated during the texturemanager tick.
+        //    g_pTextureManager->InvalidateFBO( m_pDebugViewFBO );
+        //    m_pDebugViewFBO->Setup( width, height, GL_NEAREST, GL_NEAREST, true, 32, false );
+        //}
+        //else
+        //{
+        //    m_pDebugViewFBO->m_Width = width;
+        //    m_pDebugViewFBO->m_Height = height;
+        //}
     }
 
     if( m_pMousePickerFBO )
     {
-        if( m_pMousePickerFBO->m_TextureWidth < width || m_pMousePickerFBO->m_TextureHeight < height )
-        {
-            // the FBO will be recreated during the texturemanager tick.
-            g_pTextureManager->InvalidateFBO( m_pMousePickerFBO );
-            m_pMousePickerFBO->Setup( width, height, GL_NEAREST, GL_NEAREST, true, 32, false );
-        }
-        else
-        {
-            m_pMousePickerFBO->m_Width = width;
-            m_pMousePickerFBO->m_Height = height;
-        }
+        g_pTextureManager->ReSetupFBO( m_pMousePickerFBO, width, height, GL_NEAREST, GL_NEAREST, true, 32, false );
+        //m_pMousePickerFBO->Setup( width, height, GL_NEAREST, GL_NEAREST, true, 32, false );
+
+        //if( m_pMousePickerFBO->GetTextureWidth() < width || m_pMousePickerFBO->GetTextureHeight() < height )
+        //{
+        //    // the FBO will be recreated during the texturemanager tick.
+        //    g_pTextureManager->InvalidateFBO( m_pMousePickerFBO );
+        //    m_pMousePickerFBO->Setup( width, height, GL_NEAREST, GL_NEAREST, true, 32, false );
+        //}
+        //else
+        //{
+        //    m_pMousePickerFBO->m_Width = width;
+        //    m_pMousePickerFBO->m_Height = height;
+        //}
     }
 }
 

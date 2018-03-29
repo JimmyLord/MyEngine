@@ -406,30 +406,19 @@ ComponentPostEffect* ComponentCamera::GetNextPostEffect(ComponentPostEffect* pLa
 
 void ComponentCamera::OnDrawFrame()
 {
-    // Store the old FBO, we will restore it on the way out (if it changes).
+    // Store the current FBO, we will use it as the final render target.
     unsigned int startingFBO = g_GLStats.m_CurrentFramebuffer;
 
     // TODO: Clean up, make func other than tick to this.
     // Update camera view/proj before drawing.
     Tick( 0 );
 
-    //int currentframebuffer;
-    //glGetIntegerv( GL_FRAMEBUFFER_BINDING, &currentframebuffer );
- 
-    //MyBindFramebuffer( GL_FRAMEBUFFER, 0, m_WindowWidth, m_WindowHeight );
     g_GLStats.m_CurrentFramebufferWidth = m_WindowWidth;
     g_GLStats.m_CurrentFramebufferHeight = m_WindowHeight;
 
-    //int fbo;
-    //glGetIntegerv( GL_FRAMEBUFFER_BINDING, &fbo );
-
-    //if( fbo != 0 )
-    //    int bp = 1;
-    ////MyBindFramebuffer( GL_FRAMEBUFFER, 0 );
-
 #if MYFW_EDITOR
-    // if we resize the window and we're in a wx build, clear the entire backbuffer for 2 frames.
-    // this is required since we're potentially GL_SCISSOR_TEST'ing an uncleared area.
+    // If we resize the window and we're in a wx build, clear the entire backbuffer for 2 frames.
+    // This is required since we're potentially GL_SCISSOR_TEST'ing an uncleared area.
     if( m_ClearColorBuffer && m_FullClearsRequired > 0 )
     {
         glDisable( GL_SCISSOR_TEST );
@@ -440,16 +429,16 @@ void ComponentCamera::OnDrawFrame()
     }
 #endif //MYFW_EDITOR
 
-    // if there are any post effect components, render to a texture and pass that into the effect component.
+    // If there are any post effect components, render to a texture and pass that into the effect component.
 
     // Find the first actual ComponentPostEffect.
     ComponentPostEffect* pPostEffect = GetNextPostEffect( 0 );
 
-    // render the main scene... into a texture if a ComponentPostEffect was found.
+    // First pass: Render the main scene... into a post effect FBO if a ComponentPostEffect was found.
     {
         if( pPostEffect )
         {
-            // if a post effect was found, render to a texture.
+            // If a post effect was found, render to an FBO.
             if( m_pPostEffectFBOs[0] == 0 )
             {
                 m_pPostEffectFBOs[0] = g_pTextureManager->CreateFBO( m_WindowWidth, m_WindowHeight, GL_NEAREST, GL_NEAREST, true, 32, false );
@@ -458,23 +447,23 @@ void ComponentCamera::OnDrawFrame()
             {
                 g_pTextureManager->ReSetupFBO( m_pPostEffectFBOs[0], m_WindowWidth, m_WindowHeight, GL_NEAREST, GL_NEAREST, true, 32, false );
             }
+
             m_pPostEffectFBOs[0]->Bind( false );
             glDisable( GL_SCISSOR_TEST );
             glViewport( 0, 0, m_WindowWidth, m_WindowHeight );
         }
         else
         {
-            // only draw to part of the window, using scissor test and glViewport.
+            // Set up scissor test and glViewport if not drawing to the whole window.
             if( m_WindowStartX != 0 || m_WindowStartY != 0 )
             {
-                // scissor test is really only needed for the glClear call.
+                // Scissor test is really only needed for the glClear call.
                 glEnable( GL_SCISSOR_TEST );
                 glScissor( m_WindowStartX, m_WindowStartY, m_WindowWidth, m_WindowHeight );
             }
             else
             {
                 glDisable( GL_SCISSOR_TEST );
-                glScissor( m_WindowStartX, m_WindowStartY, m_WindowWidth, m_WindowHeight );
             }
 
             glViewport( m_WindowStartX, m_WindowStartY, m_WindowWidth, m_WindowHeight );
@@ -499,7 +488,7 @@ void ComponentCamera::OnDrawFrame()
         }
     }
 
-    // ping pong between 2 fbos for the remaining post effects, render the final one to screen.
+    // Other passes: Ping pong between 2 FBOs for the remaining post effects, render the final one to screen.
     int fboindex = 0;
     while( pPostEffect )
     {
@@ -507,7 +496,7 @@ void ComponentCamera::OnDrawFrame()
 
         if( pNextPostEffect )
         {
-            // if there is a next effect, render into the next unused fbo.
+            // If there is a next effect, render into the next unused FBO.
             if( m_pPostEffectFBOs[!fboindex] == 0 )
             {
                 m_pPostEffectFBOs[!fboindex] = g_pTextureManager->CreateFBO( m_WindowWidth, m_WindowHeight, GL_NEAREST, GL_NEAREST, true, 32, false );
@@ -520,19 +509,16 @@ void ComponentCamera::OnDrawFrame()
 
             glDisable( GL_SCISSOR_TEST );
             glViewport( 0, 0, m_WindowWidth, m_WindowHeight );
-
-            glClearColor( 0.0f, 0.0f, 0.2f, 1.0f );
-            glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
         }
         else
         {
-            // if there isn't another post effect, render to the screen.
-            MyBindFramebuffer( GL_FRAMEBUFFER, 0, m_WindowWidth, m_WindowHeight );
+            // If there isn't another post effect, render back to the FBO that was set before this function.
+            MyBindFramebuffer( GL_FRAMEBUFFER, startingFBO, m_WindowWidth, m_WindowHeight );
 
-            // only draw to part of the window, using scissor test and glViewport.
+            // Set up scissor test and glViewport if not drawing to the whole window.
             if( m_WindowStartX != 0 || m_WindowStartY != 0 )
             {
-                // scissor test is really only needed for the glClear call.
+                // Scissor test is really only needed for the glClear call.
                 glEnable( GL_SCISSOR_TEST );
                 glScissor( m_WindowStartX, m_WindowStartY, m_WindowWidth, m_WindowHeight );
             }
@@ -542,9 +528,10 @@ void ComponentCamera::OnDrawFrame()
             }
 
             glViewport( m_WindowStartX, m_WindowStartY, m_WindowWidth, m_WindowHeight );
-            glClearColor( 0.0f, 0.0f, 0.2f, 1.0f );
-            glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
         }
+
+        glClearColor( 0.0f, 0.0f, 0.2f, 1.0f );
+        glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
         pPostEffect->Render( m_pPostEffectFBOs[fboindex] );
 
@@ -555,6 +542,8 @@ void ComponentCamera::OnDrawFrame()
     // Restore the FBO to what was set when we entered this method.
     if( startingFBO != g_GLStats.m_CurrentFramebuffer )
     {
+        // The FBO should already be set, either we didn't change it, or the final pass was sent to this FBO.
+        MyAssert( false );
         MyBindFramebuffer( GL_FRAMEBUFFER, startingFBO, m_WindowWidth, m_WindowHeight );
     }
 }

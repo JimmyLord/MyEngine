@@ -71,11 +71,11 @@ void EditorInterface_SceneManagement::OnDrawFrame(unsigned int canvasid)
                 pAnim->m_AnimationIndex = backupindex;
                 pAnim->m_AnimationTime = backuptime;
 
-                float maxu = (float)pEditorState->m_pDebugViewFBO->m_Width / pEditorState->m_pDebugViewFBO->m_TextureWidth;
-                float maxv = (float)pEditorState->m_pDebugViewFBO->m_Height / pEditorState->m_pDebugViewFBO->m_TextureHeight;
+                float maxu = (float)pEditorState->m_pDebugViewFBO->GetWidth() / pEditorState->m_pDebugViewFBO->GetTextureWidth();
+                float maxv = (float)pEditorState->m_pDebugViewFBO->GetHeight() / pEditorState->m_pDebugViewFBO->GetTextureHeight();
 
                 debugquad->CreateInPlace( "debug", 0.5f, 0.5f, 1.0f, 1.0f, 0, maxu, maxv, 0, Justify_Center, false );
-                g_pEngineCore->GetMaterial_ClipSpaceTexture()->SetTextureColor( pEditorState->m_pDebugViewFBO->m_pColorTexture );
+                g_pEngineCore->GetMaterial_ClipSpaceTexture()->SetTextureColor( pEditorState->m_pDebugViewFBO->GetColorTexture( 0 ) );
                 debugquad->SetMaterial( g_pEngineCore->GetMaterial_ClipSpaceTexture() );
                 debugquad->Draw( 0, 0 );
             }
@@ -85,7 +85,7 @@ void EditorInterface_SceneManagement::OnDrawFrame(unsigned int canvasid)
             if( pCamera )
             {
                 debugquad->CreateInPlace( "debug", 0.5f, 0.5f, 1.0f, 1.0f, 0, 1, 1, 0, Justify_Center, false );
-                g_pEngineCore->GetMaterial_ClipSpaceTexture()->SetTextureColor( pCamera->GetFBO()->m_pDepthTexture );
+                g_pEngineCore->GetMaterial_ClipSpaceTexture()->SetTextureColor( pCamera->GetFBO()->GetDepthTexture() );
                 debugquad->SetMaterial( g_pEngineCore->GetMaterial_ClipSpaceTexture() );
                 debugquad->Draw( 0, 0 );
             }
@@ -109,7 +109,7 @@ void EditorInterface_SceneManagement::OnDrawFrame(unsigned int canvasid)
                 pEditorState->m_pDebugViewFBO->Bind( true );
 
                 glDisable( GL_SCISSOR_TEST );
-                glViewport( 0, 0, pEditorState->m_pMousePickerFBO->m_Width, pEditorState->m_pMousePickerFBO->m_Height );
+                glViewport( 0, 0, pEditorState->m_pMousePickerFBO->GetWidth(), pEditorState->m_pMousePickerFBO->GetHeight() );
 
                 glClearColor( 0.2f, 0.2f, 0.2f, 1.0f );
                 glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
@@ -153,10 +153,10 @@ void EditorInterface_SceneManagement::OnDrawFrame(unsigned int canvasid)
                 pEditorState->m_pDebugViewFBO->Unbind( true );
             }
 
-            float u = (float)pEditorState->m_pMousePickerFBO->m_Width / pEditorState->m_pMousePickerFBO->m_TextureWidth;
-            float v = (float)pEditorState->m_pMousePickerFBO->m_Height / pEditorState->m_pMousePickerFBO->m_TextureHeight;
+            float u = (float)pEditorState->m_pMousePickerFBO->GetWidth() / pEditorState->m_pMousePickerFBO->GetTextureWidth();
+            float v = (float)pEditorState->m_pMousePickerFBO->GetHeight() / pEditorState->m_pMousePickerFBO->GetTextureHeight();
             debugquad->CreateInPlace( "debug", 0.5f, 0.5f, 1.0f, 1.0f, 0, u, v, 0, Justify_Center, false );
-            g_pEngineCore->GetMaterial_ClipSpaceTexture()->SetTextureColor( pEditorState->m_pDebugViewFBO->m_pColorTexture );
+            g_pEngineCore->GetMaterial_ClipSpaceTexture()->SetTextureColor( pEditorState->m_pDebugViewFBO->GetColorTexture( 0 ) );
             debugquad->SetMaterial( g_pEngineCore->GetMaterial_ClipSpaceTexture() );
             debugquad->Draw( 0, 0 );
         }
