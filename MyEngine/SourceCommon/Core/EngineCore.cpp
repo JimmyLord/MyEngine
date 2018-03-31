@@ -301,8 +301,8 @@ void EngineCore::OneTimeInit()
 
 #if MYFW_EDITOR
     m_pEditorState = MyNew EditorState;
-    m_pEditorState->m_pDebugViewFBO = g_pTextureManager->CreateFBO( 0, 0, GL_NEAREST, GL_NEAREST, false, 0, false, true );
-    m_pEditorState->m_pMousePickerFBO = g_pTextureManager->CreateFBO( 0, 0, GL_NEAREST, GL_NEAREST, false, 0, false, true );
+    m_pEditorState->m_pDebugViewFBO = g_pTextureManager->CreateFBO( 0, 0, GL_NEAREST, GL_NEAREST, FBODefinition::FBOColorFormat_None, 0, false, true );
+    m_pEditorState->m_pMousePickerFBO = g_pTextureManager->CreateFBO( 0, 0, GL_NEAREST, GL_NEAREST, FBODefinition::FBOColorFormat_None, 0, false, true );
 
     if( m_pDebugFont == 0 )
     {

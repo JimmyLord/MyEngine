@@ -441,11 +441,11 @@ void ComponentCamera::OnDrawFrame()
             // If a post effect was found, render to an FBO.
             if( m_pPostEffectFBOs[0] == 0 )
             {
-                m_pPostEffectFBOs[0] = g_pTextureManager->CreateFBO( m_WindowWidth, m_WindowHeight, GL_NEAREST, GL_NEAREST, true, 32, false );
+                m_pPostEffectFBOs[0] = g_pTextureManager->CreateFBO( m_WindowWidth, m_WindowHeight, GL_NEAREST, GL_NEAREST, FBODefinition::FBOColorFormat_RGBA, 32, false );
             }
             else
             {
-                g_pTextureManager->ReSetupFBO( m_pPostEffectFBOs[0], m_WindowWidth, m_WindowHeight, GL_NEAREST, GL_NEAREST, true, 32, false );
+                g_pTextureManager->ReSetupFBO( m_pPostEffectFBOs[0], m_WindowWidth, m_WindowHeight, GL_NEAREST, GL_NEAREST, FBODefinition::FBOColorFormat_RGBA, 32, false );
             }
 
             m_pPostEffectFBOs[0]->Bind( false );
@@ -499,11 +499,11 @@ void ComponentCamera::OnDrawFrame()
             // If there is a next effect, render into the next unused FBO.
             if( m_pPostEffectFBOs[!fboindex] == 0 )
             {
-                m_pPostEffectFBOs[!fboindex] = g_pTextureManager->CreateFBO( m_WindowWidth, m_WindowHeight, GL_NEAREST, GL_NEAREST, true, 32, false );
+                m_pPostEffectFBOs[!fboindex] = g_pTextureManager->CreateFBO( m_WindowWidth, m_WindowHeight, GL_NEAREST, GL_NEAREST, FBODefinition::FBOColorFormat_RGBA, 32, false );
             }
             else
             {
-                g_pTextureManager->ReSetupFBO( m_pPostEffectFBOs[!fboindex], m_WindowWidth, m_WindowHeight, GL_NEAREST, GL_NEAREST, true, 32, false );
+                g_pTextureManager->ReSetupFBO( m_pPostEffectFBOs[!fboindex], m_WindowWidth, m_WindowHeight, GL_NEAREST, GL_NEAREST, FBODefinition::FBOColorFormat_RGBA, 32, false );
             }
             m_pPostEffectFBOs[!fboindex]->Bind( false );
 
