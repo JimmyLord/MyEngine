@@ -71,6 +71,10 @@ ComponentCamera::~ComponentCamera()
     SAFE_RELEASE( m_pPostEffectFBOs[1] );
 
     MYFW_COMPONENT_VARIABLE_LIST_DESTRUCTOR(); //_VARIABLE_LIST
+
+    if( m_pDeferredShaderFile )
+        g_pFileManager->FreeFile( m_pDeferredShaderFile );
+    SAFE_RELEASE( m_pDeferredShader );
 }
 
 void ComponentCamera::RegisterVariables(CPPListHead* pList, ComponentCamera* pThis) //_VARIABLE_LIST
@@ -80,6 +84,8 @@ void ComponentCamera::RegisterVariables(CPPListHead* pList, ComponentCamera* pTh
     AddVarFlags( pList, "Layers", MyOffsetOf( pThis, &pThis->m_LayersToRender ), true, true, 0,
                  g_NumberOfVisibilityLayers, g_pVisibilityLayerStrings,
                  (CVarFunc_ValueChanged)&ComponentCamera::OnValueChanged, 0, 0 );
+
+    pVar = AddVar( pList, "Deferred", ComponentVariableType_Bool, MyOffsetOf( pThis, &pThis->m_Deferred ), true, true, 0, (CVarFunc_ValueChanged)&ComponentCamera::OnValueChanged, 0, 0 );
 
     pVar = AddVar( pList, "Ortho", ComponentVariableType_Bool, MyOffsetOf( pThis, &pThis->m_Orthographic ), true, true, 0, (CVarFunc_ValueChanged)&ComponentCamera::OnValueChanged, 0, 0 );
 
@@ -215,7 +221,12 @@ void ComponentCamera::Reset()
 
     m_ClearColorBuffer = true;
     m_ClearDepthBuffer = true;
-    
+
+    m_Deferred = false;
+    m_pGBuffer = 0;
+    m_pDeferredShaderFile = 0;
+    m_pDeferredShader = 0;
+
     m_DesiredWidth = 640;
     m_DesiredHeight = 960;
     m_OrthoNearZ = 0;
@@ -252,6 +263,7 @@ ComponentCamera& ComponentCamera::operator=(const ComponentCamera& other)
     ComponentBase::operator=( other );
 
     this->m_Orthographic = other.m_Orthographic;
+    this->m_Deferred = other.m_Deferred;
 
     this->m_ClearColorBuffer = other.m_ClearColorBuffer;
     this->m_ClearDepthBuffer = other.m_ClearDepthBuffer;
@@ -469,23 +481,7 @@ void ComponentCamera::OnDrawFrame()
             glViewport( m_WindowStartX, m_WindowStartY, m_WindowWidth, m_WindowHeight );
         }
 
-        glClearColor( 0.0f, 0.0f, 0.2f, 1.0f );
-
-        if( m_ClearColorBuffer && m_ClearDepthBuffer )
-            glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
-        else if( m_ClearColorBuffer )
-            glClear( GL_COLOR_BUFFER_BIT );
-        else if( m_ClearDepthBuffer )
-            glClear( GL_DEPTH_BUFFER_BIT );
-
-        if( m_Orthographic )
-        {   
-            g_pComponentSystemManager->OnDrawFrame( this, &m_Camera2D.m_matViewProj, 0 );
-        }
-        else
-        {
-            g_pComponentSystemManager->OnDrawFrame( this, &m_Camera3D.m_matViewProj, 0 );
-        }
+        DrawScene();
     }
 
     // Other passes: Ping pong between 2 FBOs for the remaining post effects, render the final one to screen.
@@ -544,6 +540,81 @@ void ComponentCamera::OnDrawFrame()
     {
         // The FBO should already be set, either we didn't change it, or the final pass was sent to this FBO.
         MyAssert( false );
+        MyBindFramebuffer( GL_FRAMEBUFFER, startingFBO, m_WindowWidth, m_WindowHeight );
+    }
+}
+
+// DrawScene() is an internal method.
+void ComponentCamera::DrawScene()
+{
+    // Store the current FBO, we will use it as the final render target.
+    unsigned int startingFBO = g_GLStats.m_CurrentFramebuffer;
+
+    bool renderedADeferredPass = false;
+
+    // Start a deferred render pass, creating and binding the G-Buffer.
+    if( m_Deferred && g_ActiveShaderPass == ShaderPass_Main )
+    {
+        // Create gbuffer and deferred shader if they don't exist.
+        if( m_pGBuffer == 0 )
+        {
+            const int numcolorformats = 3;
+            FBODefinition::FBOColorFormat colorformats[numcolorformats];
+            colorformats[0] = FBODefinition::FBOColorFormat_RGBA; // Albedo (RGB) / Specular Power (A)
+            colorformats[1] = FBODefinition::FBOColorFormat_RGBA; // Positions (RGB) / Nothing in (A)
+            colorformats[2] = FBODefinition::FBOColorFormat_RGBA; // Normals (RGB) / Nothing in (A)
+
+            m_pGBuffer = g_pTextureManager->CreateFBO( m_WindowWidth, m_WindowHeight, GL_NEAREST, GL_NEAREST, colorformats, numcolorformats, 32, false );
+
+            MyAssert( m_pDeferredShaderFile == 0 );
+            MyAssert( m_pDeferredShader == 0 );
+
+            m_pDeferredShaderFile = g_pEngineFileManager->RequestFile_UntrackedByScene( "Data/DataEngine/Shaders/Shader_Deferred.glsl" );
+#if MYFW_EDITOR
+            m_pDeferredShaderFile->MemoryPanel_Hide();
+#endif
+            m_pDeferredShader = MyNew ShaderGroup( m_pDeferredShaderFile );
+        }
+
+        // Set the global render pass to deferred, so each object will render with the correct shader.
+        g_ActiveShaderPass = ShaderPass_MainDeferred;
+        renderedADeferredPass = true;
+        m_pGBuffer->Bind( false );
+    }
+
+    // Clear the buffer and render the scene.
+    {
+        glClearColor( 0.0f, 0.0f, 0.2f, 1.0f );
+
+        if( m_ClearColorBuffer && m_ClearDepthBuffer )
+            glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+        else if( m_ClearColorBuffer )
+            glClear( GL_COLOR_BUFFER_BIT );
+        else if( m_ClearDepthBuffer )
+            glClear( GL_DEPTH_BUFFER_BIT );
+
+        if( m_Orthographic )
+        {   
+            g_pComponentSystemManager->OnDrawFrame( this, &m_Camera2D.m_matViewProj, 0 );
+        }
+        else
+        {
+            g_pComponentSystemManager->OnDrawFrame( this, &m_Camera3D.m_matViewProj, 0 );
+        }
+    }
+
+    // Finish our deferred render if we started it.
+    if( renderedADeferredPass )
+    {
+        // TODO: Render a full screen quad to combine the 3 textures from the gbuffer.
+        g_ActiveShaderPass = ShaderPass_Main;
+    }
+
+    // Restore the FBO to what was set when we entered this method.
+    if( startingFBO != g_GLStats.m_CurrentFramebuffer )
+    {
+        // The FBO should already be set, either we didn't change it, or the final pass was sent to this FBO.
+        //MyAssert( false );
         MyBindFramebuffer( GL_FRAMEBUFFER, startingFBO, m_WindowWidth, m_WindowHeight );
     }
 }

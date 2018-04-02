@@ -28,26 +28,32 @@ private:
 public:
     ComponentTransform* m_pComponentTransform;
 
-    // Needs saving
+    // Needs saving.
     bool m_Orthographic;
 
     bool m_ClearColorBuffer;
     bool m_ClearDepthBuffer;
 
-    // For ortho
+    // For deferred.
+    bool m_Deferred;
+    FBODefinition* m_pGBuffer;
+    MyFileObject* m_pDeferredShaderFile;
+    ShaderGroup* m_pDeferredShader;
+
+    // For ortho.
     float m_DesiredWidth;
     float m_DesiredHeight;
     float m_OrthoNearZ;
     float m_OrthoFarZ;
 
-    // For perspective
+    // For perspective.
     float m_FieldOfView;
     float m_PerspectiveNearZ;
     float m_PerspectiveFarZ;
 
     unsigned int m_LayersToRender;
 
-    // Don't need saving
+    // Don't need saving.
     unsigned int m_WindowStartX;
     unsigned int m_WindowStartY;
     unsigned int m_WindowWidth;
@@ -87,6 +93,10 @@ public:
     virtual void OnSurfaceChanged(unsigned int startx, unsigned int starty, unsigned int width, unsigned int height, unsigned int desiredaspectwidth, unsigned int desiredaspectheight);
     virtual void OnDrawFrame();
 
+protected:
+    void DrawScene();
+
+public:
     // pre-DrawCallback functions
     virtual bool IsVisible();
     virtual bool ExistsOnLayer(unsigned int layerflags);
