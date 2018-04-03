@@ -2954,6 +2954,8 @@ bool ComponentSystemManager::OnKeys(GameCoreButtonActions action, int keycode, i
 #if MYFW_EDITOR
 void ComponentSystemManager::DrawSingleObject(MyMatrix* pMatViewProj, GameObject* pObject, ShaderGroup* pShaderOverride)
 {
+    MyAssert( pObject != 0 );
+
     for( unsigned int i=0; i<pObject->GetComponentCount(); i++ )
     {
         ComponentRenderable* pComponent = dynamic_cast<ComponentRenderable*>( pObject->GetComponentByIndex( i ) );

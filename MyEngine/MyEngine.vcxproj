@@ -3315,6 +3315,20 @@
     <ClInclude Include="SourceNaCL\memory.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\DataEngine\Shaders\Include\Bone_AttribsAndUniforms.glsl" />
+    <None Include="..\DataEngine\Shaders\Include\Bone_Functions.glsl" />
+    <None Include="..\DataEngine\Shaders\Include\Light_Functions.glsl" />
+    <None Include="..\DataEngine\Shaders\Include\Light_Uniforms.glsl" />
+    <None Include="..\DataEngine\Shaders\Include\LSVaryings.glsl" />
+    <None Include="..\DataEngine\Shaders\Include\LSVaryings_Functions.glsl" />
+    <None Include="..\DataEngine\Shaders\Include\WSVaryings.glsl" />
+    <None Include="..\DataEngine\Shaders\Include\WSVaryings_Functions.glsl" />
+    <None Include="..\DataEngine\Shaders\Shader_ClipSpaceTexture.glsl" />
+    <None Include="..\DataEngine\Shaders\Shader_Deferred.glsl" />
+    <None Include="..\DataEngine\Shaders\Shader_SelectedObjects.glsl" />
+    <None Include="..\DataEngine\Shaders\Shader_Texture.glsl" />
+    <None Include="..\DataEngine\Shaders\Shader_TextureTint.glsl" />
+    <None Include="..\DataEngine\Shaders\Shader_TintColor.glsl" />
     <None Include="..\Libraries\imgui\README.md" />
     <None Include="..\README.md" />
     <None Include="..\VSCode-MyEngineLua\BuildVSIX.bat" />

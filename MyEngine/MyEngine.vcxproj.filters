@@ -106,6 +106,15 @@
     <Filter Include="Source - Editor\Editor_ImGui">
       <UniqueIdentifier>{bbe95fa7-a89c-483e-ac87-480b1bc8a40b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Data">
+      <UniqueIdentifier>{22ae9963-f012-4e23-bb56-983765fb0cfc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Data\Shaders">
+      <UniqueIdentifier>{2b13420c-1454-423d-b9e8-6088bb64e6df}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Data\Shaders\Include">
+      <UniqueIdentifier>{0054f20f-d0b3-4942-bc86-9cba134d34a8}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="SourceCommon\Camera\Camera3D.cpp">
@@ -862,6 +871,48 @@
     </None>
     <None Include="..\VSCode-MyEngineLua\snippets\snippets.json">
       <Filter>VSCode-MyEngineLua</Filter>
+    </None>
+    <None Include="..\DataEngine\Shaders\Shader_ClipSpaceTexture.glsl">
+      <Filter>Data\Shaders</Filter>
+    </None>
+    <None Include="..\DataEngine\Shaders\Shader_Deferred.glsl">
+      <Filter>Data\Shaders</Filter>
+    </None>
+    <None Include="..\DataEngine\Shaders\Shader_SelectedObjects.glsl">
+      <Filter>Data\Shaders</Filter>
+    </None>
+    <None Include="..\DataEngine\Shaders\Shader_Texture.glsl">
+      <Filter>Data\Shaders</Filter>
+    </None>
+    <None Include="..\DataEngine\Shaders\Shader_TextureTint.glsl">
+      <Filter>Data\Shaders</Filter>
+    </None>
+    <None Include="..\DataEngine\Shaders\Shader_TintColor.glsl">
+      <Filter>Data\Shaders</Filter>
+    </None>
+    <None Include="..\DataEngine\Shaders\Include\Bone_AttribsAndUniforms.glsl">
+      <Filter>Data\Shaders\Include</Filter>
+    </None>
+    <None Include="..\DataEngine\Shaders\Include\Bone_Functions.glsl">
+      <Filter>Data\Shaders\Include</Filter>
+    </None>
+    <None Include="..\DataEngine\Shaders\Include\Light_Functions.glsl">
+      <Filter>Data\Shaders\Include</Filter>
+    </None>
+    <None Include="..\DataEngine\Shaders\Include\Light_Uniforms.glsl">
+      <Filter>Data\Shaders\Include</Filter>
+    </None>
+    <None Include="..\DataEngine\Shaders\Include\LSVaryings.glsl">
+      <Filter>Data\Shaders\Include</Filter>
+    </None>
+    <None Include="..\DataEngine\Shaders\Include\LSVaryings_Functions.glsl">
+      <Filter>Data\Shaders\Include</Filter>
+    </None>
+    <None Include="..\DataEngine\Shaders\Include\WSVaryings.glsl">
+      <Filter>Data\Shaders\Include</Filter>
+    </None>
+    <None Include="..\DataEngine\Shaders\Include\WSVaryings_Functions.glsl">
+      <Filter>Data\Shaders\Include</Filter>
     </None>
   </ItemGroup>
 </Project>

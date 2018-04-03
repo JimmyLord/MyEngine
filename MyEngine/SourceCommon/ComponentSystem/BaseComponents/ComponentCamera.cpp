@@ -603,19 +603,27 @@ void ComponentCamera::DrawScene()
         }
     }
 
-    // Finish our deferred render if we started it.
-    if( renderedADeferredPass )
-    {
-        // TODO: Render a full screen quad to combine the 3 textures from the gbuffer.
-        g_ActiveShaderPass = ShaderPass_Main;
-    }
-
     // Restore the FBO to what was set when we entered this method.
     if( startingFBO != g_GLStats.m_CurrentFramebuffer )
     {
         // The FBO should already be set, either we didn't change it, or the final pass was sent to this FBO.
         //MyAssert( false );
         MyBindFramebuffer( GL_FRAMEBUFFER, startingFBO, m_WindowWidth, m_WindowHeight );
+    }
+
+    // Finish our deferred render if we started it.
+    if( renderedADeferredPass )
+    {
+        // TODO: Render a full screen quad to combine the 3 textures from the G-Buffer.
+        MyMesh* mesh = new MyMesh();
+        mesh->CreateBox( 2, 2, 0, 0, 1, 0, 1, Justify_Center, Vector3(0) );
+        MaterialDefinition* pMat = new MaterialDefinition( m_pDeferredShader );
+        mesh->SetMaterial( pMat, 0 );
+        mesh->Draw( 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 );
+        mesh->Release();
+        pMat->Release();
+
+        g_ActiveShaderPass = ShaderPass_Main;
     }
 }
 
