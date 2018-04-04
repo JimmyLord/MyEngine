@@ -7,23 +7,29 @@
 precision mediump float;
 #endif
 
+varying vec2 v_UVCoord;
+
 #ifdef VertexShader
 
 attribute vec4 a_Position;
+attribute vec2 a_UVCoord;
 
 void main()
 {
     gl_Position = a_Position;
-	gl_Position.z = 0;
+
+	v_UVCoord = a_UVCoord;
 }
 
 #endif
 
 #ifdef FragmentShader
 
+uniform sampler2D u_TextureColor;
+
 void main()
 {
-    gl_FragColor = vec4( 0, 0, 1, 1 );
+	gl_FragColor = texture2D( u_TextureColor, v_UVCoord );
 }
 
 #endif

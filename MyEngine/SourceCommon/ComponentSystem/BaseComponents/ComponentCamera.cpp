@@ -75,6 +75,8 @@ ComponentCamera::~ComponentCamera()
     if( m_pDeferredShaderFile )
         g_pFileManager->FreeFile( m_pDeferredShaderFile );
     SAFE_RELEASE( m_pDeferredShader );
+    SAFE_RELEASE( m_pDeferredQuadMesh );
+    SAFE_RELEASE( m_pDeferredQuadMaterial );
 }
 
 void ComponentCamera::RegisterVariables(CPPListHead* pList, ComponentCamera* pThis) //_VARIABLE_LIST
@@ -226,6 +228,8 @@ void ComponentCamera::Reset()
     m_pGBuffer = 0;
     m_pDeferredShaderFile = 0;
     m_pDeferredShader = 0;
+    m_pDeferredQuadMesh = 0;
+    m_pDeferredQuadMaterial = 0;
 
     m_DesiredWidth = 640;
     m_DesiredHeight = 960;
@@ -574,12 +578,22 @@ void ComponentCamera::DrawScene()
             m_pDeferredShaderFile->MemoryPanel_Hide();
 #endif
             m_pDeferredShader = MyNew ShaderGroup( m_pDeferredShaderFile );
+
+            m_pDeferredQuadMesh = new MyMesh();
+            m_pDeferredQuadMesh->CreateClipSpaceQuad();
+            m_pDeferredQuadMaterial = new MaterialDefinition( m_pDeferredShader );
+            m_pDeferredQuadMesh->SetMaterial( m_pDeferredQuadMaterial, 0 );
         }
 
         // Set the global render pass to deferred, so each object will render with the correct shader.
         g_ActiveShaderPass = ShaderPass_MainDeferred;
         renderedADeferredPass = true;
         m_pGBuffer->Bind( false );
+
+        // Set up the 3 textures for GL to write to.
+        // TODO: Do this once when FBO is done setting up.
+        GLenum buffers[3] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2 };
+        glDrawBuffers( 3, buffers );
     }
 
     // Clear the buffer and render the scene.
@@ -594,7 +608,7 @@ void ComponentCamera::DrawScene()
             glClear( GL_DEPTH_BUFFER_BIT );
 
         if( m_Orthographic )
-        {   
+        {
             g_pComponentSystemManager->OnDrawFrame( this, &m_Camera2D.m_matViewProj, 0 );
         }
         else
@@ -615,13 +629,8 @@ void ComponentCamera::DrawScene()
     if( renderedADeferredPass )
     {
         // TODO: Render a full screen quad to combine the 3 textures from the G-Buffer.
-        MyMesh* mesh = new MyMesh();
-        mesh->CreateBox( 2, 2, 0, 0, 1, 0, 1, Justify_Center, Vector3(0) );
-        MaterialDefinition* pMat = new MaterialDefinition( m_pDeferredShader );
-        mesh->SetMaterial( pMat, 0 );
-        mesh->Draw( 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 );
-        mesh->Release();
-        pMat->Release();
+        m_pDeferredQuadMaterial->SetTextureColor( m_pGBuffer->GetColorTexture( 0 ) );
+        m_pDeferredQuadMesh->Draw( 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 );
 
         g_ActiveShaderPass = ShaderPass_Main;
     }

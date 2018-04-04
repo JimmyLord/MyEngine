@@ -39,6 +39,8 @@ public:
     FBODefinition* m_pGBuffer;
     MyFileObject* m_pDeferredShaderFile;
     ShaderGroup* m_pDeferredShader;
+    MyMesh* m_pDeferredQuadMesh;
+    MaterialDefinition* m_pDeferredQuadMaterial;
 
     // For ortho.
     float m_DesiredWidth;
