@@ -580,9 +580,11 @@ void ComponentCamera::DrawScene()
             m_pDeferredShader = MyNew ShaderGroup( m_pDeferredShaderFile );
 
             m_pDeferredQuadMesh = new MyMesh();
-            m_pDeferredQuadMesh->CreateClipSpaceQuad();
+            m_pDeferredQuadMesh->CreateClipSpaceQuad( Vector2( m_pGBuffer->GetWidth()/(float)m_pGBuffer->GetTextureWidth(), m_pGBuffer->GetHeight()/(float)m_pGBuffer->GetTextureHeight() ) );
             m_pDeferredQuadMaterial = new MaterialDefinition( m_pDeferredShader );
             m_pDeferredQuadMesh->SetMaterial( m_pDeferredQuadMaterial, 0 );
+
+            m_pDeferredQuadMesh->RegisterSetupCustomUniformCallback( this, StaticSetupCustomUniformsCallback );
         }
 
         // Set the global render pass to deferred, so each object will render with the correct shader.
@@ -633,6 +635,35 @@ void ComponentCamera::DrawScene()
         m_pDeferredQuadMesh->Draw( 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 );
 
         g_ActiveShaderPass = ShaderPass_Main;
+    }
+}
+
+void ComponentCamera::SetupCustomUniformsCallback(Shader_Base* pShader) // StaticSetupCustomUniformsCallback
+{
+    // TODO: Not this...
+    GLint uAlbedo = glGetUniformLocation( pShader->m_ProgramHandle, "u_TextureAlbedoShine" );
+    GLint uPosition = glGetUniformLocation( pShader->m_ProgramHandle, "u_TexturePosition" );
+    GLint uNormal = glGetUniformLocation( pShader->m_ProgramHandle, "u_TextureNormal" );
+
+    if( uAlbedo != -1 )
+    {
+        MyActiveTexture( GL_TEXTURE0 + 4 );
+        glBindTexture( GL_TEXTURE_2D, m_pGBuffer->GetColorTexture( 0 )->GetTextureID() );
+        glUniform1i( uAlbedo, 4 );
+    }
+
+    if( uPosition != -1 )
+    {
+        MyActiveTexture( GL_TEXTURE0 + 5 );
+        glBindTexture( GL_TEXTURE_2D, m_pGBuffer->GetColorTexture( 1 )->GetTextureID() );
+        glUniform1i( uPosition, 5 );
+    }
+
+    if( uNormal != -1 )
+    {
+        MyActiveTexture( GL_TEXTURE0 + 6 );
+        glBindTexture( GL_TEXTURE_2D, m_pGBuffer->GetColorTexture( 2 )->GetTextureID() );
+        glUniform1i( uNormal, 6 );
     }
 }
 

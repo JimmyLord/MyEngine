@@ -98,6 +98,10 @@ public:
 protected:
     void DrawScene();
 
+    // Mesh draw callback
+    static void StaticSetupCustomUniformsCallback(void* pObjectPtr, Shader_Base* pShader) { ((ComponentCamera*)pObjectPtr)->SetupCustomUniformsCallback( pShader ); }
+    void SetupCustomUniformsCallback(Shader_Base* pShader);
+
 public:
     // pre-DrawCallback functions
     virtual bool IsVisible();

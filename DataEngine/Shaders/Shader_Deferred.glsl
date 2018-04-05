@@ -25,11 +25,17 @@ void main()
 
 #ifdef FragmentShader
 
-uniform sampler2D u_TextureColor;
+uniform sampler2D u_TextureAlbedoShine;
+uniform sampler2D u_TexturePosition;
+uniform sampler2D u_TextureNormal;
 
 void main()
 {
-	gl_FragColor = texture2D( u_TextureColor, v_UVCoord );
+    vec4 albedoShine = texture2D( u_TextureAlbedoShine, v_UVCoord );
+	vec3 position = texture2D( u_TexturePosition, v_UVCoord ).xyz;
+	vec3 normal = texture2D( u_TextureNormal, v_UVCoord ).xyz;
+
+    gl_FragColor = vec4( albedoShine.rgb + position + normal, 1 );
 }
 
 #endif
