@@ -2031,30 +2031,34 @@ void EngineCore::GetMouseRay(Vector2 mousepos, Vector3* start, Vector3* end)
     ComponentCamera* pCamera = m_pEditorState->GetEditorCamera();
 
     // Convert mouse coord into clip space.
-    Vector2 mouseclip;
-    mouseclip.x = (mousepos.x / pCamera->m_WindowWidth) * 2.0f - 1.0f;
-    mouseclip.y = (mousepos.y / pCamera->m_WindowHeight) * 2.0f - 1.0f;
+    Vector2 mouseClip;
+    mouseClip.x = (mousepos.x / pCamera->m_WindowWidth) * 2.0f - 1.0f;
+    mouseClip.y = (mousepos.y / pCamera->m_WindowHeight) * 2.0f - 1.0f;
 
-    // Convert the mouse ray into view space from clip space.
-    MyMatrix invProj = pCamera->m_Camera3D.m_matProj;
-    invProj.Inverse();
-    Vector4 rayview = invProj * Vector4( mouseclip, -1, 1 );
+    // Compute the inverse view projection matrix.
+    MyMatrix invVP = ( pCamera->m_Camera3D.m_matProj * pCamera->m_Camera3D.m_matView ).GetInverse();
 
-    // Convert the mouse ray into world space from view space.
-    MyMatrix invView = pCamera->m_Camera3D.m_matView;
-    invView.Inverse();
-#if MYFW_RIGHTHANDED
-    Vector3 rayworld = (invView * Vector4( rayview.x, rayview.y, -1, 0 )).XYZ();
-#else
-    Vector3 rayworld = (invView * Vector4( rayview.x, rayview.y, 1, 0 )).XYZ();
-#endif
+    // Store the camera position as the near world point (or alternatively, calculate world pos for near clip plane).
+    //Vector4 nearClipPoint4 = Vector4( mouseClip, -1, 1 );
+    //Vector4 nearWorldPoint4 = invVP * nearClipPoint4;
+    //Vector3 nearWorldPoint = nearWorldPoint4.XYZ() / nearWorldPoint4.w;
+    Vector3 nearWorldPoint = pCamera->m_pComponentTransform->GetWorldPosition();
 
-    // define the ray.
-    Vector3 raystart = pCamera->m_pComponentTransform->GetLocalPosition();
-    Vector3 rayend = raystart + rayworld * 10000;
+    // Calculate the world position of the far clip plane where the mouse is pointing.
+    Vector4 farClipPoint4 = Vector4( mouseClip, 1, 1 );
+    Vector4 farWorldPoint4 = invVP * farClipPoint4;
+    Vector3 farWorldPoint = farWorldPoint4.XYZ() / farWorldPoint4.w;
 
-    start->Set( raystart.x, raystart.y, raystart.z );
-    end->Set( rayend.x, rayend.y, rayend.z );
+    //// Create a direction vector toward the far clip from the camera (or near clip).
+    //Vector3 worldDir = farWorldPoint - nearWorldPoint;
+
+    //// Calculate the intersection point for a given depth.  Ray => nearWorldPoint + worldDir * t
+    //// First calculate 't' for a given depth, then calculate point at that 't' along the ray.
+    //float t = (depthWanted - nearWorldPoint.z) / worldDir.z;
+    //Vector3 intersectPoint = nearWorldPoint + (worldDir * t);
+
+    *start = nearWorldPoint;
+    *end = farWorldPoint;
 }
 
 void EngineCore::SetGridVisible(bool visible)
