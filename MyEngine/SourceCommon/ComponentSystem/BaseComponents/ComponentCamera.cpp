@@ -630,9 +630,19 @@ void ComponentCamera::DrawScene()
     // Finish our deferred render if we started it.
     if( renderedADeferredPass )
     {
-        // TODO: Render a full screen quad to combine the 3 textures from the G-Buffer.
-        m_pDeferredQuadMaterial->SetTextureColor( m_pGBuffer->GetColorTexture( 0 ) );
-        m_pDeferredQuadMesh->Draw( 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 );
+        // Render a full screen quad to combine the 3 textures from the G-Buffer.
+        // Textures are set below in SetupCustomUniformsCallback().
+        //m_pDeferredQuadMesh->Draw( 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 );
+
+        // Loop through lights and render a whole quad for each.
+        // TODO: render only a sphere for each.
+        // TODO: additive pass for each light.
+        for( CPPListNode* pNode = g_pLightManager->GetLightList()->GetHead(); pNode; pNode = pNode->GetNext() )
+        {
+            MyLight* pLight = static_cast<MyLight*>( pNode );
+
+            m_pDeferredQuadMesh->Draw( 0, 0, &m_pComponentTransform->GetWorldPosition(), 0, &pLight, 1, 0, 0, 0, 0 );
+        }
 
         g_ActiveShaderPass = ShaderPass_Main;
     }

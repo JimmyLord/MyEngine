@@ -3,86 +3,75 @@
 #endif
 
 #if NUM_DIR_LIGHTS > 0
-void DirLightContribution(vec3 vertpos, vec3 campos, vec3 normal, float shininess, inout vec3 finalambient, inout vec3 finaldiffuse, inout vec3 finalspecular)
+void DirLightContribution(vec3 vertPos, vec3 cameraPos, vec3 normal, float shininess, inout vec3 finalAmbient, inout vec3 finalDiffuse, inout vec3 finalSpecular)
 {
-    // vert, cam, normal and light positions are in world space.
-    //vec3 vertpos = vertpos4.xyz / vertpos4.w; // w should be 1
-
     // Light properties
-    vec3 lightdir = u_DirLightDir;
-    vec3 lightcolor = u_DirLightColor;
+    vec3 lightDir = u_DirLightDir;
+    vec3 lightColor = u_DirLightColor;
 
-    vec3 unnormalizedlightdirvector = lightdir;
-    vec3 lightdirvector = normalize( unnormalizedlightdirvector ) * -1.0;
+    vec3 unnormalizedLightDirVector = lightDir;
+    vec3 lightDirVector = normalize( unnormalizedLightDirVector ) * -1.0;
 
-    // ambient
-    finalambient = lightcolor * 0.1;
+    // Ambient.
+    finalAmbient = lightColor * 0.1;
 
-    // diffuse
-    float diffperc = max( dot( normal, lightdirvector ), 0.0 );
-    finaldiffuse += lightcolor * diffperc;
+    // Diffuse.
+    float diffPerc = max( dot( normal, lightDirVector ), 0.0 );
+    finalDiffuse += lightColor * diffPerc;
 
-    // specular
-    vec3 viewvector = normalize( campos - vertpos );
-    vec3 halfvector = normalize( viewvector + lightdirvector );
-    float specperc = max( dot( normal, halfvector ), 0.0 );
-    specperc = pow( specperc, shininess );
-    finalspecular += lightcolor * specperc;
+    // Specular.
+    vec3 viewVector = normalize( cameraPos - vertPos );
+    vec3 halfVector = normalize( viewVector + lightDirVector );
+    float specPerc = max( dot( normal, halfVector ), 0.0 );
+    specPerc = pow( specPerc, shininess );
+    finalSpecular += lightColor * specPerc;
 }
 #endif
 
 #if NUM_LIGHTS > 0
-void PointLightContribution(vec3 lightpos, vec3 lightcolor, vec3 lightatten, vec3 vertpos, vec3 campos, vec3 normal, float shininess, inout vec3 finalambient, inout vec3 finaldiffuse, inout vec3 finalspecular)
+void PointLightContribution(vec3 lightPos, vec3 lightColor, vec3 lightAtten, vec3 vertPos, vec3 cameraPos, vec3 normal, float shininess, inout vec3 finalAmbient, inout vec3 finalDiffuse, inout vec3 finalSpecular)
 {
-    // vert, cam, normal and light positions are in world space.
-    //vec3 vertpos = vertpos4.xyz / vertpos4.w; // w should be 1
+    vec3 unnormalizedLightDirVector = lightPos - vertPos;
+    vec3 lightDirVector = normalize( unnormalizedLightDirVector );
 
-    // Light properties
-    //vec3 lightpos = u_LightPos[index];
-    //vec3 lightcolor = u_LightColor[index];
-    //vec3 lightatten = u_LightAttenuation[index];
+    // Attenuation.
+    float dist = length( unnormalizedLightDirVector );
+    float attenuation = 1.0 / (0.00001 + lightAtten.x + dist*lightAtten.y + dist*dist*lightAtten.z);
 
-    vec3 unnormalizedlightdirvector = lightpos - vertpos;
-    vec3 lightdirvector = normalize( unnormalizedlightdirvector );
+    // Ambient.
+    finalAmbient = lightColor * 0.0;
 
-    // attenuation
-    float dist = length( unnormalizedlightdirvector );
-    float attenuation = 1.0 / (0.00001 + lightatten.x + dist*lightatten.y + dist*dist*lightatten.z);
+    // Diffuse.
+    float diffPerc = max( dot( normal, lightDirVector ), 0.0 );
+    finalDiffuse += lightColor * diffPerc * attenuation;
 
-    // ambient
-    finalambient = lightcolor * 0.1;
-
-    // diffuse
-    float diffperc = max( dot( normal, lightdirvector ), 0.0 );
-    finaldiffuse += lightcolor * diffperc * attenuation;
-
-    // specular
-    vec3 camdirvector = normalize( campos - vertpos );
-    vec3 halfvector = normalize( camdirvector + lightdirvector );
-    float specperc = max( dot( normal, halfvector ), 0.0 );
-    specperc = pow( specperc, shininess );
-    finalspecular += lightcolor * specperc * attenuation;
+    // Specular.
+    //vec3 camDirVector = normalize( cameraPos - vertPos );
+    //vec3 halfVector = normalize( camDirVector + lightDirVector );
+    //float specPerc = max( dot( normal, halfVector ), 0.0 );
+    //specPerc = pow( specPerc, shininess );
+    //finalSpecular += lightColor * specPerc * attenuation;
 }
 #endif
 
 float CalculateShadowPercentage()
 {
 #if ReceiveShadows
-    vec2 shadowcoord = v_ShadowPos.xy / v_ShadowPos.w;
-    vec4 shadowtex = texture2D( u_ShadowTexture, shadowcoord );
+    vec2 shadowCoord = v_ShadowPos.xy / v_ShadowPos.w;
+    vec4 shadowTex = texture2D( u_ShadowTexture, shadowCoord );
     
     float bias = 0.0002;
-    float projzdepth = (v_ShadowPos.z-bias) / v_ShadowPos.w;
+    float projZDepth = (v_ShadowPos.z - bias) / v_ShadowPos.w;
 
 #if 1
-    float texzdepth = shadowtex.r;
+    float texZDepth = shadowTex.r;
 #else
     // Unpack depth float value from rgba.
-    const vec4 bitSh = vec4(1.0/(256.0*256.0*256.0), 1.0/(256.0*256.0), 1.0/256.0, 1.0);
-    float texzdepth = dot( shadowtex, bitSh );
+    const vec4 bitSh = vec4( 1.0/(256.0*256.0*256.0), 1.0/(256.0*256.0), 1.0/256.0, 1.0 );
+    float texZDepth = dot( shadowTex, bitSh );
 #endif
         
-    if( texzdepth < projzdepth )
+    if( texZDepth < projZDepth )
         return 0.0;
 #endif //ReceiveShadows
 
