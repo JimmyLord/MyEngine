@@ -457,11 +457,11 @@ void ComponentCamera::OnDrawFrame()
             // If a post effect was found, render to an FBO.
             if( m_pPostEffectFBOs[0] == 0 )
             {
-                m_pPostEffectFBOs[0] = g_pTextureManager->CreateFBO( m_WindowWidth, m_WindowHeight, GL_NEAREST, GL_NEAREST, FBODefinition::FBOColorFormat_RGBA, 32, false );
+                m_pPostEffectFBOs[0] = g_pTextureManager->CreateFBO( m_WindowWidth, m_WindowHeight, GL_NEAREST, GL_NEAREST, FBODefinition::FBOColorFormat_RGBA_UByte, 32, false );
             }
             else
             {
-                g_pTextureManager->ReSetupFBO( m_pPostEffectFBOs[0], m_WindowWidth, m_WindowHeight, GL_NEAREST, GL_NEAREST, FBODefinition::FBOColorFormat_RGBA, 32, false );
+                g_pTextureManager->ReSetupFBO( m_pPostEffectFBOs[0], m_WindowWidth, m_WindowHeight, GL_NEAREST, GL_NEAREST, FBODefinition::FBOColorFormat_RGBA_UByte, 32, false );
             }
 
             m_pPostEffectFBOs[0]->Bind( false );
@@ -499,11 +499,11 @@ void ComponentCamera::OnDrawFrame()
             // If there is a next effect, render into the next unused FBO.
             if( m_pPostEffectFBOs[!fboindex] == 0 )
             {
-                m_pPostEffectFBOs[!fboindex] = g_pTextureManager->CreateFBO( m_WindowWidth, m_WindowHeight, GL_NEAREST, GL_NEAREST, FBODefinition::FBOColorFormat_RGBA, 32, false );
+                m_pPostEffectFBOs[!fboindex] = g_pTextureManager->CreateFBO( m_WindowWidth, m_WindowHeight, GL_NEAREST, GL_NEAREST, FBODefinition::FBOColorFormat_RGBA_UByte, 32, false );
             }
             else
             {
-                g_pTextureManager->ReSetupFBO( m_pPostEffectFBOs[!fboindex], m_WindowWidth, m_WindowHeight, GL_NEAREST, GL_NEAREST, FBODefinition::FBOColorFormat_RGBA, 32, false );
+                g_pTextureManager->ReSetupFBO( m_pPostEffectFBOs[!fboindex], m_WindowWidth, m_WindowHeight, GL_NEAREST, GL_NEAREST, FBODefinition::FBOColorFormat_RGBA_UByte, 32, false );
             }
             m_pPostEffectFBOs[!fboindex]->Bind( false );
 
@@ -564,9 +564,9 @@ void ComponentCamera::DrawScene()
         {
             const int numcolorformats = 3;
             FBODefinition::FBOColorFormat colorformats[numcolorformats];
-            colorformats[0] = FBODefinition::FBOColorFormat_RGBA; // Albedo (RGB) / Specular Power (A)
-            colorformats[1] = FBODefinition::FBOColorFormat_RGBA; // Positions (RGB) / Nothing in (A)
-            colorformats[2] = FBODefinition::FBOColorFormat_RGBA; // Normals (RGB) / Nothing in (A)
+            colorformats[0] = FBODefinition::FBOColorFormat_RGBA_UByte;  // Albedo (RGB) / Specular Power (A)
+            colorformats[1] = FBODefinition::FBOColorFormat_RGB_Float16; // Positions (RGB)
+            colorformats[2] = FBODefinition::FBOColorFormat_RGB_Float16; // Normals (RGB)
 
             m_pGBuffer = g_pTextureManager->CreateFBO( m_WindowWidth, m_WindowHeight, GL_NEAREST, GL_NEAREST, colorformats, numcolorformats, 32, false );
 
@@ -637,12 +637,19 @@ void ComponentCamera::DrawScene()
         // Loop through lights and render a whole quad for each.
         // TODO: render only a sphere for each.
         // TODO: additive pass for each light.
+        glBlendFunc( GL_ONE, GL_ONE );
+
         for( CPPListNode* pNode = g_pLightManager->GetLightList()->GetHead(); pNode; pNode = pNode->GetNext() )
         {
             MyLight* pLight = static_cast<MyLight*>( pNode );
 
+            glEnable( GL_BLEND );
             m_pDeferredQuadMesh->Draw( 0, 0, &m_pComponentTransform->GetWorldPosition(), 0, &pLight, 1, 0, 0, 0, 0 );
         }
+
+        // always disable blending
+        glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
+        glDisable( GL_BLEND );
 
         g_ActiveShaderPass = ShaderPass_Main;
     }

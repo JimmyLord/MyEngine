@@ -61,10 +61,10 @@ const char* g_PanelMemoryPagesMenuLabels[PanelMemoryPage_NumTypes] =
 
 EditorMainFrame_ImGui::EditorMainFrame_ImGui()
 {
-    m_pGameFBO = g_pTextureManager->CreateFBO( 1024, 1024, GL_NEAREST, GL_NEAREST, FBODefinition::FBOColorFormat_RGBA, 32, true );
-    m_pEditorFBO = g_pTextureManager->CreateFBO( 1024, 1024, GL_NEAREST, GL_NEAREST, FBODefinition::FBOColorFormat_RGBA, 32, true );
+    m_pGameFBO = g_pTextureManager->CreateFBO( 1024, 1024, GL_NEAREST, GL_NEAREST, FBODefinition::FBOColorFormat_RGBA_UByte, 32, true );
+    m_pEditorFBO = g_pTextureManager->CreateFBO( 1024, 1024, GL_NEAREST, GL_NEAREST, FBODefinition::FBOColorFormat_RGBA_UByte, 32, true );
     
-    m_pMaterialPreviewFBO = g_pTextureManager->CreateFBO( 1024, 1024, GL_NEAREST, GL_NEAREST, FBODefinition::FBOColorFormat_RGBA, 32, true );
+    m_pMaterialPreviewFBO = g_pTextureManager->CreateFBO( 1024, 1024, GL_NEAREST, GL_NEAREST, FBODefinition::FBOColorFormat_RGBA_UByte, 32, true );
     m_pMaterialToPreview = 0;
 
     m_pMaterialBeingEdited = 0;
@@ -952,7 +952,7 @@ void EditorMainFrame_ImGui::AddGameAndEditorWindows()
             m_GameWindowPos.Set( pos.x + min.x, pos.y + min.y );
             m_GameWindowSize.Set( w, h );
 
-            g_pTextureManager->ReSetupFBO( m_pGameFBO, (unsigned int)w, (unsigned int)h, GL_NEAREST, GL_NEAREST, FBODefinition::FBOColorFormat_RGBA, 32, false );
+            g_pTextureManager->ReSetupFBO( m_pGameFBO, (unsigned int)w, (unsigned int)h, GL_NEAREST, GL_NEAREST, FBODefinition::FBOColorFormat_RGBA_UByte, 32, false );
 
             //// Resize our FBO if the window is larger than it ever was.
             //if( w > m_pGameFBO->GetTextureWidth() || h > m_pGameFBO->GetTextureHeight() )
@@ -993,7 +993,7 @@ void EditorMainFrame_ImGui::AddGameAndEditorWindows()
             m_EditorWindowPos.Set( pos.x + min.x, pos.y + min.y );
             m_EditorWindowSize.Set( w, h );
 
-            g_pTextureManager->ReSetupFBO( m_pEditorFBO, (unsigned int)w, (unsigned int)h, GL_NEAREST, GL_NEAREST, FBODefinition::FBOColorFormat_RGBA, 32, false );
+            g_pTextureManager->ReSetupFBO( m_pEditorFBO, (unsigned int)w, (unsigned int)h, GL_NEAREST, GL_NEAREST, FBODefinition::FBOColorFormat_RGBA_UByte, 32, false );
 
             //// Resize our FBO if the window is larger than it ever was.
             //if( w > m_pEditorFBO->GetTextureWidth() || h > m_pEditorFBO->GetTextureHeight() )

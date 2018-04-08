@@ -38,8 +38,8 @@ uniform vec3 u_WSCameraPos;
 void main()
 {
     vec4 albedoShine = texture2D( u_TextureAlbedoShine, v_UVCoord );
-	vec3 WSPosition = texture2D( u_TexturePosition, v_UVCoord ).xyz * 100.0 - vec3(15,0,0);
-	vec3 WSNormal = (texture2D( u_TextureNormal, v_UVCoord ).xyz - 0.5) * 2;
+	vec3 WSPosition = texture2D( u_TexturePosition, v_UVCoord ).xyz; // * 100.0 - vec3(15,0,0);
+	vec3 WSNormal = texture2D( u_TextureNormal, v_UVCoord ).xyz; //(texture2D( u_TextureNormal, v_UVCoord ).xyz - 0.5) * 2;
 
     // Accumulate ambient, diffuse and specular color for all lights.
     vec3 finalAmbient = vec3(0,0,0);

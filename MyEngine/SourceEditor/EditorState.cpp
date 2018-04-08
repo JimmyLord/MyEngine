@@ -144,7 +144,7 @@ void EditorState::OnSurfaceChanged(unsigned int startx, unsigned int starty, uns
 
     if( m_pDebugViewFBO )
     {
-        g_pTextureManager->ReSetupFBO( m_pDebugViewFBO, width, height, GL_NEAREST, GL_NEAREST, FBODefinition::FBOColorFormat_RGBA, 32, false );
+        g_pTextureManager->ReSetupFBO( m_pDebugViewFBO, width, height, GL_NEAREST, GL_NEAREST, FBODefinition::FBOColorFormat_RGBA_UByte, 32, false );
         //m_pDebugViewFBO->Setup( width, height, GL_NEAREST, GL_NEAREST, true, 32, false );
 
         //if( m_pDebugViewFBO->GetTextureWidth() < width || m_pDebugViewFBO->GetTextureHeight() < height )
@@ -162,7 +162,7 @@ void EditorState::OnSurfaceChanged(unsigned int startx, unsigned int starty, uns
 
     if( m_pMousePickerFBO )
     {
-        g_pTextureManager->ReSetupFBO( m_pMousePickerFBO, width, height, GL_NEAREST, GL_NEAREST, FBODefinition::FBOColorFormat_RGBA, 32, false );
+        g_pTextureManager->ReSetupFBO( m_pMousePickerFBO, width, height, GL_NEAREST, GL_NEAREST, FBODefinition::FBOColorFormat_RGBA_UByte, 32, false );
         //m_pMousePickerFBO->Setup( width, height, GL_NEAREST, GL_NEAREST, true, 32, false );
 
         //if( m_pMousePickerFBO->GetTextureWidth() < width || m_pMousePickerFBO->GetTextureHeight() < height )
