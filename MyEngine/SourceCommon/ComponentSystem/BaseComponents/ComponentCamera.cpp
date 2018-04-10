@@ -661,6 +661,14 @@ void ComponentCamera::DrawScene()
             //       the submesh isn't created and material can't be set.
             m_pDeferredSphereMesh->SetMaterial( m_pDeferredQuadMaterial, 0 );
 
+            // Disable depth write and depth test.
+            glDepthMask( GL_FALSE );
+            glDisable( GL_DEPTH_TEST );
+            // Swap culling to draw backs of spheres.
+            glCullFace( GL_FRONT );
+            // Set blending to additive.
+            glBlendFunc( GL_ONE, GL_ONE );
+
             for( CPPListNode* pNode = g_pLightManager->GetLightList()->GetHead(); pNode; pNode = pNode->GetNext() )
             {
                 MyLight* pLight = static_cast<MyLight*>( pNode );
@@ -668,16 +676,32 @@ void ComponentCamera::DrawScene()
                 // Blend is currently turned off at end of each Draw(), so manually turn it back on for each light.
                 glEnable( GL_BLEND );
 
+                // Scale sphere.
+                // TODO: Change attenuation to be based on a radius.
+                float radius = 5;
+                MyMatrix matWorld;
+                matWorld.CreateSRT( radius, 0, pLight->m_Position );
+
+                MyMatrix* pMatViewProj;
+                if( m_Orthographic )
+                    pMatViewProj = &m_Camera2D.m_matViewProj;
+                else
+                    pMatViewProj = &m_Camera3D.m_matViewProj;
+
                 // Render a sphere to combine the 3 textures from the G-Buffer.
                 // Textures are set below in SetupCustomUniformsCallback().
                 //m_pDeferredQuadMesh->Draw( 0, 0, &m_pComponentTransform->GetWorldPosition(), 0, &pLight, 1, 0, 0, 0, 0 );
-                // TODO: Transform sphere to clip space normally, scale it to light range.
-                m_pDeferredSphereMesh->Draw( 0, 0, &m_pComponentTransform->GetWorldPosition(), 0, &pLight, 1, 0, 0, 0, 0 );
+                m_pDeferredSphereMesh->Draw( &matWorld, pMatViewProj, &m_pComponentTransform->GetWorldPosition(), 0, &pLight, 1, 0, 0, 0, 0 );
             }
 
             // always disable blending
-            glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
             glDisable( GL_BLEND );
+
+            // Restore the old gl state.
+            glDepthMask( GL_TRUE );
+            glEnable( GL_DEPTH_TEST );
+            glCullFace( GL_BACK );
+            glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
         }
 
         g_ActiveShaderPass = ShaderPass_Main;

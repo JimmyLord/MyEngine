@@ -11,9 +11,11 @@ precision mediump float;
 
 attribute vec4 a_Position;
 
+uniform mat4 u_WorldViewProj;
+
 void main()
 {
-    gl_Position = vec4( a_Position.xy*2.0, 0.0, 1.0 );
+    gl_Position = u_WorldViewProj * a_Position;
 }
 
 #endif
@@ -62,6 +64,7 @@ void main()
     gl_FragColor.rgb = ambDiff + spec;
     gl_FragColor.a = 1;
 
+    //gl_FragColor.rgb = clamp( gl_FragColor.rgb, 0.0, 1.0 );
     //gl_FragColor = vec4( albedoShine.rgb + position + normal, 1 );
 	//gl_FragColor.xyz = WSNormal;
 
