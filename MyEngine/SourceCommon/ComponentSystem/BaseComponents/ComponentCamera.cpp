@@ -77,6 +77,8 @@ ComponentCamera::~ComponentCamera()
     SAFE_RELEASE( m_pDeferredShader );
     SAFE_RELEASE( m_pDeferredQuadMesh );
     SAFE_RELEASE( m_pDeferredQuadMaterial );
+    SAFE_RELEASE( m_pDeferredSphereMeshFile );
+    SAFE_RELEASE( m_pDeferredSphereMesh );
 }
 
 void ComponentCamera::RegisterVariables(CPPListHead* pList, ComponentCamera* pThis) //_VARIABLE_LIST
@@ -230,6 +232,8 @@ void ComponentCamera::Reset()
     m_pDeferredShader = 0;
     m_pDeferredQuadMesh = 0;
     m_pDeferredQuadMaterial = 0;
+    m_pDeferredSphereMeshFile = 0;
+    m_pDeferredSphereMesh = 0;
 
     m_DesiredWidth = 640;
     m_DesiredHeight = 960;
@@ -585,6 +589,17 @@ void ComponentCamera::DrawScene()
             m_pDeferredQuadMesh->SetMaterial( m_pDeferredQuadMaterial, 0 );
 
             m_pDeferredQuadMesh->RegisterSetupCustomUniformCallback( this, StaticSetupCustomUniformsCallback );
+
+            MyAssert( m_pDeferredSphereMesh == 0 );
+            MyAssert( m_pDeferredSphereMeshFile == 0 );
+            m_pDeferredSphereMesh = MyNew MyMesh();
+            m_pDeferredSphereMeshFile = RequestFile( "Data/DataEngine/Meshes/sphere.obj.mymesh" );
+#if MYFW_EDITOR
+            m_pDeferredSphereMeshFile->MemoryPanel_Hide();
+#endif
+
+            m_pDeferredSphereMesh->SetSourceFile( m_pDeferredSphereMeshFile );
+            m_pDeferredSphereMesh->RegisterSetupCustomUniformCallback( this, StaticSetupCustomUniformsCallback );
         }
 
         // Set the global render pass to deferred, so each object will render with the correct shader.
@@ -632,24 +647,38 @@ void ComponentCamera::DrawScene()
     {
         // Render a full screen quad to combine the 3 textures from the G-Buffer.
         // Textures are set below in SetupCustomUniformsCallback().
+        // Do this for ambient light? would need custom shader.
         //m_pDeferredQuadMesh->Draw( 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 );
 
-        // Loop through lights and render a whole quad for each.
-        // TODO: render only a sphere for each.
-        // TODO: additive pass for each light.
-        glBlendFunc( GL_ONE, GL_ONE );
-
-        for( CPPListNode* pNode = g_pLightManager->GetLightList()->GetHead(); pNode; pNode = pNode->GetNext() )
+        // Loop through lights and render a sphere for each.
+        // TODO: Fix sphere render to not cover entire screen.
+        if( m_pDeferredSphereMesh->IsReady() )
         {
-            MyLight* pLight = static_cast<MyLight*>( pNode );
+            // Set blending to additive.
+            glBlendFunc( GL_ONE, GL_ONE );
 
-            glEnable( GL_BLEND );
-            m_pDeferredQuadMesh->Draw( 0, 0, &m_pComponentTransform->GetWorldPosition(), 0, &pLight, 1, 0, 0, 0, 0 );
+            // TODO: This only needs to be done once, but since the mesh file isn't loaded above,
+            //       the submesh isn't created and material can't be set.
+            m_pDeferredSphereMesh->SetMaterial( m_pDeferredQuadMaterial, 0 );
+
+            for( CPPListNode* pNode = g_pLightManager->GetLightList()->GetHead(); pNode; pNode = pNode->GetNext() )
+            {
+                MyLight* pLight = static_cast<MyLight*>( pNode );
+
+                // Blend is currently turned off at end of each Draw(), so manually turn it back on for each light.
+                glEnable( GL_BLEND );
+
+                // Render a sphere to combine the 3 textures from the G-Buffer.
+                // Textures are set below in SetupCustomUniformsCallback().
+                //m_pDeferredQuadMesh->Draw( 0, 0, &m_pComponentTransform->GetWorldPosition(), 0, &pLight, 1, 0, 0, 0, 0 );
+                // TODO: Transform sphere to clip space normally, scale it to light range.
+                m_pDeferredSphereMesh->Draw( 0, 0, &m_pComponentTransform->GetWorldPosition(), 0, &pLight, 1, 0, 0, 0, 0 );
+            }
+
+            // always disable blending
+            glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
+            glDisable( GL_BLEND );
         }
-
-        // always disable blending
-        glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
-        glDisable( GL_BLEND );
 
         g_ActiveShaderPass = ShaderPass_Main;
     }
@@ -658,9 +687,15 @@ void ComponentCamera::DrawScene()
 void ComponentCamera::SetupCustomUniformsCallback(Shader_Base* pShader) // StaticSetupCustomUniformsCallback
 {
     // TODO: Not this...
+    GLint uTextureSize = glGetUniformLocation( pShader->m_ProgramHandle, "u_TextureSize" );
     GLint uAlbedo = glGetUniformLocation( pShader->m_ProgramHandle, "u_TextureAlbedoShine" );
     GLint uPosition = glGetUniformLocation( pShader->m_ProgramHandle, "u_TexturePosition" );
     GLint uNormal = glGetUniformLocation( pShader->m_ProgramHandle, "u_TextureNormal" );
+
+    if( uTextureSize != -1 )
+    {
+        glUniform2f( uTextureSize, (float)m_pGBuffer->GetTextureWidth(), (float)m_pGBuffer->GetTextureHeight() );
+    }
 
     if( uAlbedo != -1 )
     {

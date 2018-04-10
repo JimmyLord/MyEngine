@@ -41,6 +41,8 @@ public:
     ShaderGroup* m_pDeferredShader;
     MyMesh* m_pDeferredQuadMesh;
     MaterialDefinition* m_pDeferredQuadMaterial;
+    MyFileObject* m_pDeferredSphereMeshFile;
+    MyMesh* m_pDeferredSphereMesh;
 
     // For ortho.
     float m_DesiredWidth;

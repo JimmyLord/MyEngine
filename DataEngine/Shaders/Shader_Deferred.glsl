@@ -7,24 +7,20 @@
 precision mediump float;
 #endif
 
-varying vec2 v_UVCoord;
-
 #ifdef VertexShader
 
 attribute vec4 a_Position;
-attribute vec2 a_UVCoord;
 
 void main()
 {
-    gl_Position = a_Position;
-
-	v_UVCoord = a_UVCoord;
+    gl_Position = vec4( a_Position.xy*2.0, 0.0, 1.0 );
 }
 
 #endif
 
 #ifdef FragmentShader
 
+uniform vec2 u_TextureSize;
 uniform sampler2D u_TextureAlbedoShine;
 uniform sampler2D u_TexturePosition;
 uniform sampler2D u_TextureNormal;
@@ -37,9 +33,11 @@ uniform vec3 u_WSCameraPos;
 
 void main()
 {
-    vec4 albedoShine = texture2D( u_TextureAlbedoShine, v_UVCoord );
-	vec3 WSPosition = texture2D( u_TexturePosition, v_UVCoord ).xyz; // * 100.0 - vec3(15,0,0);
-	vec3 WSNormal = texture2D( u_TextureNormal, v_UVCoord ).xyz; //(texture2D( u_TextureNormal, v_UVCoord ).xyz - 0.5) * 2;
+    vec2 UVCoord = (gl_FragCoord.xy / u_TextureSize);
+
+    vec4 albedoShine = texture2D( u_TextureAlbedoShine, UVCoord );
+	vec3 WSPosition = texture2D( u_TexturePosition, UVCoord ).xyz; // * 100.0 - vec3(15,0,0);
+	vec3 WSNormal = texture2D( u_TextureNormal, UVCoord ).xyz; //(texture2D( u_TextureNormal, UVCoord ).xyz - 0.5) * 2;
 
     // Accumulate ambient, diffuse and specular color for all lights.
     vec3 finalAmbient = vec3(0,0,0);
@@ -68,6 +66,7 @@ void main()
 	//gl_FragColor.xyz = WSNormal;
 
 	//gl_FragColor.xyz = WSPosition;
+    //gl_FragColor.xyz = vec3(1);
 }
 
 #endif
