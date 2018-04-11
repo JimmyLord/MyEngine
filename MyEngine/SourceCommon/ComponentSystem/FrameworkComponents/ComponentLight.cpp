@@ -93,7 +93,10 @@ void ComponentLight::AddAllVariablesToWatchPanel()
         if( ImGui::ColorEdit4( "Color", &m_pLight->m_Color.r ) )
         {
         }
-        ImGui::DragFloat3( "Attenuation", &m_pLight->m_Attenuation.x, 0.01f, 0, 20 );
+
+        // Replacing classic attentuation with a range based version to make deferred lighting "spheres" possible.
+        //ImGui::DragFloat3( "Attenuation", &m_pLight->m_Attenuation.x, 0.01f, 0, 20 );
+        ImGui::DragFloat( "Range", &m_pLight->m_Attenuation.x, 0.1f, 0, 30 );
     }
 }
 #endif

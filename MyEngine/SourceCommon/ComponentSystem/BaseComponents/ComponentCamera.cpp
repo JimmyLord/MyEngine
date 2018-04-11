@@ -678,7 +678,7 @@ void ComponentCamera::DrawScene()
 
                 // Scale sphere.
                 // TODO: Change attenuation to be based on a radius.
-                float radius = 5;
+                float radius = pLight->m_Attenuation.x;
                 MyMatrix matWorld;
                 matWorld.CreateSRT( radius, 0, pLight->m_Position );
 

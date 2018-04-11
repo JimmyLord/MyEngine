@@ -1102,9 +1102,11 @@ void EditorMainFrame_ImGui::AddObjectList()
                         ImGui::PushID( scenename );
                         if( ImGui::BeginPopupContextItem( "ContextPopup", 1 ) )
                         {
+                            GameObject* pGameObjectCreated = 0;
+                            
                             if( ImGui::MenuItem( "Add GameObject" ) )
                             {
-                                GameObject* pGameObjectCreated = g_pComponentSystemManager->CreateGameObject( true, (SceneID)sceneindex );
+                                pGameObjectCreated = g_pComponentSystemManager->CreateGameObject( true, (SceneID)sceneindex );
                                 pGameObjectCreated->SetName( "New Game Object" );
 
                                 ImGui::CloseCurrentPopup();
@@ -1137,11 +1139,9 @@ void EditorMainFrame_ImGui::AddObjectList()
                                         //menu->Append( itemidoffset + i, name );
                                         if( ImGui::MenuItem( name ) )
                                         {
-                                            GameObject* pGameObjectCreated = g_pComponentSystemManager->CreateGameObjectFromTemplate( i, (SceneID)sceneindex );
+                                            pGameObjectCreated = g_pComponentSystemManager->CreateGameObjectFromTemplate( i, (SceneID)sceneindex );
                                             if( pGameObjectCreated )
                                             {
-                                                g_pGameCore->GetCommandStack()->Add( MyNew EditorCommand_CreateGameObject( pGameObjectCreated ) );
-
                                                 EditorState* pEditorState = g_pEngineCore->GetEditorState();
                                                 pEditorState->ClearSelectedObjectsAndComponents();
                                                 pEditorState->SelectGameObject( pGameObjectCreated );
@@ -1162,10 +1162,31 @@ void EditorMainFrame_ImGui::AddObjectList()
                                 ImGui::EndMenu();
                             }
 
-                            if( ImGui::MenuItem( "Add Folder (TODO)" ) )               { ImGui::CloseCurrentPopup(); }
-                            if( ImGui::MenuItem( "Add Logical GameObject (TODO)" ) )   { ImGui::CloseCurrentPopup(); }
+                            if( ImGui::MenuItem( "Add Folder" ) )
+                            {
+                                pGameObjectCreated = g_pComponentSystemManager->CreateGameObject( true, (SceneID)sceneindex, true, false );
+                                pGameObjectCreated->SetName( "New Folder" );
 
-                            if( ImGui::MenuItem( "Unload scene (TODO)" ) )             { ImGui::CloseCurrentPopup(); }
+                                ImGui::CloseCurrentPopup();
+                            }
+
+                            if( ImGui::MenuItem( "Add Logical GameObject" ) )
+                            {
+                                pGameObjectCreated = g_pComponentSystemManager->CreateGameObject( true, (SceneID)sceneindex, false, false );
+                                pGameObjectCreated->SetName( "New Logical Game Object" );
+
+                                ImGui::CloseCurrentPopup();
+                            }
+
+                            if( ImGui::MenuItem( "Unload scene (TODO)" ) )
+                            {
+                                ImGui::CloseCurrentPopup();
+                            }
+
+                            if( pGameObjectCreated )
+                            {
+                                g_pGameCore->GetCommandStack()->Add( MyNew EditorCommand_CreateGameObject( pGameObjectCreated ) );
+                            }
 
                             ImGui::EndPopup();
                         }

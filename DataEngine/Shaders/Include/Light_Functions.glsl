@@ -16,13 +16,13 @@ void DirLightContribution(vec3 vertPos, vec3 cameraPos, vec3 normal, float shini
     finalAmbient = lightColor * 0.1;
 
     // Diffuse.
-    float diffPerc = max( dot( normal, lightDirVector ), 0.0 );
+    float diffPerc = max( 0.0, dot( normal, lightDirVector ) );
     finalDiffuse += lightColor * diffPerc;
 
     // Specular.
     vec3 viewVector = normalize( cameraPos - vertPos );
     vec3 halfVector = normalize( viewVector + lightDirVector );
-    float specPerc = max( dot( normal, halfVector ), 0.0 );
+    float specPerc = max( 0.0, dot( normal, halfVector ) );
     specPerc = pow( specPerc, shininess );
     finalSpecular += lightColor * specPerc;
 }
@@ -35,20 +35,23 @@ void PointLightContribution(vec3 lightPos, vec3 lightColor, vec3 lightAtten, vec
     vec3 lightDirVector = normalize( unnormalizedLightDirVector );
 
     // Attenuation.
-    float dist = length( unnormalizedLightDirVector );
-    float attenuation = 1.0 / (0.00001 + lightAtten.x + dist*lightAtten.y + dist*dist*lightAtten.z);
+    //float dist = length( unnormalizedLightDirVector );
+    //float attenuation = 1.0 / (0.00001 + lightAtten.x + dist*lightAtten.y + dist*dist*lightAtten.z);
+    float lightRadius = lightAtten.x;
+    vec3 lightDirShortened = unnormalizedLightDirVector / lightRadius;
+    float attenuation = max( 0.0, 1.0 - dot( lightDirShortened, lightDirShortened ) );
 
     // Ambient.
     finalAmbient = lightColor * 0.0;
 
     // Diffuse.
-    float diffPerc = max( dot( normal, lightDirVector ), 0.0 );
+    float diffPerc = max( 0.0, dot( normal, lightDirVector ) );
     finalDiffuse += lightColor * diffPerc * attenuation;
 
     // Specular.
     //vec3 camDirVector = normalize( cameraPos - vertPos );
     //vec3 halfVector = normalize( camDirVector + lightDirVector );
-    //float specPerc = max( dot( normal, halfVector ), 0.0 );
+    //float specPerc = max( 0.0, dot( normal, halfVector ) );
     //specPerc = pow( specPerc, shininess );
     //finalSpecular += lightColor * specPerc * attenuation;
 }
