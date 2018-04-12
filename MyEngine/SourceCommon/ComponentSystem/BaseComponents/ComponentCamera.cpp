@@ -605,12 +605,20 @@ void ComponentCamera::DrawScene()
         // Set the global render pass to deferred, so each object will render with the correct shader.
         g_ActiveShaderPass = ShaderPass_MainDeferred;
         renderedADeferredPass = true;
-        m_pGBuffer->Bind( false );
 
-        // Set up the 3 textures for GL to write to.
-        // TODO: Do this once when FBO is done setting up.
-        GLenum buffers[3] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2 };
-        glDrawBuffers( 3, buffers );
+        if( m_pGBuffer->IsFullyLoaded() )
+        {
+            m_pGBuffer->Bind( false );
+
+            checkGlError( "After m_pGBuffer->Bind" );
+
+            // Set up the 3 textures for GL to write to.
+            // TODO: Do this once when FBO is done setting up.
+            GLenum buffers[3] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2 };
+            glDrawBuffers( 3, buffers );
+
+            checkGlError( "After glDrawBuffers" );
+        }
     }
 
     // Clear the buffer and render the scene.
@@ -706,6 +714,8 @@ void ComponentCamera::DrawScene()
 
         g_ActiveShaderPass = ShaderPass_Main;
     }
+
+    checkGlError( "ComponentCamera::DrawScene end" );
 }
 
 void ComponentCamera::SetupCustomUniformsCallback(Shader_Base* pShader) // StaticSetupCustomUniformsCallback
