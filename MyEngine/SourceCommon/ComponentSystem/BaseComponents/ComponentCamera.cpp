@@ -568,8 +568,8 @@ void ComponentCamera::DrawScene()
         {
             const int numcolorformats = 3;
             FBODefinition::FBOColorFormat colorformats[numcolorformats];
-            colorformats[0] = FBODefinition::FBOColorFormat_RGBA_UByte;  // Albedo (RGB) / Specular Power (A)
-            colorformats[1] = FBODefinition::FBOColorFormat_RGB_Float16; // Positions (RGB)
+            colorformats[0] = FBODefinition::FBOColorFormat_RGBA_UByte;  // Albedo (RGB)
+            colorformats[1] = FBODefinition::FBOColorFormat_RGBA_Float16; // Positions (RGB) / Specular Shine/Power (A)
             colorformats[2] = FBODefinition::FBOColorFormat_RGB_Float16; // Normals (RGB)
 
             m_pGBuffer = g_pTextureManager->CreateFBO( m_WindowWidth, m_WindowHeight, GL_NEAREST, GL_NEAREST, colorformats, numcolorformats, 32, false );
@@ -722,8 +722,8 @@ void ComponentCamera::SetupCustomUniformsCallback(Shader_Base* pShader) // Stati
 {
     // TODO: Not this...
     GLint uTextureSize = glGetUniformLocation( pShader->m_ProgramHandle, "u_TextureSize" );
-    GLint uAlbedo = glGetUniformLocation( pShader->m_ProgramHandle, "u_TextureAlbedoShine" );
-    GLint uPosition = glGetUniformLocation( pShader->m_ProgramHandle, "u_TexturePosition" );
+    GLint uAlbedo = glGetUniformLocation( pShader->m_ProgramHandle, "u_TextureAlbedo" );
+    GLint uPosition = glGetUniformLocation( pShader->m_ProgramHandle, "u_TexturePositionShine" );
     GLint uNormal = glGetUniformLocation( pShader->m_ProgramHandle, "u_TextureNormal" );
 
     if( uTextureSize != -1 )

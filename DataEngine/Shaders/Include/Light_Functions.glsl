@@ -49,11 +49,11 @@ void PointLightContribution(vec3 lightPos, vec3 lightColor, vec3 lightAtten, vec
     finalDiffuse += lightColor * diffPerc * attenuation;
 
     // Specular.
-    //vec3 camDirVector = normalize( cameraPos - vertPos );
-    //vec3 halfVector = normalize( camDirVector + lightDirVector );
-    //float specPerc = max( 0.0, dot( normal, halfVector ) );
-    //specPerc = pow( specPerc, shininess );
-    //finalSpecular += lightColor * specPerc * attenuation;
+    vec3 camDirVector = normalize( cameraPos - vertPos );
+    vec3 halfVector = normalize( camDirVector + lightDirVector );
+    float specPerc = max( 0.0, dot( normal, halfVector ) );
+    specPerc = pow( specPerc, shininess );
+    finalSpecular += lightColor * specPerc * attenuation;
 }
 #endif
 

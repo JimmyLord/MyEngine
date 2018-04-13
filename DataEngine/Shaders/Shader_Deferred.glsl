@@ -23,8 +23,8 @@ void main()
 #ifdef FragmentShader
 
 uniform vec2 u_TextureSize;
-uniform sampler2D u_TextureAlbedoShine;
-uniform sampler2D u_TexturePosition;
+uniform sampler2D u_TextureAlbedo;
+uniform sampler2D u_TexturePositionShine;
 uniform sampler2D u_TextureNormal;
 
 uniform vec3 u_WSCameraPos;
@@ -37,8 +37,10 @@ void main()
 {
     vec2 UVCoord = (gl_FragCoord.xy / u_TextureSize);
 
-    vec4 albedoShine = texture2D( u_TextureAlbedoShine, UVCoord );
-	vec3 WSPosition = texture2D( u_TexturePosition, UVCoord ).xyz; // * 100.0 - vec3(15,0,0);
+    vec4 albedoColor = texture2D( u_TextureAlbedo, UVCoord );
+	vec4 WSPositionShine = texture2D( u_TexturePositionShine, UVCoord );
+    vec3 WSPosition = WSPositionShine.xyz; // * 100.0 - vec3(15,0,0);
+    float specularShine = WSPositionShine.w;
 	vec3 WSNormal = texture2D( u_TextureNormal, UVCoord ).xyz; //(texture2D( u_TextureNormal, UVCoord ).xyz - 0.5) * 2;
 
     // Accumulate ambient, diffuse and specular color for all lights.
@@ -47,17 +49,17 @@ void main()
     vec3 finalSpecular = vec3(0,0,0);
 
 	//// Add in directional light.
-    //DirLightContribution( WSPosition.xyz, u_WSCameraPos, WSNormal, albedoShine.w, finalAmbient, finalDiffuse, finalSpecular );
+    //DirLightContribution( WSPosition.xyz, u_WSCameraPos, WSNormal, specularShine, finalAmbient, finalDiffuse, finalSpecular );
     //finalDiffuse *= shadowperc;
 
     // Add in each light, one by one. // finalDiffuse, finalSpecular are inout.
 #if NUM_LIGHTS > 0
     for( int i=0; i<NUM_LIGHTS; i++ )
-        PointLightContribution( u_LightPos[i], u_LightColor[i], u_LightAttenuation[i], WSPosition.xyz, u_WSCameraPos, WSNormal, albedoShine.w, finalAmbient, finalDiffuse, finalSpecular );
+        PointLightContribution( u_LightPos[i], u_LightColor[i], u_LightAttenuation[i], WSPosition.xyz, u_WSCameraPos, WSNormal, specularShine, finalAmbient, finalDiffuse, finalSpecular );
 #endif
 
     // Mix the texture color with the light color.
-    vec3 ambDiff = albedoShine.rgb * ( finalAmbient + finalDiffuse );
+    vec3 ambDiff = albedoColor.rgb * ( finalAmbient + finalDiffuse );
     vec3 spec = finalSpecular;
 
     // Calculate final color.
@@ -65,7 +67,7 @@ void main()
     gl_FragColor.a = 1;
 
     //gl_FragColor.rgb = clamp( gl_FragColor.rgb, 0.0, 1.0 );
-    //gl_FragColor = vec4( albedoShine.rgb + position + normal, 1 );
+    //gl_FragColor = vec4( albedoColor.rgb + position + normal, 1 );
 	//gl_FragColor.xyz = WSNormal;
 
 	//gl_FragColor.xyz = WSPosition;
