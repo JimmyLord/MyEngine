@@ -29,6 +29,7 @@ EditorPrefs::EditorPrefs()
     m_IsWindowMaximized = false;
 
     m_View_ShowEditorIcons = true;
+    m_View_EditorCamDeferred = false;
     m_View_SelectedObjects_ShowWireframe = true;
     m_View_SelectedObjects_ShowEffect = true;
 
@@ -121,6 +122,7 @@ void EditorPrefs::LoadPrefs()
     }
 
     cJSONExt_GetBool( m_jEditorPrefs, "View_ShowEditorIcons", &m_View_ShowEditorIcons );
+    cJSONExt_GetBool( m_jEditorPrefs, "View_EditorCamDeferred", &m_View_EditorCamDeferred );
     cJSONExt_GetBool( m_jEditorPrefs, "View_SelectedObjects_ShowWireframe", &m_View_SelectedObjects_ShowWireframe );
     cJSONExt_GetBool( m_jEditorPrefs, "View_SelectedObjects_ShowEffect", &m_View_SelectedObjects_ShowEffect );
 
@@ -238,6 +240,7 @@ cJSON* EditorPrefs::SaveStart()
         //cJSON_AddNumberToObject( pPrefs, "GameplayLayout", GetDefaultGameplayPerspectiveIndex() );
         //extern GLViewTypes g_CurrentGLViewType;
         cJSON_AddNumberToObject( jPrefs, "View_ShowEditorIcons", m_View_ShowEditorIcons );
+        cJSON_AddNumberToObject( jPrefs, "View_EditorCamDeferred", m_View_EditorCamDeferred );
         cJSON_AddNumberToObject( jPrefs, "View_SelectedObjects_ShowWireframe", m_View_SelectedObjects_ShowWireframe );
         cJSON_AddNumberToObject( jPrefs, "View_SelectedObjects_ShowEffect", m_View_SelectedObjects_ShowEffect );
 

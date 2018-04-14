@@ -22,6 +22,7 @@ enum EditorMenuCommands
     EditorMenuCommand_View_SelectedObjects_ShowWireframe,
     EditorMenuCommand_View_SelectedObjects_ShowEffect,
     EditorMenuCommand_View_ShowEditorIcons,
+    EditorMenuCommand_View_ToggleEditorCamDeferred,
     EditorMenuCommand_Grid_Visible,
     EditorMenuCommand_Grid_SnapEnabled,
     EditorMenuCommand_Mode_SwitchFocusOnPlayStop,

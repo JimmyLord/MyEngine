@@ -274,6 +274,12 @@ void EditorMenuCommand(EditorMenuCommands command)
         }
         break;
 
+    case EditorMenuCommand_View_ToggleEditorCamDeferred:
+        {
+            g_pEngineCore->GetEditorPrefs()->Toggle_View_EditorCamDeferred();
+        }
+        break;
+
     case EditorMenuCommand_Grid_Visible:
         {
             g_pEngineCore->GetEditorPrefs()->Toggle_Grid_Visible();

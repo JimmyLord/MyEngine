@@ -78,6 +78,7 @@ protected:
     bool m_IsWindowMaximized;
 
     bool m_View_ShowEditorIcons;
+    bool m_View_EditorCamDeferred;
     bool m_View_SelectedObjects_ShowWireframe;
     bool m_View_SelectedObjects_ShowEffect;
     GLViewTypes m_Aspect_CurrentGameWindowAspectRatio;
@@ -115,6 +116,7 @@ public:
     GridSettings* GetGridSettings() { return &m_GridSettings; }
 
     bool Get_View_ShowEditorIcons() { return m_View_ShowEditorIcons; }
+    bool Get_View_EditorCamDeferred() { return m_View_EditorCamDeferred; }
     bool Get_View_SelectedObjects_ShowWireframe() { return m_View_SelectedObjects_ShowWireframe; }
     bool Get_View_SelectedObjects_ShowEffect() { return m_View_SelectedObjects_ShowEffect; }
     GLViewTypes Get_Aspect_GameAspectRatio() { return m_Aspect_CurrentGameWindowAspectRatio; }
@@ -124,6 +126,7 @@ public:
     bool Get_Debug_DrawPhysicsDebugShapes() { return m_Debug_DrawPhysicsDebugShapes; }
 
     void Toggle_View_ShowEditorIcons() { m_View_ShowEditorIcons = !m_View_ShowEditorIcons; }
+    void Toggle_View_EditorCamDeferred() { m_View_EditorCamDeferred = !m_View_EditorCamDeferred; }
     void Toggle_View_SelectedObjects_ShowWireframe() { m_View_SelectedObjects_ShowWireframe = !m_View_SelectedObjects_ShowWireframe; }
     void Toggle_View_SelectedObjects_ShowEffect() { m_View_SelectedObjects_ShowEffect = !m_View_SelectedObjects_ShowEffect; }
     void Set_Aspect_GameAspectRatio(GLViewTypes newaspect) { m_Aspect_CurrentGameWindowAspectRatio = newaspect; }

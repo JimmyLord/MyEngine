@@ -281,27 +281,28 @@ bool EditorMainFrame_ImGui::CheckForHotkeys(int keyaction, int keycode)
 
         EditorPrefs* pEditorPrefs = g_pEngineCore->GetEditorPrefs();
 
-        if( C  && keycode == 'F' )   { ImGui::SetWindowFocus( "Objects" ); m_SetObjectListFilterBoxInFocus = true; return true; }
-        if( N  && keycode == VK_F3 ) { ImGui::SetWindowFocus( "Objects" ); m_SetObjectListFilterBoxInFocus = true; return true; }
-        if( C  && keycode == 'S' )   { EditorMenuCommand( EditorMenuCommand_File_SaveScene );            return true; }
-        if( CS && keycode == 'E' )   { EditorMenuCommand( EditorMenuCommand_File_Export_Box2DScene );    return true; }
-        if( CS && keycode == 'P' )   { g_pEngineCore->GetEditorPrefs()->GetImGuiStylePrefs()->Display(); return true; }
-        if( C  && keycode == 'Z' )   { EditorMenuCommand( EditorMenuCommand_Edit_Undo );                 return true; }
-        if( C  && keycode == 'Y' )   { EditorMenuCommand( EditorMenuCommand_Edit_Redo );                 return true; }
-        if( CS && keycode == 'Z' )   { EditorMenuCommand( EditorMenuCommand_Edit_Redo );                 return true; }
-        if( S  && keycode == VK_F7 ) { EditorMenuCommand( EditorMenuCommand_View_ShowEditorIcons );      return true; }
-        if( A  && keycode == '1' )   { pEditorPrefs->Set_Aspect_GameAspectRatio( GLView_Full );          return true; }
-        if( A  && keycode == '2' )   { pEditorPrefs->Set_Aspect_GameAspectRatio( GLView_Tall );          return true; }
-        if( A  && keycode == '3' )   { pEditorPrefs->Set_Aspect_GameAspectRatio( GLView_Square );        return true; }
-        if( A  && keycode == '4' )   { pEditorPrefs->Set_Aspect_GameAspectRatio( GLView_Wide );          return true; }
-        if( CS && keycode == 'V' )   { EditorMenuCommand( EditorMenuCommand_Grid_Visible );              return true; }
-        if( C  && keycode == 'G' )   { EditorMenuCommand( EditorMenuCommand_Grid_SnapEnabled );          return true; }
-        if( C  && keycode == ' ' )   { EditorMenuCommand( EditorMenuCommand_Mode_TogglePlayStop );       return true; }
-        if( C  && keycode == '.' )   { EditorMenuCommand( EditorMenuCommand_Mode_Pause );                return true; }
-        if( C  && keycode == ']' )   { EditorMenuCommand( EditorMenuCommand_Mode_AdvanceOneFrame );      return true; }
-        if( C  && keycode == '[' )   { EditorMenuCommand( EditorMenuCommand_Mode_AdvanceOneSecond );     return true; }
-        if( C  && keycode == VK_F9 ) { EditorMenuCommand( EditorMenuCommand_Debug_DrawWireframe );       return true; }
-        if( S  && keycode == VK_F8 ) { EditorMenuCommand( EditorMenuCommand_Debug_ShowPhysicsShapes );   return true; }
+        if( C  && keycode == 'F' )   { ImGui::SetWindowFocus( "Objects" ); m_SetObjectListFilterBoxInFocus = true;  return true; }
+        if( N  && keycode == VK_F3 ) { ImGui::SetWindowFocus( "Objects" ); m_SetObjectListFilterBoxInFocus = true;  return true; }
+        if( C  && keycode == 'S' )   { EditorMenuCommand( EditorMenuCommand_File_SaveScene );                       return true; }
+        if( CS && keycode == 'E' )   { EditorMenuCommand( EditorMenuCommand_File_Export_Box2DScene );               return true; }
+        if( CS && keycode == 'P' )   { g_pEngineCore->GetEditorPrefs()->GetImGuiStylePrefs()->Display();            return true; }
+        if( C  && keycode == 'Z' )   { EditorMenuCommand( EditorMenuCommand_Edit_Undo );                            return true; }
+        if( C  && keycode == 'Y' )   { EditorMenuCommand( EditorMenuCommand_Edit_Redo );                            return true; }
+        if( CS && keycode == 'Z' )   { EditorMenuCommand( EditorMenuCommand_Edit_Redo );                            return true; }
+        if( S  && keycode == VK_F7 ) { EditorMenuCommand( EditorMenuCommand_View_ShowEditorIcons );                 return true; }
+        if( CS && keycode == VK_F7 ) { EditorMenuCommand( EditorMenuCommand_View_ToggleEditorCamDeferred );         return true; }
+        if( A  && keycode == '1' )   { pEditorPrefs->Set_Aspect_GameAspectRatio( GLView_Full );                     return true; }
+        if( A  && keycode == '2' )   { pEditorPrefs->Set_Aspect_GameAspectRatio( GLView_Tall );                     return true; }
+        if( A  && keycode == '3' )   { pEditorPrefs->Set_Aspect_GameAspectRatio( GLView_Square );                   return true; }
+        if( A  && keycode == '4' )   { pEditorPrefs->Set_Aspect_GameAspectRatio( GLView_Wide );                     return true; }
+        if( CS && keycode == 'V' )   { EditorMenuCommand( EditorMenuCommand_Grid_Visible );                         return true; }
+        if( C  && keycode == 'G' )   { EditorMenuCommand( EditorMenuCommand_Grid_SnapEnabled );                     return true; }
+        if( C  && keycode == ' ' )   { EditorMenuCommand( EditorMenuCommand_Mode_TogglePlayStop );                  return true; }
+        if( C  && keycode == '.' )   { EditorMenuCommand( EditorMenuCommand_Mode_Pause );                           return true; }
+        if( C  && keycode == ']' )   { EditorMenuCommand( EditorMenuCommand_Mode_AdvanceOneFrame );                 return true; }
+        if( C  && keycode == '[' )   { EditorMenuCommand( EditorMenuCommand_Mode_AdvanceOneSecond );                return true; }
+        if( C  && keycode == VK_F9 ) { EditorMenuCommand( EditorMenuCommand_Debug_DrawWireframe );                  return true; }
+        if( S  && keycode == VK_F8 ) { EditorMenuCommand( EditorMenuCommand_Debug_ShowPhysicsShapes );              return true; }
     }
 
     return false;
@@ -441,6 +442,7 @@ void EditorMainFrame_ImGui::DrawGameAndEditorWindows(EngineCore* pEngineCore)
             pEngineCore->Editor_OnSurfaceChanged( 0, 0, (unsigned int)m_EditorWindowSize.x, (unsigned int)m_EditorWindowSize.y );
 
             m_pEditorFBO->Bind( false );
+            g_pEngineCore->GetEditorState()->GetEditorCamera()->SetDeferred( g_pEngineCore->GetEditorPrefs()->Get_View_EditorCamDeferred() );
             pEngineCore->GetCurrentEditorInterface()->OnDrawFrame( 1 );
             MyBindFramebuffer( GL_FRAMEBUFFER, 0, 0, 0 );
 
@@ -774,7 +776,12 @@ void EditorMainFrame_ImGui::AddMainMenuBar()
             ImGui::MenuItem( "Fullscreen Editor (TODO)", "F11" );
             ImGui::MenuItem( "Fullscreen Game (TODO)", "Ctrl-F11" );
 
-            if( ImGui::MenuItem( "Show Editor Icons", "Shift-F7", g_pEngineCore->GetEditorPrefs()->Get_View_ShowEditorIcons() ) ) { EditorMenuCommand( EditorMenuCommand_View_ShowEditorIcons ); }
+            if( ImGui::BeginMenu( "Editor Camera" ) )
+            {
+                if( ImGui::MenuItem( "Show Icons", "Shift-F7", g_pEngineCore->GetEditorPrefs()->Get_View_ShowEditorIcons() ) ) { EditorMenuCommand( EditorMenuCommand_View_ShowEditorIcons ); }
+                if( ImGui::MenuItem( "Deferred Render", "Ctrl-Shift-F7", g_pEngineCore->GetEditorPrefs()->Get_View_EditorCamDeferred() ) ) { EditorMenuCommand( EditorMenuCommand_View_ToggleEditorCamDeferred ); }
+                ImGui::EndMenu();
+            }
 
             ImGui::EndMenu();
         }

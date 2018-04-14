@@ -97,6 +97,8 @@ public:
     virtual void OnSurfaceChanged(unsigned int startx, unsigned int starty, unsigned int width, unsigned int height, unsigned int desiredaspectwidth, unsigned int desiredaspectheight);
     virtual void OnDrawFrame();
 
+    void SetDeferred(bool isdeferred) { m_Deferred = isdeferred; }
+
 protected:
     void DrawScene();
 

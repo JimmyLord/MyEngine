@@ -442,8 +442,8 @@ void ComponentCamera::OnDrawFrame()
     if( m_ClearColorBuffer && m_FullClearsRequired > 0 )
     {
         glDisable( GL_SCISSOR_TEST );
-        glClearColor( 0.0f, 0.0f, 0.0f, 1.0f );
-        glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+        //glClearColor( 0.0f, 0.0f, 0.0f, 1.0f );
+        //glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
         m_FullClearsRequired--;
     }
@@ -602,12 +602,12 @@ void ComponentCamera::DrawScene()
             m_pDeferredSphereMesh->RegisterSetupCustomUniformCallback( this, StaticSetupCustomUniformsCallback );
         }
 
-        // Set the global render pass to deferred, so each object will render with the correct shader.
-        g_ActiveShaderPass = ShaderPass_MainDeferred;
-        renderedADeferredPass = true;
-
         if( m_pGBuffer->IsFullyLoaded() )
         {
+            // Set the global render pass to deferred, so each object will render with the correct shader.
+            g_ActiveShaderPass = ShaderPass_MainDeferred;
+            renderedADeferredPass = true;
+
             m_pGBuffer->Bind( false );
 
             checkGlError( "After m_pGBuffer->Bind" );
@@ -651,8 +651,14 @@ void ComponentCamera::DrawScene()
     }
 
     // Finish our deferred render if we started it.
+    // Render a single image for all opaque objects combining all 3 deferred textures.  One pass per light.
+    // TODO: Only render opaque objects, render transparents after with forward shaders.
     if( renderedADeferredPass )
     {
+        // Clear the buffer.
+        glClearColor( 0.0f, 0.0f, 0.0f, 1.0f );
+        glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+
         // Render a full screen quad to combine the 3 textures from the G-Buffer.
         // Textures are set below in SetupCustomUniformsCallback().
         // Do this for ambient light? would need custom shader.
