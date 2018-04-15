@@ -227,6 +227,7 @@ void ComponentCamera::Reset()
     m_ClearDepthBuffer = true;
 
     m_Deferred = false;
+    m_DrawingFirstDeferredLight = false;
     m_pGBuffer = 0;
     m_pDeferredShaderFile = 0;
     m_pDeferredShader = 0;
@@ -623,7 +624,10 @@ void ComponentCamera::DrawScene()
 
     // Clear the buffer and render the scene.
     {
-        glClearColor( 0.0f, 0.0f, 0.2f, 1.0f );
+        if( renderedADeferredPass )
+            glClearColor( 0.0f, 0.0f, 0.0f, 1.0f );
+        else
+            glClearColor( 0.0f, 0.0f, 0.2f, 1.0f );
 
         if( m_ClearColorBuffer && m_ClearDepthBuffer )
             glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
@@ -659,18 +663,10 @@ void ComponentCamera::DrawScene()
         glClearColor( 0.0f, 0.0f, 0.0f, 1.0f );
         glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
-        // Render a full screen quad to combine the 3 textures from the G-Buffer.
-        // Textures are set below in SetupCustomUniformsCallback().
-        // Do this for ambient light? would need custom shader.
-        //m_pDeferredQuadMesh->Draw( 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 );
-
         // Loop through lights and render a sphere for each.
         // TODO: Fix sphere render to not cover entire screen.
         if( m_pDeferredSphereMesh->IsReady() )
         {
-            // Set blending to additive.
-            glBlendFunc( GL_ONE, GL_ONE );
-
             // TODO: This only needs to be done once, but since the mesh file isn't loaded above,
             //       the submesh isn't created and material can't be set.
             m_pDeferredSphereMesh->SetMaterial( m_pDeferredQuadMaterial, 0 );
@@ -678,17 +674,16 @@ void ComponentCamera::DrawScene()
             // Disable depth write and depth test.
             glDepthMask( GL_FALSE );
             glDisable( GL_DEPTH_TEST );
-            // Swap culling to draw backs of spheres.
-            glCullFace( GL_FRONT );
+
             // Set blending to additive.
             glBlendFunc( GL_ONE, GL_ONE );
 
+            int lightcount = 0;
             for( CPPListNode* pNode = g_pLightManager->GetLightList()->GetHead(); pNode; pNode = pNode->GetNext() )
             {
-                MyLight* pLight = static_cast<MyLight*>( pNode );
+                lightcount++;
 
-                // Blend is currently turned off at end of each Draw(), so manually turn it back on for each light.
-                glEnable( GL_BLEND );
+                MyLight* pLight = static_cast<MyLight*>( pNode );
 
                 // Scale sphere.
                 // TODO: Change attenuation to be based on a radius.
@@ -702,10 +697,30 @@ void ComponentCamera::DrawScene()
                 else
                     pMatViewProj = &m_Camera3D.m_matViewProj;
 
-                // Render a sphere to combine the 3 textures from the G-Buffer.
-                // Textures are set below in SetupCustomUniformsCallback().
-                //m_pDeferredQuadMesh->Draw( 0, 0, &m_pComponentTransform->GetWorldPosition(), 0, &pLight, 1, 0, 0, 0, 0 );
-                m_pDeferredSphereMesh->Draw( &matWorld, pMatViewProj, &m_pComponentTransform->GetWorldPosition(), 0, &pLight, 1, 0, 0, 0, 0 );
+                if( lightcount == 1 )
+                {
+                    // First light is a full screen quad, so blending should be disabled.
+                    glDisable( GL_BLEND );
+
+                    // Render a full screen quad to combine the 3 textures from the G-Buffer.
+                    // Textures are set below in SetupCustomUniformsCallback().
+                    // TODO: Do this for ambient light. would need custom shader.
+                    m_DrawingFirstDeferredLight = true;
+                    m_pDeferredQuadMesh->Draw( 0, 0, &m_pComponentTransform->GetWorldPosition(), 0, &pLight, 1, 0, 0, 0, 0 );
+
+                    // Swap culling to draw backs of spheres for the rest of the lights.
+                    glCullFace( GL_FRONT );
+                }
+                else
+                {
+                    // Blend is currently turned off at end of each Draw(), so manually turn it back on for each light.
+                    glEnable( GL_BLEND );
+
+                    // Render a sphere to combine the 3 textures from the G-Buffer.
+                    // Textures are set below in SetupCustomUniformsCallback().
+                    m_DrawingFirstDeferredLight = false;
+                    m_pDeferredSphereMesh->Draw( &matWorld, pMatViewProj, &m_pComponentTransform->GetWorldPosition(), 0, &pLight, 1, 0, 0, 0, 0 );
+                }
             }
 
             // always disable blending
@@ -731,6 +746,7 @@ void ComponentCamera::SetupCustomUniformsCallback(Shader_Base* pShader) // Stati
     GLint uAlbedo = glGetUniformLocation( pShader->m_ProgramHandle, "u_TextureAlbedo" );
     GLint uPosition = glGetUniformLocation( pShader->m_ProgramHandle, "u_TexturePositionShine" );
     GLint uNormal = glGetUniformLocation( pShader->m_ProgramHandle, "u_TextureNormal" );
+    GLint uClearColor = glGetUniformLocation( pShader->m_ProgramHandle, "u_ClearColor" );
 
     if( uTextureSize != -1 )
     {
@@ -756,6 +772,14 @@ void ComponentCamera::SetupCustomUniformsCallback(Shader_Base* pShader) // Stati
         MyActiveTexture( GL_TEXTURE0 + 6 );
         glBindTexture( GL_TEXTURE_2D, m_pGBuffer->GetColorTexture( 2 )->GetTextureID() );
         glUniform1i( uNormal, 6 );
+    }
+
+    if( uClearColor != -1 )
+    {
+        if( m_DrawingFirstDeferredLight )
+            glUniform4f( uClearColor, 0, 0, 0.2f, 1 );
+        else
+            glUniform4f( uClearColor, 0, 0, 0, 0 );
     }
 }
 

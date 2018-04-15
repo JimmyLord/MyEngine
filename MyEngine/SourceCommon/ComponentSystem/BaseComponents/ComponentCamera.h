@@ -36,6 +36,8 @@ public:
 
     // For deferred.
     bool m_Deferred;
+private:
+    bool m_DrawingFirstDeferredLight;
     FBODefinition* m_pGBuffer;
     MyFileObject* m_pDeferredShaderFile;
     ShaderGroup* m_pDeferredShader;
@@ -44,6 +46,7 @@ public:
     MyFileObject* m_pDeferredSphereMeshFile;
     MyMesh* m_pDeferredSphereMesh;
 
+public:
     // For ortho.
     float m_DesiredWidth;
     float m_DesiredHeight;

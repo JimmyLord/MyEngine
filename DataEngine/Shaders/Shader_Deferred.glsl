@@ -26,6 +26,7 @@ uniform vec2 u_TextureSize;
 uniform sampler2D u_TextureAlbedo;
 uniform sampler2D u_TexturePositionShine;
 uniform sampler2D u_TextureNormal;
+uniform vec4 u_ClearColor;
 
 uniform vec3 u_WSCameraPos;
 
@@ -63,8 +64,16 @@ void main()
     vec3 spec = finalSpecular;
 
     // Calculate final color.
-    gl_FragColor.rgb = ambDiff + spec;
-    gl_FragColor.a = 1;
+    // If normal wasn't defined, then we didn't draw geometry on this pixel, so use the clear color which is only set for the first light.
+    if( dot( WSNormal, WSNormal ) == 0 )
+    {
+        gl_FragColor = u_ClearColor;
+    }
+    else
+    {
+        gl_FragColor.rgb = ambDiff + spec;
+        gl_FragColor.a = 1;
+    }
 
     //gl_FragColor.rgb = clamp( gl_FragColor.rgb, 0.0, 1.0 );
     //gl_FragColor = vec4( albedoColor.rgb + position + normal, 1 );
