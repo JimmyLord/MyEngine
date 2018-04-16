@@ -13,7 +13,7 @@ void DirLightContribution(vec3 vertPos, vec3 cameraPos, vec3 normal, float shini
     vec3 lightDirVector = normalize( unnormalizedLightDirVector ) * -1.0;
 
     // Ambient.
-    finalAmbient = lightColor * 0.1;
+    finalAmbient += lightColor * 0.1;
 
     // Diffuse.
     float diffPerc = max( 0.0, dot( normal, lightDirVector ) );
@@ -42,7 +42,7 @@ void PointLightContribution(vec3 lightPos, vec3 lightColor, vec3 lightAtten, vec
     float attenuation = max( 0.0, 1.0 - dot( lightDirShortened, lightDirShortened ) );
 
     // Ambient.
-    finalAmbient = lightColor * 0.0;
+    finalAmbient += lightColor * 0.0;
 
     // Diffuse.
     float diffPerc = max( 0.0, dot( normal, lightDirVector ) );

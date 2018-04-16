@@ -72,11 +72,16 @@ ComponentCamera::~ComponentCamera()
 
     MYFW_COMPONENT_VARIABLE_LIST_DESTRUCTOR(); //_VARIABLE_LIST
 
-    if( m_pDeferredShaderFile )
-        g_pFileManager->FreeFile( m_pDeferredShaderFile );
-    SAFE_RELEASE( m_pDeferredShader );
+    if( m_pDeferredShaderFile_AmbientDirectional )
+        g_pFileManager->FreeFile( m_pDeferredShaderFile_AmbientDirectional );
+    if( m_pDeferredShaderFile_PointLight )
+        g_pFileManager->FreeFile( m_pDeferredShaderFile_PointLight );
+    SAFE_RELEASE( m_pDeferredShader_AmbientDirectional );
+    SAFE_RELEASE( m_pDeferredShader_PointLight );
+    SAFE_RELEASE( m_pDeferredMaterial_AmbientDirectional );
+    SAFE_RELEASE( m_pDeferredMaterial_PointLight );
+
     SAFE_RELEASE( m_pDeferredQuadMesh );
-    SAFE_RELEASE( m_pDeferredQuadMaterial );
     SAFE_RELEASE( m_pDeferredSphereMeshFile );
     SAFE_RELEASE( m_pDeferredSphereMesh );
 }
@@ -226,21 +231,28 @@ void ComponentCamera::Reset()
     m_ClearColorBuffer = true;
     m_ClearDepthBuffer = true;
 
+    // Deferred lighting variables.
     m_Deferred = false;
-    m_DrawingFirstDeferredLight = false;
     m_pGBuffer = 0;
-    m_pDeferredShaderFile = 0;
-    m_pDeferredShader = 0;
+
+    m_pDeferredShaderFile_AmbientDirectional = 0;
+    m_pDeferredShaderFile_PointLight = 0;
+    m_pDeferredShader_AmbientDirectional = 0;
+    m_pDeferredShader_PointLight = 0;
+    m_pDeferredMaterial_AmbientDirectional = 0;
+    m_pDeferredMaterial_PointLight = 0;
+
     m_pDeferredQuadMesh = 0;
-    m_pDeferredQuadMaterial = 0;
     m_pDeferredSphereMeshFile = 0;
     m_pDeferredSphereMesh = 0;
 
+    // Ortho matrix variables.
     m_DesiredWidth = 640;
     m_DesiredHeight = 960;
     m_OrthoNearZ = 0;
     m_OrthoFarZ = 1000;
 
+    // Perspective matrix variables.
     m_FieldOfView = 45;
     m_PerspectiveNearZ = 1;
     m_PerspectiveFarZ = 10000;
@@ -575,20 +587,28 @@ void ComponentCamera::DrawScene()
 
             m_pGBuffer = g_pTextureManager->CreateFBO( m_WindowWidth, m_WindowHeight, GL_NEAREST, GL_NEAREST, colorformats, numcolorformats, 32, false );
 
-            MyAssert( m_pDeferredShaderFile == 0 );
-            MyAssert( m_pDeferredShader == 0 );
+            MyAssert( m_pDeferredShaderFile_AmbientDirectional == 0 );
+            MyAssert( m_pDeferredShaderFile_PointLight == 0 );
+            MyAssert( m_pDeferredShader_AmbientDirectional == 0 );
+            MyAssert( m_pDeferredShader_PointLight == 0 );
+            MyAssert( m_pDeferredMaterial_AmbientDirectional == 0 );
+            MyAssert( m_pDeferredMaterial_PointLight == 0 );
 
-            m_pDeferredShaderFile = g_pEngineFileManager->RequestFile_UntrackedByScene( "Data/DataEngine/Shaders/Shader_Deferred.glsl" );
+            m_pDeferredShaderFile_AmbientDirectional = g_pEngineFileManager->RequestFile_UntrackedByScene( "Data/DataEngine/Shaders/Shader_Deferred_AmbientDirectional.glsl" );
+            m_pDeferredShaderFile_PointLight = g_pEngineFileManager->RequestFile_UntrackedByScene( "Data/DataEngine/Shaders/Shader_Deferred_PointLight.glsl" );
 #if MYFW_EDITOR
-            m_pDeferredShaderFile->MemoryPanel_Hide();
+            m_pDeferredShaderFile_AmbientDirectional->MemoryPanel_Hide();
+            m_pDeferredShaderFile_PointLight->MemoryPanel_Hide();
 #endif
-            m_pDeferredShader = MyNew ShaderGroup( m_pDeferredShaderFile );
+            m_pDeferredShader_AmbientDirectional = MyNew ShaderGroup( m_pDeferredShaderFile_AmbientDirectional );
+            m_pDeferredShader_PointLight = MyNew ShaderGroup( m_pDeferredShaderFile_PointLight );
+
+            m_pDeferredMaterial_AmbientDirectional = new MaterialDefinition( m_pDeferredShader_AmbientDirectional );
+            m_pDeferredMaterial_PointLight = new MaterialDefinition( m_pDeferredShader_PointLight );
 
             m_pDeferredQuadMesh = new MyMesh();
             m_pDeferredQuadMesh->CreateClipSpaceQuad( Vector2( m_pGBuffer->GetWidth()/(float)m_pGBuffer->GetTextureWidth(), m_pGBuffer->GetHeight()/(float)m_pGBuffer->GetTextureHeight() ) );
-            m_pDeferredQuadMaterial = new MaterialDefinition( m_pDeferredShader );
-            m_pDeferredQuadMesh->SetMaterial( m_pDeferredQuadMaterial, 0 );
-
+            m_pDeferredQuadMesh->SetMaterial( m_pDeferredMaterial_AmbientDirectional, 0 );
             m_pDeferredQuadMesh->RegisterSetupCustomUniformCallback( this, StaticSetupCustomUniformsCallback );
 
             MyAssert( m_pDeferredSphereMesh == 0 );
@@ -669,56 +689,58 @@ void ComponentCamera::DrawScene()
         {
             // TODO: This only needs to be done once, but since the mesh file isn't loaded above,
             //       the submesh isn't created and material can't be set.
-            m_pDeferredSphereMesh->SetMaterial( m_pDeferredQuadMaterial, 0 );
+            m_pDeferredSphereMesh->SetMaterial( m_pDeferredMaterial_PointLight, 0 );
 
             // Disable depth write and depth test.
             glDepthMask( GL_FALSE );
             glDisable( GL_DEPTH_TEST );
 
-            // Set blending to additive.
+            // Handle clear color, ambient light and a single directional light.
+            {
+                // Ambient light is a full screen quad, so blending should be disabled.
+                // Blending should already be disabled
+                //glDisable( GL_BLEND );
+
+                // Render a full screen quad to combine the 3 textures from the G-Buffer.
+                // Textures are set below in SetupCustomUniformsCallback().
+                MyLight* pLight;
+                g_pLightManager->FindNearestLights( LightType_Directional, 1, Vector3(0,0,0), &pLight );
+
+                if( pLight )
+                    m_pDeferredQuadMesh->Draw( 0, 0, &m_pComponentTransform->GetWorldPosition(), 0, &pLight, 1, 0, 0, 0, 0 );
+                else
+                    m_pDeferredQuadMesh->Draw( 0, 0, &m_pComponentTransform->GetWorldPosition(), 0, 0, 0, 0, 0, 0, 0 );
+            }
+
+            // Swap culling to draw backs of spheres for the rest of the lights.
+            glCullFace( GL_FRONT );
+
+            // Set blending to additive for the rest of the lights.
+            // TODO: Fix Shader_Deferred_PointLight, it currently is set to not blend, since turning on blending resets the BlendFunc.
             glBlendFunc( GL_ONE, GL_ONE );
 
-            int lightcount = 0;
             for( CPPListNode* pNode = g_pLightManager->GetLightList()->GetHead(); pNode; pNode = pNode->GetNext() )
             {
-                lightcount++;
-
                 MyLight* pLight = static_cast<MyLight*>( pNode );
 
-                // Scale sphere.
-                // TODO: Change attenuation to be based on a radius.
-                float radius = pLight->m_Attenuation.x;
-                MyMatrix matWorld;
-                matWorld.CreateSRT( radius, 0, pLight->m_Position );
-
-                MyMatrix* pMatViewProj;
-                if( m_Orthographic )
-                    pMatViewProj = &m_Camera2D.m_matViewProj;
-                else
-                    pMatViewProj = &m_Camera3D.m_matViewProj;
-
-                if( lightcount == 1 )
+                if( pLight->m_LightType == LightType_Point )
                 {
-                    // First light is a full screen quad, so blending should be disabled.
-                    glDisable( GL_BLEND );
+                    // Scale sphere.
+                    float radius = pLight->m_Attenuation.x;
+                    MyMatrix matWorld;
+                    matWorld.CreateSRT( radius, 0, pLight->m_Position );
 
-                    // Render a full screen quad to combine the 3 textures from the G-Buffer.
-                    // Textures are set below in SetupCustomUniformsCallback().
-                    // TODO: Do this for ambient light. would need custom shader.
-                    m_DrawingFirstDeferredLight = true;
-                    m_pDeferredQuadMesh->Draw( 0, 0, &m_pComponentTransform->GetWorldPosition(), 0, &pLight, 1, 0, 0, 0, 0 );
+                    MyMatrix* pMatViewProj;
+                    if( m_Orthographic )
+                        pMatViewProj = &m_Camera2D.m_matViewProj;
+                    else
+                        pMatViewProj = &m_Camera3D.m_matViewProj;
 
-                    // Swap culling to draw backs of spheres for the rest of the lights.
-                    glCullFace( GL_FRONT );
-                }
-                else
-                {
                     // Blend is currently turned off at end of each Draw(), so manually turn it back on for each light.
                     glEnable( GL_BLEND );
 
                     // Render a sphere to combine the 3 textures from the G-Buffer.
                     // Textures are set below in SetupCustomUniformsCallback().
-                    m_DrawingFirstDeferredLight = false;
                     m_pDeferredSphereMesh->Draw( &matWorld, pMatViewProj, &m_pComponentTransform->GetWorldPosition(), 0, &pLight, 1, 0, 0, 0, 0 );
                 }
             }
@@ -776,10 +798,7 @@ void ComponentCamera::SetupCustomUniformsCallback(Shader_Base* pShader) // Stati
 
     if( uClearColor != -1 )
     {
-        if( m_DrawingFirstDeferredLight )
-            glUniform4f( uClearColor, 0, 0, 0.2f, 1 );
-        else
-            glUniform4f( uClearColor, 0, 0, 0, 0 );
+        glUniform4f( uClearColor, 0, 0, 0.2f, 1 );
     }
 }
 

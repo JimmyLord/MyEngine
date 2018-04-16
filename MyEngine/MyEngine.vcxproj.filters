@@ -875,9 +875,6 @@
     <None Include="..\DataEngine\Shaders\Shader_ClipSpaceTexture.glsl">
       <Filter>Data\Shaders</Filter>
     </None>
-    <None Include="..\DataEngine\Shaders\Shader_Deferred.glsl">
-      <Filter>Data\Shaders</Filter>
-    </None>
     <None Include="..\DataEngine\Shaders\Shader_SelectedObjects.glsl">
       <Filter>Data\Shaders</Filter>
     </None>
@@ -913,6 +910,12 @@
     </None>
     <None Include="..\DataEngine\Shaders\Include\WSVaryings_Functions.glsl">
       <Filter>Data\Shaders\Include</Filter>
+    </None>
+    <None Include="..\DataEngine\Shaders\Shader_Deferred_PointLight.glsl">
+      <Filter>Data\Shaders</Filter>
+    </None>
+    <None Include="..\DataEngine\Shaders\Shader_Deferred_AmbientDirectional.glsl">
+      <Filter>Data\Shaders</Filter>
     </None>
   </ItemGroup>
 </Project>

@@ -37,12 +37,16 @@ public:
     // For deferred.
     bool m_Deferred;
 private:
-    bool m_DrawingFirstDeferredLight;
     FBODefinition* m_pGBuffer;
-    MyFileObject* m_pDeferredShaderFile;
-    ShaderGroup* m_pDeferredShader;
+
+    MyFileObject* m_pDeferredShaderFile_AmbientDirectional;
+    MyFileObject* m_pDeferredShaderFile_PointLight;
+    ShaderGroup* m_pDeferredShader_AmbientDirectional;
+    ShaderGroup* m_pDeferredShader_PointLight;
+    MaterialDefinition* m_pDeferredMaterial_AmbientDirectional;
+    MaterialDefinition* m_pDeferredMaterial_PointLight;
+
     MyMesh* m_pDeferredQuadMesh;
-    MaterialDefinition* m_pDeferredQuadMaterial;
     MyFileObject* m_pDeferredSphereMeshFile;
     MyMesh* m_pDeferredSphereMesh;
 
