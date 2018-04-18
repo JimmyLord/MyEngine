@@ -1,4 +1,5 @@
-#define BLENDING Off // TODO: turn on and set to One One
+#define BLENDING On
+#define BLENDFUNC One One
 
 #ifdef WIN32
 #define lowp

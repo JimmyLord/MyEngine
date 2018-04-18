@@ -684,7 +684,6 @@ void ComponentCamera::DrawScene()
         glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
         // Loop through lights and render a sphere for each.
-        // TODO: Fix sphere render to not cover entire screen.
         if( m_pDeferredSphereMesh->IsReady() )
         {
             // TODO: This only needs to be done once, but since the mesh file isn't loaded above,
@@ -697,11 +696,8 @@ void ComponentCamera::DrawScene()
 
             // Handle clear color, ambient light and a single directional light.
             {
-                // Ambient light is a full screen quad, so blending should be disabled.
-                // Blending should already be disabled
-                //glDisable( GL_BLEND );
-
                 // Render a full screen quad to combine the 3 textures from the G-Buffer.
+                // Blending should be disabled, which it is by default.
                 // Textures are set below in SetupCustomUniformsCallback().
                 MyLight* pLight;
                 g_pLightManager->FindNearestLights( LightType_Directional, 1, Vector3(0,0,0), &pLight );
@@ -712,41 +708,35 @@ void ComponentCamera::DrawScene()
                     m_pDeferredQuadMesh->Draw( 0, 0, &m_pComponentTransform->GetWorldPosition(), 0, 0, 0, 0, 0, 0, 0 );
             }
 
-            // Swap culling to draw backs of spheres for the rest of the lights.
-            glCullFace( GL_FRONT );
-
-            // Set blending to additive for the rest of the lights.
-            // TODO: Fix Shader_Deferred_PointLight, it currently is set to not blend, since turning on blending resets the BlendFunc.
-            glBlendFunc( GL_ONE, GL_ONE );
-
-            for( CPPListNode* pNode = g_pLightManager->GetLightList()->GetHead(); pNode; pNode = pNode->GetNext() )
+            // Draw all the point lights in the scene, using a sphere for each.
             {
-                MyLight* pLight = static_cast<MyLight*>( pNode );
+                // Swap culling to draw backs of spheres for the rest of the lights.
+                glCullFace( GL_FRONT );
 
-                if( pLight->m_LightType == LightType_Point )
+                for( CPPListNode* pNode = g_pLightManager->GetLightList()->GetHead(); pNode; pNode = pNode->GetNext() )
                 {
-                    // Scale sphere.
-                    float radius = pLight->m_Attenuation.x;
-                    MyMatrix matWorld;
-                    matWorld.CreateSRT( radius, 0, pLight->m_Position );
+                    MyLight* pLight = static_cast<MyLight*>( pNode );
 
-                    MyMatrix* pMatViewProj;
-                    if( m_Orthographic )
-                        pMatViewProj = &m_Camera2D.m_matViewProj;
-                    else
-                        pMatViewProj = &m_Camera3D.m_matViewProj;
+                    if( pLight->m_LightType == LightType_Point )
+                    {
+                        // Scale sphere.
+                        float radius = pLight->m_Attenuation.x;
+                        MyMatrix matWorld;
+                        matWorld.CreateSRT( radius, 0, pLight->m_Position );
 
-                    // Blend is currently turned off at end of each Draw(), so manually turn it back on for each light.
-                    glEnable( GL_BLEND );
+                        MyMatrix* pMatViewProj;
+                        if( m_Orthographic )
+                            pMatViewProj = &m_Camera2D.m_matViewProj;
+                        else
+                            pMatViewProj = &m_Camera3D.m_matViewProj;
 
-                    // Render a sphere to combine the 3 textures from the G-Buffer.
-                    // Textures are set below in SetupCustomUniformsCallback().
-                    m_pDeferredSphereMesh->Draw( &matWorld, pMatViewProj, &m_pComponentTransform->GetWorldPosition(), 0, &pLight, 1, 0, 0, 0, 0 );
+                        // Render a sphere to combine the 3 textures from the G-Buffer.
+                        // Point light shader should set blending to additive.
+                        // Textures are set below in SetupCustomUniformsCallback().
+                        m_pDeferredSphereMesh->Draw( &matWorld, pMatViewProj, &m_pComponentTransform->GetWorldPosition(), 0, &pLight, 1, 0, 0, 0, 0 );
+                    }
                 }
             }
-
-            // always disable blending
-            glDisable( GL_BLEND );
 
             // Restore the old gl state.
             glDepthMask( GL_TRUE );
