@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2017 Jimmy Lord http://www.flatheadgames.com
+// Copyright (c) 2015-2018 Jimmy Lord http://www.flatheadgames.com
 //
 // This software is provided 'as-is', without any express or implied warranty.  In no event will the authors be held liable for any damages arising from the use of this software.
 // Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -265,11 +265,11 @@ void ComponentCameraShadow::OnDrawFrame()
 
     if( m_Orthographic )
     {
-        g_pComponentSystemManager->OnDrawFrame( this, &m_Camera2D.m_matViewProj, 0 );
+        g_pComponentSystemManager->DrawFrame( this, &m_Camera2D.m_matViewProj, 0, true, false, false );
     }
     else
     {
-        g_pComponentSystemManager->OnDrawFrame( this, &m_Camera3D.m_matViewProj, 0 );
+        g_pComponentSystemManager->DrawFrame( this, &m_Camera3D.m_matViewProj, 0, true, false, false );
     }
 
     m_pDepthFBO->Unbind( false );

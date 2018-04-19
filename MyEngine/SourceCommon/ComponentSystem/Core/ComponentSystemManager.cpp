@@ -2159,7 +2159,7 @@ void ComponentSystemManager::OnDrawFrame()
     }
 }
 
-void ComponentSystemManager::OnDrawFrame(ComponentCamera* pCamera, MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride)
+void ComponentSystemManager::DrawFrame(ComponentCamera* pCamera, MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride, bool drawOpaques, bool drawTransparents, bool drawOverlays)
 {
     checkGlError( "start of ComponentSystemManager::OnDrawFrame()" );
 
@@ -2193,10 +2193,27 @@ void ComponentSystemManager::OnDrawFrame(ComponentCamera* pCamera, MyMatrix* pMa
             }
         }
 
-        m_pSceneGraph->Draw( SceneGraphFlag_Opaque, pCamera->m_LayersToRender, &campos, &camrot, pMatViewProj, pShadowVP, pShadowTex, pShaderOverride, 0 );
-        m_pSceneGraph->Draw( SceneGraphFlag_Transparent, pCamera->m_LayersToRender, &campos, &camrot, pMatViewProj, pShadowVP, pShadowTex, pShaderOverride, 0 );
+        if( drawOpaques )
+        {
+            m_pSceneGraph->Draw( SceneGraphFlag_Opaque, pCamera->m_LayersToRender, &campos, &camrot, pMatViewProj, pShadowVP, pShadowTex, pShaderOverride, 0 );
+        }
+
+        if( drawTransparents )
+        {
+            m_pSceneGraph->Draw( SceneGraphFlag_Transparent, pCamera->m_LayersToRender, &campos, &camrot, pMatViewProj, pShadowVP, pShadowTex, pShaderOverride, 0 );
+        }
     }
     
+    if( drawOverlays )
+    {
+        DrawOverlays( pCamera, pMatViewProj, pShaderOverride );
+    }
+
+    checkGlError( "end of ComponentSystemManager::OnDrawFrame()" );
+}
+
+void ComponentSystemManager::DrawOverlays(ComponentCamera* pCamera, MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride)
+{
     // Draw all components that registered a callback, used mostly for debug info (camera/light icons, collision info)
     // Also used for menu pages.
     {
@@ -2214,8 +2231,6 @@ void ComponentSystemManager::OnDrawFrame(ComponentCamera* pCamera, MyMatrix* pMa
             }
         }
     }
-
-    checkGlError( "end of ComponentSystemManager::OnDrawFrame()" );
 }
 
 void ComponentSystemManager::OnFileRenamed(const char* fullpathbefore, const char* fullpathafter)

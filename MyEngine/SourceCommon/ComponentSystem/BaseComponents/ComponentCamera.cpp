@@ -571,6 +571,16 @@ void ComponentCamera::DrawScene()
     // Store the current FBO, we will use it as the final render target.
     unsigned int startingFBO = g_GLStats.m_CurrentFramebuffer;
 
+    MyMatrix* pMatViewProj;
+    if( m_Orthographic )
+    {
+        pMatViewProj = &m_Camera2D.m_matViewProj;
+    }
+    else
+    {
+        pMatViewProj = &m_Camera3D.m_matViewProj;
+    }
+
     bool renderedADeferredPass = false;
 
     // Start a deferred render pass, creating and binding the G-Buffer.
@@ -656,14 +666,17 @@ void ComponentCamera::DrawScene()
         else if( m_ClearDepthBuffer )
             glClear( GL_DEPTH_BUFFER_BIT );
 
-        if( m_Orthographic )
+        bool drawOpaques = true;
+        bool drawTransparents = true;
+        bool drawOverlays = true;
+
+        if( renderedADeferredPass )
         {
-            g_pComponentSystemManager->OnDrawFrame( this, &m_Camera2D.m_matViewProj, 0 );
+            drawTransparents = false;
+            drawOverlays = false;
         }
-        else
-        {
-            g_pComponentSystemManager->OnDrawFrame( this, &m_Camera3D.m_matViewProj, 0 );
-        }
+
+        g_pComponentSystemManager->DrawFrame( this, pMatViewProj, 0, drawOpaques, drawTransparents, drawOverlays );
     }
 
     // Restore the FBO to what was set when we entered this method.
