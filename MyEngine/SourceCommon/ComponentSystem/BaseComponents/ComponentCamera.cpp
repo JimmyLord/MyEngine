@@ -595,7 +595,7 @@ void ComponentCamera::DrawScene()
             colorformats[1] = FBODefinition::FBOColorFormat_RGBA_Float16; // Positions (RGB) / Specular Shine/Power (A)
             colorformats[2] = FBODefinition::FBOColorFormat_RGB_Float16; // Normals (RGB)
 
-            m_pGBuffer = g_pTextureManager->CreateFBO( m_WindowWidth, m_WindowHeight, GL_NEAREST, GL_NEAREST, colorformats, numcolorformats, 32, false );
+            m_pGBuffer = g_pTextureManager->CreateFBO( m_WindowWidth, m_WindowHeight, GL_NEAREST, GL_NEAREST, colorformats, numcolorformats, 32, true );
 
             MyAssert( m_pDeferredShaderFile_AmbientDirectional == 0 );
             MyAssert( m_pDeferredShaderFile_PointLight == 0 );
@@ -696,18 +696,15 @@ void ComponentCamera::DrawScene()
         glClearColor( 0.0f, 0.0f, 0.0f, 1.0f );
         glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
-        // Loop through lights and render a sphere for each.
+        // Render one dir light and loop through all point lights.
         if( m_pDeferredSphereMesh->IsReady() )
         {
             // TODO: This only needs to be done once, but since the mesh file isn't loaded above,
             //       the submesh isn't created and material can't be set.
             m_pDeferredSphereMesh->SetMaterial( m_pDeferredMaterial_PointLight, 0 );
 
-            // Disable depth write and depth test.
-            glDepthMask( GL_FALSE );
-            glDisable( GL_DEPTH_TEST );
-
-            // Handle clear color, ambient light and a single directional light.
+            // Handle clear color, ambient light, scene depth values and a single directional light.
+            // Leave depth test and depth write on for this quad since it writes in our depth values.
             {
                 // Render a full screen quad to combine the 3 textures from the G-Buffer.
                 // Blending should be disabled, which it is by default.
@@ -721,7 +718,12 @@ void ComponentCamera::DrawScene()
                     m_pDeferredQuadMesh->Draw( 0, 0, &m_pComponentTransform->GetWorldPosition(), 0, 0, 0, 0, 0, 0, 0 );
             }
 
+            // Disable depth write and depth test for point light spheres.
+            glDepthMask( GL_FALSE );
+            glDisable( GL_DEPTH_TEST );
+
             // Draw all the point lights in the scene, using a sphere for each.
+            if( false )
             {
                 // Swap culling to draw backs of spheres for the rest of the lights.
                 glCullFace( GL_FRONT );
@@ -759,6 +761,15 @@ void ComponentCamera::DrawScene()
         }
 
         g_ActiveShaderPass = ShaderPass_Main;
+
+        // Render transparent objects with normal forward render pass.
+        {
+            bool drawOpaques = false;
+            bool drawTransparents = true;
+            bool drawOverlays = false;
+
+            g_pComponentSystemManager->DrawFrame( this, pMatViewProj, 0, drawOpaques, drawTransparents, drawOverlays );
+        }
     }
 
     checkGlError( "ComponentCamera::DrawScene end" );
@@ -771,6 +782,7 @@ void ComponentCamera::SetupCustomUniformsCallback(Shader_Base* pShader) // Stati
     GLint uAlbedo = glGetUniformLocation( pShader->m_ProgramHandle, "u_TextureAlbedo" );
     GLint uPosition = glGetUniformLocation( pShader->m_ProgramHandle, "u_TexturePositionShine" );
     GLint uNormal = glGetUniformLocation( pShader->m_ProgramHandle, "u_TextureNormal" );
+    GLint uDepth = glGetUniformLocation( pShader->m_ProgramHandle, "u_TextureDepth" );
     GLint uClearColor = glGetUniformLocation( pShader->m_ProgramHandle, "u_ClearColor" );
 
     if( uTextureSize != -1 )
@@ -797,6 +809,13 @@ void ComponentCamera::SetupCustomUniformsCallback(Shader_Base* pShader) // Stati
         MyActiveTexture( GL_TEXTURE0 + 6 );
         glBindTexture( GL_TEXTURE_2D, m_pGBuffer->GetColorTexture( 2 )->GetTextureID() );
         glUniform1i( uNormal, 6 );
+    }
+
+    if( uDepth != -1 )
+    {
+        MyActiveTexture( GL_TEXTURE0 + 7 );
+        glBindTexture( GL_TEXTURE_2D, m_pGBuffer->GetDepthTexture()->GetTextureID() );
+        glUniform1i( uDepth, 7 );
     }
 
     if( uClearColor != -1 )

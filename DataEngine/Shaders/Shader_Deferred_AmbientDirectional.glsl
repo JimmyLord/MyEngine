@@ -24,6 +24,7 @@ uniform vec2 u_TextureSize;
 uniform sampler2D u_TextureAlbedo;
 uniform sampler2D u_TexturePositionShine;
 uniform sampler2D u_TextureNormal;
+uniform sampler2D u_TextureDepth;
 uniform vec4 u_ClearColor;
 
 uniform vec3 u_WSCameraPos;
@@ -41,9 +42,10 @@ void main()
     vec3 WSPosition = WSPositionShine.xyz;
     float specularShine = WSPositionShine.w;
 	vec3 WSNormal = texture2D( u_TextureNormal, UVCoord ).xyz;
+    float depth = texture2D( u_TextureDepth, UVCoord ).x;
 
     // Accumulate ambient, diffuse and specular color for all lights.
-    vec3 finalAmbient = vec3( 0.1, 0.1, 0.1 );
+    vec3 finalAmbient = vec3( 0.05, 0.05, 0.05 );
     vec3 finalDiffuse = vec3( 0.0, 0.0, 0.0 );
     vec3 finalSpecular = vec3( 0.0, 0.0, 0.0 );
 
@@ -71,6 +73,11 @@ void main()
         gl_FragColor.rgb = ambDiff + spec;
         gl_FragColor.a = 1;
     }
+
+    // Set the frag depth so transparent pass will have depth to check against.
+    gl_FragDepth = depth;
+
+    //gl_FragColor.xyz = WSNormal;
 }
 
 #endif
