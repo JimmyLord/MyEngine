@@ -7,6 +7,11 @@
 precision mediump float;
 #endif
 
+#if ReceiveShadows
+uniform mat4 u_ShadowLightWVPT;
+uniform sampler2D u_ShadowTexture;
+#endif //ReceiveShadows
+
 #ifdef VertexShader
 
 attribute vec4 a_Position;
@@ -44,6 +49,13 @@ void main()
 	vec3 WSNormal = texture2D( u_TextureNormal, UVCoord ).xyz;
     float depth = texture2D( u_TextureDepth, UVCoord ).x;
 
+#if ReceiveShadows
+    vec4 shadowPos = u_ShadowLightWVPT * vec4( WSPosition, 1 );
+#endif //ReceiveShadows
+
+    // Whether fragment is in shadow or not, returns 0.0 if it is, 1.0 if not.
+    float shadowPerc = CalculateShadowPercentage( shadowPos );
+
     // Accumulate ambient, diffuse and specular color for all lights.
     vec3 finalAmbient = vec3( 0.05, 0.05, 0.05 );
     vec3 finalDiffuse = vec3( 0.0, 0.0, 0.0 );
@@ -57,6 +69,8 @@ void main()
     for( int i=0; i<NUM_LIGHTS; i++ )
         PointLightContribution( u_LightPos[i], u_LightColor[i], u_LightAttenuation[i], WSPosition.xyz, u_WSCameraPos, WSNormal, specularShine, finalAmbient, finalDiffuse, finalSpecular );
 #endif
+
+    finalDiffuse *= shadowPerc;
 
     // Mix the texture color with the light color.
     vec3 ambDiff = albedoColor.rgb * ( finalAmbient + finalDiffuse );
@@ -77,6 +91,7 @@ void main()
     // Set the frag depth so transparent pass will have depth to check against.
     gl_FragDepth = depth;
 
+    //gl_FragColor.xyz = vec3( shadowPerc ); //shadowPos.xy/shadowPos.w, 0 );
     //gl_FragColor.xyz = WSNormal;
 }
 

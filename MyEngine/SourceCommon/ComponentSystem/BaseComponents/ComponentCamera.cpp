@@ -692,9 +692,36 @@ void ComponentCamera::DrawScene()
     // TODO: Only render opaque objects, render transparents after with forward shaders.
     if( renderedADeferredPass )
     {
+        g_ActiveShaderPass = ShaderPass_Main;
+
         // Clear the buffer.
         glClearColor( 0.0f, 0.0f, 0.0f, 1.0f );
         glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
+
+        // Find nearest shadow casting light. TODO: handle this better.
+        MyMatrix* pShadowVP = 0;
+        TextureDefinition* pShadowTex = 0;
+        if( g_ActiveShaderPass == ShaderPass_Main )
+        {
+            GameObject* pObject = g_pComponentSystemManager->FindGameObjectByName( "Shadow Light" );
+            if( pObject )
+            {
+                ComponentBase* pComponent = pObject->GetFirstComponentOfBaseType( BaseComponentType_Camera );
+                if( pComponent )
+                {
+                    ComponentCameraShadow* pShadowCam = pComponent->IsA( "CameraShadowComponent" ) ? (ComponentCameraShadow*)pComponent : 0;
+                    if( pShadowCam )
+                    {
+                        pShadowVP = pShadowCam->GetViewProjMatrix();
+#if 1
+                        pShadowTex = pShadowCam->GetFBO()->GetDepthTexture();
+#else
+                        pShadowTex = pShadowCam->GetFBO()->GetColorTexture( 0 );
+#endif
+                    }
+                }
+            }
+        }
 
         // Render one dir light and loop through all point lights.
         if( m_pDeferredSphereMesh->IsReady() )
@@ -713,9 +740,9 @@ void ComponentCamera::DrawScene()
                 g_pLightManager->FindNearestLights( LightType_Directional, 1, Vector3(0,0,0), &pLight );
 
                 if( pLight )
-                    m_pDeferredQuadMesh->Draw( 0, 0, &m_pComponentTransform->GetWorldPosition(), 0, &pLight, 1, 0, 0, 0, 0 );
+                    m_pDeferredQuadMesh->Draw( 0, 0, &m_pComponentTransform->GetWorldPosition(), 0, &pLight, 1, pShadowVP, pShadowTex, 0, 0 );
                 else
-                    m_pDeferredQuadMesh->Draw( 0, 0, &m_pComponentTransform->GetWorldPosition(), 0, 0, 0, 0, 0, 0, 0 );
+                    m_pDeferredQuadMesh->Draw( 0, 0, &m_pComponentTransform->GetWorldPosition(), 0, 0, 0, pShadowVP, pShadowTex, 0, 0 );
             }
 
             // Disable depth write and depth test for point light spheres.
@@ -723,7 +750,6 @@ void ComponentCamera::DrawScene()
             glDisable( GL_DEPTH_TEST );
 
             // Draw all the point lights in the scene, using a sphere for each.
-            if( false )
             {
                 // Swap culling to draw backs of spheres for the rest of the lights.
                 glCullFace( GL_FRONT );
@@ -759,8 +785,6 @@ void ComponentCamera::DrawScene()
             glCullFace( GL_BACK );
             glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
         }
-
-        g_ActiveShaderPass = ShaderPass_Main;
 
         // Render transparent objects with normal forward render pass.
         {
