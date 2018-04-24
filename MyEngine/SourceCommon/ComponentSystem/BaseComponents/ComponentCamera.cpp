@@ -442,7 +442,7 @@ void ComponentCamera::OnDrawFrame()
     // Store the current FBO, we will use it as the final render target.
     unsigned int startingFBO = g_GLStats.m_CurrentFramebuffer;
 
-    // TODO: Clean up, make func other than tick to this.
+    // TODO: Clean up, make func other than tick do this.
     // Update camera view/proj before drawing.
     Tick( 0 );
 
@@ -640,15 +640,6 @@ void ComponentCamera::DrawScene()
             renderedADeferredPass = true;
 
             m_pGBuffer->Bind( false );
-
-            checkGlError( "After m_pGBuffer->Bind" );
-
-            // Set up the 3 textures for GL to write to.
-            // TODO: Do this once when FBO is done setting up.
-            GLenum buffers[3] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2 };
-            glDrawBuffers( 3, buffers );
-
-            checkGlError( "After glDrawBuffers" );
         }
     }
 

@@ -8,6 +8,11 @@
 precision mediump float;
 #endif
 
+#if ReceiveShadows
+uniform mat4 u_ShadowLightWVPT;
+uniform sampler2D u_ShadowTexture;
+#endif //ReceiveShadows
+
 #ifdef VertexShader
 
 attribute vec4 a_Position;
