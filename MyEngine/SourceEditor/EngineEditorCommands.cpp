@@ -970,12 +970,13 @@ EditorCommand* EditorCommand_CopyGameObject::Repeat()
 // EditorCommand_EnableObject
 //====================================================================================================
 
-EditorCommand_EnableObject::EditorCommand_EnableObject(GameObject* pObject, bool enabled)
+EditorCommand_EnableObject::EditorCommand_EnableObject(GameObject* pObject, bool enabled, bool affectChildren)
 {
     m_Name = "EditorCommand_EnableObject";
 
     m_pGameObject = pObject;
     m_ObjectWasEnabled = enabled;
+    m_AffectChildren = affectChildren;
 }
 
 EditorCommand_EnableObject::~EditorCommand_EnableObject()
@@ -984,7 +985,7 @@ EditorCommand_EnableObject::~EditorCommand_EnableObject()
 
 void EditorCommand_EnableObject::Do()
 {
-    m_pGameObject->SetEnabled( m_ObjectWasEnabled, false );
+    m_pGameObject->SetEnabled( m_ObjectWasEnabled, m_AffectChildren );
 #if MYFW_USING_WX
     g_pPanelWatch->SetNeedsRefresh();
 #endif
@@ -992,7 +993,7 @@ void EditorCommand_EnableObject::Do()
 
 void EditorCommand_EnableObject::Undo()
 {
-    m_pGameObject->SetEnabled( !m_ObjectWasEnabled, false );
+    m_pGameObject->SetEnabled( !m_ObjectWasEnabled, m_AffectChildren );
 #if MYFW_USING_WX
     g_pPanelWatch->SetNeedsRefresh();
 #endif

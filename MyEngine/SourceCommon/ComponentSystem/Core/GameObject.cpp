@@ -1150,7 +1150,7 @@ void GameObject::OnPopupClick(GameObject* pGameObject, unsigned int id)
 #if MYFW_USING_WX
 void GameObject::OnTitleLabelClicked(int controlid, bool finishedchanging) // StaticOnTitleLabelClicked
 {
-    g_pGameCore->GetCommandStack()->Do( MyNew EditorCommand_EnableObject( this, !m_Enabled ) );
+    g_pGameCore->GetCommandStack()->Do( MyNew EditorCommand_EnableObject( this, !m_Enabled, true ) );
     g_pPanelWatch->SetNeedsRefresh();
 }
 

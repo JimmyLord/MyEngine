@@ -1563,6 +1563,17 @@ void EditorMainFrame_ImGui::AddWatchPanel()
                 {
                     ImGui::Text( "%s (%s)", pFirstGameObject->GetName(), pGameObjectThisInheritsFrom->GetName() );
                 }
+                ImGui::SameLine();
+                if( pFirstGameObject->IsEnabled() )
+                {
+                    if( ImGui::Button( "Disable" ) )
+                        g_pGameCore->GetCommandStack()->Do( MyNew EditorCommand_EnableObject( pFirstGameObject, false, true ) );
+                }
+                else
+                {
+                    if( ImGui::Button( "Enable" ) )
+                        g_pGameCore->GetCommandStack()->Do( MyNew EditorCommand_EnableObject( pFirstGameObject, true, true ) );
+                }
             }
 
             // Only show components for non-folder objects.

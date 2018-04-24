@@ -284,9 +284,10 @@ class EditorCommand_EnableObject : public EditorCommand
 protected:
     GameObject* m_pGameObject;
     bool m_ObjectWasEnabled;
+    bool m_AffectChildren;
 
 public:
-    EditorCommand_EnableObject(GameObject* pObject, bool enabled);
+    EditorCommand_EnableObject(GameObject* pObject, bool enabled, bool affectChildren);
     virtual ~EditorCommand_EnableObject();
 
     virtual void Do();
