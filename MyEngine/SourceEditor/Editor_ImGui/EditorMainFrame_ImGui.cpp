@@ -780,6 +780,8 @@ void EditorMainFrame_ImGui::AddMainMenuBar()
             {
                 if( ImGui::MenuItem( "Show Icons", "Shift-F7", g_pEngineCore->GetEditorPrefs()->Get_View_ShowEditorIcons() ) ) { EditorMenuCommand( EditorMenuCommand_View_ShowEditorIcons ); }
                 if( ImGui::MenuItem( "Deferred Render", "Ctrl-Shift-F7", g_pEngineCore->GetEditorPrefs()->Get_View_EditorCamDeferred() ) ) { EditorMenuCommand( EditorMenuCommand_View_ToggleEditorCamDeferred ); }
+                if( ImGui::MenuItem( "Show Deferred G-Buffer", "" ) ) { EditorMenuCommand( EditorMenuCommand_View_ShowEditorCamDeferredGBuffer ); }
+
                 ImGui::EndMenu();
             }
 

@@ -280,6 +280,12 @@ void EditorMenuCommand(EditorMenuCommands command)
         }
         break;
 
+    case EditorMenuCommand_View_ShowEditorCamDeferredGBuffer:
+        {
+            g_pEngineCore->GetEditorState()->GetEditorCamera()->ShowDeferredGBuffer();
+        }
+        break;        
+
     case EditorMenuCommand_Grid_Visible:
         {
             g_pEngineCore->GetEditorPrefs()->Toggle_Grid_Visible();

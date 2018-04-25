@@ -63,6 +63,7 @@ ComponentCamera::ComponentCamera()
     m_BaseType = BaseComponentType_Camera;
 
     m_pComponentTransform = 0;
+    m_DeferredGBufferVisible = false;
 }
 
 ComponentCamera::~ComponentCamera()
@@ -668,6 +669,29 @@ void ComponentCamera::DrawScene()
         }
 
         g_pComponentSystemManager->DrawFrame( this, pMatViewProj, 0, drawOpaques, drawTransparents, drawOverlays );
+
+        if( m_pGBuffer && renderedADeferredPass && m_DeferredGBufferVisible )
+        {
+            if( ImGui::Begin( "Deferred G-Buffer", &m_DeferredGBufferVisible, ImVec2(150, 150), 1 ) )
+            {
+                // Create a context menu only available from the title bar.
+                if( ImGui::BeginPopupContextItem() )
+                {
+                    if( ImGui::MenuItem( "Close" ) )
+                        m_DeferredGBufferVisible = false;
+
+                    ImGui::EndPopup();
+                }
+
+                //ImGui::Text( this->m_pGameObject->GetName() );
+                ImGui::Image( (ImTextureID)m_pGBuffer->GetColorTexture(0)->GetTextureID(), ImVec2(64,64), ImVec2(0,1), ImVec2(1,0) );
+                ImGui::SameLine();
+                ImGui::Image( (ImTextureID)m_pGBuffer->GetColorTexture(1)->GetTextureID(), ImVec2(64,64), ImVec2(0,1), ImVec2(1,0) );
+                ImGui::SameLine();
+                ImGui::Image( (ImTextureID)m_pGBuffer->GetColorTexture(2)->GetTextureID(), ImVec2(64,64), ImVec2(0,1), ImVec2(1,0) );
+            }
+            ImGui::End();
+        }
     }
 
     // Restore the FBO to what was set when we entered this method.

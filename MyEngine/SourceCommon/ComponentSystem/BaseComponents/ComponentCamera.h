@@ -37,6 +37,7 @@ public:
     // For deferred.
     bool m_Deferred;
 private:
+    bool m_DeferredGBufferVisible;
     FBODefinition* m_pGBuffer;
 
     MyFileObject* m_pDeferredShaderFile_AmbientDirectional;
@@ -105,6 +106,7 @@ public:
     virtual void OnDrawFrame();
 
     void SetDeferred(bool isdeferred) { m_Deferred = isdeferred; }
+    void ShowDeferredGBuffer() { m_DeferredGBufferVisible = true; }
 
 protected:
     void DrawScene();
