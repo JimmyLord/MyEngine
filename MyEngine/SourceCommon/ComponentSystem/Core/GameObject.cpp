@@ -1537,7 +1537,7 @@ void GameObject::Editor_SetMaterial(MaterialDefinition* pMaterial)
                 g_DragAndDropStruct.SetControlID( pVar->m_ControlID );
                 g_DragAndDropStruct.Add( DragAndDropType_MaterialDefinitionPointer, pMaterial );
 
-                pRenderable->OnDropVariable( pVar, 0, -1, -1 );
+                pRenderable->OnDropVariable( pVar, 0, -1, -1, true );
             }
         }
     }
