@@ -8,10 +8,8 @@
 precision mediump float;
 #endif
 
-#if ReceiveShadows
-uniform mat4 u_ShadowLightWVPT;
-uniform sampler2D u_ShadowTexture;
-#endif //ReceiveShadows
+#undef ReceiveShadows
+#define ReceiveShadows 0
 
 #ifdef VertexShader
 
@@ -57,7 +55,7 @@ void main()
     // Add in each light, one by one. // finalDiffuse, finalSpecular are inout.
 #if NUM_LIGHTS > 0
     for( int i=0; i<NUM_LIGHTS; i++ )
-        PointLightContribution( u_LightPos[i], u_LightColor[i], u_LightAttenuation[i], WSPosition.xyz, u_WSCameraPos, WSNormal, specularShine, finalAmbient, finalDiffuse, finalSpecular );
+        PointLightContribution( u_LightPos[i], u_LightColor[i], u_LightAttenuation[i], WSPosition, u_WSCameraPos, WSNormal, specularShine, finalAmbient, finalDiffuse, finalSpecular );
 #endif
 
     // Mix the texture color with the light color.
@@ -69,7 +67,6 @@ void main()
     gl_FragColor.a = 1;
 
     //gl_FragColor.rgb = clamp( gl_FragColor.rgb, 0.0, 1.0 );
-    //gl_FragColor = vec4( albedoColor.rgb + position + normal, 1 );
 	//gl_FragColor.xyz = WSNormal;
 
 	//gl_FragColor.xyz = WSPosition;

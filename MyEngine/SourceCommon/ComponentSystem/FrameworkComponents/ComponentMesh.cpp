@@ -492,17 +492,41 @@ void ComponentMesh::OnPlay()
 
 bool ComponentMesh::OnEvent(MyEvent* pEvent)
 {
-    // Testing: when any material finishes loading, set the material again to fix the flags of the scenegraphobject
-    if( pEvent->GetType() == Event_MaterialFinishedLoading ||
-        pEvent->GetType() == Event_ShaderFinishedLoading )
+    // When a material finishes loading, if it was our material, set the material again to fix the flags of the scenegraphobject.
+    if( pEvent->GetType() == Event_MaterialFinishedLoading )
     {
+        MaterialDefinition* pMaterial = static_cast<MaterialDefinition*>( pEvent->GetPointer( "Material" ) );
+        MyAssert( pMaterial != 0 );
+            
         for( int i=0; i<MAX_SUBMESHES; i++ )
         {
-            if( m_pMaterials[i] )
+            if( m_pMaterials[i] == pMaterial )
             {
                 SetMaterial( m_pMaterials[i], i );
             }
         }
+
+        return false; // keep propagating the event.
+    }
+
+    if( pEvent->GetType() == Event_ShaderFinishedLoading )
+    {
+        BaseShader* pShader = static_cast<BaseShader*>( pEvent->GetPointer( "Shader" ) );
+        MyAssert( pShader != 0 );
+
+        for( int i=0; i<MAX_SUBMESHES; i++ )
+        {
+            if( m_pMaterials[i] )
+            {
+                ShaderGroup* pShaderGroup = m_pMaterials[i]->GetShader();
+
+                if( pShaderGroup && pShaderGroup->ContainsShader( pShader ) )
+                {
+                    SetMaterial( m_pMaterials[i], i );
+                }
+            }
+        }
+
         return false; // keep propagating the event.
     }
 
@@ -523,7 +547,7 @@ void ComponentMesh::SetMaterial(MaterialDefinition* pMaterial, int submeshindex)
     if( m_pSceneGraphObjects[submeshindex] )
     {
         // TODO: clean this mess
-        // clear opaque/transparent flags, set the proper flag based on new material transparency
+        // Clear opaque/transparent flags, set the proper flag based on new material transparency.
         SceneGraphFlags flags = m_pSceneGraphObjects[submeshindex]->m_Flags;
         flags = (SceneGraphFlags)(flags & ~(SceneGraphFlag_Opaque | SceneGraphFlag_Transparent));
         if( pMaterial )

@@ -1,5 +1,3 @@
-#define BLENDING On
-
 #ifdef WIN32
 #define lowp
 #define mediump
@@ -33,6 +31,7 @@ uniform vec4 u_TextureTintColor;
 
 void main()
 {
+    // Blending is off, alpha will be ignored.
     gl_FragColor = u_TextureTintColor;
 }
 

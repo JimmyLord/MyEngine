@@ -113,7 +113,10 @@ void ImGuiManager::ClearInput()
 
 void ImGuiManager::OnFocusLost()
 {
-    ClearInput();
+    if( m_pImGuiContext )
+    {
+        ClearInput();
+    }
 }
 
 bool ImGuiManager::HandleInput(int keyaction, int keycode, int mouseaction, int id, float x, float y, float pressure)
