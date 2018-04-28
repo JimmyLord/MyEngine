@@ -185,6 +185,14 @@ void ComponentMesh::VariableAddedToWatchPanel(ComponentVariable* pVar)
             continue;
 
 #if MYFW_USING_IMGUI
+
+#if _DEBUG && MYFW_WINDOWS
+        if( ImGui::Button( "Trigger Breakpoint on Next Draw" ) )
+        {
+            TriggerBreakpointOnNextDraw( i );
+        }
+#endif //_DEBUG && MYFW_WINDOWS
+
         if( pVar->m_Label == g_MaterialLabels[i] )
         {
             if( m_pMaterials[i]->m_UniformValues[0].m_Type != ExposedUniformType_NotSet )
@@ -336,6 +344,17 @@ void* ComponentMesh::OnValueChanged(ComponentVariable* pVar, bool changedbyinter
 
     return oldpointer;
 }
+
+#if _DEBUG && MYFW_WINDOWS
+void ComponentMesh::TriggerBreakpointOnNextDraw(int submeshIndex)
+{
+    if( m_pMesh )
+    {
+        m_pMesh->GetSubmesh( submeshIndex )->TriggerBreakpointOnNextDraw();
+    }
+}
+#endif //_DEBUG && MYFW_WINDOWS
+
 #endif //MYFW_EDITOR
 
 cJSON* ComponentMesh::ExportAsJSONObject(bool savesceneid, bool saveid)
