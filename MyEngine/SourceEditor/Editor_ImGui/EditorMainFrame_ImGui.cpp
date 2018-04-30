@@ -491,13 +491,13 @@ void EditorMainFrame_ImGui::DrawGameAndEditorWindows(EngineCore* pEngineCore)
 
                 // Create 2 rotating lights for material render.
                 MyLight light1;
-                light1.m_Attenuation.Set( 1, 0.1f, 0.01f );
+                light1.m_Attenuation.Set( 5, 0.1f, 0.01f ); // x is a radius/range, yz not used.
                 light1.m_Color.Set( 1, 1, 1, 1 );
                 light1.m_LightType = LightType_Point;
                 light1.m_Position.Set( 2*cos(time), 1, 2*sin(time) );
 
                 MyLight light2;
-                light2.m_Attenuation.Set( 1, 0.1f, 0.01f );
+                light2.m_Attenuation.Set( 5, 0.1f, 0.01f ); // x is a radius/range, yz not used.
                 light2.m_Color.Set( 1, 1, 1, 1 );
                 light2.m_LightType = LightType_Point;
                 light2.m_Position.Set( 2*cos(PI+time), 1, 2*sin(PI+time) );
