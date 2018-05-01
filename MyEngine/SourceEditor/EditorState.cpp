@@ -145,37 +145,11 @@ void EditorState::OnSurfaceChanged(unsigned int startx, unsigned int starty, uns
     if( m_pDebugViewFBO )
     {
         g_pTextureManager->ReSetupFBO( m_pDebugViewFBO, width, height, GL_NEAREST, GL_NEAREST, FBODefinition::FBOColorFormat_RGBA_UByte, 32, false );
-        //m_pDebugViewFBO->Setup( width, height, GL_NEAREST, GL_NEAREST, true, 32, false );
-
-        //if( m_pDebugViewFBO->GetTextureWidth() < width || m_pDebugViewFBO->GetTextureHeight() < height )
-        //{
-        //    // the FBO will be recreated during the texturemanager tick.
-        //    g_pTextureManager->InvalidateFBO( m_pDebugViewFBO );
-        //    m_pDebugViewFBO->Setup( width, height, GL_NEAREST, GL_NEAREST, true, 32, false );
-        //}
-        //else
-        //{
-        //    m_pDebugViewFBO->m_Width = width;
-        //    m_pDebugViewFBO->m_Height = height;
-        //}
     }
 
     if( m_pMousePickerFBO )
     {
         g_pTextureManager->ReSetupFBO( m_pMousePickerFBO, width, height, GL_NEAREST, GL_NEAREST, FBODefinition::FBOColorFormat_RGBA_UByte, 32, false );
-        //m_pMousePickerFBO->Setup( width, height, GL_NEAREST, GL_NEAREST, true, 32, false );
-
-        //if( m_pMousePickerFBO->GetTextureWidth() < width || m_pMousePickerFBO->GetTextureHeight() < height )
-        //{
-        //    // the FBO will be recreated during the texturemanager tick.
-        //    g_pTextureManager->InvalidateFBO( m_pMousePickerFBO );
-        //    m_pMousePickerFBO->Setup( width, height, GL_NEAREST, GL_NEAREST, true, 32, false );
-        //}
-        //else
-        //{
-        //    m_pMousePickerFBO->m_Width = width;
-        //    m_pMousePickerFBO->m_Height = height;
-        //}
     }
 }
 
@@ -197,11 +171,16 @@ void EditorState::ClearConstraint()
 
 void EditorState::SelectGameObject(GameObject* pObject)
 {
+    // Don't allow null pointers or duplicate objects into our selected list.
+    MyAssert( pObject != 0 );
+    MyAssert( std::find( m_pSelectedObjects.begin(), m_pSelectedObjects.end(), pObject ) == m_pSelectedObjects.end() );
+
     m_pSelectedObjects.push_back( pObject );
 }
 
 void EditorState::UnselectGameObject(GameObject* pObject)
 {
+    // The object shouldn't exist in the list more than once, but we'll still remove them all, just in case.
     m_pSelectedObjects.erase( std::remove( m_pSelectedObjects.begin(), m_pSelectedObjects.end(), pObject ) );
 }
 
@@ -216,7 +195,9 @@ bool EditorState::IsGameObjectSelected(GameObject* pObject)
 void EditorState::DeleteSelectedObjects()
 {
     if( m_pSelectedObjects.size() > 0 )
+    {
         g_pGameCore->GetCommandStack()->Do( MyNew EditorCommand_DeleteObjects( m_pSelectedObjects ) );
+    }
 }
 
 void EditorState::SelectComponent(ComponentBase* pComponent)

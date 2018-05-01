@@ -79,7 +79,7 @@ EditorMainFrame_ImGui::EditorMainFrame_ImGui()
     m_SetObjectListFilterBoxInFocus = false;
     m_ObjectListFilter[0] = 0;
 
-    // Object list filter.
+    // Memory panel filter.
     m_SetMemoryPanelFilterBoxInFocus = false;
     m_MemoryPanelFilter[0] = 0;
 
@@ -97,6 +97,8 @@ EditorMainFrame_ImGui::EditorMainFrame_ImGui()
     m_GameWindowFocused = false;
     m_EditorWindowHovered = false;
     m_EditorWindowFocused = false;
+
+    m_pLastGameObjectInteractedWithInObjectPanel = 0;
 
     m_CurrentMemoryPanelPage = PanelMemoryPage_Materials;
 
@@ -1428,29 +1430,86 @@ void EditorMainFrame_ImGui::AddGameObjectToObjectList(GameObject* pGameObject)
                 pEditorState->ClearSelectedObjectsAndComponents();
             }
 
-            if( ImGui::GetIO().KeyShift == false )
+            if( ImGui::GetIO().KeyShift == true )
             {
-                // TODO: select all GameObjects between last object in list and this one.
-            }
+                // Select all GameObjects between last interacted object in list and this one.
+                pEditorState->ClearSelectedObjectsAndComponents();
 
-            if( pEditorState->IsGameObjectSelected( pGameObject ) )
-            {
-                pEditorState->UnselectGameObject( pGameObject );
+                SceneInfo* pSceneInfo = g_pComponentSystemManager->GetSceneInfo( pGameObject->GetSceneID() );
+                GameObject* pFirstGameObjectInScene = (GameObject*)pSceneInfo->m_GameObjects.GetHead();
+
+                // If there was no item previously interacted with, set it to the first object in the scene.
+                if( m_pLastGameObjectInteractedWithInObjectPanel == 0 )
+                {
+                    m_pLastGameObjectInteractedWithInObjectPanel = pFirstGameObjectInScene;
+                }
+
+                // Loop through the gameobjects moving forward looking for the selected one.
+                // TODO: recurse through children (if visible?)
+                // TODO: select all object inside folders?
+                bool found = false;
+                GameObject* pCurrentGameObject = m_pLastGameObjectInteractedWithInObjectPanel;
+                while( true )
+                {
+                    pEditorState->SelectGameObject( pCurrentGameObject );
+
+                    // If we hit the selected object.
+                    if( pCurrentGameObject == pGameObject )
+                    {
+                        found = true;
+                        break;
+                    }
+
+                    pCurrentGameObject = (GameObject*)pCurrentGameObject->GetNext();
+                    if( pCurrentGameObject == 0 )
+                        break;
+                }
+
+                // If we didn't find it going forward, clear the list and try in reverse.
+                if( found == false )
+                {
+                    pEditorState->ClearSelectedObjectsAndComponents();
+                    GameObject* pCurrentGameObject = m_pLastGameObjectInteractedWithInObjectPanel;
+                    while( 1 )
+                    {
+                        pEditorState->SelectGameObject( pCurrentGameObject );
+
+                        // If we hit the selected object.
+                        if( pCurrentGameObject == pGameObject )
+                        {
+                            found = true;
+                            break;
+                        }
+
+                        pCurrentGameObject = (GameObject*)pCurrentGameObject->GetPrev();
+                        if( pCurrentGameObject == 0 )
+                            break;
+                    }
+                }
             }
             else
             {
-                pEditorState->SelectGameObject( pGameObject );
-
-                // If this is a folder and it's the only selection, then select all objects inside the folder as well.
-                if( pGameObject->IsFolder() && pEditorState->m_pSelectedObjects.size() == 1 )
+                if( pEditorState->IsGameObjectSelected( pGameObject ) )
                 {
-                    for( CPPListNode* pNode = pGameObject->GetChildList()->GetHead(); pNode; pNode = pNode->GetNext() )
-                    {
-                        GameObject* pGameObject = (GameObject*)pNode;
+                    m_pLastGameObjectInteractedWithInObjectPanel = pGameObject;
+                    pEditorState->UnselectGameObject( pGameObject );
+                }
+                else
+                {
+                    m_pLastGameObjectInteractedWithInObjectPanel = pGameObject;
+                    pEditorState->SelectGameObject( pGameObject );
 
-                        if( pGameObject->IsManaged() )
+                    // If this is a folder and it's the only selection, then select all objects inside the folder as well.
+                    if( pGameObject->IsFolder() && pEditorState->m_pSelectedObjects.size() == 1 )
+                    {
+                        for( CPPListNode* pNode = pGameObject->GetChildList()->GetHead(); pNode; pNode = pNode->GetNext() )
                         {
-                            pGameObject->AddToList( &pEditorState->m_pSelectedObjects );
+                            GameObject* pGameObject = (GameObject*)pNode;
+
+                            if( pGameObject->IsManaged() )
+                            {
+                                pGameObject->AddToList( &pEditorState->m_pSelectedObjects );
+                            }
                         }
                     }
                 }

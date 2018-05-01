@@ -52,6 +52,8 @@ protected:
     bool m_EditorWindowHovered;
     bool m_EditorWindowFocused;
 
+    GameObject* m_pLastGameObjectInteractedWithInObjectPanel;
+
     int m_CurrentMemoryPanelPage;
 
     unsigned int m_UndoStackDepthAtLastSave;
