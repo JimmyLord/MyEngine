@@ -178,6 +178,35 @@ void EditorInterface_SceneManagement::OnDrawFrame(unsigned int canvasid)
     }
 }
 
+bool EditorInterface_SceneManagement::CancelCurrentOperation(bool allowClearOfSelectedObjects)
+{
+    EditorState* pEditorState = g_pEngineCore->GetEditorState();
+
+    // Cancel the current action and return true to prevent click from starting a camera rotation (or other op).
+    if( pEditorState->m_EditorActionState >= EDITORACTIONSTATE_TranslateX &&
+        pEditorState->m_EditorActionState <= EDITORACTIONSTATE_RotateZ )
+    {
+        pEditorState->m_pTransformGizmo->CancelCurrentOperation( pEditorState );
+        pEditorState->m_EditorActionState = EDITORACTIONSTATE_None;
+        return true;
+    }
+    else if( pEditorState->m_EditorActionState == EDITORACTIONSTATE_GroupSelectingObjects )
+    {
+        pEditorState->m_pTransformGizmo->CancelCurrentOperation( pEditorState );
+        pEditorState->m_EditorActionState = EDITORACTIONSTATE_None;
+        return true;
+    }
+
+    if( allowClearOfSelectedObjects )
+    {
+        pEditorState->ClearSelectedObjectsAndComponents();
+    }
+
+    pEditorState->ClearConstraint();
+    
+    return false;
+}
+
 bool EditorInterface_SceneManagement::HandleInput(int keyaction, int keycode, int mouseaction, int id, float x, float y, float pressure)
 {
     EditorState* pEditorState = g_pEngineCore->GetEditorState();
@@ -187,19 +216,8 @@ bool EditorInterface_SceneManagement::HandleInput(int keyaction, int keycode, in
     // If this is a new right-click, cancel gizmo ops.
     if( mouseaction == GCBA_Down && id == 1 )
     {
-        // Cancel the current action and return true to prevent click from starting a camera rotation (or other op).
-        if( pEditorState->m_EditorActionState >= EDITORACTIONSTATE_TranslateX &&
-            pEditorState->m_EditorActionState <= EDITORACTIONSTATE_RotateZ )
-        {
-            pEditorState->m_pTransformGizmo->CancelCurrentOperation( pEditorState );
-            pEditorState->m_EditorActionState = EDITORACTIONSTATE_None;
+        if( CancelCurrentOperation( false ) == true )
             return true;
-        }
-        else if( pEditorState->m_EditorActionState == EDITORACTIONSTATE_GroupSelectingObjects )
-        {
-        }
-
-        pEditorState->ClearConstraint();
     }
 
     if( pEditorState->m_ModifierKeyStates & MODIFIERKEY_LeftMouse )
@@ -595,6 +613,13 @@ bool EditorInterface_SceneManagement::HandleInput(int keyaction, int keycode, in
 
     if( keyaction == GCBA_Up )
     {
+        // If there's a current op, cancel it, otherwise clear selected objects.
+        if( keycode == MYKEYCODE_ESC )
+        {
+            if( CancelCurrentOperation( true ) == true )
+                return true;
+        }
+
         // Lock to current object, 
         if( keycode == 'L' )
         {

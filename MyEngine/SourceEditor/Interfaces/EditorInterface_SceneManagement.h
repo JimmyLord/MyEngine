@@ -25,6 +25,7 @@ public:
 
     virtual void OnDrawFrame(unsigned int canvasid);
 
+    virtual bool CancelCurrentOperation(bool allowClearOfSelectedObjects);
     virtual bool HandleInput(int keyaction, int keycode, int mouseaction, int id, float x, float y, float pressure);
 };
 
