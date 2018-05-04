@@ -1600,12 +1600,17 @@ void EditorMainFrame_ImGui::AddWatchPanel()
         {
             // Pick the first game object, even it it's a folder.
             GameObject* pFirstGameObject = pEditorState->m_pSelectedObjects[0];
+            int firstGameObjectIndex = 0;
 
             // Find the first non-folder object if there is one, since folders generally don't have components.
             for( unsigned int i=0; i<pEditorState->m_pSelectedObjects.size(); i++ )
             {
                 if( pEditorState->m_pSelectedObjects[i]->IsFolder() == false )
+                {
                     pFirstGameObject = pEditorState->m_pSelectedObjects[i];
+                    firstGameObjectIndex = i;
+                    break;
+                }
             }
 
             if( numselected > 1 )
@@ -1653,9 +1658,10 @@ void EditorMainFrame_ImGui::AddWatchPanel()
 
                         // Loop through selected gameobjects and check if they all have to least one of this component type on them.
                         bool allgameobjectshavecomponent = true;
-                        for( unsigned int soi=1; soi<pEditorState->m_pSelectedObjects.size(); soi++ )
+                        for( unsigned int soi=firstGameObjectIndex+1; soi<pEditorState->m_pSelectedObjects.size(); soi++ )
                         {
                             GameObject* pGameObject = pEditorState->m_pSelectedObjects[soi];
+                            MyAssert( pGameObject != pFirstGameObject );
 
                             // Skip folders, since they generally don't have components.
                             if( pGameObject->IsFolder() )
