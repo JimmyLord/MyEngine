@@ -3329,6 +3329,7 @@
     <None Include="..\DataEngine\Shaders\Shader_SelectedObjects.glsl" />
     <None Include="..\DataEngine\Shaders\Shader_Texture.glsl" />
     <None Include="..\DataEngine\Shaders\Shader_TextureTint.glsl" />
+    <None Include="..\DataEngine\Shaders\Shader_TextureTintDiscard.glsl" />
     <None Include="..\DataEngine\Shaders\Shader_TintColor.glsl" />
     <None Include="..\Libraries\imgui\README.md" />
     <None Include="..\README.md" />

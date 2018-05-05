@@ -338,6 +338,9 @@ void EditorInterface_2DPointEditor::Set2DCollisionObjectToEdit(Component2DCollis
 
 void EditorInterface_2DPointEditor::RenderObjectIDsToFBO()
 {
+    // Draw a circle for each 2D point, so the mouse can select them.
+
+    // Don't call the base class, which would draw all scene objects.
     //EditorInterface::RenderObjectIDsToFBO();
 
     EditorState* pEditorState = g_pEngineCore->GetEditorState();
@@ -345,28 +348,14 @@ void EditorInterface_2DPointEditor::RenderObjectIDsToFBO()
     if( pEditorState->m_pMousePickerFBO->IsFullyLoaded() == false )
         return;
 
-    // bind our FBO so we can render the scene to it.
+    // Bind our FBO so we can render stuff to it.
     pEditorState->m_pMousePickerFBO->Bind( true );
-
-    //pEditorState->m_pTransformGizmo->ScaleGizmosForMousePickRendering( true );
 
     glDisable( GL_SCISSOR_TEST );
     glViewport( 0, 0, pEditorState->m_pMousePickerFBO->GetWidth(), pEditorState->m_pMousePickerFBO->GetHeight() );
 
     glClearColor( 0, 0, 0, 0 );
     glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
-
-    //// draw all editor camera components.
-    //ComponentCamera* pCamera = 0;
-    //for( unsigned int i=0; i<pEditorState->m_pEditorCamera->m_Components.Count(); i++ )
-    //{
-    //    pCamera = dynamic_cast<ComponentCamera*>( pEditorState->m_pEditorCamera->m_Components[i] );
-    //    if( pCamera )
-    //    {
-    //        g_pComponentSystemManager->DrawMousePickerFrame( pCamera, &pCamera->m_Camera3D.m_matViewProj, g_pEngineCore->GetShader_TintColor() );
-    //        glClear( GL_DEPTH_BUFFER_BIT );
-    //    }
-    //}
 
     // Draw a circle at each vertex position.
     {
@@ -412,8 +401,6 @@ void EditorInterface_2DPointEditor::RenderObjectIDsToFBO()
     }
 
     pEditorState->m_pMousePickerFBO->Unbind( true );
-
-    //pEditorState->m_pTransformGizmo->ScaleGizmosForMousePickRendering( false );
 }
 
 MaterialDefinition* EditorInterface_2DPointEditor::GetMaterial(MaterialTypes type)

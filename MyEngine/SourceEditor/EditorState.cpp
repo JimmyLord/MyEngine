@@ -50,40 +50,39 @@ EditorState::EditorState()
     m_pGameObjectCameraIsFollowing = 0;
     m_OffsetFromObject.SetIdentity();
 
+    // Load all the editor icons (Lights/Cameras/Etc)
     for( int i=0; i<EditorIcon_NumIcons; i++ )
     {
-        // create all icons as 1x1 sprites, with center pivots. Sprites are facing positive z-axis.
+        // Create all icons as 1x1 sprites, with center pivots. Sprites are facing positive z-axis.
         m_pEditorIcons[i] = MyNew MySprite( true );
         m_pEditorIcons[i]->Create( "EditorIcon", 1, 1, 0, 1, 0, 1, Justify_Center, false, true );
 
         MaterialDefinition* pMaterial = m_pEditorIcons[i]->GetMaterial();
 
-        pMaterial->SetBlendType( MaterialBlendType_On );
+        // Icons can't have tranparency, shader will 'discard' fragments if alpha is less than 1.
+        pMaterial->SetBlendType( MaterialBlendType_Off );
 
+        // Load the icon png file, create a texture, set it to the material.  
         MyFileObject* pFile = g_pEngineFileManager->RequestFile_UntrackedByScene( EditorIconFilenames[i] );
-#if MYFW_EDITOR
-        pFile->MemoryPanel_Hide();
-#endif
         TextureDefinition* pTexture = g_pTextureManager->CreateTexture( pFile );
-#if MYFW_EDITOR
-        pTexture->MemoryPanel_Hide();
-#endif
-        pFile->Release();
-
         pMaterial->SetTextureColor( pTexture );
-        pTexture->Release();
 
-        ShaderGroup* pShaderGroup = g_pShaderGroupManager->FindShaderGroupByFilename( "Data/DataEngine/Shaders/Shader_TextureTint.glsl" );
+        // Free the extra ref's from the requests/creates and hide them from the editor front end.
+        pFile->Release();
+        pTexture->Release();
+        pFile->MemoryPanel_Hide();
+        pTexture->MemoryPanel_Hide();
+
+        // Assign the shader to the new material, reuse the shader if already loaded.
+        ShaderGroup* pShaderGroup = g_pShaderGroupManager->FindShaderGroupByFilename( "Data/DataEngine/Shaders/Shader_TextureTintDiscard.glsl" );
         if( pShaderGroup != 0 )
         {
             pMaterial->SetShader( pShaderGroup );
         }
         else
         {
-            MyFileObject* pFile = g_pEngineFileManager->RequestFile_UntrackedByScene( "Data/DataEngine/Shaders/Shader_TextureTint.glsl" );
-#if MYFW_EDITOR
+            MyFileObject* pFile = g_pEngineFileManager->RequestFile_UntrackedByScene( "Data/DataEngine/Shaders/Shader_TextureTintDiscard.glsl" );
             pFile->MemoryPanel_Hide();
-#endif
             MyAssert( pFile->IsA( "MyFileShader" ) );
             if( pFile->IsA( "MyFileShader" ) )
             {

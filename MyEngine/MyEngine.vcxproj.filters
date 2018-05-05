@@ -917,5 +917,8 @@
     <None Include="..\DataEngine\Shaders\Shader_Deferred_AmbientDirectional.glsl">
       <Filter>Data\Shaders</Filter>
     </None>
+    <None Include="..\DataEngine\Shaders\Shader_TextureTintDiscard.glsl">
+      <Filter>Data\Shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>

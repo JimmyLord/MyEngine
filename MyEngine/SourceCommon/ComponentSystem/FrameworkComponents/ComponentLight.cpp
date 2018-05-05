@@ -268,7 +268,7 @@ bool ComponentLight::IsVisible()
 
 bool ComponentLight::ExistsOnLayer(unsigned int layerflags)
 {
-    if( layerflags & Layer_EditorFG )
+    if( layerflags & Layer_Editor )
         return true;
     
     return false;

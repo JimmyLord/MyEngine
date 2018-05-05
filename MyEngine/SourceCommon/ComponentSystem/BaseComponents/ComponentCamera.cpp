@@ -805,7 +805,7 @@ void ComponentCamera::DrawScene()
         {
             bool drawOpaques = false;
             bool drawTransparents = true;
-            bool drawOverlays = false;
+            bool drawOverlays = true;
 
             g_pComponentSystemManager->DrawFrame( this, pMatViewProj, 0, drawOpaques, drawTransparents, drawOverlays );
         }
@@ -870,7 +870,7 @@ bool ComponentCamera::IsVisible()
 
 bool ComponentCamera::ExistsOnLayer(unsigned int layerflags)
 {
-    if( layerflags & Layer_EditorFG )
+    if( layerflags & Layer_Editor )
         return true;
     
     return false;
