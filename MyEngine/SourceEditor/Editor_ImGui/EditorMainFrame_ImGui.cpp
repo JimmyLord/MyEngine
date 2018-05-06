@@ -1270,6 +1270,8 @@ void EditorMainFrame_ImGui::AddGameObjectToObjectList(GameObject* pGameObject)
         // Add the GameObject itself to the tree.
         bool treeNodeIsOpen = ImGui::TreeNodeEx( pGameObject, nodeFlags, pGameObject->GetName() );
 
+        bool dragDropOfItemWillResultInAReorder = false;
+
         ImGui::PushID( pGameObject );
 
         // Start rename process on the first selected GameObject.
@@ -1382,13 +1384,27 @@ void EditorMainFrame_ImGui::AddGameObjectToObjectList(GameObject* pGameObject)
         {
             ImGui::SetDragDropPayload( "GameObject", &pGameObject, sizeof(pGameObject), ImGuiCond_Once );
             ImGui::Text( "%s", pGameObject->GetName() );
-            ImGui::Text( "Hold CTRL to reparent." );
             ImGui::EndDragDropSource();
         }
 
         if( ImGui::BeginDragDropTarget() )
         {
-            if( const ImGuiPayload* payload = ImGui::AcceptDragDropPayload( "GameObject" ) )
+            if( const ImGuiPayload* payload = ImGui::AcceptDragDropPayload( "GameObject", ImGuiDragDropFlags_AcceptPeekOnly ) )
+            {
+                // If there's a drag/drop payload and it's a gameobject, then:
+                //     if we're hovering over the top half of the item, reparent the dropped item.
+                //     if we're hovering over the bottom half, reorder the dropped item after the hovered item.
+                if( ImGui::GetMousePos().y > ImGui::GetItemRectMin().y + (ImGui::GetItemRectSize().y * 0.5f) )
+                {
+                    dragDropOfItemWillResultInAReorder = true;
+                }
+            }
+
+            ImGuiDragDropFlags dropFlags = 0;
+            if( dragDropOfItemWillResultInAReorder )
+                dropFlags = ImGuiDragDropFlags_AcceptNoDrawDefaultRect;
+
+            if( const ImGuiPayload* payload = ImGui::AcceptDragDropPayload( "GameObject", dropFlags ) )
             {
                 g_DragAndDropStruct.Clear();
 
@@ -1407,7 +1423,7 @@ void EditorMainFrame_ImGui::AddGameObjectToObjectList(GameObject* pGameObject)
                     }
                 }
 
-                if( ImGui::GetIO().KeyCtrl == false )
+                if( dragDropOfItemWillResultInAReorder )
                 {
                     pGameObject->OnDrop( -1, -1, -1, GameObject::GameObjectOnDropAction_Reorder );
                 }
@@ -1421,9 +1437,17 @@ void EditorMainFrame_ImGui::AddGameObjectToObjectList(GameObject* pGameObject)
 
         ImGui::PopID(); // ImGui::PushID( pGameObject );
 
-        if( ImGui::IsMouseReleased( 0 ) && ImGui::IsItemHovered( ImGuiHoveredFlags_Default ) )
-        //if( ImGui::IsMouseClicked( 0 ) && ImGui::IsItemHovered( ImGuiHoveredFlags_Default ) )
-        //if( ImGui::IsItemClicked() )
+        float arrowIconWidthWithSpacing = 20.0f; // TODO: This shouldn't be hard-coded.
+        bool hoveringOverArrow = false;
+        if( ImGui::GetMousePos().x < ImGui::GetItemRectMin().x + arrowIconWidthWithSpacing )
+            hoveringOverArrow = true;
+
+        // Select the GameObject if it's clicked.
+        // The code selects on mouse release so item can be dragged without changing selection.
+        // Also handles Ctrl and Shift clicks for multiple selections.
+        // Expand the item without selecting it if the arrow is clicked.
+        if( ImGui::IsMouseReleased( 0 ) && ImGui::IsItemHovered( ImGuiHoveredFlags_Default ) &&
+            hoveringOverArrow == false )
         {
             if( ImGui::GetIO().KeyCtrl == false )
             {
@@ -1515,6 +1539,7 @@ void EditorMainFrame_ImGui::AddGameObjectToObjectList(GameObject* pGameObject)
                 }
             }
         }
+        
         if( treeNodeIsOpen )
         {
             // Add Child GameObjects
@@ -1581,6 +1606,31 @@ void EditorMainFrame_ImGui::AddGameObjectToObjectList(GameObject* pGameObject)
                 }
             }
             ImGui::TreePop();
+        }
+
+        // Draw a horizontal line to indicate the drag/drop will do a reorder and not a reparent.
+        if( dragDropOfItemWillResultInAReorder )
+        {
+            // TODO: Better.
+            ImVec2 cursorPosStart = ImGui::GetCursorPos();
+
+            ImVec2 cursorPos = cursorPosStart;
+            cursorPos.y -= 3.0f;
+            
+            Vector4 separatorColor = g_pEditorPrefs->GetImGuiStylePrefs()->GetColor( ImGuiStylePrefs::StylePref_Color_DragDropTarget );
+            ImGui::PushStyleColor( ImGuiCol_Separator, separatorColor );
+
+            int separatorThickness = 2;
+            for( int i=0; i<separatorThickness; i++ )
+            {
+                ImGui::SetCursorPos( cursorPos );
+                ImGui::Separator();
+                cursorPos.y += 1.0f;
+            }
+
+            ImGui::PopStyleColor();
+
+            ImGui::SetCursorPos( cursorPosStart );
         }
     }
 }
