@@ -1387,6 +1387,8 @@ void EditorMainFrame_ImGui::AddGameObjectToObjectList(GameObject* pGameObject)
             ImGui::EndDragDropSource();
         }
 
+        bool dragDropPayloadAcceptedOnRelease = false;
+
         if( ImGui::BeginDragDropTarget() )
         {
             if( const ImGuiPayload* payload = ImGui::AcceptDragDropPayload( "GameObject", ImGuiDragDropFlags_AcceptPeekOnly ) )
@@ -1406,6 +1408,9 @@ void EditorMainFrame_ImGui::AddGameObjectToObjectList(GameObject* pGameObject)
 
             if( const ImGuiPayload* payload = ImGui::AcceptDragDropPayload( "GameObject", dropFlags ) )
             {
+                // Releasing the mouse will drop the payload, but we need prevent this from selecting the item.
+                dragDropPayloadAcceptedOnRelease = true;
+
                 g_DragAndDropStruct.Clear();
 
                 GameObject* pDroppedGO = (GameObject*)*(void**)payload->Data;
@@ -1447,7 +1452,7 @@ void EditorMainFrame_ImGui::AddGameObjectToObjectList(GameObject* pGameObject)
         // Also handles Ctrl and Shift clicks for multiple selections.
         // Expand the item without selecting it if the arrow is clicked.
         if( ImGui::IsMouseReleased( 0 ) && ImGui::IsItemHovered( ImGuiHoveredFlags_Default ) &&
-            hoveringOverArrow == false )
+            hoveringOverArrow == false && dragDropPayloadAcceptedOnRelease == false )
         {
             if( ImGui::GetIO().KeyCtrl == false )
             {
