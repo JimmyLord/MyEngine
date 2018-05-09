@@ -3323,6 +3323,7 @@
     <None Include="..\DataEngine\Shaders\Include\LSVaryings_Functions.glsl" />
     <None Include="..\DataEngine\Shaders\Include\WSVaryings.glsl" />
     <None Include="..\DataEngine\Shaders\Include\WSVaryings_Functions.glsl" />
+    <None Include="..\DataEngine\Shaders\Shader_ClipSpaceColor.glsl" />
     <None Include="..\DataEngine\Shaders\Shader_ClipSpaceTexture.glsl" />
     <None Include="..\DataEngine\Shaders\Shader_Deferred_AmbientDirectional.glsl" />
     <None Include="..\DataEngine\Shaders\Shader_Deferred_PointLight.glsl" />

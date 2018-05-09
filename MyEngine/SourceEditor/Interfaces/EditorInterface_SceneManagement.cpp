@@ -46,16 +46,18 @@ void EditorInterface_SceneManagement::OnDrawFrame(unsigned int canvasid)
     EditorInterface::OnDrawFrame( canvasid );
 
     // Get/Create a debug quad sprite.
-    MySprite* debugquad = g_pEngineCore->GetSprite_DebugQuad();
+    MySprite* debugQuad = g_pEngineCore->GetSprite_DebugQuad();
 
+    // Draw a single selected mesh as an overlay on the editor window.
+    // TODO: Deal with this in it's own window on ImGui editor builds.
     if( g_pEngineCore->GetDebug_DrawSelectedAnimatedMesh() && g_GLCanvasIDActive == 1 )
     {
         if( pEditorState->m_pSelectedObjects.size() > 0 )
         {
-            // TODO: have the file selecter pick the right game object/mesh
+            // TODO: Have the file selecter pick the right game object/mesh.
             GameObject* pObject = pEditorState->m_pSelectedObjects[0];
 
-            // if this has an animation player, render the current animation.
+            // If this has an animation player, render the current animation.
             ComponentAnimationPlayer* pAnim = pObject->GetAnimationPlayer();
             if( pAnim )
             {
@@ -74,31 +76,29 @@ void EditorInterface_SceneManagement::OnDrawFrame(unsigned int canvasid)
                 float maxu = (float)pEditorState->m_pDebugViewFBO->GetWidth() / pEditorState->m_pDebugViewFBO->GetTextureWidth();
                 float maxv = (float)pEditorState->m_pDebugViewFBO->GetHeight() / pEditorState->m_pDebugViewFBO->GetTextureHeight();
 
-                debugquad->CreateInPlace( "debug", 0.5f, 0.5f, 1.0f, 1.0f, 0, maxu, maxv, 0, Justify_Center, false );
+                debugQuad->CreateInPlace( "debug", 0.5f, 0.5f, 1.0f, 1.0f, 0, maxu, maxv, 0, Justify_Center, false );
                 g_pEngineCore->GetMaterial_ClipSpaceTexture()->SetTextureColor( pEditorState->m_pDebugViewFBO->GetColorTexture( 0 ) );
-                debugquad->SetMaterial( g_pEngineCore->GetMaterial_ClipSpaceTexture() );
-                debugquad->Draw( 0, 0 );
+                debugQuad->SetMaterial( g_pEngineCore->GetMaterial_ClipSpaceTexture() );
+                debugQuad->Draw( 0, 0 );
             }
 
-            // if it's a shadow cam, render the depth texture
+            // If it's a shadow cam, render the depth texture.
             ComponentCameraShadow* pCamera = dynamic_cast<ComponentCameraShadow*>( pObject->GetFirstComponentOfBaseType( BaseComponentType_Camera ) );
             if( pCamera )
             {
-                debugquad->CreateInPlace( "debug", 0.5f, 0.5f, 1.0f, 1.0f, 0, 1, 1, 0, Justify_Center, false );
+                debugQuad->CreateInPlace( "debug", 0.5f, 0.5f, 1.0f, 1.0f, 0, 1, 1, 0, Justify_Center, false );
                 g_pEngineCore->GetMaterial_ClipSpaceTexture()->SetTextureColor( pCamera->GetFBO()->GetDepthTexture() );
-                debugquad->SetMaterial( g_pEngineCore->GetMaterial_ClipSpaceTexture() );
-                debugquad->Draw( 0, 0 );
+                debugQuad->SetMaterial( g_pEngineCore->GetMaterial_ClipSpaceTexture() );
+                debugQuad->Draw( 0, 0 );
             }
         }
     }
 
+#if MYFW_USING_WX
+    // Old code to draw material ball in corner of editor view.  Still used by WX editor build.
     if( /*m_Debug_DrawSelectedMaterial &&*/ g_GLCanvasIDActive == 1 )
     {
-#if MYFW_USING_WX // TODO_FIX_EDITOR
         MaterialDefinition* pMaterial = g_pPanelMemory->GetSelectedMaterial();
-#else
-        MaterialDefinition* pMaterial = 0;
-#endif
 
         if( pMaterial )
         {
@@ -155,14 +155,40 @@ void EditorInterface_SceneManagement::OnDrawFrame(unsigned int canvasid)
 
             float u = (float)pEditorState->m_pMousePickerFBO->GetWidth() / pEditorState->m_pMousePickerFBO->GetTextureWidth();
             float v = (float)pEditorState->m_pMousePickerFBO->GetHeight() / pEditorState->m_pMousePickerFBO->GetTextureHeight();
-            debugquad->CreateInPlace( "debug", 0.5f, 0.5f, 1.0f, 1.0f, 0, u, v, 0, Justify_Center, false );
+            debugQuad->CreateInPlace( "debug", 0.5f, 0.5f, 1.0f, 1.0f, 0, u, v, 0, Justify_Center, false );
             g_pEngineCore->GetMaterial_ClipSpaceTexture()->SetTextureColor( pEditorState->m_pDebugViewFBO->GetColorTexture( 0 ) );
-            debugquad->SetMaterial( g_pEngineCore->GetMaterial_ClipSpaceTexture() );
-            debugquad->Draw( 0, 0 );
+            debugQuad->SetMaterial( g_pEngineCore->GetMaterial_ClipSpaceTexture() );
+            debugQuad->Draw( 0, 0 );
+        }
+    }
+#endif //MYFW_USING_WX
+
+    // Draw group select rectangle.
+    if( pEditorState->m_EditorActionState == EDITORACTIONSTATE_GroupSelectingObjects )
+    {
+        Vector2 windowSize( (float)pEditorState->m_EditorWindowRect.w, (float)pEditorState->m_EditorWindowRect.h );
+        Vector2 clipStart = pEditorState->m_MouseDownLocation[0] / windowSize * 2 - 1;
+        Vector2 clipEnd = pEditorState->m_CurrentMousePosition / windowSize * 2 - 1;
+        
+        Vector2 clipTopLeft;
+        clipTopLeft.x = clipStart.x < clipEnd.x ? clipStart.x : clipEnd.x;
+        clipTopLeft.y = clipStart.y > clipEnd.y ? clipStart.y : clipEnd.y;
+        
+        Vector2 clipSize;
+        clipSize.x = fabs( clipStart.x - clipEnd.x );
+        clipSize.y = fabs( clipStart.y - clipEnd.y );
+
+        if( clipSize.x > 0 || clipSize.y > 0 )
+        {
+            debugQuad->CreateInPlace( "debug", clipTopLeft.x, clipTopLeft.y, clipSize.x, clipSize.y, 0, 1, 0, 1, Justify_TopLeft, false );
+            MaterialDefinition* pMaterial = g_pEngineCore->GetMaterial_ClipSpaceColor();
+            pMaterial->SetColorDiffuse( ColorByte( 0, 255, 0, 64 ) );
+            debugQuad->SetMaterial( pMaterial );
+            debugQuad->Draw( 0, 0 );
         }
     }
 
-    // Draw Box2D debug data
+    // Draw Box2D and Bullet debug data.
     if( g_pEngineCore->GetEditorPrefs()->Get_Debug_DrawPhysicsDebugShapes() && g_GLCanvasIDActive == 1 )
     {
         for( int i=0; i<MAX_SCENES_LOADED_INCLUDING_UNMANAGED; i++ )

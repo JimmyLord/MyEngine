@@ -31,13 +31,16 @@ EngineCore::EngineCore()
     m_pShaderFile_TintColor = 0;
     m_pShaderFile_SelectedObjects = 0;
     m_pShaderFile_ClipSpaceTexture = 0;
+    m_pShaderFile_ClipSpaceColor = 0;
     m_pShader_TintColor = 0;
     m_pShader_SelectedObjects = 0;
     m_pShader_ClipSpaceTexture = 0;
+    m_pShader_ClipSpaceColor = 0;
     m_pMaterial_Box2DDebugDraw = 0;
     m_pMaterial_3DGrid = 0;
     m_pMaterial_MousePicker = 0;
     m_pMaterial_ClipSpaceTexture = 0;
+    m_pMaterial_ClipSpaceColor = 0;
 
     m_GameWidth = 0;
     m_GameHeight = 0;
@@ -130,13 +133,16 @@ EngineCore::~EngineCore()
     g_pFileManager->FreeFile( m_pShaderFile_TintColor );
     g_pFileManager->FreeFile( m_pShaderFile_SelectedObjects );
     g_pFileManager->FreeFile( m_pShaderFile_ClipSpaceTexture );
+    g_pFileManager->FreeFile( m_pShaderFile_ClipSpaceColor );
     SAFE_RELEASE( m_pShader_TintColor );
     SAFE_RELEASE( m_pShader_SelectedObjects );
     SAFE_RELEASE( m_pShader_ClipSpaceTexture );
+    SAFE_RELEASE( m_pShader_ClipSpaceColor );
     SAFE_RELEASE( m_pMaterial_Box2DDebugDraw );
     SAFE_RELEASE( m_pMaterial_3DGrid );
     SAFE_RELEASE( m_pMaterial_MousePicker );
     SAFE_RELEASE( m_pMaterial_ClipSpaceTexture );
+    SAFE_RELEASE( m_pMaterial_ClipSpaceColor );
 
 #if MYFW_EDITOR
     SAFE_DELETE( m_pEditorPrefs );
@@ -324,18 +330,22 @@ void EngineCore::OneTimeInit()
     m_pShaderFile_TintColor = g_pEngineFileManager->RequestFile_UntrackedByScene( "Data/DataEngine/Shaders/Shader_TintColor.glsl" );
     m_pShaderFile_SelectedObjects = g_pEngineFileManager->RequestFile_UntrackedByScene( "Data/DataEngine/Shaders/Shader_SelectedObjects.glsl" );
     m_pShaderFile_ClipSpaceTexture = g_pEngineFileManager->RequestFile_UntrackedByScene( "Data/DataEngine/Shaders/Shader_ClipSpaceTexture.glsl" );
+    m_pShaderFile_ClipSpaceColor = g_pEngineFileManager->RequestFile_UntrackedByScene( "Data/DataEngine/Shaders/Shader_ClipSpaceColor.glsl" );
 #if MYFW_EDITOR
     m_pShaderFile_TintColor->MemoryPanel_Hide();
     m_pShaderFile_SelectedObjects->MemoryPanel_Hide();
     m_pShaderFile_ClipSpaceTexture->MemoryPanel_Hide();
+    m_pShaderFile_ClipSpaceColor->MemoryPanel_Hide();
 #endif
     m_pShader_TintColor = MyNew ShaderGroup( m_pShaderFile_TintColor );
     m_pShader_SelectedObjects = MyNew ShaderGroup( m_pShaderFile_SelectedObjects );
     m_pShader_ClipSpaceTexture = MyNew ShaderGroup( m_pShaderFile_ClipSpaceTexture );
+    m_pShader_ClipSpaceColor = MyNew ShaderGroup( m_pShaderFile_ClipSpaceColor );
     m_pMaterial_Box2DDebugDraw = MyNew MaterialDefinition( m_pShader_TintColor, ColorByte(128,128,128,255) );
     m_pMaterial_3DGrid = MyNew MaterialDefinition( m_pShader_TintColor, ColorByte(128,128,128,255) );
     m_pMaterial_MousePicker = MyNew MaterialDefinition( m_pShader_ClipSpaceTexture );
     m_pMaterial_ClipSpaceTexture = MyNew MaterialDefinition( m_pShader_ClipSpaceTexture );
+    m_pMaterial_ClipSpaceColor = MyNew MaterialDefinition( m_pShader_ClipSpaceColor );
 
     // Initialize our component system.
     m_pComponentSystemManager = MyNew ComponentSystemManager( CreateComponentTypeManager() );

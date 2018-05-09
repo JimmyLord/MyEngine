@@ -108,13 +108,16 @@ protected:
     MyFileObject* m_pShaderFile_TintColor;
     MyFileObject* m_pShaderFile_SelectedObjects;
     MyFileObject* m_pShaderFile_ClipSpaceTexture;
+    MyFileObject* m_pShaderFile_ClipSpaceColor;
     ShaderGroup* m_pShader_TintColor;
     ShaderGroup* m_pShader_SelectedObjects;
     ShaderGroup* m_pShader_ClipSpaceTexture;
+    ShaderGroup* m_pShader_ClipSpaceColor;
     MaterialDefinition* m_pMaterial_Box2DDebugDraw;
     MaterialDefinition* m_pMaterial_3DGrid;
     MaterialDefinition* m_pMaterial_MousePicker;
     MaterialDefinition* m_pMaterial_ClipSpaceTexture;
+    MaterialDefinition* m_pMaterial_ClipSpaceColor;
 
     float m_GameWidth;
     float m_GameHeight;
@@ -177,6 +180,7 @@ public:
     MaterialDefinition* GetMaterial_Box2DDebugDraw()   { return m_pMaterial_Box2DDebugDraw; }
     MaterialDefinition* GetMaterial_MousePicker()      { return m_pMaterial_MousePicker; }
     MaterialDefinition* GetMaterial_ClipSpaceTexture() { return m_pMaterial_ClipSpaceTexture; }
+    MaterialDefinition* GetMaterial_ClipSpaceColor()   { return m_pMaterial_ClipSpaceColor; }
 
     // EngineCore Methods
     void SaveEditorPrefs();

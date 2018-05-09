@@ -920,5 +920,8 @@
     <None Include="..\DataEngine\Shaders\Shader_TextureTintDiscard.glsl">
       <Filter>Data\Shaders</Filter>
     </None>
+    <None Include="..\DataEngine\Shaders\Shader_ClipSpaceColor.glsl">
+      <Filter>Data\Shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>
