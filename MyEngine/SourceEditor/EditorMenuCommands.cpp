@@ -11,23 +11,24 @@
 #include "PlatformSpecific/FileOpenDialog.h"
 #include "EditorMenuCommands.h"
 
-void LoadScene(const char* scenename, bool unloadscenes)
+void LoadScene(const char* sceneName, bool unloadScenes)
 {
     if( g_pEngineCore == 0 )
         return;
 
-    MyAssert( scenename != 0 );
+    MyAssert( sceneName != 0 );
 
     // clear out the old scene before loading.
-    if( unloadscenes )
+    if( unloadScenes )
     {
-        // Make sure gameplay is stopped before loading
+        // Make sure gameplay is stopped before loading.
         g_pEngineCore->OnModeStop();
 
-        // Reset the scene counter, so the new "first" scene loaded will be 1.
+        // Reset the scene counter, so the new "first" scene loaded will be 0.
         g_pComponentSystemManager->ResetSceneIDCounter();
 
-        // if we're unloading the old scene(s), clear all selected items.
+        // If we're unloading the old scene(s), clear all selected items along with the undo/redo stacks.
+        g_pEngineCore->GetCommandStack()->ClearStacks();
         g_pEngineCore->GetEditorState()->ClearKeyAndActionStates();
         g_pEngineCore->GetEditorState()->ClearSelectedObjectsAndComponents();
         g_pEngineCore->SetEditorInterface( EditorInterfaceType_SceneManagement );
@@ -40,7 +41,7 @@ void LoadScene(const char* scenename, bool unloadscenes)
     unsigned int numItemsInUndoStack = g_pEngineCore->GetCommandStack()->GetUndoStackSize();
 
     char fullpath[MAX_PATH];
-    GetFullPath( scenename, fullpath, MAX_PATH );
+    GetFullPath( sceneName, fullpath, MAX_PATH );
     SceneID sceneid = g_pEngineCore->LoadSceneFromFile( fullpath );
 
     g_pEngineCore->GetCommandStack()->ClearUndoStack( numItemsInUndoStack );
@@ -57,20 +58,20 @@ void LoadMultipleDataFiles()
 
     if( filenames[0] != 0 )
     {
-        char fullpathtofile[MAX_PATH];
+        char fullPathToFile[MAX_PATH];
 
         if( openedMultipleFiles == false )
         {
-            strcpy_s( fullpathtofile, MAX_PATH, filenames );
-            const char* relativepath = GetRelativePath( fullpathtofile );
+            strcpy_s( fullPathToFile, MAX_PATH, filenames );
+            const char* relativePath = GetRelativePath( fullPathToFile );
 
-            if( relativepath == 0 )
+            if( relativePath == 0 )
             {
                 LOGError( LOGTag, "Files must be in a path relative to the editor." );
                 return;
             }
 
-            pComponentSystemManager->LoadDataFile( relativepath, SCENEID_MainScene, filenames, true );
+            pComponentSystemManager->LoadDataFile( relativePath, SCENEID_MainScene, filenames, true );
         }
         else
         {
@@ -90,16 +91,16 @@ void LoadMultipleDataFiles()
             // While there are strings.
             while( filenames[count] != 0 )
             {
-                sprintf_s( fullpathtofile, MAX_PATH, "%s\\%s", path, &filenames[count] );
-                const char* relativepath = GetRelativePath( fullpathtofile );
+                sprintf_s( fullPathToFile, MAX_PATH, "%s\\%s", path, &filenames[count] );
+                const char* relativePath = GetRelativePath( fullPathToFile );
 
-                if( relativepath == 0 )
+                if( relativePath == 0 )
                 {
                     LOGError( LOGTag, "Files must be in a path relative to the editor." );
                     return;
                 }
 
-                pComponentSystemManager->LoadDataFile( relativepath, SCENEID_MainScene, fullpathtofile, true );
+                pComponentSystemManager->LoadDataFile( relativePath, SCENEID_MainScene, fullPathToFile, true );
 
                 // advance to next string.
                 while( filenames[count] != 0 )
@@ -201,9 +202,9 @@ void EditorMenuCommand(EditorMenuCommands command)
                     sprintf_s( path, MAX_PATH, "%s.scene", filename );
                 }
                 
-                const char* relativepath = GetRelativePath( path );
+                const char* relativePath = GetRelativePath( path );
 
-                g_pComponentSystemManager->GetSceneInfo( SCENEID_MainScene )->ChangePath( relativepath );
+                g_pComponentSystemManager->GetSceneInfo( SCENEID_MainScene )->ChangePath( relativePath );
 
 #if MYFW_USING_IMGUI
                 g_pEngineCore->GetEditorMainFrame_ImGui()->StoreCurrentUndoStackSize();
@@ -212,7 +213,7 @@ void EditorMenuCommand(EditorMenuCommands command)
                 //g_pComponentSystemManager->m_pPrefabManager->SaveAllPrefabs(); // TODO:
                 g_pGameCore->GetSoundManager()->SaveAllCues();
 
-                g_pEngineCore->SaveScene( relativepath, SCENEID_MainScene );
+                g_pEngineCore->SaveScene( relativePath, SCENEID_MainScene );
             }
         }
         break;

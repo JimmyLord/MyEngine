@@ -176,7 +176,7 @@ public:
     MyFileObject* LoadDataFile(const char* relativepath, SceneID sceneid, const char* fullsourcefilepath, bool convertifrequired);
     MyFileObject* ImportDataFile(SceneID sceneid, const char* fullsourcefilepath);
     void FreeDataFile(MyFileInfo* pFileInfo);
-    void FreeAllDataFiles(SceneID sceneidtoclear);
+    void FreeAllDataFiles(SceneID sceneIDToClear);
 
     void LoadSceneFromJSON(const char* scenename, const char* jsonstr, SceneID sceneid);
     ComponentBase* CreateComponentFromJSONObject(GameObject* pGameObject, cJSON* jComponent);
@@ -186,7 +186,7 @@ public:
 
     // can clear everything except editor objects/components
     // unmanaged components are mainly editor objects and deleted objects in undo stack of editor... might want to rethink that.
-    void UnloadScene(SceneID sceneidtoclear = SCENEID_AllScenes, bool clearunmanagedcomponents = true);
+    void UnloadScene(SceneID sceneIDToClear = SCENEID_AllScenes, bool clearUnmanagedComponents = true);
     bool IsSceneLoaded(const char* fullpath);
     SceneID FindSceneID(const char* fullpath);
 

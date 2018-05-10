@@ -237,8 +237,8 @@ public:
     void SwitchScene(const char* fullpath);
     void SaveScene(const char* fullpath, SceneID sceneid);
     void ExportBox2DScene(const char* fullpath, SceneID sceneid);
-    void UnloadScene(SceneID sceneid, bool cleareditorobjects);
-    void LoadSceneFromJSON(const char* scenename, const char* jsonstr, SceneID sceneid, bool playwhenfinishedloading);
+    void UnloadScene(SceneID sceneid, bool clearEditorObjects);
+    void LoadSceneFromJSON(const char* scenename, const char* jsonstr, SceneID sceneid, bool playWhenFinishedLoading);
 
 #if MYFW_EDITOR
     // Editor Getters/Setters

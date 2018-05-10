@@ -543,21 +543,21 @@ double EngineCore::Tick(double TimePassed)
 
         // Loading an additional scene, or a lua script requested a scene.
         //     so if we're in editor mode, don't call "play" when loading is finished.
-        bool playwhenfinishedloading = false;
+        bool playWhenFinishedLoading = false;
 
 #if MYFW_EDITOR
         if( m_EditorMode == true )
         {
-            playwhenfinishedloading = false;
-            //playwhenfinishedloading = true;
+            playWhenFinishedLoading = false;
+            //playWhenFinishedLoading = true;
         }
         else
 #endif
         {
-            playwhenfinishedloading = true;
+            playWhenFinishedLoading = true;
         }
 
-        LoadSceneFromJSON( pFile->GetFilenameWithoutExtension(), pFile->GetBuffer(), sceneid, playwhenfinishedloading );
+        LoadSceneFromJSON( pFile->GetFilenameWithoutExtension(), pFile->GetBuffer(), sceneid, playWhenFinishedLoading );
 
         SAFE_RELEASE( m_pSceneFilesLoading[0].m_pFile );
 
@@ -1698,15 +1698,21 @@ void EngineCore::ExportBox2DScene(const char* fullpath, SceneID sceneid)
     cJSONExt_free( savestring );
 }
 
-void EngineCore::UnloadScene(SceneID sceneid, bool cleareditorobjects)
+void EngineCore::UnloadScene(SceneID sceneid, bool clearEditorObjects)
 {
-    m_pLuaGameState->Rebuild(); // reset the lua state.
+    // TODO: When unloading a single scene and gameplay is active, resetting the Lua state will break the game.
+    //       This will need to be dealt with some other way,
+    //           maybe individual GameObjects and Script components will need to unregister themselves from the Lua state when unloaded.
+    {
+        MyAssert( sceneid == SCENEID_AllScenes || m_EditorMode == false );
+        m_pLuaGameState->Rebuild(); // Reset the lua state.
+    }
 
     g_pComponentSystemManager->UnloadScene( sceneid, false );
 
     if( sceneid == SCENEID_AllScenes && m_FreeAllMaterialsAndTexturesWhenUnloadingScene )
     {
-        // temp code while RTQGlobals is a thing.
+        // Temp code while RTQGlobals is a thing.
         SAFE_RELEASE( g_pRTQGlobals->m_pMaterial );
     }
 
@@ -1723,8 +1729,8 @@ void EngineCore::UnloadScene(SceneID sceneid, bool cleareditorobjects)
 #endif
     }
     
-    // TODO: only unselect object from the scene being unloaded.
-    m_pEditorState->ClearEditorState( cleareditorobjects );
+    // TODO: only unselect objects from the scene being unloaded.
+    m_pEditorState->ClearEditorState( clearEditorObjects );
 #endif //MYFW_EDITOR
 }
 
@@ -1766,25 +1772,25 @@ SceneID EngineCore::LoadSceneFromFile(const char* fullpath)
 
             // If we're loading additional scenes, don't call "play",
             //     otherwise we need to decide if "play" should be called.
-            bool playwhenfinishedloading = false;
+            bool playWhenFinishedLoading = false;
 
             if( sceneid != SCENEID_MainScene )
             {
                 // Only start playing if the main scene is loaded, but secondary-scenes.
-                playwhenfinishedloading = false;
+                playWhenFinishedLoading = false;
             }
 #if MYFW_EDITOR
             else if( m_EditorMode )
             {
-                playwhenfinishedloading = m_AllowGameToRunInEditorMode;
+                playWhenFinishedLoading = m_AllowGameToRunInEditorMode;
             }
             else
 #endif
             {
-                playwhenfinishedloading = true;
+                playWhenFinishedLoading = true;
             }
 
-            LoadSceneFromJSON( filenamestart, jsonstr, sceneid, playwhenfinishedloading );
+            LoadSceneFromJSON( filenamestart, jsonstr, sceneid, playWhenFinishedLoading );
 
             g_pComponentSystemManager->m_pSceneInfoMap[sceneid].m_InUse = true;
             g_pComponentSystemManager->m_pSceneInfoMap[sceneid].ChangePath( fullpath );
@@ -1845,13 +1851,13 @@ void EngineCore::Editor_QuickLoadScene(const char* fullpath)
             jsonstr[length] = 0;
 
             // We're quickloading a temp scene, so don't call "play" in editor builds.
-            bool playwhenfinishedloading = false;
+            bool playWhenFinishedLoading = false;
 
 #if !MYFW_EDITOR
-            playwhenfinishedloading = true;
+            playWhenFinishedLoading = true;
 #endif
 
-            LoadSceneFromJSON( fullpath, jsonstr, SCENEID_TempPlayStop, playwhenfinishedloading );
+            LoadSceneFromJSON( fullpath, jsonstr, SCENEID_TempPlayStop, playWhenFinishedLoading );
 
             // Probably shouldn't bother with a rewind,
             //   might cause issues in future if LoadSceneFromJSON() uses stack and wants to keep info around
@@ -1868,7 +1874,7 @@ void EngineCore::Editor_DeleteQuickScene(const char* fullpath)
 }
 #endif //MYFW_EDITOR
 
-void EngineCore::LoadSceneFromJSON(const char* scenename, const char* jsonstr, SceneID sceneid, bool playwhenfinishedloading)
+void EngineCore::LoadSceneFromJSON(const char* scenename, const char* jsonstr, SceneID sceneid, bool playWhenFinishedLoading)
 {
     if( sceneid != SCENEID_TempPlayStop )
     {
@@ -1886,7 +1892,7 @@ void EngineCore::LoadSceneFromJSON(const char* scenename, const char* jsonstr, S
     OnSurfaceChanged( (unsigned int)m_WindowStartX, (unsigned int)m_WindowStartY, (unsigned int)m_WindowWidth, (unsigned int)m_WindowHeight );
 
     // FinishLoading calls OnLoad and OnPlay for all components in scene.
-    g_pComponentSystemManager->FinishLoading( false, sceneid, playwhenfinishedloading );
+    g_pComponentSystemManager->FinishLoading( false, sceneid, playWhenFinishedLoading );
 
 #if MYFW_USING_WX
     g_pEngineMainFrame->ResizeViewport();

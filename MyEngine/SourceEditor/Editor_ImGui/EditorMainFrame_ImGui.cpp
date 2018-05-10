@@ -507,6 +507,8 @@ void EditorMainFrame_ImGui::DrawGameAndEditorWindows(EngineCore* pEngineCore)
                 MyLight* lights[] = { &light1, &light2 };
                 pMeshBall->Draw( 0, &matviewproj, &campos, &camrot, lights, 2, 0, 0, 0, 0 );
 
+                // Unset the material to avoid holding a ref that prevents the material from unloading.
+                pMeshBall->SetMaterial( 0, 0 );
                 m_pMaterialPreviewFBO->Unbind( true );
             }
         }

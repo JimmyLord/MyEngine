@@ -819,7 +819,7 @@ void ComponentSystemManager::FreeDataFile(MyFileInfo* pFileInfo)
     delete pFileInfo;
 }
 
-void ComponentSystemManager::FreeAllDataFiles(SceneID sceneidtoclear)
+void ComponentSystemManager::FreeAllDataFiles(SceneID sceneIDToClear)
 {
     // loop through both lists of files
     for( int filelist=0; filelist<2; filelist++ )
@@ -836,7 +836,7 @@ void ComponentSystemManager::FreeAllDataFiles(SceneID sceneidtoclear)
             MyFileInfo* pFile = (MyFileInfo*)pNode;
             pNode = pNode->GetNext();
 
-            if( sceneidtoclear == SCENEID_AllScenes || pFile->m_SceneID == sceneidtoclear )
+            if( sceneIDToClear == SCENEID_AllScenes || pFile->m_SceneID == sceneIDToClear )
             {
                 delete pFile;
             }
@@ -1189,7 +1189,7 @@ void ComponentSystemManager::SyncAllRigidBodiesToObjectTransforms()
     }
 }
 
-void ComponentSystemManager::UnloadScene(SceneID sceneidtoclear, bool clearunmanagedcomponents)
+void ComponentSystemManager::UnloadScene(SceneID sceneIDToClear, bool clearUnmanagedComponents)
 {
     checkGlError( "start of ComponentSystemManager::UnloadScene" );
 
@@ -1205,8 +1205,8 @@ void ComponentSystemManager::UnloadScene(SceneID sceneidtoclear, bool clearunman
 
                 SceneID sceneid = pComponent->GetSceneID();
 
-                if( (pComponent->m_pGameObject->IsManaged() || clearunmanagedcomponents) &&
-                    (sceneidtoclear == SCENEID_AllScenes || sceneid == sceneidtoclear) )
+                if( (pComponent->m_pGameObject->IsManaged() || clearUnmanagedComponents) &&
+                    (sceneIDToClear == SCENEID_AllScenes || sceneid == sceneIDToClear) )
                 {
                     DeleteComponent( pComponent );
                 }
@@ -1228,7 +1228,7 @@ void ComponentSystemManager::UnloadScene(SceneID sceneidtoclear, bool clearunman
 
         SceneInfo* pSceneInfo = &m_pSceneInfoMap[i];
 
-        if( sceneidtoclear == SCENEID_AllScenes || (SceneID)i == sceneidtoclear )
+        if( sceneIDToClear == SCENEID_AllScenes || (SceneID)i == sceneIDToClear )
         {
             for( CPPListNode* pNode = pSceneInfo->m_GameObjects.GetHead(); pNode;  )
             {
@@ -1237,33 +1237,33 @@ void ComponentSystemManager::UnloadScene(SceneID sceneidtoclear, bool clearunman
                 pNode = pNode->GetNext();
 
                 SceneID sceneid = pGameObject->GetSceneID();
-                unsigned int gameobjectid = pGameObject->GetID();
+                unsigned int gameObjectID = pGameObject->GetID();
 
                 MyAssert( (SceneID)i == sceneid );
 
-                if( (pGameObject->IsManaged() || clearunmanagedcomponents) )
+                if( (pGameObject->IsManaged() || clearUnmanagedComponents) )
                 {
                     DeleteGameObject( pGameObject, true );
                 }
-                else if( sceneid == sceneidtoclear && gameobjectid > m_pSceneInfoMap[sceneid].m_NextGameObjectID )
+                else if( sceneid == sceneIDToClear && gameObjectID > m_pSceneInfoMap[sceneid].m_NextGameObjectID )
                 {
-                    m_pSceneInfoMap[sceneid].m_NextGameObjectID = gameobjectid + 1;
+                    m_pSceneInfoMap[sceneid].m_NextGameObjectID = gameObjectID + 1;
                 }
             }
         }
     }
 
     // If unloading all scenes, unload all prefab files.
-    if( sceneidtoclear == SCENEID_AllScenes )
+    if( sceneIDToClear == SCENEID_AllScenes )
     {
         m_pPrefabManager->UnloadAllPrefabFiles();
     }
 
     // Release any file ref's added by this scene.
-    FreeAllDataFiles( sceneidtoclear );
+    FreeAllDataFiles( sceneIDToClear );
 
     // If clearing all scenes, 
-    if( sceneidtoclear == SCENEID_AllScenes )
+    if( sceneIDToClear == SCENEID_AllScenes )
     {
         // Reset the scene counter, so the new "first" scene loaded will be 1.
         g_pComponentSystemManager->ResetSceneIDCounter();
@@ -1288,18 +1288,18 @@ void ComponentSystemManager::UnloadScene(SceneID sceneidtoclear, bool clearunman
             m_pSceneInfoMap[sceneid].Reset();
         }
     }
-    else if( sceneidtoclear != SCENEID_Unmanaged ) // If clearing any scene other than the unmanaged scene.
+    else if( sceneIDToClear != SCENEID_Unmanaged ) // If clearing any scene other than the unmanaged scene.
     {
 #if MYFW_USING_WX
-        MyAssert( m_pSceneInfoMap[sceneidtoclear].m_TreeID.IsOk() );
-        if( m_pSceneInfoMap[sceneidtoclear].m_TreeID.IsOk() )
+        MyAssert( m_pSceneInfoMap[sceneIDToClear].m_TreeID.IsOk() );
+        if( m_pSceneInfoMap[sceneIDToClear].m_TreeID.IsOk() )
         {
-            g_pPanelObjectList->m_pTree_Objects->Delete( m_pSceneInfoMap[sceneidtoclear].m_TreeID );
+            g_pPanelObjectList->m_pTree_Objects->Delete( m_pSceneInfoMap[sceneIDToClear].m_TreeID );
         }
 #endif
 
-        MyAssert( m_pSceneInfoMap[sceneidtoclear].m_InUse == true );
-        m_pSceneInfoMap[sceneidtoclear].Reset();
+        MyAssert( m_pSceneInfoMap[sceneIDToClear].m_InUse == true );
+        m_pSceneInfoMap[sceneIDToClear].Reset();
     }
 
     checkGlError( "end of ComponentSystemManager::UnloadScene" );
