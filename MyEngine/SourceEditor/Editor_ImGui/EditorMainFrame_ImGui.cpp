@@ -85,6 +85,7 @@ EditorMainFrame_ImGui::EditorMainFrame_ImGui()
 
     // For renaming things.
     m_RenamePressedThisFrame = false;
+    m_ConfirmCurrentRenameOp = false;
     m_pGameObjectWhoseNameIsBeingEdited = 0;
     m_pMaterialWhoseNameIsBeingEdited = 0;
     m_NameBeingEdited[0] = 0;
@@ -143,14 +144,33 @@ bool EditorMainFrame_ImGui::HandleInput(int keyaction, int keycode, int mouseact
 {
     ImGuiIO& io = ImGui::GetIO();
 
-    if( keyaction != -1 && io.WantTextInput == false )
+    if( keyaction != -1 )
     {
-        if( CheckForHotkeys( keyaction, keycode ) )
+        if( io.WantTextInput == false )
         {
-            // If a hotkey was pressed, unset that key so 'held' and 'up' messages won't get sent.
-            g_pEngineCore->ForceKeyRelease( keycode );
-            return true;
+            if( CheckForHotkeys( keyaction, keycode ) )
+            {
+                // If a hotkey was pressed, unset that key so 'held' and 'up' messages won't get sent.
+                g_pEngineCore->ForceKeyRelease( keycode );
+                return true;
+            }
         }
+        else
+        {
+            // Cancel rename operation if an ImGui input box has focus and escape is pressed.
+            if( keycode == MYKEYCODE_ESC )
+            {
+                m_pGameObjectWhoseNameIsBeingEdited = 0;
+                m_pMaterialWhoseNameIsBeingEdited = 0;
+                return true;
+            }
+        }
+    }
+
+    // For renaming, if the mouse is clicked anywhere, end/confirm the current rename operation.
+    if( mouseaction == GCBA_Down && id == 0 )
+    {
+        m_ConfirmCurrentRenameOp = true;
     }
 
     // For keyboard and other non-mouse events, localx/y will be -1.
@@ -273,12 +293,14 @@ bool EditorMainFrame_ImGui::CheckForHotkeys(int keyaction, int keycode)
         if( N  && keycode == VK_F2 || N  && keycode == MYKEYCODE_ENTER )
         {
             m_RenamePressedThisFrame = true;
+            m_ConfirmCurrentRenameOp = false;
             return true;
         }
 
-        if( keycode == MYKEYCODE_DELETE )
+        if( N  && keycode == MYKEYCODE_DELETE )
         {
             g_pEngineCore->GetEditorState()->DeleteSelectedObjects();
+            return true;
         }
 
         EditorPrefs* pEditorPrefs = g_pEngineCore->GetEditorPrefs();
@@ -287,7 +309,7 @@ bool EditorMainFrame_ImGui::CheckForHotkeys(int keyaction, int keycode)
         if( N  && keycode == VK_F3 ) { ImGui::SetWindowFocus( "Objects" ); m_SetObjectListFilterBoxInFocus = true;  return true; }
         if( C  && keycode == 'S' )   { EditorMenuCommand( EditorMenuCommand_File_SaveScene );                       return true; }
         if( CS && keycode == 'E' )   { EditorMenuCommand( EditorMenuCommand_File_Export_Box2DScene );               return true; }
-        if( CS && keycode == 'P' )   { g_pEngineCore->GetEditorPrefs()->GetImGuiStylePrefs()->Display();            return true; }
+        if( CS && keycode == 'P' )   { pEditorPrefs->GetImGuiStylePrefs()->Display();                               return true; }
         if( C  && keycode == 'Z' )   { EditorMenuCommand( EditorMenuCommand_Edit_Undo );                            return true; }
         if( C  && keycode == 'Y' )   { EditorMenuCommand( EditorMenuCommand_Edit_Redo );                            return true; }
         if( CS && keycode == 'Z' )   { EditorMenuCommand( EditorMenuCommand_Edit_Redo );                            return true; }
@@ -1240,7 +1262,8 @@ void EditorMainFrame_ImGui::AddGameObjectToObjectList(GameObject* pGameObject)
     {
         ImGui::PushID( pGameObject );
         ImGui::SetKeyboardFocusHere();
-        if( ImGui::InputText( "New name", m_NameBeingEdited, 100, ImGuiInputTextFlags_AutoSelectAll|ImGuiInputTextFlags_EnterReturnsTrue ) )
+        if( ImGui::InputText( "New name", m_NameBeingEdited, 100, ImGuiInputTextFlags_AutoSelectAll|ImGuiInputTextFlags_EnterReturnsTrue ) ||
+            m_ConfirmCurrentRenameOp )
         {
             m_pGameObjectWhoseNameIsBeingEdited->SetName( m_NameBeingEdited );
             m_pGameObjectWhoseNameIsBeingEdited = 0;
@@ -1278,8 +1301,6 @@ void EditorMainFrame_ImGui::AddGameObjectToObjectList(GameObject* pGameObject)
 
         // Start rename process on the first selected GameObject.
         // Since 'enter' is a rename key, make sure the object wasn't already being renamed.
-        // TODO: handle 'escape' to cancel rename.
-        // TODO: handle click elsewhere to confirm.
         if( pEditorState->m_pSelectedObjects.size() > 0 )
         {
             if( ImGui::IsRootWindowOrAnyChildFocused() && m_RenamePressedThisFrame &&
@@ -2008,7 +2029,8 @@ void EditorMainFrame_ImGui::AddMemoryPanel_Materials()
                 if( pMat == m_pMaterialWhoseNameIsBeingEdited )
                 {
                     ImGui::SetKeyboardFocusHere();
-                    if( ImGui::InputText( "New name", m_NameBeingEdited, 100, ImGuiInputTextFlags_AutoSelectAll|ImGuiInputTextFlags_EnterReturnsTrue ) )
+                    if( ImGui::InputText( "New name", m_NameBeingEdited, 100, ImGuiInputTextFlags_AutoSelectAll|ImGuiInputTextFlags_EnterReturnsTrue ) ||
+                        m_ConfirmCurrentRenameOp )
                     {
                         m_pMaterialWhoseNameIsBeingEdited->SetName( m_NameBeingEdited );
                         m_pMaterialWhoseNameIsBeingEdited = 0;
