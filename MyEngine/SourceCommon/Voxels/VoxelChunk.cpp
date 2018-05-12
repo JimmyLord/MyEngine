@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2016-2017 Jimmy Lord http://www.flatheadgames.com
+// Copyright (c) 2016-2018 Jimmy Lord http://www.flatheadgames.com
 //
 // This software is provided 'as-is', without any express or implied warranty.  In no event will the authors be held liable for any damages arising from the use of this software.
 // Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -1448,10 +1448,10 @@ void VoxelChunk::SetMaterial(MaterialDefinition* pMaterial, int submeshindex)
 {
     MyMesh::SetMaterial( pMaterial, 0 );
 
-    if( m_pSceneGraphObject == 0 )
-        return;
-
-    m_pSceneGraphObject->m_pMaterial = pMaterial;
+    if( m_pSceneGraphObject != 0 )
+    {
+        m_pSceneGraphObject->SetMaterial( pMaterial, true );
+    }
 }
 
 void VoxelChunk::PreDraw()

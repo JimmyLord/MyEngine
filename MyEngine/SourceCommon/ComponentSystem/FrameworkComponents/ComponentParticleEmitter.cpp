@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2017 Jimmy Lord http://www.flatheadgames.com
+// Copyright (c) 2015-2018 Jimmy Lord http://www.flatheadgames.com
 //
 // This software is provided 'as-is', without any express or implied warranty.  In no event will the authors be held liable for any damages arising from the use of this software.
 // Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -246,9 +246,9 @@ void ComponentParticleEmitter::SetMaterial(MaterialDefinition* pMaterial, int su
 
     m_pParticleRenderer->SetMaterial( m_pMaterial );
 
-    if( m_pSceneGraphObject )
+    if( m_pSceneGraphObject != 0 )
     {
-        m_pSceneGraphObject->m_pMaterial = pMaterial;
+        m_pSceneGraphObject->SetMaterial( pMaterial, true );
     }
 }
 
@@ -284,10 +284,11 @@ void ComponentParticleEmitter::PushChangesToSceneGraphObjects()
     // Sync scenegraph object
     if( m_pSceneGraphObject )
     {
-        m_pSceneGraphObject->m_Flags = SceneGraphFlag_Opaque; // TODO: check if opaque or transparent
+        // TODO: Check if opaque or transparent
+        // Don't bother updating flags when setting material, it's forced to transparent for now.
+        m_pSceneGraphObject->SetMaterial( this->GetMaterial( 0 ), false );
+        m_pSceneGraphObject->SetFlags( SceneGraphFlag_Transparent );
         m_pSceneGraphObject->m_Layers = this->m_LayersThisExistsOn;
-
-        m_pSceneGraphObject->m_pMaterial = this->GetMaterial( 0 );
         m_pSceneGraphObject->m_Visible = this->m_Visible;
 
         //m_pSceneGraphObject->m_GLPrimitiveType = this->m_GLPrimitiveType;

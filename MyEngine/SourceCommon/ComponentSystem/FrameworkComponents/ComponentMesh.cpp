@@ -546,24 +546,8 @@ void ComponentMesh::SetMaterial(MaterialDefinition* pMaterial, int submeshindex)
 
     if( m_pSceneGraphObjects[submeshindex] )
     {
-        // TODO: clean this mess
-        // Clear opaque/transparent flags, set the proper flag based on new material transparency.
-        SceneGraphFlags flags = m_pSceneGraphObjects[submeshindex]->m_Flags;
-        flags = (SceneGraphFlags)(flags & ~(SceneGraphFlag_Opaque | SceneGraphFlag_Transparent));
-        if( pMaterial )
-        {
-            if( m_pMaterials[submeshindex]->IsTransparent() )
-                flags = (SceneGraphFlags)(flags | SceneGraphFlag_Transparent);
-            else
-                flags = (SceneGraphFlags)(flags | SceneGraphFlag_Opaque);
-        }
-        else
-        {
-            flags = (SceneGraphFlags)(flags | SceneGraphFlag_Opaque);
-        }
-
-        m_pSceneGraphObjects[submeshindex]->m_pMaterial = pMaterial;
-        m_pSceneGraphObjects[submeshindex]->m_Flags = flags;
+        // Update the material on the SceneGraphObject along with the opaque/transparent flags.
+        m_pSceneGraphObjects[submeshindex]->SetMaterial( pMaterial, true );
     }
 }
 
@@ -679,10 +663,9 @@ void ComponentMesh::PushChangesToSceneGraphObjects()
     {
         if( m_pSceneGraphObjects[i] )
         {
-            m_pSceneGraphObjects[i]->m_Flags = SceneGraphFlag_Opaque; // TODO: check if opaque or transparent
+            m_pSceneGraphObjects[i]->SetMaterial( this->GetMaterial( i ), true );
             m_pSceneGraphObjects[i]->m_Layers = this->m_LayersThisExistsOn;
 
-            m_pSceneGraphObjects[i]->m_pMaterial = this->GetMaterial( i );
             m_pSceneGraphObjects[i]->m_Visible = this->m_Visible;
 
             m_pSceneGraphObjects[i]->m_GLPrimitiveType = this->m_GLPrimitiveType;
