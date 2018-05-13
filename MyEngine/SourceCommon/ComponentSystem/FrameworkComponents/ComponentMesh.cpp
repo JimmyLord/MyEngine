@@ -612,9 +612,7 @@ void ComponentMesh::AddToSceneGraph()
         // Add the Mesh to the main scene graph
         if( m_pMesh->GetSubmeshListCount() > 0 )
         {
-            SceneGraphFlags flags = SceneGraphFlag_Opaque; // TODO: check if opaque or transparent
-            unsigned int layers = m_LayersThisExistsOn;
-            g_pComponentSystemManager->AddMeshToSceneGraph( this, m_pMesh, m_pMaterials, m_GLPrimitiveType, m_PointSize, flags, layers, m_pSceneGraphObjects );
+            g_pComponentSystemManager->AddMeshToSceneGraph( this, m_pMesh, m_pMaterials, m_GLPrimitiveType, m_PointSize, m_LayersThisExistsOn, m_pSceneGraphObjects );
         }
 
         m_WaitingToAddToSceneGraph = false;

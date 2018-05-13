@@ -1420,7 +1420,7 @@ void VoxelChunk::AddToSceneGraph(void* pUserData, MaterialDefinition* pMaterial)
 
     m_pSceneGraphObject = g_pComponentSystemManager->m_pSceneGraph->AddObject(
         &m_Transform, this, m_SubmeshList[0],
-        pMaterial, GL_TRIANGLES, 0, SceneGraphFlag_Opaque, 1, pUserData );
+        pMaterial, GL_TRIANGLES, 0, 1, pUserData );
 }
 
 void VoxelChunk::OverrideSceneGraphObjectTransform(MyMatrix* pTransform)

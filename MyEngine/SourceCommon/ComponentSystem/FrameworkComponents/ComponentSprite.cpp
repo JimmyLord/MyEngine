@@ -27,6 +27,7 @@ ComponentSprite::ComponentSprite()
 
     m_BaseType = BaseComponentType_Renderable;
 
+    m_WaitingToAddToSceneGraph = false;
     m_pSceneGraphObject = 0;
 
     m_pSprite = 0;
@@ -270,17 +271,39 @@ void ComponentSprite::SetVisible(bool visible)
 
 void ComponentSprite::AddToSceneGraph()
 {
+    MaterialDefinition* pMaterial = m_pSprite->GetMaterial();
+
+    if( pMaterial == 0 )
+        return;
+
     MyAssert( m_pSceneGraphObject == 0 );
     MyAssert( m_pSprite );
 
-    // Add the particle renderer (submesh) to the main scene graph
-    SceneGraphFlags flags = SceneGraphFlag_Opaque; // TODO: check if opaque or transparent
-    unsigned int layers = m_LayersThisExistsOn;
-    m_pSceneGraphObject = g_pComponentSystemManager->AddSubmeshToSceneGraph( this, m_pSprite, m_pSprite->GetMaterial(), GL_TRIANGLES, 1, flags, layers );
+    // Add the submesh to the scene graph if the material is loaded, otherwise check again each tick.
+    // TODO: Either register with a material finished loading callback or use events instead of this tick callback.
+    if( pMaterial->IsFullyLoaded() )
+    {
+        m_pSceneGraphObject = g_pComponentSystemManager->AddSubmeshToSceneGraph( this, m_pSprite, pMaterial, GL_TRIANGLES, 1, m_LayersThisExistsOn );
+
+        m_WaitingToAddToSceneGraph = false;
+        MYFW_UNREGISTER_COMPONENT_CALLBACK( Tick );
+    }
+    else if( m_WaitingToAddToSceneGraph == false )
+    {
+        m_WaitingToAddToSceneGraph = true;
+        MYFW_REGISTER_COMPONENT_CALLBACK( ComponentSprite, Tick );
+    }
 }
 
 void ComponentSprite::RemoveFromSceneGraph()
 {
+    if( m_WaitingToAddToSceneGraph )
+    {
+        m_WaitingToAddToSceneGraph = false;
+        MYFW_UNREGISTER_COMPONENT_CALLBACK( Tick );
+        return;
+    }
+
     if( m_pSceneGraphObject != 0 )
     {
         g_pComponentSystemManager->RemoveObjectFromSceneGraph( m_pSceneGraphObject );    
@@ -302,6 +325,15 @@ void ComponentSprite::PushChangesToSceneGraphObjects()
         //m_pSceneGraphObject->m_GLPrimitiveType = this->m_GLPrimitiveType;
         //m_pSceneGraphObject->m_PointSize = this->m_PointSize;
     }
+}
+
+void ComponentSprite::TickCallback(double TimePassed)
+{
+    MyAssert( m_pGameObject->GetTransform() );
+    MyAssert( m_WaitingToAddToSceneGraph );
+
+    // AddToSceneGraph() will stop tick callbacks.
+    AddToSceneGraph();
 }
 
 void ComponentSprite::DrawCallback(ComponentCamera* pCamera, MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride)

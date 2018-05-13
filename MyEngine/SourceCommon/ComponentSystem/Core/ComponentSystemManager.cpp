@@ -2719,7 +2719,7 @@ MaterialDefinition* ComponentSystemManager::ParseLog_Material(const char* line)
 
 //void ComponentSystemManager::m_pGameObjectTemplateManager
 
-void ComponentSystemManager::AddMeshToSceneGraph(ComponentBase* pComponent, MyMesh* pMesh, MaterialDefinition** pMaterialList, int primitive, int pointsize, SceneGraphFlags flags, unsigned int layers, SceneGraphObject** pOutputList)
+void ComponentSystemManager::AddMeshToSceneGraph(ComponentBase* pComponent, MyMesh* pMesh, MaterialDefinition** pMaterialList, int primitive, int pointsize, unsigned int layers, SceneGraphObject** pOutputList)
 {
     MyAssert( pComponent != 0 );
     MyAssert( pComponent->m_pGameObject != 0 );
@@ -2732,14 +2732,13 @@ void ComponentSystemManager::AddMeshToSceneGraph(ComponentBase* pComponent, MyMe
 
     for( unsigned int i=0; i<pMesh->GetSubmeshListCount(); i++ )
     {
-        if( pMaterialList[i] && pMaterialList[i]->IsTransparent() )
-            flags = SceneGraphFlag_Transparent;
         MyAssert( pOutputList[i] == 0 );
-        pOutputList[i] = m_pSceneGraph->AddObject( pWorldTransform, pMesh, pMesh->GetSubmesh( i ), pMaterialList[i], primitive, pointsize, flags, layers, pComponent );
+        
+        pOutputList[i] = m_pSceneGraph->AddObject( pWorldTransform, pMesh, pMesh->GetSubmesh( i ), pMaterialList[i], primitive, pointsize, layers, pComponent );
     }
 }
 
-SceneGraphObject* ComponentSystemManager::AddSubmeshToSceneGraph(ComponentBase* pComponent, MySubmesh* pSubmesh, MaterialDefinition* pMaterial, int primitive, int pointsize, SceneGraphFlags flags, unsigned int layers)
+SceneGraphObject* ComponentSystemManager::AddSubmeshToSceneGraph(ComponentBase* pComponent, MySubmesh* pSubmesh, MaterialDefinition* pMaterial, int primitive, int pointsize, unsigned int layers)
 {
     MyAssert( pComponent != 0 );
     MyAssert( pComponent->m_pGameObject != 0 );
@@ -2747,7 +2746,7 @@ SceneGraphObject* ComponentSystemManager::AddSubmeshToSceneGraph(ComponentBase* 
 
     MyMatrix* pWorldTransform = pComponent->m_pGameObject->GetTransform()->GetWorldTransform();
 
-    return m_pSceneGraph->AddObject( pWorldTransform, 0, pSubmesh, pMaterial, primitive, pointsize, flags, layers, pComponent );
+    return m_pSceneGraph->AddObject( pWorldTransform, 0, pSubmesh, pMaterial, primitive, pointsize, layers, pComponent );
 }
 
 void ComponentSystemManager::RemoveObjectFromSceneGraph(SceneGraphObject* pSceneGraphObject)

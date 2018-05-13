@@ -19,6 +19,7 @@ private:
     MYFW_COMPONENT_DECLARE_VARIABLE_LIST( ComponentSprite ); //_VARIABLE_LIST
 
 public:
+    bool m_WaitingToAddToSceneGraph;
     SceneGraphObject* m_pSceneGraphObject;
 
     MySprite* m_pSprite;
@@ -57,7 +58,7 @@ public:
 
 protected:
     // Callback functions for various events.
-    //MYFW_DECLARE_COMPONENT_CALLBACK_TICK(); // TickCallback
+    MYFW_DECLARE_COMPONENT_CALLBACK_TICK(); // TickCallback
     //MYFW_DECLARE_COMPONENT_CALLBACK_ONSURFACECHANGED(); // OnSurfaceChangedCallback
     MYFW_DECLARE_COMPONENT_CALLBACK_DRAW(); // DrawCallback
     //MYFW_DECLARE_COMPONENT_CALLBACK_ONTOUCH(); // OnTouchCallback
