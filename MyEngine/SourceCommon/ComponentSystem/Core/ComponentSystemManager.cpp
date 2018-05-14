@@ -2159,7 +2159,7 @@ void ComponentSystemManager::OnDrawFrame()
     }
 }
 
-void ComponentSystemManager::DrawFrame(ComponentCamera* pCamera, MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride, bool drawOpaques, bool drawTransparents, bool drawOverlays)
+void ComponentSystemManager::DrawFrame(ComponentCamera* pCamera, MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride, bool drawOpaques, bool drawTransparents, bool drawEmissives, bool drawOverlays)
 {
     checkGlError( "start of ComponentSystemManager::OnDrawFrame()" );
 
@@ -2193,14 +2193,20 @@ void ComponentSystemManager::DrawFrame(ComponentCamera* pCamera, MyMatrix* pMatV
             }
         }
 
+        SceneGraphFlags baseFlags = (SceneGraphFlags)0;
+        if( drawEmissives )
+            baseFlags = (SceneGraphFlags)(baseFlags | SceneGraphFlag_Emissive);
+
         if( drawOpaques )
         {
-            m_pSceneGraph->Draw( SceneGraphFlag_Opaque, pCamera->m_LayersToRender, &campos, &camrot, pMatViewProj, pShadowVP, pShadowTex, pShaderOverride, 0 );
+            SceneGraphFlags flags = (SceneGraphFlags)(baseFlags | SceneGraphFlag_Opaque);
+            m_pSceneGraph->Draw( flags, pCamera->m_LayersToRender, &campos, &camrot, pMatViewProj, pShadowVP, pShadowTex, pShaderOverride, 0 );
         }
 
         if( drawTransparents )
         {
-            m_pSceneGraph->Draw( SceneGraphFlag_Transparent, pCamera->m_LayersToRender, &campos, &camrot, pMatViewProj, pShadowVP, pShadowTex, pShaderOverride, 0 );
+            SceneGraphFlags flags = (SceneGraphFlags)(baseFlags | SceneGraphFlag_Transparent);
+            m_pSceneGraph->Draw( flags, pCamera->m_LayersToRender, &campos, &camrot, pMatViewProj, pShadowVP, pShadowTex, pShaderOverride, 0 );
         }
     }
     

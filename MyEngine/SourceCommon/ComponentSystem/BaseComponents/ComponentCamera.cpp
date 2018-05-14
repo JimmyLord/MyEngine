@@ -660,15 +660,18 @@ void ComponentCamera::DrawScene()
 
         bool drawOpaques = true;
         bool drawTransparents = true;
+        bool drawEmissives = true;
         bool drawOverlays = true;
 
+        // For deferred, only render opaques here, all others will be rendered in forward shading pass below.
         if( renderedADeferredPass )
         {
             drawTransparents = false;
+            drawEmissives = false;
             drawOverlays = false;
         }
 
-        g_pComponentSystemManager->DrawFrame( this, pMatViewProj, 0, drawOpaques, drawTransparents, drawOverlays );
+        g_pComponentSystemManager->DrawFrame( this, pMatViewProj, 0, drawOpaques, drawTransparents, drawEmissives, drawOverlays );
 
         if( m_pGBuffer && renderedADeferredPass && m_DeferredGBufferVisible )
         {
@@ -805,9 +808,10 @@ void ComponentCamera::DrawScene()
         {
             bool drawOpaques = false;
             bool drawTransparents = true;
+            bool drawEmissives = true;
             bool drawOverlays = true;
 
-            g_pComponentSystemManager->DrawFrame( this, pMatViewProj, 0, drawOpaques, drawTransparents, drawOverlays );
+            g_pComponentSystemManager->DrawFrame( this, pMatViewProj, 0, drawOpaques, drawTransparents, drawEmissives, drawOverlays );
         }
     }
 
