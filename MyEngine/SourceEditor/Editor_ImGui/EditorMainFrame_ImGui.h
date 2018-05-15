@@ -50,8 +50,10 @@ protected:
     Vector2 m_EditorWindowSize;
 
     bool m_GameWindowFocused;
+    bool m_GameWindowVisible;
     bool m_EditorWindowHovered;
     bool m_EditorWindowFocused;
+    bool m_EditorWindowVisible;
 
     GameObject* m_pLastGameObjectInteractedWithInObjectPanel;
 

@@ -96,8 +96,10 @@ EditorMainFrame_ImGui::EditorMainFrame_ImGui()
     m_EditorWindowSize.Set( 0, 0 );
 
     m_GameWindowFocused = false;
+    m_GameWindowVisible = false;
     m_EditorWindowHovered = false;
     m_EditorWindowFocused = false;
+    m_EditorWindowVisible = false;
 
     m_pLastGameObjectInteractedWithInObjectPanel = 0;
 
@@ -392,7 +394,7 @@ void EditorMainFrame_ImGui::AddEverything()
 
 void EditorMainFrame_ImGui::DrawGameAndEditorWindows(EngineCore* pEngineCore)
 {
-    if( m_GameWindowSize.LengthSquared() != 0 )
+    if( m_GameWindowVisible && m_GameWindowSize.LengthSquared() != 0 )
     {
         if( m_pGameFBO->GetColorTexture( 0 ) )
         {
@@ -457,7 +459,7 @@ void EditorMainFrame_ImGui::DrawGameAndEditorWindows(EngineCore* pEngineCore)
         }
     }
 
-    if( m_EditorWindowSize.LengthSquared() != 0 )
+    if( m_EditorWindowVisible && m_EditorWindowSize.LengthSquared() != 0 )
     {
         if( m_pEditorFBO->GetColorTexture( 0 ) )
         {
@@ -970,6 +972,7 @@ void EditorMainFrame_ImGui::AddGameAndEditorWindows()
     if( ImGui::Begin( "Game", 0, ImVec2(256, 171) ) )
     {
         m_GameWindowFocused = ImGui::IsWindowFocused();
+        m_GameWindowVisible = true;
 
         ImVec2 min = ImGui::GetWindowContentRegionMin();
         ImVec2 max = ImGui::GetWindowContentRegionMax();
@@ -1004,6 +1007,10 @@ void EditorMainFrame_ImGui::AddGameAndEditorWindows()
             }
         }
     }
+    else
+    {
+        m_GameWindowVisible = false;
+    }
     ImGui::End();
 
     ImGui::SetNextWindowPos( ImVec2(269, 24), ImGuiCond_FirstUseEver );
@@ -1011,6 +1018,7 @@ void EditorMainFrame_ImGui::AddGameAndEditorWindows()
     {
         m_EditorWindowFocused = ImGui::IsWindowFocused();
         m_EditorWindowHovered = ImGui::IsWindowHovered();
+        m_EditorWindowVisible = true;
 
         ImVec2 min = ImGui::GetWindowContentRegionMin();
         ImVec2 max = ImGui::GetWindowContentRegionMax();
@@ -1050,6 +1058,10 @@ void EditorMainFrame_ImGui::AddGameAndEditorWindows()
                 }
             }
         }
+    }
+    else
+    {
+        m_EditorWindowVisible = false;
     }
     ImGui::End();
 }
