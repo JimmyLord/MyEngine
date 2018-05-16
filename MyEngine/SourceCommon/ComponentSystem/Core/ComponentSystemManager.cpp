@@ -2159,7 +2159,7 @@ void ComponentSystemManager::OnDrawFrame()
     }
 }
 
-void ComponentSystemManager::DrawFrame(ComponentCamera* pCamera, MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride, bool drawOpaques, bool drawTransparents, bool drawEmissives, bool drawOverlays)
+void ComponentSystemManager::DrawFrame(ComponentCamera* pCamera, MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride, bool drawOpaques, bool drawTransparents, EmissiveDrawOptions emissiveDrawOption, bool drawOverlays)
 {
     checkGlError( "start of ComponentSystemManager::OnDrawFrame()" );
 
@@ -2193,20 +2193,21 @@ void ComponentSystemManager::DrawFrame(ComponentCamera* pCamera, MyMatrix* pMatV
             }
         }
 
-        SceneGraphFlags baseFlags = (SceneGraphFlags)0;
-        if( drawEmissives )
-            baseFlags = (SceneGraphFlags)(baseFlags | SceneGraphFlag_Emissive);
+        //SceneGraphFlags baseFlags = (SceneGraphFlags)0;
+        //if( drawEmissives )
+        //    baseFlags = (SceneGraphFlags)(baseFlags | SceneGraphFlag_Emissive);
 
         if( drawOpaques )
         {
-            SceneGraphFlags flags = (SceneGraphFlags)(baseFlags | SceneGraphFlag_Opaque);
-            m_pSceneGraph->Draw( flags, pCamera->m_LayersToRender, &campos, &camrot, pMatViewProj, pShadowVP, pShadowTex, pShaderOverride, 0 );
+            //SceneGraphFlags flags = (SceneGraphFlags)(baseFlags | SceneGraphFlag_Opaque);
+            //baseFlags = (SceneGraphFlags)(baseFlags | ~SceneGraphFlag_Emissive);
+            m_pSceneGraph->Draw( true, emissiveDrawOption, pCamera->m_LayersToRender, &campos, &camrot, pMatViewProj, pShadowVP, pShadowTex, pShaderOverride, 0 );
         }
 
         if( drawTransparents )
         {
-            SceneGraphFlags flags = (SceneGraphFlags)(baseFlags | SceneGraphFlag_Transparent);
-            m_pSceneGraph->Draw( flags, pCamera->m_LayersToRender, &campos, &camrot, pMatViewProj, pShadowVP, pShadowTex, pShaderOverride, 0 );
+            //SceneGraphFlags flags = (SceneGraphFlags)(baseFlags | SceneGraphFlag_Transparent);
+            m_pSceneGraph->Draw( false, emissiveDrawOption, pCamera->m_LayersToRender, &campos, &camrot, pMatViewProj, pShadowVP, pShadowTex, pShaderOverride, 0 );
         }
     }
     
@@ -2310,8 +2311,8 @@ void ComponentSystemManager::DrawMousePickerFrame(ComponentCamera* pCamera, MyMa
             Vector3 campos = pCamera->m_pComponentTransform->GetLocalPosition();
             Vector3 camrot = pCamera->m_pComponentTransform->GetLocalRotation();
 
-            m_pSceneGraph->Draw( SceneGraphFlag_Opaque, pCamera->m_LayersToRender, &campos, &camrot, pMatViewProj, 0, 0, pShaderOverride, ProgramSceneIDs );
-            m_pSceneGraph->Draw( SceneGraphFlag_Transparent, pCamera->m_LayersToRender, &campos, &camrot, pMatViewProj, 0, 0, pShaderOverride, ProgramSceneIDs );
+            m_pSceneGraph->Draw( true, EmissiveDrawOption_EitherEmissiveOrNot, pCamera->m_LayersToRender, &campos, &camrot, pMatViewProj, 0, 0, pShaderOverride, ProgramSceneIDs );
+            m_pSceneGraph->Draw( false, EmissiveDrawOption_EitherEmissiveOrNot, pCamera->m_LayersToRender, &campos, &camrot, pMatViewProj, 0, 0, pShaderOverride, ProgramSceneIDs );
         }
 
         // draw all components that registered a callback.

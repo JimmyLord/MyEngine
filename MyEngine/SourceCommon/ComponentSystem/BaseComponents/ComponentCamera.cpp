@@ -660,18 +660,18 @@ void ComponentCamera::DrawScene()
 
         bool drawOpaques = true;
         bool drawTransparents = true;
-        bool drawEmissives = true;
+        EmissiveDrawOptions emissiveDrawOption = EmissiveDrawOption_EitherEmissiveOrNot;
         bool drawOverlays = true;
 
         // For deferred, only render opaques here, all others will be rendered in forward shading pass below.
         if( renderedADeferredPass )
         {
             drawTransparents = false;
-            drawEmissives = false;
+            emissiveDrawOption = EmissiveDrawOption_NoEmissives;
             drawOverlays = false;
         }
 
-        g_pComponentSystemManager->DrawFrame( this, pMatViewProj, 0, drawOpaques, drawTransparents, drawEmissives, drawOverlays );
+        g_pComponentSystemManager->DrawFrame( this, pMatViewProj, 0, drawOpaques, drawTransparents, emissiveDrawOption, drawOverlays );
 
         if( m_pGBuffer && renderedADeferredPass && m_DeferredGBufferVisible )
         {
@@ -804,14 +804,24 @@ void ComponentCamera::DrawScene()
             glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
         }
 
+        // Render opaque/emissive objects with normal forward render pass.
+        {
+            bool drawOpaques = true;
+            bool drawTransparents = false;
+            EmissiveDrawOptions emissiveDrawOption = EmissiveDrawOption_OnlyEmissives;
+            bool drawOverlays = false;
+
+            g_pComponentSystemManager->DrawFrame( this, pMatViewProj, 0, drawOpaques, drawTransparents, emissiveDrawOption, drawOverlays );
+        }
+
         // Render transparent objects with normal forward render pass.
         {
             bool drawOpaques = false;
             bool drawTransparents = true;
-            bool drawEmissives = true;
+            EmissiveDrawOptions emissiveDrawOption = EmissiveDrawOption_EitherEmissiveOrNot;
             bool drawOverlays = true;
 
-            g_pComponentSystemManager->DrawFrame( this, pMatViewProj, 0, drawOpaques, drawTransparents, drawEmissives, drawOverlays );
+            g_pComponentSystemManager->DrawFrame( this, pMatViewProj, 0, drawOpaques, drawTransparents, emissiveDrawOption, drawOverlays );
         }
     }
 
