@@ -1270,6 +1270,7 @@ void EditorMainFrame_ImGui::AddGameObjectToObjectList(GameObject* pGameObject)
     if( pGameObject->IsManaged() == false )
         return;
 
+    // If we're renaming the GameObject, show an edit box instead of a tree node.
     if( pGameObject == m_pGameObjectWhoseNameIsBeingEdited )
     {
         ImGui::PushID( pGameObject );
@@ -1286,10 +1287,21 @@ void EditorMainFrame_ImGui::AddGameObjectToObjectList(GameObject* pGameObject)
     }
     else
     {
+        // If the object list filter has any characters in it.
         if( m_ObjectListFilter[0] != 0 )
         {
+            // Check if this GameObject's name contains the substrings.
             if( CheckIfMultipleSubstringsAreInString( pGameObject->GetName(), m_ObjectListFilter ) == false )
             {
+                // Substrings weren't found, but might be in child GameObjects, so check/add those.
+                GameObject* pChildGameObject = pGameObject->GetFirstChild();
+                while( pChildGameObject )
+                {
+                    AddGameObjectToObjectList( pChildGameObject );
+                    pChildGameObject = (GameObject*)pChildGameObject->GetNext();
+                }
+
+                // Substrings weren't found, so kick out.
                 return;
             }
         }
@@ -1582,7 +1594,7 @@ void EditorMainFrame_ImGui::AddGameObjectToObjectList(GameObject* pGameObject)
         
         if( treeNodeIsOpen )
         {
-            // Add Child GameObjects
+            // Add Child GameObjects.
             GameObject* pChildGameObject = pGameObject->GetFirstChild();
             while( pChildGameObject )
             {
@@ -1590,7 +1602,7 @@ void EditorMainFrame_ImGui::AddGameObjectToObjectList(GameObject* pGameObject)
                 pChildGameObject = (GameObject*)pChildGameObject->GetNext();
             }
 
-            // Add Components
+            // Add Components.
             for( unsigned int ci=0; ci<pGameObject->GetComponentCountIncludingCore(); ci++ )
             {
                 ComponentBase* pComponent = pGameObject->GetComponentByIndexIncludingCore( ci );
