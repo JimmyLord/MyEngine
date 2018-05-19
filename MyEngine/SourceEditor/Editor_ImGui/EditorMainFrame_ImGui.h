@@ -108,6 +108,7 @@ protected:
     void AddMemoryPanel_Textures();
     void AddMemoryPanel_ShaderGroups();
     void AddMemoryPanel_Files();
+    void AddMemoryPanel_DrawCalls();
 
     void AddMaterialEditor();
 

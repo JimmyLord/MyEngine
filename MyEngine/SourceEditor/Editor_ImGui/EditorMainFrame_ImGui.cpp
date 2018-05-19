@@ -398,6 +398,8 @@ void EditorMainFrame_ImGui::DrawGameAndEditorWindows(EngineCore* pEngineCore)
     {
         if( m_pGameFBO->GetColorTexture( 0 ) )
         {
+            g_GLStats.NewCanvasFrame( 0 );
+
             // Draw game view.
             m_pGameFBO->Bind( false );
 
@@ -456,6 +458,8 @@ void EditorMainFrame_ImGui::DrawGameAndEditorWindows(EngineCore* pEngineCore)
 
             pEngineCore->GetComponentSystemManager()->OnDrawFrame();
             MyBindFramebuffer( GL_FRAMEBUFFER, 0, 0, 0 );
+
+            g_GLStats.EndCanvasFrame();
         }
     }
 
@@ -463,6 +467,8 @@ void EditorMainFrame_ImGui::DrawGameAndEditorWindows(EngineCore* pEngineCore)
     {
         if( m_pEditorFBO->GetColorTexture( 0 ) )
         {
+            g_GLStats.NewCanvasFrame( 1 );
+
             // Draw editor view.
             g_GLCanvasIDActive = 1;
             pEngineCore->Editor_OnSurfaceChanged( 0, 0, (unsigned int)m_EditorWindowSize.x, (unsigned int)m_EditorWindowSize.y );
@@ -473,6 +479,8 @@ void EditorMainFrame_ImGui::DrawGameAndEditorWindows(EngineCore* pEngineCore)
             MyBindFramebuffer( GL_FRAMEBUFFER, 0, 0, 0 );
 
             g_GLCanvasIDActive = 0;
+
+            g_GLStats.EndCanvasFrame();
         }
     }
 
@@ -1983,6 +1991,7 @@ void EditorMainFrame_ImGui::AddMemoryPanel()
 
             case PanelMemoryPage_DrawCalls:
                 {
+                    AddMemoryPanel_DrawCalls();
                 }
                 break;
 
@@ -2435,6 +2444,57 @@ void EditorMainFrame_ImGui::AddMemoryPanel_Files()
     {
         ImGui::TreeNodeEx( "No files loaded.", ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen );
     }
+}
+
+void EditorMainFrame_ImGui::AddMemoryPanel_DrawCalls()
+{
+    ImGuiTreeNodeFlags baseNodeFlags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_DefaultOpen;
+    
+    ImGui::PushID( "DrawCallTree" );
+    if( ImGui::TreeNodeEx( "Draw Calls", baseNodeFlags ) )
+    {
+        if( ImGui::IsItemHovered() )
+        {
+            g_GLStats.m_DrawCallLimit_Canvas = -1;
+            g_GLStats.m_DrawCallLimit_Index = -1;
+        }
+
+        for( int canvasIndex=0; canvasIndex<2; canvasIndex++ )
+        {
+            char* label = "Game Window";
+            if( canvasIndex == 1 )
+                label = "Editor Window";
+
+            if( ImGui::TreeNodeEx( label, baseNodeFlags ) )
+            {
+                if( ImGui::IsItemHovered() )
+                {
+                    g_GLStats.m_DrawCallLimit_Canvas = -1;
+                    g_GLStats.m_DrawCallLimit_Index = -1;
+                }
+
+                for( int callIndex=0; callIndex<g_GLStats.m_NumDrawCallsLastFrame[canvasIndex]; callIndex++ )
+                {
+                    ImGui::PushID( callIndex );
+                    if( ImGui::TreeNodeEx( "Draw", ImGuiTreeNodeFlags_Leaf ) )
+                    {
+                        if( ImGui::IsItemHovered() )
+                        {
+                            g_GLStats.m_DrawCallLimit_Canvas = canvasIndex;
+                            g_GLStats.m_DrawCallLimit_Index = callIndex;
+                        }
+                        ImGui::TreePop();
+                    }
+                    ImGui::PopID();
+                }
+
+                ImGui::TreePop();
+            }
+        }
+
+        ImGui::TreePop();
+    }
+    ImGui::PopID();
 }
 
 void EditorMainFrame_ImGui::AddMaterialPreview(bool createWindow, ImVec2 requestedSize, ImVec4 tint)
