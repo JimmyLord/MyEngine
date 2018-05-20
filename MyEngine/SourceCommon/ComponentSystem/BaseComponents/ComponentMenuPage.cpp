@@ -1381,9 +1381,9 @@ void ComponentMenuPage::CreateMenuItems()
     }
 }
 
-void ComponentMenuPage::TickCallback(double TimePassed)
+void ComponentMenuPage::TickCallback(float deltaTime)
 {
-    //ComponentRenderable::TickCallback( TimePassed );
+    //ComponentRenderable::TickCallback( deltaTime );
 
     // If we don't have a camera attached to this object, try to find one.
     if( m_pComponentCamera == 0 )
@@ -1391,7 +1391,7 @@ void ComponentMenuPage::TickCallback(double TimePassed)
 
     if( m_MenuPageTickCallbackStruct.pFunc )
     {
-        m_MenuPageTickCallbackStruct.pFunc( m_MenuPageTickCallbackStruct.pObj, this, TimePassed );
+        m_MenuPageTickCallbackStruct.pFunc( m_MenuPageTickCallbackStruct.pObj, this, deltaTime );
     }
 
     if( m_MenuItemsCreated == false )
@@ -1408,14 +1408,14 @@ void ComponentMenuPage::TickCallback(double TimePassed)
     {
         if( m_pMenuItems[i] )
         {
-            m_pMenuItems[i]->Tick( TimePassed );
+            m_pMenuItems[i]->Tick( deltaTime );
         }
     }
 }
 
 void ComponentMenuPage::OnSurfaceChangedCallback(unsigned int startx, unsigned int starty, unsigned int width, unsigned int height, unsigned int desiredaspectwidth, unsigned int desiredaspectheight)
 {
-    //ComponentRenderable::OnSurfaceChangedCallback( TimePassed );
+    //ComponentRenderable::OnSurfaceChangedCallback( deltaTime );
     if( m_pComponentCamera == 0 )
         FindFirstOrthoCamera();
 

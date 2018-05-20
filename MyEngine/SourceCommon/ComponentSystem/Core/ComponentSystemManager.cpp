@@ -2031,7 +2031,7 @@ ComponentBase* ComponentSystemManager::FindComponentByID(unsigned int id, SceneI
     return 0;
 }
 
-void ComponentSystemManager::Tick(double TimePassed)
+void ComponentSystemManager::Tick(float deltaTime)
 {
     if( m_WaitingForFilesToFinishLoading )
     {
@@ -2050,7 +2050,7 @@ void ComponentSystemManager::Tick(double TimePassed)
         MyAssert( pFileInfo );
         MyAssert( pFileInfo->m_pSpriteSheet );
 
-        pFileInfo->m_pSpriteSheet->Tick( TimePassed );
+        pFileInfo->m_pSpriteSheet->Tick( deltaTime );
 
         if( pFileInfo->m_pSpriteSheet->IsFullyLoaded() )
             m_Files.MoveTail( pNode );
@@ -2060,7 +2060,7 @@ void ComponentSystemManager::Tick(double TimePassed)
     CheckForUpdatedDataSourceFiles( true );
 #endif
 
-    //TimePassed *= m_TimeScale;
+    //deltaTime *= m_TimeScale;
 
     // update all Components:
 
@@ -2071,12 +2071,12 @@ void ComponentSystemManager::Tick(double TimePassed)
 
     //    if( pComponent->m_BaseType == BaseComponentType_Updateable && pComponent->m_Type == ComponentType_LuaScript )
     //    {
-    //        pComponent->Tick( TimePassed );
+    //        pComponent->Tick( deltaTime );
     //    }
     //}
 
     //// don't tick objects if time is 0, useful for debugging, shouldn't be done otherwise
-    //if( TimePassed == 0 )
+    //if( deltaTime == 0 )
     //    return;
 
     // then all other "Updateables".
@@ -2086,7 +2086,7 @@ void ComponentSystemManager::Tick(double TimePassed)
 
         if( pComponent->m_BaseType == BaseComponentType_Updateable ) //&& pComponent->m_Type != ComponentType_LuaScript )
         {
-            pComponent->Tick( TimePassed );
+            pComponent->Tick( deltaTime );
         }
     }
 
@@ -2098,7 +2098,7 @@ void ComponentSystemManager::Tick(double TimePassed)
         ComponentCallbackStruct_Tick* pCallbackStruct = (ComponentCallbackStruct_Tick*)pNode;
         MyAssert( pCallbackStruct->pFunc != 0 );
 
-        (pCallbackStruct->pObj->*pCallbackStruct->pFunc)( TimePassed );
+        (pCallbackStruct->pObj->*pCallbackStruct->pFunc)( deltaTime );
     }
 
     // update all cameras after game objects are updated.
@@ -2108,7 +2108,7 @@ void ComponentSystemManager::Tick(double TimePassed)
 
         if( pComponent->m_BaseType == BaseComponentType_Camera )
         {
-            pComponent->Tick( TimePassed );
+            pComponent->Tick( deltaTime );
         }
     }
 }

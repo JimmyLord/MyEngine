@@ -372,7 +372,7 @@ void ComponentCamera::ComputeProjectionMatrices()
     }
 }
 
-void ComponentCamera::Tick(double TimePassed)
+void ComponentCamera::Tick(float deltaTime)
 {
     m_pComponentTransform->UpdateTransform();
     MyMatrix matView = *m_pComponentTransform->GetWorldTransform();

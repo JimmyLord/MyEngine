@@ -222,9 +222,9 @@ void ComponentCameraShadow::OnTransformChanged(Vector3& newpos, Vector3& newrot,
     m_pLight->m_SpotDirectionVector = m_pGameObject->GetTransform()->GetWorldTransform()->GetAt();
 }
 
-void ComponentCameraShadow::Tick(double TimePassed)
+void ComponentCameraShadow::Tick(float deltaTime)
 {
-    ComponentCamera::Tick( TimePassed );
+    ComponentCamera::Tick( deltaTime );
 }
 
 void ComponentCameraShadow::OnSurfaceChanged(unsigned int startx, unsigned int starty, unsigned int width, unsigned int height, unsigned int desiredaspectwidth, unsigned int desiredaspectheight)

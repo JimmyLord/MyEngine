@@ -86,7 +86,7 @@ protected:
     bool m_EditorMode;
     bool m_AllowGameToRunInEditorMode;
     bool m_Paused;
-    double m_PauseTimeToAdvance; // advance clock by this much on next tick.
+    float m_PauseTimeToAdvance; // advance clock by this much on next tick.
 
     Vector2 m_LastMousePos;
 
@@ -200,7 +200,7 @@ public:
 
     virtual void RequestClose(); // Override GameCore, will popup a confirm dialog in ImGui Editor builds.
 
-    virtual double Tick(double TimePassed);
+    virtual float Tick(float deltaTime);
     virtual void OnFocusGained();
     virtual void OnFocusLost();
     virtual void OnSurfaceChanged(unsigned int startx, unsigned int starty, unsigned int width, unsigned int height);
@@ -215,6 +215,7 @@ public:
 
     void SetMousePosition(float x, float y);
     virtual bool OnTouch(int action, int id, float x, float y, float pressure, float size);
+    virtual bool OnTouchGameWindow(int action, int id, float x, float y, float pressure, float size);
     virtual bool OnButtons(GameCoreButtonActions action, GameCoreButtonIDs id);
     virtual bool OnKeys(GameCoreButtonActions action, int keycode, int unicodechar);
     virtual bool OnChar(unsigned int c);
@@ -223,7 +224,7 @@ public:
     virtual void OnModePlay();
     virtual void OnModeStop();
     virtual void OnModePause();
-    virtual void OnModeAdvanceTime(double time);
+    virtual void OnModeAdvanceTime(float time);
 
     virtual void RegisterGameplayButtons();
     virtual void UnregisterGameplayButtons();

@@ -189,6 +189,6 @@ void ComponentTemplate::UnregisterCallbacks()
     }
 }
 
-//void ComponentTemplate::TickCallback(double TimePassed)
+//void ComponentTemplate::TickCallback(float deltaTime)
 //{
 //}

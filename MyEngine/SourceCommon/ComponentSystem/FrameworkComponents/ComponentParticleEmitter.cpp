@@ -347,11 +347,11 @@ void ComponentParticleEmitter::CreateBurst(int number, Vector3 offset)
     }
 }
 
-void ComponentParticleEmitter::TickCallback(double TimePassed)
+void ComponentParticleEmitter::TickCallback(float deltaTime)
 {
 #if MYFW_USING_WX
     if( m_RunInEditor && g_pEngineCore->IsInEditorMode() )
-        TimePassed = g_pGameCore->GetTimePassedUnpausedLastFrame();
+        deltaTime = g_pGameCore->GetTimePassedUnpausedLastFrame();
 #endif
 
     // TODO: if we want to share particle renderers, then don't reset like this.
@@ -376,14 +376,14 @@ void ComponentParticleEmitter::TickCallback(double TimePassed)
         m_pParticleRenderer->RebuildParticleQuad( 0 );
     }
 
-    //m_TimeAlive += TimePassed;
+    //m_TimeAlive += deltaTime;
 
     for( unsigned int i=0; i<m_Particles.m_ActiveObjects.Count(); i++ )
     {
         Particle* pParticle = m_Particles.m_ActiveObjects[i];
-        pParticle->pos += pParticle->dir * (float)TimePassed;
+        pParticle->pos += pParticle->dir * deltaTime;
         
-        pParticle->timealive += (float)TimePassed;
+        pParticle->timealive += deltaTime;
 
         float perc = pParticle->timealive / pParticle->timetolive;
         MyClamp( perc, 0.0f, 1.0f );
@@ -414,7 +414,7 @@ void ComponentParticleEmitter::TickCallback(double TimePassed)
     }
 
     if( m_ContinuousSpawn || m_RunInEditor )
-        m_TimeTilNextSpawn -= (float)TimePassed;
+        m_TimeTilNextSpawn -= deltaTime;
 
     if( m_TimeTilNextSpawn < 0 )
     {

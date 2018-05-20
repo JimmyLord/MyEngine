@@ -88,7 +88,7 @@ public:
     VoxelWorld();
     virtual ~VoxelWorld();
 
-    void Tick(double timepassed, void* pUserData);
+    void Tick(float deltaTime, void* pUserData);
     int DealWithGeneratedChunkJobs();
     int DealWithMeshedChunkJobs();
 

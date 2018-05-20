@@ -190,13 +190,26 @@ bool EditorMainFrame_ImGui::HandleInput(int keyaction, int keycode, int mouseact
     float mouseabsx = io.MousePos.x;
     float mouseabsy = io.MousePos.y;
 
-    // Are absolute x/y over the game window or it's a keyaction and the window is in focus.
-    if( ( keyaction != -1 && m_GameWindowFocused ) ||
-        ( mouseaction != -1 &&
+    // If this is a keyaction and the window is in focus.
+    if( keyaction != -1 && m_GameWindowFocused )
+    {
+        return false; // Let event continue to the game window.
+    }
+
+    // If this is an absolute mouse input over the game window.
+    if( ( mouseaction != -1 && mouseaction != GCBA_RelativeMovement &&
             mouseabsx >= m_GameWindowPos.x && mouseabsx < m_GameWindowPos.x + m_GameWindowSize.x &&
             mouseabsy >= m_GameWindowPos.y && mouseabsy < m_GameWindowPos.y + m_GameWindowSize.y ) )
     {
-        return false; // Let event continue to the game window.
+        // Calculate mouse x/y relative to this window.
+        localx = x - m_GameWindowPos.x;
+        //localy = m_GameWindowSize.y - (y - m_GameWindowPos.y);
+        localy = y - m_GameWindowPos.y;
+
+        g_pEngineCore->OnTouchGameWindow( mouseaction, id, localx, localy, pressure, 1 );
+
+        // Input was used.
+        return true;
     }
 
     // Are absolute x/y over the editor window or it's a keyaction and the window is in focus.
@@ -2450,15 +2463,13 @@ void EditorMainFrame_ImGui::AddMemoryPanel_DrawCalls()
 {
     ImGuiTreeNodeFlags baseNodeFlags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_DefaultOpen;
     
+    // Always reset draw call limiter to draw everything if one specific draw call isn't hovered.
+    g_GLStats.m_DrawCallLimit_Canvas = -1;
+    g_GLStats.m_DrawCallLimit_Index = -1;
+
     ImGui::PushID( "DrawCallTree" );
     if( ImGui::TreeNodeEx( "Draw Calls", baseNodeFlags ) )
     {
-        if( ImGui::IsItemHovered() )
-        {
-            g_GLStats.m_DrawCallLimit_Canvas = -1;
-            g_GLStats.m_DrawCallLimit_Index = -1;
-        }
-
         for( int canvasIndex=0; canvasIndex<2; canvasIndex++ )
         {
             char* label = "Game Window";
@@ -2467,12 +2478,6 @@ void EditorMainFrame_ImGui::AddMemoryPanel_DrawCalls()
 
             if( ImGui::TreeNodeEx( label, baseNodeFlags ) )
             {
-                if( ImGui::IsItemHovered() )
-                {
-                    g_GLStats.m_DrawCallLimit_Canvas = -1;
-                    g_GLStats.m_DrawCallLimit_Index = -1;
-                }
-
                 for( int callIndex=0; callIndex<g_GLStats.m_NumDrawCallsLastFrame[canvasIndex]; callIndex++ )
                 {
                     ImGui::PushID( callIndex );

@@ -34,7 +34,7 @@ struct MenuPageVisibleCallbackStruct
     MenuPageVisibleCallbackFunc pFunc;
 };
 
-typedef void (*MenuPageTickCallbackFunc)(void* pObjectPtr, ComponentMenuPage* pPage, double TimePassed);
+typedef void (*MenuPageTickCallbackFunc)(void* pObjectPtr, ComponentMenuPage* pPage, float deltaTime);
 struct MenuPageTickCallbackStruct
 {
     void* pObj;

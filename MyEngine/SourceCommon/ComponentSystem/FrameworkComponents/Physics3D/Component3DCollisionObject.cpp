@@ -477,9 +477,9 @@ void Component3DCollisionObject::OnStop()
     }
 }
 
-void Component3DCollisionObject::TickCallback(double TimePassed)
+void Component3DCollisionObject::TickCallback(float deltaTime)
 {
-    if( TimePassed == 0 )
+    if( deltaTime == 0 )
     {
         return;
     }

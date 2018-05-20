@@ -81,7 +81,7 @@ struct FileUpdatedCallbackStruct
 // Declare callback objects/functions - used by components.
 #define MYFW_DECLARE_COMPONENT_CALLBACK_TICK() \
     ComponentCallbackStruct_Tick m_CallbackStruct_Tick; \
-    void TickCallback(double TimePassed);
+    void TickCallback(float deltaTime);
 
 #define MYFW_DECLARE_COMPONENT_CALLBACK_ONSURFACECHANGED() \
     ComponentCallbackStruct_OnSurfaceChanged m_CallbackStruct_OnSurfaceChanged; \
@@ -109,7 +109,7 @@ struct FileUpdatedCallbackStruct
     void OnFileRenamedCallback(const char* fullpathbefore, const char* fullpathafter);
 
 // Callback function prototypes and structs.
-typedef void (ComponentBase::*ComponentCallbackFunc_Tick)(double TimePassed);
+typedef void (ComponentBase::*ComponentCallbackFunc_Tick)(float deltaTime);
 typedef void (ComponentBase::*ComponentCallbackFunc_OnSurfaceChanged)(unsigned int startx, unsigned int starty, unsigned int width, unsigned int height, unsigned int desiredaspectwidth, unsigned int desiredaspectheight);
 typedef void (ComponentBase::*ComponentCallbackFunc_Draw)(ComponentCamera* pCamera, MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride);
 typedef bool (ComponentBase::*ComponentCallbackFunc_OnTouch)(int action, int id, float x, float y, float pressure, float size);
@@ -225,7 +225,7 @@ public:
     ComponentBase* FindComponentByID(unsigned int id, SceneID sceneid = SCENEID_AllScenes);
 
     // Main events, most should call component callbacks.
-    void Tick(double TimePassed);
+    void Tick(float deltaTime);
     void OnSurfaceChanged(unsigned int startx, unsigned int starty, unsigned int width, unsigned int height, unsigned int desiredaspectwidth, unsigned int desiredaspectheight);
     void OnDrawFrame();
     void DrawFrame(ComponentCamera* pCamera, MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride, bool drawOpaques, bool drawTransparents, EmissiveDrawOptions emissiveDrawOption, bool drawOverlays);

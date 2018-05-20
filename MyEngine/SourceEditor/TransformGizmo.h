@@ -39,7 +39,7 @@ public:
     TransformGizmo();
     virtual ~TransformGizmo();
 
-    virtual void Tick(double TimePassed, EditorState* pEditorState);
+    virtual void Tick(float deltaTime, EditorState* pEditorState);
     void Hide();
 
     bool HandleInput(EngineCore* pGame, int keydown, int keycode, int action, int id, float x, float y, float pressure);

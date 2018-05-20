@@ -48,7 +48,7 @@ void EditorInterface::OnDeactivated()
 {
 }
 
-void EditorInterface::Tick(double TimePassed)
+void EditorInterface::Tick(float deltaTime)
 {
     // Force compile of m_pShader_TintColor (0 lights, 4 bones) to avoid stall on first click in mouse picker code.
     if( g_pEngineCore->GetShader_TintColor() )

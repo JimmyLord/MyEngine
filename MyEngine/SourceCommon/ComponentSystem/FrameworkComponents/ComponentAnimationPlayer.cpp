@@ -136,9 +136,9 @@ ComponentAnimationPlayer& ComponentAnimationPlayer::operator=(const ComponentAni
     return *this;
 }
 
-void ComponentAnimationPlayer::Tick(double TimePassed)
+void ComponentAnimationPlayer::Tick(float deltaTime)
 {
-    //ComponentUpdateable::Tick( TimePassed );
+    //ComponentUpdateable::Tick( deltaTime );
 
     if( m_pMeshComponent == 0 )
     {
@@ -155,9 +155,9 @@ void ComponentAnimationPlayer::Tick(double TimePassed)
     if( pMesh == 0 )
         return;
 
-    m_AnimationTime += (float)TimePassed;
-    m_LastAnimationTime += (float)TimePassed;
-    m_TransitionTimeLeft -= (float)TimePassed;
+    m_AnimationTime += deltaTime;
+    m_LastAnimationTime += deltaTime;
+    m_TransitionTimeLeft -= deltaTime;
 
     float perc = 0;
     if( m_TransitionTimeTotal != 0 )

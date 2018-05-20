@@ -475,12 +475,12 @@ void ComponentVoxelWorld::SetVoxelMeshMaterial(MaterialDefinition* pMaterial)
     m_pVoxelWorld->SetMaterial( pMaterial );
 }
 
-void ComponentVoxelWorld::TickCallback(double TimePassed)
+void ComponentVoxelWorld::TickCallback(float deltaTime)
 {
     if( m_pVoxelWorld == 0 )
         return;
 
-    m_pVoxelWorld->Tick( TimePassed, this );
+    m_pVoxelWorld->Tick( deltaTime, this );
 
     GameObject* pPlayer = g_pComponentSystemManager->FindGameObjectByName( "Player" );
     Vector3 pos = pPlayer->GetTransform()->GetWorldPosition();

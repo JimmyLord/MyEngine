@@ -48,7 +48,7 @@ public:
     bool HandleInput(int keyaction, int keycode, int mouseaction, int id, float x, float y, float pressure);
     void OnChar(unsigned int c);
 
-    void StartTick(double TimePassed);
+    void StartTick(float deltaTime);
     void StartFrame();
     void EndFrame(float width, float height, bool draw);
 

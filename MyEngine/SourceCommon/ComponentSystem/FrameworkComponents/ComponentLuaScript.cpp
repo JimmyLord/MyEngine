@@ -273,7 +273,7 @@ void ComponentLuaScript::CreateNewScriptFile()
                         fprintf( file, "OnButtons = function(action, id)\n" );
                         fprintf( file, "end,\n" );
                         fprintf( file, "\n" );
-                        fprintf( file, "Tick = function(timepassed)\n" );
+                        fprintf( file, "Tick = function(deltaTime)\n" );
 
                         if( ismeshscript )
                         {
@@ -1776,10 +1776,10 @@ void ComponentLuaScript::OnGameObjectDisabled()
     ComponentBase::OnGameObjectDisabled();
 }
 
-void ComponentLuaScript::TickCallback(double TimePassed)
+void ComponentLuaScript::TickCallback(float deltaTime)
 {
-    //ComponentBase::TickCallback( TimePassed );
-    //ComponentUpdateable::Tick( TimePassed );
+    //ComponentBase::TickCallback( deltaTime );
+    //ComponentUpdateable::Tick( deltaTime );
 
     if( m_ErrorInScript )
         return;
@@ -1879,7 +1879,7 @@ void ComponentLuaScript::TickCallback(double TimePassed)
     // find the Tick function and call it.
     if( m_Playing )
     {
-        CallFunction( "Tick", TimePassed );
+        CallFunction( "Tick", deltaTime );
     }
 }
 

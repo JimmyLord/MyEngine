@@ -130,7 +130,7 @@ public:
     virtual void OnStop();
     virtual void OnGameObjectEnabled();
     virtual void OnGameObjectDisabled();
-    virtual void Tick(double TimePassed) {} // TODO: remove when clearing these out from ComponentUpdatable
+    virtual void Tick(float deltaTime) {} // TODO: remove when clearing these out from ComponentUpdatable
 
     bool OnTouch(int action, int id, float x, float y, float pressure, float size) { return false; } // TODO: remove when clearing these out from ComponentUpdatable
     bool OnButtons(GameCoreButtonActions action, GameCoreButtonIDs id) { return false; } // TODO: remove when clearing these out from ComponentUpdatable

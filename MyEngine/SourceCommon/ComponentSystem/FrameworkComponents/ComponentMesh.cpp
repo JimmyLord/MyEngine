@@ -699,7 +699,7 @@ void ComponentMesh::OnLuaScriptDeleted(ComponentBase* pComponent) // StaticOnLua
     }
 }
 
-void ComponentMesh::TickCallback(double TimePassed)
+void ComponentMesh::TickCallback(float deltaTime)
 {
     // TODO: temp hack, if the gameobject doesn't have a transform (shouldn't happen), then don't try to add to scene graph
     if( m_pGameObject->GetTransform() == 0 )

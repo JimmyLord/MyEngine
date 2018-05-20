@@ -327,7 +327,7 @@ void ComponentSprite::PushChangesToSceneGraphObjects()
     }
 }
 
-void ComponentSprite::TickCallback(double TimePassed)
+void ComponentSprite::TickCallback(float deltaTime)
 {
     MyAssert( m_pGameObject->GetTransform() );
     MyAssert( m_WaitingToAddToSceneGraph );

@@ -267,7 +267,7 @@ void EditorState::LockCameraToGameObject(GameObject* pGameObject)
     }
 }
 
-void EditorState::UpdateCamera(double TimePassed)
+void EditorState::UpdateCamera(float deltaTime)
 {
     if( m_CameraState == EditorCameraState_LockedToObject )
     {

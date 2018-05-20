@@ -293,9 +293,9 @@ void ComponentAudioPlayer::UnregisterCallbacks()
 }
 
 #if MYFW_USING_WX
-void ComponentAudioPlayer::TickCallback(double TimePassed)
+void ComponentAudioPlayer::TickCallback(float deltaTime)
 {
-    //ComponentBase::TickCallback( TimePassed );
+    //ComponentBase::TickCallback( deltaTime );
 
     // In editor mode, continually check for sound cue pointer then unregister tick callback one found.
     if( m_pSoundCue == 0 && m_SoundCueName[0] != 0 )

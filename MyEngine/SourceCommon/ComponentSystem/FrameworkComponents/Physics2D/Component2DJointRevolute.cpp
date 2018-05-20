@@ -322,7 +322,7 @@ void Component2DJointRevolute::UnregisterCallbacks()
     }
 }
 
-void Component2DJointRevolute::TickCallback(double TimePassed)
+void Component2DJointRevolute::TickCallback(float deltaTime)
 {
     if( m_BreakForce <= 0 )
         return;

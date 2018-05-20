@@ -296,7 +296,7 @@ void ComponentAnimationPlayer2D::UnregisterCallbacks()
     }
 }
 
-void ComponentAnimationPlayer2D::TickCallback(double TimePassed)
+void ComponentAnimationPlayer2D::TickCallback(float deltaTime)
 {
     if( m_pSpriteComponent == 0 )
     {
@@ -329,7 +329,7 @@ void ComponentAnimationPlayer2D::TickCallback(double TimePassed)
     My2DAnimationFrame* pFrame = pAnim->GetFrameByIndexClamped( m_FrameIndex );
 
     // Advance time and the current frame if needed
-    m_AnimationTime += (float)TimePassed;
+    m_AnimationTime += deltaTime;
 
     float frameduration = pFrame->GetDuration();
 

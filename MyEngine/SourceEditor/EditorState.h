@@ -117,7 +117,7 @@ public:
     void ClearSelectedObjectsAndComponents();
 
     void LockCameraToGameObject(GameObject* pGameObject);
-    void UpdateCamera(double TimePassed);
+    void UpdateCamera(float deltaTime);
 
     bool HasMouseMovedSinceButtonPressed(int buttonid);
 

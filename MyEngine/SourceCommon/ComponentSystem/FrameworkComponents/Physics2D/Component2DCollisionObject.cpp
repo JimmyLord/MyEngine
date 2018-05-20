@@ -613,11 +613,11 @@ void Component2DCollisionObject::CreateBody()
     }
 }
 
-void Component2DCollisionObject::TickCallback(double TimePassed)
+void Component2DCollisionObject::TickCallback(float deltaTime)
 {
-    //ComponentBase::Tick( TimePassed );
+    //ComponentBase::Tick( deltaTime );
 
-    if( TimePassed == 0 )
+    if( deltaTime == 0 )
         return;
 
     if( m_pBody == 0 )

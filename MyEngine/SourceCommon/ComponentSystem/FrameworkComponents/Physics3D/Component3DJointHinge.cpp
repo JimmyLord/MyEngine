@@ -319,7 +319,7 @@ void Component3DJointHinge::UnregisterCallbacks()
     }
 }
 
-void Component3DJointHinge::TickCallback(double TimePassed)
+void Component3DJointHinge::TickCallback(float deltaTime)
 {
     if( m_BreakForce <= 0 )
         return;

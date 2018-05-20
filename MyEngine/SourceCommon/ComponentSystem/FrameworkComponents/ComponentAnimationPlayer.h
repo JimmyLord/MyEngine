@@ -45,7 +45,7 @@ public:
     virtual void RegisterCallbacks() {} // TODO: change this component to use callbacks.
     virtual void UnregisterCallbacks() {} // TODO: change this component to use callbacks.
 
-    virtual void Tick(double TimePassed);
+    virtual void Tick(float deltaTime);
 
     void SetCurrentAnimation(unsigned int anim);
 

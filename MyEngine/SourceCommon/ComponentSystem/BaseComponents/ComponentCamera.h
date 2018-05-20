@@ -101,7 +101,7 @@ public:
     void SetDesiredAspectRatio(float width, float height);
     void ComputeProjectionMatrices();
 
-    virtual void Tick(double TimePassed);
+    virtual void Tick(float deltaTime);
     virtual void OnSurfaceChanged(unsigned int startx, unsigned int starty, unsigned int width, unsigned int height, unsigned int desiredaspectwidth, unsigned int desiredaspectheight);
     virtual void OnDrawFrame();
 

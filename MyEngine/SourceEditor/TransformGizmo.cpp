@@ -56,7 +56,7 @@ TransformGizmo::~TransformGizmo()
     SAFE_RELEASE( m_pMaterial_Scale3Axis );
 }
 
-void TransformGizmo::Tick(double TimePassed, EditorState* pEditorState)
+void TransformGizmo::Tick(float deltaTime, EditorState* pEditorState)
 {
     // Find the center of the object.
     bool GizmoVisible = false;

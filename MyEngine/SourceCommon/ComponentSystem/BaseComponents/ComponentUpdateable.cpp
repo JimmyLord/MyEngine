@@ -70,6 +70,6 @@ ComponentUpdateable& ComponentUpdateable::operator=(const ComponentUpdateable& o
     return *this;
 }
 
-//void ComponentUpdateable::Tick(double TimePassed)
+//void ComponentUpdateable::Tick(float deltaTime)
 //{
 //}

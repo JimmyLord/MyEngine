@@ -452,7 +452,7 @@ void EngineCore::RequestClose()
 #endif
 }
 
-double EngineCore::Tick(double TimePassed)
+float EngineCore::Tick(float deltaTime)
 {
 #if MYFW_USING_IMGUI
     g_pImGuiManager->StartFrame();
@@ -470,7 +470,7 @@ double EngineCore::Tick(double TimePassed)
 
     if( g_pImGuiManager )
     {
-        g_pImGuiManager->StartTick( TimePassed );
+        g_pImGuiManager->StartTick( deltaTime );
     }
 
 #if MYFW_USING_IMGUI
@@ -499,7 +499,7 @@ double EngineCore::Tick(double TimePassed)
     }
 
 #if MYFW_EDITOR
-    m_pCurrentEditorInterface->Tick( TimePassed );
+    m_pCurrentEditorInterface->Tick( deltaTime );
 
 #if MYFW_USING_WX
     EngineMainFrame_DumpCachedMessagesToLogPane();
@@ -510,7 +510,7 @@ double EngineCore::Tick(double TimePassed)
         static int numframes = 0;
         static double totaltime = 0;
 
-        totaltime += TimePassed;
+        totaltime += deltaTime;
         numframes++;
         if( totaltime > 1 )
         {
@@ -520,16 +520,16 @@ double EngineCore::Tick(double TimePassed)
         }
     }
 
-    if( TimePassed > 0.2 )
-        TimePassed = 0.2;
+    if( deltaTime > 0.2f )
+        deltaTime = 0.2f;
 
-    //if( TimePassed == 0 && m_EditorMode == false )
-    //    LOGInfo( LOGTag, "Tick: %f\n", TimePassed );
-    //LOGInfo( LOGTag, "Tick: %f\n", TimePassed );
+    //if( deltaTime == 0 && m_EditorMode == false )
+    //    LOGInfo( LOGTag, "Tick: %f\n", deltaTime );
+    //LOGInfo( LOGTag, "Tick: %f\n", deltaTime );
 
-    double TimeUnpaused = TimePassed;
+    float TimeUnpaused = deltaTime;
 
-    GameCore::Tick( TimePassed );
+    GameCore::Tick( deltaTime );
 
     // if the next scene requested is ready load the scene.
     MyFileObject* pFile = m_pSceneFilesLoading[0].m_pFile;
@@ -575,21 +575,21 @@ double EngineCore::Tick(double TimePassed)
     }
 
 #if MYFW_EDITOR
-    m_pEditorState->m_pTransformGizmo->Tick( TimePassed, m_pEditorState );
-    m_pEditorState->UpdateCamera( TimePassed );
+    m_pEditorState->m_pTransformGizmo->Tick( deltaTime, m_pEditorState );
+    m_pEditorState->UpdateCamera( deltaTime );
 #endif
 
-    // change timepassed if needed
+    // change deltaTime if needed
     {
         float timescale = m_pComponentSystemManager->m_TimeScale;
 
-        TimePassed *= timescale;
+        deltaTime *= timescale;
 
         if( m_EditorMode && m_AllowGameToRunInEditorMode == false )
-            TimePassed = 0;
+            deltaTime = 0;
 
         if( m_Paused )
-            TimePassed = m_PauseTimeToAdvance;
+            deltaTime = m_PauseTimeToAdvance;
 
         m_PauseTimeToAdvance = 0;
     }
@@ -600,9 +600,9 @@ double EngineCore::Tick(double TimePassed)
         double Physics_Timing_Start = MyTime_GetSystemTime();
 #endif // MYFW_PROFILING_ENABLED && MYFW_EDITOR
 
-        m_pBulletWorld->PhysicsUpdate( (float)TimePassed );
+        m_pBulletWorld->PhysicsUpdate( deltaTime );
 
-        m_TimeSinceLastPhysicsStep += TimePassed;
+        m_TimeSinceLastPhysicsStep += deltaTime;
         while( m_TimeSinceLastPhysicsStep > 1/60.0f )
         {
             m_TimeSinceLastPhysicsStep -= 1/60.0f;
@@ -627,7 +627,7 @@ double EngineCore::Tick(double TimePassed)
     }
 
     // tick all components.
-    m_pComponentSystemManager->Tick( TimePassed );
+    m_pComponentSystemManager->Tick( deltaTime );
 
 #if MYFW_USING_LUA
     if( g_pLuaGameState && g_pLuaGameState->m_pLuaState )
@@ -654,7 +654,7 @@ double EngineCore::Tick(double TimePassed)
     if( m_EditorMode && m_AllowGameToRunInEditorMode == false )
         return TimeUnpaused;
     else
-        return TimePassed;
+        return deltaTime;
 }
 
 void OnFileUpdated_CallbackFunction(MyFileObject* pFile)
@@ -1079,7 +1079,7 @@ bool EngineCore::OnTouch(int action, int id, float x, float y, float pressure, f
                     return true;
             }
 
-            return false;
+            //return false;
         }
     }
 
@@ -1098,6 +1098,11 @@ bool EngineCore::OnTouch(int action, int id, float x, float y, float pressure, f
     }
 #endif
 
+    return OnTouchGameWindow( action, id, x, y, pressure, size );
+}
+
+bool EngineCore::OnTouchGameWindow(int action, int id, float x, float y, float pressure, float size)
+{
     // if mouse lock was requested, don't let mouse held messages go further.
     if( g_pGameCore->WasMouseLockRequested() && g_pGameCore->IsMouseLocked() == false && action == GCBA_Held )
     {
@@ -1328,7 +1333,7 @@ void EngineCore::OnModePause()
     m_Paused = !m_Paused;
 }
 
-void EngineCore::OnModeAdvanceTime(double time)
+void EngineCore::OnModeAdvanceTime(float time)
 {
     if( m_EditorMode )
         OnModePlay();

@@ -184,7 +184,7 @@ void ImGuiManager::OnChar(unsigned int c)
     }
 }
 
-void ImGuiManager::StartTick(double TimePassed)
+void ImGuiManager::StartTick(float deltaTime)
 {
 #if MYFW_OPENGLES2
     return;
@@ -193,7 +193,7 @@ void ImGuiManager::StartTick(double TimePassed)
     //LOGInfo( "ImGui", "StartFrame()\n" );
 
     ImGuiIO& io = ImGui::GetIO();
-    io.DeltaTime = (float)TimePassed;
+    io.DeltaTime = deltaTime;
 
     io.KeyCtrl = io.KeysDown[MYKEYCODE_LCTRL] || io.KeysDown[MYKEYCODE_RCTRL];
     io.KeyShift = io.KeysDown[MYKEYCODE_LSHIFT] || io.KeysDown[MYKEYCODE_RSHIFT];
