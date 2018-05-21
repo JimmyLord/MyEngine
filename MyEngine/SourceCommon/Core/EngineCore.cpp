@@ -753,14 +753,16 @@ void EngineCore::OnDrawFrame(unsigned int canvasid)
     if( m_pEditorMainFrame )
     {
         // Backup the window width/height.
-        float windowwidth = GetWindowWidth();
-        float windowheight = GetWindowHeight();
+        float windowWidth = GetWindowWidth();
+        float windowHeight = GetWindowHeight();
 
         // Draw the game and editor contents into textures.
         ((EditorMainFrame_ImGui*)m_pEditorMainFrame)->DrawGameAndEditorWindows( this );
 
         // Reset to full window size.
-        OnSurfaceChanged( 0, 0, (unsigned int)windowwidth, (unsigned int)windowheight );
+        m_WindowWidth = windowWidth;
+        m_WindowHeight = windowHeight;
+        glViewport( 0, 0, (unsigned int)windowWidth, (unsigned int)windowHeight );
 
         // Render out the ImGui command list to the full window.
         glClearColor( 0.0f, 0.1f, 0.2f, 1.0f );
@@ -768,10 +770,10 @@ void EngineCore::OnDrawFrame(unsigned int canvasid)
 
         if( g_pImGuiManager )
         {
-            g_pImGuiManager->EndFrame( m_WindowWidth, m_WindowHeight, true );
+            g_pImGuiManager->EndFrame( windowWidth, windowHeight, true );
             
 #if MYFW_USING_WX
-            // For editor build, start the next frame immediately, so imgui calls can be made in tick callbacks.
+            // For wxwidgets build, start the next frame immediately, so imgui calls can be made in tick callbacks.
             // Tick happens before game(0) window is drawn, g_pImGuiManager's draw only happens on editor(1) window.
             g_pImGuiManager->StartFrame();
 #endif
@@ -1930,18 +1932,6 @@ void EngineCore::Editor_OnSurfaceChanged(unsigned int startx, unsigned int start
 void EngineCore::OnSurfaceChanged(unsigned int startx, unsigned int starty, unsigned int width, unsigned int height)
 {
 #if MYFW_EDITOR
-    //if( windowWasResized )
-    //{
-    //    RECT rect;
-    //    if( GetWindowRect( hWnd, &rect ) )
-    //    {
-    //        if( m_pEditorPrefs )
-    //        {
-    //            m_pEditorPrefs->SetWindowProperties( rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top, false );
-    //        }
-    //    }
-    //}
-
     if( g_GLCanvasIDActive == 1 )
     {
         Editor_OnSurfaceChanged( startx, starty, width, height );
@@ -1960,38 +1950,10 @@ void EngineCore::OnSurfaceChanged(unsigned int startx, unsigned int starty, unsi
     if( height == 0 || width == 0 )
         return;
 
-    //float devicewidth = m_WindowWidth;
-    //float deviceheight = m_WindowHeight;
-    //float deviceratio = devicewidth / deviceheight;
-
-    //if( width > height )
-    //{
-    //    m_GameWidth = 960.0f;
-    //    m_GameHeight = 640.0f;
-    //}
-    //else if( height > width )
-    //{
-    //    m_GameWidth = 640.0f;
-    //    m_GameHeight = 960.0f;
-    //}
-    //else
-    //{
-    //    m_GameWidth = 640.0f;
-    //    m_GameHeight = 640.0f;
-    //}
-
-    //m_GameWidth = 640.0f;
-    //m_GameHeight = 960.0f;
-
     // reset the viewport sizes of the game or editor cameras.
     if( m_pComponentSystemManager )
     {
-#if MYFW_EDITOR
-        MyAssert( g_GLCanvasIDActive == 0 );
-#endif
-        {
-            m_pComponentSystemManager->OnSurfaceChanged( startx, starty, width, height, (unsigned int)m_GameWidth, (unsigned int)m_GameHeight );
-        }
+        m_pComponentSystemManager->OnSurfaceChanged( startx, starty, width, height, (unsigned int)m_GameWidth, (unsigned int)m_GameHeight );
     }
 }
 
