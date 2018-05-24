@@ -697,7 +697,7 @@ void Component2DCollisionObject::DrawCallback(ComponentCamera* pCamera, MyMatrix
         //glDisable( GL_CULL_FACE );
         //glDisable( GL_DEPTH_TEST );
 
-        MyDrawArrays( GL_LINE_STRIP, 0, (int)m_Vertices.size() );
+        MyDrawArrays( GL_LINE_STRIP, 0, (int)m_Vertices.size(), false );
 
         glLineWidth( 1 );
 

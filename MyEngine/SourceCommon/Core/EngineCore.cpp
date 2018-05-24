@@ -1481,14 +1481,14 @@ void EngineCore::CreateDefaultEditorSceneObjects()
                 pComponentMesh->SetVisible( g_pEngineCore->GetEditorPrefs()->GetGridSettings()->visible );
             }
 
-            pComponentMesh->SetMaterial( m_pMaterial_3DGrid, 0 ); //( m_pShader_TransformGizmo );
+            pComponentMesh->SetMaterial( m_pMaterial_3DGrid, 0 );
             pComponentMesh->SetLayersThisExistsOn( Layer_Editor | Layer_EditorUnselectable );
             pComponentMesh->m_pMesh = MyNew MyMesh();
             pComponentMesh->m_pMesh->CreateEditorLineGridXZ( Vector3(0,0,0), 1, 5 );
-            // TODOMaterials: put this back for plane.
-            //pComponentMesh->m_pMesh->m_Tint.Set( 150, 150, 150, 255 );
             pComponentMesh->m_GLPrimitiveType = pComponentMesh->m_pMesh->GetSubmesh( 0 )->m_PrimitiveType;
             pComponentMesh->AddToSceneGraph();
+
+            pComponentMesh->m_pSceneGraphObjects[0]->SetAsEditorObject();
         }
 
         //m_pComponentSystemManager->AddComponent( pComponentMesh );

@@ -2072,6 +2072,8 @@ void EditorMainFrame_ImGui::AddMemoryPanel_Materials()
 
             while( pMat )
             {
+                MaterialDefinition* pNextMat = (MaterialDefinition*)pMat->GetNext();
+
                 if( pMat == m_pMaterialWhoseNameIsBeingEdited )
                 {
                     ImGui::SetKeyboardFocusHere();
@@ -2117,7 +2119,7 @@ void EditorMainFrame_ImGui::AddMemoryPanel_Materials()
                                 if( ImGui::BeginPopupContextItem( "ContextPopup", 1 ) )
                                 {
                                     if( ImGui::MenuItem( "Edit Material", 0, &m_IsMaterialEditorOpen ) ) { m_pMaterialBeingEdited = pMat; ImGui::CloseCurrentPopup(); }
-                                    if( ImGui::MenuItem( "Unload File" ) )     { pMat->OnPopupClick( pMat, MaterialDefinition::RightClick_UnloadFile ); ImGui::CloseCurrentPopup(); }
+                                    if( ImGui::MenuItem( "Unload File" ) )     { pMat->OnPopupClick( pMat, MaterialDefinition::RightClick_UnloadFile ); ImGui::CloseCurrentPopup(); pMat = 0; }
                                     if( ImGui::MenuItem( "Find References" ) ) { pMat->OnPopupClick( pMat, MaterialDefinition::RightClick_FindAllReferences ); ImGui::CloseCurrentPopup(); } // (%d)", pMat->GetRefCount() ) {}
                                     if( ImGui::MenuItem( "Rename" ) )
                                     {
@@ -2160,7 +2162,7 @@ void EditorMainFrame_ImGui::AddMemoryPanel_Materials()
                     }
                 }
 
-                pMat = (MaterialDefinition*)pMat->GetNext();
+                pMat = pNextMat;
             }
 
             if( showHeaders )
@@ -2662,6 +2664,7 @@ void EditorMainFrame_ImGui::AddMaterialEditor()
                 ImGui::DragFloat2( "UVScale", &pMat->m_UVScale.x, 0.01f, 0, 1 );
                 ImGui::DragFloat2( "UVOffset", &pMat->m_UVOffset.x, 0.01f, 0, 1 );
 
+                // Deal with the shader attached to the material.
                 {
                     const char* desc = "no shader";
 
@@ -2694,6 +2697,7 @@ void EditorMainFrame_ImGui::AddMaterialEditor()
                         if( ImGui::IsMouseDoubleClicked( 0 ) )
                         {
                             pMat->SetShader( 0 );
+                            pShaderGroup = pMat->GetShader();
                         }
                     }
 
@@ -2714,8 +2718,9 @@ void EditorMainFrame_ImGui::AddMaterialEditor()
                     }
                 }
 
+                // Deal with the instanced shader attached to the material.
                 {
-                    const char* desc = "no shader";
+                    const char* desc = "no instanced shader";
 
                     Vector4 buttonColor = g_pEditorPrefs->GetImGuiStylePrefs()->GetColor( ImGuiStylePrefs::StylePref_Color_UnsetObjectButton );
                     Vector4 textColor = g_pEditorPrefs->GetImGuiStylePrefs()->GetColor( ImGuiStylePrefs::StylePref_Color_UnsetObjectText );
@@ -2746,6 +2751,7 @@ void EditorMainFrame_ImGui::AddMaterialEditor()
                         if( ImGui::IsMouseDoubleClicked( 0 ) )
                         {
                             pMat->SetShaderInstanced( 0 );
+                            pShaderGroup = pMat->GetShaderInstanced();
                         }
                     }
 

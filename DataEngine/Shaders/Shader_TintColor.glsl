@@ -1,3 +1,6 @@
+#define EMISSIVE
+#define BLENDING Off
+
 #ifdef WIN32
 #define lowp
 #define mediump

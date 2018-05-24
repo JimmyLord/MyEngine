@@ -54,7 +54,7 @@ void BulletDebugDraw::Draw(const Vector3* vertices, uint32 vertexCount, ColorByt
     glDisable( GL_CULL_FACE );
     glDisable( GL_DEPTH_TEST );
 
-    MyDrawArrays( primitivetype, 0, vertexCount );
+    MyDrawArrays( primitivetype, 0, vertexCount, false );
 
     glEnable( GL_CULL_FACE );
     glEnable( GL_DEPTH_TEST );
