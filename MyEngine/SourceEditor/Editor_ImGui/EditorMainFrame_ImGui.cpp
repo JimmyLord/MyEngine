@@ -2666,6 +2666,8 @@ void EditorMainFrame_ImGui::AddMaterialEditor()
 
                 // Deal with the shader attached to the material.
                 {
+                    ImGui::PushID( "Material_Shader" );
+
                     const char* desc = "no shader";
 
                     Vector4 buttonColor = g_pEditorPrefs->GetImGuiStylePrefs()->GetColor( ImGuiStylePrefs::StylePref_Color_UnsetObjectButton );
@@ -2692,6 +2694,21 @@ void EditorMainFrame_ImGui::AddMaterialEditor()
                         ImGui::EndDragDropTarget();
                     }
 
+                    if( pShaderGroup )
+                    {
+                        MyFileObjectShader* pFile = pShaderGroup->GetFile();
+                        if( pFile )
+                        {
+                            if( ImGui::BeginPopupContextItem( "ContextPopup", 1 ) )
+                            {
+                                if( ImGui::MenuItem( "Open File" ) )              { pFile->OnPopupClick( pFile, MyFileObject::RightClick_OpenFile );             ImGui::CloseCurrentPopup(); }
+                                if( ImGui::MenuItem( "Open containing folder" ) ) { pFile->OnPopupClick( pFile, MyFileObject::RightClick_OpenContainingFolder ); ImGui::CloseCurrentPopup(); }
+                                if( ImGui::MenuItem( "Find References" ) )        { pFile->OnPopupClick( pFile, MyFileObject::RightClick_FindAllReferences );    ImGui::CloseCurrentPopup(); } // (%d)", pMat->GetRefCount() ) {}
+                                ImGui::EndPopup();
+                            }
+                        }
+                    }
+
                     if( ImGui::IsItemHovered() )
                     {
                         if( ImGui::IsMouseDoubleClicked( 0 ) )
@@ -2716,10 +2733,14 @@ void EditorMainFrame_ImGui::AddMaterialEditor()
                         ImGui::SameLine();
                         ImGui::Text( "Shader" );
                     }
+
+                    ImGui::PopID();
                 }
 
                 // Deal with the instanced shader attached to the material.
                 {
+                    ImGui::PushID( "Material_InstancedShader" );
+
                     const char* desc = "no instanced shader";
 
                     Vector4 buttonColor = g_pEditorPrefs->GetImGuiStylePrefs()->GetColor( ImGuiStylePrefs::StylePref_Color_UnsetObjectButton );
@@ -2746,12 +2767,27 @@ void EditorMainFrame_ImGui::AddMaterialEditor()
                         ImGui::EndDragDropTarget();
                     }
 
+                    if( pShaderGroupInstanced )
+                    {
+                        MyFileObjectShader* pFile = pShaderGroupInstanced->GetFile();
+                        if( pFile )
+                        {
+                            if( ImGui::BeginPopupContextItem( "ContextPopup", 1 ) )
+                            {
+                                if( ImGui::MenuItem( "Open File" ) )              { pFile->OnPopupClick( pFile, MyFileObject::RightClick_OpenFile );             ImGui::CloseCurrentPopup(); }
+                                if( ImGui::MenuItem( "Open containing folder" ) ) { pFile->OnPopupClick( pFile, MyFileObject::RightClick_OpenContainingFolder ); ImGui::CloseCurrentPopup(); }
+                                if( ImGui::MenuItem( "Find References" ) )        { pFile->OnPopupClick( pFile, MyFileObject::RightClick_FindAllReferences );    ImGui::CloseCurrentPopup(); } // (%d)", pMat->GetRefCount() ) {}
+                                ImGui::EndPopup();
+                            }
+                        }
+                    }
+
                     if( ImGui::IsItemHovered() )
                     {
                         if( ImGui::IsMouseDoubleClicked( 0 ) )
                         {
                             pMat->SetShaderInstanced( 0 );
-                            pShaderGroup = pMat->GetShaderInstanced();
+                            pShaderGroupInstanced = pMat->GetShaderInstanced();
                         }
                     }
 
@@ -2771,6 +2807,8 @@ void EditorMainFrame_ImGui::AddMaterialEditor()
                         ImGui::SameLine();
                         ImGui::Text( "InstancedShader" );
                     }
+
+                    ImGui::PopID();
                 }
 
                 {
