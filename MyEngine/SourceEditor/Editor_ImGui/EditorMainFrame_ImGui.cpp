@@ -90,6 +90,10 @@ EditorMainFrame_ImGui::EditorMainFrame_ImGui()
     m_pMaterialWhoseNameIsBeingEdited = 0;
     m_NameBeingEdited[0] = 0;
 
+    // For draw call debugger.
+    m_SelectedDrawCallCanvas = -1;
+    m_SelectedDrawCallIndex = -1;
+
     m_GameWindowPos.Set( -1, -1 );
     m_EditorWindowPos.Set( -1, -1 );
     m_GameWindowSize.Set( 0, 0 );
@@ -2466,8 +2470,13 @@ void EditorMainFrame_ImGui::AddMemoryPanel_DrawCalls()
     ImGuiTreeNodeFlags baseNodeFlags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_DefaultOpen;
     
     // Always reset draw call limiter to draw everything if one specific draw call isn't hovered.
-    g_GLStats.m_DrawCallLimit_Canvas = -1;
-    g_GLStats.m_DrawCallLimit_Index = -1;
+    if( ImGui::IsWindowHovered(ImGuiFocusedFlags_RootWindow | ImGuiFocusedFlags_ChildWindows) == false )
+    {
+        g_GLStats.m_DrawCallLimit_Canvas = -1;
+        g_GLStats.m_DrawCallLimit_Index = -1;
+        m_SelectedDrawCallCanvas = -1;
+        m_SelectedDrawCallIndex = -1;
+    }
 
     ImGui::PushID( "DrawCallTree" );
     if( ImGui::TreeNodeEx( "Draw Calls", baseNodeFlags ) )
@@ -2483,13 +2492,42 @@ void EditorMainFrame_ImGui::AddMemoryPanel_DrawCalls()
                 for( int callIndex=0; callIndex<g_GLStats.m_NumDrawCallsLastFrame[canvasIndex]; callIndex++ )
                 {
                     ImGui::PushID( callIndex );
-                    if( ImGui::TreeNodeEx( "Draw", ImGuiTreeNodeFlags_Leaf ) )
+
+                    bool selected = (canvasIndex == m_SelectedDrawCallCanvas && callIndex == m_SelectedDrawCallIndex);
+
+                    ImGuiTreeNodeFlags nodeFlags = ImGuiTreeNodeFlags_Leaf;
+                    if( selected )
+                    {
+                        nodeFlags |= ImGuiTreeNodeFlags_Selected;
+                    }
+
+                    if( ImGui::TreeNodeEx( "Draw", nodeFlags ) )
                     {
                         if( ImGui::IsItemHovered() )
+                        {
+                            m_SelectedDrawCallCanvas = canvasIndex;
+                            m_SelectedDrawCallIndex = callIndex;
+                            selected = true;
+                        }
+
+                        if( selected )
                         {
                             g_GLStats.m_DrawCallLimit_Canvas = canvasIndex;
                             g_GLStats.m_DrawCallLimit_Index = callIndex;
                         }
+
+#if _DEBUG && MYFW_WINDOWS
+                        if( ImGui::BeginPopupContextItem( "ContextPopup", 1 ) )
+                        {
+                            if( ImGui::MenuItem( "Trigger breakpoint" ) )
+                            {
+                                g_GLStats.m_DrawCallLimit_BreakPointIndex = callIndex;
+                                ImGui::CloseCurrentPopup();
+                            }
+                            ImGui::EndPopup();
+                        }
+#endif
+
                         ImGui::TreePop();
                     }
                     ImGui::PopID();

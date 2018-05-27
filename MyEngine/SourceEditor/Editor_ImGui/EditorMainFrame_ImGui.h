@@ -44,6 +44,10 @@ protected:
     MaterialDefinition* m_pMaterialWhoseNameIsBeingEdited;
     char m_NameBeingEdited[100];
 
+    // For draw call debugger.
+    int m_SelectedDrawCallCanvas;
+    int m_SelectedDrawCallIndex;
+
     Vector2 m_GameWindowPos;
     Vector2 m_EditorWindowPos;
     Vector2 m_GameWindowSize;
