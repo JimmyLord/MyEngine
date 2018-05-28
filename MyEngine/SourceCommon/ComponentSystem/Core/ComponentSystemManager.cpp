@@ -2304,7 +2304,7 @@ void ComponentSystemManager::DrawMousePickerFrame(ComponentCamera* pCamera, MyMa
     //       but should work with 0 bones since bone attribs are set to 100% weight on bone 0
     //       and bone 0 transform uniform is set to identity.
     Shader_Base* pShader = (Shader_Base*)pShaderOverride->GlobalPass( 0, 4 );
-    if( pShader->ActivateAndProgramShader() )
+    if( pShader->Activate() )
     {
         // Draw all objects in the scene graph
         {

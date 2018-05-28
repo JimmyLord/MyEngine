@@ -122,7 +122,7 @@ void EditorInterface::OnDrawFrame(unsigned int canvasid)
                     ShaderGroup* pShaderOverride = g_pEngineCore->GetShader_SelectedObjects();
 
                     Shader_Base* pShader = (Shader_Base*)pShaderOverride->GlobalPass( 0, 4 );
-                    if( pShader->ActivateAndProgramShader() )
+                    if( pShader->Activate() )
                     {
                         for( unsigned int i=0; i<pEditorState->m_pSelectedObjects.size(); i++ )
                         {
@@ -152,7 +152,8 @@ void EditorInterface::OnDrawFrame(unsigned int canvasid)
                                 glEnable( GL_BLEND );
                                 glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
 
-                                pShader->ProgramBaseUniforms( 0, 0, 0, ColorByte(0,0,0,0), ColorByte(0,0,0,0), 0 );
+                                pShader->ProgramMaterialProperties( 0, ColorByte(0,0,0,0), ColorByte(0,0,0,0), 0 );
+                                pShader->ProgramTransforms( 0, 0 );
                                 pShader->ProgramTint( ColorByte(0,0,0,0) );
                                 g_pComponentSystemManager->DrawSingleObject( &pCamera->m_Camera3D.m_matViewProj,
                                                                              pEditorState->m_pSelectedObjects[i],

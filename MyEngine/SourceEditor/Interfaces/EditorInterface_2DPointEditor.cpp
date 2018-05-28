@@ -362,7 +362,7 @@ void EditorInterface_2DPointEditor::RenderObjectIDsToFBO()
         ShaderGroup* pShaderOverride = g_pEngineCore->GetShader_TintColor();
         Shader_Base* pShader = (Shader_Base*)pShaderOverride->GlobalPass( 0, 4 );
     
-        if( pShader->ActivateAndProgramShader() )
+        if( pShader->Activate() )
         {
             ComponentCamera* pCamera = g_pEngineCore->GetEditorState()->GetEditorCamera();
             MyMatrix* pEditorMatViewProj = &pCamera->m_Camera3D.m_matViewProj;

@@ -31,7 +31,7 @@ void BulletDebugDraw::Draw(const Vector3* vertices, uint32 vertexCount, ColorByt
 {
     // Set the material to the correct color and draw the shape.
     Shader_Base* pShader = (Shader_Base*)m_pMaterial->GetShader()->GlobalPass( 0, 0 );
-    if( pShader->ActivateAndProgramShader() == false )
+    if( pShader->Activate() == false )
         return;
 
     m_pMaterial->SetColorDiffuse( color );
@@ -41,7 +41,8 @@ void BulletDebugDraw::Draw(const Vector3* vertices, uint32 vertexCount, ColorByt
     pShader->InitializeAttributeArray( pShader->m_aHandle_Position, 3, GL_FLOAT, GL_FALSE, sizeof(float)*3, (void*)vertices );
 
     // Setup uniforms, mainly viewproj and tint.
-    pShader->ProgramBaseUniforms( m_pMatViewProj, 0, 0, m_pMaterial->m_ColorDiffuse, m_pMaterial->m_ColorSpecular, m_pMaterial->m_Shininess );
+    pShader->ProgramMaterialProperties( 0, m_pMaterial->m_ColorDiffuse, m_pMaterial->m_ColorSpecular, m_pMaterial->m_Shininess );
+    pShader->ProgramTransforms( m_pMatViewProj, 0 );
 
     glLineWidth( pointorlinesize );
 #ifndef MYFW_OPENGLES2

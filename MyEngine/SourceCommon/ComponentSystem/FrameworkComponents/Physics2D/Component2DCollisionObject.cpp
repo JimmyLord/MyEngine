@@ -672,7 +672,7 @@ void Component2DCollisionObject::DrawCallback(ComponentCamera* pCamera, MyMatrix
     {
         // Set the material to the correct color and draw the shape.
         Shader_Base* pShader = (Shader_Base*)pMaterial->GetShader()->GlobalPass( 0, 0 );
-        if( pShader->ActivateAndProgramShader() == false )
+        if( pShader->Activate() == false )
             return;
 
         pMaterial->SetColorDiffuse( ColorByte( 0, 255, 0, 255 ) );
@@ -686,8 +686,9 @@ void Component2DCollisionObject::DrawCallback(ComponentCamera* pCamera, MyMatrix
         worldmat.SetIdentity();
         worldmat.SetTranslation( pParentTransformComponent->GetWorldPosition() );
 
-        // Setup uniforms, mainly viewproj and tint.
-        pShader->ProgramBaseUniforms( pEditorMatViewProj, &worldmat, 0, pMaterial->m_ColorDiffuse, pMaterial->m_ColorSpecular, pMaterial->m_Shininess );
+        // Setup uniforms.
+        pShader->ProgramMaterialProperties( 0, pMaterial->m_ColorDiffuse, pMaterial->m_ColorSpecular, pMaterial->m_Shininess );
+        pShader->ProgramTransforms( pEditorMatViewProj, &worldmat );
 
         glLineWidth( 3 );
 
