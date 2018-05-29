@@ -682,6 +682,11 @@ GameObject* EditorInterface::GetObjectAtPixel(unsigned int x, unsigned int y, bo
 void EditorInterface::SelectObjectsInRectangle(unsigned int sx, unsigned int sy, unsigned int ex, unsigned int ey)
 {
     EditorState* pEditorState = g_pEngineCore->GetEditorState();
+    unsigned int fbowidth = pEditorState->m_pMousePickerFBO->GetWidth();
+    unsigned int fboheight = pEditorState->m_pMousePickerFBO->GetHeight();
+
+    if( sx >= fbowidth || ex >= fbowidth || sy >= fboheight || ey >= fboheight )
+        return;
 
     int smallerx = sx > ex ? ex : sx;
     int biggerx = sx < ex ? ex : sx;
@@ -713,8 +718,6 @@ void EditorInterface::SelectObjectsInRectangle(unsigned int sx, unsigned int sy,
         return;
 
     // get a pixel from the FBO... use m_WindowStartX/m_WindowStartY from any camera component.
-    unsigned int fbowidth = pEditorState->m_pMousePickerFBO->GetWidth();
-    unsigned int fboheight = pEditorState->m_pMousePickerFBO->GetHeight();
     unsigned char* pixels = MyNew unsigned char[fbowidth * fboheight * 4];
     glReadPixels( 0, 0, fbowidth, fboheight, GL_RGBA, GL_UNSIGNED_BYTE, pixels );
     pEditorState->m_pMousePickerFBO->Unbind( true );
