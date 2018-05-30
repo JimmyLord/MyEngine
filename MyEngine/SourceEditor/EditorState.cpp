@@ -119,7 +119,18 @@ ComponentCamera* EditorState::GetEditorCamera()
 
 void EditorState::ClearEditorState(bool clearselectedobjectandcomponents)
 {
-    m_pGameObjectCameraIsFollowing = 0;
+    if( m_CameraState != EditorCameraState_LockedToObject )
+    {
+        m_pGameObjectCameraIsFollowing = 0;
+    }
+
+    // If the object we're locked on to isn't from a loaded scene, then clear it.
+    if( m_CameraState == EditorCameraState_LockedToObject &&
+        m_pGameObjectCameraIsFollowing->GetSceneID() >= MAX_SCENES_LOADED )
+    {
+        m_CameraState = EditorCameraState_Default;
+        m_pGameObjectCameraIsFollowing = 0;
+    }
 
     if( clearselectedobjectandcomponents )
     {
