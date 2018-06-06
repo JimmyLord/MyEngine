@@ -12,6 +12,5 @@ For iOS deployment:
 - ios_deploy    (github.com/phonegap/ios-deploy)
 
 For VSCode extension:
-- node-v8.9.1-x64.msi (nodejs.org/en/)
+- node-v10.3.0-x64.msi (nodejs.org/en/)
 	- npm install -g vsce
-	- vsce package (package the extension locally)
