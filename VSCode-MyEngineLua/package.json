@@ -4,10 +4,14 @@
 	"description": "Lua debugger and snippets for MyEngine.",
 	"version": "0.0.2",
 	"publisher": "JimmyLord",
+	"author": {
+		"name": "Jimmy Lord",
+		"email": "jimmylord@gmail.com"
+	},
 	"license": "Zlib",
 	"repository": {
 		"type": "git",
-		"url": "git://github.com/jimmylord/MyEngine"
+		"url": "https://github.com/jimmylord/MyEngine.git"
 	},
 	"engines": {
 		"vscode": "^1.18.0",
@@ -18,19 +22,18 @@
 		"Snippets"
 	],
 	"dependencies": {
-		"await-notify": "1.0.1",
-		"vscode-debugprotocol": "^1.29.0",
-		"vscode-debugadapter": "^1.29.0"
+		"vscode-debugprotocol": "^1.27.0",
+		"vscode-debugadapter": "^1.27.0"
 	},
 	"devDependencies": {
-		"@types/node": "^10.3.1",
-		"@types/mocha": "^5.2.1",
-		"typescript": "^2.5.3",
-		"mocha": "^5.2.0",
-		"vscode": "^1.1.6",
-		"vscode-debugadapter-testsupport": "^1.29.0",
-		"tslint": "^5.8.0",
-		"vsce": "^1.31.2"
+		"@types/node": "7.0.55",
+		"@types/mocha": "2.2.48",
+		"typescript": "2.6.2",
+		"mocha": "5.0.1",
+		"vscode": "1.1.17",
+		"vscode-debugadapter-testsupport": "1.27.0",
+		"tslint": "5.9.1",
+		"vsce": "1.37.5"
 	},
 	"scripts": {
 		"prepare": "tsc -p ./source",
@@ -62,7 +65,7 @@
 			{
 				"type": "myenginelua",
 				"label": "MyEngine Lua Debug",
-				"program": "./out/MyEngineLuaDebug.js",
+				"program": "./out/debugAdapter.js",
 				"runtime": "node",
 				"configurationAttributes": {
 					"launch": {

@@ -8,7 +8,7 @@
 // 3. This notice may not be removed or altered from any source distribution.
 
 import {
-	DebugSession, LoggingDebugSession,
+	LoggingDebugSession,
 	InitializedEvent, TerminatedEvent, StoppedEvent, OutputEvent,
 	Thread, StackFrame, Scope, Source, Handles, Breakpoint
 } from 'vscode-debugadapter';
@@ -25,7 +25,7 @@ interface LaunchRequestArguments extends DebugProtocol.LaunchRequestArguments
 	showDebugLog?: boolean; // Output some debug info on network traffic between this debugger and the game.
 }
 
-class MyEngineLuaDebugSession extends LoggingDebugSession
+export class MyEngineLuaDebugSession extends LoggingDebugSession
 {
 	// We don't support multiple threads, so we can use a hardcoded ID for the default thread.
 	private static THREAD_ID = 1;
@@ -99,6 +99,10 @@ class MyEngineLuaDebugSession extends LoggingDebugSession
 
 	protected launchRequest(response: DebugProtocol.LaunchResponse, args: LaunchRequestArguments): void
 	{
+		this._showDebugLog = !!args.showDebugLog;
+		if( this._showDebugLog )
+			this.sendEvent( new OutputEvent( "Received Launch Request" ) );
+
 		this._socket = new net.Socket();
 		this._socket.connect( 19542, '127.0.0.1' );
 
@@ -119,8 +123,6 @@ class MyEngineLuaDebugSession extends LoggingDebugSession
 		this._socket.on( 'close', () => { this.TerminateDebugger() } );
 
 		this.sendResponse(response);
-
-		this._showDebugLog = !!args.showDebugLog;
 
 		// Since this debug adapter can accept configuration requests like 'setBreakpoint' at any time,
 		//     we request them early by sending an 'initializeRequest' to the frontend.
@@ -453,5 +455,3 @@ class MyEngineLuaDebugSession extends LoggingDebugSession
 		return o;
 	}
 }
-
-DebugSession.run( MyEngineLuaDebugSession );

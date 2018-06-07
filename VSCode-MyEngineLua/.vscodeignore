@@ -5,6 +5,7 @@
 # Include the following files.
 !node_modules/vscode-debugadapter/**/*
 !node_modules/vscode-debugprotocol/**/*
+!out/debugAdapter.js
 !out/extension.js
 !out/MyEngineLuaDebug.js
 !snippets/snippets.json
