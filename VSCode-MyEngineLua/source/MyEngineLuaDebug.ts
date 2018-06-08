@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2017 Jimmy Lord http://www.flatheadgames.com
+// Copyright (c) 2017-2018 Jimmy Lord http://www.flatheadgames.com
 //
 // This software is provided 'as-is', without any express or implied warranty.  In no event will the authors be held liable for any damages arising from the use of this software.
 // Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -14,6 +14,7 @@ import {
 } from 'vscode-debugadapter';
 import { DebugProtocol } from 'vscode-debugprotocol';
 import { basename } from 'path';
+const { Subject } = require('await-notify');
 import * as net from 'net';
 
 // This interface describes extension specific launch attributes (which are not part of the Debug Adapter Protocol).
@@ -29,6 +30,8 @@ export class MyEngineLuaDebugSession extends LoggingDebugSession
 {
 	// We don't support multiple threads, so we can use a hardcoded ID for the default thread.
 	private static THREAD_ID = 1;
+
+	private _configurationDone = new Subject();
 
 	private _variableHandles = new Handles<string>();
 	private _socket: net.Socket;
@@ -62,6 +65,21 @@ export class MyEngineLuaDebugSession extends LoggingDebugSession
 		response.body.supportsRestartRequest = true;           // Tell VSCode we support restart requests.
 
 		this.sendResponse(response);
+
+		// Since this debug adapter can accept configuration requests like 'setBreakpoint' at any time,
+		//     we request them early by sending an 'initializeRequest' to the frontend.
+		// The frontend will end the configuration sequence by calling 'configurationDone' request.
+		this.sendEvent(new InitializedEvent());
+	}
+
+	// Called at the end of the configuration sequence.
+	// Indicates that all breakpoints etc. have been sent to the DA and that the 'launch' can start.
+	protected configurationDoneRequest(response: DebugProtocol.ConfigurationDoneResponse, args: DebugProtocol.ConfigurationDoneArguments): void
+	{
+		super.configurationDoneRequest(response, args);
+
+		// Notify the launchRequest that configuration has finished.
+		this._configurationDone.notify();
 	}
 
 	protected dealWithIncomingData(data)
@@ -97,8 +115,12 @@ export class MyEngineLuaDebugSession extends LoggingDebugSession
 		this.sendEvent( new TerminatedEvent() );
 	}
 
-	protected launchRequest(response: DebugProtocol.LaunchResponse, args: LaunchRequestArguments): void
+	protected async launchRequest(response: DebugProtocol.LaunchResponse, args: LaunchRequestArguments)
+	//protected launchRequest(response: DebugProtocol.LaunchResponse, args: LaunchRequestArguments): void
 	{
+		// Wait until configuration has finished (and configurationDoneRequest has been called).
+		await this._configurationDone.wait( 1000 );
+
 		this._showDebugLog = !!args.showDebugLog;
 		if( this._showDebugLog )
 			this.sendEvent( new OutputEvent( "Received Launch Request" ) );
@@ -123,11 +145,6 @@ export class MyEngineLuaDebugSession extends LoggingDebugSession
 		this._socket.on( 'close', () => { this.TerminateDebugger() } );
 
 		this.sendResponse(response);
-
-		// Since this debug adapter can accept configuration requests like 'setBreakpoint' at any time,
-		//     we request them early by sending an 'initializeRequest' to the frontend.
-		// The frontend will end the configuration sequence by calling 'configurationDone' request.
-		this.sendEvent( new InitializedEvent() );
 	}
 
 	protected setBreakPointsRequest(response: DebugProtocol.SetBreakpointsResponse, args: DebugProtocol.SetBreakpointsArguments): void

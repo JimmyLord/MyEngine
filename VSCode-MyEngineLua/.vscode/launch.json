@@ -17,7 +17,7 @@
 			"request": "launch",
 			"name": "Server",
 			"cwd": "${workspaceFolder}",
-			"program": "${workspaceFolder}/source/MyEngineLuaDebug.ts",
+			"program": "${workspaceFolder}/source/debugAdapter.ts",
 			"args": [ "--server=4711" ],
 			"outFiles": [ "${workspaceFolder}/out/**/*.js" ]
 		},

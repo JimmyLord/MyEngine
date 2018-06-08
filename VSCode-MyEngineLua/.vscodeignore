@@ -3,6 +3,7 @@
 */**
 
 # Include the following files.
+!node_modules/await-notify/**/*
 !node_modules/vscode-debugadapter/**/*
 !node_modules/vscode-debugprotocol/**/*
 !out/debugAdapter.js
