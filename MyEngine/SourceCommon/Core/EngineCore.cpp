@@ -1111,6 +1111,14 @@ bool EngineCore::OnTouchGameWindow(int action, int id, float x, float y, float p
         return false;
     }
 
+    if( g_pGameCore->WasMouseLockRequested() && action == GCBA_Down )
+    {
+        // If this call to lock the mouse actually did lock it, don't send the click to the game.
+        // TODO: Also ignore the movements and the mouse up.
+        if( LockSystemMouse() )
+            return true;
+    }
+
     // TODO: get the camera properly.
     ComponentCamera* pCamera = m_pComponentSystemManager->GetFirstCamera();
     if( pCamera == 0 )
@@ -1135,8 +1143,8 @@ bool EngineCore::OnTouchGameWindow(int action, int id, float x, float y, float p
     m_LastMousePos.Set( x, y );
 
     // mouse moving without button down.
-    if( id == -1 )
-        return false;
+    //if( id == -1 )
+    //    return false;
 
     return m_pComponentSystemManager->OnTouch( action, id, x, y, pressure, size );
 }

@@ -216,6 +216,15 @@ bool EditorMainFrame_ImGui::HandleInput(int keyaction, int keycode, int mouseact
         return true;
     }
 
+    // Pass relative x/y to the game window if it's in focus.
+    if( mouseaction == GCBA_RelativeMovement && m_GameWindowFocused )
+    {
+        g_pEngineCore->OnTouchGameWindow( mouseaction, id, localx, localy, pressure, 1 );
+
+        // Input was used.
+        return true;
+    }
+
     // Are absolute x/y over the editor window or it's a keyaction and the window is in focus.
     if( mouseaction != -1 &&
         mouseabsx >= m_EditorWindowPos.x && mouseabsx < m_EditorWindowPos.x + m_EditorWindowSize.x &&
