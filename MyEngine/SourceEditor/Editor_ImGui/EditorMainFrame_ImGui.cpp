@@ -244,6 +244,7 @@ bool EditorMainFrame_ImGui::HandleInput(int keyaction, int keycode, int mouseact
 
     // Are absolute x/y over the editor window or it's a keyaction and the window is in focus.
     if( ( keyaction != -1 && m_EditorWindowFocused ) ||
+        ( mouseaction == GCBA_Up && m_EditorWindowFocused ) || // Send mouse up messages to editor window if it's in focus.
         ( ( m_EditorWindowHovered || m_EditorWindowFocused ) && mouseaction != -1 &&
             mouseabsx >= m_EditorWindowPos.x && mouseabsx < m_EditorWindowPos.x + m_EditorWindowSize.x &&
             mouseabsy >= m_EditorWindowPos.y && mouseabsy < m_EditorWindowPos.y + m_EditorWindowSize.y ) )
