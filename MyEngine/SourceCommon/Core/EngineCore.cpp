@@ -1122,6 +1122,7 @@ bool EngineCore::OnTouchGameWindow(int action, int id, float x, float y, float p
         return false;
     }
 
+#if MYFW_EDITOR
     if( g_pGameCore->WasMouseLockRequested() && action == GCBA_Down )
     {
         // If this call to lock the mouse actually did lock it, don't send the click to the game.
@@ -1129,6 +1130,7 @@ bool EngineCore::OnTouchGameWindow(int action, int id, float x, float y, float p
         if( LockSystemMouse() )
             return true;
     }
+#endif
 
     // TODO: get the camera properly.
     ComponentCamera* pCamera = m_pComponentSystemManager->GetFirstCamera();
