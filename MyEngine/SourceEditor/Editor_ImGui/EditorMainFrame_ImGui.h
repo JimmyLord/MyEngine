@@ -82,6 +82,7 @@ public:
     ~EditorMainFrame_ImGui();
 
     Vector2 GetEditorWindowCenterPosition();
+    bool IsGameWindowFocused() { return m_GameWindowFocused; }
 
     void StoreCurrentUndoStackSize();
     unsigned int GetUndoStackDepthAtLastSave() { return m_UndoStackDepthAtLastSave; }

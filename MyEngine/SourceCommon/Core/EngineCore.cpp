@@ -1045,6 +1045,17 @@ void EngineCore::SetMousePosition(float x, float y)
     PlatformSpecific_SetMousePosition( x, y );
 }
 
+void EngineCore::SetMouseLock(bool lock)
+{
+    GameCore::SetMouseLock( lock );
+
+#if MYFW_USING_IMGUI
+    // Don't lock the mouse if the game window isn't in focus.
+    if( ((EditorMainFrame_ImGui*)m_pEditorMainFrame)->IsGameWindowFocused() )
+        LockSystemMouse();
+#endif
+}
+
 bool EngineCore::OnTouch(int action, int id, float x, float y, float pressure, float size)
 {
     if( GameCore::OnTouch( action, id, x, y, pressure, size ) )
@@ -1330,6 +1341,9 @@ void EngineCore::OnModeStop()
         m_pComponentSystemManager->SyncAllRigidBodiesToObjectTransforms();
 
         UnregisterGameplayButtons();
+
+        UnlockSystemMouse();
+
         return;
     }
 #endif

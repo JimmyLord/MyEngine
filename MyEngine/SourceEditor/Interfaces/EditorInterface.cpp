@@ -296,7 +296,7 @@ void EditorInterface::ClearModifierKeyStates(int keyaction, int keycode, int mou
             g_pEngineMainFrame->GetGLCanvasEditor()->LockMouse( false );
 #elif MYFW_USING_IMGUI
             //LOGInfo( LOGTag, "Request mouse unlock\n" );
-            SetMouseLock( false, Vector2(-1,-1) );
+            SetMouseLock( false );
 #endif //MYFW_USING_WX
 #endif //!(MYFW_OSX && MYFW_USING_WX)
 
@@ -378,7 +378,7 @@ bool EditorInterface::HandleInputForEditorCamera(int keyaction, int keycode, int
             if( IsMouseLocked() == false )
             {
                 //LOGInfo( LOGTag, "Request mouse lock\n" );
-                SetMouseLock( true, g_pEngineCore->GetEditorMainFrame_ImGui()->GetEditorWindowCenterPosition() );
+                SetMouseLock( true );
             }
 #endif //MYFW_USING_WX
             Vector2 dir( 0, 0 );
@@ -435,7 +435,7 @@ bool EditorInterface::HandleInputForEditorCamera(int keyaction, int keycode, int
             if( IsMouseLocked() == false )
             {
                 //LOGInfo( LOGTag, "Request mouse lock\n" );
-                SetMouseLock( true, g_pEngineCore->GetEditorMainFrame_ImGui()->GetEditorWindowCenterPosition() );
+                SetMouseLock( true );
             }
 #endif //MYFW_USING_WX
             Vector2 dir( 0, 0 );

@@ -210,6 +210,9 @@ bool EditorMainFrame_ImGui::HandleInput(int keyaction, int keycode, int mouseact
         //localy = m_GameWindowSize.y - (y - m_GameWindowPos.y);
         localy = y - m_GameWindowPos.y;
 
+        if( mouseaction == GCBA_Down )
+            m_GameWindowFocused = true;
+
         g_pEngineCore->OnTouchGameWindow( mouseaction, id, localx, localy, pressure, 1 );
 
         // Input was used.
@@ -225,7 +228,7 @@ bool EditorMainFrame_ImGui::HandleInput(int keyaction, int keycode, int mouseact
         return true;
     }
 
-    // Are absolute x/y over the editor window or it's a keyaction and the window is in focus.
+    // If this is an absolute mouse input over the editor window.
     if( mouseaction != -1 &&
         mouseabsx >= m_EditorWindowPos.x && mouseabsx < m_EditorWindowPos.x + m_EditorWindowSize.x &&
         mouseabsy >= m_EditorWindowPos.y && mouseabsy < m_EditorWindowPos.y + m_EditorWindowSize.y )
@@ -237,6 +240,9 @@ bool EditorMainFrame_ImGui::HandleInput(int keyaction, int keycode, int mouseact
             localx = x - m_EditorWindowPos.x;
             localy = m_EditorWindowSize.y - (y - m_EditorWindowPos.y);
         }
+
+        if( mouseaction == GCBA_Down )
+            m_EditorWindowFocused = true;
 
         m_CurrentMouseInEditorWindow_X = (unsigned int)localx;
         m_CurrentMouseInEditorWindow_Y = (unsigned int)localy;

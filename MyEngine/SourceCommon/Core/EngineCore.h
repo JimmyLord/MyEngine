@@ -214,6 +214,7 @@ public:
     virtual bool OnEvent(MyEvent* pEvent);
 
     void SetMousePosition(float x, float y);
+    virtual void SetMouseLock(bool lock);
     virtual bool OnTouch(int action, int id, float x, float y, float pressure, float size);
     virtual bool OnTouchGameWindow(int action, int id, float x, float y, float pressure, float size);
     virtual bool OnButtons(GameCoreButtonActions action, GameCoreButtonIDs id);
