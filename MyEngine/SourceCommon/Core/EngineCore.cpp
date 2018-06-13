@@ -458,6 +458,16 @@ float EngineCore::Tick(float deltaTime)
     g_pImGuiManager->StartFrame();
 #endif
 
+    //ImGui::Begin( "Editor Debug" );
+    //ImGui::Text( "IsAnyWindowHovered: %d", ImGui::IsAnyWindowHovered() );
+    //ImGui::Text( "IsAnyWindowFocused: %d", ImGui::IsAnyWindowFocused() );
+    //ImGui::Text( "IsMouseLocked: %d", g_pGameCore->IsMouseLocked() );
+    //ImGui::Text( "MousePos: %0.0f, %0.0f", ImGui::GetMousePos().x, ImGui::GetMousePos().y );
+    //ImGui::Text( "FrameCount: %d", ImGui::GetFrameCount() );
+    //ImGui::Text( "Time: %f", ImGui::GetTime() );
+    //ImGui::End();
+    //g_pImGuiManager->OnFocusLost();
+
     checkGlError( "EngineCore::Tick" );
 
 #if MYFW_PROFILING_ENABLED
@@ -1107,6 +1117,27 @@ bool EngineCore::OnTouch(int action, int id, float x, float y, float pressure, f
     {
         float toplefty = y;
         if( g_pImGuiManager->HandleInput( -1, -1, action, id, x, toplefty, pressure ) )
+            return true;
+    }
+    else
+    {
+        // In standalone game, if the mouse is locked, imgui needs to reset inputs.
+        // TODO: this should be done once when the mouse is locked, not each frame.
+        g_pImGuiManager->OnFocusLost();
+    }
+#endif
+
+#if !MYFW_USING_IMGUI && MYFW_WINDOWS
+    // Good 'ol hack to include this global function from MYFWWinMain.h
+    bool LockSystemMouse();
+    
+    // For non ImGui editor builds, if the game wants the mouse locked, finish the locking process here after imgui manager uses the mouse.
+    bool wasLockedBecauseOfThisClick = false;
+    if( action == GCBA_Down && g_pGameCore->WasMouseLockRequested() )
+    {
+        wasLockedBecauseOfThisClick = LockSystemMouse();
+        
+        if( wasLockedBecauseOfThisClick )
             return true;
     }
 #endif
