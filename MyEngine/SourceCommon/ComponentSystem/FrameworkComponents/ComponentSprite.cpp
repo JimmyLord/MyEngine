@@ -343,7 +343,7 @@ void ComponentSprite::DrawCallback(ComponentCamera* pCamera, MyMatrix* pMatViewP
     //m_pSprite->SetPosition( m_pComponentTransform->GetWorldTransform() );
     //m_pSprite->SetTint( m_Tint );
     //m_pSprite->Create( "ComponentSprite", m_Size.x, m_Size.y, 0, 1, 0, 1, Justify_Center, false );
-    m_pSprite->Draw( m_pComponentTransform->GetWorldTransform(), pMatViewProj, pShaderOverride );
+    m_pSprite->Draw( m_pComponentTransform->GetWorldTransform(), pMatViewProj, pShaderOverride, true );
 }
 
 #if MYFW_EDITOR

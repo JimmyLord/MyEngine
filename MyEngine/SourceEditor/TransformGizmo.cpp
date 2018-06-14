@@ -169,6 +169,9 @@ void TransformGizmo::Tick(float deltaTime, EditorState* pEditorState)
         MyAssert( pMesh );
         if( pMesh )
         {
+            // Hide object from editor debug draw call list.
+            pMesh->m_pSceneGraphObjects[0]->SetAsEditorObject();
+
             MaterialDefinition* pMaterial = pMesh->GetMaterial( 0 );
             if( pMaterial )
             {
@@ -224,6 +227,9 @@ void TransformGizmo::Tick(float deltaTime, EditorState* pEditorState)
         MyAssert( pMesh );
         if( pMesh )
         {
+            // Hide object from editor debug draw call list.
+            pMesh->m_pSceneGraphObjects[0]->SetAsEditorObject();
+
             MaterialDefinition* pMaterial = pMesh->GetMaterial( 0 );
             if( pMaterial )
             {
@@ -298,6 +304,9 @@ void TransformGizmo::Tick(float deltaTime, EditorState* pEditorState)
         MyAssert( pMesh );
         if( pMesh )
         {
+            // Hide object from editor debug draw call list.
+            pMesh->m_pSceneGraphObjects[0]->SetAsEditorObject();
+
             MaterialDefinition* pMaterial = pMesh->GetMaterial( 0 );
             if( pMaterial )
             {
@@ -346,6 +355,9 @@ void TransformGizmo::Tick(float deltaTime, EditorState* pEditorState)
         MyAssert( pMesh );
         if( pMesh )
         {
+            // Hide object from editor debug draw call list.
+            pMesh->m_pSceneGraphObjects[0]->SetAsEditorObject();
+
             MaterialDefinition* pMaterial = pMesh->GetMaterial( 0 );
             if( pMaterial )
             {
@@ -391,6 +403,9 @@ void TransformGizmo::Tick(float deltaTime, EditorState* pEditorState)
         MyAssert( pMesh );
         if( pMesh )
         {
+            // Hide object from editor debug draw call list.
+            pMesh->m_pSceneGraphObjects[0]->SetAsEditorObject();
+
             MaterialDefinition* pMaterial = pMesh->GetMaterial( 0 );
             if( pMaterial )
             {
