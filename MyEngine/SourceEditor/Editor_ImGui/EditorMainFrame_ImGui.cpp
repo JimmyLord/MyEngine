@@ -194,95 +194,79 @@ bool EditorMainFrame_ImGui::HandleInput(int keyaction, int keycode, int mouseact
     float mouseabsx = io.MousePos.x;
     float mouseabsy = io.MousePos.y;
 
-    // If this is a keyaction and the window is in focus.
-    if( keyaction != -1 && m_GameWindowFocused )
+    // Deal with sending input events to the game window.
     {
-        return false; // Let event continue to the game window.
-    }
-
-    // If this is an absolute mouse input over the game window.
-    if( ( mouseaction != -1 && mouseaction != GCBA_RelativeMovement &&
-            mouseabsx >= m_GameWindowPos.x && mouseabsx < m_GameWindowPos.x + m_GameWindowSize.x &&
-            mouseabsy >= m_GameWindowPos.y && mouseabsy < m_GameWindowPos.y + m_GameWindowSize.y ) )
-    {
-        // Calculate mouse x/y relative to this window.
-        localx = x - m_GameWindowPos.x;
-        //localy = m_GameWindowSize.y - (y - m_GameWindowPos.y);
-        localy = y - m_GameWindowPos.y;
-
-        if( mouseaction == GCBA_Down )
-            m_GameWindowFocused = true;
-
-        g_pEngineCore->OnTouchGameWindow( mouseaction, id, localx, localy, pressure, 1 );
-
-        // Input was used.
-        return true;
-    }
-
-    // Pass relative x/y to the game window if it's in focus.
-    if( mouseaction == GCBA_RelativeMovement && m_GameWindowFocused )
-    {
-        g_pEngineCore->OnTouchGameWindow( mouseaction, id, localx, localy, pressure, 1 );
-
-        // Input was used.
-        return true;
-    }
-
-    // If this is an absolute mouse input over the editor window.
-    if( mouseaction != -1 &&
-        mouseabsx >= m_EditorWindowPos.x && mouseabsx < m_EditorWindowPos.x + m_EditorWindowSize.x &&
-        mouseabsy >= m_EditorWindowPos.y && mouseabsy < m_EditorWindowPos.y + m_EditorWindowSize.y )
-    {
-        // If this is a mouse message and not a relative movement,
-        //     calculate mouse x/y relative to this window.
-        if( mouseaction != -1 && mouseaction != GCBA_RelativeMovement )
+        // If this is a keyaction and the game window is in focus.
+        if( keyaction != -1 && m_GameWindowFocused )
         {
-            localx = x - m_EditorWindowPos.x;
-            localy = m_EditorWindowSize.y - (y - m_EditorWindowPos.y);
+            return false; // Let event continue to the game window.
         }
 
-        if( mouseaction == GCBA_Down )
-            m_EditorWindowFocused = true;
-
-        m_CurrentMouseInEditorWindow_X = (unsigned int)localx;
-        m_CurrentMouseInEditorWindow_Y = (unsigned int)localy;
-    }
-
-    // Are absolute x/y over the editor window or it's a keyaction and the window is in focus.
-    if( ( keyaction != -1 && m_EditorWindowFocused ) ||
-        ( mouseaction == GCBA_Up && m_EditorWindowFocused ) || // Send mouse up messages to editor window if it's in focus.
-        ( ( m_EditorWindowHovered || m_EditorWindowFocused ) && mouseaction != -1 &&
-            mouseabsx >= m_EditorWindowPos.x && mouseabsx < m_EditorWindowPos.x + m_EditorWindowSize.x &&
-            mouseabsy >= m_EditorWindowPos.y && mouseabsy < m_EditorWindowPos.y + m_EditorWindowSize.y ) )
-    {
-        // If this is a mouse message and not a relative movement,
-        //     calculate mouse x/y relative to this window.
-        if( mouseaction != -1 && mouseaction != GCBA_RelativeMovement )
+        // If this is an absolute mouse input over the game window.
+        if( ( mouseaction != -1 && mouseaction != GCBA_RelativeMovement &&
+              mouseabsx >= m_GameWindowPos.x && mouseabsx < m_GameWindowPos.x + m_GameWindowSize.x &&
+              mouseabsy >= m_GameWindowPos.y && mouseabsy < m_GameWindowPos.y + m_GameWindowSize.y ) )
         {
-            localx = x - m_EditorWindowPos.x;
-            localy = m_EditorWindowSize.y - (y - m_EditorWindowPos.y);
-        }
+            // Calculate mouse x/y relative to this window.
+            localx = x - m_GameWindowPos.x;
+            localy = y - m_GameWindowPos.y;
 
-        m_CurrentMouseInEditorWindow_X = (unsigned int)localx;
-        m_CurrentMouseInEditorWindow_Y = (unsigned int)localy;
+            if( mouseaction == GCBA_Down )
+                m_GameWindowFocused = true;
 
-        // If the right or middle mouse buttons were clicked on this window, set it as having focus.
-        // Needed since those buttons don't focus ImGui window directly.
-        if( mouseaction == GCBA_Down && id != 0 )
-        {
-            ImGui::SetWindowFocus( "Editor" );
-        }
+            g_pEngineCore->OnTouchGameWindow( mouseaction, id, localx, localy, pressure, 1 );
 
-        // First, pass the input into the current editor interface.
-        if( g_pEngineCore->GetCurrentEditorInterface()->HandleInput( keyaction, keycode, mouseaction, id, localx, localy, pressure ) )
+            // Input was used.
             return true;
+        }
 
-        // If it wasn't used, pass it to the transform gizmo.
-        if( g_pEngineCore->GetEditorState()->m_pTransformGizmo->HandleInput( g_pEngineCore, -1, -1, mouseaction, id, localx, localy, pressure ) )
+        // Pass relative x/y to the game window if it's in focus.
+        if( mouseaction == GCBA_RelativeMovement && m_GameWindowFocused )
+        {
+            g_pEngineCore->OnTouchGameWindow( mouseaction, id, localx, localy, pressure, 1 );
+
+            // Input was used.
             return true;
+        }
+    }
 
-        // Clear modifier key and mouse button states.
-        g_pEngineCore->GetCurrentEditorInterface()->ClearModifierKeyStates( keyaction, keycode, mouseaction, id, localx, localy, pressure );
+    // Deal with sending input events to the editor window.
+    {
+        // Pass keyboard and mouse events to the editor under various conditions.
+        if( ( m_EditorWindowFocused && keyaction != -1 ) ||
+            ( m_EditorWindowFocused && mouseaction == GCBA_Up ) || // Send mouse up messages to editor window if it's in focus.
+            ( m_EditorWindowHovered && (mouseaction == GCBA_Down || mouseaction == GCBA_Wheel) ) ||
+            ( m_EditorWindowHovered && m_EditorWindowFocused && (mouseaction == GCBA_Held || mouseaction == GCBA_RelativeMovement) ) )
+        {
+            // If this is a mouse message and not a relative movement,
+            //     calculate mouse x/y relative to this window.
+            if( mouseaction != -1 && mouseaction != GCBA_RelativeMovement )
+            {
+                localx = x - m_EditorWindowPos.x;
+                localy = m_EditorWindowSize.y - (y - m_EditorWindowPos.y);
+            }
+
+            m_CurrentMouseInEditorWindow_X = (unsigned int)localx;
+            m_CurrentMouseInEditorWindow_Y = (unsigned int)localy;
+
+            // If the right or middle mouse buttons were clicked on this window, set it as having focus.
+            // Needed since those buttons don't focus ImGui window directly.
+            if( mouseaction == GCBA_Down && id != 0 )
+            {
+                ImGui::SetWindowFocus( "Editor" );
+            }
+
+            // First, pass the input into the current editor interface.
+            if( g_pEngineCore->GetCurrentEditorInterface()->HandleInput( keyaction, keycode, mouseaction, id, localx, localy, pressure ) )
+                return true;
+
+            // If it wasn't used, pass it to the transform gizmo.
+            if( g_pEngineCore->GetEditorState()->m_pTransformGizmo->HandleInput( g_pEngineCore, -1, -1, mouseaction, id, localx, localy, pressure ) )
+                return true;
+
+            // Clear modifier key and mouse button states.
+            g_pEngineCore->GetCurrentEditorInterface()->ClearModifierKeyStates( keyaction, keycode, mouseaction, id, localx, localy, pressure );
+        }
     }
 
     // Absorb the message, even if we didn't do anything with it.
