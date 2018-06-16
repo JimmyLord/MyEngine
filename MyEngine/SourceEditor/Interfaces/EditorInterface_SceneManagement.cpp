@@ -79,7 +79,7 @@ void EditorInterface_SceneManagement::OnDrawFrame(unsigned int canvasid)
                 debugQuad->CreateInPlace( "debug", 0.5f, 0.5f, 1.0f, 1.0f, 0, maxu, maxv, 0, Justify_Center, false );
                 g_pEngineCore->GetMaterial_ClipSpaceTexture()->SetTextureColor( pEditorState->m_pDebugViewFBO->GetColorTexture( 0 ) );
                 debugQuad->SetMaterial( g_pEngineCore->GetMaterial_ClipSpaceTexture() );
-                debugQuad->Draw( 0, 0 );
+                debugQuad->Draw( 0, 0, 0 );
             }
 
             // If it's a shadow cam, render the depth texture.
@@ -89,7 +89,7 @@ void EditorInterface_SceneManagement::OnDrawFrame(unsigned int canvasid)
                 debugQuad->CreateInPlace( "debug", 0.5f, 0.5f, 1.0f, 1.0f, 0, 1, 1, 0, Justify_Center, false );
                 g_pEngineCore->GetMaterial_ClipSpaceTexture()->SetTextureColor( pCamera->GetFBO()->GetDepthTexture() );
                 debugQuad->SetMaterial( g_pEngineCore->GetMaterial_ClipSpaceTexture() );
-                debugQuad->Draw( 0, 0 );
+                debugQuad->Draw( 0, 0, 0 );
             }
         }
     }
@@ -184,7 +184,7 @@ void EditorInterface_SceneManagement::OnDrawFrame(unsigned int canvasid)
             MaterialDefinition* pMaterial = g_pEngineCore->GetMaterial_ClipSpaceColor();
             pMaterial->SetColorDiffuse( ColorByte( 0, 255, 0, 64 ) );
             debugQuad->SetMaterial( pMaterial );
-            debugQuad->Draw( 0, 0 );
+            debugQuad->Draw( 0, 0, 0 );
         }
     }
 

@@ -137,7 +137,8 @@ void EditorInterface::OnDrawFrame(unsigned int canvasid)
                                 glEnable( GL_POLYGON_OFFSET_FILL ); // enabling GL_POLYGON_OFFSET_LINE doesn't work on my intel 4000
                                 glPolygonOffset( -0.5, -0.5 );
                                 pShader->ProgramTint( ColorByte(255,255,255,50) );
-                                g_pComponentSystemManager->DrawSingleObject( &pCamera->m_Camera3D.m_matViewProj,
+                                g_pComponentSystemManager->DrawSingleObject( &pCamera->m_Camera3D.m_matProj,
+                                                                             &pCamera->m_Camera3D.m_matView,
                                                                              pEditorState->m_pSelectedObjects[i],
                                                                              pShaderOverride );
                                 glPolygonOffset( 0, 0 );
@@ -153,9 +154,10 @@ void EditorInterface::OnDrawFrame(unsigned int canvasid)
                                 glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
 
                                 pShader->ProgramMaterialProperties( 0, ColorByte(0,0,0,0), ColorByte(0,0,0,0), 0 );
-                                pShader->ProgramTransforms( 0, 0 );
+                                pShader->ProgramTransforms( 0, 0, 0 );
                                 pShader->ProgramTint( ColorByte(0,0,0,0) );
-                                g_pComponentSystemManager->DrawSingleObject( &pCamera->m_Camera3D.m_matViewProj,
+                                g_pComponentSystemManager->DrawSingleObject( &pCamera->m_Camera3D.m_matProj,
+                                                                             &pCamera->m_Camera3D.m_matView,
                                                                              pEditorState->m_pSelectedObjects[i],
                                                                              pShaderOverride );
                             }
@@ -184,7 +186,7 @@ void EditorInterface::OnDrawFrame(unsigned int canvasid)
             pDebugQuad->CreateInPlace( "debug", 0.75f, 0.75f, 0.5f, 0.5f, 0, 1, 1, 0, Justify_Center, false );
             g_pEngineCore->GetMaterial_MousePicker()->SetTextureColor( pEditorState->m_pMousePickerFBO->GetColorTexture( 0 ) );
             pDebugQuad->SetMaterial( g_pEngineCore->GetMaterial_MousePicker() );
-            pDebugQuad->Draw( 0, 0 );
+            pDebugQuad->Draw( 0, 0, 0 );
         }
     }
 }
@@ -569,7 +571,7 @@ void EditorInterface::RenderObjectIDsToFBO()
         pCamera = dynamic_cast<ComponentCamera*>( pEditorState->m_pEditorCamera->GetComponentByIndex( i ) );
         if( pCamera )
         {
-            g_pComponentSystemManager->DrawMousePickerFrame( pCamera, &pCamera->m_Camera3D.m_matViewProj, g_pEngineCore->GetShader_TintColor() );
+            g_pComponentSystemManager->DrawMousePickerFrame( pCamera, &pCamera->m_Camera3D.m_matProj, &pCamera->m_Camera3D.m_matView, g_pEngineCore->GetShader_TintColor() );
             glClear( GL_DEPTH_BUFFER_BIT );
         }
     }

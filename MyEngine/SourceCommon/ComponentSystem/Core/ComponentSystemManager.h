@@ -89,7 +89,7 @@ struct FileUpdatedCallbackStruct
 
 #define MYFW_DECLARE_COMPONENT_CALLBACK_DRAW() \
     ComponentCallbackStruct_Draw m_CallbackStruct_Draw; \
-    void DrawCallback(ComponentCamera* pCamera, MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride); \
+    void DrawCallback(ComponentCamera* pCamera, MyMatrix* pMatProj, MyMatrix* pMatView, ShaderGroup* pShaderOverride); \
     virtual ComponentCallbackStruct_Draw* GetDrawCallback() { return &m_CallbackStruct_Draw; }
 
 #define MYFW_DECLARE_COMPONENT_CALLBACK_ONTOUCH() \
@@ -111,7 +111,7 @@ struct FileUpdatedCallbackStruct
 // Callback function prototypes and structs.
 typedef void (ComponentBase::*ComponentCallbackFunc_Tick)(float deltaTime);
 typedef void (ComponentBase::*ComponentCallbackFunc_OnSurfaceChanged)(unsigned int startx, unsigned int starty, unsigned int width, unsigned int height, unsigned int desiredaspectwidth, unsigned int desiredaspectheight);
-typedef void (ComponentBase::*ComponentCallbackFunc_Draw)(ComponentCamera* pCamera, MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride);
+typedef void (ComponentBase::*ComponentCallbackFunc_Draw)(ComponentCamera* pCamera, MyMatrix* pMatProj, MyMatrix* pMatView, ShaderGroup* pShaderOverride);
 typedef bool (ComponentBase::*ComponentCallbackFunc_OnTouch)(int action, int id, float x, float y, float pressure, float size);
 typedef bool (ComponentBase::*ComponentCallbackFunc_OnButtons)(GameCoreButtonActions action, GameCoreButtonIDs id);
 typedef bool (ComponentBase::*ComponentCallbackFunc_OnKeys)(GameCoreButtonActions action, int keycode, int unicodechar);
@@ -228,8 +228,8 @@ public:
     void Tick(float deltaTime);
     void OnSurfaceChanged(unsigned int startx, unsigned int starty, unsigned int width, unsigned int height, unsigned int desiredaspectwidth, unsigned int desiredaspectheight);
     void OnDrawFrame();
-    void DrawFrame(ComponentCamera* pCamera, MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride, bool drawOpaques, bool drawTransparents, EmissiveDrawOptions emissiveDrawOption, bool drawOverlays);
-    void DrawOverlays(ComponentCamera* pCamera, MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride);
+    void DrawFrame(ComponentCamera* pCamera, MyMatrix* pMatProj, MyMatrix* pMatView, ShaderGroup* pShaderOverride, bool drawOpaques, bool drawTransparents, EmissiveDrawOptions emissiveDrawOption, bool drawOverlays);
+    void DrawOverlays(ComponentCamera* pCamera, MyMatrix* pMatProj, MyMatrix* pMatView, ShaderGroup* pShaderOverride);
     void OnFileRenamed(const char* fullpathbefore, const char* fullpathafter);
 
     void OnLoad(SceneID sceneid);
@@ -254,7 +254,7 @@ public:
     void MoveInputHandlersToFront(CPPListNode* pOnTouch, CPPListNode* pOnButtons, CPPListNode* pOnKeys);
 
     // Other utility functions.
-    void DrawMousePickerFrame(ComponentCamera* pCamera, MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride);
+    void DrawMousePickerFrame(ComponentCamera* pCamera, MyMatrix* pMatProj, MyMatrix* pMatView, ShaderGroup* pShaderOverride);
 
     // Scene management.
     SceneID m_NextSceneID;
@@ -290,7 +290,7 @@ public:
 
 public:
 #if MYFW_EDITOR
-    void DrawSingleObject(MyMatrix* pMatViewProj, GameObject* pObject, ShaderGroup* pShaderOverride); // used to draw an animated mesh into the debug FBO
+    void DrawSingleObject(MyMatrix* pMatProj, MyMatrix* pMatView, GameObject* pObject, ShaderGroup* pShaderOverride); // used to draw an animated mesh into the debug FBO
 
 #if MYFW_USING_WX
     void CheckForUpdatedDataSourceFiles(bool initialcheck);

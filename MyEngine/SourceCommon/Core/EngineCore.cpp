@@ -400,7 +400,7 @@ void EngineCore::OneTimeInit()
     m_pBulletWorld = MyNew BulletWorld( 0, 0 );
 #else
     ComponentCamera* pCamera = m_pEditorState->GetEditorCamera();
-    m_pBulletWorld = MyNew BulletWorld( m_pMaterial_Box2DDebugDraw, &pCamera->m_Camera3D.m_matViewProj );
+    m_pBulletWorld = MyNew BulletWorld( m_pMaterial_Box2DDebugDraw, &pCamera->m_Camera3D.m_matProj, &pCamera->m_Camera3D.m_matView );
 #endif
 
 #if MYFW_EDITOR
@@ -901,10 +901,10 @@ void EngineCore::OnDrawFrame(unsigned int canvasid)
             }
         }
 
-        MyMatrix mat;
-        mat.CreateOrtho( (float)windowrect.x, (float)windowrect.x+windowrect.w, (float)windowrect.y, (float)windowrect.y+windowrect.h, -1, 1 );
+        MyMatrix matProj;
+        matProj.CreateOrtho( (float)windowrect.x, (float)windowrect.x+windowrect.w, (float)windowrect.y, (float)windowrect.y+windowrect.h, -1, 1 );
         glDisable( GL_DEPTH_TEST );
-        m_pDebugTextMesh->Draw( 0, &mat, 0,0,0,0,0,0,0,0 );
+        m_pDebugTextMesh->Draw( &matProj, 0, 0, 0,0,0,0,0,0,0,0 );
         glEnable( GL_DEPTH_TEST );
     }
 #endif

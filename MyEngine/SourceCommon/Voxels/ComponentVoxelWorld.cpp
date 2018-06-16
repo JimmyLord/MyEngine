@@ -499,7 +499,7 @@ void ComponentVoxelWorld::TickCallback(float deltaTime)
 static Vector3 g_RayStart;
 static Vector3 g_RayEnd;
 
-void ComponentVoxelWorld::DrawCallback(ComponentCamera* pCamera, MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride)
+void ComponentVoxelWorld::DrawCallback(ComponentCamera* pCamera, MyMatrix* pMatProj, MyMatrix* pMatView, ShaderGroup* pShaderOverride)
 {
     // Draw a debug ray on screen. // TODO: fix and generalize some debug drawing functions
     //MaterialDefinition* pMaterial = g_pEngineCore->m_pMaterial_Box2DDebugDraw;
@@ -510,7 +510,7 @@ void ComponentVoxelWorld::DrawCallback(ComponentCamera* pCamera, MyMatrix* pMatV
     //verts[1] = g_RayEnd;
 
     //Shader_Base* pShader = (Shader_Base*)pShaderGroup->GetShader( ShaderPass_Main, 0, 0 );
-    //pShader->ActivateAndProgramShader( 0, 0, 0, pMatViewProj, 0, pMaterial );
+    //pShader->ActivateAndProgramShader( 0, 0, 0, pMatProj, pMatView, 0, pMaterial );
     //glVertexAttribPointer( pShader->m_aHandle_Position, 3, GL_FLOAT, false, 0, verts );
     //glLineWidth( 1 );
     //glDrawArrays( GL_LINES, 0, 2 );

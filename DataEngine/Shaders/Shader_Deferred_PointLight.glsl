@@ -27,9 +27,14 @@ void main()
 #ifdef FragmentShader
 
 uniform vec2 u_TextureSize;
+uniform vec2 u_ViewportSize;
 uniform sampler2D u_TextureAlbedo;
 uniform sampler2D u_TexturePositionShine;
 uniform sampler2D u_TextureNormal;
+uniform sampler2D u_TextureDepth;
+
+uniform mat4 u_InverseView;
+uniform mat4 u_InverseProj;
 
 uniform vec3 u_WSCameraPos;
 
@@ -37,15 +42,33 @@ uniform vec3 u_WSCameraPos;
 #include <Include/Light_Uniforms.glsl>
 #include <Include/Light_Functions.glsl>
 
+vec3 WorldPositionFromDepth(float depth)
+{
+    vec2 xy = (gl_FragCoord.xy / u_ViewportSize) * 2.0 - 1.0;
+    float z = depth * 2.0 - 1.0;
+
+    vec4 CSPosition = vec4( xy, z, 1.0 );
+    vec4 VSPosition = u_InverseProj * CSPosition;
+    VSPosition /= VSPosition.w;
+    vec4 WSPosition = u_InverseView * VSPosition;
+
+    return WSPosition.xyz;
+}
+
 void main()
 {
-    vec2 UVCoord = (gl_FragCoord.xy / u_TextureSize);
+    vec2 UVCoord = gl_FragCoord.xy / u_TextureSize;
 
     vec4 albedoColor = texture2D( u_TextureAlbedo, UVCoord );
 	vec4 WSPositionShine = texture2D( u_TexturePositionShine, UVCoord );
     vec3 WSPosition = WSPositionShine.xyz;
     float specularShine = WSPositionShine.w;
 	vec3 WSNormal = texture2D( u_TextureNormal, UVCoord ).xyz;
+
+    // World position is currently rendered into "u_TexturePositionShine".
+    // Alternatively, it can be computed from depth.
+    //float depth = texture2D( u_TextureDepth, UVCoord ).x;
+    //WSPosition = WorldPositionFromDepth( depth );
 
     // Accumulate ambient, diffuse and specular color for all lights.
     vec3 finalAmbient = vec3( 0.0, 0.0, 0.0 ); // not used.
@@ -71,6 +94,7 @@ void main()
 
 	//gl_FragColor.xyz = WSPosition;
     //gl_FragColor.xyz = vec3(1);
+    //gl_FragColor.xyz = vec3(1-depth);
 }
 
 #endif

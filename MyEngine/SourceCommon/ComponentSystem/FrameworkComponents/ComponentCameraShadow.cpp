@@ -265,11 +265,11 @@ void ComponentCameraShadow::OnDrawFrame()
 
     if( m_Orthographic )
     {
-        g_pComponentSystemManager->DrawFrame( this, &m_Camera2D.m_matViewProj, 0, true, false, EmissiveDrawOption_EitherEmissiveOrNot, false );
+        g_pComponentSystemManager->DrawFrame( this, &m_Camera2D.m_matProj, &m_Camera2D.m_matView, 0, true, false, EmissiveDrawOption_EitherEmissiveOrNot, false );
     }
     else
     {
-        g_pComponentSystemManager->DrawFrame( this, &m_Camera3D.m_matViewProj, 0, true, false, EmissiveDrawOption_EitherEmissiveOrNot, false );
+        g_pComponentSystemManager->DrawFrame( this, &m_Camera3D.m_matProj, &m_Camera3D.m_matView, 0, true, false, EmissiveDrawOption_EitherEmissiveOrNot, false );
     }
 
     m_pDepthFBO->Unbind( false );

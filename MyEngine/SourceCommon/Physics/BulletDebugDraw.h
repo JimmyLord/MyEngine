@@ -16,10 +16,11 @@ public:
     DebugDrawModes m_DebugDrawMode;
 
     MaterialDefinition* m_pMaterial;
-    MyMatrix* m_pMatViewProj;
+    MyMatrix* m_pMatProj;
+    MyMatrix* m_pMatView;
 
 public:
-    BulletDebugDraw(MaterialDefinition* debugdrawmaterial, MyMatrix* matviewproj);
+    BulletDebugDraw(MaterialDefinition* debugdrawmaterial, MyMatrix* pMatProj, MyMatrix* pMatView);
     ~BulletDebugDraw();
 
     virtual void Draw(const Vector3* vertices, uint32 vertexCount, ColorByte color, int primitivetype, float pointorlinesize);

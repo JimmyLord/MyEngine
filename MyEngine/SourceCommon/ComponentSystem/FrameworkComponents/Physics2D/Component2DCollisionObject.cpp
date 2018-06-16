@@ -636,7 +636,7 @@ void Component2DCollisionObject::TickCallback(float deltaTime)
 }
 
 #if MYFW_EDITOR
-void Component2DCollisionObject::DrawCallback(ComponentCamera* pCamera, MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride)
+void Component2DCollisionObject::DrawCallback(ComponentCamera* pCamera, MyMatrix* pMatProj, MyMatrix* pMatView, ShaderGroup* pShaderOverride)
 {
     if( m_Vertices.size() == 0 )
         return;
@@ -660,7 +660,8 @@ void Component2DCollisionObject::DrawCallback(ComponentCamera* pCamera, MyMatrix
     }
 
     //ComponentCamera* pCamera = g_pEngineCore->GetEditorState()->GetEditorCamera();
-    MyMatrix* pEditorMatViewProj = &pCamera->m_Camera3D.m_matViewProj;
+    MyMatrix* pEditorMatProj = &pCamera->m_Camera3D.m_matProj;
+    MyMatrix* pEditorMatView = &pCamera->m_Camera3D.m_matView;
 
     //MaterialDefinition* pMaterial = g_pEngineCore->GetEditorState()->m_pTransformGizmo->m_pMaterial_Translate1Axis[1];
     EditorInterface_2DPointEditor* pInterface = ((EditorInterface_2DPointEditor*)g_pEngineCore->GetEditorInterface(EditorInterfaceType_2DPointEditor));
@@ -688,7 +689,7 @@ void Component2DCollisionObject::DrawCallback(ComponentCamera* pCamera, MyMatrix
 
         // Setup uniforms.
         pShader->ProgramMaterialProperties( 0, pMaterial->m_ColorDiffuse, pMaterial->m_ColorSpecular, pMaterial->m_Shininess );
-        pShader->ProgramTransforms( pEditorMatViewProj, &worldmat );
+        pShader->ProgramTransforms( pEditorMatProj, pEditorMatView, &worldmat );
 
         glLineWidth( 3 );
 

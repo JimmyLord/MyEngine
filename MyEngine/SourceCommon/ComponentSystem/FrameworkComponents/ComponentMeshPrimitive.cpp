@@ -316,7 +316,7 @@ void ComponentMeshPrimitive::CreatePrimitive()
     AddToSceneGraph();
 }
 
-void ComponentMeshPrimitive::DrawCallback(ComponentCamera* pCamera, MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride)
+void ComponentMeshPrimitive::DrawCallback(ComponentCamera* pCamera, MyMatrix* pMatProj, MyMatrix* pMatView, ShaderGroup* pShaderOverride)
 {
-    ComponentMesh::DrawCallback( pCamera, pMatViewProj, pShaderOverride );
+    ComponentMesh::DrawCallback( pCamera, pMatProj, pMatView, pShaderOverride );
 }

@@ -111,7 +111,8 @@ void EditorInterface_2DPointEditor::OnDrawFrame(unsigned int canvasid)
         m_pPoint->GetTransform()->SetLocalPosition( worldpos );
 
         ComponentCamera* pCamera = g_pEngineCore->GetEditorState()->GetEditorCamera();
-        MyMatrix* pEditorMatViewProj = &pCamera->m_Camera3D.m_matViewProj;
+        MyMatrix* pEditorMatProj = &pCamera->m_Camera3D.m_matProj;
+        MyMatrix* pEditorMatView = &pCamera->m_Camera3D.m_matView;
 
         float distance = (pCamera->m_pComponentTransform->GetLocalPosition() - worldpos).Length();
         m_pPoint->GetTransform()->SetLocalScale( Vector3( distance / 15.0f ) );
@@ -120,7 +121,7 @@ void EditorInterface_2DPointEditor::OnDrawFrame(unsigned int canvasid)
         if( i == (unsigned int)m_IndexOfPointBeingDragged )
             m_pPoint->SetMaterial( m_pMaterials[Mat_SelectedPoint] );
 
-        g_pComponentSystemManager->DrawSingleObject( pEditorMatViewProj, m_pPoint, 0 );
+        g_pComponentSystemManager->DrawSingleObject( pEditorMatProj, pEditorMatView, m_pPoint, 0 );
 
         if( i == (unsigned int)m_IndexOfPointBeingDragged )
             m_pPoint->SetMaterial( m_pMaterials[Mat_Points] );
@@ -379,7 +380,8 @@ void EditorInterface_2DPointEditor::RenderObjectIDsToFBO()
                 m_pPoint->GetTransform()->SetLocalPosition( worldpos );
 
                 ComponentCamera* pCamera = g_pEngineCore->GetEditorState()->GetEditorCamera();
-                MyMatrix* pEditorMatViewProj = &pCamera->m_Camera3D.m_matViewProj;
+                MyMatrix* pEditorMatProj = &pCamera->m_Camera3D.m_matProj;
+                MyMatrix* pEditorMatView = &pCamera->m_Camera3D.m_matView;
 
                 float distance = (pCamera->m_pComponentTransform->GetLocalPosition() - pos3d).Length();
                 m_pPoint->GetTransform()->SetLocalScale( Vector3( distance / 15.0f ) );
@@ -395,7 +397,7 @@ void EditorInterface_2DPointEditor::RenderObjectIDsToFBO()
 
                 pShader->ProgramTint( tint );
 
-                g_pComponentSystemManager->DrawSingleObject( pEditorMatViewProj, m_pPoint, pShaderOverride );
+                g_pComponentSystemManager->DrawSingleObject( pEditorMatProj, pEditorMatView, m_pPoint, pShaderOverride );
             }
         }
     }

@@ -572,14 +572,17 @@ void ComponentCamera::DrawScene()
     // Store the current FBO, we will use it as the final render target.
     unsigned int startingFBO = g_GLStats.m_CurrentFramebuffer;
 
-    MyMatrix* pMatViewProj;
+    MyMatrix* pMatProj;
+    MyMatrix* pMatView;
     if( m_Orthographic )
     {
-        pMatViewProj = &m_Camera2D.m_matViewProj;
+        pMatProj = &m_Camera2D.m_matProj;
+        pMatView = &m_Camera2D.m_matView;
     }
     else
     {
-        pMatViewProj = &m_Camera3D.m_matViewProj;
+        pMatProj = &m_Camera3D.m_matProj;
+        pMatView = &m_Camera3D.m_matView;
     }
 
     bool renderedADeferredPass = false;
@@ -671,7 +674,7 @@ void ComponentCamera::DrawScene()
             drawOverlays = false;
         }
 
-        g_pComponentSystemManager->DrawFrame( this, pMatViewProj, 0, drawOpaques, drawTransparents, emissiveDrawOption, drawOverlays );
+        g_pComponentSystemManager->DrawFrame( this, pMatProj, pMatView, 0, drawOpaques, drawTransparents, emissiveDrawOption, drawOverlays );
 
         if( m_pGBuffer && renderedADeferredPass && m_DeferredGBufferVisible )
         {
@@ -758,9 +761,9 @@ void ComponentCamera::DrawScene()
                 g_pLightManager->FindNearestLights( LightType_Directional, 1, Vector3(0,0,0), &pLight );
 
                 if( pLight )
-                    m_pDeferredQuadMesh->Draw( 0, 0, &m_pComponentTransform->GetWorldPosition(), 0, &pLight, 1, pShadowVP, pShadowTex, 0, 0 );
+                    m_pDeferredQuadMesh->Draw( 0, 0, 0, &m_pComponentTransform->GetWorldPosition(), 0, &pLight, 1, pShadowVP, pShadowTex, 0, 0 );
                 else
-                    m_pDeferredQuadMesh->Draw( 0, 0, &m_pComponentTransform->GetWorldPosition(), 0, 0, 0, pShadowVP, pShadowTex, 0, 0 );
+                    m_pDeferredQuadMesh->Draw( 0, 0, 0, &m_pComponentTransform->GetWorldPosition(), 0, 0, 0, pShadowVP, pShadowTex, 0, 0 );
             }
 
             // Disable depth write and depth test for point light spheres.
@@ -792,7 +795,7 @@ void ComponentCamera::DrawScene()
                         // Render a sphere to combine the 3 textures from the G-Buffer.
                         // Point light shader should set blending to additive.
                         // Textures are set below in SetupCustomUniformsCallback().
-                        m_pDeferredSphereMesh->Draw( &matWorld, pMatViewProj, &m_pComponentTransform->GetWorldPosition(), 0, &pLight, 1, 0, 0, 0, 0 );
+                        m_pDeferredSphereMesh->Draw( pMatProj, pMatView, &matWorld, &m_pComponentTransform->GetWorldPosition(), 0, &pLight, 1, 0, 0, 0, 0 );
                     }
                 }
             }
@@ -811,7 +814,7 @@ void ComponentCamera::DrawScene()
             EmissiveDrawOptions emissiveDrawOption = EmissiveDrawOption_OnlyEmissives;
             bool drawOverlays = false;
 
-            g_pComponentSystemManager->DrawFrame( this, pMatViewProj, 0, drawOpaques, drawTransparents, emissiveDrawOption, drawOverlays );
+            g_pComponentSystemManager->DrawFrame( this, pMatProj, pMatView, 0, drawOpaques, drawTransparents, emissiveDrawOption, drawOverlays );
         }
 
         // Render transparent objects with normal forward render pass.
@@ -821,7 +824,7 @@ void ComponentCamera::DrawScene()
             EmissiveDrawOptions emissiveDrawOption = EmissiveDrawOption_EitherEmissiveOrNot;
             bool drawOverlays = true;
 
-            g_pComponentSystemManager->DrawFrame( this, pMatViewProj, 0, drawOpaques, drawTransparents, emissiveDrawOption, drawOverlays );
+            g_pComponentSystemManager->DrawFrame( this, pMatProj, pMatView, 0, drawOpaques, drawTransparents, emissiveDrawOption, drawOverlays );
         }
     }
 
@@ -832,6 +835,7 @@ void ComponentCamera::SetupCustomUniformsCallback(Shader_Base* pShader) // Stati
 {
     // TODO: Not this...
     GLint uTextureSize = glGetUniformLocation( pShader->m_ProgramHandle, "u_TextureSize" );
+    GLint uViewportSize = glGetUniformLocation( pShader->m_ProgramHandle, "u_ViewportSize" );
     GLint uAlbedo = glGetUniformLocation( pShader->m_ProgramHandle, "u_TextureAlbedo" );
     GLint uPosition = glGetUniformLocation( pShader->m_ProgramHandle, "u_TexturePositionShine" );
     GLint uNormal = glGetUniformLocation( pShader->m_ProgramHandle, "u_TextureNormal" );
@@ -841,6 +845,11 @@ void ComponentCamera::SetupCustomUniformsCallback(Shader_Base* pShader) // Stati
     if( uTextureSize != -1 )
     {
         glUniform2f( uTextureSize, (float)m_pGBuffer->GetTextureWidth(), (float)m_pGBuffer->GetTextureHeight() );
+    }
+
+    if( uViewportSize != -1 )
+    {
+        glUniform2f( uViewportSize, (float)m_pGBuffer->GetWidth(), (float)m_pGBuffer->GetHeight() );
     }
 
     if( uAlbedo != -1 )
@@ -891,7 +900,7 @@ bool ComponentCamera::ExistsOnLayer(unsigned int layerflags)
 }
 
 #if MYFW_EDITOR
-void ComponentCamera::DrawCallback(ComponentCamera* pCamera, MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride)
+void ComponentCamera::DrawCallback(ComponentCamera* pCamera, MyMatrix* pMatProj, MyMatrix* pMatView, ShaderGroup* pShaderOverride)
 {
     if( g_pEngineCore->GetEditorPrefs()->Get_View_ShowEditorIcons() == false )
         return;
@@ -914,7 +923,7 @@ void ComponentCamera::DrawCallback(ComponentCamera* pCamera, MyMatrix* pMatViewP
     // disable culling, so we see the camera from both sides.
     glPolygonMode( GL_FRONT, GL_FILL );
     glDisable( GL_CULL_FACE );
-    pSprite->Draw( &transform, pMatViewProj, pShaderOverride, true );
+    pSprite->Draw( pMatProj, pMatView, &transform, pShaderOverride, true );
     glEnable( GL_CULL_FACE );
     if( g_pEngineCore->GetDebug_DrawWireframe() )
         glPolygonMode( GL_FRONT, GL_LINE );

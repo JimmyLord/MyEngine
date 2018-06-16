@@ -155,7 +155,7 @@ void ComponentRenderable::SetEnabled(bool enabled)
     }
 }
 
-void ComponentRenderable::Draw(MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride, int drawcount)
+void ComponentRenderable::Draw(MyMatrix* pMatProj, MyMatrix* pMatView, ShaderGroup* pShaderOverride, int drawcount)
 {
 }
 

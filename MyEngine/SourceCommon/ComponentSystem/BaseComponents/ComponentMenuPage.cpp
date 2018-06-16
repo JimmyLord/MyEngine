@@ -1579,13 +1579,13 @@ void ComponentMenuPage::UpdateLayout(cJSON* layout)
 #endif //MYFW_USING_WX
 }
 
-void ComponentMenuPage::DrawCallback(ComponentCamera* pCamera, MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride)
+void ComponentMenuPage::DrawCallback(ComponentCamera* pCamera, MyMatrix* pMatProj, MyMatrix* pMatView, ShaderGroup* pShaderOverride)
 {
     // TODO: menu items don't support shader overrides.
     if( pShaderOverride != 0 )
         return;
 
-    //ComponentRenderable::DrawCallback( pCamera, pMatViewProj, pShaderOverride );
+    //ComponentRenderable::DrawCallback( pCamera, pMatProj, pMatView, pShaderOverride );
 
     if( m_Visible == false || (m_LayersThisExistsOn & pCamera->m_LayersToRender) == 0 )
         return;
@@ -1640,14 +1640,14 @@ void ComponentMenuPage::DrawCallback(ComponentCamera* pCamera, MyMatrix* pMatVie
     {
         if( m_pMenuItems[i] )
         {
-            m_pMenuItems[i]->Draw( &m_pComponentCamera->m_Camera2D.m_matViewProj );
+            m_pMenuItems[i]->Draw( &m_pComponentCamera->m_Camera2D.m_matProj, &m_pComponentCamera->m_Camera2D.m_matView );
         }
     }
     glEnable( GL_DEPTH_TEST );
 
     if( m_MenuPageDrawCallbackStruct.pFunc )
     {
-        m_MenuPageDrawCallbackStruct.pFunc( m_MenuPageDrawCallbackStruct.pObj, this, pCamera, pMatViewProj, pShaderOverride );
+        m_MenuPageDrawCallbackStruct.pFunc( m_MenuPageDrawCallbackStruct.pObj, this, pCamera, pMatProj, pMatView, pShaderOverride );
     }
 }
 

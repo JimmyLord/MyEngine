@@ -349,7 +349,7 @@ void ComponentMeshOBJ::SetMesh(MyMesh* pMesh)
     //}
 }
 
-void ComponentMeshOBJ::DrawCallback(ComponentCamera* pCamera, MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride)
+void ComponentMeshOBJ::DrawCallback(ComponentCamera* pCamera, MyMatrix* pMatProj, MyMatrix* pMatView, ShaderGroup* pShaderOverride)
 {
-    ComponentMesh::DrawCallback( pCamera, pMatViewProj, pShaderOverride );
+    ComponentMesh::DrawCallback( pCamera, pMatProj, pMatView, pShaderOverride );
 }

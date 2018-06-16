@@ -14,13 +14,13 @@
 
 BulletWorld* g_pBulletWorld = 0;
 
-BulletWorld::BulletWorld(MaterialDefinition* debugdrawmaterial, MyMatrix* matviewproj)
+BulletWorld::BulletWorld(MaterialDefinition* debugdrawmaterial, MyMatrix* pMatProj, MyMatrix* pMatView)
 {
     g_pBulletWorld = this;
 
     m_pBulletDebugDraw = 0;
 
-    CreateWorld( debugdrawmaterial, matviewproj );
+    CreateWorld( debugdrawmaterial, pMatProj, pMatView );
 }
 
 BulletWorld::~BulletWorld()
@@ -31,7 +31,7 @@ BulletWorld::~BulletWorld()
     Cleanup();
 }
 
-void BulletWorld::CreateWorld(MaterialDefinition* debugdrawmaterial, MyMatrix* matviewproj)
+void BulletWorld::CreateWorld(MaterialDefinition* debugdrawmaterial, MyMatrix* pMatProj, MyMatrix* pMatView)
 {
     // collision configuration contains default setup for memory, collision setup.
     //   Advanced users can create their own configuration.
@@ -52,7 +52,7 @@ void BulletWorld::CreateWorld(MaterialDefinition* debugdrawmaterial, MyMatrix* m
 
     if( debugdrawmaterial != 0 )
     {
-        m_pBulletDebugDraw = MyNew BulletDebugDraw( debugdrawmaterial, matviewproj );
+        m_pBulletDebugDraw = MyNew BulletDebugDraw( debugdrawmaterial, pMatProj, pMatView );
         m_pDynamicsWorld->setDebugDrawer( m_pBulletDebugDraw );
     }
 

@@ -41,7 +41,7 @@ struct MenuPageTickCallbackStruct
     MenuPageTickCallbackFunc pFunc;
 };
 
-typedef void (*MenuPageDrawCallbackFunc)(void* pObjectPtr, ComponentMenuPage* pPage, ComponentCamera* pCamera, MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride);
+typedef void (*MenuPageDrawCallbackFunc)(void* pObjectPtr, ComponentMenuPage* pPage, ComponentCamera* pCamera, MyMatrix* pMatProj, MyMatrix* pMatView, ShaderGroup* pShaderOverride);
 struct MenuPageDrawCallbackStruct
 {
     void* pObj;

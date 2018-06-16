@@ -11,9 +11,10 @@
 
 #include "BulletDebugDraw.h"
 
-BulletDebugDraw::BulletDebugDraw(MaterialDefinition* debugdrawmaterial, MyMatrix* matviewproj)
+BulletDebugDraw::BulletDebugDraw(MaterialDefinition* debugdrawmaterial, MyMatrix* pMatProj, MyMatrix* pMatView)
 {
-    m_pMatViewProj = matviewproj;
+    m_pMatProj = pMatProj;
+    m_pMatView = pMatView;
 
     m_pMaterial = debugdrawmaterial;
     if( m_pMaterial )
@@ -42,7 +43,7 @@ void BulletDebugDraw::Draw(const Vector3* vertices, uint32 vertexCount, ColorByt
 
     // Setup uniforms, mainly viewproj and tint.
     pShader->ProgramMaterialProperties( 0, m_pMaterial->m_ColorDiffuse, m_pMaterial->m_ColorSpecular, m_pMaterial->m_Shininess );
-    pShader->ProgramTransforms( m_pMatViewProj, 0 );
+    pShader->ProgramTransforms( m_pMatProj, m_pMatView, 0 );
 
     glLineWidth( pointorlinesize );
 #ifndef MYFW_OPENGLES2

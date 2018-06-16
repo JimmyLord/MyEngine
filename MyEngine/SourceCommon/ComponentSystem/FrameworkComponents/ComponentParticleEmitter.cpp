@@ -423,13 +423,13 @@ void ComponentParticleEmitter::TickCallback(float deltaTime)
     }
 }
 
-void ComponentParticleEmitter::DrawCallback(ComponentCamera* pCamera, MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride)
+void ComponentParticleEmitter::DrawCallback(ComponentCamera* pCamera, MyMatrix* pMatProj, MyMatrix* pMatView, ShaderGroup* pShaderOverride)
 {
     // TODO: Particles don't support shader overrides.
     if( pShaderOverride != 0 )
         return;
 
-    ComponentRenderable::Draw( pMatViewProj, pShaderOverride, 0 );
+    ComponentRenderable::Draw( pMatProj, pMatView, pShaderOverride, 0 );
 
     if( m_pMaterial == 0 )
         return;
@@ -447,7 +447,7 @@ void ComponentParticleEmitter::DrawCallback(ComponentCamera* pCamera, MyMatrix* 
     {
     }
 
-    m_pParticleRenderer->DrawParticles( campos, camrot, pMatViewProj, pShaderOverride );
+    m_pParticleRenderer->DrawParticles( campos, camrot, pMatProj, pMatView, pShaderOverride );
 }
 
 #if MYFW_EDITOR

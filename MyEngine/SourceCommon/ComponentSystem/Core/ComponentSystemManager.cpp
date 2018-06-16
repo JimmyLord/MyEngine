@@ -2159,7 +2159,7 @@ void ComponentSystemManager::OnDrawFrame()
     }
 }
 
-void ComponentSystemManager::DrawFrame(ComponentCamera* pCamera, MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride, bool drawOpaques, bool drawTransparents, EmissiveDrawOptions emissiveDrawOption, bool drawOverlays)
+void ComponentSystemManager::DrawFrame(ComponentCamera* pCamera, MyMatrix* pMatProj, MyMatrix* pMatView, ShaderGroup* pShaderOverride, bool drawOpaques, bool drawTransparents, EmissiveDrawOptions emissiveDrawOption, bool drawOverlays)
 {
     checkGlError( "start of ComponentSystemManager::OnDrawFrame()" );
 
@@ -2201,25 +2201,25 @@ void ComponentSystemManager::DrawFrame(ComponentCamera* pCamera, MyMatrix* pMatV
         {
             //SceneGraphFlags flags = (SceneGraphFlags)(baseFlags | SceneGraphFlag_Opaque);
             //baseFlags = (SceneGraphFlags)(baseFlags | ~SceneGraphFlag_Emissive);
-            m_pSceneGraph->Draw( true, emissiveDrawOption, pCamera->m_LayersToRender, &campos, &camrot, pMatViewProj, pShadowVP, pShadowTex, pShaderOverride, 0 );
+            m_pSceneGraph->Draw( true, emissiveDrawOption, pCamera->m_LayersToRender, &campos, &camrot, pMatProj, pMatView, pShadowVP, pShadowTex, pShaderOverride, 0 );
         }
 
         if( drawTransparents )
         {
             //SceneGraphFlags flags = (SceneGraphFlags)(baseFlags | SceneGraphFlag_Transparent);
-            m_pSceneGraph->Draw( false, emissiveDrawOption, pCamera->m_LayersToRender, &campos, &camrot, pMatViewProj, pShadowVP, pShadowTex, pShaderOverride, 0 );
+            m_pSceneGraph->Draw( false, emissiveDrawOption, pCamera->m_LayersToRender, &campos, &camrot, pMatProj, pMatView, pShadowVP, pShadowTex, pShaderOverride, 0 );
         }
     }
     
     if( drawOverlays )
     {
-        DrawOverlays( pCamera, pMatViewProj, pShaderOverride );
+        DrawOverlays( pCamera, pMatProj, pMatView, pShaderOverride );
     }
 
     checkGlError( "end of ComponentSystemManager::OnDrawFrame()" );
 }
 
-void ComponentSystemManager::DrawOverlays(ComponentCamera* pCamera, MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride)
+void ComponentSystemManager::DrawOverlays(ComponentCamera* pCamera, MyMatrix* pMatProj, MyMatrix* pMatView, ShaderGroup* pShaderOverride)
 {
     // Draw all components that registered a callback, used mostly for debug info (camera/light icons, collision info)
     // Also used for menu pages.
@@ -2233,7 +2233,7 @@ void ComponentSystemManager::DrawOverlays(ComponentCamera* pCamera, MyMatrix* pM
             {
                 if( pComponent->IsVisible() )
                 {
-                    (pCallbackStruct->pObj->*pCallbackStruct->pFunc)( pCamera, pMatViewProj, pShaderOverride );
+                    (pCallbackStruct->pObj->*pCallbackStruct->pFunc)( pCamera, pMatProj, pMatView, pShaderOverride );
                 }
             }
         }
@@ -2297,7 +2297,7 @@ void ProgramSceneIDs(SceneGraphObject* pObject, ShaderGroup* pShaderOverride)
     ProgramSceneIDs( pComponent, pShaderOverride );
 }
 
-void ComponentSystemManager::DrawMousePickerFrame(ComponentCamera* pCamera, MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride)
+void ComponentSystemManager::DrawMousePickerFrame(ComponentCamera* pCamera, MyMatrix* pMatProj, MyMatrix* pMatView, ShaderGroup* pShaderOverride)
 {
     // always use 4 bone version.
     // TODO: this might fail with 1-3 bones,
@@ -2311,8 +2311,8 @@ void ComponentSystemManager::DrawMousePickerFrame(ComponentCamera* pCamera, MyMa
             Vector3 campos = pCamera->m_pComponentTransform->GetLocalPosition();
             Vector3 camrot = pCamera->m_pComponentTransform->GetLocalRotation();
 
-            m_pSceneGraph->Draw( true, EmissiveDrawOption_EitherEmissiveOrNot, pCamera->m_LayersToRender, &campos, &camrot, pMatViewProj, 0, 0, pShaderOverride, ProgramSceneIDs );
-            m_pSceneGraph->Draw( false, EmissiveDrawOption_EitherEmissiveOrNot, pCamera->m_LayersToRender, &campos, &camrot, pMatViewProj, 0, 0, pShaderOverride, ProgramSceneIDs );
+            m_pSceneGraph->Draw( true, EmissiveDrawOption_EitherEmissiveOrNot, pCamera->m_LayersToRender, &campos, &camrot, pMatProj, pMatView, 0, 0, pShaderOverride, ProgramSceneIDs );
+            m_pSceneGraph->Draw( false, EmissiveDrawOption_EitherEmissiveOrNot, pCamera->m_LayersToRender, &campos, &camrot, pMatProj, pMatView, 0, 0, pShaderOverride, ProgramSceneIDs );
         }
 
         // draw all components that registered a callback.
@@ -2345,7 +2345,7 @@ void ComponentSystemManager::DrawMousePickerFrame(ComponentCamera* pCamera, MyMa
 
                     checkGlError( "ComponentSystemManager::DrawMousePickerFrame" );
 
-                    (pCallbackStruct->pObj->*pCallbackStruct->pFunc)( pCamera, pMatViewProj, pShaderOverride );
+                    (pCallbackStruct->pObj->*pCallbackStruct->pFunc)( pCamera, pMatProj, pMatView, pShaderOverride );
 
                     checkGlError( "ComponentSystemManager::DrawMousePickerFrame" );
                 }
@@ -2414,7 +2414,7 @@ void ComponentSystemManager::CreateNewScene(const char* scenename, SceneID scene
 
     // create the box2d world, pass in a material for the debug renderer.
     ComponentCamera* pCamera = g_pEngineCore->GetEditorState()->GetEditorCamera();
-    m_pSceneInfoMap[sceneid].m_pBox2DWorld = MyNew Box2DWorld( g_pEngineCore->GetMaterial_Box2DDebugDraw(), &pCamera->m_Camera3D.m_matViewProj, new EngineBox2DContactListener );
+    m_pSceneInfoMap[sceneid].m_pBox2DWorld = MyNew Box2DWorld( g_pEngineCore->GetMaterial_Box2DDebugDraw(), &pCamera->m_Camera3D.m_matProj, &pCamera->m_Camera3D.m_matView, new EngineBox2DContactListener );
 }
 
 #if MYFW_USING_WX
@@ -2735,13 +2735,13 @@ void ComponentSystemManager::AddMeshToSceneGraph(ComponentBase* pComponent, MyMe
     MyAssert( pOutputList != 0 );
     MyAssert( pMesh->GetSubmeshListCount() > 0 );
 
-    MyMatrix* pWorldTransform = pComponent->m_pGameObject->GetTransform()->GetWorldTransform();
+    MyMatrix* pMatWorld = pComponent->m_pGameObject->GetTransform()->GetWorldTransform();
 
     for( unsigned int i=0; i<pMesh->GetSubmeshListCount(); i++ )
     {
         MyAssert( pOutputList[i] == 0 );
         
-        pOutputList[i] = m_pSceneGraph->AddObject( pWorldTransform, pMesh, pMesh->GetSubmesh( i ), pMaterialList[i], primitive, pointsize, layers, pComponent );
+        pOutputList[i] = m_pSceneGraph->AddObject( pMatWorld, pMesh, pMesh->GetSubmesh( i ), pMaterialList[i], primitive, pointsize, layers, pComponent );
     }
 }
 
@@ -2751,9 +2751,9 @@ SceneGraphObject* ComponentSystemManager::AddSubmeshToSceneGraph(ComponentBase* 
     MyAssert( pComponent->m_pGameObject != 0 );
     MyAssert( pSubmesh != 0 );
 
-    MyMatrix* pWorldTransform = pComponent->m_pGameObject->GetTransform()->GetWorldTransform();
+    MyMatrix* pMatWorld = pComponent->m_pGameObject->GetTransform()->GetWorldTransform();
 
-    return m_pSceneGraph->AddObject( pWorldTransform, 0, pSubmesh, pMaterial, primitive, pointsize, layers, pComponent );
+    return m_pSceneGraph->AddObject( pMatWorld, 0, pSubmesh, pMaterial, primitive, pointsize, layers, pComponent );
 }
 
 void ComponentSystemManager::RemoveObjectFromSceneGraph(SceneGraphObject* pSceneGraphObject)
@@ -2973,7 +2973,7 @@ bool ComponentSystemManager::OnKeys(GameCoreButtonActions action, int keycode, i
 }
 
 #if MYFW_EDITOR
-void ComponentSystemManager::DrawSingleObject(MyMatrix* pMatViewProj, GameObject* pObject, ShaderGroup* pShaderOverride)
+void ComponentSystemManager::DrawSingleObject(MyMatrix* pMatProj, MyMatrix* pMatView, GameObject* pObject, ShaderGroup* pShaderOverride)
 {
     MyAssert( pObject != 0 );
 
@@ -2983,14 +2983,14 @@ void ComponentSystemManager::DrawSingleObject(MyMatrix* pMatViewProj, GameObject
 
         if( pComponent )
         {
-            pComponent->Draw( pMatViewProj );
+            pComponent->Draw( pMatProj, pMatView );
 
             ComponentCallbackStruct_Draw* pCallbackStruct = pComponent->GetDrawCallback();
 
             ComponentBase* pCallbackComponent = (ComponentBase*)pCallbackStruct->pObj;
             if( pCallbackComponent != 0 && pCallbackStruct->pFunc != 0 )
             {
-                (pCallbackComponent->*pCallbackStruct->pFunc)( 0, pMatViewProj, pShaderOverride );
+                (pCallbackComponent->*pCallbackStruct->pFunc)( 0, pMatProj, pMatView, pShaderOverride );
             }
         }
     }

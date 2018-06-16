@@ -124,7 +124,7 @@ void ComponentPostEffect::Render(FBODefinition* pFBO)
     m_pFullScreenQuad->SetMaterial( m_pMaterial );
     m_pFullScreenQuad->Create( 2, 2, 0, (float)pFBO->GetWidth()/pFBO->GetTextureWidth(), (float)pFBO->GetHeight()/pFBO->GetTextureHeight(), 0, Justify_Center, false );
 
-    if( m_pFullScreenQuad->Setup( 0, 0 ) )
+    if( m_pFullScreenQuad->Setup( 0, 0, 0 ) )
     {
         Shader_Base* pShader = (Shader_Base*)m_pMaterial->GetShader()->GlobalPass();
         pShader->ProgramDepthmap( pFBO->GetDepthTexture() );

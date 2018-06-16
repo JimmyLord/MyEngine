@@ -31,10 +31,10 @@ public:
     BulletDebugDraw* m_pBulletDebugDraw;
 
 public:
-    BulletWorld(MaterialDefinition* debugdrawmaterial, MyMatrix* matviewproj);
+    BulletWorld(MaterialDefinition* debugdrawmaterial, MyMatrix* pMatProj, MyMatrix* pMatView);
     ~BulletWorld();
 
-    void CreateWorld(MaterialDefinition* debugdrawmaterial, MyMatrix* matviewproj);
+    void CreateWorld(MaterialDefinition* debugdrawmaterial, MyMatrix* pMatProj, MyMatrix* pMatView);
     void PhysicsUpdate(float deltatime);
     void PhysicsStep();
     void Cleanup();

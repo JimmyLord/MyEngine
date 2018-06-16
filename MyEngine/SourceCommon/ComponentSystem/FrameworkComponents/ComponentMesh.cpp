@@ -718,11 +718,13 @@ void ComponentMesh::TickCallback(float deltaTime)
     }
 }
 
-void ComponentMesh::DrawCallback(ComponentCamera* pCamera, MyMatrix* pMatViewProj, ShaderGroup* pShaderOverride)
+void ComponentMesh::DrawCallback(ComponentCamera* pCamera, MyMatrix* pMatProj, MyMatrix* pMatView, ShaderGroup* pShaderOverride)
 {
     checkGlError( "start of ComponentMesh::DrawCallback()" );
 
-    ComponentRenderable::Draw( pMatViewProj, pShaderOverride, 0 );
+    ComponentRenderable::Draw( pMatProj, pMatView, pShaderOverride, 0 );
+
+    MyMatrix matViewProj = *pMatProj * *pMatView;
 
     if( m_pMesh )
     {
@@ -734,7 +736,7 @@ void ComponentMesh::DrawCallback(ComponentCamera* pCamera, MyMatrix* pMatViewPro
             Vector3 center = bounds->GetCenter();
             Vector3 half = bounds->GetHalfSize();
 
-            MyMatrix wvp = *pMatViewProj * worldtransform;
+            MyMatrix wvp = matViewProj * worldtransform;
 
             Vector4 clippos[8];
 
@@ -845,7 +847,7 @@ void ComponentMesh::DrawCallback(ComponentCamera* pCamera, MyMatrix* pMatViewPro
             }
         }
 
-        m_pMesh->Draw( &worldtransform, pMatViewProj, &campos, &camrot, lights, numlights, pShadowVP, pShadowTex, 0, pShaderOverride );
+        m_pMesh->Draw( pMatProj, pMatView, &worldtransform, &campos, &camrot, lights, numlights, pShadowVP, pShadowTex, 0, pShaderOverride );
     }
 
     checkGlError( "end of ComponentMesh::DrawCallback()" );
