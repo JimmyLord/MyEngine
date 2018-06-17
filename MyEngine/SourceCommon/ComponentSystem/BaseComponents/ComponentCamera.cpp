@@ -836,6 +836,8 @@ void ComponentCamera::SetupCustomUniformsCallback(Shader_Base* pShader) // Stati
     // TODO: Not this...
     GLint uTextureSize = glGetUniformLocation( pShader->m_ProgramHandle, "u_TextureSize" );
     GLint uViewportSize = glGetUniformLocation( pShader->m_ProgramHandle, "u_ViewportSize" );
+    GLint uZNear = glGetUniformLocation( pShader->m_ProgramHandle, "u_ZNear" );
+    GLint uZFar = glGetUniformLocation( pShader->m_ProgramHandle, "u_ZFar" );
     GLint uAlbedo = glGetUniformLocation( pShader->m_ProgramHandle, "u_TextureAlbedo" );
     GLint uPosition = glGetUniformLocation( pShader->m_ProgramHandle, "u_TexturePositionShine" );
     GLint uNormal = glGetUniformLocation( pShader->m_ProgramHandle, "u_TextureNormal" );
@@ -850,6 +852,16 @@ void ComponentCamera::SetupCustomUniformsCallback(Shader_Base* pShader) // Stati
     if( uViewportSize != -1 )
     {
         glUniform2f( uViewportSize, (float)m_pGBuffer->GetWidth(), (float)m_pGBuffer->GetHeight() );
+    }
+
+    if( uZNear != -1 )
+    {
+        glUniform1f( uZNear, m_PerspectiveNearZ );
+    }
+
+    if( uZFar != -1 )
+    {
+        glUniform1f( uZFar, m_PerspectiveFarZ );
     }
 
     if( uAlbedo != -1 )

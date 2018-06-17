@@ -11,15 +11,23 @@ precision mediump float;
 #undef ReceiveShadows
 #define ReceiveShadows 0
 
+varying vec3 v_ViewRay;
+
 #ifdef VertexShader
 
 attribute vec4 a_Position;
 
 uniform mat4 u_WorldViewProj;
+uniform mat4 u_WorldView;
+uniform mat4 u_World;
+uniform vec3 u_WSCameraPos;
 
 void main()
 {
     gl_Position = u_WorldViewProj * a_Position;
+
+    vec4 WSPosition = u_World * a_Position;
+    v_ViewRay = WSPosition.xyz - u_WSCameraPos;
 }
 
 #endif
@@ -28,6 +36,8 @@ void main()
 
 uniform vec2 u_TextureSize;
 uniform vec2 u_ViewportSize;
+uniform float u_ZNear;
+uniform float u_ZFar;
 uniform sampler2D u_TextureAlbedo;
 uniform sampler2D u_TexturePositionShine;
 uniform sampler2D u_TextureNormal;
@@ -55,6 +65,14 @@ vec3 WorldPositionFromDepth(float depth)
     return WSPosition.xyz;
 }
 
+float ViewSpaceZFromDepth(float depth)
+{
+    float z = depth * 2.0 - 1.0;
+    float zVS = 2.0 * u_ZNear * u_ZFar / ( u_ZFar + u_ZNear - z * (u_ZFar - u_ZNear) );
+
+    return zVS;
+}
+
 void main()
 {
     vec2 UVCoord = gl_FragCoord.xy / u_TextureSize;
@@ -69,6 +87,11 @@ void main()
     // Alternatively, it can be computed from depth.
     //float depth = texture2D( u_TextureDepth, UVCoord ).x;
     //WSPosition = WorldPositionFromDepth( depth );
+
+    // Another alternate method to compute world position using distance from camera from gbuffer.
+    //float distanceFromCamera = specularShine; // Other objects need to store distance in gbuffer.
+    //vec3 normalizedViewRay = normalize( v_ViewRay );
+    //WSPosition = u_WSCameraPos + normalizedViewRay * distanceFromCamera;
 
     // Accumulate ambient, diffuse and specular color for all lights.
     vec3 finalAmbient = vec3( 0.0, 0.0, 0.0 ); // not used.
@@ -90,9 +113,9 @@ void main()
     gl_FragColor.a = 1;
 
     //gl_FragColor.rgb = clamp( gl_FragColor.rgb, 0.0, 1.0 );
-	//gl_FragColor.xyz = WSNormal;
+    //gl_FragColor.xyz = WSNormal;
 
-	//gl_FragColor.xyz = WSPosition;
+    //gl_FragColor.xyz = WSPosition;
     //gl_FragColor.xyz = vec3(1);
     //gl_FragColor.xyz = vec3(1-depth);
 }
