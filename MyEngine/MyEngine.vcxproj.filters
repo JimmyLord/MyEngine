@@ -923,5 +923,8 @@
     <None Include="..\DataEngine\Shaders\Shader_ClipSpaceColor.glsl">
       <Filter>Data\Shaders</Filter>
     </None>
+    <None Include="..\DataEngine\Shaders\Include\DepthBuffer_Functions.glsl">
+      <Filter>Data\Shaders\Include</Filter>
+    </None>
   </ItemGroup>
 </Project>

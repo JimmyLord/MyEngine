@@ -11,7 +11,7 @@ precision mediump float;
 #undef ReceiveShadows
 #define ReceiveShadows 0
 
-varying vec3 v_ViewRay;
+varying vec3 v_WSDirToFragment;
 
 #ifdef VertexShader
 
@@ -27,7 +27,7 @@ void main()
     gl_Position = u_WorldViewProj * a_Position;
 
     vec4 WSPosition = u_World * a_Position;
-    v_ViewRay = WSPosition.xyz - u_WSCameraPos;
+    v_WSDirToFragment = WSPosition.xyz - u_WSCameraPos;
 }
 
 #endif
@@ -35,43 +35,17 @@ void main()
 #ifdef FragmentShader
 
 uniform vec2 u_TextureSize;
-uniform vec2 u_ViewportSize;
-uniform float u_ZNear;
-uniform float u_ZFar;
+uniform vec3 u_CamAt;
 uniform sampler2D u_TextureAlbedo;
 uniform sampler2D u_TexturePositionShine;
 uniform sampler2D u_TextureNormal;
 uniform sampler2D u_TextureDepth;
-
-uniform mat4 u_InverseView;
-uniform mat4 u_InverseProj;
-
 uniform vec3 u_WSCameraPos;
 
 #define NUM_DIR_LIGHTS 0
 #include <Include/Light_Uniforms.glsl>
 #include <Include/Light_Functions.glsl>
-
-vec3 WorldPositionFromDepth(float depth)
-{
-    vec2 xy = (gl_FragCoord.xy / u_ViewportSize) * 2.0 - 1.0;
-    float z = depth * 2.0 - 1.0;
-
-    vec4 CSPosition = vec4( xy, z, 1.0 );
-    vec4 VSPosition = u_InverseProj * CSPosition;
-    VSPosition /= VSPosition.w;
-    vec4 WSPosition = u_InverseView * VSPosition;
-
-    return WSPosition.xyz;
-}
-
-float ViewSpaceZFromDepth(float depth)
-{
-    float z = depth * 2.0 - 1.0;
-    float zVS = 2.0 * u_ZNear * u_ZFar / ( u_ZFar + u_ZNear - z * (u_ZFar - u_ZNear) );
-
-    return zVS;
-}
+#include <Include/DepthBuffer_Functions.glsl>
 
 void main()
 {
@@ -85,13 +59,28 @@ void main()
 
     // World position is currently rendered into "u_TexturePositionShine".
     // Alternatively, it can be computed from depth.
-    //float depth = texture2D( u_TextureDepth, UVCoord ).x;
-    //WSPosition = WorldPositionFromDepth( depth );
+    {
+        //float depth = texture2D( u_TextureDepth, UVCoord ).x;
+        //WSPosition = WorldPositionFromDepth( depth );
+    }
 
     // Another alternate method to compute world position using distance from camera from gbuffer.
-    //float distanceFromCamera = specularShine; // Other objects need to store distance in gbuffer.
-    //vec3 normalizedViewRay = normalize( v_ViewRay );
-    //WSPosition = u_WSCameraPos + normalizedViewRay * distanceFromCamera;
+    {
+        //float distanceFromCamera = specularShine; // Other objects need to store distance in gbuffer.
+        //vec3 normalizedDirToFragment = normalize( v_WSDirToFragment );
+        //WSPosition = u_WSCameraPos + normalizedDirToFragment * distanceFromCamera;
+    }
+
+    // Yet another alternative: Convert depth from depth buffer to world position.
+    {
+        //float depth = texture2D( u_TextureDepth, UVCoord ).x;
+        //float viewSpaceZ = ViewSpaceZFromDepth( depth );
+
+        //vec3 normalizedDirToFragment = normalize( v_WSDirToFragment );
+
+        //float distanceFromCamera = viewSpaceZ / dot( normalizedDirToFragment, u_CamAt );
+        //WSPosition = u_WSCameraPos + normalizedDirToFragment * distanceFromCamera;
+    }
 
     // Accumulate ambient, diffuse and specular color for all lights.
     vec3 finalAmbient = vec3( 0.0, 0.0, 0.0 ); // not used.

@@ -3317,6 +3317,7 @@
   <ItemGroup>
     <None Include="..\DataEngine\Shaders\Include\Bone_AttribsAndUniforms.glsl" />
     <None Include="..\DataEngine\Shaders\Include\Bone_Functions.glsl" />
+    <None Include="..\DataEngine\Shaders\Include\DepthBuffer_Functions.glsl" />
     <None Include="..\DataEngine\Shaders\Include\Light_Functions.glsl" />
     <None Include="..\DataEngine\Shaders\Include\Light_Uniforms.glsl" />
     <None Include="..\DataEngine\Shaders\Include\LSVaryings.glsl" />

@@ -838,6 +838,9 @@ void ComponentCamera::SetupCustomUniformsCallback(Shader_Base* pShader) // Stati
     GLint uViewportSize = glGetUniformLocation( pShader->m_ProgramHandle, "u_ViewportSize" );
     GLint uZNear = glGetUniformLocation( pShader->m_ProgramHandle, "u_ZNear" );
     GLint uZFar = glGetUniformLocation( pShader->m_ProgramHandle, "u_ZFar" );
+    GLint uCamAt = glGetUniformLocation( pShader->m_ProgramHandle, "u_CamAt" );
+    GLint uCamRight = glGetUniformLocation( pShader->m_ProgramHandle, "u_CamRight" );
+    GLint uCamUp = glGetUniformLocation( pShader->m_ProgramHandle, "u_CamUp" );
     GLint uAlbedo = glGetUniformLocation( pShader->m_ProgramHandle, "u_TextureAlbedo" );
     GLint uPosition = glGetUniformLocation( pShader->m_ProgramHandle, "u_TexturePositionShine" );
     GLint uNormal = glGetUniformLocation( pShader->m_ProgramHandle, "u_TextureNormal" );
@@ -862,6 +865,24 @@ void ComponentCamera::SetupCustomUniformsCallback(Shader_Base* pShader) // Stati
     if( uZFar != -1 )
     {
         glUniform1f( uZFar, m_PerspectiveFarZ );
+    }
+
+    if( uCamAt != -1 )
+    {
+        Vector3 at = m_pGameObject->GetTransform()->GetWorldTransform()->GetAt();
+        glUniform3fv( uCamAt, 1, &at.x );
+    }
+
+    if( uCamRight != -1 )
+    {
+        Vector3 right = m_pGameObject->GetTransform()->GetWorldTransform()->GetRight();
+        glUniform3fv( uCamRight, 1, &right.x );
+    }
+
+    if( uCamUp != -1 )
+    {
+        Vector3 up = m_pGameObject->GetTransform()->GetWorldTransform()->GetUp();
+        glUniform3fv( uCamUp, 1, &up.x );
     }
 
     if( uAlbedo != -1 )
