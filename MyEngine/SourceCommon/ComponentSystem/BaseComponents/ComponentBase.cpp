@@ -825,8 +825,12 @@ void ComponentBase::AddVariableToWatchPanel(ComponentVariable* pVar)
 
         case ComponentVariableType_UnsignedInt:
             {
-                ImGui::Text( "UnsignedInt: %s (TODO)", pVar->m_Label );
-                //pVar->m_ControlID = g_pPanelWatch->AddUnsignedInt( pVar->m_WatchLabel, (unsigned int*)((char*)this + pVar->m_Offset), 0, 65535, this, ComponentBase::StaticOnValueChangedVariable, ComponentBase::StaticOnRightClickVariable );
+                unsigned int* pValueUInt = (unsigned int*)((char*)this + pVar->m_Offset);
+                int valueInt = *pValueUInt;
+                if( ImGui::DragInt( pVar->m_WatchLabel, &valueInt ) )
+                {
+                    *pValueUInt = valueInt;
+                }
             }
             break;
 
