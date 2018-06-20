@@ -55,15 +55,20 @@ void ComponentSprite::RegisterVariables(CPPListHead* pList, ComponentSprite* pTh
 #else
     AddVar( pList, "Tint",     ComponentVariableType_ColorByte, MyOffsetOf( pThis, &pThis->m_Tint ),  true,  true, 0, (CVarFunc_ValueChanged)&ComponentSprite::OnValueChanged, 0, 0 );
     AddVar( pList, "Size",     ComponentVariableType_Vector2,   MyOffsetOf( pThis, &pThis->m_Size ),  true,  true, 0, (CVarFunc_ValueChanged)&ComponentSprite::OnValueChanged, 0, 0 );
-    AddVarPointer( pList, "Material", true,  true, 0,
+    ComponentVariable* pVar = AddVarPointer( pList, "Material", true,  true, 0,
        (CVarFunc_GetPointerValue)&ComponentSprite::GetPointerValue,
        (CVarFunc_SetPointerValue)&ComponentSprite::SetPointerValue,
        (CVarFunc_GetPointerDesc)&ComponentSprite::GetPointerDesc,
        (CVarFunc_SetPointerDesc)&ComponentSprite::SetPointerDesc,
        (CVarFunc_ValueChanged)&ComponentSprite::OnValueChanged,
        (CVarFunc_DropTarget)&ComponentSprite::OnDrop, 0 );
-    //AddVar( pList, "Material", ComponentVariableType_MaterialPtr, MyOffsetOf( pThis, &pThis->m_m )
+
+#if MYFW_EDITOR
+    //pVar->AddCallback_ShouldVariableBeAdded( (CVarFunc_ShouldVariableBeAdded)(&ComponentSprite::ShouldVariableBeAddedToWatchPanel) );
+    pVar->AddCallback_VariableAddedToInterface( (CVarFunc_VariableAddedToInterface)(&ComponentSprite::VariableAddedToWatchPanel) );
 #endif
+#endif
+
 }
 
 ComponentSprite* CastAs_ComponentSprite(ComponentBase* pComponent)
@@ -343,7 +348,7 @@ void ComponentSprite::DrawCallback(ComponentCamera* pCamera, MyMatrix* pMatProj,
     //m_pSprite->SetPosition( m_pComponentTransform->GetWorldTransform() );
     //m_pSprite->SetTint( m_Tint );
     //m_pSprite->Create( "ComponentSprite", m_Size.x, m_Size.y, 0, 1, 0, 1, Justify_Center, false );
-    m_pSprite->Draw( m_pComponentTransform->GetWorldTransform(), pMatProj, pMatView, pShaderOverride, true );
+    m_pSprite->Draw( pMatProj, pMatView, m_pComponentTransform->GetWorldTransform(), pShaderOverride, true );
 }
 
 #if MYFW_EDITOR
@@ -385,6 +390,25 @@ void ComponentSprite::FillPropertiesWindow(bool clear, bool addcomponentvariable
     }
 }
 #endif //MYFW_USING_WX
+
+//bool ComponentSprite::ShouldVariableBeAddedToWatchPanel(ComponentVariable* pVar)
+//{
+//    return true;
+//}
+
+void ComponentSprite::VariableAddedToWatchPanel(ComponentVariable* pVar)
+{
+#if MYFW_USING_IMGUI
+
+#if _DEBUG && MYFW_WINDOWS
+    if( ImGui::Button( "Trigger Breakpoint on Next Draw" ) )
+    {
+        TriggerBreakpointOnNextDraw();
+    }
+#endif //_DEBUG && MYFW_WINDOWS
+
+#endif //MYFW_USING_IMGUI
+}
 
 void* ComponentSprite::OnDrop(ComponentVariable* pVar, int x, int y)
 {
@@ -447,4 +471,15 @@ void* ComponentSprite::OnValueChanged(ComponentVariable* pVar, bool changedbyint
 
     return oldpointer;
 }
+
+#if _DEBUG && MYFW_WINDOWS
+void ComponentSprite::TriggerBreakpointOnNextDraw()
+{
+    if( m_pSprite )
+    {
+        m_pSprite->TriggerBreakpointOnNextDraw();
+    }
+}
+#endif //_DEBUG && MYFW_WINDOWS
+
 #endif //MYFW_EDITOR

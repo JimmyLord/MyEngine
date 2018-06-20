@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2014-2017 Jimmy Lord http://www.flatheadgames.com
+// Copyright (c) 2014-2018 Jimmy Lord http://www.flatheadgames.com
 //
 // This software is provided 'as-is', without any express or implied warranty.  In no event will the authors be held liable for any damages arising from the use of this software.
 // Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -100,9 +100,17 @@ public:
     virtual void FillPropertiesWindow(bool clear, bool addcomponentvariables = false, bool ignoreblockvisibleflag = false);
 #endif //MYFW_USING_WX
 
+    //virtual bool ShouldVariableBeAddedToWatchPanel(ComponentVariable* pVar);
+    virtual void VariableAddedToWatchPanel(ComponentVariable* pVar);
+
     // Component variable callbacks. //_VARIABLE_LIST
     void* OnDrop(ComponentVariable* pVar, int x, int y);
     void* OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue* pNewValue);
+
+#if _DEBUG && MYFW_WINDOWS
+    void TriggerBreakpointOnNextDraw();
+#endif //_DEBUG && MYFW_WINDOWS
+
 #endif //MYFW_EDITOR
 };
 
