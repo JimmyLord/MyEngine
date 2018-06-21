@@ -236,7 +236,7 @@ bool EditorMainFrame_ImGui::HandleInput(int keyaction, int keycode, int mouseact
         if( ( m_EditorWindowFocused && keyaction != -1 ) ||
             ( m_EditorWindowFocused && mouseaction == GCBA_Up ) || // Send mouse up messages to editor window if it's in focus.
             ( m_EditorWindowHovered && (mouseaction == GCBA_Down || mouseaction == GCBA_Wheel) ) ||
-            ( m_EditorWindowHovered && m_EditorWindowFocused && (mouseaction == GCBA_Held || mouseaction == GCBA_RelativeMovement) ) )
+            ( m_EditorWindowFocused && (mouseaction == GCBA_Held || mouseaction == GCBA_RelativeMovement) ) )
         {
             // If this is a mouse message and not a relative movement,
             //     calculate mouse x/y relative to this window.
