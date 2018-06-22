@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2015-2016 Jimmy Lord http://www.flatheadgames.com
+// Copyright (c) 2015-2018 Jimmy Lord http://www.flatheadgames.com
 //
 // This software is provided 'as-is', without any express or implied warranty.  In no event will the authors be held liable for any damages arising from the use of this software.
 // Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -41,7 +41,10 @@ void ComponentPostEffect::RegisterVariables(CPPListHead* pList, ComponentPostEff
 {
     AddVar( pList, "Enabled", ComponentVariableType_Bool, MyOffsetOf( pThis, &pThis->m_Enabled ), true, true, 0,
             (CVarFunc_ValueChanged)&ComponentPostEffect::OnValueChanged,
-            0, 0 ); //ComponentPostEffect::StaticOnDrop, 0 );
+            0, 0 );
+    AddVar( pList, "Material", ComponentVariableType_MaterialPtr,
+            MyOffsetOf( pThis, &pThis->m_pMaterial ), false, true, 
+            0, (CVarFunc_ValueChanged)&ComponentPostEffect::OnValueChanged, (CVarFunc_DropTarget)&ComponentPostEffect::OnDropMaterial, 0 );
 }
 
 cJSON* ComponentPostEffect::ExportAsJSONObject(bool savesceneid, bool saveid)
@@ -113,6 +116,8 @@ void ComponentPostEffect::SetMaterial(MaterialDefinition* pMaterial)
 
 void ComponentPostEffect::Render(FBODefinition* pFBO)
 {
+    checkGlError( "start of ComponentPostEffect::Render()" );
+
     MyAssert( m_pFullScreenQuad );
     MyAssert( m_pMaterial );
 
@@ -132,6 +137,8 @@ void ComponentPostEffect::Render(FBODefinition* pFBO)
         m_pFullScreenQuad->DrawNoSetup();
         m_pFullScreenQuad->DeactivateShader();
     }
+
+    checkGlError( "end of ComponentPostEffect::Render()" );
 }
 
 #if MYFW_EDITOR
@@ -185,6 +192,35 @@ void ComponentPostEffect::OnDropMaterial(int controlid, int x, int y)
     }
 }
 #endif //MYFW_USING_WX
+
+void* ComponentPostEffect::OnDropMaterial(ComponentVariable* pVar, int x, int y)
+{
+    void* oldPointer = 0;
+
+    DragAndDropItem* pDropItem = g_DragAndDropStruct.GetItem( 0 );
+
+    if( pDropItem->m_Type == DragAndDropType_MaterialDefinitionPointer )
+    {
+        MaterialDefinition* pMaterial = (MaterialDefinition*)pDropItem->m_Value;
+
+        oldPointer = GetMaterial();
+        SetMaterial( pMaterial );
+        //g_pGameCore->GetCommandStack()->Do( MyNew EditorCommand_ChangeMaterialOnMesh( this, pVar, materialthatchanged, pMaterial ) );
+
+//#if MYFW_USING_WX
+//        // update the panel so new Material name shows up.
+//        if( g_DragAndDropStruct.GetControlID() != -1 )
+//        {
+//            if( pMaterial != 0 )
+//                g_pPanelWatch->GetVariableProperties( g_DragAndDropStruct.GetControlID() )->m_Description = pMaterial->GetName();
+//            else
+//                g_pPanelWatch->GetVariableProperties( g_DragAndDropStruct.GetControlID() )->m_Description = 0;
+//        }
+//#endif //MYFW_USING_WX
+    }
+
+    return oldPointer;
+}
 
 void* ComponentPostEffect::OnValueChanged(ComponentVariable* pVar, bool changedbyinterface, bool finishedchanging, double oldvalue, ComponentVariableValue* pNewValue)
 {
