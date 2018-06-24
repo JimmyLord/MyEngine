@@ -173,10 +173,13 @@ bool EditorMainFrame_ImGui::HandleInput(int keyaction, int keycode, int mouseact
         }
     }
 
-    // For renaming, if the mouse is clicked anywhere, end/confirm the current rename operation.
     if( mouseaction == GCBA_Down && id == 0 )
     {
-        m_ConfirmCurrentRenameOp = true;
+        // For renaming, if the mouse is clicked anywhere, end/confirm the current rename operation.
+        if( m_pGameObjectWhoseNameIsBeingEdited || m_pMaterialWhoseNameIsBeingEdited )
+        {
+            m_ConfirmCurrentRenameOp = true;
+        }
     }
 
     // For keyboard and other non-mouse events, localx/y will be -1.
@@ -2026,7 +2029,8 @@ void EditorMainFrame_ImGui::AddMemoryPanel_Materials()
     // Only show the headers if the filter is blank
     bool showHeaders = (m_MemoryPanelFilter[0] == 0);
 
-    unsigned int numMaterialsShown = 0;
+    bool someMaterialsAreLoaded = false;
+    //unsigned int numMaterialsShown = 0;
 
     m_pMaterialToPreview = 0;
 
@@ -2039,6 +2043,8 @@ void EditorMainFrame_ImGui::AddMemoryPanel_Materials()
 
         if( pMat == 0 )
             continue;
+
+        someMaterialsAreLoaded = true;
 
         ImGuiTreeNodeFlags baseNodeFlags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick;
 
@@ -2066,10 +2072,16 @@ void EditorMainFrame_ImGui::AddMemoryPanel_Materials()
                     char tempstr[MAX_PATH];
                     sprintf_s( tempstr, MAX_PATH, "Data/Materials" );
                     pMaterial->SaveMaterial( tempstr );
+                    g_pMaterialManager->Editor_MoveMaterialToFrontOfLoadedList( pMaterial );
 
                     // Essentially, tell the ComponentSystemManager that a new material was loaded.
                     //  This will add it to the scene's file list, which will free the material.
                     g_pMaterialManager->CallMaterialCreatedCallbacks( pMaterial );
+
+                    // Start a rename op on the new material.
+                    m_pGameObjectWhoseNameIsBeingEdited = 0;
+                    m_pMaterialWhoseNameIsBeingEdited = pMaterial;
+                    strncpy_s( m_NameBeingEdited, pMaterial->GetName(), 100 );
                 }
                 ImGui::EndPopup();
             }
@@ -2096,7 +2108,7 @@ void EditorMainFrame_ImGui::AddMemoryPanel_Materials()
                     {
                         const char* matName = pFile->GetFilenameWithoutExtension();
 
-                        numMaterialsShown++;
+                        //numMaterialsShown++;
 
                         bool showThisItem = true;
 
@@ -2176,7 +2188,7 @@ void EditorMainFrame_ImGui::AddMemoryPanel_Materials()
         }
     }
 
-    if( numMaterialsShown == 0 )
+    if( someMaterialsAreLoaded == false )
     {
         ImGui::TreeNodeEx( "No materials loaded.", ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen );
     }
@@ -2187,7 +2199,8 @@ void EditorMainFrame_ImGui::AddMemoryPanel_Textures()
     // Only show the headers if the filter is blank
     bool showHeaders = (m_MemoryPanelFilter[0] == 0);
 
-    unsigned int numTexturesShown = 0;
+    bool someTexturesAreLoaded = false;
+    //unsigned int numTexturesShown = 0;
 
     for( int i=0; i<2; i++ )
     {
@@ -2197,6 +2210,8 @@ void EditorMainFrame_ImGui::AddMemoryPanel_Textures()
 
         if( pTex )
         {
+            someTexturesAreLoaded = true;
+
             ImGuiTreeNodeFlags baseNodeFlags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick;
 
             char* label = "Textures - Loading";
@@ -2211,7 +2226,7 @@ void EditorMainFrame_ImGui::AddMemoryPanel_Textures()
 
                     if( pTex->m_ShowInMemoryPanel )
                     {
-                        numTexturesShown++;
+                        //numTexturesShown++;
 
                         bool showThisItem = true;
 
@@ -2266,7 +2281,7 @@ void EditorMainFrame_ImGui::AddMemoryPanel_Textures()
         }
     }
 
-    if( numTexturesShown == 0 )
+    if( someTexturesAreLoaded == false )
     {
         ImGui::TreeNodeEx( "No textures loaded.", ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen );
     }
@@ -2277,13 +2292,16 @@ void EditorMainFrame_ImGui::AddMemoryPanel_ShaderGroups()
     // Only show the headers if the filter is blank
     bool showHeaders = (m_MemoryPanelFilter[0] == 0);
 
-    unsigned int numShadersShown = 0;
+    bool someShadersAreLoaded = false;
+    //unsigned int numShadersShown = 0;
 
     {
         ShaderGroup* pShaderGroup = (ShaderGroup*)g_pShaderGroupManager->m_ShaderGroupList.GetHead();
 
         if( pShaderGroup )
         {
+            someShadersAreLoaded = true;
+
             ImGuiTreeNodeFlags baseNodeFlags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick;
 
             if( showHeaders == false || ImGui::TreeNodeEx( "All Shaders", baseNodeFlags | ImGuiTreeNodeFlags_DefaultOpen ) )
@@ -2295,7 +2313,7 @@ void EditorMainFrame_ImGui::AddMemoryPanel_ShaderGroups()
                     {
                         if( pFile->m_ShowInMemoryPanel )
                         {
-                            numShadersShown++;
+                            //numShadersShown++;
 
                             bool showThisItem = true;
 
@@ -2343,7 +2361,7 @@ void EditorMainFrame_ImGui::AddMemoryPanel_ShaderGroups()
         }
     }
 
-    if( numShadersShown == 0 )
+    if( someShadersAreLoaded == false)
     {
         ImGui::TreeNodeEx( "No shaders loaded.", ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen );
     }
@@ -2354,7 +2372,8 @@ void EditorMainFrame_ImGui::AddMemoryPanel_Files()
     // Only show the headers if the filter is blank
     bool showHeaders = (m_MemoryPanelFilter[0] == 0);
 
-    unsigned int numFilesShown = 0;
+    bool someFilesAreLoaded = false;
+    //unsigned int numFilesShown = 0;
 
     // TODO: Don't do this every frame.
     g_pFileManager->SortFileLists();
@@ -2367,6 +2386,8 @@ void EditorMainFrame_ImGui::AddMemoryPanel_Files()
 
         if( pFile )
         {
+            someFilesAreLoaded = true;
+
             ImGuiTreeNodeFlags baseNodeFlags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick;
 
             char* label = "Files - Loading";
@@ -2381,7 +2402,7 @@ void EditorMainFrame_ImGui::AddMemoryPanel_Files()
                 {
                     if( pFile->m_ShowInMemoryPanel )
                     {
-                        numFilesShown++;
+                        //numFilesShown++;
 
                         if( previousFileType == 0 || strcmp( previousFileType, pFile->GetExtensionWithDot() ) != 0 )
                         {
@@ -2459,7 +2480,7 @@ void EditorMainFrame_ImGui::AddMemoryPanel_Files()
         }
     }
 
-    if( numFilesShown == 0 )
+    if( someFilesAreLoaded == false )
     {
         ImGui::TreeNodeEx( "No files loaded.", ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen );
     }
