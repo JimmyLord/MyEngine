@@ -35,7 +35,7 @@ PrefabReference::PrefabReference(PrefabObject* pPrefab, uint32 childid, bool set
     m_pGameObject = 0;
     m_ChildID = childid;
 
-#if MYFW_USING_WX
+#if MYFW_EDITOR
     if( setgameobject )
         m_pGameObject = m_pPrefab->FindChildGameObject( m_pPrefab->GetGameObject(), childid );
 #endif
@@ -62,7 +62,7 @@ void PrefabReference::FinishLoadingPrefab(PrefabFile* pPrefabFile)
     m_pPrefab = pPrefabFile->GetPrefabByID( m_PrefabID );
     MyAssert( m_pPrefab );
 
-#if MYFW_USING_WX
+#if MYFW_EDITOR
     // Find the correct GameObject from the prefab.
     m_pGameObject = m_pPrefab->GetGameObject( m_ChildID );
     MyAssert( m_pGameObject );
@@ -81,7 +81,7 @@ PrefabObject::PrefabObject()
 
     m_PrefabID = 0;
 
-#if MYFW_USING_WX
+#if MYFW_EDITOR
     m_NextChildPrefabID = 1;
 
     m_pGameObject = 0;
@@ -90,7 +90,7 @@ PrefabObject::PrefabObject()
 
 PrefabObject::~PrefabObject()
 {
-#if MYFW_USING_WX
+#if MYFW_EDITOR
     if( m_jPrefab )
     {
         cJSON_Delete( m_jPrefab );
@@ -121,7 +121,7 @@ void PrefabObject::SetPrefabJSONObject(cJSON* jPrefab, bool createmastergameobje
     if( m_jPrefab )
     {
         cJSON_Delete( m_jPrefab );
-#if MYFW_USING_WX
+#if MYFW_EDITOR
         if( createmastergameobjects )
         {
             delete m_pGameObject;
@@ -131,7 +131,7 @@ void PrefabObject::SetPrefabJSONObject(cJSON* jPrefab, bool createmastergameobje
 
     m_jPrefab = jPrefab;
 
-#if MYFW_USING_WX
+#if MYFW_EDITOR
     // In editor, create a GameObject for this prefab, also creates a GameObject for each child.
     //     Pointers to children are stored in a list inside GameObject.
     // This might cause some undo actions, so wipe them out once the load is complete.
@@ -144,10 +144,12 @@ void PrefabObject::SetPrefabJSONObject(cJSON* jPrefab, bool createmastergameobje
 
         g_pGameCore->GetCommandStack()->ClearUndoStack( numItemsInUndoStack );
 
+#if MYFW_USING_WX
         // Add the prefab and all it's children to the object panel.
         AddToObjectList( m_pPrefabFile->m_TreeID, m_jPrefab, m_pGameObject );
-    }
 #endif
+    }
+#endif //MYFW_EDITOR
 }
 
 const char* PrefabObject::GetName()
@@ -385,7 +387,7 @@ PrefabFile::~PrefabFile()
         cJSON_Delete( pPrefab->m_jPrefab );
         pPrefab->m_jPrefab = 0;
 
-#if MYFW_USING_WX
+#if MYFW_EDITOR
         RemovePrefab( pPrefab );
 #endif
 
@@ -481,7 +483,7 @@ void PrefabFile::OnFileFinishedLoading(MyFileObject* pFile)
     cJSON_Delete( jRoot );
 }
 
-#if MYFW_USING_WX
+#if MYFW_EDITOR
 void PrefabFile::Save()
 {
     cJSON* jRoot = cJSON_CreateObject();
@@ -526,8 +528,10 @@ void PrefabFile::RemovePrefab(PrefabObject* pPrefab)
     // Remove prefab from m_Prefabs list
     pPrefab->Remove();
 
+#if MYFW_USING_WX
     // Remove prefab from Object List tree
     g_pPanelObjectList->RemoveObject( pPrefab );
+#endif
 }
 
 void PrefabFile::AddExistingPrefab(PrefabObject* pPrefab, PrefabObject* pPreviousPrefab) // used to undo delete in editor
@@ -542,6 +546,7 @@ void PrefabFile::AddExistingPrefab(PrefabObject* pPrefab, PrefabObject* pPreviou
         m_Prefabs.AddHead( pPrefab );
     }
 
+#if MYFW_USING_WX
     // Add prefab to Object List tree inside TreeID of this file.
     pPrefab->AddToObjectList( this->m_TreeID, pPrefab->m_jPrefab, pPrefab->m_pGameObject );
     if( pPreviousPrefab != 0 )
@@ -552,8 +557,11 @@ void PrefabFile::AddExistingPrefab(PrefabObject* pPrefab, PrefabObject* pPreviou
     {
         g_pPanelObjectList->Tree_MoveObject( pPrefab->m_TreeID, m_TreeID, true );
     }
+#endif
 }
+#endif //MYFW_EDITOR
 
+#if MYFW_USING_WX
 void PrefabFile::OnLeftClick(wxTreeItemId treeid, unsigned int count, bool clear) // StaticOnLeftClick
 {
 }
@@ -584,7 +592,7 @@ void PrefabFile::OnRightClick(wxTreeItemId treeid) // StaticOnRightClick
     // blocking call.
     //g_pPanelWatch->PopupMenu( &menu ); // there's no reason this is using g_pPanelWatch other than convenience.
 }
-#endif
+#endif //MYFW_USING_WX
 
 // ============================================================================================================================
 // PrefabManager
@@ -609,7 +617,7 @@ unsigned int PrefabManager::GetNumberOfFiles()
 
 void PrefabManager::SetNumberOfFiles(unsigned int numfiles)
 {
-#if !MYFW_USING_WX
+#if !MYFW_EDITOR
     m_pPrefabFiles.AllocateObjects( numfiles );
 #endif
 }
@@ -643,7 +651,7 @@ PrefabFile* PrefabManager::RequestFile(const char* prefabfilename)
 
     PrefabFile* pPrefabFile = MyNew PrefabFile( pFile );
 
-#if MYFW_USING_WX
+#if MYFW_EDITOR
     m_pPrefabFiles.push_back( pPrefabFile );
 #else
     MyAssert( m_pPrefabFiles.Count() < m_pPrefabFiles.Length() );
@@ -658,7 +666,7 @@ void PrefabManager::UnloadAllPrefabFiles()
     while( m_pPrefabFiles.size() )
     {
         delete m_pPrefabFiles[0];
-#if MYFW_USING_WX
+#if MYFW_EDITOR
         m_pPrefabFiles[0] = m_pPrefabFiles.back();
         m_pPrefabFiles.pop_back();
 #else
@@ -667,7 +675,7 @@ void PrefabManager::UnloadAllPrefabFiles()
     }
 }
 
-#if MYFW_USING_WX
+#if MYFW_EDITOR
 void PrefabManager::LoadFileNow(const char* prefabfilename)
 {
     MyFileObject* pFile = g_pFileManager->LoadFileNow( prefabfilename );
@@ -686,7 +694,11 @@ void PrefabManager::CreatePrefabInFile(unsigned int fileindex, const char* prefa
     // Check if a prefab with this name already exists and fail if it does
     if( pFile->GetFirstPrefabByName( prefabname ) )
     {
+#if MYFW_USING_WX
         wxMessageBox( "A prefab with this name already exists, rename it and create it again", "Failed to create prefab" );
+#else
+        LOGError( LOGTag, "A prefab with this name already exists, rename it and create it again" );
+#endif
         return;
     }
 
@@ -727,31 +739,34 @@ void PrefabManager::CreateFile(const char* relativepath)
 bool PrefabManager::CreateOrLoadFile()
 {
     // Pick an existing file to load or create a new file
-    {
-        wxFileDialog FileDialog( g_pEngineMainFrame, _("Load or Create Prefab file"), "./Data/Prefabs", "", "Prefab files (*.myprefabs)|*.myprefabs", wxFD_OPEN );
+#if MYFW_USING_WX
+    wxFileDialog FileDialog( g_pEngineMainFrame, _("Load or Create Prefab file"), "./Data/Prefabs", "", "Prefab files (*.myprefabs)|*.myprefabs", wxFD_OPEN );
     
-        if( FileDialog.ShowModal() != wxID_CANCEL )
-        {
-            wxString wxpath = FileDialog.GetPath();
-            char fullpath[MAX_PATH];
-            sprintf_s( fullpath, MAX_PATH, "%s", (const char*)wxpath );
-            const char* relativepath = GetRelativePath( fullpath );
+    if( FileDialog.ShowModal() != wxID_CANCEL )
+    {
+        wxString wxpath = FileDialog.GetPath();
+        char fullpath[MAX_PATH];
+        sprintf_s( fullpath, MAX_PATH, "%s", (const char*)wxpath );
+        const char* relativepath = GetRelativePath( fullpath );
 
-            if( relativepath != 0 )
+        if( relativepath != 0 )
+        {
+            if( g_pFileManager->DoesFileExist( relativepath ) )
             {
-                if( g_pFileManager->DoesFileExist( relativepath ) )
-                {
-                    LoadFileNow( relativepath );
-                    return true;
-                }
-                else
-                {
-                    CreateFile( relativepath );
-                    return true;
-                }
+                LoadFileNow( relativepath );
+                return true;
+            }
+            else
+            {
+                CreateFile( relativepath );
+                return true;
             }
         }
     }
+#else
+    // TODO: Implement this in ImGui builds.
+    MyAssert( false );
+#endif
 
     return false;
 }

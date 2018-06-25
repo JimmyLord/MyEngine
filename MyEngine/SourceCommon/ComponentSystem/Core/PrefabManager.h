@@ -164,13 +164,14 @@ public:
     static void StaticOnFileFinishedLoading(void* pObjectPtr, MyFileObject* pFile) { ((PrefabFile*)pObjectPtr)->OnFileFinishedLoading( pFile ); }
     void OnFileFinishedLoading(MyFileObject* pFile);
 
-#if MYFW_USING_WX
+#if MYFW_EDITOR
     void Save();
-
-    wxTreeItemId m_TreeID;
-
     void RemovePrefab(PrefabObject* pPrefab);
     void AddExistingPrefab(PrefabObject* pPrefab, PrefabObject* pPreviousPrefab); // used to undo delete in editor
+#endif
+
+#if MYFW_USING_WX
+    wxTreeItemId m_TreeID;
 
     // Object panel callbacks.
     static void StaticOnLeftClick(void* pObjectPtr, wxTreeItemId treeid, unsigned int count) { ((PrefabFile*)pObjectPtr)->OnLeftClick( treeid, count, true ); }
@@ -184,14 +185,14 @@ public:
 class PrefabManager
 {
 protected:
-#if MYFW_USING_WX
+#if MYFW_EDITOR
     std::vector<PrefabFile*> m_pPrefabFiles;
 #else
     MyList<PrefabFile*> m_pPrefabFiles;
 #endif
 
 protected:
-#if MYFW_USING_WX
+#if MYFW_EDITOR
     void LoadFileNow(const char* prefabfilename);
 #endif
 
@@ -208,7 +209,7 @@ public:
 
     void UnloadAllPrefabFiles();
 
-#if MYFW_USING_WX
+#if MYFW_EDITOR
     void CreatePrefabInFile(unsigned int fileindex, const char* prefabname, GameObject* pGameObject);
 
     void CreateFile(const char* relativepath);
