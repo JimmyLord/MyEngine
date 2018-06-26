@@ -557,7 +557,7 @@ void EditorMainFrame_ImGui::DrawGameAndEditorWindows(EngineCore* pEngineCore)
                 light2.m_Position.Set( 2*cos(PI+time), 1, 2*sin(PI+time) );
 
                 MyLight* lights[] = { &light1, &light2 };
-                pMeshBall->Draw( 0, &matproj, &matview, &campos, &camrot, lights, 2, 0, 0, 0, 0 );
+                pMeshBall->Draw( &matproj, &matview, 0, &campos, &camrot, lights, 2, 0, 0, 0, 0 );
 
                 // Unset the material to avoid holding a ref that prevents the material from unloading.
                 pMeshBall->SetMaterial( 0, 0 );
