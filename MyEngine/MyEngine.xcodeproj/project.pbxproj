@@ -1777,7 +1777,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				ONLY_ACTIVE_ARCH = YES;
 				PRODUCT_NAME = MyEngine;
-				USER_HEADER_SEARCH_PATHS = "./SourceCommon . ${SRCROOT}/../Libraries/bullet3/src ../../Framework/Libraries/b2Settings ../../Framework/Libraries/Box2D/Box2D";
+				USER_HEADER_SEARCH_PATHS = "./SourceCommon . ${SRCROOT}/../Libraries/bullet3/src ../../Framework/Libraries/b2Settings ../../Framework/Libraries/Box2D";
 			};
 			name = Debug;
 		};
@@ -1789,7 +1789,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				MACOSX_DEPLOYMENT_TARGET = 10.7;
 				PRODUCT_NAME = MyEngine;
-				USER_HEADER_SEARCH_PATHS = "./SourceCommon . ${SRCROOT}/../Libraries/bullet3/src ../../Framework/Libraries/b2Settings ../../Framework/Libraries/Box2D/Box2D";
+				USER_HEADER_SEARCH_PATHS = "./SourceCommon . ${SRCROOT}/../Libraries/bullet3/src ../../Framework/Libraries/b2Settings ../../Framework/Libraries/Box2D";
 			};
 			name = Release;
 		};

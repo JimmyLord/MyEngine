@@ -50,7 +50,7 @@ void ImGuiManager::Init(float width, float height)
     CreateDeviceObjects();
 
     ImGuiIO& io = ImGui::GetIO();
-    io.NavFlags |= ImGuiNavFlags_EnableKeyboard | ImGuiNavFlags_EnableGamepad;
+    //io.NavFlags |= ImGuiNavFlags_EnableKeyboard | ImGuiNavFlags_EnableGamepad;
     io.DisplaySize.x = width;
     io.DisplaySize.y = height;
     //io.IniFilename = "imgui.ini";

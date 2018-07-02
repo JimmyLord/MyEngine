@@ -545,12 +545,14 @@
     <ClInclude Include="bullet3\src\BulletCollision\CollisionShapes\btEmptyShape.h" />
     <ClInclude Include="bullet3\src\BulletCollision\CollisionShapes\btHeightfieldTerrainShape.h" />
     <ClInclude Include="bullet3\src\BulletCollision\CollisionShapes\btMaterial.h" />
+    <ClInclude Include="bullet3\src\BulletCollision\CollisionShapes\btMiniSDF.h" />
     <ClInclude Include="bullet3\src\BulletCollision\CollisionShapes\btMinkowskiSumShape.h" />
     <ClInclude Include="bullet3\src\BulletCollision\CollisionShapes\btMultimaterialTriangleMeshShape.h" />
     <ClInclude Include="bullet3\src\BulletCollision\CollisionShapes\btMultiSphereShape.h" />
     <ClInclude Include="bullet3\src\BulletCollision\CollisionShapes\btOptimizedBvh.h" />
     <ClInclude Include="bullet3\src\BulletCollision\CollisionShapes\btPolyhedralConvexShape.h" />
     <ClInclude Include="bullet3\src\BulletCollision\CollisionShapes\btScaledBvhTriangleMeshShape.h" />
+    <ClInclude Include="bullet3\src\BulletCollision\CollisionShapes\btSdfCollisionShape.h" />
     <ClInclude Include="bullet3\src\BulletCollision\CollisionShapes\btShapeHull.h" />
     <ClInclude Include="bullet3\src\BulletCollision\CollisionShapes\btSphereShape.h" />
     <ClInclude Include="bullet3\src\BulletCollision\CollisionShapes\btStaticPlaneShape.h" />
@@ -722,6 +724,7 @@
     </ClCompile>
     <ClCompile Include="bullet3\src\BulletCollision\CollisionShapes\btHeightfieldTerrainShape.cpp">
     </ClCompile>
+    <ClCompile Include="bullet3\src\BulletCollision\CollisionShapes\btMiniSDF.cpp" />
     <ClCompile Include="bullet3\src\BulletCollision\CollisionShapes\btMinkowskiSumShape.cpp">
     </ClCompile>
     <ClCompile Include="bullet3\src\BulletCollision\CollisionShapes\btMultimaterialTriangleMeshShape.cpp">
@@ -734,6 +737,7 @@
     </ClCompile>
     <ClCompile Include="bullet3\src\BulletCollision\CollisionShapes\btScaledBvhTriangleMeshShape.cpp">
     </ClCompile>
+    <ClCompile Include="bullet3\src\BulletCollision\CollisionShapes\btSdfCollisionShape.cpp" />
     <ClCompile Include="bullet3\src\BulletCollision\CollisionShapes\btShapeHull.cpp">
     </ClCompile>
     <ClCompile Include="bullet3\src\BulletCollision\CollisionShapes\btSphereShape.cpp">

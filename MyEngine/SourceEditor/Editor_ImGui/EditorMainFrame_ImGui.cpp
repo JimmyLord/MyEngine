@@ -386,7 +386,7 @@ void EditorMainFrame_ImGui::AddEverything()
     {
         ImGui::Text( "WantCaptureKeyboard %d", io.WantCaptureKeyboard );
         ImGui::Text( "WantCaptureMouse %d", io.WantCaptureMouse );
-        ImGui::Text( "WantMoveMouse %d", io.WantMoveMouse );
+        //ImGui::Text( "WantMoveMouse %d", io.WantMoveMouse );
         ImGui::Text( "WantTextInput %d", io.WantTextInput );
         ImGui::Text( "m_GameWindowFocused %d", m_GameWindowFocused );
         ImGui::Text( "m_EditorWindowHovered %d", m_EditorWindowHovered );    
@@ -1526,7 +1526,7 @@ void EditorMainFrame_ImGui::AddGameObjectToObjectList(GameObject* pGameObject)
         // The code selects on mouse release so item can be dragged without changing selection.
         // Also handles Ctrl and Shift clicks for multiple selections.
         // Expand the item without selecting it if the arrow is clicked.
-        if( ImGui::IsMouseReleased( 0 ) && ImGui::IsItemHovered( ImGuiHoveredFlags_Default ) &&
+        if( ImGui::IsMouseReleased( 0 ) && ImGui::IsItemHovered() &&
             hoveringOverArrow == false && dragDropPayloadAcceptedOnRelease == false )
         {
             if( ImGui::GetIO().KeyCtrl == false )
