@@ -46,9 +46,9 @@ const char* g_StylePrefsStrings[ImGuiStylePrefs::StylePref_Num] =
     "ResizeGrip",
     "ResizeGripHovered",
     "ResizeGripActive",
-    "CloseButton",
-    "CloseButtonHovered",
-    "CloseButtonActive",
+    //"CloseButton",
+    //"CloseButtonHovered",
+    //"CloseButtonActive",
     "PlotLines",
     "PlotLinesHovered",
     "PlotHistogram",
@@ -70,7 +70,7 @@ ImGuiStylePrefs::ImGuiStylePrefs()
     m_Visible = false;
 
     // If this trips, imgui changed, so make fixes.
-    MyAssert( StylePref_NumImGuiStyleColors == 45 );
+    MyAssert( StylePref_NumImGuiStyleColors == 42 );
 
     for( int i=0; i<StylePref_NumImGuiStyleColors; i++ )
     {
