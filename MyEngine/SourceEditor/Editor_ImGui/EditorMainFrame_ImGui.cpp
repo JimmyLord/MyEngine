@@ -1822,12 +1822,12 @@ void EditorMainFrame_ImGui::AddWatchPanel()
                             //ImGui::PushStyleColor( ImGuiCol_Header, (ImVec4)ImColor::ImColor(50,100,0,255) );
                             //ImGui::PushStyleColor( ImGuiCol_HeaderHovered, (ImVec4)ImColor::ImColor(50,70,0,255) );
                             //ImGui::PushStyleColor( ImGuiCol_HeaderActive, (ImVec4)ImColor::ImColor(50,30,0,255) );
+                            ImGui::PushID( pComponentToLookFor );
                             if( ImGui::CollapsingHeader( pComponentToLookFor->GetClassname(), ImGuiTreeNodeFlags_DefaultOpen ) )
                             {
-                                ImGui::PushID( pComponentToLookFor );
                                 pComponentToLookFor->AddAllVariablesToWatchPanel();
-                                ImGui::PopID();
                             }
+                            ImGui::PopID();
                             //ImGui::PopStyleColor( 3 );
                         }
                     }
