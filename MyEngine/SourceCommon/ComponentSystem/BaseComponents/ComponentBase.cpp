@@ -720,6 +720,8 @@ void ComponentBase::AddVariableToWatchPanel(ComponentVariable* pVar)
 
 #pragma warning( disable : 4062 )
     {
+        unsigned int contextMenuItemCount = 0;
+
         switch( pVar->m_Type )
         {
         case ComponentVariableType_Int:
@@ -1039,6 +1041,32 @@ void ComponentBase::AddVariableToWatchPanel(ComponentVariable* pVar)
                 ImGui::Text( pVar->m_Label );
 
                 ImGui::EndGroup();
+
+                // Right-click menu on group.
+                ImGui::PushID( pVar );
+                if( ImGui::BeginPopupContextItem( "ContextPopup", 1 ) )
+                {
+                    // Set color to default, since it might be set to divorced color.
+                    Vector4 color = g_pEditorPrefs->GetImGuiStylePrefs()->GetColor( ImGuiStylePrefs::StylePref_Color_Text );
+                    ImGui::PushStyleColor( ImGuiCol_Text, color );
+
+                    contextMenuItemCount++;
+
+                    if( ImGui::MenuItem( "Clear material" ) )
+                    {
+                        // Clear the current material by "dropping" a null material.  Will deal with inheritance/divorce/etc.
+                        g_DragAndDropStruct.Clear();
+                        g_DragAndDropStruct.SetControlID( pVar->m_ControlID );
+                        g_DragAndDropStruct.Add( DragAndDropType_MaterialDefinitionPointer, 0 );
+
+                        OnDropVariable( pVar, 0, -1, -1, true );
+                    }
+
+                    ImGui::PopStyleColor( 1 );
+
+                    ImGui::EndPopup();
+                }
+                ImGui::PopID();
             }
             break;
 
@@ -1148,6 +1176,7 @@ void ComponentBase::AddVariableToWatchPanel(ComponentVariable* pVar)
                 {
                     if( IsDivorced( pVar->m_Index ) == false )
                     {
+                        contextMenuItemCount++;
                         if( ImGui::MenuItem( "Divorce value from parent" ) )
                         {
                             g_pGameCore->GetCommandStack()->Do( MyNew EditorCommand_DivorceOrMarryComponentVariable( this, pVar, true ) );
@@ -1157,6 +1186,7 @@ void ComponentBase::AddVariableToWatchPanel(ComponentVariable* pVar)
                     }
                     else
                     {                        
+                        contextMenuItemCount++;
                         if( ImGui::MenuItem( "Reset value to parent" ) )
                         {
                             g_pGameCore->GetCommandStack()->Do( MyNew EditorCommand_DivorceOrMarryComponentVariable( this, pVar, false ) );
@@ -1166,10 +1196,19 @@ void ComponentBase::AddVariableToWatchPanel(ComponentVariable* pVar)
                     }
                 }
 
-                // TODO: This pVar callback needs to be called, not sure what's using it.
+                // Call this pVar callback, not sure what's using it.
                 if( pVar->m_pOnRightClickCallbackFunc )
                 {
                     (this->*(pVar->m_pOnRightClickCallbackFunc))( pVar, 0 ); //&menu );
+
+                    // TODO: Have the callback return how many menu items it added instead of assuming it added one.
+                    contextMenuItemCount++;
+                }
+
+                // Close the popup if no menu items were added to it.
+                if( contextMenuItemCount == 0 )
+                {
+                    ImGui::CloseCurrentPopup();
                 }
 
                 ImGui::EndPopup();
