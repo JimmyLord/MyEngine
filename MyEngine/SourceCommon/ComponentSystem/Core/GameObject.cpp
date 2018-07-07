@@ -17,7 +17,7 @@ GameObject::GameObject(bool managed, SceneID sceneid, bool isfolder, bool hastra
 
     m_pGameObjectThisInheritsFrom = 0;
 
-#if MYFW_USING_WX
+#if MYFW_EDITOR
     if( pPrefabRef && pPrefabRef->GetPrefab() )
     {
         m_pGameObjectThisInheritsFrom = pPrefabRef->GetGameObject();
@@ -137,7 +137,7 @@ cJSON* GameObject::ExportAsJSONObject(bool savesceneid)
     // Inheritance parent can be in a different scene.
     if( m_pGameObjectThisInheritsFrom )
     {
-#if MYFW_USING_WX
+#if MYFW_EDITOR
         // Don't save parentGO if it's the prefab.
         if( m_PrefabRef.GetPrefab() == 0 ||
             (m_pGameObjectThisInheritsFrom != m_PrefabRef.GetGameObject()) )
@@ -196,7 +196,7 @@ void GameObject::ImportFromJSONObject(cJSON* jGameObject, SceneID sceneid)
     cJSONExt_GetUnsignedInt( jGameObject, "ID", &m_ID );
 
     // Deal with prefabs // only in editor builds, game builds don't much care.
-#if MYFW_USING_WX
+#if MYFW_EDITOR
     cJSON* jPrefabID = cJSON_GetObjectItem( jGameObject, "PrefabID" );
     if( jPrefabID )
     {
@@ -226,7 +226,7 @@ void GameObject::ImportFromJSONObject(cJSON* jGameObject, SceneID sceneid)
             }
         }
     }
-#endif //MYFW_USING_WX
+#endif //MYFW_EDITOR
 
     unsigned int parentgoid = 0;
     cJSONExt_GetUnsignedInt( jGameObject, "ParentGOID", &parentgoid );
@@ -242,7 +242,7 @@ void GameObject::ImportFromJSONObject(cJSON* jGameObject, SceneID sceneid)
             g_pPanelObjectList->Tree_MoveObject( this, pLastChild, false );
         else
             g_pPanelObjectList->Tree_MoveObject( this, pParentGameObject, true );
-#endif
+#endif //MYFW_USING_WX
 
         SetParentGameObject( pParentGameObject );
     }
@@ -676,11 +676,13 @@ ComponentBase* GameObject::AddNewComponent(int componenttype, SceneID sceneid, C
     {
         // Special handling of ComponentType_Transform, only offer option if GameObject doesn't have a transform
         //     m_pComponentTransform will be set in AddExistingComponent() below.
+#if MYFW_EDITOR
 #if MYFW_USING_WX
         // Update the icon
         UpdateObjectListIcon();
-        pComponent->m_Type = -1; // hack, all transforms have -1 as type, setting this to be consistent.
 #endif //MYFW_USING_WX
+        pComponent->m_Type = -1; // hack, all transforms have -1 as type, setting this to be consistent.
+#endif //MYFW_EDITOR
     }
     else
     {
@@ -1083,7 +1085,7 @@ void GameObject::OnPopupClick(GameObject* pGameObject, unsigned int id)
     }
     else if( id >= RightClick_CreatePrefab && id < RightClick_CreatePrefab + 10000 )
     {
-#if MYFW_USING_WX
+#if MYFW_EDITOR
         unsigned int numprefabfiles = g_pComponentSystemManager->m_pPrefabManager->GetNumberOfFiles();
         if( id == RightClick_CreatePrefab + numprefabfiles )
         {
@@ -1101,7 +1103,7 @@ void GameObject::OnPopupClick(GameObject* pGameObject, unsigned int id)
             unsigned int fileindex = id - RightClick_CreatePrefab;
             g_pComponentSystemManager->m_pPrefabManager->CreatePrefabInFile( fileindex, pGameObject->GetName(), pGameObject );
         }
-#endif //MYFW_USING_WX
+#endif //MYFW_EDITOR
     }
     else if( id == RightClick_DeleteGameObject )
     {
@@ -1369,7 +1371,9 @@ void GameObject::OnDrop(int controlid, int x, int y, GameObjectOnDropActions act
     }
 #else
     if( action == GameObjectOnDropAction_Reorder )
+    {
         setAsChild = false;
+    }
 #endif //MYFW_USING_WX
 
     // Move/Reparent all of the selected items.
@@ -1458,7 +1462,7 @@ void GameObject::FinishLoadingPrefab(PrefabFile* pPrefabFile)
     // Link the PrefabRef to the correct prefab and GameObject now that the file is finished loading.
     m_PrefabRef.FinishLoadingPrefab( pPrefabFile );
 
-#if MYFW_USING_WX
+#if MYFW_EDITOR
     m_pGameObjectThisInheritsFrom = m_PrefabRef.GetGameObject();
 #endif
 
