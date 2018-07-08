@@ -104,7 +104,8 @@ protected:
     void AddLoseChangesWarningPopups();
     void AddGameAndEditorWindows();
     void AddObjectList();
-    void AddGameObjectToObjectList(GameObject* pGameObject);
+    void AddPrefabFiles(bool forceOpen);
+    void AddGameObjectToObjectList(GameObject* pGameObject, bool isPrefab);
     void AddWatchPanel();
     void AddLogWindow();
     void AddMemoryPanel();

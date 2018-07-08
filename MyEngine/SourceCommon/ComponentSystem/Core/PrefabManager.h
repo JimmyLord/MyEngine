@@ -167,6 +167,7 @@ public:
 #if MYFW_EDITOR
     void Save();
     void RemovePrefab(PrefabObject* pPrefab);
+    PrefabObject* GetFirstPrefab() { return (PrefabObject*)m_Prefabs.GetHead(); }
     void AddExistingPrefab(PrefabObject* pPrefab, PrefabObject* pPreviousPrefab); // used to undo delete in editor
 #endif
 

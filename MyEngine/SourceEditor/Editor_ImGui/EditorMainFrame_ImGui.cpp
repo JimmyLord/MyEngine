@@ -1275,7 +1275,7 @@ void EditorMainFrame_ImGui::AddObjectList()
                         while( pGameObject )
                         {
                             // Add GameObjects, their children and their components
-                            AddGameObjectToObjectList( pGameObject );
+                            AddGameObjectToObjectList( pGameObject, false );
 
                             pGameObject = (GameObject*)pGameObject->GetNext();
                         }
@@ -1285,6 +1285,8 @@ void EditorMainFrame_ImGui::AddObjectList()
             }
         }
 
+        AddPrefabFiles( forceOpen );
+
         if( m_ObjectListFilter[0] != 0 )
         {
             ImGui::PopID(); // "FilteredList"
@@ -1293,9 +1295,77 @@ void EditorMainFrame_ImGui::AddObjectList()
     ImGui::End();
 }
 
-void EditorMainFrame_ImGui::AddGameObjectToObjectList(GameObject* pGameObject)
+void EditorMainFrame_ImGui::AddPrefabFiles(bool forceOpen)
 {
-    if( pGameObject->IsManaged() == false )
+    ImGuiTreeNodeFlags baseNodeFlags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick;
+
+    unsigned int numPrefabFiles = g_pComponentSystemManager->m_pPrefabManager->GetNumberOfFiles();
+    if( numPrefabFiles > 0 )
+    {
+        if( ImGui::CollapsingHeader( "Prefab Files", ImGuiTreeNodeFlags_DefaultOpen ) || forceOpen )
+        {
+            for( unsigned int prefabFileIndex=0; prefabFileIndex<numPrefabFiles; prefabFileIndex++ )
+            {
+                ImGuiTreeNodeFlags nodeFlags = baseNodeFlags;
+                nodeFlags |= ImGuiTreeNodeFlags_DefaultOpen;
+
+                if( forceOpen )
+                {
+                    ImGui::SetNextTreeNodeOpen( true );
+                }
+
+                PrefabFile* pPrefabFile = g_pComponentSystemManager->m_pPrefabManager->GetLoadedPrefabFileByIndex( prefabFileIndex );
+                MyAssert( pPrefabFile != 0 );
+
+                const char* pPrefabFilename = pPrefabFile->GetFile()->GetFilename();
+                MyAssert( pPrefabFilename != 0 );
+
+                bool treeNodeIsOpen = ImGui::TreeNodeEx( pPrefabFilename, nodeFlags );
+
+                ImGui::PushID( pPrefabFilename );
+                if( ImGui::BeginPopupContextItem( "ContextPopup", 1 ) )
+                {
+                    //if( ImGui::MenuItem( "Add GameObject" ) )
+                    //{
+                    //    pGameObjectCreated = g_pComponentSystemManager->CreateGameObject( true, (SceneID)sceneindex );
+                    //    pGameObjectCreated->SetName( "New Game Object" );
+
+                    //    ImGui::CloseCurrentPopup();
+                    //}
+
+                    ImGui::EndPopup();
+                }
+                ImGui::PopID();
+
+                if( treeNodeIsOpen )
+                {
+                    // Add Prefab objects from this file.
+                    PrefabObject* pPrefab = pPrefabFile->GetFirstPrefab();
+                    while( pPrefab )
+                    {
+                        GameObject* pGameObject = pPrefab->GetGameObject();
+                        
+                        if( pGameObject )
+                        {
+                            // Add GameObjects, their children and their components
+                            AddGameObjectToObjectList( pGameObject, true );
+
+                            //pGameObject = (GameObject*)pGameObject->GetNext();
+                        }
+
+                        pPrefab = (PrefabObject*)pPrefab->GetNext();
+                    }
+                    
+                    ImGui::TreePop();
+                }
+            }
+        }
+    }
+}
+
+void EditorMainFrame_ImGui::AddGameObjectToObjectList(GameObject* pGameObject, bool isPrefab)
+{
+    if( pGameObject->IsManaged() == false && isPrefab == false )
         return;
 
     // If we're renaming the GameObject, show an edit box instead of a tree node.
@@ -1325,7 +1395,7 @@ void EditorMainFrame_ImGui::AddGameObjectToObjectList(GameObject* pGameObject)
                 GameObject* pChildGameObject = pGameObject->GetFirstChild();
                 while( pChildGameObject )
                 {
-                    AddGameObjectToObjectList( pChildGameObject );
+                    AddGameObjectToObjectList( pChildGameObject, false );
                     pChildGameObject = (GameObject*)pChildGameObject->GetNext();
                 }
 
@@ -1626,7 +1696,7 @@ void EditorMainFrame_ImGui::AddGameObjectToObjectList(GameObject* pGameObject)
             GameObject* pChildGameObject = pGameObject->GetFirstChild();
             while( pChildGameObject )
             {
-                AddGameObjectToObjectList( pChildGameObject );
+                AddGameObjectToObjectList( pChildGameObject, false );
                 pChildGameObject = (GameObject*)pChildGameObject->GetNext();
             }
 
