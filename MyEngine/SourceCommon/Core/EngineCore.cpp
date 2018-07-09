@@ -1127,7 +1127,7 @@ bool EngineCore::OnTouch(int action, int id, float x, float y, float pressure, f
     }
 #endif
 
-#if !MYFW_USING_IMGUI && MYFW_WINDOWS
+#if !MYFW_EDITOR && MYFW_WINDOWS
     // Good 'ol hack to include this global function from MYFWWinMain.h
     bool LockSystemMouse();
     
@@ -1156,10 +1156,12 @@ bool EngineCore::OnTouchGameWindow(int action, int id, float x, float y, float p
 #if MYFW_EDITOR
     if( g_pGameCore->WasMouseLockRequested() && action == GCBA_Down )
     {
+#if MYFW_USING_IMGUI
         // If this call to lock the mouse actually did lock it, don't send the click to the game.
         // TODO: Also ignore the movements and the mouse up.
         if( LockSystemMouse() )
             return true;
+#endif
     }
 #endif
 
@@ -1375,7 +1377,9 @@ void EngineCore::OnModeStop()
 
         UnregisterGameplayButtons();
 
+#if !MYFW_USING_WX
         UnlockSystemMouse();
+#endif
 
         return;
     }
@@ -2052,10 +2056,10 @@ void EngineCore::RenderSingleObject(GameObject* pObject, FBODefinition* pFBOToUs
             float aspect = (float)pFBO->GetWidth() / pFBO->GetHeight();
             matProj.CreatePerspectiveHFoV( 45, aspect, 0.1f, 1000.0f );
 
-            MyMatrix matViewProj = matProj * matView;
+            //MyMatrix matViewProj = matProj * matView;
 
 #if MYFW_USING_WX
-            m_pComponentSystemManager->DrawSingleObject( &matViewProj, pObject, 0 );
+            m_pComponentSystemManager->DrawSingleObject( &matProj, &matView, pObject, 0 );
 #endif
 
             glClear( GL_DEPTH_BUFFER_BIT );

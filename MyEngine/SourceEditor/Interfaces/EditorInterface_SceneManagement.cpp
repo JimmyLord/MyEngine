@@ -128,7 +128,7 @@ void EditorInterface_SceneManagement::OnDrawFrame(unsigned int canvasid)
                 MyMatrix matproj;
                 matproj.CreatePerspectiveVFoV( 45, aspect, 0.01f, 100 );
 
-                MyMatrix matviewproj = matproj * matview;
+                //MyMatrix matviewproj = matproj * matview;
                 Vector3 campos = matview.GetTranslation() * -1;
                 Vector3 camrot( 0, 0, 0 );
 
@@ -148,7 +148,7 @@ void EditorInterface_SceneManagement::OnDrawFrame(unsigned int canvasid)
                 light2.m_Position.Set( 2*cos(PI+time), 1, 2*sin(PI+time) );
 
                 MyLight* lights[] = { &light1, &light2 };
-                pMeshBall->Draw( 0, &matviewproj, &campos, &camrot, lights, 2, 0, 0, 0, 0 );
+                pMeshBall->Draw( &matproj, &matview, 0, &campos, &camrot, lights, 2, 0, 0, 0, 0 );
 
                 pEditorState->m_pDebugViewFBO->Unbind( true );
             }
@@ -158,7 +158,7 @@ void EditorInterface_SceneManagement::OnDrawFrame(unsigned int canvasid)
             debugQuad->CreateInPlace( "debug", 0.5f, 0.5f, 1.0f, 1.0f, 0, u, v, 0, Justify_Center, false );
             g_pEngineCore->GetMaterial_ClipSpaceTexture()->SetTextureColor( pEditorState->m_pDebugViewFBO->GetColorTexture( 0 ) );
             debugQuad->SetMaterial( g_pEngineCore->GetMaterial_ClipSpaceTexture() );
-            debugQuad->Draw( 0, 0 );
+            debugQuad->Draw( 0, 0, 0 );
         }
     }
 #endif //MYFW_USING_WX

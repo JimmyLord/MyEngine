@@ -1349,8 +1349,6 @@ void EditorMainFrame_ImGui::AddPrefabFiles(bool forceOpen)
                         {
                             // Add GameObjects, their children and their components
                             AddGameObjectToObjectList( pGameObject, true );
-
-                            //pGameObject = (GameObject*)pGameObject->GetNext();
                         }
 
                         pPrefab = (PrefabObject*)pPrefab->GetNext();
@@ -1395,7 +1393,7 @@ void EditorMainFrame_ImGui::AddGameObjectToObjectList(GameObject* pGameObject, b
                 GameObject* pChildGameObject = pGameObject->GetFirstChild();
                 while( pChildGameObject )
                 {
-                    AddGameObjectToObjectList( pChildGameObject, false );
+                    AddGameObjectToObjectList( pChildGameObject, isPrefab );
                     pChildGameObject = (GameObject*)pChildGameObject->GetNext();
                 }
 
@@ -1436,89 +1434,103 @@ void EditorMainFrame_ImGui::AddGameObjectToObjectList(GameObject* pGameObject, b
 
         if( ImGui::BeginPopupContextItem( "ContextPopup", 1 ) )
         {
-            int numselected = g_pEngineCore->GetEditorState()->m_pSelectedObjects.size();
-
-            if( numselected > 1 )
+            if( isPrefab )
             {
-                if( ImGui::MenuItem( "Duplicate GameObjects (TODO)" ) )    { ImGui::CloseCurrentPopup(); }
-                if( ImGui::MenuItem( "Create Child GameObjects (TODO)" ) ) { ImGui::CloseCurrentPopup(); }
-                if( ImGui::MenuItem( "Delete GameObjects (TODO)" ) )       { ImGui::CloseCurrentPopup(); }
+                int numselected = g_pEngineCore->GetEditorState()->m_pSelectedObjects.size();
+
+                if( numselected > 1 )
+                {
+                }
+                else
+                {
+                }
             }
             else
             {
-                //ImGui::Text( pGameObject->GetName() );
-                if( ImGui::MenuItem( "Duplicate GameObject" ) )    { pGameObject->OnPopupClick( pGameObject, GameObject::RightClick_DuplicateGameObject ); ImGui::CloseCurrentPopup(); }
-                if( ImGui::MenuItem( "Create Child GameObject" ) ) { pGameObject->OnPopupClick( pGameObject, GameObject::RightClick_CreateChild );         ImGui::CloseCurrentPopup(); }
-                if( pGameObject->GetGameObjectThisInheritsFrom() )
+                int numselected = g_pEngineCore->GetEditorState()->m_pSelectedObjects.size();
+
+                if( numselected > 1 )
                 {
-                    if( ImGui::MenuItem( "Clear Parent" ) )        { pGameObject->OnPopupClick( pGameObject, GameObject::RightClick_ClearParent );         ImGui::CloseCurrentPopup(); }
+                    if( ImGui::MenuItem( "Duplicate GameObjects (TODO)" ) )    { ImGui::CloseCurrentPopup(); }
+                    if( ImGui::MenuItem( "Create Child GameObjects (TODO)" ) ) { ImGui::CloseCurrentPopup(); }
+                    if( ImGui::MenuItem( "Delete GameObjects (TODO)" ) )       { ImGui::CloseCurrentPopup(); }
                 }
-                //if( ImGui::MenuItem( "Add Component with submenus... (TODO)" ) )    { ImGui::CloseCurrentPopup(); }
+                else
                 {
-                    int first = 0;
-                    if( pGameObject->GetTransform() != 0 )
-                        first = 1;
-
-                    const char* lastcategory = 0;
-                    bool menuopen = false;
-
-                    unsigned int numtypes = g_pComponentTypeManager->GetNumberOfComponentTypes();
-                    for( unsigned int i=first; i<numtypes; i++ )
+                    //ImGui::Text( pGameObject->GetName() );
+                    if( ImGui::MenuItem( "Duplicate GameObject" ) )    { pGameObject->OnPopupClick( pGameObject, GameObject::RightClick_DuplicateGameObject ); ImGui::CloseCurrentPopup(); }
+                    if( ImGui::MenuItem( "Create Child GameObject" ) ) { pGameObject->OnPopupClick( pGameObject, GameObject::RightClick_CreateChild );         ImGui::CloseCurrentPopup(); }
+                    if( pGameObject->GetGameObjectThisInheritsFrom() )
                     {
-                        const char* currentcategory = g_pComponentTypeManager->GetTypeCategory( i );
-                        const char* nextcategory = 0;
-                        if( i < numtypes-1 )
-                            nextcategory = g_pComponentTypeManager->GetTypeCategory( i+1 );
+                        if( ImGui::MenuItem( "Clear Parent" ) )        { pGameObject->OnPopupClick( pGameObject, GameObject::RightClick_ClearParent );         ImGui::CloseCurrentPopup(); }
+                    }
+                    //if( ImGui::MenuItem( "Add Component with submenus... (TODO)" ) )    { ImGui::CloseCurrentPopup(); }
+                    {
+                        int first = 0;
+                        if( pGameObject->GetTransform() != 0 )
+                            first = 1;
 
-                        if( lastcategory != currentcategory )
-                        {
-                            menuopen = ImGui::BeginMenu( currentcategory );
-                        }
+                        const char* lastcategory = 0;
+                        bool menuopen = false;
 
-                        if( menuopen )
+                        unsigned int numtypes = g_pComponentTypeManager->GetNumberOfComponentTypes();
+                        for( unsigned int i=first; i<numtypes; i++ )
                         {
-                            if( i == ComponentType_Mesh )
+                            const char* currentcategory = g_pComponentTypeManager->GetTypeCategory( i );
+                            const char* nextcategory = 0;
+                            if( i < numtypes-1 )
+                                nextcategory = g_pComponentTypeManager->GetTypeCategory( i+1 );
+
+                            if( lastcategory != currentcategory )
                             {
-                                // don't include ComponentType_Mesh in the right-click menu.
-                                // TODO: if more exceptions are made, improve this system.
+                                menuopen = ImGui::BeginMenu( currentcategory );
                             }
-                            else
-                            {
-                                if( ImGui::MenuItem( g_pComponentTypeManager->GetTypeName( i ) ) )
-                                {
-                                    ComponentBase* pComponent = 0;
-                                    if( g_pEngineCore->IsInEditorMode() )
-                                        pComponent = pGameObject->AddNewComponent( i, pGameObject->GetSceneID() );
-                                    else
-                                        pComponent = pGameObject->AddNewComponent( i, SCENEID_Unmanaged );
 
-                                    ImGui::CloseCurrentPopup();
+                            if( menuopen )
+                            {
+                                if( i == ComponentType_Mesh )
+                                {
+                                    // don't include ComponentType_Mesh in the right-click menu.
+                                    // TODO: if more exceptions are made, improve this system.
+                                }
+                                else
+                                {
+                                    if( ImGui::MenuItem( g_pComponentTypeManager->GetTypeName( i ) ) )
+                                    {
+                                        ComponentBase* pComponent = 0;
+                                        if( g_pEngineCore->IsInEditorMode() )
+                                            pComponent = pGameObject->AddNewComponent( i, pGameObject->GetSceneID() );
+                                        else
+                                            pComponent = pGameObject->AddNewComponent( i, SCENEID_Unmanaged );
+
+                                        ImGui::CloseCurrentPopup();
+                                    }
                                 }
                             }
-                        }
 
-                        if( menuopen && currentcategory != nextcategory )
+                            if( menuopen && currentcategory != nextcategory )
+                            {
+                                ImGui::EndMenu();
+                            }
+
+                            lastcategory = currentcategory;
+                        }
+                    }
+                    if( ImGui::MenuItem( "Prefab Stuff (TODO)" ) ) { ImGui::CloseCurrentPopup(); }
+                    if( ImGui::MenuItem( "Delete GameObject" ) )
+                    {
+                        // if the object isn't selected, delete just the one object, otherwise delete all selected objects.
+                        if( pEditorState->IsGameObjectSelected( pGameObject ) )
                         {
-                            ImGui::EndMenu();
+                            pEditorState->DeleteSelectedObjects();
                         }
-
-                        lastcategory = currentcategory;
-                    }
-                }
-                if( ImGui::MenuItem( "Prefab Stuff (TODO)" ) ) { ImGui::CloseCurrentPopup(); }
-                if( ImGui::MenuItem( "Delete GameObject" ) )
-                {
-                    // if the object isn't selected, delete just the one object, otherwise delete all selected objects.
-                    if( pEditorState->IsGameObjectSelected( pGameObject ) )
-                    {
-                        pEditorState->DeleteSelectedObjects();
-                    }
-                    else
-                    {
-                        // create a temp vector to pass into command.
-                        std::vector<GameObject*> gameobjects;
-                        gameobjects.push_back( pGameObject );
-                        g_pGameCore->GetCommandStack()->Do( MyNew EditorCommand_DeleteObjects( gameobjects ) );
+                        else
+                        {
+                            // create a temp vector to pass into command.
+                            std::vector<GameObject*> gameobjects;
+                            gameobjects.push_back( pGameObject );
+                            g_pGameCore->GetCommandStack()->Do( MyNew EditorCommand_DeleteObjects( gameobjects ) );
+                        }
                     }
                 }
             }
@@ -1663,6 +1675,19 @@ void EditorMainFrame_ImGui::AddGameObjectToObjectList(GameObject* pGameObject, b
             }
             else
             {
+                // If there are any selected items and there's a mix of gameobjects and prefabs, then unselect all.
+                if( pEditorState->m_pSelectedObjects.size() > 0 )
+                {
+                    bool gameObjectIsMasterPrefab = pGameObject->GetPrefabRef()->IsMasterPrefabGameObject();
+                    bool firstSelectedGameObjectIsMasterPrefab = pEditorState->m_pSelectedObjects[0]->GetPrefabRef()->IsMasterPrefabGameObject();
+
+                    if( gameObjectIsMasterPrefab == true && firstSelectedGameObjectIsMasterPrefab == false )
+                        pEditorState->ClearSelectedObjectsAndComponents();
+
+                    if( gameObjectIsMasterPrefab == false && firstSelectedGameObjectIsMasterPrefab == true )
+                        pEditorState->ClearSelectedObjectsAndComponents();
+                }
+
                 if( pEditorState->IsGameObjectSelected( pGameObject ) )
                 {
                     m_pLastGameObjectInteractedWithInObjectPanel = pGameObject;
@@ -1696,7 +1721,7 @@ void EditorMainFrame_ImGui::AddGameObjectToObjectList(GameObject* pGameObject, b
             GameObject* pChildGameObject = pGameObject->GetFirstChild();
             while( pChildGameObject )
             {
-                AddGameObjectToObjectList( pChildGameObject, false );
+                AddGameObjectToObjectList( pChildGameObject, isPrefab );
                 pChildGameObject = (GameObject*)pChildGameObject->GetNext();
             }
 
