@@ -1440,9 +1440,17 @@ void EditorMainFrame_ImGui::AddGameObjectToObjectList(GameObject* pGameObject, b
 
                 if( numselected > 1 )
                 {
+                    if( ImGui::MenuItem( "Delete prefabs" ) )
+                    {
+                        g_pComponentSystemManager->m_pPrefabManager->DeleteSelectedPrefabs();
+                    }
                 }
                 else
                 {
+                    if( ImGui::MenuItem( "Delete prefab" ) )
+                    {
+                        g_pComponentSystemManager->m_pPrefabManager->DeleteSelectedPrefabs();
+                    }
                 }
             }
             else

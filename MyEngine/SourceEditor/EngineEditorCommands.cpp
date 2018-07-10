@@ -1536,7 +1536,7 @@ void EditorCommand_DeletePrefabs::Do()
             pGameObject->Editor_SetPrefab( &prefabRef );
         }
         
-#if MYFW_USING_WX // TODO_FIX_EDITOR
+#if MYFW_EDITOR
         // Remove prefab from PrefabFile
         pFile->RemovePrefab( pPrefab );
 #endif
@@ -1556,7 +1556,7 @@ void EditorCommand_DeletePrefabs::Undo()
         PrefabFile* pFile = pPrefab->GetPrefabFile();
 
         // Place prefab in old spot in PrefabFile and object list
-#if MYFW_USING_WX // TODO_FIX_EDITOR
+#if MYFW_EDITOR
         pFile->AddExistingPrefab( pPrefab, pPreviousPrefab );
 
         // Loop through gameobjects and reset which prefab they inherited from.

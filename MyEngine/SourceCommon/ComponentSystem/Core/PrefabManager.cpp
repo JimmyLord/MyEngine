@@ -1,5 +1,5 @@
 //
-// Copyright (c) 2017 Jimmy Lord http://www.flatheadgames.com
+// Copyright (c) 2017-2018 Jimmy Lord http://www.flatheadgames.com
 //
 // This software is provided 'as-is', without any express or implied warranty.  In no event will the authors be held liable for any damages arising from the use of this software.
 // Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -800,4 +800,26 @@ PrefabObject* PrefabManager::FindPrefabContainingGameObject(GameObject* pGameObj
     return 0;
 }
 
-#endif
+void PrefabManager::DeleteSelectedPrefabs()
+{
+    EditorState* pEditorState = g_pEngineCore->GetEditorState();
+    MyAssert( pEditorState->m_pSelectedObjects.size() > 0 );
+
+    if( pEditorState->m_pSelectedObjects.size() > 0 )
+    {
+        // Create a temp vector to pass into command.
+        std::vector<PrefabObject*> prefabs;
+
+        for( unsigned int i=0; i<pEditorState->m_pSelectedObjects.size(); i++ )
+        {
+            PrefabObject* pSelectedPrefab = g_pComponentSystemManager->m_pPrefabManager->FindPrefabContainingGameObject( pEditorState->m_pSelectedObjects[i] );
+            if( pSelectedPrefab )
+            {
+                prefabs.push_back( pSelectedPrefab );
+            }
+        }
+
+        g_pGameCore->GetCommandStack()->Do( MyNew EditorCommand_DeletePrefabs( prefabs ) );
+    }
+}
+#endif //MYFW_EDITOR
