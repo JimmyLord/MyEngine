@@ -200,29 +200,37 @@ void GameObject::ImportFromJSONObject(cJSON* jGameObject, SceneID sceneid)
     cJSON* jPrefabID = cJSON_GetObjectItem( jGameObject, "PrefabID" );
     if( jPrefabID )
     {
-        cJSON* jPrefabFile = cJSON_GetObjectItem( jGameObject, "PrefabFile" );
-        MyAssert( jPrefabFile != 0 );
-
-        if( jPrefabFile )
+        // If we're doing a quick-load of a file, this gameobject should already have it's prefab info set up
+        if( m_PrefabRef.GetPrefab() )
         {
-            // Store the PrefabId and PrefabChildID in the gameobject so they can be used when loading is complete.
-            cJSON* jPrefabChildID = cJSON_GetObjectItem( jGameObject, "PrefabChildID" );
-            m_PrefabRef.StoreIDsWhileLoading( jPrefabID->valueint, jPrefabChildID ? jPrefabChildID->valueint : 0 );
+            // Quick-loading the file, don't load the prefab info.
+        }
+        else
+        {
+            cJSON* jPrefabFile = cJSON_GetObjectItem( jGameObject, "PrefabFile" );
+            MyAssert( jPrefabFile != 0 );
 
-            PrefabFile* pPrefabFile = g_pComponentSystemManager->m_pPrefabManager->GetLoadedPrefabFileByFullPath( jPrefabFile->valuestring );
+            if( jPrefabFile )
+            {
+                // Store the PrefabId and PrefabChildID in the gameobject so they can be used when loading is complete.
+                cJSON* jPrefabChildID = cJSON_GetObjectItem( jGameObject, "PrefabChildID" );
+                m_PrefabRef.StoreIDsWhileLoading( jPrefabID->valueint, jPrefabChildID ? jPrefabChildID->valueint : 0 );
+
+                PrefabFile* pPrefabFile = g_pComponentSystemManager->m_pPrefabManager->GetLoadedPrefabFileByFullPath( jPrefabFile->valuestring );
             
-            // prefab file load must have been initiated by scene load
-            // might want to consider triggering a load here if it's not in the file list.
-            MyAssert( pPrefabFile != 0 );
+                // prefab file load must have been initiated by scene load
+                // might want to consider triggering a load here if it's not in the file list.
+                MyAssert( pPrefabFile != 0 );
 
-            // if the prefab file isn't loaded yet, store the name and link to the prefab when the file is loaded
-            if( pPrefabFile->GetFile()->IsFinishedLoading() == false ) // still loading
-            {
-                pPrefabFile->GetFile()->RegisterFileFinishedLoadingCallback( this, StaticOnPrefabFileFinishedLoading );
-            }
-            else
-            {
-                FinishLoadingPrefab( pPrefabFile );
+                // if the prefab file isn't loaded yet, store the name and link to the prefab when the file is loaded
+                if( pPrefabFile->GetFile()->IsFinishedLoading() == false ) // still loading
+                {
+                    pPrefabFile->GetFile()->RegisterFileFinishedLoadingCallback( this, StaticOnPrefabFileFinishedLoading );
+                }
+                else
+                {
+                    FinishLoadingPrefab( pPrefabFile );
+                }
             }
         }
     }
