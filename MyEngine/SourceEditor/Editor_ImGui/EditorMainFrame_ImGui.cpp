@@ -1412,8 +1412,29 @@ void EditorMainFrame_ImGui::AddGameObjectToObjectList(GameObject* pGameObject, b
             nodeFlags |= ImGuiTreeNodeFlags_Selected;
         }
 
+        // If the gameobject is derived from a prefab or if it's disabled, change the color of the name.
+        int pushedColors = 0;
+        if( pGameObject->IsPrefabInstance() )
+        {
+            // TODO: put these colors into the preferences files.
+            if( pGameObject->IsEnabled() )
+                ImGui::PushStyleColor( ImGuiCol_Text, ImVec4( 0, 0.8f, 0, 1 ) );
+            else
+                ImGui::PushStyleColor( ImGuiCol_Text, ImVec4( 0, 0.5f, 0, 1 ) );
+
+            pushedColors++;
+        }
+        else if( pGameObject->IsEnabled() == false )
+        {
+            ImGui::PushStyleColor( ImGuiCol_Text, ImVec4( 0.5f, 0.5f, 0.5f, 1 ) );
+
+            pushedColors++;
+        }
+
         // Add the GameObject itself to the tree.
         bool treeNodeIsOpen = ImGui::TreeNodeEx( pGameObject, nodeFlags, pGameObject->GetName() );
+
+        ImGui::PopStyleColor( pushedColors );
 
         bool dragDropOfItemWillResultInAReorder = false;
 
