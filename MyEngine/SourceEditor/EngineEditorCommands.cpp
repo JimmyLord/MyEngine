@@ -967,6 +967,74 @@ EditorCommand* EditorCommand_CopyGameObject::Repeat()
 }
 
 //====================================================================================================
+// EditorCommand_ClearParentOfGameObjects
+//====================================================================================================
+
+EditorCommand_ClearParentOfGameObjects::EditorCommand_ClearParentOfGameObjects(GameObject* pObjectToClear)
+{
+    m_Name = "EditorCommand_ClearParentOfGameObjects";
+
+    m_pObjectsToClear.push_back( pObjectToClear );
+    m_pOldParents.push_back( pObjectToClear->GetGameObjectThisInheritsFrom() );
+    m_OldPrefabRefs.push_back( *pObjectToClear->GetPrefabRef() );
+}
+
+EditorCommand_ClearParentOfGameObjects::EditorCommand_ClearParentOfGameObjects(std::vector<GameObject*>* pObjectsToClear)
+{
+    m_Name = "EditorCommand_ClearParentOfGameObjects";
+
+    for( unsigned int i=0; i<pObjectsToClear->size(); i++ )
+    {
+        m_pObjectsToClear.push_back( (*pObjectsToClear)[i] );
+        m_pOldParents.push_back( (*pObjectsToClear)[i]->GetGameObjectThisInheritsFrom() );
+        m_OldPrefabRefs.push_back( *(*pObjectsToClear)[i]->GetPrefabRef() );
+    }
+}
+
+EditorCommand_ClearParentOfGameObjects::~EditorCommand_ClearParentOfGameObjects()
+{
+}
+
+void EditorCommand_ClearParentOfGameObjects::Do()
+{
+    for( unsigned int i=0; i<m_pObjectsToClear.size(); i++ )
+    {
+        if( m_OldPrefabRefs[i].GetPrefab() )
+        {
+            PrefabReference prefabRef;
+            m_pObjectsToClear[i]->Editor_SetPrefab( &prefabRef );
+        }
+        else
+        {
+            m_pObjectsToClear[i]->SetGameObjectThisInheritsFrom( 0 );
+        }
+    }
+}
+
+void EditorCommand_ClearParentOfGameObjects::Undo()
+{
+    for( unsigned int i=0; i<m_pObjectsToClear.size(); i++ )
+    {
+        if( m_OldPrefabRefs[i].GetPrefab() )
+        {
+            PrefabReference prefabRef;
+            m_pObjectsToClear[i]->Editor_SetPrefab( &m_OldPrefabRefs[i] );
+        }
+        else
+        {
+            m_pObjectsToClear[i]->SetGameObjectThisInheritsFrom( m_pOldParents[i] );
+        }
+    }
+}
+
+EditorCommand* EditorCommand_ClearParentOfGameObjects::Repeat()
+{
+    // Do nothing.
+
+    return 0;
+}
+
+//====================================================================================================
 // EditorCommand_EnableObject
 //====================================================================================================
 

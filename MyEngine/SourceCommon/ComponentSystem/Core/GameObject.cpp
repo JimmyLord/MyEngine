@@ -103,6 +103,14 @@ GameObject::~GameObject()
         delete m_ChildList.RemHead();
 }
 
+void GameObject::SetGameObjectThisInheritsFrom(GameObject* pObj)
+{
+    // TODO: Fix prefab when this gets called.
+    MyAssert( m_PrefabRef.GetPrefab() == 0 );
+
+    m_pGameObjectThisInheritsFrom = pObj;
+}
+
 #if MYFW_USING_LUA
 void GameObject::LuaRegister(lua_State* luastate)
 {
@@ -1089,7 +1097,10 @@ void GameObject::OnPopupClick(GameObject* pGameObject, unsigned int id)
     }
     else if( id == RightClick_ClearParent )
     {
-        m_pGameObjectThisInheritsFrom = 0;
+        EditorState* pEditorState = g_pEngineCore->GetEditorState();
+
+        // if the object isn't selected, delete just the one object, otherwise delete all selected objects.
+        g_pGameCore->GetCommandStack()->Do( MyNew EditorCommand_ClearParentOfGameObjects( &pEditorState->m_pSelectedObjects ) );
     }
     else if( id >= RightClick_CreatePrefab && id < RightClick_CreatePrefab + 10000 )
     {

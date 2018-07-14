@@ -20,6 +20,7 @@ class EditorCommand_DeleteObjects;
 class EditorCommand_DeleteComponents;
 class EditorCommand_CreateGameObject;
 class EditorCommand_CopyGameObject;
+class EditorCommand_ClearParentOfGameObjects;
 class EditorCommand_EnableObject;
 class EditorCommand_DragAndDropEvent;
 class EditorCommand_ChangeMaterialOnMesh;
@@ -275,6 +276,25 @@ public:
     virtual EditorCommand* Repeat();
 
     GameObject* GetCreatedObject() { return m_ObjectCreated; }
+};
+
+//====================================================================================================
+
+class EditorCommand_ClearParentOfGameObjects : public EditorCommand
+{
+protected:
+    std::vector<GameObject*> m_pObjectsToClear;
+    std::vector<GameObject*> m_pOldParents;
+    std::vector<PrefabReference> m_OldPrefabRefs;
+
+public:
+    EditorCommand_ClearParentOfGameObjects(GameObject* pObjectToClear);
+    EditorCommand_ClearParentOfGameObjects(std::vector<GameObject*>* pObjectsToClear);
+    virtual ~EditorCommand_ClearParentOfGameObjects();
+
+    virtual void Do();
+    virtual void Undo();
+    virtual EditorCommand* Repeat();
 };
 
 //====================================================================================================

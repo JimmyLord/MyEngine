@@ -64,7 +64,7 @@ public:
     GameObject* GetGameObjectThisInheritsFrom() { return m_pGameObjectThisInheritsFrom; }
     CPPListHead* GetChildList() { return &m_ChildList; }
     GameObject* GetFirstChild() { return (GameObject*)m_ChildList.GetHead(); }
-    void SetGameObjectThisInheritsFrom(GameObject* pObj) { m_pGameObjectThisInheritsFrom = pObj; }
+    void SetGameObjectThisInheritsFrom(GameObject* pObj);
 
     // Parent gameobject, is terms of transform (should also work with folders/gameobject without transforms)
     GameObject* GetParentGameObject() { return m_pParentGameObject; }

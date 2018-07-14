@@ -1456,6 +1456,15 @@ void EditorMainFrame_ImGui::AddGameObjectToObjectList(GameObject* pGameObject, b
 
         if( ImGui::BeginPopupContextItem( "ContextPopup", 1 ) )
         {
+            EditorState* pEditorState = g_pEngineCore->GetEditorState();
+
+            // If the right-clicked object isn't selected, then unselect what is and select just this one.
+            if( pEditorState->IsGameObjectSelected( pGameObject ) == false )
+            {
+                pEditorState->ClearSelectedObjectsAndComponents();
+                pEditorState->SelectGameObject( pGameObject );
+            }
+
             if( isPrefab )
             {
                 int numselected = g_pEngineCore->GetEditorState()->m_pSelectedObjects.size();
@@ -1484,6 +1493,7 @@ void EditorMainFrame_ImGui::AddGameObjectToObjectList(GameObject* pGameObject, b
                     if( ImGui::MenuItem( "Duplicate GameObjects (TODO)" ) )    { ImGui::CloseCurrentPopup(); }
                     if( ImGui::MenuItem( "Create Child GameObjects (TODO)" ) ) { ImGui::CloseCurrentPopup(); }
                     if( ImGui::MenuItem( "Delete GameObjects (TODO)" ) )       { ImGui::CloseCurrentPopup(); }
+                    if( ImGui::MenuItem( "Clear Parents/Prefabs" ) )           { pGameObject->OnPopupClick( pGameObject, GameObject::RightClick_ClearParent );         ImGui::CloseCurrentPopup(); }
                 }
                 else
                 {
@@ -1492,7 +1502,7 @@ void EditorMainFrame_ImGui::AddGameObjectToObjectList(GameObject* pGameObject, b
                     if( ImGui::MenuItem( "Create Child GameObject" ) ) { pGameObject->OnPopupClick( pGameObject, GameObject::RightClick_CreateChild );         ImGui::CloseCurrentPopup(); }
                     if( pGameObject->GetGameObjectThisInheritsFrom() )
                     {
-                        if( ImGui::MenuItem( "Clear Parent" ) )        { pGameObject->OnPopupClick( pGameObject, GameObject::RightClick_ClearParent );         ImGui::CloseCurrentPopup(); }
+                        if( ImGui::MenuItem( "Clear Parent/Prefab" ) ) { pGameObject->OnPopupClick( pGameObject, GameObject::RightClick_ClearParent );         ImGui::CloseCurrentPopup(); }
                     }
                     //if( ImGui::MenuItem( "Add Component with submenus... (TODO)" ) )    { ImGui::CloseCurrentPopup(); }
                     {
