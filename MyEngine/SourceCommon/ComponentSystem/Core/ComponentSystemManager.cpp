@@ -1894,18 +1894,22 @@ GameObject* ComponentSystemManager::FindGameObjectByNameFromList(GameObject* lis
     return 0;
 }
 
-GameObject* ComponentSystemManager::FindGameObjectByJSONRef(cJSON* pJSONGameObjectRef, SceneID defaultsceneid)
+GameObject* ComponentSystemManager::FindGameObjectByJSONRef(cJSON* pJSONGameObjectRef, SceneID defaultSceneID, bool requireSceneBeLoaded)
 {
     // see GameObject::ExportReferenceAsJSONObject
 
     cJSON* jScenePath = cJSON_GetObjectItem( pJSONGameObjectRef, "Scene" );
-    SceneID sceneid = defaultsceneid;
+    SceneID sceneid = defaultSceneID;
     if( jScenePath )
     {
-        sceneid = GetSceneIDFromFullpath( jScenePath->valuestring );
+        sceneid = GetSceneIDFromFullpath( jScenePath->valuestring, requireSceneBeLoaded );
         if( sceneid == SCENEID_NotFound )
+        {
+            LOGError( LOGTag, "FindGameObjectByJSONRef: Scene not loaded: '%s'.\n", jScenePath->valuestring );
             return 0; // scene isn't loaded, so object can't be found.
-        //TODO: saving will throw all reference info away and piss people off :)
+        }
+        
+        // TODO: Saving will throw all reference info away and piss people off :)
     }
 
     unsigned int goid = -1;
@@ -1917,7 +1921,7 @@ GameObject* ComponentSystemManager::FindGameObjectByJSONRef(cJSON* pJSONGameObje
 
 ComponentBase* ComponentSystemManager::FindComponentByJSONRef(cJSON* pJSONComponentRef, SceneID defaultsceneid)
 {
-    GameObject* pGameObject = FindGameObjectByJSONRef( pJSONComponentRef, defaultsceneid );
+    GameObject* pGameObject = FindGameObjectByJSONRef( pJSONComponentRef, defaultsceneid, true );
     MyAssert( pGameObject );
     if( pGameObject )
     {
@@ -2379,7 +2383,8 @@ SceneInfo* ComponentSystemManager::GetSceneInfo(SceneID sceneid)
     return &m_pSceneInfoMap[sceneid];
 }
 
-SceneID ComponentSystemManager::GetSceneIDFromFullpath(const char* fullpath)
+// Returns SCENEID_NotFound if scene isn't found.
+SceneID ComponentSystemManager::GetSceneIDFromFullpath(const char* fullpath, bool requireSceneBeLoaded)
 {
     for( int i=0; i<MAX_SCENES_LOADED; i++ )
     {
@@ -2394,7 +2399,14 @@ SceneID ComponentSystemManager::GetSceneIDFromFullpath(const char* fullpath)
             return sceneid;
     }
 
-    MyAssert( false ); // fullpath not found, that's fine when used from gameobject loading.
+    // Assert if 'fullpath' isn't found and we required it.
+    // Some GameObjects and Prefabs may contain references to objects in other files which may not be loaded.
+    // That code will explicitly pass in false for 'requireSceneBeLoaded'.
+    if( requireSceneBeLoaded )
+    {
+        MyAssert( false );
+    }
+
     return SCENEID_NotFound;
 }
 

@@ -173,7 +173,7 @@ void EditorMenuCommand(EditorMenuCommands command)
                             g_pEngineCore->GetEditorMainFrame_ImGui()->StoreCurrentUndoStackSize();
 #endif
                             g_pMaterialManager->SaveAllMaterials();
-                            //g_pComponentSystemManager->m_pPrefabManager->SaveAllPrefabs(); // TODO:
+                            g_pComponentSystemManager->m_pPrefabManager->SaveAllPrefabs();
                             g_pGameCore->GetSoundManager()->SaveAllCues();
 
                             g_pEngineCore->SaveScene( pSceneInfo->m_FullPath, sceneid );

@@ -213,7 +213,7 @@ public:
     GameObject* FindGameObjectByName(const char* name);
     GameObject* FindGameObjectByNameInScene(SceneID sceneid, const char* name);
     GameObject* FindGameObjectByNameFromList(GameObject* list, const char* name);
-    GameObject* FindGameObjectByJSONRef(cJSON* pJSONGameObjectRef, SceneID defaultsceneid);
+    GameObject* FindGameObjectByJSONRef(cJSON* pJSONGameObjectRef, SceneID defaultSceneID, bool requireSceneBeLoaded);
     ComponentBase* FindComponentByJSONRef(cJSON* pJSONComponentRef, SceneID defaultsceneid);
     ComponentCamera* GetFirstCamera(bool prefereditorcam = false);
     ComponentBase* GetFirstComponentOfType(const char* type);
@@ -261,7 +261,7 @@ public:
     SceneID GetNextSceneID();
     void ResetSceneIDCounter();
     SceneInfo* GetSceneInfo(SceneID sceneid);
-    SceneID GetSceneIDFromFullpath(const char* fullpath); // Returns SCENEID_NotFound if scene isn't found.
+    SceneID GetSceneIDFromFullpath(const char* fullpath, bool requireSceneBeLoaded); // Returns SCENEID_NotFound if scene isn't found.
 #if MYFW_EDITOR
     SceneHandler* m_pSceneHandler;
     void CreateNewScene(const char* scenename, SceneID sceneid);

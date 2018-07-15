@@ -1313,13 +1313,17 @@ void ComponentLuaScript::ImportFromJSONObject(cJSON* jsonobj, SceneID sceneid)
                 cJSON* obj = cJSON_GetObjectItem( jsonvar, "Value" );
                 if( obj )
                 {
-                    pVar->pointer = g_pComponentSystemManager->FindGameObjectByJSONRef( obj, m_pGameObject->GetSceneID() );
+                    pVar->pointer = g_pComponentSystemManager->FindGameObjectByJSONRef( obj, m_pGameObject->GetSceneID(), false );
 
-                    // TODO: handle cases where scene containing the gameobject referenced isn't loaded
-                    MyAssert( pVar->pointer != 0 );
+                    // TODO: Handle cases where the Scene containing the GameObject referenced isn't loaded.
+                    //MyAssert( pVar->pointer != 0 );
                     if( pVar->pointer )
                     {
                         ((GameObject*)pVar->pointer)->RegisterOnDeleteCallback( this, StaticOnGameObjectDeleted );
+                    }
+                    else
+                    {
+                        LOGError( LOGTag, "LuaScript component on '%s' lost reference to GameObject.\n", m_pGameObject->GetName() );
                     }
                 }
             }
