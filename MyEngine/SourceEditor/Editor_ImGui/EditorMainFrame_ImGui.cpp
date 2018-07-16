@@ -1349,7 +1349,7 @@ void EditorMainFrame_ImGui::AddPrefabFiles(bool forceOpen)
                         if( pGameObject )
                         {
                             // Add GameObjects, their children and their components
-                            AddGameObjectToObjectList( pGameObject, true );
+                            AddGameObjectToObjectList( pGameObject, pPrefab );
                         }
 
                         pPrefab = (PrefabObject*)pPrefab->GetNext();
@@ -1362,9 +1362,9 @@ void EditorMainFrame_ImGui::AddPrefabFiles(bool forceOpen)
     }
 }
 
-void EditorMainFrame_ImGui::AddGameObjectToObjectList(GameObject* pGameObject, bool isPrefab)
+void EditorMainFrame_ImGui::AddGameObjectToObjectList(GameObject* pGameObject, PrefabObject* pPrefab)
 {
-    if( pGameObject->IsManaged() == false && isPrefab == false )
+    if( pGameObject->IsManaged() == false && pPrefab == 0 )
         return;
 
     // If we're renaming the GameObject, show an edit box instead of a tree node.
@@ -1394,7 +1394,7 @@ void EditorMainFrame_ImGui::AddGameObjectToObjectList(GameObject* pGameObject, b
                 GameObject* pChildGameObject = pGameObject->GetFirstChild();
                 while( pChildGameObject )
                 {
-                    AddGameObjectToObjectList( pChildGameObject, isPrefab );
+                    AddGameObjectToObjectList( pChildGameObject, pPrefab );
                     pChildGameObject = (GameObject*)pChildGameObject->GetNext();
                 }
 
@@ -1465,7 +1465,7 @@ void EditorMainFrame_ImGui::AddGameObjectToObjectList(GameObject* pGameObject, b
                 pEditorState->SelectGameObject( pGameObject );
             }
 
-            if( isPrefab )
+            if( pPrefab != 0 )
             {
                 int numselected = g_pEngineCore->GetEditorState()->m_pSelectedObjects.size();
 
@@ -1579,7 +1579,14 @@ void EditorMainFrame_ImGui::AddGameObjectToObjectList(GameObject* pGameObject, b
 
         if( ImGui::BeginDragDropSource() )
         {
-            ImGui::SetDragDropPayload( "GameObject", &pGameObject, sizeof(pGameObject), ImGuiCond_Once );
+            if( pPrefab != 0 )
+            {
+                ImGui::SetDragDropPayload( "Prefab", &pPrefab, sizeof(pPrefab), ImGuiCond_Once );
+            }
+            else
+            {
+                ImGui::SetDragDropPayload( "GameObject", &pGameObject, sizeof(pGameObject), ImGuiCond_Once );
+            }
             ImGui::Text( "%s", pGameObject->GetName() );
             ImGui::EndDragDropSource();
         }
@@ -1761,7 +1768,7 @@ void EditorMainFrame_ImGui::AddGameObjectToObjectList(GameObject* pGameObject, b
             GameObject* pChildGameObject = pGameObject->GetFirstChild();
             while( pChildGameObject )
             {
-                AddGameObjectToObjectList( pChildGameObject, isPrefab );
+                AddGameObjectToObjectList( pChildGameObject, pPrefab );
                 pChildGameObject = (GameObject*)pChildGameObject->GetNext();
             }
 
@@ -3212,37 +3219,34 @@ void EditorMainFrame_ImGui::OnDropEditorWindow()
 
     if( const ImGuiPayload* payload = ImGui::AcceptDragDropPayload( "Prefab" ) )
     {
-        //if( (int)pDropItem->m_Type == (int)DragAndDropTypeEngine_Prefab )
-        {
-            PrefabObject* pPrefab = (PrefabObject*)*(void**)payload->Data; //pDropItem->m_Value;
+        PrefabObject* pPrefab = (PrefabObject*)*(void**)payload->Data;
 
-            // Default to drop into main scene, but prefer putting in same scene as the object dropped on.
-            SceneID sceneid = SCENEID_MainScene;
+        // Default to drop into main scene, but prefer putting in same scene as the object dropped on.
+        SceneID sceneid = SCENEID_MainScene;
+        if( pObjectDroppedOn )
+        {
+            sceneid = pObjectDroppedOn->GetSceneID();
+        }
+
+        // Create the game object
+        GameObject* pGameObjectCreated = g_pComponentSystemManager->CreateGameObjectFromPrefab( pPrefab, true, sceneid );
+
+        if( pGameObjectCreated )
+        {
+            // Undo/Redo
+            g_pGameCore->GetCommandStack()->Add( MyNew EditorCommand_CreateGameObject( pGameObjectCreated ) );
+
+            // Select the object dropped
+            g_pEngineCore->GetEditorState()->ClearSelectedObjectsAndComponents();
+            g_pEngineCore->GetEditorState()->SelectGameObject( pGameObjectCreated );
+
+            // Move the new object to the same spot as the one it was dropped on
             if( pObjectDroppedOn )
             {
-                sceneid = pObjectDroppedOn->GetSceneID();
-            }
-
-            // Create the game object
-            GameObject* pGameObjectCreated = g_pComponentSystemManager->CreateGameObjectFromPrefab( pPrefab, true, sceneid );
-
-            if( pGameObjectCreated )
-            {
-                // Undo/Redo
-                g_pGameCore->GetCommandStack()->Add( MyNew EditorCommand_CreateGameObject( pGameObjectCreated ) );
-
-                // Select the object dropped
-                g_pEngineCore->GetEditorState()->ClearSelectedObjectsAndComponents();
-                g_pEngineCore->GetEditorState()->SelectGameObject( pGameObjectCreated );
-
-                // Move the new object to the same spot as the one it was dropped on
-                if( pObjectDroppedOn )
-                {
-                    std::vector<GameObject*> selectedobjects;
-                    selectedobjects.push_back( pGameObjectCreated );
-                    Vector3 worldpos = pObjectDroppedOn->GetTransform()->GetWorldPosition();
-                    g_pGameCore->GetCommandStack()->Do( MyNew EditorCommand_MoveObjects( worldpos, selectedobjects ), true );
-                }
+                std::vector<GameObject*> selectedobjects;
+                selectedobjects.push_back( pGameObjectCreated );
+                Vector3 worldpos = pObjectDroppedOn->GetTransform()->GetWorldPosition();
+                g_pGameCore->GetCommandStack()->Do( MyNew EditorCommand_MoveObjects( worldpos, selectedobjects ), true );
             }
         }
     }

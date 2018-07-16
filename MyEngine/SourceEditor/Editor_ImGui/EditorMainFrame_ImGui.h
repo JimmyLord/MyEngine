@@ -105,7 +105,7 @@ protected:
     void AddGameAndEditorWindows();
     void AddObjectList();
     void AddPrefabFiles(bool forceOpen);
-    void AddGameObjectToObjectList(GameObject* pGameObject, bool isPrefab);
+    void AddGameObjectToObjectList(GameObject* pGameObject, PrefabObject* pPrefab);
     void AddWatchPanel();
     void AddLogWindow();
     void AddMemoryPanel();
