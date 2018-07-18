@@ -869,11 +869,24 @@ ComponentBase* GameObject::RemoveComponent(ComponentBase* pComponent)
     return 0; // component not found.
 }
 
-ComponentBase* GameObject::FindComponentByID(unsigned int componentid)
+ComponentBase* GameObject::FindComponentByPrefabComponentID(unsigned int prefabComponentID)
 {
     for( unsigned int i=0; i<m_Components.Count(); i++ )
     {
-        if( m_Components[i]->GetID() == componentid )
+        if( m_Components[i]->GetPrefabComponentID() == prefabComponentID )
+        {
+            return m_Components[i];
+        }
+    }
+
+    return 0;
+}
+
+ComponentBase* GameObject::FindComponentByID(unsigned int componentID)
+{
+    for( unsigned int i=0; i<m_Components.Count(); i++ )
+    {
+        if( m_Components[i]->GetID() == componentID )
         {
             return m_Components[i];
         }
@@ -1492,10 +1505,10 @@ void GameObject::FinishLoadingPrefab(PrefabFile* pPrefabFile)
         GameObject* pPrefabGameObject = m_PrefabRef.GetGameObject();
         MyAssert( pPrefabGameObject );
 
-        for( unsigned int i=0; i<m_Components.Count(); i++ )
+        for( unsigned int i=0; i<pPrefabGameObject->m_Components.Count(); i++ )
         {
-            ComponentBase* pComponent = m_Components[i];
             ComponentBase* pPrefabComponent = pPrefabGameObject->m_Components[i];
+            ComponentBase* pComponent = FindComponentByPrefabComponentID( pPrefabComponent->GetPrefabComponentID() );
 
             pComponent->SyncUndivorcedVariables( pPrefabComponent );
         }

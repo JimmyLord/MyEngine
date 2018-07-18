@@ -1276,7 +1276,7 @@ void EditorMainFrame_ImGui::AddObjectList()
                         while( pGameObject )
                         {
                             // Add GameObjects, their children and their components
-                            AddGameObjectToObjectList( pGameObject, false );
+                            AddGameObjectToObjectList( pGameObject, 0 );
 
                             pGameObject = (GameObject*)pGameObject->GetNext();
                         }

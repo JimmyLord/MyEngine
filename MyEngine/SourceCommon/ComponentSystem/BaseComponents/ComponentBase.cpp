@@ -26,6 +26,7 @@ ComponentBase::ComponentBase()
 
 #if MYFW_EDITOR
     m_DivorcedVariables = 0;
+    m_PrefabComponentID = 0;
 #endif
 
 #if MYFW_USING_WX
@@ -2007,6 +2008,8 @@ void ComponentBase::SyncVariableInGameObjectWithNewValue(GameObject* pGameObject
 
 ComponentBase* ComponentBase::FindMatchingComponentInParent()
 {
+    // TODO: Search based on m_PrefabComponentID.
+
     GameObject* pParentGO = m_pGameObject->GetGameObjectThisInheritsFrom();
     if( pParentGO == 0 )
         return 0;

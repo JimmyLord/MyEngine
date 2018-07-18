@@ -42,7 +42,7 @@ class ComponentBase : public CPPListNode
 protected:
     bool m_Enabled;
     SceneID m_SceneIDLoadedFrom;
-    unsigned int m_ID;
+    unsigned int m_ID; // Unique ID within a scene, used when quick-loading scene to find matching component.
 
     // an unsigned int of all divorced components variables, only maintained in editor builds.
     unsigned int m_DivorcedVariables; // moved outside USING_WX block to allow load/save in game mode.
@@ -135,6 +135,14 @@ protected:
     void ImportVariablesFromJSON(cJSON* jsonobj, const char* singlelabeltoimport = 0);
 
 #if MYFW_EDITOR
+protected:
+    // Unique to a single gameobject on a single prefab, used to match components between gameobjects and their prefabs.
+    unsigned int m_PrefabComponentID;
+
+public:
+    // An array of all components of this type selected (when more than 1 is selected)
+    std::vector<ComponentBase*> m_MultiSelectedComponents;
+
 public:
     enum RightClickOptions
     {
@@ -152,9 +160,6 @@ public:
     virtual void AddToObjectsPanel(wxTreeItemId gameobjectid);
 #endif
 
-    // an array of all components of this type selected (when more than 1 is selected)
-    std::vector<ComponentBase*> m_MultiSelectedComponents;
-
     bool IsDivorced(int index);
     void SetDivorced(int index, bool divorced);
     bool DoesVariableMatchParent(ComponentVariable* pVar, int controlcomponent);
@@ -164,6 +169,7 @@ public:
     void SyncVariableInChildrenInGameObjectListWithNewValue(GameObject* first, ComponentVariable* pVar);
     void SyncVariableInGameObjectWithNewValue(GameObject* pGameObject, ComponentVariable* pVar);
 
+    unsigned int GetPrefabComponentID() { return m_PrefabComponentID; }
     ComponentBase* FindMatchingComponentInParent();
 
     // Watch panel callbacks for component variables.

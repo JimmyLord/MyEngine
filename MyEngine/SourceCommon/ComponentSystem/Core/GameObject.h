@@ -115,7 +115,8 @@ public:
     ComponentBase* AddExistingComponent(ComponentBase* pComponent, bool resetcomponent);
     ComponentBase* RemoveComponent(ComponentBase* pComponent);
 
-    ComponentBase* FindComponentByID(unsigned int componentid);
+    ComponentBase* FindComponentByPrefabComponentID(unsigned int prefabComponentID);
+    ComponentBase* FindComponentByID(unsigned int componentID);
 
     ComponentBase* GetFirstComponentOfBaseType(BaseComponentTypes basetype);
     ComponentBase* GetNextComponentOfBaseType(ComponentBase* pLastComponent);
