@@ -1510,7 +1510,10 @@ void GameObject::FinishLoadingPrefab(PrefabFile* pPrefabFile)
             ComponentBase* pPrefabComponent = pPrefabGameObject->m_Components[i];
             ComponentBase* pComponent = FindComponentByPrefabComponentID( pPrefabComponent->GetPrefabComponentID() );
 
-            pComponent->SyncUndivorcedVariables( pPrefabComponent );
+            if( pComponent )
+            {
+                pComponent->SyncUndivorcedVariables( pPrefabComponent );
+            }
         }
     }
 
@@ -1537,6 +1540,15 @@ GameObject* GameObject::FindRootGameObjectOfPrefabInstance()
         return this;
 
     return m_pParentGameObject->FindRootGameObjectOfPrefabInstance();
+}
+
+void GameObject::Editor_AssignPrefabIDsToComponents()
+{
+    // Set all prefab component ids to match their index (+1 since 0 means no ID is set)
+    for( unsigned int i=0; i<m_Components.Count(); i++ )
+    {
+        m_Components[i]->SetPrefabComponentID( i+1 );
+    }
 }
 
 // Used when deleting prefabs.

@@ -212,6 +212,7 @@ public:
 
     GameObject* FindRootGameObjectOfPrefabInstance();
 
+    void Editor_AssignPrefabIDsToComponents();
     void Editor_SetPrefab(PrefabReference* pPrefabRef); // Used when deleting prefabs.
     void Editor_SetMaterial(MaterialDefinition* pMaterial);
 

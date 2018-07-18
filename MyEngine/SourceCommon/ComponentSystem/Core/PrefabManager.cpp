@@ -140,6 +140,7 @@ void PrefabObject::SetPrefabJSONObject(cJSON* jPrefab, bool createmastergameobje
         unsigned int numItemsInUndoStack = g_pGameCore->GetCommandStack()->GetUndoStackSize();
 
         m_pGameObject = g_pComponentSystemManager->CreateGameObjectFromPrefab( this, false, SCENEID_Unmanaged );
+        m_pGameObject->Editor_AssignPrefabIDsToComponents();
         m_pGameObject->SetEnabled( false, true );
 
         g_pGameCore->GetCommandStack()->ClearUndoStack( numItemsInUndoStack );

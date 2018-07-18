@@ -137,6 +137,7 @@ protected:
 #if MYFW_EDITOR
 protected:
     // Unique to a single gameobject on a single prefab, used to match components between gameobjects and their prefabs.
+    // Set to 0 if GameObject has no parent/prefab or if this component doesn't exist on the parent/prefab
     unsigned int m_PrefabComponentID;
 
 public:
@@ -169,6 +170,7 @@ public:
     void SyncVariableInChildrenInGameObjectListWithNewValue(GameObject* first, ComponentVariable* pVar);
     void SyncVariableInGameObjectWithNewValue(GameObject* pGameObject, ComponentVariable* pVar);
 
+    void SetPrefabComponentID(unsigned int id) { m_PrefabComponentID = id; }
     unsigned int GetPrefabComponentID() { return m_PrefabComponentID; }
     ComponentBase* FindMatchingComponentInParent();
 
