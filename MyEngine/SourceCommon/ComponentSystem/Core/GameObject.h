@@ -77,7 +77,7 @@ public:
     void ImportFromJSONObject(cJSON* jGameObject, SceneID sceneid);
     void ImportInheritanceInfoFromJSONObject(cJSON* jGameObject);
     cJSON* ExportReferenceAsJSONObject(SceneID refsceneid);
-    cJSON* ExportAsJSONPrefab(PrefabObject* pPrefab, bool assignnewchildids);
+    cJSON* ExportAsJSONPrefab(PrefabObject* pPrefab, bool assignNewChildIDs, bool assignNewComponentIDs);
 
     void SetFlags(unsigned int flags) { return m_Properties.SetFlags( flags ); }
     unsigned int GetFlags() { return m_Properties.GetFlags(); }
@@ -212,7 +212,6 @@ public:
 
     GameObject* FindRootGameObjectOfPrefabInstance();
 
-    void Editor_AssignPrefabIDsToComponents();
     void Editor_SetPrefab(PrefabReference* pPrefabRef); // Used when deleting prefabs.
     void Editor_SetMaterial(MaterialDefinition* pMaterial);
 

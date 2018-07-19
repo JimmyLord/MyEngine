@@ -314,7 +314,7 @@ cJSON* GameObject::ExportReferenceAsJSONObject(SceneID refsceneid)
     return gameobjectref;
 }
 
-cJSON* GameObject::ExportAsJSONPrefab(PrefabObject* pPrefab, bool assignnewchildids)
+cJSON* GameObject::ExportAsJSONPrefab(PrefabObject* pPrefab, bool assignNewChildIDs, bool assignNewComponentIDs)
 {
     cJSON* jGameObject = cJSON_CreateObject();
 
@@ -356,6 +356,22 @@ cJSON* GameObject::ExportAsJSONPrefab(PrefabObject* pPrefab, bool assignnewchild
         {
             cJSON* jComponent = m_Components[i]->ExportAsJSONObject( false, false );
 
+            // Add ComponentID.
+            {
+                uint32 componentID = 0;
+
+                if( assignNewComponentIDs )
+                {
+                    // Set all prefab component ids to match their index (+1 since 0 means no ID is set)
+                    m_Components[i]->SetPrefabComponentID( i+1 );
+                }
+
+                componentID = m_Components[i]->GetPrefabComponentID();
+
+                MyAssert( componentID != 0 );
+                cJSON_AddNumberToObject( jComponent, "ComponentID", componentID );
+            }
+
             cJSON_AddItemToArray( jComponentArray, jComponent );
         }
     }
@@ -370,7 +386,7 @@ cJSON* GameObject::ExportAsJSONPrefab(PrefabObject* pPrefab, bool assignnewchild
         {
             GameObject* pChildGameObject = (GameObject*)pNode;
 
-            cJSON* jChildObject = pChildGameObject->ExportAsJSONPrefab( pPrefab, true );
+            cJSON* jChildObject = pChildGameObject->ExportAsJSONPrefab( pPrefab, assignNewChildIDs, assignNewComponentIDs );
             MyAssert( jChildObject );
             cJSON_AddItemToArray( jChildrenArray, jChildObject );
 
@@ -378,7 +394,7 @@ cJSON* GameObject::ExportAsJSONPrefab(PrefabObject* pPrefab, bool assignnewchild
             {
                 uint32 childid = 0;
 
-                if( assignnewchildids )
+                if( assignNewChildIDs )
                     childid = pPrefab->GetNextChildPrefabIDAndIncrement();
                 else
                     childid = pChildGameObject->GetPrefabRef()->GetChildID();
@@ -1540,15 +1556,6 @@ GameObject* GameObject::FindRootGameObjectOfPrefabInstance()
         return this;
 
     return m_pParentGameObject->FindRootGameObjectOfPrefabInstance();
-}
-
-void GameObject::Editor_AssignPrefabIDsToComponents()
-{
-    // Set all prefab component ids to match their index (+1 since 0 means no ID is set)
-    for( unsigned int i=0; i<m_Components.Count(); i++ )
-    {
-        m_Components[i]->SetPrefabComponentID( i+1 );
-    }
 }
 
 // Used when deleting prefabs.

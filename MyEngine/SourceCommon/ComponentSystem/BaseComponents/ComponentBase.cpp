@@ -83,13 +83,13 @@ void ComponentBase::LuaRegister(lua_State* luastate)
 }
 #endif //MYFW_USING_LUA
 
-cJSON* ComponentBase::ExportAsJSONObject(bool savesceneid, bool saveid)
+cJSON* ComponentBase::ExportAsJSONObject(bool saveSceneID, bool saveID)
 {
     cJSON* jComponent = cJSON_CreateObject();
 
     //cJSON_AddNumberToObject( jComponent, "BaseType", m_BaseType );
 
-    if( savesceneid )
+    if( saveSceneID )
         cJSON_AddNumberToObject( jComponent, "SceneID", m_SceneIDLoadedFrom );
 
     if( m_Type != -1 )
@@ -100,7 +100,7 @@ cJSON* ComponentBase::ExportAsJSONObject(bool savesceneid, bool saveid)
             cJSON_AddStringToObject( jComponent, "Type", componenttypename );
     }
 
-    if( saveid )
+    if( saveID )
     {
         if( m_pGameObject )
         {
@@ -109,6 +109,10 @@ cJSON* ComponentBase::ExportAsJSONObject(bool savesceneid, bool saveid)
 
         cJSON_AddNumberToObject( jComponent, "ID", m_ID );
     }
+
+#if MYFW_EDITOR
+    cJSON_AddNumberToObject( jComponent, "PrefabComponentID", m_PrefabComponentID );
+#endif
 
     // TODO: this will break if more variables are added to a component or it's parents.
     if( m_pGameObject && m_pGameObject->GetGameObjectThisInheritsFrom() != 0 && m_DivorcedVariables != 0 )
@@ -119,17 +123,21 @@ cJSON* ComponentBase::ExportAsJSONObject(bool savesceneid, bool saveid)
     return jComponent;
 }
 
-void ComponentBase::ImportFromJSONObject(cJSON* jsonobj, SceneID sceneid)
+void ComponentBase::ImportFromJSONObject(cJSON* jComponent, SceneID sceneID)
 {
-    cJSONExt_GetUnsignedInt( jsonobj, "ID", &m_ID );
+    cJSONExt_GetUnsignedInt( jComponent, "ID", &m_ID );
 
-    MyAssert( m_SceneIDLoadedFrom == SCENEID_NotSet || m_SceneIDLoadedFrom == sceneid );
-    SetSceneID( sceneid );
+#if MYFW_EDITOR
+    cJSONExt_GetUnsignedInt( jComponent, "PrefabComponentID", &m_PrefabComponentID );
+#endif
+
+    MyAssert( m_SceneIDLoadedFrom == SCENEID_NotSet || m_SceneIDLoadedFrom == sceneID );
+    SetSceneID( sceneID );
 
     // TODO: this will break if more variables are added to a component or it's parents.
-    cJSONExt_GetUnsignedInt( jsonobj, "Divorced", &m_DivorcedVariables );
+    cJSONExt_GetUnsignedInt( jComponent, "Divorced", &m_DivorcedVariables );
 
-    ImportVariablesFromJSON( jsonobj ); //_VARIABLE_LIST
+    ImportVariablesFromJSON( jComponent ); //_VARIABLE_LIST
 }
 
 cJSON* ComponentBase::ExportReferenceAsJSONObject()

@@ -1430,8 +1430,10 @@ GameObject* ComponentSystemManager::CreateGameObjectFromPrefab(PrefabObject* pPr
     MyAssert( jName ); // If this trips, prefab file is likely old, every object should now have a name field.
     pGameObject->SetName( jName->valuestring );
 
+    // If inheriting from a prefab.
     if( jPrefab )
     {
+        // Create matching components in new GameObject.
         cJSON* jComponentArray = cJSON_GetObjectItem( jPrefab, "Components" );
         if( jComponentArray )
         {
@@ -1451,7 +1453,7 @@ GameObject* ComponentSystemManager::CreateGameObjectFromPrefab(PrefabObject* pPr
             }
         }
 
-        // Create children
+        // Create children.
         cJSON* jChildrenArray = cJSON_GetObjectItem( jPrefab, "Children" );
         if( jChildrenArray )
         {
@@ -1495,8 +1497,6 @@ GameObject* ComponentSystemManager::CreateGameObjectFromPrefab(PrefabObject* pPr
             }
         }
     }
-
-    // Don't delete jPrefab
 
     return pGameObject;
 }
