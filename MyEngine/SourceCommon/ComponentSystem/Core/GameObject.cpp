@@ -354,23 +354,14 @@ cJSON* GameObject::ExportAsJSONPrefab(PrefabObject* pPrefab, bool assignNewChild
         cJSON_AddItemToObject( jGameObject, "Components", jComponentArray );
         for( unsigned int i=0; i<m_Components.Count(); i++ )
         {
-            cJSON* jComponent = m_Components[i]->ExportAsJSONObject( false, false );
-
-            // Add ComponentID.
+            // Assign PrefabComponentIDs if they weren't previously assigned.
+            if( assignNewComponentIDs )
             {
-                uint32 componentID = 0;
-
-                if( assignNewComponentIDs )
-                {
-                    // Set all prefab component ids to match their index (+1 since 0 means no ID is set)
-                    m_Components[i]->SetPrefabComponentID( i+1 );
-                }
-
-                componentID = m_Components[i]->GetPrefabComponentID();
-
-                MyAssert( componentID != 0 );
-                cJSON_AddNumberToObject( jComponent, "ComponentID", componentID );
+                // Set all prefab component ids to match their index (+1 since 0 means no ID is set)
+                m_Components[i]->SetPrefabComponentID( i+1 );
             }
+
+            cJSON* jComponent = m_Components[i]->ExportAsJSONObject( false, false );
 
             cJSON_AddItemToArray( jComponentArray, jComponent );
         }
@@ -1133,7 +1124,6 @@ void GameObject::OnPopupClick(GameObject* pGameObject, unsigned int id)
     }
     else if( id >= RightClick_CreatePrefab && id < RightClick_CreatePrefab + 10000 )
     {
-#if MYFW_EDITOR
         unsigned int numprefabfiles = g_pComponentSystemManager->m_pPrefabManager->GetNumberOfFiles();
         if( id == RightClick_CreatePrefab + numprefabfiles )
         {
@@ -1151,7 +1141,6 @@ void GameObject::OnPopupClick(GameObject* pGameObject, unsigned int id)
             unsigned int fileindex = id - RightClick_CreatePrefab;
             g_pComponentSystemManager->m_pPrefabManager->CreatePrefabInFile( fileindex, pGameObject->GetName(), pGameObject );
         }
-#endif //MYFW_EDITOR
     }
     else if( id == RightClick_DeleteGameObject )
     {

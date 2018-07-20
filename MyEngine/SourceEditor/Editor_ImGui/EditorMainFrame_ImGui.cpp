@@ -1504,7 +1504,7 @@ void EditorMainFrame_ImGui::AddGameObjectToObjectList(GameObject* pGameObject, P
                     {
                         if( ImGui::MenuItem( "Clear Parent/Prefab" ) ) { pGameObject->OnPopupClick( pGameObject, GameObject::RightClick_ClearParent );         ImGui::CloseCurrentPopup(); }
                     }
-                    //if( ImGui::MenuItem( "Add Component with submenus... (TODO)" ) )    { ImGui::CloseCurrentPopup(); }
+                    if( ImGui::BeginMenu( "Add Component" ) )
                     {
                         int first = 0;
                         if( pGameObject->GetTransform() != 0 )
@@ -1555,8 +1555,35 @@ void EditorMainFrame_ImGui::AddGameObjectToObjectList(GameObject* pGameObject, P
 
                             lastcategory = currentcategory;
                         }
+
+                        ImGui::EndMenu();
                     }
-                    if( ImGui::MenuItem( "Prefab Stuff (TODO)" ) ) { ImGui::CloseCurrentPopup(); }
+                    if( ImGui::BeginMenu( "Create prefab in" ) )
+                    {
+                        unsigned int numprefabfiles = g_pComponentSystemManager->m_pPrefabManager->GetNumberOfFiles();
+                        for( unsigned int i=0; i<numprefabfiles; i++ )
+                        {
+                            PrefabFile* pPrefabFile = g_pComponentSystemManager->m_pPrefabManager->GetLoadedPrefabFileByIndex( i );
+                            MyFileObject* pFile = pPrefabFile->GetFile();
+                            MyAssert( pFile != 0 );
+
+                            if( ImGui::MenuItem( pFile->GetFilenameWithoutExtension() ) )
+                            {
+                                pGameObject->OnPopupClick( pGameObject, GameObject::RightClick_CreatePrefab + i );
+
+                                ImGui::CloseCurrentPopup();
+                            }
+                        }
+
+                        if( ImGui::MenuItem( "New/Load Prefab file... (TODO)" ) )
+                        {
+                            //pGameObject->OnPopupClick( pGameObject, GameObject::RightClick_CreatePrefab + numprefabfiles );
+
+                            ImGui::CloseCurrentPopup();
+                        }
+
+                        ImGui::EndMenu();
+                    }
                     if( ImGui::MenuItem( "Delete GameObject" ) )
                     {
                         // if the object isn't selected, delete just the one object, otherwise delete all selected objects.
