@@ -36,6 +36,7 @@ EditorCommand_ImGuiPanelWatchNumberValueChanged::~EditorCommand_ImGuiPanelWatchN
 
 void EditorCommand_ImGuiPanelWatchNumberValueChanged::Do()
 {
+    int controlcomponent = 0;
     double previousvalue = 0;
 
     switch( m_pVar->m_Type )
@@ -83,11 +84,40 @@ void EditorCommand_ImGuiPanelWatchNumberValueChanged::Do()
     case ComponentVariableType_Vector2:
         //Vector2 previousvalue = m_OldValue.GetVector2();
         m_NewValue.CopyValueIntoVariable( m_pCallbackObj, m_pVar );
+
+        // Determine which component of the control changed, assert if more than 1 changed.
+        controlcomponent = -1;
+        if( m_OldValue.GetVector2().x != m_NewValue.GetVector2().x )
+        {
+            MyAssert( controlcomponent == -1 );
+            controlcomponent = 0;
+        }
+        if( m_OldValue.GetVector2().y != m_NewValue.GetVector2().y )
+        {
+            MyAssert( controlcomponent == -1 );
+            controlcomponent = 1;
+        }
         break;
 
     case ComponentVariableType_Vector3:
         //Vector3 previousvalue = m_OldValue.GetVector3();
         m_NewValue.CopyValueIntoVariable( m_pCallbackObj, m_pVar );
+        controlcomponent = -1;
+        if( m_OldValue.GetVector3().x != m_NewValue.GetVector3().x )
+        {
+            MyAssert( controlcomponent == -1 );
+            controlcomponent = 0;
+        }
+        if( m_OldValue.GetVector3().y != m_NewValue.GetVector3().y )
+        {
+            MyAssert( controlcomponent == -1 );
+            controlcomponent = 1;
+        }
+        if( m_OldValue.GetVector3().z != m_NewValue.GetVector3().z )
+        {
+            MyAssert( controlcomponent == -1 );
+            controlcomponent = 2;
+        }
         break;
 
     //case PanelWatchType_Double:
@@ -127,12 +157,13 @@ void EditorCommand_ImGuiPanelWatchNumberValueChanged::Do()
         MyAssert( false );
     }
 
-    m_pCallbackObj->OnValueChangedVariable( m_pVar, 0, m_DirectlyChanged, true, previousvalue, false, &m_NewValue );
+    m_pCallbackObj->OnValueChangedVariable( m_pVar, controlcomponent, m_DirectlyChanged, true, previousvalue, false, &m_NewValue );
     m_DirectlyChanged = false; // always pass false if this isn't the first time 'Do' is called
 }
 
 void EditorCommand_ImGuiPanelWatchNumberValueChanged::Undo()
 {
+    int controlcomponent = 0;
     double previousvalue = 0;
 
     switch( m_pVar->m_Type )
@@ -180,11 +211,42 @@ void EditorCommand_ImGuiPanelWatchNumberValueChanged::Undo()
     case ComponentVariableType_Vector2:
         //Vector2 previousvalue = m_OldValue.GetVector2();
         m_OldValue.CopyValueIntoVariable( m_pCallbackObj, m_pVar );
+
+        // Determine which component of the control changed, assert if more than 1 changed.
+        controlcomponent = -1;
+        if( m_OldValue.GetVector2().x != m_NewValue.GetVector2().x )
+        {
+            MyAssert( controlcomponent == -1 );
+            controlcomponent = 0;
+        }
+        if( m_OldValue.GetVector2().y != m_NewValue.GetVector2().y )
+        {
+            MyAssert( controlcomponent == -1 );
+            controlcomponent = 1;
+        }
         break;
 
     case ComponentVariableType_Vector3:
         //Vector3 previousvalue = m_OldValue.GetVector3();
         m_OldValue.CopyValueIntoVariable( m_pCallbackObj, m_pVar );
+
+        // Determine which component of the control changed, assert if more than 1 changed.
+        controlcomponent = -1;
+        if( m_OldValue.GetVector3().x != m_NewValue.GetVector3().x )
+        {
+            MyAssert( controlcomponent == -1 );
+            controlcomponent = 0;
+        }
+        if( m_OldValue.GetVector3().y != m_NewValue.GetVector3().y )
+        {
+            MyAssert( controlcomponent == -1 );
+            controlcomponent = 1;
+        }
+        if( m_OldValue.GetVector3().z != m_NewValue.GetVector3().z )
+        {
+            MyAssert( controlcomponent == -1 );
+            controlcomponent = 2;
+        }
         break;
 
     //case PanelWatchType_Double:
@@ -224,7 +286,7 @@ void EditorCommand_ImGuiPanelWatchNumberValueChanged::Undo()
         MyAssert( false );
     }
 
-    m_pCallbackObj->OnValueChangedVariable( m_pVar, 0, m_DirectlyChanged, true, previousvalue, false, &m_NewValue );
+    m_pCallbackObj->OnValueChangedVariable( m_pVar, controlcomponent, m_DirectlyChanged, true, previousvalue, false, &m_NewValue );
     m_DirectlyChanged = false; // always pass false if this isn't the first time 'Do' is called
 }
 
