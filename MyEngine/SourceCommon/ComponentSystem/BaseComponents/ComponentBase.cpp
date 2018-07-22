@@ -3231,24 +3231,43 @@ void ComponentBase::UpdateGameObjectWithNewValue(GameObject* pGameObject, bool f
     MyAssert( pGameObject->GetGameObjectThisInheritsFrom() == this->m_pGameObject );
 
     {
-        // Found a game object, now find the matching component on it.
-        //     Search all components including GameObject properties and transform.
-        for( unsigned int i=0; i<pGameObject->GetComponentCountIncludingCore(); i++ )
+        ComponentBase* pMatchingComponent = 0;
+
+        if( pGameObject->IsPrefabInstance() && m_PrefabComponentID != 0 )
         {
-            ComponentBase* pChildComponent = pGameObject->GetComponentByIndexIncludingCore( i );
+            // This GameObject is an instance of a prefab.
+            // Search for the component using the PrefabComponentID.
+            pMatchingComponent = pGameObject->FindComponentByPrefabComponentID( m_PrefabComponentID );
+        }
+        else
+        {
+            // This GameObject is *not* an instance of a prefab, it's using the direct inheritance system.
+            // TODO: Take direct inheritance out? or have it use PrefabComponentID as well.
 
-            const char* pThisCompClassName = GetClassname();
-            const char* pOtherCompClassName = pChildComponent->GetClassname();
-
-            // TODO: this will fail if multiple of the same component are on an object.
-            if( strcmp( pThisCompClassName, pOtherCompClassName ) == 0 )
+            // Found a game object, now find the matching component on it.
+            // Search all components including GameObject properties and transform.
+            for( unsigned int i=0; i<pGameObject->GetComponentCountIncludingCore(); i++ )
             {
-                // if this variable in the child component is divorced from us(it's parent), don't update it
-                if( pChildComponent->IsDivorced( pVar->m_Index ) )
-                    return;
+                ComponentBase* pChildComponent = pGameObject->GetComponentByIndexIncludingCore( i );
 
-                UpdateOtherComponentWithNewValue( pChildComponent, directlychanged, false, fromdraganddrop, pVar, controlcomponent, finishedchanging, oldvalue, oldpointer, x, y, newpointer );
+                const char* pThisCompClassName = GetClassname();
+                const char* pOtherCompClassName = pChildComponent->GetClassname();
+
+                // TODO: this will fail if multiple of the same component are on an object.
+                if( strcmp( pThisCompClassName, pOtherCompClassName ) == 0 )
+                {
+                    pMatchingComponent = pChildComponent;
+                }
             }
+        }
+
+        if( pMatchingComponent )
+        {
+            // if this variable in the child component is divorced from us(it's parent), don't update it
+            if( pMatchingComponent->IsDivorced( pVar->m_Index ) )
+                return;
+
+            UpdateOtherComponentWithNewValue( pMatchingComponent, directlychanged, false, fromdraganddrop, pVar, controlcomponent, finishedchanging, oldvalue, oldpointer, x, y, newpointer );
         }
     }
 }
