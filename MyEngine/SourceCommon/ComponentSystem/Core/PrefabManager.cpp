@@ -362,6 +362,7 @@ PrefabFile::PrefabFile(MyFileObject* pFile)
     MyAssert( pFile != 0 );
 
     m_NextPrefabID = 1;
+    m_NextPrefabComponentID = 1;
     m_pFile = pFile;
 
     pFile->RegisterFileFinishedLoadingCallback( this, StaticOnFileFinishedLoading );
@@ -408,6 +409,13 @@ uint32 PrefabFile::GetNextPrefabIDAndIncrement()
     return m_NextPrefabID - 1;
 }
 
+uint32 PrefabFile::GetNextPrefabComponentIDAndIncrement()
+{
+    m_NextPrefabComponentID++;
+
+    return m_NextPrefabComponentID - 1;
+}
+
 PrefabObject* PrefabFile::GetFirstPrefabByName(const char* name)
 {
     for( CPPListNode* pNode = m_Prefabs.GetHead(); pNode != 0; pNode = pNode->GetNext() )
@@ -436,6 +444,32 @@ PrefabObject* PrefabFile::GetPrefabByID(uint32 prefabid)
     }
 
     return 0;
+}
+
+uint32 FindHighestPrefabComponentID(GameObject* pGameObject)
+{
+    uint32 highestID = 0;
+
+    // Check each component.
+    for( int i=0; i<pGameObject->GetComponentCountIncludingCore(); i++ )
+    {
+        uint32 ID = pGameObject->GetComponentByIndexIncludingCore( i )->GetPrefabComponentID();
+        if( ID > highestID )
+            highestID = ID;
+    }
+
+    // Recurse through children.
+    GameObject* pChild = pGameObject->GetFirstChild();
+    while( pChild )
+    {
+        uint32 ID = FindHighestPrefabComponentID( pChild );
+        if( ID > highestID )
+            highestID = ID;
+
+        pChild = (GameObject*)pChild->GetNext();
+    }
+
+    return highestID;
 }
 
 void PrefabFile::OnFileFinishedLoading(MyFileObject* pFile)
@@ -469,6 +503,15 @@ void PrefabFile::OnFileFinishedLoading(MyFileObject* pFile)
 
         pPrefab->Init( this, jPrefab->string, prefabid );
         pPrefab->SetPrefabJSONObject( jPrefabObject, true );
+
+        // Find highest PrefabComponentID in this GameObject.
+        {
+            GameObject* pGameObject = pPrefab->GetGameObject();
+            uint32 highestID = FindHighestPrefabComponentID( pGameObject );
+            
+            if( highestID >= m_NextPrefabComponentID )
+                m_NextPrefabComponentID = highestID + 1;
+        }
 
         // TODO: Once prefab editing is a thing, make sure m_NextChildPrefabID is one higher than highest found. 
         //if( childprefabid >= pPrefab->m_NextChildPrefabID )

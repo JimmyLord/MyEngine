@@ -143,6 +143,7 @@ class PrefabFile
 
 protected:
     uint32 m_NextPrefabID;
+    uint32 m_NextPrefabComponentID;
     MyFileObject* m_pFile;
 
     bool m_HasAnythingChanged;
@@ -154,6 +155,7 @@ public:
     ~PrefabFile();
 
     uint32 GetNextPrefabIDAndIncrement();
+    uint32 GetNextPrefabComponentIDAndIncrement();
     MyFileObject* GetFile() { return m_pFile; }
     PrefabObject* GetFirstPrefabByName(const char* name);
     PrefabObject* GetPrefabByID(uint32 prefabid);

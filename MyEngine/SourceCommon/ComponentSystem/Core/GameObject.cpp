@@ -357,8 +357,9 @@ cJSON* GameObject::ExportAsJSONPrefab(PrefabObject* pPrefab, bool assignNewChild
             // Assign PrefabComponentIDs if they weren't previously assigned.
             if( assignNewComponentIDs )
             {
-                // Set all prefab component ids to match their index (+1 since 0 means no ID is set)
-                m_Components[i]->SetPrefabComponentID( i+1 );
+                // Get a prefab component id from the file. It should be unique within that prefab file.
+                uint32 ID = pPrefab->GetPrefabFile()->GetNextPrefabComponentIDAndIncrement();
+                m_Components[i]->SetPrefabComponentID( ID );
             }
 
             cJSON* jComponent = m_Components[i]->ExportAsJSONObject( false, false );
