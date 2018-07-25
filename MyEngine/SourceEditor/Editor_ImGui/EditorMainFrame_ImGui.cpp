@@ -1854,6 +1854,14 @@ void EditorMainFrame_ImGui::AddGameObjectToObjectList(GameObject* pGameObject, P
                     }
                 }
             }
+
+            // Add List of deleted Prefab Components.
+            for( unsigned int dpci=0; dpci<pGameObject->m_DeletedPrefabComponentIDs.size(); dpci++ )
+            {
+                // TODO: Grab the proper name and add a "restore" button.
+                ImGui::Text( "Deleted component: %d", pGameObject->m_DeletedPrefabComponentIDs[dpci] );
+            }
+
             ImGui::TreePop();
         }
 

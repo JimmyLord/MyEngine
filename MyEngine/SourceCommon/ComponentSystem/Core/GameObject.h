@@ -175,6 +175,8 @@ public:
         RightClick_EndOfAdditionalSceneHandlerOptions = RightClick_AdditionalSceneHandlerOptions + 100000,
     };
 
+    std::vector<uint32> m_DeletedPrefabComponentIDs;
+
     void OnPopupClick(GameObject* pGameObject, unsigned int id);
 
 #if MYFW_USING_WX

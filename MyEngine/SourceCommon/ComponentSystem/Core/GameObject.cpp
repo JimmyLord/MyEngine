@@ -368,6 +368,11 @@ cJSON* GameObject::ExportAsJSONPrefab(PrefabObject* pPrefab, bool assignNewChild
         }
     }
 
+    // TODO: Export list of deleted prefab components.
+    {
+        //m_DeletedPrefabComponentIDs
+    }
+
     // Loop through children and add them to jGameObject.
     if( m_ChildList.GetHead() != 0 )
     {
@@ -790,6 +795,21 @@ ComponentBase* GameObject::AddExistingComponent(ComponentBase* pComponent, bool 
     // pComponent->GetSceneID() == SCENEID_Unmanaged || 
     MyAssert( m_SceneID == pComponent->GetSceneID() );
 
+#if MYFW_EDITOR
+    {
+        // Remove this prefab component id from the "deleted" list.
+        uint32 id = pComponent->GetPrefabComponentID();
+        if( id != 0 )
+        {
+            // Make sure it's in the list.
+            MyAssert( std::find( m_DeletedPrefabComponentIDs.begin(), m_DeletedPrefabComponentIDs.end(), id ) != m_DeletedPrefabComponentIDs.end() );
+
+            std::vector<uint32>::iterator lastremoved = std::remove( m_DeletedPrefabComponentIDs.begin(), m_DeletedPrefabComponentIDs.end(), id );
+            m_DeletedPrefabComponentIDs.erase( lastremoved, m_DeletedPrefabComponentIDs.end() );
+        }
+    }
+#endif
+
 #if MYFW_USING_WX
     if( m_Managed )
     {
@@ -862,6 +882,20 @@ ComponentBase* GameObject::RemoveComponent(ComponentBase* pComponent)
     {
         // unregister all this components callbacks.
         pComponent->UnregisterCallbacks();
+
+#if MYFW_EDITOR
+        {
+            // Add this prefab component id to the "deleted" list.
+            uint32 id = pComponent->GetPrefabComponentID();
+            if( id != 0 )
+            {
+                // Make sure it's not already in the list.
+                MyAssert( std::find( m_DeletedPrefabComponentIDs.begin(), m_DeletedPrefabComponentIDs.end(), id ) == m_DeletedPrefabComponentIDs.end() );
+
+                m_DeletedPrefabComponentIDs.push_back( id );
+            }
+        }
+#endif
 
 #if MYFW_USING_WX
         // remove the component from the object list.
