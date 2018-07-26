@@ -195,6 +195,14 @@ cJSON* GameObject::ExportAsJSONObject(bool savesceneid)
         cJSON_AddItemToObject( jGameObject, "Properties", jProperties );
     }
 
+#if MYFW_EDITOR
+    // Export list of deleted prefab components.
+    if( m_DeletedPrefabComponentIDs.size() > 0 )
+    {
+        cJSONExt_AddUnsignedIntArrayToObject( jGameObject, "DeletedPrefabComponents", &m_DeletedPrefabComponentIDs[0], m_DeletedPrefabComponentIDs.size() );
+    }
+#endif
+
     return jGameObject;
 }
 
@@ -284,6 +292,25 @@ void GameObject::ImportFromJSONObject(cJSON* jGameObject, SceneID sceneid)
     cJSON* jProperties = cJSON_GetObjectItem( jGameObject, "Properties" );
     if( jProperties )
         m_Properties.ImportFromJSONObject( jProperties, sceneid );
+
+#if MYFW_EDITOR
+    // Import list of deleted prefab components.
+    {
+        cJSON* jArray = cJSON_GetObjectItem( jGameObject, "DeletedPrefabComponents" );
+        if( jArray )
+        {
+            int arraysize = cJSON_GetArraySize( jArray );
+            for( int i=0; i<arraysize; i++ )
+            {
+                cJSON* jObj = cJSON_GetArrayItem( jArray, i );
+                if( jObj )
+                {
+                    m_DeletedPrefabComponentIDs.push_back( (uint32)jObj->valueint );
+                }
+            }
+        }
+    }
+#endif
 }
 
 void GameObject::ImportInheritanceInfoFromJSONObject(cJSON* jGameObject)
@@ -366,11 +393,6 @@ cJSON* GameObject::ExportAsJSONPrefab(PrefabObject* pPrefab, bool assignNewChild
 
             cJSON_AddItemToArray( jComponentArray, jComponent );
         }
-    }
-
-    // TODO: Export list of deleted prefab components.
-    {
-        //m_DeletedPrefabComponentIDs
     }
 
     // Loop through children and add them to jGameObject.
