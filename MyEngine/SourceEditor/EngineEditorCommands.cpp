@@ -2002,4 +2002,33 @@ EditorCommand* EditorCommand_ReorderOrReparentGameObjects::Repeat()
 }
 
 //====================================================================================================
+// EditorCommand_RestorePrefabComponent
+//====================================================================================================
+
+EditorCommand_RestorePrefabComponent::EditorCommand_RestorePrefabComponent(GameObject* pObject, uint32 deletedPrefabComponentID)
+{
+    m_Name = "EditorCommand_RestorePrefabComponent";
+
+    m_pGameObject = pObject;
+    m_DeletedPrefabComponentID = deletedPrefabComponentID;
+}
+
+EditorCommand_RestorePrefabComponent::~EditorCommand_RestorePrefabComponent()
+{
+}
+
+void EditorCommand_RestorePrefabComponent::Do()
+{
+}
+
+void EditorCommand_RestorePrefabComponent::Undo()
+{
+}
+
+EditorCommand* EditorCommand_RestorePrefabComponent::Repeat()
+{
+    return 0;
+}
+
+//====================================================================================================
 //====================================================================================================

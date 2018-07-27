@@ -37,6 +37,7 @@ class EditorCommand_DeletePrefabs;
 class EditorCommand_DivorceOrMarryComponentVariable;
 class EditorCommand_ComponentVariableIndirectPointerChanged;
 class EditorCommand_ReorderOrReparentGameObjects;
+class EditorCommand_RestorePrefabComponent;
 
 #if MYFW_USING_IMGUI
 typedef void (*PanelWatchCallbackValueChanged)(void* pObjectPtr, int controlid, bool directlychanged, bool finishedchanging, double oldvalue, bool valuewaschangedbydragging);
@@ -621,5 +622,20 @@ public:
 };
 
 //====================================================================================================
+
+class EditorCommand_RestorePrefabComponent : public EditorCommand
+{
+protected:
+    GameObject* m_pGameObject;
+    uint32 m_DeletedPrefabComponentID;
+
+public:
+    EditorCommand_RestorePrefabComponent(GameObject* pObject, uint32 deletedPrefabComponentID);
+    virtual ~EditorCommand_RestorePrefabComponent();
+
+    virtual void Do();
+    virtual void Undo();
+    virtual EditorCommand* Repeat();
+};
 
 #endif // __EngineEditorCommands_H__

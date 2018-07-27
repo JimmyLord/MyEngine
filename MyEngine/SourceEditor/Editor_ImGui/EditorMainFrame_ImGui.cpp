@@ -1858,8 +1858,28 @@ void EditorMainFrame_ImGui::AddGameObjectToObjectList(GameObject* pGameObject, P
             // Add List of deleted Prefab Components.
             for( unsigned int dpci=0; dpci<pGameObject->m_DeletedPrefabComponentIDs.size(); dpci++ )
             {
-                // TODO: Grab the proper name and add a "restore" button.
-                ImGui::Text( "Deleted component: %d", pGameObject->m_DeletedPrefabComponentIDs[dpci] );
+                uint32 deletedPrefabComponentID = pGameObject->m_DeletedPrefabComponentIDs[dpci];
+                ComponentBase* pComponent = pGameObject->GetPrefabRef()->GetGameObject()->FindComponentByPrefabComponentID( deletedPrefabComponentID );
+
+                ImGuiTreeNodeFlags nodeFlags = ImGuiTreeNodeFlags_Leaf;
+
+                if( ImGui::TreeNodeEx( pComponent, nodeFlags, "Deleted: %s", pComponent->GetClassname() ) )
+                {
+                    if( ImGui::BeginPopupContextItem( "ContextPopup", 1 ) )
+                    {
+                        char* label = "Restore Component";
+                        if( pEditorState->m_pSelectedComponents.size() > 1 )
+                            label = "Restore Selected Components";
+                        if( ImGui::MenuItem( label ) )
+                        {
+                            // TODO:
+                            g_pGameCore->GetCommandStack()->Do( MyNew EditorCommand_RestorePrefabComponent( pGameObject, dpci ) );
+                            ImGui::CloseCurrentPopup();
+                        }
+                        ImGui::EndPopup();
+                    }
+                    ImGui::TreePop();
+                }
             }
 
             ImGui::TreePop();
