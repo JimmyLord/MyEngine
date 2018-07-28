@@ -628,6 +628,7 @@ class EditorCommand_RestorePrefabComponent : public EditorCommand
 protected:
     GameObject* m_pGameObject;
     uint32 m_DeletedPrefabComponentID;
+    ComponentBase* m_pComponentCreated;
 
 public:
     EditorCommand_RestorePrefabComponent(GameObject* pObject, uint32 deletedPrefabComponentID);

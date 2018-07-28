@@ -1869,11 +1869,12 @@ void EditorMainFrame_ImGui::AddGameObjectToObjectList(GameObject* pGameObject, P
                     {
                         char* label = "Restore Component";
                         if( pEditorState->m_pSelectedComponents.size() > 1 )
+                        {
                             label = "Restore Selected Components";
+                        }
                         if( ImGui::MenuItem( label ) )
                         {
-                            // TODO:
-                            g_pGameCore->GetCommandStack()->Do( MyNew EditorCommand_RestorePrefabComponent( pGameObject, dpci ) );
+                            g_pGameCore->GetCommandStack()->Do( MyNew EditorCommand_RestorePrefabComponent( pGameObject, deletedPrefabComponentID ) );
                             ImGui::CloseCurrentPopup();
                         }
                         ImGui::EndPopup();

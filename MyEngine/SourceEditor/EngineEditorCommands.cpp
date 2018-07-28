@@ -2007,10 +2007,14 @@ EditorCommand* EditorCommand_ReorderOrReparentGameObjects::Repeat()
 
 EditorCommand_RestorePrefabComponent::EditorCommand_RestorePrefabComponent(GameObject* pObject, uint32 deletedPrefabComponentID)
 {
+    MyAssert( m_pGameObject != 0 );
+    MyAssert( deletedPrefabComponentID != 0 );
+
     m_Name = "EditorCommand_RestorePrefabComponent";
 
     m_pGameObject = pObject;
     m_DeletedPrefabComponentID = deletedPrefabComponentID;
+    m_pComponentCreated = 0;
 }
 
 EditorCommand_RestorePrefabComponent::~EditorCommand_RestorePrefabComponent()
@@ -2019,10 +2023,57 @@ EditorCommand_RestorePrefabComponent::~EditorCommand_RestorePrefabComponent()
 
 void EditorCommand_RestorePrefabComponent::Do()
 {
+    MyAssert( m_pGameObject->GetPrefabRef() );
+    MyAssert( m_pGameObject->GetPrefabRef()->GetPrefab() );
+
+    cJSON* jPrefab = m_pGameObject->GetPrefabRef()->GetPrefab()->GetJSONObject();
+    MyAssert( jPrefab );
+
+    // If inheriting from a prefab.
+    if( jPrefab )
+    {
+        // Create matching components in new GameObject.
+        cJSON* jComponentArray = cJSON_GetObjectItem( jPrefab, "Components" );
+        if( jComponentArray )
+        {
+            int componentarraysize = cJSON_GetArraySize( jComponentArray );
+
+            for( int i=0; i<componentarraysize; i++ )
+            {
+                cJSON* jComponent = cJSON_GetArrayItem( jComponentArray, i );
+
+                uint32 componentID = 0;
+                cJSONExt_GetUnsignedInt( jComponent, "PrefabComponentID", &componentID );
+
+                if( componentID == m_DeletedPrefabComponentID )
+                {
+                    m_pComponentCreated = g_pComponentSystemManager->CreateComponentFromJSONObject( m_pGameObject, jComponent );
+                    MyAssert( m_pComponentCreated );
+                    if( m_pComponentCreated )
+                    {
+                        m_pComponentCreated->ImportFromJSONObject( jComponent, m_pGameObject->GetSceneID() );
+                        m_pComponentCreated->OnLoad();
+
+                        // Remove this prefab component id from the "deleted" list.
+                        uint32 id = m_pComponentCreated->GetPrefabComponentID();
+                        if( id != 0 )
+                        {
+                            // Make sure it's in the list.
+                            MyAssert( std::find( m_pGameObject->m_DeletedPrefabComponentIDs.begin(), m_pGameObject->m_DeletedPrefabComponentIDs.end(), id ) != m_pGameObject->m_DeletedPrefabComponentIDs.end() );
+
+                            std::vector<uint32>::iterator lastremoved = std::remove( m_pGameObject->m_DeletedPrefabComponentIDs.begin(), m_pGameObject->m_DeletedPrefabComponentIDs.end(), id );
+                            m_pGameObject->m_DeletedPrefabComponentIDs.erase( lastremoved, m_pGameObject->m_DeletedPrefabComponentIDs.end() );
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
 
 void EditorCommand_RestorePrefabComponent::Undo()
 {
+    g_pComponentSystemManager->DeleteComponent( m_pComponentCreated );
 }
 
 EditorCommand* EditorCommand_RestorePrefabComponent::Repeat()
