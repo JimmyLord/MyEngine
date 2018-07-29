@@ -1818,6 +1818,13 @@ void EditorMainFrame_ImGui::AddGameObjectToObjectList(GameObject* pGameObject, P
                     {
                         if( ImGui::BeginPopupContextItem( "ContextPopup", 1 ) )
                         {
+                            // If the right-clicked object isn't selected, then unselect what is and select just this one.
+                            if( pEditorState->IsComponentSelected( pComponent ) == false )
+                            {
+                                pEditorState->ClearSelectedObjectsAndComponents();
+                                pEditorState->SelectComponent( pComponent );
+                            }
+
                             char* label = "Delete Component";
                             if( pEditorState->m_pSelectedComponents.size() > 1 )
                                 label = "Delete Selected Components";
