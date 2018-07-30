@@ -1196,7 +1196,15 @@ void GameObject::OnPopupClick(GameObject* pGameObject, unsigned int id)
         {
             // Create a prefab based on selected object.
             unsigned int fileindex = id - RightClick_CreatePrefab;
-            g_pComponentSystemManager->m_pPrefabManager->CreatePrefabInFile( fileindex, pGameObject->GetName(), pGameObject );
+            PrefabObject* pPrefab = g_pComponentSystemManager->m_pPrefabManager->CreatePrefabInFile( fileindex, pGameObject->GetName(), pGameObject );
+
+            // Set existed object to inherit from this prefab.
+            if( pPrefab )
+            {
+                Editor_SetGameObjectAndAllChildrenToInheritFromPrefab( pPrefab, 0 );
+                //PrefabReference prefabRef( pPrefab, prefabchildid, true );
+                //Editor_SetPrefab( &prefabRef );
+            }
         }
     }
     else if( id == RightClick_DeleteGameObject )
@@ -1613,6 +1621,28 @@ void GameObject::Editor_SetPrefab(PrefabReference* pPrefabRef)
 #if MYFW_USING_WX
     UpdateObjectListIcon();
 #endif //MYFW_USING_WX
+}
+
+void GameObject::Editor_SetGameObjectAndAllChildrenToInheritFromPrefab(PrefabObject* pPrefab, uint32 prefabChildID)
+{
+    PrefabReference ref( pPrefab, prefabChildID, true );
+    m_PrefabRef = ref;
+    m_pGameObjectThisInheritsFrom = m_PrefabRef.GetGameObject();
+
+    // Set children.
+    GameObject* pChildGO = (GameObject*)GetChildList()->GetHead();
+    GameObject* pPrefabChildGO = (GameObject*)pPrefab->GetGameObject()->GetChildList()->GetHead();
+    while( pChildGO )
+    {
+        // Temp assert, test nested prefabs and replace with an 'if'
+        MyAssert( pPrefabChildGO->GetPrefabRef()->GetPrefab() == pPrefab );
+
+        uint32 prefabChildChildID = pPrefabChildGO->GetPrefabRef()->GetChildID();
+        pChildGO->Editor_SetGameObjectAndAllChildrenToInheritFromPrefab( pPrefab, prefabChildChildID );
+
+        pChildGO = (GameObject*)pChildGO->GetNext();
+        pPrefabChildGO = (GameObject*)pPrefabChildGO->GetNext();
+    }
 }
 
 // Set the material on all renderable components attached to this object.

@@ -213,7 +213,7 @@ public:
     void UnloadAllPrefabFiles();
 
 #if MYFW_EDITOR
-    void CreatePrefabInFile(unsigned int fileindex, const char* prefabname, GameObject* pGameObject);
+    PrefabObject* CreatePrefabInFile(unsigned int fileindex, const char* prefabname, GameObject* pGameObject);
 
     void CreateFile(const char* relativepath);
     bool CreateOrLoadFile();

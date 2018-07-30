@@ -730,7 +730,7 @@ void PrefabManager::LoadFileNow(const char* prefabfilename)
     m_pPrefabFiles.push_back( pPrefabFile );
 }
 
-void PrefabManager::CreatePrefabInFile(unsigned int fileindex, const char* prefabname, GameObject* pGameObject)
+PrefabObject* PrefabManager::CreatePrefabInFile(unsigned int fileindex, const char* prefabname, GameObject* pGameObject)
 {
     PrefabFile* pFile = m_pPrefabFiles[fileindex];
 
@@ -742,7 +742,7 @@ void PrefabManager::CreatePrefabInFile(unsigned int fileindex, const char* prefa
 #else
         LOGError( LOGTag, "A prefab with this name already exists, rename it and create it again" );
 #endif
-        return;
+        return 0;
     }
 
     // Create a PrefabObject and stick it in the PrefabFile
@@ -756,6 +756,8 @@ void PrefabManager::CreatePrefabInFile(unsigned int fileindex, const char* prefa
 
     // Kick off immediate save of prefab file.
     pFile->Save();
+
+    return pPrefab;
 }
 
 void PrefabManager::CreateFile(const char* relativepath)
