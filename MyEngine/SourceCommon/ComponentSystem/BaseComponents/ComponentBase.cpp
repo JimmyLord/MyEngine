@@ -161,6 +161,10 @@ ComponentBase& ComponentBase::operator=(const ComponentBase& other)
 
     m_DivorcedVariables = other.m_DivorcedVariables;
 
+#if MYFW_EDITOR
+    m_PrefabComponentID = other.m_PrefabComponentID;
+#endif
+
     return *this;
 }
 

@@ -1672,9 +1672,14 @@ GameObject* ComponentSystemManager::CopyGameObject(GameObject* pObject, const ch
     pNewObject->SetPhysicsSceneID( pObject->GetPhysicsSceneID() );
     pNewObject->SetFlags( pObject->GetFlags() );
 
+    // Copy the object inherited from if in editor mode.
     if( g_pEngineCore->IsInEditorMode() )
     {
-        pNewObject->SetGameObjectThisInheritsFrom( pObject->GetGameObjectThisInheritsFrom() );
+        // If inheriting from a prefab, this was handled by the CreateGameObject call above.
+        if( pObject->GetPrefabRef() == 0 )
+        {
+            pNewObject->SetGameObjectThisInheritsFrom( pObject->GetGameObjectThisInheritsFrom() );
+        }
     }
 
     for( unsigned int i=0; i<pObject->GetComponentCount(); i++ )
