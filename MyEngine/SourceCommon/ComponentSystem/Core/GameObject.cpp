@@ -155,7 +155,7 @@ cJSON* GameObject::ExportAsJSONObject(bool savesceneid)
         }
     }
 
-    // Transform/Heirarchy parent must be in the same scene.
+    // Transform/Hierarchy parent must be in the same scene.
     if( m_pParentGameObject )
         cJSON_AddNumberToObject( jGameObject, "ParentGOID", m_pParentGameObject->GetID() );
 
@@ -352,7 +352,7 @@ cJSON* GameObject::ExportAsJSONPrefab(PrefabObject* pPrefab, bool assignNewChild
     SetSceneID( SCENEID_Unmanaged, false );
 
     // Don't export the ParentGOID, we'll ignore that it was parented at all.
-    //// Transform/Heirarchy parent must be in the same scene.
+    //// Transform/Hierarchy parent must be in the same scene.
     //if( m_pParentGameObject )
     //    cJSON_AddNumberToObject( jGameObject, "ParentGOID", m_pParentGameObject->GetID() );
 
@@ -362,6 +362,21 @@ cJSON* GameObject::ExportAsJSONPrefab(PrefabObject* pPrefab, bool assignNewChild
         cJSON_AddStringToObject( jGameObject, "SubType", "Folder" );
     else if( m_pComponentTransform == false )
         cJSON_AddStringToObject( jGameObject, "SubType", "Logic" );
+
+    // Export the prefab this object is an instance of.
+    if( m_PrefabRef.GetPrefab() != 0 )
+    {
+        // Nested Prefabs must come from the same file.
+        // TODO: Replace this assert with an error message.
+        MyAssert( m_PrefabRef.GetPrefab()->GetPrefabFile() == pPrefab->GetPrefabFile() );
+        //cJSON_AddStringToObject( jGameObject, "PrefabFile", m_PrefabRef.GetPrefab()->GetPrefabFile()->GetFile()->GetFullPath() );
+        cJSON_AddNumberToObject( jGameObject, "PrefabID", m_PrefabRef.GetPrefab()->GetID() );
+        
+        if( m_PrefabRef.GetChildID() != 0 )
+        {
+            cJSON_AddNumberToObject( jGameObject, "PrefabChildID", m_PrefabRef.GetChildID() );
+        }
+    }
 
     // Export properties, if none were saved, don't add the block to jGameObject
     cJSON* jProperties = m_Properties.ExportAsJSONObject( false, false );
@@ -382,11 +397,15 @@ cJSON* GameObject::ExportAsJSONPrefab(PrefabObject* pPrefab, bool assignNewChild
         for( unsigned int i=0; i<m_Components.Count(); i++ )
         {
             // Assign PrefabComponentIDs if they weren't previously assigned.
-            if( assignNewComponentIDs )
+            if( assignNewComponentIDs && m_Components[i]->GetPrefabComponentID() == 0 )
             {
-                // Get a prefab component id from the file. It should be unique within that prefab file.
-                uint32 ID = pPrefab->GetPrefabFile()->GetNextPrefabComponentIDAndIncrement();
-                m_Components[i]->SetPrefabComponentID( ID );
+                // If this component is from an instance of a Prefab, don't assign new component IDs for it.
+                if( assignNewComponentIDs && m_Components[i]->GetPrefabComponentID() == 0 )
+                {
+                    // Get a prefab component id from the file. It should be unique within that prefab file.
+                    uint32 ID = pPrefab->GetPrefabFile()->GetNextPrefabComponentIDAndIncrement();
+                    m_Components[i]->SetPrefabComponentID( ID );
+                }
             }
 
             cJSON* jComponent = m_Components[i]->ExportAsJSONObject( false, false );
