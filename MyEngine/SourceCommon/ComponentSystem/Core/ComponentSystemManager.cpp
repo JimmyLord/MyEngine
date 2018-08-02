@@ -1392,6 +1392,7 @@ GameObject* ComponentSystemManager::CreateGameObjectFromPrefab(PrefabObject* pPr
 GameObject* ComponentSystemManager::CreateGameObjectFromPrefab(PrefabObject* pPrefab, cJSON* jPrefab, uint32 prefabchildid, bool manageobject, SceneID sceneid)
 {
     MyAssert( pPrefab != 0 );
+    MyAssert( jPrefab != 0 );
     GameObject* pGameObject = 0;
 
     // Set values based on SubType.
@@ -1430,10 +1431,17 @@ GameObject* ComponentSystemManager::CreateGameObjectFromPrefab(PrefabObject* pPr
     MyAssert( jName ); // If this trips, prefab file is likely old, every object should now have a name field.
     pGameObject->SetName( jName->valuestring );
 
-    // If inheriting from a prefab.
-    if( jPrefab )
+    // If this subobject of the prefab contains a "PrefabID", then it's a nested prefab and needs to "inherit" from the other prefab.
+    uint32 prefabID = 0;
+    cJSONExt_GetUnsignedInt( jPrefab, "PrefabID", &prefabID );
+    if( prefabID != 0 )
     {
-        // Create matching components in new GameObject.
+        GameObject* pOtherPrefabGameObject = pPrefab->GetPrefabFile()->GetPrefabByID( prefabID )->GetGameObject();
+        pGameObject->Editor_SetGameObjectThisInheritsFromIgnoringPrefabRef( pOtherPrefabGameObject );
+    }
+
+    // Create matching components in new GameObject.
+    {
         cJSON* jComponentArray = cJSON_GetObjectItem( jPrefab, "Components" );
         if( jComponentArray )
         {

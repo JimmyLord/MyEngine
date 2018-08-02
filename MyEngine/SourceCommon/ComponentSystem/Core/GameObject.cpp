@@ -1664,6 +1664,11 @@ void GameObject::Editor_SetGameObjectAndAllChildrenToInheritFromPrefab(PrefabObj
     }
 }
 
+void GameObject::Editor_SetGameObjectThisInheritsFromIgnoringPrefabRef(GameObject* pObj)
+{
+    m_pGameObjectThisInheritsFrom = pObj;
+}
+
 // Set the material on all renderable components attached to this object.
 void GameObject::Editor_SetMaterial(MaterialDefinition* pMaterial)
 {

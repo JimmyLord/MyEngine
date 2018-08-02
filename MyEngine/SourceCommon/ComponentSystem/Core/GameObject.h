@@ -216,6 +216,7 @@ public:
 
     void Editor_SetPrefab(PrefabReference* pPrefabRef); // Used when deleting prefabs.
     void Editor_SetGameObjectAndAllChildrenToInheritFromPrefab(PrefabObject* pPrefab, uint32 prefabChildID);
+    void Editor_SetGameObjectThisInheritsFromIgnoringPrefabRef(GameObject* pObj);
     void Editor_SetMaterial(MaterialDefinition* pMaterial);
 
     // Editor functions
