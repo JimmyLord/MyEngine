@@ -177,6 +177,8 @@ GameObject* PrefabObject::GetGameObject(uint32 childid)
 
 GameObject* PrefabObject::FindChildGameObject(GameObject* pRootObject, uint32 childid)
 {
+    MyAssert( pRootObject );
+
     // Return the root prefab gameobject.
     if( childid == 0 )
         return pRootObject;
@@ -451,7 +453,7 @@ uint32 FindHighestPrefabComponentID(GameObject* pGameObject)
     uint32 highestID = 0;
 
     // Check each component.
-    for( int i=0; i<pGameObject->GetComponentCountIncludingCore(); i++ )
+    for( unsigned int i=0; i<pGameObject->GetComponentCountIncludingCore(); i++ )
     {
         uint32 ID = pGameObject->GetComponentByIndexIncludingCore( i )->GetPrefabComponentID();
         if( ID > highestID )

@@ -1412,9 +1412,13 @@ GameObject* ComponentSystemManager::CreateGameObjectFromPrefab(PrefabObject* pPr
         }
     }
 
+    // Sceneid should only be SCENEID_Unmanaged if this is the master prefab gameobject created for the editor.
+    bool creatingMasterGameObjectForPrefab = false;
     if( sceneid == SCENEID_Unmanaged )
+        creatingMasterGameObjectForPrefab = true;
+
+    if( creatingMasterGameObjectForPrefab )
     {
-        // Sceneid should only be SCENEID_Unmanaged if this is the master prefab gameobject created for the editor.
         MyAssert( manageobject == false );
 
         PrefabReference prefabRef( pPrefab, prefabchildid, false );
@@ -1436,7 +1440,16 @@ GameObject* ComponentSystemManager::CreateGameObjectFromPrefab(PrefabObject* pPr
     cJSONExt_GetUnsignedInt( jPrefab, "PrefabID", &prefabID );
     if( prefabID != 0 )
     {
-        GameObject* pOtherPrefabGameObject = pPrefab->GetPrefabFile()->GetPrefabByID( prefabID )->GetGameObject();
+        GameObject* pOtherPrefabGameObject = 0;
+        if( creatingMasterGameObjectForPrefab )
+        {
+            pOtherPrefabGameObject = pPrefab->GetPrefabFile()->GetPrefabByID( prefabID )->GetGameObject();
+        }
+        else
+        {
+            pOtherPrefabGameObject = pPrefab->FindChildGameObject( pPrefab->GetGameObject(), prefabchildid );
+        }
+
         pGameObject->Editor_SetGameObjectThisInheritsFromIgnoringPrefabRef( pOtherPrefabGameObject );
     }
 
@@ -1915,6 +1928,8 @@ GameObject* ComponentSystemManager::FindGameObjectByJSONRef(cJSON* pJSONGameObje
     SceneID sceneid = defaultSceneID;
     if( jScenePath )
     {
+        MyAssert( jScenePath->valuestring != 0 && jScenePath->valuestring[0] != 0 );
+
         sceneid = GetSceneIDFromFullpath( jScenePath->valuestring, requireSceneBeLoaded );
         if( sceneid == SCENEID_NotFound )
         {
