@@ -369,12 +369,18 @@ cJSON* GameObject::ExportAsJSONPrefab(PrefabObject* pPrefab, bool assignNewChild
         // Nested Prefabs must come from the same file.
         // TODO: Replace this assert with an error message.
         MyAssert( m_PrefabRef.GetPrefab()->GetPrefabFile() == pPrefab->GetPrefabFile() );
-        //cJSON_AddStringToObject( jGameObject, "PrefabFile", m_PrefabRef.GetPrefab()->GetPrefabFile()->GetFile()->GetFullPath() );
-        cJSON_AddNumberToObject( jGameObject, "PrefabID", m_PrefabRef.GetPrefab()->GetID() );
-        
-        if( m_PrefabRef.GetChildID() != 0 )
+
+        // If this prefab inherits from another prefab, save the prefabID.
+        if( m_pGameObjectThisInheritsFrom != 0 )
         {
-            cJSON_AddNumberToObject( jGameObject, "PrefabChildID", m_PrefabRef.GetChildID() );
+            PrefabReference* pInheritedPrefabRef = m_pGameObjectThisInheritsFrom->GetPrefabRef();
+            //PrefabReference* pInheritedPrefabRef = &m_PrefabRef;
+            cJSON_AddNumberToObject( jGameObject, "PrefabID", pInheritedPrefabRef->GetPrefab()->GetID() );
+
+            if( pInheritedPrefabRef->GetChildID() != 0 )
+            {
+                cJSON_AddNumberToObject( jGameObject, "PrefabChildID", pInheritedPrefabRef->GetChildID() );
+            }
         }
     }
 

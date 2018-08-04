@@ -1389,7 +1389,7 @@ GameObject* ComponentSystemManager::CreateGameObjectFromPrefab(PrefabObject* pPr
     return CreateGameObjectFromPrefab( pPrefab, pPrefab->GetJSONObject(), 0, manageobject, sceneid );
 }
 
-GameObject* ComponentSystemManager::CreateGameObjectFromPrefab(PrefabObject* pPrefab, cJSON* jPrefab, uint32 prefabchildid, bool manageobject, SceneID sceneid)
+GameObject* ComponentSystemManager::CreateGameObjectFromPrefab(PrefabObject* pPrefab, cJSON* jPrefab, uint32 prefabChildID, bool manageObject, SceneID sceneID)
 {
     MyAssert( pPrefab != 0 );
     MyAssert( jPrefab != 0 );
@@ -1414,21 +1414,21 @@ GameObject* ComponentSystemManager::CreateGameObjectFromPrefab(PrefabObject* pPr
 
     // Sceneid should only be SCENEID_Unmanaged if this is the master prefab gameobject created for the editor.
     bool creatingMasterGameObjectForPrefab = false;
-    if( sceneid == SCENEID_Unmanaged )
+    if( sceneID == SCENEID_Unmanaged )
         creatingMasterGameObjectForPrefab = true;
 
     if( creatingMasterGameObjectForPrefab )
     {
-        MyAssert( manageobject == false );
+        MyAssert( manageObject == false );
 
-        PrefabReference prefabRef( pPrefab, prefabchildid, false );
+        PrefabReference prefabRef( pPrefab, prefabChildID, false );
         prefabRef.SetAsMasterPrefabGameObject();
-        pGameObject = CreateGameObject( manageobject, sceneid, isfolder, hastransform, &prefabRef );
+        pGameObject = CreateGameObject( manageObject, sceneID, isfolder, hastransform, &prefabRef );
     }
     else
     {
-        PrefabReference prefabRef( pPrefab, prefabchildid, true );
-        pGameObject = CreateGameObject( manageobject, sceneid, isfolder, hastransform, &prefabRef );
+        PrefabReference prefabRef( pPrefab, prefabChildID, true );
+        pGameObject = CreateGameObject( manageObject, sceneID, isfolder, hastransform, &prefabRef );
     }
     
     cJSON* jName = cJSON_GetObjectItem( jPrefab, "Name" );
@@ -1443,11 +1443,12 @@ GameObject* ComponentSystemManager::CreateGameObjectFromPrefab(PrefabObject* pPr
         GameObject* pOtherPrefabGameObject = 0;
         if( creatingMasterGameObjectForPrefab )
         {
-            pOtherPrefabGameObject = pPrefab->GetPrefabFile()->GetPrefabByID( prefabID )->GetGameObject();
+            PrefabObject* pPrefabWeInheritFrom = pPrefab->GetPrefabFile()->GetPrefabByID( prefabID );
+            pOtherPrefabGameObject = pPrefabWeInheritFrom->FindChildGameObject( pPrefabWeInheritFrom->GetGameObject(), prefabChildID );
         }
         else
         {
-            pOtherPrefabGameObject = pPrefab->FindChildGameObject( pPrefab->GetGameObject(), prefabchildid );
+            pOtherPrefabGameObject = pPrefab->FindChildGameObject( pPrefab->GetGameObject(), prefabChildID );
         }
 
         pGameObject->Editor_SetGameObjectThisInheritsFromIgnoringPrefabRef( pOtherPrefabGameObject );
@@ -1468,7 +1469,7 @@ GameObject* ComponentSystemManager::CreateGameObjectFromPrefab(PrefabObject* pPr
                 MyAssert( pComponent );
                 if( pComponent )
                 {
-                    pComponent->ImportFromJSONObject( jComponent, sceneid );
+                    pComponent->ImportFromJSONObject( jComponent, sceneID );
                     pComponent->OnLoad();
                 }
             }
@@ -1489,17 +1490,17 @@ GameObject* ComponentSystemManager::CreateGameObjectFromPrefab(PrefabObject* pPr
                 cJSONExt_GetUnsignedInt( jChildGameObject, "ChildID", &prefabchildid );
 
                 // Create the child game object.
-                if( sceneid == SCENEID_Unmanaged )
+                if( sceneID == SCENEID_Unmanaged )
                 {
                     // Sceneid should only be SCENEID_Unmanaged if this is the temporary prefab gameobject created for the editor.
-                    MyAssert( manageobject == false );
+                    MyAssert( manageObject == false );
 
                     pChildGameObject = CreateGameObjectFromPrefab( pPrefab, jChildGameObject, prefabchildid, false, SCENEID_Unmanaged );
                     pChildGameObject->SetEnabled( false, false );
                 }
                 else
                 {
-                    pChildGameObject = CreateGameObjectFromPrefab( pPrefab, jChildGameObject, prefabchildid, true, sceneid );
+                    pChildGameObject = CreateGameObjectFromPrefab( pPrefab, jChildGameObject, prefabchildid, true, sceneID );
 
 #if MYFW_USING_WX
                     // Move as last item in parent.

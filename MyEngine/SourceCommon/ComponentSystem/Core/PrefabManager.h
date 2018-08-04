@@ -90,7 +90,7 @@ public:
     void Init(PrefabFile* pFile, const char* name, uint32 prefabid);
     void SetName(const char* name);
     void SetPrefabJSONObject(cJSON* jPrefab, bool createmastergameobjects);
-    void SetPrefabID(uint32 prefabid) { m_PrefabID = prefabid; }
+    void SetPrefabID(uint32 prefabid);
     
     const char* GetName();
     uint32 GetID() { return m_PrefabID; }

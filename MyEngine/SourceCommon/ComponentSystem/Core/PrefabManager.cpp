@@ -152,6 +152,11 @@ void PrefabObject::SetPrefabJSONObject(cJSON* jPrefab, bool createmastergameobje
 #endif //MYFW_EDITOR
 }
 
+void PrefabObject::SetPrefabID(uint32 prefabid)
+{
+    m_PrefabID = prefabid;
+}
+
 const char* PrefabObject::GetName()
 {
     return m_Name;
