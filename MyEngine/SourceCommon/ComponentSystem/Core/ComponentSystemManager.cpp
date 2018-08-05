@@ -1444,7 +1444,9 @@ GameObject* ComponentSystemManager::CreateGameObjectFromPrefab(PrefabObject* pPr
         if( creatingMasterGameObjectForPrefab )
         {
             PrefabObject* pPrefabWeInheritFrom = pPrefab->GetPrefabFile()->GetPrefabByID( prefabID );
-            pOtherPrefabGameObject = pPrefabWeInheritFrom->FindChildGameObject( pPrefabWeInheritFrom->GetGameObject(), prefabChildID );
+            uint32 otherPrefabChildID = 0;
+            cJSONExt_GetUnsignedInt( jPrefab, "PrefabChildID", &otherPrefabChildID );
+            pOtherPrefabGameObject = pPrefabWeInheritFrom->FindChildGameObject( pPrefabWeInheritFrom->GetGameObject(), otherPrefabChildID );
         }
         else
         {
