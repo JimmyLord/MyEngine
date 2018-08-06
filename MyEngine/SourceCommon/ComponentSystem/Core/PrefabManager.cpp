@@ -37,7 +37,7 @@ PrefabReference::PrefabReference(PrefabObject* pPrefab, uint32 childid, bool set
 
 #if MYFW_EDITOR
     if( setgameobject )
-        m_pGameObject = m_pPrefab->FindChildGameObject( m_pPrefab->GetGameObject(), childid );
+        m_pGameObject = m_pPrefab->FindChildGameObject( childid );
 #endif
 }
 
@@ -177,11 +177,14 @@ uint32 PrefabObject::GetNextChildPrefabIDAndIncrement()
 #if MYFW_EDITOR
 GameObject* PrefabObject::GetGameObject(uint32 childid)
 {
-    return FindChildGameObject( m_pGameObject, childid );
+    return FindChildGameObject( childid );
 }
 
-GameObject* PrefabObject::FindChildGameObject(GameObject* pRootObject, uint32 childid)
+GameObject* PrefabObject::FindChildGameObject(uint32 childid, GameObject* pRootObject)
 {
+    if( pRootObject == 0 )
+        pRootObject = m_pGameObject;
+
     MyAssert( pRootObject );
 
     // Return the root prefab gameobject.
@@ -199,8 +202,8 @@ GameObject* PrefabObject::FindChildGameObject(GameObject* pRootObject, uint32 ch
         if( pGameObject->GetPrefabRef()->GetChildID() == childid )
             return pGameObject;
 
-        // Recurse through children
-        GameObject* pFoundGameObject = FindChildGameObject( pGameObject, childid );
+        // Recurse through children.
+        GameObject* pFoundGameObject = FindChildGameObject( childid, pGameObject );
         if( pFoundGameObject )
             return pFoundGameObject;
     }

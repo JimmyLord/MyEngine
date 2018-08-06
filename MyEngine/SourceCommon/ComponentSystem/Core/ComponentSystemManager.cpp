@@ -1446,11 +1446,11 @@ GameObject* ComponentSystemManager::CreateGameObjectFromPrefab(PrefabObject* pPr
             PrefabObject* pPrefabWeInheritFrom = pPrefab->GetPrefabFile()->GetPrefabByID( prefabID );
             uint32 otherPrefabChildID = 0;
             cJSONExt_GetUnsignedInt( jPrefab, "PrefabChildID", &otherPrefabChildID );
-            pOtherPrefabGameObject = pPrefabWeInheritFrom->FindChildGameObject( pPrefabWeInheritFrom->GetGameObject(), otherPrefabChildID );
+            pOtherPrefabGameObject = pPrefabWeInheritFrom->FindChildGameObject( otherPrefabChildID );
         }
         else
         {
-            pOtherPrefabGameObject = pPrefab->FindChildGameObject( pPrefab->GetGameObject(), prefabChildID );
+            pOtherPrefabGameObject = pPrefab->FindChildGameObject( prefabChildID );
         }
 
         pGameObject->Editor_SetGameObjectThisInheritsFromIgnoringPrefabRef( pOtherPrefabGameObject );

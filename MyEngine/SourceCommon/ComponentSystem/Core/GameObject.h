@@ -23,6 +23,8 @@ class GameObject : public CPPListNode
 #endif
 {
     friend class EditorCommand_DeleteObjects; // for NotifyOthersThisWasDeleted()
+    friend class EditorCommand_RestorePrefabComponent; // for m_DeletedPrefabComponentIDs
+    friend class EditorMainFrame_ImGui; // for m_DeletedPrefabChildIDs and m_DeletedPrefabComponentIDs
     friend class ComponentSystemManager; // for ComponentSystemManager::DeleteGameObject
 
     static const int MAX_COMPONENTS = 8; // TODO: fix this hardcodedness
@@ -175,8 +177,11 @@ public:
         RightClick_EndOfAdditionalSceneHandlerOptions = RightClick_AdditionalSceneHandlerOptions + 100000,
     };
 
+protected:
+    std::vector<uint32> m_DeletedPrefabChildIDs;
     std::vector<uint32> m_DeletedPrefabComponentIDs;
 
+public:
     void OnPopupClick(GameObject* pGameObject, unsigned int id);
 
 #if MYFW_USING_WX

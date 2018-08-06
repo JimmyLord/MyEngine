@@ -112,7 +112,7 @@ protected:
 
 public:
     GameObject* GetGameObject(uint32 childid = 0);
-    GameObject* FindChildGameObject(GameObject* pRootObject, uint32 childid);
+    GameObject* FindChildGameObject(uint32 childid, GameObject* pRootObject = 0);
 
 #if MYFW_USING_WX
     void AddToObjectList(wxTreeItemId parent, cJSON* jPrefab, GameObject* pGameObject);
