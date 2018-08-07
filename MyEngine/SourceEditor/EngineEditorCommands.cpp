@@ -739,6 +739,7 @@ void EditorCommand_DeleteObjects::Do()
     for( unsigned int i=0; i<m_ObjectsDeleted.size(); i++ )
     {
         GameObject* pDeletedObject = m_ObjectsDeleted[i];
+        GameObject* pDeletedObjectsParent = m_ObjectsDeleted[i]->GetParentGameObject();
 
         pDeletedObject->UnregisterAllComponentCallbacks( true );
         pDeletedObject->SetEnabled( false, true );
@@ -746,23 +747,11 @@ void EditorCommand_DeleteObjects::Do()
         pDeletedObject->GetSceneInfo()->m_GameObjects.MoveTail( pDeletedObject );
         pDeletedObject->NotifyOthersThisWasDeleted();
 
-        // Add this prefab child id to the "deleted" list.
+        // If this object has a parent, add this prefab child id to the "deleted" list.
+        if( pDeletedObjectsParent != 0 )
         {
-            GameObject* pDeletedObjectsParent = m_ObjectsDeleted[i]->GetParentGameObject();
-
-            if( pDeletedObjectsParent != 0 )
-            {
-                uint32 id = pDeletedObject->GetPrefabRef()->GetChildID();
-                if( id != 0 )
-                {
-                    std::vector<uint32>* pList = &pDeletedObjectsParent->m_DeletedPrefabChildIDs;
-
-                    // Make sure it's not already in the list.
-                    MyAssert( std::find( pList->begin(), pList->end(), id ) == pList->end() );
-
-                    pList->push_back( id );
-                }
-            }
+            uint32 childID = pDeletedObject->GetPrefabRef()->GetChildID();
+            pDeletedObjectsParent->AddPrefabChildIDToListOfDeletedPrefabChildIDs( childID );
         }
     }
     m_DeleteGameObjectsWhenDestroyed = true;
@@ -776,13 +765,14 @@ void EditorCommand_DeleteObjects::Undo()
     for( unsigned int i=0; i<m_ObjectsDeleted.size(); i++ )
     {
         GameObject* pDeletedObject = m_ObjectsDeleted[i];
+        GameObject* pDeletedObjectsParent = pDeletedObject->GetParentGameObject();
 
         // Place gameobject in old spot in scene's GameObject list.
         if( m_PreviousGameObjectsInObjectList[i] == 0 )
         {
-            if( pDeletedObject->GetParentGameObject() )
+            if( pDeletedObjectsParent )
             {
-                pDeletedObject->GetParentGameObject()->GetChildList()->MoveHead( pDeletedObject );
+                pDeletedObjectsParent->GetChildList()->MoveHead( pDeletedObject );
             }
             else
             {
@@ -794,24 +784,11 @@ void EditorCommand_DeleteObjects::Undo()
             pDeletedObject->MoveAfter( m_PreviousGameObjectsInObjectList[i] );
         }
 
-        // Remove this prefab child id from the "deleted" list.
+        // If this object had a parent, remove this prefab child id from the "deleted" list.
+        if( pDeletedObjectsParent )
         {
-            GameObject* pDeletedObjectsParent = pDeletedObject->GetParentGameObject();
-
-            if( pDeletedObjectsParent != 0 )
-            {
-                uint32 id = pDeletedObject->GetPrefabRef()->GetChildID();
-                if( id != 0 )
-                {
-                    std::vector<uint32>* pList = &pDeletedObjectsParent->m_DeletedPrefabChildIDs;
-
-                    // Make sure it's not already in the list.
-                    MyAssert( std::find( pList->begin(), pList->end(), id ) != pList->end() );
-
-                    std::vector<uint32>::iterator lastremoved = std::remove( pList->begin(), pList->end(), id );
-                    pList->erase( lastremoved, pList->end() );
-                }
-            }
+            uint32 childID = pDeletedObject->GetPrefabRef()->GetChildID();
+            pDeletedObjectsParent->RemovePrefabChildIDFromListOfDeletedPrefabChildIDs( childID );
         }
 
         // Undo everything we did to "delete" this object

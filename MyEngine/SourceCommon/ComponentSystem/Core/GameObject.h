@@ -181,6 +181,11 @@ protected:
     std::vector<uint32> m_DeletedPrefabChildIDs;
     std::vector<uint32> m_DeletedPrefabComponentIDs;
 
+    void AddPrefabChildIDToListOfDeletedPrefabChildIDs(uint32 childID);
+    void RemovePrefabChildIDFromListOfDeletedPrefabChildIDs(uint32 childID);
+    void AddPrefabComponentIDToListOfDeletedPrefabComponentIDs(uint32 componentID);
+    void RemovePrefabComponentIDFromListOfDeletedPrefabComponentIDs(uint32 componentID);
+
 public:
     void OnPopupClick(GameObject* pGameObject, unsigned int id);
 

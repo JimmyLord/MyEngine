@@ -1186,6 +1186,39 @@ void GameObject::OnTransformChanged(Vector3& newpos, Vector3& newrot, Vector3& n
 }
 
 #if MYFW_EDITOR
+void GameObject::AddPrefabChildIDToListOfDeletedPrefabChildIDs(uint32 childID)
+{
+    MyAssert( childID != 0 );
+
+    std::vector<uint32>* pList = &m_DeletedPrefabChildIDs;
+
+    // Make sure it's not already in the list.
+    MyAssert( std::find( pList->begin(), pList->end(), childID ) == pList->end() );
+
+    pList->push_back( childID );
+}
+
+void GameObject::RemovePrefabChildIDFromListOfDeletedPrefabChildIDs(uint32 childID)
+{
+    MyAssert( childID != 0 );
+
+    std::vector<uint32>* pList = &m_DeletedPrefabChildIDs;
+
+    // Make sure it's not already in the list.
+    MyAssert( std::find( pList->begin(), pList->end(), childID ) != pList->end() );
+
+    std::vector<uint32>::iterator lastremoved = std::remove( pList->begin(), pList->end(), childID );
+    pList->erase( lastremoved, pList->end() );
+}
+
+void GameObject::AddPrefabComponentIDToListOfDeletedPrefabComponentIDs(uint32 componentID)
+{
+}
+
+void GameObject::RemovePrefabComponentIDFromListOfDeletedPrefabComponentIDs(uint32 componentID)
+{
+}
+
 void GameObject::OnPopupClick(GameObject* pGameObject, unsigned int id)
 {
     if( id < g_pComponentTypeManager->GetNumberOfComponentTypes() )
