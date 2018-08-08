@@ -19,8 +19,10 @@ PrefabReference::PrefabReference()
     m_pPrefab = 0;
     m_PrefabID = 0;
 
-    m_pGameObject = 0;
     m_ChildID = 0;
+    m_pGameObject = 0;
+
+    m_pOriginalPrefabParent = 0;
 
     m_IsMasterPrefabGameObject = false;
 }
@@ -32,8 +34,10 @@ PrefabReference::PrefabReference(PrefabObject* pPrefab, uint32 childid, bool set
     m_pPrefab = pPrefab;
     m_PrefabID = 0;
 
-    m_pGameObject = 0;
     m_ChildID = childid;
+    m_pGameObject = 0;
+
+    m_pOriginalPrefabParent = 0;
 
 #if MYFW_EDITOR
     if( setgameobject )
@@ -67,6 +71,14 @@ void PrefabReference::FinishLoadingPrefab(PrefabFile* pPrefabFile)
     m_pGameObject = m_pPrefab->GetGameObject( m_ChildID );
     MyAssert( m_pGameObject );
 #endif
+}
+
+void PrefabReference::SetOriginalParent(GameObject* pGameObject)
+{
+    MyAssert( m_pOriginalPrefabParent == 0 );
+    MyAssert( m_ChildID != 0 );
+
+    m_pOriginalPrefabParent = pGameObject;
 }
 
 // ============================================================================================================================

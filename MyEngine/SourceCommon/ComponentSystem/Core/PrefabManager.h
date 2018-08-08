@@ -48,6 +48,10 @@ protected:
     uint32 m_ChildID; // 0 if pointing to root of prefab.
     GameObject* m_pGameObject;
 
+    // Experimenting with partial prefabs existing in the scene.
+    // If a child is separated from it's original parent, then we mark it as "deleted" in that GameObject.
+    GameObject* m_pOriginalPrefabParent;
+
     // Indicates whether or not m_pGameObject is part of the editor instance of the prefab.
     bool m_IsMasterPrefabGameObject;
 
@@ -58,6 +62,7 @@ public:
     // Getters
     PrefabObject* GetPrefab() { return m_pPrefab; }
     GameObject* GetGameObject() { return m_pGameObject; }
+    GameObject* GetOriginalParent() { return m_pOriginalPrefabParent; }
     uint32 GetChildID() { return m_ChildID; }
 
     // Methods used by GameObject during load in cases where scene was loaded before Prefab file.
@@ -66,6 +71,7 @@ public:
 
     void SetAsMasterPrefabGameObject() { m_IsMasterPrefabGameObject = true; }
     bool IsMasterPrefabGameObject() { return m_IsMasterPrefabGameObject; }
+    void SetOriginalParent(GameObject* pGameObject);
 };
 
 class PrefabObject : public CPPListNode

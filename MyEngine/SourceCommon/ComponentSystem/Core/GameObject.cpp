@@ -598,6 +598,20 @@ void GameObject::SetParentGameObject(GameObject* pParentGameObject)
     {
         // Stop the parent's gameobject from reporting it's deletion.
         m_pParentGameObject->UnregisterOnDeleteCallback( this, StaticOnGameObjectDeleted );
+
+        // If this object has a parent, add this prefab child id to its "deleted" list.
+        if( GetPrefabRef()->GetPrefab() && m_pParentGameObject )
+        {
+            // Check if this object is being detached from it's original parent.
+            if( GetPrefabRef()->GetOriginalParent() == m_pParentGameObject )
+            {
+                uint32 childID = GetPrefabRef()->GetChildID();
+                if( childID != 0 )
+                {
+                    m_pParentGameObject->AddPrefabChildIDToListOfDeletedPrefabChildIDs( childID );
+                }
+            }
+        }
     }
 
     m_pParentGameObject = pParentGameObject;
@@ -609,6 +623,9 @@ void GameObject::SetParentGameObject(GameObject* pParentGameObject)
         pParentGameObject->RegisterOnDeleteCallback( this, StaticOnGameObjectDeleted );
 
         pParentGameObject->m_ChildList.MoveTail( this );
+
+        // If this is an old prefab GameObject returning to it's original parent, remove it from the deleted list.
+        // TODO:
     }
     else
     {
@@ -1639,6 +1656,10 @@ void GameObject::FinishLoadingPrefab(PrefabFile* pPrefabFile)
 {
     // Link the PrefabRef to the correct prefab and GameObject now that the file is finished loading.
     m_PrefabRef.FinishLoadingPrefab( pPrefabFile );
+    if( m_pParentGameObject != 0 )
+    {
+        m_PrefabRef.SetOriginalParent( m_pParentGameObject );
+    }
 
 #if MYFW_EDITOR
     m_pGameObjectThisInheritsFrom = m_PrefabRef.GetGameObject();
