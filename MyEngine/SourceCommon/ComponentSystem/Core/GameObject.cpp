@@ -68,7 +68,7 @@ GameObject::~GameObject()
 
     MyAssert( m_pOnDeleteCallbacks.GetHead() == 0 );
 
-    // If we still have a parent gameobject, then we're likely still registered in it's OnDeleted callback list.
+    // If we still have a parent gameobject, then we're likely still registered in its OnDeleted callback list.
     // Unregister ourselves.
     SetParentGameObject( 0 );
     MyAssert( m_pParentGameObject == 0 );
@@ -220,7 +220,7 @@ void GameObject::ImportFromJSONObject(cJSON* jGameObject, SceneID sceneid)
     cJSON* jPrefabID = cJSON_GetObjectItem( jGameObject, "PrefabID" );
     if( jPrefabID )
     {
-        // If we're doing a quick-load of a file, this gameobject should already have it's prefab info set up
+        // If we're doing a quick-load of a file, this gameobject should already have its prefab info set up
         if( m_PrefabRef.GetPrefab() )
         {
             // Quick-loading the file, don't load the prefab info.
@@ -596,13 +596,13 @@ void GameObject::SetParentGameObject(GameObject* pParentGameObject)
     // If we had an old parent:
     if( m_pParentGameObject != 0 )
     {
-        // Stop the parent's gameobject from reporting it's deletion.
+        // Stop the parent's gameobject from reporting its deletion.
         m_pParentGameObject->UnregisterOnDeleteCallback( this, StaticOnGameObjectDeleted );
 
         // If this object has a parent, add this prefab child id to its "deleted" list.
         if( GetPrefabRef()->GetPrefab() && m_pParentGameObject )
         {
-            // Check if this object is being detached from it's original parent.
+            // Check if this object is being detached from its original parent.
             if( GetPrefabRef()->GetOriginalParent() == m_pParentGameObject )
             {
                 uint32 childID = GetPrefabRef()->GetChildID();
@@ -619,13 +619,20 @@ void GameObject::SetParentGameObject(GameObject* pParentGameObject)
     // If we have a new parent
     if( m_pParentGameObject != 0 )
     {
-        // Register with the parent's gameobject to notify us of it's deletion.
+        // Register with the parent's gameobject to notify us of its deletion.
         pParentGameObject->RegisterOnDeleteCallback( this, StaticOnGameObjectDeleted );
 
         pParentGameObject->m_ChildList.MoveTail( this );
 
-        // If this is an old prefab GameObject returning to it's original parent, remove it from the deleted list.
-        // TODO:
+        // If this is an old prefab GameObject returning to its original parent, remove it from the deleted list.
+        if( GetPrefabRef()->GetOriginalParent() == m_pParentGameObject )
+        {
+            uint32 childID = GetPrefabRef()->GetChildID();
+            if( childID != 0 )
+            {
+                m_pParentGameObject->RemovePrefabChildIDFromListOfDeletedPrefabChildIDs( childID );
+            }
+        }
     }
     else
     {
