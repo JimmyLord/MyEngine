@@ -72,6 +72,8 @@ public:
     void SetAsMasterPrefabGameObject() { m_IsMasterPrefabGameObject = true; }
     bool IsMasterPrefabGameObject() { return m_IsMasterPrefabGameObject; }
     void SetOriginalParent(GameObject* pGameObject);
+
+    bool IsHappyChild(GameObject* pGameObject);
 };
 
 class PrefabObject : public CPPListNode

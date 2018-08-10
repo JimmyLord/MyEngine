@@ -599,18 +599,26 @@ void GameObject::SetParentGameObject(GameObject* pParentGameObject)
         // Stop the parent's gameobject from reporting its deletion.
         m_pParentGameObject->UnregisterOnDeleteCallback( this, StaticOnGameObjectDeleted );
 
-        // If this object has a parent, add this prefab child id to its "deleted" list.
-        if( GetPrefabRef()->GetPrefab() && m_pParentGameObject )
+        //// If this object has a parent, add this prefab child id to its "deleted" list.
+        //if( GetPrefabRef()->GetPrefab() && m_pParentGameObject )
+        //{
+        //    // Check if this object is being detached from its original parent.
+        //    if( GetPrefabRef()->GetOriginalParent() == m_pParentGameObject )
+        //    {
+        //        uint32 childID = GetPrefabRef()->GetChildID();
+        //        if( childID != 0 )
+        //        {
+        //            m_pParentGameObject->AddPrefabChildIDToListOfDeletedPrefabChildIDs( childID );
+        //        }
+        //    }
+        //}
+
+        // If this object was a "happy" child of a prefab, add it to the parent's "deleted child" list.
+        if( GetPrefabRef()->IsHappyChild( this ) )
         {
-            // Check if this object is being detached from its original parent.
-            if( GetPrefabRef()->GetOriginalParent() == m_pParentGameObject )
-            {
-                uint32 childID = GetPrefabRef()->GetChildID();
-                if( childID != 0 )
-                {
-                    m_pParentGameObject->AddPrefabChildIDToListOfDeletedPrefabChildIDs( childID );
-                }
-            }
+            uint32 childID = GetPrefabRef()->GetChildID();
+            MyAssert( childID != 0 );
+            m_pParentGameObject->AddPrefabChildIDToListOfDeletedPrefabChildIDs( childID );
         }
     }
 
@@ -624,15 +632,15 @@ void GameObject::SetParentGameObject(GameObject* pParentGameObject)
 
         pParentGameObject->m_ChildList.MoveTail( this );
 
-        // If this is an old prefab GameObject returning to its original parent, remove it from the deleted list.
-        if( GetPrefabRef()->GetOriginalParent() == m_pParentGameObject )
-        {
-            uint32 childID = GetPrefabRef()->GetChildID();
-            if( childID != 0 )
-            {
-                m_pParentGameObject->RemovePrefabChildIDFromListOfDeletedPrefabChildIDs( childID );
-            }
-        }
+        //// If this is an old prefab GameObject returning to its original parent, remove it from the deleted list.
+        //if( GetPrefabRef()->GetOriginalParent() == m_pParentGameObject )
+        //{
+        //    uint32 childID = GetPrefabRef()->GetChildID();
+        //    if( childID != 0 )
+        //    {
+        //        m_pParentGameObject->RemovePrefabChildIDFromListOfDeletedPrefabChildIDs( childID );
+        //    }
+        //}
     }
     else
     {
