@@ -641,6 +641,14 @@ void GameObject::SetParentGameObject(GameObject* pParentGameObject)
         //        m_pParentGameObject->RemovePrefabChildIDFromListOfDeletedPrefabChildIDs( childID );
         //    }
         //}
+
+        // If this object is now a "happy" child of a prefab, remove it from the parent's "deleted child" list.
+        if( GetPrefabRef()->IsHappyChild( this ) )
+        {
+            uint32 childID = GetPrefabRef()->GetChildID();
+            MyAssert( childID != 0 );
+            m_pParentGameObject->RemovePrefabChildIDFromListOfDeletedPrefabChildIDs( childID );
+        }
     }
     else
     {
@@ -1236,7 +1244,7 @@ void GameObject::RemovePrefabChildIDFromListOfDeletedPrefabChildIDs(uint32 child
 
     std::vector<uint32>* pList = &m_DeletedPrefabChildIDs;
 
-    // Make sure it's not already in the list.
+    // Make sure it's already in the list.
     MyAssert( std::find( pList->begin(), pList->end(), childID ) != pList->end() );
 
     std::vector<uint32>::iterator lastremoved = std::remove( pList->begin(), pList->end(), childID );
