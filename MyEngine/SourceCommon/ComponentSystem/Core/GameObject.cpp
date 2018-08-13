@@ -595,6 +595,8 @@ void GameObject::SetParentGameObject(GameObject* pParentGameObject)
     if( m_pParentGameObject == pParentGameObject )
         return;
 
+    GameObject* pOldParentGameObject = m_pParentGameObject;
+
     // If we had an old parent:
     if( m_pParentGameObject != 0 )
     {
@@ -614,14 +616,6 @@ void GameObject::SetParentGameObject(GameObject* pParentGameObject)
         //        }
         //    }
         //}
-
-        // If this object was a "happy" child of a prefab, add it to the parent's "deleted child" list.
-        if( GetPrefabRef()->IsHappyChild( this ) )
-        {
-            uint32 childID = GetPrefabRef()->GetChildID();
-            MyAssert( childID != 0 );
-            m_pParentGameObject->AddPrefabChildIDToListOfDeletedPrefabChildIDs( childID );
-        }
     }
 
     m_pParentGameObject = pParentGameObject;
@@ -637,7 +631,7 @@ void GameObject::SetParentGameObject(GameObject* pParentGameObject)
         //// If this is an old prefab GameObject returning to its original parent, remove it from the deleted list.
         //if( GetPrefabRef()->GetOriginalParent() == m_pParentGameObject )
         //{
-        //    uint32 childID = GetPrefabRef()->GetChildID();
+        //    uint32 childID = m_PrefabRef.GetChildID();
         //    if( childID != 0 )
         //    {
         //        m_pParentGameObject->RemovePrefabChildIDFromListOfDeletedPrefabChildIDs( childID );
@@ -646,12 +640,12 @@ void GameObject::SetParentGameObject(GameObject* pParentGameObject)
 
         // The prefab's m_pGameObject will be null when the scene is loading but the prefab file isn't loaded.
         // Skip the "Happy" check in this case since the childID should already be in the "deleted child" list.
-        if( GetPrefabRef()->GetGameObject() != 0 )
+        if( m_PrefabRef.GetGameObject() != 0 && m_PrefabRef.IsMasterPrefabGameObject() == false )
         {
             // If this object is now a "happy" child of a prefab, remove it from the parent's "deleted child" list.
-            if( GetPrefabRef()->IsHappyChild( this ) )
+            if( m_PrefabRef.IsHappyChild( this ) )
             {
-                uint32 childID = GetPrefabRef()->GetChildID();
+                uint32 childID = m_PrefabRef.GetChildID();
                 MyAssert( childID != 0 );
                 m_pParentGameObject->RemovePrefabChildIDFromListOfDeletedPrefabChildIDs( childID );
             }
@@ -660,6 +654,23 @@ void GameObject::SetParentGameObject(GameObject* pParentGameObject)
     else
     {
         g_pComponentSystemManager->GetSceneInfo( m_SceneID )->m_GameObjects.MoveTail( this );
+    }
+
+    if( pOldParentGameObject )
+    {
+        //// If this object was a "happy" child of a prefab, add it to the parent's "deleted child" list.
+        //if( m_PrefabRef.IsHappyChild( this ) )
+        //{
+        //    uint32 childID = m_PrefabRef.GetChildID();
+        //    MyAssert( childID != 0 );
+        //    m_pParentGameObject->AddPrefabChildIDToListOfDeletedPrefabChildIDs( childID );
+        //}
+
+        uint32 childID = m_PrefabRef.GetChildID();
+        if( childID != 0 && pOldParentGameObject->IsMissingPrefabChild( childID ) )
+        {
+            pOldParentGameObject->AddPrefabChildIDToListOfDeletedPrefabChildIDs( childID );
+        }
     }
 
     // parent one transform to another, if there are transforms.
@@ -1233,6 +1244,23 @@ void GameObject::OnTransformChanged(Vector3& newpos, Vector3& newrot, Vector3& n
 }
 
 #if MYFW_EDITOR
+bool GameObject::IsMissingPrefabChild(uint32 childID)
+{
+    GameObject* pChild = GetFirstChild();
+    while( pChild )
+    {
+        if( pChild->GetPrefabRef()->GetPrefab() == m_PrefabRef.GetPrefab() &&
+            pChild->GetPrefabRef()->GetChildID() == childID )
+        {
+            return false;
+        }
+
+        pChild = (GameObject*)pChild->GetNext();
+    }
+
+    return true;
+}
+
 void GameObject::AddPrefabChildIDToListOfDeletedPrefabChildIDs(uint32 childID)
 {
     MyAssert( childID != 0 );

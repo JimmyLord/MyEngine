@@ -181,6 +181,7 @@ protected:
     std::vector<uint32> m_DeletedPrefabChildIDs;
     std::vector<uint32> m_DeletedPrefabComponentIDs;
 
+    bool IsMissingPrefabChild(uint32 childID);
     void AddPrefabChildIDToListOfDeletedPrefabChildIDs(uint32 childID);
     void RemovePrefabChildIDFromListOfDeletedPrefabChildIDs(uint32 childID);
     void AddPrefabComponentIDToListOfDeletedPrefabComponentIDs(uint32 componentID);
