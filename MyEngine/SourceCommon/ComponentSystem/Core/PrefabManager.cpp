@@ -83,10 +83,6 @@ void PrefabReference::SetOriginalParent(GameObject* pGameObject)
 
 bool PrefabReference::IsHappyChild(GameObject* pGameObject)
 {
-    // Temp fix to avoid crash on load.
-    if( m_pGameObject == 0 )
-        return false;
-
     MyAssert( pGameObject );
     MyAssert( m_pGameObject );
 

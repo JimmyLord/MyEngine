@@ -69,9 +69,11 @@ GameObject::~GameObject()
     MyAssert( m_pOnDeleteCallbacks.GetHead() == 0 );
 
     // If we still have a parent gameobject, then we're likely still registered in its OnDeleted callback list.
-    // Unregister ourselves.
-    SetParentGameObject( 0 );
-    MyAssert( m_pParentGameObject == 0 );
+    // Unregister ourselves to stop the parent's gameobject from reporting its deletion.
+    if( m_pParentGameObject != 0 )
+    {
+        m_pParentGameObject->UnregisterOnDeleteCallback( this, StaticOnGameObjectDeleted );
+    }
 
     // If it's in a list, remove it.
     if( this->Prev != 0 )
@@ -642,12 +644,17 @@ void GameObject::SetParentGameObject(GameObject* pParentGameObject)
         //    }
         //}
 
-        // If this object is now a "happy" child of a prefab, remove it from the parent's "deleted child" list.
-        if( GetPrefabRef()->IsHappyChild( this ) )
+        // The prefab's m_pGameObject will be null when the scene is loading but the prefab file isn't loaded.
+        // Skip the "Happy" check in this case since the childID should already be in the "deleted child" list.
+        if( GetPrefabRef()->GetGameObject() != 0 )
         {
-            uint32 childID = GetPrefabRef()->GetChildID();
-            MyAssert( childID != 0 );
-            m_pParentGameObject->RemovePrefabChildIDFromListOfDeletedPrefabChildIDs( childID );
+            // If this object is now a "happy" child of a prefab, remove it from the parent's "deleted child" list.
+            if( GetPrefabRef()->IsHappyChild( this ) )
+            {
+                uint32 childID = GetPrefabRef()->GetChildID();
+                MyAssert( childID != 0 );
+                m_pParentGameObject->RemovePrefabChildIDFromListOfDeletedPrefabChildIDs( childID );
+            }
         }
     }
     else
