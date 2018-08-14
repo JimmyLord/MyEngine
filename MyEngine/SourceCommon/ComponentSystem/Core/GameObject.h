@@ -92,7 +92,7 @@ public:
     void SetID(unsigned int id);
     void SetName(const char* name);
 
-    void SetParentGameObject(GameObject* pParentGameObject);
+    void SetParentGameObject(GameObject* pNewParentGameObject);
     bool IsParentedTo(GameObject* pPotentialParent, bool onlycheckdirectparent);
 
     void SetManaged(bool managed);

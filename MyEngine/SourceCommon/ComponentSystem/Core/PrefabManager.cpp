@@ -81,34 +81,6 @@ void PrefabReference::SetOriginalParent(GameObject* pGameObject)
     m_pOriginalPrefabParent = pGameObject;
 }
 
-bool PrefabReference::IsHappyChild(GameObject* pGameObject)
-{
-    MyAssert( pGameObject );
-    MyAssert( m_pGameObject );
-
-    // If this is a master prefab game object... we shouldn't need to check if we're "happy".
-    MyAssert( m_IsMasterPrefabGameObject == false );
-
-    // If we're not a child of a prefab object... we're not "happy".
-    if( m_ChildID == 0 )
-        return false;
-
-    // If we don't have a parent... we're not "happy".
-    GameObject* pParentGameObject = pGameObject->GetParentGameObject();
-    if( pParentGameObject == 0 )
-        return false;
-
-    // If we're not attached to an object from the same prefab... we're not "happy".
-    if( pParentGameObject->GetPrefabRef()->GetPrefab() != m_pPrefab )
-        return false;
-
-    // If our prefab's parent doesn't have the same childID as our parent... we're not "happy".
-    if( m_pGameObject->GetParentGameObject()->GetPrefabRef()->GetChildID() != pParentGameObject->GetPrefabRef()->GetChildID() )
-        return false;
-
-    return true;
-}
-
 // ============================================================================================================================
 // PrefabObject
 // ============================================================================================================================

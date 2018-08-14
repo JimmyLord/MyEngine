@@ -589,96 +589,73 @@ void GameObject::SetName(const char* name)
 #endif //MYFW_USING_WX
 }
 
-void GameObject::SetParentGameObject(GameObject* pParentGameObject)
+void GameObject::SetParentGameObject(GameObject* pNewParentGameObject)
 {
     // If the old parent is the same as the new one, kick out.
-    if( m_pParentGameObject == pParentGameObject )
+    if( m_pParentGameObject == pNewParentGameObject )
         return;
 
     GameObject* pOldParentGameObject = m_pParentGameObject;
+    m_pParentGameObject = pNewParentGameObject;
 
     // If we had an old parent:
-    if( m_pParentGameObject != 0 )
+    if( pOldParentGameObject != 0 )
     {
         // Stop the parent's gameobject from reporting its deletion.
-        m_pParentGameObject->UnregisterOnDeleteCallback( this, StaticOnGameObjectDeleted );
-
-        //// If this object has a parent, add this prefab child id to its "deleted" list.
-        //if( GetPrefabRef()->GetPrefab() && m_pParentGameObject )
-        //{
-        //    // Check if this object is being detached from its original parent.
-        //    if( GetPrefabRef()->GetOriginalParent() == m_pParentGameObject )
-        //    {
-        //        uint32 childID = GetPrefabRef()->GetChildID();
-        //        if( childID != 0 )
-        //        {
-        //            m_pParentGameObject->AddPrefabChildIDToListOfDeletedPrefabChildIDs( childID );
-        //        }
-        //    }
-        //}
+        pOldParentGameObject->UnregisterOnDeleteCallback( this, StaticOnGameObjectDeleted );
     }
 
-    m_pParentGameObject = pParentGameObject;
-
-    // If we have a new parent
-    if( m_pParentGameObject != 0 )
+    // If we have a new parent:
+    if( pNewParentGameObject != 0 )
     {
         // Register with the parent's gameobject to notify us of its deletion.
-        pParentGameObject->RegisterOnDeleteCallback( this, StaticOnGameObjectDeleted );
-
-        pParentGameObject->m_ChildList.MoveTail( this );
-
-        //// If this is an old prefab GameObject returning to its original parent, remove it from the deleted list.
-        //if( GetPrefabRef()->GetOriginalParent() == m_pParentGameObject )
-        //{
-        //    uint32 childID = m_PrefabRef.GetChildID();
-        //    if( childID != 0 )
-        //    {
-        //        m_pParentGameObject->RemovePrefabChildIDFromListOfDeletedPrefabChildIDs( childID );
-        //    }
-        //}
+        pNewParentGameObject->RegisterOnDeleteCallback( this, StaticOnGameObjectDeleted );
 
         // The prefab's m_pGameObject will be null when the scene is loading but the prefab file isn't loaded.
-        // Skip the "Happy" check in this case since the childID should already be in the "deleted child" list.
+        // Skip the check in this case since the childID should already be in the "deleted child" list.
         if( m_PrefabRef.GetGameObject() != 0 && m_PrefabRef.IsMasterPrefabGameObject() == false )
         {
-            // If this object is now a "happy" child of a prefab, remove it from the parent's "deleted child" list.
-            if( m_PrefabRef.IsHappyChild( this ) )
+            // If this object is part of the same prefab as the new parent, check if the new parent is missing this child.
+            if( m_PrefabRef.GetPrefab() && m_PrefabRef.GetPrefab() == pNewParentGameObject->m_PrefabRef.GetPrefab() )
             {
                 uint32 childID = m_PrefabRef.GetChildID();
-                MyAssert( childID != 0 );
-                m_pParentGameObject->RemovePrefabChildIDFromListOfDeletedPrefabChildIDs( childID );
+                if( childID != 0 && pNewParentGameObject->IsMissingPrefabChild( childID ) )
+                {
+                    // If the new parent is missing this child, remove it from its list of "deleted" children since it's about to get it back.
+                    pNewParentGameObject->RemovePrefabChildIDFromListOfDeletedPrefabChildIDs( childID );
+                }
             }
         }
+
+        // Move the child object to the new parent.
+        pNewParentGameObject->m_ChildList.MoveTail( this );
     }
     else
     {
         g_pComponentSystemManager->GetSceneInfo( m_SceneID )->m_GameObjects.MoveTail( this );
     }
 
+    // Now that this object is unparented from the old parent, check if it's missing this child since there could have been 2+ of them attached.
     if( pOldParentGameObject )
     {
-        //// If this object was a "happy" child of a prefab, add it to the parent's "deleted child" list.
-        //if( m_PrefabRef.IsHappyChild( this ) )
-        //{
-        //    uint32 childID = m_PrefabRef.GetChildID();
-        //    MyAssert( childID != 0 );
-        //    m_pParentGameObject->AddPrefabChildIDToListOfDeletedPrefabChildIDs( childID );
-        //}
-
-        uint32 childID = m_PrefabRef.GetChildID();
-        if( childID != 0 && pOldParentGameObject->IsMissingPrefabChild( childID ) )
+        // If this object is part of the same prefab as the old parent, check if the old parent is now missing this child.
+        if( m_PrefabRef.GetPrefab() == pOldParentGameObject->m_PrefabRef.GetPrefab() )
         {
-            pOldParentGameObject->AddPrefabChildIDToListOfDeletedPrefabChildIDs( childID );
+            uint32 childID = m_PrefabRef.GetChildID();
+            if( childID != 0 && pOldParentGameObject->IsMissingPrefabChild( childID ) )
+            {
+                // If the old parent is now missing this child, add it to its list of "deleted" children.
+                pOldParentGameObject->AddPrefabChildIDToListOfDeletedPrefabChildIDs( childID );
+            }
         }
     }
 
-    // parent one transform to another, if there are transforms.
+    // Parent one transform to another, if there are transforms.
     if( m_pComponentTransform )
     {
         ComponentTransform* pNewParentTransform = 0;
         if( m_pParentGameObject != 0 )
-            pNewParentTransform = pParentGameObject->m_pComponentTransform;
+            pNewParentTransform = pNewParentGameObject->m_pComponentTransform;
 
         m_pComponentTransform->SetParentTransform( pNewParentTransform );
     }
@@ -1246,18 +1223,47 @@ void GameObject::OnTransformChanged(Vector3& newpos, Vector3& newrot, Vector3& n
 #if MYFW_EDITOR
 bool GameObject::IsMissingPrefabChild(uint32 childID)
 {
-    GameObject* pChild = GetFirstChild();
+    MyAssert( m_pGameObjectThisInheritsFrom != 0 );
+
+    // If this doesn't inherit from it's prefab, kick out, we're likely using direct (single scene) inheritance.
+    if( m_pGameObjectThisInheritsFrom->GetPrefabRef()->GetPrefab() != this->m_PrefabRef.GetPrefab() )
+        return false;
+
+    // Check if prefab has this childID as a child.
+    bool prefabHasThisChild = false;
+    GameObject* pChild = m_pGameObjectThisInheritsFrom->GetFirstChild();
+    while( pChild )
+    {
+        if( pChild->GetPrefabRef()->GetChildID() == childID )
+        {
+            MyAssert( pChild->GetPrefabRef()->GetPrefab() == m_pGameObjectThisInheritsFrom->m_PrefabRef.GetPrefab() );
+
+            prefabHasThisChild = true;
+            break;
+        }
+
+        pChild = (GameObject*)pChild->GetNext();
+    }
+
+    // If the prefab doesn't expect this child to be attached, the child isn't missing.
+    if( prefabHasThisChild == false )
+        return false;
+
+    // Check if this object already has this childID as a child.
+    pChild = GetFirstChild();
     while( pChild )
     {
         if( pChild->GetPrefabRef()->GetPrefab() == m_PrefabRef.GetPrefab() &&
             pChild->GetPrefabRef()->GetChildID() == childID )
         {
+            // We already have this child, so it's not missing.
             return false;
         }
 
         pChild = (GameObject*)pChild->GetNext();
     }
 
+    // The prefab expects this child and we don't have one, so it's missing.
     return true;
 }
 
