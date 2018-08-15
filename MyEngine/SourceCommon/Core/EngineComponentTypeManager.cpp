@@ -38,6 +38,7 @@ ComponentTypeInfo g_EngineComponentTypeInfo[Component_NumEngineComponentTypes] =
     { "Animation",      "Animation Player",        },  //ComponentType_AnimationPlayer,
     { "Animation",      "2D Animation Player",     },  //ComponentType_AnimationPlayer2D,
     { "Audio",          "Audio Player",            },  //ComponentType_AudioPlayer,
+    { "Logic",          "Object Pool",             },  //ComponentType_ObjectPool,
     { "Menus",          "Menu Page",               },  //ComponentType_MenuPage,
 };
 
@@ -77,6 +78,7 @@ ComponentBase* EngineComponentTypeManager::CreateComponent(int type)
     case ComponentType_AnimationPlayer:     pComponent = MyNew ComponentAnimationPlayer;    break;
     case ComponentType_AnimationPlayer2D:   pComponent = MyNew ComponentAnimationPlayer2D;  break;
     case ComponentType_AudioPlayer:         pComponent = MyNew ComponentAudioPlayer;        break;
+    case ComponentType_ObjectPool:          pComponent = MyNew ComponentObjectPool;         break;
     case ComponentType_MenuPage:            pComponent = MyNew ComponentMenuPage;           break;
     }
 

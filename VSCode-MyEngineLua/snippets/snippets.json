@@ -986,6 +986,13 @@
         "description": "Have this audio player component play its sound."
     },
 
+    //ComponentObjectPool::LuaRegister( m_pLuaState );
+    //    luabridge::getGlobalNamespace( luastate )
+    //        .beginClass<ComponentObjectPool>( "ComponentObjectPool" )
+    //            //.addData( "m_SampleVector3", &ComponentObjectPool::m_SampleVector3 )
+    //            //.addFunction( "GetVector3", &ComponentObjectPool::GetVector3 )
+    //        .endClass();
+
     //ComponentMenuPage::LuaRegister( m_pLuaState );
     //    luabridge::getGlobalNamespace( luastate ).addFunction( "CastAs_ComponentMenuPage", CastAs_ComponentMenuPage ); // ComponentMenuPage* CastAs_ComponentMenuPage(ComponentBase* pComponent)
     //    luabridge::getGlobalNamespace( luastate )

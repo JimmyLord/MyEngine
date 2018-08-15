@@ -115,6 +115,7 @@ enum SceneID
 #if MYFW_USING_LUA
 #include "ComponentSystem/FrameworkComponents/ComponentLuaScript.h"
 #endif //MYFW_USING_LUA
+#include "ComponentSystem/EngineComponents/ComponentObjectPool.h"
 #include "ComponentSystem/FrameworkComponents/Physics3D/Component3DCollisionObject.h"
 #include "ComponentSystem/FrameworkComponents/Physics3D/Component3DJointBase.h"
 #include "ComponentSystem/FrameworkComponents/Physics3D/Component3DJointPoint2Point.h"

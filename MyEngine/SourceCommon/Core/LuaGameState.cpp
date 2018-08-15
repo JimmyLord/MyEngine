@@ -901,7 +901,8 @@ BUTTONID_NumButtons           = 9;\
     ComponentAnimationPlayer::LuaRegister( m_pLuaState );
     ComponentAnimationPlayer2D::LuaRegister( m_pLuaState );
     ComponentAudioPlayer::LuaRegister( m_pLuaState );
-    ComponentMenuPage::LuaRegister( m_pLuaState );
+    ComponentObjectPool::LuaRegister( m_pLuaState );
+    ComponentMenuPage::LuaRegister( m_pLuaState );    
 
     // Register the MenuItem types.
     MenuItem::LuaRegister( m_pLuaState );

@@ -115,6 +115,9 @@
     <Filter Include="Data\Shaders\Include">
       <UniqueIdentifier>{0054f20f-d0b3-4942-bc86-9cba134d34a8}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source\ComponentSystem\Engine Components">
+      <UniqueIdentifier>{453ff863-a04e-41cd-9ae0-b85057da2d94}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="SourceCommon\Camera\Camera3D.cpp">
@@ -458,6 +461,9 @@
     </ClCompile>
     <ClCompile Include="SourceEditor\Editor_ImGui\ImGuiStylePrefs.cpp">
       <Filter>Source - Editor\Editor_ImGui</Filter>
+    </ClCompile>
+    <ClCompile Include="SourceCommon\ComponentSystem\EngineComponents\ComponentObjectPool.cpp">
+      <Filter>Source\ComponentSystem\Engine Components</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -850,6 +856,9 @@
     </ClInclude>
     <ClInclude Include="SourceCommon\GUI\ImGuiConfig.h">
       <Filter>Source\GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="SourceCommon\ComponentSystem\EngineComponents\ComponentObjectPool.h">
+      <Filter>Source\ComponentSystem\Engine Components</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
