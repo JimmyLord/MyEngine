@@ -906,17 +906,22 @@ EditorCommand_CreateGameObject::EditorCommand_CreateGameObject(GameObject* objec
 
     MyAssert( m_ObjectCreated );
     m_ObjectCreated = objectcreated;
+    m_DeleteGameObjectsWhenDestroyed = false;
 }
 
 EditorCommand_CreateGameObject::~EditorCommand_CreateGameObject()
 {
-    g_pComponentSystemManager->DeleteGameObject( m_ObjectCreated, true );
+    if( m_DeleteGameObjectsWhenDestroyed )
+    {
+        g_pComponentSystemManager->DeleteGameObject( m_ObjectCreated, true );
+    }
 }
 
 void EditorCommand_CreateGameObject::Do()
 {
     g_pComponentSystemManager->ManageGameObject( m_ObjectCreated, true );
     m_ObjectCreated->SetEnabled( true, true );
+    m_DeleteGameObjectsWhenDestroyed = false;
 }
 
 void EditorCommand_CreateGameObject::Undo()
@@ -925,6 +930,7 @@ void EditorCommand_CreateGameObject::Undo()
 
     g_pComponentSystemManager->UnmanageGameObject( m_ObjectCreated, true );
     m_ObjectCreated->SetEnabled( false, true );
+    m_DeleteGameObjectsWhenDestroyed = true;
 }
 
 EditorCommand* EditorCommand_CreateGameObject::Repeat()

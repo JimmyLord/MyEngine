@@ -242,6 +242,7 @@ class EditorCommand_CreateGameObject : public EditorCommand
 {
 protected:
     GameObject* m_ObjectCreated;
+    bool m_DeleteGameObjectsWhenDestroyed;
 
 public:
     EditorCommand_CreateGameObject(GameObject* objectcreated);
