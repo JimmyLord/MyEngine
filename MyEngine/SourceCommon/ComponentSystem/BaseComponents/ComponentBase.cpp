@@ -434,7 +434,11 @@ bool ComponentBase::DoAllMultiSelectedVariabledHaveTheSameValue(ComponentVariabl
             break;
 
         case ComponentVariableType_GameObjectPtr:
-            MyAssert( false );
+            for( unsigned int i=0; i<m_MultiSelectedComponents.size(); i++ )
+            {
+                if( (GameObject*)((char*)this + pVar->m_Offset) != (GameObject*)((char*)m_MultiSelectedComponents[i] + pVar->m_Offset) )
+                    allComponentsHaveSameValue = false;
+            }
             break;
 
         case ComponentVariableType_ComponentPtr:

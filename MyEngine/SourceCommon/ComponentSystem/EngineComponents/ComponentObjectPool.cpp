@@ -37,21 +37,12 @@ ComponentObjectPool::~ComponentObjectPool()
 
 void ComponentObjectPool::RegisterVariables(CPPListHead* pList, ComponentObjectPool* pThis) //_VARIABLE_LIST
 {
-    // just want to make sure these are the same on all compilers.  They should be since this is a simple class.
-#if __GNUC__
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Winvalid-offsetof"
-#endif
-    //MyAssert( offsetof( ComponentObjectPool, m_SampleVector3 ) == MyOffsetOf( pThis, &pThis->m_SampleVector3 ) );
-#if __GNUC__
-#pragma GCC diagnostic pop
-#endif
+    ComponentVariable* pVar;
 
-#if MYFW_USING_WX
-    //AddVar( pList, "SampleFloat", ComponentVariableType_Vector3, MyOffsetOf( pThis, &pThis->m_SampleVector3 ), true, true, 0, (CVarFunc_ValueChanged)&ComponentObjectPool::OnValueChanged, (CVarFunc_DropTarget)&ComponentObjectPool::OnDrop, 0 );
-#else
-    //AddVar( pList, "SampleFloat", ComponentVariableType_Vector3, MyOffsetOf( pThis, &pThis->m_SampleVector3 ), true, true, 0, (CVarFunc_ValueChanged)&ComponentObjectPool::OnValueChanged, 0, 0 );
-#endif
+    AddVar( pList, "GameObject",           ComponentVariableType_GameObjectPtr, MyOffsetOf( pThis, &pThis->m_pGameObjectInPool ),    true, true, 0, (CVarFunc_ValueChanged)&ComponentObjectPool::OnValueChanged, (CVarFunc_DropTarget)&ComponentObjectPool::OnDrop, 0 );
+    pVar = AddVar( pList, "PoolSize",      ComponentVariableType_UnsignedInt,   MyOffsetOf( pThis, &pThis->m_PoolSize ),             true, true, 0, (CVarFunc_ValueChanged)&ComponentObjectPool::OnValueChanged, (CVarFunc_DropTarget)&ComponentObjectPool::OnDrop, 0 );
+    pVar->SetEditorLimits( 0, 9999 );
+    AddVar( pList, "LogWarningsWhenEmpty", ComponentVariableType_Bool,          MyOffsetOf( pThis, &pThis->m_LogWarningsWhenEmpty ), true, true, 0, (CVarFunc_ValueChanged)&ComponentObjectPool::OnValueChanged, (CVarFunc_DropTarget)&ComponentObjectPool::OnDrop, 0 );
 }
 
 void ComponentObjectPool::Reset()
@@ -193,6 +184,27 @@ void ComponentObjectPool::UnregisterCallbacks()
 
         m_CallbacksRegistered = false;
     }
+}
+
+void ComponentObjectPool::OnPlay()
+{
+    ComponentBase::OnPlay();
+
+    if( m_pGameObjectInPool )
+    {
+        m_GameObjectPtrPool.AllocateObjects( m_PoolSize );
+        for( uint32 i=0; i<m_PoolSize; i++ )
+        {
+            m_GameObjectPtrPool.AddInactiveObject( g_pComponentSystemManager->CopyGameObject( m_pGameObjectInPool, "PoolObject-TODO-ImproveName" ) );
+        }
+    }
+}
+
+void ComponentObjectPool::OnStop()
+{
+    ComponentBase::OnStop();
+
+    m_GameObjectPtrPool.DeleteAllObjectsInPool();
 }
 
 //void ComponentObjectPool::TickCallback(float deltaTime)

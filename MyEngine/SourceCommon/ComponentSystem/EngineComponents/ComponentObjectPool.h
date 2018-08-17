@@ -17,6 +17,8 @@ private:
     MYFW_COMPONENT_DECLARE_VARIABLE_LIST( ComponentObjectPool );
 
 public:
+    MyActivePool<GameObject*> m_GameObjectPtrPool;
+
     GameObject* m_pGameObjectInPool;
     uint32 m_PoolSize;
     bool m_LogWarningsWhenEmpty;
@@ -39,6 +41,9 @@ public:
 
     virtual void RegisterCallbacks();
     virtual void UnregisterCallbacks();
+
+    virtual void OnPlay();
+    virtual void OnStop();
 
 protected:
     // Callback functions for various events.
