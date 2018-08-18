@@ -1016,12 +1016,12 @@ void EditorCommand_CopyGameObject::Do()
         if( m_NewObjectInheritsFromOld == false ) // If making a copy.
         {
             CreateUniqueName( newname, 50, oldname );
-            m_ObjectCreated = g_pComponentSystemManager->CopyGameObject( m_ObjectToCopy, newname );
+            m_ObjectCreated = g_pComponentSystemManager->CopyGameObject( m_ObjectToCopy, newname, false );
         }
         else // If making a child object.
         {
             snprintf_s( newname, 50, 49, "%s - child", m_ObjectToCopy->GetName() );
-            m_ObjectCreated = g_pComponentSystemManager->CopyGameObject( m_ObjectToCopy, newname );
+            m_ObjectCreated = g_pComponentSystemManager->CopyGameObject( m_ObjectToCopy, newname, false );
         }
     }
     else

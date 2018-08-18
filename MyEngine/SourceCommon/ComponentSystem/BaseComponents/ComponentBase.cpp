@@ -922,8 +922,42 @@ void ComponentBase::AddVariableToWatchPanel(ComponentVariable* pVar)
 
         case ComponentVariableType_GameObjectPtr:
             {
-                ImGui::Text( "GameObjectPtr: %s (TODO)", pVar->m_Label );
-                //MyAssert( false );
+                // Group the button and the label into one "control", will make right-click context menu work on button.
+                ImGui::BeginGroup();
+
+                GameObject* pGameObject = *(GameObject**)((char*)this + pVar->m_Offset);
+
+                const char* pDesc = "none";
+                if( pGameObject )
+                {
+                    pDesc = pGameObject->GetName();
+                }
+
+                if( ImGui::Button( pDesc, ImVec2( ImGui::GetWindowWidth() * 0.65f, 0 ) ) )
+                {
+                    // TODO: Pop up a component picker window.
+                }
+
+                if( ImGui::BeginDragDropTarget() )
+                {
+                    if( const ImGuiPayload* payload = ImGui::AcceptDragDropPayload( "GameObject" ) )
+                    {
+                        GameObject* pGameObject = (GameObject*)*(void**)payload->Data;
+
+                        g_DragAndDropStruct.Clear();
+                        g_DragAndDropStruct.SetControlID( pVar->m_ControlID );
+                        g_DragAndDropStruct.Add( DragAndDropType_GameObjectPointer, pGameObject );
+
+                        OnDropVariable( pVar, 0, -1, -1, true );
+                    }
+
+                    ImGui::EndDragDropTarget();
+                }
+
+                ImGui::SameLine();
+                ImGui::Text( pVar->m_Label );
+
+                ImGui::EndGroup();
             }
             break;
 

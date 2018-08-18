@@ -202,7 +202,7 @@ public:
 #if MYFW_EDITOR
     GameObject* EditorCopyGameObject(GameObject* pObject, bool NewObjectInheritsFromOld);
 #endif
-    GameObject* CopyGameObject(GameObject* pObject, const char* newname);
+    GameObject* CopyGameObject(GameObject* pObject, const char* newname, bool disableNewObject);
 
     unsigned int GetNextGameObjectIDAndIncrement(SceneID sceneid);
     unsigned int GetNextComponentIDAndIncrement(SceneID sceneid);

@@ -1322,7 +1322,7 @@ void GameObject::OnPopupClick(GameObject* pGameObject, unsigned int id)
         if( g_pEngineCore->IsInEditorMode() )
             g_pComponentSystemManager->EditorCopyGameObject( pGameObject, false );
         else
-            g_pComponentSystemManager->CopyGameObject( pGameObject, "runtime duplicate" );
+            g_pComponentSystemManager->CopyGameObject( pGameObject, "runtime duplicate", false );
     }
     else if( id == RightClick_CreateChild )
     {
@@ -1395,7 +1395,7 @@ void GameObject::OnPopupClick(GameObject* pGameObject, unsigned int id)
         if( g_pEngineCore->IsInEditorMode() )
             g_pComponentSystemManager->EditorCopyGameObject( pGameObject, false );
         else
-            g_pComponentSystemManager->CopyGameObject( pGameObject, "runtime duplicate" );
+            g_pComponentSystemManager->CopyGameObject( pGameObject, "runtime duplicate", false );
     }
     else if( id >= RightClick_AdditionalSceneHandlerOptions && id < RightClick_EndOfAdditionalSceneHandlerOptions )
     {

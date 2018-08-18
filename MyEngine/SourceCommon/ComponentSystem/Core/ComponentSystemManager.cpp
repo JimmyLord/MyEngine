@@ -1676,7 +1676,7 @@ GameObject* ComponentSystemManager::EditorCopyGameObject(GameObject* pObject, bo
 #endif
 
 // Exposed to Lua, change elsewhere if function signature changes.
-GameObject* ComponentSystemManager::CopyGameObject(GameObject* pObject, const char* newname)
+GameObject* ComponentSystemManager::CopyGameObject(GameObject* pObject, const char* newname, bool disableNewObject)
 {
     if( pObject == 0 )
         return 0;
@@ -1692,7 +1692,7 @@ GameObject* ComponentSystemManager::CopyGameObject(GameObject* pObject, const ch
     if( newname )
         pNewObject->SetName( newname );
 
-    pNewObject->SetEnabled( pObject->IsEnabled(), false );
+    pNewObject->SetEnabled( disableNewObject ? false : pObject->IsEnabled(), false );
     pNewObject->SetPhysicsSceneID( pObject->GetPhysicsSceneID() );
     pNewObject->SetFlags( pObject->GetFlags() );
 
@@ -1760,7 +1760,7 @@ GameObject* ComponentSystemManager::CopyGameObject(GameObject* pObject, const ch
     GameObject* pChild = pObject->GetFirstChild();
     while( pChild )
     {
-        GameObject* pNewChild = CopyGameObject( pChild, pChild->GetName() );
+        GameObject* pNewChild = CopyGameObject( pChild, pChild->GetName(), false );
         pNewChild->SetParentGameObject( pNewObject );
 
 #if MYFW_USING_WX

@@ -109,8 +109,8 @@ void* ComponentObjectPool::OnDrop(ComponentVariable* pVar, int x, int y)
 
     if( pDropItem->m_Type == DragAndDropType_GameObjectPointer )
     {
-        //oldPointer = old gameobject;
-        //m_Value = (GameObject*)pDropItem->m_Value;
+        oldPointer = m_pGameObjectInPool;
+        m_pGameObjectInPool = (GameObject*)pDropItem->m_Value;
     }
 
     return oldPointer;
@@ -195,7 +195,7 @@ void ComponentObjectPool::OnPlay()
         m_GameObjectPtrPool.AllocateObjects( m_PoolSize );
         for( uint32 i=0; i<m_PoolSize; i++ )
         {
-            m_GameObjectPtrPool.AddInactiveObject( g_pComponentSystemManager->CopyGameObject( m_pGameObjectInPool, "PoolObject-TODO-ImproveName" ) );
+            m_GameObjectPtrPool.AddInactiveObject( g_pComponentSystemManager->CopyGameObject( m_pGameObjectInPool, "PoolObject-TODO-ImproveName", true ) );
         }
     }
 }
@@ -205,6 +205,7 @@ void ComponentObjectPool::OnStop()
     ComponentBase::OnStop();
 
     m_GameObjectPtrPool.DeleteAllObjectsInPool();
+    m_GameObjectPtrPool.DeallocateObjectLists();
 }
 
 //void ComponentObjectPool::TickCallback(float deltaTime)
