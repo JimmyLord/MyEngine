@@ -115,6 +115,7 @@ public:
 
     void ClearKeyAndActionStates();
     void ClearSelectedObjectsAndComponents();
+    void ClearSelectedObjectsAndComponentsFromScene(SceneID sceneID);
 
     void LockCameraToGameObject(GameObject* pGameObject);
     void UpdateCamera(float deltaTime);

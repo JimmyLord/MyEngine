@@ -1353,6 +1353,9 @@ void EngineCore::OnModeStop()
 #if MYFW_EDITOR
     if( m_EditorMode == false )
     {
+        // If any object or components from the unmanaged/runtime scene are selected, unselect them.
+        m_pEditorState->ClearSelectedObjectsAndComponentsFromScene( SCENEID_Unmanaged );
+
         // Call OnStop() for all components.
         m_pComponentSystemManager->OnStop( SCENEID_AllScenes );
 

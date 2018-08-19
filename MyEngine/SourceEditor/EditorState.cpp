@@ -248,6 +248,29 @@ void EditorState::ClearSelectedObjectsAndComponents()
 #endif
 }
 
+void EditorState::ClearSelectedObjectsAndComponentsFromScene(SceneID sceneID)
+{
+    for( uint32 i=0; i<m_pSelectedObjects.size(); i++ )
+    {
+        if( m_pSelectedObjects[i]->GetSceneID() == sceneID )
+        {
+            m_pSelectedObjects[i] = m_pSelectedObjects[m_pSelectedObjects.size()-1];
+            m_pSelectedObjects.pop_back();
+            i--;
+        }
+    }
+
+    for( uint32 i=0; i<m_pSelectedComponents.size(); i++ )
+    {
+        if( m_pSelectedComponents[i]->GetSceneID() == sceneID )
+        {
+            m_pSelectedComponents[i] = m_pSelectedComponents[m_pSelectedComponents.size()-1];
+            m_pSelectedComponents.pop_back();
+            i--;
+        }
+    }
+}
+
 void EditorState::LockCameraToGameObject(GameObject* pGameObject)
 {
     if( pGameObject == 0 )
