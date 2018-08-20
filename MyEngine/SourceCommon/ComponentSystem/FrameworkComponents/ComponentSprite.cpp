@@ -281,6 +281,9 @@ void ComponentSprite::AddToSceneGraph()
     if( pMaterial == 0 )
         return;
 
+    if( m_Enabled == false )
+        return;
+
     MyAssert( m_pSceneGraphObject == 0 );
     MyAssert( m_pSprite );
 

@@ -1715,6 +1715,11 @@ GameObject* ComponentSystemManager::CopyGameObject(GameObject* pObject, const ch
         else
             pComponent = pNewObject->AddNewComponent( pObject->GetComponentByIndex( i )->m_Type, SCENEID_Unmanaged );
 
+        if( disableNewObject )
+        {
+            pComponent->SetEnabled( false );
+        }
+
         pComponent->CopyFromSameType_Dangerous( pObject->GetComponentByIndex( i ) );
 
         pComponent->OnLoad();
@@ -1760,7 +1765,7 @@ GameObject* ComponentSystemManager::CopyGameObject(GameObject* pObject, const ch
     GameObject* pChild = pObject->GetFirstChild();
     while( pChild )
     {
-        GameObject* pNewChild = CopyGameObject( pChild, pChild->GetName(), false );
+        GameObject* pNewChild = CopyGameObject( pChild, pChild->GetName(), disableNewObject );
         pNewChild->SetParentGameObject( pNewObject );
 
 #if MYFW_USING_WX
