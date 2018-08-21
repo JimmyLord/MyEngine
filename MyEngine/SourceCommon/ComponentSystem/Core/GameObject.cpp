@@ -37,6 +37,11 @@ GameObject::GameObject(bool managed, SceneID sceneid, bool isfolder, bool hastra
     m_ID = 0;
     m_PhysicsSceneID = sceneid;
     m_Name = 0;
+    m_pOriginatingPool = 0;
+    
+    m_Managed = false;
+    if( managed )
+        SetManaged( true );
 
     if( isfolder || hastransform == false )
     {
@@ -51,10 +56,6 @@ GameObject::GameObject(bool managed, SceneID sceneid, bool isfolder, bool hastra
     }
 
     m_Components.AllocateObjects( MAX_COMPONENTS ); // hard coded nonsense for now, max of 8 components on a game object.
-
-    m_Managed = false;
-    if( managed )
-        SetManaged( true );
 }
 
 GameObject::~GameObject()
@@ -589,6 +590,13 @@ void GameObject::SetName(const char* name)
 #endif //MYFW_USING_WX
 }
 
+void GameObject::SetOriginatingPool(ComponentObjectPool* pPool)
+{
+    MyAssert( m_pOriginatingPool == 0 );
+
+    m_pOriginatingPool = pPool;
+}
+
 void GameObject::SetParentGameObject(GameObject* pNewParentGameObject)
 {
     // If the old parent is the same as the new one, kick out.
@@ -1078,6 +1086,13 @@ void GameObject::SetScriptFile(MyFileObject* pFile)
 #endif //MYFW_USING_LUA
         }
     }
+}
+
+void GameObject::ReturnToPool()
+{
+    MyAssert( m_pOriginatingPool != 0 );
+
+    m_pOriginatingPool->ReturnObjectToPool( this );
 }
 
 // Exposed to Lua, change elsewhere if function signature changes.

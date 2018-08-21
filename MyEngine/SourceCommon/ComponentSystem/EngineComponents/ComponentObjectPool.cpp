@@ -195,7 +195,11 @@ void ComponentObjectPool::OnPlay()
         m_GameObjectPtrPool.AllocateObjects( m_PoolSize );
         for( uint32 i=0; i<m_PoolSize; i++ )
         {
-            m_GameObjectPtrPool.AddInactiveObject( g_pComponentSystemManager->CopyGameObject( m_pGameObjectInPool, "PoolObject-TODO-ImproveName", true ) );
+            GameObject* pObject = g_pComponentSystemManager->CopyGameObject( m_pGameObjectInPool, "PoolObject-TODO-ImproveName", true );
+            m_GameObjectPtrPool.AddInactiveObject( pObject );
+
+            pObject->SetOriginatingPool( this );
+            pObject->SetManaged( false );
         }
     }
 }
@@ -206,6 +210,21 @@ void ComponentObjectPool::OnStop()
 
     m_GameObjectPtrPool.DeleteAllObjectsInPool();
     m_GameObjectPtrPool.DeallocateObjectLists();
+}
+
+GameObject* ComponentObjectPool::GetObjectFromPool()
+{
+    GameObject* pObject = m_GameObjectPtrPool.MakeObjectActive();
+    pObject->SetManaged( true );
+
+    return pObject;
+}
+
+void ComponentObjectPool::ReturnObjectToPool(GameObject* pObject)
+{
+    m_GameObjectPtrPool.MakeObjectInactive( pObject );
+    pObject->SetEnabled( false, true );
+    pObject->SetManaged( false );
 }
 
 //void ComponentObjectPool::TickCallback(float deltaTime)

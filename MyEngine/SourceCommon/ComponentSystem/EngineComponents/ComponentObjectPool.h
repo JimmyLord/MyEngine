@@ -45,6 +45,9 @@ public:
     virtual void OnPlay();
     virtual void OnStop();
 
+    GameObject* GetObjectFromPool();
+    void ReturnObjectToPool(GameObject* pObject);
+
 protected:
     // Callback functions for various events.
     //MYFW_DECLARE_COMPONENT_CALLBACK_TICK(); // TickCallback

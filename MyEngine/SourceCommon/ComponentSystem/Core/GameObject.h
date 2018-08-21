@@ -44,6 +44,7 @@ protected:
     unsigned int m_ID;
     SceneID m_PhysicsSceneID; // can't be SCENEID_Unmanaged (runtime scene) if a collision component exists
     char* m_Name; // this a copy of the string passed in.
+    ComponentObjectPool* m_pOriginatingPool; // If this isn't 0, this object came from a pool and should be returned to it.
     bool m_Managed;
 
     CPPListHead m_pOnDeleteCallbacks;
@@ -91,6 +92,7 @@ public:
     void SetSceneID(SceneID sceneid, bool assignnewgoid = true);
     void SetID(unsigned int id);
     void SetName(const char* name);
+    void SetOriginatingPool(ComponentObjectPool* pPool);
 
     void SetParentGameObject(GameObject* pNewParentGameObject);
     bool IsParentedTo(GameObject* pPotentialParent, bool onlycheckdirectparent);
@@ -142,6 +144,8 @@ public:
     void SetMaterial(MaterialDefinition* pMaterial);
 
     void SetScriptFile(MyFileObject* pFile);
+
+    void ReturnToPool();
 
     // Callbacks
     void RegisterOnDeleteCallback(void* pObj, GameObjectDeletedCallbackFunc pCallback);

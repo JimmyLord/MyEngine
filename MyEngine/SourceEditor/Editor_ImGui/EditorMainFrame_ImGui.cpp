@@ -1144,7 +1144,7 @@ void EditorMainFrame_ImGui::AddObjectList()
 
                 if( pSceneInfo->m_InUse == true )
                 {
-                    static char* pUnmanagedName = "Unmanaged";
+                    static char* pUnmanagedName = "Runtime";
                     static char* pUnsavedName = "Unsaved scene";
                     char* scenename = pUnmanagedName;
                     if( sceneindex != SCENEID_Unmanaged )
@@ -1162,7 +1162,7 @@ void EditorMainFrame_ImGui::AddObjectList()
                     }
 
                     ImGuiTreeNodeFlags nodeFlags = baseNodeFlags;
-                    if( sceneindex != SCENEID_Unmanaged )
+                    //if( sceneindex != SCENEID_Unmanaged )
                         nodeFlags |= ImGuiTreeNodeFlags_DefaultOpen;
 
                     if( forceOpen )
