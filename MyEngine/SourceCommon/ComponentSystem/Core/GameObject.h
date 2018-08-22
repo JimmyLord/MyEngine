@@ -138,7 +138,8 @@ public:
     Component2DCollisionObject* Get2DCollisionObject()  { return (Component2DCollisionObject*)GetFirstComponentOfType( "2DCollisionObjectComponent" ); }
     ComponentParticleEmitter* GetParticleEmitter()      { return (ComponentParticleEmitter*)GetFirstComponentOfType( "ParticleEmitterComponent" ); }
     ComponentVoxelWorld* GetVoxelWorld()                { return (ComponentVoxelWorld*)GetFirstComponentOfType( "VoxelWorldComponent" ); }
-    ComponentAudioPlayer* GetAudioPlayer()              { return (ComponentAudioPlayer*)GetFirstComponentOfType( "AudioPlayer" ); }
+    ComponentAudioPlayer* GetAudioPlayer()              { return (ComponentAudioPlayer*)GetFirstComponentOfType( "AudioPlayerComponent" ); }
+    ComponentObjectPool* GetObjectPool()                { return (ComponentObjectPool*)GetFirstComponentOfType( "ObjectPoolComponent" ); }
 
     MaterialDefinition* GetMaterial();
     void SetMaterial(MaterialDefinition* pMaterial);

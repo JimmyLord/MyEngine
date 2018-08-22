@@ -1725,22 +1725,19 @@ GameObject* ComponentSystemManager::CopyGameObject(GameObject* pObject, const ch
         pComponent->OnLoad();
     }
 
-    // Call OnPlay for all components.
+    // Call OnPlay for all components whether they are enabled or disabled.
     if( g_pEngineCore->IsInEditorMode() == false )
     {
-        if( pNewObject->IsEnabled() == true )
+        for( unsigned int i=0; i<pNewObject->GetComponentCount(); i++ )
         {
-            for( unsigned int i=0; i<pNewObject->GetComponentCount(); i++ )
-            {
-                if( pNewObject->GetComponentByIndex( i )->IsA( "2DJoint-" ) == false )
-                    pNewObject->GetComponentByIndex( i )->OnPlay();
-            }
-            // Call OnPlay for joints after everything else, will allow physics bodies to be created first.
-            for( unsigned int i=0; i<pNewObject->GetComponentCount(); i++ )
-            {
-                if( pNewObject->GetComponentByIndex( i )->IsA( "2DJoint-" ) == true )
-                    pNewObject->GetComponentByIndex( i )->OnPlay();
-            }
+            if( pNewObject->GetComponentByIndex( i )->IsA( "2DJoint-" ) == false )
+                pNewObject->GetComponentByIndex( i )->OnPlay();
+        }
+        // Call OnPlay for joints after everything else, will allow physics bodies to be created first.
+        for( unsigned int i=0; i<pNewObject->GetComponentCount(); i++ )
+        {
+            if( pNewObject->GetComponentByIndex( i )->IsA( "2DJoint-" ) == true )
+                pNewObject->GetComponentByIndex( i )->OnPlay();
         }
     }
 

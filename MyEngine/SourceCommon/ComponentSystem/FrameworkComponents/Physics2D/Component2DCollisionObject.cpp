@@ -611,6 +611,8 @@ void Component2DCollisionObject::CreateBody()
             }
         }
     }
+
+    m_pBody->SetActive( m_Enabled );
 }
 
 void Component2DCollisionObject::TickCallback(float deltaTime)

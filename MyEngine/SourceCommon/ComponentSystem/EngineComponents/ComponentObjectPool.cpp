@@ -64,7 +64,7 @@ void ComponentObjectPool::LuaRegister(lua_State* luastate)
     luabridge::getGlobalNamespace( luastate )
         .beginClass<ComponentObjectPool>( "ComponentObjectPool" )
             //.addData( "m_SampleVector3", &ComponentObjectPool::m_SampleVector3 )
-            //.addFunction( "GetVector3", &ComponentObjectPool::GetVector3 )
+            .addFunction( "GetObjectFromPool", &ComponentObjectPool::GetObjectFromPool )
         .endClass();
 }
 #endif //MYFW_USING_LUA
@@ -215,7 +215,10 @@ void ComponentObjectPool::OnStop()
 GameObject* ComponentObjectPool::GetObjectFromPool()
 {
     GameObject* pObject = m_GameObjectPtrPool.MakeObjectActive();
-    pObject->SetManaged( true );
+    if( pObject != 0 )
+    {
+        pObject->SetManaged( true );
+    }
 
     return pObject;
 }
