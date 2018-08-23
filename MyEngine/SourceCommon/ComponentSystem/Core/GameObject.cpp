@@ -134,6 +134,7 @@ void GameObject::LuaRegister(lua_State* luastate)
             .addFunction( "GetVoxelWorld", &GameObject::GetVoxelWorld ) // ComponentVoxelWorld* GameObject::GetVoxelWorld()              
             .addFunction( "GetAudioPlayer", &GameObject::GetAudioPlayer ) // ComponentAudioPlayer* GameObject::GetAudioPlayer()            
             .addFunction( "GetObjectPool", &GameObject::GetObjectPool ) // ComponentObjectPool* GameObject::GetObjectPool()            
+            .addFunction( "ReturnToPool", &GameObject::ReturnToPool ) // void GameObject::ReturnToPool()            
         .endClass();
 }
 #endif //MYFW_USING_LUA

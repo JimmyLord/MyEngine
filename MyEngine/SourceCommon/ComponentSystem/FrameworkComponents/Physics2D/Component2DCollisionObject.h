@@ -73,11 +73,15 @@ public:
     virtual void OnPlay();
     virtual void OnStop();
 
+    virtual void SetEnabled(bool enabled);
+
     void CreateBody();
     b2Body* GetBody() { return m_pBody; }
 
     void SyncRigidBodyToTransform();
 
+    void ClearVelocity();
+    void SetPositionAndAngle(Vector2 newPosition, float angle);
     void ApplyForce(Vector2 force, Vector2 localpoint);
     void ApplyLinearImpulse(Vector2 impulse, Vector2 localpoint);
     Vector2 GetLinearVelocity();

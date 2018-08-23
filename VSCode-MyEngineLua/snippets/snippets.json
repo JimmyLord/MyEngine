@@ -675,6 +675,7 @@
     //            .addFunction( "GetVoxelWorld", &GameObject::GetVoxelWorld ) // ComponentVoxelWorld* GameObject::GetVoxelWorld()              
     //            .addFunction( "GetAudioPlayer", &GameObject::GetAudioPlayer ) // ComponentAudioPlayer* GameObject::GetAudioPlayer()            
     //            .addFunction( "GetObjectPool", &GameObject::GetObjectPool ) // ComponentObjectPool* GameObject::GetObjectPool()            
+    //            .addFunction( "ReturnToPool", &GameObject::ReturnToPool ) // void GameObject::ReturnToPool()            
     //        .endClass();
 
 	"GameObject:GetTransform": {
@@ -908,12 +909,20 @@
     //    luabridge::getGlobalNamespace( luastate )
     //        .beginClass<Component2DCollisionObject>( "Component2DCollisionObject" )
     //            .addData( "density", &Component2DCollisionObject::m_Density ) // float
+    //            .addFunction( "ClearVelocity", &Component2DCollisionObject::ClearVelocity ) // void Component2DCollisionObject::ClearVelocity()
+    //            .addFunction( "SetPositionAndAngle", &Component2DCollisionObject::SetPositionAndAngle ) // void Component2DCollisionObject::SetPositionAndAngle(Vector2 newPosition, float angle)
     //            .addFunction( "ApplyForce", &Component2DCollisionObject::ApplyForce ) // void Component2DCollisionObject::ApplyForce(Vector2 force, Vector2 localpoint)
     //            .addFunction( "ApplyLinearImpulse", &Component2DCollisionObject::ApplyLinearImpulse ) // void Component2DCollisionObject::ApplyLinearImpulse(Vector2 impulse, Vector2 localpoint)
     //            .addFunction( "GetLinearVelocity", &Component2DCollisionObject::GetLinearVelocity ) // Vector2 Component2DCollisionObject::GetLinearVelocity()
     //            .addFunction( "GetMass", &Component2DCollisionObject::GetMass ) // float Component2DCollisionObject::GetMass()
     //        .endClass();
 
+	"Component2DCollisionObject:ClearVelocity": {
+		"prefix": "Component2DCollisionObject:ClearVelocity",
+        "body": "${1:Component2DCollisionObject instance}:ClearVelocity()",
+        "description": "Set linear and angular velocity to zero."
+    },
+    //TODO            .addFunction( "SetPositionAndAngle", &Component2DCollisionObject::SetPositionAndAngle ) // void Component2DCollisionObject::SetPositionAndAngle(Vector2 newPosition, float angle)
 	"Component2DCollisionObject:ApplyForce": {
 		"prefix": "Component2DCollisionObject:ApplyForce",
         "body": "${1:Component2DCollisionObject instance}:ApplyForce( ${2:Vector2 force}, ${2:Vector2 localpoint} )",

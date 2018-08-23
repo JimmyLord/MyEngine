@@ -129,6 +129,8 @@ void Component2DCollisionObject::LuaRegister(lua_State* luastate)
     luabridge::getGlobalNamespace( luastate )
         .beginClass<Component2DCollisionObject>( "Component2DCollisionObject" )
             .addData( "density", &Component2DCollisionObject::m_Density ) // float
+            .addFunction( "ClearVelocity", &Component2DCollisionObject::ClearVelocity ) // void Component2DCollisionObject::ClearVelocity()
+            .addFunction( "SetPositionAndAngle", &Component2DCollisionObject::SetPositionAndAngle ) // void Component2DCollisionObject::SetPositionAndAngle(Vector2 newPosition, float angle)
             .addFunction( "ApplyForce", &Component2DCollisionObject::ApplyForce ) // void Component2DCollisionObject::ApplyForce(Vector2 force, Vector2 localpoint)
             .addFunction( "ApplyLinearImpulse", &Component2DCollisionObject::ApplyLinearImpulse ) // void Component2DCollisionObject::ApplyLinearImpulse(Vector2 impulse, Vector2 localpoint)
             .addFunction( "GetLinearVelocity", &Component2DCollisionObject::GetLinearVelocity ) // Vector2 Component2DCollisionObject::GetLinearVelocity()
@@ -471,6 +473,16 @@ void Component2DCollisionObject::OnStop()
     m_pBox2DWorld = 0;
 }
 
+void Component2DCollisionObject::SetEnabled(bool enabled)
+{
+    ComponentBase::SetEnabled( enabled );
+
+    if( m_pBody == 0 )
+        return;
+
+    m_pBody->SetActive( enabled );
+}
+
 void Component2DCollisionObject::CreateBody()
 {
     MyAssert( m_pBody == 0 );
@@ -717,6 +729,24 @@ void Component2DCollisionObject::SyncRigidBodyToTransform()
 {
     if( m_pBody == 0 )
         return;
+}
+
+// Exposed to Lua, change elsewhere if function signature changes.
+void Component2DCollisionObject::ClearVelocity()
+{
+    if( m_pBody )
+    {
+        m_pBody->SetLinearVelocity( b2Vec2(0,0) );
+        m_pBody->SetAngularVelocity( 0 );
+    }
+}
+
+// Exposed to Lua, change elsewhere if function signature changes.
+void Component2DCollisionObject::SetPositionAndAngle(Vector2 newPosition, float angle)
+{
+    b2Vec2 b2position = b2Vec2( newPosition.x, newPosition.y );
+
+    m_pBody->SetTransform( b2position, angle ); 
 }
 
 // Exposed to Lua, change elsewhere if function signature changes.

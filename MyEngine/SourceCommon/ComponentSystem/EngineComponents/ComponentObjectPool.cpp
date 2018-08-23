@@ -215,9 +215,17 @@ void ComponentObjectPool::OnStop()
 GameObject* ComponentObjectPool::GetObjectFromPool()
 {
     GameObject* pObject = m_GameObjectPtrPool.MakeObjectActive();
+
     if( pObject != 0 )
     {
         pObject->SetManaged( true );
+    }
+    else
+    {
+        if( m_LogWarningsWhenEmpty )
+        {
+            LOGInfo( LOGTag, "(%s) Pool is empty!\n", m_pGameObject->GetName() );
+        }
     }
 
     return pObject;
