@@ -742,13 +742,14 @@ void ComponentBase::AddVariableToWatchPanel(ComponentVariable* pVar)
         switch( pVar->m_Type )
         {
         case ComponentVariableType_Int:
-            ImGui::DragInt( pVar->m_WatchLabel, (int*)((char*)this + pVar->m_Offset) );
-            //pVar->m_ControlID = g_pPanelWatch->AddInt( pVar->m_WatchLabel, (int*)((char*)this + pVar->m_Offset), -65535, 65535, this, ComponentBase::StaticOnValueChangedVariable, ComponentBase::StaticOnRightClickVariable );
+            {
+                float speed = 1.0f;
+                ImGui::DragInt( pVar->m_WatchLabel, (int*)((char*)this + pVar->m_Offset), speed, (int)pVar->m_FloatLowerLimit, (int)pVar->m_FloatUpperLimit );
+            }
             break;
 
         case ComponentVariableType_Enum:
             {
-                //pVar->m_ControlID = g_pPanelWatch->AddEnum( pVar->m_WatchLabel, (int*)((char*)this + pVar->m_Offset), pVar->m_NumEnumStrings, pVar->m_ppEnumStrings, this, ComponentBase::StaticOnValueChangedVariable, ComponentBase::StaticOnRightClickVariable );
                 const char** items = pVar->m_ppEnumStrings;
                 int currentItem = *(int*)((char*)this + pVar->m_Offset);
                 const char* currentItemStr = pVar->m_ppEnumStrings[currentItem];
@@ -846,7 +847,9 @@ void ComponentBase::AddVariableToWatchPanel(ComponentVariable* pVar)
             {
                 unsigned int* pValueUInt = (unsigned int*)((char*)this + pVar->m_Offset);
                 int valueInt = *pValueUInt;
-                if( ImGui::DragInt( pVar->m_WatchLabel, &valueInt ) )
+
+                float speed = 1.0f;
+                if( ImGui::DragInt( pVar->m_WatchLabel, &valueInt, speed, (int)pVar->m_FloatLowerLimit, (int)pVar->m_FloatUpperLimit ) )
                 {
                     *pValueUInt = valueInt;
                 }

@@ -1074,6 +1074,11 @@ void ComponentSystemManager::LoadSceneFromJSON(const char* scenename, const char
 
             if( pComponent )
             {
+                if( pComponent->m_pGameObject->IsEnabled() == false )
+                {
+                    pComponent->SetEnabled( false );
+                }
+
                 pComponent->ImportFromJSONObject( componentobj, sceneid );
             }
         }
