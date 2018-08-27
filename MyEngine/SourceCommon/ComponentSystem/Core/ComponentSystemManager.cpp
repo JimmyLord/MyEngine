@@ -867,7 +867,7 @@ void ComponentSystemManager::LoadSceneFromJSON(const char* scenename, const char
     // create the box2d world.
     MyAssert( sceneid >= SCENEID_MainScene && sceneid < MAX_SCENES_LOADED_INCLUDING_UNMANAGED );
     MyAssert( m_pSceneInfoMap[sceneid].m_pBox2DWorld == 0 );
-    m_pSceneInfoMap[sceneid].m_pBox2DWorld = MyNew Box2DWorld( 0, 0, new EngineBox2DContactListener );
+    m_pSceneInfoMap[sceneid].m_pBox2DWorld = MyNew Box2DWorld( 0, 0, 0, new EngineBox2DContactListener );
 #endif //MYFW_EDITOR
 
     // request all files used by scene.
@@ -1441,6 +1441,7 @@ GameObject* ComponentSystemManager::CreateGameObjectFromPrefab(PrefabObject* pPr
     pGameObject->SetName( jName->valuestring );
 
     // If this subobject of the prefab contains a "PrefabID", then it's a nested prefab and needs to "inherit" from the other prefab.
+#if MYFW_EDITOR
     uint32 prefabID = 0;
     cJSONExt_GetUnsignedInt( jPrefab, "PrefabID", &prefabID );
     if( prefabID != 0 )
@@ -1460,6 +1461,7 @@ GameObject* ComponentSystemManager::CreateGameObjectFromPrefab(PrefabObject* pPr
 
         pGameObject->Editor_SetGameObjectThisInheritsFromIgnoringPrefabRef( pOtherPrefabGameObject );
     }
+#endif //MYFW_EDITOR
 
     // Create matching components in new GameObject.
     {

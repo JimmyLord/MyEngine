@@ -397,7 +397,7 @@ void EngineCore::OneTimeInit()
     // Create one bullet world shared between all scenes.
 #if !MYFW_EDITOR
     // disable debug draw in non-editor builds
-    m_pBulletWorld = MyNew BulletWorld( 0, 0 );
+    m_pBulletWorld = MyNew BulletWorld( 0, 0, 0 );
 #else
     ComponentCamera* pCamera = m_pEditorState->GetEditorCamera();
     m_pBulletWorld = MyNew BulletWorld( m_pMaterial_Box2DDebugDraw, &pCamera->m_Camera3D.m_matProj, &pCamera->m_Camera3D.m_matView );

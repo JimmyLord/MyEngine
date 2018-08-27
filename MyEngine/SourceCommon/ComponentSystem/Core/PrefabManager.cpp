@@ -472,6 +472,7 @@ uint32 FindHighestPrefabComponentID(GameObject* pGameObject)
 {
     uint32 highestID = 0;
 
+#if MYFW_EDITOR
     // Check each component.
     for( unsigned int i=0; i<pGameObject->GetComponentCountIncludingCore(); i++ )
     {
@@ -490,12 +491,14 @@ uint32 FindHighestPrefabComponentID(GameObject* pGameObject)
 
         pChild = (GameObject*)pChild->GetNext();
     }
+#endif //MYFW_EDITOR
 
     return highestID;
 }
 
 void PrefabFile::OnFileFinishedLoading(MyFileObject* pFile)
 {
+#if MYFW_EDITOR
     pFile->UnregisterFileFinishedLoadingCallback( this );
 
     cJSON* jRoot = cJSON_Parse( pFile->GetBuffer() );
@@ -546,6 +549,9 @@ void PrefabFile::OnFileFinishedLoading(MyFileObject* pFile)
     }
 
     cJSON_Delete( jRoot );
+#else
+    MyAssert( false );
+#endif //MYFW_EDITOR
 }
 
 #if MYFW_EDITOR

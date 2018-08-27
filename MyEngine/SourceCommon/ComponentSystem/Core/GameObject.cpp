@@ -425,6 +425,7 @@ cJSON* GameObject::ExportAsJSONPrefab(PrefabObject* pPrefab, bool assignNewChild
         cJSON_AddItemToObject( jGameObject, "Components", jComponentArray );
         for( unsigned int i=0; i<m_Components.Count(); i++ )
         {
+#if MYFW_EDITOR
             // Assign PrefabComponentIDs if they weren't previously assigned.
             if( assignNewComponentIDs && m_Components[i]->GetPrefabComponentID() == 0 )
             {
@@ -436,6 +437,7 @@ cJSON* GameObject::ExportAsJSONPrefab(PrefabObject* pPrefab, bool assignNewChild
                     m_Components[i]->SetPrefabComponentID( ID );
                 }
             }
+#endif //MYFW_EDITOR
 
             cJSON* jComponent = m_Components[i]->ExportAsJSONObject( false, false );
 
@@ -629,11 +631,13 @@ void GameObject::SetParentGameObject(GameObject* pNewParentGameObject)
             if( m_PrefabRef.GetPrefab() && m_PrefabRef.GetPrefab() == pNewParentGameObject->m_PrefabRef.GetPrefab() )
             {
                 uint32 childID = m_PrefabRef.GetChildID();
+#if MYFW_EDITOR
                 if( childID != 0 && pNewParentGameObject->IsMissingPrefabChild( childID ) )
                 {
                     // If the new parent is missing this child, remove it from its list of "deleted" children since it's about to get it back.
                     pNewParentGameObject->RemovePrefabChildIDFromListOfDeletedPrefabChildIDs( childID );
                 }
+#endif //MYFW_EDITOR
             }
         }
 
@@ -652,11 +656,13 @@ void GameObject::SetParentGameObject(GameObject* pNewParentGameObject)
         if( m_PrefabRef.GetPrefab() == pOldParentGameObject->m_PrefabRef.GetPrefab() )
         {
             uint32 childID = m_PrefabRef.GetChildID();
+#if MYFW_EDITOR
             if( childID != 0 && pOldParentGameObject->IsMissingPrefabChild( childID ) )
             {
                 // If the old parent is now missing this child, add it to its list of "deleted" children.
                 pOldParentGameObject->AddPrefabChildIDToListOfDeletedPrefabChildIDs( childID );
             }
+#endif //MYFW_EDITOR
         }
     }
 
@@ -1023,6 +1029,7 @@ ComponentBase* GameObject::RemoveComponent(ComponentBase* pComponent)
 
 ComponentBase* GameObject::FindComponentByPrefabComponentID(unsigned int prefabComponentID)
 {
+#if MYFW_EDITOR
     for( unsigned int i=0; i<m_Components.Count(); i++ )
     {
         if( m_Components[i]->GetPrefabComponentID() == prefabComponentID )
@@ -1030,6 +1037,7 @@ ComponentBase* GameObject::FindComponentByPrefabComponentID(unsigned int prefabC
             return m_Components[i];
         }
     }
+#endif MYFW_EDITOR
 
     return 0;
 }
