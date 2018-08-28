@@ -348,6 +348,7 @@ bool EditorMainFrame_ImGui::CheckForHotkeys(int keyaction, int keycode)
         if( C  && keycode == '.' )   { EditorMenuCommand( EditorMenuCommand_Mode_Pause );                           return true; }
         if( C  && keycode == ']' )   { EditorMenuCommand( EditorMenuCommand_Mode_AdvanceOneFrame );                 return true; }
         if( C  && keycode == '[' )   { EditorMenuCommand( EditorMenuCommand_Mode_AdvanceOneSecond );                return true; }
+        if( C  && keycode == VK_F5 ) { EditorMenuCommand( EditorMenuCommand_Mode_LaunchGame );                      return true; }
         if( C  && keycode == VK_F9 ) { EditorMenuCommand( EditorMenuCommand_Debug_DrawWireframe );                  return true; }
         if( S  && keycode == VK_F8 ) { EditorMenuCommand( EditorMenuCommand_Debug_ShowPhysicsShapes );              return true; }
     }
@@ -888,7 +889,7 @@ void EditorMainFrame_ImGui::AddMainMenuBar()
                 ImGui::EndMenu();
             }
 
-            if( ImGui::MenuItem( "Launch Game (TODO)", "Ctrl-F5" ) ) {} // { EditorMenuCommand( myIDEngine_Mode_LaunchGame ); }
+            if( ImGui::MenuItem( "Launch Game", "Ctrl-F5" ) ) { EditorMenuCommand( EditorMenuCommand_Mode_LaunchGame ); }
 
             ImGui::EndMenu();
         }

@@ -111,6 +111,80 @@ void LoadMultipleDataFiles()
     }
 }
 
+void LaunchGame()
+{
+    int platform = LaunchPlatform_Win32; //GetLaunchPlatformIndex();
+
+    switch( platform )
+    {
+#if MYFW_WINDOWS
+    case LaunchPlatform_Win32:
+        {
+            LaunchApplication( "MyEngine_Game.exe", g_pComponentSystemManager->GetSceneInfo( SCENEID_MainScene )->m_FullPath );
+        }
+        break;
+
+    case LaunchPlatform_Win64:
+        {
+            LaunchApplication( "MyEngine_Game_x64.exe", g_pComponentSystemManager->GetSceneInfo( SCENEID_MainScene )->m_FullPath );
+        }
+        break;
+
+    case LaunchPlatform_NaCl:
+        {
+            LaunchApplication( "cmd.exe", "/C cd Web & RunWebServer.bat" );
+            LaunchApplication( "Chrome", "http://localhost:5103/game.html" );
+        }
+        break;
+
+    case LaunchPlatform_Android:
+        {
+            char tempstr[255];
+            sprintf_s( tempstr, 255, "/C cd Android & BuildAndLaunch.bat %s", g_pComponentSystemManager->GetSceneInfo( SCENEID_MainScene )->m_FullPath );
+            for( unsigned int i=0; i<strlen(tempstr); i++ )
+            {
+                if( tempstr[i] == '\\' )
+                    tempstr[i] = '/';
+            }
+            LaunchApplication( "cmd.exe", tempstr );
+        }
+        break;
+
+    case LaunchPlatform_Emscripten:
+        {
+            LaunchApplication( "cmd.exe", "/C cd Emscripten & BuildAndLaunch.bat" );
+        }
+        break;
+#elif MYFW_OSX
+    case LaunchPlatform_OSX:
+        {
+            LaunchApplication( "MyEngine_Game.app", g_pComponentSystemManager->GetSceneInfo( 1 )->m_FullPath );
+        }
+        break;
+
+    case LaunchPlatform_iOSSimulator:
+        {
+            LaunchApplication( "cd iOS && ./BuildAndLaunch-Simulator.sh", 0 );
+        }
+        break;
+
+    case LaunchPlatform_iOSDevice:
+        {
+            LaunchApplication( "cd iOS && ./BuildAndLaunch-Device.sh", 0 );
+        }
+        break;
+
+    case LaunchPlatform_iOSDevice_iOS6:
+        {
+            LaunchApplication( "cd iOS && ./BuildAndLaunch-DeviceiOS6.sh", 0 );
+        }
+        break;
+#endif
+
+    // AddNewLaunchPlatform
+    }
+}
+
 void EditorMenuCommand(EditorMenuCommands command)
 {
     switch( command )
@@ -326,6 +400,12 @@ void EditorMenuCommand(EditorMenuCommands command)
     case EditorMenuCommand_Mode_AdvanceOneSecond:
         {
             g_pEngineCore->OnModeAdvanceTime( 1.0f );
+        }
+        break;
+
+    case EditorMenuCommand_Mode_LaunchGame:
+        {
+            LaunchGame();
         }
         break;
 

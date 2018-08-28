@@ -31,6 +31,7 @@ enum EditorMenuCommands
     EditorMenuCommand_Mode_Pause,
     EditorMenuCommand_Mode_AdvanceOneFrame,
     EditorMenuCommand_Mode_AdvanceOneSecond,
+    EditorMenuCommand_Mode_LaunchGame,
     EditorMenuCommand_Data_LoadDatafiles,
     EditorMenuCommand_Debug_DrawWireframe,
     EditorMenuCommand_Debug_ShowPhysicsShapes,
