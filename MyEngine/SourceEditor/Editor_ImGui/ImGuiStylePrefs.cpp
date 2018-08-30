@@ -54,10 +54,11 @@ const char* g_StylePrefsStrings[ImGuiStylePrefs::StylePref_Num] =
     "PlotHistogram",
     "PlotHistogramHovered",
     "TextSelectedBg",
-    "ModalWindowDarkening",
     "DragDropTarget",
     "NavHighlight",
     "NavWindowingHighlight",
+    "NavWindowingDimBg",
+    "ModalWindowDimBg",
 
     "DivorcedText",
     "MultiSelectedVarDiffText",
@@ -70,7 +71,7 @@ ImGuiStylePrefs::ImGuiStylePrefs()
     m_Visible = false;
 
     // If this trips, imgui changed, so make fixes.
-    MyAssert( StylePref_NumImGuiStyleColors == 42 );
+    MyAssert( StylePref_NumImGuiStyleColors == 43 );
 
     for( int i=0; i<StylePref_NumImGuiStyleColors; i++ )
     {

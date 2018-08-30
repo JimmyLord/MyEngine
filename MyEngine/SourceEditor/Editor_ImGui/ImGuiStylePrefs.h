@@ -56,10 +56,11 @@ public:
         StylePref_Color_PlotHistogram,
         StylePref_Color_PlotHistogramHovered,
         StylePref_Color_TextSelectedBg,
-        StylePref_Color_ModalWindowDarkening,
         StylePref_Color_DragDropTarget,
         StylePref_Color_NavHighlight,
         StylePref_Color_NavWindowingHighlight,
+        StylePref_Color_NavWindowingDimBg,
+        StylePref_Color_ModalWindowDimBg,
         StylePref_NumImGuiStyleColors,
 
         StylePref_Color_DivorcedVarText = StylePref_NumImGuiStyleColors,
