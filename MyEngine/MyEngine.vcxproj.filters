@@ -465,6 +465,9 @@
     <ClCompile Include="SourceCommon\ComponentSystem\EngineComponents\ComponentObjectPool.cpp">
       <Filter>Source\ComponentSystem\Engine Components</Filter>
     </ClCompile>
+    <ClCompile Include="..\Libraries\imgui\imgui_widgets.cpp">
+      <Filter>Libraries\imgui</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SourceCommon\Camera\Camera3D.h">

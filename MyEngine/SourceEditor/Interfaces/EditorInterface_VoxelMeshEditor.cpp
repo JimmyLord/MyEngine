@@ -52,6 +52,10 @@ void EditorInterface_VoxelMeshEditor::OnDrawFrame(unsigned int canvasid)
     if( m_pVoxelMesh )
         pChunk = m_pVoxelMesh->GetChunk();
 
+#if !MYFW_OPENGLES2
+    return;
+#endif
+
     ImGui::SetNextWindowSize( ImVec2(150,50), ImGuiSetCond_FirstUseEver );
     ImGui::Begin( "Voxel Mesh Editor" );
 

@@ -1,14 +1,18 @@
-cmake_minimum_required( VERSION 3.7 )
+cmake_minimum_required( VERSION 3.4.1 )
 
 # Project
-project( MyEngine_Project VERSION 0.1 LANGUAGES C CXX )
+#project( MyEngine_Project VERSION 0.1 LANGUAGES C CXX )
 
 # MyEngine source files.
 file( GLOB_RECURSE sourcefiles
     "MyEngine/SourceCommon/*.cpp"
     "Libraries/imgui/imgui.cpp"
     "Libraries/imgui/imgui_draw.cpp"
+    "Libraries/imgui/imgui_widgets.cpp"
     "Libraries/Lua/src/*.c"
+    "Libraries/bullet3/src/BulletCollision/*.cpp"
+    "Libraries/bullet3/src/BulletDynamics/*.cpp"
+    "Libraries/bullet3/src/LinearMath/*.cpp"
     "../SharedGameCode/Core/RenderTextQuick.cpp"
     "../SharedGameCode/Menus/MenuItem.cpp"
     "../SharedGameCode/Core/MeshShapes.cpp"
@@ -22,9 +26,9 @@ file( GLOB_RECURSE sourcefiles
     "../SharedGameCode/Menus/MenuScrollBox.cpp"
     "../SharedGameCode/Menus/Menu_Helpers.cpp"
 )
-list( REMOVE_ITEM sourcefiles "${CMAKE_SOURCE_DIR}/Libraries/Lua/src/lua.c" )
-list( REMOVE_ITEM sourcefiles "${CMAKE_SOURCE_DIR}/Libraries/Lua/src/luac.c" )
-list( REMOVE_ITEM sourcefiles "${CMAKE_SOURCE_DIR}/Libraries/Lua/src/luac.c" )
+list( REMOVE_ITEM sourcefiles "${CMAKE_CURRENT_SOURCE_DIR}/Libraries/Lua/src/lua.c" )
+list( REMOVE_ITEM sourcefiles "${CMAKE_CURRENT_SOURCE_DIR}/Libraries/Lua/src/luac.c" )
+list( REMOVE_ITEM sourcefiles "${CMAKE_CURRENT_SOURCE_DIR}/Libraries/Lua/src/luac.c" )
 
 # Extra files specific to Editor (wxWidgets) builds.
 if( CMAKE_BUILD_TYPE MATCHES wxDebug OR CMAKE_BUILD_TYPE MATCHES wxRelease )
@@ -33,7 +37,7 @@ if( CMAKE_BUILD_TYPE MATCHES wxDebug OR CMAKE_BUILD_TYPE MATCHES wxRelease )
 endif()
 
 # Library
-add_library( MyEngine ${sourcefiles} )
+add_library( MyEngine STATIC ${sourcefiles} )
 
 #set_property( GLOBAL PROPERTY RULE_LAUNCH_COMPILE "${CMAKE_COMMAND} -E time" )
 
@@ -54,6 +58,7 @@ target_include_directories( MyEngine PUBLIC
     "../Framework/MyFramework/SourceCommon"
     "../Framework/MyFramework/SourceLinux"
     "../Framework/MyFramework/SourceWidgets"
+    "../Framework/Libraries/b2Settings"
     "../Framework/Libraries/Box2D"
     "../Framework/Libraries/cJSON"
     "../Framework/Libraries/LodePNG"
@@ -61,8 +66,19 @@ target_include_directories( MyEngine PUBLIC
     "../Framework/Libraries/wxWidgets/gtk-build-debug/lib/wx/include/gtk3-unicode-static-3.1"
 )
 
-# Base preprocessor defines.
-target_compile_definitions( MyEngine PRIVATE MYFW_LINUX=1 )
+#############
+# Preprocessor defines.
+#############
+
+# Android defines.
+if( NOT ${ANDROID_ABI} STREQUAL "" )
+    target_compile_definitions( MyEngine PRIVATE MYFW_ANDROID=1 )
+endif()
+
+# Linux defines.
+if( CMAKE_BUILD_TYPE MATCHES Linux )
+    target_compile_definitions( MyEngine PRIVATE MYFW_LINUX=1 )
+endif()
 
 if( CMAKE_BUILD_TYPE MATCHES Debug OR CMAKE_BUILD_TYPE MATCHES wxDebug )
     target_compile_definitions( MyEngine PRIVATE _DEBUG=1 )
@@ -84,6 +100,6 @@ if( CMAKE_BUILD_TYPE MATCHES wxDebug OR CMAKE_BUILD_TYPE MATCHES wxRelease )
 endif()
 
 # cotire (Compile time reducer)
-include( ../Framework/Libraries/Cotire/CMake/cotire.cmake )
-set_target_properties( MyEngine PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "MyEngine/SourceCommon/EngineCommonHeader.h" )
-cotire( MyEngine )
+#include( ../Framework/Libraries/Cotire/CMake/cotire.cmake )
+#set_target_properties( MyEngine PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "MyEngine/SourceCommon/EngineCommonHeader.h" )
+#cotire( MyEngine )

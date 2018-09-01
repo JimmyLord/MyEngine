@@ -587,6 +587,7 @@ void ComponentCamera::DrawScene()
 
     bool renderedADeferredPass = false;
 
+#if !MYFW_OPENGLES2
     // Start a deferred render pass, creating and binding the G-Buffer.
     if( m_Deferred && g_ActiveShaderPass == ShaderPass_Main )
     {
@@ -646,6 +647,7 @@ void ComponentCamera::DrawScene()
             m_pGBuffer->Bind( false );
         }
     }
+#endif //!MYFW_OPENGLES2
 
     // Clear the buffer and render the scene.
     {
@@ -676,6 +678,7 @@ void ComponentCamera::DrawScene()
 
         g_pComponentSystemManager->DrawFrame( this, pMatProj, pMatView, 0, drawOpaques, drawTransparents, emissiveDrawOption, drawOverlays );
 
+#if MYFW_EDITOR
         if( m_pGBuffer && renderedADeferredPass && m_DeferredGBufferVisible )
         {
             if( ImGui::Begin( "Deferred G-Buffer", &m_DeferredGBufferVisible, ImVec2(150, 150), 1 ) )
@@ -698,6 +701,7 @@ void ComponentCamera::DrawScene()
             }
             ImGui::End();
         }
+#endif //MYFW_EDITOR
     }
 
     // Restore the FBO to what was set when we entered this method.
@@ -760,10 +764,12 @@ void ComponentCamera::DrawScene()
                 MyLight* pLight;
                 g_pLightManager->FindNearestLights( LightType_Directional, 1, Vector3(0,0,0), &pLight );
 
+                Vector3 worldPosition = m_pComponentTransform->GetWorldPosition();
+
                 if( pLight )
-                    m_pDeferredQuadMesh->Draw( 0, 0, 0, &m_pComponentTransform->GetWorldPosition(), 0, &pLight, 1, pShadowVP, pShadowTex, 0, 0 );
+                    m_pDeferredQuadMesh->Draw( 0, 0, 0, &worldPosition, 0, &pLight, 1, pShadowVP, pShadowTex, 0, 0 );
                 else
-                    m_pDeferredQuadMesh->Draw( 0, 0, 0, &m_pComponentTransform->GetWorldPosition(), 0, 0, 0, pShadowVP, pShadowTex, 0, 0 );
+                    m_pDeferredQuadMesh->Draw( 0, 0, 0, &worldPosition, 0, 0, 0, pShadowVP, pShadowTex, 0, 0 );
             }
 
             // Disable depth write and depth test for point light spheres.
@@ -795,7 +801,8 @@ void ComponentCamera::DrawScene()
                         // Render a sphere to combine the 3 textures from the G-Buffer.
                         // Point light shader should set blending to additive.
                         // Textures are set below in SetupCustomUniformsCallback().
-                        m_pDeferredSphereMesh->Draw( pMatProj, pMatView, &matWorld, &m_pComponentTransform->GetWorldPosition(), 0, &pLight, 1, 0, 0, 0, 0 );
+                        Vector3 worldPosition = m_pComponentTransform->GetWorldPosition();
+                        m_pDeferredSphereMesh->Draw( pMatProj, pMatView, &matWorld, &worldPosition, 0, &pLight, 1, 0, 0, 0, 0 );
                     }
                 }
             }

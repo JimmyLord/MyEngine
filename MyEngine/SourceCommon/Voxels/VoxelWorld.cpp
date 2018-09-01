@@ -250,6 +250,7 @@ void VoxelWorld::Tick(float deltaTime, void* pUserData)
 
     // Some stats posted in an ImGui window
     {
+#if !MYFW_OPENGLES2
         ImGui::SetNextWindowSize( ImVec2(150,100), ImGuiSetCond_FirstUseEver );
         ImGui::Begin( "Voxel World Stats" );
 
@@ -265,6 +266,7 @@ void VoxelWorld::Tick(float deltaTime, void* pUserData)
         }
 
         ImGui::End();
+#endif //!MYFW_OPENGLES2
     }
 
     UpdateVisibility( pUserData );
@@ -478,7 +480,7 @@ void VoxelWorld::SetWorldSize(Vector3Int visibleworldsize)
         m_VoxelBlockEnabledBitsSingleAllocation = MyNew uint32[num4bytecontainersneeded];
         m_VoxelBlockSingleAllocation = MyNew VoxelBlock[numberofblocksneeded];
 
-        LOGInfo( LOGTag, "VoxelWorld Allocation -> blocks %d + %d\n",
+        LOGInfo( LOGTag, "VoxelWorld Allocation -> blocks %lu + %lu\n",
             pointersneeded * m_ChunkSize.x*m_ChunkSize.y*m_ChunkSize.z * sizeof( VoxelBlock ),
             num4bytecontainersneeded * sizeof(uint32) );
 

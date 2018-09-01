@@ -186,7 +186,7 @@ cJSON* GameObject::ExportAsJSONObject(bool savesceneid)
     
     if( m_IsFolder == true )
         cJSON_AddStringToObject( jGameObject, "SubType", "Folder" );
-    else if( m_pComponentTransform == false )
+    else if( m_pComponentTransform == 0 )
         cJSON_AddStringToObject( jGameObject, "SubType", "Logic" );
 
     cJSON* jProperties = m_Properties.ExportAsJSONObject( false, true );
@@ -383,7 +383,7 @@ cJSON* GameObject::ExportAsJSONPrefab(PrefabObject* pPrefab, bool assignNewChild
 
     if( m_IsFolder == true )
         cJSON_AddStringToObject( jGameObject, "SubType", "Folder" );
-    else if( m_pComponentTransform == false )
+    else if( m_pComponentTransform == 0 )
         cJSON_AddStringToObject( jGameObject, "SubType", "Logic" );
 
     // Export the prefab this object is an instance of.
@@ -1037,7 +1037,7 @@ ComponentBase* GameObject::FindComponentByPrefabComponentID(unsigned int prefabC
             return m_Components[i];
         }
     }
-#endif MYFW_EDITOR
+#endif //MYFW_EDITOR
 
     return 0;
 }

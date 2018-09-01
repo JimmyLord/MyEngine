@@ -1793,7 +1793,7 @@ void ComponentLuaScript::TickCallback(float deltaTime)
         LoadScript();
     }
 
-    if( g_pLuaGameState == false || m_ScriptLoaded == false )
+    if( g_pLuaGameState == 0 || m_ScriptLoaded == false )
         return;
 
     // copy externed variable values after loading the script

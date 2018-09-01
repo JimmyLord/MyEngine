@@ -275,7 +275,7 @@ void ComponentMeshPrimitive::UnregisterCallbacks()
 
 void ComponentMeshPrimitive::CreatePrimitive()
 {
-    if( m_MeshPrimitiveType < 0 || m_MeshPrimitiveType >= ComponentMeshPrimitive_NumTypes )
+    if( m_MeshPrimitiveType >= ComponentMeshPrimitive_NumTypes )
         return;
 
     if( m_pMesh == 0 )

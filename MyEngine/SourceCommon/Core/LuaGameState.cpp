@@ -23,7 +23,7 @@ LuaGameState* g_pLuaGameState = 0;
 // Exposed to Lua, change elsewhere if function signature changes.
 void LUA_LogInfo(const char* str)
 {
-    LOGInfo( LOGTag, str );
+    LOGInfo( LOGTag, "%s", str );
 }
 
 void LuaBridgeExt_LogExceptionFormattedForVisualStudioOutputWindow(const char* userdata, const char* fullpath, const char* what)

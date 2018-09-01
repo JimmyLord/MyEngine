@@ -1451,7 +1451,7 @@ void EditorMainFrame_ImGui::AddGameObjectToObjectList(GameObject* pGameObject, P
             {
                 m_pGameObjectWhoseNameIsBeingEdited = pEditorState->m_pSelectedObjects[0];
                 m_pMaterialWhoseNameIsBeingEdited = 0;
-                strncpy_s( m_NameBeingEdited, m_pGameObjectWhoseNameIsBeingEdited->GetName(), 100 );
+                strncpy_s( m_NameBeingEdited, 100, m_pGameObjectWhoseNameIsBeingEdited->GetName(), 99 );
             }
         }
 
@@ -2315,7 +2315,7 @@ void EditorMainFrame_ImGui::AddMemoryPanel_Materials()
                     // Start a rename op on the new material.
                     m_pGameObjectWhoseNameIsBeingEdited = 0;
                     m_pMaterialWhoseNameIsBeingEdited = pMaterial;
-                    strncpy_s( m_NameBeingEdited, pMaterial->GetName(), 100 );
+                    strncpy_s( m_NameBeingEdited, 100, pMaterial->GetName(), 99 );
                 }
                 ImGui::EndPopup();
             }
@@ -2363,7 +2363,7 @@ void EditorMainFrame_ImGui::AddMemoryPanel_Materials()
                                 {
                                     m_pGameObjectWhoseNameIsBeingEdited = 0;
                                     m_pMaterialWhoseNameIsBeingEdited = pMat;
-                                    strncpy_s( m_NameBeingEdited, matName, 100 );
+                                    strncpy_s( m_NameBeingEdited, 100, matName, 99 );
                                 }
 
                                 if( ImGui::BeginPopupContextItem( "ContextPopup", 1 ) )
@@ -2375,7 +2375,7 @@ void EditorMainFrame_ImGui::AddMemoryPanel_Materials()
                                     {
                                         m_pGameObjectWhoseNameIsBeingEdited = 0;
                                         m_pMaterialWhoseNameIsBeingEdited = pMat;
-                                        strncpy_s( m_NameBeingEdited, matName, 100 );
+                                        strncpy_s( m_NameBeingEdited, 100, matName, 99 );
 
                                         ImGui::CloseCurrentPopup();
                                     }
