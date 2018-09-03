@@ -1,10 +1,11 @@
 cmake_minimum_required( VERSION 3.4.1 )
 
-# Project
-#project( MyEngine_Project VERSION 0.1 LANGUAGES C CXX )
+###############################################################################
+# Source code file list.
+###############################################################################
 
 # MyEngine source files.
-file( GLOB_RECURSE sourcefiles
+file( GLOB_RECURSE sourceFiles
     "MyEngine/SourceCommon/*.cpp"
     "Libraries/imgui/imgui.cpp"
     "Libraries/imgui/imgui_draw.cpp"
@@ -26,20 +27,22 @@ file( GLOB_RECURSE sourcefiles
     "../SharedGameCode/Menus/MenuScrollBox.cpp"
     "../SharedGameCode/Menus/Menu_Helpers.cpp"
 )
-list( REMOVE_ITEM sourcefiles "${CMAKE_CURRENT_SOURCE_DIR}/Libraries/Lua/src/lua.c" )
-list( REMOVE_ITEM sourcefiles "${CMAKE_CURRENT_SOURCE_DIR}/Libraries/Lua/src/luac.c" )
-list( REMOVE_ITEM sourcefiles "${CMAKE_CURRENT_SOURCE_DIR}/Libraries/Lua/src/luac.c" )
+list( REMOVE_ITEM sourceFiles "${CMAKE_CURRENT_SOURCE_DIR}/Libraries/Lua/src/lua.c" )
+list( REMOVE_ITEM sourceFiles "${CMAKE_CURRENT_SOURCE_DIR}/Libraries/Lua/src/luac.c" )
+list( REMOVE_ITEM sourceFiles "${CMAKE_CURRENT_SOURCE_DIR}/Libraries/Lua/src/luac.c" )
 
 # Extra files specific to Editor (wxWidgets) builds.
 if( CMAKE_BUILD_TYPE MATCHES wxDebug OR CMAKE_BUILD_TYPE MATCHES wxRelease )
-    file( GLOB_RECURSE editorfiles "MyEngine/SourceEditor/*.cpp" )
-    set( sourcefiles ${sourcefiles} ${editorfiles} )
+    file( GLOB_RECURSE editorFiles "MyEngine/SourceEditor/*.cpp" )
+    set( sourceFiles ${sourceFiles} ${editorFiles} )
 endif()
 
-# Library
-add_library( MyEngine STATIC ${sourcefiles} )
+###############################################################################
+# Library setup.
+###############################################################################
 
-#set_property( GLOBAL PROPERTY RULE_LAUNCH_COMPILE "${CMAKE_COMMAND} -E time" )
+# Library
+add_library( MyEngine STATIC ${sourceFiles} )
 
 # MyEngine include directories.
 target_include_directories( MyEngine PUBLIC
@@ -56,7 +59,6 @@ target_include_directories( MyEngine PUBLIC
 # MyFramework include directories.
 target_include_directories( MyEngine PUBLIC
     "../Framework/MyFramework/SourceCommon"
-    "../Framework/MyFramework/SourceLinux"
     "../Framework/MyFramework/SourceWidgets"
     "../Framework/Libraries/b2Settings"
     "../Framework/Libraries/Box2D"
@@ -66,39 +68,47 @@ target_include_directories( MyEngine PUBLIC
     "../Framework/Libraries/wxWidgets/gtk-build-debug/lib/wx/include/gtk3-unicode-static-3.1"
 )
 
-#############
-# Preprocessor defines.
-#############
+###############################################################################
+# Platform specific settings.
+###############################################################################
 
 # Android defines.
-if( NOT ${ANDROID_ABI} STREQUAL "" )
+if( CMAKE_SYSTEM_NAME MATCHES Android )
     target_compile_definitions( MyEngine PRIVATE MYFW_ANDROID=1 )
 endif()
 
 # Linux defines.
-if( CMAKE_BUILD_TYPE MATCHES Linux )
+if( CMAKE_SYSTEM_NAME MATCHES Linux )
     target_compile_definitions( MyEngine PRIVATE MYFW_LINUX=1 )
+    target_include_directories( MyEngine PUBLIC "../Framework/MyFramework/SourceLinux" )
 endif()
 
-if( CMAKE_BUILD_TYPE MATCHES Debug OR CMAKE_BUILD_TYPE MATCHES wxDebug )
-    target_compile_definitions( MyEngine PRIVATE _DEBUG=1 )
+# Windows/VisualStudio defines.
+if( CMAKE_SYSTEM_NAME MATCHES Windows )
+    target_compile_definitions( MyEngine PRIVATE MYFW_WINDOWS=1 )
+    target_include_directories( MyEngine PUBLIC "../Framework/MyFramework/SourceWindows" )
+	add_definitions( -DUNICODE -D_UNICODE )
 endif()
 
 # WxWidgets specific settings.
 if( CMAKE_BUILD_TYPE MATCHES wxDebug OR CMAKE_BUILD_TYPE MATCHES wxRelease )
-
     # Preprocessor defines.
     target_compile_definitions( MyEngine PRIVATE MYFW_USING_WX=1 _FILE_OFFSET_BITS=64 __WXGTK__ )
 
-    # Set base CMake build type to debug or release. not sure if works.
+    # Set base CMake build type to debug or release.
     if( CMAKE_BUILD_TYPE MATCHES wxDebug )
         set( CMAKE_BUILD_TYPE Debug )
     elseif( CMAKE_BUILD_TYPE MATCHES wxRelease )
         set( CMAKE_BUILD_TYPE Release )
     endif()
-
 endif()
 
+# Set debug preprocessor define.
+if( CMAKE_BUILD_TYPE MATCHES Debug )
+    target_compile_definitions( MyEngine PRIVATE _DEBUG=1 )
+endif()
+
+# Currently disabled since some bullet headers don't like being in a unity build.
 # cotire (Compile time reducer)
 #include( ../Framework/Libraries/Cotire/CMake/cotire.cmake )
 #set_target_properties( MyEngine PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "MyEngine/SourceCommon/EngineCommonHeader.h" )
