@@ -8,6 +8,7 @@ cmake_minimum_required( VERSION 3.4.1 )
 file( GLOB_RECURSE sourceFiles
     "MyEngine/SourceCommon/*.cpp"
     "Libraries/imgui/imgui.cpp"
+    "Libraries/imgui/imgui_demo.cpp"
     "Libraries/imgui/imgui_draw.cpp"
     "Libraries/imgui/imgui_widgets.cpp"
     "Libraries/Lua/src/*.c"
@@ -29,12 +30,12 @@ file( GLOB_RECURSE sourceFiles
 )
 list( REMOVE_ITEM sourceFiles "${CMAKE_CURRENT_SOURCE_DIR}/Libraries/Lua/src/lua.c" )
 list( REMOVE_ITEM sourceFiles "${CMAKE_CURRENT_SOURCE_DIR}/Libraries/Lua/src/luac.c" )
-list( REMOVE_ITEM sourceFiles "${CMAKE_CURRENT_SOURCE_DIR}/Libraries/Lua/src/luac.c" )
 
-# Extra files specific to Editor (wxWidgets) builds.
-if( CMAKE_BUILD_TYPE MATCHES wxDebug OR CMAKE_BUILD_TYPE MATCHES wxRelease )
+# Editor specific source files.
+if( CMAKE_BUILD_TYPE MATCHES EditorDebug OR CMAKE_BUILD_TYPE MATCHES EditorRelease )
     file( GLOB_RECURSE editorFiles "MyEngine/SourceEditor/*.cpp" )
     set( sourceFiles ${sourceFiles} ${editorFiles} )
+    list( REMOVE_ITEM sourceFiles "${CMAKE_CURRENT_SOURCE_DIR}/MyEngine/SourceEditor/Dialogs/DialogGridSettings.cpp" )
 endif()
 
 ###############################################################################
@@ -47,6 +48,7 @@ add_library( MyEngine STATIC ${sourceFiles} )
 # MyEngine include directories.
 target_include_directories( MyEngine PUBLIC
     "MyEngine/SourceCommon"
+	"MyEngine/SourceEditor"
     "Libraries/imgui"
     "Libraries/Lua/src"
     "Libraries/LuaBridge"
@@ -59,13 +61,13 @@ target_include_directories( MyEngine PUBLIC
 # MyFramework include directories.
 target_include_directories( MyEngine PUBLIC
     "../Framework/MyFramework/SourceCommon"
-    "../Framework/MyFramework/SourceWidgets"
+    "../Framework/MyFramework/SourceEditor"
+    "../Framework/MyFramework/SourceLinux"
     "../Framework/Libraries/b2Settings"
     "../Framework/Libraries/Box2D"
     "../Framework/Libraries/cJSON"
     "../Framework/Libraries/LodePNG"
-    "../Framework/Libraries/wxWidgets/include"
-    "../Framework/Libraries/wxWidgets/gtk-build-debug/lib/wx/include/gtk3-unicode-static-3.1"
+    "../Framework/Libraries/OpenSimplexInC"
 )
 
 ###############################################################################
@@ -90,20 +92,19 @@ if( CMAKE_SYSTEM_NAME MATCHES Windows )
 	add_definitions( -DUNICODE -D_UNICODE )
 endif()
 
-# WxWidgets specific settings.
-if( CMAKE_BUILD_TYPE MATCHES wxDebug OR CMAKE_BUILD_TYPE MATCHES wxRelease )
-    # Preprocessor defines.
-    target_compile_definitions( MyEngine PRIVATE MYFW_USING_WX=1 _FILE_OFFSET_BITS=64 __WXGTK__ )
+# Editor settings.
+if( CMAKE_BUILD_TYPE MATCHES EditorDebug OR CMAKE_BUILD_TYPE MATCHES EditorRelease )
+    target_compile_definitions( MyEngine PRIVATE MYFW_USING_IMGUI=1 MYFW_EDITOR=1 )
 
     # Set base CMake build type to debug or release.
-    if( CMAKE_BUILD_TYPE MATCHES wxDebug )
+    if( CMAKE_BUILD_TYPE MATCHES EditorDebug )
         set( CMAKE_BUILD_TYPE Debug )
-    elseif( CMAKE_BUILD_TYPE MATCHES wxRelease )
+    elseif( CMAKE_BUILD_TYPE MATCHES EditorRelease )
         set( CMAKE_BUILD_TYPE Release )
     endif()
 endif()
 
-# Set debug preprocessor define.
+# Debug settings.
 if( CMAKE_BUILD_TYPE MATCHES Debug )
     target_compile_definitions( MyEngine PRIVATE _DEBUG=1 )
 endif()

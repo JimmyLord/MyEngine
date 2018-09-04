@@ -76,7 +76,7 @@ ImGuiStylePrefs::ImGuiStylePrefs()
     for( int i=0; i<StylePref_NumImGuiStyleColors; i++ )
     {
         // If this trips, imgui changed, so make fixes.
-        MyAssert( g_StylePrefsStrings[i] == ImGui::GetStyleColorName(i) );
+        MyAssert( strcmp( g_StylePrefsStrings[i], ImGui::GetStyleColorName(i) ) == 0 );
 
         ImGui::StyleColorsClassic();
         m_DefaultColors[0][i] = ImGui::GetStyleColorVec4( i ); // MyDefaults
