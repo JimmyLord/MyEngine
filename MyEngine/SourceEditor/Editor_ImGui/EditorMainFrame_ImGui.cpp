@@ -879,11 +879,11 @@ void EditorMainFrame_ImGui::AddMainMenuBar()
             if( ImGui::MenuItem( "Advance 1 Frame", "Ctrl-]" ) ) { EditorMenuCommand( EditorMenuCommand_Mode_AdvanceOneFrame ); }
             if( ImGui::MenuItem( "Advance 1 Second", "Ctrl-[" ) ) { EditorMenuCommand( EditorMenuCommand_Mode_AdvanceOneSecond ); }
 
-            if( ImGui::BeginMenu( "Launch Platforms (TODO)" ) )
+            if( ImGui::BeginMenu( "Launch Platforms" ) )
             {
                 for( int i=0; i<LaunchPlatform_NumPlatforms; i++ )
                 {
-                    if( ImGui::MenuItem( g_LaunchPlatformsMenuLabels[i], 0, true ) ) {} // { EditorMenuCommand( myIDEngine_Mode_LaunchPlatforms + i ); }
+                    if( ImGui::MenuItem( g_LaunchPlatformsMenuLabels[i], 0, true ) ) { EditorMenuCommand( (EditorMenuCommands)(EditorMenuCommand_Mode_LaunchPlatforms + i) ); }
                 }
 
                 ImGui::EndMenu();

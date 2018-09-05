@@ -113,7 +113,7 @@ void LoadMultipleDataFiles()
 
 void LaunchGame()
 {
-    int platform = LaunchPlatform_Win32; //GetLaunchPlatformIndex();
+    LaunchPlatforms platform = g_pEditorPrefs->Get_Mode_LaunchPlatform();
 
     switch( platform )
     {
@@ -182,6 +182,10 @@ void LaunchGame()
 #endif
 
     // AddNewLaunchPlatform
+    
+    case LaunchPlatform_NumPlatforms:
+        MyAssert( false );
+        break;
     }
 }
 
@@ -403,6 +407,10 @@ void EditorMenuCommand(EditorMenuCommands command)
         }
         break;
 
+    case EditorMenuCommand_Mode_LaunchPlatforms:
+        // Handled below
+        break;
+
     case EditorMenuCommand_Mode_LaunchGame:
         {
             LaunchGame();
@@ -428,7 +436,15 @@ void EditorMenuCommand(EditorMenuCommands command)
         }
 
     default:
-        MyAssert( false );
+        // The only cases not handled above are launch platform cases, since there's a dynamic amount of them.
+        MyAssert( command >= EditorMenuCommand_Mode_LaunchPlatforms && command < EditorMenuCommand_Mode_LaunchPlatforms + LaunchPlatform_NumPlatforms );
         break;
+    }
+
+    if( command >= EditorMenuCommand_Mode_LaunchPlatforms && command < EditorMenuCommand_Mode_LaunchPlatforms + LaunchPlatform_NumPlatforms )
+    {
+        LaunchPlatforms platformIndex = (LaunchPlatforms)(command - EditorMenuCommand_Mode_LaunchPlatforms);
+
+        g_pEditorPrefs->Set_Mode_LaunchPlatform( platformIndex );
     }
 }
