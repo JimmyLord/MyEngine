@@ -40,6 +40,12 @@ EditorPrefs::EditorPrefs()
     m_GridSettings.stepsize.Set( 1, 1, 1 );
 
     m_Mode_SwitchFocusOnPlayStop = true;
+#if MYFW_WINDOWS
+    m_Mode_CurrentLaunchPlatform = LaunchPlatform_Win32;
+#else
+    m_Mode_CurrentLaunchPlatform = LaunchPlatform_OSX;
+#endif
+
     m_Debug_DrawPhysicsDebugShapes = true;
 
 #if MYFW_USING_IMGUI
@@ -121,13 +127,16 @@ void EditorPrefs::LoadPrefs()
             g_pEngineCore->GetEditorState()->GetEditorCamera()->m_pComponentTransform->ImportFromJSONObject( jObject, SCENEID_EngineObjects );
     }
 
+    // View menu options
     cJSONExt_GetBool( m_jEditorPrefs, "View_ShowEditorIcons", &m_View_ShowEditorIcons );
     cJSONExt_GetBool( m_jEditorPrefs, "View_EditorCamDeferred", &m_View_EditorCamDeferred );
     cJSONExt_GetBool( m_jEditorPrefs, "View_SelectedObjects_ShowWireframe", &m_View_SelectedObjects_ShowWireframe );
     cJSONExt_GetBool( m_jEditorPrefs, "View_SelectedObjects_ShowEffect", &m_View_SelectedObjects_ShowEffect );
 
+    // Aspect menu options
     cJSONExt_GetInt( m_jEditorPrefs, "Aspect_GameAspectRatio", (int*)&m_Aspect_CurrentGameWindowAspectRatio );
 
+    // Grid menu options
     cJSONExt_GetBool( m_jEditorPrefs, "Grid_Visible", &m_GridSettings.visible );
     if( g_pEngineCore )
     {
@@ -136,7 +145,11 @@ void EditorPrefs::LoadPrefs()
     cJSONExt_GetBool( m_jEditorPrefs, "Grid_SnapEnabled", &m_GridSettings.snapenabled );
     cJSONExt_GetFloatArray( m_jEditorPrefs, "Grid_StepSize", &m_GridSettings.stepsize.x, 3 );
 
+    // Mode menu options
     cJSONExt_GetBool( m_jEditorPrefs, "Mode_SwitchFocusOnPlayStop", &m_Mode_SwitchFocusOnPlayStop );
+    cJSONExt_GetUnsignedInt( m_jEditorPrefs, "LaunchPlatform", (unsigned int*)&m_Mode_CurrentLaunchPlatform );
+
+    // Debug menu options
     cJSONExt_GetBool( m_jEditorPrefs, "Debug_DrawPhysicsDebugShapes", &m_Debug_DrawPhysicsDebugShapes );
 
 #if MYFW_USING_IMGUI
@@ -254,7 +267,7 @@ cJSON* EditorPrefs::SaveStart()
 
         // Mode menu options
         cJSON_AddNumberToObject( jPrefs, "Mode_SwitchFocusOnPlayStop", m_Mode_SwitchFocusOnPlayStop );
-        //cJSON_AddNumberToObject( jPrefs, "LaunchPlatform", GetLaunchPlatformIndex() );
+        cJSON_AddNumberToObject( jPrefs, "LaunchPlatform", m_Mode_CurrentLaunchPlatform );
 
         // Debug menu options
         cJSON_AddNumberToObject( jPrefs, "Debug_DrawPhysicsDebugShapes", m_Debug_DrawPhysicsDebugShapes );

@@ -27,16 +27,16 @@ const char* g_DefaultEngineEditorWindowTypeMenuLabels[EngineEditorWindow_NumType
 const char* g_LaunchPlatformsMenuLabels[LaunchPlatform_NumPlatforms] =
 {
 #if MYFW_WINDOWS
-    "&Win32",
-    "Win&64",
-    "&NaCl",
-    "&Android",
-    "&Emscripten",
+    "Win32",
+    "Win64",
+    "NaCl",
+    "Android",
+    "Emscripten",
 #elif MYFW_OSX
-    "&OSX",
-    "iOS &Simulator",
-    "&iOS Device",
-    "iOS&6 Device (Needs Xcode 7.3.1)"
+    "OSX",
+    "iOS Simulator",
+    "iOS Device",
+    "iOS6 Device (Needs Xcode 7.3.1)"
 #endif
     // AddNewLaunchPlatform
 };

@@ -83,8 +83,8 @@ protected:
     bool m_View_SelectedObjects_ShowEffect;
     GLViewTypes m_Aspect_CurrentGameWindowAspectRatio;
     GridSettings m_GridSettings;
-    LaunchPlatforms m_Mode_CurrentLaunchPlatform;
     bool m_Mode_SwitchFocusOnPlayStop;
+    LaunchPlatforms m_Mode_CurrentLaunchPlatform;
     bool m_Debug_DrawPhysicsDebugShapes;
 
 #if MYFW_USING_IMGUI
@@ -123,8 +123,8 @@ public:
     GLViewTypes Get_Aspect_GameAspectRatio() { return m_Aspect_CurrentGameWindowAspectRatio; }
     bool Get_Grid_Visible() { return m_GridSettings.visible; }
     bool Get_Grid_SnapEnabled() { return m_GridSettings.snapenabled; }
-    LaunchPlatforms Get_Mode_LaunchPlatform() { return m_Mode_CurrentLaunchPlatform; }
     bool Get_Mode_SwitchFocusOnPlayStop() { return m_Mode_SwitchFocusOnPlayStop; }
+    LaunchPlatforms Get_Mode_LaunchPlatform() { return m_Mode_CurrentLaunchPlatform; }
     bool Get_Debug_DrawPhysicsDebugShapes() { return m_Debug_DrawPhysicsDebugShapes; }
 
     void Toggle_View_ShowEditorIcons() { m_View_ShowEditorIcons = !m_View_ShowEditorIcons; }
@@ -134,8 +134,8 @@ public:
     void Set_Aspect_GameAspectRatio(GLViewTypes newaspect) { m_Aspect_CurrentGameWindowAspectRatio = newaspect; }
     void Toggle_Grid_Visible();
     void Toggle_Grid_SnapEnabled();
-    void Set_Mode_LaunchPlatform(LaunchPlatforms platform) { m_Mode_CurrentLaunchPlatform = platform; }
     void Toggle_Mode_SwitchFocusOnPlayStop() { m_Mode_SwitchFocusOnPlayStop = !m_Mode_SwitchFocusOnPlayStop; }
+    void Set_Mode_LaunchPlatform(LaunchPlatforms platform) { m_Mode_CurrentLaunchPlatform = platform; }
     void Toggle_Debug_DrawPhysicsDebugShapes() { m_Debug_DrawPhysicsDebugShapes = !m_Debug_DrawPhysicsDebugShapes; }
 
 #if MYFW_USING_IMGUI

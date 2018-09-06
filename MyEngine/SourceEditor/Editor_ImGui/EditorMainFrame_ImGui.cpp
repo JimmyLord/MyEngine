@@ -883,7 +883,8 @@ void EditorMainFrame_ImGui::AddMainMenuBar()
             {
                 for( int i=0; i<LaunchPlatform_NumPlatforms; i++ )
                 {
-                    if( ImGui::MenuItem( g_LaunchPlatformsMenuLabels[i], 0, true ) ) { EditorMenuCommand( (EditorMenuCommands)(EditorMenuCommand_Mode_LaunchPlatforms + i) ); }
+                    bool isSelected = (g_pEditorPrefs->Get_Mode_LaunchPlatform() == i);
+                    if( ImGui::MenuItem( g_LaunchPlatformsMenuLabels[i], 0, isSelected ) ) { EditorMenuCommand( (EditorMenuCommands)(EditorMenuCommand_Mode_LaunchPlatforms + i) ); }
                 }
 
                 ImGui::EndMenu();
