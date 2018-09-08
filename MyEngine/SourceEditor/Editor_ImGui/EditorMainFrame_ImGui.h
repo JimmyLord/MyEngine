@@ -58,6 +58,7 @@ protected:
     bool m_EditorWindowHovered;
     bool m_EditorWindowFocused;
     bool m_EditorWindowVisible;
+    bool m_GridSettingsWindowVisible;
 
     GameObject* m_pLastGameObjectInteractedWithInObjectPanel;
 

@@ -104,6 +104,7 @@ EditorMainFrame_ImGui::EditorMainFrame_ImGui()
     m_EditorWindowHovered = false;
     m_EditorWindowFocused = false;
     m_EditorWindowVisible = false;
+    m_GridSettingsWindowVisible = false;
 
     m_pLastGameObjectInteractedWithInObjectPanel = 0;
 
@@ -344,6 +345,7 @@ bool EditorMainFrame_ImGui::CheckForHotkeys(int keyaction, int keycode)
         if( A  && keycode == '4' )   { pEditorPrefs->Set_Aspect_GameAspectRatio( GLView_Wide );                     return true; }
         if( CS && keycode == 'V' )   { EditorMenuCommand( EditorMenuCommand_Grid_Visible );                         return true; }
         if( C  && keycode == 'G' )   { EditorMenuCommand( EditorMenuCommand_Grid_SnapEnabled );                     return true; }
+        if( CS && keycode == 'G' )   { m_GridSettingsWindowVisible = true;                                          return true; }
         if( C  && keycode == ' ' )   { EditorMenuCommand( EditorMenuCommand_Mode_TogglePlayStop );                  return true; }
         if( C  && keycode == '.' )   { EditorMenuCommand( EditorMenuCommand_Mode_Pause );                           return true; }
         if( C  && keycode == ']' )   { EditorMenuCommand( EditorMenuCommand_Mode_AdvanceOneFrame );                 return true; }
@@ -407,6 +409,24 @@ void EditorMainFrame_ImGui::AddEverything()
 
     ImGui::ShowDemoWindow();
 #endif
+
+    if( m_GridSettingsWindowVisible )
+    {
+        if( ImGui::Begin( "Grid Settings", &m_GridSettingsWindowVisible, ImVec2(150, 150), 1 ) )
+        {
+            // Create a context menu only available from the title bar.
+            if( ImGui::BeginPopupContextItem() )
+            {
+                if( ImGui::MenuItem( "Close" ) )
+                    m_GridSettingsWindowVisible = false;
+
+                ImGui::EndPopup();
+            }
+
+            ImGui::Text( "TODO" );
+        }
+        ImGui::End();
+    }
 
     m_RenamePressedThisFrame = false;
 
@@ -865,7 +885,7 @@ void EditorMainFrame_ImGui::AddMainMenuBar()
         {
             if( ImGui::MenuItem( "Grid Visible", "Ctrl-Shift-V", g_pEngineCore->GetEditorPrefs()->Get_Grid_Visible() ) ) { EditorMenuCommand( EditorMenuCommand_Grid_Visible ); }
             if( ImGui::MenuItem( "Grid Snap Enabled", "Ctrl-G", g_pEngineCore->GetEditorPrefs()->Get_Grid_SnapEnabled() ) ) { EditorMenuCommand( EditorMenuCommand_Grid_SnapEnabled ); }
-            if( ImGui::MenuItem( "Grid Settings (TODO)", "Ctrl-Shift-G" ) ) {}
+            if( ImGui::MenuItem( "Grid Settings", "Ctrl-Shift-G" ) ) { m_GridSettingsWindowVisible = true; }
 
             ImGui::EndMenu();
         }
