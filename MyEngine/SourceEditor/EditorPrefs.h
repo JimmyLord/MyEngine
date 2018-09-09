@@ -138,6 +138,8 @@ public:
     void Set_Mode_LaunchPlatform(LaunchPlatforms platform) { m_Mode_CurrentLaunchPlatform = platform; }
     void Toggle_Debug_DrawPhysicsDebugShapes() { m_Debug_DrawPhysicsDebugShapes = !m_Debug_DrawPhysicsDebugShapes; }
 
+    void FillGridSettingsWindow();
+
 #if MYFW_USING_IMGUI
     ImGuiStylePrefs* GetImGuiStylePrefs() { return m_pImGuiStylePrefs; }
 #endif

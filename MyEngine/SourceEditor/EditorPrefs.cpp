@@ -307,3 +307,10 @@ void EditorPrefs::Toggle_Grid_SnapEnabled()
 {
     m_GridSettings.snapenabled = !m_GridSettings.snapenabled;
 }
+
+void EditorPrefs::FillGridSettingsWindow()
+{
+#if MYFW_USING_IMGUI
+    ImGui::DragFloat3( "Step Size", &m_GridSettings.stepsize.x );
+#endif
+}

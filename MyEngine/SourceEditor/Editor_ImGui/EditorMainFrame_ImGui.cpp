@@ -412,7 +412,7 @@ void EditorMainFrame_ImGui::AddEverything()
 
     if( m_GridSettingsWindowVisible )
     {
-        if( ImGui::Begin( "Grid Settings", &m_GridSettingsWindowVisible, ImVec2(150, 150), 1 ) )
+        if( ImGui::Begin( "Grid Settings", &m_GridSettingsWindowVisible, ImVec2(308, 60), 1 ) )
         {
             // Create a context menu only available from the title bar.
             if( ImGui::BeginPopupContextItem() )
@@ -423,7 +423,7 @@ void EditorMainFrame_ImGui::AddEverything()
                 ImGui::EndPopup();
             }
 
-            ImGui::Text( "TODO" );
+            g_pEditorPrefs->FillGridSettingsWindow();
         }
         ImGui::End();
     }
