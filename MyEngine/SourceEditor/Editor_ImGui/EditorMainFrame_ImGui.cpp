@@ -1068,7 +1068,7 @@ void EditorMainFrame_ImGui::AddGameAndEditorWindows()
     if( ImGui::Begin( "Editor", 0, ImVec2(579, 397) ) )
     {
         m_EditorWindowFocused = ImGui::IsWindowFocused();
-        m_EditorWindowHovered = ImGui::IsWindowHovered();
+        m_EditorWindowHovered = ImGui::IsWindowHovered( ImGuiHoveredFlags_AllowWhenBlockedByActiveItem );
         m_EditorWindowVisible = true;
 
         ImVec2 min = ImGui::GetWindowContentRegionMin();
