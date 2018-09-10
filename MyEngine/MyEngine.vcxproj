@@ -3349,6 +3349,7 @@
     <None Include="..\DataEngine\Shaders\Shader_TextureTint.glsl" />
     <None Include="..\DataEngine\Shaders\Shader_TextureTintDiscard.glsl" />
     <None Include="..\DataEngine\Shaders\Shader_TintColor.glsl" />
+    <None Include="..\DataEngine\Shaders\Shader_TintColorWithAlpha.glsl" />
     <None Include="..\Libraries\imgui\README.md" />
     <None Include="..\README.md" />
     <None Include="..\VSCode-MyEngineLua\BuildVSIX.bat" />

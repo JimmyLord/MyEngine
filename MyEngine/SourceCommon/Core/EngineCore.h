@@ -106,10 +106,12 @@ protected:
     double m_TimeSinceLastPhysicsStep;
 
     MyFileObject* m_pShaderFile_TintColor;
+    MyFileObject* m_pShaderFile_TintColorWithAlpha;
     MyFileObject* m_pShaderFile_SelectedObjects;
     MyFileObject* m_pShaderFile_ClipSpaceTexture;
     MyFileObject* m_pShaderFile_ClipSpaceColor;
     ShaderGroup* m_pShader_TintColor;
+    ShaderGroup* m_pShader_TintColorWithAlpha;
     ShaderGroup* m_pShader_SelectedObjects;
     ShaderGroup* m_pShader_ClipSpaceTexture;
     ShaderGroup* m_pShader_ClipSpaceColor;
@@ -174,8 +176,9 @@ public:
     bool GetDebug_DrawWireframe() { return m_Debug_DrawWireframe; }
     void ToggleDebug_DrawWireframe() { m_Debug_DrawWireframe = !m_Debug_DrawWireframe; }
 
-    ShaderGroup* GetShader_TintColor()       { return m_pShader_TintColor; }
-    ShaderGroup* GetShader_SelectedObjects() { return m_pShader_SelectedObjects; }
+    ShaderGroup* GetShader_TintColor()          { return m_pShader_TintColor; }
+    ShaderGroup* GetShader_TintColorWithAlpha() { return m_pShader_TintColorWithAlpha; }
+    ShaderGroup* GetShader_SelectedObjects()    { return m_pShader_SelectedObjects; }
 
     MaterialDefinition* GetMaterial_Box2DDebugDraw()   { return m_pMaterial_Box2DDebugDraw; }
     MaterialDefinition* GetMaterial_MousePicker()      { return m_pMaterial_MousePicker; }

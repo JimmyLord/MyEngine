@@ -27,8 +27,8 @@ protected:
     int m_ShaderHandle;
     int m_VertHandle;
     int m_FragHandle;
-    int m_AttribLocationTex;
-    int m_AttribLocationProjMtx;
+    int m_UniformLocationTex;
+    int m_UniformLocationProjMtx;
     int m_AttribLocationPosition;
     int m_AttribLocationUV;
     int m_AttribLocationColor;

@@ -23,8 +23,8 @@ ImGuiManager::ImGuiManager()
     m_VertHandle = 0;
     m_FragHandle = 0;
     
-    m_AttribLocationTex = 0;
-    m_AttribLocationProjMtx = 0;
+    m_UniformLocationTex = 0;
+    m_UniformLocationProjMtx = 0;
     m_AttribLocationPosition = 0;
     m_AttribLocationUV = 0;
     m_AttribLocationColor = 0;
@@ -280,7 +280,7 @@ void ImGuiManager::RenderDrawLists(ImDrawData* draw_data)
 
     // Setup render state: alpha-blending enabled, no face culling, no depth testing, scissor enabled, polygon fill.
     glEnable( GL_BLEND );
-    //glBlendEquation( GL_FUNC_ADD );
+    glBlendEquation( GL_FUNC_ADD );
     glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
     glDisable( GL_CULL_FACE );
     glDisable( GL_DEPTH_TEST );
@@ -299,8 +299,8 @@ void ImGuiManager::RenderDrawLists(ImDrawData* draw_data)
         {-1.0f,                  1.0f,                   0.0f, 1.0f },
     };
     glUseProgram( m_ShaderHandle );
-    glUniform1i( m_AttribLocationTex, 0 );
-    glUniformMatrix4fv( m_AttribLocationProjMtx, 1, GL_FALSE, &ortho_projection[0][0] );
+    glUniform1i( m_UniformLocationTex, 0 );
+    glUniformMatrix4fv( m_UniformLocationProjMtx, 1, GL_FALSE, &ortho_projection[0][0] );
     glBindVertexArray( m_VaoHandle );
     //glBindSampler( 0, 0 ); // Rely on combined texture/sampler state.
 
@@ -342,7 +342,7 @@ void ImGuiManager::RenderDrawLists(ImDrawData* draw_data)
 #endif
     glBindBuffer( GL_ARRAY_BUFFER, last_array_buffer );
     glBindBuffer( GL_ELEMENT_ARRAY_BUFFER, last_element_array_buffer );
-    //glBlendEquationSeparate( last_blend_equation_rgb, last_blend_equation_alpha );
+    glBlendEquationSeparate( last_blend_equation_rgb, last_blend_equation_alpha );
     glBlendFuncSeparate( last_blend_src_rgb, last_blend_dst_rgb, last_blend_src_alpha, last_blend_dst_alpha );
     if( last_enable_blend ) glEnable( GL_BLEND ); else glDisable( GL_BLEND );
     if( last_enable_cull_face ) glEnable( GL_CULL_FACE ); else glDisable( GL_CULL_FACE );
@@ -433,8 +433,8 @@ bool ImGuiManager::CreateDeviceObjects()
     glAttachShader( m_ShaderHandle, m_FragHandle );
     glLinkProgram( m_ShaderHandle );
 
-    m_AttribLocationTex = glGetUniformLocation( m_ShaderHandle, "Texture" );
-    m_AttribLocationProjMtx = glGetUniformLocation( m_ShaderHandle, "ProjMtx" );
+    m_UniformLocationTex = glGetUniformLocation( m_ShaderHandle, "Texture" );
+    m_UniformLocationProjMtx = glGetUniformLocation( m_ShaderHandle, "ProjMtx" );
     m_AttribLocationPosition = glGetAttribLocation( m_ShaderHandle, "Position" );
     m_AttribLocationUV = glGetAttribLocation( m_ShaderHandle, "UV" );
     m_AttribLocationColor = glGetAttribLocation( m_ShaderHandle, "Color" );

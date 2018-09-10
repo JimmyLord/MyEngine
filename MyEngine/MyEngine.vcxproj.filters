@@ -938,5 +938,8 @@
     <None Include="..\DataEngine\Shaders\Include\DepthBuffer_Functions.glsl">
       <Filter>Data\Shaders\Include</Filter>
     </None>
+    <None Include="..\DataEngine\Shaders\Shader_TintColorWithAlpha.glsl">
+      <Filter>Data\Shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>
