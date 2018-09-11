@@ -336,8 +336,15 @@ bool EditorInterface_SceneManagement::HandleInput(int keyaction, int keycode, in
 
             if( selectedgizmo == false )
             {
-                // if we didn't select the transform gizmo, we're likely selecting objects
+                // If we didn't select the transform gizmo, we're likely selecting objects.
                 pEditorState->m_EditorActionState = EDITORACTIONSTATE_GroupSelectingObjects;
+
+                // If neither shift nor control are held, clear the selected objects.
+                if( (pEditorState->m_ModifierKeyStates & MODIFIERKEY_Shift) == 0 &&
+                    (pEditorState->m_ModifierKeyStates & MODIFIERKEY_Control) == 0 )
+                {
+                    pEditorState->ClearSelectedObjectsAndComponents();
+                }
             }
 
             // If shift is held, make a copy of the object and control that one.

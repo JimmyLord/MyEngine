@@ -64,6 +64,9 @@ const char* g_StylePrefsStrings[ImGuiStylePrefs::StylePref_Num] =
     "MultiSelectedVarDiffText",
     "UnsetObjectButton",
     "UnsetObjectText",
+    "TransformAlphaMin",
+    "TransformAlphaInUse",
+    "TransformAlphaMax",
 };
 
 ImGuiStylePrefs::ImGuiStylePrefs()
@@ -103,28 +106,37 @@ ImGuiStylePrefs::ImGuiStylePrefs()
 		m_DefaultColors[0][StylePref_Color_MultiSelectedVarDiffText].Set( 0.806630f, 1, 0, 1 );
         m_DefaultColors[0][StylePref_Color_UnsetObjectButton]        = m_DefaultColors[0][StylePref_Color_Button] * 0.5f;
         m_DefaultColors[0][StylePref_Color_UnsetObjectText]          = m_DefaultColors[0][StylePref_Color_Text] * 0.5f;
+        m_DefaultColors[0][StylePref_Color_TransformGizmoAlphaMin]  .Set( 1, 1, 1, 0.05f );
+        m_DefaultColors[0][StylePref_Color_TransformGizmoAlphaInUse].Set( 1, 1, 1, 0.2f );
+        m_DefaultColors[0][StylePref_Color_TransformGizmoAlphaMax]  .Set( 1, 1, 1, 1.0f );
+
+        // Copy some of style 0 into other 4 styles.
+        for( int i=1; i<5; i++ )
+        {
+            m_DefaultColors[i][StylePref_Color_DivorcedVarText]          = m_DefaultColors[0][StylePref_Color_DivorcedVarText];
+            m_DefaultColors[i][StylePref_Color_MultiSelectedVarDiffText] = m_DefaultColors[0][StylePref_Color_MultiSelectedVarDiffText];
+            m_DefaultColors[i][StylePref_Color_TransformGizmoAlphaMin]   = m_DefaultColors[0][StylePref_Color_TransformGizmoAlphaMin];
+            m_DefaultColors[i][StylePref_Color_TransformGizmoAlphaInUse] = m_DefaultColors[0][StylePref_Color_TransformGizmoAlphaInUse];
+            m_DefaultColors[i][StylePref_Color_TransformGizmoAlphaMax]   = m_DefaultColors[0][StylePref_Color_TransformGizmoAlphaMax];
+        }
 
         // Custom
-        m_DefaultColors[1][StylePref_Color_DivorcedVarText]         .Set( 1.0f, 0.5f, 0.0f, 1.0f );
-        m_DefaultColors[1][StylePref_Color_MultiSelectedVarDiffText].Set( 0.0f, 0.5f, 1.0f, 1.0f );
+        m_DefaultColors[1][StylePref_Color_MultiSelectedVarDiffText].Set( 0, 0.5f, 1, 1 );
         m_DefaultColors[1][StylePref_Color_UnsetObjectButton]        = m_DefaultColors[1][StylePref_Color_Button] * 0.5f;
         m_DefaultColors[1][StylePref_Color_UnsetObjectText]          = m_DefaultColors[1][StylePref_Color_Text] * 0.5f;
 
         // Classic (Same as Custom)
-        m_DefaultColors[2][StylePref_Color_DivorcedVarText]          = m_DefaultColors[0][StylePref_Color_DivorcedVarText];
-        m_DefaultColors[2][StylePref_Color_MultiSelectedVarDiffText] = m_DefaultColors[0][StylePref_Color_MultiSelectedVarDiffText];
+        m_DefaultColors[2][StylePref_Color_MultiSelectedVarDiffText] = m_DefaultColors[1][StylePref_Color_MultiSelectedVarDiffText];
         m_DefaultColors[2][StylePref_Color_UnsetObjectButton]        = m_DefaultColors[2][StylePref_Color_Button] * 0.5f;
         m_DefaultColors[2][StylePref_Color_UnsetObjectText]          = m_DefaultColors[2][StylePref_Color_Text] * 0.5f;
 
         // Dark
-        m_DefaultColors[3][StylePref_Color_DivorcedVarText]         .Set( 1.0f, 0.5f, 0.0f, 1.0f );
-        m_DefaultColors[3][StylePref_Color_MultiSelectedVarDiffText].Set( 0.0f, 0.5f, 1.0f, 1.0f );
+        m_DefaultColors[3][StylePref_Color_MultiSelectedVarDiffText] = m_DefaultColors[1][StylePref_Color_MultiSelectedVarDiffText];
         m_DefaultColors[3][StylePref_Color_UnsetObjectButton]        = m_DefaultColors[3][StylePref_Color_Button] * 0.5f;
         m_DefaultColors[3][StylePref_Color_UnsetObjectText]          = m_DefaultColors[3][StylePref_Color_Text] * 0.5f;
 
         // Light
-        m_DefaultColors[4][StylePref_Color_DivorcedVarText]         .Set( 1.0f, 0.5f, 0.0f, 1.0f );
-        m_DefaultColors[4][StylePref_Color_MultiSelectedVarDiffText].Set( 0.0f, 0.5f, 1.0f, 1.0f );
+        m_DefaultColors[4][StylePref_Color_MultiSelectedVarDiffText] = m_DefaultColors[1][StylePref_Color_MultiSelectedVarDiffText];
         m_DefaultColors[4][StylePref_Color_UnsetObjectButton]        = m_DefaultColors[4][StylePref_Color_Button] * 0.5f;
         m_DefaultColors[4][StylePref_Color_UnsetObjectText]          = m_DefaultColors[4][StylePref_Color_Text] * 0.5f;
     }

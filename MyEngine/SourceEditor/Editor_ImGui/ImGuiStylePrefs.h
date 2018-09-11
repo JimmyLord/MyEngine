@@ -67,6 +67,9 @@ public:
         StylePref_Color_MultiSelectedVarDiffText,
         StylePref_Color_UnsetObjectButton,
         StylePref_Color_UnsetObjectText,
+        StylePref_Color_TransformGizmoAlphaMin,
+        StylePref_Color_TransformGizmoAlphaInUse,
+        StylePref_Color_TransformGizmoAlphaMax,
         StylePref_Num,
     };
 

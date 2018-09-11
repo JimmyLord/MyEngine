@@ -10,6 +10,10 @@
 #include "EngineCommonHeader.h"
 #include "TransformGizmo.h"
 
+#if MYFW_USING_IMGUI
+#include "../SourceEditor/Editor_ImGui/ImGuiStylePrefs.h"
+#endif
+
 float g_TransformScale = 1/25.0f;
 
 TransformGizmo::TransformGizmo()
@@ -66,9 +70,23 @@ void TransformGizmo::Tick(float deltaTime, EditorState* pEditorState)
     EditorActionState currentaction = pEditorState->m_EditorActionState;
 
     // if the gizmo is currently being used, lower it's opacity
-    float overallopacity = 1.0f;
+#if MYFW_USING_IMGUI
+    float selectedOpacity = g_pEditorPrefs->GetImGuiStylePrefs()->GetColor( ImGuiStylePrefs::StylePref_Color_TransformGizmoAlphaMax ).w;
+    float overallOpacity = g_pEditorPrefs->GetImGuiStylePrefs()->GetColor( ImGuiStylePrefs::StylePref_Color_TransformGizmoAlphaMax ).w;
     if( currentaction != EDITORACTIONSTATE_None )
-        overallopacity = 0.2f;
+    {
+        selectedOpacity = g_pEditorPrefs->GetImGuiStylePrefs()->GetColor( ImGuiStylePrefs::StylePref_Color_TransformGizmoAlphaInUse ).w;
+        overallOpacity = g_pEditorPrefs->GetImGuiStylePrefs()->GetColor( ImGuiStylePrefs::StylePref_Color_TransformGizmoAlphaMin ).w;
+    }
+#else
+    float selectedOpacity = 1.0f;
+    float overallOpacity = 1.0f;
+    if( currentaction != EDITORACTIONSTATE_None )
+    {
+        selectedOpacity = 0.2f;
+        overallOpacity = 0.05f;
+    }
+#endif
 
     if( pEditorState->m_pSelectedObjects.size() == 1 )
     {
@@ -176,16 +194,16 @@ void TransformGizmo::Tick(float deltaTime, EditorState* pEditorState)
             if( pMaterial )
             {
                 if( i == 0 )
-                    pMaterial->m_ColorDiffuse.Set( 255, 100, 100, (unsigned char)(255*overallopacity) );
+                    pMaterial->m_ColorDiffuse.Set( 255, 100, 100, (unsigned char)(255*overallOpacity) );
                 if( i == 1 )
-                    pMaterial->m_ColorDiffuse.Set( 100, 255, 100, (unsigned char)(255*overallopacity) );
+                    pMaterial->m_ColorDiffuse.Set( 100, 255, 100, (unsigned char)(255*overallOpacity) );
                 if( i == 2 )
-                    pMaterial->m_ColorDiffuse.Set( 100, 100, 255, (unsigned char)(255*overallopacity) );
+                    pMaterial->m_ColorDiffuse.Set( 100, 100, 255, (unsigned char)(255*overallOpacity) );
 
                 if( ( m_pTranslate1Axis[i] == m_pSelectedPart && currentaction == EDITORACTIONSTATE_None ) ||
                     currentaction == EDITORACTIONSTATE_TranslateX + i )
                 {
-                    pMaterial->m_ColorDiffuse.Set( 255, 255, 255, (unsigned char)(255*overallopacity) );
+                    pMaterial->m_ColorDiffuse.Set( 255, 255, 255, (unsigned char)(255*selectedOpacity) );
                 }
             }
         }
@@ -234,16 +252,16 @@ void TransformGizmo::Tick(float deltaTime, EditorState* pEditorState)
             if( pMaterial )
             {
                 if( i == 0 )
-                    pMaterial->m_ColorDiffuse.Set( 255, 255, 100, (unsigned char)(180*overallopacity) ); // XY
+                    pMaterial->m_ColorDiffuse.Set( 255, 255, 100, (unsigned char)(180*overallOpacity) ); // XY
                 if( i == 1 )
-                    pMaterial->m_ColorDiffuse.Set( 255, 100, 255, (unsigned char)(180*overallopacity) ); // XZ
+                    pMaterial->m_ColorDiffuse.Set( 255, 100, 255, (unsigned char)(180*overallOpacity) ); // XZ
                 if( i == 2 )
-                    pMaterial->m_ColorDiffuse.Set( 100, 255, 255, (unsigned char)(180*overallopacity) ); // YZ
+                    pMaterial->m_ColorDiffuse.Set( 100, 255, 255, (unsigned char)(180*overallOpacity) ); // YZ
 
                 if( ( m_pTranslate2Axis[i] == m_pSelectedPart && currentaction == EDITORACTIONSTATE_None ) ||
                     currentaction == EDITORACTIONSTATE_TranslateXY + i )
                 {
-                    pMaterial->m_ColorDiffuse.Set( 255, 255, 255, (unsigned char)(255*overallopacity) );
+                    pMaterial->m_ColorDiffuse.Set( 255, 255, 255, (unsigned char)(255*selectedOpacity) );
                 }
             }
         }
@@ -311,16 +329,16 @@ void TransformGizmo::Tick(float deltaTime, EditorState* pEditorState)
             if( pMaterial )
             {
                 if( i == 0 )
-                    pMaterial->m_ColorDiffuse.Set( 255, 100, 100, (unsigned char)(255*overallopacity) );
+                    pMaterial->m_ColorDiffuse.Set( 255, 100, 100, (unsigned char)(255*overallOpacity) );
                 if( i == 1 )
-                    pMaterial->m_ColorDiffuse.Set( 100, 255, 100, (unsigned char)(255*overallopacity) );
+                    pMaterial->m_ColorDiffuse.Set( 100, 255, 100, (unsigned char)(255*overallOpacity) );
                 if( i == 2 )
-                    pMaterial->m_ColorDiffuse.Set( 100, 100, 255, (unsigned char)(255*overallopacity) );
+                    pMaterial->m_ColorDiffuse.Set( 100, 100, 255, (unsigned char)(255*overallOpacity) );
 
                 if( ( m_pScale1Axis[i] == m_pSelectedPart && currentaction == EDITORACTIONSTATE_None ) ||
                     currentaction == EDITORACTIONSTATE_ScaleX + i )
                 {
-                    pMaterial->m_ColorDiffuse.Set( 255, 255, 255, (unsigned char)(255*overallopacity) );
+                    pMaterial->m_ColorDiffuse.Set( 255, 255, 255, (unsigned char)(255*selectedOpacity) );
                 }
             }
         }
@@ -361,11 +379,11 @@ void TransformGizmo::Tick(float deltaTime, EditorState* pEditorState)
             MaterialDefinition* pMaterial = pMesh->GetMaterial( 0 );
             if( pMaterial )
             {
-                pMaterial->m_ColorDiffuse.Set( 100, 100, 100, (unsigned char)(180*overallopacity) );
+                pMaterial->m_ColorDiffuse.Set( 100, 100, 100, (unsigned char)(180*overallOpacity) );
 
                 if( m_pScale3Axis == m_pSelectedPart )
                 {
-                    pMaterial->m_ColorDiffuse.Set( 255, 255, 255, (unsigned char)(180*overallopacity) );
+                    pMaterial->m_ColorDiffuse.Set( 255, 255, 255, (unsigned char)(180*selectedOpacity) );
                 }
             }
         }
@@ -410,16 +428,16 @@ void TransformGizmo::Tick(float deltaTime, EditorState* pEditorState)
             if( pMaterial )
             {
                 if( i == 0 )
-                    pMaterial->m_ColorDiffuse.Set( 255, 100, 100, (unsigned char)(255*overallopacity) );
+                    pMaterial->m_ColorDiffuse.Set( 255, 100, 100, (unsigned char)(255*overallOpacity) );
                 if( i == 1 )
-                    pMaterial->m_ColorDiffuse.Set( 100, 255, 100, (unsigned char)(255*overallopacity) );
+                    pMaterial->m_ColorDiffuse.Set( 100, 255, 100, (unsigned char)(255*overallOpacity) );
                 if( i == 2 )
-                    pMaterial->m_ColorDiffuse.Set( 100, 100, 255, (unsigned char)(255*overallopacity) );
+                    pMaterial->m_ColorDiffuse.Set( 100, 100, 255, (unsigned char)(255*overallOpacity) );
 
                 if( ( m_pRotate1Axis[i] == m_pSelectedPart && currentaction == EDITORACTIONSTATE_None ) ||
                     currentaction == EDITORACTIONSTATE_RotateX + i )
                 {
-                    pMaterial->m_ColorDiffuse.Set( 255, 255, 255, (unsigned char)(255*overallopacity) );
+                    pMaterial->m_ColorDiffuse.Set( 255, 255, 255, (unsigned char)(255*selectedOpacity) );
                 }
             }
         }
