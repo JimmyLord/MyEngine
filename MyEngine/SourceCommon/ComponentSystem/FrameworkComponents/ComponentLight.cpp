@@ -305,6 +305,22 @@ void ComponentLight::DrawCallback(ComponentCamera* pCamera, MyMatrix* pMatProj, 
 
     pSprite->Draw( pMatProj, pMatView, &transform, pShaderOverride, true );
 
+    MyMesh* pMeshBall = g_pEngineCore->GetMesh_MaterialBall();
+    if( pMeshBall && pShaderOverride == 0 )
+    {
+        glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
+        glDisable( GL_CULL_FACE );
+        pMeshBall->SetMaterial( g_pEngineCore->GetMaterial_Box2DDebugDraw(), 0 );
+
+        MyMatrix matWorld;
+        matWorld.CreateSRT( m_pLight->m_Attenuation.x, Vector3(0), this->m_pGameObject->GetTransform()->GetWorldPosition() );
+        pMeshBall->Draw( pMatProj, pMatView, &matWorld, 0, 0, 0, 0, 0, 0, 0, 0 );
+
+        pMeshBall->SetMaterial( 0, 0 );
+        glPolygonMode( GL_FRONT, GL_FILL );
+        glEnable( GL_CULL_FACE );
+    }
+
     if( g_pEngineCore->GetDebug_DrawWireframe() )
         glPolygonMode( GL_FRONT, GL_LINE );
 }
