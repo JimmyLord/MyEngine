@@ -941,5 +941,8 @@
     <None Include="..\DataEngine\Shaders\Shader_TintColorWithAlpha.glsl">
       <Filter>Data\Shaders</Filter>
     </None>
+    <None Include="..\DataEngine\Shaders\Shader_FresnelTint.glsl">
+      <Filter>Data\Shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>

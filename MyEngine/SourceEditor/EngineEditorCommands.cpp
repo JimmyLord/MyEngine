@@ -751,7 +751,10 @@ void EditorCommand_DeleteObjects::Do()
         if( pDeletedObjectsParent != 0 )
         {
             uint32 childID = pDeletedObject->GetPrefabRef()->GetChildID();
-            pDeletedObjectsParent->AddPrefabChildIDToListOfDeletedPrefabChildIDs( childID );
+            if( childID != 0 )
+            {
+                pDeletedObjectsParent->AddPrefabChildIDToListOfDeletedPrefabChildIDs( childID );
+            }
         }
     }
     m_DeleteGameObjectsWhenDestroyed = true;
@@ -788,7 +791,10 @@ void EditorCommand_DeleteObjects::Undo()
         if( pDeletedObjectsParent )
         {
             uint32 childID = pDeletedObject->GetPrefabRef()->GetChildID();
-            pDeletedObjectsParent->RemovePrefabChildIDFromListOfDeletedPrefabChildIDs( childID );
+            if( childID != 0 )
+            {
+                pDeletedObjectsParent->RemovePrefabChildIDFromListOfDeletedPrefabChildIDs( childID );
+            }
         }
 
         // Undo everything we did to "delete" this object
