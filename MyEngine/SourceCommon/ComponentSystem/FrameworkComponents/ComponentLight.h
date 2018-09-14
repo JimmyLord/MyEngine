@@ -48,9 +48,9 @@ public:
 
 protected:
     // Callback functions for various events.
-    //MYFW_DECLARE_COMPONENT_CALLBACK_TICK(); // TickCallback
     //MYFW_DECLARE_COMPONENT_CALLBACK_ONSURFACECHANGED(); // OnSurfaceChangedCallback
 #if MYFW_EDITOR
+    MYFW_DECLARE_COMPONENT_CALLBACK_TICK(); // TickCallback
     MYFW_DECLARE_COMPONENT_CALLBACK_DRAW(); // DrawCallback
 #endif //MYFW_EDITOR
     //MYFW_DECLARE_COMPONENT_CALLBACK_ONTOUCH(); // OnTouchCallback
@@ -60,6 +60,8 @@ protected:
 
 public:
 #if MYFW_EDITOR
+    float m_LightSphereRenderTimeRemaining;
+
 #if MYFW_USING_IMGUI
     virtual void AddAllVariablesToWatchPanel();
 #endif

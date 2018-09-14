@@ -28,6 +28,10 @@ ComponentLight::ComponentLight()
     m_LightType = LightType_Point;
 
     m_pLight = 0;
+
+#if MYFW_EDITOR
+    m_LightSphereRenderTimeRemaining = 0;
+#endif
 }
 
 ComponentLight::~ComponentLight()
@@ -92,11 +96,15 @@ void ComponentLight::AddAllVariablesToWatchPanel()
     {
         if( ImGui::ColorEdit4( "Color", &m_pLight->m_Color.r ) )
         {
+            m_LightSphereRenderTimeRemaining = 3.0f;
         }
 
         // Replacing classic attentuation with a range based version to make deferred lighting "spheres" possible.
         //ImGui::DragFloat3( "Attenuation", &m_pLight->m_Attenuation.x, 0.01f, 0, 20 );
-        ImGui::DragFloat( "Range", &m_pLight->m_Attenuation.x, 0.1f, 0, 30 );
+        if( ImGui::DragFloat( "Range", &m_pLight->m_Attenuation.x, 0.1f, 0, 30 ) )
+        {
+            m_LightSphereRenderTimeRemaining = 3.0f;
+        }
     }
 }
 #endif
@@ -158,6 +166,8 @@ void* ComponentLight::OnValueChanged(ComponentVariable* pVar, bool changedbyinte
         m_pLight->m_LightType = m_LightType;
     }
 
+    m_LightSphereRenderTimeRemaining = 3.0f;
+
     return oldpointer;
 }
 #endif //MYFW_EDITOR
@@ -214,9 +224,9 @@ void ComponentLight::RegisterCallbacks()
     {
         m_CallbacksRegistered = true;
 
-        //MYFW_REGISTER_COMPONENT_CALLBACK( ComponentLight, Tick );
         //MYFW_REGISTER_COMPONENT_CALLBACK( ComponentLight, OnSurfaceChanged );
 #if MYFW_EDITOR
+        MYFW_REGISTER_COMPONENT_CALLBACK( ComponentLight, Tick );
         //MYFW_FILL_COMPONENT_CALLBACK_STRUCT( ComponentLight, Draw );
         MYFW_REGISTER_COMPONENT_CALLBACK( ComponentLight, Draw );
 #endif //MYFW_EDITOR
@@ -231,9 +241,9 @@ void ComponentLight::UnregisterCallbacks()
 {
     if( m_CallbacksRegistered == true )
     {
-        //MYFW_UNREGISTER_COMPONENT_CALLBACK( Tick );
         //MYFW_UNREGISTER_COMPONENT_CALLBACK( OnSurfaceChanged );
 #if MYFW_EDITOR
+        MYFW_UNREGISTER_COMPONENT_CALLBACK( Tick );
         MYFW_UNREGISTER_COMPONENT_CALLBACK( Draw );
 #endif //MYFW_EDITOR
         //MYFW_UNREGISTER_COMPONENT_CALLBACK( OnTouch );
@@ -275,6 +285,14 @@ bool ComponentLight::ExistsOnLayer(unsigned int layerflags)
 }
 
 #if MYFW_EDITOR
+void ComponentLight::TickCallback(float deltaTime)
+{
+    m_LightSphereRenderTimeRemaining -= g_pEngineCore->GetTimePassedUnpausedLastFrame();
+    
+    if( m_LightSphereRenderTimeRemaining < 0 )
+        m_LightSphereRenderTimeRemaining = 0;
+}
+
 void ComponentLight::DrawCallback(ComponentCamera* pCamera, MyMatrix* pMatProj, MyMatrix* pMatView, ShaderGroup* pShaderOverride)
 {
     if( g_pEngineCore->GetEditorPrefs()->Get_View_ShowEditorIcons() == false )
@@ -305,29 +323,33 @@ void ComponentLight::DrawCallback(ComponentCamera* pCamera, MyMatrix* pMatProj, 
 
     pSprite->Draw( pMatProj, pMatView, &transform, pShaderOverride, true );
 
-    MyMesh* pMeshBall = g_pEngineCore->GetMesh_MaterialBall();
-    if( pMeshBall && pShaderOverride == 0 )
+    // Draw a sphere to visualize light range.
+    if( m_LightType == LightType_Point && m_LightSphereRenderTimeRemaining > 0 )
     {
-        MaterialDefinition* pMaterial = g_pEngineCore->GetMaterial_FresnelTint();
-        ColorByte lightColor = m_pLight->m_Color.AsColorByte();
-        lightColor.a = 255;
-        pMaterial->SetColorDiffuse( lightColor );
+        MyMesh* pMeshBall = g_pEngineCore->GetMesh_MaterialBall();
+        if( pMeshBall && pShaderOverride == 0 )
+        {
+            MaterialDefinition* pMaterial = g_pEngineCore->GetMaterial_FresnelTint();
+            ColorByte lightColor = m_pLight->m_Color.AsColorByte();
+            lightColor.a = (unsigned char)MyClamp_Return( m_LightSphereRenderTimeRemaining * 255.0f, 0.0f, 255.0f );
+            pMaterial->SetColorDiffuse( lightColor );
 
-        //glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
-        //glDisable( GL_CULL_FACE );
-        glDepthMask( false );
-        pMeshBall->SetMaterial( pMaterial, 0 );
+            //glPolygonMode( GL_FRONT_AND_BACK, GL_LINE );
+            //glDisable( GL_CULL_FACE );
+            glDepthMask( false );
+            pMeshBall->SetMaterial( pMaterial, 0 );
 
-        MyMatrix matWorld;
-        matWorld.CreateSRT( m_pLight->m_Attenuation.x, Vector3(0), this->m_pGameObject->GetTransform()->GetWorldPosition() );
-        Vector3 camPos = pCamera->m_pComponentTransform->GetWorldPosition();
-        Vector3 camRot = pCamera->m_pComponentTransform->GetWorldTransform()->GetAt();
-        pMeshBall->Draw( pMatProj, pMatView, &matWorld, &camPos, &camRot, 0, 0, 0, 0, 0, 0 );
+            MyMatrix matWorld;
+            matWorld.CreateSRT( m_pLight->m_Attenuation.x, Vector3(0), this->m_pGameObject->GetTransform()->GetWorldPosition() );
+            Vector3 camPos = pCamera->m_pComponentTransform->GetWorldPosition();
+            Vector3 camRot = pCamera->m_pComponentTransform->GetWorldTransform()->GetAt();
+            pMeshBall->Draw( pMatProj, pMatView, &matWorld, &camPos, &camRot, 0, 0, 0, 0, 0, 0 );
 
-        pMeshBall->SetMaterial( 0, 0 );
-        glDepthMask( true );
-        //glPolygonMode( GL_FRONT, GL_FILL );
-        //glEnable( GL_CULL_FACE );
+            pMeshBall->SetMaterial( 0, 0 );
+            glDepthMask( true );
+            //glPolygonMode( GL_FRONT, GL_FILL );
+            //glEnable( GL_CULL_FACE );
+        }
     }
 
     if( g_pEngineCore->GetDebug_DrawWireframe() )
