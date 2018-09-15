@@ -63,6 +63,8 @@ public:
 
     void Tick();
 
+    void RunFile(const char* relativePath);
+
     // For use to avoid debug breakpoints
 #if MYFW_ENABLE_LUA_DEBUGGER
     void SetIsDebuggerAllowedToStop(bool isallowed);

@@ -36,6 +36,7 @@ enum EditorMenuCommands
     EditorMenuCommand_Data_LoadDatafiles,
     EditorMenuCommand_Debug_DrawWireframe,
     EditorMenuCommand_Debug_ShowPhysicsShapes,
+    EditorMenuCommand_Lua_RunLuaScript,
 };
 
 void EditorMenuCommand(EditorMenuCommands command);

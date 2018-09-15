@@ -799,7 +799,7 @@
     //    luabridge::getGlobalNamespace( luastate )
     //        .beginClass<ComponentSystemManager>( "ComponentSystemManager" )
     //            .addFunction( "SetTimeScale", &ComponentSystemManager::SetTimeScale ) // void ComponentSystemManager::SetTimeScale(float scale)
-    //            .addFunction( "CreateGameObject", &ComponentSystemManager::CreateGameObject ) // GameObject* ComponentSystemManager::CreateGameObject(bool manageobject, SceneID sceneid, bool isfolder, bool hastransform, PrefabReference* pPrefabRef)
+    //            .addFunction( "Editor_CreateGameObject", &ComponentSystemManager::EditorLua_CreateGameObject ) // GameObject* ComponentSystemManager::EditorLua_CreateGameObject(const char* name, SceneID sceneid, bool isfolder, bool hastransform)
     //            .addFunction( "DeleteGameObject", &ComponentSystemManager::DeleteGameObject ) // void ComponentSystemManager::DeleteGameObject(GameObject* pObject, bool deletecomponents)
     //            .addFunction( "CopyGameObject", &ComponentSystemManager::CopyGameObject ) // GameObject* ComponentSystemManager::CopyGameObject(GameObject* pObject, const char* newname)
     //            .addFunction( "FindGameObjectByName", &ComponentSystemManager::FindGameObjectByName ) // GameObject* ComponentSystemManager::FindGameObjectByName(const char* name)
@@ -810,10 +810,10 @@
         "body": "g_pComponentSystemManager:SetTimeScale( ${1:new time scale} )",
         "description": "Speed up or slow down time."
 	},
-	"g_pComponentSystemManager:CreateGameObject": {
-		"prefix": "g_pComponentSystemManager:CreateGameObject",
-        "body": "g_pComponentSystemManager:CreateGameObject( ${1:bool manageobject}, ${2:SceneID sceneid}, ${3:bool isfolder}, ${4:bool hastransform}, ${5:PrefabReference* pPrefabRef} )",
-        "description": "Create a new game object."
+	"g_pComponentSystemManager:Editor_CreateGameObject": {
+		"prefix": "g_pComponentSystemManager:Editor_CreateGameObject",
+        "body": "g_pComponentSystemManager:Editor_CreateGameObject( ${1:const char* name}, ${2:SceneID sceneid}, ${3:bool isfolder}, ${4:bool hastransform} )",
+        "description": "Can only be used in editor scripts. Create a new game object."
 	},
 	"g_pComponentSystemManager:DeleteGameObject": {
 		"prefix": "g_pComponentSystemManager:DeleteGameObject",

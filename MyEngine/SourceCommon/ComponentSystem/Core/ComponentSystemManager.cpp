@@ -197,7 +197,7 @@ void ComponentSystemManager::LuaRegister(lua_State* luastate)
     luabridge::getGlobalNamespace( luastate )
         .beginClass<ComponentSystemManager>( "ComponentSystemManager" )
             .addFunction( "SetTimeScale", &ComponentSystemManager::SetTimeScale ) // void ComponentSystemManager::SetTimeScale(float scale)
-            .addFunction( "CreateGameObject", &ComponentSystemManager::CreateGameObject ) // GameObject* ComponentSystemManager::CreateGameObject(bool manageobject, SceneID sceneid, bool isfolder, bool hastransform, PrefabReference* pPrefabRef)
+            .addFunction( "Editor_CreateGameObject", &ComponentSystemManager::EditorLua_CreateGameObject ) // GameObject* ComponentSystemManager::EditorLua_CreateGameObject(const char* name, SceneID sceneid, bool isfolder, bool hastransform)
             .addFunction( "DeleteGameObject", &ComponentSystemManager::DeleteGameObject ) // void ComponentSystemManager::DeleteGameObject(GameObject* pObject, bool deletecomponents)
             .addFunction( "CopyGameObject", &ComponentSystemManager::CopyGameObject ) // GameObject* ComponentSystemManager::CopyGameObject(GameObject* pObject, const char* newname)
             .addFunction( "FindGameObjectByName", &ComponentSystemManager::FindGameObjectByName ) // GameObject* ComponentSystemManager::FindGameObjectByName(const char* name)
@@ -1366,17 +1366,26 @@ SceneID ComponentSystemManager::FindSceneID(const char* fullpath)
 }
 
 // Exposed to Lua, change elsewhere if function signature changes.
-GameObject* ComponentSystemManager::CreateGameObject(bool manageobject, SceneID sceneid, bool isfolder, bool hastransform, PrefabReference* pPrefabRef)
+GameObject* ComponentSystemManager::EditorLua_CreateGameObject(const char* name, int sceneID, bool isFolder, bool hasTransform)
 {
-    GameObject* pGameObject = MyNew GameObject( manageobject, sceneid, isfolder, hastransform, pPrefabRef );
+    GameObject* pGameObject = CreateGameObject( true, (SceneID)sceneID, isFolder, hasTransform, 0 );
+
+    pGameObject->SetName( name );
+
+    return pGameObject;
+}
+
+GameObject* ComponentSystemManager::CreateGameObject(bool manageObject, SceneID sceneID, bool isFolder, bool hasTransform, PrefabReference* pPrefabRef)
+{
+    GameObject* pGameObject = MyNew GameObject( manageObject, sceneID, isFolder, hasTransform, pPrefabRef );
     
     {
-        unsigned int id = GetNextGameObjectIDAndIncrement( sceneid );
+        unsigned int id = GetNextGameObjectIDAndIncrement( sceneID );
         pGameObject->SetID( id );
 
         //if( manageobject )
         {
-            GetSceneInfo( sceneid )->m_GameObjects.AddTail( pGameObject );
+            GetSceneInfo( sceneID )->m_GameObjects.AddTail( pGameObject );
         }
 
         // if we're not in editor mode, place this gameobject in unmanaged scene so it will be destroyed when gameplay is stopped.

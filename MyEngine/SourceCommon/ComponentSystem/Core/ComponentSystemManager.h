@@ -190,7 +190,8 @@ public:
     bool IsSceneLoaded(const char* fullpath);
     SceneID FindSceneID(const char* fullpath);
 
-    GameObject* CreateGameObject(bool manageobject = true, SceneID sceneid = SCENEID_Unmanaged, bool isfolder = false, bool hastransform = true, PrefabReference* pPrefabRef = 0);
+    GameObject* EditorLua_CreateGameObject(const char* name, int sceneID, bool isFolder, bool hasTransform);
+    GameObject* CreateGameObject(bool manageObject = true, SceneID sceneID = SCENEID_Unmanaged, bool isFolder = false, bool hasTransform = true, PrefabReference* pPrefabRef = 0);
     GameObject* CreateGameObjectFromPrefab(PrefabObject* pPrefab, bool manageobject, SceneID sceneid);
     GameObject* CreateGameObjectFromPrefab(PrefabObject* pPrefab, cJSON* jPrefab, uint32 prefabChildID, bool manageObject, SceneID sceneID);
 #if MYFW_EDITOR

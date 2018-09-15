@@ -178,6 +178,21 @@ void LuaGameState::Tick()
 #endif // MYFW_ENABLE_LUA_DEBUGGER
 }
 
+void LuaGameState::RunFile(const char* relativePath)
+{
+    int loadretcode = luaL_loadfile( m_pLuaState, relativePath );
+
+    if( loadretcode == LUA_OK )
+    {
+        // Run the code to do initial parsing.
+        int exeretcode = lua_pcall( m_pLuaState, 0, LUA_MULTRET, 0 );
+        if( exeretcode == LUA_OK )
+        {
+            int bp = 1;
+        }
+    }
+}
+
 #if MYFW_ENABLE_LUA_DEBUGGER
 void LuaGameState::SetIsDebuggerAllowedToStop(bool isallowed)
 {

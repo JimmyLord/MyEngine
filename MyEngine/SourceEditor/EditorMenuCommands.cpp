@@ -432,12 +432,28 @@ void EditorMenuCommand(EditorMenuCommands command)
     case EditorMenuCommand_Debug_ShowPhysicsShapes:
         {
             g_pEngineCore->GetEditorPrefs()->Toggle_Debug_DrawPhysicsDebugShapes();
-            break;
         }
+        break;
+
+    case EditorMenuCommand_Lua_RunLuaScript:
+        {
+            const char* filename = FileOpenDialog( "Data\\DataEditor\\", "Lua Files\0*.lua\0All\0*.*\0" );
+            if( filename[0] != 0 )
+            {
+                char path[MAX_PATH];
+                strcpy_s( path, MAX_PATH, filename );
+                const char* relativepath = GetRelativePath( path );
+                
+                g_pLuaGameState->RunFile( relativepath );
+            }
+        }
+        break;
 
     default:
-        // The only cases not handled above are launch platform cases, since there's a dynamic amount of them.
-        MyAssert( command >= EditorMenuCommand_Mode_LaunchPlatforms && command < EditorMenuCommand_Mode_LaunchPlatforms + LaunchPlatform_NumPlatforms );
+        {
+            // The only cases not handled above are launch platform cases, since there's a dynamic amount of them.
+            MyAssert( command >= EditorMenuCommand_Mode_LaunchPlatforms && command < EditorMenuCommand_Mode_LaunchPlatforms + LaunchPlatform_NumPlatforms );
+        }
         break;
     }
 

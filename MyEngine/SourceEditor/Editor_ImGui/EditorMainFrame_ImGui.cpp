@@ -353,6 +353,7 @@ bool EditorMainFrame_ImGui::CheckForHotkeys(int keyaction, int keycode)
         if( C  && keycode == VK_F5 ) { EditorMenuCommand( EditorMenuCommand_Mode_LaunchGame );                      return true; }
         if( C  && keycode == VK_F9 ) { EditorMenuCommand( EditorMenuCommand_Debug_DrawWireframe );                  return true; }
         if( S  && keycode == VK_F8 ) { EditorMenuCommand( EditorMenuCommand_Debug_ShowPhysicsShapes );              return true; }
+        if( CS && keycode == 'L'   ) { EditorMenuCommand( EditorMenuCommand_Lua_RunLuaScript );                     return true; }
     }
 
     return false;
@@ -844,8 +845,8 @@ void EditorMainFrame_ImGui::AddMainMenuBar()
             //                label << "(&" << i+1 << ") " << g_pVisibilityLayerStrings[i] << "\tCtrl-Alt-" << i+1;
             //            else
             //                label << "(&" << i+1 << ") " << g_pVisibilityLayerStrings[i];
-            //            m_MenuItem_View_EditorCameraLayerOptions[i] = m_SubMenu_View_EditorCameraLayers->AppendCheckItem( myIDEngine_View_EditorCameraLayer + i, label, wxEmptyString );
-            //            Connect( myIDEngine_View_EditorCameraLayer + i, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );
+            //            m_MenuItem_View_EditorCameraLayerOptions[i] = m_SubMenu_View_EditorCameraLayers->AppendCheckItem( EditorMenuCommand_View_EditorCameraLayer + i, label, wxEmptyString );
+            //            Connect( EditorMenuCommand_View_EditorCameraLayer + i, wxEVT_COMMAND_MENU_SELECTED, wxCommandEventHandler(EngineMainFrame::OnMenu_Engine) );
             //        }
             //    
             //        m_MenuItem_View_EditorCameraLayerOptions[0]->Check();
@@ -923,19 +924,25 @@ void EditorMainFrame_ImGui::AddMainMenuBar()
 
         if( ImGui::BeginMenu( "Hackery" ) )
         {
-            if( ImGui::MenuItem( "Record (TODO)", "Ctrl-R" ) ) {} // { EditorMenuCommand( myIDEngine_Hackery_RecordMacro ); }
-            if( ImGui::MenuItem( "Stop recording and Execute (TODO)", "Ctrl-E" ) ) {} // { EditorMenuCommand( myIDEngine_Hackery_ExecuteMacro ); }
+            if( ImGui::MenuItem( "Record (TODO)", "Ctrl-R" ) ) {} // { EditorMenuCommand( EditorMenuCommand_Hackery_RecordMacro ); }
+            if( ImGui::MenuItem( "Stop recording and Execute (TODO)", "Ctrl-E" ) ) {} // { EditorMenuCommand( EditorMenuCommand_Hackery_ExecuteMacro ); }
             ImGui::EndMenu();
         }
 
         if( ImGui::BeginMenu( "Debug views" ) )
         {
-            if( ImGui::MenuItem( "Show Mouse Picker FBO (TODO)", "F9" ) ) {} // { EditorMenuCommand( myIDEngine_Debug_ShowMousePickerFBO ); }
-            if( ImGui::MenuItem( "Show Animated Debug View for Selection (TODO)", "F8" ) ) {} // { EditorMenuCommand( myIDEngine_Debug_ShowSelectedAnimatedMesh ); }
-            if( ImGui::MenuItem( "Show GL Stats (TODO)", "Shift-F9" ) ) {} // { EditorMenuCommand( myIDEngine_Debug_ShowGLStats ); }
+            if( ImGui::MenuItem( "Show Mouse Picker FBO (TODO)", "F9" ) ) {} // { EditorMenuCommand( EditorMenuCommand_Debug_ShowMousePickerFBO ); }
+            if( ImGui::MenuItem( "Show Animated Debug View for Selection (TODO)", "F8" ) ) {} // { EditorMenuCommand( EditorMenuCommand_Debug_ShowSelectedAnimatedMesh ); }
+            if( ImGui::MenuItem( "Show GL Stats (TODO)", "Shift-F9" ) ) {} // { EditorMenuCommand( EditorMenuCommand_Debug_ShowGLStats ); }
             if( ImGui::MenuItem( "Draw Wireframe", "Ctrl-F9", &g_pEngineCore->m_Debug_DrawWireframe ) ) {} // { EditorMenuCommand( EditorMenuCommand_Debug_DrawWireframe ); }
             if( ImGui::MenuItem( "Show Physics Debug Shapes", "Shift-F8", g_pEngineCore->GetEditorPrefs()->Get_Debug_DrawPhysicsDebugShapes() ) ) { EditorMenuCommand( EditorMenuCommand_Debug_ShowPhysicsShapes ); }
-            if( ImGui::MenuItem( "Show profiling Info (TODO)", "Ctrl-F8" ) ) {} // { EditorMenuCommand( myIDEngine_Debug_ShowProfilingInfo ); }
+            if( ImGui::MenuItem( "Show profiling Info (TODO)", "Ctrl-F8" ) ) {} // { EditorMenuCommand( EditorMenuCommand_Debug_ShowProfilingInfo ); }
+            ImGui::EndMenu();
+        }
+
+        if( ImGui::BeginMenu( "Lua" ) )
+        {
+            if( ImGui::MenuItem( "Run Lua Script...", "Ctrl-Shift-L" ) ) { EditorMenuCommand( EditorMenuCommand_Lua_RunLuaScript ); }
             ImGui::EndMenu();
         }
 
