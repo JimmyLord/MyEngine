@@ -124,6 +124,7 @@ void GameObject::LuaRegister(lua_State* luastate)
             .addData( "id", &GameObject::m_ID ) // unsigned int
             .addFunction( "SetEnabled", &GameObject::SetEnabled ) // void GameObject::SetEnabled(bool enabled, bool affectchildren)
             .addFunction( "SetName", &GameObject::SetName ) // void GameObject::SetName(const char* name)
+            .addFunction( "SetParentGameObject", &GameObject::SetParentGameObject ) // void SetParentGameObject(GameObject* pNewParentGameObject);
             .addFunction( "GetTransform", &GameObject::GetTransform ) // ComponentTransform* GameObject::GetTransform()
             .addFunction( "GetFirstComponentOfBaseType", &GameObject::GetFirstComponentOfBaseType ) // ComponentBase* GameObject::GetFirstComponentOfBaseType(BaseComponentTypes basetype)
             .addFunction( "GetFirstComponentOfType", &GameObject::GetFirstComponentOfType ) // ComponentBase* GameObject::GetFirstComponentOfType(const char* type)

@@ -437,7 +437,7 @@ void EditorMenuCommand(EditorMenuCommands command)
 
     case EditorMenuCommand_Lua_RunLuaScript:
         {
-            const char* filename = FileOpenDialog( "Data\\DataEditor\\", "Lua Files\0*.lua\0All\0*.*\0" );
+            const char* filename = FileOpenDialog( "DataEditor\\", "Lua Files\0*.lua\0All\0*.*\0" );
             if( filename[0] != 0 )
             {
                 char path[MAX_PATH];
