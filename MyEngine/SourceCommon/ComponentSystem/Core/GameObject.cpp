@@ -122,6 +122,7 @@ void GameObject::LuaRegister(lua_State* luastate)
             .addData( "ComponentTransform", &GameObject::m_pComponentTransform ) // ComponentTransform*
             //.addData( "name", &GameObject::m_Name ) // char*
             .addData( "id", &GameObject::m_ID ) // unsigned int
+            .addFunction( "Editor_AddNewComponent", (ComponentBase* (GameObject::*)(const char* componentName)) &GameObject::AddNewComponent ) // ComponentBase* GameObject::AddNewComponent(const char* componentName)
             .addFunction( "SetEnabled", &GameObject::SetEnabled ) // void GameObject::SetEnabled(bool enabled, bool affectchildren)
             .addFunction( "SetName", &GameObject::SetName ) // void GameObject::SetName(const char* name)
             .addFunction( "SetParentGameObject", &GameObject::SetParentGameObject ) // void SetParentGameObject(GameObject* pNewParentGameObject);
@@ -129,6 +130,7 @@ void GameObject::LuaRegister(lua_State* luastate)
             .addFunction( "GetFirstComponentOfBaseType", &GameObject::GetFirstComponentOfBaseType ) // ComponentBase* GameObject::GetFirstComponentOfBaseType(BaseComponentTypes basetype)
             .addFunction( "GetFirstComponentOfType", &GameObject::GetFirstComponentOfType ) // ComponentBase* GameObject::GetFirstComponentOfType(const char* type)
             .addFunction( "GetAnimationPlayer", &GameObject::GetAnimationPlayer ) // ComponentAnimationPlayer* GameObject::GetAnimationPlayer()    
+            .addFunction( "GetSprite", &GameObject::GetSprite ) // ComponentSprite* GameObject::GetSprite()    
             .addFunction( "Get3DCollisionObject", &GameObject::Get3DCollisionObject ) // Component3DCollisionObject* GameObject::Get3DCollisionObject()
             .addFunction( "Get2DCollisionObject", &GameObject::Get2DCollisionObject ) // Component2DCollisionObject* GameObject::Get2DCollisionObject()
             .addFunction( "GetParticleEmitter", &GameObject::GetParticleEmitter ) // ComponentParticleEmitter* GameObject::GetParticleEmitter()    
@@ -809,16 +811,23 @@ ComponentBase* GameObject::GetComponentByIndexIncludingCore(unsigned int index)
     }
 }
 
-ComponentBase* GameObject::AddNewComponent(int componenttype, SceneID sceneid, ComponentSystemManager* pComponentSystemManager)
+ComponentBase* GameObject::AddNewComponent(const char* componentName)
 {
-    MyAssert( componenttype != -1 );
+    int type = g_pComponentTypeManager->GetTypeByName( componentName );
+    
+    return AddNewComponent( type, m_SceneID, g_pComponentSystemManager );
+}
+
+ComponentBase* GameObject::AddNewComponent(int componentType, SceneID sceneID, ComponentSystemManager* pComponentSystemManager)
+{
+    MyAssert( componentType != -1 );
 
     if( m_Components.Count() >= m_Components.Length() )
         return 0;
 
-    ComponentBase* pComponent = g_pComponentTypeManager->CreateComponent( componenttype );
+    ComponentBase* pComponent = g_pComponentTypeManager->CreateComponent( componentType );
 
-    if( componenttype == ComponentType_Transform )
+    if( componentType == ComponentType_Transform )
     {
         // Special handling of ComponentType_Transform, only offer option if GameObject doesn't have a transform
         //     m_pComponentTransform will be set in AddExistingComponent() below.
@@ -839,14 +848,14 @@ ComponentBase* GameObject::AddNewComponent(int componenttype, SceneID sceneid, C
         }
     }
 
-    if( sceneid != SCENEID_Unmanaged )
+    if( sceneID != SCENEID_Unmanaged )
     {
-        unsigned int id = pComponentSystemManager->GetNextComponentIDAndIncrement( sceneid );
+        unsigned int id = pComponentSystemManager->GetNextComponentIDAndIncrement( sceneID );
         pComponent->SetID( id );
     }
 
-    MyAssert( sceneid == SCENEID_Unmanaged || m_SceneID == sceneid );
-    pComponent->SetSceneID( sceneid );
+    MyAssert( sceneID == SCENEID_Unmanaged || m_SceneID == sceneID );
+    pComponent->SetSceneID( sceneID );
 
     AddExistingComponent( pComponent, true );
 

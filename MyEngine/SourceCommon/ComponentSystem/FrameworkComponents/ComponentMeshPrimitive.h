@@ -47,6 +47,10 @@ public:
     virtual ~ComponentMeshPrimitive();
     SetClassnameWith2Parents( "MeshPrimitiveComponent", ComponentMesh, ComponentRenderable ); // only first 8 character count.
 
+#if MYFW_USING_LUA
+    static void LuaRegister(lua_State* luastate);
+#endif //MYFW_USING_LUA
+
     virtual cJSON* ExportAsJSONObject(bool savesceneid, bool saveid);
     virtual void ImportFromJSONObject(cJSON* jsonobj, SceneID sceneid);
 

@@ -87,6 +87,17 @@ void ComponentMeshPrimitive::Reset()
 #endif //MYFW_EDITOR
 }
 
+#if MYFW_USING_LUA
+void ComponentMeshPrimitive::LuaRegister(lua_State* luastate)
+{
+    luabridge::getGlobalNamespace( luastate )
+        .beginClass<ComponentMeshPrimitive>( "ComponentMeshPrimitive" )
+            //.addData( "density", &ComponentMeshPrimitive::m_Density ) // float
+            //.addFunction( "ClearVelocity", &ComponentMeshPrimitive::ClearVelocity ) // void Component2DCollisionObject::ClearVelocity()
+        .endClass();
+}
+#endif //MYFW_USING_LUA
+
 #if MYFW_USING_WX
 void ComponentMeshPrimitive::AddToObjectsPanel(wxTreeItemId gameobjectid)
 {

@@ -122,6 +122,7 @@ void ComponentTransform::LuaRegister(lua_State* luastate)
 
             .addFunction( "SetLocalPosition", &ComponentTransform::SetLocalPosition ) // void ComponentTransform::SetLocalPosition(Vector3 pos)
             .addFunction( "SetLocalRotation", &ComponentTransform::SetLocalRotation ) // void ComponentTransform::SetLocalRotation(Vector3 rot)
+            .addFunction( "SetLocalScale", &ComponentTransform::SetLocalScale ) // void ComponentTransform::SetLocalScale(Vector3 scale)
             .addFunction( "GetLocalPosition", &ComponentTransform::GetLocalPosition ) // Vector3 ComponentTransform::GetLocalPosition()
             .addFunction( "GetLocalRotation", &ComponentTransform::GetLocalRotation ) // Vector3 ComponentTransform::GetLocalRotation()
 

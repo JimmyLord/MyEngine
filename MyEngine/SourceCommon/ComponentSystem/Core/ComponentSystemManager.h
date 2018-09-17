@@ -173,8 +173,11 @@ public:
     void SaveGameObjectListToJSONArray(cJSON* gameobjectarray, cJSON* transformarray, GameObject* first, bool savesceneid);
     
     MyFileInfo* AddToFileList(MyFileObject* pFile, MyMesh* pMesh, ShaderGroup* pShaderGroup, TextureDefinition* pTexture, MaterialDefinition* pMaterial, SoundCue* pSoundCue, SpriteSheet* pSpriteSheet, SceneID sceneid);
-    MyFileObject* LoadDataFile(const char* relativepath, SceneID sceneid, const char* fullsourcefilepath, bool convertifrequired);
+    MyFileInfo* EditorLua_LoadDataFile(const char* relativepath, uint32 sceneid, const char* fullsourcefilepath, bool convertifrequired);
+    MyFileInfo* LoadDataFile(const char* relativepath, SceneID sceneid, const char* fullsourcefilepath, bool convertifrequired);
+#if MYFW_USING_WX
     MyFileObject* ImportDataFile(SceneID sceneid, const char* fullsourcefilepath);
+#endif
     void FreeDataFile(MyFileInfo* pFileInfo);
     void FreeAllDataFiles(SceneID sceneIDToClear);
 
@@ -190,7 +193,7 @@ public:
     bool IsSceneLoaded(const char* fullpath);
     SceneID FindSceneID(const char* fullpath);
 
-    GameObject* EditorLua_CreateGameObject(const char* name, int sceneID, bool isFolder, bool hasTransform);
+    GameObject* EditorLua_CreateGameObject(const char* name, uint32 sceneID, bool isFolder, bool hasTransform);
     GameObject* CreateGameObject(bool manageObject = true, SceneID sceneID = SCENEID_Unmanaged, bool isFolder = false, bool hasTransform = true, PrefabReference* pPrefabRef = 0);
     GameObject* CreateGameObjectFromPrefab(PrefabObject* pPrefab, bool manageobject, SceneID sceneid);
     GameObject* CreateGameObjectFromPrefab(PrefabObject* pPrefab, cJSON* jPrefab, uint32 prefabChildID, bool manageObject, SceneID sceneID);

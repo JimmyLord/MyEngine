@@ -115,7 +115,8 @@ public:
     unsigned int GetComponentCount();
     ComponentBase* GetComponentByIndex(unsigned int index);
 
-    ComponentBase* AddNewComponent(int componenttype, SceneID sceneid, ComponentSystemManager* pComponentSystemManager = g_pComponentSystemManager);
+    ComponentBase* AddNewComponent(const char* componentName);
+    ComponentBase* AddNewComponent(int componentType, SceneID sceneID, ComponentSystemManager* pComponentSystemManager = g_pComponentSystemManager);
     ComponentBase* AddExistingComponent(ComponentBase* pComponent, bool resetcomponent);
     ComponentBase* RemoveComponent(ComponentBase* pComponent);
 
@@ -134,6 +135,7 @@ public:
     // TODO: find a way to find an arbitrary component type that would be accessible from lua script.
     // Exposed to Lua, change elsewhere if function signature changes.
     ComponentAnimationPlayer* GetAnimationPlayer()      { return (ComponentAnimationPlayer*)GetFirstComponentOfType( "AnimPlayerComponent" ); }
+    ComponentSprite* GetSprite()                        { return (ComponentSprite*)GetFirstComponentOfType( "SpriteComponent" ); }
     Component3DCollisionObject* Get3DCollisionObject()  { return (Component3DCollisionObject*)GetFirstComponentOfType( "3DCollisionObjectComponent" ); }
     Component2DCollisionObject* Get2DCollisionObject()  { return (Component2DCollisionObject*)GetFirstComponentOfType( "2DCollisionObjectComponent" ); }
     ComponentParticleEmitter* GetParticleEmitter()      { return (ComponentParticleEmitter*)GetFirstComponentOfType( "ParticleEmitterComponent" ); }

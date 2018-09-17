@@ -195,12 +195,18 @@ void ComponentSystemManager::UnregisterComponentCallback_Draw(ComponentCallbackS
 void ComponentSystemManager::LuaRegister(lua_State* luastate)
 {
     luabridge::getGlobalNamespace( luastate )
+        .beginClass<MyFileInfo>( "MyFileInfo" )
+            .addData( "m_pShaderGroup", &MyFileInfo::m_pShaderGroup )
+        .endClass();
+
+    luabridge::getGlobalNamespace( luastate )
         .beginClass<ComponentSystemManager>( "ComponentSystemManager" )
             .addFunction( "SetTimeScale", &ComponentSystemManager::SetTimeScale ) // void ComponentSystemManager::SetTimeScale(float scale)
-            .addFunction( "Editor_CreateGameObject", &ComponentSystemManager::EditorLua_CreateGameObject ) // GameObject* ComponentSystemManager::EditorLua_CreateGameObject(const char* name, SceneID sceneid, bool isfolder, bool hastransform)
+            .addFunction( "Editor_CreateGameObject", &ComponentSystemManager::EditorLua_CreateGameObject ) // GameObject* ComponentSystemManager::EditorLua_CreateGameObject(const char* name, uint32 sceneid, bool isfolder, bool hastransform)
             .addFunction( "DeleteGameObject", &ComponentSystemManager::DeleteGameObject ) // void ComponentSystemManager::DeleteGameObject(GameObject* pObject, bool deletecomponents)
             .addFunction( "CopyGameObject", &ComponentSystemManager::CopyGameObject ) // GameObject* ComponentSystemManager::CopyGameObject(GameObject* pObject, const char* newname)
             .addFunction( "FindGameObjectByName", &ComponentSystemManager::FindGameObjectByName ) // GameObject* ComponentSystemManager::FindGameObjectByName(const char* name)
+            .addFunction( "Editor_LoadDataFile", &ComponentSystemManager::EditorLua_LoadDataFile ) // MyFileInfo* ComponentSystemManager::EditorLua_LoadDataFile(const char* relativepath, uint32 sceneid, const char* fullsourcefilepath, bool convertifrequired)
         .endClass();
 }
 #endif //MYFW_USING_LUA
@@ -502,23 +508,30 @@ MyFileInfo* ComponentSystemManager::AddToFileList(MyFileObject* pFile, MyMesh* p
     return pFileInfo;
 }
 
-MyFileObject* ComponentSystemManager::LoadDataFile(const char* relativepath, SceneID sceneid, const char* fullsourcefilepath, bool convertifrequired)
+MyFileInfo* ComponentSystemManager::EditorLua_LoadDataFile(const char* relativepath, uint32 sceneid, const char* fullsourcefilepath, bool convertifrequired)
+{
+    return LoadDataFile( relativepath, (SceneID)sceneid, fullsourcefilepath, convertifrequired );
+}
+
+MyFileInfo* ComponentSystemManager::LoadDataFile(const char* relativepath, SceneID sceneid, const char* fullsourcefilepath, bool convertifrequired)
 {
     MyAssert( relativepath );
 
     // each scene loaded will add ref's to the file.
-    MyFileObject* pFile = GetFileObjectIfUsedByScene( relativepath, sceneid );
+    MyFileInfo* pFileInfo = GetFileInfoIfUsedByScene( relativepath, sceneid );
 
     // if the file is already tagged as being used by this scene, don't request/addref it.
-    if( pFile != 0 )
+    if( pFileInfo != 0 )
     {
-        return pFile;
+        return pFileInfo;
         //LOGInfo( LOGTag, "%s already in scene, reloading\n", relativepath );
         //g_pFileManager->ReloadFile( pFile );
         //OnFileUpdated_CallbackFunction( pFile );
     }
     else
     {
+        MyFileObject* pFile = 0;
+
         size_t fulllen = 0;
         if( fullsourcefilepath )
             fulllen = strlen( fullsourcefilepath );
@@ -575,7 +588,7 @@ MyFileObject* ComponentSystemManager::LoadDataFile(const char* relativepath, Sce
 #endif //MYFW_USING_WX
         
         // store pFile so we can free it afterwards.
-        MyFileInfo* pFileInfo = AddToFileList( pFile, 0, 0, 0, 0, 0, 0, sceneid );
+        pFileInfo = AddToFileList( pFile, 0, 0, 0, 0, 0, 0, sceneid );
 
         TextureDefinition* pTexture = 0;
 
@@ -711,7 +724,7 @@ MyFileObject* ComponentSystemManager::LoadDataFile(const char* relativepath, Sce
         }
     }
 
-    return pFile;
+    return pFileInfo;
 }
 
 #if MYFW_USING_WX
@@ -1366,7 +1379,7 @@ SceneID ComponentSystemManager::FindSceneID(const char* fullpath)
 }
 
 // Exposed to Lua, change elsewhere if function signature changes.
-GameObject* ComponentSystemManager::EditorLua_CreateGameObject(const char* name, int sceneID, bool isFolder, bool hasTransform)
+GameObject* ComponentSystemManager::EditorLua_CreateGameObject(const char* name, uint32 sceneID, bool isFolder, bool hasTransform)
 {
     GameObject* pGameObject = CreateGameObject( true, (SceneID)sceneID, isFolder, hasTransform, 0 );
 

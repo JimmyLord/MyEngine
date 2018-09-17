@@ -771,6 +771,11 @@ BUTTONID_ButtonB              = 6;\
 BUTTONID_ButtonC              = 7;\
 BUTTONID_ButtonD              = 8;\
 BUTTONID_NumButtons           = 9;\
+\
+GL_NEAREST                    = 0x2600;\
+GL_LINEAR                     = 0x2601;\
+GL_CLAMP                      = 0x2900;\
+GL_REPEAT                     = 0x2901;\
 ";
     int load_stat = luaL_loadbuffer( m_pLuaState, definesScript, strlen(definesScript), "LuaGameState::RegisterClasses -> Defines" );
     lua_pcall( m_pLuaState, 0, LUA_MULTRET, 0 );
@@ -784,6 +789,10 @@ BUTTONID_NumButtons           = 9;\
 
     // Register some GL functions.
     LuaRegisterGLFunctions( m_pLuaState );
+
+    luabridge::getGlobalNamespace( m_pLuaState )
+        .beginClass<SceneID>( "SceneID" )
+        .endClass();
 
     // register Framework classes.
     luabridge::getGlobalNamespace( m_pLuaState )
@@ -881,6 +890,36 @@ BUTTONID_NumButtons           = 9;\
         .endClass();
 
     luabridge::getGlobalNamespace( m_pLuaState )
+        .beginClass<TextureDefinition>( "TextureDefinition" )
+        .endClass();
+
+    luabridge::getGlobalNamespace( m_pLuaState )
+        .beginClass<TextureManager>( "TextureManager" )
+            .addFunction( "CreateTexture", (TextureDefinition* (TextureManager::*)(const char* texturefilename, int minfilter, int magfilter, int wraps, int wrapt)) &TextureManager::CreateTexture ) // TextureDefinition* TextureManager::CreateTexture(const char* texturefilename, int minfilter, int magfilter, int wraps, int wrapt)
+        .endClass();
+
+    luabridge::getGlobalNamespace( m_pLuaState )
+        .beginClass<ShaderGroup>( "ShaderGroup" )
+        .endClass();
+
+    luabridge::getGlobalNamespace( m_pLuaState )
+        .beginClass<ShaderManager>( "ShaderManager" )
+        .endClass();
+
+    luabridge::getGlobalNamespace( m_pLuaState )
+        .beginClass<MaterialDefinition>( "MaterialDefinition" )
+            .addFunction( "SetTextureColor", &MaterialDefinition::SetTextureColor ) // void MaterialDefinition::SetTextureColor(TextureDefinition* pTexture)
+            .addFunction( "SetShader", &MaterialDefinition::SetShader ) // void SetShader(ShaderGroup* pShader);
+        .endClass();
+
+    luabridge::getGlobalNamespace( m_pLuaState )
+        .beginClass<MaterialManager>( "MaterialManager" )
+            .addFunction( "CreateMaterial", (MaterialDefinition* (MaterialManager::*)(const char* name, const char* relativePath)) &MaterialManager::CreateMaterial ) // MaterialDefinition* MaterialManager::CreateMaterial(const char* name = 0, const char* relativePath = 0)
+            //.addFunction( "FindMaterialByFilename", &MaterialManager::FindMaterialByFilename ) // MaterialDefinition* MaterialManager::FindMaterialByFilename(const char* fullpath);
+            .addFunction( "LoadMaterial", &MaterialManager::LoadMaterial ) // MaterialDefinition* MaterialManager::LoadMaterial(const char* fullpath)
+        .endClass();
+
+    luabridge::getGlobalNamespace( m_pLuaState )
         .beginClass<SoundManager>( "SoundManager" )
             .addFunction( "PlayCueByName", &SoundManager::PlayCueByName ) // int SoundManager::PlayCueByName(const char* name)
         .endClass();
@@ -897,7 +936,7 @@ BUTTONID_NumButtons           = 9;\
     ComponentSprite::LuaRegister( m_pLuaState );
     ComponentMesh::LuaRegister( m_pLuaState );
     //ComponentType_MeshOBJ,
-    //ComponentType_MeshPrimitive,
+    ComponentMeshPrimitive::LuaRegister( m_pLuaState );
     ComponentVoxelMesh::LuaRegister( m_pLuaState );
     ComponentVoxelWorld::LuaRegister( m_pLuaState );
     //ComponentType_Light,
@@ -917,7 +956,7 @@ BUTTONID_NumButtons           = 9;\
     ComponentAnimationPlayer2D::LuaRegister( m_pLuaState );
     ComponentAudioPlayer::LuaRegister( m_pLuaState );
     ComponentObjectPool::LuaRegister( m_pLuaState );
-    ComponentMenuPage::LuaRegister( m_pLuaState );    
+    ComponentMenuPage::LuaRegister( m_pLuaState );
 
     // Register the MenuItem types.
     MenuItem::LuaRegister( m_pLuaState );
@@ -929,6 +968,8 @@ BUTTONID_NumButtons           = 9;\
     luabridge::setGlobal( m_pLuaState, g_pEngineCore, "g_pEngineCore" ); // EngineCore*
     luabridge::setGlobal( m_pLuaState, g_pComponentSystemManager, "g_pComponentSystemManager" ); // ComponentSystemManager*
     luabridge::setGlobal( m_pLuaState, g_pFileManager, "g_pFileManager" ); // FileManager*
+    luabridge::setGlobal( m_pLuaState, g_pTextureManager, "g_pTextureManager" ); // TextureManager*
+    luabridge::setGlobal( m_pLuaState, g_pMaterialManager, "g_pMaterialManager" ); // MaterialManager*
     luabridge::setGlobal( m_pLuaState, g_pGameCore->GetSoundManager(), "g_pSoundManager" ); // SoundManager*
 }
 

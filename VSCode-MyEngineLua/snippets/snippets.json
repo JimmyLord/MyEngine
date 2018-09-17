@@ -630,12 +630,41 @@
 
     //luabridge::getGlobalNamespace( m_pLuaState )
     //    .beginClass<FileManager>( "FileManager" )
-    //        .addFunction( "RequestFile", &FileManager::RequestFile ) // MyFileObject* FileManager::RequestFile(const char* filename)
+    // (TODO) .addFunction( "RequestFile", &FileManager::RequestFile ) // MyFileObject* FileManager::RequestFile(const char* filename)
+    //    .endClass();
+
+    //luabridge::getGlobalNamespace( m_pLuaState )
+    //    .beginClass<TextureDefinition>( "TextureDefinition" )
+    //    .endClass();
+
+    //luabridge::getGlobalNamespace( m_pLuaState )
+    //    .beginClass<TextureManager>( "TextureManager" )
+    // (TODO) .addFunction( "CreateTexture", (TextureDefinition* (TextureManager::*)(const char* texturefilename, int minfilter, int magfilter, int wraps, int wrapt)) &TextureManager::CreateTexture ) // TextureDefinition* TextureManager::CreateTexture(const char* texturefilename, int minfilter, int magfilter, int wraps, int wrapt)
+    //    .endClass();
+
+    //luabridge::getGlobalNamespace( m_pLuaState )
+    //    .beginClass<MaterialDefinition>( "MaterialDefinition" )
+    // (TODO) .addFunction( "SetTextureColor", &MaterialDefinition::SetTextureColor ) // void MaterialDefinition::SetTextureColor(TextureDefinition* pTexture)
+    // (TODO) .addFunction( "SetShader", &MaterialDefinition::SetShader ) // void SetShader(ShaderGroup* pShader);
+    //    .endClass();
+
+    //luabridge::getGlobalNamespace( m_pLuaState )
+    //    .beginClass<ShaderGroup>( "ShaderGroup" )
+    //    .endClass();
+
+    //luabridge::getGlobalNamespace( m_pLuaState )
+    //    .beginClass<ShaderManager>( "ShaderManager" )
+    //    .endClass();
+
+    //luabridge::getGlobalNamespace( m_pLuaState )
+    //    .beginClass<MaterialManager>( "MaterialManager" )
+    // (TODO) .addFunction( "CreateMaterial", (MaterialDefinition* (MaterialManager::*)(const char* name, const char* relativePath)) &MaterialManager::CreateMaterial ) // MaterialDefinition* MaterialManager::CreateMaterial(const char* name = 0, const char* relativePath = 0)
+    // (TODO) .addFunction( "LoadMaterial", &MaterialManager::LoadMaterial ) // MaterialDefinition* MaterialManager::LoadMaterial(const char* fullpath)
     //    .endClass();
 
     //luabridge::getGlobalNamespace( m_pLuaState )
     //    .beginClass<SoundManager>( "SoundManager" )
-    //        .addFunction( "PlayCueByName", &SoundManager::PlayCueByName ) // int SoundManager::PlayCueByName(const char* name)
+    // (TODO) .addFunction( "PlayCueByName", &SoundManager::PlayCueByName ) // int SoundManager::PlayCueByName(const char* name)
     //    .endClass();
 
     //// Have some entity/component classes register themselves. // ADDING_NEW_ComponentType
@@ -663,6 +692,7 @@
     //            .addData( "ComponentTransform", &GameObject::m_pComponentTransform ) // ComponentTransform*
     //            .addData( "name", &GameObject::m_Name ) // char*
     //            .addData( "id", &GameObject::m_ID ) // unsigned int
+    //            .addFunction( "Editor_AddNewComponent", (ComponentBase* (GameObject::*)(const char* componentName)) &GameObject::AddNewComponent ) // ComponentBase* GameObject::AddNewComponent(const char* componentName)
     //            .addFunction( "SetEnabled", &GameObject::SetEnabled ) // void GameObject::SetEnabled(bool enabled, bool affectchildren)
     //            .addFunction( "SetName", &GameObject::SetName ) // void GameObject::SetName(const char* name)
     //            .addFunction( "SetParentGameObject", &GameObject::SetParentGameObject ) // void SetParentGameObject(GameObject* pNewParentGameObject);
@@ -670,6 +700,7 @@
     // (TODO)     .addFunction( "GetFirstComponentOfBaseType", &GameObject::GetFirstComponentOfBaseType ) // ComponentBase* GameObject::GetFirstComponentOfBaseType(BaseComponentTypes basetype)
     // (TODO)     .addFunction( "GetFirstComponentOfType", &GameObject::GetFirstComponentOfType ) // ComponentBase* GameObject::GetFirstComponentOfType(const char* type)
     // (TODO)     .addFunction( "GetAnimationPlayer", &GameObject::GetAnimationPlayer ) // ComponentAnimationPlayer* GameObject::GetAnimationPlayer()    
+    // (TODO)     .addFunction( "GetSprite", &GameObject::GetSprite ) // ComponentSprite* GameObject::GetSprite()    
     // (TODO)     .addFunction( "Get3DCollisionObject", &GameObject::Get3DCollisionObject ) // Component3DCollisionObject* GameObject::Get3DCollisionObject()
     // (TODO)     .addFunction( "Get2DCollisionObject", &GameObject::Get2DCollisionObject ) // Component2DCollisionObject* GameObject::Get2DCollisionObject()
     // (TODO)     .addFunction( "GetParticleEmitter", &GameObject::GetParticleEmitter ) // ComponentParticleEmitter* GameObject::GetParticleEmitter()    
@@ -679,6 +710,13 @@
     // (TODO)     .addFunction( "ReturnToPool", &GameObject::ReturnToPool ) // void GameObject::ReturnToPool()            
     //        .endClass();
 
+    //            .addFunction( "Editor_AddNewComponent", (ComponentBase* (GameObject::*)()
+
+    "GameObject:Editor_AddNewComponent": {
+        "prefix": "GameObject:Editor_AddNewComponent",
+        "body": "${1:GameObject instance}:Editor_AddNewComponent( ${2:const char* componentName} )",
+        "description": "Create and add a new component to this gameobject."
+    },
     "GameObject:SetEnabled": {
         "prefix": "GameObject:SetEnabled",
         "body": "${1:GameObject instance}:SetEnabled( ${2:bool enabled}, ${3:bool affectChildren} )",
@@ -747,6 +785,7 @@
     //
     //            .addFunction( "SetLocalPosition", &ComponentTransform::SetLocalPosition ) // void ComponentTransform::SetLocalPosition(Vector3 pos)
     //            .addFunction( "SetLocalRotation", &ComponentTransform::SetLocalRotation ) // void ComponentTransform::SetLocalRotation(Vector3 rot)
+    // (TODO)     .addFunction( "SetLocalScale", &ComponentTransform::SetLocalScale ) // void ComponentTransform::SetLocalScale(Vector3 scale)
     //            .addFunction( "GetLocalPosition", &ComponentTransform::GetLocalPosition ) // Vector3 ComponentTransform::GetLocalPosition()
     //            .addFunction( "GetLocalRotation", &ComponentTransform::GetLocalRotation ) // Vector3 ComponentTransform::GetLocalRotation()
     //
@@ -813,12 +852,18 @@
 
     //ComponentSystemManager::LuaRegister( m_pLuaState );
     //    luabridge::getGlobalNamespace( luastate )
+    //        .beginClass<MyFileInfo>( "MyFileInfo" )
+    //            .addData( "m_pShaderGroup", &MyFileInfo::m_pShaderGroup )
+    //        .endClass();
+    //
+    //    luabridge::getGlobalNamespace( luastate )
     //        .beginClass<ComponentSystemManager>( "ComponentSystemManager" )
     //            .addFunction( "SetTimeScale", &ComponentSystemManager::SetTimeScale ) // void ComponentSystemManager::SetTimeScale(float scale)
-    //            .addFunction( "Editor_CreateGameObject", &ComponentSystemManager::EditorLua_CreateGameObject ) // GameObject* ComponentSystemManager::EditorLua_CreateGameObject(const char* name, SceneID sceneid, bool isfolder, bool hastransform)
+    //            .addFunction( "Editor_CreateGameObject", &ComponentSystemManager::EditorLua_CreateGameObject ) // GameObject* ComponentSystemManager::EditorLua_CreateGameObject(const char* name, uint32 sceneid, bool isfolder, bool hastransform)
     //            .addFunction( "DeleteGameObject", &ComponentSystemManager::DeleteGameObject ) // void ComponentSystemManager::DeleteGameObject(GameObject* pObject, bool deletecomponents)
     //            .addFunction( "CopyGameObject", &ComponentSystemManager::CopyGameObject ) // GameObject* ComponentSystemManager::CopyGameObject(GameObject* pObject, const char* newname)
     //            .addFunction( "FindGameObjectByName", &ComponentSystemManager::FindGameObjectByName ) // GameObject* ComponentSystemManager::FindGameObjectByName(const char* name)
+    // (TODO)     .addFunction( "Editor_LoadDataFile", &ComponentSystemManager::EditorLua_LoadDataFile ) // MyFileInfo* ComponentSystemManager::EditorLua_LoadDataFile(const char* relativepath, uint32 sceneid, const char* fullsourcefilepath, bool convertifrequired)
     //        .endClass();
 
     "g_pComponentSystemManager:SetTimeScale": {
@@ -854,9 +899,15 @@
     //    luabridge::getGlobalNamespace( luastate )
     //        .beginClass<ComponentSprite>( "ComponentSprite" )
     //            //.addData( "localmatrix", &ComponentSprite::m_LocalTransform )
+    //            .addFunction( "SetMaterial", &ComponentSprite::SetMaterial ) // void SetMaterial(MaterialDefinition* pMaterial, int submeshIndex);
     //            .addFunction( "GetSprite", &ComponentSprite::GetSprite ) // MySprite* ComponentSprite::GetSprite()
     //        .endClass();
 
+    "ComponentSprite:SetMaterial": {
+        "prefix": "ComponentSprite:SetMaterial",
+        "body": "${1:ComponentSprite instance}::SetMaterial( ${2:MaterialDefinition* pMaterial}, ${3:int submeshIndex} )",
+        "description": "Set the material on this sprite. Set submeshindex to 0."
+    },
     // Hidden since MySprite isn't useful at the moment.
     // "ComponentSprite:GetSprite": {
     //     "prefix": "ComponentSprite:GetSprite",
@@ -1209,6 +1260,8 @@
     //luabridge::setGlobal( m_pLuaState, g_pEngineCore, "g_pEngineCore" ); // EngineCore*
     //luabridge::setGlobal( m_pLuaState, g_pComponentSystemManager, "g_pComponentSystemManager" ); // ComponentSystemManager*
     //luabridge::setGlobal( m_pLuaState, g_pFileManager, "g_pFileManager" ); // FileManager*
+    //luabridge::setGlobal( m_pLuaState, g_pTextureManager, "g_pTextureManager" ); // TextureManager*
+    //luabridge::setGlobal( m_pLuaState, g_pMaterialManager, "g_pMaterialManager" ); // MaterialManager*
     //luabridge::setGlobal( m_pLuaState, g_pGameCore->GetSoundManager(), "g_pSoundManager" ); // SoundManager*
 
     // "g_pEngineCore": {

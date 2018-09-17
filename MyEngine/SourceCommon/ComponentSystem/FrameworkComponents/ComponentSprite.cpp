@@ -100,6 +100,7 @@ void ComponentSprite::LuaRegister(lua_State* luastate)
     luabridge::getGlobalNamespace( luastate )
         .beginClass<ComponentSprite>( "ComponentSprite" )
             //.addData( "localmatrix", &ComponentSprite::m_LocalTransform )
+            .addFunction( "SetMaterial", &ComponentSprite::SetMaterial ) // void SetMaterial(MaterialDefinition* pMaterial, int submeshIndex);
             .addFunction( "GetSprite", &ComponentSprite::GetSprite ) // MySprite* ComponentSprite::GetSprite()
         .endClass();
 }
@@ -233,12 +234,12 @@ void ComponentSprite::OnLoad()
         AddToSceneGraph();
 }
 
-void ComponentSprite::SetMaterial(MaterialDefinition* pMaterial, int submeshindex)
+void ComponentSprite::SetMaterial(MaterialDefinition* pMaterial, int submeshIndex)
 {
-    // sprites only have one submesh
-    MyAssert( submeshindex == 0 );
+    // Sprites only have one submesh.
+    MyAssert( submeshIndex == 0 );
 
-    ComponentRenderable::SetMaterial( pMaterial, submeshindex );
+    ComponentRenderable::SetMaterial( pMaterial, submeshIndex );
 
     if( m_pSprite )
     {
@@ -355,7 +356,7 @@ void ComponentSprite::DrawCallback(ComponentCamera* pCamera, MyMatrix* pMatProj,
 }
 
 #if MYFW_EDITOR
-ComponentVariable* ComponentSprite::GetComponentVariableForMaterial(int submeshindex)
+ComponentVariable* ComponentSprite::GetComponentVariableForMaterial(int submeshIndex)
 {
     return FindComponentVariableByLabel( &m_ComponentVariableList_ComponentSprite, "Material" );
 }

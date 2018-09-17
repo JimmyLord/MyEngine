@@ -215,7 +215,7 @@ void ComponentLuaScript::CreateNewScriptFile()
 #endif
             const char* relativepath = GetRelativePath( fullpath );
 
-            MyFileObject* pScriptFile = g_pComponentSystemManager->LoadDataFile( relativepath, m_pGameObject->GetSceneID(), 0, true );
+            MyFileObject* pScriptFile = g_pComponentSystemManager->LoadDataFile( relativepath, m_pGameObject->GetSceneID(), 0, true )->m_pFile;
             SetScriptFile( pScriptFile );
 
 #if MYFW_USING_WX

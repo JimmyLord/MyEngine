@@ -47,8 +47,8 @@ public:
 
     virtual void OnLoad();
 
-    virtual MaterialDefinition* GetMaterial(int submeshindex) { if( m_pSprite ) return m_pSprite->GetMaterial(); return 0; }
-    virtual void SetMaterial(MaterialDefinition* pMaterial, int submeshindex);
+    virtual MaterialDefinition* GetMaterial(int submeshIndex) { if( m_pSprite ) return m_pSprite->GetMaterial(); return 0; }
+    virtual void SetMaterial(MaterialDefinition* pMaterial, int submeshIndex);
 
     virtual void SetVisible(bool visible);
 
@@ -85,7 +85,7 @@ public:
 
 public:
 #if MYFW_EDITOR
-    virtual ComponentVariable* GetComponentVariableForMaterial(int submeshindex);
+    virtual ComponentVariable* GetComponentVariableForMaterial(int submeshIndex);
 
     virtual bool IsReferencingFile(MyFileObject* pFile);
 
