@@ -1817,8 +1817,15 @@ void EditorMainFrame_ImGui::AddGameObjectToObjectList(GameObject* pGameObject, P
                 }
             }
         }
+
+        bool forceOpen = false;
+        if( treeNodeIsOpen == false && pEditorState->IsGameObjectAParentOfASelectedObject( pGameObject ) )
+        {
+            ImGui::Indent();
+            forceOpen = true;
+        }
         
-        if( treeNodeIsOpen )
+        if( treeNodeIsOpen || forceOpen )
         {
             // Add Child GameObjects.
             GameObject* pChildGameObject = pGameObject->GetFirstChild();
@@ -1947,7 +1954,11 @@ void EditorMainFrame_ImGui::AddGameObjectToObjectList(GameObject* pGameObject, P
                 }
             }
 
-            ImGui::TreePop();
+            if( treeNodeIsOpen )
+                ImGui::TreePop();
+
+            if( forceOpen )
+                ImGui::Unindent();
         }
 
         // Draw a horizontal line to indicate the drag/drop will do a reorder and not a reparent.

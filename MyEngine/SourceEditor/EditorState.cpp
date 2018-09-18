@@ -202,6 +202,18 @@ bool EditorState::IsGameObjectSelected(GameObject* pObject)
     return false;
 }
 
+bool EditorState::IsGameObjectAParentOfASelectedObject(GameObject* pObject)
+{
+    for( unsigned i=0; i < m_pSelectedObjects.size(); i++ )
+    {
+        GameObject* pSelectedGameObject = m_pSelectedObjects[i];
+        if( pSelectedGameObject->IsParentedTo( pObject, false ) )
+            return true;
+    }
+
+    return false;
+}
+
 void EditorState::DeleteSelectedObjects()
 {
     if( m_pSelectedObjects.size() > 0 )
