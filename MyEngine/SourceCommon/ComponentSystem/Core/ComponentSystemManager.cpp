@@ -196,6 +196,7 @@ void ComponentSystemManager::LuaRegister(lua_State* luastate)
 {
     luabridge::getGlobalNamespace( luastate )
         .beginClass<MyFileInfo>( "MyFileInfo" )
+            .addData( "m_pFile", &MyFileInfo::m_pFile )
             .addData( "m_pShaderGroup", &MyFileInfo::m_pShaderGroup )
         .endClass();
 

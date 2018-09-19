@@ -950,7 +950,7 @@ GL_REPEAT                     = 0x2901;\
     //ComponentType_2DJointRevolute,
     //ComponentType_2DJointPrismatic,
     //ComponentType_2DJointWeld,
-    //ComponentType_LuaScript,
+    ComponentLuaScript::LuaRegister( m_pLuaState );
     ComponentParticleEmitter::LuaRegister( m_pLuaState );
     ComponentAnimationPlayer::LuaRegister( m_pLuaState );
     ComponentAnimationPlayer2D::LuaRegister( m_pLuaState );

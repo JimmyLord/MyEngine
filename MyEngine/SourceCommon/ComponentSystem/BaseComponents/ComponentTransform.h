@@ -25,7 +25,7 @@ private:
     // Component Variable List
     MYFW_COMPONENT_DECLARE_VARIABLE_LIST( ComponentTransform );
 
-    static const int CALLBACK_POOL_SIZE = 100;
+    static const int CALLBACK_POOL_SIZE = 1000;
 
 protected:
     CPPListHead m_TransformChangedCallbackList;

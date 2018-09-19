@@ -121,6 +121,16 @@ void ComponentLuaScript::Reset()
 #endif //MYFW_USING_WX
 }
 
+#if MYFW_USING_LUA
+void ComponentLuaScript::LuaRegister(lua_State* luastate)
+{
+    luabridge::getGlobalNamespace( luastate )
+        .beginClass<ComponentLuaScript>( "ComponentLuaScript" )
+            .addFunction( "SetScriptFile", &ComponentLuaScript::SetScriptFile ) // void ComponentLuaScript::SetScriptFile(MyFileObject* script)
+        .endClass();
+}
+#endif //MYFW_USING_LUA
+
 void* ComponentLuaScript::GetPointerValue(ComponentVariable* pVar) //_VARIABLE_LIST
 {
     //if( strcmp( pVar->m_Label, "OnPlay" ) == 0 )
