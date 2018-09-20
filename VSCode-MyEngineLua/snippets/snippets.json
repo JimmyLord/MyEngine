@@ -1025,7 +1025,8 @@
     //{
     //    luabridge::getGlobalNamespace( luastate )
     //        .beginClass<ComponentLuaScript>( "ComponentLuaScript" )
-    //            .addFunction( "SetScriptFile", &ComponentLuaScript::SetScriptFile ) // void ComponentLuaScript::SetScriptFile(MyFileObject* script)
+    // (TODO)     .addFunction( "SetScriptFile", &ComponentLuaScript::SetScriptFile ) // void ComponentLuaScript::SetScriptFile(MyFileObject* script)
+    // (TODO)     .addFunction( "SetExternFloat", &ComponentLuaScript::SetExternFloat ) // void ComponentLuaScript::SetExternFloat(const char* name, float newValue)
     //        .endClass();
     //}
     

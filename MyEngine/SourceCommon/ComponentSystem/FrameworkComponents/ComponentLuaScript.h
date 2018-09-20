@@ -123,7 +123,8 @@ public:
     void LoadScript();
     void LoadInLineScripts();
     void ParseExterns(luabridge::LuaRef LuaObject);
-    void ProgramVariables(luabridge::LuaRef LuaObject, bool updateexposedvariables = false);
+    void ProgramVariables(luabridge::LuaRef LuaObject, bool updateExposedVariables = false);
+    void SetExternFloat(const char* name, float newValue);
 
     void HandleLuaError(const char* functionname, const char* errormessage);
 

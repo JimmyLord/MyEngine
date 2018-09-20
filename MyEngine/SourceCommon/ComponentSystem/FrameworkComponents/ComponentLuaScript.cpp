@@ -127,6 +127,7 @@ void ComponentLuaScript::LuaRegister(lua_State* luastate)
     luabridge::getGlobalNamespace( luastate )
         .beginClass<ComponentLuaScript>( "ComponentLuaScript" )
             .addFunction( "SetScriptFile", &ComponentLuaScript::SetScriptFile ) // void ComponentLuaScript::SetScriptFile(MyFileObject* script)
+            .addFunction( "SetExternFloat", &ComponentLuaScript::SetExternFloat ) // void ComponentLuaScript::SetExternFloat(const char* name, float newValue)
         .endClass();
 }
 #endif //MYFW_USING_LUA
@@ -336,18 +337,21 @@ void ComponentLuaScript::AddAllVariablesToWatchPanel()
 
         case ExposedVariableType_Bool:
             {
+                ImGui::Text( "(TODO) Bool: %s", pVar->name.c_str() );
                 //id = g_pPanelWatch->AddBool( pVar->name.c_str(), &pVar->valuebool, 0, 0, this, ComponentLuaScript::StaticOnPanelWatchExposedVarValueChanged, ComponentLuaScript::StaticOnRightClickExposedVariable );
             }
             break;
 
         case ExposedVariableType_Vector3:
             {
+                ImGui::Text( "(TODO) Vector3: %s", pVar->name.c_str() );
                 //id = g_pPanelWatch->AddVector3( pVar->name.c_str(), (Vector3*)&pVar->valuevector3, 0, 0, this, ComponentLuaScript::StaticOnPanelWatchExposedVarValueChanged, ComponentLuaScript::StaticOnRightClickExposedVariable );
             }
             break;
 
         case ExposedVariableType_GameObject:
             {
+                ImGui::Text( "(TODO) GameObject: %s", pVar->name.c_str() );
                 // setup name and drag and drop of game objects.
                 //const char* desc = "no gameobject";
                 //if( pVar->pointer )
@@ -1673,19 +1677,19 @@ void ComponentLuaScript::ParseExterns(luabridge::LuaRef LuaObject)
     }
 }
 
-void ComponentLuaScript::ProgramVariables(luabridge::LuaRef LuaObject, bool updateexposedvariables)
+void ComponentLuaScript::ProgramVariables(luabridge::LuaRef LuaObject, bool updateExposedVariables)
 {
     if( m_ScriptLoaded == false )
         return;
 
-    // set "this" to the data table storing this gameobjects script data "_GameObject_<ID>"
+    // Set "this" to the data table storing this gameobjects script data "_GameObject_<ID>"
     char gameobjectname[100];
     sprintf_s( gameobjectname, 100, "_GameObject_%d_%d", m_pGameObject->GetSceneID(), m_pGameObject->GetID() );
     luabridge::LuaRef datatable = luabridge::getGlobal( m_pLuaGameState->m_pLuaState, gameobjectname );
     luabridge::setGlobal( m_pLuaGameState->m_pLuaState, datatable, "this" );
 
-    // only program the exposed vars if they change.
-    if( updateexposedvariables )
+    // Only program the exposed vars if they change.
+    if( updateExposedVariables )
     {
         for( unsigned int i=0; i<m_ExposedVars.Count(); i++ )
         {
@@ -1704,6 +1708,57 @@ void ComponentLuaScript::ProgramVariables(luabridge::LuaRef LuaObject, bool upda
                 datatable[pVar->name] = (GameObject*)pVar->pointer;
         }
     }
+}
+
+void ComponentLuaScript::SetExternFloat(const char* name, float newValue)
+{
+#if MYFW_EDITOR
+    // Make sure the variable exists and the type matches.
+    bool found = false;
+
+    for( unsigned int i=0; i<m_ExposedVars.Count(); i++ )
+    {
+        ExposedVariableDesc* pVar = m_ExposedVars[i];
+        if( pVar->name == name )
+        {
+            found = true;
+            if( pVar->type != ExposedVariableType_Float )
+            {
+                LOGError( LOGTag, "SetExternFloat called on wrong type: %d", pVar->type );
+                return;
+            }
+
+            pVar->valuedouble = newValue;
+        }
+    }
+
+    if( found == false )
+    {
+        if( m_ScriptLoaded == true )
+        {
+            LOGError( LOGTag, "Extern not found: %s", name );
+            return;
+        }
+
+        ExposedVariableDesc* pVar = MyNew ExposedVariableDesc();
+        m_ExposedVars.Add( pVar );
+
+        pVar->Reset();
+
+        pVar->name = name;
+        pVar->type = ExposedVariableType_Float;
+        pVar->valuedouble = newValue;
+        return;
+    }
+#endif
+
+    // Set "this" to the data table storing this gameobjects script data "_GameObject_<ID>"
+    char gameobjectname[100];
+    sprintf_s( gameobjectname, 100, "_GameObject_%d_%d", m_pGameObject->GetSceneID(), m_pGameObject->GetID() );
+    luabridge::LuaRef datatable = luabridge::getGlobal( m_pLuaGameState->m_pLuaState, gameobjectname );
+
+    // Set the new value.
+    datatable[name] = newValue;
 }
 
 void ComponentLuaScript::HandleLuaError(const char* functionname, const char* errormessage)
