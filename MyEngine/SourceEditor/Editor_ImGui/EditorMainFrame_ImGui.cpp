@@ -1027,6 +1027,7 @@ void EditorMainFrame_ImGui::AddLoseChangesWarningPopups()
 void EditorMainFrame_ImGui::AddGameAndEditorWindows()
 {
     ImGui::SetNextWindowPos( ImVec2(9, 302), ImGuiCond_FirstUseEver );
+    m_GameWindowFocused = m_GameWindowVisible = false;
     if( ImGui::Begin( "Game", 0, ImVec2(256, 171) ) )
     {
         m_GameWindowFocused = ImGui::IsWindowFocused();
@@ -1072,6 +1073,7 @@ void EditorMainFrame_ImGui::AddGameAndEditorWindows()
     ImGui::End();
 
     ImGui::SetNextWindowPos( ImVec2(269, 24), ImGuiCond_FirstUseEver );
+    m_EditorWindowFocused = m_EditorWindowHovered = m_EditorWindowVisible = false;
     if( ImGui::Begin( "Editor", 0, ImVec2(579, 397) ) )
     {
         m_EditorWindowFocused = ImGui::IsWindowFocused();
