@@ -63,6 +63,9 @@ struct GridSettings
 
 class EditorPrefs
 {
+public:
+    const static int MAX_RECENT_LUA_SCRIPTS = 10;
+
 private:
     FILE* m_pSaveFile; // Stored temporarily between SaveStart and Save Finish.
 
@@ -86,6 +89,7 @@ protected:
     bool m_Mode_SwitchFocusOnPlayStop;
     LaunchPlatforms m_Mode_CurrentLaunchPlatform;
     bool m_Debug_DrawPhysicsDebugShapes;
+    std::vector<std::string> m_Lua_RecentScripts;
 
 #if MYFW_USING_IMGUI
     ImGuiStylePrefs* m_pImGuiStylePrefs;
@@ -126,6 +130,8 @@ public:
     bool Get_Mode_SwitchFocusOnPlayStop() { return m_Mode_SwitchFocusOnPlayStop; }
     LaunchPlatforms Get_Mode_LaunchPlatform() { return m_Mode_CurrentLaunchPlatform; }
     bool Get_Debug_DrawPhysicsDebugShapes() { return m_Debug_DrawPhysicsDebugShapes; }
+    uint32 Get_Lua_NumRecentScripts() { return m_Lua_RecentScripts.size(); }
+    std::string Get_Lua_RecentScript(int index) { return m_Lua_RecentScripts[index]; }
 
     void Toggle_View_ShowEditorIcons() { m_View_ShowEditorIcons = !m_View_ShowEditorIcons; }
     void Toggle_View_EditorCamDeferred() { m_View_EditorCamDeferred = !m_View_EditorCamDeferred; }
@@ -137,6 +143,8 @@ public:
     void Toggle_Mode_SwitchFocusOnPlayStop() { m_Mode_SwitchFocusOnPlayStop = !m_Mode_SwitchFocusOnPlayStop; }
     void Set_Mode_LaunchPlatform(LaunchPlatforms platform) { m_Mode_CurrentLaunchPlatform = platform; }
     void Toggle_Debug_DrawPhysicsDebugShapes() { m_Debug_DrawPhysicsDebugShapes = !m_Debug_DrawPhysicsDebugShapes; }
+
+    void AddRecentLuaScript(const char* relativepath);
 
     void FillGridSettingsWindow();
 

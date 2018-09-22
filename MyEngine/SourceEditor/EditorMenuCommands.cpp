@@ -445,8 +445,14 @@ void EditorMenuCommand(EditorMenuCommands command)
                 const char* relativepath = GetRelativePath( path );
                 
                 g_pLuaGameState->RunFile( relativepath );
+
+                g_pEditorPrefs->AddRecentLuaScript( relativepath );
             }
         }
+        break;
+
+    case EditorMenuCommand_Lua_RunRecentLuaScript:
+        // TODO
         break;
 
     default:

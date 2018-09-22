@@ -32,11 +32,15 @@ enum EditorMenuCommands
     EditorMenuCommand_Mode_AdvanceOneFrame,
     EditorMenuCommand_Mode_AdvanceOneSecond,
     EditorMenuCommand_Mode_LaunchPlatforms,
+    // Space for LaunchPlatform_NumPlatforms.
     EditorMenuCommand_Mode_LaunchGame = EditorMenuCommand_Mode_LaunchPlatforms + LaunchPlatform_NumPlatforms,
     EditorMenuCommand_Data_LoadDatafiles,
     EditorMenuCommand_Debug_DrawWireframe,
     EditorMenuCommand_Debug_ShowPhysicsShapes,
     EditorMenuCommand_Lua_RunLuaScript,
+    EditorMenuCommand_Lua_RunRecentLuaScript,
+    // Space for EditorPrefs::MAX_RECENT_LUA_SCRIPTS.
+    //EditorMenuCommand_ = EditorMenuCommand_Lua_RunRecentLuaScript + EditorPrefs::MAX_RECENT_LUA_SCRIPTS,
 };
 
 void EditorMenuCommand(EditorMenuCommands command);

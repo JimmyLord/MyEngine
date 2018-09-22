@@ -152,6 +152,17 @@ void EditorPrefs::LoadPrefs()
     // Debug menu options
     cJSONExt_GetBool( m_jEditorPrefs, "Debug_DrawPhysicsDebugShapes", &m_Debug_DrawPhysicsDebugShapes );
 
+    // Lua script menu options
+    cJSON* jRecentFilesArray = cJSON_GetObjectItem( m_jEditorPrefs, "Lua_RecentFiles" );
+    if( jRecentFilesArray )
+    {
+        for( int i=0; i<cJSON_GetArraySize( jRecentFilesArray ); i++ )
+        {
+            cJSON* jFile = cJSON_GetArrayItem( jRecentFilesArray, i );
+            m_Lua_RecentScripts.push_back( jFile->valuestring );
+        }
+    }
+
 #if MYFW_USING_IMGUI
     m_pImGuiStylePrefs->LoadPrefs( m_jEditorPrefs );
 #endif
@@ -272,6 +283,15 @@ cJSON* EditorPrefs::SaveStart()
         // Debug menu options
         cJSON_AddNumberToObject( jPrefs, "Debug_DrawPhysicsDebugShapes", m_Debug_DrawPhysicsDebugShapes );
 
+        // Lua script menu options
+        cJSON* jRecentFilesArray = cJSON_CreateArray();
+        for( unsigned int i=0; i<m_Lua_RecentScripts.size(); i++ )
+        {
+            cJSON* jFile = cJSON_CreateString( m_Lua_RecentScripts[i].c_str() );
+            cJSON_AddItemToArray( jRecentFilesArray, jFile );
+        }
+        cJSON_AddItemToObject( jPrefs, "Lua_RecentFiles", jRecentFilesArray );
+
 #if MYFW_USING_IMGUI
         m_pImGuiStylePrefs->SavePrefs( jPrefs );
 #endif
@@ -306,6 +326,24 @@ void EditorPrefs::Toggle_Grid_Visible()
 void EditorPrefs::Toggle_Grid_SnapEnabled()
 {
     m_GridSettings.snapenabled = !m_GridSettings.snapenabled;
+}
+
+void EditorPrefs::AddRecentLuaScript(const char* relativepath)
+{
+    // Remove a single matching item.
+    auto it = std::find( m_Lua_RecentScripts.begin(), m_Lua_RecentScripts.end(), relativepath );
+    if( it != m_Lua_RecentScripts.end() )
+    {
+        m_Lua_RecentScripts.erase( it );
+    }
+
+    // Insert the path at the start of the list.
+    it = m_Lua_RecentScripts.begin();
+    m_Lua_RecentScripts.insert( it, relativepath );
+
+    // Remove any paths past the end.
+    while( m_Lua_RecentScripts.size() > MAX_RECENT_LUA_SCRIPTS )
+        m_Lua_RecentScripts.pop_back();
 }
 
 void EditorPrefs::FillGridSettingsWindow()

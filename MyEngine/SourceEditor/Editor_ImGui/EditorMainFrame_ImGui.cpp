@@ -943,6 +943,10 @@ void EditorMainFrame_ImGui::AddMainMenuBar()
         if( ImGui::BeginMenu( "Lua" ) )
         {
             if( ImGui::MenuItem( "Run Lua Script...", "Ctrl-Shift-L" ) ) { EditorMenuCommand( EditorMenuCommand_Lua_RunLuaScript ); }
+            if( g_pEditorPrefs->Get_Lua_NumRecentScripts() > 0 )
+            {
+                if( ImGui::MenuItem( g_pEditorPrefs->Get_Lua_RecentScript( 0 ).c_str() ) ) { } // TODO
+            }
             ImGui::EndMenu();
         }
 
