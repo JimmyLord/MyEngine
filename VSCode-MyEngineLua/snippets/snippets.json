@@ -646,6 +646,7 @@
     //    .beginClass<MaterialDefinition>( "MaterialDefinition" )
     // (TODO) .addFunction( "SetTextureColor", &MaterialDefinition::SetTextureColor ) // void MaterialDefinition::SetTextureColor(TextureDefinition* pTexture)
     // (TODO) .addFunction( "SetShader", &MaterialDefinition::SetShader ) // void SetShader(ShaderGroup* pShader);
+    // (TODO) .addFunction( "Release", &MaterialDefinition::Release ) // void Release();
     //    .endClass();
 
     //luabridge::getGlobalNamespace( m_pLuaState )

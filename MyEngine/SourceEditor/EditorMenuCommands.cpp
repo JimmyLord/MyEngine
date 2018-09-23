@@ -408,7 +408,7 @@ void EditorMenuCommand(EditorMenuCommands command)
         break;
 
     case EditorMenuCommand_Mode_LaunchPlatforms:
-        // Handled below
+        // Handled after switch statement.
         break;
 
     case EditorMenuCommand_Mode_LaunchGame:
@@ -452,7 +452,7 @@ void EditorMenuCommand(EditorMenuCommands command)
         break;
 
     case EditorMenuCommand_Lua_RunRecentLuaScript:
-        // TODO
+        // Handled after switch statement.
         break;
 
     default:
@@ -468,5 +468,16 @@ void EditorMenuCommand(EditorMenuCommands command)
         LaunchPlatforms platformIndex = (LaunchPlatforms)(command - EditorMenuCommand_Mode_LaunchPlatforms);
 
         g_pEditorPrefs->Set_Mode_LaunchPlatform( platformIndex );
+    }
+
+    if( command >= EditorMenuCommand_Lua_RunRecentLuaScript && command < EditorMenuCommand_Lua_RunRecentLuaScript + EditorPrefs::MAX_RECENT_LUA_SCRIPTS )
+    {
+        int fileIndex = command - EditorMenuCommand_Lua_RunRecentLuaScript;
+
+        std::string relativePathStr = g_pEditorPrefs->Get_Lua_RecentScript( fileIndex );
+        const char* relativePath = relativePathStr.c_str();
+        g_pLuaGameState->RunFile( relativePath );
+
+        g_pEditorPrefs->AddRecentLuaScript( relativePath );
     }
 }

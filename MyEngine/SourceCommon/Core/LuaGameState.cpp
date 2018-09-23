@@ -910,6 +910,7 @@ GL_REPEAT                     = 0x2901;\
         .beginClass<MaterialDefinition>( "MaterialDefinition" )
             .addFunction( "SetTextureColor", &MaterialDefinition::SetTextureColor ) // void MaterialDefinition::SetTextureColor(TextureDefinition* pTexture)
             .addFunction( "SetShader", &MaterialDefinition::SetShader ) // void SetShader(ShaderGroup* pShader);
+            .addFunction( "Release", &MaterialDefinition::Lua_Release ) // void MaterialDefinition::Lua_Release();
         .endClass();
 
     luabridge::getGlobalNamespace( m_pLuaState )
