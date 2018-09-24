@@ -330,7 +330,7 @@ public:
 
 class MyFileInfo : public CPPListNode
 {
-public:
+protected:
     // m_pFile might be 0 (for wav's for example, but m_SourceFileFullPath should be set in those cases)
     MyFileObject* m_pFile;
     char m_SourceFileFullPath[MAX_PATH];
@@ -375,6 +375,30 @@ public:
         SAFE_RELEASE( m_pSoundCue );
         SAFE_DELETE( m_pSpriteSheet );
     }
+
+    SceneID GetSceneID() { return m_SceneID; }
+    const char* GetSourceFileFullPath() { return m_SourceFileFullPath; }
+
+    MyFileObject*       GetFile()           { return m_pFile; }
+    MyMesh*             GetMesh()           { return m_pMesh; }
+    ShaderGroup*        GetShaderGroup()    { return m_pShaderGroup; }
+    TextureDefinition*  GetTexture()        { return m_pTexture; }
+    MaterialDefinition* GetMaterial()       { return m_pMaterial; }
+    SoundCue*           GetSoundCue()       { return m_pSoundCue; }
+    SpriteSheet*        GetSpriteSheet()    { return m_pSpriteSheet; }
+    PrefabFile*         GetPrefabFile()     { return m_pPrefabFile; }
+
+    void SetSceneID(SceneID id) { m_SceneID = id; }
+    void SetSourceFileFullPath(const char* fullPath) { strcpy_s( m_SourceFileFullPath, MAX_PATH, fullPath ); }
+
+    void SetFile(MyFileObject* pFile)               { m_pFile = pFile;                  if( pFile )         pFile->AddRef(); }
+    void SetMesh(MyMesh* pMesh)                     { m_pMesh = pMesh;                  if( pMesh )         pMesh->AddRef(); }
+    void SetShaderGroup(ShaderGroup* pShaderGroup)  { m_pShaderGroup = pShaderGroup;    if( pShaderGroup )  pShaderGroup->AddRef(); }
+    void SetTexture(TextureDefinition* pTexture)    { m_pTexture = pTexture;            if( pTexture )      pTexture->AddRef(); }
+    void SetMaterial(MaterialDefinition* pMaterial) { m_pMaterial = pMaterial;          if( pMaterial )     pMaterial->AddRef(); }
+    void SetSoundCue(SoundCue* pSoundCue)           { m_pSoundCue = pSoundCue;          if( pSoundCue )     pSoundCue->AddRef(); }
+    void SetSpriteSheet(SpriteSheet* pSpriteSheet)  { m_pSpriteSheet = pSpriteSheet; } //pSpriteSheet->AddRef(); }
+    void SetPrefabFile(PrefabFile* pPrefabFile)     { m_pPrefabFile = pPrefabFile; } //pPrefabFile->AddRef(); }
 };
 
 #endif //__ComponentSystemManager_H__

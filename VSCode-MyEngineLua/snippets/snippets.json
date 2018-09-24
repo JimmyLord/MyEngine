@@ -859,8 +859,8 @@
     //ComponentSystemManager::LuaRegister( m_pLuaState );
     //    luabridge::getGlobalNamespace( luastate )
     //        .beginClass<MyFileInfo>( "MyFileInfo" )
-    //            .addData( "m_pFile", &MyFileInfo::m_pFile )
-    //            .addData( "m_pShaderGroup", &MyFileInfo::m_pShaderGroup )
+    // (TODO)     .addFunction( "GetFile", &MyFileInfo::GetFile ) // MyFileObject* GetFile()
+    // (TODO)     .addFunction( "GetShaderGroup", &MyFileInfo::GetShaderGroup ) // ShaderGroup* GetShaderGroup()
     //        .endClass();
     //
     //    luabridge::getGlobalNamespace( luastate )

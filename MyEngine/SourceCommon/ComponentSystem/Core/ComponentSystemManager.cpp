@@ -196,8 +196,8 @@ void ComponentSystemManager::LuaRegister(lua_State* luastate)
 {
     luabridge::getGlobalNamespace( luastate )
         .beginClass<MyFileInfo>( "MyFileInfo" )
-            .addData( "m_pFile", &MyFileInfo::m_pFile )
-            .addData( "m_pShaderGroup", &MyFileInfo::m_pShaderGroup )
+            .addFunction( "GetFile", &MyFileInfo::GetFile ) // MyFileObject* GetFile()
+            .addFunction( "GetShaderGroup", &MyFileInfo::GetShaderGroup ) // ShaderGroup* GetShaderGroup()
         .endClass();
 
     luabridge::getGlobalNamespace( luastate )
@@ -283,10 +283,10 @@ void ComponentSystemManager::AddListOfFilesUsedToJSONObject(SceneID sceneid, cJS
             if( pFileInfo == 0 )
                 continue;
 
-            if( pFileInfo->m_SceneID != sceneid )
+            if( pFileInfo->GetSceneID() != sceneid )
                 continue;
         
-            MyFileObject* pFile = pFileInfo->m_pFile;
+            MyFileObject* pFile = pFileInfo->GetFile();
             if( pFile != 0 )
             {
                 // skip over shader include files.
@@ -305,15 +305,15 @@ void ComponentSystemManager::AddListOfFilesUsedToJSONObject(SceneID sceneid, cJS
                 cJSON_AddItemToArray( filearray, jFile );
 
                 // Save the source path if there is one.
-                if( pFileInfo->m_SourceFileFullPath[0] != 0 )
+                if( pFileInfo->GetSourceFileFullPath()[0] != 0 )
                 {
-                    cJSON_AddItemToObject( jFile, "SourcePath", cJSON_CreateString( pFileInfo->m_SourceFileFullPath ) );
+                    cJSON_AddItemToObject( jFile, "SourcePath", cJSON_CreateString( pFileInfo->GetSourceFileFullPath() ) );
                 }
             }
             else
             {
                 cJSON* jFile = cJSON_CreateObject();
-                cJSON_AddItemToObject( jFile, "Path", cJSON_CreateString( pFileInfo->m_SourceFileFullPath ) );
+                cJSON_AddItemToObject( jFile, "Path", cJSON_CreateString( pFileInfo->GetSourceFileFullPath() ) );
                 cJSON_AddItemToArray( filearray, jFile );
             }
         }
@@ -459,16 +459,16 @@ MyFileInfo* ComponentSystemManager::GetFileInfoIfUsedByScene(const char* fullpat
         {
             MyFileInfo* pFileInfo = (MyFileInfo*)pNode;
 
-            if( sceneid == SCENEID_AllScenes || pFileInfo->m_SceneID == sceneid )
+            if( sceneid == SCENEID_AllScenes || pFileInfo->GetSceneID() == sceneid )
             {
-                if( pFileInfo->m_pFile == 0 )
+                if( pFileInfo->GetFile() == 0 )
                 {
-                    if( strcmp( pFileInfo->m_SourceFileFullPath, fullpath ) == 0 )
+                    if( strcmp( pFileInfo->GetSourceFileFullPath(), fullpath ) == 0 )
                         return pFileInfo;
                 }
                 else
                 {
-                    if( strcmp( pFileInfo->m_pFile->GetFullPath(), fullpath ) == 0 )
+                    if( strcmp( pFileInfo->GetFile()->GetFullPath(), fullpath ) == 0 )
                         return pFileInfo;
                 }
             }
@@ -483,26 +483,27 @@ MyFileObject* ComponentSystemManager::GetFileObjectIfUsedByScene(const char* ful
     MyFileInfo* pFileInfo = GetFileInfoIfUsedByScene( fullpath, sceneid );
 
     if( pFileInfo )
-        return pFileInfo->m_pFile;
+        return pFileInfo->GetFile();
 
     return 0;
 }
 
 MyFileInfo* ComponentSystemManager::AddToFileList(MyFileObject* pFile, MyMesh* pMesh, ShaderGroup* pShaderGroup, TextureDefinition* pTexture, MaterialDefinition* pMaterial, SoundCue* pSoundCue, SpriteSheet* pSpriteSheet, SceneID sceneid)
 {
-    // store pFile so we can free it afterwards.
     MyFileInfo* pFileInfo = MyNew MyFileInfo();
-    pFileInfo->m_pFile = pFile;
 
-    pFileInfo->m_pMesh = pMesh;
-    pFileInfo->m_pShaderGroup = pShaderGroup;
-    pFileInfo->m_pTexture = pTexture;
-    pFileInfo->m_pMaterial = pMaterial;
-    pFileInfo->m_pSoundCue = pSoundCue;
-    pFileInfo->m_pSpriteSheet = pSpriteSheet;
-    pFileInfo->m_pPrefabFile = 0;
+    // Store pFile so we can free it when scene is unloaded or file is unloaded in editor.
+    pFileInfo->SetFile( pFile );
 
-    pFileInfo->m_SceneID = sceneid;
+    pFileInfo->SetMesh( pMesh );
+    pFileInfo->SetShaderGroup( pShaderGroup );
+    pFileInfo->SetTexture( pTexture );
+    pFileInfo->SetMaterial( pMaterial );
+    pFileInfo->SetSoundCue( pSoundCue );
+    pFileInfo->SetSpriteSheet( pSpriteSheet );
+    pFileInfo->SetPrefabFile( 0 );
+
+    pFileInfo->SetSceneID( sceneid );
 
     m_Files.AddTail( pFileInfo );
 
@@ -593,34 +594,30 @@ MyFileInfo* ComponentSystemManager::LoadDataFile(const char* relativepath, Scene
 
         TextureDefinition* pTexture = 0;
 
-        // load textures differently than other files.
+        // Load textures differently than other files.
         if( rellen > 4 && strcmp( &relativepath[rellen-4], ".png" ) == 0 )
         {
-            // check if the texture is already loaded and create it if not.
+            // Check if the texture is already loaded and create it if not.
             pTexture = g_pTextureManager->FindTexture( relativepath );
+
             if( pTexture == 0 )
             {
                 // Find the file and add it to the object, 
                 pFile = g_pEngineFileManager->RequestFile_UntrackedByScene( relativepath );
-                pFileInfo->m_pFile = pFile;
+                pFileInfo->SetFile( pFile );
+                pFile->Release(); // Release ref added by RequestFile.
 
                 pTexture = g_pTextureManager->CreateTexture( pFile );
                 MyAssert( pFile == pTexture->GetFile() );
                 pFile = pTexture->GetFile();
 
                 // Update the fileinfo block with the texture.
-                pFileInfo->m_pTexture = pTexture;
+                pFileInfo->SetTexture( pTexture );
+                pTexture->Release(); // Release ref added by CreateTexture.
             }
             else
             {
                 MyAssert( false ); // the texture shouldn't be loaded and not in the list of files used.
-
-                // Update the fileinfo block with the texture.
-                pFileInfo->m_pTexture = pTexture;
-
-                // Add a ref to the file for our scene file list.
-                pFile = pTexture->GetFile();
-                pFile->AddRef();
             }
         }
         else if( rellen > 4 && strcmp( &relativepath[rellen-4], ".wav" ) == 0 )
@@ -645,7 +642,8 @@ MyFileInfo* ComponentSystemManager::LoadDataFile(const char* relativepath, Scene
         {
             // Call untracked request since we're in the tracking code, just to avoid unnecessary repeat of LoadDataFile() call.
             pFile = g_pEngineFileManager->RequestFile_UntrackedByScene( relativepath );
-            pFileInfo->m_pFile = pFile;
+            pFileInfo->SetFile( pFile );
+            pFile->Release(); // Release ref added by RequestFile.
 #if MYFW_USING_WX
             // TODO: wasn't used and causes a crash in release mode... look into it.
             //pFile->SetCustomLeftClickCallback( StaticOnMemoryPanelFileSelectedLeftClick, this );
@@ -661,13 +659,17 @@ MyFileInfo* ComponentSystemManager::LoadDataFile(const char* relativepath, Scene
             strcpy_s( path, MAX_PATH, fullsourcefilepath );
             const char* relativepath = GetRelativePath( path );
 
+            char finalpath[MAX_PATH];
+
             // store the relative path if the file is relative... otherwise store the full path.
             if( relativepath == 0 )
-                strcpy_s( pFileInfo->m_SourceFileFullPath, MAX_PATH, fullsourcefilepath );
+                strcpy_s( finalpath, MAX_PATH, fullsourcefilepath );
             else
-                strcpy_s( pFileInfo->m_SourceFileFullPath, MAX_PATH, relativepath );
+                strcpy_s( finalpath, MAX_PATH, relativepath );
 
-            FixSlashesInPath( pFileInfo->m_SourceFileFullPath );
+            FixSlashesInPath( finalpath );
+
+            pFileInfo->SetSourceFileFullPath( finalpath );
         }
 
         // if we're loading a mesh file type, create a mesh.
@@ -675,8 +677,12 @@ MyFileInfo* ComponentSystemManager::LoadDataFile(const char* relativepath, Scene
             if( strcmp( pFile->GetExtensionWithDot(), ".obj" ) == 0 ||
                 strcmp( pFile->GetExtensionWithDot(), ".mymesh" ) == 0 )
             {
-                pFileInfo->m_pMesh = MyNew MyMesh();
-                pFileInfo->m_pMesh->SetSourceFile( pFile );
+                MyMesh* pMesh = MyNew MyMesh();
+                pMesh->SetSourceFile( pFile );
+
+                pFileInfo->SetMesh( pMesh );
+
+                pMesh->Release();
             }
         }
 
@@ -684,27 +690,32 @@ MyFileInfo* ComponentSystemManager::LoadDataFile(const char* relativepath, Scene
         if( strcmp( pFile->GetExtensionWithDot(), ".glsl" ) == 0 )
         {
             ShaderGroup* pShaderGroup = g_pShaderGroupManager->FindShaderGroupByFile( pFile );
-            if( pShaderGroup )
+
+            if( pShaderGroup == 0 )
             {
-                pShaderGroup->AddRef();
-                pFileInfo->m_pShaderGroup = pShaderGroup;
+                pShaderGroup = MyNew ShaderGroup( pFile );
+                pFileInfo->SetShaderGroup( pShaderGroup );
+                pShaderGroup->Release();
             }
             else
             {
-                pFileInfo->m_pShaderGroup = MyNew ShaderGroup( pFile );
+                pFileInfo->SetShaderGroup( pShaderGroup );
             }
         }
 
         // if we're loading a .mymaterial file, create a Material.
         if( strcmp( pFile->GetExtensionWithDot(), ".mymaterial" ) == 0 )
         {
-            pFileInfo->m_pMaterial = g_pMaterialManager->LoadMaterial( pFile->GetFullPath() );
+            MaterialDefinition* pMat = g_pMaterialManager->LoadMaterial( pFile->GetFullPath() );
+            pFileInfo->SetMaterial( pMat );
+            pMat->Release();
         }
 
         // if we're loading a .myprefabs file, add it to the prefab manager.
         if( strcmp( pFile->GetExtensionWithDot(), ".myprefabs" ) == 0 )
         {
-            pFileInfo->m_pPrefabFile = m_pPrefabManager->RequestFile( pFile->GetFullPath() );
+            PrefabFile* pPrefabFile = m_pPrefabManager->RequestFile( pFile->GetFullPath() );
+            pFileInfo->SetPrefabFile( pPrefabFile );
         }
 
         // if we're loading a .myspritesheet, we create a material for each texture in the sheet
@@ -712,8 +723,10 @@ MyFileInfo* ComponentSystemManager::LoadDataFile(const char* relativepath, Scene
         {
             ShaderGroup* pShaderGroup = g_pShaderGroupManager->FindShaderGroupByFilename( "Data/DataEngine/Shaders/Shader_TextureTint.glsl" );
 
-            pFileInfo->m_pSpriteSheet = MyNew SpriteSheet();
-            pFileInfo->m_pSpriteSheet->Create( pFile->GetFullPath(), pShaderGroup, GL_LINEAR, GL_LINEAR, false, true );
+            SpriteSheet* pSpriteSheet = MyNew SpriteSheet();
+            pSpriteSheet->Create( pFile->GetFullPath(), pShaderGroup, GL_LINEAR, GL_LINEAR, false, true );
+
+            pFileInfo->SetSpriteSheet( pSpriteSheet );
 
             m_FilesStillLoading.MoveHead( pFileInfo );
         }
@@ -721,7 +734,9 @@ MyFileInfo* ComponentSystemManager::LoadDataFile(const char* relativepath, Scene
         // if we're loading a .mycue file, create a Sound Cue.
         if( strcmp( pFile->GetExtensionWithDot(), ".mycue" ) == 0 )
         {
-            pFileInfo->m_pSoundCue = g_pGameCore->GetSoundManager()->LoadCue( pFile->GetFullPath() );
+            SoundCue* pSoundCue = g_pGameCore->GetSoundManager()->LoadCue( pFile->GetFullPath() );
+            pFileInfo->SetSoundCue( pSoundCue );
+            pSoundCue->Release();
         }
     }
 
@@ -850,7 +865,7 @@ void ComponentSystemManager::FreeAllDataFiles(SceneID sceneIDToClear)
             MyFileInfo* pFile = (MyFileInfo*)pNode;
             pNode = pNode->GetNext();
 
-            if( sceneIDToClear == SCENEID_AllScenes || pFile->m_SceneID == sceneIDToClear )
+            if( sceneIDToClear == SCENEID_AllScenes || pFile->GetSceneID() == sceneIDToClear )
             {
                 delete pFile;
             }
@@ -919,7 +934,9 @@ void ComponentSystemManager::LoadSceneFromJSON(const char* scenename, const char
                     {
                         if( jSourcePath )
                         {
-                            strcpy_s( pFileInfo->m_SourceFileFullPath, MAX_PATH, jSourcePath->valuestring );
+                            char path[MAX_PATH];
+                            strcpy_s( path, MAX_PATH, jSourcePath->valuestring );
+                            pFileInfo->SetSourceFileFullPath( path );
                         }
                     }
                 }
@@ -1173,8 +1190,8 @@ void ComponentSystemManager::FinishLoading(bool lockwhileloading, SceneID scenei
         {
             MyFileInfo* pFileInfo = (MyFileInfo*)pNode;
 
-            MyAssert( pFileInfo && pFileInfo->m_pFile );
-            if( pFileInfo->m_pFile->IsFinishedLoading() == false ) // still loading
+            MyAssert( pFileInfo && pFileInfo->GetFile() );
+            if( pFileInfo->GetFile()->IsFinishedLoading() == false ) // still loading
                 return;
         }
 
@@ -2115,11 +2132,11 @@ void ComponentSystemManager::Tick(float deltaTime)
         MyFileInfo* pFileInfo = (MyFileInfo*)pNode;
         
         MyAssert( pFileInfo );
-        MyAssert( pFileInfo->m_pSpriteSheet );
+        MyAssert( pFileInfo->GetSpriteSheet() );
 
-        pFileInfo->m_pSpriteSheet->Tick( deltaTime );
+        pFileInfo->GetSpriteSheet()->Tick( deltaTime );
 
-        if( pFileInfo->m_pSpriteSheet->IsFullyLoaded() )
+        if( pFileInfo->GetSpriteSheet()->IsFullyLoaded() )
             m_Files.MoveTail( pNode );
     }
 
@@ -3185,12 +3202,10 @@ void ComponentSystemManager::OnMaterialCreated(MaterialDefinition* pMaterial)
 {
     MyAssert( pMaterial );
 
-    // if this material has a file and it has a name, then save it.
-    if( pMaterial && pMaterial->GetFile() )
+    if( pMaterial )
     {
         // Add the material to the file list, so it can be freed on shutdown.
         AddToFileList( pMaterial->GetFile(), 0, 0, 0, pMaterial, 0, 0, SCENEID_MainScene );
-        pMaterial->GetFile()->AddRef();
     }
 }
 
@@ -3233,7 +3248,7 @@ void ComponentSystemManager::OnSoundCueUnloaded(SoundCue* pSoundCue) // StaticOn
 
             MyFileInfo* pFileInfo = (MyFileInfo*)pNode;
 
-            if( pFileInfo->m_pSoundCue == pSoundCue )
+            if( pFileInfo->GetSoundCue() == pSoundCue )
             {
                 // Unload the file.
                 FreeDataFile( pFileInfo );
@@ -3264,14 +3279,14 @@ void ComponentSystemManager::OnFileUnloaded(MyFileObject* pFile) // StaticOnFile
             MyFileInfo* pFileInfo = (MyFileInfo*)pNode;
 
             // Unload the file.
-            if( pFileInfo->m_pFile == pFile
-                || (pFileInfo->m_pMesh          && pFileInfo->m_pMesh->GetFile()            == pFile)
-                || (pFileInfo->m_pShaderGroup   && pFileInfo->m_pShaderGroup->GetFile()     == pFile)
-                || (pFileInfo->m_pTexture       && pFileInfo->m_pTexture->GetFile()         == pFile)
-                || (pFileInfo->m_pMaterial      && pFileInfo->m_pMaterial->GetFile()        == pFile)
-                || (pFileInfo->m_pSoundCue      && pFileInfo->m_pSoundCue->GetFile()        == pFile)
-                || (pFileInfo->m_pSpriteSheet   && pFileInfo->m_pSpriteSheet->GetJSONFile() == pFile)
-                || (pFileInfo->m_pPrefabFile    && pFileInfo->m_pPrefabFile->GetFile()      == pFile)
+            if( pFileInfo->GetFile() == pFile
+                || (pFileInfo->GetMesh()          && pFileInfo->GetMesh()->GetFile()            == pFile)
+                || (pFileInfo->GetShaderGroup()   && pFileInfo->GetShaderGroup()->GetFile()     == pFile)
+                || (pFileInfo->GetTexture()       && pFileInfo->GetTexture()->GetFile()         == pFile)
+                || (pFileInfo->GetMaterial()      && pFileInfo->GetMaterial()->GetFile()        == pFile)
+                || (pFileInfo->GetSoundCue()      && pFileInfo->GetSoundCue()->GetFile()        == pFile)
+                || (pFileInfo->GetSpriteSheet()   && pFileInfo->GetSpriteSheet()->GetJSONFile() == pFile)
+                || (pFileInfo->GetPrefabFile()    && pFileInfo->GetPrefabFile()->GetFile()      == pFile)
               )
             {
                 LOGInfo( LOGTag, "File removed from scene file list: %s\n", pFile->GetFullPath() );
