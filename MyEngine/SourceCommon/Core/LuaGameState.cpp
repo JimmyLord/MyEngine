@@ -891,6 +891,7 @@ GL_REPEAT                     = 0x2901;\
 
     luabridge::getGlobalNamespace( m_pLuaState )
         .beginClass<TextureDefinition>( "TextureDefinition" )
+            .addFunction( "Release", &TextureDefinition::Lua_Release ) // void TextureDefinition::Lua_Release();
         .endClass();
 
     luabridge::getGlobalNamespace( m_pLuaState )
@@ -910,6 +911,8 @@ GL_REPEAT                     = 0x2901;\
         .beginClass<MaterialDefinition>( "MaterialDefinition" )
             .addFunction( "SetTextureColor", &MaterialDefinition::SetTextureColor ) // void MaterialDefinition::SetTextureColor(TextureDefinition* pTexture)
             .addFunction( "SetShader", &MaterialDefinition::SetShader ) // void SetShader(ShaderGroup* pShader);
+            .addFunction( "SetUVScale", &MaterialDefinition::SetUVScale ) // void SetUVScale(Vector2 scale);
+            .addFunction( "SetUVOffset", &MaterialDefinition::SetUVOffset ) // void SetUVOffset(Vector2 offset);
             .addFunction( "Release", &MaterialDefinition::Lua_Release ) // void MaterialDefinition::Lua_Release();
         .endClass();
 
