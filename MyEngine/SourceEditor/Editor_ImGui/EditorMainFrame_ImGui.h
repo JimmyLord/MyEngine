@@ -111,6 +111,8 @@ protected:
     void AddLogWindow();
     void AddMemoryPanel();
 
+    void AddMenuOptionsForCreatingGameObjects(GameObject* pParentGameObject, SceneID sceneID);
+
     void AddMemoryPanel_Materials();
     void AddMemoryPanel_Textures();
     void AddMemoryPanel_ShaderGroups();
