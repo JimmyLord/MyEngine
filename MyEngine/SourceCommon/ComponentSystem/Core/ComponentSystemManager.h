@@ -172,7 +172,7 @@ public:
     char* ExportBox2DSceneToJSON(SceneID sceneid);
     void SaveGameObjectListToJSONArray(cJSON* gameobjectarray, cJSON* transformarray, GameObject* first, bool savesceneid);
     
-    MyFileInfo* AddToFileList(MyFileObject* pFile, MyMesh* pMesh, ShaderGroup* pShaderGroup, TextureDefinition* pTexture, MaterialDefinition* pMaterial, SoundCue* pSoundCue, SpriteSheet* pSpriteSheet, SceneID sceneid);
+    MyFileInfo* AddToFileList(MyFileObject* pFile, MyMesh* pMesh, ShaderGroup* pShaderGroup, TextureDefinition* pTexture, MaterialDefinition* pMaterial, SoundCue* pSoundCue, SpriteSheet* pSpriteSheet, My2DAnimInfo* p2DAnimInfo, SceneID sceneid);
     MyFileInfo* EditorLua_LoadDataFile(const char* relativepath, uint32 sceneid, const char* fullsourcefilepath, bool convertifrequired);
     MyFileInfo* LoadDataFile(const char* relativepath, SceneID sceneid, const char* fullsourcefilepath, bool convertifrequired);
 #if MYFW_USING_WX
@@ -342,7 +342,8 @@ protected:
     MaterialDefinition* m_pMaterial; //a material may have been created alongside the file.
     SoundCue* m_pSoundCue; //a sound cue may have been created alongside the file.
     SpriteSheet* m_pSpriteSheet; //a sprite sheet may have been created alongside the file.
-    PrefabFile* m_pPrefabFile; // a prefab file may have been created alongside the file
+    PrefabFile* m_pPrefabFile; // a prefab file may have been created alongside the file.
+    My2DAnimInfo* m_p2DAnimInfo; // a prefab file may have been created alongside the file.
 
     bool m_DidInitialCheckIfSourceFileWasUpdated;
 
@@ -387,6 +388,7 @@ public:
     SoundCue*           GetSoundCue()       { return m_pSoundCue; }
     SpriteSheet*        GetSpriteSheet()    { return m_pSpriteSheet; }
     PrefabFile*         GetPrefabFile()     { return m_pPrefabFile; }
+    My2DAnimInfo*       Get2DAnimInfo()     { return m_p2DAnimInfo; }
 
     void SetSceneID(SceneID id) { m_SceneID = id; }
     void SetSourceFileFullPath(const char* fullPath) { strcpy_s( m_SourceFileFullPath, MAX_PATH, fullPath ); }
@@ -397,8 +399,9 @@ public:
     void SetTexture(TextureDefinition* pTexture)    { m_pTexture = pTexture;            if( pTexture )      pTexture->AddRef(); }
     void SetMaterial(MaterialDefinition* pMaterial) { m_pMaterial = pMaterial;          if( pMaterial )     pMaterial->AddRef(); }
     void SetSoundCue(SoundCue* pSoundCue)           { m_pSoundCue = pSoundCue;          if( pSoundCue )     pSoundCue->AddRef(); }
-    void SetSpriteSheet(SpriteSheet* pSpriteSheet)  { m_pSpriteSheet = pSpriteSheet; } //pSpriteSheet->AddRef(); }
-    void SetPrefabFile(PrefabFile* pPrefabFile)     { m_pPrefabFile = pPrefabFile; } //pPrefabFile->AddRef(); }
+    void SetSpriteSheet(SpriteSheet* pSpriteSheet)  { m_pSpriteSheet = pSpriteSheet; } //if( pSpriteSheet )  pSpriteSheet->AddRef(); }
+    void SetPrefabFile(PrefabFile* pPrefabFile)     { m_pPrefabFile = pPrefabFile; } //if( pPrefabFile )   pPrefabFile->AddRef(); }
+    void Set2DAnimInfo(My2DAnimInfo* p2DAnimInfo)   { m_p2DAnimInfo = p2DAnimInfo; } //if( p2DAnimInfo )   p2DAnimInfo->AddRef(); }
 };
 
 #endif //__ComponentSystemManager_H__

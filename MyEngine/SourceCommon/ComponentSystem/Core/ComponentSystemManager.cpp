@@ -488,7 +488,7 @@ MyFileObject* ComponentSystemManager::GetFileObjectIfUsedByScene(const char* ful
     return 0;
 }
 
-MyFileInfo* ComponentSystemManager::AddToFileList(MyFileObject* pFile, MyMesh* pMesh, ShaderGroup* pShaderGroup, TextureDefinition* pTexture, MaterialDefinition* pMaterial, SoundCue* pSoundCue, SpriteSheet* pSpriteSheet, SceneID sceneid)
+MyFileInfo* ComponentSystemManager::AddToFileList(MyFileObject* pFile, MyMesh* pMesh, ShaderGroup* pShaderGroup, TextureDefinition* pTexture, MaterialDefinition* pMaterial, SoundCue* pSoundCue, SpriteSheet* pSpriteSheet, My2DAnimInfo* p2DAnimInfo, SceneID sceneid)
 {
     MyFileInfo* pFileInfo = MyNew MyFileInfo();
 
@@ -502,6 +502,7 @@ MyFileInfo* ComponentSystemManager::AddToFileList(MyFileObject* pFile, MyMesh* p
     pFileInfo->SetSoundCue( pSoundCue );
     pFileInfo->SetSpriteSheet( pSpriteSheet );
     pFileInfo->SetPrefabFile( 0 );
+    pFileInfo->Set2DAnimInfo( p2DAnimInfo );
 
     pFileInfo->SetSceneID( sceneid );
 
@@ -590,7 +591,7 @@ MyFileInfo* ComponentSystemManager::LoadDataFile(const char* relativepath, Scene
 #endif //MYFW_USING_WX
         
         // store pFile so we can free it afterwards.
-        pFileInfo = AddToFileList( pFile, 0, 0, 0, 0, 0, 0, sceneid );
+        pFileInfo = AddToFileList( pFile, 0, 0, 0, 0, 0, 0, 0, sceneid );
 
         TextureDefinition* pTexture = 0;
 
@@ -718,6 +719,15 @@ MyFileInfo* ComponentSystemManager::LoadDataFile(const char* relativepath, Scene
             pFileInfo->SetPrefabFile( pPrefabFile );
         }
 
+        // if we're loading a .my2daniminfo file, do nothing for now.
+        if( strcmp( pFile->GetExtensionWithDot(), ".my2daniminfo" ) == 0 )
+        {
+            // Create the anim info block and load the file.
+            My2DAnimInfo* pAnimInfo = MyNew My2DAnimInfo();
+            pAnimInfo->SetSourceFile( pFile );
+            pFileInfo->Set2DAnimInfo( pAnimInfo );
+        }
+
         // if we're loading a .myspritesheet, we create a material for each texture in the sheet
         if( strcmp( pFile->GetExtensionWithDot(), ".myspritesheet" ) == 0 )
         {
@@ -732,6 +742,27 @@ MyFileInfo* ComponentSystemManager::LoadDataFile(const char* relativepath, Scene
             pFileInfo->SetSpriteSheet( pSpriteSheet );
 
             m_FilesStillLoading.MoveHead( pFileInfo );
+
+            // Create a default my2daniminfo file for this spritesheet.
+            {
+                char newFilename[MAX_PATH];
+                sprintf_s( newFilename, "%s.my2daniminfo", pFile->GetFilenameWithoutExtension() );
+                char animFullPath[MAX_PATH];
+                pFile->GenerateNewFullPathFilenameInSameFolder( newFilename, animFullPath, MAX_PATH );
+                if( g_pFileManager->DoesFileExist( animFullPath ) )
+                {
+                    // Load the existing animation file.
+                    LoadDataFile( animFullPath, sceneid, 0, false );
+                }
+                else
+                {
+                    // Create a new animation file.
+                    MyFileObject* pFile = g_pFileManager->CreateFileObject( animFullPath );
+                    My2DAnimInfo* pAnimInfo = MyNew My2DAnimInfo();
+                    pAnimInfo->SetSourceFile( pFile );
+                    AddToFileList( pFile, 0, 0, 0, 0, 0, 0, pAnimInfo, sceneid );
+                }
+            }
         }
 
         // if we're loading a .mycue file, create a Sound Cue.
@@ -3208,7 +3239,7 @@ void ComponentSystemManager::OnMaterialCreated(MaterialDefinition* pMaterial)
     if( pMaterial )
     {
         // Add the material to the file list, so it can be freed on shutdown.
-        AddToFileList( pMaterial->GetFile(), 0, 0, 0, pMaterial, 0, 0, SCENEID_MainScene );
+        AddToFileList( pMaterial->GetFile(), 0, 0, 0, pMaterial, 0, 0, 0, SCENEID_MainScene );
     }
 }
 
@@ -3225,7 +3256,7 @@ void ComponentSystemManager::OnSoundCueCreated(SoundCue* pSoundCue)
     if( pSoundCue && pSoundCue->GetFile() )
     {
         // Add the sound cue to the file list, so it can be freed on shutdown.
-        AddToFileList( pSoundCue->GetFile(), 0, 0, 0, 0, pSoundCue, 0, SCENEID_MainScene );
+        AddToFileList( pSoundCue->GetFile(), 0, 0, 0, 0, pSoundCue, 0, 0, SCENEID_MainScene );
         pSoundCue->GetFile()->AddRef();
     }
 }

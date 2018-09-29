@@ -243,11 +243,7 @@ ComponentAnimationPlayer2D& ComponentAnimationPlayer2D::operator=(const Componen
     m_AnimationTime = other.m_AnimationTime;
     m_FrameIndex = other.m_FrameIndex;
 
-    this->m_pAnimationFile = other.m_pAnimationFile;
-    if( this->m_pAnimationFile )
-    {
-        this->m_pAnimationFile->AddRef();
-    }
+    SetAnimationFile( other.m_pAnimationFile );
 
     return *this;
 }
