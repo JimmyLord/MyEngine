@@ -639,6 +639,15 @@ MyFileInfo* ComponentSystemManager::LoadDataFile(const char* relativepath, Scene
 #endif //!MYFW_USING_WX
             return 0;
         }
+#if MYFW_EDITOR
+        else if( rellen > 14 && strcmp( &relativepath[rellen-14], ".myspritesheet" ) == 0 )
+        {
+            // In editor builds, fully load spritesheets immediately.
+            pFile = g_pEngineFileManager->LoadFileNow( relativepath );
+            pFileInfo->SetFile( pFile );
+            pFile->Release(); // Release ref added by LoadFileNow.
+        }
+#endif
         else
         {
             // Call untracked request since we're in the tracking code, just to avoid unnecessary repeat of LoadDataFile() call.
@@ -743,6 +752,7 @@ MyFileInfo* ComponentSystemManager::LoadDataFile(const char* relativepath, Scene
 
             m_FilesStillLoading.MoveHead( pFileInfo );
 
+#if MYFW_EDITOR
             // Create a default my2daniminfo file for this spritesheet.
             {
                 char newFilename[MAX_PATH];
@@ -761,8 +771,11 @@ MyFileInfo* ComponentSystemManager::LoadDataFile(const char* relativepath, Scene
                     My2DAnimInfo* pAnimInfo = MyNew My2DAnimInfo();
                     pAnimInfo->SetSourceFile( pFile );
                     AddToFileList( pFile, 0, 0, 0, 0, 0, 0, pAnimInfo, sceneid );
+
+                    pAnimInfo->LoadFromSpriteSheet( pSpriteSheet, 0.2f );
                 }
             }
+#endif
         }
 
         // if we're loading a .mycue file, create a Sound Cue.
