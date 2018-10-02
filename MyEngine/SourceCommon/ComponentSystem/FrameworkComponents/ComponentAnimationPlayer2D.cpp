@@ -37,7 +37,6 @@ ComponentAnimationPlayer2D::~ComponentAnimationPlayer2D()
 {
     MYFW_COMPONENT_VARIABLE_LIST_DESTRUCTOR(); //_VARIABLE_LIST
 
-    delete( m_pAnimInfo );
     SAFE_RELEASE( m_pAnimationFile );
 }
 
@@ -255,9 +254,11 @@ void ComponentAnimationPlayer2D::SetAnimationFile(MyFileObject* pFile)
 
     SAFE_RELEASE( m_pAnimationFile );
     m_pAnimationFile = pFile;
+    m_pAnimInfo = 0;
 
-    // Delete the old anim info, so the new file's info will be imported/applied.
-    SAFE_DELETE( m_pAnimInfo );
+    MyFileInfo* pFileInfo = g_pComponentSystemManager->GetFileInfoIfUsedByScene( pFile, m_SceneIDLoadedFrom );
+    MyAssert( pFileInfo->Get2DAnimInfo() );
+    m_pAnimInfo = pFileInfo->Get2DAnimInfo();
 }
 
 void ComponentAnimationPlayer2D::RegisterCallbacks()
@@ -305,16 +306,17 @@ void ComponentAnimationPlayer2D::TickCallback(float deltaTime)
         return;
 
     if( m_pAnimInfo == 0 )
+        return;
+
+    if( m_pAnimInfo->GetNumberOfAnimations() == 0 )
     {
         if( m_pAnimationFile && m_pAnimationFile->GetFileLoadStatus() == FileLoadStatus_Success )
         {
-            m_pAnimInfo = MyNew My2DAnimInfo();
-            m_pAnimInfo->SetSourceFile( m_pAnimationFile );
-            m_pAnimInfo->LoadAnimationControlFile( m_pAnimationFile->GetBuffer() );
+            m_pAnimInfo->LoadAnimationControlFile();
         }
     }
 
-    if( m_pAnimInfo == 0 )
+    if( m_pAnimInfo->GetNumberOfAnimations() == 0 )
         return;
 
     // Get the current animation/frame being played

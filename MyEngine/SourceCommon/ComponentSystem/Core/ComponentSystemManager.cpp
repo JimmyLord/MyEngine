@@ -443,9 +443,36 @@ void ComponentSystemManager::SaveGameObjectListToJSONArray(cJSON* gameobjectarra
     }
 }
 
+MyFileInfo* ComponentSystemManager::GetFileInfoIfUsedByScene(MyFileObject* pFile, SceneID sceneid)
+{
+    // Loop through both lists of files.
+    for( int filelist=0; filelist<2; filelist++ )
+    {
+        CPPListNode* pFirstNode = 0;
+
+        if( filelist == 0 )
+            pFirstNode = m_Files.GetHead();
+        else
+            pFirstNode = m_FilesStillLoading.GetHead();
+        
+        for( CPPListNode* pNode = pFirstNode; pNode; pNode = pNode->GetNext() )
+        {
+            MyFileInfo* pFileInfo = (MyFileInfo*)pNode;
+
+            if( sceneid == SCENEID_AllScenes || sceneid == SCENEID_Any || pFileInfo->GetSceneID() == sceneid )
+            {
+                if( pFileInfo->GetFile() == pFile )
+                    return pFileInfo;
+            }
+        }
+    }
+
+    return 0;
+}
+
 MyFileInfo* ComponentSystemManager::GetFileInfoIfUsedByScene(const char* fullpath, SceneID sceneid)
 {
-    // loop through both lists of files
+    // Loop through both lists of files.
     for( int filelist=0; filelist<2; filelist++ )
     {
         CPPListNode* pFirstNode = 0;
@@ -773,6 +800,7 @@ MyFileInfo* ComponentSystemManager::LoadDataFile(const char* relativepath, Scene
                     AddToFileList( pFile, 0, 0, 0, 0, 0, 0, pAnimInfo, sceneid );
 
                     pAnimInfo->LoadFromSpriteSheet( pSpriteSheet, 0.2f );
+                    pAnimInfo->SaveAnimationControlFile();
                 }
             }
 #endif

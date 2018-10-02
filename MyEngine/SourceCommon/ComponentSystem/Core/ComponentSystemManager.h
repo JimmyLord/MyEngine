@@ -152,9 +152,6 @@ protected:
     std::vector<FileUpdatedCallbackStruct> m_pFileUpdatedCallbackList;
 #endif //MYFW_USING_WX
 
-    MyFileInfo* GetFileInfoIfUsedByScene(const char* fullpath, SceneID sceneid);
-    MyFileObject* GetFileObjectIfUsedByScene(const char* fullpath, SceneID sceneid);
-
 public:
     ComponentSystemManager(ComponentTypeManager* typemanager);
     virtual ~ComponentSystemManager();
@@ -172,6 +169,10 @@ public:
     char* ExportBox2DSceneToJSON(SceneID sceneid);
     void SaveGameObjectListToJSONArray(cJSON* gameobjectarray, cJSON* transformarray, GameObject* first, bool savesceneid);
     
+    MyFileInfo* GetFileInfoIfUsedByScene(MyFileObject* pFile, SceneID sceneid);
+    MyFileInfo* GetFileInfoIfUsedByScene(const char* fullpath, SceneID sceneid);
+    MyFileObject* GetFileObjectIfUsedByScene(const char* fullpath, SceneID sceneid);
+
     MyFileInfo* AddToFileList(MyFileObject* pFile, MyMesh* pMesh, ShaderGroup* pShaderGroup, TextureDefinition* pTexture, MaterialDefinition* pMaterial, SoundCue* pSoundCue, SpriteSheet* pSpriteSheet, My2DAnimInfo* p2DAnimInfo, SceneID sceneid);
     MyFileInfo* EditorLua_LoadDataFile(const char* relativepath, uint32 sceneid, const char* fullsourcefilepath, bool convertifrequired);
     MyFileInfo* LoadDataFile(const char* relativepath, SceneID sceneid, const char* fullsourcefilepath, bool convertifrequired);
