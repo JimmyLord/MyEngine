@@ -49,6 +49,13 @@ const char* g_StylePrefsStrings[ImGuiStylePrefs::StylePref_Num] =
     //"CloseButton",
     //"CloseButtonHovered",
     //"CloseButtonActive",
+    "Tab",
+    "TabHovered",
+    "TabActive",
+    "TabUnfocused",
+    "TabUnfocusedActive",
+    "DockingPreview",
+    "DockingBg",
     "PlotLines",
     "PlotLinesHovered",
     "PlotHistogram",
@@ -74,7 +81,7 @@ ImGuiStylePrefs::ImGuiStylePrefs()
     m_Visible = false;
 
     // If this trips, imgui changed, so make fixes.
-    MyAssert( StylePref_NumImGuiStyleColors == 43 );
+    MyAssert( StylePref_NumImGuiStyleColors == 50 );
 
     for( int i=0; i<StylePref_NumImGuiStyleColors; i++ )
     {

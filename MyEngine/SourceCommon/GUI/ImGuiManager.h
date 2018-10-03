@@ -36,6 +36,8 @@ protected:
     unsigned int m_VaoHandle;
     unsigned int m_ElementsHandle;
 
+    ImGuiMouseCursor m_LastMouseCursor;
+
 public:
     ImGuiManager();
     virtual ~ImGuiManager();
@@ -57,6 +59,8 @@ public:
     bool CreateFontsTexture();
     bool CreateDeviceObjects();
     void InvalidateDeviceObjects();
+
+    bool UpdateMouseCursor();
 };
 
 #endif //__ImGuiManager_H__

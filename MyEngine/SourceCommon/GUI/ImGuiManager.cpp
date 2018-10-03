@@ -32,6 +32,8 @@ ImGuiManager::ImGuiManager()
     m_VboHandle = 0;
     m_VaoHandle = 0;
     m_ElementsHandle = 0;
+
+    m_LastMouseCursor = ImGuiMouseCursor_COUNT;
 }
 
 ImGuiManager::~ImGuiManager()
@@ -50,7 +52,8 @@ void ImGuiManager::Init(float width, float height)
     CreateDeviceObjects();
 
     ImGuiIO& io = ImGui::GetIO();
-    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard | ImGuiConfigFlags_NavEnableGamepad;
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard | ImGuiConfigFlags_NavEnableGamepad | ImGuiConfigFlags_DockingEnable;
+    io.BackendFlags |= ImGuiBackendFlags_HasMouseCursors;
     io.DisplaySize.x = width;
     io.DisplaySize.y = height;
     //io.IniFilename = "imgui.ini";
@@ -211,6 +214,9 @@ void ImGuiManager::StartFrame()
         return;
 
     m_FrameStarted = true;
+
+    // Update OS mouse cursor with the cursor requested by imgui.
+    UpdateMouseCursor();
 
     ImGui::NewFrame();
     //ImGui::ShowTestWindow();
@@ -487,4 +493,43 @@ void ImGuiManager::InvalidateDeviceObjects()
         ImGui::GetIO().Fonts->TexID = 0;
         m_FontTexture = 0;
     }
+}
+
+bool ImGuiManager::UpdateMouseCursor()
+{
+    ImGuiIO& io = ImGui::GetIO();
+    if( io.ConfigFlags & ImGuiConfigFlags_NoMouseCursorChange )
+        return false;
+
+    ImGuiMouseCursor mouse_cursor = io.MouseDrawCursor ? ImGuiMouseCursor_None : ImGui::GetMouseCursor();
+    if( m_LastMouseCursor != mouse_cursor )
+    {
+        m_LastMouseCursor = mouse_cursor;
+    }
+
+    ImGuiMouseCursor imgui_cursor = ImGui::GetMouseCursor();
+    if( imgui_cursor == ImGuiMouseCursor_None || io.MouseDrawCursor )
+    {
+        // Hide OS mouse cursor if imgui is drawing it or if it wants no cursor.
+        ::SetCursor( 0 );
+    }
+    else
+    {
+        // Show OS mouse cursor.
+        LPTSTR win32_cursor = IDC_ARROW;
+        switch( imgui_cursor )
+        {
+        case ImGuiMouseCursor_Arrow:        win32_cursor = IDC_ARROW;    break;
+        case ImGuiMouseCursor_TextInput:    win32_cursor = IDC_IBEAM;    break;
+        case ImGuiMouseCursor_ResizeAll:    win32_cursor = IDC_SIZEALL;  break;
+        case ImGuiMouseCursor_ResizeEW:     win32_cursor = IDC_SIZEWE;   break;
+        case ImGuiMouseCursor_ResizeNS:     win32_cursor = IDC_SIZENS;   break;
+        case ImGuiMouseCursor_ResizeNESW:   win32_cursor = IDC_SIZENESW; break;
+        case ImGuiMouseCursor_ResizeNWSE:   win32_cursor = IDC_SIZENWSE; break;
+        case ImGuiMouseCursor_Hand:         win32_cursor = IDC_HAND;     break;
+        }
+        ::SetCursor( ::LoadCursor( 0, win32_cursor ) );
+    }
+
+    return true;
 }
