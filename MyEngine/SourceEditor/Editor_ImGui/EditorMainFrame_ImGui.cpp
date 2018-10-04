@@ -611,6 +611,7 @@ void EditorMainFrame_ImGui::DrawGameAndEditorWindows(EngineCore* pEngineCore)
 void EditorMainFrame_ImGui::EditMaterial(MaterialDefinition* pMaterial)
 {
     m_pMaterialBeingEdited = pMaterial;
+    ImGui::SetWindowFocus( "Material Editor" );
     m_IsMaterialEditorOpen = true;
 }
 
@@ -2436,7 +2437,7 @@ void EditorMainFrame_ImGui::AddMemoryPanel_Materials()
 
                                 if( ImGui::BeginPopupContextItem( "ContextPopup", 1 ) )
                                 {
-                                    if( ImGui::MenuItem( "Edit Material", 0, &m_IsMaterialEditorOpen ) ) { m_pMaterialBeingEdited = pMat; ImGui::CloseCurrentPopup(); }
+                                    if( ImGui::MenuItem( "Edit Material", 0, &m_IsMaterialEditorOpen ) ) { EditMaterial( pMat ); ImGui::CloseCurrentPopup(); }
                                     if( ImGui::MenuItem( "Unload File" ) )     { pMat->OnPopupClick( pMat, MaterialDefinition::RightClick_UnloadFile ); ImGui::CloseCurrentPopup(); pMat = 0; }
                                     if( ImGui::MenuItem( "Find References" ) ) { pMat->OnPopupClick( pMat, MaterialDefinition::RightClick_FindAllReferences ); ImGui::CloseCurrentPopup(); } // (%d)", pMat->GetRefCount() ) {}
                                     if( ImGui::MenuItem( "Rename" ) )
@@ -2454,8 +2455,7 @@ void EditorMainFrame_ImGui::AddMemoryPanel_Materials()
                                 {
                                     if( ImGui::IsMouseDoubleClicked( 0 ) )
                                     {
-                                        m_IsMaterialEditorOpen = true;
-                                        m_pMaterialBeingEdited = pMat;
+                                        EditMaterial( pMat );
                                     }
 
                                     ImGui::BeginTooltip();
