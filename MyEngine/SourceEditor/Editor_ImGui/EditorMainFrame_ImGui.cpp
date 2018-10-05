@@ -2183,70 +2183,51 @@ void EditorMainFrame_ImGui::AddMemoryPanel()
         }
         else
         {
-            for( int i=0; i<PanelMemoryPage_NumTypes; i++ )
+            if( ImGui::BeginTabBar( "MemoryPages" ) )
             {
-                if( i > 0 && i != 4 )
-                    ImGui::SameLine();
-            
-                if( m_CurrentMemoryPanelPage == i )
-                {
-                    ImGui::PushStyleColor( ImGuiCol_Button, (ImVec4)ImColor::HSV(0.3f, 0.6f, 0.6f) );
-                    if( ImGui::SmallButton( g_PanelMemoryPagesMenuLabels[i] ) )
-                        m_CurrentMemoryPanelPage = i;
-                    ImGui::PopStyleColor();
-                }
-                else
-                {
-                    if( ImGui::SmallButton( g_PanelMemoryPagesMenuLabels[i] ) )
-                        m_CurrentMemoryPanelPage = i;
-                }
-            }
-
-            switch( m_CurrentMemoryPanelPage )
-            {
-            case PanelMemoryPage_Materials:
+                if( ImGui::BeginTabItem( "Materials" ) )
                 {
                     AddMemoryPanel_Materials();
+                    ImGui::EndTabItem();
                 }
-                break;
 
-            case PanelMemoryPage_Textures:
+                if( ImGui::BeginTabItem( "Textures" ) )
                 {
                     AddMemoryPanel_Textures();
+                    ImGui::EndTabItem();
                 }
-                break;
 
-            case PanelMemoryPage_ShaderGroups:
+                if( ImGui::BeginTabItem( "Shaders" ) )
                 {
                     AddMemoryPanel_ShaderGroups();
+                    ImGui::EndTabItem();
                 }
-                break;
 
-            case PanelMemoryPage_SoundCues:
+                if( ImGui::BeginTabItem( "Sound Cues" ) )
                 {
+                    ImGui::Text( "TODO" );
+                    ImGui::EndTabItem();
                 }
-                break;
 
-            case PanelMemoryPage_Files:
+                if( ImGui::BeginTabItem( "Files" ) )
                 {
                     AddMemoryPanel_Files();
+                    ImGui::EndTabItem();
                 }
-                break;
 
-            case PanelMemoryPage_Buffers:
+                if( ImGui::BeginTabItem( "Buffers" ) )
                 {
+                    ImGui::Text( "TODO" );
+                    ImGui::EndTabItem();
                 }
-                break;
 
-            case PanelMemoryPage_DrawCalls:
+                if( ImGui::BeginTabItem( "Draw Calls" ) )
                 {
                     AddMemoryPanel_DrawCalls();
+                    ImGui::EndTabItem();
                 }
-                break;
 
-            case PanelMemoryPage_NumTypes:
-                MyAssert( 0 );
-                break;
+                ImGui::EndTabBar();
             }
         }
     }
