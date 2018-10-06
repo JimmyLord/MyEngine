@@ -70,6 +70,9 @@ EditorMainFrame_ImGui::EditorMainFrame_ImGui()
     m_pMaterialBeingEdited = 0;
     m_IsMaterialEditorOpen = false;
 
+    m_p2DAnimInfoBeingEdited = 0;
+    m_Is2DAnimationEditorOpen = false;
+
     m_ShowCloseEditorWarning = false;
 
     // Log Window
@@ -399,6 +402,9 @@ void EditorMainFrame_ImGui::AddEverything()
     if( m_IsMaterialEditorOpen )
         AddMaterialEditor();
 
+    if( m_Is2DAnimationEditorOpen )
+        Add2DAnimationEditor();
+
     AddLoseChangesWarningPopups();
 
     g_pEngineCore->GetEditorPrefs()->GetImGuiStylePrefs()->AddCustomizationDialog();
@@ -613,6 +619,13 @@ void EditorMainFrame_ImGui::EditMaterial(MaterialDefinition* pMaterial)
     m_pMaterialBeingEdited = pMaterial;
     ImGui::SetWindowFocus( "Material Editor" );
     m_IsMaterialEditorOpen = true;
+}
+
+void EditorMainFrame_ImGui::Edit2DAnimInfo(My2DAnimInfo* pAnimInfo)
+{
+    m_p2DAnimInfoBeingEdited = pAnimInfo;
+    ImGui::SetWindowFocus( "2D Animation Editor" );
+    m_Is2DAnimationEditorOpen = true;
 }
 
 void EditorMainFrame_ImGui::AddInlineMaterial(MaterialDefinition* pMaterial)
@@ -2723,7 +2736,21 @@ void EditorMainFrame_ImGui::AddMemoryPanel_Files()
                                 {
                                     if( ImGui::BeginPopupContextItem( "ContextPopup", 1 ) )
                                     {
-                                        if( ImGui::MenuItem( "View in Watch Window (TODO)" ) )   { pFile->OnPopupClick( pFile, MyFileObject::RightClick_ViewInWatchWindow );    ImGui::CloseCurrentPopup(); }
+                                        const char* extension = pFile->GetExtensionWithDot();
+
+                                        if( strcmp( extension, ".my2daniminfo" ) == 0 )
+                                        {
+                                            if( ImGui::MenuItem( "Edit 2D Anim Info", 0, &m_Is2DAnimationEditorOpen ) )
+                                            {
+                                                My2DAnimInfo* pAnim = g_pComponentSystemManager->GetFileInfoIfUsedByScene( pFile, SCENEID_Any )->Get2DAnimInfo();
+                                                Edit2DAnimInfo( pAnim );
+                                                ImGui::CloseCurrentPopup();
+                                            }
+                                        }
+                                        else
+                                        {
+                                            if( ImGui::MenuItem( "View in Watch Window (TODO)" ) )   { pFile->OnPopupClick( pFile, MyFileObject::RightClick_ViewInWatchWindow );    ImGui::CloseCurrentPopup(); }
+                                        }
                                         if( ImGui::MenuItem( "Open File" ) )              { pFile->OnPopupClick( pFile, MyFileObject::RightClick_OpenFile );             ImGui::CloseCurrentPopup(); }
                                         if( ImGui::MenuItem( "Open containing folder" ) ) { pFile->OnPopupClick( pFile, MyFileObject::RightClick_OpenContainingFolder ); ImGui::CloseCurrentPopup(); }
                                         if( ImGui::MenuItem( "Unload File" ) )            { pFile->OnPopupClick( pFile, MyFileObject::RightClick_UnloadFile );           ImGui::CloseCurrentPopup(); }
@@ -3231,6 +3258,124 @@ void EditorMainFrame_ImGui::AddMaterialEditor()
                 if( ImGui::Button( "Save" ) )
                 {
                     pMat->SaveMaterial( 0 );
+                }
+                ImGui::SameLine();
+                ImGui::Text( "<- MANUAL SAVE" );
+            }
+        }
+    }
+
+    ImGui::End();
+}
+
+void EditorMainFrame_ImGui::Add2DAnimationEditor()
+{
+    ImGui::SetNextWindowPos( ImVec2(556, 71), ImGuiCond_FirstUseEver );
+    ImGui::SetNextWindowSize( ImVec2(339, 349), ImGuiCond_FirstUseEver );
+    
+    if( ImGui::Begin( "2D Animation Editor", &m_Is2DAnimationEditorOpen ) )
+    {
+        // Create a context menu only available from the title bar.
+        if( ImGui::BeginPopupContextItem() )
+        {
+            if( ImGui::MenuItem( "Close" ) )
+                m_Is2DAnimationEditorOpen = false;
+
+            ImGui::EndPopup();
+        }
+
+        //m_p2DAnimInfoToPreview = m_p2DAnimInfoBeingEdited;
+        //AddMaterialPreview( false, ImVec2( 100, 100 ), ImVec4(1,1,1,1) );
+
+        {
+            My2DAnimInfo* pAnimInfo = m_p2DAnimInfoBeingEdited;
+
+            {
+                ImGui::Text( "WORK IN PROGRESS - NO UNDO - MANUAL SAVE" );
+                if( ImGui::Button( "Save" ) )
+                {
+                    pAnimInfo->SaveAnimationControlFile();
+                }
+                ImGui::SameLine();
+                ImGui::Text( "<- MANUAL SAVE" );
+                ImGui::Separator();
+            }
+
+            ImGui::Text( "%s Animations:", pAnimInfo->GetSourceFile()->GetFilenameWithoutExtension() );
+            ImGui::Columns( 2, 0, false );
+
+            // First Column: Animations
+            {
+                for( unsigned int animindex=0; animindex<pAnimInfo->GetNumberOfAnimations(); animindex++ )
+                {
+                    My2DAnimation* pAnim = pAnimInfo->GetAnimationByIndex( animindex );
+                    ImGui::Text( pAnim->GetName() );
+                }
+
+                if( pAnimInfo->GetNumberOfAnimations() < My2DAnimInfo::MAX_ANIMATIONS )
+                {
+                    if( ImGui::Button( "Add Animation" ) )
+                    {
+                        //My2DAnimInfo::StaticOnAddAnimationPressed;
+                    }
+                }
+            }
+
+            ImGui::NextColumn();
+
+            // Second Column: Frames of currently selected animation.
+            {
+                int animindex = 0;
+
+                My2DAnimation* pAnim = pAnimInfo->GetAnimationByIndex( animindex );
+                ImGui::Text( pAnim->GetName() );
+
+                unsigned int numframes = pAnim->GetFrameCount();
+
+                for( unsigned int frameindex=0; frameindex<numframes; frameindex++ )
+                {
+                    My2DAnimationFrame* pFrame = pAnim->GetFrameByIndex( frameindex );
+
+                    ImGui::PushID( pFrame );
+
+                    ImGui::Text( "Frame %d", frameindex );
+                    ImGui::SliderFloat( "Duration", &pFrame->m_Duration, 0, 1 );
+
+                    if( ImGui::Button( "Remove" ) )
+                    {
+                        //My2DAnimInfo::StaticOnRemoveFramePressed
+                    }
+
+                    //ImGui::Text( "Material (TODO)" );
+                    MaterialDefinition* pMat = pFrame->m_pMaterial;
+
+                    //ImGui::SetDragDropPayload( "Material", &pMat, sizeof(pMat), ImGuiCond_Once );
+                    m_pMaterialToPreview = pMat;
+                    ImGui::Text( "%s", m_pMaterialToPreview->GetName() );
+                    //AddMaterialPreview( false, ImVec2( 100, 100 ), ImVec4( 1, 1, 1, 0.5f ) );
+                    AddTexturePreview( false, pMat->GetTextureColor(), ImVec2( 50, 50 ), ImVec4( 1, 1, 1, 1 ) );
+                    //ImGui::EndDragDropSource();
+
+                    ImGui::PopID();
+                }
+
+                if( pAnim->GetFrameCount() < My2DAnimInfo::MAX_FRAMES_IN_ANIMATION )
+                {
+                    if( ImGui::Button( "Add Frame" ) )
+                    {
+                        //My2DAnimInfo::StaticOnAddFramePressed
+                    }
+                }
+            }
+
+            ImGui::Columns( 1 );
+
+            {
+                ImGui::Separator();
+                ImGui::Text( "MANUAL SAVE" );
+                if( ImGui::Button( "Save" ) )
+                {
+                    pAnimInfo->SaveAnimationControlFile();
                 }
                 ImGui::SameLine();
                 ImGui::Text( "<- MANUAL SAVE" );

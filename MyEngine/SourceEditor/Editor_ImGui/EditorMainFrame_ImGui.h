@@ -24,6 +24,9 @@ protected:
     MaterialDefinition* m_pMaterialBeingEdited;
     bool m_IsMaterialEditorOpen;
 
+    My2DAnimInfo* m_p2DAnimInfoBeingEdited;
+    bool m_Is2DAnimationEditorOpen;
+
     bool m_ShowCloseEditorWarning;
 
     // Log Window.
@@ -98,6 +101,7 @@ public:
     void DrawGameAndEditorWindows(EngineCore* pEngineCore);
 
     void EditMaterial(MaterialDefinition* pMaterial);
+    void Edit2DAnimInfo(My2DAnimInfo* pAnimInfo);
     void AddInlineMaterial(MaterialDefinition* pMaterial);
 
 protected:
@@ -120,6 +124,7 @@ protected:
     void AddMemoryPanel_DrawCalls();
 
     void AddMaterialEditor();
+    void Add2DAnimationEditor();
 
     void AddMaterialPreview(bool createWindow, ImVec2 requestedSize, ImVec4 tint);
     void AddTexturePreview(bool createWindow, TextureDefinition* pTex, ImVec2 requestedSize, ImVec4 tint);
