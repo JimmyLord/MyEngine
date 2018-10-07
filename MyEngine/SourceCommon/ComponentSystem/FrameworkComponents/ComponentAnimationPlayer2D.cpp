@@ -37,6 +37,7 @@ ComponentAnimationPlayer2D::~ComponentAnimationPlayer2D()
 {
     MYFW_COMPONENT_VARIABLE_LIST_DESTRUCTOR(); //_VARIABLE_LIST
 
+    delete m_pAnimInfo;
     SAFE_RELEASE( m_pAnimationFile );
 }
 

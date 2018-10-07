@@ -376,6 +376,8 @@ public:
         SAFE_RELEASE( m_pMaterial );
         SAFE_RELEASE( m_pSoundCue );
         SAFE_DELETE( m_pSpriteSheet );
+        // SAFE_DELETE( m_pPrefabFile ); // TODO: Look into why this isn't necessary.
+        SAFE_DELETE( m_p2DAnimInfo );
     }
 
     SceneID GetSceneID() { return m_SceneID; }
