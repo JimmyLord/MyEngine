@@ -2902,13 +2902,14 @@ void EditorMainFrame_ImGui::AddMaterialPreview(bool createWindow, ImVec2 request
     }
 }
 
-void EditorMainFrame_ImGui::AddTexturePreview(bool createWindow, TextureDefinition* pTex, ImVec2 requestedSize, ImVec4 tint)
+void EditorMainFrame_ImGui::AddTexturePreview(bool createWindow, TextureDefinition* pTexture, ImVec2 requestedSize, ImVec4 tint, ImVec2 startUV, ImVec2 endUV)
 {
+    MyAssert( pTexture );
+
     if( createWindow == false || ImGui::Begin( "Texture", 0, ImVec2(150, 150), 1 ) )
     {
-        TextureDefinition* pTexture = pTex;
-        int texw = pTex->GetWidth();
-        int texh = pTex->GetHeight();
+        int texw = pTexture->GetWidth();
+        int texh = pTexture->GetHeight();
 
         ImVec2 size = requestedSize;
         if( size.x == 0 )
@@ -2916,13 +2917,7 @@ void EditorMainFrame_ImGui::AddTexturePreview(bool createWindow, TextureDefiniti
         if( size.x > size.y ) size.x = size.y;
         if( size.y > size.x ) size.y = size.x;
 
-        if( pTexture )
-        {
-            int w = pTexture->GetWidth();
-            int h = pTexture->GetHeight();
-            //ImGui::ImageButton( (void*)pTex->GetTextureID(), size, ImVec2(0,(float)h/texh), ImVec2((float)w/texw,0), -1, ImVec4(0,0,0,1) );
-            ImGui::Image( (void*)pTex->GetTextureID(), size, ImVec2(0,0), ImVec2((float)w/texw,(float)h/texh), tint );
-        }
+        ImGui::Image( (void*)pTexture->GetTextureID(), size, startUV, endUV, tint );
     }
 
     if( createWindow == true )
@@ -3346,14 +3341,15 @@ void EditorMainFrame_ImGui::Add2DAnimationEditor()
                         //My2DAnimInfo::StaticOnRemoveFramePressed
                     }
 
-                    //ImGui::Text( "Material (TODO)" );
                     MaterialDefinition* pMat = pFrame->m_pMaterial;
 
                     //ImGui::SetDragDropPayload( "Material", &pMat, sizeof(pMat), ImGuiCond_Once );
                     m_pMaterialToPreview = pMat;
                     ImGui::Text( "%s", m_pMaterialToPreview->GetName() );
-                    //AddMaterialPreview( false, ImVec2( 100, 100 ), ImVec4( 1, 1, 1, 0.5f ) );
-                    AddTexturePreview( false, pMat->GetTextureColor(), ImVec2( 50, 50 ), ImVec4( 1, 1, 1, 1 ) );
+
+                    ImVec2 startUV( pMat->GetUVOffset() );
+                    ImVec2 endUV( pMat->GetUVOffset() + pMat->GetUVScale() );
+                    AddTexturePreview( false, pMat->GetTextureColor(), ImVec2( 50, 50 ), ImVec4( 1, 1, 1, 1 ), startUV, endUV );
                     //ImGui::EndDragDropSource();
 
                     ImGui::PopID();

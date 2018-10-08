@@ -127,7 +127,7 @@ protected:
     void Add2DAnimationEditor();
 
     void AddMaterialPreview(bool createWindow, ImVec2 requestedSize, ImVec4 tint);
-    void AddTexturePreview(bool createWindow, TextureDefinition* pTex, ImVec2 requestedSize, ImVec4 tint);
+    void AddTexturePreview(bool createWindow, TextureDefinition* pTexture, ImVec2 requestedSize, ImVec4 tint, ImVec2 startUV = ImVec2(0,0), ImVec2 endUV = ImVec2(1,1));
     void AddDebug_MousePicker();
 
     void OnDropEditorWindow();
