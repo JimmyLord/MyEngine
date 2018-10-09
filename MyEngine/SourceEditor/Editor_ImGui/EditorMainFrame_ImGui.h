@@ -24,6 +24,8 @@ protected:
     MaterialDefinition* m_pMaterialBeingEdited;
     bool m_IsMaterialEditorOpen;
 
+    // 2D Animation Editor
+    char m_FullPathToLast2DAnimInfoBeingEdited[MAX_PATH];
     My2DAnimInfo* m_p2DAnimInfoBeingEdited;
     bool m_Is2DAnimationEditorOpen;
 
@@ -104,6 +106,9 @@ public:
     void Edit2DAnimInfo(My2DAnimInfo* pAnimInfo);
     void AddInlineMaterial(MaterialDefinition* pMaterial);
 
+    My2DAnimInfo* Get2DAnimInfoBeingEdited();
+    void SetFullPathToLast2DAnimInfoBeingEdited(const char* fullPath);
+
 protected:
     void AddMainMenuBar();
     void AddLoseChangesWarningPopups();
@@ -127,14 +132,15 @@ protected:
     void Add2DAnimationEditor();
 
     void AddMaterialPreview(bool createWindow, ImVec2 requestedSize, ImVec4 tint);
+    void AddMaterialColorTexturePreview(bool createWindow, MaterialDefinition* pMaterial, ImVec2 requestedSize, ImVec4 tint);
     void AddTexturePreview(bool createWindow, TextureDefinition* pTexture, ImVec2 requestedSize, ImVec4 tint, ImVec2 startUV = ImVec2(0,0), ImVec2 endUV = ImVec2(1,1));
     void AddDebug_MousePicker();
 
     void OnDropEditorWindow();
 
     // Hacks for temporary window resizing.
-    Vector2 m_HACK_WindowSize;
-    void HACK_HandleWindowResize();
+    //Vector2 m_HACK_WindowSize;
+    //void HACK_HandleWindowResize();
 };
 
 #endif //__EditorMainFrame_ImGui_H__

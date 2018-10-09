@@ -127,6 +127,13 @@ void EditorPrefs::LoadPrefs()
             g_pEngineCore->GetEditorState()->GetEditorCamera()->m_pComponentTransform->ImportFromJSONObject( jObject, SCENEID_EngineObjects );
     }
 
+    // 2D Animation Editor
+    jObject = cJSON_GetObjectItem( m_jEditorPrefs, "2DAnimInfoBeingEdited" );
+    if( jObject )
+    {
+        g_pEngineCore->GetEditorMainFrame_ImGui()->SetFullPathToLast2DAnimInfoBeingEdited( jObject->valuestring );
+    }
+
     // View menu options
     cJSONExt_GetBool( m_jEditorPrefs, "View_ShowEditorIcons", &m_View_ShowEditorIcons );
     cJSONExt_GetBool( m_jEditorPrefs, "View_EditorCamDeferred", &m_View_EditorCamDeferred );
@@ -255,6 +262,13 @@ cJSON* EditorPrefs::SaveStart()
             cJSON_AddStringToObject( jPrefs, "LastSceneLoaded", g_pComponentSystemManager->GetSceneInfo( SCENEID_MainScene )->m_FullPath );
 
         cJSON_AddItemToObject( jPrefs, "EditorCam", g_pEngineCore->GetEditorState()->GetEditorCamera()->m_pComponentTransform->ExportAsJSONObject( false, true ) );
+
+        // 2D Animation Editor
+        My2DAnimInfo* pAnimInfo = g_pEngineCore->GetEditorMainFrame_ImGui()->Get2DAnimInfoBeingEdited();
+        if( pAnimInfo && pAnimInfo->GetSourceFile() )
+        {
+            cJSON_AddStringToObject( jPrefs, "2DAnimInfoBeingEdited", pAnimInfo->GetSourceFile()->GetFullPath() );
+        }
 
         //cJSON* jGameObjectFlagsArray = cJSON_CreateStringArray( g_pEngineCore->GetGameObjectFlagStringArray(), 32 );
         //cJSON_AddItemToObject( pPrefs, "GameObjectFlags", jGameObjectFlagsArray );

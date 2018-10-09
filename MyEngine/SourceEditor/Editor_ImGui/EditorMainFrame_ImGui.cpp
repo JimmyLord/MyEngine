@@ -127,7 +127,7 @@ EditorMainFrame_ImGui::EditorMainFrame_ImGui()
     g_pEngineCore->SetCommandStack( m_pCommandStack );
 
     // Hacks for temporary window resizing.
-    m_HACK_WindowSize.Set( -1, -1 );
+    //m_HACK_WindowSize.Set( -1, -1 );
 }
 
 EditorMainFrame_ImGui::~EditorMainFrame_ImGui()
@@ -402,8 +402,7 @@ void EditorMainFrame_ImGui::AddEverything()
     if( m_IsMaterialEditorOpen )
         AddMaterialEditor();
 
-    if( m_Is2DAnimationEditorOpen )
-        Add2DAnimationEditor();
+    Add2DAnimationEditor();
 
     AddLoseChangesWarningPopups();
 
@@ -741,6 +740,22 @@ void EditorMainFrame_ImGui::AddInlineMaterial(MaterialDefinition* pMaterial)
         }
     }
 }
+
+My2DAnimInfo* EditorMainFrame_ImGui::Get2DAnimInfoBeingEdited()
+{
+    if( m_Is2DAnimationEditorOpen )
+    {
+        return m_p2DAnimInfoBeingEdited;
+    }
+
+    return 0;
+}
+
+void EditorMainFrame_ImGui::SetFullPathToLast2DAnimInfoBeingEdited(const char* fullPath)
+{
+    strcpy_s( m_FullPathToLast2DAnimInfoBeingEdited, MAX_PATH, fullPath );
+}
+
 
 //====================================================================================================
 // Internal methods
@@ -2902,6 +2917,13 @@ void EditorMainFrame_ImGui::AddMaterialPreview(bool createWindow, ImVec2 request
     }
 }
 
+void EditorMainFrame_ImGui::AddMaterialColorTexturePreview(bool createWindow, MaterialDefinition* pMaterial, ImVec2 requestedSize, ImVec4 tint)
+{
+    ImVec2 startUV( pMaterial->GetUVOffset() );
+    ImVec2 endUV( pMaterial->GetUVOffset() + pMaterial->GetUVScale() );
+    AddTexturePreview( false, pMaterial->GetTextureColor(), ImVec2( 50, 50 ), ImVec4( 1, 1, 1, 1 ), startUV, endUV );
+}
+
 void EditorMainFrame_ImGui::AddTexturePreview(bool createWindow, TextureDefinition* pTexture, ImVec2 requestedSize, ImVec4 tint, ImVec2 startUV, ImVec2 endUV)
 {
     MyAssert( pTexture );
@@ -3265,6 +3287,30 @@ void EditorMainFrame_ImGui::AddMaterialEditor()
 
 void EditorMainFrame_ImGui::Add2DAnimationEditor()
 {
+    if( m_p2DAnimInfoBeingEdited != 0 )
+    {
+        m_FullPathToLast2DAnimInfoBeingEdited[0] = 0;
+    }
+
+    if( m_FullPathToLast2DAnimInfoBeingEdited[0] != 0 )
+    {
+        MyFileInfo* pFileInfo = g_pComponentSystemManager->GetFileInfoIfUsedByScene( m_FullPathToLast2DAnimInfoBeingEdited, SCENEID_Any );
+        if( pFileInfo )
+        {
+            My2DAnimInfo* pAnim = pFileInfo->Get2DAnimInfo();
+            m_Is2DAnimationEditorOpen = true;
+
+            if( pAnim->GetSourceFile() && pAnim->GetSourceFile()->IsFinishedLoading() )
+            {
+                m_p2DAnimInfoBeingEdited = pAnim;
+                m_FullPathToLast2DAnimInfoBeingEdited[0] = 0;
+            }
+        }
+    }
+
+    if( m_Is2DAnimationEditorOpen == false )
+        return;
+
     ImGui::SetNextWindowPos( ImVec2(556, 71), ImGuiCond_FirstUseEver );
     ImGui::SetNextWindowSize( ImVec2(339, 349), ImGuiCond_FirstUseEver );
     
@@ -3274,7 +3320,10 @@ void EditorMainFrame_ImGui::Add2DAnimationEditor()
         if( ImGui::BeginPopupContextItem() )
         {
             if( ImGui::MenuItem( "Close" ) )
+            {
+                m_p2DAnimInfoBeingEdited = 0;
                 m_Is2DAnimationEditorOpen = false;
+            }
 
             ImGui::EndPopup();
         }
@@ -3282,9 +3331,14 @@ void EditorMainFrame_ImGui::Add2DAnimationEditor()
         //m_p2DAnimInfoToPreview = m_p2DAnimInfoBeingEdited;
         //AddMaterialPreview( false, ImVec2( 100, 100 ), ImVec4(1,1,1,1) );
 
-        {
-            My2DAnimInfo* pAnimInfo = m_p2DAnimInfoBeingEdited;
+        My2DAnimInfo* pAnimInfo = m_p2DAnimInfoBeingEdited;
 
+        if( pAnimInfo == 0 )
+        {
+            ImGui::Text( "File still loading: %s", m_FullPathToLast2DAnimInfoBeingEdited );
+        }
+        else
+        {
             {
                 ImGui::Text( "WORK IN PROGRESS - NO UNDO - MANUAL SAVE" );
                 if( ImGui::Button( "Save" ) )
@@ -3297,7 +3351,7 @@ void EditorMainFrame_ImGui::Add2DAnimationEditor()
             }
 
             ImGui::Text( "%s Animations:", pAnimInfo->GetSourceFile()->GetFilenameWithoutExtension() );
-            ImGui::Columns( 2, 0, false );
+            ImGui::Columns( 3, 0, false );
 
             // First Column: Animations
             {
@@ -3318,12 +3372,12 @@ void EditorMainFrame_ImGui::Add2DAnimationEditor()
 
             ImGui::NextColumn();
 
-            // Second Column: Frames of currently selected animation.
+            // Second Column: Frame durations of currently selected animation.
             {
                 int animindex = 0;
 
                 My2DAnimation* pAnim = pAnimInfo->GetAnimationByIndex( animindex );
-                ImGui::Text( pAnim->GetName() );
+                //ImGui::Text( pAnim->GetName() );
 
                 unsigned int numframes = pAnim->GetFrameCount();
 
@@ -3341,16 +3395,10 @@ void EditorMainFrame_ImGui::Add2DAnimationEditor()
                         //My2DAnimInfo::StaticOnRemoveFramePressed
                     }
 
-                    MaterialDefinition* pMat = pFrame->m_pMaterial;
-
-                    //ImGui::SetDragDropPayload( "Material", &pMat, sizeof(pMat), ImGuiCond_Once );
-                    m_pMaterialToPreview = pMat;
-                    ImGui::Text( "%s", m_pMaterialToPreview->GetName() );
-
-                    ImVec2 startUV( pMat->GetUVOffset() );
-                    ImVec2 endUV( pMat->GetUVOffset() + pMat->GetUVScale() );
-                    AddTexturePreview( false, pMat->GetTextureColor(), ImVec2( 50, 50 ), ImVec4( 1, 1, 1, 1 ), startUV, endUV );
-                    //ImGui::EndDragDropSource();
+                    ImGui::Spacing();
+                    ImGui::Spacing();
+                    ImGui::Spacing();
+                    //ImGui::Text( "---------" );
 
                     ImGui::PopID();
                 }
@@ -3361,6 +3409,42 @@ void EditorMainFrame_ImGui::Add2DAnimationEditor()
                     {
                         //My2DAnimInfo::StaticOnAddFramePressed
                     }
+                }
+            }
+
+            ImGui::NextColumn();
+
+            // Third Column: Material texture previews.
+            {
+                int animindex = 0;
+
+                My2DAnimation* pAnim = pAnimInfo->GetAnimationByIndex( animindex );
+
+                unsigned int numframes = pAnim->GetFrameCount();
+
+                for( unsigned int frameindex=0; frameindex<numframes; frameindex++ )
+                {
+                    My2DAnimationFrame* pFrame = pAnim->GetFrameByIndex( frameindex );
+
+                    ImGui::PushID( pFrame );
+
+                    MaterialDefinition* pMat = pFrame->m_pMaterial;
+
+                    ImGui::Text( "%s", pMat->GetName() );
+                    AddMaterialColorTexturePreview( false, pMat, ImVec2( 50, 50 ), ImVec4( 1, 1, 1, 1 ) );
+
+                    if( ImGui::BeginDragDropTarget() )
+                    {
+                        if( const ImGuiPayload* payload = ImGui::AcceptDragDropPayload( "Material" ) )
+                        {
+                            pFrame->SetMaterial( (MaterialDefinition*)*(void**)payload->Data );
+                        }
+                        ImGui::EndDragDropTarget();
+                    }
+
+                    ImGui::Spacing();
+
+                    ImGui::PopID();
                 }
             }
 
